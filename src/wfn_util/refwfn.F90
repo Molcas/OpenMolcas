@@ -113,8 +113,9 @@ subroutine refwfn_info
 # endif
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_exists_attr, mh5_exists_dset, mh5_fetch_dset
-  use stdalloc, only: mma_allocate, mma_deallocate
 # endif
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use caspt2_global, only: Weight_ => Weight
 
 # include "caspt2.fh"
 
@@ -206,6 +207,12 @@ subroutine refwfn_info
         call AbEnd()
       end if
     end do
+  end if
+
+  if (ProgName(1:6) == 'caspt2') then
+    ! Weight_ is deallocated in PT2CLS()
+    call mma_allocate(Weight_,nRoots,Label='Weight')
+    Weight_(1:nRoots) = Weight(1:nRoots)
   end if
 
 end subroutine refwfn_info

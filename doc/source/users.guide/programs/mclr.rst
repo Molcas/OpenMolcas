@@ -376,6 +376,41 @@ A list of these keywords is given below:
               Lagrangian multipliers. This approach allows to reduce the input-output of data to/from disk during such calculations.
               </KEYWORD>
 
+:kword:`CGS`
+  Use the (preconditioned) conjugate gradient squared (CGS) method instead of the conventional PCG method.
+  This option is currently applicable to the computation of molecular gradients and NACs for SA-CASSCF.
+  CGS is automatically activated when the electronic Hessian is non-symmetric (e.g., when combined with conductor-like PCM),
+  where the conventional PCG cannot be used.
+  Note that CGS increases the computational cost by a factor of two per iteration and doubles the memory requirement.
+
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="CGS" APPEAR="Conjugate gradient squared method" KIND="SINGLE" LEVEL="ADVANCED">
+              <HELP>
+              Use the conjugate gradient square method.
+              </HELP>
+              %%Keyword: CGS <advanced>
+              Use the (preconditioned) conjugate gradient squared (CGS) method instead of the conventional PCG method.
+              This option is currently applicable to the computation of molecular gradients and NACs for SA-CASSCF.
+              CGS is automatically activated when the electronic Hessian is non-symmetric (e.g., when combined with conductor-like PCM),
+              where the conventional PCG cannot be used.
+              Note that CGS increases the computational cost by a factor of two per iteration and doubles the memory requirement.
+              </KEYWORD>
+
+:kword:`RFPErt`
+  This keyword makes the program add reaction field effects to the response
+  calculation. This is done by adding the reaction field effects to the
+  one-electron Hamiltonian as a constant perturbation, i.e. the reaction field
+  effect is not treated self consistently. The perturbation is extracted from :file:`RUNOLD`,
+  if that file is not present if defaults to :file:`RUNFILE`.
+
+  .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="RFPERT" APPEAR="Reaction field perturbation" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: RFPert  <advanced>
+              <HELP>
+              Add reaction field from environment as static perturbation
+              to the one-electron Hamiltonian.
+              The perturbation is extracted from RUNOLD if it exists, otherwise from RUNFILE.
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 

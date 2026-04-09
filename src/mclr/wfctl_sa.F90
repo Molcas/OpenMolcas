@@ -22,12 +22,16 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use gugx, only: CIS, EXS, SGS
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
-use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, iSpin, kPrint, lSave, nActEl, nAsh, nConf, nCSF, nDisp, &
-                      nElec3, nHole1, nIter, NROOTS, nRS1, nRS2, nRS3, nSym, PT2, State_Sym, STEPTYPE, TWOSTEP
+use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, iSpin, kPrint, lSave, nActEl, nAsh, nConf, nCSF, &
+                      nDisp, nElec3, nHole1, nIter, NROOTS, nRS1, nRS2, nRS3, nSym, PT2, State_Sym, STEPTYPE, TWOSTEP
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+
+use pcm_grad, only: def_solv, do_RF, iStpPCM, PCM_grad_CLag, PCM_grad_PT2
+use ISRotation, only: DMInvISR, InvSCF, ISR, ISR_final, ISR_init, ISR_projection, ISR_RHS
+use cgs_mod, only: CGS, CGS_init, CGS_final
 
 implicit none
 integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp)
@@ -35,7 +39,7 @@ logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iR, iSym, Iter, jSpin, Left, lLine, lPaper, Lu_50, &
                      nConf3, niPre2, nPre2
-real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk, rEss
 logical(kind=iwp) :: CI, cnvrgd, lPrint
 character(len=8) :: Fmt2
 integer(kind=iwp), allocatable :: iPre(:)
@@ -71,6 +75,8 @@ end if
 if (btest(kprint,1)) lprint = .true.
 isym = 1
 nconf1 = ncsf(State_Sym)
+!! iStpPCM has been set somewhere; just a reminder
+iStpPCM = 1
 
 CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
@@ -101,6 +107,9 @@ call CIDia_SA(State_Sym,rCHC,Fancy)
 call mma_deallocate(rCHC)
 
 call ipOut(ipdia)
+
+! initialize CGS and some for InvSCF/InvEne
+call ISR_Init(iPL,do_RF,def_solv)
 
 ! Allocate disk/memory space
 
@@ -151,6 +160,7 @@ else
   call mma_allocate(Temp4,nDensC,Label='Temp4')
   call mma_allocate(Sc1,nDens,Label='Sc1')
   call mma_allocate(Sc2,nDensC,Label='Sc2')
+  if (CGS) call CGS_init(nconf1,nRoots,nDens)
 
   do iDisp=1,nDisp
     Kappa(:) = Zero
@@ -178,16 +188,74 @@ else
     !                                                                  *
     call mma_allocate(SLag,nRoots,nRoots,Label='SLag')
     SLag(:,:) = Zero
-    if (PT2) call RHS_PT2(Sc1,W(ipST)%A,Slag)
-
-    if (isNAC) then
-      call RHS_NAC(Temp3,SLag)
+    if (PT2) then
+      call RHS_PT2(Sc1,W(ipST)%A,SLag)
+      ! The order of CSF coefficients in CASPT2 and MCLR is somehow
+      ! different, so the CI lagrangian computed in CASPT2 must be
+      ! reordered so that it can be used here.
+      call mma_allocate(wrk,nConf1,Label='wrk')
+      do iR=1,nRoots
+        wrk(:) = W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR)
+        call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,wrk,1,State_Sym,State_Sym)
+        NCSF(1:nSym) = CIS%NCSF(1:nSym)
+        NCONF = CIS%NCSF(State_Sym)
+        call mkGuga_Free(SGS,CIS,EXS)
+        W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
+      end do
+      call mma_deallocate(wrk)
+      ! SLag given by the CASPT2 routine should be treated as the
+      ! initial rotation of the reference states.
+      ! If we need to treat parameters as internal rotations, they
+      ! will be computed later using configuration parameters.
+      if (do_RF) call PCM_grad_PT2()
     else
-      call RHS_SA(Temp3,SLag)
+      W(ipST)%A(1:nconf3*nRoots) = Zero
     end if
 
-    if (PT2) Temp3(:) = Temp3(:)+Sc1(:)
-    call mma_deallocate(SLag)
+    if (do_RF .or. PT2) then
+      !! SA-CASSCF/PCM may not be stationary wrt CI coefficients
+      !! Use ipS2 for the moment (some intermediate vectors are SD but output vectors are CSF)
+      if (do_RF) then
+        Call PCM_grad_CLag(1,ipCI,ipS2)
+        W(ipS2)%A(1:nconf1*nRoots) = W(ipS2)%A(1:nconf1*nRoots) + W(ipST)%A(1:nconf1*nRoots)
+      else if (PT2) then
+        W(ipS2)%A(1:nconf1*nRoots) = W(ipST)%A(1:nconf1*nRoots)
+      end if
+      if (InvSCF) then
+        call ISR_RHS(W(ipCI)%A,W(ipS2)%A)
+        Call ISR_Projection(W(ipCI)%A,W(ipS2)%A)
+        SLag(:,:) = SLag(:,:) + ISR%Rvec(:,:)
+        ISR%Rvec(:,:) = Zero
+      end if
+      W(ipST)%A(1:nconf1*nRoots) = W(ipS2)%A(1:nconf1*nRoots)
+      W(ipS2)%A(1:nconf3*nRoots) = Zero
+      ! If SLag is nonzero, the contribution comes from the rotation of the model state (i.e., MS-type CASPT2)
+      ! but should not be taken as the initial residue of the internal rotation, so SLag should not be added to Rvec.
+!     if (.not.InvSCF) ISR%Rvec(:,:) = ISR%Rvec(:,:) + SLag
+    end if
+
+    if (isNAC) then
+      call RHS_NAC(Temp3,SLag,ipS2)
+    else
+      call RHS_SA(Temp3,SLag,ipS2)
+    end if
+    call mma_deallocate(SLag,safe='*')
+
+    ! Add implicit CI derivative contributions (if evaluated in rhs_sa/nac)
+    ! due to the non-iterative internal state rotations
+    if (do_RF) then
+      W(ipST)%A(1:nconf1*nRoots) = W(ipST)%A(1:nconf1*nRoots) + W(ipS2)%A(1:nconf1*nRoots)
+      Call ISR_RHS(W(ipCI)%A,W(ipST)%A)
+      Call ISR_Projection(W(ipCI)%A,W(ipST)%A)
+    end if
+
+    ! Temp3: SA-CASSCF contributions
+    ! Sc1  : CASPT2 contributions
+    if (PT2) then
+      Temp3(:) = Temp3(:) + Sc1(:)
+      Sc1(:) = Zero
+    End If
+
     call opOut(ipci)
 
     if (lprint) write(u6,*) '       Iteration       Delta           Res(kappa)       Res(CI)          DeltaK           DeltaC'
@@ -195,30 +263,19 @@ else
     iRHSDisp(iDisp) = iDis
     call Compress(Temp3,Sigma,iSym)
     r1 = ddot_(nDensC,Sigma,1,Sigma,1)
-    if (PT2) R1 = R1+DDot_(nConf1*nRoots,W(ipST)%A,1,W(ipST)%A,1)
+    if (PT2 .or. do_RF) R1 = R1+DDot_(nConf1*nRoots,W(ipST)%A,1,W(ipST)%A,1)
     if (debug) write(u6,*) 'Hi how about r1',r1
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
-    if (PT2) then
+    if (PT2 .or. do_RF) then !! .or. unequal_SA) then
       W(ipST)%A(1:nConf1*nRoots) = -W(ipST)%A(1:nConf1*nRoots)
       if (CI) then
-        ! The order of CSF coefficients in CASPT2 and MCLR is somehow
-        ! different, so the CI lagrangian computed in CASPT2 must be
-        ! reordered so that it can be used here.
-        call mma_allocate(wrk,nConf1,Label='wrk')
-        do iR=1,nRoots
-          wrk(:) = W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR)
-          call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,wrk,1,State_Sym,State_Sym)
-          NCSF(1:nSym) = CIS%NCSF(1:nSym)
-          NCONF = CIS%NCSF(State_Sym)
-          call mkGuga_Free(SGS,CIS,EXS)
-
-          W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
-        end do
-        call mma_deallocate(wrk)
-
         ! precondition (z0 = M^{-1}*r0)
-        call DMinvCI_sa(ipST,W(ipS2)%A,fancy)
+        if (CGS) then
+          W(ipS2)%A(1:nConf1*nRoots) = W(ipST)%A(1:nConf1*nRoots)
+        else
+          call DMinvCI_sa(ipST,W(ipS2)%A,fancy)
+        end if
         call opOut(ipci)
         call opOut(ipdia)
         ! z0 <= p0
@@ -235,8 +292,13 @@ else
     call ipOut(ipCIT)
     Sigma(:) = -Sigma(:)
 
+    iter = 1
     call ipIn(ipPre2)
-    call DMInvKap(W(ipPre2)%A,iPre,Sigma,Kappa,Temp3,isym,iter)
+    if (CGS) then
+      Kappa(1:nDensC) = Sigma(1:nDensC)
+    else
+      call DMInvKap(W(ipPre2)%A,iPre,Sigma,Kappa,Temp3,isym,iter)
+    end if
 
     call opOut(ippre2)
     r2 = ddot_(nDensC,Kappa,1,Kappa,1)
@@ -246,19 +308,40 @@ else
 
     dKappa(:) = Kappa(:)
 
-    deltaC = Zero
-    if (PT2) deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
-    call ipOut(ipcid)
-    deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
-    Kappa(:) = Zero
-    delta = deltac+deltaK
+    if (.not.InvSCF) then
+      ISR%Rvec(:,:) = -ISR%Rvec(:,:)
+      if (.not.CGS) then
+        Call DMInvISR(ISR%Rvec,ISR%prec)
+        ISR%p(:,:) = ISR%prec(:,:)
+      end if
+    end if
+
+    if (CGS) then
+      call cgs_pre(nDensC,nConf1,nRoots,Kappa,dKappa,Sigma,Fancy,Sc1, &
+                   ipCI,ipCId,ipDia,ipPre2,iPre,ipST,ipS1,delta,iSym,iter)
+    else
+      deltaC = Zero
+      if (PT2) deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
+      call ipOut(ipcid)
+      deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
+      Kappa(:) = Zero
+      delta = deltac+deltaK
+    end if
     delta0 = delta
     iter = 1
+    iStpPCM = 2
     !-------------------------------------------------------------------
 
     cnvrgd = .true.
     do
       if (delta == Zero) exit
+      if (CGS) then
+        !! (Preconditioned) Conjugate Gradient Squared (CGS) method, instead of the conventional PCG
+        call cgs_x(nDensC,nConf1,nRoots,iSym,jspin,iter,ipCI,ipDia,ipS1,ipS2,ipST,ipCIT,ipCId,ipPre2, &
+                   reco,Fancy,Kappa,dKappa,Sigma,Temp4,Sc1,iPre,delta,resk,resci,deltak,deltac)
+        !! end of CGS
+      else
+        !! standard PCG starts here
 
       call TimesE2(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
 
@@ -276,6 +359,7 @@ else
       call ipIn(ipS1)
       call ipIn(ipCId)
       rAlphaC = ddot_(nConf1*nroots,W(ipS1)%A,1,W(ipCId)%A,1)
+       if (.not.InvSCF) rAlphaC=rAlphaC + ddot_(nRoots**2,ISR%Ap,1,ISR%p,1)
       rAlpha = delta/(rAlphaK+rAlphaC)
 
       !----------------------------------------------------------------*
@@ -296,6 +380,12 @@ else
       call opOut(ipS1)
       call ipIn(ipST)
       resci = sqrt(ddot_(nconf1*nroots,W(ipST)%A,1,W(ipST)%A,1))
+      if (.not.InvSCF) then
+        ISR%Xvec(:,:) = ISR%Xvec(:,:) + ralpha*ISR%p(:,:)
+        ISR%Rvec(:,:) = ISR%Rvec(:,:) - ralpha*ISR%Ap(:,:)
+        ress=sqrt(ddot_(nRoots**2,ISR%Rvec,1,ISR%Rvec,1))
+        resci = resci + ress
+      end if
 
       !----------------------------------------------------------------*
       ! Precondition......
@@ -313,6 +403,8 @@ else
       call DMInvKap(W(ipPre2)%A,iPre,Sigma,Sc2,Sc1,iSym,iter)
       call opOut(ippre2)
 
+      if (.not.InvSCF) Call DMInvISR(ISR%Rvec,ISR%prec)
+
       !----------------------------------------------------------------*
       !      s:Sigma (k+1)     s:Sigma (k+1)
       ! Beta=-------        =  -------------
@@ -324,6 +416,7 @@ else
 
       deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
       call ipOut(ipST)
+      if (.not.InvSCF) deltaC = deltaC + ddot_(nRoots**2,ISR%Rvec,1,ISR%prec,1)
 
       deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
       if (.not. CI) then
@@ -338,7 +431,9 @@ else
         dKappa(:) = rBeta*dKappa(:)+Sc2(:)
         call opOut(ipS2)
         call ipOut(ipCID)
+        if (.not.InvSCF) ISR%p(:,:) = ISR%prec(:,:) + rbeta*ISR%p(:,:)
       end if
+      end if ! CGS vs PCG
 
       !  ######  #    #  #####        #####    ####    ####
       !  #       ##   #  #    #       #    #  #    #  #    #
@@ -397,6 +492,10 @@ else
     iCISigDisp(iDisp) = iDis
     call ipin(ipST)
     call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
+
+    !! Save the total internal rotations so that CIDens_sa can use
+    !! the parameters to generate correct densities
+    If (.not.InvSCF) ISR%p(:,:) = ISR%Xvec(:,:)
   end do ! iDisp
 
   call mma_deallocate(Temp4)
@@ -407,6 +506,9 @@ else
   call mma_deallocate(Sc2)
   call mma_deallocate(Sc1)
 end if
+
+if (CGS) call CGS_final()
+call ISR_final()
 
 ! Free all memory and remove from disk all data
 ! related to this symmetry
@@ -425,6 +527,7 @@ if (doDMRG) then  ! yma
   nash(:) = RGras2(:)
   nrs2(:) = RGras2(:)
 end if
+iStpPCM = 3
 
 !----------------------------------------------------------------------*
 !     Exit                                                             *

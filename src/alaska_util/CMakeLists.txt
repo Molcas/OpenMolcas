@@ -41,6 +41,7 @@ set (sources
      ovrmmg.F90
      pcmgrd.F90
      pcmmmg.F90
+     pcm_alaska.F90
      prepre_g.F90
      prgrad.F90
      prjgrd.F90
@@ -66,6 +67,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      grd_interface.F90
+     pcm_alaska.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

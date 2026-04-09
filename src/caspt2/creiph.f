@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_global, only:iPrGlb
+      use caspt2_global, only:iPrGlb, Weight_ => Weight
       use PrintLevel, only: usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use gugx, only: L2ACT, LEVEL
@@ -100,6 +100,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
 * Initialize WEIGHT() (which is unused) just so detection
 * of uninitialized memory does not get its knickers twisted
       CALL DCOPY_(MXROOT,[0.0D0],0,WEIGHT,1)
+      WEIGHT(1:NROOTS) = WEIGHT_(1:NROOTS)
       CALL WR_RASSCF_INFO(JOBMIX,1,iAd15,
      &                    NACTEL,ISPIN,NSYM,STSYM,
      &                    NFRO,NISH,NASH,NDEL,NBAS,8,

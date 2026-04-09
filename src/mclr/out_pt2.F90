@@ -21,6 +21,11 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
+use input_mclr, only: ntBtri
+use PCM_grad, only: DSCFAO, DSSAO, PCMSCFAO, PCMSCFMO, PCM_grad_D2v
+use rctfld_module, only: lRF
+use ISRotation, only: ISR_final2
+
 implicit none
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
 integer(kind=iwp) :: i, iA, iAA, iBas, iDisk, idum(7,8), ii, iikl, ij, ij1, ij2, ijkl, ijlk, iLen, iMax, iOff, ipCIP, iR, iS, &
@@ -635,6 +640,14 @@ end if
 if (override) mstate(1:1) = '+'
 call Put_cArray('MCLR Root',mstate,16)
 
+!! In the end, it may be useful to generate ASCs using the relaxed
+!! density matrix for non-equilibrium solvation model
+if (lRF) then
+  Call Get_dArray('D1aoVar',DSSAO,ntBtri)
+  call unfold(DSSAO,ntot1,DSCFAO,nLCMO,nSym,nBas)
+  call PCM_grad_D2V(DSCFAO,PCMSCFMO,PCMSCFAO,.false.,.false.,.false.,.false.)
+end if
+
 call mma_deallocate(K1)
 call mma_deallocate(K2)
 call mma_deallocate(DAO)
@@ -647,6 +660,7 @@ call mma_deallocate(OCCU)
 call mma_deallocate(CMON)
 call mma_deallocate(Dtmp)
 call mma_deallocate(D_K)
+call ISR_final2()
 
 call ipclose(-1)
 

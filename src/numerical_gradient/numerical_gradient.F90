@@ -315,7 +315,10 @@ else
 
     ! If this is a MM atom, do not make displacements
 
-    if (DoTinker .and. (IsMM(i) == 1)) iDispXYZ(:) = 0
+    if (DoTinker) then
+      !! IsMM is not allocated if DoTinker = .false.
+      if (IsMM(i) == 1) iDispXYZ(:) = 0
+    end if
     DispX = iDispXYZ(1) /= 0
     DispY = iDispXYZ(2) /= 0
     DispZ = iDispXYZ(3) /= 0

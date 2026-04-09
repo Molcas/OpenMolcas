@@ -30,6 +30,7 @@ use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, i
                       StepType, TitleIn, TwoStep, Weight
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
+use PCM_grad, only: RFPERT
 
 implicit none
 integer(kind=iwp), intent(in) :: iPL
@@ -246,6 +247,15 @@ if (iPL >= 2) then
       write(u6,Fmt2//'A,I3)') 'Linear response function is computed for Restricted Hartree-Fock wavefunction'
     end if
   end if
+
+  If ( RFpert ) then
+    Write(u6,*)
+    Write(u6,Fmt1)'Reaction field specifications:'
+    Write(u6,Fmt1)'------------------------------'
+    Write(u6,*)
+    Write(u6,'(6X,A)')'The Reaction field is added as a perturbation and has been determined in a previous calculation'
+    Write(u6,*)
+  End If
   !                                                                    *
   !*********************************************************************
   !                                                                    *

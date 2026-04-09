@@ -18,6 +18,7 @@ use input_mclr, only: nCSF, nRoots, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
 use Definitions, only: wp, iwp
+use ISRotation, only: unequal_SA
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nh2, ipS1
@@ -33,6 +34,10 @@ call ipin(ipS1)
 call ipin(ipCI)
 
 W(ipS1)%A(1:nroots*ncsf(STATE_SYM)) = Two*W(ipS1)%A(1:nroots*ncsf(STATE_SYM))
+
+! if not equally state-averaged, do not project out the internal space contributions here
+if (unequal_SA) return
+
 call mma_allocate(R,nroots,nroots,label='R')
 
 do i=1,nroots
