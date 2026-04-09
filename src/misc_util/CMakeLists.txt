@@ -64,7 +64,6 @@ set (sources
      int2real.F90
      irdone.F90
      is_first_iter.F90
-     isconstant.F90
      issymmetric.F90
      iswap.F90
      itrnsps.F90
@@ -82,7 +81,6 @@ set (sources
      nrmclc.F90
      ntoken.F90
      oa.F90
-     obeyscauchyschwarz.F90
      one_ulp.c
      onebas.F90
      onedat.F90
