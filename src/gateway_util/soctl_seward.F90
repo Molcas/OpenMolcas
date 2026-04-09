@@ -228,7 +228,7 @@ if (nIrrep /= 1) then
 
           ! ECP case
 
-          call ECP_Shells(dbsc(iCnttp)%AtmNr,list)
+          call ECP_Shells(dbsc(iCnttp)%AtmNr,dbsc(iCnttp)%cPP,list)
 
           ! No core to freeze!
 
@@ -557,7 +557,7 @@ else
       lMax = dbsc(iCnttp)%nVal-1
       call OrbType(dbsc(iCnttp)%AtmNr,List_AE,31)
       if (kECP) then
-        call ECP_Shells(dbsc(iCnttp)%AtmNr,list)
+        call ECP_Shells(dbsc(iCnttp)%AtmNr,dbsc(iCnttp)%cPP,list)
         nCore_Sh(0:lmax) = 0
       else
         List(:) = List_AE

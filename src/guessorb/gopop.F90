@@ -29,20 +29,13 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: Eps(n), PrThr, GapThr
 real(kind=wp), intent(inout) :: Occ(n)
 real(kind=wp), intent(out) :: Scr(n)
 logical(kind=iwp), intent(in) :: PrtEor
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-!real(kind=wp) ::  eFermi
-real(kind=wp) :: TotNucChg, eGap, OccNo, eLo, eHi, tmp
-integer(kind=iwp) :: nElec, nAlpha, nBeta, nOcc, nAct, kLo, kHi, i, j, k, m
+integer(kind=iwp) :: i, j, k, kHi, kLo, m, nAct, nAlpha, nBeta, nElec, nOcc
+real(kind=wp) :: eGap, eHi, eLo, OccNo, tmp, TotNucChg
 
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
@@ -51,9 +44,7 @@ integer(kind=iwp) :: nElec, nAlpha, nBeta, nOcc, nAct, kLo, kHi, i, j, k, m
 !----------------------------------------------------------------------*
 ! Sort orbital energies                                                *
 !----------------------------------------------------------------------*
-do i=1,n
-  Scr(i) = Eps(i)
-end do
+Scr(:) = Eps(:)
 do i=1,n
   j = i
   do k=i,n
@@ -236,6 +227,5 @@ end do
 !----------------------------------------------------------------------*
 ! Done!                                                                *
 !----------------------------------------------------------------------*
-return
 
 end subroutine GoPop

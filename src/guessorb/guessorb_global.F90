@@ -18,19 +18,25 @@ private
 
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: MxBasis = 5000
-real(kind=wp) :: xCharge(MxAtom), PrThr, SThr, TThr, GapThr
-integer(kind=iwp) :: nSym, nBas(MxSym), nOcc(MxSym), nVir(MxSym), nDel(MxSym), nNuc, iPrFmt
+integer(kind=iwp) :: iPrFmt, nBas(MxSym), nDel(MxSym), nNuc, nOcc(MxSym), nSym, nVir(MxSym)
+real(kind=wp) :: GapThr, PrThr, SThr, TThr
 character(len=LenIn) :: AtName(MxAtom)
 character(len=LenIn8) :: Label(MxBasis)
-logical(kind=iwp) :: PrintMOs, PrintEor, PrintPop
+logical(kind=iwp) :: PrintEor, PrintMOs, PrintPop
 #ifdef _HDF5_
-integer(kind=iwp) :: wfn_fileid, wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+integer(kind=iwp) :: wfn_energy, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+#endif
+#ifdef _OLD_
+real(kind=wp) :: xCharge(MxAtom)
 #endif
 
-public :: GapThr, iPrFmt, Label, MxAtom, MxBasis, MxSym, AtName, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, PrintPop, &
-          PrThr, SThr, TThr, xCharge
+public :: AtName, GapThr, iPrFmt, Label, MxAtom, MxBasis, MxSym, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, PrintPop, &
+          PrThr, SThr, TThr
 #ifdef _HDF5_
 public :: wfn_energy, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
+#endif
+#ifdef _OLD_
+public :: xCharge
 #endif
 
 end module GuessOrb_Global

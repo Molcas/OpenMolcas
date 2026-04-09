@@ -27,43 +27,27 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine Fmod1n(StandAlone)
+!#ifdef _DEBUGPRINT_
+subroutine Fmod1n()
 
+use Index_Functions, only: nTri_Elem
 use GuessOrb_Global, only: Label, MxBasis, MxSym, nBas, nSym, PrintMOs
 use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-logical(kind=iwp), intent(in) :: StandAlone
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-logical(kind=iwp) :: Debug, Trace
-integer(kind=iwp) :: iSym, iBas, jBas, kBas, iOff, iOpt, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iSymlb, iRc, nBasMax, nBasTot, &
-                     nTriTot, nSqrTot, i, k, Lu, iDummy(7,8), RC, iComp
-real(kind=wp) :: orbene(MxBasis), Sik, Sjk, eps, dsum
-real(kind=wp), allocatable :: CMO(:), Fock(:), EVec(:), Ovl(:), Nrm(:), SFk(:), Hlf(:), TFk(:), Aux1(:)
+integer(kind=iwp) :: i, iBas, iComp, iDummy(7,8), iOff, iOpt, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iRc, iSym, iSymlb, jBas, k, &
+                     kBas, Lu, nBasMax, nBasTot, nSqrTot, nTriTot, RC
+real(kind=wp) :: dsum, eps, orbene(MxBasis), Sik, Sjk
+real(kind=wp), allocatable :: Aux1(:), CMO(:), EVec(:), Fock(:), Hlf(:), Nrm(:), Ovl(:), SFk(:), TFk(:)
 character(len=80) :: Title
 character(len=8) :: Lbl
-!character(len=4) :: AtName(MxAtom)
-!character(len=4) :: Label(2,MxBasis)
 
-!----------------------------------------------------------------------*
-! Some setup                                                           *
-!----------------------------------------------------------------------*
-if (StandAlone) then
-  Debug = .false.
-  Trace = .false.
-else
-  Debug = .false.
-  Trace = .false.
-end if
-if (Trace) write(u6,*) '>>> Entering fmod1n'
 !----------------------------------------------------------------------*
 ! Setup various counters.                                              *
 !----------------------------------------------------------------------*
@@ -73,7 +57,7 @@ nTriTot = 0
 nSqrTot = 0
 do iSym=1,nSym
   if (nBasMax < nBas(iSym)) nBasMax = nBas(iSym)
-  nTriTot = nTriTot+nBas(iSym)*(nBas(iSym)+1)/2
+  nTriTot = nTriTot+nTri_Elem(nBas(iSym))
   nSqrTot = nSqrTot+nBas(iSym)*nBas(iSym)
   nBasTot = nBasTot+nBas(iSym)
 end do
@@ -93,9 +77,9 @@ call mma_allocate(Fock,nTriTot)
 ipFock(1) = 1
 call mma_allocate(EVec,nBasTot)
 do iSym=1,nSym-1
-  ipFock(iSym+1) = ipFock(iSym)+nBas(iSym)*(nBas(iSym)+1)/2
+  ipFock(iSym+1) = ipFock(iSym)+nTri_Elem(nBas(iSym))
 end do
-call dCopy_(nTriTot,[Zero],0,Fock,1)
+Fock(:) = Zero
 !----------------------------------------------------------------------*
 ! Create model Fock operator.                                          *
 !----------------------------------------------------------------------*
@@ -121,10 +105,8 @@ ipX = 1
 ipY = 1
 do iSym=1,nSym
   call goPickup(Ovl(ipX),Nrm(ipY),nBas(iSym))
-  do iBas=1,nBas(iSym)
-    Nrm(ipY-1+iBas) = One/sqrt(Nrm(ipY-1+iBas))
-  end do
-  ipX = ipX+nBas(iSym)*(nBas(iSym)+1)/2
+  Nrm(ipY:ipY+nBas(iSym)-1) = One/sqrt(Nrm(ipY:ipY+nBas(iSym)-1))
+  ipX = ipX+nTri_Elem(nBas(iSym))
   ipY = ipY+nBas(iSym)
 end do
 !----------------------------------------------------------------------*
@@ -141,19 +123,19 @@ do iSym=1,nSym
         eps = EVec(iOff+kBas)
         i = max(iBas,kBas)
         k = min(iBas,kBas)
-        Sik = Ovl(ipX-1+i*(i-1)/2+k)*Nrm(ipY-1+iBas)*Nrm(ipY-1+kBas)
+        Sik = Ovl(ipX-1+nTri_Elem(i-1)+k)*Nrm(ipY-1+iBas)*Nrm(ipY-1+kBas)
         i = max(jBas,kBas)
         k = min(jBas,kBas)
-        Sjk = Ovl(ipX-1+i*(i-1)/2+k)*Nrm(ipY-1+jBas)*Nrm(ipY-1+kBas)
+        Sjk = Ovl(ipX-1+nTri_Elem(i-1)+k)*Nrm(ipY-1+jBas)*Nrm(ipY-1+kBas)
         dsum = dsum+eps*Sik*Sjk
       end do
-      Fock(ipFock(iSym)-1+iBas*(iBas-1)/2+jBas) = dsum
+      Fock(ipFock(iSym)-1+nTri_Elem(iBas-1)+jBas) = dsum
     end do
   end do
-  if (Debug) then
-    call TriPrt('Modified atomic Fock matrix','(12f12.6)',Fock(ipFock(iSym)),nBas(iSym))
-  end if
-  ipX = ipX+nBas(iSym)*(nBas(iSym)+1)/2
+# ifdef _DEBUGPRINT_
+  call TriPrt('Modified atomic Fock matrix','(12f12.6)',Fock(ipFock(iSym)),nBas(iSym))
+# endif
+  ipX = ipX+nTri_Elem(nBas(iSym))
   ipY = ipY+nBas(iSym)
   iOff = iOff+nBas(iSym)
 end do
@@ -162,21 +144,21 @@ end do
 !----------------------------------------------------------------------*
 ipX = 1
 do iSym=1,nSym
-  if (Debug) then
-    write(u6,*) '***'
-    write(u6,*) '*** Symmetry',iSym
-    write(u6,*) '***'
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) '***'
+  write(u6,*) '*** Symmetry',iSym
+  write(u6,*) '***'
+# endif
   do iBas=1,nBas(iSym)
     do jBas=1,iBas
-      Fock(ipFock(iSym)-1+iBas*(iBas-1)/2+jBas) = Fock(ipFock(iSym)-1+iBas*(iBas-1)/2+jBas)*sqrt(Ovl(ipX-1+iBas*(iBas+1)/2))* &
-                                                  sqrt(Ovl(ipX-1+jBas*(jBas+1)/2))
+      Fock(ipFock(iSym)-1+nTri_Elem(iBas-1)+jBas) = Fock(ipFock(iSym)-1+nTri_Elem(iBas-1)+jBas)* &
+                                                    sqrt(Ovl(ipX-1+nTri_Elem(iBas)))*sqrt(Ovl(ipX-1+nTri_Elem(jBas)))
     end do
   end do
-  if (Debug) then
-    call TriPrt('Scaled atomic Fock matrix','(12f12.6)',Fock(ipFock(iSym)),nBas(iSym))
-  end if
-  ipX = ipX+nBas(iSym)*(nBas(iSym)+1)/2
+# ifdef _DEBUGPRINT_
+  call TriPrt('Scaled atomic Fock matrix','(12f12.6)',Fock(ipFock(iSym)),nBas(iSym))
+# endif
+  ipX = ipX+nTri_Elem(nBas(iSym))
 end do
 !----------------------------------------------------------------------*
 ! Release overlap and norm arrays.                                     *
@@ -188,28 +170,28 @@ call mma_deallocate(Ovl)
 !----------------------------------------------------------------------*
 call mma_allocate(SFk,nBasMax*nBasMax)
 call mma_allocate(Hlf,nBasMax*nBasMax)
-call mma_allocate(TFk,nBasMax*(nBasMax+1)/2)
+call mma_allocate(TFk,nTri_Elem(nBasMax))
 iOff = 0
 do iSym=1,nSym
-  if (Debug) then
-    write(u6,*) '***'
-    write(u6,*) '*** Symmetry',iSym
-    write(u6,*) '***'
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) '***'
+  write(u6,*) '*** Symmetry',iSym
+  write(u6,*) '***'
+# endif
   if (nBas(iSym) > 0) then
     call Square(Fock(ipFock(iSym)),SFk,1,nBas(iSym),nBas(iSym))
     call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,SFk,nBas(iSym),CMO(ipCMO(iSym)),nBas(iSym),Zero,Hlf,nBas(iSym))
     call DGEMM_Tri('T','N',nBas(iSym),nBas(iSym),nBas(iSym),One,CMO(ipCMO(iSym)),nBas(iSym),Hlf,nBas(iSym),Zero,TFk,nBas(iSym))
-    if (Debug) then
-      call TriPrt('Transformed Fock matrix','(12f12.6)',TFk,nBas(iSym))
-    end if
+#   ifdef _DEBUGPRINT_
+    call TriPrt('Transformed Fock matrix','(12f12.6)',TFk,nBas(iSym))
+#   endif
   end if
 
   !call Jacob(TFk,CMO(ipCMO(iSym)),nbas(iSym),nbas(iSym))
   call NIdiag(TFk,CMO(ipCMO(iSym)),nbas(iSym),nbas(iSym))
-  if (Debug) then
-    call TriPrt('Diagonalized atomic Fock matrix','(12f12.6)',TFk,nBas(iSym))
-  end if
+# ifdef _DEBUGPRINT_
+  call TriPrt('Diagonalized atomic Fock matrix','(12f12.6)',TFk,nBas(iSym))
+# endif
   call goPickup(TFk,orbene(iOff+1),nBas(iSym))
   call goSort(orbene(iOff+1),CMO(ipCMO(iSym)),nBas(iSym),nBas(iSym))
   iOff = iOff+nBas(iSym)
@@ -220,9 +202,7 @@ call mma_deallocate(SFk)
 !----------------------------------------------------------------------*
 ! Present data.                                                        *
 !----------------------------------------------------------------------*
-if (PrintMOs) then
-  call PriMO('Start orbitals',.false.,.true.,Zero,1.0e6_wp,nSym,nBas,nBas,Label,orbene,orbene,CMO(ipCMO(1)),3)
-end if
+if (PrintMOs) call PriMO('Start orbitals',.false.,.true.,Zero,1.0e6_wp,nSym,nBas,nBas,Label,orbene,orbene,CMO(ipCMO(1)),3)
 call put_darray('Guessorb',CMO(ipCMO(1)),nSqrTot)
 call put_darray('Guessorb energies',orbene,nBasTot)
 call Put_iArray('nOrb',nBas,nSym)
@@ -238,8 +218,5 @@ call mma_deallocate(Aux1)
 call mma_deallocate(Evec)
 call mma_deallocate(Fock)
 call mma_deallocate(CMO)
-if (trace) write(u6,*) '<<< Exiting fmod1n'
-
-return
 
 end subroutine Fmod1n
