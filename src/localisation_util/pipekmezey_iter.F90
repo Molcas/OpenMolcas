@@ -58,7 +58,8 @@ character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
 
 real(kind=wp) :: DD,Thr
-real(kind=wp),parameter :: gekthr_kappa=0.1_wp, gekthr_grad=0.1_wp
+!real(kind=wp),parameter :: gekthr_kappa=0.1_wp, gekthr_grad=0.1_wp
+real(kind=wp),parameter :: gekthr_kappa=0.010_wp, gekthr_grad=1.0_wp
 
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
@@ -91,14 +92,7 @@ call mkdir_(NewDir)
 
 if (.not. Silent) call CWTime(C1,W1)
 
-#ifdef _DEBUGPRINT_
-write(u6,'(/A)') 'Check the orthonormality of the orbitals'
-write(u6,*) '========================================'
-call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
-call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
-call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
-#endif
-
+call OrthoCheck()
 
 ! to allow property printing later
 !call Put_cArray('Relax Method','LOCALIS ',8)
@@ -341,14 +335,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     end select
 end do !Iterations
 
+call OrthoCheck()
 
-#ifdef _DEBUGPRINT_
-write(u6,'(/A)') 'Check the orthonormality of the orbitals'
-write(u6,*) '========================================'
-call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
-call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
-call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
-#endif
 
 ! Print convergence message.
 
@@ -491,5 +479,53 @@ subroutine moldenIM()
 
 end subroutine moldenIM
 #endif
+
+subroutine OrthoCheck()
+    ! check that the orbitals are orthonormal (if not -> the trafo matrix was not constructed correctly)
+
+    real(kind=wp), allocatable :: CtS(:,:),CtSC(:,:)
+    real(kind=wp) :: norm, ThrOrtho = 1e-12
+
+    call mma_allocate(CtS,nOrb2Loc,nBasis,Label="CtS")
+    call mma_allocate(CtSC,nOrb2Loc,nOrb2Loc,Label="CtSC")
+
+    ! C^T*S
+    call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,&
+                        One, CMO, nBasis,&
+                             Ovlp, nBasis,&
+                       Zero, CtS, nOrb2Loc)
+    ! (C^T*S)*C
+    call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,&
+                        One,CtS, nOrb2Loc,&
+                            CMO, nBasis,&
+                       Zero,CtSC, nOrb2Loc)
+
+#   ifdef _DEBUGPRINT_
+    write(u6,'(/A)') 'Check the orthonormality of the orbitals'
+    write(u6,*) '========================================'
+    call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
+#   endif
+
+    ! (C^T*S)*C - I
+    do i=1,nOrb2Loc
+        CtSC(i,i) = CtSC(i,i) - One
+    end do
+
+    norm = sqrt(DDot_(nOrb2Loc**2,CtSC,1,CtSC,1))
+
+    if (norm>ThrOrtho) then
+        write(u6,*)
+        write(u6,*) "Stopping calculationn due to:"
+        write(u6,*) "norm of C^T*S*C - 1 =",norm
+        write(u6,*) "max. allowed norm   =",ThrOrtho
+        write(u6,*) "The current MOs do not seem to be sufficiently orthonormal (Bug in the transformation)"
+        call Abend()
+    end if
+
+    call mma_Deallocate(CtS)
+    call mma_Deallocate(CtSC)
+
+
+end subroutine OrthoCheck
 
 end subroutine PipekMezey_Iter
