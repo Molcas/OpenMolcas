@@ -57,9 +57,9 @@ character(len=LenIn+8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: NamAct(:)
 real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:), FuncList(:), GradList(:,:), DispList(:,:),UmatList(:,:,:)
 real(kind=wp):: GEKThr_Kappa = 0.01_wp,&
-                            GEKThr_Grad = 0.01_wp,&
-                            bias = 10.0_wp,&
-                            SOFact = 1.0_wp
+                GEKThr_Grad = 0.010_wp,&
+                bias = 10.0_wp,&
+                SOFact = 1.0e9_wp
 
 real(kind=wp) :: ScrFac=Zero
 type(Loosen_Type) :: Loosen
