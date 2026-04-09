@@ -76,11 +76,14 @@
 !! the overlap-like term constructe with transition density
 !! matrices. The output is IVECC (MODE=1) or IVECC2 (MODE=2)
       IF (MODE == 1) THEN
-        CALL MS_STRANS(IVECW,IVECC,OVL,TG1,TG2,TG3,DVALUE,SCAL)
+        CALL MS_STRANS(IVECW,IVECC,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,
+     &                 SCAL)
       ELSE IF (MODE == 2) THEN
-        CALL MS_STRANS(IVECC,IVECC2,OVL,TG1,TG2,TG3,DVALUE,SCAL)
+        CALL MS_STRANS(IVECC,IVECC2,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,
+     &                 SCAL)
       ELSE IF (MODE == 3) THEN
-        CALL MS_STRANS(IVECW,IVECC,OVL,TG1,TG2,TG3,DVALUE,SCAL)
+        CALL MS_STRANS(IVECW,IVECC,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,
+     &                 SCAL)
       END IF
 
       call mma_deallocate(TG1)
@@ -91,14 +94,15 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE MS_STRANS(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL,SCAL)
+      SUBROUTINE MS_STRANS(IVEC,JVEC,NASHT,NTG3,OVL,TG1,TG2,TG3,HEL,
+     &                     SCAL)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG
       use fake_GA, only: GA_Arrays
-      use caspt2_module, only: NSYM, NASHT, NASUP, NISUP, NINDEP, CASES
+      use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, CASES
       use Constants, only: Zero
       use definitions, only: wp, iwp, u6
 
@@ -116,9 +120,9 @@
 ! and irreps and gets access to the process-specific block of the RHS.
 ! The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-      integer(kind=iwp), intent(in) :: IVEC, JVEC
+      integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
       real(kind=wp), intent(inout) :: OVL, TG1(NASHT,NASHT),
-     &  TG2(NASHT,NASHT,NASHT,NASHT), TG3(*)
+     &  TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
       real(kind=wp), intent(out) :: HEL
       real(kind=wp), intent(in) :: SCAL
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -127,6 +131,7 @@
       integer(kind=iwp) :: ICASE, ISYM, NAS, NIN, NIS, lg_V1, iLo1,
      &  iHi1, jLo1, jHi1, MV1, lg_V2, iLo2, iHi2, jLo2, jHi2, MV2,
      &  NHECOMP, i, IC, IS
+      integer(kind=iwp) :: nvlen
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -170,15 +175,17 @@
               CALL ABEND()
             END IF
 
+            nvlen = (iHi1-jLo1+1)*(jHi1-jLo1+1)
+
 #ifdef _MOLCAS_MPP_
             IF (Is_Real_Par()) THEN
-              CALL MS_STRANS_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                        DBL_MB(MV1),DBL_MB(MV2),OVL,
+              CALL MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,
+     &                        jLo1,jHi1,DBL_MB(MV1),DBL_MB(MV2),OVL,
      &                        TG1,TG2,TG3,SCAL)
             ELSE
 #endif
-              CALL MS_STRANS_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                        GA_Arrays(MV1)%A,
+              CALL MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,
+     &                        jLo1,jHi1,GA_Arrays(MV1)%A,
      &                        GA_Arrays(MV2)%A,OVL,
      &                        TG1,TG2,TG3,SCAL)
 #ifdef _MOLCAS_MPP_
@@ -237,11 +244,10 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE MS_STRANS_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,
-     &                         TG1,TG2,TG3,SCAL)
+      SUBROUTINE MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,IISTA,
+     &                         IIEND,V1,V2,OVL,TG1,TG2,TG3,SCAL)
       USE SUPERINDEX, only: MTU, MTUV, MTGEU, MTGTU
-      use caspt2_module, only: NAES, NASHT, NTUVES, NTUES, NTGEUES,
-     &                         NTGTUES
+      use caspt2_module, only: NAES, NTUVES, NTUES, NTGEUES, NTGTUES
       use definitions, only: wp, iwp
       use Constants, only: Two, Four, Eight
 ! Compute a contribution to the coupling Hamiltonian element (HEL)
@@ -253,10 +259,11 @@
 ! calling subroutine.
       implicit none
 
-      integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, IISTA, IIEND
-      real(kind=wp), intent(in) :: V1(*), OVL, SCAL
-      real(kind=wp), intent(inout) :: V2(*), TG1(NASHT,NASHT),
-     &  TG2(NASHT,NASHT,NASHT,NASHT), TG3(*)
+      integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NASHT,
+     &                                 NTG3, IISTA, IIEND
+      real(kind=wp), intent(in) :: V1(nvlen), OVL, SCAL
+      real(kind=wp), intent(inout) :: V2(nvlen), TG1(NASHT,NASHT),
+     &  TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
       integer(kind=iwp) :: NISBLK, IAS, IASABS, ITABS, IUABS, IVABS,
@@ -699,18 +706,18 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine LoadCI_XMS(Bas,Mode,CI,iState,U0)
+      Subroutine LoadCI_XMS(Bas,Mode,nConf,nState,CI,iState,U0)
 
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: IFXMS, IFRMS, NCONF, NSTATE
+      use caspt2_module, only: IFXMS, IFRMS
       use Constants, only: Zero
 
       implicit none
 
       character(len=1), intent(in) :: Bas
-      integer(kind=iwp), intent(in) :: Mode, iState
+      integer(kind=iwp), intent(in) :: Mode, nConf, nState, iState
       real(kind=wp), intent(inout) :: CI(Nconf)
       real(kind=wp), intent(in) :: U0(nState,nState)
 
@@ -762,8 +769,8 @@
       Subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
       use caspt2_global, only: do_nac, do_csf, iRoot1, iRoot2,
-     &                           CLag,CLagFull,OLag,DPT2_tot,
-     &                           FIFA_all,FIFASA_all
+     &                         nOLag, CLag,CLagFull,OLag,DPT2_tot,
+     &                         FIFA_all,FIFASA_all
       use caspt2_global, only: FIFA, TORB, NDREF
       use caspt2_global, only: CMOPT2, if_equalW, weight
       use gugx, only: SGS
@@ -771,7 +778,7 @@
       use definitions, only: wp, iwp
       use caspt2_module, only: ENERGY, IFXMS, IFRMS, IFDW, STSYM, NCONF,
      &                         NFRO, NISH, NASHT, NDEL, NBAS, NBAST,
-     &                         NBSQT, NSTATE, ZETA, ORBIN
+     &                         NBSQT, NROOTS, NSTATE, ZETA, ORBIN, MXCI
       use Constants, only: Zero, One, Half, Two, Quart
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -802,8 +809,8 @@
       If (IFXMS .or. IFRMS) Then
         call mma_allocate(CI1,nConf,Label='CI1')
         call mma_allocate(CI2,nConf,Label='CI2')
-        call mma_allocate(SGM1,nConf,Label='SGM1')
-        call mma_allocate(SGM2,nConf,Label='SGM2')
+        call mma_allocate(SGM1,MXCI,Label='SGM1')
+        call mma_allocate(SGM2,MXCI,Label='SGM2')
         call mma_allocate(TG1,nAshT**2,Label='TG1')
         call mma_allocate(TG2,nAshT**4,Label='TG2')
 
@@ -825,12 +832,11 @@
         !! Then actual calculation
         CLag(1:nconf,1:nstate) = Zero
         Do iStat = 1, nState
-          Call LoadCI_XMS('C',0,CI1,iStat,U0)
+          Call LoadCI_XMS('C',0,nConf,nState,CI1,iStat,U0)
           Do jStat = 1, nState
-            Call LoadCI_XMS('C',0,CI2,jStat,U0)
+            Call LoadCI_XMS('C',0,nConf,nState,CI2,jStat,U0)
 
-            Call Dens2T_RPT2(CI1,CI2,SGM1,SGM2,
-     &                       TG1,TG2,nAshT)
+            Call Dens2T_RPT2(NLEV,NCONF,MXCI,CI1,CI2,SGM1,SGM2,TG1,TG2)
             TG1(:) = TG1(:)*Half
             TG2(:) = TG2(:)*Half
             DG1(:) = Zero
@@ -855,7 +861,7 @@
             NTG1 = NASHT**2
             NTG3 = (NTG1*(NTG1+1)*(NTG1+2))/6
             OVL = Zero
-            CALL DERTG3(.False.,STSYM,STSYM,CI1,CI2,OVL,
+            CALL DERTG3(.False.,STSYM,STSYM,NCONF,NASHT,CI1,CI2,OVL,
      &                  DG1,DG2,NTG3,DG3,CLag(1,iStat),CLag(1,jStat))
             call mma_deallocate(DG3)
           End Do
@@ -877,7 +883,7 @@
       !! to natural basis is required.
         IF(ORBIN == 'TRANSFOR') Then
           Do iState = 1, nState
-            Call CLagX_TrfCI(CLag(1,iState))
+            Call CLagX_TrfCI(nConf,CLag(1,iState))
           End Do
         End If
         CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
@@ -888,13 +894,13 @@
         !! because some contributions are doubled.
         SLag(:) = Zero
         Do iStat = 1, nState
-          Call LoadCI_XMS('N',0,CI1,iStat,U0)
+          Call LoadCI_XMS('N',0,nConf,nState,CI1,iStat,U0)
           EEI = H0(iStat,iStat)
           Do jStat = 1, iStat
             If (iStat == jStat) Then
               SLag(iStat+nState*(jStat-1)) = Zero
             Else
-              Call LoadCI_XMS('N',0,CI2,jStat,U0)
+              Call LoadCI_XMS('N',0,nConf,nState,CI2,jStat,U0)
               EEJ = H0(jStat,jStat)
 
               Scal = DDOT_(nConf,CI1,1,CLagFull(1,jStat),1)
@@ -930,10 +936,10 @@
         call mma_allocate(G1,nAshT,nAshT,Label='G1')
         G1(:,:) = Zero
         Do iStat = 1, nState
-          Call LoadCI_XMS('C',0,CI1,iStat,U0)
+          Call LoadCI_XMS('C',0,nConf,nState,CI1,iStat,U0)
           Do jStat = 1, nState
             If (ABS(SLag(iStat+nState*(jStat-1))) <= 1.0e-10_wp) Cycle
-            Call LoadCI_XMS('C',0,CI2,jStat,U0)
+            Call LoadCI_XMS('C',0,nConf,nState,CI2,jStat,U0)
 
             Call Dens1T_RPT2(CI1,CI2,
      &                       SGM1,TG1,nLev)
@@ -977,7 +983,7 @@
 !       Call SQUARE(FIFA,FIFA_all,1,nOrbI,nOrbI)
         !! FIFASA_all is in natural orbital basis
         Trf(1:NBSQT) = Zero
-        Call CnstTrf(TOrb,Trf)
+        Call CnstTrf(NBSQT,TOrb,Trf)
 
         !! FIFA: natural -> quasi-canonical
         If (IFDW .or. IFRMS) Then
@@ -995,16 +1001,16 @@
         !! Both explicit and implicit orbital derivatives are computed
         !! Also, compute G(D) and put the active contribution to RDMEIG
         OLag(:) = Zero
-        Call EigDer2(RDMEIG,Trf,FIFA_all,RDMSA,G1,WRK1,WRK2)
+        Call EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA_all,RDMSA,G1,WRK1,WRK2)
 
         !! Add to PT2 density
         !! No inactive contributions. Correct as long as CASSCF CI
         !! vector are orthogonal.
-        Call AddDEPSA(DPT2,G1)
-        Call DPT2_TrfStore(One,DPT2,DPT2_tot,Trf,WRK1)
+        Call AddDEPSA(NBSQT,nAshT,DPT2,G1)
+        Call DPT2_TrfStore(One,NBSQT,DPT2,DPT2_tot,Trf,WRK1)
 
         !! Finalize OLag (anti-symetrize) and construct WLag
-        Call OLagFinal(OLag,Trf)
+        Call OLagFinal(nOLag,NBSQT,OLag,Trf)
 
         If (.not.if_equalW) then
           call mma_allocate(DPT2_AO,NBSQT,Label='DPT2_AO')
@@ -1012,12 +1018,12 @@
           !! AddDEPSA considers the frozen orbital, whereas DPT2_Trf
           !! does not. In any case, construct DPT2 again.
           DPT2(:) = Zero
-          CALL DPT2_Trf(DPT2,DPT2_AO,CMOPT2,G1,WRK1)
+          CALL DPT2_Trf(NBSQT,nAshT,DPT2,DPT2_AO,CMOPT2,G1,WRK1)
           !! Construct the SCF density
           WRK1(1:nDRef) = Zero
           call mma_allocate(CI1,nConf,Label='CI1')
           Do iState = 1, nState
-            Call LoadCI_XMS('N',1,CI1,iState,U0)
+            Call LoadCI_XMS('N',1,nConf,nState,CI1,iState,U0)
             call POLY1(CI1,nConf)
             call GETDREF(WRK2,nDRef)
             wgt = Weight(iState)
@@ -1028,11 +1034,11 @@
           Call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
           Call DaXpY_(nAshT**2,-One,WRK2,1,RDMSA,1)
           !! Construct the SS minus SA density matrix in WRK1
-          Call OLagFroD(WRK1,WRK2,RDMSA,Trf)
+          Call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
           !! Subtract the inactive part
           Call DaXpY_(nBasT**2,-One,WRK2,1,WRK1,1)
           !! Save
-          Call CnstAB_SSDM(DPT2_AO,WRK1)
+          Call CnstAB_SSDM(NBSQT,DPT2_AO,WRK1)
           call mma_deallocate(DPT2_AO)
         End If
 
@@ -1099,7 +1105,8 @@
         Call CLagEigT(CLag,G1,SLag,EINACT)
 
         !! 2) Implicit CI derivative
-        Call CLagEig(.False.,.True.,CLag,RDMEIG,nLev)
+        Call CLagEig(.False.,.True.,nConf,nRoots,nState,nLev,CLag,
+     &               RDMEIG)
 
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
@@ -1128,7 +1135,7 @@
 
         EDIFF = ENERGY(iRoot2)-ENERGY(iRoot1)
         Do iStat = 1, nState
-          Call LoadCI_XMS('N',0,CI1,iStat,U0)
+          Call LoadCI_XMS('N',0,nConf,nState,CI1,iStat,U0)
           Do jStat = 1, nState
             Scal = (UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
      &           -  UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*Half
@@ -1556,10 +1563,10 @@
       Do iStat = 1, nState
         !! UEFF is in the CASSCF basis, so the CI coefficient
         !! has to be transformed(-back) accordingly
-        Call LoadCI_XMS('N',1,CI1,iStat,U0)
+        Call LoadCI_XMS('N',1,nConf,nState,CI1,iStat,U0)
         Do jStat = 1, nState
           If (iStat == jStat) Cycle
-          Call LoadCI_XMS('N',1,CI2,jStat,U0)
+          Call LoadCI_XMS('N',1,nConf,nState,CI2,jStat,U0)
 
           Call Dens1T_RPT2(CI1,CI2,SGM1,TG1,nLev)
           Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)
