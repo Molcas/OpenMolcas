@@ -74,6 +74,7 @@ subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,J
 !
 ! Jeppe Olsen, Winter of 1991
 
+use lucia_data, only: TSIGMA
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -90,7 +91,6 @@ real(kind=wp), intent(inout) :: SB(NIA*NIB), CB(NJA*NJB), XI1S(*), XI2S(*), XI3S
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), C2(*), XINT(*), CJRES(*), SIRES(*)
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: SCLFAC
-#include "timers.fh"
 integer(kind=iwp) :: I12, IBLOCK(8), IDIAG, IDOH2, IIDC, IIITRNS, ITASK, IUSEAB, JJJTRNS, LADVICE
 real(kind=wp) :: CPU, CPU0, CPU1, FACTOR, WALL, WALL0, WALL1
 

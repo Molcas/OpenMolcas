@@ -7,32 +7,22 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1996-2006, Thorstein Thorsteinsson                     *
-!               1996-2006, David L. Cooper                             *
 !***********************************************************************
 
-subroutine cvbfinit_cvb()
+module timers
 
-use casvb_global, only: corenrg, iprec, is_set, iwidth, mxaobf
 use Constants, only: Zero
-use Definitions, only: iwp
+use Definitions, only: wp
 
 implicit none
-#include "Molcas.fh"
-integer(kind=iwp), parameter :: iset = 1
+private
 
-mxaobf = maxbfn
-iprec = 8
-iwidth = 110
-call formats_cvb()
-if (is_set /= iset) then
-  ! Initializations below are only carried out once:
-  call io_init_cvb()
-  corenrg = Zero
-end if
-is_set = iset
+real(kind=wp) :: C_Dress = Zero, C_get_Cm = Zero, TimeAoMo = Zero, TimeCIOpt = Zero, TimeDavid = Zero, TimeDens = Zero, &
+                 TimeFock = Zero, TimeHCSCE = Zero, TimeHDiag = Zero, TimeHSel = Zero, TimeInput = Zero, TimeOrb = Zero, &
+                 TimeOutput = Zero, TimePage = Zero, TimeRelax = Zero, TimeSigma = Zero, TimeTotal = Zero, TimeTrans = Zero, &
+                 TimeWfn = Zero, W_Dress = Zero, W_get_Cm = Zero
 
-return
+public :: C_Dress, C_get_Cm, TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, &
+          TimeOrb, TimeOutput, TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn, W_Dress, W_get_Cm
 
-end subroutine cvbfinit_cvb
+end module timers

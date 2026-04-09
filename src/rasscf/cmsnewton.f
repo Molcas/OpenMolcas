@@ -27,7 +27,6 @@
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
       INTEGER nGD
       Real*8 R(lRoots**2),

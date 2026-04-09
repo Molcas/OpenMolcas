@@ -45,7 +45,9 @@ call mma_allocate(Yt,MxTs,Label='Yt')
 call mma_allocate(Zt,MxTs,Label='Zt')
 call mma_allocate(At,MxTs,Label='At')
 call mma_allocate(pVert,3,MxVert,MxTs,Label='pVert')
+pVert(:,:,:) = Zero
 call mma_allocate(pCentr,3,MxVert,MxTs,Label='pCentr')
+pCentr(:,:,:) = Zero
 call mma_allocate(pSSph,MxSph,Label='pSSph')
 call mma_allocate(CV,3,MxSph,Label='CV')
 

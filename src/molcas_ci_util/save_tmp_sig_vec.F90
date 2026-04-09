@@ -38,6 +38,7 @@ subroutine Save_tmp_Sig_vec(iRoot,nConf,Sig_vec,LuDavid)
 !                                                                      *
 !***********************************************************************
 
+use timers, only: TimePage
 use davctl_mod, only: disk_address, in_core, llab, memory_vectors, mixed_mode_1, mixed_mode_2, n_Roots, on_disk, save_mode
 use Definitions, only: wp, iwp, u6
 
@@ -47,13 +48,12 @@ implicit none
 integer(kind=iwp), intent(in) :: iRoot, nConf, LuDavid
 real(kind=wp), intent(_IN_) :: Sig_vec(nConf)
 integer(kind=iwp) :: iDisk, tmp_Sig_vec_RecNo
-real(kind=wp) :: dum1, dum2, dum3
+real(kind=wp) :: dum1, dum2, dum3, Time(2)
 character(len=llab) :: KeyWord
 integer(kind=iwp), external :: RecNo
 #include "rasdim.fh"
-#include "timers.fh"
 
-call Timing(WTC_1,dum1,dum2,dum3)
+call Timing(Time(1),dum1,dum2,dum3)
 
 ! check input arguments
 if (nConf < 0) then
@@ -95,9 +95,8 @@ if ((save_mode == mixed_mode_1) .or. (save_mode == mixed_mode_2)) then
   call page_out(KeyWord,nConf,Sig_vec,LuDavid)
 end if
 
-call Timing(WTC_2,dum1,dum2,dum3)
-WTC_2 = WTC_2-WTC_1
-WTC_3 = WTC_3+WTC_2
+call Timing(Time(2),dum1,dum2,dum3)
+TimePage = TimePage+Time(2)-Time(1)
 
 return
 

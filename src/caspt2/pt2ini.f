@@ -141,6 +141,7 @@ C Initialize sizes, offsets etc used in equation solver.
 
 * Allocate global orbital arrays:
       CALL mma_allocate(CMOPT2,NCMO,Label='CMOPT2')
+      CMOPT2(:) = 0.0d0
 * Allocate global orbital transformation arrays:
       CALL mma_allocate(TORB,NTORB,Label='TORB')
       CALL mma_allocate(TAT,NTAT,Label='TAT')

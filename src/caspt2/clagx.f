@@ -1125,7 +1125,6 @@ C     CALL PSBMAT_READ('T',iCase,iSym,lg_T,NAS)
 C     if (ifmscoup) then
 C     else
 C     IF (KING()) THEN
-C       CALL GETMEM('LTRANS','ALLO','REAL',LTRANS,NAS*NIN)
 C       call mma_allocate(TRANS,NAS*NIN,Label='TRANS')
 C       IDT=IDTMAT(ISYM,ICASE)
 C       CALL DDAFILE(LUSBT,2,TRANS,NAS*NIN,IDT)
@@ -3922,7 +3921,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "pt2_guga.fh"
 
 #include "global.fh"

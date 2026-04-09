@@ -249,6 +249,7 @@ outer: do
   write(u6,604) YMIN,YMAX,YH,PRV,ARV,RMIN,RH,ARV,NAME1,IMN1,NAME2,IMN2
   PINV = One/PRV
   FFAS = YH2*(PINV**2-One)/(Four*aRVp)**2
+  FAS(1) = Zero
   do I=2,NPP-1
     YVB(I) = YMINN+I*YH
     RRp = (One+YVB(I))/(One-YVB(I))
@@ -262,6 +263,7 @@ outer: do
     SDRDY(I) = sqrt(DRDY)
     FAS(I) = FFAS*((RRp+aRVp)**2/RRp)**2
   end do
+  FAS(NPP) = Zero
   ! OPIONALLY WRITE SOME VARIABLES IF DEBUGGING:
   !write(u6,*) 'DRDY=',DRDY
   !write(u6,*) 'RRp=',RRp

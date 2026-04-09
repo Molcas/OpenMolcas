@@ -245,6 +245,7 @@ do is=1,nsym
     F(ijb) = T(ipmat(is,is)+nbas(is)*(iB-1)+IB-1)
   end do
 end do
+F(ijb+1:) = Zero
 call Put_dArray('FockOcc',F,nDens)
 
 !call recprt('RHS',' ',fock,nDens,1)

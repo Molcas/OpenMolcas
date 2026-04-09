@@ -84,12 +84,7 @@ if (.not. IsBorn) then
   call Get_Genome(cDNA,nDNA)
   call Put_cArray('BirthCertificate',cDNA,nDNA)
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Get the memory size available
 
-call SetMem('Clear=Off')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -85,9 +85,6 @@ public :: Allocate_k2data, Allocate_k2data_in, Free_k2data, IndK2, k2_processed,
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: k2d_cptr2loff
-end interface
 interface mma_allocate
   module procedure :: k2d_mma_allo_2D, k2d_mma_allo_2D_lim
 end interface
@@ -207,13 +204,10 @@ end subroutine Free_k2data_Internal
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define k2d_cptr2loff, k2d_mma_allo_2D, k2d_mma_allo_2D_lim, k2d_mma_free_2D
+! Define k2d_mma_allo_2D, k2d_mma_allo_2D_lim, k2d_mma_free_2D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(k2_type)
 #  define _NO_GARBLE_
-#  define _FUNC_NAME_ k2d_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ k2d_mma
 #  define _DIMENSIONS_ 2
 #  define _DEF_LABEL_ 'k2_mma'
@@ -221,7 +215,6 @@ end subroutine Free_k2data_Internal
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
-#  undef _NO_GARBLE_
 #undef _TYPE_
 
 end module k2_structure

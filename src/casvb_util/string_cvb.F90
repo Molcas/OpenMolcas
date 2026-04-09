@@ -21,11 +21,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nmax, ifc
 character(len=*), intent(inout) :: arr(nmax)
 integer(kind=iwp), intent(inout) :: nread
-integer(kind=iwp) :: i, ierr, ifcuse
+integer(kind=iwp) :: i, iaux(1), ierr, ifcuse
 character(len=100) :: string
 logical(kind=iwp) :: done
 
 if (inputmode == 2) then
+  call geth_cvb(iaux,1)
+  nread = iaux(1)
   call geths_cvb(arr,nread)
   return
 end if

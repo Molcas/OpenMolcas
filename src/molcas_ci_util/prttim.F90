@@ -28,62 +28,51 @@ subroutine PrtTim()
 !                                                                      *
 !***********************************************************************
 
+use timers, only: C_Dress, C_get_Cm, TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, &
+                  TimeInput, TimeOrb, TimeOutput, TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn, W_Dress, W_get_Cm
+use lucia_data, only: TDENSI, TSIGMA
 use splitcas_data, only: DoSplitCAS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "timers.fh"
-integer(kind=iwp), parameter :: MAX_TIMERS = 40
+integer(kind=iwp), parameter :: MAX_TIMERS = 35
 real(kind=wp) :: F(MAX_TIMERS), T(MAX_TIMERS)
-integer(kind=iwp) :: i
 
 T(:) = Zero
 F(:) = Zero
+F(MAX_TIMERS) = One
 
-T(MAX_TIMERS) = Ebel_3
-T(15) = Ebel_3-Ebel_2
-T(5) = Ebel_2-Ebel_1
-T(1) = Ebel_1
-T(4) = Eterna_3-Eterna_2
-T(3) = Eterna_2-Eterna_1
-T(2) = T(1)-T(3)-T(4)
-T(6) = Fortis_3
-T(7) = Candino_3
-T(8) = Piaget_3
-T(9) = Zenith_3
-T(10) = Tissot_3
-T(11) = Omega_3
-T(12) = Rolex_3
-T(13) = Rado_3
-T(14) = Gucci_3
-T(16) = Oris_2
-T(17) = Movado_2
+T(MAX_TIMERS) = TimeTotal
+T(1) = TimeInput
+!T(2) = Zero
+!T(3) = Zero
+T(4) = T(1)-T(2)-T(3)
+T(5) = TimeWfn
+T(6) = TimeTrans
+T(7) = TimeAoMo
+T(8) = TimeFock
+T(9) = TimeCIOpt
+T(10) = TimeHDiag
+T(11) = TimeHSel
+T(12) = TimeSigma
+T(13) = TimeDens
+T(14) = TimeOrb
+T(15) = TimeOutput
+T(16) = TimeRelax
+!T(17) = Zero
 T(18) = T(15)-T(16)-T(17)
-T(19) = Alfex_3
-T(20) = WTC_3
-T(21) = Longines_3
-T(22) = C_Dress_3
-T(23) = W_Dress_3
-T(24) = C_get_Cm3
-T(25) = W_get_Cm3
-T(26) = TSIGMA(1)
-T(27) = TSIGMA(2)
-T(28) = TSIGMA(3)
-T(29) = TSIGMA(4)
-T(30) = TSIGMA(5)
-T(31) = TSIGMA(6)
-T(32) = TDENSI(1)
-T(33) = TDENSI(2)
-T(34) = TDENSI(3)
+T(19) = TimeDavid
+T(20) = TimePage
+T(21) = TimeHCSCE
+T(22) = C_Dress
+T(23) = W_Dress
+T(24) = C_get_Cm
+T(25) = W_get_Cm
+T(26:31) = TSIGMA(:)
+T(32:34) = TDENSI(:)
 
-do i=1,MAX_TIMERS-1
-  if (1000.0_wp*T(i) > One) then
-    F(i) = T(i)/T(MAX_TIMERS)
-  else
-    F(i) = Zero
-  end if
-end do
+if (T(MAX_TIMERS) > 1.0e-6_wp) F(:) = T(:)/T(MAX_TIMERS)
 
 write(u6,*)
 write(u6,100) 'Timings'
@@ -93,9 +82,9 @@ write(u6,100) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 write(u6,101) ' ',' ','        time','    fraction'
 write(u6,100) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
 write(u6,102) '1) Input section',':',T(1),F(1)
-write(u6,102) '   - Input processing',':',T(2),F(2)
-write(u6,102) '   - Create GUGA tables',':',T(3),F(3)
-write(u6,102) '   - Create determinant tables',':',T(4),F(4)
+write(u6,102) '   - Input processing',':',T(4),F(4)
+!write(u6,102) '   - Create GUGA tables',':',T(2),F(2)
+!write(u6,102) '   - Create determinant tables',':',T(3),F(3)
 write(u6,102) '2) Wave function optimization',':',T(5),F(5)
 write(u6,102) '   - transformation section',':',T(6),F(6)
 write(u6,102) '     . AO=>MO integral transformation',':',T(7),F(7)
@@ -130,7 +119,7 @@ write(u6,102) '          \-> alpha-beta        ',':',T(34),F(34)
 write(u6,102) '   - orbital optimization',':',T(14),F(14)
 write(u6,102) '3) Output section',':',T(15),F(15)
 write(u6,102) '   - Create/update the file RELAX',':',T(16),F(16)
-write(u6,102) '   - Create/update the file RUNFILE',':',T(17),F(17)
+!write(u6,102) '   - Create/update the file RUNFILE',':',T(17),F(17)
 write(u6,102) '   - Create/update the file JOBIPH',':',T(18),F(18)
 write(u6,*)
 write(u6,100) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'

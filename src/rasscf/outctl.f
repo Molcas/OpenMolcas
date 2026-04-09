@@ -79,7 +79,6 @@
       Logical lOPTO
 #include "rasdim.fh"
       Character(LEN=16), Parameter :: ROUTINE='OUTCTL  '
-#include "SysDef.fh"
 
       Character(LEN=8)  Fmt2, Label
       Character(LEN=3) lIrrep(8)

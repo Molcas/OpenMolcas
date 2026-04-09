@@ -52,7 +52,6 @@
 
 #include "rasdim.fh"
       Character(LEN=16), Parameter:: ROUTINE='OUTCTL  '
-#include "SysDef.fh"
       Real*8, Allocatable:: DSave(:)
       Character(LEN=8)  Fmt2, Label
       Character(LEN=3) lIrrep(8)

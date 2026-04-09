@@ -61,9 +61,9 @@
 ! For procedures known to raise floating point exceptions in the test suite,
 ! disable exception trapping locally: three pieces of code are needed
 #ifdef _FPE_TRAP_
-  ! can't use "only" in IEEE_exceptions, because of line length
+  ! can't use "only" in IEEE_Exceptions, because of line length
 # define _FPE_TRAP_use_ \
-  use, intrinsic :: IEEE_exceptions; \
+  use, intrinsic :: IEEE_Exceptions; \
   use Definitions, only: DI => DefInt
 # define _FPE_TRAP_init_ \
   type(IEEE_Status_Type) :: IEEE_Status; \

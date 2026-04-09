@@ -65,9 +65,6 @@ iPrint = 1
 !                                                                      *
 ! Get some coords, nuc. charges and labels
 
-! Memory debugging
-!call Setmem('TRACE=ON')
-!
 ! IO check
 !call fastio('TRACE=ON')
 !

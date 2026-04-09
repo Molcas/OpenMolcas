@@ -129,6 +129,7 @@ set (sources
      stepvector_next.F90
      sxci.F90
      term_david.F90
+     timers.F90
      transadd.F90
      wadr.F90
 )
@@ -145,6 +146,7 @@ set (modfile_list
      rasscf_global.F90
      rassi_data.F90
      spinfo.F90
+     timers.F90
      wadr.F90
 )
 

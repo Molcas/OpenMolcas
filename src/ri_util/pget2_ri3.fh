@@ -11,8 +11,7 @@
 
 ! Template used in PGet2_RI3
 #if ! defined (_COULOMB_) && ! defined (_EXCHANGE_) && ! defined (_ACTIVE_)
-  ! This should be an error at compile time!
-  'At least one of _COULOMB_, _EXCHANGE_, _ACTIVE_ should be defined'
+# "At least one of _COULOMB_, _EXCHANGE_, _ACTIVE_ should be defined"
 #endif
 
 mijkl = 0
@@ -30,7 +29,7 @@ do lAOl=0,lBas-1
       Indkl = iPntSO(j3,j4,lOper,nBas)+iTri(kSOk,lSOl)
 #     endif
 
-      temp = (&
+      temp = ( &
 #            ifdef _COULOMB_
              +CoulFac*V_k(jSOj,1)*DSO(Indkl,1) &
 #            endif

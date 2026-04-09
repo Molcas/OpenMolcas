@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 MODULE ISO_C_UTILITIES
-   USE ISO_C_BINDING ! Intrinsic module
+   USE, INTRINSIC :: ISO_C_BINDING ! Intrinsic module
 
    CHARACTER(KIND=C_CHAR), DIMENSION(1), SAVE, TARGET, PRIVATE :: dummy_string="?"
 
@@ -23,7 +23,7 @@ CONTAINS
       INTERFACE ! strlen is a standard C function from <string.h>
          ! int strlen(char *string)
          FUNCTION strlen(string) RESULT(len) BIND(C,NAME="strlen")
-            USE ISO_C_BINDING
+            USE, INTRINSIC :: ISO_C_BINDING
             TYPE(C_PTR), VALUE :: string ! A C pointer
             INTEGER(KIND=C_INT) :: len
          END FUNCTION
@@ -41,7 +41,7 @@ CONTAINS
 END MODULE
 
 MODULE DLFCN
-   USE ISO_C_BINDING
+   USE, INTRINSIC :: ISO_C_BINDING
    USE ISO_C_UTILITIES
    IMPLICIT NONE
    PRIVATE
@@ -63,7 +63,7 @@ MODULE DLFCN
    INTERFACE ! All we need is interfaces for the prototypes in <dlfcn.h>
       FUNCTION DLOpen(file,mode) RESULT(handle) BIND(C,NAME="dlopen")
          ! void *dlopen(const char *file, int mode);
-         USE ISO_C_BINDING
+         USE, INTRINSIC :: ISO_C_BINDING
          CHARACTER(KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: file
             ! C strings should be declared as character arrays
          INTEGER(C_INT), VALUE :: mode
@@ -71,26 +71,26 @@ MODULE DLFCN
       END FUNCTION
       FUNCTION DLSym(handle,name) RESULT(funptr) BIND(C,NAME="dlsym")
          ! void *dlsym(void *handle, const char *name);
-         USE ISO_C_BINDING
+         USE, INTRINSIC :: ISO_C_BINDING
          TYPE(C_PTR), VALUE :: handle
          CHARACTER(KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: name
          TYPE(C_FUNPTR) :: funptr ! A function pointer
       END FUNCTION
       FUNCTION DLClose(handle) RESULT(status) BIND(C,NAME="dlclose")
          ! int dlclose(void *handle);
-         USE ISO_C_BINDING
+         USE, INTRINSIC :: ISO_C_BINDING
          TYPE(C_PTR), VALUE :: handle
          INTEGER(C_INT) :: status
       END FUNCTION
       FUNCTION DLError() RESULT(error) BIND(C,NAME="dlerror")
          ! char *dlerror(void);
-         USE ISO_C_BINDING
+         USE, INTRINSIC :: ISO_C_BINDING
          TYPE(C_PTR) :: error
       END FUNCTION
       ! dladdr is a Glibc extension, not POSIX
       FUNCTION DLAddr(funptr,info) RESULT(output) BIND(C,NAME="dladdr")
          ! int dladdr(void *addr, Dl_info *info)
-         USE ISO_C_BINDING
+         USE, INTRINSIC :: ISO_C_BINDING
          TYPE(C_FUNPTR), VALUE :: funptr ! A function pointer
          TYPE(C_PTR), VALUE :: info
          INTEGER(C_INT) :: output

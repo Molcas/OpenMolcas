@@ -201,7 +201,7 @@ IS2 = 3-ISP
 !mp write(u6,*) 'test 2 na ig ',noab(1)*nuab(1)*nno
 !mp write(u6,*) 'test 2 na ix ',noab(1)*noab(1)*vblock*n
 !mp write(u6,*) 'nno (2) = ',nno
-!call GetMem('c2_iscr','Free','Real',iscr,vblock*noab(1)*noab(1))
+!call mma_deallocate(iscr)
 call mma_deallocate(g)
 call mma_deallocate(x)
 !mp write(u6,*) 'n (2) = ',n

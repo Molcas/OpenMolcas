@@ -19,6 +19,7 @@ subroutine CIDIA(NCONF,IREFSM,CSFDIA,LUDAVID)
 ! IREFSM:  REFERENCE SYMMETRY
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
+use timers, only: TimeHDiag
 use lucia_data, only: ECORE_HEX
 use csfbas, only: CTS
 use Lucia_Interface, only: Lucia_Util
@@ -32,11 +33,10 @@ implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
 integer(kind=iwp) :: IPRINT, IPRL, IPRLEV
-real(kind=wp) :: dum1, dum2, dum3
+real(kind=wp) :: dum1, dum2, dum3, Time(2)
 real(kind=wp), allocatable :: DDIA(:)
-#include "timers.fh"
 
-call Timing(Tissot_1,dum1,dum2,dum3)
+call Timing(Time(1),dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
@@ -69,9 +69,8 @@ end if
 
 call Save_H_diag(nConf,CSFDIA,LUDAVID)
 
-call Timing(Tissot_2,dum1,dum2,dum3)
-Tissot_2 = Tissot_2-Tissot_1
-Tissot_3 = Tissot_3+Tissot_2
+call Timing(Time(2),dum1,dum2,dum3)
+TimeHDiag = TimeHDiag+Time(2)-Time(1)
 
 return
 

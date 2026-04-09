@@ -67,7 +67,6 @@ C       End If
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
       INTEGER nTUVX
       Real*8 gtuvx(nTUVX),TUVX(NACPR2)
@@ -128,7 +127,6 @@ C       End If
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
       INTEGER LenCMSS
       CHARACTER(len=LenCMSS)::CMSSFile

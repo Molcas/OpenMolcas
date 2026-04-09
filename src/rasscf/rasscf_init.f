@@ -18,8 +18,7 @@
 *> @author  P. &Aring;. Malmqvist
 *>
 *> @details
-*> Sets values in common blocks in timers.fh and module
-*> rasscf_global.F90 and general_data.F90.
+*> Sets values in the modules timers, rasscf_global and general_data.
 ************************************************************************
 
       Subroutine RasScf_Init()
@@ -31,6 +30,11 @@
       use CMS, only: iCMSOpt,CMSGiveOpt
       use UnixInfo, only: SuperName
       use gas_data, only: NGAS, NGSSH, IGSOCCX
+      use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens,
+     &                  TimeFock, TimeHCSCE, TimeHDiag, TimeHSel,
+     &                  TimeInput, TimeOrb, TimePage, TimeRelax,
+     &                  TimeSigma, TimeTotal, TimeTrans, TimeWfn
+      use lucia_data, only: TDENSI, TSIGMA
       use rasscf_global, only: IROOT, CMSStartMat, CMSThreshold,
      &                         CORESHIFT, Ener, ExFac, hRoots,
      &                         iAlphaBeta, ICICH, ICICP, iCIonly,
@@ -56,7 +60,6 @@
 
       Implicit None
 #include "rasdim.fh"
-#include "timers.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
@@ -333,26 +336,26 @@ C The rest is at the present time just to allow testing
          end if
       End Do
 *
-      Ebel_3     = 0.0d0
-      Eterna_3   = 0.0d0
-      Rado_3     = 0.0d0
-      Rolex_3    = 0.0d0
-      Omega_3    = 0.0d0
-      Tissot_3   = 0.0d0
-      Piaget_3   = 0.0d0
-      Candino_3  = 0.0d0
-      Fortis_3   = 0.0d0
-      Zenith_3   = 0.0d0
-      Gucci_3    = 0.0d0
-      Alfex_3    = 0.0d0
-      WTC_3      = 0.0d0
-      Longines_3 = 0.0d0
-      Oris_2     = 0.0d0
-      Movado_2   = 0.0d0
+      TimeTotal  = 0.0d0
+      TimeInput  = 0.0d0
+      TimeWfn    = 0.0d0
+      TimeDens   = 0.0d0
+      TimeSigma  = 0.0d0
+      TimeHSel   = 0.0d0
+      TimeHDiag  = 0.0d0
+      TimeFock   = 0.0d0
+      TimeAoMo   = 0.0d0
+      TimeTrans  = 0.0d0
+      TimeCIOpt  = 0.0d0
+      TimeOrb    = 0.0d0
+      TimeDavid  = 0.0d0
+      TimePage   = 0.0d0
+      TimeHCSCE  = 0.0d0
+      TimeRelax  = 0.0d0
 *
 CSVC: lucia timers
-      tsigma = 0.0d0
-      tdensi = 0.0d0
+      tsigma(:) = 0.0d0
+      tdensi(:) = 0.0d0
 *
 C state rotation
       iRotPsi=0

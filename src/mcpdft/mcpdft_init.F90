@@ -15,8 +15,7 @@
 !>   Determine whether orbital files should be read, etc.
 !>
 !> @details
-!> Sets values in common blocks in timers.fh and the modules
-!> rasscf_global.F90 and general_data.F90
+!> Sets values in the modules timers, rasscf_global and general_data.
 !***********************************************************************
 
 subroutine mcpdft_init()
@@ -24,13 +23,13 @@ subroutine mcpdft_init()
   use definitions,only:iwp
   Use Fock_util_global,only:DoCholesky
   Use Cholesky,only:ChFracMem
+  use timers,only:TimeAoMo,TimeCIOpt,TimeDavid,TimeDens,TimeFock,TimeHCSCE,TimeHDiag,TimeHSel,TimeInput,TimeOrb,TimePage, &
+                  TimeRelax,TimeSigma,TimeTotal,TimeTrans,TimeWfn
   use mcpdft_output,only:set_print_level
   use general_data,only:ispin,nactel,nelec3,nhole1,stsym,nfro,nish,nash,nrs1,nrs2,nrs3,nssh,ndel,nbas
   use rasscf_global,only:iroot,weight,DFTFOCK,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,TITLE,iXSym,iTRI
 
   implicit none
-
-#include "timers.fh"
 
   integer(kind=iwp) :: i
 !----------------------------------------------------------------------*
@@ -103,21 +102,21 @@ subroutine mcpdft_init()
   enddo
 
 ! Initialize Timing Variables
-  Ebel_3 = zero
-  Eterna_3 = zero
-  Rado_3 = zero
-  Rolex_3 = zero
-  Omega_3 = zero
-  Tissot_3 = zero
-  Piaget_3 = zero
-  Candino_3 = zero
-  Fortis_3 = Zero
-  Zenith_3 = zero
-  Gucci_3 = zero
-  Alfex_3 = zero
-  WTC_3 = zero
-  Longines_3 = zero
-  Oris_2 = zero
-  Movado_2 = Zero
+  TimeTotal = Zero
+  TimeInput = Zero
+  TimeWfn = Zero
+  TimeDens = Zero
+  TimeSigma = Zero
+  TimeHSel = Zero
+  TimeHDiag = Zero
+  TimeFock = Zero
+  TimeAoMo = Zero
+  TimeTrans = Zero
+  TimeCIOpt = Zero
+  TimeOrb = Zero
+  TimeDavid = Zero
+  TimePage = Zero
+  TimeHCSCE = Zero
+  TimeRelax = Zero
 
 END

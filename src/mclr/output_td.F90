@@ -283,8 +283,7 @@ if (Mckinley) then
   irc = 3*ndisp
   Label = 'DOTELGR'
   call drdMCk(irc,iopt,LaBeL,idum,EG,idum)
-  elec_On = .true.
-  if (irc /= 0) elec_On = .false.
+  if (irc == 0) elec_On = .true.
 end if
 Hess2(:) = Hss(:)
 if (debug) then
@@ -388,13 +387,16 @@ if (iRC /= 0) then
   write(u6,*) 'Reading ',Label,' from MCKINT file failed'
   write(u6,*)
 end if
-if (debug) call HssPrt_MCLR(DegDisp,Hess,ldisp2)
-ELEC(:) = ELEC(:)-EG(:)
-if (debug .and. elec_On) call Recprt('ELEC-ST',' ',EG,3*nDisp,1)
-if (debug .and. elec_On) call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
+if (debug) then
+  call HssPrt_MCLR(DegDisp,Hess,ldisp2)
+  if (elec_On) then
+    ELEC(:) = ELEC(:)-EG(:)
+    call Recprt('ELEC-ST',' ',EG,3*nDisp,1)
+    call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
+  end if
+endif
 
-Lu_10 = 10
-Lu_10 = IsFreeUnit(Lu_10)
+Lu_10 = IsFreeUnit(10)
 call molcas_open(lu_10,'UNSYM')
 !open(unit=Lu_10, file='UNSYM')
 

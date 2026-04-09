@@ -36,9 +36,7 @@ interface delete
 end interface
 
 ! Private extensions to mma interfaces
-interface cptr2loff
-  module procedure :: block_cptr2loff
-end interface
+
 interface mma_allocate
   module procedure :: block_mma_allo_1D, block_mma_allo_1D_lim
 end interface
@@ -147,11 +145,8 @@ end function blocksizes
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define block_cptr2loff, block_mma_allo_1D, block_mma_allo_1D_lim, block_mma_free_1D
+! Define block_mma_allo_1D, block_mma_allo_1D_lim, block_mma_free_1D
 #define _TYPE_ type(t_blockdiagonal)
-#  define _FUNC_NAME_ block_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ block_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'blk_mma'

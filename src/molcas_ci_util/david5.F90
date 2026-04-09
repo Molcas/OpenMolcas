@@ -11,6 +11,7 @@
 
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTRI)
 
+use timers, only: TimeDavid, TimeSigma
 use lucia_data, only: CFTP, DTOC, ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
@@ -27,7 +28,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "rasdim.fh"
-#include "timers.fh"
 integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
@@ -35,7 +35,8 @@ real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
 integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, kRoot, l1, &
                      l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
-real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, updsiz, Z
+real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
+                 Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
 integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
@@ -89,7 +90,7 @@ if (DoFaro) then
   call mma_allocate(vkcnf,nactel,label='kcnf')
 end if
 
-call Timing(Alfex_1,dum1,dum2,dum3)
+call Timing(Time1(1),dum1,dum2,dum3)
 Rc_CI = 0
 IPRLEV = IPRLOC(3)
 
@@ -148,7 +149,7 @@ do it_ci=1,mxItr
       call dVcPrt(' ',' ',Vec1,lPrint)
     end if
 
-    call Timing(Rolex_1,dum1,dum2,dum3)
+    call Timing(Time2(1),dum1,dum2,dum3)
     if (DOFARO) then
       ! determinant wavefunctions
       call mma_allocate(sgm,ndeta,ndetb,label='sgm')
@@ -200,9 +201,8 @@ do it_ci=1,mxItr
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
     Vec1(:) = Vec1(:)+ECORE_HEX*Vec2(:)
     ! Timings on generation of the sigma vector
-    call Timing(Rolex_2,dum1,dum2,dum3)
-    Rolex_2 = Rolex_2-Rolex_1
-    Rolex_3 = Rolex_3+Rolex_2
+    call Timing(Time2(2),dum1,dum2,dum3)
+    TimeSigma = TimeSigma+Time2(2)-Time2(1)
 
     if (iprlev >= DEBUG) then
       lPrint = min(nConf,200)
@@ -551,8 +551,7 @@ else
   call mma_deallocate(sigtemp)
 end if
 
-call Timing(Alfex_2,dum1,dum2,dum3)
-Alfex_2 = Alfex_2-Alfex_1
-Alfex_3 = Alfex_3+Alfex_2
+call Timing(Time1(2),dum1,dum2,dum3)
+TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
 end subroutine David5
