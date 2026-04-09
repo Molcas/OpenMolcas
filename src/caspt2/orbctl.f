@@ -132,9 +132,7 @@ c Then call utility routine PRIMO.
           CALL mma_deallocate(ORBE)
           RETURN
         END IF
-      END IF
 
-      IF ( IPRGLB.GE.VERBOSE) THEN
 C Print orbitals. Different options:
         IF ( OUTFMT.EQ.'LONG    ' ) THEN
           THRENE=2.0d0**31
