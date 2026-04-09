@@ -255,8 +255,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! compute standard newton raphson step
         Disp(:) = -Gradient(:)/Hdiagvec(:)
 
-        call rescale_disp()
-
 #       ifdef _DEBUGLISTS_
             write(u6,*) "nIter =",nIter
             call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
@@ -298,7 +296,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
-
         DispList(:,nIter+1) = Disp(:) ! q_i
 
         ! update CMO
@@ -314,19 +311,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     end select ! 2x2 or NxN rotations
 
 #   ifdef _GETMOLDEN_
-    ! choose the iteration of interest, this creates a $project.imlocal.molden file
-    write (x1,fmt) nIter ! converting integer to string using a 'internal file'
-    imfile = trim(NewDir)//'/imloc.'//x1//'.molden'
-
-    ! creating files in scratch directory
-    call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
-
-    ! move files from scratch dir to project dir
-    call systemf("mv "//trim(WorkDir)//'/imloc '//trim(imfile),rc)
-    call systemf("mv "//trim(WorkDir)//'/LocOrbIM '//trim(NewDir)//'/LocOrbIM.'//x1,rc)
-
+    call moldenIM()
 #   endif
-
 
     !check if converged
     Delta = Functional-OldFunctional
@@ -481,11 +467,29 @@ subroutine StepSizeChecks()
         end if
     end if
 
-
 #   ifdef _DEBUGPRINT_
     write(u6,*) "kappa elements > 0.01 =",large_elements
     write(u6,*) "largest element =", Disp(maxel)
 #   endif
 end subroutine StepSizeChecks
+
+
+
+#ifdef _GETMOLDEN_
+subroutine moldenIM()
+
+    ! choose the iteration of interest, this creates a $project.imlocal.molden file
+    write (x1,fmt) nIter ! converting integer to string using a 'internal file'
+    imfile = trim(NewDir)//'/imloc.'//x1//'.molden'
+
+    ! creating files in scratch directory
+    call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+
+    ! move files from scratch dir to project dir
+    call systemf("mv "//trim(WorkDir)//'/imloc '//trim(imfile),rc)
+    call systemf("mv "//trim(WorkDir)//'/LocOrbIM '//trim(NewDir)//'/LocOrbIM.'//x1,rc)
+
+end subroutine moldenIM
+#endif
 
 end subroutine PipekMezey_Iter
