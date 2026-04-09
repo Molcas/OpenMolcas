@@ -29,7 +29,7 @@
       use para_info, only: myRank
       use rasscf_global, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
-      use index_symmetry, only : one_el_idx, two_el_idx_flatten,
+      use index_symmetry, only : two_el_idx_flatten,
      &                           one_el_idx_flatten
       use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_

@@ -18,18 +18,18 @@ use mpi, only: MPI_COMM_WORLD, MPI_LOGICAL
 use Para_Info, only: Is_Real_Par
 use Definitions, only: MPIInt
 #endif
+use Definitions, only: wp, iwp, byte
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_close_group, mh5_fetch_dset, mh5_get_dset_dims, mh5_open_dset, mh5_open_file_r, mh5_open_group
-#endif
 use Para_Info, only: MyRank
-use filesystem, only: getcwd_
-use linalg_mod, only: verify_
 use caspt2_global, only: jstate, mstate, nActel, nG3
+use linalg_mod, only: verify_
 use fortran_strings, only: str
-use stdalloc, only: mma_allocate, mma_deallocate
+use filesystem, only: getcwd_
 use Constants, only: Zero, One
-use, intrinsic :: iso_fortran_env, only: int8
-use Definitions, only: wp, iwp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: u6
+#endif
 
 implicit none
 private
@@ -136,7 +136,7 @@ subroutine mkfg3fciqmc(g1,g2,g3,f1,f2,f3,idxG3,nLev)
 
   integer(kind=iwp), intent(in) :: nLev
   real(kind=wp), intent(inout) :: g1(nLev,nLev), g2(nLev,nLev,nLev,nLev), g3(*), f1(nLev,nLev), f2(nLev,nLev,nLev,nLev), f3(*)
-  integer(kind=int8), intent(in) :: idxG3(6,*)
+  integer(kind=byte), intent(in) :: idxG3(6,*)
 
 # ifndef _HDF5_
   unused_var(g1)
@@ -170,7 +170,7 @@ end subroutine mkfg3fciqmc
 subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev)
 
   integer(kind=iwp), intent(in) :: iroot, nLev
-  integer(kind=int8), intent(in) :: idxG3(6,nG3)
+  integer(kind=byte), intent(in) :: idxG3(6,nG3)
   real(kind=wp), intent(inout) :: g3(*), g2(nLev,nLev,nLev,nLev), g1(nLev,nLev), f3(*), f2(nLev,nLev,nLev,nLev), f1(nLev,nLev)
   integer(kind=iwp) :: i, t, u, v, x, y, z
   real(kind=wp), allocatable :: f3_temp(:,:,:,:,:,:), g3_temp(:,:,:,:,:,:)

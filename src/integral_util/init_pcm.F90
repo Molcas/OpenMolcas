@@ -73,40 +73,37 @@ else
     ! the one of the ground (reference) state
     if ((iCharge_ref < iCharg) .and. NonEq) then
       iCharg = iCharge_ref
-    else
+    else if ((iCharge_ref == iCharg) .and. (NonEq_ref .eqv. NonEq)) then
       ! If charge or NonEq/Eq status in retrieved data not the same as
       ! for request redo the PCM initiation.
 
-      if ((iCharge_ref == iCharg) .and. (NonEq_ref .eqv. NonEq)) then
+      ! Evolving the new code
 
-        ! Evolving the new code
+      call mma_allocate(PCMSph,4,NS,Label='PCMSph')
+      call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
+      call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
+      call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
+      call mma_allocate(SSph,NS,Label='SSph')
+      call mma_allocate(PCMDM,nTs,nTs,Label='PCMDM')
+      call mma_allocate(PCM_N,NS,Label='PCM_N')
+      call mma_allocate(PCMiSph,nTs,Label='PCMiSph')
+      call mma_allocate(NVert,nTs,Label='NVert')
+      call mma_allocate(IntSph,MxVert,nTs,Label='IntSph')
+      call mma_allocate(NewSph,2,NS,Label='NewSph')
 
-        call mma_allocate(PCMSph,4,NS,Label='PCMSph')
-        call mma_allocate(PCMTess,4,nTs,Label='PCMTess')
-        call mma_allocate(Vert,3,MxVert,nTs,Label='Vert')
-        call mma_allocate(Centr,3,MxVert,nTs,Label='Centr')
-        call mma_allocate(SSph,NS,Label='SSph')
-        call mma_allocate(PCMDM,nTs,nTs,Label='PCMDM')
-        call mma_allocate(PCM_N,NS,Label='PCM_N')
-        call mma_allocate(PCMiSph,nTs,Label='PCMiSph')
-        call mma_allocate(NVert,nTs,Label='NVert')
-        call mma_allocate(IntSph,MxVert,nTs,Label='IntSph')
-        call mma_allocate(NewSph,2,NS,Label='NewSph')
+      call Get_dArray('PCMSph',PCMSph,4*NS)
+      call Get_dArray('PCMTess',PCMTess,4*nTs)
+      call Get_dArray('Vert',Vert,3*MxVert*nTs)
+      call Get_dArray('Centr',Centr,3*MxVert*nTs)
+      call Get_dArray('SSph',SSph,NS)
+      call Get_dArray('PCMDM',PCMDM,nTs**2)
+      call Get_iArray('PCM_N',PCM_N,NS)
+      call Get_iArray('PCMiSph',PCMiSph,nTs)
+      call Get_iArray('NVert',NVert,nTs)
+      call Get_iArray('IntSph',IntSph,MxVert*nTs)
+      call Get_iArray('NewSph',NewSph,2*NS)
 
-        call Get_dArray('PCMSph',PCMSph,4*NS)
-        call Get_dArray('PCMTess',PCMTess,4*nTs)
-        call Get_dArray('Vert',Vert,3*MxVert*nTs)
-        call Get_dArray('Centr',Centr,3*MxVert*nTs)
-        call Get_dArray('SSph',SSph,NS)
-        call Get_dArray('PCMDM',PCMDM,nTs**2)
-        call Get_iArray('PCM_N',PCM_N,NS)
-        call Get_iArray('PCMiSph',PCMiSph,nTs)
-        call Get_iArray('NVert',NVert,nTs)
-        call Get_iArray('IntSph',IntSph,MxVert*nTs)
-        call Get_iArray('NewSph',NewSph,2*NS)
-
-        return
-      end if
+      return
     end if
   end if
 end if
