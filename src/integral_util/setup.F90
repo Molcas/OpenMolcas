@@ -17,7 +17,8 @@ implicit none
 private
 
 integer(kind=iwp) :: mSkal, MxPrm, nAux, nSOs
+logical(kind=iwp) :: DEBUG=.FALSE.
 
-public :: mSkal, MxPrm, nAux, nSOs
+public :: mSkal, MxPrm, nAux, nSOs, DEBUG
 
 end module Setup

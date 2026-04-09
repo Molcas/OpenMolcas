@@ -35,6 +35,7 @@ use Localisation_globals, only: fileorb_id, isHDF5
 use mh5, only: mh5_close_file
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -42,7 +43,7 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
 integer(kind=iwp), intent(_OUT_) :: IndT(*)
 real(kind=wp), intent(_OUT_) :: CMO(*), Occ(*), EOrb(*)
 character(len=*), intent(in) :: FName
-integer(kind=iwp) :: i, iErr, iSym, iUHF, iWarn, iWFType, k1, k2, l_CMO, Lu, nBasT, nOrbT
+integer(kind=iwp) :: iErr, iSym, iUHF, iWarn, iWFType, k1, k2, l_CMO, Lu, n1, n2, nBasT, nOrbT
 real(kind=wp) :: Dummy(1)
 character(len=80) :: VTitle
 integer(kind=iwp), allocatable :: Ind_(:)
@@ -93,43 +94,30 @@ else
 end if
 write(u6,*)
 
-k1 = 1
-k2 = 1
+k1 = 0
+k2 = 0
 do iSym=1,nSym
-  call dCopy_(nBas(iSym)*nOrb(iSym),CMO_(k1),1,CMO(k2),1)
-  call FZero(CMO(k2+nBas(iSym)*nOrb(iSym)),nBas(iSym)*(nBas(iSym)-nOrb(iSym)))
-  k1 = k1+nBas(iSym)*nOrb(iSym)
-  k2 = k2+nBas(iSym)*nBas(iSym)
+  n1 = nBas(iSym)*nOrb(iSym)
+  n2 = nBas(iSym)*nBas(iSym)
+  CMO(k2+1:k2+n1) = CMO_(k1+1:k1+n1)
+  CMO(k2+n1+1:k2+n2) = Zero
+  k1 = k1+n1
+  k2 = k2+n2
 end do
 
-k1 = 1
-k2 = 1
+k1 = 0
+k2 = 0
 do iSym=1,nSym
-  call dCopy_(nOrb(iSym),Occ_(k1),1,Occ(k2),1)
-  call FZero(Occ(k2+nOrb(iSym)),nBas(iSym)-nOrb(iSym))
-  k1 = k1+nOrb(iSym)
-  k2 = k2+nBas(iSym)
-end do
-
-k1 = 1
-k2 = 1
-Dummy(1) = huge(Dummy)
-do iSym=1,nSym
-  call dCopy_(nOrb(iSym),EOr_(k1),1,EOrb(k2),1)
-  call dCopy_(nBas(iSym)-nOrb(iSym),Dummy(1),0,EOrb(k2+nOrb(iSym)),1)
-  k1 = k1+nOrb(iSym)
-  k2 = k2+nBas(iSym)
-end do
-
-k1 = 1
-k2 = 1
-do iSym=1,nSym
-  IndT(k2:k2+nOrb(iSym)-1) = Ind_(k1:k1+nOrb(iSym)-1)
-  do i=nOrb(iSym),nBas(iSym)-1
-    IndT(k2+i) = 7
-  end do
-  k1 = k1+nOrb(iSym)
-  k2 = k2+nBas(iSym)
+  n1 = nOrb(iSym)
+  n2 = nBas(iSym)
+  Occ(k2+1:k2+n1) = Occ_(k1+1:k1+n1)
+  Occ(k2+n1+1:k2+n2) = Zero
+  EOrb(k2+1:k2+n1) = EOr_(k1+1:k1+n1)
+  EOrb(k2+n1+1:k2+n2) = huge(Dummy)
+  IndT(k2+1:k2+n1) = Ind_(k1+1:k1+n1)
+  IndT(k2+n1+1:k2+n2) = 7
+  k1 = k1+n1
+  k2 = k2+n1
 end do
 
 call mma_deallocate(CMO_)

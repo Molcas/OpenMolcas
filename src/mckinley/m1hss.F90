@@ -82,13 +82,13 @@ mOp(2) = nOp(2)
 
 ipAOff = ipA
 do iBeta=1,nBeta
-  Array(ipAOff:ipAOff+nAlpha) = Alpha
+  Array(ipAOff:ipAOff+nAlpha-1) = Alpha
   ipAOff = ipAOff+nAlpha
 end do
 
 ipBOff = ipB
 do iBeta=1,nBeta
-  Array(ipBOff:ipBOff+nAlpha) = Beta(iBeta)
+  Array(ipBOff:ipBOff+nAlpha-1) = Beta(iBeta)
   ipBOff = ipBOff+nAlpha
 end do
 

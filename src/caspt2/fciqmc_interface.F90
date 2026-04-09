@@ -37,7 +37,6 @@ module fciqmc_interface
     private
     public :: DoFCIQMC, NonDiagonal, TransformToNormalOrder, mkfg3fciqmc, load_fciqmc_g1
     logical :: DoFCIQMC = .false., NonDiagonal = .false., TransformToNormalOrder = .false.
-    real(wp), external :: DDOT_
 
     ! new structure of GUGX module makes it necessary to pass nLev as function parameter every time :(
 
@@ -215,15 +214,19 @@ contains
                             do v = 1, nLev
                                 do u = 1, nLev
                                     do t = 1, nLev
+                                        f3(t, u, v, x, y, z) = f3(t, u, v, x, y, z) &
+                                            - sum(fockmat(z, :)*g3(t, u, v, x, y, :)) &
+                                            - sum(fockmat(x, :)*g3(t, u, v, :, y, z)) &
+                                            - sum(fockmat(u, :)*g3(t, :, v, x, y, z))
                                         ! (1)
-                                        f3(t, u, v, x, y, z) = f3(t, u, v, x, y, z) &
-                                            - DDOT_(nLev, fockmat(z, :), 1, g3(t, u, v, x, y, :), 1)
+                                        !f3(t, u, v, x, y, z) = f3(t, u, v, x, y, z) &
+                                        !    - DDOT_(nLev, fockmat(z, :), 1, g3(t, u, v, x, y, :), 1)
                                         ! (2)
-                                        f3(t, u, v, x, y, z) = f3(t, u, v, x, y, z) &
-                                            - DDOT_(nLev, fockmat(x, :), 1, g3(t, u, v, :, y, z), 1)
+                                        !f3(t, u, v, x, y, z) = f3(t, u, v, x, y, z) &
+                                        !    - DDOT_(nLev, fockmat(x, :), 1, g3(t, u, v, :, y, z), 1)
                                         ! (3)
-                                        f3(t, u, v, x, y, z) = f3(t, u, v, x, y, z) &
-                                            - DDOT_(nLev, fockmat(u, :), 1, g3(t, :, v, x, y, z), 1)
+                                        !f3(t, u, v, x, y, z) = f3(t, u, v, x, y, z) &
+                                        !    - DDOT_(nLev, fockmat(u, :), 1, g3(t, :, v, x, y, z), 1)
                                     end do
                                 end do
                             end do

@@ -11,7 +11,7 @@
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
        SubRoutine Read2_2(rMO1,rMO2,FockI,FockA,
-     &                    Temp1,nTemp,Temp2,Temp3,Temp4,
+     &                    Temp1,nTemp,Temp2,Temp3,Temp4,nDens22,
      &                    DI13,DI24,DI,
      &                    DA13,DA24,DA,
      &                    rkappa,idsym,
@@ -55,8 +55,8 @@
       use input_mclr, only: nSym,iMethod,nAsh,nIsh,nOrb
       Implicit None
       real*8 rmo1(nMba),rmo2(nmba),FockI(nDens2),FockA(nDens2)
-      Integer nTemp
-      real*8 Temp1(ntemp),Temp2(nDens2),Temp3(nDens2),Temp4(nDens2),
+      Integer nTemp,nDens22
+      real*8 Temp1(ntemp),Temp2(nDens22),Temp3(nDens22),Temp4(nDens22),
      &       DI13(nDens2),DI24(nDens2),DI(nCMO),
      &       DA13(nDens2),DA24(nDens2),DA(nCMO),
      &       rkappa(nDens2)

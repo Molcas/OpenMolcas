@@ -44,6 +44,7 @@ ipOcc = 0
 Scal = One
 do iSym=1,nSym
   nBs = nBas(iSym)
+  if (nBs < 1) cycle
   nOr = nOrb(iSym)
   lth = nTri_Elem(nBs)
   ! count occupation number...

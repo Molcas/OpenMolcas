@@ -29,7 +29,6 @@ real(kind=wp) :: Tst(8)
 character(len=13) :: orbitals
 character(len=*), parameter :: SecNam = 'RPA_Setup_Add_Info'
 integer(kind=iwp), external :: RPA_iUHF, Cho_X_GetTol
-real(kind=wp), external :: dDot_
 
 ! Check that molecular geometry is the expected one:
 ! nuclear repulsion energy
@@ -57,16 +56,16 @@ do iSpin=1,iUHF
   ipV = 1
   do iSym=1,nSym
     Tst(1) = Tst(1)+sum(OccEn(ipO:ipO+nFro(iSym,iSpin)-1,iSpin))
-    Tst(2) = Tst(2)+dDot_(nFro(iSym,iSpin),OccEn(ipO,iSpin),1,OccEn(ipO,iSpin),1)
+    Tst(2) = Tst(2)+sum(OccEn(ipO:ipO+nFro(iSym,iSpin)-1,iSpin)**2)
     ipO = ipO+nFro(iSym,iSpin)
     Tst(3) = Tst(3)+sum(OccEn(ipO:ipO+nOcc(iSym,iSpin)-1,iSpin))
-    Tst(4) = Tst(4)+dDot_(nOcc(iSym,iSpin),OccEn(ipO,iSpin),1,OccEn(ipO,iSpin),1)
+    Tst(4) = Tst(4)+sum(OccEn(ipO:ipO+nOcc(iSym,iSpin)-1,iSpin)**2)
     ipO = ipO+nOcc(iSym,iSpin)
     Tst(5) = Tst(5)+sum(VirEn(ipV:ipV+nVir(iSym,iSpin)-1,iSpin))
-    Tst(6) = Tst(6)+dDot_(nVir(iSym,iSpin),VirEn(ipV,iSpin),1,VirEN(ipV,iSpin),1)
+    Tst(6) = Tst(6)+sum(VirEn(ipV:ipV+nVir(iSym,iSpin)-1,iSpin)**2)
     ipV = ipV+nVir(iSym,iSpin)
     Tst(7) = Tst(7)+sum(VirEn(ipV:ipV+nDel(iSym,iSpin)-1,iSpin))
-    Tst(8) = Tst(8)+dDot_(nDel(iSym,iSpin),VirEn(ipV,iSpin),1,VirEn(ipV,iSpin),1)
+    Tst(8) = Tst(8)+sum(VirEn(ipV:ipV+nDel(iSym,iSpin)-1,iSpin)**2)
     ipV = ipV+nDel(iSym,iSpin)
   end do
 end do

@@ -28,8 +28,8 @@ do u=1,no
     ij = 0
     do i=1,no
 
-      VV(i,u,v,:) = Aex(ij+1:ij+i,u,v)
-      VV(:,v,u,i) = Aex(ij+1:ij+i,u,v)
+      VV(i,u,v,:) = Aex(ij+1:ij+no,u,v)
+      VV(:,v,u,i) = Aex(ij+1:ij+no,u,v)
 
       ij = ij+i
     end do

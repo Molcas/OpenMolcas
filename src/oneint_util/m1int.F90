@@ -53,6 +53,7 @@ unused_var(Alpha)
 unused_var(Beta)
 unused_var(ZInv)
 unused_var(nHer)
+unused_var(CoorO)
 unused_var(lOper)
 unused_var(iChO)
 unused_var(nOrdOp)
@@ -65,7 +66,6 @@ iPrint = nPrint(iRout)
 if (iPrint >= 49) then
   call RecPrt(' In M1Int: A',' ',A,1,3)
   call RecPrt(' In M1Int: RB',' ',RB,1,3)
-  call RecPrt(' In M1Int: CoorO',' ',CoorO,1,3)
   call RecPrt(' In M1Int: P',' ',P,nZeta,3)
   write(u6,*) ' In M1Int: la,lb=',' ',la,lb
 end if

@@ -18,22 +18,22 @@ subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGra
 use setup, only: nAux
 use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: iTri
-use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr, nFT, Aux
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 Implicit None
 integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, nBuffer, nDens, MOip(0:7), nTwo2, &
                                 nQuad
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(nBuffer), DTemp(nDens), DInAc(nDens)
-logical(kind=iwp), intent(inout):: Post_Process
-logical(kind=iwp), intent(in):: lGrad, lHess, lPick
+logical(kind=iwp), intent(inout) :: Post_Process
+logical(kind=iwp), intent(in) :: lGrad, lHess, lPick
 
 real(kind=wp) :: Coor(3,4), PMax
 logical(kind=iwp) :: lTri, lDot, lDot2
-logical(kind=iwp), parameter :: n8=.true.
+logical(kind=iwp), parameter :: n8 = .true.
 integer(kind=iwp) :: nSO, iSD4(0:nSD,4)
 integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
@@ -49,22 +49,22 @@ integer(kind=iwp) :: kCmp, lCmp, nijkl
 integer(kind=iwp), external :: MemSO2_P
 real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Work2(:), Work3(:), Work4(:), WorkX(:), Temp(:)
 
-PMax=Zero
+PMax = Zero
 if (.not. allocated(Sew_Scr)) then
-   call mma_MaxDBLE(MemMax)
-   if (MemMax > 8000) MemMax = MemMax-8000
-   call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+  call mma_MaxDBLE(MemMax)
+  if (MemMax > 8000) MemMax = MemMax-8000
+  call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 else
   MemMax = size(Sew_Scr)
-endif
+end if
 ipMOC = 1
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
 call Coor_setup(iSD4,nSD,Coor)
-!                                                                  *
+!                                                                      *
 !***********************************************************************
-!                                                                  *
+!                                                                      *
 ! The code is working in such away that the MO needs upper and lower
 ! triangular parts of ij kl but hessian needs only lower, check if the
 ! integralbatch is lower or upper!!
@@ -73,16 +73,16 @@ lTri = (iTri(iS,jS) >= iTri(kS,lS))
 if ((.not. lTri) .and. (nMethod /= RASSCF)) return
 lDot = (lTri .and. lHess)
 
-!                                                                  *
+!                                                                      *
 !***********************************************************************
-!                                                                  *
+!                                                                      *
 ! Allocate memory for zeta, eta, kappa, P and Q.
 ! Allocate also for Alpha, Beta , Gamma and Delta in expanded form.
 
 call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
-!                                                                  *
+!                                                                      *
 !***********************************************************************
-!                                                                  *
+!                                                                      *
 ! Fix the 1st order density matrix
 
 ! Pick up pointers to desymmetrized 1st order density matrices.
@@ -91,9 +91,9 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 
 if (lTri .and. lPick) call Dens_Infos(nMethod)
 
-!                                                                  *
+!                                                                      *
 !***********************************************************************
-!                                                                  *
+!                                                                      *
 ! Compute total size of the second order density matrix in SO basis.
 !----------------------------------------------------------------------*
 nSO = MemSO2_P(nSD,iSD4)
@@ -255,7 +255,7 @@ subroutine Dens_Infos(nMethod)
 
   integer(kind=iwp), intent(in) :: nMethod
   integer(kind=iwp) :: ijS, ikS, ilS, ipTmp, ipTmp2, iS, jkS, jlS, jS, klS, kS, lS, ipDum
-integer(kind=iwp), parameter :: Nr_of_Densities = 1
+  integer(kind=iwp), parameter :: Nr_of_Densities = 1
 
   iS = iSD4(11,1)
   jS = iSD4(11,2)

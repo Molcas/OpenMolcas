@@ -53,7 +53,7 @@ subroutine qcmaquis_info_init(igroup,nstates,tag)
   integer(kind=iwp), intent(in) :: igroup, nstates, tag
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc(A)
+    subroutine c_null_alloc(A) bind(C)
       character(len=*), allocatable :: A(:)
     end subroutine c_null_alloc
   end interface

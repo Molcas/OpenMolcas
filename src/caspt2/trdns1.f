@@ -110,6 +110,7 @@ C Transform to standard representation, covariant form.
         NAS=NASUP(ISYM,ICASE)
         NVEC=NIS*NAS
         IF(NVEC.EQ.0) GOTO 200
+        IF(NSSH(ISYM)*NASH(ISYM).EQ.0) GOTO 200
         CALL RHS_ALLO(NAS,NIS,LVEC)
         CALL RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
         FACT=1.0D00/(DBLE(MAX(1,NACTEL)))

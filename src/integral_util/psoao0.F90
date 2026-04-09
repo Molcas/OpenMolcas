@@ -175,7 +175,7 @@ do
      ! Add block for PAO to be generated in PGET0
      kSOInt = nSO*nijkl*nComp + nabcd*nijkl
   Else
-     kSOInt = nSO*nijkl
+  kSOInt = nSO*nijkl
   End If
   Mem1 = iFact*kSOInt
   if (Mem1 == 0) Mem1 = 1

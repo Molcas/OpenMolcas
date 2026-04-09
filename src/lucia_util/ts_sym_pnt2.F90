@@ -35,12 +35,9 @@ use Symmetry_Info, only: Mul
 use lucia_data, only: MINMAX_SM_GP, MXPNGAS, MXPNSMST, NELFGP, NIRREP, NSTFSMGP
 use Definitions, only: iwp, u6
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: NIGRP, IGRP(NIGRP), ISYM, LPNT
-integer(kind=iwp), intent(out) :: MNVAL(NIGRP), MXVAL(NIGRP)
-integer(kind=iwp), intent(_OUT_) :: IPNT(*)
+integer(kind=iwp), intent(out) :: MNVAL(NIGRP), MXVAL(NIGRP), IPNT(LPNT)
 integer(kind=iwp) :: IFIRST, IGAS, IOFF, ISMFGS(MXPNGAS), ISTSMM1, ISYMSTR, MULT, NBLKS, NGASL, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, &
                      NSTRII, NSTRINT
 

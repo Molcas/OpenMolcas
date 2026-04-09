@@ -173,7 +173,7 @@ end do !n
 BNMC(:,:,:) = cZero
 BNMS(:,:,:) = cZero
 do n=1,d-1,2
-  BNMC(:,n,0) = B(l,n,0)
+  BNMC(:,n,0) = B(:,n,0)
   do m=1,N
     m_fact = (-One)**M
     BNMC(:,n,m) = B(:,n,m)+m_fact*B(:,n,-m)

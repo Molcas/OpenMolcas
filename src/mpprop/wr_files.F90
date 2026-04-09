@@ -82,7 +82,7 @@ else
       write(Lu,1) AtBoMltPl(iMltPl)%A(:,i*(i+1)/2)
     end do
     do iMltPl=0,2
-      write(Lu,1) AtBoMltPlCopy(iMltPl)%A(:,i*(i+1)/2+i-1)
+      write(Lu,1) AtBoMltPlCopy(iMltPl)%A(:,i*(i+1)/2)
     end do
     ! Begin EB
     ! if AtBoPol is not allocated, print zero

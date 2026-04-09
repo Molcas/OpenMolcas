@@ -26,9 +26,9 @@ character(len=LenIn8), intent(in) :: UBNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk
 real(kind=wp), intent(out) :: QQ(MxTyp,nNuc)
-integer(kind=iwp) :: AtomA, AtomB, i, i0, iAB, iAng, IB, iBlo, iEnd, iix, iixx, ik, ikk, iM, IMN, IMO, iNuc, IO, iPair, iPL, IS, &
-                     ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, &
-                     NB, nBas2, NBAST, NDIM, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
+integer(kind=iwp) :: AtomA, AtomB, i, i0, iAB, iAng, IB, iBlo, iEnd, iix, iixx, ik, ikk, iM, IMN, IMO, IO, iPair, iPL, IS, ISMO, &
+                     IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, NB, &
+                     nBas2, NBAST, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
 real(kind=wp) :: BO, BOThrs, Det, DMN, QSUMI, TERM
 logical(kind=iwp) :: DoBond
 character(len=len(ProgName)) :: PName
@@ -434,8 +434,7 @@ end if
 !     function type                                                    *
 !----------------------------------------------------------------------*
 
-NDIM = NXTYP*NNUC
-call FZero(QQ,nDim)
+QQ(:,:) = Zero
 IB = 0
 IS = 0
 IMO = 0
@@ -630,10 +629,7 @@ end do
 if (iCase /= 0) then
   call mma_allocate(Charge,nNuc,label='Charge')
   call Get_dArray('Effective nuclear charge',Charge,nNuc)
-  do iNuc=1,nNuc
-    Charge(iNuc) = Charge(iNuc)*(nSym/nStab(iNuc))
-  end do
-  call DaXpY_(nNuc,-One,QSUM_TOT,1,Charge,1)
+  Charge(:) = Charge(:)*(nSym/nStab(:))-QSUM_TOT(:)
 end if
 
 call mma_deallocate(nStab)

@@ -154,8 +154,8 @@ real(kind=wp), allocatable :: AbsC(:), Diag(:), Drs(:,:), Drs2(:,:), Lrs(:,:), M
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: DiagJ(:)
 #endif
-real(kind=wp), allocatable, target :: Aux(:), Aux0(:), Yik(:)
-real(kind=wp), pointer :: Lik(:,:), pYik(:,:), Rik(:)
+real(kind=wp), allocatable, target :: Aux(:), Aux0(:)
+real(kind=wp), pointer :: Lik(:,:), Rik(:)
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_GET_GRAD'
 integer(kind=iwp), external :: IsFreeUnit
@@ -280,8 +280,6 @@ if (DoExchange) then
 
   call mma_allocate(Ylk,MaxB,nItmx,Label='Ylk')
 
-  call mma_allocate(Yik,nItmx**2,Label='Yik') ! Yi[k] vectors
-
   ! used to be nShell*something
   ! ML[k] lists of largest elements in significant shells
   call mma_allocate(MLk,nShell,Label='MLk')
@@ -292,6 +290,7 @@ if (DoExchange) then
   do i=1,nDen
     iS = iE+1
     iE = iE+nShell*nIt(i)
+    if (iE < iS) cycle
     SumClk(i)%A(1:nShell,1:nIt(i)) => Aux0(iS:iE)
   end do
 
@@ -783,8 +782,6 @@ do jSym=1,nSym
             n1 = nIt(iMOright)
             n2 = nItMx
 
-            pYik(1:n1,1:n2) => Yik(1:n1*n2)
-
             if (DoCAS .and. lSA) iMOright = jDen+2
 
             do kSym=1,nSym
@@ -860,9 +857,7 @@ do jSym=1,nSym
 
                     AbsC(1:nBas(lSym)) = abs(MSQ(iMOright)%SB(lSym)%A2(:,i))
 
-                    pYik(i,jK_a) = ddot_(nBas(lSym),AbsC,1,Ylk,1)
-
-                    if (pYik(i,jK_a) >= xtau) then
+                    if (ddot_(nBas(lSym),AbsC,1,Ylk,1) >= xtau) then
                       nQo = nQo+1
                       if ((iBatch == 1) .and. (JRED == 1)) then
                         nQoT = nQoT+1
@@ -1115,8 +1110,6 @@ do jSym=1,nSym
               tmotr(2) = tmotr(2)+(TWT2-TWT1)
 
             end do   ! loop over MOs symmetry
-
-            nullify(pYik)
 
           end do   ! loop over densities
 
@@ -1439,7 +1432,6 @@ if (DoExchange) then
   end do
   call mma_deallocate(Aux0)
   call mma_deallocate(MLk)
-  call mma_deallocate(Yik)
   call mma_deallocate(Ylk)
   call mma_deallocate(AbsC)
   call Deallocate_DT(DiaH)

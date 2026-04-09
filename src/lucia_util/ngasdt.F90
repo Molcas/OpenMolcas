@@ -39,7 +39,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: ITOTSM, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPA), IBLTP(NSMST), &
+integer(kind=iwp), intent(in) :: ITOTSM, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), IBLTP(NSMST), &
                                  IOCOC(NOCTPA,NOCTPB)
 integer(kind=iwp), intent(out) :: NCOMB, MXSB, MXSOOB, NTTSBL, LCOL, MXSOOB_AS
 real(kind=wp) :: XNCOMB

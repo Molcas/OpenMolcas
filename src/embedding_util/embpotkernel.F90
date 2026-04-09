@@ -54,7 +54,6 @@ unused_var(lOper)
 unused_var(iCho)
 unused_var(iStabM)
 unused_var(PtChrg)
-unused_var(nGrid)
 unused_var(iAddPot)
 
 !***** Initialization **************************************************

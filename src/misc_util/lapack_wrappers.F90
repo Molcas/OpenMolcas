@@ -142,6 +142,7 @@ end subroutine dgees_
 subroutine dgeev_(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info_)
   use Definitions, only: BLASR8, iwp
   _BLAS_INT_use_
+  _FPE_TRAP_use_
   implicit none
   character, intent(in) :: jobvl, jobvr
   integer(kind=iwp), intent(in) :: n_, lda_, ldvl_, ldvr_, lwork_
@@ -150,6 +151,7 @@ subroutine dgeev_(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info
   integer(kind=iwp), intent(out) :: info_
 # ifdef MOLCAS_TO_BLAS_INT
   integer(kind=BLASInt) :: info, lda, ldvl, ldvr, lwork, n
+  _FPE_TRAP_init_
   n = int(n_,kind=BLASInt)
   lda = int(lda_,kind=BLASInt)
   ldvl = int(ldvl_,kind=BLASInt)
@@ -158,8 +160,10 @@ subroutine dgeev_(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info
   call dgeev(jobvl,jobvr,n,a,lda,wr,wi,vl,ldvl,vr,ldvr,work,lwork,info)
   info_ = info
 # else
+  _FPE_TRAP_init_
   call dgeev(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info_)
 # endif
+  _FPE_TRAP_end_
 end subroutine dgeev_
 
 subroutine dgels_(trans,m_,n_,nrhs_,a,lda_,b,ldb_,work,lwork_,info_)

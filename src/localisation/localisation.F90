@@ -312,10 +312,11 @@ if (LocNatOrb .or. LocCanOrb) then
   jbo = 1
   do iSym=1,nSym
     kCMO = ibo+nBas(iSym)*nFro(iSym)
-    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),MOrig(kCMO+1),1,CMO2(jbo),1)
-    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),CMO(kCMO+1),1,CMO3(jbo),1)
+    k = nBas(iSym)*nOrb2Loc(iSym)
+    CMO2(jbo:jbo+k-1) = MOrig(kCMO+1:kCMO+k)
+    CMO3(jbo:jbo+k-1) = CMO(kCMO+1:kCMO+k)
     ibo = ibo+nBas(iSym)**2
-    jbo = jbo+nBas(iSym)*nOrb2Loc(iSym)
+    jbo = jbo+k
   end do
 
   if (LocNatOrb) then
@@ -368,9 +369,10 @@ if (LocNatOrb .or. LocCanOrb) then
   jbo = 1
   do iSym=1,nSym
     kCMO = ibo+nBas(iSym)*nFro(iSym)
-    call dcopy_(nBas(iSym)*nOrb2Loc(iSym),CMO3(jbo),1,CMO(kCMO+1),1)
+    k = nBas(iSym)*nOrb2Loc(iSym)
+    CMO(kCMO+1:kCMO+k) = CMO3(jbo:jbo+k-1)
     ibo = ibo+nBas(iSym)**2
-    jbo = jbo+nBas(iSym)*nOrb2Loc(iSym)
+    jbo = jbo+k
   end do
   call mma_deallocate(CMO2)
   call mma_deallocate(CMO3)
@@ -407,7 +409,7 @@ if ((.not. LocCanOrb) .and. (.not. Skip)) then
   iOff = 0
   do iSym=1,nSym
     kEor = iOff+nFro(iSym)+1
-    call FZero(EOrb(kEor),nOrb2Loc(iSym))
+    EOrb(kEor:kEor+nOrb2Loc(iSym)-1) = Zero
     iOff = iOff+nBas(iSym)
   end do
 end if
@@ -426,7 +428,7 @@ if ((.not. LocNatOrb) .and. (.not. Skip) .and. (.not. DoCNOs)) then
     iOff = 0
     do iSym=1,nSym
       kOcc = iOff+nFro(iSym)+1
-      call FZero(Occ(kOcc),nOrb2Loc(iSym))
+      Occ(kOcc:kOcc+nOrb2Loc(iSym)-1) = Zero
       iOff = iOff+nBas(iSym)
     end do
   end if

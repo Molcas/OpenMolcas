@@ -736,7 +736,7 @@ C  D&EM One-el
             NI=NISH(ISYMI)
             IF(NI.NE.0) THEN
               NA=NSSH(ISYMI)
-              IF(NI.NE.0) THEN
+              IF(NA.NE.0) THEN
                 ISYMIJ=MUL(ISYMI,ISYM2)
                 LLST1=LLIST(ISYMI,ISYMIJ,15)
                 NLST1=NLIST(ISYMI,ISYMIJ,15)

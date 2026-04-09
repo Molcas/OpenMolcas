@@ -122,7 +122,7 @@ select case (FLabel)
     Functional_type = LDA_type
 
     nFuncs = 1
-    func_id(1:nFuncs) = [xc_f03_functional_get_number('XC_LDA_K_TF')]
+    func_id(1) = xc_f03_functional_get_number('XC_LDA_K_TF')
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -132,7 +132,7 @@ select case (FLabel)
     Functional_type = GGA_type
 
     nFuncs = 1
-    func_id(1:nFuncs) = [xc_f03_functional_get_number('XC_GGA_K_TFVW')]
+    func_id(1) = xc_f03_functional_get_number('XC_GGA_K_TFVW')
     Only_exc = .true.
   !                                                                    *
   !*********************************************************************

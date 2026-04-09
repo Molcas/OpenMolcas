@@ -60,7 +60,7 @@ end do
 
 iCount = 1
 do iSym=1,nSym
-  call dCopy_(nOcc(iSym),EOcc(iCount+nFro(iSym)),1,E(iOcc(iSym)+1),1)
+  E(iOcc(iSym)+1:iOcc(iSym)+nOcc(iSym)) = EOcc(iCount+nFro(iSym):iCount+nFro(iSym)+nOcc(iSym)-1)
   iCount = iCount+nFro(iSym)+nOcc(iSym)
 end do
 

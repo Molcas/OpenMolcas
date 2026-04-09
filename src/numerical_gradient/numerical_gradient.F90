@@ -182,7 +182,7 @@ if (DoTinker) then
         if (IsMM(iAtom) == 1) MMGrd(:,iAtom) = FX(:)
       end if
     end do
-    call DScal_(3*nAtoms,Angstrom*ToHartree,MMGrd,1)
+    MMGrd(:,:) = MMGrd(:,:)*Angstrom*ToHartree
     close(ITkQMMM)
     if (iPL_Save >= 3) call RecPrt('MM Grad:',' ',MMGrd,3,nAtoms)
   end if
@@ -248,8 +248,8 @@ else
 end if
 
 nDisp2 = 2*3*nAtoms
-call mma_Allocate(EnergyArray,nRoots,nDisp2)
-call FZero(EnergyArray,nRoots*nDisp2)
+call mma_Allocate(EnergyArray,nRoots,nDisp2,Label='EnergyArray')
+EnergyArray(:,:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -285,7 +285,7 @@ else
 
   nDisp = 3*nAtoms
   call mma_allocate(Disp,nDisp,Label='Disp')
-  call FZero(Disp,nDisp)
+  Disp(:) = Zero
 
   do i=1,nAtoms
 
@@ -368,7 +368,7 @@ else
 
       ! Modify the geometry
 
-      call dcopy_(3*nAtoms,Coor,1,XYZ(:,mDisp),1)
+      XYZ(:,mDisp) = pack(Coor(:,:),.true.)
       Sgn = One
       if (mod(iDisp,2) == 0) Sgn = -One
       XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp)+Sgn*Disp(icoor)
@@ -528,7 +528,7 @@ do
 
   ! Get the displaced geometry
 
-  call dcopy_(3*nAtoms,xyz(:,iDisp),1,C,1)
+  C(:,:) = reshape(xyz(:,iDisp),[3,nAtoms])
   !call RecPrt('C',' ',C,3*nAtoms,1)
   call Put_Coord_New(C,nAtoms)
 
@@ -816,7 +816,7 @@ end if
 ! Read old gradient(s) and convert to internal coordinates
 
 call mma_Allocate(OldGrads,3*nAtoms,nRoots)
-call FZero(OldGrads,3*nAtoms*nRoots)
+OldGrads(:,:) = Zero
 call Get_lScalar('Keep old gradient',KeepOld)
 if (KeepOld) then
   call Query_Grads(Found,i,j)
@@ -835,9 +835,9 @@ if (KeepOld) then
     ! read a single gradient from the runfile
     call qpg_dArray('GRAD',Found,nGrad)
     if (Found) then
-      call Get_dArray('GRAD',OldGrads(1,1),nGrad)
+      call Get_dArray('GRAD',OldGrads(:,1),nGrad)
       do iR=2,nRoots
-        call dCopy_(nGrad,OldGrads(1,1),1,OldGrads(1,iR),1)
+        OldGrads(1:nGrad,iR) = OldGrads(1:nGrad,1)
       end do
       if (nRoots > 1) then
         write(LuWr,*)
@@ -854,7 +854,7 @@ end if
 call mma_allocate(Tmp2,nDisp,Label='Tmp2')
 do iR=1,nRoots
   call Eq_Solver('N',3*nAtoms,nDisp,1,BMtrx,.true.,rDum(1),OldGrads(1,iR),Tmp2)
-  call FZero(OldGrads(1,iR),3*nAtoms)
+  OldGrads(:,iR) = Zero
   call Eq_Solver('N',nDisp,nDisp,1,TMtrx,.true.,rDum(1),Tmp2,OldGrads(1,iR))
 end do
 call mma_deallocate(Tmp2)
@@ -863,8 +863,8 @@ call mma_deallocate(Tmp2)
 !                                                                      *
 !jPL = iPrintLevel(iPL_Save)
 if (iPL_Save >= 3) call RecPrt('Energies','(8G16.10)',EnergyArray,nRoots,mDisp)
-call mma_Allocate(GradArray,nDisp,nRoots)
-call FZero(GradArray,nDisp*nRoots)
+call mma_Allocate(GradArray,nDisp,nRoots,Label='GradArray')
+GradArray(:,:) = Zero
 call mma_Allocate(Grad,nRoots)
 
 iDisp = nLambda
@@ -913,7 +913,7 @@ do i=1,nDisp
     end do
   end if
 
-  call dCopy_(nRoots,Grad,1,GradArray(i,1),nDisp)
+  GradArray(i,:) = Grad(:)
 
 end do
 !call RecPrt('Grads (old)',' ',OldGrads,3*nAtoms,nRoots)
@@ -951,16 +951,12 @@ do iR=1,nRoots
 
   ! Add the MM contribution for MM atoms
 
-  if (nAtMM /= 0) then
-    call daxpy_(3*nAtoms,One,MMGrd,1,Tmp,1)
-  end if
+  if (nAtMM /= 0) Tmp(:,:) = Tmp(:,:)+MMGrd(:,:)
 
   ! Apply Morokuma's scheme if needed
 
   call F_Inquire('QMMM',Exists)
-  if (Exists .and. DoTinker) then
-    call LA_Morok(nAtoms,Tmp,1)
-  end if
+  if (Exists .and. DoTinker) call LA_Morok(nAtoms,Tmp,1)
 
   if (iR == iRoot) call Put_dArray('GRAD',Tmp,3*nAtoms)
   call Add_Info('Grad',Tmp,3*nAtoms,6)

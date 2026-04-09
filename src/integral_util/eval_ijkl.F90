@@ -125,6 +125,7 @@ else
 end if
 !write(u6,*) 'Eval_ints: MemMax=',MemMax
 
+!write(u6,*) ' -->',iS,jS,kS,lS,'<--'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -160,7 +161,7 @@ if (DoFock) call Dens_Infos(SCF)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Decide on the partioning of the shells based on the
+! Decide on the partitioning of the shells based on the
 ! available memory and the requested memory.
 call PSOAO0(nSO,MemMax,DoFock,nSD,iSD4)
 !                                                                      *
@@ -238,7 +239,7 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         !***************************************************************
         !                                                              *
-        !         Compute SO/AO-integrals
+        ! Compute SO/AO-integrals
 
         call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Size(AOInt),iSD4)
 

@@ -41,14 +41,15 @@ call Cho_P_GetGV(nVecTot,nSym)
 kOffQ = 0
 do iSym=1,nSym
 
-  lRow = nnBstR(iSym,2)
   lCol = nVec_in_Buf(iSym)
+  if (lCol < 1) cycle
+  lRow = nnBstR(iSym,2)
   iS = ip_ChVBuf_Sym(iSym)
   iE = iS-1+lRow*lCol
   BVec(1:lRow,1:lCol) => CHVBUF(iS:iE)
 
   lRow = nQual(iSym)
-  lCol = nVec_in_Buf(iSym)
+  if (lRow < 1) cycle
   iS = kOffQ+1
   iE = iS-1+lRow*lCol
   Q(1:lRow,1:lCol) => QVec(iS:iE)

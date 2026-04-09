@@ -50,7 +50,7 @@ if (nAtoms_Full < nAtoms_All) then
 end if
 call Get_Coord_All(Coord_Full,nAtoms_All)
 call Qpg_dArray('MMO Coords',Found,nCoordMM)
-if (Found) call Get_dArray('MMO Coords',Coord_Full(:,nAtoms_All+1:),nCoordMM)
+if (Found .and. (nCoordMM > 0)) call Get_dArray('MMO Coords',Coord_Full(:,nAtoms_All+1:),nCoordMM)
 
 return
 

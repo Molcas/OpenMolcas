@@ -107,12 +107,12 @@ do iLambda=1,nLambda
     write(u6,*) 'Warning: constraint ',iLambda,' has a null vector, I''ll remove it!'
     mLambda = mLambda-1
   else
-    if (iOff /= iOff2) call dCopy_(mInt,drdq(1,iOff),1,drdq(1,iOff2),1)
+    if (iOff /= iOff2) drdq(:,iOff2) = drdq(:,iOff)
     iOff2 = iOff2+1
   end if
   iOff = iOff+1
 end do
-if (mLambda < nLambda) call FZero(drdq(1,mLambda+1),mInt*(nLambda-mLambda))
+if (mLambda < nLambda) drdq(:,mLambda+1:) = Zero
 
 return
 

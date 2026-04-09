@@ -11,6 +11,7 @@
 ! Copyright (C) 2012, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Mk_aCD_acCD_Shells(iCnttp,W2L)
 !***********************************************************************
 !                                                                      *
@@ -1117,6 +1118,10 @@ do iBS=0,nBS-1
       if (Do_acCD_Basis .and. Found) then
         call mma_deallocate(iList2_p)
         call mma_deallocate(TInt_p)
+      end if
+      if (size(Shells(iShll)%pCff,1) /= nPrim) then
+        call mma_deallocate(Shells(iShll)%pCff)
+        call mma_allocate(Shells(iShll)%pCff,nPrim,nCntrc,Label='pCff')
       end if
       Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
 

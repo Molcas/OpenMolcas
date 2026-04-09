@@ -145,7 +145,7 @@ do iS=1,mSkal
 
   do jS=1,iS
 
-    Call Gen_iSD4(iS,jS,iS,jS,iSD,nSD,iSD4)
+    call Gen_iSD4(iS,jS,iS,jS,iSD,nSD,iSD4)
 
     jShll = iSD4(0,2)
 
@@ -159,7 +159,7 @@ do iS=1,mSkal
     jPrim = iSD4(5,2)
     jShell = iSD4(11,2)
 
-    Call Coor_Setup(iSD4,nSD,Coor)
+    call Coor_Setup(iSD4,nSD,Coor)
 
     iPrimi = iPrim
     jPrimj = jPrim
@@ -167,7 +167,7 @@ do iS=1,mSkal
     nBasi = iBas
     nBasj = jBas
 
-!   Fake shell 3 and 4
+    ! Fake shell 3 and 4
     iSD4(5,3:4) = 1
     iSD4(3,3:4) = 1
 
@@ -198,7 +198,7 @@ do iS=1,mSkal
     ! Now do a dirty trick to avoid splitting of the first
     ! contracted index. Move all over on the second index.
 
-    iPrimSave(:)=iSD4(5,:) ! Store away original setting
+    iPrimSave(:) = iSD4(5,:) ! Store away original setting
 
     iSD4(3,1) = 1
     iSD4(3,2) = nZeta
@@ -213,8 +213,8 @@ do iS=1,mSkal
     force_part_c = force_part_save
     ijInc = min(iSD4(4,2),iSD4(6,2))
 
-!   restore correct index
-    iSD4(5,:)=iPrimSave(:)
+    ! restore correct index
+    iSD4(5,:) = iPrimSave(:)
 
     iPrimi = iSD4(5,1)
     jPrimj = iSD4(5,2)

@@ -157,7 +157,7 @@ Implicit None
       End If
 
       If ( Key.eq.'ALLO' .or. Key.eq.'LENG' .or.                        &
-       Key.eq.'FLUS' .or. Key.eq.'MAX' .or.                                                &
+       Key.eq.'FLUS' .or. Key.eq.'MAX' .or.                             &
        Key.eq.'CHEC' .or. Key.eq.'LIST' .or.                            &
        Key.eq.'RGST') Then
          iPos=iPos+kind2goff(VarTyp)
@@ -200,21 +200,37 @@ Implicit None
 #include "WrkSpc.fh"
       integer :: ipos, length
       character(len=*) :: vartyp
-      real*8, parameter ::    dgarbage(1) = [huge(1.0d0)]
-      integer, parameter ::   igarbage(1) = [huge(1)]
+      real*8, parameter ::    dgarbage = huge(dgarbage)
+      integer, parameter ::   igarbage = huge(igarbage)
       integer*1, parameter :: i1garbage = huge(i1garbage)
 
       select case(vartyp)
       case ('REAL')
-        call dcopy_(length,dgarbage,0,work(ipos),1)
+        call garble_real(Work)
       case ('INTE')
-        call icopy(length,igarbage,0,iwork(ipos),1)
+        call garble_int(iWork)
       case ('CHAR')
         call garble_char(Work)
       end select
 
       ! This is to allow type punning without an explicit interface
       contains
+
+      subroutine garble_real(buf)
+      real*8, target :: buf(*)
+      real*8, pointer :: rbuf(:)
+      call c_f_pointer(c_loc(buf(ipos)),rbuf,[length])
+      rbuf(1:length) = dgarbage
+      nullify(rbuf)
+      end subroutine garble_real
+
+      subroutine garble_int(buf)
+      integer, target :: buf(*)
+      integer, pointer :: ibuf(:)
+      call c_f_pointer(c_loc(buf(ipos)),ibuf,[length])
+      ibuf(1:length) = igarbage
+      nullify(ibuf)
+      end subroutine garble_int
 
       subroutine garble_char(buf)
       use Definitions, only: RtoB

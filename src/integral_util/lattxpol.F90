@@ -19,7 +19,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrid, nXF, nOrd_XF, nPolComp
 integer(kind=iwp), intent(inout) :: nGrid_Eff
 real(kind=wp), intent(inout) :: Grid(3,nGrid), PolEff(nPolComp,nGrid), DipEff(nGrid)
-real(kind=wp), intent(in) :: XF(nXF)
+real(kind=wp), intent(in) :: XF(*)
 integer(kind=iwp) :: Inc, iOrdOp, iXF
 
 ! Calculate number of entries per XFIELD point

@@ -46,7 +46,7 @@ nStabM,PtChrg,nGrid,iAddPot &
 integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, la, lb, nIC, nArr, nComp, nOrdOp, lOper(nComp), iChO(nComp), nStabM, &
                                  iStabM(0:nStabM-1), nGrid, iAddPot
 real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), &
-                             CoorO(3,nComp), PtChrg(nGrid)
+                             CoorO(3,nComp*nGrid), PtChrg(nGrid)
 real(kind=wp), target, intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC)
 integer(kind=iwp), intent(inout) :: nHer
 real(kind=wp), target, intent(inout) :: Array(nZeta*nArr)

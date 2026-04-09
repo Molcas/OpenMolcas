@@ -75,15 +75,18 @@ else if (INI == 0) then
           INCREASE = 1
         end if
       end if
-    else
-      !-jwk new if (ICONF(IEL) < NORB) then
-      if ((IEL == NEL) .and. (ICONF(IEL) < NORB)) then
+    else if (IEL == NEL) then
+      if (ICONF(IEL) < NORB) then
         INCREASE = 1
       else
         ! Nothing more to do
         NONEW = 1
         exit
       end if
+    else
+      ! Nothing more to do
+      NONEW = 1
+      exit
     end if
 
     if (INCREASE == 1) then

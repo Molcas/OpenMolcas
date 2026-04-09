@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(inout) :: nCalls
 integer(kind=iwp), intent(in) :: iQ_Atoms
-real(kind=wp), intent(inout) :: StoreCoo(3,nCent,nPart)
+real(kind=wp), intent(inout) :: StoreCoo(3,nCent,*)
 integer(kind=iwp) :: iCent, Initial1, iPart, kaunter, nAllQm
 
 if (nCalls == 0) then

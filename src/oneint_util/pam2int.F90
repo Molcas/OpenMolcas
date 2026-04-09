@@ -50,6 +50,7 @@ integer(kind=iwp), external :: NrOpr
 unused_var(Alpha)
 unused_var(Beta)
 unused_var(ZInv)
+unused_var(CoorO)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
@@ -87,7 +88,6 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In PAM2Int: A',' ',A,1,3)
   call RecPrt(' In PAM2Int: RB',' ',RB,1,3)
-  call RecPrt(' In PAM2Int: CoorO',' ',CoorO,1,3)
   call RecPrt(' In PAM2Int: Kappa',' ',rKappa,nAlpha,nBeta)
   call RecPrt(' In PAM2Int: Zeta',' ',Zeta,nAlpha,nBeta)
   call RecPrt(' In PAM2Int: P',' ',P,nZeta,3)

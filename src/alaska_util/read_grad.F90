@@ -33,6 +33,7 @@
 function Read_Grad(Grad,nGrad,iRoot,iNAC,jNAC)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -104,6 +105,6 @@ else
   call mma_deallocate(i_nac)
 
 end if
-if (Read_Grad <= 0) call FZero(Grad,nGrad)
+if (Read_Grad <= 0) Grad(:) = Zero
 
 end function Read_Grad

@@ -29,7 +29,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nBasAtoms, nBast, SubDNAOindex(2,nBasAtoms,nBasAtoms), iWhat, IAtom, JAtom, KAtom
 real(kind=wp), intent(in) :: SubVal(nBasAtoms), SubVec(nBasAtoms,nBasAtoms), Threshold, ThrsD
-real(kind=wp), intent(inout) :: TotElec, DS(nBasAtoms,nBasAtoms), What(*)
+real(kind=wp), intent(inout) :: TotElec, DS(nBast,nBast), What(*)
 integer(kind=iwp), intent(inout) :: AtomA(*), AtomB(*), iCounter, AtomC(*)
 integer(kind=iwp) :: I, iCounterOld, iCounterTrue, iFound, iFoundOrb, iStHas2bFnd, J, JJ, K, KK
 real(kind=wp) :: Accumulate, E, EigenNorm, Thrs, Thrs_Original, TotElecAvail, TotElecCount, TotElecFound

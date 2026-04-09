@@ -91,6 +91,9 @@ do iIrrep=0,nIrrep-1
   else
     mB = nB
     kQm = nQm
+    ! Dummy associations
+    Q_k(1:1) => Mem(1:1)
+    A_k(1:1) => Mem(1:1)
   end if
 
   iS = 1

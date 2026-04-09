@@ -44,9 +44,10 @@ kBas = jBas
 do iAt=1,nAtoms
   nBas_per_Atom(iAt) = 0
   Lbl = AtName(iAt)
-  do while ((BName(kBas)(1:LenIn) == Lbl) .and. (kBas <= nBas))
+  do while (BName(kBas)(1:LenIn) == Lbl)
     nBas_per_Atom(iAt) = nBas_per_Atom(iAt)+1
     kBas = kBas+1
+    if (kBas > nBas) exit
   end do
 end do
 call mma_deallocate(AtName)

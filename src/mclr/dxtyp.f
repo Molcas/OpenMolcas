@@ -16,7 +16,7 @@
 * are included
 *
       INTEGER REL1,REL3
-      INTEGER ITYP(6),JTYP(6),KTYP(6),LTYP(6)
+      INTEGER ITYP(36),JTYP(36),KTYP(36),LTYP(36)
 *
 *. To get rid of annoying and incorrect compiler warnings
       I1 = 0

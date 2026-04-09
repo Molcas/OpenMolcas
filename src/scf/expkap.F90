@@ -73,9 +73,9 @@ do iSym=1,nSym
   end do
 
 # ifdef  qnext
-  call matexp(mOrb,mOcc,U(iU:iU+mOrb**2))
+  call matexp(mOrb,mOcc,U(iU:iU+mOrb**2-1))
 # else
-  call Exp_Schur(mOrb,U(iU:iU+mOrb**2),theta)
+  call Exp_Schur(mOrb,U(iU:iU+mOrb**2-1),theta)
 # endif
 
   iU = iU+mOrb**2

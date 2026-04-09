@@ -37,7 +37,6 @@ use RICD_Info, only: Cholesky, Do_RI, Cholesky
 use dmrginfo, only: DoDMRG, LRRAS2
 use etwas, only: CoulFac, ExFac, mBas, mIrrep, nAsh, nCMO, nDSO, nIsh
 use NAC, only: IsNAC
-use mspdft_grad, only: DoGradMSPD
 #ifdef _CD_TIMING_
 use temptime, only: PREPP_CPU, PREPP_WALL
 #endif
@@ -142,9 +141,9 @@ Case ('RHF-SCF','UHF-SCF','IVO-SCF','MBPT2','KS-DFT','ROHF')
       call Aces_Gamma()
     end if
   end if
-!                                                                    *
-!*********************************************************************
-!                                                                    *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
 Case  ('Corr. WF')
 
 # ifdef _DEBUGPRINT_
@@ -230,11 +229,8 @@ Case ('RASSCF','CASSCF','GASSCF','MCPDFT','MSPDFT','DMRGSCF','CASDFT')
   if (Method == 'MCPDFT') lSA = .true.
   if (Method == 'MSPDFT') then
     lSA = .true.
-    dogradmspd = .true.
   end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
+
 !                                                                    *
 !*********************************************************************
 !                                                                    *
@@ -362,9 +358,6 @@ Case ('CASSCFSA','DMRGSCFS','GASSCFSA','RASSCFSA','CASPT2')
     end if
   end if
   Method = 'RASSCF  '
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
 !                                                                    *
 !*********************************************************************
 !                                                                    *
@@ -382,15 +375,18 @@ End Select
 ! Dito spin density matrix.
 
 nsa = 1
-if (lsa .or. (Method == 'MCPDFT') .or. (Method == 'MSPDFT')) nsa = 5
-
-!AMS modification: add a fifth density slot
-mDens = nsa+1
+if (lsa) nsa = 4
+mDens = nsa
+if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
+  nsa = 5
+  !AMS modification: add another density slot
+  mDens = nsa+1
+end if
 
 call mma_allocate(D0,nDens,mDens,Label='D0')
 D0(:,:) = Zero
 call mma_allocate(DVar,nDens,nsa,Label='DVar')
-if (.not. gamma_mrcisd) call Get_dArray_chk('D1ao',D0(1,1),nDens)
+if (.not. gamma_mrcisd) call Get_dArray_chk('D1ao',D0(:,1),nDens)
 
 call Get_D1ao_Var(DVar,nDens)
 
@@ -403,7 +399,6 @@ else
   DS(:) = Zero
   DSVar(:) = Zero
 end if
-
 
 ! This is necessary for the ci-lag
 
@@ -449,7 +444,6 @@ else
   nsa = 1
   if (lsa) nsa = 2
 end if
-
 kCMO = nsa
 call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
 call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
@@ -578,7 +572,7 @@ if (lpso .and. (.not. gamma_mrcisd)) then
     !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 
     call mma_allocate(Tmp,nDens,2,Label='Tmp')
-    call Get_D1I(CMO(1,1),D0(1,1),Tmp,nIsh,nBas,nIrrep)
+    call Get_D1I(CMO(:,1),D0(:,1),Tmp,nIsh,nBas,nIrrep)
     call mma_deallocate(Tmp)
 
     !************************
@@ -591,18 +585,18 @@ if (lpso .and. (.not. gamma_mrcisd)) then
       D0(:,2) = DVar(:,1)-Half*D0(:,1)
     end if
     !RlxLbl = 'D1COMBO  '
-    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
+    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(:,2))
 
     ! This is necessary for the kap-lag
 
     nG1 = nTri_Elem(nAct)
     call mma_allocate(D1AV,nG1,Label='D1AV')
     call Get_dArray_chk('D1av',D1AV,nG1)
-    call Get_D1A(CMO(1,1),D1AV,D0(1,3),nIrrep,nbas,nish,nash,ndens)
+    call Get_D1A(CMO(:,1),D1AV,D0(:,3),nIrrep,nbas,nish,nash,ndens)
     call mma_deallocate(D1AV)
     !************************
     !RlxLbl = 'D1AOA   '
-    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
+    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(:,3))
 
     call Get_dArray_chk('DLAO',D0(:,4),nDens)
 

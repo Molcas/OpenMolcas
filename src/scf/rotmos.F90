@@ -60,6 +60,7 @@ call mma_allocate(Scratch,nSize,Label='Scratch')
 
 iEnd = 0
 do iD=1,nD
+  if (kOV(iD) < 1) cycle
   iSt = iEnd+1
   iEnd = iEnd+kOV(iD)
   ! compute rotation matrix via expkap
@@ -79,7 +80,7 @@ do iD=1,nD
 
     if ((nVrt > 0) .and. (nOccmF > 0)) then
       ! skip, if no orbitals within this irrep
-      Scratch(1:nOFnBA) = CMO(iCMOpt:iCMOpt-nOFnBa-1,iD)
+      Scratch(1:nOFnBA) = CMO(iCMOpt:iCMOpt+nOFnBa-1,iD)
       call DGEMM_('N','N',nBas(iSym),nOF,nOF, &
                   One,Scratch,nBas(iSym), &
                   RoM(iSyBlpt),nOF, &

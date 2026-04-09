@@ -32,6 +32,8 @@ subroutine i1DaFile_Internal(Buf)
   integer(kind=byte), target, intent(inout) :: Buf(lBuf_)
   character, pointer :: cBuf(:)
 
+  if (lBuf_ < 1) return
+
   lBuf = lBuf_
   iDisk = iDisk_*MBL(Lu)
 

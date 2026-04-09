@@ -32,7 +32,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: fileorb_id, i, ib1, ib2, iErr, iLen, ind, ist1, ist2, iSym, Lu_, LuInpOrb, nb1, nb2, nDim1, nDim2, nTot1, nTot2
+integer(kind=iwp) :: fileorb_id, i, ib1, ib1_, ib2, iErr, iLen, ind, ist1, ist1_, ist2, iSym, Lu_, LuInpOrb, nb1, nb2, nDim1, &
+                     nDim2, nTot1, nTot2
 character(len=80) :: VecTit
 character(len=512) :: FName
 logical(kind=iwp) :: Exist_1, Exist_2, isHDF5, okay
@@ -158,8 +159,10 @@ do isym=1,nsym1
   nb1 = nBas1(isym)
   nb2 = nBas2(isym)
   if (nb2 > 0) then
-    call expandbas(Bas1(ib1),nb1,Bas2(ib2),nb2,CMO1(ist1),CMO2(ist2),Occ1(ib1),Eorb1(ib1),indt1(ib1), &
-                                                                     Occ2(ib2),Eorb2(ib2),indt2(ib2))
+    ib1_ = min(ib1,nDim1)
+    ist1_ = min(ist1,nTot1)
+    call expandbas(Bas1(ib1_),nb1,Bas2(ib2),nb2,CMO1(ist1_),CMO2(ist2),Occ1(ib1_),Eorb1(ib1_),indt1(ib1_), &
+                                                                       Occ2(ib2),Eorb2(ib2),indt2(ib2))
     ist1 = ist1+nb1**2
     ist2 = ist2+nb2**2
     ib1 = ib1+nb1

@@ -160,7 +160,11 @@ c     &           CMO, Occ, FDIAG, IndType,VecTyp)
       iDisk=iToc(12)
       DO IRT=1, MIN(MAXORBOUT, LROOTS, 999)
         energy=Ene(IRT)
-        filename = 'RASORB.'//merge(str(IRT), 'x', irt < 999)
+        if (irt < 999) then
+          filename = 'RASORB.'//str(IRT)
+        else
+          filename = 'RASORB.x'
+        end if
         Call dDaFile(JobIph,2,CMO,ntot2,iDisk)
         Call dDaFile(JobIph,2,Occ,ntot,iDisk)
         IF(IPRLEV.GE.USUAL) then
@@ -188,7 +192,11 @@ c     &           CMO, Occ, FDIAG, IndType,VecTyp)
       Call mma_allocate(EDum,NTot,Label='EDum')
       EDum(:)=0.0D0
       DO IRT=1,MIN(MAXORBOUT,LROOTS,999)
-        filename = 'SPDORB.'//merge(str(IRT), 'x', irt < 999)
+        if (irt < 999) then
+          filename = 'SPDORB.'//str(IRT)
+        else
+          filename = 'SPDORB.x'
+        end if
         Call dDaFile(JobIph,2,CMO,ntot2,iDisk)
         Call dDaFile(JobIph,2,Occ,ntot,iDisk)
         IF (IPRLEV.GE.USUAL) then

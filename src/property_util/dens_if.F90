@@ -96,12 +96,14 @@ if (i_root == 0) then
     OCCNO = Zero
     nAct = 0
     do iS=1,nSym
-      call dcopy_(nTOT*nash(is),CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1,AM1(:,IAC:IAC+NASH(iS)-1),1)
-      do J=0,NASH(IS)-1
-        OCCNO = OCCNO+OCCA(J+NISH(IS)+NFRO(IS)+IOCC)
-      end do
-      nAct = nAct+NASH(iS)
-      IAC = IAC+NASH(iS)
+      if (nash(is) > 0) then
+        call dcopy_(nTOT*nash(is),CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1,AM1(:,IAC:IAC+NASH(iS)-1),1)
+        do J=0,NASH(IS)-1
+          OCCNO = OCCNO+OCCA(J+NISH(IS)+NFRO(IS)+IOCC)
+        end do
+        nAct = nAct+NASH(iS)
+        IAC = IAC+NASH(iS)
+      end if
       IMO = IMO+nBas(is)*ntot
       IOCC = IOCC+NBAS(iS)
     end do
@@ -116,9 +118,11 @@ if (i_root == 0) then
     IMO = 1
     IOCC = 1
     do iS=1,nSym
-      call dcopy_(nTOT*nash(is),AM2(:,IAC:IAC+NASH(iS)-1),1,CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1)
-      call dcopy_(nash(is),[OCCNO/real(nAct,kind=wp)],0,OCCA(NISH(iS)+NFRO(IS)+IOCC),1)
-      IAC = IAC+NASH(iS)
+      if (nash(is) > 0) then
+        call dcopy_(nTOT*nash(is),AM2(:,IAC:IAC+NASH(iS)-1),1,CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1)
+        call dcopy_(nash(is),[OCCNO/real(nAct,kind=wp)],0,OCCA(NISH(iS)+NFRO(IS)+IOCC),1)
+        IAC = IAC+NASH(iS)
+      end if
       IMO = IMO+nBas(is)*ntot
       IOCC = IOCC+NBAS(iS)
     end do

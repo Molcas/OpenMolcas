@@ -216,11 +216,11 @@ else
   if ((nEF > 0) .and. (nOrdEF >= 2)) write(LuWr,'(15X,A,I6,A)') '   Electric field gradient integrals for',nEF,' points'
   if ((nEF > 0) .and. (nOrdEF >= 2)) write(LuWr,'(15X,A,I6,A)') '   Contact term integrals for',nEF,' points'
   if (allocated(DMS_Centers)) write(LuWr,'(15X,A,I6,A)') '   Diamagnetic shielding integrals for',nDMS,' points'
-  if (allocated(OAM_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Orbital angular momentum around (',(OAM_Center(i),i=1,3),')'
-  if (allocated(OMQ_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Orbital magnetic quadrupole around (',(OMQ_Center(i),i=1,3),')'
-  if (Vlct .and. (S%nMltpl >= 2)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Velocity quadrupole around (',(Coor_MPM(i,3),i=1,3),')'
+  if (allocated(OAM_Center)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Orbital angular momentum around (',(OAM_Center(i),i=1,3),')'
+  if (allocated(OMQ_Center)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Orbital magnetic quadrupole around (',(OMQ_Center(i),i=1,3),')'
+  if (Vlct .and. (S%nMltpl >= 2)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Velocity quadrupole around (',(Coor_MPM(i,3),i=1,3),')'
   if (allocated(AMP_Center)) &
-    write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
+    write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
   if (nWel /= 0) write(LuWr,'(15X,A,I4,A)') '   Spherical well for',nWel,' exponent(s) added to the one-electron Hamiltonian'
   if (lAMFI) write(LuWr,'(15X,A)') '   Atomic mean-field integrals'
   if (lMXTC) write(LuWr,'(15X,A)') '   Hyperfine Magnetic integrals(MAG) calculated from Gen1Int F90 library'
@@ -294,7 +294,7 @@ else
 
   if (EMFR) then
     write(LuWr,'(15X,A)') '   Transition moment integrals'
-    write(LuWr,'(15X,A,3(F7.4,1X),A)') '   The wavevector k: (',(kVector(i),i=1,3),')'
+    write(LuWr,'(15X,A,3(F8.4,1X),A)') '   The wavevector k: (',(kVector(i),i=1,3),')'
     temp = sqrt(KVector(1)**2+KVector(2)**2+kVector(3)**2)
     temp = (Two*Pi)/temp
     write(LuWr,'(15X,A,(F10.4,1X),A)') '   Wavelength:        ',Temp,'a.u.'

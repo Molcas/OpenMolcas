@@ -523,7 +523,7 @@ do jSym=1,nSym
 
         if (Estimate) then
 
-          call Fzero(Diag(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
+          Diag(iiBstR(jSym,1)+1:iiBstR(jSym,1)+NNBSTR(jSym,1)) = Zero
 
           do krs=1,nRS
 
@@ -1100,9 +1100,10 @@ do jSym=1,nSym
 
 #   ifdef _MOLCAS_MPP_
     if ((nProcs > 1) .and. Update .and. DoScreen .and. Is_Real_Par()) then
-      call GaDsum(DiagJ,nnBSTR(JSYM,1))
-      call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
-      call Fzero(DiagJ,nnBSTR(JSYM,1))
+      n1 = nnBSTR(JSYM,1)
+      call GaDsum(DiagJ,n1)
+      Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1) = Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1)-DiagJ(1:n1)
+      DiagJ(1:n1) = Zero
     end if
     ! Need to activate the screening to setup the contributing shell
     ! indices the first time the loop is entered .OR. whenever other nodes

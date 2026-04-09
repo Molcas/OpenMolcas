@@ -89,6 +89,7 @@
         export install_path="/opt/OpenMolcas"
       fi
       echo 'set (INSTALL_TESTS "ON" CACHE PATH "Install the test files and verify script.")' >> flags.cmake
+      echo 'set (CMAKE_CTEST_ARGUMENTS "--output-on-failure" CACHE PATH "Verbose test output")' >> flags.cmake
       # ensure a more portable Libxc build
       echo 'set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON" CACHE STRING "extra Libxc args")' >> flags.cmake
     - cmake -C flags.cmake ..

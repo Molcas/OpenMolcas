@@ -91,7 +91,7 @@ else
   ! Int(lf*IJKL,lA*lB)=Int(le,lf*IJKL)*HMtrx(le,lA*lB)
 
   nfijkl = nf*nijkl
-  call Sp_Mlt(Wrk(iW2),ne,Wrk(iW3),nfijkl,HMtrxAB,iCmpa*jCmpb)
+  call Sp_Mlt(Wrk(iW2),ne,Wrk(iW3),nfijkl,HMtrxAB,nab)
   i_in = iW3
   i_out = iW2
 end if
@@ -101,14 +101,14 @@ end if
 if (lc+ld == 0) then
   i_out = i_in
 else if ((lc*ld == 0) .and. (.not. Shells(kShllc)%Transf) .and. (.not. Shells(lShlld)%Transf)) then
-  call DGeTMO(Wrk(i_in),nf,nf,nijkl*iCmpa*jCmpb,Wrk(i_out),nijkl*iCmpa*jCmpb)
+  call DGeTMO(Wrk(i_in),nf,nf,nijkl*nab,Wrk(i_out),nijkl*nab)
 else
 
   ! Now transform directly (f,[IJKL,AB]) to ([IJKL,AB],CD)
   ! Int(IJKL*lA*lB,lC*lD)=Int(lf,IJKL*lA*lB)*HMtrx(lf,lC*lD)
 
-  nijklAB = nijkl*iCmpa*jCmpb
-  call Sp_Mlt(Wrk(i_in),nf,Wrk(i_out),nijklAB,HMtrxCD,kCmpc*lCmpd)
+  nijklAB = nijkl*nab
+  call Sp_Mlt(Wrk(i_in),nf,Wrk(i_out),nijklAB,HMtrxCD,ncd)
 end if
 
 end subroutine TnsCtl

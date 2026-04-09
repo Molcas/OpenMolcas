@@ -76,7 +76,7 @@ tread(:) = Zero   !time read/write vectors
 tmotr1(:) = Zero  !time 1st MO half-transf.
 tmotr2(:) = Zero  !time 2nd MO half-transf.
 
-if (Do_int) call Fzero(Xint(0),lXint)
+if (Do_int) Xint(:) = Zero
 
 ! Define MO space used
 !---------------------

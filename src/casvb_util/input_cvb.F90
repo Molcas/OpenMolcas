@@ -491,10 +491,12 @@ if (inputmode == 2) then
   ! ... Work out NORB, NEL, S ...
   call casinfoset_cvb()
   ! ... Do ICONFS before others to get NVB and related info ...
-  call mma_allocate(itmp3,noe,nconf,label='confsinp')
-  itmp3(:,:) = confsinp(1:noe,:)
-  call mma_deallocate(confsinp)
-  call move_alloc(itmp3,confsinp)
+  if (nconf > 0) then
+    call mma_allocate(itmp3,noe,nconf,label='confsinp')
+    itmp3(:,:) = confsinp(1:noe,:)
+    call mma_deallocate(confsinp)
+    call move_alloc(itmp3,confsinp)
+  end if
 
   if (nfrag <= 1) then
     nMs_fr(1) = 1
@@ -533,7 +535,7 @@ if (inputmode == 2) then
       nconf = nconf+1
       nconf_fr(ifrag) = 1
       call mma_allocate(itmp3,noe,nconf,label='confsinp')
-      itmp3(:,1:nconf-1) = confsinp(:,:)
+      if (nconf > 1) itmp3(:,1:nconf-1) = confsinp(:,:)
       call mma_deallocate(confsinp)
       call move_alloc(itmp3,confsinp)
       confsinp(:,iconf_add+2:) = confsinp(:,iconf_add+1:nconf-1)

@@ -50,9 +50,9 @@ Multi_File(:) = .false.
 ProfData(:,:) = Zero
 MPUnit(:,:) = 0
 MBL(:) = 0
-LuName(:) = 'FT__F001'
+LuName(:) = 'FT___F01'
 do i=1,MxFile
-  write(LuName(i)(3:4),'(I2.2)') i
+  write(LuName(i)(3:5),'(I3.3)') i
 end do
 
 MaxFileSize = 0

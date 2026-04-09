@@ -188,8 +188,8 @@ end if
 if (case2 /= 0) then
   i1 = off_PUVX(iSym,jSym,kSym)
   i2 = off_PUVX(jSym,iSym,kSym)
-  !call FZero(PUVX(1+i1),iOrb*jAsh*kl_Orb_pairs)
-  !call FZero(PUVX(1+i2),jOrb*iAsh*kl_Orb_pairs)
+  !PUVX(i1+1:i1+iOrb*jAsh*kl_Orb_pairs) = Zero
+  !PUVX(i2+1:i2+jOrb*iAsh*kl_Orb_pairs) = Zero
   do kl_pair=1,kl_Orb_pairs
     iOff = (kl_pair-1)*ij_Bas_pairs
 
@@ -216,8 +216,8 @@ if (case2 /= 0) then
   if (Process_Twice) then
     i1 = off_PUVX(kSym,lSym,iSym)
     i2 = off_PUVX(lSym,kSym,iSym)
-    !call FZero(PUVX(1+i1),kOrb*iAsh*ij_Orb_pairs)
-    !call FZero(PUVX(1+i2),lOrb*kAsh*ij_Orb_pairs)
+    !PUVX(i1+1:i1+kOrb*iAsh*ij_Orb_pairs) = Zero
+    !PUVX(i2+1:i2+lOrb*kAsh*ij_Orb_pairs) = Zero
     do ij_pair=1,ij_Orb_pairs
       iOff = (ij_pair-1)*kl_Bas_pairs
 
