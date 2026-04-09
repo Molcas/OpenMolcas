@@ -100,7 +100,7 @@ if ((method == 'RKCK') .or. (method == 'RK45')) then
     call Timing(dum(1),dum(2),timer(1),dum(3))
     ! calculate hamiltonian with pulse at the current time:
     if (flag_pulse) then
-      if (time >= (initialtime+timestep*(kk-1))) then
+      if (time >= initialtime+timestep*(kk-1)) then
         call pulse(hamiltonian,hamiltoniant,time,kk)
         kk = kk+1
       else
@@ -180,7 +180,7 @@ else
     end select
     time = initialtime+timestep*Ntime
 
-    if (time >= (initialtime+tout*ii)) then
+    if (time >= initialtime+tout*ii) then
       ii = ii+1
       if (flag_fdm .and. (time >= time_fdm*jj)) then
         call pop(time,ii,jj,dgl_csf,density_csf)

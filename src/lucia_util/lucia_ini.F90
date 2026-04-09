@@ -312,9 +312,9 @@ end if
 
 !write(u6,*) ' TEST readin IDC = ',IDC
 
-! =======================================================================
-! 44 : Use Minimal operatioon count method for alpha-alpha and beta-beta
-! =======================================================================
+! ======================================================================
+! 44 : Use Minimal operation count method for alpha-alpha and beta-beta
+! ======================================================================
 ! TEST OF PERFORMANCE
 MOCAA = ISPEED(3)
 !MOCAB = ISPEED(4)

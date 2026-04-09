@@ -180,7 +180,7 @@ do Ntime=1,(Nstep-1)
   end if
   if (method == 'RK4_SPH') call rk4_sph(time,rho_sph_t)
   time = initialtime+timestep*Ntime
-  if (time >= (initialtime+tout*ii)) then
+  if (time >= initialtime+tout*ii) then
     ii = ii+1
     ! transform density matrix back
     call WERDM_back(rho_sph_t,Nstate,d,len_sph,k_ranks,q_proj,list_so_spin,list_so_proj,list_so_sf,densityt)

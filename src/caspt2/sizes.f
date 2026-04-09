@@ -548,7 +548,6 @@ C In DIADNS alone, NDD words are needed:
         IF (do_grad) CALL Quit(_RC_MEMORY_ERROR_)
         NEED=NEED0
         IFPROP=.False.
-        do_grad = .False.
        ELSE
         IF (.NOT.IFCHOL) THEN
 C not a Cholesky calculation, keep old memory requirements

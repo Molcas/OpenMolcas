@@ -108,9 +108,7 @@ Contributing
 Since OpenMolcas is FOSS, you can download it, modify it and distribute it
 freely (according to the terms of the LGPL). If you would like your
 contributions to be included in the main repository, please contact one of the
-developers, write a message in the
-[forum](https://molcasforum.univie.ac.at) or submit a
-[merge
-request](https://docs.gitlab.com/ee/user/project/merge_requests/getting_started.html).
+developers, write a message in the [forum](https://molcasforum.univie.ac.at) or
+submit a [merge request](https://docs.gitlab.com/user/project/merge_requests).
 Everyone is welcome to send patches, suggestions and bug reports, but please
 let us know if you would like to be a "developer" member of the `Molcas` group.
