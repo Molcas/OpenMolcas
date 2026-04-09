@@ -5204,7 +5204,7 @@ C
       DO I=1,NAS
         SCAL=SCA(I)
 C       CALL DSCAL_(NIN,SCA,VEC(1,I),NAS)
-        CALL DSCAL_(NAS,SCAL,VEC(1,I),NAS)
+        CALL DSCAL_(NAS,SCAL,VEC(I,1),NAS)
       END DO
       call mma_deallocate(SCA)
       call mma_deallocate(S)
@@ -5221,7 +5221,7 @@ C
       call mma_allocate(LAG,NAS,NAS,Label='LAG')
       IDB=IDBoriMat(ISYM,ICASE)
       NB=NS
-      call mma_allocate(B,NAS,Label='B')
+      call mma_allocate(B,NB,Label='B')
       CALL DDAFILE(LUSTD,2,B,NB,IDB)
       call mma_allocate(F,NAS,NAS,Label='F')
       IJ=0
