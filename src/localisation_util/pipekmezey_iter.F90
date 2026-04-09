@@ -28,7 +28,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
-use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList, DispList,&
+use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 UmatList,ThrStep
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
@@ -42,11 +42,11 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, ang
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
-                              Prev(:),Disp(:),CMO_Ref(:,:),Hdiaglist(:,:)
+                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:)
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
@@ -58,7 +58,7 @@ character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
 
 real(kind=wp) :: DD,Thr
-real(kind=wp),parameter :: gekthr_kappa=0.01_wp, gekthr_grad=0.01_wp
+real(kind=wp),parameter :: gekthr_kappa=0.1_wp, gekthr_grad=0.1_wp
 
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
