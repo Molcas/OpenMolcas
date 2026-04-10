@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Freq_Molden(Freq,nFreq,Vectors,nVectors,nSym,Intens,mDisp,RedMas)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -33,6 +34,7 @@ integer(kind=iwp), external :: isFreeUnit
 call RecPrt('Freq',' ',Freq,1,nFreq)
 call RecPrt('Intens',' ',Intens,1,nFreq)
 call RecPrt('Vectors',' ',Vectors,1,nVectors)
+call RecPrt('RedMas',' ',RedMas,1,nFreq)
 write(u6,*) 'mDisp=',mDisp
 #endif
 !                                                                      *
@@ -119,7 +121,5 @@ do iFreq=1,nFreq
 end do
 
 close(Lu_9)
-
-return
 
 end subroutine Freq_Molden

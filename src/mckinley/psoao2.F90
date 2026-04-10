@@ -89,7 +89,7 @@ integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), iPrim, iPrInc, iTmp1, j, jBas, jBsInc, jCmp, jPam, &
                      jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPrim, lPrInc, &
                      mabcd, Mem0, MemAux, MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, &
-                     nijkl, nMax, nMaxC, nPam(4,0:7), nTmp1, nTmp2, nCMO, MemPrm, iAngV(4)
+                     nijkl, nMax, nMaxC, nPam(4,0:7), nTmp1, nTmp2, nCMO, MemPrm, iAngV(4), MemAux0
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 
@@ -204,7 +204,6 @@ do
     nPam(:,:) = 0
     MemPSO = 1
     nTmp2 = 0
-    !call IecPrt('iiBas',iiBas,1,4)
 
     do jPam=1,4
       iTmp1 = 0
@@ -231,8 +230,8 @@ do
     nFac = 0
     nTmp2 = 0
   end if
-  MemAux = MemPSO+MemScr+nFac*S%nDim+nTmp2+4
-  if (Mem1+1+MemAux > Mem0) then
+  MemAux0 = MemPSO+MemScr+nFac*S%nDim+nTmp2+4
+  if (Mem1+1+MemAux0 > Mem0) then
     QjPrim = .false.
     QlPrim = .false.
     QiBas = .false.
@@ -295,13 +294,14 @@ do
 
   ! If partial decontraction we need to keep the contracted 2nd
   ! order density matrix. (Work4)
-  if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
-    MemAux = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
+if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
+    MemAux = max(mabcd,nabcd)*nijkl
   else
     MemAux = 0
   end if
   MemSph = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
-  Mem2 = max(MemTrn+MemAux,MemDeP,MemSph)
+
+  Mem2 = max(MemTrn+MemAux,MemDeP,MemSph,MemAux0)
   MemFck = MemFck-Mem2
   MemMO = MemMo-Mem2
   if (Mem2+1 > Mem0) then

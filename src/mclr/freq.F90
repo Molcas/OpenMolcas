@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine FREQ(nX,H,nDeg,nrvec,Tmp3,EVec,EVal,RedM,iNeg)
 
 use Index_Functions, only: iTri
@@ -21,7 +22,7 @@ integer(kind=iwp), intent(in) :: nX, ndeg(*), nrvec(*)
 real(kind=wp), intent(in) :: H(*)
 real(kind=wp), intent(out) :: Tmp3(nX,nX), EVec(2*nX,nX), EVal(2*nX), RedM(nX)
 integer(kind=iwp), intent(out) :: iNeg
-integer(kind=iwp) :: i, iHarm, iOpt, iprint, j, jHarm, nIsot
+integer(kind=iwp) :: i, iHarm, iOpt, j, jHarm, nIsot
 real(kind=wp) :: r2, rlow, rm, temp
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: Mass(:)
@@ -38,7 +39,6 @@ call Get_dArray('Isotopes',Mass,nIsot)
 
 ! form the Mass Weighted Cartesian force constant matrix.
 
-iprint = 0
 do i=1,nX
   rm = Mass(nrvec(i))
   if (rm == Zero) rm = 1.0e7_wp
@@ -65,8 +65,10 @@ do iHarm=1,2*nX,2
     EVal(jHarm) = -sqrt(abs(temp))*autocm
   end if
 end do
-if (iPrint >= 99) call RecPrt('Converted EVal',' ',EVal,1,nX)
-if (iPrint >= 99) call RecPrt('Normalized EVec',' ',EVec,nX*2,nX)
+#ifdef _DEBUGPRINT_
+call RecPrt('Converted EVal',' ',EVal,1,nX)
+call RecPrt('Normalized EVec',' ',EVec,nX*2,nX)
+#endif
 
 ! Normalize
 
@@ -80,6 +82,9 @@ do iHarm=1,nX
   r2 = One/sqrt(r2)
   EVec(::2,iHarm) = r2*EVec(::2,iHarm)
 end do
+#ifdef _DEBUGPRINT_
+call RecPrt('RedM',' ',RedM,1,nX)
+#endif
 
 ! Order, from low to high.
 
@@ -96,9 +101,11 @@ do iHarm=1,nX-1
     end if
   end do
 end do
+#ifdef _DEBUGPRINT_
+call RecPrt('RedM',' ',RedM,1,nX)
+call RecPrt('Normalized EVec',' ',EVec,nX*2,nX)
+#endif
 
 call mma_deallocate(Mass)
-
-return
 
 end subroutine FREQ

@@ -346,12 +346,15 @@ end do
 call mma_allocate(Hess,nHss,Label='Hess')
 Hess(:) = Zero
 call mma_allocate(Hess2,nHss,Label='Hess2')
+Hess2(:) = Zero
 call mma_allocate(Temp,nHss,Label='Temp')
 Temp(:) = Zero
 call mma_allocate(ELEC,3*ndisp,Label='ELEC')
 ELEC(:) = Zero
 call mma_allocate(EG,3*ndisp,Label='EG')
+EG(:)=Zero
 call mma_allocate(ELOUT,3*ndisp,Label='ELOUT')
+ELOUT(:)=Zero
 call ipclose(-1)
 
 !----------------------------------------------------------------------*
@@ -471,11 +474,13 @@ if (.true.) then
   iRC = -1
   iOpt = 0
   call mma_allocate(NrDisp,ndisp,Label='NrDisp')
+  NrDisp(:)=-1
   Label = 'NRCTDISP'
   call RdMck(irc,iopt,Label,idum,NrDisp,idum)
   iRC = -1
   iOpt = 0
   call mma_allocate(DegDisp,ndisp,Label='DegDisp')
+  degdisp(:)=0
   Label = 'DegDisp'
   call RdMck(irc,iopt,Label,idum,DegDisp,idum)
   if (iRC /= 0) then
@@ -499,7 +504,7 @@ if (.true.) then
   !open(unit=Lu_10,file='UNSYM')
 
   if (Mckinley) then
-    call FreqAnal(DegDisp,NrDisp,Hess,converged,ELEC,ielec,elout,ldisp2,Lu_10)
+    call FreqAnal(nDisp,DegDisp,NrDisp,Hess,converged,ELEC,ielec,elout,ldisp2,Lu_10)
     call Niclas(Hess,coor,Lu_10)
   end if
   write(u6,*)

@@ -104,7 +104,6 @@ if (lPSO) then
     if (Case_2C) then
       if (Do_RI) then
         call PGet1_RI2(PSO,ijkl,nPSO,iCmp,iAO,iAOst,jBas,lBas,kOp,ExFac,CoulFac,PMax,V_K,U_K,nV_K,Z_p_k,nSA)
-        !write(u6,*) 'PGet1_RI2 ===========' ! yma
       else
         ! Not modified yet
         call Abend()
@@ -120,13 +119,11 @@ if (lPSO) then
     else
       call PGet3(PSO,ijkl,nPSO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,Mem2(ipPam),n1,n2,n3,n4,Mem2(ipiPam),Mem2(ipMap), &
                  S%nDim,Mem2(ipC),nCred,Mem2(ipS1),nScr1,Mem2(ipS2),nScr2,PMax)
-      !yma write(u6,*) 'PGet3 ==========='
     end if
   else
     if (Case_2C) then
       if (Do_RI) then
         call PGet2_RI2(iCmp,jBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,ExFac,CoulFac,PMax,V_K,nV_K,Z_p_k,nSA,nZ_p_k)
-        !yma write(u6,*) 'PGet2_RI2 ==========='
       else
         ! Not modified yet
         call Abend()
@@ -140,9 +137,6 @@ if (lPSO) then
       end if
     else
       PSO(:,:) = Zero  !yma for testing
-
-      !write(u6,*) 'Print out in integral_util/pget0 before'
-      !call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
 
       call PGet4(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,Mem2(ipPam),n1,n2,n3,n4,Mem2(ipiPam),Mem2(ipMap),S%nDim, &
                  Mem2(ipC),nCred,Mem2(ipS1),nScr1,Mem2(ipS2),nScr2,PMax)
