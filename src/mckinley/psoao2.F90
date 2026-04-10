@@ -89,13 +89,14 @@ integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), iPrim, iPrInc, iTmp1, j, jBas, jBsInc, jCmp, jPam, &
                      jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPrim, lPrInc, &
                      mabcd, Mem0, MemAux, MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, &
-                     nijkl, nMax, nMaxC, nPam(4,0:7), nTmp1, nTmp2, nCMO, MemPrm
+                     nijkl, nMax, nMaxC, nPam(4,0:7), nTmp1, nTmp2, nCMO, MemPrm, iAngV(4)
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 
 ! Compute memory request for the primitives.
 
-call MemRg2(iSD4(1,:),MemPrm)
+iAngV(:)=iSD4(1,:)
+call MemRg2(iAngV(:),MemPrm)
 
 iAO(:) = iSD4(7,:)
 iCmpa(:) = iSD4(2,:)
