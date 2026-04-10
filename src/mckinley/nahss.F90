@@ -53,6 +53,7 @@ unused_var(rFinal)
 unused_var(Ccoor)
 unused_var(nOrdOp)
 unused_var(lOper)
+unused_var(nHer)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In NAHss: nArr=',nArr
