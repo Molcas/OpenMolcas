@@ -16,6 +16,7 @@ subroutine AppDerCpl(natom,nST,ChgNuc,Prop,DerCpl,HAM)
 !
 ! If the wfn are real-valued: f_II = 0 ; f_JI = - f_IJ -> lower triangular storage
 
+use Index_Functions, only: iTri, nTri_Elem
 use rassi_aux, only: ipglob
 use Cntrl, only: ICOMP, NPROP, NSTATE, PNAME
 use Constants, only: Zero
@@ -27,13 +28,13 @@ real(kind=wp) :: ChgNuc(natom), Prop(nState,nState,NProp), DerCpl(nST,3,natom), 
 integer(kind=iwp) :: IST, ISTA, JSTA, KPROP, lAT
 real(kind=wp) :: EI, EJ, SumX, SumY, SumZ
 
-nST = nState*(nState+1)/2
+nST = nTri_Elem(nState)
 DerCpl(:,:,:) = Zero
 do iSta=1,nState-1
   Ei = Ham(iSta,iSta)
   do jSta=iSta+1,nState
     Ej = Ham(jSta,jSta)
-    iST = iSta*(jSta-1)/2+jSta
+    iST = iTri(iSta,jSta)
     write(u6,1000) iSta,jSta,Ej-Ei
     do kProp=1,nProp
       if (PName(kProp)(1:3) == 'EF1') then

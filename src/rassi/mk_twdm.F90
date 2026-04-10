@@ -13,6 +13,7 @@ subroutine MK_TWDM(mSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,ISY12)
 ! CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 ! AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: MUL
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -37,14 +38,11 @@ if (ISY12 == 1) then
         ITD = ITD+1
         TDM = TDMZZ(ITD)
         WDM = WDMZZ(ITD)
-        if (I >= J) then
-          IJ = IOF+(I*(I-1))/2+J
-          if (I > J) then
-            SCR(IJ,2) = SCR(IJ,2)+TDM
-            SCR(IJ,4) = SCR(IJ,4)+WDM
-          end if
-        else
-          IJ = IOF+(J*(J-1))/2+I
+        IJ = IOF+iTri(I,J)
+        if (I > J) then
+          SCR(IJ,2) = SCR(IJ,2)+TDM
+          SCR(IJ,4) = SCR(IJ,4)+WDM
+        else if (I < J) then
           SCR(IJ,2) = SCR(IJ,2)-TDM
           SCR(IJ,4) = SCR(IJ,4)-WDM
         end if
@@ -52,7 +50,7 @@ if (ISY12 == 1) then
         SCR(IJ,3) = SCR(IJ,3)+WDM
       end do
     end do
-    IOF = IOF+(NB*(NB+1))/2
+    IOF = IOF+nTri_Elem(NB)
   end do
 else
   ! GENERAL CASE, NON-DIAGONAL SYMMETRY BLOCKS

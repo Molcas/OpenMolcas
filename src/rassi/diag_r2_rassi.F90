@@ -14,6 +14,7 @@ subroutine DIAG_R2_RASSI(MATRIX,NBTOT,INFO,W,Z)
 ! MATRIX WITH THE DIMENSION NBTOT. THE EIGENVALUES OF THE DIAGONALIZATION
 ! ARE DIRECTED INTO W AND THE REAL EIGENVECTORS ARE WRITTEN TO Z.
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -23,14 +24,14 @@ real(kind=wp) :: MATRIX(NBTOT,NBTOT), W(NBTOT), Z(NBTOT,NBTOT)
 integer(kind=iwp) :: J
 real(kind=wp), allocatable :: AP(:), WORK(:)
 
-call mma_allocate(AP,Nbtot*(Nbtot+1)/2,Label='AP')
+call mma_allocate(AP,nTri_Elem(Nbtot),Label='AP')
 call mma_allocate(WORK,3*Nbtot,Label='WORK')
 
 ! initializations
 INFO = 0
 
 do j=1,Nbtot
-  AP((j-1)*j/2+1:j*(j+1)/2) = MATRIX(1:j,j)
+  AP(nTri_Elem(j-1)+1:nTri_Elem(j)) = MATRIX(1:j,j)
 end do
 
 call dspev_('V','U',Nbtot,AP,W,Z,Nbtot,WORK,INFO)

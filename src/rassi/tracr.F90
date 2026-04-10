@@ -19,6 +19,7 @@
 
 subroutine TRACR(LBUF,CMO1,CMO2,NGAM2,TUVX,X1,X2,X3,VXPQ)
 
+use Index_Functions, only: iTri
 use TRNSFRM, only: IAPR, ISP, ISQ, ISR, ISS, LMOP1, LMOQ1, LMOR1, LMOS1, NAP, NAQ, NAR, NAS, NAVX, NBP, NBPQ, NBQ, NBR, NBRS, NBS, &
                    NVXPQ, NX1MX, NX2MX, NX3MX
 use rassi_data, only: NASHT, NCMO
@@ -28,8 +29,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: LBUF, NGAM2
 real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), TUVX(NGAM2), X1(NX1MX), X2(NX2MX), X3(NX3MX), VXPQ(NVXPQ)
-integer(kind=iwp) :: II, IOPT, IPQ, IPQST, IRC, IRSST, IT, ITF, ITU, ITUVX, IU, IUF, IUM, IV, IVF, IVX, IX, IXF, LPQ, NP, NPQ, NQ, &
-                     NQM
+integer(kind=iwp) :: II, IOPT, IPQ, IPQST, IRC, IRSST, IT, ITF, ITU, IU, IUF, IUM, IV, IVF, IVX, IX, IXF, LPQ, NP, NPQ, NQ, NQM
 
 ! START LOOP OVER ORDERED AO-INTEGRALS: NPQ PQ-PAIRS IN EACH BUFFER.
 ! FOR EACH PQ PAIR, THERE IS A MATRIX CONTAINING THE (PQ,RS)
@@ -108,12 +108,7 @@ do IV=1,NAR
         IUF = IU+IAPR(ISQ)
         II = II+1
         ITU = ITF+NASHT*(IUF-1)
-        if (ITU < IVX) then
-          ITUVX = (IVX*(IVX-1))/2+ITU
-        else
-          ITUVX = (ITU*(ITU-1))/2+IVX
-        end if
-        TUVX(ITUVX) = X2(II)
+        TUVX(iTri(ITU,IVX)) = X2(II)
       end do
     end do
     if (ISP == ISQ) cycle
@@ -139,12 +134,7 @@ do IV=1,NAR
         IUF = IU+IAPR(ISP)
         II = II+1
         ITU = ITF+NASHT*(IUF-1)
-        if (ITU < IVX) then
-          ITUVX = (IVX*(IVX-1))/2+ITU
-        else
-          ITUVX = (ITU*(ITU-1))/2+IVX
-        end if
-        TUVX(ITUVX) = X2(II)
+        TUVX(iTri(ITU,IVX)) = X2(II)
       end do
     end do
   end do
@@ -216,12 +206,7 @@ if (ISR /= ISS) then
           IUF = IU+IAPR(ISQ)
           II = II+1
           ITU = ITF+NASHT*(IUF-1)
-          if (ITU < IVX) then
-            ITUVX = (IVX*(IVX-1))/2+ITU
-          else
-            ITUVX = (ITU*(ITU-1))/2+IVX
-          end if
-          TUVX(ITUVX) = X2(II)
+          TUVX(iTri(ITU,IVX)) = X2(II)
         end do
       end do
       if (ISP == ISQ) cycle
@@ -247,12 +232,7 @@ if (ISR /= ISS) then
           IUF = IU+IAPR(ISP)
           II = II+1
           ITU = ITF+NASHT*(IUF-1)
-          if (ITU < IVX) then
-            ITUVX = (IVX*(IVX-1))/2+ITU
-          else
-            ITUVX = (ITU*(ITU-1))/2+IVX
-          end if
-          TUVX(ITUVX) = X2(II)
+          TUVX(iTri(ITU,IVX)) = X2(II)
         end do
       end do
     end do

@@ -11,6 +11,7 @@
 
 subroutine SONATORBM(CHARTYPE,USOR,USOI,ASS,BSS,NSS,iOpt,ROTMAT,DENSOUT)
 
+use Index_Functions, only: iTri, nTri_Elem
 use rassi_aux, only: idisk_TDM
 use rassi_global_arrays, only: JBNUM
 use Cntrl, only: IRREP, LSYM1, LSYM2, LuTDM, MLTPLT, NSTATE
@@ -175,14 +176,11 @@ do KSS=1,NSS
           do I=1,NB
             ITD = ITD+1
             TDM = TDMZZ(ITD)
-            if (I >= J) then
-              IJ = IOF+(I*(I-1))/2+J
-              if (I > J) then
-                if (ITYPE == 2) SCR(IJ) = SCR(IJ)+TDM
-                if (ITYPE == 4) SCR(IJ) = SCR(IJ)+TDM
-              end if
-            else
-              IJ = IOF+(J*(J-1))/2+I
+            IJ = IOF+iTri(I,J)
+            if (I > J) then
+              if (ITYPE == 2) SCR(IJ) = SCR(IJ)+TDM
+              if (ITYPE == 4) SCR(IJ) = SCR(IJ)+TDM
+            else if (I < J) then
               if (ITYPE == 2) SCR(IJ) = SCR(IJ)-TDM
               if (ITYPE == 4) SCR(IJ) = SCR(IJ)-TDM
             end if
@@ -190,7 +188,7 @@ do KSS=1,NSS
             if (ITYPE == 3) SCR(IJ) = SCR(IJ)+TDM
           end do
         end do
-        IOF = IOF+(NB*(NB+1))/2
+        IOF = IOF+nTri_Elem(NB)
       end do
     else
       ! GENERAL CASE, NON-DIAGONAL SYMMETRY BLOCKS

@@ -11,6 +11,7 @@
 
 subroutine NEWCNFTAB(NEL,NORB,MINOP,MAXOP,LSYM,NGAS,NGASORB,NGASLIM,IFORM,ICASE)
 
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use rassi_global_arrays, only: CnfTab1, CnfTab2
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -26,8 +27,8 @@ integer(kind=iwp), pointer :: CnfTab(:)
 ! Note how input parameter LSYM is used: If non-zero, only those configurations
 ! with symmetry label LSYM are selected. But if LSYM=0, they are all selected.
 ! We must figure out sizes before allocating the new configuration table.
-! Set up a table NCNF1(nIrrep,NPOS) with NPOS=((NEL+1)*(NEL+2))/2
-NNCNF1 = nIrrep*((NEL+1)*(NEL+2))/2
+! Set up a table NCNF1(nIrrep,NPOS) with NPOS=nTri_Elem1(NEL)
+NNCNF1 = nIrrep*nTri_Elem1(NEL)
 call mma_allocate(NCNF1,NNCNF1,Label='NCNF1')
 ! We need also a table NCNF2, temporarily. Need to know mx nr of active orbitals
 ! in any GAS subspace:
@@ -36,14 +37,14 @@ do IGAS=1,NGAS
   ISUM = sum(NGASORB(1:nIrrep,IGAS))
   MXO = max(MXO,ISUM)
 end do
-NNCNF2 = nIrrep*((MXO+1)*(MXO+2))/2
+NNCNF2 = nIrrep*nTri_Elem1(MXO)
 call mma_allocate(NCNF2,NNCNF2,Label='NCNF2')
 call NRCNF1(NEL,NORB,NGAS,NGASLIM,NGASORB,NCNF1,MXO,NCNF2)
 call mma_deallocate(NCNF2)
 
 ! NCNF1(ISYM,IPOS) contains the number of possible configurations for symmetry
 ! label ISYM, nr of closed shells NCLS, and nr of open shells NOPN. The latter
-! are combined as pair index IPOS=1+NOPN+(NOCC*(NOCC+1))/2 with NOCC=NCLS+NOPN
+! are combined as pair index IPOS=1+NOPN+nTri_Elem(NOCC) with NOCC=NCLS+NOPN
 
 ! Header (See below for contents):
 NTAB = 10
@@ -67,7 +68,7 @@ do NOPN=MINOP,min(2*NORB-NEL,NEL,MAXOP)
   do ISYM=1,nIrrep
     NCNF = 0
     if ((LSYM >= 1) .and. (LSYM <= nIrrep)) then
-      IPOS = 1+NOPN+(NOCC*(NOCC+1))/2
+      IPOS = 1+NOPN+nTri_Elem(NOCC)
       NCNF = NCNF1(ISYM+nIrrep*(IPOS-1))
     end if
     LENCNF = NOCC
@@ -154,7 +155,7 @@ do NOPN=MINOP,MAXOP
       ! If LSYM=0, all symmetry labels will be accepted. Else, only
       ! those with ISYM=LSYM.
       if ((LSYM == 0) .or. (ISYM == LSYM)) then
-        IPOS = 1+NOPN+(NOCC*(NOCC+1))/2
+        IPOS = 1+NOPN+nTri_Elem(NOCC)
         NCNF = NCNF1(ISYM+nIrrep*(IPOS-1))
       end if
       if (NCNF == 0) then

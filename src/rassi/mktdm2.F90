@@ -14,6 +14,7 @@ subroutine MKTDM2(LSYM1,MSPROJ1,IFSBTAB1,LSYM2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,DE
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
 #endif
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
@@ -38,7 +39,7 @@ real(kind=wp), allocatable :: SPD2(:)
 ! Pick out nr of active orbitals from orbital table:
 NASORB = ORBTAB(4)
 NASHT = NASORB/2
-NASGEM = (NASORB*(NASORB-1))/2
+NASGEM = nTri_Elem(NASORB-1)
 NSPD2 = NASGEM**2
 call mma_allocate(SPD2,nSPD2,Label='SPD2')
 SPD2(:) = Zero
@@ -128,18 +129,18 @@ do JORB=1,NASHT
       IXABS = MAPORB(LORBA)
       if (JORB > LORB) then
         SGNJL = One
-        JALA = ((JORBA-1)*(JORBA-2))/2+LORBA
-        JALB = ((JORBA-1)*(JORBA-2))/2+LORBB
-        JBLA = ((JORBB-1)*(JORBB-2))/2+LORBA
-        JBLB = ((JORBB-1)*(JORBB-2))/2+LORBB
+        JALA = nTri_Elem(JORBA-2)+LORBA
+        JALB = nTri_Elem(JORBA-2)+LORBB
+        JBLA = nTri_Elem(JORBB-2)+LORBA
+        JBLB = nTri_Elem(JORBB-2)+LORBB
       else if (JORB == LORB) then
-        JBJA = ((JORBB-1)*(JORBB-2))/2+JORBA
+        JBJA = nTri_Elem(JORBB-2)+JORBA
       else
         SGNJL = -One
-        JALA = ((LORBA-1)*(LORBA-2))/2+JORBA
-        JALB = ((LORBB-1)*(LORBB-2))/2+JORBA
-        JBLA = ((LORBA-1)*(LORBA-2))/2+JORBB
-        JBLB = ((LORBB-1)*(LORBB-2))/2+JORBB
+        JALA = nTri_Elem(LORBA-2)+JORBA
+        JALB = nTri_Elem(LORBB-2)+JORBA
+        JBLA = nTri_Elem(LORBA-2)+JORBB
+        JBLB = nTri_Elem(LORBB-2)+JORBB
       end if
       do KORB=1,NASHT
         KORBA = 2*KORB-1
@@ -149,18 +150,18 @@ do JORB=1,NASHT
         if (ITU < IVX) cycle
         if (IORB > KORB) then
           SGNIK = One
-          IAKA = ((IORBA-1)*(IORBA-2))/2+KORBA
-          IAKB = ((IORBA-1)*(IORBA-2))/2+KORBB
-          IBKA = ((IORBB-1)*(IORBB-2))/2+KORBA
-          IBKB = ((IORBB-1)*(IORBB-2))/2+KORBB
+          IAKA = nTri_Elem(IORBA-2)+KORBA
+          IAKB = nTri_Elem(IORBA-2)+KORBB
+          IBKA = nTri_Elem(IORBB-2)+KORBA
+          IBKB = nTri_Elem(IORBB-2)+KORBB
         else if (IORB == KORB) then
-          IBIA = ((IORBB-1)*(IORBB-2))/2+IORBA
+          IBIA = nTri_Elem(IORBB-2)+IORBA
         else
           SGNIK = -One
-          IAKA = ((KORBA-1)*(KORBA-2))/2+IORBA
-          IAKB = ((KORBB-1)*(KORBB-2))/2+IORBA
-          IBKA = ((KORBA-1)*(KORBA-2))/2+IORBB
-          IBKB = ((KORBB-1)*(KORBB-2))/2+IORBB
+          IAKA = nTri_Elem(KORBA-2)+IORBA
+          IAKB = nTri_Elem(KORBB-2)+IORBA
+          IBKA = nTri_Elem(KORBA-2)+IORBB
+          IBKB = nTri_Elem(KORBB-2)+IORBB
         end if
         if (IORB /= KORB) then
           if (JORB /= LORB) then
@@ -194,7 +195,7 @@ do JORB=1,NASHT
           end if
         end if
         ! Position determined by active orbital index in external order:
-        ITUVX = (ITU*(ITU-1))/2+IVX
+        ITUVX = nTri_Elem(ITU-1)+IVX
         TDM2(ITUVX) = GVAL
       end do
     end do

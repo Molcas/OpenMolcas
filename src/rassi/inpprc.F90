@@ -11,6 +11,7 @@
 
 subroutine INPPRC()
 
+use Index_Functions, only: nTri_Elem
 use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
 use rassi_global_arrays, only: ESHFT, HAM, HDIAG, JBNUM, LROOT
 use rassi_aux, only: AO_Mode, CMO1, CMO2, DMAB, ipglob, jDisk_TDM, JOB_INDEX, mTRA
@@ -40,7 +41,7 @@ integer(kind=iwp), external :: IsFreeUnit
 
 ! Analysing and post-processing the input that was read in readin_rassi.
 
-call mma_allocate(jDisk_TDM,2,nState*(nState+1)/2,Label='jDisk_TDM')
+call mma_allocate(jDisk_TDM,2,nTri_Elem(nState),Label='jDisk_TDM')
 jDisk_TDM(1,:) = -1
 jDisk_TDM(2,:) = 0
 ! PAM07: The printing of spin-orbit Hamiltonian matrix elements:
@@ -85,7 +86,7 @@ if (SaveDens) then
   LUTDM = IsFreeUnit(21)
   call DANAME_MF(LUTDM,'TDMFILE')
   AO_Mode = .true.
-  iByte = 8*3*nstate*(nstate-1)/2*nTDMZZ
+  iByte = 8*3*nTri_Elem(nstate-1)*nTDMZZ
 
   ! For the time we will move over to compact mode if the required
   ! estimate of disk space if more than 1 Gb.

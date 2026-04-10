@@ -11,6 +11,7 @@
 
 subroutine RASSI(IRETURN)
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas
 use Cntrl, only: BINA, Do_SK, DQVD, DYSEXPORT, DYSO, HOP, IFHAM, IFSO, LuExc, LuOne, LuTDM, MLTPLT, NATO, NJOB, NPROP, NSTATE, &
                  ONLY_OVERLAPS, SaveDens, SONATNSTATE, SONTOSTATES, TRACK
@@ -83,7 +84,7 @@ call mma_allocate(OVLP,NSTATE,NSTATE,Label='OVLP')
 call mma_allocate(DYSAMPS,NSTATE,NSTATE,Label='DYSAMPS')
 call mma_allocate(EigVec,nState,nState,Label='EigVec')
 call mma_allocate(ENERGY,nState,Label='Energy')
-call mma_allocate(TocM,NSTATE*(NSTATE+1)/2,Label='TocM')
+call mma_allocate(TocM,nTri_Elem(NSTATE),Label='TocM')
 call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
 Prop(:,:,:) = Zero
 DYSAMPS(:,:) = Zero
@@ -99,7 +100,7 @@ if (DYSO) call mma_allocate(SFDYS,nZ,nState,nState,Label='SFDYS')
 
 aux2 = .false.
 if (doCoul) then
-  call mma_allocate(eNucB,mxroot*(mxroot+1)/2,Label='eNuc')
+  call mma_allocate(eNucB,nTri_Elem(mxroot),Label='eNuc')
   eNucB(:) = Zero
   NZcoul = 0  ! (NBAS is already used...)
   inquire(file='AUXRFIL2',exist=aux2)
@@ -110,7 +111,7 @@ if (doCoul) then
   end if
   call get_iArray('nBas',nBas,nIrrep)
   NZcoul = nBas(0)
-  nh1 = NZcoul*(NZcoul+1)/2
+  nh1 = nTri_Elem(NZcoul)
   call mma_allocate(vNucB,nh1,Label='Attr PotB')
   call Get_dArray('Nuc Potential',vNucB,nh1)
   call NameRun('#Pop')    ! switch back to old RUNFILE
@@ -313,7 +314,7 @@ end if
 if (DoCoul) then
   if (.not. aux2) then
     call NameRun('AUXRFIL1')
-    call Put_dArray('<rhoB|VnucA>',eNucB,mxroot*(mxroot+1)/2)
+    call Put_dArray('<rhoB|VnucA>',eNucB,nTri_Elem(mxroot))
     call Cho_X_Final(irc)
     call NameRun('#Pop') ! switch back to old RUNFILE
     call mma_deallocate(VNucB)

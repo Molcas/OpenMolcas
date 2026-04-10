@@ -19,20 +19,21 @@ subroutine NRCNF1(MAXEL,NORB,NGAS,NGASLIM,NGASORB,NCNF1,MXTMP,NCNF2)
 !    Symmetry label LSYM
 ! for all possible values of NCLS,NOPN and LSYM, stored as
 !          NCNF1(LSYM,IPOS)
-! with IPOS=(NOCC*(NOCC+1))/2+NOPN+1, NOCC=NCLS+NOPN,
+! with IPOS=nTri_Elem(NOCC)+NOPN+1, NOCC=NCLS+NOPN,
 ! provided that 0<=NCLS, 0<=NOPN, and NOCC<=MIN(NORB,MAXEL).
 ! MXTMP=Max nr of orbitals in one GAS partition.
 ! Prerequisite: The orbital symmetry labels stored in ISM.
 !               The GAS restriction arrays
 ! Method: Induction over GAS partitions.
 
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: MaxEl, NORB, NGAS, NGASLIM(2,NGAS), NGASORB(nIrrep,NGAS), MXTMP
-integer(kind=iwp), intent(out) :: NCNF1(nIrrep,((MAXEL+1)*(MAXEL+2))/2), NCNF2(nIrrep,((MXTMP+1)*(MXTMP+2))/2)
+integer(kind=iwp), intent(out) :: NCNF1(nIrrep,nTri_Elem1(MAXEL)), NCNF2(nIrrep,nTri_Elem1(MXTMP))
 integer(kind=iwp) :: IGAS, II, IPOS, IPOSNW, IPOSOLD, ISYM, ISYMNW, ISYMOLD, MAXOCC, MXOCCOLD, NCLS, NCLSNW, NCLSOLD, NELMN, &
                      NELMX, NEW, NG, NO, NOCC, NOCCMX, NOCCNW, NOCCOLD, NOPN, NOPNNW, NOPNOLD, NX, NY
 integer(kind=iwp), allocatable :: ISM(:)
@@ -60,13 +61,13 @@ do IGAS=1,NGAS
   do NOCCNW=min(MAXOCC,MXOCCOLD+NELMX),0,-1
     do NOPNNW=0,NOCCNW
       NCLSNW = NOCCNW-NOPNNW
-      IPOSNW = (NOCCNW*(NOCCNW+1))/2+NOPNNW+1
+      IPOSNW = nTri_ELem(NOCCNW)+NOPNNW+1
       do ISYMNW=1,nIrrep
         NEW = 0
         do NOCC=NELMN/2,min(NELMX,NO)
           do NOPN=max(0,2*NOCC-NELMX),min(2*NOCC-NELMN,NOCC,NELMX)
             NCLS = NOCC-NOPN
-            IPOS = (NOCC*(NOCC+1))/2+NOPN+1
+            IPOS = nTri_Elem(NOCC)+NOPN+1
             do ISYM=1,nIrrep
               NY = NCNF2(ISYM,IPOS)
               if (NY == 0) cycle
@@ -77,7 +78,7 @@ do IGAS=1,NGAS
               NOCCOLD = NCLSOLD+NOPNOLD
               if (NOCCOLD > MXOCCOLD) cycle
               ISYMOLD = MUL(ISYM,ISYMNW)
-              IPOSOLD = (NOCCOLD*(NOCCOLD+1))/2+NOPNOLD+1
+              IPOSOLD = nTri_Elem(NOCCOLD)+NOPNOLD+1
               NX = NCNF1(ISYMOLD,IPOSOLD)
               if (NX == 0) cycle
               NEW = NEW+NCNF1(ISYMOLD,IPOSOLD)*NCNF2(ISYM,IPOS)

@@ -11,6 +11,7 @@
 
 subroutine BINAT()
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use OneDat, only: sNoNuc, sNoOri
 use rassi_aux, only: iDisk_TDM
@@ -84,7 +85,7 @@ do ISYM=1,nIrrep
       end if
     end do
     if (ISEL > I) then
-      LS2 = LS-1+(ISEL*(ISEL+1))/2
+      LS2 = LS-1+nTri_Elem(ISEL)
       SWAP = SAO(LS2)
       SAO(LS2) = SAO(LS1)
       SAO(LS1) = SWAP
@@ -112,7 +113,7 @@ do ISYM=1,nIrrep
     LV1 = LV1+NB
     LE1 = LE1+1
   end do
-  LS = LS+(NB*(NB+1))/2
+  LS = LS+nTri_Elem(NB)
   LV = LV+NB**2
   LE = LE+NB
 end do

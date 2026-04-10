@@ -11,6 +11,7 @@
 
 subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
 use gugx, only: CIStruct, EXStruct, SGStruct
@@ -173,7 +174,7 @@ call RDCMO_RASSI(JOB2,CMO2)
 ! Nr of active spin-orbitals
 NASORB = 2*NASHT
 NTDM1 = NASHT**2
-NTDM2 = (NTDM1*(NTDM1+1))/2
+NTDM2 = nTri_Elem(NTDM1)
 
 ! Size of some data sets of reduced-2TDM in terms of active
 ! orbitals NASHT (For Auger matrix elements):
@@ -886,7 +887,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
           if (SaveDens) then
             ! Transition density matrices, TDMZZ, in AO or MO basis.
             ! WDMZZ similar, but WE-reduced 'triplet' densities.
-            ij = ISTATE*(iSTATE-1)/2+JSTATE
+            ij = nTri_Elem(iSTATE-1)+JSTATE
             jDisk_TDM(1,ij) = IDISK
             jDisk_TDM(2,ij) = iEmpty
             iOpt = 1

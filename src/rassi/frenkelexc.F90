@@ -12,6 +12,7 @@
 !ifdef _DEBUPRINT_
 subroutine frenkelexc(Frenkeltri,ndim,nst1,nst2)
 
+use Index_Functions, only: nTri_Elem
 use frenkel_global_vars, only: excl, iTyp, jTyp, nestla, nestlb, valst
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, auToEV
@@ -19,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ndim, nst1, nst2
-real(kind=wp), intent(inout) :: Frenkeltri(ndim*(ndim+1)/2)
+real(kind=wp), intent(inout) :: Frenkeltri(nTri_Elem(ndim))
 integer(kind=iwp) :: a, b, d1lines, d2lines, I, IO, iPL, J, K, L, LUT1, ntrans, run, tri
 real(kind=wp) :: DIPNORM, GS
 character(len=13) :: filnam, filnam1, filnam2, filnam3
@@ -98,7 +99,7 @@ do a=1,nst1
       end if
     end if
     tri = tri+1
-    Frenkeltri((tri*(tri+1))/2) = Frenkeltri((tri*(tri+1))/2)+Rassi1(a)+Rassi2(b)
+    Frenkeltri(nTri_Elem(tri)) = Frenkeltri(nTri_Elem(tri))+Rassi1(a)+Rassi2(b)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'tri counter',tri
     write(u6,*) 'add energies 1 and 2',Rassi1(a),Rassi2(b)
@@ -109,7 +110,7 @@ end do
 ! subtract gs energy
 gs = Frenkeltri(1)
 do i=1,ndim
-  Frenkeltri((i*(i+1))/2) = Frenkeltri((i*(i+1))/2)-gs
+  Frenkeltri(nTri_Elem(i)) = Frenkeltri(nTri_Elem(i))-gs
 end do
 ! convert to eV
 Frenkeltri(:) = Frenkeltri(:)*auToEV
@@ -162,8 +163,8 @@ end do
 
 write(u6,*) 'Hamiltonian eigenvalues [eV]:'
 do i=1,ndim
-  E_FRENKEL(i) = Frenkeltri((i*(i+1))/2)
-  write(u6,*) Frenkeltri((i*(i+1))/2)
+  E_FRENKEL(i) = Frenkeltri(nTri_Elem(i))
+  write(u6,*) Frenkeltri(nTri_ELem(i))
 end do
 
 call Add_Info('E_FRENKEL',E_FRENKEL,ndim,6)
@@ -186,7 +187,7 @@ do i=1,ndim
 end do
 #endif
 
-ntrans = ndim*(ndim-1)/2
+ntrans = nTri_Elem(ndim-1)
 
 d1lines = 0
 d2lines = 0
@@ -294,14 +295,14 @@ end do
 
 write(u6,*) 'relative excitonic state eigenenergies [eV]:'
 do i=1,ndim
-  EigEn(i) = Frenkeltri((i*(i+1))/2)-Frenkeltri(1)
+  EigEn(i) = Frenkeltri(nTri_Elem(i))-Frenkeltri(1)
   write(u6,*) 'EigEn:',i,EigEn(i)
 end do
 
 if (iPL >= 3) then
   write(u6,*) 'relative excitonic state eigenenergies in hartree:'
   do i=1,ndim
-    EigEnHa(i) = (Frenkeltri((i*(i+1))/2)-Frenkeltri(1))/auToEV
+    EigEnHa(i) = (Frenkeltri(nTri_Elem(i))-Frenkeltri(1))/auToEV
     write(u6,*) 'EigEn:',i,EigEnHa(i)
   end do
 end if
@@ -478,7 +479,7 @@ do i=1,ndim
   end do
 end do
 
-call Add_Info('FRENKEL_OSCSTR',OSCSTR,ndim*(ndim-1)/2,6)
+call Add_Info('FRENKEL_OSCSTR',OSCSTR,nTri_Elem(ndim-1),6)
 
 if (iPL >= 3) then
   run = 0

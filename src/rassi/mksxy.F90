@@ -15,6 +15,7 @@ subroutine MKSXY(CMO1,CMO2,SXY)
 ! PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
 ! CODED 1987-02-18, P-AA M.
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NBASF, NCMO, NOSH, NSXY
@@ -32,7 +33,7 @@ real(kind=wp), allocatable :: PROD(:), SSQ(:), SZZ(:)
 ! IN COMMON BASIS SET (TRIANGULAR), SSQ TEMPORARY STORAGE
 ! FOR EACH OF ITS SYMMETRY BLOCKS (SQUARE), AND PROD FOR
 ! INTERMEDIATE MATRIX PRODUCTS.
-NSZZ = sum(NBASF(1:nIrrep)*(NBASF(1:nIrrep)+1)/2)
+NSZZ = sum(nTri_Elem(NBASF(1:nIrrep)))
 NSSQ = maxval(NBASF(1:nIrrep)**2)
 NPROD = maxval(NOSH(1:nIrrep)*NBASF(1:nIrrep))
 call mma_allocate(SZZ,NSZZ,Label='SZZ')
@@ -69,7 +70,7 @@ do ISY=1,nIrrep
     ISXY = ISXY+NO**2
     ICMO = ICMO+NO*NB
   end if
-  LSZZ1 = LSZZ1+(NB*(NB+1))/2
+  LSZZ1 = LSZZ1+nTri_Elem(NB)
 end do
 call mma_deallocate(SZZ)
 call mma_deallocate(SSQ)

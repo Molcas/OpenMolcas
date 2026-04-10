@@ -55,7 +55,7 @@ iOff2 = 0
 do iSym=1,nIrrep
   nb = nBasf(iSym)
   if (nb > 0) call Square(SAO(1+iOff1),IAO(iOff2+1),1,nb,nb)
-  iOff1 = iOff1+(nb**2+nb)/2
+  iOff1 = iOff1+nTri_Elem(nb)
   iOff2 = iOff2+nb**2
 end do
 call mma_deallocate(SAO)

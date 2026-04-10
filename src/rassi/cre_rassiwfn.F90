@@ -14,6 +14,7 @@ subroutine cre_rassiwfn()
 ! exists, it will be overwritten.
 
 #ifdef _HDF5_
+use Index_Functions, only: nTri_Elem
 use kVectors, only: nk_Vector
 use rassi_global_arrays, only: JBNUM, LROOT
 use RASSIWfn, only: wfn_cmo, wfn_cmo_or, wfn_detcoeff, wfn_detcoeff_or, wfn_detocc, wfn_detocc_or, wfn_overlap, wfn_sfs_amfi, &
@@ -142,7 +143,7 @@ end if
 
 if (do_tmom) then
   ! SFS intermediate transition vectors
-  nIJ = NSTATE*(NSTATE-1)/2
+  nIJ = nTri_Elem(NSTATE-1)
   nData = 1+3+2*3
   wfn_sfs_tm = mh5_create_dset_real(wfn_fileid,'SFS_TRANSITION_VECTORS',4,[nData,nQuad,nIJ,nk_Vector])
   call mh5_init_attr(wfn_sfs_tm,'DESCRIPTION', &
@@ -211,7 +212,7 @@ if (ifso) then
                      '[3,NSS,NSS], imaginary part')
 
   if (do_tmom) then
-    nIJ = NSS*(NSS-1)/2
+    nIJ = nTri_Elem(NSS-1)
     nData = 1+3+2*3
     wfn_sos_tm = mh5_create_dset_real(wfn_fileid,'SOS_TRANSITION_VECTORS',4,[nData,2*nQuad,nIJ,nk_Vector])
     call mh5_init_attr(wfn_sos_tm,'DESCRIPTION', &

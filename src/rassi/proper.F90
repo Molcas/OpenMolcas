@@ -11,6 +11,7 @@
 
 subroutine PROPER(PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
 
+use Index_Functions, only: nTri_Elem
 use rassi_global_arrays, only: JBNUM
 use RASSI_AUX, only: TocM
 use Cntrl, only: FnTOM, IRREP, lSym1, lSym2, LuTOM, NPROP, NSTATE, PNAME, PTYPE, ToFile
@@ -36,13 +37,13 @@ ISY12 = MUL(LSYM1,LSYM2)
 ! THE SYMMETRY CHECK MASK:
 MASK = 2**(ISY12-1)
 ! ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
-NIP = 4+(NBST*(NBST+1))/2
+NIP = 4+nTri_Elem(NBST)
 call mma_allocate(IP,NIP,Label='IP')
 ! FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
 call mk_IOFF(IOFF,nIrrep,NBASF,ISY12)
 ! CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 ! AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
-NSCR = (NBST*(NBST+1))/2
+NSCR = nTri_Elem(NBST)
 call mma_allocate(SCR,nSCR,4,LABEL='SCR')
 SCR(:,:) = Zero
 call MK_TWDM(nIrrep,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,ISY12)
@@ -59,8 +60,8 @@ if (ToFile) then
   call DaName(LuToM,FnToM)
   if (iCall == 0) then  !Make room for table-of-contents
     iDisk = 0
-    TocM(1:nState*(nState+1)/2) = -1
-    call iDaFile(LuToM,1,TocM,nState*(nstate+1)/2,iDisk)
+    TocM(1:nTri_Elem(nState)) = -1
+    call iDaFile(LuToM,1,TocM,nTri_Elem(nState),iDisk)
     TocM(1) = iDisk
     iDiskSav = iDisk
     iCall = 1
@@ -74,14 +75,14 @@ if (ToFile) then
   end if
   i = iState
   j = jState
-  indCall = i*(i-1)/2+j  !Which call this is
+  indCall = nTri_Elem(i-1)+j  !Which call this is
   ToCM(indCall) = iDiskSav
   iDisk = iDiskSav
   !write(u6,*) 'IndCall,iDisk=',IndCall,iDisk
   call dDaFile(LuToM,1,SCR,4*nSCR,iDisk) !The THING.
   iDiskSav = iDisk  !Save diskaddress.
   iDisk = 0
-  call iDaFile(LuToM,1,TocM,nState*(nState+1)/2,iDisk)
+  call iDaFile(LuToM,1,TocM,nTri_Elem(nState),iDisk)
   !Put table of contents.
   call DaClos(LuToM)
 end if

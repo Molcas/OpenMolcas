@@ -15,6 +15,7 @@
 
 subroutine PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
 
+use Index_Functions, only: nTri_Elem
 use RASSI_AUX, only: iDisk_TDM
 use kVectors, only: e_Vector, k_Vector, nk_Vector
 use do_grid, only: Do_Lebedev
@@ -205,7 +206,7 @@ if (Do_Pol) call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
 call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
 call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
 call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
-nSCR = (NBST*(NBST+1))/2
+nSCR = nTri_Elem(NBST)
 call mma_allocate(SCR,nSCR,4,LABEL='SCR')
 
 ! Allocate some temporary arrays for handling the
@@ -220,20 +221,20 @@ call mma_allocate(TMR,NSS,NSS,3,Label='TMR')
 call mma_allocate(TMI,NSS,NSS,3,Label='TMI')
 
 ! ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
-NIP = 4+(NBST*(NBST+1))/2
+NIP = 4+nTri_Elem(NBST)
 call mma_allocate(IP,NIP,Label='IP')
 #ifdef _HDF5_
 
 ! Allocate vector to store all individual transition moments.
 ! We do this for
-! all unique pairs ISO-JSO, iSO=/=JSO (NSS*(NSS-1)/2)
+! all unique pairs ISO-JSO, iSO=/=JSO nTri_Elem(NSS-1)
 !     all k-vectors (2*nQuad or 2*nVec)
 !         we store:
 !             the weight (1)
 !             the k-vector (3)
 !             we projected transition vector (real and imaginary parts) (2*3)
 
-nIJ = nSS*(nSS-1)/2
+nIJ = nTri_Elem(nSS-1)
 ip_w = 1
 ip_kvector = ip_w+1
 ip_TMR = ip_kvector+3
@@ -646,7 +647,7 @@ do iVec=1,nVec
               TM_I(:) = TMI(ISO,JSO,:)
 #             ifdef _HDF5_
               ! Get proper triangular index
-              IJSO_ = (JSO-1)*(JSO-2)/2+ISO
+              IJSO_ = nTri_Elem(JSO-2)+ISO
               iQuad_ = 2*(iQuad-1)+kp
               Storage(ip_w,iQuad_,IJSO_,iVec) = Weight
               Storage(ip_kvector:ip_kvector+2,iQuad_,IJSO_,iVec) = kPhase(kp)*Wavevector(:)

@@ -140,7 +140,7 @@ do NOPEN=MINOP,MAXOP
           I = ICASE(LEV)
           !if (I == 1) NODD = 1-NODD
           !if (I == 2) NODD = 1-NODD
-          NODD = ((2*NODD-1)*I*(I-3))/2+NODD
+          NODD = (2*NODD-1)*I*(I-3)/2+NODD
           !if (NODD == 1) then
           !  IF(I == 2) PHS = -PHS
           !  IF(I == 3) PHS = -PHS
@@ -216,7 +216,7 @@ do NOPEN=MINOP,MAXOP
           I = ICASE(LEV)
           !if (I == 1) NODD = 1-NODD
           !if (I == 2) NODD = 1-NODD
-          NODD = ((2*NODD-1)*I*(I-3))/2+NODD
+          NODD = (2*NODD-1)*I*(I-3)/2+NODD
           !if (NODD == 1) then
           !  if (I == 2) PHS = -PHS
           !  if (I == 3) PHS = -PHS
@@ -288,7 +288,7 @@ do NOPEN=MINOP,MAXOP
           I = ICASE(LEV)
           !if (I == 1) NODD = 1-NODD
           !if (I == 2) NODD = 1-NODD
-          NODD = ((2*NODD-1)*I*(I-3))/2+NODD
+          NODD = (2*NODD-1)*I*(I-3)/2+NODD
           !if (NODD == 1) then
           !  if (I == 2) PHS = -PHS
           !  if (I == 3) PHS = -PHS
@@ -368,7 +368,7 @@ do NOPEN=MINOP,MAXOP
           I = ICASE(LEV)
           !if (I == 1) NODD = 1-NODD
           !if (I == 2) NODD = 1-NODD
-          NODD = ((2*NODD-1)*I*(I-3))/2+NODD
+          NODD = (2*NODD-1)*I*(I-3)/2+NODD
           !if (NODD == 1) then
           !  if (I == 2) PHS = -PHS
           !  if (I == 3) PHS = -PHS

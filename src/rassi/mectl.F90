@@ -11,6 +11,7 @@
 
 subroutine MECTL(PROP,OVLP,HAM,ESHFT)
 
+use Index_Functions, only: nTri_Elem
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: HDIAG
 use Cntrl, only: FnEig, iComp, IfDCPL, IFHAM, IfHDia, IfShft, IPUSED, LuEig, NPROP, NSTATE, PNAME, PNUC, PORIG, PrMER, PRXVR, ToFile
@@ -211,7 +212,7 @@ if (IfDCpl) then
   call Get_iScalar('Unique atoms',natom)
   call mma_allocate(NucChg,natom,Label='NucChg')
   call Get_dArray('Effective nuclear Charge',NucChg,nAtom)
-  nST = nState*(nState+1)/2
+  nST = nTri_Elem(nState)
   call mma_allocate(DerCpl,3*natom*nST,Label='DerCpl')
   call AppDerCpl(natom,nST,NucChg,Prop,DerCpl,HAM)
   call mma_deallocate(DerCpl)

@@ -18,6 +18,7 @@ subroutine SDCHS(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,PSI1,PSI2,IF20,IF02,SDCHSM)
 ! IF20 D = < N | anni_left anni_left  | N-2 >
 ! reduced 2-electron tdm in the space of active spin-orbitals
 
+use Index_Functions, only: nTri_Elem
 use rassi_global_arrays, only: FSBANN1, FSBANN2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -70,7 +71,7 @@ if (IF02) then
       ! Compute the spin transition density matrix element:
       OVLP = OVERLAP_RASSI(IFSBTAB1,FSBANN2,PSI1,ANN2)
 
-      IJ = ((ISORB-1)*(ISORB-2))/2+JSORB
+      IJ = nTri_Elem(ISORB-2)+JSORB
       SDCHSM(IJ) = SDCHSM(IJ)+OVLP
 
       call mma_deallocate(ANN2)

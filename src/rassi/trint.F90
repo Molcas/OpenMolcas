@@ -23,6 +23,7 @@ subroutine TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
 ! THE TUVX MATRICES ARE IN THE SAME FORMAT AS THE DENSITY MATRICES.
 !****************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Fock_util_global, only: Fake_CMO2
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Cntrl, only: ALGO, dmpk, ERFNUC, LuOrd, Nscreen, RFPert
@@ -397,7 +398,7 @@ if (.not. DoCholesky) then
   call CLSORD(IRC)
 
 end if
-call Chk4NaN(nasht*(nasht+1)/2,TUVX,iErr)
+call Chk4NaN(nTri_Elem(nasht),TUVX,iErr)
 if (iErr /= 0) then
   write(u6,*) 'TrInt: TUVX corrupted'
   call Abend()

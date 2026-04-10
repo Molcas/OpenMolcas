@@ -20,6 +20,7 @@ subroutine TMOMInt(wavevector,iOpt)
 use Integral_interfaces, only: int_kernel, int_mem
 
 #ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use OneDat, only: sOpSiz
 use Sizes_of_Seward, only: S
 use Basis_Info, only: nBas
@@ -128,7 +129,7 @@ if (iOpt == 2) then
       if (btest(iSyLbl_TMOM,ij)) then
         IOFF(i,j) = Length+1
         if (i == j) then
-          Len_ = nBas(i-1)*(nBas(i-1)+1)/2
+          Len_ = nTri_Elem(nBas(i-1))
         else
           Len_ = nBas(i-1)*nBas(j-1)
         end if
@@ -147,7 +148,7 @@ if (iOpt == 2) then
   Phase = One
   do iMltpl=0,S%nMltpl
     write(Label,'(A,I2)') 'Mltpl ',iMltpl
-    nComp = (iMltpl+1)*(iMltpl+2)/2
+    nComp = nTri_Elem1(iMltpl)
     iComp = 0
     do ix=iMltpl,0,-1
       x = CoorO(1)**ix
@@ -176,7 +177,7 @@ if (iOpt == 2) then
             if (btest(iSyLbl,ij)) then
               jOff = Length+1
               if (i == j) then
-                Len_ = nBas(i-1)*(nBas(i-1)+1)/2
+                Len_ = nTri_Elem(nBas(i-1))
               else
                 Len_ = nBas(i-1)*nBas(j-1)
               end if
@@ -213,7 +214,7 @@ if (iOpt == 2) then
       ij = Mul(i,j)-1
       if (btest(iSyLbl_TMOM,ij)) then
         if (i == j) then
-          Len_ = nBas(i-1)*(nBas(i-1)+1)/2
+          Len_ = nTri_Elem(nBas(i-1))
         else
           Len_ = nBas(i-1)*nBas(j-1)
         end if

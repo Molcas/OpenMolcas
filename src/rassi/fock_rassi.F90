@@ -16,6 +16,7 @@ subroutine FOCK_RASSI(DINAO,FOCKAO)
 !  ONE-ELECTRON HAMILTONIAN MATRIX BEFORE THE CALL. THE MATRICES
 !  ARE STORED IN SYMMETRY-BLOCKED SQUARE FORMAT.
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use rassi_data, only: NBASF, NBMX, NBSQ, NBSQPR, NBTRI, NISH
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -48,7 +49,7 @@ NBTR = 0
 do ISYM=1,nIrrep
   NBTRPR(ISYM) = NBTR
   NB = NBASF(ISYM)
-  NBTR = NBTR+(NB*(NB+1))/2
+  NBTR = NBTR+nTri_Elem(NB)
 end do
 NFTRI = NBTR
 call mma_allocate(FTRI,NFTRI,Label='FTRI')
@@ -105,9 +106,9 @@ do ISP=1,nIrrep
 
         ! SIZES OF INTEGRAL MATRICES:
         NBPQ = NBP*NBQ
-        if (ISP == ISQ) NBPQ = (NBP**2+NBP)/2
+        if (ISP == ISQ) NBPQ = nTri_Elem(NBP)
         NBRS = NBR*NBS
-        if (ISR == ISS) NBRS = (NBR**2+NBR)/2
+        if (ISR == ISS) NBRS = nTri_Elem(NBR)
         ! READ THE AO INTEGRALS INTO PQRS WHENEVER NEEDED.
         ! ACCUMULATE CONTRIBUTIONS TO FOCK MATRIX INTO FTRI, OR
         ! DIRECTLY INTO FOCKAO.

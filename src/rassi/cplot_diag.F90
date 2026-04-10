@@ -11,26 +11,27 @@
 
 subroutine CPLOT_DIAG(MATR,MATI,nDIM,EIGVECR,EIGVECI)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nDIM
-real(kind=wp), intent(inout) :: MATR(nDIM*(nDIM+1)/2), MATI(nDIM*(nDIM+1)/2)
+real(kind=wp), intent(inout) :: MATR(nTri_Elem(nDIM)), MATI(nTri_Elem(nDIM))
 real(kind=wp), intent(out) :: EIGVECR(nDIM,nDIM), EIGVECI(nDIM,nDIM)
 
 integer(kind=iwp) :: INFO, J
 real(kind=wp), allocatable :: CEIGVAL(:), RWORK(:)
 complex(kind=wp), allocatable :: CEIGVEC(:,:), MATFULL(:), ZWORK(:)
 
-call mma_allocate(MATFULL,nDIM*(nDIM+1)/2,Label='MATFULL')
+call mma_allocate(MATFULL,nTri_Elem(nDIM),Label='MATFULL')
 call mma_allocate(CEIGVAL,nDIM,Label='CEIGVAL')
 call mma_allocate(CEIGVEC,nDIM,nDIM,Label='CEIGVEC')
 call mma_allocate(ZWORK,2*nDIM-1,Label='ZWORK')
 call mma_allocate(RWORK,3*nDIM-2,Label='RWORK')
 
-MATFULL(1:nDIM*(nDIM+1)/2) = cmplx(MATR(1:nDIM*(nDIM+1)/2),MATI(1:nDIM*(nDIM+1)/2),kind=wp)
+MATFULL(:) = cmplx(MATR(:),MATI(:),kind=wp)
 
 call zhpev_('V','U',nDIM,MATFULL,CEIGVAL,CEIGVEC,nDIM,ZWORK,RWORK,INFO)
 call mma_deallocate(MATFULL)
@@ -49,7 +50,7 @@ EIGVECI(:,:) = aimag(CEIGVEC(:,:))
 MATI(:) = Zero
 MATR(:) = Zero
 do J=1,nDIM
-  MATR((J*(J-1)/2)+J) = CEIGVAL(J)
+  MATR(nTri_Elem(J)) = CEIGVAL(J)
 end do
 
 call mma_deallocate(CEIGVAL)

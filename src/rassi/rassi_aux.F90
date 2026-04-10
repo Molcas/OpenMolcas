@@ -28,13 +28,15 @@ contains
 
 function iDisk_TDM(I,J,K)
 
+  use Index_Functions, only: nTri_Elem
+
   integer(kind=iwp) :: iDisk_TDM
   integer(kind=iwp) :: I, J, K
   integer(kind=iwp) :: I_Max, J_Min
 
   I_Max = max(I,J)
   J_Min = min(I,J)
-  iDisk_TDM = jDisk_TDM(K,I_Max*(I_Max-1)/2+J_Min)
+  iDisk_TDM = jDisk_TDM(K,nTri_Elem(I_Max-1)+J_Min)
 
 end function iDisk_TDM
 

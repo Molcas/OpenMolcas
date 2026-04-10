@@ -46,7 +46,7 @@ real(kind=wp), allocatable :: SRT2M(:)
 
 NASORB = OrbTab(4)
 NASHT = NASORB/2
-!NASGEM = (NASORB*(NASORB-1))/2
+!NASGEM = nTri_Elem(NASORB-1)
 NSRT2M = NASORB**3
 call mma_allocate(SRT2M,nSRT2M,Label='SRT2M')
 SRT2M(:) = Zero

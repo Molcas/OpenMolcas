@@ -12,6 +12,7 @@
 !ifdef _DEBUGPRINT_
 subroutine EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use RASSI_aux, only: iDisk_TDM, IPGLOB
 use kVectors, only: e_Vector, k_Vector, nk_Vector
@@ -134,7 +135,7 @@ NSETS = ISET
 !TEST write(u6,*)' The LIST array:'
 !TEST write(u6,'(1x,20i3)') (LIST(I),I=1,NSTATE)
 
-NHH = (NSTATE*(NSTATE+1))/2
+NHH = nTri_Elem(NSTATE)
 call mma_allocate(HH,NHH,Label='HH')
 call mma_allocate(HSQ,NSTATE**2,Label='HSQ')
 call mma_allocate(SS,NHH,Label='SS')
@@ -1986,7 +1987,7 @@ call CWTime(TCpu1,TWall1)
 call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
 call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
 call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
-nSCR = (NBST*(NBST+1))/2
+nSCR = nTri_Elem(NBST)
 call mma_allocate(SCR,nSCR,4,LABEL='SCR')
 
 ! Here we will use a Lebedev grid to integrate over all possible
@@ -2036,20 +2037,20 @@ if (Do_Pol) call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
 
 ! Scratch for one-electron integrals
 
-NIP = 4+(NBST*(NBST+1))/2
+NIP = 4+nTri_Elem(NBST)
 call mma_allocate(IP,NIP,Label='IP')
 #ifdef _HDF5_
 
 ! Allocate vector to store all individual transition moments.
 ! We do this for
-! all unique pairs I-J, I=/=J (NSTATE*(NSTATE-1)/2)
+! all unique pairs I-J, I=/=J nTri_Elem(NSTATE-1)
 !     all k-vectors (nQuad or nVec)
 !         we store:
 !             the weight (1)
 !             the k-vector (3)
 !             the projected transition vector (real and imaginary parts) (2*3)
 
-nIJ = nState*(nState-1)/2
+nIJ = nTri_Elem(nState-1)
 ip_w = 1
 ip_kvector = ip_w+1
 ip_TMR = ip_kvector+3
@@ -2249,9 +2250,7 @@ do iVec=1,nVec
             ! Pick up the transition density between the two states from
             ! disc. Generated in GTDMCTL.
 
-            ISTATE = max(i,j)
-            JSTATE = min(i,j)
-            ij = ISTATE*(ISTATE-1)/2+JSTATE
+            ij = iTri(i,j)
             if (Diagonal) then
               IDISK = iDisk_TDM(I,J,1)
               iEmpty = iDisk_TDM(I,J,2)
@@ -2345,7 +2344,7 @@ do iVec=1,nVec
 
 #           ifdef _HDF5_
             ! Fix the triangular index because we are not storing the diagonal
-            IJSF = IJ-ISTATE+1
+            IJSF = IJ-max(i,j)+1
             Storage(ip_w,iQuad,IJSF,iVec) = Weight
             Storage(ip_kvector:ip_kvector+2,iQuad,IJSF,iVec) = Wavevector(:)
             Storage(ip_TMR:ip_TMR+2,iQuad,IJSF,iVec) = TM_R(:)

@@ -11,6 +11,7 @@
 
 subroutine NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use rassi_aux, only: iDisk_TDM
 use Cntrl, only: LuTDM, NrNATO, nState
@@ -75,7 +76,7 @@ do ISYM=1,nIrrep
     LV1 = LV1+NB
     LE1 = LE1+1
   end do
-  LS = LS+(NB*(NB+1))/2
+  LS = LS+nTri_Elem(NB)
   LV = LV+NB**2
   LE = LE+NB
 end do

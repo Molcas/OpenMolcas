@@ -11,6 +11,7 @@
 
 subroutine SONATORB_CPLOT(DENS,FILEBASE,CHARTYPE,ASS,BSS)
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri, sOpSiz
 use rassi_aux, only: ipglob
 use Symmetry_Info, only: nIrrep
@@ -57,7 +58,7 @@ NBMX2 = NBMX**2
 ! EIG  - AO Overlap eigenvalues
 ! VEC2 - Eigenvectors of density matrix
 ! SCR  - Temporary for matrix multiplication
-! NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
+! NOTE: SCR COULD PROBABLY BE SOMETHING LIKE nTri_Elem(NBMX)
 !       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
 !       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
 call mma_allocate(SZZ,NBTRI,Label='SZZ')
@@ -118,7 +119,7 @@ do ISYM=1,nIrrep
     LV1 = LV1+NB
     LE1 = LE1+1
   end do
-  LS = LS+(NB*(NB+1))/2
+  LS = LS+nTri_Elem(NB)
   LV = LV+NB**2
   LE = LE+NB
 end do

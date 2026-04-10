@@ -12,6 +12,7 @@
 !ifdef _DEBUGPRINT_
 subroutine exctdm(SIJ,TRAD,TDMAB,iRC,CMO1,CMO2,TDMZZ,TRASD,TSDMAB,TSDMZZ,istate,jstate)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Basis_Info, only: nBas
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use frenkel_global_vars, only: doexch, eNucB, iTyp, labb, VNucB
@@ -86,7 +87,7 @@ if (.not. LABB) then
 # endif
 end if
 ! get the dimensions of the packed lower triangular TDM
-NNLTD = nbas_tot(1)*(nbas_tot(1)+1)/2
+NNLTD = nTri_Elem(nbas_tot(1))
 m = nbas_tot
 n = nbas_tot
 
@@ -144,9 +145,9 @@ if (labb) then
   ! fill DLT (=TDM in common basis in packed, lower trangular storage)
   do i=1,nbas_tot(1)
     do j=1,i-1
-      DLT(1)%A00(max(i,j)*(max(i,j)-3)/2+i+j) = TDMZZ_new(nbas_tot(1)*(j-1)+i)+TDMZZ_new(nbas_tot(1)*(i-1)+j)
+      DLT(1)%A00(iTri(i,j)) = TDMZZ_new(nbas_tot(1)*(j-1)+i)+TDMZZ_new(nbas_tot(1)*(i-1)+j)
     end do
-    DLT(1)%A00(j*(j-3)/2+2*j) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
+    DLT(1)%A00(nTri_Elem(j)) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
   end do
 
 # ifdef _DEBUGPRINT_
@@ -285,9 +286,9 @@ if (.not. LABB) then
   ! fill DLT in packed lower triangular storage
   do i=1,nbas_tot(1)
     do j=1,i-1
-      DLT(1)%A00(max(i,j)*(max(i,j)-3)/2+i+j) = TDMZZ_new(nbas_tot(1)*(j-1)+i)+TDMZZ_new(nbas_tot(1)*(i-1)+j)
+      DLT(1)%A00(iTri(i,j)) = TDMZZ_new(nbas_tot(1)*(j-1)+i)+TDMZZ_new(nbas_tot(1)*(i-1)+j)
     end do
-    DLT(1)%A00(j*(j-3)/2+2*j) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
+    DLT(1)%A00(nTri_Elem(j)) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
   end do
 
 # ifdef _DEBUGPRINT_
@@ -396,7 +397,7 @@ if (.not. LABB) then
   call mma_deallocate(TDMZZ_mtx)
   ! end filling MON A
 end if
-ipNB = ISTATE*(ISTATE-1)/2+JSTATE
+ipNB = nTri_Elem(ISTATE-1)+JSTATE
 
 ! calculate rho-nuc interaction (TDM with core potential)
 eNucB(ipNB) = ddot_(NNLTD,DLT(1)%A0,1,VNucB(1),1)

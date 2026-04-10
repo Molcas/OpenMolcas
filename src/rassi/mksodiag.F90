@@ -11,6 +11,7 @@
 
 subroutine mkSODIAG(UMATR,UMATI,NSS)
 
+use Index_Functions, only: nTri_Elem
 use rassi_aux, only: ipglob
 use rassi_data, only: NBST
 use Cntrl, only: IFCURD, SODIAG, SODIAGNSTATE
@@ -276,7 +277,7 @@ do IDIR=1,3
       ISTATE = SODIAG(I)
       JSTATE = SODIAG(J)
 
-      IJ = J*(J-1)/2+I
+      IJ = nTri_Elem(J-1)+I
 
       write(u6,*) 'State: ',ISTATE,JSTATE
 

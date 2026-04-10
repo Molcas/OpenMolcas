@@ -16,6 +16,7 @@
 
 subroutine SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
 
+use Index_Functions, only: nTri_Elem
 use rassi_global_arrays, only: JBNUM, SFDYS, SODYSAMPS, SODYSAMPSI, SODYSAMPSR
 use OneDat, only: sNoNuc, sNoOri
 use Cntrl, only: DYSEXPORT, DYSEXPSO, MLTPLT, NSTATE
@@ -113,7 +114,7 @@ if (DYSEXPORT) then
   ! Read in the atomic overlap matrix, that will be needed below for
   ! for normalization of DOs
   ! (Code from mksxy)
-  NSZZ = sum(NBASF(1:nIrrep)*(NBASF(1:nIrrep)+1)/2)
+  NSZZ = sum(nTri_Elem(NBASF(1:nIrrep)))
   call mma_allocate(SZZ,NSZZ,Label='SZZ')
   IRC = -1
   IOPT = ibset(ibset(0,sNoOri),sNoNuc)

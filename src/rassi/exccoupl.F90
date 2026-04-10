@@ -12,11 +12,12 @@
 !ifdef _DEBUGPRINT_
 subroutine exccoupl()
 
+use Index_Functions, only: nTri_Elem
 use frenkel_global_vars, only: doexch, eNucB, excl, iTyp, jTyp, nestla, nestlb, valst
 use Symmetry_Info, only: nIrrep
 use Molcas, only: MxRoot
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half
+use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -52,11 +53,11 @@ write(u6,*) '   ( v:  eA*eB + eA*nucB + eB*nucA + nucA*nucB )'
 write(u6,*) ' ************************************************'
 write(u6,*)
 
-call mma_allocate(rBvA,mxroot*(mxroot+1)/2,Label='Wnn_ab')
+call mma_allocate(rBvA,nTri_Elem(mxroot),Label='Wnn_ab')
 rBvA(:) = Zero
 ! read in <rhoB|VnucA> from already renamed and saved RunFile called rhoBnucA
 call NameRun('AUXRFIL1')
-call Get_dArray('<rhoB|VnucA>',rBvA,mxroot*(mxroot+1)/2)
+call Get_dArray('<rhoB|VnucA>',rBvA,nTri_Elem(mxroot))
 call Get_iScalar('Unique atoms',nAtoms)
 call mma_allocate(Charge,nAtoms,Label='Zcharge')
 call Get_dArray('Effective nuclear Charge',Charge,nAtoms)
@@ -92,7 +93,7 @@ else
   dimn = 1+(nstat1-1)+(nstat2-1)
 end if
 ! allocate array with more entries than needed first
-call mma_allocate(Frenkelunknwn,dimn*(dimn+1)/2)
+call mma_allocate(Frenkelunknwn,nTri_Elem(dimn))
 Frenkelunknwn(:) = Zero
 
 if (DoExch) then
@@ -178,10 +179,10 @@ do istate=1,nstat1
           if (WK_C_exists) then
             AB_nuc = Zero
             eBnucA = Zero
-            if (istate == jstate) eBnucA = rBvA(kstate*(kstate-1)/2+lstate)
+            if (istate == jstate) eBnucA = rBvA(nTri_Elem(kstate-1)+lstate)
             eAnucB = Zero
             if (kstate == lstate) then
-              eAnucB = eNucB(ISTATE*(ISTATE-1)/2+JSTATE)
+              eAnucB = eNucB(nTri_Elem(ISTATE-1)+JSTATE)
               if (istate == jstate) AB_nuc = VNN_AB
             end if
 
@@ -256,7 +257,7 @@ write(u6,*) ' ************************************************'
 write(u6,*)
 ! determine dimensions of Hamiltonian
 discrim = 1+4*2*nijkl
-dimn = int((-1+sqrt(discrim))/2,kind=iwp)
+dimn = int((sqrt(discrim)-One)/2,kind=iwp)
 write(u6,'(A,I3.3,A,I3.3)') 'determined Hamiltonian dimensions:',dimn,'x',dimn
 
 call frenkelexc(Frenkelunknwn,dimn,nstat1,nstat2)

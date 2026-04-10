@@ -11,6 +11,7 @@
 
 subroutine SPIND2(ISYOP,MS2OP,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB4,PSI1,PSI4,SPD2)
 
+use Index_Functions, only: nTri_Elem
 use rassi_global_arrays, only: FSBANN1, FSBANN2, FSBANN3, FSBANN4
 use Symmetry_Info, only: MUL
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -29,7 +30,7 @@ real(kind=wp), external :: OVERLAP_RASSI
 ! Nr of active spin-orbitals
 NASORB = IORBTAB(4)
 ! Nr of active spin-orbital pairs:
-NASGEM = (NASORB*(NASORB-1))/2
+NASGEM = nTri_Elem(NASORB-1)
 KOINFO = 19
 
 do ISORB=2,NASORB
@@ -52,7 +53,7 @@ do ISORB=2,NASORB
     JSMLAB = IORBTAB(KOINFO+1+8*(JSORB-1))
     JSPLAB = IORBTAB(KOINFO+3+8*(JSORB-1))
     ! Pair index:
-    JISORB = ((ISORB-1)*(ISORB-2))/2+JSORB
+    JISORB = nTri_ELem(ISORB-2)+JSORB
     ! Annihilate once more, the spin orbital JSORB:
     IMODE = -1
     call FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,FSBANN1,2)
@@ -89,7 +90,7 @@ do ISORB=2,NASORB
         if (MUL(KSMLAB,LSMLAB) /= KLSYM) cycle
         if (KSPLAB+LSPLAB /= KLMS2) cycle
         ! Pair index:
-        KLSORB = ((LSORB-1)*(LSORB-2))/2+KSORB
+        KLSORB = nTri_Elem(LSORB-2)+KSORB
         ! Annihilate once more, the spin orbital KSORB:
         IMODE = -1
         call FSBOP(IMODE,KSORB,IORBTAB,ISSTAB,FSBANN4,3)

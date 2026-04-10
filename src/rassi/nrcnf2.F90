@@ -14,17 +14,18 @@ subroutine NRCNF2(NORB,ISM,NCNF2)
 ! (sub-)configurations with NCLS closed-shell and NOPN open-shell
 ! orbitals and having symmetry label LSYM, stored as
 !          NCNF2(LSYM,IPOS)
-! with IPOS=(NOCC*(NOCC+1))/2+NOPN+1, NOCC=NCLS+NOPN,
+! with IPOS=nTri_Elem(NOCC)+NOPN+1, NOCC=NCLS+NOPN,
 ! provided that 0<=NCLS, 0<=NOPN, and NOCC<=NORB.
 ! Prerequisite: The orbital symmetry labels stored in ISM.
 ! Method: Induction
 
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Symmetry_Info, only: MUL, nIrrep
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NORB, ISM(NORB)
-integer(kind=iwp), intent(out) :: NCNF2(nIrrep,(NORB+1)*(NORB+2)/2)
+integer(kind=iwp), intent(out) :: NCNF2(nIrrep,nTri_Elem1(NORB))
 integer(kind=iwp) :: IPOS1, IPOS2, IPOS3, ISYM, JSYM, L, NCLS, NEW, NOCC, NOPN
 
 NCNF2(:,:) = 0
@@ -33,7 +34,7 @@ do L=1,NORB
   do NOCC=L,1,-1
     do NOPN=0,NOCC
       NCLS = NOCC-NOPN
-      IPOS1 = (NOCC*(NOCC+1))/2+NOPN+1
+      IPOS1 = nTri_Elem(NOCC)+NOPN+1
       IPOS2 = IPOS1-NOCC
       IPOS3 = IPOS2-1
       do ISYM=1,nIrrep

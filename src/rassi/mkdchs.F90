@@ -18,6 +18,7 @@ subroutine MKDCHS(IFSBTAB1,IFSBTAB2,ISSTAB,MAPORB,DET1,DET2,IF20,IF02,NDCHSM,DCH
 !
 !  'I,J,|< N-2 | anni_right anni_right | N >|**2'
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -33,7 +34,7 @@ real(kind=wp), allocatable :: SDCHSM(:)
 ! Pick out nr of active orbitals from orbital table:
 NASORB = ORBTAB(4)
 NASHT = NASORB/2
-NSDCHSM = NASORB*(NASORB-1)/2
+NSDCHSM = nTri_Elem(NASORB-1)
 call mma_allocate(SDCHSM,nSDCHSM,Label='SDCHSM')
 SDCHSM(:) = Zero
 
@@ -58,17 +59,17 @@ do IORB=1,NASHT
     JTABS = MAPORB(JORBA)
     GVAL = Zero
     if (IORB > JORB) then
-      IAJB = ((IORBA-1)*(IORBA-2)/2)+JORBB
-      IBJA = ((IORBB-1)*(IORBB-2)/2)+JORBA
+      IAJB = nTri_Elem(IORBA-2)+JORBB
+      IBJA = nTri_Elem(IORBB-2)+JORBA
     else if (JORB == IORB) then
-      IAJB = ((IORBA-1)*(IORBA-2)/2)+JORBB
-      IBJA = ((IORBB-1)*(IORBB-2)/2)+JORBA
+      IAJB = nTri_Elem(IORBA-2)+JORBB
+      IBJA = nTri_Elem(IORBB-2)+JORBA
       GAB = SDCHSM(IAJB)
       GBA = SDCHSM(IBJA)
       GVAL = GAB+GBA
     else if (IORB < JORB) then
-      IBJA = ((JORBA-1)*(JORBA-2)/2)+IORBB
-      IAJB = ((JORBB-1)*(JORBB-2)/2)+IORBA
+      IBJA = nTri_Elem(JORBA-2)+IORBB
+      IAJB = nTri_Elem(JORBB-2)+IORBA
     end if
     IJTABS = JTABS+NASHT*(ITABS-1)
     DCHSM(IJTABS) = GVAL**2

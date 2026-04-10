@@ -27,7 +27,7 @@ real(kind=wp), external :: DCLEBS
 threej = DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,-XM3)
 if (threej == Zero) return
 i = nint(XJ1-XJ2-XM3)
-if (i /= (i/2)*2) threej = -threej
+if (mod(i,2) == 0) threej = -threej
 threej = threej/sqrt(Two*XJ3+One)
 
 end function threej

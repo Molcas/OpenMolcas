@@ -20,6 +20,7 @@
 
 subroutine TRAINT(CMO1,CMO2,NGAM2,TUVX)
 
+use Index_Functions, only: nTri_Elem
 use TRNSFRM, only: IAPR, ISP, ISQ, ISR, ISS, LMOP1, LMOQ1, LMOR1, LMOS1, NAP, NAQ, NAR, NAS, NAVX, NBP, NBPQ, NBQ, NBR, NBRS, NBS, &
                    NVXPQ, NX1MX, NX2MX, NX3MX
 use Symmetry_Info, only: MUL, nIrrep
@@ -77,7 +78,7 @@ do NSP=1,nIrrep
     NBQ = NBASF(NSQ)
     NSPQ = MUL(NSP,NSQ)
     ISQ = NSQ
-    ISPQ = (ISP**2-ISP)/2+ISQ
+    ISPQ = nTri_Elem(ISP-1)+ISQ
     LMOQ1 = LMOQ+NISH(NSQ)*NBQ
     LMOR = 1
     NSRM = nIrrep
@@ -100,7 +101,7 @@ do NSP=1,nIrrep
         NBS = NBASF(NSS)
         LMOS1 = LMOS+NBS*NISH(NSS)
         ISS = NSS
-        ISRS = (ISR**2-ISR)/2+ISS
+        ISRS = nTri_Elem(ISR-1)+ISS
         ! SHOULD THIS SYMMETRY BLOCK BE USED...?
         !KEEPT = KEEPP+KEEPQ+KEEPR+KEEPS
         NACT = NAP*NAQ*NAR*NAS
@@ -109,8 +110,8 @@ do NSP=1,nIrrep
         if (NACT == 0) cycle
         ! ALLOCATE WORK AREAS FOR IN-CORE TRANSFORMATION ROUTINE TRACR:
         if (ISR == ISS) then
-          NBPQ = (NBP+NBP**2)/2
-          NBRS = (NBR+NBR**2)/2
+          NBPQ = nTri_Elem(NBP)
+          NBRS = nTri_Elem(NBR)
         else
           NBPQ = NBP*NBQ
           NBRS = NBR*NBS

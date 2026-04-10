@@ -17,6 +17,7 @@
 ! - F. Plasser
 subroutine TRD_PRINT(ISTATE,JSTATE,DO22,TDMAB,TDM2,CMO1,CMO2,SIJ)
 
+use Index_Functions, only: iTri
 use Cntrl, only: LSYM1, LSYM2
 use Symmetry_Info, only: MUL, nIrrep
 use rassi_data, only: NASHT, NAES, NASH, NBASF, NFRO, NISH, NOSH
@@ -26,8 +27,8 @@ implicit none
 integer(kind=iwp) :: ISTATE, JSTATE
 logical(kind=iwp) :: DO22
 real(kind=wp) :: TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ
-integer(kind=iwp) :: I, II, IO, ISYM, ISYM1, ISYM2, ISYT, ISYU, ISYV, ISYX, IT, ITABS, ITU, ITUVX, IU, IUABS, IV, IVABS, IVX, &
-                     IWBUF, IX, IXABS, JJ, LIMX, LPOS, LSYM12, LU, NA1, NA2, NB, NI1, NI2, NO, NO1, NO2
+integer(kind=iwp) :: I, II, IO, ISYM, ISYM1, ISYM2, ISYT, ISYU, ISYV, ISYX, IT, ITABS, ITU, IU, IUABS, IV, IVABS, IVX, IWBUF, IX, &
+                     IXABS, JJ, LIMX, LPOS, LSYM12, LU, NA1, NA2, NB, NI1, NI2, NO, NO1, NO2
 real(kind=wp) :: WBUF(5)
 character(len=12) :: FNM
 character(len=3) :: NUM1, NUM2
@@ -119,13 +120,8 @@ if (DO22) then
                 do IX=1,NASH(ISYX)
                   IXABS = NAES(ISYX)+IX
                   IVX = IVABS+NASHT*(IXABS-1)
-                  if (ITU >= IVX) then
-                    ITUVX = (ITU*(ITU-1))/2+IVX
-                  else
-                    ITUVX = (IVX*(IVX-1))/2+ITU
-                  end if
                   IWBUF = IWBUF+1
-                  WBUF(IWBUF) = TDM2(ITUVX)
+                  WBUF(IWBUF) = TDM2(iTri(ITU,IVX))
                   if (IWBUF == 5) then
                     write(LU,'(5ES19.12)') (WBUF(I),I=1,IWBUF)
                     IWBUF = 0
