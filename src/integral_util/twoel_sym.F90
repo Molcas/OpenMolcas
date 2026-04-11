@@ -70,6 +70,21 @@ logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 
+
+Interface
+subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmpa,jCmpb,kCmpc,lCmpd,iShlla,jShllb, &
+                  kShllc,lShlld,i_out)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nWrk, nijkl, mabMax, mabMin, mcdMax, mcdMin, la, lb, lc, ld, iCmpa, jCmpb, kCmpc, lCmpd, iShlla, &
+                                 jShllb, kShllc, lShlld
+real(kind=wp), intent(inout), target :: Wrk(nWrk)
+real(kind=wp), intent(in) :: HMtrxAB(*), HMtrxCD(*)
+integer(kind=iwp), intent(out) :: i_out
+End subroutine TnsCtl
+End Interface
+
 nZeta = iSD4(5,1)*iSD4(5,2)
 nEta = iSD4(5,3)*iSD4(5,4)
 

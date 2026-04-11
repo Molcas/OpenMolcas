@@ -72,6 +72,21 @@ logical(kind=iwp), external :: EQ, TF
 real(kind=wp), external :: EstI
 real(kind=wp), pointer:: Dij(:,:)=>Null()
 
+Interface
+subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmpa,jCmpb,kCmpc,lCmpd,iShlla,jShllb, &
+                  kShllc,lShlld,i_out)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nWrk, nijkl, mabMax, mabMin, mcdMax, mcdMin, la, lb, lc, ld, iCmpa, jCmpb, kCmpc, lCmpd, iShlla, &
+                                 jShllb, kShllc, lShlld
+real(kind=wp), intent(inout), target :: Wrk(nWrk)
+real(kind=wp), intent(in) :: HMtrxAB(*), HMtrxCD(*)
+integer(kind=iwp), intent(out) :: i_out
+End subroutine TnsCtl
+End Interface
+
+
 if (DoFock) then
   Dij(1:nDij,1:nDCR) => DeDe(ipDDij:ipDDij+nDij*nDCR-1)
 else

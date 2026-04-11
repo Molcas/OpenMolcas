@@ -63,6 +63,21 @@ type(k2_type), pointer :: k2data1(:), k2data2(:)
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 logical(kind=iwp), external :: EQ
 
+
+Interface
+subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmpa,jCmpb,kCmpc,lCmpd,iShlla,jShllb, &
+                  kShllc,lShlld,i_out)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nWrk, nijkl, mabMax, mabMin, mcdMax, mcdMin, la, lb, lc, ld, iCmpa, jCmpb, kCmpc, lCmpd, iShlla, &
+                                 jShllb, kShllc, lShlld
+real(kind=wp), intent(inout), target :: Wrk(nWrk)
+real(kind=wp), intent(in) :: HMtrxAB(*), HMtrxCD(*)
+integer(kind=iwp), intent(out) :: i_out
+End subroutine TnsCtl
+End Interface
+
 #include "macros.fh"
 unused_var(SoInt)
 

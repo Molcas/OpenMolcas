@@ -54,7 +54,7 @@ nDim = max(ne*nf,nab*nf,nab*ncd)
 iW2 = 1
 iW3 = 1+nijkl*nDim
 W2(1:nijkl*nDim)=>Wrk(1:nijkl*nDim)
-W3(1:nijkl*nDim)=>Wrk(nijkl*nDim+1:nWrk)
+W3(1:)=>Wrk(nijkl*nDim+1:nWrk)
 
 if (nComp /= 1) then
   W3(1:ne*nf*nijkl) = W2(1:ne*nf*nijkl)
