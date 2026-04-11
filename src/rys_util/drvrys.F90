@@ -83,20 +83,6 @@ procedure(modu2_kernel) :: ModU2
 procedure(rys2d_kernel) :: vRys2D
 procedure(tval_kernel) :: TERI
 
-Interface
-subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmpa,jCmpb,kCmpc,lCmpd,iShlla,jShllb, &
-                  kShllc,lShlld,i_out)
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp), intent(in) :: nWrk, nijkl, mabMax, mabMin, mcdMax, mcdMin, la, lb, lc, ld, iCmpa, jCmpb, kCmpc, lCmpd, iShlla, &
-                                 jShllb, kShllc, lShlld
-real(kind=wp), intent(inout), target :: Wrk(nWrk)
-real(kind=wp), intent(in) :: HMtrxAB(*), HMtrxCD(*)
-integer(kind=iwp), intent(out) :: i_out
-End subroutine TnsCtl
-End Interface
-
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter DrvRys'
 write(u6,*) 'iZeta, nZeta, mZeta, nZeta_Tot=',iZeta,nZeta,mZeta,nZeta_Tot

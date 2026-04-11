@@ -53,21 +53,6 @@ procedure(rys2d_kernel) :: xRys2D
 procedure(tval_kernel) :: TERISq
 logical(kind=iwp), external :: EQ
 
-
-Interface
-subroutine TnsCtl(Wrk,nWrk,nijkl,mabMax,mabMin,mcdMax,mcdMin,HMtrxAB,HMtrxCD,la,lb,lc,ld,iCmpa,jCmpb,kCmpc,lCmpd,iShlla,jShllb, &
-                  kShllc,lShlld,i_out)
-use Definitions, only: wp, iwp
-
-implicit none
-integer(kind=iwp), intent(in) :: nWrk, nijkl, mabMax, mabMin, mcdMax, mcdMin, la, lb, lc, ld, iCmpa, jCmpb, kCmpc, lCmpd, iShlla, &
-                                 jShllb, kShllc, lShlld
-real(kind=wp), intent(inout), target :: Wrk(nWrk)
-real(kind=wp), intent(in) :: HMtrxAB(*), HMtrxCD(*)
-integer(kind=iwp), intent(out) :: i_out
-End subroutine TnsCtl
-End Interface
-
 la = iAnga(1)
 lb = iAnga(2)
 #ifdef _DEBUGPRINT_
