@@ -26,7 +26,7 @@ use Constants, only: Pi
 #endif
 
 use Definitions, only: u6
-use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,UmatList,bias,SOFact
+use Localisation_globals, only: OptMeth,FuncList,GradList,DispList,bias,SOFact
 
 implicit none
 
@@ -37,15 +37,15 @@ real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, dq_NR(fsdim)
-real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
-                              w(:,:),D(:,:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
-                              UmatKsum(:,:)
+real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
-logical, intent(in) :: SORange
-character :: Step_Trunc
+logical(kind=iwp), intent(in) :: SORange
+character(LEN=1) :: Step_Trunc
 real(kind=wp), allocatable :: CoordsAbs(:,:)
+
+If (nOrb2Loc==0) Call abend() ! Dummy statement
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
@@ -313,6 +313,9 @@ dq_diis(:) = Zero
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
 dq_NR(:) = dq(:)
+
+if (SORANGE .and. .False.) SOFact = One * SOFact ! Dummy statement
+
 !if (SORange) then
 !  SOFact = One
 !else
@@ -382,6 +385,7 @@ write(u6,*) 'Exit S-GEK Optimizer'
 contains
 
 subroutine moveref()
+    integer(kind=iwp) :: I, J
 
     call mma_Allocate(CoordsAbs,fsdim, nDiis,Label="CoordsAbs")
     CoordsAbs(:,:) = Zero
@@ -392,7 +396,7 @@ subroutine moveref()
 
 #ifdef _DEBUGPRINT_
     call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
-    write(u6,,*)""
+    write(u6,*)""
     write(u6,*) "Displist  ",Displist(:,:nIter)
 #endif
     CoordsAbs(:,:) = coords(:,:)
@@ -413,7 +417,9 @@ end subroutine moveref
 
 
 
+#ifdef _NOT_USED_
 subroutine sizecontrol()
+integer(kind=iwp) :: I, J
 
 do i=1,fsdim
     do j=1,ndiis
@@ -429,6 +435,9 @@ end subroutine sizecontrol
 
 
 subroutine getUtot()
+use Localisation_globals, only: UmatList
+integer(kind=iwp) :: I
+real(kind=wp), allocatable :: disp_summed(:) UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),kappa_summed(:,:),UmatKsum(:,:)
 ! compute product matrix U_1...n = U_1 * ... * U_n
 ! -------------------------------------------------
 ! look later if this can be done in pipekmezey_iter, to save comp
@@ -486,6 +495,7 @@ call mma_Deallocate(kappa_summed)
 
 
 end subroutine getUtot
+#endif
 
 
 end subroutine S_GEK_localisation
