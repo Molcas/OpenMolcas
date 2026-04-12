@@ -47,7 +47,7 @@ real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),Hdiaglist(:,:)
-real(kind=wp), parameter :: alpha = 0.3
+real(kind=wp), parameter :: alpha = 0.3e0_wp
 real(kind=wp), External :: DDot_
 
 ! for S-GEK
@@ -489,7 +489,8 @@ subroutine OrthoCheck()
     ! check that the orbitals are orthonormal (if not -> the trafo matrix was not constructed correctly)
 
     real(kind=wp), allocatable :: CtS(:,:),CtSC(:,:)
-    real(kind=wp) :: norm, ThrOrtho = 1e-12
+    real(kind=wp) :: norm
+    real(kind=wp) :: ThrOrtho = 1e-12_wp
 
     call mma_allocate(CtS,nOrb2Loc,nBasis,Label="CtS")
     call mma_allocate(CtSC,nOrb2Loc,nOrb2Loc,Label="CtSC")
@@ -516,11 +517,11 @@ subroutine OrthoCheck()
         CtSC(i,i) = CtSC(i,i) - One
     end do
 
-    norm = sqrt(DDot_(nOrb2Loc**2,CtSC,1,CtSC,1))
+    norm = sqrt(DDot_(nOrb2Loc**2,CtSC,1,CtSC,1))/(DBLE(nOrb2Loc)**2)
 
     if (norm>ThrOrtho) then
         write(u6,*)
-        write(u6,*) "Stopping calculationn due to:"
+        write(u6,*) "Stopping calculation due to:"
         write(u6,*) "norm of C^T*S*C - 1 =",norm
         write(u6,*) "max. allowed norm   =",ThrOrtho
         write(u6,*) "The current MOs do not seem to be sufficiently orthonormal (Bug in the transformation)"
