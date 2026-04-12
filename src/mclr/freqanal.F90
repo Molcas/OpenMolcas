@@ -9,10 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Freqanal(nDeg,nrvec,H,converged,ELEC,iel,elout,ldisp,Lu_10)
+subroutine Freqanal(nDisp,nDeg,nrvec,H,converged,ELEC,iel,elout,ldisp,Lu_10)
 
 use Index_Functions, only: nTri_Elem
-use input_mclr, only: ChIrr, nDisp, nSRot, nSym, nUserPT, UserP, UserT
+use input_mclr, only: ChIrr, nSRot, nSym, nUserPT, UserP, UserT
 use temperatures, only: DefTemp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Five
@@ -21,10 +21,11 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: nDeg(*), nrvec(*), iel(3), ldisp(nsym), Lu_10
-real(kind=wp), intent(in) :: H(*), elec(*)
+integer(kind=iwp), intent(in) :: nDisp
+integer(kind=iwp), intent(in) :: nDeg(nDisp), nrvec(nDisp), iel(3), ldisp(nsym), Lu_10
+real(kind=wp), intent(in) :: H(nTri_Elem(nDisp)), elec(3*nDisp)
 logical(kind=iwp), intent(in) :: converged(8)
-real(kind=wp), intent(_OUT_) :: elout(*)
+real(kind=wp), intent(_OUT_) :: elout(3*nDisp)
 integer(kind=iwp) :: i, i1, i3, iCtl, ii, iNeg, ipNx, iSym, iT, ix, j, jpNx, jx, k, kk, ll, lModes, lnm_molpac, nEig, nModes, nx
 real(kind=wp) :: Fact, rNorm, Tmp
 logical(kind=iwp) :: Do_Molden
@@ -32,11 +33,17 @@ real(kind=wp), allocatable :: EVal(:), EVal2(:), EVec(:), EVec2(:,:), Intens(:),
 integer(kind=iwp), external :: IsFreeUnit
 
 call mma_allocate(NMod,nDisp**2,Label='NMod')
+NMod(:)=Zero
 call mma_allocate(EVec,nDisp**2,Label='EVec')
+EVec(:)=Zero
 call mma_allocate(EVec2,2,nDisp**2,Label='EVec2')
+EVec2(:,:)=Zero
 call mma_allocate(EVal,nDisp,Label='EVal')
+EVal(:)=Zero
 call mma_allocate(Intens,nDisp*2,Label='Intens')
+Intens(:)=Zero
 call mma_allocate(RedMas,nDisp,Label='RedMas')
+RedMas(:)=Zero
 ipNx = 1
 nModes = 0
 lModes = 0

@@ -81,7 +81,6 @@ call Setup_iSD()
 
 Indexation = .false.
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-!write(u6,*) 'Drv2el: After Setup_Ints'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -130,7 +129,6 @@ iOpt = 0
 PP_Eff = P_Eff**2
 PP_Eff_delta = 0.1_wp*PP_Eff
 PP_Count = Zero
-!write(u6,*) 'Drv2el: Start the big loop'
 !                                                                      *
 !***********************************************************************
 !                                                                      *

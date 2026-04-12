@@ -46,25 +46,25 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, iStb(0:7), iTs, &
-                     iuvwx(4), iZeta, j, JndGrd(3,4), kat, lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, nDisp, nip, &
-                     nRys, nStb, nT
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ii
-#endif
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, &
+                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), kat, lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, &
+                     nDCRT, nDisp, nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
 procedure(cff2d_kernel) :: Cff2D
 procedure(modu2_kernel) :: Fake
 procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 
 #include "macros.fh"
 unused_var(rFinal)
 unused_var(Ccoor(1))
 unused_var(nComp)
+unused_var(nHer)
 
-nRys = nHer
 
 ! Modify the density matrix with the prefactor
 
@@ -149,16 +149,16 @@ do iTs=1,nTs
   Fact = -real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
 # ifdef _DEBUGPRINT_
-  write(u6,*) ' Q=',Q
-  write(u6,*) ' Fact=',Fact
-  call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(nOrdOp))
-  write(u6,*) ' m      =',nStabM
-  write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-  write(u6,*) ' s      =',nStb
-  write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
-  write(u6,*) ' LambdaT=',LmbdT
-  write(u6,*) ' t      =',nDCRT
-  write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' Q=',Q
+    write(u6,*) ' Fact=',Fact
+    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(nOrdOp))
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStb
+    write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
 # endif
   iuvwx(3) = nStb
   iuvwx(4) = nStb
@@ -224,9 +224,8 @@ do iTs=1,nTs
     ! Compute integrals with the Rys quadrature.
 
     nT = nZeta
-    mRys = nRys
 
-    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One], &
+    call Rysg1(iAnga,nT,Array(ipA),Array(ipB),[One],[One], &
                Zeta,ZInv,nZeta,[One],[One],1, &
                P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO*nTri_Elem1(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)

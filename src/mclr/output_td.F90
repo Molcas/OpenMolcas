@@ -401,7 +401,7 @@ call molcas_open(lu_10,'UNSYM')
 !open(unit=Lu_10, file='UNSYM')
 
 if (Mckinley) then
-  call FreqAnal(DegDisp,NrDisp,Hess,converged,ELEC,ielec,ELOUT,ldisp2,Lu_10)
+  call FreqAnal(nDisp,DegDisp,NrDisp,Hess,converged,ELEC,ielec,ELOUT,ldisp2,Lu_10)
   call Niclas(Hess,coor,Lu_10)
 end if
 write(u6,*)

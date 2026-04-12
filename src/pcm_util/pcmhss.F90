@@ -40,8 +40,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "hss_interface.fh"
 integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iDAO, iDCRT(0:7), iIrrep, idx(3,4), ipA, ipAOff, ipB, ipBOff, ipDAO, &
-                     iStb(0:7), iTs, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), lDCRT, LmbdT, &
-                     mOp(4), mRys, nArray, nDAO, nDCRT, nDiff, nFinal, nip, nla, nlb, nOOp, nStb
+                     iStb(0:7), iTs, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), &
+                     JndHss(0:3,0:2,0:3,0:2,0:7), lDCRT, LmbdT, mOp(4), nArray, nDAO, nDCRT, nFinal, nip, nla, nlb, &
+                     nOOp, nStb
 real(kind=wp) :: Coori(3,4), CoorAC(3,2), C(3), EInv, Eta, Fact, TC(3), q_i
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), NoLoop, Tr(0:3)
 procedure(cff2d_kernel) :: XCff2D
@@ -137,9 +138,9 @@ do iTs=1,nTs
   ! Pick up the tile coordinates
   C(1:3) = PCMTess(1:3,iTs)
 
-# ifdef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
   call RecPrt('C',' ',C,1,3)
-# endif
+#endif
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
   Fact = -q_i*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
@@ -199,12 +200,10 @@ do iTs=1,nTs
 
     ! Compute integrals with the Rys quadrature.
 
-    nDiff = 2
-    mRys = (la+lb+2+nDiff+nOrdOp)/2
     Eta = One
     EInv = One
     nFinal = 0
-    call Rysg2(iAnga,mRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
+    call Rysg2(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nOOp,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,mOp,iuvwx,IfG, &
                nFinal,idx,.false.,.true.,Tr)
 

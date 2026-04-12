@@ -30,10 +30,9 @@ subroutine PGet1(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,DSO,DSSO,n
 use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Constants, only: Zero, Quart
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: D0, iD0Lbl
-use Definitions, only: u6
 #endif
 
 implicit none
@@ -52,6 +51,9 @@ real(kind=wp), external :: DDot_
 iComp = 1
 call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
 write(u6,*) ' nBases..=',iBas,jBas,kBas,lBas
+write(u6,*) ' ijkl,nPAO=',ijkl,nPAO
+write(u6,*) ' ExFac=',ExFac
+write(u6,*) ' CoulFac=',CoulFac
 #endif
 
 ! Quadruple loop over elements of the basis functions angular
@@ -116,6 +118,8 @@ do i1=1,iCmp(1)
   end do
 end do
 if (iPAO /= nPAO) then
+  write (u6,*) ' nijkl,iPAO=',nijkl,iPAO
+  Write (u6,*) 'iPAO/=nPAO: iPAO,nPAO=',iPAO,nPAO
   call WarningMessage(2,' Error in PGet1!')
   call Abend()
 end if

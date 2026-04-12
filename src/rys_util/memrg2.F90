@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine MemRg2(iAnga,nRys,MemPrm,ider)
+subroutine MemRg2(iAnga,MemPrm)
 !***********************************************************************
 ! This routine will compute the memory requirement of Rysg2            *
 ! Memory requirement is per primitive!                                 *
@@ -28,17 +28,15 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iAnga(4), ider
-integer(kind=iwp), intent(out) :: nRys, MemPrm
-integer(kind=iwp) :: la, lb, lB00, lB01, lB10, lc, ld, MemPrm2, MemPrm3, n2D0, n2D1, n2D2, nabcd, nabMax, ncdMax, nPAO
+integer(kind=iwp), intent(in) :: iAnga(4)
+integer(kind=iwp), intent(out) ::  MemPrm
+integer(kind=iwp) :: la, lb, lB00, lB01, lB10, lc, ld, MemPrm2, MemPrm3, n2D0, n2D1, n2D2, nabcd, nabMax, ncdMax, nPAO, nRys
 
-!iRout = 13
-!iPrint = nPrint(iRout)
 la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)
 ld = iAnga(4)
-nRys = (la+lb+lc+ld+2+ider)/2
+nRys = (la+lb+lc+ld+2+2)/2
 
 MemPrm = 0
 nPAO = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)

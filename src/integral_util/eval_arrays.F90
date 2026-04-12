@@ -8,24 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2023, Roland Lindh                                     *
+! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 
-module Breit
+module eval_arrays
 
-use Constants, only: Zero
-use Definitions, only: iwp, wp
+use Definitions, only: wp
 
 implicit none
 private
-
-integer(kind=iwp) :: nComp = 1, nOrdOp = 0
-logical(kind=iwp) :: Do_BP_integrals=.False.
-real(kind=wp) :: D_tensor(3,3)=Zero
+real(kind=wp), pointer :: SOInt(:)=>Null(), AOInt(:)=>Null(), Scr(:)=>Null()
 real(kind=wp), pointer :: PSO(:,:)=>Null(), PAO(:,:,:,:,:)=>Null()
 
-public :: nComp, nOrdOp, Do_BP_integrals, D_tensor, PSO, PAO
+public :: SOInt, AOInt, Scr, PSO, PAO
 
-
-end module Breit
-
+end module eval_arrays

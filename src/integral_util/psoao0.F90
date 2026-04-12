@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
+subroutine PSOAO0(nSO,MemMax,DoFock,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partition the SO and AO block. It will go to some length *
@@ -41,23 +41,47 @@ subroutine PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use lw_Info, only: lwInt, lwSqn, lwSyb
 use Gateway_global, only: force_part_c, force_part_p
+use k2_arrays, only: Sew_Scr, DoGrad_
 use RICD_Info, only: Cholesky, Do_RI
-use k2_arrays, only: DoGrad_
 use Symmetry_Info, only: nIrrep
-use Breit, only: nComp
-use Molcas, only: lCache
+use Breit, only: nComp, Do_BP_Integrals
 use Definitions, only: iwp, u6
+use Constants, only: Zero
+use eval_arrays, only: SOInt, AOInt, Scr, PSO, PAO
+use Molcas, only: lCache
+
+use PSO_Stuff, only: lPSO, Gamma_On, nGamma, iFnc, MemPSO
+use SOAO_Info, only: iAOtSO
+use Sizes_of_Seward, only: S
+
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1, nSD
-integer(kind=iwp), intent(out) :: ipMem2, Mem1, Mem2
+integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
 logical(kind=iwp), intent(in) :: DoFock
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBsInc, jCmp, jPrim, jPrInc, kBas, kBsInc, kCmp, &
                      kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPack, lPrim, lPrInc, lSize, mab, mabcd, mabMax, &
                      mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, &
-                     na3a, na3b, nab, nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2
+                     na3a, na3b, nab, nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, ipMem1, Mem1, ipMem2, Mem2, MemPrm
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
+! Variable for the use for the optional handling of the 2-particle density matrix in PGet0 in the case of the computation
+! of Breit-Pauli integrals.
+integer(kind=iwp) :: nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4), iAngV(4)
+integer(kind=iwp), external:: MemTra
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute memory request for the primitives, i.e.
+! how much memory is needed up to the transfer equation.
+iAngV(:)=iSD4(1,:)
+call MemRys(iAngV(:),MemPrm)
+
+iFnc(:)=0
+
+ipMem1 = 1
+ipMem2 = 0
+Mem1 = 0
+Mem2 = 0
 
 la = iSD4(1,1)
 lb = iSD4(1,2)
@@ -78,6 +102,9 @@ iPrim = iSD4(5,1)
 jPrim = iSD4(5,2)
 kPrim = iSD4(5,3)
 lPrim = iSD4(5,4)
+
+iAO(:) = iSD4(7,:)
+iCmpa(:) = iSD4(2,:)
 
 nab = iCmp*jCmp
 ncd = kCmp*lCmp
@@ -142,10 +169,19 @@ do
   ! Memory for SO block. If petite list format is used there
   ! will be no SO block.
 
+  If (Do_BP_Integrals .and. nIrrep>1) Then
+     ! Add block for PSO to be generated in PGET0
+     kSOInt = nSO*nijkl*(nComp+1)
+  Else If (Do_BP_Integrals .and. nIrrep==1) Then
+     ! Add block for PAO to be generated in PGET0
+     kSOInt = nSO*nijkl*nComp + nabcd*nijkl
+  Else
   kSOInt = nSO*nijkl
+  End If
   Mem1 = iFact*kSOInt
   if (Mem1 == 0) Mem1 = 1
   if (nIrrep == 1) Mem1 = 1+(iFact-1)*nabcd*nijkl
+
   if (Mem1+1 > Mem0) then
     QjPrim = .false.
     QlPrim = .false.
@@ -163,30 +199,121 @@ do
     end if
     cycle
   end if
+
+  ! In case of the computation of the Breit-Pauli integrals check if the scratch for the handling of the 2-particle
+  ! density matrix in is sufficiently large. Note that this code to a very large extent, of course, is identical to
+  ! the code in PSOAO1. BE CAREFUL WHEN MODIFIED!
+
+  If (Do_BP_Integrals) Then
+  ! Allocate memory for MO to SO/AO transformation
+  ! of the 2nd order density matrix for this shell quadruplet.
+
+    if (lPSO) then
+      iiBas(1) = iBsInc
+      iiBas(2) = jBsInc
+      iiBas(3) = kBsInc
+      iiBas(4) = lBsInc
+      nPam(:,:) = 0
+      MemPSO = 1
+      nTmp2 = 0
+
+      do jPam=1,4
+        iTmp1 = 0
+        nTmp1 = 0
+        do j=0,nIrrep-1
+          do i1=1,iCmpa(jPam)
+            if (iAOtSO(iAO(jPam)+i1,j) > 0) then
+              nPam(jPam,j) = nPam(jPam,j)+iiBas(jPam)
+              nTmp1 = nTmp1+iiBas(jPam)
+              iTmp1 = iTmp1+1
+            end if
+          end do
+        end do
+        MemPSO = MemPSO*nTmp1
+        nTmp2 = nTmp2+nTmp1
+        iFnc(jPam) = iTmp1
+      end do
+      MemScr = MemTra(nPam)
+      nFac = 4
+      nTmp2 = nTmp2+4
+    else
+      MemScr = 0
+      MemPSO = 0
+      nFac = 0
+      nTmp2 = 0
+    end if
+    MemAux0 = MemPSO+MemScr+nFac*S%nDim+nTmp2+4
+    if (Mem1+1+MemAux0 > Mem0) then
+      call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
+                  Fail)
+      if (Fail) then
+        write(u6,*) ' Memory allocation failed for Work1'
+        write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
+        write(u6,'(2I3,L1,2I3,L1)') jBas,jBsInc,QjBas,lBas,lBsInc,QlBas
+        write(u6,'(2I3,L1,2I3,L1)') jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
+        write(u6,*) MemMax,Mem0,Mem1,MemAux0+1
+        write(u6,*) MemPSO,MemScr,4*S%nDim,nTmp2+4
+        call Abend()
+      end if
+      cycle
+    end if
+
+  Else
+    MemAux0 = 0
+  End If
   Mem0 = Mem0-Mem1-1
 
   ! Work2
+
+  ! nGamma: temporary storage of bins as read from file.
+
+  If (Do_BP_Integrals) Then
+    if (Gamma_On) then
+      iiBas(1) = iBas
+      iiBas(2) = jBas
+      iiBas(3) = kBas
+      iiBas(4) = lBas
+      nGamma = 1
+
+      do jPam=1,4
+        nTmp1 = 0
+        do j=0,nIrrep-1
+          do i1=1,iCmpa(jPam)
+            if (iAOtSO(iAO(jPam)+i1,j) > 0) then
+              nTmp1 = nTmp1+iiBas(jPam)
+            end if
+          end do
+        end do
+        nGamma = nGamma*nTmp1
+      end do
+    else
+      nGamma = 0
+    endif
+
+  else
+    nGamma = 0
+  endif
+
   ! MemPr  : Scratch for Rys
+
+  MemPr = MemPrm*mijkl
 
   ! Memory for the Rys-Gauss procedure. This includes memory for
   ! all the intermediate arrays AND the {e0|f0} block.
 
-  MemPr = MemPrm*mijkl
-
   ! MemAux : Auxiliary memory for partial contraction.
-
-  ! If the primitive block is not full we need to accumulate primitive
-  ! contributions to the contracted block. This will require a
-  ! permanant pice of memory, during the computation of the primitive
-  ! sublocks, where the incomplete block of contracted integrals are
-  ! stored (Work4) - mabcd*nijkl.
 
   if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
     MemAux = max(mabcd,nabcd)*nijkl
   else
     MemAux = 0
   end if
-  !write(u6,*) 'MemAux:',MemAux
+
+  ! If the primitive block is not full we need to accumulate primitive
+  ! contributions to the contracted block. This will require a
+  ! permanant pice of memory, during the computation of the primitive
+  ! sublocks, where the incomplete block of contracted integrals are
+  ! stored (Work4) - mabcd*nijkl.
 
   ! MemCon : Scratch for the contraction step
 
@@ -219,10 +346,6 @@ do
   nA2a = max(iPrim,jPrim)*IncVec
   ! Size of the half transformed integrals
   nA3a = iBsInc*jBsInc*nVec1
-  !write(u6,*)
-  !write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
-  !write(u6,*) 'nVec1,lSize=',nVec1,lSize
-  !write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
 
   ! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
   ! while the first and second indices are contracted.
@@ -235,10 +358,6 @@ do
   nA3b = kBsInc*lBsInc*nVec2
   if (MemAux /= 0) nA3b = 0
   MemCon = max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b)
-  !write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
-  !write(u6,*) 'nVec2,lSize=',nVec1,lSize
-  !write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
-  !write(u6,*) 'MemCon     :',MemCon
 
   ! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
   ! while the first and second indices are uncontracted.
@@ -249,9 +368,6 @@ do
   nA1a = max(nabcd,mabcd)*mijkl
   nA2a = IncVec*max(kPrim,lPrim)
   nA3a = kBsInc*lBsInc*nVec1
-  !write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
-  !write(u6,*) 'nVec1,lSize=',nVec1,lSize
-  !write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
 
   ! Contraction of the two first indices: iPrim->iBas & jPrim->jBas
   ! while the third and fourth indices are contracted.
@@ -264,10 +380,6 @@ do
   nA3b = iBsInc*jBsInc*nVec2
   if (MemAux /= 0) nA3b = 0
   MemCon = max(MemCon,max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b))
-  !write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
-  !write(u6,*) 'nVec2,lSize=',nVec1,lSize
-  !write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
-  !write(u6,*) 'MemCon     :',MemCon
 
   ! MemSp1 : Scratch for the transformation from cartesian to
   !          spherical harmonics. This is executed inside the
@@ -282,6 +394,7 @@ do
     mab = nab
   end if
   MemSp1 = (max(mabcd,nabcd)+mab*nf*nComp)*nijkl
+
 
   ! MemFck : Scratch for FckAcc.
 
@@ -302,7 +415,8 @@ do
   else
     MemPck = 0
   end if
-  Mem2 = max(max(MemPr,MemCon,MemSp1)+MemAux,MemFck,MemPck)
+  Mem2 = max(max(MemPr,MemCon,MemSp1)+MemAux,MemFck,MemPck, &
+                 nGamma+MemAux0) ! Stuff to accomodate PGet0
   if (Mem2+1 > Mem0) then
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 Fail)
@@ -339,6 +453,7 @@ else
   lwSqN = 0
 end if
 
+
 iSD4(4,1) = iBsInc
 iSD4(4,2) = jBsInc
 iSD4(4,3) = kBsInc
@@ -348,5 +463,25 @@ iSD4(6,1) = iPrInc
 iSD4(6,2) = jPrInc
 iSD4(6,3) = kPrInc
 iSD4(6,4) = lPrInc
+
+! If BP-integrals are computed we need additional space to store the 2-particle density matrix. This
+! was already accounted for above. Now we just set up the pointers to relize that.
+
+If (Do_BP_Integrals .and. nIrrep>1) Then
+   Mem1 = Mem1 - kSOInt
+   ipMem1 = ipMem1 + kSOInt
+   PSO(1:nijkl,1:nSO)=>Sew_Scr(1:kSOInt)
+   PSO(:,:)=Zero
+Else If (Do_BP_Integrals .and. nIrrep==1) Then
+   Mem1 = Mem1 - nabcd*nijkl
+   ipMem1 = ipMem1 + nabcd*nijkl
+   PAO(1:nijkl,1:iCmp,1:jCmp,1:kCmp,1:lCmp)=>Sew_Scr(1:nabcd*nijkl)
+   PAO(:,:,:,:,:)=Zero
+End If
+If (Do_BP_Integrals) Then
+   Scr(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
+End If
+SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
+AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 
 end subroutine PSOAO0

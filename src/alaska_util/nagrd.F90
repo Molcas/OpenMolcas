@@ -36,7 +36,7 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iComp, iDAO, iDCRT(0:7), iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, iuvwx(4), &
                      iZeta, j, JndGrd(3,4), jpDAO, kCnt, kCnttp, kdc, lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, &
-                     nip, nRys
+                     nip
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappab, rKappcd, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr
@@ -52,14 +52,13 @@ unused_var(rFinal)
 unused_var(Ccoor(1))
 unused_var(nOrdOp)
 unused_var(nComp)
+unused_var(nHer)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In NAGrd: nArr=',nArr
 nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 #endif
-
-nRys = nHer
 
 nip = 1
 ipA = nip
@@ -214,12 +213,12 @@ do kCnttp=1,nCnttp
       if (Nuclear_Model == Gaussian_Type) then
         Eta = dbsc(kCnttp)%ExpNuc
         EInv = One/Eta
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+        call Rysg1(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One], &
                    Zeta,ZInv,nZeta,[Eta],[EInv],1, &
                    P,nZeta,TC,1,Coori,Coori,CoorAC, &
                    Array(nip),nArray,TERI1,ModU2,vCff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
       else if (Nuclear_Model == Point_Charge) then
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+        call Rysg1(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One], &
                    Zeta,ZInv,nZeta,[One],[One],1, &
                    P,nZeta,TC,1,Coori,Coori,CoorAC, &
                    Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)

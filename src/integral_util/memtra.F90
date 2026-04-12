@@ -56,6 +56,4 @@ nScr1 = max(1,nscr1,nscr3,nscr5)
 nScr2 = max(1,nscr2,nscr4)
 memtra = nCred+2*nScr1+nScr2+3
 
-return
-
 end function memtra

@@ -41,10 +41,10 @@ subroutine Eval_ijkl(iS,jS,kS,lS,TInt,nTInt)
 !***********************************************************************
 
 use Index_Functions, only: iTri
-use setup, only: nSOs
+use setup, only: nSOs, nSkal=>mSkal
 use k2_arrays, only: Create_BraKet, Destroy_Braket, iSOSym, Sew_Scr
 use iSD_data, only: iSD, nSD
-use Breit, only: nComp
+use Breit, only: nComp, Do_BP_Integrals
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: DoFock, DoIntegrals
@@ -54,25 +54,37 @@ use RI_glob, only: jBas_, lBas_
 use Breit, only: nOrdOp
 use UnixInfo, only: SuperName
 #endif
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: wp, iwp
+use eval_arrays, only: SOInt, AOInt, Scr, PSO, PAO
 
 implicit none
 integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-integer(kind=iwp) :: iAng(4), iBasAO, iBasi, iBasn, iBsInc, ipDum, ipMem1, ipMem2, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, &
-                     kBasAO, kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, Mem1, Mem2, MemMax, MemPrm, n, nAO, nIJKL, nSO
-real(kind=wp) :: Coor(3,4), Tmax
+integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, kBasAO, &
+                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, MemMax, n, nAO, nIJKL, nSO, nPairs, nQuad
+real(kind=wp) :: Coor(3,4), Tmax, PMax
 logical(kind=iwp) :: NoInts
-real(kind=wp), pointer :: SOInt(:), AOInt(:)
+integer(kind=iwp), external :: iDAMax_
+integer(kind=iwp), external :: MemSO2
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
 integer(kind=iwp), parameter :: SCF = 1
-integer(kind=iwp), external :: iDAMax_, MemSO2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+#ifdef _DEBUGPRINT_
+write(u6,*) ' -->',iS,jS,kS,lS,'<--'
+#endif
+
+PMax = Zero
+nPairs = nSkal*(nSkal+1)/2
+nQuad = nPairs*(nPairs+1)/2
+
 TInt(:) = Zero
 #ifdef _DEBUGBREIT_
 ! use the Breit option computing 1/r^3 integralas but convert to
@@ -112,7 +124,6 @@ else
   MemMax = size(Sew_Scr)
 end if
 !write(u6,*) 'Eval_ints: MemMax=',MemMax
-ipMem1 = 1
 
 !write(u6,*) ' -->',iS,jS,kS,lS,'<--'
 !                                                                      *
@@ -129,7 +140,7 @@ else
   nSO = 0
 end if
 if ((nIrrep > 1) .and. (nSO == 0)) return
-nAO = product(iSD4(2,:))
+nAO = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
 
 call Coor_Setup(iSD4,nSD,Coor)
 call Int_Setup(Coor)
@@ -150,26 +161,9 @@ if (DoFock) call Dens_Infos(SCF)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#ifdef _DEBUGPRINT_
-!write(u6,*) ' *** Centers ***'
-!write(u6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=1,2)
-!write(u6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=3,4)
-!#endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Compute memory request for the primitives, i.e.
-! how much memory is needed up to the transfer equation.
-iAng(:) = iSD4(1,:)
-call MemRys(iAng,MemPrm)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 ! Decide on the partitioning of the shells based on the
 ! available memory and the requested memory.
-call PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
-SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
-AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
+call PSOAO0(nSO,MemMax,DoFock,nSD,iSD4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -230,6 +224,16 @@ do iBasAO=1,iBasi,iBsInc
           call Picky(nSD,iSD4,2,4)
         end if
 
+
+        If (Do_BP_Integrals) Then
+           nijkl = iBasn*jBasn*kBasn*lBasn
+           If (nIrrep==1) Then
+              call PGet0(nijkl,PAO,nAO,Scr,Size(Scr),nQuad,PMax,iSD4)
+           Else
+              call PGet0(nijkl,PSO,nSO,Scr,Size(Scr),nQuad,PMax,iSD4)
+           End If
+        End If
+
         nijkl = iBasn*jBasn*kBasn*lBasn*nComp ! *nComp is a fix for BP integrals
 
         !                                                              *
@@ -237,11 +241,12 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         ! Compute SO/AO-integrals
 
-        call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Mem2,iSD4)
+        call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Size(AOInt),iSD4)
 
         nijkl = iBasn*jBasn*kBasn*lBasn
 
 #       ifdef _DEBUGBREIT_
+        nijkl = iBasn*jBasn*kBasn*lBasn
         if (nOrdOp /= 0) then
           if (nIrrep == 1) then
             call ReSort_Int(AOInt,nijkl,6,nAO)
@@ -251,6 +256,7 @@ do iBasAO=1,iBasi,iBsInc
         end if
 #       endif
 #       ifdef _DEBUGPRINT_
+        nijkl = iBasn*jBasn*kBasn*lBasn*nComp
         if (nIrrep == 1) then
           call RecPrt('AOInt',' ',AOInt,nijkl,nAO)
         else
@@ -272,6 +278,7 @@ do iBasAO=1,iBasi,iBsInc
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
+            nijkl = iBasn*jBasn*kBasn*lBasn
             call Int_PostProcess(nijkl,AOInt,SOInt,nSO,iSOSym,nSOs,TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero
@@ -282,7 +289,7 @@ do iBasAO=1,iBasi,iBsInc
     end do
   end do
 end do
-nullify(SOInt,AOInt)
+nullify(SOInt,AOInt,Scr,PSO,PAO)
 call Destroy_BraKet()
 !                                                                      *
 !***********************************************************************
@@ -334,7 +341,6 @@ subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
   integer(kind=iwp), intent(in) :: nijkl, nComp, nA
   real(kind=wp), target, intent(inout) :: IntRaw(nijkl*nComp*nA)
   real(kind=wp), pointer :: IntIn(:,:,:), IntOut(:,:)
-  integer(kind=iwp) :: i_ijkl, iA
 
   IntIn(1:nijkl,1:nComp,1:nA) => IntRaw(:)
   IntOut(1:nijkl,1:nA) => IntRaw(1:nijkl*nA)
@@ -343,7 +349,7 @@ subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
   call RecPrt('IntRaw',' ',IntRaw,nijkl,nComp*nA)
 # endif
 
-  IntOut(:,:) = IntIn(:,:)+IntIn(:,4,:)+IntIn(:,6,:)
+  IntOut(:,:) = IntIn(:,1,:)+IntIn(:,4,:)+IntIn(:,6,:)
 
   nullify(IntIn,IntOut)
 

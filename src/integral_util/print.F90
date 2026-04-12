@@ -7,25 +7,13 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2023, Roland Lindh                                     *
 !***********************************************************************
-
-module Breit
-
-use Constants, only: Zero
-use Definitions, only: iwp, wp
-
-implicit none
+Module Print
 private
-
-integer(kind=iwp) :: nComp = 1, nOrdOp = 0
-logical(kind=iwp) :: Do_BP_integrals=.False.
-real(kind=wp) :: D_tensor(3,3)=Zero
-real(kind=wp), pointer :: PSO(:,:)=>Null(), PAO(:,:,:,:,:)=>Null()
-
-public :: nComp, nOrdOp, Do_BP_integrals, D_tensor, PSO, PAO
-
-
-end module Breit
-
+Integer, parameter:: nRout=1024
+Integer :: i
+Integer :: nPrint(nRout) = [(5,i=1,nRout)]
+Logical :: Show=.False.
+Integer :: icolorize=0
+public nPrint, Show, iColorize
+End Module Print

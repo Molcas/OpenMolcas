@@ -462,8 +462,8 @@ if (MyRank /= 0) then
 end if
 
 ! FM 16/4/2013
-! ESPF charges are set to zero so that no microiterations will be
-! performed during numerical gradient
+! ESPF multipoles are set to zero so that no MM microiterations
+! will be performed during numerical gradient
 ! IFG: swap files, as now NG uses a subdirectory
 
 iSave = 15
@@ -481,9 +481,18 @@ if (Do_ESPF) then
     else
       if (ESPFKey /= 'MULTIPOLE ') then
         write(iSave,'(A132)') Line
+        if (ESPFKey == 'MLTORD    ') then
+          Line = Get_Ln(iData)
+          call Get_I1(2,MltOrd)
+          ibla = 0
+          do ii=0,MltOrd
+            ibla = ibla+(ii+2)*(ii+1)/2
+          end do
+          MltOrd = ibla
+        end if
       else
         call Get_I1(2,nMult)
-        do iMlt=1,nMult
+        do iMlt=1,nMult,MltOrd
           Line = Get_Ln(iData)
         end do
       end if

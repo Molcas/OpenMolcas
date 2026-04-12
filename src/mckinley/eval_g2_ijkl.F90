@@ -12,34 +12,43 @@
 !               1995,1996, Anders Bernhardsson                         *
 !***********************************************************************
 
-subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer,Buffer,nDens,DTemp,DInAc, &
-                        MOip,nTwo2,nQuad)
 
+subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer, &
+                        Buffer,nDens, DTemp, DInAc, MOip, nTwo2, nQuad)
 use setup, only: nAux
 use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: iTri
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Aux, Create_Braket, Destroy_Braket, nFT, Sew_Scr
+use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr, nFT, Aux
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-implicit none
-integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nHess, n_Int, nACO, nBuffer, nDens, MOip(0:7), nTwo2, nQuad
+Implicit None
+integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, nBuffer, nDens, MOip(0:7), nTwo2, &
+                                nQuad
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(nBuffer), DTemp(nDens), DInAc(nDens)
 logical(kind=iwp), intent(inout) :: Post_Process
 logical(kind=iwp), intent(in) :: lGrad, lHess, lPick
-integer(kind=iwp) :: iAng(4), iBasAO, iBasi, iBasn, iBsInc, iDer, iFnc(4), ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, ipPSO, &
-                     iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kBasAO, kBask, kBasn, &
-                     kBsInc, kCmp, lBasAO, lBasl, lBasn, lBsInc, lCmp, Mem1, Mem2, Mem3, Mem4, MemCMO, MemFck, MemFin, MemMax, &
-                     MemPrm, MemPSO, MemX, nijkl, nRys, nSO, nTemp
-real(kind=wp) :: Coor(3,4), PMax
-logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), lDot, lDot2, lTri
-real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Temp(:), Work2(:), Work3(:), Work4(:), WorkX(:)
-logical(kind=iwp), parameter :: n8 = .true.
-integer(kind=iwp), external :: MemSO2_P
 
-iFnc(:) = -99
+real(kind=wp) :: Coor(3,4), PMax
+logical(kind=iwp) :: lTri, lDot, lDot2
+logical(kind=iwp), parameter :: n8 = .true.
+integer(kind=iwp) :: nSO, iSD4(0:nSD,4)
+integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
+integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
+integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
+integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
+integer(kind=iwp) :: JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7)
+logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
+integer(kind=iwp) :: MemMax, ipMOC, MemCMO
+integer(kind=iwp) :: Mem1, Mem2, Mem3, Mem4, nTemp
+integer(kind=iwp) :: ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX
+integer(kind=iwp) :: MemFck, MemFin, MemX
+integer(kind=iwp) :: kCmp, lCmp, nijkl
+integer(kind=iwp), external :: MemSO2_P
+real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Work2(:), Work3(:), Work4(:), WorkX(:), Temp(:)
+
 PMax = Zero
 if (.not. allocated(Sew_Scr)) then
   call mma_MaxDBLE(MemMax)
@@ -90,14 +99,6 @@ if (lTri .and. lPick) call Dens_Infos(nMethod)
 nSO = MemSO2_P(nSD,iSD4)
 ldot2 = ldot
 if (nSO == 0) ldot2 = .false.
-
-! Compute memory request for the primitives.
-
-iDer = 2
-if (.not. ldot2) iDer = 1
-iAng(:) = iSD4(1,:)
-call MemRg2(iAng,nRys,MemPrm,iDer)
-
 !----------------------------------------------------------------------*
 !
 ! Calculate which derivatives should be made.
@@ -113,7 +114,7 @@ call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 !
 !----------------------------------------------------------------------*
 
-call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
+call PSOAO2(nSO,MemMax,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -216,13 +217,13 @@ do iBasAO=1,iBasi,iBsInc
         !--------------------------------------------------------------*
 
         if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
-        if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Temp,nTemp,nQuad,PMax,iSD4)
+        if (ldot2) call PGet0(nijkl,PSO,nSO,Work2,Mem2,nQuad,PMax,iSD4)
 
         ! Compute gradients of shell quadruplet
 
-        call TwoEl_mck(Coor,nRys,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux, &
-                       WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,nBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
-                       MOC,MemCMO,iSD4)
+        call TwoEl_mck(Coor,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4, &
+                       Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,nBuffer,lgrad,ldot2,n8,ltri, &
+                       DTemp,DInAc,moip,nAco,MOC,MemCMO,iSD4)
         Post_Process = .true.
 
         nullify(MOC)
@@ -253,7 +254,7 @@ subroutine Dens_Infos(nMethod)
   use Index_Functions, only: iTri
 
   integer(kind=iwp), intent(in) :: nMethod
-  integer(kind=iwp) :: ijS, ikS, ilS, ipDum, ipTmp, ipTmp2, iS, jkS, jlS, jS, klS, kS, lS
+  integer(kind=iwp) :: ijS, ikS, ilS, ipTmp, ipTmp2, iS, jkS, jlS, jS, klS, kS, lS, ipDum
   integer(kind=iwp), parameter :: Nr_of_Densities = 1
 
   iS = iSD4(11,1)
