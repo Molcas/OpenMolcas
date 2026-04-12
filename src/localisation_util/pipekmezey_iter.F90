@@ -485,6 +485,7 @@ end subroutine moldenIM
 #endif
 
 subroutine OrthoCheck()
+    integer(kind=iwp) i
     ! check that the orbitals are orthonormal (if not -> the trafo matrix was not constructed correctly)
 
     real(kind=wp), allocatable :: CtS(:,:),CtSC(:,:)
