@@ -192,7 +192,6 @@ case (2,4,5)
 end select
 
 ! set defaults
-
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
@@ -213,16 +212,9 @@ if (.not. Silent) then
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
-    select case (OptMeth)
-    case(1)
-    write(u6,'(//,1X,A,/,1X,A)') &
-    '                                                         CPU       Wall', &
-    'nIter       Functional P        Delta     Gradient      (sec)     (sec) %Screen'
-    case (2,4,5)
     write(u6,'(//,1X,A,/,1X,A)') &
     '                                                                 CPU       Wall', &
-    'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)    ndiis   largest'
-    end select
+    'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  ndiis  largest/%Screen'
 end if
 
 ! ----------------------------------------------------------------------
@@ -246,11 +238,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     select case (OptMeth)
 
     case (1) ! Jacobi Sweeps (2x2 rotations)
+        UpMeth = "JS  -"
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
     case (2,4,5) ! Employing NxN rotations
+        UpMeth = "NR  -"
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
@@ -307,7 +301,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       endif
 
         ! see if inside region fit for GEK
-        if (OptMeth == 4 .or. OptMeth ==5) call StepSizeChecks()
+        call StepSizeChecks()
 
         ! for HeH, we don't care, because 2D antisymmetric matrices commute
         !GEKRange = .true.
@@ -341,12 +335,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         TimC = C2-C1
         TimW = W2-W1
         select case (OptMeth)
-        case(1)
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),1X,2(1X,F9.1),1X,F7.2)') &
-            nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
+        case (1)
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2,A)') &
+            nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp," %"
         case (2,4,5)
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,1X,I5,1X,ES12.4)') &
-            nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,X,ES12.4)') &
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
         end select
     end if
 
@@ -448,7 +442,7 @@ end subroutine force_GEKRange
 subroutine StepSizeChecks()
     integer(kind=iwp) :: i
     ! if previous step suggestion was out of GEKRange
-    if (ResetGEK) then
+    if (ResetGEK .and. nDIIS/=0) then
         write(u6,*) "Resetting GEK"
         UpMeth=" -  - "
         IterGEK = 0
