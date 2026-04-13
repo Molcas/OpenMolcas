@@ -181,7 +181,8 @@ call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
 select case (OptMeth)
 
 case (2,4,5)
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
+    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
@@ -242,7 +243,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
