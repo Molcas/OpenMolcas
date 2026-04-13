@@ -25,7 +25,7 @@ integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
 integer(kind=iwp) :: iAtom, k,l,kl
-real(kind=wp) :: Q_ll, Q_kk, Q_kl
+real(kind=wp) :: Q_ll, Q_kk, Q_kl, mat(nOrb2Loc,nOrb2Loc)
 
 Q_ll = Zero
 Q_kk = Zero
@@ -52,7 +52,7 @@ do k=1,nOrb2Loc-1
          H_diag(kl)=-H_diag(kl)
       End If
       If (Abs(H_diag(kl))<1.0e-2_wp) Then
-!        Write (*,*) 'H_diag(k,l)=',H_diag(k,l)
+        !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
          H_diag(kl)=-1.0e-2_wp
       End If
 
@@ -63,7 +63,8 @@ if (Debug) then
     write(u6,*) ' '
     write(u6,*) 'In GetHdiag_PM'
     write(u6,*) '-------------'
-    call RecPrt('H_diag',' ',H_diag(:), nOrb2Loc*(nOrb2Loc-1)/2,1)
+    call vec2upper_triag(mat,norb2loc,h_diag,(nOrb2Loc*(nOrb2Loc-1)/2),.false.)
+    call RecPrt('H_diag',' ',mat(:,:), nOrb2Loc,nOrb2Loc)
     write(u6,*) ' '
 end if
 

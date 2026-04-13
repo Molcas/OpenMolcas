@@ -51,7 +51,7 @@ real(kind=wp), parameter :: alpha = 0.3e0_wp
 real(kind=wp), External :: DDot_
 
 ! for S-GEK
-integer(kind=iwp) :: maxel,i
+integer(kind=iwp) :: maxel,i, inpOptMeth
 real(kind=wp) :: dqdq,largest
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
@@ -65,6 +65,8 @@ integer(kind=iwp) :: rc
 character(len=8) :: fmt
 character(len=4) :: x1
 #endif
+
+inpOptMeth = OptMeth
 
 if (OptMeth == 4 .or. OptMeth == 5) then
     write(u6,*) "doing GEK Opt with:"
@@ -139,6 +141,7 @@ case (1)
 
 case(2,3,4,5)
 
+    call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
     ! allocating matrices for NxN optimizations
 
     fsdim = nOrb2Loc*(nOrb2Loc-1)/2
@@ -213,11 +216,12 @@ if (.not. Silent) then
     select case (OptMeth)
     case(1)
     write(u6,'(//,1X,A,/,1X,A)') &
-        '                                                         CPU       Wall', &
-        'nIter       Functional P        Delta     Gradient      (sec)     (sec) %Screen'
+    '                                                         CPU       Wall', &
+    'nIter       Functional P        Delta     Gradient      (sec)     (sec) %Screen'
     case (2,4,5)
-    write(u6,'(//,1X,A,/,1X,A)') '                                                                   CPU       Wall', &
-    'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) ndiis, largest'
+    write(u6,'(//,1X,A,/,1X,A)') &
+    '                                                                 CPU       Wall', &
+    'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)    ndiis   largest'
     end select
 end if
 
@@ -231,6 +235,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
 
     nIter = nIter+1
+
+    if (nIter == 1) then
+        OptMeth = 1
+    else
+        OptMeth = inpOptMeth
+    end if
+
     !choose between optimization methods
     select case (OptMeth)
 
@@ -252,6 +263,15 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         ! compute standard newton raphson step
         Disp(:) = -Gradient(:)/Hdiagvec(:)
+
+        ! if Hdiag vals close to zero -> redundant rotation that we don't want to do, so set step to zero there
+        do i=1,fsdim
+            If (Hdiagvec(i) == 1.0e-2_wp) Then
+            !Write (u6,*) 'redundant rotation at i',i,Hdiagvec(i)
+            Disp(i) = Zero
+            End If
+        end do
+
 
 #       ifdef _DEBUGLISTS_
             write(u6,*) "nIter =",nIter
@@ -278,6 +298,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call RecPrt('Disp',' ',Disp,fsdim,1)
 #       endif
 
+        ! keep norm of kappa matrix below pi/4
         call rescale_disp()
 
 #       ifdef _FORCEGEKRANGE_
@@ -286,7 +307,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       endif
 
         ! see if inside region fit for GEK
-        call StepSizeChecks()
+        if (OptMeth == 4 .or. OptMeth ==5) call StepSizeChecks()
 
         ! for HeH, we don't care, because 2D antisymmetric matrices commute
         !GEKRange = .true.
@@ -372,6 +393,7 @@ select case(OptMeth)
 case(1)
     call mma_Deallocate(PACol)
 case(2,3,4,5)
+    call mma_Deallocate(PACol)
     call mma_Deallocate(Gradient)
     call mma_Deallocate(kappa)
 
