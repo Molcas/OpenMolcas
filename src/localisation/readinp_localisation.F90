@@ -20,7 +20,7 @@ use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, Ch
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
                                 Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
                                 ScrFac, OptMeth, ChargeType, LocOrb,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
-                                Freeze
+                                Freeze,AnalyseLoc
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -208,6 +208,31 @@ do
                 write(u6,*) 'using the default instead'
                 call FindErrorLine()
         end select
+
+    case ('PRNT')
+        Line = Get_Ln(LuSpool)
+        Key(:) = ""
+        call Get_s(1,Key(1:4),1)
+
+        select case (Key(1:4))
+            ! PM localisation: print MO extension before, after or both times
+
+            case('OFF')
+            AnalyseLoc = 0
+
+            case('AFTE')
+            AnalyseLoc = 1
+
+            case('BOTH')
+            AnalyseLoc = 2
+
+            case default
+                write(u6,*) 'WARNING!!!'
+                write(u6,*) 'The specified print stage for PM localisation does not exist'
+                write(u6,*) 'using the default instead'
+                call FindErrorLine()
+      end select
+
 
       case ('BOYS')
       ! BOYS

@@ -29,7 +29,7 @@ use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
-                                UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias
+                                UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
 #endif
@@ -178,8 +178,14 @@ end select ! allocations
 ! Initialization
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-if (.not. Silent) write(u6,"(/A)") "MO extension before localisation:"
-call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
+
+select case(AnalyseLoc)
+    case (0,1)
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+    case (2)
+        if (.not. Silent) write(u6,"(/A)") "Orbital extension before localisation:"
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
+end select
 
 select case (OptMeth)
 
@@ -361,8 +367,14 @@ call OrthoCheck()
 
 if (.not. Silent) then
 
-    write(u6,"(/A)") "MO extension after localisation:"
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
+    select case(AnalyseLoc)
+        case (0)
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        case (1,2)
+        write(u6,"(/A)") "Orbital extension after localisation:"
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
+    end select
+
     if (.not. Converged) then
         write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
     else

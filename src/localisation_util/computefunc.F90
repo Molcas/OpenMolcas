@@ -62,7 +62,7 @@ do iMO_s=1,nOrb2Loc
     end if
 
     if (printMOext) then
-        write(u6,"(A,I4,A,F8.3,1X,A,A)") "MO ",iMO_s," extends over ",d_s, " atom(s)  -> ",MOtype
+        write(u6,"(A,I4,A,F8.3,1X,A,A)") " MO", iMO_s,")   ",d_s, " atoms  -> ",MOtype
     end if
 end do
 
