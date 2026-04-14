@@ -59,7 +59,7 @@ if ((MPLET1 == MPLET2) .and. (MSPROJ1 == MSPROJ2)) then
 
 # ifdef _DMRG_
   else
-    sij = qcmaquis_mpssi_overlap(qcm_prefixes(job1),istate,qcm_prefixes(job2),jstate,.true.)
+    sij = qcmaquis_mpssi_overlap(qcm_prefixes(job1),LROOT(istate),qcm_prefixes(job2),LROOT(jstate),.true.)
 
   end if ! DMRG or not
 
