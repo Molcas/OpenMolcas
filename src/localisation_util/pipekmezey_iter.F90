@@ -345,7 +345,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2,A)') &
             nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp," %"
         case (2,4,5)
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,X,ES12.4)') &
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
         end select
     end if
