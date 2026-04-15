@@ -2977,7 +2977,8 @@ if (Python_FOUND)
       ERROR_VARIABLE XMLLINT_ERROR
       RESULT_VARIABLE XMLLINT_RESULT
     )
-    if (XMLLINT_RESULT AND NOT XMLLINT_RESULT EQUAL 0)
+#   if (XMLLINT_RESULT AND NOT XMLLINT_RESULT EQUAL 0)
+    if (XMLINT_ERROR)
       message (FATAL_ERROR "Extracted XML file is malformed: ${XMLLINT_ERROR}")
     endif ()
   endif ()
