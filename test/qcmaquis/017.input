@@ -64,9 +64,9 @@ EndOOptimizationSettings
 &NEVPT2
 States=3
 >> COPY $Project.nevpt2.h5 $Project.quint.nevpt2.h5
->> EXEC mv $WorkDir/$Project.checkpoint_state.0.h5 $WorkDir/$Project.quint.nevpt2.checkpoint_state.0.h5
->> EXEC mv $WorkDir/$Project.checkpoint_state.1.h5 $WorkDir/$Project.quint.nevpt2.checkpoint_state.1.h5
->> EXEC mv $WorkDir/$Project.checkpoint_state.2.h5 $WorkDir/$Project.quint.nevpt2.checkpoint_state.2.h5
+>> COPY $Project.checkpoint_state.0.h5 $Project.quint.nevpt2.checkpoint_state.0.h5
+>> COPY $Project.checkpoint_state.1.h5 $Project.quint.nevpt2.checkpoint_state.1.h5
+>> COPY $Project.checkpoint_state.2.h5 $Project.quint.nevpt2.checkpoint_state.2.h5
 >> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.quint.nevpt2.h5 -q
 * ====================================
 * TRIPLET (Spin=3) -- 3 states, LumOrb from quintet
@@ -89,9 +89,9 @@ EndOOptimizationSettings
 &NEVPT2
 States=3
 >> COPY $Project.nevpt2.h5 $Project.trip.nevpt2.h5
->> EXEC mv $WorkDir/$Project.checkpoint_state.0.h5 $WorkDir/$Project.trip.nevpt2.checkpoint_state.0.h5
->> EXEC mv $WorkDir/$Project.checkpoint_state.1.h5 $WorkDir/$Project.trip.nevpt2.checkpoint_state.1.h5
->> EXEC mv $WorkDir/$Project.checkpoint_state.2.h5 $WorkDir/$Project.trip.nevpt2.checkpoint_state.2.h5
+>> COPY $Project.checkpoint_state.0.h5 $Project.trip.nevpt2.checkpoint_state.0.h5
+>> COPY $Project.checkpoint_state.1.h5 $Project.trip.nevpt2.checkpoint_state.1.h5
+>> COPY $Project.checkpoint_state.2.h5 $Project.trip.nevpt2.checkpoint_state.2.h5
 >> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.trip.nevpt2.h5 -q
 * ====================================
 * SINGLET (Spin=1) -- 3 states, LumOrb from quintet
@@ -114,9 +114,9 @@ EndOOptimizationSettings
 &NEVPT2
 States=3
 >> COPY $Project.nevpt2.h5 $Project.sing.nevpt2.h5
->> EXEC mv $WorkDir/$Project.checkpoint_state.0.h5 $WorkDir/$Project.sing.nevpt2.checkpoint_state.0.h5
->> EXEC mv $WorkDir/$Project.checkpoint_state.1.h5 $WorkDir/$Project.sing.nevpt2.checkpoint_state.1.h5
->> EXEC mv $WorkDir/$Project.checkpoint_state.2.h5 $WorkDir/$Project.sing.nevpt2.checkpoint_state.2.h5
+>> COPY $Project.checkpoint_state.0.h5 $Project.sing.nevpt2.checkpoint_state.0.h5
+>> COPY $Project.checkpoint_state.1.h5 $Project.sing.nevpt2.checkpoint_state.1.h5
+>> COPY $Project.checkpoint_state.2.h5 $Project.sing.nevpt2.checkpoint_state.2.h5
 >> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.sing.nevpt2.h5 -q
 >> COPY $Project.quint.nevpt2.h5 $Project.JobIph
 >> COPY $Project.trip.nevpt2.h5 $Project.JobIph01
