@@ -12,9 +12,9 @@
 !***********************************************************************
 
 subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
-! this subroutine rotates the orbitals as CMO = exp(-kappa) * CMO
+! this subroutine rotates the orbitals as rotated_CMO = CMO * exp(-kappa)
 !
-! for technical reasons, auxiliary matrices (kappa_cnt, xkappa_cnt, unitary_mat, rotated_CMO) are allocated outside of the loop
+! for technical reasons, auxiliary matrices (kappa_cnt, xkappa_cnt, unitary_mat) are allocated outside of the loop
 ! that calls this routine. However it would work perfectly fine if these are allocated and deallocated within this routine to reduce
 ! the number of arguments (not recommended for speed)
 
@@ -24,7 +24,7 @@ use constants, only: Zero,One
 implicit none
 
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
-real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
+real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
                              unitary_mat(nOrb2Loc,nOrb2Loc), rotated_CMO(nBasis,nOrb2Loc)
 
@@ -35,9 +35,6 @@ call expkap_localisation(kappa,nOrb2Loc,kappa_cnt,xkappa_cnt,unitary_mat)
 ! transform the orbitals
 rotated_CMO(:,:) = Zero
 call dgemm_('N','N',nBasis,nOrb2Loc,nOrb2Loc,One,CMO,nBasis,unitary_mat,nOrb2Loc,Zero,rotated_CMO,nBasis)
-
-!reset CMO to be updated
-CMO(:,:) = rotated_CMO(:,:)
 
 end subroutine RotateNxN
 

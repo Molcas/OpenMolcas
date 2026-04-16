@@ -280,8 +280,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             P_eta2 = Functional
             !write(u6,*) "P_eta0,P_eta1, P_eta2 =", P_eta0,P_eta1, P_eta2
 
-            best_eta = (4*P_eta1-P_eta2-3*P_eta0)/(4*(P_eta1+P_eta0-2*P_eta1))
+            best_eta = -(4*P_eta1-P_eta2-3*P_eta0)/(4*(P_eta1+P_eta0-2*P_eta1))
             !write(u6,*) "best_eta =",best_eta
+
             Disp(:) = best_eta * Gradient(:)
         else
             Disp(:) = -Gradient(:)/Hdiagvec(:)
@@ -340,9 +341,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
         DispList(:,nIter+1) = Disp(:) ! q_i
 
-        ! update CMO
+        ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
         UMatList(:,:,nIter) = unitary_mat(:,:) ! exp(-q_i) = U_i
+
+        ! update CMO
+        CMO(:,:) = rotated_CMO(:,:)
 
 #       ifdef _DEBUGLISTS_
         write(u6,*) "After GEK procedure and step scaling"
@@ -390,6 +394,7 @@ call OrthoCheck()
 
 if (.not. Silent) then
 
+    call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
     select case(AnalyseLoc)
         case (0)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
@@ -590,7 +595,7 @@ end subroutine OrthoCheck
 subroutine P_of_eta()
     call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
     call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
-    call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+    call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
 
