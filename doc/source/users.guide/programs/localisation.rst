@@ -281,7 +281,10 @@ Optional general keywords
   The next line specifies the optimization method used to maximize the Pipek--Mezey functional.
   Options: 
     - Jacobi Sweeps (Default) = 'JACO'
+    - Gradient Ascent = 'GRAD'
     - Newton Raphson method = 'NEWT'
+    - GEK method = 'GEK'
+    - SGEK method = 'SGEK'
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="STRING" LEVEL="BASIC">
               %%Keyword: OPTM <basic>
@@ -289,7 +292,10 @@ Optional general keywords
               The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
               Options: 
                 - Jacobi Sweeps (Default) = 'JACO'
+                - Gradient Ascent = 'GRAD'
                 - Newton Raphson method = 'NEWT'
+                - GEK method = 'GEK'
+                - SGEK method = 'SGEK'
               </HELP>
               </KEYWORD>
 
