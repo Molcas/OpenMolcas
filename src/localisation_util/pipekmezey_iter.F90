@@ -25,7 +25,7 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName
 ! Based on the original routines by Y. Carissan.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, One, Pi
+use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
@@ -46,8 +46,8 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctiona
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
-                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:)
-real(kind=wp), parameter :: alpha = 0.3e0_wp
+                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:)
+real(kind=wp), parameter :: alpha = 0.1e-4_wp
 real(kind=wp), External :: DDot_
 
 ! for S-GEK
@@ -57,7 +57,7 @@ logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
 
-real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta
+real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,c,eta1,eta2
 
 #ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -154,6 +154,7 @@ case(2,3,4,5)
     call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
     call mma_Allocate(UmatList,nOrb2Loc,nOrb2Loc,nMxIter,Label='UmatList')
     call mma_allocate(Disp,fsdim,Label='Disp')
+    call mma_allocate(SearchDir,fsdim,Label='SearchDir')
     call mma_Allocate(GradList,fsdim,nMxIter,Label='GradList')
     call mma_Allocate(FuncList,nMxIter,Label='FuncList')
     call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
@@ -234,7 +235,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     nIter = nIter+1
 
-    if (nIter == 1) then
+    if (nIter == 1 .and. inpOptMeth == 6) then
         OptMeth = 1
     else
         OptMeth = inpOptMeth
@@ -261,30 +262,21 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
         FuncList(nIter) = -Functional ! y_i
 
-        ! compute standard newton raphson step
+        !if (OptMeth==3 .and. gradnorm>1.0e-2_wp) then
+        !if (gradnorm>1.0e-2_wp) then
         if (OptMeth==3) then
-            !call RecPrt("Gradient","",Gradient,fsdim,1)
+            ! Gradient Ascent with naive line search
             !Disp(:) = Gradient(:)/gradnorm
-            !call RecPrt("GA step normalized","",Disp,fsdim,1)
+
             UpMeth = "GA  -"
 
-            P_eta0 = Functional
+            SearchDir(:) = Gradient(:)/gradnorm
 
-            Disp(:) = Gradient(:)
-            call P_of_eta()
-            P_eta1 = Functional
+            call naiveLineSearch(SearchDir(:),best_eta)
 
-            Disp(:) = Half*Gradient(:)
-            call P_of_eta()
-
-            P_eta2 = Functional
-            !write(u6,*) "P_eta0,P_eta1, P_eta2 =", P_eta0,P_eta1, P_eta2
-
-            best_eta = -(4*P_eta1-P_eta2-3*P_eta0)/(4*(P_eta1+P_eta0-2*P_eta1))
-            !write(u6,*) "best_eta =",best_eta
-
-            Disp(:) = best_eta * Gradient(:)
+            Disp(:) = best_eta * SearchDir(:)
         else
+            ! compute standard newton raphson step
             Disp(:) = -Gradient(:)/Hdiagvec(:)
         end if
 
@@ -371,7 +363,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         case (1)
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
             nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
-        case (2,3,4,5)
+        case (3)
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
+        case (2,4,5)
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
         end select
@@ -442,7 +437,8 @@ case(2,3,4,5)
     call mma_Deallocate(UmatList)
     call mma_Deallocate(GradList)
     call mma_Deallocate(DispList)
-    call mma_Deallocate(disp)
+    call mma_Deallocate(Disp)
+    call mma_Deallocate(SearchDir)
     call mma_Deallocate(Hdiagvec)
 end select
 
@@ -592,11 +588,33 @@ subroutine OrthoCheck()
 
 end subroutine OrthoCheck
 
-subroutine P_of_eta()
+subroutine P_of_eta(Disp,Functional)
+    real(kind=wp),intent(in) :: Disp(fsdim)
+    real(kind=wp),intent(out) :: Functional
     call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
     call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
     call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
+
+subroutine naiveLineSearch(SearchDir,best_eta)
+    real(kind=wp),intent(in) :: SearchDir(fsdim)
+    real(kind=wp),intent(out) :: best_eta
+
+    eta1=Half*alpha
+    eta2=One*alpha
+
+    P_eta0 = Functional
+    !call P_of_eta(Zero*SearchDir(:),P_eta0) ! just checking, this equals current functional
+    call P_of_eta(eta1*SearchDir(:),P_eta1)
+    call P_of_eta(eta2*SearchDir(:),P_eta2)
+
+    !write(u6,*) "P_eta0,P_eta1, P_eta2 =", P_eta0,P_eta1, P_eta2
+    b= ((P_eta2-P_eta0)*eta1**2-(P_eta1-P_eta0)*eta2**2)/(eta1*eta2*(eta1-eta2))
+    a = (P_eta2-P_eta0)/(eta2**2) - b/ eta2
+    best_eta= -b/(2*a)
+    !write(u6,*) "best_eta =",best_eta
+
+end subroutine naiveLineSearch
 
 end subroutine PipekMezey_Iter
