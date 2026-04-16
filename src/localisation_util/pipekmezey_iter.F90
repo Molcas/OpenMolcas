@@ -189,7 +189,7 @@ end select
 
 select case (OptMeth)
 
-case (2,4,5)
+case (2,3,4,5)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
     call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal
     FuncList(1) = -Functional
@@ -249,7 +249,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
-    case (2,4,5) ! Employing NxN rotations
+    case (2,3,4,5) ! Employing NxN rotations
         UpMeth = "NR  -"
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
@@ -262,7 +262,15 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         FuncList(nIter) = -Functional ! y_i
 
         ! compute standard newton raphson step
-        Disp(:) = -Gradient(:)/Hdiagvec(:)
+        if (OptMeth==3) then
+            !call RecPrt("Gradient","",Gradient,fsdim,1)
+            !Disp(:) = Gradient(:)/gradnorm
+            Disp(:) = Gradient(:)
+            !call RecPrt("GA step normalized","",Disp,fsdim,1)
+            UpMeth = "GA  -"
+        else
+            Disp(:) = -Gradient(:)/Hdiagvec(:)
+        end if
 
         ! if Hdiag vals close to zero -> redundant rotation that we don't want to do, so set step to zero there
         do i=1,fsdim
@@ -344,7 +352,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         case (1)
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2,A)') &
             nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp," %"
-        case (2,4,5)
+        case (2,3,4,5)
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
         end select
