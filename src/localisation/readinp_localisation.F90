@@ -166,7 +166,7 @@ do
             ! Newton Raphson for PM localisation
             OptMeth = 2
 
-            case ('GRAS')
+            case ('GRAD')
             ! Gradient Ascent for PM localisation
             OptMeth = 3
 
