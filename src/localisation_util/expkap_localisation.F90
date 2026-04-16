@@ -107,13 +107,16 @@ do while (ithrsh > thrsh_taylor)
         call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
     end if
 
-    maxel(:) = maxloc(abs(unitary_mat(:,:)))
-    if (unitary_mat(maxel(1),maxel(2)) > One) then
-        write(u6,*) "element of U bigger cannot be larger than 1, as U is supposed to be orthogonal/unitary:", &
-                     unitary_mat(maxel(1),maxel(2))
-        call Abend()
-    end if
 end do
+
+
+maxel(:) = maxloc(abs(unitary_mat(:,:)))
+if (unitary_mat(maxel(1),maxel(2)) > One) then
+    write(u6,*) "element of U bigger cannot be larger than 1, as U is supposed to be orthogonal/unitary:", &
+                 unitary_mat(maxel(1),maxel(2))
+    call Abend()
+end if
+
 if (debug) then
     write(u6,"(//A)") "rotating the orbitals with:"
     call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
