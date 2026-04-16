@@ -42,9 +42,9 @@ use Constants, only: Zero, One, Half, auToEV
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), DYSAMPS(NSTATE,NSTATE)
-integer(kind=iwp) :: JOB1, JOB2, NZ, IDISK
-
+real(kind=wp), intent(inout) :: PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), DYSAMPS(NSTATE,NSTATE)
+integer(kind=iwp), intent(in) :: JOB1, JOB2, NZ
+integer(kind=iwp), intent(inout) :: IDISK
 integer(kind=iwp) :: AUGSPIN, DCHIJ, I, IAD, IE1, IE1MN, IE1MX, IE2, IE2MN, IE2MX, IE3, IE3MN, IE3MX, IEMPTY, IERR, IFORM, IGO, &
                      IJ, IO, IOP1, IOP2, IOP3, IOPT, IRC, ISOIND, ISORB, ISPART, IST, ISTATE, ISUM, ISY, ISY12, ISYM, IT, ITABS, &
                      J, JST, JSTATE, JSY, KOINFO, KSPART, LSY, LUCITH, LUIPHn, MAXOP, MINOP, MPLET1, MPLET2, MSPROJ1, MSPROJ2, &
@@ -59,7 +59,7 @@ character(len=48) :: STLNE2
 character(len=8) :: WFTP1, WFTP2
 type(CIStruct) :: CIS(2)
 type(EXStruct) :: EXS(2)
-type(SGStruct), target :: SGS(2)
+type(SGStruct) :: SGS(2)
 integer, allocatable :: OMAP(:)
 real(kind=wp), allocatable :: CI1(:), CI2(:), CI2_o(:), CMO1(:), CMO2(:), DCHSM(:), detcoeff1(:), detcoeff2(:), DYSAB(:), &
                               DYSCOF(:), DYSZZ(:), FMO(:), mixed_1p_overlap(:,:), mixed_1p_rtdm(:,:,:), mixed_1p_stdm(:,:,:), &
@@ -70,15 +70,6 @@ real(kind=wp), allocatable, target :: DETTOT1(:,:), DETTOT2(:,:)
 character(len=NASHT+1), allocatable :: detocc(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
-interface
-  subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
-    import :: iwp, SGStruct, CIStruct
-    implicit none
-    integer(kind=iwp) :: nSym, nActEl, iSpin
-    type(SGStruct), target :: SGS
-    type(CIStruct) :: CIS
-  end subroutine SGInit
-end interface
 
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_
@@ -769,7 +760,6 @@ job2_loop: do JST=1,NSTAT(JOB2)
       ! In full biorthonormal basis:
       call MKDYSAB(DYSCOF,DYSAB)
       ! Correct Dyson norms, for a biorth. basis. Add by Bruno
-      DYNORM = Zero
       call DYSNORM(CMO2,DYSAB,DYNORM) !do not change CMO2
       if (DYNORM > 1.0e-5_wp) then
         ! In AO basis:
@@ -891,7 +881,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
             jDisk_TDM(1,ij) = IDISK
             jDisk_TDM(2,ij) = iEmpty
             iOpt = 1
-            iGo = 7
+            iGo = ibset(ibset(ibset(0,0),1),2)
             if (AO_Mode) then
               call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,IState,jState)
             else

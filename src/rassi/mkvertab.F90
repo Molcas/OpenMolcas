@@ -18,8 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NACTEL, M2SPIN, LSYM, NPART, NGASORB(0:nIrrep,0:NPART), NGASLIM(2,NPART), ISSTAB(*), NFSB0, NRDETS0, NFSB, &
-                     NRDETS
+integer(kind=iwp), intent(in) :: NACTEL, M2SPIN, LSYM, NPART, NGASORB(0:nIrrep,0:NPART), NGASLIM(2,NPART), ISSTAB(*)
+integer(kind=iwp), intent(out) :: NFSB0, NRDETS0, NFSB, NRDETS
 integer(kind=iwp) :: IA, IADDR, IADDR1, IADDR2, IARC, IEND, IPART, IPOS, ISAVE, ISC1, ISC2, ISPART, ISPEND, ISPSTA, ISST, ISTA, &
                      ISUM, ISW, ITRY(50), IVER1, IVER2, IVERT, IVUP, KEEP, KMS2, KMS2MAX, KPOP, KPOPLIM, KPOPMAX, KSSTP, KSYM, &
                      LEVDWN, LEVUP, LIMARR(2,0:50), LOWEST, M2C1, M2C2, MAXEL, MINEL, MN1, MN2, MNL, MNR, MS2, MS2MAX, MS2MIN, &

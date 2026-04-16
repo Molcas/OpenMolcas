@@ -20,8 +20,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IMODE, ISORB, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
-real(kind=wp) :: COEFF, SGM(*), PSI(*)
+integer(kind=iwp), intent(in) :: IMODE, ISORB, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp), intent(in) :: COEFF, PSI(*)
+real(kind=wp), intent(inout) :: SGM(*)
 integer(kind=iwp) :: I, IBLKPOS1, IBLKPOS2, IFSB1, IFSB2, IPOS1, IPOS2, ISBS1, ISBS2, ISP, ISPART, ISST, ISST1, ISST2, &
                      ISSTARR(50), ISUM, J, KHSH2, KOINFO, KPOS, KSBS1, KSBS2, KSBSAN, KSBSCR, KSBSOP, KSORB, KSSTAN, KSSTCR, &
                      KSSTOP, KSSTTB, KSTARR1, KSTARR2, MORSBITS, NASPRT, NDI, NDJ, NFSB1, NHSH2, NPOP1, NSBS1, NSBS2, NSSTP

@@ -27,7 +27,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: job
+integer(kind=iwp), intent(in) :: job
 integer(kind=iwp) :: iad, ipt2
 #ifdef _HDF5_
 integer(kind=iwp) :: ref_nstates, refwfn_id

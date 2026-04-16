@@ -18,8 +18,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp) :: ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*)
-real(kind=wp) :: CISYG(*), CISD(*), detcoeff(*), SPTRA(*)
+integer(kind=iwp), intent(in) :: ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*)
+real(kind=wp), intent(in) :: CISYG(*), SPTRA(*)
+real(kind=wp), intent(out) :: CISD(*), detcoeff(*)
 character(len=*), intent(_OUT_) :: detocc(*)
 integer(kind=iwp) :: I, IBLK, ICNF, idet, IEL, IEL1, IEL2, IERR, IFORM, IFSB, IMORS, IOCC, IOEND, IORB, IOSTA, IPART, IPOS, IREST, &
                      ISBSTR, ISORB, ISPART, ISPD, ISPEND, ISPN, ISPSTA, ISST, ISUM, ISYGEND, ISYGSTA, IWORD, IWRD, JSST, KCNF, &
@@ -302,7 +303,7 @@ do NOPEN=MINOP,MAXOP
       end if
       ! Finally:
       CISD(KFSB-1+IPOS) = BLK(IBLK)
-      detcoeff(idet) = CISD(KFSB-1+IPOS)
+      detcoeff(idet) = BLK(IBLK)
       write(detocc(idet),*) occ
       ! End of spin-determinant loop
     end do

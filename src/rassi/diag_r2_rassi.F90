@@ -19,8 +19,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NBTOT, INFO
-real(kind=wp) :: MATRIX(NBTOT,NBTOT), W(NBTOT), Z(NBTOT,NBTOT)
+integer(kind=iwp), intent(in) :: NBTOT
+real(kind=wp), intent(in) :: MATRIX(NBTOT,NBTOT)
+integer(kind=iwp), intent(out) :: INFO
+real(kind=wp), intent(out) :: W(NBTOT), Z(NBTOT,NBTOT)
 integer(kind=iwp) :: J
 real(kind=wp), allocatable :: AP(:), WORK(:)
 

@@ -23,7 +23,8 @@ subroutine ProtoSD(NPELA,NPELB,NPSDSZ,IPSDMS)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NPELA, NPELB, NPSDSZ, IPSDMS(NPELA+NPELB,NPSDSZ)
+integer(kind=iwp), intent(in) :: NPELA, NPELB, NPSDSZ
+integer(kind=iwp), intent(out) :: IPSDMS(NPELA+NPELB,NPSDSZ)
 integer(kind=iwp) :: ITMP(50), K, L, NDET, NPORB
 integer(kind=iwp), parameter :: ASPIN = 1, BSPIN = 0
 integer(kind=iwp), external :: NOVERM

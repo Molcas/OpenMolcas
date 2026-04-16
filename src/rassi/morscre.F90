@@ -15,7 +15,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: MorsCre
-integer(kind=iwp) :: IMORS, IPOS
+integer(kind=iwp), intent(in) :: IMORS, IPOS
 integer(kind=iwp) :: ISGN
 integer(kind=iwp), external :: MorsParity
 

@@ -15,7 +15,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: Occ2Mrs
-integer(kind=iwp) :: NO, IARRAY(NO)
+integer(kind=iwp), intent(in) :: NO, IARRAY(NO)
 integer(kind=iwp) :: I, POW2
 
 OCC2MRS = 0

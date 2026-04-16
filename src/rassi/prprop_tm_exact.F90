@@ -33,22 +33,23 @@ use Constants, only: Zero, One, Two, Four, Half, Pi, auTofs, c_in_au, Debye, gEl
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSS, JBNUM(NSTATE)
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), EigVec(NSTATE,NSTATE)
+real(kind=wp), intent(inout) :: PROP(NSTATE,NSTATE,NPROP)
+integer(kind=iwp), intent(in) :: NSS, JBNUM(NSTATE)
+real(kind=wp), intent(in) :: USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), EigVec(NSTATE,NSTATE)
 integer(kind=iwp) :: I, iCar, IDISK, IEMPTY, IEND, iEnd_, IGO, iGrp, IJ_, ijSO, IJSS(4), IMSS, IOFF(8), iOpt, iPrint, IPROP, iPrP, &
                      IPRTMOM(14), iQuad, iQuad_, ISF, ISM, ISO, ISS, ISSM, iStart_, iState, iSy12, ITYPE, iVec, iVec_, J, JEnd, &
                      jEnd_, jGrp, JMSS, Job, Job1, Job2, JSF, JSM, JSO, JSS, JSSM, JSTart, jStart_, K, KP, lRaw, lRaw_, MASK, &
                      MaxGrp1, MaxGrp2, NDIFF, NGROUP1, NGROUP2, NIP, NMAX2, nQuad_, NSCR, nTmp, NVEC
-real(kind=wp) :: A, ANG, CST, EDiff, EDiff_, EnSOR1, EnSOR2, F, F_Check, F_temp, kPhase(2), OSThr, R, R_Check, R_temp, RefEne, &
-                 RKNorm, RNG, RNorm, Tau, TCPU1, TCPU2, TEMP, Thrs, ThrsParse, TM1, TM2, TM3, TM_2, TM_C(3), TM_I(3), TM_R(3), &
-                 TWALL1, TWALL2, UK(3), wavevector(3), Weight
+real(kind=wp) :: A, ANG, CST, Dummy(1), EDiff, EDiff_, EnSOR1, EnSOR2, F, F_Check, F_temp, kPhase(2), OSThr, R, R_Check, R_temp, &
+                 RefEne, RKNorm, RNG, RNorm, Tau, TCPU1, TCPU2, TEMP, Thrs, ThrsParse, TM1, TM2, TM3, TM_2, TM_C(3), TM_I(3), &
+                 TM_R(3), TWALL1, TWALL2, UK(3), wavevector(3), Weight
 logical(kind=iwp) :: TMOgroup
 character(len=52) :: STLNE2
 character(len=8) :: LABEL
 integer(kind=iwp), allocatable :: iMask(:), ISS_INDEX(:), iSSMask(:), jMask(:), jSSMask(:), TMOgrp1(:), TMOgrp2(:)
 real(kind=wp), allocatable :: Aux(:,:), DXI(:,:,:), DXIM(:,:,:), DXR(:,:,:), DXRM(:,:,:), IP(:), OscStr(:,:), pol_Vector(:,:), &
-                              RAW(:), Rquad(:,:), SCR(:,:), TDMZZ(:), TMI(:,:,:), TMP(:,:), TMR(:,:,:), TSDMZZ(:), VSOI(:,:), &
-                              VSOR(:,:), WDMZZ(:)
+                              RAW(:), Rquad(:,:), SCR(:,:), TDMZZ(:), TMI(:,:,:), TMP(:,:), TMR(:,:,:), VSOI(:,:), VSOR(:,:), &
+                              WDMZZ(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: ijSO_, ip_kVector, ip_TMi, ip_TMr, ip_W, nData, nij
 real(kind=wp), allocatable :: Storage(:,:,:,:)
@@ -204,7 +205,6 @@ if (Do_Pol) call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
 ! Initialize for density matrices.
 
 call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
-call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
 call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
 nSCR = nTri_Elem(NBST)
 call mma_allocate(SCR,nSCR,4,LABEL='SCR')
@@ -506,8 +506,8 @@ do iVec=1,nVec
             IDISK = iDisk_TDM(I,J,1)
             iEmpty = iDisk_TDM(I,J,2)
             iOpt = 2
-            iGO = 5
-            call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+            iGO = ibset(ibset(0,0),2)
+            call dens2file(TDMZZ,Dummy,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
             call MK_TWDM(nIrrep,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,IOFF,NBASF,ISY12)
 
             ! Compute the transition property of the property
@@ -913,7 +913,6 @@ call mma_deallocate(Aux)
 
 call mma_deallocate(SCR)
 call mma_deAllocate(TDMZZ)
-call mma_deAllocate(TSDMZZ)
 call mma_deAllocate(WDMZZ)
 call mma_deAllocate(Rquad)
 call ClsSew()

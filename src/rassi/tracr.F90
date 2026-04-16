@@ -27,8 +27,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LBUF, NGAM2
-real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), TUVX(NGAM2), X1(NX1MX), X2(NX2MX), X3(NX3MX), VXPQ(NVXPQ)
+integer(kind=iwp), intent(in) :: LBUF, NGAM2
+real(kind=wp), intent(in) :: CMO1(NCMO), CMO2(NCMO)
+real(kind=wp), intent(inout) :: TUVX(NGAM2)
+real(kind=wp), intent(out) :: X1(NX1MX), X2(NX2MX), X3(NX3MX), VXPQ(NVXPQ)
 integer(kind=iwp) :: II, IOPT, IPQ, IPQST, IRC, IRSST, IT, ITF, ITU, IU, IUF, IUM, IV, IVF, IVX, IX, IXF, LPQ, NP, NPQ, NQ, NQM
 
 ! START LOOP OVER ORDERED AO-INTEGRALS: NPQ PQ-PAIRS IN EACH BUFFER.

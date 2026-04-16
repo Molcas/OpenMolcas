@@ -24,9 +24,9 @@ use rassi_data, only: NASHT, NAES, NASH, NBASF, NFRO, NISH, NOSH
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ISTATE, JSTATE
-logical(kind=iwp) :: DO22
-real(kind=wp) :: TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ
+integer(kind=iwp), intent(in) :: ISTATE, JSTATE
+logical(kind=iwp), intent(in) :: DO22
+real(kind=wp), intent(in) :: TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ
 integer(kind=iwp) :: I, II, IO, ISYM, ISYM1, ISYM2, ISYT, ISYU, ISYV, ISYX, IT, ITABS, ITU, IU, IUABS, IV, IVABS, IVX, IWBUF, IX, &
                      IXABS, JJ, LIMX, LPOS, LSYM12, LU, NA1, NA2, NB, NI1, NI2, NO, NO1, NO2
 real(kind=wp) :: WBUF(5)

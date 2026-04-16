@@ -20,9 +20,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: filename, TITLE
-integer(kind=iwp) :: LUNIT, NSYM, NBAS(NSYM), ORBNUM, NZ
-real(kind=wp) :: CMO(NZ,ORBNUM), AMPS(ORBNUM), DYSEN(ORBNUM)
+character(len=*), intent(in) :: filename, TITLE
+integer(kind=iwp), intent(in) :: LUNIT, NSYM, NBAS(NSYM), ORBNUM, NZ
+real(kind=wp), intent(in) :: CMO(NZ,ORBNUM), AMPS(ORBNUM), DYSEN(ORBNUM)
 integer(kind=iwp) :: DUMMY(7,8), I, J, NB(0:NSYM), NBAS_(NSYM), NBT, NORB(NSYM), NSYM_, OFF, ORBSYM(ORBNUM)
 real(kind=wp) :: RSUM
 logical(kind=iwp) :: DODESYM

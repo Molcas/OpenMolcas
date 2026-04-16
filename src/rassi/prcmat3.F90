@@ -15,10 +15,10 @@ subroutine PRCMAT3(NSS,SMATR,SMATI,DIR)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NSS
+integer(kind=iwp), intent(in) :: NSS, DIR
 real(kind=wp), intent(in) :: SMATR(NSS,NSS), SMATI(NSS,NSS)
-integer(kind=iwp), intent(in) :: DIR
-integer(kind=iwp) :: ISS, JSTA, LU
+integer(kind=iwp) :: f_iostat, ISS, JSTA, LU
+logical(kind=iwp) :: is_error
 character(len=200) :: FILENAME
 character :: DIRECTION
 integer(kind=iwp), external :: IsFreeUnit
@@ -26,7 +26,7 @@ integer(kind=iwp), external :: IsFreeUnit
 write(DIRECTION,'(I1)') DIR
 FILENAME = 'spin-'//DIRECTION//'.txt'
 Lu = IsFreeUnit(88)
-open(unit=Lu,file=FILENAME,status='REPLACE')
+call molcas_open_ext2(Lu,FILENAME,'SEQUENTIAL','FORMATTED',f_iostat,.false.,1,'REPLACE',is_error)
 write(Lu,*) '#NROW NCOL REAL IMAG'
 do JSTA=1,NSS
   do ISS=1,NSS

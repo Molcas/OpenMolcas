@@ -30,17 +30,18 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: HONEAO(NBSQ)
+real(kind=wp), intent(out) :: HONEAO(NBSQ)
 integer(kind=iwp) :: iBuf, ICMP, IOPT, IP, IPQ, IQ, IQP, IRC, ISTQ, iSyLab, ISYM, NB
 logical(kind=iwp) :: Found
+character(len=6) :: OneLbl = 'OneHam'
 real(kind=wp), allocatable :: H1(:), Tmp(:)
-character(len=*), parameter :: OneLbl = 'OneHam'
 
 call mma_allocate(H1,NBTRI,Label='H1')
 iRc = -1
 iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 iCmp = 1
 iSyLab = 1
+OneLbl = 'OneHam'
 call RdOne(iRc,iOpt,OneLbl,iCmp,H1,iSyLab)
 if (IRC /= 0) then
   write(u6,*)

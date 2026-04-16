@@ -15,7 +15,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: MorsParity
-integer(kind=iwp) :: IMORS
+integer(kind=iwp), intent(in) :: IMORS
 integer(kind=iwp) :: I1, I2, I3, J
 integer(kind=iwp), parameter :: ISG(0:15) = [1,-1,-1,1,-1,1,1,-1,-1,1,1,-1,1,-1,-1,1]
 

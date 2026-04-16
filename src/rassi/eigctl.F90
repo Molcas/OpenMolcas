@@ -35,8 +35,10 @@ use Constants, only: Zero, One, Two, Three, Four, Six, Nine, Ten, Half, Quart, O
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), DYSAMPS(NSTATE,NSTATE), HAM(NSTATE,NSTATE), &
-                 EIGVEC(NSTATE,NSTATE), ENERGY(NSTATE)
+real(kind=wp), intent(inout) :: PROP(NSTATE,NSTATE,NPROP)
+real(kind=wp), intent(in) :: OVLP(NSTATE,NSTATE), HAM(NSTATE,NSTATE)
+real(kind=wp), intent(inout) :: DYSAMPS(NSTATE,NSTATE)
+real(kind=wp), intent(out) :: EIGVEC(NSTATE,NSTATE), ENERGY(NSTATE)
 integer(kind=iwp) :: I, I2Tot, I_, I_Have_DL, I_Have_DV, I_Print_Header, iAMx, iAMxyz, iAMy, iAMz, iCar, iDiag, iDisk, idx, &
                      iEmpty, iEnd, iEnd_, IfAnyD, IfAnyM, IfAnyQ, iGo, iGrp, ii, ij, ij_, ijSO, IOFF(8), iOpt, iPrDX, iPrDxD, &
                      iPrDxM, iPrDxx, iPrDxxx, iPrDxxy, iPrDxxz, iPrDxy, iPrDxz, iPRDY, iPrDyD, iPrDyM, iPrDyx, iPrDyy, iPrDyyx, &
@@ -46,24 +48,24 @@ integer(kind=iwp) :: I, I2Tot, I_, I_Have_DL, I_Have_DV, I_Print_Header, iAMx, i
                      jStart_, jState, k, K_, kEnd, kSTA, kState, L, L_, LNCNT, lOsc_Strength, lPos, lState, lSym3, lSym4, LuT1, &
                      Mask, Mask34, MaxGrp1, MaxGrp2, MPLET1, MPLET2, mState, nActe1, nActe2, nDiff, nGroup1, nGroup2, nHH, NIP, &
                      nLST, nMax2, nScr, nSets, nTmp, nVec, SECORD(4)
-real(kind=wp) :: A, AFactor, ANG, Ax, Ay, Az, COMPARE, DMax, DSZ, Dx, Dx2, Dxx, Dxx2, DxxDyy, DxxDzz, DxxxDx, DxxyDy, DxxzDz, Dxy, &
-                 Dxy2, DxyDz, Dxz, Dxz2, DxzDy, Dy, Dy2, DYSAMPS2(NSTATE,NSTATE), DysThr, DyxDz, Dyy, Dyy2, DyyDzz, DyyxDx, &
-                 DyyyDy, DyyzDz, Dyz, Dyz2, DyzDx, Dz, Dz2, DzxDy, DzyDx, Dzz, Dzz2, DzzxDx, DzzyDy, DzzzDz, E0, E1, E2, E3, &
-                 EDiff, EDiff2, EDiff3, EDiff_, EffL, EffM, EI, epsH, epsS, eRMS, EV, EVLim, EVMax, Ex, F, F_Check, F_Temp, FMax, &
-                 Fx, Fxx, FxxFyy, FxxFzz, Fxxx, Fxxy, Fxxz, Fxy, Fxz, Fy, Fyx, Fyy, FyyFzz, Fyyx, Fyyy, Fyyz, Fyz, Fz, Fzx, FZY, &
-                 Fzz, Fzzx, Fzzy, Fzzz, OSthr, OSthr2, R, R_Check, R_Temp, RefEne, RKNorm, RNG, RNorm, Rtensor(6), Rxx, Rxxy, &
-                 Rxxz, Rxy, Rxyx, Rxyy, Rxyz, Rxz, Rxzx, Rxzy, Rxzz, Ryx, Ryy, Ryyx, Ryyz, Ryz, Ryzx, Ryzy, RYZZ, Rzx, Rzy, Rzz, &
-                 Rzzx, Rzzy, Tau, TCPU1, TCPU2, ThrS, TM1, TM2, TM3, TM_2, TM_C(3), TM_I(3), TM_R(3), Tmp, TWall1, TWall2, UK(3), &
-                 V2Sum, Wavevector(3), Weight, X
+real(kind=wp) :: A, AFactor, ANG, Ax, Ay, Az, COMPARE, DMax, DSZ, Dummy(1), Dx, Dx2, Dxx, Dxx2, DxxDyy, DxxDzz, DxxxDx, DxxyDy, &
+                 DxxzDz, Dxy, Dxy2, DxyDz, Dxz, Dxz2, DxzDy, Dy, Dy2, DysThr, DyxDz, Dyy, Dyy2, DyyDzz, DyyxDx, DyyyDy, DyyzDz, &
+                 Dyz, Dyz2, DyzDx, Dz, Dz2, DzxDy, DzyDx, Dzz, Dzz2, DzzxDx, DzzyDy, DzzzDz, E0, E1, E2, E3, EDiff, EDiff2, &
+                 EDiff3, EDiff_, EffL, EffM, EI, epsH, epsS, eRMS, EV, EVLim, EVMax, Ex, F, F_Check, F_Temp, FMax, Fx, Fxx, &
+                 FxxFyy, FxxFzz, Fxxx, Fxxy, Fxxz, Fxy, Fxz, Fy, Fyx, Fyy, FyyFzz, Fyyx, Fyyy, Fyyz, Fyz, Fz, Fzx, FZY, Fzz, Fzzx, &
+                 Fzzy, Fzzz, OSthr, OSthr2, R, R_Check, R_Temp, RefEne, RKNorm, RNG, RNorm, Rtensor(6), Rxx, Rxxy, Rxxz, Rxy, &
+                 Rxyx, Rxyy, Rxyz, Rxz, Rxzx, Rxzy, Rxzz, Ryx, Ryy, Ryyx, Ryyz, Ryz, Ryzx, Ryzy, RYZZ, Rzx, Rzy, Rzz, Rzzx, Rzzy, &
+                 Tau, TCPU1, TCPU2, ThrS, TM1, TM2, TM3, TM_2, TM_C(3), TM_I(3), TM_R(3), Tmp, TWall1, TWall2, UK(3), V2Sum, &
+                 Wavevector(3), Weight, X
 logical(kind=iwp) :: Diagonal, TMOgroup
 character(len=100) :: line
 character(len=60) :: FMTLINE
 character(len=13) :: filnam
 character(len=8) :: LABEL
 integer(kind=iwp), allocatable :: ILST(:), IndexE(:), LIST(:), STACK(:), TMOgrp1(:), TMOgrp2(:)
-real(kind=wp), allocatable :: Aux(:,:), DL(:), DV(:), ESFS(:), HH(:), HSQ(:), IP(:), L2(:), L2DIA(:), M2DIA(:), OscStr(:,:), &
-                              pol_Vector(:,:), RAW(:,:,:), Rquad(:,:), SCR(:,:), SCR1(:), SS(:), TDMZZ(:), TOT2K(:,:), TSDMZZ(:), &
-                              UU(:), VLST(:), WDMZZ(:)
+real(kind=wp), allocatable :: Aux(:,:), DL(:), DV(:), DYSAMPS2(:,:), ESFS(:), HH(:), HSQ(:), IP(:), L2(:), L2DIA(:), M2DIA(:), &
+                              OscStr(:,:), pol_Vector(:,:), RAW(:,:,:), Rquad(:,:), SCR(:,:), SCR1(:), SS(:), TDMZZ(:), &
+                              TOT2K(:,:), UU(:), VLST(:), WDMZZ(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: ijSF, ip_kVector, ip_TMI, ip_TMR, ip_W, nData, nIJ
 real(kind=wp), allocatable :: Storage(:,:,:,:)
@@ -73,12 +75,6 @@ real(kind=wp), parameter :: AU2REDR = 200.0_wp*Debye, DLT = 1.0e-18_wp, ONEOVER1
                             Two3rds = Two/Three, TWOOVERM45C = -Two/(45.0_wp*c_in_au**2)
 integer(kind=iwp), external :: cho_x_gettol, IsFreeUnit
 real(kind=wp), external :: DDOt_
-
-! Bruno, DYSAMPS2 is used for printing out the pure norm
-! of the Dyson vectors.
-! DYSAMPS remains basis of the SF eigen-states to the basis
-! of the original SF states.
-DYSAMPS2 = DYSAMPS
 
 DIAGONAL = .true.
 
@@ -514,12 +510,19 @@ end if
 !     states to the basis of the original SF states.                   !
 
 do IPRP=1,NPROP
-  call DGEMM_('N','N',NSTATE,NSTATE,NSTATE,One,PROP(1,1,IPRP),NSTATE,EIGVEC,NSTATE,Zero,SCR1,NSTATE)
-  call DGEMM_('T','N',NSTATE,NSTATE,NSTATE,One,EIGVEC,NSTATE,SCR1,NSTATE,Zero,PROP(1,1,IPRP),NSTATE)
+  call DGEMM_('N','N',NSTATE,NSTATE,NSTATE,One,PROP(:,:,IPRP),NSTATE,EIGVEC,NSTATE,Zero,SCR1,NSTATE)
+  call DGEMM_('T','N',NSTATE,NSTATE,NSTATE,One,EIGVEC,NSTATE,SCR1,NSTATE,Zero,PROP(:,:,IPRP),NSTATE)
 end do
 
 ! And the same for the Dyson amplitudes
 if (DYSO) then
+  ! Bruno, DYSAMPS2 is used for printing out the pure norm
+  ! of the Dyson vectors.
+  ! DYSAMPS remains basis of the SF eigen-states to the basis
+  ! of the original SF states.
+  call mma_allocate(DYSAMPS2,NSTATE,NSTATE,Label='DYSAMPS2')
+  DYSAMPS2(:,:) = DYSAMPS(:,:)
+
   call DGEMM_('N','N',NSTATE,NSTATE,NSTATE,One,DYSAMPS,NSTATE,EIGVEC,NSTATE,Zero,SCR1,NSTATE)
   call DGEMM_('T','N',NSTATE,NSTATE,NSTATE,One,EIGVEC,NSTATE,SCR1,NSTATE,Zero,DYSAMPS,NSTATE)
 end if
@@ -628,8 +631,7 @@ if (IPGLOB >= 1) then
 
     ! Printout the osc. strength in 3 dimensions into a file
     ! Should be if something happen
-    losc_strength = 20
-    losc_strength = isFreeUnit(losc_strength)
+    losc_strength = isFreeUnit(20)
     call Molcas_Open(losc_strength,'osc_strength.au')
 
     if (Do_SK) then
@@ -1954,6 +1956,7 @@ if (DYSO) then
   end do ! I
   call CollapseOutput(0,'Dyson amplitudes Biorth. corrected (spin-free states):')
   write(u6,*)
+  call mma_deallocate(DYSAMPS2)
 end if
 ! +++ J. Norell
 
@@ -1985,7 +1988,6 @@ end if
 call CWTime(TCpu1,TWall1)
 #endif
 call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
-call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
 call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
 nSCR = nTri_Elem(NBST)
 call mma_allocate(SCR,nSCR,4,LABEL='SCR')
@@ -2255,8 +2257,8 @@ do iVec=1,nVec
               IDISK = iDisk_TDM(I,J,1)
               iEmpty = iDisk_TDM(I,J,2)
               iOpt = 2
-              iGo = 5
-              call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+              iGo = ibset(ibset(0,0),2)
+              call dens2file(TDMZZ,Dummy,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
               call MK_TWDM(nIrrep,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,IOFF,NBASF,ISY12)
               do IPRP=1,12
                 IPROP = IPRTMOM(IPRP)
@@ -2292,8 +2294,8 @@ do iVec=1,nVec
                   IDISK = iDisk_TDM(k,l,1)
                   iEmpty = iDisk_TDM(k,l,2)
                   iOpt = 2
-                  iGo = 5
-                  call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,k,l)
+                  iGo = ibset(ibset(0,0),2)
+                  call dens2file(TDMZZ,Dummy,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,k,l)
                   call MK_TWDM(nIrrep,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,IOFF,NBASF,ISY34)
 
                   do IPRP=1,12
@@ -2316,8 +2318,8 @@ do iVec=1,nVec
               SCR1(:) = Zero
               do IPRP=1,12
                 IPROP = IPRTMOM(IPRP)
-                call DGEMM_('N','N',NSTATE,1,NSTATE,One,PROP(1,1,IPROP),NSTATE,EIGVEC(1,J),NSTATE,Zero,SCR1,NSTATE)
-                PROP(I,J,IPROP) = DDot_(NSTATE,SCR1,1,EIGVEC(1,I),1)
+                call DGEMM_('N','N',NSTATE,1,NSTATE,One,PROP(:,:,IPROP),NSTATE,EIGVEC(:,J),NSTATE,Zero,SCR1,NSTATE)
+                PROP(I,J,IPROP) = DDot_(NSTATE,SCR1,1,EIGVEC(:,I),1)
               end do
               call mma_deallocate(SCR1)
 
@@ -2573,7 +2575,6 @@ end if
 if (Do_Pol) call mma_deallocate(pol_Vector)
 call mma_deallocate(SCR)
 call mma_deAllocate(TDMZZ)
-call mma_deAllocate(TSDMZZ)
 call mma_deAllocate(WDMZZ)
 
 #ifdef _TIME_TMOM_

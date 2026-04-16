@@ -18,9 +18,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: DENS(6,NBTRI), ROTMAT(3,3), PROPVALXR, PROPVALYR, PROPVALZR, PROPVALXI, PROPVALYI, PROPVALZI
-character(len=*) :: CHARPROP, CHARTYPE
-integer(kind=iwp) :: IC_, ASS, BSS, iOpt
+real(kind=wp), intent(in) :: DENS(6,NBTRI), ROTMAT(3,3)
+character(len=*), intent(inout) :: CHARPROP
+integer(kind=iwp), intent(in) :: IC_, ASS, BSS, iOpt
+character(len=*), intent(in) :: CHARTYPE
+real(kind=wp), intent(out) :: PROPVALXR, PROPVALYR, PROPVALZR, PROPVALXI, PROPVALYI, PROPVALZI
 integer(kind=iwp) :: I, IC, IC_End, IC_Str, ICMP, IDUM(1), IRC, ISCHK, ITYPE, JOPT, NIP
 real(kind=wp), allocatable :: IP(:), IPX(:), IPY(:), IPZ(:)
 
@@ -28,16 +30,21 @@ real(kind=wp), allocatable :: IP(:), IPX(:), IPY(:), IPZ(:)
 ! FOR THE EXPECTATION VALUE
 
 ! Get the proper type of the property
-ITYPE = 0
-if (CHARTYPE == 'HERMSING') ITYPE = 1
-if (CHARTYPE == 'ANTISING') ITYPE = 2
-if (CHARTYPE == 'HERMTRIP') ITYPE = 3
-if (CHARTYPE == 'ANTITRIP') ITYPE = 4
-if (ITYPE == 0) then
-  write(u6,*) 'RASSI/SONATORB internal error.'
-  write(u6,*) 'Erroneous property type:',trim(CHARTYPE)
-  call ABEND()
-end if
+select case (CHARTYPE)
+  case ('HERMSING')
+    ITYPE = 1
+  case ('ANTISING')
+    ITYPE = 2
+  case ('HERMTRIP')
+    ITYPE = 3
+  case ('ANTITRIP')
+    ITYPE = 4
+  case default
+    write(u6,*) 'RASSI/SONATORB internal error.'
+    write(u6,*) 'Erroneous property type:',trim(CHARTYPE)
+    call ABEND()
+    ITYPE = 0
+end select
 
 ! ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
 ! The extra 4 elements correspond to the nuclear contribution

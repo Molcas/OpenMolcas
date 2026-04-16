@@ -22,7 +22,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: DMAT(NBSQ), TDMZZ(NTDMZZ), VNAT(NBSQ), OCC(NBST), EIGVEC(NSTATE,NSTATE)
+real(kind=wp), intent(out) :: DMAT(NBSQ), TDMZZ(NTDMZZ), VNAT(NBSQ), OCC(NBST)
+real(kind=wp), intent(in) :: EIGVEC(NSTATE,NSTATE)
 integer(kind=iwp) :: I, I1, I2, ICMP, ID, ID1, ID2, IDISK, iDummy(7,8), IEMPTY, IGO, II, IJ, INV, IOCC, IOPT, IRC, ISCR, ISTOCC, &
                      ISYLAB, ISYM, J, JI, KEIG, LE, LE1, LS, LS1, LUXXVEC, LV, LV1, NB, NEIG, NSCR, NSZZ, NVEC, NVEC2
 real(kind=wp) :: Dummy(1), SumOcc, X
@@ -99,9 +100,9 @@ do KEIG=1,NRNATO
         if (btest(iEmpty,1)) then
           iDisk = iDisk_TDM(J,I,1)
           iOpt = 2
-          iGo = 2
+          iGo = ibset(0,1)
           ! PICK UP TRANSITION SPIN DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
-          call dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+          call dens2file(Dummy,TDMZZ,Dummy,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
           if (I == J) X = Half*X
           DMAT(1:NTDMZZ) = DMAT(1:NTDMZZ)+X*TDMZZ(:)
         end if

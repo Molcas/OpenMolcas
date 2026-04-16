@@ -22,12 +22,14 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: CHARTYPE
-integer(kind=iwp) :: ASS, BSS, NSS, iOpt
-real(kind=wp) :: USOR(NSS,NSS), USOI(NSS,NSS), ROTMAT(3,3), DENSOUT(6,NBTRI)
+character(len=*), intent(in) :: CHARTYPE
+integer(kind=iwp), intent(in) :: ASS, BSS, NSS
+real(kind=wp), intent(in) :: USOR(NSS,NSS), USOI(NSS,NSS), ROTMAT(3,3)
+integer(kind=iwp), intent(inout) :: iOpt
+real(kind=wp), intent(out) :: DENSOUT(6,NBTRI)
 integer(kind=iwp) :: I, IDIR, IDISK, IEMPTY, IGO, IJ, IOF, IOFF(8), ISF, ISS, ISY, ISY1, ISY12, ISY2, ITD, ITYPE, J, JOB, JOB1, &
                      JOB2, KSF, KSS, LSF, LSS, MPLET, MPLETK, MPLETL, MSPROJ, MSPROJK, MSPROJL, NB, NB1, NB2
-real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, DCLEBS, FACT, S1, S2, SM1, SM2, TDM, UIL, UIR, URL, URR
+real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, DCLEBS, Dummy(1), FACT, S1, S2, SM1, SM2, TDM, UIL, UIR, URL, URR
 integer(kind=iwp), allocatable :: MAPST(:), MAPSP(:), MAPMS(:)
 real(kind=wp), allocatable :: SCR(:), SDMXYZI(:,:), SDMXYZI2(:,:), SDMXYZR(:,:), SDMXYZR2(:,:), TDMZZ(:), TMPI(:), TMPR(:)
 
@@ -36,16 +38,21 @@ CGY = -1
 CGX = -1
 CG0 = -1
 ! Get the proper type of the property
-ITYPE = 0
-if (CHARTYPE == 'HERMSING') ITYPE = 1
-if (CHARTYPE == 'ANTISING') ITYPE = 2
-if (CHARTYPE == 'HERMTRIP') ITYPE = 3
-if (CHARTYPE == 'ANTITRIP') ITYPE = 4
-if (ITYPE == 0) then
-  write(u6,*) 'RASSI/SONATORB internal error.'
-  write(u6,*) 'Erroneous property type:',trim(CHARTYPE)
-  call ABEND()
-end if
+select case (CHARTYPE)
+  case ('HERMSING')
+    ITYPE = 1
+  case ('ANTISING')
+    ITYPE = 2
+  case ('HERMTRIP')
+    ITYPE = 3
+  case ('ANTITRIP')
+    ITYPE = 4
+  case default
+    write(u6,*) 'RASSI/SONATORB internal error.'
+    write(u6,*) 'Erroneous property type:',trim(CHARTYPE)
+    call ABEND()
+    ITYPE = 0
+end select
 
 ! The following creates an array that is used to
 ! map a specific spin state to the corresponding
@@ -138,13 +145,13 @@ do KSS=1,NSS
     IDISK = iDisk_TDM(KSF,LSF,1)
     iOpt = 2
     if (ITYPE >= 3) then
-      iGo = 4
-      call dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
+      iGo = ibset(0,2)
+      call dens2file(Dummy,Dummy,TDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
       ! NOTE-the TD matrix as read in has an incorrect sign
       TDMZZ(:) = -TDMZZ(:)
     else
-      iGo = 1
-      call dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
+      iGo = ibset(0,0)
+      call dens2file(TDMZZ,Dummy,Dummy,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
     end if
 
     ! Anti-hermitian properties need a little fixing

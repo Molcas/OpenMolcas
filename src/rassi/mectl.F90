@@ -19,11 +19,15 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), HAM(NSTATE,NSTATE), ESHFT(NSTATE)
+real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
+real(kind=wp), intent(_IN_) :: OVLP(NSTATE,NSTATE)
+real(kind=wp), intent(inout) :: HAM(NSTATE,NSTATE), ESHFT(NSTATE)
 integer(kind=iwp) :: i, iDisk, IEND, IfHD, IFON, iProp, ISTA, iState, j, jState, nAtom, nCol, NST
 real(kind=wp) :: PLIMIT, PMAX, X
-real(kind=wp), allocatable :: DerCpl(:), NucChg(:)
+real(kind=wp), allocatable :: DerCpl(:,:,:), NucChg(:)
 
 ! Print results:
 NCOL = 4
@@ -213,8 +217,8 @@ if (IfDCpl) then
   call mma_allocate(NucChg,natom,Label='NucChg')
   call Get_dArray('Effective nuclear Charge',NucChg,nAtom)
   nST = nTri_Elem(nState)
-  call mma_allocate(DerCpl,3*natom*nST,Label='DerCpl')
-  call AppDerCpl(natom,nST,NucChg,Prop,DerCpl,HAM)
+  call mma_allocate(DerCpl,nST,3,natom,Label='DerCpl')
+  call AppDerCpl(natom,NucChg,Prop,DerCpl,HAM)
   call mma_deallocate(DerCpl)
   call mma_deallocate(NucChg)
 end if

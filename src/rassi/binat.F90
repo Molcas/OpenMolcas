@@ -180,13 +180,13 @@ do IJPAIR=1,NBINA
       IDISK = iDisk_TDM(J,I,1)
       IEMPTY = iDisk_TDM(J,I,2)
       iOpt = 2
-      iGo = 1
+      iGo = ibset(0,0)
       if (btest(iEMPTY,0)) then
         if (I > J) then
-          call dens2file(TDMAO,TDMAO,TDMAO,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+          call dens2file(TDMAO,Dummy,Dummy,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
         else
           ! Pick up conjugate TDM array, and transpose it into TDMAO.
-          call dens2file(SCR,SCR,SCR,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+          call dens2file(SCR,Dummy,Dummy,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
           ! Loop over the receiving side:
           do ISYM1=1,nIrrep
             ISYM2 = MUL(ISYM1,LSYM12)

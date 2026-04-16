@@ -38,8 +38,9 @@ use Constants, only: Zero, One, Two, Four, Half, Pi, cZero, cOne
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) ISTATE, JSTATE, nb, nb2
-real(kind=wp) :: TDMZZ(6,nb2), TSDMZZ(6,nb2), ANTSIN(6,nb2)
+integer(kind=iwp), intent(in) :: ISTATE, JSTATE, nb, nb2
+real(kind=wp), intent(inout) :: TDMZZ(6,nb2), ANTSIN(6,nb2)
+real(kind=wp), intent(in) :: TSDMZZ(6,nb2)
 integer(kind=iwp) :: di, i, icmp, iDummy(7,8), info, iopt, irc, isylab, j, LU, lwork, SIZ(1)
 real(kind=wp) :: Dummy(1), NumofEc, phi, sd, Sumofeigen, SumofTDMZZLC, ttdi(3), ttdr(3)
 complex(kind=wp) :: Transition_Dipole
@@ -70,9 +71,7 @@ do i=1,nb
   end do
 end do
 ! The imaginary part may need a negative sign
-TDMZZ(4,:) = -TDMZZ(4,:)
-TDMZZ(5,:) = -TDMZZ(5,:)
-TDMZZ(6,:) = -TDMZZ(6,:)
+TDMZZ(4:6,:) = -TDMZZ(4:6,:)
 ! 'HERMSING' ITYPE=1
 ! 'ANTISING' ITYPE=2
 ! 'HERMTRIP' ITYPE=3

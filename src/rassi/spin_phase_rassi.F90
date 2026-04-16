@@ -24,9 +24,10 @@ use Constants, only: Zero, cZero, Onei
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPGLOB, nDIM
-complex(kind=wp) :: DIPSO2(3,nDIM,nDIM), ZIN(nDIM,nDIM), ZOUT(nDIM,nDIM)
-real(kind=wp) :: GMAIN(3)
+integer(kind=iwp), intent(in) :: IPGLOB, nDIM
+complex(kind=wp), intent(in) :: DIPSO2(3,nDIM,nDIM), ZIN(nDIM,nDIM)
+real(kind=wp), intent(in) :: GMAIN(3)
+complex(kind=wp), intent(out) :: ZOUT(nDIM,nDIM)
 integer(kind=iwp) :: i, i2, j, l, ms1, ms2, NPAR
 real(kind=wp), allocatable :: ALFA(:)
 complex(kind=wp), allocatable :: PHS(:,:,:), Spin2(:,:,:), PHSA(:,:), PHSA2(:,:)

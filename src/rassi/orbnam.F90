@@ -15,7 +15,7 @@ use Definitions, only: iwp
 
 implicit none
 character(len=8) :: ORBNAM
-integer(kind=iwp) :: ISORB, ORBTAB(*)
+integer(kind=iwp), intent(in) :: ISORB, ORBTAB(*)
 integer(kind=iwp) :: IPART, ISMLAB, ISOIND, KOINFO, NPART
 character(len=8) :: STRING8
 character(len=2) :: ORBTYP

@@ -24,9 +24,9 @@ use Constants, only: Zero, Six, cZero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ndim, IPGLOB
-complex(kind=wp) :: moment(3,ndim,ndim)
-real(kind=wp) :: gtens(3), maxes(3,3)
+integer(kind=iwp), intent(in) :: ndim, IPGLOB
+complex(kind=wp), intent(in) :: moment(3,ndim,ndim)
+real(kind=wp), intent(out) :: gtens(3), maxes(3,3)
 integer(kind=iwp) :: i, ic1, ic2, info, j, k
 real(kind=wp) :: A_TENS_TERM(3,3), Det_gtens, diff12, diff23, MAIN(3), W(3), Z(3,3), ZR(3,3)
 complex(kind=wp) :: AC_TENS(3,3)

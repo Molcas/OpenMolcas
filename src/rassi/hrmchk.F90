@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NDIMEN
-real(kind=wp) :: ARRRE(NDIMEN,NDIMEN), ARRIM(NDIMEN,NDIMEN), ERRRE, ERRIM
+integer(kind=iwp), intent(in) :: NDIMEN
+real(kind=wp), intent(in) :: ARRRE(NDIMEN,NDIMEN), ARRIM(NDIMEN,NDIMEN)
+real(kind=wp), intent(out) :: ERRRE, ERRIM
 integer(kind=iwp) :: I, J
 
 ERRRE = Zero

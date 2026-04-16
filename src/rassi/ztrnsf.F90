@@ -16,8 +16,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: UR(N,N), UI(N,N), AR(N,N), AI(N,N)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: UR(N,N), UI(N,N)
+real(kind=wp), intent(inout) :: AR(N,N), AI(N,N)
 real(kind=wp), allocatable :: CI(:,:), CR(:,:)
 
 call mma_allocate(CR,N,N,Label='CR')

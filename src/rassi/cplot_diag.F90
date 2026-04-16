@@ -20,7 +20,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nDIM
 real(kind=wp), intent(inout) :: MATR(nTri_Elem(nDIM)), MATI(nTri_Elem(nDIM))
 real(kind=wp), intent(out) :: EIGVECR(nDIM,nDIM), EIGVECI(nDIM,nDIM)
-
 integer(kind=iwp) :: INFO, J
 real(kind=wp), allocatable :: CEIGVAL(:), RWORK(:)
 complex(kind=wp), allocatable :: CEIGVEC(:,:), MATFULL(:), ZWORK(:)

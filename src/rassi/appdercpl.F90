@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine AppDerCpl(natom,nST,ChgNuc,Prop,DerCpl,HAM)
+subroutine AppDerCpl(natom,ChgNuc,Prop,DerCpl,HAM)
 ! Approximate derivative couplings:         <\Psi_I|\nabla H|\Psi_J>
 !                                    f_IJ =  ----------------------
 !                                                 E_J - E_I
@@ -23,12 +23,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: natom, nST
-real(kind=wp) :: ChgNuc(natom), Prop(nState,nState,NProp), DerCpl(nST,3,natom), Ham(Nstate,Nstate)
+integer(kind=iwp), intent(in) :: natom
+real(kind=wp), intent(in) :: ChgNuc(natom), Prop(nState,nState,NProp), Ham(Nstate,Nstate)
+real(kind=wp), intent(out) :: DerCpl(nTri_Elem(nState),3,natom)
 integer(kind=iwp) :: IST, ISTA, JSTA, KPROP, lAT
 real(kind=wp) :: EI, EJ, SumX, SumY, SumZ
 
-nST = nTri_Elem(nState)
 DerCpl(:,:,:) = Zero
 do iSta=1,nState-1
   Ei = Ham(iSta,iSta)

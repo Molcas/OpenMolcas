@@ -28,8 +28,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NZ
-real(kind=wp) :: DYSAMPS(NSTATE,NSTATE), SFDYS(NZ,NSTATE,NSTATE), ENERGY(NSTATE)
+integer(kind=iwp), intent(in) :: NZ
+real(kind=wp), intent(in) :: DYSAMPS(NSTATE,NSTATE), SFDYS(NZ,NSTATE,NSTATE), ENERGY(NSTATE)
 integer(kind=iwp) :: DYSCIND, ISTATE, JSTATE, LUNIT, ORBNUM
 character(len=80) :: TITLE
 character(len=30) :: Filename

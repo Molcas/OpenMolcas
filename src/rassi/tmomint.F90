@@ -317,8 +317,6 @@ subroutine Allocate_Aux()
 
   use stdalloc, only: mma_allocate
 
-  implicit none
-
   call mma_Allocate(ipList,nComp,Label='ipList')
   call mma_Allocate(OperI,nComp,Label='OperI')
   call mma_Allocate(OperC,nComp,Label='OperC')
@@ -330,8 +328,6 @@ end subroutine Allocate_Aux
 subroutine Deallocate_Aux()
 
   use stdalloc, only: mma_deallocate
-
-  implicit none
 
   call mma_Deallocate(OperC)
   call mma_Deallocate(OperI)

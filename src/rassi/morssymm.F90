@@ -16,9 +16,9 @@ use Cntrl, only: MORSBITS
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) MorsSymm
-integer(kind=iwp) IMORS, ISMARR(*)
-integer(kind=iwp) I, IB, IBIT
+integer(kind=iwp) :: MorsSymm
+integer(kind=iwp), intent(in) :: IMORS, ISMARR(*)
+integer(kind=iwp) :: I, IB, IBIT
 
 MorsSymm = 1
 if (IMORS < 0) then

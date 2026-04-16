@@ -16,7 +16,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSYM, NGAS, NGASORB(NSYM,NGAS), NGASLIM(2,NGAS), ICASE
+integer(kind=iwp), intent(in) :: NSYM, NGAS, NGASORB(NSYM,NGAS), NGASLIM(2,NGAS), ICASE
 integer(kind=iwp) :: IGAS, ISUM, ISYM, ITYPE, KORB, KREST, LPOS, NSIZE
 integer(kind=iwp), pointer :: REST(:)
 

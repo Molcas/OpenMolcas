@@ -30,8 +30,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NGAM2
-real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), TUVX(NGAM2)
+integer(kind=iwp), intent(in) :: NGAM2
+real(kind=wp), intent(in) :: CMO1(NCMO), CMO2(NCMO)
+real(kind=wp), intent(out) :: TUVX(NGAM2)
 integer(kind=iwp) :: IA, INTBUF, IRC, IS, ISPQ, ISRS, KEEP(8), LMOP, LMOQ, LMOR, LMOS, NACT, NBSX(8), NSP, NSPQ, NSPQR, NSQ, NSR, &
                      NSRM, NSS, NSSM, NSYMX
 logical(kind=iwp) :: ISQARX

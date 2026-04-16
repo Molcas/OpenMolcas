@@ -33,7 +33,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DYSCOF(*), DYSAB(*)
+real(kind=wp), intent(in) :: DYSCOF(*)
+real(kind=wp), intent(inout) :: DYSAB(*)
 integer(kind=iwp) :: I, ICOFF, II, IOFFA(8), IOFFTD, IORB, IPOS, ISORB, ISY, ISY1, NA1, NI1, NO1
 real(kind=wp) :: GAA, GBB, OVLP
 real(kind=wp), allocatable :: DYSCOF2(:)

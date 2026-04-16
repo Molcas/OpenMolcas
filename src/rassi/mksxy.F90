@@ -24,7 +24,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), SXY(NSXY)
+real(kind=wp), intent(in) :: CMO1(NCMO), CMO2(NCMO)
+real(kind=wp), intent(out) :: SXY(NSXY)
 integer(kind=iwp) :: ICMO, ICMP, IOPT, IRC, ISXY, ISY, ISYLAB, LSZZ1, NB, NO, NPROD, NSSQ, NSZZ
 character(len=8) :: LABEL
 real(kind=wp), allocatable :: PROD(:), SSQ(:), SZZ(:)

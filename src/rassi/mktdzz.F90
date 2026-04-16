@@ -19,8 +19,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CMOA(NCMO), CMOB(NCMO), TDMAB(NTDMAB), TDMZZ(NTDMZZ)
-integer(kind=iwp) :: iRC
+real(kind=wp), intent(in) :: CMOA(NCMO), CMOB(NCMO), TDMAB(NTDMAB)
+real(kind=wp), intent(out) :: TDMZZ(NTDMZZ)
+integer(kind=iwp), intent(in) :: iRC
 integer(kind=iwp) :: IST, ISTCA, ISTCB, ISTCMO(8), ISTTA, ISTTZ, ISY1, ISY12, ISY2, NB1, NB2, NO1, NO2, NSCR
 real(kind=wp), allocatable :: SCR(:)
 

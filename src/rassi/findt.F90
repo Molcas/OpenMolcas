@@ -28,7 +28,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), TRA1(NTRA), TRA2(NTRA)
+real(kind=wp), intent(inout) :: CMO1(NCMO), CMO2(NCMO)
+real(kind=wp), intent(out) :: TRA1(NTRA), TRA2(NTRA)
 integer(kind=iwp) :: NCXA, NCYB
 real(kind=wp), allocatable :: CXA(:), CYB(:), SXY(:)
 

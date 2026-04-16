@@ -16,7 +16,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IMODE, ISORB, IORBTAB(*), ISSTAB(*), IFSBTAB(*), ICASE
+integer(kind=iwp), intent(in) :: IMODE, ISORB, IORBTAB(*), ISSTAB(*), IFSBTAB(*), ICASE
 integer(kind=iwp) :: IDET2, IERR, IFSB1, IFSB2, INSBPT, ISPART, ISST1, ISST2, ITYPE, KHSH2, KOINFO, KPOS1, KPOS2, KSSTAN, KSSTCR, &
                      KSSTOP, KSSTTB, KSTARR1, KSTARR2, LHSH2, LPOS, LSSTARR2, MORSBITS, NASPRT, NASPRT1, NASPRT2, NDET1, NDET2, &
                      NDETS2, NFSB1, NFSB2, NHEAD, NHSH2, NSBS1, NSBS2, NSSTARR2, NTAB2, NTAB2NEW, NULLV

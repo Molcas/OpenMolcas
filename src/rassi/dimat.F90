@@ -21,24 +21,27 @@ subroutine DIMAT(CMO1,CMO2,DINAO)
 
 use rassi_data, only: NCMO, NBSQ, NBASF, NISH, NOSH
 use Symmetry_Info, only: nIrrep
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), DINAO(NBSQ)
+real(kind=wp), intent(in) :: CMO1(NCMO), CMO2(NCMO)
+real(kind=wp), intent(out) :: DINAO(NBSQ)
 integer(kind=iwp) :: ISTC, ISTD, ISYM, NB, NI, NO
 
-DINAO(:) = Zero
 ISTC = 1
 ISTD = 1
 do ISYM=1,nIrrep
   NI = NISH(ISYM)
   NO = NOSH(ISYM)
   NB = NBASF(ISYM)
-  if (NI /= 0) call DGEMM_('N','T',NB,NB,NI,One,CMO1(ISTC),NB,CMO2(ISTC),NB,Zero,DINAO(ISTD),NB)
+  if (NI == 0) then
+    DINAO(ISTD:ISTD+NB**2-1) = Zero
+  else
+    call DGEMM_('N','T',NB,NB,NI,Two,CMO1(ISTC),NB,CMO2(ISTC),NB,Zero,DINAO(ISTD),NB)
+  end if
   ISTC = ISTC+NO*NB
   ISTD = ISTD+NB**2
 end do
-DINAO(:) = Two*DINAO(:)
 
 end subroutine DIMAT

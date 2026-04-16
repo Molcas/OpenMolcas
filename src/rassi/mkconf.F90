@@ -17,7 +17,6 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: ICNFTAB(*)
-
 integer(kind=iwp), parameter :: MXPRT = 150
 integer(kind=iwp) :: I, ICLDST(MXPRT), ICNF(MXPRT), ICONF, IERR, IFORM, IGAS, INIT1, INIT2, IO, IOC(MXPRT), IOFF, IOPDST(MXPRT), &
                      IORB, IR, ISYM, ITYPE, IW, J, K, KCNFSTA, KGASLIM, KGASORB, KINFO, KPOS, LCLS, LENCNF, LIM1, LIM1SUM, LIM2, &

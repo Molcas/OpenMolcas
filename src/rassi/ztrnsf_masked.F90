@@ -18,8 +18,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, IJ(4), INUM, IST(INUM), JNUM, JST(JNUM)
-real(kind=wp) :: UR(N,N), UI(N,N), AR(N,N), AI(N,N)
+integer(kind=iwp), intent(in) :: N, IJ(4), INUM, IST(INUM), JNUM, JST(JNUM)
+real(kind=wp), intent(in) :: UR(N,N), UI(N,N)
+real(kind=wp), intent(inout) :: AR(N,N), AI(N,N)
 integer(kind=iwp) :: I, II, J, JJ, NI, NJ
 real(kind=wp), allocatable :: MI(:,:), MR(:,:), TI(:,:), TR(:,:), VI(:,:), VR(:,:)
 

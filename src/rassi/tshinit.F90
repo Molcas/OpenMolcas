@@ -22,25 +22,16 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: Energy(nState)
+real(kind=wp), intent(in) :: Energy(nState)
 integer(kind=iwp) :: iRlxRoot, JOB1, JOB2, MPLET1, MPLET2, NACTE1, NACTE2, NELE31, NELE32, NHOL11, NHOL12
 real(kind=wp) :: EDIFF
 logical(kind=iwp) :: LOWROOT, UPROOT
-type(SGStruct), target :: SGS(2)
+type(SGStruct) :: SGS(2)
 type(CIStruct) :: CIS(2)
 type(EXStruct) :: EXS(2)
 character(len=8) :: WFTYP1, WFTYP2
 real(kind=wp), allocatable :: CI1(:), CI2(:)
 real(kind=wp), parameter ::  Ethr = 0.03_wp
-interface
-  subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
-    import :: iwp, CIStruct, SGStruct
-    implicit none
-    integer(kind=iwp) :: nSym, nActEl, iSpin
-    type(SGStruct), target :: SGS
-    type(CIStruct) :: CIS
-  end subroutine SGInit
-end interface
 
 ! Print a banner
 

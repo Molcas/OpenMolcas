@@ -18,7 +18,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: ovlp(nstate,nstate)
+real(kind=wp), intent(in) :: ovlp(nstate,nstate)
 integer(kind=iwp) :: initState, iState, newState
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: j

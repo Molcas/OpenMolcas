@@ -35,8 +35,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: JOB
-logical(kind=iwp) :: READ_STATES
+integer(kind=iwp), intent(in) :: JOB
+logical(kind=iwp), intent(in) :: READ_STATES
 integer(kind=iwp) :: I, IAD, IAD15, IDISK, IDUM(1), IPT2, ISNUM, ISTATE, ISY, IT, J, JSNUM, JSTATE, NEJOB, NHEFF, NIS, NIS1, &
                      NMAYBE, NROOT0, NTIT1
 real(kind=wp) :: E, ENUCDUMMY, HIJ

@@ -16,7 +16,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NSYM, NFRO(NSYM), NISH(NSYM), NRAS1(NSYM), NRAS2(NSYM), NRAS3(NSYM), NSSH(NSYM), NDEL(NSYM)
+integer(kind=iwp), intent(in) :: NSYM, NFRO(NSYM), NISH(NSYM), NRAS1(NSYM), NRAS2(NSYM), NRAS3(NSYM), NSSH(NSYM), NDEL(NSYM)
 integer(kind=iwp) :: IPART, ISUM, ISYM, ITYPE, NPART, NSIZE
 
 NPART = 7

@@ -14,7 +14,7 @@ subroutine PRGASTAB(REST)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: REST(*)
+integer(kind=iwp), intent(in) :: REST(*)
 integer(kind=iwp) :: IGAS, ISYM, KORB, KREST, NGAS, NSYM
 
 write(u6,*)

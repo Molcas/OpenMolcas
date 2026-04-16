@@ -19,9 +19,10 @@ use Constants, only: One, Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
-real(kind=wp) :: PSI1(*), PSI2(*), DYSAMP, DYSCOF(*)
-logical(kind=iwp) :: IF10, IF01
+integer(kind=iwp), intent(in) :: IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp), intent(in) :: PSI1(*), PSI2(*)
+logical(kind=iwp), intent(in) :: IF10, IF01
+real(kind=wp), intent(out) :: DYSAMP, DYSCOF(*)
 integer(kind=iwp) :: IMODE, ISORB, JSORB, NASORB, NDETS1, NDETS2
 real(kind=wp) :: COEFF, OVLP
 real(kind=wp), allocatable :: ANN1(:), ANN2(:)

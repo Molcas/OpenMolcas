@@ -24,7 +24,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DINAO(NBSQ), FOCKAO(NBSQ)
+real(kind=wp), intent(in) :: DINAO(NBSQ)
+real(kind=wp), intent(inout) :: FOCKAO(NBSQ)
 integer(kind=iwp) :: IDF, IDPQ, IDRS, IFPQ, IFRS, II, INTBUF, INUSE, IOPT, IPQ, IRC, IRSST, ISP, ISQ, ISR, ISS, ISSMX, ISYM, &
                      KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, LPQ, NB, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NBSX(8), NBT, NBTR, &
                      NBTRPR(8), NFTRI, NIP, NIQ, NIR, NIS, NP, NPQ, NPQM, NQ, NQM, NSPQ, NSPQR, NSQBUF, NSYMX

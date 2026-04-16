@@ -25,9 +25,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
-real(kind=wp) :: PSI1(*), PSI2(*), SDCHSM(*)
-logical(kind=iwp) :: IF20, IF02
+integer(kind=iwp), intent(in) :: IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp), intent(in) :: PSI1(*), PSI2(*)
+logical(kind=iwp), intent(in) :: IF20, IF02
+real(kind=wp), intent(inout) :: SDCHSM(*)
 integer(kind=iwp) :: IJ, IMODE, ISORB, JSORB, NASORB, ND1, ND2
 real(kind=wp) :: COEFF, OVLP
 real(kind=wp), allocatable :: ANN1(:), ANN2(:)

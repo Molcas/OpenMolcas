@@ -24,9 +24,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IFSBTAB1(*), IFSBTAB2(*), ISSTAB(*), MAPORB(*), NDCHSM, OrbTab(*)
-real(kind=wp) :: DET1(*), DET2(*), DCHSM(NDCHSM)
-logical(kind=iwp) :: IF20, IF02
+integer(kind=iwp), intent(in) :: IFSBTAB1(*), IFSBTAB2(*), ISSTAB(*), MAPORB(*), NDCHSM, OrbTab(*)
+real(kind=wp), intent(in) :: DET1(*), DET2(*)
+logical(kind=iwp), intent(in) :: IF20, IF02
+real(kind=wp), intent(out) :: DCHSM(NDCHSM)
 integer(kind=iwp) :: IAJB, IBJA, IJTABS, IORB, IORBA, IORBB, ITABS, JORB, JORBA, JORBB, JTABS, NASHT, NASORB, NSDCHSM
 real(kind=wp) :: GAB, GBA, GVAL
 real(kind=wp), allocatable :: SDCHSM(:)

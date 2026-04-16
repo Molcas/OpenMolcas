@@ -20,13 +20,13 @@ use Constants, only: Zero, One, cZero, cOne, cm_s, hPlanck, gElectron, mBohr
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSS
-real(kind=wp) :: UMATR(NSS,NSS), UMATI(NSS,NSS)
-
+integer(kind=iwp), intent(in) :: NSS
+real(kind=wp), intent(in) :: UMATR(NSS,NSS), UMATI(NSS,NSS)
 integer(kind=iwp) :: I, I2, IC, IDIR, IJ, INFO, IOPT, ISTATE, J, J2, JSTATE, L, LCWORK, LUMAXES, N
 real(kind=wp) :: AXI, AXR, AYI, AYR, AZI, AZR, GE, GTENS(3), IDENTMAT(3,3), MAXES(3,3), MAXES2(3,3), MU_BOHR, SXI, SXR, SYI, SYR, &
                  SZI, SZR
 character(len=11) :: FILEBASE, FILEBASEL
+character(len=8) :: LAB
 complex(kind=wp), allocatable :: BPTST(:,:), DEIGVEC(:,:), H_ZEE(:,:), PROP(:,:,:), PROP2(:,:,:), ZOUT(:,:), ZWORK(:)
 real(kind=wp), allocatable :: DEIGVAL(:), DMATTMP(:), EIGVECI(:,:), EIGVECR(:,:), LMATI(:,:,:,:), LMATR(:,:,:,:), &
                               MUMAT2I(:,:,:,:), MUMAT2R(:,:,:,:), RWORK(:), SMATI(:,:,:,:), SMATR(:,:,:,:), UWI(:), UWR(:)
@@ -104,14 +104,16 @@ do J=1,N
 
     IC = -1
     iOpt = 1
-    call SONATORBM_INT(DMATTMP,'ANGMOM',IC,'ANTISING',ISTATE,JSTATE,iOpt,IDENTMAT,AXR,AYR,AZR,AXI,AYI,AZI)
+    LAB = 'ANGMOM'
+    call SONATORBM_INT(DMATTMP,LAB,IC,'ANTISING',ISTATE,JSTATE,iOpt,IDENTMAT,AXR,AYR,AZR,AXI,AYI,AZI)
 
     iOpt = 1
     call SONATORBM('HERMTRIP',UMATR,UMATI,ISTATE,JSTATE,NSS,iOpt,IDENTMAT,DMATTMP)
 
     IC = 1
     iOpt = 0
-    call SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMTRIP',ISTATE,JSTATE,iOpt,IDENTMAT,SXR,SYR,SZR,SXI,SYI,SZI)
+    LAB = 'MLTPL  0'
+    call SONATORBM_INT(DMATTMP,LAB,IC,'HERMTRIP',ISTATE,JSTATE,iOpt,IDENTMAT,SXR,SYR,SZR,SXI,SYI,SZI)
 
     ! The first index of PROP is the direction
     PROP(1,I,J) = -cmplx(AXR+ge*SXR,AXI+ge*SXI,kind=wp)
@@ -301,8 +303,9 @@ do IDIR=1,3
       ! Expectation values of L -> LMAT{R,I}
       IC = -1
       iOpt = 1
-      call SONATORBM_INT(DMATTMP,'ANGMOM',IC,'ANTISING',ISTATE,JSTATE,iOpt,MAXES,LMATR(I,J,IDIR,1),LMATR(I,J,IDIR,2), &
-                         LMATR(I,J,IDIR,3),LMATI(I,J,IDIR,1),LMATI(I,J,IDIR,2),LMATI(I,J,IDIR,3))
+      LAB = 'ANGMOM'
+      call SONATORBM_INT(DMATTMP,LAB,IC,'ANTISING',ISTATE,JSTATE,iOpt,MAXES,LMATR(I,J,IDIR,1),LMATR(I,J,IDIR,2),LMATR(I,J,IDIR,3), &
+                         LMATI(I,J,IDIR,1),LMATI(I,J,IDIR,2),LMATI(I,J,IDIR,3))
 
       ! Plot for generation of current density
       if (IFCURD) call SONATORB_CPLOT(DMATTMP,FILEBASEL,'ANTISING',ISTATE,JSTATE)
@@ -314,7 +317,8 @@ do IDIR=1,3
       ! Expectation values of S -> SMAT{R,I}
       IC = 1
       iOpt = 0
-      call SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMTRIP',ISTATE,JSTATE,iOpt,IDENTMAT,SMATR(I,J,IDIR,1),SMATR(I,J,IDIR,2), &
+      LAB = 'MLTPL  0'
+      call SONATORBM_INT(DMATTMP,LAB,IC,'HERMTRIP',ISTATE,JSTATE,iOpt,IDENTMAT,SMATR(I,J,IDIR,1),SMATR(I,J,IDIR,2), &
                          SMATR(I,J,IDIR,3),SMATI(I,J,IDIR,1),SMATI(I,J,IDIR,2),SMATI(I,J,IDIR,3))
 
       ! plot the rotated density
@@ -325,8 +329,7 @@ do IDIR=1,3
 
   ! write the magnetic axes to a file
   write(u6,*) 'Writing magnetic axes to file SODIAG.MAXES'
-  LUMAXES = 54
-  LUMAXES = IsFreeUnit(LUMAXES)
+  LUMAXES = IsFreeUnit(54)
   call Molcas_Open(LUMAXES,'SODIAG.MAXES')
   write(LUMAXES,*) MAXES
   close(LUMAXES)

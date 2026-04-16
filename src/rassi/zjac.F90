@@ -15,8 +15,8 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NDIMEN, LDV
-real(kind=wp) :: ARRRE(NDIMEN,NDIMEN), ARRIM(NDIMEN,NDIMEN), VECRE(LDV,*), VECIM(LDV,*)
+integer(kind=iwp), intent(in) :: NDIMEN, LDV
+real(kind=wp), intent(inout) :: ARRRE(NDIMEN,NDIMEN), ARRIM(NDIMEN,NDIMEN), VECRE(LDV,*), VECIM(LDV,*)
 integer(kind=iwp) :: I, IFERR, J, K, NR, NROT, NSWEEP
 real(kind=wp) :: AAIJ, AIIJ, AIIK, AIJK, AIKI, AIKJ, ARII, ARIJ, ARIK, ARJJ, ARJK, ARKI, ARKJ, CS, DIFF, DUM, EIM, ERE, ERRIM, &
                  ERRRE, SBDMAX, SGN, SN, TN, VIKI, VIKJ, VNOLD, VNSUM, VRKI, VRKJ

@@ -26,8 +26,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: OVER, GAMMA1(NASHT,NASHT), TDMAB(NTDMAB)
-integer(kind=iwp) :: iRC
+real(kind=wp), intent(in) :: OVER, GAMMA1(NASHT,NASHT)
+real(kind=wp), intent(out) :: TDMAB(NTDMAB)
+integer(kind=iwp), intent(out) :: iRC
 integer(kind=iwp) :: I, IA, II, IOFFA(8), IOFFTD, IPOS, ISY, ISY1, ISY12, ISY2, J, JA, JJ, NA1, NA2, NI1, NI2, NO1, NO2
 real(kind=wp), external :: DDot_
 

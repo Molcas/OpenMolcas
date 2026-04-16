@@ -28,7 +28,8 @@ use rassi_data, only: NASH, NBASF, NCMO, NOSH
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CMOA(NCMO), DYSAB(*), DYSZZ(*)
+real(kind=wp), intent(in) :: CMOA(NCMO), DYSAB(*)
+real(kind=wp), intent(inout) :: DYSZZ(*)
 integer(kind=iwp) :: BIOOFF, IBIO, IBIOFF, ISY1, IZZ, IZZOFF, NA1, NB1, NO1, SYMOFF
 real(kind=wp) :: COEFF
 

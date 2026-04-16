@@ -25,7 +25,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CMOA(*), DYSCMO(*), NORM
+real(kind=wp), intent(in) :: CMOA(*), DYSCMO(*)
+real(kind=wp), intent(out) :: NORM
 integer(kind=iwp) :: IC, iOff1, iOff2, iOpt, iRc, ist, ista, istacc(8), istao(8), istc, istca, istcb, istcc, istcmo(8), isy1, &
                      iSyLbl, isym, nb, nb1, nbast1, nbast2, ndys, no1, nscr
 real(kind=wp) :: NORMSCR
@@ -75,6 +76,7 @@ do ISY1=1,nIrrep
   ISTCC = ISTCC+NO1**2
 end do
 
+norm = Zero
 NSCR = NCMO
 NDYS = 1
 do ISY1=1,nIrrep

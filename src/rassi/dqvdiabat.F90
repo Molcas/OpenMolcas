@@ -36,7 +36,8 @@ use Constants, only: Zero, One, Two, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), HAM(NSTATE,NSTATE)
+real(kind=wp), intent(inout) :: PROP(NSTATE,NSTATE,NPROP)
+real(kind=wp), intent(in) :: HAM(NSTATE,NSTATE)
 integer :: I, IPROP, ISTA, JSTA, K, PNUM(7)
 real(kind=wp) :: ATerm, BTerm, Chng, CosO, CTerm, RotAngF, RotAngO, SinO, ThrSch, TII, TIJ, TJJ
 real(kind=wp), allocatable :: HDIA(:,:), TI(:), TJ(:), TMP(:,:), TROT(:,:), TRQ(:,:)

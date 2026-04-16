@@ -20,8 +20,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NSS, MSTATE
-real(kind=wp) :: USOR(NSS,NSS), USOI(NSS,NSS), EigVec(MSTATE,MSTATE), VSOR(NSS,NSS), VSOI(NSS,NSS)
+integer(kind=iwp), intent(in) :: NSS, MSTATE
+real(kind=wp), intent(in) :: USOR(NSS,NSS), USOI(NSS,NSS), EigVec(MSTATE,MSTATE)
+real(kind=wp), intent(out) :: VSOR(NSS,NSS), VSOI(NSS,NSS)
 integer(kind=iwp) :: ISS, ISTATE, JOB, JSS, JSS_, KSS, KSS_, MPLET, MSPROJ
 real(kind=wp) :: tmp_I, tmp_R
 integer(kind=iwp), allocatable :: MAPST(:,:)

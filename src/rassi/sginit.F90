@@ -17,9 +17,9 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSym, nActEl, iSpin
-type(SGStruct), target :: SGS
-type(CIStruct) :: CIS
+integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
 
 SGS%nSym = nSym
 SGS%iSpin = iSpin

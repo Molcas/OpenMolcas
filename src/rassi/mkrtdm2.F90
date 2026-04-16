@@ -34,9 +34,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IFSBTAB1(*), IFSBTAB2(*), ISSTAB(*), MAPORB(*), NRT2M, SPIN, OrbTab(*)
-real(kind=wp) :: DET1(*), DET2(*), RT2M(NRT2M)
-logical(kind=iwp) :: IF21, IF12
+integer(kind=iwp), intent(in) :: IFSBTAB1(*), IFSBTAB2(*), ISSTAB(*), MAPORB(*), NRT2M, SPIN, OrbTab(*)
+real(kind=wp), intent(in) :: DET1(*), DET2(*)
+logical(kind=iwp), intent(in) :: IF21, IF12
+real(kind=wp), intent(out) :: RT2M(NRT2M)
 integer(kind=iwp) :: IAJALA, IAJALB, IAJBLA, IBJALB, IBJBLA, IBJBLB, IJLTABS, IORB, IORBA, IORBB, ITABS, JLTABS, JORB, JORBA, &
                      JORBB, JTABS, LORB, LORBA, LORBB, LTABS, NASHT, NASORB, NSRT2M
 real(kind=wp) :: GAAA, GAAB, GABA, GBAB, GBBA, GBBB, GVAL
@@ -89,33 +90,36 @@ do IORB=1,NASHT
         IBJALB = IORBB+NASORB*(NASORB*(JORBA-1)+LORBB-1)
         IAJALA = IORBA+NASORB*(NASORB*(JORBA-1)+LORBA-1)
         IBJBLA = IORBB+NASORB*(NASORB*(JORBB-1)+LORBA-1)
-        if (SPIN == 1) then ! K^1/2,1/2= (AAB+BBB)
-          GAAB = SRT2M(IAJALB)
-          GBBB = SRT2M(IBJBLB)
-          GVAL = (GAAB+GBBB)
-        else if (SPIN == -1) then ! SDA. K^1/2,-1/2
-          GBBA = SRT2M(IBJBLA)
-          GAAA = SRT2M(IAJALA)
-          GVAL = (GAAA+GBBA)
-        else if (SPIN == 2) then
-          GBBB = SRT2M(IBJBLB)
-          GVAL = GBBB
-        else if (SPIN == 3) then
-          GAAA = SRT2M(IAJALA)
-          GVAL = GAAA
-        else if (SPIN == 4) then
-          GAAB = SRT2M(IAJALB)
-          GVAL = GAAB
-        else if (SPIN == 5) then
-          GBBA = SRT2M(IBJBLA)
-          GVAL = GBBA
-        else if (SPIN == 6) then
-          GABA = SRT2M(IAJBLA)
-          GVAL = GABA
-        else if (SPIN == 7) then
-          GBAB = SRT2M(IBJALB)
-          GVAL = GBAB
-        end if
+        select case (SPIN)
+          case (1)
+            ! K^1/2,1/2= (AAB+BBB)
+            GAAB = SRT2M(IAJALB)
+            GBBB = SRT2M(IBJBLB)
+            GVAL = (GAAB+GBBB)
+          case (-1)
+            ! SDA. K^1/2,-1/2
+            GBBA = SRT2M(IBJBLA)
+            GAAA = SRT2M(IAJALA)
+            GVAL = (GAAA+GBBA)
+          case (2)
+            GBBB = SRT2M(IBJBLB)
+            GVAL = GBBB
+          case (3)
+            GAAA = SRT2M(IAJALA)
+            GVAL = GAAA
+          case (4)
+            GAAB = SRT2M(IAJALB)
+            GVAL = GAAB
+          case (5)
+            GBBA = SRT2M(IBJBLA)
+            GVAL = GBBA
+          case (6)
+            GABA = SRT2M(IAJBLA)
+            GVAL = GABA
+          case (7)
+            GBAB = SRT2M(IBJALB)
+            GVAL = GBAB
+        end select
       else if (JORB == LORB) then
         IAJALB = IORBA+NASORB*(NASORB*(JORBA-1)+LORBB-1)
         IAJBLA = IORBA+NASORB*(NASORB*(JORBB-1)+LORBA-1)
@@ -123,33 +127,36 @@ do IORB=1,NASHT
         IBJALB = IORBB+NASORB*(NASORB*(JORBA-1)+LORBB-1)
         IAJALA = IORBA+NASORB*(NASORB*(JORBA-1)+LORBA-1)
         IBJBLA = IORBB+NASORB*(NASORB*(JORBB-1)+LORBA-1)
-        if (SPIN == 1) then ! K^1/2,1/2
-          GAAB = SRT2M(IAJALB)
-          GBBB = SRT2M(IBJBLB)
-          GVAL = (GAAB+GBBB)
-        else if (SPIN == -1) then ! SDA. K^1/2,-1/2
-          GBBA = SRT2M(IBJBLA)
-          GAAA = SRT2M(IAJALA)
-          GVAL = (GAAA+GBBA)
-        else if (SPIN == 2) then
-          GBBB = SRT2M(IBJBLB)
-          GVAL = GBBB
-        else if (SPIN == 3) then
-          GAAA = SRT2M(IAJALA)
-          GVAL = GAAA
-        else if (SPIN == 4) then
-          GAAB = SRT2M(IAJALB)
-          GVAL = GAAB
-        else if (SPIN == 5) then
-          GBBA = SRT2M(IBJBLA)
-          GVAL = GBBA
-        else if (SPIN == 6) then
-          GABA = SRT2M(IAJBLA)
-          GVAL = GABA
-        else if (SPIN == 7) then
-          GBAB = SRT2M(IBJALB)
-          GVAL = GBAB
-        end if
+        select case (SPIN)
+          case (1)
+            ! K^1/2,1/2
+            GAAB = SRT2M(IAJALB)
+            GBBB = SRT2M(IBJBLB)
+            GVAL = (GAAB+GBBB)
+          case (-1)
+            ! SDA. K^1/2,-1/2
+            GBBA = SRT2M(IBJBLA)
+            GAAA = SRT2M(IAJALA)
+            GVAL = (GAAA+GBBA)
+          case (2)
+            GBBB = SRT2M(IBJBLB)
+            GVAL = GBBB
+          case (3)
+            GAAA = SRT2M(IAJALA)
+            GVAL = GAAA
+          case (4)
+            GAAB = SRT2M(IAJALB)
+            GVAL = GAAB
+          case (5)
+            GBBA = SRT2M(IBJBLA)
+            GVAL = GBBA
+          case (6)
+            GABA = SRT2M(IAJBLA)
+            GVAL = GABA
+          case (7)
+            GBAB = SRT2M(IBJALB)
+            GVAL = GBAB
+        end select
       else if (JORB < LORB) then ! When J<L
         IAJALB = IORBA+NASORB*(NASORB*(JORBA-1)+LORBB-1)
         IAJBLA = IORBA+NASORB*(NASORB*(JORBB-1)+LORBA-1)
@@ -157,33 +164,36 @@ do IORB=1,NASHT
         IBJALB = IORBB+NASORB*(NASORB*(JORBA-1)+LORBB-1)
         IAJALA = IORBA+NASORB*(NASORB*(JORBA-1)+LORBA-1)
         IBJBLA = IORBB+NASORB*(NASORB*(JORBB-1)+LORBA-1)
-        if (SPIN == 1) then ! K^1/2,1/2
-          GAAB = SRT2M(IAJALB)
-          GBBB = SRT2M(IBJBLB)
-          GVAL = (GAAB+GBBB)
-        else if (SPIN == -1) then ! SDA. K^1/2,-1/2
-          GBBA = SRT2M(IBJBLA)
-          GAAA = SRT2M(IAJALA)
-          GVAL = (GAAA+GBBA)
-        else if (SPIN == 2) then
-          GBBB = SRT2M(IBJBLB)
-          GVAL = GBBB
-        else if (SPIN == 3) then
-          GAAA = SRT2M(IAJALA)
-          GVAL = GAAA
-        else if (SPIN == 4) then
-          GAAB = SRT2M(IAJALB)
-          GVAL = GAAB
-        else if (SPIN == 5) then
-          GBBA = SRT2M(IBJBLA)
-          GVAL = GBBA
-        else if (SPIN == 6) then
-          GABA = SRT2M(IAJBLA)
-          GVAL = GABA
-        else if (SPIN == 7) then
-          GBAB = SRT2M(IBJALB)
-          GVAL = GBAB
-        end if
+        select case (SPIN)
+          case (1)
+            ! K^1/2,1/2
+            GAAB = SRT2M(IAJALB)
+            GBBB = SRT2M(IBJBLB)
+            GVAL = (GAAB+GBBB)
+          case (-1)
+            ! SDA. K^1/2,-1/2
+            GBBA = SRT2M(IBJBLA)
+            GAAA = SRT2M(IAJALA)
+            GVAL = (GAAA+GBBA)
+          case (2)
+            GBBB = SRT2M(IBJBLB)
+            GVAL = GBBB
+          case (3)
+            GAAA = SRT2M(IAJALA)
+            GVAL = GAAA
+          case (4)
+            GAAB = SRT2M(IAJALB)
+            GVAL = GAAB
+          case (5)
+            GBBA = SRT2M(IBJBLA)
+            GVAL = GBBA
+          case (6)
+            GABA = SRT2M(IAJBLA)
+            GVAL = GABA
+          case (7)
+            GBAB = SRT2M(IBJALB)
+            GVAL = GBAB
+        end select
       end if
       IJLTABS = ITABS+NASHT*(JLTABS-1)
       RT2M(IJLTABS) = GVAL

@@ -16,7 +16,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: MorsSpin
-integer(kind=iwp) :: IMORS, MS2ARR(*)
+integer(kind=iwp), intent(in) :: IMORS, MS2ARR(*)
 integer(kind=iwp) :: I, IB, IBIT
 
 MorsSpin = 0

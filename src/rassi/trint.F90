@@ -37,8 +37,10 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NGAM1, NGAM2
-real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), ECORE, FOCKMO(NGAM1), TUVX(NGAM2)
+real(kind=wp), intent(in) :: CMO1(NCMO), CMO2(NCMO)
+integer(kind=iwp), intent(in) :: NGAM1, NGAM2
+real(kind=wp), intent(out) :: ECORE, FOCKMO(NGAM1)
+real(kind=wp), intent(inout) :: TUVX(NGAM2)
 integer(kind=iwp) :: I, IERR, IKK, IOFF, IOFF1, IOFF2, IOFF3, iOpt, IRC, ISTA, ISTC, ISTFMO, iSym, JKK, KEEP(8), NA, nAux(8), NB, &
                      NB1, NB2, NBSX(8), nDINAO, NFAO, NI, NO, NPROD, nSymX
 real(kind=wp) :: ECORE1, ECORE2

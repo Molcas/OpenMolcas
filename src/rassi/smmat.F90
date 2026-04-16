@@ -17,8 +17,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSS, ISONUM, ISPINCMP
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), PRMAT(NSS,NSS)
+real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
+integer(kind=iwp), intent(in) :: NSS, ISONUM, ISPINCMP
+real(kind=wp), intent(inout) :: PRMAT(NSS,NSS)
 integer(kind=iwp) :: IFSPIN, IPRCMP, IPRNUM, IPROP, ISS, ISTATE, JOB1, JOB2, JSS, JSTATE, MPLET1, MPLET2, MSPROJ1, MSPROJ2
 real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, EXPKR, FACT, s1, s2, SM1, SM2, SMINUS, SPLUS, SXMER, SYMEI, SZMER
 real(kind=wp), external :: DCLEBS

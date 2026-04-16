@@ -27,10 +27,11 @@ use Definitions, only: u6
 #endif
 
 implicit none
-real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), SIJ, TDMAB(NTDMAB), TDMZZ(NTDMZZ), TRAD(NASHT,NASHT), TRASD(NASHT,NASHT), &
-                 TSDMAB(NTDMAB), TSDMZZ(NTDMZZ)
-integer(kind=iwp) :: iRC, istate, jstate
-integer(kind=iwp) :: I, INTEG, IPNB, J, LuT, LuT_, m(1), n(1), nbas_A(1), nbas_B(1), nbas_tot(1), NNLTD, run
+real(kind=wp), intent(in) :: SIJ, TRAD(NASHT,NASHT), CMO1(NCMO), CMO2(NCMO), TRASD(NASHT,NASHT)
+real(kind=wp), intent(out) :: TDMAB(NTDMAB), TDMZZ(NTDMZZ), TSDMAB(NTDMAB), TSDMZZ(NTDMZZ)
+integer(kind=iwp), intent(out) :: iRC
+integer(kind=iwp), intent(in) :: istate, jstate
+integer(kind=iwp) :: I, INTEG, IPNB, J, LuT, m(1), n(1), nbas_A(1), nbas_B(1), nbas_tot(1), NNLTD, run
 type(DSBA_Type) :: DLT(1), Salpha(1), Sbeta(1), SDLT(1)
 character(len=13) :: filnam
 real(kind=wp), allocatable :: STDMZZ_mtx(:,:), STDMZZ_new(:), TDMZZ_mtx(:,:), TDMZZ_new(:)
@@ -43,8 +44,7 @@ real(kind=wp), external :: DDot_
 !write(u6,*) 'MLTPL', MLTPLT(1)
 ! Write number of states in files, since they can differ on monomers
 write(filnam,'(A,I1)') 'states_',iTyp
-LuT_ = 10
-LuT = isFreeUnit(LuT_)
+LuT = isFreeUnit(10)
 call molcas_open(LuT,filnam)
 write(LuT,*) NSTATE
 close(LuT)

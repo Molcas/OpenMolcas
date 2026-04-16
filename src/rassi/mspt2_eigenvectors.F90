@@ -76,7 +76,7 @@ subroutine prpdata_mspt2_eigenvectors(rtdm,stdm,wetdm,prop,nprop,nstate,istate,j
   !> put data to file
   if (put_so_data) then
     iOpt = 1
-    iGo = 7
+    iGo = ibset(ibset(ibset(0,0),1),2)
     iaddr = addr
     call dens2file(rtdm,stdm,wetdm,ntdmzz,lu,iaddr,iempty,iOpt,iGo,iState,jState)
   end if

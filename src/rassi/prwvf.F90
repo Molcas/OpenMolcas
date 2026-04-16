@@ -15,8 +15,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IORBTAB(*), ISSTAB(*), IFSBTAB(*)
-real(kind=wp) :: PRTHR, CI(*)
+integer(kind=iwp), intent(in) :: IORBTAB(*), ISSTAB(*), IFSBTAB(*)
+real(kind=wp), intent(in) :: PRTHR, CI(*)
 integer(kind=iwp) :: I, IBLKDET, ICI, ICREL, IFSB, IMORS, INDX, ISBS, ISORB, ISPART, ISST, ISSTARR(50), ISUM, KPOS, KSBSMRS, &
                      KSPART, KSSTTB, KSTARR, N, NASPRT, NBLKDET, NDIMARR(50), NFSB, NPRINTED, NSSTP
 character(len=80) :: DETTXT

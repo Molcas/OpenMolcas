@@ -18,8 +18,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSS, MAPST(NSS), MAPSP(NSS), MAPMS(NSS)
-real(kind=wp) :: FRAC, SOENE(NSS), UMATR(NSS,NSS), UMATI(NSS,NSS)
+integer(kind=iwp), intent(in) :: NSS, MAPST(NSS), MAPSP(NSS), MAPMS(NSS)
+real(kind=wp), intent(in) :: FRAC, SOENE(NSS), UMATR(NSS,NSS), UMATI(NSS,NSS)
 integer(kind=iwp) :: I, IMAXSTATE, ISS, ISTATE, JEND, JSS, JSTA, nmax(5), NW
 real(kind=wp) :: CFFLIM, S, smax(5), SSMAX, SZ, TST, WGTMAX, wmax(5), XMAX
 real(kind=wp), allocatable :: sstate(:), weight(:)

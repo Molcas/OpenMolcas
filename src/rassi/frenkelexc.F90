@@ -19,7 +19,7 @@ use Constants, only: Zero, One, Two, Three, auToEV
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ndim, nst1, nst2
+integer(kind=iwp), intent(in) :: ndim, nst1, nst2
 real(kind=wp), intent(inout) :: Frenkeltri(nTri_Elem(ndim))
 integer(kind=iwp) :: a, b, d1lines, d2lines, I, IO, iPL, J, K, L, LUT1, ntrans, run, tri
 real(kind=wp) :: DIPNORM, GS

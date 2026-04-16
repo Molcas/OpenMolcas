@@ -34,7 +34,7 @@
 !> @param[in]     WFTP Wave function Type Name
 !> @param[in]     SGS Split Graph Structure user defined type
 !> @param[in]     CIS CI Structure user define type
-!> @param[in]     EXS  Excitation operator Structure user defined type
+!> @param[in,out] EXS  Excitation operator Structure user defined type
 !> @param[in]     LSM  Wave function Symmetry Label
 !> @param[in]     TRA  Transformation Matrix
 !> @param[in]     NCO  Number of Configuration Functions
@@ -58,7 +58,7 @@ implicit none
 character(len=8), intent(in) :: WFTP
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
-type(EXStruct), intent(in) :: EXS
+type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp), intent(in) :: LSM, NCO
 real(kind=wp), intent(in) :: TRA(NTRA)
 real(kind=wp), intent(inout) :: CI(NCO)

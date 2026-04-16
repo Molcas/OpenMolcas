@@ -39,7 +39,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IDISK, IOPT, IRC, IRETURN, ISTATE, ISY, J, JOB, JOB1, JOB2, MPLET, nh1, NSS, NZ, NZCOUL
+integer(kind=iwp), intent(out) :: IRETURN
+integer(kind=iwp) :: IDISK, IOPT, IRC, ISTATE, ISY, J, JOB, JOB1, JOB2, MPLET, nh1, NSS, NZ, NZCOUL
 logical(kind=iwp) :: aux2, CLOSEONE
 real(kind=wp), allocatable :: DMAT(:), DYSAMPS(:,:), ENERGY(:), OCC(:), OVLP(:,:), PROP(:,:,:), SOENE(:), TDMZZ(:), USOI(:,:), &
                               USOR(:,:), VNAT(:)

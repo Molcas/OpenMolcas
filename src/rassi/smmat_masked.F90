@@ -16,8 +16,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSS, ISONUM, ISPINCMP, ISS_INDEX(NSTATE+1), INUM, IST(INUM), JNUM, JST(JNUM)
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), PRMAT(NSS,NSS)
+real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
+integer(kind=iwp), intent(in) :: NSS, ISONUM, ISPINCMP, ISS_INDEX(NSTATE+1), INUM, IST(INUM), JNUM, JST(JNUM)
+real(kind=wp), intent(inout) :: PRMAT(NSS,NSS)
 integer(kind=iwp) :: I, IFSPIN, IPRCMP, IPRNUM, IPROP, ISS, ISTATE, J, JSS, JSTATE, MPLET1, MPLET2, MSPROJ1, MSPROJ2
 real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, EXPKR, FACT, S1, S2, SM1, SM2, SMINUS, SPLUS, SXMER, SYMEI, SZMER
 real(kind=wp), external :: DCLEBS
@@ -73,11 +74,7 @@ do I=1,INUM
         JSS = JSS+1
 
         if ((IFSPIN == 0) .and. (IPRNUM /= 0)) then
-          if ((MPLET1 == MPLET2) .and. (MSPROJ1 == MSPROJ2)) then
-            PRMAT(ISS,JSS) = PROP(ISTATE,JSTATE,IPRNUM)
-          else
-            PRMAT(ISS,JSS) = Zero
-          end if
+          if ((MPLET1 == MPLET2) .and. (MSPROJ1 == MSPROJ2)) PRMAT(ISS,JSS) = PROP(ISTATE,JSTATE,IPRNUM)
         else if ((IFSPIN == 1) .and. (IPRNUM == 0)) then
           SXMER = Zero
           SYMEI = Zero
@@ -103,8 +100,6 @@ do I=1,INUM
             else if (IPRCMP == 3) then
               PRMAT(ISS,JSS) = SZMER
             end if
-          else
-            PRMAT(ISS,JSS) = Zero
           end if
         else if (IFSPIN == 2) then
 

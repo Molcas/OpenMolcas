@@ -23,10 +23,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
-real(kind=wp) :: PSI1(*), PSI2(*), SRT2M(*)
-logical(kind=iwp) :: IF21, IF12
+integer(kind=iwp), intent(in) :: IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp), intent(in) :: PSI1(*), PSI2(*)
+logical(kind=iwp), intent(in) :: IF21, IF12
+real(kind=wp), intent(_OUT_) :: SRT2M(*)
 integer(kind=iwp) :: IJL, IMODE, ISORB, JLSORB, JSORB, LSORB, NASORB, ND1, ND2, ND3
 real(kind=wp) :: COEFF, OVLP
 real(kind=wp), allocatable :: ANN1(:), ANN2(:), ANN3(:)

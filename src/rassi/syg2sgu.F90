@@ -24,13 +24,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp), intent(in) :: IMODE, ICNFTAB(*), ISPNTAB(*)
+integer(kind=iwp), intent(in) :: IMODE, LSYM, ICNFTAB(*), ISPNTAB(*)
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
-integer(kind=iwp), intent(inout) :: LSYM
 real(kind=wp), intent(in) :: CIOLD(*)
-real(kind=wp), intent(out) :: CINEW(*)
+real(kind=wp), intent(_OUT_) :: CINEW(*)
 integer(kind=iwp), parameter :: IFUP2CS(0:1) = [2,1], MXCPI = 15, NBUFFER = 600
 integer(kind=iwp) :: I, ICASE(400), ICNF, ICNUM(NBUFFER), ICPL, ICSPLT, ICSYMG, IEL, IEL1, IEL2, IFORM, IFUP, IOCC, IORB, IREST, &
                      IWLKPOS, IWORD, IWRD, KCNF, KCNFINF, KCPL, KGSLIM, KGSORB, KSPNINF, KWALK(NBUFFER), LEV, MAXOP, MINOP, &
@@ -76,7 +77,6 @@ MINOP = ICNFTAB(5)
 MAXOP = ICNFTAB(6)
 NSYM = ICNFTAB(7)
 if (LSYM /= ICNFTAB(8)) call abend()
-LSYM = ICNFTAB(8)
 NAPART = ICNFTAB(9)
 IFORM = ICNFTAB(10)
 !PAM07 Statement to fool intel 10.1 compiler do do the right thing:

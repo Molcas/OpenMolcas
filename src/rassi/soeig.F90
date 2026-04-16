@@ -31,13 +31,14 @@ use Constants, only: Zero, One, Ten, Half, Quart, auTocm, auToeV
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSS
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), ENERGY(NSTATE)
+real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
+integer(kind=iwp), intent(in) :: NSS
+real(kind=wp), intent(inout) :: USOR(NSS,NSS), USOI(NSS,NSS), ENERGY(NSTATE)
+real(kind=wp), intent(out) :: ENSOR(NSS)
 integer(kind=iwp) :: IAMFIX, IAMFIY, IAMFIZ, IAMX, IAMY, IAMZ, IDX, IPROP, ISS, ISTATE, ITOL, JOB, JSS, JSTATE, MAGN, MPLET, &
                      MPLET1, MPLET2, MSPROJ, MSPROJ1, MSPROJ2, N
 real(kind=wp) :: AMFIX, AMFIY, AMFIZ, CG0, CGM, CGP, CGX, CGY, E0, E1, E2, E3, E_TMP, EI, EPSH, EPSS, ERMS, FACT, FRAC, HSOI, &
                  HSOR, HSOTOT, OMEGA, S1, S2, SM1, SM2, SOTHR_MIN, X, X_THR, XJEFF
-logical(kind=iwp) :: lJ2, lOMG
 integer(kind=iwp), allocatable :: IndexE(:), MAPMS(:), MAPSP(:), MAPST(:)
 real(kind=wp), allocatable :: ESO(:), HAMSOR(:,:), HTOTI(:,:), HTOTR(:,:), J2I(:,:), J2R(:,:), JXI(:), JXR(:), JYI(:), JYR(:), &
                               JZI(:), JZR(:), LXI(:), LYI(:), LZI(:), OMGI(:,:), OMGR(:,:)
@@ -48,10 +49,6 @@ complex(kind=wp), allocatable :: ccwork(:), hso_tmp(:,:)
 #endif
 integer(kind=iwp), external :: cho_x_gettol
 real(kind=wp), external :: DCLEBS
-
-! CONSTANTS:
-lOMG = .false.
-lJ2 = .false.
 
 ! Identify AMFI and ANGMOM matrix elements:
 IAMFIX = 0
@@ -229,8 +226,8 @@ end if
 ! save the Hamiltonian
 call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
 HAMSOR(:,:) = HTOTR(:,:)
-call put_darray('HAMSOR_SINGLE',HTOTR,NSS*NSS)
-call put_darray('HAMSOI_SINGLE',HTOTI,NSS*NSS)
+call put_darray('HAMSOR_SINGLE',HTOTR,NSS**2)
+call put_darray('HAMSOI_SINGLE',HTOTI,NSS**2)
 #ifdef _HDF5_
 ! unshift the diagonal
 do ISS=1,NSS
@@ -377,32 +374,26 @@ call mma_deallocate(LZI)
 
 call mma_allocate(OMGR,NSS,NSS,Label='OMGR')
 call mma_allocate(OMGI,NSS,NSS,Label='OMGI')
-lOMG = .true.
-OMGR(:,:) = Zero
-OMGI(:,:) = Zero
 
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,One,JZR,NSS,JZR,NSS,Zero,OMGR,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,-One,JZI,NSS,JZI,NSS,One,OMGR,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,One,JZR,NSS,JZI,NSS,Zero,OMGI,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,One,JZI,NSS,JZR,NSS,One,OMGI,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,One,JZR,NSS,JZR,NSS,Zero,OMGR,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,-One,JZI,NSS,JZI,NSS,One,OMGR,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,One,JZR,NSS,JZI,NSS,Zero,OMGI,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,One,JZI,NSS,JZR,NSS,One,OMGI,NSS)
 
 call mma_deallocate(JZR)
 call mma_deallocate(JZI)
 
-lJ2 = .true.
 call mma_allocate(J2R,NSS,NSS,Label='J2R')
 call mma_allocate(J2I,NSS,NSS,Label='J2I')
-J2R(:,:) = Zero
-J2I(:,:) = Zero
 
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,One,JXR,NSS,JXR,NSS,One,J2R,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,-One,JXI,NSS,JXI,NSS,One,J2R,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,One,JYR,NSS,JYR,NSS,One,J2R,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,-One,JYI,NSS,JYI,NSS,One,J2R,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,One,JXR,NSS,JXI,NSS,One,J2I,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,One,JXI,NSS,JXR,NSS,One,J2I,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,One,JYR,NSS,JYI,NSS,One,J2I,NSS)
-call DGEMM_('NSS','NSS',NSS,NSS,NSS,One,JYI,NSS,JYR,NSS,One,J2I,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,One,JXR,NSS,JXR,NSS,Zero,J2R,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,-One,JXI,NSS,JXI,NSS,One,J2R,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,One,JYR,NSS,JYR,NSS,One,J2R,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,-One,JYI,NSS,JYI,NSS,One,J2R,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,One,JXR,NSS,JXI,NSS,Zero,J2I,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,One,JXI,NSS,JXR,NSS,One,J2I,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,One,JYR,NSS,JYI,NSS,One,J2I,NSS)
+call DGEMM_('N','N',NSS,NSS,NSS,One,JYI,NSS,JYR,NSS,One,J2I,NSS)
 
 call mma_deallocate(JXR)
 call mma_deallocate(JXI)
@@ -473,14 +464,10 @@ if (IPGLOB >= 1) then
   call MMA_DEALLOCATE(ESO)
 end if
 
-if (lOMG) then
-  call mma_deallocate(OMGR)
-  call mma_deallocate(OMGI)
-end if
-if (lJ2) then
-  call mma_deallocate(J2R)
-  call mma_deallocate(J2I)
-end if
+call mma_deallocate(OMGR)
+call mma_deallocate(OMGI)
+call mma_deallocate(J2R)
+call mma_deallocate(J2I)
 
 ! Put energy onto info file for automatic verification runs:
 EPSS = 5.0e-11_wp

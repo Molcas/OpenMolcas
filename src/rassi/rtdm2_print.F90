@@ -29,10 +29,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ISTATE, JSTATE, SYM12, NDYSAB, NRT2MAB, AUGSPIN
-real(kind=wp) :: EIJ, DYSAB(*), RT2M(*), CMO1(*), CMO2(*)
+integer(kind=iwp), intent(in) :: ISTATE, JSTATE, NDYSAB, NRT2MAB, AUGSPIN
+real(kind=wp), intent(in) :: EIJ, CMO1(*), CMO2(*)
+real(kind=wp), intent(inout) :: DYSAB(*), RT2M(*)
 integer(kind=iwp) :: I, IA, IO, IOFFA(8), IOFFO(8), IOFFTD, ISYI, ISYJ, ISYL, ISYM, J, JA, JO, KPOS, L, LA, LO, LPOS, LU, NAI, &
-                     NAJ, NAL, NB, NII, NIJ, NIL, NO, NOI, NOJ, NOL, NORBSYM
+                     NAJ, NAL, NB, NII, NIJ, NIL, NO, NOI, NOJ, NOL, NORBSYM, SYM12
 character(len=16) :: FNM
 character(len=3) :: NUM1, NUM2
 integer(kind=iwp), external :: IsFreeUnit
@@ -48,8 +49,7 @@ do J=1,nIrrep-1
   IOFFO(J+1) = IOFFO(J)+NOSH(J)
 end do
 ! Subroutine starts
-LU = 51
-LU = IsFreeUnit(LU)
+LU = IsFreeUnit(51)
 write(NUM1,'(I3.3)') ISTATE
 write(NUM2,'(I3.3)') JSTATE
 ! AUGSPIN

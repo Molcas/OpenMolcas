@@ -23,8 +23,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: JOB
-real(kind=wp) :: CMO(NCMO)
+integer(kind=iwp), intent(in) :: JOB
+real(kind=wp), intent(out) :: CMO(NCMO)
 integer(kind=iwp) :: I, IAD, IDISK, ISY, L1, L2, Length, NBUF
 #ifdef _HDF5_
 integer(kind=iwp) :: refwfn_id

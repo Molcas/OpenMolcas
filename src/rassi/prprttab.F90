@@ -14,7 +14,7 @@ subroutine PRPRTTAB(IPRTTAB)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPRTTAB(*)
+integer(kind=iwp), intent(in) :: IPRTTAB(*)
 integer(kind=iwp) :: IPART, ISYM, NPART, NSYM
 
 write(u6,*)

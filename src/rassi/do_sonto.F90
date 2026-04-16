@@ -31,8 +31,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSS
-real(kind=wp) :: USOR(NSS,NSS), USOI(NSS,NSS)
+integer(kind=iwp), intent(in) :: NSS
+real(kind=wp), intent(in) :: USOR(NSS,NSS), USOI(NSS,NSS)
 integer(kind=iwp) :: I, INTOSTATE, IOPT, ISS, ISTATE, JNTOSTATE, JOB1, JOB2, JSS, JSTATE, MPLET1, MPLET2, MSPROJ1, MSPROJ2
 real(kind=wp) :: IDENTMAT(3,3)
 real(kind=wp), allocatable :: ANTSIN(:), TDMAO(:), TSDMAO(:), UMATI(:), UMATR(:), VMAT(:,:)

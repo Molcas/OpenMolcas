@@ -19,7 +19,7 @@ use Constants, only: Zero, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CI1(NCI1), CI2(NCI2)
+real(kind=wp), intent(out) :: CI1(NCI1), CI2(NCI2)
 integer(kind=iwp) :: file1, file2, I, IAD, IAD3, IADR3(3), IDISK, JOB1, JOB2, LROOT1, maxHop, nHop
 real(kind=wp) :: prdct(2,2)
 logical(kind=iwp) :: fexist, lAllowHop, lHop, lHopped, lMaxHop

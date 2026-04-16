@@ -15,7 +15,8 @@ use Symmetry_Info, only: MUL
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mSYM, IOFF(mSYM), NBASF(mSym), ISY12
+integer(kind=iwp), intent(in) :: mSYM, NBASF(mSym), ISY12
+integer(kind=iwp), intent(out) :: IOFF(mSYM)
 integer(kind=iwp) :: IOF, ISY1, ISY2, NB1, NB12, NB2
 
 ! FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR

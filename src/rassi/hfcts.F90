@@ -26,10 +26,10 @@ use Constants, only: Zero, One, Two, Half, Quart, OneHalf, cZero, auTocm, c_in_a
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSS, JBNUM(NSTATE)
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), ENERGY(NSTATE), ESO(NSS), Boltz_k
-complex(kind=wp) :: DIPSOm(3,NSS,NSS)
-character :: xyzchr(3)
+integer(kind=iwp), intent(in) :: NSS, JBNUM(NSTATE)
+real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), ENERGY(NSTATE), ESO(NSS), Boltz_k
+complex(kind=wp), intent(in) :: DIPSOm(3,NSS,NSS)
+character, intent(in) :: xyzchr(3)
 integer(kind=iwp) :: I, IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6, IC, ICEN, ICOUNT, IERR, iFinal, IFUNCT, IMLTPL, IPROP, &
                      ISO, ISS, IStart, ISTATE, IT, IXYZ, J, JC, JOB, JSS, JSTATE, JXYZ, KDGN, KPROP, KXYZ, MPLET, MPLET1, MPLET2, &
                      MSPROJ, MSPROJ1, MSPROJ2
@@ -1591,9 +1591,7 @@ do IPROP=1,NPROP
 
       GSENERGY = ENERGY(1)
       do ISTATE=2,NSTATE
-        if (ENERGY(ISTATE) < GSENERGY) then
-          GSENERGY = ENERGY(ISTATE)
-        end if
+        if (ENERGY(ISTATE) < GSENERGY) GSENERGY = ENERGY(ISTATE)
       end do
 
       IMLTPL = 0

@@ -20,8 +20,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NDIMEN, LDV, switch
-real(kind=wp) :: VECRE(LDV,*), VECIM(LDV,*), ARRRE(NDIMEN,*)
+integer(kind=iwp), intent(in) :: NDIMEN, LDV, switch
+real(kind=wp), intent(inout) :: VECRE(LDV,*), VECIM(LDV,*), ARRRE(NDIMEN,*)
 integer(kind=iwp) :: I, ISEL, J, K
 real(kind=wp) :: EDIFF, ESEL, EVAL, O_i, O_j, VIKI, VIKJ, VRKI, VRKJ
 real(kind=wp), parameter :: Thr_EDiff = 1.0e-10_wp

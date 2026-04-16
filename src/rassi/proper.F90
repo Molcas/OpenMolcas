@@ -22,8 +22,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), TDMZZ(NTDMZZ), WDMZZ(NTDMZZ)
-integer(kind=iwp) :: ISTATE, JSTATE
+real(kind=wp), intent(inout) :: PROP(NSTATE,NSTATE,NPROP)
+integer(kind=iwp), intent(in) :: ISTATE, JSTATE
+real(kind=wp), intent(in) :: TDMZZ(NTDMZZ), WDMZZ(NTDMZZ)
 integer(kind=iwp) :: I, ICALL = 0, iDisk, iDIskSav = 0, IndCall, IOFF(8), iProp, iSy12, iType, J, JOB1, JOB2, Mask, NIP, nScr
 character(len=8) :: LABEL
 real(kind=wp), allocatable :: IP(:), SCR(:,:)

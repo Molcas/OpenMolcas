@@ -44,13 +44,11 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
 type(DSBA_Type), intent(in) :: DLT(1), MO1(2), MO2(2)
 type(DSBA_Type), intent(inout) :: FLT(1)
 integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
+real(kind=wp), intent(inout) :: TUVX(nTUVX)
 integer(kind=iwp) :: i, iBatch, iCase, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymb, iSymk, iSymv, IVEC2, iVrs, jDen, JNUM, &
                      JRED, JRED1, JRED2, jSym, JVC, JVEC, k, kDen, kMOs, l, LREAD, LWORK, mDen, mTTvec, mTvec, MUSED, NAv, NAw, &
                      nBatch, nDen, NK, nMOs, nRS, NUMV, nVec, nVrs, rc

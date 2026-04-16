@@ -17,7 +17,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPRTTAB(*)
+integer(kind=iwp), intent(in) :: IPRTTAB(*)
 integer(kind=iwp) :: I, IEXTNUM, INPART, INSBP, INSYM(8), IPAC, IPART, IPFR, IPIN, IPSE, ISMLAB, ISOIND, ISORB, ISPART, ISUM, &
                      ISYM, KOINFO, KSPART, N, NAPART, NASPO, NASPRT, NOES(8), NORBT, NPART, NSORBT, NSPART, NSYM, NTAB
 

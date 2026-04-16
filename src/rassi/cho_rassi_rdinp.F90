@@ -26,8 +26,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: DFonly
-integer(kind=iwp) :: LuSpool
+logical(kind=iwp), intent(in) :: DFonly
+integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp) :: iChrct, last
 real(kind=wp) :: dmpk_dfl
 character(len=180) :: Key, KWord

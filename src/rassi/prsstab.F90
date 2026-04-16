@@ -15,7 +15,7 @@ use Cntrl, only: MORSBITS
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: SSTAB(*)
+integer(kind=iwp), intent(in) :: SSTAB(*)
 integer(kind=iwp) :: I, IMRS, IMRSEND, IMRSSTA, ISBS, ISBSEND, ISBSSTA, ISPART, ISSTP, ISYM, KMRSSBS, KSBSANN, KSBSCRE, KSBSMRS, &
                      KSSTANN, KSSTCRE, KSSTP, LPOS, MS2, NASPRT, NMORS, NPOP, NRSBST, NSBS, NSBSTOT, NSSTP
 

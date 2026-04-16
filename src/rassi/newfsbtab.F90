@@ -18,7 +18,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NACTEL, MSPIN2, LSYM, REST(*), SSTAB(*), ICASE
+integer(kind=iwp), intent(in) :: NACTEL, MSPIN2, LSYM, REST(*), SSTAB(*), ICASE
 integer(kind=iwp) :: IERR, IFSB, ITYPE, JFSB, KHSHMAP, KORB, KREST, LSSTARR, NASPRT, NFSB, NFSB0, NHEAD, NHSHMAP, NLEN, NPART, &
                      NRDETS, NRDETS0, NSIZE, NSSTARR, NSYM
 integer(kind=iwp), pointer :: FSBTAB(:)

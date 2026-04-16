@@ -244,8 +244,7 @@ do IDIR=ISTART,IEND
 
   write(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
-  LuxxVec = 50
-  LuxxVec = isfreeunit(LuxxVec)
+  LuxxVec = isfreeunit(50)
 
   call WRVEC(FNAME,LUXXVEC,'CO',nIrrep,NBASF,NBASF,VNAT,OCC,Dummy,iDummy,'* DENSITY FOR PROPERTY TYPE '//CHARTYPE//KNUM)
 

@@ -51,7 +51,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: JOB1, JOB2, IState, jState, ISpin
+integer(kind=iwp), intent(in) :: JOB1, JOB2, IState, jState, ISpin
 real(kind=wp) :: TRAD(NASHT**2), TRASD(NASHT**2)
 integer(kind=iwp) :: I, I_NTO, icactorb, INFO, IOrb, Iprint, isym, IUseSym, J, Jprint, LU, N_NTO, NAISHT, NDge, NScrq, NSupBas, &
                      NSUPCMO, NUseBF(nIrrep), NUsedBF(nIrrep), NUseSym, RealtoUse(nIrrep), UsetoReal(nIrrep)

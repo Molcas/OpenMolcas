@@ -16,7 +16,7 @@ use Cntrl, only: Coor
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NATOMS
+integer(kind=iwp), intent(out) :: NATOMS
 
 ! Read NATOMS, nr of symmetry-unique atoms
 call Get_iScalar('Unique atoms',NATOMS)

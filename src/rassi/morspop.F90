@@ -15,7 +15,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: MorsPop
-integer(kind=iwp) :: IMORS
+integer(kind=iwp), intent(in) :: IMORS
 integer(kind=iwp) :: I1, I2, I3, J
 integer(kind=iwp), parameter :: NUM(0:15) = [0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4]
 

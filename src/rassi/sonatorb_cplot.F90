@@ -21,10 +21,10 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: DENS(6,NBTRI)
-character(len=*) :: FILEBASE
-character(len=8) :: CHARTYPE
-integer(kind=iwp) :: ASS, BSS
+real(kind=wp), intent(in) :: DENS(6,NBTRI)
+character(len=*), intent(in) :: FILEBASE
+character(len=8), intent(in) :: CHARTYPE
+integer(kind=iwp), intent(in) :: ASS, BSS
 integer(kind=iwp) :: I, I1, I1I, I2, ICMP, ID1, ID2, IDIR, IDUM(1), iDummy(7,8), IEND, II, II2, IJ, INV, INV2, IOCC, IOPT, IRC, &
                      ISCR, ISCRI, ISTART, ISYLAB, ISYM, ITYPE, J, JI, JOPT, LE, LE1, LS, LS1, LuXXVEC, LV, LV1, NB, NBMX2
 real(kind=wp) :: Dummy(1), SUMI, SUMR
@@ -40,16 +40,21 @@ integer(kind=iwp), external :: IsFreeUnit
 ! PLOTTING SECTION
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! Get the proper type of the property
-ITYPE = 0
-if (CHARTYPE == 'HERMSING') ITYPE = 1
-if (CHARTYPE == 'ANTISING') ITYPE = 2
-if (CHARTYPE == 'HERMTRIP') ITYPE = 3
-if (CHARTYPE == 'ANTITRIP') ITYPE = 4
-if (ITYPE == 0) then
-  write(u6,*) 'RASSI/SONATORB internal error.'
-  write(u6,*) 'Erroneous property type:',CHARTYPE
-  call ABEND()
-end if
+select case (CHARTYPE)
+  case ('HERMSING')
+    ITYPE = 1
+  case ('ANTISING')
+    ITYPE = 2
+  case ('HERMTRIP')
+    ITYPE = 3
+  case ('ANTITRIP')
+    ITYPE = 4
+  case default
+    write(u6,*) 'RASSI/SONATORB internal error.'
+    write(u6,*) 'Erroneous property type:',CHARTYPE
+    call ABEND()
+    ITYPE = 0
+end select
 
 NBMX2 = NBMX**2
 
@@ -414,15 +419,20 @@ do IDIR=ISTART,IEND
   if (ITYPE > 2) FNUM = CDIR//trim(FNUM)
 
   FNAME = FILEBASE//'.'//trim(FNUM)//'.R'
-  if (ITYPE == 1) write(u6,'(A,A)') ' NATURAL ORBITALS FOR ',KNUM
-  if (ITYPE == 2) write(u6,'(A,A)') ' ANTISING NATURAL ORBITALS FOR  ',KNUM
-  if (ITYPE == 3) write(u6,'(A,A)') ' NATURAL SPIN ORBITALS FOR  ',KNUM
-  if (ITYPE == 4) write(u6,'(A,A)') ' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+  select case (ITYPE)
+    case (1)
+      write(u6,'(A,A)') ' NATURAL ORBITALS FOR ',KNUM
+    case (2)
+      write(u6,'(A,A)') ' ANTISING NATURAL ORBITALS FOR  ',KNUM
+    case (3)
+      write(u6,'(A,A)') ' NATURAL SPIN ORBITALS FOR  ',KNUM
+    case (4)
+      write(u6,'(A,A)') ' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+  end select
 
   write(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
-  LuxxVec = 50
-  LuxxVec = isfreeunit(LuxxVec)
+  LuxxVec = isfreeunit(50)
 
   call WRVEC(FNAME,LUXXVEC,'CO',nIrrep,NBASF,NBASF,VNAT,OCC,Dummy,iDummy,'* DENSITY FOR PROPERTY TYPE '//CHARTYPE//KNUM)
 
@@ -434,14 +444,19 @@ do IDIR=ISTART,IEND
   end if
 
   FNAME = FILEBASE//'.'//trim(FNUM)//'.I'
-  if (ITYPE == 1) write(u6,'(A,A)') ' NATURAL ORBITALS FOR ',KNUM
-  if (ITYPE == 2) write(u6,'(A,A)') ' ANTISING NATURAL ORBITALS FOR  ',KNUM
-  if (ITYPE == 3) write(u6,'(A,A)') ' NATURAL SPIN ORBITALS FOR  ',KNUM
-  if (ITYPE == 4) write(u6,'(A,A)') ' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+  select case (ITYPE)
+    case (1)
+      write(u6,'(A,A)') ' NATURAL ORBITALS FOR ',KNUM
+    case (2)
+      write(u6,'(A,A)') ' ANTISING NATURAL ORBITALS FOR  ',KNUM
+    case (3)
+      write(u6,'(A,A)') ' NATURAL SPIN ORBITALS FOR  ',KNUM
+    case (4)
+      write(u6,'(A,A)') ' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+  end select
 
   write(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
-  LuxxVec = 50
   LuxxVec = isfreeunit(LuxxVec)
 
   call WRVEC(FNAME,LUXXVEC,'CO',nIrrep,NBASF,NBASF,VNATI,OCC,Dummy,iDummy,'* DENSITY FOR PROPERTY TYPE '//CHARTYPE//KNUM)

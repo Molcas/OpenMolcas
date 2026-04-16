@@ -177,8 +177,8 @@ subroutine StoreDens(EigVec)
           iDisk = iDisk_TDM(k,l,1)
           iEmpty = iDisk_TDM(k,l,2)
           iOpt = 2
-          iGo = 3
-          if (IfSO) iGo = iGo+4
+          iGo = ibset(ibset(0,0),1)
+          if (IfSO) iGo = ibset(iGo,2)
           call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LuTDM,iDisk,iEmpty,iOpt,iGo,k,l)
           if (btest(iEmpty,0)) then
             isZero(1) = .false.

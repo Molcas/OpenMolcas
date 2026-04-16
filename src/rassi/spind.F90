@@ -17,9 +17,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ISYOP, MS2OP, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
-real(kind=wp) :: PSI1(*), PSI2(*), SPD12(*)
+integer(kind=iwp), intent(in) :: ISYOP, MS2OP, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp), intent(in) :: PSI1(*), PSI2(*)
+real(kind=wp), intent(_OUT_) :: SPD12(*)
 integer(kind=iwp) :: IMODE, ISMLAB, ISORB, ISPLAB, JMS2, JSMLAB, JSORB, JSPLAB, JSYM, KOINFO, NASORB, NDETS1, NDETS2
 real(kind=wp) :: COEFF, OVLP
 real(kind=wp), allocatable :: ANN1(:), ANN2(:)

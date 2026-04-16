@@ -19,15 +19,17 @@ use gugx, only: CIStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-character(len=8) :: WFTP
-type(SGStruct) :: SGS
-type(CIStruct) :: CIS
-integer(kind=iwp) :: LSYM, ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*), NCONF
-real(kind=wp) :: CI(*), DET(*)
+character(len=8), intent(in) :: WFTP
+type(SGStruct), intent(in) :: SGS
+type(CIStruct), intent(in) :: CIS
+integer(kind=iwp), intent(in) :: LSYM, ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*), NCONF
+real(kind=wp), intent(in) :: CI(*), SPTRA(*)
+real(kind=wp), intent(_OUT_) :: DET(*)
 character(len=*), intent(out) :: detocc(NCONF)
 real(kind=wp), intent(out) :: detcoeff(NCONF)
-real(kind=wp), intent(in) :: SPTRA(*)
 integer(kind=iwp) :: IMODE
 real(kind=wp), allocatable :: CTMP(:)
 

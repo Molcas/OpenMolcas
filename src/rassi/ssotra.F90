@@ -17,11 +17,13 @@ use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp
 
 implicit none
-type(SGSTruct) :: SGS
-type(CISTruct) :: CIS
-type(EXSTruct) :: ExS
-integer(kind=iwp) :: ISYM, LSM, NA, NO, NCO
-real(kind=wp) :: TRA(NO,NO), CI(NCO), TMP(NCO)
+type(SGSTruct), intent(in) :: SGS
+type(CISTruct), intent(in) :: CIS
+type(EXSTruct), intent(inout) :: ExS
+integer(kind=iwp), intent(in) :: ISYM, LSM, NA, NO, NCO
+real(kind=wp), intent(in) :: TRA(NO,NO)
+real(kind=wp), intent(inout) :: CI(NCO)
+real(kind=wp), intent(out) :: TMP(NCO)
 integer(kind=iwp) :: IK, IKLEV, IL, IP, IPLEV, NI
 real(kind=wp) :: CKK, CPK, X
 integer(kind=iwp), allocatable :: ILEV(:)

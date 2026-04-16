@@ -27,8 +27,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSS, NZ
-real(kind=wp) :: USOR(NSS,NSS), USOI(NSS,NSS), DYSAMPS(NSTATE,NSTATE), SOENE(NSS)
+integer(kind=iwp), intent(in) :: NSS, NZ
+real(kind=wp), intent(in) :: USOR(NSS,NSS), USOI(NSS,NSS), DYSAMPS(NSTATE,NSTATE), SOENE(NSS)
 integer(kind=iwp) :: ICMP, IEIG, IOPT, IRC, ISTATE, ISY, ISYLAB, JEIG, JOB1, JSTATE, LUNIT, MPLET1, MSPROJ, NB, NDUM, NOFF, NSZZ, &
                      ORBNUM, SFI, SFJ, SFTOT, SODYSCIND, SOTOT, ZI, ZJ
 real(kind=wp) :: AMPLITUDE, CII, CIMAG, CIR, CJI, CJR, CREAL, MSPROJI, MSPROJJ

@@ -14,8 +14,8 @@ subroutine MorsWrite(IMORS,STRING)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IMORS
-character(len=*) :: STRING
+integer(kind=iwp), intent(in) :: IMORS
+character(len=*), intent(out) :: STRING
 integer(kind=iwp) :: I, IB, IBIT
 
 if (IMORS < 0) then

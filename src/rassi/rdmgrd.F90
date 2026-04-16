@@ -23,9 +23,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: JOB, IDISP, ISYMP, NARRAY
-character(len=8) :: LABEL, STYPE
-real(kind=wp) :: ARRAY(NARRAY)
+integer(kind=iwp), intent(in) :: JOB, IDISP, ISYMP, NARRAY
+character(len=8), intent(inout) :: LABEL
+character(len=8), intent(in) :: STYPE
+real(kind=wp), intent(out) :: ARRAY(NARRAY)
 integer(kind=iwp) :: I, IA1, IA2, IAOFF(8), IOPT, IRC, IS, ISCODE, ISUM, ITOFF(8), J, JS, LT, NBI, NBIJ, NBJ, NTEMP
 real(kind=wp) :: F
 real(kind=wp), allocatable :: TEMP(:)

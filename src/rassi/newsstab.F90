@@ -18,7 +18,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ORBTAB(*)
+integer(kind=iwp), intent(in) :: ORBTAB(*)
 integer(kind=iwp) :: I, IERR, IKMS2, IKSCR, IKSYM, IMS2, IPOP, ISBS, ISBS1, ISBS2, ISBS3, ISBS4, ISBS5, ISBS6, ISBS7, ISBS8, ISCR, &
                      ISGN, ISORB, ISPART, ISSTP, ISYM, ITYPE, J, KMRSSBS, KMS2, KOINFO, KSBSANN, KSBSCRE, KSBSMRS, KSSTANN, &
                      KSSTCRE, KSSTP, KSYM, LPOS, MRS, MS2, MXMS2, MXPOP, N, NASPO, NASPRT, NEWMRS, NEWSBS, NEWSST, NO, NSBS, &

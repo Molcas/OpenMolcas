@@ -30,9 +30,9 @@ use Constants, only: Zero, One, Two, Three, Six, Nine, Ten, Half, Quart, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSS, JBNUM(NSTATE)
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), OVLP(NSTATE,NSTATE), ENERGY(NSTATE), &
-                 EigVec(NSTATE,NSTATE)
+real(kind=wp), intent(inout) :: PROP(NSTATE,NSTATE,NPROP)
+integer(kind=iwp), intent(in) :: NSS, JBNUM(NSTATE)
+real(kind=wp), intent(in) :: USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), OVLP(NSTATE,NSTATE), ENERGY(NSTATE), EigVec(NSTATE,NSTATE)
 integer(kind=iwp) :: I, I2Tot, I_Have_DL, I_Have_DV, i_print, I_Print_Header, iAMFIx, iAMFIy, iAMFIz, iAMx, iAMy, iAMz, IBStep, &
                      IC, ICMP, IEND, iERR, IfAnyD, IfAnyM, IfAnyO, IfAnyQ, IfAnyS, iFinal, IFUNCT, iMLTPL, IPAM(3), IPAMFI(3), &
                      iPhi, iPhiStep, iPrDXY, iPrDXZ, iPrDYZ, iProp, ISO, iSOPr, ISS, ISTA, iStart, iState, IT, ITHE, ITStep, iVec, &
@@ -1467,7 +1467,7 @@ if (IFSO) then
   ! +++ J. Norell 19/7 - 2018
   ! Dyson amplitudes for (1-electron) ionization transitions
   if (DYSO) then
-    call Add_Info('SODYSAMPS',SODYSAMPS,NSS*NSS,4)
+    call Add_Info('SODYSAMPS',SODYSAMPS,NSS**2,4)
     DYSTHR = 1.0e-5_wp
     write(u6,*)
     call CollapseOutput(1,'Dyson amplitudes (SO states):')
@@ -2545,8 +2545,8 @@ contains
 
 subroutine Allocate_and_Load_electric_dipoles(IFANY)
 
-  integer ISOPR
-  integer IPRDX, IPRDY, IPRDZ, IFANY
+  integer(kind=iwp), intent(out) :: IFANY
+  integer(kind=iwp) :: IPRDX, IPRDY, IPRDZ, ISOPR
 
   IPRDX = 0
   IPRDY = 0
@@ -2589,8 +2589,8 @@ end subroutine Allocate_and_Load_electric_dipoles
 
 subroutine Allocate_and_Load_velocities(IFANY)
 
-  integer ISOPR
-  integer IPRDX, IPRDY, IPRDZ, IFANY
+  integer(kind=iwp), intent(out) :: IFANY
+  integer(kind=iwp) :: IPRDX, IPRDY, IPRDZ, ISOPR
 
   IPRDX = 0
   IPRDY = 0
@@ -2644,8 +2644,8 @@ end subroutine Deallocate_electric_dipoles
 
 subroutine Allocate_and_Load_magnetic_dipoles(IFANY)
 
-  integer ISOPR
-  integer IPRMDX, IPRMDY, IPRMDZ, IFANY
+  integer(kind=iwp), intent(out) :: IFANY
+  integer(kind=iwp) :: IPRMDX, IPRMDY, IPRMDZ, ISOPR
 
   IPRMDX = 0
   IPRMDY = 0
@@ -2700,8 +2700,8 @@ end subroutine Deallocate_magnetic_dipoles
 
 subroutine Allocate_and_Load_Spin_Magnetic_dipoles(IFANY)
 
-  integer ISOPR
-  integer IPRSX, IPRSY, IPRSZ, IFANY
+  integer(kind=iwp), intent(out) :: IFANY
+  integer(kind=iwp) :: IPRSX, IPRSY, IPRSZ, ISOPR
 
   IPRSX = 0
   IPRSY = 0
@@ -2756,8 +2756,8 @@ end subroutine Deallocate_Spin_Magnetic_dipoles
 
 subroutine Allocate_and_Load_Spin_Magnetic_Quadrupoles(IFANY)
 
-  integer ISOPR
-  integer IPRSXY, IPRSXZ, IPRSYX, IPRSYZ, IPRSZX, IPRSZY, IFANY
+  integer(kind=iwp), intent(out) :: IFANY
+  integer(kind=iwp) :: IPRSXY, IPRSXZ, IPRSYX, IPRSYZ, IPRSZX, IPRSZY, ISOPR
 
   IPRSXY = 0
   IPRSXZ = 0
@@ -2857,8 +2857,8 @@ end subroutine Deallocate_Spin_Magnetic_Quadrupoles
 
 subroutine Allocate_and_Load_Electric_Quadrupoles(IFANY)
 
-  integer ISOPR
-  integer IPRDXX, IPRDXY, IPRDXZ, IPRDYY, IPRDYZ, IPRDZZ, IFANY
+  integer(kind=iwp), intent(out) :: IFANY
+  integer(kind=iwp) :: IPRDXX, IPRDXY, IPRDXZ, IPRDYY, IPRDYZ, IPRDZZ, ISOPR
 
   IPRDXX = 0
   IPRDXY = 0
@@ -2949,8 +2949,8 @@ end subroutine Deallocate_Electric_Quadrupoles
 
 subroutine Allocate_and_Load_Magnetic_Quadrupoles(IFANY)
 
-  integer ISOPR
-  integer IPRDZX, IPRDYX, IPRDZY, IFANY
+  integer(kind=iwp), intent(out) :: IFANY
+  integer(kind=iwp) :: IPRDYX, IPRDZX, IPRDZY, ISOPR
 
   IPRDXY = 0
   IPRDXZ = 0
@@ -3046,8 +3046,8 @@ end subroutine Deallocate_Magnetic_Quadrupoles
 
 subroutine Allocate_and_Load_Octupoles(IFANY)
 
-  integer ISOPR
-  integer IPRDZZX, IPRDZZY, IPRDZZZ, IPRDXXX, IPRDXXY, IPRDXXZ, IPRDYYX, IPRDYYY, IPRDYYZ, IFANY
+  integer(kind=iwp), intent(out) :: IFANY
+  integer(kind=iwp) :: IPRDXXX, IPRDXXY, IPRDXXZ, IPRDYYX, IPRDYYY, IPRDYYZ, IPRDZZX, IPRDZZY, IPRDZZZ, ISOPR
 
   ! This is a real symmetric rank 3 tensor so only 10 and not 27 is needed
   ! The order which comes in

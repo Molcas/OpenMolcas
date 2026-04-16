@@ -25,7 +25,8 @@ subroutine PROTOCSF(NPEL,MLTPL,NPCSFSZ,IPCSFCP)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NPEL, MLTPL, NPCSFSZ, IPCSFCP(NPEL,NPCSFSZ)
+integer(kind=iwp), intent(in) :: NPEL, MLTPL, NPCSFSZ
+integer(kind=iwp), intent(out) :: IPCSFCP(NPEL,NPCSFSZ)
 integer(kind=iwp) :: ISP2, N, ND, NPCSF, NPELD, NPELU, NU
 integer(kind=iwp), parameter :: DWNCPL = 0, UPCPL = 1
 integer(kind=iwp), external :: NGENE

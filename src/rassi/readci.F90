@@ -24,10 +24,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ISTATE, NCI
-type(SGStruct) :: SGS
-type(CIStruct) :: CIS
-real(kind=wp) :: CI(NCI)
+integer(kind=iwp), intent(in) :: ISTATE, NCI
+type(SGStruct), intent(in) :: SGS
+type(CIStruct), intent(in) :: CIS
+real(kind=wp), intent(out) :: CI(NCI)
 integer(kind=iwp) :: I, IAD, IDISK, JOB, LROOT1, LSYM
 #ifdef _HDF5_
 integer(kind=iwp) :: refwfn_id, IDXCI

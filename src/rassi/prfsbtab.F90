@@ -14,7 +14,7 @@ subroutine PRFSBTAB(IFSBTAB)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IFSBTAB(*)
+integer(kind=iwp), intent(in) :: IFSBTAB(*)
 integer(kind=iwp) :: IFSB, ISPART, ISTA, KPOS, NASPRT, NDET, NFSB, NHEAD
 
 if (IFSBTAB(2) /= 73) then

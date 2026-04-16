@@ -20,9 +20,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: JOB, IDISP, ISYMP, nArray
-character(len=8) :: LABEL
-real(kind=wp) :: ARRAY(NARRAY)
+integer(kind=iwp), intent(in) :: JOB, IDISP, ISYMP, nArray
+character(len=8), intent(inout) :: LABEL
+real(kind=wp), intent(out) :: ARRAY(NARRAY)
 integer(kind=iwp) :: IOPT, IRC, ISCODE, NTEMP
 real(kind=wp), allocatable :: TEMP(:)
 

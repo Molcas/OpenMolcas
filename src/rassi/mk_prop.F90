@@ -29,9 +29,10 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPROP, ISTATE_, JSTATE_, ITYPE, NBUFF, NDENS, MASK, ISY12, IOFF(8)
-real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), BUFF(NBUFF), DENS(NDENS,4)
-character(len=8) :: LABEL
+integer(kind=iwp), intent(in) :: IPROP, ISTATE_, JSTATE_, ITYPE, NBUFF, NDENS, MASK, ISY12, IOFF(8)
+real(kind=wp), intent(inout) :: PROP(NSTATE,NSTATE,NPROP), BUFF(NBUFF)
+character(len=8), intent(inout) :: LABEL
+real(kind=wp), intent(in) :: DENS(NDENS,4)
 integer(kind=iwp) :: I12, IC, IDUM(1), IINT, IOPT, IPOS, IRC, ISCHK, ISTATE, ISY1, ISY2, JSTATE, NB1, NB12, NB2, NSIZ
 real(kind=wp) :: PSUM
 real(kind=wp), external :: DDot_

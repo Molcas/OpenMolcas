@@ -14,7 +14,7 @@ subroutine PrOrbTab(ORBTAB)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ORBTAB(*)
+integer(kind=iwp), intent(in) :: ORBTAB(*)
 integer(kind=iwp) :: IEXTNUM, INPART, INSBP, IPART, ISMLAB, ISOIND, ISORB, ISPART, ISPLAB, KOINFO, KSPART, NSPART, NSPORB
 character(len=8) :: STRING8
 character(len=8), external :: ORBNAM

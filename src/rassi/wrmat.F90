@@ -24,8 +24,8 @@ use Symmetry_Info, only: MUL, nIrrep
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: TEXT
-integer(kind=iwp) :: ISY12, NDIM1(nIrrep), NDIM2(nIrrep), NMAT
+character(len=*), intent(in) :: TEXT
+integer(kind=iwp), intent(in) :: ISY12, NDIM1(nIrrep), NDIM2(nIrrep), NMAT
 real(kind=wp) :: XMAT(NMAT)
 integer(kind=iwp) :: ISTA, ISY1, ISY2, NN
 

@@ -19,8 +19,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ISYOP, MS2OP, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB4(*)
-real(kind=wp) :: PSI1(*), PSI4(*), SPD2(*)
+integer(kind=iwp), intent(in) :: ISYOP, MS2OP, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB4(*)
+real(kind=wp), intent(in) :: PSI1(*), PSI4(*)
+real(kind=wp), intent(inout) :: SPD2(*)
 integer(kind=iwp) :: IJKL, IMODE, ISMLAB, ISORB, ISPLAB, JISORB, JSMLAB, JSORB, JSPLAB, KLMS2, KLSORB, KLSYM, KOINFO, KSMLAB, &
                      KSORB, KSPLAB, LSMLAB, LSORB, LSPLAB, NASGEM, NASORB, ND1, ND2, ND3, ND4
 real(kind=wp) :: COEFF, OVLP

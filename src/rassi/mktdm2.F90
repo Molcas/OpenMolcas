@@ -24,8 +24,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: LSYM1, MSPROJ1, IFSBTAB1(*), LSYM2, MSPROJ2, IFSBTAB2(*), ISSTAB(*), MAPORB(*), NTDM2, OrbTab(*)
-real(kind=wp) :: DET1(*), DET2(*), TDM2(NTDM2)
+integer(kind=iwp), intent(in) :: LSYM1, MSPROJ1, IFSBTAB1(*), LSYM2, MSPROJ2, IFSBTAB2(*), ISSTAB(*), MAPORB(*), NTDM2, OrbTab(*)
+real(kind=wp), intent(in) :: DET1(*), DET2(*)
+real(kind=wp), intent(out) :: TDM2(NTDM2)
 integer(kind=iwp) :: IAAAA, IABAB, IABBA, IAKA, IAKB, IBAAB, IBABA, IBBBB, IBIA, IBKA, IBKB, IJ, IJIJ, IORB, IORBA, IORBB, ISYOP, &
                      ITABS, ITU, ITUVX, IUABS, IVABS, IVX, IXABS, JALA, JALB, JBJA, JBLA, JBLB, JORB, JORBA, JORBB, KORB, KORBA, &
                      KORBB, LORB, LORBA, LORBB, MS2OP, NASGEM, NASHT, NASORB, NSPD2

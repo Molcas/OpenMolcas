@@ -30,14 +30,15 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: SIZA, SYMLAB
-real(kind=wp) :: A(SIZA), B(NBST**2)
-integer(kind=iwp) :: I, IJ, IOF, ISY1, ISY12_MA, ISY12_MA_BI, ISY2, ITD, J, JI, NB1, NB1_F, NB1_I, NB2, NB2_F, NB2_I
-real(kind=wp) :: ME, TDM
+integer(kind=iwp), intent(in) :: SIZA, SYMLAB
+real(kind=wp), intent(in) :: A(SIZA)
+real(kind=wp), intent(out) :: B(NBST,NBST)
+integer(kind=iwp) :: I, IJ, IOF, ISY1, ISY12_MA, ISY12_MA_BI, ISY2, ITD, J, NB1, NB1_F, NB1_I, NB2, NB2_F, NB2_I
+real(kind=wp) :: TDM
 real(kind=wp), allocatable :: SCR(:)
 
 ! Initialize
-B(:) = Zero
+B(:,:) = Zero
 
 call mma_allocate(SCR,SIZA,Label='SCR')
 SCR(:) = Zero
@@ -90,15 +91,10 @@ do ISY1=1,nIrrep
     NB2_f = NB2_i+NB2
     if (ISY12_ma_bi == SYMLAB) then
       do J=NB2_i+1,NB2_f
-        do I=NB1_i+1,NB1_f
-          if (I <= J) then
-            ITD = ITD+1
-            ME = SCR(ITD)
-            IJ = I+NBST*(J-1)
-            JI = J+NBST*(I-1)
-            B(IJ) = ME
-            B(JI) = ME
-          end if
+        do I=NB1_i+1,min(NB1_f,J)
+          ITD = ITD+1
+          B(I,J) = SCR(ITD)
+          if (I /= J) B(J,I) = SCR(ITD)
         end do
       end do
     end if

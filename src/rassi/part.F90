@@ -26,7 +26,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: SXY(NSXY), TRA1(NTRA), TRA2(NTRA)
+real(kind=wp), intent(in) :: SXY(NSXY)
+real(kind=wp), intent(out) :: TRA1(NTRA), TRA2(NTRA)
 integer(kind=iwp) :: II, ISY, N, NBLOCK, NDIMEN, NOMAX, NSIZE(4)
 integer(kind=iwp), allocatable :: ScrPiv(:)
 real(kind=wp), allocatable :: ScrBuf(:), ScrMat(:)
