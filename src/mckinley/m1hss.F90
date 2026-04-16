@@ -38,7 +38,7 @@ implicit none
 #include "hss_interface.fh"
 integer(kind=iwp) :: iAnga(4), iBeta, iCar, iCent, iComp, iDCRT(0:7), iIrrep, ipA, ipAOff, ipArr, ipB, ipBOff, iStop, iuvwx(4), &
                      jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCnt, kCnttp, kdc, lDCRT, LmbdT, Maxi, Mini, &
-                     mOp(4), nArray, nDAO, nDCRT, nDisp, nip, nnIrrep, nRys
+                     mOp(4), nArray, nDAO, nDCRT, nDisp, nip, nnIrrep
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3)
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
 integer(kind=iwp), external :: NrOpr
@@ -48,12 +48,11 @@ logical(kind=iwp), external :: EQ, TF
 unused_var(ZInv)
 unused_var(Ccoor)
 unused_var(nOrdOp)
+unused_var(nHer)
 
 !if (iPrint >= 99) then
 !  write(u6,*) ' In M1Hss: nArr=',nArr
 !end if
-
-nRys = nHer
 
 nip = 1
 ipA = nip
@@ -218,7 +217,7 @@ do kCnttp=1,nCnttp
       end do
       JfGrd(:,:) = .false.
 
-      call M1Kernel(rFinal,Hess,nHess,DAO,nDAO,iAnga,nRys,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,CoorAC,Array(ipArr), &
+      call M1Kernel(rFinal,Hess,nHess,DAO,nDAO,iAnga,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,CoorAC,Array(ipArr), &
                     nArray,jfgrd,jndgrd,jfhss,jndhss,ifg,tr,mop,iuvwx,kCnttp,Fact,loper(1),0)
 
     end do

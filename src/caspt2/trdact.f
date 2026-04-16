@@ -23,7 +23,7 @@
       use caspt2_module, only: nAshT, iSCF, jState, nConf, nSym, STSym,
      &                         iASym, nAes, nAshT, nAsh
       use caspt2_module, only: MxCI
-      use molcas, only: MxLev
+      use Molcas, only: MxLev
       use constants, only: Zero, One, Two
       use definitions, only: iwp, wp
       IMPLICIT NONE

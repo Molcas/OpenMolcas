@@ -12,12 +12,12 @@
 subroutine Integral_WrOut2_BP( &
 #                             define _CALLING_
 #                             include "int_wrout_interface.fh"
-                            )
+                             )
 ! calls the proper routines IndSft/PLF
 ! if IntOrd_jikl==.TRUE. integral order within symblk: jikl
 !                  else  integral order within symblk: ijkl
 
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_wrout_interface.fh"
@@ -42,8 +42,8 @@ if (mSym == 1) then
   kOp(:) = 0
   call PLF2_BP(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 else
-  Write (6,*) "Integral_WrOut2_BP to ported for symmetry yet."
-  Call abend()
+  write(u6,*) 'Integral_WrOut2_BP not ported for symmetry yet.'
+  call abend()
   call IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
 end if
 

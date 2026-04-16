@@ -47,7 +47,7 @@ C
 #ifdef _DMRG_
       use caspt2_module, only: DMRG
 #endif
-      use molcas, only: MxLev
+      use Molcas, only: MxLev
       use caspt2_module, only: MxCI, nG1, nG2, nG3
       use constants, only: Zero
       use definitions, only: iwp, wp, Byte, u6

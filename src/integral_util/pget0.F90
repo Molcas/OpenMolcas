@@ -26,9 +26,9 @@ subroutine PGet0(ijkl,PSO,nPSO,Mem2,nMem2,nQuad,PMax,iSD4)
 !***********************************************************************
 
 use setup, only: nSOs
-use pso_stuff, only: Bin, Case_2C, Case_3C, CASPT2_On, CMOPT2, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, iOffAO, lBin, &
-                     lPSO, lSA, LuGamma, LuGamma_PT2, nBasT, nDens, nFro, nGamma, nNP, nOcc, nV_k, nZ_p_k, ReadBPT2, SO2CI, U_K, &
-                     V_K, WRK1, WRK2, Z_P_K, iFnc, MemPSO
+use pso_stuff, only: Bin, Case_2C, Case_3C, CASPT2_On, CMOPT2, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, iFnc, iOffAO, &
+                     lBin, lPSO, lSA, LuGamma, LuGamma_PT2, MemPSO, nBasT, nDens, nFro, nGamma, nNP, nOcc, nV_k, nZ_p_k, ReadBPT2, &
+                     SO2CI, U_K, V_K, WRK1, WRK2, Z_P_K
 use iSD_data, only: iSO2Sh, nSD
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Cholesky, Do_RI

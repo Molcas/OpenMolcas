@@ -17,9 +17,9 @@ use Definitions, only: wp
 
 implicit none
 private
-real(kind=wp), pointer :: SOInt(:)=>Null(), AOInt(:)=>Null(), Scr(:)=>Null()
-real(kind=wp), pointer :: PSO(:,:)=>Null(), PAO(:,:,:,:,:)=>Null()
 
-public :: SOInt, AOInt, Scr, PSO, PAO
+real(kind=wp), pointer :: AOInt(:) => null(), PAO(:,:,:,:,:) => null(), PSO(:,:) => null(), Scr(:) => null(), SOInt(:) => null()
+
+public :: AOInt, PAO, PSO, Scr, SOInt
 
 end module eval_arrays

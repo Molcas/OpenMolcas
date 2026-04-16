@@ -465,8 +465,8 @@ C      the case, symmetry, and rhs vector respectively.
      &                  LKETSM, NBRASM, NI, NK, NKETSM, NP, NPI, NPIQK,
      &                  NQ, NQK
       integer(kind=iwp) mxPIQK, nBuff
-      mxPIQK=Size(PIQK)
-      nBuff=Size(BUFF)
+      mxPIQK=size(PIQK)
+      nBuff=size(BUFF)
 *
 *
       IF (iPrGlb.GE.DEBUG) THEN

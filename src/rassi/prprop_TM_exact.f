@@ -274,7 +274,7 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
       ip_TMI     = ip_TMR + 3
       nData      = ip_TMI + 3 - 1
       Call mma_allocate(Storage,nData,2*nQuad,nIJ,nVec,label='Storage')
-      Call dCopy_(Size(Storage),[0.0D0],0,Storage,1)
+      Call dCopy_(size(Storage),[0.0D0],0,Storage,1)
 #endif
 *MGD group transitions
       TMOgroup=.false.

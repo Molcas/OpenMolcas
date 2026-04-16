@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine m1kernel(rFinal,Hess,nHess,DAO,nDAO,iAng,nRys,nZeta,Alpha,Beta,Zeta,rKappa,P,TC,Coor,CoorAc,Array,nArray,ifgrd,indgrd, &
-                    ifhss,indhss,ifg,tr,nop,iuvwx,kCnttp,fact,loper,idcar)
+subroutine m1kernel(rFinal,Hess,nHess,DAO,nDAO,iAng,nZeta,Alpha,Beta,Zeta,rKappa,P,TC,Coor,CoorAc,Array,nArray,ifgrd,indgrd,ifhss, &
+                    indhss,ifg,tr,nop,iuvwx,kCnttp,fact,loper,idcar)
 
 use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: dbsc
@@ -20,8 +20,8 @@ use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nHess, nDAO, iAng(4), nRys, nZeta, nArray, indgrd(3,4,0:7), indhss(3,4,3,4,0:7), nop(4), &
-                                 iuvwx(4), kCnttp, loper, idcar
+integer(kind=iwp), intent(in) :: nHess, nDAO, iAng(4), nZeta, nArray, indgrd(3,4,0:7), indhss(3,4,3,4,0:7), nop(4), iuvwx(4), &
+                                 kCnttp, loper, idcar
 real(kind=wp), intent(inout) :: rFinal(*), Hess(nHess)
 real(kind=wp), intent(in) :: DAO(nZeta,nDAO), Alpha(nZeta), Beta(nZeta), Zeta(nZeta), rKappa(nZeta), P(nZeta,3), TC(3), Coor(3,4), &
                              CoorAC(3,2), fact
@@ -36,9 +36,6 @@ procedure(cff2d_kernel) :: Cff2D
 procedure(modu2_kernel) :: Fake
 procedure(tval1_kernel) :: TNAI1
 logical(kind=iwp), external :: EQ
-
-#include "macros.fh"
-unused_var(nRys)
 
 lGrad = idcar /= 0
 lHess = nHess /= 0

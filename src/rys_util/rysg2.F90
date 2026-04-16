@@ -13,8 +13,8 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Rysg2(iAnga,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
-                 Tvalue,ModU2_k,Cff2D_k,PAO,nPAO,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,nOp,iuvwx,IfG,mVec,Index_Out,lGrad,lHess,Tr)
+subroutine Rysg2(iAnga,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray,Tvalue, &
+                 ModU2_k,Cff2D_k,PAO,nPAO,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,nOp,iuvwx,IfG,mVec,Index_Out,lGrad,lHess,Tr)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the gradient of the two-electron integrals.       *
@@ -88,7 +88,7 @@ logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), iOff, ip, ip2D0, ip2D1, ip2D2, ipB00, &
                      ipB01, ipB10, ipDiv, ipEInv, ipEta, ipg2, ipP, ipPAQP, ipQ, ipQCPQ, ipScr, ipScr2, ipTmp, ipTv, ipU2, ipWgh, &
                      ipZeta, ipZInv, iStop, iZeta, jCar, JndGrd(3,4,0:7), kCent, la, lab, labMax, lb, lB00, lB01, lB10, lc, lCar, &
-                     lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, ncdMax, ng(3), nh(3), nTR, nRys
+                     lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, ncdMax, ng(3), nh(3), nRys, nTR
 logical(kind=iwp) :: KfGrd(3,4)
 
 KfGrd(:,:) = .false.
@@ -100,7 +100,7 @@ la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)
 ld = iAnga(4)
-nRys=(la+lb+lc+ld+2+2)/2
+nRys = (la+lb+lc+ld+2+2)/2
 lla = 0
 llb = 0
 llc = 0

@@ -295,40 +295,40 @@ if (IPRLEV > SILENT) then
       if (KSDFT == 'DIFF') n_Det = 1
       if (KSDFT == 'ROKS') n_Det = 1
 
-        write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
-        if (irlxroot /= 0) write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
-        if (ICICH == 0) then
+      write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
+      if (irlxroot /= 0) write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
+      if (ICICH == 0) then
 
-          if (nRoots == 1) then
+        if (nRoots == 1) then
 
-            if (doDMRG) then
-              write(u6,Fmt2//'A,(T45,10I6))') 'DMRG root used',IROOT(1)
-            else
-              write(u6,Fmt2//'A,(T45,10I6))') 'CI root used',IROOT(1)
-            end if
-            write(u6,Fmt1) '   '
-
+          if (doDMRG) then
+            write(u6,Fmt2//'A,(T45,10I6))') 'DMRG root used',IROOT(1)
           else
-
-            if (doDMRG) then
-              write(u6,Fmt2//'A,(T45,10I6))') 'DMRG roots used',(IROOT(i),i=1,nRoots)
-            else
-              write(u6,Fmt2//'A,(T45,10I6))') 'CI roots used',(IROOT(i),i=1,nRoots)
-            end if
-            write(u6,Fmt2//'A,(T45,10F6.3))') 'weights',(Weight(i),i=1,nRoots)
+            write(u6,Fmt2//'A,(T45,10I6))') 'CI root used',IROOT(1)
           end if
+          write(u6,Fmt1) '   '
 
         else
-          do i=1,nRoots
-            write(u6,Fmt2//'A,T45,I6)') 'selected root',iRoot(i)
-            write(u6,Fmt2//'A,T45,10I6)') 'Reference configurations',(iCI(i,iRef),iRef=1,mxRef)
-            write(u6,Fmt2//'A,T45,10F6.3)') 'CI-coeff',(cCI(i,iRef),iRef=1,mxRef)
-          end do
+
+          if (doDMRG) then
+            write(u6,Fmt2//'A,(T45,10I6))') 'DMRG roots used',(IROOT(i),i=1,nRoots)
+          else
+            write(u6,Fmt2//'A,(T45,10I6))') 'CI roots used',(IROOT(i),i=1,nRoots)
+          end if
+          write(u6,Fmt2//'A,(T45,10F6.3))') 'weights',(Weight(i),i=1,nRoots)
         end if
-        if (.not. doDMRG) then
-          write(u6,Fmt2//'A,T45,I6)') 'highest root included in the CI',LROOTS
-          write(u6,Fmt2//'A,T45,I6)') 'max. size of the explicit Hamiltonian',NSEL
-        end if
+
+      else
+        do i=1,nRoots
+          write(u6,Fmt2//'A,T45,I6)') 'selected root',iRoot(i)
+          write(u6,Fmt2//'A,T45,10I6)') 'Reference configurations',(iCI(i,iRef),iRef=1,mxRef)
+          write(u6,Fmt2//'A,T45,10F6.3)') 'CI-coeff',(cCI(i,iRef),iRef=1,mxRef)
+        end do
+      end if
+      if (.not. doDMRG) then
+        write(u6,Fmt2//'A,T45,I6)') 'highest root included in the CI',LROOTS
+        write(u6,Fmt2//'A,T45,I6)') 'max. size of the explicit Hamiltonian',NSEL
+      end if
       call CollapseOutput(0,'CI expansion specifications:')
 
 #   if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
@@ -342,22 +342,22 @@ if (IPRLEV > SILENT) then
     write(Line(left-2:),'(A)') 'RASSCF input specifications:'
     call CollapseOutput(1,Line)
     write(u6,Fmt1) '----------------------------'
-      write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
-      if (irlxroot /= 0) write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
-      if (ICICH == 0) then
-        if (nRoots == 1) then
-          write(u6,Fmt2//'A,(T45,10I6))') 'CI root used',IROOT(1)
-        else
-          write(u6,Fmt2//'A,(T45,10I6))') 'CI roots used',(IROOT(i),i=1,nRoots)
-          write(u6,Fmt2//'A,(T45,10F6.3))') 'weights',(Weight(i),i=1,nRoots)
-        end if
+    write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
+    if (irlxroot /= 0) write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
+    if (ICICH == 0) then
+      if (nRoots == 1) then
+        write(u6,Fmt2//'A,(T45,10I6))') 'CI root used',IROOT(1)
       else
-        do i=1,nRoots
-          write(u6,Fmt2//'A,T45,I6)') 'selected root',iRoot(i)
-          write(u6,Fmt2//'A,T45,10I6)') 'Reference configurations',(iCI(i,iRef),iRef=1,mxRef)
-          write(u6,Fmt2//'A,T45,10F6.3)') 'CI-coeff',(cCI(i,iRef),iRef=1,mxRef)
-        end do
+        write(u6,Fmt2//'A,(T45,10I6))') 'CI roots used',(IROOT(i),i=1,nRoots)
+        write(u6,Fmt2//'A,(T45,10F6.3))') 'weights',(Weight(i),i=1,nRoots)
       end if
+    else
+      do i=1,nRoots
+        write(u6,Fmt2//'A,T45,I6)') 'selected root',iRoot(i)
+        write(u6,Fmt2//'A,T45,10I6)') 'Reference configurations',(iCI(i,iRef),iRef=1,mxRef)
+        write(u6,Fmt2//'A,T45,10F6.3)') 'CI-coeff',(cCI(i,iRef),iRef=1,mxRef)
+      end do
+    end if
     call CollapseOutput(0,'RASSCF input specifications:')
   end if
   ! Check that the user doesn't try to calculate more roots than it's possible

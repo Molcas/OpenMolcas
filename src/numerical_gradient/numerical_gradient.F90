@@ -14,6 +14,7 @@ subroutine Numerical_Gradient(ireturn)
 #ifndef _HAVE_EXTRA_
 use Prgm, only: PrgmFree
 #endif
+use Index_Functions, only: nTri_Elem1
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Para_Info, only: MyRank, nProcs, Set_Do_Parallel
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
@@ -135,20 +136,20 @@ if (Exists) then
   IPotFl = IsFreeUnit(15)
   call Molcas_Open(IPotFl,'ESPF.DATA')
   Line = ' '
-  do while (index(Line,'ENDOFESPF ') == 0)
+  do while (index(Line,'ENDOFESPF') == 0)
     Line = Get_Ln(IPotFl)
-    if (index(Line,'TINKER ') /= 0) then
+    if (index(Line,'TINKER') /= 0) then
       DoTinker = .true.
-    else if (index(Line,'DIRECT ') /= 0) then
+    else if (index(Line,'DIRECT') /= 0) then
       DoDirect = .true.
-    else if (index(Line,'MLTORD ') /= 0) then
+    else if (index(Line,'MLTORD') /= 0) then
       call Get_I1(2,MltOrd)
       ibla = 0
       do ii=0,MltOrd
-        ibla = ibla+(ii+2)*(ii+1)/2
+        ibla = ibla+nTri_Elem1(ii)
       end do
       MltOrd = ibla
-    else if (index(Line,'MULTIPOLE ') /= 0) then
+    else if (index(Line,'MULTIPOLE') /= 0) then
       call Get_I1(2,nMult)
       call mma_allocate(Mltp,nMult,Label='Mltp')
       do iMlt=1,nMult,MltOrd
@@ -466,27 +467,26 @@ end if
 ! will be performed during numerical gradient
 ! IFG: swap files, as now NG uses a subdirectory
 
-iSave = 15
 if (Do_ESPF) then
-  iSave = IsFreeUnit(iSave)
+  iSave = IsFreeUnit(15)
   call Molcas_Open(iSave,'ESPF.SAV')
   iData = IsFreeUnit(iSave+1)
   call Molcas_Open(iData,'ESPF.DATA')
   do
     Line = Get_Ln(iData)
     ESPFKey = Line(1:10)
-    if (ESPFKey == 'ENDOFESPF ') then
-      write(iSave,'(A180)') Line
+    if (ESPFKey == 'ENDOFESPF') then
+      write(iSave,'(A)') trim(Line)
       exit
     else
-      if (ESPFKey /= 'MULTIPOLE ') then
-        write(iSave,'(A180)') Line
-        if (ESPFKey == 'MLTORD    ') then
-!          Line = Get_Ln(iData)
+      if (ESPFKey /= 'MULTIPOLE') then
+        write(iSave,'(A)') trim(Line)
+        if (ESPFKey == 'MLTORD') then
+          !Line = Get_Ln(iData)
           call Get_I1(2,MltOrd)
           ibla = 0
           do ii=0,MltOrd
-            ibla = ibla+(ii+2)*(ii+1)/2
+            ibla = ibla+nTri_Elem1(ii)
           end do
           MltOrd = ibla
         end if

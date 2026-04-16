@@ -228,7 +228,7 @@ subroutine refwfn_data()
   use gugx, only: L2ACT, LEVEL
   use Molcas, only: MxAct, MxRoot
   use RASDim, only: MxIter
-  use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO, CMO, CMO_Internal
+  use caspt2_global, only: CMO, CMO_Internal, IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO
   use caspt2_module, only: DMRG, DoCumulant, iAd1m, IEOF1M, IFQCAN, ISCF, mState, nBSqt, nConf, nRoots, nState, OrbIn, RefEne
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
@@ -247,7 +247,7 @@ subroutine refwfn_data()
   !---  Read the MO coefficients from HDF5/JOBIPH and store on LUONEM
   NCMO = NBSQT
   call mma_allocate(CMO_internal,NCMO,label='LCMORAS')
-  CMO=>CMO_Internal
+  CMO => CMO_Internal
 # ifdef _HDF5_
   if (refwfn_is_h5) then
     call mh5_fetch_dset(refwfn_id,'MO_VECTORS',CMO)
@@ -266,12 +266,12 @@ subroutine refwfn_data()
   call DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
   IEOF1M = IDISK
 
-  CMO=>Null()
+  nullify(CMO)
   call mma_deallocate(CMO_Internal)
 
   ! IDCIEX: Present EOF on LUCIEX.
-  Call mma_allocate(IDCIEX,nState,Label='IDCIEX')
-  Call mma_allocate(IDTCEX,nState,Label='IDTCEX')
+  call mma_allocate(IDCIEX,nState,Label='IDCIEX')
+  call mma_allocate(IDTCEX,nState,Label='IDTCEX')
   IDCIEX(1) = 0
   ID = IDCIEX(1)
   ! Skip when using cumulant reconstruction of (3-,) 4-RDM
@@ -282,7 +282,7 @@ subroutine refwfn_data()
       call mma_allocate(tmp,NCONF,label='LCI')
       do I=1,NSTATE
         ISNUM = MSTATE(I)
-        IDCIEX(I)=ID
+        IDCIEX(I) = ID
 #       ifdef _HDF5_
         if (refwfn_is_h5) then
           !---  Read the CI coefficients from the HDF5 file

@@ -11,7 +11,7 @@
 
 module GUGX
 
-use molcas, only: MxLev
+use Molcas, only: MxLev
 use Definitions, only: wp, iwp
 
 implicit none

@@ -120,7 +120,7 @@ C full array in case we are running in parallel
      &                  GA_Arrays(lg_V1)%A,NVEC,
      &                  GA_Arrays(lg_V2)%A,NVEC,
      &                  DPT2,nDPT2,
-     &                  LISTS,Size(LISTS))
+     &                  LISTS,size(LISTS))
 #ifdef _MOLCAS_MPP_
           END IF
 #endif

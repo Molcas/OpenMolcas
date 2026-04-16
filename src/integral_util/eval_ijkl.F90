@@ -40,40 +40,39 @@ subroutine Eval_ijkl(iS,jS,kS,lS,TInt,nTInt)
 !             Total rehack Aug '23                                     *
 !***********************************************************************
 
-use Index_Functions, only: iTri
-use setup, only: nSOs, nSkal=>mSkal
+use Index_Functions, only: iTri, nTri_Elem
+use setup, only: nSOs, mSkal
 use k2_arrays, only: Create_BraKet, Destroy_Braket, iSOSym, Sew_Scr
 use iSD_data, only: iSD, nSD
-use Breit, only: nComp, Do_BP_Integrals
+use Breit, only: Do_BP_Integrals, nComp
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: DoFock, DoIntegrals
 use Integral_interfaces, only: Int_PostProcess, twoel_kernel
 use RI_glob, only: jBas_, lBas_
+use eval_arrays, only: SOInt, AOInt, Scr, PSO, PAO
 #ifdef _DEBUGBREIT_
 use Breit, only: nOrdOp
 use UnixInfo, only: SuperName
 #endif
-#ifdef _DEBUGPRINT_
-use Definitions, only: u6
-#endif
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: wp, iwp
-use eval_arrays, only: SOInt, AOInt, Scr, PSO, PAO
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, kBasAO, &
-                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, MemMax, n, nAO, nIJKL, nSO, nPairs, nQuad
-real(kind=wp) :: Coor(3,4), Tmax, PMax
+integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, kBasAO, kBask, kBasn, &
+                     kBsInc, lBasAO, lBasl, lBasn, lBsInc, MemMax, n, nAO, nIJKL, nQuad, nSO
+real(kind=wp) :: Coor(3,4), Pmax, TMax
 logical(kind=iwp) :: NoInts
-integer(kind=iwp), external :: iDAMax_
-integer(kind=iwp), external :: MemSO2
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
 integer(kind=iwp), parameter :: SCF = 1
+integer(kind=iwp), external :: iDAMax_, MemSO2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -82,8 +81,7 @@ write(u6,*) ' -->',iS,jS,kS,lS,'<--'
 #endif
 
 PMax = Zero
-nPairs = nSkal*(nSkal+1)/2
-nQuad = nPairs*(nPairs+1)/2
+nQuad = nTri_Elem(nTri_Elem(mSkal))
 
 TInt(:) = Zero
 #ifdef _DEBUGBREIT_
@@ -224,29 +222,24 @@ do iBasAO=1,iBasi,iBsInc
           call Picky(nSD,iSD4,2,4)
         end if
 
-
-        If (Do_BP_Integrals) Then
-           nijkl = iBasn*jBasn*kBasn*lBasn
-           If (nIrrep==1) Then
-              call PGet0(nijkl,PAO,nAO,Scr,Size(Scr),nQuad,PMax,iSD4)
-           Else
-              call PGet0(nijkl,PSO,nSO,Scr,Size(Scr),nQuad,PMax,iSD4)
-           End If
-        End If
-
-        nijkl = iBasn*jBasn*kBasn*lBasn*nComp ! *nComp is a fix for BP integrals
+        nijkl = iBasn*jBasn*kBasn*lBasn
+        if (Do_BP_Integrals) then
+          if (nIrrep == 1) then
+            call PGet0(nijkl,PAO,nAO,Scr,size(Scr),nQuad,PMax,iSD4)
+          else
+            call PGet0(nijkl,PSO,nSO,Scr,size(Scr),nQuad,PMax,iSD4)
+          end if
+        end if
 
         !                                                              *
         !***************************************************************
         !                                                              *
         ! Compute SO/AO-integrals
 
-        call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Size(AOInt),iSD4)
-
-        nijkl = iBasn*jBasn*kBasn*lBasn
+        ! *nComp is a fix for BP integrals
+        call Do_TwoEl(Coor,NoInts,SOInt,nijkl*nComp,nSO,AOInt,size(AOInt),iSD4)
 
 #       ifdef _DEBUGBREIT_
-        nijkl = iBasn*jBasn*kBasn*lBasn
         if (nOrdOp /= 0) then
           if (nIrrep == 1) then
             call ReSort_Int(AOInt,nijkl,6,nAO)
@@ -256,11 +249,10 @@ do iBasAO=1,iBasi,iBsInc
         end if
 #       endif
 #       ifdef _DEBUGPRINT_
-        nijkl = iBasn*jBasn*kBasn*lBasn*nComp
         if (nIrrep == 1) then
-          call RecPrt('AOInt',' ',AOInt,nijkl,nAO)
+          call RecPrt('AOInt',' ',AOInt,nijkl*nComp,nAO)
         else
-          call RecPrt('SOInt',' ',SOInt,nijkl,nSO)
+          call RecPrt('SOInt',' ',SOInt,nijkl*nComp,nSO)
         end if
 #       endif
         !                                                              *
@@ -271,14 +263,13 @@ do iBasAO=1,iBasi,iBsInc
         if (DoIntegrals .and. (.not. NoInts)) then
           ! Get max AO/SO integrals
           if (nIrrep == 1) then
-            n = nijkl*nAO
+            n = nijkl*nComp*nAO
             Tmax = max(Tmax,abs(AOInt(iDAMax_(n,AOInt,1))))
           else
-            n = nijkl*nSO
+            n = nijkl*nComp*nSO
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
-            nijkl = iBasn*jBasn*kBasn*lBasn
             call Int_PostProcess(nijkl,AOInt,SOInt,nSO,iSOSym,nSOs,TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero

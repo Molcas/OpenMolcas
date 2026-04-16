@@ -40,11 +40,11 @@ use Symmetry_Info, only: nIrrep
 use rctfld_module, only: iCharge_Ref
 use Disp, only: lDisp
 use Etwas, only: nAsh, nIsh
+use PrintLevel, only: nPrint, Show
+use k2_arrays, only: DeDe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
-use k2_arrays, only: DeDe
-use Print, only: nPrint, Show
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
@@ -230,7 +230,7 @@ if (.not. Onenly) then
     call Abend()
   end if
 
-  call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocatio
+  call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
   call Drvg2(Temp,nhess,lGrd,lHss)
   call mma_deallocate(DeDe,safe='*')
 

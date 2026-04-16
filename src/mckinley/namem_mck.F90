@@ -30,7 +30,7 @@ iAng(2) = lb
 iAng(3) = 0
 iAng(4) = 0
 call MemRg2(iAng,Mem)
-nHer=(la+lb+2+2)/2
+nHer = (la+lb+2+2)/2
 Mem = Mem+2
 
 return

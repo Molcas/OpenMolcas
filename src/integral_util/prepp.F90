@@ -110,266 +110,253 @@ end if
 
 ! Check the wave function type
 
+select case (Method)
 
-Select Case(Method)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-Case ('RHF-SCF','UHF-SCF','IVO-SCF','MBPT2','KS-DFT','ROHF')
+  case ('RHF-SCF','UHF-SCF','IVO-SCF','MBPT2','KS-DFT','ROHF')
 
-# ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,'(2A)') ' Wavefunction type: ',Method
-  if (Method == 'KS-DFT  ') then
-    write(u6,'(2A)') ' Functional type:   ',KSDFT
-    Frmt = '(1X,A26,20X,F18.6)'
-    write(u6,Frmt) 'Exchange scaling factor',CoefX
-    write(u6,Frmt) 'Correlation scaling factor',CoefR
-  end if
-  write(6,*)
-# endif
-
-  if (Method == 'MBPT2   ') then
-    Case_mp2 = .true.
-    call DecideOnCholesky(DoCholesky)
-    if (.not. DoCholesky) then
-      iSeed = 10
-      LuGam = IsFreeUnit(iSeed)
-      write(FnGam,'(A6)') 'LuGam'
-      call DaName_MF_WA(LuGam,FnGam)
-      Gamma_on = .true.
-      call Aces_Gamma()
-    end if
-  end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-Case  ('Corr. WF')
-
-# ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,*) ' Wavefunction type: an Aces 2 correlated wavefunction'
-  write(u6,*)
-# endif
-
-  Gamma_On = .true.
-  call Aces_Gamma()
-
-!                                                                    *
-!*********************************************************************
-!                                                                    *
-Case ('MR-CISD')
-
-If (Columbus == 1) then
-  !*********** columbus interface ****************************************
-  !do not reconstruct the two-particle density from the one-particle
-  !density or partial two-particle densities but simply read them from
-  !file
-
-  nShell = mSkal
-  nPair = nTri_Elem(nShell)
-  nQuad = nTri_Elem(nPair)
-
-  ! Allocate Table Of Content for half sorted gammas.
-
-  call mma_Allocate(G_Toc,nQuad+2,Label='G_Toc')
-
-  ! find free unit number
-  lgtoc = 61
-  lgtoc = isFreeUnit(lgtoc)
-  idisk = 0
-  ! read table of contents of half-sorted gamma file
-  call DaName(lgtoc,'gtoc')
-  call ddafile(lgtoc,2,G_Toc,nQuad+2,idisk)
-  call Daclos(lgtoc)
-  n = int(G_Toc(nQuad+1))
-  lbin = int(G_Toc(nQuad+2))
-  if (n /= nQuad) then
-    call WarningMessage(2,'n /= nQuad')
-    write(u6,*) 'n,nQuad=',n,nQuad
-    call Abend()
-  end if
-
-  Gamma_On = .true.
-  Gamma_mrcisd = .true.
-  ! open gamma file
-  LuGamma = 60
-  LuGamma = isfreeunit(LuGamma)
-  ! closed in closep
-  call DaName_MF(LuGamma,'GAMMA')
-  ! allocate space for bins
-  call mma_Allocate(Bin,2,lBin,Label='Bin')
-  ! compute SO2cI array
-  call mma_Allocate(SO2cI,2,nSOs,Label='SO2cI')
-  call Mk_SO2cI(SO2cI,iSO2Sh,nsos)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-End if
-
-!                                                                    *
-!*********************************************************************
-!                                                                    *
-Case ('RASSCF','CASSCF','GASSCF','MCPDFT','MSPDFT','DMRGSCF','CASDFT')
-
-  call Get_iArray('nAsh',nAsh,nIrrep)
-  nAct = sum(nAsh(0:nIrrep-1))
-  if (nAct > 0) lPSO = .true.
-
-  nDSO = nDens
-  mIrrep = nIrrep
-  mBas(0:nIrrep-1) = nBas(0:nIrrep-1)
-# ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,'(2A)') ' Wavefunction type: ',Method
-  if ((Method == 'CASDFT') .or. (Method == 'MCPDFT')) write(u6,'(2A)') ' Functional type:   ',KSDFT
-  if (Method == 'MSPDFT') write(u6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
-  write(u6,*)
-# endif
-  if (Method == 'MCPDFT') lSA = .true.
-  if (Method == 'MSPDFT') then
-    lSA = .true.
-  end if
-
-!                                                                    *
-!*********************************************************************
-!                                                                    *
-Case ('CASSCFSA','DMRGSCFS','GASSCFSA','RASSCFSA','CASPT2')
-
-  call Get_iArray('nAsh',nAsh,nIrrep)
-  nAct = sum(nAsh(0:nIrrep-1))
-  if (nAct > 0) lPSO = .true.
-
-  nDSO = nDens
-  mIrrep = nIrrep
-  mBas(0:nIrrep-1) = nBas(0:nIrrep-1)
-  call Get_iScalar('SA ready',iGo)
-  if (iGO == 1) lSA = .true.
-# ifdef _DEBUGPRINT_
-  write(u6,*)
-  if (lSA) then
-    write(u6,'(2A)') ' Wavefunction type: State average ',Method(1:6)
-  else
+#   ifdef _DEBUGPRINT_
+    write(u6,*)
     write(u6,'(2A)') ' Wavefunction type: ',Method
-  end if
-  write(u6,*)
-# endif
-  if (Method == 'CASPT2  ') then
-    CASPT2_On = .true.
-    call DecideOnCholesky(DoCholesky)
-    !if (.not. DoCholesky) then
+    if (Method == 'KS-DFT  ') then
+      write(u6,'(2A)') ' Functional type:   ',KSDFT
+      Frmt = '(1X,A26,20X,F18.6)'
+      write(u6,Frmt) 'Exchange scaling factor',CoefX
+      write(u6,Frmt) 'Correlation scaling factor',CoefR
+    end if
+    write(6,*)
+#   endif
+
+    if (Method == 'MBPT2   ') then
+      Case_mp2 = .true.
+      call DecideOnCholesky(DoCholesky)
+      if (.not. DoCholesky) then
+        iSeed = 10
+        LuGam = IsFreeUnit(iSeed)
+        write(FnGam,'(A6)') 'LuGam'
+        call DaName_MF_WA(LuGam,FnGam)
+        Gamma_on = .true.
+        call Aces_Gamma()
+      end if
+    end if
+
+  case ('Corr. WF')
+
+#   ifdef _DEBUGPRINT_
+    write(u6,*)
+    write(u6,*) ' Wavefunction type: an Aces 2 correlated wavefunction'
+    write(u6,*)
+#   endif
+
     Gamma_On = .true.
-    ! It is opened, but not used actually. I just want to
-    ! use the Gamma_On flag.
-    ! Just to avoid error termination.
-    LuGamma = 65
-    call DaName_MF_WA(LuGamma,'GAMMA')
-    if (DoCholesky) call mma_allocate(G_Toc,1,Label='G_Toc')
-    call mma_allocate(SO2cI,1,1,Label='SO2cI')
-    call mma_allocate(Bin,1,1,Label='Bin')
-    !end if
-    if (Cholesky .or. Do_RI) then
-      nBasT = 0
-      nBasA = 0
-      nBasASQ = 0
-      do i=0,nIrrep-1
-        nBasT = nBasT+nBas(i)
-        nBasA = nBasA+nBas_Aux(i)-1
-        nBasASQ = nBasASQ+(nBas_Aux(i)-1)**2
-      end do
-      call mma_allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
+    call Aces_Gamma()
 
-      call Set_Basis_Mode('Valence')
-      call Setup_iSD()
-      MxInShl = 1
-      do i=1,mSkal
-        MxInShl = max(MxInShl,iSD(3,i)*iSD(2,i))
-      end do
-      call Free_iSD()
-      call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
-    else
-      nBasT = 0
-      do i=0,nIrrep-1
-        nBasT = nBasT+nBas(i)
-      end do
+  case ('MR-CISD')
 
-      nSSDM = 0
+    if (Columbus == 1) then
+      !*********** columbus interface **************************************
+      !do not reconstruct the two-particle density from the one-particle
+      !density or partial two-particle densities but simply read them from
+      !file
 
-      ! The two MO indices in the half-transformed amplitude are
-      ! not CASSCF but quasi-canonical orbitals.
-      call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
-      LuCMOPT2 = isFreeUnit(66)
-      call PrgmTranslate('CMOPT2',RealName,lRealName)
-      call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
+      nShell = mSkal
+      nPair = nTri_Elem(nShell)
+      nQuad = nTri_Elem(nPair)
 
-      do i=1,nBasT*nBasT
-        read(LuCMOPT2) CMOPT2(i)
-      end do
+      ! Allocate Table Of Content for half sorted gammas.
 
-      read(LuCMOPT2) nOcc(1)
-      read(LuCMOPT2) nOcc(2)
-      read(LuCMOPT2) nOcc(3)
-      read(LuCMOPT2) nOcc(4)
-      read(LuCMOPT2) nOcc(5)
-      read(LuCMOPT2) nOcc(6)
-      read(LuCMOPT2) nOcc(7)
-      read(LuCMOPT2) nOcc(8)
-      read(LuCMOPT2) nFro(1)
-      read(LuCMOPT2) nFro(2)
-      read(LuCMOPT2) nFro(3)
-      read(LuCMOPT2) nFro(4)
-      read(LuCMOPT2) nFro(5)
-      read(LuCMOPT2) nFro(6)
-      read(LuCMOPT2) nFro(7)
-      read(LuCMOPT2) nFro(8)
-      read(LuCMOPT2) nSSDM
+      call mma_Allocate(G_Toc,nQuad+2,Label='G_Toc')
 
-      if (nSSDM /= 0) then
-        call mma_allocate(SSDM,nBas(0)*(nBas(0)+1)/2,2,nSSDM,Label='SSDM')
-        do iSSDM=1,nSSDM
-          do i=1,nBas(0)*(nBas(0)+1)/2
-            read(LuCMOPT2) SSDM(i,1,iSSDM),SSDM(i,2,iSSDM)
-          end do
-        end do
+      ! find free unit number
+      lgtoc = 61
+      lgtoc = isFreeUnit(lgtoc)
+      idisk = 0
+      ! read table of contents of half-sorted gamma file
+      call DaName(lgtoc,'gtoc')
+      call ddafile(lgtoc,2,G_Toc,nQuad+2,idisk)
+      call Daclos(lgtoc)
+      n = int(G_Toc(nQuad+1))
+      lbin = int(G_Toc(nQuad+2))
+      if (n /= nQuad) then
+        call WarningMessage(2,'n /= nQuad')
+        write(u6,*) 'n,nQuad=',n,nQuad
+        call Abend()
       end if
 
-      close(LuCMOPT2)
-
-      write(u6,*) 'Number of Non-Frozen Occupied Orbitals = ',nOcc(1)
-      write(u6,*) 'Number of     Frozen          Orbitals = ',nFro(1)
-
-      call mma_allocate(iOffAO,mSkal+1,Label='iOffAO')
-      MaxShlAO = 0
-      iOffAO(1) = 0
-      do iSh=1,mSkal
-        nBasI = iSD(2,iSh)*iSD(3,iSh)
-        if (nBasI > MaxShlAO) MaxShlAO = nBasI
-        iOffAO(iSh+1) = iOffAO(iSh)+nBasI
-      end do
-      call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
-
-      LuGAMMA_PT2 = isFreeUnit(65)
-      call PrgmTranslate('GAMMA',RealName,lRealName)
-      call MOLCAS_Open_Ext2(LuGamma_PT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
-
-      call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
-      call mma_allocate(WRK2,MaxShlAO*nOcc(1),Label='WRK2')
-
+      Gamma_On = .true.
+      Gamma_mrcisd = .true.
+      ! open gamma file
+      LuGamma = 60
+      LuGamma = isfreeunit(LuGamma)
+      ! closed in closep
+      call DaName_MF(LuGamma,'GAMMA')
+      ! allocate space for bins
+      call mma_Allocate(Bin,2,lBin,Label='Bin')
+      ! compute SO2cI array
+      call mma_Allocate(SO2cI,2,nSOs,Label='SO2cI')
+      call Mk_SO2cI(SO2cI,iSO2Sh,nsos)
+    else
+      call WarningMessage(2,'Alaska: Unknown wavefuntion type')
+      write(u6,*) 'Wavefunction type:',Method
+      write(u6,*) 'Illegal type of wave function!'
+      write(u6,*) 'ALASKA cannot continue.'
+      call Quit_OnUserError()
     end if
-  end if
-  Method = 'RASSCF  '
-!                                                                    *
-!*********************************************************************
-!                                                                    *
-Case Default
 
-  call WarningMessage(2,'Alaska: Unknown wavefuntion type')
-  write(u6,*) 'Wavefunction type:',Method
-  write(u6,*) 'Illegal type of wave function!'
-  write(u6,*) 'ALASKA cannot continue.'
-  call Quit_OnUserError()
+  case ('RASSCF','CASSCF','GASSCF','MCPDFT','MSPDFT','DMRGSCF','CASDFT')
 
-End Select
+    call Get_iArray('nAsh',nAsh,nIrrep)
+    nAct = sum(nAsh(0:nIrrep-1))
+    if (nAct > 0) lPSO = .true.
+
+    nDSO = nDens
+    mIrrep = nIrrep
+    mBas(0:nIrrep-1) = nBas(0:nIrrep-1)
+#   ifdef _DEBUGPRINT_
+    write(u6,*)
+    write(u6,'(2A)') ' Wavefunction type: ',Method
+    if ((Method == 'CASDFT') .or. (Method == 'MCPDFT')) write(u6,'(2A)') ' Functional type:   ',KSDFT
+    if (Method == 'MSPDFT') write(u6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
+    write(u6,*)
+#   endif
+    if (Method == 'MCPDFT') lSA = .true.
+    if (Method == 'MSPDFT') then
+      lSA = .true.
+    end if
+
+  case ('CASSCFSA','DMRGSCFS','GASSCFSA','RASSCFSA','CASPT2')
+
+    call Get_iArray('nAsh',nAsh,nIrrep)
+    nAct = sum(nAsh(0:nIrrep-1))
+    if (nAct > 0) lPSO = .true.
+
+    nDSO = nDens
+    mIrrep = nIrrep
+    mBas(0:nIrrep-1) = nBas(0:nIrrep-1)
+    call Get_iScalar('SA ready',iGo)
+    if (iGO == 1) lSA = .true.
+#   ifdef _DEBUGPRINT_
+    write(u6,*)
+    if (lSA) then
+      write(u6,'(2A)') ' Wavefunction type: State average ',Method(1:6)
+    else
+      write(u6,'(2A)') ' Wavefunction type: ',Method
+    end if
+    write(u6,*)
+#   endif
+    if (Method == 'CASPT2  ') then
+      CASPT2_On = .true.
+      call DecideOnCholesky(DoCholesky)
+      !if (.not. DoCholesky) then
+      Gamma_On = .true.
+      ! It is opened, but not used actually. I just want to
+      ! use the Gamma_On flag.
+      ! Just to avoid error termination.
+      LuGamma = 65
+      call DaName_MF_WA(LuGamma,'GAMMA')
+      if (DoCholesky) call mma_allocate(G_Toc,1,Label='G_Toc')
+      call mma_allocate(SO2cI,1,1,Label='SO2cI')
+      call mma_allocate(Bin,1,1,Label='Bin')
+      !end if
+      if (Cholesky .or. Do_RI) then
+        nBasT = 0
+        nBasA = 0
+        nBasASQ = 0
+        do i=0,nIrrep-1
+          nBasT = nBasT+nBas(i)
+          nBasA = nBasA+nBas_Aux(i)-1
+          nBasASQ = nBasASQ+(nBas_Aux(i)-1)**2
+        end do
+        call mma_allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
+
+        call Set_Basis_Mode('Valence')
+        call Setup_iSD()
+        MxInShl = 1
+        do i=1,mSkal
+          MxInShl = max(MxInShl,iSD(3,i)*iSD(2,i))
+        end do
+        call Free_iSD()
+        call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
+      else
+        nBasT = 0
+        do i=0,nIrrep-1
+          nBasT = nBasT+nBas(i)
+        end do
+
+        nSSDM = 0
+
+        ! The two MO indices in the half-transformed amplitude are
+        ! not CASSCF but quasi-canonical orbitals.
+        call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
+        LuCMOPT2 = isFreeUnit(66)
+        call PrgmTranslate('CMOPT2',RealName,lRealName)
+        call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
+
+        do i=1,nBasT*nBasT
+          read(LuCMOPT2) CMOPT2(i)
+        end do
+
+        read(LuCMOPT2) nOcc(1)
+        read(LuCMOPT2) nOcc(2)
+        read(LuCMOPT2) nOcc(3)
+        read(LuCMOPT2) nOcc(4)
+        read(LuCMOPT2) nOcc(5)
+        read(LuCMOPT2) nOcc(6)
+        read(LuCMOPT2) nOcc(7)
+        read(LuCMOPT2) nOcc(8)
+        read(LuCMOPT2) nFro(1)
+        read(LuCMOPT2) nFro(2)
+        read(LuCMOPT2) nFro(3)
+        read(LuCMOPT2) nFro(4)
+        read(LuCMOPT2) nFro(5)
+        read(LuCMOPT2) nFro(6)
+        read(LuCMOPT2) nFro(7)
+        read(LuCMOPT2) nFro(8)
+        read(LuCMOPT2) nSSDM
+
+        if (nSSDM /= 0) then
+          call mma_allocate(SSDM,nBas(0)*(nBas(0)+1)/2,2,nSSDM,Label='SSDM')
+          do iSSDM=1,nSSDM
+            do i=1,nBas(0)*(nBas(0)+1)/2
+              read(LuCMOPT2) SSDM(i,1,iSSDM),SSDM(i,2,iSSDM)
+            end do
+          end do
+        end if
+
+        close(LuCMOPT2)
+
+        write(u6,*) 'Number of Non-Frozen Occupied Orbitals = ',nOcc(1)
+        write(u6,*) 'Number of     Frozen          Orbitals = ',nFro(1)
+
+        call mma_allocate(iOffAO,mSkal+1,Label='iOffAO')
+        MaxShlAO = 0
+        iOffAO(1) = 0
+        do iSh=1,mSkal
+          nBasI = iSD(2,iSh)*iSD(3,iSh)
+          if (nBasI > MaxShlAO) MaxShlAO = nBasI
+          iOffAO(iSh+1) = iOffAO(iSh)+nBasI
+        end do
+        call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
+
+        LuGAMMA_PT2 = isFreeUnit(65)
+        call PrgmTranslate('GAMMA',RealName,lRealName)
+        call MOLCAS_Open_Ext2(LuGamma_PT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
+
+        call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
+        call mma_allocate(WRK2,MaxShlAO*nOcc(1),Label='WRK2')
+
+      end if
+    end if
+    Method = 'RASSCF  '
+
+  case default
+
+    call WarningMessage(2,'Alaska: Unknown wavefuntion type')
+    write(u6,*) 'Wavefunction type:',Method
+    write(u6,*) 'Illegal type of wave function!'
+    write(u6,*) 'ALASKA cannot continue.'
+    call Quit_OnUserError()
+
+end select
 
 ! Read the (non) variational 1st order electron density matrix, Density matrix in AO/SO basis
 ! Dito spin density matrix.

@@ -46,7 +46,7 @@ real(kind=wp), parameter :: Hii_Max = One, Hii_Min = 0.05_wp
 ! needed to make the rs-rfo code work.
 
 ! Compute the diagonal values of the Fock matrix, stored in EOrb.
-! Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))
+!call Mk_EOrb(CMO_Ref,size(CMO_Ref,1),size(CMO_Ref,2))
 
 nD = size(FockMO,2)
 HDiag(:) = Zero

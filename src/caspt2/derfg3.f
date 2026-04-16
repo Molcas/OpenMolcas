@@ -26,7 +26,7 @@
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp,u6,RtoB
       use caspt2_module, only: nActEl, nSym, STSym, EPSA
-      use molcas, only: MxLev
+      use Molcas, only: MxLev
       use caspt2_module, only: MxCI
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use Constants, only: Zero, One, Half

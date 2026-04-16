@@ -35,7 +35,6 @@ integer(kind=iwp), intent(in) :: nWrk, nijkl, mabMax, mabMin, mcdMax, mcdMin, la
 real(kind=wp), intent(inout) :: Wrk(nWrk)
 real(kind=wp), intent(in) :: HMtrxAB(*), HMtrxCD(*)
 integer(kind=iwp), intent(out) :: i_out
-integer(kind=iwp) :: i_In, iW2, iW3, nab, ncd, nDim, ne, nf, nfijkl, nijklab
 
 ! If nComp==1
 !   Integral are stored as e,f,IJKL in Wrk
@@ -44,97 +43,95 @@ integer(kind=iwp) :: i_In, iW2, iW3, nab, ncd, nDim, ne, nf, nfijkl, nijklab
 
 ! Observe that Transf is false for s and p functions.
 
-Call TnsCtl_Internal(Wrk,nWrk)
+call TnsCtl_Internal(Wrk,nWrk)
 
-Contains
-Subroutine TnsCtl_Internal(Wrk,nWrk)
+contains
 
-integer(kind=iwp), intent(in) :: nWrk
-real(kind=wp), intent(inout), target :: Wrk(nWrk)
-real(kind=wp), pointer:: W2(:), W3(:), W_in(:), W_out(:)
+subroutine TnsCtl_Internal(Wrk,nWrk)
 
-ne = (mabMax-mabMin+1)
-nf = (mcdMax-mcdMin+1)
-nab = iCmpa*jCmpb
-ncd = kCmpc*lCmpd
-nDim = max(ne*nf,nab*nf,nab*ncd)
+  integer(kind=iwp), intent(in) :: nWrk
+  real(kind=wp), target, intent(inout) :: Wrk(nWrk)
+  real(kind=wp), pointer :: W2(:), W3(:), W_in(:), W_out(:)
+  integer(kind=iwp) :: i_In, iW2, iW3, nab, ncd, nDim, ne, nf, nfijkl, nijklab
 
-iW2 = 1
-iW3 = 1+nijkl*nDim
-W2(1:nijkl*nDim)=>Wrk(1:nijkl*nDim)
-W3(1:(nWrk-nijkl*nDim))=>Wrk(nijkl*nDim+1:nWrk)
+  ne = (mabMax-mabMin+1)
+  nf = (mcdMax-mcdMin+1)
+  nab = iCmpa*jCmpb
+  ncd = kCmpc*lCmpd
+  nDim = max(ne*nf,nab*nf,nab*ncd)
 
-if (nComp /= 1) then
-  W3(1:ne*nf*nijkl) = W2(1:ne*nf*nijkl)
-  call DGetMO(W3,nComp,nComp,ne*nf*(nijkl/nComp),W2,ne*nf*(nijkl/nComp))
-end if
+  iW2 = 1
+  iW3 = 1+nijkl*nDim
+  W2(1:nijkl*nDim) => Wrk(1:nijkl*nDim)
+  W3(1:(nWrk-nijkl*nDim)) => Wrk(nijkl*nDim+1:nWrk)
 
-! If (ss|ss) integral exit.
+  if (nComp /= 1) then
+    W3(1:ne*nf*nijkl) = W2(1:ne*nf*nijkl)
+    call DGetMO(W3,nComp,nComp,ne*nf*(nijkl/nComp),W2,ne*nf*(nijkl/nComp))
+  end if
 
-if (la+lb+lc+ld == 0) then
-  i_out = 1
-  W2=>Null()
-  W3=>Null()
-  return
-end if
+  ! If (ss|ss) integral exit.
 
-! Transpose if no transformation is needed.
+  if (la+lb+lc+ld == 0) then
+    i_out = 1
+    nullify(W2,W3)
+    return
+  end if
 
-if ((la*lb == 0) .and. (lc*ld == 0) .and. (.not. Shells(iShlla)%Transf) .and. (.not. Shells(jShllb)%Transf) .and. &
-    (.not. Shells(kShllc)%Transf) .and. (.not. Shells(lShlld)%Transf)) then
-  call DGeTMO(W2,ne*nf,ne*nf,nijkl,W3,nijkl)
-  i_out = iW3
-  W2=>Null()
-  W3=>Null()
-  return
-end if
+  ! Transpose if no transformation is needed.
 
-! Form matrix corresponding to the transfer equation, le,la,lb.
-! The matrix transforms directly from e0 cartesians to real
-! spherical harmonics.
+  if ((la*lb == 0) .and. (lc*ld == 0) .and. (.not. Shells(iShlla)%Transf) .and. (.not. Shells(jShllb)%Transf) .and. &
+      (.not. Shells(kShllc)%Transf) .and. (.not. Shells(lShlld)%Transf)) then
+    call DGeTMO(W2,ne*nf,ne*nf,nijkl,W3,nijkl)
+    i_out = iW3
+    nullify(W2,W3)
+    return
+  end if
 
-if (la+lb == 0) then
-  W_in => W2
-  W_out=> W3
-  i_in = iW2
-  i_out= iW3
-else if ((la*lb == 0) .and. (.not. Shells(iShlla)%Transf) .and. (.not. Shells(jShllb)%Transf)) then
-  call DGeTMO(W2,ne,ne,nf*nijkl,W3,nf*nijkl)
-  W_in => W3
-  W_out=> W2
-  i_in = iW3
-  i_out= iW2
-else
+  ! Form matrix corresponding to the transfer equation, le,la,lb.
+  ! The matrix transforms directly from e0 cartesians to real
+  ! spherical harmonics.
 
-  ! Now transform directly (e,[f,IJKL]) to ([f,IJKL],AB)
-  ! Int(lf*IJKL,lA*lB)=Int(le,lf*IJKL)*HMtrx(le,lA*lB)
+  if (la+lb == 0) then
+    W_in => W2
+    W_out => W3
+    i_in = iW2
+    i_out = iW3
+  else if ((la*lb == 0) .and. (.not. Shells(iShlla)%Transf) .and. (.not. Shells(jShllb)%Transf)) then
+    call DGeTMO(W2,ne,ne,nf*nijkl,W3,nf*nijkl)
+    W_in => W3
+    W_out => W2
+    i_in = iW3
+    i_out = iW2
+  else
 
-  nfijkl = nf*nijkl
-  call Sp_Mlt(W2,ne,W3,nfijkl,HMtrxAB,nab)
-  W_in => W3
-  W_out=> W2
-  i_in = iW3
-  i_out= iW2
-end if
+    ! Now transform directly (e,[f,IJKL]) to ([f,IJKL],AB)
+    ! Int(lf*IJKL,lA*lB)=Int(le,lf*IJKL)*HMtrx(le,lA*lB)
 
-! Form matrix corresponding to the transfer equation, lf,lC,lD
+    nfijkl = nf*nijkl
+    call Sp_Mlt(W2,ne,W3,nfijkl,HMtrxAB,nab)
+    W_in => W3
+    W_out => W2
+    i_in = iW3
+    i_out = iW2
+  end if
 
-if (lc+ld == 0) then
-  i_out = i_in
-else if ((lc*ld == 0) .and. (.not. Shells(kShllc)%Transf) .and. (.not. Shells(lShlld)%Transf)) then
-  call DGeTMO(W_in,nf,nf,nijkl*nab,W_out,nijkl*nab)
-else
+  ! Form matrix corresponding to the transfer equation, lf,lC,lD
 
-  ! Now transform directly (f,[IJKL,AB]) to ([IJKL,AB],CD)
-  ! Int(IJKL*lA*lB,lC*lD)=Int(lf,IJKL*lA*lB)*HMtrx(lf,lC*lD)
+  if (lc+ld == 0) then
+    i_out = i_in
+  else if ((lc*ld == 0) .and. (.not. Shells(kShllc)%Transf) .and. (.not. Shells(lShlld)%Transf)) then
+    call DGeTMO(W_in,nf,nf,nijkl*nab,W_out,nijkl*nab)
+  else
 
-  nijklAB = nijkl*nab
-  call Sp_Mlt(W_in,nf,W_out,nijklAB,HMtrxCD,ncd)
-end if
-W2   =>Null()
-W3   =>Null()
-W_in =>Null()
-W_out=>Null()
+    ! Now transform directly (f,[IJKL,AB]) to ([IJKL,AB],CD)
+    ! Int(IJKL*lA*lB,lC*lD)=Int(lf,IJKL*lA*lB)*HMtrx(lf,lC*lD)
 
-End Subroutine TnsCtl_Internal
+    nijklAB = nijkl*nab
+    call Sp_Mlt(W_in,nf,W_out,nijklAB,HMtrxCD,ncd)
+  end if
+  nullify(W2,W3,W_in,W_out)
+
+end subroutine TnsCtl_Internal
+
 end subroutine TnsCtl
