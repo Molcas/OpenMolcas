@@ -25,7 +25,7 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName
 ! Based on the original routines by Y. Carissan.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Pi
+use Constants, only: Zero, Half, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
@@ -57,7 +57,7 @@ logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
 
-real(kind=wp) :: DD,Thr
+real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta
 
 #ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -265,9 +265,24 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         if (OptMeth==3) then
             !call RecPrt("Gradient","",Gradient,fsdim,1)
             !Disp(:) = Gradient(:)/gradnorm
-            Disp(:) = Gradient(:)
             !call RecPrt("GA step normalized","",Disp,fsdim,1)
             UpMeth = "GA  -"
+
+            P_eta0 = Functional
+
+            Disp(:) = Gradient(:)
+            call P_of_eta()
+            P_eta1 = Functional
+
+            Disp(:) = Half*Gradient(:)
+            call P_of_eta()
+
+            P_eta2 = Functional
+            !write(u6,*) "P_eta0,P_eta1, P_eta2 =", P_eta0,P_eta1, P_eta2
+
+            best_eta = (4*P_eta1-P_eta2-3*P_eta0)/(4*(P_eta1+P_eta0-2*P_eta1))
+            !write(u6,*) "best_eta =",best_eta
+            Disp(:) = best_eta * Gradient(:)
         else
             Disp(:) = -Gradient(:)/Hdiagvec(:)
         end if
@@ -350,8 +365,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         TimW = W2-W1
         select case (OptMeth)
         case (1)
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2,A)') &
-            nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp," %"
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
+            nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
         case (2,3,4,5)
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
@@ -361,7 +376,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     select case(OptMeth)
     case(1)
         Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-    case(2,4,5)
+    case(2,3,4,5)
         StepNorm = sqrt(DDOT_(fsdim,Disp,1,Disp,1))
         Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
         Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs) .and. (StepNorm <=ThrStep)
@@ -571,5 +586,12 @@ subroutine OrthoCheck()
 
 
 end subroutine OrthoCheck
+
+subroutine P_of_eta()
+    call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
+    call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+    call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+end subroutine P_of_eta
 
 end subroutine PipekMezey_Iter

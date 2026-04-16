@@ -22,7 +22,8 @@ subroutine Localise_Iterative(irc,Model,Functional)
 !            Boys                [MODEL='BOYS']
 !            Edmiston-Ruedenberg [MODEL='EDMI']
 
-use Localisation_globals, only: ChoStart, CMO, nBas, nFro, nOrb2Loc, nSym, ThrGrad, ThrRot, Thrs, ScrFac,OptMeth, ChargeType
+use Localisation_globals, only: ChoStart, CMO, nBas, nFro, nOrb2Loc, nSym, ThrGrad, ThrRot, Thrs, ScrFac,OptMeth, ChargeType,&
+                                Silent
 use Definitions, only: wp, iwp, u6
 use Constants, only: Zero
 
@@ -36,6 +37,8 @@ character(len=80) :: Txt
 character(len=4) :: myModel
 logical(kind=iwp) :: Converged
 character(len=*), parameter :: SecNam = 'Localise_Iterative'
+
+Silent = .false.
 
 #ifdef _SCR_
 if (ScrFac == Zero .and. OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 2) ScrFac = 0.5
