@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine expkap_localisation(kappa,nOrb2Loc,kappa_cnt,xkappa_cnt,unitary_mat)
+subroutine expkap_localisation(kappa,nOrb2Loc,unitary_mat)
 ! analogous to exp_series in scf, only for the specified orbital subspace
 !
 ! purpose: returns exp(-kappa) as unitary_mat
@@ -21,13 +21,12 @@ subroutine expkap_localisation(kappa,nOrb2Loc,kappa_cnt,xkappa_cnt,unitary_mat)
 
 use definitions, only: wp,iwp,u6
 use constants, only: Zero,One
-use Localisation_globals, only: Debug
+use Localisation_globals, only: Debug, kappa_cnt, xkappa_cnt
 
 implicit none
 
 integer(kind=iwp), intent(in) :: nOrb2Loc
-real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
-                             unitary_mat(nOrb2Loc,nOrb2Loc)
+real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),unitary_mat(nOrb2Loc,nOrb2Loc)
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-18_wp
 real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt,maxel(2)

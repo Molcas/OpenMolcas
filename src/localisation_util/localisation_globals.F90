@@ -55,7 +55,9 @@ character(len=3) :: AnaNrm
 integer(kind=iwp), allocatable :: Ind(:)
 character(len=LenIn+8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: NamAct(:)
-real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:), FuncList(:), GradList(:,:), DispList(:,:),UmatList(:,:,:)
+real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:), FuncList(:), GradList(:,:), DispList(:,:),UmatList(:,:,:),&
+                              kappa_cnt(:,:), xkappa_cnt(:,:)
+
 real(kind=wp):: GEKThr_Kappa = 0.01_wp,&
                 GEKThr_Grad = 0.010_wp,&
                 bias = 10.0_wp,&
@@ -69,7 +71,8 @@ public :: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, BName, ChoS
           MxConstr, nActa, NamAct, nAtoms, nBas, nCMO, nConstr, nFro, nMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Occ, Order, &
           PrintMOs, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave,&
           ScrFac,Debug, OptMeth, ChargeType, LocOrb, Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
-          Freeze,Loosen,FuncList,GradList,DispList,UmatList, ThrStep, GEKThr_Kappa, GEKThr_Grad, bias, SOFact, AnalyseLoc
+          Freeze,Loosen,FuncList,GradList,DispList,UmatList, ThrStep, GEKThr_Kappa, GEKThr_Grad, bias, SOFact, AnalyseLoc,&
+          kappa_cnt, xkappa_cnt
 #ifdef _HDF5_
 public :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif

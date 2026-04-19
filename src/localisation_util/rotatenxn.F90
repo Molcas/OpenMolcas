@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
 ! this subroutine rotates the orbitals as rotated_CMO = CMO * exp(-kappa)
 !
 ! for technical reasons, auxiliary matrices (kappa_cnt, xkappa_cnt, unitary_mat) are allocated outside of the loop
@@ -25,11 +25,10 @@ implicit none
 
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc)
-real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
-                             unitary_mat(nOrb2Loc,nOrb2Loc), rotated_CMO(nBasis,nOrb2Loc)
+real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),unitary_mat(nOrb2Loc,nOrb2Loc), rotated_CMO(nBasis,nOrb2Loc)
 
 ! get exp(-kappa)
-call expkap_localisation(kappa,nOrb2Loc,kappa_cnt,xkappa_cnt,unitary_mat)
+call expkap_localisation(kappa,nOrb2Loc,unitary_mat)
 
 
 ! transform the orbitals

@@ -29,7 +29,7 @@ use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
-                                UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc
+                                UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
 #endif
@@ -45,7 +45,7 @@ integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
-                              kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
+                              kappa(:,:),unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:)
 real(kind=wp), External :: DDot_
 
@@ -348,7 +348,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         DispList(:,nIter+1) = Disp(:) ! q_i
 
         ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
-        call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+        call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
         UMatList(:,:,nIter) = unitary_mat(:,:) ! exp(-q_i) = U_i
 
         ! update CMO
@@ -607,7 +607,7 @@ subroutine P_of_eta(Disp,Functional)
     real(kind=wp),intent(in) :: Disp(fsdim)
     real(kind=wp),intent(out) :: Functional
     call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
-    call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+    call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
     call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
