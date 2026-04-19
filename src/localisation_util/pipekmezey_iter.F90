@@ -49,9 +49,8 @@ real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:), &
                               Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:)
 real(kind=wp), External :: DDot_
 
-! for S-GEK
 integer(kind=iwp) :: maxel,i, inpOptMeth
-real(kind=wp) :: dqdq,largest
+real(kind=wp) :: dqdq,largest, alpha
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK,linesearch=.false.
 character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
@@ -196,8 +195,8 @@ case (2,3,4,5)
     HdiagList(:,1) = -Hdiagvec(:)
 end select
 
-! set defaults
-OldFunctional = Functional
+call GetNumGrad()
+
 FirstFunctional = Functional
 Delta = Functional
 UpMeth=" -  - "
@@ -255,6 +254,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
+        call GetNumGrad()
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
@@ -266,11 +266,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! Gradient Ascent with naive line search
             !Disp(:) = Gradient(:)/gradnorm
 
-
-            SearchDir(:) = Gradient(:)/gradnorm
+            linesearch = .true.
+            !SearchDir(:) = Gradient(:)/gradnorm
+            SearchDir(:) = Gradient(:)
 
             if (linesearch) then
-                call naiveLineSearch(SearchDir(:),best_eta,1.0e-4_wp)
+                alpha = One
+                call naiveLineSearch(SearchDir(:),best_eta,alpha)
+                write(u6,*) "best_eta",best_eta
                 UpMeth = "GA +LS"
             else
                 best_eta = One
@@ -285,7 +288,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             SearchDir(:) = -Gradient(:)/Hdiagvec(:)
 
             if (linesearch) then
-                call naiveLineSearch(SearchDir(:),best_eta,One)
+                alpha = One
+                call naiveLineSearch(SearchDir(:),best_eta,alpha)
                 UpMeth = "NR +LS"
             else
                 best_eta = One
@@ -612,26 +616,89 @@ subroutine P_of_eta(Disp,Functional)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
 
+subroutine GetNumGrad()
+    ! computes the numerical gradient
+    real(kind=wp) :: infDisp(fsdim), NumGrad(fsdim), dx,refFunc
+    integer(kind=iwp) :: i
+    logical:: debug=.false., debug2=.false.
+
+    ! get Func iand analytical grad at x=0
+    call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
+    refFunc = Functional
+
+    if (debug) write(u6,*) "refFunc = ", refFunc
+
+    ! get Func at x = 0 + dx
+    dx = 1.0e-10_wp
+    NumGrad(:) = Zero
+
+    do i = 1,fsdim
+        infDisp(:) = Zero
+        infDisp(i) = dx
+        call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+        call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+        call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        NumGrad(i)=(Functional-refFunc)/dx
+
+        if (debug) then
+            call RecPrt('infDisp',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('infUmat',' ',unitary_mat(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('rotated_CMO-CMO',' ',rotated_CMO(:,:)-CMO(:,:),nBasis,nOrb2Loc)
+            write(u6,*) "i, NumGrad(i) =",i, NumGrad(i)
+        end if
+
+    end do
+
+    if (debug2) then
+        ! print results
+        write(u6,*) "dx =", dx
+        call RecPrt('Analytical Gradient',' ',Gradient(:),fsdim,1)
+        call RecPrt('Numerical Gradient',' ',NumGrad(:),fsdim,1)
+        call RecPrt('Difference',' ',NumGrad(:)-Gradient(:),fsdim,1)
+    end if
+
+    !Gradient(:) = NumGrad(:)
+end subroutine GetNumGrad
+
+
 subroutine naiveLineSearch(SearchDir,best_eta,alpha)
     real(kind=wp),intent(inout) :: SearchDir(fsdim)
-    real(kind=wp),intent(in) :: alpha
+    real(kind=wp),intent(inout) :: alpha
     real(kind=wp),intent(out) :: best_eta
 
     call rescale_disp(SearchDir(:))
-    eta1=Half*alpha
-    eta2=One*alpha
 
-    P_eta0 = Functional
-    call P_of_eta(Zero*SearchDir(:),P_eta0) ! just checking, this equals current functional
-    call P_of_eta(eta1*SearchDir(:),P_eta1)
-    call P_of_eta(eta2*SearchDir(:),P_eta2)
+    a = -One
 
-    !write(u6,*) "P_eta0,P_eta1, P_eta2 =", P_eta0,P_eta1, P_eta2
-    b= ((P_eta2-P_eta0)*eta1**2-(P_eta1-P_eta0)*eta2**2)/(eta1*eta2*(eta1-eta2))
-    a = (P_eta2-P_eta0)/(eta2**2) - b/ eta2
-    best_eta= -b/(2*a)
-    !write(u6,*) "best_eta =",best_eta
+    do while (a < Zero)
+        write(u6,*) "alpha = ",alpha
+        eta1=Half*alpha
+        eta2=One*alpha
 
+        P_eta0 = Functional
+        call P_of_eta(Zero*SearchDir(:),P_eta0) ! just checking, this equals current functional
+        call P_of_eta(eta1*SearchDir(:),P_eta1)
+        call P_of_eta(eta2*SearchDir(:),P_eta2)
+
+        write(u6,*) "P_eta0 =", P_eta0
+        write(u6,*) "P_eta1 =", P_eta1
+        write(u6,*) "P_eta2 =", P_eta2
+        !write(u6,*) "P_eta0,P_eta1, P_eta2 =", P_eta0,P_eta1, P_eta2
+        b= ((P_eta2-P_eta0)*eta1**2-(P_eta1-P_eta0)*eta2**2)/(eta1*eta2*(eta1-eta2))
+        a = (P_eta2-P_eta0)/(eta2**2) - b/ eta2
+        write(u6,*) "a =",a,"b=",b,"c=",P_eta0
+        ! we want the maximum, not the minimum, so f"(eta)=2a must be positive
+
+        best_eta= -b/(2*a)
+        !write(u6,*) "best_eta =",best_eta
+        if (a <Zero) then
+            alpha = Two*alpha
+            write(u6,*) "LS lead to minimum, rescaling kappa now"
+        end if
+    end do
 end subroutine naiveLineSearch
 
 end subroutine PipekMezey_Iter
