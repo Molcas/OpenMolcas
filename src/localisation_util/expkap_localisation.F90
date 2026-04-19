@@ -14,7 +14,7 @@
 subroutine expkap_localisation(kappa,nOrb2Loc,unitary_mat)
 ! analogous to exp_series in scf, only for the specified orbital subspace
 !
-! purpose: returns exp(-kappa) as unitary_mat
+! purpose: returns exp(kappa) as unitary_mat
 !
 ! kappa_cnt and xkappa_cnt are auxiliary matrices of dim (norb2loc,norb2loc) required for the Taylor expansion.
 ! they need to be allocated outside of this subroutine
@@ -44,11 +44,11 @@ factor = One
 ithrsh = One
 maxel(:) = 0
 
-unitary_mat(:,:) =  unitary_mat(:,:) - kappa(:,:)
+unitary_mat(:,:) =  unitary_mat(:,:) + kappa(:,:)
 
 if (debug_exp) then
     write(u6,*) 'Taylor expansion: n=1'
-    call RecPrt('unitary_mat = I - kappa^1',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
+    call RecPrt('unitary_mat = I + kappa^1',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
     call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
     write(u6,*) 'Taylor expansion: more terms'
 end if
@@ -73,28 +73,15 @@ do while (ithrsh > thrsh_taylor)
 
     xkappa_cnt(:,:) = kappa_cnt(:,:)
 
-    ! differentiation of odd and even cases, because this expands exp(-kappa)
-    ! all terms starting at n=2
-    if (mod(cnt,2) == 0) then
-        unitary_mat(:,:) =  unitary_mat + kappa_cnt(:,:)
-        if (debug_exp) then
-            write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term: +',1/factor,' * kappa^',cnt, &
-            ', current ithrsh = ', ithrsh
-        end if
-    else
-        unitary_mat(:,:) =  unitary_mat - kappa_cnt(:,:)
-        if (debug_exp) then
-            write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term: -',1/factor,' * kappa^',cnt, &
-            ', current ithrsh = ', ithrsh
-        end if
-    end if
-
+    unitary_mat(:,:) =  unitary_mat + kappa_cnt(:,:)
+    if (debug_exp) write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term: +',1/factor,' * kappa^',cnt, &
+                                                        ', current ithrsh = ', ithrsh
     ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))/(Norb2loc**2)
     !ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(unitary_mat)+thrsh_taylor))
 
     ! sanity check for divergence
     if (ithrsh/720 > One) then
-        write(u6,*) "Bug: the Taylor expansion of exp(-kappa) diverges - numerical error"
+        write(u6,*) "Bug: the Taylor expansion of exp(kappa) diverges - numerical error"
         write(u6,*) "Stopping Taylor expansion at ",cnt,"-th term. Rescale kappa before feeding it this subroutine."
         call Abend()
     end if
@@ -119,6 +106,6 @@ end if
 if (debug) then
     write(u6,"(//A)") "rotating the orbitals with:"
     call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
-    call RecPrt('unitary transformation matrix (exp(-kappa))',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
+    call RecPrt('unitary transformation matrix (exp(kappa))',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
 end if
 end subroutine expkap_localisation
