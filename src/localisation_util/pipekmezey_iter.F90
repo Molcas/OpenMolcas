@@ -193,9 +193,9 @@ case (2,3,4,5)
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
+    call GetNumGrad()
 end select
 
-call GetNumGrad()
 
 FirstFunctional = Functional
 Delta = Functional
