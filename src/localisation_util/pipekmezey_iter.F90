@@ -47,16 +47,14 @@ real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:)
-real(kind=wp), parameter :: alpha = 0.1e-4_wp
 real(kind=wp), External :: DDot_
 
 ! for S-GEK
 integer(kind=iwp) :: maxel,i, inpOptMeth
 real(kind=wp) :: dqdq,largest
-logical(kind=iwp) :: SORange,GEKRange,ResetGEK
+logical(kind=iwp) :: SORange,GEKRange,ResetGEK,linesearch=.false.
 character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
-
 real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,c,eta1,eta2
 
 #ifdef _GETMOLDEN_
@@ -268,16 +266,32 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! Gradient Ascent with naive line search
             !Disp(:) = Gradient(:)/gradnorm
 
-            UpMeth = "GA  -"
 
             SearchDir(:) = Gradient(:)/gradnorm
 
-            call naiveLineSearch(SearchDir(:),best_eta)
+            if (linesearch) then
+                call naiveLineSearch(SearchDir(:),best_eta,1.0e-4_wp)
+                UpMeth = "GA +LS"
+            else
+                best_eta = One
+                UpMeth = "GA  -"
+            end if
 
             Disp(:) = best_eta * SearchDir(:)
         else
             ! compute standard newton raphson step
-            Disp(:) = -Gradient(:)/Hdiagvec(:)
+            !Disp(:) = -Gradient(:)/Hdiagvec(:)
+
+            SearchDir(:) = -Gradient(:)/Hdiagvec(:)
+
+            if (linesearch) then
+                call naiveLineSearch(SearchDir(:),best_eta,One)
+                UpMeth = "NR +LS"
+            else
+                best_eta = One
+            end if
+
+            Disp(:) = best_eta * SearchDir(:)
         end if
 
         ! if Hdiag vals close to zero -> redundant rotation that we don't want to do, so set step to zero there
@@ -315,7 +329,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       endif
 
         ! keep norm of kappa matrix below pi/4
-        call rescale_disp()
+        call rescale_disp(Disp(:))
 
 #       ifdef _FORCEGEKRANGE_
         ! only for debug:
@@ -378,7 +392,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case(2,3,4,5)
         StepNorm = sqrt(DDOT_(fsdim,Disp,1,Disp,1))
         Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-        Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs) .and. (StepNorm <=ThrStep)
+        Converged = (GradNorm <= ThrGrad) .and. (StepNorm <=ThrStep)
     end select
 end do !Iterations
 
@@ -445,10 +459,11 @@ end select
 call mma_Deallocate(Ovlp_sqrt)
 
 contains
-subroutine rescale_disp()
+subroutine rescale_disp(Disp)
+    real(kind=wp),intent(inout) :: Disp(fsdim)
     DD=Sqrt(dot_product(Disp(:),Disp(:)))
-    !Thr= 0.5E0_wp * Pi
-    Thr= 0.25E0_wp * Pi
+    Thr= 0.5E0_wp * Pi
+    if (fsdim==1) Thr= 0.25E0_wp * Pi
     If (DD>=Thr)Then
 #   ifdef _DEBUGPRINT_
         Write(u6,*) 'Rescale Kappa(:)'
@@ -597,15 +612,17 @@ subroutine P_of_eta(Disp,Functional)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
 
-subroutine naiveLineSearch(SearchDir,best_eta)
-    real(kind=wp),intent(in) :: SearchDir(fsdim)
+subroutine naiveLineSearch(SearchDir,best_eta,alpha)
+    real(kind=wp),intent(inout) :: SearchDir(fsdim)
+    real(kind=wp),intent(in) :: alpha
     real(kind=wp),intent(out) :: best_eta
 
+    call rescale_disp(SearchDir(:))
     eta1=Half*alpha
     eta2=One*alpha
 
     P_eta0 = Functional
-    !call P_of_eta(Zero*SearchDir(:),P_eta0) ! just checking, this equals current functional
+    call P_of_eta(Zero*SearchDir(:),P_eta0) ! just checking, this equals current functional
     call P_of_eta(eta1*SearchDir(:),P_eta1)
     call P_of_eta(eta2*SearchDir(:),P_eta2)
 
