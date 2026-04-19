@@ -90,7 +90,7 @@ do while (ithrsh > thrsh_taylor)
         end if
     end if
 
-    ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))
+    ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))/(Norb2loc**2)
     !ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(unitary_mat)+thrsh_taylor))
 
     ! sanity check for divergence
