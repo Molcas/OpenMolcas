@@ -46,7 +46,7 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctiona
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
-                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:)
+                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumHessSymm(:,:)
 real(kind=wp), External :: DDot_
 
 integer(kind=iwp) :: maxel,i, inpOptMeth
@@ -159,6 +159,7 @@ case(2,3,4,5)
     call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
+    call mma_allocate(NumHessSymm,fsdim, fsdim,Label ="NumHessSymm")
 
     DispList(:,:)=Zero
     HdiagList(:,:)=Zero
@@ -194,7 +195,7 @@ case (2,3,4,5)
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
     call GetNumGrad()
-    call GetNumHess(.true.)
+    call GetNumHess(NumHessSymm,.true.)
 end select
 
 
@@ -255,7 +256,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
-        call GetNumHess(.false.)
+        call GetNumHess(NumHessSymm,.false.)
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
@@ -321,7 +322,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 IterGEK = IterGEK + 1
 
-                call S_GEK_localisation(nIter,IterGEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,nDIIS)
+                !call S_GEK_localisation(nIter,IterGEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,nDIIS)
+                call S_GEK_localisation(nIter,IterGEK,-NumHessSymm,fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,nDIIS)
 
             end if ! if in GEKRange
 
@@ -459,6 +461,7 @@ case(2,3,4,5)
     call mma_Deallocate(Disp)
     call mma_Deallocate(SearchDir)
     call mma_Deallocate(Hdiagvec)
+    call mma_Deallocate(NumHessSymm)
 end select
 
 call mma_Deallocate(Ovlp_sqrt)
@@ -744,10 +747,11 @@ subroutine GetNumGrad()
 end subroutine GetNumGrad
 
 
-subroutine GetNumHess(debug2)
+subroutine GetNumHess(NumHessSymm,debug2)
     ! computes the numerical Hessian
     real(kind=wp),allocatable :: infDisp(:), NumHess(:,:),diff(:),gref(:),gpdx(:),&
-                                 gmdx(:),gp2dx(:),gm2dx(:), NumHessSymm(:,:), NumHdiag(:)
+                                 gmdx(:),gp2dx(:),gm2dx(:), NumHdiag(:)
+    real(kind=wp),intent(inout) :: NumHessSymm(fsdim,fsdim)
     real(kind=wp) :: dx
     integer(kind=iwp) :: i,k,l,NumHessMeth
     logical:: debug=.false.
@@ -762,7 +766,6 @@ subroutine GetNumHess(debug2)
     call mma_allocate(gmdx, fsdim,Label ="gmdx")
     call mma_allocate(gp2dx, fsdim,Label ="gp2dx")
     call mma_allocate(gm2dx, fsdim,Label ="gm2dx")
-    call mma_allocate(NumHessSymm,fsdim, fsdim,Label ="NumHessSymm")
     call mma_allocate(NumHdiag, fsdim,Label ="NumHdiag")
     !choose method based on cost and accuracy + choose adequate dx
     NumHessMeth = asymm
@@ -889,9 +892,7 @@ subroutine GetNumHess(debug2)
         write(u6,*) "Hess diff norm", sqrt(dot_product(diff,diff))
     end if
 
-    write(u6,*) "Hess diff norm", sqrt(dot_product(diff,diff))
-
-    !Hdiagvec(:) = NumHdiag(:)
+    Hdiagvec(:) = -abs(NumHdiag(:))
 
     call mma_Deallocate(NumHess)
     call mma_Deallocate(infDisp)
@@ -901,7 +902,6 @@ subroutine GetNumHess(debug2)
     call mma_Deallocate(gmdx)
     call mma_Deallocate(gp2dx)
     call mma_Deallocate(gm2dx)
-    call mma_Deallocate(NumHessSymm)
     call mma_Deallocate(NumHdiag)
 
 end subroutine GetNumHess
