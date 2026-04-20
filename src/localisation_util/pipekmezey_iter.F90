@@ -745,7 +745,7 @@ subroutine GetNumHess(debug2)
     integer(kind=iwp), parameter ::  fourpoint=1,symm=2,asymm=3
 
     !choose method based on cost and accuracy + choose adequate dx
-    NumHessMeth = symm
+    NumHessMeth = fourpoint
     dx = 1.0e-4_wp ! 1e-4 is good for fourpoint; decrease dx for the other methods
 
 
@@ -794,6 +794,43 @@ subroutine GetNumHess(debug2)
 
             ! compute numerical hessian columnwise
             NumHess(:,i)=(gpdx(:)-gmdx(:))/(2*dx)
+
+       case (fourpoint)
+            ! get Grad at x + dx
+            infDisp(:) = Zero
+            infDisp(i) = dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gpdx(:))
+
+            ! get Func at x - dx
+            infDisp(:) = Zero
+            infDisp(i) = -dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gmdx(:))
+
+            ! get Grad at x + 2dx
+            infDisp(:) = Zero
+            infDisp(i) = 2*dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gp2dx(:))
+
+            ! get Func at x - 2dx
+            infDisp(:) = Zero
+            infDisp(i) = -2*dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gm2dx(:))
+
+
+            ! compute numerical hessian columnwise
+            NumHess(:,i)=(8*(gpdx-gmdx)-gp2dx+gm2dx)/(12*dx)
 
 
         end select
