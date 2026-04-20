@@ -79,7 +79,6 @@ use input_ras, only: Key
 use timers, only: TimeDens
 use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, ICMSP, IFCRPR, iPCMRoot, iRoot, iRotPsi, ITER, &
                          IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
-use SplitCas_Data, only: DoSPlitCas, lRootSplit, MxIterSplit, ThrSplit
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use general_data, only: CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
@@ -92,7 +91,7 @@ implicit none
 real(kind=wp), intent(in) :: CMO(*), FA(*), D1I(*)
 real(kind=wp), intent(inout) :: D(NACPAR), DS(NACPAR), P(NACPR2), PA(NACPR2), FI(*), D1A(*), TUVX(*)
 integer(kind=iwp), intent(in) :: iFinal
-integer(kind=iwp) :: i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVecDet, mconf
+integer(kind=iwp) :: i, iDisk, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVecDet, mconf
 real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF, do_rotate, Exists, Skip
 character(len=128) :: filename
@@ -404,29 +403,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
   if (IfVB == 1) then
     call cvbmn_rvb(max(ifinal,1))
   else
-    if (DoSplitCAS) then !(GLMJ)
-      call SplitCtl(FMO,TUVX,IFINAL,iErrSplit)
-      if (iErrSplit == 1) then
-        write(u6,*) repeat('*',120)
-        write(u6,*) 'WARNING!!!'
-        write(u6,*) 'SplitCAS iterations don''t converge.'
-        write(u6,*) 'The program will continue'
-        write(u6,*) 'Hopefully your calculation will converge next iteration!'
-        write(u6,*) repeat('*',120)
-      end if
-      if (iErrSplit == 2) then
-        write(u6,*) repeat('*',120)
-        write(u6,*) 'WARNING!!!'
-        write(u6,*) 'SplitCAS iterations don''t converge.'
-        write(u6,*) 'MxIterSplit',MxIterSplit
-        write(u6,*) 'SplitCAS ThreShold',ThrSplit
-        write(u6,*) 'Try to increase MxIterSplit or SplitCAS threshold'
-        write(u6,*) 'The program will STOP'
-        write(u6,*) repeat('*',120)
-        call xQuit(_RC_NOT_CONVERGED_)
-      end if
-    end if
-    if (.not. DoSplitCAS) then
       if (doDMRG) then
 #       ifdef _DMRG_
         ! Get also spin density at the last iteration
@@ -463,7 +439,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         ! Normal Davidson algorithm
         call DavCtl(FMO,TUVX,IFINAL)
       end if
-    end if
   end if
 
   ! CALCULATE DENSITY MATRICES
@@ -493,7 +468,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
   !if (DWSCF%do_DW) call DWSol_wgt(1,ENER(:,ITER),weight)
   iDisk = IADR15(4)
   jDisk = IADR15(3)
-  if (.not. DoSplitCAS) then
     !JB Instead of RASSCF/RASCI energy, print out energy for rotated states
     do_rotate = .false.
     if (ifinal == 2) then
@@ -612,32 +586,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 #     endif
     end do
 
-  else  ! SplitCAS run
-    call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
-    if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL SplitCAS sect',' ',CIVEC,nConf)
-    ! compute density matrices
-    if (NAC >= 1) then
-      call Lucia_Util('Densi',CI_Vector=CIVEC)
-      if (IPRLEV >= INSANE) then
-        call TRIPRT('D after lucia',' ',Dtmp,NAC)
-        call TRIPRT('DS after lucia',' ',DStmp,NAC)
-        call TRIPRT('P after lucia',' ',Ptmp,NACPAR)
-        call TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
-      end if
-    end if
-    if (IDoGAS .or. (SGS%IFRAS > 2)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-    if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
-    D(:) = D(:)+Dtmp(1:NACPAR)
-    DS(:) = DS(:)+DStmp(1:NACPAR)
-    P(:) = P(:)+Ptmp(1:NACPR2)
-    PA(:) = PA(:)+PAtmp(1:NACPR2)
-    ! save density matrices on disk
-    call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
-    call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
-    call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
-    call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
-  end if
-
 # ifdef _HDF5_
   call mma_deallocate(density_square)
 # endif
@@ -681,7 +629,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     iDisk = IADR15(4)
 
     if (.not. doDMRG) then
-      if (.not. DoSplitCAS) then
         do i=1,lRoots
           jDisk = iDisk
           ! load back one CI vector at the time
@@ -740,39 +687,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
           !end if
         end do
 
-      else !RUN SPLITCAS
-
-        jDisk = iDisk
-        ! load back one CI vector at the time
-        call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
-        if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL SplitCAS last cycle',' ',CIVEC,nConf)
-        ! reorder it according to the split graph GUGA conventions
-        call mma_allocate(kcnf,nactel,Label='kcnf')
-        call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
-        call mma_deallocate(kcnf)
-        ! save reorder CI vector on disk
-        call DDafile(JOBIPH,1,CIV,nConf,jDisk)
-#       ifdef _HDF5_
-        call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
-#       endif
-        if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL after Reord',' ',CIV,nConf)
-        ! printout of the wave function
-        if (IPRLEV >= USUAL) then
-          write(u6,*)
-          write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',lRootSplit
-          write(u6,'(6X,A,F15.6)') 'Split-energy=',ENER(lRootSplit,ITER)
-          ! Open GronOR vecdet file (tps/cdg 20210430)
-          write(filename,'(a7,i0)') 'VECDET.',i
-          !filename = 'VECDET.'//merge(str(i),'x',i <= 999)
-          LuVecDet = 39
-          LuVecDet = IsFreeUnit(LuVecDet)
-          call Molcas_open(LuVecDet,filename)
-          write(LuVecDet,'(8i4)') nish
-          call SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
-          ! Close GronOR vecdet file (tps/cdg 20210430)
-          close(LuVecDet)
-        end if
-      end if
     end if
 
     call mma_deallocate(CIV)

@@ -51,8 +51,6 @@ use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_Restart, dice_Sam
 use rasscf_global, only: ChemPS2_blb, ChemPS2_lreStart, ChemPS2_Noise, ChemPS2_Restart, Davidson_tol, Do3RDM, HFOcc, &
                          Max_canonical, Max_Sweep, MXDMRG
 #endif
-use SplitCas_Data, only: DoSPlitCas, EnerSplit, fOrdSplit, GapSpli, iDimBlockA, lRootSplit, MxIterSplit, NumSplit, PerCSpli, &
-                         PerSplit, ThrSplit
 use PrintLevel, only: SILENT, USUAL
 use output_ras, only: IPRLOC
 use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSEL, NSSH, NSYM, NTOT1, &
@@ -297,7 +295,6 @@ if (IPRLEV > SILENT) then
       if (KSDFT == 'DIFF') n_Det = 1
       if (KSDFT == 'ROKS') n_Det = 1
 
-      if (.not. DoSplitCAS) then  ! GLMJ
         write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
         if (irlxroot /= 0) write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
         if (ICICH == 0) then
@@ -332,20 +329,6 @@ if (IPRLEV > SILENT) then
           write(u6,Fmt2//'A,T45,I6)') 'highest root included in the CI',LROOTS
           write(u6,Fmt2//'A,T45,I6)') 'max. size of the explicit Hamiltonian',NSEL
         end if
-      else
-        write(u6,Fmt2//'A,T45,I6)') 'Root required ',lrootSplit
-        if (NumSplit) write(u6,Fmt2//'A,T45,I6)') 'A-Block Size in SplitCAS',iDimBlockA
-        if (EnerSplit) write(u6,Fmt2//'A,T44,F7.2)') 'Energy Gap (eV) in SplitCAS',GapSpli
-        if (PerSplit) write(u6,Fmt2//'A,T44,F7.1)') 'Percentage sought in SplitCAS',PercSpli
-        write(u6,Fmt2//'A,T45,ES10.3)') 'Threshold for SplitCAS',ThrSplit
-        !write(u6,Fmt2//'A,T49,G10.3)')'Thrs over the root to be opt in SplitCAS', ThrSplit
-        write(u6,Fmt2//'A,T47,I4)') 'Maximum number of SplitCAS iterations',MxIterSplit
-        if (FordSplit) then
-          write(u6,Fmt2//'A,T47)') 'CI coeff: 1st-order approximation'
-        else
-          write(u6,Fmt2//'A,T47)') 'CI coeff: 0th-order approximation'
-        end if
-      end if
       call CollapseOutput(0,'CI expansion specifications:')
 
 #   if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
@@ -359,7 +342,6 @@ if (IPRLEV > SILENT) then
     write(Line(left-2:),'(A)') 'RASSCF input specifications:'
     call CollapseOutput(1,Line)
     write(u6,Fmt1) '----------------------------'
-    if (.not. DoSplitCAS) then
       write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
       if (irlxroot /= 0) write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
       if (ICICH == 0) then
@@ -376,7 +358,6 @@ if (IPRLEV > SILENT) then
           write(u6,Fmt2//'A,T45,10F6.3)') 'CI-coeff',(cCI(i,iRef),iRef=1,mxRef)
         end do
       end if
-    end if
     call CollapseOutput(0,'RASSCF input specifications:')
   end if
   ! Check that the user doesn't try to calculate more roots than it's possible

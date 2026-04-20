@@ -38,8 +38,6 @@ use Lucia_Interface, only: Lucia_Util
 use gugx, only: CIS, EXS, SGS
 use gas_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use Symmetry_info, only: Mul
-use SplitCas_Data, only: DoSPlitCas, EnerSplit, fOrdSplit, GapSpli, iDimBlockA, lRootSplit, MxIterSplit, NumSplit, PerCSpli, &
-                         PerSplit, ThrSplit
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, JOBIPH, JOBOLD, LOWDIN_ON, LUSTARTORB, MALTER, MAXALTER, NACTEL, &
@@ -164,12 +162,6 @@ dice_iter = 20
 dice_restart = .false.
 #endif
 
-! SplitCAS related variables declaration  (GLMJ)
-DoSplitCAS = .false.
-NumSplit = .false.
-EnerSplit = .false.
-PerSplit = .false.
-FOrdSplit = .false.
 ! BK type of approximation (GLMJ)
 DoBKAP = .false.
 
@@ -3320,193 +3312,9 @@ else
     end if
   end if
 
-  !---  Process SPLI command for SplitCAS calculations
-  !     (Giovanni Li Manni J.:GLMJ)
-  if (Key('SPLI')) then
-    if (DBG) write(u6,*) ' SPLI (Activation SplitCAS)'
-    DoSplitCAS = .true.
-    EnerSplit = .true.
-    iDimBlockA = 0
-    !*** The energy gap (GapSpli) is in eV ****
-    GapSpli = Half*auToeV
-    lrootSplit = 1
-    thrSplit = 1.0e-6_wp
-    MxIterSplit = 50
-    call SetPos(LUInput,'SPLI',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-  end if
 
-  !---  Process NUSP command for Numerical SplitCAS param. (GLMJ)
-  if (Key('NUSP')) then
-    if (DBG) write(u6,*) ' NUSP - Manual Setting of Numerical SplitCAS Param.'
-    EnerSplit = .false.
-    NumSplit = .true.
-    call SetPos(LUInput,'NUSP',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-    ReadStatus = ' Failure reading data after NUSP keyword.'
-    read(LUInput,*,iostat=istatus) lrootSplit,iDimBlockA,MxIterSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after NUSP keyword.'
-    !read(LUInput,*,iostat=istatus) lrootSplit
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    !read(LUInput,*,iostat=istatus) iDimBlockA
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    !read(LUInput,*,iostat=istatus) MxIterSplit
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    ReadStatus = ' Failure reading data after NUSP keyword.'
-    read(LUInput,*,iostat=istatus) ThrSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after NUSP keyword.'
-    if (DBG) then
-      write(u6,*) ' Root to be opt. in SplitCAS = ',lrootSplit
-      write(u6,*) ' AA block size in SplitCAS = ',iDimBlockA
-      write(u6,*) ' Max iteration in SplitCAS = ',MxIterSplit
-      write(u6,*) ' Root to be opt. in SplitCAS = ',ThrSplit
-    end if
-  end if
 
-  !---  Process ENSP command for Energetical SplitCAS param. (GLMJ)
-  if (Key('ENSP')) then
-    if (DBG) write(u6,*) ' ENSP - Manual Setting of Energetical SplitCAS Param.'
-    EnerSplit = .true.
-    NumSplit = .false.
-    iDimBlockA = 0
-    call SetPos(LUInput,'ENSP',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-    ReadStatus = ' Failure reading data after ENSP keyword.'
-    read(LUInput,*,iostat=istatus) lrootSplit,GapSpli,MxIterSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after ENSP keyword.'
-    !read(LUInput,*,iostat=istatus) lrootSplit
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    !read(LUInput,*,iostat=istatus) GapSpli
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    !read(LUInput,*,iostat=istatus) MxIterSplit
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    ReadStatus = ' Failure reading data after ENSP keyword.'
-    read(LUInput,*,iostat=istatus) ThrSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after ENSP keyword.'
-    if (DBG) then
-      write(u6,*) ' Root to be opt. in SplitCAS = ',lrootSplit
-      write(u6,*) ' Energy gap in SplitCAS = ',GapSpli
-      write(u6,*) ' Max iteration in SplitCAS = ',MxIterSplit
-      write(u6,*) ' Root to be opt. in SplitCAS = ',ThrSplit
-    end if
-  end if
 
-  !---  Process PESP command for Percentage SplitCAS param. (GLMJ)
-  if (Key('PESP')) then
-    if (DBG) write(u6,*) ' PESP - Manual Setting of Percentage SplitCAS Param.'
-    EnerSplit = .false.
-    PerSplit = .true.
-    NumSplit = .false.
-    iDimBlockA = 0
-    call SetPos(LUInput,'PESP',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-    ReadStatus = ' Failure reading data after PESP keyword.'
-    read(LUInput,*,iostat=istatus) lrootSplit,PercSpli,MxIterSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    read(LUInput,*,iostat=istatus) ThrSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after PESP keyword.'
-    if (DBG) then
-      write(u6,*) ' Root to be opt. in SplitCAS = ',lrootSplit
-      write(u6,*) ' Percentage in SplitCAS = ',PercSpli
-      write(u6,*) ' Max iteration in SplitCAS = ',MxIterSplit
-      write(u6,*) ' Root to be opt. in SplitCAS = ',ThrSplit
-    end if
-  end if
-
-  !---  Process FOSP command for First Order SplitCAS Approx. (GLMJ)
-  if (Key('FOSP')) then
-    if (DBG) write(u6,*) ' FOSP - First Order SplitCAS Approx.'
-    FOrdSplit = .true.
-  end if
 
   !---  Process OPTO keyword: Optimal Output for RASSCF/CASPT2
   !                           optimizations - GG Nov 2008.

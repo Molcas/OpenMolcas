@@ -14,7 +14,6 @@ subroutine LUCIA2MOLCAS(KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM
 ! Transfer arguments to the common blocks used by MOLCAS.
 
 use csfbas, only: CONF, CTS, maxop_lucia, NAEL, NBEL
-use splitcas_data, only: iDimBlockA
 use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, STSYM
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, MINOP, MS2, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use Molcas, only: MxSym
@@ -34,22 +33,6 @@ if (NSEL > NCSASM(STSYM)) NSEL = NCSASM(STSYM)
 ! For small calculations - Lasse/MGD
 nCSF_HEXS = nCSF_HEXS_LUCIA
 if ((I_ELIMINATE_GAS_MOLCAS > 0) .and. (NSEL > nCSF_HEXS)) NSEL = nCSF_HEXS
-
-if (iDimBlockA > NCSASM(STSYM)) then
-  write(u6,*) ''
-  write(u6,*) '******************** WARNING *********************'
-  write(u6,*) ' AA-Block dimension selected is bigger than the'
-  write(u6,*) ' number  of CSFs reachable  within the selected'
-  write(u6,*) ' Active Space. The code automatically  reset it'
-  write(u6,*) ' to the number  of  CSFs. You  are  allowed  to'
-  write(u6,*) ' decrease  this  number  in  your input and run'
-  write(u6,*) ' again the calculation.'
-  write(u6,'(1X,A,I5)') ' AA-Block dimension selected:',iDimBlockA
-  iDimBlockA = NCSASM(STSYM)
-  write(u6,'(1X,A,I5)') ' AA-Block dimension reset:',iDimBlockA
-  write(u6,*) '**************************************************'
-  write(u6,*) ''
-end if
 
 ! SET INITIAL VALUES FOR LOOP COUNTERS AND ARRAY SIZES
 

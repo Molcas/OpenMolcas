@@ -93,7 +93,6 @@ set (sources
      orthonormalization.F90
      ortho_rasscf.F90
      outctl.F90
-     outctlsplit.F90
      ovlp.F90
      primo_rasscf.F90
      printcmsiter.F90

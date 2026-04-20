@@ -15,7 +15,6 @@ set (sources
      caspt2_global.F90
      caspt2_module.F90
      check_invec.F90
-     chksplit.F90
      cidia.F90
      ciovlp.F90
      ciselect.F90
@@ -38,7 +37,6 @@ set (sources
      dblock.F90
      detstr2.F90
      dgmm2.F90
-     diagord.F90
      dihdj_molcas.F90
      dmatdmat.F90
      dmrginfo.F90
@@ -53,8 +51,6 @@ set (sources
      gas_data.F90
      gatvcs.F90
      general_data.F90
-     get_cm.F90
-     get_cm_.F90
      get_d1a_rasscf.F90
      get_d1i_rasscf.F90
      get_umn.F90
@@ -67,7 +63,6 @@ set (sources
      ini_david.F90
      init_lex.F90
      input_mclr.F90
-     ipcsfsplit.F90
      iphase.F90
      isgnum.F90
      lex_iter.F90
@@ -126,8 +121,6 @@ set (sources
      simplify.F90
      sort_cdet.F90
      spinfo.F90
-     splitcas_data.F90
-     splitctl.F90
      stepvec.F90
      stepvector_next.F90
      sxci.F90

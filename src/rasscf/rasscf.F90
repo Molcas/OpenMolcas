@@ -79,7 +79,6 @@ use rasscf_global, only: CBLBM, CMAX, Conv, DE, DOBLOCKDMRG, DoDMRG, DoFaro, DoF
                          iSave_Exp, iSymBB, ITER, ITERCI, ITERSX, JBLBM, KSDFT, KSDFT_Temp, l_casdft, lSquare, MaxIt, NAC, NACPAR, &
                          NACPR2, NewFock, nFint, no2m, NonEQ, nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax, Start_Vectors, SXShft, Thre, &
                          ThrSX, THRTE, TMin, Tot_Charge, VIA_DFT, Weight
-use SplitCas_Data, only: DoSPlitCas, IterSplit, lRootSplit
 use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, ITERFILE, JOBIPH, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
@@ -464,12 +463,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         write(u6,'(26X,A)') ' A shorter vector will be expanded in a longer'
       end if
       if (IPRLEV <= 3) then
-        if (DoSplitCAS) then
-          write(u6,'(6X,A)') 'Iter CI   SX   CI       SplitCAS       Energy    max ROT     max BLB   max BLB  Level Ln srch  '// &
-                             'Step   QN   Walltime'
-          write(u6,'(6X,A)') '    iter iter root      energy       change     param      element    value   shift minimum  '// &
-                             'type update hh:mm:ss'
-        else if (DoBKAP) then
+        if (DoBKAP) then
           write(u6,'(6X,A)') 'Iter CI   SX   CI   RASSCF      CI    Energy    max ROT     max BLB   max BLB  Level Ln srch  '// &
                              'Step   QN   Walltime'
           write(u6,'(6X,A)') '    iter iter root  energy    energy  change     param      element    value   shift minimum  '// &
@@ -767,13 +761,9 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       end if
 
       EAV = Zero
-      if (DoSplitCAS) then
-        EAV = ENER(lRootSplit,ITER)
-      else
         do KROOT=1,NROOTS
           EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
         end do
-      end if
 
       call Get_D1A_RASSCF(CMO,DMAT,D1A)
 
@@ -1005,13 +995,9 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       ! call triprt('P-mat 2',' ',PMAT,nTri_Elem(nAc))
 
       EAV = Zero
-      if (DoSplitCAS) then
-        EAV = ENER(lRootSplit,ITER)
-      else
         do KROOT=1,NROOTS
           EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
         end do
-      end if
 
       if (IPRLEV >= DEBUG) then
         write(u6,*) 'EAV value in RASSCF after second call to CICTL:'
@@ -1236,10 +1222,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       ihh = int(time0(2)/3600)
       imm = int(time0(2)-ihh*3600)/60
       iss = int(time0(2)-ihh*3600-imm*60)
-      if (DoSplitCAS) then
-        write(u6,101) ITER,iterSplit,ITERSX,IROT,EAV,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,SXSHFT,TMIN,QNSTEP, &
-                      QNUPDT,ihh,':',imm,':',iss
-      else if (DoBKAP) then
+      if (DoBKAP) then
         write(u6,102) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,EAV,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
                       SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
       else
@@ -1295,7 +1278,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     ! Compare RASSCF energy and average CI energy
 
     DIFFE = abs((ECAS-EAV)/ECAS)
-    if (.not. DoSplitCAS) then
       if (DoBKAP) then
         if (iter == 1) then
           if ((DIFFE > 1.0e-10_wp) .and. (NROOTS == 1)) then
@@ -1369,20 +1351,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
           end if
         end if
       end if
-    else
-      !write(u6,'(6X,A,F22.10)') 'Split-RASSCF energy    ',ECAS
-      if (DIFFE > 5.0e-3_wp) then
-        write(u6,'(6X,A)') repeat('*',120)
-        write(u6,'(6X,A)') 'The Split-RASSCF and Split-CI energies differ !!!'
-        !write(u6,'(6X,A,I11)') 'iteration           ',ITER
-        write(u6,'(6X,A,F22.10)') 'Split-RASSCF energy    ',ECAS
-        write(u6,'(6X,A,F22.10)') 'Split-CI energy        ',EAV
-        write(u6,'(6X,A,F22.10)') 'Relative difference    ',DIFFE
-        write(u6,*) '     Smaller is the difference more realiable is the result.'
-        write(u6,*) '     To make the difference smaller try to select a bigger AA block or use firstOrder keyword.'
-        write(u6,'(6X,A)') repeat('*',120)
-      end if
-    end if
 
     if (write_orb_per_iter .and. king()) then
       call copy_(real_path('RASORB'),real_path('ITERORB.'//str(actual_iter)))
@@ -1577,13 +1545,9 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     end if
 
     EAV = Zero
-    if (DoSplitCAS) then
-      EAV = ENER(lRootSplit,ITER)
-    else
       do KROOT=1,NROOTS
         EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
       end do
-    end if
     if (NAC == 0) EAV = ECAS
     if (NCRVEC > 0) then
       ! Core shift has been used
@@ -1721,11 +1685,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
 #   endif
 
     if (ITERM /= 99) then
-      if (.not. DoSplitCAS) then
         call OUTCTL(CMO,OCCN,SMAT,lOPTO)
-      else
-        call OUTCTLSplit(CMO,OCCN,SMAT,lOPTO)
-      end if
     end if
 
     call mma_deallocate(SMAT)
@@ -1903,7 +1863,6 @@ call Finalize()
 
 return
 
-101 format(6X,I3,I4,I5,I5,F15.8,ES12.2,A1,ES10.2,A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)
 102 format(3X,I3,I4,I2,I2,F15.8,F15.8,ES12.2,A1,ES10.2,A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)
 #ifdef _DMRG_
 103 format(6X,I3,I3,I4,I7,ES12.2,I4,I5,F15.8,ES12.2,A1,ES9.2,A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)
