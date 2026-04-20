@@ -65,10 +65,6 @@ subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSM,NSSOA,NSSOB,NAEL,IAGRP,N
 !                                                 * <Iblk!H!Jblk>C(Jblk)
 
 use lucia_data, only: IDISK
-use spinfo, only: DOBKAP
-#ifdef _DEBUGPRINT_
-use spinfo, only: NGASBK, IOCCPSPC
-#endif
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -86,14 +82,14 @@ integer(kind=iwp), intent(out) :: IOCTPA, IOCTPB
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: PS
 integer(kind=iwp), intent(_OUT_) :: LCBLOCK(*), LECBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*)
-integer(kind=iwp) :: I_DO_EXACT_BLK, IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1), INTERACT, IOFF, IPERM, IPTSPC, &
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1), INTERACT, IOFF, IPERM, IPTSPC, &
                      ISBLK, ISCALE, ISOFF, JASM, JATP, JBLOCK, JBSM, JBTP, JCBAT_END, JCBAT_INI, JCBATCH, JJCBLOCK, JOFF, JPTSPC, &
                      JSBLOCK, LASM(4), LATP(4), LBL, LBSM(4), LBTP(4), LLASM, LLATP, LLBSM, LLBTP, LSGN(5), LTRP(5), MXEXC, NASTR, &
                      NBSTR, NCBATCH, NIA, NIB, NJA, NJB, NJBLOCK, NLLA, NLLB, NPERM
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IBLOCK, IGAS, II
 #endif
-real(kind=wp) :: C(1), FACTOR, PL, XFAC
+real(kind=wp) :: C(1), PL, XFAC
 ! IH_OCC_CONS = 1 implies that we should employ occupation conserving part of Hamiltonian
 integer(kind=iwp), parameter :: IH_OCC_CONS = 0
 
@@ -110,18 +106,6 @@ end do
 write(u6,*) ' IDC PS',IDC,PS
 write(u6,*) ' IDOH2 = ',IDOH2
 write(u6,*) ' I_RES_AB=',I_RES_AB
-if (DoBKAP) then
-  write(u6,*) ' I am doing BK-type of approximation'
-  write(u6,*) ' It is based on orbital splitting'
-  write(u6,*) ' Min and Max for subspace with exact Hamiltonian'
-  write(u6,*) ' ==============================================='
-  write(u6,*) 'NGASBK : ',NGASBK
-  write(u6,*) '              Min. Occ.      Max. Occ.'
-  do IGAS=1,NGASBK
-    write(u6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
-  end do
-end if
-
 write(u6,*) ' Initial C vector'
 call WRTVCD(CB,LUC,1,-1)
 #endif
@@ -281,12 +265,7 @@ do JCBATCH=JCBAT_INI,JCBAT_END
           ! Are the two blocks connected by allowed excitation
           call CON_BLOCKS(IATP,IBTP,LLATP,LLBTP,IASM,IBSM,LLASM,LLBSM,ICONSPA,ICONSPB,NOCTPA,NOCTPB,MXEXC,IH_OCC_CONS,INTERACT)
 
-          ! IF BK approximation is active, check whether block should
-          ! be calculated exactly (1), by diagonal (-1) or is set to zero (0).
-          I_DO_EXACT_BLK = 1
-          if (DoBKAP) call CHECK_BLOCKS_FOR_BK_APPROX(IATP,IBTP,LLATP,LLBTP,IASM,IBSM,LLASM,LLBSM,IOCTPA,IOCTPB,I_DO_EXACT_BLK)
-          ! BK-like approximation stuff
-          if ((INTERACT == 0) .or. (I_DO_EXACT_BLK == 0)) cycle
+          if ((INTERACT == 0)) cycle
 
 #         ifdef _DEBUGPRINT_
           write(u6,*) ' Next s block in batch :'
@@ -324,26 +303,10 @@ do JCBATCH=JCBAT_INI,JCBAT_END
           JPTSPC = IH0SPC(JATP,JBTP)
 
           if (IPTSPC /= JPTSPC) cycle
-          ! BK-like approximation stuff
-          if (I_DO_EXACT_BLK == 1) then
             call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(:,IATP+IOCTPA-1),NELFSPGP(:,IBTP+IOCTPB-1), &
                          NELFSPGP(:,LLATP+IOCTPA-1),NELFSPGP(:,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
                          NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA,NLLB,IDC,CJRES,SIRES,I3,XI3S, &
                          I4,XI4S,MOCAA,XFAC,IPHGAS,I_RES_AB)
-          else if (I_DO_EXACT_BLK == -1) then
-            ! Giovanni.... transposing sigma and CI vectors:
-            call TRPMT3(SB(ISOFF),NIB,NIA,C2)
-            SB(ISOFF:ISOFF+NIA*NIB-1) = C2(1:NIA*NIB)
-            call TRPMT3(CB(ICOFF),NLLB,NLLA,C2)
-            CB(ICOFF:ICOFF+NLLA*NLLB-1) = C2(1:NLLA*NLLB)
-            FACTOR = Zero
-            call ADDDIA_TERM(FACTOR,CB(ICOFF),SB(ISOFF),IATP,IBTP,IASM,IBSM)
-            ! Giovanni.... transposing back sigma and CI vectors:
-            call TRPMT3(SB(ISOFF),NIA,NIB,C2)
-            SB(ISOFF:ISOFF+NIA*NIB-1) = C2(1:NIA*NIB)
-            call TRPMT3(CB(ICOFF),NLLA,NLLB,C2)
-            CB(ICOFF:ICOFF+NLLA*NLLB-1) = C2(1:NLLA*NLLB)
-          end if ! End BK stuff
           ! CALL RSSBCB2 --> 82
         end do
         ! End of loop over sigma blocks

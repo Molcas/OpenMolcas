@@ -43,10 +43,10 @@ use output_ras, only: IPRGLB, IPRLOC
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, JOBIPH, JOBOLD, LOWDIN_ON, LUSTARTORB, MALTER, MAXALTER, NACTEL, &
                         NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, &
                         NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STARTORBFILE, STSYM, SXDAMP
-use spinfo, only: DOBKAP, I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, &
-                  IGSOCCX_MOLCAS, INOCALC_MOLCAS, IOCCPSPC, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, &
+use spinfo, only: I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, &
+                  IGSOCCX_MOLCAS, INOCALC_MOLCAS, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, &
                   ITMAX_MOLCAS, LSYM_MOLCAS, MS2, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, &
-                  NCSASM, NDET, NDTASM, NGAS_MOLCAS, NGASBK, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
+                  NCSASM, NDET, NDTASM, NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
@@ -161,9 +161,6 @@ dice_sampleN = 200
 dice_iter = 20
 dice_restart = .false.
 #endif
-
-! BK type of approximation (GLMJ)
-DoBKAP = .false.
 
 ! ======================================================================
 !   QCMaquis flags
@@ -3265,57 +3262,6 @@ else
     end if
   end if
 
-  !---  Process BKAP command for BK type of approximation
-  !     (Giovanni Li Manni J.:GLMJ) Nov 2011
-  if (Key('BKAP')) then
-    DoBKAP = .true.
-    call SetPos(LUInput,'BKAP',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-    ReadStatus = ' Failure reading data after BKAP keyword.'
-    read(LUInput,*,iostat=istatus) NGASBK
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    read(LUInput,*,iostat=istatus) (IOCCPSPC(IGAS,1),IGAS=1,NGASBK)
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    read(LUInput,*,iostat=istatus) (IOCCPSPC(IGAS,2),IGAS=1,NGASBK)
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after BKAP keyword.'
-    if (DBG) then
-      write(u6,*) ' BKAP: BK-type of approximation in action'
-      write(u6,*) ' Min and Max for subspace with exact Hamiltonian '
-      write(u6,*) ' =============================================== '
-      write(u6,*) ' NGASBK :',NGASBK
-      write(u6,*) '              Min. Occ.      Max. Occ.           '
-      do IGAS=1,NGASBK
-        write(u6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
-      end do
-    end if
-  end if
-
-
-
-
-
   !---  Process OPTO keyword: Optimal Output for RASSCF/CASPT2
   !                           optimizations - GG Nov 2008.
   if (Key('OPTO')) then
@@ -3951,13 +3897,6 @@ else
   do ISYM=1,NSYM
     NAO = NASH(ISYM)
 
-    if (DOBKAP) then
-      !.Giovanni... BK stuff SplitCAS related. We want to treat RAS CI space as CAS.
-      do NT=2,NAO
-        IZROT(ITU+1:ITU+NT-1) = 1
-        ITU = ITU+NT-1
-      end do
-    else
 
       do NT=2,NAO
         do NU=1,NT-1
@@ -3972,7 +3911,7 @@ else
           end do
         end do
       end do
-    end if
+
   end do
 
   call Put_iArray('nIsh',nIsh,nSym)

@@ -83,7 +83,6 @@ use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, ITERFILE, JOBIPH, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
                         NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
-use spinfo, only: DOBKAP
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
@@ -463,12 +462,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         write(u6,'(26X,A)') ' A shorter vector will be expanded in a longer'
       end if
       if (IPRLEV <= 3) then
-        if (DoBKAP) then
-          write(u6,'(6X,A)') 'Iter CI   SX   CI   RASSCF      CI    Energy    max ROT     max BLB   max BLB  Level Ln srch  '// &
-                             'Step   QN   Walltime'
-          write(u6,'(6X,A)') '    iter iter root  energy    energy  change     param      element    value   shift minimum  '// &
-                             'type update hh:mm:ss'
-        else if (DoDMRG .and. (ICIONLY == 0)) then
+        if (DoDMRG .and. (ICIONLY == 0)) then
           write(u6,'(6X,A)') 'Iter num   Bond  DMRG max tr DMRG  SX      DMRGSCF       Energy    max ROT   max BLB     '// &
                              'max BLB  Level Ln srch  Step   QN     CPU Time'
           write(u6,'(6X,A)') '   sweeps/ dim  /root weight/root iter     energy        change     param    element     '// &
@@ -1222,32 +1216,27 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       ihh = int(time0(2)/3600)
       imm = int(time0(2)-ihh*3600)/60
       iss = int(time0(2)-ihh*3600-imm*60)
-      if (DoBKAP) then
-        write(u6,102) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,EAV,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
-                      SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+      if (doDMRG .and. Key('CION')) then ! If DMRG only -- yma
+        write(u6,'(/6X,a,F19.10)') 'DMRGCI energy              :',EAV+CASDFT_Funct
+        write(u6,'(6X,a,I5,A1,I2.2,A1,I2.2/)') 'Total time spent (hh:mm:ss):        ',ihh,':',imm,':',iss
       else
-        if (doDMRG .and. Key('CION')) then ! If DMRG only -- yma
-          write(u6,'(/6X,a,F19.10)') 'DMRGCI energy              :',EAV+CASDFT_Funct
-          write(u6,'(6X,a,I5,A1,I2.2,A1,I2.2/)') 'Total time spent (hh:mm:ss):        ',ihh,':',imm,':',iss
+        if (doDMRG) then
+#         ifdef _DMRG_
+          maxtrW = Zero
+          maxtrR = -1
+          maxBD = -1
+          ! These dmrg variables are arrays of rank 1
+          ITERCI = maxval(dmrg_energy%num_sweeps)
+          IROT = maxloc(dmrg_energy%num_sweeps,1)
+          maxtrW = maxval(dmrg_energy%max_truncW)
+          maxtrR = maxloc(dmrg_energy%max_truncW,1)
+          maxBD = maxval(dmrg_energy%bond_dim)
+          write(u6,103) ITER,ITERCI,IROT,maxBD,maxtrW,maxtrR,ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM, &
+                        ISYMBB,CBLBM,CTHRSX,SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+#         endif
         else
-          if (doDMRG) then
-#           ifdef _DMRG_
-            maxtrW = Zero
-            maxtrR = -1
-            maxBD = -1
-            ! These dmrg variables are arrays of rank 1
-            ITERCI = maxval(dmrg_energy%num_sweeps)
-            IROT = maxloc(dmrg_energy%num_sweeps,1)
-            maxtrW = maxval(dmrg_energy%max_truncW)
-            maxtrR = maxloc(dmrg_energy%max_truncW,1)
-            maxBD = maxval(dmrg_energy%bond_dim)
-            write(u6,103) ITER,ITERCI,IROT,maxBD,maxtrW,maxtrR,ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM, &
-                          ISYMBB,CBLBM,CTHRSX,SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
-#           endif
-          else
-            write(u6,104) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
-                          SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
-          end if
+          write(u6,104) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
+                        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
         end if
       end if
     else if (IPRLEV >= 4) then
@@ -1278,17 +1267,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     ! Compare RASSCF energy and average CI energy
 
     DIFFE = abs((ECAS-EAV)/ECAS)
-      if (DoBKAP) then
-        if (iter == 1) then
-          if ((DIFFE > 1.0e-10_wp) .and. (NROOTS == 1)) then
-            write(u6,'(6X,A)') repeat('=',120)
-            call WarningMessage(2,'Rasscf and CI energies will differ.')
-            write(u6,*) 'This is the price you pay by the diagonal approximation over the BB block in the SplitCAS method.'
-            write(u6,*) 'The RASSCF energy might also diverge!'
-            write(u6,'(A)') repeat('#',80)
-          end if
-        end if
-      else if (l_casdft) then
+      if (l_casdft) then
         write(u6,'(6X,A)') repeat('=',80)
         write(u6,'(10X,A)') 'This is a POST-SCF correction using a modified  Hamiltonian.'
         write(u6,'(10X,A)') 'The RASSCF energy has been corrected and it will differ from'
@@ -1863,7 +1842,6 @@ call Finalize()
 
 return
 
-102 format(3X,I3,I4,I2,I2,F15.8,F15.8,ES12.2,A1,ES10.2,A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)
 #ifdef _DMRG_
 103 format(6X,I3,I3,I4,I7,ES12.2,I4,I5,F15.8,ES12.2,A1,ES9.2,A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)
 #endif
