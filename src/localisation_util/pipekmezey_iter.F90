@@ -737,16 +737,27 @@ end subroutine GetNumGrad
 
 subroutine GetNumHess(debug2)
     ! computes the numerical Hessian
-    real(kind=wp) :: infDisp(fsdim), NumHess(fsdim,fsdim),diff(fsdim),dx,gref(fsdim),gpdx(fsdim),&
-                     gmdx(fsdim),gp2dx(fsdim),gm2dx(fsdim), NumHessSymm(fsdim,fsdim), NumHdiag(fsdim)
+    real(kind=wp),allocatable :: infDisp(:), NumHess(:,:),diff(:),gref(:),gpdx(:),&
+                                 gmdx(:),gp2dx(:),gm2dx(:), NumHessSymm(:,:), NumHdiag(:)
+    real(kind=wp) :: dx
     integer(kind=iwp) :: i,k,l,NumHessMeth
     logical:: debug=.false.
     logical, intent(in) :: debug2
     integer(kind=iwp), parameter ::  fourpoint=1,symm=2,asymm=3
 
+    call mma_allocate(NumHess, fsdim, fsdim,Label = "NumHess")
+    call mma_allocate(infDisp, fsdim,Label ="infDisp")
+    call mma_allocate(diff, fsdim,Label ="diff")
+    call mma_allocate(gref, fsdim,Label ="gref")
+    call mma_allocate(gpdx, fsdim,Label ="gpdx")
+    call mma_allocate(gmdx, fsdim,Label ="gmdx")
+    call mma_allocate(gp2dx, fsdim,Label ="gp2dx")
+    call mma_allocate(gm2dx, fsdim,Label ="gm2dx")
+    call mma_allocate(NumHessSymm,fsdim, fsdim,Label ="NumHessSymm")
+    call mma_allocate(NumHdiag, fsdim,Label ="NumHdiag")
     !choose method based on cost and accuracy + choose adequate dx
-    NumHessMeth = fourpoint
-    dx = 1.0e-4_wp ! 1e-4 is good for fourpoint; decrease dx for the other methods
+    NumHessMeth = asymm
+    dx = 1.0e-8_wp ! 1e-4 is good for fourpoint; decrease dx for the other methods
 
 
     ! get grad and analytical Hdiag at x=0
@@ -870,9 +881,21 @@ subroutine GetNumHess(debug2)
     end if
 
     write(u6,*) "Hess diff norm", sqrt(dot_product(diff,diff))
-    Hdiagvec(:) = NumHdiag(:)
-end subroutine GetNumHess
 
+    !Hdiagvec(:) = NumHdiag(:)
+
+    call mma_Deallocate(NumHess)
+    call mma_Deallocate(infDisp)
+    call mma_Deallocate(diff)
+    call mma_Deallocate(gref)
+    call mma_Deallocate(gpdx)
+    call mma_Deallocate(gmdx)
+    call mma_Deallocate(gp2dx)
+    call mma_Deallocate(gm2dx)
+    call mma_Deallocate(NumHessSymm)
+    call mma_Deallocate(NumHdiag)
+
+end subroutine GetNumHess
 
 subroutine naiveLineSearch(SearchDir,best_eta,alpha)
     real(kind=wp),intent(inout) :: SearchDir(fsdim)

@@ -59,6 +59,7 @@ do k=1,nOrb2Loc-1
    end do
 end do
 
+
 if (Debug) then
     write(u6,*) ' '
     write(u6,*) 'In GetHdiag_PM'
