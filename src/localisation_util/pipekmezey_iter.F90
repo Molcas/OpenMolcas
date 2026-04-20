@@ -254,7 +254,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
-        call GetNumGrad()
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
@@ -619,21 +618,27 @@ end subroutine P_of_eta
 subroutine GetNumGrad()
     ! computes the numerical gradient
     real(kind=wp) :: infDisp(fsdim), NumGrad(fsdim),diff(fsdim), dx,fref,fpdx,fmdx,fp2dx,fm2dx
-    integer(kind=iwp) :: i
-    logical:: debug=.false., debug2=.true., asymm = .false., fourpoint=.true.
+    integer(kind=iwp) :: i,NumGradMeth
+    logical:: debug=.false., debug2=.true.
+    integer(kind=iwp), parameter ::  fourpoint=1,symm=2,asymm=3
+
+    !choose method based on cost and accuracy + choose adequate dx
+    NumGradMeth = fourpoint
+    dx = 1.0e-4_wp ! 1e-4 is good for fourpoint; decrease dx for the other methods
+
 
     ! get Func and analytical grad at x=0
     call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,fref,.false.)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
 
-    dx = 1.0e-3_wp
     NumGrad(:) = Zero
 
     do i = 1,fsdim
 
-        if (asymm) then
+        select case(NumGradMeth)
 
+        case (asymm)
             ! get Func at x + dx
             infDisp(:) = Zero
             infDisp(i) = dx
@@ -645,7 +650,28 @@ subroutine GetNumGrad()
             ! compute numerical gradient
             NumGrad(i)=(fpdx-fref)/dx
 
-        else if (fourpoint) then
+
+       case (symm)
+            ! get Func at x + dx
+            infDisp(:) = Zero
+            infDisp(i) = dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
+
+            ! get Func at x - dx
+            infDisp(:) = Zero
+            infDisp(i) = -dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
+
+            ! compute numerical gradient
+            NumGrad(i)=(fpdx-fmdx)/(2*dx)
+
+       case (fourpoint)
             ! get Func at x + dx
             infDisp(:) = Zero
             infDisp(i) = dx
@@ -681,29 +707,7 @@ subroutine GetNumGrad()
             ! compute numerical gradient
             NumGrad(i)=(8*(fpdx-fmdx)-fp2dx+fm2dx)/(12*dx)
 
-
-        else
-            ! get Func at x + dx
-            infDisp(:) = Zero
-            infDisp(i) = dx
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-            call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
-
-            ! get Func at x - dx
-            infDisp(:) = Zero
-            infDisp(i) = -dx
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-            call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
-
-            ! compute numerical gradient
-            NumGrad(i)=(fpdx-fmdx)/(2*dx)
-
-        end if
-
+        end select
 
         if (debug) then
             call RecPrt('infDisp',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
