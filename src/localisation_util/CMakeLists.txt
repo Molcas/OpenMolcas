@@ -59,6 +59,7 @@ set (sources
      getumat_localisation.F90
      inv_fwt_haar.F90
      irnge.F90
+     loc_procedures.F90
      localisation_globals.F90
      log2.F90
      makedomaincomplete.F90
@@ -72,7 +73,6 @@ set (sources
      rotateorb.F90
      rotateorb_er.F90
      rotateorbb.F90
-     s_gek_localisation.F90
      sort_localisation.F90
      sort_localisation_1.F90
      scram.F90

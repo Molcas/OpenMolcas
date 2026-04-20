@@ -30,6 +30,7 @@ use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt
+use loc_procedures, only: s_gek_localisation
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
 #endif
@@ -322,8 +323,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 IterGEK = IterGEK + 1
 
-                !call S_GEK_localisation(nIter,IterGEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,nDIIS)
-                call S_GEK_localisation(nIter,IterGEK,-NumHessSymm,fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,nDIIS)
+                !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag=-hdiagvec)
+                call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,fullHessian=-NumHessSymm)
 
             end if ! if in GEKRange
 
@@ -503,7 +504,6 @@ subroutine StepSizeChecks()
     ! if previous step suggestion was out of GEKRange
     if (ResetGEK .and. nDIIS/=0) then
         write(u6,*) "Resetting GEK"
-        UpMeth=" -  - "
         IterGEK = 0
         nDIIS = 0
         ResetGEK = .false.

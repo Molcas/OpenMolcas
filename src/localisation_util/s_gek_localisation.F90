@@ -12,10 +12,14 @@
 !                                                                      *
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,IterGEK,Hessian,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS)
+subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS,fullHessian,HDiag)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -33,7 +37,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc
 integer(kind=iwp),intent(out) :: nDIIS
 integer(kind=iwp), intent(inout) :: IterGEK
-real(kind=wp),intent(in) :: Hessian(fsdim,fsdim)
+real(kind=wp),intent(in),optional :: fullHessian(fsdim,fsdim),Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, dq_NR(fsdim)
@@ -284,16 +288,24 @@ call mma_allocate(H_diis,mDIIS,mDIIS,Label='H_diis')
 H_diis(:,:) = Zero
 
 
-do i=1,mDiis
-  do j=1,mDiis
-    do k=1,fsdim
-        !H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
-      H_diis(i,j) = H_diis(i,j) + e_diis(i,k)*sum(hessian(k,:)*e_diis(:,j))
+if (present(fullHessian)) then
+    do i=1,mDiis
+        do j=1,mDiis
+            do k=1,fsdim
+                !H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
+                H_diis(i,j) = H_diis(i,j) + e_diis(i,k)*sum(fullHessian(k,:)*e_diis(:,j))
+            end do
+        end do
     end do
-  end do
-end do
-
-
+else
+    do i=1,mDiis
+        do j=1,mDiis
+            do k=1,fsdim
+                H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
+            end do
+        end do
+    end do
+end if
 
 
 ! define dq as null vector in the subspace
@@ -302,7 +314,7 @@ call mma_allocate(dq_diis,mDiis,Label='dq_diis')
 dq_diis(:) = Zero
 
 #ifdef _DEBUGPRINT_
-    call RecPrt('Full Space Hessian',' ',Hessian,fsdim,fsdim)
+    if (present(fullHessian)) call RecPrt('Full Space Hessian',' ',fullHessian,fsdim,fsdim)
     call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
     call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
     call RecPrt('H_diis',' ',H_diis,mDIIS,mDIIS)
