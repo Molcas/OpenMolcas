@@ -618,30 +618,92 @@ end subroutine P_of_eta
 
 subroutine GetNumGrad()
     ! computes the numerical gradient
-    real(kind=wp) :: infDisp(fsdim), NumGrad(fsdim), dx,refFunc
+    real(kind=wp) :: infDisp(fsdim), NumGrad(fsdim),diff(fsdim), dx,fref,fpdx,fmdx,fp2dx,fm2dx
     integer(kind=iwp) :: i
-    logical:: debug=.false., debug2=.false.
+    logical:: debug=.false., debug2=.true., asymm = .false., fourpoint=.true.
 
-    ! get Func iand analytical grad at x=0
+    ! get Func and analytical grad at x=0
     call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
-    refFunc = Functional
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,fref,.false.)
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
 
-    if (debug) write(u6,*) "refFunc = ", refFunc
-
-    ! get Func at x = 0 + dx
-    dx = 1.0e-10_wp
+    dx = 1.0e-3_wp
     NumGrad(:) = Zero
 
     do i = 1,fsdim
-        infDisp(:) = Zero
-        infDisp(i) = dx
-        call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-        call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-        call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        NumGrad(i)=(Functional-refFunc)/dx
+
+        if (asymm) then
+
+            ! get Func at x + dx
+            infDisp(:) = Zero
+            infDisp(i) = dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
+
+            ! compute numerical gradient
+            NumGrad(i)=(fpdx-fref)/dx
+
+        else if (fourpoint) then
+            ! get Func at x + dx
+            infDisp(:) = Zero
+            infDisp(i) = dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
+
+            ! get Func at x - dx
+            infDisp(:) = Zero
+            infDisp(i) = -dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
+
+            ! get Func at x + 2dx
+            infDisp(:) = Zero
+            infDisp(i) = 2*dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call ComputeFunc(nAtoms,nOrb2Loc,PA,fp2dx,.false.)
+
+            ! get Func at x - 2dx
+            infDisp(:) = Zero
+            infDisp(i) = -2*dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call ComputeFunc(nAtoms,nOrb2Loc,PA,fm2dx,.false.)
+
+            ! compute numerical gradient
+            NumGrad(i)=(8*(fpdx-fmdx)-fp2dx+fm2dx)/(12*dx)
+
+
+        else
+            ! get Func at x + dx
+            infDisp(:) = Zero
+            infDisp(i) = dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
+
+            ! get Func at x - dx
+            infDisp(:) = Zero
+            infDisp(i) = -dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
+
+            ! compute numerical gradient
+            NumGrad(i)=(fpdx-fmdx)/(2*dx)
+
+        end if
+
 
         if (debug) then
             call RecPrt('infDisp',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
@@ -657,7 +719,10 @@ subroutine GetNumGrad()
         write(u6,*) "dx =", dx
         call RecPrt('Analytical Gradient',' ',Gradient(:),fsdim,1)
         call RecPrt('Numerical Gradient',' ',NumGrad(:),fsdim,1)
-        call RecPrt('Difference',' ',NumGrad(:)-Gradient(:),fsdim,1)
+        diff(:) = Zero
+        diff(:) = NumGrad(:) - Gradient(:)
+        !call RecPrt('Difference',' ',NumGrad(:)-Gradient(:),fsdim,1)
+        write(u6,*) "diff norm", sqrt(dot_product(diff,diff))
     end if
 
     !Gradient(:) = NumGrad(:)
