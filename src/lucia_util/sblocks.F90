@@ -78,7 +78,7 @@ integer(kind=iwp), intent(in) :: NSBLOCK, ISBLOCK(8,*), NOCTPA, NOCTPB, ICOCOC(N
                                  ICBAT_END, IPHGAS(*), I_RES_AB
 real(kind=wp), intent(inout) :: CB(*), SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
 real(kind=wp), intent(_OUT_) :: C2(*), XINT(*), CSCR(*), SSCR(*), CJRES(*), SIRES(*), SCLFAC(*)
-integer(kind=iwp), intent(out) :: IOCTPA, IOCTPB
+integer(kind=iwp), intent(in) :: IOCTPA, IOCTPB
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: PS
 integer(kind=iwp), intent(_OUT_) :: LCBLOCK(*), LECBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*)
@@ -87,7 +87,7 @@ integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1),
                      JSBLOCK, LASM(4), LATP(4), LBL, LBSM(4), LBTP(4), LLASM, LLATP, LLBSM, LLBTP, LSGN(5), LTRP(5), MXEXC, NASTR, &
                      NBSTR, NCBATCH, NIA, NIB, NJA, NJB, NJBLOCK, NLLA, NLLB, NPERM
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: IBLOCK, IGAS, II
+integer(kind=iwp) :: IBLOCK, II
 #endif
 real(kind=wp) :: C(1), PL, XFAC
 ! IH_OCC_CONS = 1 implies that we should employ occupation conserving part of Hamiltonian
