@@ -619,10 +619,15 @@ end subroutine P_of_eta
 
 subroutine GetNumGrad()
     ! computes the numerical gradient
-    real(kind=wp) :: infDisp(fsdim), NumGrad(fsdim),diff(fsdim), dx,fref,fpdx,fmdx,fp2dx,fm2dx
+    real(kind=wp),allocatable :: infDisp(:), NumGrad(:),diff(:)
+    real(kind=wp) :: dx,fref,fpdx,fmdx,fp2dx,fm2dx
     integer(kind=iwp) :: i,NumGradMeth
     logical:: debug=.false., debug2=.true.
     integer(kind=iwp), parameter ::  fourpoint=1,symm=2,asymm=3
+
+    call mma_allocate(infDisp,fsdim,label="infDisp")
+    call mma_allocate(NumGrad,fsdim,label="NumGrad")
+    call mma_allocate(diff,fsdim,label="diff")
 
     !choose method based on cost and accuracy + choose adequate dx
     NumGradMeth = fourpoint
@@ -730,6 +735,10 @@ subroutine GetNumGrad()
         !call RecPrt('Difference',' ',NumGrad(:)-Gradient(:),fsdim,1)
         write(u6,*) "Grad diff norm", sqrt(dot_product(diff,diff))
     end if
+
+    call mma_Deallocate(infDisp)
+    call mma_Deallocate(NumGrad)
+    call mma_Deallocate(diff)
 
     !Gradient(:) = NumGrad(:)
 end subroutine GetNumGrad
