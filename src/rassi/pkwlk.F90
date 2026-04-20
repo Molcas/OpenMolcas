@@ -20,9 +20,11 @@ subroutine PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
 integer(kind=iwp), intent(in) :: N, IPWLK, NWALK, ICASE(N,NWALK)
-integer(kind=iwp), intent(out) :: IWALK(*)
+integer(kind=iwp), intent(_OUT_) :: IWALK(*)
 integer(kind=iwp) :: I, IPOS, IWORD, J, L, LEND, LSTA
 
 IPOS = 0

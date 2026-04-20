@@ -17,13 +17,10 @@ subroutine GetRest(wrk,wrksize,LunAux,niter,E1old,E2old)
 use chcc_global, only: no, nv, PosT1o
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, LunAux
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(out) :: wrk(wrksize), E1old, E2old
 integer(kind=iwp), intent(out) :: niter
-real(kind=wp), intent(out) :: E1old, E2old
 integer(kind=iwp) :: len_
 
 !open(unit=LunAux,File='RstFil',form='unformatted')

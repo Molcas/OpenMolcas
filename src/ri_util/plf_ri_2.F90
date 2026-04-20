@@ -37,12 +37,10 @@ use Constants, only: One
 use Definitions, only: u6
 #endif
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, jCmp, lCmp, iAO(4), iAOst(4), jBas, lBas, kOp(4), nTInt, nSOs, iSO2Ind(nSOs), iOffA(4)
 real(kind=wp), intent(in) :: AOint(ijkl,jCmp,lCmp)
-real(kind=wp), intent(_OUT_) :: TInt(nTInt)
+real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: i2, i4, iAOj, iAOl, iAOstj, iAOstl, ij, iOff, iOffA_, iSO, jSO, jSOj, lSO, lSOl, mm_, mx, nijkl, nn
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: r1, r2

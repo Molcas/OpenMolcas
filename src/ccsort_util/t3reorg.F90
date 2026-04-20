@@ -21,11 +21,9 @@ use ccsort_global, only: lunt3, mbas, ri
 use CCT3_global, only: T3IntPos, T3Off
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, noa(8), nsym
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: i, iaddr, iindex, iPosPack, iri, length, posri, post, symi
 
 ! def iPosPack

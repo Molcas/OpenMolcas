@@ -16,11 +16,9 @@ subroutine addpqij(wrk,wrksize,symp,symq,symi,symj,p,vint,ndimv1,ndimv2,ndimv3)
 use ccsort_global, only: map1, noa, NORB
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, symp, symq, symi, symj, p, ndimv1, ndimv2, ndimv3
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 real(kind=wp), intent(in) :: vint(ndimv1,ndimv2,ndimv3)
 integer(kind=iwp) :: i, ii, ij, j, pos0, posij0, pqij, q
 

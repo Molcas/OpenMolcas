@@ -15,10 +15,12 @@ use gugx, only: CIStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
-integer(kind=iwp), intent(out) :: MWS2W(*)
+integer(kind=iwp), intent(_OUT_) :: MWS2W(*)
 integer(kind=iwp), intent(in) :: nSym
 integer(kind=iwp) :: MIDLEV, NIPWLK, NLEV, NMIDV, NVERT, NWALK
 integer(kind=iwp), allocatable :: ICS(:)

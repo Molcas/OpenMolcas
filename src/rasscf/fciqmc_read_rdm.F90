@@ -38,8 +38,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-#include "intent.fh"
-
 logical(kind=iwp) :: MCM7 = .false., WRMA = .false.
 
 public :: cleanup, dump_fciqmc_mats, MCM7, read_neci_RDM, WRMA
@@ -624,7 +622,7 @@ end function expand_1rdm
 subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
 
   integer(kind=iwp), intent(in) :: iroot
-  real(kind=wp), intent(_OUT_) :: dmat(:), dspn(:), psmat(:), pamat(:)
+  real(kind=wp), intent(out) :: dmat(:), dspn(:), psmat(:), pamat(:)
   integer(kind=iwp) :: fac, hdf5_dset, hdf5_file, hdf5_group, i, iprlev, len4index(2), n_rs, p, pq, pqrs, q, r, rs, s
   logical(kind=iwp) :: tExist
   integer(kind=iwp), allocatable :: indices(:,:)

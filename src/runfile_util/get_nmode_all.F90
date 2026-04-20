@@ -16,12 +16,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: nVectors, nFreq, nUnique_Atoms, nAll_Atoms, mDisp(0:7)
 real(kind=wp), intent(in) :: Vectors(nVectors)
-real(kind=wp), intent(_OUT_) :: Vectors_All(3*nAll_Atoms*nFreq)
+real(kind=wp), intent(inout) :: Vectors_All(3*nAll_Atoms*nFreq)
 integer(kind=iwp) :: Active = 0, iC, iCar, iChAtom, iChCar(3), iCo, iComp, iCoSet(0:7,0:7), iFreq, iGen(3), iIrrep, iMode, &
                      iStab(0:7), iUnique_Atom, iVec, iVector, iVector_all, kOp, MaxDCR, mUnique_Atoms, nCoSet, nDisp(0:7), nGen, &
                      nStab
@@ -184,7 +182,7 @@ outer: do iIrrep=0,nIrrep-1
           !write(u6,*) 'TF(iIrrep,iComp)=',Temp
 #         endif
           if (TF(iIrrep,iComp)) then
-            !write(u6,*) 'Belong!'
+            !write(u6,*) 'Belongs!'
             iVec = iVec+1
 
             ! In some cases we only want the normal modes of the first irrep!
@@ -196,7 +194,7 @@ outer: do iIrrep=0,nIrrep-1
             XY = real(iChTbl(iIrrep,NrOpr(kOp)),kind=wp)
             Vectors_All(iVector_All) = Vec*XR*XY
           else
-            !write(u6,*) 'Doesn''t belong!'
+            !write(u6,*) "Doesn't belong!"
             Vectors_All(iVector_All) = Zero
           end if
 #         ifdef _DEBUGPRINT_

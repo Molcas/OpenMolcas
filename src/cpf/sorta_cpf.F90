@@ -28,8 +28,9 @@ use Definitions, only: wp, iwp, u6, RtoI
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: BUFOUT(*), TIBUF(NTRABUF), BUFBI(*), BIAC(*), BICA(*)
+real(kind=wp), intent(_OUT_) :: BUFOUT(*), BUFBI(*), BIAC(*), BICA(*)
 integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*), INDBI(*), NINTGR
+real(kind=wp), intent(out) :: TIBUF(NTRABUF)
 integer(kind=iwp), intent(in) :: ISAB(*)
 integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADD10, IADR, IBUFIJ, ICHK, ICP, ICPP, ICQ, ID, IDISK, IDIV, IIJ, IIN, IJ, IJKL, ILEN, &
                      ILOOP, INND, INS, INSOUT, IOUT, IREC, ITURN, JDISK, KBUF0, KBUF1, KBUF2, KK, KKBUF0, KKBUF1, KKBUF2, KL, &

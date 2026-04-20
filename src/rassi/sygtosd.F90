@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*)
 real(kind=wp), intent(in) :: CISYG(*), SPTRA(*)
-real(kind=wp), intent(out) :: CISD(*), detcoeff(*)
+real(kind=wp), intent(_OUT_) :: CISD(*), detcoeff(*)
 character(len=*), intent(_OUT_) :: detocc(*)
 integer(kind=iwp) :: I, IBLK, ICNF, idet, IEL, IEL1, IEL2, IERR, IFORM, IFSB, IMORS, IOCC, IOEND, IORB, IOSTA, IPART, IPOS, IREST, &
                      ISBSTR, ISORB, ISPART, ISPD, ISPEND, ISPN, ISPSTA, ISST, ISUM, ISYGEND, ISYGSTA, IWORD, IWRD, JSST, KCNF, &

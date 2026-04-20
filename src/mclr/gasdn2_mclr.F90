@@ -71,7 +71,7 @@ integer(kind=iwp), intent(in) :: I12, NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISO
                                  LUL, LUR, ieaw, n1, n2
 real(kind=wp), intent(inout) :: RHO1(*), RHO2(*)
 real(kind=wp), intent(in) :: R(*), L(*), PSL, PSR
-real(kind=wp), intent(out) :: CB(*), SB(*), C2(*), CSCR(*), SSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), RHO1S(*)
+real(kind=wp), intent(_OUT_) :: CB(*), SB(*), C2(*), CSCR(*), SSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), RHO1S(*)
 integer(kind=iwp), intent(inout) :: NGAS
 integer(kind=iwp), intent(out) :: ISOOSC(NOCTPA,NOCTPB,NSM), NSOOSC(NOCTPA,NOCTPB,NSM), ISOOSE(NOCTPA,NOCTPB,NSM), &
                                   NSOOSE(NOCTPA,NOCTPB,NSM), ICOOSC(NOCTPA,NOCTPB,NSM), NCOOSC(NOCTPA,NOCTPB,NSM), &

@@ -19,13 +19,15 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
 integer(kind=iwp), intent(in) :: NUseSym, NUseBF(nIrrep), NUsedBF(nIrrep), UsetoReal(nIrrep), RealtoUse(nIrrep)
 real(kind=wp), intent(in) :: NTO(*), EigVal(*)
 character(len=8), intent(in) :: NTOType
 character(len=5), intent(in) :: STATENAME
 character, intent(in) :: Spin
-integer(kind=iwp), intent(out) :: Sym(*), Ind(*)
+integer(kind=iwp), intent(_OUT_) :: Sym(*), Ind(*)
 real(kind=wp), intent(out) :: SumEigVal
 integer(kind=iwp) :: I, ICount, INTO, IOrb, IOrbinSym, IPCMO, iPrintSym, ISym, IUseSym, J, LU, NNTO, NPCMO, v2Dum(7,8)
 real(kind=wp) :: vDum(2)

@@ -19,12 +19,10 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: mxorb, mxaobf, kbasis
-real(kind=wp), intent(_OUT_) :: orbs(mxaobf,mxorb)
-integer(kind=iwp), intent(_OUT_) :: irdorbs(mxorb), nvbinp, kbasiscvb_inp
+real(kind=wp), intent(inout) :: orbs(mxaobf,mxorb)
+integer(kind=iwp), intent(inout) :: irdorbs(mxorb), nvbinp, kbasiscvb_inp
 real(kind=wp), intent(in) :: strtvb
 integer(kind=iwp) :: idum(1), iorb, istr, mouse, mxread, nread
 real(kind=wp), allocatable :: tmp(:)

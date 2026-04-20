@@ -34,11 +34,9 @@ use ccsort_global, only: map2, map3
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, syma, typv3, typm, typp, typq, directyes, inverseyes
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: ii, iiv2d, iiv2i, length, post, posv2d, posv2i, posv3, symm, symp, symq
 
 ! get %d %i of <m,a|p,q> as _a(m,p q) into map3
