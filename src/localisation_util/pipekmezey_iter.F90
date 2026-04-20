@@ -194,6 +194,7 @@ case (2,3,4,5)
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
     call GetNumGrad()
+    call GetNumHess(.true.)
 end select
 
 
@@ -254,6 +255,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
+        call GetNumHess(.false.)
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
@@ -720,17 +722,119 @@ subroutine GetNumGrad()
 
     if (debug2) then
         ! print results
-        write(u6,*) "dx =", dx
+        write(u6,*) "Grad dx =", dx
         call RecPrt('Analytical Gradient',' ',Gradient(:),fsdim,1)
         call RecPrt('Numerical Gradient',' ',NumGrad(:),fsdim,1)
         diff(:) = Zero
         diff(:) = NumGrad(:) - Gradient(:)
         !call RecPrt('Difference',' ',NumGrad(:)-Gradient(:),fsdim,1)
-        write(u6,*) "diff norm", sqrt(dot_product(diff,diff))
+        write(u6,*) "Grad diff norm", sqrt(dot_product(diff,diff))
     end if
 
     !Gradient(:) = NumGrad(:)
 end subroutine GetNumGrad
+
+
+subroutine GetNumHess(debug2)
+    ! computes the numerical Hessian
+    real(kind=wp) :: infDisp(fsdim), NumHess(fsdim,fsdim),diff(fsdim),dx,gref(fsdim),gpdx(fsdim),&
+                     gmdx(fsdim),gp2dx(fsdim),gm2dx(fsdim), NumHessSymm(fsdim,fsdim), NumHdiag(fsdim)
+    integer(kind=iwp) :: i,k,l,NumHessMeth
+    logical:: debug=.false.
+    logical, intent(in) :: debug2
+    integer(kind=iwp), parameter ::  fourpoint=1,symm=2,asymm=3
+
+    !choose method based on cost and accuracy + choose adequate dx
+    NumHessMeth = symm
+    dx = 1.0e-4_wp ! 1e-4 is good for fourpoint; decrease dx for the other methods
+
+
+    ! get grad and analytical Hdiag at x=0
+    call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gref)
+    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:))
+
+    NumHess(:,:) = Zero
+    NumHdiag(:) = Zero
+    NumHessSymm(:,:) = Zero
+    diff(:) = Zero
+
+    do i = 1,fsdim
+
+        select case(NumHessMeth)
+
+        case (asymm)
+            ! get Grad at x + dx
+            infDisp(:) = Zero
+            infDisp(i) = dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gpdx(:))
+
+            ! compute numerical hessian columnwise
+            NumHess(:,i)=(gpdx(:)-gref(:))/dx
+
+       case (symm)
+            ! get Grad at x + dx
+            infDisp(:) = Zero
+            infDisp(i) = dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gpdx(:))
+
+            ! get Func at x - dx
+            infDisp(:) = Zero
+            infDisp(i) = -dx
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
+            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gmdx(:))
+
+            ! compute numerical hessian columnwise
+            NumHess(:,i)=(gpdx(:)-gmdx(:))/(2*dx)
+
+
+        end select
+
+        if (debug) then
+            call RecPrt('infDisp',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('infUmat',' ',unitary_mat(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('rotated_CMO-CMO',' ',rotated_CMO(:,:)-CMO(:,:),nBasis,nOrb2Loc)
+            write(u6,*) "i, NumHess(:,i) =",i, NumHess(:,i)
+        end if
+
+    end do
+
+    ! retrieve the symmetry of the hessian
+    do k=1,fsdim
+        do l=1,fsdim
+            NumHessSymm(k,l) = NumHess(k,l)+NumHess(l,k)
+        end do
+    end do
+    NumHessSymm(:,:) = Half * NumHessSymm(:,:)
+
+    do k=1,fsdim
+        NumHdiag(k) = NumHessSymm(k,k)
+    end do
+
+    diff(:) = NumHdiag(:) - Hdiagvec(:)
+
+    if (debug2) then
+        ! print results
+        write(u6,*) "Hess dx =", dx
+        call RecPrt('Analytical Hdiag',' ',Hdiagvec(:),fsdim,1)
+        call RecPrt('Numerical Hdiag',' ',NumHdiag(:),fsdim,1)
+        !call RecPrt('Numerical Hessian',' ',NumHess(:,:),fsdim,fsdim)
+        call RecPrt('Numerical Hessian symm.',' ',NumHessSymm(:,:),fsdim,fsdim)
+        call RecPrt('Difference',' ',diff,fsdim,1)
+        write(u6,*) "Hess diff norm", sqrt(dot_product(diff,diff))
+    end if
+
+    write(u6,*) "Hess diff norm", sqrt(dot_product(diff,diff))
+    Hdiagvec(:) = NumHdiag(:)
+end subroutine GetNumHess
 
 
 subroutine naiveLineSearch(SearchDir,best_eta,alpha)

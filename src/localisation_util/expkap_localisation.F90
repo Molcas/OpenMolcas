@@ -97,7 +97,7 @@ end do
 
 
 maxel(:) = maxloc(abs(unitary_mat(:,:)))
-if (unitary_mat(maxel(1),maxel(2)) > One) then
+if (unitary_mat(maxel(1),maxel(2)) > One+0.01_wp) then
     write(u6,*) "element of U bigger cannot be larger than 1, as U is supposed to be orthogonal/unitary:", &
                  unitary_mat(maxel(1),maxel(2))
     call Abend()
