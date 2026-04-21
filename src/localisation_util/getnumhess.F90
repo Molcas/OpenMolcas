@@ -12,18 +12,19 @@
 !                                                                      *
 !***********************************************************************
 
-! computes the numerical Hessian of the Pipek-Mezey functional
+subroutine GetNumHess(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,debug2)
 
-subroutine GetNumHess(CMO,nOrb2Loc,nBasis,nAtoms,fsdim,NumHessSymm,debug2)
+! computes the numerical Hessian of the Pipek-Mezey functional
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp,iwp, u6
 use Molcas, only: LenIn
 use Constants, only: Zero,Half
+use Localisation_globals, only: nAtoms
 
 implicit none
 
-integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc,fsdim, nAtoms
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc,fsdim
 real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp),intent(inout) :: NumHessSymm(fsdim,fsdim)
 

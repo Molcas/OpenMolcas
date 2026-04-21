@@ -19,7 +19,7 @@
 !#define _GETMOLDEN_
 !#define _FORCEGEKRANGE_
 
-subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,nAtoms,Converged)
+subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 ! Author: T.B. Pedersen
 !
 ! Based on the original routines by Y. Carissan.
@@ -30,14 +30,14 @@ use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
-                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start
+                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms
 use loc_procedures, only: s_gek_localisation
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: nAtoms, nBasis, nOrb2Loc
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 logical(kind=iwp), intent(out) :: Converged
@@ -194,7 +194,7 @@ case (2,3,4,5)
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
     call GetNumGrad()
-    call GetNumHess(CMO,nOrb2Loc,nBasis,nAtoms,fsdim,NumHessSymm,.true.)
+    call GetNumHess(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.true.)
 end select
 
 
@@ -255,7 +255,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
-        call GetNumHess(CMO,nOrb2Loc,nBasis,nAtoms,fsdim,NumHessSymm,.false.)
+        call GetNumHess(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.false.)
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
