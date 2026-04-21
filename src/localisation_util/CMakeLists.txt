@@ -66,6 +66,7 @@ set (sources
      log2.F90
      makedomaincomplete.F90
      ortho_orb.F90
+     orthocheck.F90
      orthopao_localisation.F90
      paoloc.F90
      pipekmezey.F90
