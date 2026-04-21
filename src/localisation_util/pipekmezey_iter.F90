@@ -19,7 +19,7 @@
 !#define _GETMOLDEN_
 !#define _FORCEGEKRANGE_
 
-subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
+subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
 !
 ! Based on the original routines by Y. Carissan.
@@ -29,7 +29,8 @@ use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
-                                UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt
+                                UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
+                                BName
 use loc_procedures, only: s_gek_localisation
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
@@ -40,7 +41,6 @@ integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtom
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*)
-character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
@@ -177,7 +177,7 @@ end select ! allocations
 
 ! Initialization
 
-call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+call GenerateP(Ovlp,CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 
 select case(AnalyseLoc)
     case (0,1)
@@ -196,7 +196,7 @@ case (2,3,4,5)
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
     call GetNumGrad()
-    call GetNumHess(CMO,nOrb2Loc,BName,nBasis,nAtoms,fsdim,Ovlp,Ovlp_sqrt,NumHessSymm,.true.,nBas_Start,nBas_per_Atom)
+    !call GetNumHess(CMO,nOrb2Loc,nBasis,nAtoms,fsdim,Ovlp,Ovlp_sqrt,NumHessSymm,.true.,nBas_Start,nBas_per_Atom)
 end select
 
 
@@ -253,11 +253,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case (2,3,4,5) ! Employing NxN rotations
         UpMeth = "NR  -"
 
-        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call GenerateP(Ovlp,CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
-        call GetNumHess(CMO,nOrb2Loc,BName,nBasis,nAtoms,fsdim,Ovlp,Ovlp_sqrt,NumHessSymm,.false.,nBas_Start,nBas_per_Atom)
+        !call GetNumHess(CMO,nOrb2Loc,nBasis,nAtoms,fsdim,Ovlp,Ovlp_sqrt,NumHessSymm,.false.,nBas_Start,nBas_per_Atom)
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
@@ -411,7 +411,7 @@ call OrthoCheck()
 
 if (.not. Silent) then
 
-    call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+    call GenerateP(Ovlp,CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
     select case(AnalyseLoc)
         case (0)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
@@ -616,7 +616,7 @@ subroutine P_of_eta(Disp,Functional)
     real(kind=wp),intent(out) :: Functional
     call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
     call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-    call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+    call GenerateP(Ovlp,rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
 
@@ -638,7 +638,7 @@ subroutine GetNumGrad()
 
 
     ! get Func and analytical grad at x=0
-    call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+    call GenerateP(Ovlp,CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,fref,.false.)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
 
@@ -654,7 +654,7 @@ subroutine GetNumGrad()
             infDisp(i) = dx
             call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
             call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GenerateP(Ovlp,rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
             call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
 
             ! compute numerical gradient
@@ -667,7 +667,7 @@ subroutine GetNumGrad()
             infDisp(i) = dx
             call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
             call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GenerateP(Ovlp,rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
             call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
 
             ! get Func at x - dx
@@ -675,7 +675,7 @@ subroutine GetNumGrad()
             infDisp(i) = -dx
             call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
             call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GenerateP(Ovlp,rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
             call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
 
             ! compute numerical gradient
@@ -687,7 +687,7 @@ subroutine GetNumGrad()
             infDisp(i) = dx
             call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
             call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GenerateP(Ovlp,rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
             call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
 
             ! get Func at x - dx
@@ -695,7 +695,7 @@ subroutine GetNumGrad()
             infDisp(i) = -dx
             call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
             call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GenerateP(Ovlp,rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
             call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
 
             ! get Func at x + 2dx
@@ -703,7 +703,7 @@ subroutine GetNumGrad()
             infDisp(i) = 2*dx
             call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
             call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GenerateP(Ovlp,rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
             call ComputeFunc(nAtoms,nOrb2Loc,PA,fp2dx,.false.)
 
             ! get Func at x - 2dx
@@ -711,7 +711,7 @@ subroutine GetNumGrad()
             infDisp(i) = -2*dx
             call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
             call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(Ovlp,rotated_CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+            call GenerateP(Ovlp,rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
             call ComputeFunc(nAtoms,nOrb2Loc,PA,fm2dx,.false.)
 
             ! compute numerical gradient
