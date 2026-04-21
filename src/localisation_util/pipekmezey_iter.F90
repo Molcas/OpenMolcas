@@ -53,7 +53,7 @@ real(kind=wp) :: dqdq,largest, alpha
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK,linesearch=.false.
 character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
-real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,c,eta1,eta2
+real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,eta1,eta2
 
 #ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
