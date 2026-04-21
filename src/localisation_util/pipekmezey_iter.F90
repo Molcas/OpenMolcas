@@ -45,7 +45,7 @@ integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
-                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumHessSymm(:,:)
+                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumHessSymm(:,:),NumGrad(:)
 real(kind=wp), External :: DDot_
 
 integer(kind=iwp) :: maxel,i, inpOptMeth
@@ -159,6 +159,7 @@ case(2,3,4,5)
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
     call mma_allocate(NumHessSymm,fsdim, fsdim,Label ="NumHessSymm")
+    call mma_allocate(NumGrad,fsdim,Label ="NumGrad")
 
     DispList(:,:)=Zero
     HdiagList(:,:)=Zero
@@ -193,8 +194,8 @@ case (2,3,4,5)
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
-    call GetNumGrad()
-    call GetNumHess(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.true.)
+    call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad)
+    call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.true.)
 end select
 
 
@@ -255,7 +256,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
-        call GetNumHess(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.false.)
+        call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.false.)
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
@@ -461,6 +462,7 @@ case(2,3,4,5)
     call mma_Deallocate(SearchDir)
     call mma_Deallocate(Hdiagvec)
     call mma_Deallocate(NumHessSymm)
+    call mma_Deallocate(NumGrad)
 end select
 
 call mma_Deallocate(Ovlp_sqrt)
@@ -617,133 +619,6 @@ subroutine P_of_eta(Disp,Functional)
     call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
-
-subroutine GetNumGrad()
-    ! computes the numerical gradient
-    real(kind=wp),allocatable :: infDisp(:), NumGrad(:),diff(:)
-    real(kind=wp) :: dx,fref,fpdx,fmdx,fp2dx,fm2dx
-    integer(kind=iwp) :: i,NumGradMeth
-    logical:: debug=.false., debug2=.true.
-    integer(kind=iwp), parameter ::  fourpoint=1,symm=2,asymm=3
-
-    call mma_allocate(infDisp,fsdim,label="infDisp")
-    call mma_allocate(NumGrad,fsdim,label="NumGrad")
-    call mma_allocate(diff,fsdim,label="diff")
-
-    !choose method based on cost and accuracy + choose adequate dx
-    NumGradMeth = fourpoint
-    dx = 1.0e-4_wp ! 1e-4 is good for fourpoint; decrease dx for the other methods
-
-
-    ! get Func and analytical grad at x=0
-    call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,fref,.false.)
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
-
-    NumGrad(:) = Zero
-
-    do i = 1,fsdim
-
-        select case(NumGradMeth)
-
-        case (asymm)
-            ! get Func at x + dx
-            infDisp(:) = Zero
-            infDisp(i) = dx
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
-            call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
-
-            ! compute numerical gradient
-            NumGrad(i)=(fpdx-fref)/dx
-
-
-       case (symm)
-            ! get Func at x + dx
-            infDisp(:) = Zero
-            infDisp(i) = dx
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
-            call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
-
-            ! get Func at x - dx
-            infDisp(:) = Zero
-            infDisp(i) = -dx
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
-            call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
-
-            ! compute numerical gradient
-            NumGrad(i)=(fpdx-fmdx)/(2*dx)
-
-       case (fourpoint)
-            ! get Func at x + dx
-            infDisp(:) = Zero
-            infDisp(i) = dx
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
-            call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
-
-            ! get Func at x - dx
-            infDisp(:) = Zero
-            infDisp(i) = -dx
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
-            call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
-
-            ! get Func at x + 2dx
-            infDisp(:) = Zero
-            infDisp(i) = 2*dx
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
-            call ComputeFunc(nAtoms,nOrb2Loc,PA,fp2dx,.false.)
-
-            ! get Func at x - 2dx
-            infDisp(:) = Zero
-            infDisp(i) = -2*dx
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-            call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-            call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
-            call ComputeFunc(nAtoms,nOrb2Loc,PA,fm2dx,.false.)
-
-            ! compute numerical gradient
-            NumGrad(i)=(8*(fpdx-fmdx)-fp2dx+fm2dx)/(12*dx)
-
-        end select
-
-        if (debug) then
-            call RecPrt('infDisp',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
-            call RecPrt('infUmat',' ',unitary_mat(:,:),nOrb2Loc,nOrb2Loc)
-            call RecPrt('rotated_CMO-CMO',' ',rotated_CMO(:,:)-CMO(:,:),nBasis,nOrb2Loc)
-            write(u6,*) "i, NumGrad(i) =",i, NumGrad(i)
-        end if
-
-    end do
-
-    if (debug2) then
-        ! print results
-        write(u6,*) "Grad dx =", dx
-        call RecPrt('Analytical Gradient',' ',Gradient(:),fsdim,1)
-        call RecPrt('Numerical Gradient',' ',NumGrad(:),fsdim,1)
-        diff(:) = Zero
-        diff(:) = NumGrad(:) - Gradient(:)
-        !call RecPrt('Difference',' ',NumGrad(:)-Gradient(:),fsdim,1)
-        write(u6,*) "Grad diff norm", sqrt(dot_product(diff,diff))
-    end if
-
-    call mma_Deallocate(infDisp)
-    call mma_Deallocate(NumGrad)
-    call mma_Deallocate(diff)
-
-    !Gradient(:) = NumGrad(:)
-end subroutine GetNumGrad
-
 
 subroutine naiveLineSearch(SearchDir,best_eta,alpha)
     real(kind=wp),intent(inout) :: SearchDir(fsdim)

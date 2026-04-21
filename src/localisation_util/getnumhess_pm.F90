@@ -12,13 +12,12 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine GetNumHess(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,debug2)
+subroutine GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,debug2)
 
 ! computes the numerical Hessian of the Pipek-Mezey functional
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp,iwp, u6
-use Molcas, only: LenIn
 use Constants, only: Zero,Half
 use Localisation_globals, only: nAtoms
 
@@ -191,6 +190,6 @@ call mma_Deallocate(href)
 call mma_Deallocate(infUmat)
 call mma_Deallocate(rotated_CMO)
 
-end subroutine GetNumHess
+end subroutine GetNumHess_PM
 
 
