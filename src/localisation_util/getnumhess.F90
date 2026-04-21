@@ -14,7 +14,7 @@
 
 ! computes the numerical Hessian of the Pipek-Mezey functional
 
-subroutine GetNumHess(CMO,nOrb2Loc,nBasis,nAtoms,fsdim,Ovlp_sqrt,NumHessSymm,debug2,nBas_Start,&
+subroutine GetNumHess(CMO,nOrb2Loc,nBasis,nAtoms,fsdim,NumHessSymm,debug2,nBas_Start,&
         nBas_per_Atom)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -25,7 +25,7 @@ use Constants, only: Zero,Half
 implicit none
 
 integer(kind=iwp), intent(in) :: nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc,fsdim, nAtoms
-real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc),Ovlp_sqrt(nBasis,nBasis)
+real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp),intent(inout) :: NumHessSymm(fsdim,fsdim)
 
 
@@ -58,7 +58,7 @@ dx = 1.0e-8_wp ! 1e-4 is good for fourpoint; decrease dx for the other methods
 
 
 ! get grad and analytical Hdiag at x=0
-call generateP(CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+call generateP(CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA)
 call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gref)
 call GetHdiag_PM(nAtoms,nOrb2Loc,PA, href(:))
 
@@ -77,7 +77,7 @@ do i = 1,fsdim
         infDisp(i) = dx
         call vec2upper_triag(DispMat,nOrb2Loc,infDisp(:),fsdim,.true.)
         call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
-        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gpdx(:))
 
         ! compute numerical hessian columnwise
@@ -89,7 +89,7 @@ do i = 1,fsdim
         infDisp(i) = dx
         call vec2upper_triag(DispMat,nOrb2Loc,infDisp(:),fsdim,.true.)
         call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
-        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gpdx(:))
 
         ! get Func at x - dx
@@ -97,7 +97,7 @@ do i = 1,fsdim
         infDisp(i) = -dx
         call vec2upper_triag(DispMat,nOrb2Loc,infDisp(:),fsdim,.true.)
         call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
-        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gmdx(:))
 
         ! compute numerical hessian columnwise
@@ -109,7 +109,7 @@ do i = 1,fsdim
         infDisp(i) = dx
         call vec2upper_triag(DispMat,nOrb2Loc,infDisp(:),fsdim,.true.)
         call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
-        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gpdx(:))
 
         ! get Func at x - dx
@@ -117,7 +117,7 @@ do i = 1,fsdim
         infDisp(i) = -dx
         call vec2upper_triag(DispMat,nOrb2Loc,infDisp(:),fsdim,.true.)
         call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
-        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gmdx(:))
 
         ! get Grad at x + 2dx
@@ -125,7 +125,7 @@ do i = 1,fsdim
         infDisp(i) = 2*dx
         call vec2upper_triag(DispMat,nOrb2Loc,infDisp(:),fsdim,.true.)
         call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
-        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gp2dx(:))
 
         ! get Func at x - 2dx
@@ -133,7 +133,7 @@ do i = 1,fsdim
         infDisp(i) = -2*dx
         call vec2upper_triag(DispMat,nOrb2Loc,infDisp(:),fsdim,.true.)
         call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
-        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call generateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gm2dx(:))
 
         ! compute numerical hessian columnwise
