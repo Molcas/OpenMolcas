@@ -18,7 +18,7 @@ use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, S
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, MINOP, MS2, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use Molcas, only: MxSym
 use stdalloc, only: mma_allocate
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), &
