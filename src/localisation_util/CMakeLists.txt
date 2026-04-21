@@ -52,6 +52,7 @@ set (sources
      getgrad_pm.F90
      getgradnorm_pm.F90
      gethdiag_pm.F90
+     getnumhess.F90
      getovlp_localisation.F90
      getrawpaos.F90
      getsh_localisation.F90
