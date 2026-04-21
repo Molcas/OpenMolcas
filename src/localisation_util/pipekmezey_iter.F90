@@ -19,7 +19,7 @@
 !#define _GETMOLDEN_
 !#define _FORCEGEKRANGE_
 
-subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,nBasis,nOrb2Loc,nAtoms,Converged)
+subroutine PipekMezey_Iter(Functional,CMO,PA,nBas_per_Atom,nBas_Start,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
 !
 ! Based on the original routines by Y. Carissan.
@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
-                                BName
+                                BName,Ovlp
 use loc_procedures, only: s_gek_localisation
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
@@ -40,7 +40,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
-real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2

@@ -23,7 +23,7 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms, ScrFac, Debug
+use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, Ovlp
 
 #ifdef _SCR_DEFAULT_
 use Localisation_globals, only: OptMeth
@@ -36,7 +36,7 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, kOffC, lOaux, nBasT, nFroT, nOrb2LocT
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
-real(kind=wp), allocatable :: Oaux(:), Ovlp(:,:), PA(:,:,:)
+real(kind=wp), allocatable :: Oaux(:), PA(:,:,:)
 character(len=8) :: Label
 character(len=*), parameter :: SecNam = 'PipekMezey'
 
@@ -111,7 +111,7 @@ PA(:,:,:) = Zero
 
 ! this offset to get to the part of CMO which should be localized.
 if (debug) then; call RecPrt('cMO before localization',' ',cMO,nBasT,norb2locT); end if
-call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,PA,nBas_per_Atom,nBas_Start,nBasT,nOrb2LocT,nAtoms,Converged)
+call PipekMezey_Iter(Functional,CMO(kOffC),PA,nBas_per_Atom,nBas_Start,nBasT,nOrb2LocT,nAtoms,Converged)
 if (debug) then; call RecPrt('cMO after localization',' ',cMO,nBasT,norb2locT); end if
 ! De-allocations.
 ! ---------------
