@@ -31,7 +31,6 @@ subroutine PrtTim()
 use timers, only: C_Dress, C_get_Cm, TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, &
                   TimeInput, TimeOrb, TimeOutput, TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn, W_Dress, W_get_Cm
 use lucia_data, only: TDENSI, TSIGMA
-use splitcas_data, only: DoSplitCAS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -92,24 +91,19 @@ write(u6,102) '     . Fock-matrix generation',':',T(8),F(8)
 write(u6,102) '   - CI optimization',':',T(9),F(9)
 write(u6,102) '     . construct Hdiag',':',T(10),F(10)
 
-if (.not. DoSplitCAS) then ! (GLMJ)
-  write(u6,102) '     . construct Hsel',':',T(11),F(11)
-  write(u6,102) '     . Davidson diagonalization',':',T(19),F(19)
+write(u6,102) '     . construct Hsel',':',T(11),F(11)
+write(u6,102) '     . Davidson diagonalization',':',T(19),F(19)
 
-  write(u6,102) '       .. sigma vector generation',':',T(12),F(12)
-  write(u6,102) '          |-> aa/bb 1-electron   ',':',T(26),F(26)
-  write(u6,102) '          |-> aa/bb 2-electron   ',':',T(27),F(27)
-  write(u6,102) '          \-> alpha-beta         ',':',T(28),F(28)
-  write(u6,102) '              |-> C prefetch     ',':',T(29),F(29)
-  write(u6,102) '              |-> matrix multiply',':',T(30),F(30)
-  write(u6,102) '              \-> S scatter      ',':',T(31),F(31)
+write(u6,102) '       .. sigma vector generation',':',T(12),F(12)
+write(u6,102) '          |-> aa/bb 1-electron   ',':',T(26),F(26)
+write(u6,102) '          |-> aa/bb 2-electron   ',':',T(27),F(27)
+write(u6,102) '          \-> alpha-beta         ',':',T(28),F(28)
+write(u6,102) '              |-> C prefetch     ',':',T(29),F(29)
+write(u6,102) '              |-> matrix multiply',':',T(30),F(30)
+write(u6,102) '              \-> S scatter      ',':',T(31),F(31)
 
-  write(u6,102) '       .. HCSCE',':',T(21),F(21)
-  write(u6,102) '       .. page_in/page_out',':',T(20),F(20)
-else
-  write(u6,102) '     . U_AA diagonalization',':',T(22),F(22)
-  write(u6,102) '     . compute Cm coeff',':',T(24),F(24)
-end if
+write(u6,102) '       .. HCSCE',':',T(21),F(21)
+write(u6,102) '       .. page_in/page_out',':',T(20),F(20)
 
 write(u6,102) '     . density matrix generation',':',T(13),F(13)
 write(u6,102) '          |-> aa/bb 1-electron  ',':',T(32),F(32)

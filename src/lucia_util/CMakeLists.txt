@@ -18,8 +18,6 @@ set (sources
      adadst_gas.F90
      adast_gas.F90
      adast_gassm.F90
-     adddia_term.F90
-     adddia_terms.F90
      add_skaiib.F90
      add_str_group.F90
      adstn_gas.F90
@@ -31,7 +29,6 @@ set (sources
      blkcls.F90
      blkfo_min.F90
      bndinv.F90
-     check_blocks_for_bk_approx.F90
      cmp_ivec_ilist.F90
      cnford_gas.F90
      comprs2lst.F90
@@ -94,7 +91,6 @@ set (sources
      i_am_so_excited.F90
      ibasspc_for_cls.F90
      ibinom.F90
-     icheck_occ_in_accspc.F90
      ifrmds.F90
      ilex_for_conf.F90
      ilex_for_conf_new.F90
