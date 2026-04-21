@@ -14,8 +14,7 @@
 
 ! computes the numerical Hessian of the Pipek-Mezey functional
 
-subroutine GetNumHess(CMO,nOrb2Loc,nBasis,nAtoms,fsdim,NumHessSymm,debug2,nBas_Start,&
-        nBas_per_Atom)
+subroutine GetNumHess(CMO,nOrb2Loc,nBasis,nAtoms,fsdim,NumHessSymm,debug2,nBas_Start,nBas_per_Atom)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp,iwp, u6

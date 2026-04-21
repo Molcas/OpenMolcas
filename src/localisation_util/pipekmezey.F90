@@ -23,7 +23,7 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, Ovlp
+use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, Ovlp,nBas_Start,nBas_per_Atom
 
 #ifdef _SCR_DEFAULT_
 use Localisation_globals, only: OptMeth
@@ -35,7 +35,6 @@ real(kind=wp), intent(inout) :: CMO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, kOffC, lOaux, nBasT, nFroT, nOrb2LocT
-integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Oaux(:), PA(:,:,:)
 character(len=8) :: Label
 character(len=*), parameter :: SecNam = 'PipekMezey'
