@@ -22,8 +22,8 @@ use Constants, only: Zero
 use Localisation_globals, only: nAtoms
 
 implicit none
-real(kind=wp), intent(inout) :: NumGrad(fsdim)
 integer(kind=iwp), intent(in) :: fsdim,nBasis,nOrb2Loc
+real(kind=wp), intent(inout) :: NumGrad(fsdim)
 real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc)
 
 real(kind=wp),allocatable :: infDisp(:), diff(:),DispMat(:,:),rotated_CMO(:,:),gref(:),infUmat(:,:)

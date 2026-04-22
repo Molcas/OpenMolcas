@@ -126,6 +126,7 @@ if (ChargeType ==2) then
 end if
 ! ---------------------------------------------------------------------------------------------------
 
+fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
 ! allocations
 
@@ -140,7 +141,6 @@ case(2,3,4,5)
     call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
     ! allocating matrices for NxN optimizations
 
-    fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
     call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
     call mma_Allocate(Gradient,fsdim,Label='Gradient')
