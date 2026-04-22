@@ -27,7 +27,6 @@ subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
                                 BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms
