@@ -118,13 +118,13 @@ call moveref()
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 if (OptMeth == 4) then
 
-! Set up the full space
-nExplicit = fsdim
-call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
-e_diis(:,:) = Zero
-do k = 1,nExplicit
-    e_diis(k,k) = One
-end do
+    ! Set up the full space
+    nExplicit = fsdim
+    call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
+    e_diis(:,:) = Zero
+    do k = 1,nExplicit
+        e_diis(k,k) = One
+    end do
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -132,78 +132,81 @@ end do
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 else if (OptMeth == 5) then
 
-if (nDIIS == 1) then
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'Exit S-GEK Optimizer'
-# endif
-  call mma_deallocate(grads)
-  call mma_deallocate(coords)
-  return
-end if
-
-!number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
-nExplicit = 2*(nDIIS-1)+2
-
-call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
-call mma_allocate(Aux_1,fsdim,Label='Aux_1')
-call mma_allocate(Aux_2,fsdim,Label='Aux_2')
-
-j = 0
-thr = 1E-18_wp
-do k=1,nDIIS-1
-    !n-th column of e_diis
-    j = j+1
-    ! gradient difference vector
-    Aux_1(:) = grads(:,k+1)-grads(:,k)
-    !normalize
-    norm = sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
-    if (norm < thr) then
-        e_diis(:,j) = Zero
-    else
-        e_diis(:,j) = Aux_1(:)/norm
+    if (nDIIS == 1) then
+#       ifdef _DEBUGPRINT_
+        write(u6,*) 'Exit S-GEK Optimizer'
+#       endif
+        call mma_deallocate(grads)
+        call mma_deallocate(coords)
+        return
     end if
 
-    !(n+1)-th column of e_diis
+    !number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
+    nExplicit = 2*(nDIIS-1)+2
+
+    call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
+    call mma_allocate(Aux_1,fsdim,Label='Aux_1')
+    call mma_allocate(Aux_2,fsdim,Label='Aux_2')
+
+    j = 0
+    thr = 1E-18_wp
+    do k=1,nDIIS-1
+        !n-th column of e_diis
+        j = j+1
+        ! gradient difference vector
+        Aux_1(:) = grads(:,k+1)-grads(:,k)
+        !normalize
+        norm = sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
+        if (norm < thr) then
+            e_diis(:,j) = Zero
+        else
+            e_diis(:,j) = Aux_1(:)/norm
+        end if
+
+        !(n+1)-th column of e_diis
+        j = j+1
+        ! displacement difference vector
+        Aux_1(:) = coords(:,k+1)-coords(:,k)
+        Aux_2(:) = Aux_1(:)
+        !normalize
+        norm = sqrt(DDot_(fsdim,Aux_2(:),1,Aux_2(:),1))
+        if (norm < thr) then
+            e_diis(:,j) = Zero
+        else
+            e_diis(:,j) = Aux_2(:)/norm
+        end if
+
+
+    end do
+    call mma_deallocate(Aux_2)
+
+
+    ! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
     j = j+1
-    ! displacement difference vector
-    Aux_1(:) = coords(:,k+1)-coords(:,k)
-    Aux_2(:) = Aux_1(:)
+    !current gradient
+    Aux_1(:) = grads(:,nDIIS)
     !normalize
-    norm = sqrt(DDot_(fsdim,Aux_2(:),1,Aux_2(:),1))
-    if (norm < thr) then
-        e_diis(:,j) = Zero
-    else
-        e_diis(:,j) = Aux_2(:)/norm
-    end if
+    e_diis(:,j) = Aux_1(:)/sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
 
+    j = j+1
+    !second order method's displacement suggestion
+    Aux_1(:) = dq(:)
+    !normalize
+    e_diis(:,j) = Aux_1(:)/sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
 
-end do
-call mma_deallocate(Aux_2)
+    call mma_deallocate(Aux_1)
 
-
-! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
-j = j+1
-!current gradient
-Aux_1(:) = grads(:,nDIIS)
-!normalize
-e_diis(:,j) = Aux_1(:)/sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
-
-j = j+1
-!second order method's displacement suggestion
-Aux_1(:) = dq(:)
-!normalize
-e_diis(:,j) = Aux_1(:)/sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
-
-call mma_deallocate(Aux_1)
-
-#ifdef _DEBUGPRINT_
+#   ifdef _DEBUGPRINT_
     if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
-#endif
+#   endif
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+else
+    nExplicit = 0
+    write(u6,*) "ERROR: entered S_GEK_localisation even though neither GEK, nor SGEK were specified as opt method"
+    call Abend()
 end if !framework: fullspace/subspace
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
 
 
 ! orthogonalize e_diis; remove redundancies from linear dependences

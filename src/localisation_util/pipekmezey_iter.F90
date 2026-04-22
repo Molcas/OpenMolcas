@@ -204,6 +204,7 @@ Delta = Functional
 UpMeth=" -  - "
 largest=0
 nDIIS=0
+OldFunctional = Functional
 
 GEKRange = .false.
 ResetGEK = .false.
