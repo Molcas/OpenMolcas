@@ -487,7 +487,7 @@ end do
 
 call vec2upper_triag(kappa_summed,nOrb2Loc,disp_summed,fsdim,.true.)
 !call expkap_localisation(kappa_summed,nOrb2Loc,Umat_i,xUmatProd,UmatKsum)
-call expkap_localisation(-kappa_summed,nOrb2Loc,UmatKsum)
+call expkap_localisation(kappa_summed,nOrb2Loc,UmatKsum)
 
 norm = sqrt(DDot_(nOrb2Loc*nOrb2Loc,UmatProd-UmatKsum,1,UmatProd-UmatKsum,1))
 # ifdef _DEBUGPRINT_

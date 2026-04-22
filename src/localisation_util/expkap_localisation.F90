@@ -33,6 +33,8 @@ integer(kind=iwp) :: cnt,maxel(2)
 logical(kind=iwp), parameter :: debug_exp = .false.
 real(kind=wp),External :: DDot_
 
+kappa(:,:) = -kappa(:,:)
+
 kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
 xkappa_cnt(:,:) = kappa_cnt
 
