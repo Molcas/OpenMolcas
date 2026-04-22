@@ -38,17 +38,15 @@ use Lucia_Interface, only: Lucia_Util
 use gugx, only: CIS, EXS, SGS
 use gas_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use Symmetry_info, only: Mul
-use SplitCas_Data, only: DoSPlitCas, EnerSplit, fOrdSplit, GapSpli, iDimBlockA, lRootSplit, MxIterSplit, NumSplit, PerCSpli, &
-                         PerSplit, ThrSplit
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, JOBIPH, JOBOLD, LOWDIN_ON, LUSTARTORB, MALTER, MAXALTER, NACTEL, &
                         NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, &
                         NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STARTORBFILE, STSYM, SXDAMP
-use spinfo, only: DOBKAP, I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, &
-                  IGSOCCX_MOLCAS, INOCALC_MOLCAS, IOCCPSPC, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, &
+use spinfo, only: I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, &
+                  IGSOCCX_MOLCAS, INOCALC_MOLCAS, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, &
                   ITMAX_MOLCAS, LSYM_MOLCAS, MS2, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, &
-                  NCSASM, NDET, NDTASM, NGAS_MOLCAS, NGASBK, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
+                  NCSASM, NDET, NDTASM, NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
@@ -80,7 +78,7 @@ use Para_Info, only: mpp_nprocs, mpp_procid
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half, auToeV
+use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -163,15 +161,6 @@ dice_sampleN = 200
 dice_iter = 20
 dice_restart = .false.
 #endif
-
-! SplitCAS related variables declaration  (GLMJ)
-DoSplitCAS = .false.
-NumSplit = .false.
-EnerSplit = .false.
-PerSplit = .false.
-FOrdSplit = .false.
-! BK type of approximation (GLMJ)
-DoBKAP = .false.
 
 ! ======================================================================
 !   QCMaquis flags
@@ -3273,241 +3262,6 @@ else
     end if
   end if
 
-  !---  Process BKAP command for BK type of approximation
-  !     (Giovanni Li Manni J.:GLMJ) Nov 2011
-  if (Key('BKAP')) then
-    DoBKAP = .true.
-    call SetPos(LUInput,'BKAP',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-    ReadStatus = ' Failure reading data after BKAP keyword.'
-    read(LUInput,*,iostat=istatus) NGASBK
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    read(LUInput,*,iostat=istatus) (IOCCPSPC(IGAS,1),IGAS=1,NGASBK)
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    read(LUInput,*,iostat=istatus) (IOCCPSPC(IGAS,2),IGAS=1,NGASBK)
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after BKAP keyword.'
-    if (DBG) then
-      write(u6,*) ' BKAP: BK-type of approximation in action'
-      write(u6,*) ' Min and Max for subspace with exact Hamiltonian '
-      write(u6,*) ' =============================================== '
-      write(u6,*) ' NGASBK :',NGASBK
-      write(u6,*) '              Min. Occ.      Max. Occ.           '
-      do IGAS=1,NGASBK
-        write(u6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
-      end do
-    end if
-  end if
-
-  !---  Process SPLI command for SplitCAS calculations
-  !     (Giovanni Li Manni J.:GLMJ)
-  if (Key('SPLI')) then
-    if (DBG) write(u6,*) ' SPLI (Activation SplitCAS)'
-    DoSplitCAS = .true.
-    EnerSplit = .true.
-    iDimBlockA = 0
-    !*** The energy gap (GapSpli) is in eV ****
-    GapSpli = Half*auToeV
-    lrootSplit = 1
-    thrSplit = 1.0e-6_wp
-    MxIterSplit = 50
-    call SetPos(LUInput,'SPLI',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-  end if
-
-  !---  Process NUSP command for Numerical SplitCAS param. (GLMJ)
-  if (Key('NUSP')) then
-    if (DBG) write(u6,*) ' NUSP - Manual Setting of Numerical SplitCAS Param.'
-    EnerSplit = .false.
-    NumSplit = .true.
-    call SetPos(LUInput,'NUSP',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-    ReadStatus = ' Failure reading data after NUSP keyword.'
-    read(LUInput,*,iostat=istatus) lrootSplit,iDimBlockA,MxIterSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after NUSP keyword.'
-    !read(LUInput,*,iostat=istatus) lrootSplit
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    !read(LUInput,*,iostat=istatus) iDimBlockA
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    !read(LUInput,*,iostat=istatus) MxIterSplit
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    ReadStatus = ' Failure reading data after NUSP keyword.'
-    read(LUInput,*,iostat=istatus) ThrSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after NUSP keyword.'
-    if (DBG) then
-      write(u6,*) ' Root to be opt. in SplitCAS = ',lrootSplit
-      write(u6,*) ' AA block size in SplitCAS = ',iDimBlockA
-      write(u6,*) ' Max iteration in SplitCAS = ',MxIterSplit
-      write(u6,*) ' Root to be opt. in SplitCAS = ',ThrSplit
-    end if
-  end if
-
-  !---  Process ENSP command for Energetical SplitCAS param. (GLMJ)
-  if (Key('ENSP')) then
-    if (DBG) write(u6,*) ' ENSP - Manual Setting of Energetical SplitCAS Param.'
-    EnerSplit = .true.
-    NumSplit = .false.
-    iDimBlockA = 0
-    call SetPos(LUInput,'ENSP',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-    ReadStatus = ' Failure reading data after ENSP keyword.'
-    read(LUInput,*,iostat=istatus) lrootSplit,GapSpli,MxIterSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after ENSP keyword.'
-    !read(LUInput,*,iostat=istatus) lrootSplit
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    !read(LUInput,*,iostat=istatus) GapSpli
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    !read(LUInput,*,iostat=istatus) MxIterSplit
-    !if (istatus < 0) then
-    !  call Error(2)
-    !  return
-    !else if (istatus > 0) then
-    !  call Error(3)
-    !  return
-    !end if
-    ReadStatus = ' Failure reading data after ENSP keyword.'
-    read(LUInput,*,iostat=istatus) ThrSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after ENSP keyword.'
-    if (DBG) then
-      write(u6,*) ' Root to be opt. in SplitCAS = ',lrootSplit
-      write(u6,*) ' Energy gap in SplitCAS = ',GapSpli
-      write(u6,*) ' Max iteration in SplitCAS = ',MxIterSplit
-      write(u6,*) ' Root to be opt. in SplitCAS = ',ThrSplit
-    end if
-  end if
-
-  !---  Process PESP command for Percentage SplitCAS param. (GLMJ)
-  if (Key('PESP')) then
-    if (DBG) write(u6,*) ' PESP - Manual Setting of Percentage SplitCAS Param.'
-    EnerSplit = .false.
-    PerSplit = .true.
-    NumSplit = .false.
-    iDimBlockA = 0
-    call SetPos(LUInput,'PESP',Line,iRc)
-    if (iRc /= _RC_ALL_IS_WELL_) then
-      call Error(1)
-      return
-    end if
-    ReadStatus = ' Failure reading data after PESP keyword.'
-    read(LUInput,*,iostat=istatus) lrootSplit,PercSpli,MxIterSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    read(LUInput,*,iostat=istatus) ThrSplit
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
-    ReadStatus = ' O.K. reading data after PESP keyword.'
-    if (DBG) then
-      write(u6,*) ' Root to be opt. in SplitCAS = ',lrootSplit
-      write(u6,*) ' Percentage in SplitCAS = ',PercSpli
-      write(u6,*) ' Max iteration in SplitCAS = ',MxIterSplit
-      write(u6,*) ' Root to be opt. in SplitCAS = ',ThrSplit
-    end if
-  end if
-
-  !---  Process FOSP command for First Order SplitCAS Approx. (GLMJ)
-  if (Key('FOSP')) then
-    if (DBG) write(u6,*) ' FOSP - First Order SplitCAS Approx.'
-    FOrdSplit = .true.
-  end if
-
   !---  Process OPTO keyword: Optimal Output for RASSCF/CASPT2
   !                           optimizations - GG Nov 2008.
   if (Key('OPTO')) then
@@ -4143,13 +3897,6 @@ else
   do ISYM=1,NSYM
     NAO = NASH(ISYM)
 
-    if (DOBKAP) then
-      !.Giovanni... BK stuff SplitCAS related. We want to treat RAS CI space as CAS.
-      do NT=2,NAO
-        IZROT(ITU+1:ITU+NT-1) = 1
-        ITU = ITU+NT-1
-      end do
-    else
 
       do NT=2,NAO
         do NU=1,NT-1
@@ -4164,7 +3911,7 @@ else
           end do
         end do
       end do
-    end if
+
   end do
 
   call Put_iArray('nIsh',nIsh,nSym)
