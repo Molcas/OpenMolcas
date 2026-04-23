@@ -16,7 +16,6 @@
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
-!#define _GETMOLDEN_
 !#define _FORCEGEKRANGE_
 
 subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
@@ -29,11 +28,9 @@ use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
-                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms
+                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn
 use loc_procedures, only: s_gek_localisation
-#ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
@@ -54,12 +51,10 @@ character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
 real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,eta1,eta2
 
-#ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
 integer(kind=iwp) :: rc
 character(len=8) :: fmt
 character(len=4) :: x1
-#endif
 
 inpOptMeth = OptMeth
 
@@ -71,22 +66,23 @@ if (OptMeth == 4 .or. OptMeth == 5) then
     write(u6,*) "bias        =",bias
 end if
 
-# ifdef _GETMOLDEN_
 
-! preparations
-fmt = '(I4.4)'
+if (getIMmldn) then
+    ! preparations
+    fmt = '(I4.4)'
 
-! locate scratch directory
-call getcwd_(WorkDir)
-write(u6,*) "WorkDir = ", trim(WorkDir)
+    ! locate scratch directory
+    call getcwd_(WorkDir)
+    write(u6,*) "WorkDir = ", trim(WorkDir)
 
-! Create intermediate_molden directory that contains molden files of every iteration
-Sub = "intermediate_molden"
-call getenvf('MOLCAS_SUBMIT_DIR',SubmitDir)
-NewDir = trim(SubmitDir)//'/'//Sub
-call mkdir_(NewDir)
+    ! Create intermediate_molden directory that contains molden files of every iteration
+    Sub = "intermediate_molden"
+    call getenvf('MOLCAS_SUBMIT_DIR',SubmitDir)
+    NewDir = trim(SubmitDir)//'/'//Sub
+    call mkdir_(NewDir)
 
-# endif
+end if
+
 
 call CWTime(C1,W1)
 
@@ -371,9 +367,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     end select ! 2x2 or NxN rotations
 
-#   ifdef _GETMOLDEN_
-    call moldenIM()
-#   endif
+    if (getIMmldn) then
+        if (mod(nIter,MoldMod)==0) call moldenIM()
+    end if
 
     !check if converged
     Delta = Functional-OldFunctional
@@ -553,7 +549,6 @@ end subroutine StepSizeChecks
 
 
 
-#ifdef _GETMOLDEN_
 subroutine moldenIM()
 
     ! choose the iteration of interest, this creates a $project.imlocal.molden file
@@ -568,7 +563,6 @@ subroutine moldenIM()
     call systemf("mv "//trim(WorkDir)//'/LocOrbIM '//trim(NewDir)//'/LocOrbIM.'//x1,rc)
 
 end subroutine moldenIM
-#endif
 
 subroutine OrthoCheck(CMO,nOrb2Loc,nBasis)
 ! check that the orbitals are orthonormal (if not -> the trafo matrix was not constructed correctly)
