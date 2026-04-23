@@ -12,7 +12,7 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad)
+subroutine GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,debug2)
 
 ! computes the numerical Gradient of the Pipek-Mezey functional
 
@@ -25,11 +25,12 @@ implicit none
 integer(kind=iwp), intent(in) :: fsdim,nBasis,nOrb2Loc
 real(kind=wp), intent(inout) :: NumGrad(fsdim)
 real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc)
+logical, intent(in) :: debug2
 
 real(kind=wp),allocatable :: infDisp(:), diff(:),DispMat(:,:),rotated_CMO(:,:),gref(:),infUmat(:,:)
 real(kind=wp) :: dx,fref,fpdx,fmdx,fp2dx,fm2dx,GradNorm,PA(nOrb2Loc,nOrb2Loc,nAtoms)
 integer(kind=iwp) :: i,NumGradMeth
-logical:: debug=.false., debug2=.true.
+logical:: debug=.false.
 integer(kind=iwp), parameter ::  fourpoint=1,symm=2,asymm=3
 
 call mma_allocate(infDisp,fsdim,label="infDisp")

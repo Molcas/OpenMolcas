@@ -88,8 +88,7 @@ call mkdir_(NewDir)
 
 # endif
 
-
-if (.not. Silent) call CWTime(C1,W1)
+call CWTime(C1,W1)
 
 call OrthoCheck(CMO,nOrb2Loc,nBasis)
 
@@ -170,8 +169,12 @@ case(2,3,4,5)
     FuncList(:)=Zero
     Kappa(:,:)=Zero
     unitary_mat(:,:) = Zero
-end select ! allocations
 
+case default
+     write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
+     call Abend()
+
+end select ! allocations
 
 ! Initialization
 
@@ -193,8 +196,8 @@ case (2,3,4,5)
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
-    call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad)
-    call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.not. Silent)
+    call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,.false.)
+    call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.false.)
 end select
 
 
@@ -214,14 +217,12 @@ IterGEK = 0
 
 
 ! Print iteration table header.
-if (.not. Silent) then
-    call CWTime(C2,W2)
-    TimC = C2-C1
-    TimW = W2-W1
-    write(u6,'(//,1X,A,/,1X,A)') &
-    '                                                                 CPU       Wall', &
-    'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  ndiis  largest/%Screen'
-end if
+call CWTime(C2,W2)
+TimC = C2-C1
+TimW = W2-W1
+write(u6,'(//,1X,A,/,1X,A)') &
+'                                                                 CPU       Wall', &
+'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  ndiis  largest/%Screen'
 
 ! ----------------------------------------------------------------------
 !                           Iterations
@@ -230,11 +231,12 @@ end if
 nIter = 0
 Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
-    if (.not. Silent) call CWTime(C1,W1)
+    call CWTime(C1,W1)
 
     nIter = nIter+1
 
     if (nIter == 1 .and. inpOptMeth == 6) then
+        !request to start with one Jacobi Sweep, then switch to NR (6) or GEK (7)
         OptMeth = 1
     else
         OptMeth = inpOptMeth
@@ -376,30 +378,34 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     !check if converged
     Delta = Functional-OldFunctional
     OldFunctional = Functional
-    if (.not. Silent) then
-        call CWTime(C2,W2)
-        TimC = C2-C1
-        TimW = W2-W1
-        select case (OptMeth)
+    call CWTime(C2,W2)
+    TimC = C2-C1
+    TimW = W2-W1
+    select case (OptMeth)
         case (1)
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
-            nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
+            write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
         case (3)
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
+            write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
         case (2,4,5)
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
+            write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
-        end select
-    end if
+        case default
+            write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
+            call Abend()
+    end select
 
     select case(OptMeth)
-    case(1)
-        Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-    case(2,3,4,5)
-        StepNorm = sqrt(DDOT_(fsdim,Disp,1,Disp,1))
-        Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-        Converged = (GradNorm <= ThrGrad) .and. (StepNorm <=ThrStep)
+        case(1)
+            Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
+        case(2,3,4,5)
+            StepNorm = sqrt(DDOT_(fsdim,Disp,1,Disp,1))
+            Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
+            Converged = (GradNorm <= ThrGrad) .and. (StepNorm <=ThrStep)
+        case default
+            write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
+            call Abend()
     end select
 end do !Iterations
 
@@ -463,6 +469,9 @@ case(2,3,4,5)
     call mma_Deallocate(Hdiagvec)
     call mma_Deallocate(NumHessSymm)
     call mma_Deallocate(NumGrad)
+case default
+     write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
+     call Abend()
 end select
 
 call mma_Deallocate(Ovlp_sqrt)
