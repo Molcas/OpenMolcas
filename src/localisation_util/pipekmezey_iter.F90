@@ -194,7 +194,7 @@ case (2,3,4,5)
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
     call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad)
-    call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.true.)
+    call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.not. Silent)
 end select
 
 

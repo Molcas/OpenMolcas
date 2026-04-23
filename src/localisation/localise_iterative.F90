@@ -38,8 +38,6 @@ character(len=4) :: myModel
 logical(kind=iwp) :: Converged
 character(len=*), parameter :: SecNam = 'Localise_Iterative'
 
-Silent = .false.
-
 #ifdef _SCR_
 if (ScrFac == Zero .and. OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 2) ScrFac = 0.5
 #endif
