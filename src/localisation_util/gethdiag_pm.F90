@@ -10,7 +10,6 @@
 !                                                                      *
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
-
 subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag)
 !
 ! Purpose: compute the Hessian diagonal elements of the Pipek-Mezey functional w.r.t. elements of the kappa matrix
@@ -42,7 +41,7 @@ do k=1,nOrb2Loc-1
           Q_kk=PA(k,k,iAtom)
           Q_ll=PA(l,l,iAtom)
           Q_kl=PA(k,l,iAtom)
-          H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Eight*Q_kl**2
+          H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Four*Four*Q_kl**2
       end do
       !write(u6,"(A,I5,I5,I5,3X,A,F18.8)") "k,l,kl = ",k,l,kl,"H_diag(kl)",H_diag(kl)
 !     Make sure that element has a negative value -- we are maximizing the target function
@@ -55,7 +54,6 @@ do k=1,nOrb2Loc-1
         !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
          H_diag(kl)=-1.0e-2_wp
       End If
-
    end do
 end do
 
@@ -65,7 +63,6 @@ if (Debug) then
     write(u6,*) 'In GetHdiag_PM'
     write(u6,*) '-------------'
     call vec2upper_triag(mat,norb2loc,h_diag,(nOrb2Loc*(nOrb2Loc-1)/2),.false.)
-    call RecPrt('H_diag',' ',mat(:,:), nOrb2Loc,nOrb2Loc)
     write(u6,*) ' '
 end if
 
