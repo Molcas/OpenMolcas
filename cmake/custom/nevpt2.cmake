@@ -96,7 +96,7 @@ endif()
 # git references for NEVPT2          #
 ######################################
 set(reference_git_repo https://github.com/qcscine/nevpt2.git)
-set(reference_git_commit e1484fd)
+set(reference_git_commit e2049c0)
 
 
 set(EP_PROJECT nevpt2_ext)
