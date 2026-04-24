@@ -18,7 +18,6 @@ subroutine SPIN_PHASE_RASSI(IPGLOB,DIPSO2,GMAIN,nDIM,ZIN,ZOUT)
 ! with the corresponding coefficient that sets the same phase to all spin
 ! eigenfunctions
 
-use spin_constants, only: Setup_Spin_Moment_Matrix, Spin
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cZero, Onei
 use Definitions, only: wp, iwp, u6
@@ -32,7 +31,6 @@ integer(kind=iwp) :: i, i2, j, l, ms1, ms2, NPAR
 real(kind=wp), allocatable :: ALFA(:)
 complex(kind=wp), allocatable :: PHS(:,:,:), Spin2(:,:,:), PHSA(:,:), PHSA2(:,:)
 
-call Setup_Spin_Moment_Matrix()
 ! Determine the Parity:
 NPAR = mod(nDIM,2)
 
@@ -70,9 +68,9 @@ do ms1=(nDIM-NPAR)/2,-(nDIM-NPAR)/2,-1
   do ms2=(nDIM-NPAR)/2,-(nDIM-NPAR)/2,-1
     if ((ms2 == 0) .and. (NPAR == 0)) cycle
     j = j+1
-    Spin2(1,i,j) = Spin(1,nDIM,ms1,ms2)
-    Spin2(2,i,j) = Spin(2,nDIM,ms1,ms2)
-    Spin2(3,i,j) = Spin(3,nDIM,ms1,ms2)
+    Spin2(1,i,j) = Spin_Constant(1,nDIM,ms1,ms2)
+    Spin2(2,i,j) = Spin_Constant(2,nDIM,ms1,ms2)
+    Spin2(3,i,j) = Spin_Constant(3,nDIM,ms1,ms2)
   end do
 end do
 
@@ -133,5 +131,58 @@ call mma_deallocate(Spin2)
 call mma_deallocate(PHSA)
 call mma_deallocate(PHSA2)
 call mma_deallocate(ALFA)
+
+contains
+
+function Spin_Constant(Comp,Mult,Ms1,Ms2)
+
+  use Constants, only: Half, Quart, cOne
+
+  complex(kind=wp) :: spin_constant
+  integer(kind=iwp), intent(in) :: Comp, Mult, Ms1, Ms2
+  integer(kind=iwp) :: b, c, x1, x2
+  real(kind=wp) :: v
+
+  ! b = 2*S
+  ! x = 2*M_S
+  b = Mult-1
+  x1 = 2*Ms1
+  x2 = 2*Ms2
+  if (x1 /= 0) x1 = x1-mod(b,2)*sign(1,x1)
+  if (x2 /= 0) x2 = x2-mod(b,2)*sign(1,x2)
+
+  if ((abs(x1) > b) .or. (abs(x2) > b)) then
+    spin_constant = cZero
+    return
+  end if
+
+  select case (Comp)
+    case (1,2)
+      if (abs(x2-x1) == 2) then
+        c = b-1-abs(x1+x2)/2
+        v = Quart*sqrt(real((2*b-c)*(c+2),kind=wp))
+        if (Comp == 1) then
+          spin_constant = v*cOne
+        else
+          if (x2 > x1) then
+            spin_constant = v*Onei
+          else
+            spin_constant = -v*Onei
+          end if
+        end if
+      else
+        spin_constant = cZero
+      end if
+    case (3)
+      if (x1 == x2) then
+        spin_constant = Half*real(x1,kind=wp)*cOne
+      else
+        spin_constant = cZero
+      end if
+    case default
+      spin_constant = cZero
+  end select
+
+end function Spin_Constant
 
 end subroutine SPIN_PHASE_RASSI

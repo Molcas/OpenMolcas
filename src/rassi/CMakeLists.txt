@@ -159,7 +159,6 @@ set (sources
      sonatorbm.F90
      sonatorbm_int.F90
      sonatorb_plot.F90
-     spin_constants.F90
      spind2.F90
      spind.F90
      spin_phase_rassi.F90
