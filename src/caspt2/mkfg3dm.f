@@ -63,8 +63,6 @@ C
       INTEGER(kind=Byte), INTENT(OUT) :: idxG3(6,mG3)
 
 
-      INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
-
       REAL(kind=wp) DG1,DG2,DG3,DF1,DF2,DF3
 
       INTEGER(kind=iwp) I,J,IDX,JDX
@@ -431,12 +429,12 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
          iulev=idx2ij(2,idx)
          iT=l2act(itlev)
          iU=l2act(iulev)
-         idxG3(1,iG3)=int(iT,I1)
-         idxG3(2,iG3)=int(iU,I1)
-         idxG3(3,iG3)=int(iV,I1)
-         idxG3(4,iG3)=int(iX,I1)
-         idxG3(5,iG3)=int(iY,I1)
-         idxG3(6,iG3)=int(iZ,I1)
+         idxG3(1,iG3)=int(iT,kind=byte)
+         idxG3(2,iG3)=int(iU,kind=byte)
+         idxG3(3,iG3)=int(iV,kind=byte)
+         idxG3(4,iG3)=int(iX,kind=byte)
+         idxG3(5,iG3)=int(iY,kind=byte)
+         idxG3(6,iG3)=int(iZ,kind=byte)
         end do
 *       IF(mkF) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):

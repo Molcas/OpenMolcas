@@ -88,7 +88,6 @@ C>                   to active indices
       real(kind=wp), INTENT(OUT) :: G3(nG3), F3(nG3)
       INTEGER(kind=Byte), INTENT(OUT) :: idxG3(6,nG3)
 
-      INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
       real(kind=wp) DG1,DG2,DG3,DF1,DF2,DF3
       real(kind=wp) F1SUM,F2SUM
       INTEGER(kind=iwp) I,J,IDX,JDX
@@ -561,12 +560,12 @@ C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
          iulev=idx2ij(2,idx)
          iT=l2act(itlev)
          iU=l2act(iulev)
-         idxG3(1,iG3)=int(iT,I1)
-         idxG3(2,iG3)=int(iU,I1)
-         idxG3(3,iG3)=int(iV,I1)
-         idxG3(4,iG3)=int(iX,I1)
-         idxG3(5,iG3)=int(iY,I1)
-         idxG3(6,iG3)=int(iZ,I1)
+         idxG3(1,iG3)=int(iT,kind=byte)
+         idxG3(2,iG3)=int(iU,kind=byte)
+         idxG3(3,iG3)=int(iV,kind=byte)
+         idxG3(4,iG3)=int(iX,kind=byte)
+         idxG3(5,iG3)=int(iY,kind=byte)
+         idxG3(6,iG3)=int(iZ,kind=byte)
         end do
 
         if (.not. DoFCIQMC) then

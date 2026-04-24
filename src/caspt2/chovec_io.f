@@ -408,6 +408,7 @@ C Avoid unused argument warnings
 * Wrapper to MPI_Allgatherv dealing with ILP64 incompatibility.
 ************************************************************************
       USE MPI, only: MPI_COMM_WORLD
+      use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: MPIInt
       IMPLICIT NONE
       INTEGER(KIND=IWP), INTENT(IN):: NSENDBUF
@@ -425,7 +426,6 @@ C Avoid unused argument warnings
       integer(kind=MPIInt) :: NSEND4
       integer(kind=MPIInt),ALLOCATABLE :: NRCV4(:),NOFF4(:)
       integer(kind=MPIInt) :: IERROR4
-      INTEGER(KIND=IWP), PARAMETER :: I4=KIND(NSEND4)
 
       INTEGER(KIND=IWP) :: I
 #ifdef _I8_
@@ -447,18 +447,20 @@ C Avoid unused argument warnings
       END IF
 #endif
 
-      ALLOCATE(NRCV4(NPROCS))
-      ALLOCATE(NOFF4(NPROCS))
-      NSEND4=INT(NSEND,I4)
+      call MMA_ALLOCATE(NRCV4,int(NPROCS,kind=iwp),Label='NRCV4')
+      call MMA_ALLOCATE(NOFF4,int(NPROCS,kind=iwp),Label='NOFF4')
+      NSEND4=INT(NSEND,kind=MPIInt)
       DO I=1,NPROCS
-        NRCV4(I)=INT(NRCV(I),I4)
-        NOFF4(I)=INT(NOFF(I),I4)
+        NRCV4(I)=INT(NRCV(I),kind=MPIInt)
+        NOFF4(I)=INT(NOFF(I),kind=MPIInt)
       END DO
       CALL MPI_Allgatherv(SENDBUF,NSEND4,MPITYPES,
      &                    RCVBUF,NRCV4,NOFF4,MPITYPER,
      &                    MPICOMM,IERROR4)
 
       IERROR=IERROR4
+      call MMA_DEALLOCATE(NRCV4)
+      call MMA_DEALLOCATE(NOFF4)
       END SUBROUTINE MPI_Allgatherv_
 #endif
 

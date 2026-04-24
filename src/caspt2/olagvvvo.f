@@ -199,7 +199,7 @@
         Call Nr_Shells(nSkal)
         Call Setup_iSD()
         !! see Include/info.fh
-        Allocate (iOffAO(nSkal+1))
+        call mma_allocate(iOffAO,nSkal+1,Label='iOffAO')
         MaxShlAO = 0
         iOffAO(1) = 0
         Do iSh = 1, nSkal
@@ -209,7 +209,8 @@
         End Do
         ! nMax = MaxShlAO*MaxShlAO*nOcc*nOcc
 
-        Allocate (T_hbf(nOcc,nOcc,MaxShlAO,MaxShlAO))
+        call mma_allocate(T_hbf,nOcc,nOcc,MaxShlAO,MaxShlAO,
+     &                    Label='T_hbf')
         Do iSh = 1, nSkal
           !! iSD(2,iSh): number of AOs of the shell
           !! iSD(3,iSh): number of cont. func. of the shell
@@ -244,8 +245,8 @@
             End Do
           End Do
         End Do
-        Deallocate (iOffAO)
-        Deallocate (T_hbf)
+        call mma_deallocate(iOffAO)
+        call mma_deallocate(T_hbf)
         Close (LuGAMMA)
         Call Free_iSD()
         call clssew()

@@ -18,7 +18,7 @@
       USE Para_Info, ONLY: nProcs
       use Cholesky, only: InfVec
       use caspt2_global, only: do_grad
-      use stdalloc, only: mma_MaxDBLE
+      use stdalloc, only: mma_MaxDBLE, mma_allocate
       use caspt2_global, only: LUDRA, LUDRATOT
       use ChoCASPT2, only: MxCharR, MxNVC, nChSpc, nFtSpc, nHtSpc,
      &                     nKsh, NumCho_pt2, nPsh
@@ -146,8 +146,10 @@ CSVC: take the global sum of the individual maxima
 * Set up tables with the number of cholesky vectors per batch and disk
 * addresses for the beginning of each batch. These arrays are accessible
 * through the CHOVEC_IO module.
-      ALLOCATE(NVLOC_CHOBATCH(NBATCH_TOT))
-      ALLOCATE(IDLOC_CHOGROUP(4,8,8,NBATCH_TOT))
+      call MMA_ALLOCATE(NVLOC_CHOBATCH,NBATCH_TOT,
+     &                  Label='NVLOC_CHOBATCH')
+      call MMA_ALLOCATE(IDLOC_CHOGROUP,4,8,8,NBATCH_TOT,
+     &                  Label='IDLOC_CHOGROUP')
       NVLOC_CHOBATCH=0
       IDLOC_CHOGROUP=0
 
@@ -200,7 +202,8 @@ CSVC: take the global sum of the individual maxima
 * indexing through the size NVGLB_CHOBATCH and offset IDGLB_CHOGROUP
 * available from the CHOVEC_IO module.
 
-      ALLOCATE(NVGLB_CHOBATCH(NBATCH_TOT))
+      call MMA_ALLOCATE(NVGLB_CHOBATCH,NBATCH_TOT,
+     &                  Label='NVGLB_CHOBATCH')
       NVGLB_CHOBATCH(:)=NVLOC_CHOBATCH(:)
 #ifdef _MOLCAS_MPP_
       ! for parrallel, sum over processes
@@ -218,7 +221,8 @@ CSVC: take the global sum of the individual maxima
         END DO
       END DO
 
-      ALLOCATE(IDGLB_CHOGROUP(4,8,8,NBATCH_TOT))
+      call MMA_ALLOCATE(IDGLB_CHOGROUP,4,8,8,NBATCH_TOT,
+     &                  Label='IDGLB_CHOGROUP')
 
       ! compute offsets into all cholesky vectors
       IDISK=0
@@ -243,8 +247,9 @@ CSVC: take the global sum of the individual maxima
       SUBROUTINE TRACHOSZ_FREE()
       USE CHOVEC_IO, only: NVLOC_CHOBATCH,IDLOC_CHOGROUP,
      &                     NVGLB_CHOBATCH,IDGLB_CHOGROUP
-      DEALLOCATE(NVLOC_CHOBATCH)
-      DEALLOCATE(IDLOC_CHOGROUP)
-      DEALLOCATE(NVGLB_CHOBATCH)
-      DEALLOCATE(IDGLB_CHOGROUP)
+      use stdalloc, only: mma_deallocate
+      call MMA_DEALLOCATE(NVLOC_CHOBATCH)
+      call MMA_DEALLOCATE(IDLOC_CHOGROUP)
+      call MMA_DEALLOCATE(NVGLB_CHOBATCH)
+      call MMA_DEALLOCATE(IDGLB_CHOGROUP)
       END SUBROUTINE TRACHOSZ_FREE

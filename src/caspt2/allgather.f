@@ -15,6 +15,7 @@
 
       module allgather_wrapper
       use definitions, only: iwp, wp, u6
+      use stdalloc, only: mma_allocate,mma_deallocate
       private
       public :: allgather
       public :: allgather_R, allgather_I
@@ -61,11 +62,11 @@
 
       NPROCS = GA_NNODES()
 
-      ALLOCATE(NRECV4(0:NPROCS-1))
-      ALLOCATE(IDISP4(0:NPROCS-1))
+      call MMA_ALLOCATE(NRECV4,[0,NPROCS-1],Label='NRECV4')
+      call MMA_ALLOCATE(IDISP4,[0,NPROCS-1],Label='IDISP4')
 
 ! first, gather the sendbuffer size of each process in NRECV4
-      NSEND4(1)=INT(NSEND,KIND(NSEND4))
+      NSEND4(1)=INT(NSEND,kind=MPIInt)
       CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,
      &                   NRECV4,ONE4,MPI_INTEGER,
      &                   MPI_COMM_WORLD, IERROR4)
@@ -99,6 +100,8 @@
      &                        IERROR4
         CALL ABEND()
       END IF
+      call MMA_DEALLOCATE(NRECV4)
+      call MMA_DEALLOCATE(IDISP4)
       end subroutine  allgather_R
 
       SUBROUTINE ALLGATHER_I(SEND,NSEND,RECV,NRECV)
@@ -141,11 +144,11 @@
 
       NPROCS = GA_NNODES()
 
-      ALLOCATE(NRECV4(0:NPROCS-1))
-      ALLOCATE(IDISP4(0:NPROCS-1))
+      call MMA_ALLOCATE(NRECV4,[0,NPROCS-1],Label='NRECV4')
+      call MMA_ALLOCATE(IDISP4,[0,NPROCS-1],Label='IDISP4')
 
 ! first, gather the sendbuffer size of each process in NRECV4
-      NSEND4(1)=INT(NSEND,KIND(NSEND4))
+      NSEND4(1)=INT(NSEND,kind=MPIInt)
       CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,
      &                   NRECV4,ONE4,MPI_INTEGER,
      &                   MPI_COMM_WORLD, IERROR4)
@@ -179,6 +182,8 @@
      &                        IERROR4
         CALL ABEND()
       END IF
+      call MMA_DEALLOCATE(NRECV4)
+      call MMA_DEALLOCATE(IDISP4)
       end subroutine allgather_I
       end module allgather_wrapper
 
