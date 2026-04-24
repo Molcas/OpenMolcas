@@ -20,7 +20,7 @@ use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, Ch
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
                                 Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
                                 ScrFac, OptMeth, ChargeType, LocOrb,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
-                                Freeze,AnalyseLoc
+                                Freeze,AnalyseLoc, MoldMod, getIMmldn
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -185,6 +185,12 @@ do
                 write(u6,*) 'using the default instead'
                 call FindErrorLine()
         end select
+
+    case ('MOLD')
+      ! generate intermediate molden files
+      getIMmldn = .true.
+      Line = Get_Ln(LuSpool)
+      call Get_I1(1,MoldMod)
 
 
     case ('CHAR')
