@@ -1,0 +1,372 @@
+*-------------------------------------------------------------------------------
+* Molecule: C2H2
+* Basis: cc-pVDZ
+* Symmetry: C1
+* Features tested: MPSSI HEFF path for degenerate states -- same system as 017 but
+*                  using HEFF (full H_EFF_SC off-diagonal) instead of EJOB
+* Responsible person: J. Scheerlinck
+* Comments: CAS(4,4), CIROOT=3 3 1 (3 states per multiplicity), LumOrb for
+*            triplet/singlet (orbital inheritance from quintet), CHOLESKY,
+*            MOTRA run after each DMRGSCF with JOBIph (integrals in DMRG orbital
+*            basis), NEVPT2Prep + NEVPT2 per spin state.
+*            MPSSI uses NrofJobIphs + QDSC + SpinOrbit + Heff + Omega.
+*            Tests that HEFF correctly handles the degenerate quintet (H_EFF_SC off-diagonals
+*            are -0.2145 au), giving XMS eigenvalues (-76.9008, -76.2573x2) instead of
+*            the -76.4718x3 diagonal approximation from EJOB.
+*-------------------------------------------------------------------------------
+
+>> RM -FORCE TEST_QCMAQUIS
+>> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>>   EXPORT MOLCAS_DRIVER=molcas
+>> ENDIF
+>> SHELL $MOLCAS_DRIVER have_feature qcmaquis || touch TEST_QCMAQUIS
+>> IF ( -FILE TEST_QCMAQUIS )
+>>   EXIT 36
+>> ENDIF
+&GATEWAY
+coord
+4
+ang
+H   0.0000000000   0.0000000000  -1.6450541782
+C   0.0000000000   0.0000000000  -0.5832481605
+C   0.0000000000   0.0000000000   0.5832481606
+H   0.0000000000   0.0000000000   1.6450541782
+basis=cc-pvdz
+group=NOSYM
+RICD
+CDTH=1.0E-7
+AMFI
+ANGMOM
+0.0 0.0 0.0
+&SEWARD
+&SCF
+* CAS(4,4) in C1: pi/pi* active space has cylindrical symmetry in all three spin states
+* (quintet: all singly occupied; triplet/singlet: degenerate pi pairs) → DMRG free to
+* rotate active orbitals in xy plane → Qxx/Qyy non-deterministic across architectures
+>> EXPORT MOLCAS_NOCHECK=MLTPL__2 TMS(SO,LEN) TMS(SO,VEL)
+* TMS(SO,LEN/VEL) suppressed: degenerate SO eigenvectors are orientation-dependent across compilers.
+* ====================================
+* QUINTET (Spin=5) -- 3 states
+* ====================================
+&DMRGSCF
+ActiveSpaceOptimizer=QCMaquis
+DMRGSettings
+  max_bond_dimension = 64
+  nsweeps = 4
+EndDMRGSettings
+OOptimizationSettings
+  Spin = 5
+  nactel = 4,0,0
+  inactive = 5
+  RAS2 = 4
+  CIRoot = 3 3 1
+  NEVPT2Prep
+EndOOptimizationSettings
+&MOTRA
+JOBIph
+Frozen=0
+CTonly
+Kpq
+HDF5
+&NEVPT2
+States=3
+>> COPY $Project.nevpt2.h5 $Project.quint.nevpt2.h5
+>> EXEC mv $Project.checkpoint_state.0.h5 $Project.quint.nevpt2.checkpoint_state.0.h5
+>> EXEC mv $Project.checkpoint_state.1.h5 $Project.quint.nevpt2.checkpoint_state.1.h5
+>> EXEC mv $Project.checkpoint_state.2.h5 $Project.quint.nevpt2.checkpoint_state.2.h5
+>> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.quint.nevpt2.h5 -q
+* ====================================
+* TRIPLET (Spin=3) -- 3 states, LumOrb from quintet
+* ====================================
+&DMRGSCF
+ActiveSpaceOptimizer=QCMaquis
+DMRGSettings
+  max_bond_dimension = 64
+  nsweeps = 4
+EndDMRGSettings
+OOptimizationSettings
+  Spin = 3
+  nactel = 4,0,0
+  inactive = 5
+  RAS2 = 4
+  CIRoot = 3 3 1
+  NEVPT2Prep
+  LumOrb
+EndOOptimizationSettings
+&MOTRA
+JOBIph
+Frozen=0
+CTonly
+Kpq
+HDF5
+&NEVPT2
+States=3
+>> COPY $Project.nevpt2.h5 $Project.trip.nevpt2.h5
+>> EXEC mv $Project.checkpoint_state.0.h5 $Project.trip.nevpt2.checkpoint_state.0.h5
+>> EXEC mv $Project.checkpoint_state.1.h5 $Project.trip.nevpt2.checkpoint_state.1.h5
+>> EXEC mv $Project.checkpoint_state.2.h5 $Project.trip.nevpt2.checkpoint_state.2.h5
+>> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.trip.nevpt2.h5 -q
+* ====================================
+* SINGLET (Spin=1) -- 3 states, LumOrb from quintet
+* ====================================
+&DMRGSCF
+ActiveSpaceOptimizer=QCMaquis
+DMRGSettings
+  max_bond_dimension = 64
+  nsweeps = 4
+EndDMRGSettings
+OOptimizationSettings
+  Spin = 1
+  nactel = 4,0,0
+  inactive = 5
+  RAS2 = 4
+  CIRoot = 3 3 1
+  NEVPT2Prep
+  LumOrb
+EndOOptimizationSettings
+&MOTRA
+JOBIph
+Frozen=0
+CTonly
+Kpq
+HDF5
+&NEVPT2
+States=3
+>> COPY $Project.nevpt2.h5 $Project.sing.nevpt2.h5
+>> EXEC mv $Project.checkpoint_state.0.h5 $Project.sing.nevpt2.checkpoint_state.0.h5
+>> EXEC mv $Project.checkpoint_state.1.h5 $Project.sing.nevpt2.checkpoint_state.1.h5
+>> EXEC mv $Project.checkpoint_state.2.h5 $Project.sing.nevpt2.checkpoint_state.2.h5
+>> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.sing.nevpt2.h5 -q
+>> COPY $Project.quint.nevpt2.h5 $Project.JobIph
+>> COPY $Project.trip.nevpt2.h5 $Project.JobIph01
+>> COPY $Project.sing.nevpt2.h5 $Project.JobIph02
+* ====================================
+* MPSSI: NEVPT2-dressed SO coupling (9 SO states: quintet x3 + triplet x3 + singlet x3)
+* ====================================
+* Tolerance note: E_RASSI and ESO_LOW reference values were generated with ifort+MKL.
+* GFortran+OpenBLAS (Forrest CI) produces XMS eigenvalues that differ by up to ~8e-7 au
+* for the three degenerate quintet states, because diagonalisation of the 3x3 H_EFF_SC
+* matrix is numerically sensitive to the LAPACK implementation when eigenvalues are nearly
+* degenerate. This is expected behaviour, not a code bug. MOLCAS_THR=1 raises the
+* comparison window by one order of magnitude (from 1e-7 to 1e-6) for this block only.
+>> EXPORT MOLCAS_THR=1
+&MPSSI
+NrofJobIphs
+3 3 3 3
+1 2 3
+1 2 3
+1 2 3
+QDSC
+SpinOrbit
+Heff
+Omega
+
+>>FILE checkfile
+* This file is autogenerated:
+* Molcas version 26.02-424-g87a0a780c2
+* Linux UG-DDZGX84 6.6.87.2-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+* Sat Apr 25 12:50:15 2026
+*
+#>>   1
+#> POTNUC="25.322375896970"/12
+#>>   2
+#> POTNUC="25.322375896970"/12
+#> SEWARD_MLTPL1X="0.0"/5
+#> SEWARD_KINETIC="0.499289232500"/5
+#> SEWARD_ATTRACT="-5.412381509933"/5
+#>>   3
+#> SCF_ITER="9"/8
+#> E_SCF="-76.824474594258"/7
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="0.0"/4
+#> MLTPL__1[1]="0.0"/4
+#> MLTPL__1[2]="-0.000000001241"/4
+#> MLTPL__2[0]="-2.488450328616"/4
+#> MLTPL__2[1]="0.0"/4
+#> MLTPL__2[2]="0.0"/4
+#> MLTPL__2[3]="-2.488450328616"/4
+#> MLTPL__2[4]="0.0"/4
+#> MLTPL__2[5]="4.976900657233"/4
+#>>   4
+#> RASSCF_ITER="15"/8
+#> E_RASSCF[0]="-76.295966227095"/6
+#> E_RASSCF[1]="-76.295966227095"/6
+#> E_RASSCF[2]="-76.295966227095"/6
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="0.0"/4
+#> MLTPL__1[1]="0.0"/4
+#> MLTPL__1[2]="-0.000000125988"/4
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="0.0"/4
+#> MLTPL__1[1]="0.0"/4
+#> MLTPL__1[2]="-0.000000125988"/4
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="0.0"/4
+#> MLTPL__1[1]="0.0"/4
+#> MLTPL__1[2]="-0.000000125988"/4
+#>>   5
+#>>   6
+#> E_SC_NEVPT2[0]="-76.471827927627"/6
+#> E_SC_NEVPT2[1]="-0.214499596162"/6
+#> E_SC_NEVPT2[2]="-0.214499596162"/6
+#> E_PC_NEVPT2[0]="-76.472198769967"/6
+#> E_PC_NEVPT2[1]="0.097467146713"/6
+#> E_PC_NEVPT2[2]="0.097467146713"/6
+#>>   7
+#> RASSCF_ITER="12"/8
+#> E_RASSCF[0]="-76.616358416115"/6
+#> E_RASSCF[1]="-76.585064368174"/6
+#> E_RASSCF[2]="-76.498662643465"/6
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="-0.000000005247"/4
+#> MLTPL__1[1]="-0.000000003761"/4
+#> MLTPL__1[2]="0.000000021179"/4
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="-0.000000013409"/4
+#> MLTPL__1[1]="0.000000001296"/4
+#> MLTPL__1[2]="0.000000009888"/4
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="-0.000000016599"/4
+#> MLTPL__1[1]="-0.000000002235"/4
+#> MLTPL__1[2]="-0.000000449487"/4
+#>>   8
+#>>   9
+#> E_SC_NEVPT2[0]="-76.822559960770"/6
+#> E_SC_NEVPT2[1]="0.000000006040"/6
+#> E_SC_NEVPT2[2]="-0.000000001047"/6
+#> E_PC_NEVPT2[0]="-76.822825983425"/6
+#> E_PC_NEVPT2[1]="0.000000009775"/6
+#> E_PC_NEVPT2[2]="-0.000000001508"/6
+#>>  10
+#> RASSCF_ITER="11"/8
+#> E_RASSCF[0]="-76.835934015567"/6
+#> E_RASSCF[1]="-76.562600026420"/6
+#> E_RASSCF[2]="-76.477754492394"/6
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="-0.000000272832"/4
+#> MLTPL__1[1]="0.000000000304"/4
+#> MLTPL__1[2]="0.000000037816"/4
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="-0.000000201816"/4
+#> MLTPL__1[1]="0.000000002525"/4
+#> MLTPL__1[2]="0.000000028440"/4
+#> MLTPL__0="-0.000000000000"/4
+#> MLTPL__1[0]="-0.000001079122"/4
+#> MLTPL__1[1]="0.000000002410"/4
+#> MLTPL__1[2]="-0.000001186739"/4
+#>>  11
+#>>  12
+#> E_SC_NEVPT2[0]="-77.073948512154"/6
+#> E_SC_NEVPT2[1]="-0.000000000051"/6
+#> E_SC_NEVPT2[2]="-0.000000000106"/6
+#> E_PC_NEVPT2[0]="-77.074082599991"/6
+#> E_PC_NEVPT2[1]="-0.000000000050"/6
+#> E_PC_NEVPT2[2]="-0.000000000127"/6
+#>>  13
+#> E_RASSI[0]="-76.257328331465"/7
+#> E_RASSI[1]="-76.257328331465"/7
+#> E_RASSI[2]="-76.900827119951"/7
+#> E_RASSI[3]="-76.822559960770"/7
+#> E_RASSI[4]="-76.796876089528"/7
+#> E_RASSI[5]="-76.715340330824"/7
+#> E_RASSI[6]="-77.073948512154"/7
+#> E_RASSI[7]="-76.772246184772"/7
+#> E_RASSI[8]="-76.700015102929"/7
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.000000000000"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.000000000003"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.000001743400"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.000098695729"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,LEN)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.000000000000"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.000000000005"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.000000000000"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.045018129012"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.049803802177"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> TMS(SF,VEL)="0.0"/6
+#> ESO_LOW[0]="-77.073948517706"/7
+#> ESO_LOW[1]="-76.900827164688"/7
+#> ESO_LOW[2]="-76.900827164551"/7
+#> ESO_LOW[3]="-76.900827143986"/7
+#> ESO_LOW[4]="-76.900827140490"/7
+#> ESO_LOW[5]="-76.900827134664"/7
+#> ESO_LOW[6]="-76.822560042502"/7
+#> ESO_LOW[7]="-76.822560034525"/7
+#> ESO_LOW[8]="-76.822559988782"/7
+#> ESO_LOW[9]="-76.796876068989"/7
+#> ESO_LOW[10]="-76.796875963196"/7
+#> ESO_LOW[11]="-76.796875956323"/7
+#> ESO_LOW[12]="-76.772246132724"/7
+#> ESO_LOW[13]="-76.715340330824"/7
+#> ESO_LOW[14]="-76.715340330824"/7
+#> ESO_LOW[15]="-76.715340325273"/7
+#> ESO_LOW[16]="-76.700015102929"/7
+#> ESO_LOW[17]="-76.257328331465"/7
+#> ESO_LOW[18]="-76.257328331465"/7
+#> ESO_LOW[19]="-76.257328331465"/7
+#> ESO_LOW[20]="-76.257328331465"/7
+#> ESO_LOW[21]="-76.257328331465"/7
+#> ESO_LOW[22]="-76.257328331465"/7
+#> ESO_LOW[23]="-76.257328331465"/7
+#> ESO_LOW[24]="-76.257328331465"/7
+#> ESO_LOW[25]="-76.257328331465"/7
+#> ESO_LOW[26]="-76.257328331465"/7
+>>EOF
