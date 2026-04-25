@@ -61,7 +61,7 @@ iDis = 0
 fail = .false.
 Converged(:) = .true.
 !MGD I think this is nice when printed...
-lprint = .true.
+lprint = btest(kprint,0)
 reco = -One
 Lu_50 = 50
 if (lSAVE) then
@@ -69,7 +69,6 @@ if (lSAVE) then
   write(u6,*) 'WfCtl_MSPD: SAVE option not implemented'
   call Abend()
 end if
-if (btest(kprint,1)) lprint = .true.
 isym = 1
 nconf1 = ncsf(State_Sym)
 
@@ -247,7 +246,7 @@ else
     call opOut(ippre2)
     r2 = ddot_(nDensC,Kappa,1,Kappa,1)
     if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
-    if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
+    if (lprint .and. r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     dKappa(:) = Kappa(:)
 

@@ -63,7 +63,7 @@ iDis = 0
 fail = .false.
 Converged(:) = .true.
 !MGD I think this is nice when printed...
-lprint = .true.
+lprint = btest(kprint,0)
 reco = -One
 Lu_50 = 50
 if (lSAVE) call DANAME(Lu_50,'RESIDUALS')
@@ -71,7 +71,6 @@ if (lSAVE) then
   write(u6,*) 'WfCtl_SA: SAVE option not implemented'
   call Abend()
 end if
-if (btest(kprint,1)) lprint = .true.
 isym = 1
 nconf1 = ncsf(State_Sym)
 !! iStpPCM has been set somewhere; just a reminder
@@ -303,7 +302,7 @@ else
     r2 = ddot_(nDensC,Kappa,1,Kappa,1)
     if (PT2) R2 = R2+DDot_(nConf1*nRoots,W(ipS2)%A,1,W(ipS2)%A,1)
     if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
-    if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
+    if (lprint .and. r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     dKappa(:) = Kappa(:)
 

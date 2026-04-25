@@ -92,7 +92,6 @@ iDis = 0
 
 fail = .false.
 Converged(:) = .true.
-lprint = .false.
 !if (lSAVE) call DANAME(50,'RESIDUALS')
 if (lSAVE) then
   write(LuWr,*) 'WfCtl: SAVE option not implemented'
@@ -103,7 +102,7 @@ end if
 !                                                                      *
 ! Start loop over the symmetry of the perturbations
 
-if (btest(kprint,1)) lprint = .true.
+lprint = btest(kprint,0)
 #ifdef _DEBUGPRINT_
 lprint = .true.
 #endif

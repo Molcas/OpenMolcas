@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RdInp_MCLR()
+subroutine RdInp_MCLR(iPL)
 !***********************************************************************
 !                                                                      *
 !     Locate input stream and read commands                            *
@@ -35,6 +35,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
+integer(kind=iwp), intent(in):: iPL
 integer(kind=iwp) :: I, ICOM, ICOMP, ID, iDum(1), iMass, IOPT, IP, IPP, IRC, IRRFNC, istatus, ISYLBL, ISYM, ITIT, J, JCOM, nDiff
 logical(kind=iwp) :: DoRys, Epsilon_Undef, Skip
 character(len=72) :: Line
@@ -67,6 +68,7 @@ override = .false.
 if (debug) write(u6,*) 'Got Basis_Info and Center_Info'
 lRoots = -1
 kprint = 0
+If (iPL>=2) kPrint=1
 ngp = .false.
 NoFile = .false.
 mTit = 0

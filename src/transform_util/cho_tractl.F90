@@ -120,11 +120,16 @@ real(kind=wp) :: CPE, CPU0, CPU1, CPU2, CPU3, CPU4, CPU_Gen, CPU_Tot, CPU_Tra, t
 logical(kind=iwp) :: Found
 character(len=6) :: CHName
 character(len=*), parameter :: CHNm = 'CHFV'
+integer(kind=iwp) iPL
+integer(kind=iwp), External:: iPrintLevel
+logical(kind=iwp), External:: Reduce_Prt
 
 !-----------------------------------------------------------------------
 IfTest = .false.
 !IfTest = .true.
 !DoExch2 = .true.
+iPL = iPrintLevel(-1)
+if (Reduce_Prt() .and. (iPL < 3)) iPL = iPL-1
 !-----------------------------------------------------------------------
 
 call Timing(CPU0,CPE,TIO0,TIOE)
@@ -145,10 +150,12 @@ end if
 call Cho_X_final(irc)
 call CWTIME(TCR2,TWR2)
 tcpu_reo = (TCR2-TCR1)
-write(u6,*) ' Reordering of the Cholesky vectors to full storage. '
-write(u6,*) ' Elapsed time for the reordering section: ',tcpu_reo
-write(u6,*) ' CPU time for the reordering section: ',tcpu_reo
-write(u6,*)
+If (iPL>=2) Then
+   write(u6,*) ' Reordering of the Cholesky vectors to full storage. '
+   write(u6,*) ' Elapsed time for the reordering section: ',tcpu_reo
+   write(u6,*) ' CPU time for the reordering section: ',tcpu_reo
+   write(u6,*)
+End If
 
 ! Define what has to be calculated.
 !  DoExc2 flag for the generation of Exch-2 integrals
@@ -394,14 +401,18 @@ end do
 iAddrIAD2M = 0
 call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
-write(u6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
-write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0e2_wp*CPU_Tra/max(One,TIO_Tra),TIO_Tra
-write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0e2_wp*CPU_Gen/max(One,TIO_Gen),TIO_Gen
+If (iPL>=2) Then
+   write(u6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
+   write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0e2_wp*CPU_Tra/max(One,TIO_Tra),TIO_Tra
+   write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0e2_wp*CPU_Gen/max(One,TIO_Gen),TIO_Gen
+End If
 call Timing(CPU4,CPE,TIO4,TIOE)
 CPU_Tot = CPU4-CPU0
 TIO_Tot = TIO4-TIO0
-write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0e2_wp*CPU_Tot/max(One,TIO_Tot),TIO_Tot
-write(u6,*)
+If (iPL>=2) Then
+   write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0e2_wp*CPU_Tot/max(One,TIO_Tot),TIO_Tot
+   write(u6,*)
+End If
 call XFlush(u6)
 !-----------------------------------------------------------------------
 if (IfTest) then
@@ -418,7 +429,5 @@ NSYMZ = NSYM
 NORBZ(:) = NORB(:)
 NOSHZ(:) = NOSH(:)
 LUINTMZ = LUINTM
-
-return
 
 end subroutine Cho_TraCtl

@@ -64,10 +64,9 @@ iDis = 0
 
 fail = .false.
 Converged(:) = .true.
-lprint = .false.
+lprint = btest(kprint,0)
 LU_50 = 50
 if (lSAVE) call DANAME(LU_50,'RESIDUALS')
-if (btest(kprint,1)) lprint = .true.
 iDisp = 0
 kksym = 1
 kkksym = nsym
@@ -246,7 +245,7 @@ do iSym=kksym,kkksym
     call opout(ippre2)
     ! kap:kap
     r2 = Half*ddot_(nDensC,Kappa,1,Kappa,1)
-    if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
+    if (lprint .and. r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     call mma_deallocate(Temp1)
     call mma_allocate(Temp1,nDensC,Label='Temp1')
