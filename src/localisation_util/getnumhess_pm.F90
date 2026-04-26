@@ -169,7 +169,7 @@ if (debug2) then
     call RecPrt('Analytical Hdiag',' ',href(:),fsdim,1)
     call RecPrt('Numerical Hdiag',' ',NumHdiag(:),fsdim,1)
     !call RecPrt('Numerical Hessian',' ',NumHess(:,:),fsdim,fsdim)
-    call RecPrt('Numerical Hessian symm.',' ',NumHessSymm(:,:),fsdim,fsdim)
+    !call RecPrt('Numerical Hessian symm.',' ',NumHessSymm(:,:),fsdim,fsdim)
     call RecPrt('Difference',' ',diff,fsdim,1)
     write(u6,*) "Hess diff norm", sqrt(dot_product(diff,diff))
 end if

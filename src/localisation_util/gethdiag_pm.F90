@@ -41,12 +41,13 @@ do k=1,nOrb2Loc-1
           Q_kk=PA(k,k,iAtom)
           Q_ll=PA(l,l,iAtom)
           Q_kl=PA(k,l,iAtom)
-          !H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Four*Four*Q_kl**2
-          H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Eight*Q_kl**2
+          H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Four*Four*Q_kl**2
+          !H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Eight*Q_kl**2
       end do
       !write(u6,"(A,I5,I5,I5,3X,A,F18.8)") "k,l,kl = ",k,l,kl,"H_diag(kl)",H_diag(kl)
 !     Make sure that element has a negative value -- we are maximizing the target function
 !     Make sure that the element is not too small, this would yield a too large displacement.
+#     ifdef _NOTUSED_
       If (H_diag(kl)>0.0) Then
 !        Write (*,*) 'H_diag(k,l)=',H_diag(k,l)
         H_diag(kl)=-H_diag(kl)
@@ -55,6 +56,7 @@ do k=1,nOrb2Loc-1
         !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
          H_diag(kl)=-1.0e-2_wp
       End If
+#     endif
    end do
 end do
 

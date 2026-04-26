@@ -320,8 +320,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 IterGEK = IterGEK + 1
 
-                !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag=-hdiagvec)
-                call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,fullHessian=-NumHessSymm)
+                call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag=-hdiagvec)
+                !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,fullHessian=-NumHessSymm)
 
             end if ! if in GEKRange
 
@@ -410,34 +410,32 @@ call OrthoCheck(CMO,nOrb2Loc,nBasis)
 
 ! Print convergence message.
 
-if (.not. Silent) then
 
-    call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
-    select case(AnalyseLoc)
-        case (0)
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        case (1,2)
-        write(u6,"(/A)") "Orbital extension after localisation:"
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
-    end select
+call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
+select case(AnalyseLoc)
+    case (0)
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+    case (1,2)
+    write(u6,"(/A)") "Orbital extension after localisation:"
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
+end select
 
-    if (.not. Converged) then
-        write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
-    else
-        write(u6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
-        write(u6,*)
-        write(u6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
-        write(u6,'(A,ES20.10)') 'Value of P before localisation: ',FirstFunctional
-        write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
-        write(u6,*) "Localisation converged in ",nIter
-        write(u6,*) "Last deltaP",Delta
-        write(u6,*) "Last GradNorm",GradNorm
-    end if
+if (.not. Converged) then
+    write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
+else
+    write(u6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
+    write(u6,*)
+    write(u6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
+    write(u6,'(A,ES20.10)') 'Value of P before localisation: ',FirstFunctional
+    write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
+    write(u6,*) "Localisation converged in ",nIter
+    write(u6,*) "Last deltaP",Delta
+    write(u6,*) "Last GradNorm",GradNorm
 end if
 
 !call Prpt()
 
-
+call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 
 ! deallocations
 
@@ -476,9 +474,7 @@ contains
 subroutine rescale_disp(Disp)
     real(kind=wp),intent(inout) :: Disp(fsdim)
     DD=Sqrt(dot_product(Disp(:),Disp(:)))
-    !Thr= 0.5E0_wp * Pi
     Thr= 0.25E0_wp * Pi
-    if (fsdim==1) Thr= 0.25E0_wp * Pi
     If (DD>=Thr)Then
 #   ifdef _DEBUGPRINT_
         Write(u6,*) 'Rescale Kappa(:)'
