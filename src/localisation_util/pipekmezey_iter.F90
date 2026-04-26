@@ -476,7 +476,8 @@ contains
 subroutine rescale_disp(Disp)
     real(kind=wp),intent(inout) :: Disp(fsdim)
     DD=Sqrt(dot_product(Disp(:),Disp(:)))
-    Thr= 0.5E0_wp * Pi
+    !Thr= 0.5E0_wp * Pi
+    Thr= 0.25E0_wp * Pi
     if (fsdim==1) Thr= 0.25E0_wp * Pi
     If (DD>=Thr)Then
 #   ifdef _DEBUGPRINT_
