@@ -29,7 +29,7 @@ subroutine DMInvKap(rMFact,iMFact,rIn,rOut,rtemp,isym,iter)
 use Symmetry_Info, only: Mul
 use Spool, only: LuWr
 use MCLR_Data, only: ipMat, nDens, nDensC, SA
-use input_mclr, only: nAsh, nIsh, nOrb, nRs1, nRs2, nRs3, nSym, PT2
+use input_mclr, only: nAsh, nIsh, nOrb, nRs1, nRs2, nRs3, nSym, PT2, kprint
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Definitions, only: wp, iwp, u6
 
@@ -40,10 +40,13 @@ real(kind=wp), intent(out) :: rOut(nDensC), rtemp(nDens)
 integer(kind=iwp), intent(inout) :: iSym
 integer(kind=iwp) :: ii, ip1, ip2, ipi, iRC, iS, jS, nd
 real(kind=wp), external :: DDot_
+logical(kind=iwp) :: lPrint
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+
+lprint = btest(kprint,1)
 ip1 = 1
 ipi = 1
 
@@ -127,7 +130,7 @@ if (doDMRG) nash(:) = LRras2(:)
 !                                                                      *
 ! Warn if the trial vector becomes large
 
-if ((ddot_(nDensC,rOut,1,rOut,1) > 100.0_wp) .and. (iter == 1)) then
+if (lPrint .and. (ddot_(nDensC,rOut,1,rOut,1) > 100.0_wp) .and. (iter == 1)) then
   write(LuWr,*) '****************************************'
   write(LuWr,*) '*                                      *'
   write(LuWr,*) '*           WARNING!!                  *'

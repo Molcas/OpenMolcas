@@ -470,19 +470,19 @@ iSave = 15
 if (Do_ESPF) then
   iSave = IsFreeUnit(iSave)
   call Molcas_Open(iSave,'ESPF.SAV')
-  iData = IsFreeUnit(iSave)
+  iData = IsFreeUnit(iSave+1)
   call Molcas_Open(iData,'ESPF.DATA')
   do
     Line = Get_Ln(iData)
     ESPFKey = Line(1:10)
     if (ESPFKey == 'ENDOFESPF ') then
-      write(iSave,'(A132)') Line
+      write(iSave,'(A180)') Line
       exit
     else
       if (ESPFKey /= 'MULTIPOLE ') then
-        write(iSave,'(A132)') Line
+        write(iSave,'(A180)') Line
         if (ESPFKey == 'MLTORD    ') then
-          Line = Get_Ln(iData)
+!          Line = Get_Ln(iData)
           call Get_I1(2,MltOrd)
           ibla = 0
           do ii=0,MltOrd
