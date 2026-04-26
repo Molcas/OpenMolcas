@@ -435,7 +435,7 @@ end if
 
 !call Prpt()
 
-call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
+!call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 
 ! deallocations
 
