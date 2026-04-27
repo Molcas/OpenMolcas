@@ -90,36 +90,7 @@ do a=1,nOrb2Loc-1
                     Hessian(ab,cd) = Hessian(ab,cd) + Two * d_bd * Q_ac * (Two*Q_bb - Q_aa - Q_cc)
                 end do
 
-                if (ab == cd) then
-                    write(u6,"(A,4(I2),4X,A,2(I4))") "a,b,c,d=",a,b,c,d, "ab,cd=",ab,cd
-                    write(u6,*) "Case 1, diagonal"
-                    ! get diagonal elements
-                    !do iAtom=1,nAtoms
-                    !    Q_aa=PA(a,a,iAtom)
-                    !    Q_bb=PA(b,b,iAtom)
-                    !    Q_ab=PA(a,b,iAtom)
-                    !    Hessian(ab,ab)=Hessian(ab,ab) + Four*Q_aa*(Q_bb-Q_aa) + Four*Q_bb*(Q_aa-Q_bb) + Four*Four*Q_ab**2
-                    !end do
-
-                else if (cd > ab) then
-                    write(u6,"(A,4(I2),4X,A,2(I4))") "a,b,c,d=",a,b,c,d, "ab,cd=",ab,cd
-
-                    if (a == c .and. b/=d) then
-                        write(u6,*) "Case 2, a=c"
-                    else if (b == c .and. a==d) then
-                        write(u6,*) "Case 3, b=c and a=d"
-                    else if (b==c .and. a/=d) then
-                        write(u6,*) "Case 4, b=c"
-                    else if (a == d) then
-                        write(u6,*) "Case 5, a=d"
-                    else if (b == d) then
-                        write(u6,*) "b=d"
-                    else
-                        write(u6,*) "Case 6, all different"
-
-                    end if
-
-                end if
+                !write(u6,"(A,4(I2),4X,A,2(I4))") "a,b,c,d=",a,b,c,d, "ab,cd=",ab,cd
             end do
         end do
 
