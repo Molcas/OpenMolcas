@@ -54,11 +54,11 @@ use Embedding_Global, only: embPot, embPotInBasis
 #endif
 use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
 use spool, only: Close_LuSpool, Spoolinp
+use PrintLevel, only: nPrint, Show
+use Integral_interfaces, only: Int_PostProcess, int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Integral_interfaces, only: Int_PostProcess, int_wrout
-use Print, only: nPrint, Show
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
@@ -67,9 +67,8 @@ real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), TCpu1, TCpu2, TWall1, Twall2
 logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
 !-SVC: identify runfile with a fingerprint
 character(len=256) :: cDNA
-logical(kind=iwp), external :: Reduce_Prt
 procedure(int_wrout) :: Integral_WrOut2
-
+logical(kind=iwp), external :: Reduce_Prt
 interface
   subroutine get_genome(cDNA,nDNA) bind(C,name='get_genome_')
     use, intrinsic :: iso_c_binding, only: c_char
@@ -368,7 +367,7 @@ if (.not. Test) then
 
         Int_PostProcess => Integral_WrOut2
         call Drv2El(Zero)
-        Int_PostProcess => Null()
+        nullify(Int_PostProcess)
 
         call Sort1B()
         call Sort2()

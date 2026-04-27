@@ -16,12 +16,9 @@ use ccsort_global, only: mbas, NORB, NSYM, nvb, reclen
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(_OUT_) :: abmap(mbas,mbas,8)
+integer(kind=iwp), intent(out) :: abmap(mbas,mbas,8), rc
 integer(kind=iwp), intent(in) :: syma, symb
-integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: a, b, bup, irec, lengthpq, nrecc, nrest, symab, symp, symq
 
 rc = 0

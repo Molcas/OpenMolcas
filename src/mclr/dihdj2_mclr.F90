@@ -35,11 +35,13 @@ use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
 integer(kind=iwp), intent(in) :: IASTR(*), IBSTR(*), NIDET, JASTR(*), JBSTR(*), NJDET, NAEL, NBEL, NORB, ISYM, ICOMBI, &
                                  IASTRM(NAEL,*), IBSTRM(NBEL,*), JASTRM(NAEL,*), JBSTRM(NBEL,*)
 integer(kind=iwp), intent(out) :: jWORK(NORB,4), LIA(max(NAEL,NBEL)), LIB(max(NAEL,NBEL)), NDIF0, NDIF1, NDIF2
-real(kind=wp), intent(out) :: HAMIL(*)
+real(kind=wp), intent(_OUT_) :: HAMIL(*)
 real(kind=wp), intent(in) :: ECORE, PSIGN
 integer(kind=iwp) :: I1, I2, IA, IAB, IAEL, IAEQIB, IASTAC, IB, IBEL, IBSTAC, IDET, IDIFF, IEL, IEL1, ILOOP, IORB, IPERM, J1, J2, &
                      JA, JAB, JAEL, JAEQJB, JASTAC, JB, JBEL, JBSTAC, JDET, JDIFF, JEL, JEL1, JORB, JPERM, LHAMIL, MINI, NACM, &

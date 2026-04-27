@@ -234,7 +234,7 @@ subroutine ISR_RHS(CI,CIDER)
     end do
   end do
 
-  !write(6,*) 'initial state rotation'
+  !write(u6,*) 'initial state rotation'
   !call sqprt(isr%rvec,nroots)
 
 end subroutine ISR_RHS

@@ -102,7 +102,6 @@ set (sources
      rd2int_rasscf.F90
      recno.F90
      reord2.F90
-     refwfn.F90
      restr.F90
      rmvert.F90
      save_ci_vec.F90
@@ -143,7 +142,6 @@ set (modfile_list
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90
-     refwfn.F90
      spinfo.F90
      timers.F90
      wadr.F90

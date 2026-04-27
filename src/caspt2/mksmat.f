@@ -377,10 +377,10 @@ C  - G(xvzyut) -> SA(yvx,zut)
       SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,G3,idxG3)
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp, MPIInt, RtoB, Byte
+      use definitions, only: iwp, wp, MPIInt, Byte
       USE MPI
       USE SUPERINDEX, only: KTUV
-      use stdalloc, only: mma_MaxDBLE
+      use stdalloc, only: mma_allocate,mma_deallocate,mma_MaxDBLE
       use caspt2_module, only: IASYM,NASHT,nTUVES
       IMPLICIT None
 
@@ -424,23 +424,25 @@ C  - G(xvzyut) -> SA(yvx,zut)
       ! basic information
       NPROCS=GA_NNODES()
 
-      ALLOCATE(SCOUNTS(NPROCS))
-      ALLOCATE(RCOUNTS(NPROCS))
-      ALLOCATE(SCOUNTS2(NPROCS))
-      ALLOCATE(RCOUNTS2(NPROCS))
-      ALLOCATE(SDISPLS(NPROCS))
-      ALLOCATE(RDISPLS(NPROCS))
-      ALLOCATE(SDISPLS2(NPROCS))
-      ALLOCATE(RDISPLS2(NPROCS))
+      call MMA_ALLOCATE(SCOUNTS,NPROCS,Label='SCOUNTS')
+      call MMA_ALLOCATE(RCOUNTS,NPROCS,Label='RCOUNTS')
+      call MMA_ALLOCATE(SCOUNTS2,NPROCS,Label='SCOUNTS2')
+      call MMA_ALLOCATE(RCOUNTS2,NPROCS,Label='RCOUNTS2')
+      call MMA_ALLOCATE(SDISPLS,NPROCS,Label='SDISPLS')
+      call MMA_ALLOCATE(RDISPLS,NPROCS,Label='RDISPLS')
+      call MMA_ALLOCATE(SDISPLS2,NPROCS,Label='SDISPLS2')
+      call MMA_ALLOCATE(RDISPLS2,NPROCS,Label='RDISPLS2')
 
-      ALLOCATE(IBUF(NPROCS))
+      call MMA_ALLOCATE(IBUF,NPROCS,Label='IBUF')
 
       ! The global SA matrix has already been allocated, so we need to
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
       ! we need two real and four integer values per element
-      iscal = (MPIInt*4 + wp*2)/RtoB ! RtoB from module Definitions
+      iscal = (storage_size(SENDVAL)+2*storage_size(SENDIDX)+
+     &         storage_size(RECVVAL)+2*storage_size(RECVIDX))/
+     &        storage_size(1.0_wp)
       !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
       MAXBUF=MIN(NINT(0.95E0_wp*MAXMEM)/iscal,2000000000/8)
 
@@ -453,8 +455,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
       CALL GAIGOP_SCAL(NG3B,'min')
       NBUF=12*NG3B
 
-      ALLOCATE(SENDVAL(NBUF))
-      ALLOCATE(SENDIDX(2*NBUF))
+      call MMA_ALLOCATE(SENDVAL,NBUF,Label='SENDVAL')
+      call MMA_ALLOCATE(SENDIDX,2*NBUF,Label='SENDIDX')
 
       ! Finally, we need some info on the layout of the global array in
       ! order to compute the process row of the row index.
@@ -794,8 +796,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
         END DO
         NRECV=IOFFSET
 
-        ALLOCATE(RECVVAL(NRECV))
-        ALLOCATE(RECVIDX(2*NRECV))
+        call MMA_ALLOCATE(RECVVAL,NRECV,Label='RECVVAL')
+        call MMA_ALLOCATE(RECVIDX,2*NRECV,Label='RECVIDX')
 
         ! Now, it is time to collect the appropriate values and indices
         ! in their respective receive buffers.
@@ -814,24 +816,24 @@ C  - G(xvzyut) -> SA(yvx,zut)
           SA(ISUP-ILO+1,JSUP-JLO+1)=RECVVAL(I)
         END DO
 
-        DEALLOCATE(RECVVAL)
-        DEALLOCATE(RECVIDX)
+        call MMA_DEALLOCATE(RECVVAL)
+        call MMA_DEALLOCATE(RECVIDX)
 
       END DO ! end loop over blocks of G3 values
 
-      DEALLOCATE(SENDVAL)
-      DEALLOCATE(SENDIDX)
+      call MMA_DEALLOCATE(SENDVAL)
+      call MMA_DEALLOCATE(SENDIDX)
 
-      DEALLOCATE(SCOUNTS)
-      DEALLOCATE(RCOUNTS)
-      DEALLOCATE(SCOUNTS2)
-      DEALLOCATE(RCOUNTS2)
-      DEALLOCATE(SDISPLS)
-      DEALLOCATE(RDISPLS)
-      DEALLOCATE(SDISPLS2)
-      DEALLOCATE(RDISPLS2)
+      call MMA_DEALLOCATE(SCOUNTS)
+      call MMA_DEALLOCATE(RCOUNTS)
+      call MMA_DEALLOCATE(SCOUNTS2)
+      call MMA_DEALLOCATE(RCOUNTS2)
+      call MMA_DEALLOCATE(SDISPLS)
+      call MMA_DEALLOCATE(RDISPLS)
+      call MMA_DEALLOCATE(SDISPLS2)
+      call MMA_DEALLOCATE(RDISPLS2)
 
-      DEALLOCATE(IBUF)
+      call MMA_DEALLOCATE(IBUF)
 
 c Avoid unused argument warnings
       IF (.FALSE.) CALL UNUSED_INTEGER(iHi)
@@ -1231,10 +1233,10 @@ C  - G(xvzyut) -> SC(zvx,yut)
       SUBROUTINE MKSC_G3_MPP(ISYM,SC,iLo,iHi,jLo,jHi,LDC,
      &                       NG3,G3,idxG3)
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp, Byte, MPIInt, RtoB
+      use definitions, only: iwp, wp, Byte, MPIInt
       USE MPI
       USE SUPERINDEX, only: KTUV
-      use stdalloc, only: mma_MaxDBLE
+      use stdalloc, only: mma_allocate,mma_deallocate,mma_MaxDBLE
       use caspt2_module, only: IASYM, NASHT, nTUVES
       IMPLICIT NONE
 
@@ -1256,7 +1258,6 @@ C  - G(xvzyut) -> SC(zvx,yut)
 
       integer(kind=MPIInt), PARAMETER :: ONE4=1, TWO4=2
       integer(kind=MPIInt) :: IERROR4
-      INTEGER, PARAMETER :: I4=KIND(ONE4)
 
       INTEGER(kind=iwp), ALLOCATABLE :: IBUF(:)
       integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
@@ -1278,22 +1279,24 @@ C  - G(xvzyut) -> SC(zvx,yut)
       ! basic information
       NPROCS=GA_NNODES()
 
-      ALLOCATE(SCOUNTS(NPROCS))
-      ALLOCATE(RCOUNTS(NPROCS))
-      ALLOCATE(SCOUNTS2(NPROCS))
-      ALLOCATE(RCOUNTS2(NPROCS))
-      ALLOCATE(SDISPLS(NPROCS))
-      ALLOCATE(RDISPLS(NPROCS))
-      ALLOCATE(SDISPLS2(NPROCS))
-      ALLOCATE(RDISPLS2(NPROCS))
+      call MMA_ALLOCATE(SCOUNTS,NPROCS,Label='SCOUNTS')
+      call MMA_ALLOCATE(RCOUNTS,NPROCS,Label='RCOUNTS')
+      call MMA_ALLOCATE(SCOUNTS2,NPROCS,Label='SCOUNTS2')
+      call MMA_ALLOCATE(RCOUNTS2,NPROCS,Label='RCOUNTS2')
+      call MMA_ALLOCATE(SDISPLS,NPROCS,Label='SDISPLS')
+      call MMA_ALLOCATE(RDISPLS,NPROCS,Label='RDISPLS')
+      call MMA_ALLOCATE(SDISPLS2,NPROCS,Label='SDISPLS2')
+      call MMA_ALLOCATE(RDISPLS2,NPROCS,Label='RDISPLS2')
 
-      ALLOCATE(IBUF(NPROCS))
+      call MMA_ALLOCATE(IBUF,NPROCS,Label='IBUF')
 
       ! The global SC matrix has already been allocated, so we need to
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      iscal = (MPIInt*4 + wp*2)/RtoB
+      iscal = (storage_size(SENDVAL)+2*storage_size(SENDIDX)+
+     &         storage_size(RECVVAL)+2*storage_size(RECVIDX))/
+     &        storage_size(1.0_wp)
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -1306,8 +1309,8 @@ C  - G(xvzyut) -> SC(zvx,yut)
       ! 12 corresponds to the number of if (jSym.Eq.iSym) branch
       NBUF=12*NG3B
 
-      ALLOCATE(SENDVAL(NBUF))
-      ALLOCATE(SENDIDX(2*NBUF))
+      call MMA_ALLOCATE(SENDVAL,NBUF,Label='SENDVAL')
+      call MMA_ALLOCATE(SENDIDX,2*NBUF,Label='SENDIDX')
 
       ! Finally, we need some info on the layout of the global array in
       ! order to compute the process row of the row index.
@@ -1446,7 +1449,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
         ! for each process. Use them to determine the send offsets.
         IOFFSET=0
         DO I=1,NPROCS
-          SDISPLS(I)=INT(IOFFSET,I4)
+          SDISPLS(I)=INT(IOFFSET,kind=MPIInt)
           IBUF(I)=IOFFSET
           IOFFSET=IOFFSET+SCOUNTS(I)
         END DO
@@ -1482,8 +1485,8 @@ C  - G(tuvxyz) -> SC(vut,xyz)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
           if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
           if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
@@ -1495,8 +1498,8 @@ C  - G(vxtuyz) -> SC(txv,uyz)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(yzvxtu) -> SC(vzy,xtu)
           jSYM=Mul(IASYM(iV),Mul(IASYM(iZ),IASYM(iY)))
@@ -1506,8 +1509,8 @@ C  - G(yzvxtu) -> SC(vzy,xtu)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(tuyzvx) -> SC(yut,zvx)
           jSYM=Mul(IASYM(iY),Mul(IASYM(iU),IASYM(iT)))
@@ -1517,8 +1520,8 @@ C  - G(tuyzvx) -> SC(yut,zvx)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
        ENDIF
 C  - G(yztuvx) -> SC(tzy,uvx)
@@ -1529,8 +1532,8 @@ C  - G(yztuvx) -> SC(tzy,uvx)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(vxyztu) -> SC(yxv,ztu)
           jSYM=Mul(IASYM(iY),Mul(IASYM(iX),IASYM(iV)))
@@ -1540,8 +1543,8 @@ C  - G(vxyztu) -> SC(yxv,ztu)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
        ENDIF
           if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
@@ -1556,8 +1559,8 @@ C  - G(utxvzy) -> SC(xtu,vzy)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
           if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
@@ -1569,8 +1572,8 @@ C  - G(xvutzy) -> SC(uvx,tzy)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(zyxvut) -> SC(xyz,vut)
           jSYM=Mul(IASYM(iX),Mul(IASYM(iY),IASYM(iZ)))
@@ -1580,8 +1583,8 @@ C  - G(zyxvut) -> SC(xyz,vut)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(utzyxv) -> SC(ztu,yxv)
           jSYM=Mul(IASYM(iZ),Mul(IASYM(iT),IASYM(iU)))
@@ -1591,8 +1594,8 @@ C  - G(utzyxv) -> SC(ztu,yxv)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
        ENDIF
 C  - G(zyutxv) -> SC(uyz,txv)
@@ -1603,8 +1606,8 @@ C  - G(zyutxv) -> SC(uyz,txv)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(xvzyut) -> SC(zvx,yut)
           jSYM=Mul(IASYM(iZ),Mul(IASYM(iV),IASYM(iX)))
@@ -1614,8 +1617,8 @@ C  - G(xvzyut) -> SC(zvx,yut)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
         END DO
 
@@ -1626,7 +1629,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
 
         IOFFSET=0
         DO I=1,NPROCS
-          RDISPLS(I)=INT(IOFFSET,I4)
+          RDISPLS(I)=INT(IOFFSET,kind=MPIInt)
           IOFFSET=IOFFSET+RCOUNTS(I)
           SCOUNTS2(I)=TWO4*SCOUNTS(I)
           RCOUNTS2(I)=TWO4*RCOUNTS(I)
@@ -1635,8 +1638,8 @@ C  - G(xvzyut) -> SC(zvx,yut)
         END DO
         NRECV=IOFFSET
 
-        ALLOCATE(RECVVAL(NRECV))
-        ALLOCATE(RECVIDX(2*NRECV))
+        call MMA_ALLOCATE(RECVVAL,NRECV,Label='RECVVAL')
+        call MMA_ALLOCATE(RECVIDX,2*NRECV,Label='RECVIDX')
 
         ! Now, it is time to collect the appropriate values and indices
         ! in their respective receive buffers.
@@ -1655,24 +1658,24 @@ C  - G(xvzyut) -> SC(zvx,yut)
           SC(ISUP-ILO+1,JSUP-JLO+1)=RECVVAL(I)
         END DO
 
-        DEALLOCATE(RECVVAL)
-        DEALLOCATE(RECVIDX)
+        call MMA_DEALLOCATE(RECVVAL)
+        call MMA_DEALLOCATE(RECVIDX)
 
       END DO ! end loop over blocks of G3 values
 
-      DEALLOCATE(SENDVAL)
-      DEALLOCATE(SENDIDX)
+      call MMA_DEALLOCATE(SENDVAL)
+      call MMA_DEALLOCATE(SENDIDX)
 
-      DEALLOCATE(SCOUNTS)
-      DEALLOCATE(RCOUNTS)
-      DEALLOCATE(SCOUNTS2)
-      DEALLOCATE(RCOUNTS2)
-      DEALLOCATE(SDISPLS)
-      DEALLOCATE(RDISPLS)
-      DEALLOCATE(SDISPLS2)
-      DEALLOCATE(RDISPLS2)
+      call MMA_DEALLOCATE(SCOUNTS)
+      call MMA_DEALLOCATE(RCOUNTS)
+      call MMA_DEALLOCATE(SCOUNTS2)
+      call MMA_DEALLOCATE(RCOUNTS2)
+      call MMA_DEALLOCATE(SDISPLS)
+      call MMA_DEALLOCATE(RDISPLS)
+      call MMA_DEALLOCATE(SDISPLS2)
+      call MMA_DEALLOCATE(RDISPLS2)
 
-      DEALLOCATE(IBUF)
+      call MMA_DEALLOCATE(IBUF)
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL UNUSED_INTEGER(iHi)

@@ -35,11 +35,11 @@ private
 
 integer(kind=iwp), parameter :: lCache = 64*1024/8, LenIn = 6, MaxBfn = _MAXBFN_, MaxBfn_Aux = _MAXBFN_AUX_, MxAct = 100, &
                                 MxAO = _MAXBFN_+_MAXBFN_AUX_, MxAtom = _MXATOM_, MxBas = _MAXBFN_, Mxdbsc = _MXDBSC_, MxGAS = 16, &
-                                MxIna = _MAXBFN_, MxNemoAtom = _MXNEMOATOM_, MxOrb = _MAXBFN_, MxRoot = _MXROOT_, MxSym = 8, &
-                                MxLev=100
+                                MxIna = _MAXBFN_, MxLev = 100, MxNemoAtom = _MXNEMOATOM_, MxOrb = _MAXBFN_, MxRoot = _MXROOT_, &
+                                MxSym = 8
 
 
-public :: lCache, LenIn, MaxBfn, MaxBfn_Aux, MxAct, MxAO, MxAtom, MxBas, Mxdbsc, MxGAS, MxIna, MxNemoAtom, MxOrb, MxRoot, mxSym, &
-          MxLev
+public :: lCache, LenIn, MaxBfn, MaxBfn_Aux, MxAct, MxAO, MxAtom, MxBas, Mxdbsc, MxGAS, MxIna, MxLev, MxNemoAtom, MxOrb, MxRoot, &
+          mxSym
 
 end module Molcas

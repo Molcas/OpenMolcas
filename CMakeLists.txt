@@ -9,7 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014-2016, Steven Vancoillie                           *
-#               2014-2023, Ignacio Fdez. Galván                        *
+#               2014-2023,2026, Ignacio Fdez. Galván                   *
 #               2015, Stefan Knecht                                    *
 #               2020, Gerardo Raggi                                    *
 #***********************************************************************
@@ -1213,6 +1213,10 @@ else ()
         -D DISABLE_LXC=ON
         -D BUILD_TESTING=NO
   )
+  # Workaround for newer CMake
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "4")
+    list (APPEND LibxcCMakeArgs "-D CMAKE_POLICY_VERSION_MINIMUM=3.5")
+  endif()
   # "Hidden" option to pass extra arguments to Libxc CMake
   list (APPEND LibxcCMakeArgs ${Libxc_EXTRA_CMakeArgs})
 
@@ -1595,7 +1599,7 @@ if (CHEMPS2)
   endif ()
 
   foreach (prog
-    wfn_util
+    molcas_ci_util
     caspt2
     rasscf
   )
@@ -1736,6 +1740,7 @@ if (DMRG)
     last_energy
     mclr
     mcpdft
+    molcas_ci_util
     mpssi
     nevpt2
     caspt2
@@ -2543,8 +2548,9 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
   set (netlib_nowarn_flags " -w -dcfuns")
 endif ()
 if (netlib_nowarn_flags)
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90 ${delayed_util_src}/*.f ${delayed_util_src}/*.F90)
+  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90)
   set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
+  set (delayed_util_flags ${netlib_nowarn_flags})
 endif ()
 
 ################################################################################
@@ -2977,8 +2983,7 @@ if (Python_FOUND)
       ERROR_VARIABLE XMLLINT_ERROR
       RESULT_VARIABLE XMLLINT_RESULT
     )
-#   if (XMLLINT_RESULT AND NOT XMLLINT_RESULT EQUAL 0)
-    if (XMLINT_ERROR)
+    if (XMLLINT_RESULT AND NOT XMLLINT_RESULT EQUAL 0)
       message (FATAL_ERROR "Extracted XML file is malformed: ${XMLLINT_ERROR}")
     endif ()
   endif ()

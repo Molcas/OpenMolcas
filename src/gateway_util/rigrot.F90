@@ -68,7 +68,7 @@ if (TMass == Zero) then
   return
 end if
 Linear = .false.
-#ifdef _DEBUPRINT_
+#ifdef _DEBUGPRINT_
 call RecPrt(' In RigRot: CoorIn',' ',CoorIn,3,nAtm)
 call RecPrt(' In RigRot: Mass',' ',rM,1,nAtm)
 #endif

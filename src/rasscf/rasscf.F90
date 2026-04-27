@@ -755,9 +755,9 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       end if
 
       EAV = Zero
-        do KROOT=1,NROOTS
-          EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
-        end do
+      do KROOT=1,NROOTS
+        EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+      end do
 
       call Get_D1A_RASSCF(CMO,DMAT,D1A)
 
@@ -989,9 +989,9 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       ! call triprt('P-mat 2',' ',PMAT,nTri_Elem(nAc))
 
       EAV = Zero
-        do KROOT=1,NROOTS
-          EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
-        end do
+      do KROOT=1,NROOTS
+        EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+      end do
 
       if (IPRLEV >= DEBUG) then
         write(u6,*) 'EAV value in RASSCF after second call to CICTL:'
@@ -1219,25 +1219,23 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       if (doDMRG .and. Key('CION')) then ! If DMRG only -- yma
         write(u6,'(/6X,a,F19.10)') 'DMRGCI energy              :',EAV+CASDFT_Funct
         write(u6,'(6X,a,I5,A1,I2.2,A1,I2.2/)') 'Total time spent (hh:mm:ss):        ',ihh,':',imm,':',iss
+      else if (doDMRG) then
+#       ifdef _DMRG_
+        maxtrW = Zero
+        maxtrR = -1
+        maxBD = -1
+        ! These dmrg variables are arrays of rank 1
+        ITERCI = maxval(dmrg_energy%num_sweeps)
+        IROT = maxloc(dmrg_energy%num_sweeps,1)
+        maxtrW = maxval(dmrg_energy%max_truncW)
+        maxtrR = maxloc(dmrg_energy%max_truncW,1)
+        maxBD = maxval(dmrg_energy%bond_dim)
+        write(u6,103) ITER,ITERCI,IROT,maxBD,maxtrW,maxtrR,ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM, &
+                      ISYMBB,CBLBM,CTHRSX,SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
+#       endif
       else
-        if (doDMRG) then
-#         ifdef _DMRG_
-          maxtrW = Zero
-          maxtrR = -1
-          maxBD = -1
-          ! These dmrg variables are arrays of rank 1
-          ITERCI = maxval(dmrg_energy%num_sweeps)
-          IROT = maxloc(dmrg_energy%num_sweeps,1)
-          maxtrW = maxval(dmrg_energy%max_truncW)
-          maxtrR = maxloc(dmrg_energy%max_truncW,1)
-          maxBD = maxval(dmrg_energy%bond_dim)
-          write(u6,103) ITER,ITERCI,IROT,maxBD,maxtrW,maxtrR,ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM, &
-                        ISYMBB,CBLBM,CTHRSX,SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
-#         endif
-        else
-          write(u6,104) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
-                        SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
-        end if
+        write(u6,104) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
+                      SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
       end if
     else if (IPRLEV >= 4) then
       write(u6,'(6X,A,I4)') 'Energy statistics and convergence in iteration',ITER
@@ -1267,69 +1265,67 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     ! Compare RASSCF energy and average CI energy
 
     DIFFE = abs((ECAS-EAV)/ECAS)
-      if (l_casdft) then
-        write(u6,'(6X,A)') repeat('=',80)
-        write(u6,'(10X,A)') 'This is a POST-SCF correction using a modified  Hamiltonian.'
-        write(u6,'(10X,A)') 'The RASSCF energy has been corrected and it will differ from'
-        write(u6,'(10X,A)') 'the preceding CI energy.'
-        write(u6,'(6X,A)') repeat('=',80)
-      else
-        if (doDMRG) then
+    if (l_casdft) then
+      write(u6,'(6X,A)') repeat('=',80)
+      write(u6,'(10X,A)') 'This is a POST-SCF correction using a modified  Hamiltonian.'
+      write(u6,'(10X,A)') 'The RASSCF energy has been corrected and it will differ from'
+      write(u6,'(10X,A)') 'the preceding CI energy.'
+      write(u6,'(6X,A)') repeat('=',80)
+    else if (doDMRG) then
 
-#         ifdef _DMRG_DEBUGPRINT_
-          write(u6,*) 'DMRG-SCF energy    ',ECAS
-          write(u6,*) 'DMRG sweeped energy',EAV
-#         endif
+#     ifdef _DMRG_DEBUGPRINT_
+      write(u6,*) 'DMRG-SCF energy    ',ECAS
+      write(u6,*) 'DMRG sweeped energy',EAV
+#     endif
 
-          if (.not. Key('CION')) then
-            if ((DIFFE > 1.0e-6_wp) .and. (NROOTS == 1)) then
-              write(u6,'(6X,A)') repeat('=',120)
-              call WarningMessage(2,'DMRGSCF and DMRG energies differ.')
-              write(u6,'(6X,A,I11)') 'iteration           ',ITER
-              write(u6,'(6X,A,F22.10)') 'DMRGSCF energy      ',ECAS
-              write(u6,'(6X,A,F22.10)') 'DMRG energy         ',EAV
-              write(u6,'(6X,A,F22.10)') 'relative difference ',DIFFE
-              write(u6,*) 'About this difference:'
-              write(u6,*) '1) If possible, consider a larger M value'
-              write(u6,*) '2) Severe convergence problems. Maybe active'
-              write(u6,*) '   space is unsuitable for this system?'
-              write(u6,'(6X,A)') repeat('=',120)
-              if ((DIFFE > 5.0e-4_wp) .and. (NROOTS == 1)) then
-                write(u6,*)
-                write(u6,*) 'Warning : '
-                write(u6,*) ' Relative difference is near unacceptable'
-                write(u6,*) ' If possible, consider a larger M value'
-                write(u6,*)
-              end if
-            end if
-          end if
-        else
-          DIFFETol = 1.0e-10_wp
-#         ifdef _ENABLE_DICE_SHCI_
-          if (DoBlockDMRG) DIFFETol = 1.0e-8_wp
-#         endif
-          if ((DIFFE > DIFFETol) .and. (NROOTS == 1)) then
-            write(u6,'(6X,A)') repeat('=',120)
-            call WarningMessage(2,'Rasscf and CI energies differ.')
-            write(u6,'(6X,A,I11)') 'iteration           ',ITER
-            write(u6,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
-            write(u6,'(6X,A,F22.10)') 'CI energy           ',EAV
-            write(u6,'(6X,A,F22.10)') 'relative difference ',DIFFE
-            write(u6,*) 'Severe convergence problems. Maybe the active'
-            write(u6,*) '   space is unsuitable for this system?'
-            write(u6,'(6X,A)') repeat('=',120)
-            if ((DIFFE > 1.0e-4_wp) .and. (NROOTS == 1) .and. (.not. l_casdft)) then
-              write(u6,*)
-              write(u6,'(6X,A)') 'The program has to stop !!!'
-              write(u6,*)
-              write(u6,'(6X,A)') repeat('=',120)
-              write(u6,*)
-              ITERM = 99
-              exit outer
-            end if
+      if (.not. Key('CION')) then
+        if ((DIFFE > 1.0e-6_wp) .and. (NROOTS == 1)) then
+          write(u6,'(6X,A)') repeat('=',120)
+          call WarningMessage(2,'DMRGSCF and DMRG energies differ.')
+          write(u6,'(6X,A,I11)') 'iteration           ',ITER
+          write(u6,'(6X,A,F22.10)') 'DMRGSCF energy      ',ECAS
+          write(u6,'(6X,A,F22.10)') 'DMRG energy         ',EAV
+          write(u6,'(6X,A,F22.10)') 'relative difference ',DIFFE
+          write(u6,*) 'About this difference:'
+          write(u6,*) '1) If possible, consider a larger M value'
+          write(u6,*) '2) Severe convergence problems. Maybe active'
+          write(u6,*) '   space is unsuitable for this system?'
+          write(u6,'(6X,A)') repeat('=',120)
+          if ((DIFFE > 5.0e-4_wp) .and. (NROOTS == 1)) then
+            write(u6,*)
+            write(u6,*) 'Warning : '
+            write(u6,*) ' Relative difference is near unacceptable'
+            write(u6,*) ' If possible, consider a larger M value'
+            write(u6,*)
           end if
         end if
       end if
+    else
+      DIFFETol = 1.0e-10_wp
+#     ifdef _ENABLE_DICE_SHCI_
+      if (DoBlockDMRG) DIFFETol = 1.0e-8_wp
+#     endif
+      if ((DIFFE > DIFFETol) .and. (NROOTS == 1)) then
+        write(u6,'(6X,A)') repeat('=',120)
+        call WarningMessage(2,'Rasscf and CI energies differ.')
+        write(u6,'(6X,A,I11)') 'iteration           ',ITER
+        write(u6,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
+        write(u6,'(6X,A,F22.10)') 'CI energy           ',EAV
+        write(u6,'(6X,A,F22.10)') 'relative difference ',DIFFE
+        write(u6,*) 'Severe convergence problems. Maybe the active'
+        write(u6,*) '   space is unsuitable for this system?'
+        write(u6,'(6X,A)') repeat('=',120)
+        if ((DIFFE > 1.0e-4_wp) .and. (NROOTS == 1) .and. (.not. l_casdft)) then
+          write(u6,*)
+          write(u6,'(6X,A)') 'The program has to stop !!!'
+          write(u6,*)
+          write(u6,'(6X,A)') repeat('=',120)
+          write(u6,*)
+          ITERM = 99
+          exit outer
+        end if
+      end if
+    end if
 
     if (write_orb_per_iter .and. king()) then
       call copy_(real_path('RASORB'),real_path('ITERORB.'//str(actual_iter)))
@@ -1524,9 +1520,9 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     end if
 
     EAV = Zero
-      do KROOT=1,NROOTS
-        EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
-      end do
+    do KROOT=1,NROOTS
+      EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
+    end do
     if (NAC == 0) EAV = ECAS
     if (NCRVEC > 0) then
       ! Core shift has been used

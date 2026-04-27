@@ -29,11 +29,11 @@ subroutine PGet1(PAO,ijkl,nPAO,iCmp,iAO,iAOst,iBas,jBas,kBas,lBas,kOp,DSO,DSSO,n
 
 use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
-use Constants, only: Zero, Quart
-use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
 use pso_stuff, only: D0, iD0Lbl
 #endif
+use Constants, only: Zero, Quart
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), nDSO
@@ -118,8 +118,8 @@ do i1=1,iCmp(1)
   end do
 end do
 if (iPAO /= nPAO) then
-  write (u6,*) ' nijkl,iPAO=',nijkl,iPAO
-  Write (u6,*) 'iPAO/=nPAO: iPAO,nPAO=',iPAO,nPAO
+  write(u6,*) ' nijkl,iPAO=',nijkl,iPAO
+  write(u6,*) 'iPAO/=nPAO: iPAO,nPAO=',iPAO,nPAO
   call WarningMessage(2,' Error in PGet1!')
   call Abend()
 end if

@@ -26,7 +26,7 @@
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp,u6,RtoB
       use caspt2_module, only: nActEl, nSym, STSym, EPSA
-      use molcas, only: MxLev
+      use Molcas, only: MxLev
       use caspt2_module, only: MxCI
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use Constants, only: Zero, One, Half
@@ -819,7 +819,6 @@
       integer(kind=byte), intent(inout) :: idxG3(6,NG3)
       real(kind=wp), intent(inout) :: DEPSA(NLEV,NLEV)
 
-      integer(kind=iwp), parameter :: I1=KIND(idxG3)
 ! SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 ! OR CLOSED-SHELL SCF CASE.
 
@@ -905,12 +904,12 @@
 
 ! VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
               iG3=iG3+1
-              idxG3(1,iG3)=INT(iT1,I1)
-              idxG3(2,iG3)=INT(iU1,I1)
-              idxG3(3,iG3)=INT(iT2,I1)
-              idxG3(4,iG3)=INT(iU2,I1)
-              idxG3(5,iG3)=INT(iT3,I1)
-              idxG3(6,iG3)=INT(iU3,I1)
+              idxG3(1,iG3)=INT(iT1,kind=byte)
+              idxG3(2,iG3)=INT(iU1,kind=byte)
+              idxG3(3,iG3)=INT(iT2,kind=byte)
+              idxG3(4,iG3)=INT(iU2,kind=byte)
+              idxG3(5,iG3)=INT(iT3,kind=byte)
+              idxG3(6,iG3)=INT(iU3,kind=byte)
 !             G3(iG3)=VAL
 !             F3(iG3)=(ESUM*OCC-ETA(LU1)-ETA(LU2)-ETA(LU3))*VAL
               DESUM = DESUM + OCC*G3(iG3)*DF3(iG3)

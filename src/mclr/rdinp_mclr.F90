@@ -68,7 +68,7 @@ override = .false.
 if (debug) write(u6,*) 'Got Basis_Info and Center_Info'
 lRoots = -1
 kprint = 0
-If (iPL>=2) kPrint=1
+if (iPL >= 2) kPrint = 1
 ngp = .false.
 NoFile = .false.
 mTit = 0

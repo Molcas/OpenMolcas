@@ -418,7 +418,7 @@ do lDCRR=0,nDCRR-1
             write(u6,*) 'Norm of gradient contribution is huge!'
             write(u6,*) 'Probably due to wrong coordinates.'
             call PrGrad(' In TwoEl',Grad,nGrad)
-            Call abend()
+            call abend()
           end if
 
         end do

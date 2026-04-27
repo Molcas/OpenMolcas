@@ -43,10 +43,10 @@ use output_ras, only: IPRGLB, IPRLOC
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, JOBIPH, JOBOLD, LOWDIN_ON, LUSTARTORB, MALTER, MAXALTER, NACTEL, &
                         NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, &
                         NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STARTORBFILE, STSYM, SXDAMP
-use spinfo, only: I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, &
-                  IGSOCCX_MOLCAS, INOCALC_MOLCAS, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, &
-                  ITMAX_MOLCAS, LSYM_MOLCAS, MS2, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, &
-                  NCSASM, NDET, NDTASM, NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
+use spinfo, only: I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, IGSOCCX_MOLCAS, &
+                  INOCALC_MOLCAS, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, ITMAX_MOLCAS, LSYM_MOLCAS, &
+                  MS2, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NCSASM, NDET, NDTASM, &
+                  NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
@@ -3897,20 +3897,19 @@ else
   do ISYM=1,NSYM
     NAO = NASH(ISYM)
 
-
-      do NT=2,NAO
-        do NU=1,NT-1
-          ITU = ITU+1
-          IZROT(ITU) = 0
-          !SVC: check if NU<NT are included in the same gas space
-          NGSSH_LO = 0
-          do IGAS=1,NGAS
-            NGSSH_HI = NGSSH_LO+NGSSH(IGAS,ISYM)
-            if ((NU > NGSSH_LO) .and. (NT <= NGSSH_HI)) IZROT(ITU) = 1
-            NGSSH_LO = NGSSH_HI
-          end do
+    do NT=2,NAO
+      do NU=1,NT-1
+        ITU = ITU+1
+        IZROT(ITU) = 0
+        !SVC: check if NU<NT are included in the same gas space
+        NGSSH_LO = 0
+        do IGAS=1,NGAS
+          NGSSH_HI = NGSSH_LO+NGSSH(IGAS,ISYM)
+          if ((NU > NGSSH_LO) .and. (NT <= NGSSH_HI)) IZROT(ITU) = 1
+          NGSSH_LO = NGSSH_HI
         end do
       end do
+    end do
 
   end do
 

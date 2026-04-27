@@ -28,9 +28,9 @@ subroutine PLF2_BP(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas,
 !***********************************************************************
 
 use SOAO_Info, only: iAOtSO
-use Definitions, only: wp, iwp
 use Breit, only: D_tensor
 use eval_arrays, only: PAO
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -38,9 +38,8 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
 real(kind=wp), intent(in) :: AOint(ijkl,6,iCmp,jCmp,kCmp,lCmp)
-integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOSti, iAOStj, iAOStk, iAOStl, iSO, iSOi, &
-                     iSOs(4), jSO, jSOj, kSO, kSOk, lSO, lSOl, nijkl
-real(kind=wp) :: Prod_ij
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOSti, iAOStj, iAOStk, iAOStl, iSO, iSOi, iSOs(4), jSO, jSOj, kSO, &
+                     kSOk, lSO, lSOl, nijkl
 
 ! quadruple loop over elements of the basis functions angular
 ! description. loops are reduced to just produce unique SO integrals
@@ -48,12 +47,12 @@ real(kind=wp) :: Prod_ij
 ! sequential way.
 
 #ifdef _DEBUGPRINT_
-write (u6,*) ' PLF2_BP'
-Call RecPrt('Plf2_BP: AOINT',' ',AOInt,ijkl*6,iCmp*jCmp*kCmp*lCmp)
-Call RecPrt('Plf2_BP: PAO',' ',PAO,ijkl,iCmp*jCmp*kCmp*lCmp)
+write(u6,*) ' PLF2_BP'
+call RecPrt('Plf2_BP: AOINT',' ',AOInt,ijkl*6,iCmp*jCmp*kCmp*lCmp)
+call RecPrt('Plf2_BP: PAO',' ',PAO,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 
-If (.Not.Associated(PAO)) Call Abend()
+if (.not. associated(PAO)) call Abend()
 
 iAOsti = iAOst(1)
 iAOstj = iAOst(2)
@@ -84,19 +83,12 @@ do i1=1,iCmp
             do jSOj=jSO,jSO+jBas-1
               do iSOi=iSO,iSO+iBas-1
                 nijkl = nijkl+1
-                Prod_ij = AOint(nijkl,1,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
-                D_tensor(1,1) = D_tensor(1,1) + Prod_ij
-                Prod_ij = AOint(nijkl,2,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
-                D_tensor(2,1) = D_tensor(2,1) + Prod_ij
-                Prod_ij = AOint(nijkl,3,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
-                D_tensor(3,1) = D_tensor(3,1) + Prod_ij
-                Prod_ij = AOint(nijkl,4,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
-                D_tensor(2,2) = D_tensor(2,2) + Prod_ij
-                Prod_ij = AOint(nijkl,5,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
-                D_tensor(2,3) = D_tensor(2,3) + Prod_ij
-                Prod_ij = AOint(nijkl,6,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
-                D_tensor(3,3) = D_tensor(3,3) + Prod_ij
-
+                D_tensor(1,1) = D_tensor(1,1)+AOint(nijkl,1,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(2,1) = D_tensor(2,1)+AOint(nijkl,2,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(3,1) = D_tensor(3,1)+AOint(nijkl,3,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(2,2) = D_tensor(2,2)+AOint(nijkl,4,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(2,3) = D_tensor(2,3)+AOint(nijkl,5,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(3,3) = D_tensor(3,3)+AOint(nijkl,6,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
 
               end do
             end do

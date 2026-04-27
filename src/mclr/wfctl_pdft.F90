@@ -443,7 +443,7 @@ do iDisp=1,nDisp
   call DMInvKap(W(ipPre2)%A,iPre,Sigma,dKappa,Sc1,iSym,iter)
   call opOut(ippre2)
   r2 = ddot_(nDensC,dKappa,1,dKappa,1)
-  if (lprint .and. r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
+  if (lprint .and. (r2 > r1)) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
   call mma_deallocate(kap_new)
   call mma_deallocate(kap_new_temp)

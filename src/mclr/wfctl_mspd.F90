@@ -246,7 +246,7 @@ else
     call opOut(ippre2)
     r2 = ddot_(nDensC,Kappa,1,Kappa,1)
     if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
-    if (lprint .and. r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
+    if (lprint .and. (r2 > r1)) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     dKappa(:) = Kappa(:)
 

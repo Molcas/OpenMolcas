@@ -12,7 +12,7 @@
 subroutine mkRotMat(rotvec,rotmat)
 
 use Constants, only: Zero, One, Two, Six, Twelve, Half
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: RotVec(3)
@@ -59,7 +59,7 @@ do i=1,3
     end do
     if (abs(rsum) > 1.0e-10_wp) then
       call WarningMessage(2,'Error in mkRotMat')
-      write(6,*) ' MKROTMAT: ON check sum error=',rsum
+      write(u6,*) ' MKROTMAT: ON check sum error=',rsum
       call Abend()
     end if
   end do

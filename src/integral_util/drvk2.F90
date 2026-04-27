@@ -34,26 +34,25 @@ use setup, only: mSkal
 use iSD_data, only: iSD, nSD
 use k2_structure, only: Indk2, k2_Processed, k2Data
 use k2_arrays, only: BraKet, Create_BraKet, Destroy_BraKet, DoGrad_, ipOffD, Sew_Scr
+use Dens_Stuff, only: ipDDij, mDCRij, mDij
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Gateway_global, only: force_part_c
 use Sizes_of_Seward, only: S
 use UnixInfo, only: ProgName
+use eval_arrays, only: AOInt, SOInt
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
-use Dens_Stuff, only: ipDDij, nDij=>mDij, nDCR=>mDCRij
 #ifdef _DEBUGPRINT_
 use Gateway_Info, only: lSchw
 use Definitions, only: u6
 #endif
-use eval_arrays, only: SOInt, Mem2=>AOInt
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iBas, iCmp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, iPrim, &
-                     iPrimi, iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jPrim, jPrimj, &
-                     jS, jShell, jShll, la_, mabMax_, mabMin_, MemMax, MemTmp, mk2, &
-                     mScree, nBasi, nBasj, nDCRR, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iPrimSave(4)
+integer(kind=iwp) :: iAng, iBas, iCmp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, iPrim, iPrimi, iPrimSave(4), iS, iSD4(0:nSD,4), iShell, &
+                     iShll, jAng, jBas, jCmp, jPrim, jPrimj, jS, jShell, jShll, la_, mabMax_, mabMin_, MemMax, MemTmp, mk2, &
+                     mScree, nBasi, nBasj, nDCRR, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
 real(kind=wp) :: Coor(3,4)
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
 character(len=8) :: Method
@@ -182,12 +181,12 @@ do iS=1,mSkal
     ijS = iTri(iShell,jShell)
     if (DoFock) then
       ipDDij = ipOffD(1,ijS)
-      nDCR = ipOffD(2,ijS)
-      nDij = ipOffD(3,ijS)
+      mDCRij = ipOffD(2,ijS)
+      mDij = ipOffD(3,ijS)
     else
       ipDDij = -1
-      nDCR = 1
-      nDij = 1
+      mDCRij = 1
+      mDij = 1
     end if
 
     nSO = 1
@@ -241,7 +240,7 @@ do iS=1,mSkal
 
     call k2Loop(Coor,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
                 BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
-                BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Mem2,Size(Mem2),nScree,mScree, &
+                BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),AOInt,size(AOInt),nScree,mScree, &
                 ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx,nSD,iSD4)
 
     Indk2(2,ijS) = nDCRR
@@ -249,7 +248,7 @@ do iS=1,mSkal
 
   end do
 end do
-nullify(SOInt,Mem2)
+nullify(SOInt,AOInt)
 call Destroy_Braket()
 !                                                                      *
 !***********************************************************************

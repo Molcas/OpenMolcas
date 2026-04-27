@@ -87,7 +87,7 @@ do k1=1,N1-1
         !write(u6,'(5x,a,i3,3x,A,I3)') 'JKQPAR:   O1  k1 = ',k1,'q1 =',q1
         !write(u6,*)
         !do i1=1,N1
-        !  write(6,'(20(2ES14.7,1x))') (Half*((-One)**q1*W1(i1,j1)+O1(i1,j1)),j1=1,N1)
+        !  write(u6,'(20(2ES14.7,1x))') (Half*((-One)**q1*W1(i1,j1)+O1(i1,j1)),j1=1,N1)
         !end do
         !write(u6,*)
         !write(u6,'(5x,a,i3,3x,A,I3)') 'JKQPAR:   W1  k1 = ',k1,'q1 =',q1

@@ -15,7 +15,7 @@
 subroutine mkbiks_cvb()
 
 use casvb_global, only: aikcof, bikcof, ikcoff, ipr, kbasiscvb, nel
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i2s1, ibeg, iend, ifns, nalf1, ndet, nel1, ntmp
@@ -28,7 +28,7 @@ aikcof(0) = real(kbasiscvb,kind=wp)
 bikcof(0) = real(kbasiscvb,kind=wp)
 if (kbasiscvb == 6) return
 
-if (ipr(1) >= 1) write(6,6100) trim(basis(kbasiscvb))
+if (ipr(1) >= 1) write(u6,6100) trim(basis(kbasiscvb))
 
 share = associated(bikcof,aikcof)
 do nel1=0,nel

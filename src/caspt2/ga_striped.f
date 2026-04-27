@@ -17,6 +17,7 @@
 
 #ifdef _MOLCAS_MPP_
       SUBROUTINE GA_CREATE_STRIPED (ORI,NROW,NCOL,LABEL,LG_M)
+      use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: iwp, u6
       IMPLICIT NONE
       CHARACTER :: ORI
@@ -33,7 +34,7 @@
       NPROCS=GA_NNODES()
 
       NBLOCK1=1
-      ALLOCATE(MAP1(NBLOCK1))
+      call MMA_ALLOCATE(MAP1,NBLOCK1,Label='MAP1')
       MAP1(1)=1
 
       NDIM=0
@@ -45,7 +46,7 @@
       NBLOCK2=MIN(NDIM,NPROCS)
       NBASE=NDIM/NPROCS
       NREST=MOD(NDIM,NPROCS)
-      ALLOCATE(MAP2(NBLOCK2))
+      call MMA_ALLOCATE(MAP2,NBLOCK2,Label='MAP2')
       IOFF=1
       DO I=1,NBLOCK2
         MAP2(I)=IOFF
@@ -65,7 +66,8 @@
      &                     MAP1,NBLOCK1,MAP2,NBLOCK2,LG_M)
       END IF
 
-      DEALLOCATE(MAP1,MAP2)
+      call MMA_DEALLOCATE(MAP1)
+      call MMA_DEALLOCATE(MAP2)
 
       IF (.NOT.bStat) THEN
         WRITE(u6,*) 'GA_CREATE_HS: could not create array, abort'

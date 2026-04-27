@@ -39,8 +39,8 @@ set (sources
      cnthlf.F90
      cntrct.F90
      conmax.F90
-     coor_setup.F90
      contei.F90
+     coor_setup.F90
      coset.F90
      covrad.F90
      covrad_data.F90
@@ -89,8 +89,8 @@ set (sources
      eq.F90
      esti.F90
      etwas.F90
-     eval_ijkl.F90
      eval_arrays.F90
+     eval_ijkl.F90
      exparr.F90
      expnd_i.F90
      fckacc_nosym.F90
@@ -221,7 +221,6 @@ set (sources
      poti.F90
      prepp.F90
      priwel.F90
-     print.F90
      prmtrx.F90
      property_label.F90
      prrf.F90
@@ -335,7 +334,6 @@ set (modfile_list
      mpmc.F90
      nac.F90
      nddo.F90
-     print.F90
      property_label.F90
      rctfld_module.F90
      real_spherical.F90

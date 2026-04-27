@@ -245,7 +245,7 @@ do iSym=kksym,kkksym
     call opout(ippre2)
     ! kap:kap
     r2 = Half*ddot_(nDensC,Kappa,1,Kappa,1)
-    if (lprint .and. r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
+    if (lprint .and. (r2 > r1)) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     call mma_deallocate(Temp1)
     call mma_allocate(Temp1,nDensC,Label='Temp1')

@@ -24,7 +24,7 @@ subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGr
 
 use Symmetry_Info, only: nIrrep
 use nq_Grid, only: Angular, Coor, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, IndGrd, iTab, kAO, l_CASDFT, Lapl, List_G, Mem, &
-                   nGridMax, nR_Eff, nRho, Pax, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
+                   nGridMax, nR_Eff, nRho, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
 use nq_pdft, only: lft, lGGA, lmGGA1, lmGGA2
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
@@ -402,7 +402,6 @@ call DrvNQ_Inner(Kernel,Funct,Maps2p,nIrrep,List_S,List_Exp,List_bas,nShell,List
 !                                                                      *
 ! Deallocate the memory
 
-call mma_deallocate(Pax)
 if (Do_Grad) then
   call mma_deallocate(Temp)
   call mma_deallocate(iTab)

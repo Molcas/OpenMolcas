@@ -31,7 +31,7 @@ type(DSBA_Type), intent(in) :: DLT(1), Salpha(1)
 integer(kind=iwp), intent(in) :: istate, jstate, iType
 logical(kind=iwp), intent(in) :: DoExch, labB
 integer(kind=iwp) :: dimX, iAddr, iBatch, iCase, iLoc, IREDC, iSym, iSwap, IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRED2, JSYM, &
-                     JVEC, k, kMOs, LREAD, LuT, LuT1, LuT2, LuT_, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs
+                     JVEC, k, kMOs, LREAD, LuT, LuT1, LuT2, LWork, MUSED, nBatch, nDen, nMOs, nRS, NUMV, nVec, nVrs
 real(kind=wp) :: dimX_real(1), TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), &
                  TWC1, TWC2, TWR1, TWR2
 logical(kind=iwp) :: add, DoRead
@@ -54,18 +54,16 @@ IREDC = -1
 JSYM = 1
 if (NumCho(JSYM) < 1) return
 write(filnam,'(A,I1,A,I3.3,A,I3.3)') 'WK_C',iType,'_',ISTATE,'_',JSTATE
-LuT_ = 10
-LuT = isFreeUnit(LuT_)
+LuT = isFreeUnit(10)
 call molcas_open(LuT,filnam)
 write(LuT,*) NumCho(JSYM)
 
 ! Create and open file WKX for DoExch
 if (DoExch) then
   write(filnam1,'(A,I1,I2.2,I2.2)') 'X',iType,ISTATE,JSTATE
-  LuT2 = 11
-  LuT1 = isFreeUnit(LuT_)
+  LuT1 = isFreeUnit(LuT)
   call DANAME(LuT1,filnam1)
-  LuT2 = isFreeUnit(LuT_)
+  LuT2 = isFreeUnit(LuT1)
   write(filnam2,'(A)') 'nRedX'
   call DANAME(LuT2,filnam2)
 

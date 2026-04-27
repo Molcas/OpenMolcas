@@ -8,26 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
-      use stdalloc, only: mma_deallocate
-      use gugx, only: SGStruct, CIStruct
-      use MkGUGA_mod, only: MKGUGA
-      IMPLICIT None
-      Integer nSym, nActEl, iSpin
-      Type (SGStruct), Target :: SGS
-      Type (CIStruct) :: CIS
 
-      SGS%nSym=nSym
-      SGS%iSpin=iSpin
-      SGS%nActEl=nActEl
+subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
 
-      Call MkGuga(SGS,CIS)
+use gugx, only: CIStruct, SGStruct
+use MkGUGA_mod, only: MKGUGA
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
+
+SGS%nSym = nSym
+SGS%iSpin = iSpin
+SGS%nActEl = nActEl
+
+call MkGuga(SGS,CIS)
 
 ! Modified Arc Weights table:
-      CALL MKMAW(SGS)
+call MKMAW(SGS)
 
 ! The DAW, RAW tables are no longer needed:
-      CALL mma_deallocate(SGS%RAW)
-      CALL mma_deallocate(SGS%DAW)
+call mma_deallocate(SGS%RAW)
+call mma_deallocate(SGS%DAW)
 
-      end Subroutine SGInit
+end subroutine SGInit

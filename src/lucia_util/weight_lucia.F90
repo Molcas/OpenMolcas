@@ -20,8 +20,10 @@ use Definitions, only: iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp), intent(out) :: Z(*), ISCR(*)
+integer(kind=iwp), intent(_OUT_) :: Z(*), ISCR(*)
 integer(kind=iwp), intent(in) :: NEL, NORB1, NORB2, NORB3, MNRS1, MXRS1, MNRS3, MXRS3
 integer(kind=iwp) :: KLFREE, KLMAX, KLMIN, KW, NORB
 

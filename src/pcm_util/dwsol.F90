@@ -292,9 +292,11 @@ end subroutine DWSCF_final
 
 subroutine DWSol_wgt(mode,ENER,weight)
 
+# include "intent.fh"
+
   integer(kind=iwp), intent(in) :: mode
   real(kind=wp), intent(in) :: ENER(*)
-  real(kind=wp), intent(out), optional :: weight(*)
+  real(kind=wp), intent(_OUT_), optional :: weight(*)
   integer(kind=iwp) :: i
   real(kind=wp) :: Ealpha, Ebeta, Egamma, wgt, Wtot, xi_ab, xi_ag
   type(type_DW), pointer :: DWlocal

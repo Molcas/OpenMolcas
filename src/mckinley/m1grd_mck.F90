@@ -36,7 +36,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_mck_interface.fh"
 integer(kind=iwp) :: iAng(4), iBeta, iCnt, iDCRT(0:7), inddum(3,4,3,4,8), ipA, ipAOff, ipB, ipBOff, iuvwx(4), JndGrd(3,4,0:7), &
-                     mOp(4), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, nDCRT, nip, nRys
+                     mOp(4), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, nDCRT, nip
 logical(kind=iwp) :: DiffCnt, ifdum(3,4,3,4), jfg(4), JfGrd(3,4), kfgrd(3,4), Tr(4)
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Dum(1), Fact, TC(3)
 integer(kind=iwp), external :: NrOpr
@@ -47,14 +47,13 @@ unused_var(ZInv)
 unused_var(Ccoor)
 unused_var(nOrdOp)
 unused_var(Trans)
+unused_var(nHer)
 
 !if (iPrint >= 99) then
 !  write(u6,*) ' In NAGrd: nArr=',nArr
 !end if
 inddum(:,:,:,:,:) = 0
 ifdum(:,:,:,:) = .false.
-
-nRys = nHer
 
 nip = 1
 ipA = nip
@@ -166,8 +165,8 @@ do kCnttp=1,nCnttp
       JFG(3) = .false.
       JFG(4) = .false.
 
-      call M1Kernel(rFinal,Dum,0,Dum,0,iAng,nRys,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,Coorac,Array(nip),nArr-nip+1, &
-                    kfgrd,kndgrd,ifdum,inddum,jfg,tr,mop,iuvwx,kCnttp,fact,loper,idcar)
+      call M1Kernel(rFinal,Dum,0,Dum,0,iAng,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,Coorac,Array(nip),nArr-nip+1,kfgrd, &
+                    kndgrd,ifdum,inddum,jfg,tr,mop,iuvwx,kCnttp,fact,loper,idcar)
 
     end do
   end do

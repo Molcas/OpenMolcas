@@ -24,7 +24,7 @@ use PrintLevel, only: USUAL
 use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Zero
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nGD
@@ -80,7 +80,7 @@ do while (CMSNotConverged)
   iStep = iStep+1
   Qold = Qnew
   if (iStep > iCMSIterMax) then
-    write(6,'(4X,A)') 'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+    write(u6,'(4X,A)') 'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
     exit
   end if
 
@@ -123,7 +123,7 @@ do while (CMSNotConverged)
     call CalcGradCMS(Grad,DDg,lRoots,nSPair)
     call CalcHessCMS(Hess,DDg,lRoots,nSPair)
   else
-    if (IPRLEV >= USUAL) write(6,'(4X,A)') 'CONVERGENCE REACHED'
+    if (IPRLEV >= USUAL) write(u6,'(4X,A)') 'CONVERGENCE REACHED'
   end if
 end do
 

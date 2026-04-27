@@ -59,7 +59,6 @@ unused_var(nHer)
 write(u6,*) ' In NAHss: nArr=',nArr
 #endif
 
-
 nip = 1
 ipA = nip
 nip = nip+nAlpha*nBeta

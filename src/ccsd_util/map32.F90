@@ -13,12 +13,10 @@ subroutine map32(a,b,dimp,dimq,dimr,dim_1,dim_2,dim_3,p,q,nfact)
 
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: dimp, dimq, dimr, dim_1, dim_2, dim_3, p, q, nfact
 real(kind=wp), intent(in) :: a(dimp,dimq,dimr)
-real(kind=wp), intent(_OUT_) :: b(dim_1,dim_2,dim_3)
+real(kind=wp), intent(out) :: b(dim_1,dim_2,dim_3)
 integer(kind=iwp) :: pp, qq, rr
 
 if (nfact == 1) then

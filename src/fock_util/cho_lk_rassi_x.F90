@@ -47,14 +47,11 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
 type(DSBA_Type), intent(in) :: DLT(1), Ash(2)
-type(DSBA_Type), intent(inout) :: MSQ(2), FLT(1), KSQ
-type(DSBA_Type), intent(_OUT_) :: FSQ
+type(DSBA_Type), intent(inout) :: MSQ(2), FLT(1), KSQ, FSQ
 integer(kind=iwp), intent(in) :: nTUVX, nScreen
-real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
+real(kind=wp), intent(inout) :: TUVX(nTUVX)
 real(kind=wp), intent(in) :: dmpk
 integer(kind=iwp) :: ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, iOK, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &

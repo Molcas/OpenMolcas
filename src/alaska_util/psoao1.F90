@@ -37,32 +37,31 @@ subroutine PSOAO1(nSO,MemMax,nSD,iSD4)
 !             Modified to first order derivatives. January '92         *
 !***********************************************************************
 
-use PSO_Stuff, only: Gamma_On, lPSO, nGamma, iFnc, MemPSO
+use PSO_Stuff, only: Gamma_On, iFnc, lPSO, MemPSO, nGamma
 use SOAO_Info, only: iAOtSO
 use Gateway_global, only: force_part_c, force_part_p
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
-use Definitions, only: iwp, u6
 use k2_arrays, only: Sew_Scr
 use eval_arrays, only: PSO, Scr
 use Molcas, only: lCache
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
-integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), IncVec, iPrim, iPrInc, iTmp1, j, jBas, jBsInc, &
-                     jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, la, lb, lBas, lBsInc, lc, lCmp, ld, &
-                     lPrim, lPrInc, lSize, mabcd, Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, &
-                     nabcd, nCache, nFac, nPam(4,0:7), nTmp1, nTmp2, nVec1, mijkl, nijkl, ipMem1, ipMem2, Mem1, Mem2, MemPrm
+integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), IncVec, ipMem1, ipMem2, iPrim, iPrInc, iTmp1, j, &
+                     jBas, jBsInc, jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, la, lb, lBas, lBsInc, lc, lCmp, &
+                     ld, lPrim, lPrInc, lSize, mabcd, Mem0, Mem1, Mem2, Mem3, MemAux, MemAux0, MemDeP, MemPrm, MemRys, MemScr, &
+                     MemSph, MemTrn, mijkl, nA2, nA3, nabcd, nCache, nFac, nijkl, nPam(4,0:7), nTmp1, nTmp2, nVec1
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 
 ! Compute memory request for the primitives, i.e.
-! how much memory is needed up to the transfer
-! equation.
+! how much memory is needed up to the transfer equation.
 
-iFnc(:)=0
+iFnc(:) = 0
 call MemRys_g(iSD4,nSD,MemPrm)
 
 ipMem1 = 1
@@ -129,7 +128,7 @@ do
 
   ! Memory for 2nd order density matrix in SO basis.
 
-  Mem1 = nijkl * nSO
+  Mem1 = nijkl*nSO
 
   ! Allocate memory for MO to SO/AO transformation
   ! of the 2nd order density matrix for this shell quadruplet.
@@ -336,7 +335,6 @@ iSD4(6,1) = iPrInc
 iSD4(6,2) = jPrInc
 iSD4(6,3) = kPrInc
 iSD4(6,4) = lPrInc
-
 
 PSO(1:nijkl,1:nSO) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
 Scr(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
