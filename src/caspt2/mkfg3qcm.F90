@@ -21,7 +21,7 @@ subroutine mkfg3qcm(mkF, nLev, G1, F1, G2, F2, G3, F3, idxG3, nG3)
    use gugx, only: SGS
    use caspt2_global, only: iPrGlb
    use caspt2_module, only: jState, EPSA
-   use definitions, only: wp, iwp, i1, u6
+   use definitions, only: wp, iwp, byte, u6
 
    implicit none
 
@@ -31,7 +31,7 @@ subroutine mkfg3qcm(mkF, nLev, G1, F1, G2, F2, G3, F3, idxG3, nG3)
    Real(kind=wp), intent(out) :: G1(nLev, nLev), G2(nLev, nLev, nLev, nLev)
    Real(kind=wp), intent(out) :: F1(nLev, nLev), F2(nLev, nLev, nLev, nLev)
    Real(kind=wp), intent(out) :: G3(nG3), F3(nG3)
-   Integer(kind=i1), intent(in) :: idxG3(6, nG3)
+   Integer(kind=byte), intent(in) :: idxG3(6, nG3)
    Real(kind=wp), allocatable :: G3tmp(:, :, :, :, :, :), TG3tmp(:, :, :, :, :, :)
    ! Real(kind=wp), allocatable :: G4(:,:,:,:,:)
    Integer(kind=iwp) :: t, u, v, w, x, y, z

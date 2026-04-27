@@ -15,11 +15,9 @@ subroutine mkampq(wrk,wrksize,a,ammap)
 use ccsort_global, only: lunda2, map2, mbas, NSYM, reclen
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, a, ammap(mbas,8,8)
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: iiv2, irec0, length, pos, symm, symp
 
 ! loops over symmetry combinations

@@ -15,7 +15,7 @@ subroutine BornMayerBK(iQ_Atoms,BoMaH,BoMaO)
 use qmstat_global, only: CharDi, CharDiQ, iPrint, QuaDi, QuaDiQ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iQ_Atoms
@@ -51,9 +51,9 @@ end do
 BoMaH(:) = One/(cjhr*(RBdiQ(:)+rbdi(1)))
 BoMaO(:) = One/(cjhr*(RBdiQ(:)+rbdi(2)))
 if (iPrint >= 8) then
-  write(6,*) '   Born-Mayer parameters.'
+  write(u6,*) '   Born-Mayer parameters.'
   do i=1,iQ_Atoms
-    write(6,'(A,i2,A,2(f12.4))') '    Atom ',i,' (H/O):',BoMaH(i),BoMaO(i)
+    write(u6,'(A,i2,A,2(f12.4))') '    Atom ',i,' (H/O):',BoMaH(i),BoMaO(i)
   end do
 end if
 call mma_deallocate(rBdiQ)

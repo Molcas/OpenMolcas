@@ -166,7 +166,7 @@ MEMX = max(MEMX-1*MEMX/6,0)
 call DecideOnCholesky(DoCholesky)
 if (DoCholesky) then
   MEMX = max(MEMX-MEMX/10,0)
-  write(6,*) 'Memx= ',MEMX
+  write(u6,*) 'Memx= ',MEMX
 end if
 
 call mma_allocate(W1,MEMX,Label='W1')

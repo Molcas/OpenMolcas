@@ -43,7 +43,7 @@ else
   do i=1,nstates_RGLR
     read(100,*)
     read(100,'(G20.12)') ERASSCF(i)
-    write(6,*) 'RASSCF energy',ERASSCF(i)
+    write(u6,*) 'RASSCF energy',ERASSCF(i)
   end do
   ! It is redundant
   doMCLR = .true.

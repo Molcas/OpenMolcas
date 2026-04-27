@@ -103,9 +103,9 @@ Alexander Gaenko
 Laura Gagliardi  
 Walter Gautschi  
 Giovanni Ghigo  
-Coen de Graaf  
 Joseph Golab  
 Gene H. Golub  
+Coen de Graaf  
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
@@ -173,8 +173,8 @@ Martin Schütz
 Thais Scott  
 Luis Seijo  
 Luis Serrano-Andrés  
-Kamal Sharkas  
 Grigory A. Shamov  
+Kamal Sharkas  
 Prachi Sharma  
 Per E. M. Siegbahn  
 Pär Söderhjelm  

@@ -352,9 +352,9 @@ Temp(:) = Zero
 call mma_allocate(ELEC,3*ndisp,Label='ELEC')
 ELEC(:) = Zero
 call mma_allocate(EG,3*ndisp,Label='EG')
-EG(:)=Zero
+EG(:) = Zero
 call mma_allocate(ELOUT,3*ndisp,Label='ELOUT')
-ELOUT(:)=Zero
+ELOUT(:) = Zero
 call ipclose(-1)
 
 !----------------------------------------------------------------------*
@@ -474,13 +474,13 @@ if (.true.) then
   iRC = -1
   iOpt = 0
   call mma_allocate(NrDisp,ndisp,Label='NrDisp')
-  NrDisp(:)=-1
+  NrDisp(:) = -1
   Label = 'NRCTDISP'
   call RdMck(irc,iopt,Label,idum,NrDisp,idum)
   iRC = -1
   iOpt = 0
   call mma_allocate(DegDisp,ndisp,Label='DegDisp')
-  degdisp(:)=0
+  degdisp(:) = 0
   Label = 'DegDisp'
   call RdMck(irc,iopt,Label,idum,DegDisp,idum)
   if (iRC /= 0) then

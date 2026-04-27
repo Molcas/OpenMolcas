@@ -266,8 +266,6 @@ end do  ! iNQ
 ! compute derivatives of the principal axis. Needed in order to
 ! compute the gradient of the rotationally invariant DFT energy.
 
-call mma_allocate(Pax,3,3,Label='Pax')
-
 if (Rotational_Invariance == On) then
   call mma_allocate(dOdx,3,3,nNQ,3,Label='dOdx')
   dOdx(:,:,:,:) = Zero

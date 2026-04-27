@@ -20,12 +20,9 @@ implicit none
 private
 
 integer(kind=iwp) :: nComp = 1, nOrdOp = 0
-logical(kind=iwp) :: Do_BP_integrals=.False.
-real(kind=wp) :: D_tensor(3,3)=Zero
-real(kind=wp), pointer :: PSO(:,:)=>Null(), PAO(:,:,:,:,:)=>Null()
+real(kind=wp) :: D_tensor(3,3) = Zero
+logical(kind=iwp) :: Do_BP_integrals = .false.
 
-public :: nComp, nOrdOp, Do_BP_integrals, D_tensor, PSO, PAO
-
+public :: D_tensor, Do_BP_integrals, nComp, nOrdOp
 
 end module Breit
-

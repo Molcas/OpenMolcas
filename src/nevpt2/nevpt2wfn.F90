@@ -40,7 +40,7 @@ subroutine nevpt2wfn_init(create_h5)
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_str, mh5_create_dset_real, mh5_put_dset, mh5_close_dset
   use caspt2_module, only: nBas, nBasT, nBSqT, nDel, nFro, nIsh, nRas1, nRas2, nRas3, nSsh, nSym, Root2State, STSym
-  use molcas, only: MxLev
+  use Molcas, only: MxLev
 # endif
 
   logical(kind=iwp), intent(in) :: create_h5

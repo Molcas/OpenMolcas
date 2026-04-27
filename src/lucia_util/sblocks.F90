@@ -72,20 +72,19 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSBLOCK, ISBLOCK(8,*), NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), NSMST, ICSM, NSSOA(NSMST,*), &
-                                 NSSOB(NSMST,*), NAEL, IAGRP, NBEL, IBGRP, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,*), MAXK, MAXI, NGAS, &
-                                 NELFSPGP(MXPNGAS,*), IDC, IDOH2, ISTRFL(*), LUC, ICJKAIB, MOCAA, IRESTRICT, &
+                                 NSSOB(NSMST,*), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,*), &
+                                 MAXK, MAXI, NGAS, NELFSPGP(MXPNGAS,*), IDC, IDOH2, ISTRFL(*), LUC, ICJKAIB, MOCAA, IRESTRICT, &
                                  ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB), IH0SPC(NOCTPA,NOCTPB), ICBAT_RES, ICBAT_INI, &
                                  ICBAT_END, IPHGAS(*), I_RES_AB
 real(kind=wp), intent(inout) :: CB(*), SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
 real(kind=wp), intent(_OUT_) :: C2(*), XINT(*), CSCR(*), SSCR(*), CJRES(*), SIRES(*), SCLFAC(*)
-integer(kind=iwp), intent(in) :: IOCTPA, IOCTPB
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: PS
 integer(kind=iwp), intent(_OUT_) :: LCBLOCK(*), LECBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*)
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1), INTERACT, IOFF, IPERM, IPTSPC, &
-                     ISBLK, ISCALE, ISOFF, JASM, JATP, JBLOCK, JBSM, JBTP, JCBAT_END, JCBAT_INI, JCBATCH, JJCBLOCK, JOFF, JPTSPC, &
-                     JSBLOCK, LASM(4), LATP(4), LBL, LBSM(4), LBTP(4), LLASM, LLATP, LLBSM, LLBTP, LSGN(5), LTRP(5), MXEXC, NASTR, &
-                     NBSTR, NCBATCH, NIA, NIB, NJA, NJB, NJBLOCK, NLLA, NLLB, NPERM
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1), INTERACT, IOFF, IPERM, IPTSPC, ISBLK, ISCALE, &
+                     ISOFF, JASM, JATP, JBLOCK, JBSM, JBTP, JCBAT_END, JCBAT_INI, JCBATCH, JJCBLOCK, JOFF, JPTSPC, JSBLOCK, &
+                     LASM(4), LATP(4), LBL, LBSM(4), LBTP(4), LLASM, LLATP, LLBSM, LLBTP, LSGN(5), LTRP(5), MXEXC, NASTR, NBSTR, &
+                     NCBATCH, NIA, NIB, NJA, NJB, NJBLOCK, NLLA, NLLB, NPERM
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IBLOCK, II
 #endif
@@ -265,7 +264,7 @@ do JCBATCH=JCBAT_INI,JCBAT_END
           ! Are the two blocks connected by allowed excitation
           call CON_BLOCKS(IATP,IBTP,LLATP,LLBTP,IASM,IBSM,LLASM,LLBSM,ICONSPA,ICONSPB,NOCTPA,NOCTPB,MXEXC,IH_OCC_CONS,INTERACT)
 
-          if ((INTERACT == 0)) cycle
+          if (INTERACT == 0) cycle
 
 #         ifdef _DEBUGPRINT_
           write(u6,*) ' Next s block in batch :'

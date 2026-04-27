@@ -23,11 +23,9 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: nDiag
-real(kind=wp), intent(_OUT_) :: Diag(nDiag)
+real(kind=wp), intent(out) :: Diag(nDiag)
 integer(kind=iwp) :: i, i1, i2, ID, iSAB, iShlA, iShlB, iSym, l_SewMem, NumAB
 real(kind=wp), allocatable :: Scr(:)
 

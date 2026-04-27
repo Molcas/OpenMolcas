@@ -17,11 +17,9 @@ subroutine addintabc1(wrk,wrksize,a,vint,ndimv)
 use ccsort_global, only: lunab, map3, nob, NORB, nvb
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, a, ndimv
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(out) :: wrk(wrksize)
 real(kind=wp), intent(in) :: vint(ndimv,ndimv,ndimv)
 integer(kind=iwp) :: b, bvint, length, p, pos, q
 

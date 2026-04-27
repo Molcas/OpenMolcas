@@ -12,10 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Rysg1(iAnga,nT,Alpha,Beta,Gmma,Delta, &
-                 Zeta,ZInv,nZeta,Eta,EInv,nEta, &
-                 P,lP,Q,lQ,Coori,Coora,CoorAC, &
-                 Array,nArray,Tvalue,ModU2_k,Cff2D_k,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
+subroutine Rysg1(iAnga,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray,Tvalue, &
+                 ModU2_k,Cff2D_k,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the gradient of the two-electron integrals.       *
@@ -49,7 +47,7 @@ procedure(cff2d_kernel) :: Cff2D_k
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp) :: iEta, Indx(3,4), iOff, ip, ip2D0, ip2D1, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipP, ipPAQP, ipQ, ipQCPQ, &
                      ipScr, ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iZeta, JndGrd(3,4), la, lab, labMax, lb, lB00, lB01, lB10, &
-                     lc, lcd, ld, lla, llb, llc, lld, lOp(4), mVec, n2D0, n2D1, nabMax, ncdMax, nTR, nRys
+                     lc, lcd, ld, lla, llb, llc, lld, lOp(4), mVec, n2D0, n2D1, nabMax, ncdMax, nRys, nTR
 real(kind=wp) :: Temp(9)
 logical(kind=iwp) :: JfGrad(3,4)
 
@@ -90,7 +88,7 @@ lcd = max(llc,lld)
 nabMax = la+lb+lab
 ncdMax = lc+ld+lcd
 
-nRys=(la+lb+lc+ld+2+1)/2
+nRys = (la+lb+lc+ld+2+1)/2
 
 ! Allocate memory for the integral gradients.
 

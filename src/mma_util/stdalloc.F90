@@ -319,7 +319,6 @@ end subroutine mma_maxBYTES
 
 #define _SUBR_NAME_ i4mma
 #define _TYPE_ integer(kind=int32)
-#define _DATA_NAME_ 'INTE'
 
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'i4mma_1D'
@@ -329,7 +328,6 @@ end subroutine mma_maxBYTES
 
 #undef _SUBR_NAME_
 #undef _TYPE_
-#undef _DATA_NAME_
 
 #endif
 

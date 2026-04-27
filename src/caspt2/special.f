@@ -35,7 +35,6 @@
       INTEGER(kind=byte), intent(Out) ::  idxG3(6,mG3)
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
-      INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
       real(kind=wp) ESUM, Occ, Val
       Integer(kind=iwp) :: I, ID, IG3, IND1, IND2, IND3, IT, IT1, IT2,
      &                     IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1,
@@ -151,12 +150,12 @@ C -D(T3,U1)*G2(T2,U2,T1,U3)
 
 C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
         iG3=iG3+1
-        idxG3(1,iG3)=INT(iT1,I1)
-        idxG3(2,iG3)=INT(iU1,I1)
-        idxG3(3,iG3)=INT(iT2,I1)
-        idxG3(4,iG3)=INT(iU2,I1)
-        idxG3(5,iG3)=INT(iT3,I1)
-        idxG3(6,iG3)=INT(iU3,I1)
+        idxG3(1,iG3)=INT(iT1,kind=byte)
+        idxG3(2,iG3)=INT(iU1,kind=byte)
+        idxG3(3,iG3)=INT(iT2,kind=byte)
+        idxG3(4,iG3)=INT(iU2,kind=byte)
+        idxG3(5,iG3)=INT(iT3,kind=byte)
+        idxG3(6,iG3)=INT(iU3,kind=byte)
         G3(iG3)=VAL
         F3(iG3)=(ESUM*OCC-ETA(LU1)-ETA(LU2)-ETA(LU3))*VAL
 

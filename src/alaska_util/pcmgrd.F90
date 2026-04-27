@@ -14,7 +14,7 @@
 subroutine PCMgrd( &
 #                 define _CALLING_
 #                 include "grd_interface.fh"
-                 )
+  )
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of nuclear attraction     *
@@ -37,9 +37,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, &
-                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, &
-                     nip, nStb
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, iStb(0:7), iTs, &
+                     iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nip, nStb
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
 procedure(cff2d_kernel) :: XCff2D

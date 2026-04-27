@@ -33,13 +33,11 @@ use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, jCmp, kCmp, lCmp, iShell(4), iAO(4), iAOst(4), jBas, kBas, lBas, kOp(4), nTInt, iOff(3), &
                                  nSO, iShlSO(nSO), nShell, nSym, nBasSh(0:nSym-1,nShell), iSOShl(nSO), iSSOff
 real(kind=wp), intent(in) :: AOint(ijkl,jCmp,kCmp,lCmp)
-real(kind=wp), intent(_OUT_) :: TInt(nTInt)
+real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: i2, i3, i4, iAux, iC, iD, iOff1, iShC, iSOs(4), jSOj, kl, kl_B, kSOk, lCmp_Max, lSOl, n3C, nC, nijkl
 logical(kind=iwp) :: Shkl
 

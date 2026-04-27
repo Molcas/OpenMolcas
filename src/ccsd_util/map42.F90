@@ -13,12 +13,10 @@ subroutine map42(a,b,dimp,dimq,dimr,dims,dim_1,dim_2,dim_3,dim_4,p,q,r,nfact)
 
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: dimp, dimq, dimr, dims, dim_1, dim_2, dim_3, dim_4, p, q, r, nfact
 real(kind=wp), intent(in) :: a(dimp,dimq,dimr,dims)
-real(kind=wp), intent(_OUT_) :: b(dim_1,dim_2,dim_3,dim_4)
+real(kind=wp), intent(out) :: b(dim_1,dim_2,dim_3,dim_4)
 integer(kind=iwp) :: pp, qq, rr, ss
 
 if (nfact == 1) then

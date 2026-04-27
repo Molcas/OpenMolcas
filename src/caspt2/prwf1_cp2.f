@@ -21,7 +21,7 @@
       use gugx, only: SGS, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM, ISPIN, PRSD
-      use molcas, only: MxLev
+      use Molcas, only: MxLev
       use definitions, only: iwp, wp, u6
       IMPLICIT None
       Integer(kind=iwp), Intent(In):: ISYCI, mCI,nMidV

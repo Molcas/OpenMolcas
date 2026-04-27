@@ -15,7 +15,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS, CIS, EXS
       use caspt2_module, only: NSYM,NASHT,ISCF,NACTEL,NCONF,IASYM
-      use molcas, only: MxLev
+      use Molcas, only: MxLev
       use caspt2_module, only: MxCI
       IMPLICIT NONE
 

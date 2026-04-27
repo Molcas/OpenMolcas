@@ -35,8 +35,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iComp, iDAO, iDCRT(0:7), iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, iuvwx(4), &
-                     iZeta, j, JndGrd(3,4), jpDAO, kCnt, kCnttp, kdc, lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, &
-                     nip
+                     iZeta, j, JndGrd(3,4), jpDAO, kCnt, kCnttp, kdc, lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, nip
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappab, rKappcd, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr

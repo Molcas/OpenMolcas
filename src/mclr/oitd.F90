@@ -23,8 +23,8 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: rK(*)
 integer(kind=iwp), intent(in) :: iSym
-real(kind=wp), intent(out) :: D(*)
-real(kind=wp), intent(_OUT_) :: Dtmp(nDens)
+real(kind=wp), intent(_OUT_) :: D(*)
+real(kind=wp), intent(out) :: Dtmp(nDens)
 logical(kind=iwp), intent(in) :: act
 integer(kind=iwp) :: iB, iS, jB, jS
 

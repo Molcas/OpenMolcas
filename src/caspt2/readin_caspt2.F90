@@ -758,7 +758,7 @@ contains
 
         ! NO MATCH FOUND, UNKOWN KEYWORD
 
-      case Default
+      case default
         call WarningMessage(2,'Unrecognized keyword: '//Command)
         call Quit_OnUserError()
 

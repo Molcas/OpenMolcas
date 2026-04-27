@@ -21,7 +21,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero, One, cZero, cOne
 use definitions, only: wp, iwp
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
-use definitions, only: r8
+use definitions, only: BLASR8
 #endif
 use sorting, only: sort, argsort
 use sorting_funcs, only: leq_i, leq_r, geq_r
@@ -164,7 +164,7 @@ subroutine mult_2D(A,B,C,transpA,transpB)
   ASSERT(K_1 == K_2)
   K = K_1
 
-  ASSERT(wp == r8)
+  ASSERT(wp == BLASR8)
   call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),M,N,K,One,A,size(A,1),B,size(B,1),Zero,C,size(C,1))
 end subroutine mult_2D
 
@@ -216,7 +216,7 @@ subroutine multZ_2D(A,B,C,transpA,transpB)
   ASSERT(K_1 == K_2)
   K = K_1
 
-  ASSERT(wp == r8)
+  ASSERT(wp == BLASR8)
   call zgemm_(merge('C','N',transpA_),merge('C','N',transpB_),M,N,K,cOne,A,size(A,1),B,size(B,1),cZero,C,size(C,1))
 end subroutine multZ_2D
 
@@ -251,7 +251,7 @@ subroutine mult_2D_1D(A,x,y,transpA)
   K = size(A,merge(2,1,.not. transpA_))
   ASSERT(M == size(x,1))
 
-  ASSERT(wp == r8)
+  ASSERT(wp == BLASR8)
   call dgemm_(merge('T','N',transpA_),'N',M,N,K,One,A,size(A,1),x,size(x,1),Zero,y,size(y,1))
 end subroutine mult_2D_1D
 

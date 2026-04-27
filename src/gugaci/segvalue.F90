@@ -707,7 +707,7 @@ mw = 0
 b = real(jbr,kind=wp)
 select case (ind1)
   case default ! (1)
-    !write(6,*) 'this is case c2'
+    !write(u6,*) 'this is case c2'
     w = One
     ww = One
   case (2)

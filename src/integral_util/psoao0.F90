@@ -41,42 +41,41 @@ subroutine PSOAO0(nSO,MemMax,DoFock,nSD,iSD4)
 use Index_Functions, only: nTri_Elem1, nTri3_Elem1
 use lw_Info, only: lwInt, lwSqn, lwSyb
 use Gateway_global, only: force_part_c, force_part_p
-use k2_arrays, only: Sew_Scr, DoGrad_
 use RICD_Info, only: Cholesky, Do_RI
+use k2_arrays, only: Sew_Scr, DoGrad_
 use Symmetry_Info, only: nIrrep
-use Breit, only: nComp, Do_BP_Integrals
-use Definitions, only: iwp, u6
-use Constants, only: Zero
-use eval_arrays, only: SOInt, AOInt, Scr, PSO, PAO
+use Breit, only: Do_BP_Integrals, nComp
 use Molcas, only: lCache
-
-use PSO_Stuff, only: lPSO, Gamma_On, nGamma, iFnc, MemPSO
+use eval_arrays, only: AOInt, PAO, PSO, Scr, SOInt
+use PSO_Stuff, only: Gamma_On, iFnc, lPSO, MemPSO, nGamma
 use SOAO_Info, only: iAOtSO
 use Sizes_of_Seward, only: S
-
+use Constants, only: Zero
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
 logical(kind=iwp), intent(in) :: DoFock
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
-integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBsInc, jCmp, jPrim, jPrInc, kBas, kBsInc, kCmp, &
-                     kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPack, lPrim, lPrInc, lSize, mab, mabcd, mabMax, &
-                     mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, &
-                     na3a, na3b, nab, nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, ipMem1, Mem1, ipMem2, Mem2, MemPrm
+integer(kind=iwp) :: i1, iAngV(4), iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFact, iiBas(4), IncVec, ipMem1, ipMem2, iPrim, iPrInc, &
+                     iTmp1, j, jBas, jBsInc, jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, &
+                     lBsInc, lc, lCmp, ld, lPack, lPrim, lPrInc, lSize, mab, mabcd, mabMax, mabMin, mcdMax, mcdMin, Mem0, Mem1, &
+                     Mem2, MemAux, MemAux0, MemCon, MemFck, MemPck, MemPr, MemPrm, MemScr, MemSp1, mijkl, na1a, na1b, na2a, na2b, &
+                     na3a, na3b, nab, nabcd, nCache_, ncd, ne, nf, nFac, nijkl, nPam(4,0:7), nTmp1, nTmp2, nVec1, nVec2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
+integer(kind=iwp), external :: MemTra
+
 ! Variable for the use for the optional handling of the 2-particle density matrix in PGet0 in the case of the computation
 ! of Breit-Pauli integrals.
-integer(kind=iwp) :: nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4), iAngV(4)
-integer(kind=iwp), external:: MemTra
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Compute memory request for the primitives, i.e.
 ! how much memory is needed up to the transfer equation.
-iAngV(:)=iSD4(1,:)
-call MemRys(iAngV(:),MemPrm)
+iAngV(:) = iSD4(1,:)
+call MemRys(iAngV,MemPrm)
 
-iFnc(:)=0
+iFnc(:) = 0
 
 ipMem1 = 1
 ipMem2 = 0
@@ -169,15 +168,16 @@ do
   ! Memory for SO block. If petite list format is used there
   ! will be no SO block.
 
-  If (Do_BP_Integrals .and. nIrrep>1) Then
-     ! Add block for PSO to be generated in PGET0
-     kSOInt = nSO*nijkl*(nComp+1)
-  Else If (Do_BP_Integrals .and. nIrrep==1) Then
-     ! Add block for PAO to be generated in PGET0
-     kSOInt = nSO*nijkl*nComp + nabcd*nijkl
-  Else
-  kSOInt = nSO*nijkl
-  End If
+  if (Do_BP_Integrals) then
+    ! Add block for PAO to be generated in PGET0
+    if (nIrrep == 1) then
+      kSOInt = nSO*nijkl*nComp+nabcd*nijkl
+    else
+      kSOInt = nSO*nijkl*(nComp+1)
+    end if
+  else
+    kSOInt = nSO*nijkl
+  end if
   Mem1 = iFact*kSOInt
   if (Mem1 == 0) Mem1 = 1
   if (nIrrep == 1) Mem1 = 1+(iFact-1)*nabcd*nijkl
@@ -204,9 +204,9 @@ do
   ! density matrix in is sufficiently large. Note that this code to a very large extent, of course, is identical to
   ! the code in PSOAO1. BE CAREFUL WHEN MODIFIED!
 
-  If (Do_BP_Integrals) Then
-  ! Allocate memory for MO to SO/AO transformation
-  ! of the 2nd order density matrix for this shell quadruplet.
+  if (Do_BP_Integrals) then
+    ! Allocate memory for MO to SO/AO transformation
+    ! of the 2nd order density matrix for this shell quadruplet.
 
     if (lPSO) then
       iiBas(1) = iBsInc
@@ -258,16 +258,16 @@ do
       cycle
     end if
 
-  Else
+  else
     MemAux0 = 0
-  End If
+  end if
   Mem0 = Mem0-Mem1-1
 
   ! Work2
 
   ! nGamma: temporary storage of bins as read from file.
 
-  If (Do_BP_Integrals) Then
+  if (Do_BP_Integrals) then
     if (Gamma_On) then
       iiBas(1) = iBas
       iiBas(2) = jBas
@@ -279,20 +279,18 @@ do
         nTmp1 = 0
         do j=0,nIrrep-1
           do i1=1,iCmpa(jPam)
-            if (iAOtSO(iAO(jPam)+i1,j) > 0) then
-              nTmp1 = nTmp1+iiBas(jPam)
-            end if
+            if (iAOtSO(iAO(jPam)+i1,j) > 0) nTmp1 = nTmp1+iiBas(jPam)
           end do
         end do
         nGamma = nGamma*nTmp1
       end do
     else
       nGamma = 0
-    endif
+    end if
 
   else
     nGamma = 0
-  endif
+  end if
 
   ! MemPr  : Scratch for Rys
 
@@ -395,7 +393,6 @@ do
   end if
   MemSp1 = (max(mabcd,nabcd)+mab*nf*nComp)*nijkl
 
-
   ! MemFck : Scratch for FckAcc.
 
   ! Memory to manupulate the 1-particle densities in FckAcc.
@@ -415,8 +412,7 @@ do
   else
     MemPck = 0
   end if
-  Mem2 = max(max(MemPr,MemCon,MemSp1)+MemAux,MemFck,MemPck, &
-                 nGamma+MemAux0) ! Stuff to accomodate PGet0
+  Mem2 = max(max(MemPr,MemCon,MemSp1)+MemAux,MemFck,MemPck,nGamma+MemAux0) ! Stuff to accomodate PGet0
   if (Mem2+1 > Mem0) then
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 Fail)
@@ -453,7 +449,6 @@ else
   lwSqN = 0
 end if
 
-
 iSD4(4,1) = iBsInc
 iSD4(4,2) = jBsInc
 iSD4(4,3) = kBsInc
@@ -467,20 +462,20 @@ iSD4(6,4) = lPrInc
 ! If BP-integrals are computed we need additional space to store the 2-particle density matrix. This
 ! was already accounted for above. Now we just set up the pointers to relize that.
 
-If (Do_BP_Integrals .and. nIrrep>1) Then
-   Mem1 = Mem1 - kSOInt
-   ipMem1 = ipMem1 + kSOInt
-   PSO(1:nijkl,1:nSO)=>Sew_Scr(1:kSOInt)
-   PSO(:,:)=Zero
-Else If (Do_BP_Integrals .and. nIrrep==1) Then
-   Mem1 = Mem1 - nabcd*nijkl
-   ipMem1 = ipMem1 + nabcd*nijkl
-   PAO(1:nijkl,1:iCmp,1:jCmp,1:kCmp,1:lCmp)=>Sew_Scr(1:nabcd*nijkl)
-   PAO(:,:,:,:,:)=Zero
-End If
-If (Do_BP_Integrals) Then
-   Scr(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
-End If
+if (Do_BP_Integrals) then
+  if (nIrrep == 1) then
+    Mem1 = Mem1-nabcd*nijkl
+    ipMem1 = ipMem1+nabcd*nijkl
+    PAO(1:nijkl,1:iCmp,1:jCmp,1:kCmp,1:lCmp) => Sew_Scr(1:nabcd*nijkl)
+    PAO(:,:,:,:,:) = Zero
+  else
+    Mem1 = Mem1-kSOInt
+    ipMem1 = ipMem1+kSOInt
+    PSO(1:nijkl,1:nSO) => Sew_Scr(1:kSOInt)
+    PSO(:,:) = Zero
+  end if
+  Scr(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
+end if
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
 AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 

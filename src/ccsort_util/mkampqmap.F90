@@ -19,9 +19,8 @@ use Definitions, only: iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(_OUT_) :: ammap(mbas,8,8)
+integer(kind=iwp), intent(out) :: ammap(mbas,8,8), rc
 integer(kind=iwp), intent(in) :: syma
-integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: a, irec, lengthmpq, nrecc, nrest, symam, symm, symp, symq
 
 rc = 0
