@@ -24,7 +24,7 @@ integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
 integer(kind=iwp) :: iAtom, k,l,kl
-real(kind=wp) :: Q_ll, Q_kk, Q_kl, mat(nOrb2Loc,nOrb2Loc)
+real(kind=wp) :: Q_ll, Q_kk, Q_kl, maxel
 
 Q_ll = Zero
 Q_kk = Zero
@@ -44,26 +44,41 @@ do k=1,nOrb2Loc-1
           !H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Four*Four*Q_kl**2
           H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Eight*Q_kl**2
       end do
+
       !write(u6,"(A,I5,I5,I5,3X,A,F18.8)") "k,l,kl = ",k,l,kl,"H_diag(kl)",H_diag(kl)
 !     Make sure that element has a negative value -- we are maximizing the target function
 !     Make sure that the element is not too small, this would yield a too large displacement.
+
+#     ifdef _FLIPSIGN_
       If (H_diag(kl)>0.0) Then
-!        Write (*,*) 'H_diag(k,l)=',H_diag(k,l)
+       !Write (u6,*) 'H_diag(kl)=',H_diag(kl)
         H_diag(kl)=-H_diag(kl)
       End If
+#     endif
+
+
       If (Abs(H_diag(kl))<1.0e-2_wp) Then
         !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
          H_diag(kl)=-1.0e-2_wp
       End If
+
    end do
 end do
+
+maxel = maxval(H_diag)
+if (maxel > 0.0) Then
+    !write(u6,*) "max(H_diag)",maxel
+    !call RecPrt("H_diag before","",H_diag,nOrb2Loc*(nOrb2Loc-1)/2,1)
+    H_diag(:) = H_diag(:)-maxel-1.0e-2_wp
+    !call RecPrt("H_diag after","",H_diag,nOrb2Loc*(nOrb2Loc-1)/2,1)
+end if
 
 
 if (Debug) then
     write(u6,*) ' '
     write(u6,*) 'In GetHdiag_PM'
     write(u6,*) '-------------'
-    call vec2upper_triag(mat,norb2loc,h_diag,(nOrb2Loc*(nOrb2Loc-1)/2),.false.)
+    call RecPrt("Hdiag","",H_diag,nOrb2Loc*(nOrb2Loc-1)/2,1)
     write(u6,*) ' '
 end if
 
