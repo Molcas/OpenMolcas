@@ -41,7 +41,7 @@ integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),unitary_mat(:,:), rotated_CMO(:,:),Hessian(:,:),hdiagvec(:),&
-                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumHessSymm(:,:),NumGrad(:)
+                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumGrad(:)
 real(kind=wp), External :: DDot_
 
 integer(kind=iwp) :: maxel,i, inpOptMeth
@@ -153,7 +153,6 @@ case(2,3,4,5)
     call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
-    call mma_allocate(NumHessSymm,fsdim, fsdim,Label ="NumHessSymm")
     call mma_allocate(NumGrad,fsdim,Label ="NumGrad")
 
     Hessian(:,:)=Zero
@@ -195,9 +194,7 @@ case (2,3,4,5)
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
     call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,.false.)
-    call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.false.)
     call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
-    write(u6,*) "diff norm", sqrt(DDot_(fsdim*2,NumHessSymm-Hessian,1,NumHessSymm-Hessian,1))
 end select
 
 
@@ -258,7 +255,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
-        call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.false.)
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
@@ -466,7 +462,6 @@ case(2,3,4,5)
     call mma_Deallocate(Disp)
     call mma_Deallocate(SearchDir)
     call mma_Deallocate(Hdiagvec)
-    call mma_Deallocate(NumHessSymm)
     call mma_Deallocate(NumGrad)
 case default
      write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
