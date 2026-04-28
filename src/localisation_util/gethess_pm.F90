@@ -14,7 +14,7 @@ subroutine GetHess_PM(nAtoms,nOrb2Loc,PA,Hessian)
 !
 ! Purpose: compute the full Hessian of the Pipek-Mezey functional w.r.t. elements of the kappa matrix
 
-use Constants, only: Zero,One,Two, Four, Eight
+use Constants, only: Zero,One,Two, Eight
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Debug
 
