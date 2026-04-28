@@ -672,6 +672,9 @@ substeps: do ii=1,NSUBSTEPS
 
   ! Persico-Granucci all in a THEN branch
 
+  ! Note: the 1/2 factor in the exponents corrects for an error in eq. 17 of doi:10.1063/1.2715585
+  ! (it should correct population instead of amplitudes)
+
   pg: if (decoherence) then
     EKIN = Etot-V(temproot,temproot)
     if (EKIN <= Zero) then
@@ -688,7 +691,7 @@ substeps: do ii=1,NSUBSTEPS
     do i=1,NSTATE
       do j=1,NSTATE
         if (i /= temproot .and. j /= temproot) then
-          Amatrix(i,j) = Amatrix(i,j)*exp(-(DT/NSUBSTEPS)/TAU(i))*exp(-(DT/NSUBSTEPS)/TAU(j))
+          Amatrix(i,j) = Amatrix(i,j)*exp(-Half*(DT/NSUBSTEPS)/TAU(i))*exp(-Half*(DT/NSUBSTEPS)/TAU(j))
         end if
       end do
     end do
@@ -706,9 +709,9 @@ substeps: do ii=1,NSUBSTEPS
     do i=1,NSTATE
       do j=1,NSTATE
         if (i /= temproot .and. j == temproot) then
-          Amatrix(i,j) = Amatrix(i,j)*exp(-(DT/NSUBSTEPS)/TAU(i))*sqrt(Amatrix(temproot,temproot)/ArelaxPrev)
+          Amatrix(i,j) = Amatrix(i,j)*exp(-Half*(DT/NSUBSTEPS)/TAU(i))*sqrt(Amatrix(temproot,temproot)/ArelaxPrev)
         else if (i == temproot .and. j /= temproot) then
-          Amatrix(i,j) = Amatrix(i,j)*exp(-(DT/NSUBSTEPS)/TAU(j))*sqrt(Amatrix(temproot,temproot)/ArelaxPrev)
+          Amatrix(i,j) = Amatrix(i,j)*exp(-Half*(DT/NSUBSTEPS)/TAU(j))*sqrt(Amatrix(temproot,temproot)/ArelaxPrev)
         end if
       end do
     end do
