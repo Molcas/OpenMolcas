@@ -197,9 +197,9 @@ case (2,3,4,5)
     call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,.false.)
     call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHessSymm,.false.)
     call GetHess_PM(nAtoms,nOrb2Loc,PA,Hessian)
-    call RecPrt("An. Hessian","",Hessian,fsdim,fsdim)
-    call RecPrt("Nu. Hessian","",NumHessSymm,fsdim,fsdim)
-    call RecPrt("Nu. Hessian - An. Hessian","",NumHessSymm-Hessian,fsdim,fsdim)
+    !call RecPrt("An. Hessian","",Hessian,fsdim,fsdim)
+   ! call RecPrt("Nu. Hessian","",NumHessSymm,fsdim,fsdim)
+   ! call RecPrt("Nu. Hessian - An. Hessian","",NumHessSymm-Hessian,fsdim,fsdim)
     write(u6,*) "diff norm", sqrt(DDot_(fsdim*2,NumHessSymm-Hessian,1,NumHessSymm-Hessian,1))
 end select
 

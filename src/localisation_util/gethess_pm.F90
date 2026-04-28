@@ -71,25 +71,27 @@ do a=1,nOrb2Loc-1
 
                 cd = cd + 1 ! compound index columns
 
-                do iAtom =1,nAtoms
-                    Q_aa=PA(a,a,iAtom)
-                    Q_bb=PA(b,b,iAtom)
-                    Q_cc=PA(c,c,iAtom)
-                    Q_dd=PA(d,d,iAtom)
+                if (cd >= ab) then
+                    do iAtom =1,nAtoms
+                        Q_aa=PA(a,a,iAtom)
+                        Q_bb=PA(b,b,iAtom)
+                        Q_cc=PA(c,c,iAtom)
+                        Q_dd=PA(d,d,iAtom)
 
-                    Q_ab=PA(a,b,iAtom)
-                    Q_ac=PA(a,c,iAtom)
-                    Q_ad=PA(a,d,iAtom)
-                    Q_bc=PA(b,c,iAtom)
-                    Q_bd=PA(b,d,iAtom)
+                        Q_ab=PA(a,b,iAtom)
+                        Q_ac=PA(a,c,iAtom)
+                        Q_ad=PA(a,d,iAtom)
+                        Q_bc=PA(b,c,iAtom)
+                        Q_bd=PA(b,d,iAtom)
 
-                    Hessian(ab,cd) = Hessian(ab,cd) + Eight * Q_ab * (d_ac*Q_ad - d_ad*Q_ac -d_bc*Q_bd + d_bd*Q_bc)
-                    Hessian(ab,cd) = Hessian(ab,cd) + Two * d_ac * Q_bd * (Two*Q_aa - Q_bb - Q_dd)
-                    Hessian(ab,cd) = Hessian(ab,cd) + Two * d_ad * Q_bc * (-Two*Q_aa + Q_bb + Q_cc)
-                    Hessian(ab,cd) = Hessian(ab,cd) + Two * d_bc * Q_ad * (-Two*Q_bb + Q_aa + Q_dd)
-                    Hessian(ab,cd) = Hessian(ab,cd) + Two * d_bd * Q_ac * (Two*Q_bb - Q_aa - Q_cc)
-                end do
-
+                        Hessian(ab,cd) = Hessian(ab,cd) + Eight * Q_ab * (d_ac*Q_ad - d_ad*Q_ac -d_bc*Q_bd + d_bd*Q_bc)
+                        Hessian(ab,cd) = Hessian(ab,cd) + Two * d_ac * Q_bd * (Two*Q_aa - Q_bb - Q_dd)
+                        Hessian(ab,cd) = Hessian(ab,cd) + Two * d_ad * Q_bc * (-Two*Q_aa + Q_bb + Q_cc)
+                        Hessian(ab,cd) = Hessian(ab,cd) + Two * d_bc * Q_ad * (-Two*Q_bb + Q_aa + Q_dd)
+                        Hessian(ab,cd) = Hessian(ab,cd) + Two * d_bd * Q_ac * (Two*Q_bb - Q_aa - Q_cc)
+                    end do
+                end if
+                Hessian(cd,ab) = Hessian(ab,cd)
                 !write(u6,"(A,4(I2),4X,A,2(I4))") "a,b,c,d=",a,b,c,d, "ab,cd=",ab,cd
             end do
         end do
