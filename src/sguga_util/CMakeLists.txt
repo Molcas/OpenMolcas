@@ -14,6 +14,7 @@ set (sources
      sguga.F90
      sguga_free.F90
      sginit.F90
+     sginit_cp2.F90
      sgprint.F90
      epq_psi.F90
 )
