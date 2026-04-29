@@ -12,6 +12,7 @@
 set (sources
      cxinit.F90
      gugactl.F90
+     guganew.F90
      mkclist.F90
      mkcot.F90
      mkcoup.F90

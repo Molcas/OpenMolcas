@@ -12,7 +12,10 @@
 !               Markus P. Fuelscher                                    *
 !***********************************************************************
 
-subroutine GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,STSYM,DoblockDMRG)
+subroutine GUGACTL(nSym,nActEl,iSpin,                         &
+                  SGS,CIS,EXS,                                &
+                  nHole1,nElec3,nRs1,nRs2,nRs3,               &
+                  STSYM,DoblockDMRG)
 ! PURPOSE: CONTROL ROUTINE TO SET UP GUGA TABLES
 ! AUTHOR:  P.-AA. MALMQVIST
 !
