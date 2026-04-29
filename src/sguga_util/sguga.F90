@@ -50,7 +50,7 @@ integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
 
-public :: SGINIT, MKSGUGA
+public :: SGINIT, MKSGUGA, SGINIT_CP2
 
 contains
 
@@ -624,4 +624,72 @@ call mma_deallocate(SGS%RAW)
 call mma_deallocate(SGS%DAW)
 
 end subroutine SGInit
+
+      SUBROUTINE SGINIT_CP2(nSym,nActEl,iSpin,                    &
+                            SGS,CIS,EXS,                          &
+                            nHole1,nEle3,nRas1T,nRas2T,nRas3T)
+      IMPLICIT None
+      Integer(kind=iwp), intent(in):: nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T
+      Type(SGStruct), intent(inout):: SGS
+      Type(CIStruct), intent(inout):: CIS
+      Type(EXStruct), intent(inout):: EXS
+
+      SGS%nSym=nSym
+      SGS%iSpin=iSpin
+      SGS%nActEl=nActEl
+
+      SGS%LV1RAS=NRAS1T
+      SGS%LV3RAS=nRas1T+NRAS2T
+      SGS%LM1RAS=2*nRas1T-NHOLE1
+      SGS%LM3RAS=NACTEL-NELE3
+      IF ((NRAS1T+NRAS3T)/=0) Then
+         SGS%IFRAS=1
+      Else
+         SGS%IFRAS=0
+      End If
+
+      Call MkSGUGA(SGS,CIS)
+
+!     FORM VARIOUS OFFSET TABLES:
+!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+!
+      CALL MKCOT(SGS,CIS)
+!
+!     CONSTRUCT THE CASE LIST
+!
+      Call MKCLIST(SGS,CIS)
+
+! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
+
+      CALL MKMAW(SGS)
+
+! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
+
+! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
+
+      CALL MKSEG(SGS,CIS,EXS)
+
+! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
+
+      CALL NRCOUP(SGS,CIS,EXS)
+
+      CALL MKCOUP(SGS,CIS,EXS)
+
+
+      Call mma_deallocate(CIS%ISGM)
+      Call mma_deallocate(CIS%VSGM)
+      Call mma_deallocate(CIS%IVR)
+
+      Call mma_deallocate(SGS%MAW)
+
+      CALL mma_deallocate(SGS%DRT)
+      Call mma_deallocate(SGS%DOWN)
+      CALL mma_deallocate(SGS%DAW)
+      CALL mma_deallocate(SGS%UP)
+      CALL mma_deallocate(SGS%RAW)
+      Call mma_deallocate(SGS%LTV)
+
+      END SUBROUTINE SGINIT_CP2
+
 end module SGUGA
