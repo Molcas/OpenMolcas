@@ -629,27 +629,31 @@ end subroutine SGInit
                             SGS,CIS,EXS,                          &
                             nHole1,nEle3,nRas1T,nRas2T,nRas3T)
       IMPLICIT None
-      Integer(kind=iwp), intent(in):: nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T
+      Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
       Type(SGStruct), intent(inout):: SGS
       Type(CIStruct), intent(inout):: CIS
-      Type(EXStruct), intent(inout):: EXS
+      Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRas1T,nRas2T,nRas3T
+      Type(EXStruct),  optional, intent(inout):: EXS
 
       SGS%nSym=nSym
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
 
-      SGS%LV1RAS=NRAS1T
-      SGS%LV3RAS=nRas1T+NRAS2T
-      SGS%LM1RAS=2*nRas1T-NHOLE1
-      SGS%LM3RAS=NACTEL-NELE3
-      IF ((NRAS1T+NRAS3T)/=0) Then
-         SGS%IFRAS=1
-      Else
-         SGS%IFRAS=0
-      End If
+      If (Present(EXS)) THEN
+         SGS%LV1RAS=NRAS1T
+         SGS%LV3RAS=nRas1T+NRAS2T
+         SGS%LM1RAS=2*nRas1T-NHOLE1
+         SGS%LM3RAS=NACTEL-NELE3
+         IF ((NRAS1T+NRAS3T)/=0) Then
+            SGS%IFRAS=1
+         Else
+            SGS%IFRAS=0
+         End If
+      End IF
 
       Call MkSGUGA(SGS,CIS)
 
+      If (Present(EXS)) THEN
 !     FORM VARIOUS OFFSET TABLES:
 !     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
 !           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
@@ -659,11 +663,13 @@ end subroutine SGInit
 !     CONSTRUCT THE CASE LIST
 !
       Call MKCLIST(SGS,CIS)
+      End IF
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
       CALL MKMAW(SGS)
 
+      If (Present(EXS)) THEN
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
@@ -675,20 +681,23 @@ end subroutine SGInit
       CALL NRCOUP(SGS,CIS,EXS)
 
       CALL MKCOUP(SGS,CIS,EXS)
+      End If
 
-
-      Call mma_deallocate(CIS%ISGM)
-      Call mma_deallocate(CIS%VSGM)
-      Call mma_deallocate(CIS%IVR)
-
-      Call mma_deallocate(SGS%MAW)
-
-      CALL mma_deallocate(SGS%DRT)
-      Call mma_deallocate(SGS%DOWN)
       CALL mma_deallocate(SGS%DAW)
-      CALL mma_deallocate(SGS%UP)
       CALL mma_deallocate(SGS%RAW)
-      Call mma_deallocate(SGS%LTV)
+
+      If (Present(EXS)) THEN
+         Call mma_deallocate(CIS%ISGM)
+         Call mma_deallocate(CIS%VSGM)
+         Call mma_deallocate(CIS%IVR)
+
+         Call mma_deallocate(SGS%MAW)
+
+         CALL mma_deallocate(SGS%DRT)
+         Call mma_deallocate(SGS%DOWN)
+         CALL mma_deallocate(SGS%UP)
+         Call mma_deallocate(SGS%LTV)
+      End If
 
       END SUBROUTINE SGINIT_CP2
 
