@@ -76,7 +76,6 @@ set (sources
      mkclist.F90
      mkcot.F90
      mkcoup.F90
-     mkguga_mod.F90
      mkmaw.F90
      mknsm.F90
      mkseg.F90
@@ -132,8 +131,9 @@ set (modfile_list
      caspt2_module.F90
      csfbas.F90
      dmrginfo.F90
+     fciqmc_interface.F90
+     gas_data.F90
      general_data.F90
-     mkguga_mod.F90
      input_mclr.F90
      rasdim.F90
      rasscf_global.F90
