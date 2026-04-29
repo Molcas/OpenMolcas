@@ -625,7 +625,7 @@ def run_molcas(filename, CSF_stepvec, debug=False, sleep_interval=0.5, manual_mo
         input_file = f"{filename}.inp"
 
         # Run MOLCAS command
-        cmd = [molcas_exe, "-nt", "1", "-np", "1", "-b", "1", "-f", input_file]
+        cmd = [molcas_exe, "--not-here", "-nt", "1", "-np", "1", "-b", "1", "-f", input_file]
 
         print(f"Running MOLCAS with input file: {input_file}", flush=True)
         print(f"Command: {' '.join(cmd)}", flush=True)
