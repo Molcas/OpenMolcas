@@ -37,7 +37,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
-integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym
+integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym, iMode
 logical(kind=iwp) :: CI
 character(len=8) :: Label
 real(kind=wp), allocatable :: CIp1(:,:), Kap1(:), Kap2(:), Kap3(:)
@@ -109,18 +109,14 @@ do iSym=1,nSym
     if (btest(kprint,3)) write(u6,*) 'Perturbation ',ipert
 
     if (Timedep .and. CI) then
-      call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIp1(:,2),0,pstate_sym,State_Sym)
-      NCSF(1:nSym) = CIS%NCSF(1:nSym)
-      NCONF = CIS%NCSF(pstate_Sym)
-      call SGUGA_Free(SGS,CIS,EXS)
+      iMode=0
+      Call SG2SymG(CIp1(:,2),SIZE(CIp1,1),iMode,pState_Sym)
       CIp1(:,2) = -CIp1(:,2)
     end if
 
     if (CI) then
-      call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIp1(:,1),0,pstate_sym,State_Sym)
-      NCSF(1:nSym) = CIS%NCSF(1:nSym)
-      NCONF = CIS%NCSF(pstate_Sym)
-      call SGUGA_Free(SGS,CIS,EXS)
+      iMode=0
+      Call SG2SymG(CIp1(:,1),SIZE(CIp1,1),iMode,pState_Sym)
     end if
     if (Timedep) then
       if (CI) then

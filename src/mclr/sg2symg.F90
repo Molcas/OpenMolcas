@@ -22,7 +22,7 @@ real(kind=wp), intent(inout) :: CI(lCI)
 
 call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CI,imode,pState_Sym,State_Sym)
 NCSF(1:nSym) = CIS%NCSF(1:nSym)
-NCONF        = CIS%NCSF(State_Sym)
+NCONF        = CIS%NCSF(pState_Sym)
 call SGUGA_Free(SGS,CIS,EXS)
 
 end subroutine sg2symg
