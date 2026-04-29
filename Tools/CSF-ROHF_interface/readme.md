@@ -25,6 +25,8 @@ All files used in this tutorial are located in `example/SSG-CSF-ROHF_tutorial`.
 We begin with a set of localized and sorted high-spin ROHF orbitals `Fe2S2.SortOrb`.
 The Fe 3d orbitals are site-separated: the first five orbitals belong to Fe 1 and
 the last five orbitals belong to Fe 2.
+Step 3 for PT2-RDMs generation is done with the SSG implementation [2] in NECI and
+the other steps are donw with OpenMolccas.
 
 #### Step 1: CSF-ROHF Orbital Optimization  
 Directory: `1_CSF-ROHF/`
@@ -35,14 +37,16 @@ python ../../../src/runmolcas.py Fe2S2 1 1 1 1 1 2 2 2 2 2
 ```
 `Fe2S2` is the input file name without extension.
 The integers define the step-vector elements of the target CSF (|uuuuu ddddd>).
-This command executes an OpenMolcas calculation via the Python interface.
-For subsequent steps (2 and 4), use the optimized orbitals from the final iteration before
+This command executes an OpenMolcas calculation via the Python interface and
+it produces single-CSF-SCF variationally optimized orbitals.
+For subsequent steps (2 and 4), we use the optimized orbitals from the final iteration before
 canonicalization (`Fe2S2.IterOrb.25`).
 
 #### Step 2: FCIDUMP Generation
 Directory: `2_dumpgen/`
 
 Run an OpenMolcas calculation using `Fe2S2.inp`.
+The integral file is fed into NECI for PT2-RDM generation (step 3).
 
 #### Step 3: PT2-RDM Generation
 Directory: `3_RDMgen/`
@@ -66,13 +70,21 @@ The energy is found in Table 3 of Reference [1].
 
 > **Note:** The Python script supplies a fake energy to OpenMolcas to allow the iteration to proceed when the `-u` flag is used. This value appears in the output but should not be used for analysis.
 
-
 ### Other Example
 Go to `example/` and `$ python ../src/runmolcas.py N2 1 1 1 2 2 2`.
 `N2` is the Molcas input filenmae without extension, `1 1 1 2 2 2` is the CSF
 you use for the ROHF optimization in the step-vector format.
 This executes Molcas with `N2.inp` and feed RDMs and the RDM energy to Molcas
 for every RASSCF iteration.
+
+### Output
+The python interface creates additional output files:
+- `.pylog` logs the input parameters and the activites the interface does during the SCF iterations.
+- `.iterdata` contains only the SCF iteration data of the calculation, as the OpenMolcas output contains additional information when
+external RDMs are used (e.g., "echo $your_RDM_Energy ..." in between every iteration).
+
+> **Note:** For SSG-CSF-ROHF calculations (Step 4 of the tutorial above), please only use `RASSCF_energy` (5th column) for the energy of the calculation.
+`RDM_Energy` (last column) prints fake energies fed into OpenMolcas just to proceed iterations with the external RDM mode.
 
 ### References
 - [1] Maru Song, Luca Bonfirraro, Ignacio Fdez. Galván, Roland Lindh, and Giovanni Li Manni,
