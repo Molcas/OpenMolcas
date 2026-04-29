@@ -18,8 +18,7 @@ subroutine GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,ST
 !
 ! MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 
-use sguga, only: CIStruct, EXStruct, SGStruct
-use MkGUGA_mod, only: MKGUGA
+use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -67,7 +66,7 @@ end if
 
 ! INITIALIZE GUGA TABLES:
 
-call MKGUGA(SGS,CIS)
+Call MkSGUGA(SGS,CIS)
 
 if (SGS%NVERT0 == 0) then
   CIS%NCSF(STSYM) = 0

@@ -10,7 +10,6 @@
 #***********************************************************************
 
 set (sources
-     mkguga_mod.F90
      sgprwf.F90
      sguga.F90
      sguga_free.F90
@@ -21,7 +20,6 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     mkguga_mod.F90
      sguga.F90
 )
 

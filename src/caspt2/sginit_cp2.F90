@@ -19,8 +19,7 @@
 !--------------------------------------------*
       SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS)
       use stdalloc, only: mma_deallocate
-      use sguga, only: SGStruct, CIStruct, EXStruct
-      use MkGUGA_mod, only: MKGUGA
+      use sguga, only: SGStruct, CIStruct, EXStruct, MkSGUGA
       use definitions, only: iwp
       IMPLICIT None
       Integer(kind=iwp), intent(in):: nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T
@@ -46,7 +45,7 @@
          IFRAS=0
       End If
 
-      CALL MKGUGA(SGS,CIS)
+      Call MkSGUGA(SGS,CIS)
 
 !     FORM VARIOUS OFFSET TABLES:
 !     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED

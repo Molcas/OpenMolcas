@@ -13,8 +13,7 @@
 subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIL,imode,ksym,State_Sym)
 
 use Str_Info, only: CFTP, CNSM
-use sguga, only: CIStruct, EXStruct, SGStruct
-use MkGUGA_mod, only: MKGUGA
+use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -59,7 +58,7 @@ do IS=1,NSYM
   if ((SGS%IFRAS /= 0) .and. (nRs2(IS) /= 0)) SGS%IFRAS = SGS%IFRAS+1
 end do
 
-call mkGUGA(SGS,CIS)
+Call MkSGUGA(SGS,CIS)
 
 ! PURPOSE: FREE THE GUGA TABLES
 ! FORM VARIOUS OFFSET TABLES:

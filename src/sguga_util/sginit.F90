@@ -11,8 +11,7 @@
 
 subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
 
-use sguga, only: CIStruct, SGStruct
-use MkGUGA_mod, only: MKGUGA
+use sguga, only: CIStruct, SGStruct, MkSGUGA
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
@@ -25,7 +24,7 @@ SGS%nSym = nSym
 SGS%iSpin = iSpin
 SGS%nActEl = nActEl
 
-call MkGuga(SGS,CIS)
+Call MkSGUGA(SGS,CIS)
 
 ! Modified Arc Weights table:
 call MKMAW(SGS)
