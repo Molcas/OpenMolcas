@@ -50,9 +50,7 @@ integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
 
-! This module contains a single function, to avoid explicit interfaces
-
-public :: MKSGUGA
+public :: SGINIT, MKSGUGA
 
 contains
 
@@ -605,4 +603,25 @@ contains
 
 end subroutine MKSGUGA
 
+subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
+
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
+
+SGS%nSym = nSym
+SGS%iSpin = iSpin
+SGS%nActEl = nActEl
+
+Call MkSGUGA(SGS,CIS)
+
+! Modified Arc Weights table:
+call MKMAW(SGS)
+
+! The DAW, RAW tables are no longer needed:
+call mma_deallocate(SGS%RAW)
+call mma_deallocate(SGS%DAW)
+
+end subroutine SGInit
 end module SGUGA
