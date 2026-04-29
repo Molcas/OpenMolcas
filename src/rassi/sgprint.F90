@@ -11,7 +11,7 @@
 
 subroutine SGPrint(SGS)
 
-use gugx, only: SGStruct
+use sguga, only: SGStruct
 use Definitions, only: iwp, u6
 
 implicit none

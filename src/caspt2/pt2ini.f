@@ -175,7 +175,7 @@ C Initialize sizes, offsets etc used in equation solver.
       USE INPUTDATA, ONLY: CLEANUP_INPUT
       USE SUPERINDEX, ONLY: SUPFREE
       use PT2WFN, ONLY: PT2WFN_CLOSE
-      use gugx, only: SGS, CIS, EXS
+      use sguga, only: SGS, CIS, EXS
       use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX,
      &                         DWGT, CMOPT2, TAT, TORB, IDSCT, Weight,
      &                         IDCIEX, IDTCEX

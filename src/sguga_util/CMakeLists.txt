@@ -12,7 +12,7 @@
 set (sources
      sgprwf.F90
      sguga.F90
-     sigma1.F90
+     epq_psi.F90
 )
 
 # Source files defining modules that should be available to other *_util directories

@@ -11,7 +11,7 @@
 
 subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS,nLev,nMidV)
 
-use gugx, only: CIS, SGS
+use sguga, only: CIS, SGS
 use general_data, only: NSYM
 use Definitions, only: iwp
 

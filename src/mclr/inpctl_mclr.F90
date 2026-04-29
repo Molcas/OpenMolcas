@@ -22,7 +22,7 @@ subroutine InpCtl_MCLR(iPL)
 
 use Str_Info, only: DTOC
 use ipPage, only: ipget, ipin, ipout, ipopen, W
-use gugx, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS
 use MCLR_Data, only: ipCI, ISTATE, LuPT2, nGP, SA
 use MCLR_procedures, only: RdJobIph, RdJobIph_td
 use input_mclr, only: iMCPD, iMethod, iRoot, iSpin, nActEl, nConf, nCSF, nDisp, nElec3, nHole1, nRoots, nRS1, nRS2, nRS3, nSym, &

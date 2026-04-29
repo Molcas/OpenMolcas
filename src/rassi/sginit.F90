@@ -11,7 +11,7 @@
 
 subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
 
-use gugx, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct
 use MkGUGA_mod, only: MKGUGA
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp

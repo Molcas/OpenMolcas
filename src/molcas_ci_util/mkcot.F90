@@ -18,7 +18,7 @@ subroutine MKCOT(SGS,CIS)
 !          THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
 
 use Symmetry_Info, only: Mul
-use gugx, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

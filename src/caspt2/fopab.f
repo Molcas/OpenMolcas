@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
       use constants, only: Zero, One, Two
-      use gugx, only: SGS, L2ACT, EXS, CIS
+      use sguga, only: SGS, L2ACT, EXS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM,NORB,NISH,ISCF,NCONF,STSYM,NASH,
@@ -137,7 +137,7 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0e-16_wp) CYCLE
-          CALL SIGMA1(SGS,CIS,EXS,
+          CALL EPQ_PSI(SGS,CIS,EXS,
      &                LEVT,LEVU,FTU,STSYM,KET,SGM)
         END DO
       END DO
@@ -182,7 +182,7 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0E-16_wp) CYCLE
-          CALL SIGMA1(SGS,CIS,EXS,
+          CALL EPQ_PSI(SGS,CIS,EXS,
      &                LEVT,LEVU,FTU,STSYM,BRA,SGM)
         END DO
       END DO

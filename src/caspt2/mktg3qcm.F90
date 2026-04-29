@@ -20,7 +20,7 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
   use definitions, only: wp, iwp, u6
   use caspt2_global, only: iPrGlb
   use printLevel, only: debug
-  use gugx, only: SGS
+  use sguga, only: SGS
   use caspt2_module, only: nAshT
 
   implicit none
@@ -112,7 +112,7 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
             ! if (v + (x - 1) * nasht  < t + (u - 1) * nasht) then
             !   cycle
             ! end if
-              ! symmetry of sigma1 = <Psi1|E_tu
+              ! symmetry of EPQ_PSI = <Psi1|E_tu
               sym_sig1 = Mul(Mul(SGS%ism(t), SGS%ism(u)), lsym1)
               ! only for for matching symmetries we have an element different from 0
               if (sym_sig1 == sym_tau) then

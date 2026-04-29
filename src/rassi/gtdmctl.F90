@@ -14,7 +14,7 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG

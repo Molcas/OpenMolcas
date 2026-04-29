@@ -44,7 +44,7 @@ subroutine MKCOUP(SGS,CIS,EXS)
 ! These indices are used to denote the columns of table ISGPTH.
 
 use Symmetry_Info, only: Mul
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct
 use segtab, only: IBVPT, IC1, IC2, ITVPT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One

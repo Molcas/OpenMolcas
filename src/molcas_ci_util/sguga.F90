@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module GUGX
+module SGUGA
 
 use Molcas, only: MxLev
 use Definitions, only: wp, iwp
@@ -48,4 +48,4 @@ integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
 
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
-end module GUGX
+end module SGUGA

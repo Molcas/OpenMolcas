@@ -12,7 +12,7 @@
 subroutine RMVERT(SGS)
 ! Purpose: Remove vertices from a DRT table.
 
-use gugx, only: SGStruct
+use sguga, only: SGStruct
 use RasDef, only: nRas, nRsPrt, nRasEl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6

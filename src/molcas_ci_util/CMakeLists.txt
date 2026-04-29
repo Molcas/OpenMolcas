@@ -58,7 +58,6 @@ set (sources
      geth2a.F90
      getstepvector.F90
      gugactl.F90
-     gugx.F90
      hcsce.F90
      ini_david.F90
      init_lex.F90
@@ -114,8 +113,6 @@ set (sources
      second_quantization.F90
      segtab.F90
      setsxci.F90
-     sgprwf.F90
-     sigma1.F90
      sigmadet_cvb.F90
      simplify.F90
      sort_cdet.F90
@@ -137,7 +134,6 @@ set (modfile_list
      csfbas.F90
      dmrginfo.F90
      general_data.F90
-     gugx.F90
      input_mclr.F90
      rasdim.F90
      rasscf_global.F90

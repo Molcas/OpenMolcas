@@ -72,7 +72,7 @@ use rctfld_module, only: lRF
 use lucia_data, only: CFTP, DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 use wadr, only: FMO
-use gugx, only: CIS, SGS
+use sguga, only: CIS, SGS
 use sxci, only: IDXSX
 use gas_data, only: iDoGAS
 use input_ras, only: Key

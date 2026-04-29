@@ -12,7 +12,7 @@
 subroutine RESTR(SGS)
 ! PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY CREATING A MASK
 
-use gugx, only: SGStruct
+use sguga, only: SGStruct
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

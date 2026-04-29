@@ -69,7 +69,7 @@ use UnixInfo, only: ProgName
 use rctfld_module, only: lRF
 use Lucia_Interface, only: Lucia_Util
 use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FockOcc, OccN, PA, PMAT, TUVX
-use gugx, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS
 use gas_data, only: iDOGAS
 use input_ras, only: Key, LuInput
 use raswfn, only: cre_raswfn, Wfn_FileID

@@ -29,7 +29,7 @@ subroutine MKGUGA(SGS,CIS)
 !          THE START ADDRESSES OF OF THE ARRAYS ETC. ARE STORED IN
 !          THREE USER DEFINED TYPES. Consult the gugx module for the details.
 
-  use gugx, only: CIStruct, SGStruct
+  use sguga, only: CIStruct, SGStruct
 
   type(SGStruct), target, intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
@@ -145,7 +145,7 @@ contains
 
   subroutine MKISM_RASSI()
 
-    use gugx, only: LEVEL
+    use sguga, only: LEVEL
     use rassi_data, only: NASH, NASHT
 
     integer(kind=iwp) :: ITABS, ISYM, IT, ILEV, nSym
@@ -168,7 +168,7 @@ contains
   subroutine mkism_cp2()
 
     use fciqmc_interface, only: DoFCIQMC
-    use gugx, only: L2ACT, LEVEL
+    use sguga, only: L2ACT, LEVEL
     use caspt2_module, only: DoCumulant, nAsh, nAshT, nSym
 
     integer(kind=iwp) :: ILEV, iq, ISYM, IT, ITABS, nLev
@@ -200,7 +200,7 @@ contains
   subroutine MKNSM()
   ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
 
-    use gugx, only: SGS
+    use sguga, only: SGS
     use gas_data, only: NGAS, NGSSH
     use rasscf_global, only: NSM
     use general_data, only: NSYM

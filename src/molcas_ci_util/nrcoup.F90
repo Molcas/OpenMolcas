@@ -20,7 +20,7 @@
 subroutine NRCOUP(SGS,CIS,EXS)
 
 use Symmetry_Info, only: Mul
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct
 use segtab, only: IBVPT, IC1, ITVPT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp

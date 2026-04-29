@@ -12,7 +12,7 @@
 subroutine MKGUGA_FREE(SGS,CIS,EXS)
 ! PURPOSE: FREE THE GUGA TABLES
 
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct
 use stdalloc, only: mma_deallocate
 
 #include "intent.fh"

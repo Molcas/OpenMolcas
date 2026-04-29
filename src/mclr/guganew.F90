@@ -13,7 +13,7 @@
 subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIL,imode,ksym,State_Sym)
 
 use Str_Info, only: CFTP, CNSM
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct
 use MkGUGA_mod, only: MKGUGA
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

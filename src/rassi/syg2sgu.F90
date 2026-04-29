@@ -18,7 +18,7 @@ subroutine SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW)
 ! CIOLD and CINEW are obvious.
 
 use rassi_aux, only: ipglob
-use gugx, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct
 use Molcas, only: MxLev
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One

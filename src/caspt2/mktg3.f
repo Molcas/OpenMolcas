@@ -12,7 +12,7 @@
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, One, Two
-      use gugx, only: EXS, SGS,L2ACT, CIS
+      use sguga, only: EXS, SGS,L2ACT, CIS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use caspt2_module, only: NASHT, ISCF, NACTEL, IASYM
 #ifdef _MOLCAS_MPP_
@@ -177,7 +177,7 @@ C Translate to levels in the SGUGA coupling order:
         ISSG2=Mul(Mul(IYS,IZS),LSYM2)
         CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
-        CALL SIGMA1(SGS,CIS,EXS,
+        CALL EPQ_PSI(SGS,CIS,EXS,
      &              IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,TG3WRK(LTO),1)
@@ -199,7 +199,7 @@ C Translate to levels:
          IUS=IASYM(IU)
          ISSG1=Mul(Mul(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
-         CALL SIGMA1(SGS,CIS,EXS,
+         CALL EPQ_PSI(SGS,CIS,EXS,
      &               IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
          LTO=LTO+MXCI
         END DO
@@ -232,7 +232,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           NTAU=CIS%NCSF(ISTAU)
           CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
-          CALL SIGMA1(SGS,CIS,EXS,
+          CALL EPQ_PSI(SGS,CIS,EXS,
      &                IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)

@@ -17,7 +17,7 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-subroutine SIGMA1(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM)
+subroutine EPQ_PSI(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM)
 
 use Symmetry_Info, only: Mul
 use sguga, only: CIStruct, EXStruct, SGStruct
@@ -473,4 +473,4 @@ subroutine DEX2(CPQ,NDWN,NUPA,A,NUPB,B,NCP,ICOUP)
 
 end subroutine DEX2
 
-end subroutine SIGMA1
+end subroutine EPQ_PSI

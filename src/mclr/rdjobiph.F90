@@ -29,7 +29,7 @@ subroutine RdJobIph(CIVec)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sNew
-use gugx, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS
 use MCLR_Data, only: CMO, FnJob, FnMck, G1t, G2t, IRLXROOT, ISNAC, ISTATE, LuJob, LuMck, nA, NACSTATES, nNA, NSSA, OVERRIDE, SA
 use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iSpin, iTOC, iTocIph, lRoots, McKinley, nActEl, nAsh, &
                       nBas, nCOnf, nCSF, nDel, nElec3, nFro, nHole1, nIsh, nOrb, nRoots, nRS1, nRS2, nRS3, nSym, ntAsh, ntASqr, &

@@ -51,13 +51,13 @@ max_ex1b = nelb*(nhob+1)
 max_ex2a = (nela*(nela-1)*(nhoa)*(nhoa-1))/4+nela*nhoa+1
 max_ex2b = (nelb*(nelb-1)*(nhob)*(nhob-1))/4+nelb*nhob+1
 
-! For sigma1, we use an excitation table for the beta strings.
+! For EPQ_PSI, we use an excitation table for the beta strings.
 call mma_allocate(ex1_b,max_ex1b,ndetb,label='ex1_b')
 call ex1_init(nelb,my_norb,ex1_b)
 
 ! For sigma2, we use an excitation table for the alpha strings, unless
 ! Ms = 0 (mult = 1), as for singlet spins sigma2 is not computed and
-! just taken as the transpose of sigma1.
+! just taken as the transpose of EPQ_PSI.
 if (mult /= 1) then
   call mma_allocate(ex1_a,max_ex1a,ndeta,label='ex1_a')
   call ex1_init(nela,my_norb,ex1_a)

@@ -18,7 +18,7 @@
       use PrintLevel, only: USUAL
       use Molcas, only: LenIn
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
-      use gugx, only: L2ACT, LEVEL
+      use sguga, only: L2ACT, LEVEL
       use caspt2_global, only: CMO, CMO_Internal, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use Molcas, only: LenIn, MxAct, MxOrb, MxRoot

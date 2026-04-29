@@ -16,7 +16,7 @@ subroutine MKCLIST(SGS,CIS)
 !          INTO ONE INTEGER WORD.
 
 use Symmetry_Info, only: Mul
-use gugx, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

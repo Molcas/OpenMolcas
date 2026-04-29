@@ -12,7 +12,7 @@
 subroutine CSFCOUNT(CIS,NSYM,NUW)
 
 use Symmetry_Info, only: Mul
-use gugx, only: CIStruct
+use sguga, only: CIStruct
 use Definitions, only: iwp
 
 implicit none

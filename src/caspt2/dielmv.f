@@ -19,7 +19,7 @@
       SUBROUTINE DIELMV(ICASE,nICASE,JCASE,nJCASE,NUP,NDWN,EMU)
       use definitions, only: iwp, wp
       use constants, only: Zero
-      use gugx, only: SGS, CIS
+      use sguga, only: SGS, CIS
       use caspt2_module, only: ETA
       IMPLICIT NONE
 

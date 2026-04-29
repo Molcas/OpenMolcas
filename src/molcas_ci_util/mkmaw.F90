@@ -19,7 +19,7 @@
 !--------------------------------------------*
 subroutine MKMAW(SGS)
 
-use gugx, only: SGStruct
+use sguga, only: SGStruct
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

@@ -773,7 +773,7 @@
      &                         FIFA_all,FIFASA_all
       use caspt2_global, only: FIFA, TORB, NDREF
       use caspt2_global, only: CMOPT2, if_equalW, weight
-      use gugx, only: SGS
+      use sguga, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: ENERGY, IFXMS, IFRMS, IFDW, STSYM, NCONF,
@@ -1227,7 +1227,7 @@
 !-----------------------------------------------------------------------
 !
       SUBROUTINE POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
-      use gugx, only: SGS
+      use sguga, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: nConf
@@ -1277,7 +1277,7 @@
      &                            nLev)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
-      use gugx, only: SGS, L2ACT, CIS
+      use sguga, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: nConf, STSym
@@ -1531,7 +1531,7 @@
       Subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 
       use caspt2_global, only: iRoot1, iRoot2, OLagFull
-      use gugx, only: SGS
+      use sguga, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: ENERGY, NSYM, NCONF, NFRO, NISH, NASH,
@@ -1656,7 +1656,7 @@
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
-      use gugx, only: SGS, L2ACT, CIS
+      use sguga, only: SGS, L2ACT, CIS
       use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6

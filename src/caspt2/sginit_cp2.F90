@@ -19,7 +19,7 @@
 !--------------------------------------------*
       SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS)
       use stdalloc, only: mma_deallocate
-      use gugx, only: SGStruct, CIStruct, EXStruct
+      use sguga, only: SGStruct, CIStruct, EXStruct
       use MkGUGA_mod, only: MKGUGA
       use definitions, only: iwp
       IMPLICIT None

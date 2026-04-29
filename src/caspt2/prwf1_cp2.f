@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
       use Symmetry_Info, only: Mul
-      use gugx, only: SGS, CIS
+      use sguga, only: SGS, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM, ISPIN, PRSD
       use Molcas, only: MxLev

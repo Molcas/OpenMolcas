@@ -20,7 +20,7 @@ subroutine RdCIV()
 !                                                                      *
 !***********************************************************************
 
-use gugx, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS
 use MCLR_Data, only: ERAS, LuCIV, LuJob
 use input_mclr, only: iSpin, iTOC, lRoots, nActEl, nConf, nCSF, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym
 use Molcas, only: MxRoot

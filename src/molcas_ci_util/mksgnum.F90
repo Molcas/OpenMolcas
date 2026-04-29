@@ -16,7 +16,7 @@ subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
 !          STORE THE DATA IN THE TABLES USGN AND LSGN
 
 use Symmetry_Info, only: Mul
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

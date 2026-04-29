@@ -18,7 +18,7 @@ subroutine GUGACTL(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,ST
 !
 ! MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct
 use MkGUGA_mod, only: MKGUGA
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

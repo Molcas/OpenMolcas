@@ -44,7 +44,7 @@
      &                         NASHT, NORB, NBAS, NBAST, NOSQT, NBSQT,
      &                         iRlxRoot, JSTATE, DENORM, ZETA, ORBIN
       use Constants, only: Zero, One, Two, Half
-      use gugx, only: SGS
+      use sguga, only: SGS
 
       implicit none
 

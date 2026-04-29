@@ -25,7 +25,7 @@ subroutine MKSEG(SGS,CIS,EXS)
 !    THE PALDUS TABLE DRT. ELSE IT IS THE BOTTOM LEFT VERTEX
 !    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGM.
 
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct
 use segtab, only: IC1, IC2, ISVC, ITVPT
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
