@@ -112,7 +112,7 @@ do iSym=1,nSym
       call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIp1(:,2),0,pstate_sym,State_Sym)
       NCSF(1:nSym) = CIS%NCSF(1:nSym)
       NCONF = CIS%NCSF(pstate_Sym)
-      call mkGuga_Free(SGS,CIS,EXS)
+      call SGUGA_Free(SGS,CIS,EXS)
       CIp1(:,2) = -CIp1(:,2)
     end if
 
@@ -120,7 +120,7 @@ do iSym=1,nSym
       call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIp1(:,1),0,pstate_sym,State_Sym)
       NCSF(1:nSym) = CIS%NCSF(1:nSym)
       NCONF = CIS%NCSF(pstate_Sym)
-      call mkGuga_Free(SGS,CIS,EXS)
+      call SGUGA_Free(SGS,CIS,EXS)
     end if
     if (Timedep) then
       if (CI) then

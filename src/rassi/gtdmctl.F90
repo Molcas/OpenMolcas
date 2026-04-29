@@ -1148,10 +1148,10 @@ if (mstate_dens) then
 end if
 
 if (WFTP1 == 'GENERAL') then
-  if (.not. doDMRG) call MkGUGA_Free(SGS(1),CIS(1),EXS(1))
+  if (.not. doDMRG) call SGUGA_Free(SGS(1),CIS(1),EXS(1))
 end if
 if (WFTP2 == 'GENERAL') then
-  if (.not. doDMRG) call MkGUGA_Free(SGS(2),CIS(2),EXS(2))
+  if (.not. doDMRG) call SGUGA_Free(SGS(2),CIS(2),EXS(2))
 end if
 
 if (JOB1 /= JOB2) then

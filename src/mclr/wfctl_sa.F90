@@ -197,7 +197,7 @@ else
         call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,wrk,1,State_Sym,State_Sym)
         NCSF(1:nSym) = CIS%NCSF(1:nSym)
         NCONF = CIS%NCSF(State_Sym)
-        call mkGuga_Free(SGS,CIS,EXS)
+        call SGUGA_Free(SGS,CIS,EXS)
         W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
       end do
       call mma_deallocate(wrk)

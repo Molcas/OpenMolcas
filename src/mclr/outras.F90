@@ -117,7 +117,7 @@ do iSym=1,nSym
         call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIp1,0,pstate_sym,State_Sym)
         NCSF(1:nSym) = CIS%NCSF(1:nSym)
         NCONF = CIS%NCSF(pstate_sym)
-        call mkGuga_Free(SGS,CIS,EXS)
+        call SGUGA_Free(SGS,CIS,EXS)
       end if
 
       if ((imethod == 2) .and. (.not. CI) .and. (nconfM == 1)) CIp1(1) = Zero

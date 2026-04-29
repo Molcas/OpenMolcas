@@ -110,7 +110,7 @@ if (iMethod == 2) then
       call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CITmp,1,State_Sym,State_Sym)
       NCSF(1:nSym) = CIS%NCSF(1:nSym)
       NCONF = CIS%NCSF(State_Sym)
-      call mkGuga_Free(SGS,CIS,EXS)
+      call SGUGA_Free(SGS,CIS,EXS)
 
     end if
 

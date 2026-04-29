@@ -46,7 +46,7 @@ do i=1,il
   if (n > 0) call daclos(n)
 end do
 if (.not. variat) then
-  call mkguga_free(SGS,CIS,EXS)
+  call SGUGA_Free(SGS,CIS,EXS)
   call mma_deallocate(FMO)
   call mma_deallocate(TUVX)
   call mma_deallocate(DMAT)

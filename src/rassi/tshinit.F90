@@ -178,7 +178,7 @@ if (LOWROOT) then
 # ifdef _DEBUGPRINT_
   write(u6,*) ' TSHinit back from TSHop.'
 # endif
-  if (WFTYP2 == 'GENERAL') call MkGUGA_Free(SGS(2),CIS(2),EXS(2))
+  if (WFTYP2 == 'GENERAL') call SGUGA_Free(SGS(2),CIS(2),EXS(2))
   call mma_deallocate(CI2)
   call mma_deallocate(PART)
 end if
@@ -245,13 +245,13 @@ if (UPROOT) then
 # ifdef _DEBUGPRINT_
   write(u6,*) ' TSHinit back from TSHop.'
 # endif
-  if (WFTYP2 == 'GENERAL') call MkGUGA_Free(SGS(2),CIS(2),EXS(2))
+  if (WFTYP2 == 'GENERAL') call SGUGA_Free(SGS(2),CIS(2),EXS(2))
   call mma_deallocate(CI2)
   call mma_deallocate(PART)
 end if
 
 if (WFTYP1 == 'GENERAL') then
-  call MkGUGA_Free(SGS(1),CIS(1),EXS(1))
+  call SGUGA_Free(SGS(1),CIS(1),EXS(1))
 end if
 call mma_deallocate(CI1)
 

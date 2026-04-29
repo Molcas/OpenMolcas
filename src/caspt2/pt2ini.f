@@ -223,7 +223,7 @@ C     size of idsct array
       End If
 
 * Deallocate SGUGA tables:
-      CALL mkGUGA_Free(SGS,CIS,EXS)
+      CALL SGUGA_Free(SGS,CIS,EXS)
 
 ! dealloacte DMRG stuff
 #ifdef _DMRG_

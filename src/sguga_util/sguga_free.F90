@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MKGUGA_FREE(SGS,CIS,EXS)
-! PURPOSE: FREE THE GUGA TABLES
+subroutine SGUGA_FREE(SGS,CIS,EXS)
+! PURPOSE: FREE THE SGUGA TABLES
 
 use sguga, only: CIStruct, EXStruct, SGStruct
 use stdalloc, only: mma_deallocate
@@ -53,4 +53,4 @@ call mma_deallocate(EXS%MVR,safe='*')
 call mma_deallocate(EXS%USGN,safe='*')
 call mma_deallocate(EXS%LSGN,safe='*')
 
-end subroutine MKGUGA_FREE
+end subroutine SGUGA_FREE
