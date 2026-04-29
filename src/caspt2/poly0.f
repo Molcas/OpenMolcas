@@ -20,7 +20,7 @@
 
       use fciqmc_interface, only: DoFCIQMC
       use stdalloc, only: mma_allocate
-      use sguga, only: SGS, L2ACT, LEVEL, CIS, EXS, SGINIT_CP2
+      use sguga, only: SGS, L2ACT, LEVEL, CIS, EXS, SGINIT
       use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, nActEl,
      &                         nAshT, nEle3, nHole1, nRas1T, nRas2T,
      &                         nRas3T, nSym, STSym, nAsh
@@ -37,10 +37,10 @@
      &      .and. (.not. DoFCIQMC) .and. (.not. DMRG)) Then
 !     if ((.NOT.DoCumulant) .and. (nactel.gt.0)) Then
 
-         call sginit_cp2(nSym,nActEl,iSpin,
-     &                   SGS,CIS,EXS,
-     &                   nHole1,nEle3,
-     &                   nRas1T,nRas2T,nRas3T)
+         call sginit(nSym,nActEl,iSpin,
+     &               SGS,CIS,EXS,
+     &               nHole1,nEle3,
+     &               nRas1T,nRas2T,nRas3T)
 
       else
 

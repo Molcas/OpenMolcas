@@ -50,7 +50,7 @@ integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
 
-public :: SGINIT, MKSGUGA, SGINIT_CP2
+public :: SGINIT, MKSGUGA
 
 contains
 
@@ -603,31 +603,9 @@ contains
 
 end subroutine MKSGUGA
 
-subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
-
-implicit none
-integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
-type(SGStruct), intent(inout) :: SGS
-type(CIStruct), intent(inout) :: CIS
-
-SGS%nSym = nSym
-SGS%iSpin = iSpin
-SGS%nActEl = nActEl
-
-Call MkSGUGA(SGS,CIS)
-
-! Modified Arc Weights table:
-call MKMAW(SGS)
-
-! The DAW, RAW tables are no longer needed:
-call mma_deallocate(SGS%RAW)
-call mma_deallocate(SGS%DAW)
-
-end subroutine SGInit
-
-      SUBROUTINE SGINIT_CP2(nSym,nActEl,iSpin,                    &
-                            SGS,CIS,EXS,                          &
-                            nHole1,nEle3,nRas1T,nRas2T,nRas3T)
+      SUBROUTINE SGINIT(nSym,nActEl,iSpin,                    &
+                        SGS,CIS,EXS,                          &
+                        nHole1,nEle3,nRas1T,nRas2T,nRas3T)
       IMPLICIT None
       Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
       Type(SGStruct), intent(inout):: SGS
@@ -699,6 +677,6 @@ end subroutine SGInit
          Call mma_deallocate(SGS%LTV)
       End If
 
-      END SUBROUTINE SGINIT_CP2
+      END SUBROUTINE SGINIT
 
 end module SGUGA
