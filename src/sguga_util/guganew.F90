@@ -16,7 +16,6 @@ use Str_Info, only: CFTP, CNSM
 use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use Definitions, only: u6
 #endif
 
 implicit none
@@ -26,9 +25,6 @@ type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
 real(kind=wp), intent(inout) :: CIL(*)
 integer(kind=iwp) :: iS, iss, NCONF, nRas1T, nRas2T, nRas3T
-#ifdef _DEBUGPRINT_
-real(kind=wp), parameter :: PRWTHR = 0.05_wp
-#endif
 
 nRas1T = sum(nRs1(1:nSym))
 nRas2T = sum(nRs2(1:nSym))
@@ -81,20 +77,27 @@ iss = 1
 if (ksym /= state_sym) iss = 2
 
 #ifdef _DEBUGPRINT_
+Block
+use Definitions, only: u6
+real(kind=wp), parameter :: PRWTHR = 0.05_wp
 write(u6,101)
+101 format(/,6X,100('-'),/,6X,29X,'Wave function printout: Split Graph format',/, &
+           6X,8X,'in parenthesis: midvertex, upper-walk symmetry upper- and lower-walk serial numbers',/,6X,100('-'),/)
 write(u6,102) PRWTHR
+102 format(6X,'printout of CI-coefficients larger than',F6.2)
 call SGPRWF(SGS,CIS,ksym,PRWTHR,SGS%iSpin,CIL,nConf,.false.,-99)
 write(u6,103)
+103 format(/,6X,100('-'),/)
+End Block
 #endif
 
 call REORD(SGS,CIS,EXS,NCONF,iMode,CNSM(iss)%ICONF,CFTP,kSym,CIL)
 
 #ifdef _DEBUGPRINT_
+Block
+real(kind=wp), parameter :: PRWTHR = 0.05_wp
 call SGPRWF(SGS,CIS,ksym,PRWTHR,SGS%iSpin,CIL,nConf,.false.,-99)
-101 format(/,6X,100('-'),/,6X,29X,'Wave function printout: Split Graph format',/, &
-           6X,8X,'in parenthesis: midvertex, upper-walk symmetry upper- and lower-walk serial numbers',/,6X,100('-'),/)
-102 format(6X,'printout of CI-coefficients larger than',F6.2)
-103 format(/,6X,100('-'),/)
+ENd Block
 #endif
 
 end subroutine GugaNew
