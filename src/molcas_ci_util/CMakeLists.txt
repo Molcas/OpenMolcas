@@ -30,7 +30,6 @@ set (sources
      csfbas.F90
      csfcount.F90
      cstart.F90
-     cxinit.F90
      davctl.F90
      davctl_mod.F90
      david5.F90
@@ -57,7 +56,6 @@ set (sources
      getcnf.F90
      geth2a.F90
      getstepvector.F90
-     gugactl.F90
      hcsce.F90
      ini_david.F90
      init_lex.F90
@@ -73,16 +71,8 @@ set (sources
      lucia2molcas.F90
      lucia2molcas_free.F90
      matml4.F90
-     mkclist.F90
-     mkcot.F90
-     mkcoup.F90
-     mkmaw.F90
-     mknsm.F90
-     mkseg.F90
-     mksgnum.F90
      motrac.F90
      newgs.F90
-     nrcoup.F90
      ordstr.F90
      output_ras.F90
      page_in.F90
@@ -138,6 +128,7 @@ set (modfile_list
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90
+     segtab.F90
      spinfo.F90
      timers.F90
      wadr.F90

@@ -4054,7 +4054,9 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call GugaCtl'
-      call GUGACtl(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,STSYM,DoBlockDMRG)
+      call GUGACtl(nSym,iSpin,nActEl,               &
+                   nHole1,nElec3,nRs1,nRs2,nRs3,    &
+                   SGS,CIS,EXS,STSYM,DoBlockDMRG)
       NCONF = CIS%NCSF(STSYM)
 
       call Timing(Eterna_2,dum1,dum2,dum3)

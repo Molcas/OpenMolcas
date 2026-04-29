@@ -10,6 +10,16 @@
 #***********************************************************************
 
 set (sources
+     cxinit.F90
+     gugactl.F90
+     mkclist.F90
+     mkcot.F90
+     mkcoup.F90
+     mkmaw.F90
+     mknsm.F90
+     mkseg.F90
+     mksgnum.F90
+     nrcoup.F90
      sgprwf.F90
      sguga.F90
      sguga_free.F90
