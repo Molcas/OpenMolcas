@@ -29,10 +29,17 @@ import importlib.util
 import time
 import re
 import threading
+import signal
 import numpy as np
 from pathlib import Path
 from datetime import datetime
 from typing import Any
+
+from csf_props import (
+    calculate_csf_active_electrons,
+    calculate_csf_spin_twice,
+    validate_csf_against_molcas,
+)
 
 
 def _load_settings_value(name: str) -> Any:
@@ -223,6 +230,85 @@ def check_for_neci_message(log_file, last_position):
         return False, last_position
 
 
+def kill_molcas_and_exit(process, reason, exit_code=1):
+    """Terminate the MOLCAS process and exit this Python runner immediately."""
+    print(f"ERROR: {reason}", flush=True)
+
+    if process is not None:
+        try:
+            if process.poll() is None:
+                try:
+                    os.killpg(process.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+                except Exception as e:
+                    print(f"Warning: Failed to send SIGTERM to MOLCAS process group: {e}", flush=True)
+
+                try:
+                    process.terminate()
+                except Exception:
+                    pass
+
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    try:
+                        os.killpg(process.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    except Exception as e:
+                        print(f"Warning: Failed to send SIGKILL to MOLCAS process group: {e}", flush=True)
+
+                    try:
+                        process.kill()
+                    except Exception:
+                        pass
+        except Exception as e:
+            print(f"Warning: Failed while terminating MOLCAS process: {e}", flush=True)
+
+    os._exit(exit_code)
+
+
+def validate_stepvec(
+    process,
+    current_iteration,
+    status_file,
+    workdir,
+    filename,
+    csf_orbital_count,
+    csf_active_electrons,
+    csf_spin_twice,
+):
+    """Hook for user-defined checks that must pass before the first RASSCF iteration proceeds.
+
+    Add the concrete validation logic for your CSF here. If any check fails, call
+    kill_molcas_and_exit(...) with a useful reason string.
+    """
+    if current_iteration != 1:
+        return
+
+    molcas_log_file = f"{filename}.log"
+
+    try:
+        with open(molcas_log_file, 'r') as log_file:
+            log_content = log_file.read()
+    except Exception as e:
+        kill_molcas_and_exit(
+            process,
+            f"Failed to read MOLCAS log file {molcas_log_file}: {e}",
+        )
+
+    try:
+        validate_csf_against_molcas(
+            log_content,
+            csf_orbital_count,
+            csf_active_electrons,
+            csf_spin_twice,
+        )
+    except ValueError as e:
+        kill_molcas_and_exit(process, str(e))
+
+
 def extract_rdm_energy_from_fciqmc_output(output_file):
     """Extract RDM energy from FCIQMC output file
     
@@ -353,7 +439,21 @@ def run_external_fciqmc(fciqmc_dir, fcidump_path, neci_command, workdir):
     return rdm_energy
 
 
-def monitor_status_file(filename, workdir, CSF_stepvec, stop_event=None, debug=False, sleep_interval=0.5, manual_mode=False, fciqmc_dir=None, neci_command=None):
+def monitor_status_file(
+    filename,
+    workdir,
+    CSF_stepvec,
+    csf_orbital_count,
+    csf_active_electrons,
+    csf_spin_twice,
+    stop_event=None,
+    debug=False,
+    sleep_interval=0.5,
+    manual_mode=False,
+    fciqmc_dir=None,
+    neci_command=None,
+    molcas_process=None,
+):
     """Monitor the status file for RASSCF iterations and write to NEWCYCLE when needed
     
     Creates a .iterdata file containing RASSCF iteration numbers, MOLCAS iteration data,
@@ -379,6 +479,8 @@ def monitor_status_file(filename, workdir, CSF_stepvec, stop_event=None, debug=F
         Path to FCIQMC directory (required if manual_mode=True)
     neci_command : str, optional
         NECI execution command (required if manual_mode=True)
+    molcas_process : subprocess.Popen, optional
+        Running MOLCAS process handle, used for forced termination on validation failure
     """
     import IntegralClass
     import GUGA_diag
@@ -421,10 +523,21 @@ def monitor_status_file(filename, workdir, CSF_stepvec, stop_event=None, debug=F
 
                 if match:
                     current_iteration = int(match.group(1))
-                    current_iteration = int(match.group(1))
                     
                     if current_iteration > last_iteration:
                         print(f"Detected NEW RASSCF iteration {current_iteration}", flush=True)
+
+                        if current_iteration == 1:
+                            validate_stepvec(
+                                molcas_process,
+                                current_iteration,
+                                status_file,
+                                workdir,
+                                filename,
+                                csf_orbital_count,
+                                csf_active_electrons,
+                                csf_spin_twice,
+                            )
                         
                         # Move RDM files to scratch directory on first iteration only
                         if IntegralClass_instance is None:
@@ -631,15 +744,33 @@ def run_molcas(filename, CSF_stepvec, debug=False, sleep_interval=0.5, manual_mo
         print(f"Command: {' '.join(cmd)}", flush=True)
 
         # Start MOLCAS process
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
 
         # Create stop event for monitor thread
         stop_event = threading.Event()
+        # Precompute CSF properties so monitor thread gets them (avoid NameError)
+        csf_orbital_count = len(CSF_stepvec)
+        csf_active_electrons = calculate_csf_active_electrons(CSF_stepvec)
+        csf_spin_twice = calculate_csf_spin_twice(CSF_stepvec)
         
         # Start monitoring in a separate thread
         monitor_thread = threading.Thread(
-            target=monitor_status_file, 
-            args=(filename, tmpdir, CSF_stepvec, stop_event, debug, sleep_interval, manual_mode, fciqmc_dir, neci_command)
+            target=monitor_status_file,
+            args=(
+                filename,
+                tmpdir,
+                CSF_stepvec,
+                csf_orbital_count,
+                csf_active_electrons,
+                csf_spin_twice,
+                stop_event,
+                debug,
+                sleep_interval,
+                manual_mode,
+                fciqmc_dir,
+                neci_command,
+                process,
+            ),
         )
         monitor_thread.daemon = False  # Changed to non-daemon so it completes properly
         monitor_thread.start()
@@ -752,6 +883,13 @@ def run_molcas_with_csf(filename, csf_stepvec, debug=False, sleep_interval=0.5, 
     # Redirect output
     sys.stdout = tee_stdout
     sys.stderr = tee_stderr
+
+    # Normalize the CSF step vector once and measure its properties up front
+    CSF_stepvec = np.array(csf_stepvec)
+    csf_orbital_count = len(CSF_stepvec)
+    csf_active_electrons = calculate_csf_active_electrons(CSF_stepvec)
+    csf_spin_twice = calculate_csf_spin_twice(CSF_stepvec)
+    csf_spin = csf_spin_twice / 2
     
     try:
         # Print header with calculation variables
@@ -773,15 +911,13 @@ def run_molcas_with_csf(filename, csf_stepvec, debug=False, sleep_interval=0.5, 
         if manual_mode:
             print(f"  FCIQMC dir:      {fciqmc_dir}")
             print(f"  NECI command:    {neci_command}")
-        print(f"  CSF step vector: {csf_stepvec}")
-        print(f"  CSF length:      {len(csf_stepvec)}")
+        print(f"  CSF step vector: {CSF_stepvec}")
+        print(f"  CSF orbital count:      {csf_orbital_count}")
+        print(f"  CSF electron count:     {csf_active_electrons}")
+        print(f"  CSF spin:        {csf_spin:g}")
         print("="*80)
         print()
-        
-        # Convert to numpy array if needed
-        CSF_stepvec = np.array(csf_stepvec)
-        print(f"CSF step vector: {CSF_stepvec}")
-        
+
         # Check if input file exists
         input_file = f"{filename}.inp"
         if not os.path.exists(input_file):
