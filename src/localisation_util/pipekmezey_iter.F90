@@ -474,7 +474,7 @@ contains
 subroutine rescale_disp(Disp)
     real(kind=wp),intent(inout) :: Disp(fsdim)
     DD=Sqrt(dot_product(Disp(:),Disp(:)))
-    Thr= 0.25E0_wp * Pi
+    Thr= 0.49_wp * Pi
     If (DD>=Thr)Then
 #   ifdef _DEBUGPRINT_
         Write(u6,*) 'Rescale Kappa(:)'

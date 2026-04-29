@@ -49,13 +49,10 @@ do k=1,nOrb2Loc-1
 !     Make sure that element has a negative value -- we are maximizing the target function
 !     Make sure that the element is not too small, this would yield a too large displacement.
 
-#     ifdef _FLIPSIGN_
       If (H_diag(kl)>0.0) Then
        !Write (u6,*) 'H_diag(kl)=',H_diag(kl)
         H_diag(kl)=-H_diag(kl)
       End If
-#     endif
-
 
       If (Abs(H_diag(kl))<1.0e-2_wp) Then
         !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
