@@ -6,6 +6,9 @@ In `src/`, you can find the following files.
 - `runmolcas.py`: Interfaces to run CSF-ROHF using OpenMolcas RASSCF module.
 - **`settings.py`: To run `runmolcas.py`, you need to set your OpenMolcas build directory in this file.**
 
+### Set OpenMolcas build directory
+To use the interface, you need to set your OpenMolcas build directory in `settings.py`.
+
 ### Tutorial: SSG-CSF-ROHF Optimized Orbitals
 
 This tutorial provides a step-by-step guide to obtaining SSG-CSF-ROHF optimized orbitals using the Fe dimer example from Reference [1].
@@ -65,8 +68,6 @@ The energy is found in Table 3 of Reference [1].
 
 
 ### Other Example
-After you set `molcas_path` in `src/runmolcas.py` line 72 to your Molcas installation directory,
-you can run the example input in `example/`.
 Go to `example/` and `$ python ../src/runmolcas.py N2 1 1 1 2 2 2`.
 `N2` is the Molcas input filenmae without extension, `1 1 1 2 2 2` is the CSF
 you use for the ROHF optimization in the step-vector format.
