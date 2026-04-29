@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIL,imode,ksym,State_Sym)
+subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,ksym)
 
 use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA
 use Definitions, only: wp, iwp
@@ -18,12 +18,11 @@ use Definitions, only: wp, iwp
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), imode, ksym, State_Sym
+integer(kind=iwp), intent(in) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), ksym
 type(SGStruct), intent(out) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
-real(kind=wp), intent(inout) :: CIL(*)
-integer(kind=iwp) :: iS, iss, NCONF, nRas1T, nRas2T, nRas3T
+integer(kind=iwp) :: iS, nRas1T, nRas2T, nRas3T
 
 nRas1T = sum(nRs1(1:nSym))
 nRas2T = sum(nRs2(1:nSym))

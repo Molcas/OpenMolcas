@@ -133,7 +133,7 @@ end do
 if (doDMRG) then  ! yma
   imode = -99
   ! generate the Nr. of csfs in each sym
-  Call SG2SymG([rdum],1,imode,State_sym)
+  Call SG2SymG(rdum,Size(rdum),imode,State_sym)
 
   !do isym=1,8
   !  write(u6,*) 'isym_ncsf in rdjobiph ',ncsf(isym)

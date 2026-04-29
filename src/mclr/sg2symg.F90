@@ -22,7 +22,7 @@ integer(kind=iwp) iss
 
 ! Transformation of CI vector to symmetric group from GUGA pepresentation, or the reverse
 
-call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CI,imode,pState_Sym,State_Sym)
+call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,pState_Sym)
 
 NCSF(1:nSym) = CIS%NCSF(1:nSym)
 NCONF        = CIS%NCSF(pState_Sym)
