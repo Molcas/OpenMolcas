@@ -133,6 +133,7 @@ set (modfile_list
      csfbas.F90
      dmrginfo.F90
      general_data.F90
+     mkguga_mod.F90
      input_mclr.F90
      rasdim.F90
      rasscf_global.F90
