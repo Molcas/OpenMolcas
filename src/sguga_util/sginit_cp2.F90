@@ -27,24 +27,20 @@
       Integer(kind=iwp), intent(in):: nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T
       Type(SGStruct), intent(inout):: SGS
       Type(CIStruct), intent(inout):: CIS
-      Type(EXStruct), optional, intent(inout):: EXS
+      Type(EXStruct), intent(inout):: EXS
 
       SGS%nSym=nSym
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
 
-      Associate ( LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
-                  LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-                  IFRAS=>SGS%IFRAS)
-
-      LV1RAS=NRAS1T
-      LV3RAS=nRas1T+NRAS2T
-      LM1RAS=2*nRas1T-NHOLE1
-      LM3RAS=NACTEL-NELE3
+      SGS%LV1RAS=NRAS1T
+      SGS%LV3RAS=nRas1T+NRAS2T
+      SGS%LM1RAS=2*nRas1T-NHOLE1
+      SGS%LM3RAS=NACTEL-NELE3
       IF ((NRAS1T+NRAS3T)/=0) Then
-         IFRAS=1
+         SGS%IFRAS=1
       Else
-         IFRAS=0
+         SGS%IFRAS=0
       End If
 
       Call MkSGUGA(SGS,CIS)
@@ -88,8 +84,6 @@
       CALL mma_deallocate(SGS%UP)
       CALL mma_deallocate(SGS%RAW)
       Call mma_deallocate(SGS%LTV)
-
-      End Associate
 
       END SUBROUTINE SGINIT_CP2
 
