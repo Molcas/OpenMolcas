@@ -53,6 +53,8 @@ Directory: `3_RDMgen/`
 
 Run NECI with the replica trick (`dneci`) using `input`.
 `p1.list` defines the P space of the SSG calculation.
+This tep creates PT2-RDM files (`DMAT.1`, `PSMAT.1`, and `PAMAT.1`) that are used
+in the next step.
 
 > **Note:** This step requires the internal development version of NECI with SSG support.
 
