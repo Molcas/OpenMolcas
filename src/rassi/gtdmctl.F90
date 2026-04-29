@@ -946,7 +946,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
           SIJ = OVERLAP_RASSI(FSBTAB1,FSBTAB2,DET1,DET2)
 #       ifdef _DMRG_
         else
-          sij = qcmaquis_mpssi_overlap(qcm_prefixes(job1),ist,qcm_prefixes(job2),jst,.true.)
+          sij = qcmaquis_mpssi_overlap(qcm_prefixes(job1),LROOT(ISTATE),qcm_prefixes(job2),LROOT(JSTATE),.true.)
         end if !doDMRG
 #       endif
       end if ! IF00
@@ -1008,7 +1008,7 @@ end do job2_loop
 
 ! For ejob, create an approximate off-diagonal based on the overlap (temporarily stored in HIJ)
 
-if (IFEJOB) then
+if (IFEJOB .and. JOB1 /= JOB2) then
   do JST=1,NSTAT(JOB2)
     JSTATE = ISTAT(JOB2)-1+JST
     do IST=1,NSTAT(JOB1)
@@ -1019,6 +1019,34 @@ if (IFEJOB) then
       HJJ = HAM(JSTATE,JSTATE)
       HAM(ISTATE,JSTATE) = SIJ*(HII+HJJ)*Half
       HAM(JSTATE,ISTATE) = SIJ*(HII+HJJ)*Half
+    end do
+  end do
+end if
+! For ejob same-job pairs: zero HAM off-diagonals. EJOB uses only the diagonal
+! (REFENE set by inpprc); same-job off-diagonals must be zero for consistency.
+if (IFEJOB .and. JOB1 == JOB2) then
+  do JST=1,NSTAT(JOB2)
+    JSTATE = ISTAT(JOB2)-1+JST
+    do IST=1,NSTAT(JOB1)
+      ISTATE = ISTAT(JOB1)-1+IST
+      if (ISTATE == JSTATE) cycle
+      HAM(ISTATE,JSTATE) = Zero
+      HAM(JSTATE,ISTATE) = Zero
+    end do
+  end do
+end if
+! For all keywords, same-job: enforce orthogonal overlap. Same-job MPSSI states
+! must be orthogonal by construction; QCMaquis may produce identical MPS for
+! degenerate roots, giving SIJ=1, which makes OVLP rank-1 and the eigensolver
+! produce unphysical energies. Zero the off-diagonals to enforce orthogonality.
+if (JOB1 == JOB2) then
+  do JST=1,NSTAT(JOB2)
+    JSTATE = ISTAT(JOB2)-1+JST
+    do IST=1,NSTAT(JOB1)
+      ISTATE = ISTAT(JOB1)-1+IST
+      if (ISTATE == JSTATE) cycle
+      OVLP(ISTATE,JSTATE) = Zero
+      OVLP(JSTATE,ISTATE) = Zero
     end do
   end do
 end if
