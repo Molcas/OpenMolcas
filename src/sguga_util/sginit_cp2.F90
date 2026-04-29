@@ -17,7 +17,9 @@
 ! SWEDEN                                     *
 ! 2006  PER-AAKE MALMQUIST                   *
 !--------------------------------------------*
-      SUBROUTINE SGINIT_CP2(nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T,SGS,CIS,EXS)
+      SUBROUTINE SGINIT_CP2(nSym,nActEl,iSpin,                    &
+                            SGS,CIS,EXS,                          &
+                            nHole1,nEle3,nRas1T,nRas2T,nRas3T)
       use stdalloc, only: mma_deallocate
       use sguga, only: SGStruct, CIStruct, EXStruct, MkSGUGA
       use definitions, only: iwp
@@ -25,15 +27,15 @@
       Integer(kind=iwp), intent(in):: nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T
       Type(SGStruct), intent(inout):: SGS
       Type(CIStruct), intent(inout):: CIS
-      Type(EXStruct), intent(inout):: EXS
+      Type(EXStruct), optional, intent(inout):: EXS
 
       SGS%nSym=nSym
       SGS%iSpin=iSpin
       SGS%nActEl=nActEl
 
       Associate ( LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
-     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &            IFRAS=>SGS%IFRAS)
+                  LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
+                  IFRAS=>SGS%IFRAS)
 
       LV1RAS=NRAS1T
       LV3RAS=nRas1T+NRAS2T

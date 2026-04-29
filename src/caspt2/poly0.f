@@ -37,8 +37,10 @@
      &      .and. (.not. DoFCIQMC) .and. (.not. DMRG)) Then
 !     if ((.NOT.DoCumulant) .and. (nactel.gt.0)) Then
 
-         call sginit_cp2(nSym,iSpin,nActEl,nHole1,nEle3,
-     &                   nRas1T,nRas2T,nRas3T,SGS,CIS,EXS)
+         call sginit_cp2(nSym,nActEl,iSpin,
+     &                   SGS,CIS,EXS,
+     &                   nHole1,nEle3,
+     &                   nRas1T,nRas2T,nRas3T)
 
       else
 
