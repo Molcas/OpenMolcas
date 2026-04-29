@@ -34,7 +34,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iPL
-integer(kind=iwp) :: i, ii, ipCII, iSSM
+integer(kind=iwp) :: i, ii, ipCII, iSSM, iMode
 character(len=8) :: Method
 integer(kind=iwp), allocatable :: index_SD(:) ! not final version
 real(kind=wp), allocatable :: CITmp(:), CIVec(:,:), vector_cidmrg(:)
@@ -107,10 +107,14 @@ if (iMethod == 2) then
     ! If doDMRG
     if (.not. (doDMRG .and. doMCLR)) then ! yma
       ! transform to sym. group
-      call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CITmp,1,State_Sym,State_Sym)
-      NCSF(1:nSym) = CIS%NCSF(1:nSym)
-      NCONF = CIS%NCSF(State_Sym)
-      call SGUGA_Free(SGS,CIS,EXS)
+
+      iMode=1
+      Call SG2SymG(CITmp,SIZE(CITmp),iMode,State_Sym)
+
+!     call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CITmp,1,State_Sym,State_Sym)
+!     NCSF(1:nSym) = CIS%NCSF(1:nSym)
+!     NCONF = CIS%NCSF(State_Sym)
+!     call SGUGA_Free(SGS,CIS,EXS)
 
     end if
 
