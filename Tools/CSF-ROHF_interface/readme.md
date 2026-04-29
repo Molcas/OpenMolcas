@@ -14,7 +14,7 @@ Using the Python interface in this repository requires:
 - [OpenMolcas](https://gitlab.com/Molcas/OpenMolcas) for orbital optimization  
 - [NECI](https://github.com/fkfest/NECI_STABLE) for PT2-RDM generation  
 
-> **Note:** The stochastic SplitGAS (SSG) method is currently only available in an internal development version of NECI. Please contact us to request access.
+> **Note:** The stochastic SplitGAS (SSG) method [2] is currently only available in an internal development version of NECI. Please contact us to request access.
 
 All files used in this tutorial are located in `example/SSG-CSF-ROHF_tutorial`.
 
@@ -74,7 +74,11 @@ This executes Molcas with `N2.inp` and feed RDMs and the RDM energy to Molcas
 for every RASSCF iteration.
 
 ### References
-[1] Maru Song, Luca Bonfirraro, Ignacio Fdez. Galván, Roland Lindh, and Giovanni Li Manni,
+- [1] Maru Song, Luca Bonfirraro, Ignacio Fdez. Galván, Roland Lindh, and Giovanni Li Manni,
 "Spin-Adapted Restricted Open-Shell Hartree-Fock and Its Dynamic Correlation Extension",
-Accepted for publication in Journal of Chemical Theory and Computation (2026),
+Accepted for publication in J. Chem. Theory Comput. 2026,
 https://doi.org/10.1021/acs.jctc.6c00379
+- [2] Luca Bonfirraro, Oskar Weser, Maru Song, and Giovanni Li Manni,
+"Stochastic-SplitGAS: A Quantum Monte Carlo Multi-Reference Perturbation Theory Based on the Imaginary-Time Evolution of Effective Hamiltonians",
+J. Chem. Theory Comput. 2025, 21, 24, 12523–12544,
+https://doi.org/10.1021/acs.jctc.5c01270
