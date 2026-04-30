@@ -15,7 +15,6 @@ set (sources
      guganew.F90
      mkcoup.F90
      mknsm.F90
-     mkseg.F90
      mksgnum.F90
      nrcoup.F90
      sgprwf.F90
