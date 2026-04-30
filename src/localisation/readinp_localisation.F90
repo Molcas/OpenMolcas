@@ -20,7 +20,7 @@ use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, Ch
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
                                 Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
                                 ScrFac, ChargeType, LocOrb,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
-                                Freeze,AnalyseLoc, MoldMod, getIMmldn, inpOptMeth
+                                Freeze,AnalyseLoc, MoldMod, getIMmldn, inpOptMeth, OptMeth
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -184,6 +184,8 @@ do
                 write(u6,*) 'using the default instead'
                 call FindErrorLine()
         end select
+
+        OptMeth = inpOptMeth
 
     case ('MOLD')
       ! generate intermediate molden files
