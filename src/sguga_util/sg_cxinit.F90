@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CXInit(SGS,CIS,EXS)
+subroutine SG_CXInit(SGS,CIS,EXS)
 
 use sguga, only: CIStruct, EXStruct, SGStruct, MkSeg, NrCoup, MkCoup
 use stdalloc, only: mma_deallocate
@@ -39,4 +39,4 @@ call mma_deallocate(CIS%ISgm)
 call mma_deallocate(CIS%VSgm)
 call mma_deallocate(CIS%IVR)
 
-end subroutine CXInit
+end subroutine SG_CXInit

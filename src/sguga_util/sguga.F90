@@ -817,19 +817,25 @@ end subroutine MKSGUGA
 
 SUBROUTINE SG_Init(nSym,nActEl,iSpin,                    &
                   SGS,CIS,EXS,                          &
-                  nHole1,nEle3,nRas1T,nRas2T,nRas3T)
+                  nHole1,nEle3,nRs1,nRs2,nRs3)
 IMPLICIT None
 Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
 Type(SGStruct), intent(inout):: SGS
 Type(CIStruct), intent(inout):: CIS
-Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRas1T,nRas2T,nRas3T
+Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
 Type(EXStruct),  optional, intent(inout):: EXS
+Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T
 
 SGS%nSym=nSym
 SGS%iSpin=iSpin
 SGS%nActEl=nActEl
 
 If (Present(EXS)) THEN
+
+   nRas1T = sum(nRs1(1:nSym))
+   nRas2T = sum(nRs2(1:nSym))
+   nRas3T = sum(nRs3(1:nSym))
+
    SGS%LV1RAS=NRAS1T
    SGS%LV3RAS=nRas1T+NRAS2T
    SGS%LM1RAS=2*nRas1T-NHOLE1

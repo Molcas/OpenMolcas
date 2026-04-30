@@ -400,7 +400,7 @@ if (WFTP1 == 'GENERAL') then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
       call SG_Print(SGS(1))
     end if
-    call CXINIT(SGS(1),CIS(1),EXS(1))
+    call SG_CXInit(SGS(1),CIS(1),EXS(1))
     ! CI sizes, as function of symmetry, are now known.
     NCONF1 = CIS(1)%NCSF(LSYM1)
   else
@@ -524,7 +524,7 @@ if (WFTP2 == 'GENERAL') then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
     end if
-    call CXINIT(SGS(2),CIS(2),EXS(2))
+    call SG_CXInit(SGS(2),CIS(2),EXS(2))
     ! CI sizes, as function of symmetry, are now known.
     NCONF2 = CIS(2)%NCSF(LSYM2)
   else

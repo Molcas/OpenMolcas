@@ -10,9 +10,9 @@
 #***********************************************************************
 
 set (sources
-     cxinit.F90
      gugactl.F90
      guganew.F90
+     sg_cxinit.F90
      sg_epq_psi.F90
      sg_prwf.F90
      sg_print.F90

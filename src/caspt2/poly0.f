@@ -22,8 +22,8 @@
       use stdalloc, only: mma_allocate
       use sguga, only: SGS, L2ACT, LEVEL, CIS, EXS, SG_Init
       use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, nActEl,
-     &                         nAshT, nEle3, nHole1, nRas1T, nRas2T,
-     &                         nRas3T, nSym, STSym, nAsh
+     &                         nAshT, nEle3, nHole1, nRas1, nRas2,
+     &                         nRas3, nSym, STSym, nAsh
 
       use caspt2_module, only: MxCI
       use definitions, only: iwp
@@ -40,7 +40,7 @@
          call SG_Init(nSym,nActEl,iSpin,
      &               SGS,CIS,EXS,
      &               nHole1,nEle3,
-     &               nRas1T,nRas2T,nRas3T)
+     &               nRas1,nRas2,nRas3)
 
       else
 
