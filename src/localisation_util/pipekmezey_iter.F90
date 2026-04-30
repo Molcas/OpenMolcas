@@ -40,7 +40,7 @@ logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
-                              kappa(:,:),unitary_mat(:,:), rotated_CMO(:,:),Hessian(:,:),hdiagvec(:),&
+                              kappa(:,:),unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumGrad(:)
 real(kind=wp), External :: DDot_
 
@@ -138,7 +138,6 @@ case(2,3,4,5)
 
     call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
     call mma_Allocate(Gradient,fsdim,Label='Gradient')
-    call mma_Allocate(Hessian,fsdim,fsdim,Label='Hessian')
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
     call mma_Allocate(HdiagList,fsdim,nMxIter,Label='HdiagList')
@@ -155,7 +154,6 @@ case(2,3,4,5)
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
     call mma_allocate(NumGrad,fsdim,Label ="NumGrad")
 
-    Hessian(:,:)=Zero
     DispList(:,:)=Zero
     HdiagList(:,:)=Zero
     UmatList(:,:,:)=Zero
@@ -194,7 +192,6 @@ case (2,3,4,5)
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
     call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,.false.)
-    call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
 end select
 
 
@@ -446,7 +443,6 @@ case(2,3,4,5)
     call mma_Deallocate(PACol)
     call mma_Deallocate(Gradient)
     call mma_Deallocate(kappa)
-    call mma_Deallocate(Hessian)
 
     call mma_Deallocate(kappa_cnt)
     call mma_Deallocate(xkappa_cnt)
