@@ -24,7 +24,10 @@ integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
 integer(kind=iwp) :: iAtom, k,l,kl
-real(kind=wp) :: Q_ll, Q_kk, Q_kl, maxel
+real(kind=wp) :: Q_ll, Q_kk, Q_kl
+#ifdef _NOTUSED_
+real(kind=wp) :: maxel
+#endif
 
 Q_ll = Zero
 Q_kk = Zero
@@ -47,12 +50,10 @@ do k=1,nOrb2Loc-1
       !write(u6,"(A,I5,I5,I5,3X,A,F18.8)") "k,l,kl = ",k,l,kl,"H_diag(kl)",H_diag(kl)
 !     Make sure that element has a negative value -- we are maximizing the target function
 !     Make sure that the element is not too small, this would yield a too large displacement.
-#     ifdef _NOTUSED_
       If (H_diag(kl)>0.0) Then
        !Write (u6,*) 'H_diag(kl)=',H_diag(kl)
         H_diag(kl)=-H_diag(kl)
       End If
-#     endif
 
       If (Abs(H_diag(kl))<1.0e-2_wp) Then
         !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
@@ -62,6 +63,7 @@ do k=1,nOrb2Loc-1
    end do
 end do
 
+#ifdef _NOTUSED_
 maxel = maxval(H_diag)
 if (maxel > 0.0) Then
     !write(u6,*) "max(H_diag)",maxel
@@ -69,7 +71,7 @@ if (maxel > 0.0) Then
     H_diag(:) = H_diag(:)-maxel-1.0e-2_wp
     !call RecPrt("H_diag after","",H_diag,nOrb2Loc*(nOrb2Loc-1)/2,1)
 end if
-
+#endif
 
 if (Debug) then
     write(u6,*) ' '
