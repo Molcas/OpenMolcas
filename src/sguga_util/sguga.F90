@@ -53,6 +53,7 @@ public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
 
 public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkNSM, MkSgNum, SG_Free
+public :: SG_Init_Simple
 
 contains
 
@@ -815,9 +816,10 @@ end subroutine RESTR
 
 end subroutine MKSGUGA
 
-SUBROUTINE SG_Init(nSym,nActEl,iSpin,                    &
-                  SGS,CIS,EXS,                          &
-                  nHole1,nEle3,nRs1,nRs2,nRs3)
+
+SUBROUTINE SG_Init_Simple(nSym,nActEl,iSpin,                   &
+                          SGS,CIS,EXS,                         &
+                          nHole1,nEle3,nRs1,nRs2,nRs3)
 IMPLICIT None
 Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
 Type(SGStruct), intent(inout):: SGS
@@ -859,6 +861,23 @@ If (Present(EXS)) THEN
 End IF
 
 Call MkSGUGA(SGS,CIS)
+
+END SUBROUTINE SG_Init_Simple
+
+SUBROUTINE SG_Init(nSym,nActEl,iSpin,                   &
+                  SGS,CIS,EXS,                          &
+                  nHole1,nEle3,nRs1,nRs2,nRs3)
+IMPLICIT None
+Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
+Type(SGStruct), intent(inout):: SGS
+Type(CIStruct), intent(inout):: CIS
+Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
+Type(EXStruct),  optional, intent(inout):: EXS
+Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS
+
+Call SG_Init_Simple(nSym,nActEl,iSpin,                   &
+                    SGS,CIS,EXS,                         &
+                    nHole1,nEle3,nRs1,nRs2,nRs3)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
