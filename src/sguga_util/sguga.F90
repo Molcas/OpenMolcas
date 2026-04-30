@@ -52,7 +52,7 @@ integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
 
-public :: SGINIT, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup
+public :: SGINIT, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkNSM
 
 contains
 
@@ -1977,5 +1977,33 @@ EXS%VTab(1:nVTab_final) = VTab(1:nVTab_final)
 call mma_deallocate(VTab)
 
 end subroutine MKCOUP
+
+subroutine MKNSM(SGS)
+! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
+
+use gas_data, only: NGAS, NGSSH
+use rasscf_global, only: NSM
+use general_data, only: NSYM
+
+implicit none
+type(SGStruct), intent(inout) :: SGS
+integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
+
+NLEV = 0
+do IGAS=1,NGAS
+  do ISYM=1,NSYM
+    NSTA = NLEV+1
+    NLEV = NLEV+NGSSH(IGAS,ISYM)
+    NSM(NSTA:NLEV) = ISYM
+  end do
+end do
+
+if (SGS%nSym /= 0) then
+  SGS%nLev = nLev
+  call mma_allocate(SGS%ISM,nLev,Label='SGS%ISM')
+  SGS%ISM(1:nLev) = NSM(1:nLev)
+end if
+
+end subroutine MKNSM
 
 end module SGUGA
