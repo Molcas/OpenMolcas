@@ -52,7 +52,7 @@ integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
 
-public :: SGINIT, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkNSM, MkSgNum, SGUGA_Free
+public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkNSM, MkSgNum, SG_Free
 
 contains
 
@@ -815,7 +815,7 @@ end subroutine RESTR
 
 end subroutine MKSGUGA
 
-SUBROUTINE SGINIT(nSym,nActEl,iSpin,                    &
+SUBROUTINE SG_Init(nSym,nActEl,iSpin,                    &
                   SGS,CIS,EXS,                          &
                   nHole1,nEle3,nRas1T,nRas2T,nRas3T)
 IMPLICIT None
@@ -889,7 +889,7 @@ If (Present(EXS)) THEN
    Call mma_deallocate(SGS%LTV)
 End If
 
-END SUBROUTINE SGINIT
+END SUBROUTINE SG_Init
 
 subroutine MKCOT(SGS,CIS)
 ! PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
@@ -2121,7 +2121,7 @@ call mma_deallocate(ISTEPVEC)
 
 end subroutine MKSGNUM
 
-subroutine SGUGA_FREE(SGS,CIS,EXS)
+subroutine SG_Free(SGS,CIS,EXS)
 ! PURPOSE: FREE THE SGUGA TABLES
 
 #include "intent.fh"
@@ -2162,5 +2162,5 @@ call mma_deallocate(EXS%MVR,safe='*')
 call mma_deallocate(EXS%USGN,safe='*')
 call mma_deallocate(EXS%LSGN,safe='*')
 
-end subroutine SGUGA_FREE
+end subroutine SG_Free
 end module SGUGA

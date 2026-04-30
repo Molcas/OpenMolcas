@@ -14,7 +14,7 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use sguga, only: CIStruct, EXStruct, SGStruct, SGInit, SGUGA_Free
+use sguga, only: CIStruct, EXStruct, SGStruct, SG_Init, SG_Free
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG
@@ -395,7 +395,7 @@ if (WFTP1 == 'GENERAL') then
   NRASEL(3) = NACTE1
 
   if (.not. doDMRG) then
-    call SGINIT(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
+    call SG_Init(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
       call SG_Print(SGS(1))
@@ -519,7 +519,7 @@ if (WFTP2 == 'GENERAL') then
   NRASEL(3) = NACTE2
 
   if (.not. doDMRG) then
-    call SGINIT(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
@@ -1176,10 +1176,10 @@ if (mstate_dens) then
 end if
 
 if (WFTP1 == 'GENERAL') then
-  if (.not. doDMRG) call SGUGA_Free(SGS(1),CIS(1),EXS(1))
+  if (.not. doDMRG) call SG_Free(SGS(1),CIS(1),EXS(1))
 end if
 if (WFTP2 == 'GENERAL') then
-  if (.not. doDMRG) call SGUGA_Free(SGS(2),CIS(2),EXS(2))
+  if (.not. doDMRG) call SG_Free(SGS(2),CIS(2),EXS(2))
 end if
 
 if (JOB1 /= JOB2) then

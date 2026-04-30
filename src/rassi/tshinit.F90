@@ -14,7 +14,7 @@ subroutine TSHinit(Energy)
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS3, NRSPRT
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: JBNUM, LROOT, PART
-use sguga, only: CIStruct, EXStruct, SGStruct, SGINIT, SGUGA_Free
+use sguga, only: CIStruct, EXStruct, SGStruct, SG_Init, SG_Free
 use Cntrl, only: ChkHop, IRREP, ISTATE1, ISTATE2, LSYM1, LSYM2, MLTPLT, NACTE, nCI1, nCI2, NELE3, NHOLE1, NSTATE, RASTYP
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NDEL, NFRO, NISH, NSSH
@@ -81,7 +81,7 @@ if (WFTYP1 == 'GENERAL') then
   NRASEL(1) = 2*NRS1T-NHOL11
   NRASEL(2) = NACTE1-NELE31
   NRASEL(3) = NACTE1
-  call SGINIT(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
+  call SG_Init(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
   if (IPGLOB > 4) then
     write(u6,*) 'Split-graph structure for JOB1=',JOB1
     call SG_Print(SGS(1))
@@ -147,7 +147,7 @@ if (LOWROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SGINIT(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
@@ -178,7 +178,7 @@ if (LOWROOT) then
 # ifdef _DEBUGPRINT_
   write(u6,*) ' TSHinit back from TSHop.'
 # endif
-  if (WFTYP2 == 'GENERAL') call SGUGA_Free(SGS(2),CIS(2),EXS(2))
+  if (WFTYP2 == 'GENERAL') call SG_Free(SGS(2),CIS(2),EXS(2))
   call mma_deallocate(CI2)
   call mma_deallocate(PART)
 end if
@@ -214,7 +214,7 @@ if (UPROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SGINIT(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
@@ -245,13 +245,13 @@ if (UPROOT) then
 # ifdef _DEBUGPRINT_
   write(u6,*) ' TSHinit back from TSHop.'
 # endif
-  if (WFTYP2 == 'GENERAL') call SGUGA_Free(SGS(2),CIS(2),EXS(2))
+  if (WFTYP2 == 'GENERAL') call SG_Free(SGS(2),CIS(2),EXS(2))
   call mma_deallocate(CI2)
   call mma_deallocate(PART)
 end if
 
 if (WFTYP1 == 'GENERAL') then
-  call SGUGA_Free(SGS(1),CIS(1),EXS(1))
+  call SG_Free(SGS(1),CIS(1),EXS(1))
 end if
 call mma_deallocate(CI1)
 

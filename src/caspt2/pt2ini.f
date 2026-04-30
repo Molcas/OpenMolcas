@@ -175,7 +175,7 @@ C Initialize sizes, offsets etc used in equation solver.
       USE INPUTDATA, ONLY: CLEANUP_INPUT
       USE SUPERINDEX, ONLY: SUPFREE
       use PT2WFN, ONLY: PT2WFN_CLOSE
-      use sguga, only: SGS, CIS, EXS, SGUGA_Free
+      use sguga, only: SGS, CIS, EXS, SG_Free
       use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX,
      &                         DWGT, CMOPT2, TAT, TORB, IDSCT, Weight,
      &                         IDCIEX, IDTCEX
@@ -223,7 +223,7 @@ C     size of idsct array
       End If
 
 * Deallocate SGUGA tables:
-      CALL SGUGA_Free(SGS,CIS,EXS)
+      CALL SG_Free(SGS,CIS,EXS)
 
 ! dealloacte DMRG stuff
 #ifdef _DMRG_
