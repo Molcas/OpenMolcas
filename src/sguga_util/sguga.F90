@@ -152,13 +152,13 @@ contains
 
   subroutine MKISM_MCLR(SGS)
 
-    use input_mclr, only: NRS1, NRS2, NRS3, NSYM, NTASH
+    use input_mclr, only: NRS1, NRS2, NRS3, NTASH
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: iBas, iOrb, iSym
+    integer(kind=iwp) :: iBas, iOrb, iSym, nSym
 
+    nSym=SGS%nSym
     SGS%NLEV = ntASh
-
     call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
 
     iOrb = 0
@@ -188,17 +188,18 @@ contains
    use rassi_data, only: NASH, NASHT
 
    type(SGStruct), target, intent(inout) :: SGS
-   integer(kind=iwp) :: ITABS, ISYM, IT, ILEV, nSym
+   integer(kind=iwp) :: iOrb, ISYM, IT, ILEV, nSym
 
     nSym = SGS%nSym
     SGS%NLEV = NASHT ! Total number of active orbitals
     ! Allocate Level to Symmetry table ISm:
     call mma_allocate(SGS%ISm,SGS%nLev,Label='SGS%ISm')
-    ITABS = 0
+
+    iOrb = 0
     do ISYM=1,NSYM
       do IT=1,NASH(ISYM)
-        ITABS = ITABS+1
-        ILEV = LEVEL(ITABS)
+        iOrb = iOrb+1
+        ILEV = LEVEL(iOrb)
         SGS%ISM(ILEV) = ISYM
       end do
     end do
@@ -211,7 +212,7 @@ contains
     use caspt2_module, only: DoCumulant, nAsh, nAshT, nSym
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ILEV, iq, ISYM, IT, ITABS, nLev
+    integer(kind=iwp) :: ILEV, iq, ISYM, IT, iOrb, nLev
 
     NLEV = NASHT
     SGS%nLev = NLEV
@@ -219,18 +220,19 @@ contains
     ! ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
     ! PAM060612: With true RAS space, the orbitals must be ordered
     ! first by RAS type, then by symmetry.
-    ITABS = 0
+
+    iOrb = 0
     do ISYM=1,NSYM
       do IT=1,NASH(ISYM)
-        ITABS = ITABS+1
-        ! Quan: Bug in LEVEL(ITABS) and L2ACT
+        iOrb = iOrb+1
+        ! Quan: Bug in LEVEL(iOrb) and L2ACT
         if (DoCumulant .or. DoFCIQMC) then
           do iq=1,NLEV
             LEVEL(iq) = iq
             L2ACT(iq) = iq
           end do
         end if
-        ILEV = LEVEL(ITABS)
+        ILEV = LEVEL(iOrb)
         SGS%ISM(ILEV) = ISYM
       end do
     end do
@@ -244,7 +246,6 @@ contains
     use rasscf_global, only: NSM
     use general_data, only: NSYM
 
-    ! to get some dimensions
     type(SGStruct), target, intent(inout) :: SGS
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
@@ -257,11 +258,9 @@ contains
       end do
     end do
 
-    if (SGS%nSym /= 0) then
-      SGS%nLev = nLev
-      call mma_allocate(SGS%ISM,nLev,Label='SGS%ISM')
-      SGS%ISM(1:nLev) = NSM(1:nLev)
-    end if
+    SGS%nLev = nLev
+    call mma_allocate(SGS%ISM,nLev,Label='SGS%ISM')
+    SGS%ISM(1:nLev) = NSM(1:nLev)
 
   end subroutine MKNSM
 
@@ -835,10 +834,16 @@ Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS
 
 ! Make sure that we start from a clean slate.
 If (Present(EXS)) THEN
+   ! Here if the extended parameter list was used.
    Call SG_Free(SGS,CIS,EXS)
 Else
+   ! Here if the terse parameter list was used.
    Call SG_Free(SGS,CIS)
 End If
+
+If (nSym<1 .or. nSym>8) Write (u6,*) ' SG_Init_Simple: illegal nSym value:', nSym
+If (iSpin<1) Write (u6,*) ' SG_Init_Simple: illegal iSpin value:', iSpin
+If (nActEl<1) Write (u6,*) ' SG_Init_Simple: illegal nActEl value:', nActEl
 
 SGS%nSym=nSym
 SGS%iSpin=iSpin
