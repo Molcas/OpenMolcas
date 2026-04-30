@@ -317,7 +317,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 IterGEK = IterGEK + 1
 
-                call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag=-hdiagvec)
+                call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec, .false.)
                 !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,fullHessian=-NumHessSymm)
 
             end if ! if in GEKRange

@@ -19,7 +19,7 @@
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS,fullHessian,HDiag)
+subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag,useFH)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -37,7 +37,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc
 integer(kind=iwp),intent(out) :: nDIIS
 integer(kind=iwp), intent(inout) :: IterGEK
-real(kind=wp),intent(in),optional :: fullHessian(fsdim,fsdim),Hdiag(fsdim)
+real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, dq_NR(fsdim)
@@ -45,7 +45,7 @@ real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,
 integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
-logical(kind=iwp), intent(in) :: SORange
+logical(kind=iwp), intent(in) :: SORange,useFH
 character(LEN=1) :: Step_Trunc
 real(kind=wp), allocatable :: CoordsAbs(:,:)
 
@@ -290,22 +290,20 @@ end do
 call mma_allocate(H_diis,mDIIS,mDIIS,Label='H_diis')
 H_diis(:,:) = Zero
 
-
-if (present(fullHessian)) then
+! use full hessian or just Hdiag like in NR
+if (useFH) then
     do i=1,mDiis
         do j=1,mDiis
             do k=1,fsdim
-                !H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
-                H_diis(i,j) = H_diis(i,j) + e_diis(i,k)*sum(fullHessian(k,:)*e_diis(:,j))
+                H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
+                !H_diis(i,j) = H_diis(i,j) + e_diis(i,k)*sum(fullHessian(k,:)*e_diis(:,j))
             end do
         end do
     end do
 else
     do i=1,mDiis
         do j=1,mDiis
-            do k=1,fsdim
-                H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
-            end do
+            H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
         end do
     end do
 end if
