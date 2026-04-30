@@ -13,7 +13,6 @@ set (sources
      cxinit.F90
      gugactl.F90
      guganew.F90
-     mksgnum.F90
      sgprwf.F90
      sguga.F90
      sguga_free.F90

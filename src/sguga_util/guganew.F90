@@ -12,7 +12,7 @@
 !#define _DEBUGPRINT_
 subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,ksym)
 
-use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA, MkCOT, MkCList
+use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA, MkCOT, MkCList, MkSGNum
 use Definitions, only: iwp
 
 implicit none
