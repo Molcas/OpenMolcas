@@ -88,7 +88,7 @@ C Compute SGM1:=E(IY,IZ) PSI
           SGM1(1:nSGM1)=Zero
           LEVY=IATOG(IY)
           LEVZ=IATOG(IZ)
-          CALL EPQ_PSI(SGS,CIS,EXS,
+          CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                LEVY,LEVZ,One,ISYCI,CI,SGM1)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
@@ -120,7 +120,7 @@ C Compute SGM2:=E(IV,IX) SGM1
             SGM2(1:nSGM2)=Zero
             LEVV=IATOG(IV)
             LEVX=IATOG(IX)
-            CALL EPQ_PSI(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                  LEVV,LEVX,One,ISYM1,SGM1,SGM2)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
@@ -150,7 +150,7 @@ C Add non-zero 3-el contribution to SGM:
             IF(ISCF.EQ.0) THEN
               LEVT=IATOG(IT)
               LEVU=IATOG(IU)
-              CALL EPQ_PSI(SGS,CIS,EXS,
+              CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                    LEVT,LEVU,X,ISYM2,SGM2,SGM)
             ELSE
 C Closed-shell or hi-spin case:

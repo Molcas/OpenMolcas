@@ -55,6 +55,6 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       End If
       IF(NSGM.EQ.0) RETURN
 
-      CALL EPQ_PSI(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
+      CALL SG_Epq_Psi(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
 
       END SUBROUTINE GETSGM2

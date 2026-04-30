@@ -889,7 +889,7 @@
         ISSG2=Mul(Mul(IYS,IZS),LSYM2)
         TG3WRK(LTO:LTO+MXCI-1) = Zero
 ! LTO is first element of Sigma2 = E(YZ) Psi2
-        CALL EPQ_PSI(SGS,CIS,EXS,
+        CALL SG_Epq_Psi(SGS,CIS,EXS,
      &              IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
         IF(ISSG2 == LSYM1 .AND. DTG1(IY,IZ) /= Zero) THEN
           !! It is possible to calculate the contribution using
@@ -917,7 +917,7 @@
          IUS=IASYM(IU)
          ISSG1=Mul(Mul(ITS,IUS),LSYM1)
          TG3WRK(LTO:LTO+MXCI-1) = Zero
-         CALL EPQ_PSI(SGS,CIS,EXS,
+         CALL SG_Epq_Psi(SGS,CIS,EXS,
      &               IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
          IF (ISSG1 == LSYM1 .AND. DTG1(IU,IT) /= Zero
      &       .AND. IP3STA == 1) THEN
@@ -954,7 +954,7 @@
           TG3WRK(LTAU:LTAU+MXCI-1) = Zero
 ! LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           !! LTAU = EvxEyz|Psi2>
-          CALL EPQ_PSI(SGS,CIS,EXS,
+          CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           IF(ISTAU == LSYM1 .AND. DTG2(IV,IX,IY,IZ) /= Zero) THEN
 !          DTG2(IV,IX,IY,IZ)=DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
@@ -967,7 +967,7 @@
               DYZ(1:MXCI,LFROMD) = DYZ(1:MXCI,LFROMD)
      &          + DTG2(IV,IX,IY,IZ)*TG3WRK(IBUF:IBUF+MXCI-1)
            ELSE
-         CALL EPQ_PSI(SGS,CIS,EXS,
+         CALL SG_Epq_Psi(SGS,CIS,EXS,
      &               JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,DYZ(1,LFROMD))
            END IF
            DTG2(IV,IX,IY,IZ) = Zero
@@ -1034,7 +1034,7 @@
             END DO
             !! Second operator for the right derivative:
             !! <Psi1|Etu Evx|I> * Dtuvxyz
-            CALL EPQ_PSI(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                  JL,IL,One,ISTAU,BUF1,DYZ(1,LFROMD))
           END IF !! End of DOG3 clause
 ! End of IP2 loop.
@@ -1055,7 +1055,7 @@
          ITS=IASYM(IT)
          IUS=IASYM(IU)
          ISSG1=Mul(Mul(ITS,IUS),LSYM1)
-         CALL EPQ_PSI(SGS,CIS,EXS,IL,JL,One,LSYM1,DTU(1,LTO),CLAG1)
+         CALL SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,LSYM1,DTU(1,LTO),CLAG1)
          LTO=LTO+1
         END DO
 ! End of IP1STA sectioning loop
@@ -1073,7 +1073,7 @@
         IM=P2LEV(LP2LEV1-1+IP3)
         JM=P2LEV(LP2LEV2-1+IP3)
 ! LTO is first element of Sigma2 = E(YZ) Psi2
-        CALL EPQ_PSI(SGS,CIS,EXS,JM,IM,One,LSYM2,DYZ(1,LTO),CLAG2)
+        CALL SG_Epq_Psi(SGS,CIS,EXS,JM,IM,One,LSYM2,DYZ(1,LTO),CLAG2)
         LTO=LTO+1
        END DO
 ! End of IP3STA sectioning loop

@@ -253,7 +253,7 @@ C-SVC20100301: calculate maximum number of tasks possible
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
-C-is basically the number of buffers we fill with EPQ_PSI vectors.
+C-is basically the number of buffers we fill with SG_Epq_Psi vectors.
 
       iTask=1
       ibuf1=0
@@ -382,7 +382,7 @@ C-sigma vectors in the buffer.
           ip1_buf(ibuf1)=ip1i
 ! form E_ut |0>
           BUF1(1:nSgm1,iBuf1)=Zero
-          CALL EPQ_PSI(SGS,CIS,EXS,
+          CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
          end if
         end do
@@ -470,7 +470,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           nsgm2=CIS%ncsf(issg2)
           BUF2(1:nSgm2)=Zero
 C form <0| E_zy|
-          CALL EPQ_PSI(SGS,CIS,EXS,
+          CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                IYLEV,IZLEV,One,STSYM,CI,BUF2)
 
           if(issg2.eq.issg1) then
@@ -517,7 +517,7 @@ C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
         if (.not. DoFCIQMC) then
             BUFT(1:nSgm1)=Zero
 ! form <0| E_zy E_xv
-            CALL EPQ_PSI(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                  IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
         end if
 *-----------

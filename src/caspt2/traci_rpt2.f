@@ -60,14 +60,14 @@ C where U(I) = T(I)-Kronecker(I,J).
           LI=LEVEL(IORB)
           SCL=Half*TVEC(I)
           IF(I.EQ.J) SCL=SCL-Half
-          CALL EPQ_PSI(SGS,CIS,EXS,LI,LJ,SCL,STSYM,CI,SGM)
+          CALL SG_Epq_Psi(SGS,CIS,EXS,LI,LJ,SCL,STSYM,CI,SGM)
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
           LI=LEVEL(IORB)
           SCL=TVEC(I)
           IF(I.EQ.J) SCL=SCL-One
-          CALL EPQ_PSI(SGS,CIS,EXS,LI,LJ,SCL,STSYM,SGM,CI)
+          CALL SG_Epq_Psi(SGS,CIS,EXS,LI,LJ,SCL,STSYM,SGM,CI)
         END DO
 
       End Do

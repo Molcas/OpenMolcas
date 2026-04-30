@@ -13,10 +13,10 @@ set (sources
      cxinit.F90
      gugactl.F90
      guganew.F90
+     sg_epq_psi.F90
      sg_prwf.F90
      sg_print.F90
      sguga.F90
-     epq_psi.F90
 )
 
 # Source files defining modules that should be available to other *_util directories

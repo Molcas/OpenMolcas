@@ -137,7 +137,7 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0e-16_wp) CYCLE
-          CALL EPQ_PSI(SGS,CIS,EXS,
+          CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                LEVT,LEVU,FTU,STSYM,KET,SGM)
         END DO
       END DO
@@ -182,7 +182,7 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0E-16_wp) CYCLE
-          CALL EPQ_PSI(SGS,CIS,EXS,
+          CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                LEVT,LEVU,FTU,STSYM,BRA,SGM)
         END DO
       END DO

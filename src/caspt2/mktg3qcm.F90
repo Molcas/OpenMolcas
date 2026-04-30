@@ -112,7 +112,7 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
             ! if (v + (x - 1) * nasht  < t + (u - 1) * nasht) then
             !   cycle
             ! end if
-              ! symmetry of EPQ_PSI = <Psi1|E_tu
+              ! symmetry of SG_Epq_Psi = <Psi1|E_tu
               sym_sig1 = Mul(Mul(SGS%ism(t), SGS%ism(u)), lsym1)
               ! only for for matching symmetries we have an element different from 0
               if (sym_sig1 == sym_tau) then
