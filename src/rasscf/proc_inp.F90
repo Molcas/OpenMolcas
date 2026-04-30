@@ -4058,7 +4058,7 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
                    SGS,CIS,EXS,                     &
                    nHole1,nElec3,nRs1,nRs2,nRs3,    &
                    STSYM,DoBlockDMRG)
-!     (IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
+!     (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
 !     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
 !     SET UP THE REINDEXING TABLE
       call SETSXCI()
