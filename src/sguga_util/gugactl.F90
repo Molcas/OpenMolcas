@@ -21,7 +21,7 @@ subroutine GUGACTL(nSym,nActEl,iSpin,                         &
 !
 ! MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 
-use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA, MkCOT
+use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA, MkCOT, MkCList
 use Definitions, only: iwp
 
 implicit none
