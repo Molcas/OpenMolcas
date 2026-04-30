@@ -28,7 +28,6 @@ set (sources
      csdiag.F90
      csdtvc.F90
      csfbas.F90
-     csfcount.F90
      cstart.F90
      davctl.F90
      davctl_mod.F90
