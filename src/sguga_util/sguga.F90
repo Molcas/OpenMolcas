@@ -880,7 +880,6 @@ Type(SGStruct), intent(inout):: SGS
 Type(CIStruct), intent(inout):: CIS
 Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
 Type(EXStruct),  optional, intent(inout):: EXS
-Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS
 
 Call SG_Init_Simple(nSym,nActEl,iSpin,                   &
                     SGS,CIS,EXS,                         &
