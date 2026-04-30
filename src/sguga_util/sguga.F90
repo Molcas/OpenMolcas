@@ -826,6 +826,13 @@ Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs
 Type(EXStruct),  optional, intent(inout):: EXS
 Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T
 
+! Make sure that we start from a clean slate.
+If (Present(EXS)) THEN
+   Call SG_Free(SGS,CIS,EXS)
+Else
+   Call SG_Free(SGS,CIS)
+End If
+
 SGS%nSym=nSym
 SGS%iSpin=iSpin
 SGS%nActEl=nActEl
@@ -877,22 +884,6 @@ CALL MKSEG(SGS,CIS,EXS)
 CALL NRCOUP(SGS,CIS,EXS)
 
 CALL MKCOUP(SGS,CIS,EXS)
-End If
-
-CALL mma_deallocate(SGS%DAW)
-CALL mma_deallocate(SGS%RAW)
-
-If (Present(EXS)) THEN
-   Call mma_deallocate(CIS%ISGM)
-   Call mma_deallocate(CIS%VSGM)
-   Call mma_deallocate(CIS%IVR)
-
-   Call mma_deallocate(SGS%MAW)
-
-   CALL mma_deallocate(SGS%DRT)
-   Call mma_deallocate(SGS%DOWN)
-   CALL mma_deallocate(SGS%UP)
-   Call mma_deallocate(SGS%LTV)
 End If
 
 END SUBROUTINE SG_Init
@@ -2135,7 +2126,7 @@ subroutine SG_Free(SGS,CIS,EXS)
 implicit none
 type(SGStruct), intent(_OUT_) :: SGS
 type(CIStruct), intent(_OUT_) :: CIS
-type(EXStruct), intent(_OUT_) :: EXS
+type(EXStruct), optional, intent(_OUT_) :: EXS
 
 call mma_deallocate(SGS%ISM,safe='*')
 call mma_deallocate(SGS%DRT0,safe='*')
@@ -2157,16 +2148,21 @@ call mma_deallocate(CIS%NCSF,safe='*')
 call mma_deallocate(CIS%NOCSF,safe='*')
 call mma_deallocate(CIS%IOCSF,safe='*')
 call mma_deallocate(CIS%ICase,safe='*')
+call mma_deallocate(CIS%VSGM,safe='*')
+call mma_deallocate(CIS%IVR,safe='*')
+call mma_deallocate(CIS%ISGM,safe='*')
 
-call mma_deallocate(EXS%NOCP,safe='*')
-call mma_deallocate(EXS%IOCP,safe='*')
-call mma_deallocate(EXS%ICoup,safe='*')
-call mma_deallocate(EXS%VTab,safe='*')
-call mma_deallocate(EXS%SGTMP,safe='*')
-call mma_deallocate(EXS%MVL,safe='*')
-call mma_deallocate(EXS%MVR,safe='*')
-call mma_deallocate(EXS%USGN,safe='*')
-call mma_deallocate(EXS%LSGN,safe='*')
+If (Present(EXS)) THEN
+   call mma_deallocate(EXS%NOCP,safe='*')
+   call mma_deallocate(EXS%IOCP,safe='*')
+   call mma_deallocate(EXS%ICoup,safe='*')
+   call mma_deallocate(EXS%VTab,safe='*')
+   call mma_deallocate(EXS%SGTMP,safe='*')
+   call mma_deallocate(EXS%MVL,safe='*')
+   call mma_deallocate(EXS%MVR,safe='*')
+   call mma_deallocate(EXS%USGN,safe='*')
+   call mma_deallocate(EXS%LSGN,safe='*')
+End If
 
 end subroutine SG_Free
 
