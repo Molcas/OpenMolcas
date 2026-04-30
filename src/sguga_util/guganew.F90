@@ -12,10 +12,8 @@
 !#define _DEBUGPRINT_
 subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,ksym)
 
-use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA
+use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA, MkCOT
 use Definitions, only: iwp
-#ifdef _DEBUGPRINT_
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), ksym

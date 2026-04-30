@@ -14,7 +14,6 @@ set (sources
      gugactl.F90
      guganew.F90
      mkclist.F90
-     mkcot.F90
      mkcoup.F90
      mkmaw.F90
      mknsm.F90

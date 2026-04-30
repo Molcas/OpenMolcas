@@ -21,11 +21,8 @@ subroutine GUGACTL(nSym,nActEl,iSpin,                         &
 !
 ! MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 
-use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA
+use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA, MkCOT
 use Definitions, only: iwp
-#ifdef _DEBUGPRINT_
-use Definitions, only: u6
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), STSYM
@@ -40,7 +37,10 @@ nRas2T = sum(nRs2(1:nSym))
 nRas3T = sum(nRs3(1:nSym))
 
 #ifdef _DEBUGPRINT_
+Block
+use Definitions, only: u6
 write(u6,*) 'nSym,iSpin,nActEl,nHole1,nElec3,nRas1T,nRas2T,nRas3T,STSYM=',nSym,iSpin,nActEl,nHole1,nElec3,nRas1T,nRas2T,nRas3T,STSYM
+End Block
 #endif
 
 SGS%nSym = nSym
