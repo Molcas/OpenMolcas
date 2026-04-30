@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SGPRWF(SGS,CIS,LSYM,PRWTHR,iSpin,CI,lCI,KeyPRSD,LUVECDET)
+subroutine SG_PrWF(SGS,CIS,LSYM,PRWTHR,iSpin,CI,lCI,KeyPRSD,LUVECDET)
 ! PURPOSE: PRINT THE WAVEFUNCTION (SPIN COUPLING AND OCCUPATIONS)
 !
 ! NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
@@ -147,4 +147,4 @@ end do
 ! free memory for determinant expansion
 if (KeyPRSD) call mma_deallocate(LEX)
 
-end subroutine SGPRWF
+end subroutine SG_PrWF

@@ -39,7 +39,7 @@ write(u6,101)
            6X,8X,'in parenthesis: midvertex, upper-walk symmetry upper- and lower-walk serial numbers',/,6X,100('-'),/)
 write(u6,102) PRWTHR
 102 format(6X,'printout of CI-coefficients larger than',F6.2)
-call SGPRWF(SGS,CIS,pState_sym,PRWTHR,SGS%iSpin,CI,nConf,.false.,-99)
+call SG_PrWF(SGS,CIS,pState_sym,PRWTHR,SGS%iSpin,CI,nConf,.false.,-99)
 write(u6,103)
 103 format(/,6X,100('-'),/)
 End Block
@@ -50,7 +50,7 @@ call REORD(SGS,CIS,EXS,NCONF,iMode,CNSM(iss)%ICONF,CFTP,pState_Sym,CI)
 #ifdef _DEBUGPRINT_
 Block
 real(kind=wp), parameter :: PRWTHR = 0.05_wp
-call SGPRWF(SGS,CIS,pState_sym,PRWTHR,SGS%iSpin,CI,nConf,.false.,-99)
+call SG_PrWF(SGS,CIS,pState_sym,PRWTHR,SGS%iSpin,CI,nConf,.false.,-99)
 ENd Block
 #endif
 

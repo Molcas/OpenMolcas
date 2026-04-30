@@ -656,7 +656,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
               call Molcas_open(LuVecDet,filename)
               write(LuVecDet,'(8i4)') nish
             end if
-            call SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+            call SG_PrWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
             ! Close GronOR vecdet file (tps/cdg 20210430)
             if (Key('PRSD')) close(LuVecDet)
           end if
