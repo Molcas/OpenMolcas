@@ -14,7 +14,7 @@ subroutine TSHinit(Energy)
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS3, NRSPRT
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: JBNUM, LROOT, PART
-use sguga, only: CIStruct, EXStruct, SGStruct, SGINIT
+use sguga, only: CIStruct, EXStruct, SGStruct, SGINIT, SGUGA_Free
 use Cntrl, only: ChkHop, IRREP, ISTATE1, ISTATE2, LSYM1, LSYM2, MLTPLT, NACTE, nCI1, nCI2, NELE3, NHOLE1, NSTATE, RASTYP
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NDEL, NFRO, NISH, NSSH

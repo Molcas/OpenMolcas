@@ -11,7 +11,7 @@
 
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
-use sguga, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS, SGUGA_Free
 use Str_Info, only: CFTP, CNSM
 use input_mclr, only: iSpin, nActEl, nConf, nCSF, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym
 use Definitions, only: iwp, wp
