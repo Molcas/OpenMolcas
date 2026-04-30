@@ -17,9 +17,9 @@
 #endif
 
 !#define _DEBUG2_
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag,useFH)
+subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag,useFH,CMO,nBasis,PA,nAtoms)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -34,14 +34,15 @@ use Localisation_globals, only: OptMeth,FuncList,GradList,DispList,bias,SOFact
 
 implicit none
 
-integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc
+integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc,nBasis,nAtoms
 integer(kind=iwp),intent(out) :: nDIIS
 integer(kind=iwp), intent(inout) :: IterGEK
-real(kind=wp),intent(in) :: Hdiag(fsdim)
+real(kind=wp),intent(in) :: Hdiag(fsdim),CMO(nBasis,nOrb2Loc),PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, dq_NR(fsdim)
-real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:)
+real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),&
+                              dq_diis(:), FHrow_k(:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
@@ -288,15 +289,17 @@ end do
 ! -----------------------------------------------------
 ! H_diis(uxu) = e_diis(Kxu)^T * H(KxK) * e_diis(Kxu)
 call mma_allocate(H_diis,mDIIS,mDIIS,Label='H_diis')
+call mma_allocate(FHrow_k,fsdim,Label='FHrow_k')
 H_diis(:,:) = Zero
 
 ! use full hessian or just Hdiag like in NR
 if (useFH) then
-    do i=1,mDiis
-        do j=1,mDiis
-            do k=1,fsdim
-                H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
-                !H_diis(i,j) = H_diis(i,j) + e_diis(i,k)*sum(fullHessian(k,:)*e_diis(:,j))
+    do k=1,fsdim
+        call GetFHrow_PM(nAtoms,nOrb2Loc,PA,fsdim,FHrow_k,k,CMO,nBasis)
+        do i=1,mDiis
+            do j=1,mDiis
+                !H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
+                H_diis(i,j) = H_diis(i,j) + e_diis(i,k)*sum(FHrow_k(:)*e_diis(:,j))
             end do
         end do
     end do
@@ -308,6 +311,7 @@ else
     end do
 end if
 
+call mma_deallocate(FHrow_k)
 
 ! define dq as null vector in the subspace
 ! ----------------------------------------
@@ -315,7 +319,6 @@ call mma_allocate(dq_diis,mDiis,Label='dq_diis')
 dq_diis(:) = Zero
 
 #ifdef _DEBUGPRINT_
-    if (present(fullHessian)) call RecPrt('Full Space Hessian',' ',fullHessian,fsdim,fsdim)
     call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
     call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
     call RecPrt('H_diis',' ',H_diis,mDIIS,mDIIS)

@@ -41,10 +41,10 @@ integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
-                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumGrad(:)
+                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumGrad(:),FHrow_k(:)
 real(kind=wp), External :: DDot_
 
-integer(kind=iwp) :: maxel,i, inpOptMeth
+integer(kind=iwp) :: maxel,i, inpOptMeth, k
 real(kind=wp) :: dqdq,largest, alpha
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK,linesearch=.false.
 character(len=6):: UpMeth
@@ -192,6 +192,11 @@ case (2,3,4,5)
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
     call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,.false.)
+    call mma_allocate(FHrow_k,fsdim,Label="FHrow_k")
+    do k=1, fsdim
+        call GetFHrow_PM(nAtoms,nOrb2Loc,PA,fsdim,FHrow_k,k,CMO,nBasis)
+    end do
+    call mma_deallocate(FHrow_k)
 end select
 
 
@@ -317,7 +322,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 IterGEK = IterGEK + 1
 
-                call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec, .false.)
+                call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec,.true.,CMO,&
+                                        nBasis,PA,nAtoms)
+                !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec, .false.)
                 !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,fullHessian=-NumHessSymm)
 
             end if ! if in GEKRange

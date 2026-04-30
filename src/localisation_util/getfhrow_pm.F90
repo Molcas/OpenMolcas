@@ -10,9 +10,9 @@
 !                                                                      *
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
-subroutine GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
+subroutine GetFHrow_PM(nAtoms,nOrb2Loc,PA,fsdim,FHrow_k,k,CMO,nBasis)
 !
-! Purpose: compute the full Hessian of the Pipek-Mezey functional w.r.t. elements of the kappa matrix
+! Purpose: compute the full FHrow_k of the Pipek-Mezey functional w.r.t. elements of the kappa matrix
 
 use Constants, only: Zero,One,Two, Eight
 use Definitions, only: wp, iwp, u6
@@ -21,12 +21,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 
-integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc, fsdim,nBasis
+integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc, fsdim,nBasis, k
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms),CMO(nBasis,nOrb2Loc)
-real(kind=wp), intent(out) :: Hessian(fsdim,fsdim)
+real(kind=wp), intent(out) :: FHrow_k(fsdim)
 real(kind=wp), allocatable :: NumHess(:,:)
 integer(kind=iwp) :: iAtom, a,b,c,d,ab,cd
-real(kind=wp) :: Q_aa, Q_bb, Q_cc, Q_dd, Q_ab, Q_ac, Q_bc, Q_ad, Q_bd, d_ac, d_ad, d_bc, d_bd, sumOff, diffnorm
+real(kind=wp) :: Q_aa, Q_bb, Q_cc, Q_dd, Q_ab, Q_ac, Q_bc, Q_ad, Q_bd, d_ac, d_ad, d_bc, d_bd, diffnorm
 logical(kind=iwp) :: DebugHess = .false.
 real(kind=wp), External :: DDot_
 
@@ -46,8 +46,8 @@ d_ad = One
 d_bc = One
 d_bd = One
 
-sumOff = Zero
-Hessian(:,:) = Zero
+diffnorm= One
+FHrow_k(:) = Zero
 ab = 0
 cd = 0
 
@@ -56,26 +56,25 @@ do a=1,nOrb2Loc-1
 
         cd = 0
         ab = ab + 1 ! compound index rows
+        if (ab == k) then
+            ! get off diagonal elements
+            do c = 1, nOrb2Loc-1
+                do d = c+1,nOrb2Loc
 
-        ! get off diagonal elements
-        do c = 1, nOrb2Loc-1
-            do d = c+1,nOrb2Loc
+                    !reset Kronecker deltas
+                    d_ac = One
+                    d_ad = One
+                    d_bc = One
+                    d_bd = One
 
-                !reset Kronecker deltas
-                d_ac = One
-                d_ad = One
-                d_bc = One
-                d_bd = One
+                    ! evaluate Kronecker deltas
+                    if (a /=c ) d_ac = Zero
+                    if (a /=d ) d_ad = Zero
+                    if (b /=c ) d_bc = Zero
+                    if (b /=d ) d_bd = Zero
 
-                ! evaluate Kronecker deltas
-                if (a /=c ) d_ac = Zero
-                if (a /=d ) d_ad = Zero
-                if (b /=c ) d_bc = Zero
-                if (b /=d ) d_bd = Zero
+                    cd = cd + 1 ! compound index columns
 
-                cd = cd + 1 ! compound index columns
-
-                if (cd >= ab) then
                     do iAtom =1,nAtoms
                         Q_aa=PA(a,a,iAtom)
                         Q_bb=PA(b,b,iAtom)
@@ -88,46 +87,46 @@ do a=1,nOrb2Loc-1
                         Q_bc=PA(b,c,iAtom)
                         Q_bd=PA(b,d,iAtom)
 
-                        Hessian(ab,cd) = Hessian(ab,cd) + Eight * Q_ab * (d_ac*Q_ad - d_ad*Q_ac -d_bc*Q_bd + d_bd*Q_bc)
-                        Hessian(ab,cd) = Hessian(ab,cd) + Two * d_ac * Q_bd * (Two*Q_aa - Q_bb - Q_dd)
-                        Hessian(ab,cd) = Hessian(ab,cd) + Two * d_ad * Q_bc * (-Two*Q_aa + Q_bb + Q_cc)
-                        Hessian(ab,cd) = Hessian(ab,cd) + Two * d_bc * Q_ad * (-Two*Q_bb + Q_aa + Q_dd)
-                        Hessian(ab,cd) = Hessian(ab,cd) + Two * d_bd * Q_ac * (Two*Q_bb - Q_aa - Q_cc)
+                        FHrow_k(cd) = FHrow_k(cd) + Eight * Q_ab * (d_ac*Q_ad - d_ad*Q_ac -d_bc*Q_bd + d_bd*Q_bc)
+                        FHrow_k(cd) = FHrow_k(cd) + Two * d_ac * Q_bd * (Two*Q_aa - Q_bb - Q_dd)
+                        FHrow_k(cd) = FHrow_k(cd) + Two * d_ad * Q_bc * (-Two*Q_aa + Q_bb + Q_cc)
+                        FHrow_k(cd) = FHrow_k(cd) + Two * d_bc * Q_ad * (-Two*Q_bb + Q_aa + Q_dd)
+                        FHrow_k(cd) = FHrow_k(cd) + Two * d_bd * Q_ac * (Two*Q_bb - Q_aa - Q_cc)
                     end do
 
-                    if (cd > ab) sumOff = sumOff + Hessian(ab,cd)**2
-
-                end if
-                Hessian(cd,ab) = Hessian(ab,cd)
-                !write(u6,"(A,4(I2),4X,A,2(I4))") "a,b,c,d=",a,b,c,d, "ab,cd=",ab,cd
+                    !write(u6,"(A,4(I2),4X,A,2(I4))") "a,b,c,d=",a,b,c,d, "ab,cd=",ab,cd
+                end do
             end do
-        end do
-
+        else
+            cycle
+        end if
     end do
 end do
 
-sumOff = sqrt(sumOff)
 
 
 if (DebugHess) then
 
     write(u6,*) ' '
-    write(u6,*) 'In GetHess_PM'
+    write(u6,*) 'In GetFHrow_PM'
     write(u6,*) '-------------'
 
     ! check numerically
     call mma_allocate(NumHess,fsdim,fsdim,Label='NumHess')
 
     call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHess,.false.)
-    diffnorm = sqrt(DDot_(fsdim*2,NumHess-Hessian,1,NumHess-Hessian,1))/(DBLE(fsdim)**2)
+    call RecPrt("Analytical","",FHrow_k,fsdim,1)
+    call RecPrt("Numerical","",NumHess(k,:),fsdim,1)
+    call RecPrt("Analytical-Numerical","",FHrow_k(:)-NumHess(k,:),fsdim,1)
+    diffnorm = sqrt(DDot_(fsdim*2,NumHess(k,:)-FHrow_k,1,NumHess(k,:)-FHrow_k,1))/(DBLE(fsdim)**2)
     if (diffnorm > 1.0e-4_wp) then
-        write(u6,*) "ERROR: Numerical and analytical hessian deviate too much"
+        write(u6,*) "ERROR: Numerical and analytical FHrow_k deviate too much, diffnorm=",diffnorm
         call Abend()
     else
-        write(u6,*) "Numerical and analytical Hessian agree: diffnorm= ",diffnorm
+        write(u6,*) "Numerical and analytical FHrow_k agree: diffnorm= ",diffnorm
     end if
     call mma_deallocate(NumHess)
     write(u6,*) ' '
 end if
 
-end subroutine GetHess_PM
+end subroutine GetFHrow_PM

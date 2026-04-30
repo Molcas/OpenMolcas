@@ -47,6 +47,7 @@ set (sources
      get_vir_select.F90
      getat_localisation.F90
      getdens_localisation.F90
+     getfhrow_pm.F90
      getgrad_boys.F90
      getgrad_er.F90
      getgrad_pm.F90
