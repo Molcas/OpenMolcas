@@ -114,6 +114,9 @@ call moveref()
 ! select subspace basis vectors; construct normalized e_diis
 ! -----------------------------------------------------------
 
+! it only makes sense to use the subspace, if the full space dimension is getting larger than the subspace dim
+if (fsdim < 2*nDiis) OptMeth = 4
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! FULL SPACE
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
