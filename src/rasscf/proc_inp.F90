@@ -4054,10 +4054,10 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call GugaCtl'
-      call GUGACtl(nSym,nActEl,iSpin,               &
-                   SGS,CIS,EXS,                     &
-                   nHole1,nElec3,nRs1,nRs2,nRs3,    &
-                   STSYM,DoBlockDMRG)
+      call SG_Init_RASSCF(nSym,nActEl,iSpin,               &
+                          SGS,CIS,EXS,                     &
+                          nHole1,nElec3,nRs1,nRs2,nRs3,    &
+                          STSYM,DoBlockDMRG)
 !     (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
 !     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
 !     SET UP THE REINDEXING TABLE
