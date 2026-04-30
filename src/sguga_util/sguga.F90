@@ -51,9 +51,16 @@ integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
 
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
-
 public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkNSM, MkSgNum, SG_Free
 public :: SG_Init_Simple
+
+integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
+                                IC1(26) = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
+                                IC2(26) = [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3], &
+                                ISVC(26) = [1,1,1,1,1,6,1,5,1,2,4,7,2,1,7,3,2,2,1,5,1,6,1,1,1,1], &
+                                ITVPT(26) = [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3]
+
+public :: IBVPT, IC1, IC2, ISVC, ITVPT
 
 contains
 
@@ -1178,10 +1185,8 @@ subroutine MKSEG(SGS,CIS,EXS)
 ! ISGM(IVLT,ISGT) REFERS TO A SEGMENT OF THE SEGMENT TYPE
 !    ISGT=1,..,26, WHOSE TOP LEFT VERTEX IS IVLT. ISGM GIVES
 !    ZERO IF THE SEGMENT IS IMPOSSIBLE IN THE GRAPH DEFINED BY
-!    THE PALDUS TABLE DRT. ELSE IT IS THE BOTTOM LEFT VERTEX
+!    THE PALDUS TABLE DRT, ELSE IT IS THE BOTTOM LEFT VERTEX
 !    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGM.
-
-use segtab, only: IC1, IC2, ISVC, ITVPT
 
 implicit none
 type(SGStruct), intent(in) :: SGS
@@ -1253,12 +1258,9 @@ write(u6,1234) (IVL,CIS%IVR(IVL,1),CIS%IVR(IVL,2),IVL=1,SGS%nVert)
 #endif
 
 ! INITIALIZE SEGMENT TABLES, AND MARK VERTICES AS UNUSABLE:
-do IVLT=1,SGS%nVert
-  do ISGT=1,26
-    CIS%ISGM(IVLT,ISGT) = 0
-    CIS%VSGM(IVLT,ISGT) = Zero
-  end do
-end do
+CIS%ISGM(:,:) = 0
+CIS%VSGM(:,:) = Zero
+
 do IVLT=1,SGS%nVert
   do ISGT=1,26
     ITT = ITVPT(ISGT)
@@ -1320,8 +1322,6 @@ end do
 end subroutine MKSEG
 
 subroutine NRCOUP(SGS,CIS,EXS)
-
-use segtab, only: IBVPT, IC1, ITVPT
 
 implicit none
 type(SGStruct), intent(in) :: SGS
@@ -1631,8 +1631,6 @@ subroutine MKCOUP(SGS,CIS,EXS)
 ! ISGPTH(ICS  ,LEV)=Left coupling case number (0..3).
 ! ISGPTH(ISEG ,LEV)=Segment type (1..26).
 ! These indices are used to denote the columns of table ISGPTH.
-
-use segtab, only: IBVPT, IC1, IC2, ITVPT
 
 implicit none
 type(SGStruct), intent(in) :: SGS

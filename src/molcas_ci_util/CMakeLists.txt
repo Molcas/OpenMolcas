@@ -98,7 +98,6 @@ set (sources
      scavcs.F90
      schmidt.F90
      second_quantization.F90
-     segtab.F90
      setsxci.F90
      sigmadet_cvb.F90
      simplify.F90
@@ -131,7 +130,6 @@ set (modfile_list
      rasscf_global.F90
      rassi_data.F90
      reord.F90
-     segtab.F90
      spinfo.F90
      str_info.F90
      timers.F90
