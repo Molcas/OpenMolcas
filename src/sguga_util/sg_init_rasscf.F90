@@ -31,7 +31,6 @@ type(SGStruct), intent(out) :: SGS
 type(CIStruct), intent(out) :: CIS
 type(EXStruct), intent(out) :: EXS
 logical(kind=iwp), intent(in) :: DoBlockDMRG
-integer(kind=iwp) :: IS, nRas1T, nRas2T, nRas3T
 
 Call SG_Init_Simple(nSym,nActEl,iSpin,                         &
                     SGS,CIS,EXS,                               &
