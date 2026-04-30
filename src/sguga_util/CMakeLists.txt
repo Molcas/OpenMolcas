@@ -15,7 +15,7 @@ set (sources
      guganew.F90
      sgprwf.F90
      sguga.F90
-     sgprint.F90
+     sg_print.F90
      epq_psi.F90
 )
 

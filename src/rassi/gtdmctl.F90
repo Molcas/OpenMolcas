@@ -398,7 +398,7 @@ if (WFTP1 == 'GENERAL') then
     call SGINIT(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
-      call SGPRINT(SGS(1))
+      call SG_Print(SGS(1))
     end if
     call CXINIT(SGS(1),CIS(1),EXS(1))
     ! CI sizes, as function of symmetry, are now known.
@@ -522,7 +522,7 @@ if (WFTP2 == 'GENERAL') then
     call SGINIT(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
-      call SGPRINT(SGS(2))
+      call SG_Print(SGS(2))
     end if
     call CXINIT(SGS(2),CIS(2),EXS(2))
     ! CI sizes, as function of symmetry, are now known.
