@@ -97,7 +97,7 @@ subroutine sigma_update(h,g,sgm,psi)
   sgm = Zero
 
   ! First, construct a new effective one-electron integral matrix:
-  ! k_tu = h_tu - 1/2 sum_v g_tvvu, to be used with EPQ_PSI/sigma2.
+  ! k_tu = h_tu - 1/2 sum_v g_tvvu, to be used with sigma1/sigma2.
   call mma_allocate(k,my_norb,my_norb,label='k')
   do u=1,my_norb
     do t=1,my_norb
@@ -122,7 +122,7 @@ subroutine sigma_update(h,g,sgm,psi)
   ! note that the transpose operation is also included in the timings
   ! used to compute the flop efficiency.
 
-  call EPQ_PSI(k,g,sgm,psi,ibsta,ibend)
+  call sigma1(k,g,sgm,psi,ibsta,ibend)
 
   if (mult /= 1) then
     ! we need efficient access to sgm by using the transpose
@@ -161,8 +161,8 @@ subroutine sigma_update(h,g,sgm,psi)
 
 end subroutine sigma_update
 
-subroutine EPQ_PSI(k,g,sgm,psi,ibsta,ibend)
-! EPQ_PSI = sum_jb sum_tu <jb|E_tu|ib> (h_kl - 1/2 sum_v <tv|vx>) C(ia,jb)
+subroutine sigma1(k,g,sgm,psi,ibsta,ibend)
+! sigma1 = sum_jb sum_tu <jb|E_tu|ib> (h_kl - 1/2 sum_v <tv|vx>) C(ia,jb)
 !    + 1/2 sum_jb sum_tuvx <jb|E_tu E_vx|ib> g_tuvx C(ia,jb)
 
   ! integrals
@@ -210,7 +210,7 @@ subroutine EPQ_PSI(k,g,sgm,psi,ibsta,ibend)
 
   call mma_deallocate(f)
 
-end subroutine EPQ_PSI
+end subroutine sigma1
 
 subroutine sigma2(k,g,sgm,psi,iasta,iaend)
 ! sigma2 = sum_ja sum_tu <ja|E_tu|ia> (h_kl - 1/2 sum_v <tv|vx>) C(ja,ib)
