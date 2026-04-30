@@ -60,7 +60,7 @@ real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:), FuncList(:), Gr
 
 real(kind=wp):: GEKThr_Kappa = 1.0_wp,&
                 GEKThr_Grad = 10.0_wp,&
-                bias = 10.0_wp,&
+                bias = 100.0_wp,&
                 SOFact = 1.0e9_wp
 
 real(kind=wp) :: ScrFac=Zero

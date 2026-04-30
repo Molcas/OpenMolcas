@@ -14,7 +14,7 @@ subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag)
 !
 ! Purpose: compute the Hessian diagonal elements of the Pipek-Mezey functional w.r.t. elements of the kappa matrix
 
-use Constants, only: Zero, Four, Eight
+use Constants, only: Zero, Four
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Debug
 
