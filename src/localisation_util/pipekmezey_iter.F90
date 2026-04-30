@@ -28,7 +28,7 @@ use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
-                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn
+                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth
 use loc_procedures, only: s_gek_localisation
 use filesystem, only: getcwd_, mkdir_
 
@@ -44,7 +44,7 @@ real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumGrad(:),FHrow_k(:)
 real(kind=wp), External :: DDot_
 
-integer(kind=iwp) :: maxel,i, inpOptMeth, k
+integer(kind=iwp) :: maxel,i, k
 real(kind=wp) :: dqdq,largest, alpha
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK,linesearch=.false.
 character(len=6):: UpMeth
@@ -56,7 +56,7 @@ integer(kind=iwp) :: rc
 character(len=8) :: fmt
 character(len=4) :: x1
 
-inpOptMeth = OptMeth
+OptMeth = inpOptMeth
 
 if (OptMeth == 4 .or. OptMeth == 5) then
     write(u6,*) "doing GEK Opt with:"

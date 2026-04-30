@@ -42,7 +42,7 @@ end type Loosen_Type
 
 integer(kind=iwp) :: fileorb_id, iWave, LocModel, LuSpool, MxConstr, nActa, nAtoms, nBas(MxSym), nCMO, nConstr(MxSym), &
                      nFro(MxSym), nMxIter, nOccInp(MxSym), nOrb(MxSym), nOrb2Loc(MxSym), nSym, nVirInp(MxSym), OptMeth, &
-                     ChargeType, LocOrb, AnalyseLoc, MoldMod
+                     ChargeType, LocOrb, AnalyseLoc, MoldMod, inpOptMeth
 #ifdef _HDF5_
 integer(kind=iwp) :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif
@@ -72,7 +72,7 @@ public :: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, BName, ChoS
           PrintMOs, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave,&
           ScrFac,Debug, OptMeth, ChargeType, LocOrb, Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
           Freeze,Loosen,FuncList,GradList,DispList,UmatList, ThrStep, GEKThr_Kappa, GEKThr_Grad, bias, SOFact, AnalyseLoc,&
-          kappa_cnt, xkappa_cnt, Ovlp, Ovlp_sqrt, nBas_per_Atom, nBas_Start, MoldMod, getIMmldn, useFH
+          kappa_cnt, xkappa_cnt, Ovlp, Ovlp_sqrt, nBas_per_Atom, nBas_Start, MoldMod, getIMmldn, useFH, inpOptMeth
 #ifdef _HDF5_
 public :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif

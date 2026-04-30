@@ -19,8 +19,8 @@ use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, Ch
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
                                 Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
-                                ScrFac, OptMeth, ChargeType, LocOrb,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
-                                Freeze,AnalyseLoc, MoldMod, getIMmldn
+                                ScrFac, ChargeType, LocOrb,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
+                                Freeze,AnalyseLoc, MoldMod, getIMmldn, inpOptMeth
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -160,24 +160,23 @@ do
         select case (Key(1:4))
             ! Jacobi Sweeps for PM localisation
             case('JACO')
-            OptMeth = 1
+            inpOptMeth = 1
 
              case ('NEWT')
             ! Newton Raphson for PM localisation
-            OptMeth = 2
+            inpOptMeth = 2
 
             case ('GRAD')
             ! Gradient Ascent for PM localisation
-            OptMeth = 3
+            inpOptMeth = 3
 
             case ('GEK')
             ! GEK (fullspace) for PM localisation
-            OptMeth = 4
+            inpOptMeth = 4
 
             case ('SGEK','S-GEK')
             ! S-GEK for PM localisation
-            OptMeth = 5
-
+            inpOptMeth = 5
 
             case default
                 write(u6,*) 'WARNING!!!'

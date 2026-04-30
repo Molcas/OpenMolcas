@@ -30,7 +30,7 @@ use Constants, only: Pi
 #endif
 
 use Definitions, only: u6
-use Localisation_globals, only: OptMeth,FuncList,GradList,DispList,bias,SOFact,useFH
+use Localisation_globals, only: OptMeth,FuncList,GradList,DispList,bias,SOFact,useFH,inpOptMeth
 
 implicit none
 
@@ -397,6 +397,9 @@ call mma_Deallocate(g_diis)
 call mma_Deallocate(H_diis)
 call mma_Deallocate(dq_diis)
 
+! reset to inpoptmeth
+OptMeth=inpOptMeth
+
 
 ! print timing & finalize GEK
 ! ---------------------------
@@ -507,7 +510,6 @@ call mma_Deallocate(UmatProd)
 call mma_Deallocate(UmatKsum)
 call mma_Deallocate(disp_summed)
 call mma_Deallocate(kappa_summed)
-
 
 
 end subroutine getUtot
