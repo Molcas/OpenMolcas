@@ -91,8 +91,6 @@ set (sources
      recno.F90
      reord2.F90
      reord.F90
-     restr.F90
-     rmvert.F90
      save_ci_vec.F90
      save_h_diag.F90
      save_sig_vec.F90
@@ -129,6 +127,7 @@ set (modfile_list
      general_data.F90
      input_mclr.F90
      mclr_data.F90
+     rasdef.F90
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90

@@ -13,7 +13,7 @@
 subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,ksym)
 
 use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 #endif
 

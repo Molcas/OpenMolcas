@@ -615,6 +615,202 @@ contains
 
   end subroutine MKMID
 
+subroutine RMVERT(SGS)
+! Purpose: Remove vertices from a DRT table.
+
+use RasDef, only: nRas, nRsPrt, nRasEl
+
+implicit none
+type(SGStruct), intent(inout) :: SGS
+integer(kind=iwp) :: IC, ID, iRO, iSy, IV, L, Lev, N, NCHANGES, NLD, NV
+logical(kind=iwp) :: Test
+integer(kind=iwp), allocatable :: CONN(:), Lim(:)
+integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2
+
+! Construct a restricted graph.
+call mma_allocate(Lim,SGS%nLev,Label='Lim')
+Lim(:) = 0
+! Fill in the occupation limit table:
+Lev = 0
+do iRO=1,nRsPrt
+  do iSy=1,SGS%nSym
+    Lev = Lev+nRas(iSy,iRO)
+  end do
+  if (Lev > 0) Lim(Lev) = nRasEl(iRO)
+end do
+
+call mma_allocate(SGS%Ver,SGS%nVert0,Label='SGS%Ver')
+call mma_allocate(CONN,SGS%nVert,Label='CONN')
+
+! KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
+do IV=1,SGS%nVert-1
+  SGS%Ver(IV) = 1
+  L = SGS%DRT0(IV,LTAB)
+  N = SGS%DRT0(IV,NTAB)
+  if (N < Lim(L)) SGS%Ver(IV) = 0
+end do
+SGS%Ver(SGS%nVert) = 1
+
+NCHANGES = 1 ! Initiate first loop
+do while (NCHANGES > 0)
+  ! REMOVE ARCS HAVING A DEAD UPPER OR LOWER VERTEX.
+  ! COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
+  NCHANGES = 0
+  do IV=1,SGS%nVert-1
+    if (SGS%Ver(IV) == 0) then
+      do IC=0,3
+        ID = SGS%Down0(IV,IC)
+        if (ID > 0) then
+          SGS%Down0(IV,IC) = 0
+          NCHANGES = NCHANGES+1
+        end if
+      end do
+    else
+      NLD = 0
+      do IC=0,3
+        ID = SGS%Down0(IV,IC)
+        if (ID > 0) then
+          if (SGS%Ver(ID) == 0) then
+            SGS%Down0(IV,IC) = 0
+            NCHANGES = NCHANGES+1
+          else
+            NLD = NLD+1
+          end if
+        end if
+      end do
+      if (NLD == 0) then
+        SGS%Ver(IV) = 0
+        NCHANGES = NCHANGES+1
+      end if
+    end if
+  end do
+  ! ALSO CHECK ON CONNECTIONS FROM ABOVE:
+  CONN(:) = 0
+  CONN(1) = SGS%Ver(1)
+  do IV=1,SGS%nVert-1
+    if (SGS%Ver(IV) == 1) then
+      do IC=0,3
+        ID = SGS%Down0(IV,IC)
+        Test = ID > 0
+        if (Test) Test = SGS%Ver(ID) == 1
+        if (Test) CONN(ID) = 1
+      end do
+    end if
+  end do
+  do IV=1,SGS%nVert
+    if ((SGS%Ver(IV) == 1) .and. (CONN(IV) == 0)) then
+      SGS%Ver(IV) = 0
+      NCHANGES = NCHANGES+1
+    end if
+  end do
+
+end do
+
+! IF NO CHANGES, THE REMAINING GRAPH IS VALID.
+! EVERY VERTEX OBEYS THE RESTRICTIONS. EVERY VERTEX IS
+! CONNECTED ABOVE AND BELOW (EXCEPTING THE TOP AND BOTTOM)
+! TO OTHER CONFORMING VERTICES.
+! THE PROCEDURE IS GUARANTEED TO FIND A STABLE SOLUTIONS,
+! SINCE EACH ITERATION REMOVES ARCS AND/OR VERTICES FROM THE
+! FINITE NUMBER WE STARTED WITH.
+
+if (SGS%Ver(1) == 0) then
+  write(u6,*) 'RASSI/RMVERT: Too severe restrictions.'
+  write(u6,*) 'Not one single configuration is left.'
+  call ABEND()
+end if
+
+NV = 0
+do IV=1,SGS%nVert
+  if (SGS%Ver(IV) == 1) then
+    NV = NV+1
+    SGS%Ver(IV) = NV
+  end if
+end do
+SGS%nVert = NV
+
+call mma_deallocate(CONN)
+call mma_deallocate(Lim)
+
+end subroutine RMVERT
+
+subroutine RESTR(SGS)
+! PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY CREATING A MASK
+
+implicit none
+type(SGStruct), intent(inout) :: SGS
+integer(kind=iwp) :: IC, ID, IV, IVD, IVV, LEV, MASK, N
+integer(kind=iwp), parameter :: i_and(0:3,0:3) = reshape([0,0,0,0,0,1,0,1,0,0,2,2,0,1,2,3],[4,4]), &
+                                i_or(0:3,0:3) = reshape([0,1,2,3,1,1,3,3,2,3,2,3,3,3,3,3],[4,4]), &
+                                LTAB = 1, NTAB = 2
+
+call mma_allocate(SGS%Ver,SGS%nVert0,Label='V11')
+
+! LOOP OVER ALL VERTICES AND CHECK ON RAS CONDITIONS
+! CREATE MASK
+
+do IV=1,SGS%nVert0
+  LEV = SGS%DRT0(IV,LTAB)
+  N = SGS%DRT0(IV,NTAB)
+  SGS%Ver(IV) = 0
+  if ((LEV == SGS%LV1RAS) .and. (N >= SGS%LM1RAS)) SGS%Ver(IV) = 1
+  if ((LEV == SGS%LV3RAS) .and. (N >= SGS%LM3RAS)) SGS%Ver(IV) = SGS%Ver(IV)+2
+end do
+
+! NOW LOOP FORWARDS, MARKING THOSE VERTICES CONNECTED FROM ABOVE.
+! SINCE VER WAS INITIALIZED TO ZERO, NO CHECKING IS NEEDED.
+
+do IV=1,SGS%nVert0-1
+  IVV = SGS%Ver(IV)
+  do IC=0,3
+    ID = SGS%Down0(IV,IC)
+    if (ID /= 0) SGS%Ver(ID) = i_or(SGS%Ver(ID),IVV)
+  end do
+end do
+
+! THEN LOOP BACKWARDS. SAME RULES, EXCEPT THAT CONNECTIVITY
+! SHOULD BE PROPAGATED ONLY ABOVE THE RESTRICTION LEVELS.
+
+do IV=SGS%nVert0-1,1,-1
+  LEV = SGS%DRT0(IV,LTAB)
+  MASK = 0
+  if (LEV > SGS%LV1RAS) MASK = 1
+  if (LEV > SGS%LV3RAS) MASK = MASK+2
+  IVV = SGS%Ver(IV)
+  do IC=0,3
+    ID = SGS%Down0(IV,IC)
+    if (ID /= 0) then
+      IVD = SGS%Ver(ID)
+      IVV = i_or(IVV,i_and(MASK,IVD))
+    end if
+  end do
+  SGS%Ver(IV) = IVV
+end do
+
+! WE ARE NOW INTERESTED ONLY IN VERTICES CONNECTED BOTH TO
+! ALLOWED VERTICES FOR RAS-SPACE 1 AND RAS-SPACE 3.
+! THOSE ARE NUMBERED IN ASCENDING ORDER, THE REST ARE ZEROED.
+
+SGS%nVert = 0
+do IV=1,SGS%nVert0
+  if (SGS%Ver(IV) == 3) then
+    SGS%nVert = SGS%nVert+1
+    SGS%Ver(IV) = SGS%nVert
+  else
+    SGS%Ver(IV) = 0
+  end if
+end do
+if (SGS%nVert == 0) call SysAbendMsg('Restr','No configuration was found\n','Check NACTEL, RAS1, RAS2, RAS3 values')
+#ifdef _DEBUGPRINT_
+write(u6,*) 'RESTR:'
+write(u6,*) 'LV1RAS, LV3RAS, LM1RAS, LM3RAS=',SGS%LV1RAS,SGS%LV3RAS,SGS%LM1RAS,SGS%LM3RAS
+do IV=1,SGS%nVert0
+  write(u6,*) 'VER(:)=',SGS%Ver(IV)
+end do
+#endif
+
+end subroutine RESTR
+
 end subroutine MKSGUGA
 
 SUBROUTINE SGINIT(nSym,nActEl,iSpin,                    &

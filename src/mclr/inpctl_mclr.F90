@@ -22,11 +22,9 @@ subroutine InpCtl_MCLR(iPL)
 
 use Str_Info, only: DTOC
 use ipPage, only: ipget, ipin, ipout, ipopen, W
-use sguga, only: CIS, EXS, SGS
 use MCLR_Data, only: ipCI, ISTATE, LuPT2, nGP, SA
 use MCLR_procedures, only: RdJobIph, RdJobIph_td
-use input_mclr, only: iMCPD, iMethod, iRoot, iSpin, nActEl, nConf, nCSF, nDisp, nElec3, nHole1, nRoots, nRS1, nRS2, nRS3, nSym, &
-                      Page, PT2, State_Sym, TimeDep
+use input_mclr, only: iMCPD, iMethod, iRoot, nConf, nDisp, nRoots, Page, PT2, State_Sym, TimeDep
 use dmrginfo, only: DoDMRG, DoMCLR, nDets_RGLR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

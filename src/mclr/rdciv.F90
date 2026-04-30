@@ -20,9 +20,8 @@ subroutine RdCIV()
 !                                                                      *
 !***********************************************************************
 
-use sguga, only: CIS, EXS, SGS
 use MCLR_Data, only: ERAS, LuCIV, LuJob
-use input_mclr, only: iSpin, iTOC, lRoots, nActEl, nConf, nCSF, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym
+use input_mclr, only: iTOC, lRoots, nConf, State_Sym
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
 use stdalloc, only: mma_allocate, mma_deallocate
