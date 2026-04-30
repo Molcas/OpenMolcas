@@ -19,7 +19,7 @@
 !#define _DEBUG2_
 #define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag,useFH,CMO,nBasis,PA,nAtoms)
+subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag,CMO,nBasis,PA,nAtoms)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -30,7 +30,7 @@ use Constants, only: Pi
 #endif
 
 use Definitions, only: u6
-use Localisation_globals, only: OptMeth,FuncList,GradList,DispList,bias,SOFact
+use Localisation_globals, only: OptMeth,FuncList,GradList,DispList,bias,SOFact,useFH
 
 implicit none
 
@@ -46,7 +46,7 @@ real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,
 integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
-logical(kind=iwp), intent(in) :: SORange,useFH
+logical(kind=iwp), intent(in) :: SORange
 character(LEN=1) :: Step_Trunc
 real(kind=wp), allocatable :: CoordsAbs(:,:)
 

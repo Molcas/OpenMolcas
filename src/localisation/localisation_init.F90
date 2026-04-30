@@ -18,7 +18,7 @@ use Localisation_globals, only: nSym, nOrb2Loc, nFro, nConstr, Skip, LocOrb, Thr
                                 Maximisation, ChoStart, LocModel, OptMeth, ChargeType, LocModel_UsrDef,Test_Localisation, &
                                 NMxIter, Thrs, ThrRot, ThrGrad, Analysis, AnaAtom, AnaNrm, PrintMOs, Timing, EvalER, Order,&
                                 LocPAO, AnaPAO, AnaPAO_Save, DoDomain, AnaDomain, ThrDomain, ThrPairDomain, LocNatOrb, &
-                                LocCanOrb, Wave, iWave, DoCNOs, Loosen, ThrStep, AnalyseLoc, MoldMod, getIMmldn
+                                LocCanOrb, Wave, iWave, DoCNOs, Loosen, ThrStep, AnalyseLoc, MoldMod, getIMmldn, useFH
 use Definitions, only: iwp, wp
 use Constants, only: Ten,Five,Half,One,Deg2Rad
 
@@ -30,8 +30,9 @@ real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, & !functional change
                             ThrGradDef=1.0e-4_wp,& !gradient norm
                             ThrStepDef=1.0e-2_wp !kappa norm
 
-MoldMod=-1 !at every MoldMod-th iteration, generate a molden file
+useFH=.false. !use full Pipek-Mezey Hessian in the SGEK
 getIMmldn = .false.
+MoldMod=-1 !at every MoldMod-th iteration, generate a molden file
 do iSym=1,nSym
   nOrb2Loc(iSym) = 0
   nFro(iSym) = 0
