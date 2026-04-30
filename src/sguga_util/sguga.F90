@@ -824,7 +824,7 @@ Type(SGStruct), intent(inout):: SGS
 Type(CIStruct), intent(inout):: CIS
 Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
 Type(EXStruct),  optional, intent(inout):: EXS
-Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T
+Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS
 
 ! Make sure that we start from a clean slate.
 If (Present(EXS)) THEN
@@ -849,6 +849,10 @@ If (Present(EXS)) THEN
    SGS%LM3RAS=NACTEL-NELE3
    IF ((NRAS1T+NRAS3T)/=0) Then
       SGS%IFRAS=1
+      do IS=1,NSYM
+         if (nRs1(IS)+nRs2(IS)+nRs3(IS) /= 0) SGS%IFRAS = SGS%IFRAS+1
+      end do
+
    Else
       SGS%IFRAS=0
    End If
