@@ -157,29 +157,29 @@ contains
 
   subroutine MKISM_MCLR(SGS)
 
-    use input_mclr, only: NRS1, NRS2, NRS3, NTASH
+    use input_mclr, only: NRS1, NRS2, NRS3, NLEV=>NTASH
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: iBas, iOrb, iSym, nSym
+    integer(kind=iwp) :: iBas, iOrb, iSym
 
-    nSym=SGS%nSym
-    SGS%NLEV = ntASh
+    SGS%NLEV = nLEV
+    ! Allocate Level to Symmetry table ISm:
     call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
 
     iOrb = 0
-    do iSym=1,nSym
+    do iSym=1,SGS%nSym
       do iBas=1,nRs1(iSym)
         iOrb = iOrb+1
         SGS%ISM(iOrb) = iSym
       end do
     end do
-    do iSym=1,nSym
+    do iSym=1,SGS%nSym
       do iBas=1,nRs2(iSym)
         iOrb = iOrb+1
         SGS%ISM(iOrb) = iSym
       end do
     end do
-    do iSym=1,nSym
+    do iSym=1,SGS%nSym
       do iBas=1,nRs3(iSym)
         iOrb = iOrb+1
         SGS%ISM(iOrb) = iSym
@@ -190,18 +190,17 @@ contains
 
   subroutine MKISM_RASSI(SGS)
 
-   use rassi_data, only: NASH, NASHT
+   use rassi_data, only: NASH, NLEV=>NASHT
 
    type(SGStruct), target, intent(inout) :: SGS
-   integer(kind=iwp) :: iOrb, ISYM, IT, ILEV, nSym
+   integer(kind=iwp) :: iOrb, ISYM, IT, ILEV
 
-    nSym = SGS%nSym
-    SGS%NLEV = NASHT ! Total number of active orbitals
+    SGS%NLEV = NLEV ! Total number of active orbitals
     ! Allocate Level to Symmetry table ISm:
     call mma_allocate(SGS%ISm,SGS%nLev,Label='SGS%ISm')
 
     iOrb = 0
-    do ISYM=1,NSYM
+    do ISYM=1,SGS%NSYM
       do IT=1,NASH(ISYM)
         iOrb = iOrb+1
         ILEV = LEVEL(iOrb)
@@ -214,20 +213,19 @@ contains
   subroutine mkism_cp2(SGS)
 
     use fciqmc_interface, only: DoFCIQMC
-    use caspt2_module, only: DoCumulant, nAsh, nAshT, nSym
+    use caspt2_module, only: DoCumulant, nAsh, NLEV=>nAshT
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ILEV, iq, ISYM, IT, iOrb, nLev
+    integer(kind=iwp) :: ILEV, iq, ISYM, IT, iOrb
 
-    NLEV = NASHT
     SGS%nLev = NLEV
-    call mma_allocate(SGS%ISM,NLEV,Label='ISM')
+    call mma_allocate(SGS%ISM,SGS%NLEV,Label='ISM')
     ! ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
     ! PAM060612: With true RAS space, the orbitals must be ordered
     ! first by RAS type, then by symmetry.
 
     iOrb = 0
-    do ISYM=1,NSYM
+    do ISYM=1,SGS%NSYM
       do IT=1,NASH(ISYM)
         iOrb = iOrb+1
         ! Quan: Bug in LEVEL(iOrb) and L2ACT
@@ -249,14 +247,13 @@ contains
 
     use gas_data, only: NGAS, NGSSH
     use rasscf_global, only: NSM
-    use general_data, only: NSYM
 
     type(SGStruct), target, intent(inout) :: SGS
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
     NLEV = 0
     do IGAS=1,NGAS
-      do ISYM=1,NSYM
+      do ISYM=1,SGS%NSYM
         NSTA = NLEV+1
         NLEV = NLEV+NGSSH(IGAS,ISYM)
         NSM(NSTA:NLEV) = ISYM
@@ -264,8 +261,8 @@ contains
     end do
 
     SGS%nLev = nLev
-    call mma_allocate(SGS%ISM,nLev,Label='SGS%ISM')
-    SGS%ISM(1:nLev) = NSM(1:nLev)
+    call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
+    SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
 
   end subroutine MKNSM
 
