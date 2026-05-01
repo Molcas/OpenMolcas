@@ -22,20 +22,17 @@
       use stdalloc, only: mma_allocate
       use sguga, only: SGS, L2ACT, LEVEL, CIS, EXS, SG_Init
       use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, nActEl,
-     &                         nAshT, nEle3, nHole1, nRas1, nRas2,
+     &                         NLEV=>nAshT, nEle3, nHole1, nRas1, nRas2,
      &                         nRas3, nSym, STSym, nAsh
 
       use caspt2_module, only: MxCI
       use definitions, only: iwp
       IMPLICIT NONE
 
-
-      Integer(kind=iwp) nLev
       INTEGER(kind=iwp) I,IT,ITABS,ILEV,ISYM, iq
 
       if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
      &      .and. (.not. DoFCIQMC) .and. (.not. DMRG)) Then
-!     if ((.NOT.DoCumulant) .and. (nactel.gt.0)) Then
 
          call SG_Init(nSym,nActEl,iSpin,
      &               SGS,CIS,EXS,
@@ -44,29 +41,28 @@
 
       else
 
-      NLEV=NASHT
-      SGS%nLev = NLEV
-      Call mma_allocate(SGS%ISM,NLEV,Label='ISM')
+         SGS%nSym=nSym
+         SGS%nLev = NLEV
+         Call mma_allocate(SGS%ISM,SGS%NLEV,Label='ISM')
 C ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
 C PAM060612: With true RAS space, the orbitals must be ordered
 C first by RAS type, then by symmetry.
-      ITABS=0
-      DO ISYM=1,NSYM
-        DO IT=1,NASH(ISYM)
-          ITABS=ITABS+1
-! Quan: Bug in LEVEL(ITABS) and L2ACT
-          if (DoCumulant .or. DoFCIQMC .or. DMRG) then
-             do iq=1,NLEV
-               LEVEL(iq)=iq
-               L2ACT(iq)=iq
-             enddo
-          endif
-          ILEV=LEVEL(ITABS)
-          SGS%ISM(ILEV)=ISYM
-        END DO
-      END DO
+
+         If (LEVEL(1)==0) THEN
+            LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+            L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+         END IF
+
+         ITABS=0
+         DO ISYM=1,SGS%NSYM
+           DO IT=1,NASH(ISYM)
+             ITABS=ITABS+1
+             ILEV=LEVEL(ITABS)
+             SGS%ISM(ILEV)=ISYM
+           END DO
+         END DO
 C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
-         Call mma_allocate(CIS%NCSF,nSym,Label='CIS%NCSF')
+         Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
          CIS%NCSF(:)=0
          CIS%NCSF(STSYM)=1
          Call mma_allocate(EXS%ICoup,[1,3],[1,1],Label='EXS%ICoup')

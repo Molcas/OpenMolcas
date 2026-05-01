@@ -47,7 +47,10 @@ type(SGStruct), target :: SGS
 type(CIStruct), target :: CIS
 type(EXStruct), target :: EXS
 
-integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
+
+integer(kind=iwp) :: iq
+integer(kind=iwp) :: L2ACT(MXLEV)=[(0,iq=1,MXLEV)]
+integer(kind=iwp) :: LEVEL(MXLEV)=[(0,iq=1,MXLEV)]
 
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
@@ -212,8 +215,7 @@ contains
 
   subroutine mkism_cp2(SGS)
 
-    use fciqmc_interface, only: DoFCIQMC
-    use caspt2_module, only: DoCumulant, nAsh, NLEV=>nAshT
+    use caspt2_module, only: nAsh, NLEV=>nAshT
 
     type(SGStruct), target, intent(inout) :: SGS
     integer(kind=iwp) :: ILEV, iq, ISYM, IT, iOrb
@@ -224,17 +226,16 @@ contains
     ! PAM060612: With true RAS space, the orbitals must be ordered
     ! first by RAS type, then by symmetry.
 
+    ! Initiate if not already set externally.
+    If (LEVEL(1)==0) THEN
+       LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+       L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+    End If
+
     iOrb = 0
     do ISYM=1,SGS%NSYM
       do IT=1,NASH(ISYM)
         iOrb = iOrb+1
-        ! Quan: Bug in LEVEL(iOrb) and L2ACT
-        if (DoCumulant .or. DoFCIQMC) then
-          do iq=1,NLEV
-            LEVEL(iq) = iq
-            L2ACT(iq) = iq
-          end do
-        end if
         ILEV = LEVEL(iOrb)
         SGS%ISM(ILEV) = ISYM
       end do
