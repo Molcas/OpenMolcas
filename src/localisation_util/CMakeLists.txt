@@ -83,6 +83,7 @@ set (sources
      scram.F90
      sq2tri.F90
      sqrtmt.F90
+     transformpa.F90
      tri2rec.F90
      updateb.F90
      updatep.F90

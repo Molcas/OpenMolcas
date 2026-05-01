@@ -366,6 +366,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
         UMatList(:,:,nIter) = Umat(:,:) ! exp(-q_i) = U_i
 
+
+        call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
+
+
         ! update CMO
         CMO(:,:) = rotated_CMO(:,:)
 
@@ -635,7 +639,7 @@ subroutine P_of_eta(Disp,Functional)
     call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
     call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
     call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
-    call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
+    call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
 
