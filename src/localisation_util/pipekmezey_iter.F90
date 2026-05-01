@@ -300,6 +300,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             Disp(:) = best_eta * SearchDir(:)
         end if
 
+#       ifdef _NOTUSED_
         ! if Hdiag vals close to zero -> redundant rotation that we don't want to do, so set step to zero there
         do i=1,fsdim
             If (Hdiagvec(i) == 1.0e-2_wp) Then
@@ -307,6 +308,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             Disp(i) = Zero
             End If
         end do
+#       endif
 
 
 #       ifdef _DEBUGLISTS_
