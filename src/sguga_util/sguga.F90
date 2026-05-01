@@ -144,8 +144,13 @@ contains
       call mkISm_mclr(SGS)
     else if (ProgName(1:6) == 'caspt2') then
       call mkISm_cp2(SGS)
-    else
+     else if (ProgName(1:6) == 'rasscf') then
       call mkNSM(SGS)
+     else if (ProgName(1:5) == 'casvb') then
+       call mkNSM(SGS)
+     else
+       Write (u6,*) 'MkISM: not setup for program:', ProgName
+       Call Abend()
     end if
 
   end subroutine MKISM
@@ -841,9 +846,18 @@ Else
    Call SG_Free(SGS,CIS)
 End If
 
-If (nSym<1 .or. nSym>8) Write (u6,*) ' SG_Init_Simple: illegal nSym value:', nSym
-If (iSpin<1) Write (u6,*) ' SG_Init_Simple: illegal iSpin value:', iSpin
-If (nActEl<1) Write (u6,*) ' SG_Init_Simple: illegal nActEl value:', nActEl
+If (nSym<1 .or. nSym>8) Then
+   Write (u6,*) ' SG_Init_Simple: illegal nSym value:', nSym
+   Call Abend()
+End If
+If (iSpin<1) Then
+   Write (u6,*) ' SG_Init_Simple: illegal iSpin value:', iSpin
+   Call Abend()
+End If
+If (nActEl<0) Then
+   Write (u6,*) ' SG_Init_Simple: illegal nActEl value:', nActEl
+   Call Abend()
+End If
 
 SGS%nSym=nSym
 SGS%iSpin=iSpin
@@ -851,12 +865,12 @@ SGS%nActEl=nActEl
 
 If (Present(EXS)) THEN
 
-   nRas1T = sum(nRs1(1:nSym))
-   nRas2T = sum(nRs2(1:nSym))
-   nRas3T = sum(nRs3(1:nSym))
+   nRAS1T = sum(nRs1(1:nSym))
+   nRAS2T = sum(nRs2(1:nSym))
+   nRAS3T = sum(nRs3(1:nSym))
 
    SGS%LV1RAS=NRAS1T
-   SGS%LV3RAS=nRas1T+NRAS2T
+   SGS%LV3RAS=nRAS1T+NRAS2T
    SGS%LM1RAS=2*nRas1T-NHOLE1
    SGS%LM3RAS=NACTEL-NELE3
    IF ((NRAS1T+NRAS3T)/=0) Then
@@ -868,6 +882,11 @@ If (Present(EXS)) THEN
    Else
       SGS%IFRAS=0
    End If
+Else
+   SGS%LV1RAS=0
+   SGS%LV3RAS=0
+   SGS%LM1RAS=0
+   SGS%LM3RAS=0
 End IF
 
 Call MkSGUGA(SGS,CIS)
