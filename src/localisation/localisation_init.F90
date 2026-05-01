@@ -31,7 +31,7 @@ real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, & !functional change
                             ThrGradDef=1.0e-4_wp,& !gradient norm
                             ThrStepDef=1.0e-2_wp !kappa norm
 
-useFH=.false. !use full Pipek-Mezey Hessian in the SGEK
+useFH=.true. !use full Pipek-Mezey Hessian in the SGEK
 getIMmldn = .false.
 MoldMod=-1 !at every MoldMod-th iteration, generate a molden file
 do iSym=1,nSym

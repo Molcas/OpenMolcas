@@ -17,6 +17,7 @@
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _FORCEGEKRANGE_
+!#define _FULLHESSIAN_
 
 subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 ! Author: T.B. Pedersen
@@ -44,7 +45,7 @@ real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:)
 real(kind=wp), External :: DDot_
 
-integer(kind=iwp) :: maxel,i, k
+integer(kind=iwp) :: maxel,i
 real(kind=wp) :: dqdq,largest, alpha
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK,linesearch=.false.
 character(len=6):: UpMeth
@@ -192,6 +193,18 @@ case (2,3,4,5)
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
+
+#   ifdef _FULLHESSIAN_
+    BLOCK
+        real(kind=wp), allocatable :: Hessian(:,:)
+        call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
+
+        call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
+
+        call mma_deallocate(Hessian)
+    end BLOCK
+#   endif
+
 end select
 
 
