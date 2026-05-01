@@ -40,7 +40,7 @@ logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
-                              kappa(:,:),unitary_mat(:,:),Umat_inv(:,:), rotated_CMO(:,:),hdiagvec(:),&
+                              kappa(:,:),Umat(:,:),Umat_inv(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:),NumGrad(:),FHrow_k(:)
 real(kind=wp), External :: DDot_
 
@@ -149,7 +149,7 @@ case(2,3,4,5)
     call mma_Allocate(FuncList,nMxIter,Label='FuncList')
     call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
     call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
-    call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
+    call mma_Allocate(Umat,nOrb2Loc,nOrb2Loc,Label='Umat')
     call mma_Allocate(Umat_inv,nOrb2Loc,nOrb2Loc,Label='Umat_inv')
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
@@ -164,7 +164,7 @@ case(2,3,4,5)
     GradList(:,:)=Zero
     FuncList(:)=Zero
     Kappa(:,:)=Zero
-    unitary_mat(:,:) = Zero
+    Umat(:,:) = Zero
     Umat_inv(:,:) = Zero
 
 case default
@@ -362,9 +362,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
         ! get U=exp(-kappa) and U_inv=exp(kappa)
-        call expkap_localisation(kappa,nOrb2Loc,unitary_mat,Umat_inv)
-        call RotateNxN(CMO,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
-        UMatList(:,:,nIter) = unitary_mat(:,:) ! exp(-q_i) = U_i
+        call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
+        call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
+        UMatList(:,:,nIter) = Umat(:,:) ! exp(-q_i) = U_i
 
         ! update CMO
         CMO(:,:) = rotated_CMO(:,:)
@@ -372,7 +372,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       ifdef _DEBUGLISTS_
         write(u6,*) "After GEK procedure and step scaling"
         call RecPrt('Disp',' ',Disp,fsdim,1)
-        call RecPrt('Unitary Mat',' ',unitary_mat,norb2loc,norb2loc)
+        call RecPrt('Unitary Mat',' ',Umat,norb2loc,norb2loc)
 #       endif
 
     end select ! 2x2 or NxN rotations
@@ -459,7 +459,7 @@ case(2,3,4,5)
 
     call mma_Deallocate(kappa_cnt)
     call mma_Deallocate(xkappa_cnt)
-    call mma_Deallocate(unitary_mat)
+    call mma_Deallocate(Umat)
     call mma_Deallocate(Umat_inv)
     call mma_Deallocate(rotated_CMO)
     call mma_Deallocate(CMO_Ref)
@@ -633,8 +633,8 @@ subroutine P_of_eta(Disp,Functional)
     real(kind=wp),intent(in) :: Disp(fsdim)
     real(kind=wp),intent(out) :: Functional
     call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
-    call expkap_localisation(kappa,nOrb2Loc,unitary_mat,Umat_inv)
-    call RotateNxN(CMO,nOrb2Loc,nBasis,unitary_mat,rotated_CMO)
+    call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
+    call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
     call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
