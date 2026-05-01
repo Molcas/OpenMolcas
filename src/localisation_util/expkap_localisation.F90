@@ -21,7 +21,7 @@ subroutine expkap_localisation(kappa,nOrb2Loc,Umat, Umat_inv)
 
 use definitions, only: wp,iwp,u6
 use constants, only: Zero,One
-use Localisation_globals, only: Debug, kappa_cnt, xkappa_cnt
+use Localisation_globals, only: kappa_cnt, xkappa_cnt
 
 implicit none
 
