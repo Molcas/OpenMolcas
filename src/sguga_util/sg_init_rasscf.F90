@@ -22,7 +22,7 @@ subroutine SG_Init_RASSCF(nSym,nActEl,iSpin,                         &
 !
 ! MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 
-use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA, MkCOT, MkCList, MkSGNum, SG_Init_Simple
+use sguga, only: CIStruct, EXStruct, SGStruct, MkCOT, MkCList, MkSGNum, SG_Init_Simple
 use Definitions, only: iwp
 
 implicit none

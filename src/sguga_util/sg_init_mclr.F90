@@ -12,7 +12,7 @@
 !#define _DEBUGPRINT_
 subroutine SG_Init_MCLR(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,ksym)
 
-use sguga, only: CIStruct, EXStruct, SGStruct, MkSGUGA, MkCOT, MkCList, MkSGNum, SG_Init_Simple
+use sguga, only: CIStruct, EXStruct, SGStruct, MkCOT, MkCList, MkSGNum, SG_Init_Simple
 use Definitions, only: iwp
 
 implicit none
