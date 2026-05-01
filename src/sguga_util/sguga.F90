@@ -169,6 +169,12 @@ contains
     ! Allocate Level to Symmetry table ISm:
     call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
 
+    ! Initiate if not already set externally.
+    If (LEVEL(1)==0) THEN
+       LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+       L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+    End If
+
     iOrb = 0
     do iSym=1,SGS%nSym
       do iBas=1,nRs1(iSym)
@@ -201,6 +207,12 @@ contains
     SGS%NLEV = NLEV ! Total number of active orbitals
     ! Allocate Level to Symmetry table ISm:
     call mma_allocate(SGS%ISm,SGS%nLev,Label='SGS%ISm')
+
+    ! Initiate if not already set externally.
+    If (LEVEL(1)==0) THEN
+       LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+       L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+    End If
 
     iOrb = 0
     do ISYM=1,SGS%NSYM
@@ -264,6 +276,12 @@ contains
     SGS%nLev = nLev
     call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
     SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
+
+    ! Initiate if not already set externally.
+    If (LEVEL(1)==0) THEN
+       LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+       L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+    End If
 
   end subroutine MKNSM
 
