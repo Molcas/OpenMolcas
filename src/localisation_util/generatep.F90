@@ -41,14 +41,19 @@ if (ChargeType == 1) then !Mulliken framework
 
     ! Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)
 
-    call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,One,Ovlp,nBasis,cMO,nBasis,Zero,Sbar,nBasis)
+    call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,&
+                        One,Ovlp,nBasis,&
+                            cMO,nBasis,&
+                        Zero,Sbar,nBasis)
 
     do iAt=1,nAtoms
 
         ! Compute MA(s,t) = sum_{mu_in_A} cMO(mu,s) * Sbar(mu,t)
 
-        call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,cMO(nBas_Start(iAt),1),nBasis,Sbar(nBas_Start(iAt),1),&
-                    nBasis,Zero, PA(1,1,iAt),nOrb2Loc)
+        call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),&
+                            One,cMO(nBas_Start(iAt),1),nBasis,&
+                                Sbar(nBas_Start(iAt),1),nBasis,&
+                            Zero,PA(1,1,iAt),nOrb2Loc)
 
         ! Compute <s|PA|t> by symmetrization of MA.
 
@@ -78,11 +83,16 @@ Else if (ChargeType == 2) then ! Loewdin framework
     call mma_Allocate(lowdin_prod,nBasis,nOrb2Loc,Label='lowdin_prod')
 
     !compute (lowdin_prod)_{mu,s} = sum_{nu} (S^{1/2})_{mu,nu} (C)_{nu,s}
-    call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,One,Ovlp_sqrt,nBasis,cMO,nBasis,Zero,lowdin_prod,nBasis)
+    call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,&
+                        One,Ovlp_sqrt,nBasis,&
+                            cMO,nBasis,&
+                        Zero,lowdin_prod,nBasis)
 
     do iAt = 1, nAtoms
-        call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,lowdin_prod(nBas_Start(iAt),1),nBasis,&
-                    lowdin_prod(nBas_Start(iAt),1),nBasis,Zero, PA(1,1,iAt),nOrb2Loc)
+        call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),&
+                            One,lowdin_prod(nBas_Start(iAt),1),nBasis,&
+                                lowdin_prod(nBas_Start(iAt),1),nBasis,&
+                            Zero, PA(1,1,iAt),nOrb2Loc)
     end do
 
     if (Debug_generatep) then
