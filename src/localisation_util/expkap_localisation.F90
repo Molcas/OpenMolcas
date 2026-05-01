@@ -11,10 +11,10 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine expkap_localisation(kappa,nOrb2Loc,unitary_mat)
+subroutine expkap_localisation(kappa,nOrb2Loc,Umat, Umat_inv)
 ! analogous to exp_series in scf, only for the specified orbital subspace
 !
-! purpose: returns exp(kappa) as unitary_mat
+! purpose: returns exp(kappa) as Umat
 !
 ! kappa_cnt and xkappa_cnt are auxiliary matrices of dim (norb2loc,norb2loc) required for the Taylor expansion.
 ! they need to be allocated outside of this subroutine
@@ -26,31 +26,32 @@ use Localisation_globals, only: Debug, kappa_cnt, xkappa_cnt
 implicit none
 
 integer(kind=iwp), intent(in) :: nOrb2Loc
-real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),unitary_mat(nOrb2Loc,nOrb2Loc)
+real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),Umat(nOrb2Loc,nOrb2Loc),Umat_inv(nOrb2Loc,nOrb2Loc)
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-18_wp
 real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt,maxel(2)
 logical(kind=iwp), parameter :: debug_exp = .false.
 real(kind=wp),External :: DDot_
 
-kappa(:,:) = -kappa(:,:)
-
 kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
 xkappa_cnt(:,:) = kappa_cnt
 
-unitary_mat(:,:) = Zero
-call unitmat(unitary_mat,nOrb2Loc)
+Umat(:,:) = Zero
+Umat_inv(:,:) = Zero
+call unitmat(Umat,nOrb2Loc)
+call unitmat(Umat_inv,nOrb2Loc)
 
 cnt = 1
 factor = One
 ithrsh = One
 maxel(:) = 0
 
-unitary_mat(:,:) =  unitary_mat(:,:) + kappa(:,:)
+Umat(:,:) =  Umat(:,:) - kappa(:,:)
+Umat_inv(:,:) =  Umat_inv(:,:) + kappa(:,:)
 
 if (debug_exp) then
     write(u6,*) 'Taylor expansion: n=1'
-    call RecPrt('unitary_mat = I + kappa^1',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
+    call RecPrt('Umat = I + kappa^1',' ',Umat(:,:), nOrb2Loc, nOrb2Loc)
     call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
     write(u6,*) 'Taylor expansion: more terms'
 end if
@@ -75,11 +76,27 @@ do while (ithrsh > thrsh_taylor)
 
     xkappa_cnt(:,:) = kappa_cnt(:,:)
 
-    unitary_mat(:,:) =  unitary_mat + kappa_cnt(:,:)
-    if (debug_exp) write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term: +',1/factor,' * kappa^',cnt, &
-                                                        ', current ithrsh = ', ithrsh
+
+    ! differentiation of odd and even cases, because this expands exp(-kappa)
+    ! all terms starting at n=2
+    if (mod(cnt,2) == 0) then
+        Umat(:,:) =  Umat + kappa_cnt(:,:)
+        if (debug_exp) then
+            write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term: +',1/factor,' * kappa^',cnt, &
+            ', current ithrsh = ', ithrsh
+        end if
+    else
+        Umat(:,:) =  Umat - kappa_cnt(:,:)
+        if (debug_exp) then
+            write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term: -',1/factor,' * kappa^',cnt, &
+            ', current ithrsh = ', ithrsh
+        end if
+    end if
+
+    Umat_inv(:,:) =  Umat_inv(:,:) + kappa_cnt(:,:)
+
     ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))/(Norb2loc**2)
-    !ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(unitary_mat)+thrsh_taylor))
+    !ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(Umat)+thrsh_taylor))
 
     ! sanity check for divergence
     if (ithrsh/720 > One) then
@@ -92,22 +109,29 @@ do while (ithrsh > thrsh_taylor)
         write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term:  ',1/factor,' * kappa^',cnt, &
             ', new ithrsh     = ', ithrsh
         call RecPrt('kappa^cnt',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
-        call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
+        call RecPrt('Umat',' ',Umat(:,:), nOrb2Loc, nOrb2Loc)
     end if
 
 end do
 
 
-maxel(:) = maxloc(abs(unitary_mat(:,:)))
-if (unitary_mat(maxel(1),maxel(2)) > One+0.01_wp) then
+maxel(:) = maxloc(abs(Umat(:,:)))
+if (Umat(maxel(1),maxel(2)) > One+0.01_wp) then
     write(u6,*) "element of U bigger cannot be larger than 1, as U is supposed to be orthogonal/unitary:", &
-                 unitary_mat(maxel(1),maxel(2))
+                 Umat(maxel(1),maxel(2))
     call Abend()
 end if
 
-if (debug) then
-    write(u6,"(//A)") "rotating the orbitals with:"
-    call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
-    call RecPrt('unitary transformation matrix (exp(kappa))',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
-end if
+#ifdef _DEBUGPRINT_
+kappa_cnt(:,:)= Zero
+call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
+                    One,Umat,nOrb2Loc,&
+                        Umat_inv,nOrb2Loc,&
+                        Zero,kappa_cnt,norb2Loc)
+call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
+call RecPrt('Umat',' ',Umat(:,:), nOrb2Loc, nOrb2Loc)
+call RecPrt('Umat_inv',' ',Umat_inv(:,:), nOrb2Loc, nOrb2Loc)
+call RecPrt('U^(T)U = I',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
+#endif
+
 end subroutine expkap_localisation

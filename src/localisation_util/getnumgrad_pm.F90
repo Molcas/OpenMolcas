@@ -27,7 +27,7 @@ real(kind=wp), intent(inout) :: NumGrad(fsdim)
 real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc)
 logical, intent(in) :: debug2
 
-real(kind=wp),allocatable :: infDisp(:), diff(:),DispMat(:,:),rotated_CMO(:,:),gref(:),infUmat(:,:)
+real(kind=wp),allocatable :: infDisp(:), diff(:),DispMat(:,:),rotated_CMO(:,:),gref(:),infUmat(:,:), Umat_inv(:,:)
 real(kind=wp) :: dx,fref,fpdx,fmdx,fp2dx,fm2dx,GradNorm,PA(nOrb2Loc,nOrb2Loc,nAtoms)
 integer(kind=iwp) :: i,NumGradMeth
 logical:: debug=.false.
@@ -37,6 +37,7 @@ call mma_allocate(infDisp,fsdim,label="infDisp")
 call mma_allocate(diff,fsdim,label="diff")
 call mma_allocate(DispMat, fsdim,fsdim, Label ="DispMat")
 call mma_allocate(infUmat, nOrb2Loc,nOrb2Loc, Label ="infUmat")
+call mma_allocate(Umat_inv, nOrb2Loc,nOrb2Loc, Label ="Umat_inv")
 call mma_allocate(rotated_CMO, nBasis,nOrb2Loc, Label ="rotated_CMO")
 call mma_allocate(gref,fsdim,label="gref")
 
@@ -62,7 +63,8 @@ do i = 1,fsdim
         infDisp(:) = Zero
         infDisp(i) = dx
         call vec2upper_triag(DispMat(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-        call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
+        call expkap_localisation(DispMat(:,:),nOrb2Loc,infUmat, Umat_inv)
+        call RotateNxN(CMO,nOrb2Loc,nBasis,infUmat,rotated_CMO)
         call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
 
@@ -74,7 +76,8 @@ do i = 1,fsdim
         infDisp(:) = Zero
         infDisp(i) = dx
         call vec2upper_triag(DispMat(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-        call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
+        call expkap_localisation(DispMat(:,:),nOrb2Loc,infUmat, Umat_inv)
+        call RotateNxN(CMO,nOrb2Loc,nBasis,infUmat,rotated_CMO)
         call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
 
@@ -82,7 +85,8 @@ do i = 1,fsdim
         infDisp(:) = Zero
         infDisp(i) = -dx
         call vec2upper_triag(DispMat(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-        call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
+        call expkap_localisation(DispMat(:,:),nOrb2Loc,infUmat, Umat_inv)
+        call RotateNxN(CMO,nOrb2Loc,nBasis,infUmat,rotated_CMO)
         call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
 
@@ -94,7 +98,8 @@ do i = 1,fsdim
         infDisp(:) = Zero
         infDisp(i) = dx
         call vec2upper_triag(DispMat(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-        call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
+        call expkap_localisation(DispMat(:,:),nOrb2Loc,infUmat, Umat_inv)
+        call RotateNxN(CMO,nOrb2Loc,nBasis,infUmat,rotated_CMO)
         call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,fpdx,.false.)
 
@@ -102,7 +107,8 @@ do i = 1,fsdim
         infDisp(:) = Zero
         infDisp(i) = -dx
         call vec2upper_triag(DispMat(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-        call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
+        call expkap_localisation(DispMat(:,:),nOrb2Loc,infUmat, Umat_inv)
+        call RotateNxN(CMO,nOrb2Loc,nBasis,infUmat,rotated_CMO)
         call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,fmdx,.false.)
 
@@ -110,7 +116,8 @@ do i = 1,fsdim
         infDisp(:) = Zero
         infDisp(i) = 2*dx
         call vec2upper_triag(DispMat(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-        call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
+        call expkap_localisation(DispMat(:,:),nOrb2Loc,infUmat, Umat_inv)
+        call RotateNxN(CMO,nOrb2Loc,nBasis,infUmat,rotated_CMO)
         call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,fp2dx,.false.)
 
@@ -118,7 +125,8 @@ do i = 1,fsdim
         infDisp(:) = Zero
         infDisp(i) = -2*dx
         call vec2upper_triag(DispMat(:,:),nOrb2Loc,infDisp(:),fsdim,.true.)
-        call RotateNxN(CMO,DispMat,nOrb2Loc,nBasis,infUmat,rotated_CMO)
+        call expkap_localisation(DispMat(:,:),nOrb2Loc,infUmat, Umat_inv)
+        call RotateNxN(CMO,nOrb2Loc,nBasis,infUmat,rotated_CMO)
         call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,fm2dx,.false.)
 
@@ -151,6 +159,7 @@ call mma_Deallocate(infDisp)
 call mma_Deallocate(diff)
 call mma_Deallocate(DispMat)
 call mma_Deallocate(infUmat)
+call mma_Deallocate(Umat_inv)
 call mma_Deallocate(rotated_CMO)
 call mma_Deallocate(gref)
 
