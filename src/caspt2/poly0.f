@@ -48,10 +48,18 @@ C ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
 C PAM060612: With true RAS space, the orbitals must be ordered
 C first by RAS type, then by symmetry.
 
-         If (LEVEL(1)==0) THEN
+!        If (LEVEL(1)==0) THEN
             LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
             L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-         END IF
+!        Else
+!           Do iq=1,SGS%nLEV
+!              If (LEVEL(iq)/=iq .or. L2Act(iq)/=iq) Then
+!                 Write (6,*) 'LEVEL(:)=',LEVEL(:)
+!                 Write (6,*) 'L2Act(:)=',L2Act(:)
+!                 Stop 666
+!              End If
+!          End Do
+!        END IF
 
          ITABS=0
          DO ISYM=1,SGS%NSYM

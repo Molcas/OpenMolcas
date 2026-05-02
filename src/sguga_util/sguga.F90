@@ -170,10 +170,18 @@ contains
     call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
 
     ! Initiate if not already set externally.
-    If (LEVEL(1)==0) THEN
+!   If (LEVEL(1)==0) THEN
        LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
        L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-    End If
+!   Else
+!      Do iq=1, SGS%nLev
+!         If (LEVEL(iq)/=iq .or. L2Act(iq)/=iq) Then
+!            Write (6,*) 'Level(:)=',Level(:)
+!            Write (6,*) 'L2Act(:)=',L2Act(:)
+!            Stop 333
+!         End If
+!      End Do
+!   End If
 
     iOrb = 0
     do iSym=1,SGS%nSym
