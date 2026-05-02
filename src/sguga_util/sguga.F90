@@ -2261,27 +2261,37 @@ end do
 
 end subroutine CSFCOUNT
 
-subroutine MkISM_RAW(SGS,nLev)
+subroutine MkISM_RAW(SGS,nLev,XLevel,XL2Act)
 
 type(SGStruct), target, intent(inout) :: SGS
 integer(kind=iwp), intent(in):: nLev
+integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
 
 SGS%NLEV = nLEV
 ! Allocate Level to Symmetry table ISm:
 call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
 
 ! Initiate if not already set externally.
-If (LEVEL(1)==0) THEN
-   LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-   L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+If (Present(XLevel).and.Present(XL2Act)) Then
+   Level(1:MxLev)=xLevel(1:MxLev)
+   L2Act(1:MxLev)=xL2Act(1:MxLev)
+Else If (Present(XLevel)) Then
+   Level(1:MxLev)=xLevel(1:MxLev)
+Else If (Present(XL2Act)) Then
+   L2Act(1:MxLev)=xL2Act(1:MxLev)
 Else
-   Do iq=1, SGS%nLev
-      If (LEVEL(iq)/=iq .or. L2Act(iq)/=iq) Then
-         Write (6,*) 'Level(:)=',Level(:)
-         Write (6,*) 'L2Act(:)=',L2Act(:)
-!        Stop 333
-      End If
-   End Do
+   If (LEVEL(1)==0) THEN
+      LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+      L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+   Else
+      Do iq=1, SGS%nLev
+         If (LEVEL(iq)/=iq .or. L2Act(iq)/=iq) Then
+            Write (6,*) 'Level(:)=',Level(:)
+            Write (6,*) 'L2Act(:)=',L2Act(:)
+!           Stop 333
+         End If
+      End Do
+End If
 End If
 
 End subroutine MkISM_RAW
