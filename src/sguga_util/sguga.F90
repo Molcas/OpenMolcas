@@ -815,14 +815,18 @@ end subroutine MKSGUGA
 
 SUBROUTINE SG_Init_Simple(nSym,nActEl,iSpin,                   &
                           SGS,CIS,EXS,                         &
-                          nHole1,nEle3,nRs1,nRs2,nRs3)
+                          nHole1,nEle3,nRs1,nRs2,nRs3,         &
+                          xLevel,xL2Act)
 IMPLICIT None
 Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
 Type(SGStruct), intent(inout):: SGS
 Type(CIStruct), intent(inout):: CIS
-Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
 Type(EXStruct),  optional, intent(inout):: EXS
-Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS
+Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
+Integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
+
+Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS, iq
+
 
 ! Make sure that we start from a clean slate.
 If (Present(EXS)) THEN
@@ -876,23 +880,37 @@ Else
    SGS%LM3RAS=0
 End IF
 
+If (Present(xLevel)) Then
+   Level(:)=xLevel(:)
+!Else
+!   Level(1:MxLev)=[(iq,iq=1,MxLev)]
+End If
+If (Present(xL2Act)) Then
+   L2Act(:)=xL2Act(:)
+!Else
+!   L2Act(1:MxLev)=[(iq,iq=1,MxLev)]
+End If
+
 Call MkSGUGA(SGS,CIS)
 
 END SUBROUTINE SG_Init_Simple
 
 SUBROUTINE SG_Init(nSym,nActEl,iSpin,                   &
                   SGS,CIS,EXS,                          &
-                  nHole1,nEle3,nRs1,nRs2,nRs3)
+                  nHole1,nEle3,nRs1,nRs2,nRs3,          &
+                  xLevel,xL2Act)
 IMPLICIT None
 Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
 Type(SGStruct), intent(inout):: SGS
 Type(CIStruct), intent(inout):: CIS
 Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
 Type(EXStruct),  optional, intent(inout):: EXS
+Integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
 
 Call SG_Init_Simple(nSym,nActEl,iSpin,                   &
                     SGS,CIS,EXS,                         &
-                    nHole1,nEle3,nRs1,nRs2,nRs3)
+                    nHole1,nEle3,nRs1,nRs2,nRs3,         &
+                    xLevel,xL2Act)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
