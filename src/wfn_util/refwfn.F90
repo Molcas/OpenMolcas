@@ -12,6 +12,7 @@
 module refwfn
 
 use UnixInfo, only: ProgName
+use Molcas, only: MxLev
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -21,8 +22,13 @@ logical(kind=iwp) :: refwfn_active = .false., refwfn_is_h5
 character(len=128) :: refwfn_filename
 integer(kind=iwp) :: refwfn_id, IADR15(30)
 
+integer(kind=iwp) :: iq
+integer(kind=iwp) :: L2ACT(MXLEV)=[(0,iq=1,MXLEV)]
+integer(kind=iwp) :: LEVEL(MXLEV)=[(0,iq=1,MXLEV)]
+
 public :: refwfn_active, refwfn_is_h5, refwfn_filename, refwfn_id, IADR15
 public :: refwfn_init, refwfn_close, refwfn_info, refwfn_data
+public :: L2Act, Level
 
 contains
 
@@ -225,7 +231,7 @@ subroutine refwfn_data()
 !***********************************************************************
 !SVC: initialize the reference wavefunction data
 
-  use sguga, only: L2ACT, LEVEL
+  use sguga, only: xL2ACT=>L2Act, xLEVEL=>Level
   use Molcas, only: MxAct, MxRoot
   use RASDim, only: MxIter
   use caspt2_global, only: CMO, CMO_Internal, IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO
@@ -357,6 +363,8 @@ subroutine refwfn_data()
 # ifdef _HDF5_
   end if
 # endif
+  xLevel(:)=Level(:)
+  xL2Act(:)=L2Act(:)
 
 # ifdef _HDF5_
   if (refwfn_is_h5) then
