@@ -55,7 +55,7 @@ integer(kind=iwp) :: LEVEL(MXLEV)=[(0,iq=1,MXLEV)]
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
 public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkNSM, MkSgNum, SG_Free
-public :: SG_Init_Simple
+public :: SG_Init_Simple, MKISM_Raw
 
 integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
                                 IC1(26)   = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
@@ -165,23 +165,7 @@ contains
     type(SGStruct), target, intent(inout) :: SGS
     integer(kind=iwp) :: iBas, iOrb, iSym
 
-    SGS%NLEV = nLEV
-    ! Allocate Level to Symmetry table ISm:
-    call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
-
-    ! Initiate if not already set externally.
-!   If (LEVEL(1)==0) THEN
-       LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-       L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-!   Else
-!      Do iq=1, SGS%nLev
-!         If (LEVEL(iq)/=iq .or. L2Act(iq)/=iq) Then
-!            Write (6,*) 'Level(:)=',Level(:)
-!            Write (6,*) 'L2Act(:)=',L2Act(:)
-!            Stop 333
-!         End If
-!      End Do
-!   End If
+    Call MkISM_RAW(SGS,nLev)
 
     iOrb = 0
     do iSym=1,SGS%nSym
@@ -212,15 +196,7 @@ contains
    type(SGStruct), target, intent(inout) :: SGS
    integer(kind=iwp) :: iOrb, ISYM, IT, ILEV
 
-    SGS%NLEV = NLEV ! Total number of active orbitals
-    ! Allocate Level to Symmetry table ISm:
-    call mma_allocate(SGS%ISm,SGS%nLev,Label='SGS%ISm')
-
-    ! Initiate if not already set externally.
-    If (LEVEL(1)==0) THEN
-       LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-       L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-    End If
+    Call MkISM_RAW(SGS,nLev)
 
     iOrb = 0
     do ISYM=1,SGS%NSYM
@@ -240,17 +216,10 @@ contains
     type(SGStruct), target, intent(inout) :: SGS
     integer(kind=iwp) :: ILEV, iq, ISYM, IT, iOrb
 
-    SGS%nLev = NLEV
-    call mma_allocate(SGS%ISM,SGS%NLEV,Label='ISM')
-    ! ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
+    Call MkISM_RAW(SGS,nLev)
+
     ! PAM060612: With true RAS space, the orbitals must be ordered
     ! first by RAS type, then by symmetry.
-
-    ! Initiate if not already set externally.
-    If (LEVEL(1)==0) THEN
-       LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-       L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-    End If
 
     iOrb = 0
     do ISYM=1,SGS%NSYM
@@ -281,15 +250,9 @@ contains
       end do
     end do
 
-    SGS%nLev = nLev
-    call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
-    SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
+    Call MkISM_RAW(SGS,nLev)
 
-    ! Initiate if not already set externally.
-    If (LEVEL(1)==0) THEN
-       LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-       L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-    End If
+    SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
 
   end subroutine MKNSM
 
@@ -2279,5 +2242,30 @@ do ISYTOT=1,NSYM
 end do
 
 end subroutine CSFCOUNT
+
+subroutine MkISM_RAW(SGS,nLev)
+
+type(SGStruct), target, intent(inout) :: SGS
+integer(kind=iwp), intent(in):: nLev
+
+SGS%NLEV = nLEV
+! Allocate Level to Symmetry table ISm:
+call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
+
+! Initiate if not already set externally.
+If (LEVEL(1)==0) THEN
+   LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+   L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+Else
+   Do iq=1, SGS%nLev
+      If (LEVEL(iq)/=iq .or. L2Act(iq)/=iq) Then
+         Write (6,*) 'Level(:)=',Level(:)
+         Write (6,*) 'L2Act(:)=',L2Act(:)
+!        Stop 333
+      End If
+   End Do
+End If
+
+End subroutine MkISM_RAW
 
 end module SGUGA

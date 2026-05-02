@@ -20,7 +20,7 @@
 
       use fciqmc_interface, only: DoFCIQMC
       use stdalloc, only: mma_allocate
-      use sguga, only: SGS, L2ACT, LEVEL, CIS, EXS, SG_Init
+      use sguga, only: SGS, L2ACT, LEVEL, CIS, EXS, SG_Init, MkISM_Raw
       use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, nActEl,
      &                         NLEV=>nAshT, nEle3, nHole1, nRas1, nRas2,
      &                         nRas3, nSym, STSym, nAsh
@@ -42,24 +42,7 @@
       else
 
          SGS%nSym=nSym
-         SGS%nLev = NLEV
-         Call mma_allocate(SGS%ISM,SGS%NLEV,Label='ISM')
-C ISM(LEV) IS SYMMETRY LABEL OF ACTIVE ORBITAL AT LEVEL LEV.
-C PAM060612: With true RAS space, the orbitals must be ordered
-C first by RAS type, then by symmetry.
-
-!        If (LEVEL(1)==0) THEN
-            LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-            L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-!        Else
-!           Do iq=1,SGS%nLEV
-!              If (LEVEL(iq)/=iq .or. L2Act(iq)/=iq) Then
-!                 Write (6,*) 'LEVEL(:)=',LEVEL(:)
-!                 Write (6,*) 'L2Act(:)=',L2Act(:)
-!                 Stop 666
-!              End If
-!          End Do
-!        END IF
+         Call MkISM_Raw(SGS,nLev)
 
          ITABS=0
          DO ISYM=1,SGS%NSYM
@@ -69,6 +52,7 @@ C first by RAS type, then by symmetry.
              SGS%ISM(ILEV)=ISYM
            END DO
          END DO
+
 C INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
          Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
          CIS%NCSF(:)=0
