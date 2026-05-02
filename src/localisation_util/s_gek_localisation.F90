@@ -17,7 +17,7 @@
 #endif
 
 !#define _DEBUG2_
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 
 subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS,HDiag,CMO,nBasis,PA,nAtoms)
 

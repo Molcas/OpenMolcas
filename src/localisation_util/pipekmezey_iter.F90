@@ -1,4 +1,4 @@
-!***********************************************************************
+!**********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -17,7 +17,7 @@
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _FORCEGEKRANGE_
-!#define _FULLHESSIAN_
+!#define _TESTHESSIAN_
 
 subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 ! Author: T.B. Pedersen
@@ -194,7 +194,7 @@ case (2,3,4,5)
     GradList(:,1) = -Gradient(:)
     HdiagList(:,1) = -Hdiagvec(:)
 
-#   ifdef _FULLHESSIAN_
+#   ifdef _TESTHESSIAN_
     BLOCK
         real(kind=wp), allocatable :: Hessian(:,:)
         call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
