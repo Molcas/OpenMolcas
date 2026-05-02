@@ -18,7 +18,7 @@ use sguga, only: CIStruct, EXStruct, SGStruct, SG_Init, SG_Free
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG
-use rassi_aux, only: AO_Mode, iDisk_TDM, ipglob, jDisk_TDM
+use rassi_aux, only: AO_Mode, iDisk_TDM, ipglob, jDisk_TDM, Level
 use rassi_data, only: ENUC, NASH, NASHT, NCMO, NDEL, NFRO, NISH, NISHT, NOSH, NSSH, NTDMAB, NTDMZZ, NTRA
 use rassi_global_arrays, only: CnfTab1, CnfTab2, FSBTAB1, FSBTAB2, HAM, OrbTab, PART, REST1, REST2, SFDYS, SPNTAB1, SPNTAB2, &
                                SSTAB, TRANS1, TRANS2
@@ -395,7 +395,7 @@ if (WFTP1 == 'GENERAL') then
   NRASEL(3) = NACTE1
 
   if (.not. doDMRG) then
-    call SG_Init(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
+    call SG_Init(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1),xLevel=Level)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
       call SG_Print(SGS(1))
@@ -519,7 +519,7 @@ if (WFTP2 == 'GENERAL') then
   NRASEL(3) = NACTE2
 
   if (.not. doDMRG) then
-    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),xLevel=Level)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))

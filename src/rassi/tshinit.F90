@@ -12,7 +12,7 @@
 subroutine TSHinit(Energy)
 
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS3, NRSPRT
-use rassi_aux, only: ipglob
+use rassi_aux, only: ipglob, Level
 use rassi_global_arrays, only: JBNUM, LROOT, PART
 use sguga, only: CIStruct, EXStruct, SGStruct, SG_Init, SG_Free
 use Cntrl, only: ChkHop, IRREP, ISTATE1, ISTATE2, LSYM1, LSYM2, MLTPLT, NACTE, nCI1, nCI2, NELE3, NHOLE1, NSTATE, RASTYP
@@ -81,7 +81,7 @@ if (WFTYP1 == 'GENERAL') then
   NRASEL(1) = 2*NRS1T-NHOL11
   NRASEL(2) = NACTE1-NELE31
   NRASEL(3) = NACTE1
-  call SG_Init(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
+  call SG_Init(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1),xLevel=Level)
   if (IPGLOB > 4) then
     write(u6,*) 'Split-graph structure for JOB1=',JOB1
     call SG_Print(SGS(1))
@@ -147,7 +147,7 @@ if (LOWROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),xLevel=Level)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
@@ -214,7 +214,7 @@ if (UPROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),xLevel=Level)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
