@@ -23,8 +23,8 @@ character(len=128) :: refwfn_filename
 integer(kind=iwp) :: refwfn_id, IADR15(30)
 
 integer(kind=iwp) :: iq
-integer(kind=iwp) :: L2ACT(MXLEV)=[(0,iq=1,MXLEV)]
-integer(kind=iwp) :: LEVEL(MXLEV)=[(0,iq=1,MXLEV)]
+integer(kind=iwp) :: L2ACT(MXLEV)=[(1,iq=1,MXLEV)]
+integer(kind=iwp) :: LEVEL(MXLEV)=[(1,iq=1,MXLEV)]
 
 public :: refwfn_active, refwfn_is_h5, refwfn_filename, refwfn_id, IADR15
 public :: refwfn_init, refwfn_close, refwfn_info, refwfn_data
@@ -364,6 +364,8 @@ subroutine refwfn_data()
   end if
 # endif
   Write (6,*) 'Enter RefWfn_data'
+  If (Level(1)==0) Level(1:Size(Level))=[(iq,iq=1,Size(Level))]
+  If (L2Act(1)==0) L2Act(1:Size(L2Act))=[(iq,iq=1,Size(L2Act))]
   Write (6,*) 'Level(:)=',Level(:)
   Write (6,*) 'L2Act(:)=',L2Act(:)
   xLevel(:)=Level(:)
