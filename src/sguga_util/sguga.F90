@@ -2310,14 +2310,16 @@ Else
       End Do
 End If
 End If
-Write (6,*)
-Write (6,*) 'Exit MkISM_RAW'
-Write (6,*) 'L2Act(:)=',L2Act(:)
-Write (6,*) 'Level(:)=',Level(:)
 
 ! Default to incremental index if not properly set
 If (Level(1)==0) Level(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+
+Write (6,*)
+Write (6,*) 'Exit MkISM_RAW'
+Write (6,*) 'Level(:)=',Level(:)
+Write (6,*) 'L2Act(:)=',L2Act(:)
+
 
 End subroutine MkISM_RAW
 
