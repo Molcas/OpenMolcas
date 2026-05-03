@@ -880,16 +880,25 @@ Else
    SGS%LM3RAS=0
 End IF
 
+Write (6,*) 'Enter SC_Init_Simple'
+Write (6,*) 'Level(:)=',Level(:)
+Write (6,*) 'L2Act(:)=',L2Act(:)
 If (Present(xLevel)) Then
+   Write (6,*) 'xLevel(:)=',xLevel(:)
    Level(:)=xLevel(:)
 !Else
 !   Level(1:MxLev)=[(iq,iq=1,MxLev)]
 End If
 If (Present(xL2Act)) Then
    L2Act(:)=xL2Act(:)
+   Write (6,*) 'xL2Act(:)=',xL2Act(:)
 !Else
 !   L2Act(1:MxLev)=[(iq,iq=1,MxLev)]
 End If
+Write (6,*)
+Write (6,*) 'Level(:)=',Level(:)
+Write (6,*) 'L2Act(:)=',L2Act(:)
+Write (6,*) 'Exit SC_Init_Simple'
 
 Call MkSGUGA(SGS,CIS)
 
@@ -2271,13 +2280,21 @@ SGS%NLEV = nLEV
 ! Allocate Level to Symmetry table ISm:
 call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
 
+
+Write (6,*) 'Enter MkISM_RAW'
+Write (6,*) 'Level(:)=',Level(:)
+Write (6,*) 'L2Act(:)=',L2Act(:)
 ! Initiate if not already set externally.
 If (Present(XLevel).and.Present(XL2Act)) Then
+   Write (6,*) 'xLevel(:)=',xLevel(:)
+   Write (6,*) 'xL2Act(:)=',xL2Act(:)
    Level(1:MxLev)=xLevel(1:MxLev)
    L2Act(1:MxLev)=xL2Act(1:MxLev)
 Else If (Present(XLevel)) Then
+   Write (6,*) 'xLevel(:)=',xLevel(:)
    Level(1:MxLev)=xLevel(1:MxLev)
 Else If (Present(XL2Act)) Then
+   Write (6,*) 'xL2Act(:)=',xL2Act(:)
    L2Act(1:MxLev)=xL2Act(1:MxLev)
 Else
    If (LEVEL(1)==0) THEN
@@ -2293,6 +2310,10 @@ Else
       End Do
 End If
 End If
+Write (6,*)
+Write (6,*) 'Exit MkISM_RAW'
+Write (6,*) 'L2Act(:)=',L2Act(:)
+Write (6,*) 'Level(:)=',Level(:)
 
 ! Default to incremental index if not properly set
 If (Level(1)==0) Level(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
