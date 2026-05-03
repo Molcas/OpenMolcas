@@ -54,7 +54,7 @@ integer(kind=iwp), protected :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
-public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkNSM, MkSgNum, SG_Free
+public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkISM_rasscf, MkSgNum, SG_Free
 public :: SG_Init_Simple, MKISM_Raw
 
 integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
@@ -2135,7 +2135,7 @@ If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 
 End subroutine MkISM_RAW
 
-  subroutine MKNSM(SGS)
+  subroutine MKISM_RASSCF(SGS)
   ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
 
     use gas_data, only: NGAS, NGSSH
@@ -2157,7 +2157,7 @@ End subroutine MkISM_RAW
 
     SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
 
-  end subroutine MKNSM
+  end subroutine MKISM_RASSCF
 
   subroutine MKISM(SGS)
 
@@ -2167,13 +2167,13 @@ End subroutine MkISM_RAW
 
     Select Case(ProgName(1:6))
     Case ('rassi ')
-      call mkISm_Rassi(SGS)
+      call mkISM_Rassi(SGS)
     Case ('mclr  ')
-      call mkISm_mclr(SGS)
+      call mkISM_mclr(SGS)
     Case ('caspt2')
-      call mkISm_cp2(SGS)
+      call mkISM_cp2(SGS)
     Case ('rasscf','casvb ')
-       call mkNSM(SGS)
+      call mkISM_rasscf(SGS)
     Case Default
        Write (u6,*) 'MkISM: not setup for program:', ProgName
        Call Abend()

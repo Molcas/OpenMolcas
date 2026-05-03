@@ -35,7 +35,7 @@ use OFembed, only: dFMD, Do_OFemb, KEonly, OFE_KSDFT, ThrFThaw, Xsigma
 use CMS, only: CMSGiveOpt, CMSGuessFile, iCMSOpt
 use UnixInfo, only: SuperName
 use Lucia_Interface, only: Lucia_Util
-use sguga, only: CIS, EXS, SGS, MkNSM
+use sguga, only: CIS, EXS, SGS, MkISM_RASSCF
 use gas_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use Symmetry_info, only: Mul
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
@@ -4043,9 +4043,9 @@ SkipGUGA = DoBlockDMRG
 ! Construct the Guga tables
 
 if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
-  ! right now skip most part of gugactl for GAS, but only call mknsm.
+  ! right now skip most part of gugactl for GAS, but only call mkism.
   if (.not. iDoGas) then
-    ! DMRG calculation no need the GugaCtl subroutine
+    ! DMRG calculation no need the SG_Init_RASSCF subroutine
 #   ifdef _DMRG_
     if (Key('DMRG') .or. doDMRG) then
       call mma_deallocate(initial_occ)
@@ -4069,7 +4069,7 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
     end if
 #   endif
   else  ! if iDoGas
-    call mknsm(SGS)
+    call mkism_rasscf(SGS)
   end if
 end if
 ! ======================================================================
