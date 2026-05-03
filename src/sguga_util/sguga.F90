@@ -2165,20 +2165,19 @@ End subroutine MkISM_RAW
 
   type(SGStruct), target, intent(inout) :: SGS
 
-    if (ProgName(1:6) == 'rassi') then
+    Select Case(ProgName(1:6))
+    Case ('rassi ')
       call mkISm_Rassi(SGS)
-    else if (ProgName(1:4) == 'mclr') then
+    Case ('mclr  ')
       call mkISm_mclr(SGS)
-    else if (ProgName(1:6) == 'caspt2') then
+    Case ('caspt2')
       call mkISm_cp2(SGS)
-     else if (ProgName(1:6) == 'rasscf') then
-      call mkNSM(SGS)
-     else if (ProgName(1:5) == 'casvb') then
+    Case ('rasscf','casvb ')
        call mkNSM(SGS)
-     else
+    Case Default
        Write (u6,*) 'MkISM: not setup for program:', ProgName
        Call Abend()
-    end if
+    End Select
 
   end subroutine MKISM
 
