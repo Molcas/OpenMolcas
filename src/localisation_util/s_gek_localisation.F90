@@ -455,11 +455,12 @@ end subroutine sizecontrol
 subroutine getUtot()
 use Localisation_globals, only: UmatList
 integer(kind=iwp) :: I
-real(kind=wp), allocatable :: disp_summed(:) UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),kappa_summed(:,:),UmatKsum(:,:)
+real(kind=wp), allocatable :: disp_summed(:) UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),kappa_summed(:,:),UmatKsum(:,:),aux_mat(:,:)
 ! compute product matrix U_1...n = U_1 * ... * U_n
 ! -------------------------------------------------
 ! look later if this can be done in pipekmezey_iter, to save comp
 call mma_allocate(UmatProd,nOrb2Loc,nOrb2Loc,Label='UmatProd')
+call mma_allocate(aux_mat,nOrb2Loc,nOrb2Loc,Label='aux_mat')
 call mma_allocate(xUmatProd,nOrb2Loc,nOrb2Loc,Label='xUmatProd')
 call mma_allocate(Umat_i,nOrb2Loc,nOrb2Loc,Label='Umat_i')
 call mma_allocate(kappa_summed,nOrb2Loc,nOrb2Loc,Label="kappa_summed")
@@ -471,7 +472,11 @@ Umat_i(:,:) = Zero
 call unitmat(xUmatProd,nOrb2Loc)
 
 do i=iFirst,iLast
-    Umat_i(:,:) = UmatList(:,:,i)
+
+    call vec2upper_triag(kappa_summed,nOrb2Loc,DispList(:,i),fsdim,.true.)
+    !call expkap_localisation(kappa_summed,nOrb2Loc,Umat_i,xUmatProd,UmatKsum)
+    call expkap_localisation(kappa_summed,nOrb2Loc,Umat_i,aux_mat)
+
     !call RecPrt("UmatList(:,:,i) = ",' ',UmatList(:,:,i),nOrb2Loc,nOrb2Loc)
 
     !call RecPrt("U_i = "," ",Umat_i,nOrb2Loc,nOrb2Loc)
@@ -506,6 +511,7 @@ write(u6,*) "norm of U_1...n - exp(-K_1-K_2-...-K_n):", norm, "ndiis =",ndiis
 
 call mma_Deallocate(xUmatProd)
 call mma_Deallocate(Umat_i)
+call mma_Deallocate(aux_mat)
 call mma_Deallocate(UmatProd)
 call mma_Deallocate(UmatKsum)
 call mma_Deallocate(disp_summed)

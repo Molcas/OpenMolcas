@@ -28,7 +28,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
-                                UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
+                                ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
                                 BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth
 use loc_procedures, only: s_gek_localisation
 use filesystem, only: getcwd_, mkdir_
@@ -45,7 +45,7 @@ real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               Disp(:),CMO_Ref(:,:),SearchDir(:)
 real(kind=wp), External :: DDot_
 
-integer(kind=iwp) :: maxel,i
+integer(kind=iwp) :: maxel
 real(kind=wp) :: dqdq,largest, alpha
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK,linesearch=.false.
 character(len=6):: UpMeth
@@ -142,7 +142,6 @@ case(2,3,4,5)
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
     call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
-    call mma_Allocate(UmatList,nOrb2Loc,nOrb2Loc,nMxIter,Label='UmatList')
     call mma_allocate(Disp,fsdim,Label='Disp')
     call mma_allocate(SearchDir,fsdim,Label='SearchDir')
     call mma_Allocate(GradList,fsdim,nMxIter,Label='GradList')
@@ -155,10 +154,6 @@ case(2,3,4,5)
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
 
     DispList(:,:)=Zero
-    UmatList(:,:,:)=Zero
-    do i=1, norb2loc
-        UmatList(i,i,:) = One
-    end do
     GradList(:,:)=Zero
     FuncList(:)=Zero
     Kappa(:,:)=Zero
@@ -364,8 +359,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! get U=exp(-kappa) and U_inv=exp(kappa)
         call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
         call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
-        UMatList(:,:,nIter) = Umat(:,:) ! exp(-q_i) = U_i
-
 
         call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
 
@@ -469,7 +462,6 @@ case(2,3,4,5)
     call mma_Deallocate(CMO_Ref)
 
     call mma_Deallocate(FuncList)
-    call mma_Deallocate(UmatList)
     call mma_Deallocate(GradList)
     call mma_Deallocate(DispList)
     call mma_Deallocate(Disp)
