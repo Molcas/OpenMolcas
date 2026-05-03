@@ -42,7 +42,7 @@ integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),Umat(:,:),Umat_inv(:,:), rotated_CMO(:,:),hdiagvec(:),&
-                              Disp(:),CMO_Ref(:,:),Hdiaglist(:,:),SearchDir(:)
+                              Disp(:),CMO_Ref(:,:),SearchDir(:)
 real(kind=wp), External :: DDot_
 
 integer(kind=iwp) :: maxel,i
@@ -141,7 +141,6 @@ case(2,3,4,5)
     call mma_Allocate(Gradient,fsdim,Label='Gradient')
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
-    call mma_Allocate(HdiagList,fsdim,nMxIter,Label='HdiagList')
     call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
     call mma_Allocate(UmatList,nOrb2Loc,nOrb2Loc,nMxIter,Label='UmatList')
     call mma_allocate(Disp,fsdim,Label='Disp')
@@ -156,7 +155,6 @@ case(2,3,4,5)
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
 
     DispList(:,:)=Zero
-    HdiagList(:,:)=Zero
     UmatList(:,:,:)=Zero
     do i=1, norb2loc
         UmatList(i,i,:) = One
@@ -192,7 +190,6 @@ case (2,3,4,5)
     call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
-    HdiagList(:,1) = -Hdiagvec(:)
 
 #   ifdef _TESTHESSIAN_
     BLOCK
@@ -266,7 +263,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
 
         GradList(:,nIter) = -Gradient(:) ! g_i
-        HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
         FuncList(nIter) = -Functional ! y_i
 
         !if (OptMeth==3 .and. gradnorm>1.0e-2_wp) then
@@ -322,7 +318,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             write(u6,*) "nIter =",nIter
             call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
             call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter),fsdim,nIter)
-            call RecPrt('HdiagList(:,:nIter)',' ',HdiagList(:,:nIter),fsdim,nIter)
             call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
 #       endif
 
@@ -474,7 +469,6 @@ case(2,3,4,5)
     call mma_Deallocate(CMO_Ref)
 
     call mma_Deallocate(FuncList)
-    call mma_Deallocate(HdiagList)
     call mma_Deallocate(UmatList)
     call mma_Deallocate(GradList)
     call mma_Deallocate(DispList)
