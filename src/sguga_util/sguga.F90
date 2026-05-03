@@ -232,30 +232,6 @@ contains
 
   end subroutine mkism_cp2
 
-  subroutine MKNSM(SGS)
-  ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
-
-    use gas_data, only: NGAS, NGSSH
-    use rasscf_global, only: NSM
-
-    type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
-
-    NLEV = 0
-    do IGAS=1,NGAS
-      do ISYM=1,SGS%NSYM
-        NSTA = NLEV+1
-        NLEV = NLEV+NGSSH(IGAS,ISYM)
-        NSM(NSTA:NLEV) = ISYM
-      end do
-    end do
-
-    Call MkISM_RAW(SGS,nLev)
-
-    SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
-
-  end subroutine MKNSM
-
   subroutine mknVert0(SGS)
 
     type(SGStruct), target, intent(inout) :: SGS
@@ -2012,34 +1988,6 @@ call mma_deallocate(VTab)
 
 end subroutine MKCOUP
 
-subroutine MKNSM(SGS)
-! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
-
-use gas_data, only: NGAS, NGSSH
-use rasscf_global, only: NSM
-use general_data, only: NSYM
-
-implicit none
-type(SGStruct), intent(inout) :: SGS
-integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
-
-NLEV = 0
-do IGAS=1,NGAS
-  do ISYM=1,NSYM
-    NSTA = NLEV+1
-    NLEV = NLEV+NGSSH(IGAS,ISYM)
-    NSM(NSTA:NLEV) = ISYM
-  end do
-end do
-
-if (SGS%nSym /= 0) then
-  SGS%nLev = nLev
-  call mma_allocate(SGS%ISM,nLev,Label='SGS%ISM')
-  SGS%ISM(1:nLev) = NSM(1:nLev)
-end if
-
-end subroutine MKNSM
-
 subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
 ! PURPOSE: FOR ALL UPPER AND LOWER WALKS
 !          COMPUTE THE DIRECT ARC WEIGHT SUM AND THE
@@ -2282,5 +2230,30 @@ If (Level(1)==0) Level(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 
 End subroutine MkISM_RAW
+
+  subroutine MKNSM(SGS)
+  ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
+
+    use gas_data, only: NGAS, NGSSH
+    use rasscf_global, only: NSM
+
+    type(SGStruct), target, intent(inout) :: SGS
+    integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
+
+    NLEV = 0
+    do IGAS=1,NGAS
+      do ISYM=1,SGS%NSYM
+        NSTA = NLEV+1
+        NLEV = NLEV+NGSSH(IGAS,ISYM)
+        NSM(NSTA:NLEV) = ISYM
+      end do
+    end do
+
+    Call MkISM_RAW(SGS,nLev)
+
+    SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
+
+  end subroutine MKNSM
+
 
 end module SGUGA
