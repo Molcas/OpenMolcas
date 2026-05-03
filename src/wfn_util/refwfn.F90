@@ -363,8 +363,13 @@ subroutine refwfn_data()
 # ifdef _HDF5_
   end if
 # endif
+  Write (6,*) 'Enter RefWfn_data'
+  Write (6,*) 'Level(:)=',Level(:)
+  Write (6,*) 'L2Act(:)=',L2Act(:)
   xLevel(:)=Level(:)
   xL2Act(:)=L2Act(:)
+  Write (6,*) 'Mode data to sguga (to be removed).'
+  Write (6,*) 'Exit RefWfn_data'
 
 # ifdef _HDF5_
   if (refwfn_is_h5) then
