@@ -74,11 +74,6 @@ subroutine MKSGUGA(SGS,CIS)
   type(SGStruct), target, intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
   integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
-
-  ! CREATE THE SYMMETRY INDEX VECTOR
-
-  call MKISM(SGS)
-
   ! COMPUTE TOP ROW OF THE GUGA TABLE
 
   call mknVert0(SGS)
@@ -135,102 +130,6 @@ subroutine MKSGUGA(SGS,CIS)
 
 contains
 
-  subroutine MKISM(SGS)
-
-  use UnixInfo, only: ProgName
-
-  type(SGStruct), target, intent(inout) :: SGS
-
-    if (ProgName(1:6) == 'rassi') then
-      call mkISm_Rassi(SGS)
-    else if (ProgName(1:4) == 'mclr') then
-      call mkISm_mclr(SGS)
-    else if (ProgName(1:6) == 'caspt2') then
-      call mkISm_cp2(SGS)
-     else if (ProgName(1:6) == 'rasscf') then
-      call mkNSM(SGS)
-     else if (ProgName(1:5) == 'casvb') then
-       call mkNSM(SGS)
-     else
-       Write (u6,*) 'MkISM: not setup for program:', ProgName
-       Call Abend()
-    end if
-
-  end subroutine MKISM
-
-  subroutine MKISM_MCLR(SGS)
-
-    use input_mclr, only: NRS1, NRS2, NRS3, NLEV=>NTASH
-
-    type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: iBas, iOrb, iSym
-
-    Call MkISM_RAW(SGS,nLev)
-
-    iOrb = 0
-    do iSym=1,SGS%nSym
-      do iBas=1,nRs1(iSym)
-        iOrb = iOrb+1
-        SGS%ISM(iOrb) = iSym
-      end do
-    end do
-    do iSym=1,SGS%nSym
-      do iBas=1,nRs2(iSym)
-        iOrb = iOrb+1
-        SGS%ISM(iOrb) = iSym
-      end do
-    end do
-    do iSym=1,SGS%nSym
-      do iBas=1,nRs3(iSym)
-        iOrb = iOrb+1
-        SGS%ISM(iOrb) = iSym
-      end do
-    end do
-
-  end subroutine MKISM_MCLR
-
-  subroutine MKISM_RASSI(SGS)
-
-   use rassi_data, only: NASH, NLEV=>NASHT
-
-   type(SGStruct), target, intent(inout) :: SGS
-   integer(kind=iwp) :: iOrb, ISYM, IT, ILEV
-
-    Call MkISM_RAW(SGS,nLev)
-
-    iOrb = 0
-    do ISYM=1,SGS%NSYM
-      do IT=1,NASH(ISYM)
-        iOrb = iOrb+1
-        ILEV = LEVEL(iOrb)
-        SGS%ISM(ILEV) = ISYM
-      end do
-    end do
-
-  end subroutine MKISM_RASSI
-
-  subroutine mkism_cp2(SGS)
-
-    use caspt2_module, only: nAsh, NLEV=>nAshT
-
-    type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ILEV, iq, ISYM, IT, iOrb
-
-    Call MkISM_RAW(SGS,nLev)
-
-    ! PAM060612: With true RAS space, the orbitals must be ordered
-    ! first by RAS type, then by symmetry.
-
-    iOrb = 0
-    do ISYM=1,SGS%NSYM
-      do IT=1,NASH(ISYM)
-        iOrb = iOrb+1
-        ILEV = LEVEL(iOrb)
-        SGS%ISM(ILEV) = ISYM
-      end do
-    end do
-
-  end subroutine mkism_cp2
 
   subroutine mknVert0(SGS)
 
@@ -859,9 +758,14 @@ End IF
 If (Present(xLevel)) Level(:)=xLevel(:)
 If (Present(xL2Act)) L2Act(:)=xL2Act(:)
 
+! CREATE THE SYMMETRY INDEX VECTOR
+
+Call MKISM(SGS)
+
 Call MkSGUGA(SGS,CIS)
 
 END SUBROUTINE SG_Init_Simple
+
 
 SUBROUTINE SG_Init(nSym,nActEl,iSpin,                   &
                   SGS,CIS,EXS,                          &
@@ -2255,5 +2159,101 @@ End subroutine MkISM_RAW
 
   end subroutine MKNSM
 
+  subroutine MKISM(SGS)
+
+  use UnixInfo, only: ProgName
+
+  type(SGStruct), target, intent(inout) :: SGS
+
+    if (ProgName(1:6) == 'rassi') then
+      call mkISm_Rassi(SGS)
+    else if (ProgName(1:4) == 'mclr') then
+      call mkISm_mclr(SGS)
+    else if (ProgName(1:6) == 'caspt2') then
+      call mkISm_cp2(SGS)
+     else if (ProgName(1:6) == 'rasscf') then
+      call mkNSM(SGS)
+     else if (ProgName(1:5) == 'casvb') then
+       call mkNSM(SGS)
+     else
+       Write (u6,*) 'MkISM: not setup for program:', ProgName
+       Call Abend()
+    end if
+
+  end subroutine MKISM
+
+  subroutine MKISM_MCLR(SGS)
+
+    use input_mclr, only: NRS1, NRS2, NRS3, NLEV=>NTASH
+
+    type(SGStruct), target, intent(inout) :: SGS
+    integer(kind=iwp) :: iBas, iOrb, iSym
+
+    Call MkISM_RAW(SGS,nLev)
+
+    iOrb = 0
+    do iSym=1,SGS%nSym
+      do iBas=1,nRs1(iSym)
+        iOrb = iOrb+1
+        SGS%ISM(iOrb) = iSym
+      end do
+    end do
+    do iSym=1,SGS%nSym
+      do iBas=1,nRs2(iSym)
+        iOrb = iOrb+1
+        SGS%ISM(iOrb) = iSym
+      end do
+    end do
+    do iSym=1,SGS%nSym
+      do iBas=1,nRs3(iSym)
+        iOrb = iOrb+1
+        SGS%ISM(iOrb) = iSym
+      end do
+    end do
+
+  end subroutine MKISM_MCLR
+
+  subroutine MKISM_RASSI(SGS)
+
+   use rassi_data, only: NASH, NLEV=>NASHT
+
+   type(SGStruct), target, intent(inout) :: SGS
+   integer(kind=iwp) :: iOrb, ISYM, IT, ILEV
+
+    Call MkISM_RAW(SGS,nLev)
+
+    iOrb = 0
+    do ISYM=1,SGS%NSYM
+      do IT=1,NASH(ISYM)
+        iOrb = iOrb+1
+        ILEV = LEVEL(iOrb)
+        SGS%ISM(ILEV) = ISYM
+      end do
+    end do
+
+  end subroutine MKISM_RASSI
+
+  subroutine mkism_cp2(SGS)
+
+    use caspt2_module, only: nAsh, NLEV=>nAshT
+
+    type(SGStruct), target, intent(inout) :: SGS
+    integer(kind=iwp) :: ILEV, iq, ISYM, IT, iOrb
+
+    Call MkISM_RAW(SGS,nLev)
+
+    ! PAM060612: With true RAS space, the orbitals must be ordered
+    ! first by RAS type, then by symmetry.
+
+    iOrb = 0
+    do ISYM=1,SGS%NSYM
+      do IT=1,NASH(ISYM)
+        iOrb = iOrb+1
+        ILEV = LEVEL(iOrb)
+        SGS%ISM(ILEV) = ISYM
+      end do
+    end do
+
+  end subroutine mkism_cp2
 
 end module SGUGA
