@@ -363,15 +363,9 @@ subroutine refwfn_data()
 # ifdef _HDF5_
   end if
 # endif
-  Write (6,*) 'Enter RefWfn_data'
+  ! If not properly initiated default to incremental indexation.
   If (Level(1)==0) Level(1:Size(Level))=[(iq,iq=1,Size(Level))]
   If (L2Act(1)==0) L2Act(1:Size(L2Act))=[(iq,iq=1,Size(L2Act))]
-  Write (6,*) 'Level(:)=',Level(:)
-  Write (6,*) 'L2Act(:)=',L2Act(:)
-  xLevel(:)=Level(:)
-  xL2Act(:)=L2Act(:)
-  Write (6,*) 'Mode data to sguga (to be removed).'
-  Write (6,*) 'Exit RefWfn_data'
 
 # ifdef _HDF5_
   if (refwfn_is_h5) then
