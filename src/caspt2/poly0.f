@@ -32,25 +32,19 @@
 
       INTEGER(kind=iwp) I,IT,ITABS,ILEV,ISYM, iq
 
-      Write (6,*) 'Enter Poly0'
-      Write (6,*) 'Level(:)=',Level(:)
-      Write (6,*) 'L2Act(:)=',L2Act(:)
       if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
      &      .and. (.not. DoFCIQMC) .and. (.not. DMRG)) Then
 
-         Write (6,*) 'Case A'
          call SG_Init(nSym,nActEl,iSpin,
      &               SGS,CIS,EXS,
      &               nHole1,nEle3,
-!    &               nRas1,nRas2,nRas3)
      &               nRas1,nRas2,nRas3,
      &               xLevel=Level,xL2Act=L2Act)
 
       else
 
-         Write (6,*) 'Case B'
          SGS%nSym=nSym
-!        Call MkISM_Raw(SGS,nLev)
+
          Call MkISM_Raw(SGS,nLev,xLevel=Level,xL2Act=L2Act)
 
          ITABS=0
