@@ -49,8 +49,8 @@ type(EXStruct), target :: EXS
 
 
 integer(kind=iwp) :: iq
-integer(kind=iwp) :: L2ACT(MXLEV)=[(0,iq=1,MXLEV)]
-integer(kind=iwp) :: LEVEL(MXLEV)=[(0,iq=1,MXLEV)]
+integer(kind=iwp) :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
+integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
@@ -2293,6 +2293,10 @@ Else
       End Do
 End If
 End If
+
+! Default to incremental index if not properly set
+If (Level(1)==0) Level(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 
 End subroutine MkISM_RAW
 
