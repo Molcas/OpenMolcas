@@ -48,7 +48,7 @@ end do
 Call SG_Init_Simple(nSym,nActEl,iSpin,                         &
                     SGS,CIS,EXS,                               &
                     nHole1,nElec3,nRs1,nRs2,nRs3,              &
-                    xNLEV=NLEV)
+                    xNLEV=NLEV,xNSM=NSM)
 
 if (SGS%NVERT0 == 0) then
   CIS%NCSF(STSYM) = 0

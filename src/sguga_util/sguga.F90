@@ -691,7 +691,7 @@ end subroutine MKSGUGA
 SUBROUTINE SG_Init_Simple(nSym,nActEl,iSpin,                   &
                           SGS,CIS,EXS,                         &
                           nHole1,nEle3,nRs1,nRs2,nRs3,         &
-                          xLevel,xL2Act,xNLEV)
+                          xLevel,xL2Act,xNLEV,xNSM)
 IMPLICIT None
 Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
 Type(SGStruct), intent(inout):: SGS
@@ -699,7 +699,7 @@ Type(CIStruct), intent(inout):: CIS
 Type(EXStruct),  optional, intent(inout):: EXS
 Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
 Integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
-Integer(kind=iwp), optional, intent(in):: xNLEV
+Integer(kind=iwp), optional, intent(in):: xNLEV, xNSM(MxLev)
 
 Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS
 
@@ -762,7 +762,7 @@ If (Present(xL2Act)) L2Act(:)=xL2Act(:)
 ! CREATE THE SYMMETRY INDEX VECTOR
 
 If (Present(xnLev)) Then
-   Call MKISM(SGS,xnLev)
+   Call MKISM(SGS,xnLev,xNSM)
 Else
    Call MKISM(SGS)
 End If
@@ -2141,14 +2141,15 @@ If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 
 End subroutine MkISM_RAW
 
-  subroutine MKISM_RASSCF(SGS,xnLev)
+  subroutine MKISM_RASSCF(SGS,xnLev,xNSM)
   ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
 
     use gas_data, only: NGAS, NGSSH
     use rasscf_global, only: NSM
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp), optional, intent(in) :: xnLev
+    integer(kind=iwp), optional, intent(in) :: xnLev, xNSM(MxLev)
+
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
     NLEV = 0
@@ -2160,22 +2161,24 @@ End subroutine MkISM_RAW
       end do
     end do
 
-    If (Present(xnLev)) Then
-       If (xnLev/=nLev) Stop 9999
-    End If
-
     Call MkISM_RAW(SGS,nLev)
 
-    SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
+
+    If (Present(xnLev)) Then
+       If (xnLev/=nLev) Stop 9999
+       SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
+    Else
+      SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
+    End If
 
   end subroutine MKISM_RASSCF
 
-  subroutine MKISM(SGS,xnLev)
+  subroutine MKISM(SGS,xnLev,xNSM)
 
   use UnixInfo, only: ProgName
 
   type(SGStruct), target, intent(inout) :: SGS
-  integer(iwp), optional, intent(in):: xnLev
+  integer(iwp), optional, intent(in):: xnLev, xNSM(MxLev)
 
     Select Case(ProgName(1:6))
     Case ('rassi ')
@@ -2186,15 +2189,9 @@ End subroutine MkISM_RAW
       call mkISM_cp2(SGS)
     Case ('rasscf','casvb ')
       If (Present(xnLev)) Then
-         call mkISM_rasscf(SGS,xnLev)
+         call mkISM_rasscf(SGS,xnLev,xNSM)
       Else
          call mkISM_rasscf(SGS)
-      End If
-      If (Present(xnLev)) Then
-         If (xnLev/=SGS%nLev) Then
-            Write (6,*) 'xnLev,SGS%nLev=', xnLev,SGS%nLev
-            Call Abend()
-         End If
       End If
     Case Default
        Write (u6,*) 'MkISM: not setup for program:', ProgName
