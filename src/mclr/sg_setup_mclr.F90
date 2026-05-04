@@ -21,19 +21,19 @@ integer(kind=iwp) pState_Sym
 integer(kind=iwp) :: iBas, nLev, iSym, ISM(1:MxLev)
 
 nLev = 0
-do iSym=1,SGS%nSym
+do iSym=1,nSym
   do iBas=1,nRs1(iSym)
     nLev = nLev+1
     ISM(nLev) = iSym
   end do
 end do
-do iSym=1,SGS%nSym
+do iSym=1,nSym
   do iBas=1,nRs2(iSym)
     nLev = nLev+1
     ISM(nLev) = iSym
   end do
 end do
-do iSym=1,SGS%nSym
+do iSym=1,nSym
   do iBas=1,nRs3(iSym)
     nLev = nLev+1
     ISM(nLev) = iSym

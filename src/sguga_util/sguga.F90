@@ -2119,7 +2119,6 @@ integer(kind=iwp) iq
 
 Write (6,*) 'MkISM_RAW'
 Write (6,*) 'NLEV=',NLEV
-Write (6,*) ALLOCATED(SGS%ISM)
 SGS%NLEV = nLEV
 ! Allocate Level to Symmetry table ISm:
 call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
@@ -2183,20 +2182,10 @@ End subroutine MkISM_RAW
     Select Case(ProgName(1:6))
     Case ('rassi ')
       call mkISM_Rassi(SGS)
-    Case ('mclr  ')
-      If (Present(xnLev)) Then
-         Write (6,*) 'xNLEV=',xNLEV
-         Write (6,*) 'xNSM=',xNSM
-      Else
-         Write (6,*) 'Something is missing'
-      End If
-      call mkISM_mclr(SGS)
     Case ('caspt2')
       call mkISM_cp2(SGS)
-    Case ('rasscf','casvb ')
+    Case ('rasscf','casvb ','mclr  ')
       If (Present(xnLev)) Then
-         Write (6,*) 'MKISM: xnLev=',xnLev
-         Write (6,*) 'MKISM: xNSM(1:5)=',xNSM(1:5)
          call mkISM_rasscf(SGS,xnLev,xNSM)
       Else
          call mkISM_rasscf(SGS)
@@ -2207,39 +2196,6 @@ End subroutine MkISM_RAW
     End Select
 
   end subroutine MKISM
-
-  subroutine MKISM_MCLR(SGS)
-
-    use input_mclr, only: NRS1, NRS2, NRS3, NLEV=>NTASH
-
-    type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: iBas, iOrb, iSym
-
-    Call MkISM_RAW(SGS,nLev)
-
-    iOrb = 0
-    do iSym=1,SGS%nSym
-      do iBas=1,nRs1(iSym)
-        iOrb = iOrb+1
-        SGS%ISM(iOrb) = iSym
-      end do
-    end do
-    do iSym=1,SGS%nSym
-      do iBas=1,nRs2(iSym)
-        iOrb = iOrb+1
-        SGS%ISM(iOrb) = iSym
-      end do
-    end do
-    do iSym=1,SGS%nSym
-      do iBas=1,nRs3(iSym)
-        iOrb = iOrb+1
-        SGS%ISM(iOrb) = iSym
-      end do
-    end do
-
-    Write (6,*) 'MKISM_MCLR:', SGS%ISM(:)
-
-  end subroutine MKISM_MCLR
 
   subroutine MKISM_RASSI(SGS)
 
