@@ -103,7 +103,7 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
     end if
 #   endif
   else  ! if iDoGas
-    call mkism_rasscf(SGS)
+    call mkism_rasscf(SGS,nLEV,NSM)
   end if
 end if
 
