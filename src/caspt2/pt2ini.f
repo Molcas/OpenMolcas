@@ -131,7 +131,7 @@ C     Cholesky
       CALL PRINP_CASPT2()
 
 C INITIALIZE SPLIT-GRAPH UGA TABLES.
-      CALL POLY0()
+      CALL SG_SETUP_CASPT2()
 
 C Initialize superindex tables. Check memory needs.
       CALL SIZES()
