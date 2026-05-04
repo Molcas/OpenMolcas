@@ -54,8 +54,8 @@ integer(kind=iwp), protected :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
-public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkISM_rasscf, MkSgNum, SG_Free
-public :: SG_Init_Simple, MKISM_Raw
+public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkSgNum, SG_Free
+public :: SG_Init_Simple
 
 integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
                                 IC1(26)   = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
