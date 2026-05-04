@@ -509,7 +509,7 @@ subroutine StepSizeChecks()
     integer(kind=iwp) :: i
     ! if previous step suggestion was out of GEKRange
     if (ResetGEK .and. nDIIS/=0) then
-        write(u6,*) "Resetting GEK"
+        !write(u6,*) "Resetting GEK"
         IterGEK = 0
         nDIIS = 0
         ResetGEK = .false.
@@ -538,7 +538,14 @@ subroutine StepSizeChecks()
     end if
 
     if (GEKRange) then
-        if (Gradnorm >= gekthr_grad .or. large_elements /= 0) then
+        if (Gradnorm >= gekthr_grad) then
+            write(u6,"(A,ES18.8)") "Reset GEK in next iteration because Grad >",gekthr_grad
+            ResetGEK = .true.
+            GEKRange = .false.
+            SORange = .false.
+        end if
+        if (large_elements /= 0) then
+            write(u6,"(A,ES18.8)") "Reset GEK in next iteration because largest element of the kappa matrix is above", gekthr_kappa
             ResetGEK = .true.
             GEKRange = .false.
             SORange = .false.
