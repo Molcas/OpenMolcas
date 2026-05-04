@@ -42,7 +42,7 @@ real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 character(len=6),intent(out) :: UpMeth
 
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
-real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, dq_NR(fsdim), norm_dq, norm_dq_NR
+real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, dq_NR(fsdim)
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),&
                               dq_diis(:), FHrow_k(:),dq_NR_diis(:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
@@ -366,28 +366,27 @@ Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Fu
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-!call RecPrt("dq_NR_Diis","",dq_NR_Diis,mdiis,1)
-!call RecPrt("dq_Diis","",dq_Diis,mdiis,1)
-!call RecPrt("dq_Diis-dq_NR_Diis","",dq_Diis-dq_NR_Diis,mdiis,1)
+#ifdef _DEBUGPRINT_
+    !call RecPrt("dq_NR_Diis","",dq_NR_Diis,mdiis,1)
+    !call RecPrt("dq_Diis","",dq_Diis,mdiis,1)
+    !call RecPrt("dq_Diis-dq_NR_Diis","",dq_Diis-dq_NR_Diis,mdiis,1)
 
-norm_dq_NR = sqrt(DDot_(mdiis,dq_NR_diis,1,dq_NR_diis,1))
-norm_dq = sqrt(DDot_(mdiis,dq_diis,1,dq_diis,1))
-write(u6,*) norm_dq_NR, norm_dq
-write(u6,*) "SUB SPACE"
-write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", &
-    acos(dot_product(dq_NR_diis,dq_diis)/(norm_dq_NR*norm_dq))/Pi*180.0_wp,&
-                "norm(dq)/norm(dq_NR) = ",norm_dq/norm_dq_NR, "IterGEK=",IterGEK
+    norm_dq_NR = sqrt(DDot_(mdiis,dq_NR_diis,1,dq_NR_diis,1))
+    norm_dq = sqrt(DDot_(mdiis,dq_diis,1,dq_diis,1))
+    !write(u6,*) norm_dq_NR, norm_dq
+    write(u6,*) "SUB SPACE"
+    write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", &
+        acos(dot_product(dq_NR_diis,dq_diis)/(norm_dq_NR*norm_dq))/Pi*180.0_wp,&
+                    "norm(dq)/norm(dq_NR) = ",norm_dq/norm_dq_NR, "IterGEK=",IterGEK
 
-
-call mma_deallocate(dq_NR_diis)
+    call mma_deallocate(dq_NR_diis)
+    call RecPrt('dq(:) before projecting out',' ',dq_diis(:),size(dq_diis),1)
+#endif
 
 write(UpMeth(4:4),'(A1)') Step_Trunc
 
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
-#ifdef _DEBUGPRINT_
-call RecPrt('dq(:) before projecting out',' ',dq_diis(:),size(dq_diis),1)
-#endif
 
 dq(:) = Zero
 do i=1,mDIIS
@@ -399,18 +398,19 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
 ! compute angle between GEK result and NR suggestion
 ! --------------------------------------------------
-norm_dq_NR = sqrt(DDot_(fsdim,dq_NR,1,dq_NR,1))
-norm_dq = sqrt(DDot_(fsdim,dq,1,dq,1))
-!#ifdef _DEBUGPRINT_
-write(u6,*) "FULL SPACE"
-write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", &
+#ifdef _DEBUGPRINT_
+BLOCK
+real(kind=wp) :: norm_dq, norm_dq_NR
+    norm_dq_NR = sqrt(DDot_(fsdim,dq_NR,1,dq_NR,1))
+    norm_dq = sqrt(DDot_(fsdim,dq,1,dq,1))
+    write(u6,*) "FULL SPACE"
+    write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", &
         acos(dot_product(dq_NR,dq)/(norm_dq_NR*norm_dq))/Pi*180.0_wp,&
                 "norm(dq)/norm(dq_NR) = ",norm_dq/norm_dq_NR, "IterGEK=",IterGEK
 
-
-!    write(u6,*) '||dq||=',dqdq
-!    call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
-!#endif
+    call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
+end block
+#endif
 
 
 

@@ -320,12 +320,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             if (GEKRange) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 IterGEK = IterGEK + 1
-
+                !call RecPrt("Disp","",Disp,fsdim,1)
                 call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec,CMO,&
                                         nBasis,PA,nAtoms)
                 !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec, .false.)
                 !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,fullHessian=-NumHessSymm)
 
+                !call RecPrt("Disp","",Disp,fsdim,1)
+                write(u6,*)"Angle between GEK and NR step", acos(dot_product(Disp,SearchDir)/(sqrt(dot_product(Disp,Disp))&
+                        *sqrt(dot_product(SearchDir,SearchDir))))/Pi*180.0_wp
+                write(u6,*) "norm(GEKstep) / norm(NRstep)", sqrt(dot_product(Disp,Disp)/dot_product(SearchDir,SearchDir))
             end if ! if in GEKRange
 
         end if ! NR vs GEK
