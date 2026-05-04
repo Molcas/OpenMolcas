@@ -256,12 +256,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case (2,3,4,5)
         UpMeth = "NR  -"
 
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the new gradient
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the new Hessian diagonal elements
+        ! Before taking a new step, we evaluate the Hessian at the current point
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:))
 
-        GradList(:,nIter) = -Gradient(:) ! g_i
-        FuncList(nIter) = -Functional ! y_i
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! GRADIENT ASCENT STEP
@@ -304,6 +301,42 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if
 
 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! TAKE NEWTON RAPHSON STEP TO PREDICT CURRENT GRADIENT
+        ! or if not in GEKRange - to actually take the step
+        ! DON'T UPDATE CMO JUST YET
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        ! keep norm of kappa matrix below pi/4
+        call rescale_disp(Disp(:))
+
+        ! see if inside region fit for GEK
+        call StepSizeChecks()
+
+        ! transform disp vec to matrix
+        call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
+
+        ! get U=exp(-kappa) and U_inv=exp(kappa)
+        call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
+        ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
+        call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
+        ! update <s|PA|t>
+        call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
+        !call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
+
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! EVALUATE QUANTITIES AT PREDICTED POINT
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the predicted gradient
+
+        ! Add these predictions to the lists. If the GEK is step later performed, this data will be replaced
+        DispList(:,nIter+1) = Disp(:) ! q_i
+        GradList(:,nIter+1) = -Gradient(:) ! g_i
+        FuncList(nIter+1) = -Functional ! y_i
+
+
 #       ifdef _DEBUGLISTS_
             write(u6,*) "nIter =",nIter
             call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
@@ -332,32 +365,15 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! ---------------------------------------------------------------------------------------------------
 
 
-        ! keep norm of kappa matrix below pi/4
-        call rescale_disp(Disp(:))
 
-        ! see if inside region fit for GEK
-        call StepSizeChecks()
-
-        ! transform disp vec to matrix
-        call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
-        DispList(:,nIter+1) = Disp(:) ! q_i
-
-        ! get U=exp(-kappa) and U_inv=exp(kappa)
-        call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
-        ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
-        call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
-        CMO(:,:) = rotated_CMO(:,:)
-        ! update <s|PA|t>
-        call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
-
-
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
 #       ifdef _DEBUG2_
         write(u6,*) "After GEK procedure and step scaling"
         call RecPrt('Disp',' ',Disp,fsdim,1)
         call RecPrt('Unitary Mat',' ',Umat,norb2loc,norb2loc)
 #       endif
+
+        CMO(:,:) = rotated_CMO(:,:)
 
     end select ! 2x2 or NxN rotations
 
