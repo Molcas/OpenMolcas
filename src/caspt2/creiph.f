@@ -11,12 +11,11 @@
 * Copyright (C) 1997, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0,nState)
-      use definitions, only: iwp, wp, u6
       use constants, only: Zero
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb, Weight
       use PrintLevel, only: USUAL
-      use Molcas, only: LenIn
+      use Molcas, only: LenIn, MxLev
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use sguga, only: L2ACT, LEVEL
       use caspt2_global, only: CMO, CMO_Internal, NCMO
@@ -31,6 +30,7 @@
      &                         NRAS3,NROOTS,NSYM,POTNUC,STSYM,TITLE,
      &                         MSTATE,ENERGY,MSTATE
       use caspt2_module, only: CITHR,MXCI
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
 C Normal operation: A new file, 'JOBMIX', will be created, with the
 C CMO's and CI arrays of the JOBIPH, except that the CI arrays have
@@ -51,6 +51,7 @@ C energies.
       integer(kind=iwp) I,IAD15,IDISK,IDR,IDW,IISTATE,ISNUM,ISTATE,J,
      &                  JSNUM,MROOTS,NIDIST,NOLDE,ID
       real(kind=wp) X
+      Integer(kind=iwp) xLevel(MxLev), xL2Act(MxLev)
 
 
 C Not called, if .NOT.IFMIX, then only the new CI coefficients are
@@ -168,8 +169,11 @@ C to JOBMIX, we use the same TOC array, IADR15.
       CALL mma_deallocate(OLDE)
       IAD15=IADR15(18)
 CSVC: translates levels to orbital index
+!     Copy to local array since L2Act and Level are protected.
+      XL2Act(:)=L2Act(:)
       CALL IDAFILE(JOBMIX,1,L2ACT,mxAct,IAD15)
 CSVC: translates orbital index to levels
+      XLevel(:)=Level(:)
       CALL IDAFILE(JOBMIX,1,LEVEL,mxAct,IAD15)
 
 * PAM07: Eliminate unsafe IPOSFILE calls, use instead dummy i/o operations
