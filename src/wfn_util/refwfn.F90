@@ -231,7 +231,6 @@ subroutine refwfn_data()
 !***********************************************************************
 !SVC: initialize the reference wavefunction data
 
-  use sguga, only: xL2ACT=>L2Act, xLEVEL=>Level
   use Molcas, only: MxAct, MxRoot
   use RASDim, only: MxIter
   use caspt2_global, only: CMO, CMO_Internal, IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO

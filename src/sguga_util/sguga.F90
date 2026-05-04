@@ -701,7 +701,7 @@ Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs
 Integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
 Integer(kind=iwp), optional, intent(in):: xNLEV
 
-Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS, iq
+Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS
 
 
 ! Make sure that we start from a clean slate.
@@ -761,10 +761,10 @@ If (Present(xL2Act)) L2Act(:)=xL2Act(:)
 
 ! CREATE THE SYMMETRY INDEX VECTOR
 
-Call MKISM(SGS)
-
-If (Present(xNLEV)) THEN
-   If (xNLEV/=SGS%NLEV) Stop 2222
+If (Present(xnLev)) Then
+   Call MKISM(SGS,xnLev)
+Else
+   Call MKISM(SGS)
 End If
 
 Call MkSGUGA(SGS,CIS)
@@ -2115,6 +2115,7 @@ subroutine MkISM_RAW(SGS,nLev,XLevel,XL2Act)
 type(SGStruct), target, intent(inout) :: SGS
 integer(kind=iwp), intent(in):: nLev
 integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
+integer(kind=iwp) iq
 
 SGS%NLEV = nLEV
 ! Allocate Level to Symmetry table ISm:
@@ -2164,11 +2165,12 @@ End subroutine MkISM_RAW
 
   end subroutine MKISM_RASSCF
 
-  subroutine MKISM(SGS)
+  subroutine MKISM(SGS,xnLev)
 
   use UnixInfo, only: ProgName
 
   type(SGStruct), target, intent(inout) :: SGS
+  integer(iwp), optional, intent(in):: xnLev
 
     Select Case(ProgName(1:6))
     Case ('rassi ')
@@ -2179,6 +2181,12 @@ End subroutine MkISM_RAW
       call mkISM_cp2(SGS)
     Case ('rasscf','casvb ')
       call mkISM_rasscf(SGS)
+      If (Present(xnLev)) Then
+         If (xnLev/=SGS%nLev) Then
+            Write (6,*) 'xnLev,SGS%nLev=', xnLev,SGS%nLev
+            Call Abend()
+         End If
+      End If
     Case Default
        Write (u6,*) 'MkISM: not setup for program:', ProgName
        Call Abend()
@@ -2242,7 +2250,7 @@ End subroutine MkISM_RAW
     use caspt2_module, only: nAsh, NLEV=>nAshT
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ILEV, iq, ISYM, IT, iOrb
+    integer(kind=iwp) :: ILEV, ISYM, IT, iOrb
 
     Call MkISM_RAW(SGS,nLev)
 

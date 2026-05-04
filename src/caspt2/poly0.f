@@ -30,7 +30,7 @@
       use definitions, only: iwp
       IMPLICIT NONE
 
-      INTEGER(kind=iwp) I,IT,ITABS,ILEV,ISYM, iq
+      INTEGER(kind=iwp) I,IT,ITABS,ILEV,ISYM
 
       if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
      &      .and. (.not. DoFCIQMC) .and. (.not. DMRG)) Then
