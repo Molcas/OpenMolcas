@@ -531,7 +531,10 @@ subroutine StepSizeChecks()
     if (large_elements == 0 .and. GradNorm < gekthr_grad) then
         GEKRange = .true.
         SORange = .true.
-        if (nIter == 1) iterGEK = 1
+        if (nIter == 1) then
+            iterGEK = 1
+            ndiis = 1
+        end if
     end if
 
     if (GEKRange) then
