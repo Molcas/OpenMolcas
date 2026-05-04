@@ -691,7 +691,7 @@ end subroutine MKSGUGA
 SUBROUTINE SG_Init_Simple(nSym,nActEl,iSpin,                   &
                           SGS,CIS,EXS,                         &
                           nHole1,nEle3,nRs1,nRs2,nRs3,         &
-                          xLevel,xL2Act)
+                          xLevel,xL2Act,xNLEV)
 IMPLICIT None
 Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
 Type(SGStruct), intent(inout):: SGS
@@ -699,6 +699,7 @@ Type(CIStruct), intent(inout):: CIS
 Type(EXStruct),  optional, intent(inout):: EXS
 Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
 Integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
+Integer(kind=iwp), optional, intent(in):: xNLEV
 
 Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS, iq
 
@@ -761,6 +762,10 @@ If (Present(xL2Act)) L2Act(:)=xL2Act(:)
 ! CREATE THE SYMMETRY INDEX VECTOR
 
 Call MKISM(SGS)
+
+If (Present(xNLEV)) THEN
+   If (xNLEV/=SGS%NLEV) Stop 2222
+End If
 
 Call MkSGUGA(SGS,CIS)
 

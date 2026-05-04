@@ -24,6 +24,8 @@ subroutine SG_Init_RASSCF(nSym,nActEl,iSpin,                         &
 
 use sguga, only: CIStruct, EXStruct, SGStruct, MkCOT, MkCList, MkSGNum, SG_Init_Simple
 use Definitions, only: iwp
+use gas_data, only: NGAS, NGSSH
+use rasscf_global, only: NSM
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), STSYM
@@ -32,20 +34,32 @@ type(CIStruct), intent(out) :: CIS
 type(EXStruct), intent(out) :: EXS
 logical(kind=iwp), intent(in) :: DoBlockDMRG
 
+integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
+
+NLEV = 0
+do IGAS=1,NGAS
+  do ISYM=1,NSYM
+    NSTA = NLEV+1
+    NLEV = NLEV+NGSSH(IGAS,ISYM)
+    NSM(NSTA:NLEV) = ISYM
+  end do
+end do
+
 Call SG_Init_Simple(nSym,nActEl,iSpin,                         &
                     SGS,CIS,EXS,                               &
-                    nHole1,nElec3,nRs1,nRs2,nRs3)
+                    nHole1,nElec3,nRs1,nRs2,nRs3,              &
+                    xNLEV=NLEV)
 
 if (SGS%NVERT0 == 0) then
   CIS%NCSF(STSYM) = 0
   return
 end if
+
 if (doBlockDMRG) then
   CIS%NCSF(STSYM) = 1
   return
 end if
 
-! PURPOSE: FREE THE GUGA TABLES
 ! FORM VARIOUS OFFSET TABLES:
 ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
 !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
