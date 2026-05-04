@@ -24,10 +24,10 @@ use general_data, only: nSym, nActel, iSpin, nHole1, nElec3, nRs1, nRs2, nRs3, S
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
+use stdalloc, only: mma_deallocate
 #endif
 use sguga, only: CIS, EXS, SGS, MkISM_RASSCF
-use stdalloc, only: mma_deallocate
-use definitions, only: iwp, wp
+use definitions, only: u6, iwp, wp
 
 #ifdef _DMRG_
 integer(kind=iwp), allocatable, intent(inout) :: initial_occ(:,:)
