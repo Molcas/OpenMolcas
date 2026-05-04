@@ -249,7 +249,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
-    case (2,3,4,5) ! Employing NxN rotations
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! N X N ROTATIONS
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    case (2,3,4,5)
         UpMeth = "NR  -"
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
@@ -259,8 +263,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         GradList(:,nIter) = -Gradient(:) ! g_i
         FuncList(nIter) = -Functional ! y_i
 
-        !if (OptMeth==3 .and. gradnorm>1.0e-2_wp) then
-        !if (gradnorm>1.0e-2_wp) then
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! DETERMINE THE SEARCH DIRECTION
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (OptMeth==3) then
             ! Gradient Ascent with naive line search
             !Disp(:) = Gradient(:)/gradnorm
@@ -296,16 +301,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             Disp(:) = best_eta * SearchDir(:)
         end if
-
-#       ifdef _NOTUSED_
-        ! if Hdiag vals close to zero -> redundant rotation that we don't want to do, so set step to zero there
-        do i=1,fsdim
-            If (Hdiagvec(i) == 1.0e-2_wp) Then
-            !Write (u6,*) 'redundant rotation at i',i,Hdiagvec(i)
-            Disp(i) = Zero
-            End If
-        end do
-#       endif
 
 
 #       ifdef _DEBUGLISTS_
