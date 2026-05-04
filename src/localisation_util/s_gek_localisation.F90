@@ -39,13 +39,14 @@ integer(kind=iwp),intent(out) :: nDIIS
 integer(kind=iwp), intent(inout) :: IterGEK
 real(kind=wp),intent(in) :: Hdiag(fsdim),CMO(nBasis,nOrb2Loc),PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
+character(len=6),intent(out) :: UpMeth
+
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, dq_NR(fsdim)
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),&
                               dq_diis(:), FHrow_k(:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
 real(kind=wp), External :: DDot_
-character(len=6),intent(out) :: UpMeth
 logical(kind=iwp), intent(in) :: SORange
 character(LEN=1) :: Step_Trunc
 real(kind=wp), allocatable :: CoordsAbs(:,:)
@@ -358,6 +359,7 @@ Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Fu
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
+write(UpMeth(4:4),'(A1)') Step_Trunc
 
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
