@@ -19,18 +19,17 @@ use RefWfn, only: L2Act, Level
 use sguga, only: SGS, CIS, EXS, SG_Init, MkISM_Raw
 use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, nActEl,        &
                          nEle3, nHole1, nRas1, nRas2, nRas3, nSym, STSym
-use caspt2_module, only: NLEV=>nAshT, nAsh
-use caspt2_module, only: MxCI
+use caspt2_module, only: nAsh, MxCI
 use definitions, only: iwp
 IMPLICIT NONE
 
-INTEGER(kind=iwp) I,IT,ITABS,ILEV,ISYM, ISM(MxLev)
+INTEGER(kind=iwp) I,IT,nLEV,ILEV,ISYM, ISM(MxLev), ITABS
 
-ITABS=0
+nLEV=0
 DO ISYM=1,NSYM
    DO IT=1,NASH(ISYM)
-      ITABS=ITABS+1
-      ILEV=LEVEL(ITABS)
+      nLEV=nLEV+1
+      ILEV=LEVEL(nLEV)
       ISM(ILEV)=ISYM
    END DO
 END DO
@@ -42,7 +41,8 @@ if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)            &
                SGS,CIS,EXS,                                            &
                nHole1,nEle3,                                           &
                nRas1,nRas2,nRas3,                                      &
-               xLevel=Level,xL2Act=L2Act)
+               xLevel=Level,xL2Act=L2Act,                              &
+               xnLev=nLev,xNSM=ISM)
 
 else
 

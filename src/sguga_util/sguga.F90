@@ -2118,8 +2118,6 @@ integer(kind=iwp), intent(in):: nLev
 integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
 integer(kind=iwp) iq
 
-Write (6,*) 'MkISM_RAW'
-Write (6,*) 'NLEV=',NLEV
 SGS%NLEV = nLEV
 ! Allocate Level to Symmetry table ISm:
 call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
@@ -2182,7 +2180,11 @@ End subroutine MkISM_RAW
 
     Select Case(ProgName(1:6))
     Case ('caspt2')
-      call mkISM_cp2(SGS)
+      If (Present(xnLev)) Then
+         call mkISM_rasscf(SGS,xnLev,xNSM)
+      Else
+         call mkISM_cp2(SGS)
+      End If
     Case ('rasscf','casvb ','mclr  ','rassi')
       If (Present(xnLev)) Then
          call mkISM_rasscf(SGS,xnLev,xNSM)
