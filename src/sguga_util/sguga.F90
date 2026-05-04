@@ -2181,11 +2181,9 @@ End subroutine MkISM_RAW
   integer(iwp), optional, intent(in):: xnLev, xNSM(MxLev)
 
     Select Case(ProgName(1:6))
-    Case ('rassi ')
-      call mkISM_Rassi(SGS)
     Case ('caspt2')
       call mkISM_cp2(SGS)
-    Case ('rasscf','casvb ','mclr  ')
+    Case ('rasscf','casvb ','mclr  ','rassi')
       If (Present(xnLev)) Then
          call mkISM_rasscf(SGS,xnLev,xNSM)
       Else
@@ -2197,26 +2195,6 @@ End subroutine MkISM_RAW
     End Select
 
   end subroutine MKISM
-
-  subroutine MKISM_RASSI(SGS)
-
-   use rassi_data, only: NASH, NLEV=>NASHT
-
-   type(SGStruct), target, intent(inout) :: SGS
-   integer(kind=iwp) :: iOrb, ISYM, IT, ILEV
-
-    Call MkISM_RAW(SGS,nLev)
-
-    iOrb = 0
-    do ISYM=1,SGS%NSYM
-      do IT=1,NASH(ISYM)
-        iOrb = iOrb+1
-        ILEV = LEVEL(iOrb)
-        SGS%ISM(ILEV) = ISYM
-      end do
-    end do
-
-  end subroutine MKISM_RASSI
 
   subroutine mkism_cp2(SGS)
 
