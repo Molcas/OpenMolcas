@@ -16,14 +16,16 @@ use Molcas, only: MxLev
 use fciqmc_interface, only: DoFCIQMC
 use stdalloc, only: mma_allocate
 use RefWfn, only: L2Act, Level
-use sguga, only: SGS, CIS, EXS, SG_Init, MkISM_Raw
+!use sguga, only: SGS, CIS, EXS, SG_Init, MkISM_Raw
+use sguga, only: SGS, CIS, EXS, SG_Init, SG_Init_Simple
 use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, nActEl,        &
                          nEle3, nHole1, nRas1, nRas2, nRas3, nSym, STSym
 use caspt2_module, only: nAsh, MxCI
 use definitions, only: iwp
 IMPLICIT NONE
 
-INTEGER(kind=iwp) I,IT,nLEV,ILEV,ISYM, ISM(MxLev), ITABS
+!INTEGER(kind=iwp) I,IT,nLEV,ILEV,ISYM, ISM(MxLev), ITABS
+INTEGER(kind=iwp) I,IT,nLEV,ILEV,ISYM, ISM(MxLev)
 
 nLEV=0
 DO ISYM=1,NSYM
@@ -46,18 +48,21 @@ if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)            &
 
 else
 
-   SGS%nSym=nSym
+   call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                      &
+                       xLevel=Level,xL2Act=L2Act,                      &
+                       xnLev=nLev,xNSM=ISM)
+!   SGS%nSym=nSym
 
-   Call MkISM_Raw(SGS,nLev,xLevel=Level,xL2Act=L2Act)
+!  Call MkISM_Raw(SGS,nLev,xLevel=Level,xL2Act=L2Act)
 
-ITABS=0
-DO ISYM=1,NSYM
-   DO IT=1,NASH(ISYM)
-      ITABS=ITABS+1
-      ILEV=LEVEL(ITABS)
-      SGS%ISM(ILEV)=ISYM
-   END DO
-END DO
+!ITABS=0
+!DO ISYM=1,NSYM
+!   DO IT=1,NASH(ISYM)
+!      ITABS=ITABS+1
+!      ILEV=LEVEL(ITABS)
+!      SGS%ISM(ILEV)=ISYM
+!   END DO
+!END DO
 
 ! INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
    Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
