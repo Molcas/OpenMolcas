@@ -264,7 +264,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         FuncList(nIter) = -Functional ! y_i
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ! DETERMINE THE SEARCH DIRECTION
+        ! GRADIENT ASCENT STEP
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (OptMeth==3) then
             ! Gradient Ascent with naive line search
@@ -285,10 +285,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             end if
 
             Disp(:) = best_eta * SearchDir(:)
-        else
-            ! compute standard newton raphson step
-            !Disp(:) = -Gradient(:)/Hdiagvec(:)
 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! NEWTON RAPHSON STEP
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        else
             SearchDir(:) = -Gradient(:)/Hdiagvec(:)
 
             if (linesearch) then
@@ -310,12 +311,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
 #       endif
 
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ! DETERMINE THE SEARCH DIRECTION
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! IF IN GEK RANGE: Build subspace and get back optimized Disp
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
             if (GEKRange) then
-                ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
+
                 IterGEK = IterGEK + 1
 
                 call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec,CMO,&
@@ -324,10 +325,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 write(u6,*)"Angle between GEK and NR step", acos(dot_product(Disp,SearchDir)/(sqrt(dot_product(Disp,Disp))&
                                                                 *sqrt(dot_product(SearchDir,SearchDir))))/Pi*180.0_wp
                 write(u6,*) "norm(GEKstep) / norm(NRstep)", sqrt(dot_product(Disp,Disp)/dot_product(SearchDir,SearchDir))
+
             end if ! if in GEKRange
 
         end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
+
 
         ! keep norm of kappa matrix below pi/4
         call rescale_disp(Disp(:))
@@ -335,22 +338,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! see if inside region fit for GEK
         call StepSizeChecks()
 
-        ! for HeH, we don't care, because 2D antisymmetric matrices commute
-        !GEKRange = .true.
-        !ResetGEK = .false.
-
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
         DispList(:,nIter+1) = Disp(:) ! q_i
 
-        ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
         ! get U=exp(-kappa) and U_inv=exp(kappa)
         call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
+        ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
         call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
-         ! update CMO
         CMO(:,:) = rotated_CMO(:,:)
-
-
+        ! update <s|PA|t>
         call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
 
 
@@ -465,6 +462,7 @@ end select
 call mma_Deallocate(Ovlp_sqrt)
 
 contains
+
 subroutine rescale_disp(Disp)
     real(kind=wp),intent(inout) :: Disp(fsdim)
     DD=Sqrt(dot_product(Disp(:),Disp(:)))
