@@ -247,7 +247,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case (1) ! Jacobi Sweeps (2x2 rotations)
         UpMeth = "JS  -"
 
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
     case (2,3,4,5) ! Employing NxN rotations
@@ -363,14 +362,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! get U=exp(-kappa) and U_inv=exp(kappa)
         call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
         call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
+         ! update CMO
+        CMO(:,:) = rotated_CMO(:,:)
+
 
         call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
 
 
-        ! update CMO
-        CMO(:,:) = rotated_CMO(:,:)
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
-#       ifdef _DEBUGLISTS_
+#       ifdef _DEBUG2_
         write(u6,*) "After GEK procedure and step scaling"
         call RecPrt('Disp',' ',Disp,fsdim,1)
         call RecPrt('Unitary Mat',' ',Umat,norb2loc,norb2loc)
