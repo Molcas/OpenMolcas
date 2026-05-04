@@ -2155,25 +2155,6 @@ End subroutine MkISM_RAW
 
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
-!#define _OLD_
-#ifdef _OLD_
-    NLEV = 0
-    do IGAS=1,NGAS
-       do ISYM=1,SGS%NSYM
-          NSTA = NLEV+1
-          NLEV = NLEV+NGSSH(IGAS,ISYM)
-          NSM(NSTA:NLEV) = ISYM
-       end do
-    end do
-
-    Call MkISM_RAW(SGS,nLev)
-
-    If (Present(xnLev)) Then
-       SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
-    Else
-       SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
-    End If
-#else
     If (Present(xnLev)) Then
        Call MkISM_RAW(SGS,xnLev)
        SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
@@ -2189,7 +2170,6 @@ End subroutine MkISM_RAW
        Call MkISM_RAW(SGS,nLev)
        SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
     End If
-#endif
 
   end subroutine MKISM_RASSCF
 
