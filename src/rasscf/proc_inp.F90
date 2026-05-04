@@ -123,6 +123,16 @@ logical(kind=iwp), external :: Is_First_Iter
 character(len=180), external :: Get_LN
 #include "warnings.h"
 
+#ifdef _DMRG_
+Interface
+   subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+   use Definitions, only: iwp
+   logical(kind=iwp), intent(inout):: DBG,SkipGUGA
+   integer(kind=iwp), allocatable, intent(inout) :: initial_occ(:,:)
+   End subroutine SG_Setup_RASSCF
+End Interface
+#endif
+
 !...Dongxia note for GAS:
 !   No changing about read in orbital information from INPORB yet.
 
@@ -4040,38 +4050,14 @@ NCONF = 1
 SkipGUGA = DoBlockDMRG
 ! ======================================================================
 
-! Construct the Guga tables
+! Initiate the SGUGA environment conditional to all flags
 
-if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
-  ! right now skip most part of gugactl for GAS, but only call mkism.
-  if (.not. iDoGas) then
-    ! DMRG calculation no need the SG_Init_RASSCF subroutine
-#   ifdef _DMRG_
-    if (Key('DMRG') .or. doDMRG) then
-      call mma_deallocate(initial_occ)
-      SkipGUGA = .true.
-    else
-#   endif
-      call Timing(Eterna_1,dum1,dum2,dum3)
-      if (DBG) write(u6,*) ' Call GugaCtl'
-      call SG_Init_RASSCF(nSym,nActEl,iSpin,               &
-                          SGS,CIS,EXS,                     &
-                          nHole1,nElec3,nRs1,nRs2,nRs3,    &
-                          STSYM,DoBlockDMRG)
-!     (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
-!     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
-!     SET UP THE REINDEXING TABLE
-      call SETSXCI()
-      NCONF = CIS%NCSF(STSYM)
+#ifdef _DMRG_
+Call SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+#else
+Call SG_Setup_RASSCF(DBG,SkipGUGA)
+#endif
 
-      call Timing(Eterna_2,dum1,dum2,dum3)
-#   ifdef _DMRG_
-    end if
-#   endif
-  else  ! if iDoGas
-    call mkism_rasscf(SGS)
-  end if
-end if
 ! ======================================================================
 
 if (.not. SkipGUGA) then

@@ -2163,12 +2163,10 @@ End subroutine MkISM_RAW
 
     Call MkISM_RAW(SGS,nLev)
 
-
     If (Present(xnLev)) Then
-       If (xnLev/=nLev) Stop 9999
        SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
     Else
-      SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
+       SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
     End If
 
   end subroutine MKISM_RASSCF
