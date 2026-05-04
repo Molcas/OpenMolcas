@@ -310,17 +310,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
 #       endif
 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! DETERMINE THE SEARCH DIRECTION
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
             if (GEKRange) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 IterGEK = IterGEK + 1
-                !call RecPrt("Disp","",Disp,fsdim,1)
+
                 call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec,CMO,&
                                         nBasis,PA,nAtoms)
-                !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec, .false.)
-                !call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,fullHessian=-NumHessSymm)
 
-                !call RecPrt("Disp","",Disp,fsdim,1)
                 write(u6,*)"Angle between GEK and NR step", acos(dot_product(Disp,SearchDir)/(sqrt(dot_product(Disp,Disp))&
                                                                 *sqrt(dot_product(SearchDir,SearchDir))))/Pi*180.0_wp
                 write(u6,*) "norm(GEKstep) / norm(NRstep)", sqrt(dot_product(Disp,Disp)/dot_product(SearchDir,SearchDir))
@@ -329,18 +329,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
 
-#       ifdef _DEBUGLISTS_
-        write(u6,*) "Before GEK procedure and step scaling"
-        call RecPrt('Disp',' ',Disp,fsdim,1)
-#       endif
-
         ! keep norm of kappa matrix below pi/4
         call rescale_disp(Disp(:))
-
-#       ifdef _FORCEGEKRANGE_
-        ! only for debug:
-        call force_GEKRange()
-#       endif
 
         ! see if inside region fit for GEK
         call StepSizeChecks()
