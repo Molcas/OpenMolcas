@@ -10,7 +10,6 @@
 #***********************************************************************
 
 set (sources
-     sg_init_mclr.F90
      sg_cxinit.F90
      sg_epq_psi.F90
      sg_prwf.F90

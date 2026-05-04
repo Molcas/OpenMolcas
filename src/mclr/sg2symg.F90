@@ -13,7 +13,7 @@ subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
 use sguga, only: CIS, EXS, SGS, SG_Free
 use Str_Info, only: CFTP, CNSM
-use input_mclr, only: iSpin, nActEl, nConf, nCSF, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym
+use input_mclr, only: iSpin, nConf, nCSF, nSym, State_Sym
 use Definitions, only: iwp, wp
 
 integer(kind=iwp), intent(in) :: lCI, imode, pState_Sym
@@ -22,7 +22,7 @@ integer(kind=iwp) iss
 
 ! Transformation of CI vector to symmetric group from GUGA pepresentation, or the reverse
 
-call SG_Init_MCLR(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,pState_Sym)
+call SG_Setup_MCLR(pState_Sym)
 
 NCSF(1:nSym) = CIS%NCSF(1:nSym)
 NCONF        = CIS%NCSF(pState_Sym)

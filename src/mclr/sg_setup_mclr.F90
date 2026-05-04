@@ -9,17 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
-subroutine SG_Init_MCLR(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,ksym)
+subroutine SG_Setup_MCLR(pState_Sym)
 
-use sguga, only: CIStruct, EXStruct, SGStruct, MkCOT, MkCList, MkSGNum, SG_Init_Simple
+use sguga, only: SGS, CIS, EXS, MkCOT, MkCList, MkSGNum, SG_Init_Simple
+use input_mclr, only: iSpin, nActEl, nConf, nCSF, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), ksym
-type(SGStruct), intent(out) :: SGS
-type(CIStruct), intent(inout) :: CIS
-type(EXStruct), intent(inout) :: EXS
+integer(kind=iwp) pState_Sym
 
 Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3)
 
@@ -36,6 +33,6 @@ call MKCLIST(SGS,CIS)
 
 ! SET UP ENUMERATION TABLES
 
-call MKSGNUM(kSYM,SGS,CIS,EXS)
+call MKSGNUM(pState_Sym,SGS,CIS,EXS)
 
-end subroutine SG_Init_MCLR
+end subroutine SG_Setup_MCLR
