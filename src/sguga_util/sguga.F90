@@ -2141,13 +2141,14 @@ If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 
 End subroutine MkISM_RAW
 
-  subroutine MKISM_RASSCF(SGS)
+  subroutine MKISM_RASSCF(SGS,xnLev)
   ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
 
     use gas_data, only: NGAS, NGSSH
     use rasscf_global, only: NSM
 
     type(SGStruct), target, intent(inout) :: SGS
+    integer(kind=iwp), optional, intent(in) :: xnLev
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
     NLEV = 0
@@ -2158,6 +2159,10 @@ End subroutine MkISM_RAW
         NSM(NSTA:NLEV) = ISYM
       end do
     end do
+
+    If (Present(xnLev)) Then
+       If (xnLev/=nLev) Stop 9999
+    End If
 
     Call MkISM_RAW(SGS,nLev)
 
@@ -2180,7 +2185,11 @@ End subroutine MkISM_RAW
     Case ('caspt2')
       call mkISM_cp2(SGS)
     Case ('rasscf','casvb ')
-      call mkISM_rasscf(SGS)
+      If (Present(xnLev)) Then
+         call mkISM_rasscf(SGS,xnLev)
+      Else
+         call mkISM_rasscf(SGS)
+      End If
       If (Present(xnLev)) Then
          If (xnLev/=SGS%nLev) Then
             Write (6,*) 'xnLev,SGS%nLev=', xnLev,SGS%nLev
