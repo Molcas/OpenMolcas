@@ -45,6 +45,7 @@ use Definitions, only: u6
 #ifdef _DEBUG2_
 use Definitions, only: u6
 #endif
+use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(in) :: bias, SOFact
@@ -100,6 +101,8 @@ write(u6,*) 'Beta_Disp_Min=',Beta_Disp_Min
 write(u6,*) 'Beta_Disp=',Beta_Disp
 #endif
 
+write(u6,*) 'Energy(Previous):         ',Energy(Iteration_Total)
+write(u6,*) 'Energy(NR Prediction):    ',Energy(Iteration_Total+1)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111111111
 ! MICRO ITERATIONS
@@ -270,6 +273,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 
   !dEner = Energy(Iteration_Total+1)-Energy(Iteration_Total)
 
+  write(u6,*) 'Energy(Iteration_Total+1):',Energy(Iteration_Total+1)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Energy(Iteration_Total+1):',Energy(Iteration_Total+1)
   call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),mDIIS,1)

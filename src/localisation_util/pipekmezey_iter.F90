@@ -328,7 +328,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 !call RecPrt("Disp","",Disp,fsdim,1)
                 write(u6,*)"Angle between GEK and NR step", acos(dot_product(Disp,SearchDir)/(sqrt(dot_product(Disp,Disp))&
-                        *sqrt(dot_product(SearchDir,SearchDir))))/Pi*180.0_wp
+                                                                *sqrt(dot_product(SearchDir,SearchDir))))/Pi*180.0_wp
                 write(u6,*) "norm(GEKstep) / norm(NRstep)", sqrt(dot_product(Disp,Disp)/dot_product(SearchDir,SearchDir))
             end if ! if in GEKRange
 
