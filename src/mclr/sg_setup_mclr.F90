@@ -11,14 +11,36 @@
 
 subroutine SG_Setup_MCLR(pState_Sym)
 
+use molcas, only: MxLev
 use sguga, only: SGS, CIS, EXS, MkCOT, MkCList, MkSGNum, SG_Init_Simple
 use input_mclr, only: iSpin, nActEl, nConf, nCSF, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) pState_Sym
+integer(kind=iwp) :: iBas, nLev, iSym, ISM(1:MxLev)
 
-Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3)
+nLev = 0
+do iSym=1,SGS%nSym
+  do iBas=1,nRs1(iSym)
+    nLev = nLev+1
+    ISM(nLev) = iSym
+  end do
+end do
+do iSym=1,SGS%nSym
+  do iBas=1,nRs2(iSym)
+    nLev = nLev+1
+    ISM(nLev) = iSym
+  end do
+end do
+do iSym=1,SGS%nSym
+  do iBas=1,nRs3(iSym)
+    nLev = nLev+1
+    ISM(nLev) = iSym
+  end do
+end do
+
+Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3, xNLEV=nLev, xNSM=ISM)
 
 ! PURPOSE: FREE THE GUGA TABLES
 ! FORM VARIOUS OFFSET TABLES:
