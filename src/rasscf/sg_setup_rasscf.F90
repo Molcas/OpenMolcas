@@ -26,7 +26,9 @@ use rasscf_global, only: DoDMRG
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate
 #endif
-use sguga, only: CIS, EXS, SGS, MkISM_RASSCF
+use gas_data, only: NGAS, NGSSH
+use rasscf_global, only: NSM
+use sguga, only: CIS, EXS, SGS, MkISM_RASSCF, SG_Init_Simple, MKCOT, MKCLIST, MKSGNUM
 use definitions, only: u6, iwp, wp
 
 #ifdef _DMRG_
@@ -35,6 +37,16 @@ integer(kind=iwp), allocatable, intent(inout) :: initial_occ(:,:)
 
 logical(kind=iwp), intent(inout):: DBG,SkipGUGA
 real(kind=wp) Eterna_1, Eterna_2, dum1, dum2, dum3
+integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
+
+NLEV = 0
+do IGAS=1,NGAS
+  do ISYM=1,NSYM
+    NSTA = NLEV+1
+    NLEV = NLEV+NGSSH(IGAS,ISYM)
+    NSM(NSTA:NLEV) = ISYM
+  end do
+end do
 
 ! Construct the Guga tables
 
@@ -50,13 +62,39 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call GugaCtl'
-      call SG_Init_RASSCF(nSym,nActEl,iSpin,               &
-                          SGS,CIS,EXS,                     &
-                          nHole1,nElec3,nRs1,nRs2,nRs3,    &
-                          STSYM,DoBlockDMRG)
-!     (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
-!     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
-!     SET UP THE REINDEXING TABLE
+      Call SG_Init_Simple(nSym,nActEl,iSpin,                         &
+                          SGS,CIS,EXS,                               &
+                          nHole1,nElec3,nRs1,nRs2,nRs3,              &
+                          xNLEV=NLEV,xNSM=NSM)
+
+      if (SGS%NVERT0 == 0) then
+         CIS%NCSF(STSYM) = 0
+      Else
+         if (doBlockDMRG) then
+            CIS%NCSF(STSYM) = 1
+         Else
+
+            ! FORM VARIOUS OFFSET TABLES:
+            ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+            !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+
+            call MKCOT(SGS,CIS)
+
+            ! CONSTRUCT THE CASE LIST
+
+            call MKCLIST(SGS,CIS)
+
+            ! SET UP ENUMERATION TABLES
+
+            call MKSGNUM(STSYM,SGS,CIS,EXS)
+
+            if (NActEl == 0) CIS%NCSF(STSYM) = 1
+
+            !     (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
+            !     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
+            !     SET UP THE REINDEXING TABLE
+         End If
+      End If
       call SETSXCI()
       NCONF = CIS%NCSF(STSYM)
 
