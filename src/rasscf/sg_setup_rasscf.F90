@@ -28,7 +28,7 @@ use stdalloc, only: mma_deallocate
 #endif
 use gas_data, only: NGAS, NGSSH
 use rasscf_global, only: NSM
-use sguga, only: CIS, EXS, SGS, MkISM_RASSCF, SG_Init_Simple, MKCOT, MKCLIST, MKSGNUM
+use sguga, only: CIS, EXS, SGS, SG_Init_Simple, MKCOT, MKCLIST, MKSGNUM
 use definitions, only: u6, iwp, wp
 
 #ifdef _DMRG_
@@ -61,7 +61,7 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
     else
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
-      if (DBG) write(u6,*) ' Call GugaCtl'
+      if (DBG) write(u6,*) ' Call SG_Init_Simple'
       Call SG_Init_Simple(nSym,nActEl,iSpin,                         &
                           SGS,CIS,EXS,                               &
                           nHole1,nElec3,nRs1,nRs2,nRs3,              &
@@ -102,8 +102,6 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   ifdef _DMRG_
     end if
 #   endif
-  else  ! if iDoGas
-    call mkism_rasscf(SGS,nLEV,NSM)
   end if
 end if
 

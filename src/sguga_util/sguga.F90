@@ -2117,6 +2117,9 @@ integer(kind=iwp), intent(in):: nLev
 integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
 integer(kind=iwp) iq
 
+Write (6,*) 'MkISM_RAW'
+Write (6,*) 'NLEV=',NLEV
+Write (6,*) ALLOCATED(SGS%ISM)
 SGS%NLEV = nLEV
 ! Allocate Level to Symmetry table ISm:
 call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
@@ -2152,13 +2155,15 @@ End subroutine MkISM_RAW
 
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
+!#define _OLD_
+#ifdef _OLD_
     NLEV = 0
     do IGAS=1,NGAS
-      do ISYM=1,SGS%NSYM
-        NSTA = NLEV+1
-        NLEV = NLEV+NGSSH(IGAS,ISYM)
-        NSM(NSTA:NLEV) = ISYM
-      end do
+       do ISYM=1,SGS%NSYM
+          NSTA = NLEV+1
+          NLEV = NLEV+NGSSH(IGAS,ISYM)
+          NSM(NSTA:NLEV) = ISYM
+       end do
     end do
 
     Call MkISM_RAW(SGS,nLev)
@@ -2168,6 +2173,23 @@ End subroutine MkISM_RAW
     Else
        SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
     End If
+#else
+    If (Present(xnLev)) Then
+       Call MkISM_RAW(SGS,xnLev)
+       SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
+    Else
+       NLEV = 0
+       do IGAS=1,NGAS
+         do ISYM=1,SGS%NSYM
+           NSTA = NLEV+1
+           NLEV = NLEV+NGSSH(IGAS,ISYM)
+           NSM(NSTA:NLEV) = ISYM
+         end do
+       end do
+       Call MkISM_RAW(SGS,nLev)
+       SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
+    End If
+#endif
 
   end subroutine MKISM_RASSCF
 
@@ -2182,11 +2204,19 @@ End subroutine MkISM_RAW
     Case ('rassi ')
       call mkISM_Rassi(SGS)
     Case ('mclr  ')
+      If (Present(xnLev)) Then
+         Write (6,*) 'xNLEV=',xNLEV
+         Write (6,*) 'xNSM=',xNSM
+      Else
+         Write (6,*) 'Something is missing'
+      End If
       call mkISM_mclr(SGS)
     Case ('caspt2')
       call mkISM_cp2(SGS)
     Case ('rasscf','casvb ')
       If (Present(xnLev)) Then
+         Write (6,*) 'MKISM: xnLev=',xnLev
+         Write (6,*) 'MKISM: xNSM(1:5)=',xNSM(1:5)
          call mkISM_rasscf(SGS,xnLev,xNSM)
       Else
          call mkISM_rasscf(SGS)
@@ -2226,6 +2256,8 @@ End subroutine MkISM_RAW
         SGS%ISM(iOrb) = iSym
       end do
     end do
+
+    Write (6,*) 'MKISM_MCLR:', SGS%ISM(:)
 
   end subroutine MKISM_MCLR
 
