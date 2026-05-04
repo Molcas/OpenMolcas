@@ -17,8 +17,8 @@ use stdalloc, only: mma_allocate
 use RefWfn, only: L2Act, Level
 use sguga, only: SGS, CIS, EXS, SG_Init, MkISM_Raw
 use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, nActEl,        &
-                         NLEV=>nAshT, nEle3, nHole1, nRas1, nRas2,     &
-                         nRas3, nSym, STSym, nAsh
+                         nEle3, nHole1, nRas1, nRas2, nRas3, nSym, STSym
+use caspt2_module, only: NLEV=>nAshT, nAsh
 
 use caspt2_module, only: MxCI
 use definitions, only: iwp
@@ -35,35 +35,35 @@ if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)            &
                nRas1,nRas2,nRas3,                                      &
                xLevel=Level,xL2Act=L2Act)
 
-      else
+else
 
-         SGS%nSym=nSym
+   SGS%nSym=nSym
 
-         Call MkISM_Raw(SGS,nLev,xLevel=Level,xL2Act=L2Act)
+   Call MkISM_Raw(SGS,nLev,xLevel=Level,xL2Act=L2Act)
 
-         ITABS=0
-         DO ISYM=1,SGS%NSYM
-           DO IT=1,NASH(ISYM)
-             ITABS=ITABS+1
-             ILEV=LEVEL(ITABS)
-             SGS%ISM(ILEV)=ISYM
-           END DO
-         END DO
+   ITABS=0
+   DO ISYM=1,SGS%NSYM
+      DO IT=1,NASH(ISYM)
+         ITABS=ITABS+1
+         ILEV=LEVEL(ITABS)
+         SGS%ISM(ILEV)=ISYM
+      END DO
+   END DO
 
 ! INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
-         Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
-         CIS%NCSF(:)=0
-         CIS%NCSF(STSYM)=1
-         Call mma_allocate(EXS%ICoup,[1,3],[1,1],Label='EXS%ICoup')
-         Call mma_allocate(EXS%VTab,[1,1],Label='EXS%VTab')
-      endif
+   Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
+   CIS%NCSF(:)=0
+   CIS%NCSF(STSYM)=1
+   Call mma_allocate(EXS%ICoup,[1,3],[1,1],Label='EXS%ICoup')
+   Call mma_allocate(EXS%VTab,[1,1],Label='EXS%VTab')
+endif
 
-      MXCI=1
-      DO I=1,NSYM
-        MXCI=MAX(MXCI,CIS%NCSF(I))
-      END DO
+MXCI=1
+DO I=1,NSYM
+   MXCI=MAX(MXCI,CIS%NCSF(I))
+END DO
 
 ! NOTE: AT THIS POINT, WE HAVE ALLOCATED MEMORY SPACE FOR SGUGA USE:
 ! MVL,MVR,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,ICASE,ICOUP,VTAB,TMP.
 
-      END SUBROUTINE SG_SETUP_CASPT2
+END SUBROUTINE SG_SETUP_CASPT2
