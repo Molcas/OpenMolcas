@@ -12,9 +12,9 @@
 subroutine TSHinit(Energy)
 
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS3, NRSPRT
-use rassi_aux, only: ipglob, Level
+use rassi_aux, only: ipglob
 use rassi_global_arrays, only: JBNUM, LROOT, PART
-use sguga, only: CIStruct, EXStruct, SGStruct, SG_Init, SG_Free
+use sguga, only: CIStruct, EXStruct, SGStruct, SG_Free
 use Cntrl, only: ChkHop, IRREP, ISTATE1, ISTATE2, LSYM1, LSYM2, MLTPLT, NACTE, nCI1, nCI2, NELE3, NHOLE1, NSTATE, RASTYP
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NDEL, NFRO, NISH, NSSH
@@ -32,6 +32,19 @@ type(EXStruct) :: EXS(2)
 character(len=8) :: WFTYP1, WFTYP2
 real(kind=wp), allocatable :: CI1(:), CI2(:)
 real(kind=wp), parameter ::  Ethr = 0.03_wp
+
+Interface
+   subroutine SG_setup_RASSI(nIrrep,NACTEl,MPLETT,SGS,CIS)
+
+   use sguga, only: CIStruct, SGStruct
+   use definitions, only: iwp
+
+   integer(kind=iwp), intent(in):: nIrrep,NACTEL,MPLETT
+   type(SGStruct), intent(inout) :: SGS
+   type(CIStruct), intent(inout) :: CIS
+   End subroutine SG_setup_RASSI
+End Interface
+
 
 ! Print a banner
 
@@ -81,7 +94,7 @@ if (WFTYP1 == 'GENERAL') then
   NRASEL(1) = 2*NRS1T-NHOL11
   NRASEL(2) = NACTE1-NELE31
   NRASEL(3) = NACTE1
-  call SG_Init(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1),xLevel=Level)
+  call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
   if (IPGLOB > 4) then
     write(u6,*) 'Split-graph structure for JOB1=',JOB1
     call SG_Print(SGS(1))
@@ -147,7 +160,7 @@ if (LOWROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),xLevel=Level)
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
@@ -214,7 +227,7 @@ if (UPROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SG_Init(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),xLevel=Level)
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))

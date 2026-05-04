@@ -147,6 +147,7 @@ set (sources
      readin_rassi.F90
      rtdm2_print.F90
      sdchs.F90
+     sg_setup_rassi.F90
      sgmop.F90
      sinani.F90
      smmat.F90
