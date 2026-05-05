@@ -11,7 +11,7 @@
 subroutine SG_setup_RASSI(nSym,nActEl,iSpin,SGS,CIS)
 
 use Molcas, only: MxLev
-use sguga, only: CIStruct, EXStruct, SGStruct, SG_Init
+use sguga, only: CIStruct, SGStruct, SG_Init
 use rassi_aux, only: Level
 use rassi_data, only: NASH
 use definitions, only: iwp
