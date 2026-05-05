@@ -53,7 +53,7 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !                                                                      *
 !***********************************************************************
 
-use sguga, only: CIS, EXS, SGS
+use general_data, only: CIS, EXS, SGS
 use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use PrintLevel, only: DEBUG

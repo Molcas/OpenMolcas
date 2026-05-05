@@ -22,6 +22,7 @@ use CC_CI_mod, only: Do_CC_CI
 use gas_data, only: iDoGAS
 use rasscf_global, only: DoBlockDMRG
 use general_data, only: nSym, nActel, iSpin, nHole1, nElec3, nRs1, nRs2, nRs3, STSYM, nConf
+use general_data, only: CIS, EXS, SGS
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
@@ -29,7 +30,7 @@ use stdalloc, only: mma_deallocate
 #endif
 use gas_data, only: NGAS, NGSSH
 use rasscf_global, only: NSM
-use sguga, only: CIS, EXS, SGS, SG_Init_Simple, MKCOT, MKCLIST, MKSGNUM
+use sguga, only: SG_Init_Simple, MKCOT, MKCLIST, MKSGNUM
 use definitions, only: u6, iwp, wp
 
 #ifdef _DMRG_

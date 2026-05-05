@@ -38,12 +38,12 @@ subroutine cre_raswfn()
 
   use mh5, only: mh5_close_dset, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, &
                  mh5_create_file, mh5_init_attr, mh5_put_dset
-  use sguga, only: SGS
   use sxci, only: IDXCI, IDXSX
   use gas_data, only: iDoGAS, NGAS, NGSSH
   use input_ras, only: Key
   use general_data, only: ISPIN, NACTEL, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, NTOT, &
                           NTOT2, STSYM
+  use general_data, only: SGS
   use spinfo, only: NDET
   use Molcas, only: MxAct, MxSym
   use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT

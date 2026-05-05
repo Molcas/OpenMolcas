@@ -11,7 +11,7 @@
 
 subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR,nLev)
 
-use sguga, only: CIS
+use general_data, only: CIS
 use Definitions, only: iwp, u6
 
 implicit none
