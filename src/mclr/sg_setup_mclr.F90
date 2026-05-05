@@ -12,8 +12,9 @@
 subroutine SG_Setup_MCLR(pState_Sym)
 
 use molcas, only: MxLev
-use sguga, only: SGS, CIS, EXS, MkCOT, MkCList, MkSGNum, SG_Init_Simple
+use sguga, only: MkCOT, MkCList, MkSGNum, SG_Init_Simple
 use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
+use input_mclr, only: SGS, CIS, EXS
 use Definitions, only: iwp
 
 implicit none
