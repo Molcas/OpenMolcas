@@ -72,7 +72,7 @@ use rctfld_module, only: lRF
 use lucia_data, only: CFTP, DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 use wadr, only: FMO
-use gugx, only: CIS, SGS
+use sguga, only: CIS, SGS
 use sxci, only: IDXSX
 use gas_data, only: iDoGAS
 use input_ras, only: Key
@@ -656,7 +656,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
               call Molcas_open(LuVecDet,filename)
               write(LuVecDet,'(8i4)') nish
             end if
-            call SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+            call SG_PrWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
             ! Close GronOR vecdet file (tps/cdg 20210430)
             if (Key('PRSD')) close(LuVecDet)
           end if

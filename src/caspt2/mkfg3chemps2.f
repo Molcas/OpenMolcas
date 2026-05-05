@@ -17,7 +17,7 @@
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
       use Symmetry_Info, only: Mul
-      use gugx, only: SGS
+      use sguga, only: SGS
       use caspt2_module, only: jState, nActel, EPSA, mState
       use definitions, only: iwp, wp, Byte, u6
       IMPLICIT NONE

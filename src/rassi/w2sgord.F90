@@ -21,7 +21,7 @@ subroutine W2SGORD(SGS,CIS,MWS2W,NLIST,KWALK,ICNUM)
 ! Split-Guga scheme.
 ! Use MAWS to WLK table, MWS2W
 
-use gugx, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct
 use Symmetry_Info, only: MUL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp

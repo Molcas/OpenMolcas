@@ -20,7 +20,7 @@
       use Constants, only: Zero
       use definitions, only: wp, iwp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: SGS
+      use sguga, only: SGS
       use caspt2_module, only: NASH, ISCF, JSTATE, EPSA
       use caspt2_module, only: NG1, NG2, NG3, NG3TOT
 #ifdef _MOLCAS_MPP_
@@ -1886,7 +1886,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: iPrGlb
       use PrintLevel, only: VERBOSE
-      use gugx, only: L2ACT
+      use sguga, only: L2ACT
       use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
       use definitions, only: wp, iwp, byte, u6
       use caspt2_module, only: STSYM, NSTATE, MSTATE, JSTATE,
@@ -2209,7 +2209,7 @@
       SUBROUTINE DENS1_RPT2_CLag (CI,NCI,SGM1,NSGM1,CLag,nConf,RDMEIG,
      &                            nLev)
       use Symmetry_Info, only: Mul
-      use gugx, only: SGS, L2ACT, CIS
+      use sguga, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: STSym
@@ -4139,7 +4139,7 @@
       use caspt2_global, only:IPrGlb
       use PrintLevel, only: VERBOSE
       use caspt2_global, only: ConvInvar,SLag
-      use gugx, only: SGS, CIS
+      use sguga, only: SGS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp, wp, u6
@@ -4695,7 +4695,7 @@
       !! dens2_rpt2.f
       Subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
 
-      use gugx, only: SGS, L2ACT, CIS
+      use sguga, only: SGS, L2ACT, CIS
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use Constants, only: Two
 
@@ -4829,7 +4829,7 @@
 !
       Subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
 
-      use gugx, only: SGS
+      use sguga, only: SGS
       use caspt2_module, only: MXCI, NG1, NG2
 
       implicit none
@@ -5009,7 +5009,7 @@
       SUBROUTINE CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,
      &                    INT2,Fancy)
       use molcas, only: MXLEV
-      use gugx, only: SGS, CIS
+      use sguga, only: SGS, CIS
       use Constants, only: Two, Four
 
       implicit none

@@ -18,7 +18,7 @@ subroutine mkfg3qcm(mkF, nLev, G1, F1, G2, F2, G3, F3, idxG3, nG3)
    use stdalloc, only: mma_allocate, mma_deallocate
    use qcmaquis_interface
    use printLevel, only: verbose
-   use gugx, only: SGS
+   use sguga, only: SGS
    use caspt2_global, only: iPrGlb
    use caspt2_module, only: jState, EPSA
    use definitions, only: wp, iwp, byte, u6

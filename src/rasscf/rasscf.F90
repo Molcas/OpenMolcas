@@ -69,7 +69,7 @@ use UnixInfo, only: ProgName
 use rctfld_module, only: lRF
 use Lucia_Interface, only: Lucia_Util
 use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FockOcc, OccN, PA, PMAT, TUVX
-use gugx, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS, SG_Free
 use gas_data, only: iDOGAS
 use input_ras, only: Key, LuInput
 use raswfn, only: cre_raswfn, Wfn_FileID
@@ -1777,7 +1777,7 @@ if (Do_OFemb) then
   end if
 end if
 
-if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) call MKGUGA_FREE(SGS,CIS,EXS)
+if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) call SG_Free(SGS,CIS,EXS)
 
 if (DoFaro) then
   call faroald_free()

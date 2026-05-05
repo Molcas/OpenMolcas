@@ -8,34 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+subroutine SG_setup_RASSI(nSym,nActEl,iSpin,SGS,CIS)
 
-subroutine MKNSM()
-! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
+use Molcas, only: MxLev
+use sguga, only: CIStruct, SGStruct, SG_Init
+use rassi_aux, only: Level
+use rassi_data, only: NASH
+use definitions, only: iwp
 
-use gugx, only: SGS
-use gas_data, only: NGAS, NGSSH
-use rasscf_global, only: NSM
-use general_data, only: NSYM
-use stdalloc, only: mma_allocate
-use Definitions, only: iwp
+integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
 
-implicit none
-integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
+integer(kind=iwp) :: nLev, ISYM, IT, ILEV, ISM(MxLev), L2Act(MxLev), iq
 
-NLEV = 0
-do IGAS=1,NGAS
-  do ISYM=1,NSYM
-    NSTA = NLEV+1
-    NLEV = NLEV+NGSSH(IGAS,ISYM)
-    NSM(NSTA:NLEV) = ISYM
+nLev = 0
+do ISYM=1,NSYM
+  do IT=1,NASH(ISYM)
+    nLev = nLev+1
+    ILEV = LEVEL(nLev)
+    ISM(ILEV) = ISYM
   end do
 end do
 
-if (SGS%nSym /= 0) then
-  SGS%nLev = nLev
-  call mma_allocate(SGS%ISM,nLev,Label='SGS%ISM')
-  SGS%ISM(1:nLev) = NSM(1:nLev)
-end if
+L2Act(1:MxLev)=[(iq,iq=1,MxLev)]
 
-end subroutine MKNSM
+Call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                &
+             xLevel=Level,xL2Act=L2Act,                &
+             xNLEV=nLev,xNSM=ISM)
 
+End subroutine SG_setup_RASSI
