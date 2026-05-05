@@ -821,6 +821,53 @@ End If
 
 END SUBROUTINE SG_Init
 
+subroutine SG_Free(SGS,CIS,EXS)
+! PURPOSE: FREE THE SGUGA TABLES
+
+#include "intent.fh"
+
+implicit none
+type(SGStruct), intent(_OUT_) :: SGS
+type(CIStruct), intent(_OUT_) :: CIS
+type(EXStruct), optional, intent(_OUT_) :: EXS
+
+call mma_deallocate(SGS%ISM,safe='*')
+call mma_deallocate(SGS%DRT0,safe='*')
+call mma_deallocate(SGS%DOWN0,safe='*')
+call mma_deallocate(SGS%DRT,safe='*')
+call mma_deallocate(SGS%DOWN,safe='*')
+call mma_deallocate(SGS%UP,safe='*')
+call mma_deallocate(SGS%MAW,safe='*')
+call mma_deallocate(SGS%LTV,safe='*')
+call mma_deallocate(SGS%DAW,safe='*')
+call mma_deallocate(SGS%RAW,safe='*')
+call mma_deallocate(SGS%SCR,safe='*')
+call mma_deallocate(SGS%Ver,safe='*')
+nullify(SGS%DRTP,SGS%DOWNP)
+
+call mma_deallocate(CIS%NOW,safe='*')
+call mma_deallocate(CIS%IOW,safe='*')
+call mma_deallocate(CIS%NCSF,safe='*')
+call mma_deallocate(CIS%NOCSF,safe='*')
+call mma_deallocate(CIS%IOCSF,safe='*')
+call mma_deallocate(CIS%ICase,safe='*')
+call mma_deallocate(CIS%VSGM,safe='*')
+call mma_deallocate(CIS%IVR,safe='*')
+call mma_deallocate(CIS%ISGM,safe='*')
+
+If (Present(EXS)) THEN
+   call mma_deallocate(EXS%NOCP,safe='*')
+   call mma_deallocate(EXS%IOCP,safe='*')
+   call mma_deallocate(EXS%ICoup,safe='*')
+   call mma_deallocate(EXS%VTab,safe='*')
+   call mma_deallocate(EXS%SGTMP,safe='*')
+   call mma_deallocate(EXS%MVL,safe='*')
+   call mma_deallocate(EXS%MVR,safe='*')
+   call mma_deallocate(EXS%USGN,safe='*')
+   call mma_deallocate(EXS%LSGN,safe='*')
+End If
+
+end subroutine SG_Free
 subroutine MKCOT(SGS,CIS)
 ! PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
 ! NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
@@ -2014,53 +2061,6 @@ call mma_deallocate(ISTEPVEC)
 
 end subroutine MKSGNUM
 
-subroutine SG_Free(SGS,CIS,EXS)
-! PURPOSE: FREE THE SGUGA TABLES
-
-#include "intent.fh"
-
-implicit none
-type(SGStruct), intent(_OUT_) :: SGS
-type(CIStruct), intent(_OUT_) :: CIS
-type(EXStruct), optional, intent(_OUT_) :: EXS
-
-call mma_deallocate(SGS%ISM,safe='*')
-call mma_deallocate(SGS%DRT0,safe='*')
-call mma_deallocate(SGS%DOWN0,safe='*')
-call mma_deallocate(SGS%DRT,safe='*')
-call mma_deallocate(SGS%DOWN,safe='*')
-call mma_deallocate(SGS%UP,safe='*')
-call mma_deallocate(SGS%MAW,safe='*')
-call mma_deallocate(SGS%LTV,safe='*')
-call mma_deallocate(SGS%DAW,safe='*')
-call mma_deallocate(SGS%RAW,safe='*')
-call mma_deallocate(SGS%SCR,safe='*')
-call mma_deallocate(SGS%Ver,safe='*')
-nullify(SGS%DRTP,SGS%DOWNP)
-
-call mma_deallocate(CIS%NOW,safe='*')
-call mma_deallocate(CIS%IOW,safe='*')
-call mma_deallocate(CIS%NCSF,safe='*')
-call mma_deallocate(CIS%NOCSF,safe='*')
-call mma_deallocate(CIS%IOCSF,safe='*')
-call mma_deallocate(CIS%ICase,safe='*')
-call mma_deallocate(CIS%VSGM,safe='*')
-call mma_deallocate(CIS%IVR,safe='*')
-call mma_deallocate(CIS%ISGM,safe='*')
-
-If (Present(EXS)) THEN
-   call mma_deallocate(EXS%NOCP,safe='*')
-   call mma_deallocate(EXS%IOCP,safe='*')
-   call mma_deallocate(EXS%ICoup,safe='*')
-   call mma_deallocate(EXS%VTab,safe='*')
-   call mma_deallocate(EXS%SGTMP,safe='*')
-   call mma_deallocate(EXS%MVL,safe='*')
-   call mma_deallocate(EXS%MVR,safe='*')
-   call mma_deallocate(EXS%USGN,safe='*')
-   call mma_deallocate(EXS%LSGN,safe='*')
-End If
-
-end subroutine SG_Free
 
 subroutine CSFCOUNT(CIS,NSYM,NUW)
 
@@ -2111,6 +2111,7 @@ do ISYTOT=1,NSYM
 end do
 
 end subroutine CSFCOUNT
+
 
 
 end module SGUGA
