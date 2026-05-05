@@ -48,7 +48,9 @@ else
 
    call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                      &
                        xLevel=Level,xL2Act=L2Act,                      &
-                       xnLev=nLev,xNSM=ISM)
+                       xnLev=nLev,xNSM=ISM,Do_MkSGuga=.FALSE.)
+   SGS%iSpin=0
+   SGS%nActEl=0
 
 ! INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
    Call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')

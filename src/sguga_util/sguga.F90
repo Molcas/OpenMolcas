@@ -691,7 +691,7 @@ end subroutine MKSGUGA
 SUBROUTINE SG_Init_Simple(nSym,nActEl,iSpin,                   &
                           SGS,CIS,EXS,                         &
                           nHole1,nEle3,nRs1,nRs2,nRs3,         &
-                          xLevel,xL2Act,xNLEV,xNSM)
+                          xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
 IMPLICIT None
 Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
 Type(SGStruct), intent(inout):: SGS
@@ -700,6 +700,7 @@ Type(EXStruct),  optional, intent(inout):: EXS
 Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
 Integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
 Integer(kind=iwp), optional, intent(in):: xNLEV, xNSM(MxLev)
+Logical(kind=iwp), optional, intent(in):: Do_MkSGUGA
 
 Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS
 
@@ -769,7 +770,11 @@ SGS%NLEV = xnLEV
 call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
 SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
-Call MkSGUGA(SGS,CIS)
+If (Present(Do_MkSGUGA)) Then
+   If (Do_MkSGUGA) Call MkSGUGA(SGS,CIS)
+Else
+   Call MkSGUGA(SGS,CIS)
+End If
 
 END SUBROUTINE SG_Init_Simple
 
