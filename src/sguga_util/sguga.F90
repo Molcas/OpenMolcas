@@ -2178,52 +2178,12 @@ End subroutine MkISM_RAW
   type(SGStruct), target, intent(inout) :: SGS
   integer(iwp), optional, intent(in):: xnLev, xNSM(MxLev)
 
-      If (Present(xnLev)) Then
+    If (Present(xnLev)) Then
          call mkISM_rasscf(SGS,xnLev,xNSM)
-      Else
+    Else
          call mkISM_rasscf(SGS)
-      End If
-!   Select Case(ProgName(1:6))
-!   Case ('caspt2')
-!     If (Present(xnLev)) Then
-!        call mkISM_rasscf(SGS,xnLev,xNSM)
-!     Else
-!        call mkISM_cp2(SGS)
-!     End If
-!   Case ('rasscf','casvb ','mclr  ','rassi')
-!     If (Present(xnLev)) Then
-!        call mkISM_rasscf(SGS,xnLev,xNSM)
-!     Else
-!        call mkISM_rasscf(SGS)
-!     End If
-!   Case Default
-!      Write (u6,*) 'MkISM: not setup for program:', ProgName
-!      Call Abend()
-!   End Select
+    End If
 
   end subroutine MKISM
-
-  subroutine mkism_cp2(SGS)
-
-    use caspt2_module, only: nAsh, NLEV=>nAshT
-
-    type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ILEV, ISYM, IT, iOrb
-
-    Call MkISM_RAW(SGS,nLev)
-
-    ! PAM060612: With true RAS space, the orbitals must be ordered
-    ! first by RAS type, then by symmetry.
-
-    iOrb = 0
-    do ISYM=1,SGS%NSYM
-      do IT=1,NASH(ISYM)
-        iOrb = iOrb+1
-        ILEV = LEVEL(iOrb)
-        SGS%ISM(ILEV) = ISYM
-      end do
-    end do
-
-  end subroutine mkism_cp2
 
 end module SGUGA
