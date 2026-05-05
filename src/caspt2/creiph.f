@@ -171,10 +171,10 @@ C to JOBMIX, we use the same TOC array, IADR15.
 CSVC: translates levels to orbital index
 !     Copy to local array since L2Act and Level are protected.
       XL2Act(:)=L2Act(:)
-      CALL IDAFILE(JOBMIX,1,L2ACT,mxAct,IAD15)
+      CALL IDAFILE(JOBMIX,1,xL2ACT,mxAct,IAD15)
 CSVC: translates orbital index to levels
       XLevel(:)=Level(:)
-      CALL IDAFILE(JOBMIX,1,LEVEL,mxAct,IAD15)
+      CALL IDAFILE(JOBMIX,1,xLEVEL,mxAct,IAD15)
 
 * PAM07: Eliminate unsafe IPOSFILE calls, use instead dummy i/o operations
 * to find disk addresses to CI arrays:
