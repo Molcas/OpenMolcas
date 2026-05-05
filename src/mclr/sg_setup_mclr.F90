@@ -13,12 +13,12 @@ subroutine SG_Setup_MCLR(pState_Sym)
 
 use molcas, only: MxLev
 use sguga, only: SGS, CIS, EXS, MkCOT, MkCList, MkSGNum, SG_Init_Simple
-use input_mclr, only: iSpin, nActEl, nConf, nCSF, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym
+use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) pState_Sym
-integer(kind=iwp) :: iBas, nLev, iSym, ISM(1:MxLev)
+integer(kind=iwp), intent(in):: pState_Sym
+integer(kind=iwp) :: iBas, nLev, iSym, ISM(1:MxLev), Level(MxLev), iq
 
 nLev = 0
 do iSym=1,nSym
@@ -40,7 +40,11 @@ do iSym=1,nSym
   end do
 end do
 
-Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3, xNLEV=nLev, xNSM=ISM)
+Level(1:MxLev)=[(iq,iq=1,MxLev)]
+
+Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3, &
+                    xLevel=Level, xL2Act=Level,                                 &
+                    xNLEV=nLev, xNSM=ISM)
 
 ! PURPOSE: FREE THE GUGA TABLES
 ! FORM VARIOUS OFFSET TABLES:
