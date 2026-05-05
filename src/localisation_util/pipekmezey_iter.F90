@@ -247,6 +247,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case (1) ! Jacobi Sweeps (2x2 rotations)
         UpMeth = "JS  -"
 
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
 
@@ -254,7 +255,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     ! N X N ROTATIONS
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     case (2,3,4,5)
-        UpMeth = "NR  -"
 
         ! Before taking a new step, we evaluate the Hessian at the current point
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:))
@@ -295,6 +295,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 UpMeth = "NR +LS"
             else
                 best_eta = One
+                UpMeth = "NR  -"
             end if
 
             Disp(:) = best_eta * SearchDir(:)
@@ -321,21 +322,22 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
         call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
         ! update <s|PA|t>
-        call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
-        !call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
+       ! call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
+        call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
 
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! EVALUATE QUANTITIES AT PREDICTED POINT
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the predicted gradient
 
         ! Add these predictions to the lists. If the GEK is step later performed, this data will be replaced
-        DispList(:,nIter+1) = Disp(:) ! q_i
+        ! dq will enter via Disp, not DispList
         GradList(:,nIter+1) = -Gradient(:) ! g_i
-        FuncList(nIter+1) = -Functional ! y_i
 
+        write(u6,*) "Newton Raphson predictions"
+        write(u6,*) "Disp           ",Disp(:)
+        write(u6,*) "Gradient       ",Gradient(:)
 
 #       ifdef _DEBUGLISTS_
             write(u6,*) "nIter =",nIter
@@ -346,12 +348,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! IF IN GEK RANGE: Build subspace and get back optimized Disp
+        ! else: take the above predicted values as actual values for this iteration
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
             if (GEKRange) then
 
                 IterGEK = IterGEK + 1
 
+                ! since we transformed PA to the NR step, we have to get the one at C_ref back
+                ! we can simply do that with generating it from the CMO again (that we will only update later)
+                call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
                 call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec,CMO,&
                                         nBasis,PA,nAtoms)
 
@@ -359,11 +365,44 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                                                                 *sqrt(dot_product(SearchDir,SearchDir))))/Pi*180.0_wp
                 write(u6,*) "norm(GEKstep) / norm(NRstep)", sqrt(dot_product(Disp,Disp)/dot_product(SearchDir,SearchDir))
 
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                ! TAKE THE GEK STEP; REPLACE THE NR DATA IN THE LISTS
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                ! keep norm of kappa matrix below pi/4
+                call rescale_disp(Disp(:))
+
+                ! see if inside region fit for GEK
+                call StepSizeChecks()
+
+                ! transform disp vec to matrix
+                call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
+
+                ! get U=exp(-kappa) and U_inv=exp(kappa)
+                call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
+                ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
+                call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
+                ! update <s|PA|t>
+                !call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
+                call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
+
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                ! EVALUATE QUANTITIES AT PREDICTED POINT
+                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the actual new gradient
+
+                ! Replace NR predictions with actual data
+                GradList(:,nIter+1) = -Gradient(:) ! g_i
+
+
+
             end if ! if in GEKRange
 
         end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
 
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        FuncList(nIter+1) = -Functional ! y_i
 
 
 
@@ -373,6 +412,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call RecPrt('Unitary Mat',' ',Umat,norb2loc,norb2loc)
 #       endif
 
+        DispList(:,nIter) = Disp(:) ! q_i
         CMO(:,:) = rotated_CMO(:,:)
 
     end select ! 2x2 or NxN rotations
@@ -535,10 +575,6 @@ subroutine StepSizeChecks()
     if (large_elements == 0 .and. GradNorm < gekthr_grad) then
         GEKRange = .true.
         SORange = .true.
-        if (nIter == 1) then
-            iterGEK = 1
-            ndiis = 1
-        end if
     end if
 
     if (GEKRange) then

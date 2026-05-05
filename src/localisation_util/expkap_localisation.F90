@@ -101,7 +101,8 @@ do while (ithrsh > thrsh_taylor)
     ! sanity check for divergence
     if (ithrsh/720 > One) then
         write(u6,*) "Bug: the Taylor expansion of exp(kappa) diverges - numerical error"
-        write(u6,*) "Stopping Taylor expansion at ",cnt,"-th term. Rescale kappa before feeding it this subroutine."
+        write(u6,*) "Stopping Taylor expansion at ",cnt,"-th term. Rescale kappa before feeding it this subroutine. ithrsh",&
+                     ithrsh
         call Abend()
     end if
 

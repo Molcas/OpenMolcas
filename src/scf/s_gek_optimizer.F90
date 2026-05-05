@@ -219,10 +219,10 @@ do i=1,nDIIS
   end do
 end do
 
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
 call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
 call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
-#endif
+!#endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Project the approximate Hessian to the subspace !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

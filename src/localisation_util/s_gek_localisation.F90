@@ -45,11 +45,10 @@ integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, dq_NR(fsdim)
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),&
                               dq_diis(:), FHrow_k(:),dq_NR_diis(:)
-integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
+integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 2
 real(kind=wp), External :: DDot_
 logical(kind=iwp), intent(in) :: SORange
 character(LEN=1) :: Step_Trunc
-real(kind=wp), allocatable :: CoordsAbs(:,:)
 
 If (nOrb2Loc==0) Call abend() ! Dummy statement
 
@@ -97,17 +96,15 @@ end do
 
 call moveref()
 
-
-
 #ifdef _DEBUGPRINT_
     write(u6,*) 'iFirst =',iFirst
     write(u6,*) 'iLast =',iLast
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
     write(u6,*) 'IterGEK =',IterGEK
-    call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
-    call RecPrt("grads(:,:)",' ',grads,fsdim, nDiis)
-    call RecPrt("grads(:,nDiis)",' ',grads(:,nDiis),fsdim, 1)
+    call RecPrt("q(:,:)",' ',coords,fsdim, nDiis)
+    call RecPrt("g(:,:)",' ',grads,fsdim, nDiis)
+    call RecPrt("g(:,nDiis)",' ',grads(:,nDiis),fsdim, 1)
     call RecPrt("dq(:) = NR suggestion",' ',dq,fsdim, 1)
 #endif
 
@@ -190,7 +187,7 @@ else if (OptMeth == 5) then
     ! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
     j = j+1
     !current gradient
-    Aux_1(:) = grads(:,nDIIS)
+    Aux_1(:) = grads(:,nDIIS+1)
     !normalize
     e_diis(:,j) = Aux_1(:)/sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
 
@@ -269,7 +266,8 @@ call mma_Allocate(q_diis,mDiis,nDiis+Max_IterGEK,Label='q_diis')
 q_diis(:,:) = Zero
 do i=1,nDiis ! we project only those q vectors that were used to build the subspace, so that they are fully expressed within it
     do k=1,mDiis
-        q_diis(k,i) = sum( (coords(:,i)-coords(:,nDIIS)) * e_diis(:,k))
+        !q_diis(k,i) = sum( (coords(:,i)-coords(:,nDIIS)) * e_diis(:,k))
+        q_diis(k,i) = sum( (coords(:,i)) * e_diis(:,k))
         !q_diis(k,i) = sum( (coords(:,nDIIS)-coords(:,i)) * e_diis(:,k))
     end do
 end do
@@ -302,10 +300,11 @@ H_diis(:,:) = Zero
 if (useFH) then
     do k=1,fsdim
         call GetFHrow_PM(nAtoms,nOrb2Loc,PA,fsdim,FHrow_k,k,CMO,nBasis)
+        !write(u6,*) "Hessian row k",FHrow_k
         do i=1,mDiis
             do j=1,mDiis
-                !H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
-                H_diis(i,j) = H_diis(i,j) + e_diis(i,k)*sum(FHrow_k(:)*e_diis(:,j))
+                ! the minus sign is because we flip everything in GEK, to minimize the PM functional
+                H_diis(i,j) = H_diis(i,j) - e_diis(i,k)*sum(FHrow_k(:)*e_diis(:,j))
             end do
         end do
     end do
@@ -365,7 +364,6 @@ Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Fu
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
 #ifdef _DEBUGPRINT_
     !call RecPrt("dq_NR_Diis","",dq_NR_Diis,mdiis,1)
     !call RecPrt("dq_Diis","",dq_Diis,mdiis,1)
@@ -379,10 +377,10 @@ Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Fu
         acos(dot_product(dq_NR_diis,dq_diis)/(norm_dq_NR*norm_dq))/Pi*180.0_wp,&
                     "norm(dq)/norm(dq_NR) = ",norm_dq/norm_dq_NR, "IterGEK=",IterGEK
 
-    call mma_deallocate(dq_NR_diis)
     call RecPrt('dq(:) before projecting out',' ',dq_diis(:),size(dq_diis),1)
 #endif
 
+call mma_deallocate(dq_NR_diis)
 write(UpMeth(4:4),'(A1)') Step_Trunc
 
 ! project the resulting displacement dq_diis back into the fullspace
@@ -412,7 +410,7 @@ real(kind=wp) :: norm_dq, norm_dq_NR
 end block
 #endif
 
-
+    call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 
 ! deallocations
 ! -------------
@@ -442,17 +440,18 @@ contains
 
 subroutine moveref()
     integer(kind=iwp) :: I, J
+    real(kind=wp), allocatable :: CoordsAbs(:,:)
 
     call mma_Allocate(CoordsAbs,fsdim, nDiis,Label="CoordsAbs")
-    CoordsAbs(:,:) = Zero
 
     ! DispList contains displacements relative to the CMO of each iteration
     !we have to switch from relative to absolute coords for the GEK model:
 
     CoordsAbs(:,:) = coords(:,:)
     do i = 1, ndiis
+        CoordsAbs(:,i) = coords(:,nDiis)
         do j = i,ndiis
-            CoordsAbs(:,i) = CoordsAbs(:,i) - coords(:,j)
+            CoordsAbs(:,i) = CoordsAbs(:,i)-coords(:,j)
         end do
     end do
     coords(:,:ndiis) = CoordsAbs(:,:ndiis)
@@ -460,7 +459,6 @@ subroutine moveref()
 call mma_Deallocate(CoordsAbs)
 
 end subroutine moveref
-
 
 
 #ifdef _NOT_USED_
