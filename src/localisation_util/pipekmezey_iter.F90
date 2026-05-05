@@ -59,7 +59,7 @@ character(len=4) :: x1
 
 OptMeth = inpOptMeth
 
-if (OptMeth == 4 .or. OptMeth == 5) then
+if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then
     write(u6,*) "doing GEK Opt with:"
     write(u6,*) "GEKThrKappa =",GEKThr_Kappa
     write(u6,*) "GEKThrGrad  =",GEKThr_Grad
@@ -131,7 +131,7 @@ case (1)
 
     call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 
-case(2,3,4,5)
+case(2,3,4,5,6)
 
     call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
     ! allocating matrices for NxN optimizations
@@ -180,7 +180,7 @@ end select
 
 select case (OptMeth)
 
-case (2,3,4,5)
+case (2,3,4,5,6)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
     call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal
     FuncList(1) = -Functional
@@ -226,7 +226,7 @@ write(u6,'(//,1X,A,/,1X,A)') &
 
 ! initial information (Iteration = 0)
 select case (OptMeth)
-    case (1)
+    case (1,6)
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
     case (3)
@@ -251,7 +251,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     nIter = nIter+1
 
-    if (nIter == 1 .and. inpOptMeth == 6) then
+    if (GradNorm > gekthr_grad .and. inpOptMeth == 6) then
         !request to start with one Jacobi Sweep, then switch to NR (6) or GEK (7)
         OptMeth = 1
     else
@@ -271,7 +271,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! N X N ROTATIONS
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    case (2,3,4,5)
+    case (2,3,4,5,6)
 
         ! Before taking a new step, we evaluate the Hessian at the current point
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:))
@@ -358,16 +358,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 #       ifdef _DEBUGLISTS_
             write(u6,*) "nIter =",nIter
-            call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
-            call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter),fsdim,nIter)
-            call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
+            call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter+1),fsdim,nIter+1)
+            call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter+1),fsdim,nIter+1)
+            call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter+1),1,nIter+1)
 #       endif
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! IF IN GEK RANGE: Build subspace and get back optimized Disp
         ! else: take the above predicted values as actual values for this iteration
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
+        if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then ! (S)-GEK
             if (GEKRange) then
 
                 IterGEK = IterGEK + 1
@@ -451,18 +451,18 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         case (3)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
-        case (2,4,5)
+        case (2,4,5,6)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
         case default
             write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
             call Abend()
     end select
-
+    write(u6,*) ""
     select case(OptMeth)
         case(1)
             Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-        case(2,3,4,5)
+        case(2,3,4,5,6)
             StepNorm = sqrt(DDOT_(fsdim,Disp,1,Disp,1))
             Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
             Converged = (GradNorm <= ThrGrad) .and. (StepNorm <=ThrStep)
@@ -509,7 +509,7 @@ call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 select case(OptMeth)
 case(1)
     call mma_Deallocate(PACol)
-case(2,3,4,5)
+case(2,3,4,5,6)
     call mma_Deallocate(PACol)
     call mma_Deallocate(Gradient)
     call mma_Deallocate(kappa)

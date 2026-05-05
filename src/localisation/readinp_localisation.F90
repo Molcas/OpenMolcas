@@ -178,6 +178,11 @@ do
             ! S-GEK for PM localisation
             inpOptMeth = 5
 
+            case ('HYBR') !hybrid
+            ! start with JACO below gekthr_grad, then switch to SGEK
+            inpOptMeth = 6
+
+
             case default
                 write(u6,*) 'WARNING!!!'
                 write(u6,*) 'The specified optimization method for PM localisation does not exist'

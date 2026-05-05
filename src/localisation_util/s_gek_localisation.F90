@@ -133,7 +133,7 @@ if (OptMeth == 4) then
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! SUBSPACE VERSION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-else if (OptMeth == 5) then
+else if (OptMeth == 5 .or. OptMeth == 6) then
 
     if (nDIIS == 1) then
 #       ifdef _DEBUGPRINT_
@@ -453,7 +453,6 @@ subroutine moveref()
     coords(:,:ndiis) = CoordsAbs(:,:ndiis)
 
 call mma_Deallocate(CoordsAbs)
-
 end subroutine moveref
 
 
