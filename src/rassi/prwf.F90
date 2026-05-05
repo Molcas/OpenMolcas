@@ -11,7 +11,7 @@
 
 subroutine PRWF(SGS,CIS,ISYCI,CI,CITHR)
 
-use gugx, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct
 use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6

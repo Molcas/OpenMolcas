@@ -28,9 +28,7 @@ set (sources
      csdiag.F90
      csdtvc.F90
      csfbas.F90
-     csfcount.F90
      cstart.F90
-     cxinit.F90
      davctl.F90
      davctl_mod.F90
      david5.F90
@@ -57,8 +55,6 @@ set (sources
      getcnf.F90
      geth2a.F90
      getstepvector.F90
-     gugactl.F90
-     gugx.F90
      hcsce.F90
      ini_david.F90
      init_lex.F90
@@ -74,18 +70,9 @@ set (sources
      lucia2molcas.F90
      lucia2molcas_free.F90
      matml4.F90
-     mkclist.F90
-     mkcot.F90
-     mkcoup.F90
-     mkguga_free.F90
-     mkguga_mod.F90
-     mkmaw.F90
-     mknsm.F90
-     mkseg.F90
-     mksgnum.F90
+     mclr_data.F90
      motrac.F90
      newgs.F90
-     nrcoup.F90
      ordstr.F90
      output_ras.F90
      page_in.F90
@@ -102,8 +89,7 @@ set (sources
      rd2int_rasscf.F90
      recno.F90
      reord2.F90
-     restr.F90
-     rmvert.F90
+     reord.F90
      save_ci_vec.F90
      save_h_diag.F90
      save_sig_vec.F90
@@ -112,16 +98,14 @@ set (sources
      scavcs.F90
      schmidt.F90
      second_quantization.F90
-     segtab.F90
      setsxci.F90
-     sgprwf.F90
-     sigma1.F90
      sigmadet_cvb.F90
      simplify.F90
      sort_cdet.F90
      spinfo.F90
      stepvec.F90
      stepvector_next.F90
+     str_info.F90
      sxci.F90
      term_david.F90
      timers.F90
@@ -136,13 +120,18 @@ set (modfile_list
      caspt2_module.F90
      csfbas.F90
      dmrginfo.F90
+     fciqmc_interface.F90
+     gas_data.F90
      general_data.F90
-     gugx.F90
      input_mclr.F90
+     mclr_data.F90
+     rasdef.F90
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90
+     reord.F90
      spinfo.F90
+     str_info.F90
      timers.F90
      wadr.F90
 )

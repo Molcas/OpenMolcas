@@ -35,7 +35,6 @@ use OFembed, only: dFMD, Do_OFemb, KEonly, OFE_KSDFT, ThrFThaw, Xsigma
 use CMS, only: CMSGiveOpt, CMSGuessFile, iCMSOpt
 use UnixInfo, only: SuperName
 use Lucia_Interface, only: Lucia_Util
-use gugx, only: CIS, EXS, SGS
 use gas_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use Symmetry_info, only: Mul
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
@@ -91,7 +90,7 @@ integer(kind=iwp) :: i, i_All, i1, i2, iad19, IADR19(15), iAlter, iChng1, iChng2
                      length, mBas, mCof, mConf, mm, mOrb, N, NA, NAO, NASHT, NBAS_L(8), NCHRG, nClean, nCof, NCRPROJ, NDEL_L(8), &
                      nDiff, NFRO_L(8), nGrp, NGSSH_HI, NGSSH_LO, NISH_L(8), NISHT, NISHT_old, nItems, nNUc, NORB_L(8), nOrbRoot, &
                      nOrbs, NRS1_L(8), NRS2_L(8), NRS3_L(8), NSSH_L(8), nSym_l, nT, nU, nW, start, step
-real(kind=wp) :: dSum, dum1, dum2, dum3, Dummy(1), Eterna_1, Eterna_2, POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
+real(kind=wp) :: dSum, Dummy(1), POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
 logical(kind=iwp) :: DBG, Exists, Langevin_On, lExists, PCM_On, RF_On, RlxRCheck, RunFile_Exists, SkipGUGA
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=256) :: myTitle
@@ -122,6 +121,16 @@ real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Is_First_Iter
 character(len=180), external :: Get_LN
 #include "warnings.h"
+
+#ifdef _DMRG_
+Interface
+   subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+   use Definitions, only: iwp
+   logical(kind=iwp), intent(inout):: DBG,SkipGUGA
+   integer(kind=iwp), allocatable, intent(inout) :: initial_occ(:,:)
+   End subroutine SG_Setup_RASSCF
+End Interface
+#endif
 
 !...Dongxia note for GAS:
 !   No changing about read in orbital information from INPORB yet.
@@ -4040,31 +4049,14 @@ NCONF = 1
 SkipGUGA = DoBlockDMRG
 ! ======================================================================
 
-! Construct the Guga tables
+! Initiate the SGUGA environment conditional to all flags
 
-if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
-  ! right now skip most part of gugactl for GAS, but only call mknsm.
-  if (.not. iDoGas) then
-    ! DMRG calculation no need the GugaCtl subroutine
-#   ifdef _DMRG_
-    if (Key('DMRG') .or. doDMRG) then
-      call mma_deallocate(initial_occ)
-      SkipGUGA = .true.
-    else
-#   endif
-      call Timing(Eterna_1,dum1,dum2,dum3)
-      if (DBG) write(u6,*) ' Call GugaCtl'
-      call GUGACtl(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,STSYM,DoBlockDMRG)
-      NCONF = CIS%NCSF(STSYM)
+#ifdef _DMRG_
+Call SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+#else
+Call SG_Setup_RASSCF(DBG,SkipGUGA)
+#endif
 
-      call Timing(Eterna_2,dum1,dum2,dum3)
-#   ifdef _DMRG_
-    end if
-#   endif
-  else  ! if iDoGas
-    call mknsm()
-  end if
-end if
 ! ======================================================================
 
 if (.not. SkipGUGA) then

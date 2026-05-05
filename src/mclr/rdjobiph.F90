@@ -29,10 +29,9 @@ subroutine RdJobIph(CIVec)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sNew
-use gugx, only: CIS, EXS, SGS
 use MCLR_Data, only: CMO, FnJob, FnMck, G1t, G2t, IRLXROOT, ISNAC, ISTATE, LuJob, LuMck, nA, NACSTATES, nNA, NSSA, OVERRIDE, SA
 use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iSpin, iTOC, iTocIph, lRoots, McKinley, nActEl, nAsh, &
-                      nBas, nCOnf, nCSF, nDel, nElec3, nFro, nHole1, nIsh, nOrb, nRoots, nRS1, nRS2, nRS3, nSym, ntAsh, ntASqr, &
+                      nBas, nCOnf, nDel, nElec3, nFro, nHole1, nIsh, nOrb, nRoots, nRS1, nRS2, nRS3, nSym, ntAsh, ntASqr, &
                       ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, State_Sym, TitleJP, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
@@ -133,14 +132,7 @@ end do
 if (doDMRG) then  ! yma
   imode = -99
   ! generate the Nr. of csfs in each sym
-  call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,rdum,imode,State_Sym,State_Sym)
-  NCSF(1:nSym) = CIS%NCSF(1:nSym)
-  NCONF = CIS%NCSF(State_Sym)
-  call mkGuga_Free(SGS,CIS,EXS)
-
-  !do isym=1,8
-  !  write(u6,*) 'isym_ncsf in rdjobiph ',ncsf(isym)
-  !end do
+  Call SG2SymG(rdum,Size(rdum),imode,State_sym)
 end if
 
 !----------------------------------------------------------------------*

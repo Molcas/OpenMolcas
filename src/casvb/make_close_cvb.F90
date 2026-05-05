@@ -16,7 +16,7 @@ subroutine make_close_cvb(it)
 
 use casvb_global, only: variat
 use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FMO, FockOcc, OccN, PA, PMAT, TUVX
-use gugx, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS, SG_Free
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
@@ -46,7 +46,7 @@ do i=1,il
   if (n > 0) call daclos(n)
 end do
 if (.not. variat) then
-  call mkguga_free(SGS,CIS,EXS)
+  call SG_Free(SGS,CIS,EXS)
   call mma_deallocate(FMO)
   call mma_deallocate(TUVX)
   call mma_deallocate(DMAT)

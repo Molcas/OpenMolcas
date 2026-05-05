@@ -38,7 +38,7 @@ subroutine cre_raswfn()
 
   use mh5, only: mh5_close_dset, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, &
                  mh5_create_file, mh5_init_attr, mh5_put_dset
-  use gugx, only: SGS
+  use sguga, only: SGS
   use sxci, only: IDXCI, IDXSX
   use gas_data, only: iDoGAS, NGAS, NGSSH
   use input_ras, only: Key

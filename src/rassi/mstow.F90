@@ -11,7 +11,7 @@
 
 subroutine MSTOW(SGS,CIS,MWS2W,nSym)
 
-use gugx, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

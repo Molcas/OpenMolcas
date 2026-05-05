@@ -22,11 +22,9 @@ subroutine InpCtl_MCLR(iPL)
 
 use Str_Info, only: DTOC
 use ipPage, only: ipget, ipin, ipout, ipopen, W
-use gugx, only: CIS, EXS, SGS
 use MCLR_Data, only: ipCI, ISTATE, LuPT2, nGP, SA
 use MCLR_procedures, only: RdJobIph, RdJobIph_td
-use input_mclr, only: iMCPD, iMethod, iRoot, iSpin, nActEl, nConf, nCSF, nDisp, nElec3, nHole1, nRoots, nRS1, nRS2, nRS3, nSym, &
-                      Page, PT2, State_Sym, TimeDep
+use input_mclr, only: iMCPD, iMethod, iRoot, nConf, nDisp, nRoots, Page, PT2, State_Sym, TimeDep
 use dmrginfo, only: DoDMRG, DoMCLR, nDets_RGLR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -34,7 +32,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iPL
-integer(kind=iwp) :: i, ii, ipCII, iSSM
+integer(kind=iwp) :: i, ii, ipCII, iSSM, iMode
 character(len=8) :: Method
 integer(kind=iwp), allocatable :: index_SD(:) ! not final version
 real(kind=wp), allocatable :: CITmp(:), CIVec(:,:), vector_cidmrg(:)
@@ -107,10 +105,9 @@ if (iMethod == 2) then
     ! If doDMRG
     if (.not. (doDMRG .and. doMCLR)) then ! yma
       ! transform to sym. group
-      call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CITmp,1,State_Sym,State_Sym)
-      NCSF(1:nSym) = CIS%NCSF(1:nSym)
-      NCONF = CIS%NCSF(State_Sym)
-      call mkGuga_Free(SGS,CIS,EXS)
+
+      iMode=1
+      Call SG2SymG(CITmp,SIZE(CITmp),iMode,State_Sym)
 
     end if
 

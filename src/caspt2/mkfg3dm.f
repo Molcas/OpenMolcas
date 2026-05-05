@@ -40,7 +40,7 @@ C
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG, VERBOSE
-      use gugx, only: CIS, SGS, L2ACT
+      use sguga, only: CIS, SGS, L2ACT
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use Definitions, only: RtoB
       use caspt2_module, only: nActEl, nSym, STSym
@@ -194,7 +194,7 @@ C-SVC20100301: calculate maximum number of tasks possible
 *      CALL H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,NOW1,IOW1,NMIDV)
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
-C-is basically the number of buffers we fill with sigma1 vectors.
+C-is basically the number of buffers we fill with SG_Epq_Psi vectors.
       iTask=1
       ibuf1=0
       DO ip1=1,nlev2
@@ -306,7 +306,7 @@ C-sigma vectors in the buffer.
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
 *         call dcopy_(nsgm1,[Zero],0,BUF1(:,ibuf1),1)
-*         CALL SIGMA1(IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
+*         CALL SG_Epq_Psi(IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
          end if
         end do
         myBuffer=iTask
@@ -364,7 +364,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
 *     call dcopy_(nsgm2,Zero,0,BUF2,1)
-*     CALL SIGMA1(IYLEV,IZLEV,One,STSYM,CI,BUF2)
+*     CALL SG_Epq_Psi(IYLEV,IZLEV,One,STSYM,CI,BUF2)
 *     if(issg2.eq.issg1) then
 *       do ib=1,ibuf1
 *         idx=ip1_buf(ib)
@@ -391,7 +391,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
         ix=L2ACT(ixlev)
         if(isvx==Mul(issg1,issg2)) THEN
 *       call dcopy_(nsgm1,[Zero],0,BUFT,1)
-*       CALL SIGMA1(IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
+*       CALL SG_Epq_Psi(IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
 *-----------
 * Max and min values of index p1:
         ip1mx=ntri2

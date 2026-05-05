@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nLev,mG3)
       use constants, only: Zero, One, Two
-      use gugx, only: LEVEL
+      use sguga, only: LEVEL
 !     use caspt2_module, only: iSCF, nActel
       use caspt2_module, only: iSCF
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk

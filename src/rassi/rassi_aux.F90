@@ -11,6 +11,7 @@
 
 module RASSI_AUX
 
+use Molcas, only: MxLev
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,8 +22,10 @@ logical(kind=iwp) :: AO_Mode = .false.
 integer(kind=iwp), allocatable :: jDisk_TDM(:,:), JOB_INDEX(:), TocM(:)
 real(kind=wp), allocatable :: CMO1(:), CMO2(:), DMAB(:)
 integer(kind=iwp), parameter :: MULT = 37, NHASH = 997
+integer(kind=iwp) :: iq
+integer(kind=iwp) :: Level(1:MxLev)=[(0,iq=1,MxLev)]
 
-public :: AO_Mode, CMO1, CMO2, DMAB, iDisk_TDM, ipglob, jDisk_TDM, JOB_INDEX, mTRA, MULT, NASHT_Save, NHASH, TocM
+public :: AO_Mode, CMO1, CMO2, DMAB, iDisk_TDM, ipglob, jDisk_TDM, JOB_INDEX, mTRA, MULT, NASHT_Save, NHASH, TocM, Level
 
 contains
 

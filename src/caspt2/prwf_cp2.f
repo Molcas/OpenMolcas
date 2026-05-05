@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PRWF_CP2(ISYCI,NCO,CI,THR)
       use definitions, only: wp, iwp, u6
-      use gugx, only: CIS
+      use sguga, only: CIS
       IMPLICIT NONE
       INTEGER(KIND=IWP), INTENT(IN) :: ISYCI, NCO
       REAL(KIND=WP), INTENT(IN) :: CI(NCO), THR

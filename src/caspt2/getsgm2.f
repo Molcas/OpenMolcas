@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
       use Symmetry_Info, only: Mul
-      use gugx, only:  SGS, CIS, EXS
+      use sguga, only:  SGS, CIS, EXS
       use constants, only: Zero, One
       use definitions, only: iwp, wp, u6
       IMPLICIT None
@@ -55,6 +55,6 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       End If
       IF(NSGM.EQ.0) RETURN
 
-      CALL SIGMA1(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
+      CALL SG_Epq_Psi(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
 
       END SUBROUTINE GETSGM2
