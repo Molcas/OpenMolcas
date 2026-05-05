@@ -13,7 +13,7 @@ subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
 use sguga, only: CIS, EXS, SGS, SG_Free
 use Str_Info, only: CFTP, CNSM
-use input_mclr, only: iSpin, nConf, nCSF, nSym, State_Sym
+use input_mclr, only: nConf, nCSF, nSym, State_Sym
 use Definitions, only: iwp, wp
 
 integer(kind=iwp), intent(in) :: lCI, imode, pState_Sym

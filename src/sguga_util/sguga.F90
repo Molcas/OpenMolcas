@@ -2113,26 +2113,15 @@ subroutine MKISM(SGS,xnLev,xNSM)
 type(SGStruct), target, intent(inout) :: SGS
 integer(kind=iwp), intent(in) :: xnLev, xNSM(MxLev)
 
-Call MkISM_RAW(SGS,xnLev)
-SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
-
-end subroutine MKISM
-
-subroutine MkISM_RAW(SGS,nLev)
-
-type(SGStruct), target, intent(inout) :: SGS
-integer(kind=iwp), intent(in):: nLev
-integer(kind=iwp) iq
-
-SGS%NLEV = nLEV
+SGS%NLEV = xnLEV
 ! Allocate Level to Symmetry table ISm:
 call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
+
+SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
 ! Initiate if not already set externally.
 If (LEVEL(1)==0) LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-
-End subroutine MkISM_RAW
-
+end subroutine MKISM
 
 end module SGUGA

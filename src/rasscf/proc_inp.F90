@@ -90,7 +90,7 @@ integer(kind=iwp) :: i, i_All, i1, i2, iad19, IADR19(15), iAlter, iChng1, iChng2
                      length, mBas, mCof, mConf, mm, mOrb, N, NA, NAO, NASHT, NBAS_L(8), NCHRG, nClean, nCof, NCRPROJ, NDEL_L(8), &
                      nDiff, NFRO_L(8), nGrp, NGSSH_HI, NGSSH_LO, NISH_L(8), NISHT, NISHT_old, nItems, nNUc, NORB_L(8), nOrbRoot, &
                      nOrbs, NRS1_L(8), NRS2_L(8), NRS3_L(8), NSSH_L(8), nSym_l, nT, nU, nW, start, step
-real(kind=wp) :: dSum, dum1, dum2, dum3, Dummy(1), Eterna_1, Eterna_2, POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
+real(kind=wp) :: dSum, Dummy(1), POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
 logical(kind=iwp) :: DBG, Exists, Langevin_On, lExists, PCM_On, RF_On, RlxRCheck, RunFile_Exists, SkipGUGA
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=256) :: myTitle
