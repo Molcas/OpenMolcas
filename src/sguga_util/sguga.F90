@@ -2107,37 +2107,6 @@ end do
 
 end subroutine CSFCOUNT
 
-subroutine MkISM_RAW(SGS,nLev,XLevel,XL2Act)
-
-type(SGStruct), target, intent(inout) :: SGS
-integer(kind=iwp), intent(in):: nLev
-integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
-integer(kind=iwp) iq
-
-SGS%NLEV = nLEV
-! Allocate Level to Symmetry table ISm:
-call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
-
-
-! Initiate if not already set externally.
-If (Present(XLevel).and.Present(XL2Act)) Then
-   Level(1:MxLev)=xLevel(1:MxLev)
-   L2Act(1:MxLev)=xL2Act(1:MxLev)
-Else If (Present(XLevel)) Then
-   Level(1:MxLev)=xLevel(1:MxLev)
-Else If (Present(XL2Act)) Then
-   L2Act(1:MxLev)=xL2Act(1:MxLev)
-Else
-   If (LEVEL(1)==0) LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-   If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-End If
-
-! Default to incremental index if not properly set
-If (Level(1)==0) Level(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-
-End subroutine MkISM_RAW
-
 subroutine MKISM(SGS,xnLev,xNSM)
 ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
 
@@ -2148,5 +2117,22 @@ Call MkISM_RAW(SGS,xnLev)
 SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
 end subroutine MKISM
+
+subroutine MkISM_RAW(SGS,nLev)
+
+type(SGStruct), target, intent(inout) :: SGS
+integer(kind=iwp), intent(in):: nLev
+integer(kind=iwp) iq
+
+SGS%NLEV = nLEV
+! Allocate Level to Symmetry table ISm:
+call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
+
+! Initiate if not already set externally.
+If (LEVEL(1)==0) LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+
+End subroutine MkISM_RAW
+
 
 end module SGUGA
