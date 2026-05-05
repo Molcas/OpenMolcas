@@ -20,7 +20,7 @@ integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
 
-integer(kind=iwp) :: nLev, ISYM, IT, ILEV, ISM(MxLev)
+integer(kind=iwp) :: nLev, ISYM, IT, ILEV, ISM(MxLev), L2Act(MxLev), iq
 
 nLev = 0
 do ISYM=1,NSYM
@@ -31,6 +31,10 @@ do ISYM=1,NSYM
   end do
 end do
 
-Call SG_Init(nSym,nActEl,iSpin,SGS,CIS,xLevel=Level,xNLEV=nLev,xNSM=ISM)
+L2Act(1:MxLev)=[(iq,iq=1,MxLev)]
+
+Call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                &
+             xLevel=Level,xL2Act=L2Act,                &
+             xNLEV=nLev,xNSM=ISM)
 
 End subroutine SG_setup_RASSI

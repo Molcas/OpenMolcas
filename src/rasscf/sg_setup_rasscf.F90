@@ -15,12 +15,13 @@ subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
 subroutine SG_Setup_RASSCF(DBG,SkipGUGA)
 #endif
 
+use Molcas, only: MxLev
 use fciqmc, only: DoNECI
 use fcidump, only: DumpOnly
 use CC_CI_mod, only: Do_CC_CI
 use gas_data, only: iDoGAS
 use rasscf_global, only: DoBlockDMRG
-use general_data, only: nSym, nActel, iSpin, nHole1, nElec3, nRs1, nRs2, nRs3, STSYM, nCOnf
+use general_data, only: nSym, nActel, iSpin, nHole1, nElec3, nRs1, nRs2, nRs3, STSYM, nConf
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
@@ -37,7 +38,7 @@ integer(kind=iwp), allocatable, intent(inout) :: initial_occ(:,:)
 
 logical(kind=iwp), intent(inout):: DBG,SkipGUGA
 real(kind=wp) Eterna_1, Eterna_2, dum1, dum2, dum3
-integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
+integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA, iq, Level(MxLev)
 
 NLEV = 0
 do IGAS=1,NGAS
@@ -47,6 +48,7 @@ do IGAS=1,NGAS
     NSM(NSTA:NLEV) = ISYM
   end do
 end do
+Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
 ! Construct the Guga tables
 
@@ -62,9 +64,9 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call SG_Init_Simple'
-      Call SG_Init_Simple(nSym,nActEl,iSpin,                         &
-                          SGS,CIS,EXS,                               &
-                          nHole1,nElec3,nRs1,nRs2,nRs3,              &
+      Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                 &
+                          EXS,nHole1,nElec3,nRs1,nRs2,nRs3,          &
+                          xLevel=Level,xL2Act=Level,                 &
                           xNLEV=NLEV,xNSM=NSM)
 
       if (SGS%NVERT0 == 0) then
