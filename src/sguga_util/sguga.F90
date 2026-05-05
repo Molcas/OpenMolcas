@@ -761,11 +761,7 @@ If (Present(xL2Act)) L2Act(:)=xL2Act(:)
 
 ! CREATE THE SYMMETRY INDEX VECTOR
 
-If (Present(xnLev)) Then
-   Call MKISM(SGS,xnLev,xNSM)
-Else
-   Call MKISM(SGS)
-End If
+Call MKISM(SGS,xnLev,xNSM)
 
 Call MkSGUGA(SGS,CIS)
 
@@ -2142,48 +2138,15 @@ If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 
 End subroutine MkISM_RAW
 
-  subroutine MKISM_RASSCF(SGS,xnLev,xNSM)
-  ! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
+subroutine MKISM(SGS,xnLev,xNSM)
+! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
 
-    use gas_data, only: NGAS, NGSSH
-    use rasscf_global, only: NSM
+type(SGStruct), target, intent(inout) :: SGS
+integer(kind=iwp), intent(in) :: xnLev, xNSM(MxLev)
 
-    type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp), optional, intent(in) :: xnLev, xNSM(MxLev)
+Call MkISM_RAW(SGS,xnLev)
+SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
-    integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
-
-    If (Present(xnLev)) Then
-       Call MkISM_RAW(SGS,xnLev)
-       SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
-    Else
-       NLEV = 0
-       do IGAS=1,NGAS
-         do ISYM=1,SGS%NSYM
-           NSTA = NLEV+1
-           NLEV = NLEV+NGSSH(IGAS,ISYM)
-           NSM(NSTA:NLEV) = ISYM
-         end do
-       end do
-       Call MkISM_RAW(SGS,nLev)
-       SGS%ISM(1:SGS%nLev) = NSM(1:SGS%nLev)
-    End If
-
-  end subroutine MKISM_RASSCF
-
-  subroutine MKISM(SGS,xnLev,xNSM)
-
-! use UnixInfo, only: ProgName
-
-  type(SGStruct), target, intent(inout) :: SGS
-  integer(iwp), optional, intent(in):: xnLev, xNSM(MxLev)
-
-    If (Present(xnLev)) Then
-         call mkISM_rasscf(SGS,xnLev,xNSM)
-    Else
-         call mkISM_rasscf(SGS)
-    End If
-
-  end subroutine MKISM
+end subroutine MKISM
 
 end module SGUGA
