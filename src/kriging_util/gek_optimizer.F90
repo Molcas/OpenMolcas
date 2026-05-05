@@ -67,7 +67,7 @@ real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp,
                             ThrGrd = 1.0e-7_wp
 real(kind=wp), external :: DDot_
 
-write(*,*)"previous energies", Energy(1:nDiis)
+!write(*,*)"previous energies", Energy(1:nDiis)
 Energy(nDiis+1:Max_Iter) = Zero
 #ifdef _DEBUGPRINT_
 write(u6,*) "Enter GEK_Optimizer"
@@ -101,9 +101,6 @@ write(u6,*) 'Beta_Disp_Seed=',Beta_Disp_Seed*SOFact
 write(u6,*) 'Beta_Disp_Min=',Beta_Disp_Min
 write(u6,*) 'Beta_Disp=',Beta_Disp
 #endif
-
-write(u6,*) 'Energy(Previous):   ',Iteration_Total,Energy(Iteration_Total)
-write(u6,*) 'Energy(Current):    ',Iteration_Total+1,Energy(Iteration_Total+1)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111111111
 ! MICRO ITERATIONS
@@ -342,7 +339,6 @@ write(UpMeth(5:6),'(I2)') Iteration_Micro
 ! Compute the displacement in the reduced space relative to the last structure of the full space
 dq_diis(:) = q_diis(:,Iteration+1)-q_diis(:,nDIIS)
 
-write(u6,*) 'Energy(:Iteration_Total+1) :',Energy(:Iteration_Total+1)
 #ifdef _DEBUG2_
 write(u6,*) 'Energy(:Iteration_Total+1) :',Energy(:Iteration_Total+1)
 call RecPrt('q_diis(:,:Iteration+1)',' ',q_diis(:,:Iteration+1),mDIIS,Iteration+1)

@@ -219,15 +219,32 @@ IterGEK = 0
 call CWTime(C2,W2)
 TimC = C2-C1
 TimW = W2-W1
+nIter = 0
 write(u6,'(//,1X,A,/,1X,A)') &
 '                                                                 CPU       Wall', &
 'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  ndiis  largest/%Screen'
+
+! initial information (Iteration = 0)
+select case (OptMeth)
+    case (1)
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
+                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
+    case (3)
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
+                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
+    case (2,4,5)
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
+                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
+    case default
+        write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
+        call Abend()
+end select
+
 
 ! ----------------------------------------------------------------------
 !                           Iterations
 ! ----------------------------------------------------------------------
 
-nIter = 0
 Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
     call CWTime(C1,W1)
@@ -335,9 +352,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! dq will enter via Disp, not DispList
         GradList(:,nIter+1) = -Gradient(:) ! g_i
 
-        write(u6,*) "Newton Raphson predictions"
-        write(u6,*) "Disp           ",Disp(:)
-        write(u6,*) "Gradient       ",Gradient(:)
+        !write(u6,*) "Newton Raphson predictions"
+        !write(u6,*) "Disp           ",Disp(:)
+        !write(u6,*) "Gradient       ",Gradient(:)
 
 #       ifdef _DEBUGLISTS_
             write(u6,*) "nIter =",nIter
@@ -361,9 +378,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec,CMO,&
                                         nBasis,PA,nAtoms)
 
-                write(u6,*)"Angle between GEK and NR step", acos(dot_product(Disp,SearchDir)/(sqrt(dot_product(Disp,Disp))&
-                                                                *sqrt(dot_product(SearchDir,SearchDir))))/Pi*180.0_wp
-                write(u6,*) "norm(GEKstep) / norm(NRstep)", sqrt(dot_product(Disp,Disp)/dot_product(SearchDir,SearchDir))
+                !write(u6,*)"Angle between GEK and NR step", acos(dot_product(Disp,SearchDir)/(sqrt(dot_product(Disp,Disp))&
+                !                                                *sqrt(dot_product(SearchDir,SearchDir))))/Pi*180.0_wp
+                !write(u6,*) "norm(GEKstep) / norm(NRstep)", sqrt(dot_product(Disp,Disp)/dot_product(SearchDir,SearchDir))
 
                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 ! TAKE THE GEK STEP; REPLACE THE NR DATA IN THE LISTS

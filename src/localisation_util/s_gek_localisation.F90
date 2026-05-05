@@ -66,7 +66,7 @@ nDIIS = min(IterGEK,nWindow)
 
 ! leave this subroutine if not enough data points were collected
 if (nDIIS < mindp) then
-    write(u6,*) 'Exit S-GEK Optimizer (not enough sampling points)', ndiis
+    !write(u6,*) 'Exit S-GEK Optimizer (not enough sampling points)', ndiis
     return
 end if
 
@@ -235,8 +235,6 @@ end do
 ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
 mDIIS = j
 
-
-write(u6,*) '    mDIIS:',mDIIS
 #ifdef _DEBUGPRINT_
 write(u6,*) '    fsdim:',fsdim
 write(u6,*) 'nExplicit:',nExplicit
@@ -409,8 +407,6 @@ real(kind=wp) :: norm_dq, norm_dq_NR
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 end block
 #endif
-
-    call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 
 ! deallocations
 ! -------------
