@@ -2173,28 +2173,33 @@ End subroutine MkISM_RAW
 
   subroutine MKISM(SGS,xnLev,xNSM)
 
-  use UnixInfo, only: ProgName
+! use UnixInfo, only: ProgName
 
   type(SGStruct), target, intent(inout) :: SGS
   integer(iwp), optional, intent(in):: xnLev, xNSM(MxLev)
 
-    Select Case(ProgName(1:6))
-    Case ('caspt2')
-      If (Present(xnLev)) Then
-         call mkISM_rasscf(SGS,xnLev,xNSM)
-      Else
-         call mkISM_cp2(SGS)
-      End If
-    Case ('rasscf','casvb ','mclr  ','rassi')
       If (Present(xnLev)) Then
          call mkISM_rasscf(SGS,xnLev,xNSM)
       Else
          call mkISM_rasscf(SGS)
       End If
-    Case Default
-       Write (u6,*) 'MkISM: not setup for program:', ProgName
-       Call Abend()
-    End Select
+!   Select Case(ProgName(1:6))
+!   Case ('caspt2')
+!     If (Present(xnLev)) Then
+!        call mkISM_rasscf(SGS,xnLev,xNSM)
+!     Else
+!        call mkISM_cp2(SGS)
+!     End If
+!   Case ('rasscf','casvb ','mclr  ','rassi')
+!     If (Present(xnLev)) Then
+!        call mkISM_rasscf(SGS,xnLev,xNSM)
+!     Else
+!        call mkISM_rasscf(SGS)
+!     End If
+!   Case Default
+!      Write (u6,*) 'MkISM: not setup for program:', ProgName
+!      Call Abend()
+!   End Select
 
   end subroutine MKISM
 
