@@ -758,15 +758,20 @@ End IF
 
 If (Present(xLevel)) Level(:)=xLevel(:)
 If (Present(xL2Act)) L2Act(:)=xL2Act(:)
+! Initiate if not already set externally.
+If (LEVEL(1)==0) LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
 
 ! CREATE THE SYMMETRY INDEX VECTOR
 
-Call MKISM(SGS,xnLev,xNSM)
+SGS%NLEV = xnLEV
+! Allocate Level to Symmetry table ISm:
+call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
+SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
 Call MkSGUGA(SGS,CIS)
 
 END SUBROUTINE SG_Init_Simple
-
 
 SUBROUTINE SG_Init(nSym,nActEl,iSpin,                   &
                   SGS,CIS,EXS,                          &
@@ -2107,21 +2112,5 @@ end do
 
 end subroutine CSFCOUNT
 
-subroutine MKISM(SGS,xnLev,xNSM)
-! PURPOSE: CREATE THE SYMMETRY INDEX VECTOR
-
-type(SGStruct), target, intent(inout) :: SGS
-integer(kind=iwp), intent(in) :: xnLev, xNSM(MxLev)
-
-SGS%NLEV = xnLEV
-! Allocate Level to Symmetry table ISm:
-call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
-
-SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
-
-! Initiate if not already set externally.
-If (LEVEL(1)==0) LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-end subroutine MKISM
 
 end module SGUGA
