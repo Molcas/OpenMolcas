@@ -218,6 +218,7 @@ ResetGEK = .false.
 SORange = .false.
 
 IterGEK = 0
+PctSkp = 0
 
 
 ! Print iteration table header.
