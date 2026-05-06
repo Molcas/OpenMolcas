@@ -12,6 +12,7 @@
 module refwfn
 
 use UnixInfo, only: ProgName
+use Molcas, only: MxLev
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -21,8 +22,13 @@ logical(kind=iwp) :: refwfn_active = .false., refwfn_is_h5
 character(len=128) :: refwfn_filename
 integer(kind=iwp) :: refwfn_id, IADR15(30)
 
+integer(kind=iwp) :: iq
+integer(kind=iwp) :: L2ACT(MXLEV)=[(1,iq=1,MXLEV)]
+integer(kind=iwp) :: LEVEL(MXLEV)=[(1,iq=1,MXLEV)]
+
 public :: refwfn_active, refwfn_is_h5, refwfn_filename, refwfn_id, IADR15
 public :: refwfn_init, refwfn_close, refwfn_info, refwfn_data
+public :: L2Act, Level
 
 contains
 
@@ -225,7 +231,6 @@ subroutine refwfn_data()
 !***********************************************************************
 !SVC: initialize the reference wavefunction data
 
-  use gugx, only: L2ACT, LEVEL
   use Molcas, only: MxAct, MxRoot
   use RASDim, only: MxIter
   use caspt2_global, only: CMO, CMO_Internal, IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO
@@ -357,6 +362,9 @@ subroutine refwfn_data()
 # ifdef _HDF5_
   end if
 # endif
+  ! If not properly initiated default to incremental indexation.
+  If (Level(1)==0) Level(1:Size(Level))=[(iq,iq=1,Size(Level))]
+  If (L2Act(1)==0) L2Act(1:Size(L2Act))=[(iq,iq=1,Size(L2Act))]
 
 # ifdef _HDF5_
   if (refwfn_is_h5) then

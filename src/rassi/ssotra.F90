@@ -11,7 +11,7 @@
 
 subroutine SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
 
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp
@@ -52,7 +52,7 @@ do IK=1,NA
     X = Half*CPK
     !TEST write(u6,*)' IP,IK,X:',IP,IK,X
     if (abs(X) < 1.0e-14_wp) cycle
-    call SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,X,LSM,CI,TMP)
+    call SG_Epq_Psi(SGS,CIS,EXS,IPLEV,IKLEV,X,LSM,CI,TMP)
   end do
   CKK = TRA(NI+IK,NI+IK)
   X = Three-CKK
@@ -62,7 +62,7 @@ do IK=1,NA
     CPK = TRA(NI+IP,NI+IK)
     if (IP == IK) CPK = CPK-One
     if (abs(CPK) < 1.0e-14_wp) cycle
-    call SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
+    call SG_Epq_Psi(SGS,CIS,EXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
   end do
 end do
 call mma_deallocate(ILEV)

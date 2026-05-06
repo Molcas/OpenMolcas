@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SGPRWF(SGS,CIS,LSYM,PRWTHR,iSpin,CI,lCI,KeyPRSD,LUVECDET)
+subroutine SG_PrWF(SGS,CIS,LSYM,PRWTHR,iSpin,CI,lCI,KeyPRSD,LUVECDET)
 ! PURPOSE: PRINT THE WAVEFUNCTION (SPIN COUPLING AND OCCUPATIONS)
 !
 ! NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
 !          CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 !          REFERS TO THE UPPER PART OF THE WALK.
 
-use gugx, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct, MkCList
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -147,4 +147,4 @@ end do
 ! free memory for determinant expansion
 if (KeyPRSD) call mma_deallocate(LEX)
 
-end subroutine SGPRWF
+end subroutine SG_PrWF

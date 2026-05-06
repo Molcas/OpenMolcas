@@ -11,7 +11,7 @@
       SUBROUTINE TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
       use definitions, only: iwp, wp
       use constants, only: Zero, Half, One, OneHalf
-      use gugx, only: LEVEL, SGS, CIS, EXS
+      use sguga, only: LEVEL, SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT None
       integer(kind=iwp), intent(in):: ISTART, NDIM, STSym, NCI
@@ -60,14 +60,14 @@ C where U(I) = T(I)-Kronecker(I,J).
           LI=LEVEL(IORB)
           SCL=Half*TVEC(I)
           IF(I.EQ.J) SCL=SCL-Half
-          CALL SIGMA1(SGS,CIS,EXS,LI,LJ,SCL,STSYM,CI,SGM)
+          CALL SG_Epq_Psi(SGS,CIS,EXS,LI,LJ,SCL,STSYM,CI,SGM)
         END DO
         DO I=1,NDIM
           IORB=ISTART-1+I
           LI=LEVEL(IORB)
           SCL=TVEC(I)
           IF(I.EQ.J) SCL=SCL-One
-          CALL SIGMA1(SGS,CIS,EXS,LI,LJ,SCL,STSYM,SGM,CI)
+          CALL SG_Epq_Psi(SGS,CIS,EXS,LI,LJ,SCL,STSYM,SGM,CI)
         END DO
 
       End Do

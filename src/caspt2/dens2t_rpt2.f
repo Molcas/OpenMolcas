@@ -21,7 +21,7 @@
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG
-      use gugx, only: SGS, L2ACT, CIS
+      use sguga, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, nActEl, nAshT, STSym
       use caspt2_module, only: nG1, nG2

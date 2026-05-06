@@ -15,7 +15,7 @@ subroutine PREPSD(WFTP,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,NCONF,CI,DET,
 ! getting biorthonormal orbitals, prepare a wave function
 ! in the general SD format, using transformed orbitals.
 
-use gugx, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

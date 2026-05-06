@@ -28,7 +28,7 @@
       use caspt2_module, only: DoCumulant
 #endif
       use PrintLevel, only: DEBUG
-      use gugx, only: SGS, L2ACT, CIS
+      use sguga, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,

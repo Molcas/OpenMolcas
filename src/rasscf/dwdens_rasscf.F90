@@ -19,7 +19,7 @@ use rasscf_global, only: DoDMRG, Ener, IADR15, ITER, NAC, NACPAR, NACPR2, nRoots
 use DWSol, only: DWSol_wgt, W_SOLV
 use gas_data, only: iDoGAS
 use general_data, only: JOBIPH, NACTEL, NCONF
-use gugx, only: SGS
+use sguga, only: SGS
 use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 use sxci, only: IDXSX

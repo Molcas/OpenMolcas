@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY1(CI,NCI)
-      use gugx, only: SGS
+      use sguga, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nG1, iAdr10, cLab10
       use definitions, only: iwp, wp

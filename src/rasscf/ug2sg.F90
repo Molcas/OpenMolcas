@@ -25,7 +25,7 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ICONF,ISPIN,IORD,ICI,JCJ,CC
 !          INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
-use gugx, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef

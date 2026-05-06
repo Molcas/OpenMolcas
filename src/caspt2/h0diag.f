@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,nDiag,NOW,IOW,nMidV)
       use Symmetry_Info, only: Mul
-      use gugx, only: CIS
+      use sguga, only: CIS
       use caspt2_module, only: nSym
       use constants, only: Zero
       use definitions, only: iwp, wp

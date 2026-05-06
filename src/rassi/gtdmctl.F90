@@ -14,7 +14,7 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use gugx, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct, SG_Free
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG
@@ -70,6 +70,19 @@ real(kind=wp), allocatable, target :: DETTOT1(:,:), DETTOT2(:,:)
 character(len=NASHT+1), allocatable :: detocc(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
+
+Interface
+   subroutine SG_setup_RASSI(nIrrep,NACTEl,MPLETT,SGS,CIS)
+
+   use sguga, only: CIStruct, SGStruct
+   use definitions, only: iwp
+
+   integer(kind=iwp), intent(in):: nIrrep,NACTEL,MPLETT
+   type(SGStruct), intent(inout) :: SGS
+   type(CIStruct), intent(inout) :: CIS
+   End subroutine SG_setup_RASSI
+End Interface
+
 
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_
@@ -395,12 +408,12 @@ if (WFTP1 == 'GENERAL') then
   NRASEL(3) = NACTE1
 
   if (.not. doDMRG) then
-    call SGINIT(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
+    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
-      call SGPRINT(SGS(1))
+      call SG_Print(SGS(1))
     end if
-    call CXINIT(SGS(1),CIS(1),EXS(1))
+    call SG_CXInit(SGS(1),CIS(1),EXS(1))
     ! CI sizes, as function of symmetry, are now known.
     NCONF1 = CIS(1)%NCSF(LSYM1)
   else
@@ -519,12 +532,12 @@ if (WFTP2 == 'GENERAL') then
   NRASEL(3) = NACTE2
 
   if (.not. doDMRG) then
-    call SGINIT(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
-      call SGPRINT(SGS(2))
+      call SG_Print(SGS(2))
     end if
-    call CXINIT(SGS(2),CIS(2),EXS(2))
+    call SG_CXInit(SGS(2),CIS(2),EXS(2))
     ! CI sizes, as function of symmetry, are now known.
     NCONF2 = CIS(2)%NCSF(LSYM2)
   else
@@ -1176,10 +1189,10 @@ if (mstate_dens) then
 end if
 
 if (WFTP1 == 'GENERAL') then
-  if (.not. doDMRG) call MkGUGA_Free(SGS(1),CIS(1),EXS(1))
+  if (.not. doDMRG) call SG_Free(SGS(1),CIS(1),EXS(1))
 end if
 if (WFTP2 == 'GENERAL') then
-  if (.not. doDMRG) call MkGUGA_Free(SGS(2),CIS(2),EXS(2))
+  if (.not. doDMRG) call SG_Free(SGS(2),CIS(2),EXS(2))
 end if
 
 if (JOB1 /= JOB2) then

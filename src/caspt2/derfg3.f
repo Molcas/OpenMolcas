@@ -22,7 +22,7 @@
       use caspt2_global, only: iTasks_grad,nTasks_grad
 #endif
       use Symmetry_Info, only: Mul
-      use gugx, only: CIS, L2ACT, SGS, EXS
+      use sguga, only: CIS, L2ACT, SGS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp,u6,RtoB
       use caspt2_module, only: nActEl, nSym, STSym, EPSA
@@ -334,7 +334,7 @@
        CALL H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,nMidV)
 
 !-SVC20100301: calculate number of larger tasks for this symmetry, this
-!-is basically the number of buffers we fill with sigma1 vectors.
+!-is basically the number of buffers we fill with SG_Epq_Psi vectors.
       iTask=1
       ibuf1=0
       DO ip1=1,nlev2
@@ -471,7 +471,7 @@
             ibuf1=ibuf1+1
             ip1_buf(ibuf1)=ip1i
             BUF1(1:nsgm1,ibuf1) = Zero
-            CALL SIGMA1(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                  IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
            end if
           end do
@@ -549,7 +549,7 @@
         iy=L2ACT(iylev)
         iz=L2ACT(izlev)
         buf2(1:nsgm2) = Zero
-        CALL SIGMA1(SGS,CIS,EXS,IYLEV,IZLEV,One,STSYM,CI,BUF2)
+        CALL SG_Epq_Psi(SGS,CIS,EXS,IYLEV,IZLEV,One,STSYM,CI,BUF2)
         DYZ(1:nsgm1) = Zero
         if(issg2 == issg1) then
           buf3(1:nsgm2) = Zero
@@ -592,7 +592,7 @@
         Do ixlev0 = 1, nlev
           Do ivlev = 1, nlev
             BUFX(1:nsgm1,ivlev) = Zero
-            CALL SIGMA1(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                  IVLEV,IXLEV0,One,STSYM,BUF2,BUFX(1,ivlev))
           End Do
           iG3OFF = iG3bk
@@ -680,7 +680,7 @@
               buf3(icsf) = buf3(icsf) + buf4(icsf)*(bufd(icsf)-epsa(iv))
             end do
             !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
-            CALL SIGMA1(SGS,CIS,EXS,IXLEV,IVLEV,One,STSYM,BUF3,DYZ)
+            CALL SG_Epq_Psi(SGS,CIS,EXS,IXLEV,IVLEV,One,STSYM,BUF3,DYZ)
 
             iG3OFF=iG3OFF+nb
             nbtot=nbtot+nb
@@ -689,7 +689,7 @@
 
         !! Complete the right derivative contribution:
         !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
-        CALL SIGMA1(SGS,CIS,EXS,IZLEV,IYLEV,One,STSYM,DYZ,CLAG)
+        CALL SG_Epq_Psi(SGS,CIS,EXS,IZLEV,IYLEV,One,STSYM,DYZ,CLAG)
 
         IF(iPrGlb >= DEBUG) THEN
           WRITE(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
@@ -767,12 +767,13 @@
         itlev=idx2ij(1,idx)
         iulev=idx2ij(2,idx)
         !! left derivative
-        CALL SIGMA1(SGS,CIS,EXS,ITLEV,IULEV,One,STSYM,DTU(1,ibloc),CLAG)
+        CALL SG_Epq_Psi(SGS,CIS,EXS,
+     &               ITLEV,IULEV,One,STSYM,DTU(1,ibloc),CLAG)
         !! the rest is DEPSA contribution
         Do IALEVloc = 1, NLEV
           Do IBLEVloc = 1, NLEV
             BUF2(:) = Zero
-            CALL SIGMA1(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,
      &                 IALEVloc,IBLEVloc,One,STSYM,DAB(1,ibloc),BUF2)
             DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)
      &        + DDot_(nsgm1,BUF1(1,IBloc),1,BUF2,1)
@@ -804,7 +805,7 @@
 *--------------------------------------------*
       SUBROUTINE DERSPE(NLEV,NG3,DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-      use gugx, only: LEVEL
+      use sguga, only: LEVEL
       use caspt2_module, only: NACTEL, ISCF
       use caspt2_module, only: ETA
       use Constants, only: Zero, One, Two

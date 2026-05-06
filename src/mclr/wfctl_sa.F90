@@ -20,10 +20,9 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
-use gugx, only: CIS, EXS, SGS
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
-use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, iSpin, kPrint, lSave, nActEl, nAsh, nConf, nCSF, nDisp, &
-                      nElec3, nHole1, nIter, NROOTS, nRS1, nRS2, nRS3, nSym, PT2, State_Sym, STEPTYPE, TWOSTEP
+use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nAsh, nCSF, nDisp, &
+                      nIter, NROOTS, PT2, State_Sym, STEPTYPE, TWOSTEP, nRs2
 use PCM_grad, only: def_solv, do_RF, iStpPCM, PCM_grad_CLag, PCM_grad_PT2
 use ISRotation, only: DMInvISR, InvSCF, ISR, ISR_final, ISR_init, ISR_projection, ISR_RHS
 use cgs_mod, only: CGS, CGS_init, CGS_final
@@ -37,7 +36,7 @@ integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDis
 logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iR, iSym, Iter, jSpin, Left, lLine, lPaper, Lu_50, &
-                     nConf3, niPre2, nPre2
+                     nConf3, niPre2, nPre2, iMode
 real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk, rEss
 logical(kind=iwp) :: CI, cnvrgd, lPrint
 character(len=8) :: Fmt2
@@ -194,10 +193,8 @@ else
       call mma_allocate(wrk,nConf1,Label='wrk')
       do iR=1,nRoots
         wrk(:) = W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR)
-        call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,wrk,1,State_Sym,State_Sym)
-        NCSF(1:nSym) = CIS%NCSF(1:nSym)
-        NCONF = CIS%NCSF(State_Sym)
-        call mkGuga_Free(SGS,CIS,EXS)
+        iMode=1
+        Call SG2SymG(wrk,nConf1,iMode,State_Sym)
         W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
       end do
       call mma_deallocate(wrk)

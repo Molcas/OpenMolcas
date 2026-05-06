@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SGPrint(SGS)
+subroutine SG_Print(SGS)
 
-use gugx, only: SGStruct
+use sguga, only: SGStruct
 use Definitions, only: iwp, u6
 
 implicit none
@@ -41,4 +41,4 @@ do iv=1,SGS%nVert
   write(u6,'(1x,i4,5x,4i5)') iv,(SGS%MAW(iv,ic),ic=0,3)
 end do
 
-end subroutine SGPrint
+end subroutine SG_Print
