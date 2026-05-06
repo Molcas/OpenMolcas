@@ -39,7 +39,7 @@ real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2,NRFunc
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),Umat(:,:),Umat_inv(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),SearchDir(:)
@@ -179,8 +179,10 @@ select case(AnalyseLoc)
 end select
 
 select case (OptMeth)
-
-case (2,3,4,5,6)
+case (1)
+    UpMeth="JS    "
+    call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
+case (2,3,4,5)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
     call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal
     FuncList(1) = -Functional
@@ -197,12 +199,15 @@ case (2,3,4,5,6)
     end BLOCK
 #   endif
 
+case default
+    write(u6,*) "ERROR: for the selected OptMeth, there exists no initialisation"
+    call Abend()
 end select
 
+UpMeth="JS    "
 
 FirstFunctional = Functional
 Delta = Functional
-UpMeth=" -  - "
 largest=0
 nDIIS=0
 OldFunctional = Functional
@@ -341,6 +346,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! update <s|PA|t>
        ! call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
         call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,NRFunc,.false.)
 
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -419,6 +425,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! ---------------------------------------------------------------------------------------------------
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        write(u6,*) "NR Func vs GEK func", Functional-NRFunc
         FuncList(nIter+1) = -Functional ! y_i
 
 

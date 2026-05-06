@@ -24,10 +24,10 @@ subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Lo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
 use Definitions, only: iwp,wp
-!#ifdef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 use Definitions, only: u6
 use Constants, only: Pi
-!#endif
+#endif
 
 use Definitions, only: u6
 use Localisation_globals, only: OptMeth,FuncList,GradList,DispList,bias,SOFact,useFH,inpOptMeth

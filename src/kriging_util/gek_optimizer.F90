@@ -333,13 +333,13 @@ end if
 write(u6,*) 'Energy(Iteration_Total+1) :',Energy(Iteration_Total+1)
 #endif
 
+write(u6,*) 'Final Surrogate Energy',Energy(Iteration_Total+1)
 
 write(UpMeth(5:6),'(I2)') Iteration_Micro
 
 ! Compute the displacement in the reduced space relative to the last structure of the full space
 dq_diis(:) = q_diis(:,Iteration+1)-q_diis(:,nDIIS)
 
-write(u6,*) 'Energy(:Iteration_Total+1) :',Energy(:Iteration_Total+1)
 #ifdef _DEBUG2_
 write(u6,*) 'Energy(:Iteration_Total+1) :',Energy(:Iteration_Total+1)
 call RecPrt('q_diis(:,:Iteration+1)',' ',q_diis(:,:Iteration+1),mDIIS,Iteration+1)

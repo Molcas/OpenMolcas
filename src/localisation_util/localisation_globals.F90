@@ -58,8 +58,8 @@ character(len=LenIn), allocatable :: NamAct(:)
 real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:), FuncList(:), GradList(:,:), DispList(:,:),UmatList(:,:,:),&
                               kappa_cnt(:,:), xkappa_cnt(:,:), Ovlp(:,:), Ovlp_sqrt(:,:)
 
-real(kind=wp):: GEKThr_Kappa = 1.0_wp,&
-                GEKThr_Grad = 10.0_wp,&
+real(kind=wp):: GEKThr_Kappa = 1.0e-1_wp,&
+                GEKThr_Grad = 1.0e-2_wp,&
                 bias = 100.0_wp,&
                 SOFact = 1.0e9_wp
 
