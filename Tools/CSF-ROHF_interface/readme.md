@@ -15,9 +15,9 @@ This tutorial provides a step-by-step guide to obtaining SSG-CSF-ROHF optimized 
 
 Using the Python interface in this repository requires:
 - [OpenMolcas](https://gitlab.com/Molcas/OpenMolcas) for orbital optimization  
-- [NECI](https://github.com/fkfest/NECI_STABLE) for PT2-RDM generation  
+- [NECI](https://github.com/fkfest/NECI_STABLE) for PT2-RDM generation using the stochastic SplitGAS (SSG) strategy [2].
 
-> **Note:** The stochastic SplitGAS (SSG) method [2] is currently only available in an internal development version of NECI. Please contact us to request access.
+> **Note:** The SSG method [2] is currently only available in an internal development version of NECI. Please contact us to request access.
 
 All files used in this tutorial are located in `example/SSG-CSF-ROHF_tutorial`.
 
@@ -26,7 +26,7 @@ We begin with a set of localized and sorted high-spin ROHF orbitals `Fe2S2.SortO
 The Fe 3d orbitals are site-separated: the first five orbitals belong to Fe 1 and
 the last five orbitals belong to Fe 2.
 Step 3 for PT2-RDMs generation is done with the SSG implementation [2] in NECI and
-the other steps are donw with OpenMolccas.
+the other steps are done with OpenMolccas.
 
 #### Step 1: CSF-ROHF Orbital Optimization  
 Directory: `1_CSF-ROHF/`
