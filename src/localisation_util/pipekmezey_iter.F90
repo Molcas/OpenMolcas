@@ -47,7 +47,7 @@ real(kind=wp), External :: DDot_
 
 integer(kind=iwp) :: maxel
 real(kind=wp) :: dqdq,largest, alpha
-logical(kind=iwp) :: SORange,GEKRange,ResetGEK,linesearch=.false.
+logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false.
 character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
 real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,eta1,eta2
@@ -180,9 +180,8 @@ end select
 
 select case (OptMeth)
 case (1)
-    UpMeth="JS    "
     call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
-case (2,3,4,5)
+case (2,3,4,5,6)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
     call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal
     FuncList(1) = -Functional
@@ -214,7 +213,7 @@ OldFunctional = Functional
 
 GEKRange = .false.
 ResetGEK = .false.
-
+switched = .false.
 SORange = .false.
 
 IterGEK = 0
@@ -257,9 +256,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     nIter = nIter+1
 
-    if (GradNorm > gekthr_grad .and. inpOptMeth == 6) then
+    if (GradNorm > gekthr_grad .and. inpOptMeth == 6 .and. .not. switched) then
         !request to start with one Jacobi Sweep, then switch to NR (6) or GEK (7)
         OptMeth = 1
+        switched = .true.
     else
         OptMeth = inpOptMeth
     end if
@@ -582,6 +582,7 @@ subroutine StepSizeChecks()
         IterGEK = 0
         nDIIS = 0
         ResetGEK = .false.
+        OptMeth = InpOptMeth
     end if
 
     ! check if matrix elements are > 0.01

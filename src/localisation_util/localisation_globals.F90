@@ -59,9 +59,9 @@ real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:), FuncList(:), Gr
                               kappa_cnt(:,:), xkappa_cnt(:,:), Ovlp(:,:), Ovlp_sqrt(:,:)
 
 real(kind=wp):: GEKThr_Kappa = 1.0e-1_wp,&
-                GEKThr_Grad = 1.0e-2_wp,&
-                bias = 100.0_wp,&
-                SOFact = 1.0e9_wp
+                GEKThr_Grad = 1.0e-1_wp,&
+                bias = 10.0_wp,&
+                SOFact = 1.0e4_wp
 
 real(kind=wp) :: ScrFac=Zero
 type(Loosen_Type) :: Loosen
