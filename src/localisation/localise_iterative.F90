@@ -86,6 +86,8 @@ if (myModel == 'PIPE') then
     write(u6,'(1X,A)') 'Optimization Method  : GEK (fullspace)'
   else if (OptMeth == 5) then
     write(u6,'(1X,A)') 'Optimization Method  : S-GEK'
+  else if (OptMeth == 6) then
+    write(u6,'(1X,A)') 'Optimization Method  : S-GEK with Jacobi Sweep start'
   end if
   If (ChargeType == 1) then
     write(u6,'(1X,A)') 'Framework for PMLoc  : Mulliken charges'
