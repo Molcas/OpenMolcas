@@ -109,7 +109,7 @@ subroutine save_ci(si_pdft,nstates)
   use general_data, only: jobiph, nconf
 # ifdef _HDF5_
   use mcpdft_input, only: mcpdft_options
-  use mh5, only: mh5_close_file, mh5_fetch_attr, mh5_fetch_dset, mh5_open_dset, mh5_open_file_rw, mh5_put_dset
+  use mh5, only: mh5_close_file, mh5_fetch_dset, mh5_open_dset, mh5_open_file_rw, mh5_put_dset
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
 
