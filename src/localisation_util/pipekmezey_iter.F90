@@ -17,7 +17,7 @@
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _FORCEGEKRANGE_
-!#define _TESTHESSIAN_
+!#define _TESTNUMERICALLY_
 
 subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 ! Author: T.B. Pedersen
@@ -133,32 +133,32 @@ case (1)
 
 case(2,3,4,5,6)
 
-    call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
     ! allocating matrices for NxN optimizations
 
-
     call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
+    Kappa(:,:)=Zero
+
     call mma_Allocate(Gradient,fsdim,Label='Gradient')
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
     call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
+    DispList(:,:)=Zero
     call mma_allocate(Disp,fsdim,Label='Disp')
     call mma_allocate(SearchDir,fsdim,Label='SearchDir')
     call mma_Allocate(GradList,fsdim,nMxIter,Label='GradList')
+    GradList(:,:)=Zero
     call mma_Allocate(FuncList,nMxIter,Label='FuncList')
+    FuncList(:)=Zero
     call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
     call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
     call mma_Allocate(Umat,nOrb2Loc,nOrb2Loc,Label='Umat')
+    Umat(:,:) = Zero
     call mma_Allocate(Umat_inv,nOrb2Loc,nOrb2Loc,Label='Umat_inv')
+    Umat_inv(:,:) = Zero
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
 
-    DispList(:,:)=Zero
-    GradList(:,:)=Zero
-    FuncList(:)=Zero
-    Kappa(:,:)=Zero
-    Umat(:,:) = Zero
-    Umat_inv(:,:) = Zero
+    if (OptMeth == 6) call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 
 case default
      write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
@@ -172,28 +172,34 @@ call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
 
 select case(AnalyseLoc)
     case (0,1)
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
     case (2)
         if (.not. Silent) write(u6,"(/A)") "Orbital extension before localisation:"
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
+    case default
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end select
 
 select case (OptMeth)
+
 case (1)
     call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
+
 case (2,3,4,5,6)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
     call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
 
-#   ifdef _TESTHESSIAN_
+#   ifdef _TESTNUMERICALLY_
     BLOCK
-        real(kind=wp), allocatable :: Hessian(:,:)
+        real(kind=wp), allocatable :: Hessian(:,:),NumGrad(:)
+        call mma_allocate(NumGrad,fsdim,Label="NumGrad")
+        call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,.true.)
+        call mma_deallocate(NumGrad)
+
         call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
-
         call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
-
         call mma_deallocate(Hessian)
     end BLOCK
 #   endif
@@ -201,9 +207,9 @@ case (2,3,4,5,6)
 case default
     write(u6,*) "ERROR: for the selected OptMeth, there exists no initialisation"
     call Abend()
+
 end select
 
-UpMeth="JS    "
 
 FirstFunctional = Functional
 Delta = Functional
@@ -232,12 +238,15 @@ write(u6,'(//,1X,A,/,1X,A)') &
 ! initial information (Iteration = 0)
 select case (OptMeth)
     case (1,6)
+        UpMeth="JS    "
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
     case (3)
+        UpMeth="GA    "
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
     case (2,4,5)
+        UpMeth="NR    "
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
     case default
@@ -256,12 +265,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     nIter = nIter+1
 
-    if (GradNorm > gekthr_grad .and. inpOptMeth == 6 .and. .not. switched) then
-        !request to start with one Jacobi Sweep, then switch to NR (6) or GEK (7)
-        OptMeth = 1
-        switched = .true.
-    else
-        OptMeth = inpOptMeth
+    if (inpOptMeth == 6) then
+        if (GradNorm > gekthr_grad .and. .not. switched) then
+            !request to start with one Jacobi Sweep, then switch to NR (6) or GEK (7)
+            OptMeth = 1
+        else
+            OptMeth = 5
+            switched = .true.
+        end if
     end if
 
     !choose between optimization methods
@@ -270,9 +281,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case (1) ! Jacobi Sweeps (2x2 rotations)
         UpMeth = "JS  -"
 
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! N X N ROTATIONS
@@ -518,7 +529,6 @@ select case(OptMeth)
 case(1)
     call mma_Deallocate(PACol)
 case(2,3,4,5,6)
-    call mma_Deallocate(PACol)
     call mma_Deallocate(Gradient)
     call mma_Deallocate(kappa)
 

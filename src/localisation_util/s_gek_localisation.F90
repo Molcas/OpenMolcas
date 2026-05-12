@@ -298,7 +298,7 @@ H_diis(:,:) = Zero
 if (useFH) then
     do k=1,fsdim
         call GetFHrow_PM(nAtoms,nOrb2Loc,PA,fsdim,FHrow_k,k,CMO,nBasis)
-        !write(u6,*) "Hessian row k",FHrow_k
+        write(u6,*) "Hessian row k",FHrow_k
         do i=1,mDiis
             do j=1,mDiis
                 ! the minus sign is because we flip everything in GEK, to minimize the PM functional
