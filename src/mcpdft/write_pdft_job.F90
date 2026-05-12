@@ -64,8 +64,8 @@ end subroutine writejob
 subroutine save_energies(e_states)
 
   use general_data, only: jobiph
-  use mcpdft_input, only: mcpdft_options
 # ifdef _HDF5_
+  use mcpdft_input, only: mcpdft_options
   use mh5, only: mh5_close_file, mh5_open_attr, mh5_open_dset, mh5_open_file_rw, mh5_put_attr, mh5_put_dset
 # endif
 
@@ -106,55 +106,43 @@ end subroutine save_energies
 !> @param[in] nstates number of states
 subroutine save_ci(si_pdft,nstates)
 
-  use general_data, only: jobiph
-  use mcpdft_input, only: mcpdft_options
+  use general_data, only: jobiph, nconf
 # ifdef _HDF5_
+  use mcpdft_input, only: mcpdft_options
   use mh5, only: mh5_close_file, mh5_fetch_attr, mh5_fetch_dset, mh5_open_dset, mh5_open_file_rw, mh5_put_dset
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
 
   integer(kind=iwp), intent(in) :: nstates
   real(kind=wp), intent(in) :: si_pdft(nstates,nstates)
-  integer(kind=iwp) :: ad19, adr19(15), disk, dum(1), ncon, state
+  integer(kind=iwp) :: ad19, adr19(30), disk, state
 # ifdef _HDF5_
   integer(kind=iwp) :: refwfn_id, wfn_cicoef
 # endif
   real(kind=wp), allocatable :: ci_rot(:,:), tCI(:,:)
 
-  ncon = 0
+  adr19(:) = 0
 
-  if (.not. mcpdft_options%is_hdf5_wfn) then
-    disk = 284 ! where does this number come from?
-    call iDafile(jobiph,2,dum,1,disk)
-    ncon = dum(1)
-
-# ifdef _HDF5_
-  else
-    refwfn_id = mh5_open_file_rw(mcpdft_options%wfn_file)
-    call mh5_fetch_attr(refwfn_id,'NCONF',ncon)
-# endif
-  end if
-
-  call mma_allocate(tCI,ncon,nstates,label='tCI')
-  call mma_allocate(ci_rot,ncon,nstates,label='CI_Rot')
+  call mma_allocate(tCI,nconf,nstates,label='tCI')
+  call mma_allocate(ci_rot,nconf,nstates,label='CI_Rot')
 
 # ifdef _HDF5_
   if (mcpdft_options%is_hdf5_wfn) then
+    refwfn_id = mh5_open_file_rw(mcpdft_options%wfn_file)
     call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tCI)
   else
 # endif
-    adr19(:) = 0
     ad19 = 0
     call iDaFile(JOBIPH,2,adr19,15,ad19)
     disk = adr19(4)
     do state=1,nstates
-      call DDafile(jobiph,2,tCI(:,state),ncon,disk)
+      call DDafile(jobiph,2,tCI(:,state),nconf,disk)
     end do
 # ifdef _HDF5_
   end if
 # endif
 
-  call dgemm_('n','n',ncon,nstates,nstates,One,tCI,ncon,si_pdft,nstates,Zero,ci_rot,ncon)
+  call dgemm_('n','n',nconf,nstates,nstates,One,tCI,nconf,si_pdft,nstates,Zero,ci_rot,nconf)
 
 # ifdef _HDF5_
   if (mcpdft_options%is_hdf5_wfn) then
@@ -165,7 +153,7 @@ subroutine save_ci(si_pdft,nstates)
 # endif
     disk = adr19(4)
     do state=1,nstates
-      call DDafile(jobiph,1,ci_rot(:,state),ncon,disk)
+      call DDafile(jobiph,1,ci_rot(:,state),nconf,disk)
     end do
 # ifdef _HDF5_
   end if
