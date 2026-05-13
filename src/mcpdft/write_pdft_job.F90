@@ -64,8 +64,8 @@ end subroutine writejob
 subroutine save_energies(e_states)
 
   use general_data, only: jobiph
-  use mcpdft_input, only: mcpdft_options
 # ifdef _HDF5_
+  use mcpdft_input, only: mcpdft_options
   use mh5, only: mh5_close_file, mh5_open_attr, mh5_open_dset, mh5_open_file_rw, mh5_put_attr, mh5_put_dset
 # endif
 
@@ -77,22 +77,24 @@ subroutine save_energies(e_states)
   integer(kind=iwp) :: module_name, refwfn_id, wfn_energy
 # endif
 
-  if (.not. mcpdft_options%is_hdf5_wfn) then
-    adr19(:) = 0
-    disk = 0
-    call iDaFile(JOBIPH,2,adr19,15,disk)
-    disk = adr19(6)
-    call DDaFile(jobiph,1,e_states,size(e_states),disk)
 # ifdef _HDF5_
-  else
+  if (mcpdft_options%is_hdf5_wfn) then
     refwfn_id = mh5_open_file_rw(mcpdft_options%wfn_file)
     module_name = mh5_open_attr(refwfn_id,'MOLCAS_MODULE')
     call mh5_put_attr(module_name,'MCPDFT')
     wfn_energy = mh5_open_dset(refwfn_id,'ROOT_ENERGIES')
     call mh5_put_dset(wfn_energy,e_states)
     call mh5_close_file(refwfn_id)
+  else
 # endif
+    adr19(:) = 0
+    disk = 0
+    call iDaFile(JOBIPH,2,adr19,15,disk)
+    disk = adr19(6)
+    call DDaFile(jobiph,1,e_states,size(e_states),disk)
+# ifdef _HDF5_
   end if
+# endif
 
 end subroutine save_energies
 
@@ -104,71 +106,58 @@ end subroutine save_energies
 !> @param[in] nstates number of states
 subroutine save_ci(si_pdft,nstates)
 
-  use general_data, only: jobiph
-  use mcpdft_input, only: mcpdft_options
+  use general_data, only: jobiph, nconf
 # ifdef _HDF5_
-  use mh5, only: mh5_close_file, mh5_fetch_attr, mh5_fetch_dset, mh5_open_dset, mh5_open_file_rw, mh5_put_dset
+  use mcpdft_input, only: mcpdft_options
+  use mh5, only: mh5_close_file, mh5_fetch_dset, mh5_open_dset, mh5_open_file_rw, mh5_put_dset
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
 
   integer(kind=iwp), intent(in) :: nstates
   real(kind=wp), intent(in) :: si_pdft(nstates,nstates)
-  integer(kind=iwp) :: ad19, adr19(15), disk, dum(1), ncon, state
+  integer(kind=iwp) :: ad19, adr19(30), disk, state
 # ifdef _HDF5_
   integer(kind=iwp) :: refwfn_id, wfn_cicoef
 # endif
   real(kind=wp), allocatable :: ci_rot(:,:), tCI(:,:)
 
-  ncon = 0
+  adr19(:) = 0
 
-  if (.not. mcpdft_options%is_hdf5_wfn) then
-    disk = 284 ! where does this number come from?
-    call iDafile(jobiph,2,dum,1,disk)
-    ncon = dum(1)
+  call mma_allocate(tCI,nconf,nstates,label='tCI')
+  call mma_allocate(ci_rot,nconf,nstates,label='CI_Rot')
 
 # ifdef _HDF5_
-  else
+  if (mcpdft_options%is_hdf5_wfn) then
     refwfn_id = mh5_open_file_rw(mcpdft_options%wfn_file)
-    call mh5_fetch_attr(refwfn_id,'NCONF',ncon)
+    call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tCI)
+  else
 # endif
-  end if
-
-  call mma_allocate(tCI,ncon,nstates,label='tCI')
-  call mma_allocate(ci_rot,nstates,ncon,label='CI Rot')
-
-  if (.not. mcpdft_options%is_hdf5_wfn) then
-    adr19(:) = 0
     ad19 = 0
     call iDaFile(JOBIPH,2,adr19,15,ad19)
     disk = adr19(4)
-  end if
-
-  do state=1,nstates
-    if (.not. mcpdft_options%is_hdf5_wfn) then
-      call DDafile(jobiph,2,tCI(:,state),ncon,disk)
-#   ifdef _HDF5_
-    else
-      call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tCI(:,state),[ncon,1],[0,state-1])
-#   endif
-    end if
-  end do
-
-  call dgemm_('n','n',nstates,ncon,nstates,One,si_pdft,nstates,tCI,ncon,Zero,ci_rot,nstates)
-
-  if (.not. mcpdft_options%is_hdf5_wfn) then
-    disk = adr19(4)
     do state=1,nstates
-      call DDafile(jobiph,1,ci_rot(:,state),ncon,disk)
+      call DDafile(jobiph,2,tCI(:,state),nconf,disk)
     end do
 # ifdef _HDF5_
-  else
-    wfn_cicoef = mh5_open_dset(refwfn_id,'CI_VECTORS')
-    do state=1,nstates
-      call mh5_put_dset(wfn_cicoef,ci_rot(:,state),[ncon,1],[0,state-1])
-    end do
-    call mh5_close_file(refwfn_id)
-# endif
   end if
+# endif
+
+  call dgemm_('n','n',nconf,nstates,nstates,One,tCI,nconf,si_pdft,nstates,Zero,ci_rot,nconf)
+
+# ifdef _HDF5_
+  if (mcpdft_options%is_hdf5_wfn) then
+    wfn_cicoef = mh5_open_dset(refwfn_id,'CI_VECTORS')
+    call mh5_put_dset(wfn_cicoef,ci_rot)
+    call mh5_close_file(refwfn_id)
+  else
+# endif
+    disk = adr19(4)
+    do state=1,nstates
+      call DDafile(jobiph,1,ci_rot(:,state),nconf,disk)
+    end do
+# ifdef _HDF5_
+  end if
+# endif
 
   call mma_deallocate(ci_rot)
   call mma_deallocate(tCI)
