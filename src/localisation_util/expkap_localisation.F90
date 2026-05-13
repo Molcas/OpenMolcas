@@ -74,11 +74,6 @@ Block
       Write(u6,*) 'DGPADM: iflag=',iflag
       Call Abend()
    End If
-   kappa(:,:)=-kappa(:,:)
-   call dgpadm(ideg,m,t,kappa,ldh,wsp,lwsp,ipiv,iexph,ns,iflag)
-
-   kappa(:,:)=-kappa(:,:)
-
    Call mma_deallocate(ipiv)
    Call mma_deallocate(wsp)
 End Block
