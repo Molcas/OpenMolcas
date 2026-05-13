@@ -225,7 +225,7 @@ if (Umat(maxel(1),maxel(2)) > One+1.0e-8_wp) then
     call Abend()
 end if
 
-!#ifdef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 kappa_cnt(:,:)= Zero
 
 call dgemm_('N','T',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
@@ -236,7 +236,7 @@ call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
 call RecPrt('Umat',' ',Umat(:,:), nOrb2Loc, nOrb2Loc)
 call RecPrt('U^(T)U = I',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
 
-!#endif
+#endif
 
 end subroutine expkap_localisation_local
 end subroutine expkap_localisation
