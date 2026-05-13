@@ -186,7 +186,7 @@ case (1)
 
 case (2,3,4,5,6)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
-    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal
+    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal, modifies it if needed
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
 
@@ -446,7 +446,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! ---------------------------------------------------------------------------------------------------
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        if (OptMeth > 3) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
+        if (OptMeth > 3 .and. GEKRange) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
         FuncList(nIter+1) = -Functional ! y_i
 
 #       ifdef _DEBUG3_
