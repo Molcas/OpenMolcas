@@ -26,13 +26,15 @@ real(kind=wp), intent(out) :: H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
 logical(kind=iwp), intent(in) :: modify
 integer(kind=iwp) :: iAtom, k,l,kl
 real(kind=wp) :: Q_ll, Q_kk, Q_kl, Thr
-logical(kind=iwp) :: SORange
+logical(kind=iwp) :: SORange,just1pos, prnt=.false.
+
 #ifdef _NOTUSED_
 real(kind=wp) :: maxel
 #endif
 
 ! set to false, if positive diagonal elements
 SORange = .true.
+just1pos=.true.
 
 Q_ll = Zero
 Q_kk = Zero
@@ -58,28 +60,45 @@ do k=1,nOrb2Loc-1
     !     Make sure that element has a negative value -- we are maximizing the target function
     !     Make sure that the element is not too small, this would yield a too large displacement.
           If (H_diag(kl)>Zero) Then
-            !write(u6,*) "flip sign at",kl
-           !Write (u6,*) 'H_diag(kl)=',H_diag(kl)
+            if (prnt) write(u6,*) "flip sign at",kl,'H_diag(kl)=',H_diag(kl)
             H_diag(kl)=-H_diag(kl)
+            if (.not. SORange) just1pos = .false.
             SORange = .false.
           End If
-
-          if (SORange) then
-              ! don't allow large steps near convergence
-              thr = 2.0e-2_wp
-          else
-              ! outside of quadratic region: allow larger steps
-              thr = 1.0e-3_wp
-          end if
-
-          If (Abs(H_diag(kl))<Thr) Then
-            !write(u6,*) "lower limit  ",kl
-            !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
-             H_diag(kl) = -Thr
-          End If
       end if
+
    end do
 end do
+
+if (modify) then
+    if (SORange) then
+      ! higher trust in the hessian now
+      thr = 2.0e-2_wp
+      if (prnt) write(u6,*) "in SORange: no positive diagonal elements"
+    else if (just1pos) then
+      ! close to SO Range, just one element missing
+      thr = 4.0e-2_wp
+      if (prnt) write(u6,*) "almost in SORange: just one positive diagonal elements"
+    else
+      ! outside of quadratic region: allow larger steps
+      thr = 4.0e-2_wp
+      if (prnt) write(u6,*) "outside of SORange: multiple positive EVs"
+    end if
+
+    kl = 0
+    do k=1,nOrb2Loc-1
+       do l=k+1,nOrb2Loc
+          kl = kl + 1 !listindex
+              If (Abs(H_diag(kl))<Thr) Then
+                 if (prnt) write(u6,*) "lower limit  ",kl, 'H_diag(k,l)=',H_diag(kl)
+                 H_diag(kl) = -Thr
+              End If
+
+       end do
+    end do
+end if !modify
+
+
 
 #ifdef _NOTUSED_
 maxel = maxval(H_diag)
