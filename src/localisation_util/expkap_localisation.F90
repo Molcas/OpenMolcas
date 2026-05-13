@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine expkap_localisation(kappa,nOrb2Loc,Umat, Umat_inv)
+subroutine expkap_localisation(kappa,nOrb2Loc,Umat)
 ! analogous to exp_series in scf, only for the specified orbital subspace
 !
 ! purpose: returns exp(kappa) as Umat
@@ -25,7 +25,7 @@ use definitions, only: wp,iwp,u6
 implicit none
 
 integer(kind=iwp), intent(in) :: nOrb2Loc
-real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),Umat(nOrb2Loc,nOrb2Loc),Umat_inv(nOrb2Loc,nOrb2Loc)
+real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),Umat(nOrb2Loc,nOrb2Loc)
 integer(kind=iwp) i, j
 logical(kind=iwp), parameter:: OLD=.True.
 
@@ -45,7 +45,7 @@ End Do
 
 
 If (Old) Then
-Call expkap_localisation_Local(kappa,nOrb2Loc,Umat, Umat_inv)
+Call expkap_localisation_Local(kappa,nOrb2Loc,Umat)
 Else
 Block
    use constants, only: One
@@ -76,17 +76,6 @@ Block
    End If
    kappa(:,:)=-kappa(:,:)
    call dgpadm(ideg,m,t,kappa,ldh,wsp,lwsp,ipiv,iexph,ns,iflag)
-   If (iflag==0) Then
-      Do j = 1, m
-         Do i = 1, m
-            Umat_Inv(i,j) = wsp(iexph)
-            iexph=iexph+1
-         End Do
-      End Do
-   Else
-      Write(u6,*) 'DGPADM: iflag=',iflag
-      Call Abend()
-   End If
 
    kappa(:,:)=-kappa(:,:)
 
@@ -102,9 +91,9 @@ real(kind=wp), allocatable:: UnitMatrix(:,:)
 Call mma_allocate(UnitMatrix,nOrb2Loc,nOrb2Loc,Label='UM')
 UnitMatrix(:,:)=Zero
 
-Call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc, &
+Call dgemm_('N','T',nOrb2Loc,nOrb2Loc,nOrb2Loc, &
              One, UMat, nOrb2Loc,               &
-                  uMat_Inv, nOrb2Loc,           &
+                  UMat, nOrb2Loc,           &
              Zero, UnitMatrix, nOrb2Loc)
 
 Do i = 1, nOrb2Loc
@@ -129,7 +118,7 @@ End Block
 
 Contains
 
-subroutine expkap_localisation_Local(kappa,nOrb2Loc,Umat, Umat_inv)
+subroutine expkap_localisation_Local(kappa,nOrb2Loc,Umat)
 ! analogous to exp_series in scf, only for the specified orbital subspace
 !
 ! purpose: returns exp(kappa) as Umat
@@ -144,7 +133,7 @@ use Localisation_globals, only: kappa_cnt, xkappa_cnt
 implicit none
 
 integer(kind=iwp), intent(in) :: nOrb2Loc
-real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),Umat(nOrb2Loc,nOrb2Loc),Umat_inv(nOrb2Loc,nOrb2Loc)
+real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),Umat(nOrb2Loc,nOrb2Loc)
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-15_wp
 real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt,maxel(2)
@@ -155,9 +144,7 @@ kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
 xkappa_cnt(:,:) = kappa_cnt
 
 Umat(:,:) = Zero
-Umat_inv(:,:) = Zero
 call unitmat(Umat,nOrb2Loc)
-call unitmat(Umat_inv,nOrb2Loc)
 
 cnt = 1
 factor = One
@@ -165,7 +152,6 @@ ithrsh = One
 maxel(:) = 0
 
 Umat(:,:) =  Umat(:,:) - kappa(:,:)
-Umat_inv(:,:) =  Umat_inv(:,:) + kappa(:,:)
 
 if (debug_exp) then
     write(u6,*) 'Taylor expansion: n=1'
@@ -211,8 +197,6 @@ do while (ithrsh > thrsh_taylor)
         end if
     end if
 
-    Umat_inv(:,:) =  Umat_inv(:,:) + kappa_cnt(:,:)
-
     ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))/(Norb2loc**2)
     !ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(Umat)+thrsh_taylor))
 
@@ -241,17 +225,18 @@ if (Umat(maxel(1),maxel(2)) > One+1.0e-8_wp) then
     call Abend()
 end if
 
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
 kappa_cnt(:,:)= Zero
-call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
+
+call dgemm_('N','T',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
                     One,Umat,nOrb2Loc,&
-                        Umat_inv,nOrb2Loc,&
+                        Umat,nOrb2Loc,&
                         Zero,kappa_cnt,norb2Loc)
 call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
 call RecPrt('Umat',' ',Umat(:,:), nOrb2Loc, nOrb2Loc)
-call RecPrt('Umat_inv',' ',Umat_inv(:,:), nOrb2Loc, nOrb2Loc)
 call RecPrt('U^(T)U = I',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
-#endif
+
+!#endif
 
 end subroutine expkap_localisation_local
 end subroutine expkap_localisation

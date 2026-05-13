@@ -29,7 +29,7 @@ real(kind=wp),intent(inout) :: NumHessSymm(fsdim,fsdim)
 
 
 real(kind=wp),allocatable :: infDisp(:), NumHess(:,:),diff(:),gref(:),gpdx(:),rotated_CMO(:,:),oldPA(:,:,:),&
-                             gmdx(:),gp2dx(:),gm2dx(:), NumHdiag(:),href(:),DispMat(:,:), Umat(:,:), Umat_inv(:,:)
+                             gmdx(:),gp2dx(:),gm2dx(:), NumHdiag(:),href(:),DispMat(:,:), Umat(:,:)
 real(kind=wp) :: dx,GradNorm,PA(nOrb2Loc,nOrb2Loc,nAtoms)
 integer(kind=iwp) :: i,k,l,NumHessMeth
 logical:: debug=.false.
@@ -48,7 +48,6 @@ call mma_allocate(NumHdiag, fsdim,Label ="NumHdiag")
 call mma_allocate(DispMat, fsdim,fsdim, Label ="DispMat")
 call mma_allocate(href, fsdim, Label ="href")
 call mma_allocate(Umat, nOrb2Loc,nOrb2Loc, Label ="Umat")
-call mma_allocate(Umat_inv, nOrb2Loc,nOrb2Loc, Label ="Umat_inv")
 call mma_allocate(oldPA, nOrb2Loc,nOrb2Loc,nAtoms, Label ="oldPA")
 call mma_allocate(rotated_CMO, nBasis,nOrb2Loc, Label ="rotated_CMO")
 
@@ -177,7 +176,6 @@ call mma_Deallocate(NumHdiag)
 call mma_Deallocate(DispMat)
 call mma_Deallocate(href)
 call mma_Deallocate(Umat)
-call mma_Deallocate(Umat_inv)
 call mma_Deallocate(rotated_CMO)
 call mma_Deallocate(oldPA)
 
@@ -186,9 +184,9 @@ contains
 subroutine takestep()
     PA = oldPA
     call vec2upper_triag(DispMat,nOrb2Loc,infDisp(:),fsdim,.true.)
-    call expkap_localisation(DispMat,nOrb2Loc,Umat, Umat_inv)
+    call expkap_localisation(DispMat,nOrb2Loc,Umat)
     call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
-    call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
+    call transformPA(PA,nOrb2Loc,Umat)
 end subroutine takestep
 
 end subroutine GetNumHess_PM

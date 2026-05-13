@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine transformPA(PA,nOrb2Loc,Umat,Umat_inv)
+subroutine transformPA(PA,nOrb2Loc,Umat)
 ! this subroutine transforms the <s|PA|t> matrices according to PA <- U^T * PA * U
 
 use stdalloc, only: mma_allocate,mma_deallocate
@@ -23,7 +23,7 @@ use Localisation_globals, only: BName,nBas_Start,nAtoms, Debug
 implicit none
 
 integer(kind=iwp), intent(in) :: nOrb2Loc
-real(kind=wp), intent(in) :: Umat(nOrb2Loc,nOrb2Loc),Umat_inv(nOrb2Loc,nOrb2Loc)
+real(kind=wp), intent(in) :: Umat(nOrb2Loc,nOrb2Loc)
 real(kind=wp), intent(inout) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 integer(kind=iwp) :: iAtom
 real(kind=wp),allocatable :: QU(:,:)
@@ -36,8 +36,8 @@ do iAtom = 1, nAtoms
                         One,PA(:,:,iAtom),nOrb2Loc,&
                             Umat,nOrb2Loc,&
                         Zero,QU,nOrb2Loc)
-    call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
-                        One,Umat_inv,nOrb2Loc,&
+    call dgemm_('N','T',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
+                        One,Umat,nOrb2Loc,&
                             QU,nOrb2Loc,&
                         Zero,PA(:,:,iAtom),nOrb2Loc)
 end do

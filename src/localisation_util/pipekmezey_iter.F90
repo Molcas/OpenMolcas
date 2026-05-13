@@ -42,7 +42,7 @@ logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2,NRFunc
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
-                              kappa(:,:),Umat(:,:),Umat_inv(:,:), rotated_CMO(:,:),hdiagvec(:),&
+                              kappa(:,:),Umat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),SearchDir(:)
 real(kind=wp), External :: DDot_
 
@@ -154,8 +154,6 @@ case(2,3,4,5,6)
     call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
     call mma_Allocate(Umat,nOrb2Loc,nOrb2Loc,Label='Umat')
     Umat(:,:) = Zero
-    call mma_Allocate(Umat_inv,nOrb2Loc,nOrb2Loc,Label='Umat_inv')
-    Umat_inv(:,:) = Zero
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
 
@@ -363,12 +361,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 
         ! get U=exp(-kappa) and U_inv=exp(kappa)
-        call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
+        call expkap_localisation(kappa,nOrb2Loc,Umat)
 
         ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
         call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
         ! update <s|PA|t>
-       ! call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
         call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,NRFunc,.false.)
 
@@ -426,11 +423,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 
                 ! get U=exp(-kappa) and U_inv=exp(kappa)
-                call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
+                call expkap_localisation(kappa,nOrb2Loc,Umat)
                 ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
                 call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
                 ! update <s|PA|t>
-                !call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
+                !call transformPA(PA,nOrb2Loc,Umat)
                 call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
 
                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -551,7 +548,6 @@ case(2,3,4,5,6)
     call mma_Deallocate(kappa_cnt)
     call mma_Deallocate(xkappa_cnt)
     call mma_Deallocate(Umat)
-    call mma_Deallocate(Umat_inv)
     call mma_Deallocate(rotated_CMO)
     call mma_Deallocate(CMO_Ref)
 
@@ -730,9 +726,9 @@ subroutine P_of_eta(Disp,Functional)
     real(kind=wp),intent(in) :: Disp(fsdim)
     real(kind=wp),intent(out) :: Functional
     call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
-    call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
+    call expkap_localisation(kappa,nOrb2Loc,Umat)
     call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
-    call transformPA(PA,nOrb2Loc,Umat,Umat_inv)
+    call transformPA(PA,nOrb2Loc,Umat)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
 
