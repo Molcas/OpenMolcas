@@ -61,7 +61,7 @@ dx = 1.0e-8_wp ! 1e-4 is good for fourpoint; decrease dx for the other methods
 call generateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
 oldPA(:,:,:) = PA(:,:,:)
 call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,gref)
-call GetHdiag_PM(nAtoms,nOrb2Loc,PA, href(:))
+call GetHdiag_PM(nAtoms,nOrb2Loc,PA, href(:),.false.) !dont modify it
 
 NumHess(:,:) = Zero
 NumHdiag(:) = Zero

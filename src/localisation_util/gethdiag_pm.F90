@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
-subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag)
+subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag,modify)
 !
 ! Purpose: compute the Hessian diagonal elements of the Pipek-Mezey functional w.r.t. elements of the kappa matrix
 
@@ -23,11 +23,16 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
+logical(kind=iwp), intent(in) :: modify
 integer(kind=iwp) :: iAtom, k,l,kl
-real(kind=wp) :: Q_ll, Q_kk, Q_kl
+real(kind=wp) :: Q_ll, Q_kk, Q_kl, Thr
+logical(kind=iwp) :: SORange
 #ifdef _NOTUSED_
 real(kind=wp) :: maxel
 #endif
+
+! set to false, if positive diagonal elements
+SORange = .true.
 
 Q_ll = Zero
 Q_kk = Zero
@@ -48,20 +53,31 @@ do k=1,nOrb2Loc-1
           H_diag(kl)=H_diag(kl) + Four*(Q_ll*(Q_kk-Q_ll) + Q_kk*(Q_ll-Q_kk) + Four*Q_kl**2)
       end do
 
-      !write(u6,"(A,I5,I5,I5,3X,A,F18.8)") "k,l,kl = ",k,l,kl,"H_diag(kl)",H_diag(kl)
-!     Make sure that element has a negative value -- we are maximizing the target function
-!     Make sure that the element is not too small, this would yield a too large displacement.
-      If (H_diag(kl)>Zero) Then
-        write(u6,*) "flip sign at",kl
-       !Write (u6,*) 'H_diag(kl)=',H_diag(kl)
-        H_diag(kl)=-H_diag(kl)
-      End If
+      if (modify) then
+          !write(u6,"(A,I5,I5,I5,3X,A,F18.8)") "k,l,kl = ",k,l,kl,"H_diag(kl)",H_diag(kl)
+    !     Make sure that element has a negative value -- we are maximizing the target function
+    !     Make sure that the element is not too small, this would yield a too large displacement.
+          If (H_diag(kl)>Zero) Then
+            !write(u6,*) "flip sign at",kl
+           !Write (u6,*) 'H_diag(kl)=',H_diag(kl)
+            H_diag(kl)=-H_diag(kl)
+            SORange = .false.
+          End If
 
-      If (Abs(H_diag(kl))<1.0e-2_wp) Then
-        write(u6,*) "lower limit  ",kl
-        !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
-         H_diag(kl)=-1.0e-2_wp
-      End If
+          if (SORange) then
+              ! don't allow large steps near convergence
+              thr = 2.0e-2_wp
+          else
+              ! outside of quadratic region: allow larger steps
+              thr = 1.0e-3_wp
+          end if
+
+          If (Abs(H_diag(kl))<Thr) Then
+            !write(u6,*) "lower limit  ",kl
+            !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
+             H_diag(kl) = -Thr
+          End If
+      end if
    end do
 end do
 

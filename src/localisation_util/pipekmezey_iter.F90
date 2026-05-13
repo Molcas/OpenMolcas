@@ -186,7 +186,7 @@ case (1)
 
 case (2,3,4,5,6)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
-    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal, modifies it if needed
+    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),.true.) ! gets the initial Hessian diagonal, modifies it if needed
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
 
@@ -293,7 +293,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case (2,3,4,5,6)
 
         ! Before taking a new step, we evaluate the Hessian at the current point
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:))
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),.true.)
     BLOCK
         real(kind=wp), allocatable :: Hessian(:,:)
 
