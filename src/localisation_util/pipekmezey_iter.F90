@@ -126,7 +126,7 @@ fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
 ! allocations
 
-select case(OptMeth)
+select case(InpOptMeth)
 
 case (1)
 
@@ -536,10 +536,9 @@ end if
 
 call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 
+if (allocated(PACol)) call mma_Deallocate(PACol)
 ! deallocations
-select case(OptMeth)
-case(1)
-    call mma_Deallocate(PACol)
+select case(InpOptMeth)
 case(2,3,4,5,6)
     call mma_Deallocate(Gradient)
     call mma_Deallocate(kappa)
@@ -557,10 +556,6 @@ case(2,3,4,5,6)
     call mma_Deallocate(SearchDir)
     call mma_Deallocate(Hdiagvec)
 
-    if (allocated(PACol)) call mma_Deallocate(PACol)
-case default
-     write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
-     call Abend()
 end select
 
 call mma_Deallocate(Ovlp_sqrt)
