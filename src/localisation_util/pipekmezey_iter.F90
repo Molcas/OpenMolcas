@@ -14,6 +14,7 @@
 
 !#define _DEBUGLISTS_
 !#define _DEBUG2_
+#define _DEBUG3_
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _FORCEGEKRANGE_
@@ -291,6 +292,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     case (2,3,4,5,6)
 
+#       ifdef _DEBUG3_
+        call RecPrt('Gradient',' ',Gradient,fsdim,1)
+        call RecPrt('Hdiagvec',' ',Hdiagvec,fsdim,1)
+#       endif
+
+
         ! Before taking a new step, we evaluate the Hessian at the current point
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:))
 
@@ -440,7 +447,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         if (OptMeth > 3) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
         FuncList(nIter+1) = -Functional ! y_i
-
 
 
 #       ifdef _DEBUG2_
