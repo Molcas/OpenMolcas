@@ -294,14 +294,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         ! Before taking a new step, we evaluate the Hessian at the current point
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),.true.)
-    BLOCK
-        real(kind=wp), allocatable :: Hessian(:,:)
-
-        call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
-        !call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
-        !call RecPrt("full analytical Hessian","(6F10.6)",Hessian,fsdim,fsdim)
-        call mma_deallocate(Hessian)
-    end BLOCK
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! GRADIENT ASCENT STEP
