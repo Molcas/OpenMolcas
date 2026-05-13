@@ -41,10 +41,13 @@ if (ChargeType == 1) then !Mulliken framework
 
     ! Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)
 
+!   Call RecPrt('Ovlp','(5F20.10)',Ovlp,nBasis,nBasis)
+!   Call RecPrt('CMO','(5F20.10)',CMO,nBasis,nOrb2Loc)
     call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,&
                         One,Ovlp,nBasis,&
                             cMO,nBasis,&
                         Zero,Sbar,nBasis)
+!   Call RecPrt('SBar','(5F20.10)',Sbar,nBasis,nOrb2Loc)
 
     do iAt=1,nAtoms
 
@@ -54,10 +57,11 @@ if (ChargeType == 1) then !Mulliken framework
                             One,cMO(nBas_Start(iAt),1),nBasis,&
                                 Sbar(nBas_Start(iAt),1),nBasis,&
                             Zero,PA(1,1,iAt),nOrb2Loc)
+!       Call Recprt('PA(:,:,iAt)','(5F20.10)',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
 
         ! Compute <s|PA|t> by symmetrization of MA.
 
-        do iMO_s=1,nOrb2Loc
+        do iMO_s=1,nOrb2Loc-1
             do iMO_t=iMO_s+1,nOrb2Loc
             PAst = PA(iMO_s,iMO_t,iAt)
             PAts = PA(iMO_t,iMO_s,iAt)
@@ -65,6 +69,7 @@ if (ChargeType == 1) then !Mulliken framework
             PA(iMO_t,iMO_s,iAt) = PA(iMO_s,iMO_t,iAt)
             end do !iMO_t
         end do !iMO_s
+!       Call Recprt('PA(:,:,iAt)','(5F20.10)',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
 
     end do !iAt
 

@@ -41,6 +41,4 @@ do iBas=1,nBasis
   cMO_t(iBas) = -sinGamma_rot*cs+cosGamma_rot*ct
 end do
 
-return
-
 end subroutine Rot_st

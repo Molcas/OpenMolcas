@@ -49,17 +49,29 @@ do k=1,nOrb2Loc-1
 end do
 Gradient(:)=Four*Gradient(:)
 
-!GradientNorm - needed for all optimization schemes,
-! here calculated as the vector norm
+! If a gradient element is truely small this could be an indication of that the
+! coordinate is symmetry breaking. Set it to zero to avoid symmetry breaking due to
+! numerical noise.
 kl=0
-GradNorm = Zero
 do k = 1, nOrb2Loc-1
     do l = k+1, nOrb2Loc
         kl = kl+1
-        GradNorm = GradNorm + Gradient(kl)**2
+        If (Abs(Gradient(kl))<1.0e-12_wp) Gradient(kl)=Zero
     end do
 end do
-GradNorm = sqrt(GradNorm)
+
+!GradientNorm - needed for all optimization schemes,
+! here calculated as the vector norm
+!kl=0
+!GradNorm = Zero
+!do k = 1, nOrb2Loc-1
+!    do l = k+1, nOrb2Loc
+!        kl = kl+1
+!        GradNorm = GradNorm + Gradient(kl)**2
+!    end do
+!end do
+!GradNorm = sqrt(GradNorm)
+GradNorm = Sqrt(Dot_Product(Gradient,Gradient))
 
 if (Debug) then
     write(u6,*) ' '

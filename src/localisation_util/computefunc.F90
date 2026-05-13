@@ -14,7 +14,7 @@
 subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,printMOext)
 ! Author: Y. Carissan
 
-use Constants, only: Zero
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Debug
 
@@ -44,8 +44,8 @@ do iMO_s=1,nOrb2Loc
     end do
     Functional = Functional + d_s
 
-    if (d_s>1e-12) then
-        d_s = 1/d_s
+    if (d_s>1e-12_wp) then
+        d_s = One/d_s
     else
         if (printMOext) then
             write(u6,*) "WARNING: d_s^{-1} is zero for MO ", iMO_s
@@ -53,11 +53,11 @@ do iMO_s=1,nOrb2Loc
         d_s = huge(d_s)
     end if
 
-    if (d_s < 1+thr) then
+    if (d_s < One+thr) then
         MOtype = "core orbital or lone pair"
-    else if (d_s > 2-thr .and. d_s <2+thr) then
+    else if (d_s > Two-thr .and. d_s <Two+thr) then
         MOtype = "bond orbital"
-    else if (d_s > 1.5+ thr) then
+    else if (d_s > 1.5e0_wp+ thr) then
         MOtype = "delocalized"
     end if
 

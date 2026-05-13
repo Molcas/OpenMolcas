@@ -44,20 +44,21 @@ do k=1,nOrb2Loc-1
           Q_kk=PA(k,k,iAtom)
           Q_ll=PA(l,l,iAtom)
           Q_kl=PA(k,l,iAtom)
-          H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Four*Four*Q_kl**2
+!         H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Four*Four*Q_kl**2
+          H_diag(kl)=H_diag(kl) + Four*(Q_ll*(Q_kk-Q_ll) + Q_kk*(Q_ll-Q_kk) + Four*Q_kl**2)
       end do
 
       !write(u6,"(A,I5,I5,I5,3X,A,F18.8)") "k,l,kl = ",k,l,kl,"H_diag(kl)",H_diag(kl)
 !     Make sure that element has a negative value -- we are maximizing the target function
 !     Make sure that the element is not too small, this would yield a too large displacement.
-      If (H_diag(kl)>0.0) Then
+      If (H_diag(kl)>Zero) Then
        !Write (u6,*) 'H_diag(kl)=',H_diag(kl)
         H_diag(kl)=-H_diag(kl)
       End If
 
-      If (Abs(H_diag(kl))<1.0e-2_wp) Then
+      If (Abs(H_diag(kl))<1.0e-3_wp) Then
         !Write (u6,*) 'H_diag(k,l)=',H_diag(kl)
-         H_diag(kl)=-1.0e-2_wp
+         H_diag(kl)=-1.0e-3_wp
       End If
 
    end do
@@ -65,7 +66,7 @@ end do
 
 #ifdef _NOTUSED_
 maxel = maxval(H_diag)
-if (maxel > 0.0) Then
+if (maxel > Zero) Then
     !write(u6,*) "max(H_diag)",maxel
     !call RecPrt("H_diag before","",H_diag,nOrb2Loc*(nOrb2Loc-1)/2,1)
     H_diag(:) = H_diag(:)-maxel-1.0e-2_wp
