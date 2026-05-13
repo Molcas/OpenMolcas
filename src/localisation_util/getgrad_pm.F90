@@ -60,17 +60,7 @@ do k = 1, nOrb2Loc-1
     end do
 end do
 
-!GradientNorm - needed for all optimization schemes,
-! here calculated as the vector norm
-!kl=0
-!GradNorm = Zero
-!do k = 1, nOrb2Loc-1
-!    do l = k+1, nOrb2Loc
-!        kl = kl+1
-!        GradNorm = GradNorm + Gradient(kl)**2
-!    end do
-!end do
-!GradNorm = sqrt(GradNorm)
+!GradientNorm
 GradNorm = Sqrt(Dot_Product(Gradient,Gradient))
 
 if (Debug) then
