@@ -24,17 +24,18 @@ integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
 logical(kind=iwp), intent(in) :: modify
-integer(kind=iwp) :: iAtom, k,l,kl
+integer(kind=iwp) :: iAtom, k,l,kl,npos
 real(kind=wp) :: Q_ll, Q_kk, Q_kl, Thr
-logical(kind=iwp) :: SORange,just1pos,prnt=.false.,prnt2=.false.
+logical(kind=iwp) :: SORange,prnt=.false.,prnt2=.false.
 
 #ifdef _NOTUSED_
 real(kind=wp) :: maxel
 #endif
 
+npos= Zero
+
 ! set to false, if positive diagonal elements
 SORange = .true.
-just1pos=.true.
 
 Q_ll = Zero
 Q_kk = Zero
@@ -60,9 +61,9 @@ do k=1,nOrb2Loc-1
     !     Make sure that element has a negative value -- we are maximizing the target function
     !     Make sure that the element is not too small, this would yield a too large displacement.
           If (H_diag(kl)>Zero) Then
+            npos = npos + 1
             if (prnt2) write(u6,*) "flip sign at",kl,'H_diag(kl)=',H_diag(kl)
             H_diag(kl)=-H_diag(kl)
-            if (.not. SORange) just1pos = .false.
             SORange = .false.
           End If
       end if
@@ -70,17 +71,15 @@ do k=1,nOrb2Loc-1
    end do
 end do
 
+write(u6,*) npos, "positive Hessian diagonal elements"
 if (modify) then
     if (SORange) then
-      ! higher trust in the hessian now
-      thr = 2.0e-2_wp
+      ! higher trust in the hessian now and allow faster convergence
+      thr = 1.0e-2_wp
       if (prnt) write(u6,*) "in SORange: no positive diagonal elements"
-    else if (just1pos) then
-      ! close to SO Range, just one element missing
-      thr = 4.0e-2_wp
-      if (prnt) write(u6,*) "almost in SORange: just one positive diagonal elements"
     else
-      ! outside of quadratic region: allow larger steps
+    ! outside of quadratic region: hessian not so accurate because of flipped signs
+    ! higher threshold to avoid unjustified large steps
       thr = 4.0e-2_wp
       if (prnt) write(u6,*) "outside of SORange: multiple positive EVs"
     end if
