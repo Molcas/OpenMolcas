@@ -239,15 +239,15 @@ write(u6,'(//,1X,A,/,1X,A)') &
 ! initial information (Iteration = 0)
 select case (OptMeth)
     case (1,6)
-        UpMeth="JS    "
+        UpMeth="JS  - "
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
     case (3)
-        UpMeth="GA    "
+        UpMeth="GA  - "
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
     case (2,4,5)
-        UpMeth="NR    "
+        UpMeth="NR  - "
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
     case default
@@ -438,7 +438,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! ---------------------------------------------------------------------------------------------------
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        write(u6,*) "NR Func vs GEK func", Functional-NRFunc
+        if (OptMeth > 3) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
         FuncList(nIter+1) = -Functional ! y_i
 
 
