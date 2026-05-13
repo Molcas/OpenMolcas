@@ -69,7 +69,7 @@ if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then
 end if
 
 
-!if (getIMmldn) then
+if (getIMmldn) then
     ! preparations
     fmt = '(I4.4)'
 
@@ -83,7 +83,7 @@ end if
     NewDir = trim(SubmitDir)//'/'//Sub
     call mkdir_(NewDir)
 
-!end if
+end if
 
 
 call CWTime(C1,W1)
@@ -126,7 +126,7 @@ fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
 ! allocations
 
-select case(OptMeth)
+select case(InpOptMeth)
 
 case (1)
 
@@ -157,7 +157,7 @@ case(2,3,4,5,6)
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
 
-    if (OptMeth == 6) call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
+    if (OptMeth == 6) call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol',safe='*')
 
 case default
      write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
@@ -186,7 +186,7 @@ case (1)
 
 case (2,3,4,5,6)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
-    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:)) ! gets the initial Hessian diagonal
+    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),.true.) ! gets the initial Hessian diagonal, modifies it if needed
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
 
@@ -256,7 +256,7 @@ select case (OptMeth)
 end select
 
 
-call moldenIM()
+!call moldenIM()
 ! ----------------------------------------------------------------------
 !                           Iterations
 ! ----------------------------------------------------------------------
@@ -293,7 +293,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case (2,3,4,5,6)
 
         ! Before taking a new step, we evaluate the Hessian at the current point
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:))
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),.true.)
     BLOCK
         real(kind=wp), allocatable :: Hessian(:,:)
 
@@ -446,7 +446,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! ---------------------------------------------------------------------------------------------------
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        if (OptMeth > 3) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
+        if (OptMeth > 3 .and. GEKRange) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
         FuncList(nIter+1) = -Functional ! y_i
 
 #       ifdef _DEBUG3_
@@ -536,11 +536,9 @@ end if
 
 call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 
+if (allocated(PACol)) call mma_Deallocate(PACol)
 ! deallocations
-
-select case(OptMeth)
-case(1)
-    call mma_Deallocate(PACol)
+select case(InpOptMeth)
 case(2,3,4,5,6)
     call mma_Deallocate(Gradient)
     call mma_Deallocate(kappa)
@@ -558,10 +556,6 @@ case(2,3,4,5,6)
     call mma_Deallocate(SearchDir)
     call mma_Deallocate(Hdiagvec)
 
-    if (OptMeth == 6) call mma_Deallocate(PACol)
-case default
-     write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
-     call Abend()
 end select
 
 call mma_Deallocate(Ovlp_sqrt)
