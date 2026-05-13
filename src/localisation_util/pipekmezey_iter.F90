@@ -14,7 +14,7 @@
 
 !#define _DEBUGLISTS_
 !#define _DEBUG2_
-#define _DEBUG3_
+!#define _DEBUG3_
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _FORCEGEKRANGE_
@@ -300,8 +300,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         real(kind=wp), allocatable :: Hessian(:,:)
 
         call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
-        call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
-        call RecPrt("full analytical Hessian","(6F10.6)",Hessian,fsdim,fsdim)
+        !call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
+        !call RecPrt("full analytical Hessian","(6F10.6)",Hessian,fsdim,fsdim)
         call mma_deallocate(Hessian)
     end BLOCK
 
@@ -364,6 +364,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         ! get U=exp(-kappa) and U_inv=exp(kappa)
         call expkap_localisation(kappa,nOrb2Loc,Umat,Umat_inv)
+
         ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
         call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
         ! update <s|PA|t>
@@ -574,7 +575,7 @@ contains
 subroutine rescale_disp(Disp)
     real(kind=wp),intent(inout) :: Disp(fsdim)
     DD=Sqrt(dot_product(Disp(:),Disp(:)))
-    Thr= 0.49_wp * Pi
+    Thr= 0.99_wp * Pi
     If (DD>=Thr)Then
 #   ifdef _DEBUGPRINT_
         Write(u6,*) 'Rescale Kappa(:)'
