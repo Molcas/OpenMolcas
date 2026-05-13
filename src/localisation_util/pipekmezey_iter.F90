@@ -69,7 +69,7 @@ if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then
 end if
 
 
-if (getIMmldn) then
+!if (getIMmldn) then
     ! preparations
     fmt = '(I4.4)'
 
@@ -83,7 +83,7 @@ if (getIMmldn) then
     NewDir = trim(SubmitDir)//'/'//Sub
     call mkdir_(NewDir)
 
-end if
+!end if
 
 
 call CWTime(C1,W1)
@@ -228,6 +228,7 @@ IterGEK = 0
 PctSkp = 0
 
 
+
 ! Print iteration table header.
 call CWTime(C2,W2)
 TimC = C2-C1
@@ -257,6 +258,7 @@ select case (OptMeth)
 end select
 
 
+call moldenIM()
 ! ----------------------------------------------------------------------
 !                           Iterations
 ! ----------------------------------------------------------------------
@@ -292,15 +294,19 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     case (2,3,4,5,6)
 
-#       ifdef _DEBUG3_
-        call RecPrt('Gradient',' ',Gradient,fsdim,1)
-        call RecPrt('Hdiagvec',' ',Hdiagvec,fsdim,1)
-#       endif
-
-
         ! Before taking a new step, we evaluate the Hessian at the current point
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:))
+    BLOCK
+        real(kind=wp), allocatable :: Hessian(:,:),NumGrad(:)
+        call mma_allocate(NumGrad,fsdim,Label="NumGrad")
+        call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,.true.)
+        call mma_deallocate(NumGrad)
 
+        call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
+        call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
+        call RecPrt("full analytical Hessian","(6F10.6)",Hessian,fsdim,fsdim)
+        call mma_deallocate(Hessian)
+    end BLOCK
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! GRADIENT ASCENT STEP
@@ -448,6 +454,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         if (OptMeth > 3) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
         FuncList(nIter+1) = -Functional ! y_i
 
+#       ifdef _DEBUG3_
+        call RecPrt('Gradient',' ',Gradient,fsdim,1)
+        call RecPrt('Hdiagvec',' ',Hdiagvec,fsdim,1)
+        call RecPrt('Disp',' ',Disp,fsdim,1)
+#       endif
 
 #       ifdef _DEBUG2_
         write(u6,*) "After GEK procedure and step scaling"
@@ -646,7 +657,6 @@ end subroutine StepSizeChecks
 
 
 subroutine moldenIM()
-
     ! choose the iteration of interest, this creates a $project.imlocal.molden file
     write (x1,fmt) nIter ! converting integer to string using a 'internal file'
     imfile = trim(NewDir)//'/imloc.'//x1//'.molden'
@@ -656,7 +666,7 @@ subroutine moldenIM()
 
     ! move files from scratch dir to project dir
     call systemf("mv "//trim(WorkDir)//'/imloc '//trim(imfile),rc)
-    call systemf("mv "//trim(WorkDir)//'/LocOrbIM '//trim(NewDir)//'/LocOrbIM.'//x1,rc)
+    !call systemf("mv "//trim(WorkDir)//'/LocOrbIM '//trim(NewDir)//'/LocOrbIM.'//x1,rc)
 
 end subroutine moldenIM
 
