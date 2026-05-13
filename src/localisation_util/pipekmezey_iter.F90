@@ -347,7 +347,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call rescale_disp(Disp(:))
 
         ! see if inside region fit for GEK
-        call StepSizeChecks()
+        if (OptMeth >3) call StepSizeChecks()
 
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
