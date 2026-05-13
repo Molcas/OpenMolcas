@@ -69,7 +69,7 @@ if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then
 end if
 
 
-!if (getIMmldn) then
+if (getIMmldn) then
     ! preparations
     fmt = '(I4.4)'
 
@@ -83,7 +83,7 @@ end if
     NewDir = trim(SubmitDir)//'/'//Sub
     call mkdir_(NewDir)
 
-!end if
+end if
 
 
 call CWTime(C1,W1)
@@ -157,7 +157,7 @@ case(2,3,4,5,6)
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
 
-    if (OptMeth == 6) call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
+    if (OptMeth == 6) call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol',safe='*')
 
 case default
      write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
@@ -256,7 +256,7 @@ select case (OptMeth)
 end select
 
 
-call moldenIM()
+!call moldenIM()
 ! ----------------------------------------------------------------------
 !                           Iterations
 ! ----------------------------------------------------------------------
@@ -537,7 +537,6 @@ end if
 call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 
 ! deallocations
-
 select case(OptMeth)
 case(1)
     call mma_Deallocate(PACol)
@@ -558,7 +557,7 @@ case(2,3,4,5,6)
     call mma_Deallocate(SearchDir)
     call mma_Deallocate(Hdiagvec)
 
-    if (OptMeth == 6) call mma_Deallocate(PACol)
+    if (allocated(PACol)) call mma_Deallocate(PACol)
 case default
      write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
      call Abend()
