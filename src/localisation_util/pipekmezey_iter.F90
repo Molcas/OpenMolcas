@@ -200,6 +200,7 @@ case (2,3,4,5,6)
 
         call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
         call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
+        call RecPrt("full analytical Hessian","(6F10.6)",Hessian,fsdim,fsdim)
         call mma_deallocate(Hessian)
     end BLOCK
 #   endif
@@ -545,6 +546,8 @@ case(2,3,4,5,6)
     call mma_Deallocate(Disp)
     call mma_Deallocate(SearchDir)
     call mma_Deallocate(Hdiagvec)
+
+    if (OptMeth == 6) call mma_Deallocate(PACol)
 case default
      write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
      call Abend()
