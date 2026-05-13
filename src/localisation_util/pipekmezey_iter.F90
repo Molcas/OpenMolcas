@@ -297,10 +297,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! Before taking a new step, we evaluate the Hessian at the current point
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:))
     BLOCK
-        real(kind=wp), allocatable :: Hessian(:,:),NumGrad(:)
-        call mma_allocate(NumGrad,fsdim,Label="NumGrad")
-        call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,.true.)
-        call mma_deallocate(NumGrad)
+        real(kind=wp), allocatable :: Hessian(:,:)
 
         call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
         call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)

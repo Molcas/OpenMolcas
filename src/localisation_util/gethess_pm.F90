@@ -27,7 +27,7 @@ real(kind=wp), intent(out) :: Hessian(fsdim,fsdim)
 real(kind=wp), allocatable :: NumHess(:,:)
 integer(kind=iwp) :: iAtom, a,b,c,d,ab,cd
 real(kind=wp) :: Q_aa, Q_bb, Q_cc, Q_dd, Q_ab, Q_ac, Q_bc, Q_ad, Q_bd, d_ac, d_ad, d_bc, d_bd, sumOff, diffnorm
-logical(kind=iwp) :: DebugHess = .true.
+logical(kind=iwp) :: DebugHess = .false.
 real(kind=wp), External :: DDot_
 
 Q_aa = Zero
