@@ -39,6 +39,7 @@ character(len=LenIn+8) :: PALbl
 
 cosg = cos(gamma_rot)
 sing = sin(gamma_rot)
+
 cos2g = cosg*cosg
 sin2g = sing*sing
 cosing = cosg*sing
@@ -97,7 +98,5 @@ if (Debug) then
     call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
   end do
 end if
-
-return
 
 end subroutine UpdateP

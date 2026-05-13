@@ -215,7 +215,7 @@ end select
 
 FirstFunctional = Functional
 Delta = Functional
-largest=0
+largest=Zero
 nDIIS=0
 OldFunctional = Functional
 
@@ -462,8 +462,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 #       ifdef _DEBUG2_
         write(u6,*) "After GEK procedure and step scaling"
-        call RecPrt('Disp',' ',Disp,fsdim,1)
-        call RecPrt('Unitary Mat',' ',Umat,norb2loc,norb2loc)
+        call RecPrt('Disp','(F18.9)',Disp,fsdim,1)
+        call RecPrt('Unitary Mat','(10F18.9)',Umat,norb2loc,norb2loc)
 #       endif
 
         DispList(:,nIter) = Disp(:) ! q_i
@@ -495,7 +495,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
             call Abend()
     end select
-    write(u6,*) ""
+!   write(u6,*) ""
     select case(OptMeth)
         case(1)
             Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)

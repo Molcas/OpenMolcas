@@ -23,6 +23,8 @@ integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(in) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: unitary_mat(nOrb2Loc,nOrb2Loc)
 real(kind=wp), intent(out) :: rotated_CMO(nBasis,nOrb2Loc)
+!Call recprt('CMO','(5F20.10) ',CMO,nBasis,nOrb2loc)
+!Call recprt('Unitary_mat(nxn)','(5F20.10) ',unitary_mat,nOrb2Loc,nOrb2loc)
 
 
 ! transform the orbitals
@@ -31,6 +33,7 @@ call dgemm_('N','N',nBasis,nOrb2Loc,nOrb2Loc,&
                     One,CMO,nBasis,&
                         unitary_mat,nOrb2Loc,&
                     Zero,rotated_CMO,nBasis)
+!Call recprt('Rotated_CMO','(5F20.10) ',Rotated_CMO,nBasis,nOrb2loc)
 
 end subroutine RotateNxN
 

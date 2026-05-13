@@ -31,7 +31,7 @@ real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
 character(len=LenIn+8), intent(in) :: BName(*)
 integer(kind=iwp) :: iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
 real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, sin4alpha, SumA, SumB, Tst, Tstc, &
-                 Tsts, xDone, xOrb2Loc, xTotal
+                 Tsts, xDone, xOrb2Loc, xTotal, SumC, ReNorm
 character(len=LenIn+8) :: PALbl
 character(len=80) :: Txt
 
@@ -55,6 +55,7 @@ do iMO1=1,nOrb2Loc-1
     iMO_t = iMO2
     SumA = Zero
     SumB = Zero
+    SumC = Zero
     do iAt=1,nAtoms
       PA_st = PA(iMO_t,iMO_s,iAt)
       PA_ss = PA(iMO_s,iMO_s,iAt)
@@ -71,11 +72,15 @@ do iMO1=1,nOrb2Loc-1
         write(u6,*) '<',iMO_t,'|PA|',iMO_t,'> = ',PA_tt
         write(u6,*) '**************************'
       end if
-      SumA = SumA+PA_st**2-Quart*(PA_ss-PA_tt)**2
+      SumA = SumA+PA_st**2
+      SumC = SumC+Quart*(PA_ss-PA_tt)**2
       SumB = SumB+PA_st*(PA_ss-PA_tt)
     end do
-    Ast = SumA
+!   If below the numerical noise set it to zero
+    Ast = SumA-SumC
     Bst = SumB
+    If (Abs(Ast)<1.0e-14_wp) Ast=Zero
+    If (Abs(Bst)<1.0e-14_wp) Bst=Zero
 
     if ((Ast == Zero) .and. (Bst == Zero)) then
       cos4alpha = -One
@@ -84,6 +89,9 @@ do iMO1=1,nOrb2Loc-1
       cos4alpha = -Ast/sqrt(Ast**2+Bst**2)
       sin4alpha = Bst/sqrt(Ast**2+Bst**2)
     end if
+    ReNorm=sqrt(cos4alpha**2+sin4alpha**2)
+    cos4alpha=cos4alpha/ReNorm
+    sin4alpha=sin4alpha/ReNorm
     Tst = abs(cos4alpha)-One
     if (Tst > Zero) then
       if (Tst > 1.0e-10_wp) then
@@ -102,7 +110,7 @@ do iMO1=1,nOrb2Loc-1
 
     Alpha1 = acos(cos4alpha)*Quart
     Alpha2 = asin(sin4alpha)*Quart
-    if (Alpha2 < Zero) Alpha1 = Alpha2+Pi
+    if (Alpha2 < Zero .and. Abs(Alpha2)> 1.0e-8_wp ) Alpha1 = Alpha2+Pi
     Alpha = Alpha1
     if (.not. Maximisation) then
       Gamma_rot = Alpha-Pi*Quart
@@ -141,7 +149,5 @@ if (nOrb2Loc > 1) then
 else
   PctSkp = Zero
 end if
-
-return
 
 end subroutine RotateOrb
