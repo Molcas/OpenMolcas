@@ -91,7 +91,7 @@ if (myModel == 'PIPE') then
   end if
   If (ChargeType == 1) then
     write(u6,'(1X,A)') 'Framework for PMLoc  : Mulliken charges'
-  else if (OptMeth == 2) then
+  else if (ChargeType == 2) then
     write(u6,'(1X,A)') 'Framework for PMLoc  : Loewdin charges'
   end if
   !end if
