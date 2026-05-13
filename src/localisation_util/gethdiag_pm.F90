@@ -26,7 +26,7 @@ real(kind=wp), intent(out) :: H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
 logical(kind=iwp), intent(in) :: modify
 integer(kind=iwp) :: iAtom, k,l,kl
 real(kind=wp) :: Q_ll, Q_kk, Q_kl, Thr
-logical(kind=iwp) :: SORange,just1pos, prnt=.false.
+logical(kind=iwp) :: SORange,just1pos,prnt=.false.,prnt2=.false.
 
 #ifdef _NOTUSED_
 real(kind=wp) :: maxel
@@ -60,7 +60,7 @@ do k=1,nOrb2Loc-1
     !     Make sure that element has a negative value -- we are maximizing the target function
     !     Make sure that the element is not too small, this would yield a too large displacement.
           If (H_diag(kl)>Zero) Then
-            if (prnt) write(u6,*) "flip sign at",kl,'H_diag(kl)=',H_diag(kl)
+            if (prnt2) write(u6,*) "flip sign at",kl,'H_diag(kl)=',H_diag(kl)
             H_diag(kl)=-H_diag(kl)
             if (.not. SORange) just1pos = .false.
             SORange = .false.
@@ -90,7 +90,7 @@ if (modify) then
        do l=k+1,nOrb2Loc
           kl = kl + 1 !listindex
               If (Abs(H_diag(kl))<Thr) Then
-                 if (prnt) write(u6,*) "lower limit  ",kl, 'H_diag(k,l)=',H_diag(kl)
+                 if (prnt2) write(u6,*) "lower limit  ",kl, 'H_diag(k,l)=',H_diag(kl)
                  H_diag(kl) = -Thr
               End If
 
