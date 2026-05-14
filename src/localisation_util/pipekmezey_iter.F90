@@ -40,7 +40,7 @@ real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS,npos
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2,NRFunc
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2,NRFunc, GradNormNR
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),Umat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),SearchDir(:)
@@ -294,10 +294,18 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     ! N X N ROTATIONS
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     case (2,3,4,5,6)
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! EVALUATE QUANTITIES AT CURRENT POINT
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         if (OptMeth > 3 .and. GEKRange) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
         FuncList(nIter) = -Functional ! y_i
+       call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the actual new gradient
+
+        ! Replace NR predictions with actual data
+        GradList(:,nIter) = -Gradient(:) ! g_i
+
 
         ! Before taking a new step, we evaluate the Hessian at the current point
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.,gradnorm)
@@ -374,7 +382,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! EVALUATE QUANTITIES AT PREDICTED POINT
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the predicted gradient
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNormNR,Gradient(:)) ! gets the predicted gradient
 
         ! Add these predictions to the lists. If the GEK is step later performed, this data will be replaced
         ! dq will enter via Disp, not DispList
@@ -441,14 +449,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 else
                     call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
                 end if
-
-                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                ! EVALUATE QUANTITIES AT PREDICTED POINT
-                !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the actual new gradient
-
-                ! Replace NR predictions with actual data
-                GradList(:,nIter+1) = -Gradient(:) ! g_i
 
 
 
