@@ -232,23 +232,28 @@ call CWTime(C2,W2)
 TimC = C2-C1
 TimW = W2-W1
 nIter = 0
-write(u6,'(//,1X,A,/,1X,A)') &
-'                                                                 CPU       Wall', &
-'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  ndiis  largest/%Screen'
-
 ! initial information (Iteration = 0)
 select case (InpOptMeth)
     case (1,6)
         UpMeth="JS  - "
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
+        write(u6,'(//,1X,A,/,1X,A)') &
+        '                                                                 CPU       Wall', &
+        'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  -  %Screen'
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,F8.2)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
     case (3)
         UpMeth="GA  - "
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
+        write(u6,'(//,1X,A,/,1X,A)') &
+        '                                                                 CPU       Wall', &
+        'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)  ndiis  dispnorm'
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
     case (2,4,5)
         UpMeth="NR  - "
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
+        write(u6,'(//,1X,A,/,1X,A)') &
+        '                                                                 CPU       Wall', &
+        'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)  ndiis  dispnorm'
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
                 nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
     case default
         write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
@@ -472,7 +477,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         DispList(:,nIter) = Disp(:) ! q_i
         CMO(:,:) = rotated_CMO(:,:)
-
+        DD = Sqrt(dot_product(Disp(:),Disp(:)))
     end select ! 2x2 or NxN rotations
 
     if (getIMmldn) then
@@ -487,14 +492,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     TimW = W2-W1
     select case (OptMeth)
         case (1)
-            write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
+            write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,F8.2)') &
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
         case (3)
-            write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
+            write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,DD
         case (2,4,5,6)
-            write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,ES12.4)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
+            write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,DD
         case default
             write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
             call Abend()
@@ -581,6 +586,7 @@ subroutine rescale_disp(Disp)
 #   endif
     Disp(:) = (Thr/DD)*Disp(:)
     End If
+
 end subroutine rescale_disp
 
 #ifdef _FORCEGEKRANGE_
