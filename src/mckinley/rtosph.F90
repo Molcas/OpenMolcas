@@ -15,13 +15,13 @@ subroutine RToSph(F,nBeta,ishll,lb,iAng,nveccb)
 !   Transform <core|B> from Cartesian components to Sperical harmonics
 !
 !***********************************************************************
-! @parameter F The cartesian components of <core|B>(in)
-!              The spherical components of <core|B>(out)
-! @parameter nBeta Number of exponents
-! @parameter ishll Shell number for ECP
-! @parameter lb angular momenta Ket
-! @parameter iAng angular momenta core
-! @parameter Number of derivatives
+! @param F The cartesian components of <core|B>(in)
+!          The spherical components of <core|B>(out)
+! @param nBeta Number of exponents
+! @param ishll Shell number for ECP
+! @param lb angular momenta Ket
+! @param iAng angular momenta core
+! @param Number of derivatives
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1

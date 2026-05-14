@@ -12,12 +12,12 @@
 set (sources
      main.F90
      arrange_orbital_molcas.F90
+     gugadrt.F90
      gugadrt_active_drt.F90
      gugadrt_check_rcas3.F90
      gugadrt_dbl_downwalk.F90
      gugadrt_dbl_upwalk.F90
      gugadrt_ext_downwalk.F90
-     gugadrt.F90
      gugadrt_global.F90
      gugadrt_gugafinalize.F90
      gugadrt_mole_inf.F90

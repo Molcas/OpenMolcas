@@ -11,30 +11,30 @@
 
 set (sources
      main.F90
+     ab.F90
      abcd.F90
      abci.F90
      abd.F90
-     ab.F90
      abtd.F90
-     aid.F90
      ai_mrci.F90
+     aid.F90
      aitd.F90
      alloc_mrci.F90
      ci_select_mrci.F90
      count_mrci.F90
      cscale.F90
      csftra.F90
-     cstart.F90
+     cstart_mrci.F90
      dcorr.F90
      densct.F90
      diagc.F90
      diagct.F90
+     faibj.F90
      faibj2.F90
      faibj3.F90
      faibj5.F90
-     faibj.F90
-     fijd.F90
      fij.F90
+     fijd.F90
      fijtd.F90
      hz.F90
      hzlp1.F90
@@ -64,9 +64,9 @@ set (sources
      secne.F90
      secular.F90
      sigma.F90
+     sort_mrci.F90
      sorta.F90
      sortb.F90
-     sort_mrci.F90
      upkvec.F90
 )
 

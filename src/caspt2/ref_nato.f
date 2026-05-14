@@ -8,12 +8,23 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE REF_NATO(DREF,CMO,OCC,CNAT)
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-      DIMENSION DREF(*),CMO(*),OCC(*),CNAT(*)
+      SUBROUTINE REF_NATO(DREF,nDREF,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
+      use constants, only: Zero, One, Two
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: NSYM,NFRO,NISH,NASH,NBAS
+      use definitions, only: iwp, wp
+
+      IMPLICIT None
+
+      integer(kind=iwp), intent(In):: nDREF,nCMO,nOcc,nCNAT
+      real(kind=wp), intent(In):: DREF(nDREF),CMO(nCMO)
+      real(kind=wp), intent(out):: OCC(nOcc),CNAT(nCNAT)
+
+      real(kind=wp), ALLOCATABLE:: TMP(:)
+      integer(kind=iwp) IDREF, IOCC, ICMO, ISYM, NF, NI, NA, NB, I, II,
+     &                  J, JJ, LIJ, NFI, NSD, NTMP
+      real(kind=wp) OC
+
 * Purpose: compute natural orbitals and natural occupation numbers
 * for the reference wave function.
 * Given DREF, a triangular density matrix
@@ -33,40 +44,40 @@ C orbitals are copied unchanged.
         NB=NBAS(ISYM)
 C Frozen and inactive orbitals:
         NFI=NF+NI
-        IF(NFI.GT.0) THEN
-          CALL DCOPY_(NFI,[2.0D00],0,OCC(IOCC+1),1)
+        IF(NFI>0) THEN
+          CALL DCOPY_(NFI,[Two],0,OCC(IOCC+1),1)
           IOCC=IOCC+NFI
           CALL DCOPY_(NB*NFI,CMO(ICMO+1),1,CNAT(ICMO+1),1)
           ICMO=ICMO+NB*NFI
         END IF
 C Active orbitals:
-        IF(NA.GT.0) THEN
+        IF(NA>0) THEN
           NTMP=(NA*(NA+1))/2
-          CALL GETMEM('TMP','ALLO','REAL',LTMP,NTMP)
+          CALL mma_allocate(TMP,NTMP,LABEL='TMP')
           CALL DCOPY_(NB*NA,CMO(ICMO+1),1,CNAT(ICMO+1),1)
 C For correct ordering, change sign.
-          LIJ=LTMP
+          LIJ=1
           DO I=1,NA
            II=I+IDREF
            DO J=1,I
             JJ=J+IDREF
-            WORK(LIJ)=-DREF((II*(II-1))/2+JJ)
+            TMP(LIJ)=-DREF((II*(II-1))/2+JJ)
             LIJ=LIJ+1
            END DO
           END DO
-          CALL NIDiag(WORK(LTMP),CNAT(ICMO+1),NA,NB)
-          CALL JACORD(WORK(LTMP),CNAT(ICMO+1),NA,NB)
-          CALL VEIG(NA,WORK(LTMP),OCC(IOCC+1))
-          CALL GETMEM('TMP','FREE','REAL',LTMP,NTMP)
+          CALL NIDiag(TMP,CNAT(ICMO+1),NA,NB)
+          CALL JACORD(TMP,CNAT(ICMO+1),NA,NB)
+          CALL VEIG(NA,TMP,OCC(IOCC+1))
+          CALL mma_deallocate(TMP)
 C Change back to positive sign.
-          CALL DSCAL_(NA,-1.0D0,OCC(IOCC+1),1)
+          CALL DSCAL_(NA,-One,OCC(IOCC+1),1)
 * Certain CAS or RAS wave functions can legitimately have
 * occupation numbers that are exactly 0 or 2. These may become
 * inappropriate by rounding. Fix that as well.
           DO I=1,NA
            OC=OCC(IOCC+I)
-           IF(OC.LT.0.0D0) OC=0.0D0
-           IF(OC.GT.2.0D0) OC=2.0D0
+           IF(OC<Zero) OC=Zero
+           IF(OC>Two) OC=Two
            OCC(IOCC+I)=OC
           END DO
           IDREF=IDREF+NA
@@ -75,14 +86,12 @@ C Change back to positive sign.
         END IF
 C Secondary and deleted orbitals:
         NSD=NB-(NFI+NA)
-        IF(NSD.GT.0) THEN
-          CALL DCOPY_(NSD,[0.0D0],0,OCC(IOCC+1),1)
+        IF(NSD>0) THEN
+          CALL DCOPY_(NSD,[Zero],0,OCC(IOCC+1),1)
           IOCC=IOCC+NSD
           CALL DCOPY_(NB*NSD,CMO(ICMO+1),1,CNAT(ICMO+1),1)
           ICMO=ICMO+NB*NSD
         END IF
       END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE REF_NATO

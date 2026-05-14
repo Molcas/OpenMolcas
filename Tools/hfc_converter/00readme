@@ -1,0 +1,3 @@
+The calculated HFC in OpenMolcas is a 'reduced' (isotope-independent) version
+in atomic units and can be converted to MHz units for a given isotope with the
+python script hfc_au_to_mhz.py.

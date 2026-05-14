@@ -38,6 +38,7 @@ subroutine ClsOne(rc,Option)
 !***********************************************************************
 
 use OneDat, only: AuxOne, NaN, rcOne, sDmp, TocOne
+use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none
@@ -68,6 +69,7 @@ if (btest(Option,sDmp)) call DmpOne()
 call DaClos(LuOne)
 AuxOne%Lu = NaN
 TocOne(:) = NaN
+call mma_deallocate(TocOne)
 
 !----------------------------------------------------------------------*
 !     Terminate procedure                                              *

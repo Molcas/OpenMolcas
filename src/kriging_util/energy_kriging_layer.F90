@@ -13,13 +13,14 @@
 
 subroutine Energy_Kriging_Layer(qInt,Energy,nInter)
 
+use kriging_mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter
 real(kind=wp), intent(in) :: qInt(nInter)
-real(kind=wp), intent(out) :: Energy
+real(kind=wp), intent(out) :: Energy(nSet)
 real(kind=wp), allocatable :: qInt_s(:)
 
 call mma_allocate(qInt_s,nInter,label='qInt_s')

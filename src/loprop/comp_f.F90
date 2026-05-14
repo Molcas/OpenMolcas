@@ -11,6 +11,7 @@
 
 subroutine Comp_F(h0,Ei,nBas,Delta_i,Energy,S,Refx,Originx)
 
+use spool, only: disable_spool
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

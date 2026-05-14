@@ -19,23 +19,24 @@ subroutine InpRct(LuSpool)
 !             Modified for Langevin polarizabilities, March 2000 (RL)  *
 !***********************************************************************
 
+use rctfld_module, only: aFac, CLim, Conductor, CORDSI, DampIter, DieDel, DipCutOff, DipSI, DistSparse, Eps, Eps_USER, EpsInf, &
+                         EpsInf_USER, gAtom, iSLPar, lAmberPol, LATATO, lDamping, lDipRestart, lGridAverage, lLangevin, lMax, lRF, &
+                         lRFCav, lSparse, MXA, nExpo, nGridAverage, nGridSeed, nOrdInp, nSparse, PCM, PolSI, PreFac, RadInp, &
+                         RadLat, rDS, RotAlpha, RotBeta, RotGamma, rSca, rSLPar, Scaaa, Scal14, Scala, Scalb, Scalc, Solvent, TK
+use CovRad_Data, only: CovRadT_
+use DWSol, only: DWSolv
 use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, deg2rad, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
-integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, iPrint, iRout, istatus, ITypRad, jRout, Last, n
+integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, istatus, ITypRad, Last
 real(kind=wp) :: aArea, epscm, poltot, r_min_Sphere, Radius, tal, Temp, val
 character(len=180) :: KWord, Key
 integer(kind=iwp), external :: iCLast, nToken, NumSolv
 real(kind=wp), external :: Anal_Gitt
 character(len=180), external :: Get_Ln
-#include "print.fh"
-#include "rctfld.fh"
-#include "covradt_data.fh"
 
-iRout = 1
-iPrint = nPrint(iRout)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -49,7 +50,7 @@ rds = Zero
 lMax = -1
 lRF = .false.
 lRFCav = .false.
-RF_Basis = .false.
+!RF_Basis = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -58,7 +59,7 @@ RF_Basis = .false.
 PCM = .false.
 i_sph_inp = 0
 ! Default PCM parameters
-call PCMDef(ISlPar,RSlPar,iPrint)
+call PCMDef(ISlPar,RSlPar)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -147,10 +148,11 @@ lLangevin = .false.
 ! default solvent
 Solvent = 'WATER'
 ISlPar(15) = NumSolv(Solvent)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-iPrint = 5
+
+! dynamically weighted state-averaging (in DWSol)
+DWSolv%DWZeta = Zero
+DWSolv%DWType = 1
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -177,19 +179,6 @@ do
       lRF = .true.
       lRFCav = .true.
       write(KWord,'(A,F10.5,A,F10.5,A,I4)') 'eps=',Eps,' radius=',rds,' higest moment=',lMax
-    case ('PRIN')
-      !                                                                *
-      !***** PRIN ******************************************************
-      !                                                                *
-      ! Print level
-      KWord = Get_Ln(LuSpool)
-      call Get_I1(1,n)
-      do i=1,n
-        KWord = Get_Ln(LuSpool)
-        call Get_I1(1,jRout)
-        call Get_I1(2,iPrint)
-        nPrint(jRout) = iPrint
-      end do
     case ('LANG')
       !                                                                *
       !***** LANG ******************************************************
@@ -429,6 +418,22 @@ do
       ! Restart dipoles from scratch in each QM iteration
       ! This sometimes gives better convergence.
       lDiprestart = .true.
+    case ('DWSO')
+      !                                                                *
+      !***** DWSO ******************************************************
+      !                                                                *
+      ! Zeta for dynamically weighted state-averaged density
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,DWSolv%DWZeta)
+      RSlPar(53) = DWSolv%DWZeta
+    case ('DWTY')
+      !                                                                *
+      !***** DWTY ******************************************************
+      !                                                                *
+      ! how to dynamically weight the solvation density
+      KWord = Get_Ln(LuSpool)
+      call Get_I1(1,DWSolv%DWType)
+      ISlPar(17) = DWSolv%DWType
     case ('END ')
       !                                                                *
       !***** END  ******************************************************
@@ -482,13 +487,12 @@ if (lLangevin) then
   epscm = (One+Two*tal)/(One-tal)
   if (Eps < One) Eps = epscm
 
-  tk5 = Half*tk
+  !tk5 = Half*tk
 
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
 
 contains
 

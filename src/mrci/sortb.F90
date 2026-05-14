@@ -14,7 +14,8 @@ subroutine SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD)
 ! FOR FIXED A,C ALL B,D
 
 use mrci_global, only: ICH, IPASS, IRC, IROW, JJS, KBUFF1, LASTAD, LN, LSYM, Lu_60, Lu_80, LUTRA, MCHAIN, NBITM2, NCHN2, NORB, &
-                       NSM, NSYM, NTIBUF, NVIR, NVIRP, NVIRT, TIBUF
+                       NSM, NSYM, NVIR, NVIRP, NVIRT, TIBUF
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -26,14 +27,14 @@ real(kind=wp), intent(out) :: BUFS(NBITM2,NCHN2)
 integer(kind=iwp), intent(out) :: INDS(NBITM2+2,NCHN2)
 real(kind=wp), intent(_OUT_) :: ACBDS(*), ACBDT(*), BFACBD(*)
 integer(kind=iwp), intent(in) :: ISAB(*)
-#include "tratoc.fh"
-#include "warnings.h"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, IDISK, IFIN1, IFIN2, ILOOP, IN1, INB, INND, INPS, INPT, &
                      INS, INSB, INSOUT, INUMB, IOUT, IPOS, IST, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JDISK, KK, LENGTH, M1, M2, &
                      M3, M4, N1, N2, N3, N4, NA, NAC, NB, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, NORB0(9), NORBP, NOS, &
                      NOVM, NOVST, NSAC, NSACL, NSC, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NSSM, NT, NTM, NU, NUMAX, NUMIN, NV, NVT, NX, &
                      NXM
 real(kind=wp) :: FINI
+
+#include "warnings.h"
 
 NVT = IROW(NVIRT+1)
 NOVST = LN*NVIRT+1
@@ -76,7 +77,7 @@ do ISTEP=1,IPASS
           NORBP = NOP*NOQ*NOR*NOS
           if (NORBP == 0) cycle
 
-          call dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
+          call dDAFILE(LUTRA,2,TIBUF,NTRABUF,IAD50)
 
           ! Loop over index quadruples in this symm block
           IOUT = 0
@@ -95,8 +96,8 @@ do ISTEP=1,IPASS
 
                   ! MO integral value is made accessable at TIBUF(IOUT)
                   IOUT = IOUT+1
-                  if (IOUT > NTIBUF) then
-                    call dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
+                  if (IOUT > NTRABUF) then
+                    call dDAFILE(LUTRA,2,TIBUF,NTRABUF,IAD50)
                     IOUT = 1
                   end if
 

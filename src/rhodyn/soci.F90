@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine soci()
@@ -24,10 +24,12 @@ subroutine soci()
 !  SO_eig   : SO_CI^T*CH_SO*SO_CI, diagonalize the Hamiltonian
 !  Hfull    : HTOT_CSF hamiltonian diagonalized
 
-use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, U_CI
-use rhodyn_utils, only: dashes, mult, transform
-use stdalloc, only: mma_allocate, mma_deallocate
+use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, &
+                       U_CI, flag_so
+use linalg_mod, only: mult
 use mh5, only: mh5_put_dset
+use rhodyn_utils, only: dashes, transform
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -35,8 +37,6 @@ implicit none
 integer(kind=iwp) :: i, INFO, j, LWORK
 real(kind=wp), allocatable :: RWORK(:), W(:)
 complex(kind=wp), allocatable :: Hdiag(:,:), Hfull(:,:), Hfull2(:,:), SO_CI2(:,:), WORK(:)
-
-if (ipglob > 2) write(u6,*) 'Begin of soci'
 
 call mma_allocate(Hfull,nconftot,nconftot)
 call mma_allocate(Hfull2,nconftot,nconftot)
@@ -66,7 +66,7 @@ if (ipglob > 2) then
 end if
 LWORK = -1
 
-call zheev('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
+call zheev_('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
 
 if (INFO == 0) then
   LWORK = max(1,int(WORK(1))+1)
@@ -76,7 +76,7 @@ else
   call abend()
 end if
 
-call zheev('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
+call zheev_('V','L',nconftot,Hfull,nconftot,W,WORK,LWORK,RWORK,INFO)
 
 if (ipglob > 4) then
   call dashes()
@@ -94,7 +94,7 @@ if (ipglob > 4) then
 end if
 
 ! eigenvalue of SO states E_SO
-E_SO(:) = W
+E_SO(:) = W(1:lrootstot)
 
 call mult(Hfull,Hfull,Hfull2,.true.,.false.)
 
@@ -169,7 +169,6 @@ if (ipglob > 4) then
       end if
     end do
   end do
-  call dashes()
   write(u6,*) 'IF THERE IS NOT ANY ERROR INFO PRINTOUT, SO_CI is orthonomalized'
   call dashes()
 end if
@@ -204,22 +203,21 @@ if (ipglob > 4) then
       end if
     end do
   end do
-  call dashes()
   write(u6,*) 'IF THERE IS NO ANY WARNING INFO, CSF2SO IS COINCIDED WITH EIGENVECTOR sortVR!'
   call dashes()
 end if
 
-call mh5_put_dset(prep_csfsor,real(CSF2SO))
-call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
+if (flag_so) then
+  call mh5_put_dset(prep_csfsor,real(CSF2SO))
+  call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
+end if
 
-if (ipglob > 2) write(u6,*) 'End of soci'
-
-if (allocated(Hfull)) call mma_deallocate(Hfull)
-if (allocated(Hfull2)) call mma_deallocate(Hfull2)
-if (allocated(Hdiag)) call mma_deallocate(Hdiag)
-if (allocated(SO_CI2)) call mma_deallocate(SO_CI2)
-if (allocated(WORK)) call mma_deallocate(WORK)
-if (allocated(RWORK)) call mma_deallocate(RWORK)
-if (allocated(W)) call mma_deallocate(W)
+call mma_deallocate(Hfull,safe='*')
+call mma_deallocate(Hfull2,safe='*')
+call mma_deallocate(Hdiag,safe='*')
+call mma_deallocate(SO_CI2,safe='*')
+call mma_deallocate(WORK,safe='*')
+call mma_deallocate(RWORK,safe='*')
+call mma_deallocate(W,safe='*')
 
 end subroutine soci

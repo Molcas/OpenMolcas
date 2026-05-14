@@ -181,7 +181,7 @@ def init3(nbasft,symmetry):
     # But before check if the file exist.
     logger = logging.getLogger('ftpuploader')
     try:
-        pc1 = subprocess.Popen('find . -type f -name *.rassi.h5', stdout=subprocess.PIPE, shell=True)
+        pc1 = subprocess.Popen('find . -maxdepth 1 -type f -name *.rassi.h5', stdout=subprocess.PIPE, shell=True)
         file_name=pc1.stdout.readlines()[0].decode(encoding='UTF-8',errors='strict')
         hd5_file=re.split('./|\n',file_name)[1]
         # the file $Project.rassi.h5 was just passed to the string 'hd5_file'.
@@ -194,7 +194,7 @@ def init3(nbasft,symmetry):
     element=h['CENTER_LABELS']
     n_elements=len(element)
     element=np.reshape(element,(n_elements))
-    element=np.array(element, dtype =np.str)
+    element=np.array(element, dtype =str)
     element=np.char.strip(element)
     h.close()
     #print(basis_id_hd5)

@@ -12,12 +12,12 @@
 module MPProp_globals
 
 use Data_Structures, only: Alloc1DArray_Type, Alloc2DArray_Type
+use Molcas, only: LenIn
 use Definitions, only: wp, iwp
 
 implicit none
 private
 
-#include "LenIn.fh"
 
 real(kind=wp) :: EneV
 character(len=180) :: Title

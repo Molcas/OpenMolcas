@@ -32,11 +32,12 @@ use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: AOrb, lPSO, lSA, Thpkl
+use pso_stuff, only: AOrb, B_PT2, Gamma_On, lPSO, lSA, Thpkl
 use Data_Structures, only: V1
-use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, LuBVector, LuCVector, nChOrb, nIJR, nKdens, nYmnij, tbvec, &
-                   Yij, Ymnij
+use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, iUHF, LuBVector, LuCVector, nChOrb, nIJR, nKdens, nYmnij, &
+                   tbvec, Yij, Ymnij
 #ifdef _DEBUGPRINT_
+use pso_stuff, only: D0, iD0Lbl
 use RI_glob, only: iOff_Ymnij
 #endif
 use Constants, only: Zero, One, Two, Half, Quart
@@ -47,11 +48,13 @@ integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, kB
 real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
 real(kind=wp), intent(in) :: DSO(nDSO,nSA), DSO_Var(nDSO), ExFac, CoulFac, V_k(mV_k,nSA), U_k(mV_k), ZpK(nnP1,mV_K,*)
 integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ijBas, ijk, ik, ik1, ik2, il, il1, il2, ileft, imo, iMO1, iMO2, iMOleft, iMOright, &
-                     indexB, Indkl, iOff1, iPAO, irc, iright, iSO, iThpkl, iUHF, iVec, iVec_, j, jAOj, jC, jik, jmo, jSkip(4), &
-                     jSO, jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, lAct, lAOl, lBVec, lCVec, lda, lda1, lda2, &
-                     lSO, lSOl, lSym, n2J, nijkl, nik, nj(4), nj2, njk, nk, nKBas, nLBas, nnk, NumOrb(4)
+                     indexB, Indkl, iOff1, iPAO, irc, iright, iSO, iThpkl, iVec, iVec_, j, jAOj, jC, jik, jmo, jSkip(4), jSO, &
+                     jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, Kth, lAct, lAOl, lBVec, lCVec, lda, lda1, lda2, &
+                     lSO, lSOl, lSym, Lth, n2J, nijkl, nik, nj(4), nj2, njk, nk, nKBas, nLBas, nnk, NumOrb(4)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iSym
+#endif
 real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, fact, Factor, temp, tmp, Wall, Wall1, Wall2
-logical(kind=iwp) :: Found
 real(kind=wp), pointer :: Xki(:), Xli(:)
 type(V1) :: Xki2(2), Xki3(2), Xli2(2), Xli3(2)
 real(kind=wp), external :: Compute_B, dDot_
@@ -60,8 +63,7 @@ real(kind=wp), external :: Compute_B, dDot_
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-iComp = 1
-call PrMtrx('DSO     ',[iD0Lbl],iComp,1,D0)
+call PrMtrx('DSO     ',[iD0Lbl],1,[1],D0)
 write(u6,*)
 write(u6,*) 'Distribution of Ymnij'
 iSym = 1
@@ -90,13 +92,6 @@ jSym = 1
 kSym = 1
 lSym = Mul(jSym,kSym)
 NumOrb(1) = nChOrb(kSym-1,1)
-
-call Qpg_iScalar('SCF mode',Found)
-if (Found) then
-  call Get_iScalar('SCF mode',iUHF) ! either 0 or 1
-else
-  iUHF = 0
-end if
 
 ! Test if we have any exchange contribution of significance
 
@@ -662,6 +657,7 @@ else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
     jSO_off = jSO-iOff1
 
     Factor = Zero
+    BklK(1:jBas*nKBas*nLBas) = Zero
 
     do iSO=1,2
       iMOleft = iSO
@@ -788,8 +784,10 @@ else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
         do lAOl=0,lBas-1
           lSOl = lSO+lAOl
+          Lth = lAOl+(i4-1)*lBas+1
           do kAOk=0,kBas-1
             kSOk = kSO+kAOk
+            Kth = kAOk+(i3-1)*kBas+1
 
             iThpkl = (kAOk+(i3-1)*kBas)*jBas+(lAOl+(i4-1)*lBas)*nKBas*jBas
             indexB = iThpkl
@@ -803,8 +801,8 @@ else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
               ! SA-CASSCF Coulomb contribution
 
-              temp = CoulFac*(V_k(jSOj,1)*DSO(Indkl,2)+V_k(jSOj,2)*DSO(Indkl,1)+V_k(jSOj,3)*DSO(Indkl,4)+V_k(jSOj,4)*DSO(Indkl,3)+ &
-                              V_k(jSOj,1)*DSO(Indkl,5)+V_k(jSOj,5)*DSO(Indkl,1))
+              temp = CoulFac*(V_k(jSOj,1)*DSO(Indkl,2)+V_k(jSOj,2)*DSO(Indkl,1)+V_k(jSOj,3)*DSO(Indkl,4)+V_k(jSOj,4)*DSO(Indkl,3))
+              if (nSA > 4) temp = temp+CoulFac*(V_k(jSOj,1)*DSO(Indkl,5)+V_k(jSOj,5)*DSO(Indkl,1))
 
               ! Exchange contribution: B(K,m,n)
 
@@ -813,6 +811,8 @@ else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
               ! Active space contribution: Sum_p Z(p,K)*Th(p,m,n)
 
               temp = temp+Thpkl(iThpkl)
+
+              if (Gamma_On) temp = temp+B_PT2(jSOj,Kth,Lth) ! For CASPT2
 
               PMax = max(PMax,abs(temp))
               PAO(nijkl,iPAO) = Fac*temp

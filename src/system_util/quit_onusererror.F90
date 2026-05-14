@@ -12,6 +12,7 @@
 subroutine Quit_OnUserError()
 
 implicit none
+
 #include "warnings.h"
 
 call xQuit(_RC_INPUT_ERROR_)

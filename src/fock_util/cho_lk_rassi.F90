@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,Ash,nScreen,dmpk)
+subroutine CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,nTUVX,Ash,nScreen,dmpk)
 !*********************************************************************
 !  Author : F. Aquilante
 !
@@ -35,33 +35,29 @@ subroutine CHO_LK_RASSI(DLT,MSQ,FLT,FSQ,TUVX,Ash,nScreen,dmpk)
 !
 !*********************************************************************
 
-use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: IndRed, InfVec, nnBstRSh
+!#define _DEBUGPRINT_
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRsh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_interface, only: cho_lr_MOs
 use Fock_util_global, only: Deco, Estimate, Fake_CMO2, PseudoChoMOs, Update
-use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
+use rassi_data, only: NASH, NISH
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
-type(DSBA_Type), intent(in) :: DLT, Ash(2)
+type(DSBA_Type), intent(in) :: DLT(1), Ash(2)
 type(DSBA_Type), intent(inout) :: MSQ(2), FLT(1), FSQ
-real(kind=wp), intent(_OUT_) :: TUVX(*)
-integer(kind=iwp), intent(in) :: nScreen
+integer(kind=iwp), intent(in) :: nTUVX, nScreen
+real(kind=wp), intent(inout) :: TUVX(nTUVX)
 real(kind=wp), intent(in) :: dmpk
-#include "warnings.h"
-#include "chotime.fh"
-#include "rassi.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, iOK, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jaSkip, jden, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kDen, &
@@ -97,6 +93,8 @@ logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_LK_RASSI'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold, ddot_
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************
@@ -427,7 +425,7 @@ do jSym=1,nSym
         ! Transform the density to reduced storage
         add = .false.
         nMat = 1
-        call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,[DLT],Drs,add)
+        call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,DLT,Drs,add)
       end if
 
       ! BATCH over the vectors ----------------------------
@@ -447,7 +445,7 @@ do jSym=1,nSym
 
         call CWTIME(TCR1,TWR1)
 
-        call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
+        call CHO_VECRD(Lrs,nRS*JNUM,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
 
         if ((NUMV <= 0) .or. (NUMV /= JNUM)) return
 
@@ -492,7 +490,7 @@ do jSym=1,nSym
 
         if (Estimate) then
 
-          call Fzero(DIAG(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
+          DIAG(iiBstR(jSym,1)+1:iiBstR(jSym,1)+NNBSTR(jSym,1)) = Zero
 
           do krs=1,nRS
 
@@ -1019,8 +1017,8 @@ do jSym=1,nSym
         ! ************  END EXCHANGE CONTRIBUTION  ****************
 
         iSwap = 0  ! Lvb,J are returned
-        call Allocate_DT(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-        call Allocate_DT(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
         ! ----------------------------------------------------------------
         ! First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
         ! ----------------------------------------------------------------
@@ -1065,7 +1063,7 @@ do jSym=1,nSym
 
         DoReord = (JRED == myJRED2) .and. (iBatch == nBatch)
 
-        call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,DoReord)
+        call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nTUVX,nAsh,JSYM,JNUM,DoReord)
 
         call CWTIME(TCINT2,TWINT2)
         tintg(1) = tintg(1)+(TCINT2-TCINT1)
@@ -1108,9 +1106,10 @@ do jSym=1,nSym
 
 #   ifdef _MOLCAS_MPP_
     if ((nProcs > 1) .and. Update .and. DoScreen .and. Is_Real_Par()) then
-      call GaDsum(DiagJ,nnBSTR(JSYM,1))
-      call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,DIAG(1+iiBstR(JSYM,1)),1)
-      call Fzero(DiagJ,nnBSTR(JSYM,1))
+      n1 = nnBSTR(JSYM,1)
+      call GADgop(DiagJ,n1,'+')
+      DIAG(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1) = DIAG(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1)-DiagJ(1:n1)
+      DiagJ(1:n1) = Zero
     end if
     ! Need to activate the screening to setup the contributing shell
     ! indices the first time the loop is entered .OR. whenever other nodes

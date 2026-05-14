@@ -49,14 +49,11 @@ public :: Clear_XYZ, Out_Raw, Parse_Basis, Parse_Group, Read_XYZ, Symmetry, Writ
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure xyz_cptr2loff
-end interface
 interface mma_Allocate
-  module procedure xyz_mma_allo_1D, xyz_mma_allo_1D_lim
+  module procedure :: xyz_mma_allo_1D, xyz_mma_allo_1D_lim
 end interface
 interface mma_Deallocate
-  module procedure xyz_mma_free_1D
+  module procedure :: xyz_mma_free_1D
 end interface
 
 contains
@@ -68,6 +65,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 
 # ifdef _HDF5_
   use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
+  use Molcas, only: LenIn
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Angstrom
@@ -75,7 +73,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 
   integer(kind=iwp), intent(in) :: Lu
   real(kind=wp), allocatable, intent(in) :: Rot(:,:,:), Trans(:,:)
-  logical(kind=iwp), optional, intent(in) :: Replace
+  logical(kind=iwp), intent(in), optional :: Replace
   integer(kind=iwp) :: i, Idx, Error, Lxyz, NumAt
   real(kind=wp) :: Factor, Mat(3,5)
   logical(kind=iwp) :: Found, Rep
@@ -83,11 +81,10 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
   type(XYZAtom), allocatable :: ThisGeom(:), TmpGeom(:)
   integer(kind=iwp), external :: IsFreeUnit
 # ifdef _HDF5_
-# include "Molcas.fh"
   integer(kind=iwp) :: c, Coord_id, j, nSym
   logical(kind=iwp) :: isH5
   real(kind=wp), allocatable :: Coords(:,:)
-  character(len=LenIn4), allocatable :: Labels4(:)
+  character(len=LenIn+4), allocatable :: Labels4(:)
   character(len=LenIn), allocatable :: Labels(:)
   isH5 = .false.
 # endif
@@ -238,7 +235,9 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 # endif
 
   ! Obtain/read transformation matrix and transform the geometry in this file
-  Mat = reshape([One,One,One,One,Zero,Zero,Zero,One,Zero,Zero,Zero,One,Zero,Zero,Zero],shape(Mat))
+  Mat(:,1) = One
+  call unitmat(Mat(:,2:4),3)
+  Mat(:,5) = Zero
   Idx = index(' '//Line,' SCALE ')
   if (Idx > 0) then
     read(Line(Idx+5:),*,iostat=Error) Mat(1,1)
@@ -256,13 +255,9 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
   Idx = index(' '//Line,' TRANS ')
   if (Idx > 0) read(Line(Idx+5:),*,iostat=Error) Mat(:,5)
   ! If Rot and Trans are given in the input, they override the inline transformations
-  if (allocated(Rot)) then
-    Mat(:,2:4) = Rot(:,:,FileNum)
-  end if
+  if (allocated(Rot)) Mat(:,2:4) = Rot(:,:,FileNum)
   Mat(:,2:4) = transpose(Mat(:,2:4))
-  if (allocated(Trans)) then
-    Mat(:,5) = Trans(:,FileNum)
-  end if
+  if (allocated(Trans)) Mat(:,5) = Trans(:,FileNum)
   Mat(:,5) = Mat(:,5)*Factor
   call TransformGeom(ThisGeom,Mat)
 
@@ -300,8 +295,8 @@ subroutine Clear_XYZ()
 
   use stdalloc, only: mma_deallocate
 
-  if (allocated(Geom)) call mma_deallocate(Geom)
-  if (allocated(BasisSets)) call mma_deallocate(BasisSets)
+  call mma_deallocate(Geom,safe='*')
+  call mma_deallocate(BasisSets,safe='*')
   FileNum = 0
 
 end subroutine Clear_XYZ
@@ -379,7 +374,7 @@ end function Out_Raw
 ! each atom + label
 subroutine Parse_Basis(Basis)
 
-  use fortran_strings
+  use fortran_strings, only: char_array
   use stdalloc, only: mma_allocate, mma_deallocate
 
   character(len=*), intent(in) :: Basis
@@ -388,7 +383,7 @@ subroutine Parse_Basis(Basis)
   ! Count number of commas
   Num = count(char_array(trim(Basis)) == ',')+1
   BasisAll = ''
-  if (allocated(BasisSets)) call mma_deallocate(BasisSets)
+  call mma_deallocate(BasisSets,safe='*')
   call mma_allocate(BasisSets,2,Num,label='BasisSets')
   ! For each comma-separated word, split it at the first dot
   ! If the first part is empty, use it as a general basis set
@@ -775,11 +770,8 @@ end subroutine TransformGeom
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define xyz_cptr2loff, xyz_mma_allo_1D, xyz_mma_allo_1D_lim, xyz_mma_free_1D
+! Define xyz_mma_allo_1D, xyz_mma_allo_1D_lim, xyz_mma_free_1D
 #define _TYPE_ type(XYZAtom)
-#  define _FUNC_NAME_ xyz_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ xyz_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'xyz_mma'

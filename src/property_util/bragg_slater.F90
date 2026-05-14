@@ -10,7 +10,7 @@
 !***********************************************************************
 
 function Bragg_Slater(iAtmNr)
-! Bragg-Slater radii in Angstrom (J. C. Slater, Quantum Theory of
+! Bragg-Slater radii in angstrom (J. C. Slater, Quantum Theory of
 ! Molecules and Solids, volume 2, table 3-1) up to Radon.
 
 use Constants, only: Angstrom

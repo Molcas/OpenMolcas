@@ -32,7 +32,7 @@
 !> Example: Get CMO coeff. and OCC for RHF:
 !>
 !> \code
-!> Call RdVec('INPORB',Lu,'CO',NSYM,NBAS,NBAS,CMO,OCC,Dummy,iDummy,Title,0,iErr)
+!> call RdVec('INPORB',Lu,'CO',NSYM,NBAS,NBAS,CMO,OCC,Dummy,iDummy,Title,0,iErr)
 !> \endcode
 !>
 !> @param[in]  FName File name

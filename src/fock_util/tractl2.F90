@@ -19,9 +19,12 @@ subroutine TraCtl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !***********************************************************************
 
 use Fock_util_global, only: ALGO, DoCholesky
+use general_data, only: LUINTM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
+use general_data, only: NTOT1
 #endif
+use wadr, only: nPWXY
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -32,9 +35,6 @@ real(kind=wp), intent(inout) :: PUVX(*), FI(*), FA(*)
 real(kind=wp), intent(_OUT_) :: TUVX(*)
 integer(kind=iwp), intent(in) :: IPR
 logical(kind=iwp), intent(in) :: lSquare
-#include "rasdim.fh"
-#include "general.fh"
-#include "wadr.fh"
 integer(kind=iwp) :: iDisk, irc
 logical(kind=iwp) :: TraOnly
 
@@ -61,17 +61,17 @@ else if (ALGO == 1) then
   ! --------------------------------------------------
   ! Synchronize Fock matrices if running parallel:
   if ((nProcs > 1) .and. Is_Real_Par()) then
-    call GADsum(FI,nTot1)
-    call GADsum(FA,nTot1)
+    call GADgop(FI,nTot1,'+')
+    call GADgop(FA,nTot1,'+')
     ! Synchronize PUVX if running parallel:
-    call GADsum(PUVX,nPWXY)
+    call GADgop(PUVX,nPWXY,'+')
   end if
 # endif
   ! --------------------------------------------------
   ! select integrals TUVX
   call Get_TUVX(PUVX,TUVX)
   ! save integrals on disk
-  ! nPWXY is computed in cho_eval_waxy and stored in wadr.fh
+  ! nPWXY is computed in cho_eval_waxy and stored in wadr
   iDisk = 0
   call DDaFile(LUINTM,1,PUVX,nPWXY,iDisk)
 

@@ -24,7 +24,10 @@ subroutine CmbnRF1(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alpha
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChBas
-use Index_Functions, only: C_Ind, nTri_Elem1, nTri3_Elem
+use Index_Functions, only: C_Ind, nTri3_Elem
+#ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem1
+#endif
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 
@@ -35,23 +38,18 @@ real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKa
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6), Fact(nZeta), Temp(nZeta)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 logical(kind=iwp), intent(in) :: IfGrad(3,2)
-integer(kind=iwp) :: i1, i2, iCar, iCn, iComp, iEF, iGrad, ipa, ipb, iPrint, ir, iRout, ix, ixa, ixb, iy, iya, iyaMax, iyb, &
-                     iybMax, iz, iza, izb, iZeta, nDAO
+integer(kind=iwp) :: i1, i2, iCar, iCn, iComp, iEF, iGrad, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, iybMax, iz, iza, izb, &
+                     iZeta, nDAO
 real(kind=wp) :: Fct, ps, xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
 integer(kind=iwp), external :: iPrmt
 real(kind=wp), external :: DDot_
-#include "print.fh"
 
-iRout = 134
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' In CmbnRF1: EF',' ',EF,nComp,1)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In CmbnRF1: EF',' ',EF,nComp,1)
+#endif
 
-do iZeta=1,nZeta
-  Fact(iZeta) = rKappa(iZeta)*Zeta(iZeta)**exp32
-end do
+Fact(:) = rKappa(:)*Zeta(:)**exp32
 
 ! Loop over angular components of the basis set
 
@@ -245,10 +243,10 @@ do ixa=0,la
     end do
   end do
 end do
-if (iPrint >= 99) then
-  call RecPrt('In CmbnRF1: DAO',' ',DAO,nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  call RecPrt('In CmbnRF1: rFinal',' ',rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,6)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('In CmbnRF1: DAO',' ',DAO,nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+call RecPrt('In CmbnRF1: rFinal',' ',rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,6)
+#endif
 
 ! Trace the gradient integrals
 
@@ -272,9 +270,9 @@ do iEF=1,nComp
         end if
         if (IndGrd(iCar,iCn) < 0) then
           ! Gradient via the translational invariance.
-          Grad(iGrad) = Grad(iGrad)-Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(1,1,1,iEF,i2),1)
+          Grad(iGrad) = Grad(iGrad)-Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(:,:,:,iEF,i2),1)
         else
-          Grad(iGrad) = Grad(iGrad)+Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(1,1,1,iEF,i1),1)
+          Grad(iGrad) = Grad(iGrad)+Fct*EF(iEF)*DDot_(nDAO,DAO,1,rFinal(:,:,:,iEF,i1),1)
         end if
       end if
     end do ! End loop over cartesian components, iCar

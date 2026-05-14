@@ -30,7 +30,7 @@ subroutine ORDSTR(IINST,IOUTST,NELMNT,ISGN,IPRINT)
 ! THIS CODE CONTAINS THE OLD ORDER CODE OF JOE GOLAB
 ! (HE IS HEREBY AKNOWLEDGED, AND I AM EXCUSED)
 
-use Definitions, only: iwp
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NELMNT, IINST(NELMNT), IPRINT
@@ -67,10 +67,10 @@ end do outer
 ! END ORDER
 
 if (IPRINT > 30) then
-  write(6,*) ' INPUT STRING ORDERED STRING ISGN'
+  write(u6,*) ' INPUT STRING ORDERED STRING ISGN'
   call IWRTMA(IINST,1,NELMNT,1,NELMNT)
   call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
-  write(6,*) ' ISGN : ',ISGN
+  write(u6,*) ' ISGN : ',ISGN
 end if
 
 return

@@ -14,11 +14,10 @@ subroutine OpnFls_McKinley()
 use McKinley_global, only: lHss, nMethod, RASSCF, SCF
 use Basis_Info, only: nBas
 use Symmetry_Info, only: lIrrep, nIrrep
+use Disp, only: ChDisp, lDisp
 use Definitions, only: iwp, u6
 
 implicit none
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: i, idum(1), iDummer, iGo, iOpt, iRC, ngrad
 character(len=288) :: Header
 character(len=8) :: MckLbl, Method
@@ -105,7 +104,7 @@ else if (Method == 'CASSCFSA') then
 else
   write(u6,*) ' OpnFls: Wavefunction type:',Method
   write(u6,*) '         Illegal type of wave function!'
-  write(u6,*) '         McKinley can not continue'
+  write(u6,*) '         McKinley cannot continue'
   write(u6,*)
   call Quit_OnUserError()
 end if

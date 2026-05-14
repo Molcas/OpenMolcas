@@ -36,17 +36,15 @@ use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: King
 use OFembed, only: OFE_KSDFT
+use nq_Info, only: Grid_Type, Moving_Grid
+use PrintLevel, only: nPrint
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
-use nq_Info, only: Grid_Type, Moving_Grid
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "Molcas.fh"
-#include "print.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iEnd, iIrrep, iPrint, iRout, jPrint, LuWr, nDens
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: Do_Grad
@@ -64,7 +62,7 @@ iRout = 131
 iPrint = nPrint(iRout)
 LuWr = u6
 
-call StatusLine(' Alaska:',' Computing OFembedding gradients')
+call StatusLine('Alaska: ','Computing OFembedding gradients')
 
 call Set_Basis_Mode('Valence')
 call Setup_iSD()
@@ -90,7 +88,7 @@ do
 end do
 Label = 'DFT-OFE('//OFE_KSDFT(1:iEnd)//') contribution'
 jPrint = nPrint(112)
-if (jPrint >= 15) call PrGrad(Label,Temp,nGrad,ChDisp)
+if (jPrint >= 15) call PrGrad(Label,Temp,nGrad)
 if (king()) call DaXpY_(nGrad,One,Temp,1,Grad,1)
 if (iPrint >= 6) then
   write(LuWr,*)

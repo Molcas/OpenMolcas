@@ -16,22 +16,33 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE TRDNS1(IVEC,DPT1)
+      SUBROUTINE TRDNS1(IVEC,DPT1,NDPT1)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use fake_GA, only: GA_Arrays
+      use caspt2_module, only: nActel, nSym, nIsh, nAsh, nSsh, nInDep,
+     &                         nISup, nASup, nAsh, nOrb
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp
+#define RHS_ X_RHS_
+      IMPLICIT none
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "sigma.fh"
-      DIMENSION DPT1(*)
+      integer(kind=iwp), intent(in):: IVEC, NDPT1
+      real(kind=wp), intent(inout):: DPT1(NDPT1)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      real(kind=wp), ALLOCATABLE:: WTI(:), WAT(:), WAI(:)
+#ifdef _MOLCAS_MPP_
+      real(kind=wp), ALLOCATABLE:: TMP(:)
+#endif
+      real(kind=wp) FACT
+      integer(kind=iwp) IA, ICASE, ID, IDOFF, II, IMLTOP, ISYM, IT,
+     &                  ITTOT, IW, IWAI, IWAT, IWOFF, IWTI, lVec, NA,
+     &                  NAS, NI, NIS, NO, NS, NVEC, NWAI, NWAT, NWTI
 
 C Add to the transition density matrix DPT1,
 C    DPT1(p,q) = Add <IVEC| E(p,q) |0>.
@@ -60,10 +71,10 @@ C Transform to standard representation, covariant form.
 
       IMLTOP=1
       IF(NWTI.EQ.0) GOTO 110
-      CALL GETMEM('WTI','ALLO','REAL',LWTI,NWTI)
-      CALL DCOPY_(NWTI,[0.0D0],0,WORK(LWTI),1)
+      CALL mma_allocate(WTI,NWTI,LABEL='WTI')
+      WTI(:)=Zero
       ICASE=1
-      IWOFF=0
+      IWOFF=1
       DO 100 ISYM=1,NSYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 100
         NIS=NISUP(ISYM,ICASE)
@@ -72,74 +83,69 @@ C Transform to standard representation, covariant form.
         IF(NVEC.EQ.0) GOTO 100
         CALL RHS_ALLO(NAS,NIS,LVEC)
         CALL RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
-        !CALL GETMEM('VEC','ALLO','REAL',LVEC,NVEC)
-        !CALL RDBLKC(ISYM,ICASE,IVEC,WORK(LVEC))
-        FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+        FACT=One/(DBLE(MAX(1,NACTEL)))
 #ifdef _MOLCAS_MPP_
         IF (IS_REAL_PAR()) THEN
           IF (KING()) THEN
-            CALL GETMEM('TMP','ALLO','REAL',LTMP,NVEC)
-            CALL RHS_GET (NAS,NIS,LVEC,WORK(LTMP))
-            CALL SPEC1A(IMLTOP,FACT,ISYM,
-     &                  WORK(LTMP),WORK(LWTI+IWOFF))
-            CALL GETMEM('TMP','FREE','REAL',LTMP,NVEC)
+            CALL mma_allocate(TMP,NVEC,Label='TMP')
+            CALL RHS_GET (NAS,NIS,LVEC,TMP)
+            CALL SPEC1A(IMLTOP,FACT,ISYM,TMP,SIZE(TMP),
+     &                                   WTI(IWOFF),SIZE(WTI(IWOFF:)))
+            CALL mma_deallocate(TMP)
           END IF
         ELSE
-          CALL SPEC1A(IMLTOP,FACT,ISYM,WORK(LVEC),
-     &                                 WORK(LWTI+IWOFF))
-        END IF
-#else
-        CALL SPEC1A(IMLTOP,FACT,ISYM,WORK(LVEC),
-     &                               WORK(LWTI+IWOFF))
 #endif
-        !CALL GETMEM('VEC','FREE','REAL',LVEC,NVEC)
-        CALL RHS_FREE(NAS,NIS,LVEC)
+          CALL SPEC1A(IMLTOP,FACT,ISYM,
+     &               GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),
+     &               WTI(IWOFF),SIZE(WTI(IWOFF:)))
+#ifdef _MOLCAS_MPP_
+        END IF
+#endif
+        CALL RHS_FREE(LVEC)
         IWOFF=IWOFF+NASH(ISYM)*NISH(ISYM)
  100  CONTINUE
  110  CONTINUE
 
       IF(NWAT.EQ.0) GOTO 210
-      CALL GETMEM('WAT','ALLO','REAL',LWAT,NWAT)
-      CALL DCOPY_(NWAT,[0.0D0],0,WORK(LWAT),1)
+      CALL mma_allocate(WAT,NWAT,Label='WAT')
+      WAT(:)=Zero
       ICASE=4
-      IWOFF=0
+      IWOFF=1
       DO 200 ISYM=1,NSYM
         IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 200
         NIS=NISUP(ISYM,ICASE)
         NAS=NASUP(ISYM,ICASE)
         NVEC=NIS*NAS
         IF(NVEC.EQ.0) GOTO 200
-        !CALL GETMEM('VEC','ALLO','REAL',LVEC,NVEC)
-        !CALL RDBLKC(ISYM,ICASE,IVEC,WORK(LVEC))
+        IF(NSSH(ISYM)*NASH(ISYM).EQ.0) GOTO 200
         CALL RHS_ALLO(NAS,NIS,LVEC)
         CALL RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
-        FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+        FACT=One/(DBLE(MAX(1,NACTEL)))
 #ifdef _MOLCAS_MPP_
         IF (IS_REAL_PAR()) THEN
           IF (KING()) THEN
-            CALL GETMEM('TMP','ALLO','REAL',LTMP,NVEC)
-            CALL RHS_GET (NAS,NIS,LVEC,WORK(LTMP))
-            CALL SPEC1C(IMLTOP,FACT,ISYM,
-     &                  WORK(LTMP),WORK(LWAT+IWOFF))
-            CALL GETMEM('TMP','FREE','REAL',LTMP,NVEC)
+            CALL mma_allocate(TMP,NVEC,LABEL='TMP')
+            CALL RHS_GET (NAS,NIS,LVEC,TMP)
+            CALL SPEC1C(IMLTOP,FACT,ISYM,TMP,SIZE(TMP),
+     &                                   WAT(IWOFF),SIZE(WAT(IWOFF:)))
+            CALL mma_deallocate(TMP)
           END IF
         ELSE
-          CALL SPEC1C(IMLTOP,FACT,ISYM,WORK(LVEC),
-     &                                 WORK(LWAT+IWOFF))
-        END IF
-#else
-        CALL SPEC1C(IMLTOP,FACT,ISYM,WORK(LVEC),
-     &                               WORK(LWAT+IWOFF))
 #endif
-        !CALL GETMEM('VEC','FREE','REAL',LVEC,NVEC)
-        CALL RHS_FREE(NAS,NIS,LVEC)
+          CALL SPEC1C(IMLTOP,FACT,ISYM,
+     &                GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),
+     &                WAT(IWOFF),SIZE(WAT(IWOFF:)))
+#ifdef _MOLCAS_MPP_
+        END IF
+#endif
+        CALL RHS_FREE(LVEC)
         IWOFF=IWOFF+NSSH(ISYM)*NASH(ISYM)
  200  CONTINUE
  210  CONTINUE
 
       IF(NWAI.EQ.0) GOTO 300
-      CALL GETMEM('WAI','ALLO','REAL',LWAI,NWAI)
-      CALL DCOPY_(NWAI,[0.0D0],0,WORK(LWAI),1)
+      CALL mma_allocate(WAI,NWAI,Label='WAI')
+      WAI(:)=Zero
       ICASE=5
       ISYM=1
       IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 300
@@ -147,35 +153,34 @@ C Transform to standard representation, covariant form.
       NAS=NASUP(ISYM,ICASE)
       NVEC=NIS*NAS
       IF(NVEC.EQ.0) GOTO 300
-      !CALL GETMEM('VEC','ALLO','REAL',LVEC,NVEC)
-      !CALL RDBLKC(ISYM,ICASE,IVEC,WORK(LVEC))
       CALL RHS_ALLO(NAS,NIS,LVEC)
       CALL RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
-      FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+      FACT=One/(DBLE(MAX(1,NACTEL)))
 #ifdef _MOLCAS_MPP_
       IF (IS_REAL_PAR()) THEN
         IF (KING()) THEN
-          CALL GETMEM('TMP','ALLO','REAL',LTMP,NVEC)
-          CALL RHS_GET (NAS,NIS,LVEC,WORK(LTMP))
-          CALL SPEC1D(IMLTOP,FACT,WORK(LTMP),WORK(LWAI))
-          CALL GETMEM('TMP','FREE','REAL',LTMP,NVEC)
+          CALL mma_allocate(TMP,NVEC,LABEL='TMP')
+          CALL RHS_GET (NAS,NIS,LVEC,TMP)
+          CALL SPEC1D(IMLTOP,FACT,TMP,NVEC,WAI,NWAI)
+          CALL mma_deallocate(TMP)
         END IF
       ELSE
-        CALL SPEC1D(IMLTOP,FACT,WORK(LVEC),WORK(LWAI))
-      END IF
-#else
-      CALL SPEC1D(IMLTOP,FACT,WORK(LVEC),WORK(LWAI))
 #endif
-      !CALL GETMEM('VEC','FREE','REAL',LVEC,NVEC)
-      CALL RHS_FREE(NAS,NIS,LVEC)
+        CALL SPEC1D(IMLTOP,FACT,
+     &              GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),
+     &              WAI,nWAI)
+#ifdef _MOLCAS_MPP_
+      END IF
+#endif
+      CALL RHS_FREE(LVEC)
  300  CONTINUE
 
 C Transform vectors back to eigenbasis of H0(diag).
       CALL PTRTOSR(0,IVEC,IVEC)
 
-      IF(NWTI.GT.0) CALL GADSUM(WORK(LWTI),NWTI)
-      IF(NWAI.GT.0) CALL GADSUM(WORK(LWAI),NWAI)
-      IF(NWAT.GT.0) CALL GADSUM(WORK(LWAT),NWAT)
+      IF(NWTI.GT.0) CALL GADGOP(WTI,NWTI,'+')
+      IF(NWAI.GT.0) CALL GADGOP(WAI,NWAI,'+')
+      IF(NWAT.GT.0) CALL GADGOP(WAT,NWAT,'+')
 C Put transition density elements in temporaries W into
 C proper positions, as subdiagonal matrices in DPT1:
       IDOFF=0
@@ -192,7 +197,7 @@ C proper positions, as subdiagonal matrices in DPT1:
           DO II=1,NI
             ID=IDOFF+ITTOT+NO*(II-1)
             IW=IWTI+IT+NA*(II-1)
-            DPT1(ID)=DPT1(ID)+WORK(LWTI-1+IW)
+            DPT1(ID)=DPT1(ID)+WTI(IW)
           END DO
         END DO
         DO IT=1,NA
@@ -202,7 +207,7 @@ C proper positions, as subdiagonal matrices in DPT1:
           DO IA=1,NS
             ID=ID+1
             IW=IW+NA
-            DPT1(ID)=DPT1(ID)+WORK(LWAT-1+IW)
+            DPT1(ID)=DPT1(ID)+WAT(IW)
           END DO
         END DO
         DO II=1,NI
@@ -211,7 +216,7 @@ C proper positions, as subdiagonal matrices in DPT1:
           DO IA=1,NS
             ID=ID+1
             IW=IW+NI
-            DPT1(ID)=DPT1(ID)+WORK(LWAI-1+IW)
+            DPT1(ID)=DPT1(ID)+WAI(IW)
           END DO
         END DO
         IWTI=IWTI+NA*NI
@@ -220,9 +225,8 @@ C proper positions, as subdiagonal matrices in DPT1:
         IDOFF=IDOFF+NO**2
       END DO
 
-      IF(NWTI.GT.0)CALL GETMEM('WTI','FREE','REAL',LWTI,NWTI)
-      IF(NWAI.GT.0)CALL GETMEM('WAI','FREE','REAL',LWAI,NWAI)
-      IF(NWAT.GT.0)CALL GETMEM('WAT','FREE','REAL',LWAT,NWAT)
+      IF(NWTI.GT.0)CALL mma_deallocate(WTI)
+      IF(NWAI.GT.0)CALL mma_deallocate(WAI)
+      IF(NWAT.GT.0)CALL mma_deallocate(WAT)
 
-      RETURN
-      END
+      END SUBROUTINE TRDNS1

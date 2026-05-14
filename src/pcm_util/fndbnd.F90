@@ -12,7 +12,7 @@
 subroutine FndBnd(IOut,AlBond,MxBond,NAtoms,IAn,C,Nbond,IBond,IBType,PBO)
 ! Generate connectivity based on bond distances alone.  The criteria
 ! are contained in routine IPBO.
-! Cartesian coords. are in Angstroms
+! Cartesian coords. are in angstroms
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp

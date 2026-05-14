@@ -11,6 +11,7 @@
 
 subroutine Free_Tsk2(id)
 
+use Task_Manager, only: Free_Tsk
 use RI_glob, only: iOpt, nTask, TskList
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp, u6

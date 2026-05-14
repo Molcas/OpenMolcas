@@ -31,6 +31,10 @@ use SOAO_Info, only: iAOtSO
 use Symmetry_Info, only: Mul, nIrrep
 use sort_data, only: nSkip
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Constants, only: Zero, One
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iCmp(4), iShell(4), jBas, lBas, iAO(4), iAOst(4), ijkl, nSOint, nSOs, nTInt, iSO2Ind(nSOs), &
@@ -40,29 +44,22 @@ real(kind=wp), intent(in) :: SOint(ijkl,nSOint)
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, ij, iOffA_, iOffB_, iSO, ix, j, j1, j12, j2, j3, j4, jSO, jSOj, jSym(0:7), k12, &
                      k34, kSO, lSO, lSOl, lSym(0:7), memSO2, mm_, mx, nijkl, nn
-#ifdef _DEBUGPRINT_
-real(kind=wp) :: tr1 = Zero, tr2 = Zero
-#endif
 logical(kind=iwp) :: qijij
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: r1, r2, tr1 = Zero, tr2 = Zero
+real(kind=wp), external :: ddot_
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
+r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
+tr1 = tr1+r1
+tr2 = tr2+r2
+write(u6,*) ' Sum=',r1,tr1
+write(u6,*) ' Dot=',r2,tr2
+call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
+#endif
+
 k12 = 0
 k34 = 0
-#ifdef _DEBUGPRINT_
-irout = 39
-iprint = nprint(irout)
-if (iPrint >= 49) then
-  r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
-  r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
-  tr1 = tr1+r1
-  tr2 = tr2+r2
-  write(u6,*) ' Sum=',r1,tr1
-  write(u6,*) ' Dot=',r2,tr2
-  call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
-end if
-#endif
 memSO2 = 0
 
 ! quadruple loop over elements of the basis functions angular

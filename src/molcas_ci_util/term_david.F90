@@ -28,7 +28,7 @@ subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,JOBIPH,LuDavid,iDisk)
 !               iteration count of the final result                    *
 !     nConf   : integer                                                *
 !               length of the CI vector in the CSF basis               *
-!     Vector  : array of real*8                                        *
+!     Vector  : array of real                                          *
 !               temporary vector of length nConf                       *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -44,17 +44,17 @@ subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,JOBIPH,LuDavid,iDisk)
 !***********************************************************************
 
 use davctl_mod, only: disk_address, LblStk, memory_vectors
+use RASDim, only: MxCIIt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ICICH, iter, lRoots, nConf, JOBIPH, LuDavid
-integer(kind=iwp), intent(inout) :: iDisk
 real(kind=wp), intent(out) :: Vector(nConf)
+integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: iRoot
 real(kind=wp), allocatable :: Ovlp1(:,:), Ovlp2(:,:)
-#include "rasdim.fh"
 
 ! check input arguments
 if (nConf < 0) then
@@ -100,7 +100,7 @@ end if
 
 call mma_deallocate(disk_address)
 call mma_deallocate(memory_vectors)
-if (allocated(LblStk)) call mma_deallocate(LblStk)
+call mma_deallocate(LblStk,safe='*')
 
 return
 

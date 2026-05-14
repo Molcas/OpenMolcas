@@ -27,7 +27,6 @@ contains
 subroutine f_setsubdir(sub)
 # ifdef _HAVE_EXTRA_
   use, intrinsic :: iso_c_binding, only: c_null_char
-  implicit none
   character(len=*), intent(in) :: sub
   interface
     subroutine c_setsubdir(sub) bind(C,name="setsubdir")
@@ -42,7 +41,6 @@ subroutine f_setsubdir(sub)
   end if
 # else
   use Prgm, only: SetSubDir
-  implicit none
   character(len=*), intent(in) :: sub
   if (trim(sub) == '') then
     call SetSubDir('')

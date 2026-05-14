@@ -14,16 +14,18 @@ subroutine CSDTVC(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,IREFSM,ICOPY)
 !          IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
 !          IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 
+use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-#include "ciinfo.fh"
-#include "spinfo.fh"
 integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY
 real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
 real(kind=wp), intent(in) :: DTOCMT(*)
-integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NTEST
+integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF
 
 ! To avoid compiler complaints
 
@@ -31,33 +33,31 @@ IOFFCS = 0
 IOFFDT = 0
 IOFFCD = 0
 
-NTEST = 00
-
 NDET = NDTASM(IREFSM)
 NCSF = NCSASM(IREFSM)
-if (NTEST >= 100) then
-  write(u6,*) '======================================='
-  write(u6,*) '         CSDTVC INFORMATIONS'
-  if (IWAY == 1) then
-    write(u6,*) '   CSF TO DETERMINANT TRANSFORMATION'
-  else
-    write(u6,*) '   DETERMINANT TO CSF TRANSFORMATION'
-  end if
-  write(u6,*) '======================================='
-  write(u6,*)
-  write(u6,*) '  NDET                  = ',NDET
-  write(u6,*) '  NCSF                  = ',NCSF
-  write(u6,*)
+#ifdef _DEBUGPRINT_
+write(u6,*) '======================================='
+write(u6,*) '         CSDTVC INFORMATIONS'
+if (IWAY == 1) then
+  write(u6,*) '   CSF TO DETERMINANT TRANSFORMATION'
+else
+  write(u6,*) '   DETERMINANT TO CSF TRANSFORMATION'
 end if
+write(u6,*) '======================================='
+write(u6,*)
+write(u6,*) '  NDET                  = ',NDET
+write(u6,*) '  NCSF                  = ',NCSF
+write(u6,*)
+#endif
 
 ! CSF ==> DET TRANSFORMATION
 
 if (IWAY == 1) then
-  if (NTEST >= 100) then
-    write(u6,*) '   INPUT CSF VECTOR:'
-    call WRTMAT(CSFVEC,1,NCSF,1,NCSF)
-    write(u6,*)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) '   INPUT CSF VECTOR:'
+  call WRTMAT(CSFVEC,1,NCSF,1,NCSF)
+  write(u6,*)
+# endif
   DETVEC(:) = Zero
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
@@ -76,26 +76,26 @@ if (IWAY == 1) then
   end do
   call Sort_Cdet(nDet,ICTSDT,DetVec)
   if (ICOPY /= 0) CSFVEC(:) = DETVEC(:)
-  if (NTEST >= 100) then
-    write(u6,*) '   OUTPUT DET VECTOR:'
-    call WRTMAT(DETVEC,1,NDET,1,NDET)
-    write(u6,*)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) '   OUTPUT DET VECTOR:'
+  call WRTMAT(DETVEC,1,NDET,1,NDET)
+  write(u6,*)
+# endif
 
 else
 
   ! DET ==> CSF TRANSFORMATION
 
-  if (NTEST >= 100) then
-    write(u6,*) '   INPUT DET VECTOR:'
-    call WRTMAT(DETVEC,1,NDET,1,NDET)
-    write(u6,*)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) '   INPUT DET VECTOR:'
+  call WRTMAT(DETVEC,1,NDET,1,NDET)
+  write(u6,*)
+# endif
   call GATVCS(CSFVEC,DETVEC,ICTSDT,NDET)
-  if (NTEST >= 100) then
-    write(u6,*) ' ICTSDT reorder array'
-    call IWRTMA(ICTSDT,1,100,1,100)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' ICTSDT reorder array'
+  call IWRTMA(ICTSDT,1,100,1,100)
+# endif
   DETVEC(:) = CSFVEC(:)
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
@@ -113,13 +113,11 @@ else
     if ((IDET*ICNF*ICSF) > 0) call MATML4(CSFVEC(IOFFCS),DTOCMT(IOFFCD),DETVEC(IOFFDT),ICSF,ICNF,IDET,ICSF,IDET,ICNF,1)
   end do
   if (ICOPY /= 0) DETVEC(1:NCSF) = CSFVEC(1:NCSF)
-  if (NTEST >= 100) then
-    write(u6,*) '   OUTPUT CSF VECTOR:'
-    call WRTMAT(CSFVEC,1,NCSF,1,NCSF)
-    write(u6,*)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) '   OUTPUT CSF VECTOR:'
+  call WRTMAT(CSFVEC,1,NCSF,1,NCSF)
+  write(u6,*)
+# endif
 end if
-
-return
 
 end subroutine CSDTVC

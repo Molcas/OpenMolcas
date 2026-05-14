@@ -268,7 +268,7 @@ taken from a Maxwell--Boltzmann distribution at 300 K.
   &GATEWAY
    COORD
    6
-   Angstrom
+   angstrom
    C  0.00031448  0.00000000  0.04334060
    N  0.00062994  0.00000000  1.32317716
    H  0.92882820  0.00000000 -0.49115611

@@ -36,8 +36,11 @@ subroutine nevpt2wfn_init(create_h5)
   use refwfn, only: refwfn_active
 # ifdef _HDF5_
   use nevpt2_cfg, only: MultGroup, no_pc, nr_active_electrons, nr_states, nSpin
+  use sguga, only: L2ACT, Level
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_str, mh5_create_dset_real, mh5_put_dset, mh5_close_dset
+  use caspt2_module, only: nBas, nBasT, nBSqT, nDel, nFro, nIsh, nRas1, nRas2, nRas3, nSsh, nSym, Root2State, STSym
+  use Molcas, only: MxLev
 # endif
 
   logical(kind=iwp), intent(in) :: create_h5
@@ -45,9 +48,6 @@ subroutine nevpt2wfn_init(create_h5)
 # include "macros.fh"
   unused_var(create_h5)
 # else
-# include "rasdim.fh"
-# include "caspt2.fh"
-# include "pt2_guga.fh"
   integer(kind=iwp) :: dsetid, i
   character, allocatable :: typestring(:)
 # endif
@@ -167,12 +167,11 @@ subroutine nevpt2wfn_data()
   use qcmaquis_info, only: qcm_group_names
 # endif
   use nevpt2_cfg, only: MultGroup
+  use caspt2_global, only: LUONEM, NCMO
   use mh5, only: mh5_put_dset
   use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: wp
 
-# include "rasdim.fh"
-# include "caspt2.fh"
   real(kind=wp), allocatable :: BUF(:)
   integer(kind=iwp) :: IDISK
 # ifdef _DMRG_

@@ -27,12 +27,12 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, lIrrep
 use Sizes_of_Seward, only: S
 use UnixInfo, only: SuperName
+use Molcas, only: LenIn, MaxBfn, MaxBfn_aux, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: iUHF
 character(len=*), intent(in) :: FName, Filename
 integer(kind=iwp) :: i, iAngMx_Valence, iatom, iB, iCntr, iCnttp, icontr, iD, iData, iDeg, iDummy(1), iErr, ii, iIrrep, ik, iPL, &
@@ -45,8 +45,8 @@ character(len=8) :: Env
 integer(kind=iwp), allocatable :: Cent(:,:), Cent2(:), Cent3(:), ibas_lab(:), Phase(:,:)
 real(kind=wp), allocatable :: AdCMO(:), AdCMO_ab(:), AdEor(:), AdEor_ab(:), AdOcc(:), AdOcc_ab(:), C2(:,:), C2_ab(:,:), Coor(:,:), &
                               Mull(:), r_Norm(:), V(:,:), V_ab(:,:), Znuc(:)
-character(len=LenIn8+1), allocatable :: gtolabel(:)
-character(len=LenIn8), allocatable :: label(:)
+character(len=LenIn+9), allocatable :: gtolabel(:)
+character(len=LenIn+8), allocatable :: label(:)
 character(len=LenIn), allocatable :: AtomLabel(:)
 character(len=8), allocatable :: MO_Label(:)
 real(kind=wp), parameter :: EorbThr = 50.0_wp
@@ -101,19 +101,19 @@ if (Env == 'OFF') then
 end if
 !VV: current version of Molden has no clear limit for MaxOrb
 !if (MaxOrb > MaxOrb_Molden) then
-!   if (jPL >= 2) then
-!      write(u6,*)
-!      write(u6,*) ' Molden_Interface: W A R N I N G !!!!'
-!      write(u6,*)
-!      write(u6,*) ' No Molden input file will be generated!'
-!      write(u6,*)
-!      write(u6,*) ' Calculation exceeds the max number of orbitals allowed for MOLDEN. To change this modify the'
-!      write(u6,*) ' parameter MaxOrb_Molden in src/util/molden_interface.f and follow the instructions in Molden'
-!      write(u6,*) ' on how to modify the parameter MaxOrb.'
-!      write(u6,*)
-!   end if
-!   iRC = 1
-!   return
+!  if (jPL >= 2) then
+!    write(u6,*)
+!    write(u6,*) ' Molden_Interface: W A R N I N G !!!!'
+!    write(u6,*)
+!    write(u6,*) ' No Molden input file will be generated!'
+!    write(u6,*)
+!    write(u6,*) ' Calculation exceeds the max number of orbitals allowed for MOLDEN. To change this modify the'
+!    write(u6,*) ' parameter MaxOrb_Molden in src/util/molden_interface.f and follow the instructions in Molden'
+!    write(u6,*) ' on how to modify the parameter MaxOrb.'
+!    write(u6,*)
+!  end if
+!  iRC = 1
+!  return
 !end if
 !                                                                      *
 !***********************************************************************
@@ -172,20 +172,17 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Unnormalize contraction coefficients for the valence shells
+! Abort if there are contaminants
 
 do iCnttp=1,nCnttp
   if ((.not. dbsc(iCnttp)%Aux) .and. (.not. dbsc(iCnttp)%Frag)) then
     do l=0,dbsc(iCnttp)%nVal-1
       ishell = dbsc(iCnttp)%iVal+l
       if (Shells(ishell)%Transf .and. (.not. Shells(iShell)%Prjct)) then
-        if (jPL >= 2) then
-          write(u6,*) 'Sorry, Molden does not support contaminants'
-        end if
+        if (jPL >= 2) write(u6,*) 'Sorry, Molden does not support contaminants'
         call End1()
         return
       end if
-      call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
     end do
   end if
 end do
@@ -295,12 +292,12 @@ if (Found) then
   end do
   call mma_deallocate(Mull)
   if (iData /= nData) then
-    write(u6,*) 'Molden_Interface: iData.ne.nData'
+    write(u6,*) 'Molden_Interface: iData /= nData'
     write(u6,*) 'iData,nData=',iData,nData
     call Abend()
   end if
   if (jData /= nAtom) then
-    write(u6,*) 'Molden_Interface: jData.ne.nAtom'
+    write(u6,*) 'Molden_Interface: jData /= nAtom'
     write(u6,*) 'jData,nAtom=',jData,nAtom
     call Abend()
   end if
@@ -352,7 +349,7 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
 
           isegm = 0
           do iprim=1,Shells(ishell)%nExp
-            coeff = Shells(ishell)%pCff(iprim,icontr)
+            coeff = Shells(ishell)%pCff(iprim,icontr)/Nrmlz(Shells(ishell)%Exp(iprim),l)
             if (coeff /= Zero) then
               isegm = isegm+1
             end if
@@ -363,10 +360,10 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
           ! Write exponents and contraction coefficients.
 
           do iprim=1,Shells(ishell)%nExp
-            coeff = Shells(ishell)%pCff(iprim,icontr)
+            coeff = Shells(ishell)%pCff(iprim,icontr)/Nrmlz(Shells(ishell)%Exp(iprim),l)
             prim = Shells(ishell)%Exp(iprim)
             if (coeff /= Zero) then
-              write(MF,'(E17.9,E17.9)') prim,coeff
+              write(MF,'(ES17.9,ES17.9)') prim,coeff
             end if
           end do
 
@@ -624,7 +621,7 @@ end do
 kk_Max = kk
 if (nB > kk_max) then
   if (jPL >= 2) then
-    write(u6,*) 'Molden_Interface: nB.gt.kk_max'
+    write(u6,*) 'Molden_Interface: nB > kk_max'
     write(u6,*) 'nB,kk_Max=',nB,kk_Max
   end if
   call End2()
@@ -809,17 +806,6 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-do iCnttp=1,nCnttp
-  if ((.not. dbsc(iCnttp)%Aux) .and. (.not. dbsc(iCnttp)%Frag)) then
-    do l=0,dbsc(iCnttp)%nVal-1
-      ishell = dbsc(iCnttp)%iVal+l
-      call Unnrmlz2(Shells(ishell)%Exp,Shells(ishell)%nExp,Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
-    end do
-  end if
-end do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 if (jPL >= 2) then
   write(u6,*)
   write(u6,'(6X,A)') 'Input file to MOLDEN was generated!'
@@ -845,6 +831,14 @@ function CC(ix,iy,iz)
   integer(kind=iwp), intent(in) :: ix, iy, iz
   CC = sqrt(DblFac(2*ix-1)*DblFac(2*iy-1)*DblFac(2*iz-1))
 end function CC
+
+function Nrmlz(Expn,iAng)
+  use Constants, only: Four, Quart, TwoP34
+  real(kind=wp) :: Nrmlz
+  real(kind=wp), intent(in) :: Expn
+  integer(kind=iwp), intent(in) :: iAng
+  Nrmlz = TwoP34*(Four*Expn)**(real(2*iAng+3,kind=wp)*Quart)
+end function Nrmlz
 
 subroutine End1()
   call mma_deallocate(AtomLabel)

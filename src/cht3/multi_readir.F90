@@ -23,7 +23,7 @@ subroutine multi_readir(G,lg,ifile,ias)
 !    record size.
 !
 ! Arguments
-!    G        Buffer (real*8 words)
+!    G        Buffer (real words)
 !    lg       Buffer length
 !    ifile    file unit
 !    ias      direct access record to start with

@@ -82,8 +82,8 @@ subroutine UnSetAux()
 
   use stdalloc, only: mma_deallocate
 
-  if (allocated(Leg_r)) call mma_deallocate(Leg_r)
-  if (allocated(Leg_w)) call mma_deallocate(Leg_w)
+  call mma_deallocate(Leg_r,safe='*')
+  call mma_deallocate(Leg_w,safe='*')
 
 end subroutine UnSetAux
 

@@ -67,7 +67,7 @@ do INDA=1,ITAIL
       if (NVIR(MYL) == 0) cycle
       IPF = IPOF(MYL)+1
       NVIRA = NVIR(MYL)
-      call DGER(NVIRA,NVIRA,One,C1(INMY),1,C2(INMY),1,F(IPF),NVIRA)
+      call DGER_(NVIRA,NVIRA,One,C1(INMY),1,C2(INMY),1,F(IPF),NVIRA)
       LNA = LN+NVIRP(MYL)
       TSUM = Zero
       do I=1,NVIRA

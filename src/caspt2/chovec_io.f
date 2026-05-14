@@ -11,6 +11,7 @@
 * Copyright (C) Steven Vancoillie                                      *
 ************************************************************************
       MODULE CHOVEC_IO
+      use definitions, only: iwp, wp
 C SVC: subroutines to read/write transformed cholesky vectors from/to
 C disk. These are used in tracho (where they are written) and in rhsod
 C (where they are read into a global array).
@@ -37,7 +38,7 @@ C   3 = secondary,active
 C   4 = secondary,inactive
 C
 C Symmetry is determined by total symmetry JSYM and the symmetry of one
-C of the orbital cases ISYQ, thus all values of MUL(ISYQ,JSYM).
+C of the orbital cases ISYQ, thus all values of Mul(ISYQ,JSYM).
 C
 C When reading the vectors, we group all batches of the same type
 C together, so that we have all vectors of one type as one block,
@@ -59,16 +60,16 @@ C as this is how they are used to compute the integrals for RHS.
       ! The cholesky vectors can be collected together on disk from
       ! different processes. The combined sizes are stored in separate
       ! arrays.
-      INTEGER, ALLOCATABLE, SAVE :: NVGLB_CHOBATCH(:)
-      INTEGER, ALLOCATABLE, SAVE :: IDGLB_CHOGROUP(:,:,:,:)
+      INTEGER(KIND=IWP), ALLOCATABLE, SAVE :: NVGLB_CHOBATCH(:)
+      INTEGER(KIND=IWP), ALLOCATABLE, SAVE :: IDGLB_CHOGROUP(:,:,:,:)
 
       ! total amount of cholesky vectors in a certain symmetry
-      INTEGER, SAVE :: NVTOT_CHOSYM(8)
+      INTEGER(KIND=IWP), SAVE :: NVTOT_CHOSYM(8)
 
       CONTAINS
 
 ************************************************************************
-      INTEGER FUNCTION NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
+      FUNCTION NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
 ************************************************************************
 * Compute the number of orbital pairs for a given case (valid pair of
 * inactive,active,secondary), total symmetry JSYM and component symmetry
@@ -76,16 +77,17 @@ C as this is how they are used to compute the integrals for RHS.
 * the _lower_ orbital partition (e.g. inactive for active,inactive),
 * which is also the slowest varying index of the pair P,Q.
 ************************************************************************
+      use Symmetry_Info, only: Mul
+      use caspt2_module, only: nAsh, nIsh, nSSh
       IMPLICIT NONE
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 
-      INTEGER :: ICASE,ISYQ,JSYM
-      INTEGER :: ISYP,NP,NQ
+      INTEGER(KIND=IWP) NPQ_CHOTYPE
 
-      ISYP=MUL(ISYQ,JSYM)
+      INTEGER(KIND=IWP), INTENT(IN) :: ICASE,ISYQ,JSYM
+
+      INTEGER(KIND=IWP) :: ISYP,NP,NQ
+
+      ISYP=Mul(ISYQ,JSYM)
       SELECT CASE(ICASE)
       CASE(1)
         NP=NASH(ISYP)
@@ -106,61 +108,62 @@ C as this is how they are used to compute the integrals for RHS.
      &    'invalid case number', '')
       END SELECT
       NPQ_CHOTYPE=NP*NQ
-      END FUNCTION
+      END FUNCTION NPQ_CHOTYPE
 
 ************************************************************************
       SUBROUTINE CHOVEC_SIZE(ICASE,NCHOBUF,IOFF)
 ************************************************************************
 * Allocate a buffer to hold all cholesky vectors of type ITK,ITQ
 ************************************************************************
+      use Symmetry_Info, only: Mul
+      use caspt2_module, only: nSym
       IMPLICIT NONE
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 
-      INTEGER :: ICASE,NCHOBUF,IOFF(8,8)
-      INTEGER :: ISYK,ISYQ,JSYM
-      INTEGER :: NPQ,NVTOT
+      INTEGER(KIND=IWP), INTENT(IN) :: ICASE
+      INTEGER(KIND=IWP), INTENT(OUT) :: NCHOBUF,IOFF(8,8)
+
+      INTEGER(KIND=IWP) :: ISYK,ISYQ,JSYM
+      INTEGER(KIND=IWP) :: NPQ,NVTOT
 
       NCHOBUF=0
       DO JSYM=1,NSYM
         NVTOT=NVTOT_CHOSYM(JSYM)
         DO ISYQ=1,NSYM
-          ISYK=MUL(ISYQ,JSYM)
+          ISYK=Mul(ISYQ,JSYM)
           IOFF(ISYK,ISYQ)=NCHOBUF
           NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
           NCHOBUF=NCHOBUF+NPQ*NVTOT
         END DO
       END DO
 
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_SIZE
 
 ************************************************************************
-      SUBROUTINE CHOVEC_READ(ICASE,LCHOBUF)
+      SUBROUTINE CHOVEC_READ(ICASE,CHOBUF,nCHOBUF)
 ************************************************************************
 * Read (transposed) cholesky vectors from disk, they
 * are indexed as CHOBUF(IVEC,IQ,IK)
 ************************************************************************
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use caspt2_global, only: LUDRATOT
 #endif
+      use caspt2_global, only: LUDRA
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nSym, nBtches, nBtch
       IMPLICIT NONE
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      INTEGER(KIND=IWP), INTENT(IN):: ICASE, nCHOBUF
+      REAL(kind=wp), INTENT(INOUT):: CHOBUF(nCHOBUF)
 
-      INTEGER :: ICASE,LCHOBUF
-
-      INTEGER :: I,J,IOFF,IDISK
-      INTEGER :: IB,IBSTA,IBEND,IBOFF
-      INTEGER :: JSYM,ISYQ
-      INTEGER :: LBUF,NBUF,NPQ,NV,NVTOT
+      INTEGER(KIND=IWP) :: I,J,IOFF,IDISK
+      INTEGER(KIND=IWP) :: IB,IBSTA,IBEND,IBOFF
+      INTEGER(KIND=IWP) :: JSYM,ISYQ
+      INTEGER(KIND=IWP) :: NBUF,NPQ,NV,NVTOT
+      REAL(kind=wp), ALLOCATABLE:: BUF(:)
 
       IOFF=0
       DO JSYM=1,NSYM
@@ -173,59 +176,60 @@ C as this is how they are used to compute the integrals for RHS.
           DO IB=IBSTA,IBEND
             NV=NVGLB_CHOBATCH(IB)
             NBUF=NPQ*NV
-            CALL GETMEM('BUF','ALLO','REAL',LBUF,NBUF)
+            CALL mma_allocate(BUF,NBUF,LABEL='BUF')
             IDISK=IDGLB_CHOGROUP(ICASE,ISYQ,JSYM,IB)
 #ifdef _MOLCAS_MPP_
             IF (Is_Real_Par()) THEN
               ! cholesky vectors already transposed
-              CALL DDAFILE(LUDRATOT,2,WORK(LBUF),NBUF,IDISK)
+              CALL DDAFILE(LUDRATOT,2,BUF,NBUF,IDISK)
               DO J=1,NPQ
                 DO I=1,NV
-                  WORK(LCHOBUF+IOFF+IBOFF+I-1+NVTOT*(J-1))=
-     &            WORK(LBUF+I-1+NV*(J-1))
+                  CHOBUF(IOFF+IBOFF+I+NVTOT*(J-1))=
+     &            BUF(I+NV*(J-1))
                 END DO
               END DO
             ELSE
+#endif
               ! cholesky vectors not transposed
-              CALL DDAFILE(LUDRA,2,WORK(LBUF),NBUF,IDISK)
+              CALL DDAFILE(LUDRA,2,BUF,NBUF,IDISK)
               DO J=1,NPQ
                 DO I=1,NV
-                  WORK(LCHOBUF+IOFF+IBOFF+I-1+NVTOT*(J-1))=
-     &            WORK(LBUF+J-1+NPQ*(I-1))
+                  CHOBUF(IOFF+IBOFF+I+NVTOT*(J-1))=
+     &            BUF(J+NPQ*(I-1))
                 END DO
               END DO
+#ifdef _MOLCAS_MPP_
             ENDIF
-#else
-            ! cholesky vectors not transposed
-            CALL DDAFILE(LUDRA,2,WORK(LBUF),NBUF,IDISK)
-            DO J=1,NPQ
-              DO I=1,NV
-                WORK(LCHOBUF+IOFF+IBOFF+I-1+NVTOT*(J-1))=
-     &            WORK(LBUF+J-1+NPQ*(I-1))
-              END DO
-            END DO
 #endif
-            CALL GETMEM('BUF','FREE','REAL',LBUF,NBUF)
+            CALL mma_deallocate(BUF)
             IBOFF=IBOFF+NV
           END DO
           IOFF=IOFF+NVTOT*NPQ
         END DO
       END DO
 
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_READ
 
 ************************************************************************
-      SUBROUTINE CHOVEC_SAVE(CHOBUF,ICASE,ISYQ,JSYM,IB)
+      SUBROUTINE CHOVEC_SAVE(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 ************************************************************************
 * Write Cholesky vectors to disk.
 ************************************************************************
-      Implicit real*8 (a-h,o-z)
-#include "rasdim.fh"
+      use caspt2_global, only: LUDRA
+#ifdef _DEBUGPRINT_
+      use definitions, only: u6
+#endif
+      IMPLICIT NONE
 #include "warnings.h"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "chocaspt2.fh"
-      DIMENSION CHOBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NCHOBUF,ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(INOUT):: CHOBUF(NCHOBUF)
+
+      INTEGER(KIND=IWP) NPQ, JNUM, IDISK
+#ifdef _DEBUGPRINT_
+      INTEGER(KIND=IWP) NBUF
+      REAL(KIND=WP) SQFP
+      REAL(KIND=WP), EXTERNAL:: DNRM2_
+#endif
 
 C always write the chunks to LUDRA, both for serial and parallel
       NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
@@ -236,28 +240,35 @@ C always write the chunks to LUDRA, both for serial and parallel
 #ifdef _DEBUGPRINT_
       NBUF=NPQ*JNUM
       SQFP = DNRM2_(NBUF,CHOBUF,1)
-      WRITE(6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
+      WRITE(u6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
      &  'BATCH ',IB,   ', ',
      &  'CASE ' ,ICASE,', ',
      &  'ISYQ ' ,ISYQ, ', ',
      &  'JSYM ' ,JSYM, ', ',
      &  'DNRM2 ',SQFP
 #endif
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_SAVE
 
 ************************************************************************
-      SUBROUTINE CHOVEC_LOAD(CHOBUF,ICASE,ISYQ,JSYM,IB)
+      SUBROUTINE CHOVEC_LOAD(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 ************************************************************************
 * Read Cholesky vectors from disk.
 ************************************************************************
-      Implicit real*8 (a-h,o-z)
-#include "rasdim.fh"
+      use caspt2_global, only: LUDRA
+#ifdef _DEBUGPRINT_
+      use definitions, only: u6
+#endif
+      IMPLICIT NONE
 #include "warnings.h"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "chocaspt2.fh"
-      DIMENSION CHOBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NCHOBUF,ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(OUT):: CHOBUF(NCHOBUF)
 
+      INTEGER(KIND=IWP) NPQ, JNUM, IDISK
+#ifdef _DEBUGPRINT_
+      INTEGER(KIND=IWP) NBUF
+      REAL(KIND=WP) SQFP
+      REAL(KIND=WP), EXTERNAL:: DNRM2_
+#endif
 C always write the chunks to LUDRA, both for serial and parallel
       NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
       JNUM=NVLOC_CHOBATCH(IB)
@@ -267,45 +278,52 @@ C always write the chunks to LUDRA, both for serial and parallel
 #ifdef _DEBUGPRINT_
       NBUF=NPQ*JNUM
       SQFP = DNRM2_(NBUF,CHOBUF,1)
-      WRITE(6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
+      WRITE(u6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
      &  'BATCH ',IB,   ', ',
      &  'CASE ' ,ICASE,', ',
      &  'ISYQ ' ,ISYQ, ', ',
      &  'JSYM ' ,JSYM, ', ',
      &  'DNRM2 ',SQFP
 #endif
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_LOAD
 
 ************************************************************************
-      SUBROUTINE CHOVEC_COLL(CHOBUF,ICASE,ISYQ,JSYM,IB)
+      SUBROUTINE CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 ************************************************************************
 * Routine to gather locally available cholesky vectors and collect
 * all of them on each process in case of parallel run.
 ************************************************************************
 #ifdef _MOLCAS_MPP_
-      USE MPI
+      USE MPI, only: MPI_REAL8, MPI_COMM_WORLD
+#  ifdef _I8_
+      USE MPI, only: MPI_INTEGER8, MPI_INTEGER
+#  else
+      USE MPI, only: MPI_INTEGER4, MPI_INTEGER
+#endif
       USE Para_Info, ONLY: nProcs, Is_Real_Par
+      use caspt2_global, only: LUDRATOT
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: MPIInt
+      use chocaspt2, only: NFTSPC_TOT
+      use caspt2_module, only: RHSDirect
 #endif
       IMPLICIT NONE
-#include "rasdim.fh"
 #include "warnings.h"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "chocaspt2.fh"
-      REAL*8 :: CHOBUF(*)
-      INTEGER :: ICASE,ISYQ,JSYM,IB
+      INTEGER(KIND=IWP), INTENT(IN) :: NCHOBUF,ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(INOUT) :: CHOBUF(NCHOBUF)
 
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
-      INTEGER*4 IERROR4,ITYPE
-      INTEGER*4, PARAMETER :: ONE4 = 1
-      INTEGER :: LDISP,LSIZE,LRECVBUF,LTRANSP
-      INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
+      integer(kind=MPIInt) IERROR4,ITYPE
+      integer(kind=MPIInt), PARAMETER :: ONE4 = 1
+      INTEGER(kind=iwp) :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
+      INTEGER(kind=MPIInt), ALLOCATABLE:: DISP(:), SIZE(:)
+      REAL(KIND=WP), ALLOCATABLE:: TRANSP(:), RECVBUF(:)
 #ifdef _DEBUGPRINT_
-      INTEGER :: MY_N,NOFF
-      REAL*8 :: SQFP
-      REAL*8, EXTERNAL :: DDOT_
+      INTEGER(KIND=IWP) :: MY_N,NOFF
+      REAL(KIND=WP) :: SQFP
+      REAL(KIND=WP), EXTERNAL :: DDOT_
 #endif
 #endif
 
@@ -315,32 +333,32 @@ C always write the chunks to LUDRA, both for serial and parallel
 #  else
       ITYPE=MPI_INTEGER4
 #  endif
+      ITYPE=MPI_INTEGER
       IF (Is_Real_Par()) THEN
 C for true parallel, also communicate chunks to each process, write them
 C to LUDRATOT, so first allocate memory for the fully transformed
 C vectors, and for the per-process size and offset into LUDRATOT
-        CALL GETMEM('DISP','ALLO','INTE',LDISP,NPROCS)
-        CALL GETMEM('SIZE','ALLO','INTE',LSIZE,NPROCS)
+        CALL mma_allocate(DISP,NPROCS,Label='DISP')
+        CALL mma_allocate(SIZE,NPROCS,LABEL='SIZE')
 
 C gather sizes of local cholesky bits
         NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
         JNUM=NVLOC_CHOBATCH(IB)
         NUMSEND(1)=NPQ*JNUM
-        CALL MPI_Allgather(NUMSEND,ONE4,ITYPE,
-     &       IWORK(LSIZE:LSIZE+NPROCS-1),ONE4,ITYPE,
-     &       MPI_COMM_WORLD, IERROR4)
+        CALL MPI_Allgather(NUMSEND,ONE4,ITYPE,SIZE(1:NPROCS),ONE4,ITYPE,
+     &                     MPI_COMM_WORLD, IERROR4)
 C compute offsets into the receiving array
-        IWORK(LDISP)=0
+        DISP(1)=0
         DO I=2,NPROCS
-          IWORK(LDISP+I-1)=IWORK(LDISP+I-2)+IWORK(LSIZE+I-2)
+          DISP(I)=DISP(I-1)+SIZE(I-1)
         END DO
 
 C collect the vectors
-        CALL GETMEM('RECVBUF','ALLO','REAL',LRECVBUF,NFTSPC_TOT)
+        CALL mma_allocate(RECVBUF,NFTSPC_TOT,Label='RECVBUF')
         CALL MPI_Barrier(MPI_COMM_WORLD, IERROR4)
-        CALL MPI_Allgatherv_(CHOBUF,NUMSEND(1),MPI_REAL8,
-     &       WORK(LRECVBUF),IWORK(LSIZE),IWORK(LDISP),
-     &       MPI_REAL8,MPI_COMM_WORLD, IERROR)
+        CALL MPI_Allgatherv_(CHOBUF,NCHOBUF,NUMSEND(1),MPI_REAL8,
+     &                       RECVBUF,NFTSPC_TOT,SIZE,DISP,NPROCS,
+     &                       MPI_REAL8,MPI_COMM_WORLD, IERROR)
 
         JNUMT=NVGLB_CHOBATCH(IB)
         ! disk offset is block offset + preceding block size
@@ -348,27 +366,26 @@ C collect the vectors
 
 CSVC: for RHS on demand, write transposed chovecs, else just write
         IF (RHSDIRECT) THEN
-          CALL GETMEM('TRANSP','ALLO','REAL',LTRANSP,NPQ*JNUMT)
-          CALL DTRANS(NPQ,JNUMT,WORK(LRECVBUF),NPQ,
-     &                          WORK(LTRANSP),JNUMT)
-          CALL DDAFILE(LUDRATOT,1,WORK(LTRANSP),NPQ*JNUMT,IDISKT)
-          CALL GETMEM('TRANSP','FREE','REAL',LTRANSP,NPQ*JNUMT)
+          CALL mma_allocate(TRANSP,NPQ*JNUMT,Label='TRANSP')
+          CALL DTRANS(NPQ,JNUMT,RECVBUF,NPQ,TRANSP,JNUMT)
+          CALL DDAFILE(LUDRATOT,1,TRANSP,NPQ*JNUMT,IDISKT)
+          CALL mma_deallocate(TRANSP)
         ELSE
-          CALL DDAFILE(LUDRATOT,1,WORK(LRECVBUF),NPQ*JNUMT,IDISKT)
+          CALL DDAFILE(LUDRATOT,1,RECVBUF,NPQ*JNUMT,IDISKT)
         END IF
 
 #  ifdef _DEBUGPRINT_
-        WRITE(6,*) ' process block, size, offset, fingerprint'
+        WRITE(u6,*) ' process block, size, offset, fingerprint'
         DO I=1,NPROCS
-          MY_N = IWORK(LSIZE+I-1)
-          NOFF = IWORK(LDISP+I-1)
-          SQFP =DDOT_(MY_N,WORK(LRECVBUF+NOFF),1,WORK(LRECVBUF+NOFF),1)
-          WRITE(6,'(A,I6,A,2I12,ES20.12)') ' [',I,'] ',MY_N,NOFF,SQFP
+          MY_N = SIZE(I)
+          NOFF = 1+DISP(I)
+          SQFP =DDOT_(MY_N,RECVBUF(NOFF:),1,RECVBUF(NOFF:),1)
+          WRITE(u6,'(A,I6,A,2I12,ES20.12)') ' [',I,'] ',MY_N,NOFF,SQFP
         END DO
 #  endif
-        CALL GETMEM('RECVBUF','FREE','REAL',LRECVBUF,NFTSPC_TOT)
-        CALL GETMEM('DISP','FREE','INTE',LDISP,NPROCS)
-        CALL GETMEM('SIZE','FREE','INTE',LSIZE,NPROCS)
+        CALL mma_deallocate(RECVBUF)
+        CALL mma_deallocate(DISP)
+        CALL mma_deallocate(SIZE)
       END IF
 #else
 C Avoid unused argument warnings
@@ -380,31 +397,39 @@ C Avoid unused argument warnings
         CALL Unused_integer(IB)
       END IF
 #endif
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_COLL
 
 #ifdef _MOLCAS_MPP_
 ************************************************************************
-      SUBROUTINE MPI_Allgatherv_(SENDBUF,NSEND,MPITYPES,
-     &                     RCVBUF,NRCV,NOFF,MPITYPER,MPICOMM,IERROR)
+      SUBROUTINE MPI_Allgatherv_(SENDBUF,NSENDBUF,NSEND,MPITYPES,
+     &                           RCVBUF,NRCVBUF,NRCV,NOFF,MPROCS,
+     &                           MPITYPER,MPICOMM,IERROR)
 ************************************************************************
 * Wrapper to MPI_Allgatherv dealing with ILP64 incompatibility.
 ************************************************************************
-      USE MPI
+      USE MPI, only: MPI_COMM_WORLD
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: MPIInt
       IMPLICIT NONE
-      REAL*8 SENDBUF(*), RCVBUF(*)
-      INTEGER NSEND, NRCV(*),NOFF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NSENDBUF
+      REAL(KIND=WP), INTENT(INOUT):: SENDBUF(NSENDBUF)
+      INTEGER(KIND=IWP), INTENT(IN):: NSEND
+      integer(kind=MPIInt), INTENT(IN) :: MPITYPES
+      INTEGER(KIND=IWP), INTENT(IN):: NRCVBUF
+      REAL(KIND=WP), INTENT(INOUT):: RCVBUF(NRCVBUF)
+      INTEGER(KIND=IWP), INTENT(IN):: MPROCS
+      integer(kind=MPIInt), INTENT(IN) :: NRCV(MPROCS), NOFF(MPROCS)
+      integer(kind=MPIInt), INTENT(IN) :: MPITYPER, MPICOMM
+      INTEGER(KIND=IWP), INTENT(OUT) :: IERROR
 
-      INTEGER*4 MPITYPES, MPITYPER, MPICOMM
+      integer(kind=MPIInt) :: NPROCS
+      integer(kind=MPIInt) :: NSEND4
+      integer(kind=MPIInt),ALLOCATABLE :: NRCV4(:),NOFF4(:)
+      integer(kind=MPIInt) :: IERROR4
 
-      INTEGER*4 NPROCS
-      INTEGER*4 NSEND4
-      INTEGER*4,ALLOCATABLE :: NRCV4(:),NOFF4(:)
-      INTEGER*4 IERROR4
-      INTEGER, PARAMETER :: I4=KIND(NSEND4)
-
-      INTEGER :: I, IERROR
+      INTEGER(KIND=IWP) :: I
 #ifdef _I8_
-      INTEGER :: NRCVTOT
+      INTEGER(KIND=IWP) :: NRCVTOT
 #endif
 
       CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NPROCS,IERROR4)
@@ -422,19 +447,21 @@ C Avoid unused argument warnings
       END IF
 #endif
 
-      ALLOCATE(NRCV4(NPROCS))
-      ALLOCATE(NOFF4(NPROCS))
-      NSEND4=INT(NSEND,I4)
+      call MMA_ALLOCATE(NRCV4,int(NPROCS,kind=iwp),Label='NRCV4')
+      call MMA_ALLOCATE(NOFF4,int(NPROCS,kind=iwp),Label='NOFF4')
+      NSEND4=INT(NSEND,kind=MPIInt)
       DO I=1,NPROCS
-        NRCV4(I)=INT(NRCV(I),I4)
-        NOFF4(I)=INT(NOFF(I),I4)
+        NRCV4(I)=INT(NRCV(I),kind=MPIInt)
+        NOFF4(I)=INT(NOFF(I),kind=MPIInt)
       END DO
       CALL MPI_Allgatherv(SENDBUF,NSEND4,MPITYPES,
      &                    RCVBUF,NRCV4,NOFF4,MPITYPER,
      &                    MPICOMM,IERROR4)
 
       IERROR=IERROR4
-      END SUBROUTINE
+      call MMA_DEALLOCATE(NRCV4)
+      call MMA_DEALLOCATE(NOFF4)
+      END SUBROUTINE MPI_Allgatherv_
 #endif
 
       END MODULE CHOVEC_IO

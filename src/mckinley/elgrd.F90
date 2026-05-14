@@ -40,9 +40,7 @@ integer(kind=iwp) :: iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipFinal, iprint,
 logical(kind=iwp) :: ABeq(3)
 
 iprint = 0
-ABeq(1) = A(1) == B(1)
-ABeq(2) = A(2) == B(2)
-ABeq(3) = A(3) == B(3)
+ABeq(:) = (A(:) == B(:))
 
 nip = 1
 ipAxyz = nip
@@ -64,25 +62,23 @@ nip = nip+nZeta
 ipBeta = nip
 nip = nip+nZeta
 ipFinal = nip
-nip = nip+nzeta*nTri_Elem1(la)*nTri_Elem1(lb)*4*6
-if (nip-1 > nArr*nZeta) then
-  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
+nip = nip+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*2
+if (nip-1 > nArr) then
+  write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr
   write(u6,*) ' Abend in ElGrd'
   call Abend()
 end if
 
 ! Compute the cartesian values of the basis functions angular part
 
-Array(ipTemp1:ipTemp1+nZeta-1) = Zeta**(-Half)
+Array(ipTemp1:ipTemp2-1) = Zeta**(-Half)
 
 call vCrtCmp(Array(ipTemp1),P,nZeta,A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),nHer,ABeq)
 call vCrtCmp(Array(ipTemp1),P,nZeta,B,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)
 
 ! Compute the contribution from the multipole moment operator
 
-ABeq(1) = .false.
-ABeq(2) = .false.
-ABeq(3) = .false.
+ABeq(:) = .false.
 call vCrtCmp(Array(ipTemp1),P,nZeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
 
 ! Compute the cartesian components for the multipole moment
@@ -106,7 +102,7 @@ call Cmbnel(Array(ipRnxyz),nZeta,la,lb,nOrdOp,Zeta,rKappa,Array(ipFinal),Array(i
             Array(ipBeta),ifgrad,kcar)
 
 !?
-rFinal(1:nTri_Elem1(la)*nTri_Elem1(lb)*nZeta*NrOp) = Zero
+rFinal(:,:,:) = Zero
 
 ! Symmetry adapt the gradient operator
 

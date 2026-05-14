@@ -29,35 +29,43 @@ use Center_Info, only: dc
 use Gateway_global, only: Primitive_Pass
 use DKH_Info, only: DKroll
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
+use NDDO, only: oneel_NDDO
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, OneHalf, Pi, TwoP54
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Symmetry_Info, only: ChOper
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "int_interface.fh"
-#include "oneswi.fh"
-#include "print.fh"
-integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ii, ipIn, ipOff, iPrint, iRout, kCnt, kCnttp, kdc, lc, ld, lDCRT, LmbdT, mabMax, &
-                     mabMin, mArr, mcdMax, mcdMin, nDCRT, nFLOP, nMem, nOp, nT
+integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ipIn, ipOff, kCnt, kCnttp, kdc, lc, ld, lDCRT, LmbdT, mabMax, mabMin, mArr, mcdMax, &
+                     mcdMin, nDCRT, nFLOP, nMem, nOp, nT
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q_Nuc, rKappcd, TC(3)
 logical(kind=iwp) :: lECP, No3Cnt, NoSpecial
-character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
-integer(kind=iwp), external :: NrOpr
-logical(kind=iwp), external :: EQ
+real(kind=wp), allocatable :: rKappa_mod(:)
 ! Used for normal nuclear attraction integrals: TNAI, Fake, XCff2D, XRys2D
 ! Used for finite nuclei: TERI, ModU2, vCff2D, vRys2D
-external :: Fake, ModU2, TERI, TNAI, vCff2D, vRys2D, XCff2D, XRys2D
+procedure(cff2d_kernel) :: vCff2D, XCff2D
+procedure(modu2_kernel) :: Fake, ModU2
+procedure(rys2d_kernel) :: vRys2D, XRys2D
+procedure(tval_kernel) :: TERI, TNAI
+integer(kind=iwp), external :: NrOpr
+logical(kind=iwp), external :: EQ
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 
 #include "macros.fh"
 unused_var(Alpha)
 unused_var(Beta)
 unused_var(nHer)
-unused_var(Ccoor)
+unused_var(CoorO)
 unused_var(nOrdOp)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
-iRout = 151
-iPrint = nPrint(iRout)
 
 rFinal(:,:,:,:) = Zero
 
@@ -79,7 +87,7 @@ mabMax = nTri3_Elem1(la+lb)-1
 No3Cnt = .false.
 if (EQ(A,RB)) then
   mabMin = nTri3_Elem1(la+lb-1)
-else if (NDDO) then
+else if (oneel_NDDO) then
   No3Cnt = .true.
 end if
 
@@ -97,8 +105,12 @@ end if
 
 ! Modify Zeta if the two-electron code will be used!
 
+call mma_allocate(rKappa_mod,nZeta,label='rKappa_mod')
+
 if ((Nuclear_Model == Gaussian_Type) .or. (Nuclear_Model == mGaussian_Type)) then
-  rKappa(:) = rKappa*(TwoP54/Zeta)
+  rKappa_mod(:) = rKappa(:)*(TwoP54/Zeta)
+else
+  rKappa_mod(:) = rKappa(:)
 end if
 
 ! Loop over nuclear centers.
@@ -120,22 +132,24 @@ do kCnttp=1,nCnttp
   if (Q_Nuc == Zero) cycle
   do kCnt=1,dbsc(kCnttp)%nCntr
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-    if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
+#   ifdef _DEBUGPRINT_
+    call RecPrt('C',' ',C,1,3)
+#   endif
 
     ! Find the DCR for M and S
 
     call DCR(LmbdT,iStabM,nStabM,dc(kdc+kCnt)%iStab,dc(kdc+kCnt)%nStab,iDCRT,nDCRT)
     Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
-    if (iPrint >= 99) then
-      write(u6,*) ' m      =',nStabM
-      write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-      write(u6,*) ' s      =',dc(kdc+kCnt)%nStab
-      write(u6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),ii=0,dc(kdc+kCnt)%nStab-1)
-      write(u6,*) ' LambdaT=',LmbdT
-      write(u6,*) ' t      =',nDCRT
-      write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',dc(kdc+kCnt)%nStab
+    write(u6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),ii=0,dc(kdc+kCnt)%nStab-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+#   endif
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
@@ -171,8 +185,8 @@ do kCnttp=1,nCnttp
         ! s-type function
         mcdMin = 0
         mcdMax = 0
-        call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabmin,mabmax,mcdMin, &
-                 mcdMax,Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
+        call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa_mod,[rKappcd],Coori,Coora,CoorAC,mabmin,mabmax, &
+                 mcdMin,mcdMax,Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
         !                                                              *
         !***************************************************************
         !                                                              *
@@ -189,8 +203,8 @@ do kCnttp=1,nCnttp
         ! s type function
         mcdMin = 0
         mcdMax = 0
-        call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabmin,mabmax,mcdMin, &
-                 mcdMax,Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
+        call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa_mod,[rKappcd],Coori,Coora,CoorAC,mabmin,mabmax, &
+                 mcdMin,mcdMax,Array,nArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
 
         ! d type function w*(x**2+y**2+z**2)
         if (dbsc(kCnttp)%w_mGauss > Zero) then
@@ -201,8 +215,8 @@ do kCnttp=1,nCnttp
           ! tweak the pointers
           ipOff = 1+nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
           mArr = nArr-(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-          call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabMin,mabMax,mcdMin, &
-                   mcdMax,Array(ipOff),mArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
+          call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa_mod,[rKappcd],Coori,Coora,CoorAC,mabMin,mabMax, &
+                   mcdMin,mcdMax,Array(ipOff),mArr*nZeta,TERI,ModU2,vCff2D,vRys2D,NoSpecial)
           iAnga(3) = 0
 
           ! Add the s and d contributions together!
@@ -222,8 +236,8 @@ do kCnttp=1,nCnttp
         rKappcd = One
         mcdMin = 0
         mcdMax = 0
-        call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa,[rKappcd],Coori,Coora,CoorAC,mabMin,mabMax,mcdMin, &
-                 mcdMax,Array,nArr*nZeta,TNAI,Fake,XCff2D,XRys2D,NoSpecial)
+        call Rys(iAnga,nT,Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,rKappa_mod,[rKappcd],Coori,Coora,CoorAC,mabMin,mabMax, &
+                 mcdMin,mcdMax,Array,nArr*nZeta,TNAI,Fake,XCff2D,XRys2D,NoSpecial)
       end if
       !                                                                *
       !*****************************************************************
@@ -237,20 +251,16 @@ do kCnttp=1,nCnttp
 
       nOp = NrOpr(iDCRT(lDCRT))
       call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*Q_Nuc)
-      if (iPrint >= 99) then
-        write(u6,*) Fact*Q_Nuc
-        call RecPrt('NaInt: Array(ipIn)',' ',Array(ipIn),nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
-        call RecPrt('NaInt: rFinal',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nIC)
-      end if
+#     ifdef _DEBUGPRINT_
+      write(u6,*) Fact*Q_Nuc
+      call RecPrt('NaInt: Array(ipIn)',' ',Array(ipIn),nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
+      call RecPrt('NaInt: rFinal',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nIC)
+#     endif
 
     end do
   end do
 end do
 
-if ((Nuclear_Model == Gaussian_Type) .or. (Nuclear_Model == mGaussian_Type)) then
-  rKappa = rKappa/(TwoP54/Zeta)
-end if
-
-return
+call mma_deallocate(rKappa_mod)
 
 end subroutine NAInt

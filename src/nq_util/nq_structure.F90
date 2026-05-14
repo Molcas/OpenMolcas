@@ -13,13 +13,14 @@
 
 module NQ_Structure
 
-use NQ_Info, only: LMax_NQ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 private
+
+integer(kind=iwp), parameter :: LMax_NQ = 62
 
 type Info_Ang_t
   integer(kind=iwp) :: L_eff = 0
@@ -28,7 +29,7 @@ type Info_Ang_t
 end type Info_Ang_t
 
 type NQ_data_t
-  real(kind=wp), allocatable :: Coor(:)
+  real(kind=wp) :: Coor(3) = Zero
   real(kind=wp) :: A_High = -huge(Zero)
   real(kind=wp) :: A_Low = huge(Zero)
   real(kind=wp) :: R_RS = Zero
@@ -37,24 +38,23 @@ type NQ_data_t
   real(kind=wp), allocatable :: R_Quad(:,:)
   integer(kind=iwp), allocatable :: Angular(:)
   integer(kind=iwp) :: Atom_Nr = -1
-  real(kind=wp), allocatable :: dOdx(:,:,:)
+  real(kind=wp) :: dOdx(3,3,3) = Zero
+  integer(kind=iwp) :: Grad_idx(3) = 0
+  integer(kind=iwp) :: Fact = 0
 end type NQ_data_t
 
 type(Info_Ang_t) Info_Ang(LMax_NQ)
 type(NQ_data_t), allocatable :: NQ_data(:)
 
-public :: Close_Info_Ang, Close_NQ_Data, Info_Ang, NQ_data, Open_NQ_Data
+public :: Close_Info_Ang, Close_NQ_Data, Info_Ang, LMax_NQ, NQ_data, Open_NQ_Data
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure nqd_cptr2loff
-end interface
 interface mma_allocate
-  module procedure nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim
+  module procedure :: nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim
 end interface
 interface mma_deallocate
-  module procedure nqdata_mma_free_1D
+  module procedure :: nqdata_mma_free_1D
 end interface
 
 contains
@@ -67,7 +67,6 @@ subroutine Open_NQ_Data(Coor)
   nNQ = size(Coor,2)
   call mma_allocate(NQ_data,nNQ,'NQ_data')
   do iNQ=1,nNQ
-    call mma_allocate(NQ_data(iNQ)%Coor,3,Label='NQ_data(iNQ)%Coor')
     NQ_data(iNQ)%Coor(:) = Coor(1:3,iNQ)
   end do
 
@@ -83,7 +82,7 @@ subroutine Close_Info_Ang()
   do iAngular=1,size(Info_Ang)
     Info_Ang(iAngular)%L_eff = 0
     Info_Ang(iAngular)%nPoints = 0
-    if (allocated(Info_Ang(iAngular)%R)) call mma_deallocate(Info_Ang(iAngular)%R)
+    call mma_deallocate(Info_Ang(iAngular)%R,safe='*')
   end do
 
 end subroutine Close_Info_Ang
@@ -94,10 +93,8 @@ subroutine Close_NQ_Data()
 
   ! Cleanup and close
   do iNQ=1,size(NQ_data)
-    call mma_deallocate(NQ_data(iNQ)%Coor)
-    if (allocated(NQ_data(iNQ)%R_Quad)) call mma_deallocate(NQ_data(iNQ)%R_Quad)
-    if (allocated(NQ_data(iNQ)%Angular)) call mma_deallocate(NQ_data(iNQ)%Angular)
-    if (allocated(NQ_data(iNQ)%dOdx)) call mma_deallocate(NQ_data(iNQ)%dOdx)
+    call mma_deallocate(NQ_data(iNQ)%R_Quad,safe='*')
+    call mma_deallocate(NQ_data(iNQ)%Angular,safe='*')
   end do
   call mma_deallocate(NQ_Data)
 
@@ -106,13 +103,10 @@ end subroutine Close_NQ_Data
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define nqd_cptr2loff, nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim, nqdata_mma_free_1D
+! Define nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim, nqdata_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(NQ_data_t)
 #  define _NO_GARBLE_
-#  define _FUNC_NAME_ nqd_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ nqdata_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'nqd_mma'
@@ -120,7 +114,6 @@ end subroutine Close_NQ_Data
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
-#  undef _NO_GARBLE_
 #undef _TYPE_
 
 end module NQ_Structure

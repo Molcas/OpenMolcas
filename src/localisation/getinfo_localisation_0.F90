@@ -17,12 +17,12 @@ subroutine GetInfo_Localisation_0()
 ! Purpose: read basic info from runfile and INPORB.
 
 use Localisation_globals, only: BName, CMO, EOrb, Ind, LC_FileOrb, nAtoms, nBas, nCMO, nOccInp, nOrb, nSym, nVirInp, Occ
+use Molcas, only: MxAtom, MxBas, MxSym
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iSym, kOff, n2Bas, nBasT, nOrbT
 character(len=80) :: Txt
 character(len=512) :: FName

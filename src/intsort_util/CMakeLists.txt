@@ -19,9 +19,9 @@ set (sources
      sort1a.F90
      sort1b.F90
      sort1c.F90
+     sort2.F90
      sort2a.F90
      sort2b.F90
-     sort2.F90
      sort3.F90
 )
 

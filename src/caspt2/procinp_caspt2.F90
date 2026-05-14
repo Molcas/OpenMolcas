@@ -8,45 +8,75 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-subroutine ProcInp_Caspt2
+subroutine procinp_caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
-  use InputData, only: Input
-  use definitions, only: iwp,wp
-  use caspt2_output, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
-  use caspt2_global, only: sigma_p_epsilon,sigma_p_exponent,ipea_shift,imag_shift,real_shift
+  use inputData, only: input
+  use caspt2_global, only: iPrGlb, cmpThr, cntThr, dnmThr
+  use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
+                           ipea_shift, imag_shift, real_shift
+  use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, &
+                           if_invar, iParRHS, iRoot1, iRoot2, &
+                           if_invaria, ConvInvar, if_equalW, if_SSDM, &
+                           MAXBUF, Weight
+  use PrintLevel, only: TERSE
+  use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
-  use Para_Info, only:Is_Real_Par
+  use definitions, only: MPIInt
+  use Para_Info, only:Is_Real_Par, nProcs
 #endif
+#ifdef _DMRG_
+  use stdalloc, only:mma_allocate
+  use qcmaquis_info, only:qcm_group_names
+  use qcmaquis_interface_cfg
+  use qcmaquis_interface, only:qcmaquis_interface_init_checkpoint, &
+    qcmaquis_interface_set_param, qcmaquis_interface_remove_param
+  use PrintLevel, only: VERBOSE
+#endif
+  use caspt2_global, only: CompressMPS
 ! NOT TESTED
 #if 0
   use OFembed, only:Do_OFemb
 #endif
+  use Molcas, only: MxRoot, MxSym
+  use caspt2_module, only: nGroupState, mState, nDel, nSsh, nFro, nIsh, Zeta, ThrSHS, ThrSHN, ThrOCC, &
+                           ThrEne, ThrConv, SMatrix, SDECOM, Root2State, RHSDirect, RFPERT, PRSD, OutFmt, OrbIn,  &
+                           PrOrb, nSym, nState, nRas3T, nRas1T, nRoots, nLYRoot, nLYGroup, nGroup, nCases,  &
+                           MaxIt, nRoots, iRoot, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfProp, JMS,    &
+                           IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, HZero, G1SECIN, FockType,     &
+                           DWType, DoCumulant, BTrans, BSpect, BMatrix, DMRG
 
+  use caspt2_module, only: CIThr
+  use constants, only: Zero
+  use definitions, only: iwp,wp,RtoB
+#ifdef _DMRG_
+  use definitions, only: u6
+#endif
   implicit none
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "pt2_guga.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "SysDef.fh"
-#include "chocaspt2.fh"
 
-  Integer(kind=iwp) :: iDummy
+  integer(kind=iwp) :: iDummy
 
   ! Number of non-valence orbitals per symmetry
-  Integer(kind=iwp) :: nCore(mxSym)
-  Integer(kind=iwp) :: nDiff,NFI,NSD
+  integer(kind=iwp) :: nCore(mxSym)
+  integer(kind=iwp) :: nDiff,NFI,NSD
   ! Geometry-determining root
-  Logical(kind=iwp) :: Is_iRlxRoot_Set, do_real, do_imag, do_sigp
+  logical(kind=iwp) :: Is_iRlxRoot_Set, do_real, do_imag, do_sigp
   ! Environment
-  Character(Len=180) :: Env
+  character(Len=180) :: Env
+  ! NAC or not
+  character(Len=16) :: mstate1
+  logical(kind=iwp) :: Found
 
-  Integer(kind=iwp) :: I,J,M,N
-  Integer(kind=iwp) :: iSym
+  integer(kind=iwp) :: I,J
+  integer(kind=iwp) :: iSym
   ! State selection
-  Integer(kind=iwp) :: iGroup,iOff
+  integer(kind=iwp) :: iGroup,iOff
+  ! Numerical gradients
+  logical(kind=iwp) :: DNG, DNG_available
+  integer(kind=iwp) :: iDNG
+  integer(kind=iwp), external :: isStructure
+  logical(kind=iwp), external :: RF_On
 
   ! Hzero and Focktype are merged together into Hzero. We keep the
   ! variable Focktype not to break the input keyword which is documented
@@ -55,26 +85,20 @@ subroutine ProcInp_Caspt2
   Hzero = input%Hzero
   if (Hzero .ne. 'STANDARD' .and. Hzero .ne. 'CUSTOM') then
     call WarningMessage(2,'invalid 0th-order Hamiltonian: '//TRIM(Hzero))
-    call Quit_OnUserError
+    call Quit_OnUserError()
   end if
 
   ! Choose Focktype, reset IPEA shift to 0 for non-standard fock matrices
   Focktype = input%Focktype
   if (Focktype .ne. 'STANDARD') then
-    if (IfChol) then
-      call WarningMessage(2,'Requested FOCKtype not possible.')
-      write (6,*) 'Calculations using Cholesky vectors can only'
-      write (6,*) 'be used with the standard FOCKtype!'
-      call Quit_OnUserError
-    end if
     ! if both Hzero and Focktype are not standard, quit
     if (Hzero .ne. 'STANDARD') then
       call WarningMessage(2,'Requested combination of FOCKtype'//' and HZERo not possible.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     ! IPEA shift different from zero only for standard Focktype
-    if (ipea_shift .gt. 0.0d0 .or. ipea_shift .lt. 0.0d0) then
-      ipea_shift = 0.0d0
+    if (ipea_shift .ne. Zero) then
+      ipea_shift = Zero
       if (IPRGLB .ge. TERSE) then
         call WarningMessage(1,'IPEA shift reset to zero!')
       end if
@@ -88,7 +112,7 @@ subroutine ProcInp_Caspt2
       call getenvf('MOLCAS_NEW_DEFAULTS',Env)
       call upcase(Env)
       if (Env .eq. 'YES') then
-      ipea_shift = 0.0d0
+        ipea_shift = Zero
       else
         ipea_shift = 0.25d0
       end if
@@ -135,21 +159,27 @@ subroutine ProcInp_Caspt2
   end if
 
 ! RHS algorithm selection
+  if (Input%PRHS == '0') Input%PRHS = 'DEFAULT'
+  if (Input%PRHS == '1') Input%PRHS = 'OLD'
+  if (Input%PRHS == '2') Input%PRHS = 'NEW'
+  if (Input%PRHS == '3') Input%PRHS = 'DIRECT'  ! synonym of the DIREct keyword (undocumented)
+  if (Input%PRHS /= 'DEFAULT' .and. Input%PRHS /= 'OLD' .and. Input%PRHS /= 'NEW' .and. Input%PRHS /= 'DIRECT') then
+    call WarningMessage(1,'The selected PRHS is not supported. Going to use the default strategy.')
+    Input%PRHS = 'DEFAULT'
+  end if
+  iParRHS = 1
 #ifdef _MOLCAS_MPP_
-#ifdef _GA_
   ! The RHS on-demand algorithm doesn't handle serial calculations
   ! because it's not adapted for use with regular Work arrays, only
   ! global arrays, and needs to be switched off (using rhsall instead)
-  RHSDIRECT = (Is_Real_Par() .AND. Input%RHSD)
-#else
-  ! Without the Global Arrays library, we can't use the RHSALL2
-  ! and ADDRHS algorithms in parallel. Here we force the use of
-  ! RHS on-demand instead, depending on if the calculation is
-  ! really parallel or not.
-  RHSDIRECT = Is_Real_Par()
-#endif
+  RHSDIRECT = (Is_Real_Par() .and. (Input%RHSD .or. Input%PRHS == 'DIRECT'))
+  if (Is_Real_Par() .and. (Input%PRHS == 'DEFAULT' .or. Input%PRHS == 'NEW') .and. .not.RHSDIRECT) iParRHS = 2
+  ! maximum number of real values handled by a single GADGOP call
+  ! compilers complain about huge(xxx)/RtoB with -Werror=integer-division
+  MAXBUF = (huge(1_MPIInt)-mod(int(huge(1_MPIInt),kind=iwp),RtoB))/RtoB
 #else
   RHSDIRECT = .False.
+  MAXBUF = (huge(RtoB)-mod(huge(RtoB),RtoB))/RtoB
 #endif
 
   ! Cholesky: set defaults if it was not called during input
@@ -158,18 +188,12 @@ subroutine ProcInp_Caspt2
   end if
 
   !---  Initialize
-  IDCIEX = 0
-  IEOF1M = 0
-  do I = 1,64
-    IAD1M(I) = -1
-  end do
   RFpert = Input%RFPert
 
-  NTIT = 0
   OUTFMT = 'DEFAULT'
   G1SECIN = .FALSE.
-  PRORB = .TRUE.
-  PRSD = .FALSE.
+  PRORB = Input%PrOrb
+  PRSD = Input%PrSD
   NCASES = 13
 
   JMS = Input%JMS
@@ -177,6 +201,8 @@ subroutine ProcInp_Caspt2
   NLYGROUP = 0
 
   DoCumulant = Input%DoCumulant
+  DMRG = Input%DMRG
+  CompressMPS = Input%CompressMPS
 
 !***********************************************************************
 !
@@ -206,20 +232,20 @@ subroutine ProcInp_Caspt2
   ! nGroup = 1
   ! nGroupState(nGroup): 4
   NSTATE = 0
-  MSTATE = 0
+  MSTATE(:) = 0
   NGROUP = 0
   NGROUPSTATE = 0
   ! This is the case for MS-CASPT2 and DW-CASPT2
   if (Input%MULT) then
     if (Input%XMUL .or. Input%RMUL) then
       call WarningMessage(2,'Keyword MULT cannot be used with neither XMUL nor RMUL.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     ! Either the states were specified manually or the keyword "all"
     ! was used, so first we check the keyword all
     if (Input%AllMult) then
       NSTATE = NROOTS
-      MSTATE = IROOT
+      MSTATE(:) = IROOT
       NGROUP = NSTATE
       NGROUPSTATE(1:NGROUP) = 1
     else
@@ -238,7 +264,7 @@ subroutine ProcInp_Caspt2
   if (Input%XMUL) then
     if (Input%MULT .or. Input%RMUL) then
       call WarningMessage(2,'Keyword XMUL cannot be used with neither MULT nor RMUL.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     ! This is a XDW-CASPT2 calculation. It is actually more similar to
     ! a MS-CASPT2 one since we need to put one state per group and thus
@@ -247,7 +273,7 @@ subroutine ProcInp_Caspt2
     if (Input%DWMS) then
       if (Input%AllXMult) then
         NSTATE = NROOTS
-        MSTATE = IROOT
+        MSTATE(:) = IROOT
         NGROUP = NSTATE
         NGROUPSTATE(1:NGROUP) = 1
       else
@@ -262,7 +288,7 @@ subroutine ProcInp_Caspt2
     else
       if (Input%AllXMult) then
         NSTATE = NROOTS
-        MSTATE = IROOT
+        MSTATE(:) = IROOT
         NGROUP = 1
         NGROUPSTATE(1) = NSTATE
       else
@@ -280,11 +306,11 @@ subroutine ProcInp_Caspt2
   if (Input%RMUL) then
     if (Input%MULT .or. Input%XMUL) then
       call WarningMessage(2,'Keyword RMUL cannot be used with neither MULT nor XMUL.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     if (Input%AllRMult) then
       NSTATE = NROOTS
-      MSTATE = IROOT
+      MSTATE(:) = IROOT
       NGROUP = NSTATE
       NGROUPSTATE(1:NGROUP) = 1
     else
@@ -303,7 +329,7 @@ subroutine ProcInp_Caspt2
       do J = I + 1,NSTATE
         if (MSTATE(I) .EQ. MSTATE(J)) then
           call WarningMessage(2,'The same root cannot be used twice in MULT/XMUL/RMUL blocks.')
-          call Quit_OnUserError
+          call Quit_OnUserError()
         end if
       end do
     end do
@@ -313,7 +339,7 @@ subroutine ProcInp_Caspt2
   if (Input%LROO) then
     if (Input%MULT .OR. Input%XMUL .or. Input%RMUL) then
       call WarningMessage(2,'Keyword LROO cannot be used together with the MULT or XMUL keywords.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     NSTATE = 1
     MSTATE(1) = Input%SingleRoot
@@ -324,7 +350,7 @@ subroutine ProcInp_Caspt2
   ! roots that were part of the rasscf orbital optimization.
   if (NSTATE .EQ. 0) then
     NSTATE = NROOTS
-    MSTATE = IROOT
+    MSTATE(:) = IROOT
     NGROUP = NSTATE
     NGROUPSTATE(1:NGROUP) = 1
   end if
@@ -343,7 +369,7 @@ subroutine ProcInp_Caspt2
     call WarningMessage(2,'Number of states is <0 or too large.')
     write (6,'(a,i8)') ' NSTATE = ',NSTATE
     write (6,*) ' Check usage of keywords MULT/XMUL/RMUL.'
-    call Quit_OnUserError
+    call Quit_OnUserError()
   end if
   ! setup root to state translation
   ROOT2STATE = 0
@@ -396,7 +422,7 @@ subroutine ProcInp_Caspt2
       NFI = NFRO(I) + NISH(I)
       if (NFI .LT. Input%nFro(I)) then
         call WarningMessage(2,'Too many frozen orbitals!')
-        call Quit_OnUserError
+        call Quit_OnUserError()
       else
         nFro(I) = Input%nFro(I)
       end if
@@ -409,7 +435,7 @@ subroutine ProcInp_Caspt2
       NSD = NSSH(I) + NDEL(I)
       if (NSD .LT. Input%nDel(I)) then
         call WarningMessage(2,'Too many deleted orbitals!')
-        call Quit_OnUserError
+        call Quit_OnUserError()
       else
         NDEL(I) = Input%nDel(I)
       end if
@@ -445,24 +471,16 @@ subroutine ProcInp_Caspt2
   IFXMS = Input%XMUL
   IFRMS = Input%RMUL
   IFMSCOUP = (Input%MULT.or.IFXMS.or.IFRMS) .AND. (.NOT. Input%NoMult)
+  IF (nState == 1 .AND. (NLYROOT .ne. mState(1))) IFMSCOUP = .FALSE.
   IFDW = Input%DWMS
   ! Set type and exponent for DWMS
   DWType = Input%DWType
   if (IFDW) then
     if (DWType <= 0 .or. DWType > 3) then
       call WarningMessage(2,'DWTYpe should be either 1, 2 or 3.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     zeta = Input%zeta
-  end if
-
-  IFEFOCK = Input%EFOC
-  if (Input%EFOC) then
-    if (.not. (IFXMS .and. IFDW)) then
-      call WarningMessage(2,'Keyword EFOCk can only be used in (X)DW-CASPT2 calculations.')
-      call Quit_OnUserError
-    else
-    end if
   end if
 
   ! Choice? of preprocessing route
@@ -482,6 +500,46 @@ subroutine ProcInp_Caspt2
   if (BTRANS .NE. 'NO      ') SDECOM = 'YES     '
   if (SDECOM .NE. 'NO      ') SMATRIX = 'YES     '
 
+#ifdef _DMRG_
+  if (DMRG) then
+    ! just exit if somebody tries to do QD-CASPT2 with DMRG
+    if (IFMSCOUP) then
+      call WarningMessage(2,'Couplings with DMRG-CASPT2 not supported')
+      call Quit_OnUserError()
+    end if
+
+    ! set OpenMolcas environment variables
+    call getenv('Project', qcmaquis_param%project_name)
+    call getenv('WorkDir', qcmaquis_param%workdir)
+
+    ! save checkpoint paths for all states
+    call mma_allocate(dmrg_file%qcmaquis_checkpoint_file, nstate)
+    do i = 1, nstate
+      dmrg_file%qcmaquis_checkpoint_file(i) = &
+      trim(qcmaquis_param%workdir)//'/'//qcm_group_names(1)%states(mstate(i))
+    end do
+
+    ! initialize the interface using a checkpoint file
+    if (iPrGlb >= VERBOSE) then
+      Write(u6,*) 'PROCINP initializing QCMaquis DMRG interface...'
+    end if
+    call qcmaquis_interface_init_checkpoint(dmrg_file%qcmaquis_checkpoint_file(1))
+
+    ! remove all measurements just to be sure
+    call qcmaquis_interface_remove_param('MEASURE[1rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[2rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[3rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[4rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[1spdm]')
+    call qcmaquis_interface_remove_param('MEASURE[ChemEntropy]')
+
+    ! only set 1-rdm here and the other rdms later on in grpini
+    call qcmaquis_interface_set_param('MEASURE[1rdm]','1')
+    ! call qcmaquis_interface_set_param('MEASURE[2rdm]','1')
+    ! call qcmaquis_interface_set_param('MEASURE[3rdm]','1')
+    ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
+  end if
+#endif
 !***********************************************************************
 !
 ! Thresholds
@@ -496,27 +554,225 @@ subroutine ProcInp_Caspt2
   THRSHS = Input%THRSHS
   THRCONV = Input%THRCONV
   CITHR = Input%PrWF
-  THRENE = 5.0d+01
-  THROCC = 5.0d-04
+  THRENE = 5.0e+01_wp
+  THROCC = 5.0e-04_wp
   MAXIT = Input%MaxIter
   DNMTHR = Input%DNMTHR
   CMPTHR = Input%CMPTHR
   CNTTHR = Input%CNTTHR
 
-  !---  Create the symmetry multiplication table
-  MUL(1,1) = 1
-  M = 1
-  do N = 1,3
-    do I = 1,M
-      do J = 1,M
-        MUL(I + M,J) = M + MUL(I,J)
-        MUL(I,J + M) = MUL(I + M,J)
-        MUL(I + M,J + M) = MUL(I,J)
-      end do
-    end do
-    M = 2*M
-  end do
+!***********************************************************************
+!
+! Gradients
+!
+!***********************************************************************
 
-  !---  Exit
-  Return
-end
+  ! at the moment the calculation of analytic gradients has many
+  ! technical restrictions and we need to make sure that we do not
+  ! run into a unsupported combination of keywords, these are:
+  ! 1. no symmetry
+  ! 2. all CASSCF roots included in QD-CASPT2 gradients
+  ! 3. QD-CASPT2 gradients only with CD/DF
+
+  call put_iScalar('mp2prpt',0)
+
+  ! check if numerical gradients were requested in GATEWAY
+  call qpg_iScalar('DNG', DNG_available)
+  if (DNG_available) then
+    call get_iScalar('DNG', iDNG)
+    DNG = iDNG .eq. 1
+  else
+    DNG = .false.
+  end if
+
+  ! if the CASPT2 module was called by the NUMERICAL_GRADIENT one,
+  ! we make sure to disable analytic gradients
+  if (SuperName(1:18) == 'numerical_gradient') then
+    call put_iScalar('mp2prpt',0)
+    DNG = .true.
+    do_grad = .false.
+  end if
+
+  ! check first if the user specifically asked for analytic gradients
+  ! I think GRDT keyword should be ignored for numerical gradient and last energy
+  do_lindep = .False.
+  if ((input%GRDT .or. input%NAC) .and. SuperName(1:18) /= 'numerical_gradient' .and. SuperName(1:11) /= 'last_energy') then
+    do_grad = Input%GRDT .or. input%NAC
+
+    ! quit if both analytical and numerical gradients were explicitly requested
+    if (DNG) then
+      call warningMessage(2,'It seems that numerical gradients were requested'// &
+                            ' in GATEWAY and analytical gradients in CASPT2.'// &
+                            ' Please choose only one of the two!')
+      call quit_onUserError()
+    end if
+
+    ! only allow analytic gradients without symmetry
+    if (nSym /= 1) then
+      call warningMessage(2,'Analytic gradients only available without symmetry.')
+      call quit_onUserError()
+    end if
+
+    if (ipea_shift.ne.Zero) do_lindep = .True.
+
+    ! only allow analytic gradients either with nstate = nroots or with sadref
+    if ((nState /= nRoots) .and. (.not. ifsadref)) then
+      call warningMessage(2,'Analytic gradients available only if all'// &
+                            ' CASSCF roots are included in the CASPT2'// &
+                            ' calculation or with the SADRef keyword.')
+      call quit_onUserError()
+    end if
+
+    ! QD-CASPT2 analytic gradients available only with DF or CD
+    if (ifMSCoup .and. (.not. ifChol)) then
+      call warningMessage(2,'MS-type analytic gradients available only '//  &
+                            'with density fitting or Cholesky decomposition.')
+      call quit_onUserError()
+    end if
+
+    ! CASPT2 analytic gradients with state-dependent density available only with DF or CD
+    if ((.not. ifChol) .and. (.not.input%SADREF) .and. (nRoots.ne.1)) then
+      call warningMessage(2,'Analytic gradients with state-dependent density available only '//  &
+                            'with density fitting or Cholesky decomposition.')
+      call quit_onUserError()
+    end if
+#ifdef _MOLCAS_MPP_
+    ! No parallel without RI/CD
+    if ((.not. ifChol) .and. nProcs > 1) then
+      call warningMessage(2,'Analytic gradients without density fitting or Cholesky decomposition not available'//  &
+                            ' in parallel executions.')
+      call quit_onUserError
+    end if
+#endif
+
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
+    ! for the time being no gradients without GA
+    ! Parallel CASPT2 gradient is implemented with some GA-specific subroutines
+    ! partially because I can use OpenMolcas only for which GA is required.
+    ! As long as OpenMolcas concerns, this should be no problem (at all)
+    if (nProcs > 1) then
+      call warningMessage(2,'Analytic gradients not available'//  &
+                            ' without GA installed. Install GA and link.')
+      call quit_onUserError()
+    end if
+#endif
+
+  end if
+
+  ! inside LAST_ENERGY we do not need analytic gradients
+  if (SuperName(1:11) == 'last_energy') DNG=.true.
+
+  ! check if the calculation is inside a loop and make analytical
+  ! gradients default in this case, unless the user specifically
+  ! requested numerical gradients in GATEWAY
+  if (isStructure() == 1) then
+    ! check the hard constraints first
+    if ((.not. DNG) .and. (nSym == 1)) then
+      do_grad = .true.
+
+      ! check weaker constraints, if not met, revert to numerical gradients
+      if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
+      if ((ipea_shift /= 0.0_wp) .and. (.not. ifChol)) do_grad = .false.
+      if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
+    end if
+  end if
+
+  ! compute full unrelaxed density for gradients
+  if (do_grad) ifDens = .true.
+
+  if (do_grad) then
+    call put_iScalar('mp2prpt',2)
+    do_nac = input%NAC
+
+    !! If states to be computed are requested by ALASKA
+    !! (if "@" presents in MCLR Root), always compute for these states
+    call Qpg_cArray('MCLR Root',Found,I)
+    if (Found) then
+      call Get_cArray('MCLR Root',mstate1,16)
+      if (mstate1 /= '****************') then
+        if (index(mstate1,'@') /= 0) then
+          read(mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
+          if (iRoot1 /= 0) do_nac = .true.
+          if (iRoot1 == 0) then
+            iRoot1 = iRoot2
+            iRlxRoot = iRoot1
+            do_nac = .false.
+          end if
+        end if
+      end if
+    end if
+
+    !! If nothing is specified by ALASKA, use the states in &CASPT2
+    if ((iRoot1 == 0) .and. (iRoot2 == 0)) then
+      if ((input%iNACRoot1 == 0) .and. (input%iNACRoot2 == 0)) then
+        iRoot1 = iRlxRoot
+        iRoot2 = iRlxRoot
+      else
+        iRoot1 = input%iNACRoot1
+        iRoot2 = input%iNACRoot2
+      end if
+    end if
+  end if
+
+  if (do_nac) then
+    do_csf = input%CSF
+    if (isStructure() == 1) do_csf = .false. !! omit the CSF term during (any) geometry optimizations
+  end if
+
+  IFSADREF   = input%SADREF
+  IFDORTHO   = input%DORTHO
+  if_invar   = input%INVAR
+  if (ipea_shift /= 0.0_wp) if_invar = .false.
+  if_invaria = input%IAINVAR
+  if (sigma_p_epsilon /= 0.0_wp) if_invaria = .false. !! I'm not sure this is necessary, but it is needed for now
+  ConvInvar  = input%ThrConvInvar
+
+  if ((ipea_shift /= 0.0_wp) .and. do_grad .and. (.not.IFDORTHO)) then
+    call warningMessage(2,'Analytic gradients with IPEA shift'//  &
+                          ' must use the CORT or DORT option.')
+    call quit_onUserError()
+  end if
+
+#ifdef _MOLCAS_MPP_
+  if (do_grad .and. sigma_p_epsilon /= 0.0_wp .and. nProcs > 1) then
+    call warningMessage(2,'Analytic gradients without the sigma^P regularization not available'//  &
+                          ' in parallel executions.')
+    call quit_onUserError
+  end if
+#endif
+
+  if (do_grad .and. RF_On() .and. .not.if_invar) then
+    if (IPRGLB >= TERSE) call warningMessage(1,'Analytic gradients with IPEA shift and PCM is not fully analytic.')
+  end if
+
+  !! Whether the Fock matrix (eigenvalues) is constructed with
+  !! the state-averaged density matrix or not.
+  !! The name of the variable is like state-specific DM,
+  !! but not necessarily state-specific. It is a matter of the
+  !! structure of DWGT(:,:) array or matrix.
+  !! DWGT is a matrix form for SS- and MS-CASPT2 with
+  !! state-specific DM, XDW-CASPT2, and RMS-CASPT2, while it is an
+  !! array for SS- and MS-CASPT2 with state-averaged DM (with SADREF
+  !! option) and XMS-CASPT2.
+  if (IFSADREF .or. (nRoots == 1) .or. (IFXMS .and. (.not.IFDW))) then
+    if_SSDM = .false.
+  else
+    if_SSDM = .true.
+  end if
+
+  !! Check if unequal-weighted MCSCF or not. Used only for gradients.
+  if (do_grad) then
+    if (if_SSDM) if_equalW = .false.
+    do I = 2, nRoots
+      if (Weight(1).ne.Weight(I)) if_equalW = .false.
+    end do
+    if (.not.if_equalW) if_SSDM = .true.
+  end if
+
+  !! issue #448
+  if ((IFDENS .and. .not.do_grad) .and. NRAS1T+NRAS3T>0) then
+    call warningMessage(2,'DENS keyword cannot be combined with RAS.')
+    call quit_onUserError()
+  end if
+
+end subroutine procinp_caspt2

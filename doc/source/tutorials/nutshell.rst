@@ -196,7 +196,7 @@ Simple Calculation on Water
   Start by preparing a file containing the cartesian coordinates of a water molecule. ::
 
     3
-    Angstrom
+    angstrom
      O       0.000000  0.000000  0.000000
      H       0.758602  0.000000  0.504284
      H       0.758602  0.000000 -0.504284
@@ -300,7 +300,7 @@ wave functions are used in the :program:`RASSI` module to calculate state-intera
   &gateway
   Coord
    8
-  Acrolein coordinates in Angstrom
+  Acrolein coordinates in angstrom
    O     -1.808864   -0.137998    0.000000
    C      1.769114    0.136549    0.000000
    C      0.588145   -0.434423    0.000000

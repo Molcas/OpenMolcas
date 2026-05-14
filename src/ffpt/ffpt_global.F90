@@ -41,12 +41,11 @@
 
 module FFPT_global
 
+use Molcas, only: MxSym
 use Definitions, only: wp, iwp
 
 implicit none
 private
-
-#include "Molcas.fh"
 
 integer(kind=iwp), parameter :: nCom = 5, MxSub1 = 6, MxSub2 = 2, MxParm = 10
 character(len=4) :: ComTab(nCom,0:MxSub1,0:MxSub2,0:MxParm)
@@ -116,10 +115,10 @@ contains
 
 subroutine Cleanup()
   use stdalloc, only: mma_deallocate
-  if (allocated(Coor)) call mma_deallocate(Coor)
-  if (allocated(iSelection)) call mma_deallocate(iSelection)
-  if (allocated(Atoms)) call mma_deallocate(Atoms)
-  if (allocated(Bonds)) call mma_deallocate(Bonds)
+  call mma_deallocate(Coor,safe='*')
+  call mma_deallocate(iSelection,safe='*')
+  call mma_deallocate(Atoms,safe='*')
+  call mma_deallocate(Bonds,safe='*')
 end subroutine Cleanup
 
 end module FFPT_global

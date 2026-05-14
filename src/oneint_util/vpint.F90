@@ -24,22 +24,20 @@ subroutine VPInt( &
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
+use Integral_interfaces, only: int_kernel
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: i, iBeta, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
-external :: Fake, TNAI, XCff2D, XRys2D
+integer(kind=iwp) :: iBeta, ipArr, ipB, ipOff, ipS1, ipS2, kComp, kIC, kRys, mArr, nip, nRys
+procedure(int_kernel) :: NAint
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
 
-iRout = 221
-iPrint = nPrint(iRout)
-
-if (iPrint >= 99) then
-  call RecPrt(' In vpint: Alpha','(5D20.13)',Alpha,nAlpha,1)
-  call RecPrt(' In vpint: Beta','(5D20.13)',Beta,nBeta,1)
-end if
+call RecPrt(' In VpInt: Alpha','(5ES20.13)',Alpha,nAlpha,1)
+call RecPrt(' In VpInt: Beta','(5ES20.13)',Beta,nBeta,1)
+#endif
 
 nRys = nHer
 
@@ -69,7 +67,7 @@ kRys = ((la+1)+lb+2)/2
 
 kIC = 1
 kComp = 1
-call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nComp,la,lb+1,A,RB,kRys,Array(ipArr),mArr,CCoor, &
+call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nComp,la,lb+1,A,RB,kRys,Array(ipArr),mArr,CoorO, &
            nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 
 ipOff = ipB-1
@@ -83,22 +81,22 @@ end do
 if (lb > 0) then
   kRys = ((la-1)+lb+2)/2
 
-  call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,nRys,Array(ipArr),mArr,CCoor, &
+  call NAInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,nRys,Array(ipArr),mArr,CoorO, &
              nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 end if
 
 ! Assemble final integral from the derivative integrals
 
-if (iPrint >= 99) call RecPrt(' In vpint: Beta (expanded)','(5D20.13)',Array(ipB),nZeta,1)
+#ifdef _DEBUGPRINT_
+call RecPrt(' In VpInt: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
+#endif
 
 call Util8(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2))
 
-if (iPrint >= 49) then
-  do i=1,3
-    call RecPrt('VpInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  end do
-end if
-
-return
+#ifdef _DEBUGPRINT_
+do i=1,3
+  call RecPrt('VpInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+end do
+#endif
 
 end subroutine VPInt

@@ -20,6 +20,7 @@ subroutine Vibinp(ncase,ngrid,nvib,Umin,Umax,Rout,PotR,E0,dE0,Redm,Teas,Req,sc,t
 use Vibrot_globals, only: Atom1, Atom2, dRo, EoutO, iad12, iad13, iadvib, iallrot, IfPrWf, iobs, iplot, iscale, ispc, J1A, J1B, &
                           J2A, J2B, lambda, n0, n02, nop, npin, npobs, npoint, nRot_Max, nvib1, nvib21, Obsin, R0o, R1o, RinO, &
                           Titobs, Vibwvs, Vibwvs1, Vibwvs2, DistUnit, EnerUnit
+use spool, only: Spoolinp
 use Constants, only: Zero, One, Five, UTOAU, Angstrom, auToeV, auTokcalmol, auToHz, auTocm, cal_to_J
 use Definitions, only: wp, iwp, u6
 
@@ -418,9 +419,9 @@ input: do
           write(u6,*) 'No conversion.'
 
         case ('ANGSTROM')
-          ! Distance units of Angstroms, convert to Bohr radii
+          ! Distance units of angstroms, convert to Bohr radii
           write(u6,*)
-          write(u6,*) 'Distance provided in units of Angstroms.'
+          write(u6,*) 'Distance provided in units of angstroms.'
           write(u6,*) 'Converting to Bohr radii.'
 
           if (ipot /= 0) then

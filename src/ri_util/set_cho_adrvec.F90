@@ -11,10 +11,10 @@
 
 function Set_CHO_ADRVEC(ii)
 
+use Cholesky, only: CHO_ADRVEC
 use Definitions, only: iwp, u6
 
 implicit none
-#include "cholesky.fh"
 integer(kind=iwp) :: Set_CHO_ADRVEC
 integer(kind=iwp), intent(in) :: ii
 

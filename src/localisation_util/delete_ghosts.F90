@@ -22,16 +22,16 @@ subroutine Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,nUniqAt,Th
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn, MxAtom, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nUniqAt
 integer(kind=iwp), intent(inout) :: nSsh(nSym), nDel(nSym)
-character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn+8), intent(in) :: BName(*)
 real(kind=wp), intent(in) :: ThrS
 logical(kind=iwp), intent(in) :: isCASPT2
 real(kind=wp), intent(inout) :: CMO(*), EOrb(*)
@@ -127,7 +127,7 @@ do iSym=1,nSym
     end do
   end do
   do iAt=1,nUniqAt
-    Qa(iAt) = Qa(iAt)+ddot_(nOkk,Q(iAt,:),1,Q(iAt,:),1)
+    Qa(iAt) = Qa(iAt)+sum(Q(iAt,1:nOkk)**2)
     if (sqrt(Qa(iAt)) >= ThrS) then
       if (nBas_per_Atom(iAt) > 0) NamAct(iAt) = BName(lBas+nBas_Start(iAt))(1:LenIn)
     end if
@@ -203,7 +203,7 @@ do iSym=1,nSym
   C(1:nBa,1:nSsh(iSym)) => Ct(1:nBa*nSsh(iSym))
   S2(1:nBas(iSym),1:nBa) => St(1:nBas(iSym)*nBa)
   X(1:nBas(iSym),1:nSsh(iSym)) => Xt(1:nBa*nSsh(iSym))
-  Z(1:nBas(iSym),1:nSsh(iSym)) => Zt(1:nBa*nSsh(iSym))
+  Z(1:nBa,1:nSsh(iSym)) => Zt(1:nBa*nSsh(iSym))
 
   iCMO = nFro(iSym)+nIsh(iSym)+nAsh(iSym)+1
   do ia=1,nBa
@@ -226,14 +226,14 @@ do iSym=1,nSym
       iD(nBmx+n_OK(iSym)) = i
     else
       n_KO = n_KO+1
-      Z(:,n_KO) = LCMO%SB(iSym)%A2(:,iCMO+i-1)
+      Z(:,n_KO) = LCMO%SB(iSym)%A2(1:nBa,iCMO+i-1)
       iD(nBmx+nSmx+n_KO) = i
     end if
   end do
 
   LCMO%SB(iSym)%A2(:,iCMO:iCMO+n_OK(iSym)-1) = X(:,1:n_OK(iSym))
   kCMO = iCMO+n_OK(iSym)
-  LCMO%SB(iSym)%A2(:,kCMO:) = Z(:,1:n_KO)
+  LCMO%SB(iSym)%A2(1:nBa,kCMO:) = Z(:,1:n_KO)
   if (.not. isCASPT2) then
     jZ = 1
     jOff = iOff+nFro(iSym)+nOkk
@@ -252,10 +252,7 @@ do iSym=1,nSym
 
   iOff = iOff+nBas(iSym)
 end do
-nullify(C)
-nullify(S2)
-nullify(X)
-nullify(Z)
+nullify(C,S2,X,Z)
 call mma_deallocate(St)
 call mma_deallocate(Qt)
 call mma_deallocate(Ct)

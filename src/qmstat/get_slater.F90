@@ -28,8 +28,8 @@ integer(kind=iwp) :: iC, ind, jhr, l, Lu, nS, nSlCentQ, nT, nTestjhr
 real(kind=wp) :: CoordTest(3), SlFactQ(6)
 logical(kind=iwp) :: Exists
 integer(kind=iwp), external :: IsFreeUnit
-#include "warnings.h"
 
+#include "warnings.h"
 #include "macros.fh"
 
 ! Open the file
@@ -37,7 +37,7 @@ Lu = IsFreeUnit(40)
 call Opnfl('DIFFPR',Lu,Exists)
 if (.not. Exists) then
   write(u6,*)
-  write(u6,*) ' Can not locate output file DiffPr. '
+  write(u6,*) ' Cannot locate output file DiffPr. '
   call Quit(_RC_IO_ERROR_READ_)
 end if
 rewind(Lu)

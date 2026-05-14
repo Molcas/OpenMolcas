@@ -16,16 +16,28 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DIELMV(ICASE,JCASE,NUP,NDWN,EMU)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ICASE(*),JCASE(*)
-      DIMENSION EMU(NUP,NDWN)
-#include "pt2_guga.fh"
+      SUBROUTINE DIELMV(ICASE,nICASE,JCASE,nJCASE,NUP,NDWN,EMU)
+      use definitions, only: iwp, wp
+      use constants, only: Zero
+      use sguga, only: SGS, CIS
+      use caspt2_module, only: ETA
+      IMPLICIT NONE
+
+      integer(kind=iwp), intent(in):: nICASE,nJCASE,NUP,NDWN
+      integer(kind=iwp), intent(in):: ICASE(nICASE),JCASE(nJCASE)
+      real(kind=wp), intent(inout):: EMU(NUP,NDWN)
+
+      Integer(kind=iwp) nLev, nIpWlk
+      Integer(kind=iwp) I,II,LV1,IC,LEV,IC1,ISTEP,IOC,J
+      real(kind=wp) SUM
+
+      nLev  = SGS%nLev
+      nIpWlk= CIS%nIpWlk
 
       DO I=1,NUP
         II=NIPWLK*(I-1)
-        SUM=0.0D0
-        DO LV1=MIDLEV+1,NLEV,15
+        SUM=Zero
+        DO LV1=SGS%MIDLEV+1,NLEV,15
           II=II+1
           IC=ICASE(II)
           DO LEV=LV1,MIN(LV1+14,NLEV)
@@ -43,11 +55,11 @@
 C THEN THE LOWER HALF:
       DO I=1,NDWN
         II=NIPWLK*(I-1)
-        SUM=0.0D0
-        DO LV1=1,MIDLEV,15
+        SUM=Zero
+        DO LV1=1,SGS%MIDLEV,15
         II=II+1
         IC=JCASE(II)
-        DO LEV=LV1,MIN(LV1+14,MIDLEV)
+        DO LEV=LV1,MIN(LV1+14,SGS%MIDLEV)
           IC1=IC/4
           ISTEP=IC-4*IC1
           IOC=(ISTEP+1)/2
@@ -60,5 +72,4 @@ C THEN THE LOWER HALF:
         END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE DIELMV

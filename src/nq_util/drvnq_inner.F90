@@ -23,14 +23,16 @@ subroutine DrvNQ_Inner(Kernel,Func,Maps2p,nSym,list_s,list_exp,list_bas,nShell,l
 !             August 1999                                              *
 !***********************************************************************
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: nIrrep, iOper
 use KSDFT_Info, only: do_pdftpot, FA_time, FI_time, Funcaa, Funcbb, Funccc, PUVX_time, sp_time
 use nq_Grid, only: l_casdft, D1UnZip, P2UnZip
 use nq_MO, only: D1MO, P2MO
 use nq_Structure, only: Close_Info_Ang
-use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Grad_I, iOpt_Angular, NASHT, nPot1, nPot2, &
-                   number_of_subblocks, nx, ny, nz, Tau_I
+use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Functional_type, Grad_I, iOpt_Angular, &
+                   meta_GGA_type1, NASHT, nPot1, nPot2, number_of_subblocks, nx, ny, nz, Tau_a1, Tau_a2, Tau_b1, Tau_b2, Tau_I
 use Grid_On_Disk, only: Grid_Status, GridInfo, Regenerate
+use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, Quart
 use Definitions, only: wp, iwp
@@ -42,7 +44,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-external :: Kernel
+procedure(DFT_FUNCTIONAL) :: Kernel
 integer(kind=iwp), intent(in) :: nShell, nSym, Maps2p(nShell,0:nSym-1), nNQ, nFckDim, nFckInt, nD, mGrid, nP2_ontop, nTmpPUVX, &
                                  nGrad, mAO, mdRho_dR
 integer(kind=iwp), intent(out) :: list_s(nSym*nShell), list_exp(nSym*nShell), list_bas(2,nSym*nShell), list_p(nNQ)
@@ -53,9 +55,9 @@ integer(kind=iwp) :: id, iIrrep, iSB, ix, iy, iyz, iz, jx, jxyz, jy, jyz, jz
 logical(kind=iwp) :: l_tgga
 real(kind=wp), allocatable :: EG_OT(:), FA_V(:), FI_V(:), OE_OT(:), PDFTFocA(:), PDFTFocI(:), PDFTPot1(:)
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iOff, lB, nB
 logical(kind=iwp) :: Exists
 #endif
-logical(kind=iwp), external :: Rsv_Tsk
 
 !***********************************************************************
 ! Initializations for MC-PDFT                                          *
@@ -281,31 +283,37 @@ end if
 
 l_tgga = .true.
 if (Do_Grad) then
-  call GADSum(Grad,nGrad)
+  call GADGOp(Grad,nGrad,'+')
 else
-  call GADSum_SCAL(Func)
-  call GADSum_SCAL(Funcaa)
-  call GADSum_SCAL(Funcbb)
-  call GADSum_SCAL(Funccc)
-  call GADSum_SCAL(Dens_I)
-  call GADSum_SCAL(Dens_t1)
-  call GADSum_SCAL(Dens_t2)
-  call GADSum_SCAL(Dens_a1)
-  call GADSum_SCAL(Dens_a2)
-  call GADSum_SCAL(Dens_b1)
-  call GADSum_SCAL(Dens_b2)
-  call GADSum_SCAL(Grad_I)
-  call GADSum_SCAL(Tau_I)
-  call GADSum(FckInt,nFckInt*nD)
+  call GADGOp_SCAL(Func,'+')
+  call GADGOp_SCAL(Funcaa,'+')
+  call GADGOp_SCAL(Funcbb,'+')
+  call GADGOp_SCAL(Funccc,'+')
+  call GADGOp_SCAL(Dens_I,'+')
+  call GADGOp_SCAL(Dens_t1,'+')
+  call GADGOp_SCAL(Dens_t2,'+')
+  call GADGOp_SCAL(Dens_a1,'+')
+  call GADGOp_SCAL(Dens_a2,'+')
+  call GADGOp_SCAL(Dens_b1,'+')
+  call GADGOp_SCAL(Dens_b2,'+')
+  if (functional_type == meta_GGA_type1) then
+    call GADGOp_SCAL(Tau_a1,'+')
+    call GADGOp_SCAL(Tau_a2,'+')
+    call GADGOp_SCAL(Tau_b1,'+')
+    call GADGOp_SCAL(Tau_b2,'+')
+  end if
+  call GADGOp_SCAL(Grad_I,'+')
+  call GADGOp_SCAL(Tau_I,'+')
+  call GADGOp(FckInt,nFckInt*nD,'+')
   if (l_casdft .and. do_pdftPot) then
-    call GADSum(OE_OT,nFckInt)
-    call GADSum(EG_OT,nTmpPUVX)
-    call GADSum(FI_V,nFckInt)
-    call GADSum(FA_V,nFckInt)
+    call GADGOp(OE_OT,nFckInt,'+')
+    call GADGOp(EG_OT,nTmpPUVX,'+')
+    call GADGOp(FI_V,nFckInt,'+')
+    call GADGOp(FA_V,nFckInt,'+')
     if (l_tgga) then
-      call GADSum(PDFTPot1,nPot1)
-      call GADSum(PDFTFocI,nPot1)
-      call GADSum(PDFTFocA,nPot1)
+      call GADGOp(PDFTPot1,nPot1,'+')
+      call GADGOp(PDFTFocI,nPot1,'+')
+      call GADGOp(PDFTFocA,nPot1,'+')
     end if
   end if
 end if

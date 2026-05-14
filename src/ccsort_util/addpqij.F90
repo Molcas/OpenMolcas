@@ -13,28 +13,26 @@ subroutine addpqij(wrk,wrksize,symp,symq,symi,symj,p,vint,ndimv1,ndimv2,ndimv3)
 ! this routine adds corresponding part to <pq|ij> record (#1)
 ! coming from read integrals with pivot index p vint_p(q,i,j)
 
-use ccsort_global, only: mapd1, mapi1, noa, NORB
+use ccsort_global, only: map1, noa, NORB
 use Definitions, only: wp, iwp
-
-#include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, symp, symq, symi, symj, p, ndimv1, ndimv2, ndimv3
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 real(kind=wp), intent(in) :: vint(ndimv1,ndimv2,ndimv3)
 integer(kind=iwp) :: i, ii, ij, j, pos0, posij0, pqij, q
 
 ! find number of this symmetry combination
 ! and initial position of this symmetry block in (1)
 
-ii = mapi1(symp,symq,symi)
-pos0 = mapd1(ii,1)
+ii = map1%i(symp,symq,symi)
+pos0 = map1%d(ii,1)
 
 !T0   if symi<symj return
 if (symi < symj) return
 
 !T1   return, if length is 0
-if (mapd1(ii,2) == 0) return
+if (map1%d(ii,2) == 0) return
 
 do j=1,noa(symj)
   do i=1,noa(symi)

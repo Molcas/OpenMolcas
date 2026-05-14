@@ -17,55 +17,43 @@ subroutine Integral_RI_3( &
 ! if IntOrd_jikl == .true. integral order within symblk: jikl
 !                    else  integral order within symblk: ijkl
 
-use RICD_Info, only: LDF
 use RI_glob, only: iSSOff, nBasSh, klS, nSkal_Valence, nSO, SOShl, ShlSO
+use Int_Options, only: iTOffs
 use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
+integer(kind=iwp) :: iAO(4), iAOst(4), iBas, iCmp(4), iShell(4), jBas, kBas, kOp(4), lBas
+logical(kind=iwp) :: Shijij
 
 #include "macros.fh"
-unused_var(MapOrg)
+unused_var(Shijij)
 unused_var(iSOSym)
-unused_var(nSkal)
+unused_var(iBas)
+
+iCmp(:) = iSD4(2,:)
+iShell(:) = iSD4(11,:)
+iAO(:) = iSD4(7,:)
+iAOst(:) = iSD4(8,:)
+iBas = iSD4(19,1)
+jBas = iSD4(19,2)
+kBas = iSD4(19,3)
+lBas = iSD4(19,4)
+Shijij = (iSD4(0,1) == iSD4(0,3)) .and. (iSD4(10,1) == iSD4(10,3)) .and. (iSD4(0,2) == iSD4(0,4)) .and. (iSD4(10,2) == iSD4(10,4))
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (LDF) then
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  if (mSym == 1) then
-    call PLF_LDF_3(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,Shijij .and. IJeqKL,iBas,jBas,kBas,lBas,kOp,TInt, &
-                   nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO,nSkal_Valence,mSym,iSSOff(0,0,klS))
-  else
-    call WarningMessage(2,'Not implemented yet!')
-    call Abend()
-    !call IndSft_RI_3(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs,TInt,nTInt,iTOffs,ShlSO, &
-    !                 nBasSh,SOShl,nSO,nSkal_Valence,mSym,iSSOff(:,:,klS))
-  end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
+if (mSym == 1) then
+  kOp(:) = 0
+  call PLF_RI_3(AOInt,ijkl,iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,jBas,kBas,lBas,kOp,TInt,nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO, &
+                nSkal_Valence,mSym,iSSOff(0,0,klS))
 else
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  if (mSym == 1) then
-    call PLF_RI_3(AOInt,ijkl,iCmp(2),iCmp(3),iCmp(4),iShell,iAO,iAOst,jBas,kBas,lBas,kOp,TInt,nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO, &
-                  nSkal_Valence,mSym,iSSOff(0,0,klS))
-  else
-    call IndSft_RI_3(iCmp,iShell,jBas,kBas,lBas,iAO,iAOst,ijkl,SOInt,nSOint,TInt,nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO, &
-                     nSkal_Valence,mSym,iSSOff(:,:,klS))
-  end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
+  call IndSft_RI_3(iCmp,iShell,jBas,kBas,lBas,iAO,iAOst,ijkl,SOInt,nSOint,TInt,nTInt,iTOffs,ShlSO,nBasSh,SOShl,nSO,nSkal_Valence, &
+                   mSym,iSSOff(:,:,klS))
 end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
 
 end subroutine Integral_RI_3

@@ -19,7 +19,7 @@ module second_quantization
 ! are used to indicate annihilation (destroyed state). Excitation operators
 ! can be applied to the determinants and return the resulting determinant.
 !
-! Additionally, a wavefunction is represtented by a structure (derived type)
+! Additionally, a wavefunction is represented by a structure (derived type)
 ! consisting of determinant coefficients resulting from the direct product of
 ! separate alpha and beta determinants.
 !
@@ -132,7 +132,7 @@ function lex_next(c) result(d)
 
   t = ior(c,c-1)+1
   s = iand(not(t-1),t)-1
-  d = ior(t,ishft(s,-(trailz(c)+1)))
+  d = ior(t,ishft(s,-min(trailz(c)+1,storage_size(s))))
 
 end function lex_next
 
@@ -348,7 +348,7 @@ function cre2(p,q,c) result(d)
   integer(kind=iwp), intent(in) :: p, q, c
   integer(kind=iwp) :: t
 
-  if ((btest(c,q-1) .or. btest(c,p-1))) then
+  if (btest(c,q-1) .or. btest(c,p-1)) then
     d = -1
     return
   end if

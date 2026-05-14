@@ -23,6 +23,7 @@ integer(kind=iwp), intent(in) :: rc
 integer(kind=iwp) :: lb, ub
 character(len=128) :: msg
 logical(kind=iwp), external :: bomb_on_error
+
 #include "warnings.h"
 
 call xflush(u6)
@@ -32,8 +33,8 @@ if (rc /= _RC_ALL_IS_WELL_) then
   !IFG: do not write message if rc is "out of bounds"
   !     (this avoids it, e.g., when a slave process quits with -2,
   !     also avoids writing garbage from rc_msg)
-  lb = lbound(rc_msg,dim=1)
-  ub = ubound(rc_msg,dim=1)
+  lb = lbound(rc_msg,1)
+  ub = ubound(rc_msg,1)
   if ((rc >= lb) .and. (rc <= ub)) then
     write(msg,'(a,i6,2a)') 'xquit (rc = ',rc,'): ',rc_msg(rc)
     call write_stderr(msg)

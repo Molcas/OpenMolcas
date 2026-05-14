@@ -9,11 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE EXCIND(IAS,INS,ISYM,ICASE,IP,IQ,IR,IS)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp
+      IMPLICIT None
 
-#include "rasdim.fh"
-#include "caspt2.fh"
+      Integer(kind=iwp), intent(in) :: IAS,INS,ISYM,ICASE
+      Integer(kind=iwp), Intent(Out) :: IP,IQ,IR,IS
       EXTERNAL ASIND
+      Integer(kind=iwp) :: IP1,IQ1,IR1,IP2,IQ2,IR2
 
 CPAM99 New call sequence for ASIND
       CALL ASIND(IAS,ISYM,ICASE,IP1,IQ1,IR1)
@@ -23,5 +25,5 @@ CPAM99 New call sequence for ASIND
       IQ=IQ2
       IR=IP1
       IS=IP2
-      RETURN
-      END
+
+      END SUBROUTINE EXCIND

@@ -34,33 +34,34 @@ subroutine MP2_Driver(ireturn)
 !         Dept. of Theoretical Chemistry                               *
 !         University of Lund, Sweden                                   *
 !                                                                      *
-!       - code for Laplace-SOS-MP2 for Cholesky/DF and LDF             *
+!       - code for Laplace-SOS-MP2 for Cholesky/DF                     *
 !         November-December 2012, T. B. Pedersen                       *
 !         Centre for Theoretical and Computational Chemistry           *
 !         Dept. of Chemistry                                           *
 !         University of Oslo, Norway                                   *
 !***********************************************************************
 
-use MBPT2_Global, only: CMO, DoCholesky, DoDF, DoLDF, EOcc, EOrb, EVir, FnIntA, FnIntM, iPL, LuHLF1, LuHLF2, LuHLF3, LuIntA, &
-                        LuIntM, MBPT2_Clean, NamAct, nBas
+use MBPT2_Global, only: CMO, DoCholesky, DoDF, EOcc, EOrb, EVir, FnIntA, FnIntM, iPL, LuHLF1, LuHLF2, LuHLF3, LuIntA, LuIntM, &
+                        MBPT2_Clean, NamAct, nBas
+use ChoMP2, only: all_Vir, C_os, ChoAlg, DoDens, DoMP2, DoT1amp, EOSMP2, FNOMP2, iOffT1, Laplace, Laplace_nGridPoints, LovMP2, &
+                  nActa, pEOcc => EOcc, pEVir => EVir, SOS_mp2, T1amp, ThrLov, vkept, Wref, XEMP2
+use transform_procedures, only: SetUp_CASPT2_Tra
+use trafo, only: IADOUT
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, iTol, iTst, iType, lthCMO, lthEOr, nAsh(8), nDel_tra(8), nFro_tra(8), nIsh(8), nOccT
-real(kind=wp) :: E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPE(4), TCPT, TIOE(4), TIOT
+integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, iTol, iTst, iType, l_T1, lthCMO, lthEOr, nAsh(8), nDel_tra(8), nFro_tra(8), &
+                     nIsh(8), nOccT
+real(kind=wp) :: Dum(2), E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPE(4), TCPT, TIOE(4), TIOT
 logical(kind=iwp) :: Conventional, IsDirect, Exists, Ready
 character(len=8) :: Method, Method1
-real(kind=wp), allocatable :: T1amp(:)
 logical(kind=iwp), parameter :: Debug = .false.
-integer(kind=iwp), external :: Cho_X_GetTol, ip_of_Work
+integer(kind=iwp), external :: Cho_X_GetTol
 real(kind=wp), external :: ddot_, Seconds
-#include "Molcas.fh"
-#include "trafo.fh"
-#include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -82,13 +83,11 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Figure out if it's a cholesky run, DF run, LDF run
+! Figure out if it's a cholesky run, DF run
 DoCholesky = .false.
 DoDF = .false.
-DoLDF = .false.
 call DecideOnCholesky(DoCholesky)
 call DecideOnDF(DoDF)
-call DecideOnLocalDF(DoLDF)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -129,11 +128,12 @@ call PrInp_MBPT2(EOcc,EVir,iTst)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Copy pointers to orbital energies to chomp2_dec.fh
+! Set pointers to orbital energies.
 ! Needed for amplitude Cholesky decomposition.
 
 if (DoCholesky) then
-  call ChoMP2_SetPtsOen(EOcc,EVir)
+  pEOcc => EOcc(:)
+  pEVir => EVir(:)
 end if
 !                                                                      *
 !***********************************************************************
@@ -158,7 +158,7 @@ if (DoT1amp) then
   t1dg = sqrt(t1nrm/nOccT)
   write(u6,'(A,F8.4)') '       T1 diagnostic : ',t1dg
   write(u6,*)
-  iOffT1(1) = ip_of_Work(T1amp(1))-1
+  iOffT1(1) = 0
   do i=2,nSym
     iOffT1(i) = iOffT1(i-1)+nOcc(i-1)*nExt(i-1)
   end do
@@ -167,20 +167,10 @@ end if
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-if (DoLDF) then ! LDF
+if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. FNOMP2) .and. (.not. LovMP2)) then
   Conventional = .false.
   Ready = .false.
-  if (Laplace .and. SOS_MP2) then
-    call WarningMessage(2,'LDF-Laplace-SOS-MP2 not implemented yet!')
-    call SysHalt('mp2_driver')
-  else
-    call WarningMessage(2,'Only LDF-Laplace-SOS-MP2 implemented!')
-    call SysHalt('mp2_driver')
-  end if
-else if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. FNOMP2) .and. (.not. LovMP2)) then
-  Conventional = .false.
-  Ready = .false.
-  call ChoMP2_Drv(irc,E2BJAI,CMO,EOcc,EVir)
+  call ChoMP2_Drv(irc,E2BJAI,CMO,EOcc,EVir,Dum(1),Dum(2))
   if (irc /= 0) then
     write(u6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
     call SysAbendMsg('MP2_Driver','Non-zero return code from ChoMP2_Drv',' ')
@@ -191,7 +181,7 @@ else if (DoCholesky .and. SOS_mp2) then ! CD/DF SOS-MP2
   Conventional = .false.
   Ready = .false.
   if (Laplace) then
-    call ChoMP2_Drv(irc,E2BJAI,CMO,EOcc,EVir)
+    call ChoMP2_Drv(irc,E2BJAI,CMO,EOcc,EVir,Dum(1),Dum(2))
     if (irc /= 0) then
       write(u6,*) 'MP2_Driver: ChoMP2_Drv returned ',irc
       call SysAbendMsg('MP2_Driver','Non-zero return code from ChoMP2_Drv',' ')
@@ -357,11 +347,8 @@ if (Ready) then
 
   Wref = One/(One+Wref)   ! Note: this is Cref**2
 
-  if (DoLDF) then
-    call WarningMessage(2,'LDF should not be implemented....')
-    call SysHalt('mp2_driver')
-  else if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. LovMP2) .and. (.not. FNOMP2)) then
-    if (iPL >= 2) write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
+  if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. LovMP2) .and. (.not. FNOMP2)) then
+    if (iPL >= 2) write(u6,'(3(/6X,A,F26.16,A)//6X,A,F26.16,A//6X,A,F15.5)') &
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &
       ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
@@ -369,7 +356,7 @@ if (Ready) then
       ' Reference weight ( Cref**2 )         =',Wref
   else if (DoCholesky .and. LovMP2) then
     ESSMP2 = E2BJAI+EOSMP2
-    if (iPL >= 2) write(u6,'(4(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(4(/6X,A,F26.16,A)//6X,A,F26.16,A//6X,A,F15.5)') &
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &
       ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
@@ -378,7 +365,7 @@ if (Ready) then
       ' Reference weight ( Cref**2 )         =',Wref
   else if (DoCholesky .and. FNOMP2) then
     ESSMP2 = E2BJAI+EOSMP2-XEMP2
-    if (iPL >= 2) write(u6,'(5(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(5(/6X,A,F26.16,A)//6X,A,F26.16,A//6X,A,F15.5)') &
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &
       ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
@@ -391,12 +378,12 @@ if (Ready) then
     if (iPL >= 2) then
       if (Laplace) then
         write(u6,'(/,6X,A,I4)') ' Number of Laplace grid points:',Laplace_nGridPoints
-        write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
+        write(u6,'(3(/6X,A,F26.16,A)//6X,A,F26.16,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
                                                        ' SCF energy                           =',ESCF,' a.u.', &
                                                        ' L-SOS 2nd-order correlation energy   =',E2BJAI,' a.u.', &
                                                        ' Total L-SOS-MP2 energy               =',E2BJAI+ESCF,' a.u.'
       else
-        write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
+        write(u6,'(3(/6X,A,F26.16,A)//6X,A,F26.16,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
                                                        ' SCF energy                           =',ESCF,' a.u.', &
                                                        ' SOS 2nd-order correlation energy     =',E2BJAI,' a.u.', &
                                                        ' Total SOS-MP2 energy                 =',E2BJAI+ESCF,' a.u.'
@@ -404,7 +391,7 @@ if (Ready) then
     end if
   else
     WRef = REFC**2
-    if (iPL >= 2) write(u6,'(2(/6X,A,F20.10,A)//6X,A,F20.10,A/6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(2(/6X,A,F26.16,A)//6X,A,F26.16,A/6X,A,F15.5)') &
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &
       ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
@@ -472,6 +459,7 @@ contains
 subroutine finalize()
   call MBPT2_Clean()
   if (DoT1amp) call mma_deallocate(T1amp)
+  if (DoCholesky) nullify(pEOcc,pEVir)
   ireturn = 0
 end subroutine finalize
 

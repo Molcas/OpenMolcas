@@ -15,8 +15,8 @@ set (sources
      amfi_info.F90
      basis2run.F90
      basis_info.F90
-     calcamt.F90
      calc_lstvec.F90
+     calcamt.F90
      center_info.F90
      clean_bname.F90
      cow.F90
@@ -27,7 +27,6 @@ set (sources
      drvn0.F90
      dstchk.F90
      external_centers.F90
-     fetch_qmmm.F90
      fill_rinfo1.F90
      find_basis_set.F90
      fix_fockop.F90
@@ -44,11 +43,8 @@ set (sources
      index_nosym.F90
      info2runfile.F90
      lbl2nr.F90
-     ldf_checkconfig.F90
-     ldf_checkthrs.F90
-     ldf_setoptionflag.F90
-     mergebs.F90
      merge_lists.F90
+     mergebs.F90
      misc.F90
      mk_chdisp.F90
      name_to_lm.F90
@@ -57,19 +53,19 @@ set (sources
      oeisg.F90
      one_int.F90
      order_axis.F90
-     ordexp1.F90
      ordexp.F90
+     ordexp1.F90
      ovlmp.F90
      period.F90
      phase_info.F90
-     print_basis2.F90
      print_basis.F90
+     print_basis2.F90
      print_geometry.F90
      print_isotopes.F90
      print_opinfo.F90
      print_symmetry.F90
-     processrp.F90
      process_weights.F90
+     processrp.F90
      pso_stuff.F90
      rdbsl.F90
      rdctl_seward.F90
@@ -79,7 +75,6 @@ set (sources
      rigrot.F90
      saddle.F90
      set_fake_eris.F90
-     settargetaccuracy_ldf.F90
      setup_offao.F90
      sizes_of_seward.F90
      soao_info.F90

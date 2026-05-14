@@ -166,7 +166,7 @@ contains
 
         do i = 1, size(V, 2)
             ref(i, i) = 1._wp
-            ref(mod(i + 1, size(V, 1)), i) = -1._wp
+            ref(mod(i, size(V, 1)) + 1, i) = -1._wp
         end do
 
         call canonicalize(V, lambdas, ref)

@@ -18,7 +18,7 @@ subroutine expandbas(Bas1,nBas1,Bas2,nBas2,Orb1,Orb2,occ1,eorb1,indt1,occ2,eorb2
 
 #include "intent.fh"
 
-use info_expbas_mod, only: LenIn
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

@@ -17,20 +17,18 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(out) :: iOK
 integer(kind=iwp), intent(in) :: nDen, nSym, nBas(nSym), nIsh(nSym)
 type(DSBA_Type), intent(in) :: CM(nDen)
-type(DSBA_Type), intent(_OUT_) :: MSQ(nDen)
+type(DSBA_Type), intent(inout) :: MSQ(nDen)
 integer(kind=iwp) :: i, iComp, ikc, iOpt, irc, iSyLbl, iSym, ja, nBm, NumV
 real(kind=wp) :: Thr, Ymax
 character(len=8) :: Label
 type(DSBA_Type) :: SMat
 real(kind=wp), allocatable :: SXMat(:)
 real(kind=wp), allocatable, target :: Dmat0(:)
-real(kind=wp), pointer :: Dmat(:,:) => null()
+real(kind=wp), pointer :: Dmat(:,:)
 
 !***********************************************************************
 irc = 0
@@ -70,7 +68,7 @@ do while (iSym <= nSym)
 
   iSym = iSym+1
 
-  DMat => null()
+  nullify(DMat)
 
 end do
 
@@ -110,7 +108,7 @@ if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
 
     end if
 
-    DMat => null()
+    nullify(DMat)
 
   end do
 

@@ -660,7 +660,7 @@ given which are for an organic molecule with one carbon,
 one oxygen and two hydrogen atoms. The order in the previous
 SEWARD and RASSCF calculations for the atoms is carbon,
 oxygen, hydrogen 1 and hydrogen 2. The dispersion is damped. Finally,
-there are sixteen RASSCF calculations preceeding and the last
+there are sixteen RASSCF calculations preceding and the last
 two are state-average since two states are collected from these
 files; the ground state interacts with the surrounding. ::
 

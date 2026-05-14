@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PrGrad(Label,Grad,nGrad,Names)
+subroutine PrGrad(Label,Grad,nGrad)
 !***********************************************************************
 !                                                                      *
 ! Object: to print set gradient with respect to the symmetrical dis-   *
@@ -23,27 +23,27 @@ subroutine PrGrad(Label,Grad,nGrad,Names)
 !***********************************************************************
 
 use Symmetry_Info, only: lIrrep
+use Molcas, only: LenIn, MxAtom
+use Disp, only: ChDisp
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 character(len=*), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(in) :: Grad(nGrad)
-character(len=LenIn6), intent(in) :: Names(nGrad)
-integer(kind=iwp) :: i, iCen, iGrad, mGrad
+integer(kind=iwp) :: iCen, iGrad, mGrad
 real(kind=wp) :: CGrad(3,MxAtom), Temp, TempX, TempY, TempZ
-character(len=LenIn5) :: CNames(MxAtom), Namei
+character(len=LenIn+5) :: CNames(MxAtom), Namei
 
 write(u6,*)
 call Banner(Label,1,len(Label)+30)
 write(u6,*)
 if (.true.) then
-  call TrGrd_Alaska_(CGrad,CNames,Grad,nGrad,iCen)
+  call TrGrd_Alaska(CGrad,CNames,Grad,nGrad,iCen)
   write(u6,'(1x,A,A)') ' Irreducible representation: ',lIrrep(0)
-  write(u6,'(1x,90A     )') ('-',i=1,90)
+  write(u6,'(1x,A)') repeat('-',90)
   write(u6,'(7x,3(23x,A))') 'X','Y','Z'
-  write(u6,'(1x,90A     )') ('-',i=1,90)
+  write(u6,'(1x,A)') repeat('-',90)
   do iGrad=1,iCen
     TempX = CGrad(1,iGrad)
     TempY = CGrad(2,iGrad)
@@ -51,7 +51,7 @@ if (.true.) then
     Namei = CNames(iGrad)
     write(u6,'(2X,A,3X,3ES24.14)') Namei,TempX,TempY,TempZ
   end do
-  write(u6,'(1x,90A     )') ('-',i=1,90)
+  write(u6,'(1x,A)') repeat('-',90)
 else
 
   ! Modified by Luca De Vico november 2005 Teokem
@@ -67,7 +67,7 @@ else
   do iGrad=1,mGrad
     Temp = Grad(iGrad)
     !if (abs(Temp) < 1.0e-15_wp) Temp = Zero
-    write(u6,'(16X,A,15X,ES15.7)') Names(iGrad),Temp
+    write(u6,'(16X,A,15X,ES15.7)') ChDisp(iGrad),Temp
   end do
 
   !if (nGrad > 21) then

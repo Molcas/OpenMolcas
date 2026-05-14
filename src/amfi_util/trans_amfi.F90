@@ -45,7 +45,7 @@ if (ich == 1) then
     end do
   end do
 else if (ich == 2) then
-  !write(6,*) 'transform second index '
+  !write(u6,*) 'transform second index '
   do ind4=1,nnew4
     do ind3=1,nnew3
       do ind5=1,nnew2

@@ -40,12 +40,12 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use TwoDat, only: AuxTwo, isBas, isDAdr, isMxDa, isOrd, isPkPa, isPkTh, isSkip, isSym, nBatch, rcTwo, TocTwo
 use Pack_mod, only: isPack, PkThrs
+use Molcas, only: MxBas, MxOrb
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: rc, nSym, nBas(0:7), nSkip(0:7)
 logical(kind=iwp), intent(out) :: Square
-#include "Molcas.fh"
 integer(kind=iwp) :: iBatch, ijPair, iPack, iSyBlk, iSym, iTab, jSym, klPair, kSym, lSym, mxDAdr, nPairs, ntBas
 logical(kind=iwp) :: DoCholesky
 character(len=*), parameter :: TheName = 'GetOrd'

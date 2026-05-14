@@ -28,15 +28,12 @@ subroutine KnEInt( &
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
+use rmat, only: Dipol1, EpsQ, QCoul, RMat_Type_Integrals
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "rmat_option.fh"
-#include "rmat.fh"
-#include "print.fh"
-integer(kind=iwp) :: iBeta, icop, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipDi, ipqC, ipQxyz, iPrint, ipRnr, ipRxyz, ipTxyz, &
-                     iRout, lsum, nip
+integer(kind=iwp) :: iBeta, icop, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipDi, ipqC, ipQxyz, ipRnr, ipRxyz, ipTxyz, lsum, nip
 logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
@@ -47,8 +44,6 @@ unused_var(iStabM)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 150
-iPrint = nPrint(iRout)
 ABeq(:) = A == RB
 
 nip = 1
@@ -85,19 +80,19 @@ end if
 !***********************************************************************
 !                                                                      *
 if (nip-1 > nArr*nZeta) then
-  call WarningMessage(2,'KNEInt: nip-1 > nArr*nZeta')
+  call WarningMessage(2,'KnEInt: nip-1 > nArr*nZeta')
   write(u6,*) 'nip=',nip
   write(u6,*) 'nArr,nZeta=',nArr,nZeta
   call Abend()
 end if
 
-if (iPrint >= 49) then
-  call RecPrt(' In KnEInt: A',' ',A,1,3)
-  call RecPrt(' In KnEInt: RB',' ',RB,1,3)
-  call RecPrt(' In KnEInt: Ccoor',' ',Ccoor,1,3)
-  call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
-  write(u6,*) ' In KnEInt: la,lb=',la,lb
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In KnEInt: A',' ',A,1,3)
+call RecPrt(' In KnEInt: RB',' ',RB,1,3)
+call RecPrt(' In KnEInt: CoorO',' ',CoorO,1,3)
+call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
+write(u6,*) ' In KnEInt: la,lb=',la,lb
+#endif
 
 if (RMat_type_integrals) then
   !                                                                    *
@@ -144,7 +139,7 @@ else
   ! Compute the contribution from the multipole moment operator
 
   ABeq(:) = .false.
-  call CrtCmp(Zeta,P,nZeta,Ccoor,Array(ipRxyz),nOrdOp-2,HerR(iHerR(nHer)),nHer,ABeq)
+  call CrtCmp(Zeta,P,nZeta,CoorO,Array(ipRxyz),nOrdOp-2,HerR(iHerR(nHer)),nHer,ABeq)
 
   ! Compute the cartesian components for the multipole moment
   ! integrals. The integrals are factorized into components.
@@ -173,7 +168,5 @@ else
   call CmbnKE(Array(ipQxyz),nZeta,la,lb,nOrdOp-2,Zeta,rKappa,rFinal,nComp,Array(ipTxyz))
 
 end if
-
-return
 
 end subroutine KnEInt

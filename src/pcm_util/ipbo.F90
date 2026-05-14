@@ -29,7 +29,7 @@ real(kind=wp) :: R0IJ, R1IJ
 ! is whether the distances is no more than 30% longer than the sum of
 ! covalent radii of involved atoms. For the moment all bond types are
 ! determined using Pauling bond orders.
-! Note that RIJ is multiplied by Angstrom
+! Note that RIJ is multiplied by angstrom
 
 IPBO = 0
 R1IJ = RIJ*Angstrom

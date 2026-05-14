@@ -207,7 +207,7 @@ versions of |molcas| can get a feeling for what has happened on later versions
     default selection of JOBIPH names in :program:`RASSI`.
   * RASSI can use default selection of JOBIPH names, when used together with multiple
     RASSCF runs in one job.
-  * RASSCF can use natural orbitals from a preceeding UHF calculation as input
+  * RASSCF can use natural orbitals from a preceding UHF calculation as input
     orbitals.
 
 * Installation and tools

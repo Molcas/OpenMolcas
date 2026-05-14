@@ -17,13 +17,12 @@ use mrci_global, only: BNAME, CISEL, CSEL, CSPCK, CTRSH, ENP, ETHRE, GFAC, ICH, 
                        NDEL, NDMO, NELEC, NFMO, NFRO, NISH, NORB, NORBT, NREF, NRROOT, NSEL, NSM, NSYM, NVIR, NVIRP, NVIRT, &
                        POTNUC, SSEL, SQNLIM, THRORB
 use guga_util_global, only: IAD10, nIOCR
-use stdalloc, only: mma_allocate, mma_deallocate
+use Molcas, only: LenIn, MxOrb
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-#include "Molcas.fh"
-#include "warnings.h"
 integer(kind=iwp) :: I, IADD10, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOM, iOpt, IORBS, IR, iRef, ISC(4), istatus, ISUM, &
                      ISYM, IT, IU, IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LN1, LN2, LV, MXVC, &
                      NAMSIZ, NASHI, NASHT, NBASI, NC, NCSH(8), NCSHI, NDELI, NDELT, NDMOI, NDMOT, NFMOI, NFMOT, NFROI, NFROT, &
@@ -35,8 +34,10 @@ character(len=88) :: ModLine
 character(len=72) :: Line, Title(10)
 character(len=4) :: Command
 integer(kind=iwp), allocatable :: IOCR(:)
-character(len=4), parameter :: Cmd(19) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
+character(len=*), parameter :: Cmd(19) = ['TITL','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','ROOT','ACPF','SDCI','GVAL', &
                                           'PROR','REFC','SELE','NRRO','MXVE','TRAN','END ']
+
+#include "warnings.h"
 
 ! Initialize data and set defaults
 
@@ -73,7 +74,7 @@ nTit = 0
 
 ! Read the header of the ONEINT file
 
-NAMSIZ = LENIN8*MXORB
+NAMSIZ = (LenIn+8)*MXORB
 IDISK = 0
 call WR_MOTRA_Info(LUONE,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NFMO,NDMO,8,BNAME,NAMSIZ)
 
@@ -294,15 +295,15 @@ if (ntit == 0) then
   title(1) = ' ( No title was given )'
 end if
 write(u6,*)
-write(u6,'(6X,120A1)') ('*',i=1,120)
-write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-write(u6,'(6X,57A1,A6,57A1)') '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
+write(u6,'(6X,A)') repeat('*',120)
+write(u6,'(6X,A,118X,A)') '*','*'
+write(u6,'(6X,A,56X,A,56X,A)') '*','Title:','*'
 do i=1,nTit
   call Center_Text(Title(i))
-  write(u6,'(6X,24A1,A72,24A1)') '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
+  write(u6,'(6X,A,23X,A,23X,A)') '*',Title(i),'*'
 end do
-write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-write(u6,'(6X,120A1)') ('*',i=1,120)
+write(u6,'(6X,A,118X,A)') '*','*'
+write(u6,'(6X,A)') repeat('*',120)
 write(u6,*)
 
 !---  print the coordinates of the system -----------------------------*
@@ -537,7 +538,7 @@ write(u6,'(A,I12)') '      WORKSPACE WORDS, (Re(wp)) ',MEMTOT
 write(u6,'(A,I8)') '      MAXIMUM NR OF ORBITALS        ',IOM
 write(u6,'(A,I8)') '      MAX NR OF STORED CI/SGM ARR.  ',MXVC
 write(u6,'(A,I8)') '      MAX NR OF ITERATIONS          ',MAXIT
-write(u6,'(A,D9.2)') '      ENERGY CONVERGENCE THRESHOLD ',ETHRE
+write(u6,'(A,ES9.2)') '      ENERGY CONVERGENCE THRESHOLD ',ETHRE
 write(u6,'(A,F8.1)') '      SPIN QUANTUM NUMBER           ',SPIN
 write(u6,'(A,I8)') '      CORRELATED ELECTRONS          ',NELEC
 write(u6,'(A,I8)') '      WAVE FUNCTION SYMMETRY LABEL  ',LSYM

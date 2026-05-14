@@ -10,30 +10,30 @@
 !***********************************************************************
 
 subroutine mkmappqij()
-! this routine prepares mapd,mapi
-! for <pq|ij> for p,q, i>=j to mapd1,mapi1
+! this routine prepares %d, %i
+! for <pq|ij> for p,q, i>=j to map1
 
-use ccsort_global, only: mapd1, mapi1, noa, NORB, NSYM, pos10
+use ccsort_global, only: map1, noa, NORB, NSYM
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: length, nhelp, pos, symi, symj, symp, sympq, sympqi, symq
 
-! set mapi1 to zero
+! set map1%i to zero
 
-mapi1(1:nsym,1:nsym,1:nsym) = 0
+map1%i(1:nsym,1:nsym,1:nsym) = 0
 
 ! def zero-th row
 
-mapd1(0,1) = 5
-mapd1(0,2) = 5
-mapd1(0,3) = 1
-mapd1(0,4) = 1
-mapd1(0,6) = 3
+map1%d(0,1) = 5
+map1%d(0,2) = 5
+map1%d(0,3) = 1
+map1%d(0,4) = 1
+map1%d(0,6) = 3
 
 nhelp = 0
-pos = pos10
+pos = map1%pos0
 do symp=1,nsym
   do symq=1,nsym
     sympq = mul(symp,symq)
@@ -46,21 +46,21 @@ do symp=1,nsym
       ! calc. length
       length = noa(symi)*noa(symj)*NORB(symp)*NORB(symq)
 
-      mapd1(nhelp,1) = pos
-      mapd1(nhelp,2) = length
-      mapd1(nhelp,3) = symp
-      mapd1(nhelp,4) = symq
-      mapd1(nhelp,5) = symi
-      mapd1(nhelp,6) = symj
+      map1%d(nhelp,1) = pos
+      map1%d(nhelp,2) = length
+      map1%d(nhelp,3) = symp
+      map1%d(nhelp,4) = symq
+      map1%d(nhelp,5) = symi
+      map1%d(nhelp,6) = symj
       pos = pos+length
 
-      mapi1(symp,symq,symi) = nhelp
+      map1%i(symp,symq,symi) = nhelp
 
     end do
   end do
 end do
 
-mapd1(0,5) = nhelp
+map1%d(0,5) = nhelp
 
 return
 

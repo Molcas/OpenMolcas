@@ -56,11 +56,12 @@ subroutine CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,FactC,FactX,
 !
 !***********************************************************************
 
+use Cholesky, only: timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, DensityCheck, Lunit
 use Data_Structures, only: Deallocate_DT, DSBA_Type, Integer_Pointer, SBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
@@ -72,7 +73,6 @@ real(kind=wp), intent(in) :: FactC(nDen), FactX(nDen)
 type(DSBA_Type), intent(in) :: DLT(nDen), DSQ(nDen), MSQ(nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen), FSQ(nDen)
 type(Integer_Pointer), intent(in) :: pNocc(nDen)
-#include "chotime.fh"
 integer(kind=iwp) :: iBatch, iE, irc, iS, iSkip(nSym), iSym, ISYMA, ISYMB, ISYMD, ISYMG, iSymp, ISYMQ, iSymr, iSymr_Occ, iSyms, &
                      iVec, jB, jD, jDen, jE, jjB, jjS, jR, jS, jSR, jSym, JVEC, k, kOcc(nSym), kRdMem, kSym, l, LKV, LVK, LWORK, &
                      MaxSym, Naa, nb, nBatch, NBL, ng, nk, nMax, np, nq, nr, ns, NumB, NumCho(nSym), NumV, nVec
@@ -87,7 +87,7 @@ character(len=50) :: CFmt
 character(len=6) :: Fname
 type(SBA_Type), target :: Wab, LqJs
 real(kind=wp), allocatable :: Dchk(:)
-real(kind=wp), pointer :: LrJs(:,:,:) => null(), XdJb(:) => null(), XgJk(:) => null(), XkJs(:) => null(), VJ(:) => null()
+real(kind=wp), pointer :: LrJs(:,:,:), VJ(:), XdJb(:), XgJk(:), XkJs(:)
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
 character(len=*), parameter :: BaseNm = 'CHFV', SECNAM = 'CHO_FTWO_MO'
 
@@ -111,10 +111,10 @@ if (DensityCheck) then
   if (DECO) xf = One
   do jDen=1,nDen
     do jSym=1,nSym
-      if ((nBas(jSym) /= 0) .and. (pNocc(jDen)%I1(jSym) /= 0)) then
+      nVec = pNocc(jDen)%I1(jSym)
+      if ((nBas(jSym) /= 0) .and. (nVec /= 0)) then
         call mma_allocate(Dchk,nBas(jSym)**2,Label='Dchk')
-        call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),Square,MSQ(jDen)%SB(jSym)%A2,pNocc(jDen)%I1(jSym),xf,Dchk,nBas(jSym)**2, &
-                        Thr,irc)
+        call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),Square,MSQ(jDen)%SB(jSym)%A2,nVec,xf,Dchk,nBas(jSym)**2,Thr,irc)
         call mma_deallocate(Dchk)
         if (irc == 0) then
           write(u6,*) '*** DENSITY CHECK : OK! *** SYMM= ',jSym
@@ -260,6 +260,7 @@ do jSym=1,MaxSym
 
       if (nk*np <= 0) cycle
       iS = iE+1
+      Wab%ipOff(iSymp) = iS
 
       if ((iSymp == ksym) .and. (iSkip(iSymp) /= 0)) then
         NumB = nk*(nk+1)/2
@@ -345,7 +346,7 @@ do jSym=1,MaxSym
           end if
         end do
 
-        VJ => null()
+        nullify(VJ)
 
         call CWTIME(TCC2,TWC2)
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
@@ -437,14 +438,14 @@ do jSym=1,MaxSym
                 texch(1) = texch(1)+(TC1X2-TC1X1)
                 texch(2) = texch(2)+(TW1X2-TW1X1)
 
-                XkJs => null()
+                nullify(XkJs)
 
               end if ! if kocc /= 0
 
             end if ! Do Exchange(jDen)
 
           end do ! loop over the densities
-          LrJs => null()
+          nullify(LrJs)
 
         end if ! nbas /= 0
 
@@ -557,7 +558,7 @@ do jSym=1,MaxSym
                   call DGEMV_('T',LKV,NBL,-FactX(jDen),XdJb(jjB:),LKV,XdJb(jjB:),1,ONE,FSQ(jDEN)%SB(ISYMB)%A2(jB:,jB),1)
 
                 end do
-                XdJb => null()
+                nullify(XdJb)
                 ! ******************************************************************
 
               end if
@@ -593,11 +594,11 @@ do jSym=1,MaxSym
                               FSQ(jDen)%SB(ISYMG)%A2(jD:,jD),1)
                 end do
 
-                XgJk => null()
+                nullify(XgJk)
               end if
 
             end if
-            LqJs%SB(ISYMG)%A3 => null()
+            nullify(LqJs%SB(ISYMG)%A3)
 
           end do ! loop over orbital symmetries
 

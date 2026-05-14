@@ -21,8 +21,8 @@ set (sources
      vibinp.F90
      vibmat.F90
      vibrot.F90
-     vibrotmain.F90
      vibrot_globals.F90
+     vibrotmain.F90
      vibtrm.F90
      wr_vibrot_info1.F90
 )

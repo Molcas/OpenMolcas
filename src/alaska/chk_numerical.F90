@@ -12,12 +12,12 @@
 subroutine Chk_Numerical(LuSpool,Numerical)
 
 use Alaska_Info, only: Auto, DefRoot, ForceNAC, iRlxRoot
+use NAC, only: isNAC, NACStates
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 logical(kind=iwp), intent(out) :: Numerical
-#include "nac.fh"
 integer(kind=iwp) :: iDNG, iGO, iRoot, iRoot0, istatus, LuWr
 real(kind=wp) :: rDelta
 logical(kind=iwp) :: Is_Root_Set, DNG, KeepOld, Found

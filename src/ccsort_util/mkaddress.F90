@@ -40,13 +40,13 @@ subroutine mkaddress(NOIPSB)
 ! N.B. typ,idis,np,nq,nr,ns are imported from ccsort_global
 
 use ccsort_global, only: fullprint, idis, LUINTM, NORB, np, nq, nr, ns, NSYM, typ
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: NOIPSB(106)
-#include "tratoc.fh"
 integer(kind=iwp) :: idishelp, idistemp, ilow, IND, INDT, iold, ISPQRS, iup, jlow, jold, jup, kold, kup, lold, lup, N_INT, norbp, &
                      nsi, nsij, nsijk, nsj, nsk, nsl, NSLM, p, pa, q, qa, r, ra, s, sense !, idispsb(106)
 real(kind=wp) :: dum(1)

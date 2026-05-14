@@ -78,7 +78,7 @@ if (.not. Silent) then
   call CWTime(C2,W2)
   TimC = C2-C1
   TimW = W2-W1
-  write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
+  write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
 end if
 
 ! Iterations.
@@ -95,7 +95,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
-    write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
+    write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1))') nIter,Functional,Delta,GradNorm,TimC,TimW
   end if
   Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 end do

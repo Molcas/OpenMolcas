@@ -26,7 +26,8 @@
 
 subroutine Init_GenANO()
 
-use Genano_globals, only: MxLqn, nSym, nBas, nPrim, nDsym, iSymBk, pDsym, tDsym, Ssym, LenIn, Center, BasName, symlab
+use Genano_globals, only: MxLqn, nSym, nBas, nPrim, nDsym, iSymBk, pDsym, tDsym, Ssym, Center, BasName, symlab
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: iwp, u6

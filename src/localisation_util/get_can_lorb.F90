@@ -48,8 +48,7 @@ do i=1,nO
   Fock(jOrb(i)) = Z(i,1)
 end do
 
-nullify(eta)
-nullify(Z)
+nullify(eta,Z)
 call mma_deallocate(eta_t)
 call mma_deallocate(Zt)
 

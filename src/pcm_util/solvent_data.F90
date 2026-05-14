@@ -482,7 +482,7 @@ function Pauling(Z)
 end function Pauling
 
 function RCov97(Za,Zb)
-! This function returns an estimated covalent bond distance (in Ang)
+! This function returns an estimated covalent bond distance (in angstrom)
 ! between atoms of atomic numbers Za and Zb. Setting Zb to 0 returns
 ! the covalent radius of Za.
   real(kind=wp) :: RCov97

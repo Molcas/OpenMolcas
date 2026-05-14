@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp), parameter :: nTasks = 3
-integer(kind=iwp) :: i, irc, iRlxRoot, iseed, iTask, Itr, j, LuInput, mTasks, MxItr, natom, nFlag, nRoots, Task(nTasks)
+integer(kind=iwp) :: i, irc, iRlxRoot, iseed, iTask, Itr, j, LuInput, maxHop, mTasks, MxItr, natom, nFlag, nRoots, Task(nTasks)
 real(kind=wp) :: arg, buffer, Ekin, Epot, Etot0, Freq, mean, NHC(nh), Q1, Q2, Sigma, time, val
 logical(kind=iwp) :: Found, lHop
 character(len=16) :: StdIn
@@ -34,6 +34,7 @@ real(kind=wp), parameter :: kb = kBoltzmann/(auTokJ*1.0e3_wp)
 character(len=2), allocatable :: atom(:)
 real(kind=wp), allocatable :: Mass(:), vel(:), pcoo(:,:)
 integer(kind=iwp), external :: AixRm, IsFreeUnit, IsStructure
+
 #include "warnings.h"
 
 iReturn = 99
@@ -163,7 +164,7 @@ if (.not. Found) then
         call RandomGauss(mean,Sigma,iseed,nflag,buffer,Val)
         vel(3*(i-1)+j) = Val
 
-        !write(u6,'(5x,a,t55,d16.8)') 'Vel = ',Val
+        !write(u6,'(5x,a,t55,es16.8)') 'Vel = ',Val
 
       end do
     end do
@@ -196,7 +197,7 @@ if (.not. Found) then
   else
     Ekin = Zero
   end if
-  write(u6,'(5x,a,6x,d19.12,1x,a)') 'Kinetic energy',Ekin,'a.u.'
+  write(u6,'(5x,a,6x,es19.12,1x,a)') 'Kinetic energy',Ekin,'a.u.'
   ! Save the velocities on RUNFILE
   call Put_Velocity(vel,3*natom)
   ! Save the total energy on RUNFILE if the total energy should be conserved.
@@ -210,7 +211,7 @@ if (.not. Found) then
   call mh5_put_dset(dyn_etot,Etot0)
 # endif
   call DxEnergies(time,Epot,Ekin,Etot0)
-  write(u6,'(5x,a,8x,d19.12,1x,a)') 'Total Energy',Etot0,'a.u.'
+  write(u6,'(5x,a,8x,es19.12,1x,a)') 'Total Energy',Etot0,'a.u.'
   call mma_deallocate(atom)
   call mma_deallocate(Mass)
   call mma_deallocate(vel)
@@ -239,6 +240,10 @@ do iTask=1,mTasks
 
       lHop = .false.
       call qpg_iScalar('MaxHops',lHop)
+      if (lHop) then
+        call get_iScalar('MaxHops',maxHop)
+        if (maxHop < 1) lHop = .false.
+      end if
       if (lHop) then
 
         ! Read the roots

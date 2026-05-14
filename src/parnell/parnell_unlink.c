@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2010, Steven Vancoillie                                *
+*               2023, Ignacio Fdez. Galvan                             *
 ***********************************************************************/
 
 /* -*- mode: C -*- Time-stamp: "2010-07-02 15:38:16 stevenv"
@@ -18,11 +19,33 @@
  *       Date:         Spring 2010
  *
  *       parnell_unlink - delete files specified in a colon-separated list from
- *                       the main work directory and all subdirectories
+ *                        the main work directory and all subdirectories
  *
  */
 
+#define _XOPEN_SOURCE 500
+#include <ftw.h>
 #include "parnell.h"
+
+/* private method to be used as argument for nftw */
+static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf) {
+  int rv;
+
+  (void)sb;
+  (void)typeflag;
+  (void)ftwbuf;
+
+  /* do not remove top level */
+  //if (ftwbuf->level == 0)
+  //  return 0;
+
+  rv = remove(fpath);
+
+  if (rv)
+    perror(fpath);
+
+  return rv;
+}
 
 parnell_status_t parnell_unlink(char *fpath) {
   struct stat info, wrk_info;
@@ -52,10 +75,15 @@ parnell_status_t parnell_unlink(char *fpath) {
   }
 
   /* try to delete file and catch errors but don't act on them */
-  if (stat(fpath, &info)) {
+  if (lstat(fpath, &info)) {
     /* if error other than "No such file or directory", report it */
     if (errno != ENOENT) {
       perror("parnell_unlink: error while calling stat on file");
+      status = PARNELL_ERROR;
+    }
+  } else if (S_ISDIR(info.st_mode)) {
+    if (nftw(fpath, unlink_cb, 64, FTW_DEPTH | FTW_PHYS)) {
+      perror("parnell_unlink: error trying to delete directory");
       status = PARNELL_ERROR;
     }
   } else {

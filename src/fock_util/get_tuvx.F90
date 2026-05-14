@@ -37,6 +37,8 @@ subroutine Get_TUVX(PUVX,TUVX)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use general_data, only: NASH, NISH, NORB, NSYM
+use Molcas, only: MxSym
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -44,8 +46,6 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: PUVX(*)
 real(kind=wp), intent(_OUT_) :: TUVX(*)
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: iAsh, iIsh, iiT, iiU, iiV, iiX, ijSym, iOrb, iP, iPUVX, iStack, iSym, iT, iTemp, iTU, iTUVX, iU, iV, iVX, iX, &
                      jAsh, jSym, kAsh, kl_Orb_pairs, klSym, kSym, lAsh, lMax, lSym, off_Ash(mxSym), off_PUVX(mxSym)
 
@@ -96,7 +96,7 @@ do iSym=1,nSym
       if ((lSym <= kSym) .and. (iAsh*jAsh*kAsh*lAsh /= 0)) then
 
         !write(LF,*) 'sym(p,w,x,y),offset= ',isym,jsym,ksym,lsym,iPUVX
-        !call recprt('(pw|xy)','(1P,5ES16.8)',PUVX(iPUVX+1),iorb*jAsh,kAsh*lAsh+Min(ijSym-2,0)*kAsh*(lAsh-1)/2)
+        !call recprt('(pw|xy)','(5ES16.8)',PUVX(iPUVX+1),iorb*jAsh,kAsh*lAsh+Min(ijSym-2,0)*kAsh*(lAsh-1)/2)
 
         do iV=1,kAsh
           lMax = lAsh

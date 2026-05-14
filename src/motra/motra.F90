@@ -24,6 +24,7 @@ subroutine Motra(ireturn)
 
 #ifdef _HDF5_QCM_
 use hdf5_utils, only: ijklname, file_id, hdf5_close, hdf5_create, hdf5_exit, hdf5_init
+use Cholesky, only: tv2disk
 #endif
 use motra_global, only: CMO, HOne, iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, Kine, nTot2, Ovlp
 use stdalloc, only: mma_deallocate
@@ -32,7 +33,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "chotraw.fh"
 integer(kind=iwp) :: irc
 real(kind=wp) :: tcpu_reo, TCR1, TCR2, TWR1, TWR2
 logical(kind=iwp) :: DoCholesky, Do_int

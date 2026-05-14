@@ -18,8 +18,7 @@ subroutine get_drdq(drdq,mInt,nLambda,mLambda,Iter)
 ! the 'UDC' file.                                                      *
 !***********************************************************************
 
-use Slapaf_Info, only: BMx, Degen
-use Slapaf_Parameters, only: iRow_c, Curvilinear
+use Slapaf_Info, only: BMx, Curvilinear, Degen, iRow_c
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -108,12 +107,12 @@ do iLambda=1,nLambda
     write(u6,*) 'Warning: constraint ',iLambda,' has a null vector, I''ll remove it!'
     mLambda = mLambda-1
   else
-    if (iOff /= iOff2) call dCopy_(mInt,drdq(1,iOff),1,drdq(1,iOff2),1)
+    if (iOff /= iOff2) drdq(:,iOff2) = drdq(:,iOff)
     iOff2 = iOff2+1
   end if
   iOff = iOff+1
 end do
-if (mLambda < nLambda) call FZero(drdq(1,mLambda+1),mInt*(nLambda-mLambda))
+if (mLambda < nLambda) drdq(:,mLambda+1:) = Zero
 
 return
 

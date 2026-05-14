@@ -69,14 +69,14 @@ subroutine NAT_BOND_ORDER(NSYM,NBAS,BNAME,iCase)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: NSYM, NBAS(*), iCase
-character(len=LenIn8), intent(in) :: BNAME(*)
+character(len=LenIn+8), intent(in) :: BNAME(*)
 integer(kind=iwp) :: AtomA, AtomB, I, i_Component, i_Opt, i_Rc, i_SymLbl, iANr, IAtom, IB, iBlo, iBondNumb, ICNT, iDummy(1), &
                      iElToAsgn, iErr, iHalf, IMN, iNoNuc, iOdd, iPL, IS, isAtom, iSElem, iSingNumb, isThereAtLeastABond, iSum, &
                      iSyLbl, ISYM, iTriplBondNumb, iTry, ix_Single, ix_Triple, J, jANr, JAtom, k, KAtom, mSub, MY, NB, nBas2, &
@@ -86,7 +86,7 @@ real(kind=wp) :: coeff, covij, Covrad1, Covrad2, DET, Dummy(1), ElecNonAssgn, ri
                  thr_Diff, thr_Dummy, thr_Dummy1, thr_Dummy2, thr_LP, thr_LP_Orig, thr_MIN, thr_NA, thr_Orig, thr_SO, TotBondElec, &
                  TotCoreElec, TotEl, TotLoneElec, TotSingleElec, TotTriplBondElec, x, y, z
 logical(kind=iwp) :: Exists, SearchedSingle, SearchedTriple
-character(len=LenIn4) :: Atom_A, Atom_B, Atom_C, Atom_D
+character(len=LenIn+4) :: Atom_A, Atom_B, Atom_C, Atom_D
 character(len=49) :: Label3ANoSym, Label3ASym
 character(len=36) :: LabelNoSym, LabelSym
 character(len=16) :: Label
@@ -95,14 +95,17 @@ integer(kind=iwp), allocatable :: ANr(:), BondAtomA(:), BondAtomB(:), center(:),
 real(kind=wp), allocatable :: Allc(:,:), Bonds(:), CM(:), DNAO(:,:), DS(:,:), DS_orig(:,:), DS_tmp(:,:), P(:,:), PInv(:,:), &
                               S(:,:), S_blo(:), S_orig(:), S_tmp(:,:), Scr(:), SingEl(:), SubDNAO(:,:), SubIVal(:), SubVal(:), &
                               SubVec(:,:), Tmp(:), Tripl(:)
-character(len=LenIn4), allocatable :: LblCnt4(:)
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: E
+#endif
+character(len=LenIn+4), allocatable :: LblCnt4(:)
 character(len=LenIn), allocatable :: CNAME(:), TLbl(:) !, LblCnt(:)
 character, parameter :: cSign = '-'
 integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: Covrad
 logical(kind=iwp), external :: Reduce_Prt
 
-!define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -125,12 +128,12 @@ if (iCase == 0) return
 
 ! Core Orbitals threshold, default 1.999
 thr_CO = 1.999_wp
-! Lone Pairs threshold .le. Core Orbitals threshold, default 1.90
+! Lone Pairs threshold <= Core Orbitals threshold, default 1.90
 !thr_LP = 1.90_wp
 !thr_LP = 1.85_wp
 thr_LP = 1.80_wp
 thr_LP_Orig = thr_LP
-! Bond occupation threshold .le. Lone Pairs Orbitals threshold
+! Bond occupation threshold <= Lone Pairs Orbitals threshold
 ! Guessed to 1.90. Minimum possible threshold thr_MIN guessed to 1.50
 thr_BO = 1.999_wp
 thr_Orig = thr_BO
@@ -212,7 +215,7 @@ call Get_Name_All(TLbl)
 ! Atom label plus symmetry generator
 
 call mma_allocate(LblCnt4,tNUC,label='LblCnt4')
-call Get_cArray('LP_L',LblCnt4,LenIn4*tNUC)
+call Get_cArray('LP_L',LblCnt4,(LenIn+4)*tNUC)
 !do i=1,tNUC
 !  LblCnt(i)(1:LenIn) = LblCnt4(i)(1:LenIn)
 !end do

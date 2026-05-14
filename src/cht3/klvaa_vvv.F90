@@ -173,7 +173,7 @@ do nga=1,nug
 
           !mp call vsub(G(KADT),1,G(AADT),1,G(IJS),1,NSTEP)
           !mpn x(IJS:IJS+NSTEP-1) = t2_exp(AADT:AADT+NSTEP-1)-t2_exp(KADT:KADT+NSTEP-1)
-          !!write(u6,'(A,3I3,8D15.8)') 'T',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
+          !!write(u6,'(A,3I3,8ES15.8)') 'T',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
           IJS = IJS+maxdimm
         end do      ! R
         !mp call zeroma(G(IJS),1,NSTEP)
@@ -214,7 +214,7 @@ do nga=1,nug
 
           !mp call vsub(G(KADT),1,G(AADT),1,G(IJS),1,NSTEP)
           !mpn x(IJS:IJS+NSTEP-1) = t2_exp(AADT:AADT+NSTEP-1)-t2_exp(KADT:KADT+NSTEP-1)
-          !!write(u6,'(A,3I3,8D15.8)') 'T',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
+          !!write(u6,'(A,3I3,8ES15.8)') 'T',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
           !!call daxpy_(NSTEP,-One,G(KADT),1,G(IJS),1)
           IJS = IJS+maxdimm
         end do      ! R
@@ -237,15 +237,15 @@ do nga=1,nug
             x(KI) = x(KI)-g(AADT+iTri(B,R))
             KI = KI+1
           end do
-          !!write(u6,'(A,3I3,8D15.8)') 'V',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
+          !!write(u6,'(A,3I3,8ES15.8)') 'V',K,R,a,(G(I),I=IJS,IJS+NSTEP-1)
           IJS = IJS+maxdimm
           !!KADT = KADT+NNUAB(ISP)
         end do   !R
       end if     ! nstep == 0
     end do       !A
     !  <VV|VO> >>> K
-    !mp !write(u6,'(A,5I5,4x,5D15.10)') 'block-w: K,a1,b1,IAS,ddot',K,a1,b1,ias,maxdim,ddot_(N*maxdim,x,1,x,1),x(1:4)
-    !mp !write(u6,'(A,5I5,4x,5D15.10)') 'block-w: K,a1,b1,IAS,ddot',K,a1,b1,ias,maxdim,ddot_(N*maxdim,G(IX),1,G(IX),1), &
+    !mp !write(u6,'(A,5I5,4x,5ES15.8)') 'block-w: K,a1,b1,IAS,ddot',K,a1,b1,ias,maxdim,ddot_(N*maxdim,x,1,x,1),x(1:4)
+    !mp !write(u6,'(A,5I5,4x,5ES15.8)') 'block-w: K,a1,b1,IAS,ddot',K,a1,b1,ias,maxdim,ddot_(N*maxdim,G(IX),1,G(IX),1), &
     !                                   (G(I),I=IX,IX+3)
     !mp  call multi_wridir(G(IX),N*maxdim,LU,IAS, last)
     !mp

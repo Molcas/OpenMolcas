@@ -20,7 +20,7 @@ integer(kind=iwp) :: nAtoms_All
 
 call Get_nAtoms_All(nAtoms_All)
 call Put_Coord_New(Coord,nAtoms_All)
-call Put_dArray('MMO Coords',Coord(:,nAtoms_All+1:),3*(nAtoms-nAtoms_All))
+call Put_dArray('MMO Coords',Coord(:,min(nAtoms_All+1,nAtoms):),3*(nAtoms-nAtoms_All))
 
 return
 

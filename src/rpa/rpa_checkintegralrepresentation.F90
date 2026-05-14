@@ -11,11 +11,11 @@
 
 subroutine RPA_CheckIntegralRepresentation()
 
-use RPA_globals, only: doCD, doDF, doLDF
+use RPA_globals, only: doCD, doDF
 
 implicit none
 
-if (.not. (doCD .or. doDF .or. doLDF)) then
+if (.not. (doCD .or. doDF)) then
   call RPA_Warn(2,'RPA requires CD, DF, or LDF. Conventional integrals not implemented.')
 end if
 

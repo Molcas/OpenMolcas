@@ -12,7 +12,7 @@
 subroutine CD_AInv_Inner(n,m,ADiag,Lu_A,Lu_Q,Thr_CD)
 
 use Index_Functions, only: nTri_Elem
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 

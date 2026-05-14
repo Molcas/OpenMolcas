@@ -11,7 +11,6 @@
  (prgm)  "$MOLCAS"/bin/scf.exe             executable
  (file)  SCFINP   "$WorkDir/$Project."Scf.Input   rw
 #include "aoints.inc"
-#define _LDF_
 #include "choints.inc"
 #include "rysfiles.inc"
 #include "orbitals.inc"

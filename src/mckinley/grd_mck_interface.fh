@@ -10,14 +10,19 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,IfGrad,IndGrd,nOp,lOper,iu,iv, &
 nrOp,iDCar,iDCnt,iStabM,nStabM,Trans,nSym &
+
 #else
+
 integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nSym, IndGrd(0:nSym-1), nOp(2), lOper, iu, iv, &
                                  nrOp, iDCar, iDCnt, nStabM, iStabM(0:nStabM-1)
 real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
 real(kind=wp), intent(inout) :: rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nrOp)
 real(kind=wp), intent(out) :: Array(nArr)
 logical(kind=iwp), intent(in) :: IfGrad(3,2), Trans(2)
+
 #endif
+
 #undef _CALLING_

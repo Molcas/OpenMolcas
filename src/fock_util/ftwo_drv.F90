@@ -56,6 +56,4 @@ else
 
 end if
 
-return
-
 end subroutine FTwo_Drv

@@ -47,8 +47,6 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
   integer(kind=iwp), pointer :: IBUFIN(:)
   integer(kind=iwp) :: IASYM, II
 
-  call c_f_pointer(c_loc(BUFIN),iBUFIN,[1])
-
   ITYP = 0 ! dummy initialize
   ICOUP = 0 ! dummy initialize
   ICOUP1 = 0 ! dummy initialize
@@ -61,6 +59,7 @@ subroutine MFAIBJ_INTERNAL(BUFIN)
   LBUF0 = RTOI*LBUF
   LBUF1 = LBUF0+LBUF+1
   LBUF2 = LBUF1+1
+  call c_f_pointer(c_loc(BUFIN),iBUFIN,[LBUF2])
   NOT2 = IROW(LN+1)
   IADD10 = IAD10(6)
   do

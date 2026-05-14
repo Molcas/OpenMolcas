@@ -16,14 +16,19 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
+      use Symmetry_Info, only: Mul
+      use sguga, only:  SGS, CIS, EXS
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp, u6
+      IMPLICIT None
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "pt2_guga.fh"
-      DIMENSION  CI(MXCI),SGM(MXCI)
+
+      Integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI, nCI, MSGM
+      Real(kind=wp), Intent(In) ::  CI(nCI)
+      Real(kind=wp), Intent(inOut)::  SGM(MSGM)
+
+      Integer(kind=iwp) IS, JS, IJS, ISSG, NSGM
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI
 C ILEV,JLEV ARE IN PRINCIPLE ACTIVE ORBITAL NUMBERS, BUT POSSIBLY
@@ -38,16 +43,18 @@ C NOTE!! THE EARLIER CALL GETSGM(ILEV,JLEV,IDARR,SGM) IS REPLACED BY
 C GETSGM2(ILEV,JLEV,CI,SGM)!!
 C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      IS=ISM(ILEV)
-      JS=ISM(JLEV)
-      IJS=MUL(IS,JS)
-      ISSG=MUL(IJS,ISYCI)
-      NSGM=NCSF(ISSG)
+      SGM(1:MSGM)=Zero
+      IS=SGS%ISM(ILEV)
+      JS=SGS%ISM(JLEV)
+      IJS=Mul(IS,JS)
+      ISSG=Mul(IJS,ISYCI)
+      NSGM=CIS%NCSF(ISSG)
+      If (NSGM>MSGM) THEN
+         Write (u6,*) 'GETSGM2: NSGM>MSGM'
+         Call Abend()
+      End If
       IF(NSGM.EQ.0) RETURN
-      CALL DCOPY_(NSGM,[0.0D0],0,SGM,1)
-      CALL SIGMA1_CP2(ILEV,JLEV,1.0D00,ISYCI,CI,SGM,
-     &      IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &      IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &      WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-      RETURN
-      END
+
+      CALL SG_Epq_Psi(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
+
+      END SUBROUTINE GETSGM2

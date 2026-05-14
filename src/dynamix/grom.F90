@@ -22,7 +22,8 @@
 
 subroutine GROM(irc)
 
-use Dynamix_Globals, only: iPrint, INSANE
+use Dynamix_Globals, only: iPrint
+use PrintLevel, only: INSANE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -33,6 +34,7 @@ character(len=80) :: filename
 real(kind=wp), allocatable :: xyz(:), force(:)
 character(len=2), allocatable :: atom(:)
 integer(kind=iwp), external :: IsFreeUnit
+
 #include "warnings.h"
 
 if (IPRINT == INSANE) write(u6,*) ' Entering GROM'

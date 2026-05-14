@@ -35,8 +35,8 @@ subroutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,jBas,lBas,kOp,ExFac,CoulFac,PM
 use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: DMdiag, lPSO, lSA, nnP, nPos
-use RI_glob, only: A, AMP2, CijK, iAdrCVec, iMP2prpt, LuAVector, LuCVector, nAuxVe, nChOrb, nIJ1, nKvec, tavec
+use pso_stuff, only: A_PT2, DMdiag, Gamma_On, lPSO, lSA, nnP, nPos
+use RI_glob, only: A, AMP2, CijK, iAdrCVec, iMP2prpt, iUHF, LuAVector, LuCVector, nAuxVe, nChOrb, nIJ1, nKvec, tavec
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
@@ -44,9 +44,8 @@ implicit none
 integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, lBas, kOp(4), mV_K, nSA
 real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
 real(kind=wp), intent(in) :: ExFac, CoulFac, V_K(mV_K,nSA), U_K(mV_K), Z_p_K(nnP(0),mV_K,*)
-logical(kind=iwp) :: Found
-integer(kind=iwp) :: i, i2, i4, iAdrA, iAdrJ, iAdrL, iE, iOffA, iPAO, iS, iSO, iSO2, iSym, iUHF, j, jAOj, jik, jil, jp, jSO, jSOj, &
-                     jSym, k, kl, kSym, l, lAOl, lSO, lSOl, lSym, lTot, n, nijkl, nik, nik1, nik2
+integer(kind=iwp) :: i, i2, i4, iAdrA, iAdrJ, iAdrL, iE, iOffA, iPAO, iS, iSO, iSO2, iSym, j, jAOj, jik, jil, jp, jSO, jSOj, jSym, &
+                     k, kl, kSym, l, lAOl, lSO, lSOl, lSym, lTot, n, nijkl, nik, nik1, nik2
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Factor, temp, temp2, tempJ_mp2, tempK_mp2, tmp, Wall, Wall1, Wall2
 real(kind=wp), pointer :: CiKj(:,:), CiKl(:), V2(:)
 
@@ -75,12 +74,6 @@ PMax = Zero
 iPAO = 0
 iOffA = nBas(0)
 
-call Qpg_iScalar('SCF mode',Found)
-if (Found) then
-  call Get_iScalar('SCF mode',iUHF) ! either 0 or 1
-else
-  iUHF = 0
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -441,8 +434,8 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
           jSOj = jSO+jAOj-iOffA
           nijkl = nijkl+1
 
-          temp = CoulFac*(V_K(lSOl,1)*V_K(jSOj,2)+V_K(lSOl,2)*V_K(jSOj,1)+V_K(lSOl,3)*V_K(jSOj,4)+V_K(lSOl,4)*V_K(jSOj,3)+ &
-                          V_K(lSOl,1)*V_K(jSOj,5)+V_K(lSOl,5)*V_K(jSOj,1))
+          temp = CoulFac*(V_K(lSOl,1)*V_K(jSOj,2)+V_K(lSOl,2)*V_K(jSOj,1)+V_K(lSOl,3)*V_K(jSOj,4)+V_K(lSOl,4)*V_K(jSOj,3))
+          if (nSA > 4) temp = temp+CoulFac*(V_K(lSOl,1)*V_K(jSOj,5)+V_K(lSOl,5)*V_K(jSOj,1))
           temp = temp-ExFac*A(nijkl)
 
           ! Active space contribution
@@ -452,6 +445,8 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
                     sign(Two,DMdiag(jp,2))*(Z_p_K(jp,jSOj,2)*Z_p_K(jp,lSOl,3)+Z_p_K(jp,jSOj,3)*Z_p_K(jp,lSOl,2))
           end do
           temp = temp+temp2
+
+          if (Gamma_On) temp = temp+A_PT2(lSOl,jSOj) ! For CASPT2
 
           PMax = max(PMax,abs(temp))
           PAO(nijkl,iPAO) = Fac*temp

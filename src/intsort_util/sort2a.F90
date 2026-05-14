@@ -35,6 +35,7 @@ subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 use sort_data, only: iDaTmp, iDaTwo, iDIBin, iDVBin, IndBin, lBin, LuTmp, LuTwo, mInt, ValBin
 use TwoDat, only: lDaRec, lStRec, lTop, nSect
 use Pack_mod, only: isPack
+use PrintLevel, only: nPrint
 use Definitions, only: wp, iwp, u6, ItoB, RtoB
 
 implicit none
@@ -42,16 +43,16 @@ integer(kind=iwp), intent(in) :: iBin, lSrtA, lStk
 real(kind=wp), intent(inout) :: SrtArr(lSrtA)
 integer(kind=iwp), intent(out) :: IOStk(lStk)
 integer(kind=iwp), intent(inout) :: nStk
-#include "print.fh"
-#include "warnings.h"
 integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, iOpt, iP_Storage, iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, &
                      mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
 real(kind=wp) :: PkVBin(lStRec)
 
+#include "warnings.h"
+
 !----------------------------------------------------------------------*
-!     as the packed integral labels add an extra 1-2 Byte              *
-!     disk space per integral we have to adjust the record             *
-!     length of LuTmp to the different machines.                       *
+! as the packed integral labels add an extra 1-2 Byte                  *
+! disk space per integral we have to adjust the record                 *
+! length of LuTmp to the different machines.                           *
 !----------------------------------------------------------------------*
 
 idiv = ItoB/2
@@ -60,7 +61,7 @@ mStRec = (lStRec/idiv)
 mDaRec = (lDaRec/idiv)
 
 !----------------------------------------------------------------------*
-!     pick up the print level                                          *
+! pick up the print level                                              *
 !----------------------------------------------------------------------*
 
 iRout = 85
@@ -89,14 +90,14 @@ write(u6,*)
 write(u6,*) 'Processing slice                   :',iBin
 write(u6,*) 'Actual number of non-zero integrals:',mInt(1,iBin)
 write(u6,*) 'Effective number of integrals      :',mInt(2,iBin)
-write(u6,*) 'Effective number of indicies       :',mInt(3,iBin)
+write(u6,*) 'Effective number of indices        :',mInt(3,iBin)
 write(u6,*) 'Total number of integrals          :',lSrtA
 write(u6,*) 'Packed storage                     :',iP_Storage
 write(u6,*) 'Indexed storage                    :',iI_Storage
 #endif
 
 !----------------------------------------------------------------------*
-!     Start reading packed buffers                                     *
+! Start reading packed buffers                                         *
 !----------------------------------------------------------------------*
 
 iDaTmp = iDIBin(2,iBin)
@@ -168,14 +169,14 @@ do while (iDaTmp >= 0)
   end do
 
   !--------------------------------------------------------------------*
-  !   Get the disk adress of the next record                           *
+  ! Get the disk address of the next record                            *
   !--------------------------------------------------------------------*
 
   iDaTmp = PkIBin(1)
   iDaTwo = int(PkVBin(1),kind=iwp)
 end do
-if (iPrint >= 99) call dVcPrt('sorted ERIs',' ',SrtArr,lSrtA)
-
-return
+#ifdef _DEBUGPRINT_
+call dVcPrt('sorted ERIs',' ',SrtArr,lSrtA)
+#endif
 
 end subroutine SORT2A

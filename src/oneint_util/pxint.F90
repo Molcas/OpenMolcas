@@ -27,18 +27,20 @@ subroutine PXInt( &
 
 use Symmetry_Info, only: nIrrep, iChBas
 use Index_Functions, only: nTri_Elem1
+use Integral_interfaces, only: int_kernel
+use Oneint_interfaces, only: PVInt
+use Property_Label, only: PLabel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "property_label.fh"
 integer(kind=iwp), parameter :: mComp = 200
 integer(kind=iwp) :: iComp, ipar_p1, ipar_p2, ipar_p3, iSym_p1, iSym_p2, iSym_p3, iSym_px, iSym_X, jComp1, jComp2, jComp3, &
                      jpar_p1, jpar_p2, jpar_p3, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, nRys
 integer(kind=iwp), allocatable :: kChO(:), kOper(:)
 integer(kind=iwp), external :: IrrFnc
-external :: CntInt, EFInt, MltInt, NAInt
+procedure(int_kernel) :: CntInt, EFInt, MltInt, NAInt
 
 !                                                                      *
 !***********************************************************************
@@ -158,7 +160,7 @@ do iComp=1,kComp
   kChO(iComp) = jpar_p1
 end do
 
-!write(u6,*) 'pXpInt'
+!write(u6,*) 'pXInt'
 !do iComp=1,nComp
 !  write(u6,*) lOper(iComp),iChO(iComp)
 !end do
@@ -172,16 +174,16 @@ end do
 ! Compute now the integrals
 
 if (PLabel == 'NAInt ') then
-  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CoorO,kOrdOp,kOper,kChO, &
              iStabM,nStabM,PtChrg,nGrid,iAddPot,NAInt)
 else if (PLabel == 'MltInt') then
-  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CoorO,kOrdOp,kOper,kChO, &
              iStabM,nStabM,PtChrg,nGrid,iAddPot,MltInt)
 else if (PLabel == 'EFInt ') then
-  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CoorO,kOrdOp,kOper,kChO, &
              iStabM,nStabM,PtChrg,nGrid,iAddPot,EFInt)
 else if (PLabel == 'CntInt') then
-  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CCoor,kOrdOp,kOper,kChO, &
+  call PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,kIC,kComp,la,lb,A,RB,nRys,Array,nArr,CoorO,kOrdOp,kOper,kChO, &
              iStabM,nStabM,PtChrg,nGrid,iAddPot,CntInt)
 else
   call WarningMessage(2,'PXInt: Illegal type!')

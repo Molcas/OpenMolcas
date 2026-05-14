@@ -20,11 +20,11 @@ subroutine DstChk(xyz,Lbls,mCentr)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Molcas, only: LenIn
 use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "LenIn.fh"
 integer(kind=iwp), intent(in) :: mCentr
 real(kind=wp), intent(in) :: xyz(3,mCentr)
 character(len=LenIn), intent(in) :: Lbls(mCentr)

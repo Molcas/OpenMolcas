@@ -17,13 +17,13 @@ use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas
 use pso_stuff, only: CMO, nDens
 use Symmetry_Info, only: nIrrep
+use Etwas, only: nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(out) :: Dens(nDens)
-#include "etwas.fh"
 integer(kind=iwp) :: iBas, iIrr, ip, ip1, ip2, ipD, nTemp2
 real(kind=wp), allocatable :: Temp2(:)
 

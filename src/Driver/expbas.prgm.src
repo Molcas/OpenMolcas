@@ -10,4 +10,6 @@
 ***********************************************************************/
  (prgm) "$MOLCAS/bin/expbas.exe"  executable
  (file)  EXPBAINP "$WorkDir/$Project."Expbas.Input rwi
+ (file)  ONEINT        "$WorkDir/$Project."OneInt  ro*
 #include "orbitals.inc"
+#include "wfnfiles.inc"

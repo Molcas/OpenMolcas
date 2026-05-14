@@ -11,7 +11,6 @@
  (prgm)  "$MOLCAS"/bin/seward.exe             executable
  (file)  SEWARINP      "$WorkDir/$Project."Seward.Input    rwi
 #include "aoints.inc"
-#define _LDF_
 #include "choints.inc"
 #include "sewints.inc"
 #include "rysfiles.inc"

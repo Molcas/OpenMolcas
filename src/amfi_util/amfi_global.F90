@@ -35,7 +35,7 @@ private
 !bs                   for type i and l1,l2,l3,l4 - Integral block.
 !bs Llast(i)        : gives the last L-value
 !bs Lblocks(i)      : gives the number of L-values
-!bs Lstarter(i)     : gives the adress of each integral block on cont4
+!bs Lstarter(i)     : gives the address of each integral block on cont4
 !bs AOcoeffs        : express AOs in contracted functions
 !bs                   first index: number of contracted function
 !bs                   second index: number of AO

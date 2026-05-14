@@ -36,12 +36,12 @@ integer(kind=iwp) :: I, IB, J, JB, LCOLS, LROWS, MAXCOL, MAXROW, NBLKSZ
 if ((NROWS <= 0) .or. (NCOLS <= 0)) then
   write(u6,'(1X,A)') 'DTRANS: Error: invalid dimension(s)'
   write(u6,'(1X,2(A,I9))') 'NROWS = ',NROWS,'NCOLS = ',NCOLS
-  call AbEnd
+  call AbEnd()
 else if ((NROWS > LDA) .or. (NCOLS > LDB)) then
   write(u6,'(1X,A)') 'DTRANS: Error: dimension(s) out-of-bounds'
   write(u6,'(1X,2(A,I9))') 'NROWS = ',NROWS,'NCOLS = ',NCOLS
   write(u6,'(1X,2(A,I9))') 'LDA   = ',LDA,'LDB   = ',LDB
-  call AbEnd
+  call AbEnd()
 end if
 
 #ifdef _MKL_

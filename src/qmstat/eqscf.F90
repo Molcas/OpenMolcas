@@ -41,6 +41,7 @@ real(kind=wp), parameter :: BoltzK = 1.0e-3_wp*KBoltzmann/auTokJ, &
                             ExLim = Ten !Over how long distance the exchange rep. is computed, the solv-solv.
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Random_Molcas
+
 #include "warnings.h"
 !****Jose** Interaction with Slater type to consider Penetration
 !           Eint_Nuc
@@ -171,7 +172,7 @@ else
   write(u6,*) 'Error 1 in classical subroutine.'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
-if (.not. allocated(AOSum)) call mma_allocate(AOSum,0,label='SumOvlAOQ')
+call mma_allocate(AOSum,0,label='SumOvlAOQ',safe='*')
 !----------------------------------------------------------------------*
 ! If we have input file, then read from it.                            *
 !----------------------------------------------------------------------*
@@ -184,7 +185,7 @@ call mma_allocate(Vmat,iTri,label='Vmat')
 call mma_allocate(SmatPure,iTri,label='SmatPure')
 call mma_allocate(FockM,iTri,label='FockM')
 call mma_allocate(MOC,iOrb(1),iOrb(1),label='Coeff')
-if (.not. allocated(CordIm)) call mma_allocate(CordIm,3,nPart*nCent,label='CordIm')
+call mma_allocate(CordIm,3,nPart*nCent,label='CordIm',safe='*')
 iCStart = (((iQ_Atoms-1)/nAtom)+1)*nCent+1
 iCNum = (iCStart-1)/nCent
 i9 = 0
@@ -536,7 +537,7 @@ call mma_deallocate(SmatPure)
 call mma_deallocate(FockM)
 call mma_deallocate(MOC)
 call mma_deallocate(SumElcPot)
-if (allocated(AOSum)) call mma_deallocate(AOSum)
+call mma_deallocate(AOSum,safe='*')
 !----------------------------------------------------------------------*
 ! Close some external files.                                           *
 !----------------------------------------------------------------------*

@@ -18,6 +18,9 @@ subroutine Dens_IF(i_root,CA,CB,OCCA,OCCB)
 !
 ! EAW 990118
 
+use casvb_global, only: ifvb
+use rasscf_global, only: iADR15, iOrbTyp, NAC, NACPAR, NACPR2
+use general_data, only: JOBIPH, NASH, NBAS, NFRO, NISH, NSYM, NTOT, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -30,10 +33,6 @@ real(kind=wp), intent(_OUT_) :: CA(*), CB(*), OCCA(*), OCCB(*)
 integer(kind=iwp) :: i, iA, iAC, iAC2, iad15, ii, IMO, IOCC, ip, ip1, ip2, iS, J, nAct
 real(kind=wp) :: Dum(1), OCCNO
 real(kind=wp), allocatable :: AM1(:,:), AM2(:,:), C(:), DA(:), DB(:), DS(:), DT(:), Unity(:), VB(:,:)
-#include "rasdim.fh"
-#include "rasscf.fh"
-#include "general.fh"
-#include "casvb.fh"
 
 call mma_allocate(DS,NACPAR,label='DS')
 call mma_allocate(DT,NACPAR,label='DT')
@@ -97,12 +96,14 @@ if (i_root == 0) then
     OCCNO = Zero
     nAct = 0
     do iS=1,nSym
-      call dcopy_(nTOT*nash(is),CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1,AM1(:,IAC:IAC+NASH(iS)-1),1)
-      do J=0,NASH(IS)-1
-        OCCNO = OCCNO+OCCA(J+NISH(IS)+NFRO(IS)+IOCC)
-      end do
-      nAct = nAct+NASH(iS)
-      IAC = IAC+NASH(iS)
+      if (nash(is) > 0) then
+        call dcopy_(nTOT*nash(is),CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1,AM1(:,IAC:IAC+NASH(iS)-1),1)
+        do J=0,NASH(IS)-1
+          OCCNO = OCCNO+OCCA(J+NISH(IS)+NFRO(IS)+IOCC)
+        end do
+        nAct = nAct+NASH(iS)
+        IAC = IAC+NASH(iS)
+      end if
       IMO = IMO+nBas(is)*ntot
       IOCC = IOCC+NBAS(iS)
     end do
@@ -117,9 +118,11 @@ if (i_root == 0) then
     IMO = 1
     IOCC = 1
     do iS=1,nSym
-      call dcopy_(nTOT*nash(is),AM2(:,IAC:IAC+NASH(iS)-1),1,CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1)
-      call dcopy_(nash(is),[OCCNO/real(nAct,kind=wp)],0,OCCA(NISH(iS)+NFRO(IS)+IOCC),1)
-      IAC = IAC+NASH(iS)
+      if (nash(is) > 0) then
+        call dcopy_(nTOT*nash(is),AM2(:,IAC:IAC+NASH(iS)-1),1,CA((NISH(iS)+NFRO(IS))*NTOT+IMO),1)
+        call dcopy_(nash(is),[OCCNO/real(nAct,kind=wp)],0,OCCA(NISH(iS)+NFRO(IS)+IOCC),1)
+        IAC = IAC+NASH(iS)
+      end if
       IMO = IMO+nBas(is)*ntot
       IOCC = IOCC+NBAS(iS)
     end do

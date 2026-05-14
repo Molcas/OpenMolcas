@@ -39,6 +39,7 @@ subroutine Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,var,Short,iUHF,ifallorb)
 !***********************************************************************
 
 use OneDat, only: sOpSiz
+use hfc_logical, only: MAG_X2C, UHF_HFC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -56,7 +57,6 @@ real(kind=wp), allocatable :: Den(:), El(:,:,:), ElSum(:), Nuc(:), NucSum(:), Op
 real(kind=wp), parameter :: Thrs = 1.0e-6_wp
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-#include "hfc_logical.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -118,9 +118,9 @@ call mma_allocate(Opr,nfblock+4,label='Opr')
 do i=0,99
   NxtOpr = .false.
   nComp = (i+1)*(i+2)/2
-  if (allocated(Nuc)) call mma_deallocate(Nuc)
+  call mma_deallocate(Nuc,safe='*')
   call mma_allocate(Nuc,nComp,label='Nuc')
-  if (allocated(El)) call mma_deallocate(El)
+  call mma_deallocate(El,safe='*')
   call mma_allocate(El,mDim,nS,nComp,label='El')
 
   Nuc(:) = Zero
@@ -153,8 +153,8 @@ do i=0,99
 
   call prop(short,label,C1,C1,nirrep,mBas,nS*mDim,Occ,Thrs,El,Nuc,i,ifallorb)
 end do
-if (allocated(Nuc)) call mma_deallocate(Nuc)
-if (allocated(El)) call mma_deallocate(El)
+call mma_deallocate(Nuc,safe='*')
+call mma_deallocate(El,safe='*')
 
 ! Scan 'ONEINT' for magnetic hyperfine integrals
 
@@ -201,9 +201,9 @@ end if
 
 do iEF=0,2
   nComp = (iEF+1)*(iEF+2)/2
-  if (allocated(Nuc)) call mma_deallocate(Nuc)
+  call mma_deallocate(Nuc,safe='*')
   call mma_allocate(Nuc,nComp,label='Nuc')
-  if (allocated(El)) call mma_deallocate(El)
+  call mma_deallocate(El,safe='*')
   call mma_allocate(El,mDim,nS,nComp,label='El')
 
   ! create vectors to store the sums of electronic and nuclear components over all centers
@@ -281,8 +281,8 @@ do iEF=0,2
   call mma_deallocate(ElSum)
   call mma_deallocate(NucSum)
 end do
-if (allocated(Nuc)) call mma_deallocate(Nuc)
-if (allocated(El)) call mma_deallocate(El)
+call mma_deallocate(Nuc,safe='*')
+call mma_deallocate(El,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

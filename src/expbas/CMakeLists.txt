@@ -11,6 +11,8 @@
 
 set (sources
      main.F90
+     cls_expwfn.F90
+     cre_expwfn.F90
      desym.F90
      driverbas.F90
      expandbas.F90

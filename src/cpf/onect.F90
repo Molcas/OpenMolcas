@@ -26,17 +26,13 @@ real(kind=wp), intent(_OUT_) :: BUFIN(*), A(*), B(*), DBK(*)
 
 if ((ICPF /= 0) .or. (ISDCI /= 0) .or. (INCPF /= 0)) then
   ! CPF AND SDCI
-  if (IDENS /= 1) then
-    ! (AI/JK) INTEGRALS
-    call AI_CPF(JSY,INDX,C,S,FC,BUFIN,A,B,FK,DBK,ENP,EPP,1)
-  end if
+  ! (AI/JK) INTEGRALS
+  if (IDENS /= 1) call AI_CPF(JSY,INDX,C,S,FC,BUFIN,A,B,FK,DBK,ENP,EPP,1)
   call FIJ_CPF(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,ENP,EPP)
 else
   ! MCPF
-  if (IDENS /= 1) then
-    ! (AI/JK) INTEGRALS
-    call MAI(JSY,INDX,C,S,FC,BUFIN,A,B,FK,DBK,W,THET,ENP,EPP,IRC(ILIM),1)
-  end if
+  ! (AI/JK) INTEGRALS
+  if (IDENS /= 1) call MAI(JSY,INDX,C,S,FC,BUFIN,A,B,FK,DBK,W,THET,ENP,EPP,IRC(ILIM),1)
   call MFIJ(ICASE,JSY,INDX,C,S,FC,A,B,FK,DBK,W,THET,ENP,EPP,IRC(ILIM))
 end if
 

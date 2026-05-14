@@ -21,10 +21,10 @@ subroutine Print_Symmetry()
 !***********************************************************************
 
 use Symmetry_Info, only: iChTbl, iOper, lBsFnc, lIrrep, nIrrep, SymLab
+use PrintLevel, only: nPrint
 use Definitions, only: iwp, u6
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: i, iIrrep, iPrint, iRout, j, jIrrep, nOper
 character(len=80) :: frmt
 character(len=*), parameter :: ChSymO(0:7) = ['  E  ', &

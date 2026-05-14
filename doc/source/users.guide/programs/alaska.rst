@@ -47,11 +47,10 @@ Analytic gradients
 Gradients of the energy with respect to nuclear coordinates can be computed for
 any type of wave function as long as an effective first order density matrix, an
 effective Fock matrix, and an effective second order density matrix is provided.
-The term effective is related to that
-these matrices in the case of non-variational parameters in the wave function
-(e.q. CI, MP2, CASPT2, etc.) are modified to include contributions from
-the associated Lagrange
-multipliers. The gradient expression apart from these modifications is
+The term effective is related to that these matrices in the case of non-variational
+parameters in the wave function (e.q. CI, MP2, CASPT2, etc.) are modified to
+include contributions from the associated Lagrange multipliers.
+The gradient expression apart from these modifications is
 the same for any wave function type. :program:`ALASKA`
 is the gradient program, which will generate
 the necessary integral derivatives and combine them with the matrices

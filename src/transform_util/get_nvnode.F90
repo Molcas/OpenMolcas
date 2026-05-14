@@ -11,6 +11,7 @@
 
 subroutine Get_NVnode(NVEC)
 
+use Cholesky, only: nSym, NumCho
 use Definitions, only: iwp
 
 #include "intent.fh"
@@ -18,7 +19,6 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(_OUT_) :: NVEC(*)
 integer(kind=iwp) :: i
-#include "cholesky.fh"
 
 do i=1,nSym
   NVEC(i) = NumCho(i)

@@ -39,7 +39,8 @@ real(kind=wp) :: ai, B001, B002, B003, B011, B012, B013, B101, B102, B103, dddx,
                  xdInv, y011, y012, y013, y021, y022, y023, y101, y102, y103, y111, y112, y113, y121, y122, y123, y201, y202, &
                  y203, y211, y212, y213, y221, y222, y223, z, z011, z012, z013, z021, z022, z023, z101, z102, z103, z111, z112, &
                  z113, z121, z122, z123, z201, z202, z203, z211, z212, z213, z221, z222, z223, ZEInv, Zu21, Zu22, Zu23
-logical(kind=iwp) :: ABeqCD, EQ
+logical(kind=iwp) :: ABeqCD
+logical(kind=iwp), external :: EQ
 
 xdInv = One/ddx
 dddx = ddx/Ten+ddx

@@ -108,7 +108,7 @@ subroutine tcd_r8_wrapper(in_,n_in,out_,n_out,thr,Init_do_setup_d)
       type(c_ptr), value :: in_
       integer(kind=MOLCAS_C_INT) :: n_in, n_out, Init_do_setup_d
       real(kind=MOLCAS_C_REAL) :: out_(*), thr
-    end subroutine
+    end subroutine tcd_r8
   end interface
 
   call tcd_r8(c_loc(in_),n_in,out_,n_out,thr,Init_do_setup_d)

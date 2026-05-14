@@ -32,12 +32,12 @@ subroutine dqagi(f,bound,inf,epsabs,epsrel,reslt,abserr,neval,ier,limit,lenw,las
 !
 !        parameters
 !         on entry
-!            f      - real*8
+!            f      - real
 !                     function subprogram defining the integrand
 !                     function f(x). the actual name for f needs to be
 !                     declared e x t e r n a l in the driver program.
 !
-!            bound  - real*8
+!            bound  - real
 !                     finite bound of integration range
 !                     (has no meaning if interval is doubly-infinite)
 !
@@ -47,9 +47,9 @@ subroutine dqagi(f,bound,inf,epsabs,epsrel,reslt,abserr,neval,ier,limit,lenw,las
 !                     inf = -1            to  (-infinity,bound),
 !                     inf = 2             to (-infinity,+infinity).
 !
-!            epsabs - real*8
+!            epsabs - real
 !                     absolute accuracy requested
-!            epsrel - real*8
+!            epsrel - real
 !                     relative accuracy requested
 !                     if  epsabs <= 0
 !                     and epsrel < max(50*rel.mach.acc.,0.5d-28),
@@ -57,10 +57,10 @@ subroutine dqagi(f,bound,inf,epsabs,epsrel,reslt,abserr,neval,ier,limit,lenw,las
 !
 !
 !         on return
-!            reslt  - real*8
+!            reslt  - real
 !                     approximation to the integral
 !
-!            abserr - real*8
+!            abserr - real
 !                     estimate of the modulus of the absolute error,
 !                     which should equal or exceed abs(i-reslt)
 !
@@ -150,7 +150,7 @@ subroutine dqagi(f,bound,inf,epsabs,epsrel,reslt,abserr,neval,ier,limit,lenw,las
 !                    sequence, with k = last if last <= (limit/2+2), and
 !                    k = limit+1-last otherwise
 !
-!            work  - real*8
+!            work  - real
 !                    vector of dimension at least lenw
 !                    on return
 !                    work(1), ..., work(last) contain the left
@@ -166,17 +166,12 @@ subroutine dqagi(f,bound,inf,epsabs,epsrel,reslt,abserr,neval,ier,limit,lenw,las
 !***routines called  dqagie,xerror
 !***end prologue  dqagi
 
+use fx, only: f_interface
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-interface
-  function f(x)
-    import :: wp
-    real(kind=wp) :: f
-    real(kind=wp), intent(in) :: x
-  end function f
-end interface
+procedure(f_interface) :: f
 real(kind=wp), intent(in) :: bound, epsabs, epsrel
 integer(kind=iwp), intent(in) :: inf, limit, lenw
 real(kind=wp), intent(out) :: reslt, abserr, work(lenw)

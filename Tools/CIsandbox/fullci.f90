@@ -35,7 +35,7 @@ SUBROUTINE FULLCI(NEL,NORB,MULT,ONEINT,TWOINT,ECORE)
   INTEGER :: IL, IU
 
   INTEGER :: IA, IB, DETA, DETB, NDET
-  INTEGER :: P, Q, R, S
+  INTEGER :: M, P, Q, R, S
 
   ! initialize the wavefunction
 
@@ -86,7 +86,7 @@ SUBROUTINE FULLCI(NEL,NORB,MULT,ONEINT,TWOINT,ECORE)
   !call dsyev_('V','U',NCI,H,NCI,SPEC,WORK,NWORK,INFO)
 
   ! find lowest eigenvalue/eigenvector of H
-  call dsyevr_('V','I','U',NDET,H,NDET,VL,VU,IL,IU,0.0D0,1,E,PSI%COEF,NDET,ISUPPZ,WORK,LWORK,IWORK,LIWORK,INFO)
+  call dsyevr_('V','I','U',NDET,H,NDET,VL,VU,IL,IU,0.0D0,M,E,PSI%COEF,NDET,ISUPPZ,WORK,LWORK,IWORK,LIWORK,INFO)
   IF (INFO.NE.0) STOP 'FULLCI: diagonalization of FCI hamiltonian failed'
 
   WRITE(*,'(1X,A,F21.14)') 'Full-CI GS energy:', E(1)

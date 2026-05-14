@@ -27,7 +27,7 @@ def oca_integrals(OCA_atom):
     #  I,J: 1   2    3    4    5    6    7    8
     #       2s  2pz  2px  2py  3s   3pz  3px  3py
     oca=list()
-    nele_oca=68
+    nele_oca=84
     oca_dir = str(os.path.dirname(os.path.abspath(__file__)))+'/OCA.dat'  # give the full real path of OCA.dat
     with open(oca_dir,"r") as oc :
         for curline in oc:

@@ -23,7 +23,7 @@ iStdOut = u6
 
 write(iStdOut,*)
 write(iStdOut,'(10X,A)') ' ************************************************ '
-write(iStdOut,'(10X,A)') ' **** Cartesian Coordinates / Bohr, Angstrom **** '
+write(iStdOut,'(10X,A)') ' **** Cartesian Coordinates / bohr, angstrom **** '
 write(iStdOut,'(10X,A)') ' ************************************************ '
 write(iStdOut,*)
 write(iStdOut,'(A11,A7,A)') 'Center','Label', &

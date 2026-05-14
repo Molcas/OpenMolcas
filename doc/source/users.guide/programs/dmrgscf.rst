@@ -314,7 +314,7 @@ for a small CAS(6,6) problem. ::
   &GATEWAY
    coord
    2
-  Angstrom
+  angstrom
    N       0.000000  0.000000  -0.54880
    N       0.000000  0.000000   0.54880
    basis=cc-pvdz

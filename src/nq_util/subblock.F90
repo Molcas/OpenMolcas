@@ -11,8 +11,8 @@
 ! Copyright (C) 1999, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,list_p,nlist_p,Grid,Weights,mGrid,Process, &
-                    number_of_grid_points,R_box_min,R_box_max,ilist_p,xyz0,iAngular_Grid,nR_Eff)
+subroutine Subblock(iNQ,x_NQ,y_NQ,z_NQ,InBox,x_min_,x_max_,y_min_,y_max_,z_min_,z_max_,nNQ,invlist,Grid,Weights,mGrid,Process, &
+                    number_of_grid_points,R_box_min,R_box_max,xyz0,iAngular_Grid,nR_Eff)
 !***********************************************************************
 !                                                                      *
 ! Object:                                                              *
@@ -33,12 +33,12 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: iNQ, nlist_p, list_p(nlist_p), mGrid, ilist_p, nR_Eff, iAngular_Grid(nR_Eff)
+integer(kind=iwp), intent(in) :: iNQ, nNQ, mGrid, nR_Eff, iAngular_Grid(nR_Eff)
 real(kind=wp), intent(in) :: x_NQ, y_NQ, z_NQ, x_min_, x_max_, y_min_, y_max_, z_min_, z_max_, R_box_min, R_box_max, xyz0(3,2)
 logical(kind=iwp), intent(in) :: InBox, Process
+integer(kind=iwp), intent(inout) :: invlist(nNQ), number_of_grid_points
 real(kind=wp), intent(inout) :: Grid(3,mGrid), Weights(mGrid)
-integer(kind=iwp), intent(inout) :: number_of_grid_points
-integer(kind=iwp) :: iEnd_R, iPoint, iR, iR_End, iR_Start, iSet, iStart_R, iStrt, kSet, mGrid_, nGrid, nRemoved
+integer(kind=iwp) :: iEnd_R, iPoint, iR, iR_End, iR_Start, iSet, iStart_R, iStrt, kSet, mGrid_, nGrid, nRemoved, ntot
 real(kind=wp) :: Fact, R_Value, Radius, w_g, weight, x, xpt, y, ypt, z, zpt
 
 !                                                                      *
@@ -46,6 +46,7 @@ real(kind=wp) :: Fact, R_Value, Radius, w_g, weight, x, xpt, y, ypt, z, zpt
 !                                                                      *
 nGrid = (9*mGrid)/10
 iStrt = number_of_grid_points+1
+ntot = ntotgp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -189,12 +190,9 @@ do
           ! For shared points modify the weight.
 
           Fact = One
-          if (x == x_min_) Fact = Fact*Half
-          if (y == y_min_) Fact = Fact*Half
-          if (z == z_min_) Fact = Fact*Half
-          if (x == x_max_) Fact = Fact*Half
-          if (y == y_max_) Fact = Fact*Half
-          if (z == z_max_) Fact = Fact*Half
+          if ((x == x_min_) .or. (x == x_max_)) Fact = Fact*Half
+          if ((y == y_min_) .or. (y == y_max_)) Fact = Fact*Half
+          if ((z == z_min_) .or. (z == z_max_)) Fact = Fact*Half
 #         ifdef _DEBUGPRINT_
           write(u6,*) Info_Ang(iSet)%R(1,iPoint),Info_Ang(iSet)%R(2,iPoint),Info_Ang(iSet)%R(3,iPoint)
           write(u6,*) 'x:',xyz0(1,1),xyz0(1,2)
@@ -237,7 +235,7 @@ do
           ! Generate weights
 
           mGrid_ = number_of_grid_points-iStrt+1
-          call W(Grid(1,iStrt),ilist_p,Weights(iStrt),list_p,nList_p,mGrid_,nRemoved)
+          call W(Grid(1,iStrt),iNQ,Weights(iStrt),nNQ,invlist,mGrid_,nRemoved)
           number_of_grid_points = number_of_grid_points-nRemoved
 
           iBatchInfo(1,nBatch) = iDisk_Grid
@@ -247,8 +245,8 @@ do
           call dDaFile(Lu_Grid,1,Grid,3*number_of_grid_points,iDisk_Grid)
           call dDaFile(Lu_Grid,1,Weights,number_of_grid_points,iDisk_Grid)
 
-          ntotgp = ntotgp+number_of_grid_points
-          !write(u6,*) 'ntotgp=',ntotgp
+          ntot = ntot+number_of_grid_points
+          !write(u6,*) 'ntot=',ntot
           number_of_grid_points = 0
           iStrt = number_of_grid_points+1
         end if
@@ -271,7 +269,7 @@ end do
 !write(u6,*) 'iStrt=',iStrt
 if (number_of_grid_points-iStrt+1 > 0) then
   mGrid_ = number_of_grid_points-iStrt+1
-  call W(Grid(1,iStrt),ilist_p,Weights(iStrt),list_p,nList_p,mGrid_,nRemoved)
+  call W(Grid(1,iStrt),iNQ,Weights(iStrt),nNQ,invlist,mGrid_,nRemoved)
   number_of_grid_points = number_of_grid_points-nRemoved
 end if
 !                                                                      *
@@ -290,8 +288,8 @@ if (Process .and. (number_of_grid_points > 0)) then
   call dDaFile(Lu_Grid,1,Grid,3*number_of_grid_points,iDisk_Grid)
   call dDaFile(Lu_Grid,1,Weights,number_of_grid_points,iDisk_Grid)
 
-  ntotgp = ntotgp+number_of_grid_points
-  !write(u6,*) 'ntotgp=',ntotgp
+  ntot = ntot+number_of_grid_points
+  !write(u6,*) 'ntot=',ntot
   number_of_grid_points = 0
 end if
 !                                                                      *

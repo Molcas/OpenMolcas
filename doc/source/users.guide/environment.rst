@@ -207,7 +207,7 @@ Two flags in |molcas| command are related to resource files:
 
 The most important environment variables, used in |molcas|:
 
-.. xmldoc:: <MODULE NAME="ENVIRONMENT" LEVEL="HIDDEN">
+.. xmldoc:: <MODULE NAME="ENVIRONMENT" APPEAR="Environment" LEVEL="HIDDEN">
             %%Description:
             List of environment variables
 
@@ -267,7 +267,7 @@ The most important environment variables, used in |molcas|:
   This variable should be used to run |molcas| code in parallel. It defines the
   number of computational units (cores or nodes) which will be used.
 
-  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_NPROCS" APPEAR="MPI Processes" KIND="STRING" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_NPROCS" APPEAR="MPI Processes" KIND="INT" LEVEL="BASIC">
               %%Keyword: MOLCAS_NPROCS <basic>
               <HELP>
               This variable should be used to run molcas code in parallel. It defines the
@@ -321,6 +321,18 @@ The complete list of |molcas|-related environment variables:
 :variable:`MOLCAS_NPROCS`
   See above
 
+:variable:`MOLCAS_THREADS`
+  This variable should be used to run |molcas| code with multithreaded capabilities.
+  It defines the number of threads that will be used for the multithreaded portions of the code (mostly linear algrebra library calls).
+
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_THREADS" APPEAR="OpenMP threads" KIND="INT" LEVEL="BASIC">
+              %%Keyword: MOLCAS_THREADS <basic>
+              <HELP>
+              This variable should be used to run molcas code with multithreaded capabilities.
+              It defines the number of threads that will be used for the multithreaded portions of the code (mostly linear algrebra library calls).
+              </HELP>
+              </KEYWORD>
+
 :variable:`MOLCAS_DEBUGGER`
   This variable can be set to the name of debugger (or another code) which will be used on top of
   molcas executables. The option is useful for tracing an error in the code
@@ -369,7 +381,7 @@ The complete list of |molcas|-related environment variables:
 
 :variable:`MOLCAS_FIM`
   Activates the Files In Memory I/O layer. See :numref:`MT:sec:fim` for more details.
-  *Note that this setting is available only in MOLCAS compiled without Global
+  *Note that this setting is available only in* |molcas| *compiled without Global
   Arrays.*
 
   .. warning::
@@ -453,7 +465,7 @@ The complete list of |molcas|-related environment variables:
   An environment variable to set up a hard limit for allocated memory (in Mb).
   If is not specified, then it takes value of MOLCAS_MEM. Otherwise, the (MOLCAS_MAXMEM-MOLCAS_MEM)
   amount of RAM will be primarily used for keeping files in memory (FiM), or allocating Distributed Global Arrays.
-  *Note that this setting is available only in MOLCAS compiled without Global Arrays.*
+  *Note that this setting is available only in |molcas| compiled without Global Arrays.*
 
   .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_MAXMEM" APPEAR="Max Memory" KIND="INT" LEVEL="ADVANCED">
               %%Keyword: MOLCAS_MAXMEM <advanced>

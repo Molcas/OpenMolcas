@@ -13,7 +13,7 @@
 
 subroutine fmsym_create_context(ctx)
 
-use iso_c_binding, only: c_ptr
+use, intrinsic :: iso_c_binding, only: c_ptr
 use Definitions, only: iwp
 
 implicit none
@@ -66,7 +66,7 @@ end subroutine fmsym_set_elements
 
 subroutine fmsym_release_context(ctx)
 
-use iso_c_binding, only: c_ptr
+use, intrinsic :: iso_c_binding, only: c_ptr
 use Definitions, only: iwp
 
 implicit none
@@ -93,7 +93,8 @@ end subroutine fmsym_release_context
 
 subroutine fmsym_set_ele_orb(ctx,nAtoms,Coord)
 
-use iso_c_binding, only: c_ptr
+use, intrinsic :: iso_c_binding, only: c_ptr
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -101,7 +102,6 @@ implicit none
 type(c_ptr), intent(inout) :: ctx
 integer(kind=iwp), intent(in) :: nAtoms
 real(kind=wp), intent(in) :: Coord(3,nAtoms)
-#include "LenIn.fh"
 character(len=LenIn), allocatable :: AtomLabel(:)
 integer(kind=iwp), allocatable :: basis_ids(:), nBas(:)
 integer(kind=iwp) :: nSym, nMO, nCMO, iSym, ret
@@ -158,7 +158,7 @@ end subroutine fmsym_set_ele_orb
 
 subroutine fmsym_find_symmetry(ctx)
 
-use iso_c_binding, only: c_ptr
+use, intrinsic :: iso_c_binding, only: c_ptr
 use Definitions, only: iwp, u6
 
 implicit none
@@ -194,7 +194,7 @@ end subroutine fmsym_find_symmetry
 
 subroutine fmsym_symmetrize_molecule(ctx)
 
-use iso_c_binding, only: c_ptr
+use, intrinsic :: iso_c_binding, only: c_ptr
 use Definitions, only: iwp
 
 implicit none
@@ -229,7 +229,7 @@ end subroutine fmsym_symmetrize_molecule
 
 subroutine fmsym_generate_orbital_subspaces(ctx)
 
-use iso_c_binding, only: c_ptr
+use, intrinsic :: iso_c_binding, only: c_ptr
 #ifdef _HDF5_
 use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_real, mh5_create_dset_int, mh5_create_dset_str, mh5_put_dset, &
                mh5_close_dset, mh5_close_file
@@ -357,7 +357,7 @@ end subroutine fmsym_generate_orbital_subspaces
 
 subroutine fmsym_symmetrize_orbitals(ctx,CIO)
 
-use iso_c_binding, only: c_ptr
+use, intrinsic :: iso_c_binding, only: c_ptr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -410,7 +410,7 @@ end subroutine fmsym_symmetrize_orbitals
 
 subroutine fmsym_symmetrize_orb_file(ctx,INPORB)
 
-use iso_c_binding, only: c_ptr
+use, intrinsic :: iso_c_binding, only: c_ptr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

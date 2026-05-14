@@ -23,11 +23,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#include "debug.fh"
 integer(kind=iwp) :: i, iC, iChange, iCount(0:3), ij, kC, nAtom, nBasT, nnOcc, nOcc
 real(kind=wp) :: Fac, ThrPD(3), Tst
 integer(kind=iwp), allocatable :: iClass(:), iDomain(:), iPairDomain(:), nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Coord(:,:), f(:), QD(:), Rmin(:)
+logical(kind=iwp), parameter :: debug = .false.
 character(len=*), parameter :: SecNam = 'Domain_Localisation'
 
 ! Set return code.
@@ -82,17 +82,17 @@ if (irc /= 0) then
   return
 end if
 
-if (Debug) then
-  write(u6,*) SecNam,': checking domain definitions...'
-  call CheckDomain(irc,iDomain,nAtom,nOcc)
-  if (irc == 0) then
-    write(u6,*) '....OK!'
-  else
-    write(u6,*) '....Ooops. Buggy domain definition!'
-    call Error(2) ! return after deallocations
-    return
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,*) SecNam,': checking domain definitions...'
+call CheckDomain(irc,iDomain,nAtom,nOcc)
+if (irc == 0) then
+  write(u6,*) '....OK!'
+else
+  write(u6,*) '....Ooops. Buggy domain definition!'
+  call Error(2) ! return after deallocations
+  return
 end if
+#endif
 
 ! Define pair domains.
 ! Make sure that ThrPairDomain is in ascending order.
@@ -123,17 +123,17 @@ if (irc /= 0) then
   return
 end if
 
-if (Debug) then
-  write(u6,*) SecNam,': checking pair domain definitions...'
-  call CheckDomain(irc,iPairDomain,nAtom,nnOcc)
-  if (irc == 0) then
-    write(u6,*) '....OK!'
-  else
-    write(u6,*) '....Ooops. Buggy pair domain definition!'
-    call Error(3) ! return after deallocations
-    return
-  end if
+#ifdef _DEBUGPRINT
+write(u6,*) SecNam,': checking pair domain definitions...'
+call CheckDomain(irc,iPairDomain,nAtom,nnOcc)
+if (irc == 0) then
+  write(u6,*) '....OK!'
+else
+  write(u6,*) '....Ooops. Buggy pair domain definition!'
+  call Error(3) ! return after deallocations
+  return
 end if
+#endif
 
 ! Print info.
 ! -----------
@@ -150,12 +150,12 @@ end do
 write(u6,'(/,A)') 'Definition:'
 if (iChange /= 0) then
   write(u6,'(A)') 'Notice: the input thresholds were re-ordered to ascending order'
-  write(u6,'(A,1P,3(1X,D15.5))') 'Your input order was:',(ThrPairDomain(i),i=1,3)
+  write(u6,'(A,3(1X,ES15.5))') 'Your input order was:',(ThrPairDomain(i),i=1,3)
 end if
-write(u6,'(A,1P,D15.5)') 'Strong       pairs:                   R <= ',ThrPD(1)
-write(u6,'(A,1P,D15.5,A,D15.5)') 'Weak         pairs: ',ThrPD(1),' < R <= ',ThrPD(2)
-write(u6,'(A,1P,D15.5,A,D15.5)') 'Distant      pairs: ',ThrPD(2),' < R <= ',ThrPD(3)
-write(u6,'(A,1P,D15.5,A)') 'Very distant pairs: ',ThrPD(3),' < R'
+write(u6,'(A,ES15.5)') 'Strong       pairs:                   R <= ',ThrPD(1)
+write(u6,'(A,ES15.5,A,ES15.5)') 'Weak         pairs: ',ThrPD(1),' < R <= ',ThrPD(2)
+write(u6,'(A,ES15.5,A,ES15.5)') 'Distant      pairs: ',ThrPD(2),' < R <= ',ThrPD(3)
+write(u6,'(A,ES15.5,A)') 'Very distant pairs: ',ThrPD(3),' < R'
 write(u6,'(/,A)') 'Classification:'
 Fac = 100.0_wp/real(nnOcc,kind=wp)
 write(u6,'(A,I9,3X,F7.2,A)') 'Number of strong       pairs: ',iCount(0),Fac*iCount(0),'%'

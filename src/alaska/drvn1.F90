@@ -26,9 +26,14 @@ subroutine DrvN1(Grad,Temp,nGrad)
 
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
-use PCM_arrays, only: PCM_SQ, PCMTess, MM
+use PCM_arrays, only: PCM_SQ, PCMTess
+use PCM_alaska, only: lSA, PCM_SQ_ind
+use NAC, only: isNAC
 use External_Centers, only: iXPolType, nOrd_XF, nXF, XF
+use rctfld_module, only: Conductor, lLangevin, lMax, lRF, MM, nTS, PCM
+use Disp, only: Dirct, IndDsp
 use Symmetry_Info, only: iChBas, nIrrep
+use PrintLevel, only: nPrint
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
 
@@ -36,22 +41,17 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "Molcas.fh"
-#include "print.fh"
-#include "disp.fh"
-#include "rctfld.fh"
 integer(kind=iwp) :: iCar, iChxyz, iCnt, iCnttp, iComp, iDCRR(0:7), iDum, iFd, igu, igv, iIrrep, iM1xp, iM2xp, ip, iPrint, iR, &
-                     iRout, iStb(0:7), iTs, ix, iy, iz, jCnt, jCntMx, jCnttp, jCoSet(8,8), LmbdR, mdc, nCav, ndc, nDCRR, nDisp, &
-                     nOp, nStb
+                     iRout, iStb(0:7), iTs, ix, iy, iz, jCnt, jCntMx, jCnttp, jCoSet(8,8), LmbdR, mdc, ndc, nDCRR, nDisp, nOp, nStb
 real(kind=wp) :: A(3), B(3), CCoMx, CCoMxd, CCoMy, CCoMyd, CCoMz, CCoMzd, CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, DA(3), &
                  DARB, df_dr, dfab, dr_dA, dr_dB, fab, fab0, fab1, fab2, Fact, Gam, PreFct, ps, r12, RB(3), Tempd(3), ZA, ZAZB, ZB
-logical(kind=iwp) :: EQ, TstFnc, NoLoop
+logical(kind=iwp) :: NoLoop
 character(len=80) :: Lab
 integer(kind=iwp), external :: iChAtm, iPrmt, NrOpr
+logical(kind=iwp), external :: EQ, TstFnc
 
 iRout = 33
 iPrint = nPrint(iRout)
-!iPrint = 15
 
 iIrrep = 0
 
@@ -173,7 +173,7 @@ do iCnttp=1,nCnttp
               iComp = 2**iCar
               if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
                 nDisp = nDisp+1
-                if (Direct(nDisp)) then
+                if (Dirct(nDisp)) then
                   Temp(nDisp) = Temp(nDisp)+One/real(igu,kind=wp)*PreFct*dr_dA*df_dr
                 end if
               end if
@@ -188,7 +188,7 @@ do iCnttp=1,nCnttp
               iComp = 2**iCar
               if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
                 nDisp = nDisp+1
-                if (Direct(nDisp)) then
+                if (Dirct(nDisp)) then
                   ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
                   Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct*dr_dB*df_dr
                 end if
@@ -203,10 +203,10 @@ do iCnttp=1,nCnttp
 end do
 if (iPrint >= 15) then
   Lab = ' The Nuclear Repulsion Contribution'
-  call PrGrad(Lab,Temp,nGrad,ChDisp)
+  call PrGrad(Lab,Temp,nGrad)
 end if
 
-call DaXpY_(nGrad,One,Temp,1,Grad,1)
+if (.not. isNAC) Grad(1:nGrad) = Grad(1:nGrad)+Temp(1:nGrad)
 
 !***********************************************************************
 !                                                                      *
@@ -302,7 +302,7 @@ if (allocated(XF)) then
             iComp = 2**iCar
             if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
               nDisp = nDisp+1
-              if (Direct(nDisp)) then
+              if (Dirct(nDisp)) then
                 ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
                 Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct* &
                               (ZAZB*fab0*(A(iCar+1)-RB(iCar+1))/(r12**3)+ &
@@ -318,7 +318,7 @@ if (allocated(XF)) then
   end do           ! End of centers of the external field, iFD
   if (iPrint >= 15) then
     Lab = ' The Nuclear External Electric Field Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp)
+    call PrGrad(Lab,Temp,nGrad)
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -332,14 +332,6 @@ end if
 !***********************************************************************
 
 if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
-  nCav = (lMax+1)*(lMax+2)*(lMax+3)/6
-
-  ! Get the multipole moments
-
-  call Get_dArray('RCTFLD',MM,nCav*2)
-  if (iPrint >= 99) call RecPrt('Total Multipole Moments',' ',MM(1,1),1,nCav)
-  if (iPrint >= 99) call RecPrt('Total Electric Field',' ',MM(1,2),1,nCav)
-
   Temp(:) = Zero
 
   ip = 0
@@ -348,7 +340,9 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
       do iy=ir-ix,0,-1
         iz = ir-ix-iy
         ip = ip+1
-        if (iPrint >= 99) write(u6,*) ' ix,iy,iz=',ix,iy,iz
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' ix,iy,iz=',ix,iy,iz
+#       endif
 
         mdc = 0
         do iCnttp=1,nCnttp
@@ -356,10 +350,10 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
           if (dbsc(iCnttp)%Charge == Zero) cycle
           if (dbsc(iCnttp)%Frag) cycle
           ZA = dbsc(iCnttp)%Charge
-          if (iPrint >= 99) then
-            write(u6,*) ' Charge=',ZA
-            call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,dbsc(iCnttp)%nCntr)
-          end if
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' Charge=',ZA
+          call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,dbsc(iCnttp)%nCntr)
+#         endif
           do iCnt=1,dbsc(iCnttp)%nCntr
             A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
@@ -398,10 +392,10 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
             tempd(1) = MM(ip,2)*ZA*CCoMxd*CCoMy*CCoMz
             tempd(2) = MM(ip,2)*ZA*CCoMx*CCoMyd*CCoMz
             tempd(3) = MM(ip,2)*ZA*CCoMx*CCoMy*CCoMzd
-            if (iPrint >= 99) then
-              write(u6,*) CCoMx,CCoMy,CCoMz
-              write(u6,*) 'tempd=',tempd
-            end if
+#           ifdef _DEBUGPRINT_
+            write(u6,*) CCoMx,CCoMy,CCoMz
+            write(u6,*) 'tempd=',tempd
+#           endif
 
             ! Distribute gradient
 
@@ -410,7 +404,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
               iComp = 2**iCar
               if (TstFnc(dc(mdc+iCnt)%iCoSet,iIrrep,iComp,dc(mdc+iCnt)%nStab)) then
                 nDisp = nDisp+1
-                if (Direct(nDisp)) then
+                if (Dirct(nDisp)) then
                   Temp(nDisp) = Temp(nDisp)-Tempd(iCar+1)
                 end if
               end if
@@ -424,7 +418,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
   end do
   if (iPrint >= 15) then
     Lab = ' The Nuclear Reaction Field (KirkWood) Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp)
+    call PrGrad(Lab,Temp,nGrad)
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -440,10 +434,17 @@ else if (lRF .and. PCM) then
 
   Temp(:) = Zero
 
+  ! use the induced charges by the effective density matrix, if SA-MCSCF
+  if (lSA) call dswap_(2*nTS,PCM_SQ,1,PCM_SQ_ind,1)
+  ! after swap:
+  ! PCM_SQ     = induced by the effective density matrix
+  ! PCM_SQ_ind = induced by the state-averaged density matrix
+
   ! Loop over tiles
 
   do iTs=1,nTs
     ZA = PCM_SQ(1,iTs)+PCM_SQ(2,iTS)
+    if (isNAC) ZA = PCM_SQ(2,iTS) ! no nuclear-nuclear contributions for NAC
     NoLoop = ZA == Zero
     ZA = ZA/real(nIrrep,kind=wp)
     if (NoLoop) cycle
@@ -515,7 +516,7 @@ else if (lRF .and. PCM) then
             iComp = 2**iCar
             if (TstFnc(dc(ndc+jCnt)%iCoSet,iIrrep,iComp,dc(ndc+jCnt)%nStab)) then
               nDisp = nDisp+1
-              if (Direct(nDisp)) then
+              if (Dirct(nDisp)) then
                 ps = real(iPrmt(nOp,iChBas(2+iCar)),kind=wp)
                 Temp(nDisp) = Temp(nDisp)+ps*One/real(igv,kind=wp)*PreFct*dr_dB*df_dr
               end if
@@ -528,9 +529,12 @@ else if (lRF .and. PCM) then
     end do         ! End over basis set types, jCnttp
   end do           ! End of tiles
 
+  if (lSA) call dswap_(2*nTS,PCM_SQ,1,PCM_SQ_ind,1)
+  ! Now, PCM_SQ is induced by SA density
+
   if (iPrint >= 15) then
     Lab = ' The Nuclear Reaction Field (PCM) Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp)
+    call PrGrad(Lab,Temp,nGrad)
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -541,7 +545,7 @@ else if (lRF .and. PCM) then
   call PCM_Cav_grd(Temp,nGrad)
   if (iPrint >= 15) then
     Lab = ' The Cavity PCM Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp)
+    call PrGrad(Lab,Temp,nGrad)
   end if
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
 
@@ -552,7 +556,7 @@ else if (lRF .and. PCM) then
     call PCM_EF_grd(Temp,nGrad)
     if (iPrint >= 15) then
       Lab = ' The EF PCM Contribution'
-      call PrGrad(Lab,Temp,nGrad,ChDisp)
+      call PrGrad(Lab,Temp,nGrad)
     end if
     call DaXpY_(nGrad,-One,Temp,1,Grad,1)
   end if

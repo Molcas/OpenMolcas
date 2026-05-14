@@ -17,8 +17,8 @@
             %%Description:
             <HELP>
             This program is a general purpose facility for geometry
-            optimization. At present, it is tailored to use analytical gradients
-            produced by ALASKA.
+            optimization. At present, it is tailored to use analytical
+            or numerical gradients produced by ALASKA.
             SLAPAF also computes an approximate Hessian.
             </HELP>
 
@@ -958,7 +958,7 @@ Optional force constant keywords
               </KEYWORD>
 
 :kword:`RHIDden`
-  Define the hidden atoms selection radius in order to improve a QM/MM Hessian. It can be followed by :kword:`Angstrom`.
+  Define the hidden atoms selection radius in order to improve a QM/MM Hessian. It can be followed by :kword:`angstrom`.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RHID" APPEAR="Hidden atoms selection radius" KIND="REAL" LEVEL="ADVANCED">
               %%Keyword: rHid <advanced>
@@ -997,10 +997,10 @@ Optional miscellaneous keywords
   the radius defining the maximum length of a bond follows.
   The latter is used as a threshold when printing out
   angles and dihedral angles. The length can be followed by
-  :kword:`Bohr` or
-  :kword:`Angstrom` which indicates the unit in which the length
+  :kword:`bohr` or
+  :kword:`angstrom` which indicates the unit in which the length
   was specified, the default is
-  :kword:`Bohr`.
+  :kword:`bohr`.
   The default values are 15 and 3.0 au.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="RTRN" KIND="CUSTOM" LEVEL="ADVANCED">
@@ -1011,8 +1011,8 @@ Optional miscellaneous keywords
               the radius defining the maximum length of a bond follows on
               the next line. The latter is used as a threshold when printing out
               angles and dihedral angles. The length can be followed by
-              "Bohr" or "Angstrom" which indicates the unit in which the length
-              was specified, the default is "Bohr".
+              "bohr" or "angstrom" which indicates the unit in which the length
+              was specified, the default is "bohr".
               </HELP>
               </KEYWORD>
 
@@ -1080,7 +1080,7 @@ Optional miscellaneous keywords
               </HELP>
               </KEYWORD>
 
-Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2021` keywords
+Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2021,FdezGalvan2023` keywords
 
 .. class:: keywordlist
 
@@ -1126,6 +1126,7 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2021`
 
 :kword:`MXMI`
   Maximum number of micro iterations in each macro iteration of the RVO procedure.
+  If you set this to a small value, you may want to set :kword:`NOFAllback` too.
   The default value is 50.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MXMI" APPEAR="Micro iterations" KIND="INT" MIN_VALUE="1" DEFAULT_VALUE="50" REQUIRE="KRIGING" LEVEL="ADVANCED">
@@ -1134,6 +1135,16 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2021`
               Maximum number of micro iterations in each macro iteration of the RVO procedure.
               </HELP>
               Default: 50.
+              </KEYWORD>
+
+:kword:`NOFAllback`
+  Disable fallback to conventional optimization if RVO microiterations do not converge.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOFALLBACK" APPEAR="No fallback to conventional" KIND="SINGLE" REQUIRE="KRIGING" LEVEL="ADVANCED">
+              %%Keyword: NOFALLBACK <advanced>
+              <HELP>
+              Disable fallback to conventional optimization if RVO microiterations do not converge.
+              </HELP>
               </KEYWORD>
 
 :kword:`NDELta`
@@ -1366,11 +1377,11 @@ Keywords :kword:`NUMErical` and :kword:`RowH` are mutually exclusive.
   In case of a definition of **constraints** the sections contains either a
   direct reference to a *rLabel* as in
 
-    *rLabel* = *rValue* [Angstrom,Degrees] [Soft,Hard] [Phantom]
+    *rLabel* = *rValue* [angstrom,degrees] [Soft,Hard] [Phantom]
 
   or one can also use expressions like
 
-    f1 *rLabel1* |+-| f2 *rLabel2* |+-| ... = *Value* [Angstrom,Degrees] [Soft,Hard] [Phantom]
+    f1 *rLabel1* |+-| f2 *rLabel2* |+-| ... = *Value* [angstrom,degrees] [Soft,Hard] [Phantom]
 
   where *rValue* is the desired value of the constraint in au or rad, or in
   angstrom or degrees if the corresponding keyword is added. The "Hard" and "Soft"

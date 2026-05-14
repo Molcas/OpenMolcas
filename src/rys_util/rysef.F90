@@ -11,6 +11,7 @@
 ! Copyright (C) 1990,1991,1994, Roland Lindh                           *
 !               1990, IBM                                              *
 !***********************************************************************
+#define _SPECIAL_
 
 subroutine RysEF(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,mfMin,mfMax,Scrtch,PreFct,AeqB,CeqD)
 !***********************************************************************
@@ -30,6 +31,9 @@ subroutine RysEF(xyz2D,nArg,mArg,nRys,neMin,neMax,nfMin,nfMax,EFInt,meMin,meMax,
 !***********************************************************************
 
 use Index_Functions, only: iTri_Rev
+#ifndef _SPECIAL_
+use Index_Functions, only: C3_Ind
+#endif
 use Definitions, only: wp, iwp
 
 implicit none
@@ -39,11 +43,31 @@ real(kind=wp), intent(out) :: EFInt(nArg,meMin:meMax,mfMin:mfMax)
 real(kind=wp), intent(inout) :: Scrtch(nRys,mArg)
 logical(kind=iwp), intent(in) :: AeqB, CeqD
 integer(kind=iwp) :: ie, ief, if_, itr(2), ixe, ixf, ixye, ixyf, iye, iyf, ne, nf, nItem, nzeMax, nzeMin, nzfMax, nzfMin
-!define _DEBUGPRINT_
+#ifndef _SPECIAL_
+integer(kind=iwp) :: Inde, Indf, iRys, ize, izf
+#endif
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iab, icd
 character(len=80) :: Label
 #endif
 
+#ifndef _SPECIAL_
+#include "macros.fh"
+unused_var(Scrtch(1,1))
+#endif
+
+#ifdef _DEBUGPRINT_
+do iab=0,neMax
+  do icd=0,nfMax
+    write(Label,'(A,I3,A,I3,A)') ' In RysEF: xyz2D(x)(',iab,',',icd,')'
+    call RECPRT(Label,' ',xyz2D(:,:,1,iab,icd),nRys,mArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEF: xyz2D(y)(',iab,',',icd,')'
+    call RECPRT(Label,' ',xyz2D(:,:,2,iab,icd),nRys,mArg)
+    write(Label,'(A,I3,A,I3,A)') ' In RysEF: xyz2D(z)(',iab,',',icd,')'
+    call RECPRT(Label,' ',xyz2D(:,:,3,iab,icd),nRys,mArg)
+  end do
+end do
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -73,6 +97,7 @@ do ief=1,ne*nf
   nzfMin = max(0,nfMin-ixyf)
   if (CeqD) nzfMin = nzfMax
 
+# ifdef _SPECIAL_
   nItem = (nzeMax-nzeMin+1)*(nzfMax-nzfMin+1)
   if (nItem > 1) then
 
@@ -130,6 +155,22 @@ do ief=1,ne*nf
     end if
 
   end if
+# else
+  do izf=nzfMin,nzfMax
+    Indf = C3_Ind(ixyf+izf,ixf,izf)-1
+    do ize=nzeMin,nzeMax
+      Inde = C3_Ind(ixye+ize,ixe,ize)-1
+      EFInt(1:mArg,Inde,Indf) = xyz2D(1,:,1,ixe,ixf)*xyz2D(1,:,2,iye,iyf)*xyz2D(1,:,3,ize,izf)
+      do iRys=2,nRys
+        EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)+xyz2D(iRys,:,1,ixe,ixf)*xyz2D(iRys,:,2,iye,iyf)*xyz2D(iRys,:,3,ize,izf)
+      end do
+      EFInt(1:mArg,Inde,Indf) = EFInt(1:mArg,Inde,Indf)*PreFct(:)
+    end do
+  end do
+  ! Keep this call for debugging purposes.
+  !call RysEFX(xyz2D,nArg,mArg,nRys,neMax,nfMax,EFInt,meMin,meMax,mfMin,mfMax,PreFct,ixe,ixf,iye,iyf,ixye,ixyf,nzeMin,nzeMax, &
+  !            nzfMin,nzfMax)
+# endif
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -142,7 +183,7 @@ end do
 do iab=meMin,meMax
   do icd=mfMin,mfMax
     write(Label,'(A,I3,A,I3,A)') ' In RysEF: [',iab,',0|',icd,',0]'
-    call RecPrt(Label,' ',EFInt(1,iab,icd),1,nArg)
+    call RecPrt(Label,' ',EFInt(:,iab,icd),1,nArg)
   end do
 end do
 #endif

@@ -19,7 +19,7 @@ subroutine MatPCM(NTs,Eps,Conductor,ISphe,Coor_Sph,Tessera,DMat,SMat,SDMat,TMat,
 ! and finally returned in DMat.
 
 use PCM_Arrays, only: DiagScale
-use Constants, only: Zero, One, Two, Four, Pi
+use Constants, only: Zero, One, Two, Four, Half, Pi
 use Definitions, only: wp, iwp
 
 implicit none
@@ -127,6 +127,15 @@ else
   call DGEMM_('N','N',nTs,nTs,nTs,One,TMat,nTs,RMat,nTs,Zero,DMat,nTs)
 
 end if
+
+! Moved from pcm_driver
+do iTs=1,nTs
+  do jTs=1,iTs-1
+    Fac = Half*(DMat(iTs,jTs)+DMat(jTs,iTs))
+    DMat(iTs,jTs) = Fac
+    DMat(jTs,iTs) = Fac
+  end do
+end do
 
 return
 

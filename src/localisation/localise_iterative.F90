@@ -28,12 +28,12 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 character(len=4), intent(in) :: Model
 real(kind=wp), intent(out) :: Functional
-#include "debug.fh"
 integer(kind=iwp) :: iSym
 real(kind=wp) :: Thrs_Save, xNrm
 character(len=80) :: Txt
 character(len=4) :: myModel
 logical(kind=iwp) :: Converged
+logical(kind=iwp), parameter :: debug = .false.
 character(len=*), parameter :: SecNam = 'Localise_Iterative'
 
 irc = 0
@@ -62,9 +62,9 @@ call UpCase(myModel)
 if (myModel == 'PIPE') then
   !if (.not. Silent) then
   write(u6,'(//,1X,A)') 'Pipek-Mezey localisation'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
@@ -73,9 +73,9 @@ if (myModel == 'PIPE') then
 else if (myModel == 'BOYS') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'Boys localisation'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
@@ -83,9 +83,9 @@ else if (myModel == 'BOYS') then
 else if (myModel == 'EDMI') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'Edmiston-Ruedenberg localisation'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
-  write(u6,'(1X,A,1X,D12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  !write(u6,'(1X,A,1X,D12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
+  write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  !write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if

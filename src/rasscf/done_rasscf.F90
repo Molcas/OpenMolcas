@@ -18,11 +18,11 @@ subroutine Done_RASSCF(CMO,OCC,D)
 !     Compute the active one-body density                              *
 !                                                                      *
 !     calling arguments:                                               *
-!     CMO     : input, array of real*8                                 *
+!     CMO     : input, array of real                                   *
 !               MO-coefficients                                        *
-!     OCC     : input, array of real*8                                 *
+!     OCC     : input, array of real                                   *
 !               occupation numbers                                     *
-!     D       : output, array of real*8                                *
+!     D       : output, array of real                                  *
 !               total one-body density                                 *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -38,13 +38,15 @@ subroutine Done_RASSCF(CMO,OCC,D)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use general_data, only: NASH, NBAS, NFRO, NISH, NSYM
 use Constants, only: Zero, Two
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
 
 implicit none
-real(kind=wp) :: CMO(*), OCC(*), D(*)
-#include "rasdim.fh"
-#include "general.fh"
+real(kind=wp), intent(in) :: CMO(*), OCC(*)
+real(kind=wp), intent(_OUT_) :: D(*)
 integer(kind=iwp) :: i, iAsh, iBas, iFro, iIsh, ij, iOff1, iOff2, iOff3, iSym, j, k
 real(kind=wp) :: rSum
 

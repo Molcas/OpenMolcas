@@ -16,9 +16,12 @@ module Definitions
 
 use, intrinsic :: iso_fortran_env, only: int8, int32, int64, real32, real64, error_unit, input_unit, output_unit
 use, intrinsic :: iso_c_binding, only: c_double, c_int, c_size_t
-#   ifdef _I8_
+#ifdef _I8_
 use, intrinsic :: iso_c_binding, only: c_long
-#   endif
+#endif
+#ifdef _MOLCAS_MPP_
+use MPI, only: MPI_ADDRESS_KIND
+#endif
 
 implicit none
 private
@@ -27,9 +30,9 @@ public :: wp, iwp, byte, DefInt, MPIInt, HDF5Int
 public :: BLASInt, BLASR4, BLASR8, CUDAInt
 public :: LibxcInt, LibxcReal, LibxcSize
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
-public :: i1, i4, i8, r4, r8
-public :: ItoB, RtoB, RtoI, CtoR
+public :: ItoB, RtoB, RtoI, CtoB
 public :: u0, u5, u6
+public :: r4
 
 ! This is the working precision and should be preferably used
 ! (we assume logical kinds are the same as integer kinds).
@@ -48,7 +51,7 @@ integer(kind=iwp), parameter :: byte = int8
 integer(kind=iwp), parameter :: DefInt = int32
 
 ! Types for BLAS/LAPACK calls
-#if defined(LINALG_I4) && defined(_I8_)
+#if defined (LINALG_I4) && defined (_I8_)
 integer(kind=iwp), parameter :: BLASInt = int32
 #else
 integer(kind=iwp), parameter :: BLASInt = iwp
@@ -64,7 +67,13 @@ integer(kind=iwp), parameter :: LibxcInt = c_int, &
 ! NOTE: If legacy `integer*4` declarations are replaced with integer(MPIInt)
 !       we can support 32bit and 64bit versions.
 !       Which will require appropiate compile flags here.
+#ifdef _MOLCAS_MPP_
+! Note the value of MPI_ADDRESS_KIND does not matter, only its kind
+! Luckily, it is defined as an "MPI default" integer
+integer(kind=iwp), parameter :: MPIInt = kind(MPI_ADDRESS_KIND)
+#else
 integer(kind=iwp), parameter :: MPIInt = int32
+#endif
 
 ! This is the type of HDF5 arguments
 ! NOTE: If legacy `integer*4` declarations are replaced with integer(HDF5Int)
@@ -80,11 +89,11 @@ integer(kind=iwp), parameter :: &
                                 ItoB = storage_size(1_iwp)/storage_size('a'), &
                                 RtoB = storage_size(1.0_wp)/storage_size('a'), &
                                 RtoI = storage_size(1.0_wp)/storage_size(1_iwp), &
-                                CtoR = storage_size((1.0_wp,0.0_wp))/storage_size(1.0_wp)
-#elif defined(_I8_)
-                                ItoB = 8, RtoB = 8, RtoI = 1, CtoR = 2
+                                CtoB = storage_size((1.0_wp,0.0_wp))/storage_size('a')
+#elif defined (_I8_)
+                                ItoB = 8, RtoB = 8, RtoI = 1, CtoB = 16
 #else
-                                ItoB = 4, RtoB = 8, RtoI = 2, CtoR = 2
+                                ItoB = 4, RtoB = 8, RtoI = 2, CtoB = 16
 #endif
 
 ! Output, input and error units, typically 6, 5 & 0, but they could be something else
@@ -93,22 +102,13 @@ integer(kind=iwp), parameter :: u0 = error_unit, &
                                 u6 = output_unit
 
 ! Although the constants from `iso_fortran_env` or `selected_real_kind`
-! are preferred over non-standard `real*8` etc.
+! are preferred over non-standard `real` etc.
 ! We define some kinds to refer to the non-standard notation.
 ! **DON'T USE THESE UNLESS YOU EXPLICILTY WANT TO REFER TO `real*8` etc.**
 ! `wp` etc. are always preferred.
 
 real*4 :: r4_example
-real*8 :: r8_example
 
-integer*1 :: i1_example
-integer*4 :: i4_example
-integer*8 :: i8_example
-
-integer(kind=iwp), parameter :: r4 = kind(r4_example), &
-                                r8 = kind(r8_example), &
-                                i1 = kind(i1_example), &
-                                i4 = kind(i4_example), &
-                                i8 = kind(i8_example)
+integer(kind=iwp), parameter :: r4 = kind(r4_example)
 
 end module Definitions

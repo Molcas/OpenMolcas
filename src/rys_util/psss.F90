@@ -32,7 +32,8 @@ real(kind=wp), intent(in) :: Zeta(nZeta), P(lP,3), rKappAB(nZeta), A(3), B(3), E
                              R6(nMax), R5(nMax), R4(nMax), R3(nMax), R2(nMax), R1(nMax), R0(nMax), ddx, HerW, HerR2, ChiI2
 integer(kind=iwp) :: iEta, iZeta, n
 real(kind=wp) :: dddx, Eu2, PAQPx, PAQPy, PAQPz, PQ2, PQx, PQy, PQz, PreFct, r, rho, t, w, xdInv, z, ZE, ZEInv
-logical(kind=iwp) :: ABeqCD, EQ
+logical(kind=iwp) :: ABeqCD
+logical(kind=iwp), external :: EQ
 
 xdInv = One/ddx
 dddx = ddx/Ten+ddx

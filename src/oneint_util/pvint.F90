@@ -11,8 +11,16 @@
 ! Copyright (C) 1993, Bernd Artur Hess                                 *
 !***********************************************************************
 
-subroutine PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nIC,nComp,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,lOper, &
-                 iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot,Kernel)
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
+subroutine PVInt( &
+#                define _CALLING_
+#                include "int_interface.fh"
+                 , Kernel)
+
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of  pX integrals          *
@@ -24,31 +32,31 @@ subroutine PVInt(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,nIC,nCo
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
-use Definitions, only: wp, iwp, u6
+use Integral_interfaces, only: int_kernel
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-! TODO: unknown intents, probably all "in" except rFinal (see int_interface.fh)
-integer(kind=iwp) :: nAlpha, nBeta, nZeta, nIC, nComp, la, lb, nHer, nArr, nOrdOp, lOper(nComp), iChO(nComp), nStabM, &
-                     iStabM(0:nStabM-1), nGrid, iAddPot
-real(kind=wp) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                 rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC), A(3), RB(3), Array(nZeta*nArr), Ccoor(3,nComp), PtChrg(nGrid)
-external :: Kernel
-#include "print.fh"
-integer(kind=iwp) :: i, iBeta, ipA, ipArr, ipOff, iPrint, ipS1, ipS2, iRout, kRys, mArr, nip
+#include "int_interface.fh"
+procedure(int_kernel) :: Kernel
+integer(kind=iwp) :: iBeta, ipA, ipArr, ipOff, ipS1, ipS2, kRys, mArr, nip
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 
 #include "macros.fh"
 unused_var(nHer)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 221
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
-  write(u6,*) 'PVInt: nIC,nComp=',nIC,nComp
-  call RecPrt(' In pvint: Alpha','(5D20.13)',Alpha,nAlpha,1)
-  call RecPrt(' In pvint: Beta','(5D20.13)',Beta,nBeta,1)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'PVInt: nIC,nComp=',nIC,nComp
+call RecPrt(' In pvint: Alpha','(5ES20.13)',Alpha,nAlpha,1)
+call RecPrt(' In pvint: Beta','(5ES20.13)',Beta,nBeta,1)
+#endif
 
 nip = 1
 ipA = nip
@@ -74,8 +82,8 @@ end if
 ! Compute contribution from a+1,b
 
 kRys = ((la+1)+lb+2)/2
-call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nComp,la+1,lb,A,RB,kRys,Array(ipArr),mArr,CCoor, &
-            nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
+call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1:ipS2-1),nZeta,nIC,nComp,la+1,lb,A,RB,kRys,Array(ipArr:),mArr, &
+            CoorO,nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -83,8 +91,8 @@ call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nIC,nCo
 
 if (la > 0) then
   kRys = ((la-1)+lb+2)/2
-  call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,nIC,nComp,la-1,lb,A,RB,kRys,Array(ipArr),mArr,CCoor, &
-              nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
+  call Kernel(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2:ipArr-1),nZeta,nIC,nComp,la-1,lb,A,RB,kRys,Array(ipArr:),mArr, &
+              CoorO,nOrdOp,lOper,iChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 end if
 !                                                                      *
 !***********************************************************************
@@ -94,9 +102,9 @@ do iBeta=1,nBeta
   Array(ipOff+1:ipOff+nAlpha) = Alpha
   ipOff = ipOff+nAlpha
 end do
-if (iPrint >= 99) then
-  call RecPrt(' In pvint: Alpha (expanded)','(5D20.13)',Array(ipA),nZeta,1)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In pvint: Alpha (expanded)','(5ES20.13)',Array(ipA),nZeta,1)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -106,12 +114,10 @@ call Ass_pX(Array(ipA),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nIC)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (iPrint >= 49) then
-  do i=1,3
-    call RecPrt('pVInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  end do
-end if
-
-return
+#ifdef _DEBUGPRINT_
+do i=1,3
+  call RecPrt('pVInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+end do
+#endif
 
 end subroutine PVInt

@@ -18,9 +18,9 @@
  *       Date:         Spring 2010
  *
  *       parnell_scatter - takes a file with "src_name" and copies it to
- *                          "dst_name" in the main work directory "dst_name" on
- *                          the master and to the subdirectories of all the
- *                          slaves, thus distributing the file.
+ *                         "dst_name" in the main work directory "dst_name" on
+ *                         the master and to the subdirectories of all the
+ *                         slaves, thus distributing the file.
  *
  */
 

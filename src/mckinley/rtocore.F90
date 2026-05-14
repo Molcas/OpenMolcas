@@ -16,12 +16,12 @@ subroutine RToCore(F,nBeta,ishll,lb,iAng,nveccb)
 ! Transformation kernel to atomic orbitals in normalized spherical harmonics
 !
 !***********************************************************************
-! @parameter F The cartesian components of <A|core>
-! @parameter nBeta Number of exponents
-! @parameter ishll Shell number for ECP
-! @parameter lb angular momenta Ket
-! @parameter iAng angular momenta core
-! @parameter nveccb Number of derivatives
+! @param F The cartesian components of <A|core>
+! @param nBeta Number of exponents
+! @param ishll Shell number for ECP
+! @param lb angular momenta Ket
+! @param iAng angular momenta core
+! @param nveccb Number of derivatives
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1

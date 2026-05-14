@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
+subroutine CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX,nTUVX)
 !*********************************************************************
 !  Author : F. Aquilante
 !
@@ -35,25 +35,20 @@ subroutine CHO_FOCK_RASSI(DLT,MO1,MO2,FLT,TUVX)
 !
 !*********************************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Fock_util_global, only: Fake_CMO2
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use rassi_data, only: NASH, NISH
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
-type(DSBA_Type), intent(in) :: DLT, MO1(2), MO2(2)
+type(DSBA_Type), intent(in) :: DLT(1), MO1(2), MO2(2)
 type(DSBA_Type), intent(inout) :: FLT(1)
-real(kind=wp), intent(_OUT_) :: TUVX(*)
-#include "chotime.fh"
-#include "rassi.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(inout) :: TUVX(nTUVX)
 integer(kind=iwp) :: i, iBatch, iCase, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymb, iSymk, iSymv, IVEC2, iVrs, jDen, JNUM, &
                      JRED, JRED1, JRED2, jSym, JVC, JVEC, k, kDen, kMOs, l, LREAD, LWORK, mDen, mTTvec, mTvec, MUSED, NAv, NAw, &
                      nBatch, nDen, NK, nMOs, nRS, NUMV, nVec, nVrs, rc
@@ -61,14 +56,15 @@ real(kind=wp) :: Fact, TCC1, TCC2, TCINT1, TCINT2, tcoul(2), TCR1, TCR2, TCR3, T
                  TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, TWC2, TWINT1, TWINT2, TWR1, TWR2, TWR3, TWR4, &
                  TWR7, TWX1, TWX2
 logical(kind=iwp) :: add, DoReord
-#ifdef _DEBUGPRINT_
-logical(kind=iwp) :: Debug
-#endif
 character(len=50) :: CFmt
 type(SBA_Type), target :: Laq(2)
 type(twxy_type) :: Scr
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ISYM
+logical(kind=iwp) :: Debug
+#endif
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:)
-real(kind=wp), pointer :: VJ(:) => null()
+real(kind=wp), pointer :: VJ(:)
 real(kind=wp), parameter :: FactCI = One, FactXI = -One
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_RASSI'
@@ -175,7 +171,7 @@ do jSym=1,nSym
       ! Transform the density to reduced storage
       add = .false.
       mDen = 1
-      call swap_full2rs(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,add)
+      call swap_full2rs(irc,iLoc,nRS,mDen,JSYM,DLT,Drs,add)
     end if
 
     ! BATCH over the vectors ----------------------------
@@ -184,16 +180,17 @@ do jSym=1,nSym
 
     do iBatch=1,nBatch
 
-      iSwap = 2 ! LpJ,b are returned
-      do jDen=1,nDen
-        call Allocate_DT(Laq(jDen),nIsh,nBas,nVec,JSYM,nSYm,iSwap)
-      end do
 
       if (iBatch == nBatch) then
         JNUM = nVrs-nVec*(nBatch-1)
       else
         JNUM = nVec
       end if
+
+      iSwap = 2 ! LpJ,b are returned
+      do jDen=1,nDen
+        call Allocate_DT(Laq(jDen),nIsh,nBas,JNUM,JSYM,nSYm,iSwap)
+      end do
 
       JVEC = nVec*(iBatch-1)+iVrs
       IVEC2 = JVEC-1+JNUM
@@ -237,7 +234,7 @@ do jSym=1,nSym
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
         tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-        VJ => null()
+        nullify(VJ)
 
       end if ! Coulomb contribution
 
@@ -361,7 +358,7 @@ do jSym=1,nSym
 
       DoReord = (JRED == JRED2) .and. (iBatch == nBatch)
 
-      call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,DoReord)
+      call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nTUVX,nAsh,JSYM,JNUM,DoReord)
 
       call CWTIME(TCINT2,TWINT2)
       tintg(1) = tintg(1)+(TCINT2-TCINT1)

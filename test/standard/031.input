@@ -2,7 +2,7 @@
 * Molecule: O4+
 * Basis: cc-pvdz
 * Symmetry: C2v
-* Features tested: SEWARD(extra charges), SCF, RASSCF, RASSI, CASPT2
+* Features tested: SEWARD(extra charges), SCF, RASSCF, RASSI
 * Responsible person: P.-O. Widmark 041227
 * Comments: Test of SEWARD with extra charges and RASSCF, RASSI
 *-------------------------------------------------------------------------------

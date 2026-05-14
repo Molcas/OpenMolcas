@@ -19,7 +19,7 @@
 !>
 !> @details
 !> In the inner batch the Cholesky Full Vectors are transformed and
-!> stored in memory. Adresses (``1``) and length (``2``) are stored in the
+!> stored in memory. Addresses (``1``) and length (``2``) are stored in the
 !> matrix <tt>TCVX(iType, Sym(i), Sym(j)) of allocatable 2D arrays.</tt>.
 !>
 !> - \c iType = ``1``: TCVA
@@ -248,9 +248,9 @@ do iiVec=1,NumV,nFVec
 
     ! End of Transformations
 
-    if (allocated(XAj)) call mma_deallocate(XAj)
-    if (allocated(XAu)) call mma_deallocate(XAu)
-    if (allocated(XAb)) call mma_deallocate(XAb)
+    call mma_deallocate(XAj,safe='*')
+    call mma_deallocate(XAu,safe='*')
+    call mma_deallocate(XAb,safe='*')
 
   end do
   ! End Loop jVec

@@ -33,12 +33,13 @@ use Grid_On_Disk, only: Grid_Status, iDisk_Grid, Lu_Grid, Old_Functional_Type, R
 use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Functional_Type, GGA_Type, Grad_I, LDA_Type, &
                    meta_GGA_type1, meta_GGA_type2, mRad, NASHT, ndc, nOrbt, nPot1, NQ_Direct, Off, On, Packing, T_Y, Tau_I
 use Index_Functions, only: nTri_Elem1
+use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-external :: Kernel
+procedure(DFT_FUNCTIONAL) :: Kernel
 integer(kind=iwp), intent(in) :: mGrid, nlist_s, list_s(2,nlist_s), List_Exp(nlist_s), List_Bas(2,nlist_s), nIndex, Indx(nIndex), &
                                  nFckDim, nFckInt, mAO, nD, nP2_ontop, nMOs, nGrad, ndRho_dR, nGrad_Eff, iNQ, nTmpPUVX
 real(kind=wp), intent(inout) :: Func, FckInt(nFckInt,nFckDim), TabMO(mAO,mGrid,nMOs), Grad(nGrad), EG_OT(nTmpPUVX), &
@@ -62,7 +63,8 @@ real(kind=wp), external :: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nCMO = size(CMO)
+nCMO = 0
+if (allocated(CMO)) nCMO = size(CMO)
 l_tanhr = .false.
 
 if (l_casdft) then
@@ -148,7 +150,7 @@ else
   Mem(:) = Zero
   ipxyz = 1
 
-! define _ANALYSIS_
+!# define _ANALYSIS_
 # ifdef _ANALYSIS_
   Thr = T_Y
   write(u6,*)
@@ -306,7 +308,7 @@ call mma_Allocate(Grid_AO,kAO,mGrid,nBfn,nD,Label='Grid_AO')
 !                                                                      *
 if (Do_MO) then
 
-  ! First, symmatry adapt the AOs
+  ! First, symmetry adapt the AOs
   TabSO(:,:,:) = Zero
   jlist_s = 0
   call mk_SOs(TabSO,mAO,mGrid,nMOs,List_s,List_Bas,nList_s,jlist_s)
@@ -356,7 +358,7 @@ if (l_casdft) then
                     mRho,nMOs,CMO,nCMO,TabSO,lft,P2MOCube,P2MOCubex,P2MOCubey,P2MOCubez,nPMO3p,MOs,MOx,MOy,MOz)
   end if
 
-  call TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,l_tanhr,mGrid,nP2_OnTop,ndRho_dR,nGrad_Eff,Do_Grad)
+  call TranslateDens(P2_OnTop,dRho_dr,P2_OnTop_d,Weights,l_tanhr,mGrid,nP2_OnTop,ndRho_dR,nGrad_Eff,Do_Grad)
 
   call mma_deallocate(P2MOCube)
   call mma_deallocate(P2MOCubex)
@@ -546,9 +548,9 @@ subroutine Terminate()
     call mma_deallocate(RhoI)
     call mma_deallocate(RhoA)
   end if
-  if (allocated(iBfn_Index)) call mma_deAllocate(iBfn_Index)
-  if (allocated(Grid_AO)) call mma_deAllocate(Grid_AO)
-  if (allocated(Dens_AO)) call mma_deAllocate(Dens_AO)
+  call mma_deAllocate(iBfn_Index,safe='*')
+  call mma_deAllocate(Grid_AO,safe='*')
+  call mma_deAllocate(Dens_AO,safe='*')
 
 end subroutine Terminate
 

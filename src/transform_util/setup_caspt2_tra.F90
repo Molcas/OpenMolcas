@@ -9,18 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SetUp_CASPT2_Tra(nSym_,nBas_,nOrb_,nIsh_,nAsh_,nFro_,nDel_,CMO,lthCMO,LuIntM_,LuHlf1_,LuHlf2_,LuHlf3_)
+! This subroutine should be in a module
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
-use Symmetry_Info, only: Mul_SI => Mul
+subroutine SetUp_CASPT2_Tra(nSym_,nBas_,nOrb_,nIsh_,nAsh_,nFro_,nDel_,CMO_,lthCMO,LuIntM_,LuHlf1_,LuHlf2_,LuHlf3_)
+
+use caspt2_global, only: CMO, LUHLF1, LUHLF2, LUHLF3, LUINTM, NCMO
+use caspt2_module, only: nAsh, nBas, nDel, nFro, nIsh, nOrb, nOsh, nSym
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym_, nBas_(8), nOrb_(8), nIsh_(8), nAsh_(8), nFro_(8), nDel_(8), lthCMO, LuIntM_
+real(kind=wp), target, intent(in) :: CMO_(lthCMO)
 integer(kind=iwp), intent(inout) :: LuHlf1_, LuHlf2_, LuHlf3_
-real(kind=wp), intent(in) :: CMO(lthCMO)
-integer(kind=iwp), external :: ip_of_Work
-#include "rasdim.fh"
-#include "caspt2.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -36,11 +39,7 @@ nOsh(1:nSym) = nAsh_(1:nSym)+nIsh_(1:nSym)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Mul(:,:) = Mul_SI(:,:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-LCMO = ip_of_Work(CMO(1))
+CMO => CMO_
 nCMO = lthCMO
 !                                                                      *
 !***********************************************************************
@@ -61,6 +60,5 @@ LuIntM = LuIntM_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
 
 end subroutine SetUp_CASPT2_Tra

@@ -30,7 +30,7 @@
 !>
 !> @details
 !> This routine is used to put scalar data of type
-!> ``Real*8`` into the runfile. The data items are
+!> ``Real`` into the runfile. The data items are
 !> identified by the \p label. Below is a list of the
 !> data items that are recognized. The labels are
 !> case insensitive and significant to 16 characters.
@@ -61,7 +61,7 @@ character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDS)
 ! Do setup if this is the first call.                                  *
 !----------------------------------------------------------------------*
 ! start pow mod ---
-!write(6,'(3a)') 'Runfile: put_dscalar field "',Label,'"'
+!write(u6,'(3a)') 'Runfile: put_dscalar field "',Label,'"'
 ! end pow mod ---
 call ffRun('dScalar labels',nData,iTmp)
 if (nData == 0) then

@@ -10,21 +10,22 @@
 !***********************************************************************
 
 ! This subroutine should be in a module, to avoid explicit interfaces
-#ifdef _IN_MODULE_
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine Effective_CD_Pairs(ij2,nij_Eff)
 
 use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nBas_Aux, nCnttp, Shells
 use Symmetry_Info, only: nIrrep
-use ChoArr, only: iSOShl
+use Cholesky, only: iSOShl, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: nij_Eff
 integer(kind=iwp), allocatable, intent(out) :: ij2(:,:)
-#include "cholesky.fh"
 integer(kind=iwp) :: i, iAng, iCnttp, iIrrep, ij, ij_Eff, iOff, iShll, iSym, j, jOff, nAux_Tot, nij, nSkal_Valence, nVal_Tot
 integer(kind=iwp), allocatable :: ij3(:), SO_ab(:)
 
@@ -115,5 +116,3 @@ call mma_deallocate(ij3)
 return
 
 end subroutine Effective_CD_Pairs
-
-#endif

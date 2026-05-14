@@ -14,7 +14,7 @@
 !***********************************************************************
 
 subroutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,mcdMin,mcdMax, &
-               Array,nArray,Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
+               Array,nArray,Tvalue,ModU2_k,Cff2D_k,Rys2D_k,NoSpecial)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the source integrals for the transfer equation    *
@@ -37,6 +37,8 @@ use RysScratch, only: RysRtsWgh
 #else
 use vRys_RW, only: nMxRys
 #endif
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
+use Breit, only: nOrdOp
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
 
@@ -45,16 +47,21 @@ integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabM
 real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), P(lP,3), Q(lQ,3), rKapab(nZeta), rKapcd(nEta), &
                              Coori(3,4), Coora(3,4), CoorAC(3,2)
 real(kind=wp), intent(inout) :: Array(nArray)
-external :: Tvalue, ModU2, Cff2D, Rys2D
+procedure(tval_kernel) :: Tvalue
+procedure(modu2_kernel) :: ModU2_k
+procedure(cff2d_kernel) :: Cff2D_k
+procedure(rys2d_kernel) :: Rys2D_k
 logical(kind=iwp), intent(in) :: NoSpecial
 integer(kind=iwp) :: iab, iabcd, icd, iEta, ij, ijkl, iOff, ip, ip_Array_Dummy, ipAC, ipAC_long, ipB00, ipB01, ipB10, ipDiv, &
-                     ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipZeta, &
-                     ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabMax, nabMin, ncdMax, ncdMin, nRys, &
-                     ntmp, nTR
+                     ipEInv, ipEta, ipFact, ipP, ipPAQP, ipQ, ipQCPQ, iprKapab, iprKapcd, ipScr, ipTv, ipU2, ipWgh, ipxyz, ipxyzN, &
+                     ipZeta, ipZInv, iZeta, kl, la, labMax, lb, lB00, lB01, lB10, lc, ld, nabcd, nabcdN, nabMax, nabMin, ncdMax, &
+                     ncdMin, nRys, ntmp, nTR
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: mabcd
+#endif
 logical(kind=iwp) :: AeqB, CeqD, secondpass
 logical(kind=iwp), external :: EQ
 
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 write(u6,*) 'NoSpecial=',NoSpecial
 call RecPrt(' In Rys:P','(10G15.5)',P,lP,3)
@@ -74,12 +81,36 @@ lc = iAnga(3)
 ld = iAnga(4)
 AeqB = EQ(Coori(1,1),Coori(1,2))
 CeqD = EQ(Coori(1,3),Coori(1,4))
-nRys = (la+lb+lc+ld+2)/2
-nabMax = la+lb
-nabMin = max(la,lb)
-ncdMax = lc+ld
-ncdMin = max(lc,ld)
+
+! Compute the order of the needed polynomial.
+nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
+if (nOrdOp == 0) then
+  nRys = (la+lb+lc+ld+2)/2  ! This is not consistent with the paper
+  !nRys = (la+lb+lc+ld+4)/2
+else if (nOrdOp == 1) then
+  nRys = (la+lb+lc+ld+4)/2
+else if (nOrdOp == 2) then
+  nRys = (la+lb+lc+ld+4)/2
+end if
+
+if (nOrdOp == 0) then
+  nabMax = la+lb
+  nabMin = max(la,lb)
+  ncdMax = lc+ld
+  ncdMin = max(lc,ld)
+else
+  nabMax = la+lb+2
+  nabMin = max(la,lb)
+  ncdMax = lc+ld+2
+  ncdMin = max(lc,ld)
+end if
+
 nabcd = (nabMax+1)*(ncdMax+1)
+if (nOrdOp == 0) then
+  nabcdN = 0
+else
+  nabcdN = (nabMax-1+1)*(ncdMax-1+1)
+end if
 
 ! In some cases a pointer to Array will not be used. However, the
 ! subroutine call still have the same number of arguments. In this
@@ -90,6 +121,7 @@ ip_Array_Dummy = nArray
 
 ijkl = 0
 if (NoSpecial) ijkl = -1
+if (nOrdOp /= 0) ijkl = -1
 
 ! For FMM, compute short-range integrals disabling special cases
 !gh - disable special cases anyway for the short range integrals
@@ -179,7 +211,11 @@ select case (ijkl)
     ! Allocate memory for integrals of [a0|c0] type
     ip = 1
     ipAC = ip
-    ip = ip+nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+    if (nOrdOp == 0) then
+      ip = ip+nT*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+    else
+      ip = ip+nT*6*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
+    end if
     !gh - in order to produce the short range integrals, two arrays of
     !gh - this type are needed - one for the ordinary full range, one for
     !gh - the long range integrals
@@ -192,9 +228,12 @@ select case (ijkl)
     ! Allocate memory for the normalization factors
     ipFact = ip
     ip = ip+nT
-    ! Allocate memory for the 2D-integrals.
+    ! Allocate memory for the ordinary 2D-integrals.
     ipxyz = ip
     ip = ip+nabcd*3*nT*nRys
+    ! Allocate memory for the extended 2D-integrals a la Toru Shirozaki.
+    ipxyzN = ip
+    ip = ip+nabcdN*3*2*nT*nRys
     secondpass = .false.
     ! jump mark for second pass:
     do
@@ -277,7 +316,6 @@ select case (ijkl)
       ip = ip+nT
       iprKapcd = ip
       ip = ip+nT
-!#     define _CHECK_
 #     ifdef _CHECK_
       if (ip-1 > nArray) then
         call WarningMessage(2,'Rys: ip-1 =/= nArray (pos.1)')
@@ -343,7 +381,7 @@ select case (ijkl)
       ! Compute the arguments for which we will compute the roots and the weights.
 
       call Tvalue(Array(ipZeta),Array(ipEta),Array(ipP),Array(ipQ),Array(iprKapab),Array(iprKapcd),Array(ipTv),Array(ipFact), &
-                  Array(ipDiv),nT,IsChi,ChiI2)
+                  Array(ipDiv),nT,IsChi,ChiI2,nOrdOp)
       ! Let go of rKapab and rKapcd
       ip = ip-2*nT
 
@@ -364,6 +402,10 @@ select case (ijkl)
         write(u6,*) ' ip-1  =',ip-1
         call Abend()
       end if
+      if (nOrdOp /= 0) then
+        call WarningMessage(2,'Rys: check not implemented for nOrdOp/=0'
+        call Abend()
+      end if
 #     endif
       call RysRtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
 #     else
@@ -376,7 +418,7 @@ select case (ijkl)
           call Abend()
         end if
 #       endif
-        call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys)
+        call RtsWgh(Array(ipTv),nT,Array(ipU2),Array(ipWgh),nRys,nOrdOp)
       else
 #       ifdef _CHECK_
         if (ip-1 > nArray) then
@@ -386,7 +428,7 @@ select case (ijkl)
           call Abend()
         end if
 #       endif
-        call vRysRW(la,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys)
+        call vRysRW(la,lb,lc,ld,Array(ipTv),Array(ipU2),Array(ipWgh),nT,nRys,nOrdOp)
       end if
 #     endif
       ! Let go of arguments
@@ -394,13 +436,13 @@ select case (ijkl)
 
       ! Compute coefficients for the recurrence relations of the 2D-integrals
 
-      if (la+lb+lc+ld > 0) call ModU2(Array(ipU2),nT,nRys,Array(ipDiv))
+      if (la+lb+lc+ld+nOrdOp > 0) call ModU2_k(Array(ipU2),nT,nRys,Array(ipDiv))
       ! Let go of inverse
       ip = ip-nT
 
-      call Cff2D(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC, &
-                 Array(ipP),Array(ipQ),la,lb,lc,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax, &
-                 Array(ipB01))
+      call Cff2D_k(max(nabMax-1,0),max(ncdMax-1,0),nRys,Array(ipZeta),Array(ipZInv),Array(ipEta),Array(ipEInv),nT,Coori,CoorAC, &
+                   Array(ipP),Array(ipQ),la,lb,lc,ld,Array(ipU2),Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),labMax, &
+                   Array(ipB01),nOrdOp)
       ! Let go of roots
       ip = ip-nT*nRys
       ! Let go of Zeta, ZInv, Eta, and EInv
@@ -410,17 +452,21 @@ select case (ijkl)
 
       ! Compute the 2D-integrals from the roots and weights
 
-      call Rys2D(Array(ipxyz),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),Array(ipB01))
+      call Rys2D_k(Array(ipxyz),nT,nRys,nabMax,ncdMax,Array(ipPAQP),Array(ipQCPQ),Array(ipB10),Array(ipB00),Array(ipB01))
       ip = ip-nTR*3*lB01
       ip = ip-nTR*3*lB00
       ip = ip-nTR*3*lB10
       ip = ip-nTR*3
       ip = ip-nTR*3
 
+      ! Compute the 2D-integrals a la Toru Shirozaki from the roots and weights
+
+      if (nOrdOp /= 0) call Rys2DN(Array(ipxyz),Array(ipxyzN),nT,nRys,nabMax-2,ncdMax-2,CoorAC)
+
       ! Compute [a0|c0] integrals
 
       ipScr = ip
-      ip = ip+nT*nRys
+      if (nOrdOp == 0) ip = ip+nT*nRys
       AeqB = EQ(Coora(1,1),Coora(1,2))
       CeqD = EQ(Coora(1,3),Coora(1,4))
       !                                                                *
@@ -476,8 +522,13 @@ select case (ijkl)
         !                                                              *
         !***************************************************************
         !                                                              *
-        call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC),mabMin,mabMax,mcdMin,mcdMax,Array(ipScr), &
-                   Array(ipFact),AeqB,CeqD)
+        if (nOrdOp == 0) then
+          call RysEF(Array(ipxyz),nT,nT,nRys,nabMin,nabMax,ncdMin,ncdMax,Array(ipAC),mabMin,mabMax,mcdMin,mcdMax,Array(ipScr), &
+                     Array(ipFact),AeqB,CeqD)
+        else
+          call RysEFn(Array(ipxyz),Array(ipxyzN),nT,nT,nRys,nabMin,nabMax-2,ncdMin,ncdMax-2,Array(ipAC),mabMin,mabMax,mcdMin, &
+                      mcdMax,Array(ipFact),AeqB,CeqD)
+        end if
         exit
         !                                                              *
         !***************************************************************
@@ -488,6 +539,7 @@ select case (ijkl)
     !*******************************************************************
     !                                                                  *
     ip = ip-nT*nRys
+    ip = ip-nabcdN*3*nOrdOp*nT*nRys
     ip = ip-nabcd*3*nT*nRys
     ip = ip-nT
     ! - release additional memory allocated for long range integrals
@@ -495,7 +547,15 @@ select case (ijkl)
 end select
 #ifdef _DEBUGPRINT_
 mabcd = (mabMax-mabMin+1)*(mcdMax-mcdMin+1)
-call RecPrt('{e0|f0}',' ',Array,nT,mabcd)
+if (nOrdOp == 0) then
+  call RecPrt('Rys: {e0|f0}',' ',Array,nT,mabcd)
+else
+# ifdef _CHECK_R3_TERM_
+  call RecPrt('Rys: {e0|f0}',' ',Array,nT,mabcd)
+# else
+  call RecPrt('Rys: {e0|f0}',' ',Array,nT,6*mabcd)
+# endif
+end if
 #endif
 
 return

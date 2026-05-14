@@ -26,16 +26,16 @@ subroutine dqk15i(f,boun,inf,a,b,reslt,abserr,resabs,resasc)
 !
 !           integration rule
 !           standard fortran subroutine
-!           real*8 version
+!           real version
 !
 !           parameters
 !            on entry
-!              f      - real*8
+!              f      - real
 !                       function subprogram defining the integrand
 !                       function f(x). the actual name for f needs to be
 !                       declared e x t e r n a l in the calling program.
 !
-!              boun   - real*8
+!              boun   - real
 !                       finite bound of original integration
 !                       range (set to zero if inf = +2)
 !
@@ -50,29 +50,29 @@ subroutine dqk15i(f,boun,inf,a,b,reslt,abserr,resabs,resasc)
 !                       integrals, one over (-infinity,0) and one over
 !                       (0,+infinity).
 !
-!              a      - real*8
+!              a      - real
 !                       lower limit for integration over subrange
 !                       of (0,1)
 !
-!              b      - real*8
+!              b      - real
 !                       upper limit for integration over subrange
 !                       of (0,1)
 !
 !            on return
-!              reslt  - real*8
+!              reslt  - real
 !                       approximation to the integral i
 !                       result is computed by applying the 15-point
 !                       kronrod rule (resk) obtained by optimal addition
 !                       of abscissae to the 7-point gauss rule (resg).
 !
-!              abserr - real*8
+!              abserr - real
 !                       estimate of the modulus of the absolute error,
 !                       which should equal or exceed abs(i-reslt)
 !
-!              resabs - real*8
+!              resabs - real
 !                       approximation to the integral j
 !
-!              resasc - real*8
+!              resasc - real
 !                       approximation to the integral of
 !                       abs((transformed integrand)-i/(b-a)) over (a,b)
 !
@@ -80,17 +80,12 @@ subroutine dqk15i(f,boun,inf,a,b,reslt,abserr,resabs,resasc)
 !***routines called  d1mach
 !***end prologue  dqk15i
 
+use fx, only: f_interface
 use Constants, only: Zero, One, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-interface
-  function f(x)
-    import :: wp
-    real(kind=wp) :: f
-    real(kind=wp), intent(in) :: x
-  end function f
-end interface
+procedure(f_interface) :: f
 real(kind=wp), intent(in) :: boun, a, b
 real(kind=wp), intent(out) :: reslt, abserr, resabs, resasc
 integer(kind=iwp), intent(in) :: inf

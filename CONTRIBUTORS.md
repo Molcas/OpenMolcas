@@ -13,7 +13,7 @@ General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with OpenMolcas. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 1989-2022, The OpenMolcas Authors
+Copyright (C) 1989-2025, The OpenMolcas Authors
 
 
 NOTE: Some of the files distributed with OpenMolcas may be subject to a more
@@ -24,7 +24,10 @@ sources may be subject to a more restrictive or otherwise incompatible license.
 General citations
 =================
 
-* **OpenMolcas**:
+* **OpenMolcas v23.02**:
+  *J. Chem. Theory Comput.* **19** (2023) 6933-6991. [doi:10.1021/acs.jctc.3c00182](https://doi.org/10.1021/acs.jctc.3c00182)
+
+* **OpenMolcas v19.11**:
   *J. Chem. Theory Comput.* **15** (2019) 5925-5964. [doi:10.1021/acs.jctc.9b00532](https://doi.org/10.1021/acs.jctc.9b00532)
 
 * **Molcas 8**:
@@ -66,6 +69,7 @@ Piotr Borowski
 Jonas Boström  
 Per Boussard  
 John Burkardt  
+Paul B. Calio  
 Yannick Carissan  
 Liviu Chibotaru  
 Christophe Chipot  
@@ -99,12 +103,13 @@ Alexander Gaenko
 Laura Gagliardi  
 Walter Gautschi  
 Giovanni Ghigo  
-Coen de Graaf  
-Joseph Golub  
+Joseph Golab  
 Gene H. Golub  
+Coen de Graaf  
 Sergey Gusarov  
 Daniel Hagberg  
 Jun-ya Hasegawa  
+Matthew R. Hennefarth  
 Matthew R. Hermes  
 José Manuel Hermida-Ramón  
 Bernd Artur Heß  
@@ -130,13 +135,14 @@ Neil Martinsen-Burrell
 Andy May  
 Manuela Merchán  
 Isabella C. D. Merritt  
+Deyan Mihaylov  
 Samuel Mikes  
-Deyan Mihaylov   
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
 Takahito Nakajima  
 Naoki Nakatani  
 Pavel Neogrády  
+Yoshio Nishimoto  
 Jesper Norell  
 Anders Öhrn  
 Jeppe Olsen  
@@ -153,6 +159,7 @@ Juraj Raab
 Gerardo Raggi  
 Markus Reiher  
 H. Rieger  
+Thies Romig  
 Björn O. Roos  
 Ulf Ryde  
 Andrzej J. Sadlej  
@@ -166,16 +173,18 @@ Martin Schütz
 Thais Scott  
 Luis Seijo  
 Luis Serrano-Andrés  
-Kamal Sharkas  
 Grigory A. Shamov  
+Kamal Sharkas  
 Prachi Sharma  
 Per E. M. Siegbahn  
 Pär Söderhjelm  
 Lasse Kragh Sørensen  
 Jonna Stålring  
 Hermann Stoll  
+Tjerk P. Straatsma  
 Bingbing Suo  
 Ben Swerts  
+Kalman Szenes  
 Akio Takatsuka  
 Bruno N. C. Tenorio  
 Thorstein Thorsteinsson  
@@ -197,6 +206,7 @@ Małgorzata Wierzbowska
 Alexander Wolf  
 Sebastian Wouters  
 Felipe Zapata  
+Lila Zapp  
 Alexander Zech  
 Yan Zhao  
 Chen Zhou  

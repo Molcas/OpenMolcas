@@ -77,14 +77,14 @@ endfunction ()
 # This may be useful if a file is moved to a different virtual target
 function (pass_properties_to_files Target Files Properties)
   foreach (prop ${Properties})
-    set_source_files_properties (${Files} PROPERTIES ${prop} $<TARGET_PROPERTY:${Target},${prop}>)
+    set_property (SOURCE ${Files} APPEND PROPERTY ${prop} $<TARGET_PROPERTY:${Target},${prop}>)
   endforeach ()
 endfunction ()
 
 # Get the specified Properties from Target_Source, and pass them to Target
 function (pass_properties_to_target Target_Source Target Properties)
   foreach (prop ${Properties})
-    set_target_properties (${Target} PROPERTIES ${prop} $<TARGET_PROPERTY:${Target_Source},${prop}>)
+    set_property (TARGET ${Target} APPEND PROPERTY ${prop} $<TARGET_PROPERTY:${Target_Source},${prop}>)
   endforeach ()
 endfunction ()
 

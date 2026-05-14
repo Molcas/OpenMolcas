@@ -14,6 +14,7 @@ subroutine xdr_indx(N,indx)
 
 use Definitions, only: iwp
 
+implicit none
 integer(kind=iwp), intent(in) :: N
 integer(kind=iwp), intent(out) :: indx(n)
 

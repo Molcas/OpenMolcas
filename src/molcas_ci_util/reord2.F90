@@ -34,9 +34,9 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !               spin coupling information                              *
 !     nSm     : array of integer                                       *
 !               symmetry per active orbital                            *
-!     CIold   : array of real*8                                        *
+!     CIold   : array of real                                          *
 !               incoming CI vector                                     *
-!     CInew   : array of real*8                                        *
+!     CInew   : array of real                                          *
 !               outgoing CI vector                                     *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -53,6 +53,11 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !                                                                      *
 !***********************************************************************
 
+use sguga, only: CIS, EXS, SGS
+use output_ras, only: IPRLOC
+use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+use PrintLevel, only: DEBUG
+use Molcas, only: MxAct
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -62,11 +67,6 @@ integer(kind=iwp), intent(in) :: NORB, NEL, IREFSM, IMODE, ICONF(*), ISPIN(*)
 real(kind=wp), intent(in) :: CIOLD(*)
 real(kind=wp), intent(_OUT_) :: CINEW(*)
 integer(kind=iwp), intent(out) :: KCNF(NEL)
-#include "rasdim.fh"
-#include "spinfo.fh"
-#include "gugx.fh"
-#include "WrkSpc.fh"
-#include "output_ras.fh"
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, LPRINT
 integer(kind=iwp), external :: IPHASE, ISGNUM
@@ -80,21 +80,21 @@ IPBAS = 0
 do ITYP=1,NTYP
   IOPEN = ITYP+MINOP-1
   ICL = (NEL-IOPEN)/2
-  ! BASE ADRESS FOR CONFIGURATION OF THIS TYPE
+  ! BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
   if (ITYP == 1) then
     ICNBS0 = 1
   else
     ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(NEL+IOPEN-1)/2
   end if
-  ! BASE ADRESS FOR PROTOTYPE SPIN COUPLINGS
+  ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
   if (ITYP == 1) then
     IPBAS = 1
   else
     IPBAS = IPBAS+NCSFTP(ITYP-1)*(IOPEN-1)
   end if
 
-  !LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
-  !SPIN COUPLINGS
+  ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
+  ! SPIN COUPLINGS
 
   do IC=1,NCNFTP(ITYP,IREFSM)
     ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
@@ -121,15 +121,23 @@ do ITYP=1,NTYP
       ! COMPUTE STEP VECTOR
       call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = ISGNUM(IWORK(LDOWN),IWORK(LUP),IWORK(LDAW),IWORK(LRAW),IWORK(LUSGN),IWORK(LLSGN),IWALK)
+      ISG = ISGNUM(SGS%nLev,SGS%nVert,SGS%MidLev,SGS%MVSta,CIS%nMidV,SGS%MxUp,SGS%MxDwn,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,EXS%USGN, &
+                   EXS%LSGN,IWALK)
+
       ! GET PHASE PHASE FACTOR
-      IP = IPHASE(IWORK(LDRT),IWORK(LUP),IWALK)
+      IP = IPHASE(SGS%nLev,SGS%nVert,SGS%DRT,SGS%UP,IWALK)
       if (IMODE == 0) then
-        CINEW(ISG) = CIOLD(ICSFJP)
-        if (IP < 0) CINEW(ISG) = -CIOLD(ICSFJP)
+        if (IP < 0) then
+          CINEW(ISG) = -CIOLD(ICSFJP)
+        else
+          CINEW(ISG) = CIOLD(ICSFJP)
+        end if
       else
-        CINEW(ICSFJP) = CIOLD(ISG)
-        if (IP < 0) CINEW(ICSFJP) = -CIOLD(ISG)
+        if (IP < 0) then
+          CINEW(ICSFJP) = -CIOLD(ISG)
+        else
+          CINEW(ICSFJP) = CIOLD(ISG)
+        end if
       end if
     end do
   end do
@@ -144,7 +152,5 @@ if (IPRLEV >= DEBUG) then
   write(u6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
   write(u6,*)
 end if
-
-return
 
 end subroutine Reord2

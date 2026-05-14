@@ -35,6 +35,7 @@ Programs
    programs/guga
    programs/gugaci
    programs/gugadrt
+   programs/level
    programs/localisation
    programs/loprop
    programs/mbpt2

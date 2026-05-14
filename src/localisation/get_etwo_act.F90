@@ -12,6 +12,7 @@
 subroutine Get_Etwo_act(Dma,Dmb,nBDT,nBas,nSym,Etwo)
 
 use Fock_util_global, only: Estimate, Update
+use Cholesky, only: timings
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -21,7 +22,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nBDT, nBas(8), nSym
 real(kind=wp), intent(in) :: Dma(nBDT), Dmb(nBDT)
 real(kind=wp), intent(out) :: Etwo
-#include "chotime.fh"
 integer(kind=iwp) :: i, iOff, irc, nBB, nForb(8,2), nIorb(8,2), NSCREEN
 real(kind=wp) :: ChFracMem, dFmat, dmpk, FactXI
 !character(len=80) :: KSDFT
@@ -45,11 +45,11 @@ end do
 !ExFac = Get_ExFac(KSDFT)
 !FactXI = ExFac
 FactXI = One  ! always HF energy
-Call Allocate_DT(PLT(1),nBas,nBas,nSym,aCase='TRI')
+call Allocate_DT(PLT(1),nBas,nBas,nSym,aCase='TRI')
 PLT(1)%A0(:) = Dma(:)+Dmb(:)
 
-Call Allocate_DT(POrb(1),nBas,nBas,nSym)
-Call Allocate_DT(POrb(2),nBas,nBas,nSym)
+call Allocate_DT(POrb(1),nBas,nBas,nSym)
+call Allocate_DT(POrb(2),nBas,nBas,nSym)
 call mma_allocate(Dm1,nBB,label='Dm1')
 call mma_allocate(Dm2,nBB,label='Dm2')
 call UnFold(Dma,nBDT,Dm1,nBB,nSym,nBas)
@@ -69,15 +69,15 @@ do i=1,nSym
   iOff = iOff+nBas(i)**2
 end do
 
-Call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI')
-Call Allocate_DT(FLT(2),nBas,nBas,nSym,aCase='TRI')
-FLT(1)%A0(:)=Zero
-FLT(2)%A0(:)=Zero
+call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI')
+call Allocate_DT(FLT(2),nBas,nBas,nSym,aCase='TRI')
+FLT(1)%A0(:) = Zero
+FLT(2)%A0(:) = Zero
 
-Call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI')
-Call Allocate_DT(KLT(2),nBas,nBas,nSym,aCase='TRI')
-KLT(1)%A0(:)=Zero
-KLT(2)%A0(:)=Zero
+call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI')
+call Allocate_DT(KLT(2),nBas,nBas,nSym,aCase='TRI')
+KLT(1)%A0(:) = Zero
+KLT(2)%A0(:) = Zero
 
 call Cho_X_init(irc,ChFracMem)
 if (irc /= 0) then

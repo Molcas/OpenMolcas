@@ -65,9 +65,6 @@ iPrint = 1
 !                                                                      *
 ! Get some coords, nuc. charges and labels
 
-! Memory debugging
-!call Setmem('TRACE=ON')
-!
 ! IO check
 !call fastio('TRACE=ON')
 !
@@ -271,7 +268,7 @@ if (irc /= 0) then
   call Abend()
 end if
 if (n_Int /= nSize) then
-  write(u6,*) 'MPProp: n_Int.ne.nSize'
+  write(u6,*) 'MPProp: n_Int /= nSize'
   write(u6,*) 'n_Int=',n_Int
   write(u6,*) 'nSize=',nSize
   call Abend()
@@ -466,7 +463,7 @@ call Get_Prim_Atom_Tab(nAtoms,nPrim(1),Coor,CenX,CenY,CenZ)
 call Get_dScalar('Last energy',EneV)
 
 write(u6,*)
-write(u6,'(a,f16.8)') ' Total SCF energy ',EneV
+write(u6,'(a,f25.16)') ' Total SCF energy ',EneV
 write(u6,*)
 nOrbi = nBas(1)
 

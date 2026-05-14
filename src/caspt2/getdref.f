@@ -8,40 +8,42 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GETDREF(DREF)
-      use caspt2_output, only:iPrGlb,debug
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "pt2_guga.fh"
-#include "WrkSpc.fh"
-! #include "intgrl.fh"
-      REAL*8 DREF(NDREF)
+      SUBROUTINE GETDREF(DREF,NDREF)
+      use definitions, onlY: iwp, wp, u6
+      use constants, only: Zero
+      use caspt2_global, only:iPrGlb
+      use PrintLevel, only: DEBUG
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: NASHT
+      use caspt2_module, only: NG1
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: NDREF
+      real(kind=wp), intent(out):: DREF(NDREF)
+
+      real(kind=wp), ALLOCATABLE:: G1(:)
+      integer(kind=iwp) I, J, IJ
 
 * Get active 1-el density matrix GAMMA1 and
 * construct DREF in a tringular storage.
 
 * Remember: NDREF=1 if NASHT=0.
-      DREF(1)=0.0d0
-      IF(NASHT.EQ.0) GO TO 99
+      DREF(:)=Zero
+
+      IF(NASHT==0) RETURN
 * Active 1-el density matrix:
-      CALL GETMEM('LG1','ALLO','REAL',LG1,NG1)
-      CALL PT2_GET(NG1,'GAMMA1',WORK(LG1))
+      CALL mma_allocate(G1,NG1,Label='G1')
+      CALL PT2_GET(NG1,'GAMMA1',G1)
       DO I=1,NASHT
         DO J=1,I
           IJ=(I*(I-1))/2+J
-          DREF(IJ)=WORK(LG1-1+I+NASHT*(J-1))
+          DREF(IJ)=G1(I+NASHT*(J-1))
         END DO
       END DO
-      CALL GETMEM('LG1','FREE','REAL',LG1,NG1)
+      CALL mma_deallocate(G1)
 
       IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*)' GETDREF has constructed DREF.'
-        CALL XFLUSH(6)
+        WRITE(u6,*)' GETDREF has constructed DREF.'
       END IF
 
-  99  CONTINUE
-
-      RETURN
-      END
+      END SUBROUTINE GETDREF
 

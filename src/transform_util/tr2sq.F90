@@ -17,7 +17,7 @@
 ! UNIVERSITY OF LUND, SWEDEN                 *
 !--------------------------------------------*
 
-subroutine TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
+subroutine TR2Sq(CMO,NCMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
@@ -35,23 +35,24 @@ subroutine TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
 ! ********** IBM-3090 RELEASE 87 09 14 **********
 ! Replace MXMA with DGEMM. P-AA Malmqvist 1992-05-06.
 
+use caspt2_global, only: LUHLF1, LUHLF2, LUHLF3, LUINTM
+use caspt2_module, only: nSym
+use Intgrl, only: IAD2M
+use trafo, only: IAD13, ISP, ISQ, ISR, ISS, LMOP, LMOP2, LMOQ, LMOQ2, LMOR, LMOR2, LMOS, LMOS2, LRUPQ, LTUPQ, LURPQ, NBP, NBPQ, &
+                 NBQ, NBR, NBRS, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS, NPQ
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: lBuf
-#include "rasdim.fh"
-#include "caspt2.fh"
+integer(kind=iwp), intent(in) :: NCMO, lBuf
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*), X3(*)
 real(kind=wp), intent(inout) :: URPQ(*), RUPQ(*), TUPQ(*)
 integer(kind=iwp) :: IAD1, IAD1S, IAD2, IAD2S, IAD3, IAD3S, iOpt, IOUT1, IOUT2, IOUT3, IPQ, IPQMX1, IPQMX2, IPQMX3, IPQST, IR, &
                      iRc, IRSST, IRU, ISPQRS, IST, ITU, IX2, KKTU, LAR, LPQ, LR, NA, NAT, NORU, NOTU, NOUR, NP, NQ, NQM, NR, &
                      NSYMP, NT, NTM, NTMAX, NU, NUM, NUMAX
-#include "intgrl.fh"
-#include "trafo.fh"
 
 NSYMP = (NSYM**2+NSYM)/2
 NORU = NBR*NOCS
@@ -217,7 +218,7 @@ end if
 
 ! FIRST PARTIAL TRANSFORMATION FINISHED
 ! SORTED INTEGRALS ARE ON UNITS LUHLF1 (RUPQ), LUHLF2 (URPQ),
-! AND LUHLF3 (TUPQ), CONTROLLED BY THE ADRESSES IAD1,IAD2, AND IAD3,
+! AND LUHLF3 (TUPQ), CONTROLLED BY THE ADDRESSES IAD1,IAD2, AND IAD3,
 ! OR IN CORE (RUPQ, URPQ, AND TUPQ)
 
 ! SECOND HALF TRANSFORMATION FOR INTEGRALS (PQ/TU)
@@ -260,7 +261,7 @@ if (NOCR*NOCS /= 0) then
       ! ONE BLOCK FOR EACH TU STARTING AT ADDRESS IAD2M(1,ISPQRS).
       ! TRIANGULAR IN AB AND TU IF ISP == ISQ ( AND ISR == ISS)
 
-      call GADSum(X2,IX2)
+      call GADGOp(X2,IX2,'+')
       call dDAFILE(LUINTM,1,X2,IX2,IAD13)
 
       ! EXTRACT INTEGRALS WITH ALL INDICES ACTIVE INTO TUVX
@@ -382,7 +383,7 @@ if ((ISP >= ISR) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOP*NOR)
+      call GADGOp(X2,NOP*NOR,'+')
       call dDAFILE(LUINTM,1,X2,NOP*NOR,IAD13)
     end do
   end do
@@ -474,7 +475,7 @@ if (((ISP /= ISQ) .and. (ISQ > ISR)) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOR*NOQ)
+      call GADGOp(X2,NOR*NOQ,'+')
       call dDAFILE(LUINTM,1,X2,NOR*NOQ,IAD13)
     end do
   end do
@@ -574,7 +575,7 @@ if (((ISP /= ISQ) .and. (ISP > ISS)) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOS*NOP)
+      call GADGOp(X2,NOS*NOP,'+')
       call dDAFILE(LUINTM,1,X2,NOS*NOP,IAD13)
     end do
   end do
@@ -685,7 +686,7 @@ if (((ISP /= ISQ) .and. (ISQ >= ISS)) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOS*NOQ)
+      call GADGOp(X2,NOS*NOQ,'+')
       call dDAFILE(LUINTM,1,X2,NOS*NOQ,IAD13)
     end do
   end do
@@ -693,11 +694,11 @@ end if
 
 ! END OF TRANSFORMATION FOR THIS SYMMETRY BLOCK
 !
-! IAD2M CONTAINS START ADRESS FOR EACH TYPE OF INTEGRALS:
+! IAD2M CONTAINS START ADDRESS FOR EACH TYPE OF INTEGRALS:
 ! IAD2M(1,ISPQRS)   COULOMB INTEGRALS (AB|TU)
 ! IAD2M(2,ISPQRS)   EXCHANGE INTEGRALS <AB|TU> FOR SYM T > SYM U
 ! IAD2M(3,ISPQRS)   EXCHANGE INTEGRALS <AB|TU> FOR SYM T < SYM U
-! THE LAST ADRESS IS ZERO IF SYM T = SYM U
+! THE LAST ADDRESS IS ZERO IF SYM T = SYM U
 ! TO SEE HOW THE INTEGRALS ARE USED LOOK IN RDINT2
 
 return

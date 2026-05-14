@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RTSWGH(TARR,NT,U2,WGH,NRYS)
+subroutine RTSWGH(TARR,NT,U2,WGH,NRYS,nOrdOp)
 
 use vRys_RW, only: HerR2, HerW2, iHerR2, iHerW2
 use abdata, only: atab, btab, p0, tvalue
@@ -19,7 +19,7 @@ use Constants, only: Zero, One, Two, Three, Five, Twelve, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NT, NRYS
+integer(kind=iwp), intent(in) :: NT, NRYS, nOrdOp
 real(kind=wp), intent(in) :: TARR(NT)
 real(kind=wp), intent(out) :: U2(NRYS,NT), WGH(NRYS,NT)
 integer(kind=iwp) :: IDEG, iroot, IT, J, k, nx
@@ -28,11 +28,6 @@ real(kind=wp) :: a2, a3, a4, a5, a6, b1, b2, b3, b4, b5, BK, c1, c2, c3, c4, c5,
 real(kind=wp), allocatable :: ALPHA(:), BETA(:), BINV(:), ROOT(:,:), RYS(:), RYSD(:)
 real(kind=wp), parameter :: coef1 = -One/120.0_wp, coef2 = Five/120.0_wp, coef3 = -One/Twelve, coef4 = One/Twelve, &
                             coef5 = -Five/120.0_wp, coef6 = One/120.0_wp
-
-#ifdef _DEBUGPRINT_
-iRout = 78
-iPrint = nPrint(iRout)
-#endif
 
 if (NRYS > ubound(atab,1)) then
   call WarningMessage(2,' Too many requested Rys roots.')
@@ -176,11 +171,11 @@ call mma_deallocate(ROOT)
 call mma_deallocate(RYS)
 call mma_deallocate(RYSD)
 
+if ((nOrdOp == 1) .or. (nOrdOp == 2)) WGH(:,:) = (U2(:,:)/(One-U2(:,:)))**nOrdOp*WGH(:,:)
+
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  call RecPrt(' Roots',' ',U2,nRys,nT)
-  call RecPrt(' Weights',' ',Wgh,nRys,nT)
-end if
+call RecPrt(' RTSWGH: Roots',' ',U2,nRys,nT)
+call RecPrt(' RTSWGH: Weights',' ',Wgh,nRys,nT)
 #endif
 
 return

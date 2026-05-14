@@ -481,23 +481,6 @@ def test_custom(lines, keyword):
     else:
       return None
 
-  elif (module == 'EXTF'):
-    if (name == 'LINEAR'):
-      try:
-        n = first_int(lines[l])
-        l += 1
-        n = first_int(lines[l])
-        l += 1
-        n = fortran_float(first_word(lines[l]))
-        l += 1
-        n = first_int(lines[l])
-        assert (n in [0, 1])
-        l += 1
-      except:
-        return None
-    else:
-      return None
-
   elif (module == 'FFPT'):
     if (name in ['DIPO', 'QUAD', 'OCTU', 'EFLD', 'EFGR']):
       ll = 0
@@ -1237,7 +1220,7 @@ def test_custom(lines, keyword):
       return None
 
   elif (module == 'RASSCF'):
-    if (name == 'CIROOT'):
+    if (name in ['CIROOT', 'RFROOT']):
       try:
         parts = fortran_split(lines[l])
         n1, n2 = to_int(parts[0:2])

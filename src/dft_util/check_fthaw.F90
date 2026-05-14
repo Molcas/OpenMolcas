@@ -18,12 +18,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: iRC
-#include "warnings.h"
 integer(kind=iwp) :: i, iSeed, iter, iter0, Lu
 real(kind=wp) :: DEneA, DEneB, E1, E3, EneA, EneB
 logical(kind=iwp) :: ok
 real(kind=wp), allocatable :: Ene(:,:)
 integer(kind=iwp), external :: IsFreeUnit
+
+#include "warnings.h"
 
 if (ThrFThaw <= Zero) return
 
@@ -63,7 +64,7 @@ else
   DEneA = EneA-Ene(iter0,1)
   DEneB = EneB-Ene(iter0,3)
 
-  rewind Lu
+  rewind(Lu)
   write(Lu,'(I4,2F18.10)') iter,Ene(1,1),Ene(1,3)
   do i=2,iter0
     write(Lu,'(I4,4F18.10)') iter,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)
@@ -83,12 +84,12 @@ else
   write(u6,*) '*******************************************************************************'
 
   if ((abs(DEneA) < ThrFThaw) .and. (abs(DEneB) < ThrFThaw)) then
-    write(u6,'(A,E9.2,A)') ' Convergence reached ! (Thr = ',ThrFThaw,')'
+    write(u6,'(A,ES9.2,A)') ' Convergence reached ! (Thr = ',ThrFThaw,')'
     write(u6,*)
     iRC = _RC_ALL_IS_WELL_
     close(Lu,status='delete')
   else
-    write(u6,'(A,E9.2,A)') ' Convergence NOT reached yet ! (Thr = ',ThrFThaw,')'
+    write(u6,'(A,ES9.2,A)') ' Convergence NOT reached yet ! (Thr = ',ThrFThaw,')'
     write(u6,*)
     close(Lu,status='keep')
   end if

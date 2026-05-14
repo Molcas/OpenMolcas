@@ -11,19 +11,22 @@
 
 subroutine set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(8)
 integer(kind=iwp), intent(out) :: nnBSF(8,8), n2BSF(8,8)
-integer(kind=iwp) :: i, j, kSym
+integer(kind=iwp) :: i, j
 
 do j=1,nSym
   do i=j,nSym
 
-    kSym = ieor(i-1,j-1)+1
-
-    nnBSF(i,j) = nBas(i)*nBas(j)+min(0,kSym-2)*nBas(i)*(nBas(i)-1)/2
+    if (i == j) then
+      nnBSF(i,j) = nTri_Elem(nBas(i))
+    else
+      nnBSF(i,j) = nBas(i)*nBas(j)
+    end if
 
     nnBSF(j,i) = nnBSF(i,j)
 

@@ -59,7 +59,7 @@ DerTes(:,:,:) = Zero
 DerPunt(:,:,:,:) = Zero
 DerRad(:,:,:) = Zero
 DerCentr(:,:,:,:) = Zero
-! The geometric quantities are expected to be in Angstrom
+! The geometric quantities are expected to be in angstrom
 Tessera(1:3,:) = Angstrom*Tessera(1:3,:)
 Tessera(4,:) = Angstrom*Angstrom*Tessera(4,:)
 Sphere(:,:) = Angstrom*Sphere(:,:)
@@ -352,7 +352,7 @@ outer: do NSJ=1,NAt
 
   end do
 end do outer
-! Put the geometric quantities in Bohr again
+! Put the geometric quantities in bohr again
 ToBohr = One/Angstrom
 Tessera(1:3,:) = ToBohr*Tessera(1:3,:)
 Tessera(4,:) = ToBohr*ToBohr*Tessera(4,:)

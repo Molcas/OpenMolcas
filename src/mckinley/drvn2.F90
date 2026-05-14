@@ -32,6 +32,8 @@ use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use PCM_arrays, only: dCntr, dPnt, dRad, dTes, PCM_N, PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess
 use Symmetry_Info, only: iChTbl, nIrrep, Prmt
+use rctfld_module, only: Eps, nS, nTS, PCM
+use Disp, only: IndDsp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Six, Half
 use Definitions, only: wp, iwp
@@ -39,9 +41,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(out) :: Hess(nTri_Elem(nGrad))
-#include "Molcas.fh"
-#include "disp.fh"
-#include "rctfld.fh"
 integer(kind=iwp) :: iAtom, iCar, iCent, iCh1, iCh2, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRS(0:7), ii(2), iIrrep, iM1xp, iM2xp, &
                      Indx, IndGrd(3,2,0:7), IndHss(2,3,2,3,0:7), iR, iS, iStb(0:7), iTs, jAtom, jCar, jCar_Max, jCent, jCnt, &
                      jCntMx, jCnttp, jTs, kop(2), LmbdR, LmbdS, mdc, nAtoms, ndc, nDCRR, nDCRS, nDisp1, nDisp2, nnIrrep, nop(2), &

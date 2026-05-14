@@ -30,16 +30,17 @@ subroutine CHO_LK_SCF(rc,nDen,FLT,KLT,nForb,nIorb,Porb,PLT,FactXI,nScreen,dmpk,d
 !
 !*********************************************************************
 
-use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRSh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Estimate, Update
-use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type
+use Data_Structures, only: DSBA_Type, NDSBA_Type
+use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -49,10 +50,6 @@ integer(kind=iwp), intent(in) :: nDen, nForb(8,nDen), nIorb(8,nDen), nScreen
 type(DSBA_Type), intent(inout) :: FLT(nDen), KLT(nDen)
 type(DSBA_Type), intent(in) :: Porb(nDen), PLT(nDen)
 real(kind=wp), intent(in) :: FactXI, dmpk, dFmat
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "warnings.h"
 integer(kind=iwp) :: i, i1, ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, ISYM, iSyma, iTmp, IVEC2, iVrs, jDen, jK, &
                      jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kOff(8,2), krs, kscreen, kSym, l, &
@@ -81,6 +78,8 @@ real(kind=wp), parameter :: FactCI = One
 character(len=*), parameter :: SECNAM = 'CHO_LK_SCF'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold, ddot_
+
+#include "warnings.h"
 
 !***********************************************************************
 #ifdef _DEBUGPRINT_
@@ -465,7 +464,7 @@ do jSym=1,nSym
 
         if (Estimate) then
 
-          call Fzero(DIAG(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
+          DIAG(iiBstR(jSym,1)+1:iiBstR(jSym,1)+NNBSTR(jSym,1)) = Zero
 
           do krs=1,nRS
 
@@ -942,9 +941,10 @@ do jSym=1,nSym
 
 #   ifdef _MOLCAS_MPP_
     if ((nProcs > 1) .and. Update .and. DoScreen .and. Is_Real_Par()) then
-      call GaDsum(DiagJ,nnBSTR(JSYM,1))
-      call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
-      call Fzero(DiagJ,nnBSTR(JSYM,1))
+      n1 = nnBSTR(JSYM,1)
+      call GADgop(DiagJ,n1,'+')
+      Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1) = Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1)-DiagJ(1:n1)
+      DiagJ(1:n1) = Zero
     end if
     ! Need to activate the screening to setup the contributing shell
     ! indices the first time the loop is entered .OR. whenever other nodes

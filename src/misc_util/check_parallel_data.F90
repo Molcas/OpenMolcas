@@ -11,14 +11,14 @@
 ! Copyright (C) 2018, Denis Jelovina                                   *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _MOLCAS_MPP_
+
 ! if act="C" checks if array x(N) is identical across processes
 !            returns stat=.true. if data are identical
 !            oterwise returns stat=.false.
 !            value of stat is rank-independent
 ! if act="S" copy data from master to all processes
-
-#include "compiler_features.h"
-#ifdef _MOLCAS_MPP_
 
 subroutine check_parallel_data(x,n,stat,act)
 
@@ -43,7 +43,7 @@ x_prll(:,:) = Zero
 
 this = MyRank+1
 x_prll(:,this) = x
-call GADsum(x_prll,n*nProcs)
+call GADgop(x_prll,n*nProcs,'+')
 
 if (act == 'C') then
   do irank=1,nProcs
@@ -65,7 +65,7 @@ else
   write(u6,*) 'check_parallel_data(), illegal value:'
   write(u6,*) 'act=',act
   write(u6,*) 'correct function call!!'
-  call abort()
+  call abend()
 end if
 
 call mma_deallocate(x_prll)
@@ -74,7 +74,7 @@ return
 
 end subroutine check_parallel_data
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

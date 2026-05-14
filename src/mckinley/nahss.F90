@@ -30,33 +30,34 @@ use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri, nTri_Elem1
 use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp
 use Center_Info, only: dc
+use Disp, only: IndDsp
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "hss_interface.fh"
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iAnga(4), iBeta, iCar, iCent, iComp, iDAO, iDCRT(0:7), iIrrep, Indx(3,4), ipA, ipAOff, ipArr, ipB, ipBOff, &
                      ipDAO, iStop, iuvwx(4), jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCnt, kCnttp, kdc, &
-                     lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, nnIrrep, nRys
+                     lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, nnIrrep
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3)
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
+procedure(cff2d_kernel) :: Cff2D
+procedure(modu2_kernel) :: Fake
+procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, TF
-external :: TNAI1, Fake, Cff2D
 
 #include "macros.fh"
 unused_var(rFinal)
 unused_var(Ccoor)
 unused_var(nOrdOp)
 unused_var(lOper)
+unused_var(nHer)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In NAHss: nArr=',nArr
 #endif
-
-nRys = nHer
 
 nip = 1
 ipA = nip
@@ -237,7 +238,7 @@ do kCnttp=1,nCnttp
       JfGrd(:,:) = .false.
 
       nFinal = 0
-      call Rysg2(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
+      call Rysg2(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
                  Array(ipArr),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,mOp,iuvwx,ifg,nFinal, &
                  Indx,.false.,.true.,tr)
 

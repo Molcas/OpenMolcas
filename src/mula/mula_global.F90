@@ -11,14 +11,14 @@
 
 module mula_global
 
-use Constants, only: Two, Pi, cLight
+use Constants, only: One, Two, Pi, cm_s
 use Definitions, only: wp, iwp
 
 implicit none
 private
 
 integer(kind=iwp), parameter :: maxMax_n = 64, MaxNumAt = 50
-real(kind=wp), parameter :: hbarcm = 1.0e-2/(Two*Pi*cLight)
+real(kind=wp), parameter :: hbarcm = One/(Two*Pi*cm_s)
 
 integer(kind=iwp) :: inpUnit, mdim1, mdim2, ndata, ndim1, ndim2, ngdim, nPolyTerm = 0, nvar
 real(kind=wp) :: cmstart, cmend, energy1, energy2, LifeTime, TranDip(3)

@@ -10,7 +10,9 @@
 !***********************************************************************
 
 ! This subroutine should be in a module, to avoid explicit interfaces
-#ifdef _IN_MODULE_
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine GiveMeInfo(nntyp,natyp,BasCoo,iCon,nPrim,nBA,nCBoA,nBonA,Expo,Cont,nSh,nfSh,nSize,iPrint,nAtoms,MxAngqNr,Acc,nBas)
 
@@ -33,6 +35,7 @@ integer(kind=iwp) :: i, iAng, iAngSav, iBas, iCnt, iCnttp, iCount, iHowMuch, ii,
                      nACCSize, ndc, nDiff, nnaa, nshj, nSumma, nVarv
 real(kind=wp), allocatable :: TEMP1(:), TEMP2(:)
 logical(kind=iwp) :: DoRys
+
 #include "warnings.h"
 
 !----------------------------------------------------------------------*
@@ -258,5 +261,3 @@ call ClsSew()
 return
 
 end subroutine GiveMeInfo
-
-#endif

@@ -56,7 +56,6 @@ integer(kind=iwp) :: desc, Lu, n, nFile, rc, pDisk
 real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=*), parameter :: TheName = 'AixWr'
-#include "warnings.h"
 interface
   function AixErr(FileName) bind(C,name='aixerr_')
     use, intrinsic :: iso_c_binding, only: c_char
@@ -70,6 +69,8 @@ interface
     integer(kind=MOLCAS_C_INT) :: FileDescriptor, Offset
   end function c_lseek
 end interface
+
+#include "warnings.h"
 
 !----------------------------------------------------------------------*
 ! Entry to AixWr                                                       *
@@ -143,7 +144,7 @@ function c_write_wrapper(FileDescriptor,Buffer,nBytes)
 
   integer(kind=iwp) :: c_write_wrapper
   integer(kind=iwp), intent(in) :: FileDescriptor, nBytes
-  integer(kind=iwp), intent(in), target :: Buffer(*)
+  integer(kind=iwp), target, intent(in) :: Buffer(*)
   interface
     function c_write(FileDescriptor,Buffer,nBytes) bind(C,name='c_write_')
       use, intrinsic :: iso_c_binding, only: c_ptr

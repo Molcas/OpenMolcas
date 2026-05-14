@@ -61,9 +61,10 @@ integer(kind=iwp), external :: NrOpr
 !real(kind=wp), external :: DNRM2_
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ia, ib
+integer(kind=iwp) :: i, ia, ib
 character(len=24) :: Label
 #endif
+
 #include "macros.fh"
 unused_var(Zeta)
 unused_var(ZInv)
@@ -96,7 +97,7 @@ write(u6,*) ' In FragPInt: nTri_Elem1(la)=',' ',nTri_Elem1(la)
 write(u6,*) ' In FragPInt: nTri_Elem1(lb)=',' ',nTri_Elem1(lb)
 call RecPrt(' In FragPInt: A     ',' ',A,1,3)
 call RecPrt(' In FragPInt: RB    ',' ',RB,1,3)
-call RecPrt(' In FragPInt: Ccoor ',' ',Ccoor,1,3)
+call RecPrt(' In FragPInt: CoorO ',' ',CoorO,1,3)
 call RecPrt(' In FragPInt: P     ',' ',P,nZeta,3)
 call RecPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
 call TrcPrt(' In FragPInt: Array ',' ',Array,nZeta,nArr)
@@ -315,7 +316,7 @@ do iS=1,nSkal
 
       nHer = (la+iAng+2)/2
       call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,iPrim,Array(ipZ1),Array(ipZI1),Array(ipK1),Array(ipP1),Array(ipF1),nAlpha*iPrim, &
-                  iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CCoor,nOrdOp)
+                  iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
 #     ifdef _DEBUGPRINT_
       call RecPrt('<alpha|iS> (aBas x X)',' ',Array(ipF1),nAlpha*iPrim,nac)
 #     endif
@@ -347,7 +348,7 @@ do iS=1,nSkal
 
       nHer = (jAng+lb+2)/2
       call MltPrm(Shells(jShll)%Exp,jPrim,Beta,nBeta,Array(ipZ2),Array(ipZI2),Array(ipK2),Array(ipP2),Array(ipF2),jPrim*nBeta, &
-                  iComp,jAng,lb,TB,RB,nHer,Array(ip),mArr,CCoor,nOrdOp)
+                  iComp,jAng,lb,TB,RB,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
       ip = ip-6*jPrim*nBeta
       ipTmp = ip
       ip = ip+max(nAlpha*nac*max(iPrim,jBas),nBeta*ncb*jBas)

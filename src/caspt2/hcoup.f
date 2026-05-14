@@ -10,12 +10,17 @@
 *                                                                      *
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
-      SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL)
-      use caspt2_output, only:iPrGlb,debug
+      SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,NASHT,TG3,NTG3,HEL)
+      use caspt2_global, only:iPrGlb
+      use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use fake_GA, only: GA_Arrays
+      use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, CASES
+      use constants, only: Zero
+      use definitions, only: iwp, wp, u6
+      IMPLICIT NONE
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
 C assuming that IVEC contains a contravariant representation of
@@ -29,17 +34,21 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
-      Dimension TG1(NASHT,NASHT)
-      Dimension TG2(NASHT,NASHT,NASHT,NASHT)
+      integer(kind=iwp), intent(in):: IVEC, JVEC, NASHT, NTG3
+      real(kind=wp), intent(in):: OVL
+      real(kind=wp), intent(out):: HEL
+      real(kind=wp), intent(in)::TG1(NASHT,NASHT)
+      real(kind=wp), intent(in):: TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      Dimension TG3(*)
+      real(kind=wp), intent(in)::  TG3(NTG3)
 
-      DIMENSION HECOMP(14,9)
+      real(kind=wp) HECOMP(14,9)
+      integer(kind=iwp) ICASE,ISYM,NAS,NIN,NIS,i,IC,IS,NHECOMP,
+     &                  lg_V1,IASTA1,IAEND1,IISTA1,IIEND1,
+     &                  iLo1,iHi1,jLo1,jHi1,MV1,NV1,
+     &                  lg_V2,IASTA2,IAEND2,IISTA2,IIEND2,
+     &                  iLo2,iHi2,jLo2,jHi2,MV2,NV2
+      real(kind=wp) HEBLK, SUMCASE, SUMSYM
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -48,7 +57,7 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
 
 C Sketch of procedure:
-C  HEL=0.0D0
+C  HEL=Zero
 C  Loop over every (case/symmetry)-block.
 C           If (No such vector block) Skip to end of loop
 C           Allocate two places for this block, VEC1 and VEC2
@@ -60,54 +69,58 @@ C           End of loop nest
 C           Deallocate VEC1 and VEC2
 C  End of loop.
 
-      HEL=0.0D0
-      HECOMP=0.0D0
+      HEL=Zero
+      HECOMP(:,:)=Zero
       DO ICASE=1,13
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
           NIN=NINDEP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-          HEBLK=0.0D0
+          HEBLK=Zero
 
-          IF(NAS*NIS.EQ.0) GOTO 1
-          IF(NIN.EQ.0) GOTO 1
+          IF(NAS*NIS*NIN/=0) THEN
 
           CALL RHS_ALLO (NAS,NIS,lg_V1)
           CALL RHS_ALLO (NAS,NIS,lg_V2)
           CALL RHS_READ (NAS,NIS,lg_V1,ICASE,ISYM,IVEC)
           CALL RHS_READ (NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
           CALL RHS_ACCESS(NAS,NIS,lg_V1,iLo1,iHi1,jLo1,jHi1,MV1)
+          NV1=(iHi1-iLo1+1)*(jHi1-jLo1+1)
           CALL RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
+          NV2=(iHi2-iLo2+1)*(jHi2-jLo2+1)
 
           IF ((iLo1.NE.iLo2) .OR.
      &        (iHi1.NE.iHi2) .OR.
      &        (jLo1.NE.jLo2) .OR.
      &        (jHi1.NE.jHi2)) THEN
-            WRITE(6,'(1X,A)') 'HCOUP: Error: block mismatch, abort...'
+            WRITE(u6,'(1X,A)') 'HCOUP: Error: block mismatch, abort...'
             CALL ABEND()
           END IF
 
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
             CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                     DBL_MB(MV1),DBL_MB(MV2),OVL,HEBLK,
-     &                     TG1,TG2,TG3)
+     &                     DBL_MB(MV1),NV1,
+     &                     DBL_MB(MV2),NV2,
+     &                     OVL,HEBLK,
+     &                     TG1,TG2,NASHT,TG3,NTG3)
           ELSE
+#endif
             CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                     WORK(MV1),WORK(MV2),OVL,HEBLK,
-     &                     TG1,TG2,TG3)
+     &                     GA_Arrays(MV1)%A,NV1,
+     &                     GA_Arrays(MV2)%A,NV2,
+     &                     OVL,HEBLK,
+     &                     TG1,TG2,NASHT,TG3,NTG3)
+#ifdef _MOLCAS_MPP_
           END IF
-#else
-          CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                   WORK(MV1),WORK(MV2),OVL,HEBLK,
-     &                   TG1,TG2,TG3)
 #endif
           CALL RHS_RELEASE (lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
           CALL RHS_RELEASE (lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
-          CALL RHS_FREE (NAS,NIS,lg_V1)
-          CALL RHS_FREE (NAS,NIS,lg_V2)
+          CALL RHS_FREE (lg_V1)
+          CALL RHS_FREE (lg_V2)
 
- 1        CONTINUE
+          END IF
+
           HECOMP(ICASE,ISYM)=HEBLK
           HEL=HEL+HEBLK
         END DO
@@ -120,7 +133,7 @@ C Sum-reduce the per-process contributions
 
       IF(IPRGLB.GE.DEBUG) THEN
         DO ICASE=1,13
-          SUMSYM=0.0D0
+          SUMSYM=Zero
           DO ISYM=1,NSYM
             SUMSYM=SUMSYM+HECOMP(ICASE,ISYM)
           END DO
@@ -128,32 +141,34 @@ C Sum-reduce the per-process contributions
         END DO
 
         DO ISYM=1,NSYM+1
-          SUMCASE=0.0D0
+          SUMCASE=Zero
           DO ICASE=1,13
             SUMCASE=SUMCASE+HECOMP(ICASE,ISYM)
           END DO
           HECOMP(14,ISYM)=SUMCASE
         END DO
 
-        WRITE(6,'(20a4)')('----',i=1,20)
-        WRITE(6,*)'HCOUP: The contributions to the Hamiltonian coupling'
-        WRITE(6,*)' elements, by case and by symmetry label.'
+        WRITE(u6,'(20a4)')('----',i=1,20)
+        WRITE(u6,*)
+     &            'HCOUP: The contributions to the Hamiltonian coupling'
+        WRITE(u6,*)' elements, by case and by symmetry label.'
         DO IC=1,13
-          WRITE(6,'(1X,A8,9F12.8)')
+          WRITE(u6,'(1X,A8,9F12.8)')
      &      CASES(IC),(HECOMP(IC,IS),IS=1,NSYM+1)
         END DO
-        CALL XFLUSH(6)
-        WRITE(6,'(1X,A8,9F12.8)')
+        WRITE(u6,'(1X,A8,9F12.8)')
      &    'Summed: ', (HECOMP(14,IS),IS=1,NSYM+1)
-        WRITE(6,*)
+        WRITE(u6,*)
       END IF
 
+      END SUBROUTINE HCOUP
 
-      END
-
-      SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,HEBLK,
-     &                     TG1,TG2,TG3)
-      USE SUPERINDEX
+      SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,nV1,V2,nV2,
+     &                     OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
+      use constants, only: Zero, Two, Four, Eight
+      USE SUPERINDEX, only: MTUV, MTGEU, MTGTU, MTU
+      use caspt2_module, only: NTUVES, NTGEUES, NTUES, NAES, NTGTUES
+      use definitions, only: iwp, wp
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -161,21 +176,30 @@ C with A the active superindex and I the inactive superindex. Since
 C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "SysDef.fh"
-#include "eqsolv.fh"
+      IMPLICIT NONE
 
-      DIMENSION V1(*), V2(*)
+      integer(kind=iwp), intent(in):: ICASE,ISYM,NAS,IISTA,IIEND,
+     &                                NV1,NV2,NASHT, NTG3
+      real(kind=wp), intent(in):: V1(NV1), V2(NV2)
+      real(kind=wp), intent(in):: OVL
+      real(kind=wp), intent(out):: HEBLK
 
-      Dimension TG1(NASHT,NASHT)
-      Dimension TG2(NASHT,NASHT,NASHT,NASHT)
+      real(kind=wp), intent(in):: TG1(NASHT,NASHT)
+      real(kind=wp), intent(in):: TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      Dimension TG3(*)
+      real(kind=wp), intent(in):: TG3(NTG3)
 
+      integer(kind=iwp) NISBLK,
+     &                  IAS, IASABS, ITABS, IUABS, IVABS,
+     &                  JAS, JASABS, IXABS, IYABS, IZABS,
+     &                  IND1, IND2, IND3, JND1, JND2, JND3,
+     &                  IAS1, IAS2, JAS1, JAS2, ITG3, NAS1
+      real(kind=wp) GUTXY, GUY, SA, SBM, SBP, SBtuxy, SBtuyx, SC,
+     &              SD11, SD12, SD21, SD22, SE, SFM, SFP, SFtuxy,
+     &              SFtuyx, SG, TMP
+      real(kind=wp), external:: DDot_
 
-      HEBLK=0.0D0
+      HEBLK=Zero
 
       IF (IISTA.LE.0) RETURN
 
@@ -251,9 +275,9 @@ C Compute TMP=Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
 C SA is the negative of this, and then some correction:
             SA=-TMP
             IF(IXABS.EQ.ITABS) THEN
-              SA=SA+2.0D0*TG2(IVABS,IUABS,IYABS,IZABS)
+              SA=SA+Two*TG2(IVABS,IUABS,IYABS,IZABS)
               IF(IYABS.EQ.IUABS) THEN
-                SA=SA+2.0D0*TG1(IVABS,IZABS)
+                SA=SA+Two*TG1(IVABS,IZABS)
               END IF
             END IF
 C SA has been computed.
@@ -353,31 +377,31 @@ C    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
 C      -4dyu dxt + 2dyu Gxt
 C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
 C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
-            SBtuxy=2.0d0*TG2(IXABS,ITABS,IYABS,IUABS)
-            SBtuyx=2.0d0*TG2(IYABS,ITABS,IXABS,IUABS)
+            SBtuxy=Two *TG2(IXABS,ITABS,IYABS,IUABS)
+            SBtuyx=Two *TG2(IYABS,ITABS,IXABS,IUABS)
             IF(IXABS.EQ.ITABS) THEN
-              SBtuxy=SBtuxy-4.0d0*TG1(IYABS,IUABS)
-              SBtuyx=SBtuyx+2.0d0*TG1(IYABS,IUABS)
+              SBtuxy=SBtuxy-Four*TG1(IYABS,IUABS)
+              SBtuyx=SBtuyx+Two *TG1(IYABS,IUABS)
               IF(IYABS.EQ.IUABS) THEN
-                SBtuxy=SBtuxy+8.0d0*OVL
-                SBtuyx=SBtuyx-4.0d0*OVL
+                SBtuxy=SBtuxy+Eight*OVL
+                SBtuyx=SBtuyx-Four *OVL
               END IF
             END IF
             IF(IYABS.EQ.IUABS) THEN
-              SBtuxy=SBtuxy-4.0d0*TG1(IXABS,ITABS)
-              SBtuyx=SBtuyx+2.0d0*TG1(IXABS,ITABS)
+              SBtuxy=SBtuxy-Four*TG1(IXABS,ITABS)
+              SBtuyx=SBtuyx+Two *TG1(IXABS,ITABS)
             END IF
             IF(IYABS.EQ.ITABS) THEN
-              SBtuxy=SBtuxy+2.0d0*TG1(IXABS,IUABS)
-              SBtuyx=SBtuyx-4.0d0*TG1(IXABS,IUABS)
+              SBtuxy=SBtuxy+Two *TG1(IXABS,IUABS)
+              SBtuyx=SBtuyx-Four*TG1(IXABS,IUABS)
               IF(IXABS.EQ.IUABS) THEN
-                SBtuxy=SBtuxy-4.0d0*OVL
-                SBtuyx=SBtuyx+8.0d0*OVL
+                SBtuxy=SBtuxy-Four *OVL
+                SBtuyx=SBtuyx+Eight*OVL
               END IF
             END IF
             IF(IXABS.EQ.IUABS) THEN
-              SBtuxy=SBtuxy+2.0d0*TG1(IYABS,ITABS)
-              SBtuyx=SBtuyx-4.0d0*TG1(IYABS,ITABS)
+              SBtuxy=SBtuxy+Two *TG1(IYABS,ITABS)
+              SBtuyx=SBtuyx-Four*TG1(IYABS,ITABS)
             END IF
 
             SBP=SBtuxy + SBtuyx
@@ -404,31 +428,31 @@ C    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
 C      -4dyu dxt + 2dyu Gxt
 C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
 C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
-            SBtuxy=2.0d0*TG2(IXABS,ITABS,IYABS,IUABS)
-            SBtuyx=2.0d0*TG2(IYABS,ITABS,IXABS,IUABS)
+            SBtuxy=Two*TG2(IXABS,ITABS,IYABS,IUABS)
+            SBtuyx=Two*TG2(IYABS,ITABS,IXABS,IUABS)
             IF(IXABS.EQ.ITABS) THEN
-              SBtuxy=SBtuxy-4.0d0*TG1(IYABS,IUABS)
-              SBtuyx=SBtuyx+2.0d0*TG1(IYABS,IUABS)
+              SBtuxy=SBtuxy-Four*TG1(IYABS,IUABS)
+              SBtuyx=SBtuyx+Two *TG1(IYABS,IUABS)
               IF(IYABS.EQ.IUABS) THEN
-                SBtuxy=SBtuxy+8.0d0*OVL
-                SBtuyx=SBtuyx-4.0d0*OVL
+                SBtuxy=SBtuxy+Eight*OVL
+                SBtuyx=SBtuyx-Four *OVL
               END IF
             END IF
             IF(IYABS.EQ.IUABS) THEN
-              SBtuxy=SBtuxy-4.0d0*TG1(IXABS,ITABS)
-              SBtuyx=SBtuyx+2.0d0*TG1(IXABS,ITABS)
+              SBtuxy=SBtuxy-Four*TG1(IXABS,ITABS)
+              SBtuyx=SBtuyx+Two *TG1(IXABS,ITABS)
             END IF
             IF(IYABS.EQ.ITABS) THEN
-              SBtuxy=SBtuxy+2.0d0*TG1(IXABS,IUABS)
-              SBtuyx=SBtuyx-4.0d0*TG1(IXABS,IUABS)
+              SBtuxy=SBtuxy+Two *TG1(IXABS,IUABS)
+              SBtuyx=SBtuyx-Four*TG1(IXABS,IUABS)
               IF(IXABS.EQ.IUABS) THEN
-                SBtuxy=SBtuxy-4.0d0*OVL
-                SBtuyx=SBtuyx+8.0d0*OVL
+                SBtuxy=SBtuxy-Four *OVL
+                SBtuyx=SBtuyx+Eight*OVL
               END IF
             END IF
             IF(IXABS.EQ.IUABS) THEN
-              SBtuxy=SBtuxy+2.0d0*TG1(IYABS,ITABS)
-              SBtuyx=SBtuyx-4.0d0*TG1(IYABS,ITABS)
+              SBtuxy=SBtuxy+Two *TG1(IYABS,ITABS)
+              SBtuyx=SBtuyx-Four*TG1(IYABS,ITABS)
             END IF
 
             SBM=SBtuxy - SBtuyx
@@ -455,16 +479,16 @@ C    SD12(tu2,xy1)= -(Gutxy + dtx Guy)
 C    SD21(tu2,xy1)= -(Gutxy + dtx Guy)
 C    SD22(tu2,xy2)= -Gxtuy +2*dtx Guy
             GUTXY= TG2(IUABS,ITABS,IXABS,IYABS)
-            SD11=2.0D0*GUTXY
+            SD11=Two*GUTXY
             SD12= -GUTXY
             SD21= -GUTXY
             SD22= -TG2(IXABS,ITABS,IUABS,IYABS)
             IF(ITABS.EQ.IXABS) THEN
               GUY=TG1(IUABS,IYABS)
-              SD11=SD11+2.0D0*GUY
+              SD11=SD11+Two*GUY
               SD12=SD12 -GUY
               SD21=SD21 -GUY
-              SD22=SD22+2.0D0*GUY
+              SD22=SD22+Two*GUY
             END IF
 
             HEBLK=HEBLK+SD11*DDOT_(NISBLK,V2(JAS1),NAS,V1(IAS1),NAS)
@@ -481,7 +505,7 @@ C    SD22(tu2,xy2)= -Gxtuy +2*dtx Guy
             IXABS=JAS+NAES(ISYM)
 C Formula used: SE(t,x)=2*dxt - Dxt
             SE=-TG1(IXABS,ITABS)
-            IF(IXABS.EQ.ITABS) SE=SE+2.0d0*OVL
+            IF(IXABS.EQ.ITABS) SE=SE+Two*OVL
             HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
@@ -493,7 +517,7 @@ C Formula used: SE(t,x)=2*dxt - Dxt
             IXABS=JAS+NAES(ISYM)
 C Formula used: SE(t,x)=2*dxt - Dxt
             SE=-TG1(IXABS,ITABS)
-            IF(IXABS.EQ.ITABS) SE=SE+2.0d0*OVL
+            IF(IXABS.EQ.ITABS) SE=SE+Two*OVL
             HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
@@ -514,8 +538,8 @@ C Formulae used:
 C    SF(tu,xy)= 2 Gtxuy
 C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
 C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
-            SFtuxy=2.0d0*TG2(ITABS,IXABS,IUABS,IYABS)
-            SFtuyx=2.0d0*TG2(ITABS,IYABS,IUABS,IXABS)
+            SFtuxy=Two*TG2(ITABS,IXABS,IUABS,IYABS)
+            SFtuyx=Two*TG2(ITABS,IYABS,IUABS,IXABS)
 
             SFP=SFtuxy + SFtuyx
             HEBLK=HEBLK+SFP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
@@ -537,8 +561,8 @@ C Formulae used:
 C    SF(tu,xy)= 4 Ptxuy
 C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
 C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
-            SFtuxy=2.0d0*TG2(ITABS,IXABS,IUABS,IYABS)
-            SFtuyx=2.0d0*TG2(ITABS,IYABS,IUABS,IXABS)
+            SFtuxy=Two*TG2(ITABS,IXABS,IUABS,IYABS)
+            SFtuyx=Two*TG2(ITABS,IYABS,IUABS,IXABS)
 
             SFM=SFtuxy - SFtuyx
             HEBLK=HEBLK+SFM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
@@ -573,15 +597,13 @@ C Formula used: SG(t,x)= Gtx
         END DO
 ************************************************************************
       CASE(12)
-        IF(ABS(OVL).GE.1.0D-12) THEN
-          HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
-        END IF
+        IF (ABS(OVL).GE.1.0E-12_wp)
+     &     HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
 ************************************************************************
       CASE(13)
-        IF(ABS(OVL).GE.1.0D-12) THEN
-          HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
-        END IF
+        IF (ABS(OVL).GE.1.0E-12_wp)
+     &     HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
 ************************************************************************
       END SELECT
-      Return
-      END
+
+      END SUBROUTINE HCOUP_BLK

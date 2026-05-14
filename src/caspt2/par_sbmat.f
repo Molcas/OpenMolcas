@@ -15,63 +15,49 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use fake_ga, only: GA_arrays, Allocate_GA_Array
+      use constants, only: Zero
+      use definitions, only: iwp
+      IMPLICIT None
 CSVC2010: create square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, create
 C tridiagonal local array at Work(lg_M)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
-#include "pt2_guga.fh"
-
-#include "SysDef.fh"
-
+      Integer(kind=iwp) lg_M, nSize
       CHARACTER(len=*) cNAME
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
+      Integer(kind=iwp) nTri
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         CALL GA_CREATE_STRIPED ('H',nSize,nSize,cNAME,LG_M)
         CALL GA_ZERO (LG_M)
       ELSE
+#endif
         nTri=(nSize*(nSize+1))/2
-        CALL GETMEM(cNAME,'ALLO','REAL',lg_M,nTri)
-        CALL DCOPY_(nTri,[0.0D0],0,WORK(lg_M),1)
+        lg_M=Allocate_GA_Array(nTri,cName)
+        GA_Arrays(lg_M)%A(:)=Zero
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-      nTri=(nSize*(nSize+1))/2
-      CALL GETMEM(cNAME,'ALLO','REAL',lg_M,nTri)
-      CALL DCOPY_(nTri,[0.0D0],0,WORK(lg_M),1)
 #endif
 
-      END
+      END SUBROUTINE PSBMAT_GETMEM
 
-      SUBROUTINE PSBMAT_FREEMEM(cNAME,lg_M,nSize)
+      SUBROUTINE PSBMAT_FREEMEM(lg_M)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use fake_ga, only: Deallocate_GA_Array
+      use definitions, only: iwp
+      IMPLICIT NONE
 CSVC2010: destroy square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, free the
 C tridiagonal local array at Work(lg_M)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
-#include "pt2_guga.fh"
+      Integer(kind=iwp) lg_M
 
-#include "SysDef.fh"
-
-      CHARACTER(len=*) cNAME
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL bStat
+      LOGICAL(kind=iwp) bStat
 #endif
 
 
@@ -79,35 +65,37 @@ C tridiagonal local array at Work(lg_M)
       IF (Is_Real_Par()) THEN
         bStat = GA_Destroy(lg_M)
       ELSE
-        nTri=(nSize*(nSize+1))/2
-        CALL GETMEM(cNAME,'FREE','REAL',lg_M,nTri)
-      END IF
-#else
-      nTri=(nSize*(nSize+1))/2
-      CALL GETMEM(cNAME,'FREE','REAL',lg_M,nTri)
 #endif
-      END
+        Call Deallocate_GA_Array(lg_M)
+#ifdef _MOLCAS_MPP_
+      END IF
+#include "macros.fh"
+      unused_var(bStat)
+#endif
+      END SUBROUTINE PSBMAT_FREEMEM
 
       SUBROUTINE PSBMAT_WRITE(cNAME,iCase,iSym,lg_M,nSize)
 CSVC20100902: write the global array lg_M to disk using DRA interface,
 C or if replicate or serial, write WORK(lg_M) to LUSBT
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use caspt2_global, only: LUH0T
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
-#include "pt2_guga.fh"
+      use caspt2_global, only: LUSBT
+      use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
+      use fake_ga, only: GA_arrays
+      use definitions, only: iwp
+      implicit none
+      Integer(kind=iwp) iCase, iSym, lg_M, nSize
+      CHARACTER(LEN=*) cNAME
 
-#include "SysDef.fh"
-      CHARACTER cNAME
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      Integer(kind=iwp) LU, myRank, ISTA,IEND,JSTA,JEND, mpt_M, LDM
 #endif
+      Integer(kind=iwp) IDISK, nBlock
 
 
       IF (CNAME.EQ.'S') THEN
@@ -149,15 +137,13 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
         END IF
         CALL GA_Sync()
       ELSE
-*       nTri=(nSize*(nSize+1))/2
-        CALL DDAFILE(LUSBT,1,WORK(lg_M),nBlock,IDISK)
+#endif
+        CALL DDAFILE(LUSBT,1,GA_Arrays(lg_M)%A(:),nBlock,IDISK)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-*     nTri=(nSize*(nSize+1))/2
-      CALL DDAFILE(LUSBT,1,WORK(lg_M),nBlock,IDISK)
 #endif
 
-      END
+      END SUBROUTINE PSBMAT_WRITE
 
       SUBROUTINE PSBMAT_READ(cNAME,iCase,iSym,lg_M,nSize)
 CSVC20100902: read the disk array stored as cName+iSym using DRA
@@ -165,21 +151,22 @@ C interface into global array lg_M, or if replicate or serial, read from
 C LUSBT into WORK(lg_M)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use caspt2_global, only: LUH0T
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
-#include "pt2_guga.fh"
-
-#include "SysDef.fh"
-      CHARACTER cNAME
+      use caspt2_global, only: LUSBT
+      use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
+      use fake_ga, only: GA_arrays
+      use definitions, only: iwp
+      IMPLICIT None
+      INTEGER(kind=iwp) iCASE,iSym,lg_M,nSize
+      CHARACTER(LEN=*) cNAME
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      INTEGER(kind=iwp) LU, myRank, iSTA, IEND, JSTA, JEND, mpt_M, LDM
 #endif
+      INTEGER(kind=iwp) IDISK, nBlock
 
 
       IF (CNAME.EQ.'S') THEN
@@ -221,24 +208,26 @@ C LUSBT into WORK(lg_M)
         END IF
         CALL GA_Sync()
       ELSE
-*       nTri=(nSize*(nSize+1))/2
-        CALL DDAFILE(LUSBT,2,WORK(lg_M),nBlock,IDISK)
+#endif
+        CALL DDAFILE(LUSBT,2,GA_Arrays(lg_M)%A(:),nBlock,IDISK)
+#ifdef _MOLCAS_MPP_
       END IF
-#else
-*     nTri=(nSize*(nSize+1))/2
-      CALL DDAFILE(LUSBT,2,WORK(lg_M),nBlock,IDISK)
 #endif
 
+      END SUBROUTINE PSBMAT_READ
 
-      END
-
-      REAL*8 FUNCTION PSBMAT_FPRINT(lg_M,NM)
+      FUNCTION PSBMAT_FPRINT(lg_M,NM)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
+      use fake_ga, only: GA_arrays
+      use definitions, only: iwp, wp
+      IMPLICIT NONE
+      real(kind=wp) PSBMAT_FPRINT
+      INTEGER(kind=iwp) lg_M, NM
 
+      INTEGER(kind=iwp) nTri
+      REAL(kind=wp), External::DNRM2_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -246,30 +235,12 @@ C LUSBT into WORK(lg_M)
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
-#ifdef _GA_
         PSBMAT_FPRINT=SQRT(GA_DDOT(lg_M,lg_M))
-#else
-        MYRANK=GA_NODEID()
-        NPROCS=GA_NNODES()
-        ! get local stripes of RHS vectors
-        CALL GA_Distribution (lg_M,myRank,iLo,iHi,jLo,jHi)
-        DOTP=0.0D0
-        IF (iLo.NE.0) THEN
-          CALL GA_Access (lg_M,iLo,iHi,jLo,jHi,mM,LDM)
-          NROW=iHi-iLo+1
-          NCOL=jHi-jLo+1
-          DOTP=DDOT_(NROW*NCOL,DBL_MB(mM),1,DBL_MB(mM),1)
-          CALL GA_Release (lg_M,iLo,iHi,jLo,jHi)
-        END IF
-        CALL GADSUM_SCAL(DOTP)
-        PSBMAT_FPRINT=SQRT(DOTP)
-#endif
       ELSE
-        nTri=(NM*(NM+1))/2
-        PSBMAT_FPRINT=DNRM2_(nTri,WORK(lg_M),1)
-      END IF
-#else
-      nTri=(NM*(NM+1))/2
-      PSBMAT_FPRINT=DNRM2_(nTri,WORK(lg_M),1)
 #endif
-      END
+        nTri=(NM*(NM+1))/2
+        PSBMAT_FPRINT=DNRM2_(nTri,GA_Arrays(lg_M)%A(:),1)
+#ifdef _MOLCAS_MPP_
+      END IF
+#endif
+      END FUNCTION PSBMAT_FPRINT

@@ -1,0 +1,19 @@
+&GATEWAY
+coord
+geometry_Fe2S2.xyz
+basis
+FE.ANO-RCC-VDZ, ANO-RCC-MB
+group
+nosym
+
+&SEWARD
+ Medium
+
+
+&RASSCF
+    dmpo
+    fileorb=Fe2S2.IterOrb.25
+    nactel = 10
+    spin = 1
+    inactive = 88
+    ras2 = 10

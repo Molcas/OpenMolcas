@@ -12,6 +12,7 @@
 subroutine Quit_OnConvError()
 
 implicit none
+
 #include "warnings.h"
 
 call xQuit(_RC_NOT_CONVERGED_)

@@ -11,7 +11,7 @@
 
 subroutine Get_mXOs(kOrb,XO,locc,nSkal,nIrrep,nOcc)
 
-use ChoArr, only: nBasSh
+use Cholesky, only: nBasSh
 use RI_glob, only: CMOi
 use Constants, only: Zero
 use Definitions, only: wp, iwp

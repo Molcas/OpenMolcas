@@ -284,3 +284,17 @@ def _forward(f: TextIO, n: int) -> str:
     for _ in range(n):
         line = f.readline()
     return line
+
+def repermute(n: int, new_ord: Sequence[int]):
+    """Create a permutation of [0, ..., n - 1] using `new_ord`
+
+    The permutation will look like:
+    [0, 1, 2, ..., min(new_ord) - 1, new_ord[0], new_ord[1], ..., new_ord[-1], ordered Rest]
+
+    Example:
+    _repermute(10, [5, 8, 4]) -> [0, 1, 2, 3, 5, 8, 4, 6, 7, 9]
+    """
+    L = np.arange(n)
+    L, new_ord = L[np.logical_not(np.isin(L, new_ord))].copy(), new_ord.copy()
+    I = min(new_ord)
+    return np.concatenate([L[ : I], new_ord, L[I:]])

@@ -41,13 +41,13 @@ else
   LU = u6
 end if
 if (Trans == 'T') then
-  write(PrtFmt,'(A1,I5,A14)') '(',NCol,'(E24.14E4,1X))'
+  write(PrtFmt,'(A,I5,A)') '(',NCol,'(ES24.14E4,1X))'
   do IRow=1,NRow
     iOff = (IRow-1)*NCol
     write(LU,PrtFmt) (Matrix(iOff+ICol),ICol=1,NCol)
   end do
 else
-  write(PrtFmt,'(A1,I5,A14)') '(',NRow,'(E24.14E4,1X))'
+  write(PrtFmt,'(A,I5,A)') '(',NRow,'(ES24.14E4,1X))'
   do ICol=1,NCol
     write(LU,PrtFmt) (Matrix((iRow-1)*NCol+iCol),IRow=1,NRow)
   end do

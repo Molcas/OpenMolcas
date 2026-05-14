@@ -26,7 +26,7 @@ subroutine CNDET(ICONF,IPDET,NDET,NEL,NORB,NOP,NCL,IDET,IPRINT)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NDET, NORB, NOP, ICONF(NORB), IPDET(NOP,NDET), NEL, NCL
+integer(kind=iwp), intent(in) :: NORB, ICONF(NORB), NDET, NOP, IPDET(NOP,NDET), NEL, NCL
 integer(kind=iwp), intent(out) :: IDET(NEL,NDET)
 integer(kind=iwp), intent(inout) :: IPRINT
 integer(kind=iwp) :: IADD, IBASE, ICL, IOP, JDET

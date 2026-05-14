@@ -8,19 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine get_dm0()
 !***********************************************************************
 !
-!  Purpose : to get the initial density matrix in CSF basis
-!            which used in propagation!
+! Purpose : prepare the initial density matrix in CSF basis
+!           based on user's input
 !
 !***********************************************************************
 
 use rhodyn_data, only: CSF2SO, DM0, DTOC, E, E_SF, E_SO, flag_so, ipglob, k_B, lroots, lrootstot, N, N_Populated, nconf, nconftot, &
-                       ndet, ndet_tot, NState, p_style, prep_dm_i, prep_dm_r, runmode, sint, T, U_CI
+                       ndet, ndet_tot, p_style, prep_dm_i, prep_dm_r, runmode, sint, T, U_CI
 use rhodyn_utils, only: transform, dashes
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -30,10 +30,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: i, j, k, ii, jj, kk, lu !temporary io unit
 complex(kind=wp) :: Z
-complex(kind=wp), allocatable :: DET2CSF(:,:), DM0_bas(:,:), temp_dm(:)
+character(len=16) :: fmt_line
+real(kind=wp), allocatable :: temp_dm(:)
+complex(kind=wp), allocatable :: DET2CSF(:,:), DM0_bas(:,:)
 integer(kind=iwp), external :: isFreeUnit
-
-if (ipglob > 3) write(u6,*) 'Begin get_dm0'
 
 if ((p_style == 'SO_THERMAL') .and. (T == 0)) then
   p_style = 'SO'
@@ -43,9 +43,9 @@ if ((p_style == 'SF_THERMAL') .and. (T == 0)) then
 end if
 
 if (runmode /= 4) then
-  call mma_allocate(DM0,nconftot,nconftot)
-else ! in charge migration case prepare DM in SF/SO basis
-  call mma_allocate(DM0,lrootstot,lrootstot)
+  call mma_allocate(DM0,nconftot,nconftot,label='DM0')
+else ! in this case prepare DM in SF/SO basis
+  call mma_allocate(DM0,lrootstot,lrootstot,label='DM0')
 end if
 DM0 = cZero
 
@@ -86,6 +86,7 @@ if (flag_so) then
       if (runmode /= 4) then
         DM0(N_Populated,N_Populated) = cOne
       else
+        ! prepare DM directly in SO basis in runmode=4
         call mma_allocate(DM0_bas,nconftot,nconftot)
         DM0_bas = cZero
         DM0_bas(N_Populated,N_Populated) = cOne
@@ -144,7 +145,7 @@ if (flag_so) then
       do i=1,lrootstot
         Z = Z+exp(-(E_SO(i)-E_SO(1))/(k_B*T))
       end do
-      call mma_allocate(DM0_bas,lrootstot,lrootstot)
+      call mma_allocate(DM0_bas,lrootstot,lrootstot,label='DM0_bas')
       DM0_bas = cZero
       if (ipglob > 3) then
         call dashes()
@@ -163,6 +164,20 @@ if (flag_so) then
       else
         DM0(:,:) = DM0_bas
       end if
+
+    case ('FROMFILE')
+      ! DM is read from file supposed to be in CSF basis
+      call mma_allocate(temp_dm,nconftot)
+      lu = isFreeUnit(11)
+      call molcas_open(lu,'INDENS')
+      write(fmt_line,'(A,I0,A)') '(',nconftot,'ES16.8)'
+      do i=1,nconftot
+        read(lu,fmt_line) temp_dm ! read matrix line from file
+        DM0(i,:) = cmplx(temp_dm,kind=wp)
+      end do
+      close(lu) ! close INDENS file
+      call mma_deallocate(temp_dm)
+
     case default
       write(u6,*) 'Population style ',p_style,' is not recognized'
       call abend()
@@ -213,11 +228,16 @@ else
         call abend()
       end if
       DM0_bas(N_Populated,N_Populated) = cOne
-      call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      ! transform DM to CSF basis by default
+      if (runmode /= 4) then
+        call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      else
+        DM0(:,:) =  DM0_bas
+      endif
 
     case ('SO')
       call dashes()
-      write(u6,*) 'WARNING! IF IFSO=OFF, CAN NOT POPULATE SO STATE'
+      write(u6,*) 'WARNING! IF IFSO=OFF, CANNOT POPULATE SO STATE'
       call dashes()
       call abend()
 
@@ -244,43 +264,44 @@ else
         write(u6,*) i,(E_SF(i)-E_SF(1))/(k_B*T),exp(-(E_SF(i)-E_SF(1))/(k_B*T)),exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
         DM0_bas(i,i) = exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
       end do
-      call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      ! transform DM to CSF basis by default
+      if (runmode /= 4) then
+        call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      else
+        DM0(:,:) = DM0_bas
+      endif
+
+    case ('FROMFILE')
+      ! DM is read from file supposed to be in CSF basis
+      call mma_allocate(temp_dm,nconftot)
+      lu = isFreeUnit(11)
+      call molcas_open(lu,'INDENS')
+      write(fmt_line,'(A,I0,A)') '(',nconftot,'ES16.8)'
+      do i=1,nconftot
+        read(lu,fmt_line) temp_dm ! read matrix line from file
+        DM0(i,:) = cmplx(temp_dm,kind=wp)
+      end do
+      close(lu) ! close INDENS file
+      call mma_deallocate(temp_dm)
+
     case default
       write(u6,*) 'Population style ',p_style,' is not recognized'
       call abend()
   end select
 end if !ifso
 
-! it will be transformed as usual further
-if (p_style == 'FROMFILE') then
-  call mma_allocate(temp_dm,NState)
-  lu = isFreeUnit(11)
-  call molcas_open(lu,'INDENS')
-  do i=1,NState
-    do j=1,Nstate
-      read(lu,'(E16.8)',advance='no') temp_dm(j)
-    end do
-    DM0(i,:) = temp_dm
-    read(lu,*)
-  end do
-  close(lu) ! close INDENS file
-  call mma_deallocate(temp_dm)
-end if
-
-if (allocated(DM0_bas)) call mma_deallocate(DM0_bas)
+call mma_deallocate(DM0_bas,safe='*')
 
 ! Printout the initial density matrix to SDPREP in CSF basis
 ! not CM case
 if (runmode /= 4) then
   if (ipglob > 3) then
     call dashes()
-    write(u6,*) 'The initial density matrix is saved in SDPREP'
+    write(u6,*) 'The initial density matrix is saved in RDPREP'
     call dashes()
   end if
   call mh5_put_dset(prep_dm_r,real(DM0))
   call mh5_put_dset(prep_dm_i,aimag(DM0))
 end if
-
-if (ipglob > 3) write(u6,*) 'End get_dm0'
 
 end subroutine get_dm0

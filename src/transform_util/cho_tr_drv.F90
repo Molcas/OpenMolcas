@@ -18,11 +18,10 @@ subroutine CHO_TR_drv(rc,nIsh,nAsh,nSsh,Porb,BName,Do_int,ihdf5,Xint,lXint)
 #ifdef _HDF5_QCM_
 use hdf5_utils, only: file_id, hdf5_close_cholesky, hdf5_init_wr_cholesky, hdf5_write_cholesky, HID_T
 #endif
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings, tv2disk
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -46,13 +45,8 @@ character(len=7) :: Fnam
 type(SBA_Type), target :: ChoT(1)
 real(kind=wp), allocatable :: Lpq(:,:), Lpq_J(:), Lrs(:)
 logical(kind=iwp), parameter :: DoRead = .false.
-character(len=10), parameter :: SECNAM = 'CHO_TR_drv'
+character(len=*), parameter :: SECNAM = 'CHO_TR_drv'
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=wp), external :: ddot_
-#include "chotime.fh"
-#include "chotraw.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 
 #ifndef _HDF5_QCM_
 #include "macros.fh"
@@ -82,7 +76,7 @@ tread(:) = Zero   !time read/write vectors
 tmotr1(:) = Zero  !time 1st MO half-transf.
 tmotr2(:) = Zero  !time 2nd MO half-transf.
 
-if (Do_int) call Fzero(Xint(0),lXint)
+if (Do_int) Xint(:) = Zero
 
 ! Define MO space used
 !---------------------
@@ -204,9 +198,6 @@ do jSym=1,nSym
     call mma_allocate(Lrs,LREAD,Label='Lrs')
     call mma_allocate(Lpq_J,nVec,Label='Lpq_j')
 
-    iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
-    call Allocate_DT(ChoT(1),nPorb,nBas,nVec,JSYM,nSym,iSwap)
-    ChoT(1)%A0(:) = Zero
 
     ! BATCH over the vectors
 
@@ -219,6 +210,9 @@ do jSym=1,nSym
       else
         JNUM = nVec
       end if
+      iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
+      call Allocate_DT(ChoT(1),nPorb,nBas,JNUM,JSYM,nSym,iSwap)
+      ChoT(1)%A0(:) = Zero
 
       JVEC = nVec*(iBatch-1)+iVrs
       IVEC2 = JVEC-1+JNUM
@@ -301,15 +295,15 @@ do jSym=1,nSym
             if (Do_int) then
               do ipq=1,NApq
                 kt = kOff(iSymb)+ipq-1
-                Xint(kt) = Xint(kt)+ddot_(JNUM,Lpq(ipq,:),NApq,Lpq(ipq,:),NApq)
+                Xint(kt) = Xint(kt)+sum(Lpq(ipq,:)**2)
               end do
             end if
           else
             do ipq=1,NApq
-              Lpq_J(1:JNUM) = Lpq(ipq,1:JNUM)
+              Lpq_J(1:JNUM) = Lpq(ipq,:)
               if (Do_int) then
                 kt = kOff(iSymb)+ipq-1
-                Xint(kt) = Xint(kt)+ddot_(JNUM,Lpq_J,1,Lpq_J,1)
+                Xint(kt) = Xint(kt)+sum(Lpq_J(1:JNUM)**2)
               end if
               idisk = iOffB(iSymb)+NumCho(jSym)*(ipq-1)
 #           ifdef _HDF5_QCM_
@@ -387,7 +381,7 @@ do jSym=1,nSym
               if (Do_int) then
                 do ipq=1,NApq
                   kt = kOff(iSymp)+ipq-1
-                  Xint(kt) = Xint(kt)+ddot_(JNUM,Lpq(ipq,:),NApq,Lpq(ipq,:),NApq)
+                  Xint(kt) = Xint(kt)+sum(Lpq(ipq,:)**2)
                 end do
               end if
 
@@ -396,7 +390,7 @@ do jSym=1,nSym
                 Lpq_J(1:JNUM) = Lpq(ipq,1:JNUM)
                 if (Do_int) then
                   kt = kOff(iSymp)+ipq-1
-                  Xint(kt) = Xint(kt)+ddot_(JNUM,Lpq_J,1,Lpq_J,1)
+                  Xint(kt) = Xint(kt)+sum(Lpq_J(1:JNUM)**2)
                 end if
                 idisk = iOffB(iSymp)+NumCho(jSym)*(ipq-1)
 #               ifdef _HDF5_QCM_
@@ -428,12 +422,12 @@ do jSym=1,nSym
 
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
+      call Deallocate_DT(ChoT(1))
 
     end do  ! end batch loop
 
     ! free memory
     call mma_deallocate(Lpq_J)
-    call Deallocate_DT(ChoT(1))
     call mma_deallocate(Lrs)
 
   end do   ! loop over red sets

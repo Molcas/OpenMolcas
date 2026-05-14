@@ -28,28 +28,28 @@ subroutine dqelg(n,epstab,reslt,abserr,res3la,nres)
 !
 !           epsilon algorithm
 !           standard fortran subroutine
-!           real*8 version
+!           real version
 !
 !           parameters
 !              n      - integer
 !                       epstab(n) contains the new element in the
 !                       first column of the epsilon table.
 !
-!              epstab - real*8
+!              epstab - real
 !                       vector of dimension 52 containing the elements
 !                       of the two lower diagonals of the triangular
 !                       epsilon table. the elements are numbered
 !                       starting at the right-hand corner of the
 !                       triangle.
 !
-!              reslt  - real*8
+!              reslt  - real
 !                       resulting approximation to the integral
 !
-!              abserr - real*8
+!              abserr - real
 !                       estimate of the absolute error computed from
 !                       result and the 3 previous results
 !
-!              res3la - real*8
+!              res3la - real
 !                       vector of dimension 3 containing the last 3
 !                       results
 !

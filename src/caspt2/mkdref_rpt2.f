@@ -16,13 +16,14 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKDREF_RPT2(N,G1,DREF)
+      SUBROUTINE MKDREF_RPT2(N,G1,DREF,nDREF)
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER, INTENT(IN) :: N
-      REAL*8, INTENT(IN) :: G1(N,N)
-      REAL*8, INTENT(OUT) :: DREF(*)
+      INTEGER(kind=iwp), INTENT(IN) :: N, NDREF
+      REAL(kind=wp), INTENT(IN) :: G1(N,N)
+      REAL(kind=wp), INTENT(OUT) :: DREF(NDREF)
 
-      INTEGER I,J,IJ
+      INTEGER(kind=iwp) I,J,IJ
 
 C Compute DREF(PQ) = <0| Epq |0>
 C from G1(P,Q) = <0| Epq |0>
@@ -35,5 +36,4 @@ C Storage differs: DREF is triangular.
        END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE MKDREF_RPT2

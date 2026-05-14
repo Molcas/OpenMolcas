@@ -406,11 +406,11 @@ return
 
 890 format(/,1x,'number of initial trial vectors is',i3,/,1x,'total wall clock time=',f9.2,' seconds')
 !900 format(/,1x,'no.',i3,1x,'iter',/)
-901 format(2x,'NITER',1x,'NROOT',3x,'TOTAL ENERGY',4x,'ENERGY DIFF',4x,'VALPHA',7x,'VRESIDE',1x,'T HC(s)',1x,'T KSPACE(s)')
+901 format(2x,'NITER',1x,'NROOT',3x,'TOTAL ENERGY',4x,'ENERGY DIFF',4x,'VALPHA',6x,'VRESIDUE',1x,'T HC(s)',1x,'T KSPACE(s)')
 902 format(2(2x,i3),2x,f16.9,1x,f12.9,1x,f12.8,1x,f12.8,1x,2(f8.2,1x))
 !903 format(/,1x,'total wall time for h*c=',f8.2,1x,'seconds',/1x,'total wall time for k space calculation=',f8.2,1x,'seconds')
 !910   format(/,1x,'number of converged roots is ',i4)
-911 format(/,1x,'number of kspace exceeds maxium kspace dimension,',/,1x,'kspace is reseted ',/)
+911 format(/,1x,'number of kspace exceeds maximum kspace dimension,',/,1x,'kspace is reset ',/)
 !...end of dav_diagonalize
 
 end subroutine cidiagonalize

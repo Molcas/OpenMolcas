@@ -928,10 +928,10 @@ A complete input for a ground state CASPT2 calculation on formaldehyde
   Coord
   4
 
-  H      0.000000    0.924258   -1.100293    Angstrom
-  H      0.000000   -0.924258   -1.100293    Angstrom
-  C      0.000000    0.000000   -0.519589    Angstrom
-  O      0.000000    0.000000    0.664765    Angstrom
+  H      0.000000    0.924258   -1.100293    angstrom
+  H      0.000000   -0.924258   -1.100293    angstrom
+  C      0.000000    0.000000   -0.519589    angstrom
+  O      0.000000    0.000000    0.664765    angstrom
   Basis set
    6-31G*
   Group
@@ -1133,8 +1133,8 @@ a PCM-model appear first in the SCF output ::
   Polarizable Continuum Model (PCM) activated
   Solvent:water
   Version: Conductor
-  Average area for surface element on the cavity boundary: 0.4000 Angstrom2
-  Minimum radius for added spheres: 0.2000 Angstrom
+  Average area for surface element on the cavity boundary: 0.4000 angstrom2
+  Minimum radius for added spheres: 0.2000 angstrom
 
 
 

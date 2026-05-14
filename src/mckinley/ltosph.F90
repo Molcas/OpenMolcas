@@ -18,13 +18,13 @@ subroutine LToSph(F,nAlpha,iShll,la,iAng,nVecAC)
 !           contraction is done in the primitive basis.
 !
 !***********************************************************************
-! @parameter F  The cartesian components of <A|core>(in)
-!               The spherical components of <A|core>(out)
-! @parameter nAlpha Number of exponents
-! @parameter iShll Shell number for ECP
-! @parameter la angular momenta LS
-! @parameter iAng angular momenta core
-! @parameter nVecAC Number of derivatives
+! @param F  The cartesian components of <A|core>(in)
+!           The spherical components of <A|core>(out)
+! @param nAlpha Number of exponents
+! @param iShll Shell number for ECP
+! @param la angular momenta LS
+! @param iAng angular momenta core
+! @param nVecAC Number of derivatives
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1

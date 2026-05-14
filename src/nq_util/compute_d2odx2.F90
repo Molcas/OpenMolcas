@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_d2Odx2(ZA,nAtoms,O,EVal,Rot_Corr,iAtom,iCar,dTdRAi,dMdx,Px,jAtom,jCar,dMdy,Py,d2Odx2)
+subroutine Compute_d2Odx2(ZA,nAtoms,O,EVal,iAtom,iCar,dTdRAi,dMdx,Px,jAtom,jCar,dMdy,Py,d2Odx2)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -17,7 +17,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, iAtom, iCar, jAtom, jCar
 real(kind=wp), intent(in) :: ZA(nAtoms), O(3,3), EVal(3), dTdRAi, dMdx(3,3), Px(3,3), dMdy(3,3), Py(3,3)
-logical(kind=iwp), intent(in) :: Rot_Corr
 real(kind=wp), intent(out) :: d2Odx2(3,3)
 real(kind=wp) :: Alpha1, Alpha2, Beta1, Beta2, c12, c13, c23, d2Mdx2(3,3), Gamma1, Gamma2, Pxy(3,3), RHS(3,3), Scr1(3,3), &
                  Scr2(3,3), Scr3(3,3)
@@ -25,23 +24,15 @@ real(kind=wp) :: Alpha1, Alpha2, Beta1, Beta2, c12, c13, c23, d2Mdx2(3,3), Gamma
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (.not. Rot_Corr) then
-  d2Odx2(:,:) = Zero
-  return
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
 !     Compute d2M/dxdy
-!
+
 call Compute_d2Mdx2(ZA,nAtoms,iAtom,iCar,dTdRAi,jAtom,jCar,d2Mdx2)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !     Form diagonal elements of Pxy directly from Px and Py
-!
+
 Gamma1 = Px(1,2)
 Beta1 = Px(3,1)
 Alpha1 = Px(2,3)
@@ -55,7 +46,7 @@ Pxy(3,3) = -Beta1*Beta2-Alpha1*Alpha2
 !***********************************************************************
 !                                                                      *
 ! Compute additional constraints for off-diagonals
-!
+
 c12 = Beta1*Alpha2+Beta2*Alpha1   ! Pxy(2,1)+Pxy(1,2)
 c13 = Gamma1*Alpha2+Gamma2*Alpha1 ! Pxy(3,1)+Pxy(1,3)
 c23 = Beta1*Gamma2+Beta2*Gamma1   ! Pxy(2,3)+Pxy(3,2)

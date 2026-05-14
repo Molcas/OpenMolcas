@@ -37,7 +37,7 @@ subroutine xflush(Lu)
 #define _F2003_
 
 use Definitions, only: iwp
-#if !defined(_F2003_) && defined(_CRAY_C90_)
+#if ! defined (_F2003_) && defined (_CRAY_C90_)
 use Definitions, only: u6
 #endif
 
@@ -48,19 +48,19 @@ integer(kind=iwp), intent(in) :: Lu
 
 flush(Lu)
 
-#elif defined(_CRAY_C90_)
+#elif defined (_CRAY_C90_)
 if (Lu == u6) then
   call flush(101)
 else
   call flush(Lu)
 end if
-#elif defined(__INTEL_COMPILER) || defined(NAGFOR)
+#elif defined (__INTEL_COMPILER) || defined (NAGFOR)
 #include "macros.fh"
 unused_var(Lu)
 return
-#elif defined(_SOLARIS_) || defined(_IRIX64_) || defined(_HP_UX_)
+#elif defined (_SOLARIS_) || defined (_IRIX64_) || defined (_HP_UX_)
 call flush(Lu)
-#elif defined(_PRIMEPOWER_) || defined(_LINUX_)
+#elif defined (_PRIMEPOWER_) || defined (_LINUX_)
 call flush(Lu)
 #endif
 

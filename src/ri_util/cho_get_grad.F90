@@ -12,6 +12,7 @@
 !               2011, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
+!#define _CD_TIMING_
 subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChOrb_,AOrb,nAorb,DoCAS,Estimate,Update,V_k,nV_k,U_k, &
                         Z_p_k,nZ_p_k,nnP,npos)
 !***********************************************************************
@@ -82,11 +83,11 @@ subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChO
 !  Output:                                                             *
 !         irc : return code                                            *
 !                                                                      *
-!         V_k : array Real*8 for the Coulomb interm. Size=NumCho(1)    *
+!         V_k : array Real for the Coulomb interm. Size=NumCho(1)      *
 !                                                                      *
-!         U_k : array Real*8 for the mp2 Coulomb interm. Size=NumCho(1)*
+!         U_k : array Real for the mp2 Coulomb interm. Size=NumCho(1)  *
 !                                                                      *
-!         Z_p_k : array Real*8 for the active grad. components.        *
+!         Z_p_k : array Real for the active grad. components.          *
 !                  Must be zeroed by the calling routine. Stored       *
 !                  according to jSym and blocked after symm. blocks    *
 !                  of the active orbitals (square storage).            *
@@ -99,14 +100,19 @@ subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChO
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: IndRed, InfVec, nnBstRSh
-use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, V2
-use RI_glob, only: CMOi, dmpK, iBDsh, iMP2prpt, nAdens, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen, VJ
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRSh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT, timings, ThrCom
+use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, V2
+use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
+use RI_glob, only: CMOi, dmpK, iBDsh, iMP2prpt, nAdens, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen
+#ifdef _CD_TIMING_
+use temptime, only: CHOGET_CPU, CHOGET_WALL
+#endif
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use PrintLevel, only: nPrint
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -115,20 +121,11 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: nDen, nTxy, ipTxy(8,8,2), nChOrb_(8,5), nAorb(8), nV_k, nZ_p_k, nnP(8), npos(8,3)
-type(DSBA_Type), intent(in) :: DLT(5), DLT2, MSQ(nDen), AOrb(*)
+type(DSBA_Type), intent(in) :: DLT(5), DLT2(1), MSQ(nDen), AOrb(*)
 real(kind=wp), intent(in) :: Txy(nTxy)
 logical(kind=iwp), intent(in) :: DoExchange, lSA, DoCAS, Estimate, Update
 real(kind=wp), intent(_OUT_) :: V_k(nV_k,*), U_k(*)
 real(kind=wp), intent(inout) :: Z_p_k(nZ_p_k,*)
-#include "Molcas.fh"
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "print.fh"
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
 integer(kind=iwp) :: i, iAdr, iaSh, iAvec, iBatch, ibcount, ibs, ibs_a, ibSh, iE, ij, ik, iLoc, iml, iMO1, iMO2, iMOleft, &
                      iMOright, ioff, iOffShb, iOffZp, iPrint, ipZp, ir, ired1, IREDC, iRout, iS, iSeed, ish, iShp, iSSa, iStart, &
                      iSwap, iSwap_lxy, ISYM, iSym1, iSym2, iSyma, iSymb, iSymv, iSymx, iSymy, it, itk, iTmp, iTxy, IVEC2, iVrs, j, &
@@ -156,8 +153,8 @@ real(kind=wp), allocatable :: AbsC(:), Diag(:), Drs(:,:), Drs2(:,:), Lrs(:,:), M
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: DiagJ(:)
 #endif
-real(kind=wp), allocatable, target :: Aux(:), Aux0(:), Yik(:)
-real(kind=wp), pointer :: Lik(:,:), pYik(:,:), Rik(:)
+real(kind=wp), allocatable, target :: Aux(:), Aux0(:)
+real(kind=wp), pointer :: Lik(:,:), Rik(:)
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_GET_GRAD'
 integer(kind=iwp), external :: IsFreeUnit
@@ -272,7 +269,6 @@ if (DoExchange) then
   call mma_allocate(DIAG,NNBSTRT(1),Label='Diag')
   if (Update) call CHO_IODIAG(DIAG,2) ! 2 means "read"
 
-
   ! Allocate memory
 
   ! sqrt(D(a,b)) stored in full (squared) dim
@@ -282,8 +278,6 @@ if (DoExchange) then
   call mma_allocate(AbsC,MaxB,Label='AbsC')
 
   call mma_allocate(Ylk,MaxB,nItmx,Label='Ylk')
-
-  call mma_allocate(Yik,nItmx**2,Label='Yik') ! Yi[k] vectors
 
   ! used to be nShell*something
   ! ML[k] lists of largest elements in significant shells
@@ -295,6 +289,7 @@ if (DoExchange) then
   do i=1,nDen
     iS = iE+1
     iE = iE+nShell*nIt(i)
+    if (iE < iS) cycle
     SumClk(i)%A(1:nShell,1:nIt(i)) => Aux0(iS:iE)
   end do
 
@@ -598,7 +593,7 @@ do jSym=1,nSym
           call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,DLT(jDen),Drs(:,jDen),add)
         end do
         if (iMp2prpt == 2) then
-          call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,[DLT2],Drs2(:,1),add)
+          call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,DLT2,Drs2(:,1),add)
         end if
       end if
 
@@ -608,9 +603,9 @@ do jSym=1,nSym
 
       if (BatchWarn .and. (nBatch > 1)) then
         if (iPrint >= 6) then
-          write(u6,'(20A3)') ('---',I=1,20)
+          write(u6,'(A)') repeat('-',60)
           write(u6,*) ' Batch procedure used. Increase memory if possible!'
-          write(u6,'(20A3)') ('---',I=1,20)
+          write(u6,'(A)') repeat('-',60)
           write(u6,*)
           call XFlush(u6)
         end if
@@ -786,8 +781,6 @@ do jSym=1,nSym
             n1 = nIt(iMOright)
             n2 = nItMx
 
-            pYik(1:n1,1:n2) => Yik(1:n1*n2)
-
             if (DoCAS .and. lSA) iMOright = jDen+2
 
             do kSym=1,nSym
@@ -863,9 +856,7 @@ do jSym=1,nSym
 
                     AbsC(1:nBas(lSym)) = abs(MSQ(iMOright)%SB(lSym)%A2(:,i))
 
-                    pYik(i,jK_a) = ddot_(nBas(lSym),AbsC,1,Ylk,1)
-
-                    if (pYik(i,jK_a) >= xtau) then
+                    if (ddot_(nBas(lSym),AbsC,1,Ylk,1) >= xtau) then
                       nQo = nQo+1
                       if ((iBatch == 1) .and. (JRED == 1)) then
                         nQoT = nQoT+1
@@ -1119,8 +1110,6 @@ do jSym=1,nSym
 
             end do   ! loop over MOs symmetry
 
-            nullify(pYik)
-
           end do   ! loop over densities
 
           call Deallocate_DT(Lab)
@@ -1201,7 +1190,7 @@ do jSym=1,nSym
           !     vectors in the active space
 
           iSwap = 0  ! Lvb,J are returned
-          call Allocate_DT(Laq(1),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Laq(1),nAorb,nBas,JNUM,JSYM,nSym,iSwap)
 
           iMO2 = 1
           do iMO1=1,nAdens
@@ -1210,7 +1199,7 @@ do jSym=1,nSym
             ! iSwap_lxy=6 diagonal blocks are square
             iSwap_lxy = 5
             if (iMO1 == 2) iSwap_lxy = 6
-            call Allocate_DT(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap_lxy)
+            call Allocate_DT(Lxy,nAorb,nAorb,JNUM,JSYM,nSym,iSwap_lxy)
 
             !***********************************************************
             !                                                          *
@@ -1315,8 +1304,8 @@ do jSym=1,nSym
                         temp = Zero
                         do k=0,nAOrb(iSymx)-1
                           do l=0,k
-                            temp = temp+Half*Txy(ioff+iTri(k+1,l))*(Lxy%SB(iSymx)%A2(l+1+nAOrb(iSymx)*k,j)+ &
-                                   Lxy%SB(iSymx)%A2(k+1+nAOrb(iSymx)*l,j))
+                            temp = temp+Half*Txy(ioff+iTri(k+1,l))* &
+                                   (Lxy%SB(iSymx)%A2(l+1+nAOrb(iSymx)*k,j)+Lxy%SB(iSymx)%A2(k+1+nAOrb(iSymx)*l,j))
                           end do
                         end do
 
@@ -1378,7 +1367,7 @@ do jSym=1,nSym
     if (DoExchange) then
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par() .and. Update .and. DoScreen) then
-        call GaDsum(DiagJ,nnBSTR(JSYM,1))
+        call GADgop(DiagJ,nnBSTR(JSYM,1),'+')
         Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+nnBstR(JSYM,1)) = Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+nnBstR(JSYM,1))- &
                                                                DiagJ(1:nnBSTR(JSYM,1))
         DiagJ(1:nnBSTR(JSYM,1)) = Zero
@@ -1393,9 +1382,9 @@ do jSym=1,nSym
       end if
 #     endif
     end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
   end do   ! loop over red sets
   !                                                                    *
   !*********************************************************************
@@ -1429,7 +1418,6 @@ if (DoExchange) then
       end do
     end do
   end do
-  call mma_allocate(VJ,2*nIJMax,Label='VJ')
 end if
 
 call mma_deallocate(iShp_rs)
@@ -1443,7 +1431,6 @@ if (DoExchange) then
   end do
   call mma_deallocate(Aux0)
   call mma_deallocate(MLk)
-  call mma_deallocate(Yik)
   call mma_deallocate(Ylk)
   call mma_deallocate(AbsC)
   call Deallocate_DT(DiaH)

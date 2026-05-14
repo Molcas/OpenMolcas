@@ -20,11 +20,12 @@ subroutine DKRelint_DP()
 !       exact decoupling X2C method &
 !       exact decoupling BSS method.
 
-use Basis_Info, only: dbsc, nBas, ncnttp
+use Basis_Info, only: dbsc, icent, lmag, lnang, nAngr, nBas, nBasisr, ncnttp, nPrimr, nrBas, nrSym, rCof, rExp
 use DKH_Info, only: cLightAU, iRelae, LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
 use Gateway_Info, only: lMXTC
 use OneDat, only: sOpSiz
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -44,9 +45,6 @@ real(kind=wp), allocatable :: iK(:), SS(:), V(:), pVp(:), K_Save(:), K_Done(:), 
                               Auxi(:,:), Tmp(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: nProp_Int
-#include "Molcas.fh"
-#include "rinfo.fh"
-#include "print.fh"
 
 !                                                                      *
 !***********************************************************************

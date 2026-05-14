@@ -87,7 +87,7 @@ if (Test) then
   end do
   xNrm = sqrt(dDot_(nOrb2Loc**2,V,1,V,1))
   if (xNrm > Tol) then
-    write(u6,'(A,A,D16.8,A,I2,A)') SecNam,': ERROR: ||X^TSX - 1|| = ',xNrm
+    write(u6,'(A,A,ES16.8,A,I2,A)') SecNam,': ERROR: ||X^TSX - 1|| = ',xNrm
     nErr = nErr+1
   end if
   if (nErr /= 0) then

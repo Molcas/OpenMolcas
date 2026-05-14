@@ -39,9 +39,10 @@ integer(kind=iwp), parameter :: Mul(8,8) = reshape([1,2,3,4,5,6,7,8, &
                                                          1,-1, 1,-1,-1, 1,-1, 1, &
                                                          1, 1,-1,-1,-1,-1, 1, 1, &
                                                          1,-1,-1, 1,-1, 1, 1,-1],[8,8])
+character(len=*), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 
-public :: iChBas, iChCar, iChTbl, iOper, iSkip, lBsFnc, lIrrep, Mul, nIrrep, Prmt, SymLab, Symmetry_Info_Dmp, Symmetry_Info_Free, &
-          Symmetry_Info_Get, Symmetry_Info_Set, Symmetry_Info_Setup, VarR, VarT
+public :: ChOper, iChBas, iChCar, iChTbl, iOper, iSkip, lBsFnc, lIrrep, Mul, nIrrep, Prmt, SymLab, Symmetry_Info_Dmp, &
+          Symmetry_Info_Free, Symmetry_Info_Get, Symmetry_Info_Set, Symmetry_Info_Setup, VarR, VarT
 
 !***********************************************************************
 !***********************************************************************
@@ -487,11 +488,12 @@ subroutine ChTab(iOper,nIrrep,outChTbl)
     else if (nIrrep == 8) then
       jIrrep = 1+((1-iTest(2))+2*(1-iTest(3))+4*(1-iTest(5)))/2
     else
-      jIrrep = -1
       call WarningMessage(2,'ChTab: Illegal nIrrep value!')
       write(u6,*) 'nIrrep=',nIrrep
       call Abend()
+      jIrrep = 1  ! dummy assignment to shut the compiler up.
     end if
+
     if (lBsFnc(jIrrep-1)(1:1) == ' ') then
       lBsFnc(jIrrep-1) = Tmp
       outChTbl(jIrrep,1:nIrrep) = iTest(1:nIrrep)

@@ -103,8 +103,8 @@ subroutine External_Centers_Free()
     call mma_deallocate(EF_Centers)
     nEF = 0
   end if
-  if (allocated(OAM_Center)) call mma_deallocate(OAM_Center)
-  if (allocated(OMQ_Center)) call mma_deallocate(OMQ_Center)
+  call mma_deallocate(OAM_Center,safe='*')
+  call mma_deallocate(OMQ_Center,safe='*')
   if (allocated(DMS_Centers)) then
     call mma_deallocate(DMS_Centers)
     nDMS = 0
@@ -113,7 +113,7 @@ subroutine External_Centers_Free()
     call mma_deallocate(Wel_Info)
     nWel = 0
   end if
-  if (allocated(AMP_Center)) call mma_deallocate(AMP_Center)
+  call mma_deallocate(AMP_Center,safe='*')
   if (allocated(RP_Centers)) then
     call mma_deallocate(RP_Centers)
     nRP = 0
@@ -162,17 +162,13 @@ subroutine External_Centers_Get()
 
   call qpg_dArray('OAM_Center',Found,Len2)
   if (Found) then
-    if (.not. allocated(OAM_Center)) then
-      call mma_allocate(OAM_Center,3,Label='OAM_Center')
-    end if
+    call mma_allocate(OAM_Center,3,Label='OAM_Center',safe='*')
     call Get_dArray('OAM_Center',OAM_Center,3)
   end if
 
   call qpg_dArray('OMQ_Center',Found,Len2)
   if (Found) then
-    if (.not. allocated(OMQ_Center)) then
-      call mma_allocate(OMQ_Center,3,Label='OMQ_Center')
-    end if
+    call mma_allocate(OMQ_Center,3,Label='OMQ_Center',safe='*')
     call Get_dArray('OMQ_Center',OMQ_Center,3)
   end if
 
@@ -210,9 +206,7 @@ subroutine External_Centers_Get()
 
   call qpg_dArray('AMP_Center',Found,Len2)
   if (Found) then
-    if (.not. allocated(AMP_Center)) then
-      call mma_allocate(AMP_Center,3,Label='AMP_Center')
-    end if
+    call mma_allocate(AMP_Center,3,Label='AMP_Center',safe='*')
     call Get_dArray('AMP_Center',AMP_Center,3)
   end if
 
@@ -233,23 +227,17 @@ subroutine External_Centers_Get()
   call qpg_iArray('XEle',Found,Len2)
   if (Found) then
     nXF = Len2
-    if (.not. allocated(XEle)) then
-      call mma_allocate(XEle,nXF,Label='XEle')
-    end if
+    call mma_allocate(XEle,nXF,Label='XEle',safe='*')
     call Get_iArray('XEle',XEle,nXF)
 
     call qpg_iArray('XMolnr',Found,Len2)
     nXMolnr = Len2/nXF
-    if (.not. allocated(XMolnr)) then
-      call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr')
-    end if
+    call mma_allocate(XMolnr,nXMolnr,nXF,Label='XMolnr',safe='*')
     call Get_iArray('XMolnr',XMolnr,nXMolnr*nXF)
 
     call qpg_dArray('XF',Found,Len2)
     nData_XF = Len2/nXF
-    if (.not. allocated(XF)) then
-      call mma_allocate(XF,nData_XF,nXF,Label='XF')
-    end if
+    call mma_allocate(XF,nData_XF,nXF,Label='XF',safe='*')
     call Get_dArray('XF',XF,nData_XF*nXF)
   end if
   call mma_Allocate(iDmp,3,Label='iDmp')

@@ -93,11 +93,12 @@ integer(kind=iwp), intent(in) :: kCol, nMem, lu_A, lu_Q, lScr
 real(kind=wp), intent(in) :: Am(*), Qm(*), thr
 real(kind=wp), intent(_OUT_) :: Scr(*), Z(*), X(*), Q_k(*)
 integer(kind=iwp), intent(out) :: lindep
-#include "warnings.h"
 integer(kind=iwp) :: i, IJ, j, jp, kdone, kread, kstart, lQcol, lQdone, lQdone_, lQread
 real(kind=wp) :: sprev, xnorm
 real(kind=wp), parameter :: thr_neg = -1.0e-8_wp
 real(kind=wp), external :: ddot_
+
+#include "warnings.h"
 
 !***********************************************************************
 if (thr < zero) then

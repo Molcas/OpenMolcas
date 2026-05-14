@@ -303,46 +303,46 @@ This is a typical input for the calculation of the energy and the gradient of a 
   &Gateway
   Basis set
   C.sto-3g.....
-    C1   1.11820     0.72542    -2.75821 Angstrom
-    C2   1.20948     0.66728    -1.25125 Angstrom
+    C1   1.11820     0.72542    -2.75821 angstrom
+    C2   1.20948     0.66728    -1.25125 angstrom
   End of basis
   Basis set
   O.sto-3g.....
-    O1   2.19794     1.10343    -0.67629 Angstrom
+    O1   2.19794     1.10343    -0.67629 angstrom
   End of basis
   Basis set
   H.sto-3g.....
-    H1   2.02325     1.18861    -3.14886 Angstrom
-    H2   0.25129     1.31794    -3.04374 Angstrom
-    H3   1.02458    -0.28460    -3.15222 Angstrom
+    H1   2.02325     1.18861    -3.14886 angstrom
+    H2   0.25129     1.31794    -3.04374 angstrom
+    H3   1.02458    -0.28460    -3.15222 angstrom
   End of basis
   Basis set
   N.sto-3g.....
-    N1   0.17609     0.12714    -0.61129 Angstrom
+    N1   0.17609     0.12714    -0.61129 angstrom
   End of basis
   Basis set
   C.sto-3g.....
-    C3   0.09389    -0.01123     0.84259 Angstrom
-    C4  -1.21244    -0.67109     1.28727 Angstrom
+    C3   0.09389    -0.01123     0.84259 angstrom
+    C4  -1.21244    -0.67109     1.28727 angstrom
   End of basis
   Basis set
   O.sto-3g.....
-    O2  -2.06502    -1.02710     0.48964 Angstrom
+    O2  -2.06502    -1.02710     0.48964 angstrom
   End of basis
   Basis set
   H.sto-3g.....
-    H4  -0.61006    -0.21446    -1.14521 Angstrom
-    H5   0.92981    -0.61562     1.19497 Angstrom
-    H6   0.16338     0.97444     1.30285 Angstrom
+    H4  -0.61006    -0.21446    -1.14521 angstrom
+    H5   0.92981    -0.61562     1.19497 angstrom
+    H6   0.16338     0.97444     1.30285 angstrom
   End of basis
   Basis set
   N.sto-3g.....
-    N2  -1.41884    -0.85884     2.57374 Angstrom
+    N2  -1.41884    -0.85884     2.57374 angstrom
   End of basis
   Basis set
   H.sto-3g.....
-    H7  -0.73630    -0.57661     3.25250 Angstrom
-    H8  -2.28943    -1.29548     2.82140 Angstrom
+    H7  -0.73630    -0.57661     3.25250 angstrom
+    H8  -2.28943    -1.29548     2.82140 angstrom
   End of basis
 
   &seward

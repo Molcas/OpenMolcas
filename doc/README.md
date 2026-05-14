@@ -25,3 +25,10 @@ Configuration and auxiliary files to generate source code documentation with
 is included in the source files.
 
 To build the doxygen documentation just run `doxygen` inside this directory.
+
+`map`
+
+Map of places related to OpenMolcas development. To add or modify places, edit
+the file `places.js`.
+
+See it online [here](https://molcas.gitlab.io/OpenMolcas/map/).

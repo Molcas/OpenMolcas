@@ -32,6 +32,7 @@ integer(kind=iwp) :: i, i1, iAt, iCx, j, jAt, k, kaunt, kaunter, kk, NExpect, NE
 logical(kind=iwp) :: Check1, Check2
 integer(kind=iwp), allocatable :: iCenSet(:)
 real(kind=wp), allocatable :: VelP(:), VpoP(:)
+
 #include "warnings.h"
 
 ! Set up centre index set. The order of centres are decided by

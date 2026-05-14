@@ -22,25 +22,23 @@ subroutine Info2Runfile()
 !***********************************************************************
 
 use Period, only: AdCell, Cell_l, ispread, lthCell, VCell
-use Basis_Info, only: dbsc, nBas, nCnttp
+use Basis_Info, only: dbsc, DOEMPC, nBas, nCnttp
 use Center_Info, only: dc
 use External_Centers, only: iXPolType, XF, nXF
 use Gateway_global, only: Expert, DirInt
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF
+use RICD_Info, only: Cho_OneCenter, Chol => Cholesky, Do_DCCD, Do_RI
+use Cholesky, only: Cho_1Center
 use Gateway_Info, only: CoC, CoM, DoFMM
 use Symmetry_Info, only: nIrrep, VarR, VarT
+use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "Molcas.fh"
-#include "cholesky.fh"
-#include "rctfld.fh"
-#include "embpcharg.fh"
-#include "localdf.fh"
-integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iLocalDF, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)
+integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)
 logical(kind=iwp) :: Found, Pseudo
 integer(kind=iwp), allocatable :: ICh(:), IsMM(:), nStab(:), NTC(:)
 real(kind=wp), allocatable :: DCh(:), DCh_Eff(:), DCo(:,:)
@@ -88,23 +86,15 @@ if (PCM) then
 end if
 iOption = ibset(iOption,5)
 ! 2el-integrals from the Cholesky vectors
-if (Cholesky .or. Do_RI) iOption = ibset(iOption,9)
+if (Chol .or. Do_RI) iOption = ibset(iOption,9)
 ! RI-Option
 if (Do_RI) then
   iOption = ibset(iOption,10)
-  ! Local or non-local
-  if (LocalDF) then
-    call Put_dScalar('LDF Accuracy',Thr_Accuracy)
-    call Put_iScalar('LDF Constraint',LDF_Constraint)
-    iLocalDF = 1
-  else
-    iLocalDF = 0
-  end if
-  call Put_iScalar('DF Mode',iLocalDF)
 end if
 ! 1C-CD
-if (Cholesky .and. Cho_1Center) iOption = ibset(iOption,12)
+if (Chol .and. Cho_1Center) iOption = ibset(iOption,12)
 Cho_OneCenter = Cho_1Center
+if (Do_DCCD) iOption = ibset(iOption,13)
 call Put_iScalar('System BitSwitch',iOption)
 
 call Put_iScalar('Highest Mltpl',S%nMltpl)

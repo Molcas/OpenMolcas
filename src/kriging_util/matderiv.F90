@@ -15,7 +15,7 @@ subroutine matderiv(diff_Order,d,m,d1,d2)
 
 use kriging_mod, only: anMd, h, pAI
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Three, Four, Five, Seven, Eight, Twelve
+use Constants, only: Zero, One, Two, Three, Four, Five, Seven, Eight, Twelve, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -24,8 +24,12 @@ real(kind=wp), intent(in) :: d(d1,d2)
 real(kind=wp), intent(out) :: m(d1,d2)
 ! Local variables
 integer(kind=iwp) :: k
+#ifdef _FPE_TRAP_
+integer(kind=iwp) :: i, j
+#endif
 real(kind=wp) :: nr, kr, a, t
 real(kind=wp), allocatable :: b(:,:), dh(:,:), c(:,:)
+real(kind=wp), parameter :: Thr = epsilon(Thr)
 
 call mma_Allocate(b,d1,d2,label='b')
 call mma_Allocate(dh,d1,d2,label='dh')
@@ -49,7 +53,19 @@ if (anMd) then
           case (1)
             m(:,:) = -c(:,:)/Two
           case (2)
-            m(:,:) = c(:,:)*merge(0.75_wp*t/dh,dh,dh /= 0)/Three
+#           ifdef _FPE_TRAP_
+            do j=1,d2
+              do i=1,d1
+                if (abs(dh(i,j)) > Thr) then
+                  m(i,j) = Quart*t/dh(i,j)*c(i,j)
+                else
+                  m(i,j) = Zero
+                end if
+              end do
+            end do
+#           else
+            m(:,:) = merge(Quart*t/dh,dh,abs(dh) > Thr)*c(:,:)
+#           endif
           case (3)
             m(:,:) = -(Two*t-Three*dh)*c(:,:)
         end select
@@ -60,7 +76,19 @@ if (anMd) then
           case (2)
             m(:,:) = c(:,:)*Five/Four
           case (3)
-            m(:,:) = merge(-Five/Eight*t/dh,dh,dh /= 0)*c(:,:)
+#           ifdef _FPE_TRAP_
+            do j=1,d2
+              do i=1,d1
+                if (abs(dh(i,j)) > Thr) then
+                  m(i,j) = -Five/Eight*t/dh(i,j)*c(i,j)
+                else
+                  m(i,j) = Zero
+                end if
+              end do
+            end do
+#           else
+            m(:,:) = merge(-Five/Eight*t/dh,dh,abs(dh) > Thr)*c(:,:)
+#           endif
         end select
       case (3)
         select case (diff_Order)

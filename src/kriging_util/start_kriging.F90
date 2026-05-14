@@ -13,8 +13,8 @@
 
 subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 
-use kriging_mod, only: cv, cvMatFder, cvMatSder, cvMatTder, dl, full_R, full_RInv, gpred, hpred, Kv, l, lb, ll, m_t, mblAI, nD, &
-                       nInter, nInter_Eff, nPoints, PGEK_On, rl, Rones, sbmev, x0, y, Prep_Kriging
+use kriging_mod, only: cv, cvMatFder, cvMatSder, cvMatTder, dl, full_R, full_RInv, gpred, hpred, Kv, l, lh, m_t, mblAI, nD, &
+                       nInter, nInter_Eff, nPoints, nSet, PGEK_On, pred, Prep_Kriging, rl, Rones, sb, sbmev, sigma, variance, x0, y
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -29,12 +29,15 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter_In, nPoints_In
-real(kind=wp), intent(in) :: x_(nInter_In,nPoints_In), y_(nPoints_In), dy_(nInter_In,nPoints_In)
-
+real(kind=wp), intent(in) :: x_(nInter_In,nPoints_In), y_(nPoints_In,nSet), dy_(nInter_In,nPoints_In,nSet)
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iSet
+
 call RecPrt('Start_Kriging: x',' ',x_,nInter_In,nPoints_In)
-call RecPrt('Start_Kriging: y',' ',y_,1,nPoints_In)
-call RecPrt('Start_Kriging: dy',' ',dy_,nInter_In,nPoints_In)
+do iSet=1,nSet
+  call RecPrt('Start_Kriging: y',' ',y_(:,iSet),1,nPoints_In)
+  call RecPrt('Start_Kriging: dy',' ',dy_(:,:,iSet),nInter_In,nPoints_In)
+end do
 #endif
 
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
@@ -46,7 +49,7 @@ call Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 
 if (PGEK_On .and. nPoints >= 2) call PGEK()
 
-! m_t is the dimentionality of the square correlation matrix Gradient-Psi
+! m_t is the dimensionality of the square correlation matrix Gradient-Psi
 ! (equation (2) on:
 !-------- ref. = doi:10.1007/s00366-015-0397-y)-------
 !
@@ -64,7 +67,7 @@ m_t = nPoints+nInter_Eff*(nPoints-nD)
 call mma_Allocate(full_R,m_t,m_t,label='full_R')
 call mma_Allocate(full_RInv,m_t,m_t,label='full_RInv')
 
-if (mblAI) sbmev = y(maxloc(y,dim=1))
+if (mblAI) sbmev = maxval(y(:,1))
 
 ! Allocate x0, which is a n-dimensional vector of the coordinats of the last iteration computed
 
@@ -96,15 +99,19 @@ call mma_Allocate(Rones,m_t,label='Rones')
 ! gradients between the sample data and the prediction
 ! (eq. 4 ref.).
 !l is a n-dimensional vector of the width of the Matern function.
-!ll is the likelihood function.
 
 ! Allocate additional variables needed for the kriging.
 
-call mma_allocate(kv,m_t,label='kv')
-call mma_allocate(gpred,nInter,label='gpred')
-call mma_allocate(hpred,nInter,nInter,label='hpred')
+call mma_allocate(pred,nSet,label='pred')
+call mma_allocate(sigma,nSet,label='sigma')
+call mma_allocate(sb,nSet,label='sb')
+call mma_allocate(variance,nSet,label='variance')
+call mma_allocate(lh,nSet,label='lh')
+
+call mma_allocate(kv,m_t,nSet,label='kv')
+call mma_allocate(gpred,nInter,nSet,label='gpred')
+call mma_allocate(hpred,nInter,nInter,nSet,label='hpred')
 call mma_allocate(l,nInter,label='l')
-call mma_allocate(ll,int(lb(3)),label='ll')
 
 call mma_allocate(cv,m_t,nInter,nInter,label='cv')
 call mma_allocate(cvMatFder,nPoints,label='cvMatFder')

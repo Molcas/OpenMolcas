@@ -64,7 +64,7 @@ if (norb_act == 0) then
     iseg_upwei(jp) = iseg_dim(jp)/iseg_downwei(jp)
   end do
 else
-  !====================  norb_act<>0 ===================================
+  !====================  norb_act/=0 ===================================
   !if (logic_mr) call rst()         !npp=2
   !if (logic_mrelcas) call rcas()   !npp=3
 
@@ -569,13 +569,13 @@ end subroutine irfrst
 !function min_itexcit(indjk)
 !
 !use gugaci_global, only: ndjgrop, ndjmod
-!use Definitions, only: iwp
+!use Definitions, only: iwp, i4
 !
 !implicit none
 !integer(kind=iwp) :: min_itexcit
-!integer(kind=iwp), intent(in) :: indjk(4)
+!integer(kind=i4) :: intent(in) :: indjk(ndjgrop)
 !integer(kind=iwp) :: indexcit, ixcit, lref, ngrop, nj
-!! integer*4 indjk  =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
+!! indjk   =  00 00 00 00 00 00 00 00 00 00  00 00 00 00 00
 !! indexcit=  ir1 ir2 ir3 ir4 ir5 ir6 ir7 ir8 ......... ir15
 !
 !!-----------------------------------------------------------------------

@@ -33,7 +33,7 @@ subroutine iWrOne(rc,Option,InLab,Comp,rData,SymLab)
 !     Data    : Data definitions                                       *
 !                                                                      *
 !     Local data declarations:                                         *
-!     Label   : character*8, used to covert incoming names             *
+!     Label   : character(len=8), used to covert incoming names        *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *

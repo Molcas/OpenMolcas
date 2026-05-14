@@ -24,7 +24,7 @@
 
 subroutine gxRdRun(iRc,Label,cData,nData,iOpt,RecTyp)
 
-use RunFile_data, only: icRd, lw, nToc, RunHdr, RunName, Toc, TypDbl, TypInt, TypLgl, TypStr
+use RunFile_data, only: icRd, lw, nToc, RunName, Toc, TypDbl, TypInt, TypLgl, TypStr
 use Definitions, only: iwp
 
 #include "intent.fh"
@@ -66,16 +66,7 @@ call OpnRun(iRc,Lu,iOpt)
 !----------------------------------------------------------------------*
 ! Read the ToC                                                         *
 !----------------------------------------------------------------------*
-iDisk = RunHdr%DaLab
-call cDaFile(Lu,icRd,Toc(:)%Lab,lw*nToc,iDisk)
-iDisk = RunHdr%DaPtr
-call iDaFile(Lu,icRd,Toc(:)%Ptr,nToc,iDisk)
-iDisk = RunHdr%DaLen
-call iDaFile(Lu,icRd,Toc(:)%Len,nToc,iDisk)
-iDisk = RunHdr%DaMaxLen
-call iDaFile(Lu,icRd,Toc(:)%MaxLen,nToc,iDisk)
-iDisk = RunHdr%DaTyp
-call iDaFile(Lu,icRd,Toc(:)%Typ,nToc,iDisk)
+call rdToc(Lu)
 !----------------------------------------------------------------------*
 ! Find field.                                                          *
 !----------------------------------------------------------------------*

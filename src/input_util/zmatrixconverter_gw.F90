@@ -56,7 +56,7 @@ if (iErr /= 0) then
   return
 end if
 write(LuOut,*) nAtoms
-write(LuOut,'(A)') 'Angstrom'
+write(LuOut,'(A)') 'angstrom'
 
 ! Some checks
 if (nAtoms == 0) then
@@ -135,7 +135,7 @@ return
 
 end subroutine ZMatrixConverter_GW
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

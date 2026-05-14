@@ -65,6 +65,7 @@ character(len=10) :: WhatGet
 integer(kind=iwp), allocatable :: iC_Icon(:,:), Icon(:,:), natypC(:), nfSh(:,:), nSh(:)
 real(kind=wp), allocatable :: C(:,:), Chge(:), Cmo(:,:), Cmo_S(:), E(:,:), Occu(:), Oe(:), Tmp(:,:), TransC(:)
 integer(kind=iwp), external :: IsFreeUnit
+
 #include "warnings.h"
 
 !----------------------------------------------------------------------*

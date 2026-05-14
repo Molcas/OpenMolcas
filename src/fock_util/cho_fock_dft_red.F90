@@ -22,29 +22,29 @@ subroutine CHO_FOCK_DFT_RED(irc,DLT,FLT)
 !
 !********************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nDimRS, NumCho, timings
+#ifdef _DEBUGPRINT_
+use Cholesky, only: nBas, nSym
+#endif
 use Data_Structures, only: DSBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: irc
-type(DSBA_Type), intent(in) :: DLT
+type(DSBA_Type), intent(in) :: DLT(1)
 type(DSBA_Type), intent(inout) :: FLT(1)
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
-integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, LREAD, LWork, MUSED, nBatch, nDen, nRS, &
-                     NUMV, nVec, nVrs
+integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED_, JRED1, JRED2, JSYM, JVEC, LREAD, LWork, MUSED, nBatch, nDen, &
+                     nRS, NUMV, nVec, nVrs
 real(kind=wp) :: FactC, TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, &
                  TWC2, TWR1, TWR2, xfac
 logical(kind=iwp) :: add
+character(len=50) :: CFmt
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ISYM, NB
 logical(kind=iwp) :: Debug
 #endif
-character(len=50) :: CFmt
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_DFT_RED'
 
@@ -116,7 +116,7 @@ do JRED=JRED1,JRED2
   ! Transform the density to reduced storage
   add = .false.
   nDen = 1
-  call swap_full2rs(irc,iLoc,nRS,nDen,JSYM,[DLT],Drs,add)
+  call swap_full2rs(irc,iLoc,nRS,nDen,JSYM,DLT,Drs,add)
 
   ! BATCH over the vectors in JSYM=1 ----------------------------
 
@@ -135,7 +135,8 @@ do JRED=JRED1,JRED2
 
     call CWTIME(TCR1,TWR1)
 
-    call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED,MUSED)
+    JRED_ = JRED
+    call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,JRED_,MUSED)
 
     if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
       irc = 77

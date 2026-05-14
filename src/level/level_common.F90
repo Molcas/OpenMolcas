@@ -12,6 +12,21 @@
 !***********************************************************************
 
 module level_common
-      IMPLICIT NONE
-      REAL*8, DIMENSION(:), ALLOCATABLE :: RVB,YVB,DRDY2,FAS,SDRDY,VBZ
+
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+real(kind=wp) :: ARV, PRV
+real(kind=wp), allocatable :: DRDY2(:), RVB(:), SDRDY(:), VBZ(:), YVB(:)
+integer(kind=iwp), parameter :: NDIMR = 200001
+! Damping function parameters for printout .....
+! what are these numbers?
+real(kind=wp), parameter :: bDS(-4:0) = [2.50_wp,2.90_wp,3.3_wp,3.69_wp,3.95_wp], &
+                            bTT(-1:2) = [2.44_wp,2.78_wp,3.126_wp,3.471_wp], &
+                            cDS(-4:0) = [0.468_wp,0.446_wp,0.423_wp,0.40_wp,0.39_wp]
+
+public :: ARV, bDS, bTT, cDS, DRDY2, NDIMR, PRV, RVB, SDRDY, VBZ, YVB
+
 end module level_common

@@ -12,7 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Fake(U2,mT,nRys,ZEInv)
+subroutine Fake( &
+#               define _CALLING_
+#               include "modu2_interface.fh"
+               )
 !***********************************************************************
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             May '90                                                  *
@@ -21,9 +24,7 @@ subroutine Fake(U2,mT,nRys,ZEInv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mT, nRys
-real(kind=wp), intent(inout) :: U2(mT,nRys)
-real(kind=wp), intent(in) :: ZEInv(mT)
+#include "modu2_interface.fh"
 
 #include "macros.fh"
 unused_var(U2)

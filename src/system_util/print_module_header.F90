@@ -13,7 +13,7 @@ subroutine print_module_header(modulename)
 !SVC: print a banner with module name and runtime information
 
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs
+use Para_Info, only: mpp_nprocs, nProcs
 #endif
 #ifdef _OPENMP
 use omp_lib, only: omp_get_max_threads
@@ -25,11 +25,9 @@ use Definitions, only: wp, iwp, u6, RtoB
 implicit none
 character(len=*) :: modulename
 character(len=100) :: line
-integer(kind=iwp) :: i, order, group, nthreads
+integer(kind=iwp) :: order, group, nthreads
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: nprocs_global
 character(len=16) :: proc
-integer(kind=iwp), external :: GAnNodes
 #endif
 real(kind=wp) :: bytes
 character(len=16) :: memory, threads
@@ -38,7 +36,7 @@ logical(kind=iwp), external :: Reduce_Prt
 
 if (Reduce_Prt()) return
 write(u6,*)
-write(u6,'(50a)')('()',i=1,50)
+write(u6,'(a)') repeat('()',50)
 
 write(u6,'(a)')
 line = '&'//trim(modulename)
@@ -48,9 +46,8 @@ write(u6,'(a)') trim(line)
 write(u6,'(a)')
 
 #ifdef _MOLCAS_MPP_
-nprocs_global = GAnNodes()
-write(proc,'(I16)') nprocs_global
-if (nprocs_global > 1) then
+write(proc,'(I16)') mpp_nprocs
+if (mpp_nprocs > 1) then
   if (nprocs > 1) then
     line = 'launched '//trim(adjustl(proc))//' MPI processes, running in PARALLEL mode (work-sharing enabled)'
   else
@@ -71,7 +68,7 @@ nthreads = omp_get_max_threads()
 nthreads = 1
 #endif
 
-! mxmem is the number of 8-byte words (real*8) we have available.
+! mxmem is the number of 8-byte words (real) we have available.
 bytes = RtoB*mxMem
 order = floor(log10(bytes))
 group = min(order/3,8)
@@ -98,9 +95,8 @@ write(u6,'(a)') trim(line)
 
 line = 'pid:'
 #ifdef _MOLCAS_MPP_
-nprocs_global = GAnNodes()
-write(proc,'(I16)') nprocs_global
-if (nprocs_global > 1) then
+write(proc,'(I16)') mpp_nprocs
+if (mpp_nprocs > 1) then
   if (nprocs > 1) line = 'master pid:'
 end if
 #endif
@@ -108,7 +104,7 @@ write(line,'(a,1x,i0)') trim(line),pid
 call center_text(line)
 write(u6,'(a)') trim(line)
 
-write(u6,'(50a)')('()',i=1,50)
+write(u6,'(a)') repeat('()',50)
 write(u6,*)
 
 end subroutine print_module_header

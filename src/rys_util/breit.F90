@@ -1,0 +1,28 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2023, Roland Lindh                                     *
+!***********************************************************************
+
+module Breit
+
+use Constants, only: Zero
+use Definitions, only: iwp, wp
+
+implicit none
+private
+
+integer(kind=iwp) :: nComp = 1, nOrdOp = 0
+real(kind=wp) :: D_tensor(3,3) = Zero
+logical(kind=iwp) :: Do_BP_integrals = .false.
+
+public :: D_tensor, Do_BP_integrals, nComp, nOrdOp
+
+end module Breit

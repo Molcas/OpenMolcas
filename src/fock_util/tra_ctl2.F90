@@ -31,6 +31,8 @@ subroutine Tra_Ctl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
+use general_data, only: LUINTM, NASH, NBAS, NFRO, NISH, NORB, NSYM, NTOT1
+use Molcas, only: MxSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -39,12 +41,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*), ExFac
 real(kind=wp), intent(inout) :: PUVX(*)
-real(kind=wp), intent(_OUT_) :: TUVX(*)
-real(kind=wp), intent(out) :: FI(*), FA(*)
+real(kind=wp), intent(_OUT_) :: TUVX(*), FI(*), FA(*)
 integer(kind=iwp), intent(in) :: IPR
 logical(kind=iwp), intent(in) :: lSquare
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: iAsh, iBas, iDisk, iFro, iIsh, ij_Bas_pairs, ij_Orb_pairs, ijSym, iOff, iOrb, iStack, iSym, jAsh, jBas, jFro, &
                      jIsh, jOrb, jSym, kAsh, kBas, kFro, kIsh, kl_bas_pairs, kl_Orb_pairs, kOrb, kSym, kSymMax, lAsh, lBas, lFro, &
                      lIsh, lOrb, lSym, nPUVX, off_ltMat(mxSym), off_PUVX(mxSym,mxSym,mxSym), off_sqMat(mxSym)
@@ -159,8 +158,8 @@ if (IPR >= 5) then
 end if
 
 ! Synchronize Fock matrices if running parallel:
-call GADsum(FI,nTot1)
-call GADsum(FA,nTot1)
+call GADgop(FI,nTot1,'+')
+call GADgop(FA,nTot1,'+')
 
 ! print FI and FA
 if (IPR >= 10) then
@@ -187,7 +186,7 @@ if (IPR >= 10) then
 end if
 
 ! Synchronize PUVX if running parallel:
-call GAdsum(PUVX,nPUVX)
+call GADgop(PUVX,nPUVX,'+')
 
 ! select integrals TUVX
 call Get_TUVX(PUVX,TUVX)

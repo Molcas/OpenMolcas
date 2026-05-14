@@ -50,23 +50,23 @@ subroutine HCSCE(N,H,S,C,E,M)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
+use timers, only: TimeHCSCE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N
-real(kind=wp), intent(in) :: H(N*(N+1)/2), S(N*(N+1)/2)
+real(kind=wp), intent(in) :: H(nTri_Elem(N)), S(nTri_Elem(N))
 real(kind=wp), intent(out) :: C(N,N), E(N)
 integer(kind=iwp), intent(inout) :: M
 integer(kind=iwp) :: INFO, MMAX, NSCRATCH
-real(kind=wp) :: WGronk(2)
+real(kind=wp) :: dum1, dum2, dum3, Time(2), WGronk(2)
 real(kind=wp), allocatable :: Scratch(:), Temp1(:,:), Temp2(:,:), Temp3(:,:), Temp4(:)
 !character(len=12) :: method
-#include "WrkSpc.fh"
-#include "timers.fh"
 
-call Timing(Longines_1,Swatch,Swatch,Swatch)
+call Timing(Time(1),dum1,dum2,dum3)
 
 ! PAM 2009: On input, M=max possible orthonormal solutions to HC=SCE
 ! Save it.
@@ -112,16 +112,16 @@ call DGEMM_('T','N',M,M,N,One,C,N,Temp3,N,Zero,Temp2,M)
 
 ! diagonalize and extract eigenvalues
 !if (method == 'Jacobi') then
-!  call mma_allocate(Temp1,N*(N+1)/2,label='Temp1')
+!  call mma_allocate(Temp1,nTri_Elem(N),label='Temp1')
 !  do i=1,N
 !    do j=1,i
-!      Temp1(j+i*(i-1)/2) = Temp2(j,i)
+!      Temp1(iTri(i,j)) = Temp2(j,i)
 !    end do
 !  end do
 !  call Jacob(Temp1,C,N,N)
 !  call JacOrd(Temp1,C,N,N)
 !  do i=1,N
-!    E(i) = Temp1(i*(i+1)/2)
+!    E(i) = Temp1(nTri_Elem(i))
 !  end do
 !  call mma_deallocate(Temp1)
 !else if (method == 'Householder') then
@@ -144,9 +144,8 @@ call mma_deallocate(Temp2)
 call mma_deallocate(Temp3)
 call mma_deallocate(Temp4)
 
-call Timing(Longines_2,Swatch,Swatch,Swatch)
-Longines_2 = Longines_2-Longines_1
-Longines_3 = Longines_3+Longines_2
+call Timing(Time(2),dum1,dum2,dum3)
+TimeHCSCE = TimeHCSCE+Time(2)-Time(1)
 
 return
 

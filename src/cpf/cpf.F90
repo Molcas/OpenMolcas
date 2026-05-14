@@ -35,7 +35,7 @@ subroutine CPF(IRETURN)
 
 use cpf_global, only: ICASE, INDX, ISAB, JSY, Lu_25, Lu_27, Lu_30, Lu_CI, Lu_CIGuga, Lu_CPFORB, Lu_TiABCD, Lu_TiABCI, Lu_TiABIJ, &
                       Lu_TraInt, Lu_TraOne
-use stdalloc, only: mma_deallocate
+use stdalloc, only: mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none

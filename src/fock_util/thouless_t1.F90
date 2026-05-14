@@ -75,7 +75,7 @@ do iSym=1,nSym
   do j=1,nOcc(iSym)
     ifr = 1+nOrb*(j-1)
     ito = 1+nOcc(iSym)*(j-1)
-    call dcopy_(nOcc(iSym),U(ifr),1,Scr(ito),1)
+    Scr(ito:ito+nOcc(iSym)-1) = U(ifr:ifr+nOcc(iSym)-1)
     jU = ifr+nOcc(iSym)
     do i=1,nSsh(iSym)
       U(iU) = U(jU)
@@ -96,7 +96,7 @@ do iSym=1,nSym
     write(u6,*) ' omega= ',(W(k),k=1,nOcc(iSym))
   end if
 
-  call FZero(R,nOcc(iSym)**2)
+  R(1:nOcc(iSym)**2) = Zero
   do k=1,nOcc(iSym)
     omega = W(k)
     kk = nOcc(iSym)*(k-1)+k

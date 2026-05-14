@@ -27,6 +27,7 @@ subroutine MOAcc(AOInt,Temp1,Temp2,nTemp,ishell,Ck,nCk,Cl,nCl,moip,nACO,pert,nOp
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: iChTbl, iOper, nIrrep, Prmt
 use Gateway_Info, only: CutInt
+use Etwas, only: nAsh
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -37,7 +38,6 @@ real(kind=wp), intent(in) :: AOInt(nkl,nij), fact
 real(kind=wp), intent(out) :: Temp1(nTemp), Temp2(naco,naco)
 real(kind=wp), intent(inout) :: Ck(nCk), Cl(nCl), Buffer(nbasi,icmp,nbasj,jcmp,0:nirrep-1,nTri_Elem(naco),*)
 logical(kind=iwp), intent(in) :: pert(0:7)
-#include "etwas.fh"
 integer(kind=iwp) :: i, ib, iBas, ic, iCB, iirr, ij, il, ipC, ipM, irest, iSPert, j, jb, jBas, jc, jIrr, k, kAsh, kBas, kCmp, &
                      kIrr, kIrrep, kk, kMax, l, lAsh, lBas, lCmp, lIrr, ll, nt
 real(kind=wp) :: rFact, rFact2, rk, rl, rPij, rPj, sfact, vij

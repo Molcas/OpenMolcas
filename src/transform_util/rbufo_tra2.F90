@@ -11,6 +11,7 @@
 
 subroutine RBufO_tra2(LUHLFX,W,LL,LBuf,NOTU,KKTU,IADXS)
 
+use stdalloc, only: mma_maxDBLE
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

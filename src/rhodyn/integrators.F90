@@ -8,20 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 ! set of routines implementing different integrators, mainly of
 ! Runge-Kutta family.
 
 module integrators
 
-use rhodyn_data, only: equation_func, dt, ak1, ak2, ak3, ak4, ak5, ak6, timestep
+use rhodyn_data, only: dt, d, ak1, ak2, ak3, ak4, ak5, ak6, timestep, len_sph, midk1, midk2, midk3, midk4
 use Definitions, only: wp
 
 implicit none
 private
 
-public :: classic_rk4, rk4, rk5, rk45, rkck
+public :: classic_rk4, rk4, rk5, rk45, rkck, rk4_sph
 
 contains
 
@@ -33,8 +33,7 @@ subroutine classic_rk4(t0,y)
   use Constants, only: Six, Half
 
   real(kind=wp), intent(in) :: t0
-  complex(kind=wp), intent(inout) :: y(:,:)
-  procedure(equation_func) :: equation
+  complex(kind=wp), intent(inout) :: y(d,d)
 
   call equation(t0,y,ak1)
   call equation(t0+Half*timestep,y+Half*timestep*ak1,ak2)
@@ -50,9 +49,8 @@ subroutine rk4(t0,y)
   !*********************************************************************
 
   real(kind=wp), intent(in) :: t0
-  complex(kind=wp), intent(inout) :: y(:,:)
+  complex(kind=wp), intent(inout) :: y(d,d)
   real(kind=wp) :: x
-  procedure(equation_func) :: equation
   real(kind=wp), parameter :: a2 = 0.25_wp, &
                               a3 = 0.375_wp, &
                               a4 = 12.0_wp/13.0_wp, &
@@ -93,9 +91,8 @@ subroutine rk5(t0,y)
   use Constants, only: Half
 
   real(kind=wp), intent(in) :: t0
-  complex(kind=wp), intent(inout) :: y(:,:)
+  complex(kind=wp), intent(inout) :: y(d,d)
   real(kind=wp) :: x
-  procedure(equation_func) :: equation
   real(kind=wp), parameter :: a2 = 0.25_wp, &
                               a3 = 0.375_wp, &
                               a4 = 12.0_wp/13.0_wp, &
@@ -140,12 +137,10 @@ subroutine rk45(t0,y,err)
   !*********************************************************************
   ! Runge-Kutta-Fehlberg 4(5) integration algorithm
   !*********************************************************************
-
   real(kind=wp), intent(in) :: t0
-  complex(kind=wp), intent(inout) :: y(:,:)
+  complex(kind=wp), intent(inout) :: y(d,d)
   real(kind=wp), intent(out) :: err
   real(kind=wp) :: x
-  procedure(equation_func) :: equation
   real(kind=wp), parameter :: a2 = 0.25_wp, &
                               a3 = 3.0_wp/8.0_wp, &
                               a4 = 12.0_wp/13.0_wp, &
@@ -210,9 +205,8 @@ subroutine rkck(t0,y,err)
 
   real(kind=wp), intent(in) :: t0
   real(kind=wp), intent(out) :: err
-  complex(kind=wp), intent(inout) :: y(:,:)
+  complex(kind=wp), intent(inout) :: y(d,d)
   real(kind=wp) :: x
-  procedure(equation_func) :: equation
   real(kind=wp), parameter :: a2 = 0.2_wp, &
                               a3 = 0.3_wp, &
                               a4 = 0.6_wp, &
@@ -264,5 +258,24 @@ subroutine rkck(t0,y,err)
   err = maxval(abs(dt*(dc1*ak1+dc3*ak3+dc4*ak4+dc5*ak5+dc6*ak6)))
 
 end subroutine rkck
+
+subroutine rk4_sph(t0,y)
+  !*********************************************************************
+  ! convenient Runge-Kutta method of 4th order
+  ! for integration of set of matrices in ITOs basis
+  !*********************************************************************
+
+  use Constants, only: Six, Half
+
+  real(kind=wp), intent(in) :: t0
+  complex(kind=wp), intent(inout) :: y(len_sph,d,d)
+
+  call equation_sph(t0,y,midk1)
+  call equation_sph(t0+Half*timestep,y+Half*timestep*midk1,midk2)
+  call equation_sph(t0+Half*timestep,y+Half*timestep*midk2,midk3)
+  call equation_sph(t0+timestep,y+timestep*midk3,midk4)
+  y(:,:,:) = y+timestep/Six*(midk1+2*midk2+2*midk3+midk4)
+
+end subroutine rk4_sph
 
 end module integrators

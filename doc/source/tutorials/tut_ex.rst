@@ -10,7 +10,7 @@ basis set. The standard file with cartesian coordinates is:
 .. extractfile:: problem_based_tutorials/acrolein.xyz
 
   8
-  Angstrom
+  angstrom
    O      -1.808864   -0.137998    0.000000
    C       1.769114    0.136549    0.000000
    C       0.588145   -0.434423    0.000000
@@ -264,14 +264,14 @@ the structure of the active space and states will be clarified.
     Symmetry= Z XYZ
   Basis set
   C.STO-3G...
-  C1   -3.2886930 -1.1650250 0.0000000  Bohr
-  C2   -0.7508076 -1.1650250 0.0000000  Bohr
+  C1   -3.2886930 -1.1650250 0.0000000  bohr
+  C2   -0.7508076 -1.1650250 0.0000000  bohr
   End of basis
   Basis set
   H.STO-3G...
-  H1   -4.3067080  0.6343050 0.0000000  Bohr
-  H2   -4.3067080 -2.9643550 0.0000000  Bohr
-  H3    0.2672040 -2.9643550 0.0000000  Bohr
+  H1   -4.3067080  0.6343050 0.0000000  bohr
+  H2   -4.3067080 -2.9643550 0.0000000  bohr
+  H3    0.2672040 -2.9643550 0.0000000  bohr
   End of basis
 
   &SCF
@@ -298,14 +298,14 @@ Just run it as a simple exercise.
    Symmetry= Z XYZ
   Basis set
   C.STO-3G...
-  C1   -3.2886930 -1.1650250 0.0000000  Bohr
-  C2   -0.7508076 -1.1650250 0.0000000  Bohr
+  C1   -3.2886930 -1.1650250 0.0000000  bohr
+  C2   -0.7508076 -1.1650250 0.0000000  bohr
   End of basis
   Basis set
   H.STO-3G...
-  H1   -4.3067080  0.6343050 0.0000000  Bohr
-  H2   -4.3067080 -2.9643550 0.0000000  Bohr
-  H3    0.2672040 -2.9643550 0.0000000  Bohr
+  H1   -4.3067080  0.6343050 0.0000000  bohr
+  H2   -4.3067080 -2.9643550 0.0000000  bohr
+  H3    0.2672040 -2.9643550 0.0000000  bohr
   End of basis
 
   &SCF
@@ -362,20 +362,20 @@ the program is called automatically and no input is needed.
   Title= acrolein minimum optimization in excited state 2
   Basis set
   O.STO-3G...2s1p.
-  O1       1.608542      -0.142162       3.240198 Angstrom
+  O1       1.608542      -0.142162       3.240198 angstrom
   End of basis
   Basis set
   C.STO-3G...2s1p.
-  C1      -0.207776       0.181327      -0.039908 Angstrom
-  C2       0.089162       0.020199       1.386933 Angstrom
-  C3       1.314188       0.048017       1.889302 Angstrom
+  C1      -0.207776       0.181327      -0.039908 angstrom
+  C2       0.089162       0.020199       1.386933 angstrom
+  C3       1.314188       0.048017       1.889302 angstrom
   End of basis
   Basis set
   H.STO-3G...1s.
-  H1       2.208371       0.215888       1.291927 Angstrom
-  H2      -0.746966      -0.173522       2.046958 Angstrom
-  H3      -1.234947       0.213968      -0.371097 Angstrom
-  H4       0.557285       0.525450      -0.720314 Angstrom
+  H1       2.208371       0.215888       1.291927 angstrom
+  H2      -0.746966      -0.173522       2.046958 angstrom
+  H3      -1.234947       0.213968      -0.371097 angstrom
+  H4       0.557285       0.525450      -0.720314 angstrom
   End of basis
   >>> Do while
 
@@ -433,20 +433,20 @@ levels such as CASPT2.
   Title = acrolein mep calculation root 2
   Basis set
   O.STO-3G...2s1p.
-   O1    1.367073     0.000000     3.083333 Angstrom
+   O1    1.367073     0.000000     3.083333 angstrom
   End of basis
   Basis set
   C.STO-3G...2s1p.
-   C1    0.000000     0.000000     0.000000 Angstrom
-   C2    0.000000     0.000000     1.350000 Angstrom
-   C3    1.367073     0.000000     1.833333 Angstrom
+   C1    0.000000     0.000000     0.000000 angstrom
+   C2    0.000000     0.000000     1.350000 angstrom
+   C3    1.367073     0.000000     1.833333 angstrom
   End of basis
   Basis set
   H.STO-3G...1s.
-   H1    2.051552     0.000000     0.986333 Angstrom
-   H2   -0.684479     0.000000     2.197000 Angstrom
-   H3   -1.026719     0.000000    -0.363000 Angstrom
-   H4    0.513360     0.889165    -0.363000 Angstrom
+   H1    2.051552     0.000000     0.986333 angstrom
+   H2   -0.684479     0.000000     2.197000 angstrom
+   H3   -1.026719     0.000000    -0.363000 angstrom
+   H4    0.513360     0.889165    -0.363000 angstrom
   End of basis
 
   >>> EXPORT MOLCAS_MAXITER=300
@@ -510,20 +510,20 @@ to provide later :program:`SLAPAF` with proper information about both states:
   Title= Acrolein molecule
   Basis set
   O.sto-3g....
-   O1             1.5686705444       -0.1354553340        3.1977912036  Angstrom
+   O1             1.5686705444       -0.1354553340        3.1977912036  angstrom
   End of basis
   Basis set
   C.sto-3g....
-   C1            -0.1641585340        0.2420235062       -0.0459895824  Angstrom
-   C2             0.1137722023       -0.1389623714        1.3481527296  Angstrom
-   C3             1.3218729238        0.1965728073        1.9959513294  Angstrom
+   C1            -0.1641585340        0.2420235062       -0.0459895824  angstrom
+   C2             0.1137722023       -0.1389623714        1.3481527296  angstrom
+   C3             1.3218729238        0.1965728073        1.9959513294  angstrom
   End of basis
   Basis set
   H.sto-3g....
-   H1             2.0526602523        0.7568282320        1.4351034056  Angstrom
-   H2            -0.6138178851       -0.6941171027        1.9113821810  Angstrom
-   H3            -0.8171509745        1.0643342316       -0.2648232855  Angstrom
-   H4             0.1260134708       -0.4020589690       -0.8535699812  Angstrom
+   H1             2.0526602523        0.7568282320        1.4351034056  angstrom
+   H2            -0.6138178851       -0.6941171027        1.9113821810  angstrom
+   H3            -0.8171509745        1.0643342316       -0.2648232855  angstrom
+   H4             0.1260134708       -0.4020589690       -0.8535699812  angstrom
   End of basis
   Constraints
      a = Ediff

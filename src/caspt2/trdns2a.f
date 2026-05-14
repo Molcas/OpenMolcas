@@ -16,22 +16,28 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
+      SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 
-      SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, Two
+      use caspt2_global, only:iPrGlb
+      use caspt2_global, only: DREF
+      use PrintLevel, only: VERBOSE
+      use caspt2_module, only: nActEl, nAshT, nSym, nInDep, nISup,
+     &                         nIsh, nAsh, nOrb, nAES
+      IMPLICIT None
 
-      use caspt2_output, only:iPrGlb,verbose
-      IMPLICIT REAL*8 (A-H,O-Z)
 
+      integer(kind=iwp), intent(in):: IVEC, JVEC, NDPT2
+      real(kind=wp), intent(inout):: DPT2(NDPT2)
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "sigma.fh"
-
-      DIMENSION DPT2(*)
-      DIMENSION NACTD(13)
-      DATA NACTD / 1, 2, 2,-1, 0, 1, 1,-2,-2,-1,-1, 0, 0 /
+      integer(kind=iwp) ::
+     &               NACTD(13)=[1, 2, 2,-1, 0, 1, 1,-2,-2,-1,-1, 0, 0]
+      real(kind=wp) COEF1, COEF2, D, DR, OVL
+      integer(kind=iwp) ICASE, IOFDPT, ISYM, IT, ITABS, ITQ, ITU, IU,
+     &                  IUABS, IUQ, IUT, lVec1, lVec2, NA, NADIFF,
+     &                  NAHOLE, NI, NIN, NIS, NO, nVec
+      real(kind=wp), External:: RHS_DDOT
 
 C Add to the diagonal blocks of transition density matrix,
 C    DPT2(p,q) = Add <IVEC| E(p,q) |JVEC>,
@@ -44,40 +50,35 @@ C with correct trace.
       WRITE(6,*)' matrix is roughly approximated only.'
       END IF
 
-      COEF1=0.0D0
-      COEF2=0.0D0
+      COEF1=Zero
+      COEF2=Zero
       NAHOLE=2*NASHT-NACTEL
-      DO 101 ICASE=1,13
+      DO ICASE=1,13
         NADIFF=NACTD(ICASE)
-        IF(NACTEL+NADIFF.LT.0) GOTO 101
-        IF(NAHOLE-NADIFF.LT.0) GOTO 101
-        OVL=0.0D0
-        DO 100 ISYM=1,NSYM
+        IF(NACTEL+NADIFF.LT.0) Cycle
+        IF(NAHOLE-NADIFF.LT.0) Cycle
+        OVL=Zero
+        DO ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.EQ.0) GOTO 100
+          IF(NIN.EQ.0) Cycle
           NIS=NISUP(ISYM,ICASE)
           NVEC=NIN*NIS
-          IF(NVEC.EQ.0) GOTO 100
-          !CALL GETMEM('VEC1','ALLO','REAL',LVEC1,NVEC)
-          !CALL GETMEM('VEC2','ALLO','REAL',LVEC2,NVEC)
+          IF(NVEC.EQ.0) Cycle
           CALL RHS_ALLO(NIN,NIS,LVEC1)
           CALL RHS_ALLO(NIN,NIS,LVEC2)
           CALL RHS_READ_SR (LVEC1,iCASE,iSYM,IVEC)
           CALL RHS_READ_SR (LVEC2,iCASE,iSYM,JVEC)
-          !OVL=OVL+DDOT_(NVEC,WORK(LVEC1),1,WORK(LVEC2),1)
           OVL=OVL+RHS_DDOT(NIN,NIS,LVEC1,LVEC2)
-          !CALL GETMEM('VEC1','FREE','REAL',LVEC1,NVEC)
-          !CALL GETMEM('VEC2','FREE','REAL',LVEC2,NVEC)
-          CALL RHS_FREE(NIN,NIS,LVEC1)
-          CALL RHS_FREE(NIN,NIS,LVEC2)
- 100    CONTINUE
+          CALL RHS_FREE(LVEC1)
+          CALL RHS_FREE(LVEC2)
+        End Do
         IF(NADIFF.GT.0) THEN
           COEF1=COEF1+OVL*DBLE(NADIFF)/DBLE(MAX(1,NAHOLE))
           COEF2=COEF2+OVL*DBLE(NAHOLE-NADIFF)/DBLE(MAX(1,NAHOLE))
         ELSE
           COEF2=COEF2+OVL*DBLE(NACTEL+NADIFF)/DBLE(MAX(1,NACTEL))
         END IF
- 101  CONTINUE
+      End Do
 
       IOFDPT=0
       DO ISYM=1,NSYM
@@ -90,9 +91,9 @@ C with correct trace.
           DO IU=1,IT
             IUQ=NI+IU
             IUABS=NAES(ISYM)+IU
-            DR=WORK(LDREF-1+(ITABS*(ITABS-1))/2+IUABS)
+            DR=DREF((ITABS*(ITABS-1))/2+IUABS)
             D=COEF2*DR
-            IF(IT.EQ.IU) D=D+2.0D0*COEF1
+            IF(IT.EQ.IU) D=D+Two*COEF1
             ITU=ITQ+NO*(IUQ-1)
             IUT=IUQ+NO*(ITQ-1)
             DPT2(IOFDPT+ITU)=DPT2(IOFDPT+ITU)+D
@@ -102,5 +103,4 @@ C with correct trace.
         IOFDPT=IOFDPT+NO**2
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE TRDNS2A

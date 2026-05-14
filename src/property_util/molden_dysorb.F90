@@ -32,12 +32,12 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, lIrrep
 use Sizes_of_Seward, only: S
 use UnixInfo, only: SuperName
+use Molcas, only: LenIn, MaxBfn, MaxBfn_aux, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: NDO, NZ
 character(len=*), intent(in) :: filename
 real(kind=wp), intent(in) :: ENE(NDO), OCC(NDO), CMO(NZ*NDO)
@@ -49,8 +49,8 @@ logical(kind=iwp) :: Exists, Found, y_cart, y_sphere
 character(len=8) :: Env
 integer(kind=iwp), allocatable :: Cent(:,:), Cent2(:), ibas_lab(:), Phase(:,:)
 real(kind=wp), allocatable :: Coor(:,:), DESYM(:,:), r_Norm(:), Znuc(:)
-character(len=LenIn8+1), allocatable :: gtolabel(:)
-character(len=LenIn8), allocatable :: label(:)
+character(len=LenIn+9), allocatable :: gtolabel(:)
+character(len=LenIn+8), allocatable :: label(:)
 character(len=LenIn), allocatable :: AtomLabel(:)
 character(len=8), allocatable :: MO_Label(:)
 real(kind=wp), parameter :: EorbThr = 50.0_wp
@@ -169,13 +169,17 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Unnormalize contraction coefficients for the valence shells
+! Abort if there are contaminants
 
 do iCnttp=1,nCnttp
   if ((.not. dbsc(iCnttp)%Aux) .and. (.not. dbsc(iCnttp)%Frag)) then
     do l=0,dbsc(iCnttp)%nVal-1
       ishell = dbsc(iCnttp)%iVal+l
-      call Unnrmlz(Shells(ishell)%Exp,Shells(ishell)%nExp,Shells(ishell)%pCff,Shells(ishell)%nBasis,l)
+      if (Shells(ishell)%Transf .and. (.not. Shells(iShell)%Prjct)) then
+        if (jPL >= 2) write(u6,*) 'Sorry, Molden does not support contaminants'
+        call End1()
+        return
+      end if
     end do
   end if
 end do
@@ -271,7 +275,7 @@ kk = 0
 do iCnttp=1,nCnttp             ! loop over unique basis sets
   if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag) cycle
 
-  do iCntr=1,dbsc(iCnttp)%nCntr   ! loop over sym. unique centers
+  do iCntr=1,dbsc(iCnttp)%nCntr  ! loop over sym. unique centers
     mdc = mdc+1
     nDeg = nIrrep/dc(mdc)%nStab
     do iDeg=1,nDeg             ! loop over centers
@@ -294,7 +298,7 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
 
           isegm = 0
           do iprim=1,Shells(ishell)%nExp
-            coeff = Shells(ishell)%pCff(iprim,icontr)
+            coeff = Shells(ishell)%pCff(iprim,icontr)/Nrmlz(Shells(ishell)%Exp(iprim),l)
             if (coeff /= Zero) then
               isegm = isegm+1
             end if
@@ -305,10 +309,10 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
           ! Write exponents and contraction coefficients.
 
           do iprim=1,Shells(ishell)%nExp
-            coeff = Shells(ishell)%pCff(iprim,icontr)
+            coeff = Shells(ishell)%pCff(iprim,icontr)/Nrmlz(Shells(ishell)%Exp(iprim),l)
             prim = Shells(ishell)%Exp(iprim)
             if (coeff /= Zero) then
-              write(MF,'(E17.9,E17.9)') prim,coeff
+              write(MF,'(ES17.9,ES17.9)') prim,coeff
             end if
           end do
 
@@ -510,7 +514,7 @@ end do
 kk_Max = kk
 if (nB > kk_max) then
   if (jPL >= 2) then
-    write(u6,*) 'Molden_Interface: nB.gt.kk_max'
+    write(u6,*) 'Molden_Interface: nB > kk_max'
     write(u6,*) 'nB,kk_Max=',nB,kk_Max
   end if
   call End2()
@@ -552,7 +556,6 @@ do iContr=1,nB
     if (Cent(k,iContr) /= 0) Cent2(iContr) = Cent2(iContr)+1
   end do
 end do
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -597,7 +600,6 @@ do iIrrep=0,nIrrep-1 ! For all the irreps of symmetrized functions
   end do ! iB=1,nBas(iIrrep)
 end do ! iIrrep=0,nIrrep-1
 call mma_deallocate(label)
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -653,6 +655,14 @@ function CC(ix,iy,iz)
   integer(kind=iwp), intent(in) :: ix, iy, iz
   CC = sqrt(DblFac(2*ix-1)*DblFac(2*iy-1)*DblFac(2*iz-1))
 end function CC
+
+function Nrmlz(Expn,iAng)
+  use Constants, only: Four, Quart, TwoP34
+  real(kind=wp) :: Nrmlz
+  real(kind=wp), intent(in) :: Expn
+  integer(kind=iwp), intent(in) :: iAng
+  Nrmlz = TwoP34*(Four*Expn)**(real(2*iAng+3,kind=wp)*Quart)
+end function Nrmlz
 
 subroutine End1()
   call mma_deallocate(AtomLabel)

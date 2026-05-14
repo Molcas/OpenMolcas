@@ -12,17 +12,18 @@
 !***********************************************************************
 
 subroutine read_input()
-! Purpose: process input file and print summary at the end
+! process input file and print summary at the end
 
 use rhodyn_data, only: alpha, amp, basis, dm_basis, errorthreshold, finaltime, flag_acorrection, flag_decay, flag_dipole, &
                        flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, cgamma, HRSO, initialtime, ion_diss, &
-                       ipglob, ispin, istates, kext, linear_chirp, lroots, method, N, N_L2, N_L3, N_Populated, N_pulse, nconf, &
-                       ndet, Nmode, Nstate, Nval, omega, p_style, phi, power_shape, pulse_type, pulse_vector, runmode, safety, &
-                       scha, scmp, sdbl, sigma, sint, slog, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
+                       ipglob, ispin, istates, kext, k_max, linear_chirp, lroots, method, N, N_L2, N_L3, N_Populated, N_pulse, &
+                       nconf, ndet, Nmode, Nstate, Nval, omega, p_style, phi, power_shape, pulse_type, pulse_vector, q_max, &
+                       runmode, safety, scha, scmp, sdbl, sigma, sint, slog, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
 use rhodyn_utils, only: dashes
+use spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
-use definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, istatus, j, luin
@@ -74,7 +75,7 @@ do
     case ('PROP')
       read(luin,'(A)') basis
       call upCase(basis)
-      if ((basis /= 'DET') .and. (basis /= 'CSF') .and. (basis /= 'SF') .and. (basis /= 'SO')) then
+      if ((basis /= 'DET') .and. (basis /= 'CSF') .and. (basis /= 'SF') .and. (basis /= 'SO') .and. (basis /= 'SPH')) then
         call WarningMessage(2,'Unknown option for PROPagation basis')
         call abend()
       end if
@@ -106,7 +107,7 @@ do
       read(luin,*) method
       call upCase(method)
       if ((method /= 'RKCK') .and. (method /= 'RK45') .and. (method /= 'RK4') .and. (method /= 'RK5') .and. &
-          (method /= 'CLASSIC_RK4')) then
+          (method /= 'CLASSIC_RK4') .and. (method /= 'RK4_SPH')) then
         call WarningMessage(2,'Unknown option for METHod')
         call abend()
       end if
@@ -120,6 +121,10 @@ do
     !case ('VCOU')
     !  read(luin,*) V
     !  V = V/auToCm
+    case ('KMAX')
+      read(luin,'(I8)') k_max
+    case ('QMAX')
+      read(luin,'(I8)') q_max
     case ('AUGE')
       flag_decay = .true.
     case ('NVAL')
@@ -174,12 +179,12 @@ do
         call mma_deallocate(sigma)
         call mma_deallocate(omega)
         call mma_deallocate(phi)
-        call mma_allocate(taushift,N_pulse)
-        call mma_allocate(amp,N_pulse)
-        call mma_allocate(pulse_vector,N_pulse,3)
-        call mma_allocate(sigma,N_pulse)
-        call mma_allocate(omega,N_pulse)
-        call mma_allocate(phi,N_pulse)
+        call mma_allocate(taushift,N_pulse,label='taushift')
+        call mma_allocate(amp,N_pulse,label='amp')
+        call mma_allocate(pulse_vector,N_pulse,3,label='pulse_vector')
+        call mma_allocate(sigma,N_pulse,label='sigma')
+        call mma_allocate(omega,N_pulse,label='omega')
+        call mma_allocate(phi,N_pulse,label='phi')
         do i=1,N_pulse
           amp(i) = Zero
           taushift(i) = Zero
@@ -218,7 +223,6 @@ do
     case ('SIGM')
       read(luin,*) (sigma(i),i=1,N_pulse)
       sigma(:) = sigma/auToFs
-      ! old value of sigma was underestimated by factor of pi/2
     case ('OMEG')
       read(luin,*) (omega(i),i=1,N_pulse)
       omega(:) = omega/autoev
@@ -232,7 +236,8 @@ do
     case ('END ')
       exit
     case default
-      write(u6,*) 'The corresponding keyword: ',line,' is unknown!'
+      call WarningMessage(2,'Error while processing input')
+      write(u6,*) 'Unknown keyword in line: ',line
       call abend()
   end select
 end do
@@ -265,7 +270,7 @@ if (ipglob > 1) then
   if (flag_diss) then
     !write(u6,sdbl) 'DeltaE:',         deltaE
     !write(u6,sdbl) 'Coupling (cm-1):',V
-    write(u6,sdbl) 'Gamma (Hartree):',cgamma
+    write(u6,sdbl) 'Gamma (hartree):',cgamma
   end if
   call dashes()
   write(u6,*) 'Pulse characteristics:'

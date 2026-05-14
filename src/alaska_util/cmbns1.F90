@@ -23,6 +23,7 @@ subroutine CmbnS1(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,Grad,nGrad,DAO
 
 use Symmetry_Info, only: iChBas, nIrrep
 use Index_Functions, only: C_Ind
+use NAC, only: IsCSF
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 
@@ -33,28 +34,22 @@ real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Zeta(nZeta), Alpha(nZ
 real(kind=wp), intent(inout) :: rKappa(nZeta), Grad(nGrad)
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
 logical(kind=iwp), intent(in) :: IfGrad(3,2)
-integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta, nDAO
+integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta, nDAO
 real(kind=wp) :: Fact, ps, xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
 integer(kind=iwp), external :: iPrmt
 real(kind=wp), external :: DDot_
-#include "print.fh"
-#include "nac.fh"
-
-iRout = 134
-iPrint = nPrint(iRout)
 
 !ii = la*(la+1)*(la+2)/6
 !jj = lb*(lb+1)*(lb+2)/6
-do iZeta=1,nZeta
-  rKappa(iZeta) = rKappa(iZeta)*Zeta(iZeta)**exp32
-end do
-if (iPrint >= 99) then
-  call RecPrt(' In CmbnS1: Zeta  ',' ',Zeta,1,nZeta)
-  call RecPrt(' In CmbnS1: rKappa',' ',rKappa,1,nZeta)
-  call RecPrt(' In CmbnS1: Alpha ',' ',Alpha,1,nZeta)
-  call RecPrt(' In CmbnS1: Beta  ',' ',Beta,1,nZeta)
-end if
+rKappa(:) = rKappa(:)*Zeta(:)**exp32
+#ifdef _DEBUGPRINT_
+call RecPrt(' In CmbnS1: Zeta  ',' ',Zeta,1,nZeta)
+call RecPrt(' In CmbnS1: rKappa',' ',rKappa,1,nZeta)
+call RecPrt(' In CmbnS1: Alpha ',' ',Alpha,1,nZeta)
+call RecPrt(' In CmbnS1: Beta  ',' ',Beta,1,nZeta)
+#endif
+
 do ixa=0,la
   iyaMax = la-ixa
   do ixb=0,lb
@@ -208,10 +203,10 @@ end do
 ! Trace the gradient integrals
 
 nDAO = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-if (iPrint >= 99) then
-  call RecPrt(' S(1)',' ',rFinal,nDAO,6)
-  call RecPrt('   D ',' ',DAO,nDAO,1)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' S(1)',' ',rFinal,nDAO,6)
+call RecPrt('   D ',' ',DAO,nDAO,1)
+#endif
 do iCn=1,2
   do iCar=1,3
     if (IndGrd(iCar,iCn) /= 0) then

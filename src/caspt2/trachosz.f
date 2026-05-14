@@ -10,34 +10,40 @@
 *                                                                      *
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
-      SUBROUTINE TRACHOSZ
-      USE CHOVEC_IO
+      SUBROUTINE TRACHOSZ()
+      use Symmetry_Info, only: Mul
+      use definitions, only: iwp, wp
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH,NPQ_CHOTYPE,IDGLB_CHOGROUP,
+     &                     IDLOC_CHOGROUP,NVTOT_CHOSYM,NVGLB_CHOBATCH
       USE Para_Info, ONLY: nProcs
-      use ChoSwp, only: InfVec
+      use Cholesky, only: InfVec
+      use caspt2_global, only: do_grad
+      use stdalloc, only: mma_MaxDBLE, mma_allocate
+      use caspt2_global, only: LUDRA, LUDRATOT
+      use ChoCASPT2, only: MxCharR, MxNVC, nChSpc, nFtSpc, nHtSpc,
+     &                     nKsh, NumCho_pt2, nPsh
+      use caspt2_module, only: nBasT, nSym,
+     &                         nBas, nFro, nBtches, nBtch, nIsh, nAsh
+#ifdef _MOLCAS_MPP_
+      use ChoCASPT2, only: NFTSPC_TOT
+#endif
       IMPLICIT NONE
 * ----------------------------------------------------------------
-#include "rasdim.fh"
 #include "warnings.h"
-#include "caspt2.fh"
-#include "eqsolv.fh"
-#include "chocaspt2.fh"
-#include "choglob.fh"
-#include "WrkSpc.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      INTEGER(kind=iwp) NJSCT_TOT
 #endif
-      INTEGER IB,IBSTA,IBEND,IBATCH_TOT,NBATCH,NV
-      INTEGER ICASE,ISYMA,ISYMB,ISYQ,JSYM,NPB,NPQ
-      INTEGER JRED,JRED1,JRED2,JSTART
-      INTEGER IDISK
-      INTEGER MXFTARR,MXHTARR
-      INTEGER MXSPC
-      INTEGER NVACT,NVACC,NVECS_RED
-************************************************************************
-*  Author : P. A. Malmqvist
-************************************************************************
-
+      INTEGER(kind=iwp) IB,IBSTA,IBEND,IBATCH_TOT,NBATCH,NV
+      INTEGER(kind=iwp) ICASE,ISYMA,ISYMB,ISYQ,JSYM,NPB,NPQ
+      INTEGER(kind=iwp) JRED,JRED1,JRED2,JSTART
+      INTEGER(kind=iwp) IDISK
+      INTEGER(kind=iwp) MXFTARR,MXHTARR
+      INTEGER(kind=iwp) MXSPC
+      INTEGER(kind=iwp) NVACT,NVACC,NVECS_RED
+      INTEGER(kind=iwp) NBATCH_TOT,NJSCT
+      Real(kind=wp) Dummy(1)
 * ======================================================================
 * Determine sectioning size to use for the full-transformed MO vectors
 * using Francesco's method.
@@ -49,18 +55,19 @@
       DO JSYM=1,NSYM
        NPB=0
        DO ISYMA=1,NSYM
-        ISYMB=MUL(ISYMA,JSYM)
+        ISYMB=Mul(ISYMA,JSYM)
         NPB=NPB+MAX(NFRO(iSymA),NISH(iSymA),NASH(iSymA))*NBAS(ISYMB)
         MXFTARR=MAX(MXFTARR,NPSH(ISYMA)*NKSH(ISYMB))
        END DO
        MXHTARR=MAX(MXHTARR,NPB)
       END DO
       MXCHARR=NBAST**2
+      IF (do_grad) MXHTARR = MXCHARR
 * MXFTARR,MXHTARR: Largest single full-transformed, half-transformed vector.
 * MXCHARR: Largest possible Cholesky vector.
 
 * What is largest possible array that can now be allocated?
-      CALL GETMEM('MXSPC','MAX','REAL',IP_DUMMY,MXSPC)
+      Call mma_MaxDBLE(MXSPC)
 * Subtract 7*MXCHARR (for vector V, etc, see below).
       MXSPC=MXSPC-7*MXCHARR
 
@@ -139,8 +146,10 @@ CSVC: take the global sum of the individual maxima
 * Set up tables with the number of cholesky vectors per batch and disk
 * addresses for the beginning of each batch. These arrays are accessible
 * through the CHOVEC_IO module.
-      ALLOCATE(NVLOC_CHOBATCH(NBATCH_TOT))
-      ALLOCATE(IDLOC_CHOGROUP(4,8,8,NBATCH_TOT))
+      call MMA_ALLOCATE(NVLOC_CHOBATCH,NBATCH_TOT,
+     &                  Label='NVLOC_CHOBATCH')
+      call MMA_ALLOCATE(IDLOC_CHOGROUP,4,8,8,NBATCH_TOT,
+     &                  Label='IDLOC_CHOGROUP')
       NVLOC_CHOBATCH=0
       IDLOC_CHOGROUP=0
 
@@ -170,7 +179,7 @@ CSVC: take the global sum of the individual maxima
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
                 IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IBATCH_TOT)=IDISK
-                CALL DDAFILE(LUDRA,0,WORK(IP_DUMMY),NPQ*NVACT,IDISK)
+                CALL DDAFILE(LUDRA,0,DUMMY,NPQ*NVACT,IDISK)
               END DO
             END DO
           END DO
@@ -193,7 +202,8 @@ CSVC: take the global sum of the individual maxima
 * indexing through the size NVGLB_CHOBATCH and offset IDGLB_CHOGROUP
 * available from the CHOVEC_IO module.
 
-      ALLOCATE(NVGLB_CHOBATCH(NBATCH_TOT))
+      call MMA_ALLOCATE(NVGLB_CHOBATCH,NBATCH_TOT,
+     &                  Label='NVGLB_CHOBATCH')
       NVGLB_CHOBATCH(:)=NVLOC_CHOBATCH(:)
 #ifdef _MOLCAS_MPP_
       ! for parrallel, sum over processes
@@ -211,7 +221,8 @@ CSVC: take the global sum of the individual maxima
         END DO
       END DO
 
-      ALLOCATE(IDGLB_CHOGROUP(4,8,8,NBATCH_TOT))
+      call MMA_ALLOCATE(IDGLB_CHOGROUP,4,8,8,NBATCH_TOT,
+     &                  Label='IDGLB_CHOGROUP')
 
       ! compute offsets into all cholesky vectors
       IDISK=0
@@ -225,19 +236,20 @@ CSVC: take the global sum of the individual maxima
             DO ICASE=1,4
               NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
               IDGLB_CHOGROUP(ICASE,ISYQ,JSYM,IB)=IDISK
-              CALL DDAFILE(LUDRATOT,0,WORK(IP_DUMMY),NPQ*NV,IDISK)
+              CALL DDAFILE(LUDRATOT,0,DUMMY,NPQ*NV,IDISK)
             END DO
           END DO
         END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE TRACHOSZ
 
-      SUBROUTINE TRACHOSZ_FREE
-      USE CHOVEC_IO
-      DEALLOCATE(NVLOC_CHOBATCH)
-      DEALLOCATE(IDLOC_CHOGROUP)
-      DEALLOCATE(NVGLB_CHOBATCH)
-      DEALLOCATE(IDGLB_CHOGROUP)
-      END
+      SUBROUTINE TRACHOSZ_FREE()
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH,IDLOC_CHOGROUP,
+     &                     NVGLB_CHOBATCH,IDGLB_CHOGROUP
+      use stdalloc, only: mma_deallocate
+      call MMA_DEALLOCATE(NVLOC_CHOBATCH)
+      call MMA_DEALLOCATE(IDLOC_CHOGROUP)
+      call MMA_DEALLOCATE(NVGLB_CHOBATCH)
+      call MMA_DEALLOCATE(IDGLB_CHOGROUP)
+      END SUBROUTINE TRACHOSZ_FREE

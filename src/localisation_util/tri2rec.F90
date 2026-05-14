@@ -35,6 +35,4 @@ end do
 
 if (Debug) call RecPrt('OvlRec ',' ',OvlRec,nBas,nBas)
 
-return
-
 end subroutine Tri2Rec

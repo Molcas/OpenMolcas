@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2010, Steven Vancoillie                                *
 *               2013, Victor P. Vysotskiy                              *
+*               2023, Ignacio Fdez. Galvan                             *
 ***********************************************************************/
 
 /* -*- mode: C -*- Time-stamp: "2010-07-02 15:38:55 stevenv"
@@ -92,7 +93,16 @@ parnell_status_t parnell(int argc, char *argv[]) {
       status = PARNELL_OK;
       break;
     case 'w':
-      status = parnell_wipe();
+      /* make sure master process wipes last (to deal with slave subdirectories) */
+#     ifdef _MOLCAS_MPP_
+      if ((MyRank == 0) && (nProcs > 1))
+        MPI_Barrier(MPI_COMM_WORLD);
+#     endif
+      status = parnell_wipe(argc, argv);
+#     ifdef _MOLCAS_MPP_
+      if (MyRank != 0)
+        MPI_Barrier(MPI_COMM_WORLD);
+#     endif
       break;
     case '!':
       status = parnell_exec(argc, argv);

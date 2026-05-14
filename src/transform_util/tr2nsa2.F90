@@ -16,7 +16,7 @@
 ! UNIVERSITY OF LUND, SWEDEN                 *
 !--------------------------------------------*
 
-subroutine tr2NsA2(CMO,X1,nX1,X2,nX2,pqrU,npqrU,pqTU,npqTU)
+subroutine tr2NsA2(CMO,NCMO,X1,nX1,X2,nX2,pqrU,npqrU,pqTU,npqTU)
 ! SECOND ORDER TWO-ELECTRON TRANSFORMATION ROUTINE
 !
 ! THIS ROUTINE IS CALLED FOR EACH SYMMETRY BLOCK OF INTEGRALS
@@ -35,20 +35,21 @@ subroutine tr2NsA2(CMO,X1,nX1,X2,nX2,pqrU,npqrU,pqTU,npqTU)
 ! transformed MO integrals are stored as the same as Tr2Sq
 ! subroutine does.
 
+use caspt2_global, only: LUHLF2, LUHLF3, LUINTM
+use caspt2_module, only: nSym
+use Intgrl, only: IAD2M
+use trafo, only: IAD13, ISP, ISQ, ISR, ISS, LMOP, LMOP2, LMOQ, LMOQ2, LMOR, LMOR2, LRUPQ, LTUPQ, NBP, NBPQ, NBQ, NBR, NOCP, NOCQ, &
+                 NOCR, NOCS, NOP, NOQ, NOR
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-#include "rasdim.fh"
-#include "caspt2.fh"
-integer(kind=iwp), intent(in) :: nX1, nX2, npqrU, npqTU
+integer(kind=iwp), intent(in) :: NCMO, nX1, nX2, npqrU, npqTU
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(out) :: X1(nX1), X2(nX2)
 real(kind=wp), intent(inout) :: pqrU(npqrU), pqTU(npqTU)
 integer(kind=iwp) :: IAD2S, IAD3, IAD3S, icc, icxc1, icxc5, IPQMX2, IPQMX3, IPQST, IPQTU, IR, IRU, ISPQRS, IST, ITU, IX2, KKTU, &
                      LAR, LR, NA, NAT, NORU, NOTU, NR, NSYMP, NT, NTM, NTMAX, NU, Num, NUMAX
-#include "trafo.fh"
-#include "intgrl.fh"
 
 NSYMP = NSYM*(NSYM+1)/2
 NOTU = NOCR*NOCS
@@ -117,7 +118,7 @@ if (icc /= 0) then
         IX2 = NOP*NOQ
       end if
       ! Store (AB,TU) of this t,u pair
-      call GADSum(X2,IX2)
+      call GADGOp(X2,IX2,'+')
       call dDAFILE(LUINTM,1,X2,IX2,IAD13)
     end do
   end do
@@ -223,7 +224,7 @@ if (icxc1 /= 0) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOP*NOR)
+      call GADGOp(X2,NOP*NOR,'+')
       call dDAFILE(LUINTM,1,X2,NOP*NOR,IAD13)
     end do
   end do
@@ -312,7 +313,7 @@ if (((ISQ >= ISR) .or. (ISP /= ISR)) .and. (ISP /= ISQ) .and. (icxc5 /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOQ*NOR)
+      call GADGOp(X2,NOQ*NOR,'+')
       call dDAFILE(LUINTM,1,X2,NOQ*NOR,IAD13)
     end do
   end do

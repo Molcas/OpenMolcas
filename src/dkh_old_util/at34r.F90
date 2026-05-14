@@ -34,7 +34,7 @@ real(kind=wp) :: CON, CON2, CR, PREA, RATIO, TV1, TV2, TV3, TV4, VELIT
 !call PRMAT(u6,SMAT,N,0,'SMAT    ')
 VELIT = cLightAU
 ISIZE = N*(N+1)/2
-PREA = 1/(VELIT*VELIT)
+PREA = One/(VELIT*VELIT)
 CON2 = PREA+PREA
 CON = One/PREA
 MULT(1) = 0
@@ -219,7 +219,7 @@ if ((IRELMP /= 1) .and. (IRELMP /= 11)) then
   end if
 end if
 
-CR = 1/CHARGE
+CR = One/CHARGE
 do I=1,ISIZE
   V(I) = -V(I)*CR
 end do

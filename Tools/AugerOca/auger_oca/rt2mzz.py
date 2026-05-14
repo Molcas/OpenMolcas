@@ -68,23 +68,23 @@ def rt2mzz(OCA_c,OCA_atom,cmoa,cmob,d_sza,d_szb,tdmab,totalSymmetry,symmetry,\
                         #catch symmetry cmoa and cmob and reshape
                         #catchcmo(isym)[0] is the product #Orb*#Basis in that symm
                         #catchcmo(isym)[1] is the tuple(#basis,#orb)
-                        
+
                         x=catchcmo_sz(isym,sz_nbasf,nmo)
-                        cmo1=d_sza[norbsztaboff[i]:norbsztaboff[i]+nszorb[i]]
-                        cmo1=np.reshape(cmo1,x[1],order='C')
+                        cmo2i=d_sza[norbsztaboff[i]:norbsztaboff[i]+nszorb[i]]
+                        cmo2i=np.reshape(cmo2i,x[1],order='C')
                         #
                         y=catchcmo_sz(jsym,sz_nbasf,nmo)
-                        cmo21=d_szb[norbsztaboff[j]:norbsztaboff[j]+nszorb[j]]
-                        cmo21=np.reshape(cmo21,y[1],order='C')
+                        cmo2j=d_szb[norbsztaboff[j]:norbsztaboff[j]+nszorb[j]]
+                        cmo2j=np.reshape(cmo2j,y[1],order='C')
                         #with np.printoptions(precision=4, suppress=True):
                         #    print(cmo21)
                         z=catchcmo_sz(lsym,sz_nbasf,nmo)
-                        cmo22=d_szb[norbsztaboff[l]:norbsztaboff[l]+nszorb[l]]
-                        cmo22=np.reshape(cmo22,z[1],order='C')
+                        cmo2l=d_szb[norbsztaboff[l]:norbsztaboff[l]+nszorb[l]]
+                        cmo2l=np.reshape(cmo2l,z[1],order='C')
                         #Block symmetry product isym,jsym,lsym
-                        scr1=np.einsum('ai,ijl->ajl', cmo1,rtdmab)
-                        scr2=np.einsum('ajl,jb->abl',scr1,np.transpose(cmo21))
-                        tdmzz_symm=np.einsum('abl,lc->abc',scr2,np.transpose(cmo22))
+                        scr1=np.einsum('ijl,lc->ijc', rtdmab,np.transpose(cmo2l))
+                        scr2=np.einsum('ijc,jb->ibc',scr1,np.transpose(cmo2j))
+                        tdmzz_symm=np.einsum('ai,ibc->abc',cmo2i,scr2)
                         # ---------    
                         #print tdmzz_symm in 1-D
                         fizz=range(np.shape(tdmzz_symm)[0])

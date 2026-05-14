@@ -35,17 +35,17 @@ subroutine IniCho_RI(nSkal,nVec_Aux,nIrrep,iTOffs,iShij,nShij)
 use Index_Functions, only: iTri
 use RICD_Info, only: Thrshld_CD
 use Para_Info, only: Is_Real_Par
-use ChoArr, only: iSP2F
-use ChoSwp, only: InfRed, InfVec
+use Cholesky, only: Cho_DecAlg, CHO_FAKE_PAR, Cho_Real_Par, IfcSew, InfRed, InfVec, IPRINT, iSP2F, MaxRed, MaxVec, nnShl, NumCho, &
+                    nShell, nSym, RUN_EXTERNAL, RUN_MODE, ThrCom, XnPass
+#ifdef _MOLCAS_MPP_
+use Cholesky, only: myNumCho, NumCho_G
+#endif
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSkal, nIrrep, nVec_Aux(0:nIrrep-1), iTOffs(3,nIrrep), nShij, iShij(2,nShij)
-#include "cholesky.fh"
-#include "choprint.fh"
 #ifdef _MOLCAS_MPP_
-#include "choglob.fh"
 #endif
 integer(kind=iwp) :: iDummy, ijS, iSym, iVec, LuOut
 logical(kind=iwp) :: Alloc_Bkm, SetDefaultsOnly, Skip_PreScreen
@@ -67,7 +67,7 @@ ThrCom = Thrshld_CD
 ! ----------------------
 
 CHO_FAKE_PAR = .false.
-call Cho_ParConf(CHO_FAKE_PAR)
+Cho_Real_Par = Is_Real_Par() .and. (.not. CHO_FAKE_PAR)
 
 ! Set run mode to "external" (should be irrelevant for RI).
 ! ---------------------------------------------------------
@@ -79,8 +79,8 @@ RUN_MODE = RUN_EXTERNAL
 
 iPrint = 0
 
-! Set number of shells (excl. aux. basis) in cholesky.fh
-! ------------------------------------------------------
+! Set number of shells (excl. aux. basis) in Cholesky
+! ---------------------------------------------------
 
 nShell = nSkal
 
@@ -116,7 +116,7 @@ do iSym=1,nIrrep-1
 end do
 
 ! Other initializations. Most importantly, allocate InfRed and
-! InfVec arrays (defined in choswp.f90).
+! InfVec arrays (defined in Cholesky module).
 ! We skip diagonal prescreening, as it has already been done.
 ! Instead, allocate and set the mapping from reduced to full shell
 ! pairs here.

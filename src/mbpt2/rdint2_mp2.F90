@@ -18,6 +18,8 @@ subroutine RDINT2_MP2(IPRX)
 
 use MBPT2_Global, only: LuIntM, nBas
 use Symmetry_Info, only: Mul
+use trafo, only: IAD13, IADOUT, ISR, NBP, NBQ, NBR, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS
+use cOrbInf, only: nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -26,13 +28,11 @@ integer(kind=iwp), intent(in) :: IPRX
 integer(kind=iwp) :: IAD131, IAD132, IAD13C, IADC, IADX1, IADX2, ISPQRS, LENGTH, LREC, LRECX, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, NT, &
                      NU, NUM
 real(kind=wp), allocatable :: Tmp(:)
-#include "corbinf.fh"
-#include "trafo.fh"
 
 ! READ ADDRESS RECORD ON UNIT LUINTM
 
 IAD13 = 0
-call iDAFILE(LUINTM,2,IADOUT,3888,IAD13)
+call iDAFILE(LUINTM,2,IADOUT,3*36*36,IAD13)
 
 ! LOOP OVER QUADRUPLES OF SYMMETRIES (NSP,NSP,NSR,NSS)
 
@@ -121,7 +121,7 @@ do NSP=1,NSYM
               call mma_deallocate(Tmp)
             end if
             ! THE EXCHANGE INTEGRALS OF TYPE 1 ,(AT|BU) ARE PROCESSED AS THE
-            ! COULOMB INTEGRALS. IF NST.NE.NSU THERE ARE ALSO EXCHANGE
+            ! COULOMB INTEGRALS. IF NST /= NSU THERE ARE ALSO EXCHANGE
             ! INTEGRALS OF TYPE 2, (AU|BT). THE ORDERING IS STILL T,U AND A,B
             ! BUT T IS NOW THE FOURTH INDEX AND U THE SECOND
             ! EXCHANGE INTEGRALS ARE ALWAYS QUADRATIC IN A,B

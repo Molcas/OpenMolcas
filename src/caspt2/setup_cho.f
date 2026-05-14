@@ -11,28 +11,43 @@
       Subroutine setup_cho(nSym,nIsh,nAsh,nSsh,NumCho,mode)
 * -------------------------
 * This subroutine uses the input variables to compute
-* ipsp,nisplit, nasplit,lsplit,ipnp,ipip each dimensioned (1:nsym),
-* in common /chocaspt2/,
-* and allocates fields at iwork() addresses ipsp(1:nsym),ipnp(1:nsym),
-* ipunit_f(1:nsym), each with sizes lsplit(1:nsym), and
-* ipip(1:nsym), each with sizes nsym*lsplit(1:nsym)
+* Stuff(:)%Unit(:), Stuff(:)%ip(:), Stuff(:)%np(:), Stuff%sp(:)
+* nisplit, nasplit,lsplit, each dimensioned (1:nsym),
+* in module chocaspt2.F90,
+* and allocates fields %Unit(:), %np(:), and %sp(:)
+* each with sizes lsplit(1:nsym), and
+* %ip(:), with teh sizes nsym*lsplit(1:nsym)
 * -------------------------
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym,nIsh(8),nAsh(8),nSsh(8)
-      Integer NumCho(8)
-      Integer iAorb(8),iIorb(8),iKorb(8)
-      Character(len=*) mode
-      Character(len=4) modecopy
+      use stdalloc, only: mma_MaxDBLE
+      use ChoCASPT2, only: Stuff,lsplit,nisplit,nasplit,nksh,nkes,npsh,
+     &                     npes
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use constants, only: Two
+      use definitions, only: iwp, wp, u6
 
-#include "chocaspt2.fh"
-#include "WrkSpc.fh"
-      Integer  cho_irange
-      External cho_irange
+      Implicit None
+
+      integer(kind=iwp), intent(in):: nSym,nIsh(nSym),nAsh(nSym),
+     &                                nSsh(nSym)
+      integer(kind=iwp), intent(in):: NumCho(nSym)
+      Character(len=*), intent(in):: mode
+
+      integer(kind=iwp) iAorb(8),iIorb(8),iKorb(8)
+      Character(len=4) modecopy
+      integer(kind=iwp), External :: cho_irange
+      integer(kind=iwp) I, J, IfTest, iK, iK1, iK2, ioff, iS, iSP, iSym,
+     &                  iw, jfrac, jIAc, jS, jSym, kEnd, kEndSym, kFrac,
+     &                  kS, kSta, kStaSym, lS, mDiff, Mem1, MemMx, mRHS,
+     &                  nA, nAO, nI, nIAc, nIO, nKsp, nkSum, nMin, nO,
+     &                  nOkrb, nOrb, nP, nPMax, nPOrb, npSum, nS
+      real(kind=wp) xmb, xMemMx
+      integer(kind=iwp) MulD2h, nIc, nAc
+
 
 C *********************************************************************
-      nIc(i,j) = iWork(ipsp(j)+i-1)
+      nIc(i,j) = Stuff(j)%sp(i)
 ******
-      nAc(i,j) = iWork(ipsp(j)+nisplit(j)+i-1)
+      nAc(i,j) = Stuff(j)%sp(nisplit(j)+i)
 ******
       MulD2h(i,j) = iEOR(i-1,j-1) + 1
 C *********************************************************************
@@ -48,25 +63,19 @@ C *********************************************************************
       if (modecopy.eq.'FREE') then
        Do jSym=1,nSym
         If (NumCho(jSym).gt.0) then
-         Call GetMem('Unit_F','Free','Inte',ipunit_f(jSym),
-     &                                         lsplit(jSym))
-         Call GetMem('iPorb','Free','Inte',ipip(jSym),
-     &                                        nSym*lsplit(jSym))
-         Call GetMem('nPorb','Free','Inte',ipnp(jSym),lsplit(jSym))
-         Call GetMem('Split','Free','Inte',ipsp(jSym),lsplit(jSym))
+         Call mma_deallocate(Stuff(jSym)%Unit)
+         Call mma_deallocate(Stuff(jSym)%ip)
+         Call mma_deallocate(Stuff(jSym)%np)
+         Call mma_deallocate(Stuff(jSym)%sp)
         End If
        End Do
        Return
       end if
 
       do i=1,8
-       ipunit_f(i)=0
-       ipsp(i)=0
        lsplit(i)=0
        nisplit(i)=0
        nasplit(i)=0
-       ipnp(i)=0
-       ipip(i)=0
        nksh(i)=0
        nkes(i)=0
        npsh(i)=0
@@ -129,9 +138,9 @@ C *********************************************************************
 * vectors with a fixed inactive orbital index (Inactive vectors), and
 * nASplit(jSym) batches with vectors with a fixed active index
 * (Active vectors). Each batch has vectors with fixed index within a
-* range of size iWork(ipsp(jSym)+i-1) where i is in 1..nISplit(jSym) or
+* range of size Stuff(jSym)%sp(i) where i is in 1..nISplit(jSym) or
 *  in nISplit(jSym)+1..nISplit(jSym)+nASplit(jSym).
-* The vectors themselves have a size of iWork(ipnp(jSym)+i-1)
+* The vectors themselves have a size of Stuff(jSym)%np(i)
 * The vectors are generally referred to as e.g. p#k, where #k stands
 * for the fixed inactive or active orbital, while p is all the orbitals
 * with a symmetry such that the compound symmetry label is JSYM.
@@ -141,7 +150,7 @@ C *********************************************************************
       Do jSym=1,nSym
          If (NumCho(jSym).lt.1) goto 99
 
-         Call GetMem('MaxMem','Max','Real',Kdummy,MemMx)
+         Call mma_MaxDBLE(MemMx)
          xMemMx = dble(MemMx)
 * xMemMx = largest allocatable field.
 
@@ -154,17 +163,16 @@ C *********************************************************************
             Write(6,*)' used for the Cholesky vectors.'
             Write(6,*)' Too little memory is available at this point.'
             Write(6,*)' Details:'
-            xmb=xMemMx/1048576.0D0
+            xmb=xMemMx/1048576.0E0_wp
             Write(6,'(1x,a,1x,f10.3)')
      &              ' Largest contiguous allocatable memory (MB):',xmb
-            xmb=2.0D0*DBLE(NUMCHO(JSYM))/1048576.0D0
+            xmb=Two*DBLE(NUMCHO(JSYM))/1048576.0E0_wp
             Write(6,'(1x,a,1x,f10.3)')
      &              '                        2*NumCho(jSym) (MB):',xmb
             Write(6,*)' Divided up on jFrac pieces. jFrac=',jFrac
             Write(6,*)
      &            ' If this seems odd, please tell Molcas programmers.'
             Write(6,*)' Right now, the allocated memory is:'
-            call getmem('list','list','real',kdummy,ndummy)
             Call Cho_x_Quit('setup_cho',
      &                          ': Sorry! Too little memory!!',' ')
          EndIf
@@ -203,13 +211,13 @@ C *********************************************************************
             mRHS = Max( mRHS, Max(nAsh(jS),nSsh(jS)) )
          End Do
 
-C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
+C --- Conversion to real(kind=wp) to avoid integer overflow on 32-bit machines
 
 * PAM:Why would this be 'mem for right-hand side?'
 *         xRHS = dble(mRHS**2)           ! mem. for right hand side
 *         xLpk = dble(Mem1*nPmax*nKsp)   ! store Cholesky MO vectors
 *         xPIQK= dble((nPmax*nKsp)**2)   ! store integrals
-*         xmNeed= xO + xPIQK + Max(xLpk,2.0D0*xRHS) ! Fmat+integrals+rhs
+*         xmNeed= xO + xPIQK + Max(xLpk,Two*xRHS) ! Fmat+integrals+rhs
 
 * This also looks strange -- nIAc=all the inact+act orbitals no matter what.?
          nIAc =nOkrb
@@ -229,18 +237,16 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
 *         xmNeedNow = xmNeed + dble((3+nSym)*lsplit(jSym))
 
 * Allocate arrays, in all (3+nSym)*lsplit(jSym) elements:
-         Call GetMem('Split','Allo','Inte',ipsp(jSym),lsplit(jSym))
-         Call GetMem('nPorb','Allo','Inte',ipnp(jSym),lsplit(jSym))
-         Call GetMem('iPorb','Allo','Inte',ipip(jSym),
-     &                                        nSym*lsplit(jSym))
-         Call GetMem('Unit_F','Allo','Inte',ipunit_f(jSym),
-     &                                         lsplit(jSym))
+         Call mma_allocate(Stuff(jsym)%sp,lsplit(jSym),Label='%sp')
+         Call mma_allocate(Stuff(jsym)%np,lsplit(jSym),Label='%np')
+         Call mma_allocate(Stuff(jsym)%ip,nSym*lsplit(jSym),Label='%ip')
+         Call mma_allocate(Stuff(jsym)%Unit,lsplit(jSym),Label='%Unit')
          do i=1,lsplit(jSym)
-          iwork(ipsp(jSym)-1+i)=0
-          iwork(ipnp(jSym)-1+i)=0
-          iwork(ipunit_f(jSym)-1+i)=0
+          Stuff(jSym)%sp(i)=0
+          Stuff(jSym)%np(i)=0
+          Stuff(jSym)%Unit(i)=0
           do j=1,nsym
-           iwork(ipip(jSym)-1+j+nsym*(i-1))=0
+           Stuff(jsym)%ip(j+nsym*(i-1))=0
           end do
          end do
 
@@ -248,11 +254,11 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
          jS=0
          if(nmin.gt.0) jS=nIO/nmin
          Do i=0,jS-1
-           iWork(ipsp(jSym)+i) = nmin
+           Stuff(jSym)%sp(1+i) = nMin
          End Do
          mDiff = jS*nmin - nIO
          If (mDiff .gt. 0) Then
-            iWork(ipsp(jSym)+jS) = mDiff
+            Stuff(jSym)%sp(1+jS) = mDiff
             jS = jS + 1
          Endif
          nisplit(jSym) = jS
@@ -261,11 +267,11 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
          jS=0
          if(nmin.gt.0) jS=nAO/nmin
          Do i=0,jS-1
-           iWork(ipsp(jSym)+nisplit(jSym)+i) = nmin
+           Stuff(jSym)%sp(1+nisplit(jSym)+i) = nmin
          End Do
          mDiff = jS*nmin - nAO
          If (mDiff .gt. 0) Then
-            iWork(ipsp(jSym)+nisplit(jSym)+jS) = mDiff
+            Stuff(jSym)%sp(1+nisplit(jSym)+jS) = mDiff
             jS = jS + 1
          Endif
          nasplit(jSym) = jS
@@ -279,7 +285,7 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
             lS = cho_irange(ioff+1,iIorb,nSym,.false.)
 * lS is its symmetry.
             iK = nIc(isp,jSym) + ioff
-* Note: nIc(isp,jSym)=iWork(ipsp(jSym)+isp-1)
+* Note: nIc(isp,jSym)=Stuff(jSym)%sp(isp)
 * iK is the last orbital of the partition, and kS its symmetry
             kS = cho_irange(iK,iIorb,nSym,.false.)
 
@@ -291,14 +297,14 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
 * ipip(jSym) is pointer to an array dimensioned iP(nSym,nisplit(jSym))
 * which is used for offsets. In some other array, after the position
 * iP(jS,isp) follows space for nAsh(jS)+nSsh(jS) items.
-               iWork(ipip(jSym)+nSym*(isp-1)+jS-1) = nPorb
+               Stuff(jSym)%ip(jS+nsym*(isp-1))=nPorb
 * Update nPorb.
                nPorb = nPorb + nAsh(jS) + nSsh(jS)
             End Do
 
 * ipnp(jSym) is pointer to an array dimensioned nP(nisplit(jSym))
 * It gives the total size for the items mentioned above.
-            iWork(ipnp(jSym)+isp-1) = nPorb
+            Stuff(jSym)%np(isp) = nPorb
             ioff = ioff + nIc(isp,jSym)
          End Do
 
@@ -313,10 +319,10 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
             nPorb=0
             Do iS=lS,kS
               jS=MulD2h(iS,jSym)
-              iWork(ipip(jSym)+nSym*(nisplit(jSym)+isp-1)+jS-1)=nPorb
+              Stuff(jSym)%ip(jS+nsym*(nisplit(jSym)+isp-1))=nPorb
               nPorb = nPorb + nAsh(jS) + nSsh(jS)
             End Do
-            iWork(ipnp(jSym)+nisplit(jSym)+isp-1) = nPorb
+            Stuff(jSym)%np(nisplit(jSym)+isp) = nPorb
             ioff = ioff + nAc(isp,jSym)
          End Do
 
@@ -325,48 +331,46 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
       End Do
 
       if (iftest.ne.0) then
-      write(6,*)
-      write(6,*)' setup_cho report:'
-      write(6,*)
-      write(6,'(1x,a,8i4)')' Inactive :',(nIsh(isym),isym=1,nSym)
-      write(6,'(1x,a,8i4)')' Active   :',(nAsh(isym),isym=1,nSym)
-      write(6,'(1x,a,8i4)')' Secondary:',(nSsh(isym),isym=1,nSym)
-      write(6,*)
-      write(6,'(1x,a,8i4)')' NumCho   :',(NumCho(isym),isym=1,nSym)
-      write(6,*)
-      write(6,*)' Partition  Fixed orbitals       nPorb space'
+      Write(u6,*)
+      Write(u6,*)' setup_cho report:'
+      Write(u6,*)
+      Write(u6,'(1x,a,8i4)')' Inactive :',(nIsh(isym),isym=1,nSym)
+      Write(u6,'(1x,a,8i4)')' Active   :',(nAsh(isym),isym=1,nSym)
+      Write(u6,'(1x,a,8i4)')' Secondary:',(nSsh(isym),isym=1,nSym)
+      Write(u6,*)
+      Write(u6,'(1x,a,8i4)')' NumCho   :',(NumCho(isym),isym=1,nSym)
+      Write(u6,*)
+      Write(u6,*)' Partition  Fixed orbitals       nPorb space'
       do jsym=1,nsym
-       write(6,*)' Symm:',jSym
+       Write(u6,*)' Symm:',jSym
        kend=0
        do isp=1,nisplit(jsym)
         ksta=kend+1
-        kend=kend+iWork(ipsp(jSym)+isp-1)
+        kend=kend+Stuff(jSym)%sp(isp)
         kstasym=cho_irange(ksta,iIorb,nSym,.false.)
         kendsym=cho_irange(kend,iIorb,nSym,.false.)
-        nPorb=iWork(ipnp(jSym)+isp-1)
-        write(6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
+        nPorb=Stuff(jSym)%np(isp)
+        Write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
      &        isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-        write(6,'(1x,a,8i8)')' iP Offsets:',(iWork(ipip(jSym)+
-     &                 nSym*(isp-1)+MulD2h(jSym,iS)-1),iS=1,nSym)
-       write(6,*)
+        Write(u6,'(1x,a,8i8)')' iP Offsets:',(Stuff(jSym)%ip(
+     &                 nSym*(isp-1)+MulD2h(jSym,iS)),iS=1,nSym)
+       Write(u6,*)
        end do
        kend=0
        do isp=1,nasplit(jsym)
         ksta=kend+1
-        kend=kend+iWork(ipsp(jSym)+nisplit(jSym)+isp-1)
+        kend=kend+Stuff(jSym)%sp(nisplit(jSym)+isp)
         kstasym=cho_irange(ksta,iAorb,nSym,.false.)
         kendsym=cho_irange(kend,iAorb,nSym,.false.)
-        nPorb=iWork(ipnp(jSym)+nisplit(jSym)+isp-1)
-        write(6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
+        nPorb=Stuff(jSym)%np(nisplit(jSym)+isp)
+        Write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
      &        isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-        write(6,'(1x,a,8i8)')' iP Offsets:',
-     &         (iWork(ipip(jSym)+nSym*(nisplit(jSym)+isp-1)+
-     &                             MulD2h(jSym,iS)-1),iS=1,nSym)
-       write(6,*)
+        Write(u6,'(1x,a,8i8)')' iP Offsets:',
+     &         (Stuff(jSym)%ip(nSym*(nisplit(jSym)+isp-1)+
+     &                             MulD2h(jSym,iS)),iS=1,nSym)
+       Write(u6,*)
        end do
       end do
       end if
 
-
-      Return
-      End
+      End Subroutine setup_cho

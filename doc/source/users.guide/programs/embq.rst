@@ -160,7 +160,7 @@ Compulsory keywords
   .. xmldoc:: <KEYWORD MODULE="EMBQ" NAME="UCVE" APPEAR="Cell: a1, a2, a3" KIND="STRINGS" SIZE="3" LEVEL="BASIC" EXCLUSIVE="UCV1,UCV2,UCV3">
               %%Keyword: UCVE <basic>
               <HELP>
-              Specifies parameters of the crystal cell (in Angstroms).
+              Specifies parameters of the crystal cell (in angstroms).
               Three lines, containing three real numbers each, have to be supplied:
 
               1st line -- components of the cell vector a1;
@@ -180,7 +180,7 @@ Compulsory keywords
               %%Keyword: UCV1 <basic>
               <HELP>
               Keyword, followed by three real numbers.
-              Specifies components of the lattice cell vector a1 (in Angstroms).
+              Specifies components of the lattice cell vector a1 (in angstroms).
               Can be used as an alternative to keyword UCVEctors.
               Should be used together with keywords UCV2 and UCV3.
               There is no default value.
@@ -198,7 +198,7 @@ Compulsory keywords
               %%Keyword: UCV2 <basic>
               <HELP>
               Keyword, followed by three real numbers.
-              Specifies components of the lattice cell vector a2 (in Angstroms).
+              Specifies components of the lattice cell vector a2 (in angstroms).
               Can be used as an alternative to keyword UCVEctors.
               Should be used together with keywords UCV1 and UCV3.
               There is no default value.
@@ -216,7 +216,7 @@ Compulsory keywords
               %%Keyword: UCV3 <basic>
               <HELP>
               Keyword, followed by three real numbers.
-              Specifies components of the lattice cell vector a3 (in Angstroms).
+              Specifies components of the lattice cell vector a3 (in angstroms).
               Can be used as an alternative to keyword UCVEctors.
               Should be used together with keywords UCV1 and UCV2.
               There is no default value.
@@ -344,7 +344,7 @@ Optional keywords
               For a block (n=2), provide six integers k1 k2 m1 m2 n1 n2 to generate a nano-cluster of
                 (k2-k1+1)×(m2-m1+1)×(n2-n1+1)
               unit cells.
-              For a sphere (n=3), provide one real number to generate a nano-cluster of radius R (in Angstroms).
+              For a sphere (n=3), provide one real number to generate a nano-cluster of radius R (in angstroms).
               This keyword can be used instead of keywords NCCube, NCBLock, and NCSPhere.
               Note that only one nano-cluster will be generated.
               Default: the nano-cluster is not generated.
@@ -407,7 +407,7 @@ Optional keywords
               %%Keyword: NCSP <advanced>
               <HELP>
               Keyword followed by a single real number.
-              Specifies the shape and radius (in Angstroms) of the nano-cluster constructed from
+              Specifies the shape and radius (in angstroms) of the nano-cluster constructed from
               the modified unit cells.
               Default: the nanocluster is not generated.
               </HELP>
@@ -479,7 +479,7 @@ Optional keywords
               %%Keyword: QMCL <advanced>
               <HELP>
               Keyword, followed by a single integer equal to the number of atoms in the QM cluster
-              and a list of the Cartesian corresponding coordinates (in Angstroms).
+              and a list of the Cartesian corresponding coordinates (in angstroms).
               Default: number of the QM cluster atoms is zero.
               </HELP>
               </KEYWORD>

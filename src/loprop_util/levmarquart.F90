@@ -27,6 +27,7 @@ logical(kind=iwp) :: lScreen1, lScreen2, lScreen3, lScreen4, lStop1, lStop2, lSt
 character(len=60) :: UtChar
 real(kind=wp), allocatable :: Pout(:), rinvStore(:), rStore(:), xStore(:), yStore(:), zStore(:)
 real(kind=wp), external :: ElPot
+
 #include "warnings.h"
 
 ! Set iteration count to zero here at the top of the
@@ -126,7 +127,7 @@ do
     write(u6,'(A)') ' Error in numerical fit for exponent!'
     write(u6,'(A)') '    To small derivative for parameter'
     write(u6,'(A,2I4)') '    in centre (At1,At2):',iAtom,jAtom
-    write(u6,'(A,E12.4)') '    Maximal derivative:',DerMax
+    write(u6,'(A,ES12.4)') '    Maximal derivative:',DerMax
     write(u6,*)
     write(u6,'(A)') '    Either include closer points, give a'
     write(u6,'(A)') '    better initial estimate, or increase'
@@ -187,7 +188,7 @@ do
   ! the problem. (2) The modifier parameter has to stabalize and not
   ! be far out in the linear region, rather in the second order regime.
   ! (3) The last step should be a decrease. (4) A certain number of
-  ! steps should preceed that decreases the error; this threshold
+  ! steps should precede that decreases the error; this threshold
   ! 'overlaps' some with second threshold. Halt the optimization if
   ! no convergence is reached after 40 iterations. This is by far
   ! a generous limit.
@@ -261,7 +262,7 @@ return
 
 790 format('Levenberg-Marquart optimization. Iteration:',I3)
 794 format('   ',A,'          ',A,'   ',A)
-791 format(3(E13.6,' '))
+791 format(3(ES13.6,' '))
 795 format(' ',A,' ',A,'      ',A)
 792 format('       ',2F12.6)
 793 format('Convergence reached in iteration ',I2)

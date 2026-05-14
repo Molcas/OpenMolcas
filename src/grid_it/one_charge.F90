@@ -14,36 +14,36 @@
 subroutine One_CHARGE(NSYM,NBAS,UBNAME,CMO,OCCN,SMAT,iCase,FullMlk,MxTyp,QQ,nNuc)
 
 use UnixInfo, only: ProgName
+use define_af, only: AngTp, iTabMx
+use Molcas, only: LenIn, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase, MxTyp, nNuc
-character(len=LenIn8), intent(in) :: UBNAME(*)
+character(len=LenIn+8), intent(in) :: UBNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk
 real(kind=wp), intent(out) :: QQ(MxTyp,nNuc)
-#include "angtp.fh"
-integer(kind=iwp) :: AtomA, AtomB, i, i0, iAB, iAng, IB, iBlo, iEnd, iix, iixx, ik, ikk, iM, IMN, IMO, iNuc, IO, iPair, iPL, IS, &
-                     ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, &
-                     NB, nBas2, NBAST, NDIM, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
+integer(kind=iwp) :: AtomA, AtomB, i, i0, iAB, iAng, IB, iBlo, iEnd, iix, iixx, ik, ikk, iM, IMN, IMO, IO, iPair, iPL, IS, ISMO, &
+                     IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, NB, &
+                     nBas2, NBAST, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
 real(kind=wp) :: BO, BOThrs, Det, DMN, QSUMI, TERM
 logical(kind=iwp) :: DoBond
 character(len=len(ProgName)) :: PName
 character(len=8) :: TMP
-!character(len=4) TLbl(MXATOM)
+!character(len=4) :: TLbl(MXATOM)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-character(len=LenIn8), external :: Clean_Bname
+character(len=LenIn+8), external :: Clean_Bname
 integer(kind=iwp), allocatable :: iCenter(:), ICNT(:), ITYP(:), nStab(:)
 real(kind=wp), allocatable :: Bonds(:), Charge(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), Fac(:), P(:,:), PInv(:,:), Q2(:), &
                               QSUM(:), QSUM_TOT(:), S(:,:), S_blo(:), S_tmp(:,:), Scr(:)
 real(kind=wp), allocatable, save :: DSSwap(:,:), qSwap(:)
 character(len=8), allocatable :: tName(:), tSwap(:)
 character(len=LenIn), allocatable :: CNAME(:)
-character(len=LenIn4), allocatable :: LblCnt4(:)
+character(len=LenIn+4), allocatable :: LblCnt4(:)
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: E
 real(kind=wp), external :: DDot_
@@ -142,13 +142,13 @@ outer1: do I=1,NBAST
       write(u6,*) 'Increase MxType and recompile!'
       call Abend()
     end if
-    if (UBNAME(I)(LenIn1:LenIn8) == tName(J)) then
+    if (UBNAME(I)(LenIn+1:LenIn+8) == tName(J)) then
       ITYP(I) = J
       cycle outer1
     end if
   end do
   NXTYP = NXTYP+1
-  tName(NXTYP) = UBNAME(I)(LenIn1:LenIn8)
+  tName(NXTYP) = UBNAME(I)(LenIn+1:LenIn+8)
 
   ITYP(I) = NXTYP
 end do outer1
@@ -323,7 +323,7 @@ call mma_deallocate(tSwap)
 outer2: do I=1,NBAST
   if (ICNT(I) < 0) cycle outer2 ! skip pseudo center
   do J=1,NXTYP
-    if (UBNAME(I)(LenIn1:LenIn8) == tName(J)) then
+    if (UBNAME(I)(LenIn+1:LenIn+8) == tName(J)) then
       ITYP(I) = J
       cycle outer2
     end if
@@ -410,7 +410,7 @@ if (DoBond) then
   ! Atom labels plus symmetry generator
 
   call mma_allocate(LblCnt4,tNUC,label='LblCnt4')
-  call Get_cArray('LP_L',LblCnt4,LenIn4*tNUC)
+  call Get_cArray('LP_L',LblCnt4,(LenIn+4)*tNUC)
   !do i=1,tNUC
   !  LblCnt(i)(1:LenIn) = LblCnt4(i)(1:LenIn)
   !end do
@@ -434,8 +434,7 @@ end if
 !     function type                                                    *
 !----------------------------------------------------------------------*
 
-NDIM = NXTYP*NNUC
-call FZero(QQ,nDim)
+QQ(:,:) = Zero
 IB = 0
 IS = 0
 IMO = 0
@@ -503,8 +502,8 @@ if (DoBond) then
   write(u6,*) 'Number of electrons as sum of D and S elements = ',E
 # endif
 
-  ! In case of symmetry, we desymmetrize D and S through D_blo and S_blo
   if (nSym > 1) then
+    ! In case of symmetry, we desymmetrize D and S through D_blo and S_blo
     iBlo = 0
     iSum = 0
     do i=1,NSYM
@@ -539,9 +538,8 @@ if (DoBond) then
     call Desymmetrize(S_blo,nBas2,Scr,nScr,S,nBas,NBAST,PInv,nSym,iSyLbl)
     call mma_deallocate(Scr)
 
-  ! Otherwise we simply copy D and S tmp into D and S
-
   else
+    ! Otherwise we simply copy D and S tmp into D and S
     D(:,:) = D_tmp(:,:)
     S(:,:) = S_tmp(:,:)
   end if
@@ -631,10 +629,7 @@ end do
 if (iCase /= 0) then
   call mma_allocate(Charge,nNuc,label='Charge')
   call Get_dArray('Effective nuclear charge',Charge,nNuc)
-  do iNuc=1,nNuc
-    Charge(iNuc) = Charge(iNuc)*(nSym/nStab(iNuc))
-  end do
-  call DaXpY_(nNuc,-One,QSUM_TOT,1,Charge,1)
+  Charge(:) = Charge(:)*(nSym/nStab(:))-QSUM_TOT(:)
 end if
 
 call mma_deallocate(nStab)

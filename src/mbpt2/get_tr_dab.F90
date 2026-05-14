@@ -44,7 +44,7 @@ end do
 call mma_allocate(X,nVV+nOA,label='Dmat')
 X(:) = Zero
 
-call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,X(1:nVV),X(nVV+1:),.true.)
+call LovMP2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.true.)
 call mma_allocate(CMON,nBB,label='CMON')
 CMON(:) = Zero
 iOff = 1
@@ -60,7 +60,7 @@ end do
 
 call Check_Amp2(nSym,lnOcc,lnVir,iSkip)
 if (iSkip > 0) then
-  call ChoMP2_Drv(irc,Dummy,CMON,EOcc,EVir)
+  call ChoMP2_Drv(irc,Dummy,CMON,EOcc,EVir,X(1:NVV),X(nVV+1:))
   if (irc /= 0) then
     write(u6,*) 'MP2 pseudodensity calculation failed !'
     call Abend()

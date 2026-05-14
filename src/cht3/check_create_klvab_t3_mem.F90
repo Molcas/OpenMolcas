@@ -15,6 +15,7 @@ subroutine check_create_klvab_t3_mem(vblock)
 
 use ChT3_global, only: maxdim, nc, no, nv, printkey
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none

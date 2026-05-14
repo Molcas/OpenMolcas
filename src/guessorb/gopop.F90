@@ -29,20 +29,14 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: Eps(n), PrThr, GapThr
 real(kind=wp), intent(inout) :: Occ(n)
 real(kind=wp), intent(out) :: Scr(n)
 logical(kind=iwp), intent(in) :: PrtEor
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-!real(kind=wp) ::  eFermi
-real(kind=wp) :: TotNucChg, eGap, OccNo, eLo, eHi, tmp
-integer(kind=iwp) :: nElec, nAlpha, nBeta, nOcc, nAct, kLo, kHi, i, j, k, m
+integer(kind=iwp) :: i, j, k, kHi, kLo, m, nAct, nAlpha, nBeta, nElec, nOcc
+real(kind=wp) :: eGap, eHi, eLo, OccNo, tmp, TotNucChg
+
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
@@ -50,9 +44,7 @@ integer(kind=iwp) :: nElec, nAlpha, nBeta, nOcc, nAct, kLo, kHi, i, j, k, m
 !----------------------------------------------------------------------*
 ! Sort orbital energies                                                *
 !----------------------------------------------------------------------*
-do i=1,n
-  Scr(i) = Eps(i)
-end do
+Scr(:) = Eps(:)
 do i=1,n
   j = i
   do k=i,n
@@ -87,7 +79,7 @@ if (PrtEor) then
   write(u6,'(a,i5,a,i5)') 'Printing',m,' out of',n
   write(u6,'(a,f6.1)') 'Filled orbitals:',Half*TotNucChg
   write(u6,*)
-  write(u6,'(i5,1h-,i5,2x,10f12.4)') (i,min(i+9,m),(Scr(j),j=i,min(i+9,m)),i=1,m,10)
+  write(u6,'(i5,"-",i5,2x,10f12.4)') (i,min(i+9,m),(Scr(j),j=i,min(i+9,m)),i=1,m,10)
   write(u6,*)
 end if
 !----------------------------------------------------------------------*
@@ -235,6 +227,5 @@ end do
 !----------------------------------------------------------------------*
 ! Done!                                                                *
 !----------------------------------------------------------------------*
-return
 
 end subroutine GoPop

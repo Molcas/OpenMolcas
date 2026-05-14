@@ -18,6 +18,7 @@ use xc_f03_lib_m, only: XC_EXCHANGE, xc_f03_func_info_get_family, xc_f03_func_in
                         xc_f03_gga_exc, xc_f03_gga_exc_vxc, xc_f03_lda_exc, xc_f03_lda_exc_vxc, xc_f03_mgga_exc, &
                         xc_f03_mgga_exc_vxc, XC_FAMILY_GGA, XC_FAMILY_HYB_GGA, XC_FAMILY_HYB_MGGA, XC_FAMILY_LDA, XC_FAMILY_MGGA
 use nq_Grid, only: F_xca, F_xcb, l_casdft, Lapl, Rho, Sigma, Tau, vLapl, vRho, vSigma, vTau
+use nq_pdft, only: tmpTau
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dSigma, dfunc_dTau, func, Only_exc
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, LibxcReal, LibxcSize
@@ -116,9 +117,9 @@ select case (xc_f03_func_info_get_family(xc_info))
     dfunc_dSigma(:,1:mGrid) = Zero
 
     if (Only_exc) then
-      call xc_f03_gga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),func(1))
+      call xc_f03_gga_exc(xc_func,mGrid,Rho,Sigma,func)
     else
-      call xc_f03_gga_exc_vxc(xc_func,mGrid,Rho(1,1),Sigma(1,1),func(1),dfunc_dRho(1,1),dfunc_dSigma(1,1))
+      call xc_f03_gga_exc_vxc(xc_func,mGrid,Rho,Sigma,func,dfunc_dRho,dfunc_dSigma)
     end if
 
     ! Libxc evaluates energy density per particle; multiply by
@@ -164,7 +165,7 @@ select case (xc_f03_func_info_get_family(xc_info))
               F_xca(iGrid) = F_xca(iGrid)+Coeff*func(iGrid)*Rho(1,iGrid)
             end do
             Rho(1,1:mGrid) = Zero
-            Rho(2,1:mGrid) = dFunc_dRho(2,:)
+            Rho(2,1:mGrid) = dFunc_dRho(2,1:mGrid)
             func(1:mGrid) = Zero
             call xc_f03_gga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),func(1))
             do iGrid=1,mGrid
@@ -249,25 +250,29 @@ select case (xc_f03_func_info_get_family(xc_info))
       end if
 
       if (l_casdft) then
-        write(u6,*) 'Uncharted territory!'
-        call Abend()
         select case (xc_f03_func_info_get_kind(xc_info))
           case (XC_EXCHANGE)
             dFunc_dRho(:,1:mGrid) = Rho(:,1:mGrid)
+            tmpTau(1:mGrid) = Tau(2,1:mGrid)
             Rho(2,1:mGrid) = Zero
+            Tau(2,1:mGrid) = Zero
             func(1:mGrid) = Zero
             call xc_f03_mgga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),Lapl(1,1),Tau(1,1),func(1))
             do iGrid=1,mGrid
               F_xca(iGrid) = F_xca(iGrid)+Coeff*func(iGrid)*Rho(1,iGrid)
             end do
             Rho(1,1:mGrid) = Zero
-            Rho(2,1:mGrid) = dFunc_dRho(2,:)
+            Rho(2,1:mGrid) = dFunc_dRho(2,1:mGrid)
+            Tau(2,1:mGrid) = tmpTau(1:mGrid)
+            tmpTau(1:mGrid) = Tau(1,1:mGrid)
+            Tau(1,1:mGrid) = Zero
             func(1:mGrid) = Zero
             call xc_f03_mgga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),Lapl(1,1),Tau(1,1),func(1))
             do iGrid=1,mGrid
               F_xcb(iGrid) = F_xcb(iGrid)+Coeff*func(iGrid)*Rho(2,iGrid)
             end do
             Rho(:,1:mGrid) = dFunc_dRho(:,1:mGrid)
+            Tau(1,1:mGrid) = tmpTau(1:mGrid)
         end select
       end if
     end if

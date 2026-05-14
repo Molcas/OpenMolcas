@@ -9,18 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine deflength(mapd,length)
-! this routine defines length of mediate, described by mapd
+subroutine deflength(map,length)
+! this routine defines length of mediate, described by map
 
+use ccsort_global, only: Map_Type
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mapd(0:512,6)
+type(Map_Type), intent(in) :: map
 integer(kind=iwp), intent(out) :: length
 integer(kind=iwp) :: ii
 
-ii = mapd(0,5)
-length = mapd(ii,1)+mapd(ii,2)-mapd(1,1)
+ii = map%d(0,5)
+length = map%d(ii,1)+map%d(ii,2)-map%d(1,1)
 
 return
 

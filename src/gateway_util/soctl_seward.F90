@@ -11,31 +11,30 @@
 
 subroutine SOCtl_Seward(Mamn,nMamn)
 
-use Basis_Info, only: dbsc, iCnttp_Dummy, nBas, nBas_Aux, nBas_Frag, nCnttp, MolWgh, Shells
+use Basis_Info, only: dbsc, icent, iCnttp_Dummy, lant, lmag, lnang, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nrBas, nrSym, Shells
 use Center_Info, only: dc
-use Symmetry_Info, only: iChBas, iChTbl, iOper, iSkip, lBsFnc, lIrrep, nIrrep
+use Symmetry_Info, only: ChOper, iChBas, iChTbl, iOper, iSkip, lBsFnc, lIrrep, nIrrep
 use SOAO_Info, only: iAOtSO, iSOInf, iOffSO, nSOInf, SOAO_Info_Init
 use real_spherical, only: iSphCr, LblCBs, LblSBs
 use Gateway_global, only: Primitive_Pass
 use Sizes_of_Seward, only: S
+use define_af, only: iTabMx
+use PrintLevel, only: nPrint, Show
+use Molcas, only: LenIn, MaxBfn, MaxBfn_aux, MxAO, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nMamn
-character(len=LenIn8), intent(out) :: Mamn(nMamn)
-#include "itmax.fh"
-#include "rinfo.fh"
-#include "print.fh"
+character(len=LenIn+8), intent(out) :: Mamn(nMamn)
 integer(kind=iwp) :: i, iAng, iAO, iAtoms, iBas, iBas_Aux, iBas_Frag, iChBs, iChxyz, iCnt, iCntrc, iCnttp, iCo, iComp, iCounter, &
                      iIrrep, imc, iPrint, iR, iRout, iSh, iShell, iSO, iSO_, iSO_Aux, iSO_Frag, iSO_Tot, isymunit, itest1, itest2, &
                      ixxx, iyy, j, jAO, jCnttp, jComp, jCounter, jIrrep, jOffSO(0:7), jSO, jxxx, k, kComp, kculf, kIrrep, lComp, &
                      lculf, llab, lMax, mc, mdc, mlab, nBasisi, nCore, nExpi, nFCore(0:7), Nr
 real(kind=wp) :: FacN, fact
 logical(kind=iwp) :: IsBasisAE, IsBasisANO, IsBasisUNK, kECP, lFAIEMP, lSkip, output, TstFnc, bType(0:7)
-character(len=LenIn8) :: ChTmp
+character(len=LenIn+8) :: ChTmp
 character(len=8) :: ChTemp
 character(len=60) :: Frmt
 !SVC: the basis ids are tuples (c,n,l,m) with c the center index,
@@ -46,19 +45,11 @@ character(len=60) :: Frmt
 integer(kind=iwp), allocatable :: basis_ids(:,:), desym_basis_ids(:,:), fermion_type(:), iCI(:), IndC(:), Index1(:), Index2(:), &
                                   iOT(:), jCI(:), List(:), List_AE(:), LPA(:), LPMM(:), LVAL(:), MVAL(:), nCore_Sh(:)
 real(kind=wp), allocatable :: LPC(:,:), LPQ(:), SM(:,:)
-character(len=LenIn4), allocatable :: LP_Names(:)
+character(len=LenIn+4), allocatable :: LP_Names(:)
 integer(kind=iwp), parameter :: Occ = 1, Vir = 0
-character(len=*), parameter :: ChOper(0:7) = ['E  ', &
-                                              'x  ', &
-                                              'y  ', &
-                                              'xy ', &
-                                              'z  ', &
-                                              'xz ', &
-                                              'yz ', &
-                                              'xyz']
 integer(kind=iwp), external :: Index_Center, Index_Nosym, iPrmt, isfreeunit, NrOpr
 logical(kind=iwp), external :: Get_BasisType
-character(len=LenIn8), external :: Clean_BName
+character(len=LenIn+8), external :: Clean_BName
 
 !                                                                      *
 !***********************************************************************
@@ -71,7 +62,7 @@ iPrint = nPrint(iRout)
 !vv LP_NAMES was used later without initialization.
 call mma_allocate(LP_Names,MxAtom,label='LP_Names')
 LP_NAMES(:)(1:LenIn) = 'crap'
-LP_NAMES(:)(LenIn1:) = 'crap'
+LP_NAMES(:)(LenIn+1:) = 'crap'
 lFAIEMP = .false.
 do i=1,nCnttp
   lFAIEMP = lFAIEMP .or. dbsc(i)%Frag
@@ -120,7 +111,7 @@ List_AE(:) = 0
 
 isymunit = isfreeunit(58)
 call molcas_open(isymunit,'SYMINFO')
-rewind isymunit
+rewind(isymunit)
 write(isymunit,'(A)') 'Symmetry information from seward'
 write(isymunit,'(A)') '#of funct, unique centre, L, M , # of sym.ad.functions , Phases'
 !                                                                      *
@@ -182,7 +173,7 @@ if (nIrrep /= 1) then
   iCounter = 0
   jCounter = 0
   call mma_Allocate(SM,iBas,iBas,label='SM')
-  call FZero(SM,iBas**2)
+  SM(:,:) = Zero
   call mma_Allocate(IndC,2*S%mCentr)
   iAtoms = 0
 
@@ -237,7 +228,7 @@ if (nIrrep /= 1) then
 
           ! ECP case
 
-          call ECP_Shells(dbsc(iCnttp)%AtmNr,list)
+          call ECP_Shells(dbsc(iCnttp)%AtmNr,dbsc(iCnttp)%cPP,list)
 
           ! No core to freeze!
 
@@ -566,7 +557,7 @@ else
       lMax = dbsc(iCnttp)%nVal-1
       call OrbType(dbsc(iCnttp)%AtmNr,List_AE,31)
       if (kECP) then
-        call ECP_Shells(dbsc(iCnttp)%AtmNr,list)
+        call ECP_Shells(dbsc(iCnttp)%AtmNr,dbsc(iCnttp)%cPP,list)
         nCore_Sh(0:lmax) = 0
       else
         List(:) = List_AE
@@ -845,7 +836,7 @@ end if
 ! Write info (not just) for LoProp
 
 if (.not. Primitive_Pass) then
-  call Put_cArray('LP_L',LP_Names(1),(LenIn4)*S%mCentr)
+  call Put_cArray('LP_L',LP_Names(1),(LenIn+4)*S%mCentr)
   call Put_iArray('LP_A',LPA,S%mCentr)
   call Put_dArray('LP_Q',LPQ,S%mCentr)
   call Put_dArray('LP_Coor',LPC,3*S%mCentr)

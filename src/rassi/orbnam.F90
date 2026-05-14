@@ -1,0 +1,36 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+function ORBNAM(ISORB,ORBTAB)
+
+use Definitions, only: iwp
+
+implicit none
+character(len=8) :: ORBNAM
+integer(kind=iwp), intent(in) :: ISORB, ORBTAB(*)
+integer(kind=iwp) :: IPART, ISMLAB, ISOIND, KOINFO, NPART
+character(len=8) :: STRING8
+character(len=2) :: ORBTYP
+
+NPART = ORBTAB(6)
+KOINFO = 19
+ISMLAB = ORBTAB(KOINFO+1+(ISORB-1)*8)
+IPART = ORBTAB(KOINFO+4+(ISORB-1)*8)
+ISOIND = ORBTAB(KOINFO+2+(ISORB-1)*8)
+ORBTYP = 'De'
+if (IPART == NPART-1) ORBTYP = 'Fr'
+if (IPART == NPART-2) ORBTYP = 'Se'
+if (IPART == NPART-3) ORBTYP = 'In'
+if (IPART <= NPART-4) ORBTYP = 'Ac'
+write(STRING8,'(A2,I1,A1,I3.3,1X)') ORBTYP,ISMLAB,':',ISOIND
+ORBNAM = STRING8
+
+end function ORBNAM

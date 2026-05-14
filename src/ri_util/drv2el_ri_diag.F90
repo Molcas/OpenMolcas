@@ -39,7 +39,7 @@ real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp), intent(in) :: nTInt
 real(kind=wp), intent(out) :: TInt(nTInt)
 integer(kind=iwp) :: iIrrep, nAcc, nSkal
-logical(kind=iwp) :: DoFock, DoGrad, FreeK2, Indexation, Verbose
+logical(kind=iwp) :: DoFock, DoGrad, Indexation
 
 !                                                                      *
 !***********************************************************************
@@ -68,9 +68,7 @@ call RI_XDiag(TInt,nTInt)
 !                                                                      *
 ! Terminate integral environment.
 
-Verbose = .false.
-FreeK2 = .true.
-call Term_Ints(Verbose,FreeK2)
+call Term_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

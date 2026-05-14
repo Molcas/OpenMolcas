@@ -29,7 +29,7 @@ integer(kind=iwp) :: I, icontr, iex, ii, IJ, j, K
 real(kind=wp) :: CON, CON2, det, dtol, PREA, RATIO, TOL, TV1, TV2, TV3, TV4
 
 TOL = 1.0e-14_wp
-PREA = 1/(VELIT*VELIT)
+PREA = One/(VELIT*VELIT)
 CON2 = PREA+PREA
 CON = One/PREA
 do I=1,ISIZE
@@ -217,14 +217,14 @@ if (idbg > 0) call PRMAT(IDBG,h,n,0,'h   oper')
 !write(u6,*) 'END OF SCFCLI2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 
 !if (idbg > 0) write(idbg,*) '--- EIGENVALUES OF H MATRIX ---'
-!if (idbg > 0) write(idbg,'(4D20.12)') EW
+!if (idbg > 0) write(idbg,'(4ES20.12)') EW
 
 return
 
-!100 format(1X,I4,7(2X,D14.8))
+!100 format(1X,I4,7(1X,ES15.8))
 !556 format(//,7X,'- NREL. ENERG.  -  DIVIDED BY C - REL.  ENERG.  -  MOMENTUM    - TERMS OF POWER SERIES (LOW ENERGY ONLY)'//)
 !2012 format('  relsewb|****** '/,'        |****** WARNING - OVERLAP MATRIX SINGULAR '/, &
-!            '        |****** PIVOTAL ELEMENT LESS THAN ',D20.4,' FOUND'/,'        |******'//)
-!2016 format(' relsewb| DCOPIV rc=',I2,', |S|=',D20.6,'x 10**(',I4,') ')
+!            '        |****** PIVOTAL ELEMENT LESS THAN ',ES20.4,' FOUND'/,'        |******'//)
+!2016 format(' relsewb| DCOPIV rc=',I2,', |S|=',ES20.6,'x 10**(',I4,') ')
 
 end subroutine SCFCLI2

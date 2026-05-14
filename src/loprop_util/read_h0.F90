@@ -41,7 +41,7 @@ else
     call Abend()
   end if
   if (nInts(1)+4 /= nSize) then
-    write(u6,*) 'Local_Polar: nInts+4.ne.nSize',nInts(1)+4,nSize
+    write(u6,*) 'Local_Polar: nInts+4 /= nSize',nInts(1)+4,nSize
     call Abend()
   end if
   iRc = -1
