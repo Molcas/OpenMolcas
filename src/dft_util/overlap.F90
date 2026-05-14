@@ -11,7 +11,15 @@
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Overlap(mGrid,iSpin)
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
+
+subroutine Overlap( &
+#                  define _CALLING_
+#                  include "dft_functional.fh"
+                  )
 !***********************************************************************
 !      Author:Roland Lindh, Department of Chemical Physics, University *
 !             of Lund, SWEDEN. November 2000                           *
@@ -22,7 +30,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mGrid, iSpin
+#include "dft_functional.fh"
 integer(kind=iwp) :: iGrid
 real(kind=wp) :: d_alpha, d_beta, DTot, Rho_Min
 real(kind=wp), parameter :: T_x = 1.0e-20_wp
@@ -33,7 +41,7 @@ real(kind=wp), parameter :: T_x = 1.0e-20_wp
 
 vRho(:,:) = Zero
 Rho_Min = T_X*1.0e-2_wp
-if (iSpin == 1) then
+if (nD == 1) then
   ! iSpin=1
   !                                                                    *
   !*********************************************************************

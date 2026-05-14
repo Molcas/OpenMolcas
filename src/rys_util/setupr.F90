@@ -82,7 +82,7 @@ do iRys=1,nRys
   end do
 end do
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call TriPrt(' Hermite squared roots',' ',HerR2(iHerR2(1)),nRys)
 call TriPrt(' Hermite weights      ',' ',HerW2(iHerW2(1)),nRys)

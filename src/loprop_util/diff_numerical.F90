@@ -13,6 +13,7 @@ subroutine Diff_Numerical(nAt,nB,MP,nij,EC,iANr,Ttot,Ttot_Inv,lMax,TP,dLimmo,Thr
                           Pot_Fac,Diffed)
 
 use Index_Functions, only: nTri3_Elem1
+use Diff_Aux, only: Diff_Aux1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, Ten, Half
 use Definitions, only: wp, iwp
@@ -30,15 +31,6 @@ character(len=10) :: OneFile
 integer(kind=iwp), allocatable :: Center(:), Pick(:)
 real(kind=wp), allocatable :: dMullig(:), DPick(:), EPCo(:,:), Potte(:)
 real(kind=wp), external :: vdwRad
-interface
-  subroutine Diff_Aux1(nEPotPoints,EPCo,nB,OneFile)
-    import :: wp, iwp
-    integer(kind=iwp), intent(out) :: nEPotPoints
-    real(kind=wp), allocatable, intent(out) :: EPCo(:,:)
-    integer(kind=iwp), intent(in) :: nB
-    character(len=10), intent(in) :: OneFile
-  end subroutine Diff_Aux1
-end interface
 
 ! Pick up some auxiliary stuff.
 

@@ -11,15 +11,14 @@
 
 subroutine ColorizeInit()
 
+use PrintLevel, only: Colorize
+
 implicit none
 character(len=32) :: Str
-#include "print.fh"
 
 Str = ' '
-icolorize = 1
+Colorize = .true.
 call getenvf('MOLCAS_COLOR',Str)
-if ((Str(1:1) == 'N') .or. (Str(1:1) == 'n')) icolorize = 0
-
-return
+if ((Str(1:1) == 'N') .or. (Str(1:1) == 'n')) Colorize = .false.
 
 end subroutine ColorizeInit

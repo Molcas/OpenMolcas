@@ -38,6 +38,7 @@
 
 subroutine Name_to_lm(BName,l,m)
 
+use define_af, only: AngTp
 use Definitions, only: iwp
 
 implicit none
@@ -45,7 +46,6 @@ character(len=*), intent(in) :: BName
 integer(kind=iwp), intent(out) :: l, m
 character :: Letter
 integer(kind=iwp) :: i, lx, ly, lz
-#include "angtp.fh"
 
 Letter = BName(3:3)
 call LoCase(Letter)
@@ -73,7 +73,7 @@ end if
 ! Parse the label for other cases
 l = -1
 ! Find if there is an angular label
-do i=sum(lbound(AngTp)),sum(ubound(AngTp))
+do i=lbound(AngTp,1),ubound(AngTp,1)
   if (Letter == AngTp(i)) then
     l = i
     exit

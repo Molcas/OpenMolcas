@@ -18,9 +18,9 @@ set (sources
      intensitymod.F90
      intforcefield.F90
      iotools.F90
-     iscd_routines.F90
      isc_maketab2.F90
      isc_routines.F90
+     iscd_routines.F90
      linalg.F90
      logevec.F90
      matelmod.F90
@@ -41,8 +41,8 @@ set (sources
      vibmod.F90
      writecartcoord.F90
      writefreq.F90
-     writeintcoord.F90
      writeint.F90
+     writeintcoord.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

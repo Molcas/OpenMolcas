@@ -16,11 +16,11 @@ use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: RadMax, cdMax, EtMax
 use Symmetry_Info, only: nIrrep
+use Molcas, only: MaxBfn, MxAtom
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iBas, iBas_Aux, iBas_Frag
-#include "Molcas.fh"
 integer(kind=iwp) :: iAng, iCnt, iCnttp, iShell, jCnttp, jSh, kCmp, kdc, mc, mdc
 
 !                                                                      *
@@ -57,7 +57,7 @@ do jCnttp=1,nCnttp
     if (max(mdc,kdc) > MxAtom) then
       call WarningMessage(2,'MxAtom too small:')
       write(u6,*) 'MxAtom=',MxAtom
-      write(u6,*) 'Increase mxAtom in Molcas.fh and recompile the code!'
+      write(u6,*) 'Increase mxAtom in the Molcas module and recompile the code!'
       call Abend()
     end if
     ! Loop over shells associated with this center
@@ -68,10 +68,6 @@ do jCnttp=1,nCnttp
 
       if (Shells(jSh)%nBasis_C > 0) call RdMx(RadMax,Shells(jSh)%Exp,Shells(jSh)%nExp,Shells(jSh)%Cff_c(1,1,1), &
                                               Shells(jSh)%nBasis_C,cdMax,EtMax)
-      if (iShell > MxShll) then
-        call WarningMessage(2,'iShell > MxShll; Change MxShll in Molcas.fh and recompile the code!')
-        call Abend()
-      end if
       kCmp = (iAng+1)*(iAng+2)/2
       if (Shells(jSh)%Prjct) kCmp = 2*iAng+1
 

@@ -20,11 +20,9 @@ subroutine cct3_getint(wrk,wrksize,i,symi,r,rc)
 use CCT3_global, only: daddr, Map_Type, noa, T3IntPos, t3nam
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, i, symi
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 type(Map_Type), intent(inout) :: r
 integer(kind=iwp), intent(inout) :: rc
 integer(kind=iwp) :: iadd, im, isym, length, lun, num, pos !, rc1
@@ -32,7 +30,7 @@ integer(kind=iwp) :: iadd, im, isym, length, lun, num, pos !, rc1
 !1 some tests
 
 if (i > noa(symi)) then
-  ! RC=1 : i is higher than occipied in this irrep (Stup)
+  ! RC=1 : i is higher than occupied in this irrep (Stup)
   rc = 1
   return
 end if

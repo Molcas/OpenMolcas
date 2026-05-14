@@ -25,18 +25,22 @@ subroutine PotInt( &
 
 use Phase_Info, only: iPhase
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), iGrid, iPh(3), ipIn, iStabO(0:7), lDCRT, llOper, LmbdT, mabMax, mabMin, nDCRT, &
-                     nFLOP, nMem, nOp, nStabO, nT
+integer(kind=iwp) :: iAnga(4), iDCRT(0:7), iGrid, iPh(3), ipIn, iStabO(0:7), lDCRT, llOper, LmbdT, mabMax, mabMin, nDCRT, nFLOP, &
+                     nMem, nOp, nStabO, nT
 real(kind=wp) :: Chrg, Coora(3,4), CoorAC(3,2), Coori(3,4), FACT, TC(3)
 logical(kind=iwp) :: NoSpecial
+procedure(cff2d_kernel) :: XCff2D
+procedure(modu2_kernel) :: Fake
+procedure(rys2d_kernel) :: XRys2D
+procedure(tval_kernel) :: TNAI
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
-external :: Fake, TNAI, XCff2D, XRys2D
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -93,14 +97,12 @@ do lDCRT=0,nDCRT-1
     if (iAddPot /= 0) Chrg = ptchrg(iGrid)
     if (Chrg == Zero) cycle
 
-    do i=1,3
-      TC(i) = real(iPh(i),kind=wp)*CCoor(i,iGrid)
-      CoorAC(i,2) = TC(i)
-      Coori(i,3) = TC(i)
-      Coori(i,4) = TC(i)
-      Coora(i,3) = TC(i)
-      Coora(i,4) = TC(i)
-    end do
+    TC(:) = real(iPh(:),kind=wp)*CoorO(:,iGrid)
+    CoorAC(:,2) = TC(:)
+    Coori(:,3) = TC(:)
+    Coori(:,4) = TC(:)
+    Coora(:,3) = TC(:)
+    Coora(:,4) = TC(:)
 
     ! Compute integrals with the Rys quadrature.
 

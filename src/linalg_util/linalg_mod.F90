@@ -18,10 +18,10 @@ module linalg_mod
 #include "intent.fh"
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use constants, only: Zero, One
+use constants, only: Zero, One, cZero, cOne
 use definitions, only: wp, iwp
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
-use definitions, only: r8
+use definitions, only: BLASR8
 #endif
 use sorting, only: sort, argsort
 use sorting_funcs, only: leq_i, leq_r, geq_r
@@ -75,7 +75,7 @@ end type
 !>
 !>  There are some run time checks to test for matching shapes.
 interface mult
-  module procedure :: mult_2D, mult_2D_1D, mult_2d_raw
+  module procedure :: mult_2D, multZ_2D, mult_2D_1D, mult_2d_raw
 end interface mult
 
 !>  @brief
@@ -153,20 +153,72 @@ subroutine mult_2D(A,B,C,transpA,transpB)
     transpB_ = .false.
   end if
 
-  M = size(A,merge(1,2,.not. transpA_))
+  M = size(A,merge(2,1,transpA_))
   ASSERT(M == size(C,1))
-  N = size(B,merge(2,1,.not. transpB_))
+  N = size(B,merge(1,2,transpB_))
   ASSERT(N == size(C,2))
-  K_1 = size(A,merge(2,1,.not. transpA_))
+  K_1 = size(A,merge(1,2,transpA_))
 # ifdef _ADDITIONAL_RUNTIME_CHECK_
-  K_2 = size(B,merge(1,2,.not. transpB_))
+  K_2 = size(B,merge(2,1,transpB_))
 # endif
   ASSERT(K_1 == K_2)
   K = K_1
 
-  ASSERT(wp == r8)
+  ASSERT(wp == BLASR8)
   call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),M,N,K,One,A,size(A,1),B,size(B,1),Zero,C,size(C,1))
 end subroutine mult_2D
+
+!>  @brief
+!>    Wrapper around zgemm for matrix-matrix multiplication.
+!>
+!>  @author Vladislav Kochetov
+!>
+!>  @details
+!>
+!>  @param[in] A
+!>  @param[in] B
+!>  @param[out] C The shape of the output array is usually
+!>      [size(A, 1), size(B, 2)] which changes of course, if
+!>      A or B are conjugate transposed.
+!>  @param[in] transpA Optional argument to specify that A
+!>      should be conjugate transposed.
+!>  @param[in] transpB Optional argument to specify that B
+!>      should be conjugate transposed.
+subroutine multZ_2D(A,B,C,transpA,transpB)
+  complex(kind=wp), intent(in) :: A(:,:), B(:,:)
+  complex(kind=wp), intent(out) :: C(:,:)
+  logical(kind=iwp), intent(in), optional :: transpA, transpB
+  logical(kind=iwp) :: transpA_, transpB_
+  integer(kind=iwp) :: M, N, K_1, K
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  integer(kind=iwp) :: K_2
+# endif
+
+  if (present(transpA)) then
+    transpA_ = transpA
+  else
+    transpA_ = .false.
+  end if
+  if (present(transpB)) then
+    transpB_ = transpB
+  else
+    transpB_ = .false.
+  end if
+
+  M = size(A,merge(2,1,transpA_))
+  ASSERT(m == size(C,1))
+  N = size(B,merge(1,2,transpB_))
+  ASSERT(n == size(C,2))
+  K_1 = size(A,merge(1,2,transpA_))
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  K_2 = size(B,merge(2,1,transpB_))
+# endif
+  ASSERT(K_1 == K_2)
+  K = K_1
+
+  ASSERT(wp == BLASR8)
+  call zgemm_(merge('C','N',transpA_),merge('C','N',transpB_),M,N,K,cOne,A,size(A,1),B,size(B,1),cZero,C,size(C,1))
+end subroutine multZ_2D
 
 !>  @brief
 !>    Wrapper around dgemm for matrix-vector multiplication.
@@ -199,7 +251,7 @@ subroutine mult_2D_1D(A,x,y,transpA)
   K = size(A,merge(2,1,.not. transpA_))
   ASSERT(M == size(x,1))
 
-  ASSERT(wp == r8)
+  ASSERT(wp == BLASR8)
   call dgemm_(merge('T','N',transpA_),'N',M,N,K,One,A,size(A,1),x,size(x,1),Zero,y,size(y,1))
 end subroutine mult_2D_1D
 
@@ -226,11 +278,11 @@ end subroutine mult_2D_1D
 !>  @param[in] transpB Optional argument to specify that B
 !>      should be transposed.
 subroutine mult_2D_raw(A,shapeA,B,shapeB,C,transpA,transpB)
-  real(kind=wp), intent(in), target :: A(*)
+  real(kind=wp), target, intent(in) :: A(*)
   integer(kind=iwp), intent(in) :: shapeA(2)
-  real(kind=wp), intent(in), target :: B(*)
+  real(kind=wp), target, intent(in) :: B(*)
   integer(kind=iwp), intent(in) :: shapeB(2)
-  real(kind=wp), intent(_OUT_), target :: C(*)
+  real(kind=wp), target, intent(_OUT_) :: C(*)
   logical(kind=iwp), intent(in), optional :: transpA, transpB
   logical(kind=iwp) :: transpA_, transpB_
   integer(kind=iwp) :: shapeC(2)
@@ -260,7 +312,7 @@ end subroutine mult_2D_raw
 !>  Diagonalize symmetric A.
 !>
 !>  @details
-!>  Diagonalize A to fullfill `A V(:, j) = lambda(j) V(:, j)`.
+!>  Diagonalize A to fulfill `A V(:, j) = lambda(j) V(:, j)`.
 !>  Wrapper around BLAS DSYEV.
 !>
 !>  @param[in] A Symmetric 2D matrix to be diagonalized.
@@ -272,7 +324,7 @@ end subroutine mult_2D_raw
 subroutine sym_diagonalize(A,V,lambda,info)
   real(kind=wp), intent(in) :: A(:,:)
   real(kind=wp), intent(out) :: V(:,:), lambda(:)
-  integer(kind=iwp), optional, intent(out) :: info
+  integer(kind=iwp), intent(out), optional :: info
   integer(kind=iwp), parameter :: do_worksize_query = -1
   integer(kind=iwp) :: info_
   real(kind=wp), allocatable :: work(:)
@@ -343,7 +395,7 @@ subroutine determine_eigenspaces(lambda,dimensions)
 
 # ifdef _ADDITIONAL_RUNTIME_CHECK_
   if (any(lambda(2:) < lambda(:size(lambda)-1))) then
-    call abort_('Eigenvalues not sorted in'//__FILE__)
+    call abort_('Eigenvalues not sorted in '//__FILE__)
   end if
 # endif
 
@@ -478,7 +530,7 @@ end subroutine canonicalize_canonical_basis
 
 subroutine canonicalize_general(V,lambda,ref)
   real(kind=wp), intent(inout) :: V(:,:), lambda(:)
-  real(kind=wp), intent(in), target :: ref(:,:)
+  real(kind=wp), target, intent(in) :: ref(:,:)
   type(GeneralBasisCanonicalize_t) :: canonicalizer
 
   canonicalizer%ref => ref

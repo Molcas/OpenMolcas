@@ -27,7 +27,7 @@ contains
 
 subroutine WrOne_Internal(rData)
 
-  real(kind=wp), intent(in), target :: rData(*)
+  real(kind=wp), target, intent(in) :: rData(*)
   integer(kind=iwp), pointer :: iData(:)
 
   call c_f_pointer(c_loc(rData(1)),iData,[1])

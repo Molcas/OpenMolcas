@@ -25,8 +25,16 @@ character(len=72) :: sData, Line
 character(len=8) :: Fmt1, Fmt2
 character(len=4) :: Com, Sub1, Sub2, Parm
 logical(kind=iwp) :: clear, nice
-integer(kind=iwp) :: i, iParm, iPoint, iPr, ist, iSub1, iSub2, iTbl, left, lLine, lPaper, nLine, nParm, nSub1, nSub2
+integer(kind=iwp) :: i, iParm, iPL, iPoint, iPr, ist, iSub1, iSub2, iTbl, jPrint, left, lLine, lPaper, nLine, nParm, nSub1, nSub2
 real(kind=wp) :: z
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
+
+jPrint = 5
+iPL = iPrintLevel(-1)
+if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
+if (iPL <= 1) jPrint = 1
+if (jPrint <= 1) return
 
 !----------------------------------------------------------------------*
 !                                                                      *

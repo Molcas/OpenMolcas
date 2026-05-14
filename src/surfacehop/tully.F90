@@ -16,14 +16,12 @@ use Tully_variables, only: decoherence, tullySubVerb, fixedrandL, iseedL, DECO, 
 #ifdef _HDF5_
 use Surfacehop_globals, only: lH5Restart
 #endif
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Two, Half, cZero, cOne, Onei
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSTATE, NCI
 real(kind=wp), intent(inout) :: CIBigArray(NCI*NSTATE)
-#include "warnings.h"
-
 integer(kind=iwp) :: values(8)
 character(len=8) :: date
 character(len=10) :: time
@@ -50,6 +48,8 @@ integer(kind=iwp) :: nstatesq, nciquery, stateRi, temproot, nsatom
 integer(kind=iwp) :: ISTATE2, iseed, irlxroot
 complex(kind=wp) :: Amatrix(NSTATE,NSTATE), AmatrixDT(NSTATE,NSTATE), ArelaxPrev
 real(kind=wp), external :: Random_Molcas
+
+#include "warnings.h"
 
 CIBigArrayP(:) = Zero
 CIBigArrayPP(:) = Zero
@@ -98,8 +98,8 @@ end if
 call Qpg_zArray('AmatrixV',Found,nStateSq)
 write(u6,*) 'Did the density matrix exists? ',Found
 if (.not. Found) then
-  Amatrix(:,:) = (Zero,Zero)
-  Amatrix(iRlxRoot,iRlxRoot) = (One,Zero)
+  Amatrix(:,:) = cZero
+  Amatrix(iRlxRoot,iRlxRoot) = cOne
 
   call Put_zArray('AmatrixV',Amatrix,NSTATE*NSTATE)
 else
@@ -175,9 +175,7 @@ call Qpg_dArray('AllCIPP',Found,nCiQuery)
 write(u6,*) 'Did the Pre-Pre-coefficients array exists? ',Found
 if (.not. Found) then
   normalTully = .true.
-  do i=1,NSTATE
-    prevPHASE(i) = 1
-  enddo
+  prevPHASE(:) = One
   call put_darray('AllCIPP',CIBigArrayP,NCI*NSTATE)
   call put_darray('AllCIP',CIBigArray,NCI*NSTATE)
   write(u6,*) 'At second step we will use normal Tully Algorithm:'
@@ -283,7 +281,7 @@ if (.not. rassi_ovlp) then
       end if
     end do
     decVec(jjj) = 0
-    if (prod < 0) then
+    if (prod < Zero) then
       do k=1,NCI
         CIBigArray(NCI*(stateRi-1)+k) = -CIBigArray(NCI*(stateRi-1)+k)
       end do
@@ -310,7 +308,7 @@ else
         root_ovlp = abs(currOVLP_ras(j,i))
       end if
     end do
-    if (root_ovlp < 0.4) then
+    if (root_ovlp < 0.4_wp) then
       write(u6,*) 'WARNING: No overlap greater than 0.4 for root:',i
     end if
     if (root_ovlp_el /= i) then
@@ -339,10 +337,8 @@ else
   ! Get current phase - phase read from RASSI * previous phase array
   do i=1,NSTATE
     currPHASE(i) = prevPHASE(i)
-    if (currOVLP(i,i) < 0) then
-      currPHASE(i) = -1*prevPHASE(i)
-    end if
-  enddo
+    if (currOVLP(i,i) < Zero) currPHASE(i) = -prevPHASE(i)
+  end do
 
   write(u6,*) 'Current Phase'
   write(u6,*) (currPHASE(i),i=1,NSTATE,1)
@@ -354,8 +350,8 @@ else
   do i=1,NSTATE
     do ii=1, NSTATE
       currOVLP(ii,i) = currOVLP(ii,i)*prevPHASE(i)
-    enddo
-  enddo
+    end do
+  end do
 
   if (tullySubVerb) then
     write(u6,*) '<t-dt|t> RASSI Overlap Columns Corrected'
@@ -369,8 +365,8 @@ else
   do i=1,NSTATE
     do ii=1, NSTATE
       currOVLP(i,ii) = currOVLP(i,ii)*currPHASE(i)
-    enddo
-  enddo
+    end do
+  end do
 
   write(u6,*) '<t-dt|t> RASSI Overlap phase Corrected'
   do i=1,NSTATE
@@ -382,16 +378,16 @@ else
   do i=1,NSTATE
     do ii=1,NSTATE
       saveOVLP_bk(i,ii) = currOVLP(stateorder(i),ii)
-    enddo
-  enddo
+    end do
+  end do
 
   ! Swap columns if root flipping occured to give final 'to save' RASSI
 
   do i=1,NSTATE
     do ii=1,NSTATE
       saveOVLP(ii,i) = saveOVLP_bk(ii,stateorder(i))
-    enddo
-  enddo
+    end do
+  end do
 
   write(u6,*) '<t-dt|t> RASSI Overlap to save (flipping incl.)'
   do i=1,NSTATE
@@ -465,7 +461,7 @@ else if_normaltully
             D32matrix(i,j) = D32matrix(i,j)+CIBigArrayPP(NCI*(i-1)+ii)*CIBigArrayP(NCI*(j-1)+ii)
             D32matrix(i,j) = D32matrix(i,j)-CIBigArrayP(NCI*(i-1)+ii)*CIBigArrayPP(NCI*(j-1)+ii)
           end do
-          D32matrix(i,j) = D32matrix(i,j)/(2*DT)
+          D32matrix(i,j) = D32matrix(i,j)/(Two*DT)
         else
           D32matrix(i,i) = Zero
         end if
@@ -482,7 +478,7 @@ else if_normaltully
             D12matrix(i,j) = D12matrix(i,j)+CIBigArrayP(NCI*(i-1)+ii)*CIBigArray(NCI*(j-1)+ii)
             D12matrix(i,j) = D12matrix(i,j)-CIBigArray(NCI*(i-1)+ii)*CIBigArrayP(NCI*(j-1)+ii)
           end do
-          D12matrix(i,j) = D12matrix(i,j)/(2*DT)
+          D12matrix(i,j) = D12matrix(i,j)/(Two*DT)
         else
           D12matrix(i,i) = Zero
         end if
@@ -497,7 +493,7 @@ else if_normaltully
     do i=1,NSTATE
       do j=1,NSTATE
         if (i /= j) then
-          D32matrix(i,j) = (prevOVLP(i,j)-prevOVLP(j,i))/(2*DT)
+          D32matrix(i,j) = (prevOVLP(i,j)-prevOVLP(j,i))/(Two*DT)
         else
           D32matrix(i,j) = Zero
         end if
@@ -508,7 +504,7 @@ else if_normaltully
     do i=1,NSTATE
       do j=1,NSTATE
         if (i /= j) then
-          D12matrix(i,j) = (currOVLP(i,j)-currOVLP(j,i))/(2*DT)
+          D12matrix(i,j) = (currOVLP(i,j)-currOVLP(j,i))/(Two*DT)
         else
           D12matrix(i,j) = Zero
         end if
@@ -605,7 +601,7 @@ substeps: do ii=1,NSUBSTEPS
 
   do i=1,NSTATE
     do j=1,NSTATE
-      Dmatrix(i,j) = ExtrInter(i,j)+ExtrSlope(i,j)*(((ii-1)*DT/NSUBSTEPS)-DT/2)
+      Dmatrix(i,j) = ExtrInter(i,j)+ExtrSlope(i,j)*(((ii-1)*DT/NSUBSTEPS)-DT*Half)
       if (i /= j) then
         V(i,j) = Zero
       else
@@ -616,10 +612,10 @@ substeps: do ii=1,NSUBSTEPS
 
   do i=1,NSTATE
     do j=1,NSTATE
-      AmatrixDT(i,j) = (Zero,Zero)
+      AmatrixDT(i,j) = cZero
       do l=1,NSTATE
         AmatrixDT(i,j) = AmatrixDT(i,j)+Amatrix(i,l)*Dmatrix(l,j)-Amatrix(l,j)*Dmatrix(i,l)
-        AmatrixDT(i,j) = AmatrixDT(i,j)+(Zero,One)*Amatrix(i,l)*V(l,j)-(Zero,One)*Amatrix(l,j)*V(i,l)
+        AmatrixDT(i,j) = AmatrixDT(i,j)+Onei*(Amatrix(i,l)*V(l,j)-Amatrix(l,j)*V(i,l))
       end do
     end do
   end do
@@ -634,9 +630,9 @@ substeps: do ii=1,NSUBSTEPS
     do j=1,NSTATE
       if (i == j) then
         !B(i,i) not used
-        Bmatrix(i,j) = 2*aimag(conjg(Amatrix(i,j))*V(i,j))
+        Bmatrix(i,j) = Two*aimag(conjg(Amatrix(i,j))*V(i,j))
       else
-        Bmatrix(i,j) = -2*real(conjg(Amatrix(i,j))*Dmatrix(i,j))
+        Bmatrix(i,j) = -Two*real(conjg(Amatrix(i,j))*Dmatrix(i,j))
       end if
     end do
   end do
@@ -676,6 +672,9 @@ substeps: do ii=1,NSUBSTEPS
 
   ! Persico-Granucci all in a THEN branch
 
+  ! Note: the 1/2 factor in the exponents corrects for an error in eq. 17 of doi:10.1063/1.2715585
+  ! (it should correct population instead of amplitudes)
+
   pg: if (decoherence) then
     EKIN = Etot-V(temproot,temproot)
     if (EKIN <= Zero) then
@@ -692,7 +691,7 @@ substeps: do ii=1,NSUBSTEPS
     do i=1,NSTATE
       do j=1,NSTATE
         if (i /= temproot .and. j /= temproot) then
-          Amatrix(i,j) = Amatrix(i,j)*exp(-(DT/NSUBSTEPS)/TAU(i))*exp(-(DT/NSUBSTEPS)/TAU(j))
+          Amatrix(i,j) = Amatrix(i,j)*exp(-Half*(DT/NSUBSTEPS)/TAU(i))*exp(-Half*(DT/NSUBSTEPS)/TAU(j))
         end if
       end do
     end do
@@ -710,9 +709,9 @@ substeps: do ii=1,NSUBSTEPS
     do i=1,NSTATE
       do j=1,NSTATE
         if (i /= temproot .and. j == temproot) then
-          Amatrix(i,j) = Amatrix(i,j)*exp(-(DT/NSUBSTEPS)/TAU(i))*sqrt(Amatrix(temproot,temproot)/ArelaxPrev)
+          Amatrix(i,j) = Amatrix(i,j)*exp(-Half*(DT/NSUBSTEPS)/TAU(i))*sqrt(Amatrix(temproot,temproot)/ArelaxPrev)
         else if (i == temproot .and. j /= temproot) then
-          Amatrix(i,j) = Amatrix(i,j)*exp(-(DT/NSUBSTEPS)/TAU(j))*sqrt(Amatrix(temproot,temproot)/ArelaxPrev)
+          Amatrix(i,j) = Amatrix(i,j)*exp(-Half*(DT/NSUBSTEPS)/TAU(j))*sqrt(Amatrix(temproot,temproot)/ArelaxPrev)
         end if
       end do
     end do
@@ -792,13 +791,13 @@ end if
 if (HOPPED) then
   ISTATE2 = temproot
   write(u6,*) 'HOP ALLOWED'
-  write(u6,'(6X,120A1)') '+',('-',i=1,118),'+'
+  write(u6,'(6X,A,A,A)') '+',repeat('-',118),'+'
   write(u6,'(6X,A,118X,A)') '|','|'
   write(u6,'(6X,A,2(47X,A))') '|','A HOP event is detected!|'
   write(u6,'(6X,A,118X,A)') '|','|'
   write(u6,'(6X,A,44X,2(A,I3,4X),40X,A)') '|','From state:',iRlxRoot,'To state:',ISTATE2,'|'
   write(u6,'(6X,A,118X,A)') '|','|'
-  write(u6,'(6X,120A1,//)') '+',('-',i=1,118),'+'
+  write(u6,'(6X,A,A,A,//)') '+',repeat('-',118),'+'
 
   call Put_iScalar('NumGradRoot',ISTATE2)
   call Put_iScalar('Relax CASSCF root',ISTATE2)

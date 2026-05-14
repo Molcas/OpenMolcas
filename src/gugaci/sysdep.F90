@@ -23,7 +23,7 @@ write(u6,'(10x,a42)') '*****************************************'
 write(u6,'(10x,a42)') '*      Xian-ci mrci program             *'
 write(u6,'(10x,a42)') '*     Institute of Modern Physics       *'
 write(u6,'(10x,a42)') '*        Northwest University           *'
-write(u6,'(10x,a42)') '*        xian, shaanxi, china           *'
+write(u6,'(10x,a42)') '*        Xian, Shaanxi, China           *'
 write(u6,'(10x,a42)') '*                                       *'
 write(u6,'(10x,a42)') '*        report bugs and errors         *'
 write(u6,'(10x,a42)') '*           wzy@nwu.edu.cn              *'
@@ -254,7 +254,7 @@ call fileopen(nfchk,anchk,11)
 call chkfil_taskctrl(2)  ! read task information
 
 nreps = 0
-! read infomation from checkfile and moint file
+! read information from checkfile and moint file
 call chkfil_ciorbinf(2)
 nlsm_bas(1:8) = nsbas(1:8)
 nlsm_all(1:8) = nsorb(1:8)

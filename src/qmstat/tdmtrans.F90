@@ -22,6 +22,7 @@ integer(kind=iwp) :: i, iDisk, j, kaunt, Lu, nStatePrim
 character(len=6) :: TDMchar
 logical(kind=iwp) :: Exists
 real(kind=wp), allocatable :: Eig2(:,:), NonH(:), NonS(:)
+
 #include "warnings.h"
 
 ! Sag hej till publiken.

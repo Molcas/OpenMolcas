@@ -55,31 +55,31 @@ call PrgmTranslate(NmUt,myUt,lUt)
 myUt(1+lUt:1+lUt) = char(0)
 rcIn = c_open(myIn)
 if (rcIn < 0) then
-  write(u6,*) 'Can not open file ',myIn(1:lIn)
+  write(u6,*) 'Cannot open file ',myIn(1:lIn)
   iErr = 1
   return
 end if
 rcUt = c_openw(myUt)
 if (rcUt < 0) then
-  write(u6,*) 'Can not open file ',myUt(1:lUt)
+  write(u6,*) 'Cannot open file ',myUt(1:lUt)
   iErr = 1
   return
 end if
 rc = c_copy(rcIn,rcUt)
 if (rc < 0) then
-  write(u6,*) 'Can not copy file ',myIn(1:lIn)
+  write(u6,*) 'Cannot copy file ',myIn(1:lIn)
   iErr = 1
   return
 end if
 rc = c_close(rcIn)
 if (rc < 0) then
-  write(u6,*) 'Can not close file ',myIn(1:lIn)
+  write(u6,*) 'Cannot close file ',myIn(1:lIn)
   iErr = 1
   return
 end if
 rc = c_close(rcUt)
 if (rc < 0) then
-  write(u6,*) 'Can not close file ',myUt(1:lUt)
+  write(u6,*) 'Cannot close file ',myUt(1:lUt)
   iErr = 1
   return
 end if

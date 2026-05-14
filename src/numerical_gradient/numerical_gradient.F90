@@ -14,46 +14,48 @@ subroutine Numerical_Gradient(ireturn)
 #ifndef _HAVE_EXTRA_
 use Prgm, only: PrgmFree
 #endif
+use Index_Functions, only: nTri_Elem1
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Para_Info, only: MyRank, nProcs, Set_Do_Parallel
-#if defined (_MOLCAS_MPP_) && !defined(_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
+use Task_Manager, only: Free_Tsk_Even, Init_Tsk_Even, Rsv_Tsk_Even
 use Para_Info, only: King
 #endif
+use spool, only: disable_spool, LuWr
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "LenIn.fh"
-#include "standard_iounits.fh"
-#include "WrkSpc.fh"
-#include "warnings.h"
-real(kind=wp) :: Energy_Ref, FX(3), rDum(1), Dsp, EMinus, EPlus, Grada, Gradb, rDeg, rDelta, rMax, rTest, Sgn, TempX, TempY, &
+real(kind=wp) :: Dsp, EMinus, Energy_Ref, EPlus, FX(3), Grada, Gradb, rDeg, rDelta, rDum(1), rMax, rTest, Sgn, TempX, TempY, &
                  TempZ, x, x0, y, y0, z, z0
-integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, &
-                     id_Tsk, iData, iDisp, iEm, iEp, ii, iMlt, iPL, iPL_Save, ipMltp, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, &
-                     irlxroot2, iRoot, iSave, ITkQMMM, ixyz, j, LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
-                     nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym
-character(len=8) :: Method
+integer(kind=iwp) :: error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, iCoSet(0:7,0:7), id_Tsk, iData, iDisp, iDispXYZ(3), iEm, &
+                     iEp, ii, iMlt, iOper(0:7), iOption, iPL, iPL_Save, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, irlxroot2, &
+                     iRoot, iSave, ITkQMMM, ixyz, j, jStab(0:7), LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
+                     nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym, rc
+logical(kind=iwp) :: DispX, DispY, DispZ, Do_ESPF, Do_FFPT, DoDirect, DoFirst, DoTinker, DynExtPot, Exists, External_Coor_List, &
+                     Found, Is_Roots_Set, KeepOld, NMCart, StandAlone
 character(len=LenIn) :: Namei
-character(len=10) :: ESPFKey
 character(len=180) :: Line
-logical(kind=iwp) :: DispX, DispY, DispZ, Is_Roots_Set, Found, External_Coor_List, Do_ESPF, StandAlone, Exists, DoTinker, NMCart, &
-                     DynExtPot, DoDirect, KeepOld
+character(len=10) :: ESPFKey
+character(len=8) :: Method
 integer(kind=iwp), allocatable :: IsMM(:)
-real(kind=wp), allocatable :: EnergyArray(:,:), GradArray(:,:), OldGrads(:,:), Grad(:), GNew(:), MMGrd(:,:), BMtrx(:,:), &
-                              TMtrx(:,:), Coor(:,:), Energies_Ref(:), XYZ(:,:), AllC(:,:), Disp(:), Deg(:,:), Mltp(:), C(:,:), &
-                              Tmp2(:), Tmp(:,:)
+real(kind=wp), allocatable :: AllC(:,:), BMtrx(:,:), C(:,:), Coor(:,:), Deg(:,:), Disp(:), Energies_Ref(:), EnergyArray(:,:), &
+                              GNew(:), Grad(:), GradArray(:,:), Mltp(:), MMGrd(:,:), OldGrads(:,:), Tmp(:,:), Tmp2(:), TMtrx(:,:), &
+                              XYZ(:,:)
 character(len=LenIn), allocatable :: AtomLbl(:)
 real(kind=wp), parameter :: ToHartree = One/auTokcalmol
-integer(kind=iwp), external :: Read_Grad, IsFreeUnit, iPrintLevel, ip_of_Work, iChAtm, iDeg
+integer(kind=iwp), external :: iChAtm, iDeg, iPrintLevel, IsFreeUnit, Read_Grad
+logical(kind=iwp), external :: Reduce_Prt
 character(len=180), external :: Get_Ln
-logical(kind=iwp), external :: Rsv_Tsk, Reduce_Prt
-#if defined (_MOLCAS_MPP_) && !defined(_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 character(len=80) :: SSTMNGR
 integer(kind=iwp) :: SSTMODE
-logical(kind=iwp), external :: Rsv_Tsk_Even
 #endif
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************
@@ -64,6 +66,7 @@ iPL_Save = iPrintLevel(-1)
 iPL = iPL_Save
 
 if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -73,6 +76,9 @@ ireturn = _RC_ALL_IS_WELL_
 
 call Get_cArray('Relax Method',Method,8)
 call DecideOnESPF(Do_ESPF)
+call Get_iScalar('System Bitswitch',iOption)
+Do_FFPT = btest(iOption,14)
+
 Is_Roots_Set = .false.
 call Qpg_iScalar('Number of roots',Is_Roots_Set)
 if (Is_Roots_Set) then
@@ -125,29 +131,27 @@ if (iPL_Save >= 3) call RecPrt('Original coordinates',' ',Coor,3,nAtoms)
 
 DoTinker = .false.
 DoDirect = .false.
-ipMltp = ip_Dummy
 call F_Inquire('ESPF.DATA',Exists)
 if (Exists) then
   IPotFl = IsFreeUnit(15)
   call Molcas_Open(IPotFl,'ESPF.DATA')
   Line = ' '
-  do while (index(Line,'ENDOFESPF ') == 0)
+  do while (index(Line,'ENDOFESPF') == 0)
     Line = Get_Ln(IPotFl)
-    if (index(Line,'TINKER ') /= 0) then
+    if (index(Line,'TINKER') /= 0) then
       DoTinker = .true.
-    else if (index(Line,'DIRECT ') /= 0) then
+    else if (index(Line,'DIRECT') /= 0) then
       DoDirect = .true.
-    else if (index(Line,'MLTORD ') /= 0) then
+    else if (index(Line,'MLTORD') /= 0) then
       call Get_I1(2,MltOrd)
       ibla = 0
       do ii=0,MltOrd
-        ibla = ibla+(ii+2)*(ii+1)/2
+        ibla = ibla+nTri_Elem1(ii)
       end do
       MltOrd = ibla
-    else if (index(Line,'MULTIPOLE ') /= 0) then
+    else if (index(Line,'MULTIPOLE') /= 0) then
       call Get_I1(2,nMult)
       call mma_allocate(Mltp,nMult,Label='Mltp')
-      ipMltp = ip_of_Work(Mltp(1))
       do iMlt=1,nMult,MltOrd
         Line = Get_Ln(IPotFl)
         call Get_I1(1,iAt)
@@ -165,7 +169,8 @@ if (DoTinker) then
   if (nAtMM > 0) then
     iQMChg = 0
     StandAlone = .false.
-    call RunTinker(nAtoms,Coor,ipMltp,IsMM,MltOrd,DynExtPot,iQMchg,iBlabla,StandAlone,DoDirect)
+    DoFirst = .not. allocated(Mltp)
+    call RunTinker(nAtoms,Coor,Mltp,DoFirst,IsMM,MltOrd,DynExtPot,iQMchg,iBlabla,StandAlone,DoDirect)
     call mma_allocate(MMGrd,3,nAtoms,Label='MMGrd')
     MMGrd(:,:) = Zero
     ITkQMMM = IsFreeUnit(15)
@@ -179,11 +184,10 @@ if (DoTinker) then
         if (IsMM(iAtom) == 1) MMGrd(:,iAtom) = FX(:)
       end if
     end do
-    call DScal_(3*nAtoms,Angstrom*ToHartree,MMGrd,1)
+    MMGrd(:,:) = MMGrd(:,:)*Angstrom*ToHartree
     close(ITkQMMM)
     if (iPL_Save >= 3) call RecPrt('MM Grad:',' ',MMGrd,3,nAtoms)
   end if
-  if (allocated(Mltp)) call mma_deallocate(Mltp)
 end if
 !                                                                      *
 !***********************************************************************
@@ -246,8 +250,8 @@ else
 end if
 
 nDisp2 = 2*3*nAtoms
-call mma_Allocate(EnergyArray,nRoots,nDisp2)
-call FZero(EnergyArray,nRoots*nDisp2)
+call mma_Allocate(EnergyArray,nRoots,nDisp2,Label='EnergyArray')
+EnergyArray(:,:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -283,7 +287,7 @@ else
 
   nDisp = 3*nAtoms
   call mma_allocate(Disp,nDisp,Label='Disp')
-  call FZero(Disp,nDisp)
+  Disp(:) = Zero
 
   do i=1,nAtoms
 
@@ -313,7 +317,10 @@ else
 
     ! If this is a MM atom, do not make displacements
 
-    if (DoTinker .and. (IsMM(i) == 1)) iDispXYZ(:) = 0
+    if (DoTinker) then
+      !! IsMM is not allocated if DoTinker = .false.
+      if (IsMM(i) == 1) iDispXYZ(:) = 0
+    end if
     DispX = iDispXYZ(1) /= 0
     DispY = iDispXYZ(2) /= 0
     DispZ = iDispXYZ(3) /= 0
@@ -366,7 +373,7 @@ else
 
       ! Modify the geometry
 
-      call dcopy_(3*nAtoms,Coor,1,XYZ(:,mDisp),1)
+      XYZ(:,mDisp) = pack(Coor(:,:),.true.)
       Sgn = One
       if (mod(iDisp,2) == 0) Sgn = -One
       XYZ(iCoor,mDisp) = XYZ(iCoor,mDisp)+Sgn*Disp(icoor)
@@ -456,28 +463,36 @@ if (MyRank /= 0) then
 end if
 
 ! FM 16/4/2013
-! ESPF charges are set to zero so that no microiterations will be
-! performed during numerical gradient
+! ESPF multipoles are set to zero so that no MM microiterations
+! will be performed during numerical gradient
 ! IFG: swap files, as now NG uses a subdirectory
 
-iSave = 15
 if (Do_ESPF) then
-  iSave = IsFreeUnit(iSave)
+  iSave = IsFreeUnit(15)
   call Molcas_Open(iSave,'ESPF.SAV')
-  iData = IsFreeUnit(iSave)
+  iData = IsFreeUnit(iSave+1)
   call Molcas_Open(iData,'ESPF.DATA')
   do
     Line = Get_Ln(iData)
     ESPFKey = Line(1:10)
-    if (ESPFKey == 'ENDOFESPF ') then
-      write(iSave,'(A132)') Line
+    if (ESPFKey == 'ENDOFESPF') then
+      write(iSave,'(A)') trim(Line)
       exit
     else
-      if (ESPFKey /= 'MULTIPOLE ') then
-        write(iSave,'(A132)') Line
+      if (ESPFKey /= 'MULTIPOLE') then
+        write(iSave,'(A)') trim(Line)
+        if (ESPFKey == 'MLTORD') then
+          !Line = Get_Ln(iData)
+          call Get_I1(2,MltOrd)
+          ibla = 0
+          do ii=0,MltOrd
+            ibla = ibla+nTri_Elem1(ii)
+          end do
+          MltOrd = ibla
+        end if
       else
         call Get_I1(2,nMult)
-        do iMlt=1,nMult
+        do iMlt=1,nMult,MltOrd
           Line = Get_Ln(iData)
         end do
       end if
@@ -493,7 +508,7 @@ end if
 ! Parallel loop over the nDisp displacements.
 ! Reserve task on global task list and get task range in return.
 ! Function will be false if no more tasks to execute.
-#if !defined(_GA_) && defined(_MOLCAS_MPP_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 call getenvf('MOLCAS_SSTMNGR',SSTMNGR)
 if (SSTMNGR(1:1) == 'Y') then
   SSTMODE = 1
@@ -510,7 +525,7 @@ call Init_Tsk(id_Tsk,mDisp-2*nLambda)
 #endif
 call mma_allocate(C,3,nAtoms,Label='C')
 do
-# if defined (_MOLCAS_MPP_) && !defined(_GA_)
+# if defined (_MOLCAS_MPP_) && ! defined (_GA_)
   if (SSTMODE == 1) then
     if (.not. Rsv_Tsk(id_Tsk,iDisp)) exit
   else
@@ -526,7 +541,7 @@ do
 
   ! Get the displaced geometry
 
-  call dcopy_(3*nAtoms,xyz(:,iDisp),1,C,1)
+  C(:,:) = reshape(xyz(:,iDisp),[3,nAtoms])
   !call RecPrt('C',' ',C,3*nAtoms,1)
   call Put_Coord_New(C,nAtoms)
 
@@ -551,6 +566,21 @@ do
     write(LuWr,*) 'Seward returned with return code, rc = ',iReturn
     write(LuWr,*) 'for the perturbation iDisp = ',iDisp
     call Abend()
+  end if
+
+  ! Add stuff from the FFPT module
+
+  if (Do_FFPT) then
+    call StartLight('ffpt')
+    call init_run_use()
+    call Disable_Spool()
+    call FFPT(ireturn)
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'FFPT returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
   end if
 
   ! Compute the ESPF stuff
@@ -730,12 +760,12 @@ do
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-# if defined (_MOLCAS_MPP_) && !defined(_GA_)
+# if defined (_MOLCAS_MPP_) && ! defined (_GA_)
   if (King() .and. (nProcs > 1) .and. (SSTMODE == 1)) exit
 # endif
 end do
 !_MPP End Do
-#if !defined(_GA_) && defined(_MOLCAS_MPP_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 if (SSTMODE == 1) then
   call Free_Tsk(id_Tsk)
 else
@@ -744,7 +774,7 @@ end if
 #else
 call Free_Tsk(id_Tsk)
 #endif
-call GADSum(EnergyArray,nRoots*mDisp)
+call GADGOp(EnergyArray,nRoots*mDisp,'+')
 call mma_deallocate(C)
 call mma_deallocate(XYZ)
 !                                                                      *
@@ -799,7 +829,7 @@ end if
 ! Read old gradient(s) and convert to internal coordinates
 
 call mma_Allocate(OldGrads,3*nAtoms,nRoots)
-call FZero(OldGrads,3*nAtoms*nRoots)
+OldGrads(:,:) = Zero
 call Get_lScalar('Keep old gradient',KeepOld)
 if (KeepOld) then
   call Query_Grads(Found,i,j)
@@ -818,9 +848,9 @@ if (KeepOld) then
     ! read a single gradient from the runfile
     call qpg_dArray('GRAD',Found,nGrad)
     if (Found) then
-      call Get_dArray('GRAD',OldGrads(1,1),nGrad)
+      call Get_dArray('GRAD',OldGrads(:,1),nGrad)
       do iR=2,nRoots
-        call dCopy_(nGrad,OldGrads(1,1),1,OldGrads(1,iR),1)
+        OldGrads(1:nGrad,iR) = OldGrads(1:nGrad,1)
       end do
       if (nRoots > 1) then
         write(LuWr,*)
@@ -837,7 +867,7 @@ end if
 call mma_allocate(Tmp2,nDisp,Label='Tmp2')
 do iR=1,nRoots
   call Eq_Solver('N',3*nAtoms,nDisp,1,BMtrx,.true.,rDum(1),OldGrads(1,iR),Tmp2)
-  call FZero(OldGrads(1,iR),3*nAtoms)
+  OldGrads(:,iR) = Zero
   call Eq_Solver('N',nDisp,nDisp,1,TMtrx,.true.,rDum(1),Tmp2,OldGrads(1,iR))
 end do
 call mma_deallocate(Tmp2)
@@ -846,8 +876,8 @@ call mma_deallocate(Tmp2)
 !                                                                      *
 !jPL = iPrintLevel(iPL_Save)
 if (iPL_Save >= 3) call RecPrt('Energies','(8G16.10)',EnergyArray,nRoots,mDisp)
-call mma_Allocate(GradArray,nDisp,nRoots)
-call FZero(GradArray,nDisp*nRoots)
+call mma_Allocate(GradArray,nDisp,nRoots,Label='GradArray')
+GradArray(:,:) = Zero
 call mma_Allocate(Grad,nRoots)
 
 iDisp = nLambda
@@ -896,7 +926,7 @@ do i=1,nDisp
     end do
   end if
 
-  call dCopy_(nRoots,Grad,1,GradArray(i,1),nDisp)
+  GradArray(i,:) = Grad(:)
 
 end do
 !call RecPrt('Grads (old)',' ',OldGrads,3*nAtoms,nRoots)
@@ -934,16 +964,12 @@ do iR=1,nRoots
 
   ! Add the MM contribution for MM atoms
 
-  if (nAtMM /= 0) then
-    call daxpy_(3*nAtoms,One,MMGrd,1,Tmp,1)
-  end if
+  if (nAtMM /= 0) Tmp(:,:) = Tmp(:,:)+MMGrd(:,:)
 
   ! Apply Morokuma's scheme if needed
 
   call F_Inquire('QMMM',Exists)
-  if (Exists .and. DoTinker) then
-    call LA_Morok(nAtoms,Tmp,1)
-  end if
+  if (Exists .and. DoTinker) call LA_Morok(nAtoms,Tmp,1)
 
   if (iR == iRoot) call Put_dArray('GRAD',Tmp,3*nAtoms)
   call Add_Info('Grad',Tmp,3*nAtoms,6)
@@ -984,6 +1010,7 @@ call mma_Deallocate(Grad)
 call mma_deallocate(Coor)
 call mma_deallocate(Energies_Ref)
 call mma_deallocate(AtomLbl)
+call mma_deallocate(Mltp,safe='*')
 if (DoTinker) call mma_deallocate(IsMM)
 if (nAtMM > 0) call mma_deallocate(MMGrd)
 

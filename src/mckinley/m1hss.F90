@@ -30,16 +30,15 @@ use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri, nTri_Elem1
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
+use Disp, only: IndDsp
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 #include "hss_interface.fh"
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iAnga(4), iBeta, iCar, iCent, iComp, iDCRT(0:7), iIrrep, ipA, ipAOff, ipArr, ipB, ipBOff, iStop, iuvwx(4), &
                      jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCnt, kCnttp, kdc, lDCRT, LmbdT, Maxi, Mini, &
-                     mOp(4), nArray, nDAO, nDCRT, nDisp, nip, nnIrrep, nRys
+                     mOp(4), nArray, nDAO, nDCRT, nDisp, nip, nnIrrep
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3)
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
 integer(kind=iwp), external :: NrOpr
@@ -49,12 +48,11 @@ logical(kind=iwp), external :: EQ, TF
 unused_var(ZInv)
 unused_var(Ccoor)
 unused_var(nOrdOp)
+unused_var(nHer)
 
 !if (iPrint >= 99) then
 !  write(u6,*) ' In M1Hss: nArr=',nArr
 !end if
-
-nRys = nHer
 
 nip = 1
 ipA = nip
@@ -83,13 +81,13 @@ mOp(2) = nOp(2)
 
 ipAOff = ipA
 do iBeta=1,nBeta
-  Array(ipAOff:ipAOff+nAlpha) = Alpha
+  Array(ipAOff:ipAOff+nAlpha-1) = Alpha
   ipAOff = ipAOff+nAlpha
 end do
 
 ipBOff = ipB
 do iBeta=1,nBeta
-  Array(ipBOff:ipBOff+nAlpha) = Beta(iBeta)
+  Array(ipBOff:ipBOff+nAlpha-1) = Beta(iBeta)
   ipBOff = ipBOff+nAlpha
 end do
 
@@ -99,7 +97,7 @@ nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 !do iDAO=1,nDAO
 !  DAO(:,iDAO) = Two*rKappa(:)*Pi*ZInv(:)*DAO(:,iDAO)
 !end do
-!if (iPrint >= 99) Call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+!if (iPrint >= 99) call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 
 ! Here we go
 
@@ -219,7 +217,7 @@ do kCnttp=1,nCnttp
       end do
       JfGrd(:,:) = .false.
 
-      call M1Kernel(rFinal,Hess,nHess,DAO,nDAO,iAnga,nRys,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,CoorAC,Array(ipArr), &
+      call M1Kernel(rFinal,Hess,nHess,DAO,nDAO,iAnga,nZeta,Array(ipA),Array(ipB),Zeta,rKappa,P,TC,Coori,CoorAC,Array(ipArr), &
                     nArray,jfgrd,jndgrd,jfhss,jndhss,ifg,tr,mop,iuvwx,kCnttp,Fact,loper(1),0)
 
     end do

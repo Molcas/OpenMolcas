@@ -10,7 +10,7 @@ CASPT2.
 OpenMolcas is not a fork or reimplementation of
 [Molcas](http://www.molcas.org), it *is* a large part of the Molcas codebase
 that has been released as free and open-source software (FOSS) under the Lesser
-General Public License (LGPL). Some parts of Molcas remain under a different
+General Public License (LGPL) version 2.1. Some parts of Molcas remain under a different
 license by decision of their authors (or impossibility to reach them), and are
 therefore not included in OpenMolcas.
 
@@ -23,6 +23,10 @@ therefore not included in OpenMolcas.
 * "Modern quantum chemistry with [Open]Molcas."
   *J. Chem. Phys.* **152** (2020) 214117.
   [doi:10.1063/5.0004835](https://doi.org/10.1063/5.0004835)
+
+* "The OpenMolcas *Web*: A Community-Driven Approach to Advancing Computational Chemistry."
+  *J. Chem. Theory Comput.* **19** (2023) 6933-6991.
+  [doi:10.1021/acs.jctc.3c00182](https://doi.org/10.1021/acs.jctc.3c00182)
 
 Installation
 ------------
@@ -65,14 +69,14 @@ up and running is the following:
 5.  Run the verification suite (failures in "grayzone" tests are expected):
 
     ```
-    pymolcas verify
+    ./pymolcas verify
     ```
 
 For running other calculations you should define the `MOLCAS` environment
-variable to point to the `build` directory. Run `pymolcas --help` to see the
+variable to point to the `build` directory. Run `./pymolcas --help` to see the
 available options of the script. In particular it is recommended to run:
 ```
-pymolcas -setup
+./pymolcas -setup
 ```
 for your first installation.
 
@@ -104,9 +108,7 @@ Contributing
 Since OpenMolcas is FOSS, you can download it, modify it and distribute it
 freely (according to the terms of the LGPL). If you would like your
 contributions to be included in the main repository, please contact one of the
-developers, write a message in the
-[forum](https://molcasforum.univie.ac.at) or submit a
-[merge
-request](https://docs.gitlab.com/ee/user/project/merge_requests/getting_started.html).
+developers, write a message in the [forum](https://molcasforum.univie.ac.at) or
+submit a [merge request](https://docs.gitlab.com/user/project/merge_requests).
 Everyone is welcome to send patches, suggestions and bug reports, but please
 let us know if you would like to be a "developer" member of the `Molcas` group.

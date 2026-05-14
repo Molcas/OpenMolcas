@@ -33,6 +33,7 @@ integer(kind=iwp), allocatable :: Dum(:,:), iCent(:)
 real(kind=wp), allocatable :: AvTemp(:), ForceNuc(:,:), H0(:), H1(:)
 type(Alloc1DArray_Type), allocatable :: MME(:)
 integer(kind=iwp), external :: IsFreeUnit
+
 #include "warnings.h"
 
 call UpCase(Kword)

@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine RigRot(CoorIn,rM,nAtm)
 !***********************************************************************
 !                                                                      *
@@ -31,6 +32,7 @@ subroutine RigRot(CoorIn,rM,nAtm)
 
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CoM, PAX, Prin, rMI, TMass
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Eight, Half, auTocm, auToHz, uToau
 use Definitions, only: wp, iwp, u6
@@ -38,7 +40,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nAtm
 real(kind=wp), intent(in) :: CoorIn(3,nAtm), rM(nAtm)
-#include "print.fh"
 integer(kind=iwp) :: i, iAtom, iCar, iEn, ii, iPrint, iRout, j, jCar, k, k1, k2, kappa, kk, kk2, mDim, nEn, nHess, nTri
 real(kind=wp) :: A, B, C, keep, rKappa, XI(3)
 logical(kind=iwp) :: Linear, RR_Show
@@ -50,6 +51,9 @@ iRout = 117
 iPrint = nPrint(iRout)
 RR_Show = iPrint >= 6
 if (iprintlevel(-1) < 3) RR_Show = .false.
+#ifdef _DEBUGPRINT_
+RR_Show = .true.
+#endif
 
 if (RR_Show) then
   write(u6,*)
@@ -58,16 +62,16 @@ if (RR_Show) then
   write(u6,*)
 end if
 
-PAx(:,:) = reshape([One,Zero,Zero,Zero,One,Zero,Zero,Zero,One],[3,3])
+call unitmat(PAx,3)
 if (TMass == Zero) then
   call FinishUp()
   return
 end if
 Linear = .false.
-if (iPrint >= 99) then
-  call RecPrt(' In RigRot: CoorIn',' ',CoorIn,3,nAtm)
-  call RecPrt(' In RigRot: Mass',' ',rM,1,nAtm)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In RigRot: CoorIn',' ',CoorIn,3,nAtm)
+call RecPrt(' In RigRot: Mass',' ',rM,1,nAtm)
+#endif
 if (RR_Show) then
   write(u6,*)
   write(u6,'(19X,A,F10.5)') ' Total mass (a) :',TMass/uToau
@@ -121,16 +125,17 @@ call mma_deallocate(Coor)
 if (RR_Show) then
   write(u6,'(19X,A)') ' The Moment of Inertia Tensor / au'
   write(u6,'(19X,14X,3A)') '    X     ','     Y    ','    Z     '
-  write(u6,'(19X,A,12X,3(E11.4))') ' X',rMI(1)
-  write(u6,'(19X,A,12X,3(E11.4))') ' Y',rMI(2),rMI(3)
-  write(u6,'(19X,A,12X,3(E11.4))') ' Z',rMI(4),rMI(5),rMI(6)
+  write(u6,'(19X,A,12X,3(ES11.4))') ' X',rMI(1)
+  write(u6,'(19X,A,12X,3(ES11.4))') ' Y',rMI(2),rMI(3)
+  write(u6,'(19X,A,12X,3(ES11.4))') ' Z',rMI(4),rMI(5),rMI(6)
   write(u6,*)
+  call RecPrt('Pax',' ',Pax,3,3)
 end if
 
 ! Diagonalize and find principle axis
 
 call mma_Allocate(Hess,6)
-Hess(:) = rMI
+Hess(:) = rMI(:)
 call Jacob(Hess,Pax,3,3)
 Prin(1) = Hess(1)
 Prin(2) = Hess(3)
@@ -151,12 +156,12 @@ end do
 call mma_deallocate(Hess)
 if (RR_Show) then
   write(u6,'(19X,A)') ' The Principal Axes and Moments of Inertia (au)'
-  write(u6,'(19X,A,3(E11.4))') ' Eigenvalues :',(Prin(i),i=1,3)
+  write(u6,'(19X,A,3(ES11.4))') ' Eigenvalues :',(Prin(i),i=1,3)
   write(u6,'(19X,14X,3A)') '    X''    ','     Y''   ','    Z''    '
   write(u6,'(19X,A)') ' Eigenvectors:'
-  write(u6,'(19X,A,3(E11.4))') ' X            ',Pax(1,:)
-  write(u6,'(19X,A,3(E11.4))') ' Y            ',Pax(2,:)
-  write(u6,'(19X,A,3(E11.4))') ' Z            ',Pax(3,:)
+  write(u6,'(19X,A,3(ES11.4))') ' X            ',Pax(1,:)
+  write(u6,'(19X,A,3(ES11.4))') ' Y            ',Pax(2,:)
+  write(u6,'(19X,A,3(ES11.4))') ' Z            ',Pax(3,:)
   write(u6,*)
   !call Put_dArray('PAX',Pax,9)
   write(u6,'(19X,A)') ' The Rotational Constants'
@@ -259,7 +264,9 @@ do j=0,S%jMax
   nTri = mDim*(mDim+1)/2
   Hess(1:nTri) = Zero
   call unitmat(Vec,mDim)
-  if (iPrint >= 99) call RecPrt(' Vec',' ',Vec,mDim,mDim)
+# ifdef _DEBUGPRINT_
+  call RecPrt(' Vec',' ',Vec,mDim,mDim)
+# endif
   k1 = 1
   do k=-j,j
     kk = k1*(k1+1)/2
@@ -278,9 +285,13 @@ do j=0,S%jMax
     end if
     k1 = k1+1
   end do
-  if (iPrint >= 99) call TriPrt(' Hessian',' ',Hess,mDim)
+# ifdef _DEBUGPRINT_
+  call TriPrt(' Hessian',' ',Hess,mDim)
+# endif
   call Jacob(Hess,Vec,mDim,mDim)
-  if (iPrint >= 99) call TriPrt(' Hessian',' ',Hess,mDim)
+# ifdef _DEBUGPRINT_
+  call TriPrt(' Hessian',' ',Hess,mDim)
+# endif
   do i=1,mDim
     En(iEn+I-1) = Hess(i*(i+1)/2)*auTocm
   end do
@@ -312,8 +323,6 @@ end if
 call mma_deallocate(En)
 
 call FinishUp()
-
-return
 
 contains
 

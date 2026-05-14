@@ -35,7 +35,7 @@ subroutine DVcPrt(Title,FmtIn,X,N)
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*), intent(in) :: Title, FmtIn

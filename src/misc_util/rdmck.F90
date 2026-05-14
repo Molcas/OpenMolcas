@@ -27,7 +27,7 @@ subroutine RdMCK(rc,Option,InLab,iComp,iData,iSymLab)
 !     SymLab  : symmetry label of the requested data                   *
 !                                                                      *
 !     Local data declarations:                                         *
-!     Label   : character*8, used to covert incoming names             *
+!     Label   : character(len=8), used to covert incoming names        *
 !     HldBuf  : I/O buffer                                             *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -63,8 +63,8 @@ integer(kind=iwp), intent(_OUT_) :: iData(*)
 integer(kind=iwp) :: CmpTmp, Comp, CurrOp = 1, i, iBas, icpi, iDisk, idx, iIrr, ij, ijS, iLen, IndDta, iS, iSym, iTmp, j, jBas, &
                      jS, k, Len_, Length, LuMck, na, SymLab, tBuf, TmpCmp
 logical(kind=iwp) :: Debug, NoGo, NoOpSiz
-character(len=16), parameter :: TheName = 'RdMck'
-character(len=8) TmpLab, Label
+character(len=*), parameter :: TheName = 'RdMck'
+character(len=8) :: TmpLab, Label
 
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *

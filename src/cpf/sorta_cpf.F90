@@ -18,7 +18,8 @@ subroutine SORTA_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ISAB,BUFBI,INDBI,BIAC,BICA,N
 ! FIRST CHAIN FOR IJKL
 
 use cpf_global, only: IADABCI, ICH, IFIRST, IPRINT, IROW, KBUF, KBUFF1, LASTAD, LN, Lu_CIGuga, Lu_TiABCI, Lu_TiABIJ, Lu_TraInt, &
-                      MADR, NNS, NORB, NSM, NSYM, NTIBUF, NVIRT
+                      MADR, NNS, NORB, NSM, NSYM, NVIRT
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
@@ -27,10 +28,10 @@ use Definitions, only: wp, iwp, u6, RtoI
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: BUFOUT(*), TIBUF(NTIBUF), BUFBI(*), BIAC(*), BICA(*)
+real(kind=wp), intent(_OUT_) :: BUFOUT(*), BUFBI(*), BIAC(*), BICA(*)
 integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*), INDBI(*), NINTGR
+real(kind=wp), intent(out) :: TIBUF(NTRABUF)
 integer(kind=iwp), intent(in) :: ISAB(*)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADD10, IADR, IBUFIJ, ICHK, ICP, ICPP, ICQ, ID, IDISK, IDIV, IIJ, IIN, IJ, IJKL, ILEN, &
                      ILOOP, INND, INS, INSOUT, IOUT, IREC, ITURN, JDISK, KBUF0, KBUF1, KBUF2, KK, KKBUF0, KKBUF1, KKBUF2, KL, &
                      LENGTH, M1, M2, M3, M4, N1, N2, N3, N4, NA, NAC, NAT, NB, NC, NI, NIB, NJ, NK, NL, NOP, NOQ, NOR, NORB0(9), &
@@ -40,9 +41,7 @@ real(kind=wp) :: FINI
 logical(kind=iwp) :: Skip
 
 call COUNT_CPF(NINTGR,NSYM,NORB,MUL)
-if (IPRINT >= 2) then
-  write(6,*) ' NUMBER OF TWO-ELECTRON INTEGRALS:',NINTGR
-end if
+if (IPRINT >= 2) write(u6,*) ' NUMBER OF TWO-ELECTRON INTEGRALS:',NINTGR
 IAD50 = 0
 call iDAFILE(Lu_TraInt,2,iTraToc,nTraToc,IAD50)
 KKBUF0 = (RTOI*(KBUFF1+2)-2)/(RTOI+1)
@@ -84,7 +83,7 @@ do NSP=1,NSYM
         NOS = NORB(NSS)
         NORBP = NOP*NOQ*NOR*NOS
         if (NORBP == 0) cycle
-        call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
+        call dDAFILE(Lu_TraInt,2,TIBUF,NTRABUF,IAD50)
         IOUT = 0
         do NV=1,NOR
           NXM = NOS
@@ -99,8 +98,8 @@ do NSP=1,NSYM
               if (NSP == NSQ) NUMAX = NT
               loop1: do NU=NUMIN,NUMAX
                 IOUT = IOUT+1
-                if (IOUT > NTIBUF) then
-                  call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
+                if (IOUT > NTRABUF) then
+                  call dDAFILE(Lu_TraInt,2,TIBUF,NTRABUF,IAD50)
                   IOUT = 1
                 end if
                 M1 = ICH(NORB0(NSP)+NT)

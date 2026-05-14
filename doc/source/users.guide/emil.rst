@@ -140,7 +140,7 @@ Also, it is important to place spaces in between elements (words) in the command
 
 Here is a list of EMIL commands:
 
-.. xmldoc:: <EMIL>
+.. xmldoc:: <EMIL APPEAR="Commands">
 
 .. class:: commandlist
 
@@ -713,6 +713,10 @@ coordinate is the variable $R. ::
 
 Customization of molcas input
 -----------------------------
+
+.. warning::
+
+   This feature is not available in |openmolcas|.
 
 EMIL interpretor supports templates (aliases) for a group of program calls
 or/and keywords. The definition of these templates can be located in file :file:`alias`

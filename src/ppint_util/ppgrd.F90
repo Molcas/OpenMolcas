@@ -23,23 +23,24 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper
 use Index_Functions, only: nTri_Elem1
+use Disp, only: Dirct, IndDsp
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp), parameter :: lproju = 9, imax = 100, kcrs = 1
-integer(kind=iwp) :: i, ia, iAlpha, ib, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), iExp, iIrrep, iOff, iplalbm, iplalbp, iplamlb, &
-                     iplaplb, ipRef, iPrint, iRout, iSh, iStrt, iuvwx(4), iVec, iZeta, JndGrd(3,4), kCnt, kdc, kSh, kShEnd, &
+integer(kind=iwp) :: i, iAlpha, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), iExp, iIrrep, iOff, iplalbm, iplalbp, iplamlb, &
+                     iplaplb, ipRef, iSh, iStrt, iuvwx(4), iZeta, JndGrd(3,4), kCnt, kdc, kSh, kShEnd, &
                      kShStr, lcr(kcrs), lDCRT, LmbdT, lOp(4), mGrad, nArray, ncr(imax), ncrr, nDAO, nDCRT, nDisp, &
                      nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), nlalbm, nlalbp, nlamlb, nlaplb, npot, nPP_S
 real(kind=wp) :: C(3), ccr(imax), Fact, TC(3), zcr(imax)
+logical(kind=iwp) :: JfGrad(3,4)
+logical(kind=iwp), external :: EQ, TF
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib, iVec
 character(len=80) :: Label
-logical(kind=iwp) :: EQ, JfGrad(3,4)
-#include "Molcas.fh"
-#include "print.fh"
-#include "disp.fh"
-logical(kind=iwp), external :: TF
+#endif
 
 #include "macros.fh"
 unused_var(Zeta)
@@ -53,8 +54,6 @@ unused_var(nOrdOp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 122
-iPrint = nPrint(iRout)
 
 nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 iIrrep = 0
@@ -184,7 +183,7 @@ do iCnttp=1,nCnttp
       iCmp = 2**iCar
       if (TF(kdc+kCnt,iIrrep,iCmp) .and. (.not. dbsc(iCnttp)%pChrg)) then
         nDisp = nDisp+1
-        if (Direct(nDisp)) then
+        if (Dirct(nDisp)) then
           JndGrd(iCar+1,1) = abs(JndGrd(iCar+1,1))
           JndGrd(iCar+1,2) = abs(JndGrd(iCar+1,2))
           JndGrd(iCar+1,3) = -nDisp
@@ -222,28 +221,28 @@ do iCnttp=1,nCnttp
 
           ! la+1, lb
 
-          call FZero(Array(iplaplb),nlaplb)
+          Array(iplaplb:iplaplb+nlaplb-1) = Zero
           call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+2,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(iplaplb),nlaplb,max(la+2,lb+1), &
                       ccr,zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
 
           ! la-1, lb
 
           if (la > 0) then
-            call FZero(Array(iplamlb),nlamlb)
+            Array(iplamlb:iplamlb+nlamlb-1) = Zero
             call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(iplamlb),nlamlb,max(la,lb+1),ccr, &
                         zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
           end if
 
           ! la, lb+1
 
-          call FZero(Array(iplalbp),nlalbp)
+          Array(iplalbp:iplalbp+nlalbp-1) = Zero
           call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb+2,Array(iplalbp),nlalbp,max(la+1,lb+2), &
                       ccr,zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
 
           ! la, lb-1
 
           if (lb > 0) then
-            call FZero(Array(iplalbm),nlalbm)
+            Array(iplalbm:iplalbm+nlalbm-1) = Zero
             call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb,Array(iplalbm),nlalbm,max(la+1,lb),ccr, &
                         zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
           end if
@@ -257,20 +256,20 @@ do iCnttp=1,nCnttp
       end do   ! iBeta
 
       !AOM<
-      if (abs(Fact-One) > 1.0e-7_wp) call dscal_(nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)*mGrad,Fact,rFinal,1)
+      if (abs(Fact-One) > 1.0e-7_wp) rFinal(:,:,:,:,1:mGrad) = Fact*rFinal(:,:,:,:,1:mGrad)
       !AOM>
-      if (iPrint >= 99) then
-        write(u6,*) ' Result in PPGrd'
-        write(u6,*) JfGrad
-        do ia=1,nTri_Elem1(la)
-          do ib=1,nTri_Elem1(lb)
-            do iVec=1,mGrad
-              write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
-              call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
-            end do
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' Result in PPGrd'
+      write(u6,*) JfGrad
+      do ia=1,nTri_Elem1(la)
+        do ib=1,nTri_Elem1(lb)
+          do iVec=1,mGrad
+            write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+            call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
           end do
         end do
-      end if
+      end do
+#     endif
       !                                                                *
       !*****************************************************************
       !                                                                *

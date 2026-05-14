@@ -12,7 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine vCff2D(nabMax,ncdMax,nRys,Zeta,ZInv,Eta,EInv,nT,Coori,CoorAC,P,Q,la,lb,lc,ld,U2,PAQP,QCPQ,B10,B00,lac,B01)
+subroutine vCff2D( &
+#                 define _CALLING_
+#                 include "cff2d_interface.fh"
+                 )
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the coefficients in the three terms recurrence    *
@@ -29,12 +32,9 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nabMax, ncdMax, nRys, nT, la, lb, lc, ld, lac
-real(kind=wp), intent(in) :: Zeta(nT), ZInv(nT), Eta(nT), EInv(nT), Coori(3,4), CoorAC(3,2), P(nT,3), Q(nT,3), U2(nRys,nT)
-real(kind=wp), intent(inout) :: PAQP(nRys,nT,3), QCPQ(nRys,nT,3), B10(nRys,nT), B00(nRys,nT), B01(nRys,nT)
+#include "cff2d_interface.fh"
 integer(kind=iwp) :: iCar, iT, nabMax_, ncdMax_
 logical(kind=iwp) :: AeqB, CeqD
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 logical(kind=iwp) :: PrintB00, PrintB01, PrintB10
 #endif
@@ -46,12 +46,12 @@ unused_var(ncdMax)
 unused_var(lac)
 
 #ifdef _DEBUGPRINT_
-call RecPrt(' In vCff2D: Coori',' ',Coori,3,4)
-call RecPrt(' In vCff2D: U2',' ',U2,nRys,nT)
-call RecPrt(' in vCff2d: Zeta',' ',Zeta,1,nT)
-call RecPrt(' in vCff2d: Eta ',' ',Eta,1,nT)
-call RecPrt(' in vCff2d: ZInv',' ',ZInv,1,nT)
-call RecPrt(' in vCff2d: EInv',' ',EInv,1,nT)
+call RecPrt('vCff2D: Coori',' ',Coori,3,4)
+call RecPrt('vCff2D: U2',' ',U2,nRys,nT)
+call RecPrt('vCff2d: Zeta',' ',Zeta,1,nT)
+call RecPrt('vCff2d: Eta ',' ',Eta,1,nT)
+call RecPrt('vCff2d: ZInv',' ',ZInv,1,nT)
+call RecPrt('vCff2d: EInv',' ',EInv,1,nT)
 #endif
 AeqB = EQ(Coori(1,1),Coori(1,2))
 CeqD = EQ(Coori(1,3),Coori(1,4))
@@ -61,13 +61,18 @@ PrintB01 = .false.
 PrintB00 = .false.
 #endif
 
-nabMax_ = la+lb
-ncdMax_ = lc+ld
+if (nOrdOp == 0) then
+  nabMax_ = la+lb
+  ncdMax_ = lc+ld
+else
+  nabMax_ = la+lb+2
+  ncdMax_ = lc+ld+2
+end if
 if ((nabMax_ >= 2) .and. (ncdMax_ >= 2)) then
-  B00(:,:) = Half*U2
+  B00(:,:,1) = Half*U2
   do iT=1,nT
-    B10(:,iT) = Half*(One-U2(:,iT)*Eta(iT))*ZInv(iT)
-    B01(:,iT) = Half*(One-U2(:,iT)*Zeta(iT))*EInv(iT)
+    B10(:,iT,1) = Half*(One-U2(:,iT)*Eta(iT))*ZInv(iT)
+    B01(:,iT,1) = Half*(One-U2(:,iT)*Zeta(iT))*EInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB10 = .true.
@@ -76,38 +81,38 @@ if ((nabMax_ >= 2) .and. (ncdMax_ >= 2)) then
 # endif
 else if ((ncdMax_ == 0) .and. (nabMax_ >= 2)) then
   do iT=1,nT
-    B10(:,iT) = Half*(One-U2(:,iT)*Eta(iT))*ZInv(iT)
+    B10(:,iT,1) = Half*(One-U2(:,iT)*Eta(iT))*ZInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB10 = .true.
 # endif
 else if ((nabMax_ == 0) .and. (ncdMax_ >= 2)) then
   do iT=1,nT
-    B01(:,iT) = Half*(One-U2(:,iT)*Zeta(iT))*EInv(iT)
+    B01(:,iT,1) = Half*(One-U2(:,iT)*Zeta(iT))*EInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB01 = .true.
 # endif
 else if ((ncdMax_ == 1) .and. (nabMax_ >= 2)) then
-  B00(:,:) = Half*U2
+  B00(:,:,1) = Half*U2
   do iT=1,nT
-    B10(:,iT) = Half*(One-U2(:,iT)*Eta(iT))*ZInv(iT)
+    B10(:,iT,1) = Half*(One-U2(:,iT)*Eta(iT))*ZInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB10 = .true.
   PrintB00 = .true.
 # endif
 else if ((nabMax_ == 1) .and. (ncdMax_ >= 2)) then
-  B00(:,:) = Half*U2
+  B00(:,:,1) = Half*U2
   do iT=1,nT
-    B01(:,iT) = Half*(One-U2(:,iT)*Zeta(iT))*EInv(iT)
+    B01(:,iT,1) = Half*(One-U2(:,iT)*Zeta(iT))*EInv(iT)
   end do
 # ifdef _DEBUGPRINT_
   PrintB01 = .true.
   PrintB00 = .true.
 # endif
 else if ((nabMax_ == 1) .and. (ncdMax_ == 1)) then
-  B00(:,:) = Half*U2
+  B00(:,:,1) = Half*U2
 # ifdef _DEBUGPRINT_
   PrintB00 = .true.
 # endif
@@ -173,19 +178,19 @@ else if (ncdMax_ /= 0) then
   end if
 end if
 #ifdef _DEBUGPRINT_
-if (la+lb > 0) then
-  !call RecPrt(' PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
-  !call RecPrt(' PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
-  !call RecPrt(' PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
+if (la+lb+nOrdOp > 0) then
+  call RecPrt('vCff2D: PAQP(x)',' ',PAQP(:,:,1),nRys,nT)
+  call RecPrt('vCff2D: PAQP(y)',' ',PAQP(:,:,2),nRys,nT)
+  call RecPrt('vCff2D: PAQP(z)',' ',PAQP(:,:,3),nRys,nT)
 end if
-if (lc+ld > 0) then
-  !call RecPrt(' QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
-  !call RecPrt(' QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
-  !call RecPrt(' QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
+if (lc+ld+nOrdOp > 0) then
+  call RecPrt('vCff2D: QCPQ(x)',' ',QCPQ(:,:,1),nRys,nT)
+  call RecPrt('vCff2D: QCPQ(y)',' ',QCPQ(:,:,2),nRys,nT)
+  call RecPrt('vCff2D: QCPQ(z)',' ',QCPQ(:,:,3),nRys,nT)
 end if
-if (PrintB10) call RecPrt(' B10',' ',B10(:,:),nRys,nT)
-if (PrintB00) call RecPrt(' B00',' ',B00(:,:),nRys,nT)
-if (PrintB01) call RecPrt(' B01',' ',B01(:,:),nRys,nT)
+if (PrintB10) call RecPrt('vCff2D: B10',' ',B10(:,:,1),nRys,nT)
+if (PrintB00) call RecPrt('vCff2D: B00',' ',B00(:,:,1),nRys,nT)
+if (PrintB01) call RecPrt('vCff2D: B01',' ',B01(:,:,1),nRys,nT)
 #endif
 
 return

@@ -32,6 +32,6 @@ end do
 
 return
 
-1010 format('0',I3,2X,4(E15.8),/,(6X,4(E15.8)))
+1010 format('0',I3,2X,4(ES15.8),/,(6X,4(ES15.8)))
 
 end subroutine WRTMAT

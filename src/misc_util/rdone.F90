@@ -30,7 +30,7 @@ contains
 
 subroutine RdOne_Internal(rData)
 
-  real(kind=wp), intent(_OUT_), target :: rData(*)
+  real(kind=wp), target, intent(_OUT_) :: rData(*)
   integer(kind=iwp), pointer :: iData(:)
 
   call c_f_pointer(c_loc(rData(1)),iData,[1])

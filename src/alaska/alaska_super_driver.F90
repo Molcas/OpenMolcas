@@ -13,23 +13,25 @@ subroutine Alaska_Super_Driver(iRC)
 
 use Alaska_Info, only: Auto, DefRoot, ForceNAC, iRlxRoot
 use Para_Info, only: nProcs
+use NAC, only: isNAC, NACStates
+use spool, only: SpoolInp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iRC
-#include "warnings.h"
-#include "nac.fh"
 integer(kind=iwp) :: Columbus, iGo, iMp2Prpt, iPL, iReturn, istatus, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, nSym
 logical(kind=iwp) :: Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exists, Do_Numerical_Cholesky, Do_1CCD, MCLR_Ready
-character(len=128) :: FileName
 character(len=180) :: Line
+character(len=128) :: FileName
 character(len=80) :: KSDFT
 character(len=16) :: mstate1, mstate2, StdIn
 character(len=8) :: Method
 real(kind=wp), allocatable :: Grad(:)
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 logical(kind=iwp), external :: Reduce_Prt
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************
@@ -79,6 +81,8 @@ if (Method == 'MBPT2   ') then
     write(u6,*) '   Correct the input and restart the calculation!'
     call Abend()
   end if
+else if (Method == 'CASPT2') then
+  call Get_iScalar('mp2prpt',iMp2Prpt)
 end if
 
 Do_Numerical_Cholesky = Do_Cholesky .or. Do_DF
@@ -97,7 +101,7 @@ if ((Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1)))) then
 
   if ((Method == 'KS-DFT  ') .or. (Method == 'UHF-SCF ') .or. (Method == 'RHF-SCF ') .or. (Method == 'CASSCF  ') .or. &
       (Method == 'RASSCF  ') .or. (Method == 'GASSCF  ') .or. (Method == 'DMRGSCF ') .or. (Method == 'CASSCFSA') .or. &
-      (Method == 'MCPDFT  ') .or. (Method == 'MSPDFT  ')) then
+      (Method == 'RASSCFSA') .or. (Method == 'CASPT2  ') .or. (Method == 'MCPDFT  ') .or. (Method == 'MSPDFT  ')) then
     Do_Numerical_Cholesky = .false.
   else if ((Method == 'MBPT2   ') .and. (nSym == 1)) then
     Do_Numerical_Cholesky = .false.
@@ -118,8 +122,8 @@ if (Method == 'DMRGSCFS') then
   call Get_iScalar('SA ready',iGo)
 end if
 
-if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'RASSCFSA') .or. (Method == 'GASSCFSA') .or. &
-    ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. (Method == 'CASPT2') .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
+if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'GASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. &
+    ((Method == 'CASPT2') .and. (iMp2Prpt /= 2)) .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
     (Method == 'CCSDT') .or. (Method == 'EXTERNAL')) then
   if (isNAC) then
     call Store_Not_Grad(0,NACstates(1),NACstates(2))
@@ -176,7 +180,8 @@ else if (Do_Cholesky .and. (Method == 'MBPT2') .and. (nProcs > 1)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) then
+else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. &
+         (Method == 'CASPT2  ')) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -195,6 +200,7 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
   ! iGo = -1 non-equivalent multi state SA-CASSCF
   ! iGo = 0  equivalent multi state SA-CASSCF
   ! iGo = 2  single root SA-CASSCF
+  ! iGo = 3  CASPT2 density has been computed, but MCLR has not
   mstate2 = ''
   if (iGo /= 2) then
     call Get_cArray('MCLR Root',mstate2,16)
@@ -216,7 +222,7 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
   mstate1(1:1) = mstate2(1:1)
   MCLR_Ready = (iGO == 1) .and. (mstate1 == mstate2)
 
-  if (MCLR_Ready .or. (iGO > 1)) then
+  if (MCLR_Ready .or. ((iGO == 1) .or. (iGo == 2))) then
     call Alaska(LuSpool,iRC)
 
     ! Add ESPF contribution
@@ -233,10 +239,11 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
     ! Reset iGO to 0 to allow for new MCLR/ALASKA calculations
     if (iGo == 1) iGo = 0
     call Put_iScalar('SA ready',iGo)
-  else if (iGO == -1) then
-    call WarningMessage(2,'Error in Alaska_Super_Driver')
-    write(u6,*) 'Gradients not implemented for SA-CASSCF with non-equivalent weights!'
-    call Abend()
+    if (Method == 'CASPT2  ') then
+      !! Reset MCLR Root so as not to use leftover states
+      write(mstate2,'(1X,I7,1X,I7)') 0,0
+      call Put_cArray('MCLR Root',mstate2,16)
+    end if
   else
     if (iPL >= 3) then
       write(u6,*)
@@ -292,6 +299,20 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
     write(LuInput,'(A)') '>export MOLCAS_TRAP=$AL_OLD_TRAP'
     write(LuInput,'(A)') '>ECHO ON'
     close(LuInput)
+
+    if (Method == 'CASPT2  ') then
+      !! if states computed in CASPT2 and MCLR are inconsistent,
+      !! do CASPT2 again
+      if ((iGo == 1) .and. (mstate1 /= mstate2)) then
+        iGo = 0
+        call Put_iScalar('SA ready',iGo)
+      end if
+      !! use "@" temporarily to distinguish the module (either ALASKA
+      !! or MCLR) specifying the states
+      !! @: ALASKA, comma: MCLR
+      mstate1(9:9) = '@'
+      call Put_cArray('MCLR Root',mstate1,16)
+    end if
     call Finish(_RC_INVOKED_OTHER_MODULE_)
 
   end if
@@ -315,16 +336,16 @@ else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
   if (iGO == 99) then
     call WarningMessage(2,'Error in Alaska_Super_Driver')
     write(u6,*) 'MC-PDFT was run without the GRADient keyword.  Analytic gradients require this keyword.  Please use the '// &
-                'GRADient keyword in the preceeding MC-PDFT step.'
+                'GRADient keyword in the preceding MC-PDFT step.'
     call Abend()
   end if
 
   if (iRlxRoot == 0) iRlxRoot = 1
-  !if (isNAC) then
-  !  write(mstate1,'(1X,I7,",",I7)') NACStates(1),NACStates(2)
-  !else
-  write(mstate1,'(I16)') iRlxRoot
-  !end if
+  if (isNAC) then
+    write(mstate1,'(1X,I7,",",I7)') NACStates(1),NACStates(2)
+  else
+    write(mstate1,'(I16)') iRlxRoot
+  end if
 
   ! iGo = -1 non-equivalent multi state SA-CASSCF
   ! iGo = 0  equivalent multi state SA-CASSCF
@@ -389,10 +410,10 @@ else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
 
     write(LuInput,'(A)') ' &MCLR &End'
     write(LuInput,'(A)') ' PRINT = 100'
-    !if (isNAC) then
-    !  write(LuInput,'(A)') 'NAC'
-    !  write(LuInput,'(I5,1X,I5)') NACstates(1),NACstates(2)
-    !end if
+    if (isNAC) then
+      write(LuInput,'(A)') 'NAC'
+      write(LuInput,'(I5,1X,I5)') NACstates(1),NACstates(2)
+    end if
     write(LuInput,'(A)') 'End of Input'
     write(LuInput,'(A)') ' '
 

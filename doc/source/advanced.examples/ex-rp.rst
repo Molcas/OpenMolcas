@@ -224,7 +224,7 @@ To constraint the :math:`\ce{O{1}-H{3}}` bond distance we modify the input to th
   Constraint
   R1 = Bond H3 O1
   Value
-  R1 = 2.0 Angstrom
+  R1 = 2.0 angstrom
   End of Constraint
 
 The :program:`SLAPAF` module's associated input looks like: ::

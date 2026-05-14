@@ -37,9 +37,12 @@
 !***********************************************************************
 
 #ifdef _CALLING_
+
 Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,Hess,nHess,IfHss,IndHss,IfGrd, &
 IndGrd,DAO,mdc,ndc,nOp,lOper,nComp,iStabM,nStabM,nSym &
+
 #else
+
 integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nHess, nSym, IndHss(0:1,0:2,0:1,0:2,0:nSym-1), &
                                  IndGrd(0:2,0:1,0:nSym-1), mdc, ndc, nOp(2), nComp, nStabM, lOper(nComp), iStabM(0:nStabM-1)
 real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3)
@@ -47,5 +50,7 @@ real(kind=wp), intent(inout) :: rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_
                                 DAO(nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
 real(kind=wp), intent(out) :: Array(nArr)
 logical(kind=iwp), intent(in) :: IfHss(0:1,0:2,0:1,0:2), IfGrd(0:2,0:1)
+
 #endif
+
 #undef _CALLING_

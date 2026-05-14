@@ -38,11 +38,10 @@ subroutine CHO_FMCSCF(rc,FLT,nForb,nIorb,nAorb,FactXI,DLT,DoActive,POrb,nChM,W_P
 !
 !***********************************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -56,9 +55,6 @@ real(kind=wp), intent(in) :: FactXI, ExFac
 type(DSBA_Type), intent(in) :: DLT(2), POrb(3), CMO
 logical(kind=iwp), intent(in) :: DoActive
 real(kind=wp), intent(_OUT_) :: W_PWXY(*)
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, iCase, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymb, iSymk, iSymv, iSymw, IVEC2, iVrs, JNUM, &
                      JRED, JRED1, JRED2, jSym, JVC, JVEC, k, kMOs, l, LREAD, LWORK, mTvec, mTvec1, mTvec2, mTvec3, mTvec4, MUSED, &
                      NAch, nAux(8), nAv, nAw, nBatch, nDen, NK, nMOs, nnA(8,8), nPorb(8), nRS, NUMV, nVec, nVrs
@@ -66,14 +62,15 @@ real(kind=wp) :: TCC1, TCC2, TCINT1, TCINT2, tcoul(2), TCR1, TCR2, TCR3, TCR4, T
                  texch(2), tintg(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, TWC2, TWINT1, TWINT2, &
                  TWR1, TWR2, TWR3, TWR4, TWR5, TWR6, TWR7, TWR8, TWX1, TWX2, TWX3, TWX4, xfac
 logical(kind=iwp) :: add, DoRead, DoTraInt
-#ifdef _DEBUGPRINT_
-logical(kind=iwp) :: Debug
-#endif
 character(len=50) :: CFmt
 type(SBA_Type), target :: Laq(3), Lxy
 type(twxy_type) :: Scr
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ISYM
+logical(kind=iwp) :: Debug
+#endif
 real(kind=wp), allocatable :: Lrs(:,:), Drs(:,:), Frs(:,:)
-real(kind=wp), pointer :: VJ(:) => null()
+real(kind=wp), pointer :: VJ(:)
 real(kind=wp), parameter :: FactCI = One, FactCA = One, FactXA = -Half
 character(len=*), parameter :: SECNAM = 'CHO_FMCSCF'
 
@@ -225,12 +222,12 @@ do jSym=1,nSym
 
     do iBatch=1,nBatch
       iSwap = 2 ! LpJ,b are returned
-      call Allocate_DT(Laq(1),nAux,nBas,nVec,JSYM,nSym,iSwap)
       if (iBatch == nBatch) then
         JNUM = nVrs-nVec*(nBatch-1)
       else
         JNUM = nVec
       end if
+      call Allocate_DT(Laq(1),nAux,nBas,JNUM,JSYM,nSym,iSwap)
 
       JVEC = nVec*(iBatch-1)+iVrs
       IVEC2 = JVEC-1+JNUM
@@ -293,7 +290,7 @@ do jSym=1,nSym
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
         tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-        VJ => null()
+        nullify(VJ)
 
       end if  ! Coulomb (jsym=1)
 
@@ -351,7 +348,7 @@ do jSym=1,nSym
 
       if (DoActive) then
         iSwap = 2  ! LxJ,b are returned
-        call Allocate_DT(Laq(2),nChM,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(2),nChM,nBas,JNUM,JSYM,nSym,iSwap)
         ! *********************** "CHOLESKY" HALF-TRANSFORMATION  ****************
         ! ----------------------------------------------------------------
         ! Using "Cholesky MOs" obtained by cholesky decomposing DA
@@ -412,10 +409,10 @@ do jSym=1,nSym
       ! ----------------------------------------------------------------
       ! Lvw,J, LT-storage for the diagonal symmetry blocks
       iSwap = 4
-      call Allocate_DT(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Lxy,nAorb,nAorb,JNUM,JSYM,nSym,iSwap)
 
       iSwap = 0 ! Lvb,J are returned
-      call Allocate_DT(Laq(3),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(3),nAorb,nBas,JNUM,JSYM,nSym,iSwap)
 
       call CWTIME(TCR7,TWR7)
 

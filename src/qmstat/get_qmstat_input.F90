@@ -24,12 +24,12 @@ use qmstat_global, only: AddExt, Anal, ATitle, CAFieldG, CBFieldG, cDumpForm, CF
                          SaFilUt, ScalExt, Sexre1, Sexre2, Sexrep, SimEx, SingPoint, SlExpC, SlFactC, SlPC, StFilIn, StFilUt, &
                          Surf, Temp, ThrsCont, ThrsRedOcc, Udisp
 use Index_Functions, only: nTri3_Elem
+use spool, only: Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iQ_Atoms
-#include "warnings.h"
 integer(kind=iwp) :: i, iChrct, iNrExtr, iTemp, j, kaunt, Last, LuRd, NExtr_Atm, njhr, nS, nT
 real(kind=wp) :: CoTEMP1(3), CoTEMP2(3), CoTEMP3(3), CoTEMP4(3), CoTEMP5(3), dTemp, SlExpTemp, SlFacTemp(6)
 logical(kind=iwp) :: Changed, YesNo(20)
@@ -39,6 +39,8 @@ character(len=3) :: VecsQue
 integer(kind=iwp), external :: iClast, IsFreeUnit
 character(len=180), external :: Get_Ln
 real(kind=wp), allocatable :: Tmp(:), Tmp2(:,:)
+
+#include "warnings.h"
 
 ! Say what is done and set all YesNo to false; their purpose is to
 ! keep track on compulsory keywords and certain keyword combinations.
@@ -603,7 +605,7 @@ do
             call mma_deallocate(Disp)
             call move_alloc(Tmp2,Disp)
             ! Reallocate SlExpC
-            call mma_allocate(Tmp2,4,max(size(SlExpC,2),nSlSiteC),label='Tmp')
+            call mma_allocate(Tmp2,2,max(size(SlExpC,2),nSlSiteC),label='Tmp')
             Tmp2(:,1:size(SlExpC,2)) = SlExpC
             call mma_deallocate(SlExpC)
             call move_alloc(Tmp2,SlExpC)

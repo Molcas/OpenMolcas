@@ -77,8 +77,8 @@ set (sources
      orbrot2.F90
      overlq.F90
      pararoot.F90
-     placeit9.F90
      placeit.F90
+     placeit9.F90
      planevectors.F90
      polink.F90
      polins.F90
@@ -106,8 +106,8 @@ set (sources
      sl_grad.F90
      spherical.F90
      sqtotri_q.F90
-     statemmeao.F90
      statemme.F90
+     statemmeao.F90
      statemmemo.F90
      tdmtrans.F90
      tkp.F90

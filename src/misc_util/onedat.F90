@@ -11,6 +11,7 @@
 
 module OneDat
 
+use Molcas, only: MxAtom, MxBas, MxSym
 use Definitions, only: iwp, ItoB
 
 implicit none
@@ -75,8 +76,6 @@ private
 !                                                                      *
 !----------------------------------------------------------------------*
 
-#include "Molcas.fh"
-
 type FInfo_type
   integer(kind=iwp) :: ID = 4101, VN = 1024
 end type FInfo_type
@@ -132,8 +131,9 @@ type AuxOne_type
 end type AuxOne_type
 
 integer(kind=iwp), parameter :: lTocOne = 1024*int(real(pEnd+1023)/1024.0)
-integer(kind=iwp) :: nBas(8), nSym, TocOne(lTocOne)
+integer(kind=iwp) :: nBas(8), nSym
 type(AuxOne_type) :: AuxOne
+integer(kind=iwp), allocatable :: TocOne(:)
 
 public :: AuxOne, FInfoOne, LenOp, lTocOne, MxOp, NaN, nAuxDt, nBas, nSym, oAddr, oComp, oLabel, oSymLb, pALbl, pAtom, pBas, &
           pChrge, pCoC, pCoM, pCoord, pEnd, pFID, pIndex, pNext, pOp, pOption, pPot, pSym, pSymOp, pTitle, pType, pVersN, rcOne, &

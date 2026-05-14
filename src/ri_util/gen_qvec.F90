@@ -12,7 +12,7 @@
 subroutine Gen_QVec(nIrrep,nBas_Aux)
 
 use Index_Functions, only: nTri_Elem
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -91,6 +91,9 @@ do iIrrep=0,nIrrep-1
   else
     mB = nB
     kQm = nQm
+    ! Dummy associations
+    Q_k(1:1) => Mem(1:1)
+    A_k(1:1) => Mem(1:1)
   end if
 
   iS = 1

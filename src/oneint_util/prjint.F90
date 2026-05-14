@@ -32,6 +32,10 @@ use Symmetry_Info, only: iChTbl, nIrrep
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "int_interface.fh"
@@ -39,7 +43,6 @@ integer(kind=iwp) :: ia, iaC, iAng, ib, iBk, iC, iCb, iCnt, iCnttp, iComp, iDCRT
                      ipK1, ipK2, ipOff, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iShll, lDCRT, llOper, LmbdT, mArr, mdc, nac, &
                      nBasisi, ncb, nDCRT, nExpi, nOp
 real(kind=wp) :: C(3), Fact, Factor, TC(3), Xg
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 #endif
@@ -57,7 +60,7 @@ unused_var(iAddPot)
 #ifdef _DEBUGPRINT_
 call RecPrt(' In PrjInt: A',' ',A,1,3)
 call RecPrt(' In PrjInt: RB',' ',RB,1,3)
-call RecPrt(' In PrjInt: Ccoor',' ',Ccoor,1,3)
+call RecPrt(' In PrjInt: CoorO',' ',CoorO,1,3)
 write(u6,*) ' In PrjInt: la,lb=',' ',la,lb
 #endif
 
@@ -112,7 +115,7 @@ do iCnttp=1,nCnttp
 
           nHer = (la+iAng+2)/2
           call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,nExpi,Array(ipZ1),Array(ipZI1),Array(ipK1),Array(ipP1),Array(ipF1), &
-                      nAlpha*nExpi,iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CCoor,nOrdOp)
+                      nAlpha*nExpi,iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
           ip = ip-6*nAlpha*nExpi
 
           ipF2 = ip
@@ -141,7 +144,7 @@ do iCnttp=1,nCnttp
 
           nHer = (iAng+lb+2)/2
           call MltPrm(Shells(iShll)%Exp,nExpi,Beta,nBeta,Array(ipZ2),Array(ipZI2),Array(ipK2),Array(ipP2),Array(ipF2),nExpi*nBeta, &
-                      iComp,iAng,lb,TC,RB,nHer,Array(ip),mArr,CCoor,nOrdOp)
+                      iComp,iAng,lb,TC,RB,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
           ip = ip-6*nExpi*nBeta
           ipTmp = ip
           ip = ip+max(nAlpha*nExpi*nac,nBeta*ncb*nBasisi)

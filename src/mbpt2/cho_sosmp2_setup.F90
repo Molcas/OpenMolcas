@@ -17,16 +17,15 @@ subroutine Cho_SOSmp2_Setup(irc)
 ! Purpose: setup of SOS-MP2 program.
 
 use Symmetry_Info, only: Mul
+use Cholesky, only: nBas, nSym
+use ChoMP2, only: ChoAlg, DecoMP2, ForceBatch, iAOVir, iMatab, iOcc, iT1am, iT1AOT, iVir, nAOVir, nBatch, nDel, nFro, nMatab, &
+                  nOcc, nOccT, nOrb, nT1am, nT1AOT, nTypF, nVir, nVirT, ThrMP2
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: iSym, iSyma, iSymAl, iSymb, iSymi, iTyp
-#include "cholesky.fh"
-#include "choorb.fh"
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 
 irc = 0
 

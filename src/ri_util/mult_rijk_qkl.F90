@@ -11,6 +11,7 @@
 ! Copyright (C) Jonas Bostrom                                          *
 !***********************************************************************
 
+!#define _CD_TIMING_
 subroutine Mult_RijK_QKL(iSO,nBas_aux,nIrrep)
 !*************************************************************************
 !     Author: Jonas Bostrom
@@ -29,19 +30,16 @@ use RI_glob, only: iAdrCVec, nChOrb, nIJ1, nIJR, NumAuxVec
 use Symmetry_Info, only: Mul
 use pso_stuff, only: lSA
 use Para_Info, only: Is_Real_Par
-use ChoSwp, only: InfVec
-use stdalloc, only: mma_allocate, mma_deallocate
+use Cholesky, only: InfVec, NumCho, timings
+#ifdef _CD_TIMING_
+use temptime, only: RMULT_CPU, RMULT_WALL
+#endif
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iSO, nIrrep, nBas_Aux(1:nIrrep)
-#include "cholesky.fh"
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
-#include "chotime.fh"
 integer(kind=iwp) :: i, iAdrC, iAdrQ, iAdrR, iAux, iFirstCho, iJBat, indx, indx2, iRest, iSeed, iSeed2, iSym, jSym, kSym, &
                      l_CVector, l_Q, l_QVector, l_RVec, l_RVector, lSym, Lu_Q, LuCVec, LuRVec, MaxCho, MaxLocCho, MaxMOprod, &
                      MaxMOProdR, MemMax, nJbat, njVec, nJvec1, nJvecLast, nTotCho, nTotFIorb, NumAux, NumCV, nVec(1:nIrrep)

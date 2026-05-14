@@ -14,7 +14,8 @@ subroutine Gamma_new(Int1,Int2,Int1_2,Int2_2,Scr1)
 #include "intent.fh"
 
 use MBPT2_Global, only: CMO, EOcc, EVir, mAdOcc, mAdVir, nBas
-use stdalloc, only: mma_allocate, mma_deallocate
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -22,7 +23,6 @@ use Definitions, only: u6
 #endif
 
 implicit none
-#include "corbinf.fh"
 real(kind=wp), intent(_OUT_) :: Int1(*), Int2(*), Int1_2(*), Int2_2(*), Scr1(*)
 integer(kind=iwp) :: i, iA, iAdrBin, iAdrGam, iAdrRdBin, iB, iBB, iBin, iBinLength, iBinSize, iBlock, iI, iIA, iJ, iJJ, iKap, &
                      iLam, iLamKap1, iLamKap2, iLastAdr, iLen, iMaxBas, iMaxBasProd, iMaxOccVir, iMemAvail, iMemNeeded, iMu, &
@@ -77,21 +77,21 @@ call mma_allocate(CMO_v,lCMO_v,label='CMO_v')
 ! Copy CMO to CMO_o and CMO_v
 
 do iSym=1,nSym
-  iOff = nBas(iSym)*nFro(iSym)+1
+  iOff = nBas(iSym)*nFro(iSym)
   nNO = nBas(iSym)*nOcc(iSym)
   nNV = nBas(iSym)*nExt(iSym)
 
-  call dCopy_(nNO,CMO(iOffCMO(iSym)+iOff),1,CMO_o(iOffCMO_o(iSym)+1),1)
+  CMO_o(iOffCMO_o(iSym)+1:iOffCMO_o(iSym)+nNO) = CMO(iOffCMO(iSym)+iOff+1:iOffCMO(iSym)+iOff+nNO)
 
   iOff = iOff+nNO
 
-  call dCopy_(nNV,CMO(iOffCMO(iSym)+iOff),1,CMO_v(iOffCMO_v(iSym)+1),1)
+  CMO_v(iOffCMO_v(iSym)+1:iOffCMO_v(iSym)+nNV) = CMO(iOffCMO(iSym)+iOff+1:iOffCMO(iSym)+iOff+nNV)
 end do
 
 #ifdef _DEBUGPRINT_
 ! Print the elements of the Full CMO-matrices as well as CMO_o and CMO_v.
 do iSym=1,nSym
-  call RecPrt('Full CMO',' ',CMO(iOffCMO(iSym)+1),nBas(iSym),nTOrb(iSym))
+  call RecPrt('Full CMO',' ',CMO(iOffCMO(iSym)+1:),nBas(iSym),nTOrb(iSym))
 end do
 do iSym=1,nSym
   call RecPrt('Occupied CMO',' ',CMO_o(iOffCMO_o(iSym)+1),nBas(iSym),nOcc(iSym))
@@ -223,7 +223,7 @@ do iBlock=1,nBlocks
   nJ2 = nOcc(iSym_D)
   nB2 = nExt(iSym_C)
 
-  ! Initialize adress for storing Bins on disk.
+  ! Initialize address for storing Bins on disk.
   iAdrBin = 1
   ! Setup the number of bins needed.
   if (Triangular) then
@@ -232,7 +232,7 @@ do iBlock=1,nBlocks
     nBins = nBas(iSym_C)*nBas(iSym_D)
   end if
 
-  ! Initialize the bins to have length 0 and adress -1 to
+  ! Initialize the bins to have length 0 and address -1 to
   ! next element
   Bin(1,0,1:nBins) = Zero
   Bin(2,0,1:nBins) = -One
@@ -368,7 +368,7 @@ do iBlock=1,nBlocks
         end if
 
         ! Place the result in a bin. A bin has fixed Lambda and Kappa and
-        ! includes Ti,a,lam,kap as well as i,a-adress
+        ! includes Ti,a,lam,kap as well as i,a-address
         iIA = iA-1+(iI-1)*nA
         do iKap=1,nBas(iSym_C)
           nLam = nBas(iSym_D)

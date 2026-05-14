@@ -10,7 +10,7 @@
 !***********************************************************************
 
 ! ci diagonal elements
-subroutine diagonal_loop_wyb()  !  for norb_act<>0
+subroutine diagonal_loop_wyb()  !  for norb_act/=0
 
 use gugaci_global, only: ipae, iseg_downwei, iw_downwei, iw_sta, jd, jpad, jpad_upwei, jpae, js, jt, jv, mxnode, nci_dim, nci_h0, &
                          ndim, ng_sm, norb_all, nu_ad, nu_ae, vdint, vector1, voint, vpotnuc
@@ -1512,7 +1512,7 @@ return
 
 end subroutine prodel
 
-!  2001.10.2 for norb_act<>0                          mg1,mg2,mg3:
+!  2001.10.2 for norb_act/=0                          mg1,mg2,mg3:
 !  idb=1  in dbl_space         ity_up=0-5             jd_type,jd_im,iwd
 !  idb=2  in ext_space         ity_down=0-3           je_type,je_im,iwe
 !  idb=3  in act_space         ity_up=0-5,itdown=0,3  jp,     mpe,  iwa

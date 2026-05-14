@@ -34,9 +34,15 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 
 #include "intent.fh"
 
-use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, DoLDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, &
-                        Thr_ghs, Title
+use Para_Info, only: Is_Real_Par, nProcs
+use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, Thr_ghs, Title
+use ChoMP2, only: all_vir, C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoDens, DoFNO, DoGrdt, DoMP2, DoT1amp, EOSMP2, FNOMP2, &
+                  ForceBatch, Laplace, Laplace_BlockSize, Laplace_BlockSize_Def, Laplace_mGridPoints, Laplace_nGridPoints, LovMP2, &
+                  MxQual_Def, MxQualMP2, nActa, NoGamma, OED_Thr, set_cd_thr, SOS_mp2, Span_Def, SpanMP2, ThrLov, ThrMP2, vkept, &
+                  Verbose
 use UnixInfo, only: SuperName
+use spool, only: Close_LuSpool, Spoolinp
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -50,7 +56,6 @@ integer(kind=iwp) :: i, iCom, iCount, iDNG, iDummy(1), iErr, iExt, iLow, iOrb, i
 logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFro, lFre, lDel, lSFro, lSDel, lExt, lPrt, LumOrb, &
                      Skip
 character(len=4) :: Command
-character(len=8) :: emiloop, inGeo
 character(len=80) :: VecTitle
 character(len=180) :: Line
 integer(kind=iwp), allocatable :: SQ(:)
@@ -59,13 +64,11 @@ character(len=*), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL',
                                              'EREF','VIRA','T1AM','GRDT','LAPL','GRID','BLOC','CHOA','DECO','NODE', &
                                              'THRC','SPAN','MXQU','PRES','CHKI','FORC','VERB','NOVE','FREE','PREC', &
                                              'SOSM','OEDT','OSFA','LOVM','DOMP','FNOM','GHOS','NOGR','END ']
-integer(kind=iwp), external :: iPrintLevel
-logical(kind=iwp), external :: ChoMP2_ChkPar, Reduce_Prt
+integer(kind=iwp), external :: iPrintLevel, isStructure
+logical(kind=iwp), external :: Reduce_Prt
 character(len=180), external :: Get_Ln
-#include "chomp2_cfg.fh"
-#include "corbinf.fh"
+
 #include "warnings.h"
-#include "Molcas.fh"
 
 !----------------------------------------------------------------------*
 !     Locate "start of input"                                          *
@@ -137,11 +140,6 @@ NoGamma = .false.
 Laplace = .false.
 Laplace_nGridPoints = 0
 Laplace_BlockSize = Laplace_BlockSize_Def
-! LDF settings
-if (DoLDF) then
-  SOS_MP2 = .true.
-  Laplace = .true.
-end if
 
 nTit = 0
 iTst = 0
@@ -471,12 +469,10 @@ outer: do
     case ('SOSM')
       !---- Process the "SOSMp2" input card ---------------------------*
       SOS_MP2 = .true.
-      if (.not. DoLDF) then
-        DecoMP2 = .true.
-        if (ChoMP2_ChkPar()) then
-          call WarningMessage(2,'SOS-MP2 is not implemented for parallel runs. !! SORRY !!')
-          call Quit(_RC_NOT_AVAILABLE_)
-        end if
+      DecoMP2 = .true.
+      if ((nProcs > 1) .and. Is_Real_Par()) then
+        call WarningMessage(2,'SOS-MP2 is not implemented for parallel runs. !! SORRY !!')
+        call Quit(_RC_NOT_AVAILABLE_)
       end if
 
     case ('OEDT')
@@ -580,24 +576,24 @@ end do outer
 !     "End of input"                                                   *
 !----------------------------------------------------------------------*
 
-if (.not. allocated(NamAct)) call mma_allocate(NamAct,nActa,label='NamAct')
-if (.not. allocated(iFro)) call mma_allocate(iFro,8,0,label='iFro')
-if (.not. allocated(iDel)) call mma_allocate(iDel,8,0,label='iDel')
+call mma_allocate(NamAct,nActa,label='NamAct',safe='*')
+call mma_allocate(iFro,8,0,label='iFro',safe='*')
+call mma_allocate(iDel,8,0,label='iDel',safe='*')
 
 ! Postprocessing for SOS-MP2 and Laplace
 if (SOS_MP2) then
-  if (.not. (DoCholesky .or. DoDF .or. DoLDF)) then
-    call WarningMessage(2,'SOS-MP2 only implemented for CD/DF/LDF')
+  if (.not. (DoCholesky .or. DoDF)) then
+    call WarningMessage(2,'SOS-MP2 only implemented for CD/DF')
     call Quit(_RC_INPUT_ERROR_)
   end if
 end if
 if (Laplace) then
-  if (.not. (DoCholesky .or. DoDF .or. DoLDF)) then
-    call WarningMessage(2,'Laplace transformation only implemented for CD/DF/LDF')
+  if (.not. (DoCholesky .or. DoDF)) then
+    call WarningMessage(2,'Laplace transformation only implemented for CD/DF')
     call Quit(_RC_INPUT_ERROR_)
   end if
   if (.not. SOS_MP2) then
-    call WarningMessage(2,'Laplace transformation only implemented for CD/DF/LDF-SOS-MP2')
+    call WarningMessage(2,'Laplace transformation only implemented for CD/DF-SOS-MP2')
     call Quit(_RC_INPUT_ERROR_)
   end if
   if (.not. DecoMP2_UsrDef) then
@@ -636,10 +632,7 @@ if (SuperName(1:18) == 'numerical_gradient') then
 end if
 
 if (nSym == 1) then
-  call GetEnvF('EMIL_InLoop',emiloop)
-  if (emiloop == ' ') emiloop = '0'
-  call GetEnvF('MOLCAS_IN_GEO',inGeo)
-  if ((emiloop(1:1) /= '0') .and. (inGeo(1:1) /= 'Y') .and. (.not. DNG)) then
+  if ((isStructure() == 1) .and. (.not. DNG)) then
     call Put_iScalar('mp2prpt',2)
     DoDens = .true.
     DoGrdt = .true.
@@ -800,7 +793,7 @@ end if
 
 ! turn off decomposition for parallel runs.
 
-if (DecoMP2 .and. ChoMP2_ChkPar()) then
+if (DecoMP2 .and. (nProcs > 1) .and. Is_Real_Par()) then
   write(u6,'(/,A)') 'WARNING!'
   write(u6,'(A)') 'Decomposition of MP2 integrals is not possible. Turning off decomposition.'
   DecoMP2 = .false.

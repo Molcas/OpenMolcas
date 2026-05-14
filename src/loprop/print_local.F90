@@ -13,12 +13,12 @@ subroutine Print_Local(rMP,nij,nElem,Coor,nAtoms,C_o_C,Q_Nuc,lMax,Lbl_Center,rMP
                        nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,ChPolBB,LIonize)
 
 use Real_Spherical, only: Sphere, Sphere_Free
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, auToeV
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nij, nElem, nAtoms, lMax, iANr(nAtoms), nOcOb, MpProp_Level
 real(kind=wp), intent(inout) :: rMP(nij,nElem), Temp(nij)
 real(kind=wp), intent(in) :: Coor(3,nAtoms), C_o_C(3), Q_Nuc(nAtoms), rMPq(nElem), EC(3,nij), Polar(6,nij), Energy_Without_FFPT, &

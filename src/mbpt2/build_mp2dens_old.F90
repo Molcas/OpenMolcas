@@ -14,6 +14,7 @@ subroutine Build_Mp2Dens_Old(TriDens,Density,CMO,mSym,nOrbAll,Diagonalize)
 #include "intent.fh"
 
 use Data_Structures, only: DSBA_Type
+use cOrbInf, only: nDel, nFro, nOcc, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -33,7 +34,6 @@ integer(kind=iwp), allocatable :: IndT(:,:)
 real(kind=wp), allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
                               Energies(:), MOTriBlock(:), TmpRecBlock(:)
 integer(kind=iwp), external :: IsFreeUnit
-#include "corbinf.fh"
 
 nOrbAllTot = nOrbAll(1)
 nOrbAllMax = nOrbAll(1)
@@ -93,7 +93,6 @@ do iSym=1,mSym
     call DGEMM_('N','T',nOrbAll(iSym),nOrbAll(iSym),nOrbAll(iSym),One,TmpRecBlock,nOrbAll(iSym),CMO(ipSymRec(iSym)+1), &
                 nOrbAll(iSym),Zero,AORecBlock,nOrbAll(iSym))
     !call RecPrt('AODens:','(20F8.5)',AORecBlock,nOrb(iSym),nOrb(iSym))
-    !call RecPrt('MODens:','(20F8.5)',Work(ip_MORecBlock),nOrb(iSym), nOrb(iSym))
     call Fold_Mat(1,nOrbAll(iSym),AORecBlock,AOTriBlock)
     call dcopy_(nOrbAll(iSym)*(nOrbAll(iSym)+1)/2,AOTriBlock,1,TriDens(ipSymTri(iSym)),1)
 

@@ -13,17 +13,16 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine PSOAO2(nSO,MemPrm,MemM,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc, &
-                  kPrim,kPrInc,lPrim,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,nCMO,MemFin,MemBuffer,iMemB)
+subroutine PSOAO2(nSO,MemM,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemFck,nFT,MemFin,MemBuffer,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
-!  Object: to partion the SO and AO block. It will go to some length   *
+!  Object: to partition the SO and AO block. It will go to some length *
 !          before it will start and break up the SO block. This will   *
 !          reduce the total flop count. However, as we are breaking up *
 !          the AO block this will affect the vectorization. Hence, at  *
 !          some point it will actually be better to recompute the      *
 !          primitives.                                                 *
-!          Current stratergy:                                          *
+!          Current strategy:                                           *
 !          1. Reduce the size of the density matrix and buffer so that *
 !             it fits into memory.                                     *
 !                                                                      *
@@ -78,34 +77,50 @@ use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: nTri_Elem1
 use Gateway_global, only: force_part_p !, force_part_c
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: lPSO
+use pso_stuff, only: iFnc, lPSO, MemPSO
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, iAnga(4), iCmpa(4), iAO(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
-                                 lPrim, nAco, iMemB
-integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, Mem1, Mem2, Mem3, Mem4, &
-                                  MemX, MemPSO, MemFck, nFT, nCMO, MemFin, MemBuffer
-#include "pstat.fh"
-integer(kind=iwp) :: i1, iiBas(4), iCmp, iFac, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, mabcd, Mem0, MemAux, &
-                     MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, nijkl, nMax, nMaxC, &
-                     nPam(4,0:7), nTmp1, nTmp2
+integer(kind=iwp), intent(in) :: nSO, MemM, nAco, nSD, MemBuffer
+integer(kind=iwp), intent(out) :: Mem1, Mem2, Mem3, Mem4, MemX, MemFck, nFT, MemFin
+integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
+integer(kind=iwp) :: i1, iAngV(4), iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), iPrim, iPrInc, iTmp1, j, jBas, jBsInc, &
+                     jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, &
+                     lPrim, lPrInc, mabcd, Mem0, MemAux, MemAux0, MemCntrct, MemDep, MemF, MemMax, MemMO, MemPrm, MemRys, MemScr, &
+                     MemSph, MemTrn, nabcd, nCMO, nFac, nijkl, nMax, nMaxC, nPam(4,0:7), nTmp1, nTmp2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 
-!iRout = 10
-!iPrint = nPrint(iRout)
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
+! Compute memory request for the primitives.
+
+iAngV(:) = iSD4(1,:)
+call MemRg2(iAngV,MemPrm)
+
+iAO(:) = iSD4(7,:)
+iCmpa(:) = iSD4(2,:)
+
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
+
 iCmp = iCmpa(1)
 jCmp = iCmpa(2)
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
-iTotal = iTotal+1
+
+iBas = iSD4(3,1)
+jBas = iSD4(3,2)
+kBas = iSD4(3,3)
+lBas = iSD4(3,4)
+
+iPrim = iSD4(5,1)
+jPrim = iSD4(5,2)
+kPrim = iSD4(5,3)
+lPrim = iSD4(5,4)
+
 mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
 
@@ -130,7 +145,6 @@ end if
 iPrInc = iPrim
 kPrInc = kPrim
 lPrInc = lPrim
-MemBuffer = iMemB
 MemMax = MemM-MemBuffer
 
 do
@@ -156,10 +170,9 @@ do
 
   MemFin = 9*nijkl*nabcd
   if (MemFin+ncmo+1 > Mem0) then
-    MaxReq = max(MaxReq,nCMO+MemFin+1-Mem0)
     QlPrim = .false.
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) 'PSOAO2: memory partitioning failed!'
       write(u6,*) '        Restart with more memory!'
@@ -191,7 +204,6 @@ do
     nPam(:,:) = 0
     MemPSO = 1
     nTmp2 = 0
-    !call IecPrt('iiBas',iiBas,1,4)
 
     do jPam=1,4
       iTmp1 = 0
@@ -218,9 +230,8 @@ do
     nFac = 0
     nTmp2 = 0
   end if
-  MemAux = MemPSO+MemScr+nFac*S%nDim+nTmp2+4
-  if (Mem1+1+MemAux > Mem0) then
-    MaxReq = max(MaxReq,Mem1+1+MemAux-Mem0)
+  MemAux0 = MemPSO+MemScr+nFac*S%nDim+nTmp2+4
+  if (Mem1+1+MemAux0 > Mem0) then
     QjPrim = .false.
     QlPrim = .false.
     QiBas = .false.
@@ -228,7 +239,7 @@ do
     QkBas = .false.
     QlBas = .true.
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) 'PSOAO2: memory partitioning failed!'
       write(u6,*) '        Restart with more memory!'
@@ -284,18 +295,18 @@ do
   ! If partial decontraction we need to keep the contracted 2nd
   ! order density matrix. (Work4)
   if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
-    MemAux = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
+    MemAux = max(mabcd,nabcd)*nijkl
   else
     MemAux = 0
   end if
   MemSph = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
-  Mem2 = max(MemTrn+MemAux,MemDeP,MemSph)
+
+  Mem2 = max(MemTrn+MemAux,MemDeP,MemSph,MemAux0)
   MemFck = MemFck-Mem2
   MemMO = MemMo-Mem2
   if (Mem2+1 > Mem0) then
-    MaxReq = max(MaxReq,Mem2+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) 'PSOAO2: memory partitioning failed!'
       write(u6,*) '        Restart with more memory!'
@@ -309,9 +320,8 @@ do
   MemFck = MemFck-MemX
   MemMO = MemMo-MemX
   if (MemX+1 > Mem0) then
-    MaxReq = max(MaxReq,MemX+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) 'PSOAO2: memory partitioning failed!'
       write(u6,*) '        Restart with more memory!'
@@ -344,9 +354,8 @@ do
   MemMo = max(0,MemMo)
   Mem3 = max(MemMO,MemFck,MemTrn,MemRys,2*MemF,MemF+MemCntrct)
   if (Mem3+1 <= Mem0) exit
-  MaxReq = max(MaxReq,Mem3+1-Mem0)
   call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-              MaxReq,Fail)
+              Fail)
   if (Fail) then
     write(u6,*) 'PSOAO2: memory partitioning failed!'
     write(u6,*) '        Restart with more memory!'
@@ -363,6 +372,14 @@ else
   Mem4 = Mem2
 end if
 
-return
+iSD4(4,1) = iBsInc
+iSD4(4,2) = jBsInc
+iSD4(4,3) = kBsInc
+iSD4(4,4) = lBsInc
+
+iSD4(6,1) = iPrInc
+iSD4(6,2) = jPrInc
+iSD4(6,3) = kPrInc
+iSD4(6,4) = lPrInc
 
 end subroutine PSOAO2

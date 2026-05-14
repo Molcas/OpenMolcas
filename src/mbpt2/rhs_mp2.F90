@@ -13,7 +13,10 @@ subroutine RHS_MP2()
 ! The RHS for the MP2-gradients
 
 use MBPT2_Global, only: Density, EMP2, LuIntM, mAdOcc, mAdVir, VECL2
+use ChoMP2, only: NoGamma
 use Symmetry_Info, only: Mul
+use trafo, only: IAD13, IADOUT
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -24,10 +27,10 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADOUT, nDelTot, nMaxOrb, nVirTot
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iDel, iExt, iFro, iOcc, nA, nB, nI
+#endif
 real(kind=wp), allocatable :: Int1(:), Int1_2(:), Int2(:), Int2_2(:), Scr1(:)
-#include "trafo.fh"
-#include "corbinf.fh"
-#include "chomp2_cfg.fh"
 
 IAD13 = 0
 LIADOUT = 3*36*36
@@ -36,7 +39,7 @@ LIADOUT = 3*36*36
 
 call iDAFILE(LuIntM,2,IADOUT,LIADOUT,IAD13)
 
-! Sort startadresses for Virtual and occupied orbital
+! Sort start addresses for Virtual and occupied orbital
 ! energies in nice vectors
 
 nVirTot = 0

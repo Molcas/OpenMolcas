@@ -15,14 +15,13 @@ module Do_Grid
 implicit none
 private
 
-public :: Do_GGL, Do_Lebedev, Do_Lebedev_Sym, Do_Lobatto
+public :: Do_GGL, Do_Lebedev, Do_Lobatto
 
 contains
 
 #define _IN_MODULE_
 #include "do_ggl.F90"
 #include "do_lebedev.F90"
-#include "do_lebedev_sym.F90"
 #include "do_lobatto.F90"
 
 end module Do_Grid

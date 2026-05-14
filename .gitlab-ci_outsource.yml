@@ -1,0 +1,22 @@
+# Trigger a pipeline in another project
+
+outsource:
+  stage: build
+  variables:
+    UPSTREAM_PROJECT: $CI_PROJECT_PATH
+    UPSTREAM_SOURCE_PROJECT: $CI_MERGE_REQUEST_SOURCE_PROJECT_PATH
+    UPSTREAM_SHA: $CI_COMMIT_SHA
+    UPSTREAM_PIPELINE: $CI_PIPELINE_ID
+    UPSTREAM_SOURCE: $CI_PIPELINE_SOURCE
+    UPSTREAM_REF_NAME: $CI_COMMIT_REF_NAME
+    UPSTREAM_TAG: $CI_COMMIT_TAG
+    UPSTREAM_FILE: .gitlab-ci_templates.yml
+    UPSTREAM_FILE2: .gitlab-ci_configs.yml
+    UPSTREAM_FILE3: .gitlab-ci_bulk.yml
+  trigger:
+    project: Molcas/Aux/Forrest
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+  rules: !reference [.compile-jobs, rules]

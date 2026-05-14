@@ -157,7 +157,7 @@ do
       !write(u6,*) ' Keyword ASCII is obsolete'
       !write(u6,*) ' It can be used only for debugging purpose'
       !write(u6,*) ' Note that .lus files produced with this option '
-      !write(u6,*) '      can not be visualised'
+      !write(u6,*) '      cannot be visualised'
       iBinary = 0
     case (4)
       ! NPOI
@@ -176,7 +176,7 @@ do
     case (7)
       ! ORBI Orbitals
       if (nReq > 0) then
-        write(u6,*) 'ORBI keyword can not be used together with SELEct'
+        write(u6,*) 'ORBI keyword cannot be used together with SELEct'
         call Quit_OnUserError()
       end if
       What = 'I'
@@ -330,7 +330,7 @@ do
       What = 'S'
       if (MyGetKey(InUnit,What,iD,rD,SelectStr,iD,iDum,rDum) /= 0) call error()
       if (nReq > 0) then
-        write(u6,*) 'SELEct keyword can not be used together with ORBItals'
+        write(u6,*) 'SELEct keyword cannot be used together with ORBItals'
         call Quit_OnUserError()
       end if
       call gridExpandSelect(SelectStr)

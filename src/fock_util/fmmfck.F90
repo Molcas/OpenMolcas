@@ -144,7 +144,7 @@ do J=1,nBasTot
     do L=0,LMAX
       do M=-L,L
         iM = M+L+1
-        !write (u6,'(5I3,2X,3F10.6,2E15.4)') L,M,ij,1,ij,CntrX(ij),CntrY(ij),CntrZ(ij),SphMoms(ij,iM,L+1),Dens(ij)
+        !write (u6,'(5I3,2X,3F10.6,2ES15.4)') L,M,ij,1,ij,CntrX(ij),CntrY(ij),CntrZ(ij),SphMoms(ij,iM,L+1),Dens(ij)
         write(98) L,M,I,J,ij,CntrX(ij),CntrY(ij),CntrZ(ij),SphMoms(ij,iM,L+1),Dens(ij)
       end do
     end do
@@ -157,7 +157,7 @@ call mma_deallocate(CntrZ)
 call mma_deallocate(SphMoms)
 
 ! Mark end of file with negative angular momentum
-write(98)-1,0,0,0,0,Zero,Zero,Zero,Zero,Zero
+write(98) -1,0,0,0,0,Zero,Zero,Zero,Zero,Zero
 close(98)
 
 ! Now call multipole code to update the Fock matrix with the

@@ -13,9 +13,11 @@
 !***********************************************************************
 
 ! This subroutine should be in a module, to avoid explicit interfaces
-#ifdef _IN_MODULE_
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
-subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
+subroutine Drv2El_Atomic_NoSym(ThrAO,iCnttp,jCnttp,TInt,nTInt,In_Core,ADiag,LuA,ijS_req,Keep_Shell)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals.                          *
@@ -31,30 +33,30 @@ subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_
 !             Modified driver. Jan. '98                                *
 !***********************************************************************
 
+use setup, only: nSOs
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD
 use RI_glob, only: SO2Ind
-use k2_arrays, only: Sew_Scr
+use k2_arrays, only: DeDe, Sew_Scr
 use Basis_Info, only: dbsc, nBas
-use Gateway_global, only: force_out_of_core, iWROpt
+use Gateway_global, only: force_out_of_core
 use Symmetry_Info, only: nIrrep
-use stdalloc, only: mma_allocate, mma_deallocate
+use Int_Options, only: iTOffs
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-external :: Integral_WrOut
 real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp), intent(in) :: iCnttp, jCnttp, ijS_req, Keep_Shell
 real(kind=wp), allocatable, intent(out) :: TInt(:), ADiag(:)
 integer(kind=iwp), intent(out) :: nTInt, LuA
 logical(kind=iwp), intent(out) :: In_Core
-#include "setup.fh"
-#include "iTOffs.fh"
-integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, iWROpt_Save, ji, jS, jTInt, klAng, klS, kS, lS, MaxMem, &
-                     MemLow, MemSew, MemT, mTInt, mTInt2, nBfn, nBfn_i, nBfn_j, nBfn_k, nBfn_l, nij, nIrrep_Save, nSkal, nTInt2
-logical(kind=iwp) :: Do_ERIs, Do_RI_Basis, DoFock, DoGrad, FreeK2, Indexation, Only_DB, Out_of_Core, Verbose
+integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, ji, jS, jTInt, klAng, klS, kS, lS, MaxMem, MemLow, &
+                     MemSew, MemT, mTInt, mTInt2, nBfn, nBfn_i, nBfn_j, nBfn_k, nBfn_l, nij, nIrrep_Save, nSkal, nTInt2
+logical(kind=iwp) :: Do_ERIs, Do_RI_Basis, DoFock, DoGrad, Indexation, Only_DB, Out_of_Core
 integer(kind=iwp), allocatable :: IJInd(:,:)
+real(kind=wp), allocatable :: Scr(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -64,8 +66,6 @@ integer(kind=iwp), external :: IsFreeUnit
 
 nIrrep_Save = nIrrep
 nIrrep = 1
-iWROpt_Save = iWROpt
-iWROpt = 1
 
 Do_RI_Basis = dbsc(iCnttp)%Aux
 
@@ -86,6 +86,7 @@ end if
 DoGrad = .false.
 DoFock = .false.
 Indexation = .false.
+call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
@@ -236,6 +237,7 @@ end if
 iTOffs(2) = nTInt  ! # of rows in TInt
 iTOffs(3) = mTInt  ! # of colums in TInt
 call mma_allocate(TInt,nTInt2,label='TInt')
+call mma_allocate(Scr,nTInt2,label='Scr')
 if (In_Core) TInt(:) = Zero
 !                                                                      *
 !***********************************************************************
@@ -283,7 +285,8 @@ do ijS=1,nij
     Do_ERIs = Do_ERIs .and. (ijAng <= Keep_Shell) .and. (klAng <= Keep_Shell)
 
     if (Do_ERIs) then
-      call Eval_IJKL(iS,jS,kS,lS,TInt,mTInt2,Integral_WrOut)
+      call Eval_IJKL(iS,jS,kS,lS,Scr,mTInt2)
+      TInt(1:mTInt2) = TInt(1:mTInt2)+Scr(1:mTInt2)
     end if
 
     if (.not. Only_DB) then
@@ -315,6 +318,8 @@ do ijS=1,nij
 
 end do      ! ijS
 
+call mma_deallocate(DeDe)
+
 if (Do_RI_Basis) call mma_deallocate(SO2Ind)
 !                                                                      *
 !***********************************************************************
@@ -324,15 +329,14 @@ if (Do_RI_Basis) call mma_deallocate(SO2Ind)
 !***********************************************************************
 
 if (Out_of_Core) call mma_deallocate(TInt)
+call mma_deallocate(Scr)
 call mma_deallocate(IJInd)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Terminate integral environment.
 
-Verbose = .false.
-FreeK2 = .true.
-call Term_Ints(Verbose,FreeK2)
+call Term_Ints()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -361,12 +365,9 @@ end if
 !                                                                      *
 call Free_iSD()
 nIrrep = nIrrep_Save
-iWROpt = iWROpt_Save
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 return
 
 end subroutine Drv2El_Atomic_NoSym
-
-#endif

@@ -13,12 +13,13 @@ subroutine BJAI(IAD,EPSI,EPSE,E2BJAI,VECL2)
 
 use MBPT2_Global, only: LuIntM
 use Symmetry_Info, only: Mul
+use cOrbInf, only: nExt, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) :: IAD(3888)
+integer(kind=iwp), intent(out) :: IAD(3*36*36)
 real(kind=wp), intent(in) :: EPSI(*), EPSE(*)
 real(kind=wp), intent(out) :: E2BJAI, VECL2
 integer(kind=iwp) :: i, iA, IAD1, IAD13, IAD2, IADA, IADAB, IADB, iB, iI, iJ, ISPQRS, iSymA, iSymB, iSymI, iSymJ, j, LA, LAA, LAB, &
@@ -28,7 +29,6 @@ logical(kind=iwp) :: DoCholesky
 real(kind=wp), allocatable :: INT1(:), INT2(:), AIBJ(:), AJBI(:)
 logical(kind=iwp), parameter :: Debug = .false.
 real(kind=wp), external :: ddot_
-#include "corbinf.fh"
 
 SKAL2 = -huge(SKAL2)
 IAD13 = 0
@@ -41,7 +41,7 @@ if (Debug) then
   write(u6,'(A,8I3)') '      nOrb:',(nOrb(i),i=1,nSym)
 end if
 
-call iDAFILE(LUINTM,2,IAD,3888,IAD13)
+call iDAFILE(LUINTM,2,IAD,3*36*36,IAD13)
 
 VECL2 = One
 E2BJAI = Zero

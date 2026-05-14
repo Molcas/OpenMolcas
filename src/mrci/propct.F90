@@ -75,7 +75,7 @@ do ISTATE=1,NRROOT
   write(u6,'(A,I2)') ' NATURAL ORBITALS OF STATE NR. ',ISTATE
   write(u6,*) ' FULL SET OF ORBITALS ARE SAVED ON FILE ',REALNAME
   call PRORB(CNO,OCC)
-  write(u6,*) ' ',('*',I=1,70)
+  write(u6,*) ' ',repeat('*',70)
   ! CREATE DAO
   call MKDAO(CNO,OCC,DAO)
   ! CALL PMATEL TO CALCULATE CHARGES AND PROPERTIES.

@@ -10,13 +10,12 @@
 #***********************************************************************
 
 set (sources
-     add_infoc.c
      add_info.F90
+     add_infoc.c
      bragg_slater.F90
      charge.F90
-     chkvec.F90
      chk_vec_uhf.F90
-     CMakeLists.txt
+     chkvec.F90
      cmp_hfc.F90
      dens_if.F90
      dens_if_scf.F90
@@ -28,6 +27,7 @@ set (sources
      freq_molden.F90
      getdens.F90
      gfprnt_i.F90
+     hfc_logical.F90
      imostabundantisotope.F90
      inporbfmt.F90
      interf.F90
@@ -46,15 +46,16 @@ set (sources
      prop.F90
      prout.F90
      prppnt.F90
-     prpt_.F90
      prpt.F90
+     prpt_.F90
      prpt_old.F90
-     rdvec_.F90
      rdvec.F90
+     rdvec_.F90
      rdvec_hdf5.F90
      s2calc.F90
      seek_n_destroy.F90
      spinav.F90
+     temperatures.F90
      tpidx2orb.F90
      tpidx2orb_sym.F90
      tpidx2tpstr.F90
@@ -63,8 +64,8 @@ set (sources
      tpstr2tpidx.F90
      vdwrad.F90
      vecsort.F90
-     wrvec_.F90
      wrvec.F90
+     wrvec_.F90
      xprop.F90
 )
 

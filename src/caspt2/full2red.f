@@ -8,17 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE full2red(XLT,Xab)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
-      Integer  ISLT(8),cho_isao
-      External cho_isao
-      Dimension XLT(*)
-      Dimension Xab(*)
-#include "cholesky.fh"
-#include "choorb.fh"
+      SUBROUTINE full2red(XLT,nXLT,Xab,nXab)
+      use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR,
+     &                    nSym
+      use constants, only: Zero
+      use definitions, only: iwp, wp
+      Implicit None
+      Integer(kind=iwp), intent(in):: nXLT, nXab
+      real(kind=wp), intent(in):: XLT(nXLT)
+      real(kind=wp), intent(out):: Xab(nXab)
 
+      Integer(kind=iwp) ISLT(8)
+      Integer(kind=iwp), External:: cho_isao
+      Integer(kind=iwp) iLoc,jSym,IS,ISYM,NB
+      Integer(kind=iwp) jRab,kRab,iRab,iag,ibg,iSyma,ias,ibs,iab,kfrom
+
+       Xab(:)=Zero
 * Select table column for use with caspt2:
       iLoc=3
 * jSym=1 always: Used for density matrices.
@@ -49,18 +54,21 @@ c Offsets to symmetry block in the LT matrix
          Xab(jRab) = Xab(jRab)+XLT(kfrom)
       End Do
 
-      Return
-      End
-      SUBROUTINE red2full(XLT,Xab)
-      use ChoArr, only: iRS2F
-      use ChoSwp, only: IndRed
-      Implicit Real*8 (a-h,o-z)
-      Integer  ISLT(8),cho_isao
-      External cho_isao
-      Dimension XLT(*)
-      Dimension Xab(*)
-#include "cholesky.fh"
-#include "choorb.fh"
+      End SUBROUTINE full2red
+
+      SUBROUTINE red2full(XLT,nXLT,Xab,nXab)
+      use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR,
+     &                    nSym
+      use definitions, only: iwp, wp
+      Implicit None
+      Integer(kind=iwp), intent(in):: nXLT, nXab
+      real(kind=wp), intent(in):: Xab(nXab)
+      real(kind=wp), intent(inout):: XLT(nXLT)
+
+      Integer(kind=iwp) ISLT(8)
+      Integer(kind=iwp), External:: cho_isao
+      Integer(kind=iwp) iLoc,jSym,IS,ISYM,NB
+      Integer(kind=iwp) jRab,kRab,iRab,iag,ibg,iSyma,ias,ibs,iab,kto
 
 * Select table column for use with caspt2:
       iLoc=3
@@ -91,5 +99,4 @@ c Offsets to symmetry block in the LT matrix
          XLT(kto) = XLT(kto)+Xab(jRab)
       End Do
 
-      Return
-      End
+      End SUBROUTINE red2full

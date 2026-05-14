@@ -42,16 +42,17 @@ subroutine CHO_LK_CASSCF(DLT,FLT,MSQ,W_PWXY,FactXI,nFIorb,nAorb,nChM,Ash,DoActiv
 !
 !*********************************************************************
 
-use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRsh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT, timings
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Estimate, Update
-use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, twxy_Type
+use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -64,9 +65,6 @@ real(kind=wp), intent(_OUT_) :: W_PWXY(*)
 real(kind=wp), intent(in) :: FactXI, dmpk, dFmat, ExFac
 integer(kind=iwp), intent(in) :: nFIorb(8), nAorb(8), nChM(8), nScreen
 logical(kind=iwp), intent(in) :: DoActive
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, ia, iab, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jDen, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kMOs, kOff(8,2), &
@@ -525,7 +523,7 @@ do jSym=1,nSym
 
         if (Estimate) then
 
-          call Fzero(Diag(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
+          Diag(iiBstR(jSym,1)+1:iiBstR(jSym,1)+NNBSTR(jSym,1)) = Zero
 
           do krs=1,nRS
 
@@ -985,9 +983,9 @@ do jSym=1,nSym
 
         ! Lvw,J , strictly LT storage
         iSwap = 5
-        call Allocate_DT(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Lxy,nAorb,nAorb,JNUM,JSYM,nSym,iSwap)
         iSwap = 0 ! Lvb,J are returned
-        call Allocate_DT(Laq(1),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(1),nAorb,nBas,JNUM,JSYM,nSym,iSwap)
         ! ----------------------------------------------------------------
         ! First half Active transformation  Lvb,J = sum_a  C(v,a) * Lab,J
         ! ----------------------------------------------------------------
@@ -1102,9 +1100,10 @@ do jSym=1,nSym
 
 #   ifdef _MOLCAS_MPP_
     if ((nProcs > 1) .and. Update .and. DoScreen .and. Is_Real_Par()) then
-      call GaDsum(DiagJ,nnBSTR(JSYM,1))
-      call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
-      call Fzero(DiagJ,nnBSTR(JSYM,1))
+      n1 = nnBSTR(JSYM,1)
+      call GADgop(DiagJ,n1,'+')
+      Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1) = Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1)-DiagJ(1:n1)
+      DiagJ(1:n1) = Zero
     end if
     ! Need to activate the screening to setup the contributing shell
     ! indices the first time the loop is entered .OR. whenever other nodes

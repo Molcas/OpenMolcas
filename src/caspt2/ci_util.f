@@ -13,23 +13,20 @@
 
 * Load the CI vector of state Istate from LUCIEX into memory
       subroutine loadCI(CI, Istate)
-      implicit real(8) (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-      real(8) CI(Nconf)
-      integer ID, Istate
+      use definitions, only: iwp, wp
+      use caspt2_global, only: LUCIEX,IDCIEX
+      use caspt2_module, only: nConf
+      implicit None
+      real(kind=wp), intent(out):: CI(Nconf)
+      integer(kind=iwp), intent(In):: Istate
 
-* Skip over states
-      ID=IDCIEX
-      do I=1,Istate-1
-        call ddafile(LUCIEX,0,CI,Nconf,ID)
-      end do
+      integer(kind=iwp) :: ID
 
 * Load the CI array
+      ID=IDCIEX(ISTATE)
       call ddafile(LUCIEX,2,CI,Nconf,ID)
 
-      return
-      end
+      end subroutine loadCI
 
 
 ************************************************************************
@@ -37,22 +34,20 @@
 
 * write the CI vector of state Istate from memory into LUCIEX
       subroutine writeCI(CI, Istate)
-      implicit real(8) (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-      real(8) CI(Nconf)
-      integer ID, Istate
+      use definitions, only: iwp, wp
+      use caspt2_global, only: LUCIEX, IDCIEX
+      use caspt2_module, only: nConf
+      implicit None
 
-* Skip over states
-      ID=IDCIEX
-      do I=1,Istate-1
-        call ddafile(LUCIEX,0,CI,Nconf,ID)
-      end do
+      real(kind=wp), intent(InOut):: CI(Nconf)
+      integer(kind=iwp), intent(In):: Istate
+
+      integer(kind=iwp) :: ID
 
 * Write the CI array
+      ID=IDCIEX(iState)
       call ddafile(LUCIEX,1,CI,Nconf,ID)
 
-      return
-      end
+      end subroutine writeCI
 
 

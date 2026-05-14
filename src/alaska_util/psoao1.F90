@@ -12,17 +12,16 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PSOAO1(nSO,MemPrm,MemMax,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim, &
-                  jPrInc,kPrim,kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,MemPSO)
+subroutine PSOAO1(nSO,MemMax,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
-!  Object: to partion the SO and AO block. It will go to some length   *
+!  Object: to partition the SO and AO block. It will go to some length *
 !          before it will start and break up the SO block. This will   *
 !          reduce the total flop count. However, as we are breaking up *
 !          the AO block this will affect the vectorization. Hence, at  *
 !          some point it will actually be better to recompute the      *
 !          primitives.                                                 *
-!          Current stratergy:                                          *
+!          Current strategy:                                           *
 !          1. Start reducing the length of the primitives in the order *
 !             lPrim,jPrim.                                             *
 !          2. Reduce the size of the SO block by reducing the number of*
@@ -38,37 +37,57 @@ subroutine PSOAO1(nSO,MemPrm,MemMax,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc
 !             Modified to first order derivatives. January '92         *
 !***********************************************************************
 
-use aces_stuff, only: nGamma, Gamma_On
-use PSO_Stuff, only: lPSO
+use PSO_Stuff, only: Gamma_On, iFnc, lPSO, MemPSO, nGamma
 use SOAO_Info, only: iAOtSO
 use Gateway_global, only: force_part_c, force_part_p
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
-use Definitions, only: wp, iwp, u6
+use k2_arrays, only: Sew_Scr
+use eval_arrays, only: PSO, Scr
+use Molcas, only: lCache
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iAnga(4), iCmpa(4), iAO(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
-                                 lPrim, ipMem1
-integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2, &
-                                  MemPSO
-integer(kind=iwp) :: i1, iCmp, iFac, iiBas(4), IncVec, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, &
-                     Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, nabcd, nCache, nFac, &
-                     nPam(4,0:7), nTmp1, nTmp2, nVec1
+integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
+integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
+integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), IncVec, ipMem1, ipMem2, iPrim, iPrInc, iTmp1, j, &
+                     jBas, jBsInc, jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, la, lb, lBas, lBsInc, lc, lCmp, &
+                     ld, lPrim, lPrInc, lSize, mabcd, Mem0, Mem1, Mem2, Mem3, MemAux, MemAux0, MemDeP, MemPrm, MemRys, MemScr, &
+                     MemSph, MemTrn, mijkl, nA2, nA3, nabcd, nCache, nFac, nijkl, nPam(4,0:7), nTmp1, nTmp2, nVec1
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
-#include "lCache.fh"
-#include "pstat.fh"
 
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
-iCmp = iCmpa(1)
-jCmp = iCmpa(2)
-kCmp = iCmpa(3)
-lCmp = iCmpa(4)
-iTotal = iTotal+1
+! Compute memory request for the primitives, i.e.
+! how much memory is needed up to the transfer equation.
+
+iFnc(:) = 0
+call MemRys_g(iSD4,nSD,MemPrm)
+
+ipMem1 = 1
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
+
+iCmp = iSD4(2,1)
+jCmp = iSD4(2,2)
+kCmp = iSD4(2,3)
+lCmp = iSD4(2,4)
+
+iBas = iSD4(3,1)
+jBas = iSD4(3,2)
+kBas = iSD4(3,3)
+lBas = iSD4(3,4)
+
+iPrim = iSD4(5,1)
+jPrim = iSD4(5,2)
+kPrim = iSD4(5,3)
+lPrim = iSD4(5,4)
+
+iAO(:) = iSD4(7,:)
+iCmpa(:) = iSD4(2,:)
+
 mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
 
@@ -102,12 +121,14 @@ do
   QlBas = .false.
   Mem0 = MemMax
 
+  mijkl = iPrInc*jPrInc*kPrInc*lPrInc
+  nijkl = iBsInc*jBsInc*kBsInc*lBsInc
+
   ! *** Work1 ***
 
   ! Memory for 2nd order density matrix in SO basis.
 
-  kSOInt = nSO*iBsInc*jBsInc*kBsInc*lBsInc
-  Mem1 = kSOInt
+  Mem1 = nijkl*nSO
 
   ! Allocate memory for MO to SO/AO transformation
   ! of the 2nd order density matrix for this shell quadruplet.
@@ -148,7 +169,6 @@ do
   end if
   MemAux0 = MemPSO+MemScr+nFac*S%nDim+nTmp2+4
   if (Mem1+1+MemAux0 > Mem0) then
-    MaxReq = max(MaxReq,Mem1+1+MemAux0-Mem0)
     QjPrim = .false.
     QlPrim = .false.
     QiBas = .false.
@@ -156,7 +176,7 @@ do
     QkBas = .false.
     QlBas = .true.
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) ' Memory allocation failed for Work1'
       write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
@@ -204,22 +224,21 @@ do
     nGamma = 0
   end if
 
-  MemDeP = nabcd*iBsInc*jBsInc*kBsInc*lBsInc
+  MemDeP = nabcd*nijkl
 
-  MemTrn = mabcd*max(iBsInc*jBsInc*kBsInc*lBsInc,iPrInc*jPrInc*kPrInc*lPrInc)
+  MemTrn = mabcd*max(nijkl,mijkl)
   ! If partial decontraction we need to keep the contracted 2nd
   ! order density matrix. (Work4)
   if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
-    MemAux = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
+    MemAux = mabcd*nijkl
   else
     MemAux = 0
   end if
-  MemSph = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
+  MemSph = mabcd*nijkl
   Mem2 = max(MemTrn+MemAux,MemDeP,MemSph,nGamma+MemAux0)
   if (Mem2+1 > Mem0) then
-    MaxReq = max(MaxReq,Mem2+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) ' Memory allocation failed for Work2'
       write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
@@ -279,15 +298,14 @@ do
   IncVec = min(max(1,nCache/lSize),nVec1)
   nA2 = max(iBsInc*jPrInc,iPrInc*jBsInc)*IncVec
 
-  MemTrn = max(MemTrn,nA2+nA3,iFac*mabcd*iBsInc*jBsInc*kBsInc*lBsInc)
+  MemTrn = max(MemTrn,nA2+nA3,iFac*mabcd*nijkl)
 
-  MemRys = MemPrm*iPrInc*jPrInc*kPrInc*lPrInc
-  MemScr = (2*mabcd+1)*iPrInc*jPrInc*kPrInc*lPrInc+iPrInc*jPrInc+kPrInc*lPrInc
+  MemRys = MemPrm*mijkl
+  MemScr = (2*mabcd+1)*mijkl+iPrInc*jPrInc+kPrInc*lPrInc
   Mem3 = max(MemTrn,MemRys,MemScr)
   if (Mem3+1 > Mem0) then
-    MaxReq = max(MaxReq,Mem3+1-Mem0)
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
-                MaxReq,Fail)
+                Fail)
     if (Fail) then
       write(u6,*) ' Memory allocation failed for Work3'
       write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
@@ -303,21 +321,22 @@ do
 end do
 ! Subtract one additional word (?)
 Mem0 = Mem0-Mem3-1
-MinXtr = min(MinXtr,Mem0)
 
 Mem2 = Mem2+Mem3
 
 ipMem2 = ipMem1+Mem1
 
-r1 = r1+real(iBsInc,kind=wp)/real(iBas,kind=wp)
-r2 = r2+real(jBsInc,kind=wp)/real(jBas,kind=wp)
-r3 = r3+real(kBsInc,kind=wp)/real(kBas,kind=wp)
-r4 = r4+real(lBsInc,kind=wp)/real(lBas,kind=wp)
-q1 = q1+real(iPrInc,kind=wp)/real(iPrim,kind=wp)
-q2 = q2+real(jPrInc,kind=wp)/real(jPrim,kind=wp)
-q3 = q3+real(kPrInc,kind=wp)/real(kPrim,kind=wp)
-q4 = q4+real(lPrInc,kind=wp)/real(lPrim,kind=wp)
+iSD4(4,1) = iBsInc
+iSD4(4,2) = jBsInc
+iSD4(4,3) = kBsInc
+iSD4(4,4) = lBsInc
 
-return
+iSD4(6,1) = iPrInc
+iSD4(6,2) = jPrInc
+iSD4(6,3) = kPrInc
+iSD4(6,4) = lPrInc
+
+PSO(1:nijkl,1:nSO) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
+Scr(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 
 end subroutine PSOAO1

@@ -12,5 +12,6 @@
  (file)  LOCALINP      "$WorkDir/$Project."Localisation.Input   roi
  (file)  ONEINT        "$WorkDir/$Project."OneInt               ro*
 #include "orbitals.inc"
+#include "wfnfiles.inc"
 #include "moldenfiles.inc"
 #include "choints.inc"

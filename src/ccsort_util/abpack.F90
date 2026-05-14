@@ -24,14 +24,12 @@ subroutine abpack(wrk,wrksize,syma,symb,symp,symq,a,vint,ndimv1,ndimv2,ndimv3,ab
 ! ndimv3- 3rd dimension of vint - norb(symq) (I)
 ! abmap - map for storing of addresses in DA file TEMPDA1 (I)
 
-use ccsort_global, only: lunda1, mbas, nob, NORB, nvb, pos30, reclen
+use ccsort_global, only: lunda1, map3, mbas, nob, NORB, nvb, reclen
 use Definitions, only: wp, iwp
-
-#include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, syma, symb, symp, symq, a, ndimv1, ndimv2, ndimv3, abmap(mbas,mbas,8)
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 real(kind=wp), intent(in) :: vint(ndimv1,ndimv2,ndimv3)
 integer(kind=iwp) :: b, bup, bvint, irec0, length, p, pq, q
 
@@ -56,7 +54,7 @@ do b=1,bup
 
   ! map _a_b(pq) block into #v3
 
-  pq = pos30-1
+  pq = map3%pos0-1
   do q=1,norb(symq)
     do p=1,norb(symp)
       pq = pq+1
@@ -67,7 +65,7 @@ do b=1,bup
   ! put this block to appropriate position in direct access file
 
   irec0 = abmap(a,b,symp)
-  call dawrite(lunda1,irec0,wrk(pos30),length,reclen)
+  call dawrite(lunda1,irec0,wrk(map3%pos0),length,reclen)
 
 end do
 

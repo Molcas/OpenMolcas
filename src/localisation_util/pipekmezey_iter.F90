@@ -17,17 +17,17 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_A
 !
 ! Based on the original routines by Y. Carissan.
 
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc, nMxIter
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,*)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*), Thrs, ThrRot, ThrGrad
-character(len=LenIn8), intent(in) :: BName(nBasis)
+character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter
@@ -58,7 +58,7 @@ if (.not. Silent) then
   call CWTime(C2,W2)
   TimC = C2-C1
   TimW = W2-W1
-  write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
+  write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
 end if
 
 ! Iterations.
@@ -78,7 +78,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
-    write(u6,'(1X,I5,1X,F18.8,2(1X,D12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
+    write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
   end if
   Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 end do
@@ -95,8 +95,8 @@ if (.not. Silent) then
     write(u6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
     write(u6,*)
     write(u6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
-    write(u6,'(A,1P,D20.10)') 'Value of P before localisation: ',FirstFunctional
-    write(u6,'(A,1P,D20.10)') 'Value of P after localisation : ',Functional
+    write(u6,'(A,ES20.10)') 'Value of P before localisation: ',FirstFunctional
+    write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
   end if
 end if
 

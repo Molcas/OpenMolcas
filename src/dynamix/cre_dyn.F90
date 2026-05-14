@@ -17,14 +17,14 @@ subroutine cre_dyn()
 use mh5, only: mh5_create_file, mh5_init_attr, mh5_init_dset, mh5_create_dset_real, mh5_create_dset_str, mh5_create_dset_int, &
                mh5_put_dset, mh5_fetch_attr, mh5_close_file, mh5_open_file_r, mh5_exists_attr, mh5_close_dset
 use Dynamix_Globals, only: dyn_dt, dyn_etot, dyn_etot0, dyn_fileid, dyn_geom, dyn_mass, dyn_nh, dyn_time, dyn_vel, nh
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: natoms, nsym, nstates, nconfs, ndata, dyn_dsetid, surf_dsetid, wfn_fileid, ii
 character(len=8) :: method
-real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), overlap_save(:), oldphase(:)
-#include "Molcas.fh"
+real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), oldphase(:), overlap_save(:)
 character(len=LenIn), allocatable :: atomlbl(:)
 logical(kind=iwp) :: found
 complex(kind=wp), allocatable :: amatrix(:)
@@ -69,7 +69,7 @@ dyn_dsetid = mh5_create_dset_str(dyn_fileid,'CENTER_LABELS',1,[natoms],LENIN)
 call mh5_init_attr(dyn_dsetid,'DESCRIPTION','Center labels arranged as a [NATOMS] block')
 call mma_allocate(atomlbl,natoms)
 if (nsym > 1) then
-  call get_cArray('LP_L',atomlbl,LenIn4*natoms)
+  call get_cArray('LP_L',atomlbl,(LenIn+4)*natoms)
 else
   call Get_cArray('Unique Atom Names',atomlbl,LenIn*natoms)
 end if
@@ -102,12 +102,13 @@ dyn_nh = mh5_create_dset_real(dyn_fileid,'NOSEHOOVER',1,[nh])
 call mh5_init_attr(dyn_nh,'DESCRIPTION','NoseHoover degrees of freedom')
 
 ! MaxHop
-! Morgane Vacher: Dataset only created if needed since its existence serves as a flag.
 call qpg_iscalar('MaxHops',Found)
 if (Found) then
   call get_iScalar('MaxHops',ii)
-  call mh5_init_dset(dyn_fileid,'MAX_HOP',ii)
+else
+  ii = 0
 end if
+call mh5_init_dset(dyn_fileid,'MAX_HOP',ii)
 
 ! Isotopes
 dyn_mass = mh5_create_dset_real(dyn_fileid,'MASSES',1,[natoms])

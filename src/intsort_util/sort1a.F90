@@ -26,14 +26,14 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !                                                                      *
 !     Called from: PLF2,INDSFT2                                        *
 !                                                                      *
-!     Calls to : PKI4,PKR8,SetVec,ISORTX,I4Len,R8Len                   *
+!     Calls to : PKI4,PKR8,ISORTX,I4Len,R8Len                          *
 !                                                                      *
 !     Calling Parameters:                                              *
 !     nUt    : number of 2el integrals in the buffers vInt,nSqNum      *
 !              and nSyBlk                                              *
 !     vInt   : Buffer of 2el integral values                           *
 !     nSqNum : sequence number of the integral relative to             *
-!              the first adress of the symmetry block                  *
+!              the first address of the symmetry block                 *
 !     nSyBlk : symmetry block number of an integral                    *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -52,26 +52,26 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 
 use TwoDat, only: RAMD
 use sort_data, only: lBin, lwIBin, lwVBin, mInt, n_Int
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nUt
 real(kind=wp), intent(in) :: vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
-#include "print.fh"
-integer(kind=iwp) :: iBin, iOpt, iPrint, iRout, iUt, next
+integer(kind=iwp) :: iBin, iOpt, iUt, next
 
 !----------------------------------------------------------------------*
 !     pick up print level                                              *
 !----------------------------------------------------------------------*
 
-iRout = 81
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  write(u6,*) ' >>> Enter SORT1A <<<'
-  call dVcPrt('nSqNum',' ',nSqNum,nUt)
-  call dVcPrt('nSyBlk',' ',nSyBlk,nUt)
-  call dVcPrt('vInt',' ',vInt,nUt)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' >>> Enter SORT1A <<<'
+call dVcPrt('nSqNum',' ',nSqNum,nUt)
+call dVcPrt('nSyBlk',' ',nSyBlk,nUt)
+call dVcPrt('vInt',' ',vInt,nUt)
+#endif
 
 if (RAMD%act) then
   call Untested('Sort1a (RAMD)')

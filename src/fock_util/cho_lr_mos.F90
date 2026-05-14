@@ -45,7 +45,7 @@ type(DSBA_Type), target, intent(inout) :: MSQ(nDen)
 integer(kind=iwp) :: ia, ib, ikc, irc, iSym, iv, ja, jden, jv, k, l, n2b, nBm, NumV
 real(kind=wp) :: Thr, Ymax
 real(kind=wp), allocatable, target :: DMat0(:), PMat0(:)
-real(kind=wp), pointer :: DMat(:,:) => null(), PMat(:,:,:,:) => null(), V(:,:) => null()
+real(kind=wp), pointer :: DMat(:,:), PMat(:,:,:,:), V(:,:)
 
 !***********************************************************************
 irc = 0
@@ -124,9 +124,7 @@ do while (iSym <= nSym)
 
   iSym = iSym+1
 
-  V => null()
-  DMat => null()
-  PMat => null()
+  nullify(DMat,PMat,V)
 
 end do
 

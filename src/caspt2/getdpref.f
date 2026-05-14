@@ -8,38 +8,45 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE GETDPREF(DREF,PREF)
-      use caspt2_output, only:iPrGlb,debug
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "pt2_guga.fh"
-#include "WrkSpc.fh"
-#include "intgrl.fh"
-      REAL*8 DREF(NDREF)
-      REAL*8 PREF(NPREF)
+      SUBROUTINE GETDPREF(DREF,NDREF,PREF,NPREF)
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero, Half
+      use caspt2_global, only:iPrGlb
+      use PrintLevel, only: DEBUG
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: NASHT
+      use caspt2_module, only: NG1,NG2
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NDREF, NPREF
+      real(kind=wp), intent(out):: DREF(NDREF), PREF(NPREF)
+
+      real(kind=wp), ALLOCATABLE:: G1(:), G2(:)
+      integer(kind=iwp) I,J,IJ,IJT,IJKLT,N2,JI,KLT,K,L,KL,LK,IJKL,IJLK,
+     &                  JILK,JIKL
+      real(kind=wp) P1, P2
 
 * Get active 1-density and 2-density matrices GAMMA1 and
 * GAMMA2, and construct DREF and PREF which are in a tringular
 * storage.
 
 C Remember: NDREF=1 if NASHT=0. Similar NPREF.
-      DREF(1)=0.0d0
-      PREF(1)=0.0d0
-      IF(NASHT.EQ.0) GO TO 99
+      DREF(1)=Zero
+      PREF(1)=Zero
+      IF(NASHT.EQ.0) RETURN
 c Active density 1-matrix:
-      CALL GETMEM('LG1','ALLO','REAL',LG1,NG1)
-      CALL PT2_GET(NG1,'GAMMA1',WORK(LG1))
+      CALL mma_allocate(G1,NG1,LABEL='G1')
+      CALL PT2_GET(NG1,'GAMMA1',G1)
       DO I=1,NASHT
        DO J=1,I
         IJ=(I*(I-1))/2+J
-        DREF(IJ)=WORK(LG1-1+I+NASHT*(J-1))
+        DREF(IJ)=G1(I+NASHT*(J-1))
        END DO
       END DO
-      CALL GETMEM('LG1','FREE','REAL',LG1,NG1)
+      CALL mma_deallocate(G1)
+
 C CONSTRUCT PREF, 2-ELECTRON DENSITY MATRIX:
-      CALL GETMEM('LG2','ALLO','REAL',LG2,NG2)
-      CALL PT2_GET(NG2,'GAMMA2',WORK(LG2))
+      CALL mma_allocate(G2,NG2,LABEL='G2')
+      CALL PT2_GET(NG2,'GAMMA2',G2)
       IJT=0
       IJKLT=0
       N2=NASHT**2
@@ -52,13 +59,13 @@ C CONSTRUCT PREF, 2-ELECTRON DENSITY MATRIX:
           DO K=1,NASHT
             DO L=1,K
               KLT=KLT+1
-              IF(KLT.GT.IJT) GOTO 130
+              IF(KLT.GT.IJT) CYCLE
               IJKLT=IJKLT+1
               KL=K+NASHT*(L-1)
               LK=L+NASHT*(K-1)
 
-              P1=0.5D0*WORK(LG2-1+IJ+N2*(KL-1))
-              P2=0.5D0*WORK(LG2-1+IJ+N2*(LK-1))
+              P1=Half*G2(IJ+N2*(KL-1))
+              P2=Half*G2(IJ+N2*(LK-1))
               IF(IJ.GE.KL) THEN
                 IJKL=(IJ*(IJ-1))/2+KL
               ELSE
@@ -77,18 +84,14 @@ C CONSTRUCT PREF, 2-ELECTRON DENSITY MATRIX:
               PREF(JILK)=P1
             END DO
           END DO
- 130    CONTINUE
         END DO
       END DO
 
-      CALL GETMEM('LG2','FREE','REAL',LG2,NG2)
+      CALL mma_deallocate(G2)
 
       IF(IPRGLB.GE.DEBUG) THEN
-       WRITE(6,*)' GETDPREF has constructed DREF and PREF.'
+       WRITE(u6,*)' GETDPREF has constructed DREF and PREF.'
        CALL XFLUSH(6)
       END IF
 
-  99  CONTINUE
-
-      RETURN
-      END
+      END SUBROUTINE GETDPREF

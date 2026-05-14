@@ -11,6 +11,7 @@
 ! Copyright (C) 1989,2003, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#ifdef _DEBUGPRINT_
 subroutine DIHDJ_MOLCAS(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,NAEL,NBEL,IWORK,NORB,ONEBOD,HAMIL,ISYM,NINOB,ECORE,ICOMBI,PSIGN, &
                         IPRINT,TUVX,ExFac,IREOTS)
 ! A SET OF DETERMINANTS IA DEFINED BY ALPHA AND BETA STRINGS
@@ -42,11 +43,10 @@ real(kind=wp), intent(_OUT_) :: HAMIL(*)
 integer(kind=iwp) :: I1, I1_REO, I2, I2_REO, IA, IA_REO, IAB, IAEL, IAEQIB, IB, IB_REO, IBEL, IDET, IDIFF, IEL, IEL1, iii, ILOOP, &
                      IORB, IORB_REO, IPERM, J1, J1_REO, J2, J2_REO, JA, JA_REO, JAB, JAEL, JAEQJB, JB, JB_REO, JBEL, JDET, JDIFF, &
                      JEL, JEL1, jjj, JORB, JORB_REO, JPERM, KLFREE, KLIAB, KLIAE, KLIBE, KLJAE, KLJBE, LHAMIL, MINI, NACM, NADIF, &
-                     NBCM, NBDIF, NDIF0, NDIF1, NDIF2, NIABEL, NJABEL, NLOOP, NTERMS, NTEST
+                     NBCM, NBDIF, NDIF0, NDIF1, NDIF2, NIABEL, NJABEL, NLOOP, NTERMS
 real(kind=wp) :: CONST, SGN, SIGNA, SIGNB, XVAL
 real(kind=wp), external :: GETH2A
 
-NTEST = 0
 ! Initialization
 KLIAB = 0
 IAEQIB = 0
@@ -114,8 +114,8 @@ NDIF2 = 0
 do JDET=1,NJDET
 
   ! EXPAND JDET
-  call ICOPY(NORB,[0],0,IWORK(KLJAE),1)
-  call ICOPY(NORB,[0],0,IWORK(KLJBE),1)
+  IWORK(KLJAE:KLJAE+NORB-1) = 0
+  IWORK(KLJBE:KLJBE+NORB-1) = 0
 
   if (ICOMBI /= 0) then
     JAEQJB = 1
@@ -132,15 +132,15 @@ do JDET=1,NJDET
     IWORK(KLJBE-1+JBSTR(IBEL,JDET)) = 1
   end do
 
-  if (NTEST >= 10) then
-    write(u6,*) ' LOOP 1000 JDET =  ',JDET
-    write(u6,*) ' JASTR AND JBSTR'
-    call IWRTMA(JASTR(1,JDET),1,NAEL,1,NAEL)
-    call IWRTMA(JBSTR(1,JDET),1,NBEL,1,NBEL)
-    write(u6,*) ' EXPANDED ALPHA AND BETA STRING'
-    call IWRTMA(IWORK(KLJAE),1,NORB,1,NORB)
-    call IWRTMA(IWORK(KLJBE),1,NORB,1,NORB)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' LOOP 1000 JDET =  ',JDET
+  write(u6,*) ' JASTR AND JBSTR'
+  call IWRTMA(JASTR(1,JDET),1,NAEL,1,NAEL)
+  call IWRTMA(JBSTR(1,JDET),1,NBEL,1,NBEL)
+  write(u6,*) ' EXPANDED ALPHA AND BETA STRING'
+  call IWRTMA(IWORK(KLJAE),1,NORB,1,NORB)
+  call IWRTMA(IWORK(KLJBE),1,NORB,1,NORB)
+# endif
 
   if (ISYM == 0) then
     MINI = 1
@@ -185,10 +185,10 @@ do JDET=1,NJDET
 
       NADIF = NAEL-NACM
       NBDIF = NBEL-NBCM
-      if (NTEST >= 10) then
-        write(u6,*) '  LOOP 900 IDET ',IDET
-        write(u6,*) ' COMPARISON, NADIF, NBDIF ',NADIF,NBDIF
-      end if
+#     ifdef _DEBUGPRINT_
+      write(u6,*) '  LOOP 900 IDET ',IDET
+      write(u6,*) ' COMPARISON, NADIF, NBDIF ',NADIF,NBDIF
+#     endif
 
       if (NADIF+NBDIF > 2) cycle
 
@@ -212,8 +212,8 @@ do JDET=1,NJDET
       ! FIND DIFFERING ORBITALS AND SIGN FOR PERMUTATION
 
       ! EXPAND IDET
-      call ICOPY(NORB,[0],0,IWORK(KLIAE),1)
-      call ICOPY(NORB,[0],0,IWORK(KLIBE),1)
+      IWORK(KLIAE:KLIAE+NORB-1) = 0
+      IWORK(KLIBE:KLIBE+NORB-1) = 0
 
       do IAEL=1,NAEL
         IWORK(KLIAE-1+IASTR(IAEL,IDET)) = 1

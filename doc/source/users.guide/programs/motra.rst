@@ -330,6 +330,18 @@ The following is a list
               </HELP>
               </KEYWORD>
 
+:kword:`NOORtho`
+  Skips the orthogonalization of the molecular orbitals. This should only be used when preparing the
+  two-electron integrals for a non-orthogonal configuration interaction calculation.
+
+  .. xmldoc:: <KEYWORD MODULE="MOTRA" NAME="NOOR" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NOOR <basic>
+              <HELP>
+              Skips the orthogonalization of the molecular orbitals. This should only be used when preparing
+              the two-electron integrals for a non-orthogonal configuration interaction calculation.
+              </HELP>
+              </KEYWORD>
+
 :kword:`TITLe`
   This keyword should be followed by exactly one title line.
 

@@ -41,8 +41,9 @@ C> Later, the full matrix can be restored on the fly by using the
 C> full permutational symmetry (see ::mksmat and ::mkbmat). The
 C> same storage applies to the \f$ F \f$ matrices.
 C>
-C> @param[in]  IFF   switch to activate computation of \f$ F \f$ matrices
+C> @param[in]  mkF   switch to activate computation of \f$ F \f$ matrices
 C> @param[in]  CI    wave function CI coefficients, with symmetry \c STSYM
+C> @param[in]  nCI   number of CI coefficients, with symmetry \c STSYM
 C> @param[out] G1    1-body active density matrix
 C> @param[out] G2    2-body active density matrix
 C> @param[out] G3    process-local part of 3-body active density matrix
@@ -55,84 +56,97 @@ C>                   contracted with diagonal 1-el Hamiltonian
 C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
-      SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3)
-      use caspt2_output, only:iPrGlb,verbose,debug
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
-      USE Para_Info, ONLY: nProcs, Is_Real_Par, King
-#endif
+      SUBROUTINE MKFG3(mkF,CI,nCI,
+     &                 G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
+      use Symmetry_Info, only: Mul
+      use caspt2_global, only: iPrGlb
+      use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
+      use caspt2_global, only: do_grad, nbuf1_grad, nStpGrd,
+     *                         iTasks_grad,nTasks_grad
+      use PrintLevel, only: DEBUG, VERBOSE
+      use sguga, only: CIS, SGS, L2ACT, EXS
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+      use Definitions, only: RtoB
+      use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, EPSA
+      use caspt2_module, only: MxCI
+      use Molcas, only: MxLev
+      use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp, u6, Byte
       IMPLICIT NONE
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
-#include "pt2_guga.fh"
 
-      LOGICAL RSV_TSK
 
-      INTEGER, INTENT(IN) :: IFF
-      REAL*8, INTENT(IN) :: CI(MXCI)
-      REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: G3(*), F3(*)
-      INTEGER*1, INTENT(OUT) :: idxG3(6,*)
-      INTEGER, PARAMETER :: I1=KIND(idxG3)
+      LOGICAL(kind=iwp), INTENT(IN) :: mkF
+      INTEGER(kind=iwp), INTENT(IN) :: nCI, NLEV
+      INTEGER(kind=iwp), INTENT(IN) :: nG1, nG2
+      INTEGER(kind=iwp), INTENT(INOUT) :: nG3
+      real(kind=wp), INTENT(IN) :: CI(nCI)
+      real(kind=wp), INTENT(OUT) :: G1(NLEV,NLEV),
+     &                              G2(NLEV,NLEV,NLEV,NLEV)
+      real(kind=wp), INTENT(OUT) :: F1(NLEV,NLEV),
+     &                              F2(NLEV,NLEV,NLEV,NLEV)
+      real(kind=wp), INTENT(OUT) :: G3(nG3), F3(nG3)
+      INTEGER(kind=Byte), INTENT(OUT) :: idxG3(6,nG3)
 
-      REAL*8 DG1,DG2,DG3,DF1,DF2,DF3
-      REAL*8 F1SUM,F2SUM
+      real(kind=wp) DG1,DG2,DG3,DF1,DF2,DF3
+      real(kind=wp) F1SUM,F2SUM
+      INTEGER(kind=iwp) I,J,IDX,JDX
+      INTEGER(kind=iwp) IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
+      INTEGER(kind=iwp) IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,
+     &                  IP3MX,IQ1
+      INTEGER(kind=iwp) IG3,IG3OFF
+      INTEGER(kind=iwp) ISTU,ISVX,ISYZ
+      INTEGER(kind=iwp) IT,IU,IV,IX,IY,IZ
+      INTEGER(kind=iwp) ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
+      INTEGER(kind=iwp) NBUF1
+      INTEGER(kind=iwp) IOFFSET
+      INTEGER(kind=iwp) ISSG1,ISSG2,ISP1
+      INTEGER(kind=iwp) ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,MXTASK,
+     &                  MYTASK,MYBUFFER
+      INTEGER(kind=iwp) NSGM1,NSGM2
+      INTEGER(kind=iwp) NTRI1,NTRI2
+      INTEGER(kind=iwp) MEMMAX, MEMMAX_SAFE
+      INTEGER(kind=iwp) NLEV2
 
-      INTEGER I,J,IDX,JDX
-      INTEGER IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
-      INTEGER IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,IP3MX,IQ1
-      INTEGER IG3,IG3OFF
-      INTEGER ISTU,ISVX,ISYZ
-      INTEGER IT,IU,IV,IX,IY,IZ
-      INTEGER ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
-      INTEGER LBUF1,LBUF2,LBUFD,LBUFT
-      INTEGER NBUF1,NBUF2,NBUFD,NBUFT
-      INTEGER LIBUF1,LIP1STA,LIP1END,LOFFSET,IOFFSET
-      INTEGER ISSG1,ISSG2,ISP1
-      INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,
-     &        LTASK_LIST,MXTASK,MYTASK,MYBUFFER
-      INTEGER NSGM1,NSGM2
-      INTEGER NTRI1,NTRI2
-      INTEGER L1,LTO,LFROM
-      INTEGER MEMMAX, MEMMAX_SAFE
-      INTEGER NLEV2
-      INTEGER LDUM
-      INTEGER NCI,ICSF
-
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
+      real(kind=wp), EXTERNAL :: DDOT_,DNRM2_
 
       ! translation tables for levels i,j to and from pair indices idx
-      INTEGER IJ2IDX(MXLEV,MXLEV)
-      INTEGER IDX2IJ(2,MXLEV**2)
-      INTEGER ICNJ(MXLEV**2)
-      INTEGER IP1_BUF(MXLEV**2)
+      INTEGER(kind=iwp), allocatable:: IJ2IDX(:,:)
+      INTEGER(kind=iwp), allocatable:: IDX2IJ(:,:)
+      INTEGER(kind=iwp), allocatable:: ICNJ(:)
+      INTEGER(kind=iwp) IP1_BUF(MXLEV**2)
 
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
-      REAL*8 BUFR(MXLEV**2)
-
+      REAL(kind=wp) BUFR(MXLEV**2)
+      REAL(kind=wp), ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
+      INTEGER(kind=iwp), ALLOCATABLE:: TASKLIST(:,:)
 
 C Put in zeroes. Recognize special cases:
-      IF(nlev.EQ.0) GOTO 999
+      IF(nlev.EQ.0) RETURN
 
-      CALL DCOPY_(NG1,[0.0D0],0,G1,1)
-      CALL DCOPY_(NG2,[0.0D0],0,G2,1)
-      CALL DCOPY_(NG3,[0.0D0],0,G3,1)
-      IF(IFF.ne.0) THEN
-       CALL DCOPY_(NG1,[0.0D0],0,F1,1)
-       CALL DCOPY_(NG2,[0.0D0],0,F2,1)
-       CALL DCOPY_(NG3,[0.0D0],0,F3,1)
+      G1(:,:)=Zero
+      G2(:,:,:,:)=Zero
+      G3(:)=Zero
+      IF(mkF) THEN
+       F1(:,:)=Zero
+       F2(:,:,:,:)=Zero
+       F3(:)=Zero
       END IF
 
-      IF(NACTEL.EQ.0) GOTO 999
+      IF(NACTEL.EQ.0) RETURN
 
-      NCI=NCSF(STSYM)
 * This should not happen, but...
-      IF(NCI.EQ.0) GOTO 999
+      IF(NCI.EQ.0) RETURN
 
 C Here, for regular CAS or RAS cases.
+
+      Call mma_allocate(IJ2IDX,nLev,nLev,Label='IJ2IDX')
+      Call mma_allocate(IDX2IJ,2,nLev**2,Label='IDX2IJ')
+      Call mma_allocate(ICNJ,nLev**2,Label='ICNJ')
+      IJ2IDX(:,:)=-1
+      IDX2IJ(:,:)=-1
+      ICNJ(:)=-1
 
 C Special pair index idx2ij allows true RAS cases to be handled:
       nlev2=nlev**2
@@ -141,35 +155,40 @@ C Special pair index idx2ij allows true RAS cases to be handled:
       idx=0
       do i=1,nlev-1
         do j=i+1,nlev
+C     i<j
           idx=idx+1
           ij2idx(i,j)=idx
           idx2ij(1,idx)=i
           idx2ij(2,idx)=j
-          jdx=nlev2+1-idx
+C     i>j
+          jdx=nlev2+1-idx ! note the reverse indexation, ...-idx!
           ij2idx(j,i)=jdx
           idx2ij(1,jdx)=j
           idx2ij(2,jdx)=i
         end do
       end do
+C     i=j
       do i=1,nlev
         idx=ntri1+i
         ij2idx(i,i)=idx
         idx2ij(1,idx)=i
         idx2ij(2,idx)=i
       end do
+C     Loop over the compond index, idx, corresponding to (i,j) and
+C     tabulate in icnj(idx) the compound index jdx that corresponds
+C     to the pair (j,i)
       do idx=1,nlev2
         i=idx2ij(1,idx)
         j=idx2ij(2,idx)
-        jdx=ij2idx(j,i)
-        icnj(idx)=jdx
+        icnj(idx)=ij2idx(j,i)
       end do
 
-* Dummy values necessary for fooling syntax checkers:
-      ldum=1
-      call getmem('memmx','max','real',ldum,memmax)
+      Call mma_deallocate(IJ2IDX)
+
+      call mma_MaxDBLE(memmax)
 
 * Use *almost* all remaining memory:
-      memmax_safe=int(dble(memmax)*0.95D0)
+      memmax_safe=int(dble(memmax)*0.95_wp)
 
 * Buffers to compute CI expansion vectors into:
 * <Psi0|E_ip1 | E_ip2 E_ip3|Psi0>
@@ -179,69 +198,100 @@ C Special pair index idx2ij allows true RAS cases to be handled:
 * buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
 * bufd: diagonal matrix elements to compute the F matrix
       nbuf1=max(1,min(nlev2,(memmax_safe-3*mxci)/mxci))
-      nbuf2= 1
-      nbuft= 1
-      nbufd= 1
-      CALL GETMEM('BUF1','ALLO','REAL',LBUF1,NBUF1*MXCI)
-      CALL GETMEM('BUF2','ALLO','REAL',LBUF2,NBUF2*MXCI)
-      CALL GETMEM('BUFT','ALLO','REAL',LBUFT,NBUFT*MXCI)
-      CALL GETMEM('BUFD','ALLO','REAL',LBUFD,NBUFD*MXCI)
+      !! if gradient, nbuf1 must be consistent here and in derfg3.f
+      if (do_grad .or. nStpGrd==2) then
+        !! Compute approximate available memory in derfg3.f
+        !! allocated in DENS
+        memmax_safe = memmax_safe - 16*NBAST**2 - 3*NASHT**2
+        !! allocated (additionally) in CLagX
+        memmax_safe = memmax_safe - 2*(NG1+NG2+NG3)
+        nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+        nbuf1_grad = nbuf1
+        nTasks_grad = 0
+        iTasks_grad(:) = 0
+      end if
+      CALL mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')
+      CALL mma_allocate(BUF2,MXCI,LABEL='BUF2')
+      CALL mma_allocate(BUFT,MXCI,LABEL='BUFT')
+      CALL mma_allocate(BUFD,MXCI,LABEL='BUFD')
 
 C-SVC20100301: calculate maximum number of tasks possible
       MXTASK=(NTRI2-1)/NBUF1+1+(NTRI1-1)/NBUF1+1
-      CALL GETMEM ('TASKLIST','ALLO','INTE',lTask_List,4*mxTask)
-      lip1sta=lTask_List
-      lip1end=lTask_List+mxTask
-      libuf1=lTask_List+2*mxTask
-      lOffSet=lTask_List+3*mxTask
+      CALL mma_allocate (TaskList,mxTask,4,LABEL='TaskList')
 
       IF(iPrGlb.GE.VERBOSE) THEN
-        WRITE(6,*)
-        WRITE(6,'(2X,A)') 'Constructing G3/F3'
-        WRITE(6,'(2X,A,F16.9,A)') ' memory avail: ',
+        WRITE(u6,*)
+        WRITE(u6,'(2X,A)') 'Constructing G3/F3'
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory avail: ',
      &    (memmax*RtoB)/1.0D9, ' GB'
-        WRITE(6,'(2X,A,F16.9,A)') ' memory used:  ',
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory used:  ',
      &    (((nbuf1+3)*MXCI)*RtoB)/1.0D9, ' GB'
-        call xFlush(6)
       ENDIF
 
-      iG3OFF=0
+************************************************************************
+*                                                                      *
 * A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
-      DO issg1=1,nsym
-       isp1=mul(issg1,stsym)
-       nsgm1=ncsf(issg1)
-       CALL H0DIAG_CASPT2(ISSG1,WORK(LBUFD),IWORK(LNOW),IWORK(LIOW))
+*                                                                      *
+      iG3OFF=0
+      Symmetry_Loop: DO issg1=1,nsym   ! Symmetry index of E_ut/0>
+*                                                                      *
+************************************************************************
+
+        isp1=Mul(issg1,stsym)       ! Symmetry index of E_ut
+
+        if (.not. DoFCIQMC) then
+!
+!         form: H0_I = \sum_t e_{t}  |I><I|E_{tt}|I><I|
+!
+!         Note: this only works if the Fock matrix is presented in the
+!         block diagonal form. i.e. in the pseudo canonical basis.
+!
+          nsgm1=CIS%ncsf(issg1)
+          CALL H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,CIS%nMidV)
+
+        end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
-C-is basically the number of buffers we fill with sigma1 vectors.
+C-is basically the number of buffers we fill with SG_Epq_Psi vectors.
+
       iTask=1
       ibuf1=0
       DO ip1=1,nlev2
         itlev=idx2ij(1,ip1)
         iulev=idx2ij(2,ip1)
-        istu=mul(ism(itlev),ism(iulev))
-        IF (istu.EQ.isp1) THEN
+        istu=Mul(SGS%ism(itlev),SGS%ism(iulev)) ! Symmetry of E_tu
+
+        IF (istu==isp1) THEN
+!         Add pair index to ip1_buf
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
-          IF (ibuf1.EQ.1) iwork(lip1sta+iTask-1)=ip1
+!         Add pair index to Tasklist(iTask,1) if it is the first entry in ip1_buf
+          IF (ibuf1==1) TaskList(iTask,1)=ip1  ! Start ip1 index
         ENDIF
-        IF (ibuf1.EQ.nbuf1.OR.(ibuf1.GT.0.AND.
+
+!       Terminate if buffer is full, or,
+!       if
+        IF (ibuf1==nbuf1 .OR.
+     &     (ibuf1>0.AND.
      &         (ip1.EQ.ntri2.OR.ip1.EQ.nlev2))) THEN
-            iwork(lip1end+iTask-1)=ip1_buf(ibuf1)
-            iwork(libuf1+iTask-1)=ibuf1
+            TaskList(iTask,2)=ip1_buf(ibuf1)  ! End ip1 index
+            TaskList(iTask,3)=ibuf1           ! End ibuf value
             iTask=iTask+1
             ibuf1=0
         ENDIF
+
       ENDDO
+
       nTasks=iTask
-      IF (ibuf1.EQ.0) nTasks=nTasks-1
+      IF (ibuf1==0) nTasks=nTasks-1
+
 C-SVC20100309: calculate number of inner loop iteration tasks.
       iOffSet=0
       DO iTask=1,nTasks
-        iWork(lOffSet+iTask-1)=iOffSet
-        ip1sta=iwork(lip1sta+iTask-1)
-        ip1end=iwork(lip1end+iTask-1)
+        TaskList(iTask,4)=iOffSet
+        ip1sta=TaskList(iTask,1)
+        ip1end=TaskList(iTask,2)
         ip3mx=ntri2
         if(ip1end.le.ntri2) ip3mx=ip1end
         if(ip1sta.gt.ntri2) ip3mx=ntri1
@@ -254,31 +304,29 @@ C       iOffSet=iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
       nSubTasks=iOffSet
 
       IF(iPrGlb.GE.VERBOSE) THEN
-        WRITE(6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
-        call xFlush(6)
+        WRITE(u6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
       ENDIF
 
       IF(iPrGlb.GE.DEBUG) THEN
         IF (nSubTasks .GT. 0) THEN
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "--------",
      &    "------------",
      &    "----",
      &    "---------"
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "task ID ",
      &    " ip1 range  ",
      &    "ip3 ",
      &    "#elements"
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "--------",
      &    "------------",
      &    "----",
      &    "---------"
-          call xFlush(6)
         END IF
       END IF
 
@@ -286,32 +334,31 @@ C-SVC20100301: initialize the series of subtasks
       Call Init_Tsk(ID, nSubTasks)
 
       myBuffer=0
+      Do
 
- 500  CONTINUE
 C-SVC20100908: first check: can I actually do any task?
-      IF ((NG3-iG3OFF).LT.nbuf1*ntri2) GOTO 501
+      IF ((NG3-iG3OFF).LT.nbuf1*ntri2) Exit
 C-SVC20100831: initialize counter for offset into G3
 C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
-      If (.NOT.Rsv_Tsk(ID,iSubTask)) GOTO 501
+      If (.NOT.Rsv_Tsk(ID,iSubTask)) Exit
 
       myTask=nTasks
       DO iTask=1,nTasks
-        iBuf=iSubTask-iWork(lOffSet+iTask-1)
-        IF (iBuf.LE.0) THEN
+        iBuf=iSubTask-TaskList(iTask,4)
+        IF (iBuf<=0) THEN
           myTask=iTask-1
-          goto 666
+          Exit
         ENDIF
       ENDDO
-666   continue
       iTask=myTask
 
-      iOffSet=iWork(lOffSet+iTask-1)
+      iOffSet=TaskList(iTask,4)
 
 C-SVC20100310: one task handles a range of ip1 values
 C-that are in the buffer and one ip3 value, for which
 C-a loop over ip2 values is then executed.
-      ip1sta=iWork(lip1sta+iTask-1)
-      ip1end=iWork(lip1end+iTask-1)
+      ip1sta=TaskList(iTask,1)
+      ip1end=TaskList(iTask,2)
       ip3=iSubTask-iOffSet
 
 C-SVC20100301: fill the buffer with sigma vectors if they
@@ -319,49 +366,82 @@ C-have not been computed yet, else just get the number of
 C-sigma vectors in the buffer.
       IF (myBuffer.NE.iTask) THEN
         ibuf1=0
+
+        if (.not. DoFCIQMC) then
         do ip1i=ip1sta,ip1end
          itlev=idx2ij(1,ip1i)
          iulev=idx2ij(2,ip1i)
-         istu=mul(ism(itlev),ism(iulev))
+
+         istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
+
+         it=L2ACT(itlev)
+         iu=L2ACT(iulev)
+
+         if(istu.eq.isp1) then
+          ibuf1=ibuf1+1
+          ip1_buf(ibuf1)=ip1i
+! form E_ut |0>
+          BUF1(1:nSgm1,iBuf1)=Zero
+          CALL SG_Epq_Psi(SGS,CIS,EXS,
+     &                IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
+         end if
+        end do
+
+        else
+
+        do ip1i=ip1sta,ip1end
+         itlev=idx2ij(1,ip1i)
+         iulev=idx2ij(2,ip1i)
+         istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
          it=L2ACT(itlev)
          iu=L2ACT(iulev)
          if(istu.eq.isp1) then
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
-          lto=lbuf1+mxci*(ibuf1-1)
-          call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-          CALL SIGMA1_CP2(IULEV,ITLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
          end if
         end do
+        end if
+
         myBuffer=iTask
       ELSE
-        ibuf1=iWork(libuf1+iTask-1)
+        ibuf1=TaskList(iTask,3)
       ENDIF
-C-SVC20100301: necessary batch of sigma vectors is now in the buffer
 
-      ! The ip1 buffer could be the same on different processes
-      ! so only compute the G1 contribution when ip3 is 1, as
-      ! this will only be one task per buffer.
-      if (issg1.eq.stsym.AND.ip3.eq.1) then
-        do ib=1,ibuf1
-          idx=ip1_buf(ib)
-          itlev=idx2ij(1,idx)
-          iulev=idx2ij(2,idx)
-          it=L2ACT(itlev)
-          iu=L2ACT(iulev)
-          lto=lbuf1+mxci*(ib-1)
-          G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
-          IF(IFF.ne.0) then
-            F1sum=0.0D0
-            do i=1,nsgm1
-              F1sum=F1sum+CI(i)*work(lto-1+i)*work(lbufd-1+i)
+C-SVC20100301: necessary batch of sigma vectors is now in the buffer
+      if (.not. DoFCIQMC) then
+          ! The ip1 buffer could be the same on different processes
+          ! so only compute the G1 contribution when ip3 is 1, as
+          ! this will only be one task per buffer.
+
+C form <0| *  E_ut|0> = G_tu and
+C      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
+
+          if (issg1.eq.stsym.AND.ip3.eq.1) then
+            IF (mkF) THEN
+            do ib=1,ibuf1
+              idx=ip1_buf(ib)
+              itlev=idx2ij(1,idx)
+              iulev=idx2ij(2,idx)
+              it=L2ACT(itlev)
+              iu=L2ACT(iulev)
+              G1(it,iu)=DDOT_(nsgm1,CI,1,BUF1(:,ib),1)
+              F1sum=Zero
+              do i=1,nsgm1
+                 F1sum=F1sum+CI(i)*BUF1(i,ib)*bufd(i)
+              end do
+              F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
             end do
-            F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
+            ELSE
+            do ib=1,ibuf1
+              idx=ip1_buf(ib)
+              itlev=idx2ij(1,idx)
+              iulev=idx2ij(2,idx)
+              it=L2ACT(itlev)
+              iu=L2ACT(iulev)
+              G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
+            end do
+            END IF
           end if
-        end do
       end if
 
 C     ip3mx=ntri2
@@ -382,51 +462,64 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 * The indices corresponding to pair index p3:
       iylev=idx2ij(1,ip3)
       izlev=idx2ij(2,ip3)
-      isyz=mul(ism(iylev),ism(izlev))
-      issg2=mul(isyz,stsym)
-      nsgm2=ncsf(issg2)
+      isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
+      issg2=Mul(isyz,stsym)
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
-      lto=lbuf2
-      call dcopy_(nsgm2,[0.0D0],0,work(lto),1)
-      CALL SIGMA1_CP2(IYLEV,IZLEV,1.0D00,STSYM,CI,WORK(LTO),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-      if(issg2.eq.issg1) then
-        do ib=1,ibuf1
-          idx=ip1_buf(ib)
-          itlev=idx2ij(1,idx)
-          iulev=idx2ij(2,idx)
-          it=L2ACT(itlev)
-          iu=L2ACT(iulev)
-          G2(it,iu,iy,iz)=DDOT_(nsgm1,work(lto),1,
-     &         work(lbuf1+mxci*(ib-1)),1)
-          IF(IFF.ne.0) THEN
-            F2sum=0.0D0
-            do i=1,nsgm1
-              F2sum=F2sum+work(lto-1+i)*work(lbufd-1+i)*
-     &             work(lbuf1-1+i+mxci*(ib-1))
+      if (.not. DoFCIQMC) then
+          nsgm2=CIS%ncsf(issg2)
+          BUF2(1:nSgm2)=Zero
+C form <0| E_zy|
+          CALL SG_Epq_Psi(SGS,CIS,EXS,
+     &                IYLEV,IZLEV,One,STSYM,CI,BUF2)
+
+          if(issg2.eq.issg1) then
+
+            IF (mkF) THEN
+            do ib=1,ibuf1
+              idx=ip1_buf(ib)
+              itlev=idx2ij(1,idx)
+              iulev=idx2ij(2,idx)
+              it=L2ACT(itlev)
+              iu=L2ACT(iulev)
+C form <0| E_zy E_ut |0> = G_tu,yz
+C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
+              G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
+              F2sum=Zero
+              do i=1,nsgm1
+                F2sum=F2sum+BUF2(i)*bufd(i)*buf1(i,ib)
+              end do
+              F2(it,iu,iy,iz)=F2sum
             end do
-            F2(it,iu,iy,iz)=F2sum
-          END IF
-        end do
+            ELSE
+            do ib=1,ibuf1
+              idx=ip1_buf(ib)
+              itlev=idx2ij(1,idx)
+              iulev=idx2ij(2,idx)
+              it=L2ACT(itlev)
+              iu=L2ACT(iulev)
+              G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
+            end do
+            END IF
+
+          end if
+
       end if
+
       nbtot=0
       do ip2=ip3,ntri2
         ivlev=idx2ij(1,ip2)
         ixlev=idx2ij(2,ip2)
-        isvx=mul(ism(ivlev),ism(ixlev))
+        isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
-        if(isvx.ne.mul(issg1,issg2)) goto 99
-        lfrom=lbuf2
-        lto=lbuft
-        call dcopy_(nsgm1,[0.0D0],0,work(lto),1)
-        CALL SIGMA1_CP2(IVLEV,IXLEV,1.0D00,ISSG2,WORK(LFROM),WORK(LTO),
-     &       IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &       IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &       WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
+        if(.Not.(isvx.ne.Mul(issg1,issg2))) Then
+        if (.not. DoFCIQMC) then
+            BUFT(1:nSgm1)=Zero
+! form <0| E_zy E_xv
+            CALL SG_Epq_Psi(SGS,CIS,EXS,
+     &                  IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
+        end if
 *-----------
 * Max and min values of index p1:
         ip1mx=ntri2
@@ -448,16 +541,18 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           if(ip1.le.ip1mx)ibmx=ib
         end do
         nb=ibmx-ibmn+1
-        if(nb.le.0) goto 99
+        if(nb>0) Then
 
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
-        l1=lbuf1+mxci*(ibmn-1)
-        call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
-     &       work(lbuft),1,0.0D0,bufr,1)
+        if (.not. DoFCIQMC) then
+! form <0| E_zy E_xv * E_ut|0>
+            call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
+     &           buft,1,Zero,bufr,1)
 * and distribute this result into G3:
-        call dcopy_(nb,bufr,1,G3(iG3OFF+1),1)
+            G3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
 * and copy the active indices into idxG3:
+        end if
         do ib=1,nb
          iG3=iG3OFF+ib
          idx=ip1_buf(ibmn-1+ib)
@@ -465,48 +560,54 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
          iulev=idx2ij(2,idx)
          iT=l2act(itlev)
          iU=l2act(iulev)
-         idxG3(1,iG3)=int(iT,I1)
-         idxG3(2,iG3)=int(iU,I1)
-         idxG3(3,iG3)=int(iV,I1)
-         idxG3(4,iG3)=int(iX,I1)
-         idxG3(5,iG3)=int(iY,I1)
-         idxG3(6,iG3)=int(iZ,I1)
+         idxG3(1,iG3)=int(iT,kind=byte)
+         idxG3(2,iG3)=int(iU,kind=byte)
+         idxG3(3,iG3)=int(iV,kind=byte)
+         idxG3(4,iG3)=int(iX,kind=byte)
+         idxG3(5,iG3)=int(iY,kind=byte)
+         idxG3(6,iG3)=int(iZ,kind=byte)
         end do
-        IF(IFF.ne.0) THEN
+
+        if (.not. DoFCIQMC) then
+            IF(mkF) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
-          do icsf=1,nsgm1
-            work(lbuft-1+icsf)=
-     &           (work(lbufd-1+icsf)-epsa(iv))*work(lbuft-1+icsf)
-          end do
+! form <0| E_zy E_xv (H0 -e_v)
+                BufT(1:nSgm1)=(BufD(1:nSgm1)-EpsA(iV))*BufT(1:nSgm1)
+!               do icsf=1,nsgm1
+!                 buft(icsf)= (bufd(icsf)-epsa(iv))*buft(icsf)
+!               end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-          call DGEMV_ ('T',nsgm1,nb,1.0D0,work(l1),mxci,
-     &         work(lbuft),1,0.0D0,bufr,1)
-          call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
-        END IF
+
+! form <0| E_zy E_xv (H0 -e_v) E_ut|0> = F3(iuv,xyz)
+                call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
+     &           buft,1,Zero,bufr,1)
+                F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
+            END IF
+        end if
+
         iG3OFF=iG3OFF+nb
         nbtot=nbtot+nb
- 99     continue
+        end if
+        end if
       end do
-*     end do
 
       IF(iPrGlb.GE.DEBUG) THEN
-        WRITE(6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
+        WRITE(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
      &    iSubTask, ip1sta, ip1end, ip3, nbtot
-        call xFlush(6)
       END IF
+      !! consistent tasks must be executed here and in derfg3.f for grad
+      if (do_grad .or. nStpGrd==2) then
+        nTasks_grad = nTasks_grad + 1
+        iTasks_grad(nTasks_grad) = iSubTask
+      end if
 
 CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
-#endif
 
 C-SVC20100301: end of the task
-      GOTO 500
-
- 501  CONTINUE
+      End Do
 
 C-SVC20100302: no more tasks, wait here for the others, then proceed
 C with next symmetry
@@ -514,7 +615,7 @@ C with next symmetry
 
       IF(iPrGlb.GE.DEBUG) THEN
         IF (nSubTasks .GT. 0) THEN
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "--------",
      &    "------------",
@@ -523,147 +624,179 @@ C-position 12345678901234567890
         END IF
       END IF
 
+************************************************************************
+*                                                                      *
 * End of sectioning loop over symmetry of Sgm1 wave functions.
-      END DO
+      END DO Symmetry_Loop
 C-SVC20100831: set correct number of elements in new G3
       NG3=iG3OFF
+*                                                                      *
+************************************************************************
 
-      CALL GETMEM ('TASKLIST','FREE','INTE',lTask_List,4*mxTask)
+      CALL mma_deallocate(TASKLIST)
       ! free CI buffers
-      CALL GETMEM('BUF1','FREE','REAL',LBUF1,NBUF1*MXCI)
-      CALL GETMEM('BUF2','FREE','REAL',LBUF2,NBUF2*MXCI)
-      CALL GETMEM('BUFT','FREE','REAL',LBUFT,NBUFT*MXCI)
-      CALL GETMEM('BUFD','FREE','REAL',LBUFD,NBUFD*MXCI)
+      CALL mma_deallocate(BUF1)
+      CALL mma_deallocate(BUF2)
+      CALL mma_deallocate(BUFT)
+      CALL mma_deallocate(BUFD)
 
 C-SVC20100302: Synchronized add into the densitry matrices
 C  only for the G1 and G2 replicate arrays
-      CALL GADSUM(G1,NG1)
-      CALL GADSUM(G2,NG2)
+      CALL GADGOP(G1,NG1,'+')
+      CALL GADGOP(G2,NG2,'+')
 
-      CALL GADSUM(F1,NG1)
-      CALL GADSUM(F2,NG2)
+      CALL GADGOP(F1,NG1,'+')
+      CALL GADGOP(F2,NG2,'+')
 
-* Correction to G2: It is now = <0| E_tu E_yz |0>
-      do iu=1,nlev
-       do iz=1,nlev
-        do it=1,nlev
-         G2(it,iu,iu,iz)=G2(it,iu,iu,iz)-G1(it,iz)
-        end do
-       end do
-      end do
-C-SVC20100310: took some spurious mirroring of G2 values out
-C-of the loops and put them here, after the parallel section has
-C-finished, so that GAdSUM works correctly.
-      do ip1=ntri2+1,nlev2
-       itlev=idx2ij(1,ip1)
-       iulev=idx2ij(2,ip1)
-       it=L2ACT(itlev)
-       iu=L2ACT(iulev)
-       do ip3=ntri1+1,ip1
-        iylev=idx2ij(1,ip3)
-        izlev=idx2ij(2,ip3)
-        iy=L2ACT(iylev)
-        iz=L2ACT(izlev)
-        G2(it,iu,iy,iz)=G2(iz,iy,iu,it)
-       end do
-      end do
-* Correction to G2: Some values not computed follow from symmetry
-      do ip1=1,nlev2-1
-       itlev=idx2ij(1,ip1)
-       iulev=idx2ij(2,ip1)
-       it=L2ACT(itlev)
-       iu=L2ACT(iulev)
-       do ip3=ip1+1,nlev2
-        iylev=idx2ij(1,ip3)
-        izlev=idx2ij(2,ip3)
-        iy=L2ACT(iylev)
-        iz=L2ACT(izlev)
-        G2(it,iu,iy,iz)=G2(iy,iz,it,iu)
-       end do
-      end do
-      IF(IFF.ne.0) THEN
-* Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
-       do iz=1,nlev
-        do iy=1,nlev
-         do iu=1,nlev
-          do it=1,nlev
-           F2(it,iu,iy,iz)=F2(it,iu,iy,iz)-
-     &           (EPSA(iu)+EPSA(iy))*G2(it,iu,iy,iz)
+      if (DoFCIQMC) then
+          call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3,nLev)
+      else
+          ! Correction to G2: It is now = <0| E_tu E_yz |0>
+          do iu=1,nlev
+           do iz=1,nlev
+            do it=1,nlev
+             G2(it,iu,iu,iz)=G2(it,iu,iu,iz)-G1(it,iz)
+            end do
+           end do
           end do
-         end do
-        end do
-       end do
-       do iz=1,nlev
-        do iu=1,nlev
-         do it=1,nlev
-          F2(it,iu,iu,iz)=F2(it,iu,iu,iz)-
-     &          (F1(it,iz)+EPSA(iu)*G1(it,iz))
-         end do
-        end do
-       end do
-C-SVC20100310: took some spurious mirroring of F2 values out
-C-of the loops and put them here, after the parallel section has
-C-finished, so that GAdSUM works correctly.
-       do ip1=ntri2+1,nlev2
-        itlev=idx2ij(1,ip1)
-        iulev=idx2ij(2,ip1)
-        it=L2ACT(itlev)
-        iu=L2ACT(iulev)
-        do ip3=ntri1+1,ip1
-         iylev=idx2ij(1,ip3)
-         izlev=idx2ij(2,ip3)
-         iy=L2ACT(iylev)
-         iz=L2ACT(izlev)
-         F2(it,iu,iy,iz)=F2(iz,iy,iu,it)
-        end do
-       end do
-* Correction to F2: Some values not computed follow from symmetry
-       do ip1=1,nlev2-1
-        itlev=idx2ij(1,ip1)
-        iulev=idx2ij(2,ip1)
-        it=L2ACT(itlev)
-        iu=L2ACT(iulev)
-        do ip3=ip1+1,nlev2
-         iylev=idx2ij(1,ip3)
-         izlev=idx2ij(2,ip3)
-         iy=L2ACT(iylev)
-         iz=L2ACT(izlev)
-         F2(it,iu,iy,iz)=F2(iy,iz,it,iu)
-        end do
-       end do
-      END IF
+        ! SVC20100310: took some spurious mirroring of G2 values out
+        ! of the loops and put them here, after the parallel section has
+        ! finished, so that GAdGOP works correctly.
+          do ip1=ntri2+1,nlev2
+           itlev=idx2ij(1,ip1)
+           iulev=idx2ij(2,ip1)
+           it=L2ACT(itlev)
+           iu=L2ACT(iulev)
+           do ip3=ntri1+1,ip1
+            iylev=idx2ij(1,ip3)
+            izlev=idx2ij(2,ip3)
+            iy=L2ACT(iylev)
+            iz=L2ACT(izlev)
+            G2(it,iu,iy,iz)=G2(iz,iy,iu,it)
+           end do
+          end do
+       ! Correction to G2: Some values not computed follow from symmetry
+          do ip1=1,nlev2-1
+           itlev=idx2ij(1,ip1)
+           iulev=idx2ij(2,ip1)
+           it=L2ACT(itlev)
+           iu=L2ACT(iulev)
+           do ip3=ip1+1,nlev2
+            iylev=idx2ij(1,ip3)
+            izlev=idx2ij(2,ip3)
+            iy=L2ACT(iylev)
+            iz=L2ACT(izlev)
+            G2(it,iu,iy,iz)=G2(iy,iz,it,iu)
+           end do
+          end do
+          IF(mkF) THEN
+           ! Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
+           do iz=1,nlev
+            do iy=1,nlev
+             do iu=1,nlev
+              do it=1,nlev
+               F2(it,iu,iy,iz)=F2(it,iu,iy,iz)-
+     &               (EPSA(iu)+EPSA(iy))*G2(it,iu,iy,iz)
+              end do
+             end do
+            end do
+           end do
+           do iz=1,nlev
+            do iu=1,nlev
+             do it=1,nlev
+              F2(it,iu,iu,iz)=F2(it,iu,iu,iz)-
+     &              (F1(it,iz)+EPSA(iu)*G1(it,iz))
+             end do
+            end do
+           end do
+        ! SVC20100310: took some spurious mirroring of F2 values out
+        ! of the loops and put them here, after the parallel section has
+        ! finished, so that GAdGOP works correctly.
+           do ip1=ntri2+1,nlev2
+            itlev=idx2ij(1,ip1)
+            iulev=idx2ij(2,ip1)
+            it=L2ACT(itlev)
+            iu=L2ACT(iulev)
+            do ip3=ntri1+1,ip1
+             iylev=idx2ij(1,ip3)
+             izlev=idx2ij(2,ip3)
+             iy=L2ACT(iylev)
+             iz=L2ACT(izlev)
+             F2(it,iu,iy,iz)=F2(iz,iy,iu,it)
+            end do
+           end do
+      ! Correction to F2: Some values not computed follow from symmetry
+           do ip1=1,nlev2-1
+            itlev=idx2ij(1,ip1)
+            iulev=idx2ij(2,ip1)
+            it=L2ACT(itlev)
+            iu=L2ACT(iulev)
+            do ip3=ip1+1,nlev2
+             iylev=idx2ij(1,ip3)
+             izlev=idx2ij(2,ip3)
+             iy=L2ACT(iylev)
+             iz=L2ACT(izlev)
+             F2(it,iu,iy,iz)=F2(iy,iz,it,iu)
+            end do
+           end do
+          END IF
 
-* Correction to G3: It is now <0| E_tu E_vx E_yz |0>
-* Similar for F3 values.
-      DO iG3=1,NG3
-       iT=idxG3(1,iG3)
-       iU=idxG3(2,iG3)
-       iV=idxG3(3,iG3)
-       iX=idxG3(4,iG3)
-       iY=idxG3(5,iG3)
-       iZ=idxG3(6,iG3)
-* Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
-       if(iY.eq.iX) then
-        G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
-        IF(IFF.ne.0) F3(iG3)=
-     &           F3(iG3)-(F2(iT,iU,iV,iZ)+EPSA(iu)*G2(iT,iU,iV,iZ))
-        if(iv.eq.iu) then
-         G3(iG3)=G3(iG3)-G1(iT,iZ)
-         IF(IFF.ne.0) F3(iG3)=F3(iG3)-F1(iT,iZ)
-        end if
-       end if
-       if(iV.eq.iU) then
-         G3(iG3)=G3(iG3)-G2(iT,iX,iY,iZ)
-         IF(IFF.ne.0) F3(iG3)=F3(iG3)-
-     &            (F2(iT,iX,iY,iZ)+EPSA(iY)*G2(iT,iX,iY,iZ))
-       end if
-       if(iY.eq.iU) then
-         G3(iG3)=G3(iG3)-G2(iV,iX,iT,iZ)
-         IF(IFF.ne.0) F3(iG3)=
-     &            F3(iG3)-(F2(iV,iX,iT,iZ)+EPSA(iU)*G2(iV,iX,iT,iZ))
-       end if
-       IF(IFF.ne.0) F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
-      END DO
+      ! Correction to G3: It is now <0| E_tu E_vx E_yz |0>
+      ! Similar for F3 values.
+          IF (mkF) THEN
+          DO iG3=1,NG3
+           iT=idxG3(1,iG3)
+           iU=idxG3(2,iG3)
+           iV=idxG3(3,iG3)
+           iX=idxG3(4,iG3)
+           iY=idxG3(5,iG3)
+           iZ=idxG3(6,iG3)
+      ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
+           if(iY.eq.iX) then
+            G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
+            F3(iG3)=F3(iG3)-(F2(iT,iU,iV,iZ)+EPSA(iu)*G2(iT,iU,iV,iZ))
+            if(iv.eq.iu) then
+             G3(iG3)=G3(iG3)-G1(iT,iZ)
+             F3(iG3)=F3(iG3)-F1(iT,iZ)
+            end if
+           end if
+           if(iV.eq.iU) then
+             G3(iG3)=G3(iG3)-G2(iT,iX,iY,iZ)
+             F3(iG3)=F3(iG3)-(F2(iT,iX,iY,iZ)+EPSA(iY)*G2(iT,iX,iY,iZ))
+           end if
+           if(iY.eq.iU) then
+             G3(iG3)=G3(iG3)-G2(iV,iX,iT,iZ)
+             F3(iG3)=F3(iG3)-(F2(iV,iX,iT,iZ)+EPSA(iU)*G2(iV,iX,iT,iZ))
+           end if
+           F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
+          END DO
+          ELSE
+          DO iG3=1,NG3
+           iT=idxG3(1,iG3)
+           iU=idxG3(2,iG3)
+           iV=idxG3(3,iG3)
+           iX=idxG3(4,iG3)
+           iY=idxG3(5,iG3)
+           iZ=idxG3(6,iG3)
+      ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
+           if(iY.eq.iX) then
+            G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
+            if(iv.eq.iu) then
+             G3(iG3)=G3(iG3)-G1(iT,iZ)
+            end if
+           end if
+           if(iV.eq.iU) then
+             G3(iG3)=G3(iG3)-G2(iT,iX,iY,iZ)
+           end if
+           if(iY.eq.iU) then
+             G3(iG3)=G3(iG3)-G2(iV,iX,iT,iZ)
+           end if
+          END DO
+          END IF
+      end if
+
+      Call mma_deallocate(idx2ij)
+      Call mma_deallocate(icnj)
 
       IF(iPrGlb.GE.DEBUG) THEN
 CSVC: if running parallel, G3/F3 are spread over processes,
@@ -679,15 +812,13 @@ C     so make sure that the _total_ fingerprint is computed
         CALL GADGOP_SCAL(dF3,'+')
         dF3=SQRT(dF3)
 
-        WRITE(6,'("DEBUG> ",A)') "MKFG3: norms of the density matrices:"
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:", dG1
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G2:", dG2
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G3:", dG3
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F1:", dF1
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F2:", dF2
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F3:", dF3
+        WRITE(u6,'("DEBUG> ",A)')"MKFG3: norms of the density matrices:"
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G1:", dG1
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G2:", dG2
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G3:", dG3
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "F1:", dF1
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "F2:", dF2
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "F3:", dF3
       ENDIF
 
- 999  continue
-      RETURN
-      END
+      END SUBROUTINE MKFG3

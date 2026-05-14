@@ -15,15 +15,15 @@ use Basis_Info, only: dbsc, iCnttp_Dummy, nCnttp, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use define_af, only: AngTp
+use PrintLevel, only: nPrint
+use Molcas, only: MaxBfn, MxAtom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
-#include "angtp.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iAddr, iAng, iAngl, ib, iBas, iBas_Aux, iBas_Frag, iBass, ic, icnt, iCnttp, iExp, iPrim, iPrim_Aux, &
-                     iPrim_Frag, iPrimm, iPrint, ir, iRout, irow, iSh, iShell, iShSrt, jExp, jSh, kCmp, kExp, kSh, kShEnd, kShStr, &
-                     lSh, mdc, nBasisj, ncr, nExpi, nExpj, nExpk, nSumA, nSumB
+                     iPrim_Frag, iPrimm, iPrint, ir, iRout, irow, iSh, iShSrt, jExp, jSh, kCmp, kExp, kSh, kShEnd, kShStr, lSh, &
+                     mdc, nBasisj, ncr, nExpi, nExpj, nExpk, nSumA, nSumB
 logical(kind=iwp) :: lAux, lECP, lFAIEMP, lPam2, lPP, output
 real(kind=wp) :: ccr, zcr
 
@@ -73,7 +73,6 @@ iPrim_Frag = 0
 iBas = 0
 iBas_Aux = -1
 iBas_Frag = 0
-iShell = 0
 ! Loop over basis sets
 do iCnttp=1,nCnttp
   mdc = dbsc(iCnttp)%mdci
@@ -91,14 +90,13 @@ do iCnttp=1,nCnttp
     if (mdc > MxAtom) then
       call WarningMessage(2,'MxAtom too small')
       write(u6,*) 'MxAtom=',MxAtom
-      write(u6,*) 'Increase MxAtom in Molcas.fh and recompile the code!'
+      write(u6,*) 'Increase MxAtom in the Molcas module and recompile the code!'
       call Abend()
     end if
     ! Loop over shells associated with this center
     ! Start with s type shells
     jSh = iShSrt
     do iAng=0,dbsc(iCnttp)%nVal-1
-      iShell = iShell+1
       nExpj = Shells(jSh)%nExp
       nBasisj = Shells(jSh)%nBasis
       if ((S%MaxPrm(iAng) > 0) .and. (nExpj > 0) .and. (nBasisj > 0) .and. output .and. (iCnt == 1)) then
@@ -113,11 +111,6 @@ do iCnttp=1,nCnttp
           jExp = jExp+1
           if (iCnt == 1) write(u6,100) jExp,Shells(jSh)%Exp(kExp),(Shells(jSh)%Cff_c(kExp,ib,2),ib=1,nBasisj)
         end do
-      end if
-      if (iShell > MxShll) then
-        call WarningMessage(2,'iShell > MxShll')
-        write(u6,*) ' Change MxShll in Molcas.fh and recompile the code!'
-        call Abend()
       end if
       kCmp = (iAng+1)*(iAng+2)/2
       if (Shells(jSh)%Prjct) kCmp = 2*iAng+1
@@ -260,7 +253,7 @@ do iCnttp=1,nCnttp
         write(u6,*)
         write(u6,*) ' M1 operator       Exponent    Contraction Coefficients'
         do irow=1,dbsc(iCnttp)%nM1
-          write(u6,'(14X,D16.9,1X,D19.9)') dbsc(iCnttp)%M1xp(irow),dbsc(iCnttp)%M1cf(irow)
+          write(u6,'(14X,ES16.9,1X,ES19.9)') dbsc(iCnttp)%M1xp(irow),dbsc(iCnttp)%M1cf(irow)
         end do
       end if ! if (dbsc(iCnttp)%nM1 /= 0) then
 
@@ -268,7 +261,7 @@ do iCnttp=1,nCnttp
         write(u6,*)
         write(u6,*) ' M2 operator       Exponent    Contraction Coefficients'
         do irow=1,dbsc(iCnttp)%nM2
-          write(u6,'(14X,D16.9,1X,D19.9)') dbsc(iCnttp)%M2xp(irow),dbsc(iCnttp)%M2cf(irow)
+          write(u6,'(14X,ES16.9,1X,ES19.9)') dbsc(iCnttp)%M2xp(irow),dbsc(iCnttp)%M2cf(irow)
         end do
       end if ! if (dbsc(iCnttp)%nM2 /= 0) then
     end if ! if (iPrint >= 10) then
@@ -364,8 +357,8 @@ do iCnttp=1,nCnttp
           write(u6,'(19X,A,A)') '        Angular Type: ',AngTp(iAng)
           call RecPrt(' Exponents',' ',Shells(iSh)%Exp,nExpi,1)
           if (iPrint >= 11) then
-            call RecPrt(' The Akl matrix','(5D20.13)',Shells(iSh)%Akl(1,1,1),nExpi,nExpi)
-            call RecPrt(' The Adl matrix','(5D20.13)',Shells(iSh)%Akl(1,1,2),nExpi,nExpi)
+            call RecPrt(' The Akl matrix','(5ES20.13)',Shells(iSh)%Akl(1,1,1),nExpi,nExpi)
+            call RecPrt(' The Adl matrix','(5ES20.13)',Shells(iSh)%Akl(1,1,2),nExpi,nExpi)
           end if
         end if
         iSh = iSh+1
@@ -384,9 +377,9 @@ end if
 
 return
 
-100 format(9X,I4,1X,D16.9,10(1X,F10.6),1X,3(/,30X,10(1X,F10.6)))
+100 format(9X,I4,1X,ES16.9,10(1X,F10.6),1X,3(/,30X,10(1X,F10.6)))
 200 format(i4,1x,f18.12,1x,12(1x,f12.8))
-300 format(14X,D16.9,8(G12.5),3(/,30X,8(G12.5)))
-400 format(14X,D16.9,10(1X,F10.6),3(/,30X,10(1X,F10.6)))
+300 format(14X,ES16.9,8(G12.5),3(/,30X,8(G12.5)))
+400 format(14X,ES16.9,10(1X,F10.6),3(/,30X,10(1X,F10.6)))
 
 end subroutine Print_Basis2

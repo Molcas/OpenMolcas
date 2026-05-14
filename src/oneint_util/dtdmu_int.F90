@@ -30,25 +30,22 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, iPrint, ipS1, ipS2, iRout, iStabO(0:7), lDCRT, llOper, &
-                     LmbdT, mArr, nDCRT, nip, nOp, nRys, nStabO
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipArr, ipB, ipOff, ipRes, ipS1, ipS2, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, &
+                     nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3,2)
 integer(kind=iwp), external :: NrOpr
 
 #include "macros.fh"
+unused_var(nHer)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 230
-iPrint = nPrint(iRout)
-
-nRys = nHer
-
-if (iPrint >= 99) then
-  call RecPrt(' In dTdmu_int: Alpha',' ',Alpha,nAlpha,1)
-  call RecPrt(' In dTdmu_int: Beta',' ',Beta,nBeta,1)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In dTdmu_int: Alpha',' ',Alpha,nAlpha,1)
+call RecPrt(' In dTdmu_int: Beta',' ',Beta,nBeta,1)
+#else
+unused_var(alpha)
+#endif
 
 nip = 1
 ipS1 = nip
@@ -85,17 +82,16 @@ call SOS(iStabO,nStabO,llOper)
 call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),Ccoor(1:3,1),TC(1:3,1))
-  call OA(iDCRT(lDCRT),Ccoor(1:3,2),TC(1:3,2))
+  call OA(iDCRT(lDCRT),CoorO(:,1),TC(:,1))
+  call OA(iDCRT(lDCRT),CoorO(:,2),TC(:,2))
 
   ! Compute contribution from a,b+1
 
-  call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nComp,la,lb+1,A,RB,nRys,Array(ipArr),mArr,TC,nOrdOp)
+  call EFPrm(Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,nComp,la,lb+1,A,RB,Array(ipArr),mArr,TC,nOrdOp)
 
   ! Compute contribution from a,b-1
 
-  if (lb >= 1) &
-    call EFPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,nComp,la,lb-1,A,RB,nRys,Array(ipArr),mArr,TC,nOrdOp)
+  if (lb >= 1) call EFPrm(Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,nComp,la,lb-1,A,RB,Array(ipArr),mArr,TC,nOrdOp)
 
   ! Assemble final integral from the derivative integrals
 
@@ -105,7 +101,5 @@ do lDCRT=0,nDCRT-1
   call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
-
-return
 
 end subroutine dTdmu_int

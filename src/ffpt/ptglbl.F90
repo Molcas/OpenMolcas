@@ -45,7 +45,7 @@ if (.not. Exec) then
 end if
 
 !----------------------------------------------------------------------*
-!     Loop over all components and add constributions to the           *
+!     Loop over all components and add contributions to the            *
 !     one-electron Hamiltonian                                         *
 !----------------------------------------------------------------------*
 

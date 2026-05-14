@@ -23,7 +23,7 @@ subroutine page_in(KeyWord,nConf,Vector,LuDavid)
 !               record identifier                                      *
 !     nConf   : integer                                                *
 !               length of the vector H_diag                            *
-!     Vector  : array of real*8                                        *
+!     Vector  : array of real                                          *
 !               any vector of length nConf                             *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -46,7 +46,6 @@ character(len=llab), intent(in) :: KeyWord
 integer(kind=iwp), intent(in) :: nConf, LuDavid
 real(kind=wp), intent(out) :: Vector(nConf)
 integer(kind=iwp) :: iDisk, iStk, nStk
-#include "rasdim.fh"
 
 ! check input arguments
 if (nConf < 0) then

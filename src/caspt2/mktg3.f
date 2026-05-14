@@ -9,16 +9,44 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
-      IMPLICIT REAL*8 (a-h,o-z)
+      use Symmetry_Info, only: Mul
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero, One, Two
+      use sguga, only: EXS, SGS,L2ACT, CIS
+      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+      use caspt2_module, only: NASHT, ISCF, NACTEL, IASYM
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, nProcs, MyRank
+#endif
+      use caspt2_module, only: MxCI
+      IMPLICIT None
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "SysDef.fh"
-#include "WrkSpc.fh"
-#include "pt2_guga.fh"
-      DIMENSION TG1(NASHT,NASHT),TG2(NASHT,NASHT,NASHT,NASHT)
-      DIMENSION TG3(NTG3)
-      DIMENSION CI1(MXCI),CI2(MXCI)
+      integer(kind=iwp), intent(in):: LSYM1, LSYM2
+      real(kind=wp), intent(in)::  CI1(MXCI),CI2(MXCI)
+      real(kind=wp), intent(out)::  OVL
+      real(kind=wp), intent(out)::  TG1(NASHT,NASHT),
+     &                              TG2(NASHT,NASHT,NASHT,NASHT)
+      integer(kind=iwp), intent(in):: NTG3
+      real(kind=wp), intent(out)::  TG3(NTG3)
+      integer(kind=iwp) :: nLev
+#ifdef _MOLCAS_MPP_
+      Logical(kind=iwp) :: Poor_Par
+      integer(kind=iwp) iTask
+#endif
+
+      integer(kind=iwp), allocatable:: P2LEV(:)
+      real(kind=wp), allocatable:: TG3WRK(:)
+      integer(kind=iwp) IL,IND1,IND2,IND3,IP,IP1,IP1END,IP1STA,IP2,IP3,
+     &                  IP3END,IP3STA,IS1,IS2,IS3,ISSG1,ISSG2,ISTAU,IT,
+     &                  IT1,IT2,IT3,ITG3,ITS,IU,IU1,IU2,IU3,IUS,IV,IVS,
+     &                  IX,IXS,IY,IYS,IZ,IZS,JL,jtuvxyz,L,LFROM,LP2LEV1,
+     &                  LP2LEV2,LSGM1,LSGM2,LTAU,LTO,NCI1,NTAU,NTG3WRK,
+     &                  NTUBUF,NVECS,NYZBUF
+      real(kind=wp) OCC,VAL
+      real(kind=wp), external:: DDot_
+
+      nLev = SGS%nLev
+
 C Procedure for computing 1-body, 2-body, and 3-body transition
 C density elements with active indices only.
 
@@ -42,24 +70,280 @@ C all the symmetries (The ''absolute'' active index).
 
 
 C Put in zeroes. Recognize special cases:
-      OVL=1.0D0
-      IF(NASHT.EQ.0) GOTO 999
-      IF(LSYM1.NE.LSYM2) OVL=0.0D0
-      CALL DCOPY_(NASHT**2,[0.0D0],0,TG1,1)
-      CALL DCOPY_(NASHT**4,[0.0D0],0,TG2,1)
-      CALL DCOPY_(NTG3,[0.0D0],0,TG3,1)
-      IF(NACTEL.EQ.0) GOTO 999
+      OVL=One
+      IF(NASHT==0) Return
+      IF(LSYM1/=LSYM2) OVL=Zero
+      TG1(:,:)=Zero
+      TG2(:,:,:,:)=Zero
+      TG3(:)=Zero
 
-      IF(ISCF.EQ.0) GOTO 100
+      IF(NACTEL==0) Return
+
+
+      SELECT CASE (ISCF/=0)
+
+      CASE (.FALSE.)
+C Here, for regular CAS or RAS cases.
+
+C Special pair index allows true RAS cases to be handled:
+      CALL mma_allocate(P2LEV,2*NASHT**2,Label='P2LEV')
+      LP2LEV1=1
+      LP2LEV2=1+NASHT**2
+      IP=0
+C First, IL < JL pairs.
+      DO IL=1,NLEV-1
+       DO JL=IL+1,NLEV
+        IP=IP+1
+        P2LEV(LP2LEV1-1+IP)=IL
+        P2LEV(LP2LEV2-1+IP)=JL
+       END DO
+      END DO
+C Then, IL = JL pairs.
+      DO IL=1,NLEV
+        IP=IP+1
+        P2LEV(LP2LEV1-1+IP)=IL
+        P2LEV(LP2LEV2-1+IP)=IL
+      END DO
+C Last, IL > JL pairs.
+      DO IL=2,NLEV
+       DO JL=1,IL-1
+        IP=IP+1
+        P2LEV(LP2LEV1-1+IP)=IL
+        P2LEV(LP2LEV2-1+IP)=JL
+       END DO
+      END DO
+C If now any matrix element E(t1u1)E(t2u2)..E(tnun) is arranged
+C such that the pair indices are non-decreasing, then the matrix
+C element can be correctly computed by performing explicit
+C excitations within the RAS space.
+C But we also need the 'usual' pair index in order to use the
+C packed addressing.
+
+      NCI1=CIS%NCSF(LSYM1)
+C Overlap:
+      IF(LSYM1.EQ.LSYM2) OVL=DDOT_(NCI1,CI1,1,CI2,1)
+C Allocate as many vectors as possible:
+C Wishful thinking:
+      NVECS=2*NASHT**2+1
+C But what is really available?
+      CALL mma_MaxDBLE(NTG3WRK)
+      NTG3WRK=MIN(MXCI*NVECS,NTG3WRK)
+      NVECS=NTG3WRK/MXCI
+      NTG3WRK=NVECS*MXCI
+C Find optimal subdivision of available vectors:
+      NYZBUF=NINT(DBLE(NVECS-1)/DBLE(NASHT))
+      NYZBUF=MAX(1,NYZBUF)
+      NTUBUF=MIN(NASHT**2,NVECS-1-NYZBUF)
+      NYZBUF=NVECS-1-NTUBUF
+C Insufficient memory?
+      IF(NTUBUF.LE.0) THEN
+        WRITE(u6,*)' Too little memory left for MKTG3.'
+        WRITE(u6,*)' Need at least 3 vectors of length MXCI=',MXCI
+        CALL ABEND()
+      END IF
+      IF(NTUBUF.LE.(NASHT**2)/5) THEN
+        WRITE(u6,*)' WARNING: MKTG3 will be inefficient owing to'
+        WRITE(u6,*)' small memory.'
+      END IF
+      CALL mma_allocate(TG3WRK,NTG3WRK,Label='TG#WRK')
+C And divide it up:
+      LSGM1=1
+      LTAU=LSGM1+NTUBUF*MXCI
+      LSGM2=LTAU+MXCI
+
+#ifdef _MOLCAS_MPP_
+      !! enable poor parallelization, if applicable
+      if (Is_Real_Par()) then
+        POOR_PAR = .FALSE.
+        iTask = 0
+        if (NTUBUF==NYZBUF .and. NTUBUF==NASHT**2) then
+!         POOR_PAR = .TRUE.
+        end if
+      end if
+#endif
+C Sectioning loops over pair indices IP3 (ket side):
+      DO IP3STA=1,NASHT**2,NYZBUF
+       IP3END=MIN(NASHT**2,IP3STA-1+NYZBUF)
+C Compute a section of sigma vectors E(YZ)*PSI2 to memory:
+       LTO=LSGM2
+       DO IP3=IP3STA,IP3END
+C Translate to levels in the SGUGA coupling order:
+        IL=P2LEV(LP2LEV1-1+IP3)
+        JL=P2LEV(LP2LEV2-1+IP3)
+        IY=L2ACT(IL)
+        IZ=L2ACT(JL)
+        IYS=IASYM(IY)
+        IZS=IASYM(IZ)
+        ISSG2=Mul(Mul(IYS,IZS),LSYM2)
+        CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
+C LTO is first element of Sigma2 = E(YZ) Psi2
+        CALL SG_Epq_Psi(SGS,CIS,EXS,
+     &              IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
+        IF(ISSG2.EQ.LSYM1) THEN
+          TG1(IY,IZ)=DDOT_(NCI1,CI1,1,TG3WRK(LTO),1)
+        END IF
+        LTO=LTO+MXCI
+       END DO
+C Sectioning loops over pair indices IP1 (bra side):
+       DO IP1STA=IP3STA,NASHT**2,NTUBUF
+        IP1END=MIN(NASHT**2,IP1STA-1+NTUBUF)
+C Compute a section of sigma vectors E(UT)*PSI1 to memory:
+        LTO=LSGM1
+        DO IP1=IP1STA,IP1END
+C Translate to levels:
+         JL=P2LEV(LP2LEV1-1+IP1)
+         IL=P2LEV(LP2LEV2-1+IP1)
+         IT=L2ACT(IL)
+         IU=L2ACT(JL)
+         ITS=IASYM(IT)
+         IUS=IASYM(IU)
+         ISSG1=Mul(Mul(ITS,IUS),LSYM1)
+         CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
+         CALL SG_Epq_Psi(SGS,CIS,EXS,
+     &               IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
+         LTO=LTO+MXCI
+        END DO
+C Now compute as many elements as possible:
+        LFROM=LSGM2
+        DO IP3=IP3STA,IP3END
+#ifdef _MOLCAS_MPP_
+         if (Is_Real_Par()) then
+          iTask = iTask + 1
+          if (POOR_PAR .and. MOD(iTask,nProcs)/=MyRank) then
+           LFROM=LFROM+MXCI
+           CYCLE
+          end if
+         end if
+#endif
+         IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
+         IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
+C LFROM will be start element of Sigma2=E(YZ) Psi2
+         IYS=IASYM(IY)
+         IZS=IASYM(IZ)
+         ISSG2=Mul(Mul(IYS,IZS),LSYM2)
+         DO IP2=IP3,IP1END
+          IL=P2LEV(LP2LEV1-1+IP2)
+          JL=P2LEV(LP2LEV2-1+IP2)
+          IV=L2ACT(IL)
+          IX=L2ACT(JL)
+          IVS=IASYM(IV)
+          IXS=IASYM(IX)
+          ISTAU=Mul(Mul(IVS,IXS),ISSG2)
+          NTAU=CIS%NCSF(ISTAU)
+          CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTAU),1)
+C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
+          CALL SG_Epq_Psi(SGS,CIS,EXS,
+     &                IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
+          IF(ISTAU.EQ.LSYM1) THEN
+           TG2(IV,IX,IY,IZ)=DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
+          END IF
+          DO IP1=MAX(IP2,IP1STA),IP1END
+           IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
+           IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
+           ITS=IASYM(IT)
+           IUS=IASYM(IU)
+           ISSG1=Mul(Mul(ITS,IUS),LSYM1)
+           IF(ISSG1.EQ.ISTAU) THEN
+            L=LSGM1+MXCI*(IP1-IP1STA)
+            VAL=DDOT_(NTAU,TG3WRK(LTAU),1,TG3WRK(L),1)
+C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
+C Code to put it in correct place:
+            call get_tg3_index(IT, IU, IV, IX, IY, IZ, NASHT, jtuvxyz)
+            TG3(JTUVXYZ)=VAL
+
+C End of symmetry requirement IF-clause:
+           END IF
+C End of IP1 loop.
+          END DO
+C End of IP2 loop.
+         END DO
+         LFROM=LFROM+MXCI
+C End of IP3 loop.
+        END DO
+C End of IP1STA sectioning loop
+       END DO
+C End of IP3STA sectioning loop
+      END DO
+      CALL mma_deallocate(TG3WRK)
+C Now the computed elements of TG2 contain <PSI1|E(IT1,IU1)E(IT2,IU2)|PSI2>
+C and TG3 contains <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
+C Add here the necessary Kronecker deltas times 2-body matrix
+C elements and lower, so we get a true normal-ordered density matrix
+C element.
+
+#ifdef _MOLCAS_MPP_
+      IF (Is_Real_Par() .and. POOR_PAR) THEN
+       CALL GADGOP(TG2,NASHT**4,'+')
+       CALL GADGOP(TG3,NTG3,'+')
+      END IF
+#endif
+
+C First, the 2-particle density matrix:
+C <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
+      DO IP1=1,NASHT**2
+       IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
+       IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
+       DO IP2=1,IP1
+        IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
+        IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
+        IF(IV.EQ.IU) TG2(IT,IU,IV,IX)=TG2(IT,IU,IV,IX)-TG1(IT,IX)
+        TG2(IV,IX,IT,IU)=TG2(IT,IU,IV,IX)
+       END DO
+      END DO
+C and then the 3-particle density matrix:
+C <PSI1|E(T,U,V,X,Y,Z)|PSI2>  = <PSI1|E(TU)E(VX)E(YZ)|PSI2>
+C -D(Y,X)*(TG2(T,U,V,Z)+D(V,U)*TG1(T,Z))
+C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
+      DO IP1=1,NASHT**2
+       IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
+       IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
+       ITS=IASYM(IT)
+       IUS=IASYM(IU)
+       IS1=Mul(Mul(ITS,IUS),LSYM1)
+       DO IP2=1,IP1
+        IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
+        IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
+        IVS=IASYM(IV)
+        IXS=IASYM(IX)
+        IS2=Mul(Mul(IVS,IXS),IS1)
+        DO IP3=1,IP2
+         IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
+         IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
+         IYS=IASYM(IY)
+         IZS=IASYM(IZ)
+         IS3=Mul(Mul(IYS,IZS),IS2)
+         IF(IS3.EQ.LSYM2) THEN
+          call get_tg3_index(IT, IU, IV, IX, IY, IZ, NASHT, jtuvxyz)
+          VAL=TG3(JTUVXYZ)
+          IF(IY.EQ.IX) THEN
+           VAL=VAL-TG2(IT,IU,IV,IZ)
+           IF(IV.EQ.IU) THEN
+            VAL=VAL-TG1(IT,IZ)
+           END IF
+          END IF
+          IF(IV.EQ.IU) THEN
+           VAL=VAL-TG2(IT,IX,IY,IZ)
+          END IF
+          IF(IY.EQ.IU) THEN
+           VAL=VAL-TG2(IV,IX,IT,IZ)
+          END IF
+          TG3(JTUVXYZ)=VAL
+         END IF
+        END DO
+       END DO
+      END DO
+      CALL mma_deallocate(P2LEV)
+
+      CASE DEFAULT
 
 C -Special code for the closed-shell or hi-spin cases:
 C ISCF=1 for closed-shell, =2 for hispin
-      OCC=2.0D0
-      IF(ISCF.EQ.2) OCC=1.0D0
+      OCC=Two
+      IF(ISCF.EQ.2) OCC=One
       DO IT=1,NASHT
         TG1(IT,IT)=OCC
       END DO
-      IF(NACTEL.EQ.1) GOTO 999
+      IF(NACTEL.EQ.1) Return
       DO IT=1,NASHT
        DO IU=1,NASHT
         TG2(IT,IT,IU,IU)=TG1(IT,IT)*TG1(IU,IU)
@@ -70,18 +354,18 @@ C ISCF=1 for closed-shell, =2 for hispin
          END IF
         END DO
        END DO
-      IF(NACTEL.EQ.2) GOTO 999
+      IF(NACTEL.EQ.2) Return
        DO IT1=1,NLEV
         DO IU1=1,NLEV
          IND1=IT1+NASHT*(IU1-1)
          DO IT2=1,NLEV
           DO IU2=1,IU1
            IND2=IT2+NASHT*(IU2-1)
-           IF(IND2.GT.IND1) GOTO 199
+           IF(IND2.GT.IND1) CYCLE
            DO IT3=1,NLEV
             DO IU3=1,IU2
              IND3=IT3+NASHT*(IU3-1)
-             IF(IND3.GT.IND2) GOTO 198
+             IF(IND3.GT.IND2) CYCLE
              VAL=TG1(IT1,IU1)*TG1(IT2,IU2)*TG1(IT3,IU3)
 
 C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
@@ -113,312 +397,82 @@ C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
       TG3(ITG3)=VAL
 
 
- 198        CONTINUE
            END DO
           END DO
- 199      CONTINUE
          END DO
         END DO
        END DO
       END DO
-      GOTO 999
 
- 100  CONTINUE
-C Here, for regular CAS or RAS cases.
+      END SELECT
 
-C Special pair index allows true RAS cases to be handled:
-      CALL GETMEM('IPTOLEV','ALLO','INTE',LP2LEV,2*NASHT**2)
-      LP2LEV1=LP2LEV
-      LP2LEV2=LP2LEV+NASHT**2
-      IP=0
-C First, IL < JL pairs.
-      DO IL=1,NLEV-1
-       DO JL=IL+1,NLEV
-        IP=IP+1
-        IWORK(LP2LEV1-1+IP)=IL
-        IWORK(LP2LEV2-1+IP)=JL
-       END DO
-      END DO
-C Then, IL = JL pairs.
-      DO IL=1,NLEV
-        IP=IP+1
-        IWORK(LP2LEV1-1+IP)=IL
-        IWORK(LP2LEV2-1+IP)=IL
-      END DO
-C Last, IL > JL pairs.
-      DO IL=2,NLEV
-       DO JL=1,IL-1
-        IP=IP+1
-        IWORK(LP2LEV1-1+IP)=IL
-        IWORK(LP2LEV2-1+IP)=JL
-       END DO
-      END DO
-C If now any matrix element E(t1u1)E(t2u2)..E(tnun) is arranged
-C such that the pair indices are non-decreasing, then the matrix
-C element can be correctly computed by performing explicit
-C excitations within the RAS space.
-C But we also need the 'usual' pair index in order to use the
-C packed addressing.
+      END SUBROUTINE MKTG3
 
-      NCI1=NCSF(LSYM1)
-C Overlap:
-      IF(LSYM1.EQ.LSYM2) OVL=DDOT_(NCI1,CI1,1,CI2,1)
-C Allocate as many vectors as possible:
-C Wishful thinking:
-      NVECS=2*NASHT**2+1
-C But what is really available?
-      CALL GETMEM('DUMMY','MAX ','REAL',L,NTG3WRK)
-      NTG3WRK=MIN(MXCI*NVECS,NTG3WRK)
-      NVECS=NTG3WRK/MXCI
-      NTG3WRK=NVECS*MXCI
-C Find optimal subdivision of available vectors:
-      NYZBUF=NINT(DBLE(NVECS-1)/DBLE(NASHT))
-      NYZBUF=MAX(1,NYZBUF)
-      NTUBUF=MIN(NASHT**2,NVECS-1-NYZBUF)
-      NYZBUF=NVECS-1-NTUBUF
-C Insufficient memory?
-      IF(NTUBUF.LE.0) THEN
-        WRITE(6,*)' Too little memory left for MKTG3.'
-        WRITE(6,*)' Need at least 3 vectors of length MXCI=',MXCI
-        CALL ABEND()
-      END IF
-      IF(NTUBUF.LE.(NASHT**2)/5) THEN
-        WRITE(6,*)' WARNING: MKTG3 will be inefficient owing to'
-        WRITE(6,*)' small memory.'
-      END IF
-      CALL GETMEM('TG3WRK','ALLO','REAL',LTG3WRK,NTG3WRK)
-C And divide it up:
-      LSGM1=LTG3WRK
-      LTAU=LSGM1+NTUBUF*MXCI
-      LSGM2=LTAU+MXCI
 
-C Sectioning loops over pair indices IP3 (ket side):
-      DO IP3STA=1,NASHT**2,NYZBUF
-       IP3END=MIN(NASHT**2,IP3STA-1+NYZBUF)
-C Compute a section of sigma vectors E(YZ)*PSI2 to memory:
-       LTO=LSGM2
-       DO IP3=IP3STA,IP3END
-C Translate to levels in the SGUGA coupling order:
-        IL=IWORK(LP2LEV1-1+IP3)
-        JL=IWORK(LP2LEV2-1+IP3)
-        IY=L2ACT(IL)
-        IZ=L2ACT(JL)
-        IYS=IASYM(IY)
-        IZS=IASYM(IZ)
-        ISSG2=MUL(MUL(IYS,IZS),LSYM2)
-        CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
-C LTO is first element of Sigma2 = E(YZ) Psi2
-        CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM2,CI2,WORK(LTO),
-     &    IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &    IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &    WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-        IF(ISSG2.EQ.LSYM1) THEN
-          TG1(IY,IZ)=DDOT_(NCI1,CI1,1,WORK(LTO),1)
-        END IF
-        LTO=LTO+MXCI
-       END DO
-C Sectioning loops over pair indices IP1 (bra side):
-       DO IP1STA=IP3STA,NASHT**2,NTUBUF
-        IP1END=MIN(NASHT**2,IP1STA-1+NTUBUF)
-C Compute a section of sigma vectors E(UT)*PSI1 to memory:
-        LTO=LSGM1
-        DO IP1=IP1STA,IP1END
-C Translate to levels:
-         JL=IWORK(LP2LEV1-1+IP1)
-         IL=IWORK(LP2LEV2-1+IP1)
-         IT=L2ACT(IL)
-         IU=L2ACT(JL)
-         ITS=IASYM(IT)
-         IUS=IASYM(IU)
-         ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-         CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTO),1)
-         CALL SIGMA1_CP2(IL,JL,1.0D00,LSYM1,CI1,WORK(LTO),
-     &    IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &    IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &    WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-         LTO=LTO+MXCI
-        END DO
-C Now compute as many elements as possible:
-        LFROM=LSGM2
-        DO IP3=IP3STA,IP3END
-         IY=L2ACT(IWORK(LP2LEV1-1+IP3))
-         IZ=L2ACT(IWORK(LP2LEV2-1+IP3))
-C LFROM will be start element of Sigma2=E(YZ) Psi2
-         IYZ=IY+NASHT*(IZ-1)
-         IYS=IASYM(IY)
-         IZS=IASYM(IZ)
-         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
-         DO IP2=IP3,IP1END
-          IL=IWORK(LP2LEV1-1+IP2)
-          JL=IWORK(LP2LEV2-1+IP2)
-          IV=L2ACT(IL)
-          IX=L2ACT(JL)
-          IVX=IV+NASHT*(IX-1)
-          IVS=IASYM(IV)
-          IXS=IASYM(IX)
-          ISTAU=MUL(MUL(IVS,IXS),ISSG2)
-          NTAU=NCSF(ISTAU)
-          CALL DCOPY_(MXCI,[0.0D0],0,WORK(LTAU),1)
-C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
-          CALL SIGMA1_CP2(IL,JL,1.0D00,ISSG2,WORK(LFROM),WORK(LTAU),
-     &     IWORK(LNOCSF),IWORK(LIOCSF),IWORK(LNOW),IWORK(LIOW),
-     &     IWORK(LNOCP),IWORK(LIOCP),IWORK(LICOUP),
-     &     WORK(LVTAB),IWORK(LMVL),IWORK(LMVR))
-          IF(ISTAU.EQ.LSYM1) THEN
-           TG2(IV,IX,IY,IZ)=DDOT_(NTAU,WORK(LTAU),1,CI1,1)
-          END IF
-          DO IP1=MAX(IP2,IP1STA),IP1END
-           IT=L2ACT(IWORK(LP2LEV1-1+IP1))
-           IU=L2ACT(IWORK(LP2LEV2-1+IP1))
-           ITS=IASYM(IT)
-           IUS=IASYM(IU)
-           ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-           IF(ISSG1.EQ.ISTAU) THEN
-            L=LSGM1+MXCI*(IP1-IP1STA)
-            VAL=DDOT_(NTAU,WORK(LTAU),1,WORK(L),1)
-            ITU=IT+NASHT*(IU-1)
-C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
-C Code to put it in correct place:
-            IF(ITU.LT.IVX) THEN
-              IF(ITU.GE.IYZ) THEN
-                JTU=IVX
-                JVX=ITU
-                JYZ=IYZ
-              ELSE IF(IVX.LT.IYZ) THEN
-                  JTU=IYZ
-                  JVX=IVX
-                  JYZ=ITU
-              ELSE
-                  JTU=IVX
-                  JVX=IYZ
-                  JYZ=ITU
-              END IF
-            ELSE
-              IF(ITU.LT.IYZ) THEN
-                JTU=IYZ
-                JVX=ITU
-                JYZ=IVX
-              ELSE IF (IVX.GE.IYZ) THEN
-                JTU=ITU
-                JVX=IVX
-                JYZ=IYZ
-              ELSE
-                JTU=ITU
-                JVX=IYZ
-                JYZ=IVX
-              END IF
-            END IF
-            JTUVXYZ=((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
-            TG3(JTUVXYZ)=VAL
+      !> @brief Calculate linear index for 3-body transition density
+      !> matrix elements
+      !>
+      !> Given 6 active orbital indices (t,u,v,x,y,z), this subroutine
+      !> calculates the linear index for the corresponding transition
+      !> density matrix element used in MKTG3. The indices are first
+      !> converted to three orbital pair indices, which are then sorted
+      !> in descending order to determine the final index.
+      !>
+      !> @param t First active orbital index
+      !> @param u Second active orbital index
+      !> @param v Third active orbital index
+      !> @param x Fourth active orbital index
+      !> @param y Fifth active orbital index
+      !> @param z Sixth active orbital index
+      !> @param nasht Number of active orbitals
+      !> @param linear_index Output - the calculated linear index
+      subroutine get_tg3_index(t, u, v, x, y, z, nasht, ituvxyz)
 
-C End of symmetry requirement IF-clause:
-           END IF
-C End of IP1 loop.
-          END DO
-C End of IP2 loop.
-         END DO
-         LFROM=LFROM+MXCI
-C End of IP3 loop.
-        END DO
-C End of IP1STA sectioning loop
-       END DO
-C End of IP3STA sectioning loop
-      END DO
-      CALL GETMEM('TG3WRK','FREE','REAL',LTG3WRK,NTG3WRK)
-C Now the computed elements of TG2 contain <PSI1|E(IT1,IU1)E(IT2,IU2)|PSI2>
-C and TG3 contains <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
-C Add here the necessary Kronecker deltas times 2-body matrix
-C elements and lower, so we get a true normal-ordered density matrix
-C element.
+        use Definitions, only: iwp
+        implicit none
 
-C First, the 2-particle density matrix:
-C <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
-      DO IP1=1,NASHT**2
-       IT=L2ACT(IWORK(LP2LEV1-1+IP1))
-       IU=L2ACT(IWORK(LP2LEV2-1+IP1))
-       DO IP2=1,IP1
-        IV=L2ACT(IWORK(LP2LEV1-1+IP2))
-        IX=L2ACT(IWORK(LP2LEV2-1+IP2))
-        IF(IV.EQ.IU) TG2(IT,IU,IV,IX)=TG2(IT,IU,IV,IX)-TG1(IT,IX)
-        TG2(IV,IX,IT,IU)=TG2(IT,IU,IV,IX)
-       END DO
-      END DO
-C and then the 3-particle density matrix:
-C <PSI1|E(T,U,V,X,Y,Z)|PSI2>  = <PSI1|E(TU)E(VX)E(YZ)|PSI2>
-C -D(Y,X)*(TG2(T,U,V,Z)+D(V,U)*TG1(T,Z))
-C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
-      DO IP1=1,NASHT**2
-       IT=L2ACT(IWORK(LP2LEV1-1+IP1))
-       IU=L2ACT(IWORK(LP2LEV2-1+IP1))
-       ITU=IT+NASHT*(IU-1)
-       ITS=IASYM(IT)
-       IUS=IASYM(IU)
-       IS1=MUL(MUL(ITS,IUS),LSYM1)
-       DO IP2=1,IP1
-        IV=L2ACT(IWORK(LP2LEV1-1+IP2))
-        IX=L2ACT(IWORK(LP2LEV2-1+IP2))
-        IVX=IV+NASHT*(IX-1)
-        IVS=IASYM(IV)
-        IXS=IASYM(IX)
-        IS2=MUL(MUL(IVS,IXS),IS1)
-        DO IP3=1,IP2
-         IY=L2ACT(IWORK(LP2LEV1-1+IP3))
-         IZ=L2ACT(IWORK(LP2LEV2-1+IP3))
-         IYS=IASYM(IY)
-         IZS=IASYM(IZ)
-         IS3=MUL(MUL(IYS,IZS),IS2)
-         IF(IS3.EQ.LSYM2) THEN
-          IYZ=IY+NASHT*(IZ-1)
-          IF(ITU.LT.IVX) THEN
-            IF(ITU.GE.IYZ) THEN
-              JTU=IVX
-              JVX=ITU
-              JYZ=IYZ
-            ELSE IF(IVX.LT.IYZ) THEN
-                JTU=IYZ
-                JVX=IVX
-                JYZ=ITU
-            ELSE
-                JTU=IVX
-                JVX=IYZ
-                JYZ=ITU
-            END IF
-          ELSE
-            IF(ITU.LT.IYZ) THEN
-              JTU=IYZ
-              JVX=ITU
-              JYZ=IVX
-            ELSE IF (IVX.GE.IYZ) THEN
-              JTU=ITU
-              JVX=IVX
-              JYZ=IYZ
-            ELSE
-              JTU=ITU
-              JVX=IYZ
-              JYZ=IVX
-            END IF
-          END IF
-          JTUVXYZ=((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
-          VAL=TG3(JTUVXYZ)
-          IF(IY.EQ.IX) THEN
-           VAL=VAL-TG2(IT,IU,IV,IZ)
-           IF(IV.EQ.IU) THEN
-            VAL=VAL-TG1(IT,IZ)
-           END IF
-          END IF
-          IF(IV.EQ.IU) THEN
-           VAL=VAL-TG2(IT,IX,IY,IZ)
-          END IF
-          IF(IY.EQ.IU) THEN
-           VAL=VAL-TG2(IV,IX,IT,IZ)
-          END IF
-          TG3(JTUVXYZ)=VAL
-         END IF
-        END DO
-       END DO
-      END DO
-      CALL GETMEM('IPTOLEV','FREE','INTE',LP2LEV,2*NASHT**2)
+        integer(kind=iwp), intent(in) :: t, u, v, x, y, z, nasht
+        integer(kind=iwp), intent(out) :: ituvxyz
 
- 999  CONTINUE
-      RETURN
-      END
+        integer(kind=iwp) :: itu, ivx, iyz, jtu, jvx, jyz
+
+        ! Convert individual orbital indices to pair indices
+        itu = t + nasht*(u-1)
+        ivx = v + nasht*(x-1)
+        iyz = y + nasht*(z-1)
+
+        ! Sort the pair indices in descending order (jtu >= jvx >= jyz)
+        if (itu < ivx) then
+          if (itu >= iyz) then
+            jtu = ivx
+            jvx = itu
+            jyz = iyz
+          else if (ivx < iyz) then
+            jtu = iyz
+            jvx = ivx
+            jyz = itu
+          else
+            jtu = ivx
+            jvx = iyz
+            jyz = itu
+          end if
+        else
+          if (itu < iyz) then
+            jtu = iyz
+            jvx = itu
+            jyz = ivx
+          else if (ivx >= iyz) then
+            jtu = itu
+            jvx = ivx
+            jyz = iyz
+          else
+            jtu = itu
+            jvx = iyz
+            jyz = ivx
+          end if
+        end if
+
+        ! Calculate the linear index using the sorted pair indices
+        ituvxyz = ((jtu+1)*jtu*(jtu-1))/6 + (jvx*(jvx-1))/2 + jyz
+
+      end subroutine get_tg3_index

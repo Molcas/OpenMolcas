@@ -11,6 +11,7 @@
 ! Copyright (C) 1989,2003, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#ifdef _DEBUGPRINT_
 subroutine CNHCN(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NORB,TUVX,IPREXH,ExFac,IREOTS)
 ! Obtain Hamiltonian matrix over CSF's of configurations ICNL,ICNR
 !
@@ -18,7 +19,13 @@ subroutine CNHCN(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DT
 !              IREOTS added August 2003
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-use Definitions, only: wp, iwp, u6
+use lucia_data, only: PSSIGN
+use spinfo, only: NCSFTP, NDTFTP
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -27,11 +34,9 @@ integer(kind=iwp), intent(in) :: ICNL(*), ITPL, ICNR(*), ITPR, NAEL, NBEL, IPROD
 real(kind=wp), intent(_OUT_) :: CNHCNM(*), SCR(*)
 real(kind=wp), intent(in) :: ECORE, ONEBOD(NORB,NORB), DTOC(*), TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: IPREXH
-integer(kind=iwp) :: IPL, IPR, JCSF, JDET, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, KLDTRB, KLFREE, KLISL, KLISR, NCSFL, NCSFR, &
-                     NDETL, NDETR, NTEST
+integer(kind=iwp) :: ICOMBI, IPL, IPR, JCSF, JDET, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, KLDTRB, KLFREE, KLISL, KLISR, NCSFL, &
+                     NCSFR, NDETL, NDETR
 real(kind=wp) :: PSIGN
-#include "spinfo.fh"
-#include "ciinfo.fh"
 
 call CNHCN_INTERNAL(SCR)
 
@@ -43,8 +48,6 @@ subroutine CNHCN_INTERNAL(SCR)
   real(kind=wp), target :: SCR(*)
   integer(kind=iwp), pointer :: iSCRla(:), iSCRlb(:), iSCRra(:), iSCRrb(:), iSCRf(:)
   integer(kind=iwp) :: JTYP
-
-  NTEST = 0
 
   ! 1 : Obtain determinants corresponding to configurations
 
@@ -89,7 +92,8 @@ subroutine CNHCN_INTERNAL(SCR)
 
   KLDHD = KLFREE
   KLFREE = KLFREE+NDETL*NDETR
-  call COMBINATIONS(ICOMBI,PSIGN)
+  PSIGN = PSSIGN
+  ICOMBI = merge(0,1,PSSIGN == Zero)
   call c_f_pointer(c_loc(SCR(KLDTLA)),iSCRla,[1])
   call c_f_pointer(c_loc(SCR(KLDTLB)),iSCRlb,[1])
   call c_f_pointer(c_loc(SCR(KLDTRA)),iSCRra,[1])
@@ -102,8 +106,8 @@ subroutine CNHCN_INTERNAL(SCR)
   ! Transform matrix to CSF basis
 
   ! : sign changes
-  call DGMM2_MOLCAS(SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
-  call DGMM2_MOLCAS(SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
+  call DGMM2(SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
+  call DGMM2(SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
   IPL = 1
   do JTYP=1,ITPL-1
     JCSF = NCSFTP(JTYP)
@@ -126,10 +130,10 @@ subroutine CNHCN_INTERNAL(SCR)
   call MATML4(SCR(KLCHD),DTOC(IPL),SCR(KLDHD),NCSFL,NDETR,NDETL,NCSFL,NDETL,NDETR,1)
   call MATML4(CNHCNM,SCR(KLCHD),DTOC(IPR),NCSFL,NCSFR,NCSFL,NDETR,NDETR,NCSFR,0)
 
-  if (NTEST >= 20) then
-    write(u6,*) ' CSF-Hamiltonian matrix between two configurations'
-    call WRTMAT(CNHCNM,NCSFL,NCSFR,NCSFL,NCSFR)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' CSF-Hamiltonian matrix between two configurations'
+  call WRTMAT(CNHCNM,NCSFL,NCSFR,NCSFL,NCSFR)
+# endif
 
   return
 

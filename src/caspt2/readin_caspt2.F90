@@ -19,6 +19,8 @@ module InputData
   use stdalloc, only: mma_allocate, mma_deallocate
   use constants, only: Zero, One
   use definitions, only: wp,iwp,u6
+  use fciqmc_interface, only: DoFCIQMC, NonDiagonal, TransformToNormalOrder
+  use fortran_strings, only: str
 
   implicit none
   private
@@ -51,8 +53,6 @@ module InputData
     Logical(kind=iwp) :: DWMS = .false.
     Integer(kind=iwp) :: DWType = -1
     Real(kind=wp)     :: ZETA = One
-    ! EFOC      uses rotated E_0 energies with DWMS
-    Logical(kind=iwp) :: EFOC = .false.
     ! LROO      compute only a single root, mutually exclusive with both MULT or XMUL
     Logical(kind=iwp) :: LROO = .false.
     Integer(kind=iwp) :: SingleRoot = 0
@@ -70,8 +70,6 @@ module InputData
     Real(kind=wp)     :: sigma_1_epsilon = Zero
     ! SIG2      sigma-2 regularization
     Real(kind=wp)     :: sigma_2_epsilon = Zero
-    ! NONV      use non-variational energy
-    Logical(kind=iwp) :: nonvariational = .false.
 
     ! several freeze-delete schemes, each of these should active
     ! the general flag below, to indicate additional conversion is
@@ -88,6 +86,8 @@ module InputData
     ! FNOC      delete a fraction of virtual orbitals
     Logical(kind=iwp) :: FnoCASPT2 = .false.
     Real(kind=wp)     :: VFrac = Zero
+    ! RegFNO    FNO regularization parameter
+    Real(kind=wp)     :: RegFNO = Zero
     ! DOMP
     Logical(kind=iwp) :: doMP2 = .false.
     ! DOEN
@@ -151,8 +151,6 @@ module InputData
     Real(kind=wp)     :: PrWF = 0.05_wp
     ! PRSD      print the determinant expansion of CSFs
     Logical(kind=iwp) :: PrSD = .false.
-    ! NOOR      do not print any orbitals
-    Logical(kind=iwp) :: NoOrb = .false.
 
     ! UNDOCUMENTED KEYWORDS
     ! CHOL
@@ -174,6 +172,38 @@ module InputData
     Logical(kind=iwp) :: RHSD = .false.
     ! CUMU
     Logical(kind=iwp) :: doCumulant = .false.
+    ! DMRG      DMRG-CASPT2 using QCMaquis
+    Logical(kind=iwp) :: DMRG = .false.
+    ! Compress MPS for (t)3-RDM computation to bond dimension given by CompressMPD
+    Integer(kind=iwp) :: CompressMPS = 0
+    ! SADREF    use state-averaged density even for SS-CASPT2 with
+    !           SA-CASSCF reference and MS-CASPT2 (not XMS)
+    Logical(kind=iwp) :: SADREF = .False.
+    ! DORT      use the conventional (canonical) orthonormalization for generating
+    !           internally contracted basis, rather than scaled (?)
+    !           procedure by the diagonal element. This option is
+    !           'sometimes' needed for analytic gradient.
+    Logical(kind=iwp) :: DORTHO = .False.
+    ! INVAR     specify the CASPT2 energy is invariant wrt active
+    !           orbital rotations. This is automatically set for
+    !           the case with IPEA shift. Otherwise, just for debug
+    !           purpose
+    Logical(kind=iwp) :: INVAR  = .True.
+    ! CVIN      Convergence threshold for non-invariant CASPT2 equation
+    Real(kind=wp) :: ThrConvInvar = 1.0e-07_wp
+    ! GRDT      used for single-point gradient calculation
+    Logical(kind=iwp) :: GRDT = .False.
+    ! NAC       compute NAC or interstate coupling vectors
+    Logical(kind=iwp) :: NAC = .False.
+    Integer(kind=iwp) :: iNACRoot1=0, iNACRoot2=0
+    ! CSF       compute CSF contributions in derivative coupling
+    Logical(kind=iwp) :: CSF = .True.
+    ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
+    !           and secondary orbital rotations. Development purpose
+    Logical(kind=iwp) :: IAINVAR = .True.
+    ! PRHS      Parallel strategy for RHS construction
+    !           '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
+    Character(len=7) :: PRHS = 'DEFAULT'
 
   end type ! end of type InputTable
 
@@ -181,8 +211,6 @@ module InputData
   type(InputTable), allocatable :: Input
 
   public :: Input, readin_CASPT2, CleanUp_Input
-
-  save
 
 contains
 
@@ -199,14 +227,22 @@ contains
     Character(len=:),allocatable :: dLine, Line
     Character(len=4) :: Command,Word
 
-    Integer(kind=iwp) :: i,j,iSym,nStates
+    Integer(kind=iwp) :: i,j,iSym
+    Integer(kind=iwp) :: nStates = 0
     Integer(kind=iwp) :: iSplit,iError
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
     Logical(kind=iwp) :: dochemps2 = .false.
 #endif
 
-    rewind (LuIn)
+    ! even if SCF was performed with FCIQMC, stochastic CASPT2 requires manual invocation.
+    DoFCIQMC = .false.
+    ! User needs to specify that they do not want to sample in pseudo-canonical orbitals.
+    NonDiagonal = .false.
+    ! for now, non-histogramming remains the default, hopefully that will change soon.
+    TransformToNormalOrder = .false.
+
+    rewind(LuIn)
     call RdNLst(LuIn,'CASPT2')
 
     ! beginning of reading loop
@@ -216,9 +252,9 @@ contains
       Command = Line(1:min(4,len(Line)))
       call Upcase(Command)
 
-      !IFG Note that when multiple values are required, extend_line may
-      ! be called (0 or more times) until the READ statement gives no error
-      ! this allows the input to be split in lines more or less arbitrarily,
+      ! Note that when multiple values are required, extend_line may
+      ! be called (0 or more times) until the READ statement gives no error.
+      ! This allows the input to be split in lines more or less arbitrarily,
       ! as if the values were read directly from the file.
       select case (Command)
 
@@ -226,14 +262,14 @@ contains
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         read (Line,'(A128)') Input%Title
 
-        ! File with the reference CAS/RAS wavefunction
+      ! File with the reference CAS/RAS wavefunction
       case ('FILE')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         ! Not using list-directed input (*), because then the slash means end of input
         read (Line,'(A)',IOStat=iError) Input%file
         if (iError /= 0) call IOError(Line)
 
-        ! Root selection
+      ! Root selection
       case ('MULT')
         Input%MULT = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -245,7 +281,7 @@ contains
         else
           read (Line,*,IOStat=iError) nStates
           if (iError /= 0) call IOError(Line)
-          if (nStates <= 0) call StatesError(Line)
+          if (nStates <= 0) call MultError(Line)
         end if
         call mma_allocate(Input%MultGroup%State,nStates,label='MultGroup')
         Input%nMultState = nStates
@@ -274,7 +310,7 @@ contains
         else
           read (Line,*,IOStat=iError) nStates
           if (iError /= 0) call IOError(Line)
-          if (nStates <= 0) call StatesError(Line)
+          if (nStates <= 1) call StatesError(Line)
         end if
         call mma_allocate(Input%XMulGroup%State,nStates,label='XMulGroup')
         Input%nXMulState = nStates
@@ -303,7 +339,7 @@ contains
         else
           read (Line,*,IOStat=iError) nStates
           if (iError /= 0) call IOError(Line)
-          if (nStates <= 0) call StatesError(Line)
+          if (nStates <= 1) call StatesError(Line)
         end if
         call mma_allocate(Input%RMulGroup%State,nStates,label='RMulGroup')
         Input%nRMulState = nStates
@@ -332,9 +368,6 @@ contains
         read (Line,*,IOStat=iError) Input%DWType
         if (iError /= 0) call IOError(Line)
 
-      case ('EFOC')
-        Input%EFOC = .true.
-
       case ('LROO')
         Input%LROO = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -346,13 +379,13 @@ contains
         read (Line,*,IOStat=iError) Input%RlxRoot
         if (iError /= 0) call IOError(Line)
 
-        ! freeze-deleted control
+      ! freeze-deleted control
 
       case ('FROZ')
         Input%FROZ = .true.
         call mma_allocate(Input%nFro,nSYM,label='nFro')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
@@ -363,7 +396,7 @@ contains
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       case ('DELE')
         Input%DELE = .true.
@@ -382,7 +415,7 @@ contains
         end do
         call mma_deallocate (dLine)
 
-        ! equation solver control
+      ! equation solver control
 
       case ('MAXI')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -430,10 +463,7 @@ contains
         read (Line,*,IOStat=iError) Input%sigma_2_epsilon
         if (iError /= 0) call IOError(Line)
 
-      case ('NONV')
-        Input%nonvariational = .true.
-
-        ! environment
+      ! environment
 
       case ('RFPE')
         Input%RFpert = .true.
@@ -441,7 +471,7 @@ contains
       case ('OFEM')
         Input%OFEmbedding = .true.
 
-        ! print controls
+      ! print controls
 
       case ('PRWF')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -473,7 +503,7 @@ contains
         end do
         call mma_deallocate (dLine)
 
-        ! properties
+      ! properties
 
       case ('DENS')
         Input%DENS = .true.
@@ -484,7 +514,7 @@ contains
       case ('NOPR')
         Input%Properties = .false.
 
-        ! fock matrix, 0-order hamiltonian
+      ! fock matrix, 0-order hamiltonian
 
       case ('TRAN')
         Input%ORBIN = 'TRANSFOR'
@@ -506,7 +536,7 @@ contains
         read (Line,*,IOStat=iError) Input%ipea_shift
         if (iError /= 0) call IOError(Line)
 
-        ! cholesky
+      ! cholesky
 
       case ('CHOL')
         Input%Chol = .true.
@@ -516,7 +546,7 @@ contains
         Input%ChoI = .true.
         call Cho_caspt2_rdInp(.false.,LuIn)
 
-        ! freeze-delete approximation schemes
+      ! freeze-delete approximation schemes
 
       case ('AFRE')
         Input%aFreeze = .true.
@@ -565,6 +595,11 @@ contains
         read (Line,*,IOStat=iError) Input%vFrac
         if (iError /= 0) call IOError(Line)
 
+      case ('REGF')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%RegFNO
+        if (iError /= 0) call IOError(Line)
+
       case ('DOMP')
         Input%doMP2 = .true.
 
@@ -603,7 +638,20 @@ contains
         !Quan: Using the same variable doCumulant in Block
         Input%doCumulant = .true.
         dochemps2 = .true.
+#elif _DMRG_
+      case ('DMRG')
+        Input%DMRG = .true.
+      case ('CMPS')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%CompressMPS
+        if (iError /= 0) call IOError(Line)
 #endif
+      case ('FCIQ')
+        DoFciQMC = .true.
+      case ('NDIA')
+        NonDiagonal = .true.
+      case ('NORD')
+        TransformToNormalOrder = .true.
 
       case ('EFFE')
         Input%JMS = .true.
@@ -628,35 +676,80 @@ contains
           call mma_deallocate (dLine)
         end do
 
+      case('SADR')
+        Input%SADREF = .true.
+
+      case('DORT')
+        Input%DORTHO = .true.
+      case('CORT') !! it is actually the canonical orthonormalization
+        Input%DORTHO = .true.
+
+      case('INVA')
+        Input%INVAR = .false.
+
+      case('CVIN')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%ThrConvInvar
+        if (iError /= 0) call IOError(Line)
+
+      case('GRDT')
+        Input%GRDT  = .true.
+
+      case('NAC ')
+        Input%NAC = .true.
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        call mma_allocate (dLine,len(Line),label='dLine')
+        dLine(:) = Line
+        iError = -1
+        do while (iError < 0)
+          read (dLine,*,IOStat=iError) Input%iNACRoot1,Input%iNACRoot2
+          if (iError > 0) call IOError(Line)
+          if (iError < 0) then
+            if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+            call extend_line(dLine,Line)
+          end if
+        end do
+        call mma_deallocate (dLine)
+
+      Case('NOCS')
+        Input%CSF = .false.
+
+      Case('IAIN')
+        Input%IAINVAR = .false.
+
+      case ('PRHS')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        call StdFmt(Line,Input%PRHS)
+
         ! OBSOLETE KEYWORDS
 
       case ('GRAD')
         call WarningMessage(2,'Obsolete keyword: '//Command)
-        call Quit_OnUserError
+        call Quit_OnUserError()
 
       case ('NOTR')
         call WarningMessage(2,'Obsolete keyword: '//Command)
-        call Quit_OnUserError
+        call Quit_OnUserError()
 
       case ('JACO')
         call WarningMessage(2,'Obsolete keyword: '//Command)
-        call Quit_OnUserError
+        call Quit_OnUserError()
 
       case ('EXTR')
         call WarningMessage(2,'Obsolete keyword: '//Command)
-        call Quit_OnUserError
+        call Quit_OnUserError()
 
       case ('QLQR')
         call WarningMessage(2,'Obsolete keyword: '//Command)
-        call Quit_OnUserError
+        call Quit_OnUserError()
 
       case ('NATU')
         call WarningMessage(2,'Obsolete keyword: '//Command)
-        call Quit_OnUserError
+        call Quit_OnUserError()
 
       case ('MOLO')
         call WarningMessage(2,'Obsolete keyword: '//Command)
-        call Quit_OnUserError
+        call Quit_OnUserError()
 
         ! DONE WITH READING INPUT
 
@@ -665,9 +758,9 @@ contains
 
         ! NO MATCH FOUND, UNKOWN KEYWORD
 
-      case Default
+      case default
         call WarningMessage(2,'Unrecognized keyword: '//Command)
-        call Quit_OnUserError
+        call Quit_OnUserError()
 
       end select
 
@@ -681,6 +774,13 @@ contains
     endif
 #endif
 
+    if ((DoFCIQMC .eqv. .true.) .and. (nStates > 1)) then
+      write (u6,*) 'FCIQMC supports only state-specific CASPT2.'
+      write (u6,*) 'You requested ' // str(nStates) // ' states.'
+      write (u6,*) 'Consult the manual for the keyword "Multistate".'
+      call Quit_OnUserError()
+    endif
+
     call mma_deallocate(Line)
 
     ! Normal exit
@@ -690,13 +790,13 @@ contains
 
   subroutine CleanUp_Input()
     if (allocated(Input)) then
-      if (allocated(Input%MultGroup%State)) call mma_deallocate(Input%MultGroup%State)
-      if (allocated(Input%XMulGroup%State)) call mma_deallocate(Input%XMulGroup%State)
-      if (allocated(Input%RMulGroup%State)) call mma_deallocate(Input%RMulGroup%State)
-      if (allocated(Input%NamFro)) call mma_deallocate(Input%NamFro)
-      if (allocated(Input%nFro)) call mma_deallocate(Input%nFro)
-      if (allocated(Input%nDel)) call mma_deallocate(Input%nDel)
-      if (allocated(Input%Heff)) call mma_deallocate(Input%Heff)
+      call mma_deallocate(Input%MultGroup%State,safe='*')
+      call mma_deallocate(Input%XMulGroup%State,safe='*')
+      call mma_deallocate(Input%RMulGroup%State,safe='*')
+      call mma_deallocate(Input%NamFro,safe='*')
+      call mma_deallocate(Input%nFro,safe='*')
+      call mma_deallocate(Input%nDel,safe='*')
+      call mma_deallocate(Input%Heff,safe='*')
       ! The input structure itself is a scalar, allocated outside mma
       deallocate(Input)
     end if
@@ -707,7 +807,7 @@ contains
 
     call WarningMessage(2,'I/O error when reading line.')
     write (u6,*) 'Last line read from input: ',line
-    call Quit_OnUserError
+    call Quit_OnUserError()
   end subroutine IOError
 
   subroutine EOFError(line)
@@ -715,15 +815,23 @@ contains
 
     call WarningMessage(2,'Premature end of input file.')
     write (u6,*) 'Last line read from input: ',line
-    call Quit_OnUserError
+    call Quit_OnUserError()
   end subroutine EOFError
 
   subroutine StatesError(line)
     Character(len=*),intent(in) :: line
 
-    call WarningMessage(2,'Number of states must be > 0.')
+    call WarningMessage(2,'Number of XMULT or RMULT states must be > 1.')
     write (u6,*) 'Last line read from input: ',line
-    call Quit_OnUserError
+    call Quit_OnUserError()
   end subroutine StatesError
+
+  subroutine MultError(line)
+    Character(len=*),intent(in) :: line
+
+    call WarningMessage(2,'Number of MULT states must be > 0.')
+    write (u6,*) 'Last line read from input: ',line
+    call Quit_OnUserError()
+  end subroutine MultError
 
 end module InputData

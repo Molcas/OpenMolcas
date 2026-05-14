@@ -29,7 +29,7 @@
 !> @author Per-Olof Widmark
 !>
 !> @details
-!> This routine is used to put scalar data of type ``Real*8``
+!> This routine is used to put scalar data of type ``Real``
 !> in the peek/poke buffer. The data items are identified
 !> by a text label.
 !>
@@ -57,7 +57,7 @@ integer(kind=iwp) :: indx, i
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
 !write(u6,'(2a)') 'poke_dscalar: Label is ',Label
-!write(u6,'(a,e20.8)') 'poke_dscalar: Val is ',Val
+!write(u6,'(a,es20.8)') 'poke_dscalar: Val is ',Val
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*

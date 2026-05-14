@@ -34,15 +34,14 @@ public :: qcmaquis_info_init, qcmaquis_info_deinit
 
 ! Private extension to mma interfaces
 
-interface cptr2loff
-  module procedure :: qcmn_cptr2loff
-end interface
 interface mma_allocate
   module procedure :: qcmn_mma_allo_1D, qcmn_mma_allo_1D_lim
 end interface
 interface mma_deallocate
   module procedure :: qcmn_mma_free_1D
 end interface
+
+#include "compiler_features.h"
 
 contains
 
@@ -53,7 +52,7 @@ subroutine qcmaquis_info_init(igroup,nstates,tag)
   integer(kind=iwp), intent(in) :: igroup, nstates, tag
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc(A)
+    subroutine c_null_alloc(A) _BIND_C_
       character(len=*), allocatable :: A(:)
     end subroutine c_null_alloc
   end interface
@@ -99,22 +98,18 @@ subroutine qcmaquis_info_deinit
 
   if (.not. allocated(qcm_group_names)) return
   do i=1,size(qcm_group_names)
-    if (.not. allocated(qcm_group_names)) return
-    if (allocated(qcm_group_names(i)%states)) call mma_deallocate(qcm_group_names(i)%states)
+    call mma_deallocate(qcm_group_names(i)%states,safe='*')
   end do
   call mma_deallocate(qcm_group_names)
-  if(allocated(qcm_prefixes)) call mma_deallocate(qcm_prefixes)
+  call mma_deallocate(qcm_prefixes,safe='*')
 
 end subroutine qcmaquis_info_deinit
 
 ! Private extension to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define qcmn_cptr2loff, qcmn_mma_allo_1D, qcmn_mma_allo_1D_lim, qcmn_mma_free_1D
+! Define qcmn_mma_allo_1D, qcmn_mma_allo_1D_lim, qcmn_mma_free_1D
 #define _TYPE_ type(qcm_names)
-#  define _FUNC_NAME_ qcmn_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ qcmn_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'qcm_mma'

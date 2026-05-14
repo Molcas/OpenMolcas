@@ -35,6 +35,10 @@ use Real_Spherical, only: Sphere, Sphere_Free
 use Basis_Info, only: dbsc, nCnttp
 use Sizes_of_Seward, only: S
 use Definitions, only: iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: iCnttp, jCnttp, mCnttp, nDiff
@@ -43,19 +47,8 @@ logical(kind=iwp) :: DoRys, W2L
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-#ifdef _DEBUGPRINT_
-iPrint = 49
-!iPrint = 99
-#endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
-call StatusLine('Gateway:',' Generating aCD or acCD auxiliary basis set')
+call StatusLine('Gateway: ','Generating aCD or acCD auxiliary basis set')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -92,7 +85,7 @@ call Mk_Dummy_Shell()
 do iCnttp=1,mCnttp
   if (dbsc(iCnttp)%Frag .or. (dbsc(iCnttp)%nVal == 0)) cycle
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 99) write(u6,*) 'Generating auxiliary basis set for valence basis:',iCnttp
+  write(u6,*) 'Generating auxiliary basis set for valence basis:',iCnttp
 # endif
   !                                                                    *
   !*********************************************************************

@@ -84,7 +84,7 @@ end interface
 !> @param[in] compare A logical pure function of two integer or real arguments.
 !> @param[in] algorithm The sorting algorithm to use.
 interface argsort
-  module procedure I1D_argsort, R1D_argsort
+  module procedure :: I1D_argsort, R1D_argsort
 end interface
 
 #ifndef INTERNAL_PROC_ARG
@@ -119,7 +119,7 @@ function I1D_argsort(V,compare,algorithm) result(idx)
   integer(kind=iwp), target, intent(inout) :: V(:)
   procedure(compare_int_t) :: compare
   type(tAlgorithm), intent(in), optional :: algorithm
-  integer(kind=iwp) :: idx(lbound(V,1):ubound(V,1))
+  integer(kind=iwp) :: idx(size(V))
   type(tAlgorithm) :: algorithm_
   integer(kind=iwp) :: i
 
@@ -129,7 +129,7 @@ function I1D_argsort(V,compare,algorithm) result(idx)
     algorithm_ = default_algorithm
   end if
 
-  idx = [(i,i=lbound(V,1),ubound(V,1))]
+  idx = [(i,i=1,size(idx))]
 
 # ifdef INTERNAL_PROC_ARG
   call sort(idx,my_compare,algorithm_)
@@ -155,7 +155,7 @@ function R1D_argsort(V,compare,algorithm) result(idx)
   real(kind=wp), target, intent(inout) :: V(:)
   procedure(compare_real_t) :: compare
   type(tAlgorithm), intent(in), optional :: algorithm
-  integer(kind=iwp) :: idx(lbound(V,1):ubound(V,1))
+  integer(kind=iwp) :: idx(size(V))
   type(tAlgorithm) :: algorithm_
   integer(kind=iwp) :: i
 
@@ -165,7 +165,7 @@ function R1D_argsort(V,compare,algorithm) result(idx)
     algorithm_ = default_algorithm
   end if
 
-  idx = [(i,i=lbound(V,1),ubound(V,1))]
+  idx = [(i,i=1,size(idx))]
 
 # ifdef INTERNAL_PROC_ARG
   call sort(idx,my_compare,algorithm_)
@@ -259,8 +259,8 @@ subroutine bubble_sort(V,compare)
   procedure(compare_int_t) :: compare
   integer(kind=iwp) :: n, i
 
-  do n=ubound(V,1),lbound(V,1)+1,-1
-    do i=lbound(V,1),ubound(V,1)-1
+  do n=size(V),2,-1
+    do i=1,size(V)-1
       if (.not. compare(V(i),V(i+1))) call swap(V(i),V(i+1))
     end do
   end do
@@ -308,16 +308,17 @@ subroutine merge_(A,B,C,compare)
 
   ! The target attribute is there to prevent the compiler from
   ! assuming non overlapping memory.
+  ! FIXME: Overlapping memory with non-intent(in) arguments is forbidden
   integer(kind=iwp), target, intent(inout) :: A(:), B(:), C(:)
   procedure(compare_int_t) :: compare
   integer(kind=iwp) :: i, j, k
 
   if (size(A)+size(B) > size(C)) call Abend()
 
-  i = lbound(A,1)
-  j = lbound(B,1)
-  do k=lbound(C,1),ubound(C,1)
-    if ((i <= ubound(A,1)) .and. (j <= ubound(B,1))) then
+  i = 1
+  j = 1
+  do k=1,size(C)
+    if ((i <= size(A)) .and. (j <= size(B))) then
       if (compare(A(i),B(j))) then
         C(k) = A(i)
         i = i+1
@@ -325,10 +326,10 @@ subroutine merge_(A,B,C,compare)
         C(k) = B(j)
         j = j+1
       end if
-    else if (i <= ubound(A,1)) then
+    else if (i <= size(A)) then
       C(k) = A(i)
       i = i+1
-    else if (j <= ubound(B,1)) then
+    else if (j <= size(B)) then
       C(k) = B(j)
       j = j+1
     end if
@@ -345,7 +346,7 @@ recursive subroutine mergesort(A,compare)
   integer(kind=iwp) :: half
   integer(kind=iwp), allocatable :: work(:)
 
-  half = (ubound(A,1)-lbound(A,1))/2+1
+  half = (size(A)-1)/2+1
   call mma_allocate(work,half,label='work')
   call mergesort_work(A,compare,work)
   call mma_deallocate(work)
@@ -359,7 +360,7 @@ recursive subroutine mergesort_work(A,compare,work)
   integer(kind=iwp), intent(inout) :: work(:)
   integer(kind=iwp) :: half
 
-  half = (ubound(A,1)-lbound(A,1))/2+1
+  half = (size(A)-1)/2+1
   if (size(A) < 2) then
     !continue
   else if (size(A) == 2) then
@@ -382,8 +383,8 @@ recursive subroutine quicksort(idx,compare)
   integer(kind=iwp) :: i, j, pivot
 
   if (size(idx) > bubble_sort_trsh) then
-    i = lbound(idx,1)
-    j = ubound(idx,1)
+    i = 1
+    j = size(idx)
     pivot = idx((j-i)/2+1)
 
     do
@@ -399,8 +400,8 @@ recursive subroutine quicksort(idx,compare)
       j = j-1
     end do
 
-    if (lbound(idx,1)+1 < i) call quicksort(idx(:i-1),compare)
-    if (j+1 < ubound(idx,1)) call quicksort(idx(j+1:),compare)
+    if (i > 2) call quicksort(idx(:i-1),compare)
+    if (j < size(idx)-1) call quicksort(idx(j+1:),compare)
   else
     call bubble_sort(idx,compare)
   end if

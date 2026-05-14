@@ -30,8 +30,8 @@ set (sources
      cio.c
      daclos.F90
      daeras.F90
-     dafile_checkarg.F90
      dafile.F90
+     dafile_checkarg.F90
      daname.F90
      daname_main.F90
      daname_mf.F90
@@ -50,19 +50,19 @@ set (sources
      handle2name.F90
      i1dafile.F90
      idafile.F90
-     isfreeunit.F90
      is_opened.F90
+     isfreeunit.F90
      lu2desc.F90
      lu2handle.F90
      molcas_binaryopen_vanilla.F90
-     molcas_open_ext2.F90
      molcas_open.F90
+     molcas_open_ext2.F90
      mpdafile.F90
      prgm.F90
      prgminit.F90
-     prgmtranslatec.F90
      prgmtranslate.F90
      prgmtranslate_master.F90
+     prgmtranslatec.F90
      text_file.F90
      zip.c
 )

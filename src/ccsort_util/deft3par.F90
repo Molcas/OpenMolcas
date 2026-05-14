@@ -22,7 +22,7 @@ subroutine DefT3par(noa,nsym)
 ! noa   - array with occupation numbers
 ! nsym  - actual number of irreps
 
-use ccsort_global, only: daddr, lunt3, mapdri, mapiri, mbas, posri0
+use ccsort_global, only: daddr, lunt3, mbas, ri
 use CCT3_global, only: T3IntPos, t3nam, T3Off
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -50,7 +50,7 @@ iorb = 0
 do symi=1,nsym
 
   !3.1 make mapd and mapi for  R_i(a,bc)
-  call ccsort_t3grc0(3,8,4,4,4,0,symi,posri0,post,mapdri,mapiri)
+  call ccsort_t3grc0(3,8,4,4,4,0,symi,post,ri)
 
   !3.2 cycle over occupied orbitals in symi
   do i=1,noa(symi)
@@ -64,7 +64,7 @@ do symi=1,nsym
     call idafile(lunt3,0,idum,8*8*8,daddr(lunt3))
 
     !3.2.3  cycle over all blocks of R_i(a,bc), which will be stored separately
-    do ii=1,mapdri(0,5)
+    do ii=1,ri%d(0,5)
 
       !3.2.3.1 def T3Off(ii,symi)
       !        note, that iorb is always proper one, since only besides
@@ -72,7 +72,7 @@ do symi=1,nsym
       if (i == 1) T3Off(ii,symi) = daddr(lunt3)-T3IntPos(iorb)
 
       !3.2.3.2 emulate writing of each block
-      length = mapdri(ii,2)
+      length = ri%d(ii,2)
       call ddafile(lunt3,0,dum,length,daddr(lunt3))
 
     end do

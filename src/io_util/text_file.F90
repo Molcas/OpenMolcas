@@ -67,7 +67,7 @@ integer(kind=iwp), intent(out) :: stat
 integer(kind=iwp) :: readl
 character(len=128) :: buf
 
-if (allocated(line)) call mma_deallocate(line)
+call mma_deallocate(line,safe='*')
 do
   read(lu,'(A)',iostat=stat,advance='no',size=readl) buf
   if (is_iostat_eor(stat)) then
@@ -93,7 +93,7 @@ subroutine extend_line(dynline,line,chop)
 
 character(len=:), allocatable, intent(inout) :: dynline
 character(len=*), intent(in) :: line
-logical(kind=iwp), optional, intent(in) :: chop
+logical(kind=iwp), intent(in), optional :: chop
 logical(kind=iwp) :: chop_
 character(len=:), allocatable :: aux
 

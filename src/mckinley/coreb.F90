@@ -12,22 +12,22 @@
 subroutine coreB(iang,lb,ishll,nordop,TC,RB,Array,narr,Beta,nBeta,fb1,fb2,jfgrad,jfhess,ld,debug)
 !  Calculates <core|B'> and <core|B">
 !
-! @parameter iang Angular momenta for core
-! @parameter lb Angular momenta for ket
-! @parameter ishll identification for core shell
-! @parameter nordop order for operator
-! @parameter TC Cartesian coordinates for core
-! @parameter RB Cartesian coordinates for ket
-! @parameter Array Scratch
-! @parameter narr size for scratch
-! @parameter Beta Ket exponents
-! @parameter nBeta number of exponents
-! @parameter FB1 First derivatives (out)
-! @parameter FB2 2nd derivatives (out)
-! @parameter jfgrad true for all 1-derivatives that are needed
-! @parameter jfhess true for all 2-derivatives that are needed
-! @parameter ld Order of derivatives
-! @parameter debug guess
+! @param iang Angular momenta for core
+! @param lb Angular momenta for ket
+! @param ishll identification for core shell
+! @param nordop order for operator
+! @param TC Cartesian coordinates for core
+! @param RB Cartesian coordinates for ket
+! @param Array Scratch
+! @param narr size for scratch
+! @param Beta Ket exponents
+! @param nBeta number of exponents
+! @param FB1 First derivatives (out)
+! @param FB2 2nd derivatives (out)
+! @param jfgrad true for all 1-derivatives that are needed
+! @param jfhess true for all 2-derivatives that are needed
+! @param ld Order of derivatives
+! @param debug guess
 
 use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: Shells

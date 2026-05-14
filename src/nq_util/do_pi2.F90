@@ -183,6 +183,7 @@ if (NumAsh == 0) return
 
 do iGrid=1,mGrid
   do kIrrep=0,mIrrep-1
+    if (nAsh(kIrrep) < 1) cycle
     IOff = iOff_Ash(kIrrep)+1
     P2_ontop(1,iGrid) = P2_ontop(1,iGrid)+ddot_(nAsh(kIrrep),MOs(IOff:,iGrid),1,P2MOCube(IOff:,iGrid),1)
   end do
@@ -191,6 +192,7 @@ end do
 if (Functional_type == GGA_type) then
   do iGrid=1,mGrid
     do kIrrep=0,mIrrep-1
+      if (nAsh(kIrrep) < 1) cycle
       IOff = iOff_Ash(kIrrep)+1
       P2_ontop(2,iGrid) = P2_ontop(2,iGrid)+Four*ddot_(nAsh(kIrrep),MOx(IOff:,iGrid),1,P2MOCube(IOff:,iGrid),1)
       P2_ontop(3,iGrid) = P2_ontop(3,iGrid)+Four*ddot_(nAsh(kIrrep),MOy(IOff:,iGrid),1,P2MOCube(IOff:,iGrid),1)

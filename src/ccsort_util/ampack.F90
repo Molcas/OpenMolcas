@@ -24,14 +24,12 @@ subroutine ampack(wrk,wrksize,syma,symm,symp,symq,a,vint,ndimv1,ndimv2,ndimv3,am
 ! ndimv3- 3rd dimension of vint - norb(symq) (I)
 ! ammap - map for storing of addresses in DA file TEMPDA2 (I)
 
-use ccsort_global, only: lunda2, mbas, noa, NORB, nvb, pos30, reclen
+use ccsort_global, only: lunda2, map3, mbas, noa, NORB, nvb, reclen
 use Definitions, only: wp, iwp
-
-#include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, syma, symm, symp, symq, a, ndimv1, ndimv2, ndimv3, ammap(mbas,8,8)
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 real(kind=wp), intent(in) :: vint(ndimv1,ndimv2,ndimv3)
 integer(kind=iwp) :: irec0, length, m, p, pq, q
 
@@ -45,7 +43,7 @@ length = noa(symm)*norb(symp)*norb(symq)
 
 ! map _a(mpq) block into #v3
 
-pq = pos30-1
+pq = map3%pos0-1
 
 do q=1,norb(symq)
   do p=1,norb(symp)
@@ -59,7 +57,7 @@ end do
 ! put this block to appropriate position in direct access file
 
 irec0 = ammap(a,symm,symp)
-call dawrite(lunda2,irec0,wrk(pos30),length,reclen)
+call dawrite(lunda2,irec0,wrk(map3%pos0),length,reclen)
 
 return
 

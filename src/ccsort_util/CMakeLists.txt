@@ -12,9 +12,9 @@
 set (sources
      abpack.F90
      action_ccsort.F90
-     addintabc1.F90
-     addintab.F90
      addinta.F90
+     addintab.F90
+     addintabc1.F90
      addpqij.F90
      ampack.F90
      ccsort_global.F90
@@ -41,10 +41,10 @@ set (sources
      initintabc1.F90
      inittemp.F90
      initwrk.F90
+     ireorg.F90
      ireorg1.F90
      ireorg2.F90
      ireorg3.F90
-     ireorg.F90
      mkabpqmap.F90
      mkaddress.F90
      mkampq.F90
@@ -55,8 +55,8 @@ set (sources
      mktempanam.F90
      mod1.F90
      mod2.F90
-     mreorg1.F90
      mreorg.F90
+     mreorg1.F90
      prinppn.F90
      rdinppn.F90
      rdtraone.F90

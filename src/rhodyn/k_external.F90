@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine k_external()
@@ -27,7 +27,7 @@ integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, iii, jjj, lu, max_i, max_j, n_s
 real(kind=wp) :: max_k
 real(kind=wp), allocatable :: omega_ab(:,:), kab_real(:,:)
 complex(kind=wp), allocatable :: k_ab(:,:)
-character(len=256), parameter :: format1 = '(2(i8),2(g15.8,1x))'
+character(len=*), parameter :: format1 = '(2(i8),2(g15.8,1x))'
 integer(kind=iwp), external :: isFreeUnit
 
 n_sf = sum(lroots)
@@ -52,7 +52,7 @@ end do
 close(lu)
 
 call dashes()
-write(u6,*) ' End read data '
+write(u6,*) ' End read k-matrix data '
 call dashes()
 
 ! expand Kab to pseudo SF
@@ -106,6 +106,8 @@ if (ipglob > 3) then
   end do
   close(lu)
   max_k = Zero
+  max_i = 0
+  max_j = 0
   do i=1,Nstate
     do j=1,Nstate
       if (real(k_ab(i,j)) >= max_k) then
@@ -163,10 +165,8 @@ do i=1,Nstate
   end do
 end do
 
-write(u6,*) 'End k_external'
-
-if (allocated(kab_real)) call mma_deallocate(kab_real)
-if (allocated(k_ab)) call mma_deallocate(k_ab)
-if (allocated(omega_ab)) call mma_deallocate(omega_ab)
+call mma_deallocate(kab_real,safe='*')
+call mma_deallocate(k_ab,safe='*')
+call mma_deallocate(omega_ab,safe='*')
 
 end subroutine k_external

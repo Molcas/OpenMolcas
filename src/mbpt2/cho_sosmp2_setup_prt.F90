@@ -16,12 +16,11 @@ subroutine Cho_SOSmp2_Setup_Prt(irc)
 !
 ! Purpose: print setup for SOS-MP2.
 
+use ChoMP2, only: DecoMP2, nBatch, nOccT
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-#include "chomp2_cfg.fh"
-#include "chomp2.fh"
 
 irc = 0
 

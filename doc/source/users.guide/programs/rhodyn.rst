@@ -5,7 +5,7 @@
 .. _UG\:sec\:rhodyn:
 
 :program:`rhodyn`
-==================
+=================
 
 .. only:: html
 
@@ -28,7 +28,7 @@ The dynamics of a system initiated by electromagnetic pulse can be obtained
 by means of density matrix propagation with the :program:`RASSI` Hamiltonian :cite:`Malmqvist:89`.
 Interaction with the field is included in dipole approximation
 :math:`H_{\text{int}} = - \vec{d} \cdot \vec{E}`.
-The theory and methodology can be found in :cite:`Wang:17` and :cite:`Kochetov:20`.
+The theory and methodology can be found in :cite:`Kochetov:22`.
 The feature of the method is the treating core states and valence states
 on the same footing if the Hamiltonian is chosen properly; depending on the chosen active space
 different processes can be considered.
@@ -208,7 +208,7 @@ General keywords
 
     ``SO_THERMAL`` --- same as ``SF_THERMAL`` but for SO basis.
 
-    ``FROMFILE`` --- read the full initial DM from file :file:`INDENS`.
+    ``FROMFILE`` --- read the real part of initial DM in ``CSF`` basis from file :file:`INDENS`.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="POPU" APPEAR="State basis to be populated." KIND="CHOICE" LIST="CSF,SF,SF_THERMAL,SO,SO_THERMAL,FROMFILE" LEVEL="BASIC">
               %%Keyword: POPUlation <basic>
@@ -303,7 +303,7 @@ General keywords
   Method of integration: Runge--Kutta method of 4th order (``classic_RK4``)
   is set by default. ``RKCK`` (adaptive Runge--Kutta--Cash--Karp)
   with variable time step sometimes is better. Other available integrators are
-  ``RK4``, ``RK5``, ``RK45`` (adaptive Runge--Kutta--Fehlberg).
+  ``RK4``, ``RK5``, ``RK45`` (adaptive Runge--Kutta--Fehlberg), and ``RK4_SPH`` (for propagation in spherical tensors basis).
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="METH" APPEAR="Method of integration" KIND="CHOICE" LIST="classic_RK4,RKCK,RK4,RK5,RK45" LEVEL="BASIC" DEFAULT_VALUE="classic_RK4">
               %%Keyword: METHod <basic>
@@ -352,6 +352,7 @@ General keywords
   dipole moment or emission spectrum calculations SO basis is preferrable.
   Available options: ``CSF`` basis (could be convenient, e.g., for charge migration studies),
   ``SF`` or ``SO`` bases (could be useful to study spin dynamics).
+  ``SPH`` enables the propagation in the basis of spherical tensors.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="PROP" APPEAR="Propagation basis" KIND="CHOICE" LIST="CSF,SF,SO" LEVEL="BASIC" DEFAULT_VALUE="SF">
               %%Keyword: PROPbasis <basic>
@@ -362,14 +363,36 @@ General keywords
 
 :kword:`DMBAsis`
   Basis used for the output of density matrix diagonal elements (populations),
-  ``SF_SO`` by default means that density matrix is printed in two basis sets:
-  spin-free and spin--orbit. To reduce time, one can change it either to ``SF`` or ``SO``.
+  ``SF_SO`` means that density matrix is printed in two basis sets: spin-free and spin--orbit.
+  Default value is set to ``SF``.
   Available options: ``CSF``, ``SF``, ``SO``, ``CSF_SF``, ``SF_SO``, ``CSF_SO``, ``ALL``.
 
-  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="DMBA" APPEAR="DM basis" KIND="CHOICE" LIST="CSF,SF,SO,CSF_SF,SF_SO,CSF_SO,ALL" LEVEL="BASIC" DEFAULT_VALUE="SF_SO">
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="DMBA" APPEAR="DM basis" KIND="CHOICE" LIST="CSF,SF,SO,CSF_SF,SF_SO,CSF_SO,ALL" LEVEL="BASIC" DEFAULT_VALUE="SF">
               %%Keyword: DMBAsis <basic>
               <HELP>
               Density matrix basis.
+              </HELP>
+              </KEYWORD>
+
+:kword:`KMAX`
+  Maximal rank of spherical tensor included in the spherical basis.
+  Employed maximal rank can be reduced only if the ``SPH`` propagation basis is activated.
+
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="KMAX" APPEAR="Maximal rank" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="0" MIN_VALUE="0">
+              %%Keyword: KMAX <basic>
+              <HELP>
+              Maximal rank in spherical tensors basis.
+              </HELP>
+              </KEYWORD>
+
+:kword:`QMAX`
+  Maximal projection of spherical tensor included in the spherical basis.
+  Employed maximal projection can be reduced only if the ``SPH`` propagation basis is activated.
+
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="QMAX" APPEAR="Maximal projection" KIND="INT" LEVEL="BASIC" DEFAULT_VALUE="0" MIN_VALUE="0">
+              %%Keyword: QMAX <basic>
+              <HELP>
+              Maximal projection of spherical tensors basis.
               </HELP>
               </KEYWORD>
 

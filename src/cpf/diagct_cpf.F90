@@ -16,7 +16,8 @@ subroutine DIAGCT_CPF()
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use cpf_global, only: ICASE, IFIRST, ILIM, IROW, ISAB, ISMAX, JBUF, JSC, JSY, KBUF, KBUFF1, LBUF, MAX11, NCONF, NORBT, NOV, NOV1, &
-                      NTIBUF, NVT5
+                      NVT5
+use TraToc, only: NTRABUF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, RtoI
@@ -32,7 +33,7 @@ NCONF = JSC(ILIM)
 KBUF1 = ((RtoI+1)*KBUF+2+(RtoI-1))/RtoI
 JBUF1 = ((RtoI+1)*JBUF+2+(RtoI-1))/RtoI
 LBUF1 = ((RtoI+1)*LBUF+2+(RtoI-1))/RtoI
-call mma_allocate(TIBUF,NTIBUF,label='TIBUF')
+call mma_allocate(TIBUF,NTRABUF,label='TIBUF')
 call mma_allocate(BUFOUT,max(NVT5*JBUF1,NOV*KBUF1,NOV1*LBUF1,MAX11),label='BUFOUT')
 call mma_allocate(INDCAT,max(NVT5,NOV,NOV1),label='INDCAT')
 call mma_allocate(IBUFL,max(NVT5,NOV,NOV1,25000),label='IBUFL')

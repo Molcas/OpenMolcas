@@ -21,7 +21,6 @@ use Definitions, only: iwp, u5, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: L0(4*MXVERT), L1(4*MXVERT), L2(4*MXVERT), L3(4*MXVERT), ISPAC
-#include "warnings.h"
 integer(kind=iwp), parameter :: mxTit = 10, nCmd = 18
 integer(kind=iwp) :: I, ICIALL, iCmd, ICOR(55), IFCORE, IN_, IN1, IN2, IN3, INTNUM, IOM, IONE(8), iOpt, IR, IR1, IR2, iRef, &
                      istatus, ISUM, IVER, J, jCmd, jEnd, JJS(18), JONE(8), jStart, LN1, LN2, LSYM, LV, MN, MX, NACTEL, NCOR(8), &
@@ -33,8 +32,10 @@ character(len=4) :: Command
 integer(kind=iwp), allocatable :: IOCR(:), JREFX(:), JSY(:)
 integer(kind=iwp), parameter :: MLL(64) = [1,2,3,4,5,6,7,8,2,1,4,3,6,5,8,7,3,4,1,2,7,8,5,6,4,3,2,1,8,7,6,5,5,6,7,8,1,2,3,4,6,5,8, &
                                            7,2,1,4,3,7,8,5,6,3,4,1,2,8,7,6,5,4,3,2,1]
-character(len=4), parameter :: Cmd(nCmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL','VALE','INTE', &
+character(len=*), parameter :: Cmd(nCmd) = ['TITL','ELEC','SPIN','SYMM','ACTI','PRIN','REFE','FIRS','INAC','CIAL','VALE','INTE', &
                                             'NOCO','ONEO','EXTR','NONI','NACT','END ']
+
+#include "warnings.h"
 
 !---  Initialize data and variables -----------------------------------*
 IOM = 55
@@ -284,15 +285,15 @@ if (N == -1) N = 2*NISHT+NACTEL
 if (NACTEL == -1) NACTEL = N-2*NISHT
 
 write(u6,*)
-write(u6,'(6X,120A1)') ('*',i=1,120)
-write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-write(u6,'(6X,57A1,A6,57A1)') '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
+write(u6,'(6X,A)') repeat('*',120)
+write(u6,'(6X,A,118X,A)') '*','*'
+write(u6,'(6X,A,56X,A,56X,A)') '*','Title:','*'
 do i=1,nTit
   call Center_Text(Title(i))
-  write(u6,'(6X,24A1,A72,24A1)') '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
+  write(u6,'(6X,A,23X,A,23X,A)') '*',Title(i),'*'
 end do
-write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-write(u6,'(6X,120A1)') ('*',i=1,120)
+write(u6,'(6X,A,118X,A)') '*','*'
+write(u6,'(6X,A)') repeat('*',120)
 write(u6,*)
 S = (ISPIN-1)*Half
 if (IFIRST == 0) write(u6,2)

@@ -42,7 +42,7 @@ do NPQ=1,NTOT1
 end do
 EMY = EONE
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(u6,'(6X,A,E20.10)') 'ONE-ELECTRON CORE ENERGY:',EONE
+  write(u6,'(6X,A,ES20.10)') 'ONE-ELECTRON CORE ENERGY:',EONE
 end if
 
 ! Quit here if there are no frozen orbitals
@@ -104,7 +104,7 @@ do NPQ=1,NTOT1
 end do
 EMY = EONE+Half*ETWO
 if ((IPRINT >= 5) .or. (DEBUG /= 0)) then
-  write(u6,'(6X,A,E20.10)') 'TWO-ELECTRON CORE ENERGY:',ETWO
+  write(u6,'(6X,A,ES20.10)') 'TWO-ELECTRON CORE ENERGY:',ETWO
 end if
 
 ! Exit

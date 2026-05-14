@@ -1,0 +1,55 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2022, Jie J. Bao                                       *
+!***********************************************************************
+!*****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Apr. 07, 2022, created this file.               *
+!*****************************************************************
+
+subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
+
+use CMS, only: iCMSOpt, LargestQaaGrad, NCMSScale, NPosHess
+use Constants, only: deg2rad
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: iStep, lRoots
+real(kind=wp), intent(in) :: Qnew, Qold, RMat(lRoots**2)
+real(kind=wp) :: Diff
+
+!write(u6,*) 'iteration information'
+Diff = Qnew-Qold
+if (iCMSOpt == 2) then
+
+  if (lRoots == 2) then
+    write(u6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') iStep,asin(RMat(3))/deg2rad,Qnew,Diff
+  else
+    write(u6,'(6X,I4,2X,F14.8,2X,ES14.4E3)') iStep,Qnew,Diff
+  end if
+
+else
+
+  !if (lRoots == 2) then
+  !  write(u6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') iStep,asin(RMat(3))/deg2rad,Qnew,Diff
+  !else
+  if (NCMSScale > 0) then
+    write(u6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,I1)') iStep,Qnew,Diff,nPosHess,LargestQaaGrad,'1E-',NCMSScale
+  else
+    write(u6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3)') iStep,Qnew,Diff,nPosHess,LargestQaaGrad,'1.0'
+  end if
+  !end if
+
+end if
+
+return
+
+end subroutine PrintCMSIter

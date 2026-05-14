@@ -85,7 +85,7 @@ real(kind=wp), allocatable :: D(:)
 real(kind=wp), parameter :: DefThr = 1.0e-12_wp
 character(len=*), parameter :: DefMode = 'ORT', LevMode(3) = ['RAW','CHO','ORT'], SecNam = 'PAOLoc'
 
-#if defined (_DEBUGPRINT_)
+#ifdef _DEBUGPRINT_
 TestOrth = .true.
 #else
 TestOrth = .false.
@@ -201,7 +201,7 @@ subroutine FreeMem()
 
   call Deallocate_DT(R)
   call Deallocate_DT(P)
-  if (allocated(D)) call mma_deallocate(D)
+  call mma_deallocate(D,safe='*')
 
 end subroutine FreeMem
 

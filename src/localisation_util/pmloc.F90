@@ -48,6 +48,7 @@
 
 subroutine PMLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,nFro,nSym,Silent)
 
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -58,12 +59,11 @@ real(kind=wp), intent(inout) :: CMO(*)
 real(kind=wp), intent(in) :: Thr, ThrGrad, ThrRot
 integer(kind=iwp), intent(in) :: MxIter, nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
 logical(kind=iwp), intent(in) :: Silent
-#include "Molcas.fh"
 integer(kind=iwp) :: iSym, nAtoms, nBasT, nOccT
 real(kind=wp) :: Functional, ThrGLoc, ThrLoc, ThrRotLoc
 character(len=80) :: Txt
 logical(kind=iwp) :: Converged, Debug, Maximization
-character(len=LenIn8), allocatable :: myName(:)
+character(len=LenIn+8), allocatable :: myName(:)
 character(len=*), parameter :: SecNam = 'PMLoc'
 
 ! Initialization.
@@ -103,7 +103,7 @@ if ((nAtoms < 1) .or. (nAtoms > MxAtom)) then
   call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
 end if
 call mma_allocate(myName,nBasT,label='myName')
-call Get_cArray('Unique Basis Names',myName,LenIn8*nBasT)
+call Get_cArray('Unique Basis Names',myName,(LenIn+8)*nBasT)
 
 ! Localize.
 ! ---------

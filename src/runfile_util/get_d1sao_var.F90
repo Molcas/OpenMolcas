@@ -12,6 +12,9 @@
 subroutine Get_D1sao_Var(D1Sao,nD1Sao)
 
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nD1Sao
@@ -19,7 +22,7 @@ real(kind=wp), intent(out) :: D1Sao(nD1Sao)
 integer(kind=iwp) :: nDens
 logical(kind=iwp) :: Found
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: nBas(0:7) = -1, nSym = -1
+integer(kind=iwp) :: ii, iIrrep, nBas(0:7) = -1, nSym = -1
 #endif
 character(len=*), parameter :: Label = 'D1saoVar'
 

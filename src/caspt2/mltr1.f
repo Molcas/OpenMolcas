@@ -8,15 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MLTR1 (IMLTOP,LST1,X,F,Y)
+      SUBROUTINE MLTR1 (IMLTOP,LST1,X,nX,F,nF,Y,nY)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(*),F(*),Y(*)
-      DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
+      use Sigma_data, only: NLST1, INCF1, INCF2, INCX1, INCX2, INCX3,
+     &                      INCY1, INCY2, LEN1, LEN2, NFR1, VAL1
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IMLTOP, nX, nF, nY
+      real(kind=wp), intent(inout):: X(nX),F(nF),Y(nY)
+      integer(kind=iwp), intent(in):: LST1(4,NLST1)
 
+      integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST, L1, L2, L3, L4,
+     &                  IX, IF, IY, I
+      real(kind=wp) V, A
+      real(kind=wp), external:: DDot_
 C Given a lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L1,L2,L3,L4 for short, for a given
 C item, and with V=VAL1(L4),
@@ -39,15 +46,15 @@ CSVC: determine outer loop properties
         ILST1_IOFF=MYRANK+1
         ILST1_SKIP=NPROCS
       ELSE
+#endif
         ILST1_IOFF=1
         ILST1_SKIP=1
+#ifdef _MOLCAS_MPP_
       ENDIF
-#else
-      ILST1_IOFF=1
-      ILST1_SKIP=1
 #endif
 
-      IF(IMLTOP.EQ.0) THEN
+      SELECT CASE (IMLTOP)
+      CASE(0)
         DO ILST=ILST1_IOFF,NLST1,ILST1_SKIP
           L1=LST1(1,ILST)
           L2=LST1(2,ILST)
@@ -64,7 +71,7 @@ CSVC: determine outer loop properties
             IF=IF+INCF2
           END DO
         END DO
-      ELSE IF(IMLTOP.EQ.1) THEN
+      CASE(1)
         DO ILST=ILST1_IOFF,NLST1,ILST1_SKIP
           L1=LST1(1,ILST)
           L2=LST1(2,ILST)
@@ -80,7 +87,7 @@ CSVC: determine outer loop properties
             IY=IY+INCY2
           END DO
         END DO
-      ELSE
+      CASE DEFAULT
         DO ILST=ILST1_IOFF,NLST1,ILST1_SKIP
           L1=LST1(1,ILST)
           L2=LST1(2,ILST)
@@ -98,28 +105,188 @@ C     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
             IY=IY+INCY2
           END DO
         END DO
-      END IF
+      END SELECT
 
       NFR1 =NFR1 +2*NLST1*LEN1*LEN2
 
-      RETURN
-      END
+      END SUBROUTINE MLTR1
+
+      SUBROUTINE MLTR1_EH (IMLTOP,LST1,
+     &                     X,NAS1,NIS1,JXOFF,
+     &                     F,NFT,NFA,
+     &                     Y,NAS2,jYLo,jYHi)
+      use definitions, only: iwp, wp
+      use Sigma_data, only: NLST1, INCX3, VAL1
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IMLTOP, NAS1,NIS1,JXOFF,NFT,NFA,
+     &                                NAS2,jYLo,jYHi
+      real(kind=wp), intent(inout):: X(NAS1,NIS1),Y(NAS2,jYHi-jYLo+1)
+      real(kind=wp), intent(inout):: F(NFT,NFA)
+      integer(kind=iwp), intent(in):: LST1(4,NLST1)
+
+      integer(kind=iwp) NA, ILST, L1, L2, L3, L4, JX, I, J, NI
+      real(kind=wp) V, A
+      real(kind=wp), external:: DDot_
+C this routine is adapted to use chunks of a distributed array (lg_Y)
+C for the H case.  The chunks span all rows (NAS2) and columns jYlo to
+C jYHi. The array Y points to the beginning of a chunk.
+
+      SELECT CASE (IMLTOP)
+      CASE(0)
+        NA=INCX3/NAS1
+        DO ILST=1,NLST1
+        L1=LST1(1,ILST)
+        L2=LST1(2,ILST)
+        L3=LST1(3,ILST)
+        L4=LST1(4,ILST)
+        V=VAL1(L4)
+        JX=JXOFF+L1
+        DO I=1,NAS1
+        A=V*F(I,L2)
+C X(L1,p,q):= Add V*F(L2,p)*Y(L3,q), p=1..LEN1, q=1..LEN2
+        CALL DAXPY_(jYHi-jYLo+1,A,Y(L3,1),NAS2,
+     &                 X(I,JX+NA*(jYLo-1)),INCX3)
+        END DO
+        END DO
+      CASE(1)
+        NA=INCX3/NAS1
+        DO ILST=1,NLST1
+        L1=LST1(1,ILST)
+        L2=LST1(2,ILST)
+        L3=LST1(3,ILST)
+        L4=LST1(4,ILST)
+        V=VAL1(L4)
+        JX=JXOFF+L1
+        DO J=jYLo,jYHi
+C Y(L3,q):= Add V*F(L2,p)*X(L1,p,q), p=1..LEN1, q=1..LEN2
+        Y(L3,J-jYLo+1)=Y(L3,J-jYLo+1)+
+     &       V*DDOT_(NAS1,F(1,L2),1,X(1,JX+NA*(J-1)),1)
+        END DO
+        END DO
+      CASE DEFAULT
+        NI=INCX3/NAS1
+        DO ILST=1,NLST1
+        L1=LST1(1,ILST)
+        L2=LST1(2,ILST)
+        L3=LST1(3,ILST)
+        L4=LST1(4,ILST)
+        V=VAL1(L4)
+C F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
+        JX=JXOFF+L1
+        DO J=jYLo,jYHi
+        A=V*Y(L3,J-jYLo+1)
+        CALL DAXPY_(NAS1,A,X(1,JX+(J-1)*NI),1,F(1,L2),1)
+        END DO
+        END DO
+      END SELECT
+
+*     NFR1 =NFR1 +2*NLST1*LEN1*LEN2
+
+      END SUBROUTINE MLTR1_EH
+      SUBROUTINE MLTR1_GH (IMLTOP,LST1,
+     &                     X,NAS1,NIS1,JXOFF,
+     &                     F,NFT,NFI,
+     &                     Y,NAS2,jYLo,jYHi)
+      use definitions, only: iwp, wp
+      use Sigma_data, only: NLST1, VAL1, INCX3
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IMLTOP,NAS1,NIS1,JXOFF,NFT,NFI,
+     &                                NAS2,jYLo,jYHi
+      real(kind=wp), intent(inout):: X(NAS1,NIS1),F(NFT,NFI),
+     &                               Y(NAS2,jYHi-jYLo+1)
+      integer(kind=iwp), intent(in):: LST1(4,NLST1)
+
+      integer(kind=iwp) ILST, L1, L2, L3, L4, JX, I, NI, JY
+      real(kind=wp) V, A
+      real(kind=wp), external:: DDot_
+C this routine is adapted to use chunks of a distributed array (lg_Y)
+C for the H case.  The chunks span all rows (NAS2) and columns jYlo to
+C jYHi. The array Y points to the beginning of a chunk.
+
+      SELECT CASE (IMLTOP)
+      CASE(0)
+        DO ILST=1,NLST1
+        L1=LST1(1,ILST)
+        L2=LST1(2,ILST)
+        L3=LST1(3,ILST)
+        L4=LST1(4,ILST)
+        V=VAL1(L4)
+        IF (L3.GE.jYLo .AND. L3.LE.jYHi) THEN
+          JX=JXOFF+L1
+          JY=L3-jYLo+1
+          DO I=1,NAS1
+          A=V*F(I,L2)
+C X(L1,p,q):= Add V*F(L2,p)*Y(L3,q), p=1..LEN1, q=1..LEN2
+          CALL DAXPY_(NAS2,A,Y(1,JY),1,X(I,JX),INCX3)
+          END DO
+        END IF
+        END DO
+      CASE(1)
+        NI=INCX3/NAS1
+        DO ILST=1,NLST1
+        L1=LST1(1,ILST)
+        L2=LST1(2,ILST)
+        L3=LST1(3,ILST)
+        L4=LST1(4,ILST)
+        V=VAL1(L4)
+        IF (L3.GE.jYLo .AND. L3.LE.jYHi) THEN
+          JX=JXOFF+L1
+          JY=L3-jYLo+1
+          DO I=1,NAS2
+C Y(L3,q):= Add V*F(L2,p)*X(L1,p,q), p=1..LEN1, q=1..LEN2
+          Y(I,JY)=Y(I,JY)+
+     &       V*DDOT_(NAS1,F(1,L2),1,X(1,JX+NI*(I-1)),1)
+          END DO
+        END IF
+        END DO
+      CASE DEFAULT
+        NI=INCX3/NAS1
+        DO ILST=1,NLST1
+        L1=LST1(1,ILST)
+        L2=LST1(2,ILST)
+        L3=LST1(3,ILST)
+        L4=LST1(4,ILST)
+        V=VAL1(L4)
+        IF (L3.GE.jYLo .AND. L3.LE.jYHi) THEN
+          JX=JXOFF+L1
+          JY=L3-jYLo+1
+C F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
+          DO I=1,NAS2
+          A=V*Y(I,JY)
+          CALL DAXPY_(NAS1,A,X(1,JX+NI*(I-1)),1,F(1,L2),1)
+          END DO
+        END IF
+        END DO
+      END SELECT
+
+*     NFR1 =NFR1 +2*NLST1*LEN1*LEN2
+
+      END SUBROUTINE MLTR1_GH
+
       SUBROUTINE PMLTR1 (KOD,IMLTOP,LST1,
-     &                   lg_X,NAS1,NIS1,JXOFF,
+     &                   X,nX,NAS1,NIS1,JXOFF,
      &                   F,NFI,NFJ,
      &                   lg_Y,NAS2,NIS2)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
+      use Sigma_data, only: NLST1
+      use fake_GA, only: GA_Arrays
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      integer(kind=iwp) myRank
+      integer(kind=iwp) iYLo,iYHi,jYLo,jYHi,mY,LDY
 #endif
-      DIMENSION F(NFI,NFJ)
-      DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
+      integer(kind=iwp), intent(in):: KOD, IMLTOP
+      integer(kind=iwp), intent(in):: LST1(4,NLST1)
+      integer(kind=iwp), intent(in):: nX
+      real(kind=wp), intent(inout):: X(nX)
+      integer(kind=iwp), intent(in):: NAS1,NIS1,JXOFF, NFI,NFJ, lg_Y,
+     &                                NAS2, NIS2
+      real(kind=wp), intent(inout):: F(NFI,NFJ)
 
 #ifdef _MOLCAS_MPP_
 C SVC: Determine the index ranges of the local chunks of lg_X and lg_Y.
@@ -139,12 +306,12 @@ C always the Y array.
           CALL GA_Access (lg_Y,iYLo,iYHi,jYLo,jYHi,mY,LDY)
           IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
             CALL MLTR1_EH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
      &                  DBL_MB(mY),NAS2,jYLo,jYHi)
           ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
             CALL MLTR1_GH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
      &                  DBL_MB(mY),NAS2,jYLo,jYHi)
           END IF
@@ -152,168 +319,19 @@ C always the Y array.
         END IF
         CALL GA_Sync()
       ELSE
+#endif
         IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
           CALL MLTR1_EH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
-     &                  WORK(lg_Y),NAS2,1,NIS2)
+     &                  GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
         ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
           CALL MLTR1_GH(IMLTOP,LST1,
-     &                  WORK(lg_X),NAS1,NIS1,JXOFF,
+     &                  X,NAS1,NIS1,JXOFF,
      &                  F,NFI,NFJ,
-     &                  WORK(lg_Y),NAS2,1,NIS2)
+     &                  GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
         END IF
-      END IF
-#else
-      IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
-        CALL MLTR1_EH(IMLTOP,LST1,
-     &                WORK(lg_X),NAS1,NIS1,JXOFF,
-     &                F,NFI,NFJ,
-     &                WORK(lg_Y),NAS2,1,NIS2)
-      ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
-        CALL MLTR1_GH(IMLTOP,LST1,
-     &                WORK(lg_X),NAS1,NIS1,JXOFF,
-     &                F,NFI,NFJ,
-     &                WORK(lg_Y),NAS2,1,NIS2)
+#ifdef _MOLCAS_MPP_
       END IF
 #endif
-      RETURN
-      END
-
-      SUBROUTINE MLTR1_EH (IMLTOP,LST1,
-     &                     X,NAS1,NIS1,JXOFF,
-     &                     F,NFT,NFA,
-     &                     Y,NAS2,jYLo,jYHi)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(NAS1,NIS1),F(NFT,NFA),Y(NAS2,jYHi-jYLo+1)
-      DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
-
-C this routine is adapted to use chunks of a distributed array (lg_Y)
-C for the H case.  The chunks span all rows (NAS2) and columns jYlo to
-C jYHi. The array Y points to the beginning of a chunk.
-
-      IF(IMLTOP.EQ.0) THEN
-        NA=INCX3/NAS1
-        DO ILST=1,NLST1
-        L1=LST1(1,ILST)
-        L2=LST1(2,ILST)
-        L3=LST1(3,ILST)
-        L4=LST1(4,ILST)
-        V=VAL1(L4)
-        JX=JXOFF+L1
-        DO I=1,NAS1
-        A=V*F(I,L2)
-C X(L1,p,q):= Add V*F(L2,p)*Y(L3,q), p=1..LEN1, q=1..LEN2
-        CALL DAXPY_(jYHi-jYLo+1,A,Y(L3,1),NAS2,
-     &                 X(I,JX+NA*(jYLo-1)),INCX3)
-        END DO
-        END DO
-      ELSE IF(IMLTOP.EQ.1) THEN
-        NA=INCX3/NAS1
-        DO ILST=1,NLST1
-        L1=LST1(1,ILST)
-        L2=LST1(2,ILST)
-        L3=LST1(3,ILST)
-        L4=LST1(4,ILST)
-        V=VAL1(L4)
-        JX=JXOFF+L1
-        DO J=jYLo,jYHi
-C Y(L3,q):= Add V*F(L2,p)*X(L1,p,q), p=1..LEN1, q=1..LEN2
-        Y(L3,J-jYLo+1)=Y(L3,J-jYLo+1)+
-     &       V*DDOT_(NAS1,F(1,L2),1,X(1,JX+NA*(J-1)),1)
-        END DO
-        END DO
-      ELSE
-        NI=INCX3/NAS1
-        DO ILST=1,NLST1
-        L1=LST1(1,ILST)
-        L2=LST1(2,ILST)
-        L3=LST1(3,ILST)
-        L4=LST1(4,ILST)
-        V=VAL1(L4)
-C F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
-        JX=JXOFF+L1
-        DO J=jYLo,jYHi
-        A=V*Y(L3,J-jYLo+1)
-        CALL DAXPY_(NAS1,A,X(1,JX+(J-1)*NI),1,F(1,L2),1)
-        END DO
-        END DO
-      END IF
-
-*     NFR1 =NFR1 +2*NLST1*LEN1*LEN2
-
-      RETURN
-      END
-      SUBROUTINE MLTR1_GH (IMLTOP,LST1,
-     &                     X,NAS1,NIS1,JXOFF,
-     &                     F,NFT,NFI,
-     &                     Y,NAS2,jYLo,jYHi)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(NAS1,NIS1),F(NFT,NFI),Y(NAS2,jYHi-jYLo+1)
-      DIMENSION LST1(4,NLST1)
-#include "sigma.fh"
-
-C this routine is adapted to use chunks of a distributed array (lg_Y)
-C for the H case.  The chunks span all rows (NAS2) and columns jYlo to
-C jYHi. The array Y points to the beginning of a chunk.
-
-      IF(IMLTOP.EQ.0) THEN
-        DO ILST=1,NLST1
-        L1=LST1(1,ILST)
-        L2=LST1(2,ILST)
-        L3=LST1(3,ILST)
-        L4=LST1(4,ILST)
-        V=VAL1(L4)
-        IF (L3.GE.jYLo .AND. L3.LE.jYHi) THEN
-          JX=JXOFF+L1
-          JY=L3-jYLo+1
-          DO I=1,NAS1
-          A=V*F(I,L2)
-C X(L1,p,q):= Add V*F(L2,p)*Y(L3,q), p=1..LEN1, q=1..LEN2
-          CALL DAXPY_(NAS2,A,Y(1,JY),1,X(I,JX),INCX3)
-          END DO
-        END IF
-        END DO
-      ELSE IF(IMLTOP.EQ.1) THEN
-        NI=INCX3/NAS1
-        DO ILST=1,NLST1
-        L1=LST1(1,ILST)
-        L2=LST1(2,ILST)
-        L3=LST1(3,ILST)
-        L4=LST1(4,ILST)
-        V=VAL1(L4)
-        IF (L3.GE.jYLo .AND. L3.LE.jYHi) THEN
-          JX=JXOFF+L1
-          JY=L3-jYLo+1
-          DO I=1,NAS2
-C Y(L3,q):= Add V*F(L2,p)*X(L1,p,q), p=1..LEN1, q=1..LEN2
-          Y(I,JY)=Y(I,JY)+
-     &       V*DDOT_(NAS1,F(1,L2),1,X(1,JX+NI*(I-1)),1)
-          END DO
-        END IF
-        END DO
-      ELSE
-        NI=INCX3/NAS1
-        DO ILST=1,NLST1
-        L1=LST1(1,ILST)
-        L2=LST1(2,ILST)
-        L3=LST1(3,ILST)
-        L4=LST1(4,ILST)
-        V=VAL1(L4)
-        IF (L3.GE.jYLo .AND. L3.LE.jYHi) THEN
-          JX=JXOFF+L1
-          JY=L3-jYLo+1
-C F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
-          DO I=1,NAS2
-          A=V*Y(I,JY)
-          CALL DAXPY_(NAS1,A,X(1,JX+NI*(I-1)),1,F(1,L2),1)
-          END DO
-        END IF
-        END DO
-      END IF
-
-*     NFR1 =NFR1 +2*NLST1*LEN1*LEN2
-
-      RETURN
-      END
+      END SUBROUTINE PMLTR1

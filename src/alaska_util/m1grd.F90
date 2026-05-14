@@ -32,22 +32,23 @@ subroutine M1Grd( &
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
+use Disp, only: Dirct, IndDsp
+use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, ianga(4), iBeta, iCar, iCmp, iDAO, iDCRT(0:7), iIrrep, iM1xp, ip, ipA, ipAOff, ipB, ipBOff, ipDAO, &
-                     ipDAOt, ipK, ipPx, ipPy, ipPz, iPrint, ipZ, ipZI, iRout, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, &
-                     lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, nRys
+                     ipDAOt, ipK, ipPx, ipPy, ipPz, ipZ, ipZI, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, lDCRT, LmbdT, &
+                     lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fac, Fact, Gmma, PTC2, TC(3), Tmp0, Tmp1
-logical(kind=iwp) :: EQ, JfGrad(3,4)
+logical(kind=iwp) :: JfGrad(3,4)
+procedure(cff2d_kernel) :: Cff2D
+procedure(modu2_kernel) :: Fake
+procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
-logical(kind=iwp), external :: TF
-external :: TNAI1, Fake, Cff2D
-#include "Molcas.fh"
-#include "print.fh"
-#include "disp.fh"
+logical(kind=iwp), external :: EQ, TF
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -55,18 +56,14 @@ unused_var(rFinal)
 unused_var(Ccoor(1))
 unused_var(nOrdOp)
 unused_var(nComp)
+unused_var(nHer)
 
-iRout = 193
-iPrint = nPrint(iRout)
-
-nRys = nHer
-
-if (iPrint >= 49) then
-  call RecPrt(' In M1Grd: A',' ',A,1,3)
-  call RecPrt(' In M1Grd: RB',' ',RB,1,3)
-  call RecPrt(' In M1Grd: P',' ',P,nZeta,3)
-  write(u6,*) ' In M1Grd: la,lb=',' ',la,lb
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In M1Grd: A',' ',A,1,3)
+call RecPrt(' In M1Grd: RB',' ',RB,1,3)
+call RecPrt(' In M1Grd: P',' ',P,nZeta,3)
+write(u6,*) ' In M1Grd: la,lb=',' ',la,lb
+#endif
 
 ! Allocate Scratch for primitives and work area for HRR
 
@@ -145,7 +142,9 @@ do kCnttp=1,nCnttp
       call OA(iDCRT(lDCRT),C,TC)
       ! Branch out if one-center integral
       if (EQ(A,RB) .and. EQ(A,TC)) cycle
-      if (iPrint >= 99) call RecPrt(' In M1Grd: TC',' ',TC,1,3)
+#     ifdef _DEBUGPRINT_
+      call RecPrt(' In M1Grd: TC',' ',TC,1,3)
+#     endif
       Coora(:,1) = A(:)
       Coora(:,2) = RB(:)
       Coori(:,1:2) = Coora(:,1:2)
@@ -182,7 +181,7 @@ do kCnttp=1,nCnttp
           if (TF(kdc+kCnt,iIrrep,iCmp) .and. (.not. dbsc(kCnttp)%pChrg)) then
             ! Displacement is symmetric
             nDisp = nDisp+1
-            if (Direct(nDisp)) then
+            if (Dirct(nDisp)) then
               ! Reset flags for the basis set centers so that
               ! we will explicitly compute the derivatives
               ! with respect to those centers. Activate flag
@@ -231,7 +230,9 @@ do kCnttp=1,nCnttp
             if (JfGrad(iCar,i)) mGrad = mGrad+1
           end do
         end do
-        if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' mGrad=',mGrad
+#       endif
         if (mGrad == 0) cycle
 
         ! Modify the original basis. Observe that
@@ -261,19 +262,20 @@ do kCnttp=1,nCnttp
             Array(ipDAOt) = Fac*DAO(iZeta,iDAO)
           end do
         end do
-        if (iPrint >= 99) then
-          write(u6,*) ' Charge=',dbsc(kCnttp)%Charge
-          write(u6,*) ' Fact=',Fact
-          write(u6,*) ' IndGrd=',IndGrd
-          write(u6,*) ' JndGrd=',JndGrd
-          call RecPrt('DAO*Fact',' ',Array(ipDAO),nZeta,nDAO)
-        end if
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' Charge=',dbsc(kCnttp)%Charge
+        write(u6,*) ' Fact=',Fact
+        write(u6,*) ' IndGrd=',IndGrd
+        write(u6,*) ' JndGrd=',JndGrd
+        call RecPrt('DAO*Fact',' ',Array(ipDAO),nZeta,nDAO)
+#       endif
 
         ! Compute integrals with the Rys quadrature.
 
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Array(ipZ),Array(ipZI),nZeta,[One],[One],1,Array(ipPx), &
-                   nZeta,TC,1,Coori,Coora,CoorAC,Array(ip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd, &
-                   lOp,iuvwx)
+        call Rysg1(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One], &
+                   Array(ipZ),Array(ipZI),nZeta,[One],[One],1, &
+                   Array(ipPx),nZeta,TC,1,Coori,Coora,CoorAC, &
+                   Array(ip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
       end do
     end do

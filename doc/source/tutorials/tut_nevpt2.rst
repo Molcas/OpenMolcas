@@ -27,7 +27,7 @@ Below we show an example workflow of a NEVPT2 calculation. The input below is a 
   &GATEWAY
     coord
     3
-    CH2 Triplet coordinates in Angstrom
+    CH2 Triplet coordinates in angstrom
     C      0.000000  0.000000  0.000000
     H      0.000000  0.000000  1.077500
     H      0.784304  0.000000 -0.738832

@@ -24,14 +24,14 @@
 
 subroutine ffxRun(iRc,Label,nData,RecTyp,iOpt)
 
-use RunFile_data, only: icRd, lw, nToc, rcNotFound, rcOK, RunHdr, RunName, Toc, TypUnk
+use RunFile_data, only: lw, nToc, rcNotFound, rcOK, RunName, Toc, TypUnk
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: iRc, nData, RecTyp
 character(len=*), intent(in) :: Label
 integer(kind=iwp), intent(in) :: iOpt
-integer(kind=iwp) :: i, iDisk, item, Lu
+integer(kind=iwp) :: i, item, Lu
 logical(kind=iwp) :: ok
 character(len=lw) :: CmpLab1, CmpLab2
 character(len=64) :: ErrMsg
@@ -67,16 +67,7 @@ call OpnRun(iRc,Lu,iOpt)
 !----------------------------------------------------------------------*
 ! Read the ToC                                                         *
 !----------------------------------------------------------------------*
-iDisk = RunHdr%DaLab
-call cDaFile(Lu,icRd,Toc(:)%Lab,lw*nToc,iDisk)
-iDisk = RunHdr%DaPtr
-call iDaFile(Lu,icRd,Toc(:)%Ptr,nToc,iDisk)
-iDisk = RunHdr%DaLen
-call iDaFile(Lu,icRd,Toc(:)%Len,nToc,iDisk)
-iDisk = RunHdr%DaMaxLen
-call iDaFile(Lu,icRd,Toc(:)%MaxLen,nToc,iDisk)
-iDisk = RunHdr%DaTyp
-call iDaFile(Lu,icRd,Toc(:)%Typ,nToc,iDisk)
+call rdToc(Lu)
 !----------------------------------------------------------------------*
 ! Locate record.                                                       *
 !----------------------------------------------------------------------*
@@ -84,8 +75,8 @@ item = -1
 do i=1,nToc
   CmpLab1 = Toc(i)%Lab
   CmpLab2 = Label
-  call UpCase(CmpLab1)
-  call UpCase(CmpLab2)
+  !call UpCase(CmpLab1)
+  !call UpCase(CmpLab2)
   if (CmpLab1 == CmpLab2) item = i
 end do
 if (item == -1) then

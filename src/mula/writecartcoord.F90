@@ -25,13 +25,13 @@ integer(kind=iwp) :: i
 write(u6,*)
 write(u6,*)
 write(u6,'(a1,a)') ' ','Cartesian coordinates (in bohr) and masses (in u)'
-write(u6,*) ('====',i=1,17)
+write(u6,*) repeat('=',51)
 write(u6,'(a2,a)') ' ','Atom         x             y             z                Mass'
-write(u6,*) ('----',i=1,17)
+write(u6,*) repeat('-',51)
 do i=1,NumOfAt
   write(u6,'(a2,a4,3f14.8,f20.8)') ' ',AtomLbl(i),Coord(:,i),Mass(i)
 end do
-write(u6,*) ('====',i=1,17)
+write(u6,*) repeat('=',51)
 write(u6,*)
 write(u6,*)
 

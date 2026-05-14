@@ -13,16 +13,17 @@
 
 subroutine Driver(KSDFA,Do_Grad,Func,Grad,nGrad,Do_MO,Do_TwoEl,D_DS,F_DFT,nh1,nD,DFTFOCK)
 
-use libxc_parameters, only: Coeffs, func_id, initiate_libxc_functionals, libxc_functionals, nFuncs, nFuncs_max, &
-                            remove_libxc_functionals
+use libxc_parameters, only: Coeffs, func_id, initiate_libxc_functionals, lExtParams, libxc_functionals, nFuncs, nFuncs_max, &
+                            remove_libxc_functionals, Set_External_Params
 use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_kind, &
-                        xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_t, XC_GGA_K_TFVW, XC_LDA_K_TF, XC_UNPOLARIZED
+                        xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_t, xc_f03_functional_get_number, XC_UNPOLARIZED
 use Functionals, only: Get_Funcs
+use DFT_Functionals, only: DFT_FUNCTIONAL, NDSD_Ts, NucAtt, Overlap
 use KSDFT_Info, only: Do_PDFTPOT
 use OFembed, only: dFMD, Do_Core, KEOnly
 use libxc, only: Only_exc
 use nq_Grid, only: l_casdft
-use nq_Info, only: Functional_type, GGA_Type, LDA_Type
+use nq_Info, only: Functional_type, GGA_Type, LDA_Type, meta_GGA_Type1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -40,15 +41,8 @@ character(len=80) :: FLabel
 type(xc_f03_func_t) :: func_
 type(xc_f03_func_info_t) :: info_
 !***********************************************************************
-! Define external functions not defined in LibXC. These are either
-! accessed through the procedure pointer Sub or External_sub.
-abstract interface
-  subroutine DFT_FUNCTIONAL(mGrid,nD)
-    import :: iwp
-    integer(kind=iwp), intent(in) :: mGrid, nD
-  end subroutine DFT_FUNCTIONAL
-end interface
-procedure(DFT_FUNCTIONAL) :: Overlap, NucAtt, ndsd_ts
+! External functions not defined in LibXC are accessed through either
+! the procedure pointer Sub or External_sub.
 procedure(DFT_FUNCTIONAL), pointer :: Sub, External_sub
 !***********************************************************************
 
@@ -91,57 +85,58 @@ end if
 ! Coefficient for the individual contibutions are defaulted to 1.0
 
 Sub => libxc_functionals     ! Default
-External_Sub => null()       ! Default
+nullify(External_Sub)        ! Default
 Coeffs(:) = One              ! Default
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 select case (FLabel)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Overlap
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Overlap
 
   case ('Overlap')
     Functional_type = LDA_type
     Sub => Overlap
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! NucAtt
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! NucAtt
 
   case ('NucAtt')
     Functional_type = LDA_type
     Sub => NucAtt
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! The names TF_only and HUNTER are hardcoded in some parts of the code,*
-! so we define them explicitly instead of relying on the external file *
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Kinetic only (Thomas-Fermi)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! The names TF_only and HUNTER are hardcoded in some parts of the    *
+  ! code, so we define them explicitly instead of relying on the       *
+  ! external file                                                      *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Kinetic only (Thomas-Fermi)
 
   case ('TF_only')
     Functional_type = LDA_type
 
     nFuncs = 1
-    func_id(1:nFuncs) = [XC_LDA_K_TF]
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!  HUNTER (von Weizsacker KE, no calc of potential)
+    func_id(1) = xc_f03_functional_get_number('XC_LDA_K_TF')
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! HUNTER (von Weizsacker KE, no calc of potential)
 
   case ('HUNTER')
     Functional_type = GGA_type
 
     nFuncs = 1
-    func_id(1:nFuncs) = [XC_GGA_K_TFVW]
+    func_id(1) = xc_f03_functional_get_number('XC_GGA_K_TFVW')
     Only_exc = .true.
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
   case default
     call Get_Funcs(FLabel)
 
@@ -149,9 +144,12 @@ end select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if ((Functional_type /= LDA_type) .and. (Functional_type /= GGA_type) .and. l_CasDFT) then
-  write(u6,*) ' MC-PDFT combined with invalid functional class'
-  call Abend()
+if (l_CasDFT) then
+  if ((Functional_type /= LDA_type) .and. (Functional_type /= GGA_type) .and. (Functional_type /= meta_GGA_type1)) then
+    write(u6,*) ' MC-PDFT combined with invalid functional class'
+    write(u6,*) Functional_type
+    call Abend()
+  end if
 end if
 !                                                                      *
 !***********************************************************************
@@ -179,7 +177,7 @@ else if (LDTF) then
         write(u6,*) ' Too many functionals for LDTF'
         call Abend()
       end if
-      func_id(nFuncs+1) = XC_LDA_K_TF
+      func_id(nFuncs+1) = xc_f03_functional_get_number('XC_LDA_K_TF')
       Coeffs(nFuncs+1) = Coeffs(i)
       nFuncs = nFuncs+1
     end if
@@ -213,6 +211,8 @@ nFuncs = j
 ! If the libxc interface is used do the proper initialization and closure.
 
 if (associated(Sub,libxc_functionals)) call Initiate_libxc_functionals(nD)
+
+if (lExtParams) call Set_External_Params()
 
 call DrvNQ(Sub,F_DFT,nD,Func,D_DS,nh1,nD,Do_Grad,Grad,nGrad,Do_MO,Do_TwoEl,DFTFOCK,IsFT)
 

@@ -20,7 +20,7 @@ subroutine Ftwo(icase,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,F
 !     calling arguments:                                               *
 !     icase   : input, integer                                         *
 !               symmetry case number; (II!II)=1, (II!KK)=2, (IK!IK)=3  *
-!     ExFac   : input, real*8                                          *
+!     ExFac   : input, real                                            *
 !               coefficient of "exact exchange"                        *
 !     iSym    : input, integer                                         *
 !               symmetry species iSym                                  *
@@ -34,15 +34,15 @@ subroutine Ftwo(icase,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,F
 !               offset of one-electron integrals (squared format)      *
 !     off_ltMat : input, array of integer                              *
 !               offset of one-electron integrals (lower triangular)    *
-!     D1I     : input, array of real*8                                 *
+!     D1I     : input, array of real                                   *
 !               one-body density matrix (frozen+inactive, AO-basis)    *
-!     FI      : output, array of real*8                                *
+!     FI      : output, array of real                                  *
 !               Fock matrix (frozen+inactive, AO-basis)                *
-!     D1A     : input, array of real*8                                 *
+!     D1A     : input, array of real                                   *
 !               one-body density matrix (active, AO-basis)             *
-!     FA      : output, array of real*8                                *
+!     FA      : output, array of real                                  *
 !               Fock matrix (active, AO-basis)                         *
-!     PQRS    : input, array of real*8                                 *
+!     PQRS    : input, array of real                                   *
 !               two-electron integrals (AO-basis)                      *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -61,6 +61,7 @@ subroutine Ftwo(icase,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,F
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use general_data, only: NBAS
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
@@ -68,8 +69,6 @@ implicit none
 integer(kind=iwp), intent(in) :: icase, iSym, kSym, iBas, kBas, off_sqMat(*), off_ltMat(*)
 real(kind=wp), intent(in) :: Exfac, D1I(*), D1A(*), PQRS(*)
 real(kind=wp), intent(inout) :: FI(*), FA(*)
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: iOff, iOff_ij, iOff_kl, jBas, k, kl, kOff, l
 real(kind=wp) :: D1A_ij, D1I_ij
 real(kind=wp), external :: dDot_

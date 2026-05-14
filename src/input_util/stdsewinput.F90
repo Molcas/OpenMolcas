@@ -20,17 +20,18 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: UnNorm, Do_FckInt
+use Gateway_global, only: ExtBasDir
+use PrintLevel, only: nPrint, Show
+use Molcas, only: LenIn, MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: LuRd, lSTDINP
 integer(kind=iwp), intent(inout) :: ifnr, mdc, iShll
 integer(kind=iwp), intent(out) :: BasisTypes(4), iErr
 character(len=180), intent(in) :: STDINP(mxAtom*2)
-#include "print.fh"
 integer(kind=iwp) :: i, ib, iend, Indx, iOff, iSh, iSTDINP, itype, jShll, lAng, Last, LenBSL, LuWr, n, nCnt
 character(len=256) :: Basis_lib, Fname
 character(len=180) :: Key, KWord, Line
@@ -89,7 +90,7 @@ do
     Indx = Last+1
     dbsc(nCnttp)%Bsl = BSLbl
   else
-    Fname = BSLbl(Indx+2:Last)
+    Fname(1:Last-(Indx+2)+1) = BSLbl(Indx+2:Last)
     if (Fname == ' ') then
       call WarningMessage(2,' No basis set library specified for;BSLbl='//BSLbl//';Fname='//Fname)
       call Quit_OnUserError()
@@ -111,7 +112,7 @@ do
   jShll = iShll
   dbsc(nCnttp)%Bsl_old = dbsc(nCnttp)%Bsl
   dbsc(nCnttp)%mdci = mdc
-  call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,.true.,.true.,' ')
+  call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,.true.,.true.,ExtBasDir)
 
   Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
   if (itype == 0) then
@@ -129,8 +130,8 @@ do
 
   if (Show .and. (nPrint(2) >= 6) .and. (Ref(1) /= '') .and. (Ref(2) /= '')) then
     write(LuWr,'(1x,a)') 'Basis Set Reference(s):'
-    if (Ref(1) /= '') write(LuWr,'(5x,a)') Trim(Ref(1))
-    if (Ref(2) /= '') write(LuWr,'(5x,a)') Trim(Ref(2))
+    if (Ref(1) /= '') write(LuWr,'(5x,a)') trim(Ref(1))
+    if (Ref(2) /= '') write(LuWr,'(5x,a)') trim(Ref(2))
     write(LuWr,*)
     write(LuWr,*)
   end if
@@ -160,8 +161,8 @@ do
   KWord(1:Indx-1) = BSLbl(1:Indx-1)
   call UpCase(KWord)
   if (index(KWord,'6-31G') /= 0) then
-    iSh=jShll+3
-    if (iSh.le.iShll) then
+    iSh = jShll+3
+    if (iSh <= iShll) then
       Shells(iSh)%Transf = .false.
       Shells(iSh)%Prjct = .false.
     end if

@@ -57,7 +57,7 @@ list(APPEND NEVPT2CMakeArgs
   "-DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}"
   "-DCMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS}"
   "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}"
-  "-DCMAKE_C_FLAGS=${CMake_C_FLAGS}"
+  "-DCMAKE_C_FLAGS=${CMAKE_C_FLAGS} -std=gnu89"
   "-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>"
   "-DENABLE_DEBUG_DMRG=OFF"
   "-DENABLE_DMRG=ON"
@@ -96,7 +96,7 @@ endif()
 # git references for NEVPT2          #
 ######################################
 set(reference_git_repo https://github.com/qcscine/nevpt2.git)
-set(reference_git_commit e1484fd)
+set(reference_git_commit e2049c0)
 
 
 set(EP_PROJECT nevpt2_ext)
@@ -120,6 +120,7 @@ ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
                     GIT_REPOSITORY ${reference_git_repo}
                     GIT_TAG ${reference_git_commit}
+                    GIT_PROGRESS 1
                     UPDATE_DISCONNECTED ${EP_SkipUpdate}
                     CMAKE_ARGS "${NEVPT2CMakeArgs}"
                     INSTALL_DIR "${PROJECT_BINARY_DIR}/qcmaquis"

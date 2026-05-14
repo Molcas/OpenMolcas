@@ -27,24 +27,24 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !
 !        computation of a definite integral
 !        standard fortran subroutine
-!        real*8 version
+!        real version
 !
 !        parameters
 !         on entry
-!            f      - real*8
+!            f      - real
 !                     function subprogram defining the integrand
 !                     function f(x). the actual name for f needs to be
 !                     declared e x t e r n a l in the driver program.
 !
-!            a      - real*8
+!            a      - real
 !                     lower limit of integration
 !
-!            b      - real*8
+!            b      - real
 !                     upper limit of integration
 !
-!            epsabs - real*8
+!            epsabs - real
 !                     absolute accuracy requested
-!            epsrel - real*8
+!            epsrel - real
 !                     relative accuracy requested
 !                     if  epsabs <= 0
 !                     and epsrel < max(50*rel.mach.acc.,0.5d-28),
@@ -65,10 +65,10 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !                     in the partition of (a,b), limit >= 1.
 !
 !         on return
-!            reslt  - real*8
+!            reslt  - real
 !                     approximation to the integral
 !
-!            abserr - real*8
+!            abserr - real
 !                     estimate of the modulus of the absolute error,
 !                     which should equal or exceed abs(i-reslt)
 !
@@ -115,24 +115,24 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !                             alist(1) and blist(1) are set to a and b
 !                             respectively.
 !
-!            alist   - real*8
+!            alist   - real
 !                      vector of dimension at least limit, the first
 !                       last  elements of which are the left
 !                      end points of the subintervals in the partition
 !                      of the given integration range (a,b)
 !
-!            blist   - real*8
+!            blist   - real
 !                      vector of dimension at least limit, the first
 !                       last  elements of which are the right
 !                      end points of the subintervals in the partition
 !                      of the given integration range (a,b)
 !
-!            rlist   - real*8
+!            rlist   - real
 !                      vector of dimension at least limit, the first
 !                       last  elements of which are the
 !                      integral approximations on the subintervals
 !
-!            elist   - real*8
+!            elist   - real
 !                      vector of dimension at least limit, the first
 !                       last  elements of which are the moduli of the
 !                      absolute error estimates on the subintervals
@@ -155,17 +155,12 @@ subroutine dqage(f,a,b,epsabs,epsrel,key,limit,reslt,abserr,neval,ier,alist,blis
 !                    dqk41,dqk51,dqk61,dqpsrt
 !***end prologue  dqage
 
+use fx, only: f_interface
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-interface
-  function f(x)
-    import :: wp
-    real(kind=wp) :: f
-    real(kind=wp), intent(in) :: x
-  end function f
-end interface
+procedure(f_interface) :: f
 real(kind=wp), intent(in) :: a, b, epsabs, epsrel
 integer(kind=iwp), intent(in) :: key, limit
 real(kind=wp), intent(out) :: reslt, abserr, alist(limit), blist(limit), rlist(limit), elist(limit)

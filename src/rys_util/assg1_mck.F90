@@ -31,7 +31,6 @@ real(kind=wp), intent(out) :: g1(nT,nTri_Elem1(la),nTri_Elem1(lb),nTri_Elem1(lc)
 real(kind=wp), intent(in) :: xyz2D0(nRys,nT,0:la+2,0:lb+2,0:lc+2,0:ld+2,3), xyz2D1(nRys,nT,0:la,0:lb,0:lc,0:ld,9)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp), intent(out) :: mVec, Indx2(3,4)
-#include "itmax.fh"
 integer(kind=iwp) :: iCent, icir(3), Ind1(3), Ind2(3), ipa, ipb, ipc, ipd, iRys, iT, ixa, ixab, ixabc, ixabcd, ixb, ixc, ixd, iya, &
                      iyab, iyabc, iyabcd, iyb, iyc, iyd, iza, izb, izc, izd, nVec
 real(kind=wp) :: tmp, tmp1, tmp2, tmp3

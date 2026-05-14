@@ -52,7 +52,7 @@ if (NPOINT > MPoint) then
   write(u6,*) 'Abend: Increade mPoint'
   call Quit_OnUserError()
 end if
-read(LUQRP,'(4d20.13)') (R(k),k=1,Npoint)
+read(LUQRP,'(4es20.13)') (R(k),k=1,Npoint)
 
 do
   read(LUQRP,'(a80)',iostat=istatus) Line
@@ -64,7 +64,7 @@ do
     return
   else
     read(Line,'(a4)') OrbLab
-    read(LUQRP,'(4d20.13)') (V(k),k=1,Npoint)
+    read(LUQRP,'(4es20.13)') (V(k),k=1,Npoint)
 
     ! check the symmetry
     if (((index(ORBLAB,'S') == 0) .or. (ISIM == 1)) .and. ((index(ORBLAB,'P') == 0) .or. (ISIM == 2)) .and. &

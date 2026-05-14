@@ -12,7 +12,7 @@
 subroutine RdCtl_Seward(LuRd_,lOPTO,Do_OneEl)
 
 use AMFI_Info, only: No_AMFI
-use Basis_Info, only: dbsc, Gaussian_Type, Max_Shells, mGaussian_Type, MolWgh, nCnttp, Nuclear_Model, Point_Charge, Shells
+use Basis_Info, only: dbsc, DoEmPC, Gaussian_Type, Max_Shells, mGaussian_Type, MolWgh, nCnttp, Nuclear_Model, Point_Charge, Shells
 use Center_Info, only: dc, n_dc
 use Her_RW, only: nPrp
 use Period, only: AdCell, Cell_l, lthCell, ispread, VCell
@@ -28,9 +28,14 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
                         lAMFI, lDOWNONLY, lMXTC, lRel, lRP, lSchw, lUPONLY, NEMO, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, &
                         Thrs, UnNorm, Vlct
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
-use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
-use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
-                          iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
+use Cholesky, only: Span, ThrCom
+use RICD_Info, only: Chol => Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, Skip_High_AC, Thrshld_CD
+use Gateway_global, only: DirInt, Expert, ExtBasDir, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, &
+                          iPack, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
+use rctfld_module, only: lLangevin, lRF, PCM, RDS
+use rmat, only: bParm, Dipol, Dipol1, EpsAbs, EpsQ, EpsRel, QCoul, RMat_On, RMatR
+use define_af, only: AngTp, iTabMx
+use getline_mod, only: Line
 #ifdef _FDE_
 use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPot, embPotInBasis, embPotPath, &
                             embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
@@ -42,6 +47,8 @@ use Para_Info, only: MyRank
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use PrintLevel, only: nPrint, Show
+use Molcas, only: LenIn, MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, UtoAU
 use Definitions, only: wp, iwp, u6
@@ -50,36 +57,29 @@ implicit none
 integer(kind=iwp), intent(in) :: LuRd_
 logical(kind=iwp), intent(inout) :: lOPTO
 logical(kind=iwp), intent(out) :: Do_OneEl
-#include "Molcas.fh"
-#include "angtp.fh"
-#include "rctfld.fh"
-#include "rmat.fh"
-#include "print.fh"
-#include "embpcharg.fh"
-#include "cgetl.fh"
 #ifdef _HAVE_EXTRA_
 #include "hyper.fh"
 #endif
 integer(kind=iwp), parameter :: MAX_XBAS = 20
 integer(kind=iwp) :: BasisTypes(4), BasisTypes_Save(4), i, i1, i2, iAng, iAt, iAtom_Number, ib, ibla, iBSSE, iChk_CH, iChk_DC, &
-                     iChk_RI, iChrct, iChxyz, iCLDF, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, &
-                     ifnr, iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
+                     iChk_RI, iChrct, iChxyz, iCnt, iCnttp, iCoord, idk_ord, iDMS, iDNG, iDummy_basis, iEF, ierr, ifile, ifnr, &
+                     iFound_Label, iFrag, iFrst, iGeoInfo(2), iglobal, ign, ii, iIso, ik, imix, iMltpl, Indx, iOff, iOff0, &
                      iOpt_XYZ, iOptimType, iPrint, iprop_ord, iRout, iShll, ist, istatus, isxbas, isXfield, iTemp, ITkQMMM, iTtl, &
-                     itype, iUnique, iWel, ix, j, jAtmNr, jDim, jend, jRout, jShll, jTmp, k, lAng, Last, lAW, lSTDINP, Lu_UDC, &
-                     LuFS, LuIn, LuRd, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, &
-                     nFragment, nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
-real(kind=wp) :: APThr, CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, &
-                 sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp, v
+                     itype, iUnique, iWel, ix, j, jDim, jend, jRout, jShll, jTmp, k, lAng, Last, lAW, lSTDINP, Lu_UDC, LuFS, LuIn, &
+                     LuRd, LuRd_saved, LuRdSave, LuRP, mdc, n, nAtom, nc, nc2, nCnt, nCnt0, nDataRead, nDiff, nDone, nFragment, &
+                     nIsotopes, nMass, nOper, nReadEle, nRP_prev, nTemp, nTtl, nxbas, RC
+real(kind=wp) :: CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lambda, OAMt(3), OMQt(3), RandVect(3), ScaleFactor, sDel, &
+                 spanCD, stepFac1, SymThr, tDel, Temp
 
-logical(kind=iwp) :: AnyMode, APThr_UsrDef, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
-                     CutInt_UsrDef, do1CCD, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, ForceZMAT, FOUND, FragSet, &
-                     GroupSet, GWInput, HyperParSet, Invert, isnumber, lDMS = .false., lECP, lFAIEMP = .false., lMltpl, &
+logical(kind=iwp) :: AnyMode, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
+                     CutInt_UsrDef, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
+                     FragSet, GroupSet, GWInput, HyperParSet, Invert, isnumber, lDMS = .false., lECP, lFAIEMP = .false., lMltpl, &
                      lOAM = .false., lOMQ = .false., lPP, lSkip, lTtl, lXF = .false., MolWgh_UsrDef, nmwarn, NoAMFI, NoDKroll, &
                      NoZMAT, OrigInput, OriginSet, RF_read, RPSet, Skip1, Skip2, SymmSet, ThrInt_UsrDef, Vlct_, Write_BasLib, &
                      WriteZMat
 character(len=LenIn) :: CtrLDK(10), dbas
 character(len=512) :: Align_Weights = 'MASS'
-character(len=256) :: BasLib, Basis_lib, Directory, ExtBasDir, Fname, GeoDir, KeepBasis, Message, Project, temp1, temp2
+character(len=256) :: BasLib, Basis_lib, Directory, Fname, GeoDir, KeepBasis, Message, Project, temp1, temp2
 character(len=180) :: filename, KeepGroup, Key, KWord, Ref(2)
 character(len=80) :: BSLbl, ChSkip, Title(10) = ''
 character(len=72) :: Header(2) = ''
@@ -118,15 +118,15 @@ character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','
                                             'BSSH','VERB','ORBA','ZMAT','XBAS','XYZ ','COOR','GROU','BSSE','MOVE','NOMO','SYMT', &
                                             'NODE','SDEL','TDEL','BASD','BASI','PRIN','OPTO','THRE','CUTO','RTRN','DIRE','CSPF', &
                                             'EXPE','MOLC','DCRN','MOLP','MOLE','RELI','JMAX','MULT','CENT','EMPC','XFIE','DOUG', &
-                                            'DK1H','DK2H','DK3H','DK3F','RESC','RA0H','RA0F','RAIH','RX2C','RBSS','    ','BSSM', &
+                                            'DK1H','DK2H','DK3H','DK3F','RESC','RA0H','RA0F','RAIH','RX2C','RBSS','DCCD','BSSM', &
                                             'AMFI','AMF1','AMF2','AMF3','FAKE','FINI','MGAU','PART','FPCO','FPPR','NOTA','WELL', &
                                             'NODK','ONEO','TEST','SDIP','EPOT','EFLD','FLDG','ANGM','UPON','DOWN','OMQI','AMPR', &
-                                            'DSHD','NOPA','STDO','PKTH','SKIP','EXTR','RF-I','GRID','CLIG','NEMO','RMAT','RMEA', &
+                                            'DSHD','NOPA','    ','PKTH','SKIP','EXTR','RF-I','GRID','CLIG','NEMO','RMAT','RMEA', &
                                             'RMER','RMQC','RMDI','RMEQ','RMBP','GIAO','NOCH','CHOL','FCD ','THRC','1CCD','1C-C', &
                                             'CHOI','RP-C','SADD','CELL','SPAN','SPRE','LOW ','MEDI','HIGH','DIAG','RIC ','RIJ ', &
                                             'RIJK','RICD','XRIC','NOGU','RELA','RLOC','FOOC','CDTH','SHAC','KHAC','ACD ','FAT-', &
-                                            'ACCD','SLIM','    ','DOFM','NOAM','RPQM','CONS','NGEX','LOCA','LDF ','LDF1','LDF2', &
-                                            'TARG','THRL','APTH','CHEC','VERI','OVER','CLDF','UNCO','WRUC','UNIQ','NOUN','RLDF', &
+                                            'ACCD','SLIM','    ','DOFM','NOAM','RPQM','CONS','NGEX','LOCA','    ','    ','    ', &
+                                            '    ','    ','    ','    ','    ','    ','    ','    ','    ','    ','    ','    ', &
                                             'NOAL','WEIG','ALIG','TINK','ORIG','HYPE','ZCON','SCAL','DOAN','GEOE','OLDZ','OPTH', &
                                             'NOON','GEO ','MXTC','FRGM','TRAN','ROT ','ZONL','BASL','NUME','VART','VARR','SHAK', &
                                             'PAMF','GROM','LINK','EMFR','NOCD','FNMC','ISOT','EFP ']
@@ -173,7 +173,6 @@ if (Found) call Get_cArray('Align_Weights',Align_Weights,512)
 CutInt_UsrDef = .false.
 ThrInt_UsrDef = .false.
 MolWgh_UsrDef = .false.
-APThr_UsrDef = .false.
 NoAMFI = .false.
 
 iChk_RI = 0
@@ -185,6 +184,7 @@ isXfield = 0
 CholeskyThr = -huge(CholeskyThr)
 
 Basis_Test = .false.
+FinishBasis = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -196,7 +196,6 @@ nTemp = 0
 lMltpl = .false.
 
 CholeskyWasSet = .false.
-do1CCD = .false.
 spanCD = -huge(spanCD)
 lTtl = .false.
 RF_read = .false.
@@ -291,8 +290,6 @@ lthCell = 0
 Cell_l = .false.
 ispread(:) = 0
 VCell(:,:) = Zero
-! Set local DF variables (dummy)
-call LDF_SetInc()
 rewind(LuRd)
 ! Count the number of calls to coord to set the number of fragments
 ! for a geo/hyper-calculation
@@ -404,6 +401,7 @@ do
         !                                                              *
         !***** END  ****************************************************
         !                                                              *
+        FinishBasis = .true.
         exit
 
 #     ifdef _FDE_
@@ -828,15 +826,26 @@ do
 
         GWInput = .true.
         Key = Get_Ln(LuRd)
-        BSLbl = Key(1:80)
+        if (len_trim(Key) > len(BSLbl)) then
+          call WarningMessage(2,'BASIS keyword: line too long')
+          call Quit_OnUserError()
+        end if
+        BSLbl = Key(1:len(BSLbl))
         if (BasisSet) then
-          KeepBasis = KeepBasis(1:index(KeepBasis,' '))//','//BSLbl
+          ! iOpt_XYZ=1 means we're dealing with "new style" and we need to accumulate all the labels
+          if ((.not. FinishBasis) .and. (iOpt_XYZ == 1)) then
+            if (len_trim(KeepBasis)+len_trim(BsLbl) > len(KeepBasis)-1) then
+              call WarningMessage(2,'BASIS keyword: total basis too long')
+              call Quit_OnUserError()
+            end if
+            KeepBasis = trim(KeepBasis)//','//BsLbl
+          end if
         else
           KeepBasis = BSLbl
           BasisSet = .true.
         end if
-        temp1 = KeepBasis
-        call UpCase(temp1)
+        !temp1 = KeepBasis
+        !call UpCase(temp1)
         !if (INDEX(temp1,'INLINE') /= 0) then
         !  write(u6,*) 'XYZ input and Inline basis set are not compatible'
         !  write(u6,*) 'Consult the manual how to change inline basis set'
@@ -1173,6 +1182,24 @@ do
         DKroll = .true.
         GWInput = .true.
 
+      case (KeyW(59))
+        !                                                              *
+        !**** DCCD *****************************************************
+        !                                                              *
+
+        Do_DCCD = .true.
+
+        ! RICD
+        Do_RI = .true. !ORDINT ERROR
+        GWInput = .true.
+        if (iChk_RI == 0) then
+          call WarningMessage(2,'DCCD option set without RI type defined.')
+          call Quit_OnUserError()
+        end if
+
+        ! DIRE
+        DirInt = .true.
+
       case (KeyW(60))
         !                                                              *
         !***** BSSM ****************************************************
@@ -1488,31 +1515,16 @@ do
         !***** NOPA ****************************************************
         !                                                              *
         ! Set integral packing flag
-        ! Note      : this flag is only active if iWRopt=0
         ! iPack=0   : pack 2el integrals (= Default)
         ! iPack=1   : do not pack 2el integrals
 
         iPack = 1
-
-      case (KeyW(87))
-        !                                                              *
-        !***** STDO ****************************************************
-        !                                                              *
-        ! Set integral write option for 2 el integrals
-        ! iWRopt=0  : 2 el integrals are written in the MOLCAS2 format,
-        !             i.e., in canonical order, no labels and packed format
-        !             (= Default)
-        ! iWRopt=1  : 2 el integrals are written in a format identical
-        !             to MOLECULE, i.e., values and labels
-
-        iWRopt = 1
 
       case (KeyW(88))
         !                                                              *
         !***** PKTH ****************************************************
         !                                                              *
         ! Read desired packing accuracy ( Default = 1.0e-14 )
-        ! Note      : this flag is only active if iWRopt=0
 
         KWord = Get_Ln(LuRd)
         call Get_F1(1,PkAcc)
@@ -1527,7 +1539,6 @@ do
         ! will not be needed in subsequent calculations their computation
         ! ans storage can be omitted.
         ! ( Default = 0,0,0,0,0,0,0,0 )
-        ! Note      : this flag is only activ if iWRopt=0
 
         KWord = Get_Ln(LuRd)
         lSkip = .true.
@@ -1664,7 +1675,7 @@ do
         !                                                              *
         ! Deactivate Cholesky decomposition.
 
-        Cholesky = .false.
+        Chol = .false.
         CholeskyWasSet = .true.
         Do_RI = .false.
 
@@ -1678,7 +1689,7 @@ do
         Do_RI = .false.
         if (.not. CholeskyWasSet) then
           CholeskyWasSet = .true.
-          Cholesky = .true.
+          Chol = .true.
           Do_RI = .false.
           DirInt = .true.
           call Cho_Inp(.true.,-1,u6)
@@ -1705,9 +1716,12 @@ do
         !                                                              *
         ! Use one-center Cholesky.
 
-        do1CCD = .true.
         Do_RI = .false.
         iChk_Ch = 1
+        DirInt = .true.
+        call Cho_Inp(.true.,-1,u6)
+        Chol = .true.
+        call Cho_InpMod('1CCD')
         if ((iChk_RI+iChk_DC) > 0) then
           call WarningMessage(2,'Cholesky is incompatible with RI and Direct keywords')
           call Quit_OnUserError()
@@ -1729,11 +1743,11 @@ do
 
         Do_RI = .false.
         CholeskyWasSet = .true.
-        Cholesky = .true.
+        Chol = .true.
         DirInt = .true.
         call Cho_Inp(.false.,LuRd,u6)
         iChk_CH = 1
-        if ((iChk_RI+iChk_DC) > 0) then
+        if ((iChk_DC) > 0) then
           call WarningMessage(2,'Cholesky is incompatible with RI and Direct keywords')
           call Quit_OnUserError()
         end if
@@ -1823,7 +1837,7 @@ do
             end if
             nRP_prev = nRP
             nRP = 3*nRP
-            if (.not. allocated(RP_Centers)) call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers')
+            call mma_allocate(RP_Centers,3,nRP/3,2,Label='RP_Centers',safe='*')
             KWord = Get_Ln(LuIn)
             call UpCase(KWord)
             if (index(KWord,'BOHR') /= 0) then
@@ -1925,7 +1939,7 @@ do
         Do_RI = .false.
         if (.not. CholeskyWasSet) then
           CholeskyWasSet = .true.
-          Cholesky = .true.
+          Chol = .true.
           DirInt = .true.
           call Cho_Inp(.true.,-1,u6)
           call Cho_InpMod('LOW ')
@@ -1941,7 +1955,7 @@ do
         Do_RI = .false.
         if (.not. CholeskyWasSet) then
           CholeskyWasSet = .true.
-          Cholesky = .true.
+          Chol = .true.
           DirInt = .true.
           call Cho_Inp(.true.,-1,u6)
           call Cho_InpMod('MEDI')
@@ -1957,7 +1971,7 @@ do
         Do_RI = .false.
         if (.not. CholeskyWasSet) then
           CholeskyWasSet = .true.
-          Cholesky = .true.
+          Chol = .true.
           DirInt = .true.
           call Cho_Inp(.true.,-1,u6)
           call Cho_InpMod('HIGH')
@@ -1980,6 +1994,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 3
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -1994,6 +2012,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 1
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2007,6 +2029,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 2
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2020,6 +2046,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 4
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2033,6 +2063,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 5
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2096,7 +2130,7 @@ do
         ! Local Douglas-Kroll-Hess/X2C/BSS
 
         LDKroll = .true.
-        !GWInput = .True.
+        !GWInput = .true.
         nCtrLD = 0
         radiLD = 5.5_wp
 
@@ -2276,143 +2310,6 @@ do
         endfile(Lu_UDC)
         close(Lu_UDC)
 
-      case (KeyW(141),KeyW(142),KeyW(143))
-        !                                                              *
-        !**** LOCA or LDF1 or LDF  *************************************
-        !                                                              *
-        ! Activate Local Density Fitting.
-
-        LocalDF = .true.
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(144))
-        !                                                              *
-        !**** LDF2 *****************************************************
-        !                                                              *
-        ! Activate Local Density Fitting with 2-center functions included
-        ! when needed to achieve target accuracy.
-
-        LocalDF = .true.
-        call LDF_SetLDF2(.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(145),KeyW(146))
-        !                                                              *
-        !**** TARG or THRL *********************************************
-        !                                                              *
-        ! Set target accuracy for Local Density Fitting.
-        ! This implies inclusion of 2-center functions (the only way we can
-        ! affect accuracy).
-
-        Key = Get_Ln(LuRd)
-        call Get_F1(1,Target_Accuracy)
-        call LDF_SetThrs(Target_Accuracy)
-        LocalDF = .true.
-        call LDF_SetLDF2(.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(147))
-        !                                                              *
-        !**** APTH *****************************************************
-        !                                                              *
-        ! Set screening threshold for LDF - i.e. threshold for defining
-        ! significant atom pairs.
-
-        Key = Get_Ln(LuRd)
-        call Get_F1(1,APThr)
-        call LDF_SetPrescreen(APThr)
-        LocalDF = .true.
-        APThr_UsrDef = .true.
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(148))
-        !                                                              *
-        !**** CHEC *****************************************************
-        !                                                              *
-        ! LDF debug option: check pair integrals.
-
-        call LDF_SetOptionFlag('CHEC',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(149))
-        !                                                              *
-        !**** VERI *****************************************************
-        !                                                              *
-        ! LDF debug option: verify fit for each atom pair.
-
-        call LDF_SetOptionFlag('VERI',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(150))
-        !                                                              *
-        !**** OVER *****************************************************
-        !                                                              *
-        ! LDF debug option: check overlap integrals (i.e. charge)
-
-        call LDF_SetOptionFlag('OVER',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(151))
-        !                                                              *
-        !**** CLDF *****************************************************
-        !                                                              *
-        ! Constrained LDF - read constraint order
-        ! order=-1 --- unconstrained
-        ! order=0  --- charge (i.e. overlap)
-
-        Key = Get_Ln(LuRd)
-        call Get_I1(1,iCLDF)
-        call LDF_AddConstraint(iCLDF)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(152))
-        !                                                              *
-        !**** UNCO *****************************************************
-        !                                                              *
-        ! Unconstrained LDF (same as CLDF=-1)
-
-        call LDF_AddConstraint(-1)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(153))
-        !                                                              *
-        !**** WRUC *****************************************************
-        !                                                              *
-        ! Write unconstrained coefficients to disk.
-        ! Only meaningful along with constrained fitting.
-        ! For debugging purposes: enables constrained fit verification in
-        ! modules other than Seward.
-
-        call LDF_SetOptionFlag('WRUC',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(154))
-        !                                                              *
-        !**** UNIQ *****************************************************
-        !                                                              *
-        ! LDF: use unique atom pairs.
-
-        call LDF_SetOptionFlag('UNIQ',.true.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(155))
-        !                                                              *
-        !**** NOUN *****************************************************
-        !                                                              *
-        ! LDF: do not use unique atom pairs.
-
-        call LDF_SetOptionFlag('UNIQ',.false.)
-        GWInput = .false. ! Only in Seward
-
-      case (KeyW(156))
-        !                                                              *
-        !**** RLDF *****************************************************
-        !                                                              *
-        ! Activate local DF/RI, Roland's original LDF test implementation
-
-        LDF = .true.
-        GWInput = .true.
-
       case (KeyW(157))
         !                                                              *
         !**** NOAL *****************************************************
@@ -2476,7 +2373,7 @@ do
           Project = Project(1:index(Project,' ')-1)
           Key = trim(Key)//'/tkr2qm_s '//trim(Project)//'.xyz>'//trim(Project)//'.Tinker.log'
           write(u6,*) 'TINKER keyword found, run ',trim(Key)
-          call StatusLine(' Gateway:',' Read input from Tinker')
+          call StatusLine('Gateway: ','Read input from Tinker')
           RC = 0
           call Systemf(trim(Key),RC)
           if (RC /= 0) then
@@ -2899,9 +2796,9 @@ do
           KWord = Get_Ln(LuRd)
           call Get_I(1,DefLA(1,iLA),3)
           call Get_F(4,FactLA(iLA),1)
-#        ifdef _DEBUGPRINT_
+#         ifdef _DEBUGPRINT_
           write(u6,'(i8,2i7,F19.8)') (DefLA(i,iLA),i=1,3),FactLA(iLA)
-#        endif
+#         endif
           if (DefLA(1,iLA) <= 0) then
             call WarningMessage(2,'LA definition: index of LA atom < 1')
             call Quit_OnUserError()
@@ -2959,7 +2856,7 @@ do
         if (.not. CholeskyWasSet) then
           Do_RI = .false.
           iRI_Type = 0
-          Cholesky = .false.
+          Chol = .false.
           CholeskyWasSet = .true.
         end if
 
@@ -3006,20 +2903,20 @@ do
         GWinput = .true.
         Kword = Get_Ln(LuRd)
         call Get_I1(1,nEFP_fragments)
-        allocate(FRAG_TYPE(nEFP_fragments))
-        allocate(ABC(3,nEFP_fragments))
+        call mma_allocate(FRAG_TYPE,nEFP_fragments,label='FRAG_TYPE')
+        call mma_allocate(ABC,3,nEFP_fragments,label='ABC')
         Kword = Get_Ln(LuRd)
         call Upcase(kWord)
         if (KWord == 'XYZABC') then
           Coor_Type = XYZABC_type
           nEFP_Coor = 6
-          allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
+          call mma_allocate(EFP_COORS,nEFP_Coor,nEFP_fragments,label='EFP_COORS')
           write(u6,*) 'XYZABC option to be implemented'
           call Abend()
         else if (KWord == 'POINTS') then
           Coor_Type = POINTS_type
           nEFP_Coor = 9
-          allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
+          call mma_allocate(EFP_COORS,nEFP_Coor,nEFP_fragments,label='EFP_COORS')
           do iFrag=1,nEFP_fragments
             KWord = Get_Ln(LuRd)
             FRAG_Type(iFrag) = KWord
@@ -3036,7 +2933,7 @@ do
         else if (KWord == 'ROTMAT') then
           Coor_Type = ROTMAT_type
           nEFP_Coor = 12
-          allocate(EFP_COORS(nEFP_Coor,nEFP_fragments))
+          call mma_allocate(EFP_COORS,nEFP_Coor,nEFP_fragments,label='EFP_COORS')
           write(u6,*) 'ROTMAT option to be implemented'
           call Abend()
         else
@@ -3079,6 +2976,7 @@ do
           exit
         end if
     end select
+
   end do
 
   ! Postprocessing for COORD
@@ -3160,7 +3058,7 @@ call Put_cArray('Align_Weights',Align_Weights,512)
 !                                                                      *
 ! Isotopic specifications
 
-if (.not. allocated(nIsot)) call mma_allocate(nIsot,0,2)
+call mma_allocate(nIsot,0,2,safe='*')
 
 if (Run_Mode /= S_Mode) then
   ! Loop over unique centers
@@ -3206,8 +3104,8 @@ if (Run_Mode /= S_Mode) then
 end if
 
 ! Deallocate
-if (allocated(nIsot)) call mma_deallocate(nIsot)
-if (allocated(mIsot)) call mma_deallocate(mIsot)
+call mma_deallocate(nIsot,safe='*')
+call mma_deallocate(mIsot,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -3216,16 +3114,6 @@ if (allocated(mIsot)) call mma_deallocate(mIsot)
 if (lRP .and. RPset) call processRP(KeepGroup,SymThr)
 
 lAMFI = lAMFI .and. (.not. NoAMFI)
-
-! Disable the RI flag if only one-electron integrals are requested
-
-Do_RI = (.not. Onenly) .and. Do_RI
-if (Do_RI) then
-  if (LDF .and. LocalDF) then
-    call WarningMessage(2,'LDF and LocalDF are incompatible')
-    call Quit_OnUserError()
-  end if
-end if
 
 iPrint = nPrint(iRout)
 
@@ -3337,37 +3225,41 @@ end if
 ! Activate Finite Nucleus parameters
 
 if (Nuclear_Model == Point_Charge) then
-  if (ign == 2) Nuclear_Model = Gaussian_Type
-  if (ign == 3) Nuclear_Model = mGaussian_Type
+  if (ign == 2) then
+    Nuclear_Model = Gaussian_Type
+  else if (ign == 3) then
+    Nuclear_Model = mGaussian_Type
+  end if
 end if
 
-do iCnttp=1,nCnttp
-  if (Nuclear_Model == Gaussian_Type) then
+select case (Nuclear_Model)
+  case (Gaussian_Type)
 
     ! If ExpNuc not explicitly defined use default value.
 
-    nMass = nint(dbsc(iCnttp)%CntMass/UToAU)
-    if (dbsc(iCnttp)%ExpNuc < Zero) dbsc(iCnttp)%ExpNuc = NucExp(nMass)
-  else if (Nuclear_Model == mGaussian_Type) then
+    do iCnttp=1,nCnttp
+      nMass = nint(dbsc(iCnttp)%CntMass/UToAU)
+      if (dbsc(iCnttp)%ExpNuc < Zero) dbsc(iCnttp)%ExpNuc = NucExp(nMass)
+    end do
+  case (mGaussian_Type)
 
     ! Get parameters for the Modified Gaussian Nuclear
     ! charge distribution.
 
-    jAtmNr = dbsc(iCnttp)%AtmNr
-    nMass = nint(dbsc(iCnttp)%CntMass/UToAU)
-    call ModGauss(real(jAtmNr,kind=wp),nMass,dbsc(iCnttp)%ExpNuc,dbsc(iCnttp)%w_mGauss)
+    do iCnttp=1,nCnttp
+      nMass = nint(dbsc(iCnttp)%CntMass/UToAU)
+      call ModGauss(nMass,dbsc(iCnttp)%ExpNuc,dbsc(iCnttp)%w_mGauss)
+    end do
 
-  else
+  case default
 
     ! Nothing to do for point charges!
 
-  end if
-end do
+end select
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Cholesky-specific postprocessing:
-! 0) if 1C-CD is requested, do it.
 ! 1) reset integral prescreening thresholds (if not user-defined).
 ! 2) use default Cholesky normalization (if not user-defined);
 !    for AMFI or Douglas-Kroll, use Molcas normalization (again,
@@ -3376,22 +3268,13 @@ end do
 !    keyword. Thus, specifying Cholesky will force 2-el. int.
 !    processing even with Direct specifed as well!
 ! 4) Turn off Dist flag (makes no sense with Cholesky).
-! 5) Integral format on disk is irrelevant, except that Aces II is
-!    not allowed. So, reset iWrOpt or quit (for Aces II).
+! 5) Integral format on disk is irrelevant.
 ! 6) if Cholesky threshold is specified, use it.
 ! 7) if span factor is specified, use it.
 
-if (do1CCD) then
-  if (.not. Cholesky) then
-    DirInt = .true.
-    call Cho_Inp(.true.,-1,u6)
-  end if
-  Cholesky = .true.
-  call Cho_InpMod('1CCD')
-end if
-if (Cholesky) then
+if (Chol) then
   if (Onenly) then
-    Cholesky = .false. ! we gotta be lazy in such cases
+    Chol = .false. ! we gotta be lazy in such cases
   else
     if (.not. CutInt_UsrDef) CutInt = Cho_CutInt
     if (.not. ThrInt_UsrDef) ThrInt = Cho_ThrInt
@@ -3402,21 +3285,11 @@ if (Cholesky) then
         MolWgh = Cho_MolWgh
       end if
     end if
-    if (iWrOpt == 2) then
-      write(u6,*) 'Acess II format not allowed with Cholesky!!'
-      call Quit_OnUserError()
-    else if ((iWrOpt /= 0) .and. (iWrOpt /= 3)) then
-      iWrOpt = 0
-    end if
     if (CholeskyThr >= Zero) then
       Thrshld_CD = CholeskyThr
-      call Cho_SetDecompositionThreshold(Thrshld_CD)
-      call Put_Thr_Cho(Thrshld_CD)
+      ThrCom = Thrshld_CD
     end if
-    if (spanCD >= Zero) then
-      v = min(spanCD,One)
-      call Cho_SetSpan(v)
-    end if
+    if (spanCD >= Zero) Span = min(spanCD,One)
   end if
 end if
 !                                                                      *
@@ -3452,14 +3325,6 @@ if (Do_RI .and. (Run_Mode /= S_Mode)) then
     call Mk_RI_Shells(LuRd)
 
   end if
-end if
-if (Do_RI .and. LocalDF .and. (Run_Mode == S_Mode)) then
-  call SetTargetAccuracy_LDF()
-  if (CutInt_UsrDef .and. (.not. APThr_UsrDef)) then
-    call LDF_SetPrescreen(CutInt)
-    call LDF_CheckThrs()
-  end if
-  call LDF_CheckConfig()
 end if
 !                                                                      *
 !***********************************************************************
@@ -3607,7 +3472,7 @@ do iCnttp=1,nCnttp
     S%Mx_mdc = max(S%Mx_mdc,mdc)
     n_dc = max(mdc,n_dc)
     if (mdc > MxAtom) then
-      call WarningMessage(2,' mdc > MxAtom!; Increase MxAtom in Molcas.fh.')
+      call WarningMessage(2,' mdc > MxAtom!; Increase MxAtom in the Molcas module.')
       write(u6,*) ' MxAtom=',MxAtom
       call Abend()
     end if
@@ -3672,9 +3537,9 @@ end do
 if (S%mCentr > MxAtom) then
   call WarningMessage(2,'RdCtl: S%mCentr > MxAtom')
   write(u6,*) 'S%mCentr=',S%mCentr
-  write(u6,*) 'Edit src/Include/Molcas.fh'
+  write(u6,*) 'Edit the Molcas module source'
   write(u6,*) 'Set MxAtom to the value of S%mCentr.'
-  write(u6,*) 'Recompile MOLCAS and try again!'
+  write(u6,*) 'Recompile and try again!'
   call Abend()
 end if
 !                                                                      *
@@ -3701,13 +3566,13 @@ end if
 if ((nTtl /= 0) .and. (Run_Mode == G_Mode)) then
   if (iPrint >= 6) then
     write(u6,*)
-    write(u6,'(15X,88A)') ('*',i=1,88)
-    write(u6,'(15X,88A)') '*',(' ',i=1,86),'*'
+    write(u6,'(15X,A)') repeat('*',88)
+    write(u6,'(15X,A,A,A)') '*',repeat(' ',86),'*'
     do iTtl=1,nTtl
       write(u6,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
     end do
-    write(u6,'(15X,88A)') '*',(' ',i=1,86),'*'
-    write(u6,'(15X,88A)') ('*',i=1,88)
+    write(u6,'(15X,A,A,A)') '*',repeat(' ',86),'*'
+    write(u6,'(15X,A)') repeat('*',88)
   else
     write(u6,*)
     write(u6,'(A)') ' Title:'
@@ -3757,7 +3622,7 @@ call SetMltplCenters()
 if (lMltpl) then
   do i=1,nTemp
     iMltpl = ITmp(i)
-    if (iMltpl <= S%nMltpl) Coor_MPM(:,iMltpl+1) = RTmp(:,i)
+    if (iMltpl <= S%nMltpl) Coor_MPM(:,iMltpl) = RTmp(:,i)
   end do
   call mma_deallocate(RTmp)
   call mma_deallocate(ITmp)
@@ -3821,7 +3686,7 @@ if (nTtl > 0) call Put_cArray('SewardXTitle',Title(1),nTtl*80)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (Run_Mode == G_Mode) call Put_iScalar('DNG',iDNG)
+if (Run_Mode /= S_Mode) call Put_iScalar('DNG',iDNG)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -4008,7 +3873,7 @@ subroutine ProcessBasis()
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  ! Automatic onset of muonic charge if the basis type is muonic.
+  ! Automatic set of muonic mass if the basis type is muonic.
   ! This will also automatically activate finite nuclear mass correction.
 
   KWord = ''
@@ -4119,7 +3984,6 @@ subroutine ProcessBasis()
         dbsc(nCnttp)%nCntr = nCnt
         mdc = mdc+nCnt
         ! Now allocate the array for the coordinates and copy them over.
-        ! Call Allocate(dbsc(nCnttp)%Coor(1:3,1:nCnt)
         call mma_Allocate(dbsc(nCnttp)%Coor_Hidden,3,nCnt,Label='dbsc:C')
         dbsc(nCnttp)%Coor => dbsc(nCnttp)%Coor_Hidden(:,:)
         call DCopy_(3*nCnt,Buffer,1,dbsc(nCnttp)%Coor,1)

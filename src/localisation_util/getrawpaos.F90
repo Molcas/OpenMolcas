@@ -132,7 +132,7 @@ if (Normalize) then
         if (OvlpR > 1.0e-6_wp) then
           RB%SB(iSym)%A2(:,mu) = RB%SB(iSym)%A2(:,mu)/sqrt(OvlpR)
         else if (OvlpR < Zero) then
-          write(Txt,'(A,1P,D15.5)') 'Overlap = ',OvlpR
+          write(Txt,'(A,ES15.5)') 'Overlap = ',OvlpR
           call SysAbendMsg(SecNam,'Negative raw PAO overlap!',Txt)
         end if
       end do

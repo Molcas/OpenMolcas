@@ -21,14 +21,13 @@ real(kind=wp), intent(in) :: TotalM, EVal(*)
 integer(kind=iwp), intent(inout) :: nUserPT
 integer(kind=iwp), intent(in) :: nsRot, iMult, in_nFreq
 logical(kind=iwp), intent(in) :: lSlapaf
-#include "Molcas.fh"
 integer(kind=iwp) :: i, nFreq, nTR, nTr2
 real(kind=wp) :: dFreqI, Energy, ZPVE
 real(kind=wp), allocatable :: Freq(:), VibT(:)
 real(kind=wp), parameter :: rk = kBoltzmann*1.0e-3_wp/auTokJ ! Boltzmann constant in a.u./ K
 
 ! If nUserPT == 0 (no User-defined Pressure and Temperatures)
-! Compute thermodynamic data at 1.00 atm & 298.15 Kelvin.
+! Compute thermodynamic data at 1.00 atm & 298.15 kelvin.
 
 if (nUserPT == 0) then
   nUserPT = 1

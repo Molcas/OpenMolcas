@@ -24,11 +24,15 @@ real(kind=wp), intent(in) :: Radius(2,nR), Crowding, Fade, R_BS, R_Min(0:lAng)
 integer(kind=iwp), intent(out) :: iAngular_Grid(nR)
 integer(kind=iwp) :: iAng, iR, jAng, jSet, kSet
 real(kind=wp) :: R_Test, R_Test2, R_Value
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i, jR, mR, nTot
+real(kind=wp) :: RStart
+#endif
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -67,6 +67,7 @@ module citrans
 ! nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
+use sguga, only: SGS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -94,15 +95,14 @@ public :: citrans_csf2sd, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, 
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure spt_cptr2loff
-end interface
 interface mma_allocate
-  module procedure spt_mma_allo_1D, spt_mma_allo_1D_lim
+  module procedure :: spt_mma_allo_1D, spt_mma_allo_1D_lim
 end interface
 interface mma_deallocate
-  module procedure spt_mma_free_1D
+  module procedure :: spt_mma_free_1D
 end interface
+
+#include "compiler_features.h"
 
 contains
 
@@ -169,7 +169,7 @@ subroutine citrans_sort(mode,ciold,cinew)
   iup = 1
   do icsf=1,ncsf
     ! obtain the stepvector
-    call stepvector_next(mv,idwn,iup,stepvector)
+    call stepvector_next(mv,idwn,iup,stepvector,SGS%nLev)
 
     ! determine configuration group and rank
     doub = 0
@@ -366,7 +366,7 @@ subroutine spintabs_allocate()
 
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc(A)
+    subroutine c_null_alloc(A) _BIND_C_
       import :: wp
       real(kind=wp), allocatable :: A(:,:)
     end subroutine c_null_alloc
@@ -390,6 +390,11 @@ end subroutine spintabs_allocate
 
 subroutine spintabs_free()
 
+  integer(kind=iwp) :: i
+
+  do i=lbound(spintabs,1),ubound(spintabs,1)
+    call mma_deallocate(spintabs(i)%coef)
+  end do
   call mma_deallocate(spintabs)
 
 end subroutine spintabs_free
@@ -671,11 +676,8 @@ end subroutine mkwtab
 ! Extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define spt_cptr2loff, spt_mma_allo_1D, spt_mma_allo_1D_lim, spt_mma_free_1D
+! Define spt_mma_allo_1D, spt_mma_allo_1D_lim, spt_mma_free_1D
 #define _TYPE_ type(spintable)
-#  define _FUNC_NAME_ spt_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ spt_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'spt_mma'

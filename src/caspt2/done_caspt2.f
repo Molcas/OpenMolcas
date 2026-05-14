@@ -10,18 +10,18 @@
 *                                                                      *
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine Done_CASPT2(CMO,OCC,D)
+      Subroutine Done_CASPT2(CMO,nCMO,OCC,nOCC,D,nD)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
 *     Compute the active one-body density                              *
 *                                                                      *
 *     calling arguments:                                               *
-*     CMO     : input, array of real*8                                 *
+*     CMO     : input, array of real(kind=wp)                          *
 *               MO-coefficients                                        *
-*     OCC     : input, array of real*8                                 *
+*     OCC     : input, array of real(kind=wp)                          *
 *               occupation numbers                                     *
-*     D       : output, array of real*8                                *
+*     D       : output, array of real(kind=wp)                         *
 *               total one-body density                                 *
 *                                                                      *
 *----------------------------------------------------------------------*
@@ -36,38 +36,39 @@
 *                                                                      *
 ************************************************************************
 
-      Implicit Real*8 (A-H,O-Z)
+      use caspt2_module, only: nSym, nBas
+      use Constants, only: Zero, Two
+      use definitions, only: iwp, wp
+      Implicit None
+      integer(kind=iwp), intent(in):: nCMO, nOcc, nD
+      real(kind=wp), intent(in):: CMO(nCMO) , OCC(nOCC)
+      real(kind=wp), intent(out):: D(nD)
 
-      Dimension CMO(*) , OCC(*) , D(*)
-
-
-#include "rasdim.fh"
-#include "caspt2.fh"
+      integer(kind=iwp) iOff1, iOff2, iOff3, iSym, iBas, i, ii, j, k
+      real(kind=wp) :: Sum
 
       iOff1 = 0
       iOff2 = 0
       iOff3 = 0
       Do iSym = 1,nSym
         iBas = nBas(iSym)
-        If ( iBas.ne.0 ) then
-          Do i = 1,iBas
-            ii = (i*i-i)/2
-            Do j = 1,i
-              Sum = 0.0d0
-              Do k = 1,iBas
-                Sum = Sum + OCC(iOff3+k)
-     &                    * CMO(iOff1+(k-1)*iBas+i)
-     &                    * CMO(iOff1+(k-1)*iBas+j)
-              End Do
-              D(iOff2+ii+j) = 2.0d0*Sum
-              If (j.eq.i) D(iOff2+ii+j) = Sum
+        If (iBas==0) Cycle
+        Do i = 1,iBas
+          ii = (i*i-i)/2
+          Do j = 1,i
+            Sum = Zero
+            Do k = 1,iBas
+              Sum = Sum + OCC(iOff3+k)
+     &                  * CMO(iOff1+(k-1)*iBas+i)
+     &                  * CMO(iOff1+(k-1)*iBas+j)
             End Do
+            D(iOff2+ii+j) = Two*Sum
+            If (j.eq.i) D(iOff2+ii+j) = Sum
           End Do
-        End If
+        End Do
         iOff1 = iOff1 + iBas*iBas
         iOff2 = iOff2 + (iBas*iBas+iBas)/2
         iOff3 = iOff3 + iBas
       End Do
 
-      Return
-      End
+      End Subroutine Done_CASPT2

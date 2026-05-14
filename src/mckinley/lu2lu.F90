@@ -16,11 +16,12 @@ use Definitions, only: iwp, u6
 implicit none
 character(len=*), intent(in) :: FileName
 integer(kind=iwp), intent(in) :: LuInput
-#include "warnings.h"
 integer(kind=iwp) :: istatus, LuSpool2
 character(len=180) :: Line
 logical(kind=iwp) :: Exists
 integer(kind=iwp), external :: IsFreeUnit
+
+#include "warnings.h"
 
 call f_inquire(Filename,Exists)
 if (.not. Exists) then

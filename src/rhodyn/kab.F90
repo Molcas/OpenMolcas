@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine kab()
@@ -28,7 +28,7 @@ integer(kind=iwp) :: i, j, k, ii, jj, iii, jjj, lu, max_i, max_j, n_sf
 real(kind=wp) :: max_k
 real(kind=wp), allocatable :: freq(:), G(:,:), G_SF(:,:), J_w(:,:), n_w(:,:), omega_ab(:,:), r_ab_SO(:,:), temp_gk(:)
 complex(kind=wp), allocatable :: G_SO(:,:,:), gamma_pd(:,:), gamma_pd_basis(:,:), k_ab(:,:)
-character(len=256), parameter :: format1 = '(2(i8),4(g15.8,1x))'
+character(len=*), parameter :: format1 = '(2(i8),4(g15.8,1x))'
 integer(kind=iwp), external :: isFreeUnit
 
 n_sf = sum(nconf)
@@ -67,7 +67,7 @@ if (HRSO) then
     do k=1,Nmode
       write(u6,*) 'k=',k
       do j=1,Nstate
-        read(lu,'(E16.8)',advance='no') temp_gk(j)
+        read(lu,'(ES16.8)',advance='no') temp_gk(j)
         write(u6,*) temp_gk(j)
         G_SO(k,i,j) = cmplx(temp_gk(j),kind=wp)
       end do
@@ -133,7 +133,7 @@ call mma_allocate(n_w,Nstate,Nstate)
 call mma_allocate(J_w,Nstate,Nstate)
 call mma_allocate(omega_ab,Nstate,Nstate)
 
-write(u6,*) 'Gamma=',cgamma,'Hartree',cgamma*auToCm,'cm-1'
+write(u6,*) 'Gamma=',cgamma,' hartree',cgamma*auToCm,' cm-1'
 
 lu = isFreeUnit(20)
 call molcas_open(lu,'kab_out.dat')
@@ -190,6 +190,8 @@ if (ipglob > 3) then
   end do
   close(lu)
   max_k = Zero
+  max_i = 0
+  max_j = 0
   do i=1,Nstate
     do j=1,Nstate
       if (real(k_ab(i,j)) >= max_k) then
@@ -344,20 +346,19 @@ do i=1,Nstate
     end if
   end do
 end do
-close(lu) ! close file r_ab_SO.dat
-write(u6,*) 'End k_ab'
+close(lu)
 
-if (allocated(G)) call mma_deallocate(G)
-if (allocated(G_SF)) call mma_deallocate(G_SF)
-if (allocated(G_SO)) call mma_deallocate(G_SO)
-if (allocated(Freq)) call mma_deallocate(Freq)
-if (allocated(temp_gk)) call mma_deallocate(temp_gk)
-if (allocated(r_ab_SO)) call mma_deallocate(r_ab_SO)
-if (allocated(k_ab)) call mma_deallocate(k_ab)
-if (allocated(n_w)) call mma_deallocate(n_w)
-if (allocated(J_w)) call mma_deallocate(J_w)
-if (allocated(omega_ab)) call mma_deallocate(omega_ab)
-if (allocated(gamma_pd)) call mma_deallocate(gamma_pd)
-if (allocated(gamma_pd_basis)) call mma_deallocate(gamma_pd_basis)
+call mma_deallocate(G,safe='*')
+call mma_deallocate(G_SF,safe='*')
+call mma_deallocate(G_SO,safe='*')
+call mma_deallocate(Freq,safe='*')
+call mma_deallocate(temp_gk,safe='*')
+call mma_deallocate(r_ab_SO,safe='*')
+call mma_deallocate(k_ab,safe='*')
+call mma_deallocate(n_w,safe='*')
+call mma_deallocate(J_w,safe='*')
+call mma_deallocate(omega_ab,safe='*')
+call mma_deallocate(gamma_pd,safe='*')
+call mma_deallocate(gamma_pd_basis,safe='*')
 
 end subroutine kab

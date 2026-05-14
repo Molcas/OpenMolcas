@@ -11,15 +11,15 @@
 
 subroutine Get_Name_All(LblCnt)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use Symmetry_Info, only: iOper, nIrrep, Symmetry_Info_Get
+use Molcas, only: LenIn
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
 implicit none
 character(len=*), intent(_OUT_) :: LblCnt(*)
-#include "Molcas.fh"
 integer(kind=iwp) :: Active = 0, i, iAll_Atom, iChAtom, iCoSet(0:7), iGen(3), iUnique_Atom, nAtoms, nCoSet, nGen
 character(len=len(LblCnt)), allocatable :: LblCnt_Unique(:)
 real(kind=wp), allocatable :: Coord(:,:)

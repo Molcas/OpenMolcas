@@ -11,18 +11,19 @@
 
 subroutine SuperMac()
 
+use temperatures, only: DefTemp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-#include "warnings.h"
-#include "temperatures.fh"
 integer(kind=iwp) :: i, iDNG, iErr, irlxroot, iSigma, LuInput, nData, nXF
 character(len=16) :: StdIn
 character(len=8) :: Method
 logical(kind=iwp) :: Do_Cholesky, Do_ESPF, Numerical, Found
 integer(kind=iwp), allocatable :: Scr1(:)
 integer(kind=iwp), external :: IsFreeUnit
+
+#include "warnings.h"
 
 call Get_cArray('Relax Method',Method,8)
 
@@ -138,7 +139,7 @@ write(LUInput,'(A)') 'THERmochemistry'
 call Get_iScalar('Rotational Symmetry Number',iSigma)
 write(LUInput,'(I3)') iSigma
 write(LUInput,'(A)') '1.0'
-do i=1,NDefTemp
+do i=1,size(DefTemp)
   write(LUInput,'(F7.2)') DefTemp(i)
 end do
 write(LUInput,'(A)') 'End of PT'

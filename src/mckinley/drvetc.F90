@@ -23,6 +23,7 @@ subroutine Drvetc(nGrad)
 
 use Index_Functions, only: nTri_Elem
 use MckDat, only: sLength
+use Mck_interface, only: mck_mem, oneel_mck_kernel, oneeldot_mck_kernel
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -34,9 +35,11 @@ integer(kind=iwp), intent(in) :: nGrad
 integer(kind=iwp) :: iCar, iCnt, iCnttp, idCar, idcnt, idum, iIrrep, iopt, irc, isym, loper, nDens
 real(kind=wp) :: Ccoor(3)
 character(len=8) :: Lbl
+procedure(mck_mem) :: ElMem
+procedure(oneel_mck_kernel) :: ElGrd
+procedure(oneeldot_mck_kernel) :: ElGrddot
 real(kind=wp), allocatable :: D0(:), EG(:), Temp(:)
 integer(kind=iwp), external :: irrfnc
-external :: ElGrd, ElGrddot, ElMem
 
 Ccoor(:) = Zero
 

@@ -16,7 +16,8 @@ use Definitions, only: iwp
 implicit none
 private
 
-public :: C3_Ind, C3_Ind3, C_Ind, C_Ind3, C_Ind3_Rev, iTri, iTri_Rev, nTri3_Elem, nTri3_Elem1, nTri_Elem, nTri_Elem1
+public :: C3_Ind, C3_Ind3, C_Ind, C_Ind3, C_Ind3_Rev, iTri, iTri_Rev, nTri3_Elem, nTri3_Elem1, nTri_Elem, nTri_Elem_Rev, &
+          nTri_Elem1
 
 #include "macros.fh"
 
@@ -83,18 +84,26 @@ end function C_Ind3_Rev
 !   2     3
 !   3     6
 !   4    10
-pure function nTri_Elem(n)
+elemental function nTri_Elem(n)
   integer(kind=iwp) :: nTri_Elem
   integer(kind=iwp), intent(in) :: n
   nTri_Elem = n*(n+1)/2
 end function nTri_Elem
 
 ! Same as nTri_Elem, but with n=l+1
-pure function nTri_Elem1(l)
+elemental function nTri_Elem1(l)
   integer(kind=iwp) :: nTri_Elem1
   integer(kind=iwp), intent(in) :: l
   nTri_Elem1 = (l+1)*(l+2)/2
 end function nTri_Elem1
+
+! Inverse of nTri_Elem: returns the minimum x such that nTri_Elem(x) >= n
+elemental function nTri_Elem_Rev(n)
+  use Constants, only: Seven, Eight
+  integer(kind=iwp) :: nTri_Elem_Rev
+  integer(kind=iwp), intent(in) :: n
+  nTri_Elem_Rev = (int(sqrt(Eight*n-Seven))+1)/2
+end function nTri_Elem_Rev
 
 ! Like nTri_Elem, but for 3-dimensional arrays
 !
@@ -105,14 +114,14 @@ end function nTri_Elem1
 !   2     4
 !   3    10
 !   4    20
-pure function nTri3_Elem(n)
+elemental function nTri3_Elem(n)
   integer(kind=iwp) :: nTri3_Elem
   integer(kind=iwp), intent(in) :: n
   nTri3_Elem = n*(n+1)*(n+2)/6
 end function nTri3_Elem
 
 ! Same as nTri3_Elem, but with n=l+1
-pure function nTri3_Elem1(l)
+elemental function nTri3_Elem1(l)
   integer(kind=iwp) :: nTri3_Elem1
   integer(kind=iwp), intent(in) :: l
   nTri3_Elem1 = (l+1)*(l+2)*(l+3)/6

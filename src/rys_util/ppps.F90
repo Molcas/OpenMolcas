@@ -36,7 +36,7 @@ real(kind=wp) :: ai, B001, B002, B101, B102, dddx, Eu21, Eu22, PAQPx1, PAQPx2, P
                  PreFct, QCPQx1, QCPQx2, QCPQy1, QCPQy2, QCPQz1, QCPQz2, r1, r2, rho, si, T, w1, w2, x011, x012, x101, x102, x111, &
                  x112, x201, x202, x211, x212, xdInv, y011, y012, y101, y102, y111, y112, y201, y202, y211, y212, z, z011, z012, &
                  z101, z102, z111, z112, z201, z202, z211, z212, ZEInv, Zu21, Zu22
-logical(kind=iwp) :: EQ
+logical(kind=iwp), external :: EQ
 
 #include "macros.fh"
 unused_var(EInv)

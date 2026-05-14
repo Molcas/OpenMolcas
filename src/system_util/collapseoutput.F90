@@ -29,14 +29,14 @@
 
 subroutine CollapseOutput(iSw,STR)
 
+use PrintLevel, only: Colorize
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iSw
 character(len=*), intent(in) :: STR
-#include "print.fh"
 
-if (icolorize == 1) then
+if (Colorize) then
   if (iSw == 1) then
     write(u6,'(A,A)') '++ ',trim(STR)
   else
@@ -45,7 +45,5 @@ if (icolorize == 1) then
 else
   if (iSw == 1) write(u6,'(A)') trim(STR)
 end if
-
-return
 
 end subroutine CollapseOutput

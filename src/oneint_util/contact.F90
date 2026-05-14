@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine Contact(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,Ccoor,lOper,iChO,nIC,Array,rFinal,iStabM,nStabM,nComp,rKappa)
+subroutine Contact(Zeta,P,nZeta,A,Axyz,la,RB,Bxyz,lb,CoorO,lOper,iChO,nIC,Array,rFinal,iStabM,nStabM,nComp,rKappa)
 !***********************************************************************
 !                                                                      *
 ! Object: to compoute the 1-electron contact term.                     *
@@ -26,25 +26,22 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp, lOper(nComp), iCho(nComp), nIC, nStabM, iStabM(0:nStabM-1)
-real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(3), rKappa(nZeta)
+real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), RB(3), CoorO(3), rKappa(nZeta)
 real(kind=wp), intent(out) :: Axyz(nZeta,3,0:la), Bxyz(nZeta,3,0:lb), Array(nZeta,nTri_Elem1(la),nTri_Elem1(lb))
 real(kind=wp), intent(inout) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nIC)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iCar, iComp, iDCRT(0:7), ipa, ipb, iPrint, iRout, iStabO(0:7), ixa, ixb, iya, iyb, iza, izb, lDCRT, &
-                     llOper, LmbdT, nDCRT, nOp, nStabO
+integer(kind=iwp) :: ia, ib, iCar, iComp, iDCRT(0:7), ipa, ipb, iStabO(0:7), ixa, ixb, iya, iyb, iza, izb, lDCRT, llOper, LmbdT, &
+                     nDCRT, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 170
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' In Contact: rKappa',' ',rKappa,nZeta,1)
-  call RecPrt(' In Contact: Zeta',' ',Zeta,nZeta,1)
-  call RecPrt(' In Contact: P',' ',P,nZeta,3)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In Contact: rKappa',' ',rKappa,nZeta,1)
+call RecPrt(' In Contact: Zeta',' ',Zeta,nZeta,1)
+call RecPrt(' In Contact: P',' ',P,nZeta,3)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -56,7 +53,7 @@ call SOS(iStabO,nStabO,llOper)
 call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),Ccoor,TC)
+  call OA(iDCRT(lDCRT),CoorO,TC)
 
   Array(:,:,:) = Zero
 
@@ -126,7 +123,5 @@ do lDCRT=0,nDCRT-1
   call SymAdO(Array,nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
-
-return
 
 end subroutine Contact

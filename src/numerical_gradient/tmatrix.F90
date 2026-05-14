@@ -17,8 +17,7 @@ subroutine TMatrix(TMx,mInt)
 ! unconstrained subspaces.                                             *
 !***********************************************************************
 
-use Slapaf_Info, only: nStab, Coor
-use Slapaf_Parameters, only: iRow_c, nLambda, iter
+use Slapaf_Info, only: Coor, iRow_c, iter, nLambda, nStab
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

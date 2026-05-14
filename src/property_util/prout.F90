@@ -31,7 +31,7 @@ subroutine PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTo
 !     Occ(1:nTot)     Occupation numbers for all eigenvectors,         *
 !                     a dummy for Short outputs                        *
 !     ThrSV           threshold for Occupation numbers; if             *
-!                     Occ(i).le.ThrSV the contribution will not        *
+!                     Occ(i) <= ThrSV the contribution will not        *
 !                     be printed                                       *
 !     PrEl(1:nTot,    matrix elements for all components 1,2,...,      *
 !          1:maxlab)  maxlab, nTot entries for each component          *
@@ -94,7 +94,7 @@ write(Format3(12:12),'(I1)') nDec
 write(Format4(10:10),'(I1)') nDec
 
 if ((.not. Short) .and. (.not. ifallorb)) then
-  write(u6,'(A,D9.2/)') ' orbital contributions printed for occupation numbers >',ThrSV
+  write(u6,'(A,ES9.2/)') ' orbital contributions printed for occupation numbers >',ThrSV
 else if ((.not. Short) .and. ifallorb) then
   write(u6,'(A)') ' orbital properties printed for all occupation numbers'
 end if

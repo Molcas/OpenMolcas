@@ -188,7 +188,7 @@ do
       !                                                                *
       !***** LEBE ******************************************************
       !                                                                *
-      ! Turn off the Lebedev angular grid
+      ! Turn on the Lebedev angular grid
 
       iOpt_Angular = ibset(iOpt_Angular,2)
 
@@ -256,7 +256,7 @@ do
 
     case ('FADE')
       !                                                                *
-      !***** T_Y  ******************************************************
+      !***** FADE ******************************************************
       !                                                                *
       ! Fading factor for angular pruning.
 

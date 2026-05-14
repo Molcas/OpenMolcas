@@ -13,7 +13,7 @@
 !***********************************************************************
 
 subroutine Rs2Dgh(xyz2D0,nT,nRys,la,lb,lc,ld,xyz2D1,xyz2D2,IfHss,IndHss,IfGrad,IndGrd,IfG,Coora,Alpha,Beta,Gmma,Delta,nZeta,nEta, &
-                  Scrtch,Scrtch2,Temp,Index1,Index2,Index3,Index4,ng,nh,ExpX,ExpY,mZeta,mEta,nIrrep,Tr)
+                  Scrtch,Scrtch2,Temp,Index1,Index2,Index3,Index4,ng,nh,mZeta,mEta,nIrrep,Tr)
 !***********************************************************************
 !                                                                      *
 ! Object:To compute the gradients and the Hessians of the 2D-integrals.*
@@ -36,7 +36,6 @@ real(kind=wp), intent(out) :: xyz2D1(nRys*nT,0:la,0:lb,0:lc,0:ld,3,3), xyz2D2(nR
 logical(kind=iwp), intent(inout) :: IfHss(4,3,4,3), IfGrad(3,4), IfG(4), Tr(4)
 integer(kind=iwp), intent(inout) :: IndHss(4,3,4,3,0:nIrrep-1), IndGrd(3,4,0:nIrrep-1)
 integer(kind=iwp), intent(out) :: Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), ng(3), nh(3)
-external :: ExpX, ExpY
 integer(kind=iwp) :: i1, i2, i3, i4, i5, ia, ib, ic, iCar, iCent, id, Ind1(3), Ind2(3), Ind3(3), Ind4(3), j4, j5, jCent, kCent, &
                      mVec, mx, my, mz, n, nVec, nvecx, nx, ny, nz
 real(kind=wp) :: Fact, ra, rb, rc, rd
@@ -54,7 +53,7 @@ Index2(:,:,:) = 0
 ! Differentiate with respect to the first center
 
 if (IfG(1)) then
-  call ExpX(Temp,mZeta,mEta,Alpha,sqrt(Two))
+  call Exp_1(Temp,mZeta,mEta,Alpha,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   nVec = 0
   if (IfGrad(1,1)) then
@@ -180,7 +179,7 @@ end if
 
 ! Cross term center 1 and center 2
 if (IfG(2)) then
-  call ExpX(Temp,mZeta,mEta,Beta,sqrt(Two))
+  call Exp_1(Temp,mZeta,mEta,Beta,sqrt(Two))
   call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
 end if
 if (IfG(2) .and. IfG(1)) then
@@ -281,7 +280,7 @@ end if
 ! Differentiate with respect to the second center
 
 if (IfG(2)) then
-  call ExpX(Temp,mZeta,mEta,Beta,sqrt(Two))
+  call Exp_1(Temp,mZeta,mEta,Beta,sqrt(Two))
   call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
   nVec = 0
   if (IfGrad(1,2)) then
@@ -403,9 +402,9 @@ end if
 ! Cross Term center 2 and 3
 
 if (IfG(2) .and. IfG(3)) then
-  call ExpX(Temp,mZeta,mEta,Beta,sqrt(Two))
+  call Exp_1(Temp,mZeta,mEta,Beta,sqrt(Two))
   call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
-  call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
+  call Exp_2(Temp,mZeta,mEta,Gmma,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   nVec = 0
   if (IfHss(3,1,2,1)) then
@@ -503,7 +502,7 @@ end if
 ! Differentiate with respect to the third center
 
 if (IfG(3)) then
-  call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
+  call Exp_2(Temp,mZeta,mEta,Gmma,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   nVec = 0
   if (IfGrad(1,3)) then
@@ -620,9 +619,9 @@ end if
 ! Cross term 1 3
 
 if (IfG(1) .and. IfG(3)) then
-  call ExpX(Temp,mZeta,mEta,Alpha,sqrt(Two))
+  call Exp_1(Temp,mZeta,mEta,Alpha,sqrt(Two))
   call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
-  call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
+  call Exp_2(Temp,mZeta,mEta,Gmma,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   nVec = 0
   if (IfHss(3,1,1,1)) then
@@ -721,10 +720,10 @@ end if
 ! 1 4
 
 if (IfG(4)) then
-  call ExpY(Temp,mZeta,mEta,Delta,sqrt(Two))
+  call Exp_2(Temp,mZeta,mEta,Delta,sqrt(Two))
   call Exp_2(Scrtch,nRys,nT,Temp,sqrt(Two))
   if (IfG(1)) then
-    call ExpX(Temp,mZeta,mEta,Alpha,sqrt(Two))
+    call Exp_1(Temp,mZeta,mEta,Alpha,sqrt(Two))
     call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
     nVec = 0
     if (IfHss(4,1,1,1)) then
@@ -828,7 +827,7 @@ if (IfG(4)) then
   ! Cross terms between 2 4
 
   if (IfG(2) .and. IfG(4)) then
-    call ExpX(Temp,mZeta,mEta,Beta,sqrt(Two))
+    call Exp_1(Temp,mZeta,mEta,Beta,sqrt(Two))
     call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
     nVec = 0
     if (IfHss(4,1,2,1)) then
@@ -929,7 +928,7 @@ if (IfG(4)) then
   ! Cross Term 3 4
 
   if (IfG(3) .and. IfG(4)) then
-    call ExpY(Temp,mZeta,mEta,Gmma,sqrt(Two))
+    call Exp_2(Temp,mZeta,mEta,Gmma,sqrt(Two))
     call Exp_2(Scrtch2,nRys,nT,Temp,sqrt(Two))
     nVec = 0
     if (IfHss(4,1,3,1)) then

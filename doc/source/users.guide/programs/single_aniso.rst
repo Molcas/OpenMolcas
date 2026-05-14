@@ -459,36 +459,28 @@ Optional general keywords to control the input
 
 :kword:`MAVE`
   This keyword specifies the grid density used for the computation of powder molar
-  magnetization. The program uses Lebedev-Laikov distribution of points on the unit sphere.
+  magnetization. The program uses Lebedev--Laikov distribution of points on the unit sphere.
   The program reads two integer numbers: :math:`n_{\text{sym}}` and :math:`n_{\text{grid}}`. The :math:`n_{\text{sym}}` defines which
   part of the sphere is used for averaging. It takes one of the three values: 1 (half-sphere),
-  2 (a quater of a sphere) or 3 (an octant of the sphere). :math:`n_{\text{grid}}` takes values from 1
-  (the smallest grid) till 32 (the largest grid, i.e. the densiest). The default is to
-  consider integration over a half-sphere (since :math:`M(H)=-M(-H)`): :math:`n_{\text{sym}}=1` and :math:`n_{\text{sym}}=15`
-  (i.e 185 points distributed over half-sphere). In case of symmetric compounds, powder
+  2 (a quarter of a sphere) or 3 (an octant of the sphere). :math:`n_{\text{grid}}` takes values from 1
+  (the smallest grid) till 32 (the largest grid, i.e. the densest). The default is to
+  consider integration over a half-sphere (since :math:`M(H)=-M(-H)`): :math:`n_{\text{sym}}=1` and :math:`n_{\text{grid}}=15`
+  (i.e. 185 points distributed over half-sphere). In case of symmetric compounds, powder
   magnetization may be averaged over a smaller part of the sphere, reducing thus the number
   of points for the integration. The user is responsible to choose the appropriate integration scheme.
   Note that the program's default is rather conservative.
 
-  .. container:: list
-
-    :math:`N_\theta` --- number of :math:`\theta` points in the interval :math:`(0, \pi/2)`. (Default 12)
-
-    :math:`N_\phi` --- number of :math:`\phi` points in the interval :math:`(0, 2\pi)`. (Default 24)
-
-  The number of directions over which the actual averaging will take place is roughly the product of :math:`N_\theta` and :math:`N_\phi`.
-
-  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="MAVE" KIND="INT" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SINGLE_ANISO" NAME="MAVE" KIND="INTS" SIZE="2" LEVEL="BASIC" DEFAULT_VALUES="1,15">
               %%Keyword: MAVE <basic>
               <HELP>
               This keyword specifies the grid density used for the computation of powder molar
               magnetization. The program uses Lebedev-Laikov distribution of points on the unit sphere.
               The program reads two integer numbers: NSYM and NGRID. The NSYM defines which
               part of the sphere is used for averaging. It takes one of the three values: 1 (half-sphere),
-              2 (a quater of a sphere) or 3 (an octant of the sphere). NGRID takes values from 1
-              (the smallest grid) till 32 (the largest grid, i.e. the densiest). The default is to
+              2 (a quarter of a sphere) or 3 (an octant of the sphere). NGRID takes values from 1
+              (the smallest grid) till 32 (the largest grid, i.e. the densest). The default is to
               consider integration over a half-sphere (since M(H)=-M(-H)): NSYM=1 and NGRID=15
-              (i.e 185 points distributed over half-sphere). In case of symmetric compounds, powder
+              (i.e. 185 points distributed over half-sphere). In case of symmetric compounds, powder
               magnetization may be averaged over a smaller part of the sphere, reducing thus the number
               of points for the integration. The user is responsible to choose the appropriate integration scheme.
               Note that the program's default is rather conservative.

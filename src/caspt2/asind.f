@@ -9,26 +9,26 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ASIND(IAS,ISYM,ICASE,IP,IQ,IR)
-      USE SUPERINDEX
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
+      USE SUPERINDEX, only: MAGEB, MAGTB
+      use caspt2_module, only: NAGEBES, NAGTBES, IEXTIS
+      use definitions, only: iwp
+      IMPLICIT None
+      integer(kind=iwp), intent(in) :: IAS, ISYM, ICASE
+      integer(kind=iwp), intent(out) :: IP, IQ, IR
+      integer(kind=iwp) :: IABABS,  IAABS, IBABS
 
-      GOTO (12,13) ICASE
+      IF (ICASE==2) THEN
+         IABABS=IAS+NAGTBES(ISYM)
+         IAABS=MAGTB(1,IABABS)
+         IBABS=MAGTB(2,IABABS)
+      ELSE
+         IABABS=IAS+NAGEBES(ISYM)
+         IAABS=MAGEB(1,IABABS)
+         IBABS=MAGEB(2,IABABS)
+      END IF
 
-  12  CONTINUE
-      IABABS=IAS+NAGEBES(ISYM)
-      IAABS=MAGEB(1,IABABS)
-      IBABS=MAGEB(2,IABABS)
-      GOTO 1213
-  13  CONTINUE
-      IABABS=IAS+NAGTBES(ISYM)
-      IAABS=MAGTB(1,IABABS)
-      IBABS=MAGTB(2,IABABS)
- 1213 CONTINUE
       IP=IEXTIS(IAABS)
       IQ=IEXTIS(IBABS)
       IR=0
-      RETURN
 
-      END
+      END SUBROUTINE ASIND

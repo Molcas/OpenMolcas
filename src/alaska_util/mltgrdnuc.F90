@@ -14,6 +14,7 @@ subroutine MltGrdNuc(Grad,nGrad,nOrdOp)
 use Basis_Info, only: dbsc, nCnttp
 use finfld, only: force
 use Index_Functions, only: C_Ind
+use Disp, only: Dirct, IndDsp
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -23,8 +24,6 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 integer(kind=iwp) :: iCar, icomp, iIrrep, ixop, iyop, izop, kCnt, kCnttp, kdc, ndc, nDisp
 real(kind=wp) :: C(3), Fact, ff, XGrad
 logical(kind=iwp), external :: TF
-#include "Molcas.fh"
-#include "disp.fh"
 
 iIrrep = 0
 do ixop=0,nOrdOp
@@ -46,7 +45,7 @@ do ixop=0,nOrdOp
           iComp = 2**iCar
           if (TF(ndc,iIrrep,iComp) .and. (.not. dbsc(kCnttp)%pChrg)) then
             nDisp = nDisp+1
-            if (Direct(nDisp)) then
+            if (Dirct(nDisp)) then
               XGrad = Zero
               if (iCar == 0) then
                 if (ixop > 0) XGrad = Fact*real(ixop,kind=wp)*C(1)**(ixop-1)*C(2)**iyop*C(3)**izop

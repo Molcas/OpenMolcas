@@ -16,15 +16,21 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MLTSCA(IMLTOP,LST1,LST2,X,F,Y)
+      SUBROUTINE MLTSCA(IMLTOP,LST1,NLST1,LST2,NLST2,X,nX,F,nF,Y,nY)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(*),F(*),Y(*)
-      DIMENSION LST1(4,NLST1), LST2(4,NLST2)
-#include "sigma.fh"
+      use Sigma_data, only: INCF1, INCF2, INCX1, INCX2,
+     &                      INCY1, INCY2, NFSCA, VAL1, VAL2
+      use definitions, only: iwp, wp
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IMLTOP,NLST1,NLST2,nX,nF,nY
+      real(kind=wp), intent(inout):: X(nX),F(nF),Y(nY)
+      integer(kind=iwp), intent(in)::  LST1(4,NLST1), LST2(4,NLST2)
 
+      integer(kind=iwp) IF, ILST1, ILST1_IOFF, ILST1_SKIP, ILST2,
+     &                  IX, IY, L11, L12, L13, L14, L21, L22, L23, L24
+      real(kind=wp) V1, V2
 C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L11,L12,L13,L14 for short, for a given
 C item, and with V1=VAL1(L14), and similar for the other list,
@@ -40,12 +46,11 @@ CSVC: determine outer loop properties
         ILST1_IOFF=MYRANK+1
         ILST1_SKIP=NPROCS
       ELSE
+#endif
         ILST1_IOFF=1
         ILST1_SKIP=1
+#ifdef _MOLCAS_MPP_
       ENDIF
-#else
-      ILST1_IOFF=1
-      ILST1_SKIP=1
 #endif
 
       IF(IMLTOP.EQ.0) THEN
@@ -108,81 +113,23 @@ CSVC: determine outer loop properties
       END IF
 
       NFSCA=NFSCA+4*NLST1*NLST2
-      RETURN
-      END
-      SUBROUTINE PMLTSCA(KOD,IMLTOP,LST1,LST2,
-     &                   X,NXI,NXA,F,NFI,NFA,
-     &                   lg_Y,NAS2,NIS2)
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
-      DIMENSION X(NXI,NXA),F(NFI,NFA)
-      DIMENSION LST1(4,NLST1), LST2(4,NLST2)
-#include "sigma.fh"
+      END SUBROUTINE MLTSCA
 
-#ifdef _MOLCAS_MPP_
-C SVC: Determine the index ranges of the local chunks of lg_Y.
-C The boundaries and leading dimension are stored in a common block for
-C access inside the lower-level routines.
-C For now, only case H is handled as a distributed array, which is
-C always the Y array.
-      IF (Is_Real_Par()) THEN
-        CALL GA_Sync()
-        myRank = GA_NodeID()
-*     CALL GA_Distribution (lg_X,myRank,iXLo,iXHi,jXLo,jXHi)
-*     IF (iXLo.NE.0.AND.jXLo.NE.0) THEN
-*       CALL GA_Access (lg_X,iXLo,iXHi,jXLo,jXHi,mX,LDX)
-*     END IF
-        CALL GA_Distribution (lg_Y,myRank,iYLo,iYHi,jYLo,jYHi)
-        IF (iYLo.NE.0.AND.jYLo.NE.0) THEN
-          CALL GA_Access (lg_Y,iYLo,iYHi,jYLo,jYHi,mY,LDY)
-          IF (KOD.EQ.23 .OR. KOD.EQ.24) THEN
-            CALL MLTSCA_DH(IMLTOP,LST1,LST2,
-     &                   X,NXI,NXA,F,NFI,NFA,
-     &                   DBL_MB(mY),NAS2,jYLo,jYHi)
-          ELSE
-            WRITE(6,*) 'PMLTSCA: not supposed to be here'
-            CALL AbEnd()
-          END IF
-          CALL GA_Release_Update (lg_Y,iYLo,iYHi,jYLo,jYHi)
-        END IF
-        CALL GA_Sync()
-      ELSE
-        IF (KOD.EQ.23 .OR. KOD.EQ.24) THEN
-          CALL MLTSCA_DH(IMLTOP,LST1,LST2,
-     &                   X,NXI,NXA,F,NFI,NFA,
-     &                   WORK(lg_Y),NAS2,1,NIS2)
-        ELSE
-          WRITE(6,*) 'PMLTSCA: not supposed to be here'
-          CALL AbEnd()
-        END IF
-      END IF
-#else
-      IF (KOD.EQ.23 .OR. KOD.EQ.24) THEN
-        CALL MLTSCA_DH(IMLTOP,LST1,LST2,
-     &                 X,NXI,NXA,F,NFI,NFA,
-     &                 WORK(lg_Y),NAS2,1,NIS2)
-      ELSE
-        WRITE(6,*) 'PMLTSCA: not supposed to be here'
-        CALL AbEnd()
-      END IF
-#endif
-      RETURN
-      END
       SUBROUTINE MLTSCA_DH(IMLTOP,LST1,LST2,
      &                     X,NXI,NXA,F,NFI,NFA,
      &                     Y,NAS2,jYLo,jYHi)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(NXI,NXA),F(NFI,NFA),Y(NAS2,jYHi-jYLo+1)
-      DIMENSION LST1(4,NLST1), LST2(4,NLST2)
-#include "sigma.fh"
+      use definitions, only: iwp, wp
+      use Sigma_data, only: NLST1, NLST2, VAL1, VAL2
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IMLTOP,NXI,NXA,NFI,NFA,NAS2,jYLo,
+     &                                jYHi
+      real(kind=wp), intent(inout):: X(NXI,NXA),F(NFI,NFA),
+     &                               Y(NAS2,jYHi-jYLo+1)
+      integer(kind=iwp), intent(in)::  LST1(4,NLST1), LST2(4,NLST2)
 
+      integer(kind=iwp) ILST1, ILST2, JY, L11, L12, L13, L14, L21, L23,
+     &                  L24, L22
+      real(kind=wp) V1, V2
 C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L11,L12,L13,L14 for short, for a given
 C item, and with V1=VAL1(L14), and similar for the other list,
@@ -252,5 +199,64 @@ C     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
       END IF
 
 *     NFSCA=NFSCA+4*NLST1*NLST2
-      RETURN
-      END
+      END SUBROUTINE MLTSCA_DH
+
+      SUBROUTINE PMLTSCA(KOD,IMLTOP,LST1,LST2,
+     &                   X,NXI,NXA,F,NFI,NFA,
+     &                   lg_Y,NAS2,NIS2)
+      use definitions, only: iwp, wp, u6
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
+      use Sigma_data, only: NLST1, NLST2
+      use fake_GA, only: GA_Arrays
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: KOD,IMLTOP,NXI,NXA,NFI,NFA,lg_Y,
+     &                                NAS2,NIS2
+      real(kind=wp), intent(inout):: X(NXI,NXA),F(NFI,NFA)
+      integer(kind=iwp), intent(in):: LST1(4,NLST1), LST2(4,NLST2)
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+      integer(kind=iwp)myRank,iYLo,iYHi,jYLo,jYHi,mY,LDY
+
+C SVC: Determine the index ranges of the local chunks of lg_Y.
+C The boundaries and leading dimension are stored in a common block for
+C access inside the lower-level routines.
+C For now, only case H is handled as a distributed array, which is
+C always the Y array.
+      IF (Is_Real_Par()) THEN
+        CALL GA_Sync()
+        myRank = GA_NodeID()
+*     CALL GA_Distribution (lg_X,myRank,iXLo,iXHi,jXLo,jXHi)
+*     IF (iXLo.NE.0.AND.jXLo.NE.0) THEN
+*       CALL GA_Access (lg_X,iXLo,iXHi,jXLo,jXHi,mX,LDX)
+*     END IF
+        CALL GA_Distribution (lg_Y,myRank,iYLo,iYHi,jYLo,jYHi)
+        IF (iYLo/=0.AND.jYLo/=0) THEN
+          CALL GA_Access (lg_Y,iYLo,iYHi,jYLo,jYHi,mY,LDY)
+          IF (KOD.EQ.23 .OR. KOD.EQ.24) THEN
+            CALL MLTSCA_DH(IMLTOP,LST1,LST2,
+     &                   X,NXI,NXA,F,NFI,NFA,
+     &                   DBL_MB(mY),NAS2,jYLo,jYHi)
+          ELSE
+            WRITE(u6,*) 'PMLTSCA: not supposed to be here'
+            CALL AbEnd()
+          END IF
+          CALL GA_Release_Update (lg_Y,iYLo,iYHi,jYLo,jYHi)
+        END IF
+        CALL GA_Sync()
+      ELSE
+#endif
+        IF (KOD==23 .OR. KOD==24) THEN
+          CALL MLTSCA_DH(IMLTOP,LST1,LST2,
+     &                   X,NXI,NXA,F,NFI,NFA,
+     &                   GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
+        ELSE
+          WRITE(u6,*) 'PMLTSCA: not supposed to be here'
+          CALL AbEnd()
+        END IF
+#ifdef _MOLCAS_MPP_
+      END IF
+#endif
+      END SUBROUTINE PMLTSCA

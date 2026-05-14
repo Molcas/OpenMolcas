@@ -569,14 +569,14 @@ if (isAtom) then
   nDrv = 0
   call MOEval(MO,nMOs,mCoor,Coor,CMO,nCMO,DoIt,nDrv,1)
   call outmo(0,2,MO,Occ,DOut,nCoor,nMOs)
-  write(u6,'(60a1)') ('*',i=1,60)
+  write(u6,'(a)') repeat('*',60)
   if (ifpartial) then
     write(u6,'(a5,3a10,a20)') 'Atom','x','y','z','Density (partial)'
   else
     write(u6,'(a5,3a10,a20)') 'Atom','x','y','z','Density'
   end if
   do i=1,nAtoms
-    write(u6,'(a5,3f10.3,e20.10)') AtomLbl(i),Coor(:,i),DOut(i)
+    write(u6,'(a5,3f10.3,es20.10)') AtomLbl(i),Coor(:,i),DOut(i)
   end do
   call Add_Info('GRIDIT_ATOM',DOut(1:nAtoms),nAtoms,6)
 

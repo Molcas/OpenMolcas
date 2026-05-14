@@ -29,16 +29,18 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 
-use Basis_Info, only: dbsc, nCnttp, Shells
+use Basis_Info, only: dbsc, Extend_Shells, nCnttp, Shells
 use DKH_Info, only: iRELMP
+use define_af, only: AngTp, iTabMx
+use Molcas, only: MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-#include "Molcas.fh"
 character(len=*), intent(in) :: DDname, ExtBasDir
 character(len=80), intent(inout) :: BSLbl
 integer(kind=iwp), intent(inout) :: iShll, iSTDINP
@@ -47,10 +49,9 @@ logical(kind=iwp), intent(in) :: UnNorm, L_STDINP, Expert
 integer(kind=iwp), intent(in) :: LuRd
 integer(kind=iwp), intent(out) :: BasisTypes(4)
 character(len=180), intent(in) :: STDINP(MxAtom*2)
-#include "angtp.fh"
-integer(kind=iwp) :: i, iAdded, iAIMP, iAng, iDominantSet, iEnd, iErr, iFlgOne, iFrst, iMPShll, iNow, iPrevNow, iPrim, iPrint, &
-                     iPrSh, iValSh, j, j1, j2, jNow, jPrSh, jValSh, lAng, lUnit, LUQRP, mCGTO(0:iTabMx), mDel, mSOC, mVal, nAdded, &
-                     nAIMP, nCGTO(0:iTabMx), nCntrc, nEorb, nPrim, nProj, Nwords
+integer(kind=iwp) :: i, iAIMP, iAng, iDominantSet, iEnd, iErr, iFlgOne, iFrst, iMPShll, iNow, iPrevNow, iPrim, iPrint, iPrSh, &
+                     iValSh, j, j1, j2, jNow, jPrSh, jValSh, lAng, lUnit, LUQRP, mCGTO(0:iTabMx), mDel, mSOC, mVal, nAdded, nAIMP, &
+                     nCGTO(0:iTabMx), nCntrc, nEorb, nPrim, nProj, Nwords
 real(kind=wp) :: Coeff, RatioThres
 character(len=263) :: Filename
 character(len=256) :: Basis_Lib, DirName
@@ -240,11 +241,7 @@ dbsc(nCnttp)%iVal = iShll+1
 do iAng=0,lAng
   if (IfTest) write(u6,*) 'iAng=',iAng
   iShll = iShll+1
-  if (iShll > MxShll) then
-    write(u6,*) 'GetBS: iShll > MxShll'
-    write(u6,*) 'iShll,MxShll=',iShll,MxShll
-    call Abend()
-  end if
+  if (iShll > size(Shells)) call Extend_Shells()
   if (IfTest) then
     write(u6,'(A,A)') 'Line=',Line
     write(u6,*) L_STDINP,inLn1
@@ -320,7 +317,7 @@ do iAng=0,lAng
       end do
     else
       do iPrim=1,nPrim
-        call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),iPrim,nCntrc*nPrim,nPrim,Ierr)
+        call Read_v(lUnit,Shells(iShll)%Cff_c,iPrim,nCntrc*nPrim,nPrim,Ierr)
         if (Ierr /= 0) then
           call WarningMessage(2,'GetBS: Error reading coeffs in GC format')
           call Quit_OnUserError()
@@ -353,20 +350,26 @@ do iAng=0,lAng
     call mma_allocate(Temp,nPrim,max(nCntrc,mCGTO(iAng)),Label='Temp')
     Temp(:,:) = Zero
     ! read the block in the library as it is
-    do iPrim=1,nPrim
-      call Read_v(lUnit,Temp,iPrim,nPrim*mCGTO(iAng),nPrim,Ierr)
-      if (Ierr /= 0) then
-        call WarningMessage(2,'GetBS: Error reading the block')
-        call Quit_OnUserError()
-      end if
-    end do
+    if (UnContracted) then
+      do i=1,nPrim
+        Temp(i,i) = One
+      end do
+    else
+      do iPrim=1,nPrim
+        call Read_v(lUnit,Temp,iPrim,nPrim*mCGTO(iAng),nPrim,Ierr)
+        if (Ierr /= 0) then
+          call WarningMessage(2,'GetBS: Error reading the block')
+          call Quit_OnUserError()
+        end if
+      end do
+    end if
 
     ! Order the exponents
 
     call OrdExp1(nPrim,Shells(iShll)%Exp,mCGTO(iAng),Temp)
 
     ! identify the presence of added polarization and diffusse functions;
-    iAdded = 0
+    nAdded = 0
     ! Examine all the contracted functions starting with the last
     Outer: do jNow=mCGTO(iAng),1,-1
       iFlgOne = 0
@@ -381,32 +384,43 @@ do iAng=0,lAng
           iFlgOne = 1
         end if
       end do
-      iAdded = iAdded+1
+      nAdded = nAdded+1
       if (IfTest) write(u6,*) 'function',jNow,' is an added one'
     end do Outer
 
-    nAdded = iAdded
-    if (nAdded == mCGTO(iAng)) nAdded = 0
-    if (IfTest) write(u6,*) ' nAdded=',nAdded
-    if (nAdded > 0) then
-      ! shift the added polarization and diffuse functions to the right
-      do jNow=1,nAdded
-        j1 = nCntrc-jNow+1
-        j2 = mCGTO(iAng)-jNow+1
-        do iNow=1,nPrim
-          Temp(iNow,j1) = Temp(iNow,j2)
+    if (nCntrc > mCGTO(iAng)) then
+      if (nAdded == mCGTO(iAng)) nAdded = 0
+      if (IfTest) write(u6,*) ' nAdded=',nAdded
+      if (nAdded > 0) then
+        ! shift the added polarization and diffuse functions to the right
+        do jNow=1,nAdded
+          j1 = nCntrc-jNow+1
+          j2 = mCGTO(iAng)-jNow+1
+          do iNow=1,nPrim
+            Temp(iNow,j1) = Temp(iNow,j2)
+          end do
         end do
+      end if
+      ! insert/append the outermost primitives (in GC format)
+      do jNow=mCGTO(iAng)+1-nAdded,nCntrc-nAdded
+        if (IfTest) write(u6,*) 'jNow=',jNow
+        Temp(:,jNow) = Zero
+        j = jNow-(mCGTO(iAng)-nAdded)
+        iPrevNow = nPrim-nAdded-(nCntrc-mCGTO(iAng))
+        iNow = iPrevNow+j
+        Temp(iNow,jNow) = One
       end do
+    else if (nCntrc < mCGTO(iAng)) then
+      ! remove the rightmost added functions
+      if (BasisTypes(1) /= 2) then
+        ! For a non-ANO basis, if there are any uncontracted functions
+        ! those are the only ones that can be removed
+        if ((nAdded > 0) .and. (mCGTO(iAng)-nCntrc > nAdded)) then
+          call WarningMessage(2,'Number of contracted too low: correct the basis set label!')
+          call Quit_OnUserError()
+        end if
+      end if
     end if
-    ! insert/append the outermost primitives (in GC format)
-    do jNow=mCGTO(iAng)+1-nAdded,nCntrc-nAdded
-      if (IfTest) write(u6,*) 'jNow=',jNow
-      Temp(:,jNow) = Zero
-      j = jNow-(mCGTO(iAng)-nAdded)
-      iPrevNow = nPrim-nAdded-(nCntrc-mCGTO(iAng))
-      iNow = iPrevNow+j
-      Temp(iNow,jNow) = One
-    end do
     Shells(iShll)%Cff_c(:,:,1) = Temp(:,1:nCntrc)
     call mma_deallocate(Temp)
   end if
@@ -415,7 +429,7 @@ do iAng=0,lAng
 
   ! Order the exponents
 
-  call OrdExp(nPrim,Shells(iShll)%Exp,nCntrc,Shells(iShll)%Cff_c(1,1,1))
+  call OrdExp(nPrim,Shells(iShll)%Exp,nCntrc,Shells(iShll)%Cff_c)
   if (nPrim*nCntrc /= 0) mVal = mVal+1
 
   ! Decontract if integrals required in the primitive basis
@@ -440,15 +454,15 @@ do iAng=0,lAng
     ! the radial overlap.
 
     if (.not. UnNorm) then
-      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_c(1,1,1),nCntrc,iAng)
-      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_p(1,1,1),nPrim,iAng)
+      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_c,nCntrc,iAng)
+      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_p,nPrim,iAng)
     end if
 
     if (iPrint >= 99) then
       nPrim = Shells(iShll)%nExp
       nCntrc = Shells(iShll)%nBasis_C
-      call RecPrt(' Coefficients (normalized)',' ',Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
-      call RecPrt(' Coefficients (unnormalized)',' ',Shells(iShll)%Cff_c(1,1,2),nPrim,nCntrc)
+      call RecPrt(' Coefficients (normalized)',' ',Shells(iShll)%Cff_c(:,:,1),nPrim,nCntrc)
+      call RecPrt(' Coefficients (unnormalized)',' ',Shells(iShll)%Cff_c(:,:,2),nPrim,nCntrc)
     end if
   end if
   if (nPrim == 0) cycle
@@ -607,11 +621,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         jValSh = iValSh
         do iAIMP=0,nAIMP
           iShll = iShll+1
-          if (iShll > MxShll) then
-            write(u6,*) 'GetBS: iShll > MxShll'
-            write(u6,*) 'iShll,MxShll=',iShll,MxShll
-            call Abend()
-          end if
+          if (iShll > size(Shells)) call Extend_Shells()
           jValSh = jValSh+1
           call mma_allocate(Shells(iShll)%Exp,Shells(jValSh)%nExp,Label='Exp')
           Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
@@ -632,11 +642,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         jPrSh = iPrSh
         do iAIMP=0,nAIMP
           iShll = iShll+1
-          if (iShll > MxShll) then
-            write(u6,*) 'GetBS: iShll > MxShll'
-            write(u6,*) 'iShll,MxShll=',iShll,MxShll
-            call Abend()
-          end if
+          if (iShll > size(Shells)) call Extend_Shells()
           jPrSh = jPrSh+1
           call mma_allocate(Shells(iShll)%Exp,Shells(jPrSh)%nExp,Label='Exp')
           Shells(iShll)%Exp(:) = Shells(jPrSh)%Exp(:)
@@ -658,11 +664,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%iSRO = iShll+1
         do iAIMP=0,nAIMP
           iShll = iShll+1
-          if (iShll > MxShll) then
-            write(u6,*) 'GetBS: iShll > MxShll'
-            write(u6,*) 'iShll,MxShll=',iShll,MxShll
-            call Abend()
-          end if
+          if (iShll > size(Shells)) call Extend_Shells()
           Line = Get_Ln(lUnit)
           call Get_i1(1,nPrim)
           call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
@@ -798,11 +800,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
         do iAIMP=0,nAIMP
           iShll = iShll+1
-          if (iShll > MxShll) then
-            write(u6,*) 'GetBS: iShll > MxShll'
-            write(u6,*) 'iShll,MxShll=',iShll,MxShll
-            call Abend()
-          end if
+          if (iShll > size(Shells)) call Extend_Shells()
 
           jValSh = jValSh+1
           nCntrc = Shells(jValSh)%nBasis
@@ -847,10 +845,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
           do iAng=0,mSOC
             if (IfTest) write(u6,'(A,I4)') ' iAng=',iAng
             iShll = iShll+1
-            if (iShll > MxShll) then
-              call WarningMessage(2,'Abend in GetBS: Increase MxShll')
-              call Quit_OnUserError()
-            end if
+            if (iShll > size(Shells)) call Extend_Shells()
             Line = Get_Ln(lUnit)
             call Get_I1(1,nPrim)
             call Get_I1(2,nCntrc)
@@ -892,7 +887,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
     end select
   end do
   if (btest(dbsc(nCnttp)%nOpt,1) .and. btest(dbsc(nCnttp)%nOpt,3)) then
-    call WarningMessage(2,' 1st order relativistic correction and no-pair approximation can not be used simultaneously!')
+    call WarningMessage(2,' 1st order relativistic correction and no-pair approximation cannot be used simultaneously!')
     call Quit_OnUserError()
   end if
   if (nAIMP >= 0) then

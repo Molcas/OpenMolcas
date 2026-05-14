@@ -12,7 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TERI1(Zeta,Eta,P,Q,nT,T,ZEInv,IsChi,ChiI2)
+subroutine TERI1( &
+#                define _CALLING_
+#                include "tval1_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: to entities for the two-electron integrals which are used in *
@@ -26,21 +29,15 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nT, IsChi
-real(kind=wp), intent(in) :: Zeta(nT), Eta(nT), P(nT,3), Q(nT,3), ChiI2
-real(kind=wp), intent(out) :: T(nT), ZEInv(nT)
+#include "tval1_interface.fh"
 integer(kind=iwp) :: iT
 real(kind=wp) :: PQ2, Rho, tmp
 
 #ifdef _DEBUGPRINT_
-iRout = 56
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt(' Zeta in TERI1',' ',Zeta,nT,1)
-  call RecPrt(' Eta in TERI1',' ',Eta,nT,1)
-  call RecPrt(' P in TERI1',' ',P,nT,3)
-  call RecPrt(' Q in TERI1',' ',Q,nT,3)
-end if
+call RecPrt(' Zeta in TERI1',' ',Zeta,nT,1)
+call RecPrt(' Eta in TERI1',' ',Eta,nT,1)
+call RecPrt(' P in TERI1',' ',P,nT,3)
+call RecPrt(' Q in TERI1',' ',Q,nT,3)
 #endif
 
 do iT=1,nT
@@ -52,9 +49,7 @@ do iT=1,nT
 end do
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
-  call RecPrt('Tvalue',' ',T,nT,1)
-end if
+call RecPrt('Tvalue',' ',T,nT,1)
 #endif
 
 return

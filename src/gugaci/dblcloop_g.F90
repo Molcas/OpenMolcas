@@ -91,7 +91,7 @@ do lri=norb_frz+1,norb_dz-1           !frz
     if (ni == 0) vl_0 = -vl_0
     if (ni == 0) vl_1 = -vl_1
     vl0_2 = One
-    vls0_2 = 1/(db+1)
+    vls0_2 = One/(db+1)
     vls10_2 = sqrt(db*(db+2))/(db+1)
     !if (ni == 1) vl0_2 = -vl0_2
     vls0 = -Half

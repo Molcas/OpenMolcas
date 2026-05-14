@@ -40,7 +40,7 @@ subroutine DaName_Main(Lu,String,mf,wa)
 !                                                                      *
 !***********************************************************************
 
-#if defined(_I8_) || defined(_OPENMP)
+#if defined (_I8_) || defined (_OPENMP)
 #define NO_SPLITTING
 #endif
 
@@ -59,7 +59,7 @@ implicit none
 integer(kind=iwp), intent(inout) :: Lu
 character(len=*), intent(in) :: String
 logical(kind=iwp), intent(in) :: mf, wa
-integer(kind=iwp) :: i, inUse, iRc, temp, tmp
+integer(kind=iwp) :: i, inUse, iRc, temp
 character(len=80) :: Text
 character(len=8) :: StdNam
 character(len=*), parameter :: TheName = 'DaName_Main'
@@ -83,8 +83,7 @@ if (Trace) then
   write(u6,*) ' name :',String,mf,wa
 end if
 
-tmp = Lu
-Lu = isfreeunit(tmp)
+Lu = isfreeunit(Lu)
 ! Check calling arguments
 if ((Lu <= 0) .or. (Lu > MxFile)) call SysFileMsg(TheName,'MSG: unit',Lu,String)
 
@@ -139,7 +138,7 @@ if (inUse == 0) then
     NProfFiles = NProfFiles+1
     LuNameProf(NProfFiles) = StdNam
   else
-    write(u6,*) 'IO error: NProfFiles+1.gt.MxFile'
+    write(u6,*) 'IO error: NProfFiles+1 > MxFile'
     write(u6,*) 'Increase MxFile in module Fast_IO'
     call Abend()
   end if

@@ -27,8 +27,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-#include "warnings.h"
-
 integer(kind=iwp) :: NSTATE, LUIPH, IAD, ITOC15(15), NCI, IDISK, I, LuInput, LuSpool, istatus
 logical(kind=iwp) :: Exists
 character(len=180) :: Line
@@ -36,6 +34,8 @@ character(len=128) :: FileName
 character(len=16) :: StdIn
 real(kind=wp), allocatable :: CIBigArray(:)
 integer(kind=iwp), external :: IsFreeUnit
+
+#include "warnings.h"
 
 call initial_surfacehop()
 call rdinp_surfacehop()

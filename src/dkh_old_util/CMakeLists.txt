@@ -13,9 +13,9 @@ set (sources
      at34r.F90
      auxc.F90
      bssint.F90
+     cp_prop_int.F90
      cplab.F90
      cplabr.F90
-     cp_prop_int.F90
      crelop.F90
      dcopiv.F90
      der.F90
@@ -39,16 +39,16 @@ set (sources
      rdname.F90
      relop.F90
      repmat.F90
+     scfcli.F90
      scfcli2.F90
      scfcli4.F90
-     scfcli.F90
      simplm.F90
      sog.F90
      sogr.F90
      theta.F90
      trsm_dkh.F90
-     trsmr2.F90
      trsmr.F90
+     trsmr2.F90
      trsmrn.F90
      trsmt.F90
      trsmtr.F90

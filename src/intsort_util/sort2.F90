@@ -50,12 +50,12 @@ subroutine SORT2()
 
 use TwoDat, only: lStRec, nBatch, RAMD
 use sort_data, only: IndBin, lSll, LuTwo, MxOrd, mxSyP, nBs, nSkip, nSln, nSyOp, Square, ValBin
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
+use PrintLevel, only: nPrint
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: ib, iBatch, iBin, ibj, iDisk, iErr, iOff, iOpt, iOrd, iPrint, iRout, iSkip, iSlice, iStk, iSyblj, iSyBlk, &
                      iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, &
                      lSrtA_, lStk, lStk_Max, lSyml, lSymMx, mxij, nij, nSlice, nStk, nSym
@@ -158,7 +158,7 @@ do iSymi=1,nSym
                 !------------------------------------------------------*
                 ! Sort the IO-stack in ascending order, i.e., prefer-  *
                 ! ence is always given to the lowest available disk    *
-                ! adresses.                                            *
+                ! addresses.                                           *
                 !------------------------------------------------------*
 
                 call ILASRT('D',nStk,IOStk,iErr)

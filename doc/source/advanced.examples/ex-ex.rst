@@ -565,17 +565,17 @@ the programs :program:`SEWARD`, :program:`SCF`, and :program:`RASSCF`
    X Y
   Basis set
   S.ANO-L...5s4p2d.
-  S1    0.000000  0.000000  0.000000  Bohr
+  S1    0.000000  0.000000  0.000000  bohr
   End of basis
   Basis set
   C.ANO-L...4s3p1d.
-  C1    0.000000  2.333062  2.246725  Bohr
-  C2    0.000000  1.344416  4.639431  Bohr
+  C1    0.000000  2.333062  2.246725  bohr
+  C2    0.000000  1.344416  4.639431  bohr
   End of basis
   Basis set
   H.ANO-L...2s1p.
-  H1    0.000000  4.288992  1.677364  Bohr
-  H2    0.000000  2.494694  6.327573  Bohr
+  H1    0.000000  4.288992  1.677364  bohr
+  H2    0.000000  2.494694  6.327573  bohr
   End of basis
   Basis set
   X....1s1p1d / Inline

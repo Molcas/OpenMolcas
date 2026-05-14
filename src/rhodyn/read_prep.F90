@@ -13,7 +13,7 @@
 
 subroutine read_prep()
 
-use rhodyn_data, only: CSF2SO, dipole, DM0, flag_pulse, flag_test, HTOT_CSF, Nstate, prep_id, U_CI
+use rhodyn_data, only: CSF2SO, dipole, DM0, flag_pulse, HTOT_CSF, Nstate, prep_id, U_CI
 use rhodyn_utils, only: dashes
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -64,7 +64,6 @@ if (mh5_exists_dset(prep_id,'CSF2SO_R') .and. mh5_exists_dset(prep_id,'CSF2SO_I'
 else
   write(u6,*) 'RDPREP does not contain CSF2SO matrix'
   write(u6,*) 'Propagation will be performed in the given basis!'
-  flag_test = .true.
   flag_pulse = .false.
 end if
 

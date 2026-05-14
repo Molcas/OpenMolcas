@@ -8,13 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2013,2015,2017, Ignacio Fdez. Galvan                   *
+! Copyright (C) 2013,2015,2017,2025, Ignacio Fdez. Galvan              *
 !***********************************************************************
 !===============================================================================
 ! Fortran 2003 program for converting Molcas "grid" files into
 !                                     Gaussian "cube" format
 !
-! Last modified: 2017 September 1
+! Last modified: 2025 January 14
 !            by: Ignacio Fdez. Galvan
 !===============================================================================
 
@@ -547,7 +547,7 @@ dz = Axis_3(:)/Net(3)
 DO i=1,Natom
   Lab = Label(i)(1:2)
   CALL To_Upper(Lab)
-  IF ((ICHAR(Lab(2:2)) < 97) .OR. (ICHAR(Lab(2:2)) > 122)) Lab(2:2)=' '
+  IF ((ICHAR(Lab(2:2)) < 65) .OR. (ICHAR(Lab(2:2)) > 90)) Lab(2:2)=' '
   DO j=LBOUND(Symbol,1),UBOUND(Symbol,1)
     IF (Lab == Symbol(j)) THEN
       Atom_Number(i) = j

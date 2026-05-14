@@ -45,7 +45,7 @@ else
   call Abend()
 end if
 
-rewind LU
+rewind(LU)
 do
   if (UNFORM) then
     ! unformatted files

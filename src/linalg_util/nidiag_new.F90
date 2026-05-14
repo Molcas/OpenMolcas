@@ -41,8 +41,8 @@ implicit none
 ! H    - Matrix to be diagonalized                                     *
 ! U    - Eigenvectors                                                  *
 !----------------------------------------------------------------------*
-integer(kind=iwp), intent(in) :: n, nv
 real(kind=wp), intent(inout) :: H(*)
+integer(kind=iwp), intent(in) :: n, nv
 real(kind=wp), intent(out) :: U(nv,n)
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
@@ -59,7 +59,7 @@ if (n == 0) return
 #ifdef _DEBUGPRINT_
 write(u6,*) 'New nidiag'
 #endif
-call FZero(U,nv*n)
+U(:,:) = Zero
 
 lh = n*(n+1)/2
 liwrk = 10*n
@@ -74,7 +74,7 @@ call mma_allocate(IWRK,liwrk,label='IWRK')
 call mma_allocate(RWRK,lrwrk,label='RWRK')
 call mma_allocate(HDUP,lh,label='HDUP')
 
-call dcopy_(lh,H,1,HDUP,1)
+HDUP(:) = H(1:lh)
 
 info = 0
 call dsptrd_('U',n,HDUP,DIA,OFF,TAU,info)
@@ -85,7 +85,7 @@ if (info /= 0) then
 # endif
 else
 
-# if defined(_ACML_) && defined(__PGI)
+# if defined (_ACML_) && defined (__PGI)
   call ILAENVSET(10,'X','X',0,0,0,0,1,INFO)
   call ILAENVSET(11,'X','X',0,0,0,0,1,INFO)
 # endif
@@ -107,7 +107,7 @@ else
 #     endif
     else
 
-      call dcopy_(lh,HDUP,1,H,1)
+      H(1:lh) = HDUP(:)
 
       do I=1,N
         H((I*(I+1))/2) = EVL(I)
@@ -133,7 +133,7 @@ if (info /= 0) then
 end if
 
 do i=1,n
-  Call VecPhase(U(1,i),nv)
+  call VecPhase(U(1,i),nv)
 end do
 !----------------------------------------------------------------------*
 !                                                                      *

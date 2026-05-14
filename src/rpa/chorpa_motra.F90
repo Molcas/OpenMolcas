@@ -34,7 +34,7 @@ use Definitions, only: wp, iwp
 implicit none
 logical(kind=iwp), intent(in) :: includeFrozen, includeDeleted
 integer(kind=iwp) :: nSpin, iSym, l_lCMO, lnFro, lnOcc, Zeros, lnVir, lnDel, iSpin
-character(len=6) BName(2)
+character(len=6) :: BName(2)
 integer(kind=iwp), allocatable :: loc(:,:)
 real(kind=wp), allocatable :: lCMO(:)
 integer(kind=iwp), external :: RPA_iUHF

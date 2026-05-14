@@ -24,38 +24,38 @@ subroutine DrvNQ(Kernel,FckInt,nFckDim,Funct,Density,nFckInt,nD,Do_Grad,Grad,nGr
 
 use Symmetry_Info, only: nIrrep
 use nq_Grid, only: Angular, Coor, F_xc, F_xca, F_xcb, Fact, GradRho, Grid, IndGrd, iTab, kAO, l_CASDFT, Lapl, List_G, Mem, &
-                   nGridMax, nR_Eff, nRho, Pax, R2_trial, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
-use nq_pdft, only: lft, lGGA
+                   nGridMax, nR_Eff, nRho, Rho, Sigma, Tau, Temp, vLapl, vRho, vSigma, vTau, Weights
+use nq_pdft, only: lft, lGGA, lmGGA1, lmGGA2
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
-use nq_Info, only: Functional_type, GGA_type, LDA_type, LMax_NQ, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
+use nq_Info, only: Functional_type, GGA_type, LDA_type, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
                    number_of_subblocks, Other_type
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
-                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old
+                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old, WriteGrid
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dsigma, dfunc_dTau, func
+use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
+use KSDFT_Info, only: KSDFA
 use Definitions, only: u6
 #endif
 
 implicit none
-external :: Kernel
+procedure(DFT_FUNCTIONAL) :: Kernel
 integer(kind=iwp), intent(in) :: nFckDim, nFckInt, nD, nGrad
 real(kind=wp), intent(inout) :: FckInt(nFckInt,nFckDim), Funct, Grad(nGrad)
 real(kind=wp), intent(in) :: Density(nFckInt,nD)
 logical(kind=iwp), intent(in) :: Do_Grad, Do_TwoEl, IsFT
 logical(kind=iwp), intent(inout) :: Do_MO
 character(len=4), intent(in) :: DFTFOCK
-#include "status.fh"
 integer(kind=iwp) :: i, iDum(1), iIrrep, ijIrrep, ijkIrrep, iOrb, iStack, jAsh, jIrrep, kAsh, kIrrep, kl_Orb_pairs, lAsh, mAO, &
                      mdRho_dr, mGrad, nBas(8), nCMO, nD1MO, nDel(8), nGradRho, nLapl, nNQ, nP2, nP2_ontop, nSigma, nTau, NQNAC, &
                      NQNACPAR, NQNACPR2, nShell, nTmpPUVX
 real(kind=wp) :: PThr
 logical(kind=iwp) :: PMode
 integer(kind=iwp), allocatable :: List_Bas(:,:), List_Exp(:), List_P(:), List_s(:,:), Maps2p(:,:)
-real(kind=wp), allocatable :: R_Min(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -71,12 +71,8 @@ if (Do_TwoEl) Do_MO = .true.
 call Set_Basis_Mode('Valence')
 call Nr_Shells(nShell)
 call mma_allocate(Maps2p,nShell,nIrrep,Label='Maps2p')
-call mma_allocate(R_Min,LMax_NQ+1,Label='R_Min')
 
-NQ_Status = Inactive
-call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,PThr,PMode,R_Min,LMax_NQ)
-
-call mma_deallocate(R_Min)
+call Setup_NQ(Maps2p,nShell,nIrrep,nNQ,Do_Grad,Do_MO,PThr,PMode)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -104,9 +100,11 @@ end if
 NQNACPAR = (NQNAC**2+NQNAC)/2
 NQNACPR2 = (NQNACPAR**2+NQNACPAR)/2
 
-LuGridFile = 31
-LuGridFile = IsFreeUnit(LuGridFile)
-call Molcas_Open(LuGridFile,'GRIDFILE')
+WriteGrid = .false.
+if (WriteGrid) then
+  LuGridFile = IsFreeUnit(31)
+  call Molcas_Open(LuGridFile,'GRIDFILE')
+end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'l_casdft value at drvnq:',l_casdft
@@ -225,6 +223,8 @@ select case (Functional_type)
     ! need rho(beta), gamma(beta,beta) and tau(beta).
 
     nP2_ontop = 4
+    lGGA = .true.
+    lmGGA1 = .true.
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -257,6 +257,9 @@ select case (Functional_type)
     ! tau(beta) and laplacian(beta).
 
     nP2_ontop = 4
+    lGGA = .true.
+    lmGGA1 = .true.
+    lmGGA2 = .true.
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -314,7 +317,6 @@ call mma_allocate(List_S,2,nIrrep*nShell,Label='List_S')
 call mma_allocate(List_Exp,nIrrep*nShell,Label='List_Exp')
 call mma_allocate(List_Bas,2,nIrrep*nShell,Label='List_Bas')
 call mma_allocate(List_P,nNQ,Label='List_P')
-call mma_allocate(R2_trial,nNQ,Label='R2_trial')
 
 if (Do_MO) then
   if (NQNAC /= 0) then
@@ -400,22 +402,20 @@ call DrvNQ_Inner(Kernel,Funct,Maps2p,nIrrep,List_S,List_Exp,List_bas,nShell,List
 !                                                                      *
 ! Deallocate the memory
 
-call mma_deallocate(Pax)
 if (Do_Grad) then
   call mma_deallocate(Temp)
   call mma_deallocate(iTab)
   call mma_deallocate(IndGrd)
   call mma_deallocate(List_G)
 end if
-call mma_deallocate(R2_trial)
 call mma_deallocate(List_P)
 call mma_deallocate(List_Bas)
 call mma_deallocate(List_Exp)
 call mma_deallocate(List_S)
 ! Do_TwoEl
-if (allocated(D1MO)) call mma_deallocate(D1MO)
-if (allocated(P2MO)) call mma_deallocate(P2MO)
-if (allocated(CMO)) call mma_deallocate(CMO)
+call mma_deallocate(D1MO,safe='*')
+call mma_deallocate(P2MO,safe='*')
+call mma_deallocate(CMO,safe='*')
 if (l_casdft) then
   call mma_deallocate(F_xcb)
   call mma_deallocate(F_xca)
@@ -433,7 +433,7 @@ if (allocated(Tau)) then
   call mma_deallocate(vTau)
   call mma_deallocate(Tau)
 end if
-if (allocated(GradRho)) call mma_deallocate(GradRho)
+call mma_deallocate(GradRho,safe='*')
 if (allocated(Sigma)) then
   call mma_deallocate(dfunc_dSigma)
   call mma_deallocate(vSigma)
@@ -450,7 +450,7 @@ call mma_deallocate(Grid)
 write(u6,*) 'l_casdft value at drvnq:',l_casdft
 if (l_casdft) write(u6,*) 'MCPDFT with functional:',KSDFA
 #endif
-if (allocated(P2_ontop)) call mma_deallocate(P2_ontop)
+call mma_deallocate(P2_ontop,safe='*')
 
 call mma_deallocate(nR_Eff)
 call mma_deallocate(Coor)
@@ -460,7 +460,6 @@ call mma_deallocate(Mem)
 call mma_deallocate(Angular)
 call mma_deallocate(Fact)
 call mma_deallocate(Maps2p)
-NQ_Status = Inactive
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -489,8 +488,7 @@ call mma_deallocate(GridInfo)
 !                                                                      *
 call IniPkR8(PThr,PMode)
 
-call xFlush(LuGridFile)
-close(LuGridFile)
+if (WriteGrid) close(LuGridFile)
 
 return
 

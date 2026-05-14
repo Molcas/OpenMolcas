@@ -9,28 +9,42 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RHSALL2(IVEC)
-      USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb,verbose
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Symmetry_Info, only: Mul
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH
+      use caspt2_global, only:iPrGlb, FIMO, PIQK, Buff, idxb
+      use PrintLevel, only: VERBOSE
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: NSYM, NISH, NASH, NSSH, NASHT, NBTCHES,
+     &                         NBTCH, NAES
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: NASUP, NISUP
+#endif
+      IMPLICIT None
 * ----------------------------------------------------------------
 * Code for processing all the cholesky vectors
 * in construction of caspt2 right-hand-side array
 * Also form the active two-electron integrals 'TUVX'.
 * ================================================================
-#include "rasdim.fh"
 #include "warnings.h"
-#include "caspt2.fh"
-#include "eqsolv.fh"
-#include "chocaspt2.fh"
-#include "WrkSpc.fh"
+      integer(kind=iwp), intent(in):: IVEC
 *
-      Integer Active, Inactive, Virtual
-      Parameter (Inactive=1, Active=2, Virtual=3)
-      Integer nSh(8,3)
+      integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
+      integer(kind=iwp) nSh(8,3)
+      integer(kind=iwp), SAVE :: NUMERR=0
+      real(kind=wp), allocatable:: TUVX(:), BRA(:), KET(:)
+
+      integer(kind=iwp),allocatable:: BGRP(:,:)
+      integer(kind=iwp) IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK,
+     &                  iOffp, iOffQ, ISYI, ISYK, ISYP, ISYQ, JSYM,
+     &                  LBRASM, LKETSM, MXBGRP, MXPIQK, NADDBUF, NBGRP,
+     &                  nBra, NBRASM, NCHOBUF, NG1, NG2, NI, NK, nKet,
+     &                  NKETSM, NP, NPI, NQ, NQK, NTUVX, NV
 #ifdef _DEBUGPRINT_
-      INTEGER NUMERR
-      SAVE NUMERR
-      DATA NUMERR / 0 /
+      real(kind=wp) DNRM2
+      real(kind=wp), external:: RHS_DDot
+      integer(kind=iwp) ISYM, lg_W, NAS, NIS, ICASE
 #endif
 *                                                                      *
 ************************************************************************
@@ -71,8 +85,8 @@
       NG1=NASHT**2
       NG2=NG1**2
       NTUVX=NG2
-      CALL GETMEM('TUVX','ALLO','REAL',LTUVX,NTUVX)
-      CALL DCOPY_(NTUVX,[0.0D0],0,WORK(LTUVX),1)
+      CALL mma_allocate(TUVX,NTUVX,Label='TUVX')
+      TUVX(:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -83,29 +97,30 @@
 *
        MXBGRP=IB2-IB1+1
        IF (MXBGRP.LE.0) CYCLE
-       CALL GETMEM('BGRP','ALLO','INTE',LBGRP,2*MXBGRP)
+       CALL mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
        IBGRP=1
        DO IB=IB1,IB2
-        IWORK(LBGRP  +2*(IBGRP-1))=IB
-        IWORK(LBGRP+1+2*(IBGRP-1))=IB
+        BGRP(1,IBGRP)=IB
+        BGRP(2,IBGRP)=IB
         IBGRP=IBGRP+1
        END DO
        NBGRP=MXBGRP
 
-       CALL MEMORY_ESTIMATE(JSYM,IWORK(LBGRP),NBGRP,
-     &                      NCHOBUF,MXPIQK,NADDBUF)
+       CALL MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,NCHOBUF,MXPIQK,NADDBUF)
        IF (IPRGLB.GT.VERBOSE) THEN
          WRITE(6,*)
          WRITE(6,'(A,I12)') '  Number of Cholesky batches: ',IB2-IB1+1
          WRITE(6,'(A,I12)') '  Number of batch groups:     ',NBGRP
          WRITE(6,*)
        END IF
+
 * buffers are kept allocated until the end of JSYM loop.
-       CALL GetMem('PIQK','ALLO','REAL',LPIQK,MXPIQK)
-       CALL GetMem('BUFF','ALLO','REAL',LBUFF,NADDBUF)
-       CALL GetMem('IDXB','ALLO','INTE',LIDXB,NADDBUF)
-       CALL GETMEM('BRABUF','ALLO','REAL',LBRA,NCHOBUF)
-       CALL GETMEM('KETBUF','ALLO','REAL',LKET,NCHOBUF)
+       CALL mma_allocate(PIQK,MXPIQK,Label='PIQK')
+       CALL mma_allocate(BUFF,NADDBUF,Label='BUFF')
+       CALL mma_allocate(IDXB,NADDBUF,Label='IDXB')
+
+       CALL mma_allocate(BRA,NCHOBUF,Label='BRA')
+       CALL mma_allocate(KET,NCHOBUF,Label='KET')
 *
 *      Loop over groups of batches of Cholesky vectors
 *
@@ -113,8 +128,8 @@
 *
 *      DO IBSTA=IB1,IB2,IBSTEP
        DO IBGRP=1,NBGRP
-        IBSTA=IWORK(LBGRP  +2*(IBGRP-1))
-        IBEND=IWORK(LBGRP+1+2*(IBGRP-1))
+        IBSTA=BGRP(1,IBGRP)
+        IBEND=BGRP(2,IBGRP)
 
         NV=0
         DO IB=IBSTA,IBEND
@@ -131,35 +146,35 @@
 *      Read kets (Cholesky vectors) in the form L(VX), all symmetries:
 *
        Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                           Work(LKET),nKet,
+     &                           KET,SIZE(KET),nKet,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*      Assemble constributions to TUVX integrals
+*      Assemble contributions to TUVX integrals
 *      Reuse the ket vectors as L(TU) bra vectors
 *
-       LBRASM=LKET
+       LBRASM=1
        DO ISYI=1,NSYM
         NI=NASH(ISYI)
         iOffi=NAES(iSYI)
-        IF(NI.EQ.0) GOTO 115
-        ISYP=MUL(ISYI,JSYM)
+        IF(NI.EQ.0) Cycle
+        ISYP=Mul(ISYI,JSYM)
         NP=NASH(ISYP)
         iOffp=NAES(iSYP)
-        IF(NP.EQ.0) GOTO 115
+        IF(NP.EQ.0) Cycle
         NPI=NP*NI
         NBRASM=NPI*NV
-        LKETSM=LKET
+        LKETSM=1
 
         DO ISYK=1,NSYM
          NK=NASH(ISYK)
          iOffK=NAES(iSYK)
-         IF(NK.EQ.0) GOTO 112
-         ISYQ=MUL(ISYK,JSYM)
+         IF(NK.EQ.0) Cycle
+         ISYQ=Mul(ISYK,JSYM)
          NQ=NASH(ISYQ)
          iOffQ=NAES(iSYQ)
-         IF(NQ.EQ.0) GOTO 112
+         IF(NQ.EQ.0) Cycle
          NQK=NQ*NK
          NKETSM=NQK*NV
 *
@@ -167,20 +182,15 @@
            WRITE(6,*) 'NPIQK larger than mxPIQK in TUVX, bug?'
            Call AbEnd()
          END IF
-*        CALL GETMEM('PIQK','ALLO','REAL',LPIQK,NPI*NQK)
-         CALL DGEMM_('N','T',NPI,NQK,NV,1.0D0,WORK(LBRASM),NPI,
-     &        WORK(LKETSM),NQK,0.0D0,WORK(LPIQK),NPI)
+         CALL DGEMM_('N','T',NPI,NQK,NV,One,KET(LBRASM),NPI,
+     &        KET(LKETSM),NQK,Zero,PIQK,NPI)
 *
          Call ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,
-     &                WORK(LTUVX),nTUVX,Work(LPIQK),NPI*NQK,
-     &                NUMERR)
-*        CALL GETMEM('PIQK','FREE','REAL',LPIQK,NPI*NQK)
+     &                TUVX,nTUVX,PIQK,NPI*NQK,NUMERR)
 *
          LKETSM=LKETSM+NKETSM
- 112     CONTINUE
         END DO
         LBRASM=LBRASM+NBRASM
- 115    CONTINUE
        END DO
 *                                                                      *
 ************************************************************************
@@ -188,7 +198,7 @@
 *      Read bra (Cholesky vectors) in the form L(TJ): All symmetries
 *
        Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                           Work(LBRA),nBra,
+     &                           BRA,SIZE(BRA),nBra,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -198,11 +208,8 @@
 *
       Call Process_RHS_Block(Inactive,Active,Active,Active,
      &                       'A ',
-     &                       Work(LBRA),nBra,Work(LKET),nKet,
-     &                       Work(LPIQK),mxPIQK,
-     &                       Work(LBUFF),iWork(LidxB),nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       BRA,nBra,KET,nKet,
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -211,19 +218,16 @@
 *
       Call Process_RHS_Block(Inactive,Active,Inactive,Active,
      &                       'B ',
-     &                       Work(LBRA),nBra,Work(LBRA),nBra,
-     &                       Work(LPIQK),mxPIQK,
-     &                       Work(LBUFF),iWork(LidxB),nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       BRA,nBra,BRA,nBra,
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read bra (Cholesky vectors) in the form L(AJ), form <D1|0>
-* We still have L(VX) vectors in core, at WORK(LKETS).
+* We still have L(VX) vectors in core, at KET.
 *
        Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                           Work(LBRA),nBra,
+     &                           BRA,SIZE(BRA),nBra,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -233,11 +237,8 @@
 *
       Call Process_RHS_Block(Inactive,Virtual,Active,Active,
      &                       'D1',
-     &                       Work(LBRA),nBra,Work(LKET),nKet,
-     &                       Work(LPIQK),mxPIQK,
-     &                       Work(LBUFF),iWork(LidxB),nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       BRA,nBra,KET,nKet,
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -246,18 +247,15 @@
 *
       Call Process_RHS_Block(Inactive,Virtual,Inactive,Virtual,
      &                       'H ',
-     &                       Work(LBRA),nBra,Work(LBRA),nBra,
-     &                       Work(LPIQK),mxPIQK,
-     &                       Work(LBUFF),iWork(LidxB),nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       BRA,nBra,BRA,nBra,
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read Bra (Cholesky vectors)= L(AU)
 *
        Call Get_Cholesky_Vectors(Active,Virtual,JSYM,
-     &                           Work(LBRA),nBra,
+     &                           BRA,SIZE(BRA),nBra,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -267,11 +265,8 @@
 *
       Call Process_RHS_Block(Active,Virtual,Active,Active,
      &                       'C ',
-     &                       Work(LBRA),nBra,Work(LKET),nKet,
-     &                       Work(LPIQK),mxPIQK,
-     &                       Work(LBUFF),iWork(LidxB),nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       BRA,nBra,KET,nKet,
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -280,18 +275,15 @@
 *
       Call Process_RHS_Block(Active,Virtual,Active,Virtual,
      &                       'F ',
-     &                       Work(LBRA),nBra,Work(LBRA),nBra,
-     &                       Work(LPIQK),mxPIQK,
-     &                       Work(LBUFF),iWork(LidxB),nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       BRA,nBra,BRA,nBra,
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read kets (Cholesky vectors) in the form L(VL), all symmetries:
 *
        Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                           Work(LKET),nKet,
+     &                           KET,SIZE(KET),nKet,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -301,18 +293,15 @@
 *
       Call Process_RHS_Block(Active,Virtual,Inactive,Active,
      &                       'D2',
-     &                       Work(LBRA),nBra,Work(LKET),nKet,
-     &                       Work(LPIQK),mxPIQK,
-     &                       Work(LBUFF),iWork(LidxB),nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       BRA,nBra,KET,nKet,
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read kets (Cholesky vectors) in the form L(CL), all symmetries:
 *
        Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                           Work(LKET),nKet,
+     &                           KET,SIZE(KET),nKet,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -322,18 +311,15 @@
 *
       Call Process_RHS_Block(Active,Virtual,Inactive,Virtual,
      &                       'G ',
-     &                       Work(LBRA),nBra,Work(LKET),nKet,
-     &                       Work(LPIQK),mxPIQK,
-     &                       Work(LBUFF),iWork(LidxB),nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       BRA,nBra,KET,nKet,
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read bra vectors AJ
 *
        Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                           Work(LBRA),nBra,
+     &                           BRA,SIZE(BRA),nBra,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -341,7 +327,7 @@
 * Read kets in the form L(VL)
 *
        Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                           Work(LKET),nKet,
+     &                           KET,SIZE(KET),nKet,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -351,11 +337,8 @@
 *
       Call Process_RHS_Block(Inactive,Virtual,Inactive,Active,
      &                       'E ',
-     &                       Work(LBRA),nBra,Work(LKET),nKet,
-     &                       Work(LPIQK),mxPIQK,
-     &                       Work(LBUFF),iWork(LidxB),nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       BRA,nBra,KET,nKet,
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -364,13 +347,12 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*SVC  Call GetMem('ADDRHS','Free','Real',ipAdd,nAdd)
-      CALL GETMEM('BRABUF','FREE','REAL',LBRA,NCHOBUF)
-      CALL GETMEM('KETBUF','FREE','REAL',LKET,NCHOBUF)
-      CALL GetMem('PIQK','FREE','REAL',LPIQK,MXPIQK)
-      CALL GetMem('BUFF','FREE','REAL',LBUFF,NADDBUF)
-      CALL GetMem('IDXB','FREE','INTE',LIDXB,NADDBUF)
-      CALL GETMEM('BGRP','FREE','INTE',LBGRP,2*MXBGRP)
+      CALL mma_deallocate(BRA)
+      CALL mma_deallocate(KET)
+      CALL mma_deallocate(PIQK)
+      CALL mma_deallocate(BUFF)
+      CALL mma_deallocate(IDXB)
+      CALL mma_deallocate(BGRP)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -390,7 +372,7 @@ C      as DRAs with the name RHS_XX_XX_XX with XX a number representing
 C      the case, symmetry, and rhs vector respectively.
 
 * The RHS elements of Cases A, C, D1  need a correction:
-      CALL MODRHS(IVEC,WORK(LFIMO))
+      CALL MODRHS(IVEC,FIMO,SIZE(FIMO))
 
 #ifdef _DEBUGPRINT_
 * compute and print RHS fingerprints
@@ -411,26 +393,29 @@ C      the case, symmetry, and rhs vector respectively.
 #endif
 
 * Synchronized add tuvx partial arrays from all nodes into each node.
-      CALL CHO_GADGOP(WORK(LTUVX),NTUVX,'+')
+      CALL CHO_GADGOP(TUVX,NTUVX,'+')
 * Put TUVX on disk for possible later use:
-      CALL PT2_PUT(NTUVX,'TUVX',WORK(LTUVX))
-      CALL GETMEM('TUVX','FREE','REAL',LTUVX,NTUVX)
-
+      CALL PT2_PUT(NTUVX,'TUVX',TUVX)
+      CALL mma_deallocate(TUVX)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      END SUBROUTINE RHSALL2
 
-      RETURN
-      END
       Subroutine Get_Cholesky_Vectors(ITK,ITQ,JSYM,
-     &                                Array,nArray,
+     &                                Array,mArray, nArray,
      &                                IBSTA,IBEND)
-      USE CHOVEC_IO
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-      Real*8  Array(*)
+      use definitions, only: iwp, wp
+      USE CHOVEC_IO, only: NPQ_CHOTYPE, NVLOC_CHOBATCH, IDLOC_CHOGROUP
+      use caspt2_global, only: LUDRA
+      use caspt2_module, only: NSYM
+      IMPLICIT None
+      integer(kind=iwp), Intent(in):: ITK,ITQ,JSYM,IBSTA,IBEND
+      integer(kind=iwp), Intent(in):: mArray
+      integer(kind=iwp), Intent(Out):: nArray
+      real(kind=wp), intent(Out):: Array(mArray)
+
+      integer(kind=iwp) ICASE, LKETSM, ISYK, NQK, IB, NV, NKETSM, IDISK
 
       ! ugly hack to convert separate k/q orbital types into a specific
       ! case
@@ -455,46 +440,56 @@ C      the case, symmetry, and rhs vector respectively.
       END DO
       nArray=LKETSM-1
 *
-      Return
-      End
+      End Subroutine Get_Cholesky_Vectors
+
       Subroutine Process_RHS_Block(ITI,ITP,ITK,ITQ,
      &                             Case,
      &                             Cho_Bra,nBra,Cho_Ket,nKet,
-     &                             PIQK,mxPIQK,
-     &                             BUFF,idxBuff,nBUFF,
-     &                             nSh,JSYM,
-     &                             IVEC,NV)
-      use caspt2_output, only:iPrGlb,debug
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-      DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
-      DIMENSION BUFF(nBuff),idxBuff(nBuff),PIQK(mxPIQK)
-      Integer nSh(8,3)
-      Character Case*2
+     &                             nSh,JSYM,IVEC,NV)
+      use Symmetry_Info, only: Mul
+      use definitions, only: iwp, wp
+      use caspt2_global, only: iPrGlb, PIQK, BUFF, idxb
+      use PrintLevel, only: DEBUG
+      use caspt2_module, only: NSYM
+      use AddRHS, only: ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2,
+     &                  ADDRHSE, ADDRHSF, ADDRHSG, ADDRHSH
+
+      IMPLICIT None
+      integer(kind=iwp), Intent(in):: ITI,ITP,ITK,ITQ
+      Character(LEN=2), intent(in)::  Case
+      integer(kind=iwp), intent(in):: nBra, nKet
+      real(kind=wp), intent(in):: Cho_Bra(nBra), Cho_Ket(nKet)
+      integer(kind=iwp), intent(in):: nSh(8,3), JSYM, iVec, nV
+
+      integer(kind=iwp) ISYI, ISYK, ISYP, ISYQ, KPI, KQK, LBRASM,
+     &                  LKETSM, NBRASM, NI, NK, NKETSM, NP, NPI, NPIQK,
+     &                  NQ, NQK
+      integer(kind=iwp) mxPIQK, nBuff
+      mxPIQK=size(PIQK)
+      nBuff=size(BUFF)
 *
 *
       IF (iPrGlb.GE.DEBUG) THEN
         WRITE(6,*) 'Processing RHS block '//Case
       END IF
+
       LBRASM=1
       DO ISYI=1,NSYM
          NI=NSH(ISYI,ITI)
-         IF(NI.EQ.0) GOTO 125
-         ISYP=MUL(ISYI,JSYM)
+         IF(NI.EQ.0) Cycle
+         ISYP=Mul(ISYI,JSYM)
          NP=NSH(ISYP,ITP)
-         IF(NP.EQ.0) GOTO 125
+         IF(NP.EQ.0) Cycle
          NPI=NP*NI
          NBRASM=NPI*NV
 *
          LKETSM=1
          DO ISYK=1,NSYM
             NK=NSH(ISYK,ITK)
-            IF(NK.EQ.0) GOTO 122
-            ISYQ=MUL(ISYK,JSYM)
+            IF(NK.EQ.0) Cycle
+            ISYQ=Mul(ISYK,JSYM)
             NQ=NSH(ISYQ,ITQ)
-            IF(NQ.EQ.0) GOTO 122
+            IF(NQ.EQ.0) Cycle
             NQK=NQ*NK
             NKETSM=NQK*NV
 *
@@ -532,55 +527,55 @@ C-SVC: sanity check
             If (Case.eq.'A ') Then
                CALL ADDRHSA(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'B ') Then
                CALL ADDRHSB(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'D1') Then
                CALL ADDRHSD1(IVEC,JSYM,ISYI,ISYK,
      &                       NP,NI,NQ,NK,PIQK,
-     &                       nBuff,Buff,idxBuff,
+     &                       nBuff,Buff,idxb,
      &                       Cho_Bra(LBRASM),
      &                       Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'H ') Then
                CALL ADDRHSH(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,NPIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'C ') Then
                CALL ADDRHSC(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'F ') Then
                CALL ADDRHSF(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'D2') Then
                CALL ADDRHSD2(IVEC,JSYM,ISYI,ISYK,
      &                       NP,NI,NQ,NK,PIQK,
-     &                       nBuff,Buff,idxBuff,
+     &                       nBuff,Buff,idxb,
      &                       Cho_Bra(LBRASM),
      &                       Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'G ') Then
                CALL ADDRHSG(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,NPIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'E ') Then
                CALL ADDRHSE(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else
@@ -588,19 +583,34 @@ C-SVC: sanity check
             End If
 *
          LKETSM=LKETSM+NKETSM
- 122     CONTINUE
         END DO
         LBRASM=LBRASM+NBRASM
- 125    CONTINUE
       END DO
 *
-      Return
-      End
+      End Subroutine Process_RHS_Block
+
       Subroutine ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,
      &                   TUVX,nTUVX,PIQK,nPIQK,
      &                   NUMERR)
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 TUVX(nTUVX), PIQK(nPIQK)
+      use definitions, only: iwp, wp
+#ifndef _DEBUGPRINT_
+      use Constants, only: One
+#endif
+      Implicit None
+      integer(kind=iwp), intent(in):: NP,NI,NQ,NK,NASHT,iOffP,iOffI,
+     &                                iOffQ,iOffK
+      integer(kind=iwp), intent(in):: nTUVX, nPIQK
+      real(kind=wp), intent(in)::  PIQK(nPIQK)
+      real(kind=wp), intent(inout):: TUVX(nTUVX)
+      integer(kind=iwp), intent(inout):: NUMERR
+
+      integer(kind=iwp) iU, iUVX1, iUVX2, iV, iVX1, iVX2, iX, iX1, iX2
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+      unused_var(NUMERR)
+#else
+      integer(kind=iwp) iPIQK, iT, iTUVX
+#endif
 *
 * Add into correct positions in TUVX:
 *
@@ -613,18 +623,13 @@ C-SVC: sanity check
             DO iU=0,NI-1
                iUVX1=NASHT*(iU+iOffI+iVX1)
                iUVX2=NP   *(iU+      iVX2)
-#ifdef __INTEL_COMPILER
-*  This to avoid Intel over optimization
-               Call DaXpY_(nP,1.0D0,PIQK(1+      iUVX2),1,
-     &                             TUVX(1+iOffP+iUVX1),1)
-#else
-               DO iT=0,NP-1
+#ifdef _DEBUGPRINT_
+               DO iT=1,NP
                   iTUVX=iT+iOffP+iUVX1
                   iPIQK=iT      +iUVX2
-#ifdef _DEBUGPRINT_
 * Temporary test statements -- remove after debug!
-                  IF(ITUVX.LT.0 .or. ITUVX.gt.NTUVX) THEN
-                     ITUVX=NTUVX
+                  IF(ITUVX.LT.1 .or. ITUVX.gt.NTUVX+1) THEN
+                     ITUVX=NTUVX+1
                      NUMERR=NUMERR+1
                      IF (NUMERR.GT.100) THEN
                         WRITE(6,*)' THIS IS TOO MUCH -- STOP.'
@@ -632,42 +637,64 @@ C-SVC: sanity check
                      END IF
                   END IF
 * End of temporary test statements
-#else
-* Avoid unused argument warnings
-      IF (.FALSE.) Call Unused_integer(NUMERR)
-#endif
-                  TUVX(1+iTUVX)=TUVX(1+iTUVX)+PIQK(1+iPIQK)
+                  TUVX(iTUVX)=TUVX(iTUVX)+PIQK(iPIQK)
                END DO
+#else
+               Call DaXpY_(nP,One,PIQK(1+      iUVX2),1,
+     &                             TUVX(1+iOffP+iUVX1),1)
 #endif
             END DO
          END DO
       END DO
 *
-      Return
-      End
-      SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,
-     &                           NCHOBUF,NPIQK,NADDBUF)
-      USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb,verbose
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-      DIMENSION LBGRP(2,NBGRP)
-      Integer Active, Inactive, Virtual
-      Parameter (Inactive=1, Active=2, Virtual=3)
-      Integer nSh(8,3)
-      DIMENSION ITYPE(4,9)
-      DATA ITYPE /
-     &  Inactive,Active,Active,Active,
-     &  Inactive,Active,Inactive,Active,
-     &  Inactive,Virtual,Active,Active,
-     &  Inactive,Virtual,Inactive,Virtual,
-     &  Active,Virtual,Active,Active,
-     &  Active,Virtual,Active,Virtual,
-     &  Active,Virtual,Inactive,Active,
-     &  Active,Virtual,Inactive,Virtual,
-     &  Inactive,Virtual,Inactive,Active /
+      End Subroutine ADDTUVX
+
+      SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,NCHOBUF,NPIQK,NADDBUF)
+      use Symmetry_Info, only: Mul
+      use definitions, only: iwp
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH
+      use caspt2_global, only: iParRHS,iPrGlb,iStpGrd
+      use PrintLevel, only: VERBOSE
+      use stdalloc, only: mma_MaxDBLE
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
+      use caspt2_module, only: NSYM, NASHT, NISUP, NISH, NASH,
+     &                         NSSH, NTU, NTUV, NASH, NIGEJ, NIGTJ,
+     &                         NAGEB, NAGTB, NTGEU, NTGTU, NBTCHES,
+     &                         NBTCH
+
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: JSYM
+      integer(kind=iwp), intent(out):: NBGRP
+      integer(kind=iwp), intent(out):: LBGRP(2,*)
+      integer(kind=iwp), intent(out) :: NCHOBUF,NPIQK,NADDBUF
+
+      integer(kind=iwp) IB, IB1, IB2, IBGRP, ICASE, ISYI, ISYK, ISYP,
+     &                  ISYQ, MAXBUFF, MAXCHOL, MAXPIQK, MINBUFF,
+     &                  MINCHOL, MINGOOD, MINNICE, MINPIQK, MINSLOW,
+     &                  MXAVAIL, MXBATCH, MXCHOVEC, MXNPITOT, MXRHS,
+     &                  NCHOVEC, NCHUNK, NI, NK, NP, NPI, NQ, NQK, NV,
+     &                  NVECTOT
+      integer(kind=iwp), external:: iPARDIV
+      integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
+      integer(kind=iwp) nSh(8,3)
+      Logical(kind=iwp) :: call_from_grad
+      integer(kind=iwp) :: ITYPE(4,9)=reshape([
+     &                                Inactive,Active,Active,Active,
+     &                                Inactive,Active,Inactive,Active,
+     &                                Inactive,Virtual,Active,Active,
+     &                                Inactive,Virtual,Inactive,Virtual,
+     &                                Active,Virtual,Active,Active,
+     &                                Active,Virtual,Active,Virtual,
+     &                                Active,Virtual,Inactive,Active,
+     &                                Active,Virtual,Inactive,Virtual,
+     &                                Inactive,Virtual,Inactive,Active]
+     &                               ,[4,9])
+      integer(kind=iwp) ISYM
+
+      call_from_grad = .false.
+      if (iStpGrd == -1) call_from_grad = .true.
 
       Call ICopy(NSYM,NISH,1,nSh(1,Inactive),1)
       Call ICopy(NSYM,NASH,1,nSh(1,Active  ),1)
@@ -687,14 +714,14 @@ C case GP,GM
         MXRHS=Max(MXRHS,NASH(ISYM)*NISUP(ISYM,10)
      &                 +NASH(ISYM)*NISUP(ISYM,11))
 
-        ISYM=MUL(JSYM,ISYI)
+        ISYM=Mul(JSYM,ISYI)
 C case C
         MXRHS=Max(MXRHS,NTUV(ISYM)*NSSH(ISYM))
 C case EP,EM
         MXRHS=Max(MXRHS,NASH(ISYM)*NISUP(ISYM,6)
      &                 +NASH(ISYM)*NISUP(ISYM,7))
         DO ISYK=1,NSYM
-          ISYM=MUL(ISYI,ISYK)
+          ISYM=Mul(ISYI,ISYK)
 C case BP,BM
           MXRHS=Max(MXRHS,NTGEU(ISYM)*NIGEJ(ISYM))
           MXRHS=Max(MXRHS,NTGTU(ISYM)*NIGTJ(ISYM))
@@ -705,7 +732,7 @@ C case F
           MXRHS=Max(MXRHS,NTGEU(ISYM)*NAGEB(ISYM))
           MXRHS=Max(MXRHS,NTGTU(ISYM)*NAGTB(ISYM))
 
-          ISYM=MUL(ISYI,MUL(JSYM,ISYK))
+          ISYM=Mul(ISYI,Mul(JSYM,ISYK))
 C case D1,D2
           MXRHS=Max(MXRHS,2*NTU(ISYM)*NISUP(ISYM,5))
         End Do
@@ -716,7 +743,7 @@ CSVC: determine maximum pair index size per symmetry and in total.
 *     MXBFSZ=0
       MXNPITOT=0
       DO ISYI=1,NSYM
-        ISYP=MUL(ISYI,JSYM)
+        ISYP=Mul(ISYI,JSYM)
         NI=MAX(NISH(ISYI),NASH(ISYI))
         NP=MAX(NASH(ISYP),NSSH(ISYP))
         MXNPITOT=MXNPITOT+NP*NI
@@ -736,12 +763,12 @@ C     to start, reserve space for TUVX integrals (NASHT**4)
       DO ICASE=1,9
         DO ISYI=1,NSYM
           NI=NSH(ISYI,ITYPE(1,ICASE))
-          ISYP=MUL(ISYI,JSYM)
+          ISYP=Mul(ISYI,JSYM)
           NP=NSH(ISYP,ITYPE(2,ICASE))
           NPI=NP*NI
           DO ISYK=1,NSYM
             NK=NSH(ISYK,ITYPE(3,ICASE))
-            ISYQ=MUL(ISYK,JSYM)
+            ISYQ=Mul(ISYK,JSYM)
             NQ=NSH(ISYQ,ITYPE(4,ICASE))
             NQK=NQ*NK
             MAXPIQK=MAX(MAXPIQK,NPI*NQK)
@@ -758,6 +785,12 @@ C     to start, reserve space for TUVX integrals (NASHT**4)
       MAXBUFF=NINT(SQRT(DBLE(MAXPIQK)))
       MINBUFF=NINT(SQRT(DBLE(MINPIQK)))
 
+      ! In some cases, we do not use the buffer arrays
+      if (call_from_grad .or. iParRHS == 2) then
+        MAXBUFF = 1
+        MINBUFF = 1
+      end if
+
 CSVC: total number of cholesky vectors
       MXBATCH=0
       NVECTOT=0
@@ -772,11 +805,29 @@ CSVC: total number of cholesky vectors
       MINCHOL=MXNPITOT*MXBATCH
 
 CSVC: can we fit this all in memory?
-      CALL GetMem('MAXSIZE','MAX','Real',iDum,MXAVAIL)
+      CALL mma_MaxDBLE(MXAVAIL)
 
       MINNICE=MXRHS+MAXPIQK+2*MAXBUFF+2*MAXCHOL
       MINGOOD=MXRHS+MINPIQK+2*MINBUFF+2*MAXCHOL
       MINSLOW=MXRHS+MINPIQK+2*MINBUFF+2*MINCHOL
+
+      if (call_from_grad) then
+#ifdef _MOLCAS_MPP_
+        if (is_real_par()) then
+          !! One more vector is needed for buffer
+          MAXCHOL = MAXCHOL + MXNPITOT
+          MINNICE=2*MXRHS+MAXPIQK+2*MAXBUFF+4*MAXCHOL
+          MINGOOD=2*MXRHS+MINPIQK+2*MINBUFF+4*MAXCHOL
+          MINSLOW=2*MXRHS+MINPIQK+2*MINBUFF+4*MINCHOL
+        else
+#endif
+          MINNICE=  MXRHS+MAXPIQK+2*MAXBUFF+4*MAXCHOL
+          MINGOOD=  MXRHS+MINPIQK+2*MINBUFF+4*MAXCHOL
+          MINSLOW=  MXRHS+MINPIQK+2*MINBUFF+4*MINCHOL
+#ifdef _MOLCAS_MPP_
+        end if
+#endif
+      end if
 
       IF (IPRGLB.GT.VERBOSE) THEN
         WRITE(6,*)
@@ -817,11 +868,15 @@ C integrals, and check they are lager than minimum needed
         LBGRP(2,1)=IB2
         NADDBUF=MINBUFF
         NCHUNK=(MXAVAIL-MXRHS-2*NADDBUF-2*NCHOBUF)/MINPIQK
+        if (call_from_grad)
+     *    NCHUNK=(MXAVAIL-2*MXRHS-2*NADDBUF-4*NCHOBUF)/MINPIQK
         NPIQK=MINPIQK*NCHUNK
       ELSE IF (MXAVAIL.GE.MINSLOW) THEN
         NADDBUF=MINBUFF
         NPIQK=MINPIQK
         NCHOBUF=(MXAVAIL-MXRHS-NPIQK-2*NADDBUF)/2
+        if (call_from_grad)
+     *    NCHOBUF=(MXAVAIL-2*MXRHS-NPIQK-4*NADDBUF)/2
 C create batch groups that have at most MXCHOVEC cholesky vectors
         MXCHOVEC=MAX(NCHOBUF/MXNPITOT,1)
         NCHOVEC=0
@@ -873,4 +928,4 @@ CSVC: sanity check, should not happen.
         WRITE(6,*)
       END IF
 
-      END
+      END SUBROUTINE MEMORY_ESTIMATE

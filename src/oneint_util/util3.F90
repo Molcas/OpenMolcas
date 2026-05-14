@@ -11,6 +11,7 @@
 ! Copyright (C) 1991,2015, Roland Lindh                                *
 !               2015, Lasse Kragh Soerensen                            *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine Util3(Beta,nZeta,rFinal,la,lb,Slalbp,Slalb,Slalbm)
 !***********************************************************************
@@ -27,6 +28,9 @@ subroutine Util3(Beta,nZeta,rFinal,la,lb,Slalbp,Slalb,Slalbm)
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two, Four
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 ! Notice CmbnMP has just 6 components instead of 9!!! (automatically assumes symmetry) Well fuck you CmbnMP
 ! This means Slalbp and Slalbm in reality only have 6 components....
@@ -39,12 +43,10 @@ real(kind=wp), intent(in) :: Beta(nZeta), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1
                              Slalb(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),6)
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9)
 integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib, iElem, jElem
 character(len=80) :: Label
-#endif
 
-#ifdef _DEBUGPRINT_
 write(u6,*) ' In Util3 la,lb=',la,lb
 call RecPrt('Beta',' ',Beta,nZeta,1)
 do ia=1,nTri_Elem1(la)

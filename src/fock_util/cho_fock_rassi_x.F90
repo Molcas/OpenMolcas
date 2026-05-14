@@ -11,7 +11,7 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FSQ,TUVX)
+subroutine CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FSQ,TUVX,nTUVX)
 !*********************************************************************
 !  Author : F. Aquilante
 !
@@ -31,25 +31,20 @@ subroutine CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FSQ,TUVX)
 !
 !*********************************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Fock_util_global, only: Fake_CMO2
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use rassi_data, only: NASH, NISH
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
-type(DSBA_Type), intent(in) :: DLT, MO1(2), MO2(2)
+type(DSBA_Type), intent(in) :: DLT(1), MO1(2), MO2(2)
 type(DSBA_Type), intent(inout) :: FLT(1), FSQ
-real(kind=wp), intent(_OUT_) :: TUVX(*)
-#include "chotime.fh"
-#include "rassi.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(inout) :: TUVX(nTUVX)
 integer(kind=iwp) :: i, ia, iabt, ib, iBatch, iCase, iLoc, irc, iREDC, iSkip(8), iSwap, iSym, iSyma, iSymb, iSymk, iSymv, IVEC2, &
                      iVrs, jDen, JNUM, JRED, JRED1, JRED2, jSym, JVC, JVEC, k, kDen, kMOs, l, LREAD, LWORK, mDen, mTTvec, mTvec, &
                      MUSED, NAv, NAw, nBatch, nDen, NK, nMOs, nRS, NUMV, nVec, nVrs, rc
@@ -64,7 +59,7 @@ character(len=50) :: CFmt
 type(SBA_Type), target :: Laq(2)
 type(twxy_Type) :: Scr
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:)
-real(kind=wp), pointer :: VJ(:) => null()
+real(kind=wp), pointer :: VJ(:)
 real(kind=wp), parameter :: FactCI = One, FactXI = -One
 character(len=*), parameter :: SECNAM = 'CHO_FOCK_RASSI_X'
 logical(kind=iwp), parameter :: DoRead = .false.
@@ -169,7 +164,7 @@ do jSym=1,nSym
       ! Transform the density to reduced storage
       add = .false.
       mDen = 1
-      call swap_full2rs(irc,iLoc,nRS,mDen,JSYM,[DLT],Drs,add)
+      call swap_full2rs(irc,iLoc,nRS,mDen,JSYM,DLT,Drs,add)
     end if
 
     ! BATCH over the vectors ----------------------------
@@ -186,7 +181,7 @@ do jSym=1,nSym
 
       iSwap = 2 ! LpJ,b are returned
       do jDen=1,nDen
-        call Allocate_DT(Laq(jDen),nIsh,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(jDen),nIsh,nBas,JNUM,JSYM,nSym,iSwap)
       end do
 
       JVEC = nVec*(iBatch-1)+iVrs
@@ -231,7 +226,7 @@ do jSym=1,nSym
         tcoul(1) = tcoul(1)+(TCC2-TCC1)
         tcoul(2) = tcoul(2)+(TWC2-TWC1)
 
-        VJ => null()
+        nullify(VJ)
 
       end if ! Coulomb contribution
 
@@ -300,8 +295,8 @@ do jSym=1,nSym
       ! ************  END EXCHANGE CONTRIBUTION  ****************
 
       iSwap = 0  ! Lvb,J are returned
-      call Allocate_DT(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-      call Allocate_DT(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
 
       ! ----------------------------------------------------------------
       ! First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
@@ -356,7 +351,7 @@ do jSym=1,nSym
 
       DoReord = (JRED == JRED2) .and. (iBatch == nBatch)
 
-      call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nAsh,JSYM,JNUM,DoReord)
+      call CHO_rassi_twxy(irc,Scr,Laq(2),TUVX,nTUVX,nAsh,JSYM,JNUM,DoReord)
 
       call CWTIME(TCINT2,TWINT2)
       tintg(1) = tintg(1)+(TCINT2-TCINT1)

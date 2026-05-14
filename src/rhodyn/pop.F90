@@ -8,37 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
-subroutine pop(time,popcount,dgl_csf,density_csf)
+subroutine pop(time,popcount,j_tfdm,dgl_csf,density_csf)
 !***********************************************************************
-! prints diagonal of the density matrix densityt in reqired basis
+! prints diagonal of the density matrix densityt in required basis
 ! at the current time
 !***********************************************************************
 
 use rhodyn_data, only: a_einstein, basis, CSF2SO, d, density0, densityt, dgl, dipole_basis, DM_basis, emiss, flag_dipole, &
-                       flag_emiss, lu_csf, lu_dip, lu_sf, lu_so, n_freq, nconftot, Nstate, out_dm_csf, out_dm_sf, out_dm_so, &
-                       out_emiss, out_fmt, out_fmt_csf, out_tout, pulse_vec, SO_CI, tmp, U_CI_compl
-use rhodyn_utils, only: mult, transform
+                       flag_emiss, flag_fdm, lu_csf, lu_dip, lu_sf, lu_so, n_freq, nconftot, Nstate, out_dm_csf, out_dm_sf, &
+                       out_dm_so, out_emiss, out_fmt, out_fmt_csf, out_tout, pulse_vec, SO_CI, tmp, U_CI_compl, out_fdmi, &
+                       out_fdmr, out_tfdm
+use rhodyn_utils, only: transform
+use linalg_mod, only: mult
 use mh5, only: mh5_put_dset
 use Constants, only: Zero, auToFs
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: time
-integer(kind=iwp), intent(in) :: popcount
+integer(kind=iwp), intent(in) :: popcount, j_tfdm
 real(kind=wp), intent(out) :: dgl_csf(nconftot)
 complex(kind=wp), intent(out) :: density_csf(nconftot,nconftot)
 integer(kind=iwp) :: i, j, l
 real(kind=wp) :: norm
 character(len=64) :: sline
 
-!   here notation d is dimension of all the basis matrices
+! here notation d is dimension of all the basis matrices
 !!! density0 (can't be) used as a temporary storage for dm in required basis
 
 write(sline,'(f10.3)') time*auToFs
-call StatusLine('SpinDyn current time: ',trim(sline))
+call StatusLine('RhoDyn: current time ',sline)
 
 call mh5_put_dset(out_tout,[time*auToFs],[1],[popcount-1])
 
@@ -83,10 +85,10 @@ else if (basis == 'SF') then
 
   if ((DM_basis == 'SF') .or. (DM_basis == 'CSF_SF') .or. (DM_basis == 'SF_SO') .or. (DM_basis == 'ALL')) then
     ! the density in SF basis
-    dgl(:) = [(real(densityt(i,i)),i=1,d)]
+    dgl(:) = [(real(densityt(i,i)),i=1,Nstate)]
     norm = sum(dgl)
-    write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
-    call mh5_put_dset(out_dm_sf,dgl,[1,d],[popcount-1,0])
+    write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,Nstate),norm
+    call mh5_put_dset(out_dm_sf,dgl,[1,Nstate],[popcount-1,0])
   end if
 
   if ((DM_basis == 'SO') .or. (DM_basis == 'CSF_SO') .or. (DM_basis == 'SF_SO') .or. (DM_basis == 'ALL')) then
@@ -125,6 +127,11 @@ else if (basis == 'SO') then
     write(lu_so,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
     call mh5_put_dset(out_dm_so,dgl,[1,d],[popcount-1,0])
   end if
+
+else if (basis == 'SPH') then
+  dgl(:) = [(real(densityt(i,i)),i=1,Nstate)]
+  norm = sum(dgl)
+  write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,Nstate),norm
 end if
 
 ! time-dependent dipole moment
@@ -150,6 +157,12 @@ if (flag_emiss) then
     end do
   end do
   call mh5_put_dset(out_emiss,emiss,[1,n_freq],[popcount-1,0])
+end if
+
+if (flag_fdm .and. (j_tfdm > 0)) then
+  call mh5_put_dset(out_tfdm,[time*auToFs],[1],[j_tfdm])
+  call mh5_put_dset(out_fdmr,real(densityt),[1,d,d],[j_tfdm,0,0])
+  call mh5_put_dset(out_fdmi,aimag(densityt),[1,d,d],[j_tfdm,0,0])
 end if
 
 end subroutine pop

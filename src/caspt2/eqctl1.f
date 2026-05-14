@@ -16,8 +16,18 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE EQCTL1
-      IMPLICIT REAL*8 (A-H,O-Z)
+      SUBROUTINE EQCTL1()
+      use caspt2_global, only: do_grad
+      use caspt2_global, only: LUSOLV, LUSBT, IDSCT
+      use stdalloc, only: mma_allocate
+      use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX,
+     &                  MxBlk, MxSct, ModVec, IDSMat, IDBMat, MxVec,
+     &                  IDTMat, IDSTMat
+      use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup,
+     &                         nInDep
+      use caspt2_module, only: nG2, nG3Tot
+      use definitions, only: wp, iwp, ItoB, RtoI, u6
+      IMPLICIT None
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
 C At position IVEC=IRHS, the RHS array, in SR representation.
@@ -26,12 +36,11 @@ C At position IVEC=IVECR, the residual array, in SR representation.
 C At position IVEC=IVECC, the solution array, in contravariant rep.
 C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
-      DIMENSION DUMMY(1),IDUM(1)
+      REAL(kind=wp) ::DUMMY(1)
+      INTEGER(kind=iwp) :: IDUM(1), ICASE, IDS, IDS1, IDS2, IDV, iPad,
+     &                     ISCT, ISYM, IVEC, LADDR, LENGTH, LSTA, MXWRT,
+     &                     NAS, NB, NBD, NCOEF, NG3MAX, NID, NIDSCT, NS,
+     &                     NT, iPARDIV, NIN, NIS, NISCT
 
       IRHS  =1
       IVECX =2
@@ -57,16 +66,16 @@ C Module lengths for reading/writing:
         END DO
       END DO
       NIDSCT=MXSCT*8*MXCASE*MXVEC
-      CALL GETMEM('IDSCT','ALLO','INTE',LIDSCT,NIDSCT)
+      CALL mma_allocate(IDSCT,NIDSCT,Label='IDSCT')
 
 #ifdef _DEBUG
 CSVC: when using Cholesky decomposition, the actual use of the RHS
 C vector sizes is automatically controlled in RHSALL2. Furthermore, the
 C sigma routines now use the full RHS size.
       IF (.NOT.IFCHOL) THEN
-        WRITE(6,*)
-        WRITE(6,*)' Size of vector buffers for coefficient arrays.'
-        WRITE(6,*)' ICASE ISYM    NROW     NCOL     NBLK       Size'
+        WRITE(u6,*)
+        WRITE(u6,*)' Size of vector buffers for coefficient arrays.'
+        WRITE(u6,*)' ICASE ISYM    NROW     NCOL     NBLK       Size'
         NVCMX=0
         DO ICASE=1,NCASES
           DO ISYM=1,NSYM
@@ -76,17 +85,17 @@ C sigma routines now use the full RHS size.
             NVCMX=MAX(NVCMX,NVC)
             NBLK=0
             IF(NVC.GT.0) NBLK=1+(NISUP(ISYM,ICASE)-1)/NCOL
-            WRITE(6,'(2x,I2,3x,I2,3x,I16,3X,I16,3X,I16,3x,I16)')
+            WRITE(u6,'(2x,I2,3x,I2,3x,I16,3X,I16,3X,I16,3x,I16)')
      &                     ICASE,ISYM,NROW,NCOL,NBLK,NVC
           END DO
         END DO
-        WRITE(6,*)
-        WRITE(6,*)' Largest vector buffer size:',NVCMX
-        WRITE(6,*)
+        WRITE(u6,*)
+        WRITE(u6,*)' Largest vector buffer size:',NVCMX
+        WRITE(u6,*)
       ELSE
-        WRITE(6,*)
-        WRITE(6,*)' Sizes of the coefficient arrays.'
-        WRITE(6,'(2X,A4,2X,A4,2X,5X,A4,5X,2X,5X,A4,5X,2X,5X,A4,5X)')
+        WRITE(u6,*)
+        WRITE(u6,*)' Sizes of the coefficient arrays.'
+        WRITE(u6,'(2X,A4,2X,A4,2X,5X,A4,5X,2X,5X,A4,5X,2X,5X,A4,5X)')
      &          'CASE','SYM','NROW','NCOL','SIZE'
         NVCMX=0
         DO ICASE=1,NCASES
@@ -95,17 +104,24 @@ C sigma routines now use the full RHS size.
             NCOL=NISUP(ISYM,ICASE)
             NVC=NROW*NCOL
             NVCMX=MAX(NVCMX,NVC)
-            WRITE(6,'(2x,I4,2x,I4,2x,I16,2X,I16,2X,I16)')
+            WRITE(u6,'(2x,I4,2x,I4,2x,I16,2X,I16,2X,I16)')
      &                     ICASE,ISYM,NROW,NCOL,NVC
           END DO
         END DO
-        WRITE(6,*)
-        WRITE(6,'(A,I14)')' Largest vector size: ',NVCMX
-        WRITE(6,*)
+        WRITE(u6,*)
+        WRITE(u6,'(A,I14)')' Largest vector size: ',NVCMX
+        WRITE(u6,*)
       ENDIF
 #endif
 
       IDV=0
+      If (do_grad) Then
+        !! idxG3 matrix is needed for computing Lagrangian. Here, the
+        !! shift avoids the matrix overwritten in PCOLLVEC -> SOLV2DRA
+        NG3MAX=iPARDIV(NG3TOT,NG2)
+        iPad=ItoB-MOD(6*NG3MAX,ItoB)
+        IDV = 6*NG3MAX+iPad
+      End If
       DO IVEC=1,MXVEC
         DO ICASE=1,NCASES
           DO ISYM=1,NSYM
@@ -116,20 +132,20 @@ C BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
             NCOEF=NAS*NIS
             MXWRT=Max(1,NAS*MODVEC(ISYM,ICASE))
             NISCT=NCOEF/MXWRT+Min(1,Mod(NCOEF,MXWRT))
-            LADDR=LIDSCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1)))
-            IF (NISCT.eq.0) IWORK(LADDR)=IDV
+            LADDR=1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1)))
+            IF (NISCT.eq.0) IDSCT(LADDR)=IDV
             If (NISCT.gt.MXSCT) Then
-              write(6,*) 'EQCTL1 : NISCT= ',NISCT,' > MXSCT= ',MXSCT
-              write(6,*) 'Please, increase MXSCT in eqsolv.fh'
-              write(6,*) 'Do not forget to recompile Molcas afterwards.'
+              write(u6,*)'EQCTL1 : NISCT= ',NISCT,' > MXSCT= ',MXSCT
+              write(u6,*)'Please, increase MXSCT in eqsolv.F90'
+              write(u6,*)'Do not forget to recompile Molcas afterwards.'
               Call Abend()
             EndIf
             DO ISCT=1,NISCT
               LSTA=MXWRT*(ISCT-1)
               LENGTH=RtoI*MIN(NCOEF-LSTA,MXWRT)
-              LADDR=LIDSCT-1+ISCT+MXSCT*(ISYM-1+8*
+              LADDR=ISCT+MXSCT*(ISYM-1+8*
      &                         (ICASE-1+MXCASE*(IVEC-1)))
-              IWORK(LADDR)=IDV
+              IDSCT(LADDR)=IDV
               CALL IDAFILE(LUSOLV,0,IDUM,LENGTH,IDV)
             END DO
           END DO
@@ -141,12 +157,13 @@ C to the ISCT section of the (ISYM,ICASE) block of a vector
 C containing expansion C coefficients of excitation operators.
 C IVEC=1..MXVEC enumerates the different vectors needed to solve
 C the equations.
+      IDSMAT(:,:)=-1
       IDS=0
       DO ICASE=1,NCASES
         DO ISYM=1,NSYM
-          IDSMAT(ISYM,ICASE)=IDS
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.GT.0) THEN
+            IDSMAT(ISYM,ICASE)=IDS
             NAS=NASUP(ISYM,ICASE)
 *           NS=(NAS*(NAS+1))/2
             NS=NAS**2
@@ -176,8 +193,6 @@ C the basic excitation operators acting on Psi0.
           IF(ICASE.EQ.12) NT=1
           IF(ICASE.EQ.13) NT=1
           IDS1=IDS
-         IF(NB.GT.0)then
-         end if
           IF(NB.GT.0)CALL DDAFILE(LUSBT ,0,DUMMY,NB ,IDS1)
           IDS2=IDS
           IF(NBD.GT.0)CALL DDAFILE(LUSBT ,0,DUMMY,NBD,IDS2)
@@ -198,5 +213,4 @@ C over the excitation wave function terms.
 C IDTMAT() similarly addresses transformation matrices that
 C orthonormalize the S matrix blocks.
 
-      RETURN
-      END
+      END SUBROUTINE EQCTL1

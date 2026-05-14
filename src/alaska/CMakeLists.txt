@@ -11,8 +11,8 @@
 
 set (sources
      main.F90
-     alaska_banner.F90
      alaska.F90
+     alaska_banner.F90
      alaska_info.F90
      alaska_super_driver.F90
      annihil_rho.F90
@@ -23,8 +23,8 @@ set (sources
      drvembg.F90
      drvg1.F90
      drvh1_emb.F90
-     drvn1_emb.F90
      drvn1.F90
+     drvn1_emb.F90
      inputg.F90
 )
 

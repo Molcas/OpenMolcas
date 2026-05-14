@@ -11,7 +11,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015,2017,2018,2022, Ignacio Fdez. Galván              *
+# Copyright (C) 2015,2017,2018,2022,2024, Ignacio Fdez. Galván         *
 #***********************************************************************
 
 '''
@@ -69,13 +69,25 @@ def find_interpreter():
   exe = sys.executable
   if exe is None:
     return None
-  # If python3 or python2 point to the current executable, use those instead
-  p3 = subprocess.check_output(['/usr/bin/env','python3','-c','import sys; print(sys.executable)']).decode().strip()
-  if os.path.realpath(p3) == os.path.realpath(exe):
-    return '/usr/bin/env python3'
-  p2 = subprocess.check_output(['/usr/bin/env','python2','-c','import sys; print(sys.executable)']).decode().strip()
-  if os.path.realpath(p2) == os.path.realpath(exe):
-    return '/usr/bin/env python2'
+  # If python, python3 or python2 point to the current executable, use those instead
+  try:
+    p = subprocess.check_output(['/usr/bin/env','python','-c','import sys; print(sys.executable)']).decode().strip()
+    if os.path.realpath(p2) == os.path.realpath(exe):
+      return '/usr/bin/env python'
+  except:
+    pass
+  try:
+    p3 = subprocess.check_output(['/usr/bin/env','python3','-c','import sys; print(sys.executable)']).decode().strip()
+    if os.path.realpath(p3) == os.path.realpath(exe):
+      return '/usr/bin/env python3'
+  except:
+    pass
+  try:
+    p2 = subprocess.check_output(['/usr/bin/env','python2','-c','import sys; print(sys.executable)']).decode().strip()
+    if os.path.realpath(p2) == os.path.realpath(exe):
+      return '/usr/bin/env python2'
+  except:
+    pass
   return exe
 
 if (compress_and_b64):
@@ -120,7 +132,7 @@ with open(exe_name, 'w', encoding='utf-8') as f:
         content = wrap(content, 120)
         fmt = "  ['{0}', '''\n{1}\n'''],\n\n"
       else:
-        fmt = "  ['{0}', \n{1}\n],\n\n"
+        fmt = "  ['{0}', r\"\"\"\n{1}\n\"\"\"],\n\n"
       content = bytes(content, 'utf-8')
       if (obfuscate):
         name_i = ''.join('{:02x}'.format(c) for c in bytes(i, 'ascii'))

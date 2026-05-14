@@ -39,7 +39,7 @@ if (l2 < abs(m2)) return
 if (l3 < abs(m3)) return
 if (l4 < abs(m4)) return
 !bs prefactor
-fact1 = Four*Pi/real(L+L+1,wp)
+fact1 = Four*Pi/real(L+L+1,kind=wp)
 !bs determining the sign
 isum = -l3-l1-l4-l2+2*(M+m3+m4)   !???? I am not sure
 if (mod(isum,4) == 0) then
@@ -55,7 +55,7 @@ else
 end if
 fact2 = couple3J(L,l3,l1,-M,m3,-m1)
 fact3 = couple3J(L,l4,l2,M,m4,-m2)
-!write(6,*) 'fact2,fact3 ',fact2,fact3
+!write(u6,*) 'fact2,fact3 ',fact2,fact3
 LMdepang = cheater*sgn*fact1*fact2*fact3
 
 return

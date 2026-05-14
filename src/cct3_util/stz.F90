@@ -21,11 +21,9 @@ use CCT3_global, only: Map_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: wrksize
-real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: wrk(wrksize)
 type(Map_Type), intent(in) :: a
 integer(kind=iwp) :: nhelp1, nhelp2, nhelp3
 

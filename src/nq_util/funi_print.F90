@@ -41,7 +41,7 @@ if ((.not. Reduce_Prt()) .and. (iPrint >= 2)) then
   write(u6,'(6X,A,21X,A)') 'Radial quadrature type:    ',Quadrature
 
   if (Quadrature(1:3) == 'LMG') then
-    write(u6,'(6X,A,E11.4)') 'Radial quadrature accuracy:',Threshold
+    write(u6,'(6X,A,ES11.4)') 'Radial quadrature accuracy:',Threshold
   else
     write(u6,'(6X,A,18X,I5)') 'Size of radial grid:       ',nR
   end if
@@ -55,8 +55,8 @@ if ((.not. Reduce_Prt()) .and. (iPrint >= 2)) then
   end if
 
   if (Angular_Pruning == On) then
-    write(u6,'(6X,A,1X,ES9.2)') 'Angular grid prunned with the crowding factor:',Crowding
-    write(u6,'(6X,A,1X,ES9.2)') '                            and fading factor:',Fade
+    write(u6,'(6X,A,1X,ES9.2)') 'Angular grid pruned with the crowding factor:',Crowding
+    write(u6,'(6X,A,1X,ES9.2)') '                           and fading factor:',Fade
   end if
   if (btest(iOpt_Angular,1)) then
     write(u6,'(6X,A)') 'The whole atomic grid is scanned for each sub block.'

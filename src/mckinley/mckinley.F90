@@ -37,24 +37,25 @@ use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nCnttp
 use Gateway_global, only: Onenly, Test
 use Symmetry_Info, only: nIrrep
+use rctfld_module, only: iCharge_Ref
+use Disp, only: lDisp
+use Etwas, only: nAsh, nIsh
+use PrintLevel, only: nPrint, Show
+use k2_arrays, only: DeDe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "Molcas.fh"
-#include "disp.fh"
-#include "print.fh"
-#include "etwas.fh"
-#include "rctfld.fh"
-#include "warnings.h"
 integer(kind=iwp) :: i, iCnttp, iDummer, iopt, iPrint, irc, iRout, lLine, nDiff, nGrad, nHess, nsAtom
 real(kind=wp) :: dum1, dum2, dum3, TCpu1, TCpu2, Time, TWall1, TWall2
 character(len=120) :: Lines
 logical(kind=iwp) :: DoRys, Run_MCLR
 real(kind=wp), allocatable :: GradN(:), Hess(:), Temp(:)
 !integer(kind=iwp), parameter :: nLines = 12
+
+#include "warnings.h"
 
 !                                                                      *
 !***********************************************************************
@@ -94,7 +95,7 @@ CpuStat(:) = Zero
 ! Set error conditions
 !
 !call XuFlow()
-!Call ErrSet(209,1,1,2,1,209)
+!call ErrSet(209,1,1,2,1,209)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -172,6 +173,7 @@ if (lHss) then
 end if
 if (lGrd) then
   call mma_allocate(GradN,nGrad,Label='GradN')
+  GradN(:) = Zero
   call DrvN1_mck(GradN,nGrad)
   iopt = 0
   irc = -1
@@ -228,12 +230,14 @@ if (.not. Onenly) then
     call Abend()
   end if
 
+  call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
   call Drvg2(Temp,nhess,lGrd,lHss)
+  call mma_deallocate(DeDe,safe='*')
 
   call CloseP()
 
   if (lHss) then
-    call GADSum(Temp,nHess)
+    call GADGOp(Temp,nHess,'+')
     Temp(:) = Half*Temp
     if (Show) call HssPrt(Temp,nHess)
 

@@ -26,25 +26,15 @@
 subroutine InpCtl_GuessOrb()
 
 use GuessOrb_Global, only: GapThr, iPrFmt, PrintEor, PrintMOs, PrintPop, PrThr, SThr, TThr
+use spool, only: Spoolinp
 use Definitions, only: iwp, u6
 
 implicit none
-!----------------------------------------------------------------------*
-! Local data                                                           *
-!----------------------------------------------------------------------*
-logical(kind=iwp) :: Trace
+integer(kind=iwp) :: itmp, LuSpool
 character(len=180) :: Key, Line
-integer(kind=iwp) :: LuSpool, itmp
-!----------------------------------------------------------------------*
-! External routines                                                    *
-!----------------------------------------------------------------------*
 integer(kind=iwp), external :: isFreeUnit
 character(len=180), external :: Get_Ln
-!----------------------------------------------------------------------*
-! Setup                                                                *
-!----------------------------------------------------------------------*
-Trace = .false.
-if (Trace) write(u6,*) '>>> Entering inpctl'
+
 !----------------------------------------------------------------------*
 ! Process input                                                        *
 !----------------------------------------------------------------------*
@@ -53,15 +43,15 @@ LuSpool = isFreeUnit(LuSpool)
 call SpoolInp(LuSpool)
 call RdNLst(LuSpool,'GuessOrb')
 
-input_loop: do
+do
   Key = Get_Ln(LuSpool)
   Line = Key
   call UpCase(Line)
   select case (Line(1:4))
 
-    !----------------------------------------------------------------------*
-    ! NOMOs: skip printing of MOs, obsolete                                *
-    !----------------------------------------------------------------------*
+    !------------------------------------------------------------------*
+    ! NOMOs: skip printing of MOs, obsolete                            *
+    !------------------------------------------------------------------*
     case ('NOMO')
       write(u6,*) '******************************************'
       write(u6,*) '******************************************'
@@ -71,9 +61,9 @@ input_loop: do
       write(u6,*)
       PrintMOs = .false.
 
-    !----------------------------------------------------------------------*
-    ! PRMOs: MO print level.                                               *
-    !----------------------------------------------------------------------*
+    !------------------------------------------------------------------*
+    ! PRMOs: MO print level.                                           *
+    !------------------------------------------------------------------*
     case ('PRMO')
       Line = Get_Ln(LuSpool)
       Line(178:180) = '5.0'
@@ -101,49 +91,45 @@ input_loop: do
         PrintEor = .false.
       end if
 
-    !----------------------------------------------------------------------*
-    ! PRPOpulation: Mulliken print level                                   *
-    !----------------------------------------------------------------------*
+    !------------------------------------------------------------------*
+    ! PRPOpulation: Mulliken print level                               *
+    !------------------------------------------------------------------*
     case ('PRPO')
       PrintPop = .true.
 
-    !----------------------------------------------------------------------*
-    ! STHReshold: threshold for removing linear dependence, from S         *
-    !----------------------------------------------------------------------*
+    !------------------------------------------------------------------*
+    ! STHReshold: threshold for removing linear dependence, from S     *
+    !------------------------------------------------------------------*
     case ('STHR')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,SThr)
 
-    !----------------------------------------------------------------------*
-    ! TTHReshold: threshold for removing linear dependence, from T         *
-    !----------------------------------------------------------------------*
+    !------------------------------------------------------------------*
+    ! TTHReshold: threshold for removing linear dependence, from T     *
+    !------------------------------------------------------------------*
     case ('TTHR')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,TThr)
 
-    !----------------------------------------------------------------------*
-    ! GapThr: threshold for homo-lumo gap.                                 *
-    !----------------------------------------------------------------------*
+    !------------------------------------------------------------------*
+    ! GapThr: threshold for homo-lumo gap.                             *
+    !------------------------------------------------------------------*
     case ('GAPT')
       Line = Get_Ln(LuSpool)
       call Get_F1(1,GapThr)
 
     case ('END ')
-      exit input_loop
+      exit
 
     case default
       write(u6,*) 'InpCtl_GuessOrb: unidentified key word  : ',Key
       write(u6,*) 'InpCtl_GuessOrb: internal representation: ',Line(1:4)
       call FindErrorLine()
       call Quit_OnUserError()
-      exit input_loop
   end select
-end do input_loop
+end do
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-if (Trace) write(u6,*) '<<< Exiting inpctl'
-
-return
 
 end subroutine InpCtl_GuessOrb

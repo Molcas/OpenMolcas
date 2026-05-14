@@ -67,7 +67,7 @@ call mma_deallocate(Diffed)
 
 return
 
-991 format(A,E12.5)
+991 format(A,ES12.5)
 992 format(A,I2)
 993 format(2(A,F10.5))
 

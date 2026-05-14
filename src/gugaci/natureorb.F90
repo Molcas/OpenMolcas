@@ -24,7 +24,7 @@ integer(kind=iwp) :: i, im, j, nc, nc0, nc1, nc2, nc3, nc4, nc5, nsfrz(8)
 real(kind=wp) :: val
 integer(kind=iwp), allocatable :: nsort(:)
 real(kind=wp), allocatable :: buff(:)
-character(len=128), parameter :: header = 'MRCISD Natural orbital'
+character(len=*), parameter :: header = 'MRCISD Natural orbital'
 
 nc0 = 1
 do im=1,ngsm

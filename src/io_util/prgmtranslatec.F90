@@ -11,14 +11,12 @@
 ! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifndef _HAVE_EXTRA_
+
 ! Wrapper for the OpenMolcas PrgmTranslate_Mod routine, so it works
 ! without using the module (i.e., from C). Some C-to-Fortran conversion
 ! needs to be done, which feels quite hackish.
-
-#include "compiler_features.h"
-#include "intent.fh"
-#ifndef _HAVE_EXTRA_
-#define MAXSTR 1024
 
 subroutine PrgmTranslateC(InStr,l1,OutStr,l2,Par) bind(C,name='prgmtranslatec_')
 
@@ -26,11 +24,14 @@ use, intrinsic :: iso_c_binding, only: c_char, c_null_char
 use Prgm, only: PrgmTranslate_Mod
 use Definitions, only: iwp, MOLCAS_C_INT
 
+#include "intent.fh"
+
 implicit none
 character(kind=c_char), intent(in) :: InStr(*)
 integer(kind=MOLCAS_C_INT), intent(in) :: l1, Par
 character(kind=c_char), intent(_OUT_) :: OutStr(*)
 integer(kind=MOLCAS_C_INT), intent(out) :: l2
+#define MAXSTR 1024
 character(len=MAXSTR) :: TmpStr, TmpStr2
 integer(kind=iwp) :: i
 
@@ -46,7 +47,7 @@ OutStr(l2+1:l2+1) = c_null_char
 
 end subroutine PrgmTranslateC
 
-#elif !defined (EMPTY_FILES)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
 #include "macros.fh"

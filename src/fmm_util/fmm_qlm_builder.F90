@@ -260,11 +260,12 @@ end subroutine fmm_deallocate_mms_arrays
 
 subroutine fmm_read_in_raw_data(dens,mm_data)
 
+# include "intent.fh"
 # include "macros.fh"
 
   implicit none
-  real(REALK), intent(in)        :: dens(:,:)
-  type(raw_mm_data), intent(out) :: mm_data
+  real(REALK), intent(in)          :: dens(:,:)
+  type(raw_mm_data), intent(_OUT_) :: mm_data
   real(REALK) :: PX, PY, PZ, SPH
   integer(INTK) :: I, J, L, M, A, B, LM, X
   integer(INTK), external :: IsFreeUnit
@@ -280,7 +281,7 @@ subroutine fmm_read_in_raw_data(dens,mm_data)
     ! EOF marked by record with negative angular momentum
     if (L < 0) exit readloop
 
-    !if ((L == 0) .and. (ABS(SPH) > 1.0e-12_REALK)) write(LUPRI,'(5I4,1X,3F8.4,2E13.4)') I,L,M,A,B,PX,PY,PZ,SPH,dens(A,B)
+    !if ((L == 0) .and. (ABS(SPH) > 1.0e-12_REALK)) write(LUPRI,'(5I4,1X,3F8.4,2ES13.4)') I,L,M,A,B,PX,PY,PZ,SPH,dens(A,B)
 
     if (A > nbas) call fmm_quit('interface file error 0')
     if (B > nbas) call fmm_quit('interface file error 00')
@@ -315,7 +316,7 @@ subroutine fmm_read_in_raw_data(dens,mm_data)
   do J=1,n_mms%nuc
     I = n_mms%elec+J
     read(LUINTM) X,L,M,A,B,PX,PY,PZ,SPH
-    !write(LUPRI,'(I4,1X,3F8.4,2E13.4)') I,PX,PY,PZ,SPH
+    !write(LUPRI,'(I4,1X,3F8.4,2ES13.4)') I,PX,PY,PZ,SPH
     mm_data%qlm(1,I) = SPH
     mm_data%paras(I)%cntr = [PX,PY,PZ]
   end do

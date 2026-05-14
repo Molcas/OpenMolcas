@@ -19,21 +19,21 @@ subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Array PACol introduced in argument list.
 
+use Molcas, only: LenIn
 use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nBasis, nAtoms, nOrb2Loc, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
 real(kind=wp), intent(inout) :: cMO(nBasis,*), PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
 logical(kind=iwp), intent(in) :: Maximisation, Debug
-character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn+8), intent(in) :: BName(*)
 real(kind=wp), intent(in) :: ThrRot
 integer(kind=iwp) :: iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
 real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, sin4alpha, SumA, SumB, Tst, Tstc, &
                  Tsts, xDone, xOrb2Loc, xTotal
-character(len=LenIn8) :: PALbl
+character(len=LenIn+8) :: PALbl
 character(len=80) :: Txt
 
 xDone = Zero
@@ -87,7 +87,7 @@ do iMO1=1,nOrb2Loc-1
     Tst = abs(cos4alpha)-One
     if (Tst > Zero) then
       if (Tst > 1.0e-10_wp) then
-        write(Txt,'(A,D18.10)') 'Actual: cos4alpha = ',cos4alpha
+        write(Txt,'(A,ES18.10)') 'Actual: cos4alpha = ',cos4alpha
         call SysAbendMsg('RotateOrb','-1.0 < cos4alpha < 1.0',Txt)
       else
         if (cos4alpha < Zero) then
@@ -117,9 +117,9 @@ do iMO1=1,nOrb2Loc-1
       write(u6,'(a9,f10.5)') ' Gamma :',Gamma_rot
     end if
 
-    Tsts = sin(Gamma_rot)
-    Tstc = One-cos(Gamma_rot)
-    if ((abs(Tsts) > ThrRot) .or. (abs(Tstc) > ThrRot)) then
+    Tsts = abs(sin(Gamma_rot))
+    Tstc = One-abs(cos(Gamma_rot))
+    if ((Tsts > ThrRot) .or. (Tstc > ThrRot)) then
       call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot,Debug)
       call UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,Gamma_rot,iMO_s,iMO_t,Debug)
       xDone = xDone+One

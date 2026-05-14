@@ -87,7 +87,7 @@ call mma_deallocate(Blk)
 
 return
 
-910 format(/1X,'An eigenvalue of the overlap matrix of the symmetrized Jacobi transf. matrix of ',E13.5,' has been found.'/1X, &
-            'This is lower than the allowed threshold of ',E13.5)
+910 format(/1X,'An eigenvalue of the overlap matrix of the symmetrized Jacobi transf. matrix of ',ES13.5,' has been found.'/1X, &
+            'This is lower than the allowed threshold of ',ES13.5)
 
 end subroutine Lowdin_LP

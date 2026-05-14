@@ -12,7 +12,10 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine ModU2(U2,mT,nRys,ZEInv)
+subroutine ModU2( &
+#                define _CALLING_
+#                include "modu2_interface.fh"
+                )
 !***********************************************************************
 !                                                                      *
 ! Object: precompute u2/(zeta+eta)                                     *
@@ -24,19 +27,13 @@ subroutine ModU2(U2,mT,nRys,ZEInv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mT, nRys
-real(kind=wp), intent(inout) :: U2(nRys,mT)
-real(kind=wp), intent(in) :: ZEInv(mT)
-#include "print.fh"
-integer(kind=iwp) :: iPrint, iRout, iT
+#include "modu2_interface.fh"
+integer(kind=iwp) :: iT
 
-iRout = 255
-iPrint = nPrint(iRout)
-
-if (iPrint >= 99) then
-  call RecPrt(' In ModU2: U2',' ',U2,nRys,mT)
-  call RecPrt(' In ModU2: ZEInv',' ',ZEInv,1,mT)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In ModU2: U2',' ',U2,nRys,mT)
+call RecPrt(' In ModU2: ZEInv',' ',ZEInv,1,mT)
+#endif
 
 if (nRys > 1) then
   do iT=1,mT
@@ -45,7 +42,5 @@ if (nRys > 1) then
 else
   U2(1,:) = U2(1,:)*ZEInv(:)
 end if
-
-return
 
 end subroutine ModU2

@@ -26,8 +26,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: rc
-integer(kind=iwp) :: idum = 0
-#include "WrkSpc.fh"
+integer(kind=iwp) :: idum
 
 call Symmetry_Info_Free()
 call Free_Isotopes()
@@ -37,15 +36,11 @@ call fin_run_use()
 call prgmfree()
 #endif
 
-call GetMem('ip_iDum','Free','Inte',ip_iDummy,1)
-call GetMem('ip_Dum','Free','Real',ip_Dummy,1)
-call GetMem('Finish','List','Real',iDum,iDum)
-call GetMem('Finish','Term','Real',iDum,iDum)
+call GetMem('Finish','LIST','REAL',iDum,0)
+call GetMem('Finish','TERM','REAL',iDum,0)
 
-call StatusLine('Happy landing',' ')
-if (MaxWarnMess > 1) then
-  call WarningMessage(1,'There were warnings during the execution;Please, check the output with care!')
-end if
+call StatusLine('Happy landing','')
+if (MaxWarnMess > 1) call WarningMessage(1,'There were warnings during the execution;Please, check the output with care!')
 
 #ifdef _HAVE_EXTRA_
 call prgmfree()
@@ -54,7 +49,7 @@ call AixCheck()
 call xml_close('module')
 
 #ifdef _DELAYED_
-call close_BLAS()
+call Close_BLAS()
 #endif
 
 call xquit(rc)

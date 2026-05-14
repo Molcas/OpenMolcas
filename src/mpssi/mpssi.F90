@@ -14,7 +14,7 @@
 subroutine mpssi(iReturn)
 
 #ifdef _DMRG_
-use rasscf_data, only: doDMRG
+use rasscf_global, only: doDMRG
 #endif
 use Definitions, only: iwp, u6
 

@@ -8,7 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!#define _DEBUGPRINT_
 
 subroutine Start(ModuleName)
 ! Initialization procedure for a program module.
@@ -23,6 +22,7 @@ use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Para_Info, only: nProcs
 #endif
+use spool, only: LuWr, LuRd, LuWr, Set_Spool
 use Definitions, only: u5, u6
 
 implicit none
@@ -31,7 +31,6 @@ character(len=8) :: Prin
 #ifdef _MOLCAS_MPP_
 logical(kind=iwp) :: parallelized
 #endif
-#include "standard_iounits.fh"
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Start.'
@@ -158,7 +157,7 @@ write(u6,*) ' XML initialized '
 
 ! Initiate spool mode to read from standard input
 
-Spool = .true.
+Call Set_Spool()
 
 ! Initiate I/O
 
@@ -206,6 +205,7 @@ if ((Prin(1:1) /= '0') .and. (Prin(1:1) /= 'S')) then
 end if
 ! Write to the status file that the moduel has started
 call StatusLine(ModuleName,' properly started!')
+
 return
 
 end subroutine Start

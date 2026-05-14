@@ -53,8 +53,8 @@ do i=1,nOcc
     Rave = Rave/real(nij,kind=wp)
   end if
   write(u6,'(/,A,I6,A,I6)') 'Orbital domain',i,':  size:',nAt
-  write(u6,'(A,1P,2(1X,D15.5))') '  Charge, completeness function:',QD(i),f(i)
-  write(u6,'(A,1P,3(1X,D15.5))') '  Rmin, Rmax, Rave             :',Rmin,Rmax,Rave
+  write(u6,'(A,2(1X,ES15.5))') '  Charge, completeness function:',QD(i),f(i)
+  write(u6,'(A,3(1X,ES15.5))') '  Rmin, Rmax, Rave             :',Rmin,Rmax,Rave
   do iAt=1,nAt
     iAtom = iDomain(iAt,i)
     write(u6,'(A,I6,2X,A,1X,3(1X,F12.3))') '  Atom:',iAtom,AtomLbl(1,nBas_Start(iAtom)),Coord(:,iAtom)

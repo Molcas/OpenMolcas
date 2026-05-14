@@ -11,13 +11,13 @@
 
 subroutine RPA_SetInc()
 
-use RPA_globals, only: DFTFunctional, doCD, doDF, doLDF, dRPA, iPrint, l_CMO, l_EMO, l_OccEn, l_VirEn, LumOrb, mTitle, nBas, nDel, &
+use RPA_globals, only: DFTFunctional, doCD, doDF, dRPA, iPrint, l_CMO, l_EMO, l_OccEn, l_VirEn, LumOrb, mTitle, nBas, nDel, &
                        nFreeze, nFro, nOcc, nOrb, nSym, nTitle, NuclearRepulsionEnergy, nVir, Reference, RPAModel, SOSEX, Title
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: i
 
 ! rpa_config
 Reference = 'Non'
@@ -27,12 +27,11 @@ dRPA = .false.
 SOSEX = .false.
 doCD = .false.
 doDF = .false.
-doLDF = .false.
 LumOrb = .false.
 iPrint = 0
 ! rpa_data
 do i=1,mTitle
-  write(Title(i),'(80A1)')(' ',j=1,80)
+  write(Title(i),'(A)') repeat(' ',80)
 end do
 nTitle = 0
 nSym = 0

@@ -12,6 +12,7 @@
 subroutine ReadIn_Polar(NoField,Delta,MpProp_Level,Bond_Threshold,iPlot,iPrint,Standard,Opt_Method,UserDen,PrintDen,SubtractDen, &
                         SubScale,Restart,TDensity,nStateI,nStateF,Diffuse,dLimmo,Thrs1,Thrs2,nThrs,ThrsMul,Alpha,LIonize)
 
+use spool, only: Close_LuSpool, Spoolinp
 use Constants, only: One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
 

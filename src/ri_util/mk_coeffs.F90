@@ -15,6 +15,10 @@ subroutine Mk_Coeffs(CoeffA,nPrimA,nConA,CoeffB,nPrimB,nConB,Coeff,nTheta_Full,n
 use Index_Functions, only: iTri
 use Constants, only: Half
 use Definitions, only: wp, iwp
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nPrimA, nConA, nPrimB, nConB, nTheta_Full, nPhi, NumCho, iD(NumCho), mData, nPhi_All, &
@@ -28,7 +32,6 @@ real(kind=wp) :: Cff
 !***********************************************************************
 !                                                                      *
 
-!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('CoeffA',' ',CoeffA,nPrimA,nConA)
 call RecPrt('CoeffB',' ',CoeffB,nPrimB,nConB)

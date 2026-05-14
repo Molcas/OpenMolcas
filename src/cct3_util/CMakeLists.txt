@@ -10,6 +10,8 @@
 #***********************************************************************
 
 set (sources
+     cct3.F90
+     cct3_add.F90
      cct3_add10.F90
      cct3_add21.F90
      cct3_add22.F90
@@ -18,16 +20,14 @@ set (sources
      cct3_add42.F90
      cct3_add43.F90
      cct3_add44.F90
-     cct3_add.F90
      cct3_divfok.F90
+     cct3_expand.F90
      cct3_expand0.F90
      cct3_expand1.F90
      cct3_expand2.F90
      cct3_expand3.F90
      cct3_expand40.F90
      cct3_expand41.F90
-     cct3_expand.F90
-     cct3.F90
      cct3_fokunpck1.F90
      cct3_fokunpck2.F90
      cct3_fokunpck3.F90
@@ -50,6 +50,7 @@ set (sources
      cct3_grc43c.F90
      cct3_grc43y.F90
      cct3_grc44c.F90
+     cct3_map.F90
      cct3_map11.F90
      cct3_map21.F90
      cct3_map22.F90
@@ -57,11 +58,10 @@ set (sources
      cct3_map32.F90
      cct3_map41.F90
      cct3_map42.F90
-     cct3_map.F90
      cct3_mc0c1a3b.F90
      cct3_mc0c1at3b.F90
-     cct3_multc0.F90
      cct3_mult.F90
+     cct3_multc0.F90
      cct3_multy0.F90
      cct3_mv0v1a3u.F90
      cct3_noperm.F90

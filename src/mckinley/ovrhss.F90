@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Ovrhss( &
+subroutine OvrHss( &
 #                 define _CALLING_
 #                 include "hss_interface.fh"
                  )
@@ -111,4 +111,4 @@ call CmbnS2(Array(ipRnxyz),nZeta,la,lb,Zeta,rKappa,rFinal,Array(ipAlph),Hess,nHe
 
 return
 
-end subroutine Ovrhss
+end subroutine OvrHss

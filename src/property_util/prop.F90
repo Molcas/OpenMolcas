@@ -33,7 +33,7 @@ subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole
 !     Occ(1:nTot)     occupation numbers for all eigenvectors,         *
 !                     a dummy for Short outputs                        *
 !     ThrSV           threshold for occupation numbers; If             *
-!                     Occ(i).le.ThrSV the contribution will not        *
+!                     Occ(i) <= ThrSV the contribution will not        *
 !                     be printed                                       *
 !     PrEl(1:nTot,    matrix elements for all components 1,2,...,      *
 !          1:maxlab)  maxlab, nTot entries for each component          *
@@ -54,6 +54,7 @@ subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
 
+use hfc_logical, only: MAG_X2C
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Angstrom, Debye
 use Definitions, only: wp, iwp, u6
@@ -65,7 +66,7 @@ integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nTot, lpole
 real(kind=wp), intent(in) :: cen1(3), cen2(3), Occ(nTot), ThrSV
 real(kind=wp), intent(inout) :: PrEl(nTot,(lpole+1)*(lpole+2)/2), PrNu((lpole+1)*(lpole+2)/2)
 integer(kind=iwp) :: i, icen, icen1, ilab, inp, ip_, iPL, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, izz, j, jMax, maxlab
-real(kind=wp) :: Fact, Molecular_Charge = Zero, sig, tmp, X_Coor, Y_Coor, Z_Coor
+real(kind=wp) :: Fact, Molecular_Charge = Zero, sig, tmp, X_Coor, Y_Coor, Z_Coor, CoM(3)
 logical(kind=iwp) :: StoreInfo
 integer(kind=iwp), parameter :: lmax = 16
 character(len=lmax) :: lab
@@ -78,7 +79,6 @@ real(kind=wp), allocatable :: PrElAug(:,:), PrNuAug(:), PrTot(:), tmat(:,:), tem
 character(len=lmax), allocatable :: labs(:), labsAug(:)
 integer(kind=iwp), external :: Cho_X_GetTol, iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-#include "hfc_logical.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -123,7 +123,7 @@ if (lab4 == 'MLTP') then
   ! Multipole moment section ... generate labels for printing
 
   if (lPole > lMax) then
-    write(u6,*) 'Prop: lPole.gt.lMax'
+    write(u6,*) 'Prop: lPole > lMax'
     write(u6,*) 'lPole=',lPole
     write(u6,*) 'Increase lMax and recompile!'
     call Abend()
@@ -165,16 +165,16 @@ if (lab4 == 'MLTP') then
       Line = 'Charge (e):'
       Fact = One
     else if (lPole == 1) then
-      Line = 'Dipole Moment (Debye):'
+      Line = 'Dipole Moment (debye):'
       Fact = Debye
     else if (lPole == 2) then
-      Line = 'Quadrupole Moment (Debye*Ang):'
+      Line = 'Quadrupole Moment (debye*angstrom):'
       Fact = Debye*Angstrom
     else if (lPole == 3) then
-      Line = 'Octupole Moment (Debye*Ang**2):'
+      Line = 'Octupole Moment (debye*angstrom**2):'
       Fact = Debye*Angstrom**2
     else if (lPole == 4) then
-      Line = 'Hexadecapole Moment (Debye*Ang**3):'
+      Line = 'Hexadecapole Moment (debye*angstrom**3):'
       Fact = Debye*Angstrom**3
     else
       Line = ''
@@ -185,8 +185,8 @@ if (lab4 == 'MLTP') then
         write(Line,'(I2)') lPole
         iSt = 3
       end if
-      Line(iSt:iSt+26) = 'th-pole Moment (Debye*Ang**'
-      iSt = iSt+27
+      Line(iSt:iSt+31) = 'th-pole Moment (debye*angstrom**'
+      iSt = iSt+32
       if (lpole <= 10) then
         write(Line(iSt:iSt),'(I1)') lpole-1
         iSt = iSt+1
@@ -199,7 +199,7 @@ if (lab4 == 'MLTP') then
     end if
     write(u6,'(6X,A)') trim(Line)
     if (lpole > 0) then
-      write(u6,'(6X,A,3F10.4)') 'Origin of the operator (Ang)=',(cen1(i)*Angstrom,i=1,3)
+      write(u6,'(6X,A,3F10.4)') 'Origin of the operator (angstrom)=',(cen1(i)*Angstrom,i=1,3)
     end if
     if (lPole == 0) then
       write(u6,'(6X,A,A,F10.4)') labs(1),'=',PrTot(1)*Fact
@@ -208,19 +208,18 @@ if (lab4 == 'MLTP') then
       tmp = sqrt(PrTot(1)**2+PrTot(2)**2+PrTot(3)**2)
       write(u6,'(4X,4(A,A,ES12.4))') labs(1),'=',PrTot(1)*Fact,labs(2),'=',PrTot(2)*Fact,labs(3),'=',PrTot(3)*Fact, &
                                      '           Total','=',tmp*Fact
+      call Put_DArray('Dipole moment',PrTot,3)
+      call xml_dDump('dipole','Dipole moment','debye',1,PrTot,3,1)
       if (abs(Molecular_Charge) > 0.9_wp) then
-        write(u6,'(6X,A)') 'Center of Charge (Ang)'
+        Call Get_dArray('Center of Mass',CoM,3)
+        PrTot(:)=PrTot(:)+CoM(:)/Molecular_Charge
+        write(u6,'(6X,A)') 'Center of Charge (angstrom)'
         X_Coor = Angstrom*(PrTot(1)/Molecular_Charge)
         Y_Coor = Angstrom*(PrTot(2)/Molecular_Charge)
         Z_Coor = Angstrom*(PrTot(3)/Molecular_Charge)
         write(u6,'(6X,3(A,A,F14.8))') labs(1),'=',X_Coor,labs(2),'=',Y_Coor,labs(3),'=',Z_Coor
         Molecular_Charge = Zero
       end if
-      call Put_DArray('Dipole moment',PrTot,3)
-      !call peek_iScalar('xml opened',isopen)
-      !if (isopen == 1) then
-      call xml_dDump('dipole','Dipole moment','Debye',1,PrTot,3,1)
-      !end if
     else if (lPole >= 2) then
       tmp = Zero
       do i=1,Maxlab
@@ -244,9 +243,9 @@ if (lab4 == 'MLTP') then
       PrTot(:) = PrNu(1:MaxLab)-PrEl(1,1:MaxLab)
 
       if (lPole >= 3) then
-        write(u6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang**',lPole-1,')'
+        write(u6,'(6X,A,I1,A)') 'In traceless form (debye*angstrom**',lPole-1,')'
       else
-        write(u6,'(6X,A,I1,A)') 'In traceless form (Debye*Ang)'
+        write(u6,'(6X,A,I1,A)') 'In traceless form (debye*angstrom)'
       end if
       ip_ = 1
       do i=1,maxlab,4
@@ -277,7 +276,7 @@ if (lab4 == 'MLTP') then
     call PrOut(Short,sig,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,maxlab,labs,PrTot,iPL,0,ifallorb)
     if (lpole == 1) then
       write(u6,'(6x,76(''-''))')
-      write(u6,'(6x,a,3f16.8,3x,a)') 'Total             ',(PrTot(j)*Debye,j=1,3),'Debye'
+      write(u6,'(6x,a,3f16.8,3x,a)') 'Total             ',(PrTot(j)*Debye,j=1,3),'debye'
       call Put_DArray('Dipole moment',PrTot,3)
     end if
 
@@ -314,7 +313,7 @@ if (lab4 == 'MLTP') then
       PrTot(:) = PrNu(1:MaxLab)-PrEl(1,1:MaxLab)
     end if
   !--------------------------------------------------------------------*
-  end if ! iPL
+ end if ! iPL
   !--------------------------------------------------------------------*
   ! Prop is also called in other programs where MAG_X2C could
   ! be uninitialized, if a test is required in such case

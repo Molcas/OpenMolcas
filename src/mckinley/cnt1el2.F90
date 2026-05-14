@@ -44,6 +44,7 @@ use Basis_Info, only: dbsc, MolWgh, nBas, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
+use Disp, only: IndDsp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -56,8 +57,6 @@ integer(kind=iwp), intent(in) :: iDCnt, iDCar, iadd, isym, kcar, nordop
 integer(kind=iwp), intent(out) :: loper
 real(kind=wp), intent(in) :: rHrmt
 logical(kind=iwp), intent(in) :: DiffOp
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iI, iIC, iIrrep, IndGrd(0:7), iopt, &
                      ip(8), iPrim, irc, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iStabO(0:7), iStart, iuv, jAng, jAO, jBas, &
                      jCmp, jCnt, jCnttp, jdisp, jIrrep, jPrim, jS, jShell, jShll, kk, kOper, lDCRR, LenInt, LenInt_Tot, lFinal, &
@@ -157,17 +156,17 @@ do iS=1,nSkal
     ! that kernels which will use the HRR will allocate that
     ! memory internally.
 
-    maxi = S%maxPrm(iAng)*S%maxprm(jang)
+    Maxi = S%MaxPrm(iAng)*S%MaxPrm(jAng)
     call mma_allocate(Zeta,maxi,Label='Zeta')
     call mma_allocate(ZI,maxi,Label='ZI')
     call mma_allocate(Kappa,maxi,Label='Kappa')
     call mma_allocate(PCoor,maxi,3,Label='PCoor')
     call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
 
-    ! Memory requirements for contraction and Symmetry
-    ! adaption of derivatives.
+    ! Memory requirements for contraction and symmetry
+    ! adaptation of derivatives.
 
-    lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nIrrep
+    lFinal = Maxi*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nIrrep
 
     MemKrn = max(MemKer*Maxi,lFinal)
     call mma_allocate(Kern,MemKrn,Label='Kern')
@@ -332,8 +331,8 @@ do iS=1,nSkal
             iSmlbl = 2**iIrrep
             iiC = iiC+1
             mSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-            if ((nfck(iirrep) /= 0) .and. (mSO /= 0)) call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Integrals(ip(iIC)),nFck(iIrrep),iSmLbl, &
-                                                                  iCmp,jCmp,iShell,jShell,iAO,jAO,nIC,Label,2**iIrrep,rHrmt)
+            if ((nfck(iirrep) /= 0) .and. (mSO /= 0)) &
+              call SOSctt(SO(iSOBlk),iBas,jBas,mSO,Integrals(ip(iIC)),nFck(iIrrep),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO,rHrmt)
             iSOBlk = iSOBlk+mSO*iBas*jBas
           end if
         end do

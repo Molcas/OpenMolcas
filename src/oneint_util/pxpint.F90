@@ -27,23 +27,21 @@ subroutine pXpInt( &
 
 use Symmetry_Info, only: iChBas, nIrrep
 use Index_Functions, only: nTri_Elem1
+use Integral_interfaces, only: int_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iBeta, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, iSym_p1, &
-                     iSym_p2, iSym_p3, iSym_pX, iSym_pXp, iTemp, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, mArr, nip
+integer(kind=iwp) :: iBeta, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr, ipB, ipOff, ipS1, ipS2, iSym_p1, iSym_p2, &
+                     iSym_p3, iSym_pX, iSym_pXp, iTemp, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, mArr, nip
 integer(kind=iwp), allocatable :: kChO(:,:), kOper(:,:)
 integer(kind=iwp), external :: IrrFnc
+procedure(int_kernel) :: pXint
 
 #include "macros.fh"
 unused_var(nHer)
-
-iRout = 220
-iPrint = nPrint(iRout)
 
 rFinal(:,:,:,:) = Zero
 Array(:) = Zero
@@ -120,13 +118,13 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call pXint(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,kIC,kComp,la,lb+1,A,RB,iDum,Array(ipArr),mArr,CCoor, &
+call pXint(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS1),nZeta,kIC,kComp,la,lb+1,A,RB,iDum,Array(ipArr),mArr,CoorO, &
            kOrdOp,kOper,kChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 if (lb > 0) then
-  call pXint(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,iDum,Array(ipArr),mArr,CCoor, &
+  call pXint(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipS2),nZeta,kIC,kComp,la,lb-1,A,RB,iDum,Array(ipArr),mArr,CoorO, &
              kOrdOp,kOper,kChO,iStabM,nStabM,PtChrg,nGrid,iAddPot)
 end if
 call mma_deallocate(kChO)
@@ -140,9 +138,9 @@ do iBeta=1,nBeta
   ipOff = ipOff+nAlpha
 end do
 
-if (iPrint >= 99) then
-  call RecPrt(' In pXpint: Beta (expanded)','(5D20.13)',Array(ipB),nZeta,1)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt(' In pXpint: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -154,8 +152,8 @@ call Ass_pXp(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nComp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (iPrint >= 49) call RecPrt('pXpInt: rFinal',' ',rFinal(:,:,:,1),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-
-return
+#ifdef _DEBUGPRINT_
+call RecPrt('pXpInt: rFinal',' ',rFinal(:,:,:,1),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+#endif
 
 end subroutine pXpInt

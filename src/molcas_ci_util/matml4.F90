@@ -23,8 +23,8 @@ implicit none
 integer(kind=iwp), intent(in) :: NCROW, NCCOL, NAROW, NACOL, NBROW, NBCOL, ITRNSP
 real(kind=wp), intent(out) :: C(NCROW,NCCOL)
 real(kind=wp), intent(in) :: A(NAROW,NACOL), B(NBROW,NBCOL)
-real(kind=wp) :: BJK, BKJ
 integer(kind=iwp) :: I, IZERO, J, K
+real(kind=wp) :: BJK, BKJ
 real(kind=wp), external :: DDOT_
 
 IZERO = 0

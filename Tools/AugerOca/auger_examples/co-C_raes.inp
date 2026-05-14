@@ -277,7 +277,13 @@ End of input
 >> COPY $Project.JobMix_A2x JOB005
 
 &RASSI
- Nrof JobIphs =  5 all
+ Nrof JobIphs 
+ 5 1 8 8 8 8
+ 1
+ 1 2 3 4 5 6 7 8
+ 1 2 3 4 5 6 7 8
+ 1 2 3 4 5 6 7 8
+ 1 2 3 4 5 6 7 8
  Ejob
  TDYS
  1

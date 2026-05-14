@@ -17,9 +17,10 @@ use guga_util_global, only: IAD10
 use Definitions, only: wp, iwp, RtoI
 
 implicit none
-#include "warnings.h"
 integer(kind=iwp) :: I, ILIM, MBUF1, MBUF2, MEMB, MEMX, NARR, NBSIZ1, NBSIZ2, NBSIZ3, NBUFBI, NHREF, NIJ, NIJKL, NOT2, NOVLY1, &
                      NPER, NPLEN, NVT
+
+#include "warnings.h"
 
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2
@@ -46,8 +47,8 @@ NBSIZ1 = MEMX/NCHN1-1
 NBUFBI = KBUFF1
 NBSIZ1 = min(NBSIZ1,MEMX-2*ISMAX-NBUFBI-1)
 NBSIZ1 = max(NBSIZ1,256)
-!PAM96 NBSIZ1=Size counted in real*8 words.
-!PAM96 Must contain NBITM1 real*8 + NBITM1 integ + 2 integ:
+!PAM96 NBSIZ1=Size counted in real words.
+!PAM96 Must contain NBITM1 real + NBITM1 integ + 2 integ:
 NBITM1 = (RTOI*NBSIZ1-2)/(RTOI+1)
 NBITM1 = min(NBITM1,NVSQ)
 NBITM1 = ((NBITM1+2)/RTOI)*RTOI-2

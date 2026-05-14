@@ -41,9 +41,6 @@ public :: IsInMem
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: fe_cptr2loff
-end interface
 interface mma_allocate
   module procedure :: fe_mma_allo_1D, fe_mma_allo_1D_lim
 end interface
@@ -67,7 +64,7 @@ subroutine PrgmInitC(ModName,l)
 end subroutine PrgmInitC
 
 subroutine PrgmFree()
-  if (allocated(FileTable)) call mma_deallocate(FileTable)
+  call mma_deallocate(FileTable,safe='*')
   return
 end subroutine PrgmFree
 
@@ -177,7 +174,7 @@ subroutine ReadPrgmFile(ModName)
 
 # include "macros.fh"
   unused_proc(mma_allocate(FileTable,[0,0]))
-  if (.not. allocated(FileTable)) call mma_allocate(FileTable,0,label='FileTable')
+  call mma_allocate(FileTable,0,label='FileTable',safe='*')
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'ModName: '//trim(ModName)
@@ -374,7 +371,7 @@ function ExpandVars(String,WD)
           Val = Project
         case ('WorkDir')
           Val = WD
-        case Default
+        case default
           call GetEnvF(Var,Val)
           if (trim(Val) == '') then
             if (Var /= 'SubProject') Val = 'UNK_VAR'
@@ -420,11 +417,8 @@ end subroutine PrgmCache
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define fe_cptr2loff, fe_mma_allo_1D, fe_mma_allo_1D_lim, fe_mma_free_1D
+! Define fe_mma_allo_1D, fe_mma_allo_1D_lim, fe_mma_free_1D
 #define _TYPE_ type(FileEntry)
-#  define _FUNC_NAME_ fe_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ fe_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'fe_mma'

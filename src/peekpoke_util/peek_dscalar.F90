@@ -29,7 +29,7 @@
 !> @author Per-Olof Widmark
 !>
 !> @details
-!> This routine is used to get scalar data of type ``Real*8``
+!> This routine is used to get scalar data of type ``Real``
 !> from the peek/poke buffer. The data items are identified
 !> by a text label.
 !>
@@ -91,7 +91,7 @@ if (indx == -1) then
 else
   val = ds_value(indx)
 end if
-!write(u6,'(a,e20.8)') 'peek_dscalar: Val is ',Val
+!write(u6,'(a,es20.8)') 'peek_dscalar: Val is ',Val
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*

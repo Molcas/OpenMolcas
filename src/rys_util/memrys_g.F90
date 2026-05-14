@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MemRys_g(iSD4,nSD,nRys,MemPrm)
+subroutine MemRys_g(iSD4,nSD,MemPrm)
 
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
-integer(kind=iwp), intent(out) :: nRys, MemPrm
-integer(kind=iwp) :: iAnga(4)
+integer(kind=iwp), intent(out) :: MemPrm
+integer(kind=iwp) :: iAnga(4), nRys
 
 iAnga(:) = iSD4(1,:)
 call MemRg1(iAnga,nRys,MemPrm)

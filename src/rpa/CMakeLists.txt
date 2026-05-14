@@ -14,9 +14,9 @@ set (sources
      chorpa_drv.F90
      chorpa_motra.F90
      chorpa_motra_reordercmo.F90
+     rpa.F90
      rpa_checkintegralrepresentation.F90
      rpa_cleanup.F90
-     rpa.F90
      rpa_freezer.F90
      rpa_frz.F90
      rpa_globals.F90
@@ -31,8 +31,8 @@ set (sources
      rpa_readintegerinput.F90
      rpa_setinc.F90
      rpa_setintegralrepresentation.F90
-     rpa_setup_add_info.F90
      rpa_setup.F90
+     rpa_setup_add_info.F90
      rpa_warn.F90
 )
 

@@ -19,29 +19,27 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: nSO, iSO2Sh(nSO), nShell
 integer(kind=iwp), intent(out) :: iSO2Ind(nSO)
-integer(kind=iwp) :: iB, iIrrep, Ind, iSh, iSO
+integer(kind=iwp) :: iB, iIrrep, iSh, iSO
 integer(kind=iwp), allocatable :: nTemp(:)
 
 call mma_allocate(nTemp,nShell,Label='nTemp')
 
 iSO = 0
+! Loop over the irreps
 do iIrrep=0,nIrrep-1
 
   nTemp(:) = 0
+  ! Loop over the canonical index of the auxiliary functions, starting from 1 for the first irrep.
   do iB=1,nBas_Aux(iIrrep)
     iSO = iSO+1
-    iSh = iSO2Sh(iSO)
-    nTemp(iSh) = nTemp(iSh)+1
-    Ind = nTemp(iSh)
-    !write(u6,*) 'iSO,iSh,Ind=',iSO,iSh,Ind
-    iSO2Ind(iSO) = Ind
+    iSh = iSO2Sh(iSO)  ! Pick up the corresponding shell index
+    nTemp(iSh) = nTemp(iSh)+1  ! Increment the count of basis functions for shell ish
+    ! This table translates the global index of a basis function, iSO, to the local index of the shell to which it belongs.
+    iSO2Ind(iSO) = nTemp(iSh)
   end do
 
 end do
-!call iVcPrt('iSO2Ind','(10I5)',iSO2Ind,nSO)
 
 call mma_deallocate(nTemp)
-
-return
 
 end subroutine Mk_iSO2Ind

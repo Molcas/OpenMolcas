@@ -13,6 +13,7 @@ subroutine PCM_Init(iPrint,ICharg,NAtm,AtmC,IAtm,LcAtmC,LcIAtm,NonEq)
 
 use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, MxSph, MxVert, NewSph, nVert, PCM_N, PCMDM, PCMiSph, PCMSph, &
                       PCMTess, Vert
+use rctfld_module, only: Conductor, DoDeriv, EPS, EPSInf, iSLPar, nS, nSInit, nTS, rSLPar, rSolv, vMol
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -26,7 +27,6 @@ integer(kind=iwp) :: I, LcI, LcNAtm
 real(kind=wp) :: Eps_, RJunk(1), TAbs
 integer(kind=iwp), allocatable :: pNs(:), VTS(:)
 real(kind=wp), allocatable :: Xs(:), Ys(:), Zs(:), RM(:,:), Rs(:), SDM(:,:), SM(:,:), TM(:,:)
-#include "rctfld.fh"
 
 ! Build the cavity.
 ! Write the input file for GeomView.

@@ -80,7 +80,7 @@ if (ExFac == Zero) then
       do i3=1,iCmp(3)
         do i4=1,iCmp(4)
 
-          ! Unfold the way the eight indicies have been reordered.
+          ! Unfold the way the eight indices have been reordered.
           iSO = iAOtSO(iAO(1)+i1,kOp(1))+iAOst(1)
           jSO = iAOtSO(iAO(2)+i2,kOp(2))+iAOst(2)
           kSO = iAOtSO(iAO(3)+i3,kOp(3))+iAOst(3)

@@ -11,7 +11,7 @@
 * Copyright (C) 1993, Markus P. Fuelscher                              *
 *               1993, Per Ake Malmqvist                                *
 ************************************************************************
-      Subroutine OpnFls_CASPT2
+      Subroutine OpnFls_CASPT2()
 ************************************************************************
 C  purpose:
 C  - initialize logical unit numbers
@@ -21,19 +21,22 @@ C  written by:
 C  M.P. Fuelscher and P. AA. Malmqvist
 C  University of Lund, Sweden, 1993
 ************************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      use definitions, only: iwp
+      use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2,
+     &                       LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT,
+     &                       LURHS, LUH0T, LUSOLV, LUSBT
+      use caspt2_module, only: IfChol
+      Implicit None
       CHARACTER(LEN=2) CVEC,CMAT
+      integer(kind=iwp) iMat, iOpt, iRC, iVec, LUINTA
+      logical(kind=iwp) IfDirect, Found2
 *---------------------------------------------------------------------*
 C  Start
 *---------------------------------------------------------------------*
-#include "rasdim.fh"
-#include "caspt2.fh"
 
 *---  define logical unit numbers ------------------------------------*
 C  AO two-electron integrals
       LUINTA=20
-C  AO one-electron integrals
-      LUONEA=9
 *
 C  Used during solution of the caspt2 eqs
       LUSOLV=40
@@ -59,7 +62,7 @@ C  Half transformed integrals (uq|rt)
       CALL DANAME_MF_wa(LUDRATOT,'DRARRT')
 *
 C-SVC: assign logical units for RHS arrays and open files for writing
-      DO IVEC=1,6
+      DO IVEC=1,8
         LURHS(IVEC)=50+IVEC
         write(unit=CVEC, fmt='(I2.2)') IVEC
         CALL DANAME_MF_WA(LURHS(IVEC),'RHS_'//CVEC)
@@ -105,8 +108,8 @@ C  AO one-electron integrals
           CALL ABEND()
         End If
       End If
+
 *----------------------------------------------------------------------*
 C  Exit
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine OpnFls_CASPT2

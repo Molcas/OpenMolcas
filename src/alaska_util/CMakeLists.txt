@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     caspt2_btamp.F90
      cmbnm2.F90
      cmbnmlt1.F90
      cmbnrf1.F90
@@ -20,15 +21,16 @@ set (sources
      create_grads.F90
      csfgrad.F90
      drvh1.F90
+     eval_g1_ijkl.F90
      finfld.F90
-     int_parm_g.F90
-     int_prep_g.F90
+     grd_interface.F90
      knegrd.F90
      knemmg.F90
      m1grd.F90
      m1mmg.F90
      m2grd.F90
      m2mmg.F90
+     mk_dcrs_and_stabilizers.F90
      mltgrd.F90
      mltgrdnuc.F90
      mltmmg.F90
@@ -39,6 +41,7 @@ set (sources
      ovrmmg.F90
      pcmgrd.F90
      pcmmmg.F90
+     pcm_alaska.F90
      prepre_g.F90
      prgrad.F90
      prjgrd.F90
@@ -49,12 +52,11 @@ set (sources
      rfgrd.F90
      rfmmg.F90
      screen_g.F90
-     size_sob_g.F90
-     soao_g.F90
      srogrd.F90
      srommg.F90
      store_grad.F90
      store_not_grad.F90
+     trgrd_alaska.F90
      twoel_g.F90
      welgrd.F90
      welmmg.F90
@@ -63,6 +65,9 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     grd_interface.F90
+     pcm_alaska.F90
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

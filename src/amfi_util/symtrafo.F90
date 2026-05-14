@@ -14,7 +14,8 @@ subroutine SymTrafo(LUPROP,lOper,nComp,nBas,nIrrep,Label,MolWgh)
 !bs integrals on one file AOPROPER_MF_SYM
 
 use AMFI_global, only: Lmax, MxCart
-use index_functions, only: iTri
+use index_functions, only: iTri, nTri_Elem
+use Molcas, only: MxAtom, MxOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -22,7 +23,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: LUPROP, nComp, lOper(nComp), nIrrep, nBas(0:nIrrep-1), MolWgh
 character(len=8), intent(in) :: Label
-#include "Molcas.fh"
 integer(kind=iwp) :: I, iBas, icc, iCent, icentprev, icoeff, iComp, idummy(8), iIrrep, ijSO, ilcentprev, imcentprev, indx, indexi, &
                      indexj, iOff, iOff2, iOpt, iorb, ipSCR, iRC, irun, isame, iSmLbl, iSO, iSO_a, iSO_r, istatus, isymunit, &
                      iunit, j1, j12, j2, jcent, jcentprev, jlcentprev, jmcentprev, jrun, jsame, jSO, jSO_r, lauf, laufalt, &
@@ -52,7 +52,7 @@ call f_inquire('SYMINFO',EX)
 if (.not. EX) call SysAbendMsg('systrafo','SYMINFO not present','Sorry')
 call molcas_open(isymunit,'SYMINFO')
 rewind(isymunit)
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Symmetry adapation of the SO-integrals'
 #endif
@@ -68,8 +68,8 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*) 'there are totally ',numboffunct,' functions'
 #endif
-if (numboffunct > MxOrb) call SysAbendMsg('symtrafo','increase MxOrb in Molcas.fh',' ')
-rewind isymunit
+if (numboffunct > MxOrb) call SysAbendMsg('symtrafo','increase MxOrb in the Molcas module',' ')
+rewind(isymunit)
 read(isymunit,*)
 read(isymunit,*)
 numbofcent = 0
@@ -145,7 +145,7 @@ do jcent=1,numbofcent
 # ifdef _DEBUGPRINT_
   write(u6,*) numballcart(icent),'functions on centre ',icent
 # endif
-  length3 = iTri(numballcart(icent),numballcart(icent))
+  length3 = nTri_Elem(numballcart(icent))
   C(iCent) = ipSCR
   read(iunit) (Scr(i,1),i=ipSCR,ipSCR+length3-1)
   read(iunit) xa2
@@ -162,7 +162,7 @@ do jcent=1,numbofcent
   end do
   Lhighcent(icent) = LLhigh
   !bs determize where the first function of a special type is..
-  not_defined = iTri(numboffunct,numboffunct)+1
+  not_defined = nTri_Elem(numboffunct)+1
   do Lrun=0,Lhighcent(icent)
     ifirstLM(Lrun,-Lrun:Lrun,icent) = not_defined
   end do
@@ -334,7 +334,7 @@ do iComp=1,nComp
   iOpt = 0
   iRC = -1
   iSmLbl = lOper(iComp)
-  call GADSum(SOInt(ip(iComp)),n2Tri(iSmLbl))
+  call GADGOp(SOInt(ip(iComp)),n2Tri(iSmLbl),'+')
   call WrOne(iRC,iOpt,Label,iComp,SOInt(ip(iComp)),iSmLbl)
   if (iRC /= 0) call SysAbendMsg('symtrafo','     Error in subroutine ONEEL ','     Abend in subroutine WrOne')
 

@@ -10,8 +10,8 @@
 #***********************************************************************
 
 set (sources
-     mh5_capi.c
      mh5.F90
+     mh5_capi.c
 )
 
 # Source files defining modules that should be available to other *_util directories

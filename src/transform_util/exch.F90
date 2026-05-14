@@ -19,6 +19,7 @@
 
 subroutine EXCH(ISYP,ISYI,ISYQ,ISYJ,II,IJ,ERI,SCR)
 
+use Intgrl, only: IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -28,7 +29,12 @@ integer(kind=iwp), intent(in) :: ISYP, ISYI, ISYQ, ISYJ, II, IJ
 real(kind=wp), intent(_OUT_) :: ERI(*), SCR(*)
 integer(kind=iwp) :: I, I3, I4, IDISK, IREC, IS12, IS34, ISY1, ISY2, ISY3, ISY4, NBUF, NDIM2M, NO1, NO2
 logical(kind=iwp) :: TRANSP
-#include "intgrl.fh"
+
+! Buffer size:
+NO1 = NORBZ(ISYP)
+NO2 = NORBZ(ISYQ)
+NBUF = NO1*NO2
+if (NBUF == 0) return
 
 NDIM2M = (NSYMZ*(NSYMZ+1))/2
 if (ISYP >= ISYQ) then
@@ -74,11 +80,8 @@ else
   IREC = I3+NOSHZ(ISY3)*(I4-1)
 end if
 
-! Buffer size:
 NO1 = NORBZ(ISY1)
 NO2 = NORBZ(ISY2)
-NBUF = NO1*NO2
-if (NBUF == 0) return
 
 ! Address update for earlier records, then read:
 ! PAM07 * Eliminate unsafe IPOSFILE call

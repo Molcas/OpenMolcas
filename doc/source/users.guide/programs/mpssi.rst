@@ -163,7 +163,7 @@ this sequence cannot be interrupted by a comment line. The first 4
 characters of keywords are decoded. An unidentified keyword makes the
 program stop. Note that :program:`MPSSI` shares **ALL** keywords with :program:`RASSI` which do **NOT** request CI-type
 quantities. Below is just a list of additional keywords available for enabling the effective Hamiltonian from a
-preceeding :program:`NEVPT2` calculation, in order to achieve a state-dressing.
+preceding :program:`NEVPT2` calculation, in order to achieve a state-dressing.
 
 .. index::
    pair: Keywords; MPSSI

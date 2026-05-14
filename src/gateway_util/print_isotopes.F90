@@ -14,11 +14,11 @@
 subroutine Print_Isotopes()
 
 use Basis_Info, only: dbsc, nCnttp
+use PrintLevel, only: nPrint
 use Constants, only: UtoAU
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: i, iAtom, iPrint, iRout
 real(kind=wp) :: act_Mass, def_Mass
 logical(kind=iwp) :: Changed

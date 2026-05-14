@@ -13,13 +13,14 @@
 
 subroutine Dispersion_Kriging_Layer(qInt,E_Disp,nInter)
 
+use kriging_mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter
 real(kind=wp), intent(in) :: qInt(nInter)
-real(kind=wp), intent(out) :: E_Disp
+real(kind=wp), intent(out) :: E_Disp(nSet)
 real(kind=wp), allocatable :: qInt_s(:)
 
 call mma_allocate(qInt_s,nInter,label='qInt_s')

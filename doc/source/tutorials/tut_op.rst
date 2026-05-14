@@ -12,9 +12,9 @@ a minimum energy geometry as the PES progresses in a downward manner.
 
 All these types of searches can be performed either by fully optimizing all
 degrees of freedom of the system or by introducing certain restrictions. |molcas| can perform
-geometry optimizations at the SCF (RHF and UHF), DFT (RHF and UHF based), CASSCF (CASSCF and RASSCF) levels of theory,
-where efficient analytical gradients are available and at the CASPT2 and other correlated levels where numerical
-gradients are used.
+geometry optimizations at the SCF (RHF and UHF), DFT (RHF and UHF based), CASSCF (CASSCF and RASSCF),
+CASPT2 (CASPT2 and RASPT2) levels of theory, where efficient analytical gradients are available,
+and other correlated levels where numerical gradients are used.
 
 Geometry optimizations require many cycles, in which the electronic energy is estimated at a specific
 level of calculation followed by calculation of the gradient of the energy with respect to the geometric
@@ -288,7 +288,7 @@ is given below:
 
   >>> EndDo
 
-The initial coordinates were chosen in units of Bohr, to illustrare that this is the
+The initial coordinates were chosen in units of bohr, to illustrare that this is the
 default case. The optimal geometry for ground state of water is a structure with :math:`C_{2v}` symmetry.
 A transition state has been found with a linear H--O--H angle of 180\ |o|.
 In many cases, there may be a clue along the energy pathway for a chemical reaction about the nature of the transition state structure,
@@ -328,11 +328,18 @@ final transition state will, however, be obtained without any type of geometrica
 
   >>> EndDo
 
-The :program:`CASPT2` geometry optimizations are somewhat different because :program:`ALASKA`
-is not suited to compute :program:`CASPT2` analytical gradients. Therefore the :program:`ALASKA`
-program is automatically substituted by program :program:`NUMERICAL_GRADIENT`, which will take care
-of performing numerical gradients. From the user point of view the only requirement is to place
-the :program:`CASPT2` input after the :program:`RASSCF` input.
+Geometry optimizations with the :program:`CASPT2` module will use the analytical
+gradients automatically, if available, calling :program:`ALASKA`.
+Since not all features implemented in :program:`CASPT2` are available in combination
+with the analytical gradients code, if a particular combination of keywords is such
+that the analytical gradients cannot be used, the :program:`ALASKA` program is automatically
+substituted by program :program:`NUMERICAL_GRADIENT`, which will take care
+of performing numerical gradients. From the user point of view the only requirement is to
+place the :program:`CASPT2` input after the :program:`RASSCF` input, in case one
+would like to compute state-specific gradients, and the keyword :kword:`GRDT` in the
+:program:`CASPT2` input block. For analytical gradients and NAC vector for quasi-degenerate
+variants, please look in the :program:`CASPT2` section of the manual.
+In the following example, the gradients are computed using the numerical procedure.
 The CASSCF wave function has of course to be generated in each step before
 performing CASPT2. To compute a numerical gradient can be quite time consuming,
 although it is a task that can be nicely parallelized. In a double-sided
@@ -385,11 +392,11 @@ class of orbitals and it can be used as a learning tool.
   Symmetry= X Z
   Basis set
   O.ANO-S...2s1p.
-  O        0.000000  0.000000  0.000000 Angstrom
+  O        0.000000  0.000000  0.000000 angstrom
   End of basis
   Basis set
   H.ANO-S...1s.
-  H1       0.000000  0.758602  0.504284 Angstrom
+  H1       0.000000  0.758602  0.504284 angstrom
   End of basis
 
   >>> EXPORT MOLCAS_MAXITER=100

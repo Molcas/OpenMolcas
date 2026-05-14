@@ -11,6 +11,7 @@
 ! Copyright (C) 1989, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#ifdef _DEBUGPRINT_
 subroutine CNFSTR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,ISCR,SGN,IPREXH)
 ! An orbital configuration ICONF is given
 ! Obtain the corresponding alpha strings, IASTR
@@ -19,21 +20,25 @@ subroutine CNFSTR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,ISCR,SGN,IPR
 !
 ! Jeppe Olsen, Summer of '89
 
-use Definitions, only: wp, iwp, u6
+use spinfo, only: MINOP, NDTFTP
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NORB, ICONF(NORB), ITYP, NAEL, NBEL, IDET, IPRODT(*)
 integer(kind=iwp), intent(inout) :: IPREXH
 integer(kind=iwp), intent(out) :: IASTR(NAEL,IDET), IBSTR(NBEL,IDET), ISCR(NAEL+NBEL,0:IDET)
 real(kind=wp), intent(out) :: SGN(IDET)
-integer(kind=iwp) :: ICLOS, IOCC, IOPEN, IP, ISGN, JDET, JTYP, NEL, NTEST
-#include "spinfo.fh"
-#include "ciinfo.fh"
+integer(kind=iwp) :: ICLOS, IOPEN, IP, ISGN, JDET, JTYP, NEL
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IOCC
+#endif
 
 NEL = NAEL+NBEL
 IOPEN = ITYP-1+MINOP
 ICLOS = (NEL-IOPEN)/2
-IOCC = IOPEN+ICLOS
 
 ! Spin orbital occupations of determinants of configuration
 
@@ -51,18 +56,18 @@ do JDET=1,IDET
   SGN(JDET) = real(ISGN,kind=wp)
 end do
 
-NTEST = 0
-if (NTEST >= 1) then
-  write(u6,*) ' Output from CNFSTR'
-  write(u6,*) ' =================='
-  write(u6,*) ' Input configuration'
-  call IWRTMA(ICONF,1,IOCC,1,IOCC)
-  write(u6,*) ' Corresponding alpha and beta strings'
-  call IWRTMA(IASTR,NAEL,IDET,NAEL,IDET)
-  call IWRTMA(IBSTR,NBEL,IDET,NBEL,IDET)
-  write(u6,*) ' SIGN ARRAY'
-  call WRTMAT(SGN,1,IDET,1,IDET)
-end if
+#ifdef _DEBUGPRINT_
+IOCC = IOPEN+ICLOS
+write(u6,*) ' Output from CNFSTR'
+write(u6,*) ' =================='
+write(u6,*) ' Input configuration'
+call IWRTMA(ICONF,1,IOCC,1,IOCC)
+write(u6,*) ' Corresponding alpha and beta strings'
+call IWRTMA(IASTR,NAEL,IDET,NAEL,IDET)
+call IWRTMA(IBSTR,NBEL,IDET,NBEL,IDET)
+write(u6,*) ' SIGN ARRAY'
+call WRTMAT(SGN,1,IDET,1,IDET)
+#endif
 
 return
 

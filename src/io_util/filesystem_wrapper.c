@@ -70,7 +70,7 @@ INT get_errno() {
 /* Method to recursively remove a directory and its contents
 (from a stackoverflow.com answer) */
 
-/* private method to be used as argument for rmrf */
+/* private method to be used as argument for nftw */
 static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf) {
   int rv = remove(fpath);
 

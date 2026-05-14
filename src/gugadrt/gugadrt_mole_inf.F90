@@ -476,7 +476,7 @@ write(u6,*) '    num. of electrons:      ',n_electron
 write(u6,*) '    multiplicity:           ',mult
 write(u6,*) '    symmetry:               ',ns_sm
 write(u6,*)
-write(u6,*) '    oribtials per-symmtry'
+write(u6,*) '    orbitals per-symmetry'
 write(u6,1003) noidx(1:ng_sm)
 write(u6,1004) nlsmddel(1:ng_sm)
 write(u6,1005) nlsm_dbl(1:ng_sm)

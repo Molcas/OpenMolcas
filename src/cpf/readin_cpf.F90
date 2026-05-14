@@ -19,12 +19,12 @@ use cpf_global, only: BNAME, CTRSH, ETHRE, ETOT, ICASE, ICH, ICONV, ICPF, IFIRST
                       IROW, ISAB, ISC, ISDCI, ISMAX, ITOC17, IV0, IV1, JJS, JSY, LN, LSYM, Lu_CIGuga, Lu_TraOne, LWSP, MAXIT, &
                       MAXITP, N, NASH, NBAS, NFRO, NISH, NORB, NORBT, NPFRO, NREF, NSM, NSYM, NVIR, NVIRT, POTNUC, WLEV
 use guga_util_global, only: IAD10, nIOCR
+use Molcas, only: LenIn, MxOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: mxTit = 10
 integer(kind=iwp) :: I, IADD10, iCmd, IDISK, IIN, INTNUM, iOpt, IR, iRef, IRJ, istatus, iSym, IT, IU, IV, IVA, IX1, IX2, IX3, IX4, &
                      IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, NAMSIZ, NASHI, NASHT, NBAST, NDEL(8), NDELI, NDELT, &
@@ -36,7 +36,7 @@ character(len=88) :: ModLine
 character(len=72) :: Line, Title(mxTit)
 character(len=4) :: Command
 integer(kind=iwp), allocatable :: IOCR(:), JREFX(:)
-character(len=4), parameter :: Cmd(16) = ['TITL','MAXP','LEVS','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','MCPF','CPF ', &
+character(len=*), parameter :: Cmd(16) = ['TITL','MAXP','LEVS','THRP','PRIN','FROZ','DELE','MAXI','ECON','REST','MCPF','CPF ', &
                                           'SDCI','ACPF','LOW ','END ']
 
 !---  Initialize arrays and variables ---------------------------------*
@@ -80,7 +80,7 @@ nTit = 0
 
 !---  read the header of TRAONE ---------------------------------------*
 ! Note: NORB(i)=NBAS(i)-NPFRO(i)-NPDEL(i)
-NAMSIZ = LenIn8*MXORB
+NAMSIZ = (LenIn+8)*MXORB
 IDISK = 0
 call WR_MOTRA_Info(Lu_TraOne,2,iDisk,ITOC17,64,POTNUC,NSYM,NBAS,NORB,NPFRO,NPDEL,8,BNAME,NAMSIZ)
 
@@ -253,15 +253,15 @@ if (ntit == 0) then
   title(1) = ' ( No title was given )'
 end if
 write(u6,*)
-write(u6,'(6X,120A1)') ('*',i=1,120)
-write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-write(u6,'(6X,57A1,A6,57A1)') '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
+write(u6,'(6X,A)') repeat('*',120)
+write(u6,'(6X,A,118X,A)') '*','*'
+write(u6,'(6X,A,56X,A,56X,A)') '*','Title:','*'
 do i=1,nTit
   call Center_Text(Title(i))
-  write(u6,'(6X,24A1,A72,24A1)') '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
+  write(u6,'(6X,A,23X,A,23X,A)') '*',Title(i),'*'
 end do
-write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-write(u6,'(6X,120A1)') ('*',i=1,120)
+write(u6,'(6X,A,118X,A)') '*','*'
+write(u6,'(6X,A)') repeat('*',120)
 write(u6,*)
 
 !---  print the coordinates of the system -----------------------------*

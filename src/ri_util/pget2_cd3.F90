@@ -31,6 +31,9 @@ subroutine PGet2_CD3(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,nijkl,PSO,nPSO,DSO,nDSO,
 use Index_Functions, only: iTri
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
+#ifdef _DEBUGPRINT_
+use pso_stuff, only: D0, iD0Lbl
+#endif
 use Symmetry_Info, only: Mul, nIrrep
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -49,8 +52,7 @@ integer(kind=iwp), external :: iPntSO
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-iComp = 1
-call PrMtrx(' In PGet2_CD3:DSO ',[iD0Lbl],iComp,1,D0)
+call PrMtrx(' In PGet2_CD3:DSO ',[iD0Lbl],1,[1],D0)
 call RecPrt('V_K',' ',V_K,1,mV_K)
 #endif
 !                                                                      *
@@ -116,7 +118,7 @@ do i1=1,iCmp(1)
 
                 MemSO2 = MemSO2+1
 
-                ! Unfold the way the eight indicies have been reordered.
+                ! Unfold the way the eight indices have been reordered.
                 iSO = iAOtSO(iAO(1)+i1,j1)+iAOst(1)
                 jSO = iAOtSO(iAO(2)+i2,j2)+iAOst(2)
                 kSO = iAOtSO(iAO(3)+i3,j3)+iAOst(3)

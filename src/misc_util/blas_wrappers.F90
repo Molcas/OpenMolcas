@@ -20,6 +20,7 @@
 ! ddot_
 ! dgemm_
 ! dgemv_
+! dger_
 ! dnrm2_
 ! drot_
 ! dscal_
@@ -28,15 +29,13 @@
 ! dznrm2_
 ! idamax_
 ! scopy_
-! zaxpy_
 ! zcopy_
 ! zdscal_
 ! zgemm_
-! zscal_
 
 ! Specify if integer conversion will be needed.
 ! (real conversion is not implemented yet)
-#if defined(LINALG_I4) && defined(_I8_)
+#if defined (LINALG_I4) && defined (_I8_)
 # define MOLCAS_TO_BLAS_INT
 # define _BLAS_INT_use_ use Definitions, only: BLASInt
 #else
@@ -215,6 +214,26 @@ subroutine dgemv_(trans,m_,n_,alpha,a,lda_,x,incx_,beta,y,incy_)
 # endif
 end subroutine dgemv_
 
+subroutine dger_(m_,n_,alpha,x,incx_,y,incy_,a,lda_)
+  use Definitions, only: BLASR8, iwp
+  _BLAS_INT_use_
+  implicit none
+  integer(kind=iwp), intent(in) :: m_, n_, incx_, incy_, lda_
+  real(kind=BLASR8), intent(in) :: alpha, x(*), y(*)
+  real(kind=BLASR8), intent(inout) :: a(lda_,*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: m, n, incx, incy, lda
+  m = int(m_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  incx = int(incx_,kind=BLASInt)
+  incy = int(incy_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  call dger(m,n,alpha,x,incx,y,incy,a,lda)
+# else
+  call dger(m_,n_,alpha,x,incx_,y,incy_,a,lda_)
+# endif
+end subroutine dger_
+
 function dnrm2_(n_,x,incx_)
   use Definitions, only: BLASR8, iwp
   _BLAS_INT_use_
@@ -378,24 +397,6 @@ subroutine scopy_(n_,sx,incx_,sy,incy_)
 # endif
 end subroutine scopy_
 
-subroutine zaxpy_(n_,da,dx,incx_,dy,incy_)
-  use Definitions, only: BLASR8, iwp
-  _BLAS_INT_use_
-  implicit none
-  integer(kind=iwp), intent(in) :: n_, incx_, incy_
-  complex(kind=BLASR8), intent(in) :: da, dx(*)
-  complex(kind=BLASR8), intent(out) :: dy(*)
-# ifdef MOLCAS_TO_BLAS_INT
-  integer(kind=BLASInt) :: n, incx, incy
-  n = int(n_,kind=BLASInt)
-  incx = int(incx_,kind=BLASInt)
-  incy = int(incy_,kind=BLASInt)
-  call zaxpy(n,da,dx,incx,dy,incy)
-# else
-  call zaxpy(n_,da,dx,incx_,dy,incy_)
-# endif
-end subroutine zaxpy_
-
 subroutine zcopy_(n_,dx,incx_,dy,incy_)
   use Definitions, only: BLASR8, iwp
   _BLAS_INT_use_
@@ -478,20 +479,3 @@ subroutine zgemm_(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
   end if
 # endif
 end subroutine zgemm_
-
-subroutine zscal_(n_,da,dx,incx_)
-  use Definitions, only: BLASR8, iwp
-  _BLAS_INT_use_
-  implicit none
-  integer(kind=iwp), intent(in) :: n_, incx_
-  complex(kind=BLASR8), intent(in) :: da
-  complex(kind=BLASR8), intent(inout) :: dx(*)
-# ifdef MOLCAS_TO_BLAS_INT
-  integer(kind=BLASInt) :: n, incx
-  n = int(n_,kind=BLASInt)
-  incx = int(incx_,kind=BLASInt)
-  call zscal(n,da,dx,incx)
-# else
-  call zscal(n_,da,dx,incx_)
-# endif
-end subroutine zscal_

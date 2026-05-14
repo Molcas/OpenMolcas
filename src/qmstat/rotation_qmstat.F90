@@ -25,6 +25,7 @@ real(kind=wp), intent(inout) :: dMul(nTri_Elem1(_MxM_))
 real(kind=wp), intent(in) :: Rotte(3,3), Sigge
 real(kind=wp) :: d1, d2, d3, dMTrans(6), Sig, TD(6,6)
 integer(kind=iwp) :: i, j
+
 #include "warnings.h"
 
 if (iL == 0) then

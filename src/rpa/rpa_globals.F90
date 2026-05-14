@@ -19,7 +19,7 @@ private
 integer(kind=iwp) :: nTitle, nSym, nFreeze(2), nBas(8), nOrb(8), nFro(8,2), nOcc(8,2), nVir(8,2), nDel(8,2), l_CMO, l_EMO, &
                      l_OccEn(2), l_VirEn(2), iPrint
 real(kind=wp) :: NuclearRepulsionEnergy(1)
-logical(kind=iwp) :: dRPA, SOSEX, doCD, doDF, doLDF, LumOrb
+logical(kind=iwp) :: dRPA, SOSEX, doCD, doDF, LumOrb
 character(len=3) :: Reference
 character(len=8) :: RPAModel
 character(len=80) :: DFTFunctional
@@ -28,6 +28,6 @@ integer(kind=iwp), parameter :: mTitle = 10
 character(len=80) :: Title(mTitle)
 
 public :: nTitle, nSym, nFreeze, nBas, nORb, nFro, nOcc, nVir, nDel, CMO, l_CMO, EMO, l_EMO, OccEn, l_OccEn, VirEn, l_VirEn, &
-          iPrint, NuclearRepulsionEnergy, dRPA, SOSEX, doCD, doDF, doLDF, LumOrb, Reference, RPAModel, DFTFunctional, mTitle, Title
+          iPrint, NuclearRepulsionEnergy, dRPA, SOSEX, doCD, doDF, LumOrb, Reference, RPAModel, DFTFunctional, mTitle, Title
 
 end module RPA_globals

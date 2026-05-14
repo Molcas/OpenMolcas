@@ -10,7 +10,9 @@
 !***********************************************************************
 
 ! This subroutine should be in a module, to avoid explicit interfaces
-#ifdef _IN_MODULE_
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine Fix_Exponents(nP,mP,nC,Expn,CoeffC,CoeffP)
 
@@ -25,7 +27,7 @@ integer(kind=iwp) :: i, iC, iP, jP, iSkip
 real(kind=wp) :: Temp, Thr_Skip
 real(kind=wp), allocatable :: Scr1(:), Scr2(:,:,:)
 
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('Fix_Exponents: Expn',' ',Expn,1,nP)
 call RecPrt('Fix_Exponents: CoeffC(1)',' ',CoeffC(:,:,1),nP,nC)
@@ -131,6 +133,5 @@ end if
 
 return
 
+#undef _DEBUGPRINT_
 end subroutine Fix_Exponents
-
-#endif

@@ -106,7 +106,7 @@ do lP1=1,lMax+1
     nmat = nP*(nP+1)/2
     if (iprint >= 10) then
       write(u6,*) ' relativistic integrals'
-      write(u6,'(4d19.12)') (hcorr(i),i=1,nmat)
+      write(u6,'(4es19.12)') (hcorr(i),i=1,nmat)
     end if
     Rel(:) = Zero
   end if

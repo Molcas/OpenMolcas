@@ -29,9 +29,8 @@ private
 !     reflecting permutation
 ! np nq nr ns typ idis
 !
-!6.   four mapd,mapi matrices and corresponding initial positions variables
-!     mapd and mapi for R_i matrix, required for making T3 integrals
-! pos10 pos20 pos30 mapd1 mapi1 mapd2 mapi2 mapd3 mapi3 posri0 mapdri mapiri
+!6.   four map types for R_i matrix, required for making T3 integrals
+! map1 map2 map3 ri
 !
 !7.   lun for INTA1 <ma||ef>aaaa, <ma||ef>baab
 !     lun for INTA2 <ma||ef>bbbb, <ma||ef>abab
@@ -61,21 +60,28 @@ private
 !     disk addresses for MOLCAS DA file handling
 ! daddr
 
+! pos0 - initial position
+! d    - direct map
+! i    - inverse map
+type Map_Type
+  integer(kind=iwp) :: d(0:512,6), i(8,8,8), pos0
+end type Map_Type
+
 integer(kind=iwp), parameter :: mbas = 1024, nsize = 8192, reclen = 100
 integer(kind=iwp) :: cckey, clopkey, daddr(128), fullprint, IADR15(64), idis(8,8,8), iokey, IPT2, ISCF, ISPIN, jh(nsize), JOBIPH, &
                      kh(nsize), lh(nsize), lrectemp(mbas), LROOT, LSYM, LUINTM, luna1, luna2, luna3, luna4, lunab, lunda1, lunda2, &
-                     lunpublic, lunt3, mapd1(0:512,6), mapd2(0:512,6), mapd3(0:512,6), mapdri(0:512,6), mapi1(8,8,8), &
-                     mapi2(8,8,8), mapi3(8,8,8), mapiri(8,8,8), maxspace, NACTEL, NASH(8), NASHT, NBAS(8), nBasX(8), NCONF, &
-                     NDEL(8), ndelr(8), nDelX(8), NELE3, NFRO(8), nfror(8), nFroX(8), NHOLE1, NISH(8), NISHT, noa(8), nob(8), &
-                     noop, NORB(8), np(8,8,8), nq(8,8,8), nr(8,8,8), nrectemp(mbas), NROOTS, ns(8,8,8), nshow(mbas), NSSH(8), &
-                     NSSHT, NSYM, nSymX, nva(8), nvb(8), pos10, pos20, pos30, posri0, stattemp(mbas), t3key, typ(8,8,8), zrkey
+                     lunpublic, lunt3, maxspace, NACTEL, NASH(8), NASHT, NBAS(8), nBasX(8), NCONF, NDEL(8), ndelr(8), nDelX(8), &
+                     NELE3, NFRO(8), nfror(8), nFroX(8), NHOLE1, NISH(8), NISHT, noa(8), nob(8), noop, NORB(8), np(8,8,8), &
+                     nq(8,8,8), nr(8,8,8), nrectemp(mbas), NROOTS, ns(8,8,8), nshow(mbas), NSSH(8), NSSHT, NSYM, nSymX, nva(8), &
+                     nvb(8), stattemp(mbas), t3key, typ(8,8,8), zrkey
 real(kind=wp) :: EScf, valh(nsize)
 character(len=7) :: tmpnam(mbas)
+type(Map_Type) :: map1, map2, map3, ri
 
 public :: cckey, clopkey, daddr, Escf, fullprint, IADR15, idis, iokey, IPT2, ISCF, ISPIN, jh, JOBIPH, kh, lh, lrectemp, LROOT, &
-          LSYM, LUINTM, luna1, luna2, luna3, luna4, lunab, lunda1, lunda2, lunpublic, lunt3, mapd1, mapd2, mapd3, mapdri, mapi1, &
-          mapi2, mapi3, mapiri, maxspace, mbas, NACTEL, NASH, NASHT, NBAS, nBasX, NCONF, NDEL, ndelr, nDelX, NELE3, NFRO, nfror, &
-          nFroX, NHOLE1, NISH, NISHT, noa, nob, noop, NORB, np, nq, nr, nrectemp, NROOTS, ns, nshow, nsize, NSSH, NSSHT, NSYM, &
-          nSymX, nva, nvb, pos10, pos20, pos30, posri0, reclen, stattemp, t3key, tmpnam, typ, valh, zrkey
+          LSYM, LUINTM, luna1, luna2, luna3, luna4, lunab, lunda1, lunda2, lunpublic, lunt3, Map_Type, map1, map2, map3, maxspace, &
+          mbas, NACTEL, NASH, NASHT, NBAS, nBasX, NCONF, NDEL, ndelr, nDelX, NELE3, NFRO, nfror, nFroX, NHOLE1, NISH, NISHT, noa, &
+          nob, noop, NORB, np, nq, nr, nrectemp, NROOTS, ns, nshow, nsize, NSSH, NSSHT, NSYM, nSymX, nva, nvb, reclen, ri, &
+          stattemp, t3key, tmpnam, typ, valh, zrkey
 
 end module ccsort_global

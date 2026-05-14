@@ -16,28 +16,36 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKLIST(LIST)
-      USE SUPERINDEX
+      SUBROUTINE MKLIST(LIST,mList)
+      use Symmetry_Info, only: Mul
+      USE SUPERINDEX, only: MTU, KTUV, MTGEU, MTGTU, KTU, KTGEU, KTGTU,
+     &                      KIGEJ, KIGTJ, KAGEB, KAGTB
+      use EQSOLV, only: llist, nlist
+      use caspt2_module, only: nAshT, nSym, nAES, NTUES, NTUVES,
+     &                         NTU, nAsh, NTGEUES, NTGEU, NTGTUES,
+     &                         NTGTU, NTGEUES, NTGTUES, NIES, NIGEJES,
+     &                         NIGTJES, NIGEJES, NIGTJES, nIsh, NSES,
+     &                         NAGEBES, NAGTBES, NAGEBES, nSsh
+      use definitions, only: iwp
       IMPLICIT NONE
 C Subroutine for setting up the 17 lists of coupling
 C  coefficients -- See sgm.f and sgm.ol for usage.
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "eqsolv.fh"
 
-      INTEGER LIST(*)
+      INTEGER(kind=iwp), intent(in):: mLIST
+      INTEGER(kind=iwp), intent(out):: LIST(mList)
 
-      INTEGER IA,IB,II,IJ,IT,IU
-      INTEGER IAB,IIJ,ITU,ITU1,ITU2,IUT1,IUT2,IUV,IUU2
-      INTEGER ITUV,IUTV,IUVT,IVTU,IVUT
-      INTEGER IAQ,IBQ,IIQ,IJQ,ITQ,IUQ,IVQ,IUVQ
-      INTEGER ILIST,ISL1,ISL2,ISL3
-      INTEGER LADR,LADR1,LADR2,LADR3,LADR4,LADR5,LADR6,LADR7,LADR8,
-     &        LADR9,LADR10,LADR11,LADR12,LADR13,LADR14,LADR15,
-     &        LADR16,LADR17
-      INTEGER NOFF
+      INTEGER(kind=iwp) IA,IB,II,IJ,IT,IU
+      INTEGER(kind=iwp) IAB,IIJ,ITU,ITU1,ITU2,IUT1,IUT2,IUV,IUU2
+      INTEGER(kind=iwp) ITUV,IUTV,IUVT,IVTU,IVUT
+      INTEGER(kind=iwp) IAQ,IBQ,IIQ,IJQ,ITQ,IUQ,IVQ,IUVQ
+      INTEGER(kind=iwp) ILIST,ISL1,ISL2,ISL3
+      INTEGER(kind=iwp) LADR,LADR1,LADR2,LADR3,LADR4,LADR5,LADR6,LADR7,
+     &                  LADR8,LADR9,LADR10,LADR11,LADR12,LADR13,LADR14,
+     &                  LADR15,LADR16,LADR17
+      INTEGER(kind=iwp) NOFF
 
 
+      LIST(:)=0
       LADR=1
       DO ILIST=1,17
        DO ISL1=1,NSYM
@@ -53,7 +61,7 @@ C Lists 1 and 2. TUV/TU*
        DO ISL3=1,NSYM
         LADR1 =LLIST(ISL1,ISL3,1)
         LADR2 =LLIST(ISL1,ISL3,2)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
           DO IUV=1,NTU(ISL3)
@@ -97,7 +105,7 @@ C Lists 3 and 5. TUV/TU+
        DO ISL3=1,NSYM
         LADR3 =LLIST(ISL1,ISL3,3)
         LADR5 =LLIST(ISL1,ISL3,5)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
           DO IUV=1,NTGEU(ISL3)
@@ -157,7 +165,7 @@ C Lists 4 and 6. TUV/TU-
        DO ISL3=1,NSYM
         LADR4 =LLIST(ISL1,ISL3,4)
         LADR6 =LLIST(ISL1,ISL3,6)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
           DO IUV=1,NTGTU(ISL3)
@@ -202,7 +210,7 @@ C Lists 7 and 8. TU*/T
        DO ISL3=1,NSYM
         LADR7 =LLIST(ISL1,ISL3,7)
         LADR8 =LLIST(ISL1,ISL3,8)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         NOFF=NTU(ISL1)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
@@ -246,7 +254,7 @@ C Lists  9 and 10. TU+-/T
        DO ISL3=1,NSYM
         LADR9 =LLIST(ISL1,ISL3,9)
         LADR10=LLIST(ISL1,ISL3,10)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
           DO IU=1,NASH(ISL3)
@@ -300,7 +308,7 @@ C Lists 12 and 13. T/TU+-
        DO ISL3=1,NSYM
         LADR12=LLIST(ISL1,ISL3,12)
         LADR13=LLIST(ISL1,ISL3,13)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL1)
           ITQ=IT+NAES(ISL1)
           DO IU=1,NASH(ISL2)
@@ -353,7 +361,7 @@ C List 11. T/TU*
       DO ISL1=1,NSYM
        DO ISL3=1,NSYM
         LADR11=LLIST(ISL1,ISL3,11)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         NOFF=NTU(ISL3)
         DO IT=1,NASH(ISL1)
           ITQ=IT+NAES(ISL1)
@@ -387,7 +395,7 @@ C Lists 14 and 15. I/IJ+-
        DO ISL3=1,NSYM
         LADR14=LLIST(ISL1,ISL3,14)
         LADR15=LLIST(ISL1,ISL3,15)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO II=1,NISH(ISL1)
           IIQ=II+NIES(ISL1)
           DO IJ=1,NISH(ISL2)
@@ -441,7 +449,7 @@ C Lists 16 and 17. A/AB+-
        DO ISL3=1,NSYM
         LADR16=LLIST(ISL1,ISL3,16)
         LADR17=LLIST(ISL1,ISL3,17)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IA=1,NSSH(ISL1)
           IAQ=IA+NSES(ISL1)
           DO IB=1,NSSH(ISL2)
@@ -490,6 +498,4 @@ C Add to list 16: IA,IB,IAB,V= Sqr(2)
         END DO
        END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKLIST

@@ -32,15 +32,15 @@ use Center_Info, only: dc
 use Symmetry_Info, only: iChTbl, iOper, lBsFnc, lIrrep, nIrrep
 use Gateway_global, only: Onenly, Test
 use Gateway_Info, only: CutInt
+use Disp, only: ChDisp, IndDsp, IndXEQ, InxDsp, lDisp, lEQ, nTR, TRSymm
+use PrintLevel, only: nPrint, Show
+use Molcas, only: MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 logical(kind=iwp), intent(out) :: Run_MCLR
-#include "Molcas.fh"
-#include "disp.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idum, iDummer, iElem, iIrrep, ijSym, iOpt, ipert, iprint, iRC, iRout, &
                      istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nd(1), nDisp, &
                      nSlct
@@ -55,13 +55,7 @@ real(kind=wp), allocatable :: AM(:,:), C(:,:), Scr(:,:), Tmp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrmt, NrOpr
 real(kind=wp), external :: DDot_
-logical(kind=iwp), external :: TstFnc
-
-!call DecideOnCholesky(DoCholesky)
-!if (DoCholesky) then
-!  write(u6,*)'** Cholesky or RI/DF not yet implemented in McKinley '
-!  call abend()
-!end if
+logical(kind=iwp), external :: TF
 
 iRout = 99
 nPrint(:) = 5
@@ -353,7 +347,7 @@ do iCnttp=1,nCnttp
 end do
 
 write(u6,*)
-write(u6,'(20X,A,E10.3)') ' Threshold for contributions to the gradient or Hessian:',CutInt
+write(u6,'(20X,A,ES10.3)') ' Threshold for contributions to the gradient or Hessian:',CutInt
 write(u6,*)
 
 if (Nona) then
@@ -391,7 +385,7 @@ do iIrrep=0,nIrrep-1
       ! Loop over the cartesian components
       do iCar=0,2
         iComp = 2**iCar
-        if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
+        if (TF(mdc,iIrrep,iComp)) then
           nDisp = nDisp+1
           if (nDisp > mDisp) then
             write(u6,*) 'nDisp > mDisp'
@@ -535,13 +529,11 @@ if (TRSymm) then
         if (dbsc(iCnttp)%Coor(2,iCnt) /= Zero) iComp = ibset(iComp,1)
         if (dbsc(iCnttp)%Coor(3,iCnt) /= Zero) iComp = ibset(iComp,2)
         do jIrrep=0,nIrrep-1
-          if (TstFnc(dc(mdc)%iCoSet,jIrrep,iComp,dc(mdc)%nStab)) then
-            Fact = Fact+One
-          end if
+          if (TF(mdc,jIrrep,iComp)) Fact = Fact+One
         end do
         do iCar=0,2
           iComp = 2**iCar
-          if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab)) then
+          if (TF(mdc,iIrrep,iComp)) then
             ldsp = ldsp+1
             ! Transfer the coordinates
             C(1:3,ldsp) = dbsc(iCnttp)%Coor(:,iCnt)

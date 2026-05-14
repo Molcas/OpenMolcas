@@ -20,8 +20,9 @@ use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
 use Index_Functions, only: nTri_Elem
-use rasscf_data, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceocc, ENER, ITER, lroots, mxSym, &
-                       NAC, nref_dice
+use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceocc, ENER, ITER, lroots, &
+                         NAC, nref_dice
+use general_data, only: ISPIN, NACTEL, NASH, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp, u6
@@ -29,7 +30,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(in) :: W1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL, IRST
-#include "general.fh"
 integer(kind=iwp) :: chemroot, iChMolpro(8), iErr, iOper(0:7), iOrb, iref_dice, iSigma, iSym, jOrb, LINSIZE, lSymMolpro, LUDICEIN, &
                      LUTOTE, nIrrep, NUM_TEI
 integer(kind=iwp), allocatable :: OrbSym(:)
@@ -107,16 +107,16 @@ write(LUDICEIN,'(a3)') 'end'
 write(LUDICEIN,'(a6,i3)') 'nroots',lroots
 write(LUDICEIN,*)
 write(LUDICEIN,'(a8)') 'schedule'
-write(LUDICEIN,'(a1,e12.5)') '0',dice_eps1*Ten
-write(LUDICEIN,'(a1,e12.5)') '3',dice_eps1*Ten
-write(LUDICEIN,'(a1,e12.5)') '6',dice_eps1
+write(LUDICEIN,'(a1,es12.5)') '0',dice_eps1*Ten
+write(LUDICEIN,'(a1,es12.5)') '3',dice_eps1*Ten
+write(LUDICEIN,'(a1,es12.5)') '6',dice_eps1
 write(LUDICEIN,'(a3)') 'end'
 write(LUDICEIN,'(a7,i6)') 'maxiter',dice_iter
 write(LUDICEIN,'(a5)') 'DoRDM'
 write(LUDICEIN,'(a8)') 'dE 1.e-8'
 write(LUDICEIN,*)
 write(LUDICEIN,'(a7,i6)') 'SampleN',dice_sampleN
-write(LUDICEIN,'(a8,e12.5)') 'epsilon2',dice_eps2
+write(LUDICEIN,'(a8,es12.5)') 'epsilon2',dice_eps2
 write(LUDICEIN,'(a18)') 'targetError 8.0e-5'
 if (IRST > 0 .or. dice_restart) then
   write(LUDICEIN,'(a11)') 'fullrestart'
@@ -125,7 +125,7 @@ end if
 if (.not. dice_stoc) then
   write(LUDICEIN,'(a13)') 'deterministic'
 else
-  write(LUDICEIN,'(a13,e12.5)') 'epsilon2Large',dice_eps2*Ten
+  write(LUDICEIN,'(a13,es12.5)') 'epsilon2Large',dice_eps2*Ten
 end if
 
 close(LUDICEIN)

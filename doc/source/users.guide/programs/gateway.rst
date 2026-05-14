@@ -136,10 +136,10 @@ General keywords
   the radius defining the maximum length of a bond follows on
   the next line. The latter is used as a threshold when printing out
   angles and dihedral angles. The length can be followed by
-  :kword:`Bohr` or
-  :kword:`Angstrom` which indicates the unit in which the length
+  :kword:`bohr` or
+  :kword:`angstrom` which indicates the unit in which the length
   was specified, the default is
-  :kword:`Bohr`.
+  :kword:`bohr`.
   The default values are 15 and 3.0 au.
 
   .. xmldoc:: %%Keyword: RTRN <advanced>
@@ -148,8 +148,8 @@ General keywords
               the radius defining the maximum length of a bond follows on
               the next line. The latter is used as a threshold when printing out
               angles and dihedral angles. The length can be followed by
-              "Bohr" or "Angstrom" which indicates the unit in which the length
-              was specified, the default is "Bohr".
+              "bohr" or "angstrom" which indicates the unit in which the length
+              was specified, the default is "bohr".
               The default values are 15 and 3.0 au.
 
 :kword:`ISOTopes`
@@ -370,11 +370,11 @@ Note that coordinates in these formats use ångström as units.
     End of z-matrix
     Basis set
     O.ANO-L...2s1p.
-     O    -2.828427     0.000000     2.335000  / Angstrom
+     O    -2.828427     0.000000     2.335000  / angstrom
     End of basis
     Basis set
     H.ANO-L...1s.
-     H    -2.748759     0.819593     2.808729  / Angstrom
+     H    -2.748759     0.819593     2.808729  / angstrom
     End of basis
 
   In this case :program:`SLAPAF` will not regenerate the Z-matrix.
@@ -405,7 +405,7 @@ Note that coordinates in these formats use ångström as units.
       XBAS=STO-3G
       XYZ
       1
-       note Angstrom units!
+       note angstrom units!
       C 0 0 0
 
   Currently, the :kword:`XYZ` keyword does not operate with symmetry, and
@@ -439,7 +439,7 @@ The default units are ångströms. By default, maximum possible symmetry is used
   coordinates.
 
   Element name might be optionally followed by a Number (e.g. ``H7``),
-  a Label (separated by ``_`` sign: e.g. ``H_INNER``), or Basis Set (separated by ``.``,
+  a Label (separated by ``_``: e.g. ``H_INNER``), or Basis Set (separated by ``.``,
   e.g. ``H.STO-3G``)
 
 .. class:: keywordlist
@@ -484,7 +484,15 @@ The default units are ångströms. By default, maximum possible symmetry is used
   In this example, the C atom (in the origin) will have the basis set STO-3G and
   the H atoms 6-31G*.
 
-  If keyword BASIS never appears in the input, the default basis,
+  An individual instance of :kword:`BASIS` is limited to 80 characters, but the keyword can
+  be given multiple times, e.g. ::
+
+    BASIS
+    STO-3G
+    BASIS
+    H.6-31G*
+
+  If the keyword :kword:`BASIS` never appears in the input, the default basis,
   ANO-S-MB, will be used.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (XYZ)" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
@@ -618,7 +626,7 @@ By default, symmetry is not used in the calculation.
     option and will not be decoded.
     The **Label** card is mandatory.
 
-  * **Name x, y, z (Angstrom or Bohr)** ---
+  * **Name x, y, z (angstrom or bohr)** ---
     This card specifies an arbitrary (see next sentence!) name
     for a symmetry distinct center and its Cartesian coordinates.
     Observe, that the
@@ -714,17 +722,17 @@ Example of an input in native |molcas| format: ::
   X Y
   Basis set
   H.STO-3G....
-  H1           0.000000    0.924258   -1.100293 /Angstrom
+  H1           0.000000    0.924258   -1.100293 /angstrom
   End of basis
 
   Basis set
   C.STO-3G....
-  C3           0.000000    0.000000   -0.519589 /Angstrom
+  C3           0.000000    0.000000   -0.519589 /angstrom
   End of basis
 
   Basis set
   O.STO-3G....
-  O            0.000000    0.000000    0.664765 /Angstrom
+  O            0.000000    0.000000    0.664765 /angstrom
   End of basis
 
   End of input
@@ -827,8 +835,8 @@ Advanced keywords:
   Randomly modifies the initial coordinates of the atoms, maintaining the input (or computed)
   symmetry. This can be useful to avoid a geometry optimization converging to a higher-symmetry
   saddle point. The maximum displacement per atom is read from the following
-  real number. This number can be followed by :kword:`Bohr` or :kword:`Angstrom`, which indicates
-  the unit in which the displacement is specified, the default is :kword:`Bohr`.
+  real number. This number can be followed by :kword:`bohr` or :kword:`angstrom`, which indicates
+  the unit in which the displacement is specified, the default is :kword:`bohr`.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="SHAKE" APPEAR="Shake" KIND="REAL" LEVEL="ADVANCED">
               %%Keyword: Shake <advanced>
@@ -836,8 +844,8 @@ Advanced keywords:
               Randomly modifies the initial coordinates of the atoms, maintaining the input (or computed)
               symmetry. This can be useful to avoid a geometry optimization converging to a higher-symmetry
               saddle point. The maximum displacement per atom is read from the following
-              real number. This number can be followed by Bohr or Angstrom, which indicates
-              the unit in which the displacement is specified, the default is Bohr.
+              real number. This number can be followed by "bohr" or "angstrom", which indicates
+              the unit in which the displacement is specified, the default is "bohr".
               </HELP>
               </KEYWORD>
 
@@ -1011,6 +1019,15 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
               <HELP>
               Use the aCD or acCD approach to treat the two-electron integrals.
               This procedure will use an on-the-fly generated auxiliary basis set.
+              </HELP>
+              </KEYWORD>
+:kword:`DCCD`
+  One-center two-electron integrals will be computed exactly in the selected RI scheme.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="DCCD" APPEAR="1-center corrected RI" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DCCD <basic>
+              <HELP>
+              One-center two-electron integrals will be computed exactly in the selected RI scheme.
               </HELP>
               </KEYWORD>
 
@@ -1243,15 +1260,15 @@ its own keywords to compute reaction fields for excited states.
 
 Compulsory keywords
 
+.. class:: keywordlist
+
 :kword:`RF-Input`
   Activate reaction field options.
 
-.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="RF-INPUT" APPEAR="Reaction Field Options" KIND="BLOCK" LEVEL="ADVANCED">
-            <HELP>
-            Reaction field options.
-            </HELP>
-
-.. class:: keywordlist
+  .. xmldoc:: <GROUP MODULE="GATEWAY" NAME="RF-INPUT" APPEAR="Reaction Field Options" KIND="BLOCK" LEVEL="ADVANCED">
+              <HELP>
+              Reaction field options.
+              </HELP>
 
 :kword:`END Of RF-Input`
   This marks the end of the input to the reaction field utility.
@@ -1716,7 +1733,7 @@ Keywords associated to one-electron integrals
   polarisability entries are 0 for p=0, 1 for p=1, and 6 for p=2. The order of quadrupole moment and
   anisotropic polarisability entries is xx, xy, xz, yy, yz, zz. If default is used, i.e. only specifying
   the number of centers on the first line, each of these lines will contain 7 entries (coordinates,
-  charge, and dipole vector). All entries are in atomic units, if not otherwise requested by the :kword:`Angstrom`
+  charge, and dipole vector). All entries are in atomic units, if not otherwise requested by the :kword:`angstrom`
   keyword that must be placed between nXF and nOrd. All these data can be stored in a separate file whose
   name must be passed as an argument of the :kword:`XField` keyword.
 
@@ -1752,7 +1769,7 @@ Keywords associated to one-electron integrals
               polarisability entries are 0 for p=0, 1 for p=1, and 6 for p=2. The order of quadrupole moment and
               anisotropic polarisability entries is xx, xy, xz, yy, yz, zz. If default is used, i.e. only specifying
               the number of centers on the first line, each of these lines will contain 7 entries (coordinates,
-              charge, and dipole vector). All entries are in atomic units, if not otherwise requested by the Angstrom
+              charge, and dipole vector). All entries are in atomic units, if not otherwise requested by the angstrom
               keyword that must be placed between nXF and nOrd. All these data can be stored in a separate file whose
               name must be passed as an argument of the XField keyword.
               </KEYWORD>
@@ -2351,7 +2368,7 @@ fragments. (See documentation for :program:`GEO` for more details)
 
 :kword:`ROT`
   This keyword should be followed by nine real numbers defining the rotation for the fragment defined by
-  the preceeding :kword:`frgm`. The numbers should be the nine elements of a rotation matrix
+  the preceding :kword:`frgm`. The numbers should be the nine elements of a rotation matrix
   listed with one full row at the time.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="ROT" APPEAR="rotation" KIND="REALS" SIZE="9" LEVEL="ADVANCED" REQUIRE="FRGM">
@@ -2365,7 +2382,7 @@ fragments. (See documentation for :program:`GEO` for more details)
 
 :kword:`TRANS`
   This keyword should be followed by three real numbers defining the translation for the fragment defined
-  by the preceeding :kword:`frgm`. The numbers should be the x, y and z coordinates of the translation
+  by the preceding :kword:`frgm`. The numbers should be the x, y and z coordinates of the translation
   in that order.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="TRANS" APPEAR="translation" KIND="REALS" SIZE="3" LEVEL="ADVANCED" REQUIRE="FRGM">

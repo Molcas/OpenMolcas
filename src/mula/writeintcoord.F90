@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp), intent(in) :: InterVec(*), NumInt
 character(len=4), intent(in) :: AtomLbl(NumInt)
 real(kind=wp), intent(in) :: xvec(NumInt)
-integer(kind=iwp) :: i, i1, i2, i3, i4, IntType, j, k
+integer(kind=iwp) :: i1, i2, i3, i4, IntType, j, k
 real(kind=wp) :: const
 character(len=128) :: Line
 
@@ -29,10 +29,10 @@ write(u6,*)
 write(u6,*)
 write(u6,*)
 write(u6,'(a1,a)') ' ','Internal coordinates at equilibrium'
-write(u6,*) ('====',i=1,16)
+write(u6,*) repeat('=',64)
 write(u6,'(a2,a)') ' ','Distances :                            bohr           angstrom'
 write(u6,'(a2,a)') ' ','Angles    :                           radians         degrees'
-write(u6,*) ('----',i=1,16)
+write(u6,*) repeat('-',64)
 k = 1
 do j=1,NumInt
   IntType = InterVec(k)
@@ -84,7 +84,7 @@ do j=1,NumInt
   end if
   write(u6,'(A,A1,F15.8,F16.8)') Line(1:32),' ',xvec(j),xvec(j)*const
 end do
-write(u6,*) ('====',i=1,16)
+write(u6,*) repeat('=',64)
 write(u6,*)
 write(u6,*)
 

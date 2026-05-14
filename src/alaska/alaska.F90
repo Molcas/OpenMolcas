@@ -34,6 +34,15 @@ use Gateway_global, only: Onenly, Test
 use RICD_Info, only: Do_RI, Cholesky
 use Para_Info, only: nProcs, King
 use OFembed, only: Do_OFemb
+use k2_arrays, only: DeDe
+use rctfld_module, only: iCharge_Ref, lLangevin, lMax, lRF, MM, NonEQ_Ref, PCM
+use pso_stuff, only: No_Nuc
+use Disp, only: HF_Force, IndxEq, InxDsp, lDisp, lEQ, TRSymm
+use NAC, only: DoCSF, EDiff, isNAC
+use spool, only: Close_LuSpool
+use PCM_alaska, only: lSA, PCM_alaska_lSA, PCM_alaska_final, PCM_alaska_prep
+use PrintLevel, only: nPrint
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -41,13 +50,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp), intent(out) :: ireturn
-#include "Molcas.fh"
-#include "disp.fh"
-#include "print.fh"
-#include "rctfld.fh"
-#include "columbus_gamma.fh"
-#include "nac.fh"
-integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCnttp_Valence, ndc, nDiff, nsAtom
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCav, nCnttp_Valence, ndc, nDiff, nsAtom
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DoRys, Found
 character(len=180) :: Label
@@ -58,7 +61,7 @@ logical(kind=iwp), external :: RF_On
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j
 real(kind=wp), allocatable :: Cgrad(:,:)
-character(len=LenIn5), allocatable :: CNames(:)
+character(len=LenIn+5), allocatable :: CNames(:)
 character(len=80) :: Lab
 
 !                                                                      *
@@ -94,6 +97,8 @@ if (RF_On()) then
     call Abend()
   end if
   call Init_RctFld(.false.,iCharge_Ref)
+  !! Check SA-CASSCF or not (and some initialization)
+  call PCM_alaska_lSA()
 end if
 !                                                                      *
 !***********************************************************************
@@ -102,10 +107,22 @@ end if
 
 call Inputg(LuSpool)
 
+iPrint = nPrint(iRout)
+
+if (RF_On()) then
+  if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
+    ! Get the multipole moments
+    nCav = (lMax+1)*(lMax+2)*(lMax+3)/6
+    call Get_dArray('RCTFLD',MM,nCav*2)
+#   ifdef _DEBUGPRINT_
+    call RecPrt('Total Multipole Moments',' ',MM(:,1),1,nCav)
+    call RecPrt('Total Electric Field',' ',MM(:,2),1,nCav)
+#   endif
+  end if
+end if
+
 !-- Since the input has changed some of the shell information
 !   regenerate the tabulated shell information.
-
-iPrint = nPrint(iRout)
 
 call mma_allocate(Grad,lDisp(0),Label='Grad')
 call mma_allocate(Temp,lDisp(0),Label='Temp')
@@ -125,6 +142,10 @@ call Close_LuSpool(LuSpool)
 call Get_iScalar('Columbus',Columbus)
 call Get_iScalar('colgradmode',colgradmode)
 
+! Some preparations for SA-CASSCF gradient
+! ASC charges have been overwritten in MCLR, so compute correct ones
+if (lRF .and. PCM .and. lSA) call PCM_alaska_prep()
+
 !-- Start computing the gradients
 !                                                                      *
 !***********************************************************************
@@ -134,14 +155,17 @@ call Get_iScalar('colgradmode',colgradmode)
 if (king() .or. HF_Force) then
 
   ! per default NADC must not have nuclear contributions added
+  ! If SA-CASSCF/PCM, call DrvN1 for PCM-related contributions
 
-  if (NO_NUC .or. ((Columbus == 1) .and. (colgradmode == 3))) then
+  if ((NO_NUC .and. (.not.(lRF .and. PCM .and. lSA))) .or. ((Columbus == 1) .and. (colgradmode == 3))) then
     write(u6,*) 'Skipping Nuclear Charge Contribution'
+    iRout = 33 !! as done in DrvN1
+    iPrint = nPrint(iRout)
   else
     call DrvN1(Grad,Temp,lDisp(0))
     if (iPrint >= 15) then
       Lab = ' Total Nuclear Contribution'
-      call PrGrad(Lab,Grad,lDisp(0),ChDisp)
+      call PrGrad(Lab,Grad,lDisp(0))
     end if
   end if
 end if
@@ -173,7 +197,7 @@ if (.not. Test) then
     call Drvh1_EMB(Grad,Temp,lDisp(0))
   end if
   !Lab = 'Nuc + One-electron Contribution'
-  !call PrGrad(Lab,Grad,lDisp(0),ChDisp)
+  !call PrGrad(Lab,Grad,lDisp(0))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -184,6 +208,7 @@ if (.not. Test) then
   !*********************************************************************
   !                                                                    *
   if (.not. Onenly) then
+    call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -210,16 +235,17 @@ if (.not. Test) then
     call DScal_(lDisp(0),Half,Temp,1)
     if (iPrint >= 15) then
       Lab = ' Two-electron Contribution'
-      call PrGrad(Lab,Temp,lDisp(0),ChDisp)
+      call PrGrad(Lab,Temp,lDisp(0))
     end if
 
     !-- Accumulate contribution to the gradient
 
-    call GR_DArray(Grad,lDisp(0))
+    call GADGop(Grad,lDisp(0),'+')
     call DaXpY_(lDisp(0),One,Temp,1,Grad,1)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
+    call mma_deallocate(DeDe)
   end if
   !                                                                    *
   !*********************************************************************
@@ -231,10 +257,10 @@ if (.not. Test) then
   !-- Apply the translational and rotational invariance of the energy.
 
   if (TRSymm) then
-    if (iPrint >= 99) then
-      call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0),ChDisp)
-      call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
-    end if
+#   ifdef _DEBUGPRINT_
+    call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0))
+    call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
+#   endif
     Temp(1:lDisp(0)) = Grad(1:lDisp(0))
 
     call dGeMV_('N',lDisp(0),lDisp(0),One,Am,lDisp(0),Temp,1,Zero,Grad,1)
@@ -254,6 +280,7 @@ if (.not. Test) then
   !*********************************************************************
   !                                                                    *
 end if
+if (lRF) call PCM_alaska_final()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -273,24 +300,27 @@ end do
 ! NOCSF was given, to avoid division by (nearly) zero
 
 if (isNAC) then
-  call PrGrad('CI derivative coupling ',Grad,lDisp(0),ChDisp)
+  call PrGrad('CI derivative coupling ',Grad,lDisp(0))
   if (DoCSF) then
     call mma_Allocate(CSFG,lDisp(0),Label='CSFG')
     call CSFGrad(CSFG,lDisp(0))
-    call PrGrad('CSF derivative coupling ',CSFG,lDisp(0),ChDisp)
+    call PrGrad('CSF derivative coupling ',CSFG,lDisp(0))
     call daxpy_(lDisp(0),EDiff,CSFG,1,Grad,1)
     call mma_deallocate(CSFG)
   end if
   write(u6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
   Label = ''
   Label = 'Total derivative coupling'//trim(Label)
-  call PrGrad(trim(Label),Grad,lDisp(0),ChDisp)
-  write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Grad,1)
+  call mma_allocate(Tmp,lDisp(0),Label='Tmp')
+  Tmp(:) = Grad(:)/EDiff
+  call PrGrad(trim(Label),Tmp,lDisp(0))
+  write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
+  call mma_deallocate(Tmp)
 else if (iPrint >= 4) then
   if (HF_Force) then
-    call PrGrad('Hellmann-Feynman Forces ',Grad,lDisp(0),ChDisp)
+    call PrGrad('Hellmann-Feynman Forces ',Grad,lDisp(0))
   else
-    call PrGrad(' Molecular gradients',Grad,lDisp(0),ChDisp)
+    call PrGrad(' Molecular gradients',Grad,lDisp(0))
   end if
 end if
 if (isNAC) then
@@ -352,17 +382,16 @@ call mma_deallocate(Rlx)
 ! print full cartesian gradient in Columbus format
 
 if (Columbus == 1) then
-  ! real*8 Cgrad(3,mxatom)
-  ! character CNames(MxAtom)*9
-  ! integer lcartgrd, iatom,icen,j
+  ! real(kind=wp) :: Cgrad(3,mxatom)
+  ! character(len=9) :: CNames(MxAtom)
+  ! integer(kind=iwp) :: lcartgrd,iatom,icen,j
   call mma_allocate(CGrad,3,MxAtom,label='CGrad')
   call mma_allocate(CNames,MxAtom,label='CNames')
-  call TrGrd_Alaska_(CGrad,CNames,Grad,lDisp(0),iCen)
-  lcartgrd = 60
-  lcartgrd = isFreeUnit(lcartgrd)
+  call TrGrd_Alaska(CGrad,CNames,Grad,lDisp(0),iCen)
+  lcartgrd = isFreeUnit(60)
   call Molcas_Open(lcartgrd,'cartgrd')
   do IATOM=1,iCen
-    write(60,1010) (CGrad(j,iatom),j=1,3)
+    write(lcartgrd,1010) (CGrad(j,iatom),j=1,3)
   end do
   close(lcartgrd)
   call mma_deallocate(CGrad)
@@ -406,6 +435,6 @@ end if
 
 return
 
-1010 format(3d15.6)
+1010 format(3es15.6)
 
 end subroutine Alaska

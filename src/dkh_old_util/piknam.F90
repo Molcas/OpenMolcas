@@ -24,7 +24,7 @@ implicit none
 character(len=40) :: PIKNAM
 character(len=80), intent(in) :: LINED
 character(len=40), intent(in) :: KEYW
-character(len=80) LINE
+character(len=80) :: LINE
 integer(kind=iwp) :: I, IK, IL, ISTRT, LK, LL
 logical(kind=iwp) :: FOUND
 

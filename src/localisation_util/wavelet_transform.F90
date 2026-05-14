@@ -118,7 +118,7 @@ contains
 subroutine FreeMem()
 
   call Deallocate_DT(C)
-  if (allocated(Scr)) call mma_deallocate(Scr)
+  call mma_deallocate(Scr,safe='*')
 
 end subroutine FreeMem
 

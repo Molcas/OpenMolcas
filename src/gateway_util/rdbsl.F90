@@ -13,6 +13,7 @@
 !               Valera Veryazov                                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Rdbsl(BasDir,BSLbl,bType,nCGTO,mCGTO,lAng,lCGTO,lUnit,iAtmNr,BasisTypes,ExtBasDir)
 !***********************************************************************
 ! Object: Decode the basis set label and read the basis set            *
@@ -27,6 +28,8 @@ subroutine Rdbsl(BasDir,BSLbl,bType,nCGTO,mCGTO,lAng,lCGTO,lUnit,iAtmNr,BasisTyp
 ! Patched: Valera Veryazov                                             *
 !***********************************************************************
 
+use define_af, only: AngTp, iTabMx
+use getline_mod, only: quit_on_error
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -36,8 +39,6 @@ character(len=80), intent(out) :: bType
 integer(kind=iwp), intent(in) :: lCGTO, lUnit
 integer(kind=iwp), intent(out) :: nCGTO(0:lCGTO), mCGTO(0:lCGTO), lAng, iAtmNr, BasisTypes(4)
 character(len=*), intent(in) :: ExtBasDir
-#include "getlnqoe.fh"
-#include "angtp.fh"
 integer(kind=iwp) :: i, i1, iLast1, iLast2, iLast3, iLast4, iLast_JR, irecl, istatus, j, k, lAngm, n
 real(kind=wp) :: cg
 logical(kind=iwp) :: Do_Cycle, Exists, Hit, is_error, lStop
@@ -49,9 +50,9 @@ character :: kAng(0:iTabMx)
 #ifdef _DEBUGPRINT_
 #define _TEST_ .true.
 #else
-#define _TEST_ .true.
+#define _TEST_ .false.
 #endif
-logical(kind=iwp), parameter :: IfTest = .false.
+logical(kind=iwp), parameter :: IfTest = _TEST_
 integer(kind=iwp), external :: Lbl2Nr
 character(len=180), external :: Get_Ln_Quit
 
@@ -230,9 +231,10 @@ do while (Do_Cycle)
   ! If a contraction sequence has been specified it must be identical
   ! to what is in the library file if the basis set type does not
   ! not allow any other contraction sequence.
+  ! (BasisTypes(1) == 6  ->  uncontracted)
 
   if ((CGTO /= '') .and. (bType(1:3) /= 'ANO') .and. (bType /= 'ECP') .and. (bType /= 'PSD') .and. (bType /= 'RYDBERG') .and. &
-      (Aux /= 'ECP')) then
+      (Aux /= 'ECP') .and. (BasisTypes(1) /= 6)) then
     Hit = .true.
     call Decode(BSLB(2:80),string,5,Hit)
     if (string /= CGTO) cycle
@@ -320,8 +322,8 @@ do i=1,80
 end do
 if (IfTest) then
   write(u6,'(2a)') 'Type=',bType
-  write(u6,*) 'nCGTO=',(nCGTO(k),k=0,lCGTO)
-  write(u6,*) 'mCGTO=',(mCGTO(k),k=0,lCGTO)
+  write(u6,*) 'nCGTO=',(nCGTO(k),k=0,lAngm)
+  write(u6,*) 'mCGTO=',(mCGTO(k),k=0,lAngm)
 end if
 !write(u6,*) ' lAngm=',lAngm
 if (lAngM < lAng) then

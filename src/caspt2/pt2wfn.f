@@ -12,18 +12,18 @@
 *               2018, Ignacio Fdez. Galvan                             *
 ************************************************************************
       module pt2wfn
-      integer :: pt2wfn_id
-      logical :: pt2wfn_is_h5 = .False.
-      integer :: pt2wfn_refene, pt2wfn_energy
-      integer :: pt2wfn_mocoef, pt2wfn_occnum, pt2wfn_orbene
-      integer :: pt2wfn_cicoef
-      integer :: pt2wfn_heff
-      integer :: pt2wfn_dens
-      save
+      use definitions, only: iwp, wp
+      integer(kind=iwp) :: pt2wfn_id
+      logical(kind=iwp) :: pt2wfn_is_h5 = .False.
+      integer(kind=iwp) :: pt2wfn_refene, pt2wfn_energy
+      integer(kind=iwp) :: pt2wfn_mocoef, pt2wfn_occnum, pt2wfn_orbene
+      integer(kind=iwp) :: pt2wfn_cicoef
+      integer(kind=iwp) :: pt2wfn_heff
+      integer(kind=iwp) :: pt2wfn_dens
 
       contains
 
-      subroutine pt2wfn_init
+      subroutine pt2wfn_init()
 *     SVC: Create a wavefunction file. If another .wfn file already
 *     exists, it will be overwritten.
       use refwfn, only: refwfn_active
@@ -32,22 +32,28 @@
       use mh5, only: mh5_create_file, mh5_init_attr,
      &               mh5_create_dset_str, mh5_create_dset_real,
      &               mh5_put_dset, mh5_close_dset
+      use sguga, only: L2ACT, LEVEL
+      use caspt2_global, only: do_grad
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: DMRG, IfMix, IfMSCOUP, IfProp, iSpin,
+     &                         lRoots, mState, nActEl, nBas,
+     &                         nBasT, nBSqT, nConf, nDel, nDet, nEle3,
+     &                         nFro, nHole1, nIsh, nRas1, nRas2, nRas3,
+     &                         nRas3T, nSsh, nState, nSym, Root2State,
+     &                         STSym, nOrb, nRas1T
 #endif
+      use Molcas, only: MxAct
       implicit none
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "stdalloc.fh"
-#include "pt2_guga.fh"
 #ifdef _HDF5_
 
-      integer :: dsetid, ndmat, i
+      integer(kind=iwp) :: dsetid, ndmat, i
       character(len=1), allocatable :: typestring(:)
 #endif
 
       If (refwfn_active) Then
         Call WarningMessage(2,'Active reference wavefunction file, '//
      &    'cannot create new PT2 wavefunction file, aborting!')
-        Call AbEnd
+        Call AbEnd()
       End If
 
 #ifdef _HDF5_
@@ -82,6 +88,7 @@
         call mh5_init_attr (pt2wfn_id,'NELEC3', nEle3)
         call mh5_init_attr (pt2wfn_id,'NCONF',  nConf)
         call mh5_init_attr (pt2wfn_id,'NSTATES', NSTATE)
+        call mh5_init_attr (pt2wfn_id,'NDET', NDET)
 
         call mh5_init_attr (pt2wfn_id,'L2ACT', 1, [mxAct], L2ACT)
         call mh5_init_attr (pt2wfn_id,'A2LEV', 1, [mxAct], LEVEL)
@@ -144,12 +151,14 @@
      $        'arranged as blocks of size [NBAS(i)], i=1,#irreps')
 
 *     CI data for each root
+        if (.not. DMRG) then
         pt2wfn_cicoef = mh5_create_dset_real(pt2wfn_id,
      $        'CI_VECTORS', 2, [nConf, NSTATE])
         call mh5_init_attr(pt2wfn_cicoef, 'DESCRIPTION',
      $        'Coefficients of configuration state functions '//
      $        'in Split-GUGA ordering for each STATE, '//
      $        'arranged as matrix of size [NCONF,NSTATES]')
+        end if
 
 *     effective Hamiltonian coefficients
         If (IFMSCOUP) Then
@@ -161,7 +170,7 @@
         End If
 
 *     density matrices
-        If (IFPROP) Then
+        If (IFPROP.or.do_grad) Then
           ndmat=0
           Do i=1,NSYM
             ndmat=ndmat+(NORB(i)**2+NORB(i))/2
@@ -182,28 +191,30 @@
 #ifdef _HDF5_
       End If
 #endif
-      end subroutine
+      end subroutine pt2wfn_init
 
-      subroutine pt2wfn_data
+      subroutine pt2wfn_data()
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_global, only: NCMO, LUCIEX, IDCIEX, LUONEM
+      use caspt2_module, only: DMRG, nConf, nState, iAd1m
 #endif
       implicit none
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "stdalloc.fh"
 #ifdef _HDF5_
-      real*8, allocatable :: BUF(:)
-      integer :: ISTATE, IDISK
+      real(kind=wp), allocatable :: BUF(:)
+      integer(kind=iwp) :: ISTATE, IDISK
 
       If (pt2wfn_is_h5) Then
-        call mma_allocate(BUF,NCONF)
-        IDISK = IDCIEX
-        DO ISTATE=1,NSTATE
-          CALL DDAFILE(LUCIEX,2,BUF,NCONF,IDISK)
-          call mh5_put_dset(pt2wfn_cicoef,BUF,[NCONF,1],[0,ISTATE-1])
-        END DO
-        call mma_deallocate(BUF)
+        if (.not. DMRG) then
+          call mma_allocate(BUF,NCONF)
+          DO ISTATE=1,NSTATE
+            IDISK = IDCIEX(ISTATE)
+            CALL DDAFILE(LUCIEX,2,BUF,NCONF,IDISK)
+            call mh5_put_dset(pt2wfn_cicoef,BUF,[NCONF,1],[0,ISTATE-1])
+          END DO
+          call mma_deallocate(BUF)
+        end if
 
         call mma_allocate(BUF,NCMO)
         IDISK = IAD1M(1)
@@ -212,16 +223,16 @@
         call mma_deallocate(BUF)
       End If
 #endif
-      end subroutine
+      end subroutine pt2wfn_data
 
-      subroutine pt2wfn_estore(Heff)
+      subroutine pt2wfn_estore(Heff,nState)
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use caspt2_module, only: Energy, IfMSCOUP, RefEne
 #endif
       implicit none
-#include "rasdim.fh"
-#include "caspt2.fh"
-      real*8 :: Heff(nstate,nstate)
+      integer(kind=iwp), intent(in):: nstate
+      real(kind=wp), intent(in):: Heff(nstate,nstate)
 #ifdef _HDF5_
       If (pt2wfn_is_h5) Then
         call mh5_put_dset(pt2wfn_energy, ENERGY)
@@ -231,34 +242,31 @@
         End If
       End If
 #else
-      Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Heff)
 #endif
-      end subroutine
+      end subroutine pt2wfn_estore
 
       subroutine pt2wfn_densstore(Dmat,nDmat)
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use caspt2_module, only: jState
 #endif
       implicit none
-#include "rasdim.fh"
-#include "caspt2.fh"
-      integer :: nDmat
-      real*8 :: Dmat(nDmat)
+      integer(kind=iwp), intent(in) :: nDmat
+      real(kind=wp), intent(in):: Dmat(nDmat)
 #ifdef _HDF5_
       If (pt2wfn_is_h5) Then
         call mh5_put_dset(pt2wfn_dens, Dmat,
      $                    [nDmat, 1], [0, JSTATE-1])
       End If
 #else
-      Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Dmat)
 #endif
-      end subroutine
+      end subroutine pt2wfn_densstore
 
-      subroutine pt2wfn_close
+      subroutine pt2wfn_close()
 #ifdef _HDF5_
       use mh5, only: mh5_close_file
       if (pt2wfn_is_h5) then
@@ -266,5 +274,5 @@ c Avoid unused argument warnings
       end if
       pt2wfn_id = -1
 #endif
-      end subroutine
-      end module
+      end subroutine pt2wfn_close
+      end module pt2wfn

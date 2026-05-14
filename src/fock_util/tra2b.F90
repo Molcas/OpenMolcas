@@ -33,10 +33,13 @@ subroutine Tra2B(iSym,jSym,iBas,jBas,iAsh,jAsh,iOrb,jOrb,ikl,nkl,CMO_ip,CMO_jp,C
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
 integer(kind=iwp), intent(in) :: iSym, jSym, iBas, jBas, iAsh, jAsh, iOrb, jOrb, ikl, nkl
 real(kind=wp), intent(in) :: CMO_ip(iBas*iOrb), CMO_jp(jBas*jOrb), CMO_ia(iBas*iAsh), CMO_ja(jBas*jAsh), VXIJ(*)
-real(kind=wp), intent(out) :: X2(*), X3_ip(iAsh,jOrb), X3_jp(jAsh,iOrb)
+real(kind=wp), intent(_OUT_) :: X2(*)
+real(kind=wp), intent(out) :: X3_ip(iAsh,jOrb), X3_jp(jAsh,iOrb)
 real(kind=wp), intent(inout) :: PUVX_jp(iOrb,jAsh,nkl), PUVX_ip(jOrb,iAsh,nkl)
 integer(kind=iwp) :: i, j
 

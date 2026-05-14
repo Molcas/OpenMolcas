@@ -17,63 +17,67 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PSGMDIA(ALPHA,BETA,IVEC,JVEC)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp, wp
+      use constants, only: Zero
+      use caspt2_global, only: LUSBT
+      use EQSOLV, only: IDBMat
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nSym, nInDep, nASup, nISup
+      IMPLICIT None
+      real(kind=wp), intent(in):: ALPHA, BETA
+      integer(kind=iwp), intent(in):: IVEC, JVEC
 
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "WrkSpc.fh"
-#include "eqsolv.fh"
-
-#include "SysDef.fh"
+      integer(kind=iwp) ICASE, ISYM, NIN, NAS, NIS, JD, lg_V1, lg_V2
+      real(kind=wp), ALLOCATABLE:: BD(:), ID(:)
 
 C Compute |JVEC> := BETA*|JVEC> + ALPHA*(H0(diag)-E0)*|IVEC>
-C If SHIFT.ne.0.0d0 or imag_shift.ne.0.0d0, use a modified H0
+C If real_shift.ne.Zero or imag_shift.ne.Zero, use a modified H0
 
-      DO 100 ICASE=1,13
-        DO 101 ISYM=1,NSYM
+      DO ICASE=1,13
+        DO ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.EQ.0) GOTO 101
+          IF(NIN.EQ.0) Cycle
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-          IF(NIS.EQ.0) GOTO 101
+          IF(NIS.EQ.0) Cycle
 C Remember: NIN values in BDIAG, but must read NAS for correct
 C positioning.
-          CALL GETMEM('BD','ALLO','REAL',LBD,NAS)
-          CALL GETMEM('ID','ALLO','REAL',LID,NIS)
-          ID=IDBMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,WORK(LBD),NAS,ID)
-          CALL DDAFILE(LUSBT,2,WORK(LID),NIS,ID)
+          CALL mma_allocate(BD,NAS,LABEL='BD')
+          CALL mma_allocate(ID,NIS,LABEL='ID')
+          JD=IDBMAT(ISYM,ICASE)
+          CALL DDAFILE(LUSBT,2,BD,NAS,JD)
+          CALL DDAFILE(LUSBT,2,ID,NIS,JD)
 
           CALL RHS_ALLO (NIN,NIS,lg_V2)
 
-          IF(BETA.NE.0.0D0) THEN
+          IF(BETA.NE.Zero) THEN
             CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-            IF(BETA.NE.1.0D00) THEN
+            IF(BETA.NE.1) THEN
               CALL RHS_SCAL (NIN,NIS,lg_V2,BETA)
             END IF
 *         ELSE
-*           CALL RHS_SCAL (NIN,NIS,lg_V2,0.0D0)
+*           CALL RHS_SCAL (NIN,NIS,lg_V2,Zero)
           END IF
 
-          IF(ALPHA.NE.0.0D0) THEN
-            IF(BETA.NE.0.0D0) THEN
+          IF(ALPHA.NE.Zero) THEN
+            IF(BETA.NE.Zero) THEN
               CALL RHS_ALLO (NIN,NIS,lg_V1)
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
-              CALL RHS_SGMDIA (NIN,NIS,lg_V1,WORK(LBD),WORK(LID))
+              CALL RHS_SGMDIA (NIN,NIS,lg_V1,BD,ID)
               CALL RHS_DAXPY(NIN,NIS,ALPHA,lg_V1,lg_V2)
-              CALL RHS_FREE (NIN,NIS,lg_V1)
+              CALL RHS_FREE (lg_V1)
             ELSE
               CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
-              CALL RHS_SGMDIA (NIN,NIS,lg_V2,WORK(LBD),WORK(LID))
+              CALL RHS_SGMDIA (NIN,NIS,lg_V2,BD,ID)
               CALL RHS_SCAL (NIN,NIS,lg_V2,ALPHA)
             END IF
           END IF
 
           CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-          CALL RHS_FREE (NIN,NIS,lg_V2)
-          CALL GETMEM('BD','FREE','REAL',LBD,NAS)
-          CALL GETMEM('ID','FREE','REAL',LID,NIS)
- 101    CONTINUE
- 100  CONTINUE
-      RETURN
-      END
+          CALL RHS_FREE (lg_V2)
+          CALL mma_deallocate(BD)
+          CALL mma_deallocate(ID)
+        End Do
+      End Do
+
+      END SUBROUTINE PSGMDIA

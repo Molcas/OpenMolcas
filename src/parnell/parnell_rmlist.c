@@ -13,12 +13,12 @@
 
 /* -*- mode: C -*- Time-stamp: "2010-07-02 15:38:16 stevenv"
  *
- *       File:         parnell_wipe.c
+ *       File:         parnell_rmlist.c
  *       Author:       Steven Vancoillie
  *       Date:         Spring 2010
  *
  *       parnell_rmlist - delete files specified in a colon-separated list from
- *                       the main work directory and all subdirectories
+ *                        the main work directory and all subdirectories
  *
  */
 

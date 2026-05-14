@@ -9,7 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#ifdef _IN_MODULE_
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine Get_PC_Coord_New(Coord,nData)
 
@@ -30,5 +33,3 @@ call Get_dArray(Label,Coord,nData)
 return
 
 end subroutine Get_PC_Coord_New
-
-#endif

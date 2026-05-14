@@ -14,6 +14,7 @@ subroutine NucInd(coor,kdc,ifgrd,ifhss,indgrd,indhss,jfgrd,jfhss,jndgrd,jndhss,t
 use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri
 use Symmetry_Info, only: nIrrep
+use Disp, only: IndDsp
 use Definitions, only: wp, iwp
 
 implicit none
@@ -22,8 +23,6 @@ integer(kind=iwp), intent(in) :: kdc, IndGrd(0:2,0:1,0:nIrrep-1), IndHss(0:1,0:2
 logical(kind=iwp), intent(in) :: IfGrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2)
 logical(kind=iwp), intent(out) :: JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3), IfG(0:3)
 integer(kind=iwp), intent(out) :: JndGrd(0:2,0:3,0:nIrrep-1), JndHss(0:3,0:2,0:3,0:2,0:nIrrep-1)
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: iCar, iCent, iComp, iIrrep, iStop, jAtom, jCar, Maxi, Mini, nDisp, nnIrrep
 logical(kind=iwp), external :: EQ, TF
 

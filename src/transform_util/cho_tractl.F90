@@ -103,6 +103,7 @@ subroutine Cho_TraCtl(iTraType,LUINTM,CMO,NCMO,DoExch2)
 
 use Cho_Tra, only: DoCoul, DoExc2, DoFull, DoTCVA, IAD2M, IfTest, nAsh, nBas, nDel, nFro, nIsh, nOrb, nOsh, nSsh, nSym, NumCho, &
                    TCVX, TCVXist
+use Intgrl, only: IAD2M_I => IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ, NSYMZ
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero, One
@@ -112,18 +113,22 @@ implicit none
 integer(kind=iwp), intent(in) :: iTraType, LUINTM, NCMO
 real(kind=wp), intent(in) :: CMO(NCMO)
 logical(kind=iwp), intent(in) :: DoExch2
-integer(kind=iwp) :: i, iAddrIAD2M, iBatch, IPRX, irc, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, &
+integer(kind=iwp) :: i, iAddrIAD2M, iBatch, iPL, IPRX, irc, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, &
                      iType, j, jSym, k, LenIAD2M, lUCHFV, nBasT, nBatch, nData, nFVec, NumV, nVec
 real(kind=wp) :: CPE, CPU0, CPU1, CPU2, CPU3, CPU4, CPU_Gen, CPU_Tot, CPU_Tra, tcpu_reo, TCR1, TCR2, TIO0, TIO1, TIO2, TIO3, TIO4, &
                  TIO_Gen, TIO_Tot, TIO_Tra, TIOE, TWR1, TWR2
 logical(kind=iwp) :: Found
 character(len=6) :: CHName
-character(len=4), parameter :: CHNm = 'CHFV'
+character(len=*), parameter :: CHNm = 'CHFV'
+integer(kind=iwp), external:: iPrintLevel
+logical(kind=iwp), external:: Reduce_Prt
 
 !-----------------------------------------------------------------------
 IfTest = .false.
 !IfTest = .true.
 !DoExch2 = .true.
+iPL = iPrintLevel(-1)
+if (Reduce_Prt() .and. (iPL < 3)) iPL = iPL-1
 !-----------------------------------------------------------------------
 
 call Timing(CPU0,CPE,TIO0,TIOE)
@@ -144,10 +149,12 @@ end if
 call Cho_X_final(irc)
 call CWTIME(TCR2,TWR2)
 tcpu_reo = (TCR2-TCR1)
-write(u6,*) ' Reordering of the Cholesky vectors to full storage. '
-write(u6,*) ' Elapsed time for the reordering section: ',tcpu_reo
-write(u6,*) ' CPU time for the reordering section: ',tcpu_reo
-write(u6,*)
+if (iPL >= 2) then
+  write(u6,*) ' Reordering of the Cholesky vectors to full storage.'
+  write(u6,*) ' Elapsed time for the reordering section: ',tcpu_reo
+  write(u6,*) ' CPU time for the reordering section: ',tcpu_reo
+  write(u6,*)
+end if
 
 ! Define what has to be calculated.
 !  DoExc2 flag for the generation of Exch-2 integrals
@@ -226,11 +233,7 @@ TCVXist(:,:,:) = .false. ! TCVx existing flag.
 
 ! The Address Field for MOLINT:
 LenIAD2M = 3*36*36
-do i=1,36*36
-  IAD2M(1,i) = 0
-  IAD2M(2,i) = 0
-  IAD2M(3,i) = 0
-end do
+IAD2M(:,:) = 0
 iAddrIAD2M = 0
 call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
@@ -377,7 +380,7 @@ do iSymL=1,nSym
       do iSym=1,size(TCVX,2)
         do jSym=1,size(TCVX,3)
 
-          if (allocated(TCVX(iType,iSym,jSym)%A)) call mma_deallocate(TCVX(iType,iSym,jSym)%A)
+          call mma_deallocate(TCVX(iType,iSym,jSym)%A,safe='*')
 
         end do
       end do
@@ -397,14 +400,18 @@ end do
 iAddrIAD2M = 0
 call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
-write(u6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
-write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0e2_wp*CPU_Tra/max(One,TIO_Tra),TIO_Tra
-write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0e2_wp*CPU_Gen/max(One,TIO_Gen),TIO_Gen
+if (iPL >= 2) then
+  write(u6,*) 'TIMING INFORMATION:   CPU(s)   %CPU   Elapsed(s)'
+  write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Transformation     ',CPU_Tra,1.0e2_wp*CPU_Tra/max(One,TIO_Tra),TIO_Tra
+  write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' Generation         ',CPU_Gen,1.0e2_wp*CPU_Gen/max(One,TIO_Gen),TIO_Gen
+end if
 call Timing(CPU4,CPE,TIO4,TIOE)
 CPU_Tot = CPU4-CPU0
 TIO_Tot = TIO4-TIO0
-write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0e2_wp*CPU_Tot/max(One,TIO_Tot),TIO_Tot
-write(u6,*)
+if (iPL >= 2) then
+  write(u6,'(A,F9.2,1X,F6.1,1X,F12.2)') ' TOTAL              ',CPU_Tot,1.0e2_wp*CPU_Tot/max(One,TIO_Tot),TIO_Tot
+  write(u6,*)
+end if
 call XFlush(u6)
 !-----------------------------------------------------------------------
 if (IfTest) then
@@ -416,8 +423,10 @@ if (IfTest) then
 end if
 !-----------------------------------------------------------------------
 
-call put_tra_comm(IAD2M,NSYM,NORB,NOSH,LUINTM)
-
-return
+IAD2M_I(:,:) = IAD2M(:,:)
+NSYMZ = NSYM
+NORBZ(:) = NORB(:)
+NOSHZ(:) = NOSH(:)
+LUINTMZ = LUINTM
 
 end subroutine Cho_TraCtl

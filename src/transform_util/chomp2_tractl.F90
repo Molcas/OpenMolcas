@@ -59,13 +59,13 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: LUINTM, NCMO
 real(kind=wp), intent(in) :: CMO(NCMO)
-integer(kind=iwp) :: i, iAddrIAD2M, iBatch, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, jSym, LenIAD2M, &
-                     lUCHFV, nBasT, nBatch, nData, nFVec, NumV, nVec
+integer(kind=iwp) :: i, iAddrIAD2M, iBatch, irc, iStrtVec_AB, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, iSymL, jSym, &
+                     LenIAD2M, lUCHFV, nBasT, nBatch, nData, nFVec, NumV, nVec
 real(kind=wp) :: CPE, CPU0, CPU1, CPU2, CPU3, CPU4, CPU_Gen, CPU_Tot, CPU_Tra, TIO0, TIO1, TIO2, TIO3, TIO4, TIO_Gen, TIO_Tot, &
                  TIO_Tra, TIOE
 logical(kind=iwp) :: Found
 character(len=6) :: CHName
-character(len=4), parameter :: CHNm = 'CHFV'
+character(len=*), parameter :: CHNm = 'CHFV'
 
 IfTest = .false.
 
@@ -170,6 +170,20 @@ do iSymL=1,nSym
             lUCHFV = 7
             iStrtVec_AB = nVec*(iBatch-1)+1
             write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
+            call f_inquire(CHNm,Found)
+            if (.not. Found) then
+              call Cho_X_init(irc,Zero)
+              if (irc /= 0) then
+                write(u6,*) ' In ChoMP2_TraCtl : Cho_X_Init returned non-zero rc = ',irc
+                call Abend()
+              end if
+              call Cho_X_ReoVec(irc) ! get (if not there) CD vecs full stor
+              if (irc /= 0) then
+                write(u6,*) ' In MoTRA : Cho_X_ReoVec returned non-zero rc = ',irc
+                call Abend()
+              end if
+              call Cho_X_final(irc)
+            end if
             call dAName_MF_WA(lUCHFV,CHName)
             if (iSym == jSym) then
               call ChoMP2_TraS(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
@@ -209,7 +223,7 @@ do iSymL=1,nSym
     do iSym=1,size(TCVX,2)
       do jSym=1,size(TCVX,3)
 
-        if (allocated(TCVX(3,iSym,jSym)%A)) call mma_deallocate(TCVX(3,iSym,jSym)%A)
+        call mma_deallocate(TCVX(3,iSym,jSym)%A,safe='*')
 
       end do
     end do

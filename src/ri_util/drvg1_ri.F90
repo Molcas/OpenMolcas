@@ -11,6 +11,7 @@
 ! Copyright (C) 2007, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _CD_TIMING_
 subroutine Drvg1_RI(Grad,Temp,nGrad)
 !***********************************************************************
 !                                                                      *
@@ -27,11 +28,17 @@ use RI_procedures, only: Effective_CD_Pairs
 use Basis_Info, only: nBas, nBas_Aux
 use pso_stuff, only: AOrb, Case_2C, Case_3C, DMdiag, G1, ij2K, iOff_ij2K, lPSO, lSA, m_Txy, n_ij2K, n_Txy, nG1, nnP, nV_k, nZ_p_k, &
                      Txy, U_k, V_k, Z_p_k
-use RICD_Info, only: Cholesky, Do_RI
+use RICD_Info, only: Chol => Cholesky, Do_RI
+use Cholesky, only: nSym, NumCho
 use Symmetry_Info, only: Mul, nIrrep
 use Para_Info, only: myRank, nProcs
 use Data_Structures, only: Deallocate_DT
-use RI_glob, only: DoCholExch, iMP2prpt, LuAVector, LuBVector, LuCVector, nAdens, nAvec, nJdens, nKdens, nKvec, tavec, tbvec
+use RI_glob, only: DoCholExch, iMP2prpt, iUHF, LuAVector, LuBVector, LuCVector, nAdens, nAvec, nJdens, nKdens, nKvec, tavec, tbvec
+#ifdef _CD_TIMING_
+use temptime, only: CHOGET_CPU, CHOGET_WALL, DRVG1_CPU, DRVG1_WALL, PGET2_CPU, PGET2_WALL, PGET3_CPU, PGET3_WALL, PREPP_CPU, &
+                    PREPP_WALL, RMULT_CPU, RMULT_WALL, TWOEL2_CPU, TWOEL2_WALL, TWOEL3_CPU, TWOEL3_WALL
+#endif
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -40,16 +47,8 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "Molcas.fh"
-#include "disp.fh"
-#include "print.fh"
-#include "cholesky.fh"
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
-integer(kind=iwp) :: i, iIrrep, ijsym, iOff, iPrint, irc, iRout, iSeed, iStart, isym, itmp, iUHF, j, jStart, jSym, jtmp, kStart, &
-                     kTmp, m_ij2K, mAO, nAct(0:7), nAux_Tot, nij_Eff, ntmp, nV_k_New, nVec, nZ_p_k_New, nZ_p_l
+integer(kind=iwp) :: i, iIrrep, ijsym, iOff, iPrint, irc, iRout, iSeed, iStart, isym, itmp, j, jStart, jSym, jtmp, kStart, kTmp, &
+                     m_ij2K, mAO, nAct(0:7), nAux_Tot, nij_Eff, ntmp, nV_k_New, nVec, nZ_p_k_New, nZ_p_l
 real(kind=wp) :: BufFrac, TCpu1, TCpu2, TWall1, TWall2
 #ifdef _CD_TIMING_
 real(kind=wp) :: Total_Dens_CPU, Total_Dens_Wall, Total_Der_CPU, Total_Der_CPU2, Total_Der_Wall, Total_Der_Wall2
@@ -96,15 +95,13 @@ end if
 
 iMp2Prpt = 0
 call Get_cArray('Relax Method',Method,8)
-if (Method == 'MBPT2   ') then
-  call Get_iScalar('mp2prpt',iMp2Prpt)
-end if
+if (Method == 'MBPT2   ') call Get_iScalar('mp2prpt',iMp2Prpt)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! In case of the Cholesky approach compute the A and Q matrices.
 
-if (Cholesky .and. (.not. Do_RI)) then
+if (Chol .and. (.not. Do_RI)) then
 
   if (nIrrep /= 1) then
     call WarningMessage(2,'Error in Drvg1_RI')
@@ -162,7 +159,8 @@ nKdens = nKdens+iUHF
 nKvec = nKdens
 
 if (lPSO .and. lSA) then
-  nJdens = 5
+  nJdens = 4
+  if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) nJdens = 5
   nKdens = 4
   nKVec = 2
   nAdens = 2
@@ -193,7 +191,7 @@ if (lPSO) then
   call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
   call mma_allocate(DMtmp,nTri_Elem(nG1),Label='DMtmp')
   nnP(0:nIrrep-1) = 0
-  call Compute_txy(G1(1,1),nG1,Txy,n_Txy,nAdens,nIrrep,DMdiag,DMtmp,nAct)
+  call Compute_txy(G1,nG1,Txy,n_Txy,nAdens,nIrrep,DMdiag,DMtmp,nAct)
   call mma_deallocate(DMtmp)
 else
   call mma_allocate(Txy,1,1,Label='Txy')
@@ -287,14 +285,14 @@ if (iMp2prpt == 2) then
   end do
 end if
 
-call Compute_AuxVec(iVk,iZk,myRank+1,nProcs,nVec)
+call Compute_AuxVec(iVk,iZk,myRank+1,nProcs,nVec,Method == 'CASPT2')
 call mma_deallocate(iVk)
 call mma_deallocate(iZk)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 
-if (Cholesky .and. (.not. Do_RI)) then
+if (Chol .and. (.not. Do_RI)) then
 
   ! Map from Cholesky auxiliary basis to the full
   ! 1-center valence product basis.
@@ -393,7 +391,7 @@ end if
 Case_2C = .true.
 call Drvg1_2center_RI(Temp,Tmp,nGrad,ij2,nij_Eff)
 call GADGOP(Tmp,nGrad,'+')
-if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 2-center term',Tmp,nGrad,ChDisp)
+if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 2-center term',Tmp,nGrad)
 Grad(:) = Grad+Temp ! Move any 1-el contr.
 Temp(:) = -Tmp
 Case_2C = .false.
@@ -405,11 +403,11 @@ Case_2C = .false.
 Case_3C = .true.
 call Drvg1_3center_RI(Tmp,nGrad,ij2,nij_Eff)
 call GADGOP(Tmp,nGrad,'+')
-if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 3-center term',Tmp,nGrad,ChDisp)
+if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 3-center term',Tmp,nGrad)
 Temp(:) = Temp+Two*Tmp
 Case_3C = .false.
-if (allocated(Txy)) call mma_deallocate(Txy)
-if (allocated(DMdiag)) call mma_deallocate(DMdiag)
+call mma_deallocate(Txy,safe='*')
+call mma_deallocate(DMdiag,safe='*')
 if (allocated(AOrb)) call Deallocate_DT(AOrb)
 !                                                                      *
 !***********************************************************************
@@ -429,14 +427,14 @@ if (iMp2prpt == 2) then
 end if
 
 call mma_deallocate(ij2)
-if (Cholesky .and. (.not. Do_RI)) then
+if (Chol .and. (.not. Do_RI)) then
   call mma_deallocate(ij2K)
 end if
 call CloseP()
 
-if (allocated(Z_p_k)) call mma_deallocate(Z_p_k)
-if (allocated(V_k)) call mma_deallocate(V_k)
-if (allocated(U_k)) call mma_deallocate(U_k)
+call mma_deallocate(Z_p_k,safe='*')
+call mma_deallocate(V_k,safe='*')
+call mma_deallocate(U_k,safe='*')
 
 call Cho_X_Final(irc)
 if (irc /= 0) then
@@ -444,7 +442,7 @@ if (irc /= 0) then
   call Abend()
 end if
 call mma_deallocate(Tmp)
-if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - Temp',Temp,nGrad,ChDisp)
+if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - Temp',Temp,nGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

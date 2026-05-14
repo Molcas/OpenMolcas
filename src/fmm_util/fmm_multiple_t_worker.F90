@@ -366,7 +366,7 @@ function fmm_contract_multi_Tq(LMAX,vect,T_mats,ndim)
     qloop: do q=qmin,qmax
 
       do s=q,p
-        call DAXPY_(ndim,vect(s),T_mats(1,s,q:),1,fmm_contract_multi_Tq(1,q),1)
+        call DAXPY_(ndim,vect(s),T_mats(:,s,q),1,fmm_contract_multi_Tq(:,q),1)
       end do
 
       fac = vect(q)

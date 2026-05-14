@@ -13,12 +13,12 @@ subroutine cipro()
 
 use gugaci_global, only: denm1, LuCiDen, LuCiMO, max_root, mroot, ng_sm, nlsm_all, nlsm_bas, pror
 use OneDat, only: sNoNuc, sNoOri, sOpSiz, sRdFst
+use Molcas, only: MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: maxmolcasorb = 5000, maxpro = 50
 integer(kind=iwp) :: i, icall, icomp, idisk, idummy(1), idx_idisk0(64), iend, im, iopt, ipc, iprop, irec, iroot, irtc, ista, &
                      isymlb, nc, nc0, nc1, nc2, nlsm_del(mxSym), nmo, npro, nsiz
@@ -107,7 +107,7 @@ do iroot=1,mroot
   write(u6,'(a,i2)') ' mulliken charges for state nr ',iroot
   !call charge(nsym,nbas,name,cno,occ,smat,2,.true.,.true.)
   call charge(ng_sm,nlsm_bas,bsbl,cno,occ,omat,2,.true.,.false.)
-  write(u6,*) ' ',('*',i=1,70)
+  write(u6,*) ' ',repeat('*',70)
   call xflush(u6)
   ! transform mo density matrix to ao basis
   !write(u6,'(10i8)') nc0,nmo,nlsm_bas
@@ -327,7 +327,7 @@ do im=1,ngsm
   !write(u6,*) nc,ni
   do i=1,ni
     val = occ(i+nc0)
-    call dger(ni,ni,val,cno(nc1),1,cno(nc1),1,denao(nc),ni)
+    call dger_(ni,ni,val,cno(nc1),1,cno(nc1),1,denao(nc),ni)
     nc1 = nc1+ni
   end do
   nc0 = nc0+ni

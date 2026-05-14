@@ -14,7 +14,7 @@
 subroutine Distg2(g2,Hess,nHess,IndGrd,IfHss,IndHss,iuvwx,kOp,nop,Tr,IfGr)
 !***********************************************************************
 !                                                                      *
-! @parameter kOp   operators for center generator                      *
+! @param kOp   operators for center generator                          *
 !                                                                      *
 ! Object: trace the gradient of the ERI's with the second order        *
 !         density matrix                                               *
@@ -41,7 +41,7 @@ real(kind=wp), parameter :: Prmt(0:7) = [One,-One,-One,One,-One,One,One,-One]
 !                                                                      *
 !iRout = 239
 !iPrint = nPrint(iRout)
-!define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call recprt('Distg2: g2(raw) ',' ',g2,1,78)
 call recprt('Distg2: Hess(raw) ',' ',Hess,1,nHess)

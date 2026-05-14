@@ -16,14 +16,15 @@ subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 
 use SpinAV, only: Do_SpinAV, DSc
 use UnixInfo, only: ProgName
+use define_af, only: AngTp, iTabMx
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase
-character(len=LenIn8), intent(in) :: BNAME(*)
+character(len=LenIn+8), intent(in) :: BNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk, lSave
 integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, i, iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, IO, iPair, iPL, IS, ISMO, &
@@ -39,24 +40,22 @@ character(len=8) :: TMP
 integer(kind=iwp), allocatable :: center(:), ICNT(:), ITYP(:), nStab(:)
 real(kind=wp), allocatable, save :: Bonds(:), Chrg(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), DSswap(:,:), Fac(:), P(:,:), &
                                     PInv(:,:), Q2(:), QQ(:,:), QSUM(:), QSUM_TOT(:), qSwap(:), S(:,:), S_blo(:), S_tmp(:,:), Scr(:)
-character(len=LenIn4), allocatable :: LblCnt4(:)
+character(len=LenIn+4), allocatable :: LblCnt4(:)
 character(len=LenIn), allocatable :: CNAME(:)
 character(len=8), allocatable :: TNAME(:), TSwap(:)
-character(len=*), parameter :: AufBau(19) = ['01s', &
-                                             '02s','02p', &
-                                             '03s','03p', &
-                                             '04s','03d','04p', &
-                                             '05s','04d','05p', &
+character(len=*), parameter :: AufBau(19) = ['01s',                   &
+                                             '02s',            '02p', &
+                                             '03s',            '03p', &
+                                             '04s',      '03d','04p', &
+                                             '05s',      '04d','05p', &
                                              '06s','04f','05d','06p', &
                                              '07s','05f','06d','07p']
 integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: Reduce_Prt
-character(len=LenIn8), external :: Clean_BName
+character(len=LenIn+8), external :: Clean_BName
 !character(len=4), allocatable :: TLbl(:)
 !character(len=LenIn), allocatable :: LblCnt(:)
-#include "angtp.fh"
-#include "WrkSpc.fh"
 
 !                                                                      *
 !***********************************************************************
@@ -150,7 +149,7 @@ NXTYP = 0
 outer: do I=1,NBAST
   if (ICNT(I) < 0) cycle outer  ! skip pseudo center
   do J=1,I-1
-    if (BNAME(I)(LenIn1:LenIn8) == BNAME(J)(LenIn1:LenIn8)) then
+    if (BNAME(I)(LenIn+1:LenIn+8) == BNAME(J)(LenIn+1:LenIn+8)) then
       ITYP(I) = ITYP(J)
       cycle outer
     end if
@@ -164,7 +163,7 @@ do I=1,NBAST
   J = ITYP(I)
   if (J == 0) cycle
   if (TNAME(J) /= '') cycle
-  TNAME(J) = BNAME(I)(LenIn1:LenIn8)
+  TNAME(J) = BNAME(I)(LenIn+1:LenIn+8)
 end do
 
 lqSwap = NNUC+NNUC*NXTYP
@@ -336,7 +335,7 @@ call mma_deallocate(TSwap)
 do I=1,NBAST
   if (ICNT(I) < 0) cycle  ! skip pseudo center
   do J=1,NXTYP
-    if (BNAME(I)(LenIn1:LenIn8) == TNAME(J)) then
+    if (BNAME(I)(LenIn+1:LenIn+8) == TNAME(J)) then
       ITYP(I) = J
       exit
     end if
@@ -423,7 +422,7 @@ if (DoBond) then
   ! Atom labels plus symmetry generator
 
   call mma_allocate(LblCnt4,tNUC,label='LblCnt4')
-  call Get_cArray('LP_L',LblCnt4,LenIn4*tNUC)
+  call Get_cArray('LP_L',LblCnt4,(LenIn+4)*tNUC)
   !do i=1,tNUC
   !  LblCnt(i)(1:LenIn) = LblCnt4(i)(1:LenIn)
   !end do

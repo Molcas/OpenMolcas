@@ -10,10 +10,10 @@
 #***********************************************************************
 
 set (sources
-     chemps2ctl.F90
      chemps2_densi_rasscf.F90
      chemps2_load2pdm.F90
      chemps2_load3pdm.F90
+     chemps2ctl.F90
      irreps.F90
 )
 

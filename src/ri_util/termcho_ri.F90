@@ -11,7 +11,7 @@
 
 subroutine TermCho_RI(irc,nVec_RI,l_nVec_RI)
 
-use ChoArr, only: MySP
+use Cholesky, only: MySP
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
@@ -42,6 +42,6 @@ if (irc /= 0) return
 ! More deallocations.
 ! -------------------
 
-if (allocated(MySP)) call mma_deallocate(MySP)
+call mma_deallocate(MySP,safe='*')
 
 end subroutine TermCho_RI

@@ -36,14 +36,14 @@ contains
 subroutine free_all()
   use stdalloc, only: mma_deallocate
 
-  if (allocated(BL1)) call mma_deallocate(BL1)
-  if (allocated(BL2)) call mma_deallocate(BL2)
-  if (allocated(BS1)) call mma_deallocate(BS1)
-  if (allocated(BS2)) call mma_deallocate(BS2)
-  if (allocated(BS3)) call mma_deallocate(BS3)
-  if (allocated(BS4)) call mma_deallocate(BS4)
-  if (allocated(ICASE)) call mma_deallocate(ICASE)
-  if (allocated(JNDX)) call mma_deallocate(JNDX)
+  call mma_deallocate(BL1,safe='*')
+  call mma_deallocate(BL2,safe='*')
+  call mma_deallocate(BS1,safe='*')
+  call mma_deallocate(BS2,safe='*')
+  call mma_deallocate(BS3,safe='*')
+  call mma_deallocate(BS4,safe='*')
+  call mma_deallocate(ICASE,safe='*')
+  call mma_deallocate(JNDX,safe='*')
 end subroutine free_all
 
 end module guga_global

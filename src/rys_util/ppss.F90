@@ -34,7 +34,8 @@ real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), P(lP,3), rKappAB(nZeta), 
 integer(kind=iwp) :: iEta, iZeta, n
 real(kind=wp) :: ai, B101, B102, dddx, Eu21, Eu22, PAQPx1, PAQPx2, PAQPy1, PAQPy2, PAQPz1, PAQPz2, PQ2, PQx, PQy, PQz, PreFct, r1, &
                  r2, rho, si, T, w1, w2, x101, x102, x201, x202, xdInv, y101, y102, y201, y202, z, z101, z102, z201, z202, ZEInv
-logical(kind=iwp) :: ABeqCD, EQ
+logical(kind=iwp) :: ABeqCD
+logical(kind=iwp), external :: EQ
 
 #include "macros.fh"
 unused_var(EInv)

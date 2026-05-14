@@ -83,7 +83,7 @@ call open_molcas_info()
 !if (Exist) then
 !  call molcas_open_Ext2(Lu_info,file_name,'sequential','formatted',ios,.false.,irecl,'unknown',is_error)
 !  if (ios /= 0) then
-!    write(u6,*) 'Add_Info: can not create info file'
+!    write(u6,*) 'Add_Info: cannot create info file'
 !    write(u6,*) 'Check file permissions!'
 !    call Abend()
 !  end if
@@ -97,18 +97,13 @@ call open_molcas_info()
 !  do iLine=1,nLines
 !    read(Lu_Info,'(A)') Line
 !  end do
-!# ifdef NAGFOR
-!  ! FIXME: ugly hack to make NAG compiler happy
-!  close(Lu_Info)
-!  open(Lu_Info,file=file_name,position='append')
-!# endif
 !----------------------------------------------------------------------*
 ! Open new file                                                        *
 !----------------------------------------------------------------------*
 !else
 !  call molcas_open_Ext2(Lu_info,file_name,'sequential','formatted',ios,.false.,irecl,'unknown',is_error)
 !  if (ios /= 0) then
-!    write(u6,*) 'Add_Info: can not create a new file'
+!    write(u6,*) 'Add_Info: cannot create a new file'
 !    write(u6,*) 'Check file permissions!'
 !    call Abend()
 !  end if
@@ -172,7 +167,7 @@ if (MyRank == 0) then
       STRING = ' '
       STRING = STMP(1:icomma-1)
       if (icomma < len(STMP)) then
-        STMP = STMP(icomma+1:)
+        STMP(1:256-icomma) = STMP(icomma+1:256)
       else
         STMP = ''
       end if

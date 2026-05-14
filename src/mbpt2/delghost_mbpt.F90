@@ -11,18 +11,18 @@
 
 subroutine DelGHOST_MBPT()
 
-use MBPT2_Global, only: CMO, DelGhost, EOrb, nBas, nDsto, nnB, Thr_ghs
+use MBPT2_Global, only: CMO, CMO_Internal, DelGhost, EOrb, nBas, nDsto, nnB, Thr_ghs
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
-integer(kind=iwp) :: i, irc, iStart, iStart_t, iSym, nUniqAt, nZero(8)
+integer(kind=iwp) :: i, iLen, irc, iStart, iStart_t, iSym, nUniqAt, nZero(8)
 real(kind=wp), allocatable :: CMO_t(:), EOrb_t(:)
-character(len=LenIn8), allocatable :: UBName(:)
+character(len=LenIn+8), allocatable :: UBName(:)
 logical(kind=iwp), parameter :: Debug = .false.
-#include "corbinf.fh"
 
 if (.not. DelGHOST) return
 
@@ -40,10 +40,11 @@ do iSym=1,nSym
   nZero(iSym) = 0
 end do
 
-call move_alloc(CMO,CMO_t)
+call move_alloc(CMO_Internal,CMO_t)
 call move_alloc(EOrb,EOrb_t)
 
-call mma_allocate(CMO,size(CMO_t),label='CMO')
+call mma_allocate(CMO_Internal,size(CMO_t),label='CMO')
+CMO => CMO_Internal
 call mma_allocate(EOrb,size(EOrb_t),label='EOrb')
 
 write(u6,'(A)') '-------------------------------------------------------'
@@ -55,7 +56,7 @@ write(u6,'(A,8I4)') ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
 call Get_iScalar('Unique atoms',nUniqAt)
 call mma_allocate(UBName,nnB,label='UBName')
-call Get_cArray('Unique Basis Names',UBName,LenIn8*nnB)
+call Get_cArray('Unique Basis Names',UBName,(LenIn+8)*nnB)
 call Delete_GHOSTS(irc,nSym,nBas,nFro,nOcc,nZero,nExt,nDel,UBName,nUniqAt,thr_ghs,.false.,CMO_t,EOrb_t)
 call mma_deallocate(UBName)
 
@@ -73,12 +74,14 @@ write(u6,'(A,8I4)')
 iStart = 1
 iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym)*nBas(iSym),CMO_t(iStart_t),1,CMO(iStart),1)
-  iStart = iStart+nOrb(iSym)*nBas(iSym)
-  iStart_t = iStart_t+nOrb(iSym)*nBas(iSym)
+  iLen = nOrb(iSym)*nBas(iSym)
+  CMO(iStart:iStart+iLen-1) = CMO_t(iStart_t:iStart_t+iLen-1)
+  iStart = iStart+iLen
+  iStart_t = iStart_t+iLen
 
-  call dcopy_((nBas(iSym)-nOrb(iSym))*nBas(iSym),[Zero],0,CMO(iStart),1)
-  iStart = iStart+(nBas(iSym)-nOrb(iSym))*nBas(iSym)
+  iLen = (nBas(iSym)-nOrb(iSym))*nBas(iSym)
+  CMO(iStart:iStart+iLen-1) = Zero
+  iStart = iStart+iLen
 end do
 call mma_deallocate(CMO_t)
 
@@ -87,12 +90,14 @@ call mma_deallocate(CMO_t)
 iStart = 1
 iStart_t = 1
 do iSym=1,nSym
-  call dcopy_(nOrb(iSym),EOrb_t(iStart_t),1,EOrb(iStart),1)
-  iStart = iStart+nOrb(iSym)
-  iStart_t = iStart_t+nOrb(iSym)
+  iLen = nOrb(iSym)
+  EOrb(iStart:iStart+iLen-1) = EOrb_t(iStart_t:iStart+iLen-1)
+  iStart = iStart+iLen
+  iStart_t = iStart_t+iLen
 
-  call dcopy_(nBas(iSym)-nOrb(iSym),[Zero],0,EOrb(iStart),1)
-  iStart = iStart+nBas(iSym)-nOrb(iSym)
+  iLen = nBas(iSym)-nOrb(iSym)
+  EOrb(iStart:iStart+iLen-1) = Zero
+  iStart = iStart+iLen
 end do
 call mma_deallocate(EOrb_t)
 

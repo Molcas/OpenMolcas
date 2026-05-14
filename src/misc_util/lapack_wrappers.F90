@@ -41,11 +41,12 @@
 ! dsytrd_
 ! ilaenv_
 ! zgesvd_
+! zheev_
 ! zhpev_
 
 ! Specify if integer (and logical) conversion will be needed.
 ! (real conversion is not implemented yet)
-#if defined(LINALG_I4) && defined(_I8_)
+#if defined (LINALG_I4) && defined (_I8_)
 # define MOLCAS_TO_BLAS_INT
 # define _BLAS_INT_use_ use Definitions, only: BLASInt
 # define _BLAS_INT_stdalloc_ \
@@ -60,9 +61,9 @@
 ! For procedures known to raise floating point exceptions in the test suite,
 ! disable exception trapping locally: three pieces of code are needed
 #ifdef _FPE_TRAP_
-  ! can't use "only" in IEEE_exceptions, because of line length
+  ! can't use "only" in IEEE_Exceptions, because of line length
 # define _FPE_TRAP_use_ \
-  use, intrinsic :: IEEE_exceptions; \
+  use, intrinsic :: IEEE_Exceptions; \
   use Definitions, only: DI => DefInt
 # define _FPE_TRAP_init_ \
   type(IEEE_Status_Type) :: IEEE_Status; \
@@ -141,6 +142,7 @@ end subroutine dgees_
 subroutine dgeev_(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info_)
   use Definitions, only: BLASR8, iwp
   _BLAS_INT_use_
+  _FPE_TRAP_use_
   implicit none
   character, intent(in) :: jobvl, jobvr
   integer(kind=iwp), intent(in) :: n_, lda_, ldvl_, ldvr_, lwork_
@@ -149,6 +151,7 @@ subroutine dgeev_(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info
   integer(kind=iwp), intent(out) :: info_
 # ifdef MOLCAS_TO_BLAS_INT
   integer(kind=BLASInt) :: info, lda, ldvl, ldvr, lwork, n
+  _FPE_TRAP_init_
   n = int(n_,kind=BLASInt)
   lda = int(lda_,kind=BLASInt)
   ldvl = int(ldvl_,kind=BLASInt)
@@ -157,8 +160,10 @@ subroutine dgeev_(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info
   call dgeev(jobvl,jobvr,n,a,lda,wr,wi,vl,ldvl,vr,ldvr,work,lwork,info)
   info_ = info
 # else
+  _FPE_TRAP_init_
   call dgeev(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info_)
 # endif
+  _FPE_TRAP_end_
 end subroutine dgeev_
 
 subroutine dgels_(trans,m_,n_,nrhs_,a,lda_,b,ldb_,work,lwork_,info_)
@@ -728,6 +733,28 @@ subroutine zgesvd_(jobu,jobvt,m_,n_,a,lda_,s,u,ldu_,vt,ldvt_,work,lwork_,rwork,i
   call zgesvd(jobu,jobvt,m_,n_,a,lda_,s,u,ldu_,vt,ldvt_,work,lwork_,rwork,info_)
 # endif
 end subroutine zgesvd_
+
+subroutine zheev_(jobz,uplo,n_,a,lda_,w,work,lwork_,rwork,info_)
+  use Definitions, only: BLASR8, iwp
+  _BLAS_INT_use_
+  implicit none
+  character, intent(in) :: jobz, uplo
+  integer(kind=iwp), intent(in) :: n_, lda_, lwork_
+  complex(kind=BLASR8), intent(inout) :: a(lda_,*)
+  real(kind=BLASR8), intent(_OUT_) :: w(*), rwork(*)
+  complex(kind=BLASR8), intent(_OUT_) :: work(*)
+  integer(kind=iwp), intent(out) :: info_
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, lwork, n
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
+  call zheev(jobz,uplo,n,a,lda,w,work,lwork,rwork,info)
+  info_ = info
+# else
+  call zheev(jobz,uplo,n_,a,lda_,w,work,lwork_,rwork,info_)
+# endif
+end subroutine zheev_
 
 subroutine zhpev_(jobz,uplo,n_,ap,w,z,ldz_,work,rwork,info_)
   use Definitions, only: BLASR8, iwp

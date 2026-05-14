@@ -8,14 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+
+#include "compiler_features.h"
+
 #ifdef _MOLCAS_MPP_
 
       module allgather_wrapper
+      use definitions, only: iwp, wp, u6
+      use stdalloc, only: mma_allocate,mma_deallocate
       private
       public :: allgather
+      public :: allgather_R, allgather_I
 
       interface allgather
-        module procedure allgather_R, allgather_I
+        module procedure :: allgather_R, allgather_I
       end interface
 
 #include "mpi_interfaces.fh"
@@ -23,6 +29,7 @@
       contains
       SUBROUTINE ALLGATHER_R(SEND,NSEND,RECV,NRECV)
       use mpi
+      use definitions, only: MPIInt
       implicit none
 ************************************************************************
 * allgather: gathers local buffers SEND of size NSEND on
@@ -34,39 +41,37 @@
 #include "global.fh"
 #include "mafdecls.fh"
 
-      real*8, intent(in) :: SEND(nSend)
-      integer, intent(in) :: nSend
-      real*8, intent(out) :: RECV(nRecv)
-      integer, intent(in) :: nRecv
+      integer(kind=iwp), intent(in) :: nSend
+      real(kind=wp), intent(in) :: SEND(nSend)
+      integer(kind=iwp), intent(in) :: nRecv
+      real(kind=wp), intent(out) :: RECV(nRecv)
 
-      integer*4 :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
-      INTEGER*4, ALLOCATABLE :: NRECV4(:),IDISP4(:)
-      INTEGER*4, PARAMETER :: ONE4 = 1
-      integer :: nBytes, myrank, nProcs, i
+      integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
+      integer(kind=MPIInt), ALLOCATABLE :: NRECV4(:),IDISP4(:)
+      integer(kind=MPIInt), PARAMETER :: ONE4 = 1
+      integer(kind=iwp) :: nBytes, nProcs, i
 
       ITYPE4 = MPI_REAL8
       NBYTES = 8 * NRECV
 
       IF (NBYTES.GT.2147483647) THEN
-        WRITE(6,'(1X,A)') 'WARNING: ALLGATHER: receive buffer > 2GB'
-        WRITE(6,'(1X,A)') 'some MPI implementations cannot handle this'
-        WRITE(6,'(1X,A)') 'I will continue, but it might crash...'
-        CALL XFLUSH(6)
+        WRITE(u6,'(1X,A)') 'WARNING: ALLGATHER: receive buffer > 2GB'
+        WRITE(u6,'(1X,A)') 'some MPI implementations cannot handle this'
+        WRITE(u6,'(1X,A)') 'I will continue, but it might crash...'
       END IF
 
-      MYRANK = GA_NODEID()
       NPROCS = GA_NNODES()
 
-      ALLOCATE(NRECV4(0:NPROCS-1))
-      ALLOCATE(IDISP4(0:NPROCS-1))
+      call MMA_ALLOCATE(NRECV4,[0,NPROCS-1],Label='NRECV4')
+      call MMA_ALLOCATE(IDISP4,[0,NPROCS-1],Label='IDISP4')
 
 ! first, gather the sendbuffer size of each process in NRECV4
-      NSEND4(1)=INT(NSEND,KIND(NSEND4))
-      CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER4,
-     &                   NRECV4,ONE4,MPI_INTEGER4,
+      NSEND4(1)=INT(NSEND,kind=MPIInt)
+      CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,
+     &                   NRECV4,ONE4,MPI_INTEGER,
      &                   MPI_COMM_WORLD, IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
         CALL ABEND()
       END IF
 
@@ -76,7 +81,7 @@
         NRECV4TOT=NRECV4TOT+NRECV4(I)
       END DO
       IF (NRECV4TOT.NE.NRECV) THEN
-        WRITE(6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
+        WRITE(u6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
         CALL ABEND()
       END IF
 
@@ -91,13 +96,17 @@
      &                    RECV,NRECV4,IDISP4,ITYPE4,
      &                    MPI_COMM_WORLD,IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',IERROR4
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',
+     &                        IERROR4
         CALL ABEND()
       END IF
+      call MMA_DEALLOCATE(NRECV4)
+      call MMA_DEALLOCATE(IDISP4)
       end subroutine  allgather_R
 
       SUBROUTINE ALLGATHER_I(SEND,NSEND,RECV,NRECV)
       use mpi
+      use definitions, only: MPIInt
       implicit none
 ************************************************************************
 * allgather: gathers local buffers SEND of size NSEND on
@@ -109,15 +118,15 @@
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer, intent(in) :: SEND(nSend)
-      integer, intent(in) :: nSend
-      integer, intent(out) :: RECV(nRecv)
-      integer, intent(in) :: nRecv
+      integer(kind=iwp), intent(in) :: nSend
+      integer(kind=iwp), intent(in) :: SEND(nSend)
+      integer(kind=iwp), intent(in) :: nRecv
+      integer(kind=iwp), intent(out) :: RECV(nRecv)
 
-      integer*4 :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
-      INTEGER*4, ALLOCATABLE :: NRECV4(:),IDISP4(:)
-      INTEGER*4, PARAMETER :: ONE4 = 1
-      integer :: nBytes, myrank, nProcs, i
+      integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
+      integer(kind=MPIInt), ALLOCATABLE :: NRECV4(:),IDISP4(:)
+      integer(kind=MPIInt), PARAMETER :: ONE4 = 1
+      integer(kind=iwp) :: nBytes, nProcs, i
 
 #ifdef _I8_
         ITYPE4=MPI_INTEGER8
@@ -128,25 +137,23 @@
 #endif
 
       IF (NBYTES.GT.2147483647) THEN
-        WRITE(6,'(1X,A)') 'WARNING: ALLGATHER: receive buffer > 2GB'
-        WRITE(6,'(1X,A)') 'some MPI implementations cannot handle this'
-        WRITE(6,'(1X,A)') 'I will continue, but it might crash...'
-        CALL XFLUSH(6)
+        WRITE(u6,'(1X,A)') 'WARNING: ALLGATHER: receive buffer > 2GB'
+        WRITE(u6,'(1X,A)') 'some MPI implementations cannot handle this'
+        WRITE(u6,'(1X,A)') 'I will continue, but it might crash...'
       END IF
 
-      MYRANK = GA_NODEID()
       NPROCS = GA_NNODES()
 
-      ALLOCATE(NRECV4(0:NPROCS-1))
-      ALLOCATE(IDISP4(0:NPROCS-1))
+      call MMA_ALLOCATE(NRECV4,[0,NPROCS-1],Label='NRECV4')
+      call MMA_ALLOCATE(IDISP4,[0,NPROCS-1],Label='IDISP4')
 
 ! first, gather the sendbuffer size of each process in NRECV4
-      NSEND4(1)=INT(NSEND,KIND(NSEND4))
-      CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER4,
-     &                   NRECV4,ONE4,MPI_INTEGER4,
+      NSEND4(1)=INT(NSEND,kind=MPIInt)
+      CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,
+     &                   NRECV4,ONE4,MPI_INTEGER,
      &                   MPI_COMM_WORLD, IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
         CALL ABEND()
       END IF
 
@@ -156,7 +163,7 @@
         NRECV4TOT=NRECV4TOT+NRECV4(I)
       END DO
       IF (NRECV4TOT.NE.NRECV) THEN
-        WRITE(6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
+        WRITE(u6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
         CALL ABEND()
       END IF
 
@@ -171,14 +178,20 @@
      &                    RECV,NRECV4,IDISP4,ITYPE4,
      &                    MPI_COMM_WORLD,IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',IERROR4
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',
+     &                        IERROR4
         CALL ABEND()
       END IF
+      call MMA_DEALLOCATE(NRECV4)
+      call MMA_DEALLOCATE(IDISP4)
       end subroutine allgather_I
       end module allgather_wrapper
 
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      SUBROUTINE EMPTY_ALLGATHER()
-      END
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_ALLGATHER()
+      end subroutine empty_ALLGATHER
+
 #endif

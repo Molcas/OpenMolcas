@@ -20,10 +20,11 @@ integer(kind=iwp), parameter :: Use_Old = 0, Regenerate = 1, &
                                 Not_Specified = 0, Final_Grid = 1, Intermediate = 2
 integer(kind=iwp) :: G_S(2), Grid_Status, iDisk_Grid, iDisk_Set(2), iGrid_Set, Lu_Grid, LuGridFile, nBatch, nBatch_Max = 128, &
                      Old_Functional_Type
+logical(kind=iwp) :: WriteGrid
 integer(kind=iwp), allocatable :: GridInfo(:,:), iBatchInfo(:,:)
 
 public :: ExpandBatchInfo, Final_Grid, G_S, Grid_Status, GridInfo, iBatchInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, &
-          Lu_Grid, LuGridFile, nBatch, nBatch_Max, Not_Specified, Old_Functional_Type, Regenerate, Use_Old
+          Lu_Grid, LuGridFile, nBatch, nBatch_Max, Not_Specified, Old_Functional_Type, Regenerate, Use_Old, WriteGrid
 
 contains
 

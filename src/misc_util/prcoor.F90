@@ -17,12 +17,12 @@ subroutine PrCoor()
 !***********************************************************************
 
 use Symmetry_Info, only: Symmetry_Info_Get
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: iAll_atom, iAt, iAtom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iOper(0:7), iStab(0:7), MaxDCR, nAtoms, &
                      nCoSet, nGen, nStab, nSym
 real(kind=wp) :: PotNuc
@@ -94,7 +94,7 @@ end do
 ! Print coordinates of the system                                      *
 !----------------------------------------------------------------------*
 write(u6,*)
-write(u6,'(6X,A)') 'Cartesian coordinates in Angstrom:'
+write(u6,'(6X,A)') 'Cartesian coordinates in angstrom:'
 write(u6,'(6X,A)') '-----------------------------------------------------'
 write(u6,'(6X,A)') 'No.  Label        X            Y            Z        '
 write(u6,'(6X,A)') '-----------------------------------------------------'

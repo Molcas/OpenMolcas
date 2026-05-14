@@ -19,20 +19,23 @@ subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Reduce operation count and use BLAS.
 
+use Molcas, only: LenIn
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nAtoms, nBas_Start(nAtoms), nOrb2Loc, iMO_s, iMO_t
 real(kind=wp), intent(out) :: PACol(nOrb2Loc,2)
-character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn+8), intent(in) :: BName(*)
 real(kind=wp), intent(inout) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(in) :: gamma_rot
 logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAt
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: PA_ts, Tst
+#endif
 real(kind=wp) :: cos2g, cosg, cosing, PA_ss, PA_st, PA_tt, sin2g, sing
-character(len=LenIn8) :: PALbl
+character(len=LenIn+8) :: PALbl
 
 cosg = cos(gamma_rot)
 sing = sin(gamma_rot)
@@ -49,7 +52,7 @@ do iAt=1,nAtoms
   PA_st = PA(iMO_s,iMO_t,iAt)
   PA_tt = PA(iMO_t,iMO_t,iAt)
   !write(u6,*) 'updateP:',PA_ss,PA_st,PA_tt
-# if defined (_DEBUGPRINT_)
+# ifdef _DEBUGPRINT_
   PA_ts = PA(iMO_t,iMO_s,iAt)
   Tst = PA_st-PA_ts
   if (abs(Tst) > 1.0e-14_wp) then

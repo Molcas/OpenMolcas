@@ -14,8 +14,8 @@
 subroutine DrvDFT(h1,nh1,KSDFT,ExFac,Do_Grad,Grad,nGrad,iSpin,DFTFOCK)
 
 use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc, KSDFA
-use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, Grad_I, mBas, mIrrep, nFro, &
-                   nIsh, Tau_I
+use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, Grad_I, Lapl_a1, Lapl_a2, &
+                   Lapl_b1, Lapl_b2, mBas, mIrrep, nFro, nIsh, Tau_a1, Tau_a2, Tau_b1, Tau_b2, Tau_I
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -27,7 +27,6 @@ character(len=*), intent(in) :: KSDFT
 real(kind=wp), intent(out) :: ExFac
 logical(kind=iwp), intent(in) :: Do_Grad
 character(len=4), intent(in) :: DFTFOCK
-#include "debug.fh"
 integer(kind=iwp) :: i, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Fact, Func, PDFT_Ratio, Vxc_ref(2), WF_Ratio
 logical(kind=iwp) :: Do_HPDFT, Do_MO, Do_TwoEl
@@ -38,7 +37,6 @@ real(kind=wp), external :: DDot_, Get_ExFac
 !***********************************************************************
 !                                                                      *
 KSDFA = KSDFT  ! Store a local copy
-Debug = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -122,6 +120,14 @@ Dens_t1 = Zero
 Dens_t2 = Zero
 Grad_I = Zero
 Tau_I = Zero
+Tau_a1 = Zero
+Tau_b1 = Zero
+Tau_a2 = Zero
+Tau_b2 = Zero
+Lapl_a1 = Zero
+Lapl_b1 = Zero
+Lapl_a2 = Zero
+Lapl_b2 = Zero
 Do_MO = .false.
 Do_TwoEl = .false.
 

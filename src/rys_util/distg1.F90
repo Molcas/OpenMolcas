@@ -39,15 +39,11 @@ real(kind=wp) :: Fact, PAOg1(12), ps
 real(kind=wp), parameter :: Prmt(0:7) = [One,-One,-One,One,-One,One,One,-One]
 
 #ifdef _DEBUGPRINT_
-iRout = 239
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
-  call RecPrt('Accumulated gradient on entrance',' ',Grad,nGrad,1)
-  write(u6,*) ' kOp=',kOp
-  write(u6,*) ' iStab=',iStab
-  call RecPrt('Distg1: Temp',' ',Temp,9,1)
-end if
-if (iPrint >= 49) write(u6,*) IndGrd
+call RecPrt('Accumulated gradient on entrance',' ',Grad,nGrad,1)
+write(u6,*) ' kOp=',kOp
+write(u6,*) ' iStab=',iStab
+call RecPrt('Distg1: Temp',' ',Temp,9,1)
+write(u6,*) IndGrd
 #endif
 
 ! Distribute Temp in PAOg1
@@ -97,10 +93,8 @@ do iCn=1,4
 end do
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 49) then
-  call RecPrt('PAOg1',' ',PAOg1,12,1)
-  call RecPrt('Accumulated gradient on exit',' ',Grad,nGrad,1)
-end if
+call RecPrt('PAOg1',' ',PAOg1,12,1)
+call RecPrt('Accumulated gradient on exit',' ',Grad,nGrad,1)
 #endif
 
 return

@@ -12,6 +12,7 @@
 module refwfn
 
 use UnixInfo, only: ProgName
+use Molcas, only: MxLev
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -21,8 +22,13 @@ logical(kind=iwp) :: refwfn_active = .false., refwfn_is_h5
 character(len=128) :: refwfn_filename
 integer(kind=iwp) :: refwfn_id, IADR15(30)
 
+integer(kind=iwp) :: iq
+integer(kind=iwp) :: L2ACT(MXLEV)=[(1,iq=1,MXLEV)]
+integer(kind=iwp) :: LEVEL(MXLEV)=[(1,iq=1,MXLEV)]
+
 public :: refwfn_active, refwfn_is_h5, refwfn_filename, refwfn_id, IADR15
 public :: refwfn_init, refwfn_close, refwfn_info, refwfn_data
+public :: L2Act, Level
 
 contains
 
@@ -85,7 +91,7 @@ subroutine refwfn_init(Filename)
 end subroutine refwfn_init
 
 !***********************************************************************
-subroutine refwfn_close
+subroutine refwfn_close()
 !***********************************************************************
 
 # ifdef _HDF5_
@@ -104,26 +110,29 @@ subroutine refwfn_close
 end subroutine refwfn_close
 
 !***********************************************************************
-subroutine refwfn_info
+subroutine refwfn_info()
 !***********************************************************************
 !SVC: initialize the reference wavefunction info
 
-  use stdalloc, only: mma_allocate, mma_deallocate
+  use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
+  use RASDim, only: MxTit
+  use caspt2_global, only: Weight
+  use caspt2_module, only: bName, header, IFQCAN, iRoot, iSpin, lRoots, nActel, nAsh, nBas, nConf, nDel, nEle3, nFro, nHole1, &
+                           nIsh, nRas1, nRas2, nRas3, nRoots, nSsh, nSym, PotNuc, STSym, Title
 # ifdef _DMRG_
   use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names
 # endif
 # ifdef _HDF5_
-  use mh5, only: mh5_fetch_attr, mh5_exists_dset, mh5_fetch_dset
+  use mh5, only: mh5_fetch_attr, mh5_exists_attr, mh5_exists_dset, mh5_fetch_dset
+  use caspt2_module, only: nDet
 # endif
-
-# include "rasdim.fh"
-# include "caspt2.fh"
+  use stdalloc, only: mma_allocate, mma_deallocate
 
 # ifdef _HDF5_
   character(len=1), allocatable :: typestring(:)
 # endif
   integer(kind=iwp) :: iSym, ref_nSym, ref_nBas(mxSym), IAD15
-  real(kind=wp) :: Weight(mxRoot)
+  real(kind=wp) :: lWeight(mxRoot)
 
   if (.not. refwfn_active) then
     write(u6,*) ' refwfn not yet activated, aborting!'
@@ -146,7 +155,13 @@ subroutine refwfn_info
     call mh5_fetch_attr(refwfn_id,'NSTATES',nRoots)
     call mh5_fetch_attr(refwfn_id,'NROOTS',lRoots)
     call mh5_fetch_attr(refwfn_id,'STATE_ROOTID',iRoot)
-    call mh5_fetch_attr(refwfn_id,'STATE_WEIGHT',Weight)
+    call mh5_fetch_attr(refwfn_id,'STATE_WEIGHT',lWeight)
+    if (mh5_exists_attr(refwfn_id,'NDET')) then
+      call mh5_fetch_attr(refwfn_id,'NDET',nDet)
+    else
+      ! to avoid runtime error
+      nDet = 1
+    end if
 
     call mma_allocate(typestring,sum(ref_nbas(1:nsym)))
     call mh5_fetch_dset(refwfn_id,'MO_TYPEINDICES',typestring)
@@ -155,25 +170,25 @@ subroutine refwfn_info
     call mma_deallocate(typestring)
     ! Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
     ! because for now we only support DMRG-NEVPT2
-    if (ProgName(1:6) == 'caspt2') then
-      if (.not. mh5_exists_dset(refwfn_id,'CI_VECTORS')) then
-        write(u6,'(1X,A)') 'The HDF5 file does not contain CI vectors,'
-        write(u6,'(1X,A)') 'make sure it was created by rasscf/caspt2.'
-        call AbEnd()
-      end if
-    end if
+    ! if (ProgName(1:6) == 'caspt2') then
+    !   if (.not. mh5_exists_dset(refwfn_id,'CI_VECTORS')) then
+    !     write(u6,'(1X,A)') 'The HDF5 file does not contain CI vectors,'
+    !     write(u6,'(1X,A)') 'make sure it was created by rasscf/caspt2.'
+    !     call AbEnd()
+    !   end if
+    ! end if
     if (.not. mh5_exists_dset(refwfn_id,'MO_VECTORS')) then
       write(u6,'(1X,A)') 'The HDF5 file does not contain MO vectors,'
       write(u6,'(1X,A)') 'make sure it was created by rasscf/caspt2/nevpt2.'
       call AbEnd()
     end if
     IFQCAN = 0
-# ifdef _DMRG_
+#   ifdef _DMRG_
     if (mh5_exists_dset(refwfn_id,'QCMAQUIS_CHECKPOINT')) then
       call qcmaquis_info_init(1,nroots,-1)
       call mh5_fetch_dset(refwfn_id,'QCMAQUIS_CHECKPOINT',qcm_group_names(1)%states)
     end if
-# endif
+#   endif
   else
 # endif
     ! Sizes in the GSLIST is counted in INTEGERS.
@@ -182,8 +197,8 @@ subroutine refwfn_info
     ! Another title field is read from input a little later, it is called
     ! TITLE2. That one is printed out in PRINP_CASPT2.
     IAD15 = IADR15(1)
-    call WR_RASSCF_Info(refwfn_id,2,iAd15,NACTEL,ISPIN,REF_NSYM,STSYM,NFRO,NISH,NASH,NDEL,REF_NBAS,8,NAME,LENIN8*MXORB,NCONF, &
-                        HEADER,144,TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,Weight)
+    call WR_RASSCF_Info(refwfn_id,2,iAd15,NACTEL,ISPIN,REF_NSYM,STSYM,NFRO,NISH,NASH,NDEL,REF_NBAS,8,BNAME,(LenIn+8)*MXORB,NCONF, &
+                        HEADER,144,TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,lWeight)
     nssh = ref_nbas-nfro-nish-nash-ndel
 # ifdef _HDF5_
   end if
@@ -203,21 +218,27 @@ subroutine refwfn_info
     end do
   end if
 
+  if (ProgName(1:6) == 'caspt2') then
+    ! Weight is deallocated in PT2CLS()
+    call mma_allocate(Weight,nRoots,Label='Weight')
+    Weight(1:nRoots) = lWeight(1:nRoots)
+  end if
+
 end subroutine refwfn_info
 
 !***********************************************************************
-subroutine refwfn_data
+subroutine refwfn_data()
 !***********************************************************************
 !SVC: initialize the reference wavefunction data
 
-  use stdalloc, only: mma_allocate, mma_deallocate
+  use Molcas, only: MxAct, MxRoot
+  use RASDim, only: MxIter
+  use caspt2_global, only: CMO, CMO_Internal, IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO
+  use caspt2_module, only: DMRG, DoCumulant, iAd1m, IEOF1M, IFQCAN, ISCF, mState, nBSqt, nConf, nRoots, nState, OrbIn, RefEne
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
 # endif
-
-# include "rasdim.fh"
-# include "caspt2.fh"
-# include "pt2_guga.fh"
+  use stdalloc, only: mma_allocate, mma_deallocate
 
   integer(kind=iwp) :: I, IAD15, II, IDISK, ID, IAD, NEJOB, IT, NMAYBE, ISNUM
   real(kind=wp) :: Root_Energies(mxRoot), AEMAX, E
@@ -230,27 +251,34 @@ subroutine refwfn_data
 
   !---  Read the MO coefficients from HDF5/JOBIPH and store on LUONEM
   NCMO = NBSQT
-  call mma_allocate(tmp,NCMO,label='LCMORAS')
+  call mma_allocate(CMO_internal,NCMO,label='LCMORAS')
+  CMO => CMO_Internal
 # ifdef _HDF5_
   if (refwfn_is_h5) then
-    call mh5_fetch_dset(refwfn_id,'MO_VECTORS',tmp)
+    call mh5_fetch_dset(refwfn_id,'MO_VECTORS',CMO)
   else
 # endif
     IAD15 = IADR15(9)
     if (IFQCAN == 0) IAD15 = IADR15(2)
-    call DDAFILE(refwfn_id,2,tmp,NCMO,IAD15)
+    call DDAFILE(refwfn_id,2,CMO,NCMO,IAD15)
 # ifdef _HDF5_
   end if
 # endif
+  IAD1M(:) = -1
   IEOF1M = 0
   IDISK = IEOF1M
   IAD1M(1) = IDISK
-  call DDAFILE(LUONEM,1,tmp,NCMO,IDISK)
-  call mma_deallocate(tmp)
+  call DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
   IEOF1M = IDISK
 
+  nullify(CMO)
+  call mma_deallocate(CMO_Internal)
+
   ! IDCIEX: Present EOF on LUCIEX.
-  ID = IDCIEX
+  call mma_allocate(IDCIEX,nState,Label='IDCIEX')
+  call mma_allocate(IDTCEX,nState,Label='IDTCEX')
+  IDCIEX(1) = 0
+  ID = IDCIEX(1)
   ! Skip when using cumulant reconstruction of (3-,) 4-RDM
   !     Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
   !     because for now we only support DMRG-NEVPT2
@@ -259,10 +287,19 @@ subroutine refwfn_data
       call mma_allocate(tmp,NCONF,label='LCI')
       do I=1,NSTATE
         ISNUM = MSTATE(I)
+        IDCIEX(I) = ID
 #       ifdef _HDF5_
         if (refwfn_is_h5) then
           !---  Read the CI coefficients from the HDF5 file
-          call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tmp,[nconf,1],[0,ISNUM-1])
+          if (.not. DMRG) then
+            call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tmp,[nconf,1],[0,ISNUM-1])
+          else
+            ! if this is a DMRG calculation we fake the CI array,
+            ! for each state we store a CI array of one element
+            ! on LUCIEX with a 1.0 inside
+            tmp(1) = 1.0_wp
+            call DDAFILE(LUCIEX,1,tmp,NCONF,ID)
+          end if
         else
 #       endif
           !---  Read the CI coefficients from the JOBIPH file
@@ -280,26 +317,26 @@ subroutine refwfn_data
       ! Disk address = present EOF on LUCIEX.
       ! IDTCEX = Disk address to transformed CI.
       if (ORBIN == 'TRANSFOR') then
-        IDTCEX = ID
         ! Dummy writes:
         do II=1,NSTATE
+           IDTCEX(II) = ID
           call DDAFILE(LUCIEX,0,tmp,NCONF,ID)
         end do
       else
-        IDTCEX = IDCIEX
+        IDTCEX(:) = IDCIEX(:)
       end if
       call mma_deallocate(tmp)
     else
       ! If this is Closed-shell or Hi-spin SCF case
       ! Just in case...
-      if (.not. DoCumulant .and. (NSTATE /= 1 .or. NCONF /= 1)) then
+      if (.not. DoCumulant .and. (NSTATE /= 1 .or. NCONF /= 1) .and. (.not. DMRG)) then
         write(u6,*) ' readin_caspt2: A Closed-shell or Hi-spin SCF'
         write(u6,*) ' but nr of states is: NSTATE=',NSTATE
         write(u6,*) ' and nr of CSFs is    NCONF= ',NCONF
         write(u6,*) ' Program error?? Must stop.'
         call ABEND()
       end if
-      ! This should be solved elsewhere in the code...just for the now,
+      ! This should be solved elsewhere in the code...just for now,
       ! make a write of a CI vector to LUCIEX, so other routines do not get
       ! their knickers into a twist:
       NCONF = 1
@@ -325,6 +362,9 @@ subroutine refwfn_data
 # ifdef _HDF5_
   end if
 # endif
+  ! If not properly initiated default to incremental indexation.
+  If (Level(1)==0) Level(1:Size(Level))=[(iq,iq=1,Size(Level))]
+  If (L2Act(1)==0) L2Act(1:Size(L2Act))=[(iq,iq=1,Size(L2Act))]
 
 # ifdef _HDF5_
   if (refwfn_is_h5) then

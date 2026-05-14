@@ -17,7 +17,7 @@
 !              mass-velocity integrals should be computed
 ! UnNorm     : logical flag to indicate that the primitive basis
 !              functions should not be normalized
-! lSchw      : logical flag to indicate that the Cauchy-Schwartz
+! lSchw      : logical flag to indicate that the Cauchy-Schwarz
 !              inequality should be used in the prescreening
 ! lAMFI      : logical flag for Atomic Mean Field Integrals
 ! GIAO       : integrals for first derivative with respect to B

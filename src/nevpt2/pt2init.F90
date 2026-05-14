@@ -25,12 +25,13 @@ use mh5, only: mh5_is_hdf5
 #endif
 use refwfn, only: refwfn_init, refwfn_info, refwfn_data, refwfn_close
 use nevpt2_cfg, only: curr_dir, do_cholesky, igelo, molcas_project, MultGroup, nr_active_electrons, nr_frozen_orb, nr_states, nspin
+use caspt2_global, only: LUONEM, NCMO
 use info_state_energy, only: e, init_energies                                                     ! energies
 use info_orbital_space, only: datadim, file_id, ijklname, inforb_molcas, initialize_inforb_molcas ! orbital specifications read from JobIph
 use nevpt2wfn, only: nevpt2wfn_init, nevpt2wfn_data
+use caspt2_module, only: iSpin, nActEl, nAsh, nBas, nBasT, nBSqT, nFro, nIsh, nSsh, nState, nSym, RefEne
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use MxDM
 
 implicit none
 character(len=*), intent(in) :: refwfn_in
@@ -38,10 +39,9 @@ character(len=:), allocatable :: refwfnfile
 integer(kind=iwp) :: istate, ii, j, nDiff, nishprev, nfroprev
 integer(kind=iwp), allocatable :: nCore_local(:)
 real(kind=wp), allocatable :: readbuf(:,:)
-#include "caspt2.fh"
 
 ! Save current directory into the CurrDir string
-call GetEnvF('CurrDir',curr_dir)
+call GetEnvF('WorkDir',curr_dir)
 call GetEnvF('Project',molcas_project)
 
 ! call the Molcas routine to check whether we're using Cholesky
@@ -53,7 +53,7 @@ if ((nSym > 1) .and. do_cholesky) then
   call WarningMessage(1,'Symmetry with Cholesky decomposition is not supported yet!')
   call Quit_OnUserError()
 end if
-write(u6,*) 'Cholesky Decomposition: ',merge('Enabled ','Disabled',do_cholesky)
+write(u6,*) 'Cholesky Decomposition: ',trim(merge('Enabled ','Disabled',do_cholesky))
 
 !> set up AO basis information (needed for post-NEVPT2 information transfer)
 call Get_iArray('nBas',nBas,nSym)
@@ -100,15 +100,15 @@ call refwfn_info()
 call refwfn_data()
 call refwfn_close()
 
-!> fill nevpt2 confuguration variables from caspt2.fh commons
-!> ----------------------------------------------------------
+!> fill nevpt2 configuration variables from caspt2_module
+!> ------------------------------------------------------
 
 !> check if nr_states has been requested as 'all'
 if (nr_states == 0) then
   ! using standard allocate and deallocate because MultGroup%State
   ! is deallocated somewhere in the external library
   if (allocated(MultGroup%State)) deallocate(MultGroup%State)
-  !> nstate from common block in caspt2.fh
+  !> nstate from caspt2_module
   nr_states = nstate
   allocate(MultGroup%State(nr_states))
   do istate=1,nr_states
@@ -131,7 +131,7 @@ write(u6,'(a,i4)') ' Spin ............................. ',nspin
 ! Read orbital specifications and store them in the inforb_molcas
 ! variable from info_orbital_space
 
-! nish, nash and nssh are in caspt2.fh (Common /INPI/ and have been
+! nish, nash and nssh are in caspt2_module (and have been
 ! read by the refwfn module
 call initialize_inforb_molcas(nSym)
 
@@ -283,7 +283,7 @@ write(u6,'(a/)') ' ---------------------------------------------'
 if (allocated(qcm_group_names)) then
   write(u6,'(a)') ' DMRG wavefunction data will be read from'
   write(u6,'(a)') ' ----------------------------------------'
-  if (.not. allocated(MultGroup%h5_file_name)) call mma_allocate(MultGroup%h5_file_name,nr_states,label='h5_file_name')
+  call mma_allocate(MultGroup%h5_file_name,nr_states,label='h5_file_name',safe='*')
   MultGroup%h5_file_name = ''
   do istate=1,nr_states
     MultGroup%h5_file_name(istate) = trim(qcm_group_names(1)%states(MultGroup%State(istate)))

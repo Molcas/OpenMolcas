@@ -19,7 +19,7 @@ subroutine STEPVEC(ICL,IOP,NCL,NOP,ISPIN,NORB,IWALK)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NCL, NOP, ICL(NCL), IOP(NOP), ISPIN(NOP), NORB
+integer(kind=iwp), intent(in) :: NCL, ICL(NCL), NOP, IOP(NOP), ISPIN(NOP), NORB
 integer(kind=iwp), intent(out) :: IWALK(NORB)
 integer(kind=iwp) :: IDELSP, IORB, NXTCL, NXTOP
 logical(kind=iwp) :: Test1, Test2

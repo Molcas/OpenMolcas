@@ -18,16 +18,36 @@
 * 1999: GEMINAL R12 ENABLED                  *
 *--------------------------------------------*
       SUBROUTINE SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
-      use Fockof
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "eqsolv.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "sigma.fh"
-#include "SysDef.fh"
-#include "cplcas.fh"
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
+      use Fockof, only: FIT, FAI_Full, FIA_Full, FIT_Full, FTA_Full,
+     &                  IOFFIT, IOFFIA, IOFFTA, FTI, FIA, FTI_Full,
+     &                  FAI, FTA, FAT, FAT_Full
+      use caspt2_global, only: FIFA, LISTS
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use EQSOLV, only: IFCoup
+      use Sigma_data, only: IFTEST, NFDXP, NFMV, NFR1, NFSCA
+      use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,
+     &                   GA_Arrays
+      use caspt2_module, only: CPUSGM, TIOSGM, FockType, G1SecIn, MaxIt,
+     &                         nActEl, nCases, nSym, ThrShn, ThrShS,
+     &                         nIsh, nAsh, nSsh, nOrb, nInDep, nISup,
+     &                         nASup
+      IMPLICIT None
+      real(kind=wp), intent(in) :: ALPHA, BETA
+      integer(kind=iwp), intent(in) :: IVEC, JVEC
+
+      real(kind=wp), ALLOCATABLE:: SGM1(:), SGM2(:), D1(:), D2(:)
+      real(kind=wp) CPU, CPU0, CPU1
+      real(kind=wp) TIO, TIO0, TIO1
+      real(kind=wp) Fact, XTST
+      real(kind=wp), external:: RHS_DDot, DDot_
+      integer(kind=iwp) iCASE1, iCase2, IfC, IFIFA, IMLTOP, ISYM,
+     &                  ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2,
+     &                  lg_SgmX, lSgm2_Sta, lSgmX, lSgmX_Sta,
+     &                  Max_MESG_Size, NA, NAS1, NAS2, nCX, ND1,
+     &                  ND2, NFIA, NFIT, NFTA, NI, NIS1, NIS2, NO, NS,
+     &                  nSgm1, nSgm2, nSgm2_Blk, nSgmX, nSgmX_blk
 
 C Compute |JVEC> := BETA* |JVEC> + ALPHA* (H0-E0)* |IVEC>
 C where the vectors are represented in transformed basis and
@@ -42,36 +62,6 @@ C are  stored at positions IVEC and JVEC on the LUSOLV unit.
       WRITE(6,'(1x,a,2i5)')'IVEC,JVEC:',IVEC,JVEC
 #endif
 
-C Enter coupling cases for non-diagonal blocks:
-      DO J=1,NCASES
-      DO I=1,NCASES
-      IFCOUP(I,J)=0
-      END DO
-      END DO
-      IFCOUP( 2, 1)= 1
-      IFCOUP( 3, 1)= 2
-      IFCOUP( 5, 1)= 3
-      IFCOUP( 6, 1)= 4
-      IFCOUP( 7, 1)= 5
-      IFCOUP( 6, 2)= 6
-      IFCOUP( 7, 3)= 7
-      IFCOUP( 5, 4)= 8
-      IFCOUP( 8, 4)= 9
-      IFCOUP( 9, 4)=10
-      IFCOUP(10, 4)=11
-      IFCOUP(11, 4)=12
-      IFCOUP( 6, 5)=13
-      IFCOUP( 7, 5)=14
-      IFCOUP(10, 5)=15
-      IFCOUP(11, 5)=16
-      IFCOUP(12, 5)=23
-      IFCOUP(13, 5)=24
-      IFCOUP(12, 6)=17
-      IFCOUP(13, 7)=18
-      IFCOUP(10, 8)=19
-      IFCOUP(11, 9)=20
-      IFCOUP(12,10)=21
-      IFCOUP(13,11)=22
 
 C If the G1 correction to the Fock matrix is used, then the
 C inactive/virtual coupling elements (which are non-zero for the
@@ -90,7 +80,8 @@ C Flop counts:
 C First compute diagonal block contributions:
 CTEST      WRITE(6,*)' First, do it for (H0(diag)-E0).'
       CALL PSGMDIA(ALPHA,BETA,IVEC,JVEC)
-      IF(ALPHA.EQ.0.0D0) GOTO 99
+      IF(ALPHA.EQ.Zero) Return
+      IF(MAXIT.EQ.0) Return
 CTEST      WRITE(6,*)
 CTEST     & ' From now on, scaling with BETA is already done.'
 CTEST      WRITE(6,*)' Test print  after SGMDIA call in SIGMA:'
@@ -131,13 +122,14 @@ C SVC: add transposed fock matrix blocks
       Call mma_allocate(FTA_Full,NFTA,Label='FTA_Full')
       Call mma_allocate(FAT_Full,NFTA,Label='FAT_Full')
 
-      IFIFA=0
+      IFIFA=1
       DO ISYM=1,NSYM
         NI=NISH(ISYM)
         NA=NASH(ISYM)
         NS=NSSH(ISYM)
         NO=NORB(ISYM)
 
+        IF (NO > 0) THEN
         FIT(ISYM)%A(1:NA*NI) =>
      &     FIT_Full(IOFFIT(ISYM)+1:IOFFIT(ISYM)+NA*NI)
         FTI(ISYM)%A(1:NA*NI) =>
@@ -153,53 +145,51 @@ C SVC: add transposed fock matrix blocks
         FAT(ISYM)%A(1:NS*NA) =>
      &     FAT_Full(IOFFTA(ISYM)+1:IOFFTA(ISYM)+NS*NA)
 
-        CALL FBLOCK(WORK(LFIFA+IFIFA),NO,NI,NA,NS,
+        CALL FBLOCK(FIFA(IFIFA),NO,NI,NA,NS,
      &              FIT(ISYM)%A(:),FTI(ISYM)%A(:),
      &              FIA(ISYM)%A(:),FAI(ISYM)%A(:),
      &              FTA(ISYM)%A(:),FAT(ISYM)%A(:))
 
         IFIFA=IFIFA+(NO*(NO+1))/2
+        END IF
 
       END DO
 
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 C Loop over types and symmetry block of sigma vector:
-      DO 300 ICASE1=1,11
-*     DO 300 ICASE1=1,NCASES
-        DO 301 ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 301
+      DO ICASE1=1,11
+        DO ISYM1=1,NSYM
+          IF(NINDEP(ISYM1,ICASE1).EQ.0) Cycle
           NIS1=NISUP(ISYM1,ICASE1)
           NAS1=NASUP(ISYM1,ICASE1)
           NSGM2=NIS1*NAS1
-          IF(NSGM2.EQ.0) GOTO 301
+          IF(NSGM2.EQ.0) Cycle
 
-          CALL GETMEM('SGM2','ALLO','REAL',LSGM2,NSGM2)
-          CALL DCOPY_(NSGM2,[0.0D0],0,WORK(LSGM2),1)
+          CALL mma_allocate(SGM2,NSGM2,Label='SGM2')
+          SGM2(:)=Zero
 
-          NSGM1=0
-          LSGM1=1
           IF(ICASE1.EQ.1) THEN
             NSGM1=NASH(ISYM1)*NISH(ISYM1)
           ELSE IF(ICASE1.EQ.4) THEN
             NSGM1=NASH(ISYM1)*NSSH(ISYM1)
           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
             NSGM1=NIS1
+          ELSE
+            NSGM1=0
           END IF
-          IF(NSGM1.GT.0) THEN
-            CALL GETMEM('SGM1','ALLO','REAL',LSGM1,NSGM1)
-            CALL DCOPY_(NSGM1,[0.0D0],0,WORK(LSGM1),1)
-          END IF
+          CALL mma_allocate(SGM1,MAX(1,NSGM1),LABEL='SGM1')
+          SGM1(:)=Zero
 
           IMLTOP=0
-          DO 200 ICASE2=ICASE1+1,NCASES
+          DO ICASE2=ICASE1+1,NCASES
             IFC=IFCOUP(ICASE2,ICASE1)
-            IF(IFC.EQ.0) GOTO 200
-            DO 100 ISYM2=1,NSYM
-              IF(NINDEP(ISYM2,ICASE2).EQ.0) GOTO 100
+            IF(IFC.EQ.0) Cycle
+            DO ISYM2=1,NSYM
+              IF(NINDEP(ISYM2,ICASE2).EQ.0) Cycle
               NIS2=NISUP(ISYM2,ICASE2)
               NAS2=NASUP(ISYM2,ICASE2)
               NCX=NIS2*NAS2
-              IF(NCX.EQ.0) GOTO 100
+              IF(NCX.EQ.0) Cycle
 
               CALL RHS_ALLO(NAS2,NIS2,lg_CX)
               CALL RHS_READ(NAS2,NIS2,lg_CX,ICASE2,ISYM2,IVEC)
@@ -209,16 +199,17 @@ C the SGM subroutines
                 LCX=lg_CX
                 XTST=RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
               ELSE
-                CALL GETMEM('CX','ALLO','REAL',LCX,NCX)
-                CALL RHS_GET(NAS2,NIS2,lg_CX,WORK(LCX))
-                CALL RHS_FREE(NAS2,NIS2,lg_CX)
-                XTST=DDOT_(NCX,WORK(LCX),1,WORK(LCX),1)
+                LCX=Allocate_GA_Array(NCX,'CX')
+                CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%A)
+                CALL RHS_FREE(lg_CX)
+                XTST=DDOT_(NCX,GA_Arrays(LCX)%A,1,
+     &                         GA_Arrays(LCX)%A,1)
               END IF
 
               IF(XTST.GT.1.0D12) THEN
                 WRITE(6,'(1x,a,6i10)')' SIGMA A. ICASE2,ISYM2:',
      &                                           ICASE2,ISYM2
-                GOTO 999
+                Call Crash()
               END IF
 
 #ifdef _DEBUGPRINT_
@@ -228,83 +219,85 @@ C the SGM subroutines
 #endif
 C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 WORK(LSGM1),LSGM2,LCX,iWORK(LLISTS))
+     &                 SGM1,SIZE(SGM1),SGM2,SIZE(SGM2),LCX,
+     &                 LISTS,SIZE(LISTS))
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
-                CALL RHS_FREE(NAS2,NIS2,lg_CX)
+                CALL RHS_FREE(lg_CX)
               ELSE
-                CALL GETMEM('CX','FREE','REAL',LCX,NCX)
+                Call Deallocate_GA_Array(LCX)
               END IF
 
 C Check for colossal values of SGM2 and SGM1
-              XTST=DDOT_(NSGM2,WORK(LSGM2),1,WORK(LSGM2),1)
+              XTST=DDOT_(NSGM2,SGM2,1,SGM2,1)
               IF(XTST.GT.1.0D12) THEN
                 WRITE(6,'(1x,a,6i10)')' SIGMA B. ICASE1,ISYM1:',
      &                                           ICASE1,ISYM1
                 WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',
      &                                           ICASE2,ISYM2
-                GOTO 999
+                CALL Crash()
               END IF
 
               IF(NSGM1.GT.0) THEN
-                XTST=DDOT_(NSGM1,WORK(LSGM1),1,WORK(LSGM1),1)
+                XTST=DDOT_(NSGM1,SGM1,1,SGM1,1)
                 IF(XTST.GT.1.0D12) THEN
                   WRITE(6,'(1x,a,6i10)')' SIGMA B2. ICASE1,ISYM1:',
      &                                              ICASE1,ISYM1
                   WRITE(6,'(1x,a,6i10)')'           ICASE2,ISYM2:',
      &                                              ICASE2,ISYM2
-                  GOTO 999
+                  Call Crash()
                 END IF
               END IF
 
- 100        CONTINUE
- 200      CONTINUE
+            End Do
+          End Do
 
 C-SVC: sum the replicate arrays:
           MAX_MESG_SIZE = 2**27
           DO LSGM2_STA=1,NSGM2,MAX_MESG_SIZE
             NSGM2_BLK=MIN(MAX_MESG_SIZE,NSGM2-LSGM2_STA+1)
-            CALL GADSUM(WORK(LSGM2+LSGM2_STA-1),NSGM2_BLK)
+            CALL GADGOP(SGM2(LSGM2_STA:),NSGM2_BLK,'+')
           END DO
 
           IF (NSGM1.GT.0) THEN
-            CALL GADSUM(WORK(LSGM1),NSGM1)
+            CALL GADGOP(SGM1,NSGM1,'+')
           END IF
 
-C       XTST2=DDOT_(NSGM2,WORK(LSGM2),1,WORK(LSGM2),1)
-C       XTST1=0.0D0
-C       IF(NSGM1.GT.0)XTST1=DDOT_(NSGM1,WORK(LSGM1),1,WORK(LSGM1),1)
+C       XTST2=DDOT_(NSGM2,SGM2,1,SGM2,1)
+C       XTST1=Zero
+C       IF(NSGM1.GT.0)XTST1=DDOT_(NSGM1,SGM1,1,SGM1,1)
 C       WRITE(6,'(1x,a,a,i2,2f16.6)')
 C    & 'Contr. SGM2, SGM1, ',cases(icase1),isym1,xtst2,xtst1
 
 C If there are 1-electron contributions, add them into the 2-el
 C part (This requires a non-empty active space.)
           IF(NSGM1.GT.0) THEN
-            FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+            FACT=One/(DBLE(MAX(1,NACTEL)))
             IF (ICASE1.EQ.1) THEN
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LSGM2),
-     &                  WORK(LSGM1))
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),
+     &                                      SGM1,SIZE(SGM1))
             ELSE IF(ICASE1.EQ.4) THEN
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LSGM2),
-     &                  WORK(LSGM1))
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),
+     &                                      SGM1,SIZE(SGM1))
             ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-              CALL SPEC1D(IMLTOP,FACT,WORK(LSGM2),WORK(LSGM1))
+              CALL SPEC1D(IMLTOP,FACT,SGM2,SIZE(SGM2),
+     &                                SGM1,SIZE(SGM1))
             END IF
 
-            XTST=DDOT_(NSGM2,WORK(LSGM2),1,WORK(LSGM2),1)
+            XTST=DDOT_(NSGM2,SGM2,1,SGM2,1)
             IF(XTST.GT.1.0D12) THEN
               WRITE(6,'(1x,a,6i10)')' SIGMA C. ICASE1,ISYM1:',
      &                                         ICASE1,ISYM1
-              GOTO 999
+              Call Crash()
             END IF
 
-            CALL GETMEM('SGM1','FREE','REAL',LSGM1,NSGM1)
           END IF
+          CALL mma_deallocate(SGM1)
 
 C-SVC: no need for the replicate arrays any more, fall back to one array
           CALL RHS_ALLO (NAS1,NIS1,lg_SGM2)
-          CALL RHS_PUT (NAS1,NIS1,lg_SGM2,WORK(LSGM2))
-          CALL GETMEM('SGM2','FREE','REAL',LSGM2,NSGM2)
+          CALL RHS_PUT (NAS1,NIS1,lg_SGM2,SGM2)
+          CALL mma_deallocate(SGM2)
 
 C Add to sigma array. Multiply by S to  lower index.
           NSGMX=NSGM2
@@ -315,7 +308,7 @@ C Add to sigma array. Multiply by S to  lower index.
           IF(XTST.GT.1.0D12) THEN
             WRITE(6,'(1x,a,6i10)')' SIGMA D. ICASE1,ISYM1:',ICASE1,ISYM1
             WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',ICASE2,ISYM2
-            GOTO 999
+            Call Crash()
           END IF
 
 *         IF(ICASE1.NE.12 .AND. ICASE1.NE.13) THEN
@@ -324,34 +317,33 @@ C Add to sigma array. Multiply by S to  lower index.
 *         ELSE
 *           CALL RHS_DAXPY(NAS1,NIS1,ALPHA,lg_SGM2,lg_SGMX)
 *         END IF
-          CALL RHS_FREE (NAS1,NIS1,lg_SGM2)
+          CALL RHS_FREE (lg_SGM2)
 
           XTST=RHS_DDOT(NAS1,NIS1,lg_SGMX,lg_SGMX)
           IF(XTST.GT.1.0D12) THEN
             WRITE(6,'(1x,a,6i10)')' SIGMA E. ICASE1,ISYM1:',ICASE1,ISYM1
             WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',ICASE2,ISYM2
-            GOTO 999
+            Call Crash()
           END IF
 
 C Write SGMX to disk.
           CALL RHS_SAVE (NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
-          CALL RHS_FREE (NAS1,NIS1,lg_SGMX)
- 301    CONTINUE
- 300  CONTINUE
+          CALL RHS_FREE (lg_SGMX)
+        End Do
+      End Do
 
       IMLTOP=1
 C Loop over types and symmetry block of CX vector:
-      DO 600 ICASE1=1,11
-*     DO 600 ICASE1=1,NCASES
-        DO 601 ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 601
+      DO ICASE1=1,11
+        DO ISYM1=1,NSYM
+          IF(NINDEP(ISYM1,ICASE1).EQ.0) Cycle
           NIS1=NISUP(ISYM1,ICASE1)
           NAS1=NASUP(ISYM1,ICASE1)
           ND2=NIS1*NAS1
-          IF(ND2.EQ.0) GOTO 601
+          IF(ND2.EQ.0) Cycle
 
           CALL RHS_ALLO (NAS1,NIS1,lg_D2)
-          CALL RHS_SCAL (NAS1,NIS1,lg_D2,0.0D0)
+          CALL RHS_SCAL (NAS1,NIS1,lg_D2,Zero)
 C Contract S*CX to form D2. Also form D1 from D2, if needed.
 
           NCX=ND2
@@ -361,7 +353,7 @@ C Contract S*CX to form D2. Also form D1 from D2, if needed.
           XTST=RHS_DDOT(NAS1,NIS1,lg_CX,lg_CX)
           IF(XTST.GT.1.0D12) THEN
             WRITE(6,'(1x,a,6i10)')' SIGMA F. ICASE1,ISYM1:',ICASE1,ISYM1
-            GOTO 999
+            Call Crash()
           END IF
 
           IF(ICASE1.NE.12 .AND. ICASE1.NE.13) THEN
@@ -369,86 +361,84 @@ C Contract S*CX to form D2. Also form D1 from D2, if needed.
           ELSE
            CALL RHS_DAXPY(NAS1,NIS1,ALPHA,lg_CX,lg_D2)
           END IF
-          CALL RHS_FREE (NAS1,NIS1,lg_CX)
+          CALL RHS_FREE (lg_CX)
 
 CPAM Sanity check:
           XTST=RHS_DDOT(NAS1,NIS1,lg_D2,lg_D2)
           IF(XTST.GT.1.0D12) THEN
             WRITE(6,'(1x,a,6i10)')' SIGMA G1 ICASE1,ISYM1:',ICASE1,ISYM1
             WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',ICASE2,ISYM2
-            GOTO 999
+            Call Crash()
           END IF
 
-          CALL GETMEM('D2','ALLO','REAL',LD2,ND2)
-          CALL RHS_GET (NAS1,NIS1,lg_D2,WORK(LD2))
-          CALL RHS_FREE (NAS1,NIS1,lg_D2)
+          CALL mma_allocate(D2,ND2,Label='D2')
+          CALL RHS_GET (NAS1,NIS1,lg_D2,D2)
+          CALL RHS_FREE (lg_D2)
 
           ND1=0
-          LD1=1
           IMLTOP=1
-          FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+          FACT=One/(DBLE(MAX(1,NACTEL)))
           IF(ICASE1.EQ.1) THEN
             ND1=NASH(ISYM1)*NISH(ISYM1)
             IF(ND1.GT.0) THEN
-              CALL GETMEM('D1','ALLO','REAL',LD1,ND1)
-              CALL DCOPY_(ND1,[0.0D0],0,WORK(LD1),1)
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,WORK(LD2),
-     &                    WORK(LD1))
+              CALL mma_allocate(D1,ND1,Label='D1')
+              D1(:)=Zero
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           ELSE IF(ICASE1.EQ.4) THEN
             ND1=NASH(ISYM1)*NSSH(ISYM1)
             IF(ND1.GT.0) THEN
-              CALL GETMEM('D1','ALLO','REAL',LD1,ND1)
-              CALL DCOPY_(ND1,[0.0D0],0,WORK(LD1),1)
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,WORK(LD2),
-     &                    WORK(LD1))
+              CALL mma_allocate(D1,ND1,Label='D1')
+              D1(:)=Zero
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
             ND1=NIS1
             IF(ND1.GT.0) THEN
-              CALL GETMEM('D1','ALLO','REAL',LD1,ND1)
-              CALL DCOPY_(ND1,[0.0D0],0,WORK(LD1),1)
-              CALL SPEC1D(IMLTOP,FACT,WORK(LD2),WORK(LD1))
+              CALL mma_allocate(D1,ND1,Label='D1')
+              D1(:)=Zero
+              CALL SPEC1D(IMLTOP,FACT,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           END IF
+          If (.NOT.ALLOCATED(D1)) CALL mma_allocate(D1,1,Label='D1')
 
           IF(ND1.GT.0) THEN
-            XTST=DDOT_(ND1,WORK(LD1),1,WORK(LD1),1)
+            XTST=DDOT_(ND1,D1,1,D1,1)
             IF(XTST.GT.1.0D12) THEN
               WRITE(6,'(1x,a,6i10)')' SIGMA G2 ICASE1,ISYM1:',
      &                                         ICASE1,ISYM1
               WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',
      &                                         ICASE2,ISYM2
-              GOTO 999
+              Call Crash()
             END IF
           END IF
 
-          DO 500 ICASE2=ICASE1+1,NCASES
-            IF(IFCOUP(ICASE2,ICASE1).EQ.0) GOTO 500
-            DO 400 ISYM2=1,NSYM
-              IF(NINDEP(ISYM2,ICASE2).EQ.0) GOTO 400
+          DO ICASE2=ICASE1+1,NCASES
+            IF(IFCOUP(ICASE2,ICASE1).EQ.0) Cycle
+            DO ISYM2=1,NSYM
+              IF(NINDEP(ISYM2,ICASE2).EQ.0) Cycle
               NIS2=NISUP(ISYM2,ICASE2)
               NAS2=NASUP(ISYM2,ICASE2)
               NSGMX=NIS2*NAS2
-              IF(NSGMX.EQ.0) GOTO 400
+              IF(NSGMX.EQ.0) Cycle
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
                 CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
                 LSGMX=lg_SGMX
               ELSE
-                CALL GETMEM('SGMX','ALLO','REAL',LSGMX,NSGMX)
-                CALL DCOPY_(NSGMX,[0.0D0],0,WORK(LSGMX),1)
+                LSGMX=Allocate_GA_Array(NSGMX,'SGMX')
               END IF
 
 * SVC: this array is just zero....
-*             XTST=DDOT_(NSGMX,WORK(LSGMX),1,WORK(LSGMX),1)
+*             XTST=DDOT_(NSGMX,GA_Array(LSGMX)%A,1,
+*    &                         GA_Array(LSGMX)%A,1)
 *             IF(XTST.GT.1.0D12) THEN
 *               WRITE(6,'(1x,a,6i10)')' SIGMA H. ICASE1,ISYM1:',
 *    &                                           ICASE1,ISYM1
 *               WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',
 *    &                                           ICASE2,ISYM2
-*               GOTO 999
+*               Call Crash()
 *             END IF
 
 #ifdef _DEBUGPRINT_
@@ -458,12 +448,14 @@ CPAM Sanity check:
 #endif
 C Compute contribution SGMX <- D2, and SGMX <- D1  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 WORK(LD1),LD2,LSGMX,iWORK(LLISTS))
+     &                 D1,SIZE(D1),D2,SIZE(D2),LSGMX,
+     &                 LISTS,SIZE(LISTS))
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 XTST=RHS_DDOT(NAS2,NIS2,lg_SGMX,lg_SGMX)
               ELSE
-                XTST=DDOT_(NSGMX,WORK(LSGMX),1,WORK(LSGMX),1)
+                XTST=DDOT_(NSGMX,GA_Arrays(LSGMX)%A,1,
+     &                           GA_Arrays(LSGMX)%A,1)
               END IF
 
               IF(XTST.GT.1.0D12) THEN
@@ -471,30 +463,31 @@ C Compute contribution SGMX <- D2, and SGMX <- D1  if any
      &                                           ICASE1,ISYM1
                 WRITE(6,'(1x,a,6i10)')'          ICASE2,ISYM2:',
      &                                           ICASE2,ISYM2
-                GOTO 999
+                Call Crash()
               END IF
 
               IF (ICASE2.NE.12 .AND. ICASE2.NE.13) THEN
                 MAX_MESG_SIZE = 2**27
                 DO LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
                   NSGMX_BLK=MIN(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
-                  CALL GADSUM(WORK(LSGMX+LSGMX_STA-1),NSGMX_BLK)
+                  CALL GADGOP(GA_Arrays(LSGMX)%A(LSGMX_STA),
+     &                        NSGMX_BLK,'+')
                 END DO
                 CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
                 CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-                CALL RHS_ADD(NAS2,NIS2,lg_SGMX,WORK(LSGMX))
-                CALL GETMEM('SGMX','FREE','REAL',LSGMX,NSGMX)
+                CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Arrays(LSGMX)%A)
+                Call Deallocate_GA_Array(LSGMX)
               END IF
 
 C-SVC: no need for the replicate arrays any more, fall back to one array
               CALL RHS_SAVE (NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-              CALL RHS_FREE (NAS2,NIS2,lg_SGMX)
- 400        CONTINUE
- 500      CONTINUE
-          CALL GETMEM('D2','FREE','REAL',LD2,ND2)
-          IF(ND1.GT.0) CALL GETMEM('D1','FREE','REAL',LD1,ND1)
- 601    CONTINUE
- 600  CONTINUE
+              CALL RHS_FREE (lg_SGMX)
+            End Do
+          End Do
+          CALL mma_deallocate(D2)
+          CALL mma_deallocate(D1)
+        End Do
+      End Do
 
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUSGM=CPUSGM+(CPU1-CPU0)
@@ -516,12 +509,8 @@ C-SVC: no need for the replicate arrays any more, fall back to one array
       Call mma_deallocate(FTA_Full)
       Call mma_deallocate(FAT_Full)
       Do iSym = 1, nSym
-         FIT(iSym)%A => Null()
-         FTI(iSym)%A => Null()
-         FIA(iSym)%A => Null()
-         FAI(iSym)%A => Null()
-         FTA(iSym)%A => Null()
-         FAT(iSym)%A => Null()
+         nullify(FIT(iSym)%A,FTI(iSym)%A,FIA(iSym)%A,FAI(iSym)%A,
+     &           FTA(iSym)%A,FAT(iSym)%A)
       End Do
 
 C Transform contrav C  to eigenbasis of H0(diag):
@@ -529,16 +518,14 @@ C Transform contrav C  to eigenbasis of H0(diag):
 C Transform covar. sigma to eigenbasis of H0(diag):
       CALL PTRTOSR(0,JVEC,JVEC)
 
-  99  CONTINUE
-      RETURN
-
- 999  CONTINUE
-C Error exit.
-      WRITE(6,*)' Colossal value detected in SIGMA.'
-      WRITE(6,*)' This implies that the thresholds used for linear'
-      WRITE(6,*)' dependence removal must be increased.'
-      WRITE(6,*)' Present values, THRSHN, THRSHS:',THRSHN,THRSHS
-      WRITE(6,*)' Use keyword THRESHOLD in input to increase these'
-      WRITE(6,*)' values and then run again.'
-      CALL ABEND()
-      END
+      CONTAINS
+      Subroutine Crash()
+         WRITE(6,*)' Colossal value detected in SIGMA.'
+         WRITE(6,*)' This implies that the thresholds used for linear'
+         WRITE(6,*)' dependence removal must be increased.'
+         WRITE(6,*)' Present values, THRSHN, THRSHS:',THRSHN,THRSHS
+         WRITE(6,*)' Use keyword THRESHOLD in input to increase these'
+         WRITE(6,*)' values and then run again.'
+         CALL ABEND()
+      END Subroutine Crash
+      END SUBROUTINE SIGMA_CASPT2

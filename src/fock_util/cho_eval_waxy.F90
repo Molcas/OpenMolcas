@@ -13,6 +13,8 @@ subroutine CHO_eval_waxy(irc,Scr,ChoV1,ChoV2,W_PWXY,nAorb,JSYM,NUMV,DoTraInt,CMO
 
 use Symmetry_Info, only: Mul
 use Data_structures, only: DSBA_Type, SBA_Type, twxy_Type
+use wadr, only: nPWXY
+use general_data, only: NBAS, NFRO, NORB, NSYM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -26,9 +28,6 @@ real(kind=wp), intent(_OUT_) :: W_PWXY(*)
 integer(kind=iwp), intent(in) :: nAorb(*), JSYM, NUMV
 logical(kind=iwp), intent(in) :: DoTraInt
 type(DSBA_Type), intent(in) :: CMO
-#include "rasdim.fh"
-#include "general.fh"
-#include "wadr.fh"
 integer(kind=iwp) :: ijSym, iOrb, ipMpw, iS, iStack, iSyma, iSymp, iSymw, iSymx, iSymy, ixy, jAsh, kAsh, kl_Orb_pairs, lAsh, &
                      nAob_w, nBas_a, nOrb_a, Npw, Nwa, Nxy, off_PWXY(8,8,8)
 
@@ -44,7 +43,8 @@ do iSymy=1,nSym
 
   iSymx = Mul(iSymy,JSYM)
 
-  Nxy = size(ChoV2%SB(iSymx)%A2,1)
+  Nxy = 0
+  if (associated(ChoV2%SB(iSymx)%A2)) Nxy = size(ChoV2%SB(iSymx)%A2,1)
 
   if ((iSymx <= iSymy) .and. (Nxy > 0)) then
 

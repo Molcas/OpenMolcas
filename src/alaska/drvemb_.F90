@@ -33,13 +33,11 @@ character(len=*), intent(inout) :: KSDFT
 logical(kind=iwp), intent(in) :: Do_Grad
 real(kind=wp), intent(out) :: Grad(nGrad)
 character(len=4), intent(in) :: DFTFOCK
-#include "debug.fh"
 integer(kind=iwp) :: i, iSpin, kSpin, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Energy_NAD, Fakt_, Func_A, Func_AB, Func_B, Func_X
 real(kind=wp), allocatable :: Grad_A(:), F_DFT(:,:), D_DS(:,:), Fcorr(:,:)
 real(kind=wp), external :: Xlambda
 
-Debug = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -12,24 +12,29 @@
 !to explicitly use the irregular versions. These is a wrapper routine to
 !create horizontal (H) and vertical (V) stripes. The dimensions are
 !divided evenly, with the remainder spread over the leading stripes.
+
+#include "compiler_features.h"
+
 #ifdef _MOLCAS_MPP_
       SUBROUTINE GA_CREATE_STRIPED (ORI,NROW,NCOL,LABEL,LG_M)
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: iwp, u6
       IMPLICIT NONE
       CHARACTER :: ORI
       CHARACTER(LEN=*) :: LABEL
-      INTEGER :: NROW, NCOL, LG_M
+      INTEGER(kind=iwp) :: NROW, NCOL, LG_M
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL :: BSTAT
-      INTEGER :: NPROCS
-      INTEGER :: NBLOCK1, NBLOCK2
-      INTEGER, ALLOCATABLE :: MAP1(:), MAP2(:)
-      INTEGER :: NDIM, NBASE, NREST, IOFF, I
+      LOGICAL(kind=iwp) :: BSTAT
+      INTEGER(kind=iwp) :: NPROCS
+      INTEGER(kind=iwp) :: NBLOCK1, NBLOCK2
+      INTEGER(kind=iwp), ALLOCATABLE :: MAP1(:), MAP2(:)
+      INTEGER(kind=iwp) :: NDIM, NBASE, NREST, IOFF, I
 
       NPROCS=GA_NNODES()
 
       NBLOCK1=1
-      ALLOCATE(MAP1(NBLOCK1))
+      call MMA_ALLOCATE(MAP1,NBLOCK1,Label='MAP1')
       MAP1(1)=1
 
       NDIM=0
@@ -41,7 +46,7 @@
       NBLOCK2=MIN(NDIM,NPROCS)
       NBASE=NDIM/NPROCS
       NREST=MOD(NDIM,NPROCS)
-      ALLOCATE(MAP2(NBLOCK2))
+      call MMA_ALLOCATE(MAP2,NBLOCK2,Label='MAP2')
       IOFF=1
       DO I=1,NBLOCK2
         MAP2(I)=IOFF
@@ -61,15 +66,20 @@
      &                     MAP1,NBLOCK1,MAP2,NBLOCK2,LG_M)
       END IF
 
-      DEALLOCATE(MAP1,MAP2)
+      call MMA_DEALLOCATE(MAP1)
+      call MMA_DEALLOCATE(MAP2)
 
       IF (.NOT.bStat) THEN
-        WRITE(6,*) 'GA_CREATE_HS: could not create array, abort'
+        WRITE(u6,*) 'GA_CREATE_HS: could not create array, abort'
         CALL AbEnd()
       END IF
-      END
-#elif defined (NAGFOR)
-c Some compilers do not like empty files
-      SUBROUTINE EMPTY_GA_CREATE_STRIPED ()
-      END
+      END SUBROUTINE GA_CREATE_STRIPED
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#     include "macros.fh"
+      subroutine empty_GA_CREATE_STRIPED()
+      end subroutine empty_GA_CREATE_STRIPED
+
 #endif

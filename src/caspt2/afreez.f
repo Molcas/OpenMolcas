@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2007, Bjorn O. Roos                                    *
 ************************************************************************
-      SUBROUTINE AFREEZ(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,NAME,
-     &           NAMFRO,LNFRO,DPQ,THRFR,THRDE,IFQCAN,CMO,NCMO)
+      SUBROUTINE AFREEZ(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,NAME,nName,
+     &           NAMFRO,LNFRO,DPQ,nDPQ,THRFR,THRDE,IFQCAN,CMO,NCMO)
 *****************************************************************************
 *                                                                           *
 * Purpose: to select orbitals, which will be frozen in the CASPT2           *
@@ -30,28 +30,41 @@
 *     Namfro : names of atoms to be selected (length lnfro)                 *
 *     Labfro : labels for orbitals to be frozen                             *
 *     CMO    : Orbital coefficients                                         *
-*     OccN   : Orbital occupations                                          *
-*     SMat   : Overlap matrix                                               *
 *     DPQ    : The charge matrix for a given orbital                        *
 *     THRFR : Threshold for freezing orbitals                               *
 *     THRDE : Threshold for deleting orbitals                               *
 *                                                                           *
 *****************************************************************************
       use OneDat, only: sNoNuc, sNoOri
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "itmax.fh"
-#include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
+      use definitions, only: iwp, wp, u6
+      use Molcas, only: LenIn, MxBas
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, One
+      IMPLICIT None
 *
-      CHARACTER(LEN=LENIN8) NAME(*)
-      CHARACTER(LEN=4) NAMFRO(*)
-      DIMENSION NBAS(NSYM),NFRO(NSYM),NISH(NSYM),NASH(NSYM),NSSH(NSYM),
-     &          NDEL(NSYM)
-      DIMENSION LABFRO(mxbas),DPQ(*)
-      REAL*8, ALLOCATABLE :: SMAT(:)
-      REAL*8 CMO(*)
+      integer(kind=iwp), intent(in):: NSYM
+      integer(kind=iwp), intent(in):: NBAS(NSYM),NASH(NSYM)
+      integer(kind=iwp), intent(inout):: NFRO(NSYM),NISH(NSYM),
+     &                                   NSSH(NSYM),NDEL(NSYM)
+      integer(kind=iwp), intent(in):: nName
+      CHARACTER(LEN=LenIn+8), intent(in):: NAME(nName)
+      integer(kind=iwp), intent(in):: LnFro
+      CHARACTER(LEN=4), intent(in):: NAMFRO(LnFro)
+      integer(kind=iwp), intent(in):: nDPQ
+      real(kind=wp), intent(out):: DPQ(nDPQ)
+      real(kind=wp), intent(in):: THRFR,THRDE
+      integer(kind=iwp), intent(inout):: IFQCAN
+      integer(kind=iwp), intent(in):: NCMO
+      real(kind=wp), intent(inout):: CMO(nCMO)
+
+      integer(kind=iwp):: LABFRO(mxbas)
+      real(kind=wp), ALLOCATABLE :: SMAT(:)
       character(len=8) :: Label
+      real(kind=wp), parameter:: Thrs=1.e-06_wp
+      real(kind=wp) chksum,selch,Swap
+      integer(kind=iwp):: I,ib,iComp,imo,imo0,iname,iopt,ipp,ipq,ipq0,
+     &                    iqq,irc,ist1,ist2,isym,isymlbl,nb2,NBAST,nbi,
+     &                    ndi,nfi,nfro1,ni,np,nq,nsi,NSMAT,ntri,ipq1,nin
 *
 *
 *----------------------------------------------------------------------*
@@ -66,9 +79,9 @@
         ntri=(nbas(i)+nbas(i)**2)/2+ntri
       End Do
       IF(NBAST.GT.MXBAS) then
-       Write(6,'(/6X,A)')
+       Write(u6,'(/6X,A)')
      & 'The number of basis functions exceeds the present limit'
-       Call Abend
+       Call Abend()
       Endif
 *
 *----------------------------------------------------------------------*
@@ -83,32 +96,31 @@
       Call RdOne(irc,iopt,Label,iComp,SMAT,isymlbl)
 *
 *----------------------------------------------------------------------*
-*      write(6,*)'molecular orbitals before localization'
+*      Write(u6,*)'molecular orbitals before localization'
 *      imo=0
 *      do isym=1,nsym
 *       nbi=nbas(isym)
 *       do ib=1,nbi
-*        write(6,*) 'orbital', isym, ib
-*        write(6,'(4E18.12)') (CMO(imo+i),i=1,nbi)
+*        Write(u6,*) 'orbital', isym, ib
+*        Write(u6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
 *       imo=imo+nbi
 *       enddo
 *      enddo
 *----------------------------------------------------------------------*
 *     Localize the inactive and virtual orbitals                       *
 *----------------------------------------------------------------------*
-      Thrs=1.d-06
-      Call Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO)
+      Call Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO,nCMO)
       If(irc.ne.0) then
-       write(6,*) 'Localization failed. The AFRE option cannot be used'
-       Call Abend
+       write(u6,*) 'Localization failed. The AFRE option cannot be used'
+       Call Abend()
       Endif
-*      write(6,*)'molecular orbitals after localization'
+*      Write(u6,*)'molecular orbitals after localization'
 *      imo=0
 *      do isym=1,nsym
 *       nbi=nbas(isym)
 *       do ib=1,nbi
-*        write(6,*) 'orbital', isym, ib
-*        write(6,'(4E18.12)') (CMO(imo+i),i=1,nbi)
+*        Write(u6,*) 'orbital', isym, ib
+*        Write(u6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
 *       imo=imo+nbi
 *       enddo
 *      enddo
@@ -121,9 +133,9 @@
       Do isym=1,nsym
        nb2=nb2+nbas(isym)*(nbas(isym)+1)/2
       Enddo
-*      write(6,*) 'Starting the calculation',nb2
+*      write(u6,*) 'Starting the calculation',nb2
       Do i=1,nb2
-       DPQ(i)=0.0d0
+       DPQ(i)=Zero
       Enddo
       ib=0
       imo0=0
@@ -138,7 +150,7 @@
          labfro(i)=0
         Enddo
          Do ni=1,nin
-*         write(6,*) 'loop over sym and inactive orbitals',isym,ni
+*         Write(u6,*) 'loop over sym and inactive orbitals',isym,ni
           ipq=ipq0
           ipq1=0
           Do np=1,nbi
@@ -168,26 +180,26 @@
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
-*          write(6,*) 'diagonal element',ipp,DPQ(ipp)
+*          Write(u6,*) 'diagonal element',ipp,DPQ(ipp)
           Enddo
 
 *         The diagonal now contains the charges for each basis function
 *         Add charges for basis functions centered on the selected atoms
 *         First check that the sum is equal to one
-          chksum=0.0d0
+          chksum=Zero
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
            chksum=chksum+DPQ(ipp)
           Enddo
-          If(abs(chksum-1.d0).gt.1.d-08) then
-           Write(6,*) 'Error on Checksum in Afreez.',
+          If(abs(chksum-One).gt.1.e-08_wp) then
+           Write(u6,*) 'Error on Checksum in Afreez.',
      &     'Value is not equal to 1:', isym, ni, chksum
-           Write(6,*) 'Freezing extra orbitals in CASPT2 stops.'
-           Call Abend
+           Write(u6,*) 'Freezing extra orbitals in CASPT2 stops.'
+           Call Abend()
           Endif
 *         Add diagonal elements that belong to selected atoms
-          selch=zero
+          selch=Zero
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
@@ -196,7 +208,7 @@
            Enddo
           Enddo
           If(abs(selch).lt.thrfr) labfro(ni)=1
-*         write(6,*) selch
+*         Write(u6,*) selch
           imo=imo+nbi
          Enddo
 *        Sort the inactive CMO's such that frozen orbitals are first.
@@ -206,7 +218,7 @@
 *          Exchange this orbital with the first inactive orbital
            ist1=nfro(isym)*nbi+imo0
            ist2=(nfro1+ni-1)*nbi+imo0
-*          write(6,*)'nfro,nish',nfro(isym),nish(isym),ist1,ist2
+*          Write(u6,*)'nfro,nish',nfro(isym),nish(isym),ist1,ist2
            Do np=1,nbi
             Swap=CMO(ist1+np)
             CMO(ist1+np)=CMO(ist2+np)
@@ -224,7 +236,7 @@
 *     Now sort virtual orbitals
 *     Orbitals with too low population on selected atoms will be deleted
       Do i=1,nb2
-       DPQ(i)=zero
+       DPQ(i)=Zero
       Enddo
       ib=0
       imo0=0
@@ -241,7 +253,7 @@
          labfro(i)=0
         Enddo
          Do ni=1,nsi
-*         write(6,*) 'loop over sym and secondary orbitals',isym,ni
+*         Write(u6,*) 'loop over sym and secondary orbitals',isym,ni
           ipq=ipq0
           ipq1=0
           Do np=1,nbi
@@ -271,27 +283,27 @@
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
-*          write(6,*) 'diagonal element',ipp,DPQ(ipp)
+*          Write(u6,*) 'diagonal element',ipp,DPQ(ipp)
           Enddo
 
 *         The diagonal now contains the charges for each basis function
 *         Add charges for basis functions centered on the selected atoms
 *         First check that the sum is equal to one
-          chksum=0.0d0
+          chksum=Zero
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
            chksum=chksum+DPQ(ipp)
           Enddo
-          If(abs(chksum-1.d0).gt.1.d-08) then
-           Write(6,*) 'Error on Checksum in Afreez.',
+          If(abs(chksum-One).gt.1.e-08_wp) then
+           Write(u6,*) 'Error on Checksum in Afreez.',
      &     'Value is not equal to 1:', isym, ni, chksum
-           Write(6,*) 'Deleting extra orbitals in CASPT2 stops.'
-           Call Abend
+           Write(u6,*) 'Deleting extra orbitals in CASPT2 stops.'
+           Call Abend()
           Endif
 *         Write(6,*) 'Checksum', isym, ni, chksum
 *         Add diagonal elements that belong to selected atoms
-          selch=zero
+          selch=Zero
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
@@ -300,7 +312,7 @@
            Enddo
           Enddo
           If(abs(selch).gt.thrde) labfro(ni)=1
-*         write(6,*) selch
+*         Write(u6,*) selch
           imo=imo+nbi
          Enddo
 *        Sort the CMO's such that secondary orbitals are first.
@@ -314,9 +326,9 @@
             CMO(ist1+np)=CMO(ist2+np)
             CMO(ist2+np)=Swap
            Enddo
-*          write(6,*)'Orbital number',ni,ist1,ist2
-*           write(6,'(4E18.12)') (CMO(ist1+np),np=1,nbi)
-*           write(6,'(4E18.12)') (CMO(ist2+np),np=1,nbi)
+*          Write(u6,*)'Orbital number',ni,ist1,ist2
+*           Write(u6,'(4ES19.12)') (CMO(ist1+np),np=1,nbi)
+*           Write(u6,'(4ES19.12)') (CMO(ist2+np),np=1,nbi)
            ndel(isym)=ndel(isym)-1
            nssh(isym)=nssh(isym)+1
           Endif
@@ -331,8 +343,8 @@
 *      do isym=1,nsym
 *       nbi=nbas(isym)
 *       do ib=1,nbi
-*        write(6,*) 'orbital', isym, ib
-*        write(6,'(4E18.12)') (CMO(imo+i),i=1,nbi)
+*        Write(u6,*) 'orbital', isym, ib
+*        Write(u6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
 *       imo=imo+nbi
 *       enddo
 *      enddo
@@ -341,8 +353,7 @@
       IF (IFQCAN.NE.0) IFQCAN=0 ! MOs to be recanonicalized on exit
 
       CALL MMA_DEALLOCATE(SMAT)
-      Return
 *
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(NCMO)
-      End
+      End SUBROUTINE AFREEZ

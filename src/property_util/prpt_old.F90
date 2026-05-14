@@ -99,9 +99,9 @@ call mma_allocate(Opr,nfblock+4,label='Opr')
 do i=1,99
   NxtOpr = .false.
   nComp = (i+1)*(i+2)/2
-  if (allocated(Nuc)) call mma_deallocate(Nuc)
+  call mma_deallocate(Nuc,safe='*')
   call mma_allocate(Nuc,nComp,label='Nuc')
-  if (allocated(El)) call mma_deallocate(El)
+  call mma_deallocate(El,safe='*')
   call mma_allocate(El,nComp,label='El')
 
   Nuc(:) = Zero
@@ -129,8 +129,8 @@ do i=1,99
 
   call prop(short,label,C1,C1,nirrep,nBas,mDim,occ,dummy,El,Nuc,i,ifallorb)
 end do
-if (allocated(Nuc)) call mma_deallocate(Nuc)
-if (allocated(El)) call mma_deallocate(El)
+call mma_deallocate(Nuc,safe='*')
+call mma_deallocate(El,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -140,9 +140,9 @@ if (allocated(El)) call mma_deallocate(El)
 
 do iEF=0,2
   nComp = (iEF+1)*(iEF+2)/2
-  if (allocated(Nuc)) call mma_deallocate(Nuc)
+  call mma_deallocate(Nuc,safe='*')
   call mma_allocate(Nuc,nComp,label='Nuc')
-  if (allocated(El)) call mma_deallocate(El)
+  call mma_deallocate(El,safe='*')
   call mma_allocate(El,nComp,label='El')
 
   ! loop over different operator origins (max. 9999)
@@ -177,8 +177,8 @@ do iEF=0,2
   end do
 
 end do
-if (allocated(Nuc)) call mma_deallocate(Nuc)
-if (allocated(El)) call mma_deallocate(El)
+call mma_deallocate(Nuc,safe='*')
+call mma_deallocate(El,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

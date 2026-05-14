@@ -28,11 +28,10 @@ subroutine CHO_FSCF(rc,nDen,FLT,nForb,nIorb,Porb,DLT,ExFac)
 !
 !*********************************************************************
 
-use ChoArr, only: nDimRS
-use ChoSwp, only: InfVec
+use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -42,20 +41,18 @@ integer(kind=iwp), intent(in) :: nDen, nForb(8,nDen), nIorb(8,nDen)
 type(DSBA_Type), intent(inout) :: FLT(nDen)
 type(DSBA_Type), intent(in) :: Porb(nDen), DLT(nDen)
 real(kind=wp), intent(in) :: ExFac
-#include "chotime.fh"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, iDen, iLoc, irc, IREDC, iSkip(8), iSwap, iSyma, iSymk, IVEC2, iVrs, jDen, JNUM, JRED, JRED1, &
                      JRED2, jSym, JVEC, k, kMOs, l, LREAD, LWORK, Mmax, mTvec, MUSED, nAux(8), nBatch, NK, nMat, nMOs, nRS, NUMV, &
                      nVec, nVrs
 real(kind=wp) :: Fact, FactCI, FactXI, TCC1, TCC2, tcoul(2), TCR1, TCR2, TCR3, TCR4, TCX1, TCX2, texch(2), TOTCPU, TOTCPU1, &
                  TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, TWC2, TWR1, TWR2, TWR3, TWR4, TWX1, TWX2
 logical(kind=iwp) :: add, DoRead
-#ifdef _DEBUGPRINT_
-logical(kind=iwp) :: Debug
-#endif
 character(len=50) :: CFmt
 type(SBA_Type) :: Laq(2)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ISYM
+logical(kind=iwp) :: Debug
+#endif
 real(kind=wp), allocatable :: Drs(:), Frs(:), Lrs(:,:), VJ(:)
 character(len=*), parameter :: SECNAM = 'CHO_FSCF'
 
@@ -230,8 +227,8 @@ do jSym=1,nSym
 
       do jDen=1,nDen
 
-        nAux(:) = nForb(:,jDen)+nIorb(:,jDen)
-        call Allocate_DT(Laq(jDen),nAux,nBas,nVec,JSYM,nSym,iSwap)
+        nAux(1:nSym) = nForb(1:nSym,jDen)+nIorb(1:nSym,jDen)
+        call Allocate_DT(Laq(jDen),nAux,nBas,JNUM,JSYM,nSym,iSwap)
 
         call CWTIME(TCR3,TWR3)
 

@@ -45,6 +45,7 @@ use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
+use Disp, only: IndDsp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -56,8 +57,6 @@ integer(kind=iwp), intent(in) :: nHess, nFD, nComp, lOper(nComp)
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: DiffOp
 real(kind=wp), intent(in) :: CCoor(3,nComp), FD(nFD)
-#include "Molcas.fh"
-#include "disp.fh"
 integer(kind=iwp) :: i, iAng, iAO, iAtom, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0:7,0:7), iComp, iComp1, iComp2, iDCRR(0:7), &
                      iDCRT(0:7), ielem, iIrrep, ijS, IndGrd(0:2,0:1,0:7), IndHss(0:1,0:2,0:1,0:2,0:7), iPrim, iS, iShell, iShll, &
                      iSmLbl, iStabM(0:7), iStabO(0:7), iStop, iTmp(0:7), iuv, j, jAng, jAO, jAtom, jBas, jCar, jCmp, jCnt, jCnttp, &
@@ -65,8 +64,7 @@ integer(kind=iwp) :: i, iAng, iAO, iAtom, iBas, iCar, iCmp, iCnt, iCnttp, iCoM(0
                      nDCRT, nDisp1, nDisp2, nMax, nnIrrep, nOp(2), nOrder, nOrdOp, nScrt1, nScrt2, nSkal, nSO, nStabM, nStabO, &
                      nTasks
 real(kind=wp) :: A(3), B(3), FactNd, RB(3)
-logical(kind=iwp) :: AeqB, Chck, ifgrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2)
-!character(len=3) :: ChOper(0:7)
+logical(kind=iwp) :: Chck, ifgrd(0:2,0:1), IfHss(0:1,0:2,0:1,0:2)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Fnl(:), Kappa(:), Kern(:), PCoor(:,:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 logical(kind=iwp), external :: EQ, TF, TstFnc
@@ -158,8 +156,6 @@ do ijS=1,nTasks
   ! At this point we can compute Zeta.
 
   call ZXia(Zeta,ZI,iPrim,jPrim,Shells(iShll)%Exp,Shells(jShll)%Exp)
-
-  AeqB = iS == jS
 
   ! Find the DCR for A and B
 
@@ -300,7 +296,7 @@ do ijS=1,nTasks
 
       ! Gather the elements from 1st order density / Fock matrix.
 
-      call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,AeqB,iAO,jAO)
+      call SOGthr(DSO,iBas,jBas,nSO,FD,n2Tri(iSmLbl),iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
 
       ! Project the Fock/1st order density matrix in AO
       ! basis on to the primitive basis.

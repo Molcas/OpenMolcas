@@ -11,22 +11,22 @@
 
 set (sources
      main.F90
+     ab_cpf.F90
      abcd_cpf.F90
      abci_cpf.F90
-     ab_cpf.F90
      ai_cpf.F90
      alloc_cpf.F90
      apprim.F90
      count_cpf.F90
-     cpfctl.F90
      cpf.F90
      cpf_global.F90
+     cpfctl.F90
      cupdate.F90
      decomp.F90
      dens_cpf.F90
      densct_cpf.F90
-     diagc_cpf.F90
      diag_cpf.F90
+     diagc_cpf.F90
      diagct_cpf.F90
      diis_cpf.F90
      dsq2.F90
@@ -40,9 +40,9 @@ set (sources
      ijkl_cpf.F90
      indmat_cpf.F90
      ipo_cpf.F90
+     mab.F90
      mabcd.F90
      mabci.F90
-     mab.F90
      mai.F90
      mdiagc.F90
      mdsq2.F90
@@ -64,14 +64,13 @@ set (sources
      secord.F90
      sing.F90
      solve.F90
+     sort_cpf.F90
      sorta_cpf.F90
      sortb_cpf.F90
-     sort_cpf.F90
      start_cpf.F90
      thetset.F90
      tpqset.F90
      twoct.F90
-     vecsum_cpfmcpf.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

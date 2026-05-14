@@ -12,14 +12,12 @@
 subroutine DGETMO(A,ldA,M,N,B,ldB)
 ! TRANSPOSE A REGULAR MATRIX (OUT-OF-PLACE)
 
-#include "intent.fh"
-
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ldA, M, N, ldB
 real(kind=wp), intent(in) :: A(ldA,N)
-real(kind=wp), intent(_OUT_) :: B(ldB,M)
+real(kind=wp), intent(inout) :: B(ldB,M)
 integer(kind=iwp) :: i, INC, j, jj
 
 if (M <= 0) then
@@ -28,6 +26,7 @@ if (M <= 0) then
   write(u6,*) '  Invalid dimension of matrix A :'
   write(u6,*) '  The number of columns, M, must be greater than zero'
   write(u6,*)
+  call abend()
 end if
 if (N <= 0) then
   write(u6,*)
@@ -35,6 +34,7 @@ if (N <= 0) then
   write(u6,*) '  Invalid leading dimension of matrix B :'
   write(u6,*) '  The number of rows, N, must be greater than zero'
   write(u6,*)
+  call abend()
 end if
 if (ldA < M) then
   write(u6,*)
@@ -42,6 +42,7 @@ if (ldA < M) then
   write(u6,*) '  Invalid leading dimension of matrix A :'
   write(u6,*) '  ldA must be equal to M or greater'
   write(u6,*)
+  call abend()
 end if
 if (ldB < N) then
   write(u6,*)
@@ -49,6 +50,7 @@ if (ldB < N) then
   write(u6,*) '  Invalid leading dimension of matrix B :'
   write(u6,*) '  ldB must be equal to N or greater'
   write(u6,*)
+  call abend()
 end if
 INC = 8
 do j=1,M,INC

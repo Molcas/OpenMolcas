@@ -38,7 +38,7 @@ integer(kind=iwp), intent(in) :: iRoot, iNAC, jNAC
 integer(kind=iwp) :: iAd, idx, iSt, jSt, Length(1), LuGrad, nCoup, nGrad, nRoots, TOC(5)
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
-character(len=5), parameter :: Filename = 'GRADS'
+character(len=*), parameter :: Filename = 'GRADS'
 
 ! Create GRADS file if it does not exist
 

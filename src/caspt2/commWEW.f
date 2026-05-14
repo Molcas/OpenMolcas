@@ -17,15 +17,30 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE COMMWEW(IVEC,JVEC,DCOM)
-      USE SUPERINDEX
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "SysDef.fh"
-#include "rasdim.fh"
-#include "caspt2.fh"
-#include "eqsolv.fh"
-#include "stdalloc.fh"
-      DIMENSION DCOM(NASHT,NASHT)
-      REAL*8, ALLOCATABLE :: CBLK(:), TBLK(:), SMAT(:)
+      use Symmetry_Info, only: Mul
+      use constants, only: Zero, One, Two
+      USE SUPERINDEX, only: KTUV,KTGEU,KTGTU,KTU
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_global, only: LUSBT
+      use EQSOLV, only: IDSMAT
+      use caspt2_module, only: NSYM,NASUP,NISUP,NASHT,NTUVES,NASH,NAES,
+     &                         IASYM,NTGEUES,NTGTUES,NTUES
+      use definitions, only: iwp, wp
+      IMPLICIT NONE
+
+      INTEGER(KIND=IWP), INTENT(IN):: IVEC, JVEC
+      REAL(KIND=WP), INTENT(INOUT):: DCOM(NASHT,NASHT)
+
+      REAL(KIND=WP), ALLOCATABLE :: CBLK(:), TBLK(:), SMAT(:)
+      INTEGER(KIND=IWP) ICASE,ISYM,NAS,NIS,NCBLK,NS,IDS
+      INTEGER(KIND=IWP) K000,IIS,ISYMT,ISYMTU,ISYMU,ISYMX,ITABS,ITUX,
+     &                  ITUY,ITXU,ITYU,IU,IUABS,IX,IXABS,IXTU,IY,IYABS,
+     &                  IYTU,NAX
+      REAL(KIND=WP) SUM
+      INTEGER(KIND=IWP) IT,IXT,IYT
+      REAL(KIND=WP) PARTSUM
+      REAL(KIND=WP) SGN
+      INTEGER(KIND=IWP) ITX1,ITX2,ITY1,ITY2,IXT1,IXT2,IYT1,IYT2,NAS1
 
 C This subroutine is one of the components needed to compute the active/active
 C transition density matrix elements for the two first-order vectors IVEC and
@@ -39,38 +54,33 @@ C are both in contravariant representation. Possibly, IVEC equals JVEC.
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
           NCBLK=NAS*NIS
-CTEST       WRITE(*,*)' COMMWEW ISYM,ICASE:',ISYM,ICASE
-CTEST       WRITE(*,*)'                NAS:',NAS
-CTEST       WRITE(*,*)'                NIS:',NIS
-CTEST       WRITE(*,*)'              NCBLK:',NCBLK
-          IF(NCBLK.EQ.0) GOTO 200
+          IF(NCBLK.EQ.0) CYCLE
 C Allocate CBLK, TBLK
-          CALL MMA_ALLOCATE(CBLK,NCBLK)
-          CALL MMA_ALLOCATE(TBLK,NCBLK)
+          CALL MMA_ALLOCATE(CBLK,NCBLK,Label='CBLK')
+          CALL MMA_ALLOCATE(TBLK,NCBLK,Label='TBLK')
 C First, read in the ICASE, ISYM block of coefficients from JVEC into CBLK:
 C Note carefully, this is not a mistake: vector JVEC into CBLK it is!
-          CALL RDBLKC(ISYM,ICASE,JVEC,CBLK)
+          CALL RDBLKC(ISYM,ICASE,JVEC,CBLK,NCBLK)
 C Allocate overlap matrix:
           NS=(NAS*(NAS+1))/2
           CALL MMA_ALLOCATE(SMAT,NS)
           IDS=IDSMAT(ISYM,ICASE)
-C          CALL DAFILE(LUSBT,2,SMAT,RtoI*NS,IDS)
           CALL DDAFILE(LUSBT,2,SMAT,NS,IDS)
 C Compute TBLK as the covariant representation of vector JVEC, by multiplying
 C with the overlap matrix. Then get rid of the overlap matrix.
-          CALL DCOPY_(NCBLK,[0.0D0],0,TBLK,1)
-          CALL TRIMUL(NAS,NIS,1.0D00,SMAT,CBLK,NAS,TBLK,NAS)
+          CALL DCOPY_(NCBLK,[Zero],0,TBLK,1)
+          CALL TRIMUL(NAS,NIS,One,SMAT,CBLK,NAS,TBLK,NAS)
           CALL MMA_DEALLOCATE(SMAT)
 C Finally, if IVEC not equals JVEC, read in the contravariant block of vector
 C IVEC into CBLK:
           IF(IVEC.NE.JVEC) THEN
-            CALL RDBLKC(ISYM,ICASE,IVEC,CBLK)
+            CALL RDBLKC(ISYM,ICASE,IVEC,CBLK,NCBLK)
           END IF
 C Finally, branch to the appropriate code section:
-          GOTO(1,2,3,4,5,6,7,8,9,10,11) ICASE
 
+      SELECT CASE (ICASE)
 C Case 1 code section:
-   1  CONTINUE
+      CASE (1)
       K000=NTUVES(ISYM)
 
       DO ISYMX=1,NSYM
@@ -80,11 +90,11 @@ C Case 1 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
-            ISYMTU=MUL(ISYMX,ISYM)
+            SUM=Zero
+            ISYMTU=Mul(ISYMX,ISYM)
             DO ITABS=1,NASHT
               ISYMT=IASYM(ITABS)
-              ISYMU=MUL(ISYMT,ISYMTU)
+              ISYMU=Mul(ISYMT,ISYMTU)
               DO IU=1,NASH(ISYMU)
                 IUABS=NAES(ISYMU)+IU
 
@@ -111,10 +121,9 @@ C Case 1 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 2 code section:
-   2  CONTINUE
+      CASE (2)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
         DO IX=1,NAX
@@ -122,8 +131,8 @@ C Case 2 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
-            ISYMT=MUL(ISYMX,ISYM)
+            SUM=Zero
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
               IF(ITABS.GE.IXABS) THEN
@@ -136,12 +145,12 @@ C Case 2 code section:
               ELSE
                 IYT=KTGEU(IYABS,ITABS)-NTGEUES(ISYM)
               END IF
-              PARTSUM=0.0d0
+              PARTSUM=Zero
               DO IIS=1,NIS
                 PARTSUM=PARTSUM+CBLK(IXT+NAS*(IIS-1))
      &                               *TBLK(IYT+NAS*(IIS-1))
               END DO
-              IF(ITABS.EQ.IXABS) PARTSUM=2.0D0*PARTSUM
+              IF(ITABS.EQ.IXABS) PARTSUM=Two*PARTSUM
               SUM=SUM+PARTSUM
             END DO
             DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
@@ -149,10 +158,9 @@ C Case 2 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 3 code section:
-   3  CONTINUE
+      CASE (3)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
         DO IX=1,NAX
@@ -160,18 +168,18 @@ C Case 3 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
-            ISYMT=MUL(ISYMX,ISYM)
+            SUM=Zero
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
-              IF(ITABS.EQ.IXABS) GOTO 390
-              IF(ITABS.EQ.IYABS) GOTO 390
+              IF(ITABS.EQ.IXABS) CYCLE
+              IF(ITABS.EQ.IYABS) CYCLE
               IF(ITABS.GT.IXABS) THEN
                 IXT=KTGTU(ITABS,IXABS)-NTGTUES(ISYM)
-                SGN=1.0d0
+                SGN=One
               ELSE
                 IXT=KTGTU(IXABS,ITABS)-NTGTUES(ISYM)
-                SGN=-1.0d0
+                SGN=-One
               END IF
               IF(ITABS.GT.IYABS) THEN
                 IYT=KTGTU(ITABS,IYABS)-NTGTUES(ISYM)
@@ -179,24 +187,22 @@ C Case 3 code section:
                 IYT=KTGTU(IYABS,ITABS)-NTGTUES(ISYM)
                 SGN=-SGN
               END IF
-              PARTSUM=0.0d0
+              PARTSUM=Zero
               DO IIS=1,NIS
                 PARTSUM=PARTSUM+CBLK(IXT+NAS*(IIS-1))
      &                                *TBLK(IYT+NAS*(IIS-1))
               END DO
               SUM=SUM+SGN*PARTSUM
 
- 390          CONTINUE
             END DO
             DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
 
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 4 code section:
-   4  CONTINUE
+      CASE (4)
       K000=NTUVES(ISYM)
 
       DO ISYMX=1,NSYM
@@ -206,11 +212,11 @@ C Case 4 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
-            ISYMTU=MUL(ISYMX,ISYM)
+            SUM=Zero
+            ISYMTU=Mul(ISYMX,ISYM)
             DO ITABS=1,NASHT
               ISYMT=IASYM(ITABS)
-              ISYMU=MUL(ISYMT,ISYMTU)
+              ISYMU=Mul(ISYMT,ISYMTU)
               DO IU=1,NASH(ISYMU)
                 IUABS=NAES(ISYMU)+IU
 
@@ -237,10 +243,9 @@ C Case 4 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 5 code section:
-   5  CONTINUE
+      CASE (5)
       NAS1=NAS/2
 
       DO ISYMX=1,NSYM
@@ -250,8 +255,8 @@ C Case 5 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
-            ISYMT=MUL(ISYMX,ISYM)
+            SUM=Zero
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
               IXT1=KTU(IXABS,ITABS)-NTUES(ISYM)
@@ -278,17 +283,16 @@ C Case 5 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 6 code section:
-   6  CONTINUE
+      CASE (6)
       NAX=NASH(ISYM)
       DO IX=1,NAX
         IXABS=NAES(ISYM)+IX
         DO IY=1,NAX
           IYABS=NAES(ISYM)+IY
 
-          SUM=0.0D0
+          SUM=Zero
           DO IIS=1,NIS
             SUM=SUM+CBLK(IX+NAS*(IIS-1))
      &                      *TBLK(IY+NAS*(IIS-1))
@@ -297,17 +301,16 @@ C Case 6 code section:
 
         END DO
       END DO
-      GOTO 100
 
 C Case 7 code section:
-   7  CONTINUE
+      CASE (7)
       NAX=NASH(ISYM)
       DO IX=1,NAX
         IXABS=NAES(ISYM)+IX
         DO IY=1,NAX
           IYABS=NAES(ISYM)+IY
 
-          SUM=0.0D0
+          SUM=Zero
           DO IIS=1,NIS
             SUM=SUM+CBLK(IX+NAS*(IIS-1))
      &                   *TBLK(IY+NAS*(IIS-1))
@@ -316,10 +319,9 @@ C Case 7 code section:
 
         END DO
       END DO
-      GOTO 100
 
 C Case 8 code section:
-   8  CONTINUE
+      CASE (8)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
         DO IX=1,NAX
@@ -327,8 +329,8 @@ C Case 8 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
-            ISYMT=MUL(ISYMX,ISYM)
+            SUM=Zero
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
               IF(ITABS.GE.IXABS) THEN
@@ -341,12 +343,12 @@ C Case 8 code section:
               ELSE
                 IYT=KTGEU(IYABS,ITABS)-NTGEUES(ISYM)
               END IF
-              PARTSUM=0.0d0
+              PARTSUM=Zero
               DO IIS=1,NIS
                 PARTSUM=PARTSUM-CBLK(IYT+NAS*(IIS-1))
      &                       *TBLK(IXT+NAS*(IIS-1))
               END DO
-              IF(ITABS.EQ.IYABS) PARTSUM=2.0D0*PARTSUM
+              IF(ITABS.EQ.IYABS) PARTSUM=Two*PARTSUM
               SUM=SUM+PARTSUM
 
             END DO
@@ -355,10 +357,9 @@ C Case 8 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 9 code section:
-   9  CONTINUE
+      CASE (9)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
         DO IX=1,NAX
@@ -366,18 +367,18 @@ C Case 9 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
-            ISYMT=MUL(ISYMX,ISYM)
+            SUM=Zero
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
-              IF(ITABS.EQ.IXABS) GOTO 990
-              IF(ITABS.EQ.IYABS) GOTO 990
+              IF(ITABS.EQ.IXABS) CYCLE
+              IF(ITABS.EQ.IYABS) CYCLE
               IF(ITABS.GT.IXABS) THEN
                 IXT=KTGTU(ITABS,IXABS)-NTGTUES(ISYM)
-                SGN=1.0d0
+                SGN=One
               ELSE
                 IXT=KTGTU(IXABS,ITABS)-NTGTUES(ISYM)
-                SGN=-1.0d0
+                SGN=-One
               END IF
               IF(ITABS.GT.IYABS) THEN
                 IYT=KTGTU(ITABS,IYABS)-NTGTUES(ISYM)
@@ -385,31 +386,29 @@ C Case 9 code section:
                 IYT=KTGTU(IYABS,ITABS)-NTGTUES(ISYM)
                 SGN=-SGN
               END IF
-              PARTSUM=0.0d0
+              PARTSUM=Zero
               DO IIS=1,NIS
                 PARTSUM=PARTSUM-CBLK(IYT+NAS*(IIS-1))
      &                               *TBLK(IXT+NAS*(IIS-1))
               END DO
               SUM=SUM+SGN*PARTSUM
 
- 990          CONTINUE
             END DO
             DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
 
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 10 code section:
-  10  CONTINUE
+      CASE (10)
       NAX=NASH(ISYM)
       DO IX=1,NAX
         IXABS=NAES(ISYM)+IX
         DO IY=1,NAX
           IYABS=NAES(ISYM)+IY
 
-          SUM=0.0D0
+          SUM=Zero
           DO IIS=1,NIS
             SUM=SUM-CBLK(IY+NAS*(IIS-1))
      &                   *TBLK(IX+NAS*(IIS-1))
@@ -418,17 +417,16 @@ C Case 10 code section:
 
         END DO
       END DO
-      GOTO 100
 
 C Case 11 code section:
-  11  CONTINUE
+      CASE (11)
       NAX=NASH(ISYM)
       DO IX=1,NAX
         IXABS=NAES(ISYM)+IX
         DO IY=1,NAX
           IYABS=NAES(ISYM)+IY
 
-          SUM=0.0D0
+          SUM=Zero
           DO IIS=1,NIS
             SUM=SUM-CBLK(IY+NAS*(IIS-1))
      &                   *TBLK(IX+NAS*(IIS-1))
@@ -437,18 +435,17 @@ C Case 11 code section:
 
         END DO
       END DO
-      GOTO 100
+
+      CASE DEFAULT
+       CALL ABEND()
+      END SELECT
 
 
- 100  CONTINUE
       CALL MMA_DEALLOCATE(CBLK)
       CALL MMA_DEALLOCATE(TBLK)
-
- 200  CONTINUE
 
 C Here ends the loops over ISYM and ICASE.
         END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE COMMWEW

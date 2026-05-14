@@ -24,36 +24,36 @@ subroutine dqk51(f,a,b,reslt,abserr,resabs,resasc)
 !
 !           integration rules
 !           standard fortran subroutine
-!           real*8 version
+!           real version
 !
 !           parameters
 !            on entry
-!              f      - real*8
+!              f      - real
 !                       function subprogram defining the integrand
 !                       function f(x). the actual name for f needs to be
 !                       declared e x t e r n a l in the calling program.
 !
-!              a      - real*8
+!              a      - real
 !                       lower limit of integration
 !
-!              b      - real*8
+!              b      - real
 !                       upper limit of integration
 !
 !            on return
-!              reslt  - real*8
+!              reslt  - real
 !                       approximation to the integral i
 !                       result is computed by applying the 51-point
 !                       kronrod rule (resk) obtained by optimal addition
 !                       of abscissae to the 25-point gauss rule (resg).
 !
-!              abserr - real*8
+!              abserr - real
 !                       estimate of the modulus of the absolute error,
 !                       which should not exceed abs(i-reslt)
 !
-!              resabs - real*8
+!              resabs - real
 !                       approximation to the integral j
 !
-!              resasc - real*8
+!              resasc - real
 !                       approximation to the integral of abs(f-i/(b-a))
 !                       over (a,b)
 !
@@ -61,17 +61,12 @@ subroutine dqk51(f,a,b,reslt,abserr,resabs,resasc)
 !***routines called  d1mach
 !***end prologue  dqk51
 
+use fx, only: f_interface
 use Constants, only: Zero, One, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-interface
-  function f(x)
-    import :: wp
-    real(kind=wp) :: f
-    real(kind=wp), intent(in) :: x
-  end function f
-end interface
+procedure(f_interface) :: f
 real(kind=wp), intent(in) :: a, b
 real(kind=wp), intent(out) :: reslt, abserr, resabs, resasc
 real(kind=wp) :: absc, centr, dhlgth, epmach, fc, fsum, fval1, fval2, fv1(25), fv2(25), hlgth, resg, resk, reskh, uflow

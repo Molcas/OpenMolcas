@@ -33,19 +33,17 @@ use External_centers, only: AMP_Center, DMS_Centers, nDMS, nEF, nOrdEF, nWel, nX
 use DKH_Info, only: BSS, DKroll, iCtrLD, iRELAE, iRELMP, LDKroll, nCtrLD, radiLD
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt, DoFMM, EMFR, FNMC, GIAO, kVector, lAMFI, lMXTC, lRel, RPQMin, ThrInt, Vlct
-use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, Cho_OneCenter, LocalDF, Thrshld_CD
+use RICD_Info, only: Cho_OneCenter, Cholesky, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, Skip_High_AC, Thrshld_CD
 use Symmetry_Info, only: nIrrep
 use Gateway_global, only: GS_Mode, Onenly, Run_Mode, Prprt, Test
+use rctfld_module, only: lLangevin, lRF, PCM
+use rmat, only: RMat_On
+use PrintLevel, only: nPrint
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
-#include "Molcas.fh"
-#include "rmat.fh"
-#include "rctfld.fh"
-#include "print.fh"
-#include "localdf.fh"
 integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nTtl
 real(kind=wp) :: temp
 logical(kind=iwp) :: l_aCD_Thr, Found, lNoPair, lPam2, lECP, lPP
@@ -79,9 +77,9 @@ end do
 
 if (Test) then
   write(LuWr,*)
-  write(LuWr,'(15X,88A)') ('*',i=1,45)
+  write(LuWr,'(15X,A)') repeat('*',45)
   write(LuWr,'(15X,A)') '* TEST: SEWARD will only process the input! *'
-  write(LuWr,'(15X,88A)') ('*',i=1,45)
+  write(LuWr,'(15X,A)') repeat('*',45)
 else
 
   iDKH_X_Order = iRELAE/10000
@@ -177,7 +175,7 @@ else
           else
             write(LuWr,'(17X,A)') '   - Partial local approximation:'
             write(LuWr,'(17X,A,10(A4))') '     - Centers: ',(dc(iCtrLD(i))%LblCnt,i=1,nCtrLD)
-            write(LuWr,'(17X,A,F6.2,A)') '     - Cutoff radius: ',radiLD,' Bohr'
+            write(LuWr,'(17X,A,F6.2,A)') '     - Cutoff radius: ',radiLD,' bohr'
           end if
         else
           write(LuWr,'(17X,A)') ' Relativistic Douglas-Kroll-Hess integrals:'
@@ -217,11 +215,11 @@ else
   if ((nEF > 0) .and. (nOrdEF >= 2)) write(LuWr,'(15X,A,I6,A)') '   Electric field gradient integrals for',nEF,' points'
   if ((nEF > 0) .and. (nOrdEF >= 2)) write(LuWr,'(15X,A,I6,A)') '   Contact term integrals for',nEF,' points'
   if (allocated(DMS_Centers)) write(LuWr,'(15X,A,I6,A)') '   Diamagnetic shielding integrals for',nDMS,' points'
-  if (allocated(OAM_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Orbital angular momentum around (',(OAM_Center(i),i=1,3),')'
-  if (allocated(OMQ_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Orbital magnetic quadrupole around (',(OMQ_Center(i),i=1,3),')'
-  if (Vlct .and. (S%nMltpl >= 2)) write(LuWr,'(15X,A,3(F7.4,1X),A)') '   Velocity quadrupole around (',(Coor_MPM(i,3),i=1,3),')'
-  if (allocated(AMP_Center)) write(LuWr,'(15X,A,3(F7.4,1X),A)') &
-                             '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
+  if (allocated(OAM_Center)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Orbital angular momentum around (',(OAM_Center(i),i=1,3),')'
+  if (allocated(OMQ_Center)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Orbital magnetic quadrupole around (',(OMQ_Center(i),i=1,3),')'
+  if (Vlct .and. (S%nMltpl >= 2)) write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Velocity quadrupole around (',(Coor_MPM(i,2),i=1,3),')'
+  if (allocated(AMP_Center)) &
+    write(LuWr,'(15X,A,3(F8.4,1X),A)') '   Products of Orbital angular momentum operators around (',(AMP_Center(i),i=1,3),')'
   if (nWel /= 0) write(LuWr,'(15X,A,I4,A)') '   Spherical well for',nWel,' exponent(s) added to the one-electron Hamiltonian'
   if (lAMFI) write(LuWr,'(15X,A)') '   Atomic mean-field integrals'
   if (lMXTC) write(LuWr,'(15X,A)') '   Hyperfine Magnetic integrals(MAG) calculated from Gen1Int F90 library'
@@ -242,35 +240,12 @@ else
     if (Cholesky) then
       write(LuWr,'(15X,A)') '   Cholesky decomposed two-electron repulsion integrals'
       if (Cho_OneCenter) then
-        write(LuWr,'(17X,A,G10.2)') '  - 1C-CD Threshold: ',Thrshld_CD
+        write(LuWr,'(17X,A,ES10.2)') '  - 1C-CD Threshold: ',Thrshld_CD
       else
-        write(LuWr,'(17X,A,G10.2)') '  - CD Threshold: ',Thrshld_CD
+        write(LuWr,'(17X,A,ES10.2)') '  - CD Threshold: ',Thrshld_CD
       end if
     else if (Do_RI) then
-      if (LocalDF) then
-        if (LDF_Constraint == -1) then
-          write(LuWr,'(15X,A)') '   Local Density Fitting coefficients'
-        else
-          write(LuWr,'(15X,A)') '   Constrained Local Density Fitting coefficients'
-          if (LDF_Constraint == 0) then
-            write(LuWr,'(17X,A)') '  - constraint type: charge'
-          else
-            call WarningMessage(2,'Unknown constraint!')
-            write(LuWr,'(A,I10)') 'LDF_Constraint=',LDF_Constraint
-            call LDF_Quit(-1)
-          end if
-        end if
-        if (LDF2) then
-          write(LuWr,'(17X,A,G10.2)') '  - two-center auxiliary functions included (when needed); target accuracy: ',Thr_Accuracy
-        else
-          write(LuWr,'(17X,A)') '  - two-center auxiliary functions not included'
-        end if
-      else if (LDF) then
-        write(LuWr,'(15X,A)') '   LDF decomposed two-electron repulsion integrals stored Cholesky style'
-        write(LuWr,'(15X,A)') '    Concept demonstration only!'
-      else
-        write(LuWr,'(15X,A)') '   RI decomposed two-electron repulsion integrals stored Cholesky style'
-      end if
+      write(LuWr,'(15X,A)') '   RI decomposed two-electron repulsion integrals stored Cholesky style'
       if (iRI_Type == 1) then
         write(LuWr,'(17X,A)') '  - RIJ auxiliary basis'
       else if (iRI_Type == 2) then
@@ -285,7 +260,8 @@ else
         else
           write(LuWr,'(17X,A)') '  - aCD auxiliary basis'
         end if
-        write(LuWr,'(17X,A,G10.2)') '  - CD Threshold: ',Thrshld_CD
+        write(LuWr,'(17X,A,ES10.2)') '  - CD Threshold: ',Thrshld_CD
+        if (Do_DCCD) write(LuWr,'(17X,A)') '  - corrected with exact 1-center two-electron integrals'
         l_aCD_Thr = .false.
         do iCnttp=1,nCnttp
           l_aCD_Thr = l_aCD_Thr .or. (dbsc(iCnttp)%aCD_Thr /= One)
@@ -317,11 +293,11 @@ else
 
   if (EMFR) then
     write(LuWr,'(15X,A)') '   Transition moment integrals'
-    write(LuWr,'(15X,A,3(F7.4,1X),A)') '   The wavevector k: (',(kVector(i),i=1,3),')'
+    write(LuWr,'(15X,A,3(F8.4,1X),A)') '   The wavevector k: (',(kVector(i),i=1,3),')'
     temp = sqrt(KVector(1)**2+KVector(2)**2+kVector(3)**2)
     temp = (Two*Pi)/temp
     write(LuWr,'(15X,A,(F10.4,1X),A)') '   Wavelength:        ',Temp,'a.u.'
-    write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstrom,'Angstrom'
+    write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstrom,'angstrom'
     write(LuWr,'(15X,A,(F10.4,1X),A)') '                      ',Temp*Angstrom/Ten,'nm'
   end if
 
@@ -335,13 +311,13 @@ if (Found) then
   call Get_cArray('SewardXTitle',Title(1),nTtl*80)
   if (iPrint >= 6) then
     write(LuWr,*)
-    write(LuWr,'(15X,88A)') ('*',i=1,88)
-    write(LuWr,'(15X,88A)') '*',(' ',i=1,86),'*'
+    write(LuWr,'(15X,A)') repeat('*',88)
+    write(LuWr,'(15X,A,A,A)') '*',repeat(' ',86),'*'
     do iTtl=1,nTtl
       write(LuWr,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
     end do
-    write(LuWr,'(15X,88A)') '*',(' ',i=1,86),'*'
-    write(LuWr,'(15X,88A)') ('*',i=1,88)
+    write(LuWr,'(15X,A,A,A)') '*',repeat(' ',86),'*'
+    write(LuWr,'(15X,A)') repeat('*',88)
   else
     write(LuWr,*)
     write(LuWr,'(A)') ' Title:'
@@ -355,8 +331,8 @@ end if
 !***********************************************************************
 !                                                                      *
 write(LuWr,*)
-write(LuWr,'(19X,A,E9.2)') 'Integrals are discarded if absolute value <:',ThrInt
-write(LuWr,'(19X,A,E9.2)') 'Integral cutoff threshold is set to       <:',CutInt
+write(LuWr,'(19X,A,ES9.2)') 'Integrals are discarded if absolute value <:',ThrInt
+write(LuWr,'(19X,A,ES9.2)') 'Integral cutoff threshold is set to       <:',CutInt
 !                                                                      *
 !***********************************************************************
 !                                                                      *

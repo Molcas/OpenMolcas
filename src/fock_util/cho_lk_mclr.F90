@@ -32,32 +32,30 @@ subroutine CHO_LK_MCLR(DLT,DI,DA,G2,Kappa,JI,KI,JA,KA,FkI,FkA,MO_Int,QVec,Ash,CM
 !
 !*********************************************************************
 
-use ChoArr, only: nBasSh, nDimRS
-use ChoSwp, only: IndRed, InfVec, nnBstRSh
+use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR, nnBstRSh, nnBstRT, nnShl, nnShl_tot, nShell, &
+                    nSym, NumCho, NumChT
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri
 use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
-use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, G2_Type, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type
+use Data_Structures, only: DSBA_Type, G2_Type, NDSBA_Type, SBA_Type
+use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
-type(DSBA_Type), intent(in) :: DLT, DA, Kappa, Ash(2), CMO, CMO_Inv
+type(DSBA_Type), intent(in) :: DLT(1), DA, Kappa, Ash(2), CMO, CMO_Inv
 type(DSBA_Type), intent(inout) :: DI, JI(1), KI, JA, KA
 real(kind=wp), intent(in) :: G2(*)
 type(DSBA_Type), intent(_OUT_) :: FkI, FkA, QVec
 real(kind=wp), intent(inout) :: MO_Int(*)
 integer(kind=iwp), intent(in) :: nOrb(8), nAsh(8), LuAChoVec(8), LuIChoVec(8), iAChoVec
 logical(kind=iwp), intent(in) :: DoAct, Fake_CMO2
-#include "warnings.h"
-#include "cholesky.fh"
-#include "choorb.fh"
 integer(kind=iwp) :: i, ia, iab, iabg, iAdr, iAdr2, iag, iaSh, iaSkip, iASQ(8,8,8), ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, &
                      iCase, iE, iij, ijS, ijsym, ik, ikl, iLoc, iml, Inc, ioff, ioffa, iOffAB, ioffb, iOffShb, ipG, irc, ired1, &
                      IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, isymx, iSymy, iTmp, IVEC2, iVrs, jab, jAsh, jaSkip, &
@@ -75,7 +73,7 @@ integer(kind=iwp), save :: nVec_
 #ifdef _DEBUGPRINT_
 logical(kind=iwp) :: Debug
 #endif
-character(len=50) CFmt
+character(len=50) :: CFmt
 character :: mode, mode2
 type(DSBA_Type) :: CM(2), JALT(1), QTmp(2), Tmp(2)
 type(SBA_Type) :: Lpq(3)
@@ -95,6 +93,8 @@ logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_LK_MCLR'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 real(kind=wp), external :: Cho_LK_ScreeningThreshold, ddot_
+
+#include "warnings.h"
 
 !***********************************************************************
 #ifdef _DEBUGPRINT_
@@ -493,7 +493,7 @@ do jSym=1,nSym
         ! Transform the density to reduced storage
         add = .false.
         nMat = 1
-        call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,[DLT],Drs,add)
+        call swap_full2rs(irc,iLoc,nRS,nMat,JSYM,DLT,Drs,add)
       end if
 
       ! BATCH over the vectors ----------------------------
@@ -565,7 +565,7 @@ do jSym=1,nSym
         !
         if (Estimate) then
 
-          call Fzero(DIAG(1+iiBstR(jSym,1)),NNBSTR(jSym,1))
+          DIAG(iiBstR(jSym,1)+1:iiBstR(jSym,1)+NNBSTR(jSym,1)) = Zero
 
           do krs=1,nRS
 
@@ -1112,9 +1112,9 @@ do jSym=1,nSym
           ! Lvb,J
           ! Lvi,J i general MO index
           ! L~vi,J ~ transformed index
-          call Allocate_DT(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-          call Allocate_DT(Lpq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
-          call Allocate_DT(Lpq(3),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(3),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
 
           !MGD should we compute only if there are active orbitals in this sym?
 
@@ -1294,7 +1294,7 @@ do jSym=1,nSym
 
           call Deallocate_DT(Lpq(2))
 
-          call Allocate_DT(Lpq(2),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(2),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
 
           ! ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
           ! Exchange term
@@ -1411,9 +1411,10 @@ do jSym=1,nSym
 
 #   ifdef _MOLCAS_MPP_
     if ((nProcs > 1) .and. Update .and. DoScreen .and. Is_Real_Par()) then
-      call GaDsum(DiagJ,nnBSTR(JSYM,1))
-      call Daxpy_(nnBSTR(JSYM,1),-One,DiagJ,1,Diag(1+iiBstR(JSYM,1)),1)
-      call Fzero(DiagJ,nnBSTR(JSYM,1))
+      n1 = nnBSTR(JSYM,1)
+      call GAdGOp(DiagJ,n1,'+')
+      Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1) = Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+n1)-DiagJ(1:n1)
+      DiagJ(1:n1) = Zero
     end if
     ! Need to activate the screening to setup the contributing shell
     ! indices the first time the loop is entered .OR. whenever other nodes

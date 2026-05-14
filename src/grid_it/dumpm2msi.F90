@@ -81,7 +81,7 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
     !  !call PackBlock(DOut,PBlock,mCoor,xLimits,iYDelta)
     !  write(line,9000) 0,(xLimits(j),j=1,4),(iYDelta(j),j=1,3)
     !  call PrintLine(LuVal,line,73,.false.)
-    !  9000 format ('BHeader=',I2,1X,(4(E10.4,1X),3(I5,1X)))
+    !  9000 format ('BHeader=',I2,4E11.4,1X,3(I5,1X)))
     !  if (iBinary /= 0) then
     !    !call IArrToChar(PBlock,cMoBlock,mCoor)
     !    !vv ! NOT CODED YET
@@ -113,12 +113,12 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
       !write(cint,'(i3.3)') i
       if (isDebug) then
         ! extended output -
-        write(LuVal,'(E10.4,3f8.4)') (DOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
+        write(LuVal,'(E11.4,3f8.4)') (DOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
       else !isDebug
         ! normal output - just numbers
         if (isCutOff) then
           do j=1,mCoor
-            if (iCutOff(j) == 1) write(LuVal,'(E10.4)') DOut(j)
+            if (iCutOff(j) == 1) write(LuVal,'(E11.4)') DOut(j)
           end do
         else if (isLUSCUS) then
           ! NOPACKING
@@ -144,13 +144,13 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
           !    in1 = int(dnum*64.0_wp)
           !    in2 = int((dnum-in1*64.0_wp)*4096.0_wp)
           !    iexpnt = iexpnt+50
-          !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') DOut(j),dnum,dexpnt,in1,in2,iexpnt
+          !    write(u6,'(1x,3(1x,es18.8),2x,3(1x,i3))') DOut(j),dnum,dexpnt,in1,in2,iexpnt
           !    if (iexpnt < 1) then
           !      iexpnt = 1
           !    else if (iexpnt > 64) then
           !      iexpnt = 64
           !    end if
-          !    write(u6,'(1x,3(1x,e18.8),2x,3(1x,i3))') DOut(j),dnum,dexpnt,in1,in2,iexpnt
+          !    write(u6,'(1x,3(1x,es18.8),2x,3(1x,i3))') DOut(j),dnum,dexpnt,in1,in2,iexpnt
           !    !                                       cx(in1:in1),cx(in2:in2),cx(iexpnt:iexpnt)
           !    !write(u6,*) '-----------------------'
           !  end do
@@ -166,7 +166,7 @@ do i=1,nShowMOs-merge(1,0,isDensity)-merge(1,0,isSphere)-merge(1,0,isColor)
           !end if !isMOPack
         else !isCutOff
           ! writing of data
-          write(LuVal,'(E10.4)') (DOut(j),j=1,mCoor)
+          write(LuVal,'(E11.4)') (DOut(j),j=1,mCoor)
         end if !isCutOff, isLuscus
       end if !isDebug
     end if !iBinary
@@ -205,7 +205,7 @@ if (isSphere) then
   call PrintLine(LuVal,line,12,.true.)
   if (iBinary == 0) then
     do j=1,mCoor
-      write(LuVal,'(E18.12)') SphrDist(j)
+      write(LuVal,'(E19.12)') SphrDist(j)
     end do
   else
     write(LuVal) (SphrDist(j),j=1,mCoor)
@@ -218,7 +218,7 @@ if (isColor) then
   call PrintLine(LuVal,line,12,.true.)
   if (iBinary == 0) then
     do j=1,mCoor
-      write(LuVal,'(E18.12)') SphrColor(j)
+      write(LuVal,'(E19.12)') SphrColor(j)
     end do
   else
     write(LuVal) (SphrColor(j),j=1,mCoor)
@@ -317,29 +317,29 @@ if (isDensity) then
     else
       if (isDebug) then
         ! extra output -
-        if (.not. isLuscus) write(LuVal,'(E18.12,3f8.4)') (DOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
+        if (.not. isLuscus) write(LuVal,'(E19.12,3f8.4)') (DOut(j),WCoor(1,j),WCoor(2,j),Wcoor(3,j),j=1,mCoor)
       else
         ! normal output - just numbers
         if (isCutOff) then
           do j=1,mCoor
-            if (iCutOff(j) == 1) write(LuVal,'(E18.12)') DOut(j)
+            if (iCutOff(j) == 1) write(LuVal,'(E19.12)') DOut(j)
           end do
         else
 
-          if (.not. isLuscus) write(LuVal,'(E18.12)') (DOut(j),j=1,mCoor)
+          if (.not. isLuscus) write(LuVal,'(E19.12)') (DOut(j),j=1,mCoor)
         end if
       end if
 
     end if
     !GG This is only for testing CASDFT functional. It will be restore.
-    !GG write(LuVal,'(E10.4)') (DOut(j),j=1,mCoor)
+    !GG write(LuVal,'(E11.4)') (DOut(j),j=1,mCoor)
   end if
 end if
 !end if
 
 if (isLine .and. (.not. isLuscus)) then
   do i=1,mCoor
-    write(LuVal,'(3F10.6,22E20.12)') (WCoor(j,i),j=1,3),(WLine(j,i),j=1,nLine)
+    write(LuVal,'(3F10.6,22ES20.12)') (WCoor(j,i),j=1,3),(WLine(j,i),j=1,nLine)
   end do
 end if
 
@@ -353,7 +353,7 @@ function c_write_wrapper(FileDescriptor,Buffer,nBytes)
 
   integer(kind=iwp) :: c_write_wrapper
   integer(kind=iwp), intent(in) :: FileDescriptor, nBytes
-  real(kind=wp), intent(in), target :: Buffer(*)
+  real(kind=wp), target, intent(in) :: Buffer(*)
   interface
     function c_write(FileDescriptor,Buffer,nBytes) bind(C,name='c_write_')
       use, intrinsic :: iso_c_binding, only: c_ptr

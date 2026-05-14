@@ -20,11 +20,12 @@ implicit none
 logical(kind=iwp), intent(in) :: double
 integer(kind=iwp) :: AtNum, AtNum2, i, iElement, iMass, ineg, IsoNum, j, k, l, m, mAtoms, n, nAt, nTemp, Subs, Subs2
 real(kind=wp) :: dMass, dMass1, dMass2, MassIso
-logical(kind=iwp) :: Changed, EQ, Found, lmass
+logical(kind=iwp) :: Changed, Found, lmass
 real(kind=wp), allocatable :: Coord(:,:), DefMass(:), H(:,:), H2(:,:), Mass(:), Temp(:), umass(:), Val(:), Vec(:,:)
 character(len=3), allocatable :: cmass(:)
 character(len=2), allocatable :: Element(:)
 integer(kind=iwp), external :: iNuclearChargeFromSymbol
+logical(kind=iwp), external :: EQ
 
 !                                                                      *
 !***********************************************************************

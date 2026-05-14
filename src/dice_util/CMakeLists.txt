@@ -10,10 +10,10 @@
 #***********************************************************************
 
 set (sources
-     molcas2dice.F90
-     dicectl.F90
      dice_densi_rasscf.F90
      dice_load2pdm.F90
+     dicectl.F90
+     molcas2dice.F90
 )
 
 # Source files defining modules that should be available to other *_util directories

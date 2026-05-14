@@ -67,19 +67,19 @@ extern char WorkDir[FILENAME_MAX];
 
 /* function prototypes */
 parnell_status_t
-parnell_cmd (int argc, char* argv[]);
+parnell_cmd (int argc, char * argv[]);
 
 parnell_status_t
-parnell (int argc, char* argv[]);
+parnell (int argc, char * argv[]);
 
 parnell_status_t
-parnell_base (int argc, char **argv);
+parnell_base (int argc, char ** argv);
 
 parnell_status_t
 parnell_init (void);
 
 parnell_status_t
-parnell_copy (int argc, char **argv);
+parnell_copy (int argc, char ** argv);
 
 parnell_status_t
 parnell_translate (char * src_name, char * dst_name);
@@ -100,10 +100,10 @@ parnell_status_t
 parnell_rmlist(char * rmlist);
 
 parnell_status_t
-parnell_wipe (void);
+parnell_wipe (int argc, char ** argv);
 
 parnell_status_t
-parnell_unlink (char *fpath);
+parnell_unlink (char * fpath);
 
 parnell_status_t
 parnell_exec (int argc, char ** argv);

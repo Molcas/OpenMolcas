@@ -138,7 +138,7 @@ void rzip(INT *p_N, double *p_Thrs, INT *p_Bytes, double *p_X, short int *p_Y) {
             zip = zip + mask * shift;
             shift = shift * 4;
             i_value = (int)(value * scale);
-#           if defined(_DECAXP_) || defined(_IRIX64_) || defined(_SOLARIS_) || defined(_HP_UX_) || defined(_PRIMEPOWER_)
+#           if defined (_DECAXP_) || defined (_IRIX64_) || defined (_SOLARIS_) || defined (_HP_UX_) || defined (_PRIMEPOWER_)
             (void)memcpy(p_data, &i_value, sizeof(double));
 #           else
             (*(int *)(p_data)) = i_value;
@@ -149,7 +149,7 @@ void rzip(INT *p_N, double *p_Thrs, INT *p_Bytes, double *p_X, short int *p_Y) {
             mask = 3;
             zip = zip + mask * shift;
             shift = shift * 4;
-#           if defined(_DECAXP_) || defined(_IRIX64_) || defined(_SOLARIS_) || defined(_HP_UX_) || defined(_PRIMEPOWER_)
+#           if defined (_DECAXP_) || defined (_IRIX64_) || defined (_SOLARIS_) || defined (_HP_UX_) || defined (_PRIMEPOWER_)
             (void)memcpy(p_data, &value, sizeof(double));
 #           else
             (*(double *)(p_data)) = value;
@@ -160,7 +160,7 @@ void rzip(INT *p_N, double *p_Thrs, INT *p_Bytes, double *p_X, short int *p_Y) {
         }
       }
     }
-#   if defined(_DECAXP_) || defined(_IRIX64_) || defined(_SOLARIS_) || defined(_HP_UX_) || defined(_PRIMEPOWER_)
+#   if defined (_DECAXP_) || defined (_IRIX64_) || defined (_SOLARIS_) || defined (_HP_UX_) || defined (_PRIMEPOWER_)
     (void)memcpy(p_zip, &zip, sizeof(INT));
 #   else
     (*(INT *)(p_zip)) = zip;
@@ -192,7 +192,7 @@ void runzip(INT *p_N, double *p_Thrs, INT *p_Bytes, short int *p_X, double *p_Y)
 
   for (i = 0; i < N; i += inci) {
     p_zip = p_data;
-#   if defined(_DECAXP_) || defined(_IRIX64_) || defined(_SOLARIS_) || defined(_HP_UX_) || defined(_PRIMEPOWER_)
+#   if defined (_DECAXP_) || defined (_IRIX64_) || defined (_SOLARIS_) || defined (_HP_UX_) || defined (_PRIMEPOWER_)
     (void)memcpy(&zip, p_zip, sizeof(INT));
 #   else
     zip = (*(INT *)(p_zip));
@@ -220,7 +220,7 @@ void runzip(INT *p_N, double *p_Thrs, INT *p_Bytes, short int *p_X, double *p_Y)
         continue;
       }
       if (mask == 2) {
-#       if defined(_DECAXP_) || defined(_IRIX64_) || defined(_SOLARIS_) || defined(_HP_UX_) || defined(_PRIMEPOWER_)
+#       if defined (_DECAXP_) || defined (_IRIX64_) || defined (_SOLARIS_) || defined (_HP_UX_) || defined (_PRIMEPOWER_)
         (void)memcpy(&i_value, p_data, sizeof(int));
 #       else
         i_value = (*(int *)(p_data));
@@ -232,7 +232,7 @@ void runzip(INT *p_N, double *p_Thrs, INT *p_Bytes, short int *p_X, double *p_Y)
         continue;
       }
       if (mask == 3) {
-#       if defined(_DECAXP_) || defined(_IRIX64_) || defined(_SOLARIS_) || defined(_HP_UX_) || defined(_PRIMEPOWER_)
+#       if defined (_DECAXP_) || defined (_IRIX64_) || defined (_SOLARIS_) || defined (_HP_UX_) || defined (_PRIMEPOWER_)
         (void)memcpy(&value, p_data, sizeof(double));
 #       else
         value = (*(double *)(p_data));

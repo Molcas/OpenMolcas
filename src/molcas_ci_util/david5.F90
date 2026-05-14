@@ -11,42 +11,40 @@
 
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTRI)
 
+use timers, only: TimeDavid, TimeSigma
+use lucia_data, only: CFTP, DTOC, ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
-
-use csfbas, only: CONF, CTS, KCFTP, KDTOC
+use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
+use general_data, only: ITERFILE, LUDAVID, NACTEL, NCONF, NSEL, STSYM
+use csfbas, only: CONF, CTS
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
+use Lucia_Interface, only: Lucia_Util
+use output_ras, only: IPRLOC, RC_CI
+use PrintLevel, only: DEBUG, USUAL
+use Molcas, only: MxRoot
+use RASDim, only: MxCIIt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "rasdim.fh"
-#include "rasrc.fh"
-#include "rasscf.fh"
-#include "general.fh"
-#include "WrkSpc.fh"
-#include "timers.fh"
-#include "rasscf_lucia.fh"
-#include "output_ras.fh"
-! lroots, maxjt in rasscf.fh
-! nsel in general.fh
 integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
-integer(kind=iwp) :: i, iConf, iConv, idelta, iDummy, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, &
-                     kRoot, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
-real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, Dummy(1), E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, updsiz, Z
+integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, kRoot, l1, &
+                     l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
+real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
+                 Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
 integer(kind=iwp), allocatable :: vkcnf(:)
-real(kind=wp), allocatable :: Cs(:), ctemp(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
+real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
                               sigtemp(:), sgm(:,:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
-real(kind=wp), allocatable, target :: Tmp(:)
+real(kind=wp), allocatable, target :: ctemp(:), Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
-integer(kind=iwp), external :: ip_of_Work
-real(kind=wp), external :: dDot_, dnrm2_, GET_ECORE
+real(kind=wp), external :: dDot_, dnrm2_
 
 !-----------------------------------------------------------------------
 ! MGD dec 2017 : When optimizing many states, the lowest ones tend to
@@ -89,11 +87,11 @@ if (DoFaro) then
   ! non-specified SYG to GUGA format befor converting to
   ! determinants. This is because for Lucia, CSFs have been
   ! converted to SYG format somewhere up in cistart.
-  call mma_allocate(VECSVC,nconf,label='CIVEC')
+  call mma_allocate(VECSVC,nconf,label='VECSVC')
   call mma_allocate(vkcnf,nactel,label='kcnf')
 end if
 
-call Timing(Alfex_1,Swatch,Swatch,Swatch)
+call Timing(Time1(1),dum1,dum2,dum3)
 Rc_CI = 0
 IPRLEV = IPRLOC(3)
 
@@ -123,10 +121,10 @@ end if
 ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
 write(IterFile,'(19X,A,F18.10)') '- Threshold for energy   ...:',ThrEne
 write(IterFile,'(19X,A,F18.10)') '- Threshold for Residual ...:',ThrRes
-write(IterFile,'(20A4)') ('****',i=1,20)
+write(IterFile,'(A)') repeat('*',80)
 write(IterFile,*)
 write(IterFile,'(1X,A4,4X,A4,4X,A18,4X,A14,4X,A14)') 'Iter','Root','Energy','dE','Residual'
-write(IterFile,'(72A1)') ('=',i=1,72)
+write(IterFile,'(A)') repeat('=',72)
 call xFlush(IterFile)
 !=======================================================================
 ! start long loop over iterations
@@ -152,14 +150,14 @@ do it_ci=1,mxItr
       call dVcPrt(' ',' ',Vec1,lPrint)
     end if
 
-    call Timing(Rolex_1,Swatch,Swatch,Swatch)
+    call Timing(Time2(1),dum1,dum2,dum3)
     if (DOFARO) then
       ! determinant wavefunctions
       call mma_allocate(sgm,ndeta,ndetb,label='sgm')
       call mma_allocate(psi,ndeta,ndetb,label='psi')
 
       VECSVC(:) = Zero
-      call REORD2(MY_NORB,NACTEL,1,0,CONF,IWORK(KCFTP),VEC1,VECSVC,VKCNF)
+      call REORD2(MY_NORB,NACTEL,1,0,CONF,CFTP,VEC1,VECSVC,VKCNF)
       call CITRANS_SORT('C',VECSVC,VEC2)
       PSI = Zero
       call CITRANS_CSF2SD(VEC2,PSI)
@@ -167,7 +165,7 @@ do it_ci=1,mxItr
       call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
       call CITRANS_SD2CSF(SGM,VEC2)
       call CITRANS_SORT('O',VEC2,VECSVC)
-      call Reord2(my_norb,NACTEL,1,1,CONF,iWork(KCFTP),VECSVC,VEC2,VKCNF)
+      call Reord2(my_norb,NACTEL,1,1,CONF,CFTP,VECSVC,VEC2,VKCNF)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)
@@ -178,16 +176,22 @@ do it_ci=1,mxItr
       call mma_deallocate(sgm)
       call mma_deallocate(psi)
     else
+
       ! Convert the CI-vector from CSF to Det. basis
+      ! sigtemp is scratch, converted vector is stored in ctemp
+
       ctemp(1:nConf) = Vec1(:)
       sigtemp(:) = Zero
-      call csdtvc(ctemp,sigtemp,1,work(kdtoc),cts,stSym,1)
-      c_pointer = ip_of_Work(ctemp(1))
+      call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
+
       ! Calling Lucia to determine the sigma vector
-      call Lucia_Util('Sigma',iDummy,iDummy,Dummy)
+      call Lucia_Util('Sigma', &
+                      CI_Vector=ctemp(:), &
+                      Sigma_Vector=sigtemp(:))
+
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
-      iSigma_on_disk = 1
-      call CSDTVC(Tmp,ctemp,2,work(kdtoc),cts,stSym,1)
+      Sigma_on_disk = .true.
+      call CSDTVC(VEC2,sigtemp,2,dtoc,cts,stSym,1)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)
@@ -196,12 +200,10 @@ do it_ci=1,mxItr
     end if
 
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
-    ECORE_HEX = GET_ECORE()
-    Vec1(:) = Vec1(:)+ecore_hex*Vec2(:)
+    Vec1(:) = Vec1(:)+ECORE_HEX*Vec2(:)
     ! Timings on generation of the sigma vector
-    call Timing(Rolex_2,Swatch,Swatch,Swatch)
-    Rolex_2 = Rolex_2-Rolex_1
-    Rolex_3 = Rolex_3+Rolex_2
+    call Timing(Time2(2),dum1,dum2,dum3)
+    TimeSigma = TimeSigma+Time2(2)-Time2(1)
 
     if (iprlev >= DEBUG) then
       lPrint = min(nConf,200)
@@ -339,9 +341,9 @@ do it_ci=1,mxItr
   call xFlush(IterFile)
   if (iprlev > DEBUG) then
     write(u6,*)
-    write(u6,'(1X,120A1)') ('*',i=1,120)
+    write(u6,'(1X,A)') repeat('*',120)
     write(u6,'(1X,A,I2)') 'CI iteration ',it_ci
-    ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
+    ThrRes = max(2.0e-7_wp,sqrt(ThrEne))
     write(u6,'(1X,A,2F18.10)') 'ThrEne,ThrRes=',ThrEne,ThrRes
     do jRoot=1,lRoots
       if (it_ci > 1) then
@@ -352,10 +354,10 @@ do it_ci=1,mxItr
       write(u6,'(1X,A,I2,A,F18.10,2(A,F14.10))') ' root ',jRoot,' energy =',CI_conv(1,jroot,it_ci),' dE =',dE,' residual =', &
                                                  CI_conv(2,jroot,it_ci)
     end do
-    write(u6,'(1X,120A1)') ('*',i=1,120)
+    write(u6,'(1X,A)') repeat('*',120)
     write(u6,*)
   end if
-  ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
+  ThrRes = max(2.0e-7_wp,sqrt(ThrEne))
   iConv = 0
   nconverged = 0
   ! Do not check for convergence of hidden roots
@@ -550,10 +552,7 @@ else
   call mma_deallocate(sigtemp)
 end if
 
-call Timing(Alfex_2,Swatch,Swatch,Swatch)
-Alfex_2 = Alfex_2-Alfex_1
-Alfex_3 = Alfex_3+Alfex_2
-
-return
+call Timing(Time1(2),dum1,dum2,dum3)
+TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
 end subroutine David5

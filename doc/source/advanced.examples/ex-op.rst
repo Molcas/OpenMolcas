@@ -127,15 +127,15 @@ the ground state of 1,3-cyclopentadiene within |Ctv| symmetry.
      Symmetry= X XY
      Basis set
      C.STO-3G....
-     C1    0.000000  0.000000  0.000000  Bohr
-     C2    0.000000  2.222644  1.774314  Bohr
-     C3    0.000000  1.384460  4.167793  Bohr
+     C1    0.000000  0.000000  0.000000  bohr
+     C2    0.000000  2.222644  1.774314  bohr
+     C3    0.000000  1.384460  4.167793  bohr
      End of basis
      Basis set
      H.STO-3G....
-     H1    1.662033  0.000000 -1.245623  Bohr
-     H2    0.000000  4.167844  1.149778  Bohr
-     H3    0.000000  2.548637  5.849078  Bohr
+     H1    1.662033  0.000000 -1.245623  bohr
+     H2    0.000000  4.167844  1.149778  bohr
+     H3    0.000000  2.548637  5.849078  bohr
      End of basis
 
   >>> Do while <<<
@@ -255,16 +255,16 @@ optimized geometry at the CASSCF level in |Ctv| symmetry is: ::
   ********************************************
   * Values of internal coordinates           *
   ********************************************
-  C2C1   2.851490 Bohr
-  C3C2   2.545737 Bohr
-  C3C3   2.790329 Bohr
-  H1C1   2.064352 Bohr
-  H2C2   2.031679 Bohr
-  H3C3   2.032530 Bohr
-  C1C2C3     109.71 Degrees
-  C1C2H2     123.72 Degrees
-  C2C3H3     126.36 Degrees
-  H1C1H1     107.05 Degrees
+  C2C1   2.851490 bohr
+  C3C2   2.545737 bohr
+  C3C3   2.790329 bohr
+  H1C1   2.064352 bohr
+  H2C2   2.031679 bohr
+  H3C3   2.032530 bohr
+  C1C2C3     109.71 degrees
+  C1C2H2     123.72 degrees
+  C2C3H3     126.36 degrees
+  H1C1H1     107.05 degrees
 
 Once we have the optimized geometry we can obtain the
 force field, to compute the force constant matrix and
@@ -964,7 +964,7 @@ their initial value, therefore we simply keep coordinates ``ang1`` and ``ang2``
 fixed. The result is a :math:`D_{3h}` structure: ::
 
                       *******************************************
-                      *    InterNuclear Distances / Angstrom    *
+                      *    InterNuclear Distances / angstrom    *
                       *******************************************
 
                  1 N             2 H1            3 H2            4 H3
@@ -974,7 +974,7 @@ fixed. The result is a :math:`D_{3h}` structure: ::
       4 H3       1.003163        1.737529        1.737529        0.000000
 
                       **************************************
-                      *    Valence Bond Angles / Degree    *
+                      *    Valence Bond Angles / degree    *
                       **************************************
                             Atom centers                 Phi
                         2 H1       1 N        3 H2       120.00

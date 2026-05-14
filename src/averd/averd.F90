@@ -20,6 +20,7 @@ subroutine Averd(ireturn)
 
 use Averd_global, only: Wset
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -41,8 +42,6 @@ integer(kind=iwp), external :: IsFreeUnit
 integer(kind=iwp), allocatable :: nBas(:)
 real(kind=wp), allocatable :: AUX(:), CMO(:), Dao(:), Dtemp(:), DTmp(:), Occ(:), OccNat(:), Occs(:), Orbs(:), OrtoD(:), OrtoDt(:), &
                               S(:), Si(:), Sp(:), Ss(:), St(:), Trani(:), Trans(:), Vecs(:), Zeros(:)
-#include "Molcas.fh"
-
 !-- Banner.
 
 ireturn = 99
@@ -55,7 +54,7 @@ call Init_ave(Title,iPrint,PrOcc,PrEne,DensityBased,ThrOcc,Dummy(1),iDummy(1,1))
 
 nSet = 0
 call Get_Averd_input(Title,iPrint,nSet,DensityBased,ThrOcc)
-if (.not. allocated(Wset)) call mma_allocate(Wset,nSet,label='Wset')
+call mma_allocate(Wset,nSet,label='Wset',safe='*')
 
 !-- Read some information from RUNFILE.
 
@@ -66,7 +65,7 @@ itBas = 0
 do iSym=1,nSym
   itBas = itBas+nBas(isym)
 end do
-call Get_cArray('Unique Basis Names',BsLbl,LenIn8*itBas)
+call Get_cArray('Unique Basis Names',BsLbl,(LenIn+8)*itBas)
 
 !-- Some dimensions.
 
@@ -303,7 +302,7 @@ write(u6,*)
 write(u6,*)
 write(u6,'(a)') ' |  Average orbital occupation.'
 write(u6,'(a)') ' |-----------------------------'
-write(u6,'(a,e18.8)') ' |    Threshold: ',ThrOcc
+write(u6,'(a,es18.8)') ' |    Threshold: ',ThrOcc
 write(u6,*)
 nOrb = 0
 iO = 0

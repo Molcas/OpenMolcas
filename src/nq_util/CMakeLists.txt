@@ -13,14 +13,13 @@ set (sources
      allok2_funi.F90
      angular_grid.F90
      angular_prune.F90
-     anmesh.F90
      aoadd_full.F90
      box_on_sphere.F90
-     calcorboff.F90
-     calcp2mocube.F90
      calc_pot1.F90
      calc_pot2.F90
      calc_pot2_inner.F90
+     calcorboff.F90
+     calcp2mocube.F90
      calcpuvxoff.F90
      comp_d.F90
      compute_d2mdx2.F90
@@ -31,8 +30,8 @@ set (sources
      compute_m.F90
      compute_o.F90
      compute_rho.F90
-     compute_tau.F90
      compute_t.F90
+     compute_tau.F90
      converttabso.F90
      dede_funi.F90
      dft_grad.F90
@@ -53,6 +52,7 @@ set (sources
      funi_init.F90
      funi_input.F90
      funi_print.F90
+     g.F90
      gauleg.F90
      genradquad_b.F90
      genradquad_mhl.F90
@@ -61,11 +61,10 @@ set (sources
      genradquad_ta.F90
      genvoronoi.F90
      get_subblock.F90
-     g.F90
      ggl_grid.F90
      grid_on_disk.F90
-     lebedev.F90
      lebedev_grid.F90
+     lebedev_quadrature.F90
      libxc.F90
      libxc_interface.F90
      libxc_version.F90
@@ -77,12 +76,12 @@ set (sources
      modify_nq_grid.F90
      nbas_eff.F90
      nq_grid.F90
-     nqgrid_init.F90
      nq_info.F90
      nq_init.F90
      nq_mo.F90
      nq_pdft.F90
      nq_structure.F90
+     nqgrid_init.F90
      packpot1.F90
      pdftfock.F90
      pdftfock_inner.F90
@@ -92,13 +91,12 @@ set (sources
      print_nq_info.F90
      process_coor.F90
      reset_nq_grid.F90
-     resortd.F90
      rotgrd.F90
      setup_nq.F90
      subblock.F90
      symadp_full.F90
-     transactmo2.F90
      transactmo.F90
+     transactmo2.F90
      transfermo.F90
      translatedens.F90
      truncate_grid.F90
@@ -109,6 +107,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     lebedev_quadrature.F90
      libxc.F90
      nq_grid.F90
      nq_info.F90

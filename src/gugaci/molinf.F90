@@ -44,7 +44,7 @@ character(len=72) :: line
 #define _END_ '$END'
 #endif
 logical(kind=iwp) :: skip
-character(len=4), parameter :: cmd(ncmd) = ['TITL','NRRO','MAXI','CPRO','PTHR','CONV','PROR','REST',_END_]
+character(len=*), parameter :: cmd(ncmd) = ['TITL','NRRO','MAXI','CPRO','PTHR','CONV','PROR','REST',_END_]
 
 #ifndef MOLPRO
 call rdnlst(u5,'GUGACI')
@@ -204,13 +204,13 @@ use gugaci_global, only: ibsm_ext, iesm_ext, int_dd_offset, iref_occ, logic_assi
                          n_ref, nabc, ng_sm, ngw2, ngw3, ngw4, nlsm_all, nlsm_bas, nlsm_dbl, nlsm_ext, nlsm_frz, noidx, norb_act, &
                          norb_all, norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin !, logic_mrelcas
 use Symmetry_Info, only: Mul
+use Molcas, only: MxSym
 use Constants, only: Half
 use Definitions, only: iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: i, idisk, idum(1), idx, im, im_lr_sta, iml, imr, imrcas_case, iorb, ispin, itmp, j, l, lr, nact_sm, &
-                     nlsm_act(mxSym), nlsm_inn(mxSym), lsmtmp(mxSym), ngsm, ni, norb_all_tmp
+                     nlsm_act(MxSym), nlsm_inn(MxSym), lsmtmp(MxSym), ngsm, ni, norb_all_tmp
 
 !open(nf1,file='drt.inp')
 !read(nf1,*)
@@ -292,7 +292,9 @@ do i=1,norb_all
   ngw3(i+3) = ngw3(i+2)+ngw2(i+2)
   ngw4(i+4) = ngw4(i+3)+ngw3(i+3)
 end do
-nabc = norb_ext-2+ngw2(norb_ext-1)+ngw3(norb_ext)
+nabc = norb_ext-2
+if (norb_ext > 1) nabc = nabc+ngw2(norb_ext-1)
+if (norb_ext > 0) nabc = nabc+ngw3(norb_ext)
 
 iorb = 0
 do i=1,ng_sm

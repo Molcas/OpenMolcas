@@ -2536,7 +2536,7 @@ end do
 end subroutine inn_ext_sv_loop_unpack_g
 
 ! density matrix formation : vector2=ci*<i|epq,rs|j>*cj and dm1=ci*<i|e
-! for norb_act<>0         mg1,mg2,mg3,mg4,mg5:
+! for norb_act/=0         mg1,mg2,mg3,mg4,mg5:
 ! idb=1  in dbl_space      ity_up=0-5               0 ,jpad,iwdl,iwdr,
 ! idb=2  in act_space      ity_up=0-5,itdown=0,3      jph, jpe,iwal,iwa
 ! idb=3  between dbl and act   ity_up=0-5,itdown=0,3      jpe,iwdl,iwdr,

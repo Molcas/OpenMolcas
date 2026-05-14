@@ -34,7 +34,7 @@ integer(kind=iwp), intent(in) :: iPrint, nOsc
 integer(kind=iwp), intent(out) :: new_n_max, minQ, nMaxQ(nOsc)
 real(kind=wp), intent(out) :: dRho
 real(kind=wp), intent(in) :: energy1, energy2, dMinWind0, harmfreq1(nOsc), harmfreq2(nOsc)
-integer(kind=iwp) :: i, iOsc, jOsc
+integer(kind=iwp) :: iOsc, jOsc
 real(kind=wp) :: avFreq, avFreqSq, dAlpha, dBeta, dDn, dEtha, dFE, dLambda, dMaxFreq2, dMinFreq2, dMinWind, dZPE1, dZPE2, GE1, &
                  GE2, T0
 
@@ -106,14 +106,14 @@ if (iPrint >= 2) then
   write(u6,'(a,f11.6,a)') '  T_0  = ',T0,' (au)'
   write(u6,'(a,f11.3,a)') '  T_0  = ',T0*auTocm,' (cm-1)'
   write(u6,'(a,f11.3,a)') '  T_0  = ',T0*auToeV,' (eV)'
-  write(u6,'(a,d14.3,a)') '  State Density (dRho) = ',dRho,' (au-1)'
+  write(u6,'(a,es14.3,a)') '  State Density (dRho) = ',dRho,' (au-1)'
   write(u6,'(a,g14.3,a)') '  State Density (dRho) = ',dRho/auTocm,' (cm)'
   write(u6,'(a,g17.9,a)') '  1/dRho = ',auTocm/dRho,' (cm-1)'
   write(u6,'(a,f7.3,a)') '  Expansion factor =',dMinWind
   write(u6,'(a,g17.9,a)') '  Window = (+/-)',Half*dMinWind*auTocm/dRho,' (cm-1)'
 end if
 if (iPrint >= 3) then
-  write(u6,*) ' Maximum quantum numbers:',(nMaxQ(i),i=1,nOsc)
+  write(u6,*) ' Maximum quantum numbers:',nMaxQ(:)
   write(u6,*) ' Minimum quantum number: ',minQ
   write(u6,*) ' Suggested n_max (new_n_max)=',new_n_max
   write(u6,*)
@@ -136,7 +136,7 @@ integer(kind=iwp), intent(in) :: iPrint, nOsc, max_nOrd, nTabDim, nMat(0:nTabDim
 integer(kind=iwp), intent(inout) :: nYes, lVec(0:nTabDim)
 real(kind=wp), intent(in) :: GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc), x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc), dRho
 real(kind=wp), intent(inout) :: dMinWind
-integer(kind=iwp) :: i, iOrd, j, l_harm, loc_n_max, nYes_start
+integer(kind=iwp) :: iOrd, j, l_harm, loc_n_max, nYes_start
 real(kind=wp) :: dEne, dWlow, dWup
 logical(kind=iwp) :: lUpdate
 integer(kind=iwp), allocatable :: level1(:), level2(:), lTVec(:)
@@ -157,13 +157,13 @@ if (iPrint >= 4) then
   write(u6,*)
   write(u6,*) ' States in the preliminar window :'
   if (nOsc <= 24) then
-    write(u6,'(a,108a)') '  ',('=',i=1,108)
+    write(u6,'(a,a)') '  ',repeat('=',108)
     write(u6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
-    write(u6,'(a,108a)') '  ',('-',i=1,108)
+    write(u6,'(a,a)') '  ',repeat('-',108)
   else
-    write(u6,'(a,36a)') '  ',('=',i=1,36)
+    write(u6,'(a,a)') '  ',repeat('=',36)
     write(u6,*) '        #    jOrd   ene/au      ene/cm-1'
-    write(u6,'(a,36a)') '  ',('-',i=1,36)
+    write(u6,'(a,a)') '  ',repeat('-',36)
   end if
   call XFlush(u6)
 end if
@@ -198,13 +198,13 @@ if (iPrint >= 3) then
   write(u6,*)
   write(u6,*) ' States in the window :'
   if (nOsc <= 24) then
-    write(u6,'(a,108a)') '  ',('=',i=1,108)
+    write(u6,'(a,a)') '  ',repeat('=',108)
     write(u6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
-    write(u6,'(a,108a)') '  ',('-',i=1,108)
+    write(u6,'(a,a)') '  ',repeat('-',108)
   else
-    write(u6,'(a,36a)') '  ',('=',i=1,36)
+    write(u6,'(a,a)') '  ',repeat('=',36)
     write(u6,*) '        #    jOrd   ene/au      ene/cm-1'
-    write(u6,'(a,36a)') '  ',('-',i=1,36)
+    write(u6,'(a,a)') '  ',repeat('-',36)
   end if
   call XFlush(u6)
 end if
@@ -247,8 +247,8 @@ call mma_deallocate(level2)
 call mma_deallocate(EneMat)
 
 if (iPrint >= 3) then
-  if (nOsc <= 30) write(u6,'(a,108a)') '  ',('-',i=1,108)
-  if (nOsc > 30) write(u6,'(a,36a)') '  ',('-',i=1,36)
+  if (nOsc <= 30) write(u6,'(a,a)') '  ',repeat('-',108)
+  if (nOsc > 30) write(u6,'(a,a)') '  ',repeat('-',36)
   write(u6,'(a,f12.9,a,f12.9,a)') '  Window: ',-dWlow,' / ',dWup,' (au)'
   write(u6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*auTocm,' / ',dWup*auTocm,' (cm-1)'
 end if
@@ -343,8 +343,8 @@ if (iPrint >= 1) then
   write(u6,*)
   write(u6,*) ' InterSystem Crossing rate constant:'
   write(u6,*) ' ===================================='
-  write(u6,'(a,e10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
-  write(u6,'(a,e10.2,a)') '  Lifetime           ',dLT,' sec'
+  write(u6,'(a,es10.2,a)') '  ISC Rate Constant  ',dRate,' sec-1'
+  write(u6,'(a,es10.2,a)') '  Lifetime           ',dLT,' sec'
   dLT = dLT*1.0e3_wp
   if ((dLT > One) .and. (dLT <= 1.0e3_wp)) write(u6,'(a19,f5.1,a)') ' ',dLT,' msec'
   dLT = dLT*1.0e3_wp
@@ -584,9 +584,9 @@ call mma_deallocate(A2B2T)
 ! Calculate Franck-Condon factors.
 if (iPrint >= 3) then
   write(u6,*) ' Franck-Condon factors for States in the Window:'
-  write(u6,'(a,36a)') '  ',('=',i=1,36)
+  write(u6,'(a,a)') '  ',repeat('=',36)
   write(u6,*) '     #     jOrd   FC factor     jSum'
-  write(u6,'(a,36a)') '  ',('-',i=1,36)
+  write(u6,'(a,a)') '  ',repeat('-',36)
 end if
 do ii=1,nYes
   jOrd = VibWind2(ii)
@@ -597,11 +597,11 @@ do ii=1,nYes
     do j=1,nOsc
       loc_n_max = loc_n_max+nMat(jOrd,j)
     end do
-    write(u6,'(a2,i5,i9,e15.6,a2,i4)') ' ',ii,jOrd,FCWind2(ii),' ',loc_n_max
+    write(u6,'(a2,i5,i9,es15.6,a2,i4)') ' ',ii,jOrd,FCWind2(ii),' ',loc_n_max
   end if
 end do
 if (iPrint >= 3) then
-  write(u6,'(a,36a)') '  ',('-',i=1,36)
+  write(u6,'(a,a)') '  ',repeat('-',36)
   write(u6,*) ' FC_00 =',FC00
   write(u6,*)
 end if
@@ -618,7 +618,7 @@ if (iPrint >= 4) then
       loc_n_max = loc_n_max+nMat(jOrd,j)
     end do
     dFC = FC00*L(0,0)*U(jOrd,0)
-    write(u6,'(a,i8,e15.6,a2,i4,a2,24i3)') ' ',jOrd,dFC,' ',loc_n_max,' ',(nMat(jOrd,j),j=1,nOsc)
+    write(u6,'(a,i8,es15.6,a2,i4,a2,24i3)') ' ',jOrd,dFC,' ',loc_n_max,' ',(nMat(jOrd,j),j=1,nOsc)
   end do
   write(u6,*) ' --------------------------------------------------'
 end if

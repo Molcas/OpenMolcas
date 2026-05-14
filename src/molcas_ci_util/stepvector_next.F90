@@ -9,21 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR)
+subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR,nLev)
 
+use sguga, only: CIS
 use Definitions, only: iwp, u6
 
 implicit none
-#include "gugx.fh"
-#include "WrkSpc.fh"
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
+integer(kind=iwp), intent(in) :: nLev
 integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
 
 ! stop when MV is zero
-if (MV == 0) then
-  write(u6,'(1X,A)') 'stepvector_next has been depleted'
-end if
+if (MV == 0) write(u6,'(1X,A)') 'stepvector_next has been depleted'
 
-call GETSTEPVECTOR(IWORK(LNOW),IWORK(LIOW),MV,IDWN,IUP,STEPVECTOR)
+call GETSTEPVECTOR(CIS%NOW,CIS%IOW,MV,IDWN,IUP,STEPVECTOR,nLev,CIS%nMidV)
 
 end subroutine STEPVECTOR_NEXT

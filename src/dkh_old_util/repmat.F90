@@ -14,7 +14,7 @@
 
 subroutine repmat(idbg,bInt,sInt,donorm)
 
-use Basis_Info, only: dbsc, nBas, nCnttp
+use Basis_Info, only: dbsc, icent, lmag, lnang, nAngr, nBas, nBasisr, nCnttp, nPrimr, nrBas, rCof
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -27,9 +27,6 @@ integer(kind=iwp), intent(in) :: idbg
 real(kind=wp), intent(in) :: bInt(*)
 real(kind=wp), intent(_OUT_) :: sInt(*)
 logical(kind=iwp), intent(in) :: donorm
-#include "Molcas.fh"
-#include "itmax.fh"
-#include "rinfo.fh"
 integer(kind=iwp) :: ip, istart, jp, kp, nAngrMax, nAtomTot, nc, np, nrBasTot
 real(kind=wp) :: finish, kpp
 logical(kind=iwp) :: New_Center, New_l, New_m, Old_Center, Old_l
@@ -46,10 +43,10 @@ real(kind=wp) :: sum_
 ! lant(i): number of atoms in i:th symmetry bf
 ! expand the coefficient matrix into symmetry basis set
 ! auxiliary
-! icaddr(i): adresses in coeff for a symmetry adapted function
+! icaddr(i): addresses in coeff for a symmetry adapted function
 
 !do i=1,12640
-!  write(67,'(d25.14)') bint(i)
+!  write(67,'(es25.14)') bint(i)
 !end do
 nSym = nIrrep
 iPrint = 0
@@ -208,7 +205,7 @@ if (donorm) then
           end do  ! jprim
         end do    ! iprim
         sint(kc) = sum_
-        !write(66,'(d25.14)') sum_
+        !write(66,'(es25.14)') sum_
       end do
     end do
     kcL = kcL+nrBas(iSym)
