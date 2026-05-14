@@ -504,8 +504,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call Abend()
     end select
 
-
-        select case(OptMeth)
+    select case(OptMeth)
         case(1)
             Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
         case(2,3,4,5,6)
