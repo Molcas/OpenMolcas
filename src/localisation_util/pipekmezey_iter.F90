@@ -181,10 +181,10 @@ end select
 
 select case (OptMeth)
 
-case (1)
+case (1,6)
     call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
 
-case (2,3,4,5,6)
+case (2,3,4,5)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
     call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),.true.) ! gets the initial Hessian diagonal, modifies it if needed
     FuncList(1) = -Functional
@@ -237,7 +237,7 @@ write(u6,'(//,1X,A,/,1X,A)') &
 'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  ndiis  largest/%Screen'
 
 ! initial information (Iteration = 0)
-select case (OptMeth)
+select case (InpOptMeth)
     case (1,6)
         UpMeth="JS  - "
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.1,1X),I5,1X,F8.2)') &
