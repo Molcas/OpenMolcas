@@ -11,13 +11,13 @@
 ! Copyright (C) 1989,1998, Per Ake Malmqvist                           *
 !***********************************************************************
 !  PROGRAM RASSI        PER-AAKE MALMQVIST
-!  SUBROUTINE CITRA     IBM-3090 RELEASE 89 01 31
+!  SUBROUTINE SG_CITRA     IBM-3090 RELEASE 89 01 31
 !  USE THE COEFFICIENTS FOR A SEQUENCE OF SINGLE-ORBITAL TRANSFOR-
 !  MATION, TRA, TO TRANSFORM THE CI EXPANSION COEFFICIENTS
 !  IN-PLACE TO A NEW NON-ON ORBITAL BASIS.
 !  NEW VERSION 981122, using user define types SGS,CIS,XS.
 !***********************************************************************
-!  CITRA
+!  SG_CITRA
 !
 !> @brief
 !>   Recompute a CI coefficient array to use another orbital basis
@@ -28,7 +28,7 @@
 !> CI array where the CSF basis is built from the old
 !> orbitals, compute the CI array using the new orbitals
 !> instead. The orbitals are transformed sequentially, and
-!> for each active orbital, a call to ::SSOTRA performs the
+!> for each active orbital, a call to ::SG_SSOTRA performs the
 !> single-orbital transformation.
 !>
 !> @param[in]     WFTP Wave function Type Name
@@ -41,14 +41,14 @@
 !> @param[in,out] CI   CI Array
 !***********************************************************************
 
-!ifdef _DEBUGPRINT_
-subroutine CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
+!#ifdef _DEBUGPRINT_
+subroutine SG_CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
 
 use sguga, only: SGStruct, CIStruct, EXStruct
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NTRA, NOSH, NISH, NASH
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -72,10 +72,6 @@ real(kind=wp), external :: ddot_
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Entering CITRA. norm=',ddot_(NCO,CI,1,CI,1)
 #endif
-!write(u6,*) ' Entering CITRA. TRA='
-!write(u6,'(1x,5f16.8)') (TRA(I),I=1,NTRA)
-!write(u6,*) ' Entering CITRA. CI='
-!write(u6,'(1x,5f16.8)') (CI(I),I=1,NCO)
 ! TRA contains square matrices, one per symmetry
 !  FIRST TRANSFORM THE INACTIVE ORBITALS:
 FAC = One
@@ -89,11 +85,8 @@ do ISYM=1,nIrrep
   end do
   ISTA = ISTA+NO**2
 end do
-!write(u6,*) 'FAC, FAC**2 ... ',FAC,FAC**2
 FAC = FAC**2
 CI(:) = FAC*CI(:)
-!write(u6,*) ' CITRA. inactive done CI='
-!write(u6,'(1x,5f16.8)') (CI(I),I=1,NCO)
 ! THEN THE ACTIVE ONES:
 if (WFTP /= 'EMPTY') then
   if ((WFTP == 'HISPIN') .or. (WFTP == 'CLOSED')) then
@@ -119,7 +112,7 @@ if (WFTP /= 'EMPTY') then
     do ISYM=1,nIrrep
       NA = NASH(ISYM)
       NO = NOSH(ISYM)
-      if (NA /= 0) call SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA(ISTA),NCO,CI,TMP)
+      if (NA /= 0) call SG_SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA(ISTA),NCO,CI,TMP)
       ISTA = ISTA+NO**2
     end do
     call mma_deallocate(TMP)
@@ -127,9 +120,69 @@ if (WFTP /= 'EMPTY') then
 # ifdef _DEBUGPRINT_
   write(u6,*) ' DONE in  CITRA. norm=',ddot_(NCO,CI,1,CI,1)
 # endif
-  !write(u6,*) ' CITRA completely done. CI='
-  !write(u6,'(1x,5f16.8)') (CI(I),I=1,NCO)
 
 end if
 
-end subroutine CITRA
+Contains
+
+! Performs the single-orbital transformations
+subroutine SG_SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
+
+
+implicit none
+type(SGSTruct), intent(in) :: SGS
+type(CISTruct), intent(in) :: CIS
+type(EXSTruct), intent(inout) :: ExS
+integer(kind=iwp), intent(in) :: ISYM, LSM, NA, NO, NCO
+real(kind=wp), intent(in) :: TRA(NO,NO)
+real(kind=wp), intent(inout) :: CI(NCO)
+real(kind=wp), intent(out) :: TMP(NCO)
+integer(kind=iwp) :: IK, IKLEV, IL, IP, IPLEV, NI
+real(kind=wp) :: CKK, CPK, X
+integer(kind=iwp), allocatable :: ILEV(:)
+
+! ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
+! OF SYMMETRY ISYM.
+
+call mma_allocate(ILEV,NA,Label='ILEV')
+
+NI = NO-NA
+IL = 0
+do IP=1,NA
+  do
+    IL = IL+1
+    if (SGS%ISM(IL) == ISYM) exit
+  end do
+  ILEV(IP) = IL
+end do
+
+do IK=1,NA
+
+  IKLEV = ILEV(IK)
+  TMP(:) = Zero
+  do IP=1,NA
+    IPLEV = ILEV(IP)
+    CPK = TRA(NI+IP,NI+IK)
+    if (IP == IK) CPK = CPK-One
+    X = Half*CPK
+    if (abs(X) < 1.0e-14_wp) cycle
+    call SG_Epq_Psi(SGS,CIS,EXS,IPLEV,IKLEV,X,LSM,CI,TMP)
+  end do
+
+  CKK = TRA(NI+IK,NI+IK)
+  X = Three-CKK
+  CI(:) = CI(:)+X*TMP(:)
+
+  do IP=1,NA
+    IPLEV = ILEV(IP)
+    CPK = TRA(NI+IP,NI+IK)
+    if (IP == IK) CPK = CPK-One
+    if (abs(CPK) < 1.0e-14_wp) cycle
+    call SG_Epq_Psi(SGS,CIS,EXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
+  end do
+
+end do
+call mma_deallocate(ILEV)
+
+end subroutine SG_SSOTRA
+end subroutine SG_CITRA

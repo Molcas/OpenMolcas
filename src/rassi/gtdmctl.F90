@@ -648,7 +648,7 @@ do IST=1,NSTAT(JOB1)
     end if
     DET1(:) = Zero
     ! Transform to bion basis, Split-Guga format
-    if (TrOrb) call CITRA(WFTP1,SGS(1),CIS(1),EXS(1),LSYM1,TRA1,NCONF1,CI1)
+    if (TrOrb) call SG_CITRA(WFTP1,SGS(1),CIS(1),EXS(1),LSYM1,TRA1,NCONF1,CI1)
     call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
     call PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,CNFTAB1,SPNTAB1,SSTAB,FSBTAB1,NCONF1,CI1,DET1,detocc,detcoeff1,TRANS1)
 
@@ -699,7 +699,7 @@ do JST=1,NSTAT(JOB2)
     if (DoGSOR) CI2_o(:) = CI2(:)
     DET2(:) = Zero
     ! Transform to bion basis, Split-Guga format
-    if (TrOrb) call CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,TRA2,NCONF2,CI2)
+    if (TrOrb) call SG_CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,TRA2,NCONF2,CI2)
     call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
     call PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,CNFTAB2,SPNTAB2,SSTAB,FSBTAB2,NCONF2,CI2,DET2,detocc,detcoeff2,TRANS2)
 
@@ -1086,7 +1086,7 @@ if (DoGSOR) then
       call READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
       CI2_o(:) = CI2(:)
       DET2(:) = Zero
-      if (TrOrb) call CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,TRA2,NCONF2,CI2)
+      if (TrOrb) call SG_CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,TRA2,NCONF2,CI2)
       call PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,CNFTAB2,SPNTAB2,SSTAB,FSBTAB2,NCONF2,CI2,DET2,detocc,detcoeff2,TRANS2)
 
       call mma_allocate(ThetaN,NCONF2,Label='ThetaN')

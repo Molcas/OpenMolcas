@@ -15,7 +15,6 @@ set (sources
      atens_rassi.F90
      binat.F90
      cho_rassi_rdinp.F90
-     citra.F90
      cnf2txt.F90
      cntrl.F90
      cplot_diag.F90
@@ -162,7 +161,6 @@ set (sources
      spind.F90
      spin_phase_rassi.F90
      srtdm2.F90
-     ssotra.F90
      syg2sgu.F90
      sygtosd.F90
      threej.F90
