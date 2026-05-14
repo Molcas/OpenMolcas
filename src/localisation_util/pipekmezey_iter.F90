@@ -169,7 +169,7 @@ end select ! allocations
 ! Initialization
 
 call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
-call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.) ! gets the initial Hessian diagonal, modifies it if needed
+call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.)
 
 select case(AnalyseLoc)
     case (0,1)
@@ -213,10 +213,11 @@ end select
 
 
 FirstFunctional = Functional
+NRFunc = Functional
 Delta = Functional
 largest=Zero
 nDIIS=0
-OldFunctional = Functional
+OldFunctional = Zero
 
 GEKRange = .false.
 ResetGEK = .false.
@@ -240,22 +241,16 @@ select case (InpOptMeth)
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
         'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  %Screen'
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,F8.2)') &
-                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,PctSkp
     case (3)
         UpMeth="GA  - "
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
         'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)  npos  dispnorm'
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,largest
     case (2,4,5)
         UpMeth="NR  - "
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
         'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)   npos  dispnorm'
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,largest
     case default
         write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
         call Abend()
@@ -269,7 +264,7 @@ end select
 
 Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
-    call CWTime(C1,W1)
+        call CWTime(C1,W1)
 
     nIter = nIter+1
 
@@ -289,16 +284,20 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case (1) ! Jacobi Sweeps (2x2 rotations)
         UpMeth = "JS  -"
 
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         ! just for seeing how many positive diagonal elements
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.false.)
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! N X N ROTATIONS
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     case (2,3,4,5,6)
+
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        if (OptMeth > 3 .and. GEKRange) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
+        FuncList(nIter) = -Functional ! y_i
 
         ! Before taking a new step, we evaluate the Hessian at the current point
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.)
@@ -462,10 +461,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
 
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        if (OptMeth > 3 .and. GEKRange) write(u6,*) "NR Func vs GEK func", Functional-NRFunc
-        FuncList(nIter+1) = -Functional ! y_i
-
 #       ifdef _DEBUG3_
         call RecPrt('Gradient',' ',Gradient,fsdim,1)
         call RecPrt('Hdiagvec',' ',Hdiagvec,fsdim,1)
@@ -493,6 +488,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
+!   write(u6,*) ""
     select case (OptMeth)
         case (1)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,F8.2)') &
@@ -507,8 +503,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
             call Abend()
     end select
-!   write(u6,*) ""
-    select case(OptMeth)
+
+
+        select case(OptMeth)
         case(1)
             Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
         case(2,3,4,5,6)
