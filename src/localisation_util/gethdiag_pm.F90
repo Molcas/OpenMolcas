@@ -73,9 +73,9 @@ do k=1,nOrb2Loc-1
 end do
 
 if (modify) then
-    if (SORange .or. gradnorm < 5.0e-4_wp) then
+    if (SORange .or. gradnorm < 1.0e-2_wp) then
       ! higher trust in the hessian now and allow faster convergence
-      thr = 5.0e-3_wp
+      thr = gradnorm
       if (prnt) write(u6,*) "in SORange: no positive diagonal elements"
     else
     ! outside of quadratic region: hessian not so accurate because of flipped signs
