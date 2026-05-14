@@ -129,7 +129,7 @@ implicit none
 
 integer(kind=iwp), intent(in) :: nOrb2Loc
 real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),Umat(nOrb2Loc,nOrb2Loc)
-real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
+real(kind=wp), parameter :: thrsh_taylor = 1.0e-18_wp
 real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt,maxel(2)
 logical(kind=iwp), parameter :: debug_exp = .false.
@@ -192,11 +192,11 @@ do while (ithrsh > thrsh_taylor)
         end if
     end if
 
-    ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))/(Norb2loc**2)
+    ithrsh = 1.0e6_wp * sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))/(Norb2loc**2)
     !ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(Umat)+thrsh_taylor))
 
     ! sanity check for divergence
-    if (ithrsh/720 > One) then
+    if (ithrsh/(720*1.0e6_wp) > One) then
         write(u6,*) "Bug: the Taylor expansion of exp(kappa) diverges - numerical error"
         write(u6,*) "Stopping Taylor expansion at ",cnt,"-th term. Rescale kappa before feeding it this subroutine. ithrsh",&
                      ithrsh

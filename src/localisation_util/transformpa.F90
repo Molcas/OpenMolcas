@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine transformPA(PA,nOrb2Loc,Umat)
+subroutine transformPA(PA,nOrb2Loc,Umat,forward)
 ! this subroutine transforms the <s|PA|t> matrices according to PA <- U^T * PA * U
 
 use stdalloc, only: mma_allocate,mma_deallocate
@@ -25,6 +25,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nOrb2Loc
 real(kind=wp), intent(in) :: Umat(nOrb2Loc,nOrb2Loc)
 real(kind=wp), intent(inout) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
+logical(kind=iwp),intent(in) :: forward
 integer(kind=iwp) :: iAtom
 real(kind=wp),allocatable :: QU(:,:)
 character(len=LenIn+8) :: PALbl
@@ -32,14 +33,29 @@ character(len=LenIn+8) :: PALbl
 call mma_allocate(QU,nOrb2Loc,nOrb2Loc,Label="QU")
 do iAtom = 1, nAtoms
     QU(:,:) = Zero
-    call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
-                        One,PA(:,:,iAtom),nOrb2Loc,&
-                            Umat,nOrb2Loc,&
-                        Zero,QU,nOrb2Loc)
-    call dgemm_('N','T',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
-                        One,Umat,nOrb2Loc,&
-                            QU,nOrb2Loc,&
-                        Zero,PA(:,:,iAtom),nOrb2Loc)
+
+    if (forward) then
+        ! transform as U^T*PA*U to reset the step
+        call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
+                            One,PA(:,:,iAtom),nOrb2Loc,&
+                                Umat,nOrb2Loc,&
+                            Zero,QU,nOrb2Loc)
+        call dgemm_('T','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
+                            One,Umat,nOrb2Loc,&
+                                QU,nOrb2Loc,&
+                            Zero,PA(:,:,iAtom),nOrb2Loc)
+
+    else
+        ! transform as U*PA*U^T
+        call dgemm_('N','T',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
+                            One,PA(:,:,iAtom),nOrb2Loc,&
+                                Umat,nOrb2Loc,&
+                            Zero,QU,nOrb2Loc)
+        call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
+                            One,Umat,nOrb2Loc,&
+                                QU,nOrb2Loc,&
+                            Zero,PA(:,:,iAtom),nOrb2Loc)
+    end if
 end do
 call mma_deallocate(QU)
 

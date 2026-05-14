@@ -48,7 +48,7 @@ real(kind=wp), External :: DDot_
 
 integer(kind=iwp) :: maxel
 real(kind=wp) :: dqdq,largest, alpha
-logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false.
+logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.true.
 character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
 real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,eta1,eta2
@@ -358,7 +358,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
         call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
         ! update <s|PA|t>
-        call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
+
+        if (trafoPA) then
+            call transformPA(PA,nOrb2Loc,Umat,.true.)
+        else
+           call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
+        end if
+
         call ComputeFunc(nAtoms,nOrb2Loc,PA,NRFunc,.false.)
 
 
@@ -393,7 +399,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 ! since we transformed PA to the NR step, we have to get the one at C_ref back
                 ! we can simply do that with generating it from the CMO again (that we will only update later)
-                call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
+                ! reset NR step
+
+                if (trafoPA) then
+                    call transformPA(PA,nOrb2Loc,Umat,.false.)
+                else
+                    call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
+                end if
+
                 call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec,CMO,&
                                         nBasis,PA,nAtoms)
 
@@ -419,8 +432,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! rotate MOs as rotated_CMO = CMO * exp(-kappa)
                 call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
                 ! update <s|PA|t>
-                !call transformPA(PA,nOrb2Loc,Umat)
-                call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
+
+                if (trafoPA) then
+                    call transformPA(PA,nOrb2Loc,Umat,.true.)
+                else
+                    call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
+                end if
 
                 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 ! EVALUATE QUANTITIES AT PREDICTED POINT
@@ -714,7 +731,7 @@ subroutine P_of_eta(Disp,Functional)
     call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
     call expkap_localisation(kappa,nOrb2Loc,Umat)
     call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
-    call transformPA(PA,nOrb2Loc,Umat)
+    call transformPA(PA,nOrb2Loc,Umat,.true.)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end subroutine P_of_eta
 
