@@ -65,18 +65,18 @@ subroutine dump_ascii(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   write(LuFCI,'(A)') ' &END'
 
   do j=1,length(two_el_table)
-    write(LuFCI,'(1X,G20.11,4I5)') two_el_table%values(j),(two_el_table%idx(i,j),i=1,4)
+    write(LuFCI,'(1X,E27.20,4I5)') two_el_table%values(j),(two_el_table%idx(i,j),i=1,4)
   end do
 
   do j=1,length(fock_table)
-    write(LuFCI,'(1X,G20.11,4I5)') fock_table%values(j),(fock_table%idx(i,j),i=1,2),0,0
+    write(LuFCI,'(1X,E27.20,4I5)') fock_table%values(j),(fock_table%idx(i,j),i=1,2),0,0
   end do
 
   do j=1,length(orbital_table)
-    write(LuFCI,'(1X,G20.11,4I5)') orbital_table%values(j),orbital_table%idx(j),0,0,0
+    write(LuFCI,'(1X,E27.20,4I5)') orbital_table%values(j),orbital_table%idx(j),0,0,0
   end do
 
-  write(LuFCI,'(1X,G20.11,4I5)') EMY,0,0,0,0
+  write(LuFCI,'(1X,E27.20,4I5)') EMY,0,0,0,0
 
   close(LuFCI)
 
