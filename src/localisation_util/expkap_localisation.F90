@@ -192,11 +192,11 @@ do while (ithrsh > thrsh_taylor)
         end if
     end if
 
-    ithrsh = 1.0e6_wp*sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))/(Norb2loc**3)
+    ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))/(Norb2loc**2)
     !ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(Umat)+thrsh_taylor))
 
     ! sanity check for divergence
-    if (ithrsh/(720*1.0e6_wp) > One) then
+    if (ithrsh/720 > One) then
         write(u6,*) "Bug: the Taylor expansion of exp(kappa) diverges - numerical error"
         write(u6,*) "Stopping Taylor expansion at ",cnt,"-th term. Rescale kappa before feeding it this subroutine. ithrsh",&
                      ithrsh
