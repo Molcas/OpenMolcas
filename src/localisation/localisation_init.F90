@@ -28,7 +28,7 @@ integer(kind=iwp) :: iSym
 integer(kind=iwp), parameter :: Occupied = 0
 real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, & !functional change
                             ThrRotDef=1.0e-10_wp, & !rotation angle in jacobi sweeps
-                            ThrGradDef=1.0e-4_wp,& !gradient norm
+                            ThrGradDef=1.0e-5_wp,& !gradient norm
                             ThrStepDef=1.0e-2_wp !kappa norm
 
 useFH=.false. !use full Pipek-Mezey Hessian in the SGEK
