@@ -171,12 +171,15 @@ else
     if (LocModel == 1) then
       Model = 'Pipe'
       AddInfoString = 'PIPEKFUNCTIONAL'
+      iTol = 6
     else if (LocModel == 2) then
       Model = 'Boys'
       AddInfoString = 'BOYSFUNCTIONAL '
+      iTol = 4
     else if (LocModel == 4) then
       Model = 'Edmi'
       AddInfoString = 'ERFUNCTIONAL   '
+      iTol = 4
     end if
     irc = 0
     call Localise_Iterative(irc,Model,Functional)
@@ -185,7 +188,6 @@ else
       call SysAbendMsg(SecNam,'Localisation failed!',Txt)
     end if
     AddInfoVal = Functional
-    iTol = 4
   else if (LocModel == 3) then
     if (LocPAO) then
       Model = 'PAO '
