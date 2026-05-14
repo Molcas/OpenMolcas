@@ -129,7 +129,7 @@ implicit none
 
 integer(kind=iwp), intent(in) :: nOrb2Loc
 real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),Umat(nOrb2Loc,nOrb2Loc)
-real(kind=wp), parameter :: thrsh_taylor = 1.0e-18_wp
+real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
 real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt,maxel(2)
 logical(kind=iwp), parameter :: debug_exp = .false.

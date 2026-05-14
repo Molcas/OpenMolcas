@@ -169,7 +169,6 @@ end select ! allocations
 ! Initialization
 
 call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
-call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.)
 
 select case(AnalyseLoc)
     case (0,1)
@@ -212,6 +211,7 @@ case default
 end select
 
 
+call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.,gradnorm)
 FirstFunctional = Functional
 NRFunc = Functional
 Delta = Functional
@@ -287,7 +287,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         ! just for seeing how many positive diagonal elements
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.)
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.,gradnorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -300,7 +300,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         FuncList(nIter) = -Functional ! y_i
 
         ! Before taking a new step, we evaluate the Hessian at the current point
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.)
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.,gradnorm)
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! GRADIENT ASCENT STEP
@@ -366,11 +366,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
         ! update <s|PA|t>
 
-        if (trafoPA) then
-            call transformPA(PA,nOrb2Loc,Umat,.true.)
-        else
-           call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
-        end if
+        call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,NRFunc,.false.)
 

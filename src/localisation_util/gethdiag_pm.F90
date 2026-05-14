@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
-subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag,npos,modify)
+subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag,npos,gradnorm,modify)
 !
 ! Purpose: compute the Hessian diagonal elements of the Pipek-Mezey functional w.r.t. elements of the kappa matrix
 
@@ -21,7 +21,7 @@ use Localisation_globals, only: Debug
 implicit none
 
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
-real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
+real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms),gradnorm
 real(kind=wp), intent(out) :: H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
 logical(kind=iwp), intent(in) :: modify
 integer(kind=iwp),intent(out) :: npos
@@ -73,9 +73,9 @@ do k=1,nOrb2Loc-1
 end do
 
 if (modify) then
-    if (SORange) then
+    if (SORange .or. gradnorm < 5.0e-4_wp) then
       ! higher trust in the hessian now and allow faster convergence
-      thr = 1.0e-2_wp
+      thr = 5.0e-3_wp
       if (prnt) write(u6,*) "in SORange: no positive diagonal elements"
     else
     ! outside of quadratic region: hessian not so accurate because of flipped signs
