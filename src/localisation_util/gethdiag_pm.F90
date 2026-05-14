@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
-subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag,modify)
+subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag,npos,modify)
 !
 ! Purpose: compute the Hessian diagonal elements of the Pipek-Mezey functional w.r.t. elements of the kappa matrix
 
@@ -24,7 +24,8 @@ integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
 logical(kind=iwp), intent(in) :: modify
-integer(kind=iwp) :: iAtom, k,l,kl,npos
+integer(kind=iwp),intent(out) :: npos
+integer(kind=iwp) :: iAtom, k,l,kl
 real(kind=wp) :: Q_ll, Q_kk, Q_kl, Thr
 logical(kind=iwp) :: SORange,prnt=.false.,prnt2=.false.
 
@@ -71,7 +72,6 @@ do k=1,nOrb2Loc-1
    end do
 end do
 
-write(u6,*) npos, "positive Hessian diagonal elements"
 if (modify) then
     if (SORange) then
       ! higher trust in the hessian now and allow faster convergence

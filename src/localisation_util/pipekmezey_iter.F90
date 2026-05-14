@@ -39,7 +39,7 @@ integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
+integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS,npos
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2,NRFunc
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),Umat(:,:), rotated_CMO(:,:),hdiagvec(:),&
@@ -126,6 +126,8 @@ fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
 ! allocations
 
+call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
+
 select case(InpOptMeth)
 
 case (1)
@@ -141,7 +143,6 @@ case(2,3,4,5,6)
 
     call mma_Allocate(Gradient,fsdim,Label='Gradient')
 
-    call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
     call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
     DispList(:,:)=Zero
     call mma_allocate(Disp,fsdim,Label='Disp')
@@ -168,6 +169,7 @@ end select ! allocations
 ! Initialization
 
 call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
+call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.) ! gets the initial Hessian diagonal, modifies it if needed
 
 select case(AnalyseLoc)
     case (0,1)
@@ -186,7 +188,6 @@ case (1,6)
 
 case (2,3,4,5)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
-    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),.true.) ! gets the initial Hessian diagonal, modifies it if needed
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
 
@@ -238,23 +239,23 @@ select case (InpOptMeth)
         UpMeth="JS  - "
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
-        'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  -  %Screen'
+        'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  %Screen'
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,F8.2)') &
-                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
+                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,PctSkp
     case (3)
         UpMeth="GA  - "
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
-        'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)  ndiis  dispnorm'
+        'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)  npos  dispnorm'
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
+                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,largest
     case (2,4,5)
         UpMeth="NR  - "
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
-        'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)  ndiis  dispnorm'
+        'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)   npos  dispnorm'
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
+                nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,largest
     case default
         write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
         call Abend()
@@ -289,6 +290,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         UpMeth = "JS  -"
 
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
+        ! just for seeing how many positive diagonal elements
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.false.)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
@@ -298,7 +301,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     case (2,3,4,5,6)
 
         ! Before taking a new step, we evaluate the Hessian at the current point
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),.true.)
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.)
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! GRADIENT ASCENT STEP
@@ -493,13 +496,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     select case (OptMeth)
         case (1)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,F8.2)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,PctSkp
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,PctSkp
         case (3)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,DD
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,DD
         case (2,4,5,6)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,DD
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,DD
         case default
             write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
             call Abend()
@@ -550,8 +553,9 @@ end if
 
 call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 
-if (allocated(PACol)) call mma_Deallocate(PACol)
 ! deallocations
+if (allocated(PACol)) call mma_Deallocate(PACol)
+call mma_Deallocate(Hdiagvec)
 select case(InpOptMeth)
 case(2,3,4,5,6)
     call mma_Deallocate(Gradient)
@@ -568,7 +572,6 @@ case(2,3,4,5,6)
     call mma_Deallocate(DispList)
     call mma_Deallocate(Disp)
     call mma_Deallocate(SearchDir)
-    call mma_Deallocate(Hdiagvec)
 
 end select
 
