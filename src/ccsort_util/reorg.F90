@@ -90,7 +90,7 @@ if (run_sort) then
   call mma_deallocate(Ene)
   if (fullprint >= 0) then
     write(u6,*)
-    write(u6,'(6X,A,F16.8)') 'SCF energy:',Escf
+    write(u6,'(6X,A,F25.16)') 'SCF energy:',Escf
     write(u6,'(6X,A)') '-----------'
     write(u6,*)
   end if

@@ -93,7 +93,7 @@ if (WarnCfg) &
   call WarningMessage(1,'Warning:; The program may have converged to a solution;that does not correspond to the lowest energy!')
 if (WarnPocc) call WarningMessage(1,'Warning:; The program may have converged to a solution;with partial occupation numbers!')
 if (WarnSlow) call WarningMessage(1,'Warning:; The program had convergence problems;and terminated with looser convergence')
-Frmt = '(6X,A,T50,F19.10)'
+Frmt = '(6X,A,T50,F25.16)'
 suhf = -Half+sqrt(Quart+s2uhf)
 call put_dscalar('UHFSPIN',SUHF)
 iTol = min(Cho_X_GetTol(8),8)
