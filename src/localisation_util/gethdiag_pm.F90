@@ -53,8 +53,9 @@ do k=1,nOrb2Loc-1
           Q_kk=PA(k,k,iAtom)
           Q_ll=PA(l,l,iAtom)
           Q_kl=PA(k,l,iAtom)
-!         H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Four*Four*Q_kl**2
-          H_diag(kl)=H_diag(kl) + Four*(Q_ll*(Q_kk-Q_ll) + Q_kk*(Q_ll-Q_kk) + Four*Q_kl**2)
+!         H_diag(kl)=H_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Four*Four*Q_kl!**2
+!          H_diag(kl)=H_diag(kl) + Four*(Q_ll*(Q_kk-Q_ll) + Q_kk*(Q_ll-Q_kk) + Four*Q_kl**2)
+          H_diag(kl)=H_diag(kl) + Four*(-(Q_kk-Q_ll)**2 + Four*Q_kl**2)
       end do
 
       if (modify) then
