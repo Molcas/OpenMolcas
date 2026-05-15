@@ -29,7 +29,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
-                                ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
+                                GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
                                 BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth
 use loc_procedures, only: s_gek_localisation
 use filesystem, only: getcwd_, mkdir_
@@ -469,7 +469,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         DispList(:,nIter) = Disp(:) ! q_i
         CMO(:,:) = rotated_CMO(:,:)
-        DD = Sqrt(dot_product(Disp(:),Disp(:)))
+        Stepnorm = Sqrt(dot_product(Disp(:),Disp(:)))
     end select ! 2x2 or NxN rotations
 
     if (getIMmldn) then
@@ -489,10 +489,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                     nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,PctSkp
         case (3)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,DD
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,StepNorm
         case (2,4,5,6)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,DD
+                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,StepNorm
         case default
             write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
             call Abend()
