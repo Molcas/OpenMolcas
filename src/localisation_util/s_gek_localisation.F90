@@ -363,10 +363,11 @@ Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Fu
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #ifdef _DEBUGPRINT_
+BLOCK
+    real(kind=wp) :: norm_dq,norm_dq_NR
     !call RecPrt("dq_NR_Diis","",dq_NR_Diis,mdiis,1)
     !call RecPrt("dq_Diis","",dq_Diis,mdiis,1)
     !call RecPrt("dq_Diis-dq_NR_Diis","",dq_Diis-dq_NR_Diis,mdiis,1)
-
     norm_dq_NR = sqrt(DDot_(mdiis,dq_NR_diis,1,dq_NR_diis,1))
     norm_dq = sqrt(DDot_(mdiis,dq_diis,1,dq_diis,1))
     !write(u6,*) norm_dq_NR, norm_dq
@@ -376,6 +377,7 @@ Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Fu
                     "norm(dq)/norm(dq_NR) = ",norm_dq/norm_dq_NR, "IterGEK=",IterGEK
 
     call RecPrt('dq(:) before projecting out',' ',dq_diis(:),size(dq_diis),1)
+end BLOCK
 #endif
 
 call mma_deallocate(dq_NR_diis)
