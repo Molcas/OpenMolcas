@@ -18,7 +18,7 @@
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _FORCEGEKRANGE_
-#define _TESTNUMERICALLY_
+!#define _TESTNUMERICALLY_
 
 subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 ! Author: T.B. Pedersen
@@ -48,7 +48,7 @@ real(kind=wp), External :: DDot_
 
 integer(kind=iwp) :: maxel
 real(kind=wp) :: dqdq,largest, alpha
-logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.true.
+logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.false., modHess=.true.
 character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
 real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,eta1,eta2
@@ -211,7 +211,7 @@ case default
 end select
 
 
-call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.,gradnorm)
+call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,modHess,gradnorm)
 FirstFunctional = Functional
 NRFunc = Functional
 Delta = Functional
@@ -287,7 +287,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         ! just for seeing how many positive diagonal elements
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.,gradnorm)
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,modHess,gradnorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -308,7 +308,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 
         ! Before taking a new step, we evaluate the Hessian at the current point
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,.true.,gradnorm)
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,modHess,gradnorm)
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! GRADIENT ASCENT STEP
