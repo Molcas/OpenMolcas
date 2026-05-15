@@ -18,7 +18,7 @@
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _FORCEGEKRANGE_
-!#define _TESTNUMERICALLY_
+#define _TESTNUMERICALLY_
 
 subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 ! Author: T.B. Pedersen
@@ -503,6 +503,21 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     end do !Iterations
 
 call OrthoCheck(CMO,nOrb2Loc,nBasis)
+
+#   ifdef _TESTNUMERICALLY_
+    BLOCK
+        real(kind=wp), allocatable :: Hessian(:,:),NumGrad(:)
+        call mma_allocate(NumGrad,fsdim,Label="NumGrad")
+        call GetNumGrad_PM(CMO,nOrb2Loc,nBasis,fsdim,NumGrad,.true.)
+        call mma_deallocate(NumGrad)
+
+        call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
+        call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
+        call RecPrt("full analytical Hessian","(6F10.6)",Hessian,fsdim,fsdim)
+        call mma_deallocate(Hessian)
+    end BLOCK
+#   endif
+
 
 
 ! Print convergence message.
