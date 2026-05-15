@@ -486,13 +486,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     select case (OptMeth)
         case (1)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,F8.2)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,PctSkp
+                    nIter-1,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,PctSkp
         case (3)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,StepNorm
+                    nIter-1,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,StepNorm
         case (2,4,5,6)
             write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(F9.3,1X),I5,1X,ES12.4)') &
-                    nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,StepNorm
+                    nIter-1,Functional,Delta,GradNorm,UpMeth,TimC,TimW,npos,StepNorm
         case default
             write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
             call Abend()
@@ -518,16 +518,13 @@ select case(AnalyseLoc)
 end select
 
 if (.not. Converged) then
-    write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
+    write(u6,'(/,A,I4,A)') 'No convergence after',nIter-1,' iterations.'
 else
-    write(u6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
+    write(u6,'(/,A,I4,A)') 'Convergence after',nIter-1,' iterations.'
     write(u6,*)
     write(u6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
     write(u6,'(A,ES20.10)') 'Value of P before localisation: ',FirstFunctional
     write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
-    write(u6,*) "Localisation converged in ",nIter
-    write(u6,*) "Last deltaP",Delta
-    write(u6,*) "Last GradNorm",GradNorm
 end if
 
 !call Prpt()
