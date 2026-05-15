@@ -224,7 +224,7 @@ ResetGEK = .false.
 switched = .false.
 SORange = .false.
 
-IterGEK = 0
+IterGEK = -1
 PctSkp = 0
 
 
