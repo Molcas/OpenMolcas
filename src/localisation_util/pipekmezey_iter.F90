@@ -450,8 +450,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                     call GenerateP(rotated_CMO,nBasis,nOrb2Loc,nAtoms,PA)
                 end if
 
-
-
             end if ! if in GEKRange
 
         end if ! NR vs GEK
@@ -500,18 +498,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call Abend()
     end select
 
-    select case(OptMeth)
-        case(1)
-            Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-        case(2,3,4,5,6)
-            StepNorm = sqrt(DDOT_(fsdim,Disp,1,Disp,1))
-            Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-            Converged = (GradNorm <= ThrGrad) .and. (StepNorm <=ThrStep)
-        case default
-            write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
-            call Abend()
-    end select
-end do !Iterations
+    Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
+
+    end do !Iterations
 
 call OrthoCheck(CMO,nOrb2Loc,nBasis)
 
