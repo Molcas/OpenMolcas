@@ -35,7 +35,6 @@ integer(kind=iwp) :: i,k,l,NumHessMeth,npos
 logical:: debug=.false.
 logical, intent(in) :: debug2
 integer(kind=iwp), parameter ::  fourpoint=1,symm=2,asymm=3
-
 call mma_allocate(NumHess, fsdim, fsdim,Label = "NumHess")
 call mma_allocate(infDisp, fsdim,Label ="infDisp")
 call mma_allocate(diff, fsdim,Label ="diff")
@@ -186,7 +185,7 @@ subroutine takestep()
     call vec2upper_triag(DispMat,nOrb2Loc,infDisp(:),fsdim,.true.)
     call expkap_localisation(DispMat,nOrb2Loc,Umat)
     call RotateNxN(CMO,nOrb2Loc,nBasis,Umat,rotated_CMO)
-    call transformPA(PA,nOrb2Loc,Umat)
+    call transformPA(PA,nOrb2Loc,Umat,.true.)
 end subroutine takestep
 
 end subroutine GetNumHess_PM
