@@ -97,11 +97,7 @@ end do
 call moveref()
 
 #ifdef _DEBUGPRINT_
-    write(u6,*) 'iFirst =',iFirst
-    write(u6,*) 'iLast =',iLast
-    write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
-    write(u6,*) 'IterGEK =',IterGEK
     call RecPrt("q(:,:)",' ',coords,fsdim, nDiis)
     call RecPrt("g(:,:)",' ',grads,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',grads(:,nDiis),fsdim, 1)
