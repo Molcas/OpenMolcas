@@ -117,8 +117,7 @@ if (DebugHess) then
 
     ! check numerically
     call mma_allocate(NumHess,fsdim,fsdim,Label='NumHess')
-
-    call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHess,.false.)
+    call GetNumHess_PM(CMO,nOrb2Loc,nBasis,fsdim,NumHess,.true.)
     diffnorm = sqrt(DDot_(fsdim*2,NumHess-Hessian,1,NumHess-Hessian,1))/(DBLE(fsdim)**2)
     if (diffnorm > 1.0e-4_wp) then
         write(u6,*) "ERROR: Numerical and analytical hessian deviate too much"
