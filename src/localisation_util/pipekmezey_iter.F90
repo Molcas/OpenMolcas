@@ -247,7 +247,7 @@ select case (InpOptMeth)
         '                                                                 CPU       Wall', &
         'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)  npos  dispnorm'
     case (2,4,5)
-        UpMeth="NR  - "
+        UpMeth="NR  0 "
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
         'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)   npos  dispnorm'
@@ -345,7 +345,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 UpMeth = "NR +LS"
             else
                 best_eta = One
-                UpMeth = "NR  -"
+                UpMeth = "NR  0"
             end if
 
             Disp(:) = best_eta * SearchDir(:)
