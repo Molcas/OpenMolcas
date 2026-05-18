@@ -73,11 +73,6 @@ subroutine TwoElIntTable_reorder(two_el_table,P)
       two_el_table%idx(i,j) = P(two_el_table%idx(i,j))
     end do
   end do
-  do j=1,length(two_el_table)
-    do i=1,4
-      two_el_table%idx(i,j) = P(two_el_table%idx(i,j))
-    end do
-  end do
 
 end subroutine TwoElIntTable_reorder
 
@@ -125,11 +120,18 @@ subroutine ALL_reorder(orbitals,fock,two_el_table,orbsym,P)
   type(TwoElIntTable), intent(inout) :: two_el_table
   integer(kind=iwp), intent(inout) :: orbsym(:)
   integer(kind=iwp), intent(in) :: P(:)
+  integer(kind=iwp), allocatable :: temp_orbsym(:)
+  integer(kind=iwp) :: i
 
   call reorder(orbitals,P)
   call reorder(fock,P)
   call reorder(two_el_table,P)
-  orbsym(:) = orbsym(P)
+  allocate(temp_orbsym(size(orbsym)))
+  temp_orbsym = orbsym
+  do i=1,size(P)
+    orbsym(P(i)) = temp_orbsym(i)
+  end do
+  deallocate(temp_orbsym)
 
 end subroutine ALL_reorder
 

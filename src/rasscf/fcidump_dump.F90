@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-public :: dump_ascii, dump_hdf5
+public :: dump_ascii, dump_fort55, dump_hdf5
 
 contains
 
@@ -200,5 +200,220 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 # endif
 
 end subroutine dump_hdf5
+
+!>  @brief
+!>    Create fort.55 file in MRCC format
+!>
+!>  @author Jaafar Mehrez
+!>
+!>  @details
+!>  Writes an FCIDUMP compatible with MRCC (fort.55).
+!>  Unlike the standard ASCII FCIDUMP, this format uses:
+!>    - Line 1: NMO NELEC
+!>    - Line 2: space-separated ORBSYM
+!>    - Line 3:  150000
+!>  One-electron integrals are written from the Fock table only;
+!>  orbital energies are omitted.
+subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
+
+  use general_data, only: nActEl, nAsh, nSym
+  use Symmetry_Info, only: SymLab, lIrrep, Symmetry_Info_Get
+  use Constants, only: Zero
+  use Definitions, only: u6
+  use Index_Functions, only: iTri
+  use fcidump_tables, only: cutoff_default, length
+
+  character(len=*), intent(in) :: path
+  real(kind=wp), intent(in) :: EMY
+  type(OrbitalTable), intent(in) :: orbital_table
+  type(FockTable), intent(in) :: fock_table
+  type(TwoElIntTable), intent(in) :: two_el_table
+  integer(kind=iwp), intent(in) :: orbsym(:)
+  integer(kind=iwp) :: i, j, k, l, m, ij, kl, LuFCI, mrcc_orbsym(size(orbsym)), nmo, npair
+  real(kind=wp) :: val
+  real(kind=wp), allocatable :: eri_2d(:,:)
+  integer(kind=iwp), external :: isFreeUnit
+  character(len=3) :: label
+
+  call Symmetry_Info_Get()
+
+  do i=1,size(orbsym)
+    label = adjustl(trim(lIrrep(orbsym(i)-1)))
+    call to_lower(label)
+    mrcc_orbsym(i) = molcas_irrep_to_mrcc(orbsym(i),trim(adjustl(SymLab)),label)
+  end do
+
+  nmo = sum(nAsh(:nSym))
+  npair = nmo*(nmo+1)/2
+  LuFCI = isFreeUnit(38)
+  call molcas_open(LuFCI,path)
+
+  write(LuFCI,'(I0,1X,I0)') nmo,nActEl
+
+  if (size(mrcc_orbsym) > 0) then
+    do i=1,size(mrcc_orbsym)-1
+      write(LuFCI,'(I0,1X)',advance='NO') mrcc_orbsym(i)
+    end do
+    write(LuFCI,'(I0)') mrcc_orbsym(size(mrcc_orbsym))
+  end if
+
+  write(LuFCI,'(A)') ' 150000'
+
+  ! 4-fold symmetry
+  allocate(eri_2d(npair,npair))
+  eri_2d = Zero
+
+  do j=1,length(two_el_table)
+    i = two_el_table%idx(1,j)
+    k = two_el_table%idx(2,j)
+    l = two_el_table%idx(3,j)
+    m = two_el_table%idx(4,j)
+    ij = iTri(i,k)
+    kl = iTri(l,m)
+    eri_2d(ij,kl) = two_el_table%values(j)
+    eri_2d(kl,ij) = two_el_table%values(j)
+  end do
+
+  do i=1,nmo
+    do j=1,i
+      ij = iTri(i,j)
+      do k=1,nmo
+        do l=1,k
+          kl = iTri(k,l)
+          val = eri_2d(ij,kl)
+          if (abs(val) > cutoff_default) then
+            write(LuFCI,'(1X,E27.20,4I5)') val,i,j,k,l
+          end if
+        end do
+      end do
+    end do
+  end do
+
+  deallocate(eri_2d)
+
+  do j=1,length(fock_table)
+    write(LuFCI,'(1X,E27.20,4I5)') fock_table%values(j),(fock_table%idx(i,j),i=1,2),0,0
+  end do
+
+  write(LuFCI,'(1X,E27.20,4I5)') EMY,0,0,0,0
+
+  close(LuFCI)
+
+  call FastIO('STATUS')
+
+end subroutine dump_fort55
+
+!>  @brief
+!>    Map irrep label to the MRCC numbering used in fort.55
+!>
+!>  @author Jaafar Mehrez
+!>
+
+function molcas_irrep_to_mrcc(molcas_irrep,group,label) result(mrcc_irrep)
+
+  integer(kind=iwp), intent(in) :: molcas_irrep
+  character(len=*), intent(in) :: group, label
+  integer(kind=iwp) :: mrcc_irrep
+
+  mrcc_irrep = molcas_irrep
+
+  select case (group)
+  case ('D2h')
+    select case (label)
+    case ('ag')
+      mrcc_irrep = 1
+    case ('b1g')
+      mrcc_irrep = 2
+    case ('b2g')
+      mrcc_irrep = 3
+    case ('b3g')
+      mrcc_irrep = 4
+    case ('au')
+      mrcc_irrep = 5
+    case ('b1u')
+      mrcc_irrep = 6
+    case ('b2u')
+      mrcc_irrep = 7
+    case ('b3u')
+      mrcc_irrep = 8
+    end select
+  case ('C2v')
+    select case (label)
+    case ('a1')
+      mrcc_irrep = 1
+    case ('a2')
+      mrcc_irrep = 2
+    case ('b1')
+      mrcc_irrep = 3
+    case ('b2')
+      mrcc_irrep = 4
+    end select
+  case ('C2h')
+    select case (label)
+    case ('ag')
+      mrcc_irrep = 1
+    case ('bg')
+      mrcc_irrep = 2
+    case ('au')
+      mrcc_irrep = 3
+    case ('bu')
+      mrcc_irrep = 4
+    end select
+  case ('D2')
+    select case (label)
+    case ('a')
+      mrcc_irrep = 1
+    case ('b1')
+      mrcc_irrep = 2
+    case ('b2')
+      mrcc_irrep = 3
+    case ('b3')
+      mrcc_irrep = 4
+    end select
+  case ('Cs')
+    select case (label)
+    case ("a'")
+      mrcc_irrep = 1
+    case ('a"')
+      mrcc_irrep = 2
+    end select
+  case ('C2')
+    select case (label)
+    case ('a')
+      mrcc_irrep = 1
+    case ('b')
+      mrcc_irrep = 2
+    end select
+  case ('Ci')
+    select case (label)
+    case ('ag')
+      mrcc_irrep = 1
+    case ('au')
+      mrcc_irrep = 2
+    end select
+  case ('C1')
+    mrcc_irrep = 1
+  end select
+
+end function molcas_irrep_to_mrcc
+
+!>  @brief
+!>    Convert a character string to lowercase in-place.
+!>
+!>  @author Jaafar Mehrez
+!>
+subroutine to_lower(s)
+
+  character(len=*), intent(inout) :: s
+  integer(kind=iwp) :: i, ic
+
+  do i=1,len(s)
+    ic = ichar(s(i:i))
+    if ((ic >= ichar('A')) .and. (ic <= ichar('Z'))) then
+      s(i:i) = char(ic+ichar('a')-ichar('A'))
+    end if
+  end do
+
+end subroutine to_lower
 
 end module fcidump_dump
