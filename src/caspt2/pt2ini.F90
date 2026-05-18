@@ -8,165 +8,154 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PT2INI()
-      USE INPUTDATA, ONLY: INPUT, READIN_CASPT2
-      use PT2WFN, ONLY: PT2WFN_INIT,PT2WFN_DATA
-      USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,          &
-     &                  REFWFN_CLOSE
+
+subroutine PT2INI()
+
+use INPUTDATA, only: INPUT, READIN_CASPT2
+use PT2WFN, only: PT2WFN_INIT, PT2WFN_DATA
+use REFWFN, only: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA, REFWFN_CLOSE
 #ifdef _DMRG_
-      use qcmaquis_interface_cfg, only: qcmaquis_param
-      use caspt2_global, only: iPrGlb
-      use PrintLevel, only: DEBUG
-      use caspt2_module, only: DMRG, nAshT
+use qcmaquis_interface_cfg, only: qcmaquis_param
+use caspt2_global, only: iPrGlb
+use PrintLevel, only: DEBUG
+use caspt2_module, only: DMRG, nAshT
 #endif
-      use caspt2_global, only: do_grad, iStpGrd
-      use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX,            &
-     &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,      &
-     &                       NDREF, NPREF, NCMO
-      use stdalloc, only: mma_allocate
-      use ChoCASPT2, only: InfVec_N2_PT2, MaxVec_PT2, NASPlit,NISplit,  &
-     &                     NumCho_PT2
-      use spool, only: SpoolInp, Close_LuSpool
-      use Molcas, only: LenIn
-      use caspt2_module, only: nSym, Header, ifChol, jState,            &
-     &                         bName, nAsh, nBas, nIsh,                 &
-     &                         nOTri, nBasT, nBSqT, nSsh, nState
-      use constants, only: Zero
-      use definitions, only: iwp, u6
-      IMPLICIT NONE
-#include "compiler_features.h"
+use caspt2_global, only: do_grad, iStpGrd
+use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX, DWGT, CMOPT2, TAT, NTAT, TORB, NTORB, NDREF, NPREF, NCMO
+use stdalloc, only: mma_allocate
+use ChoCASPT2, only: InfVec_N2_PT2, MaxVec_PT2, NASPlit, NISplit, NumCho_PT2
+use spool, only: SpoolInp, Close_LuSpool
+use Molcas, only: LenIn
+use caspt2_module, only: nSym, Header, ifChol, jState, bName, nAsh, nBas, nIsh, nOTri, nBasT, nBSqT, nSsh, nState
+use constants, only: Zero
+use definitions, only: iwp, u6
 
-      INTEGER(kind=iwp) LuSpool
-!     Cholesky
-      Integer(kind=iwp) iSym, iRC
+implicit none
+integer(kind=iwp) LuSpool
+! Cholesky
+integer(kind=iwp) iSym, iRC
 
-      CALL SETTIM()
+call SETTIM()
 
 ! Probe the environment to globally set the IPRGLB value
-      Call Set_Print_Level()
+call Set_Print_Level()
 
-!
 ! Probe the RunFile for some basic information
-!
-      Call Get_cArray('Seward Title',Header,144)
-      Call Get_iScalar('nSym',nSym)
-      Call Get_iArray('nBas',nBas,nSym)
-      nbast=sum(nbas(1:nsym))
-      nbsqt=sum(nbas(1:nsym)**2)
-      Call Get_cArray('Unique Basis Names',bName,(LenIn+8)*nbast)
-      jstate = 1
-      Call DecideOnCholesky(IfChol)
+
+call Get_cArray('Seward Title',Header,144)
+call Get_iScalar('nSym',nSym)
+call Get_iArray('nBas',nBas,nSym)
+nbast = sum(nbas(1:nsym))
+nbsqt = sum(nbas(1:nsym)**2)
+call Get_cArray('Unique Basis Names',bName,(LenIn+8)*nbast)
+jstate = 1
+call DecideOnCholesky(IfChol)
 ! PAM Feb 2008: The following statement was moved here from
 ! prpctl, in case prpctl call is bypassed by keyword ''NOPROP''.
-      Call Put_cArray('Relax Method','CASPT2  ',8)
-!
-!     Allocate Input struct, read and process the Input
-!
-      ALLOCATE(Input)
-      LuSpool=21
-      Call SpoolInp(LuSpool)
-      CALL READIN_CASPT2(LuSpool,nSym)
-      Call Close_LuSpool(LuSpool)
+call Put_cArray('Relax Method','CASPT2  ',8)
+
+! Allocate Input struct, read and process the Input
+
+allocate(Input)
+LuSpool = 21
+call SpoolInp(LuSpool)
+call READIN_CASPT2(LuSpool,nSym)
+call Close_LuSpool(LuSpool)
 ! Initialize scratch files.
-      CALL OPNFLS_CASPT2()
+call OPNFLS_CASPT2()
 ! Initialize the reference wavefunction file and read basic info
-      Call refwfn_init(Input%FILE)
-      Call refwfn_info()
+call refwfn_init(Input%FILE)
+call refwfn_info()
 ! the input processing needs some data from the reference wavefunction
 ! to be set, hence this phase occurs after reading that data.
-      Call ProcInp_Caspt2()
-!
+call ProcInp_Caspt2()
+
 ! Allocate some arrays that will stay globally allocated:
-!
 
 ! Finally read the MO and CI data from the refwfn file, and close it as
 ! we have no more need for it and the same filename might be reused for
 ! the pt2wfn file. We do this after input processing because we need to
 ! know which roots to pick up. The MOs are stored on LUONEM, at address
 ! IAD1M(1), and the CI arrays on LUCIEX at IDCIEX.
-      Call refwfn_data()
-      Call refwfn_close()
+call refwfn_data()
+call refwfn_close()
 
 ! If necessary, make modifications to the inactive/virtual orbitals. The
 ! new MOs, if any, will overwrite the originals on LUONEM at IAD1M(1).
-      If (Input%modify_correlating_MOs) Then
-        Call correlating_orbitals()
-      End If
+if (Input%modify_correlating_MOs) call correlating_orbitals()
 
 ! After possible reconfiguration of inactives/virtuals, the computation
 ! of total sizes of orbital spaces is done here, before any other code
 ! (that might rely on these to be correctly set!)
-      Call wfnsizes()
+call wfnsizes()
 
 #ifdef _DMRG_
-      if (DMRG) then
-        ! set the lattice length (i.e. the active space size)
-        qcmaquis_param%L = nasht
-        if (iPrGlb >= DEBUG) then
-          Write(u6,*) 'PT2INI> qcmaquis_param%L = ', qcmaquis_param%L
-        end if
-      end if
+if (DMRG) then
+  ! set the lattice length (i.e. the active space size)
+  qcmaquis_param%L = nasht
+  if (iPrGlb >= DEBUG) write(u6,*) 'PT2INI> qcmaquis_param%L = ',qcmaquis_param%L
+end if
 #endif
 ! Create the PT2 wavefunction file (formerly JOBMIX). The reference file
 ! should not be active, as it might be the same file (in which case it
 ! is overwritten).
-      call pt2wfn_init()
-      call pt2wfn_data()
-!
+call pt2wfn_init()
+call pt2wfn_data()
+
 ! Global allocations active throughout the program (NOTRI was computed
 ! during the call to wfnsizes, so this is done here.)
-!
+
 ! The total fock matrix (sum of inactive and active contrib.)
-      CALL mma_allocate(FIFA,NOTRI,Label='FIFA')
+call mma_allocate(FIFA,NOTRI,Label='FIFA')
 ! The fock matrix with contributions from inactive orbitals, only.
-      CALL mma_allocate(FIMO,NOTRI,Label='FIMO')
+call mma_allocate(FIMO,NOTRI,Label='FIMO')
 ! Density matrices, active indices.
-      CALL mma_allocate(DREF,NDREF,Label='DREF')
-      CALL mma_allocate(PREF,NPREF,Label='PREF')
+call mma_allocate(DREF,NDREF,Label='DREF')
+call mma_allocate(PREF,NPREF,Label='PREF')
 ! All the density matrices kept in memory
-      CALL mma_allocate(DMIX,NDREF,NSTATE,Label='DMIX')
-      CALL mma_allocate(DWGT,NSTATE,NSTATE,Label='DWGT')
+call mma_allocate(DMIX,NDREF,NSTATE,Label='DMIX')
+call mma_allocate(DWGT,NSTATE,NSTATE,Label='DWGT')
 
 ! Print input data
-      CALL PRINP_CASPT2()
+call PRINP_CASPT2()
 
 ! INITIALIZE SPLIT-GRAPH UGA TABLES.
-      CALL SG_SETUP_CASPT2()
+call SG_SETUP_CASPT2()
 
 ! Initialize superindex tables. Check memory needs.
-      CALL SIZES()
+call SIZES()
 
 ! Initialize sizes, offsets etc used in equation solver.
-      CALL EQCTL1()
+call EQCTL1()
 
-      If (IfChol) then
-! initialize Cholesky information
-        Call Cho_X_init(irc,Zero)
-        if (irc.ne.0) then
-          Write(u6,*) 'CASPT2: Non-zero rc in Cho_X_init'
-          CALL QUIT(irc)
-        endif
-! import_ch transfers some values from Cholesky module to chocaspt2.F90
-        call import_cho(numcho_pt2,infvec_n2_pt2,maxvec_pt2)
-        Call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Allo')
-! get unit numbers for Cholesky MO vectors
-        Do iSym=1,nSym
-          Call Cho_Caspt2_OpenF(0,1,iSym,nIsplit(iSym))
-          Call Cho_Caspt2_OpenF(0,2,iSym,nAsplit(iSym))
-        End Do
-! set up size info for cholesky vector transformation in tracho2
-        call trachosz()
-      End If
+if (IfChol) then
+  ! initialize Cholesky information
+  call Cho_X_init(irc,Zero)
+  if (irc /= 0) then
+    write(u6,*) 'CASPT2: Non-zero rc in Cho_X_init'
+    call QUIT(irc)
+  end if
+  ! import_ch transfers some values from Cholesky module to chocaspt2
+  call import_cho(numcho_pt2,infvec_n2_pt2,maxvec_pt2)
+  call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Allo')
+  ! get unit numbers for Cholesky MO vectors
+  do iSym=1,nSym
+    call Cho_Caspt2_OpenF(0,1,iSym,nIsplit(iSym))
+    call Cho_Caspt2_OpenF(0,2,iSym,nAsplit(iSym))
+  end do
+  ! set up size info for cholesky vector transformation in tracho2
+  call trachosz()
+end if
 
 ! Allocate global orbital arrays:
-      CALL mma_allocate(CMOPT2,NCMO,Label='CMOPT2')
-      CMOPT2(:) = Zero
+call mma_allocate(CMOPT2,NCMO,Label='CMOPT2')
+CMOPT2(:) = Zero
 ! Allocate global orbital transformation arrays:
-      CALL mma_allocate(TORB,NTORB,Label='TORB')
-      CALL mma_allocate(TAT,NTAT,Label='TAT')
+call mma_allocate(TORB,NTORB,Label='TORB')
+call mma_allocate(TAT,NTAT,Label='TAT')
 
 ! initialize quantities for gradient calculation
-      iStpGrd = 1 !! Just in case
-      If (do_grad) Call GrdIni()
+iStpGrd = 1 !! Just in case
+if (do_grad) call GrdIni()
 
-      END SUBROUTINE PT2INI
+end subroutine PT2INI

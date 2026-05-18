@@ -16,65 +16,61 @@
 ! aware subroutines
 !***********************************************************************
 
-      SUBROUTINE PLCVEC (ALPHA,BETA,IVEC,JVEC)
-      use constants, only: Zero, One
-      use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPULCS,     &
-     &                         TIOLCS
-      use definitions, only: iwp, wp
-      IMPLICIT None
+subroutine PLCVEC(ALPHA,BETA,IVEC,JVEC)
 
-      real(kind=wp), intent(in):: Alpha, Beta
-      integer(kind=iwp), intent(in):: iVec, jVec
+use constants, only: Zero, One
+use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPULCS, TIOLCS
+use definitions, only: iwp, wp
 
-      real(kind=wp) CPU, CPU0, CPU1
-      real(kind=wp) TIO, TIO0, TIO1
-      integer(kind=iwp) iCase, iSym, lg_v1, lg_v2
-      integer(kind=iwp) NIN, NIS
+implicit none
+
+real(kind=wp), intent(in) :: Alpha, Beta
+integer(kind=iwp), intent(in) :: iVec, jVec
+real(kind=wp) CPU, CPU0, CPU1
+real(kind=wp) TIO, TIO0, TIO1
+integer(kind=iwp) iCase, iSym, lg_v1, lg_v2
+integer(kind=iwp) NIN, NIS
 
 ! |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
-      IF(BETA==One.AND.ALPHA==Zero) RETURN
+if ((BETA == One) .and. (ALPHA == Zero)) return
 
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
+call TIMING(CPU0,CPU,TIO0,TIO)
 
-      DO ICASE=1,NCASES
-        DO ISYM=1,NSYM
-          NIN=NINDEP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-          IF(NIN*NIS.EQ.0) Cycle
+do ICASE=1,NCASES
+  do ISYM=1,NSYM
+    NIN = NINDEP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    if (NIN*NIS == 0) cycle
 
-          CALL RHS_ALLO (NIN,NIS,lg_V2)
-          IF(BETA.NE.Zero.AND.ALPHA.NE.Zero) THEN
-            CALL RHS_ALLO (NIN,NIS,lg_V1)
-          END IF
+    call RHS_ALLO(NIN,NIS,lg_V2)
+    if ((BETA /= Zero) .and. (ALPHA /= Zero)) call RHS_ALLO(NIN,NIS,lg_V1)
 
-          IF(BETA.EQ.Zero.AND.ALPHA.EQ.Zero) THEN
-              CALL RHS_SCAL (NIN,NIS,lg_V2,Zero)
-          ELSE IF(BETA.NE.Zero) THEN
-            CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-            IF (ALPHA.NE.Zero) THEN
-              CALL RHS_SCAL (NIN,NIS,lg_V2,BETA)
-              CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
-              CALL RHS_DAXPY (NIN,NIS,ALPHA,lg_V1,lg_V2)
-            ELSE
-              CALL RHS_SCAL (NIN,NIS,lg_V2,BETA)
-            END IF
-          ELSE IF(ALPHA.NE.Zero) THEN
-            CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
-            CALL RHS_SCAL (NIN,NIS,lg_V2,ALPHA)
-          END IF
+    if ((BETA == Zero) .and. (ALPHA == Zero)) then
+      call RHS_SCAL(NIN,NIS,lg_V2,Zero)
+    else if (BETA /= Zero) then
+      call RHS_READ(NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
+      if (ALPHA /= Zero) then
+        call RHS_SCAL(NIN,NIS,lg_V2,BETA)
+        call RHS_READ(NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
+        call RHS_DAXPY(NIN,NIS,ALPHA,lg_V1,lg_V2)
+      else
+        call RHS_SCAL(NIN,NIS,lg_V2,BETA)
+      end if
+    else if (ALPHA /= Zero) then
+      call RHS_READ(NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
+      call RHS_SCAL(NIN,NIS,lg_V2,ALPHA)
+    end if
 
-          CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
+    call RHS_SAVE(NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
 
-          CALL RHS_FREE (lg_V2)
-          IF(BETA.NE.Zero.AND.ALPHA.NE.Zero) THEN
-            CALL RHS_FREE (lg_V1)
-          END IF
-        End Do
-      End Do
+    call RHS_FREE(lg_V2)
+    if ((BETA /= Zero) .and. (ALPHA /= Zero)) call RHS_FREE(lg_V1)
+  end do
+end do
 
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPULCS=CPULCS+(CPU1-CPU0)
-      TIOLCS=TIOLCS+(TIO1-TIO0)
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPULCS = CPULCS+(CPU1-CPU0)
+TIOLCS = TIOLCS+(TIO1-TIO0)
 
-      END SUBROUTINE PLCVEC
+end subroutine PLCVEC

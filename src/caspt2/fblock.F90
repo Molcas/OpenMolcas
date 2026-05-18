@@ -16,45 +16,46 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE FBLOCK(FIFA,NO,NI,NA,NS,FIT,FTI,FIA,FAI,FTA,FAT)
-      use definitions, only: iwp, wp
-      IMPLICIT NONE
-      INTEGER(kind=iwp), intent(in):: NO,NI,NA,NS
-      REAL(kind=wp), intent(in):: FIFA((NO*(NO+1))/2)
-      REAL(kind=wp), intent(out):: FIT(NI,NA),FIA(NI,NS),FTA(NA,NS)
-      REAL(kind=wp), intent(out):: FTI(NA,NI),FAI(NS,NI),FAT(NS,NA)
 
-      INTEGER(kind=iwp) IT,II,IA,ITTOT,IATOT,ITI,IAI,IAT
-
+subroutine FBLOCK(FIFA,NO,NI,NA,NS,FIT,FTI,FIA,FAI,FTA,FAT)
 ! Extract three rectangular submatrices FIT, FIA and FTA from the
 ! triangular matrix FIFA.
 ! SVC: add transposed submatrices to avoid complicated strides in the
 ! low-level sgm subroutines
 
-      DO IT=1,NA
-        ITTOT=NI+IT
-        DO II=1,NI
-          ITI=(ITTOT*(ITTOT-1))/2+II
-          FIT(II,IT)=FIFA(ITI)
-          FTI(IT,II)=FIFA(ITI)
-        END DO
-      END DO
-      DO IA=1,NS
-        IATOT=NI+NA+IA
-        DO II=1,NI
-          IAI=(IATOT*(IATOT-1))/2+II
-          FIA(II,IA)=FIFA(IAI)
-          FAI(IA,II)=FIFA(IAI)
-        END DO
-      END DO
-      DO IA=1,NS
-        IATOT=NI+NA+IA
-        DO IT=1,NA
-          ITTOT=NI+IT
-          IAT=(IATOT*(IATOT-1))/2+ITTOT
-          FTA(IT,IA)=FIFA(IAT)
-          FAT(IA,IT)=FIFA(IAT)
-        END DO
-      END DO
+use definitions, only: iwp, wp
 
-      END SUBROUTINE FBLOCK
+implicit none
+integer(kind=iwp), intent(in) :: NO, NI, NA, NS
+real(kind=wp), intent(in) :: FIFA((NO*(NO+1))/2)
+real(kind=wp), intent(out) :: FIT(NI,NA), FIA(NI,NS), FTA(NA,NS)
+real(kind=wp), intent(out) :: FTI(NA,NI), FAI(NS,NI), FAT(NS,NA)
+integer(kind=iwp) IT, II, IA, ITTOT, IATOT, ITI, IAI, IAT
+
+do IT=1,NA
+  ITTOT = NI+IT
+  do II=1,NI
+    ITI = (ITTOT*(ITTOT-1))/2+II
+    FIT(II,IT) = FIFA(ITI)
+    FTI(IT,II) = FIFA(ITI)
+  end do
+end do
+do IA=1,NS
+  IATOT = NI+NA+IA
+  do II=1,NI
+    IAI = (IATOT*(IATOT-1))/2+II
+    FIA(II,IA) = FIFA(IAI)
+    FAI(IA,II) = FIFA(IAI)
+  end do
+end do
+do IA=1,NS
+  IATOT = NI+NA+IA
+  do IT=1,NA
+    ITTOT = NI+IT
+    IAT = (IATOT*(IATOT-1))/2+ITTOT
+    FTA(IT,IA) = FIFA(IAT)
+    FAT(IA,IT) = FIFA(IAT)
+  end do
+end do
+
+end subroutine FBLOCK

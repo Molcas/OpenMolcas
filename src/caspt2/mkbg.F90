@@ -16,85 +16,83 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKBG(DREF,NDREF,FD)
-      use definitions, only: iwp, wp
-      use constants, only: half, two
-      use caspt2_global, only:ipea_shift
-      use caspt2_global, only:LUSBT
-      use EQSOLV, only: IDSMAT,IDBMAT
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM,NINDEP,NASH,NAES,EASUM
-      IMPLICIT NONE
 
-      INTEGER(KIND=IWP), INTENT(IN):: NDREF
-      REAL(KIND=WP), INTENT(IN):: DREF(NDREF),FD(NDREF)
+subroutine MKBG(DREF,NDREF,FD)
 
-      REAL(KIND=WP), ALLOCATABLE:: BG(:), S(:), SD(:)
-      INTEGER(KIND=IWP) ISYM,NINP,NINM,NAS,NBG,NS,IDS,IDIAG,I,IT,ITABS, &
-     &                  IX,IXABS,IBG,ID,IDISK,IDT
-      REAL(KIND=WP) VALUE
+use definitions, only: iwp, wp
+use constants, only: half, two
+use caspt2_global, only: ipea_shift
+use caspt2_global, only: LUSBT
+use EQSOLV, only: IDSMAT, IDBMAT
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: NSYM, NINDEP, NASH, NAES, EASUM
 
-!     Set up the matrix BG(t,x)
-!     Formula used:
-!     BG(t,x)= Ftx -EASUM*Dtx
+implicit none
+integer(kind=iwp), intent(in) :: NDREF
+real(kind=wp), intent(in) :: DREF(NDREF), FD(NDREF)
+real(kind=wp), allocatable :: BG(:), S(:), SD(:)
+integer(kind=iwp) ISYM, NINP, NINM, NAS, NBG, NS, IDS, IDIAG, I, IT, ITABS, IX, IXABS, IBG, ID, IDISK, IDT
+real(kind=wp) value
 
+! Set up the matrix BG(t,x)
+! Formula used:
+! BG(t,x)= Ftx -EASUM*Dtx
 
-      DO ISYM=1,NSYM
-        NINP=NINDEP(ISYM,10)
-        IF(NINP.EQ.0) CYCLE
-        NINM=NINDEP(ISYM,11)
-        NAS=NASH(ISYM)
-        NBG=(NAS*(NAS+1))/2
-        IF(NBG.GT.0) THEN
-          CALL mma_Allocate(BG,NBG,LABEL='BG')
-!GG.Nov03  Load in SD the diagonal elements of SG matrix:
-          NS=(NAS*(NAS+1))/2
-          CALL mma_allocate(S,NS,Label='S')
-          CALL mma_allocate(SD,NAS,Label='SD')
-          IDS=IDSMAT(ISYM,10)
-          CALL DDAFILE(LUSBT,2,S,NS,IDS)
-          IDIAG=0
-          DO I=1,NAS
-            IDIAG=IDIAG+I
-            SD(I)=S(IDIAG)
-          END DO
-          CALL mma_deallocate(S)
-        ENDIF
-!GG End
-        DO IT=1,NAS
-          ITABS=IT+NAES(ISYM)
-          DO IX=1,IT
-            IXABS=IX+NAES(ISYM)
-            IBG=(IT*(IT-1))/2+IX
-            ID=(ITABS*(ITABS-1))/2+IXABS
-!GG.Nov03
-            VALUE=FD(ID)-EASUM*DREF(ID)
-            IF (IT.eq.IX) THEN
-              IDT=(ITABS*(ITABS+1))/2
-              VALUE = VALUE +                                           &
-     &                ipea_shift*half*(two-DREF(IDT))*SD(IT)
-            ENDIF
-            BG(IBG)=VALUE
-!           BG(BG)=FD(ID)-EASUM*DREF(ID)
-!GG End
-          END DO
-        END DO
+do ISYM=1,NSYM
+  NINP = NINDEP(ISYM,10)
+  if (NINP == 0) cycle
+  NINM = NINDEP(ISYM,11)
+  NAS = NASH(ISYM)
+  NBG = (NAS*(NAS+1))/2
+  if (NBG > 0) then
+    call mma_Allocate(BG,NBG,LABEL='BG')
+    !GG.Nov03  Load in SD the diagonal elements of SG matrix:
+    NS = (NAS*(NAS+1))/2
+    call mma_allocate(S,NS,Label='S')
+    call mma_allocate(SD,NAS,Label='SD')
+    IDS = IDSMAT(ISYM,10)
+    call DDAFILE(LUSBT,2,S,NS,IDS)
+    IDIAG = 0
+    do I=1,NAS
+      IDIAG = IDIAG+I
+      SD(I) = S(IDIAG)
+    end do
+    call mma_deallocate(S)
+    !GG End
+  end if
+  do IT=1,NAS
+    ITABS = IT+NAES(ISYM)
+    do IX=1,IT
+      IXABS = IX+NAES(ISYM)
+      IBG = (IT*(IT-1))/2+IX
+      ID = (ITABS*(ITABS-1))/2+IXABS
+      !GG.Nov03
+      value = FD(ID)-EASUM*DREF(ID)
+      if (IT == IX) then
+        IDT = (ITABS*(ITABS+1))/2
+        value = value+ipea_shift*half*(two-DREF(IDT))*SD(IT)
+      end if
+      BG(IBG) = value
+      !BG(BG) = FD(ID)-EASUM*DREF(ID)
+      !GG End
+    end do
+  end do
 
-! Write to disk, and save size and address.
-        IF(NBG.GT.0) THEN
-         IF(NINDEP(ISYM,10).GT.0) THEN
-          IDISK=IDBMAT(ISYM,10)
-          CALL DDAFILE(LUSBT,1,BG,NBG,IDISK)
-         END IF
-         IF(NINM.GT.0.and.NINDEP(ISYM,11).GT.0) THEN
-           IDISK=IDBMAT(ISYM,11)
-           CALL DDAFILE(LUSBT,1,BG,NBG,IDISK)
-         END IF
-!GG.Nov03 DisAlloc SD
-         CALL mma_deallocate(SD)
-!GG End
-         CALL mma_deallocate(BG)
-        END IF
-      END DO
+  ! Write to disk, and save size and address.
+  if (NBG > 0) then
+    if (NINDEP(ISYM,10) > 0) then
+      IDISK = IDBMAT(ISYM,10)
+      call DDAFILE(LUSBT,1,BG,NBG,IDISK)
+    end if
+    if ((NINM > 0) .and. (NINDEP(ISYM,11) > 0)) then
+      IDISK = IDBMAT(ISYM,11)
+      call DDAFILE(LUSBT,1,BG,NBG,IDISK)
+    end if
+    !GG.Nov03 DisAlloc SD
+    call mma_deallocate(SD)
+    !GG End
+    call mma_deallocate(BG)
+  end if
+end do
 
-      END SUBROUTINE MKBG
+end subroutine MKBG

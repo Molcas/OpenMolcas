@@ -16,41 +16,41 @@
 ! UNIVERSITY OF LUND
 ! SWEDEN
 !--------------------------------------------
-      SUBROUTINE MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
+
+subroutine MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 !SVC: special routine to save the RHS array. MKRHS works in serial, so
 ! in case of a true parallel run we need to put the local array in a
 ! global array and then save that to disk in a distributed fashion.
-      use definitions, only: iwp
+
+use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-      use fake_GA, only: GA_Arrays
+use Para_Info, only: Is_Real_Par
+use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NASUP,NISUP
-      IMPLICIT None
+use caspt2_module, only: NASUP, NISUP
 
-      integer(kind=iwp), intent(in):: ICASE,ISYM,IVEC,LW
+implicit none
+integer(kind=iwp), intent(in) :: ICASE, ISYM, IVEC, LW
+integer(kind=iwp) NAS, NIS, lg_w
 
-      integer(kind=iwp) NAS, NIS, lg_w
-
-      NAS=NASUP(ISYM,ICASE)
-      NIS=NISUP(ISYM,ICASE)
-
-#ifdef _MOLCAS_MPP_
-      IF (IS_REAL_PAR()) THEN
-        CALL RHS_ALLO(NAS,NIS,lg_W)
-        CALL RHS_PUT(NAS,NIS,lg_W,GA_Arrays(LW)%A)
-      ELSE
-#endif
-        lg_W=LW
-#ifdef _MOLCAS_MPP_
-      END IF
-#endif
-
-      CALL RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
+NAS = NASUP(ISYM,ICASE)
+NIS = NISUP(ISYM,ICASE)
 
 #ifdef _MOLCAS_MPP_
-      IF (IS_REAL_PAR()) THEN
-        CALL RHS_FREE(lg_W)
-      END IF
+if (IS_REAL_PAR()) then
+  call RHS_ALLO(NAS,NIS,lg_W)
+  call RHS_PUT(NAS,NIS,lg_W,GA_Arrays(LW)%A)
+else
 #endif
-      END SUBROUTINE MKRHS_SAVE
+  lg_W = LW
+#ifdef _MOLCAS_MPP_
+end if
+#endif
+
+call RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
+
+#ifdef _MOLCAS_MPP_
+if (IS_REAL_PAR()) call RHS_FREE(lg_W)
+#endif
+
+end subroutine MKRHS_SAVE

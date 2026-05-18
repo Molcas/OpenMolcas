@@ -23,46 +23,44 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_DAXPY (NAS,NIS,ALPHA,lg_V1,lg_V2)
+subroutine RHS_DAXPY(NAS,NIS,ALPHA,lg_V1,lg_V2)
 !SVC: this routine computes product ALPHA * V1 and adds to V2
-      use definitions, only: iwp, wp
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
-      use fake_GA, only: GA_Arrays
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: NAS, NIS
-      real(kind=wp), intent(in):: ALPHA
-      integer(kind=iwp), intent(in):: lg_V1, lg_V2
 
+use definitions, only: iwp, wp
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
+use fake_GA, only: GA_Arrays
+
+implicit none
+integer(kind=iwp), intent(in) :: NAS, NIS
+real(kind=wp), intent(in) :: ALPHA
+integer(kind=iwp), intent(in) :: lg_V1, lg_V2
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=iwp) myRank,iLoV1,iHiV1,jLoV1,jHiV1,                 &
-     &                         iLoV2,iHiV2,jLoV2,jHiV2,                 &
-     &                  NV1,NV2,mV1,LDV1,mV2,LDV2
+integer(kind=iwp) myRank, iLoV1, iHiV1, jLoV1, jHiV1, iLoV2, iHiV2, jLoV2, jHiV2, NV1, NV2, mV1, LDV1, mV2, LDV2
 
-      IF (Is_Real_Par()) THEN
-        myRank = GA_NodeID()
-        CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-        CALL GA_Distribution (lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
-        IF (iLoV1.NE.0.AND.iLoV2.NE.0) THEN
-          NV1=(iHiV1-iLoV1+1)*(jHiV1-jLoV1+1)
-          NV2=(iHiV2-iLoV2+1)*(jHiV2-jLoV2+1)
-          IF (NV1.NE.NV2) CALL AbEnd()
-          CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-          CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-          ! V2 <- alpha*V1 + V2
-          CALL DAXPY_(NV1,ALPHA,DBL_MB(mV1),1,DBL_MB(mV2),1)
-          CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
-          CALL GA_Release (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-        END IF
-      ELSE
+if (Is_Real_Par()) then
+  myRank = GA_NodeID()
+  call GA_Distribution(lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
+  call GA_Distribution(lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
+  if ((iLoV1 /= 0) .and. (iLoV2 /= 0)) then
+    NV1 = (iHiV1-iLoV1+1)*(jHiV1-jLoV1+1)
+    NV2 = (iHiV2-iLoV2+1)*(jHiV2-jLoV2+1)
+    if (NV1 /= NV2) call AbEnd()
+    call GA_Access(lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
+    call GA_Access(lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
+    ! V2 <- alpha*V1 + V2
+    call DAXPY_(NV1,ALPHA,DBL_MB(mV1),1,DBL_MB(mV2),1)
+    call GA_Release_Update(lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
+    call GA_Release(lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
+  end if
+else
 #endif
-        CALL DAXPY_(NAS*NIS,ALPHA,GA_Arrays(lg_V1)%A,1,                 &
-     &                            GA_Arrays(lg_V2)%A,1)
+  call DAXPY_(NAS*NIS,ALPHA,GA_Arrays(lg_V1)%A,1,GA_Arrays(lg_V2)%A,1)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END SUBROUTINE RHS_DAXPY
+end subroutine RHS_DAXPY

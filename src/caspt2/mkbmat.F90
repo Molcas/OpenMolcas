@@ -16,74 +16,76 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKBMAT()
-      use definitions, only: iwp, wp, Byte, u6
-      use caspt2_global, only:iPrGlb
-      use PrintLevel, only: DEBUG, VERBOSE
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_global, only: DREF, PREF
-      use caspt2_global, only: LUSOLV
-      use caspt2_module, only: NASHT
-      use caspt2_module, only: NG1, NG2, NG3
-      IMPLICIT NONE
+
+subroutine MKBMAT()
 ! Set up B matrices for cases 1..13.
 
-      INTEGER(kind=Byte), ALLOCATABLE :: idxG3(:,:)
-      real(kind=wp), ALLOCATABLE:: F1(:), F2(:), F3(:), FD(:), FP(:)
-      INTEGER(kind=iwp) iLUID
+use definitions, only: iwp, wp, Byte, u6
+use caspt2_global, only: iPrGlb
+use PrintLevel, only: DEBUG, VERBOSE
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_global, only: DREF, PREF
+use caspt2_global, only: LUSOLV
+use caspt2_module, only: NASHT
+use caspt2_module, only: NG1, NG2, NG3
 
-      IF(IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,*)
-        WRITE(6,*)' Construct B matrices'
-      END IF
+implicit none
+integer(kind=Byte), allocatable :: idxG3(:,:)
+real(kind=wp), allocatable :: F1(:), F2(:), F3(:), FD(:), FP(:)
+integer(kind=iwp) iLUID
 
-      IF(NASHT/=0) THEN
+if (IPRGLB >= VERBOSE) then
+  write(6,*)
+  write(6,*) ' Construct B matrices'
+end if
 
-      CALL mma_allocate(F1,NG1,Label='F1')
-      CALL PT2_GET(NG1,'DELTA1',F1)
+if (NASHT /= 0) then
 
-      CALL mma_allocate(FD,SIZE(DREF),Label='FD')
-      CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
+  call mma_allocate(F1,NG1,Label='F1')
+  call PT2_GET(NG1,'DELTA1',F1)
 
-      CALL mma_deallocate(F1)
+  call mma_allocate(FD,size(DREF),Label='FD')
+  call MKDREF_RPT2(NASHT,F1,FD,size(DREF))
 
-      CALL mma_allocate(F2,NG2,Label='F2')
-      CALL PT2_GET(NG2,'DELTA2',F2)
+  call mma_deallocate(F1)
 
-      CALL mma_allocate(FP,SIZE(PREF),Label='FP')
-      CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
+  call mma_allocate(F2,NG2,Label='F2')
+  call PT2_GET(NG2,'DELTA2',F2)
 
-      CALL mma_deallocate(F2)
+  call mma_allocate(FP,size(PREF),Label='FP')
+  call MKPREF_RPT2(NASHT,F2,FP,size(PREF))
 
-      CALL mma_allocate(F3,NG3,Label='F3')
-      CALL PT2_GET(NG3,'DELTA3',F3)
+  call mma_deallocate(F2)
 
-      IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(u6,'("DEBUG> ",A)') 'CASE SYM B-MATRIX NORM'
-        WRITE(u6,'("DEBUG> ",A)') '==== === ============='
-      END IF
+  call mma_allocate(F3,NG3,Label='F3')
+  call PT2_GET(NG3,'DELTA3',F3)
 
-      CALL mma_allocate(idxG3,6,NG3,label='idxG3')
-      iLUID=0
-      CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
+  if (IPRGLB >= DEBUG) then
+    write(u6,'("DEBUG> ",A)') 'CASE SYM B-MATRIX NORM'
+    write(u6,'("DEBUG> ",A)') '==== === ============='
+  end if
 
-      CALL MKBA(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
-      CALL MKBC(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
+  call mma_allocate(idxG3,6,NG3,label='idxG3')
+  iLUID = 0
+  call I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-      CALL mma_deallocate(F3)
-      CALL mma_deallocate(idxG3)
+  call MKBA(DREF,size(DREF),PREF,size(PREF),FD,FP,NG3,F3,idxG3)
+  call MKBC(DREF,size(DREF),PREF,size(PREF),FD,FP,NG3,F3,idxG3)
 
-      CALL MKBB(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
-      CALL MKBD(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
-      CALL MKBE(DREF,SIZE(DREF),FD)
-      CALL MKBF(DREF,SIZE(DREF),PREF,SIZE(PREF),FP)
-      CALL MKBG(DREF,SIZE(DREF),FD)
+  call mma_deallocate(F3)
+  call mma_deallocate(idxG3)
 
-      CALL mma_deallocate(FP)
-      CALL mma_deallocate(FD)
+  call MKBB(DREF,size(DREF),PREF,size(PREF),FD,FP)
+  call MKBD(DREF,size(DREF),PREF,size(PREF),FD,FP)
+  call MKBE(DREF,size(DREF),FD)
+  call MKBF(DREF,size(DREF),PREF,size(PREF),FP)
+  call MKBG(DREF,size(DREF),FD)
 
-      END IF
+  call mma_deallocate(FP)
+  call mma_deallocate(FD)
 
-      CALL MKBH()
+end if
 
-      END SUBROUTINE MKBMAT
+call MKBH()
+
+end subroutine MKBMAT

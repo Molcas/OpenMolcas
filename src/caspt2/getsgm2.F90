@@ -16,20 +16,8 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
-      use Symmetry_Info, only: Mul
-      use sguga, only:  SGS, CIS, EXS
-      use constants, only: Zero, One
-      use definitions, only: iwp, wp, u6
-      IMPLICIT None
 
-
-      Integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI, nCI, MSGM
-      Real(kind=wp), Intent(In) ::  CI(nCI)
-      Real(kind=wp), Intent(inOut)::  SGM(MSGM)
-
-      Integer(kind=iwp) IS, JS, IJS, ISSG, NSGM
-
+subroutine GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
 ! GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI
 ! ILEV,JLEV ARE IN PRINCIPLE ACTIVE ORBITAL NUMBERS, BUT POSSIBLY
 ! IN ANOTHER ORDER THAN THE USUAL ONE -- HERE WE USE THE ORDER
@@ -43,18 +31,29 @@
 ! GETSGM2(ILEV,JLEV,CI,SGM)!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      SGM(1:MSGM)=Zero
-      IS=SGS%ISM(ILEV)
-      JS=SGS%ISM(JLEV)
-      IJS=Mul(IS,JS)
-      ISSG=Mul(IJS,ISYCI)
-      NSGM=CIS%NCSF(ISSG)
-      If (NSGM>MSGM) THEN
-         Write (u6,*) 'GETSGM2: NSGM>MSGM'
-         Call Abend()
-      End If
-      IF(NSGM.EQ.0) RETURN
+use Symmetry_Info, only: Mul
+use sguga, only: SGS, CIS, EXS
+use constants, only: Zero, One
+use definitions, only: iwp, wp, u6
 
-      CALL SG_Epq_Psi(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
+implicit none
+integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI, nCI, MSGM
+real(kind=wp), intent(in) :: CI(nCI)
+real(kind=wp), intent(inout) :: SGM(MSGM)
+integer(kind=iwp) IS, JS, IJS, ISSG, NSGM
 
-      END SUBROUTINE GETSGM2
+SGM(1:MSGM) = Zero
+IS = SGS%ISM(ILEV)
+JS = SGS%ISM(JLEV)
+IJS = Mul(IS,JS)
+ISSG = Mul(IJS,ISYCI)
+NSGM = CIS%NCSF(ISSG)
+if (NSGM > MSGM) then
+  write(u6,*) 'GETSGM2: NSGM>MSGM'
+  call Abend()
+end if
+if (NSGM == 0) return
+
+call SG_Epq_Psi(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
+
+end subroutine GETSGM2

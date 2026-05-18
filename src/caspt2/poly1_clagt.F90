@@ -11,47 +11,43 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-      SUBROUTINE POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
-      use sguga, only: SGS
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp, iwp
-      use caspt2_module, only: nConf
-      use caspt2_module, only: MxCI, iAdr10, cLab10
-
-      IMPLICIT NONE
+subroutine POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
 ! PER-AAKE MALMQUIST, 92-12-07
 ! THIS PROGRAM CALCULATES THE 1-EL DENSITY
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
 
-      real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), RDMEIG(*),   &
-     &                             Scal
-      real(kind=wp), intent(inout) :: CLag1(*), CLag2(*)
+use sguga, only: SGS
+use stdalloc, only: mma_allocate, mma_deallocate
+use definitions, only: wp, iwp
+use caspt2_module, only: nConf
+use caspt2_module, only: MxCI, iAdr10, cLab10
 
-      real(kind=wp),allocatable :: SGM1(:)
-      integer(kind=iwp) :: nLev, I
+implicit none
+real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), RDMEIG(*), Scal
+real(kind=wp), intent(inout) :: CLag1(*), CLag2(*)
+real(kind=wp), allocatable :: SGM1(:)
+integer(kind=iwp) :: nLev, I
 
-      nLev = SGS%nLev
+nLev = SGS%nLev
 
-      IF(NLEV > 0) THEN
-        call mma_allocate(SGM1,MXCI,Label='SGM1')
-        CALL DENS1T_RPT2_CLag(CI1,CI2,SGM1,                             &
-     &                        CLag1,CLag2,RDMEIG,Scal,nLev)
-      END IF
+if (NLEV > 0) then
+  call mma_allocate(SGM1,MXCI,Label='SGM1')
+  call DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,Scal,nLev)
+end if
 
 ! REINITIALIZE USE OF DMAT.
-! The fields IADR10 and CLAB10 are kept in caspt2_module.F90
+! The fields IADR10 and CLAB10 are kept in caspt2_module
 ! CLAB10 replaces older field called LABEL.
-      DO I=1,64
-        IADR10(I,1)=-1
-        IADR10(I,2)=0
-        CLAB10(I)='   EMPTY'
-      END DO
-      IADR10(1,1)=0
+do I=1,64
+  IADR10(I,1) = -1
+  IADR10(I,2) = 0
+  CLAB10(I) = '   EMPTY'
+end do
+IADR10(1,1) = 0
 ! HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
 ! ARRAY ON LUDMAT AND UPDATE THE TOC.
-      IF(NLEV > 0) THEN
-        call mma_deallocate(SGM1)
-      END IF
+if (NLEV > 0) call mma_deallocate(SGM1)
 
-      RETURN
-      end subroutine POLY1_CLagT
+return
+
+end subroutine POLY1_CLagT

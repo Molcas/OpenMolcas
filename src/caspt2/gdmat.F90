@@ -8,19 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,nCMO,OCC,nOCC,        &
-     &                 GDAO,nGDAO)
-      use constants, only: Zero
-      use definitions, only: wp, iwp
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: NSYM, nCMO,nOcc,nGDAO
-      real(kind=wp), intent(in):: CNAT(nCMO),OCC(nOcc)
-      real(kind=wp), intent(out):: GDAO(nGDAO)
-      integer(kind=iwp), intent(in):: ISTART(NSYM),NUSE(NSYM),NBAS(NSYM)
 
-      integer(kind=iwp) IOEND, ICEND, IDAB, ISYM, NB, NW, IW1, IW2, IA, &
-     &                  IB, IW
-      real(kind=wp) DAB
+subroutine GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,nCMO,OCC,nOCC,GDAO,nGDAO)
 ! General density matrix, in the sense of using a specified
 ! but arbitrary range of orbitals in each symmetry, and an
 ! occupation number.
@@ -47,33 +36,44 @@
 ! are defined within symmetry blocks.
 ! The symmetry blocks of D are then stored triangularly
 ! after each other in the array GDAO.
-      IOEND=0
-      ICEND=0
-      IDAB=0
-      DO ISYM=1,NSYM
-       NB=NBAS(ISYM)
-       IF (NB<1) CYCLE
-       CALL DCOPY_( (NB*(NB+1))/2,[Zero],0,GDAO(IDAB+1),1)
-       NW=NUSE(ISYM)
-       IF(NW.GT.0) THEN
-        IW1=ISTART(ISYM)
-        IW2=IW1-1+NW
-        DO IA=1,NB
-         DO IB=1,IA
-          IDAB=IDAB+1
-          DAB=GDAO(IDAB)
-          DO IW=IW1,IW2
-            DAB=DAB+OCC(IOEND+IW)*CNAT(ICEND+IA+NB*(IW-1))*             &
-     &                           CNAT(ICEND+IB+NB*(IW-1))
-          END DO
-          GDAO(IDAB)=DAB
-         END DO
-        END DO
-       ELSE
-        IDAB=IDAB+(NB*(NB+1))/2
-       END IF
-       IOEND=IOEND+NB
-       ICEND=ICEND+NB**2
-      END DO
 
-      END SUBROUTINE GDMAT
+use constants, only: Zero
+use definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: NSYM, nCMO, nOcc, nGDAO
+real(kind=wp), intent(in) :: CNAT(nCMO), OCC(nOcc)
+real(kind=wp), intent(out) :: GDAO(nGDAO)
+integer(kind=iwp), intent(in) :: ISTART(NSYM), NUSE(NSYM), NBAS(NSYM)
+integer(kind=iwp) IOEND, ICEND, IDAB, ISYM, NB, NW, IW1, IW2, IA, IB, IW
+real(kind=wp) DAB
+
+IOEND = 0
+ICEND = 0
+IDAB = 0
+do ISYM=1,NSYM
+  NB = NBAS(ISYM)
+  if (NB < 1) cycle
+  call DCOPY_((NB*(NB+1))/2,[Zero],0,GDAO(IDAB+1),1)
+  NW = NUSE(ISYM)
+  if (NW > 0) then
+    IW1 = ISTART(ISYM)
+    IW2 = IW1-1+NW
+    do IA=1,NB
+      do IB=1,IA
+        IDAB = IDAB+1
+        DAB = GDAO(IDAB)
+        do IW=IW1,IW2
+          DAB = DAB+OCC(IOEND+IW)*CNAT(ICEND+IA+NB*(IW-1))*CNAT(ICEND+IB+NB*(IW-1))
+        end do
+        GDAO(IDAB) = DAB
+      end do
+    end do
+  else
+    IDAB = IDAB+(NB*(NB+1))/2
+  end if
+  IOEND = IOEND+NB
+  ICEND = ICEND+NB**2
+end do
+
+end subroutine GDMAT

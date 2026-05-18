@@ -29,72 +29,71 @@
 !> Potential shifts and modification of \f$ H_0 \f$ are considered
 !> in ::rhs_resdia
 !>
-!> @param[in]     IVEC   Vector position to which the res is applied
+!> @param[in]    IVEC   Vector position to which the res is applied
 !> @param[in]    JVEC   Vector position where the result is saved
-!> @param[out]     OVLAPS Array containing the overlaps
-      SUBROUTINE PRESDIA(IVEC,JVEC,OVLAPS)
-      use caspt2_global, only: LUSBT
-      use EQSOLV, only: IDBMAT
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nISup, nASup, nInDep, MxCase, nSym
-      use constants, only: Zero
-      use definitions, only: iwp, wp
-      IMPLICIT NONE
+!> @param[out]   OVLAPS Array containing the overlaps
 
+subroutine PRESDIA(IVEC,JVEC,OVLAPS)
 
-      INTEGER(kind=iwp), intent(in):: IVEC,JVEC
-      REAL(kind=wp), intent(inout):: OVLAPS(0:8,0:MXCASE)
+use caspt2_global, only: LUSBT
+use EQSOLV, only: IDBMAT
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: nISup, nASup, nInDep, MxCase, nSym
+use constants, only: Zero
+use definitions, only: iwp, wp
 
-      INTEGER(kind=iwp) ICASE,ISYM
-      INTEGER(kind=iwp) NAS,NIS,NIN
-      INTEGER(kind=iwp) lg_V
-      INTEGER(kind=iwp) JD
-
-      REAL(kind=wp) OVL,DOVL,OVLSUM,OVLTOT
-      REAL(kind=wp), ALLOCATABLE:: BD(:), ID(:)
+implicit none
+integer(kind=iwp), intent(in) :: IVEC, JVEC
+real(kind=wp), intent(inout) :: OVLAPS(0:8,0:MXCASE)
+integer(kind=iwp) ICASE, ISYM
+integer(kind=iwp) NAS, NIS, NIN
+integer(kind=iwp) lg_V
+integer(kind=iwp) JD
+real(kind=wp) OVL, DOVL, OVLSUM, OVLTOT
+real(kind=wp), allocatable :: BD(:), ID(:)
 
 ! Apply the resolvent of the diagonal part of H0 to a coefficient
 ! vector in vector nr. IVEC on LUSOLV. Put the results in vector
 ! nr. JVEC. Also compute overlaps, see OVLVEC for structure.
 
-      OVLTOT=Zero
-      OVLAPS(:,:)=Zero
+OVLTOT = Zero
+OVLAPS(:,:) = Zero
 
-      DO ICASE=1,13
-        OVLSUM=Zero
-        DO ISYM=1,NSYM
-          OVL=Zero
-          NIN=NINDEP(ISYM,ICASE)
-          IF (NIN<=0) CYCLE
-          NAS=NASUP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-! Remember: NIN values in BDIAG, but must read NAS for correct
-! positioning.
-          CALL mma_allocate(BD,NAS,LABEL='BD')
-          CALL mma_allocate(ID,NIS,LABEL='ID')
+do ICASE=1,13
+  OVLSUM = Zero
+  do ISYM=1,NSYM
+    OVL = Zero
+    NIN = NINDEP(ISYM,ICASE)
+    if (NIN <= 0) cycle
+    NAS = NASUP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    ! Remember: NIN values in BDIAG, but must read NAS for correct
+    ! positioning.
+    call mma_allocate(BD,NAS,LABEL='BD')
+    call mma_allocate(ID,NIS,LABEL='ID')
 
-!         Read the B matrix of each case
-          JD=IDBMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,BD,NAS,JD)
-          CALL DDAFILE(LUSBT,2,ID,NIS,JD)
+    ! Read the B matrix of each case
+    JD = IDBMAT(ISYM,ICASE)
+    call DDAFILE(LUSBT,2,BD,NAS,JD)
+    call DDAFILE(LUSBT,2,ID,NIS,JD)
 
-          CALL RHS_ALLO(NIN,NIS,lg_V)
-          CALL RHS_READ(NIN,NIS,lg_V,ICASE,ISYM,IVEC)
-          CALL RHS_RESDIA(NIN,NIS,lg_V,BD,ID,DOVL)
+    call RHS_ALLO(NIN,NIS,lg_V)
+    call RHS_READ(NIN,NIS,lg_V,ICASE,ISYM,IVEC)
+    call RHS_RESDIA(NIN,NIS,lg_V,BD,ID,DOVL)
 
-          OVL=OVL+DOVL
+    OVL = OVL+DOVL
 
-          CALL RHS_SAVE(NIN,NIS,lg_V,ICASE,ISYM,JVEC)
-          CALL RHS_FREE(lg_V)
+    call RHS_SAVE(NIN,NIS,lg_V,ICASE,ISYM,JVEC)
+    call RHS_FREE(lg_V)
 
-          CALL mma_deallocate(BD)
-          CALL mma_deallocate(ID)
-          OVLAPS(ISYM,0)=OVLAPS(ISYM,0)+OVL
-          OVLSUM=OVLSUM+OVL
-        End Do
-        OVLAPS(0,ICASE)=OVLSUM
-        OVLTOT=OVLTOT+OVLSUM
-      End Do
-      OVLAPS(0,0)=OVLTOT
+    call mma_deallocate(BD)
+    call mma_deallocate(ID)
+    OVLAPS(ISYM,0) = OVLAPS(ISYM,0)+OVL
+    OVLSUM = OVLSUM+OVL
+  end do
+  OVLAPS(0,ICASE) = OVLSUM
+  OVLTOT = OVLTOT+OVLSUM
+end do
+OVLAPS(0,0) = OVLTOT
 
-      END SUBROUTINE PRESDIA
+end subroutine PRESDIA

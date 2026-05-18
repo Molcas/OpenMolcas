@@ -16,33 +16,36 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE SPEC1C(IFC,FACT,ISYM,X,nX,Y,nY)
-      USE SUPERINDEX, only: KTUV
-      use caspt2_module, only: nTUV, nAsh, nAES, nTUVES, nAshT, nSsh
-      use definitions, only: iwp, wp
-      IMPLICIT NONE
-      INTEGER(kind=iwp), intent(in):: IFC,ISYM, nX, nY
-      REAL(kind=wp), intent(in):: FACT
-      REAL(kind=wp), intent(inout):: X(nX),Y(nY)
 
-      INTEGER(kind=iwp) NAS,NT,NA,IT,ITQ,IUQ,ITUU
+subroutine SPEC1C(IFC,FACT,ISYM,X,nX,Y,nY)
 ! If IFC=0, compute
 ! X(tuu,a) <- X(tuu,a)+FACT*Y(t,a), else
 ! the conjugate expression (summing into Y, values from X).
 
-      NA=NSSH(ISYM)
-      IF (NA<=0) RETURN
-      NAS=NTUV(ISYM)
-      NT=NASH(ISYM)
-      DO IT=1,NT
-        ITQ=IT+NAES(ISYM)
-        DO IUQ=1,NASHT
-          ITUU=KTUV(ITQ,IUQ,IUQ)-NTUVES(ISYM)
-          IF(IFC==0) THEN
-            CALL DAXPY_(NA,FACT,Y(IT),NT,X(ITUU),NAS)
-          ELSE
-            CALL DAXPY_(NA,FACT,X(ITUU),NAS,Y(IT),NT)
-          END IF
-        END DO
-      END DO
-      END SUBROUTINE SPEC1C
+use SUPERINDEX, only: KTUV
+use caspt2_module, only: nTUV, nAsh, nAES, nTUVES, nAshT, nSsh
+use definitions, only: iwp, wp
+
+implicit none
+integer(kind=iwp), intent(in) :: IFC, ISYM, nX, nY
+real(kind=wp), intent(in) :: FACT
+real(kind=wp), intent(inout) :: X(nX), Y(nY)
+integer(kind=iwp) NAS, NT, NA, IT, ITQ, IUQ, ITUU
+
+NA = NSSH(ISYM)
+if (NA <= 0) return
+NAS = NTUV(ISYM)
+NT = NASH(ISYM)
+do IT=1,NT
+  ITQ = IT+NAES(ISYM)
+  do IUQ=1,NASHT
+    ITUU = KTUV(ITQ,IUQ,IUQ)-NTUVES(ISYM)
+    if (IFC == 0) then
+      call DAXPY_(NA,FACT,Y(IT),NT,X(ITUU),NAS)
+    else
+      call DAXPY_(NA,FACT,X(ITUU),NAS,Y(IT),NT)
+    end if
+  end do
+end do
+
+end subroutine SPEC1C

@@ -22,37 +22,35 @@
 ! number referring to the case, symmetry, and RHS vector respectively,
 ! and are loaded onto a global array when needed.
 !***********************************************************************
-      subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs)
 
-      use caspt2_global, only: imag_shift, real_shift,                  &
-     &                         sigma_p_epsilon, sigma_p_exponent
-      use definitions, only: wp, iwp
+subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs)
 
-      implicit none
+use caspt2_global, only: imag_shift, real_shift, sigma_p_epsilon, sigma_p_exponent
+use definitions, only: wp, iwp
 
-      integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W(LDW,nCol)
-      real(kind=wp),     intent(in)    :: dIn(nRow), dIs(nCol)
+implicit none
+integer(kind=iwp), intent(in) :: nRow, nCol, LDW
+real(kind=wp), intent(inout) :: W(LDW,nCol)
+real(kind=wp), intent(in) :: dIn(nRow), dIs(nCol)
+integer(kind=iwp) :: i, j, p
+real(kind=wp) :: delta, sigma, epsilon
 
-      integer(kind=iwp)                :: i, j, p
-      real(kind=wp)                    :: delta, sigma, epsilon
+do j=1,nCol
+  do i=1,nRow
+    ! energy denominator plus real shift
+    delta = dIn(i)+dIs(j)+real_shift
+    ! add the imaginary shift
+    delta = delta+imag_shift**2/delta
+    ! multiply by sigma-p regularizer
+    epsilon = sigma_p_epsilon
+    p = sigma_p_exponent
+    if (epsilon > 0.0_wp) then
+      sigma = 1.0_wp/epsilon**p
+      delta = delta/(1.0_wp-exp(-sigma*abs(delta)**p))
+    end if
 
-      do j = 1,nCol
-        do i = 1,nRow
-          ! energy denominator plus real shift
-          delta = dIn(i) + dIs(j) + real_shift
-          ! add the imaginary shift
-          delta = delta + imag_shift**2/delta
-          ! multiply by sigma-p regularizer
-          epsilon = sigma_p_epsilon
-          p = sigma_p_exponent
-          if (epsilon > 0.0_wp) then
-            sigma = 1.0_wp/epsilon**p
-            delta = delta/(1.0_wp - exp(-sigma * abs(delta)**p))
-          end if
+    W(i,j) = delta*W(i,j)
+  end do
+end do
 
-          W(i,j) = delta * W(i,j)
-        end do
-      end do
-
-      end subroutine sgmdia
+end subroutine sgmdia

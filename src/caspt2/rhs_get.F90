@@ -23,48 +23,50 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_GET (NAS,NIS,lg_W,W)
-      use definitions, only: iwp, wp
+subroutine RHS_GET(NAS,NIS,lg_W,W)
+
+use definitions, only: iwp, wp
 !SVC: this routine copies a global array to a local buffer
 #ifdef _MOLCAS_MPP_
-      use definitions, only: u6
-      USE Para_Info, ONLY: Is_Real_Par
+use definitions, only: u6
+use Para_Info, only: Is_Real_Par
 #endif
-      use fake_GA, only: GA_Arrays
-      IMPLICIT None
-      integer(kind=iwp), Intent(In):: NAS,NIS,lg_W
-      real(kind=wp), Intent(Out):: W(NAS*NIS)
+use fake_GA, only: GA_Arrays
+
+implicit none
+integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
+real(kind=wp), intent(out) :: W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=iwp) MAX_MESG_SIZE, NIS_BATCH, NIS_STA, NIS_END, IOFF
+integer(kind=iwp) MAX_MESG_SIZE, NIS_BATCH, NIS_STA, NIS_END, IOFF
 
-      IF (Is_Real_Par()) THEN
-! SVC: when the _total_ size of a message exceeds 2**31-1 _bytes_,
-! some implementations (e.g. MPICH, and thus also Intel MPI) fail.
-! If this is the case, chop up the largest dimension and perform the
-! GA_Get in batches smaller than 2**31-1 bytes (I took 2**30).
-        MAX_MESG_SIZE = 2**27
-        IF (NAS*NIS.GT.MAX_MESG_SIZE) THEN
-          NIS_BATCH = MAX_MESG_SIZE / NAS
-          IF (NIS_BATCH.EQ.0) THEN
-            WRITE(u6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
-            WRITE(u6,'(1X,I12,A,I12)') NAS, ' > ', MAX_MESG_SIZE
-            CALL AbEnd()
-          END IF
-          DO NIS_STA=1,NIS,NIS_BATCH
-            NIS_END=MIN(NIS_STA+NIS_BATCH-1,NIS)
-            IOFF=NAS*(NIS_STA-1)+1
-            CALL GA_Get (lg_W,1,NAS,NIS_STA,NIS_END,W(IOFF),NAS)
-          END DO
-        ELSE
-          CALL GA_Get (lg_W,1,NAS,1,NIS,W,NAS)
-        END IF
-      ELSE
+if (Is_Real_Par()) then
+  ! SVC: when the _total_ size of a message exceeds 2**31-1 _bytes_,
+  ! some implementations (e.g. MPICH, and thus also Intel MPI) fail.
+  ! If this is the case, chop up the largest dimension and perform the
+  ! GA_Get in batches smaller than 2**31-1 bytes (I took 2**30).
+  MAX_MESG_SIZE = 2**27
+  if (NAS*NIS > MAX_MESG_SIZE) then
+    NIS_BATCH = MAX_MESG_SIZE/NAS
+    if (NIS_BATCH == 0) then
+      write(u6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
+      write(u6,'(1X,I12,A,I12)') NAS,' > ',MAX_MESG_SIZE
+      call AbEnd()
+    end if
+    do NIS_STA=1,NIS,NIS_BATCH
+      NIS_END = min(NIS_STA+NIS_BATCH-1,NIS)
+      IOFF = NAS*(NIS_STA-1)+1
+      call GA_Get(lg_W,1,NAS,NIS_STA,NIS_END,W(IOFF),NAS)
+    end do
+  else
+    call GA_Get(lg_W,1,NAS,1,NIS,W,NAS)
+  end if
+else
 #endif
-        CALL DCOPY_(NAS*NIS,GA_Arrays(lg_W)%A,1,W,1)
+  call DCOPY_(NAS*NIS,GA_Arrays(lg_W)%A,1,W,1)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END SUBROUTINE RHS_GET
+end subroutine RHS_GET

@@ -16,26 +16,31 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      Subroutine MKSH()
-      use caspt2_module, only: NSYM, NINDEP
-      use caspt2_global, only: LUSBT
-      use EQSOLV, only: IDSMAT
-      use constants, only: One
-      use definitions, only: iwp, wp
-      Implicit none
-      real(kind=wp) Dum(1)
-      integer(kind=iwp) ISYM,ICASE,IDISK,NIN
+
+subroutine MKSH()
 ! For completeness, even case H has formally S and B
 ! matrices. This costs nothing, and saves conditional
 ! looping, etc in the rest  of the routines.
-      DUM(1)=One
-      DO ISYM=1,NSYM
-        DO ICASE=12,13
-          NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.GT.0) THEN
-            IDISK=IDSMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,1,DUM,1,IDISK)
-          END IF
-        END DO
-      END DO
-      End Subroutine MKSH
+
+use caspt2_module, only: NSYM, NINDEP
+use caspt2_global, only: LUSBT
+use EQSOLV, only: IDSMAT
+use constants, only: One
+use definitions, only: iwp, wp
+
+implicit none
+real(kind=wp) Dum(1)
+integer(kind=iwp) ISYM, ICASE, IDISK, NIN
+
+DUM(1) = One
+do ISYM=1,NSYM
+  do ICASE=12,13
+    NIN = NINDEP(ISYM,ICASE)
+    if (NIN > 0) then
+      IDISK = IDSMAT(ISYM,ICASE)
+      call DDAFILE(LUSBT,1,DUM,1,IDISK)
+    end if
+  end do
+end do
+
+end subroutine MKSH

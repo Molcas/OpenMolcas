@@ -23,13 +23,17 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_READ_C (lg_W,iCASE,iSYM,iVEC)
-      use definitions, only: iwp
-      use caspt2_module, only: NASUP, NISUP
-      IMPLICIT None
-      integer(kind=iwp), Intent(In):: lg_W,iCASE,iSYM,iVEC
-      integer(kind=iwp) NAS,NIS
-      NAS=NASUP(ISYM,ICASE)
-      NIS=NISUP(ISYM,ICASE)
-      CALL RHS_READ (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
-      END SUBROUTINE RHS_READ_C
+subroutine RHS_READ_C(lg_W,iCASE,iSYM,iVEC)
+
+use definitions, only: iwp
+use caspt2_module, only: NASUP, NISUP
+
+implicit none
+integer(kind=iwp), intent(in) :: lg_W, iCASE, iSYM, iVEC
+integer(kind=iwp) NAS, NIS
+
+NAS = NASUP(ISYM,ICASE)
+NIS = NISUP(ISYM,ICASE)
+call RHS_READ(NAS,NIS,lg_W,ICASE,ISYM,IVEC)
+
+end subroutine RHS_READ_C

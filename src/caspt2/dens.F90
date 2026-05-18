@@ -16,1064 +16,979 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF,U0)
-      USE CHOVEC_IO, only: nvloc_chobatch
-      use caspt2_global, only: iPrGlb
-      use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
-      use caspt2_global, only: do_grad, do_csf, if_invar, iRoot1,       &
-     &                         iRoot2, nOLag, if_invaria, if_SSDM,      &
-     &                         CLag,CLagFull,OLag,SLag,                 &
-     &                         DPT2_tot,DPT2C_tot,DPT2_AO_tot,          &
-     &                         DPT2C_AO_tot,DPT2Canti_tot,FIMO_all,     &
-     &                         FIFA_all,OMGDER,jStLag,Weight
-      use caspt2_global, only: FIMO, FIFA
-      use caspt2_global, only: DREF, DMIX, CMOPT2, TORB, NDREF
-      use caspt2_global, only: IDCIEX, IDTCEX
-      use PrintLevel, only: DEBUG, VERBOSE
+
+subroutine DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF,U0)
+
+use CHOVEC_IO, only: nvloc_chobatch
+use caspt2_global, only: iPrGlb
+use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
+use caspt2_global, only: do_grad, do_csf, if_invar, iRoot1, iRoot2, nOLag, if_invaria, if_SSDM, CLag, CLagFull, OLag, SLag, &
+                         DPT2_tot, DPT2C_tot, DPT2_AO_tot, DPT2C_AO_tot, DPT2Canti_tot, FIMO_all, FIFA_all, OMGDER, jStLag, Weight
+use caspt2_global, only: FIMO, FIFA
+use caspt2_global, only: DREF, DMIX, CMOPT2, TORB, NDREF
+use caspt2_global, only: IDCIEX, IDTCEX
+use PrintLevel, only: DEBUG, VERBOSE
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-      use caspt2_global, only: nCLag
+use Para_Info, only: Is_Real_Par, King
+use caspt2_global, only: nCLag
 #endif
-      use EQSOLV, only: IVECX, IVECR, IVECC2
-      use ChoCASPT2, only: NumCho_PT2, iALGO, MaxVec_PT2
-      use stdalloc, only: mma_allocate,mma_deallocate
-      use definitions, only: wp, iwp, u6
-      use caspt2_module, only: IfChol, IFDENS, IFMSCOUP, IFDW, IFSADREF,&
-     &                         MAXIT, NSYM, NCONF, NFROT, NISH, NRAS1T, &
-     &                         NRAS2T, NRAS3T, NROOTS, NASH, NAES,      &
-     &                         NASHT, NORB, NBAS, NBAST, NOSQT, NBSQT,  &
-     &                         iRlxRoot, JSTATE, DENORM, ZETA, ORBIN
-      use Constants, only: Zero, One, Two, Half
-      use sguga, only: SGS
+use EQSOLV, only: IVECX, IVECR, IVECC2
+use ChoCASPT2, only: NumCho_PT2, iALGO, MaxVec_PT2
+use stdalloc, only: mma_allocate, mma_deallocate
+use definitions, only: wp, iwp, u6
+use caspt2_module, only: IfChol, IFDENS, IFMSCOUP, IFDW, IFSADREF, MAXIT, NSYM, NCONF, NFROT, NISH, NRAS1T, NRAS2T, NRAS3T, &
+                         NROOTS, NASH, NAES, NASHT, NORB, NBAS, NBAST, NOSQT, NBSQT, iRlxRoot, JSTATE, DENORM, ZETA, ORBIN
+use Constants, only: Zero, One, Two, Half
+use sguga, only: SGS
 
-      implicit none
+implicit none
+integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
+real(kind=wp), intent(inout) :: DMAT(NDMAT)
+real(kind=wp), intent(in) :: UEFF(nState,nState), U0(nState,nState)
+real(kind=wp), allocatable :: VECROT(:)
+real(kind=wp), allocatable :: DPT(:), DSUM(:), DPT2(:), DPT2_AO(:), DPT2C_AO(:), FPT2(:), FPT2C(:), FPT2_AO(:), FPT2C_AO(:), &
+                              Trf(:), WRK1(:), WRK2(:), RDMSA(:,:), RDMEIG(:,:), DEPSA(:,:), DEPSA_diag(:), DIA(:), DI(:), &
+                              A_PT2(:), T2AO(:), CLagT(:,:), EigT(:,:), OMGT(:,:), CI1(:)
+real(kind=wp), allocatable, target :: DPT2Canti_(:), DPT2C(:)
+real(kind=wp), pointer :: DPT2Canti(:)
+integer(kind=iwp) :: NDPT, nDPTAO, ISYM, NO, nAO, IDMOFF, NI, NA, II, IDM, IT, ITABS, ITTOT, IU, IUTOT, IDRF, IUABS, I, J, nch, &
+                     iState, JJ, iStLag, ibk, NumChoTot, nOcc, lT2AO, iSQ, iTR, nOrbI, iBasTr, iBasSq, liBasTr, liBasSq, jBasI, &
+                     IDSOFF, IP, IQ, IDSUM, nBasI, iBasI, NLEV
+integer(kind=iwp), allocatable :: ISAV(:)
+real(kind=wp) :: wgt, val, Scal, X
+real(kind=wp) :: CPTF0, CPE, TIOTF0, TIOE, CPTF10, TIOTF10, CPUT, WALLT
 
-      integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
-      real(kind=wp), intent(inout) :: DMAT(NDMAT)
-      real(kind=wp), intent(in) :: UEFF(nState,nState),U0(nState,nState)
+if (do_grad) then
+  !! Set indices for densities and partial derivatives
+  call mma_allocate(VECROT,nState,Label='VECROT')
+  call GradPrep(nState,UEFF,VECROT)
 
-      real(kind=wp), allocatable :: VECROT(:)
+  ! Compute total density matrix as symmetry-blocked array of
+  ! triangular matrices in DMAT. Size of a triangular submatrix is
+  !  (NORB(ISYM)*(NORB(ISYM)+1))/2.
+  NDPT = 0
+  nDPTAO = 0
+  do ISYM=1,NSYM
+    NO = NORB(ISYM)
+    nAO = nBas(iSym)
+    NDPT = NDPT+NO**2
+    nDPTAO = nDPTAO+nAO**2
+  end do
+  ! shouldn't be necessary, is already done outside
+  DMAT(1:NDMAT) = Zero
+  ! First, put in the reference density matrix.
+  IDMOFF = 0
+  do ISYM=1,NSYM
+    NI = NISH(ISYM)
+    NA = NASH(ISYM)
+    NO = NORB(ISYM)
+    do II=1,NI
+      IDM = IDMOFF+(II*(II+1))/2
+      DMAT(IDM) = Two
+    end do
+    do IT=1,NA
+      ITABS = NAES(ISYM)+IT
+      ITTOT = NI+IT
+      do IU=1,IT
+        IUABS = NAES(ISYM)+IU
+        IUTOT = NI+IU
+        IDRF = (ITABS*(ITABS-1))/2+IUABS
+        IDM = IDMOFF+((ITTOT*(ITTOT-1))/2+IUTOT)
+        DMAT(IDM) = DREF(IDRF)
+      end do
+    end do
+    IDMOFF = IDMOFF+(NO*(NO+1))/2
+  end do
+  !write(u6,*) ' DENS. Initial DMAT:'
+  !write(u6,'(1x,8f16.8)') (dmat(i),i=1,ndmat)
+  ! Add the 1st and 2nd order density matrices:
+  call mma_allocate(DPT,NDPT,Label='DPT')
+  call mma_allocate(DSUM,NDPT,Label='DSUM')
+  DPT(:) = Zero
+  DSUM(:) = Zero
 
-      real(kind=wp),allocatable :: DPT(:),DSUM(:),DPT2(:),DPT2_AO(:),   &
-     &  DPT2C_AO(:),FPT2(:),FPT2C(:),FPT2_AO(:),FPT2C_AO(:),Trf(:),     &
-     &  WRK1(:),WRK2(:),RDMSA(:,:),RDMEIG(:,:),DEPSA(:,:),              &
-     &  DEPSA_diag(:),DIA(:),DI(:),A_PT2(:),T2AO(:),CLagT(:,:),         &
-     &  EigT(:,:),OMGT(:,:),CI1(:)
-      real(kind=wp),allocatable,target :: DPT2Canti_(:),DPT2C(:)
-      real(kind=wp),pointer :: DPT2Canti(:)
+  !! Modify the solution (T; amplitude), if the real- or
+  !! imaginary- shift is utilized. We need both the unmodified (T)
+  !! and modified (T+\lambda) amplitudes. \lambda can be obtained
+  !! by solving the CASPT2 equation, but it can alternatively
+  !! obtained by a direct summation only if CASPT2-D.
+  !! iVecX remains unchanged (iVecX = T)
+  !! iVecR will be 2\lambda
 
-      integer(kind=iwp) :: NDPT, nDPTAO, ISYM, NO, nAO, IDMOFF,         &
-     &  NI, NA, II, IDM, IT, ITABS, ITTOT, IU, IUTOT, IDRF, IUABS, I, J,&
-     &  nch, iState, JJ, iStLag, ibk, NumChoTot, nOcc, lT2AO, iSQ, iTR, &
-     &  nOrbI, iBasTr, iBasSq, liBasTr, liBasSq, jBasI, IDSOFF,         &
-     &  IP, IQ, IDSUM, nBasI, iBasI, NLEV
-      integer(kind=iwp), allocatable:: ISAV(:)
-      real(kind=wp) :: wgt, val, Scal, X
-      real(kind=wp) :: CPTF0, CPE, TIOTF0, TIOE, CPTF10, TIOTF10, CPUT, &
-     &  WALLT
+  !! For MS-CASPT2, calling this subroutine is required.
+  !! The lambda-equation is solved without iteration only when
+  !! MS-CASPT2-D (shift?). Otherwise, solved iteratively.
+  !! After this subroutine, iVecR has multi-state weighted (?)
+  !! contributions.
+  call TIMING(CPTF0,CPE,TIOTF0,TIOE)
+  call CASPT2_Res(VECROT,nState)
+  call TIMING(CPTF10,CPE,TIOTF10,TIOE)
+  if (IPRGLB >= VERBOSE) then
+    CPUT = CPTF10-CPTF0
+    WALLT = TIOTF10-TIOTF0
+    write(u6,'(a,2f10.2)') ' Lambda  : CPU/WALL TIME=',cput,wallt
+  end if
 
-      IF (do_grad) THEN
-        !! Set indices for densities and partial derivatives
-        Call mma_allocate(VECROT,nState,Label='VECROT')
-        Call GradPrep(nState,UEFF,VECROT)
-!
-! Compute total density matrix as symmetry-blocked array of
-! triangular matrices in DMAT. Size of a triangular submatrix is
-!  (NORB(ISYM)*(NORB(ISYM)+1))/2.
-        NDPT=0
-        nDPTAO=0
-        DO ISYM=1,NSYM
-          NO=NORB(ISYM)
-          nAO = nBas(iSym)
-          NDPT=NDPT+NO**2
-          nDPTAO = nDPTAO + nAO**2
-        END DO
-        ! shouldn't be necessary, is already done outside
-        DMAT(1:NDMAT) = Zero
-! First, put in the reference density matrix.
-        IDMOFF=0
-        DO ISYM=1,NSYM
-          NI=NISH(ISYM)
-          NA=NASH(ISYM)
-          NO=NORB(ISYM)
-          DO II=1,NI
-            IDM=IDMOFF+(II*(II+1))/2
-            DMAT(IDM)=Two
-          END DO
-          DO IT=1,NA
-            ITABS=NAES(ISYM)+IT
-            ITTOT=NI+IT
-            DO IU=1,IT
-              IUABS=NAES(ISYM)+IU
-              IUTOT=NI+IU
-              IDRF=(ITABS*(ITABS-1))/2+IUABS
-              IDM=IDMOFF+((ITTOT*(ITTOT-1))/2+IUTOT)
-              DMAT(IDM)=DREF(IDRF)
-            END DO
-          END DO
-           IDMOFF=IDMOFF+(NO*(NO+1))/2
-        END DO
-!       write(u6,*)' DENS. Initial DMAT:'
-!       WRITE(u6,'(1x,8f16.8)')(dmat(i),i=1,ndmat)
-! Add the 1st and 2nd order density matrices:
-        call mma_allocate(DPT,NDPT,Label='DPT')
-        call mma_allocate(DSUM,NDPT,Label='DSUM')
-        DPT(:) = Zero
-        DSUM(:) = Zero
+  call TIMING(CPTF0,CPE,TIOTF0,TIOE)
+  !! Diagonal part
+  call TRDNS2D(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
+  !! Remove the off-diagonal elements in inactive/secondary
+  if (.not. if_invaria) call caspt2_grad_invaria1(NDPT,DPT)
+  DSUM(:) = DSUM(:)+DPT(:)
+  !write(u6,*) ' DPT after TRDNS2D.'
+  !write(u6,'(1x,8f16.8)') (dpt(i),i=1,ndpt)
+  !! Off-diagonal part, if full-CASPT2
+  if (MAXIT /= 0) then
+    !! off-diagonal are ignored for CASPT2-D
+    DPT(:) = Zero
+    call TRDNS2O(iVecX,iVecR,DPT,size(DPT),NDPT,VECROT(JSTATE))
+    DSUM(:) = DSUM(:)+DPT(:)
+  end if
+  !write(u6,*) ' DPT after TRDNS2O.'
+  !write(u6,'(1x,8f16.8)') (dpt(i),i=1,ndpt)
+  call TIMING(CPTF10,CPE,TIOTF10,TIOE)
+  if (IPRGLB >= VERBOSE) then
+    CPUT = CPTF10-CPTF0
+    WALLT = TIOTF10-TIOTF0
+    write(u6,'(a,2f10.2)') ' TRDNS2DO: CPU/WALL TIME=',cput,wallt
+  end if
 
+  !! D^PT2 in MO
+  call mma_allocate(DPT2,NBSQT,Label='DPT2')
+  !! D^PT2(C) in MO
+  call mma_allocate(DPT2C,NBSQT,Label='DPT2C')
+  !! DPTAO1 (D^PT in AO, but not DPTA-01) couples with
+  !! the CASSCF density (assume state-averaged) through ERIs.
+  !! This density corresponds to the eigenvalue derivative.
+  !! This is sometimes referred to as DPT2(AO) else where.
+  call mma_allocate(DPT2_AO,NBSQT,Label='DPT2_AO')
+  !! DPTAO2 couples with the inactive density.
+  !! This density comes from derivative of the generalized
+  !! Fock matrix (see for instance Eq. (24) in the 1990 paper).
+  !! This is sometimes referred to as DPT2C(AO) else where.
+  call mma_allocate(DPT2C_AO,NBSQT,Label='DPT2C_AO')
+  !! DPTAO,DPTCAO,FPTAO,FPTCAO are in a block-squared form
+  call mma_allocate(FPT2,NBSQT,Label='FPT2')
+  call mma_allocate(FPT2C,NBSQT,Label='FPT2C')
+  call mma_allocate(FPT2_AO,NBSQT,Label='FPT2_AO')
+  call mma_allocate(FPT2C_AO,NBSQT,Label='FPT2C_AO')
+  !! Transformation matrix
+  call mma_allocate(Trf,NBSQT,Label='TRFMAT')
+  nch = 0
+  if (IfChol) nch = nvloc_chobatch(1)
+  call mma_allocate(WRK1,max(nBasT**2,nch),Label='WRK1')
+  call mma_allocate(WRK2,max(nBasT**2,nch),Label='WRK2')
+  !! state-averaged density
+  call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
+  !! Derivative of state-averaged density
+  call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
+  NLEV = SGS%NLEV
+  if (nAshT /= SGS%NLEV) then
+    write(u6,*) 'Analytical gradients for nAshT /= SGS%NLEV (GASPT2?) does not work'
+    call abend()
+  end if
+  !write(u6,*) 'olag before'
+  !call sqprt(olag,nbast)
 
+  DPT2(:) = Zero
+  DPT2C(:) = Zero
+  DPT2_AO(:) = Zero
+  DPT2C_AO(:) = Zero
+  FPT2(:) = Zero
+  FPT2C(:) = Zero
+  FPT2_AO(:) = Zero
+  FPT2C_AO(:) = Zero
+  if (.not. IfChol) then
+    FIMO_all(:) = Zero
+    FIFA_all(:) = Zero
+  end if
+  RDMSA(:,:) = Zero
+  RDMEIG(:,:) = Zero
 
-        !! Modify the solution (T; amplitude), if the real- or
-        !! imaginary- shift is utilized. We need both the unmodified (T)
-        !! and modified (T+\lambda) amplitudes. \lambda can be obtained
-        !! by solving the CASPT2 equation, but it can alternatively
-        !! obtained by a direct summation only if CASPT2-D.
-        !! iVecX remains unchanged (iVecX = T)
-        !! iVecR will be 2\lambda
+  CLag(:,:) = Zero
+  OLag(:) = Zero
 
-        !! For MS-CASPT2, calling this subroutine is required.
-        !! The lambda-equation is solved without iteration only when
-        !! MS-CASPT2-D (shift?). Otherwise, solved iteratively.
-        !! After this subroutine, iVecR has multi-state weighted (?)
-        !! contributions.
-        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-        Call CASPT2_Res(VECROT,nState)
-        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-        IF (IPRGLB >= VERBOSE) THEN
-          CPUT =CPTF10-CPTF0
-          WALLT=TIOTF10-TIOTF0
-          write(u6,'(a,2f10.2)')' Lambda  : CPU/WALL TIME=', cput,wallt
-        END IF
+  if ((nFroT /= 0) .or. (.not. if_invaria)) then
+    call mma_allocate(DIA,NBSQT,Label='DIA')
+    call mma_allocate(DI,NBSQT,Label='DI')
+  else
+    call mma_allocate(DIA,1,Label='DIA')
+    call mma_allocate(DI,1,Label='DI')
+  end if
 
+  if (do_csf) then
+    call mma_allocate(DPT2Canti_,NBSQT,Label='DPT2Canti')
+    DPT2Canti_(:) = Zero
+    DPT2Canti => DPT2Canti_
+  else
+    DPT2Canti => DPT2C
+  end if
 
+  !! DPT -> DPT2
+  !! Note that DPT2 has the index of frozen orbitals.
+  !! Note also that unrelaxed (w/o Z-vector) dipole moments with
+  !! frozen orbitals must be wrong.
+  !call dcopy_(ndpt,[Zero],0,dpt,1)
+  if ((nFroT == 0) .and. if_invaria) then
+    DPT2(1:nOsqT) = DSUM(1:nOsqT)
+  else
+    call OLagFro0(NOSQT,NBSQT,DSUM,DPT2)
+  end if
 
-        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-        !! Diagonal part
-        CALL TRDNS2D(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
-        !! Remove the off-diagonal elements in inactive/secondary
-        if (.not.if_invaria) call caspt2_grad_invaria1(NDPT,DPT)
-        DSUM(:) = DSUM(:) + DPT(:)
-!       write(u6,*)' DPT after TRDNS2D.'
-!       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
-        !! Off-diagonal part, if full-CASPT2
-        IF (MAXIT /= 0) THEN
-          !! off-diagonal are ignored for CASPT2-D
-          DPT(:) = Zero
-          CALL TRDNS2O(iVecX,iVecR,DPT,SIZE(DPT),NDPT,VECROT(JSTATE))
-          DSUM(:) = DSUM(:) + DPT(:)
-        END IF
-!       write(u6,*)' DPT after TRDNS2O.'
-!       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
-        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-        IF (IPRGLB >= VERBOSE) THEN
-          CPUT =CPTF10-CPTF0
-          WALLT=TIOTF10-TIOTF0
-          write(u6,'(a,2f10.2)')' TRDNS2DO: CPU/WALL TIME=', cput,wallt
-        END IF
+  !! Construct the transformation matrix
+  !! It seems that we have to transform quasi-canonical
+  !! to CASSCF orbitals. The forward transformation has been
+  !! done in ORBCTL.
+  !!   C(PT2) = C(CAS)*X    ->    C(CAS) = C(PT2)*X^T
+  !!   -> L(CAS) = X*L(PT2)*X^T
+  !! inactive and virtual orbitals are not affected.
+  Trf(:) = Zero
+  call CnstTrf(NBSQT,TOrb,Trf)
+  !call sqprt(trf,nbast)
 
-        !! D^PT2 in MO
-        call mma_allocate(DPT2,NBSQT,Label='DPT2')
-        !! D^PT2(C) in MO
-        call mma_allocate(DPT2C,NBSQT,Label='DPT2C')
-        !! DPTAO1 (D^PT in AO, but not DPTA-01) couples with
-        !! the CASSCF density (assume state-averaged) through ERIs.
-        !! This density corresponds to the eigenvalue derivative.
-        !! This is sometimes referred to as DPT2(AO) else where.
-        call mma_allocate(DPT2_AO,NBSQT,Label='DPT2_AO')
-        !! DPTAO2 couples with the inactive density.
-        !! This density comes from derivative of the generalized
-        !! Fock matrix (see for instance Eq. (24) in the 1990 paper).
-        !! This is sometimes referred to as DPT2C(AO) else where.
-        call mma_allocate(DPT2C_AO,NBSQT,Label='DPT2C_AO')
-        !! DPTAO,DPTCAO,FPTAO,FPTCAO are in a block-squared form
-        call mma_allocate(FPT2,NBSQT,Label='FPT2')
-        call mma_allocate(FPT2C,NBSQT,Label='FPT2C')
-        call mma_allocate(FPT2_AO,NBSQT,Label='FPT2_AO')
-        call mma_allocate(FPT2C_AO,NBSQT,Label='FPT2C_AO')
-        !! Transformation matrix
-        call mma_allocate(Trf,NBSQT,Label='TRFMAT')
-        nch=0
-        If (IfChol) nch=nvloc_chobatch(1)
-        call mma_allocate(WRK1,Max(nBasT**2,nch),Label='WRK1')
-        call mma_allocate(WRK2,Max(nBasT**2,nch),Label='WRK2')
-        !! state-averaged density
-        call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
-        !! Derivative of state-averaged density
-        call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
-        NLEV = SGS%NLEV
-        if (nAshT /= SGS%NLEV) then
-          write (u6,'(1x,"Analytical gradients for nAshT /= SGS%NLEV ", &
-     &                   "(GASPT2?) does not work")')
-          call abend()
-        end if
-!       write(u6,*) 'olag before'
-!       call sqprt(olag,nbast)
+  !! Construct the density matrix used in the Fock operator
+  if (IFSADREF) then
+    WRK1(1:nDRef) = Zero
+    do iState=1,nState
+      wgt = Weight(iState)
+      WRK1(1:nDRef) = WRK1(1:nDRef)+Wgt*DMix(1:nDRef,iState)
+    end do
+  else
+    WRK1(1:nDRef) = DMix(1:nDRef,jState)
+  end if
+  call SQUARE(WRK1,RDMSA,1,nAshT,nAshT)
+  !write(u6,*) 'state-averaged density matrix'
+  !call sqprt(rdmsa,nasht)
 
-        DPT2(:) = Zero
-        DPT2C(:) = Zero
-        DPT2_AO(:) = Zero
-        DPT2C_AO(:) = Zero
-        FPT2(:) = Zero
-        FPT2C(:) = Zero
-        FPT2_AO(:) = Zero
-        FPT2C_AO(:) = Zero
-        If (.not.IfChol) Then
-          FIMO_all(:) = Zero
-          FIFA_all(:) = Zero
-        End If
-        RDMSA(:,:) = Zero
-        RDMEIG(:,:) = Zero
+  ! ----- Construct configuration Lagrangian -----
 
-        CLag(:,:) = Zero
-        OLag(:) = Zero
+  !! For CI coefficient derivatives (CLag)
+  !! Calculate the configuration Lagrangian
+  !! This is done in the quasi-canonical basis
+  call mma_allocate(DEPSA,nAshT,nAshT,Label='DEPSA')
+  DEPSA(:,:) = Zero
+  !! Derivative of off-diagonal H0 of <Psi1|H0|Psi1>
+  if (MAXIT /= 0) then
+    call TIMING(CPTF0,CPE,TIOTF0,TIOE)
+    call SIGDER(iVecX,iVecR,VECROT(jState))
+    call TIMING(CPTF10,CPE,TIOTF10,TIOE)
+    if (IPRGLB >= VERBOSE) then
+      CPUT = CPTF10-CPTF0
+      WALLT = TIOTF10-TIOTF0
+      write(u6,'(a,2f10.2)') ' SIGDER  : CPU/WALL TIME=',cput,wallt
+    end if
+  end if
+  call CLagX(1,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
+  !call test3_dens(clag)
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) call GADGOP(DEPSA,nAshT**2,'+')
+# endif
+  !write(u6,*) 'original depsa'
+  !call sqprt(depsa,nasht)
+  !write(u6,*) 'original depsa (sym)'
+  do i=1,nasht
+    do j=1,i-1
+      val = (DEPSA(i,j)+DEPSA(j,i))*Half
+      DEPSA(i,j) = val
+      DEPSA(j,i) = val
+    end do
+  end do
+  !call sqprt(depsa,nasht)
 
-        If (nFroT /= 0 .or. .not.if_invaria) Then
-          call mma_allocate(DIA,NBSQT,Label='DIA')
-          call mma_allocate(DI ,NBSQT,Label='DI')
-        Else
-          call mma_allocate(DIA,1,Label='DIA')
-          call mma_allocate(DI ,1,Label='DI')
-        End If
+  if (NRAS1T+NRAS3T /= 0) then
+    !! The density of the independent pairs (off-diagonal blocks)
+    !! should be determined by solving Z-vector, so these blocks
+    !! should be removed...?
+    ! write(u6,*) 'removing DEPSA of off-diagonal blocks'
+    ! write(u6,*) 'before'
+    ! call sqprt(depsa,nasht)
+    do II=1,nRAS1T
+      do JJ=nRAS1T+1,nAshT
+        DEPSA(II,JJ) = Zero
+        DEPSA(JJ,II) = Zero
+      end do
+    end do
+    do II=nRAS1T+1,nRAS1T+nRAS2T
+      do JJ=nRAS1T+nRAS2T+1,nAshT
+        DEPSA(II,JJ) = Zero
+        DEPSA(JJ,II) = Zero
+      end do
+    end do
+    !write(u6,*) 'after'
+    !call sqprt(depsa,nasht)
+    if (IPRGLB >= DEBUG) write(u6,*) 'depsa (sym) after removing off-diagonal blocks'
+  else
+    if (IPRGLB >= DEBUG) write(u6,*) 'depsa (sym)'
+  end if
+  if (IPRGLB >= VERBOSE) call sqprt(depsa,nasht)
 
-        If (do_csf) Then
-          call mma_allocate(DPT2Canti_,NBSQT,Label='DPT2Canti')
-          DPT2Canti_(:) = Zero
-          DPT2Canti => DPT2Canti_
-        Else
-          DPT2Canti => DPT2C
-        End If
+  !! Configuration Lagrangian for MS-CASPT2
+  !! This is the partial derivative of the transition reduced
+  !! density matrices
+  if (IFMSCOUP) then
+    call TIMING(CPTF0,CPE,TIOTF0,TIOE)
+    call DerHEff(nConf,nRoots,nState,CLag,VECROT)
+    call TIMING(CPTF10,CPE,TIOTF10,TIOE)
+    if (IPRGLB >= VERBOSE) then
+      CPUT = CPTF10-CPTF0
+      WALLT = TIOTF10-TIOTF0
+      write(u6,'(a,2f10.2)') ' DerHEff : CPU/WALL TIME=',cput,wallt
+      write(u6,*)
+    end if
+  end if
 
-        !! DPT -> DPT2
-        !! Note that DPT2 has the index of frozen orbitals.
-        !! Note also that unrelaxed (w/o Z-vector) dipole moments with
-        !! frozen orbitals must be wrong.
-!       call dcopy_(ndpt,[Zero],0,dpt,1)
-        If (nFroT == 0 .and. if_invaria) Then
-          DPT2(1:nOsqT) = DSUM(1:nOsqT)
-        Else
-          Call OLagFro0(NOSQT,NBSQT,DSUM,DPT2)
-        End If
+  !! I need to add the derivative of the effective Hamiltonian
+  !! for MS-CASPT2, but this is done after orbital Lagrangian.
+  !! I just have to have IVECC = T + lambda.
 
-        !! Construct the transformation matrix
-        !! It seems that we have to transform quasi-canonical
-        !! to CASSCF orbitals. The forward transformation has been
-        !! done in ORBCTL.
-        !!   C(PT2) = C(CAS)*X    ->    C(CAS) = C(PT2)*X^T
-        !!   -> L(CAS) = X*L(PT2)*X^T
-        !! inactive and virtual orbitals are not affected.
-        Trf(:) = Zero
-        Call CnstTrf(NBSQT,TOrb,Trf)
-!       call sqprt(trf,nbast)
+  !! If CASPT2 energy is not invariant to rotations in active
+  !! orbitals, off-diagonal elements of the density obtained
+  !! as DEPSA is incorrect, so remove them. The true density
+  !! is computed after everything.
+  if (.not. if_invar) then
+    !! But, save the diagonal elements
+    call mma_allocate(DEPSA_diag,nAshT,Label='DEPSA_diag')
+    call DCopy_(nAshT,DEPSA,nAshT+1,DEPSA_diag,1)
+    !! Clear
+    DEPSA(:,:) = Zero
+  end if
+  !write(u6,*) 'depsad'
+  !call sqprt(depsa,nasht)
 
-        !! Construct the density matrix used in the Fock operator
-        If (IFSADREF) Then
-          WRK1(1:nDRef) = Zero
-          Do iState = 1, nState
-            wgt = Weight(iState)
-            WRK1(1:nDRef) = WRK1(1:nDRef) + Wgt*DMix(1:nDRef,iState)
-          End Do
-        Else
-          WRK1(1:nDRef) = DMix(1:nDRef,jState)
-        End If
-        Call SQUARE(WRK1,RDMSA,1,nAshT,nAshT)
-!       write(u6,*) 'state-averaged density matrix'
-!       call sqprt(rdmsa,nasht)
-!
-!       ----- Construct configuration Lagrangian -----
-!
-        !! For CI coefficient derivatives (CLag)
-        !! Calculate the configuration Lagrangian
-        !! This is done in the quasi-canonical basis
-        call mma_allocate(DEPSA,nAshT,nAshT,Label='DEPSA')
-        DEPSA(:,:) = Zero
-        !! Derivative of off-diagonal H0 of <Psi1|H0|Psi1>
-        IF (MAXIT /= 0) then
-          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          Call SIGDER(iVecX,iVecR,VECROT(jState))
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          IF (IPRGLB >= VERBOSE) THEN
-            CPUT =CPTF10-CPTF0
-            WALLT=TIOTF10-TIOTF0
-            write(u6,'(a,2f10.2)')                                      &
-     &        ' SIGDER  : CPU/WALL TIME=', cput,wallt
-          END IF
-        end if
-        Call CLagX(1,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
-!       call test3_dens(clag)
-#ifdef _MOLCAS_MPP_
-        If (Is_Real_Par()) CALL GADGOP (DEPSA,nAshT**2,'+')
-#endif
-!       write(u6,*) 'original depsa'
-!       call sqprt(depsa,nasht)
-!       write(u6,*) 'original depsa (sym)'
-        do i = 1, nasht
-          do j = 1, i-1
-            val = (DEPSA(i,j)+DEPSA(j,i))*Half
-            DEPSA(i,j) = val
-            DEPSA(j,i) = val
-          end do
+  !! Transform the quasi-variational amplitude (T+\lambda/2?)
+  !! in SR (iVecX) to C (iVecC2)
+  !! Note that the contribution is multiplied by two
+  !! somewhere else (maybe in olagns?)
+  if ((real_shift /= Zero) .or. (imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero) .or. IFMSCOUP) then
+    !! Have to weight the T-amplitude for MS-CASPT2
+    if (IFMSCOUP) then
+      !! add lambda
+      call PLCVEC(VECROT(jState),Half,IVECX,IVECR)
+      call PTRTOC(1,IVECR,IVECC2)
+      !! T-amplitude
+      do iStLag=1,nState
+        if (iStLag == jState) cycle
+        Scal = VECROT(iStLag)
+        if (abs(Scal) <= 1.0e-12_wp) cycle
+        call MS_Res(2,jStLag,iStLag,Scal*Half)
+      end do
+      if (do_csf) then
+        !! Prepare for something <\Phi_K^{(1)}|Ers|L>
+        ibk = IVECC2
+        IVECC2 = 7
+        call RHS_ZERO(IVECC2)
+        do iStLag=1,nState
+          if (iStLag == jState) cycle
+          Scal = UEFF(iStLag,iRoot1)*UEFF(jStLag,iRoot2)-UEFF(jStLag,iRoot1)*UEFF(iStLag,iRoot2)
+          Scal = Scal*Half
+          if (abs(Scal) <= 1.0e-12_wp) cycle
+          call MS_Res(2,jStLag,iStLag,Scal)
         end do
-!       call sqprt(depsa,nasht)
+        IVECC2 = ibk
+      end if
+    else
+      !! Add lambda to the T-amplitude
+      call PLCVEC(Half,One,IVECR,IVECX)
+      call PTRTOC(1,IVECX,IVECC2)
+    end if
+  end if
 
-        If (NRAS1T+NRAS3T /= 0) Then
-          !! The density of the independent pairs (off-diagonal blocks)
-          !! should be determined by solving Z-vector, so these blocks
-          !! should be removed...?
-!         write(u6,*) 'removing DEPSA of off-diagonal blocks'
-!         write(u6,*) 'before'
-!         call sqprt(depsa,nasht)
-            Do II = 1, nRAS1T
-              Do JJ = nRAS1T+1, nAshT
-                DEPSA(II,JJ) = Zero
-                DEPSA(JJ,II) = Zero
-              End Do
-            End Do
-            Do II = nRAS1T+1, nRAS1T+nRAS2T
-              Do JJ = nRAS1T+nRAS2T+1, nAshT
-                DEPSA(II,JJ) = Zero
-                DEPSA(JJ,II) = Zero
-              End Do
-            End Do
-!         write(u6,*) 'after'
-!         call sqprt(depsa,nasht)
-          IF (IPRGLB >= DEBUG)                                          &
-     &      write(u6,*) 'depsa (sym) after removing off-diagonal blocks'
-        Else
-          IF (IPRGLB >= DEBUG)                                          &
-     &      write(u6,*) 'depsa (sym)'
-        End If
-        IF (IPRGLB >= VERBOSE) call sqprt(depsa,nasht)
+  !ipTrfL = 1+nAshT*nBasT+nAshT
+  !Call DGemm_('n','N',nAshT,nAshT,nAshT,One,Trf(ipTrfL),nBasT,DEPSA,nAshT,Zero,dpt2c_ao,nAshT)
+  !Call DGemm_('N','t',nAshT,nAshT,nAshT,One,dpt2c_ao,nAshT,Trf(ipTrfL),nBasT,Zero,DEPSA,nAshT)
 
-        !! Configuration Lagrangian for MS-CASPT2
-        !! This is the partial derivative of the transition reduced
-        !! density matrices
-        If (IFMSCOUP) Then
-          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          Call DerHEff(nConf,nRoots,nState,CLag,VECROT)
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          IF (IPRGLB >= VERBOSE) THEN
-            CPUT =CPTF10-CPTF0
-            WALLT=TIOTF10-TIOTF0
-            write(u6,'(a,2f10.2)')                                      &
-     &        ' DerHEff : CPU/WALL TIME=', cput,wallt
-            write(u6,*)
-          END IF
-        End If
+  !! Just add DEPSA to DPT2
+  call AddDEPSA(NBSQT,nAshT,DPT2,DEPSA)
+  !! Just transform the density in MO to AO
+  call DPT2_Trf(NBSQT,nAshT,DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
+  !call mma_deallocate(DEPSA)
+  !! Save the AO density
+  !! ... write
 
-        !! I need to add the derivative of the effective Hamiltonian
-        !! for MS-CASPT2, but this is done after orbital Lagrangian.
-        !! I just have to have IVECC = T + lambda.
+  ! ----- Construct orbital Lagrangian -----
 
-        !! If CASPT2 energy is not invariant to rotations in active
-        !! orbitals, off-diagonal elements of the density obtained
-        !! as DEPSA is incorrect, so remove them. The true density
-        !! is computed after everything.
-        If (.not.if_invar) Then
-          !! But, save the diagonal elements
-          call mma_allocate(DEPSA_diag,nAshT,Label='DEPSA_diag')
-          Call DCopy_(nAshT,DEPSA,nAshT+1,DEPSA_diag,1)
-          !! Clear
-          DEPSA(:,:) = Zero
-        End If
-!       write(u6,*) 'depsad'
-!       call sqprt(depsa,nasht)
+  if ((nFroT /= 0) .or. (.not. if_invaria)) then
+    !! If frozen orbitals exist, we need to obtain
+    !! electron-repulsion integrals with frozen orbitals to
+    !! construct the orbital Lagrangian.
+    if (.not. IfChol) call TRAFRO(1)
 
-        !! Transform the quasi-variational amplitude (T+\lambda/2?)
-        !! in SR (iVecX) to C (iVecC2)
-        !! Note that the contribution is multiplied by two
-        !! somewhere else (maybe in olagns?)
-        If (real_shift /= Zero .or. imag_shift /= Zero                  &
-     &      .OR. sigma_p_epsilon /= Zero .OR. IFMSCOUP) Then
-          !! Have to weight the T-amplitude for MS-CASPT2
-          IF (IFMSCOUP) THEN
-            !! add lambda
-            CALL PLCVEC(VECROT(jState),Half,IVECX,IVECR)
-            CALL PTRTOC(1,IVECR,IVECC2)
-            !! T-amplitude
-            Do iStLag = 1, nState
-              If (iStLag == jState) Cycle
-              Scal = VECROT(iStLag)
-              If (ABS(Scal) <= 1.0e-12_wp) Cycle
-              Call MS_Res(2,jStLag,iStLag,Scal*Half)
-            End Do
-            If (do_csf) Then
-              !! Prepare for something <\Phi_K^{(1)}|Ers|L>
-              ibk = IVECC2
-              IVECC2 = 7
-              Call RHS_ZERO(IVECC2)
-              Do iStLag = 1, nState
-                If (iStLag == jState) Cycle
-                Scal = UEFF(iStLag,iRoot1)*UEFF(jStLag,iRoot2)          &
-     &               - UEFF(jStLag,iRoot1)*UEFF(iStLag,iRoot2)
-                Scal = Scal*Half
-                If (ABS(Scal) <= 1.0e-12_wp) Cycle
-                Call MS_Res(2,jStLag,iStLag,Scal)
-              End Do
-              IVECC2 = ibk
-            End If
-          ELSE
-            !! Add lambda to the T-amplitude
-            CALL PLCVEC(Half,One,IVECR,IVECX)
-            CALL PTRTOC(1,IVECX,IVECC2)
-          END IF
-        End If
+    !! Get density matrix (DIA) and inactive density
+    !! matrix (DI) to compute FIFA and FIMO.
+    call OLagFroD(NBSQT,nAshT,DIA,DI,RDMSA,Trf)
+  end if
 
-!         ipTrfL = 1+nAshT*nBasT+nAshT
-!         Call DGemm_('n','N',nAshT,nAshT,nAshT,
-!    *                One,Trf(ipTrfL),nBasT,DEPSA,nAshT,
-!    *                Zero,dpt2c_ao,nAshT)
-!         Call DGemm_('N','t',nAshT,nAshT,nAshT,
-!    *                One,dpt2c_ao,nAshT,Trf(ipTrfL),nBasT,
-!    *                Zero,DEPSA,nAshT)
-!
-!       !! Just add DEPSA to DPT2
-        Call AddDEPSA(NBSQT,nAshT,DPT2,DEPSA)
-        !! Just transform the density in MO to AO
-        CALL DPT2_Trf(NBSQT,nAshT,DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
-!       call mma_deallocate(DEPSA)
-        !! Save the AO density
-        !! ... write
-!
-!       ----- Construct orbital Lagrangian -----
-!
-        If (nFroT /= 0 .or. .not.if_invaria) Then
-          !! If frozen orbitals exist, we need to obtain
-          !! electron-repulsion integrals with frozen orbitals to
-          !! construct the orbital Lagrangian.
-          If (.not.IfChol) Call TRAFRO(1)
+  !! Construct orbital Lagrangian that comes from the derivative
+  !! of ERIs. Also, do the Fock transformation of the DPT2 and
+  !! DPT2C densities.
+  NumChoTot = 0
+  if (IfChol) then
+    do iSym=1,nSym
+      NumChoTot = NumChoTot+NumCho_PT2(iSym)
+    end do
+    call mma_allocate(A_PT2,MaxVec_PT2**2,Label='A_PT2')
+    A_PT2(:) = Zero
+  else
+    call mma_allocate(A_PT2,1,Label='A_PT2')
+  end if
+  do iSym=1,nSym
+    nOcc = nIsh(iSym)+nAsh(iSym)
+    lT2AO = 1
+    if ((.not. IfChol) .or. (iALGO /= 1)) then
+      lT2AO = nOcc*nOcc*nBasT*nBasT
+      call mma_allocate(T2AO,lT2AO,Label='T2AO')
+      T2AO(:) = Zero
+    else
+      call mma_allocate(T2AO,lT2AO,Label='T2AO')
+    end if
 
-          !! Get density matrix (DIA) and inactive density
-          !! matrix (DI) to compute FIFA and FIMO.
-          Call OLagFroD(NBSQT,nAshT,DIA,DI,RDMSA,Trf)
-        End If
+    !! Orbital Lagrangian that comes from the derivative of ERIs.
+    !! OLagNS computes only the particle orbitals.
+    !write(u6,*) 'ialgo = ',ialgo
+    call TIMING(CPTF0,CPE,TIOTF0,TIOE)
+    if (IfChol .and. (iALGO == 1)) then
+      call OLagNS_RI(iSym,NBSQT,MaxVec_PT2,DPT2C,DPT2Canti,A_PT2)
+    else
+      call OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
+    end if
+    call TIMING(CPTF10,CPE,TIOTF10,TIOE)
+    if (IPRGLB >= VERBOSE) then
+      CPUT = CPTF10-CPTF0
+      WALLT = TIOTF10-TIOTF0
+      write(u6,'(a,2f10.2)') ' OLagNS  : CPU/WALL TIME=',cput,wallt
+    end if
+    !write(u6,*) 'DPT2C'
+    !call sqprt(dpt2c,nbast)
 
-        !! Construct orbital Lagrangian that comes from the derivative
-        !! of ERIs. Also, do the Fock transformation of the DPT2 and
-        !! DPT2C densities.
-        NumChoTot = 0
-        If (IfChol) Then
-          Do iSym = 1, nSym
-            NumChoTot = NumChoTot + NumCho_PT2(iSym)
-          End Do
-          call mma_allocate(A_PT2,MaxVec_PT2**2,Label='A_PT2')
-          A_PT2(:) = Zero
-        Else
-          call mma_allocate(A_PT2,1,Label='A_PT2')
-        End If
-        Do iSym = 1, nSym
-          nOcc = nIsh(iSym)+nAsh(iSym)
-          lT2AO = 1
-          If (.not.IfChol .or. iALGO /= 1) Then
-            lT2AO = nOcc*nOcc*nBasT*nBasT
-            call mma_allocate(T2AO,lT2AO,Label='T2AO')
-            T2AO(:) = Zero
-          Else
-            CALL mma_allocate(T2AO,lT2AO,Label='T2AO')
-          End If
+    !! MO -> AO transformations for DPT2 and DPT2C
+    if (((.not. IfChol) .or. (iALGO /= 1)) .or. ((nFroT == 0) .and. if_invaria)) then
+      call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
+      call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2C,DPT2C_AO,WRK1)
+      !write(u6,*) 'dpt2'
+      !call sqprt(dpt2,nbast)
+      !write(u6,*) 'dpt2ao'
+      !call sqprt(dpt2_ao,nbast)
+    end if
 
-          !! Orbital Lagrangian that comes from the derivative of ERIs.
-          !! OLagNS computes only the particle orbitals.
-!         write(u6,*) 'ialgo = ', ialgo
-          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          If (IfChol .and. iALGO == 1) Then
-            CALL OLagNS_RI(iSym,NBSQT,MaxVec_PT2,DPT2C,DPT2Canti,A_PT2)
-          Else
-            CALL OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
-          End If
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          IF (IPRGLB >= VERBOSE) THEN
-            CPUT =CPTF10-CPTF0
-            WALLT=TIOTF10-TIOTF0
-            write(u6,'(a,2f10.2)')                                      &
-     &        ' OLagNS  : CPU/WALL TIME=', cput,wallt
-          END IF
-!         write(u6,*) 'DPT2C'
-!         call sqprt(dpt2c,nbast)
+    !! Do some transformations relevant to avoiding (VV|VO)
+    !! integrals. Orbital Lagrangian for the hole orbitals are
+    !! computed. At the same time, F = G(D) transformations are
+    !! also performed for D = DPT2 and DPT2C
+    !! The way implemented (what?) is just a shit. I cannot find
+    !! FIFA and FIMO for frozen orbitals, so I have to construct
+    !! them. Here is the transformation of G(D^inact) and G(D).
+    !! FIFA_all and FIMO_all computed in this subroutine
+    !! is not yet correct. They are just two-electron after this
+    !! subroutine.
+    call TIMING(CPTF0,CPE,TIOTF0,TIOE)
+    call OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2_AO,DPT2C_AO,FPT2_AO,FPT2C_AO,T2AO,DIA,DI,FIFA_all,FIMO_all,A_PT2)
+    !write(u6,*) 'olag after vvvo'
+    !call sqprt(olag,nbast)
+    call TIMING(CPTF10,CPE,TIOTF10,TIOE)
+    if (IPRGLB >= VERBOSE) then
+      CPUT = CPTF10-CPTF0
+      WALLT = TIOTF10-TIOTF0
+      write(u6,'(a,2f10.2)') ' OLagVVVO: CPU/WALL TIME=',cput,wallt
+    end if
+    !write(u6,*) 'OLag'
+    !do i=1,144
+    !  write(u6,'(i3,f20.10)') i,olag(i)
+    !end do
+    !write(u6,*) 'fpt2ao'
+    !call sqprt(fpt2_ao,12)
+    !call abend()
 
-          !! MO -> AO transformations for DPT2 and DPT2C
-          If ((.not.IfChol .or. iALGO /= 1)                             &
-     &       .or.(nFroT == 0 .and. if_invaria)) Then
-            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
-            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2C,DPT2C_AO,WRK1)
-!           write(u6,*) 'dpt2'
-!           call sqprt(dpt2,nbast)
-!           write(u6,*) 'dpt2ao'
-!           call sqprt(dpt2_ao,nbast)
-          End If
+    !! AO -> MO transformations for FPT2AO and FPT2CAO
+    if (((.not. IfChol) .or. (iALGO /= 1)) .or. ((nFroT == 0) .and. if_invaria)) then
+      call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
+      call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
+    end if
 
-          !! Do some transformations relevant to avoiding (VV|VO)
-          !! integrals. Orbital Lagrangian for the hole orbitals are
-          !! computed. At the same time, F = G(D) transformations are
-          !! also performed for D = DPT2 and DPT2C
-          !! The way implemented (what?) is just a shit. I cannot find
-          !! FIFA and FIMO for frozen orbitals, so I have to construct
-          !! them. Here is the transformation of G(D^inact) and G(D).
-          !! FIFA_all and FIMO_all computed in this subroutine
-          !! is not yet correct. They are just two-electron after this
-          !! subroutine.
-          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          CALL OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2_AO,DPT2C_AO,   &
-     &                  FPT2_AO,FPT2C_AO,T2AO,                          &
-     &                  DIA,DI,FIFA_all,FIMO_all,A_PT2)
-        !   write(u6,*) 'olag after vvvo'
-        !   call sqprt(olag,nbast)
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          IF (IPRGLB >= VERBOSE) THEN
-            CPUT =CPTF10-CPTF0
-            WALLT=TIOTF10-TIOTF0
-            write(u6,'(a,2f10.2)')                                      &
-     &        ' OLagVVVO: CPU/WALL TIME=', cput,wallt
-          END IF
-!     write(u6,*) 'OLag'
-!     do i = 1, 144
-!       write(u6,'(i3,f20.10)') i,olag(i)
-!     end do
-!      write(u6,*) 'fpt2ao'
-!     call sqprt(fpt2_ao,12)
-!     call abend()
+    call mma_deallocate(T2AO)
+  end do
+  call mma_deallocate(A_PT2)
+  !! Add DPTC to DSUM for the correct unrelaxed density
+  !! Also, symmetrize DSUM
+  call AddDPTC(NBSQT,NDPT,DPT2C,DSUM)
 
-          !! AO -> MO transformations for FPT2AO and FPT2CAO
-          If ((.not.IfChol .or. iALGO /= 1)                             &
-     &        .or.(nFroT == 0 .and. if_invaria)) Then
-            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
-            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
-          End If
+  !write(u6,*) 'fptao after olagns'
+  !call sqprt(fpt2_ao,nbast)
+  !write(u6,*) 'fptcao after olagns'
+  !call sqprt(fpt2c_ao,nbast)
+  !write(u6,*) 'olag after olagns'
+  !call sqprt(olag,nbast)
 
-          call mma_deallocate(T2AO)
-        End Do
-        call mma_deallocate(A_PT2)
-        !! Add DPTC to DSUM for the correct unrelaxed density
-        !! Also, symmetrize DSUM
-        Call AddDPTC(NBSQT,NDPT,DPT2C,DSUM)
-!
-!       write(u6,*) 'fptao after olagns'
-!       call sqprt(fpt2_ao,nbast)
-!       write(u6,*) 'fptcao after olagns'
-!       call sqprt(fpt2c_ao,nbast)
-!       write(u6,*) 'olag after olagns'
-!       call sqprt(olag,nbast)
-!
-        !! If frozen orbitals exist, frozen-inactive part of the
-        !! unrelaxed PT2 density matrix is computed using the orbital
-        !! Lagrangian. Additionally, Fock transformation is also
-        !! required.
-        If (nFroT /= 0 .or. .not.if_invaria) Then
-          !! Compute DPT2 density for frozen-inactive
-!         write(u6,*) 'dpt2 before frozen'
-!         call sqprt(dpt2,nbast)
-          if (.not.ifchol) then
-            !! Construct FIFA and FIMO
-            Call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
-            !! if possible, canonicalize frozen orbitals, and update
-            !! FIMO and Trf
+  !! If frozen orbitals exist, frozen-inactive part of the
+  !! unrelaxed PT2 density matrix is computed using the orbital
+  !! Lagrangian. Additionally, Fock transformation is also
+  !! required.
+  if ((nFroT /= 0) .or. (.not. if_invaria)) then
+    !! Compute DPT2 density for frozen-inactive
+    !write(u6,*) 'dpt2 before frozen'
+    !call sqprt(dpt2,nbast)
+    if (.not. ifchol) then
+      !! Construct FIFA and FIMO
+      call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
+      !! if possible, canonicalize frozen orbitals, and update
+      !! FIMO and Trf
+    end if
+    !! Save DPT in order to subtract later
+    WRK1(1:nDPTAO) = DPT2(1:nDPTAO)
+    !! Add explicit FIMO and FIFA contributions. Implicit
+    !! contributions are all symmetric in frozen + inactive
+    !! orbitals, so they do not contribute to frozen density
+    call DGEMM_('N','T',nBasT,nBasT,nBasT,One,FIMO_all,nBasT,DPT2C,nBasT,One,OLAG,nBasT)
+    call DGEMM_('T','N',nBasT,nBasT,nBasT,One,FIMO_all,nBasT,DPT2C,nBasT,One,OLAG,nBasT)
+    call DGEMM_('N','T',nBasT,nBasT,nBasT,One,FIFA_all,nBasT,DPT2,nBasT,One,OLAG,nBasT)
+    call DGEMM_('T','N',nBasT,nBasT,nBasT,One,FIFA_all,nBasT,DPT2,nBasT,One,OLAG,nBasT)
+
+    !! non-invariant in inactive and secondary
+    if (.not. if_invaria) then
+      !! Construct the density from orbital Lagrangian
+      call caspt2_grad_invaria2(NBSQT,nOLag,DPT2,OLag)
+      !! FIFA contributions from the non-invariant density
+      DPT2(1:nDPTAO) = DPT2(1:nDPTAO)-WRK1(1:nDPTAO)
+      !! Add the non-invariant contribution to unrelaxed density
+      call AddDPTC(NBSQT,NDPT,DPT2,DSUM)
+      call DGEMM_('N','T',nBasT,nBasT,nBasT,One,FIFA_all,nBasT,DPT2,nBasT,One,OLAG,nBasT)
+      call DGEMM_('T','N',nBasT,nBasT,nBasT,One,FIFA_all,nBasT,DPT2,nBasT,One,OLAG,nBasT)
+      !! Restore the second-order correlated density
+      DPT2(1:nDPTAO) = DPT2(1:nDPTAO)+WRK1(1:nDPTAO)
+      WRK1(1:nDPTAO) = DPT2(1:nDPTAO)
+    end if
+    !! Now, compute pseudo-density using orbital Lagrangian
+    !! DSUM does not contain frozen orbitals,
+    !! so the properties using this density may be inaccurate
+    if (nFroT /= 0) call OLagFro1(NBSQT,nOLag,DPT2,OLag)
+
+    !! Subtract the orbital Lagrangian added above.
+    !! It is computed again in EigDer
+    call DGEMM_('N','T',nBasT,nBasT,nBasT,-One,FIMO_all,nBasT,DPT2C,nBasT,One,OLAG,nBasT)
+    call DGEMM_('T','N',nBasT,nBasT,nBasT,-One,FIMO_all,nBasT,DPT2C,nBasT,One,OLAG,nBasT)
+    call DGEMM_('N','T',nBasT,nBasT,nBasT,-One,FIFA_all,nBasT,WRK1,nBasT,One,OLAG,nBasT)
+    call DGEMM_('T','N',nBasT,nBasT,nBasT,-One,FIFA_all,nBasT,WRK1,nBasT,One,OLAG,nBasT)
+    !write(u6,*) 'dpt after frozen'
+    !call sqprt(dpt2,nbast)
+
+    !! Fock transformation for frozen-inactive density
+    if (IfChol) then
+      iSym = 1
+      !! MO -> AO transformations for DPT2 and DPT2C
+      call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
+      call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2C,DPT2C_AO,WRK1)
+      !! For DF-CASPT2, Fock transformation of DPT2, DPT2C, DIA,
+      !! DA is done here, but not OLagVVVO
+      !! It seems that it is not possible to do this
+      !! transformation in OLagVVVO, because the frozen-part of
+      !! the DPT2 is obtained after OLagVVVO.
+      FPT2_AO(:) = Zero
+      FPT2C_AO(:) = Zero
+      call OLagFro4(NBSQT,1,1,1,1,1,DPT2_AO,DPT2C_AO,FPT2_AO,FPT2C_AO,WRK1)
+      !! AO -> MO transformations for FPT2AO and FPT2CAO
+      call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
+      call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
+    else
+      !write(u6,*) 'dpt'
+      !call sqprt(dpt2,nbast)
+      call OLagFro2(NBSQT,DPT2,FPT2,WRK1,WRK2)
+      !write(u6,*) 'fpt'
+      !call sqprt(dpt2,nbast)
+    end if
+      !write(u6,*) 'fifa_all'
+      !call sqprt(fifa_all,12)
+      !write(u6,*) 'fimo_all'
+      !call sqprt(fimo_all,12)
+      !! Construct FIFA and FIMO
+      !call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
+  else ! there are no frozen orbitals
+    iSQ = 0
+    iTR = 0
+    do iSym=1,nSym
+      nOrbI = nOrb(iSym)
+      call SQUARE(FIFA(1+iTR),FIFA_all(1+iSQ),1,nOrbI,nOrbI)
+      call SQUARE(FIMO(1+iTR),FIMO_all(1+iSQ),1,nOrbI,nOrbI)
+      iSQ = iSQ+nOrbI*nOrbI
+      iTR = iTR+nOrbI*(nOrbI+1)/2
+    end do
+  end if
+  call mma_deallocate(DIA)
+  call mma_deallocate(DI)
+  !write(u6,*) 'fifa_all in dens'
+  !call sqprt(fifa_all,nbast)
+  !write(u6,*) 'fimo_all in dens'
+  !call sqprt(fimo_all,nbast)
+  !write(u6,*) 'FIFA in natural'
+  !call DGemm_('N','N',nBasT,nBasT,nBasT,One,Trf,nBasT,fifa_all,nBasT,Zero,WRK1,nBasT)
+  !call DGemm_('N','T',nBasT,nBasT,nBasT,One,WRK1,nBasT,Trf,nBasT,Zero,WRK2,nBasT)
+  !call sqprt(wrk2,12)
+
+  !! Do some post-process for the contributions that comes from
+  !! the above two densities.
+  !write(u6,*) 'olag before eigder'
+  !call sqprt(olag,nbast)
+  !write(u6,*) 'fpt2'
+  !call sqprt(fpt2,nbast)
+  call EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2_AO,FPT2C_AO,RDMEIG,CMOPT2,Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMSA)
+  !call test2_dens(olag,depsa)
+  !write(u6,*) 'olag after eigder'
+  !call sqprt(olag,nbast)
+  !write(u6,*) 'Wlag after eigder'
+  !call sqprt(wlag,nbast)
+  !write(u6,*) 'rdmeig'
+  !call sqprt(rdmeig,nasht)
+  !call abend()
+
+  !! Calculate the configuration Lagrangian again.
+  !! The contribution comes from the derivative of eigenvalues.
+  !! It seems that TRACI_RPT2 uses CI coefficients of RASSCF,
+  !! so canonical -> natural transformation is required.
+  !ipTrfL = 1+nAshT*nBasT+nAshT
+  !call DGemm_('N','N',nAshT,nAshT,nAshT,One,Trf(ipTrfL),nBasT,RDMEIG,nAshT,Zero,WRK1,nAshT)
+  !call DGemm_('N','T',nAshT,nAshT,nAshT,One,WRK1,nAshT,Trf(ipTrfL),nBasT,Zero,RDMEIG,nAshT)
+  if (.not. if_invar) then !test
+    call mma_allocate(CLagT,nConf,nState,Label='CLagT')
+    call mma_allocate(EigT,nAshT,nAshT,Label='EigT')
+    CLagT(:,:) = CLag(:,:)
+    EigT(:,:) = RDMEIG(:,:)
+    if (IFDW .and. (zeta >= Zero)) then
+      call mma_allocate(OMGT,nState,nState,Label='OMGT')
+      OMGT(:,:) = OMGDER(:,:)
+    end if
+  end if
+  !! Use canonical CSFs rather than natural CSFs in CLagEig
+  call mma_allocate(ISAV,size(IDCIEX),Label='ISAV')
+  ISAV(:) = IDCIEX(:)
+  IDCIEX(:) = IDTCEX(:)
+  !! Now, compute the configuration Lagrangian
+  call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,RDMEIG)
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) call GADGOP(CLag,nCLag,'+')
+# endif
+
+  !! Now, here is the best place to compute the true off-diagonal
+  !! active density for non-invariant CASPT2
+  if (.not. if_invar) then
+    SLag(:,:) = Zero
+    !! Add the density that comes from CI Lagrangian
+    call DEPSAOffC(nConf,nState,nAshT,nBasT,CLag,DEPSA,FIFA_all,FIMO_all,WRK1,WRK2,U0)
+    !! Add the density that comes from orbital Lagrangian
+    call DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA_all)
+    !! Restore the diagonal elements
+    call DCopy_(nAshT,DEPSA_diag,1,DEPSA,nAshT+1)
+    call mma_deallocate(DEPSA_diag)
+    if (IPRGLB >= VERBOSE) then
+      write(u6,*) 'DEPSA computed again'
+      call sqprt(depsa,nasht)
+    end if
+    if (NRAS1T+NRAS3T /= 0) then
+      !! Remove the off-diagonal blocks for RASPT2
+      do II=1,nRAS1T
+        do JJ=nRAS1T+1,nAshT
+          DEPSA(II,JJ) = Zero
+          DEPSA(JJ,II) = Zero
+        end do
+      end do
+      do II=nRAS1T+1,nRAS1T+nRAS2T
+        do JJ=nRAS1T+nRAS2T+1,nAshT
+          DEPSA(II,JJ) = Zero
+          DEPSA(JJ,II) = Zero
+        end do
+      end do
+    end if
+    !call dcopy_(nasht**2,[Zero],0,depsa,1)
+
+    !! We have to do many things again...
+    !! Just add DEPSA to DPT2
+    call AddDEPSA(NBSQT,nAshT,DPT2,DEPSA)
+    !! Just transform the density in MO to AO
+    call DPT2_Trf(NBSQT,nAshT,DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
+    !! For IPEA shift with state-dependent density
+    if (if_SSDM .and. ((jState == iRlxRoot) .or. IFMSCOUP)) then
+      iSym = 1
+      call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
+    end if
+    !! Some transformations similar to EigDer
+    call EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA_all,RDMSA,DEPSA,WRK1,WRK2)
+
+    CLag(:,:) = CLagT(:,:) !test
+    ! test
+    RDMEIG(:,:) = RDMEIG(:,:)+EigT(:,:)
+    SLag(:,:) = Zero
+    call mma_deallocate(CLagT)
+    call mma_deallocate(EigT)
+    if (IFDW .and. (zeta >= Zero)) then
+      OMGDER(:,:) = OMGT(:,:)
+      call mma_deallocate(OMGT)
+    end if
+    !! RDMEIG contributions
+    !! Use canonical CSFs rather than natural CSFs
+    !! Now, compute the configuration Lagrangian
+    call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,RDMEIG)
+#   ifdef _MOLCAS_MPP_
+    if (Is_Real_Par()) call GADGOP(CLag,nCLag,'+')
+#   endif
+    !! Now, compute the state Lagrangian and do some projections
+    !call CLagFinal(nConf,nState,CLag,SLag)
+  end if
+
+  !! Restore integrals without frozen orbitals, although not sure
+  !! this operation is required.
+  if (((nFroT /= 0) .or. (.not. if_invaria)) .and. (.not. IfChol)) call TRAFRO(2)
+
+  IDCIEX(:) = ISAV(:)
+  call mma_deallocate(ISAV)
+  !! Canonical -> natural transformation
+  if (ORBIN == 'TRANSFOR') then
+    do iState=1,nState
+      call CLagX_TrfCI(nConf,CLag(1,iState))
+    end do
+  end if
+  ! accumulate configuration Lagrangian only for MS,XMS,XDW,RMS,
+  ! but not for SS-CASPT2
+  if ((jState == iRlxRoot) .or. IFMSCOUP) CLagFull(1:nConf,1:nState) = CLagFull(1:nConf,1:nState)+CLag(1:nConf,1:nState)
+  !call CLagFinal(nConf,nState,CLag,SLag)
+
+  !! Transformations of DPT2 in quasi-canonical to natural orbital
+  !! basis and store the transformed density so that the MCLR
+  !! module can use them.
+  ! accumulate only if MS,XMS,XDW or RMS calculation
+  !call RecPrt('DPT2 before', '', DPT2_tot, nBast, nBast)
+  if ((jState == iRlxRoot) .or. IFMSCOUP) then
+    call DPT2_TrfStore(One,NBSQT,DPT2,DPT2_tot,Trf,WRK1)
+    call DPT2_TrfStore(Two,NBSQT,DPT2C,DPT2C_tot,Trf,WRK1)
+    if (do_csf) call DPT2_TrfStore(One,NBSQT,DPT2Canti,DPT2Canti_tot,Trf,WRK1)
+  end if
+  !call RecPrt('DPT2 after','',DPT2_tot,nBast,nBast)
+  !! Save MO densities for post MCLR
+  !call DGemm_('N','N',nBasT,nBasT,nBasT,One,Trf,nBasT,DPT,nBasT,Zero,WRK1,nBasT)
+  !call DGemm_('N','T',nBasT,nBasT,nBasT,One,WRK1,nBasT,Trf,nBasT,Zero,WRK2,nBasT)
+  !iSQ = 0
+  !do iSym=1,nSym
+  !  nOrbI = nBas(iSym)-nDel(iSym)
+  !  nSQ = nOrbI*nOrbI
+  !  call DaXpY_(nSQ,One,WRK2(1+iSQ),1,DPT2_tot(1+iSQ),1)
+  !  iSQ = iSQ+nSQ
+  !end do
+
+  !! Do the same for DPT2C Save MO densities for post MCLR
+  !call DGemm_('N','N',nBasT,nBasT,nBasT,One,Trf,nBasT,DPT2C,nBasT,Zero,WRK1,nBasT)
+  !call DGemm_('N','T',nBasT,nBasT,nBasT,One,WRK1,nBasT,Trf,nBasT,Zero,WRK2,nBasT)
+  !iSQ = 0
+  !do iSym=1,nSym
+  !  nOrbI = nBas(iSym)-nDel(iSym)
+  !  nSQ = nOrbI*nOrbI
+  !  call DaXpY_(nSQ,Two,WRK2(1+iSQ),1,DPT2C_tot(1+iSQ),1)
+  !  iSQ = iSQ+nSQ
+  !end do
+  !call abend()
+  !call sqprt(RDMEIG,nAshT)
+
+  !! square -> triangle so that the MCLR module can use the AO
+  !! densities. Do this for DPT2AO and DPT2CAO (defined in
+  !! caspt2_grad).
+  ! accumulate only if MS,XMS,XDW or RMS calculation
+  if ((jState == iRlxRoot) .or. IFMSCOUP) then
+    iBasTr = 1
+    iBasSq = 1
+    do iSym=1,nSym
+      nBasI = nBas(iSym)
+      liBasTr = iBasTr
+      liBasSq = iBasSq
+      do iBasI=1,nBasI
+        do jBasI=1,iBasI
+          liBasSq = iBasSq+iBasI-1+nBasI*(jBasI-1)
+          if (iBasI == jBasI) then
+            DPT2_AO_tot(liBasTr) = DPT2_AO(liBasSq)
+            DPT2C_AO_tot(liBasTr) = DPT2C_AO(liBasSq)
+          else
+            DPT2_AO_tot(liBasTr) = DPT2_AO(liBasSq)*Two
+            DPT2C_AO_tot(liBasTr) = DPT2C_AO(liBasSq)*Two
           end if
-          !! Save DPT in order to subtract later
-          WRK1(1:nDPTAO) = DPT2(1:nDPTAO)
-          !! Add explicit FIMO and FIFA contributions. Implicit
-          !! contributions are all symmetric in frozen + inactive
-          !! orbitals, so they do not contribute to frozen density
-          CALL DGEMM_('N','T',nBasT,nBasT,nBasT,                        &
-     &                One,FIMO_all,nBasT,DPT2C,nBasT,                   &
-     &                One,OLAG,nBasT)
-          CALL DGEMM_('T','N',nBasT,nBasT,nBasT,                        &
-     &                One,FIMO_all,nBasT,DPT2C,nBasT,                   &
-     &                One,OLAG,nBasT)
-          CALL DGEMM_('N','T',nBasT,nBasT,nBasT,                        &
-     &                One,FIFA_all,nBasT,DPT2,nBasT,                    &
-     &                One,OLAG,nBasT)
-          CALL DGEMM_('T','N',nBasT,nBasT,nBasT,                        &
-     &                One,FIFA_all,nBasT,DPT2,nBasT,                    &
-     &                One,OLAG,nBasT)
+          liBasTr = liBasTr+1
+        end do
+      end do
+      iBasTr = iBasTr+nBasI*(nBasI+1)/2
+      iBasSq = iBasSq+nBasI*nBasI
+    end do
+  end if
 
-          !! non-invariant in inactive and secondary
-          if(.not.if_invaria) then
-            !! Construct the density from orbital Lagrangian
-            call caspt2_grad_invaria2(NBSQT,nOLag,DPT2,OLag)
-            !! FIFA contributions from the non-invariant density
-            DPT2(1:nDPTAO) = DPT2(1:nDPTAO) - WRK1(1:nDPTAO)
-            !! Add the non-invariant contribution to unrelaxed density
-            Call AddDPTC(NBSQT,NDPT,DPT2,DSUM)
-            CALL DGEMM_('N','T',nBasT,nBasT,nBasT,                      &
-     &                  One,FIFA_all,nBasT,DPT2,nBasT,                  &
-     &                  One,OLAG,nBasT)
-            CALL DGEMM_('T','N',nBasT,nBasT,nBasT,                      &
-     &                  One,FIFA_all,nBasT,DPT2,nBasT,                  &
-     &                  One,OLAG,nBasT)
-            !! Restore the second-order correlated density
-            DPT2(1:nDPTAO) = DPT2(1:nDPTAO) + WRK1(1:nDPTAO)
-            WRK1(1:nDPTAO) = DPT2(1:nDPTAO)
-          end if
-          !! Now, compute pseudo-density using orbital Lagrangian
-          !! DSUM does not contain frozen orbitals,
-          !! so the properties using this density may be inaccurate
-          If(nFroT /= 0) Call OLagFro1(NBSQT,nOLag,DPT2,OLag)
+  !! If the density matrix used in the Fock operator is different
+  !! from the averaged density in the SCF calculation, we need an
+  !! additional term for electron-repulsion integral.
+  !! Here prepares such densities.
+  !! The first one is just DPT2AO, while the second one is the
+  !! difference between the SS and SA density matrix. because the
+  !! SA density-contribution will be added and should be
+  !! subtracted
+  ! This should be done only for iRlxRoot
+  if (if_SSDM .and. ((jState == iRlxRoot) .or. IFMSCOUP)) then
+    call TIMING(CPTF0,CPE,TIOTF0,TIOE)
+    !if (.not. if_invar) then
+    !  write(u6,*) 'SS density matrix with IPEA not implemented'
+    !  call abend()
+    !end if
 
-          !! Subtract the orbital Lagrangian added above.
-          !! It is computed again in EigDer
-          CALL DGEMM_('N','T',nBasT,nBasT,nBasT,                        &
-     &               -One,FIMO_all,nBasT,DPT2C,nBasT,                   &
-     &                One,OLAG,nBasT)
-          CALL DGEMM_('T','N',nBasT,nBasT,nBasT,                        &
-     &               -One,FIMO_all,nBasT,DPT2C,nBasT,                   &
-     &                One,OLAG,nBasT)
-          CALL DGEMM_('N','T',nBasT,nBasT,nBasT,                        &
-     &               -One,FIFA_all,nBasT,WRK1,nBasT,                    &
-     &                One,OLAG,nBasT)
-          CALL DGEMM_('T','N',nBasT,nBasT,nBasT,                        &
-     &               -One,FIFA_all,nBasT,WRK1,nBasT,                    &
-     &                One,OLAG,nBasT)
-!         write(u6,*) 'dpt after frozen'
-!         call sqprt(dpt2,nbast)
+    !! Construct the SCF density
+    !! We first need to construct the density averaged over all
+    !! roots involved in SCF.
+    WRK1(1:nDRef) = Zero
+    call mma_allocate(CI1,nConf,Label='CI1')
+    do iState=1,nState
+      call LoadCI_XMS('N',1,nConf,nState,CI1,iState,U0)
+      call POLY1(CI1,nConf)
+      call GETDREF(WRK2,nDRef)
+      wgt = Weight(iState)
+      WRK1(1:nDRef) = WRK1(1:nDRef)+Wgt*WRK2(1:nDRef)
+    end do
+    call mma_deallocate(CI1)
+    !! WRK2 is the SCF density (for nstate=nroots)
+    call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
+    call DaXpY_(nAshT**2,-One,WRK2,1,RDMSA,1)
+    !! Construct the SS minus SA density matrix in WRK1
+    call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
+    !! Subtract the inactive part
+    WRK1(1:nBasT**2) = WRK1(1:nBasT**2)-WRK2(1:nBasT**2)
+    !! Here we should use DPT2_AO??
+    !! Save
+    if (IfChol) then
+      call CnstAB_SSDM(NBSQT,DPT2_AO,WRK1)
+    else
+      !! Well, it is not working any more. I need to use
+      !! Position='APPEND', but it is not possible if I need to
+      !! use molcas_open or molcas_open_ext2
+      write(u6,*) 'It is not possible to perform this calculation'
+      write(u6,*) '(non-state averaged density without'
+      write(u6,*) 'density-fitting or Cholesky decomposition)'
+      write(u6,*) 'Please use DF or CD'
+      call abend()
+    end if
+    call TIMING(CPTF10,CPE,TIOTF10,TIOE)
+    if (IPRGLB >= VERBOSE) then
+      CPUT = CPTF10-CPTF0
+      WALLT = TIOTF10-TIOTF0
+      write(u6,'(a,2f10.2)') ' SSDM    : CPU/WALL TIME=',cput,wallt
+    end if
+  end if
+  !write(u6,*) 'pt2ao'
+  !call sqprt(DPT2_AO,12)
+  call mma_deallocate(DEPSA)
 
-          !! Fock transformation for frozen-inactive density
-          If (IfChol) Then
-            iSym=1
-            !! MO -> AO transformations for DPT2 and DPT2C
-            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
-            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2C,DPT2C_AO,WRK1)
-            !! For DF-CASPT2, Fock transformation of DPT2, DPT2C, DIA,
-            !! DA is done here, but not OLagVVVO
-            !! It seems that it is not possible to do this
-            !! transformation in OLagVVVO, because the frozen-part of
-            !! the DPT2 is obtained after OLagVVVO.
-            FPT2_AO(:) = Zero
-            FPT2C_AO(:) = Zero
-            Call OLagFro4(NBSQT,1,1,1,1,1,                              &
-     &                    DPT2_AO,DPT2C_AO,FPT2_AO,FPT2C_AO,WRK1)
-            !! AO -> MO transformations for FPT2AO and FPT2CAO
-            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
-            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
-          Else
-!           write(u6,*) 'dpt'
-!           call sqprt(dpt2,nbast)
-            Call OLagFro2(NBSQT,DPT2,FPT2,WRK1,WRK2)
-!         write(u6,*) 'fpt'
-!           call sqprt(dpt2,nbast)
-          End If
-!         write(u6,*) 'fifa_all'
-!         call sqprt(fifa_all,12)
-!         write(u6,*) 'fimo_all'
-!         call sqprt(fimo_all,12)
-      !   !! Construct FIFA and FIMO
-      !   Call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
-        Else ! there are no frozen orbitals
-          iSQ = 0
-          iTR = 0
-          Do iSym = 1, nSym
-            nOrbI = nOrb(iSym)
-            Call SQUARE(FIFA(1+iTR),FIFA_all(1+iSQ),1,nOrbI,nOrbI)
-            Call SQUARE(FIMO(1+iTR),FIMO_all(1+iSQ),1,nOrbI,nOrbI)
-            iSQ = iSQ + nOrbI*nOrbI
-            iTR = iTR + nOrbI*(nOrbI+1)/2
-          End Do
-        End If
-        call mma_deallocate(DIA)
-        call mma_deallocate(DI)
-!         write(u6,*) 'fifa_all in dens'
-!         call sqprt(fifa_all,nbast)
-!         write(u6,*) 'fimo_all in dens'
-!         call sqprt(fimo_all,nbast)
-!        write(u6,*) 'FIFA in natural'
-!         Call DGemm_('N','N',nBasT,nBasT,nBasT,
-!    *                One,Trf,nBasT,fifa_all,nBasT,
-!    *                Zero,WRK1,nBasT)
-!         Call DGemm_('N','T',nBasT,nBasT,nBasT,
-!    *                One,WRK1,nBasT,Trf,nBasT,
-!    *                Zero,WRK2,nBasT)
-!         call sqprt(wrk2,12)
+  call mma_deallocate(DPT2)
+  call mma_deallocate(DPT2C)
+  call mma_deallocate(DPT2_AO)
+  call mma_deallocate(DPT2C_AO)
+  call mma_deallocate(FPT2)
+  call mma_deallocate(FPT2C)
+  call mma_deallocate(FPT2_AO)
+  call mma_deallocate(FPT2C_AO)
+  if (do_csf) call mma_deallocate(DPT2Canti_)
+  DPT2Canti => null()
 
-        !! Do some post-process for the contributions that comes from
-        !! the above two densities.
-!       write(u6,*) 'olag before eigder'
-!       call sqprt(olag,nbast)
-!       write(u6,*) 'fpt2'
-!       call sqprt(fpt2,nbast)
-        CALL EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2_AO,FPT2C_AO,RDMEIG,     &
-     &              CMOPT2,Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMSA)
-!          call test2_dens(olag,depsa)
-!       write(u6,*) 'olag after eigder'
-!       call sqprt(olag,nbast)
-!       write(u6,*) 'Wlag after eigder'
-!       call sqprt(wlag,nbast)
-!       write(u6,*) 'rdmeig'
-!       call sqprt(rdmeig,nasht)
-!       call abend()
+  !! Finalize OLag (anti-symmetrize) and construct WLag
+  call OLagFinal(nOLag,NBSQT,OLag,Trf)
 
-        !! Calculate the configuration Lagrangian again.
-        !! The contribution comes from the derivative of eigenvalues.
-        !! It seems that TRACI_RPT2 uses CI coefficients of RASSCF,
-        !! so canonical -> natural transformation is required.
-!       ipTrfL = 1+nAshT*nBasT+nAshT
-!       Call DGemm_('N','N',nAshT,nAshT,nAshT,
-!    *              One,Trf(ipTrfL),nBasT,RDMEIG,nAshT,
-!    *              Zero,WRK1,nAshT)
-!       Call DGemm_('N','T',nAshT,nAshT,nAshT,
-!    *              One,WRK1,nAshT,Trf(ipTrfL),nBasT,
-!    *              Zero,RDMEIG,nAshT)
-        If (.not.if_invar) Then !test
-          call mma_allocate(CLagT,nConf,nState,Label='CLagT')
-          call mma_allocate(EigT,nAshT,nAshT,Label='EigT')
-          CLagT(:,:) = CLag(:,:)
-          EigT(:,:) = RDMEIG(:,:)
-          If (IFDW .and. zeta >= Zero) then
-            call mma_allocate(OMGT,nState,nState,Label='OMGT')
-            OMGT(:,:) = OMGDER(:,:)
-          end if
-        End If
-        !! Use canonical CSFs rather than natural CSFs in CLagEig
-        call mma_allocate(ISAV,SIZE(IDCIEX),Label='ISAV')
-        ISAV(:) = IDCIEX(:)
-        IDCIEX(:) = IDTCEX(:)
-        !! Now, compute the configuration Lagrangian
-        Call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,     &
-     &               RDMEIG)
-#ifdef _MOLCAS_MPP_
-        If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
-#endif
+  call mma_deallocate(TRF)
+  call mma_deallocate(WRK1)
+  call mma_deallocate(WRK2)
+  call mma_deallocate(RDMSA)
+  call mma_deallocate(RDMEIG)
+  call mma_deallocate(VECROT)
+  DENORM = One
+  !! end of with gradient
+else
+  !! without gradient
+  ! Compute total density matrix as symmetry-blocked array of
+  ! triangular matrices in DMAT. Size of a triangular submatrix is
+  ! (NORB(ISYM)*(NORB(ISYM)+1))/2.
+  NDPT = 0
+  do ISYM=1,NSYM
+    NO = NORB(ISYM)
+    NDPT = NDPT+NO**2
+  end do
+  DMAT(1:NDMAT) = Zero
+  ! First, put in the reference density matrix.
+  IDMOFF = 0
+  do ISYM=1,NSYM
+    NI = NISH(ISYM)
+    NA = NASH(ISYM)
+    NO = NORB(ISYM)
+    do II=1,NI
+      IDM = IDMOFF+(II*(II+1))/2
+      DMAT(IDM) = Two
+    end do
+    do IT=1,NA
+      ITABS = NAES(ISYM)+IT
+      ITTOT = NI+IT
+      do IU=1,IT
+        IUABS = NAES(ISYM)+IU
+        IUTOT = NI+IU
+        IDRF = (ITABS*(ITABS-1))/2+IUABS
+        IDM = IDMOFF+((ITTOT*(ITTOT-1))/2+IUTOT)
+        DMAT(IDM) = DREF(IDRF)
+      end do
+    end do
+    IDMOFF = IDMOFF+(NO*(NO+1))/2
+  end do
+  !write(u6,*) ' DENS. Initial DMAT:'
+  !write(u6,'(1x,8f16.8)') (dmat(i),i=1,ndmat)
+  ! Add the 1st and 2nd order density matrices:
+  call mma_allocate(DPT,NDPT,Label='DPT')
+  call mma_allocate(DSUM,NDPT,Label='DSUM')
+  DSUM(1:NDPT) = Zero
 
-        !! Now, here is the best place to compute the true off-diagonal
-        !! active density for non-invariant CASPT2
-        If (.not.if_invar) Then
-          SLag(:,:) = Zero
-          !! Add the density that comes from CI Lagrangian
-          Call DEPSAOffC(nConf,nState,nAshT,nBasT,CLag,DEPSA,FIFA_all,  &
-     &                   FIMO_all,WRK1,WRK2,U0)
-          !! Add the density that comes from orbital Lagrangian
-          Call DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA_all)
-          !! Restore the diagonal elements
-          Call DCopy_(nAshT,DEPSA_diag,1,DEPSA,nAshT+1)
-          call mma_deallocate(DEPSA_diag)
-          IF (IPRGLB >= VERBOSE) THEN
-            write(u6,*) 'DEPSA computed again'
-            call sqprt(depsa,nasht)
-          END IF
-          If (NRAS1T+NRAS3T /= 0) Then
-            !! Remove the off-diagonal blocks for RASPT2
-            Do II = 1, nRAS1T
-              Do JJ = nRAS1T+1, nAshT
-                DEPSA(II,JJ) = Zero
-                DEPSA(JJ,II) = Zero
-              End Do
-            End Do
-            Do II = nRAS1T+1, nRAS1T+nRAS2T
-              Do JJ = nRAS1T+nRAS2T+1, nAshT
-                DEPSA(II,JJ) = Zero
-                DEPSA(JJ,II) = Zero
-              End Do
-            End Do
-          End If
-!         call dcopy_(nasht**2,[Zero],0,depsa,1)
+  ! The 1st order contribution to the density matrix
+  DPT(1:NDPT) = Zero
+  call TRDNS1(IVEC,DPT,NDPT)
+  DSUM(1:NDPT) = DSUM(1:NDPT)+DPT(1:NDPT)
+  !write(u6,*) ' DPT after TRDNS1.'
+  !write(u6,'(1x,8f16.8)') (dpt(i),i=1,ndpt)
+  DPT(1:NDPT) = Zero
+  call TRDNS2D(IVEC,IVEC,DPT,NDPT,One)
+  if (IFDENS) then
+    ! The exact density matrix evaluation:
+    call TRDTMP(DPT,NDPT)
+  else
+    ! The approximate density matrix evaluation:
+    call TRDNS2A(IVEC,IVEC,DPT,NDPT)
+  end if
+  DSUM(1:NDPT) = DSUM(1:NDPT)+DPT(1:NDPT)
+  !write(u6,*) ' DPT after TRDNS2D.'
+  !write(u6,'(1x,8f16.8)') (dpt(i),i=1,ndpt)
+  DPT(1:NDPT) = Zero
+  call TRDNS2O(IVEC,IVEC,DPT,size(DPT),NDPT,One)
+  DSUM(1:NDPT) = DSUM(1:NDPT)+DPT(1:NDPT)
+  !write(u6,*) ' DPT after TRDNS2O.'
+  !write(u6,'(1x,8f16.8)') (dpt(i),i=1,ndpt)
+end if
 
-          !! We have to do many things again...
-          !! Just add DEPSA to DPT2
-          Call AddDEPSA(NBSQT,nAshT,DPT2,DEPSA)
-          !! Just transform the density in MO to AO
-          CALL DPT2_Trf(NBSQT,nAshT,DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
-          !! For IPEA shift with state-dependent density
-          If (if_SSDM .and. (jState == iRlxRoot .or. IFMSCOUP)) Then
-            iSym = 1
-            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
-          End If
-          !! Some transformations similar to EigDer
-          Call EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA_all,RDMSA,DEPSA,WRK1,&
-     &                 WRK2)
-
-          CLag(:,:) = CLagT(:,:) !test
-         !test
-          RDMEIG(:,:) = RDMEIG(:,:) + EigT(:,:)
-          SLag(:,:) = Zero
-          call mma_deallocate(CLagT)
-          call mma_deallocate(EigT)
-          if (IFDW .and. zeta >= Zero) then
-            OMGDER(:,:) = OMGT(:,:)
-            call mma_deallocate(OMGT)
-          end if
-          !! RDMEIG contributions
-          !! Use canonical CSFs rather than natural CSFs
-          !! Now, compute the configuration Lagrangian
-          Call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,   &
-     &                 RDMEIG)
-#ifdef _MOLCAS_MPP_
-          If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
-#endif
-          !! Now, compute the state Lagrangian and do some projections
-!         Call CLagFinal(nConf,nState,CLag,SLag)
-        End If
-
-        !! Restore integrals without frozen orbitals, although not sure
-        !! this operation is required.
-        If ((nFroT /= 0 .or. .not.if_invaria) .and. .not.IfChol)        &
-     &    Call TRAFRO(2)
-
-        IDCIEX(:) = ISAV(:)
-        Call mma_deallocate(ISAV)
-        !! Canonical -> natural transformation
-        IF(ORBIN == 'TRANSFOR') Then
-          Do iState = 1, nState
-            Call CLagX_TrfCI(nConf,CLag(1,iState))
-          End Do
-        End If
-        ! accumulate configuration Lagrangian only for MS,XMS,XDW,RMS,
-        ! but not for SS-CASPT2
-        if (jState == iRlxRoot .or. IFMSCOUP) then
-          CLagFull(1:nConf,1:nState) = CLagFull(1:nConf,1:nState)       &
-     &      + CLag(1:nConf,1:nState)
-        end if
-!       Call CLagFinal(nConf,nState,CLag,SLag)
-
-        !! Transformations of DPT2 in quasi-canonical to natural orbital
-        !! basis and store the transformed density so that the MCLR
-        !! module can use them.
-        ! accumulate only if MS,XMS,XDW or RMS calculation
-        ! call RecPrt('DPT2 before', '', DPT2_tot, nBast, nBast)
-        if (jState == iRlxRoot .or. IFMSCOUP) then
-          Call DPT2_TrfStore(One,NBSQT,DPT2,DPT2_tot,Trf,WRK1)
-          Call DPT2_TrfStore(Two,NBSQT,DPT2C,DPT2C_tot,Trf,WRK1)
-          If (do_csf)                                                   &
-     &    Call DPT2_TrfStore(One,NBSQT,DPT2Canti,DPT2Canti_tot,Trf,WRK1)
-        end if
-        ! call RecPrt('DPT2 after', '', DPT2_tot, nBast, nBast)
-!       !! Save MO densities for post MCLR
-!       Call DGemm_('N','N',nBasT,nBasT,nBasT,
-!    *              One,Trf,nBasT,DPT,nBasT,
-!    *              Zero,WRK1,nBasT)
-!       Call DGemm_('N','T',nBasT,nBasT,nBasT,
-!    *              One,WRK1,nBasT,Trf,nBasT,
-!    *              Zero,WRK2,nBasT)
-!       iSQ = 0
-!       Do iSym = 1, nSym
-!         nOrbI = nBas(iSym)-nDel(iSym)
-!         nSQ = nOrbI*nOrbI
-!         Call DaXpY_(nSQ,One,WRK2(1+iSQ),1,DPT2_tot(1+iSQ),1)
-!         iSQ = iSQ + nSQ
-!       End Do
-
-!       !! Do the same for DPT2C Save MO densities for post MCLR
-!       Call DGemm_('N','N',nBasT,nBasT,nBasT,
-!    *              One,Trf,nBasT,DPT2C,nBasT,
-!    *              Zero,WRK1,nBasT)
-!       Call DGemm_('N','T',nBasT,nBasT,nBasT,
-!    *              One,WRK1,nBasT,Trf,nBasT,
-!    *              Zero,WRK2,nBasT)
-!       iSQ = 0
-!       Do iSym = 1, nSym
-!         nOrbI = nBas(iSym)-nDel(iSym)
-!         nSQ = nOrbI*nOrbI
-!        Call DaXpY_(nSQ,Two,WRK2(1+iSQ),1,DPT2C_tot(1+iSQ),1)
-!         iSQ = iSQ + nSQ
-!       End Do
-!       call abend()
-!       call sqprt(RDMEIG,nAshT)
-
-        !! square -> triangle so that the MCLR module can use the AO
-        !! densities. Do this for DPT2AO and DPT2CAO (defined in
-        !! caspt2_grad.f and caspt2_grad.h).
-        ! accumulate only if MS,XMS,XDW or RMS calculation
-        if (jState == iRlxRoot .or. IFMSCOUP) then
-          iBasTr = 1
-          iBasSq = 1
-          Do iSym = 1, nSym
-            nBasI = nBas(iSym)
-            liBasTr = iBasTr
-            liBasSq = iBasSq
-            Do iBasI = 1, nBasI
-              Do jBasI = 1, iBasI
-                liBasSq = iBasSq + iBasI-1 + nBasI*(jBasI-1)
-                If (iBasI == jBasI) Then
-                  DPT2_AO_tot(liBasTr)  = DPT2_AO(liBasSq)
-                  DPT2C_AO_tot(liBasTr) = DPT2C_AO(liBasSq)
-                Else
-                  DPT2_AO_tot(liBasTr) = DPT2_AO(liBasSq)*Two
-                  DPT2C_AO_tot(liBasTr) = DPT2C_AO(liBasSq)*Two
-                End If
-                liBasTr = liBasTr + 1
-              End Do
-            End Do
-            iBasTr = iBasTr + nBasI*(nBasI+1)/2
-            iBasSq = iBasSq + nBasI*nBasI
-          End Do
-        end if
-
-        !! If the density matrix used in the Fock operator is different
-        !! from the averaged density in the SCF calculation, we need an
-        !! additional term for electron-repulsion integral.
-        !! Here prepares such densities.
-        !! The first one is just DPT2AO, while the second one is the
-        !! difference between the SS and SA density matrix. because the
-        !! SA density-contribution will be added and should be
-        !! subtracted
-        ! This should be done only for iRlxRoot
-        If (if_SSDM .and. (jState == iRlxRoot .or. IFMSCOUP)) Then
-          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-!         If (.not.if_invar) Then
-!           write(u6,*) 'SS density matrix with IPEA not implemented'
-!           Call abend()
-!         End If
-
-          !! Construct the SCF density
-          !! We first need to construct the density averaged over all
-          !! roots involved in SCF.
-          WRK1(1:nDRef) = Zero
-          call mma_allocate(CI1,nConf,Label='CI1')
-          Do iState = 1, nState
-            Call LoadCI_XMS('N',1,nConf,nState,CI1,iState,U0)
-            call POLY1(CI1,nConf)
-            call GETDREF(WRK2,nDRef)
-            wgt = Weight(iState)
-            WRK1(1:nDRef) = WRK1(1:nDRef) + Wgt*WRK2(1:nDRef)
-          End Do
-          call mma_deallocate(CI1)
-          !! WRK2 is the SCF density (for nstate=nroots)
-          Call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
-          Call DaXpY_(nAshT**2,-One,WRK2,1,RDMSA,1)
-          !! Construct the SS minus SA density matrix in WRK1
-          Call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
-          !! Subtract the inactive part
-          WRK1(1:nBasT**2) = WRK1(1:nBasT**2) - WRK2(1:nBasT**2)
-          !! Here we should use DPT2_AO??
-          !! Save
-          If (IfChol) Then
-            Call CnstAB_SSDM(NBSQT,DPT2_AO,WRK1)
-          Else
-            !! Well, it is not working any more. I need to use
-            !! Position='APPEND', but it is not possible if I need to
-            !! use molcas_open or molcas_open_ext2
-            write(u6,*) 'It is not possible to perform this calculation'
-            write(u6,*) '(non-state averaged density without'
-            write(u6,*) 'density-fitting or Cholesky decomposition)'
-            write(u6,*) 'Please use DF or CD'
-            call abend()
-          End If
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          IF (IPRGLB >= VERBOSE) THEN
-            CPUT =CPTF10-CPTF0
-            WALLT=TIOTF10-TIOTF0
-            write(u6,'(a,2f10.2)')                                      &
-     &        ' SSDM    : CPU/WALL TIME=', cput,wallt
-          END IF
-        End If
-!       write(u6,*) 'pt2ao'
-!       call sqprt(DPT2_AO,12)
-        call mma_deallocate(DEPSA)
-
-        call mma_deallocate(DPT2)
-        call mma_deallocate(DPT2C)
-        call mma_deallocate(DPT2_AO)
-        call mma_deallocate(DPT2C_AO)
-        call mma_deallocate(FPT2)
-        call mma_deallocate(FPT2C)
-        call mma_deallocate(FPT2_AO)
-        call mma_deallocate(FPT2C_AO)
-        If (do_csf) call mma_deallocate(DPT2Canti_)
-        DPT2Canti => null()
-
-        !! Finalize OLag (anti-symmetrize) and construct WLag
-        Call OLagFinal(nOLag,NBSQT,OLag,Trf)
-
-        call mma_deallocate(TRF)
-        call mma_deallocate(WRK1)
-        call mma_deallocate(WRK2)
-        call mma_deallocate(RDMSA)
-        call mma_deallocate(RDMEIG)
-        call mma_deallocate(VECROT)
-        DENORM = One
-        !! end of with gradient
-      ELSE
-        !! without gradient
-! Compute total density matrix as symmetry-blocked array of
-! triangular matrices in DMAT. Size of a triangular submatrix is
-!  (NORB(ISYM)*(NORB(ISYM)+1))/2.
-        NDPT=0
-        DO ISYM=1,NSYM
-          NO=NORB(ISYM)
-          NDPT=NDPT+NO**2
-        END DO
-        DMAT(1:NDMAT) = Zero
-! First, put in the reference density matrix.
-        IDMOFF=0
-        DO ISYM=1,NSYM
-          NI=NISH(ISYM)
-          NA=NASH(ISYM)
-          NO=NORB(ISYM)
-          DO II=1,NI
-            IDM=IDMOFF+(II*(II+1))/2
-            DMAT(IDM)=Two
-          END DO
-          DO IT=1,NA
-            ITABS=NAES(ISYM)+IT
-            ITTOT=NI+IT
-            DO IU=1,IT
-              IUABS=NAES(ISYM)+IU
-              IUTOT=NI+IU
-              IDRF=(ITABS*(ITABS-1))/2+IUABS
-              IDM=IDMOFF+((ITTOT*(ITTOT-1))/2+IUTOT)
-              DMAT(IDM)=DREF(IDRF)
-            END DO
-          END DO
-           IDMOFF=IDMOFF+(NO*(NO+1))/2
-        END DO
-!       WRITE(u6,*)' DENS. Initial DMAT:'
-!       WRITE(u6,'(1x,8f16.8)')(dmat(i),i=1,ndmat)
-! Add the 1st and 2nd order density matrices:
-        call mma_allocate(DPT,NDPT,Label='DPT')
-        call mma_allocate(DSUM,NDPT,Label='DSUM')
-        DSUM(1:NDPT) = Zero
-
-! The 1st order contribution to the density matrix
-        DPT(1:NDPT) = Zero
-        CALL TRDNS1(IVEC,DPT,NDPT)
-        DSUM(1:NDPT) = DSUM(1:NDPT) + DPT(1:NDPT)
-!       WRITE(u6,*)' DPT after TRDNS1.'
-!       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
-        DPT(1:NDPT) = Zero
-        CALL TRDNS2D(IVEC,IVEC,DPT,NDPT,One)
-        IF(IFDENS) THEN
-! The exact density matrix evaluation:
-          CALL TRDTMP(DPT,NDPT)
-        ELSE
-! The approximate density matrix evaluation:
-          CALL TRDNS2A(IVEC,IVEC,DPT,NDPT)
-        END IF
-        DSUM(1:NDPT) = DSUM(1:NDPT) + DPT(1:NDPT)
-!       WRITE(u6,*)' DPT after TRDNS2D.'
-!       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
-        DPT(1:NDPT) = Zero
-        CALL TRDNS2O(IVEC,IVEC,DPT,SIZE(DPT),NDPT,One)
-        DSUM(1:NDPT) = DSUM(1:NDPT) + DPT(1:NDPT)
-        ! WRITE(u6,*)' DPT after TRDNS2O.'
-        ! WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
-      END IF
-!
-      call mma_deallocate(DPT)
-      IDMOFF=0
-      IDSOFF=0
-      DO ISYM=1,NSYM
-        NO=NORB(ISYM)
-        DO IP=1,NO
-          DO IQ=1,IP
-            IDM=IDMOFF+(IP*(IP-1))/2+IQ
-            IDSUM=IDSOFF+IP+NO*(IQ-1)
-            DMAT(IDM)=DMAT(IDM)+DSUM(IDSUM)
-          END DO
-        END DO
-        IDMOFF=IDMOFF+(NO*(NO+1))/2
-        IDSOFF=IDSOFF+NO**2
-      END DO
-      call mma_deallocate(DSUM)
+call mma_deallocate(DPT)
+IDMOFF = 0
+IDSOFF = 0
+do ISYM=1,NSYM
+  NO = NORB(ISYM)
+  do IP=1,NO
+    do IQ=1,IP
+      IDM = IDMOFF+(IP*(IP-1))/2+IQ
+      IDSUM = IDSOFF+IP+NO*(IQ-1)
+      DMAT(IDM) = DMAT(IDM)+DSUM(IDSUM)
+    end do
+  end do
+  IDMOFF = IDMOFF+(NO*(NO+1))/2
+  IDSOFF = IDSOFF+NO**2
+end do
+call mma_deallocate(DSUM)
 ! Scale with 1/DENORM to normalize
-      X=One/DENORM
-      If (do_grad) X=One
-      DMAT(1:NDMAT) = X*DMAT(1:NDMAT)
+X = One/DENORM
+if (do_grad) X = One
+DMAT(1:NDMAT) = X*DMAT(1:NDMAT)
 
 !SVC: For true parallel calculations, replicate the DMAT array
 ! so that the slaves have the same density matrix as the master.
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-        IF (.NOT.KING()) THEN
-          DMAT(1:NDMAT) = Zero
-        END IF
-        CALL GADGOP(DMAT,NDMAT,'+')
-      END IF
+if (Is_Real_Par()) then
+  if (.not. KING()) DMAT(1:NDMAT) = Zero
+  call GADGOP(DMAT,NDMAT,'+')
+end if
 #endif
 
-      END SUBROUTINE DENS
+end subroutine DENS

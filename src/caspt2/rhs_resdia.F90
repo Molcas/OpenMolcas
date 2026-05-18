@@ -23,46 +23,45 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_RESDIA(NIN,NIS,lg_W,DIN,DIS,DOVL)
-      use definitions, only: iwp, wp
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-      use constants, only: Zero
-#endif
-      use fake_GA, only: GA_Arrays
-      IMPLICIT None
-
-      integer(kind=iwp), intent(in):: NIN,NIS,lg_W
-      real(kind=wp), Intent(in):: DIN(NIN),DIS(NIS)
-      real(kind=wp), Intent(Out):: DOVL
-
+subroutine RHS_RESDIA(NIN,NIS,lg_W,DIN,DIS,DOVL)
 ! Apply the resolvent of the diagonal part of H0 to an RHS array
 
+use definitions, only: iwp, wp
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+use constants, only: Zero
+#endif
+use fake_GA, only: GA_Arrays
+
+implicit none
+integer(kind=iwp), intent(in) :: NIN, NIS, lg_W
+real(kind=wp), intent(in) :: DIN(NIN), DIS(NIS)
+real(kind=wp), intent(out) :: DOVL
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=iwp) myRank,iLo,iHi,jLo,jHi,NROW,NCOL,mW,LDW
+integer(kind=iwp) myRank, iLo, iHi, jLo, jHi, NROW, NCOL, mW, LDW
 
-      IF (Is_Real_Par()) THEN
-        DOVL=Zero
-        CALL GA_Sync()
-        myRank = GA_NodeID()
-!-SVC: get the local vertical stripes of the lg_W vector
-        CALL GA_Distribution (lg_W,myRank,iLo,iHi,jLo,jHi)
-        IF (iLo.NE.0.AND.jLo.NE.0) THEN
-          NROW=iHi-iLo+1
-          NCOL=jHi-jLo+1
-          CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),DIS(jLo),DOVL)
-          CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
-        END IF
-        CALL GA_Sync()
-        CALL GAdGOP_SCAL(DOVL,'+')
-      ELSE
+if (Is_Real_Par()) then
+  DOVL = Zero
+  call GA_Sync()
+  myRank = GA_NodeID()
+  !-SVC: get the local vertical stripes of the lg_W vector
+  call GA_Distribution(lg_W,myRank,iLo,iHi,jLo,jHi)
+  if ((iLo /= 0) .and. (jLo /= 0)) then
+    NROW = iHi-iLo+1
+    NCOL = jHi-jLo+1
+    call GA_Access(lg_W,iLo,iHi,jLo,jHi,mW,LDW)
+    call RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),DIS(jLo),DOVL)
+    call GA_Release_Update(lg_W,iLo,iHi,jLo,jHi)
+  end if
+  call GA_Sync()
+  call GAdGOP_SCAL(DOVL,'+')
+else
 #endif
-        CALL RESDIA(NIN,NIS,GA_Arrays(lg_W)%A,NIN,DIN,DIS,DOVL)
+  call RESDIA(NIN,NIS,GA_Arrays(lg_W)%A,NIN,DIN,DIS,DOVL)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END SUBROUTINE RHS_RESDIA
+end subroutine RHS_RESDIA

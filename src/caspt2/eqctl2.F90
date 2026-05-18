@@ -16,25 +16,8 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE EQCTL2(ICONV)
-      use definitions, only: iwp, wp, u6
-      use caspt2_global, only: iPrGlb
-      use caspt2_global, only: nStpGrd, do_grad, iStpGrd
-      use PrintLevel, only: INSANE, USUAL, VERBOSE
-      use EQSOLV, only: IRHS,IVECC,IVECC2,IVECR,IVECW,IVECX
-      use ChoCASPT2, only: iALGO
-      use caspt2_module, only: NINDEP, NISUP, NASUP, CPUEIG,CPULCS,     &
-     &                         CPUNAD,CPUOVL,CPUPCG,CPURHS,CPUSBM,      &
-     &                         CPUSCA,CPUSER,CPUSGM,CPUVEC,E2TOT,       &
-     &                         HZERO,IfChol,NSYM,RHSDIRECT,SDECOM,      &
-     &                         SMATRIX,TIOEIG,TIOLCS,TIONAD,TIOOVL,     &
-     &                         TIOPCG,TIORHS,TIOSBM,TIOSCA,TIOSER,      &
-     &                         TIOSGM,TIOVEC
-      IMPLICIT None
-      integer(kind=iwp), intent(inout):: ICONV
 
-      real(kind=wp) CPU0,CPU,TIO0,TIO,CPU1,TIO1
-      integer(kind=iwp) ICASE, ISYM, LAXITY
+subroutine EQCTL2(ICONV)
 ! On return, the following data sets will be defined and stored
 ! on LUSOLV.
 ! At position IVEC=IRHS, the RHS array, in SR representation.
@@ -44,54 +27,67 @@
 ! At position IVEC=IVECC2, the solution array, in covariant repr.
 ! At position IVEC=IVECW, the RHS array, in contravariant repr.
 
-      integer(kind=iwp), EXTERNAL :: Cho_X_GetTol
+use definitions, only: iwp, wp, u6
+use caspt2_global, only: iPrGlb
+use caspt2_global, only: nStpGrd, do_grad, iStpGrd
+use PrintLevel, only: INSANE, USUAL, VERBOSE
+use EQSOLV, only: IRHS, IVECC, IVECC2, IVECR, IVECW, IVECX
+use ChoCASPT2, only: iALGO
+use caspt2_module, only: NINDEP, NISUP, NASUP, CPUEIG, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, &
+                         CPUVEC, E2TOT, HZERO, IfChol, NSYM, RHSDIRECT, SDECOM, SMATRIX, TIOEIG, TIOLCS, TIONAD, TIOOVL, TIOPCG, &
+                         TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOVEC
 
+implicit none
+integer(kind=iwp), intent(inout) :: ICONV
+real(kind=wp) CPU0, CPU, TIO0, TIO, CPU1, TIO1
+integer(kind=iwp) ICASE, ISYM, LAXITY
+integer(kind=iwp), external :: Cho_X_GetTol
 
-      If (iStpGrd==1) Then
+if (iStpGrd == 1) then
 
-        IF (IPRGLB.GE.VERBOSE) THEN
-          WRITE(u6,'(1X,A)')
-          WRITE(u6,'(1X,A)') 'Computing the S/B matrices'
-          WRITE(u6,'(1X,A)') '--------------------------'
-        END IF
+  if (IPRGLB >= VERBOSE) then
+    write(u6,'(1X,A)')
+    write(u6,'(1X,A)') 'Computing the S/B matrices'
+    write(u6,'(1X,A)') '--------------------------'
+  end if
 
-! Compute S and (possibly) B matrices and write them on LUSBT
-! this uses previously stored data on LUSOLV!!
-        CALL GASync()
-        CALL TIMING(CPU0,CPU,TIO0,TIO)
+  ! Compute S and (possibly) B matrices and write them on LUSBT
+  ! this uses previously stored data on LUSOLV!!
+  call GASync()
+  call TIMING(CPU0,CPU,TIO0,TIO)
 
-! Necessary to reset NINDEP to conservative estimate. It gets its
-! final value after SBDIAG call, but must have its original value when
-! calling MKSMAT and MKBMAT.
-        DO ICASE=1,13
-         DO ISYM=1,NSYM
-          NINDEP(ISYM,ICASE)=NASUP(ISYM,ICASE)
-          IF(NISUP(ISYM,ICASE).EQ.0) NINDEP(ISYM,ICASE)=0
-         END DO
-        END DO
+  ! Necessary to reset NINDEP to conservative estimate. It gets its
+  ! final value after SBDIAG call, but must have its original value when
+  ! calling MKSMAT and MKBMAT.
+  do ICASE=1,13
+    do ISYM=1,NSYM
+      NINDEP(ISYM,ICASE) = NASUP(ISYM,ICASE)
+      if (NISUP(ISYM,ICASE) == 0) NINDEP(ISYM,ICASE) = 0
+    end do
+  end do
 
-        IF (SMATRIX/='NO      ') CALL MKSBMAT()
+  if (SMATRIX /= 'NO      ') call MKSBMAT()
 
-! Modify B matrices, if necessary:
-        IF(HZERO.EQ.'CUSTOM') CALL NEWB()
+  ! Modify B matrices, if necessary:
+  if (HZERO == 'CUSTOM') call NEWB()
 
-        CALL GASync()
-        CALL TIMING(CPU1,CPU,TIO1,TIO)
-        CPUSBM=CPU1-CPU0
-        TIOSBM=TIO1-TIO0
+  call GASync()
+  call TIMING(CPU1,CPU,TIO1,TIO)
+  CPUSBM = CPU1-CPU0
+  TIOSBM = TIO1-TIO0
 
-! Linear dependence removal, ON transformation of S matrix,
-! and spectral resolution of H0:
-        CALL GASync()
-        CALL TIMING(CPU0,CPU,TIO0,TIO)
+  ! Linear dependence removal, ON transformation of S matrix,
+  ! and spectral resolution of H0:
+  call GASync()
+  call TIMING(CPU0,CPU,TIO0,TIO)
 
-        IF(SDECOM/='NO      ') CALL SBDIAG()
+  if (SDECOM /= 'NO      ') call SBDIAG()
 
-        CALL GASync()
-        CALL TIMING(CPU1,CPU,TIO1,TIO)
-        CPUEIG=CPU1-CPU0
-        TIOEIG=TIO1-TIO0
-      End If
+  call GASync()
+  call TIMING(CPU1,CPU,TIO1,TIO)
+  CPUEIG = CPU1-CPU0
+  TIOEIG = TIO1-TIO0
+end if
 
 ! The transformation matrices have now been computed and
 ! written at disk addresses given by IDTMAT().
@@ -113,125 +109,122 @@
 ! are the diagonal values of B divided by diagonal values
 ! of S.
 
-      CALL GASync()
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
+call GASync()
+call TIMING(CPU0,CPU,TIO0,TIO)
 
 ! Non-active part of diagonal elements of H0 are computed
 ! and written to LUSBT:
-      CALL NADIAG()
+call NADIAG()
 ! Modify diagonal elements, if requested:
-      IF(HZERO.EQ.'CUSTOM') CALL NEWDIA()
+if (HZERO == 'CUSTOM') call NEWDIA()
 
 ! A second set of energy parameters may now have been
 ! computed and written to LUSBT.
-      CALL GASync()
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUNAD=CPU1-CPU0
-      TIONAD=TIO1-TIO0
+call GASync()
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPUNAD = CPU1-CPU0
+TIONAD = TIO1-TIO0
 
-      IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(u6,'(1X,A)')
-        WRITE(u6,'(1X,A)')'Computing the right-hand side (RHS) elements'
-        WRITE(u6,'(1X,A)')'--------------------------------------------'
-      END IF
+if (IPRGLB >= VERBOSE) then
+  write(u6,'(1X,A)')
+  write(u6,'(1X,A)') 'Computing the right-hand side (RHS) elements'
+  write(u6,'(1X,A)') '--------------------------------------------'
+end if
 
-      IRHS  =1
-      IVECX =2
-      IVECR =3
-      IVECC =4
-      IVECC2=5
-      IVECW =6
+IRHS = 1
+IVECX = 2
+IVECR = 3
+IVECC = 4
+IVECC2 = 5
+IVECW = 6
 
-      CALL GASync()
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
+call GASync()
+call TIMING(CPU0,CPU,TIO0,TIO)
 
 !-SVC: initialize the RHS array offsets
-      CALL RHS_INIT()
+call RHS_INIT()
 ! at this point LUSOLV is not used as a temporary disk anymore, so it's
 ! safe to initialize it (safe to write zeros to LUSOLV or delete it)
 
 ! Set up right-hand side matrix elements.
-      IF(IfChol .AND. iALGO.eq.1) THEN
-        IF (RHSDIRECT) THEN
-          IF (NSYM.EQ.1) THEN
-            CALL RHSOD_NOSYM(IVECW)
-          ELSE
-            CALL RHSOD(IVECW)
-          END IF
-        ELSE
-          CALL RHS_ZERO(IVECW)
-          CALL RHSALL2(IVECW)
-        END IF
-      ELSE
-        CALL MKRHS(IVECW)
-      END IF
+if (IfChol .and. (iALGO == 1)) then
+  if (RHSDIRECT) then
+    if (NSYM == 1) then
+      call RHSOD_NOSYM(IVECW)
+    else
+      call RHSOD(IVECW)
+    end if
+  else
+    call RHS_ZERO(IVECW)
+    call RHSALL2(IVECW)
+  end if
+else
+  call MKRHS(IVECW)
+end if
 
-      CALL GASync()
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPURHS=CPU1-CPU0
-      TIORHS=TIO1-TIO0
+call GASync()
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPURHS = CPU1-CPU0
+TIORHS = TIO1-TIO0
 
-      IF (IPRGLB.GE.INSANE) THEN
-        WRITE(u6,'("DEBUG> ")')
-        WRITE(u6,'("DEBUG> ",A)') 'Norms of the RHS blocks:'
-        CALL RHS_FPRINT('C',IVECW)
-      END IF
+if (IPRGLB >= INSANE) then
+  write(u6,'("DEBUG> ")')
+  write(u6,'("DEBUG> ",A)') 'Norms of the RHS blocks:'
+  call RHS_FPRINT('C',IVECW)
+end if
 
 !-SVC: start PCG routine, set timers.
-      CALL GASync()
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
-      CPUSCA=0
-      CPULCS=0
-      CPUOVL=0
-      CPUSGM=0
-      CPUVEC=0
-      TIOSCA=0
-      TIOLCS=0
-      TIOOVL=0
-      TIOSGM=0
-      TIOVEC=0
+call GASync()
+call TIMING(CPU0,CPU,TIO0,TIO)
+CPUSCA = 0
+CPULCS = 0
+CPUOVL = 0
+CPUSGM = 0
+CPUVEC = 0
+TIOSCA = 0
+TIOLCS = 0
+TIOOVL = 0
+TIOSGM = 0
+TIOVEC = 0
 
 ! Transform RHS of CASPT2 equations to eigenbasis for H0:
-      CALL PTRTOSR(1,IVECW,IRHS)
+call PTRTOSR(1,IVECW,IRHS)
 
-      IF (IPRGLB.GE.INSANE) THEN
-        WRITE(u6,'("DEBUG> ")')
-        WRITE(u6,'("DEBUG> ",A)')                                       &
-     &   'Norms of the RHS blocks (H0 eigenbasis):'
-        CALL RHS_FPRINT('SR',IRHS)
-      END IF
+if (IPRGLB >= INSANE) then
+  write(u6,'("DEBUG> ")')
+  write(u6,'("DEBUG> ",A)') 'Norms of the RHS blocks (H0 eigenbasis):'
+  call RHS_FPRINT('SR',IRHS)
+end if
 
-      If (iStpGrd.EQ.1) CALL PCG(ICONV)
-      If (iStpGrd.EQ.2) Then
-        CALL RHS_ZERO(IVECR)
-        ICONV = 0
-        !! Just for verification
-        LAXITY=8
-        IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
-        Call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
-      End If
+if (iStpGrd == 1) call PCG(ICONV)
+if (iStpGrd == 2) then
+  call RHS_ZERO(IVECR)
+  ICONV = 0
+  !! Just for verification
+  LAXITY = 8
+  if (IfChol) LAXITY = Cho_X_GetTol(LAXITY)
+  call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
+end if
 
-      CALL PTRTOC(0,IVECX,IVECC)
-      CALL PTRTOC(1,IVECX,IVECC2)
+call PTRTOC(0,IVECX,IVECC)
+call PTRTOC(1,IVECX,IVECC2)
 
 !-SVC: end of PCG routine, compute total time.
-      CALL GASync()
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUPCG=CPU1-CPU0
-      TIOPCG=TIO1-TIO0
+call GASync()
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPUPCG = CPU1-CPU0
+TIOPCG = TIO1-TIO0
 
 !-SVC: collect and print information on coefficients/denominators
-      if (nStpGrd == 1 .or. (nStpGrd == 2 .and. .not.do_grad)) then
-        IF(IPRGLB.GE.USUAL) THEN
-          CALL H0SPCT()
-        END IF
-      end if
+if ((nStpGrd == 1) .or. ((nStpGrd == 2) .and. (.not. do_grad))) then
+  if (IPRGLB >= USUAL) call H0SPCT()
+end if
 
-      CALL GASync()
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
-      CALL GASync()
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUSER=CPU1-CPU0
-      TIOSER=TIO1-TIO0
+call GASync()
+call TIMING(CPU0,CPU,TIO0,TIO)
+call GASync()
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPUSER = CPU1-CPU0
+TIOSER = TIO1-TIO0
 
-      END SUBROUTINE EQCTL2
+end subroutine EQCTL2

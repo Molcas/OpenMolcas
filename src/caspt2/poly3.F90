@@ -16,22 +16,8 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE POLY3(mkF)
-      use fciqmc_interface, only: DoFCIQMC
-      use caspt2_global, only:iPrGlb
-      use caspt2_global, only:LUCIEX, IDTCEX, LUSOLV
-      use PrintLevel, only: VERBOSE
-      use sguga, only: SGS, L2ACT, CIS
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: DoCumulant, iSCF, jState, nActel, NAshT, &
-     &                         nConf, nState, STSym, EPSA, mState
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
-      use caspt2_module, only: DMRG
-#endif
-      use caspt2_module, only: CIThr, nG1, nG2, nG3, nG3Tot, Eta
-      use constants, only: Zero, One
-      use definitions, only: iwp, wp, u6, Byte
-      IMPLICIT NONE
+
+subroutine POLY3(mkF)
 !  IBM TEST VERSION 0, 1988-06-23.
 !  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.
 !  NEW VERSION 1992-12-05, FOR MOLCAS-3 VERSION.
@@ -40,7 +26,7 @@
 
 ! THIS PROGRAM CALCULATES 1-EL, 2-EL, AND 3-EL
 ! DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
-! IF THE INTEGER KEY IFF.EQ.1, THEN
+! IF THE INTEGER KEY IFF == 1, THEN
 ! IT ALSO PRODUCES THE CONTRACTIONS OF 1-EL -- 4-EL
 ! DENSITY MATRICES WITH THE FOCK OPERATOR USED IN
 ! THE CASSCF-MP2 PROGRAM. THE RESULTS ARE WRITTEN
@@ -50,136 +36,148 @@
 ! THE RDSTAT AND THE GUGA ROUTINES USED IN THIS
 ! PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
+use fciqmc_interface, only: DoFCIQMC
+use caspt2_global, only: iPrGlb
+use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
+use PrintLevel, only: VERBOSE
+use sguga, only: SGS, L2ACT, CIS
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: DoCumulant, iSCF, jState, nActel, NAshT, nConf, nState, STSym, EPSA, mState
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
+use caspt2_module, only: DMRG
+#endif
+use caspt2_module, only: CIThr, nG1, nG2, nG3, nG3Tot, Eta
+use constants, only: Zero, One
+use definitions, only: iwp, wp, u6, Byte
 
-      Logical(kind=iwp), intent(in):: mkF
-      INTEGER(kind=iwp) ILEV
-      INTEGER(kind=iwp) NG3MAX
-      INTEGER(kind=iwp) ILUID
-      INTEGER(kind=iwp) IDCI
-      INTEGER(kind=iwp) IPARDIV
-      INTEGER(kind=Byte), ALLOCATABLE :: idxG3(:,:)
-      REAL(kind=wp), ALLOCATABLE, TARGET:: G1(:), G2(:), G3(:)
-      REAL(kind=wp), ALLOCATABLE, TARGET:: F1_H(:), F2_H(:), F3_H(:)
-      REAL(kind=wp), POINTER:: F1(:), F2(:), F3(:)
-      REAL(kind=wp), ALLOCATABLE:: CI(:)
-      Integer(kind=iwp) :: nLev, nCI
+implicit none
+logical(kind=iwp), intent(in) :: mkF
+integer(kind=iwp) ILEV
+integer(kind=iwp) NG3MAX
+integer(kind=iwp) ILUID
+integer(kind=iwp) IDCI
+integer(kind=iwp) IPARDIV
+integer(kind=Byte), allocatable :: idxG3(:,:)
+real(kind=wp), allocatable, target :: G1(:), G2(:), G3(:)
+real(kind=wp), allocatable, target :: F1_H(:), F2_H(:), F3_H(:)
+real(kind=wp), pointer :: F1(:), F2(:), F3(:)
+real(kind=wp), allocatable :: CI(:)
+integer(kind=iwp) :: nLev, nCI
 
-      nLev = SGS%nLev
+nLev = SGS%nLev
 
-!     Note that in case of FCIQMC nConf is set to 0.
-      nCI=CIS%NCSF(STSYM)
+! Note that in case of FCIQMC nConf is set to 0.
+nCI = CIS%NCSF(STSYM)
 
-      IF (mkF) THEN
-! ORBITAL ENERGIES IN CI-COUPLING ORDER:
-        DO ILEV=1,NLEV
-          ETA(ILEV)=EPSA(L2ACT(ILEV))
-        END DO
-      END IF
+if (mkF) then
+  ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
+  do ILEV=1,NLEV
+    ETA(ILEV) = EPSA(L2ACT(ILEV))
+  end do
+end if
 
-      CALL mma_allocate(G1,NG1,LABEL='G1')
-      CALL mma_allocate(G2,NG2,LABEL='G2')
+call mma_allocate(G1,NG1,LABEL='G1')
+call mma_allocate(G2,NG2,LABEL='G2')
 
 !-SVC20100831: recompute approximate max NG3 size needed
-      NG3MAX=iPARDIV(NG3TOT,NG2)
+NG3MAX = iPARDIV(NG3TOT,NG2)
 
 !-SVC20100831: allocate local G3 matrices
-      CALL mma_allocate(G3,NG3MAX,LABEL='G3')
+call mma_allocate(G3,NG3MAX,LABEL='G3')
 
-      CALL mma_allocate(idxG3,6,NG3MAX,label='idxG3')
-      idxG3(:,:)=0
+call mma_allocate(idxG3,6,NG3MAX,label='idxG3')
+idxG3(:,:) = 0
 
-      G1(1)=Zero
-      G2(1)=Zero
-      G3(1)=Zero
+G1(1) = Zero
+G2(1) = Zero
+G3(1) = Zero
 
 ! ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
-      IF (mkF) THEN
-        CALL mma_allocate(F1_H,NG1,LABEL='F1_H')
-        CALL mma_allocate(F2_H,NG2,LABEL='F2_H')
-        CALL mma_allocate(F3_H,NG3MAX,LABEL='F3_H')
-        F1=>F1_H
-        F2=>F2_H
-        F3=>F3_H
-      ELSE
-!       This is just done such that in the case of mkF=.FALSE. that
-!       F1, F2, and F3 refer to an actual array.
-        F1=>G1
-        F2=>G2
-        F3=>G3
-      END IF
+if (mkF) then
+  call mma_allocate(F1_H,NG1,LABEL='F1_H')
+  call mma_allocate(F2_H,NG2,LABEL='F2_H')
+  call mma_allocate(F3_H,NG3MAX,LABEL='F3_H')
+  F1 => F1_H
+  F2 => F2_H
+  F3 => F3_H
+else
+  ! This is just done such that in the case of mkF=.FALSE. that
+  ! F1, F2, and F3 refer to an actual array.
+  F1 => G1
+  F2 => G2
+  F3 => G3
+end if
 
 ! NG3 will change inside subroutine MKFG3 to the actual
 ! number of nonzero elements, that is why here we allocate
 ! with NG3MAX, but we only store (PT2_PUT) the first NG3
 ! elements of the G3 and F3
-      NG3=NG3MAX
+NG3 = NG3MAX
 
-      if (.not. DoFCIQMC) then
-        CALL mma_allocate(CI,NCONF,Label='CI')
+if (.not. DoFCIQMC) then
+  call mma_allocate(CI,NCONF,Label='CI')
 
-        IF (.NOT. DoCumulant .AND. ISCF.EQ.0) THEN
-          IDCI=IDTCEX(JSTATE)
-          CALL DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
-          IF (IPRGLB.GE.VERBOSE) THEN
-            WRITE(u6,*)
-            IF (NSTATE.GT.1) THEN
-              WRITE(u6,'(A,I4)')                                        &
-     &       ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
-            ELSE
-              WRITE(u6,*)' With new orbitals, the CI array is:'
-            END IF
-            CALL PRWF_CP2(STSYM,NCONF,CI,CITHR)
-          END IF
-        ELSE
-          CI(1)=One
-        END IF
+  if ((.not. DoCumulant) .and. (ISCF == 0)) then
+    IDCI = IDTCEX(JSTATE)
+    call DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
+    if (IPRGLB >= VERBOSE) then
+      write(u6,*)
+      if (NSTATE > 1) then
+        write(u6,'(A,I4)') ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
+      else
+        write(u6,*) ' With new orbitals, the CI array is:'
       end if
+      call PRWF_CP2(STSYM,NCONF,CI,CITHR)
+    end if
+  else
+    CI(1) = One
+  end if
+end if
 
-      IF (ISCF/=0.AND.NACTEL/=0) THEN
-        CALL SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nAshT,nG3)
-      ELSE IF (ISCF==0) THEN
-!-SVC20100903: during mkfg3, NG3 is set to the actual value
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
-        IF (.NOT. DoCumulant .AND. .NOT. DMRG) THEN
-#endif
-          If (.NOT.ALLOCATED(CI)) CALL mma_allocate(CI,1,LABEL='CI')
-          CALL MKFG3(mkF,CI,nCI,                                        &
-     &               G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
-        ELSE
-          CALL MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
-        END IF
-#endif
-      END IF
+if ((ISCF /= 0) .and. (NACTEL /= 0)) then
+  call SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nAshT,nG3)
+else if (ISCF == 0) then
+  !-SVC20100903: during mkfg3, NG3 is set to the actual value
+# if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
+  if ((.not. DoCumulant) .and. (.not. DMRG)) then
+# endif
+    if (.not. allocated(CI)) call mma_allocate(CI,1,LABEL='CI')
+    call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
+# if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
+  else
+    call MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
+  end if
+# endif
+end if
 
-      if (ALLOCATED(CI)) CALL mma_deallocate(CI)
+if (allocated(CI)) call mma_deallocate(CI)
 
-      IF(NLEV.GT.0) THEN
-        CALL PT2_PUT(NG1,' GAMMA1',G1)
-        CALL PT2_PUT(NG2,' GAMMA2',G2)
-        CALL PT2_PUT(NG3,' GAMMA3',G3)
-        iLUID=0
-        CALL I1DAFILE(LUSOLV,1,idxG3,6*NG3,iLUID)
-        IF(mkF) THEN
-          CALL PT2_PUT(NG1,' DELTA1',F1)
-          CALL PT2_PUT(NG2,' DELTA2',F2)
-          CALL PT2_PUT(NG3,' DELTA3',F3)
-        END IF
-      END IF
+if (NLEV > 0) then
+  call PT2_PUT(NG1,' GAMMA1',G1)
+  call PT2_PUT(NG2,' GAMMA2',G2)
+  call PT2_PUT(NG3,' GAMMA3',G3)
+  iLUID = 0
+  call I1DAFILE(LUSOLV,1,idxG3,6*NG3,iLUID)
+  if (mkF) then
+    call PT2_PUT(NG1,' DELTA1',F1)
+    call PT2_PUT(NG2,' DELTA2',F2)
+    call PT2_PUT(NG3,' DELTA3',F3)
+  end if
+end if
 
-      IF(NLEV>0) THEN
-        CALL mma_deallocate(G1)
-        CALL mma_deallocate(G2)
-        CALL mma_deallocate(G3)
-        CALL mma_deallocate(idxG3)
-        IF(mkF) THEN
-          CALL mma_deallocate(F1_H)
-          CALL mma_deallocate(F2_H)
-          CALL mma_deallocate(F3_H)
-        END IF
-        F1=>Null()
-        F2=>Null()
-        F3=>Null()
-      END IF
+if (NLEV > 0) then
+  call mma_deallocate(G1)
+  call mma_deallocate(G2)
+  call mma_deallocate(G3)
+  call mma_deallocate(idxG3)
+  if (mkF) then
+    call mma_deallocate(F1_H)
+    call mma_deallocate(F2_H)
+    call mma_deallocate(F3_H)
+  end if
+  F1 => null()
+  F2 => null()
+  F3 => null()
+end if
 
-      END SUBROUTINE POLY3
+end subroutine POLY3

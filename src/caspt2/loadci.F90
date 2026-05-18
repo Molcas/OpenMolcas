@@ -12,18 +12,19 @@
 !***********************************************************************
 
 ! Load the CI vector of state Istate from LUCIEX into memory
-      subroutine loadCI(CI, Istate)
-      use definitions, only: iwp, wp
-      use caspt2_global, only: LUCIEX,IDCIEX
-      use caspt2_module, only: nConf
-      implicit None
-      real(kind=wp), intent(out):: CI(Nconf)
-      integer(kind=iwp), intent(In):: Istate
+subroutine loadCI(CI,Istate)
 
-      integer(kind=iwp) :: ID
+use definitions, only: iwp, wp
+use caspt2_global, only: LUCIEX, IDCIEX
+use caspt2_module, only: nConf
+
+implicit none
+real(kind=wp), intent(out) :: CI(Nconf)
+integer(kind=iwp), intent(in) :: Istate
+integer(kind=iwp) :: ID
 
 ! Load the CI array
-      ID=IDCIEX(ISTATE)
-      call ddafile(LUCIEX,2,CI,Nconf,ID)
+ID = IDCIEX(ISTATE)
+call ddafile(LUCIEX,2,CI,Nconf,ID)
 
-      end subroutine loadCI
+end subroutine loadCI

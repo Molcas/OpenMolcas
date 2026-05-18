@@ -23,47 +23,47 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_FPRINT(CTYPE,IVEC)
-      use definitions, only: iwp, wp, u6
-      use constants, only: Zero
-      use caspt2_module, only: NSYM, NASUP, NINDEP, NISUP
-      IMPLICIT None
+subroutine RHS_FPRINT(CTYPE,IVEC)
 
-      integer(kind=iwp), Intent(in):: IVEC
-      CHARACTER(LEN=*), intent(in):: CTYPE
+use definitions, only: iwp, wp, u6
+use constants, only: Zero
+use caspt2_module, only: NSYM, NASUP, NINDEP, NISUP
 
-      real(kind=wp) :: FP(8)
-      integer(kind=iwp) NROW, ICASE, ISYM, NAS, NIN, NIS, lg_W
-      real(kind=wp), external:: RHS_DDOT
+implicit none
+integer(kind=iwp), intent(in) :: IVEC
+character(len=*), intent(in) :: CTYPE
+real(kind=wp) :: FP(8)
+integer(kind=iwp) NROW, ICASE, ISYM, NAS, NIN, NIS, lg_W
+real(kind=wp), external :: RHS_DDOT
 
 !-SVC: print out DNRM2 of the all RHS components
-      NROW=0 ! dummy initialize
-      DO ICASE=1,13
-        DO ISYM=1,NSYM
+NROW = 0 ! dummy initialize
+do ICASE=1,13
+  do ISYM=1,NSYM
 
-          NAS=NASUP(ISYM,ICASE)
-          NIN=NINDEP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
+    NAS = NASUP(ISYM,ICASE)
+    NIN = NINDEP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
 
-          IF (CTYPE.EQ.'C') THEN
-            NROW=NAS
-          ELSE IF (CTYPE.EQ.'SR') THEN
-            NROW=NIN
-          ELSE
-            WRITE(u6,'(1X,A)') 'RHS_FPRINT: invalid type: '//CTYPE
-            CALL ABEND()
-          END IF
+    if (CTYPE == 'C') then
+      NROW = NAS
+    else if (CTYPE == 'SR') then
+      NROW = NIN
+    else
+      write(u6,'(1X,A)') 'RHS_FPRINT: invalid type: '//CTYPE
+      call ABEND()
+    end if
 
-          IF (NAS.NE.0 .AND. NIN.NE.0 .AND. NIS.NE.0) THEN
-            CALL RHS_ALLO(NROW,NIS,lg_W)
-            CALL RHS_READ(NROW,NIS,lg_W,iCASE,iSYM,iVEC)
-            FP(ISYM)=SQRT(RHS_DDOT(NROW,NIS,lg_W,lg_W))
-            CALL RHS_FREE(lg_W)
-          ELSE
-            FP(ISYM)=Zero
-          END IF
-        END DO
-        WRITE(u6,'(1X,I2,1X,8F21.14)') ICASE, FP(1:NSYM)
-      END DO
+    if ((NAS /= 0) .and. (NIN /= 0) .and. (NIS /= 0)) then
+      call RHS_ALLO(NROW,NIS,lg_W)
+      call RHS_READ(NROW,NIS,lg_W,iCASE,iSYM,iVEC)
+      FP(ISYM) = sqrt(RHS_DDOT(NROW,NIS,lg_W,lg_W))
+      call RHS_FREE(lg_W)
+    else
+      FP(ISYM) = Zero
+    end if
+  end do
+  write(u6,'(1X,I2,1X,8F21.14)') ICASE,FP(1:NSYM)
+end do
 
-      END SUBROUTINE RHS_FPRINT
+end subroutine RHS_FPRINT

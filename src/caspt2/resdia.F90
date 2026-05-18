@@ -22,40 +22,37 @@
 ! number referring to the case, symmetry, and RHS vector respectively,
 ! and are loaded onto a global array when needed.
 !***********************************************************************
-      subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)
 
-      use caspt2_global, only: imag_shift, real_shift,                  &
-     &                         sigma_p_epsilon, sigma_p_exponent
-      use definitions, only: wp, iwp
+subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)
 
-      implicit none
+use caspt2_global, only: imag_shift, real_shift, sigma_p_epsilon, sigma_p_exponent
+use definitions, only: wp, iwp
 
-      integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W(LDW,nCol), dOvl
-      real(kind=wp),     intent(in)    :: dIn(nRow), dIs(nCol)
+implicit none
+integer(kind=iwp), intent(in) :: nRow, nCol, LDW
+real(kind=wp), intent(inout) :: W(LDW,nCol), dOvl
+real(kind=wp), intent(in) :: dIn(nRow), dIs(nCol)
+integer(kind=iwp) :: i, j, p
+real(kind=wp) :: delta, delta_inv, tmp, sigma, epsilon
 
-      integer(kind=iwp)                :: i, j, p
-      real(kind=wp)                    :: delta, delta_inv, tmp,        &
-     &                                    sigma, epsilon
+dOvl = 0.0_wp
+do j=1,nCol
+  do i=1,nRow
+    ! energy denominator plus real shift
+    delta = dIn(i)+dIs(j)+real_shift
+    ! inverse denominator plus imaginary shift
+    delta_inv = delta/(delta**2+imag_shift**2)
+    ! multiply by (inverse) sigma-p regularizer
+    epsilon = sigma_p_epsilon
+    p = sigma_p_exponent
+    if (epsilon > 0.0_wp) then
+      sigma = 1.0_wp/epsilon**p
+      delta_inv = delta_inv*(1.0_wp-exp(-sigma*abs(delta)**p))
+    end if
+    tmp = delta_inv*W(i,j)
+    dOvl = dOvl+tmp*W(i,j)
+    W(i,j) = tmp
+  end do
+end do
 
-      dOvl = 0.0_wp
-      do j = 1,nCol
-        do i = 1,nRow
-          ! energy denominator plus real shift
-          delta = dIn(i) + dIs(j) + real_shift
-          ! inverse denominator plus imaginary shift
-          delta_inv = delta/(delta**2 + imag_shift**2)
-          ! multiply by (inverse) sigma-p regularizer
-          epsilon = sigma_p_epsilon
-          p = sigma_p_exponent
-          if (epsilon > 0.0_wp) then
-            sigma = 1.0_wp/epsilon**p
-            delta_inv = delta_inv * (1.0_wp - exp(-sigma*abs(delta)**p))
-          end if
-          tmp = delta_inv * W(i,j)
-          dOvl = dOvl + tmp * W(i,j)
-          W(i,j) = tmp
-        end do
-      end do
-
-      end subroutine resdia
+end subroutine resdia

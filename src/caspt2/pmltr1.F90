@@ -8,30 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PMLTR1 (KOD,IMLTOP,LST1,                               &
-     &                   X,nX,NAS1,NIS1,JXOFF,                          &
-     &                   F,NFI,NFJ,                                     &
-     &                   lg_Y,NAS2,NIS2)
-      use definitions, only: iwp, wp
+
+subroutine PMLTR1(KOD,IMLTOP,LST1,X,nX,NAS1,NIS1,JXOFF,F,NFI,NFJ,lg_Y,NAS2,NIS2)
+
+use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      use Sigma_data, only: NLST1
-      use fake_GA, only: GA_Arrays
-      IMPLICIT None
+use Sigma_data, only: NLST1
+use fake_GA, only: GA_Arrays
+
+implicit none
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=iwp) myRank
-      integer(kind=iwp) iYLo,iYHi,jYLo,jYHi,mY,LDY
+integer(kind=iwp) myRank
+integer(kind=iwp) iYLo, iYHi, jYLo, jYHi, mY, LDY
 #endif
-      integer(kind=iwp), intent(in):: KOD, IMLTOP
-      integer(kind=iwp), intent(in):: LST1(4,NLST1)
-      integer(kind=iwp), intent(in):: nX
-      real(kind=wp), intent(inout):: X(nX)
-      integer(kind=iwp), intent(in):: NAS1,NIS1,JXOFF, NFI,NFJ, lg_Y,   &
-     &                                NAS2, NIS2
-      real(kind=wp), intent(inout):: F(NFI,NFJ)
+integer(kind=iwp), intent(in) :: KOD, IMLTOP
+integer(kind=iwp), intent(in) :: LST1(4,NLST1)
+integer(kind=iwp), intent(in) :: nX
+real(kind=wp), intent(inout) :: X(nX)
+integer(kind=iwp), intent(in) :: NAS1, NIS1, JXOFF, NFI, NFJ, lg_Y, NAS2, NIS2
+real(kind=wp), intent(inout) :: F(NFI,NFJ)
 
 #ifdef _MOLCAS_MPP_
 ! SVC: Determine the index ranges of the local chunks of lg_X and lg_Y.
@@ -39,44 +38,31 @@
 ! access inside the lower-level routines.
 ! For now, only case H is handled as a distributed array, which is
 ! always the Y array.
-      IF (Is_Real_Par()) THEN
-        CALL GA_Sync()
-        myRank = GA_NodeID()
-!     CALL GA_Distribution (lg_X,myRank,iXLo,iXHi,jXLo,jXHi)
-!     IF (iXLo.NE.0.AND.jXLo.NE.0) THEN
-!       CALL GA_Access (lg_X,iXLo,iXHi,jXLo,jXHi,mX,LDX)
-!     END IF
-        CALL GA_Distribution (lg_Y,myRank,iYLo,iYHi,jYLo,jYHi)
-        IF (iYLo.NE.0.AND.jYLo.NE.0) THEN
-          CALL GA_Access (lg_Y,iYLo,iYHi,jYLo,jYHi,mY,LDY)
-          IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
-            CALL MLTR1_EH(IMLTOP,LST1,                                  &
-     &                  X,NAS1,NIS1,JXOFF,                              &
-     &                  F,NFI,NFJ,                                      &
-     &                  DBL_MB(mY),NAS2,jYLo,jYHi)
-          ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
-            CALL MLTR1_GH(IMLTOP,LST1,                                  &
-     &                  X,NAS1,NIS1,JXOFF,                              &
-     &                  F,NFI,NFJ,                                      &
-     &                  DBL_MB(mY),NAS2,jYLo,jYHi)
-          END IF
-          CALL GA_Release_Update (lg_Y,iYLo,iYHi,jYLo,jYHi)
-        END IF
-        CALL GA_Sync()
-      ELSE
+if (Is_Real_Par()) then
+  call GA_Sync()
+  myRank = GA_NodeID()
+  !call GA_Distribution(lg_X,myRank,iXLo,iXHi,jXLo,jXHi)
+  !if ((iXLo /= 0) .and. (jXLo /= 0)) call GA_Access(lg_X,iXLo,iXHi,jXLo,jXHi,mX,LDX)
+  call GA_Distribution(lg_Y,myRank,iYLo,iYHi,jYLo,jYHi)
+  if ((iYLo /= 0) .and. (jYLo /= 0)) then
+    call GA_Access(lg_Y,iYLo,iYHi,jYLo,jYHi,mY,LDY)
+    if ((KOD == 17) .or. (KOD == 18)) then
+      call MLTR1_EH(IMLTOP,LST1,X,NAS1,NIS1,JXOFF,F,NFI,NFJ,DBL_MB(mY),NAS2,jYLo,jYHi)
+    else if ((KOD == 21) .or. (KOD == 22)) then
+      call MLTR1_GH(IMLTOP,LST1,X,NAS1,NIS1,JXOFF,F,NFI,NFJ,DBL_MB(mY),NAS2,jYLo,jYHi)
+    end if
+    call GA_Release_Update(lg_Y,iYLo,iYHi,jYLo,jYHi)
+  end if
+  call GA_Sync()
+else
 #endif
-        IF (KOD.EQ.17 .OR. KOD.EQ.18) THEN
-          CALL MLTR1_EH(IMLTOP,LST1,                                    &
-     &                  X,NAS1,NIS1,JXOFF,                              &
-     &                  F,NFI,NFJ,                                      &
-     &                  GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
-        ELSE IF (KOD.EQ.21 .OR. KOD.EQ.22) THEN
-          CALL MLTR1_GH(IMLTOP,LST1,                                    &
-     &                  X,NAS1,NIS1,JXOFF,                              &
-     &                  F,NFI,NFJ,                                      &
-     &                  GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
-        END IF
+  if ((KOD == 17) .or. (KOD == 18)) then
+    call MLTR1_EH(IMLTOP,LST1,X,NAS1,NIS1,JXOFF,F,NFI,NFJ,GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
+  else if ((KOD == 21) .or. (KOD == 22)) then
+    call MLTR1_GH(IMLTOP,LST1,X,NAS1,NIS1,JXOFF,F,NFI,NFJ,GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
+  end if
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
-      END SUBROUTINE PMLTR1
+
+end subroutine PMLTR1

@@ -17,44 +17,7 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 
-      SUBROUTINE DIADNS(ISYM,ICASE,VEC1,nVec1,VEC2,nVec2,DPT2,nDPT2,    &
-     &                  LIST,mList)
-
-      use Symmetry_Info, only: Mul
-      use constants, only: Zero, One, Two
-      use caspt2_global, only: do_grad
-      use EQSOLV, only: LLIST,NLIST
-      use Sigma_data, only: IFTEST,INCX1,INCX2,INCX3,INCY1,INCY2,LEN1,  &
-     &                      NLST1,VAL1
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NIMX,NSMX,NSYM,NINDEP,NISUP,NASUP,NISH,  &
-     &                         NORB,NIGEJ,NIGTJ,NAGEB,NAGTB,NORB,       &
-     &                         NASH,NSSH
-      use definitions, only: iwp, wp
-      IMPLICIT NONE
-
-      integer(kind=iwp), intent(in):: nVEC1,nVec2,nDPT2,mList
-      integer(kind=iwp), intent(in):: ISYM, ICASE
-      real(kind=wp), Intent(in):: VEC1(nVec1),VEC2(nVec2)
-      real(kind=wp), Intent(inout):: DPT2(nDPT2)
-      integer(kind=iwp), intent(in):: LIST(mList)
-
-      integer(kind=iwp) IOFDIJ(8),IOFDAB(8)
-      integer(kind=iwp) IOFCD(8,8)
-      real(kind=wp), ALLOCATABLE:: X1(:), X2(:)
-      real(kind=wp), Parameter:: SQR2=SQRT(Two)
-      integer(kind=iwp) NIN,NIS,NAS,NVEC,IDIJ,IS,NI,NA,NO,IDTU,         &
-     &                  IDAB,JS,ICD,ICEP,ICEM,ICGP,ICGM,IJS
-      integer(kind=iwp) IDII,II,III,IJ,IV1,IV2,LLST1
-      integer(kind=iwp) ISYMI,ISYMK,NK,NKI,NX
-      integer(kind=iwp) IA,IB,NS
-      integer(kind=iwp) INCA,ISYMA,IV,IV11,IV22,NOA,NOI
-      integer(kind=iwp) ISYMKI,IY,IY1,IY2,IYOFF,MU,NAKI,NKIY
-      integer(kind=iwp) ISYMC,NC,NCA
-      integer(kind=iwp) ISYMCA,NCAY,NICA
-      real(kind=wp) OVL,SUM
-      real(kind=wp), EXTERNAL:: DDOT_
-
+subroutine DIADNS(ISYM,ICASE,VEC1,nVec1,VEC2,nVec2,DPT2,nDPT2,LIST,mList)
 ! Compute diagonal-block contribs to a trans density matrix.
 ! Vector blocks are in spectral resolution basis (ON).
 ! Each square matrix block of density matrix elements is
@@ -63,476 +26,490 @@
 ! contributions. This should be added in a separate routine,
 ! since it requires transformation to standard (Non-ON) basis.
 
-      NIN=NINDEP(ISYM,ICASE)
-      IF(NIN==0) RETURN
-      NIS=NISUP(ISYM,ICASE)
-      IF(NIS==0) RETURN
-      NAS=NASUP(ISYM,ICASE)
-      NVEC=NIN*NIS
+use Symmetry_Info, only: Mul
+use constants, only: Zero, One, Two
+use caspt2_global, only: do_grad
+use EQSOLV, only: LLIST, NLIST
+use Sigma_data, only: IFTEST, INCX1, INCX2, INCX3, INCY1, INCY2, LEN1, NLST1, VAL1
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: NIMX, NSMX, NSYM, NINDEP, NISUP, NASUP, NISH, NORB, NIGEJ, NIGTJ, NAGEB, NAGTB, NORB, NASH, NSSH
+use definitions, only: iwp, wp
 
-      IFTEST=0
+implicit none
+integer(kind=iwp), intent(in) :: nVEC1, nVec2, nDPT2, mList
+integer(kind=iwp), intent(in) :: ISYM, ICASE
+real(kind=wp), intent(in) :: VEC1(nVec1), VEC2(nVec2)
+real(kind=wp), intent(inout) :: DPT2(nDPT2)
+integer(kind=iwp), intent(in) :: LIST(mList)
+integer(kind=iwp) IOFDIJ(8), IOFDAB(8)
+integer(kind=iwp) IOFCD(8,8)
+real(kind=wp), allocatable :: X1(:), X2(:)
+real(kind=wp), parameter :: SQR2 = sqrt(Two)
+integer(kind=iwp) NIN, NIS, NAS, NVEC, IDIJ, IS, NI, NA, NO, IDTU, IDAB, JS, ICD, ICEP, ICEM, ICGP, ICGM, IJS
+integer(kind=iwp) IDII, II, III, IJ, IV1, IV2, LLST1
+integer(kind=iwp) ISYMI, ISYMK, NK, NKI, NX
+integer(kind=iwp) IA, IB, NS
+integer(kind=iwp) INCA, ISYMA, IV, IV11, IV22, NOA, NOI
+integer(kind=iwp) ISYMKI, IY, IY1, IY2, IYOFF, MU, NAKI, NKIY
+integer(kind=iwp) ISYMC, NC, NCA
+integer(kind=iwp) ISYMCA, NCAY, NICA
+real(kind=wp) OVL, SUM
+real(kind=wp), external :: DDOT_
+
+NIN = NINDEP(ISYM,ICASE)
+if (NIN == 0) return
+NIS = NISUP(ISYM,ICASE)
+if (NIS == 0) return
+NAS = NASUP(ISYM,ICASE)
+NVEC = NIN*NIS
+
+IFTEST = 0
 ! Set up various offset arrays:
-      IDIJ=0
-      DO IS=1,NSYM
-        NI=NISH(IS)
-        NA=NASH(IS)
-        NO=NORB(IS)
-        IDTU=IDIJ+NO*NI+NI
-        IDAB=IDTU+NO*NA+NA
-        IOFDIJ(IS)=IDIJ
-        IOFDAB(IS)=IDAB
-        IDIJ=IDIJ+NO*NO
-      END DO
-      DO IS=1,NSYM
-        ICD=0
-        ICEP=0
-        ICEM=0
-        ICGP=0
-        ICGM=0
-        DO JS=1,NSYM
-          IJS=Mul(IS,JS)
-          IOFCD(IS,JS)=ICD
-          ICD =ICD +NSSH(JS)*NISH(IJS)
-          ICEP=ICEP+NSSH(JS)*NIGEJ(IJS)
-          ICEM=ICEM+NSSH(JS)*NIGTJ(IJS)
-          ICGP=ICGP+NISH(JS)*NAGEB(IJS)
-          ICGM=ICGM+NISH(JS)*NAGTB(IJS)
-        END DO
-      END DO
+IDIJ = 0
+do IS=1,NSYM
+  NI = NISH(IS)
+  NA = NASH(IS)
+  NO = NORB(IS)
+  IDTU = IDIJ+NO*NI+NI
+  IDAB = IDTU+NO*NA+NA
+  IOFDIJ(IS) = IDIJ
+  IOFDAB(IS) = IDAB
+  IDIJ = IDIJ+NO*NO
+end do
+do IS=1,NSYM
+  ICD = 0
+  ICEP = 0
+  ICEM = 0
+  ICGP = 0
+  ICGM = 0
+  do JS=1,NSYM
+    IJS = Mul(IS,JS)
+    IOFCD(IS,JS) = ICD
+    ICD = ICD+NSSH(JS)*NISH(IJS)
+    ICEP = ICEP+NSSH(JS)*NIGEJ(IJS)
+    ICEM = ICEM+NSSH(JS)*NIGTJ(IJS)
+    ICGP = ICGP+NISH(JS)*NAGEB(IJS)
+    ICGM = ICGM+NISH(JS)*NAGTB(IJS)
+  end do
+end do
 
 ! Core contribution:
-      IF (.NOT.do_grad) THEN
-        OVL=DDOT_(NVEC,VEC1,1,VEC2,1)
-        DO IS=1,NSYM
-          NI=NISH(IS)
-          NO=NORB(IS)
-          IDII=IOFDIJ(IS)+1
-          DO III=1,NI
-            DPT2(IDII)=DPT2(IDII)+Two*OVL
-            IDII=IDII+NO+1
-          END DO
-        END DO
-      END IF
-!
-      LLST1 = 0 ! dummy initialize
-      NLST1 = 0 ! dummy initialize
-!
-      SELECT CASE (ICASE)
-! -----------------------------------------------
-      CASE(1)
-! Case A
-      NI=NISH(ISYM)
-      NO=NORB(ISYM)
-      DO II=1,NI
-        IV2=1+NIN*(II-1)
-        DO IJ=1,NI
-          IDIJ=IOFDIJ(ISYM)+II+NO*(IJ-1)
-          IV1=1+NIN*(IJ-1)
-          DPT2(IDIJ)=DPT2(IDIJ)-                                        &
-     &           DDOT_(NIN,VEC1(IV1),1,VEC2(IV2),1)
-        END DO
-      END DO
-! -----------------------------------------------
-      CASE(2,3)
-! Case BP
-! Case BM
-! Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
-      NX=NIN*NIMX**2
-      Call mma_allocate(X1,NX,LABEL='X1')
-      call mma_allocate(X2,NX,LABEL='X2')
-      DO ISYMK=1,NSYM
-       ISYMI=Mul(ISYMK,ISYM)
-       NK=NISH(ISYMK)
-       NI=NISH(ISYMI)
-       NKI=NK*NI
-       IF(NKI==0) CYCLE
-       CALL DCOPY_(NIN*NKI,[Zero],0,X1,1)
-       CALL DCOPY_(NIN*NKI,[Zero],0,X2,1)
-       IF(ICASE==2) THEN
-         LLST1=LLIST(ISYMK,ISYM,14)
-         NLST1=NLIST(ISYMK,ISYM,14)
-         VAL1(1)= One
-         VAL1(2)= SQR2
-       ELSE IF(ICASE==3) THEN
-         LLST1=LLIST(ISYMK,ISYM,15)
-         NLST1=NLIST(ISYMK,ISYM,15)
-         VAL1(1)= One
-         VAL1(2)=-One
-       END IF
-       IF(NLST1==0) CYCLE
-       INCX1=1
-       INCX2=NIN
-       INCX3=NIN*NK
-       INCY1=1
-       INCY2=NIN
-       LEN1=NIN
-       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
-       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
-! D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
-       IDIJ=1+IOFDIJ(ISYMI)
-       NO=NORB(ISYMI)
-       CALL DGEMM_('T','N',NI,NI,NIN*NK,-One,                           &
-     &            X2,NIN*NK,X1,NIN*NK,                                  &
-     &            One,DPT2(IDIJ),NO)
-      END DO
-      Call mma_deallocate(X1)
-      Call mma_deallocate(X2)
-! -----------------------------------------------
-      CASE(4)
-! Case C
-      NS=NSSH(ISYM)
-      NO=NORB(ISYM)
-      DO IA=1,NS
-        IV1=1+NIN*(IA-1)
-        DO IB=1,NS
-          IDAB=IOFDAB(ISYM)+IA+NO*(IB-1)
-          IV2=1+NIN*(IB-1)
-          DPT2(IDAB)=DPT2(IDAB)+                                        &
-     &          DDOT_(NIN,VEC1(IV1),1,VEC2(IV2),1)
-        END DO
-      END DO
-! -----------------------------------------------
-      CASE(5)
-! Case D
-      DO ISYMA=1,NSYM
-       NS=NSSH(ISYMA)
-       NOA=NORB(ISYMA)
-       ISYMI=Mul(ISYMA,ISYM)
-       NI=NISH(ISYMI)
-       NOI=NORB(ISYMI)
-       IV=1+NIN*IOFCD(ISYM,ISYMA)
-       INCA=NIN*NI
-       If (NI==0) CYCLE
-       DO II=1,NI
-         IV2=IV+NIN*(II-1)
-         DO IJ=1,NI
-           IDIJ=IOFDIJ(ISYMI)+II+NOI*(IJ-1)
-           SUM=DPT2(IDIJ)
-           IV1=IV+NIN*(IJ-1)
-           DO IA=1,NS
-             IV11=IV1+INCA*(IA-1)
-             IV22=IV2+INCA*(IA-1)
-             SUM=SUM-DDOT_(NIN,VEC1(IV11),1,VEC2(IV22),1)
-           END DO
-           DPT2(IDIJ)=SUM
-         END DO
-       END DO
-       DO IA=1,NS
-         IV1=IV+INCA*(IA-1)
-         DO IB=1,NS
-           IDAB=IOFDAB(ISYMA)+IA+NOA*(IB-1)
-           IV2=IV+INCA*(IB-1)
-           DPT2(IDAB)=DPT2(IDAB)+                                       &
-     &             DDOT_(INCA,VEC1(IV1),1,VEC2(IV2),1)
-         END DO
-       END DO
-      END DO
+if (.not. do_grad) then
+  OVL = DDOT_(NVEC,VEC1,1,VEC2,1)
+  do IS=1,NSYM
+    NI = NISH(IS)
+    NO = NORB(IS)
+    IDII = IOFDIJ(IS)+1
+    do III=1,NI
+      DPT2(IDII) = DPT2(IDII)+Two*OVL
+      IDII = IDII+NO+1
+    end do
+  end do
+end if
 
-! -----------------------------------------------
-      CASE(6,7)
-! Case EP
-! Case EM
-      NX=NIN*NSMX*NIMX**2
-      Call mma_allocate(X1,NX,LABEL='X1')
-      call mma_allocate(X2,NX,LABEL='X2')
-      IYOFF=0
-      DO ISYMA=1,NSYM
-       ISYMKI=Mul(ISYMA,ISYM)
-       NA=NSSH(ISYMA)
-       NOA=NORB(ISYMA)
-       IF(ICASE==6) NKIY=NIGEJ(ISYMKI)
-       IF(ICASE==7) NKIY=NIGTJ(ISYMKI)
-       IY=1+IYOFF
-! First, contributions to DIJ.
-! Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
-       DO ISYMK=1,NSYM
-        ISYMI=Mul(ISYMK,ISYMKI)
-        NK=NISH(ISYMK)
-        NI=NISH(ISYMI)
-        NAKI=NA*NK*NI
-        IF(NAKI==0) CYCLE
-        CALL DCOPY_(NIN*NAKI,[Zero],0,X1,1)
-        CALL DCOPY_(NIN*NAKI,[Zero],0,X2,1)
-        IF(ICASE==6) THEN
-          LLST1=LLIST(ISYMK,ISYMKI,14)
-          NLST1=NLIST(ISYMK,ISYMKI,14)
-          VAL1(1)= One
-          VAL1(2)= SQR2
-        ELSE IF(ICASE==7) THEN
-          LLST1=LLIST(ISYMK,ISYMKI,15)
-          NLST1=NLIST(ISYMK,ISYMKI,15)
-          VAL1(1)= One
-          VAL1(2)=-One
-        END IF
-        IF(NLST1==0) CYCLE
-        INCX1=1
-        INCX2=NIN*NA
-        INCX3=NIN*NA*NK
-        INCY1=1
-        INCY2=NIN*NA
-        LEN1=NIN*NA
-        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY),nVEC1-IY+1)
-        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY),nVEC2-IY+1)
-!  D(I,J) := Add contraction -X2(MU,A,K,I)*X1(MU,A,K,J):
-        IDIJ=1+IOFDIJ(ISYMI)
-        NOI=NORB(ISYMI)
-        CALL DGEMM_('T','N',NI,NI,NIN*NA*NK,-One,                       &
-     &             X2,NIN*NA*NK,X1,NIN*NA*NK,                           &
-     &             One,DPT2(IDIJ),NOI)
-       END DO
-! Second, contributions to DAB.
-       IF(NKIY==0) CYCLE
-       DO IA=1,NA
-        DO IB=1,NA
-         IDAB=IOFDAB(ISYMA)+IA+NOA*(IB-1)
-         SUM=DPT2(IDAB)
-         DO MU=1,NIN
-           IY1=IYOFF+MU+NIN*(IA-1)
-           IY2=IYOFF+MU+NIN*(IB-1)
-           SUM=SUM+DDOT_(NKIY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
-         END DO
-         DPT2(IDAB)=SUM
-        END DO
-       END DO
-       IYOFF=IYOFF+NIN*NA*NKIY
-      END DO
-      Call mma_deallocate(X1)
-      Call mma_deallocate(X2)
-! -----------------------------------------------
-      CASE(8,9)
-! Case FP
-! Case FM
-! Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
-      NX=NIN*NSMX**2
-      Call mma_allocate(X1,NX,LABEL='X1')
-      call mma_allocate(X2,NX,LABEL='X2')
-      DO ISYMC=1,NSYM
-       ISYMA=Mul(ISYMC,ISYM)
-       NC=NSSH(ISYMC)
-       NA=NSSH(ISYMA)
-       NCA=NC*NA
-       IF(NCA==0) CYCLE
-       CALL DCOPY_(NIN*NCA,[Zero],0,X1,1)
-       CALL DCOPY_(NIN*NCA,[Zero],0,X2,1)
-       IF(ICASE==8) THEN
-         LLST1=LLIST(ISYMC,ISYM,16)
-         NLST1=NLIST(ISYMC,ISYM,16)
-         VAL1(1)= One
-         VAL1(2)= SQR2
-       ELSE IF(ICASE==9) THEN
-         LLST1=LLIST(ISYMC,ISYM,17)
-         NLST1=NLIST(ISYMC,ISYM,17)
-         VAL1(1)= One
-         VAL1(2)=-One
-       END IF
-       IF(NLST1==0) CYCLE
-       INCX1=1
-       INCX2=NIN
-       INCX3=NIN*NC
-       INCY1=1
-       INCY2=NIN
-       LEN1=NIN
-       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
-       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
-! D(A,B) := Add contraction  X1(MU,C,A)*X2(MU,C,B):
-       IDAB=1+IOFDAB(ISYMA)
-       NOA=NORB(ISYMA)
-       CALL DGEMM_('T','N',NA,NA,NIN*NC,+One,                           &
-     &            X1,NIN*NC,X2,NIN*NC,                                  &
-     &            One,DPT2(IDAB),NOA)
-      END DO
-      Call mma_deallocate(X1)
-      Call mma_deallocate(X2)
-! -----------------------------------------------
-      CASE(10,11)
-! Case GP
-! Case GM
-      NX=NIN*NIMX*NSMX**2
-      Call mma_allocate(X1,NX,LABEL='X1')
-      call mma_allocate(X2,NX,LABEL='X2')
-      IYOFF=0
-      DO ISYMI=1,NSYM
-       ISYMCA=Mul(ISYMI,ISYM)
-       NI=NISH(ISYMI)
-       NOI=NORB(ISYMI)
-       IF(ICASE==10) NCAY=NAGEB(ISYMCA)
-       IF(ICASE==11) NCAY=NAGTB(ISYMCA)
-       IY=1+IYOFF
-! First, contributions to DAB.
-! Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
-       DO ISYMC=1,NSYM
-        ISYMA=Mul(ISYMC,ISYMCA)
-        NC=NSSH(ISYMC)
-        NA=NSSH(ISYMA)
-        NICA=NI*NC*NA
-        IF(NICA==0) CYCLE
-        CALL DCOPY_(NIN*NICA,[Zero],0,X1,1)
-        CALL DCOPY_(NIN*NICA,[Zero],0,X2,1)
-        IF(ICASE==10) THEN
-          LLST1=LLIST(ISYMC,ISYMCA,16)
-          NLST1=NLIST(ISYMC,ISYMCA,16)
-          VAL1(1)= One
-          VAL1(2)= SQR2
-        ELSE IF(ICASE==11) THEN
-          LLST1=LLIST(ISYMC,ISYMCA,17)
-          NLST1=NLIST(ISYMC,ISYMCA,17)
-          VAL1(1)= One
-          VAL1(2)=-One
-        END IF
-        IF(NLST1==0) CYCLE
-        INCX1=1
-        INCX2=NIN*NI
-        INCX3=NIN*NI*NC
-        INCY1=1
-        INCY2=NIN*NI
-        LEN1=NIN*NI
-        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY),nVec1-IY+1)
-        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY),nVec2-IY+1)
-!  D(A,B) := Add contraction +X1(MU,I,C,A)*X2(MU,I,C,B):
-        IDAB=1+IOFDAB(ISYMA)
-        NOA=NORB(ISYMA)
-        CALL DGEMM_('T','N',NA,NA,NIN*NI*NC,+One,                       &
-     &             X1,NIN*NI*NC,X2,NIN*NI*NC,                           &
-     &             One,DPT2(IDAB),NOA)
-       END DO
-! Second, contributions to DIJ.
-       IF(NCAY==0) CYCLE
-       DO II=1,NI
-        DO IJ=1,NI
-         IDIJ=IOFDIJ(ISYMI)+II+NOI*(IJ-1)
-         SUM=DPT2(IDIJ)
-         DO MU=1,NIN
-           IY1=IYOFF+MU+NIN*(IJ-1)
-           IY2=IYOFF+MU+NIN*(II-1)
-           SUM=SUM-DDOT_(NCAY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
-         END DO
-         DPT2(IDIJ)=SUM
-        END DO
-       END DO
-       IYOFF=IYOFF+NIN*NI*NCAY
-      END DO
-      Call mma_deallocate(X1)
-      Call mma_deallocate(X2)
-! -----------------------------------------------
-      CASE(12,13)
-! Case HP
-! Case HM
-! Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
-      NX=NAS*NIMX**2
-      Call mma_allocate(X1,NX,LABEL='X1')
-      call mma_allocate(X2,NX,LABEL='X2')
-      DO ISYMK=1,NSYM
-       ISYMI=Mul(ISYMK,ISYM)
-       NK=NISH(ISYMK)
-       NI=NISH(ISYMI)
-       NKI=NK*NI
-       IF(NKI==0) CYCLE
-       CALL DCOPY_(NAS*NKI,[Zero],0,X1,1)
-       CALL DCOPY_(NAS*NKI,[Zero],0,X2,1)
-       IF(ICASE==12) THEN
-         LLST1=LLIST(ISYMK,ISYM,14)
-         NLST1=NLIST(ISYMK,ISYM,14)
-         VAL1(1)= One
-         VAL1(2)= SQR2
-       ELSE IF(ICASE==13) THEN
-         LLST1=LLIST(ISYMK,ISYM,15)
-         NLST1=NLIST(ISYMK,ISYM,15)
-         VAL1(1)= One
-         VAL1(2)=-One
-       END IF
-       IF(NLST1==0) CYCLE
-       INCX1=1
-       INCX2=NAS
-       INCX3=NAS*NK
-       INCY1=1
-       INCY2=NAS
-       LEN1=NAS
-       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
-       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
-! D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
-       IDIJ=1+IOFDIJ(ISYMI)
-       NOI=NORB(ISYMI)
-       CALL DGEMM_('T','N',NI,NI,NAS*NK,-One,                           &
-     &            X2,NAS*NK,X1,NAS*NK,                                  &
-     &            One,DPT2(IDIJ),NOI)
-      END DO
-      Call mma_deallocate(X1)
-      Call mma_deallocate(X2)
-! Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
-      NX=NIS*NSMX**2
-      Call mma_allocate(X1,NX,LABEL='X1')
-      call mma_allocate(X2,NX,LABEL='X2')
-      DO ISYMC=1,NSYM
-       ISYMA=Mul(ISYMC,ISYM)
-       NC=NSSH(ISYMC)
-       NA=NSSH(ISYMA)
-       NCA=NC*NA
-       IF(NCA==0) CYCLE
-       CALL DCOPY_(NIS*NCA,[Zero],0,X1,1)
-       CALL DCOPY_(NIS*NCA,[Zero],0,X2,1)
-       IF(ICASE==12) THEN
-         LLST1=LLIST(ISYMA,ISYM,16)
-         NLST1=NLIST(ISYMA,ISYM,16)
-         VAL1(1)= One
-         VAL1(2)= SQR2
-       ELSE IF(ICASE==13) THEN
-         LLST1=LLIST(ISYMA,ISYM,17)
-         NLST1=NLIST(ISYMA,ISYM,17)
-         VAL1(1)= One
-         VAL1(2)=-One
-       END IF
-       IF(NLST1==0) CYCLE
-       INCX1=NCA
-       INCX2=1
-       INCX3=NA
-       INCY1=NAS
-       INCY2=1
-       LEN1=NIS
-       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
-       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
-! D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
-       IDAB=1+IOFDAB(ISYMA)
-       NOA=NORB(ISYMA)
-       CALL DGEMM_('N','T',NA,NA,NIS*NC,+One,                           &
-     &            X1,NA,X2,NA,                                          &
-     &            One,DPT2(IDAB),NOA)
-      END DO
-      Call mma_deallocate(X1)
-      Call mma_deallocate(X2)
-      CASE DEFAULT
-        CALL ABEND()
-      END SELECT
-! -----------------------------------------------
-      Contains
+LLST1 = 0 ! dummy initialize
+NLST1 = 0 ! dummy initialize
 
-      SUBROUTINE MLTUNF(LST,nLST,X,nX,Y,nY)
-      use Sigma_data, only: INCX1,INCX2,INCX3,INCY1,INCY2,LEN1,VAL1
-      use definitions, only: iwp, wp
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: nLST,nX,nY
-      real(kind=wp), Intent(inout):: X(nX)
-      real(kind=wp), Intent(in):: Y(nY)
-      integer(kind=iwp), intent(in):: LST(4,NLST)
+select case (ICASE)
+  ! -----------------------------------------------
+  case (1)
+    ! Case A
+    NI = NISH(ISYM)
+    NO = NORB(ISYM)
+    do II=1,NI
+      IV2 = 1+NIN*(II-1)
+      do IJ=1,NI
+        IDIJ = IOFDIJ(ISYM)+II+NO*(IJ-1)
+        IV1 = 1+NIN*(IJ-1)
+        DPT2(IDIJ) = DPT2(IDIJ)-DDOT_(NIN,VEC1(IV1),1,VEC2(IV2),1)
+      end do
+    end do
+    ! -----------------------------------------------
+  case (2,3)
+    ! Case BP
+    ! Case BM
+    ! Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
+    NX = NIN*NIMX**2
+    call mma_allocate(X1,NX,LABEL='X1')
+    call mma_allocate(X2,NX,LABEL='X2')
+    do ISYMK=1,NSYM
+      ISYMI = Mul(ISYMK,ISYM)
+      NK = NISH(ISYMK)
+      NI = NISH(ISYMI)
+      NKI = NK*NI
+      if (NKI == 0) cycle
+      call DCOPY_(NIN*NKI,[Zero],0,X1,1)
+      call DCOPY_(NIN*NKI,[Zero],0,X2,1)
+      if (ICASE == 2) then
+        LLST1 = LLIST(ISYMK,ISYM,14)
+        NLST1 = NLIST(ISYMK,ISYM,14)
+        VAL1(1) = One
+        VAL1(2) = SQR2
+      else if (ICASE == 3) then
+        LLST1 = LLIST(ISYMK,ISYM,15)
+        NLST1 = NLIST(ISYMK,ISYM,15)
+        VAL1(1) = One
+        VAL1(2) = -One
+      end if
+      if (NLST1 == 0) cycle
+      INCX1 = 1
+      INCX2 = NIN
+      INCX3 = NIN*NK
+      INCY1 = 1
+      INCY2 = NIN
+      LEN1 = NIN
+      call MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
+      call MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
+      ! D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
+      IDIJ = 1+IOFDIJ(ISYMI)
+      NO = NORB(ISYMI)
+      call DGEMM_('T','N',NI,NI,NIN*NK,-One,X2,NIN*NK,X1,NIN*NK,One,DPT2(IDIJ),NO)
+    end do
+    call mma_deallocate(X1)
+    call mma_deallocate(X2)
+    ! -----------------------------------------------
+  case (4)
+    ! Case C
+    NS = NSSH(ISYM)
+    NO = NORB(ISYM)
+    do IA=1,NS
+      IV1 = 1+NIN*(IA-1)
+      do IB=1,NS
+        IDAB = IOFDAB(ISYM)+IA+NO*(IB-1)
+        IV2 = 1+NIN*(IB-1)
+        DPT2(IDAB) = DPT2(IDAB)+DDOT_(NIN,VEC1(IV1),1,VEC2(IV2),1)
+      end do
+    end do
+    ! -----------------------------------------------
+  case (5)
+    ! Case D
+    do ISYMA=1,NSYM
+      NS = NSSH(ISYMA)
+      NOA = NORB(ISYMA)
+      ISYMI = Mul(ISYMA,ISYM)
+      NI = NISH(ISYMI)
+      NOI = NORB(ISYMI)
+      IV = 1+NIN*IOFCD(ISYM,ISYMA)
+      INCA = NIN*NI
+      if (NI == 0) cycle
+      do II=1,NI
+        IV2 = IV+NIN*(II-1)
+        do IJ=1,NI
+          IDIJ = IOFDIJ(ISYMI)+II+NOI*(IJ-1)
+          SUM = DPT2(IDIJ)
+          IV1 = IV+NIN*(IJ-1)
+          do IA=1,NS
+            IV11 = IV1+INCA*(IA-1)
+            IV22 = IV2+INCA*(IA-1)
+            SUM = SUM-DDOT_(NIN,VEC1(IV11),1,VEC2(IV22),1)
+          end do
+          DPT2(IDIJ) = SUM
+        end do
+      end do
+      do IA=1,NS
+        IV1 = IV+INCA*(IA-1)
+        do IB=1,NS
+          IDAB = IOFDAB(ISYMA)+IA+NOA*(IB-1)
+          IV2 = IV+INCA*(IB-1)
+          DPT2(IDAB) = DPT2(IDAB)+DDOT_(INCA,VEC1(IV1),1,VEC2(IV2),1)
+        end do
+      end do
+    end do
+    ! -----------------------------------------------
+  case (6,7)
+    ! Case EP
+    ! Case EM
+    NX = NIN*NSMX*NIMX**2
+    call mma_allocate(X1,NX,LABEL='X1')
+    call mma_allocate(X2,NX,LABEL='X2')
+    IYOFF = 0
+    do ISYMA=1,NSYM
+      ISYMKI = Mul(ISYMA,ISYM)
+      NA = NSSH(ISYMA)
+      NOA = NORB(ISYMA)
+      if (ICASE == 6) NKIY = NIGEJ(ISYMKI)
+      if (ICASE == 7) NKIY = NIGTJ(ISYMKI)
+      IY = 1+IYOFF
+      ! First, contributions to DIJ.
+      ! Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
+      do ISYMK=1,NSYM
+        ISYMI = Mul(ISYMK,ISYMKI)
+        NK = NISH(ISYMK)
+        NI = NISH(ISYMI)
+        NAKI = NA*NK*NI
+        if (NAKI == 0) cycle
+        call DCOPY_(NIN*NAKI,[Zero],0,X1,1)
+        call DCOPY_(NIN*NAKI,[Zero],0,X2,1)
+        if (ICASE == 6) then
+          LLST1 = LLIST(ISYMK,ISYMKI,14)
+          NLST1 = NLIST(ISYMK,ISYMKI,14)
+          VAL1(1) = One
+          VAL1(2) = SQR2
+        else if (ICASE == 7) then
+          LLST1 = LLIST(ISYMK,ISYMKI,15)
+          NLST1 = NLIST(ISYMK,ISYMKI,15)
+          VAL1(1) = One
+          VAL1(2) = -One
+        end if
+        if (NLST1 == 0) cycle
+        INCX1 = 1
+        INCX2 = NIN*NA
+        INCX3 = NIN*NA*NK
+        INCY1 = 1
+        INCY2 = NIN*NA
+        LEN1 = NIN*NA
+        call MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY),nVEC1-IY+1)
+        call MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY),nVEC2-IY+1)
+        ! D(I,J) := Add contraction -X2(MU,A,K,I)*X1(MU,A,K,J):
+        IDIJ = 1+IOFDIJ(ISYMI)
+        NOI = NORB(ISYMI)
+        call DGEMM_('T','N',NI,NI,NIN*NA*NK,-One,X2,NIN*NA*NK,X1,NIN*NA*NK,One,DPT2(IDIJ),NOI)
+      end do
+      ! Second, contributions to DAB.
+      if (NKIY == 0) cycle
+      do IA=1,NA
+        do IB=1,NA
+          IDAB = IOFDAB(ISYMA)+IA+NOA*(IB-1)
+          SUM = DPT2(IDAB)
+          do MU=1,NIN
+            IY1 = IYOFF+MU+NIN*(IA-1)
+            IY2 = IYOFF+MU+NIN*(IB-1)
+            SUM = SUM+DDOT_(NKIY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
+          end do
+          DPT2(IDAB) = SUM
+        end do
+      end do
+      IYOFF = IYOFF+NIN*NA*NKIY
+    end do
+    call mma_deallocate(X1)
+    call mma_deallocate(X2)
+    ! -----------------------------------------------
+  case (8,9)
+    ! Case FP
+    ! Case FM
+    ! Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
+    NX = NIN*NSMX**2
+    call mma_allocate(X1,NX,LABEL='X1')
+    call mma_allocate(X2,NX,LABEL='X2')
+    do ISYMC=1,NSYM
+      ISYMA = Mul(ISYMC,ISYM)
+      NC = NSSH(ISYMC)
+      NA = NSSH(ISYMA)
+      NCA = NC*NA
+      if (NCA == 0) cycle
+      call DCOPY_(NIN*NCA,[Zero],0,X1,1)
+      call DCOPY_(NIN*NCA,[Zero],0,X2,1)
+      if (ICASE == 8) then
+        LLST1 = LLIST(ISYMC,ISYM,16)
+        NLST1 = NLIST(ISYMC,ISYM,16)
+        VAL1(1) = One
+        VAL1(2) = SQR2
+      else if (ICASE == 9) then
+        LLST1 = LLIST(ISYMC,ISYM,17)
+        NLST1 = NLIST(ISYMC,ISYM,17)
+        VAL1(1) = One
+        VAL1(2) = -One
+      end if
+      if (NLST1 == 0) cycle
+      INCX1 = 1
+      INCX2 = NIN
+      INCX3 = NIN*NC
+      INCY1 = 1
+      INCY2 = NIN
+      LEN1 = NIN
+      call MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
+      call MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
+      ! D(A,B) := Add contraction  X1(MU,C,A)*X2(MU,C,B):
+      IDAB = 1+IOFDAB(ISYMA)
+      NOA = NORB(ISYMA)
+      call DGEMM_('T','N',NA,NA,NIN*NC,+One,X1,NIN*NC,X2,NIN*NC,One,DPT2(IDAB),NOA)
+    end do
+    call mma_deallocate(X1)
+    call mma_deallocate(X2)
+    ! -----------------------------------------------
+  case (10,11)
+    ! Case GP
+    ! Case GM
+    NX = NIN*NIMX*NSMX**2
+    call mma_allocate(X1,NX,LABEL='X1')
+    call mma_allocate(X2,NX,LABEL='X2')
+    IYOFF = 0
+    do ISYMI=1,NSYM
+      ISYMCA = Mul(ISYMI,ISYM)
+      NI = NISH(ISYMI)
+      NOI = NORB(ISYMI)
+      if (ICASE == 10) NCAY = NAGEB(ISYMCA)
+      if (ICASE == 11) NCAY = NAGTB(ISYMCA)
+      IY = 1+IYOFF
+      ! First, contributions to DAB.
+      ! Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
+      do ISYMC=1,NSYM
+        ISYMA = Mul(ISYMC,ISYMCA)
+        NC = NSSH(ISYMC)
+        NA = NSSH(ISYMA)
+        NICA = NI*NC*NA
+        if (NICA == 0) cycle
+        call DCOPY_(NIN*NICA,[Zero],0,X1,1)
+        call DCOPY_(NIN*NICA,[Zero],0,X2,1)
+        if (ICASE == 10) then
+          LLST1 = LLIST(ISYMC,ISYMCA,16)
+          NLST1 = NLIST(ISYMC,ISYMCA,16)
+          VAL1(1) = One
+          VAL1(2) = SQR2
+        else if (ICASE == 11) then
+          LLST1 = LLIST(ISYMC,ISYMCA,17)
+          NLST1 = NLIST(ISYMC,ISYMCA,17)
+          VAL1(1) = One
+          VAL1(2) = -One
+        end if
+        if (NLST1 == 0) cycle
+        INCX1 = 1
+        INCX2 = NIN*NI
+        INCX3 = NIN*NI*NC
+        INCY1 = 1
+        INCY2 = NIN*NI
+        LEN1 = NIN*NI
+        call MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY),nVec1-IY+1)
+        call MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY),nVec2-IY+1)
+        ! D(A,B) := Add contraction +X1(MU,I,C,A)*X2(MU,I,C,B):
+        IDAB = 1+IOFDAB(ISYMA)
+        NOA = NORB(ISYMA)
+        call DGEMM_('T','N',NA,NA,NIN*NI*NC,+One,X1,NIN*NI*NC,X2,NIN*NI*NC,One,DPT2(IDAB),NOA)
+      end do
+      ! Second, contributions to DIJ.
+      if (NCAY == 0) cycle
+      do II=1,NI
+        do IJ=1,NI
+          IDIJ = IOFDIJ(ISYMI)+II+NOI*(IJ-1)
+          SUM = DPT2(IDIJ)
+          do MU=1,NIN
+            IY1 = IYOFF+MU+NIN*(IJ-1)
+            IY2 = IYOFF+MU+NIN*(II-1)
+            SUM = SUM-DDOT_(NCAY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
+          end do
+          DPT2(IDIJ) = SUM
+        end do
+      end do
+      IYOFF = IYOFF+NIN*NI*NCAY
+    end do
+    call mma_deallocate(X1)
+    call mma_deallocate(X2)
+    ! -----------------------------------------------
+  case (12,13)
+    ! Case HP
+    ! Case HM
+    ! Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
+    NX = NAS*NIMX**2
+    call mma_allocate(X1,NX,LABEL='X1')
+    call mma_allocate(X2,NX,LABEL='X2')
+    do ISYMK=1,NSYM
+      ISYMI = Mul(ISYMK,ISYM)
+      NK = NISH(ISYMK)
+      NI = NISH(ISYMI)
+      NKI = NK*NI
+      if (NKI == 0) cycle
+      call DCOPY_(NAS*NKI,[Zero],0,X1,1)
+      call DCOPY_(NAS*NKI,[Zero],0,X2,1)
+      if (ICASE == 12) then
+        LLST1 = LLIST(ISYMK,ISYM,14)
+        NLST1 = NLIST(ISYMK,ISYM,14)
+        VAL1(1) = One
+        VAL1(2) = SQR2
+      else if (ICASE == 13) then
+        LLST1 = LLIST(ISYMK,ISYM,15)
+        NLST1 = NLIST(ISYMK,ISYM,15)
+        VAL1(1) = One
+        VAL1(2) = -One
+      end if
+      if (NLST1 == 0) cycle
+      INCX1 = 1
+      INCX2 = NAS
+      INCX3 = NAS*NK
+      INCY1 = 1
+      INCY2 = NAS
+      LEN1 = NAS
+      call MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
+      call MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
+      ! D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
+      IDIJ = 1+IOFDIJ(ISYMI)
+      NOI = NORB(ISYMI)
+      call DGEMM_('T','N',NI,NI,NAS*NK,-One,X2,NAS*NK,X1,NAS*NK,One,DPT2(IDIJ),NOI)
+    end do
+    call mma_deallocate(X1)
+    call mma_deallocate(X2)
+    ! Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
+    NX = NIS*NSMX**2
+    call mma_allocate(X1,NX,LABEL='X1')
+    call mma_allocate(X2,NX,LABEL='X2')
+    do ISYMC=1,NSYM
+      ISYMA = Mul(ISYMC,ISYM)
+      NC = NSSH(ISYMC)
+      NA = NSSH(ISYMA)
+      NCA = NC*NA
+      if (NCA == 0) cycle
+      call DCOPY_(NIS*NCA,[Zero],0,X1,1)
+      call DCOPY_(NIS*NCA,[Zero],0,X2,1)
+      if (ICASE == 12) then
+        LLST1 = LLIST(ISYMA,ISYM,16)
+        NLST1 = NLIST(ISYMA,ISYM,16)
+        VAL1(1) = One
+        VAL1(2) = SQR2
+      else if (ICASE == 13) then
+        LLST1 = LLIST(ISYMA,ISYM,17)
+        NLST1 = NLIST(ISYMA,ISYM,17)
+        VAL1(1) = One
+        VAL1(2) = -One
+      end if
+      if (NLST1 == 0) cycle
+      INCX1 = NCA
+      INCX2 = 1
+      INCX3 = NA
+      INCY1 = NAS
+      INCY2 = 1
+      LEN1 = NIS
+      call MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
+      call MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
+      ! D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
+      IDAB = 1+IOFDAB(ISYMA)
+      NOA = NORB(ISYMA)
+      call DGEMM_('N','T',NA,NA,NIS*NC,+One,X1,NA,X2,NA,One,DPT2(IDAB),NOA)
+    end do
+    call mma_deallocate(X1)
+    call mma_deallocate(X2)
+  case DEFAULT
+    call ABEND()
+end select
 
-      integer(kind=iwp) ILST,L1,L2,L3,L4,IX,IY
-      real(kind=wp) V
+contains
+
+subroutine MLTUNF(LST,nLST,X,nX,Y,nY)
 ! Given a list with entries LST(4,ITEM), ITEM=1,NLST,
 ! with entries called L1,L2,L3,L4 for given ITEM, and
 ! an array of the form Y(p,q), compute the matrix
 !    X(p,L1,L2) := Add V*Y(p,L3), p=1..LEN1
 ! where V=VAL1(L4), looped over ITEM=1,NLST.
 ! Note: Arrays are addressed by strides given in common.
-      DO ILST=1,NLST
-        L1=LST(1,ILST)
-        L2=LST(2,ILST)
-        L3=LST(3,ILST)
-        L4=LST(4,ILST)
-        V=VAL1(L4)
-        IX=1+INCX2*(L1-1)+INCX3*(L2-1)
-        IY=1+INCY2*(L3-1)
-        CALL DAXPY_(LEN1,V,Y(IY),INCY1,X(IX),INCX1)
-      END DO
 
-      END SUBROUTINE MLTUNF
+  use Sigma_data, only: INCX1, INCX2, INCX3, INCY1, INCY2, LEN1, VAL1
+  use definitions, only: iwp, wp
 
-      END SUBROUTINE DIADNS
+  integer(kind=iwp), intent(in) :: nLST, nX, nY
+  real(kind=wp), intent(inout) :: X(nX)
+  real(kind=wp), intent(in) :: Y(nY)
+  integer(kind=iwp), intent(in) :: LST(4,NLST)
+  integer(kind=iwp) ILST, L1, L2, L3, L4, IX, IY
+  real(kind=wp) V
+  do ILST=1,NLST
+    L1 = LST(1,ILST)
+    L2 = LST(2,ILST)
+    L3 = LST(3,ILST)
+    L4 = LST(4,ILST)
+    V = VAL1(L4)
+    IX = 1+INCX2*(L1-1)+INCX3*(L2-1)
+    IY = 1+INCY2*(L3-1)
+    call DAXPY_(LEN1,V,Y(IY),INCY1,X(IX),INCX1)
+  end do
+
+end subroutine MLTUNF
+
+end subroutine DIADNS

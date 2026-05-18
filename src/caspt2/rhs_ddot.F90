@@ -23,29 +23,30 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      FUNCTION RHS_DDOT(NAS,NIS,lg_V1,lg_V2)
+function RHS_DDOT(NAS,NIS,lg_V1,lg_V2)
 !SVC: this routine computes the DDOT of the RHS arrays V1 and V2
-      use definitions, only: iwp, wp
+
+use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      use fake_GA, only: GA_Arrays
-      IMPLICIT None
-      real(kind=wp) RHS_DDOT
-      Integer(kind=iwp), intent(in):: NAS,NIS,lg_V1,lg_V2
-      real(kind=wp), external:: DDot_
+use fake_GA, only: GA_Arrays
+
+implicit none
+real(kind=wp) RHS_DDOT
+integer(kind=iwp), intent(in) :: NAS, NIS, lg_V1, lg_V2
+real(kind=wp), external :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 
-      IF (Is_Real_Par()) THEN
-        RHS_DDOT = GA_DDOT(lg_V1,lg_V2)
-      ELSE
+if (Is_Real_Par()) then
+  RHS_DDOT = GA_DDOT(lg_V1,lg_V2)
+else
 #endif
-        RHS_DDOT = DDOT_(NAS*NIS,GA_Arrays(lg_V1)%A,1,                  &
-     &                           GA_Arrays(lg_V2)%A,1)
+  RHS_DDOT = DDOT_(NAS*NIS,GA_Arrays(lg_V1)%A,1,GA_Arrays(lg_V2)%A,1)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END FUNCTION RHS_DDOT
+end function RHS_DDOT

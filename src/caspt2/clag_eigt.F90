@@ -11,65 +11,60 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-      SUBROUTINE CLagEigT(CLag,RDMEIG,SLag,EINACT)
+subroutine CLagEigT(CLag,RDMEIG,SLag,EINACT)
 
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp, iwp
-      use caspt2_module, only: NCONF, ISCF, NSTATE
-      use Constants, only: One, Two
+use stdalloc, only: mma_allocate, mma_deallocate
+use definitions, only: wp, iwp
+use caspt2_module, only: NCONF, ISCF, NSTATE
+use Constants, only: One, Two
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: nProcs, Is_Real_Par
+use Para_Info, only: nProcs, Is_Real_Par
 #endif
 
-      implicit none
+implicit none
+real(kind=wp), intent(inout) :: CLag(nConf,nState)
+real(kind=wp), intent(in) :: RDMEIG(*), SLag(*), EINACT
+real(kind=wp), allocatable :: CI1(:), CI2(:)
+real(kind=wp) :: Scal
+integer(kind=iwp) :: iStat, jStat
 
-      real(kind=wp), intent(inout) :: CLag(nConf,nState)
-      real(kind=wp), intent(in) :: RDMEIG(*), SLag(*), EINACT
+! RDMEIG
+call mma_allocate(CI1,nConf,Label='CI1')
+call mma_allocate(CI2,nConf,Label='CI2')
+do iStat=1,nState
+  if (ISCF == 0) then
+    call LoadCI(CI1,iStat)
+  else
+    CI1(1) = One
+  end if
+  !! Skip iStat = jStat because SLag is zero
+  do jStat=1,nState !! iStat-1
+    if (ISCF == 0) then
+      call LoadCI(CI2,jStat)
+    else
+      CI2(1) = One
+    end if
+    !! One of doubling is due to the scaling factor
+    !! One of doubling is due to the symmetry of iStat and jStat
+    !Scal = SLag(iStat+nState*(jStat-1))*Four
+    Scal = SLag(iStat+nState*(jStat-1))*Two
+    if (abs(Scal) <= 1.0e-09_wp) cycle
 
-      real(kind=wp),allocatable :: CI1(:),CI2(:)
-      real(kind=wp) :: Scal
-      integer(kind=iwp) :: iStat, jStat
+    call Poly1_CLagT(CI1,CI2,CLag(1,iStat),CLag(1,jStat),RDMEIG,Scal)
+    !! Inactive terms
+#   ifdef _MOLCAS_MPP_
+    !! The inactive contributions are computed in all processes,
+    !! whereas GADGOP will be done later, so divide
+    if (is_real_par()) Scal = Scal/real(nProcs,kind=wp)
+#   endif
+    CLag(1:nconf,jStat) = CLag(1:nconf,jStat)+Scal*EINACT*CI1(1:nconf)
+    CLag(1:nconf,iStat) = CLag(1:nconf,iStat)+Scal*EINACT*CI2(1:nconf)
+  end do
+end do
 
-      !! RDMEIG
-      call mma_allocate(CI1,nConf,Label='CI1')
-      call mma_allocate(CI2,nConf,Label='CI2')
-      Do iStat = 1, nState
-        If (ISCF == 0) Then
-          Call LoadCI(CI1,iStat)
-        Else
-          CI1(1) = One
-        End If
-        !! Skip iStat = jStat because SLag is zero
-        Do jStat = 1, nState !! iStat-1
-          If (ISCF == 0) Then
-            Call LoadCI(CI2,jStat)
-          Else
-            CI2(1) = One
-          End If
-          !! One of doubling is due to the scaling factor
-          !! One of doubling is due to the symmetry of iStat and jStat
-!         Scal = SLag(iStat+nState*(jStat-1))*Four
-          Scal = SLag(iStat+nState*(jStat-1))*Two
-          If (ABS(Scal) <= 1.0e-09_wp) Cycle
+call mma_deallocate(CI1)
+call mma_deallocate(CI2)
 
-          Call Poly1_CLagT(CI1,CI2,                                     &
-     &                     CLag(1,iStat),CLag(1,jStat),RDMEIG,Scal)
-          !! Inactive terms
-#ifdef _MOLCAS_MPP_
-          !! The inactive contributions are computed in all processes,
-          !! whereas GADGOP will be done later, so divide
-          if (is_real_par()) Scal = Scal/real(nProcs,kind=wp)
-#endif
-          CLag(1:nconf,jStat) = CLag(1:nconf,jStat)                     &
-     &      + Scal*EINACT*CI1(1:nconf)
-          CLag(1:nconf,iStat) = CLag(1:nconf,iStat)                     &
-     &      + Scal*EINACT*CI2(1:nconf)
-        End Do
-      End Do
+return
 
-      call mma_deallocate(CI1)
-      call mma_deallocate(CI2)
-
-      Return
-
-      End Subroutine CLagEigT
+end subroutine CLagEigT

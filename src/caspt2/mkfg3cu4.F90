@@ -14,158 +14,145 @@
 #include "compiler_features.h"
 
 #ifdef _ENABLE_BLOCK_DMRG_
-      Subroutine MKFG3CU4(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,W3)
-!
+subroutine MKFG3CU4(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,W3)
 ! Load 1-el, 2-el, and 3-el density matrices to resp. G1, G2, and G3
 ! and compute 1-el to 4-el contractions of Fock operator F1, F2, and F3.
 ! For F3, use cumulant reconstruction from 1-el, 2-el, and 3-el density matrices.
 !
 ! Written by N. Nakatani, Oct. 2014
-!
-      use Symmetry_Info, only: Mul
-      use constants, only: Half
-      use definitions, only: iwp, wp, Byte
-      IMPLICIT NONE
-!
-!
-      LOGICAL(KIND=IWP), INTENT(IN) :: mkF,
-      INTEGER(KIND=IWP), INTENT(IN):: NLEV, nG3
-      REAL(KIND=WP), INTENT(OUT) ::G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
-      REAL(KIND=WP), INTENT(OUT) ::F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
-      REAL(KIND=WP), INTENT(OUT) :: G3(nG3), F3(nG3)
-      INTEGER(Kind=Byte), INTENT(IN) :: idxG3(6,nG3)
-      REAL(KIND=WP), INTENT(IN) :: W3(NLEV,NLEV,NLEV,NLEV)
-!
-      REAL(KIND=WP)  G1SUM
-      INTEGER(KIND=IWP) IT,IU,IV,IX,IY,IZ,IW
-      INTEGER(KIND=IWP) JT,JU,JV,JX,JY,JZ
-      INTEGER(KIND=IWP) IZSYM,IYZSYM,IXYZSYM,IVXYZSYM
-      INTEGER(KIND=IWP) IG3
 
-      REAL(KIND=WP), EXTERNAL :: CU4F3H
-!
-!
-      If(NACTEL.GT.1) Then
-! load 2-el density matrix
-        Call block_load2pdm(nlev,G2,jstate,jstate)
-! compute 1-el density matrix from 2-el density matrix
-        Do iu=1,nlev
-          Do it=1,nlev
-            G1sum=Zero
-            If(ism(it).EQ.ism(iu)) Then
-              Do iw=1,nlev
-                G1sum=G1sum+G2(iw,iw,it,iu)
-              End Do
-              G1(it,iu)=G1sum/(NACTEL-1)
-            End If
-          End Do
-        End Do
-      Else
-! special case for NACTEL = 1
-        Call block_load1pdm(nlev,G1,jstate,jstate)
-      End If
-!
-      Do iz=1,nlev
-        izSym=ism(iz)
-        Do iy=1,nlev
-          iyzSym=Mul(ism(iy),izSym)
-          If(mkF.AND.iyzSym.EQ.1) Then
-            Do iw=1,nlev
-              F1(iy,iz)=F1(iy,iz)+G2(iw,iw,iy,iz)*EPSA(iw)
-            End Do
-          End If
-        End Do
-      End Do
+use Symmetry_Info, only: Mul
+use constants, only: Half
+use definitions, only: iwp, wp, Byte
+
+implicit none
+logical(kind=iwp), intent(in) :: mkF,
+integer(kind=iwp), intent(in) :: NLEV, nG3
+real(kind=wp), intent(out) :: G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
+real(kind=wp), intent(out) :: F1(NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV)
+real(kind=wp), intent(out) :: G3(nG3), F3(nG3)
+integer(kind=Byte), intent(in) :: idxG3(6,nG3)
+real(kind=wp), intent(in) :: W3(NLEV,NLEV,NLEV,NLEV)
+real(kind=wp) G1SUM
+integer(kind=iwp) IT, IU, IV, IX, IY, IZ, IW
+integer(kind=iwp) JT, JU, JV, JX, JY, JZ
+integer(kind=iwp) IZSYM, IYZSYM, IXYZSYM, IVXYZSYM
+integer(kind=iwp) IG3
+real(kind=wp), external :: CU4F3H
+
+if (NACTEL > 1) then
+  ! load 2-el density matrix
+  call block_load2pdm(nlev,G2,jstate,jstate)
+  ! compute 1-el density matrix from 2-el density matrix
+  do iu=1,nlev
+    do it=1,nlev
+      G1sum = Zero
+      if (ism(it) == ism(iu)) then
+        do iw=1,nlev
+          G1sum = G1sum+G2(iw,iw,it,iu)
+        end do
+        G1(it,iu) = G1sum/(NACTEL-1)
+      end if
+    end do
+  end do
+else
+  ! special case for NACTEL = 1
+  call block_load1pdm(nlev,G1,jstate,jstate)
+end if
+
+do iz=1,nlev
+  izSym = ism(iz)
+  do iy=1,nlev
+    iyzSym = Mul(ism(iy),izSym)
+    if (mkF .and. (iyzSym == 1)) then
+      do iw=1,nlev
+        F1(iy,iz) = F1(iy,iz)+G2(iw,iw,iy,iz)*EPSA(iw)
+      end do
+    end if
+  end do
+end do
 
 ! skip 3RDM part if NACTEL <= 2
-      If(NACTEL.LE.2) RETURN
+if (NACTEL <= 2) return
 
-      Do iz=1,nlev
-        izSym=ism(iz)
-        Do iy=1,nlev
-          iyzSym=Mul(ism(iy),izSym)
-! load 3PDM of which is G3(:,:,:,:,iy,iz)
-          Call block_load3pdm2f(nlev,W3,jstate,jstate,iy,iz)
-          If(mkF) Then
-            Do ix=1,nlev
-              ixyzSym=Mul(ism(ix),iyzSym)
-              Do iv=1,nlev
-                ivxyzSym=Mul(ism(iv),ixyzSym)
-                If(ivxyzSym.EQ.1) Then
-                  Do iw=1,nlev
-                    F2(iv,ix,iy,iz)=F2(iv,ix,iy,iz)                     &
-     &                             +W3(iw,iw,iv,ix)*EPSA(iw)
-                  End Do
-                End If
-              End Do
-            End Do
-          End If
+do iz=1,nlev
+  izSym = ism(iz)
+  do iy=1,nlev
+    iyzSym = Mul(ism(iy),izSym)
+    ! load 3PDM of which is G3(:,:,:,:,iy,iz)
+    call block_load3pdm2f(nlev,W3,jstate,jstate,iy,iz)
+    if (mkF) then
+      do ix=1,nlev
+        ixyzSym = Mul(ism(ix),iyzSym)
+        do iv=1,nlev
+          ivxyzSym = Mul(ism(iv),ixyzSym)
+          if (ivxyzSym == 1) then
+            do iw=1,nlev
+              F2(iv,ix,iy,iz) = F2(iv,ix,iy,iz)+W3(iw,iw,iv,ix)*EPSA(iw)
+            end do
+          end if
+        end do
+      end do
+    end if
 
-          Do iG3=1,NG3
-            jt=idxG3(1,iG3)
-            ju=idxG3(2,iG3)
-            jv=idxG3(3,iG3)
-            jx=idxG3(4,iG3)
-            jy=idxG3(5,iG3)
-            jz=idxG3(6,iG3)
-            If(iy.EQ.jy.AND.iz.EQ.jz) Then
-              G3(iG3)=W3(jt,ju,jv,jx)
-              If(mkF) Then
-! CU4F3 Contrib. :: + G1(lT,lT)*G3(iP,iQ,jP,jQ,kP,kQ)
-                F3(iG3)=F3(iG3)+EASUM*G3(iG3)
-                Do iw=1,nlev
-                  F3(iG3)=F3(iG3)                                       &
-! CU4F3 Contrib. :: - 0.5D0*G1(iP,lT)*G3(lT,iQ,jP,jQ,kP,kQ)
-     &                   -Half*G1(jt,iw)*W3(iw,ju,jv,jx)*EPSA(iw)       &
-! CU4F3 Contrib. :: - 0.5D0*G1(lT,iQ)*G3(iP,lT,jP,jQ,kP,kQ)
-     &                   -Half*G1(iw,ju)*W3(jt,iw,jv,jx)*EPSA(iw)
-                End Do
-              End If
-            End If
+    do iG3=1,NG3
+      jt = idxG3(1,iG3)
+      ju = idxG3(2,iG3)
+      jv = idxG3(3,iG3)
+      jx = idxG3(4,iG3)
+      jy = idxG3(5,iG3)
+      jz = idxG3(6,iG3)
+      if ((iy == jy) .and. (iz == jz)) then
+        G3(iG3) = W3(jt,ju,jv,jx)
+        if (mkF) then
+          ! CU4F3 Contrib. :: + G1(lT,lT)*G3(iP,iQ,jP,jQ,kP,kQ)
+          F3(iG3) = F3(iG3)+EASUM*G3(iG3)
+          do iw=1,nlev
+            ! CU4F3 Contrib. :: - 0.5D0*G1(iP,lT)*G3(lT,iQ,jP,jQ,kP,kQ)
+            ! CU4F3 Contrib. :: - 0.5D0*G1(lT,iQ)*G3(iP,lT,jP,jQ,kP,kQ)
+            F3(iG3) = F3(iG3)-Half*G1(jt,iw)*W3(iw,ju,jv,jx)*EPSA(iw)-Half*G1(iw,ju)*W3(jt,iw,jv,jx)*EPSA(iw)
+          end do
+        end if
+      end if
 
-            If(mkF.AND.iy.EQ.jy.AND.iz.EQ.jz) Then
-              Do iw=1,nlev
-                F3(iG3)=F3(iG3)                                         &
-! CU4F3 Contrib. :: - 0.5D0*G1(jP,lT)*G3(lT,jQ,iP,iQ,kP,kQ)
-     &                 -Half*G1(jv,iw)*W3(iw,jx,jt,ju)*EPSA(iw)         &
-! CU4F3 Contrib. :: - 0.5D0*G1(lT,jQ)*G3(jP,lT,iP,iQ,kP,kQ)
-     &                 -Half*G1(iw,jx)*W3(jv,iw,jt,ju)*EPSA(iw)
-              End Do
-            End If
+      if (mkF .and. (iy == jy) .and. (iz == jz)) then
+        do iw=1,nlev
+          ! CU4F3 Contrib. :: - 0.5D0*G1(jP,lT)*G3(lT,jQ,iP,iQ,kP,kQ)
+          ! CU4F3 Contrib. :: - 0.5D0*G1(lT,jQ)*G3(jP,lT,iP,iQ,kP,kQ)
+          F3(iG3) = F3(iG3)-Half*G1(jv,iw)*W3(iw,jx,jt,ju)*EPSA(iw)-Half*G1(iw,jx)*W3(jv,iw,jt,ju)*EPSA(iw)
+        end do
+      end if
 
-            If(mkF.AND.iy.EQ.jv.AND.iz.EQ.jx) Then
-              Do iw=1,nlev
-                F3(iG3)=F3(iG3)                                         &
-! CU4F3 Contrib. :: - 0.5D0*G1(kP,lT)*G3(lT,kQ,iP,iQ,jP,jQ)
-     &                 -Half*G1(jy,iw)*W3(iw,jz,jt,ju)*EPSA(iw)         &
-! CU4F3 Contrib. :: - 0.5D0*G1(lT,kQ)*G3(kP,lT,iP,iQ,jP,jQ)
-     &                 -Half*G1(iw,jz)*W3(jy,iw,jt,ju)*EPSA(iw)
-              End Do
-            End If
-          End Do
-        End Do
-      End Do
-!
-      If(mkF) Then
-        Do iG3=1,NG3
-          it=idxG3(1,iG3)
-          iu=idxG3(2,iG3)
-          iv=idxG3(3,iG3)
-          ix=idxG3(4,iG3)
-          iy=idxG3(5,iG3)
-          iz=idxG3(6,iG3)
-          F3(iG3)=F3(iG3)+CU4F3H(nlev,EPSA,EASUM,                       &
-     &                    G1,G2,F1,F2,it,iu,iv,ix,iy,iz)
-        End Do
-      End If
+      if (mkF .and. (iy == jv) .and. (iz == jx)) then
+        do iw=1,nlev
+          ! CU4F3 Contrib. :: - 0.5D0*G1(kP,lT)*G3(lT,kQ,iP,iQ,jP,jQ)
+          ! CU4F3 Contrib. :: - 0.5D0*G1(lT,kQ)*G3(kP,lT,iP,iQ,jP,jQ)
+          F3(iG3) = F3(iG3)-Half*G1(jy,iw)*W3(iw,jz,jt,ju)*EPSA(iw)-Half*G1(iw,jz)*W3(jy,iw,jt,ju)*EPSA(iw)
+        end do
+      end if
+    end do
+  end do
+end do
 
-      End Subroutine MKFG3CU4
+if (mkF) then
+  do iG3=1,NG3
+    it = idxG3(1,iG3)
+    iu = idxG3(2,iG3)
+    iv = idxG3(3,iG3)
+    ix = idxG3(4,iG3)
+    iy = idxG3(5,iG3)
+    iz = idxG3(6,iG3)
+    F3(iG3) = F3(iG3)+CU4F3H(nlev,EPSA,EASUM,G1,G2,F1,F2,it,iu,iv,ix,iy,iz)
+  end do
+end if
+
+end subroutine MKFG3CU4
 
 #elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-#     include "macros.fh"
-      subroutine empty_MKFG3CU4()
-      end subroutine empty_MKFG3CU4
+#include "macros.fh"
+subroutine empty_MKFG3CU4()
+end subroutine empty_MKFG3CU4
 
 #endif

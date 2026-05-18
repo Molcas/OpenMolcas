@@ -16,233 +16,228 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE NADIAG()
-      use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp, u6
-      USE SUPERINDEX, only: MIGEJ, MIGTJ, MAGEB, MAGTB
-      use caspt2_global, only: LUSBT
-      use EQSOLV, only: IDBMAT
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM, NINDEP, NISUP, NASUP, NIES, EPSI,  &
-     &                         NIGEJES, NSES, NIGTJES, EPSE, NSSH,      &
-     &                         NISH, NIGEJ, NAGEBES, NAGEBES, NAGEB,    &
-     &                         NIGTJ, NAGTBES, NAGTB
-      IMPLICIT NONE
 
-      real(kind=wp) Dummy(1), EDIAG
-      real(kind=wp), ALLOCATABLE:: BD(:), ID(:)
-      integer(kind=iwp) ICASE, ISYM, I2, I2ABS, IA, IAABS, IAB, IABQ,   &
-     &                  IBABS, IDID, II, IIABS, IIJ, IIJQ, IIQ, IIS,    &
-     &                  IJABS, ISYMA, ISYMAB, ISYMI, ISYMIJ, NAS, NIN,  &
-     &                  NIS
-
+subroutine NADIAG()
 ! Set up non-active diagonal elements of H0.
 
+use Symmetry_Info, only: Mul
+use definitions, only: iwp, wp, u6
+use SUPERINDEX, only: MIGEJ, MIGTJ, MAGEB, MAGTB
+use caspt2_global, only: LUSBT
+use EQSOLV, only: IDBMAT
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: NSYM, NINDEP, NISUP, NASUP, NIES, EPSI, NIGEJES, NSES, NIGTJES, EPSE, NSSH, NISH, NIGEJ, NAGEBES, &
+                         NAGEBES, NAGEB, NIGTJ, NAGTBES, NAGTB
 
-      DO ICASE=1,13
-        DO  ISYM=1,NSYM
+implicit none
+real(kind=wp) Dummy(1), EDIAG
+real(kind=wp), allocatable :: BD(:), ID(:)
+integer(kind=iwp) ICASE, ISYM, I2, I2ABS, IA, IAABS, IAB, IABQ, IBABS, IDID, II, IIABS, IIJ, IIJQ, IIQ, IIS, IJABS, ISYMA, ISYMAB, &
+                  ISYMI, ISYMIJ, NAS, NIN, NIS
 
-          NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.EQ.0) CYCLE
-          NIS=NISUP(ISYM,ICASE)
-          NAS=NASUP(ISYM,ICASE)
-          IF(ICASE.GT.11)CALL mma_allocate(BD,NAS,LABEL='BD')
-          CALL mma_allocate(ID,NIS,LABEL='ID')
+do ICASE=1,13
+  do ISYM=1,NSYM
 
+    NIN = NINDEP(ISYM,ICASE)
+    if (NIN == 0) cycle
+    NIS = NISUP(ISYM,ICASE)
+    NAS = NASUP(ISYM,ICASE)
+    if (ICASE > 11) call mma_allocate(BD,NAS,LABEL='BD')
+    call mma_allocate(ID,NIS,LABEL='ID')
 
-          SELECT CASE (ICASE)
-          CASE (1)
-! VJTU CASE:
-             DO IIS=1,NIS
-               IIQ=IIS+NIES(ISYM)
-               ID(IIS)= -EPSI(IIQ)
-             END DO
+    select case (ICASE)
+      case (1)
+        ! VJTU CASE:
+        do IIS=1,NIS
+          IIQ = IIS+NIES(ISYM)
+          ID(IIS) = -EPSI(IIQ)
+        end do
 
-          CASE (2)
-! VJTIP CASE:
-             DO IIS=1,NIS
-               IIQ=IIS+NIGEJES(ISYM)
-               IIABS=MIGEJ(1,IIQ)
-               IJABS=MIGEJ(2,IIQ)
-               ID(IIS)= -EPSI(IIABS)-EPSI(IJABS)
-             END DO
+      case (2)
+        ! VJTIP CASE:
+        do IIS=1,NIS
+          IIQ = IIS+NIGEJES(ISYM)
+          IIABS = MIGEJ(1,IIQ)
+          IJABS = MIGEJ(2,IIQ)
+          ID(IIS) = -EPSI(IIABS)-EPSI(IJABS)
+        end do
 
-          CASE (3)
-! VJTIM CASE:
-             DO IIS=1,NIS
-               IIQ=IIS+NIGTJES(ISYM)
-               IIABS=MIGTJ(1,IIQ)
-               IJABS=MIGTJ(2,IIQ)
-               ID(IIS)= -EPSI(IIABS)-EPSI(IJABS)
-             END DO
+      case (3)
+        ! VJTIM CASE:
+        do IIS=1,NIS
+          IIQ = IIS+NIGTJES(ISYM)
+          IIABS = MIGTJ(1,IIQ)
+          IJABS = MIGTJ(2,IIQ)
+          ID(IIS) = -EPSI(IIABS)-EPSI(IJABS)
+        end do
 
-          CASE (4)
-! ATVX  CASE:
-             DO IIS=1,NIS
-                IIQ=IIS+NSES(ISYM)
-                ID(IIS)= +EPSE(IIQ)
-             END DO
+      case (4)
+        ! ATVX  CASE:
+        do IIS=1,NIS
+          IIQ = IIS+NSES(ISYM)
+          ID(IIS) = +EPSE(IIQ)
+        end do
 
-          CASE (5)
-! AIVX  CASE:
-             IIS=0
-             DO ISYMA=1,NSYM
-               ISYMI=Mul(ISYMA,ISYM)
-               DO IA=1,NSSH(ISYMA)
-                 IAABS=IA+NSES(ISYMA)
-                 DO II=1,NISH(ISYMI)
-                   IIABS=II+NIES(ISYMI)
-                   IIS=IIS+1
-                   EDIAG= -EPSI(IIABS)+EPSE(IAABS)
-                   ID(IIS)= EDIAG
-                 END DO
-               END DO
-             END DO
+      case (5)
+        ! AIVX  CASE:
+        IIS = 0
+        do ISYMA=1,NSYM
+          ISYMI = Mul(ISYMA,ISYM)
+          do IA=1,NSSH(ISYMA)
+            IAABS = IA+NSES(ISYMA)
+            do II=1,NISH(ISYMI)
+              IIABS = II+NIES(ISYMI)
+              IIS = IIS+1
+              EDIAG = -EPSI(IIABS)+EPSE(IAABS)
+              ID(IIS) = EDIAG
+            end do
+          end do
+        end do
 
-          CASE (6)
-! VJAIP CASE:
-             IIS=0
-             DO ISYMA=1,NSYM
-               ISYMIJ=Mul(ISYMA,ISYM)
-               DO I2=1,NIGEJ(ISYMIJ)
-                 I2ABS=I2+NIGEJES(ISYMIJ)
-                 IIABS=MIGEJ(1,I2ABS)
-                 IJABS=MIGEJ(2,I2ABS)
-                 DO IA=1,NSSH(ISYMA)
-                   IAABS=IA+NSES(ISYMA)
-                   IIS=IIS+1
-                   EDIAG= -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
-                   ID(IIS)= EDIAG
-                 END DO
-               END DO
-             END DO
+      case (6)
+        ! VJAIP CASE:
+        IIS = 0
+        do ISYMA=1,NSYM
+          ISYMIJ = Mul(ISYMA,ISYM)
+          do I2=1,NIGEJ(ISYMIJ)
+            I2ABS = I2+NIGEJES(ISYMIJ)
+            IIABS = MIGEJ(1,I2ABS)
+            IJABS = MIGEJ(2,I2ABS)
+            do IA=1,NSSH(ISYMA)
+              IAABS = IA+NSES(ISYMA)
+              IIS = IIS+1
+              EDIAG = -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
+              ID(IIS) = EDIAG
+            end do
+          end do
+        end do
 
-          CASE (7)
-! VJAIM CASE:
-             IIS=0
-             DO ISYMA=1,NSYM
-               ISYMIJ=Mul(ISYMA,ISYM)
-               DO I2=1,NIGTJ(ISYMIJ)
-                 I2ABS=I2+NIGTJES(ISYMIJ)
-                 IIABS=MIGTJ(1,I2ABS)
-                 IJABS=MIGTJ(2,I2ABS)
-                 DO IA=1,NSSH(ISYMA)
-                   IAABS=IA+NSES(ISYMA)
-                   IIS=IIS+1
-                   EDIAG= -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
-                   ID(IIS)= EDIAG
-                 END DO
-               END DO
-             END DO
+      case (7)
+        ! VJAIM CASE:
+        IIS = 0
+        do ISYMA=1,NSYM
+          ISYMIJ = Mul(ISYMA,ISYM)
+          do I2=1,NIGTJ(ISYMIJ)
+            I2ABS = I2+NIGTJES(ISYMIJ)
+            IIABS = MIGTJ(1,I2ABS)
+            IJABS = MIGTJ(2,I2ABS)
+            do IA=1,NSSH(ISYMA)
+              IAABS = IA+NSES(ISYMA)
+              IIS = IIS+1
+              EDIAG = -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
+              ID(IIS) = EDIAG
+            end do
+          end do
+        end do
 
-          CASE (8)
-! BVATP CASE:
-             DO IIS=1,NIS
-               IIQ=IIS+NAGEBES(ISYM)
-               IAABS=MAGEB(1,IIQ)
-               IBABS=MAGEB(2,IIQ)
-               ID(IIS)= +EPSE(IAABS)+EPSE(IBABS)
-             END DO
+      case (8)
+        ! BVATP CASE:
+        do IIS=1,NIS
+          IIQ = IIS+NAGEBES(ISYM)
+          IAABS = MAGEB(1,IIQ)
+          IBABS = MAGEB(2,IIQ)
+          ID(IIS) = +EPSE(IAABS)+EPSE(IBABS)
+        end do
 
-          CASE (9)
-! BVATM CASE:
-             DO IIS=1,NIS
-               IIQ=IIS+NAGTBES(ISYM)
-               IAABS=MAGTB(1,IIQ)
-               IBABS=MAGTB(2,IIQ)
-               ID(IIS)= +EPSE(IAABS)+EPSE(IBABS)
-             END DO
+      case (9)
+        ! BVATM CASE:
+        do IIS=1,NIS
+          IIQ = IIS+NAGTBES(ISYM)
+          IAABS = MAGTB(1,IIQ)
+          IBABS = MAGTB(2,IIQ)
+          ID(IIS) = +EPSE(IAABS)+EPSE(IBABS)
+        end do
 
-          CASE (10)
-! BJATP CASE:
-             IIS=0
-             DO ISYMI=1,NSYM
-               ISYMAB=Mul(ISYMI,ISYM)
-               DO I2=1,NAGEB(ISYMAB)
-                 I2ABS=I2+NAGEBES(ISYMAB)
-                 IAABS=MAGEB(1,I2ABS)
-                 IBABS=MAGEB(2,I2ABS)
-                 DO II=1,NISH(ISYMI)
-                   IIABS=II+NIES(ISYMI)
-                   IIS=IIS+1
-                   EDIAG= -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
-                   ID(IIS)= EDIAG
-                 END DO
-               END DO
-             END DO
+      case (10)
+        ! BJATP CASE:
+        IIS = 0
+        do ISYMI=1,NSYM
+          ISYMAB = Mul(ISYMI,ISYM)
+          do I2=1,NAGEB(ISYMAB)
+            I2ABS = I2+NAGEBES(ISYMAB)
+            IAABS = MAGEB(1,I2ABS)
+            IBABS = MAGEB(2,I2ABS)
+            do II=1,NISH(ISYMI)
+              IIABS = II+NIES(ISYMI)
+              IIS = IIS+1
+              EDIAG = -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
+              ID(IIS) = EDIAG
+            end do
+          end do
+        end do
 
-          CASE (11)
-! BJATM CASE:
-             IIS=0
-             DO ISYMI=1,NSYM
-               ISYMAB=Mul(ISYMI,ISYM)
-               DO I2=1,NAGTB(ISYMAB)
-                 I2ABS=I2+NAGTBES(ISYMAB)
-                 IAABS=MAGTB(1,I2ABS)
-                 IBABS=MAGTB(2,I2ABS)
-                 DO II=1,NISH(ISYMI)
-                   IIABS=II+NIES(ISYMI)
-                   IIS=IIS+1
-                   EDIAG= -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
-                   ID(IIS)= EDIAG
-                 END DO
-               END DO
-             END DO
+      case (11)
+        ! BJATM CASE:
+        IIS = 0
+        do ISYMI=1,NSYM
+          ISYMAB = Mul(ISYMI,ISYM)
+          do I2=1,NAGTB(ISYMAB)
+            I2ABS = I2+NAGTBES(ISYMAB)
+            IAABS = MAGTB(1,I2ABS)
+            IBABS = MAGTB(2,I2ABS)
+            do II=1,NISH(ISYMI)
+              IIABS = II+NIES(ISYMI)
+              IIS = IIS+1
+              EDIAG = -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
+              ID(IIS) = EDIAG
+            end do
+          end do
+        end do
 
-          CASE (12)
-! BJAIP CASE:
-             DO IAB=1,NAGEB(ISYM)
-               IABQ=IAB+NAGEBES(ISYM)
-               IAABS=MAGEB(1,IABQ)
-               IBABS=MAGEB(2,IABQ)
-               IIS=IIS+1
-               EDIAG= EPSE(IAABS)+EPSE(IBABS)
-               BD(IAB)= EDIAG
-             END DO
-             DO IIJ=1,NIGEJ(ISYM)
-               IIJQ=IIJ+NIGEJES(ISYM)
-               IIABS=MIGEJ(1,IIJQ)
-               IJABS=MIGEJ(2,IIJQ)
-               EDIAG= -EPSI(IIABS)-EPSI(IJABS)
-               ID(IIJ)= EDIAG
-             END DO
+      case (12)
+        ! BJAIP CASE:
+        do IAB=1,NAGEB(ISYM)
+          IABQ = IAB+NAGEBES(ISYM)
+          IAABS = MAGEB(1,IABQ)
+          IBABS = MAGEB(2,IABQ)
+          IIS = IIS+1
+          EDIAG = EPSE(IAABS)+EPSE(IBABS)
+          BD(IAB) = EDIAG
+        end do
+        do IIJ=1,NIGEJ(ISYM)
+          IIJQ = IIJ+NIGEJES(ISYM)
+          IIABS = MIGEJ(1,IIJQ)
+          IJABS = MIGEJ(2,IIJQ)
+          EDIAG = -EPSI(IIABS)-EPSI(IJABS)
+          ID(IIJ) = EDIAG
+        end do
 
-          CASE (13)
-! BJAIM CASE:
-             DO IAB=1,NAGTB(ISYM)
-               IABQ=IAB+NAGTBES(ISYM)
-               IAABS=MAGTB(1,IABQ)
-               IBABS=MAGTB(2,IABQ)
-               IIS=IIS+1
-               EDIAG= EPSE(IAABS)+EPSE(IBABS)
-               BD(IAB)= EDIAG
-             END DO
-             DO IIJ=1,NIGTJ(ISYM)
-               IIJQ=IIJ+NIGTJES(ISYM)
-               IIABS=MIGTJ(1,IIJQ)
-               IJABS=MIGTJ(2,IIJQ)
-               EDIAG= -EPSI(IIABS)-EPSI(IJABS)
-               ID(IIJ)= EDIAG
-             END DO
+      case (13)
+        ! BJAIM CASE:
+        do IAB=1,NAGTB(ISYM)
+          IABQ = IAB+NAGTBES(ISYM)
+          IAABS = MAGTB(1,IABQ)
+          IBABS = MAGTB(2,IABQ)
+          IIS = IIS+1
+          EDIAG = EPSE(IAABS)+EPSE(IBABS)
+          BD(IAB) = EDIAG
+        end do
+        do IIJ=1,NIGTJ(ISYM)
+          IIJQ = IIJ+NIGTJES(ISYM)
+          IIABS = MIGTJ(1,IIJQ)
+          IJABS = MIGTJ(2,IIJQ)
+          EDIAG = -EPSI(IIABS)-EPSI(IJABS)
+          ID(IIJ) = EDIAG
+        end do
 
-          CASE DEFAULT
-             WRITE(u6,*)'NADIAG: illegal case number'
-             CALL ABEND()
-          END SELECT
+      case DEFAULT
+        write(u6,*) 'NADIAG: illegal case number'
+        call ABEND()
+    end select
 
-! NOTE: BDIAG elements used in cases 12 & 13.
-      IDID=IDBMAT(ISYM,ICASE)
-      IF(ICASE.GT.11) THEN
-        CALL DDAFILE(LUSBT,1,BD,NAS,IDID)
-        CALL mma_deallocate(BD)
-      ELSE
-! Dummy read the BDIAG elements. NOTE: NAS, not NIN.
-        CALL DDAFILE(LUSBT,0,Dummy,NAS,IDID)
-      END IF
-      CALL DDAFILE(LUSBT,1,ID,NIS,IDID)
-      CALL mma_deallocate(ID)
+    ! NOTE: BDIAG elements used in cases 12 & 13.
+    IDID = IDBMAT(ISYM,ICASE)
+    if (ICASE > 11) then
+      call DDAFILE(LUSBT,1,BD,NAS,IDID)
+      call mma_deallocate(BD)
+    else
+      ! Dummy read the BDIAG elements. NOTE: NAS, not NIN.
+      call DDAFILE(LUSBT,0,Dummy,NAS,IDID)
+    end if
+    call DDAFILE(LUSBT,1,ID,NIS,IDID)
+    call mma_deallocate(ID)
 
-        END DO
-      END DO
+  end do
+end do
 
-      END SUBROUTINE NADIAG
+end subroutine NADIAG

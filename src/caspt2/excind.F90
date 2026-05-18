@@ -8,22 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE EXCIND(IAS,INS,ISYM,ICASE,IP,IQ,IR,IS)
-      use definitions, only: iwp
-      IMPLICIT None
 
-      Integer(kind=iwp), intent(in) :: IAS,INS,ISYM,ICASE
-      Integer(kind=iwp), Intent(Out) :: IP,IQ,IR,IS
-      EXTERNAL ASIND
-      Integer(kind=iwp) :: IP1,IQ1,IR1,IP2,IQ2,IR2
+subroutine EXCIND(IAS,INS,ISYM,ICASE,IP,IQ,IR,IS)
+
+use definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: IAS, INS, ISYM, ICASE
+integer(kind=iwp), intent(out) :: IP, IQ, IR, IS
+external ASIND
+integer(kind=iwp) :: IR1, IR2
 
 !PAM99 New call sequence for ASIND
-      CALL ASIND(IAS,ISYM,ICASE,IP1,IQ1,IR1)
-      CALL NSIND(INS,ISYM,ICASE,IP2,IQ2,IR2)
+call ASIND(IAS,ISYM,ICASE,IR,IP,IR1)
+call NSIND(INS,ISYM,ICASE,IS,IQ,IR2)
 
-      IP=IQ1
-      IQ=IQ2
-      IR=IP1
-      IS=IP2
-
-      END SUBROUTINE EXCIND
+end subroutine EXCIND

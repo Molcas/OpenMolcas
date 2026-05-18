@@ -20,65 +20,64 @@
 ! This is a special optimized version for non-symmetric molecules, as
 ! this allows for convenient sub-blocking of cholesky vectors.
 
-!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RHSOD_NOSYM(IVEC)
-      use definitions, only: iwp
+subroutine RHSOD_NOSYM(IVEC)
+
+use definitions, only: iwp
 #ifdef _DEBUGPRINT_
-      use definitions, only: wp
-      use caspt2_module, only: nASup, nISup, nSym
+use definitions, only: wp
+use caspt2_module, only: nASup, nISup, nSym
 #endif
-      use caspt2_global, only:iPrGlb
-      use PrintLevel, only: VERBOSE
+use caspt2_global, only: iPrGlb
+use PrintLevel, only: VERBOSE
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      IMPLICIT None
-      integer(kind=iwp), Intent(In):: IVEC
+
+implicit none
+integer(kind=iwp), intent(in) :: IVEC
 #ifdef _DEBUGPRINT_
-      integer(kind=iwp) iCase, iSym, NAS, NIS, lg_W
-      real(kind=wp) DNRM2
-      real(kind=wp), external :: RHS_DDot
+integer(kind=iwp) iCase, iSym, NAS, NIS, lg_W
+real(kind=wp) DNRM2
+real(kind=wp), external :: RHS_DDot
 #endif
 
-
-      IF (IPRGLB>=VERBOSE) THEN
-        WRITE(6,'(1X,A)') ' Using special RHS on-demand algorithm,'
-        WRITE(6,'(1X,A)') ' optimized for non-symmetric molecules'
-      END IF
+if (IPRGLB >= VERBOSE) then
+  write(6,'(1X,A)') ' Using special RHS on-demand algorithm,'
+  write(6,'(1X,A)') ' optimized for non-symmetric molecules'
+end if
 
 #ifdef _MOLCAS_MPP_
-      IF (.NOT.Is_Real_Par()) THEN
-        WRITE(6,'(1X,A)') 'RHSOD_NOSYM: error: '//                      &
-     &                    'fake parallel not supported'
-        CALL AbEnd()
-      END IF
+if (.not. Is_Real_Par()) then
+  write(6,'(1X,A)') 'RHSOD_NOSYM: error: fake parallel not supported'
+  call AbEnd()
+end if
 #endif
 
-      CALL RHSOD_A_NOSYM(IVEC)
-      CALL RHSOD_B_NOSYM(IVEC)
-      CALL RHSOD_C_NOSYM(IVEC)
-      CALL RHSOD_D_NOSYM(IVEC)
-      CALL RHSOD_E_NOSYM(IVEC)
-      CALL RHSOD_F_NOSYM(IVEC)
-      CALL RHSOD_G_NOSYM(IVEC)
-      CALL RHSOD_H_NOSYM(IVEC)
+call RHSOD_A_NOSYM(IVEC)
+call RHSOD_B_NOSYM(IVEC)
+call RHSOD_C_NOSYM(IVEC)
+call RHSOD_D_NOSYM(IVEC)
+call RHSOD_E_NOSYM(IVEC)
+call RHSOD_F_NOSYM(IVEC)
+call RHSOD_G_NOSYM(IVEC)
+call RHSOD_H_NOSYM(IVEC)
 
 #ifdef _DEBUGPRINT_
 ! compute and print RHS fingerprints
-      WRITE(6,'(1X,A4,1X,A3,1X,A18)') 'Case','Sym','Fingerprint'
-      WRITE(6,'(1X,A4,1X,A3,1X,A18)') '====','===','==========='
-      DO ICASE=1,13
-        DO ISYM=1,NSYM
-          NAS=NASUP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-          IF (NAS*NIS/=0) THEN
-            CALL RHS_ALLO (NAS,NIS,lg_W)
-            CALL RHS_READ (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-            DNRM2 = RHS_DDOT(NAS,NIS,lg_W,lg_W)
-            WRITE(6,'(1X,I4,1X,I3,1X,F18.11)') ICASE,ISYM,DNRM2
-          END IF
-        END DO
-      END DO
+write(6,'(1X,A4,1X,A3,1X,A18)') 'Case','Sym','Fingerprint'
+write(6,'(1X,A4,1X,A3,1X,A18)') '====','===','==========='
+do ICASE=1,13
+  do ISYM=1,NSYM
+    NAS = NASUP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    if (NAS*NIS /= 0) then
+      call RHS_ALLO(NAS,NIS,lg_W)
+      call RHS_READ(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
+      DNRM2 = RHS_DDOT(NAS,NIS,lg_W,lg_W)
+      write(6,'(1X,I4,1X,I3,1X,F18.11)') ICASE,ISYM,DNRM2
+    end if
+  end do
+end do
 #endif
 
-      END SUBROUTINE RHSOD_NOSYM
+end subroutine RHSOD_NOSYM

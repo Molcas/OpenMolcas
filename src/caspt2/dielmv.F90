@@ -16,60 +16,61 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE DIELMV(ICASE,nICASE,JCASE,nJCASE,NUP,NDWN,EMU)
-      use definitions, only: iwp, wp
-      use constants, only: Zero
-      use sguga, only: SGS, CIS
-      use caspt2_module, only: ETA
-      IMPLICIT NONE
 
-      integer(kind=iwp), intent(in):: nICASE,nJCASE,NUP,NDWN
-      integer(kind=iwp), intent(in):: ICASE(nICASE),JCASE(nJCASE)
-      real(kind=wp), intent(inout):: EMU(NUP,NDWN)
+subroutine DIELMV(ICASE,nICASE,JCASE,nJCASE,NUP,NDWN,EMU)
 
-      Integer(kind=iwp) nLev, nIpWlk
-      Integer(kind=iwp) I,II,LV1,IC,LEV,IC1,ISTEP,IOC,J
-      real(kind=wp) SUM
+use definitions, only: iwp, wp
+use constants, only: Zero
+use sguga, only: SGS, CIS
+use caspt2_module, only: ETA
 
-      nLev  = SGS%nLev
-      nIpWlk= CIS%nIpWlk
+implicit none
+integer(kind=iwp), intent(in) :: nICASE, nJCASE, NUP, NDWN
+integer(kind=iwp), intent(in) :: ICASE(nICASE), JCASE(nJCASE)
+real(kind=wp), intent(inout) :: EMU(NUP,NDWN)
+integer(kind=iwp) nLev, nIpWlk
+integer(kind=iwp) I, II, LV1, IC, LEV, IC1, ISTEP, IOC, J
+real(kind=wp) SUM
 
-      DO I=1,NUP
-        II=NIPWLK*(I-1)
-        SUM=Zero
-        DO LV1=SGS%MIDLEV+1,NLEV,15
-          II=II+1
-          IC=ICASE(II)
-          DO LEV=LV1,MIN(LV1+14,NLEV)
-            IC1=IC/4
-            ISTEP=IC-4*IC1
-            IOC=(ISTEP+1)/2
-            SUM=SUM+DBLE(IOC)*ETA(LEV)
-            IC=IC1
-          END DO
-        END DO
-        DO J=1,NDWN
-          EMU(I,J)=EMU(I,J)+SUM
-        END DO
-      END DO
+nLev = SGS%nLev
+nIpWlk = CIS%nIpWlk
+
+do I=1,NUP
+  II = NIPWLK*(I-1)
+  SUM = Zero
+  do LV1=SGS%MIDLEV+1,NLEV,15
+    II = II+1
+    IC = ICASE(II)
+    do LEV=LV1,min(LV1+14,NLEV)
+      IC1 = IC/4
+      ISTEP = IC-4*IC1
+      IOC = (ISTEP+1)/2
+      SUM = SUM+dble(IOC)*ETA(LEV)
+      IC = IC1
+    end do
+  end do
+  do J=1,NDWN
+    EMU(I,J) = EMU(I,J)+SUM
+  end do
+end do
 ! THEN THE LOWER HALF:
-      DO I=1,NDWN
-        II=NIPWLK*(I-1)
-        SUM=Zero
-        DO LV1=1,SGS%MIDLEV,15
-        II=II+1
-        IC=JCASE(II)
-        DO LEV=LV1,MIN(LV1+14,SGS%MIDLEV)
-          IC1=IC/4
-          ISTEP=IC-4*IC1
-          IOC=(ISTEP+1)/2
-          SUM=SUM+DBLE(IOC)*ETA(LEV)
-          IC=IC1
-          END DO
-        END DO
-        DO J=1,NUP
-          EMU(J,I)=EMU(J,I)+SUM
-        END DO
-      END DO
+do I=1,NDWN
+  II = NIPWLK*(I-1)
+  SUM = Zero
+  do LV1=1,SGS%MIDLEV,15
+    II = II+1
+    IC = JCASE(II)
+    do LEV=LV1,min(LV1+14,SGS%MIDLEV)
+      IC1 = IC/4
+      ISTEP = IC-4*IC1
+      IOC = (ISTEP+1)/2
+      SUM = SUM+dble(IOC)*ETA(LEV)
+      IC = IC1
+    end do
+  end do
+  do J=1,NUP
+    EMU(J,I) = EMU(J,I)+SUM
+  end do
+end do
 
-      END SUBROUTINE DIELMV
+end subroutine DIELMV

@@ -7,25 +7,23 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Per Ake Malmqvist                                *
 !***********************************************************************
 
-subroutine FULLTRNSF(NP,NW,NB,CMOBLK,NJ,BUF_HT,BUF_FT)
+pure function IPROW(IROW,NQOT,NREM)
 
-use constants, only: Zero, One
-use definitions, only: iwp, wp
+  use definitions, only: iwp
 
-implicit none
-integer(kind=iwp), intent(in) :: NP, NW, NB, NJ
-real(kind=wp), intent(in) :: CMOBLK(NB,NP)
-! In: Vectors of type HALF(W,J,B) = Sum(CHO(AB,J)*CMO(A,W),A=1,NBAS)
-real(kind=wp), intent(in) :: BUF_HT(NW*NJ,NB)
-real(kind=wp), intent(out) :: BUF_FT(NP,NW*NJ)
+  integer(kind=iwp) :: IPROW
+  integer(kind=iwp), intent(in) :: IROW, NQOT, NREM
+  integer(kind=iwp) :: TMP
 
-! Compute fully transformed Cholesky vector buffer:
-!  FULL(P,W,J)=Sum(CMO(B,P)*HALF(W,J,B),B=1,NB)
-!do J=1,NJ
-!  call DGEMM_('T','T',NP,NW,NB,One,CMOBLK,NB,BUF_HT(1,J,1),NW*NJ,Zero,BUF_FT(1,1,J),NP)
-!end do
-call DGEMM_('T','T',NP,NW*NJ,NB,One,CMOBLK,NB,BUF_HT,NW*NJ,Zero,BUF_FT,NP)
+  TMP = IROW-NREM*(NQOT+1)
+  if (TMP > 0) then
+    IPROW = (TMP-1)/NQOT+NREM+1
+  else
+    IPROW = (IROW-1)/(NQOT+1)+1
+  end if
 
-end subroutine FULLTRNSF
+end function IPROW

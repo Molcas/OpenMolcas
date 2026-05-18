@@ -10,104 +10,100 @@
 !                                                                      *
 ! Copyright (C) 2019, Stefano Battaglia                                *
 !***********************************************************************
+
 subroutine wgtinit(H,nState)
 
-  use caspt2_global,only:iPrGlb
-  use PrintLevel, only: DEBUG, VERBOSE
-  use caspt2_global, only: DWGT
-  use caspt2_module, only: DWType, IfDW, IfXMS, Zeta
-  use constants, only: One
-  use definitions,only:wp,iwp,u6
+use caspt2_global, only: iPrGlb
+use PrintLevel, only: DEBUG, VERBOSE
+use caspt2_global, only: DWGT
+use caspt2_module, only: DWType, IfDW, IfXMS, Zeta
+use constants, only: One
+use definitions, only: wp, iwp, u6
 
-  implicit none
+implicit none
+integer(kind=iwp), intent(in) :: nState
+real(kind=wp), intent(in) :: H(nState,nState)
+real(kind=wp) :: Ealpha, Ebeta, Egamma, Dab, Dag, xi_ag, xi_ab, Wtot
+real(kind=wp) :: Hab, Hag
+integer(kind=iwp) :: I, J, K
 
-  Integer(kind=iwp),intent(in) :: nState
-  Real(kind=wp),intent(in) :: H(nState,nState)
+if (IPRGLB >= DEBUG) write(6,*) ' Entered wgtinit.'
 
-  Real(kind=wp) :: Ealpha,Ebeta,Egamma,Dab,Dag,xi_ag,xi_ab,Wtot
-  Real(kind=wp) :: Hab,Hag
+! Initialize array of weights with all zeros
+DWGT(:,:) = 00d0
 
-  Integer(kind=iwp) :: I,J,K
+! Main loop over all states to compute the weights
+do I=1,nState
 
-  if (IPRGLB >= DEBUG) then
-    write (6,*) ' Entered wgtinit.'
-  end if
-
-  ! Initialize array of weights with all zeros
-  DWGT(:,:)=00D0
-
-  ! Main loop over all states to compute the weights
-  do I = 1,nState
-
+  if (IFDW .and. (zeta >= 0.0_wp)) then
     ! If it is an XDW-CASPT2 calculation, the weights are computed
-    if (IFDW .and. (zeta >= 0.0_wp)) then
-      Ebeta = H(I,I)
-      ! Compute normalization factor Wtot, i.e. the sum of all weights
-      do J = 1,nState
-        Ealpha = H(J,J)
-        Wtot = 0.0_wp
-        do K = 1,nState
-          Egamma = H(K,K)
+    Ebeta = H(I,I)
+    ! Compute normalization factor Wtot, i.e. the sum of all weights
+    do J=1,nState
+      Ealpha = H(J,J)
+      Wtot = 0.0_wp
+      do K=1,nState
+        Egamma = H(K,K)
 
-          ! original XDW-CASPT2, xi = Dab^2
-          if (DWType == 1) then
-            xi_ag = (Ealpha - Egamma)**2
-            ! new XDW-CASPT2, xi = (Haa/Hab)^2
-          else if (DWType == 2) then
-            xi_ag = (Ealpha/H(J,K))**2
-            ! new XDW-CASPT2, xi = Dab/sqrt(Hab), which is DWType == 3
-          else
-            ! add a small positive constant to numerator to avoid 0/0
-            Dag = abs(Ealpha - Egamma) + 1.0e-9_wp
-            Hag = abs(H(J,K))
-            ! add the smallest value of the same type as Hag to the
-            ! denominator to avoid division by 0 which can lead to
-            ! segfault with certain compilers
-            xi_ag = Dag/(sqrt(Hag)+tiny(Hag))
-          end if
-
-          Wtot = Wtot + exp(-zeta*xi_ag)
-        end do
-
-        ! original XDW-CASPT2, xi = Dab^2
         if (DWType == 1) then
-          xi_ab = (Ealpha - Ebeta)**2
-          ! new XDW-CASPT2, xi = (Haa/Hab)^2
+          ! original XDW-CASPT2, xi = Dab^2
+          xi_ag = (Ealpha-Egamma)**2
         else if (DWType == 2) then
-          xi_ab = (Ealpha/H(J,I))**2
-          ! new XDW-CASPT2, xi = Dab/sqrt(Hab), which is DWType == 3
+          ! new XDW-CASPT2, xi = (Haa/Hab)^2
+          xi_ag = (Ealpha/H(J,K))**2
         else
+          ! new XDW-CASPT2, xi = Dab/sqrt(Hab), which is DWType == 3
           ! add a small positive constant to numerator to avoid 0/0
-          Dab = abs(Ealpha - Ebeta) + 1.0e-9_wp
-          Hab = abs(H(J,I))
+          Dag = abs(Ealpha-Egamma)+1.0e-9_wp
+          Hag = abs(H(J,K))
           ! add the smallest value of the same type as Hag to the
           ! denominator to avoid division by 0 which can lead to
           ! segfault with certain compilers
-          xi_ab = Dab/(sqrt(Hab)+tiny(Hab))
+          xi_ag = Dag/(sqrt(Hag)+tiny(Hag))
         end if
 
-        DWGT(I,J) = exp(-zeta*xi_ab)/Wtot
-
+        Wtot = Wtot+exp(-zeta*xi_ag)
       end do
 
-      ! If it is an XMS-CASPT2 calculation, all the weights are equal,
-      ! i.e. they all are 1/nState
-    else if (IFXMS .and. (.not. IFDW)) then
-      call dcopy_(nState**2, [1.0_wp/nState],0,DWGT,1)
+      if (DWType == 1) then
+        ! original XDW-CASPT2, xi = Dab^2
+        xi_ab = (Ealpha-Ebeta)**2
+      else if (DWType == 2) then
+        ! new XDW-CASPT2, xi = (Haa/Hab)^2
+        xi_ab = (Ealpha/H(J,I))**2
+      else
+        ! new XDW-CASPT2, xi = Dab/sqrt(Hab), which is DWType == 3
+        ! add a small positive constant to numerator to avoid 0/0
+        Dab = abs(Ealpha-Ebeta)+1.0e-9_wp
+        Hab = abs(H(J,I))
+        ! add the smallest value of the same type as Hag to the
+        ! denominator to avoid division by 0 which can lead to
+        ! segfault with certain compilers
+        xi_ab = Dab/(sqrt(Hab)+tiny(Hab))
+      end if
 
-      ! If it is a normal MS-CASPT2, RMS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity
-      ! the weight vectors are the standard unit vectors e_1, e_2, ...
-    else
-      DWGT(I,I) = One
-    end if
+      DWGT(I,J) = exp(-zeta*xi_ab)/Wtot
 
-    ! End of loop over states
-  end do
+    end do
 
-  ! In case it is a XDW calculation, print out the weights
-  if (IFDW .and. (IPRGLB >= VERBOSE)) then
-    write (u6,*) ' Weights calculated with <I|H|I>:'
-    call prettyprint(DWGT,nState,nState)
+  else if (IFXMS .and. (.not. IFDW)) then
+    ! If it is an XMS-CASPT2 calculation, all the weights are equal,
+    ! i.e. they all are 1/nState
+    call dcopy_(nState**2,[1.0_wp/nState],0,DWGT,1)
+
+  else
+    ! If it is a normal MS-CASPT2, RMS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity
+    ! the weight vectors are the standard unit vectors e_1, e_2, ...
+    DWGT(I,I) = One
   end if
+
+  ! End of loop over states
+end do
+
+! In case it is a XDW calculation, print out the weights
+if (IFDW .and. (IPRGLB >= VERBOSE)) then
+  write(u6,*) ' Weights calculated with <I|H|I>:'
+  call prettyprint(DWGT,nState,nState)
+end if
 
 end subroutine wgtinit

@@ -10,12 +10,17 @@
 !                                                                      *
 ! Copyright (C) Per Ake Malmqvist                                      *
 !***********************************************************************
-      SUBROUTINE TRACHOSZ_FREE()
-      USE CHOVEC_IO, only: NVLOC_CHOBATCH,IDLOC_CHOGROUP,               &
-     &                     NVGLB_CHOBATCH,IDGLB_CHOGROUP
-      use stdalloc, only: mma_deallocate
-      call MMA_DEALLOCATE(NVLOC_CHOBATCH)
-      call MMA_DEALLOCATE(IDLOC_CHOGROUP)
-      call MMA_DEALLOCATE(NVGLB_CHOBATCH)
-      call MMA_DEALLOCATE(IDGLB_CHOGROUP)
-      END SUBROUTINE TRACHOSZ_FREE
+
+subroutine TRACHOSZ_FREE()
+
+use CHOVEC_IO, only: NVLOC_CHOBATCH, IDLOC_CHOGROUP, NVGLB_CHOBATCH, IDGLB_CHOGROUP
+use stdalloc, only: mma_deallocate
+
+implicit none
+
+call MMA_DEALLOCATE(NVLOC_CHOBATCH)
+call MMA_DEALLOCATE(IDLOC_CHOGROUP)
+call MMA_DEALLOCATE(NVGLB_CHOBATCH)
+call MMA_DEALLOCATE(IDGLB_CHOGROUP)
+
+end subroutine TRACHOSZ_FREE

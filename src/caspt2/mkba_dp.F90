@@ -16,108 +16,108 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKBA_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,             &
-     &                    BA,MBA,iLo,iHi,jLo,jHi,LDA)
-      use definitions, only: iwp, wp
-      use constants, only: Half, Two, Four
-      USE SUPERINDEX, only: MTUV
-      use caspt2_global, only:ipea_shift
-      use caspt2_module, only: EASUM,NASHT,NTUVES,EPSA,NTUVES
-      IMPLICIT None
-      INTEGER(KIND=IWP), INTENT(IN):: NDREF, NPREF, iSYM,               &
-     &                                MBA,iLo, iHi, jLo, jHi, LDA
-      REAL(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF)
-      REAL(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
-      REAL(KIND=WP), INTENT(INOUT):: BA(MBA)
 
-      INTEGER(KIND=IWP) IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUVABS,ITABS,   &
-     &                  IUABS,IVABS,ISADR,IVZ,IXT,IP1,IP2,IP,ID,ID1,    &
-     &                  ID2,IDT,IDU,IDV,ITUV,IVT,IVU,IXZ,IYZ
-      REAL(KIND=WP)EX,EY,ET,EU,ETU,FACT,VALUE
+subroutine MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,iSYM,BA,MBA,iLo,iHi,jLo,jHi,LDA)
+
+use definitions, only: iwp, wp
+use constants, only: Half, Two, Four
+use SUPERINDEX, only: MTUV
+use caspt2_global, only: ipea_shift
+use caspt2_module, only: EASUM, NASHT, NTUVES, EPSA, NTUVES
+
+implicit none
+integer(kind=iwp), intent(in) :: NDREF, NPREF, iSYM, MBA, iLo, iHi, jLo, jHi, LDA
+real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
+real(kind=wp), intent(in) :: FD(NDREF), FP(NPREF)
+real(kind=wp), intent(inout) :: BA(MBA)
+integer(kind=iwp) IXYZ, IXYZABS, IXABS, IYABS, IZABS, ITUVABS, ITABS, IUABS, IVABS, ISADR, IVZ, IXT, IP1, IP2, IP, ID, ID1, ID2, &
+                  IDT, IDU, IDV, ITUV, IVT, IVU, IXZ, IYZ
+real(kind=wp) EX, EY, ET, EU, ETU, FACT, value
+
 !SV.20100831: fill in the F2 and F1 corrections for this BA block
 ! on entry, BA should contain SA!!
-      DO IXYZ=jLo,jHi
-        IXYZABS=IXYZ+NTUVES(ISYM)
-        IXABS=MTUV(1,IXYZABS)
-        IYABS=MTUV(2,IXYZABS)
-        IZABS=MTUV(3,IXYZABS)
-        EX=EPSA(IXABS)
-        EY=EPSA(IYABS)
-        DO ITUV=iLo,iHi
-          ITUVABS=ITUV+NTUVES(ISYM)
-          ITABS=MTUV(1,ITUVABS)
-          IUABS=MTUV(2,ITUVABS)
-          IVABS=MTUV(3,ITUVABS)
-          ET=EPSA(ITABS)
-          EU=EPSA(IUABS)
-          ETU=ET+EU
-          FACT=EY+EU+EX+ET-EASUM
-          ISADR=1+iTUV-iLo+LDA*(iXYZ-jLo)
-          IF (LDA.EQ.0) THEN
-            IF (iXYZ.LE.iTUV) THEN
-              ISADR=(ITUV*(ITUV-1))/2+IXYZ
-            ELSE
-              CYCLE
-            END IF
-          END IF
-          VALUE=FACT*BA(ISADR)
-          IF(IYABS.EQ.IUABS) THEN
-            IVZ=IVABS+NASHT*(IZABS-1)
-            IXT=IXABS+NASHT*(ITABS-1)
-            IP1=MAX(IVZ,IXT)
-            IP2=MIN(IVZ,IXT)
-            IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE-Two*(FP(IP)-EU*PREF(IP))
-            IF(IXABS.EQ.ITABS) THEN
-              ID1=MAX(IVABS,IZABS)
-              ID2=MIN(IVABS,IZABS)
-              ID=(ID1*(ID1-1))/2+ID2
-              VALUE=VALUE+Two*(FD(ID)-ETU*DREF(ID))
-            END IF
-          END IF
-! Add  dyt ( -Fvuxz + Et*Gvuxz +dxu (-Fvz+(Et+Eu)*Gvz))
-          IF(IYABS.EQ.ITABS) THEN
-            IVU=IVABS+NASHT*(IUABS-1)
-            IXZ=IXABS+NASHT*(IZABS-1)
-            IP1=MAX(IVU,IXZ)
-            IP2=MIN(IVU,IXZ)
-            IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE-Two*(FP(IP)-ET*PREF(IP))
-            IF(IXABS.EQ.IUABS) THEN
-              ID1=MAX(IVABS,IZABS)
-              ID2=MIN(IVABS,IZABS)
-              ID=(ID1*(ID1-1))/2+ID2
-              VALUE=VALUE - (FD(ID)-ETU*DREF(ID))
-            END IF
-          END IF
-! Add  dxu ( -Fvtyz + Eu*Gvtyz )
-          IF(IXABS.EQ.IUABS) THEN
-            IVT=IVABS+NASHT*(ITABS-1)
-            IYZ=IYABS+NASHT*(IZABS-1)
-            IP1=MAX(IVT,IYZ)
-            IP2=MIN(IVT,IYZ)
-            IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE-Two*(FP(IP)-EU*PREF(IP))
-          END IF
-! Add  2dtx ( Fvuyz-Et*Gvuyz )
-          IF(ITABS.EQ.IXABS) THEN
-            IVU=IVABS+NASHT*(IUABS-1)
-            IYZ=IYABS+NASHT*(IZABS-1)
-            IP1=MAX(IVU,IYZ)
-            IP2=MIN(IVU,IYZ)
-            IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+Four*(FP(IP)-ET*PREF(IP))
-          END IF
-!GG.Nov03
-          IF (ITUV.eq.IXYZ) THEN
-            IDT=(ITABS*(ITABS+1))/2
-            IDU=(IUABS*(IUABS+1))/2
-            IDV=(IVABS*(IVABS+1))/2
-            VALUE=VALUE+ipea_shift*Half*BA(ISADR)*                      &
-     &                  (Two-DREF(IDV)+DREF(IDT)+DREF(IDU))
-          ENDIF
-!GG End
-          BA(ISADR)=VALUE
-        END DO
-      END DO
-      END SUBROUTINE MKBA_DP
+do IXYZ=jLo,jHi
+  IXYZABS = IXYZ+NTUVES(ISYM)
+  IXABS = MTUV(1,IXYZABS)
+  IYABS = MTUV(2,IXYZABS)
+  IZABS = MTUV(3,IXYZABS)
+  EX = EPSA(IXABS)
+  EY = EPSA(IYABS)
+  do ITUV=iLo,iHi
+    ITUVABS = ITUV+NTUVES(ISYM)
+    ITABS = MTUV(1,ITUVABS)
+    IUABS = MTUV(2,ITUVABS)
+    IVABS = MTUV(3,ITUVABS)
+    ET = EPSA(ITABS)
+    EU = EPSA(IUABS)
+    ETU = ET+EU
+    FACT = EY+EU+EX+ET-EASUM
+    ISADR = 1+iTUV-iLo+LDA*(iXYZ-jLo)
+    if (LDA == 0) then
+      if (iXYZ <= iTUV) then
+        ISADR = (ITUV*(ITUV-1))/2+IXYZ
+      else
+        cycle
+      end if
+    end if
+    value = FACT*BA(ISADR)
+    if (IYABS == IUABS) then
+      IVZ = IVABS+NASHT*(IZABS-1)
+      IXT = IXABS+NASHT*(ITABS-1)
+      IP1 = max(IVZ,IXT)
+      IP2 = min(IVZ,IXT)
+      IP = (IP1*(IP1-1))/2+IP2
+      value = value-Two*(FP(IP)-EU*PREF(IP))
+      if (IXABS == ITABS) then
+        ID1 = max(IVABS,IZABS)
+        ID2 = min(IVABS,IZABS)
+        ID = (ID1*(ID1-1))/2+ID2
+        value = value+Two*(FD(ID)-ETU*DREF(ID))
+      end if
+    end if
+    ! Add  dyt ( -Fvuxz + Et*Gvuxz +dxu (-Fvz+(Et+Eu)*Gvz))
+    if (IYABS == ITABS) then
+      IVU = IVABS+NASHT*(IUABS-1)
+      IXZ = IXABS+NASHT*(IZABS-1)
+      IP1 = max(IVU,IXZ)
+      IP2 = min(IVU,IXZ)
+      IP = (IP1*(IP1-1))/2+IP2
+      value = value-Two*(FP(IP)-ET*PREF(IP))
+      if (IXABS == IUABS) then
+        ID1 = max(IVABS,IZABS)
+        ID2 = min(IVABS,IZABS)
+        ID = (ID1*(ID1-1))/2+ID2
+        value = value-(FD(ID)-ETU*DREF(ID))
+      end if
+    end if
+    ! Add  dxu ( -Fvtyz + Eu*Gvtyz )
+    if (IXABS == IUABS) then
+      IVT = IVABS+NASHT*(ITABS-1)
+      IYZ = IYABS+NASHT*(IZABS-1)
+      IP1 = max(IVT,IYZ)
+      IP2 = min(IVT,IYZ)
+      IP = (IP1*(IP1-1))/2+IP2
+      value = value-Two*(FP(IP)-EU*PREF(IP))
+    end if
+    ! Add  2dtx ( Fvuyz-Et*Gvuyz )
+    if (ITABS == IXABS) then
+      IVU = IVABS+NASHT*(IUABS-1)
+      IYZ = IYABS+NASHT*(IZABS-1)
+      IP1 = max(IVU,IYZ)
+      IP2 = min(IVU,IYZ)
+      IP = (IP1*(IP1-1))/2+IP2
+      value = value+Four*(FP(IP)-ET*PREF(IP))
+    end if
+    !GG.Nov03
+    if (ITUV == IXYZ) then
+      IDT = (ITABS*(ITABS+1))/2
+      IDU = (IUABS*(IUABS+1))/2
+      IDV = (IVABS*(IVABS+1))/2
+      value = value+ipea_shift*Half*BA(ISADR)*(Two-DREF(IDV)+DREF(IDT)+DREF(IDU))
+    end if
+    !GG End
+    BA(ISADR) = value
+  end do
+end do
+
+end subroutine MKBA_DP

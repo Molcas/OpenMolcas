@@ -10,28 +10,29 @@
 !                                                                      *
 ! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
-      Subroutine Check_Amp(nSym,nOcc,nVir,iSkip)
-      use definitions, only: iwp
-      use Symmetry_Info, only: Mul
 
-      Implicit None
-      integer(kind=iwp), intent(in)::  nSym, nOcc(nSym), nVir(nSym)
-      Integer(kind=iwp), intent(out):: iSkip
+subroutine Check_Amp(nSym,nOcc,nVir,iSkip)
 
-      integer(kind=iwp) iSym, iSymi, iSyma
-      Integer(kind=iwp) nT1amTot, nT1am(8)
+use definitions, only: iwp
+use Symmetry_Info, only: Mul
 
-      iSkip=0
-      nT1amTot=0
-      Do iSym = 1,nSym
-         nT1am(iSym) = 0
-         Do iSymi = 1,nSym
-            iSyma = Mul(iSymi,iSym)
-            nT1am(iSym) = nT1am(iSym)                                   &
-     &                  + nVir(iSyma)*nOcc(iSymi)
-         End Do
-         nT1amTot = nT1amTot + nT1am(iSym)
-      End Do
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nOcc(nSym), nVir(nSym)
+integer(kind=iwp), intent(out) :: iSkip
+integer(kind=iwp) iSym, iSymi, iSyma
+integer(kind=iwp) nT1amTot, nT1am(8)
 
-      If (nT1amTot .gt. 0) iSkip=1
-      End Subroutine Check_Amp
+iSkip = 0
+nT1amTot = 0
+do iSym=1,nSym
+  nT1am(iSym) = 0
+  do iSymi=1,nSym
+    iSyma = Mul(iSymi,iSym)
+    nT1am(iSym) = nT1am(iSym)+nVir(iSyma)*nOcc(iSymi)
+  end do
+  nT1amTot = nT1amTot+nT1am(iSym)
+end do
+
+if (nT1amTot > 0) iSkip = 1
+
+end subroutine Check_Amp

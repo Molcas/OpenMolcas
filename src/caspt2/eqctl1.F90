@@ -16,18 +16,8 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE EQCTL1()
-      use caspt2_global, only: do_grad
-      use caspt2_global, only: LUSOLV, LUSBT, IDSCT
-      use stdalloc, only: mma_allocate
-      use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX,       &
-     &                  MxBlk, MxSct, ModVec, IDSMat, IDBMat, MxVec,    &
-     &                  IDTMat, IDSTMat
-      use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup,      &
-     &                         nInDep
-      use caspt2_module, only: nG2, nG3Tot
-      use definitions, only: wp, iwp, ItoB, RtoI, u6
-      IMPLICIT None
+
+subroutine EQCTL1()
 ! On return, the following data sets will be defined and stored
 ! on LUSOLV.
 ! At position IVEC=IRHS, the RHS array, in SR representation.
@@ -36,176 +26,180 @@
 ! At position IVEC=IVECC, the solution array, in contravariant rep.
 ! At position IVEC=IVECC2, the solution array, in covariant repr.
 ! At position IVEC=IVECW, the RHS array, in contravariant repr.
-      REAL(kind=wp) ::DUMMY(1)
-      INTEGER(kind=iwp) :: IDUM(1), ICASE, IDS, IDS1, IDS2, IDV, iPad,  &
-     &                     ISCT, ISYM, IVEC, LADDR, LENGTH, LSTA, MXWRT,&
-     &                     NAS, NB, NBD, NCOEF, NG3MAX, NID, NIDSCT, NS,&
-     &                     NT, iPARDIV, NIN, NIS, NISCT
 
-      IRHS  =1
-      IVECX =2
-      IVECR =3
-      IVECC =4
-      IVECC2=5
-      IVECW =6
+use caspt2_global, only: do_grad
+use caspt2_global, only: LUSOLV, LUSBT, IDSCT
+use stdalloc, only: mma_allocate
+use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX, MxBlk, MxSct, ModVec, IDSMat, IDBMat, MxVec, IDTMat, IDSTMat
+use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup, nInDep
+use caspt2_module, only: nG2, nG3Tot
+use definitions, only: wp, iwp, ItoB, RtoI, u6
+
+implicit none
+real(kind=wp) :: DUMMY(1)
+integer(kind=iwp) :: IDUM(1), ICASE, IDS, IDS1, IDS2, IDV, iPad, ISCT, ISYM, IVEC, LADDR, LENGTH, LSTA, MXWRT, NAS, NB, NBD, &
+                     NCOEF, NG3MAX, NID, NIDSCT, NS, NT, iPARDIV, NIN, NIS, NISCT
+
+IRHS = 1
+IVECX = 2
+IVECR = 3
+IVECC = 4
+IVECC2 = 5
+IVECW = 6
 
 !SVC: MODVEC isn't used in the Cholesky version, and neither in the
 ! sigma routines any more. Probably only in MKRHS...
-      MXSCT=1
-      DO ICASE=1,NCASES
-        DO ISYM=1,NSYM
-          MODVEC(ISYM,ICASE)=0
-          NAS=NASUP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-          NCOEF=NAS*NIS
-          IF(NCOEF.GT.0) THEN
-! Module lengths for reading/writing:
-            MODVEC(ISYM,ICASE)=MAX(1,MIN(MXBLK/NAS,NIS))
-            MXSCT=MAX(MXSCT,1+(NIS-1)/MODVEC(ISYM,ICASE))
-          ENDIF
-        END DO
-      END DO
-      NIDSCT=MXSCT*8*MXCASE*MXVEC
-      CALL mma_allocate(IDSCT,NIDSCT,Label='IDSCT')
+MXSCT = 1
+do ICASE=1,NCASES
+  do ISYM=1,NSYM
+    MODVEC(ISYM,ICASE) = 0
+    NAS = NASUP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    NCOEF = NAS*NIS
+    if (NCOEF > 0) then
+      ! Module lengths for reading/writing:
+      MODVEC(ISYM,ICASE) = max(1,min(MXBLK/NAS,NIS))
+      MXSCT = max(MXSCT,1+(NIS-1)/MODVEC(ISYM,ICASE))
+    end if
+  end do
+end do
+NIDSCT = MXSCT*8*MXCASE*MXVEC
+call mma_allocate(IDSCT,NIDSCT,Label='IDSCT')
 
 #ifdef _DEBUG
 !SVC: when using Cholesky decomposition, the actual use of the RHS
 ! vector sizes is automatically controlled in RHSALL2. Furthermore, the
 ! sigma routines now use the full RHS size.
-      IF (.NOT.IFCHOL) THEN
-        WRITE(u6,*)
-        WRITE(u6,*)' Size of vector buffers for coefficient arrays.'
-        WRITE(u6,*)' ICASE ISYM    NROW     NCOL     NBLK       Size'
-        NVCMX=0
-        DO ICASE=1,NCASES
-          DO ISYM=1,NSYM
-            NROW=NASUP(ISYM,ICASE)
-            NCOL=MODVEC(ISYM,ICASE)
-            NVC=NROW*NCOL
-            NVCMX=MAX(NVCMX,NVC)
-            NBLK=0
-            IF(NVC.GT.0) NBLK=1+(NISUP(ISYM,ICASE)-1)/NCOL
-            WRITE(u6,'(2x,I2,3x,I2,3x,I16,3X,I16,3X,I16,3x,I16)')       &
-     &                     ICASE,ISYM,NROW,NCOL,NBLK,NVC
-          END DO
-        END DO
-        WRITE(u6,*)
-        WRITE(u6,*)' Largest vector buffer size:',NVCMX
-        WRITE(u6,*)
-      ELSE
-        WRITE(u6,*)
-        WRITE(u6,*)' Sizes of the coefficient arrays.'
-        WRITE(u6,'(2X,A4,2X,A4,2X,5X,A4,5X,2X,5X,A4,5X,2X,5X,A4,5X)')   &
-     &          'CASE','SYM','NROW','NCOL','SIZE'
-        NVCMX=0
-        DO ICASE=1,NCASES
-          DO ISYM=1,NSYM
-            NROW=NASUP(ISYM,ICASE)
-            NCOL=NISUP(ISYM,ICASE)
-            NVC=NROW*NCOL
-            NVCMX=MAX(NVCMX,NVC)
-            WRITE(u6,'(2x,I4,2x,I4,2x,I16,2X,I16,2X,I16)')              &
-     &                     ICASE,ISYM,NROW,NCOL,NVC
-          END DO
-        END DO
-        WRITE(u6,*)
-        WRITE(u6,'(A,I14)')' Largest vector size: ',NVCMX
-        WRITE(u6,*)
-      ENDIF
+if (.not. IFCHOL) then
+  write(u6,*)
+  write(u6,*) ' Size of vector buffers for coefficient arrays.'
+  write(u6,*) ' ICASE ISYM    NROW     NCOL     NBLK       Size'
+  NVCMX = 0
+  do ICASE=1,NCASES
+    do ISYM=1,NSYM
+      NROW = NASUP(ISYM,ICASE)
+      NCOL = MODVEC(ISYM,ICASE)
+      NVC = NROW*NCOL
+      NVCMX = max(NVCMX,NVC)
+      NBLK = 0
+      if (NVC > 0) NBLK = 1+(NISUP(ISYM,ICASE)-1)/NCOL
+      write(u6,'(2x,I2,3x,I2,3x,I16,3X,I16,3X,I16,3x,I16)') ICASE,ISYM,NROW,NCOL,NBLK,NVC
+    end do
+  end do
+  write(u6,*)
+  write(u6,*) ' Largest vector buffer size:',NVCMX
+  write(u6,*)
+else
+  write(u6,*)
+  write(u6,*) ' Sizes of the coefficient arrays.'
+  write(u6,'(2X,A4,2X,A4,2X,5X,A4,5X,2X,5X,A4,5X,2X,5X,A4,5X)') 'CASE','SYM','NROW','NCOL','SIZE'
+  NVCMX = 0
+  do ICASE=1,NCASES
+    do ISYM=1,NSYM
+      NROW = NASUP(ISYM,ICASE)
+      NCOL = NISUP(ISYM,ICASE)
+      NVC = NROW*NCOL
+      NVCMX = max(NVCMX,NVC)
+      write(u6,'(2x,I4,2x,I4,2x,I16,2X,I16,2X,I16)') ICASE,ISYM,NROW,NCOL,NVC
+    end do
+  end do
+  write(u6,*)
+  write(u6,'(A,I14)') ' Largest vector size: ',NVCMX
+  write(u6,*)
+end if
 #endif
 
-      IDV=0
-      If (do_grad) Then
-        !! idxG3 matrix is needed for computing Lagrangian. Here, the
-        !! shift avoids the matrix overwritten in PCOLLVEC -> SOLV2DRA
-        NG3MAX=iPARDIV(NG3TOT,NG2)
-        iPad=ItoB-MOD(6*NG3MAX,ItoB)
-        IDV = 6*NG3MAX+iPad
-      End If
-      DO IVEC=1,MXVEC
-        DO ICASE=1,NCASES
-          DO ISYM=1,NSYM
-            NAS=NASUP(ISYM,ICASE)
-            NIS=NISUP(ISYM,ICASE)
-! NINDEP() IS HERE SET PROVISIONALLY. IT WILL
-! BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
-            NCOEF=NAS*NIS
-            MXWRT=Max(1,NAS*MODVEC(ISYM,ICASE))
-            NISCT=NCOEF/MXWRT+Min(1,Mod(NCOEF,MXWRT))
-            LADDR=1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1)))
-            IF (NISCT.eq.0) IDSCT(LADDR)=IDV
-            If (NISCT.gt.MXSCT) Then
-              write(u6,*)'EQCTL1 : NISCT= ',NISCT,' > MXSCT= ',MXSCT
-              write(u6,*)'Please, increase MXSCT in eqsolv.F90'
-              write(u6,*)'Do not forget to recompile Molcas afterwards.'
-              Call Abend()
-            EndIf
-            DO ISCT=1,NISCT
-              LSTA=MXWRT*(ISCT-1)
-              LENGTH=RtoI*MIN(NCOEF-LSTA,MXWRT)
-              LADDR=ISCT+MXSCT*(ISYM-1+8*                               &
-     &                         (ICASE-1+MXCASE*(IVEC-1)))
-              IDSCT(LADDR)=IDV
-              CALL IDAFILE(LUSOLV,0,IDUM,LENGTH,IDV)
-            END DO
-          END DO
-        END DO
-      END DO
+IDV = 0
+if (do_grad) then
+  !! idxG3 matrix is needed for computing Lagrangian. Here, the
+  !! shift avoids the matrix overwritten in PCOLLVEC -> SOLV2DRA
+  NG3MAX = iPARDIV(NG3TOT,NG2)
+  iPad = ItoB-mod(6*NG3MAX,ItoB)
+  IDV = 6*NG3MAX+iPad
+end if
+do IVEC=1,MXVEC
+  do ICASE=1,NCASES
+    do ISYM=1,NSYM
+      NAS = NASUP(ISYM,ICASE)
+      NIS = NISUP(ISYM,ICASE)
+      ! NINDEP() IS HERE SET PROVISIONALLY. IT WILL
+      ! BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
+      NCOEF = NAS*NIS
+      MXWRT = max(1,NAS*MODVEC(ISYM,ICASE))
+      NISCT = NCOEF/MXWRT+min(1,mod(NCOEF,MXWRT))
+      LADDR = 1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1)))
+      if (NISCT == 0) IDSCT(LADDR) = IDV
+      if (NISCT > MXSCT) then
+        write(u6,*) 'EQCTL1 : NISCT= ',NISCT,' > MXSCT= ',MXSCT
+        write(u6,*) 'Please, increase MXSCT in eqsolv'
+        write(u6,*) 'Do not forget to recompile Molcas afterwards.'
+        call Abend()
+      end if
+      do ISCT=1,NISCT
+        LSTA = MXWRT*(ISCT-1)
+        LENGTH = RtoI*min(NCOEF-LSTA,MXWRT)
+        LADDR = ISCT+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1)))
+        IDSCT(LADDR) = IDV
+        call IDAFILE(LUSOLV,0,IDUM,LENGTH,IDV)
+      end do
+    end do
+  end do
+end do
 
 ! IDSCT(ISCT,ISYM,ICASE,IVEC) now gives the disk address, on LUSOLV,
 ! to the ISCT section of the (ISYM,ICASE) block of a vector
 ! containing expansion C coefficients of excitation operators.
 ! IVEC=1..MXVEC enumerates the different vectors needed to solve
 ! the equations.
-      IDSMAT(:,:)=-1
-      IDS=0
-      DO ICASE=1,NCASES
-        DO ISYM=1,NSYM
-          NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.GT.0) THEN
-            IDSMAT(ISYM,ICASE)=IDS
-            NAS=NASUP(ISYM,ICASE)
-!           NS=(NAS*(NAS+1))/2
-            NS=NAS**2
-            IF(ICASE.EQ.12) NS=1
-            IF(ICASE.EQ.13) NS=1
-            CALL DDAFILE(LUSBT ,0,DUMMY,NS,IDS)
-          END IF
-        END DO
-      END DO
+IDSMAT(:,:) = -1
+IDS = 0
+do ICASE=1,NCASES
+  do ISYM=1,NSYM
+    NIN = NINDEP(ISYM,ICASE)
+    if (NIN > 0) then
+      IDSMAT(ISYM,ICASE) = IDS
+      NAS = NASUP(ISYM,ICASE)
+      !NS = (NAS*(NAS+1))/2
+      NS = NAS**2
+      if (ICASE == 12) NS = 1
+      if (ICASE == 13) NS = 1
+      call DDAFILE(LUSBT,0,DUMMY,NS,IDS)
+    end if
+  end do
+end do
 
 ! IDSMAT(ISYM,ICASE) gives the disk address on LUSBT to the
 ! (ISYM,ICASE) section of the overlap matrix for the basis
 ! of excitation wave function terms: those that result from
 ! the basic excitation operators acting on Psi0.
-      DO ICASE=1,NCASES
-        DO ISYM=1,NSYM
-          NAS=NASUP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-!         NB=(NAS*(NAS+1))/2
-          NB=NAS**2
-          IF(ICASE.EQ.12) NB=1
-          IF(ICASE.EQ.13) NB=1
-          IDBMAT(ISYM,ICASE)=IDS
-          NBD=NAS
-          NID=NIS
-          NT=NAS**2
-          IF(ICASE.EQ.12) NT=1
-          IF(ICASE.EQ.13) NT=1
-          IDS1=IDS
-          IF(NB.GT.0)CALL DDAFILE(LUSBT ,0,DUMMY,NB ,IDS1)
-          IDS2=IDS
-          IF(NBD.GT.0)CALL DDAFILE(LUSBT ,0,DUMMY,NBD,IDS2)
-          IF(NID.GT.0)CALL DDAFILE(LUSBT ,0,DUMMY,NID,IDS2)
-          IF(NBD.GT.0)CALL DDAFILE(LUSBT ,0,DUMMY,NBD,IDS2)
-          IF(NID.GT.0)CALL DDAFILE(LUSBT ,0,DUMMY,NID,IDS2)
-          IDTMAT(ISYM,ICASE)=IDS2
-          IF(NT.GT.0)CALL DDAFILE(LUSBT ,0,DUMMY,NT,IDS2)
-          IDSTMAT(ISYM,ICASE)=IDS2
-          IF(NT.GT.0)CALL DDAFILE(LUSBT ,0,DUMMY,NT,IDS2)
-          IDS=MAX(IDS1,IDS2)
-        END DO
-      END DO
+do ICASE=1,NCASES
+  do ISYM=1,NSYM
+    NAS = NASUP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    !NB = (NAS*(NAS+1))/2
+    NB = NAS**2
+    if (ICASE == 12) NB = 1
+    if (ICASE == 13) NB = 1
+    IDBMAT(ISYM,ICASE) = IDS
+    NBD = NAS
+    NID = NIS
+    NT = NAS**2
+    if (ICASE == 12) NT = 1
+    if (ICASE == 13) NT = 1
+    IDS1 = IDS
+    if (NB > 0) call DDAFILE(LUSBT,0,DUMMY,NB,IDS1)
+    IDS2 = IDS
+    if (NBD > 0) call DDAFILE(LUSBT,0,DUMMY,NBD,IDS2)
+    if (NID > 0) call DDAFILE(LUSBT,0,DUMMY,NID,IDS2)
+    if (NBD > 0) call DDAFILE(LUSBT,0,DUMMY,NBD,IDS2)
+    if (NID > 0) call DDAFILE(LUSBT,0,DUMMY,NID,IDS2)
+    IDTMAT(ISYM,ICASE) = IDS2
+    if (NT > 0) call DDAFILE(LUSBT,0,DUMMY,NT,IDS2)
+    IDSTMAT(ISYM,ICASE) = IDS2
+    if (NT > 0) call DDAFILE(LUSBT,0,DUMMY,NT,IDS2)
+    IDS = max(IDS1,IDS2)
+  end do
+end do
 
 ! IDBMAT(ISYM,ICASE) is similar to IDSMAT() but gives disk address
 ! to the (ISYM,ICASE) diagonal block of matrix elements of H0
@@ -213,4 +207,4 @@
 ! IDTMAT() similarly addresses transformation matrices that
 ! orthonormalize the S matrix blocks.
 
-      END SUBROUTINE EQCTL1
+end subroutine EQCTL1

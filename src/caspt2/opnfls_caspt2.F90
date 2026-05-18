@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !               1993, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine OpnFls_CASPT2()
+
+subroutine OpnFls_CASPT2()
 !***********************************************************************
 !  purpose:
 !  - initialize logical unit numbers
@@ -21,95 +22,97 @@
 !  M.P. Fuelscher and P. AA. Malmqvist
 !  University of Lund, Sweden, 1993
 !***********************************************************************
-      use definitions, only: iwp
-      use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2,          &
-     &                       LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT,   &
-     &                       LURHS, LUH0T, LUSOLV, LUSBT
-      use caspt2_module, only: IfChol
-      Implicit None
-      CHARACTER(LEN=2) CVEC,CMAT
-      integer(kind=iwp) iMat, iOpt, iRC, iVec, LUINTA
-      logical(kind=iwp) IfDirect, Found2
-!---------------------------------------------------------------------*
-!  Start
-!---------------------------------------------------------------------*
 
-!---  define logical unit numbers ------------------------------------*
-!  AO two-electron integrals
-      LUINTA=20
-!
-!  Used during solution of the caspt2 eqs
-      LUSOLV=40
-!  Used to hold S, B, and T matrices
-      LUSBT =45
-      CALL DANAME_MF_wa(LUSOLV,'LUSOLV')
-      CALL DANAME_MF_wa(LUSBT ,'LUSBT ')
-!  Half transformed integrals (uv|rs)
-      LUHLF1=50
-!  Half transformed integrals (uq|xs)
-      LUHLF2=60
-!  Half transformed integrals (uq|rt)
-      LUHLF3=70
-!
-      CALL DANAME_MF_wa(LUHLF1,'LUHLF1')
-      CALL DANAME_MF_wa(LUHLF2,'LUHLF2')
-      CALL DANAME_MF_wa(LUHLF3,'LUHLF3')
+use definitions, only: iwp
+use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS, LUH0T, LUSOLV, LUSBT
+use caspt2_module, only: IfChol
+
+implicit none
+character(len=2) CVEC, CMAT
+integer(kind=iwp) iMat, iOpt, iRC, iVec, LUINTA
+logical(kind=iwp) IfDirect, Found2
+
+!----------------------------------------------------------------------*
+!  Start
+!----------------------------------------------------------------------*
+
+!---  define logical unit numbers -------------------------------------*
+! AO two-electron integrals
+LUINTA = 20
+
+! Used during solution of the caspt2 eqs
+LUSOLV = 40
+! Used to hold S, B, and T matrices
+LUSBT = 45
+call DANAME_MF_wa(LUSOLV,'LUSOLV')
+call DANAME_MF_wa(LUSBT,'LUSBT ')
+! Half transformed integrals (uv|rs)
+LUHLF1 = 50
+! Half transformed integrals (uq|xs)
+LUHLF2 = 60
+! Half transformed integrals (uq|rt)
+LUHLF3 = 70
+
+call DANAME_MF_wa(LUHLF1,'LUHLF1')
+call DANAME_MF_wa(LUHLF2,'LUHLF2')
+call DANAME_MF_wa(LUHLF3,'LUHLF3')
 
 ! Disk-resident arrays for equation solving:
-      LUDRA=30
-      CALL DANAME_MF_wa(LUDRA,'DRARR')
-      LUDRATOT=31
-      CALL DANAME_MF_wa(LUDRATOT,'DRARRT')
-!
-!-SVC: assign logical units for RHS arrays and open files for writing
-      DO IVEC=1,8
-        LURHS(IVEC)=50+IVEC
-        write(unit=CVEC, fmt='(I2.2)') IVEC
-        CALL DANAME_MF_WA(LURHS(IVEC),'RHS_'//CVEC)
-      END DO
-!-SVC: assign logical units for SBT arrays and open files for writing
-      DO IMAT=1,4
-        LUH0T(IMAT)=60+IMAT
-        write(unit=CMAT, fmt='(I2.2)') IMAT
-        CALL DANAME_MF_WA(LUH0T(IMAT),'H0T_'//CMAT)
-      END DO
-!  Temporary unit with density matrices
-      LUDMAT=90
-      CALL DANAME_MF_wa(LUDMAT,'LUDMAT')
+LUDRA = 30
+call DANAME_MF_wa(LUDRA,'DRARR')
+LUDRATOT = 31
+call DANAME_MF_wa(LUDRATOT,'DRARRT')
 
-!---  open the files -------------------------------------------------*
-!  Job interface
-!      JOBIPH=15
-!      CALL DANAME(JOBIPH,'JOBIPH')
-!  A new JOBIPH file
-!      JOBMIX=11
-!      CALL DANAME(JOBMIX,'JOBMIX')
-!  Temporary unit with excited CI expansions
-      LUCIEX=10
-      CALL DANAME_wa(LUCIEX,'LUCIEX')
-!  Temporary unit with MO one-electron integrals
-      LUONEM=16
-      CALL DANAME_wa(LUONEM,'MOLONE')
-!  Temporary unit with MO two-electron integrals (uv|xt)
-      LUINTM=80
-      CALL DANAME_MF_wa(LUINTM,'MOLINT')
-!  AO one-electron integrals
-      Call f_Inquire('ORDINT',Found2)
-      Call DecideOnDirect(.False.,Found2,IfDirect,IfChol)
-      If (IfChol) then
-!        IF(IPRGLB.GE.USUAL) WRITE(6,*) 'This is a Cholesky CASPT2'
-      else
-!        IF(IPRGLB.GE.USUAL) WRITE(6,*) 'This is a conventional CASPT2'
-        iRc=-1
-        iOpt=0
-        Call OpnOrd(iRc,iOpt,'ORDINT',LUINTA)
-        If ( iRc.ne.0 ) Then
-          WRITE(6,*)'OPNFLS Error: Failed to open the ORDINT file.'
-          CALL ABEND()
-        End If
-      End If
+!-SVC: assign logical units for RHS arrays and open files for writing
+do IVEC=1,8
+  LURHS(IVEC) = 50+IVEC
+  write(unit=CVEC,fmt='(I2.2)') IVEC
+  call DANAME_MF_WA(LURHS(IVEC),'RHS_'//CVEC)
+end do
+!-SVC: assign logical units for SBT arrays and open files for writing
+do IMAT=1,4
+  LUH0T(IMAT) = 60+IMAT
+  write(unit=CMAT,fmt='(I2.2)') IMAT
+  call DANAME_MF_WA(LUH0T(IMAT),'H0T_'//CMAT)
+end do
+! Temporary unit with density matrices
+LUDMAT = 90
+call DANAME_MF_wa(LUDMAT,'LUDMAT')
+
+!---  open the files --------------------------------------------------*
+! Job interface
+!JOBIPH = 15
+!call DANAME(JOBIPH,'JOBIPH')
+! A new JOBIPH file
+!JOBMIX = 11
+!call DANAME(JOBMIX,'JOBMIX')
+! Temporary unit with excited CI expansions
+LUCIEX = 10
+call DANAME_wa(LUCIEX,'LUCIEX')
+! Temporary unit with MO one-electron integrals
+LUONEM = 16
+call DANAME_wa(LUONEM,'MOLONE')
+! Temporary unit with MO two-electron integrals (uv|xt)
+LUINTM = 80
+call DANAME_MF_wa(LUINTM,'MOLINT')
+! AO one-electron integrals
+call f_Inquire('ORDINT',Found2)
+call DecideOnDirect(.false.,Found2,IfDirect,IfChol)
+if (IfChol) then
+  !if (IPRGLB >= USUAL) write(6,*) 'This is a Cholesky CASPT2'
+else
+  !if (IPRGLB >= USUAL) writE(6,*) 'This is a conventional CASPT2'
+  iRc = -1
+  iOpt = 0
+  call OpnOrd(iRc,iOpt,'ORDINT',LUINTA)
+  if (iRc /= 0) then
+    write(6,*) 'OPNFLS Error: Failed to open the ORDINT file.'
+    call ABEND()
+  end if
+end if
 
 !----------------------------------------------------------------------*
 !  Exit
 !----------------------------------------------------------------------*
-      End Subroutine OpnFls_CASPT2
+
+end subroutine OpnFls_CASPT2

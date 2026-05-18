@@ -16,28 +16,31 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKBH()
+
+subroutine MKBH()
 ! For completeness, even case H has formally S and B
 ! matrices. This costs nothing, and saves conditional
 ! looping, etc in the rest of the routines.
-      use constants, only: Zero
-      use EQSOLV, only: IDBMAT
-      use caspt2_global, only: LUSBT
-      use caspt2_module, only: NSYM, NINDEP
-      use definitions, only: iwp, wp
-      implicit None
-      real(kind=wp) DUM(1)
-      integer(kind=iwp) ISYM, ICASE, NIN, IDISK
 
-      DUM(1)=Zero
-      DO ISYM=1,NSYM
-        DO ICASE=12,13
-          NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.GT.0) THEN
-            IDISK=IDBMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,1,DUM,1,IDISK)
-          END IF
-        END DO
+use constants, only: Zero
+use EQSOLV, only: IDBMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: NSYM, NINDEP
+use definitions, only: iwp, wp
 
-      END DO
-      END SUBROUTINE MKBH
+implicit none
+real(kind=wp) DUM(1)
+integer(kind=iwp) ISYM, ICASE, NIN, IDISK
+
+DUM(1) = Zero
+do ISYM=1,NSYM
+  do ICASE=12,13
+    NIN = NINDEP(ISYM,ICASE)
+    if (NIN > 0) then
+      IDISK = IDBMAT(ISYM,ICASE)
+      call DDAFILE(LUSBT,1,DUM,1,IDISK)
+    end if
+  end do
+end do
+
+end subroutine MKBH

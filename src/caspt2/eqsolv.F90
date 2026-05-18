@@ -8,31 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module EQSOLV
+
+module EQSOLV
+
 use definitions, only: iwp
-INTEGER(kind=iwp), PARAMETER, Private:: MXCASE=13
-INTEGER(kind=iwp), PARAMETER :: MXVEC=6, MXBLK=40*256*256
 
-INTEGER(kind=iwp) IDSMAT(8,MXCASE),IDBMAT(8,MXCASE),IDTMAT(8,MXCASE),           &
-                  IDSTMAT(8,MXCASE),MODVEC(8,MXCASE),NLIST(8,8,17),             &
-                  LLIST(8,8,17),NLSTOT, MXSCT
+implicit none
 
-INTEGER(kind=iwp) IRHS,IVECX,IVECR,IVECC,IVECC2,IVECW
+integer(kind=iwp), parameter, private :: MXCASE = 13
+integer(kind=iwp), parameter :: MXVEC = 6, MXBLK = 40*256*256
+integer(kind=iwp) IDSMAT(8,MXCASE), IDBMAT(8,MXCASE), IDTMAT(8,MXCASE), IDSTMAT(8,MXCASE), MODVEC(8,MXCASE), NLIST(8,8,17), &
+                  LLIST(8,8,17), NLSTOT, MXSCT
+integer(kind=iwp) IRHS, IVECX, IVECR, IVECC, IVECC2, IVECW
+integer(kind=iwp) :: IFCOUP(MXCASE,MXCASE) = reshape( &
+                     [0, 1, 2, 0, 3, 4, 5, 0, 0, 0, 0, 0, 0, &
+                      0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, &
+                      0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, &
+                      0, 0, 0, 0, 8, 0, 0, 9,10,11,12, 0, 0, &
+                      0, 0, 0, 0, 0,13,14, 0, 0,15,16,23,24, &
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,17, 0, &
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,18, &
+                      0, 0, 0, 0, 0, 0, 0, 0, 0,19, 0, 0, 0, &
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,20, 0, 0, &
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,21, 0, &
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,22, &
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &
+                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], &
+                     [MXCASE,MXCASE])
 
-INTEGER(kind=iwp) :: IFCOUP(MXCASE,MXCASE)=reshape(                       &
-                                 [0, 1, 2, 0, 3, 4, 5, 0, 0, 0, 0, 0, 0,  &
-                                  0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0,  &
-                                  0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0,  &
-                                  0, 0, 0, 0, 8, 0, 0, 9,10,11,12, 0, 0,  &
-                                  0, 0, 0, 0, 0,13,14, 0, 0,15,16,23,24,  &
-                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,17, 0,  &
-                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,18,  &
-                                  0, 0, 0, 0, 0, 0, 0, 0, 0,19, 0, 0, 0,  &
-                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,20, 0, 0,  &
-                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,21, 0,  &
-                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,22,  &
-                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  &
-                                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], &
-                                 [MXCASE,MXCASE])
-
-END Module EQSOLV
+end module EQSOLV

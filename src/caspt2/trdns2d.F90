@@ -15,170 +15,155 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE TRDNS2D(IVEC,JVEC,DPT2,NDPT2,SCAL)
 
-      use definitions, only: iwp, wp
-      use constants, only: Zero, One
-      use caspt2_global, only: imag_shift, sigma_p_epsilon
-      use caspt2_global, only: do_grad
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
-      use caspt2_global, only: LUSBT, LISTS
-      use EQSOLV, only: iDBMat
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use fake_GA, only: GA_Arrays
-      use caspt2_module, only: nSym, nInDep, nISup, nASup
-
-      IMPLICIT NONE
-
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
-      integer(kind=iwp), intent(in) :: IVEC,JVEC,NDPT2
-      real(kind=wp), intent(inout) :: DPT2(NDPT2)
-      real(kind=wp), intent(in) :: SCAL
-
-      real(kind=wp), ALLOCATABLE:: BD(:), ID(:)
-#ifdef _MOLCAS_MPP_
-      real(kind=wp), ALLOCATABLE:: VEC1(:), VEC2(:)
-#endif
-      integer(kind=iwp) ICASE, ISYM, jD, lg_v1, lg_v2, NAS, NIN, NIS,   &
-     &                  nVec
-
+subroutine TRDNS2D(IVEC,JVEC,DPT2,NDPT2,SCAL)
 ! Add to the diagonal blocks of transition density matrix,
 !    DPT2(p,q) = Add <IVEC| E(p,q) |JVEC>,
 ! i.e. inactive/inactive, active/active, and virt/virt
 ! submatrices.IVEC, JVEC stands for the 1st-order perturbed
 ! CASPT2 wave functions in vectors nr IVEC, JVEC on LUSOLV.
 
+use definitions, only: iwp, wp
+use constants, only: Zero, One
+use caspt2_global, only: imag_shift, sigma_p_epsilon
+use caspt2_global, only: do_grad
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par, King
+#endif
+use caspt2_global, only: LUSBT, LISTS
+use EQSOLV, only: iDBMat
+use stdalloc, only: mma_allocate, mma_deallocate
+use fake_GA, only: GA_Arrays
+use caspt2_module, only: nSym, nInDep, nISup, nASup
+
+implicit none
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
+integer(kind=iwp), intent(in) :: IVEC, JVEC, NDPT2
+real(kind=wp), intent(inout) :: DPT2(NDPT2)
+real(kind=wp), intent(in) :: SCAL
+real(kind=wp), allocatable :: BD(:), ID(:)
+#ifdef _MOLCAS_MPP_
+real(kind=wp), allocatable :: VEC1(:), VEC2(:)
+#endif
+integer(kind=iwp) ICASE, ISYM, jD, lg_v1, lg_v2, NAS, NIN, NIS, nVec
+
 ! Inact/Inact and Virt/Virt blocks:
-      DO ICASE=1,13
-!       if (icase/=12 .and. icase.ne.13) cycle ! H
-        DO ISYM=1,NSYM
-          NIN=NINDEP(ISYM,ICASE)
-          IF(NIN==0) CYCLE
-          NIS=NISUP(ISYM,ICASE)
-          NVEC=NIN*NIS
-          IF(NVEC==0) CYCLE
-          !! lg_V1: T+lambda
-          !! lg_V2: T
-          !! IVEC = iVecX
-          !! JVEC = iVecR
-          CALL RHS_ALLO(NIN,NIS,lg_V1)
-          CALL RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
-          IF(IVEC==JVEC) THEN
-            lg_V2=lg_V1
-          ELSE
-            CALL RHS_ALLO(NIN,NIS,lg_V2)
-            CALL RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
-            If (do_grad) Then
-              CALL RHS_SCAL(NIN,NIS,lg_V1,SCAL)
-              if (sigma_p_epsilon /= Zero) then
-                !! derivative of the numerator
-                !! multiply the lambda part (lg_V2) only
-                nAS = nASUP(iSym,iCase)
-                Call mma_allocate(BD,nAS,Label='BD')
-                Call mma_allocate(ID,nIS,Label='ID')
-                jD = iDBMat(iSym,iCase)
-                Call dDaFile(LUSBT,2,BD,nAS,jD)
-                Call dDaFile(LUSBT,2,ID,nIS,jD)
-                Call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,BD,ID)
-                Call mma_deallocate(BD)
-                Call mma_deallocate(ID)
-              end if
-              CALL RHS_DAXPY(NIN,NIS,One,lg_V2,lg_V1)
-              CALL RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
-            End If
-          END IF
+do ICASE=1,13
+  !if ((icase /= 12) .and. (icase /= 13)) cycle ! H
+  do ISYM=1,NSYM
+    NIN = NINDEP(ISYM,ICASE)
+    if (NIN == 0) cycle
+    NIS = NISUP(ISYM,ICASE)
+    NVEC = NIN*NIS
+    if (NVEC == 0) cycle
+    !! lg_V1: T+lambda
+    !! lg_V2: T
+    !! IVEC = iVecX
+    !! JVEC = iVecR
+    call RHS_ALLO(NIN,NIS,lg_V1)
+    call RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
+    if (IVEC == JVEC) then
+      lg_V2 = lg_V1
+    else
+      call RHS_ALLO(NIN,NIS,lg_V2)
+      call RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
+      if (do_grad) then
+        call RHS_SCAL(NIN,NIS,lg_V1,SCAL)
+        if (sigma_p_epsilon /= Zero) then
+          !! derivative of the numerator
+          !! multiply the lambda part (lg_V2) only
+          nAS = nASUP(iSym,iCase)
+          call mma_allocate(BD,nAS,Label='BD')
+          call mma_allocate(ID,nIS,Label='ID')
+          jD = iDBMat(iSym,iCase)
+          call dDaFile(LUSBT,2,BD,nAS,jD)
+          call dDaFile(LUSBT,2,ID,nIS,jD)
+          call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,BD,ID)
+          call mma_deallocate(BD)
+          call mma_deallocate(ID)
+        end if
+        call RHS_DAXPY(NIN,NIS,One,lg_V2,lg_V1)
+        call RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
+      end if
+    end if
 
-!SVC: DIADNS can currently not handle pieces of RHS, so pass the
-! full array in case we are running in parallel
-#ifdef _MOLCAS_MPP_
-          IF (Is_Real_Par()) THEN
-            IF (KING()) THEN
-              ! copy global array to local buffer
-              CALL mma_allocate(VEC1,NVEC,Label='VEC1')
-              CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
-              IF(IVEC==JVEC) THEN
-                CALL DIADNS(ISYM,ICASE,VEC1,nVEC,VEC1,nVEC,DPT2,nDPT2,  &
-     &                      LISTS,SIZE(LISTS))
-              ELSE
-                CALL mma_allocate(VEC2,NVEC,Label='VEC2')
-                CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
-                CALL DIADNS(ISYM,ICASE,VEC1,nVEC,VEC2,nVec,DPT2,nDPT2,  &
-     &                      LISTS,SIZE(LISTS))
-                CALL mma_deallocate(VEC2)
-              END IF
-              CALL mma_deallocate(VEC1)
-            END IF
-            CALL GASYNC()
-          ELSE
-#endif
-            CALL DIADNS(ISYM,ICASE,                                     &
-     &                  GA_Arrays(lg_V1)%A,NVEC,                        &
-     &                  GA_Arrays(lg_V2)%A,NVEC,                        &
-     &                  DPT2,nDPT2,                                     &
-     &                  LISTS,size(LISTS))
-#ifdef _MOLCAS_MPP_
-          END IF
-#endif
-          If (do_grad .and. (imag_shift /=Zero                          &
-     &                  .or. sigma_p_epsilon /= Zero)) Then
-            !! for sigma-p CASPT2, derivative of the denominator
-            nAS = nASUP(iSym,iCase)
-            Call mma_allocate(BD,nAS,Label='BD')
-            Call mma_allocate(ID,nIS,Label='ID')
-            jD = iDBMat(iSym,iCase)
-            Call dDaFile(LUSBT,2,BD,nAS,jD)
-            Call dDaFile(LUSBT,2,ID,nIS,jD)
-!
-            CALL RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
-            CALL RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
-            Call CASPT2_ResD(2,nIN,nIS,lg_V1,lg_V2,BD,ID)
-!
-            Call DScal_(NDPT2,-One,DPT2,1)
-#ifdef _MOLCAS_MPP_
-            IF (Is_Real_Par()) THEN
-              IF (KING()) THEN
-                ! copy global array to local buffer
-                CALL mma_allocate(VEC1,NVEC,Label='VEC1')
-                CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
-                IF(IVEC==JVEC) THEN
-                  CALL DIADNS(ISYM,ICASE,VEC1,nVEC,VEC1,nVec,           &
-     &                        DPT2,nDPT2,LISTS,SIZE(LISTS))
-                ELSE
-                  CALL mma_allocate(VEC2,NVEC,Label='VEC2')
-                  CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
-                  CALL DIADNS(ISYM,ICASE,VEC1,nVec,VEC2,nVec,           &
-     &                        DPT2,nDPT2,LISTS,SIZE(LISTS))
-                  CALL mma_deallocate(VEC2)
-                END IF
-                CALL mma_deallocate(VEC1)
+    !SVC: DIADNS can currently not handle pieces of RHS, so pass the
+    ! full array in case we are running in parallel
+#   ifdef _MOLCAS_MPP_
+    if (Is_Real_Par()) then
+      if (KING()) then
+        ! copy global array to local buffer
+        call mma_allocate(VEC1,NVEC,Label='VEC1')
+        call GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
+        if (IVEC == JVEC) then
+          call DIADNS(ISYM,ICASE,VEC1,nVEC,VEC1,nVEC,DPT2,nDPT2,LISTS,size(LISTS))
+        else
+          call mma_allocate(VEC2,NVEC,Label='VEC2')
+          call GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
+          call DIADNS(ISYM,ICASE,VEC1,nVEC,VEC2,nVec,DPT2,nDPT2,LISTS,size(LISTS))
+          call mma_deallocate(VEC2)
+        end if
+        call mma_deallocate(VEC1)
+      end if
+      call GASYNC()
+    else
+#   endif
+      call DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%A,NVEC,GA_Arrays(lg_V2)%A,NVEC,DPT2,nDPT2,LISTS,size(LISTS))
+#   ifdef _MOLCAS_MPP_
+    end if
+#   endif
+    if (do_grad .and. ((imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero))) then
+      !! for sigma-p CASPT2, derivative of the denominator
+      nAS = nASUP(iSym,iCase)
+      call mma_allocate(BD,nAS,Label='BD')
+      call mma_allocate(ID,nIS,Label='ID')
+      jD = iDBMat(iSym,iCase)
+      call dDaFile(LUSBT,2,BD,nAS,jD)
+      call dDaFile(LUSBT,2,ID,nIS,jD)
 
-              END IF
-              CALL GASYNC()
-            ELSE
-#endif
-              CALL DIADNS(ISYM,ICASE,                                   &
-     &                    GA_Arrays(lg_V1)%A,NVEC,                      &
-     &                    GA_Arrays(lg_V2)%A,NVEC,                      &
-     &                    DPT2,nDPT2,LISTS,SIZE(LISTS))
-#ifdef _MOLCAS_MPP_
-            END IF
-#endif
-            Call DScal_(NDPT2,-One,DPT2,1)
-            Call mma_deallocate(BD)
-            Call mma_deallocate(ID)
-          End IF
+      call RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
+      call RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
+      call CASPT2_ResD(2,nIN,nIS,lg_V1,lg_V2,BD,ID)
 
-          CALL RHS_FREE(lg_V1)
-          IF(IVEC/=JVEC) CALL RHS_FREE(lg_V2)
-        End Do
-      End Do
+      call DScal_(NDPT2,-One,DPT2,1)
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        if (KING()) then
+          ! copy global array to local buffer
+          call mma_allocate(VEC1,NVEC,Label='VEC1')
+          call GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
+          if (IVEC == JVEC) then
+            call DIADNS(ISYM,ICASE,VEC1,nVEC,VEC1,nVec,DPT2,nDPT2,LISTS,size(LISTS))
+          else
+            call mma_allocate(VEC2,NVEC,Label='VEC2')
+            call GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
+            call DIADNS(ISYM,ICASE,VEC1,nVec,VEC2,nVec,DPT2,nDPT2,LISTS,size(LISTS))
+            call mma_deallocate(VEC2)
+          end if
+          call mma_deallocate(VEC1)
+
+        end if
+        call GASYNC()
+      else
+#     endif
+        call DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%A,NVEC,GA_Arrays(lg_V2)%A,NVEC,DPT2,nDPT2,LISTS,size(LISTS))
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
+      call DScal_(NDPT2,-One,DPT2,1)
+      call mma_deallocate(BD)
+      call mma_deallocate(ID)
+    end if
+
+    call RHS_FREE(lg_V1)
+    if (IVEC /= JVEC) call RHS_FREE(lg_V2)
+  end do
+end do
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par().and.do_grad) call gadgop(DPT2,NDPT2,'+')
+if (Is_Real_Par() .and. do_grad) call gadgop(DPT2,NDPT2,'+')
 #endif
 
-      END SUBROUTINE TRDNS2D
+end subroutine TRDNS2D

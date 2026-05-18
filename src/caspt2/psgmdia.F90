@@ -16,68 +16,69 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE PSGMDIA(ALPHA,BETA,IVEC,JVEC)
-      use definitions, only: iwp, wp
-      use constants, only: Zero
-      use caspt2_global, only: LUSBT
-      use EQSOLV, only: IDBMat
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nSym, nInDep, nASup, nISup
-      IMPLICIT None
-      real(kind=wp), intent(in):: ALPHA, BETA
-      integer(kind=iwp), intent(in):: IVEC, JVEC
 
-      integer(kind=iwp) ICASE, ISYM, NIN, NAS, NIS, JD, lg_V1, lg_V2
-      real(kind=wp), ALLOCATABLE:: BD(:), ID(:)
-
+subroutine PSGMDIA(ALPHA,BETA,IVEC,JVEC)
 ! Compute |JVEC> := BETA*|JVEC> + ALPHA*(H0(diag)-E0)*|IVEC>
-! If real_shift.ne.Zero or imag_shift.ne.Zero, use a modified H0
+! If real_shift /= Zero or imag_shift /= Zero, use a modified H0
 
-      DO ICASE=1,13
-        DO ISYM=1,NSYM
-          NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.EQ.0) Cycle
-          NAS=NASUP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-          IF(NIS.EQ.0) Cycle
-! Remember: NIN values in BDIAG, but must read NAS for correct
-! positioning.
-          CALL mma_allocate(BD,NAS,LABEL='BD')
-          CALL mma_allocate(ID,NIS,LABEL='ID')
-          JD=IDBMAT(ISYM,ICASE)
-          CALL DDAFILE(LUSBT,2,BD,NAS,JD)
-          CALL DDAFILE(LUSBT,2,ID,NIS,JD)
+use definitions, only: iwp, wp
+use constants, only: Zero
+use caspt2_global, only: LUSBT
+use EQSOLV, only: IDBMat
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: nSym, nInDep, nASup, nISup
 
-          CALL RHS_ALLO (NIN,NIS,lg_V2)
+implicit none
+real(kind=wp), intent(in) :: ALPHA, BETA
+integer(kind=iwp), intent(in) :: IVEC, JVEC
+integer(kind=iwp) ICASE, ISYM, NIN, NAS, NIS, JD, lg_V1, lg_V2
+real(kind=wp), allocatable :: BD(:), ID(:)
 
-          IF(BETA.NE.Zero) THEN
-            CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-            IF(BETA.NE.1) THEN
-              CALL RHS_SCAL (NIN,NIS,lg_V2,BETA)
-            END IF
-!         ELSE
-!           CALL RHS_SCAL (NIN,NIS,lg_V2,Zero)
-          END IF
+do ICASE=1,13
+  do ISYM=1,NSYM
+    NIN = NINDEP(ISYM,ICASE)
+    if (NIN == 0) cycle
+    NAS = NASUP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    if (NIS == 0) cycle
+    ! Remember: NIN values in BDIAG, but must read NAS for correct
+    ! positioning.
+    call mma_allocate(BD,NAS,LABEL='BD')
+    call mma_allocate(ID,NIS,LABEL='ID')
+    JD = IDBMAT(ISYM,ICASE)
+    call DDAFILE(LUSBT,2,BD,NAS,JD)
+    call DDAFILE(LUSBT,2,ID,NIS,JD)
 
-          IF(ALPHA.NE.Zero) THEN
-            IF(BETA.NE.Zero) THEN
-              CALL RHS_ALLO (NIN,NIS,lg_V1)
-              CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
-              CALL RHS_SGMDIA (NIN,NIS,lg_V1,BD,ID)
-              CALL RHS_DAXPY(NIN,NIS,ALPHA,lg_V1,lg_V2)
-              CALL RHS_FREE (lg_V1)
-            ELSE
-              CALL RHS_READ (NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
-              CALL RHS_SGMDIA (NIN,NIS,lg_V2,BD,ID)
-              CALL RHS_SCAL (NIN,NIS,lg_V2,ALPHA)
-            END IF
-          END IF
+    call RHS_ALLO(NIN,NIS,lg_V2)
 
-          CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
-          CALL RHS_FREE (lg_V2)
-          CALL mma_deallocate(BD)
-          CALL mma_deallocate(ID)
-        End Do
-      End Do
+    if (BETA /= Zero) then
+      call RHS_READ(NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
+      if (BETA /= 1) then
+        call RHS_SCAL(NIN,NIS,lg_V2,BETA)
+      !else
+      !  call RHS_SCAL(NIN,NIS,lg_V2,Zero)
+      end if
+    end if
 
-      END SUBROUTINE PSGMDIA
+    if (ALPHA /= Zero) then
+      if (BETA /= Zero) then
+        call RHS_ALLO(NIN,NIS,lg_V1)
+        call RHS_READ(NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
+        call RHS_SGMDIA(NIN,NIS,lg_V1,BD,ID)
+        call RHS_DAXPY(NIN,NIS,ALPHA,lg_V1,lg_V2)
+        call RHS_FREE(lg_V1)
+      else
+        call RHS_READ(NIN,NIS,lg_V2,ICASE,ISYM,IVEC)
+        call RHS_SGMDIA(NIN,NIS,lg_V2,BD,ID)
+        call RHS_SCAL(NIN,NIS,lg_V2,ALPHA)
+      end if
+    end if
+
+    call RHS_SAVE(NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
+    call RHS_FREE(lg_V2)
+    call mma_deallocate(BD)
+    call mma_deallocate(ID)
+  end do
+end do
+
+end subroutine PSGMDIA

@@ -23,30 +23,32 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_FREE (lg_W)
+subroutine RHS_FREE(lg_W)
 !SVC: this routine writes the RHS array to disk
-      use definitions, only: iwp
+
+use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      use fake_GA, only: Deallocate_GA_Array
-      IMPLICIT None
-      integer(kind=iwp), intent(inout):: lg_w
+use fake_GA, only: Deallocate_GA_Array
+
+implicit none
+integer(kind=iwp), intent(inout) :: lg_w
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL(kind=iwp) bStat
+logical(kind=iwp) bStat
 
-      IF (Is_Real_Par()) THEN
-!SVC: Destroy the global array
-        bStat=GA_Destroy(lg_W)
-      ELSE
+if (Is_Real_Par()) then
+  !SVC: Destroy the global array
+  bStat = GA_Destroy(lg_W)
+else
 #endif
-        Call Deallocate_GA_Array(lg_W)
+  call Deallocate_GA_Array(lg_W)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #include "macros.fh"
-      unused_var(bStat)
+unused_var(bStat)
 #endif
 
-      END SUBROUTINE RHS_FREE
+end subroutine RHS_FREE

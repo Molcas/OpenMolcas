@@ -23,47 +23,48 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_READ (NIN,NIS,lg_W,iCASE,iSYM,iVEC)
+subroutine RHS_READ(NIN,NIS,lg_W,iCASE,iSYM,iVEC)
 !SVC: this routine reads an RHS array in SR format from disk
-      use definitions, only: iwp
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
-      use caspt2_global, only: LURHS
-      use fake_GA, only: GA_Arrays
-      use caspt2_module, only: IOFFRHS
-      IMPLICIT None
-      integer(kind=iwp), Intent(In):: NIN,NIS,lg_W,iCASE,iSYM,iVEC
 
-      integer(kind=iwp) IDISK, NWPROC
+use definitions, only: iwp
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
+use caspt2_global, only: LURHS
+use fake_GA, only: GA_Arrays
+use caspt2_module, only: IOFFRHS
+
+implicit none
+integer(kind=iwp), intent(in) :: NIN, NIS, lg_W, iCASE, iSYM, iVEC
+integer(kind=iwp) IDISK, NWPROC
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=iwp) myRank,ISTA,IEND,JSTA,JEND,mpt_W,LDW
+integer(kind=iwp) myRank, ISTA, IEND, JSTA, JEND, mpt_W, LDW
 
-      IF (Is_Real_Par()) THEN
-        CALL GA_Sync()
-        myRank = GA_NodeID()
-        CALL GA_Distribution (lg_W,myRank,ISTA,IEND,JSTA,JEND)
-        IF (IEND-ISTA+1.EQ.NIN .AND. ISTA.GT.0) THEN
-          CALL GA_Access (lg_W,ISTA,IEND,JSTA,JEND,mpt_W,LDW)
-          IF (LDW.NE.NIN) THEN
-            WRITE(6,*) 'RHS_READ: Assumption NIN==LDW wrong'
-            CALL AbEnd()
-          END IF
-          NWPROC=NIN*(JEND-JSTA+1)
-          IDISK=IOFFRHS(ISYM,ICASE)
-          CALL DDAFILE(LURHS(IVEC),2,DBL_MB(mpt_W),NWPROC,IDISK)
-          CALL GA_Release_Update (lg_W,ISTA,IEND,JSTA,JEND)
-        END IF
-        CALL GA_Sync()
-      ELSE
+if (Is_Real_Par()) then
+  call GA_Sync()
+  myRank = GA_NodeID()
+  call GA_Distribution(lg_W,myRank,ISTA,IEND,JSTA,JEND)
+  if ((IEND-ISTA+1 == NIN) .and. (ISTA > 0)) then
+    call GA_Access(lg_W,ISTA,IEND,JSTA,JEND,mpt_W,LDW)
+    if (LDW /= NIN) then
+      write(6,*) 'RHS_READ: Assumption NIN==LDW wrong'
+      call AbEnd()
+    end if
+    NWPROC = NIN*(JEND-JSTA+1)
+    IDISK = IOFFRHS(ISYM,ICASE)
+    call DDAFILE(LURHS(IVEC),2,DBL_MB(mpt_W),NWPROC,IDISK)
+    call GA_Release_Update(lg_W,ISTA,IEND,JSTA,JEND)
+  end if
+  call GA_Sync()
+else
 #endif
-        NWPROC=NIN*NIS
-        IDISK=IOFFRHS(ISYM,ICASE)
-        CALL DDAFILE(LURHS(IVEC),2,GA_Arrays(lg_W)%A,NWPROC,IDISK)
+  NWPROC = NIN*NIS
+  IDISK = IOFFRHS(ISYM,ICASE)
+  call DDAFILE(LURHS(IVEC),2,GA_Arrays(lg_W)%A,NWPROC,IDISK)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END SUBROUTINE RHS_READ
+end subroutine RHS_READ

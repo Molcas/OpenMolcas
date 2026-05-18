@@ -23,43 +23,41 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_SCAL (NAS,NIS,lg_W,FACT)
+subroutine RHS_SCAL(NAS,NIS,lg_W,FACT)
 !SVC: this routine multiplies the RHS array with FACT
-      use definitions, only: iwp, wp
-      use constants, only: Zero, One
+
+use definitions, only: iwp, wp
+use constants, only: Zero, One
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      use fake_GA, only: GA_Arrays
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: NAS,NIS,lg_W
-      real(kind=wp), intent(in):: FACT
+use fake_GA, only: GA_Arrays
+
+implicit none
+integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
+real(kind=wp), intent(in) :: FACT
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
 
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-        IF (FACT.EQ.Zero) THEN
-!          CALL GA_Fill (lg_W,Zero)
-           CALL GA_Zero (lg_W)
-        ELSE
-          IF (FACT.NE.One) THEN
-            CALL GA_Scale (lg_W,FACT)
-          END IF
-        END IF
-      ELSE
+if (Is_Real_Par()) then
+  if (FACT == Zero) then
+    !call GA_Fill (lg_W,Zero)
+    call GA_Zero(lg_W)
+  else if (FACT /= One) then
+    call GA_Scale(lg_W,FACT)
+  end if
+else
 #endif
-        IF(FACT.EQ.Zero) THEN
-            CALL DCOPY_(NAS*NIS,[Zero],0,GA_Arrays(lg_W)%A,1)
-        ELSE
-          IF(FACT.NE.One) THEN
-            CALL DSCAL_(NAS*NIS,FACT,GA_Arrays(lg_W)%A,1)
-          END IF
-        END IF
+  if (FACT == Zero) then
+    call DCOPY_(NAS*NIS,[Zero],0,GA_Arrays(lg_W)%A,1)
+  else if (FACT /= One) then
+    call DSCAL_(NAS*NIS,FACT,GA_Arrays(lg_W)%A,1)
+  end if
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END SUBROUTINE RHS_SCAL
+end subroutine RHS_SCAL

@@ -11,272 +11,250 @@
 ! Copyright (C) 2023, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-      SUBROUTINE Cho_Amatrix(XMAT,nXMAT,CMO,NCMO,DDTR,NATR)
+subroutine Cho_Amatrix(XMAT,nXMAT,CMO,NCMO,DDTR,NATR)
 ! Calculation of the "exchange" matrix for the G1,G2,G3 Fock operators
 ! from Cholesky vectors
 
-      use Symmetry_Info, only: Mul
-      USE Index_Functions, ONLY: nTri_Elem
-      USE Data_Structures, ONLY: Allocate_DT, Deallocate_DT, DSBA_Type
-      USE CHOVEC_IO, ONLY: NVLOC_CHOBATCH
-      USE stdalloc, ONLY: mma_allocate, mma_deallocate
-      USE Constants, ONLY: Zero, One, Half
-      use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT,           &
-     &                         nOrb, nBtch, nBtches
-      use definitions, only: iwp, wp
+use Symmetry_Info, only: Mul
+use Index_Functions, only: nTri_Elem
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use CHOVEC_IO, only: NVLOC_CHOBATCH
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT, nOrb, nBtch, nBtches
+use definitions, only: iwp, wp
 
-      IMPLICIT NONE
-      INTEGER(kind=iwp), intent(in) :: nXMAT, nCMO, NATR
-      REAL(kind=wp), intent(inout) :: XMAT(nXMAT)
-      REAL(kind=wp), intent(in) :: CMO(nCMO), DDTR(NATR)
-      INTEGER(kind=iwp) :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP,   &
-     &                     MXCHOBUF, MXINT, MXPIQK, NADDBUFF, NBUF,     &
-     &                     NCHOBUF, NINTS, NLB, NLK, NV
-      INTEGER(kind=iwp), ALLOCATABLE :: BGRP(:,:,:), ICA(:), ICI(:),    &
-     &                                  ICV(:), IXMAT(:), NBGRP(:),     &
-     &                                  NVEC(:,:)
-      REAL(kind=wp), ALLOCATABLE :: BRABUF(:), KETBUF(:)
-      REAL(kind=wp), ALLOCATABLE, TARGET :: INTBUF(:)
-      TYPE(DSBA_Type) :: HDSQ
-      INTEGER(kind=iwp), PARAMETER :: Inac=1, Acti=2, Virt=3
+implicit none
+integer(kind=iwp), intent(in) :: nXMAT, nCMO, NATR
+real(kind=wp), intent(inout) :: XMAT(nXMAT)
+real(kind=wp), intent(in) :: CMO(nCMO), DDTR(NATR)
+integer(kind=iwp) :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP, MXCHOBUF, MXINT, MXPIQK, NADDBUFF, NBUF, NCHOBUF, NINTS, NLB, NLK, &
+                     NV
+integer(kind=iwp), allocatable :: BGRP(:,:,:), ICA(:), ICI(:), ICV(:), IXMAT(:), NBGRP(:), NVEC(:,:)
+real(kind=wp), allocatable :: BRABUF(:), KETBUF(:)
+real(kind=wp), allocatable, target :: INTBUF(:)
+type(DSBA_Type) :: HDSQ
+integer(kind=iwp), parameter :: Inac = 1, Acti = 2, Virt = 3
 
-      ! Transform Cholesky vectors, this will have to be redone after
-      ! the modified Fock matrix is diagonalized
-      CALL TRACHO3(CMO,NCMO)
+! Transform Cholesky vectors, this will have to be redone after
+! the modified Fock matrix is diagonalized
+call TRACHO3(CMO,NCMO)
 
-      ! Square (Dd) to simplify multiplication
-      CALL Allocate_DT(HDSQ,NASH,NASH,NSYM,Label='HDSQ')
-      I = 1
-      DO ISYM=1,NSYM
-        CALL Square(DDTR(I),HDSQ%Sb(ISYM)%A1,1,NASH(ISYM),NASH(ISYM))
-        I = I+nTri_Elem(NASH(ISYM))
-      END DO
-      ! To include a 1/2 factor in the final matrix, just scale (Dd)
-      HDSQ%A0(:) = Half*HDSQ%A0(:)
+! Square (Dd) to simplify multiplication
+call Allocate_DT(HDSQ,NASH,NASH,NSYM,Label='HDSQ')
+I = 1
+do ISYM=1,NSYM
+  call Square(DDTR(I),HDSQ%Sb(ISYM)%A1,1,NASH(ISYM),NASH(ISYM))
+  I = I+nTri_Elem(NASH(ISYM))
+end do
+! To include a 1/2 factor in the final matrix, just scale (Dd)
+HDSQ%A0(:) = Half*HDSQ%A0(:)
 
-      ! Get offsets and sizes
-      CALL mma_allocate(IXMAT,NSYM,Label='IXMAT')
-      CALL mma_allocate(NBGRP,NSYM,Label='NBGRP')
-      MXINT = 0
-      MXBGRP = 0
-      DO ISYM=1,NSYM
-        ! Offsets of symmetry blocks in XMAT
-        IF (ISYM == 1) THEN
-          IXMAT(ISYM) = 1
-        ELSE
-          IXMAT(ISYM) = IXMAT(ISYM-1)+NORB(ISYM-1)**2
-        END IF
-        ! Max size for integral matrix
-        DO JSYM=1,NSYM
-          I = Mul(ISYM,JSYM)
-          NINTS = MAX(NISH(I),NASH(I),NSSH(I))
-          MXINT = MAX(MXINT,(NINTS*NASH(JSYM))**2)
-        END DO
-        MXBGRP = MAX(MXBGRP,NBTCH(ISYM))
-      END DO
-      CALL mma_allocate(INTBUF,MXINT,Label='INTBUF')
-      CALL mma_allocate(BGRP,2,MXBGRP,NSYM,Label='BGRP')
-      MXBGRP = 0
-      MXCHOBUF = 0
-      DO ISYM=1,NSYM
-        ! Batch groups per symmetry
-        NBGRP(ISYM) = NBTCH(ISYM)
-        DO I=1,NBGRP(ISYM)
-          BGRP(:,I,ISYM) = NBTCHES(ISYM)+I
-        END DO
-        ! Max size for Cholesky vectors
-        CALL MEMORY_ESTIMATE(ISYM,BGRP(:,:,ISYM),NBGRP(ISYM),NCHOBUF,   &
-     &                       MXPIQK,NADDBUFF)
-        MXBGRP = MAX(MXBGRP,NBGRP(ISYM))
-        MXCHOBUF = MAX(MXCHOBUF,NCHOBUF)
-      END DO
-      ! Number of Cholesky vectors per group and symmetry
-      CALL mma_allocate(NVEC,MXBGRP,NSYM,Label='NVEC')
-      NVEC(:,:) = 0
-      DO ISYM=1,NSYM
-        DO IBGRP=1,NBGRP(ISYM)
-          DO I=BGRP(1,IBGRP,ISYM),BGRP(2,IBGRP,ISYM)
-            NVEC(IBGRP,ISYM) = NVEC(IBGRP,ISYM)+NVLOC_CHOBATCH(I)
-          END DO
-        END DO
-      END DO
+! Get offsets and sizes
+call mma_allocate(IXMAT,NSYM,Label='IXMAT')
+call mma_allocate(NBGRP,NSYM,Label='NBGRP')
+MXINT = 0
+MXBGRP = 0
+do ISYM=1,NSYM
+  ! Offsets of symmetry blocks in XMAT
+  if (ISYM == 1) then
+    IXMAT(ISYM) = 1
+  else
+    IXMAT(ISYM) = IXMAT(ISYM-1)+NORB(ISYM-1)**2
+  end if
+  ! Max size for integral matrix
+  do JSYM=1,NSYM
+    I = Mul(ISYM,JSYM)
+    NINTS = max(NISH(I),NASH(I),NSSH(I))
+    MXINT = max(MXINT,(NINTS*NASH(JSYM))**2)
+  end do
+  MXBGRP = max(MXBGRP,NBTCH(ISYM))
+end do
+call mma_allocate(INTBUF,MXINT,Label='INTBUF')
+call mma_allocate(BGRP,2,MXBGRP,NSYM,Label='BGRP')
+MXBGRP = 0
+MXCHOBUF = 0
+do ISYM=1,NSYM
+  ! Batch groups per symmetry
+  NBGRP(ISYM) = NBTCH(ISYM)
+  do I=1,NBGRP(ISYM)
+    BGRP(:,I,ISYM) = NBTCHES(ISYM)+I
+  end do
+  ! Max size for Cholesky vectors
+  call MEMORY_ESTIMATE(ISYM,BGRP(:,:,ISYM),NBGRP(ISYM),NCHOBUF,MXPIQK,NADDBUFF)
+  MXBGRP = max(MXBGRP,NBGRP(ISYM))
+  MXCHOBUF = max(MXCHOBUF,NCHOBUF)
+end do
+! Number of Cholesky vectors per group and symmetry
+call mma_allocate(NVEC,MXBGRP,NSYM,Label='NVEC')
+NVEC(:,:) = 0
+do ISYM=1,NSYM
+  do IBGRP=1,NBGRP(ISYM)
+    do I=BGRP(1,IBGRP,ISYM),BGRP(2,IBGRP,ISYM)
+      NVEC(IBGRP,ISYM) = NVEC(IBGRP,ISYM)+NVLOC_CHOBATCH(I)
+    end do
+  end do
+end do
 
-      CALL mma_allocate(BRABUF,MXCHOBUF,Label='BRABUF')
-      CALL mma_allocate(KETBUF,MXCHOBUF,Label='KETBUF')
+call mma_allocate(BRABUF,MXCHOBUF,Label='BRABUF')
+call mma_allocate(KETBUF,MXCHOBUF,Label='KETBUF')
 
-      ! Now fetch Cholesky vectors and accumulate the A_pq matrix
-      CALL mma_allocate(ICI,NSYM,Label='ICI')
-      CALL mma_allocate(ICA,NSYM,Label='ICA')
-      CALL mma_allocate(ICV,NSYM,Label='ICV')
-      DO ISYM=1,NSYM
-        ! Index of symmetry blocks in Cholesky vectors,
-        ! according to the active orbital symmetry
-        J = 0
-        ICI(Mul(ISYM,1)) = J
-        ICA(1) = 0
-        ICV(1) = 0
-        DO JSYM=1,NSYM-1
-          I = Mul(ISYM,JSYM)
-          J = J+NISH(JSYM)*NASH(I)
-          ICI(Mul(ISYM,JSYM+1)) = J
-          ICA(JSYM+1) = ICA(JSYM)+NASH(JSYM)*NASH(I)
-          ICV(JSYM+1) = ICV(JSYM)+NASH(JSYM)*NSSH(I)
-        END DO
-        DO IBGRP=1,NBGRP(ISYM)
-          IB1 = BGRP(1,IBGRP,ISYM)
-          IB2 = BGRP(2,IBGRP,ISYM)
-          NV = NVEC(IBGRP,ISYM)
-          IF (NV == 0) EXIT
-          ! Inactive-Inactive
-          CALL Get_Cholesky_Vectors(Inac,Acti,ISYM,BRABUF,SIZE(BRABUF), &
-     &                              NBUF,IB1,IB2)
-          CALL Accum(Inac,Inac,BRABUF,SIZE(BRABUF),                     &
-     &                         BRABUF,SIZE(BRABUF),ICI,ICI)
-          ! Inactive-Active
-          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,KETBUF,SIZE(KETBUF), &
-     &                              NBUF,IB1,IB2)
-          CALL Accum(Inac,Acti,BRABUF,SIZE(BRABUF),                     &
-     &                         KETBUF,SIZE(KETBUF),ICI,ICA)
-          ! Active-Active
-          CALL Accum(Acti,Acti,KETBUF,SIZE(KETBUF),                     &
-     &                         KETBUF,SIZE(KETBUF),ICA,ICA)
-          ! Inactive-Virtual
-          CALL Get_Cholesky_Vectors(Virt,Acti,ISYM,KETBUF,SIZE(KETBUF), &
-     &                              NBUF,IB1,IB2)
-          CALL Accum(Inac,Virt,BRABUF,SIZE(BRABUF),                     &
-     &                         KETBUF,SIZE(KETBUF),ICI,ICV)
-          ! Virtual-Virtual
-          CALL Accum(Virt,Virt,KETBUF,SIZE(KETBUF),                     &
-     &                         KETBUF,SIZE(KETBUF),ICV,ICV)
-          ! Active-Virtual
-          ! We could have saved these Cholesky vectors,
-          ! but there's joy in repetition
-          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,BRABUF,SIZE(BRABUF), &
-     &                              NBUF,IB1,IB2)
-          CALL Accum(Acti,Virt,BRABUF,SIZE(BRABUF),                     &
-     &                         KETBUF,SIZE(KETBUF),ICA,ICV)
-        END DO
-      END DO
+! Now fetch Cholesky vectors and accumulate the A_pq matrix
+call mma_allocate(ICI,NSYM,Label='ICI')
+call mma_allocate(ICA,NSYM,Label='ICA')
+call mma_allocate(ICV,NSYM,Label='ICV')
+do ISYM=1,NSYM
+  ! Index of symmetry blocks in Cholesky vectors,
+  ! according to the active orbital symmetry
+  J = 0
+  ICI(Mul(ISYM,1)) = J
+  ICA(1) = 0
+  ICV(1) = 0
+  do JSYM=1,NSYM-1
+    I = Mul(ISYM,JSYM)
+    J = J+NISH(JSYM)*NASH(I)
+    ICI(Mul(ISYM,JSYM+1)) = J
+    ICA(JSYM+1) = ICA(JSYM)+NASH(JSYM)*NASH(I)
+    ICV(JSYM+1) = ICV(JSYM)+NASH(JSYM)*NSSH(I)
+  end do
+  do IBGRP=1,NBGRP(ISYM)
+    IB1 = BGRP(1,IBGRP,ISYM)
+    IB2 = BGRP(2,IBGRP,ISYM)
+    NV = NVEC(IBGRP,ISYM)
+    if (NV == 0) exit
+    ! Inactive-Inactive
+    call Get_Cholesky_Vectors(Inac,Acti,ISYM,BRABUF,size(BRABUF),NBUF,IB1,IB2)
+    call Accum(Inac,Inac,BRABUF,size(BRABUF),BRABUF,size(BRABUF),ICI,ICI)
+    ! Inactive-Active
+    call Get_Cholesky_Vectors(Acti,Acti,ISYM,KETBUF,size(KETBUF),NBUF,IB1,IB2)
+    call Accum(Inac,Acti,BRABUF,size(BRABUF),KETBUF,size(KETBUF),ICI,ICA)
+    ! Active-Active
+    call Accum(Acti,Acti,KETBUF,size(KETBUF),KETBUF,size(KETBUF),ICA,ICA)
+    ! Inactive-Virtual
+    call Get_Cholesky_Vectors(Virt,Acti,ISYM,KETBUF,size(KETBUF),NBUF,IB1,IB2)
+    call Accum(Inac,Virt,BRABUF,size(BRABUF),KETBUF,size(KETBUF),ICI,ICV)
+    ! Virtual-Virtual
+    call Accum(Virt,Virt,KETBUF,size(KETBUF),KETBUF,size(KETBUF),ICV,ICV)
+    ! Active-Virtual
+    ! We could have saved these Cholesky vectors,
+    ! but there's joy in repetition
+    call Get_Cholesky_Vectors(Acti,Acti,ISYM,BRABUF,size(BRABUF),NBUF,IB1,IB2)
+    call Accum(Acti,Virt,BRABUF,size(BRABUF),KETBUF,size(KETBUF),ICA,ICV)
+  end do
+end do
 
-      CALL GADGOp(XMAT,NOSQT,'+')
+call GADGOp(XMAT,NOSQT,'+')
 
-      CALL Deallocate_DT(HDSQ)
-      CALL mma_deallocate(IXMAT)
-      CALL mma_deallocate(NBGRP)
-      CALL mma_deallocate(BGRP)
-      CALL mma_deallocate(NVEC)
-      CALL mma_deallocate(BRABUF)
-      CALL mma_deallocate(KETBUF)
-      CALL mma_deallocate(INTBUF)
-      CALL mma_deallocate(ICI)
-      CALL mma_deallocate(ICA)
-      CALL mma_deallocate(ICV)
+call Deallocate_DT(HDSQ)
+call mma_deallocate(IXMAT)
+call mma_deallocate(NBGRP)
+call mma_deallocate(BGRP)
+call mma_deallocate(NVEC)
+call mma_deallocate(BRABUF)
+call mma_deallocate(KETBUF)
+call mma_deallocate(INTBUF)
+call mma_deallocate(ICI)
+call mma_deallocate(ICA)
+call mma_deallocate(ICV)
 
+contains
 
-      CONTAINS
+subroutine Accum(bBlock,kBlock,bBuf,nbBuf,kBuf,nkBuf,IB,IK)
 
-      SUBROUTINE Accum(bBlock,kBlock,bBuf,nbBuf,kBuf,nkBuf,IB,IK)
-      implicit none
+  integer(kind=iwp), intent(in) :: nbBuf, nkBuf
+  integer(kind=iwp) :: bBlock, kBlock, IB(NSYM), IK(NSYM)
+  real(kind=wp) :: bBuf(nbBuf), kBuf(nkBuf)
+  integer(kind=iwp) :: B1, BS, BSWCH, bOff(NSYM), I, II, IJ, IJT, J, JA, JJ, K1, KS, KSWCH, kOff(NSYM), NA, NB(NSYM), NK(NSYM), &
+                       PQSYM, TUSYM
+  logical(kind=iwp) :: diag
+  real(kind=wp), pointer, contiguous :: INT2(:,:)
+  real(kind=wp), external :: dDot_
 
-      integer(kind=iwp), Intent(in):: nbBuf, nkBuf
-      INTEGER(kind=iwp) :: bBlock, kBlock, IB(NSYM), IK(NSYM)
-      REAL(kind=wp) :: bBuf(nbBuf), kBuf(nkBuf)
-      INTEGER(kind=iwp) :: B1, BS, BSWCH, bOff(NSYM), I, II, IJ, IJT, J,&
-     &                     JA, JJ, K1, KS, KSWCH, kOff(NSYM), NA,       &
-     &                     NB(NSYM), NK(NSYM), PQSYM, TUSYM
-      LOGICAL(kind=iwp) :: diag
-      REAL(kind=wp), POINTER, CONTIGUOUS :: INT2(:,:)
-      REAL(kind=wp), EXTERNAL :: dDot_
+  ! NB,NK = number of orbitals in bra/ket (not including NA factor)
+  ! bOff,kOff = offset or starting orbital in bra/ket
+  ! QB,QK = index function for bra/ket
+  ! BSWCH,KSWCH = aux switch for generalizing integral access
+  !               (1 if inactive, which come before active)
+  BSWCH = 0
+  select case (bBlock)
+    case (Inac)
+      NB(:) = NISH(1:NSYM)
+      bOff(:) = 0
+      BSWCH = 1
+    case (Acti)
+      NB(:) = NASH(1:NSYM)
+      bOff(:) = NISH(1:NSYM)
+    case (Virt)
+      NB(:) = NSSH(1:NSYM)
+      bOff(:) = NISH(1:NSYM)+NASH(1:NSYM)
+    case DEFAULT ! Nothing compares 2 U
+      ! (just to keep compilers happy)
+      NB(:) = 0
+      bOff(:) = 0
+      call Abend()
+  end select
+  KSWCH = 0
+  select case (kBlock)
+    case (Inac)
+      NK(:) = NISH(1:NSYM)
+      kOff(:) = 0
+      KSWCH = 1
+    case (Acti)
+      NK(:) = NASH(1:NSYM)
+      kOff(:) = NISH(1:NSYM)
+    case (Virt)
+      NK(:) = NSSH(1:NSYM)
+      kOff(:) = NISH(1:NSYM)+NASH(1:NSYM)
+    case DEFAULT
+      NK(:) = 0
+      kOff(:) = 0
+      call Abend()
+  end select
+  ! Is this a diagonal block?
+  diag = bBlock == kBlock
 
-      ! NB,NK = number of orbitals in bra/ket (not including NA factor)
-      ! bOff,kOff = offset or starting orbital in bra/ket
-      ! QB,QK = index function for bra/ket
-      ! BSWCH,KSWCH = aux switch for generalizing integral access
-      !               (1 if inactive, which come before active)
-      BSWCH = 0
-      SELECT CASE (bBlock)
-        CASE (Inac)
-          NB(:) = NISH(1:NSYM)
-          bOff(:) = 0
-          BSWCH = 1
-        CASE (Acti)
-          NB(:) = NASH(1:NSYM)
-          bOff(:) = NISH(1:NSYM)
-        CASE (Virt)
-          NB(:) = NSSH(1:NSYM)
-          bOff(:) = NISH(1:NSYM)+NASH(1:NSYM)
-        CASE DEFAULT ! Nothing compares 2 U
-          ! (just to keep compilers happy)
-          NB(:) = 0
-          bOff(:) = 0
-          CALL Abend()
-      END SELECT
-      KSWCH = 0
-      SELECT CASE (kBlock)
-        CASE (Inac)
-          NK(:) = NISH(1:NSYM)
-          kOff(:) = 0
-          KSWCH = 1
-        CASE (Acti)
-          NK(:) = NASH(1:NSYM)
-          kOff(:) = NISH(1:NSYM)
-        CASE (Virt)
-          NK(:) = NSSH(1:NSYM)
-          kOff(:) = NISH(1:NSYM)+NASH(1:NSYM)
-        CASE DEFAULT
-          NK(:) = 0
-          kOff(:) = 0
-          CALL Abend()
-      END SELECT
-      ! Is this a diagonal block?
-      diag = bBlock == kBlock
+  ! We want (pt|qu) integrals of symmetry ISYM, with:
+  !   t,u of symmetry TUSYM
+  !   p,q of symmetry PQSYM
+  do TUSYM=1,NSYM
+    PQSYM = Mul(ISYM,TUSYM)
+    NA = NASH(TUSYM)
+    ! Reconstruct the (bBlock,Active|kBlock,Active) integrals
+    NLB = NB(PQSYM)*NA
+    NLK = NK(PQSYM)*NA
+    call dgemm_('N','T',NLB,NLK,NV,One,bBUF(IB(TUSYM)*NV+1),NLB,kBUF(IK(TUSYM)*NV+1),NLK,Zero,INTBUF,NLB)
+    if (NLB*NLK == 0) cycle
+    INT2(1:NLB,1:NLK) => INTBUF(1:NLB*NLK)
 
-      ! We want (pt|qu) integrals of symmetry ISYM, with:
-      !   t,u of symmetry TUSYM
-      !   p,q of symmetry PQSYM
-      DO TUSYM=1,NSYM
-        PQSYM = Mul(ISYM,TUSYM)
-        NA = NASH(TUSYM)
-        ! Reconstruct the (bBlock,Active|kBlock,Active) integrals
-        NLB = NB(PQSYM)*NA
-        NLK = NK(PQSYM)*NA
-        CALL dgemm_('N','T',NLB,NLK,NV,One,bBUF(IB(TUSYM)*NV+1),NLB,    &
-     &              kBUF(IK(TUSYM)*NV+1),NLK,Zero,INTBUF,NLB)
-        IF (NLB*NLK == 0) CYCLE
-        INT2(1:NLB,1:NLK) => INTBUF(1:NLB*NLK)
+    ! Accumulate A_pq = sum_tu (pt|qu)*(Dd)_tu
+    ! BS,KS = step sizes for traversing active orbitals in INT2
+    !         (= 1 if inactive, = NB,NK otherwise)
+    BS = (NB(PQSYM)-1)*(1-BSWCH)+1
+    KS = (NK(PQSYM)-1)*(1-KSWCH)+1
+    ! B1,K1 = for getting the index of the 1st active orbital
+    !         (= NA if inactive, = 1 otherwise)
+    B1 = (NA-1)*BSWCH+1
+    K1 = (NA-1)*KSWCH+1
+    do J=1,NK(PQSYM)
+      do I=1,NB(PQSYM)
+        ! Index of this element in XMAT
+        IJ = IXMAT(PQSYM)+(kOff(PQSYM)+J-1)*NORB(PQSYM)+bOff(PQSYM)+I-1
+        ! Index of (p1|**) and (**|q1)
+        II = (I-1)*B1+1
+        JJ = (J-1)*K1+1
+        do JA=1,NA
+          XMAT(IJ) = XMAT(IJ)+dDot_(NA,INT2(II:,JJ),BS,HDSQ%SB(TUSYM)%A2(:,JA),1)
+          JJ = JJ+KS
+        end do
+        ! Symmetric element
+        if (diag .and. (I == J)) exit
+        IJT = IXMAT(PQSYM)+(bOff(PQSYM)+I-1)*NORB(PQSYM)+kOff(PQSYM)+J-1
+        XMAT(IJT) = XMAT(IJ)
+      end do
+    end do
+    nullify(INT2)
+  end do
 
-        ! Accumulate A_pq = sum_tu (pt|qu)*(Dd)_tu
-        ! BS,KS = step sizes for traversing active orbitals in INT2
-        !         (= 1 if inactive, = NB,NK otherwise)
-        BS = (NB(PQSYM)-1)*(1-BSWCH)+1
-        KS = (NK(PQSYM)-1)*(1-KSWCH)+1
-        ! B1,K1 = for getting the index of the 1st active orbital
-        !         (= NA if inactive, = 1 otherwise)
-        B1 = (NA-1)*BSWCH+1
-        K1 = (NA-1)*KSWCH+1
-        DO J=1,NK(PQSYM)
-          DO I=1,NB(PQSYM)
-            ! Index of this element in XMAT
-            IJ = IXMAT(PQSYM)+                                          &
-     &           (kOff(PQSYM)+J-1)*NORB(PQSYM)+bOff(PQSYM)+I-1
-            ! Index of (p1|**) and (**|q1)
-            II = (I-1)*B1+1
-            JJ = (J-1)*K1+1
-            DO JA=1,NA
-              XMAT(IJ) = XMAT(IJ)+dDot_(NA,INT2(II:,JJ),BS,             &
-     &                   HDSQ%SB(TUSYM)%A2(:,JA),1)
-              JJ = JJ+KS
-            END DO
-            ! Symmetric element
-            IF (diag .AND. (I == J)) EXIT
-            IJT = IXMAT(PQSYM)+                                         &
-     &            (bOff(PQSYM)+I-1)*NORB(PQSYM)+kOff(PQSYM)+J-1
-            XMAT(IJT) = XMAT(IJ)
-          END DO
-        END DO
-        NULLIFY(INT2)
-      END DO
+end subroutine Accum
 
-      END SUBROUTINE Accum
-
-      END SUBROUTINE Cho_Amatrix
+end subroutine Cho_Amatrix

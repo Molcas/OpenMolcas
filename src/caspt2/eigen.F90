@@ -12,40 +12,38 @@
 !***********************************************************************
 ! This subroutine diagonalizes a real symmetric matrix A using
 ! the Jacobi algorithm
-!*
-      subroutine eigen(A,U,N)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use constants, only: Zero, One
-      use definitions, only: iwp, wp
-      implicit None
 
-      integer(kind=iwp) N
-      real(kind=wp) A(N,N)
-      real(kind=wp) U(N,N)
+subroutine eigen(A,U,N)
 
-      integer(kind=iwp):: NSCR, IJ, I, J
-      real(kind=wp), allocatable:: SCR(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use constants, only: Zero, One
+use definitions, only: iwp, wp
 
+implicit none
+integer(kind=iwp) N
+real(kind=wp) A(N,N)
+real(kind=wp) U(N,N)
+integer(kind=iwp) :: NSCR, IJ, I, J
+real(kind=wp), allocatable :: SCR(:)
 
+NSCR = (N*(N+1))/2
+call mma_allocate(SCR,NSCR,LABEL='SCR')
 
-      NSCR=(N*(N+1))/2
-      call mma_allocate(SCR,NSCR,LABEL='SCR')
-
-      IJ=0
-      do I=1,N
-        do J=1,I
-          IJ=IJ+1
-          SCR(IJ)=A(I,J)
-        end do
-      end do
+IJ = 0
+do I=1,N
+  do J=1,I
+    IJ = IJ+1
+    SCR(IJ) = A(I,J)
+  end do
+end do
 
 ! Initialize U as the identity matrix
-      U(:,:)=Zero
-      call dcopy_(N,[One],0,U,N+1)
+U(:,:) = Zero
+call dcopy_(N,[One],0,U,N+1)
 
 ! Call Jacobi algorithm
-      call JACOB(SCR,U,N,N)
+call JACOB(SCR,U,N,N)
 
-      call mma_deallocate(SCR)
+call mma_deallocate(SCR)
 
-      end subroutine eigen
+end subroutine eigen

@@ -23,32 +23,32 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_RELEASE_UPDATE (lg_W,iLo,iHi,jLo,jHi)
+subroutine RHS_RELEASE_UPDATE(lg_W,iLo,iHi,jLo,jHi)
 !SVC: this routine releases a local block that was written to back to
 ! the global array
-      use definitions, only: iwp
+
+use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      IMPLICIT None
-      integer(kind=iwp), Intent(inout):: lg_W,iLo,iHi,jLo,jHi
+
+implicit none
+integer(kind=iwp), intent(inout) :: lg_W, iLo, iHi, jLo, jHi
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 
-      IF (Is_Real_Par()) THEN
-        IF (iLo.GT.0 .AND. jLo.GT.0) THEN
-          CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
-        END IF
-      END IF
+if (Is_Real_Par()) then
+  if ((iLo > 0) .and. (jLo > 0)) call GA_Release_Update(lg_W,iLo,iHi,jLo,jHi)
+end if
 #else
 #include "macros.fh"
 ! Avoid unused argument warnings
-      unused_var(lg_W)
-      unused_var(iLo)
-      unused_var(iHi)
-      unused_var(jLo)
-      unused_var(jHi)
+unused_var(lg_W)
+unused_var(iLo)
+unused_var(iHi)
+unused_var(jLo)
+unused_var(jHi)
 #endif
 
-      END SUBROUTINE RHS_RELEASE_UPDATE
+end subroutine RHS_RELEASE_UPDATE

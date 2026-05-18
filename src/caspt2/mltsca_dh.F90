@@ -16,21 +16,8 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MLTSCA_DH(IMLTOP,LST1,LST2,                            &
-     &                     X,NXI,NXA,F,NFI,NFA,                         &
-     &                     Y,NAS2,jYLo,jYHi)
-      use definitions, only: iwp, wp
-      use Sigma_data, only: NLST1, NLST2, VAL1, VAL2
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: IMLTOP,NXI,NXA,NFI,NFA,NAS2,jYLo, &
-     &                                jYHi
-      real(kind=wp), intent(inout):: X(NXI,NXA),F(NFI,NFA),             &
-     &                               Y(NAS2,jYHi-jYLo+1)
-      integer(kind=iwp), intent(in)::  LST1(4,NLST1), LST2(4,NLST2)
 
-      integer(kind=iwp) ILST1, ILST2, JY, L11, L12, L13, L14, L21, L23, &
-     &                  L24, L22
-      real(kind=wp) V1, V2
+subroutine MLTSCA_DH(IMLTOP,LST1,LST2,X,NXI,NXA,F,NFI,NFA,Y,NAS2,jYLo,jYHi)
 ! Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 ! four entries called L11,L12,L13,L14 for short, for a given
 ! item, and with V1=VAL1(L14), and similar for the other list,
@@ -40,64 +27,75 @@
 ! or for IMLTOP=2, compute
 !     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
 
-      IF(IMLTOP.EQ.0) THEN
-        DO ILST1=1,NLST1
-        L11=LST1(1,ILST1)
-        L12=LST1(2,ILST1)
-        L13=LST1(3,ILST1)
-        L14=LST1(4,ILST1)
-        V1=VAL1(L14)
-        IF (L13.GE.jYLo .AND. L13.LE.jYHi) THEN
-          JY=L13-jYLo+1
-          DO ILST2=1,NLST2
-          L21=LST2(1,ILST2)
-          L22=LST2(2,ILST2)
-          L23=LST2(3,ILST2)
-          L24=LST2(4,ILST2)
-          V2=VAL2(L24)
-          X(L11,L21)=X(L11,L21)+V1*V2*F(L12,L22)*Y(L23,JY)
-          END DO
-        END IF
-        END DO
-      ELSE IF(IMLTOP.EQ.1) THEN
-        DO ILST1=1,NLST1
-        L11=LST1(1,ILST1)
-        L12=LST1(2,ILST1)
-        L13=LST1(3,ILST1)
-        L14=LST1(4,ILST1)
-        V1=VAL1(L14)
-        IF (L13.GE.jYLo .AND. L13.LE.jYHi) THEN
-          JY=L13-jYLo+1
-          DO ILST2=1,NLST2
-          L21=LST2(1,ILST2)
-          L22=LST2(2,ILST2)
-          L23=LST2(3,ILST2)
-          L24=LST2(4,ILST2)
-          V2=VAL2(L24)
-          Y(L23,JY)=Y(L23,JY)+V1*V2*F(L12,L22)*X(L11,L21)
-          END DO
-        END IF
-        END DO
-      ELSE
-        DO ILST1=1,NLST1
-        L11=LST1(1,ILST1)
-        L12=LST1(2,ILST1)
-        L13=LST1(3,ILST1)
-        L14=LST1(4,ILST1)
-        V1=VAL1(L14)
-        IF (L13.GE.jYLo .AND. L13.LE.jYHi) THEN
-          JY=L13-jYLo+1
-          DO ILST2=1,NLST2
-          L21=LST2(1,ILST2)
-          L22=LST2(2,ILST2)
-          L23=LST2(3,ILST2)
-          L24=LST2(4,ILST2)
-          V2=VAL2(L24)
-          F(L12,L22)=F(L12,L22)+V1*V2*X(L11,L21)*Y(L23,JY)
-          END DO
-        END IF
-        END DO
-      END IF
+use definitions, only: iwp, wp
+use Sigma_data, only: NLST1, NLST2, VAL1, VAL2
 
-!     NFSCA=NFSCA+4*NLST1*NLST2
-      END SUBROUTINE MLTSCA_DH
+implicit none
+integer(kind=iwp), intent(in) :: IMLTOP, NXI, NXA, NFI, NFA, NAS2, jYLo, jYHi
+real(kind=wp), intent(inout) :: X(NXI,NXA), F(NFI,NFA), Y(NAS2,jYHi-jYLo+1)
+integer(kind=iwp), intent(in) :: LST1(4,NLST1), LST2(4,NLST2)
+integer(kind=iwp) ILST1, ILST2, JY, L11, L12, L13, L14, L21, L23, L24, L22
+real(kind=wp) V1, V2
+
+if (IMLTOP == 0) then
+  do ILST1=1,NLST1
+    L11 = LST1(1,ILST1)
+    L12 = LST1(2,ILST1)
+    L13 = LST1(3,ILST1)
+    L14 = LST1(4,ILST1)
+    V1 = VAL1(L14)
+    if ((L13 >= jYLo) .and. (L13 <= jYHi)) then
+      JY = L13-jYLo+1
+      do ILST2=1,NLST2
+        L21 = LST2(1,ILST2)
+        L22 = LST2(2,ILST2)
+        L23 = LST2(3,ILST2)
+        L24 = LST2(4,ILST2)
+        V2 = VAL2(L24)
+        X(L11,L21) = X(L11,L21)+V1*V2*F(L12,L22)*Y(L23,JY)
+      end do
+    end if
+  end do
+else if (IMLTOP == 1) then
+  do ILST1=1,NLST1
+    L11 = LST1(1,ILST1)
+    L12 = LST1(2,ILST1)
+    L13 = LST1(3,ILST1)
+    L14 = LST1(4,ILST1)
+    V1 = VAL1(L14)
+    if ((L13 >= jYLo) .and. (L13 <= jYHi)) then
+      JY = L13-jYLo+1
+      do ILST2=1,NLST2
+        L21 = LST2(1,ILST2)
+        L22 = LST2(2,ILST2)
+        L23 = LST2(3,ILST2)
+        L24 = LST2(4,ILST2)
+        V2 = VAL2(L24)
+        Y(L23,JY) = Y(L23,JY)+V1*V2*F(L12,L22)*X(L11,L21)
+      end do
+    end if
+  end do
+else
+  do ILST1=1,NLST1
+    L11 = LST1(1,ILST1)
+    L12 = LST1(2,ILST1)
+    L13 = LST1(3,ILST1)
+    L14 = LST1(4,ILST1)
+    V1 = VAL1(L14)
+    if ((L13 >= jYLo) .and. (L13 <= jYHi)) then
+      JY = L13-jYLo+1
+      do ILST2=1,NLST2
+        L21 = LST2(1,ILST2)
+        L22 = LST2(2,ILST2)
+        L23 = LST2(3,ILST2)
+        L24 = LST2(4,ILST2)
+        V2 = VAL2(L24)
+        F(L12,L22) = F(L12,L22)+V1*V2*X(L11,L21)*Y(L23,JY)
+      end do
+    end if
+  end do
+end if
+
+!NFSCA = NFSCA+4*NLST1*NLST2
+
+end subroutine MLTSCA_DH

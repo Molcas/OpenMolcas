@@ -12,19 +12,19 @@
 !***********************************************************************
 
 ! write the CI vector of state Istate from memory into LUCIEX
-      subroutine writeCI(CI, Istate)
-      use definitions, only: iwp, wp
-      use caspt2_global, only: LUCIEX, IDCIEX
-      use caspt2_module, only: nConf
-      implicit None
+subroutine writeCI(CI,Istate)
 
-      real(kind=wp), intent(InOut):: CI(Nconf)
-      integer(kind=iwp), intent(In):: Istate
+use definitions, only: iwp, wp
+use caspt2_global, only: LUCIEX, IDCIEX
+use caspt2_module, only: nConf
 
-      integer(kind=iwp) :: ID
+implicit none
+real(kind=wp), intent(inout) :: CI(Nconf)
+integer(kind=iwp), intent(in) :: Istate
+integer(kind=iwp) :: ID
 
 ! Write the CI array
-      ID=IDCIEX(iState)
-      call ddafile(LUCIEX,1,CI,Nconf,ID)
+ID = IDCIEX(iState)
+call ddafile(LUCIEX,1,CI,Nconf,ID)
 
-      end subroutine writeCI
+end subroutine writeCI

@@ -10,43 +10,40 @@
 !                                                                      *
 ! Copyright (C) 2019, Stefano Battaglia                                *
 !***********************************************************************
-      SUBROUTINE Backtransform(Heff,Ueff,U0,nState)
-      use definitions, only: wp, iwp
-      use constants, only: Zero, One
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: IFXMS, IFRMS
-      IMPLICIT None
-! Back-transform Heff and Ueff to the basis of the original
-! CASSCF states.
-      integer(kind=iwp), intent(in):: Nstate
-      real(kind=wp), intent(inout) :: Heff(Nstate,Nstate),              &
-     &                                Ueff(Nstate,Nstate)
-      real(kind=wp), intent(in) :: U0(Nstate,Nstate)
 
-      real(kind=wp),allocatable :: U0transpose(:,:),Utmp(:,:)
+subroutine Backtransform(Heff,Ueff,U0,nState)
+! Back-transform Heff and Ueff to the basis of the original CASSCF states.
 
+use definitions, only: wp, iwp
+use constants, only: Zero, One
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: IFXMS, IFRMS
 
-      if (IFXMS.or.IFRMS) then
+implicit none
+integer(kind=iwp), intent(in) :: Nstate
+real(kind=wp), intent(inout) :: Heff(Nstate,Nstate), Ueff(Nstate,Nstate)
+real(kind=wp), intent(in) :: U0(Nstate,Nstate)
+real(kind=wp), allocatable :: U0transpose(:,:), Utmp(:,:)
 
-! First we need to back-transform the effective Hamiltonian in the
-! basis of original CASSCF states by U0 * Heff * U0^T
-! Note that in the case of a normal MS-CASPT2 this and the next step
-! do not have any effect on Heff and Ueff
-        call mma_allocate(U0transpose,Nstate,Nstate,Label='U0transpose')
-        call trnsps(Nstate,Nstate,U0,U0transpose)
-        call transmat(Heff,U0transpose,Nstate)
-        call mma_deallocate(U0transpose)
+if (IFXMS .or. IFRMS) then
 
-! Compute transformation matrix that diagonalizes the effective
-! Hamiltonian expressed in the basis of original CASSCF states,
-! i.e. simply combine the two transf matrices: Ueff = U0 * Ueff
-        call mma_allocate(Utmp,Nstate,Nstate,Label='Utmp')
-        call dgemm_('N','N',Nstate,Nstate,Nstate,                       &
-     &               One,U0,Nstate,Ueff,Nstate,                         &
-     &               Zero,Utmp,Nstate)
-        Ueff=Utmp
-        call mma_deallocate(Utmp)
+  ! First we need to back-transform the effective Hamiltonian in the
+  ! basis of original CASSCF states by U0 * Heff * U0^T
+  ! Note that in the case of a normal MS-CASPT2 this and the next step
+  ! do not have any effect on Heff and Ueff
+  call mma_allocate(U0transpose,Nstate,Nstate,Label='U0transpose')
+  call trnsps(Nstate,Nstate,U0,U0transpose)
+  call transmat(Heff,U0transpose,Nstate)
+  call mma_deallocate(U0transpose)
 
-      end if
+  ! Compute transformation matrix that diagonalizes the effective
+  ! Hamiltonian expressed in the basis of original CASSCF states,
+  ! i.e. simply combine the two transf matrices: Ueff = U0 * Ueff
+  call mma_allocate(Utmp,Nstate,Nstate,Label='Utmp')
+  call dgemm_('N','N',Nstate,Nstate,Nstate,One,U0,Nstate,Ueff,Nstate,Zero,Utmp,Nstate)
+  Ueff = Utmp
+  call mma_deallocate(Utmp)
 
-      END SUBROUTINE Backtransform
+end if
+
+end subroutine Backtransform

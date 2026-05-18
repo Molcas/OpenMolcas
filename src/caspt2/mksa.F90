@@ -16,98 +16,94 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-!*******************************************************************************
+
+!***********************************************************************
 ! Case A (ICASE=1)
-!*******************************************************************************
-      SUBROUTINE MKSA(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
-      use definitions, only: iwp, wp, u6, Byte
-      use caspt2_global, only:iPrGlb
-      use PrintLevel, only: DEBUG
+!***********************************************************************
+subroutine MKSA(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
+
+use definitions, only: iwp, wp, u6, Byte
+use caspt2_global, only: iPrGlb
+use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      use fake_GA, only: GA_Arrays
-      use caspt2_module, only: NSYM, NINDEP, NTUV
-      IMPLICIT None
+use fake_GA, only: GA_Arrays
+use caspt2_module, only: NSYM, NINDEP, NTUV
+
+implicit none
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp), intent(in):: NDREF,NPREF, NG3
-      real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
-      real(kind=wp), intent(in):: G3(NG3)
-      INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
+integer(kind=iwp), intent(in) :: NDREF, NPREF, NG3
+real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
+real(kind=wp), intent(in) :: G3(NG3)
+integer(kind=Byte), intent(in) :: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
-      real(kind=wp) Dummy(1)
-      integer(kind=iwp) MYRANK,MA
+real(kind=wp) Dummy(1)
+integer(kind=iwp) MYRANK, MA
 #endif
-      integer(kind=iwp) ILO,IHI,JLO,JHI,LDA
-      integer(kind=iwp) ICASE, ISYM, lg_SA, NAS, NIN, NSA, MSA
-      real(kind=wp), external:: PSBMAT_FPRINT
-      real(kind=wp) DSA
+integer(kind=iwp) ILO, IHI, JLO, JHI, LDA
+integer(kind=iwp) ICASE, ISYM, lg_SA, NAS, NIN, NSA, MSA
+real(kind=wp), external :: PSBMAT_FPRINT
+real(kind=wp) DSA
 
-      ICASE=1
+ICASE = 1
 ! LONG loop over superindex symmetry.
-      DO ISYM=1,NSYM
-        NIN=NINDEP(ISYM,ICASE)
-        IF(NIN.EQ.0) CYCLE
-        NAS=NTUV(ISYM)
-        NSA=(NAS*(NAS+1))/2
-        IF(NSA.LE.0) CYCLE
-! Set up the matrix SA(tuv,xyz) defined by the expression
-! <ituv|kxyz> = dik SA(tuv,xyz)
-! Formula used:
-!    SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
-!         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
+do ISYM=1,NSYM
+  NIN = NINDEP(ISYM,ICASE)
+  if (NIN == 0) cycle
+  NAS = NTUV(ISYM)
+  NSA = (NAS*(NAS+1))/2
+  if (NSA <= 0) cycle
+  ! Set up the matrix SA(tuv,xyz) defined by the expression
+  ! <ituv|kxyz> = dik SA(tuv,xyz)
+  ! Formula used:
+  !    SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
 
-        CALL PSBMAT_GETMEM('SA',lg_SA,NAS)
+  call PSBMAT_GETMEM('SA',lg_SA,NAS)
 
-        ! fill in the 3-el parts
-#ifdef _MOLCAS_MPP_
-        IF (IS_REAL_PAR()) THEN
-          MYRANK = GA_NODEID()
-          CALL GA_DISTRIBUTION (LG_SA,MYRANK,ILO,IHI,JLO,JHI)
-          IF (JLO.NE.0 .AND. (JHI-JLO+1).NE.NAS) THEN
-            WRITE(u6,*) 'MKSA: MISMATCH IN RANGE OF THE SUPERINDICES'
-            CALL ABEND()
-          END IF
-          IF (ILO.GT.0 .AND. JLO.GT.0) THEN
-            CALL GA_ACCESS (LG_SA,ILO,IHI,JLO,JHI,MA,LDA)
-            CALL MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,NAS,LDA,           &
-     &                       NG3,G3,IDXG3)
-            MSA=LDA*(jHi-jLo+1)
-            CALL MKSA_DP(DREF,NDREF,PREF,NPREF,                         &
-     &                   ISYM,DBL_MB(MA),MSA,                           &
-     &                   ILO,IHI,JLO,JHI,LDA)
-            CALL GA_RELEASE_UPDATE (LG_SA,ILO,IHI,JLO,JHI)
-          ELSE
-            CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDA,                &
-     &                       NG3,G3,IDXG3)
-          END IF
-        ELSE
-#endif
-          iLo=1
-          iHi=NAS
-          jLo=1
-          jHi=NAS
-          LDA=0
-          MSA=NAS*(NAS+1)/2
-          CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),MSA,NG3,G3,IDXG3)
-          CALL MKSA_DP(DREF,NDREF,PREF,NPREF,                           &
-     &                 ISYM,GA_Arrays(lg_SA)%A(:),MSA,                  &
-     &                 ILO,IHI,JLO,JHI,LDA)
-#ifdef _MOLCAS_MPP_
-        END IF
-#endif
+  ! fill in the 3-el parts
+# ifdef _MOLCAS_MPP_
+  if (IS_REAL_PAR()) then
+    MYRANK = GA_NODEID()
+    call GA_DISTRIBUTION(LG_SA,MYRANK,ILO,IHI,JLO,JHI)
+    if ((JLO /= 0) .and. (JHI-JLO+1 /= NAS)) then
+      write(u6,*) 'MKSA: MISMATCH IN RANGE OF THE SUPERINDICES'
+      call ABEND()
+    end if
+    if ((ILO > 0) .and. (JLO > 0)) then
+      call GA_ACCESS(LG_SA,ILO,IHI,JLO,JHI,MA,LDA)
+      call MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,NAS,LDA,NG3,G3,IDXG3)
+      MSA = LDA*(jHi-jLo+1)
+      call MKSA_DP(DREF,NDREF,PREF,NPREF,ISYM,DBL_MB(MA),MSA,ILO,IHI,JLO,JHI,LDA)
+      call GA_RELEASE_UPDATE(LG_SA,ILO,IHI,JLO,JHI)
+    else
+      call MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDA,NG3,G3,IDXG3)
+    end if
+  else
+# endif
+    iLo = 1
+    iHi = NAS
+    jLo = 1
+    jHi = NAS
+    LDA = 0
+    MSA = NAS*(NAS+1)/2
+    call MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),MSA,NG3,G3,IDXG3)
+    call MKSA_DP(DREF,NDREF,PREF,NPREF,ISYM,GA_Arrays(lg_SA)%A(:),MSA,ILO,IHI,JLO,JHI,LDA)
+# ifdef _MOLCAS_MPP_
+  end if
+# endif
 
-        CALL PSBMAT_WRITE('S',iCase,iSYM,lg_SA,NAS)
+  call PSBMAT_WRITE('S',iCase,iSYM,lg_SA,NAS)
 
-        IF(IPRGLB.GE.DEBUG) THEN
-          DSA=PSBMAT_FPRINT(lg_SA,NAS)
-          WRITE(u6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'A', ISYM, DSA
-        END IF
+  if (IPRGLB >= DEBUG) then
+    DSA = PSBMAT_FPRINT(lg_SA,NAS)
+    write(u6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'A',ISYM,DSA
+  end if
 
-        CALL PSBMAT_FREEMEM(lg_SA)
-      END DO
+  call PSBMAT_FREEMEM(lg_SA)
+end do
 
-      END SUBROUTINE MKSA
+end subroutine MKSA

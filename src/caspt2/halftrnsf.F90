@@ -11,8 +11,8 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !               2007, Per Ake Malmqvist                                *
 !***********************************************************************
-      SUBROUTINE HALFTRNSF(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,     &
-     &                     JREDC,CMO,NCMO,ISTART,NUSE,ipChoT,Work,nWork)
+
+subroutine HALFTRNSF(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,JREDC,CMO,NCMO,ISTART,NUSE,ipChoT,Work,nWork)
 !********************************************************
 !   Author: F. Aquilante as subroutine cho_vtra
 !   Modified PAM 2007: Use ordinary CMO array without restructuring
@@ -49,190 +49,176 @@
 !                Can be set to -1 by the calling routine
 !
 !********************************************************
-      use definitions, only: iwp, wp, u6
-      use constants, only: Zero
-      use Symmetry_Info, only: Mul
-      use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas,    &
-     &                    nDimRS, nnBstR, nSym
-      Implicit None
-      Integer(kind=iwp), intent(inout):: irc
-      Integer(kind=iwp), intent(in):: lscr
-      Real(kind=wp), intent(inout)::  Scr(lscr)
-      Integer(kind=iwp), intent(in):: jVref,JVEC1,JNUM,NUMV,JSYM,NCMO
-      Integer(kind=iwp), intent(inout):: JREDC
-      Real(kind=wp), intent(in):: CMO(NCMO)
-      Integer(kind=iwp), intent(in):: ISTART(8),NUSE(8),ipChoT(8),nWork
-      REAL(kind=wp), intent(out):: Work(nWork)
 
-      Integer(kind=iwp) IOFFC(8)
-      Integer(kind=iwp), External :: cho_isao
+use definitions, only: iwp, wp, u6
+use constants, only: Zero
+use Symmetry_Info, only: Mul
+use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas, nDimRS, nnBstR, nSym
+
+implicit none
+integer(kind=iwp), intent(inout) :: irc
+integer(kind=iwp), intent(in) :: lscr
+real(kind=wp), intent(inout) :: Scr(lscr)
+integer(kind=iwp), intent(in) :: jVref, JVEC1, JNUM, NUMV, JSYM, NCMO
+integer(kind=iwp), intent(inout) :: JREDC
+real(kind=wp), intent(in) :: CMO(NCMO)
+integer(kind=iwp), intent(in) :: ISTART(8), NUSE(8), ipChoT(8), nWork
+real(kind=wp), intent(out) :: Work(nWork)
+integer(kind=iwp) IOFFC(8)
+integer(kind=iwp), external :: cho_isao
 ! iLoc = 3 means 'use scratch location in reduced index arrays'
-      Integer(kind=iwp), parameter:: iLoc = 3
-      Integer(kind=iwp) IOC,ISYM,iSymp,nElem,NREAD,JVEC,JVTRNS,JRED,    &
-     &                  iag,ias,ibg,ibs,iRab,ISCA,ISCB,iSyma,iSymb,     &
-     &                  jRab, kchot,kRab,kscr,NBA,NBB,NUSEA,NUSEB
+integer(kind=iwp), parameter :: iLoc = 3
+integer(kind=iwp) IOC, ISYM, iSymp, nElem, NREAD, JVEC, JVTRNS, JRED, iag, ias, ibg, ibs, iRab, ISCA, ISCB, iSyma, iSymb, jRab, &
+                  kchot, kRab, kscr, NBA, NBB, NUSEA, NUSEB
 
 ! Offset counter into CMO array:
-      IOC=0
-      DO ISYM=1,NSYM
-       IOFFC(ISYM)=IOC
-       IOC=IOC+NBAS(ISYM)**2
-      END DO
+IOC = 0
+do ISYM=1,NSYM
+  IOFFC(ISYM) = IOC
+  IOC = IOC+NBAS(ISYM)**2
+end do
 
-      Do iSymp=1,nSym
-         IF (nUse(iSymp).ne.0) THEN
-            iSymb = Mul(JSYM,iSymp)
-            nElem=nUse(iSymp)*nBas(iSymb)*NUMV
-            Call dCopy_(nElem,[Zero],0,Work(ipChoT(iSymp)),1)
-         ENDIF
-      End Do
+do iSymp=1,nSym
+  if (nUse(iSymp) /= 0) then
+    iSymb = Mul(JSYM,iSymp)
+    nElem = nUse(iSymp)*nBas(iSymb)*NUMV
+    call dCopy_(nElem,[Zero],0,Work(ipChoT(iSymp)),1)
+  end if
+end do
 
-      NREAD = 0
-      DO JVEC=1,JNUM
-! JVTRNS=Cholesky vector to be transformed.
-         JVTRNS=JVEC1-1+JVEC
-! JRED: Which reduced set does it belong to:
-         JRED = InfVec(JVTRNS,2,JSYM)
+NREAD = 0
+do JVEC=1,JNUM
+  ! JVTRNS=Cholesky vector to be transformed.
+  JVTRNS = JVEC1-1+JVEC
+  ! JRED: Which reduced set does it belong to:
+  JRED = InfVec(JVTRNS,2,JSYM)
 
-! Is it the same still?
-         IF (JRED .NE. JREDC) THEN
-! It is not. Tables must be regenerated with information that is
-! common to this reduced set.
-        write(u6,*)' Rats! It was assumed that the Cholesky vectors'
-        write(u6,*)' in HALFTRNSF all belonged to a given reduced'
-        write(u6,*)' set, but they don''t!'
-        write(u6,*)' JRED, JREDC:',JRED,JREDC
-        write(u6,*)' Back to the drawing board?'
-        write(u6,*)' Let the program continue and see what happens.'
-            Call Cho_X_SetRed(irc,iLoc,JRED)
-            JREDC = JRED
-         END IF
+  ! Is it the same still?
+  if (JRED /= JREDC) then
+    ! It is not. Tables must be regenerated with information that is
+    ! common to this reduced set.
+    write(u6,*) ' Rats! It was assumed that the Cholesky vectors'
+    write(u6,*) ' in HALFTRNSF all belonged to a given reduced'
+    write(u6,*) ' set, but they don''t!'
+    write(u6,*) ' JRED, JREDC:',JRED,JREDC
+    write(u6,*) ' Back to the drawing board?'
+    write(u6,*) ' Let the program continue and see what happens.'
+    call Cho_X_SetRed(irc,iLoc,JRED)
+    JREDC = JRED
+  end if
 
-         kscr = NREAD
-         NREAD = NREAD + nDimRS(JSYM,JRED)
+  kscr = NREAD
+  NREAD = NREAD+nDimRS(JSYM,JRED)
 
-         IF (JSYM.eq.1) THEN
-! L(a,b,J)=L(b,a,J); only a.ge.b stored
+  if (JSYM == 1) then
+    ! L(a,b,J)=L(b,a,J); only a >= b stored
 
-            Do jRab=1,nnBstR(jSym,iLoc)
+    do jRab=1,nnBstR(jSym,iLoc)
 
-               kRab = iiBstr(jSym,iLoc) + jRab
-               iRab = IndRed(kRab,3)
+      kRab = iiBstr(jSym,iLoc)+jRab
+      iRab = IndRed(kRab,3)
 
-! Global address:
-               iag = iRS2F(1,iRab)
-               ibg = iRS2F(2,iRab)
+      ! Global address:
+      iag = iRS2F(1,iRab)
+      ibg = iRS2F(2,iRab)
 
-               iSyma = cho_isao(iag)
+      iSyma = cho_isao(iag)
 
-               kscr  = kscr + 1
+      kscr = kscr+1
 
-               ISYMB=ISYMA
+      ISYMB = ISYMA
 
-               NUSEA=nUse(iSyma)
-               NUSEB=nUse(iSymb)
+      NUSEA = nUse(iSyma)
+      NUSEB = nUse(iSymb)
 
-               IF (NUSEA.ne.0) THEN
+      if (NUSEA /= 0) then
 
-                 ias   = iag - ibas(iSyma)
-                 ibs   = ibg - ibas(iSyma)
-!  L(p,J,b) = sum( C(a,p)* L(a,b,J), a=1..NBA), where p=1..NUSEA
-!  L(p,J,a) = sum( C(b,p)* L(b,a,J), b=1..NBB), where p=1..NUSEB
-!  ----------------------------------------
+        ias = iag-ibas(iSyma)
+        ibs = ibg-ibas(iSyma)
+        !  L(p,J,b) = sum( C(a,p)* L(a,b,J), a=1..NBA), where p=1..NUSEA
+        !  L(p,J,a) = sum( C(b,p)* L(b,a,J), b=1..NBB), where p=1..NUSEB
+        !  ----------------------------------------
 
-                   NBA=NBAS(ISYMA)
-                   ISCA=IOFFC(ISYMA)+IAS+NBA*(ISTART(ISYMA)-1)
-                   NBB=NBAS(ISYMB)
-                   ISCB=IOFFC(ISYMB)+IBS+NBB*(ISTART(ISYMB)-1)
+        NBA = NBAS(ISYMA)
+        ISCA = IOFFC(ISYMA)+IAS+NBA*(ISTART(ISYMA)-1)
+        NBB = NBAS(ISYMB)
+        ISCB = IOFFC(ISYMB)+IBS+NBB*(ISTART(ISYMB)-1)
 
-                   kchot = ipChoT(iSymb)+NUSEB*                         &
-     &                               (jVref+JVEC-2+NUMV*(ias-1))
+        kchot = ipChoT(iSymb)+NUSEB*(jVref+JVEC-2+NUMV*(ias-1))
 
-                   CALL DAXPY_(NUSEA,Scr(kscr),                         &
-     &                           CMO(ISCB),NBB,Work(kchot),1)
+        call DAXPY_(NUSEA,Scr(kscr),CMO(ISCB),NBB,Work(kchot),1)
 
-                 IF(IAS.NE.IBS) THEN
-                   kchot = ipChoT(iSyma)+NUSEA*                         &
-     &                               (jVref+JVEC-2+NUMV*(ibs-1))
+        if (IAS /= IBS) then
+          kchot = ipChoT(iSyma)+NUSEA*(jVref+JVEC-2+NUMV*(ibs-1))
 
-                   CALL DAXPY_(NUSEA,Scr(kscr),                         &
-     &                           CMO(ISCA),NBA,Work(kchot),1)
-                 END IF
+          call DAXPY_(NUSEA,Scr(kscr),CMO(ISCA),NBA,Work(kchot),1)
+        end if
 
+        ! End of NUSE  test
+      end if
 
-! End of NUSE  test
-              ENDIF
+      ! End of loop over basis function pair index JRAB
+    end do
 
-! End of loop over basis function pair index JRAB
-           End Do
+  else
+    ! jSym /= 1
 
-        ELSE
-! jSym.ne.1
+    do jRab=1,nnBstR(jSym,iLoc)
 
-           Do jRab=1,nnBstR(jSym,iLoc)
+      kRab = iiBstr(jSym,iLoc)+jRab
+      iRab = IndRed(kRab,3)
 
-              kRab = iiBstr(jSym,iLoc) + jRab
-              iRab = IndRed(kRab,3)
+      ! Global address:
+      iag = iRS2F(1,iRab)
+      ibg = iRS2F(2,iRab)
 
-! Global address:
-              iag = iRS2F(1,iRab)
-              ibg = iRS2F(2,iRab)
+      ! iSyma = cho_isao(iag) = symmetry block of basis function iag
+      iSyma = cho_isao(iag)
+      ! iSyma > isymb since jsym /= 1 and a >= b
+      iSymb = Mul(jSym,iSyma)
+      NUSEA = nUse(iSyma)
+      NUSEB = nUse(iSymb)
 
-! iSyma = cho_isao(iag) = symmetry block of basis function iag
-              iSyma = cho_isao(iag)
-! iSyma > isymb since jsym.ne.1 and a.ge.b
-              iSymb = Mul(jSym,iSyma)
-              NUSEA=nUse(iSyma)
-              NUSEB=nUse(iSymb)
+      kscr = kscr+1
 
-              kscr  = kscr + 1
+      ias = iag-ibas(iSyma)
+      ibs = ibg-ibas(iSymb)
 
-              ias   = iag - ibas(iSyma)
-              ibs   = ibg - ibas(iSymb)
+      if (NUSEA /= 0) then
+        !  L(p,J,b) = sum( C(a,p)*L(a,b,J), a=1..NBA), where p=1..NUSEA
 
-              IF (NUSEA.ne.0) THEN
-!  L(p,J,b) = sum( C(a,p)*L(a,b,J), a=1..NBA), where p=1..NUSEA
+        NBA = NBAS(ISYMA)
+        ISCA = IOFFC(ISYMA)+IAS+NBA*(ISTART(ISYMA)-1)
 
-                   NBA=NBAS(ISYMA)
-                   ISCA=IOFFC(ISYMA)+IAS+NBA*(ISTART(ISYMA)-1)
+        kchot = ipChoT(iSyma)+nUse(iSyma)*(jVref+JVEC-2+NUMV*(ibs-1))
 
-                   kchot = ipChoT(iSyma)+nUse(iSyma)*                   &
-     &                               (jVref+JVEC-2+NUMV*(ibs-1))
+        call DAXPY_(NUSEA,Scr(kscr),CMO(ISCA),NBA,Work(kchot),1)
 
-                   CALL DAXPY_(NUSEA,Scr(kscr),                         &
-     &                              CMO(ISCA),NBA,Work(kchot),1)
+        ! End of NUSE  test
+      end if
 
+      if (NUSEB /= 0) then
+        ! L(p,J,a) = sum( C(b,p)*L(b,a,J), b=1..NBA), where p=1..NUSEB
 
-! End of NUSE  test
-              ENDIF
+        NBB = NBAS(ISYMB)
+        ISCB = IOFFC(ISYMB)+IBS+NBB*(ISTART(ISYMB)-1)
 
-              IF (NUSEB.ne.0) THEN
-! L(p,J,a) = sum( C(b,p)*L(b,a,J), b=1..NBA), where p=1..NUSEB
+        kchot = ipChoT(iSymb)+NUSEB*(jVref+JVEC-2+NUMV*(ias-1))
 
-                   NBB=NBAS(ISYMB)
-                   ISCB=IOFFC(ISYMB)+IBS+NBB*(ISTART(ISYMB)-1)
+        call DAXPY_(NUSEB,Scr(kscr),CMO(ISCB),NBB,Work(kchot),1)
 
-                   kchot = ipChoT(iSymb)+NUSEB*                         &
-     &                               (jVref+JVEC-2+NUMV*(ias-1))
+        ! End of NUSE  test
+      end if
 
-                   CALL DAXPY_(NUSEB,Scr(kscr),                         &
-     &                              CMO(ISCB),NBB,Work(kchot),1)
+      ! End of loop over basis function pair index JRAB
+    end do
 
+    ! End of JSYM /= 1 test
+  end if
 
-! End of NUSE  test
-              END IF
+  ! End of JSYM loop
+end do
 
-! End of loop over basis function pair index JRAB
-           End Do
+irc = 0
 
-! End of JSYM.ne.1 test
-         ENDIF
-
-! End of JSYM loop
-      END DO
-
-
-
-      irc=0
-
-      END SUBROUTINE HALFTRNSF
+end subroutine HALFTRNSF

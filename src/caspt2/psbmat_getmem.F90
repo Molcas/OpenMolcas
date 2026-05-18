@@ -8,36 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-! WRAPPERS FOR PARALLEL S AND B MATRIX ROUTINES
-!
-      SUBROUTINE PSBMAT_GETMEM(cNAME,lg_M,nSize)
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
-      use fake_ga, only: GA_arrays, Allocate_GA_Array
-      use constants, only: Zero
-      use definitions, only: iwp
-      IMPLICIT None
+
+! WRAPPER FOR PARALLEL S AND B MATRIX ROUTINES
+subroutine PSBMAT_GETMEM(cNAME,lg_M,nSize)
 !SVC2010: create square global array S/B for symmetry iSYM
 ! with integer handle lg_M or if replicate or serial, create
 ! tridiagonal local array at Work(lg_M)
-      Integer(kind=iwp) lg_M, nSize
-      CHARACTER(len=*) cNAME
-
-      Integer(kind=iwp) nTri
 
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-        CALL GA_CREATE_STRIPED ('H',nSize,nSize,cNAME,LG_M)
-        CALL GA_ZERO (LG_M)
-      ELSE
+use Para_Info, only: Is_Real_Par
 #endif
-        nTri=(nSize*(nSize+1))/2
-        lg_M=Allocate_GA_Array(nTri,cName)
-        GA_Arrays(lg_M)%A(:)=Zero
+use fake_ga, only: GA_arrays, Allocate_GA_Array
+use constants, only: Zero
+use definitions, only: iwp
+
+implicit none
+integer(kind=iwp) lg_M, nSize
+character(len=*) cNAME
+integer(kind=iwp) nTri
+
 #ifdef _MOLCAS_MPP_
-      END IF
+if (Is_Real_Par()) then
+  call GA_CREATE_STRIPED('H',nSize,nSize,cNAME,LG_M)
+  call GA_ZERO(LG_M)
+else
+#endif
+  nTri = (nSize*(nSize+1))/2
+  lg_M = Allocate_GA_Array(nTri,cName)
+  GA_Arrays(lg_M)%A(:) = Zero
+#ifdef _MOLCAS_MPP_
+end if
 #endif
 
-      END SUBROUTINE PSBMAT_GETMEM
+end subroutine PSBMAT_GETMEM

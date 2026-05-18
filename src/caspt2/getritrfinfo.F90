@@ -10,12 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
-      subroutine getritrfinfo(nnbstr_,maxvec_,n2_)
-      use Cholesky, only: infvec_N2, MaxVec, nnBstR
-      use definitions, only: iwp
-      implicit none
-      integer(kind=iwp), intent(out) :: nnbstr_(8,3), maxvec_, n2_
-      maxvec_ = maxvec
-      n2_     = infvec_n2
-      nnbstr_ = nnbstr
-      end subroutine getritrfinfo
+
+subroutine getritrfinfo(nnbstr_,maxvec_,n2_)
+
+use Cholesky, only: infvec_N2, MaxVec, nnBstR
+use definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(out) :: nnbstr_(8,3), maxvec_, n2_
+
+maxvec_ = maxvec
+n2_ = infvec_n2
+nnbstr_ = nnbstr
+
+end subroutine getritrfinfo

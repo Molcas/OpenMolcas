@@ -16,645 +16,580 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE SIGDER(IVEC,JVEC,SCAL)
-      use definitions, only: wp, iwp
-      use constants, only: Zero, One, Two
-      use Fockof, only: FAI_Full, FAT_Full, FIA_Full, FIT_Full,         &
-     &                  FTA_Full, FTI_Full, IOFFIT, IOFFIA, IOFFTA,     &
-     &                  FIT, FTI, FIA, FAI, FAT, FTA
-      use caspt2_global, only: LUSTD,idSDMat
-      use caspt2_global, only: FIFA,LISTS
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV, only: IFCOUP
+
+subroutine SIGDER(IVEC,JVEC,SCAL)
+
+use definitions, only: wp, iwp
+use constants, only: Zero, One, Two
+use Fockof, only: FAI_Full, FAT_Full, FIA_Full, FIT_Full, FTA_Full, FTI_Full, IOFFIT, IOFFIA, IOFFTA, FIT, FTI, FIA, FAI, FAT, FTA
+use caspt2_global, only: LUSTD, idSDMat
+use caspt2_global, only: FIFA, LISTS
+use stdalloc, only: mma_allocate, mma_deallocate
+use EQSOLV, only: IFCOUP
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,        &
-     &                   GA_Arrays
-      use caspt2_module, only: CPUSGM, TIOSGM, FockType, G1SecIn,       &
-     &                         nActEl, nCases, nSym, nASup, nIsh, nAsh, &
-     &                         nSsh, nOrb, nInDep, nISup
-      IMPLICIT None
+use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
+use caspt2_module, only: CPUSGM, TIOSGM, FockType, G1SecIn, nActEl, nCases, nSym, nASup, nIsh, nAsh, nSsh, nOrb, nInDep, nISup
+
+implicit none
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 #include "global.fh"
 #endif
-      integer(kind=iwp), intent(in):: iVec, jVec
-      real(kind=wp), intent(in) :: Scal
-
-      real(kind=wp) CPU, CPU0, CPU1
-      real(kind=wp) TIO, TIO0, TIO1
-      real(kind=wp) FACT
-      integer(kind=iwp) iCase, iCase1, idSDer, IfC, IFIFA, iLoop,       &
-     &                  IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2,  &
-     &                  lg_Sgm2, Lg_SgmX, lg_V1, lSgmX,                 &
-     &                  lSgmX_Sta, Max_MESG_SIZE, NA, NAS, NAS1, NAS2,  &
-     &                  nCX, nD1, NFIA, NFIT, NFTA, NI, NIN1, NIN2,     &
-     &                  NIS1, NIS2, nLoop, NO, NS, nSgm1, nSgm2,        &
-     &                  lSgm2_Sta, nD2, iCase2, nSgm2_Blk, nSgmX,       &
-     &                  nSgmX_Blk
-      real(kind=wp), allocatable :: WRK(:),SDER1(:),SDER2(:),SGM1(:),   &
-     &                              D1(:), SGM2(:), D2(:)
-      integer(kind=iwp) MaxLen
+integer(kind=iwp), intent(in) :: iVec, jVec
+real(kind=wp), intent(in) :: Scal
+real(kind=wp) CPU, CPU0, CPU1
+real(kind=wp) TIO, TIO0, TIO1
+real(kind=wp) FACT
+integer(kind=iwp) iCase, iCase1, idSDer, IfC, IFIFA, iLoop, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, Lg_SgmX, &
+                  lg_V1, lSgmX, lSgmX_Sta, Max_MESG_SIZE, NA, NAS, NAS1, NAS2, nCX, nD1, NFIA, NFIT, NFTA, NI, NIN1, NIN2, NIS1, &
+                  NIS2, nLoop, NO, NS, nSgm1, nSgm2, lSgm2_Sta, nD2, iCase2, nSgm2_Blk, nSgmX, nSgmX_Blk
+real(kind=wp), allocatable :: WRK(:), SDER1(:), SDER2(:), SGM1(:), D1(:), SGM2(:), D2(:)
+integer(kind=iwp) MaxLen
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
-      logical(kind=iwp) :: bStat
+logical(kind=iwp) :: bStat
 #endif
-!
-!     Work in the MO basis
-!     We need both explicit and implicit overlap derivatives. The latter
-!     comes from the derivative of the transformation matrix.
-!
-!     p,q: inactive or secondary
-!     y,z: active (t,u)
-!     a,b: internally contracted
-!     T1_{px} * S1_{xy} f_{yz} * T2_{pz}
-!     = T1pa*C1xa * S1xy * fyz * T2pb*C2zb
-!     Derivative of S1:
-!     = (T1Ct1)px * (T2Ct2*f)py * dS1xy/da
-!     Derivative of C1 (or, Lagrangian multiplier in MO basis):
-!     = T1pa*dC1xa/da * S1xy * fyz * T2pb*C2zb
-!       ...
-!     = -1/2 (T1Ct1)pu * dS1tu/da * (T2Ct2*f*S1C1*Ct1)pt
-!     Derivative of C2 (or, Lagrangian multiplier in MO basis):
-!     = T1pa*C1xa * S1xy * fyz * T2pb*dC2zb/da
-!       ...
-!     = -1/2 (T1Ct1St1*f*C2*Ct2)pt * (T2Ct2)pu * dS2tu/da
-!
-!     About IMLTOP for the SGM subroutine
-!     With IMLTOP=0: the vector for the second argument has to be
-!     contravariant form (T*C),
-!     With IMLTOP=1: the vector for the first  argument has to be
-!     covariant form (T*SC),
-!
-!
-!     Allocate some matrices for storing overlap and transformation
-!     derivatives. Here constructs these derivatives in the MO basis,
-!     but not in the internally contracted basis.
-!
-      MaxLen = 0
-      Do iCase = 1, 11
-        Do iSym = 1, nSym
-          nAS = nASUP(iSym,iCase)
-          MaxLen = Max(MaxLen,nAS*nAS)
-        End Do
-      End Do
-!
-      call mma_allocate(WRK,MaxLen,Label='WRK')
-      Call DCopy_(MaxLen,[Zero],0,WRK,1)
-!
-      Do iCase = 1, 11
-        Do iSym = 1, nSym
-          nAS = nASUP(iSym,iCase)
-          idSDer = idSDMat(iSym,iCase)
-          CALL DDAFILE(LuSTD,1,WRK,nAS*nAS,idSDer)
-        End Do
-      End Do
-      call mma_deallocate(WRK)
-!
+
+! Work in the MO basis
+! We need both explicit and implicit overlap derivatives. The latter
+! comes from the derivative of the transformation matrix.
+
+! p,q: inactive or secondary
+! y,z: active (t,u)
+! a,b: internally contracted
+! T1_{px} * S1_{xy} f_{yz} * T2_{pz}
+! = T1pa*C1xa * S1xy * fyz * T2pb*C2zb
+! Derivative of S1:
+! = (T1Ct1)px * (T2Ct2*f)py * dS1xy/da
+! Derivative of C1 (or, Lagrangian multiplier in MO basis):
+! = T1pa*dC1xa/da * S1xy * fyz * T2pb*C2zb
+!   ...
+! = -1/2 (T1Ct1)pu * dS1tu/da * (T2Ct2*f*S1C1*Ct1)pt
+! Derivative of C2 (or, Lagrangian multiplier in MO basis):
+! = T1pa*C1xa * S1xy * fyz * T2pb*dC2zb/da
+!   ...
+! = -1/2 (T1Ct1St1*f*C2*Ct2)pt * (T2Ct2)pu * dS2tu/da
+
+! About IMLTOP for the SGM subroutine
+! With IMLTOP=0: the vector for the second argument has to be
+! contravariant form (T*C),
+! With IMLTOP=1: the vector for the first  argument has to be
+! covariant form (T*SC),
+
+! Allocate some matrices for storing overlap and transformation
+! derivatives. Here constructs these derivatives in the MO basis,
+! but not in the internally contracted basis.
+
+MaxLen = 0
+do iCase=1,11
+  do iSym=1,nSym
+    nAS = nASUP(iSym,iCase)
+    MaxLen = max(MaxLen,nAS*nAS)
+  end do
+end do
+
+call mma_allocate(WRK,MaxLen,Label='WRK')
+call DCopy_(MaxLen,[Zero],0,WRK,1)
+
+do iCase=1,11
+  do iSym=1,nSym
+    nAS = nASUP(iSym,iCase)
+    idSDer = idSDMat(iSym,iCase)
+    call DDAFILE(LuSTD,1,WRK,nAS*nAS,idSDer)
+  end do
+end do
+call mma_deallocate(WRK)
+
 ! If the G1 correction to the Fock matrix is used, then the
 ! inactive/virtual coupling elements (which are non-zero for the
 ! case of average CASSCF) cannot be used in the CASPT2 equations.
-      IF(FOCKTYPE.EQ.'G1      ' .AND. (.NOT. G1SECIN)) THEN
-        IFCOUP(12,5)=0
-        IFCOUP(13,5)=0
-      END IF
-
+if ((FOCKTYPE == 'G1') .and. (.not. G1SECIN)) then
+  IFCOUP(12,5) = 0
+  IFCOUP(13,5) = 0
+end if
 
 ! Transform to standard representation:
-      CALL PTRTOC(0,IVEC,IVEC) !! T*C (internally contracted -> MO)
-      IF(IVEC.NE.JVEC) CALL PTRTOC(0,JVEC,JVEC)
+call PTRTOC(0,IVEC,IVEC) !! T*C (internally contracted -> MO)
+if (IVEC /= JVEC) call PTRTOC(0,JVEC,JVEC)
 
 ! Set up non-diagonal blocks of Fock matrix:
 ! SVC: add transposed fock matrix blocks
-      NFIT=0
-      NFIA=0
-      NFTA=0
-      DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NA=NASH(ISYM)
-        NS=NSSH(ISYM)
-        IOFFIT(ISYM)=NFIT
-        IOFFIA(ISYM)=NFIA
-        IOFFTA(ISYM)=NFTA
-        NFIT=NFIT+NA*NI
-        NFIA=NFIA+NS*NI
-        NFTA=NFTA+NS*NA
-      END DO
-      NFIT=NFIT+1
-      NFIA=NFIA+1
-      NFTA=NFTA+1
+NFIT = 0
+NFIA = 0
+NFTA = 0
+do ISYM=1,NSYM
+  NI = NISH(ISYM)
+  NA = NASH(ISYM)
+  NS = NSSH(ISYM)
+  IOFFIT(ISYM) = NFIT
+  IOFFIA(ISYM) = NFIA
+  IOFFTA(ISYM) = NFTA
+  NFIT = NFIT+NA*NI
+  NFIA = NFIA+NS*NI
+  NFTA = NFTA+NS*NA
+end do
+NFIT = NFIT+1
+NFIA = NFIA+1
+NFTA = NFTA+1
 
-      Call mma_allocate(FIT_Full,NFIT,Label='FIT_Full')
-      Call mma_allocate(FTI_Full,NFIT,Label='FTI_Full')
+call mma_allocate(FIT_Full,NFIT,Label='FIT_Full')
+call mma_allocate(FTI_Full,NFIT,Label='FTI_Full')
 
-      Call mma_allocate(FIA_Full,NFIA,Label='FIA_Full')
-      Call mma_allocate(FAI_Full,NFIA,Label='FAI_Full')
+call mma_allocate(FIA_Full,NFIA,Label='FIA_Full')
+call mma_allocate(FAI_Full,NFIA,Label='FAI_Full')
 
-      Call mma_allocate(FTA_Full,NFTA,Label='FTA_Full')
-      Call mma_allocate(FAT_Full,NFTA,Label='FAT_Full')
+call mma_allocate(FTA_Full,NFTA,Label='FTA_Full')
+call mma_allocate(FAT_Full,NFTA,Label='FAT_Full')
 
-      IFIFA=1
-      DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NA=NASH(ISYM)
-        NS=NSSH(ISYM)
-        NO=NORB(ISYM)
+IFIFA = 1
+do ISYM=1,NSYM
+  NI = NISH(ISYM)
+  NA = NASH(ISYM)
+  NS = NSSH(ISYM)
+  NO = NORB(ISYM)
 
-        FIT(ISYM)%A(1:NA*NI) =>                                         &
-     &     FIT_Full(IOFFIT(ISYM)+1:IOFFIT(ISYM)+NA*NI)
-        FTI(ISYM)%A(1:NA*NI) =>                                         &
-     &     FTI_Full(IOFFIT(ISYM)+1:IOFFIT(ISYM)+NA*NI)
+  FIT(ISYM)%A(1:NA*NI) => FIT_Full(IOFFIT(ISYM)+1:IOFFIT(ISYM)+NA*NI)
+  FTI(ISYM)%A(1:NA*NI) => FTI_Full(IOFFIT(ISYM)+1:IOFFIT(ISYM)+NA*NI)
 
-        FIA(ISYM)%A(1:NS*NI) =>                                         &
-     &     FIA_Full(IOFFIA(ISYM)+1:IOFFIA(ISYM)+NS*NI)
-        FAI(ISYM)%A(1:NS*NI) =>                                         &
-     &     FAI_Full(IOFFIA(ISYM)+1:IOFFIA(ISYM)+NS*NI)
+  FIA(ISYM)%A(1:NS*NI) => FIA_Full(IOFFIA(ISYM)+1:IOFFIA(ISYM)+NS*NI)
+  FAI(ISYM)%A(1:NS*NI) => FAI_Full(IOFFIA(ISYM)+1:IOFFIA(ISYM)+NS*NI)
 
-        FTA(ISYM)%A(1:NS*NA) =>                                         &
-     &     FTA_Full(IOFFTA(ISYM)+1:IOFFTA(ISYM)+NS*NA)
-        FAT(ISYM)%A(1:NS*NA) =>                                         &
-     &     FAT_Full(IOFFTA(ISYM)+1:IOFFTA(ISYM)+NS*NA)
+  FTA(ISYM)%A(1:NS*NA) => FTA_Full(IOFFTA(ISYM)+1:IOFFTA(ISYM)+NS*NA)
+  FAT(ISYM)%A(1:NS*NA) => FAT_Full(IOFFTA(ISYM)+1:IOFFTA(ISYM)+NS*NA)
 
-        CALL FBLOCK(FIFA(IFIFA),NO,NI,NA,NS,                            &
-     &              FIT(ISYM)%A(:),FTI(ISYM)%A(:),                      &
-     &              FIA(ISYM)%A(:),FAI(ISYM)%A(:),                      &
-     &              FTA(ISYM)%A(:),FAT(ISYM)%A(:))
+  call FBLOCK(FIFA(IFIFA),NO,NI,NA,NS,FIT(ISYM)%A(:),FTI(ISYM)%A(:),FIA(ISYM)%A(:),FAI(ISYM)%A(:),FTA(ISYM)%A(:),FAT(ISYM)%A(:))
 
-        IFIFA=IFIFA+(NO*(NO+1))/2
+  IFIFA = IFIFA+(NO*(NO+1))/2
 
-      END DO
+end do
 
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
-!
-!     Is it possible to reduce to one loop? We have to compute bra and
-!     ket overlap and bra and ket wavefunctions are not identical, so
-!     it seems impossible to reduce?
-!
-      NLOOP=2
-      DO ILOOP=1,NLOOP
-        !! ILOOP1 : <T+lambda|H|T       >
-        !! ILOOP2 : <T       |H|T+lambda>
+call TIMING(CPU0,CPU,TIO0,TIO)
 
-! Loop over types and symmetry block of sigma vector:
-      DO ICASE1=1,11
-!     DO ICASE1=1,NCASES
-        DO ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) Cycle
-          NIS1=NISUP(ISYM1,ICASE1)
-          NAS1=NASUP(ISYM1,ICASE1)
-          NIN1=NINDEP(ISYM1,ICASE1)
-          NSGM2=NIS1*NAS1
-          IF(NSGM2.EQ.0) Cycle
+! Is it possible to reduce to one loop? We have to compute bra and
+! ket overlap and bra and ket wavefunctions are not identical, so
+! it seems impossible to reduce?
 
-          CALL mma_allocate(SGM2,NSGM2,Label='SGM2')
-          SGM2(:)=Zero
+NLOOP = 2
+do ILOOP=1,NLOOP
+  !! ILOOP1 : <T+lambda|H|T       >
+  !! ILOOP2 : <T       |H|T+lambda>
 
-          NSGM1=0
-!         LSGM1=1
-          IF(ICASE1.EQ.1) THEN
-            NSGM1=NASH(ISYM1)*NISH(ISYM1)
-          ELSE IF(ICASE1.EQ.4) THEN
-            NSGM1=NASH(ISYM1)*NSSH(ISYM1)
-          ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-            NSGM1=NIS1
-          END IF
-          CALL mma_allocate(SGM1,MAX(1,NSGM1),Label='SGM1')
-          SGM1(:) = Zero
+  ! Loop over types and symmetry block of sigma vector:
+  do ICASE1=1,11
+    !do ICASE1=1,NCASES
+    do ISYM1=1,NSYM
+      if (NINDEP(ISYM1,ICASE1) == 0) cycle
+      NIS1 = NISUP(ISYM1,ICASE1)
+      NAS1 = NASUP(ISYM1,ICASE1)
+      NIN1 = NINDEP(ISYM1,ICASE1)
+      NSGM2 = NIS1*NAS1
+      if (NSGM2 == 0) cycle
 
-          IMLTOP=0
-          DO ICASE2=ICASE1+1,NCASES
-            IFC=IFCOUP(ICASE2,ICASE1)
-            IF(IFC.EQ.0) Cycle
-            DO ISYM2=1,NSYM
-              IF(NINDEP(ISYM2,ICASE2).EQ.0) Cycle
-              NIS2=NISUP(ISYM2,ICASE2)
-              NAS2=NASUP(ISYM2,ICASE2)
-              NCX=NIS2*NAS2
-              IF(NCX.EQ.0) Cycle
+      call mma_allocate(SGM2,NSGM2,Label='SGM2')
+      SGM2(:) = Zero
 
-              CALL RHS_ALLO(NAS2,NIS2,lg_CX)
-              CALL RHS_READ(NAS2,NIS2,lg_CX,ICASE2,ISYM2,IVEC)
-              IF (IVEC.NE.JVEC .AND. ILOOP.EQ.2) THEN
-                !! T = T + \lambda
-                If (SCAL.ne.One)                                        &
-     &             CALL RHS_SCAL(NAS2,NIS2,lg_CX,SCAL)
-                CALL RHS_ALLO(NAS2,NIS2,lg_V1)
-                CALL RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
-                CALL RHS_DAXPY(NAS2,NIS2,One,lg_V1,lg_CX)
-                CALL RHS_FREE(lg_V1)
-              END IF
-! SVC: for case H (12,13) we can now pass the distributed array ID to
-! the SGM subroutines
-              IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
-                LCX=lg_CX
-!               XTST=RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
-              ELSE
-                LCX=Allocate_GA_Array(NCX,'CX')
-                CALL RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%A)
-                CALL RHS_FREE(lg_CX)
-!               XTST=DDOT_(NCX,GA_Arrays(LCX)%A,1,
-!    &                         GA_Arrays(LCX)%A,1)
-              END IF
+      NSGM1 = 0
+      !LSGM1 = 1
+      if (ICASE1 == 1) then
+        NSGM1 = NASH(ISYM1)*NISH(ISYM1)
+      else if (ICASE1 == 4) then
+        NSGM1 = NASH(ISYM1)*NSSH(ISYM1)
+      else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
+        NSGM1 = NIS1
+      end if
+      call mma_allocate(SGM1,max(1,NSGM1),Label='SGM1')
+      SGM1(:) = Zero
 
-#ifdef _DEBUGPRINT_
-              WRITE(6,*)' ISYM1,ICASE1:',ISYM1,ICASE1
-              WRITE(6,*)' ISYM2,ICASE2:',ISYM2,ICASE2
-              WRITE(6,*)' SIGMA calling SGM with IMLTOP=',IMLTOP
-#endif
-! Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
-              CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,                &
-     &                 SGM1,SIZE(SGM1),SGM2,SIZE(SGM2),LCX,             &
-     &                 LISTS,SIZE(LISTS))
+      IMLTOP = 0
+      do ICASE2=ICASE1+1,NCASES
+        IFC = IFCOUP(ICASE2,ICASE1)
+        if (IFC == 0) cycle
+        do ISYM2=1,NSYM
+          if (NINDEP(ISYM2,ICASE2) == 0) cycle
+          NIS2 = NISUP(ISYM2,ICASE2)
+          NAS2 = NASUP(ISYM2,ICASE2)
+          NCX = NIS2*NAS2
+          if (NCX == 0) cycle
 
-              IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
-                CALL RHS_FREE(lg_CX)
-              ELSE
-                Call Deallocate_GA_Array(LCX)
-              END IF
-            End Do
-          End Do
-
-!-SVC: sum the replicate arrays:
-          MAX_MESG_SIZE = 2**27
-          DO LSGM2_STA=1,NSGM2,MAX_MESG_SIZE
-            NSGM2_BLK=MIN(MAX_MESG_SIZE,NSGM2-LSGM2_STA+1)
-            CALL GADGOP(SGM2(LSGM2_STA),NSGM2_BLK,'+')
-          END DO
-
-          IF (NSGM1.GT.0) THEN
-            CALL GADGOP(SGM1,NSGM1,'+')
-          END IF
-
-! If there are 1-electron contributions, add them into the 2-el
-! part (This requires a non-empty active space.)
-          IF(NSGM1.GT.0) THEN
-            FACT=One/(DBLE(MAX(1,NACTEL)))
-            IF (ICASE1.EQ.1) THEN
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),            &
-     &                                      SGM1,SIZE(SGM1))
-            ELSE IF(ICASE1.EQ.4) THEN
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),            &
-     &                                      SGM1,SIZE(SGM1))
-            ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-              CALL SPEC1D(IMLTOP,FACT,SGM2,SIZE(SGM2),                  &
-     &                                SGM1,SIZE(SGM1))
-            END IF
-          END IF
-          call mma_deallocate(SGM1)
-
-!-SVC: no need for the replicate arrays any more, fall back to one array
-          CALL RHS_ALLO (NAS1,NIS1,lg_SGM2)
-          CALL RHS_PUT (NAS1,NIS1,lg_SGM2,SGM2)
-          CALL mma_deallocate(SGM2)
-
-! Add to sigma array. Multiply by S to  lower index.
-!         CALL RHS_ALLO(NAS1,NIS1,lg_SGMX)
-!         CALL RHS_READ(NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
-          IF (ICASE1.LE.11) THEN
-            CALL RHS_ALLO(NAS1,NIS1,lg_CX)
-            CALL RHS_READ(NAS1,NIS1,lg_CX,ICASE1,ISYM1,IVEC)
-            If (IVEC.NE.JVEC .AND. ILOOP.EQ.1) Then
-              !! T = T + \lambda
-              If (SCAL.ne.One) CALL RHS_SCAL(NAS1,NIS1,lg_CX,SCAL)
-              CALL RHS_ALLO(NAS1,NIS1,lg_V1)
-              CALL RHS_READ(NAS1,NIS1,lg_V1,ICASE1,ISYM1,JVEC)
-              CALL RHS_DAXPY(NAS1,NIS1,One,lg_V1,lg_CX)
-              CALL RHS_FREE(lg_V1)
-            End If
-
-            call mma_allocate(SDER1,NAS1*NAS1,Label='SDER1')
-            idSDer = idSDMat(iSym1,iCase1)
-            CALL DDAFILE(LuSTD,2,SDER1,nAS1*nAS1,idSDer)
-
-            Call C1S1DER(SDER1,NAS1*NAS1)
-
-            idSDer = idSDMat(iSym1,iCase1)
-            CALL DDAFILE(LuSTD,1,SDER1,nAS1*nAS1,idSDer)
-            call mma_deallocate(SDER1)
-
-            CALL RHS_FREE(lg_CX)
-          END IF
-
-!         IF(ICASE1.NE.12 .AND. ICASE1.NE.13) THEN
-!           CALL RHS_STRANS(NAS1,NIS1,ALPHA,lg_SGM2,lg_SGMX,
-!    &                      ICASE1,ISYM1)
-!         ELSE
-!           CALL RHS_DAXPY(NAS1,NIS1,ALPHA,lg_SGM2,lg_SGMX)
-!         END IF
-          CALL RHS_FREE (lg_SGM2)
-
-! Write SGMX to disk.
-!         CALL RHS_SAVE (NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
-!         CALL RHS_FREE (lg_SGMX)
-        End Do
-      End Do
-
-      IMLTOP=1
-! Loop over types and symmetry block of CX vector:
-      DO ICASE1=1,11
-!     DO ICASE1=1,NCASES
-        DO ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) Cycle
-          NIS1=NISUP(ISYM1,ICASE1)
-          NAS1=NASUP(ISYM1,ICASE1)
-          ND2=NIS1*NAS1
-          IF(ND2.EQ.0) Cycle
-
-          CALL RHS_ALLO (NAS1,NIS1,lg_D2)
-          CALL RHS_SCAL (NAS1,NIS1,lg_D2,Zero)
-! Contract S*CX to form D2. Also form D1 from D2, if needed.
-
-          NCX=ND2
-          CALL RHS_ALLO (NAS1,NIS1,lg_CX)
-          CALL RHS_READ (NAS1,NIS1,lg_CX,ICASE1,ISYM1,IVEC)
-
-          IF (IVEC.NE.JVEC .AND. ILOOP.EQ.1) THEN
+          call RHS_ALLO(NAS2,NIS2,lg_CX)
+          call RHS_READ(NAS2,NIS2,lg_CX,ICASE2,ISYM2,IVEC)
+          if ((IVEC /= JVEC) .and. (ILOOP == 2)) then
             !! T = T + \lambda
-            If (SCAL.ne.One) CALL RHS_SCAL(NAS1,NIS1,lg_CX,SCAL)
-            CALL RHS_ALLO(NAS1,NIS1,lg_V1)
-            CALL RHS_READ(NAS1,NIS1,lg_V1,ICASE1,ISYM1,JVEC)
-            CALL RHS_DAXPY(NAS1,NIS1,One,lg_V1,lg_CX)
-            CALL RHS_FREE(lg_V1)
-          END IF
+            if (SCAL /= One) call RHS_SCAL(NAS2,NIS2,lg_CX,SCAL)
+            call RHS_ALLO(NAS2,NIS2,lg_V1)
+            call RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
+            call RHS_DAXPY(NAS2,NIS2,One,lg_V1,lg_CX)
+            call RHS_FREE(lg_V1)
+          end if
+          ! SVC: for case H (12,13) we can now pass the distributed array ID to
+          ! the SGM subroutines
+          if ((ICASE2 == 12) .or. (ICASE2 == 13)) then
+            LCX = lg_CX
+            !XTST = RHS_DDOT(NAS2,NIS2,lg_CX,lg_CX)
+          else
+            LCX = Allocate_GA_Array(NCX,'CX')
+            call RHS_GET(NAS2,NIS2,lg_CX,GA_Arrays(LCX)%A)
+            call RHS_FREE(lg_CX)
+            !XTST = DDOT_(NCX,GA_Arrays(LCX)%A,1,GA_Arrays(LCX)%A,1)
+          end if
 
-          IF(ICASE1.NE.12 .AND. ICASE1.NE.13) THEN
-           CALL RHS_STRANS(NAS1,NIS1,One,lg_CX,lg_D2,                   &
-     &                     ICASE1,ISYM1)
-          ELSE
-           CALL RHS_DAXPY(NAS1,NIS1,One,lg_CX,lg_D2)
-          END IF
-          CALL RHS_FREE (lg_CX)
+#         ifdef _DEBUGPRINT_
+          write(6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
+          write(6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
+          write(6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
+#         endif
+          ! Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
+          call SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,SGM1,size(SGM1),SGM2,size(SGM2),LCX,LISTS,size(LISTS))
 
-          CALL mma_allocate(D2,ND2,Label='D2')
-          CALL RHS_GET (NAS1,NIS1,lg_D2,D2)
-          CALL RHS_FREE (lg_D2)
+          if ((ICASE2 == 12) .or. (ICASE2 == 13)) then
+            call RHS_FREE(lg_CX)
+          else
+            call Deallocate_GA_Array(LCX)
+          end if
+        end do
+      end do
 
-          ND1=0
-!         LD1=1
-          IMLTOP=1
-          FACT=One/(DBLE(MAX(1,NACTEL)))
-          IF(ICASE1.EQ.1) THEN
-            ND1=NASH(ISYM1)*NISH(ISYM1)
-            IF(ND1.GT.0) THEN
-              call mma_allocate(D1,ND1,Label='D1')
-              D1(:) = Zero
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
-            END IF
-          ELSE IF(ICASE1.EQ.4) THEN
-            ND1=NASH(ISYM1)*NSSH(ISYM1)
-            IF(ND1.GT.0) THEN
-              call mma_allocate(D1,ND1,Label='D1')
-              D1(:) = Zero
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
-            END IF
-          ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-            ND1=NIS1
-            IF(ND1.GT.0) THEN
-              call mma_allocate(D1,ND1,Label='D1')
-              D1(:) = Zero
-              CALL SPEC1D(IMLTOP,FACT,D2,SIZE(D2),D1,SIZE(D1))
-            END IF
-          END IF
-          If (.NOT.ALLOCATED(D1)) CALL mma_allocate(D1,1,Label='D1')
+      !-SVC: sum the replicate arrays:
+      MAX_MESG_SIZE = 2**27
+      do LSGM2_STA=1,NSGM2,MAX_MESG_SIZE
+        NSGM2_BLK = min(MAX_MESG_SIZE,NSGM2-LSGM2_STA+1)
+        call GADGOP(SGM2(LSGM2_STA),NSGM2_BLK,'+')
+      end do
 
-          !! No need to compute for ICASE2 = 12 and 13
-          DO ICASE2=ICASE1+1,11 !! NCASES
-            IF(IFCOUP(ICASE2,ICASE1).EQ.0) Cycle
-            DO ISYM2=1,NSYM
-              IF(NINDEP(ISYM2,ICASE2).EQ.0) Cycle
-              NIS2=NISUP(ISYM2,ICASE2)
-              NAS2=NASUP(ISYM2,ICASE2)
-              NIN2=NINDEP(ISYM2,ICASE2)
-              NSGMX=NIS2*NAS2
-              IF(NSGMX.EQ.0) Cycle
+      if (NSGM1 > 0) call GADGOP(SGM1,NSGM1,'+')
 
-              IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
-                CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
-                CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-                LSGMX=lg_SGMX
-              ELSE
-                LSGMX=Allocate_GA_Array(NSGMX,'SGMX')
-              END IF
+      ! If there are 1-electron contributions, add them into the 2-el
+      ! part (This requires a non-empty active space.)
+      if (NSGM1 > 0) then
+        FACT = One/(dble(max(1,NACTEL)))
+        if (ICASE1 == 1) then
+          call SPEC1A(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
+        else if (ICASE1 == 4) then
+          call SPEC1C(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
+        else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
+          call SPEC1D(IMLTOP,FACT,SGM2,size(SGM2),SGM1,size(SGM1))
+        end if
+      end if
+      call mma_deallocate(SGM1)
 
-#ifdef _DEBUGPRINT_
-              WRITE(6,*)' ISYM1,ICASE1:',ISYM1,ICASE1
-              WRITE(6,*)' ISYM2,ICASE2:',ISYM2,ICASE2
-              WRITE(6,*)' SIGMA calling SGM with IMLTOP=',IMLTOP
-#endif
-! Compute contribution SGMX <- D2, and SGMX <- D1  if any
-              CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,                &
-     &                 D1,SIZE(D1),D2,SIZE(D2),LSGMX,                   &
-     &                 LISTS,SIZE(LISTS))
-!             If (iCase2.LE.11) Then
-!             End If
+      !-SVC: no need for the replicate arrays any more, fall back to one array
+      call RHS_ALLO(NAS1,NIS1,lg_SGM2)
+      call RHS_PUT(NAS1,NIS1,lg_SGM2,SGM2)
+      call mma_deallocate(SGM2)
 
-              IF (ICASE2.NE.12 .AND. ICASE2.NE.13) THEN
-                MAX_MESG_SIZE = 2**27
-                DO LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
-                  NSGMX_BLK=MIN(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
-                  CALL GADGOP(GA_Arrays(LSGMX)%A(LSGMX_STA),            &
-     &                        NSGMX_BLK,'+')
-                END DO
-!               CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
-!               CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-!               CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Array(LSGMX)%A)
-                !! do C2DER
-                call mma_allocate(SDER2,NAS2*NAS2,Label='SDER2')
-                idSDer = idSDMat(iSym2,iCase2)
-                CALL DDAFILE(LuSTD,2,SDER2,nAS2*nAS2,idSDer)
+      ! Add to sigma array. Multiply by S to  lower index.
+      !call RHS_ALLO(NAS1,NIS1,lg_SGMX)
+      !call RHS_READ(NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
+      if (ICASE1 <= 11) then
+        call RHS_ALLO(NAS1,NIS1,lg_CX)
+        call RHS_READ(NAS1,NIS1,lg_CX,ICASE1,ISYM1,IVEC)
+        if ((IVEC /= JVEC) .and. (ILOOP == 1)) then
+          !! T = T + \lambda
+          if (SCAL /= One) call RHS_SCAL(NAS1,NIS1,lg_CX,SCAL)
+          call RHS_ALLO(NAS1,NIS1,lg_V1)
+          call RHS_READ(NAS1,NIS1,lg_V1,ICASE1,ISYM1,JVEC)
+          call RHS_DAXPY(NAS1,NIS1,One,lg_V1,lg_CX)
+          call RHS_FREE(lg_V1)
+        end if
 
-                Call C2DER(SDER2,NAS2*NAS2)
+        call mma_allocate(SDER1,NAS1*NAS1,Label='SDER1')
+        idSDer = idSDMat(iSym1,iCase1)
+        call DDAFILE(LuSTD,2,SDER1,nAS1*nAS1,idSDer)
 
-                idSDer = idSDMat(iSym2,iCase2)
-                CALL DDAFILE(LuSTD,1,SDER2,nAS2*nAS2,idSDer)
-                call mma_deallocate(SDER2)
-                !!
-!               Call Deallocate_GA_Array(LSGMX)
-              END IF
+        call C1S1DER(SDER1,NAS1*NAS1)
 
-!-SVC: no need for the replicate arrays any more, fall back to one array
-!             CALL RHS_SAVE (NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
-              IF (ICASE2.EQ.12 .OR.ICASE2.EQ.13) THEN
-                CALL RHS_FREE (lg_SGMX)
-              ELSE
-                Call Deallocate_GA_Array(LSGMX)
-              END IF
-            End Do
-          End Do
-          CALL mma_deallocate(D2)
-          call mma_deallocate(D1)
-        End Do
-      End Do
+        idSDer = idSDMat(iSym1,iCase1)
+        call DDAFILE(LuSTD,1,SDER1,nAS1*nAS1,idSDer)
+        call mma_deallocate(SDER1)
 
-      End Do
-!
-!
-!
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUSGM=CPUSGM+(CPU1-CPU0)
-      TIOSGM=TIOSGM+(TIO1-TIO0)
-!
-      Call mma_deallocate(FIT_Full)
-      Call mma_deallocate(FTI_Full)
-      Call mma_deallocate(FIA_Full)
-      Call mma_deallocate(FAI_Full)
-      Call mma_deallocate(FTA_Full)
-      Call mma_deallocate(FAT_Full)
-      Do iSym = 1, nSym
-         nullify(FIT(iSym)%A,FTI(iSym)%A,FIA(iSym)%A,FAI(iSym)%A,       &
-     &           FTA(iSym)%A,FAT(iSym)%A)
-      End Do
+        call RHS_FREE(lg_CX)
+      end if
+
+      !if ((ICASE1 /= 12) .and. (ICASE1 /= 13)) then
+      !  call RHS_STRANS(NAS1,NIS1,ALPHA,lg_SGM2,lg_SGMX,ICASE1,ISYM1)
+      !else
+      !  call RHS_DAXPY(NAS1,NIS1,ALPHA,lg_SGM2,lg_SGMX)
+      !end if
+      call RHS_FREE(lg_SGM2)
+
+      ! Write SGMX to disk.
+      !call RHS_SAVE(NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
+      !call RHS_FREE(lg_SGMX)
+    end do
+  end do
+
+  IMLTOP = 1
+  ! Loop over types and symmetry block of CX vector:
+  do ICASE1=1,11
+    !do ICASE1=1,NCASES
+    do ISYM1=1,NSYM
+      if (NINDEP(ISYM1,ICASE1) == 0) cycle
+      NIS1 = NISUP(ISYM1,ICASE1)
+      NAS1 = NASUP(ISYM1,ICASE1)
+      ND2 = NIS1*NAS1
+      if (ND2 == 0) cycle
+
+      call RHS_ALLO(NAS1,NIS1,lg_D2)
+      call RHS_SCAL(NAS1,NIS1,lg_D2,Zero)
+      ! Contract S*CX to form D2. Also form D1 from D2, if needed.
+
+      NCX = ND2
+      call RHS_ALLO(NAS1,NIS1,lg_CX)
+      call RHS_READ(NAS1,NIS1,lg_CX,ICASE1,ISYM1,IVEC)
+
+      if ((IVEC /= JVEC) .and. (ILOOP == 1)) then
+        !! T = T + \lambda
+        if (SCAL /= One) call RHS_SCAL(NAS1,NIS1,lg_CX,SCAL)
+        call RHS_ALLO(NAS1,NIS1,lg_V1)
+        call RHS_READ(NAS1,NIS1,lg_V1,ICASE1,ISYM1,JVEC)
+        call RHS_DAXPY(NAS1,NIS1,One,lg_V1,lg_CX)
+        call RHS_FREE(lg_V1)
+      end if
+
+      if ((ICASE1 /= 12) .and. (ICASE1 /= 13)) then
+        call RHS_STRANS(NAS1,NIS1,One,lg_CX,lg_D2,ICASE1,ISYM1)
+      else
+        call RHS_DAXPY(NAS1,NIS1,One,lg_CX,lg_D2)
+      end if
+      call RHS_FREE(lg_CX)
+
+      call mma_allocate(D2,ND2,Label='D2')
+      call RHS_GET(NAS1,NIS1,lg_D2,D2)
+      call RHS_FREE(lg_D2)
+
+      ND1 = 0
+      !LD1 = 1
+      IMLTOP = 1
+      FACT = One/(dble(max(1,NACTEL)))
+      if (ICASE1 == 1) then
+        ND1 = NASH(ISYM1)*NISH(ISYM1)
+        if (ND1 > 0) then
+          call mma_allocate(D1,ND1,Label='D1')
+          D1(:) = Zero
+          call SPEC1A(IMLTOP,FACT,ISYM1,D2,size(D2),D1,size(D1))
+        end if
+      else if (ICASE1 == 4) then
+        ND1 = NASH(ISYM1)*NSSH(ISYM1)
+        if (ND1 > 0) then
+          call mma_allocate(D1,ND1,Label='D1')
+          D1(:) = Zero
+          call SPEC1C(IMLTOP,FACT,ISYM1,D2,size(D2),D1,size(D1))
+        end if
+      else if ((ICASE1 == 5) .and. (ISYM1 == 1)) then
+        ND1 = NIS1
+        if (ND1 > 0) then
+          call mma_allocate(D1,ND1,Label='D1')
+          D1(:) = Zero
+          call SPEC1D(IMLTOP,FACT,D2,size(D2),D1,size(D1))
+        end if
+      end if
+      if (.not. allocated(D1)) call mma_allocate(D1,1,Label='D1')
+
+      !! No need to compute for ICASE2 = 12 and 13
+      do ICASE2=ICASE1+1,11 !! NCASES
+        if (IFCOUP(ICASE2,ICASE1) == 0) cycle
+        do ISYM2=1,NSYM
+          if (NINDEP(ISYM2,ICASE2) == 0) cycle
+          NIS2 = NISUP(ISYM2,ICASE2)
+          NAS2 = NASUP(ISYM2,ICASE2)
+          NIN2 = NINDEP(ISYM2,ICASE2)
+          NSGMX = NIS2*NAS2
+          if (NSGMX == 0) cycle
+
+          if ((ICASE2 == 12) .or. (ICASE2 == 13)) then
+            call RHS_ALLO(NAS2,NIS2,lg_SGMX)
+            call RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
+            LSGMX = lg_SGMX
+          else
+            LSGMX = Allocate_GA_Array(NSGMX,'SGMX')
+          end if
+
+#         ifdef _DEBUGPRINT_
+          write(6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
+          write(6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
+          write(6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
+#         endif
+          ! Compute contribution SGMX <- D2, and SGMX <- D1  if any
+          call SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,D1,size(D1),D2,size(D2),LSGMX,LISTS,size(LISTS))
+          !if (iCase2 <= 11) then
+          !end if
+
+          if ((ICASE2 /= 12) .and. (ICASE2 /= 13)) then
+            MAX_MESG_SIZE = 2**27
+            do LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
+              NSGMX_BLK = min(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
+              call GADGOP(GA_Arrays(LSGMX)%A(LSGMX_STA),NSGMX_BLK,'+')
+            end do
+            !call RHS_ALLO(NAS2,NIS2,lg_SGMX)
+            !call RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
+            !call RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Array(LSGMX)%A)
+            !! do C2DER
+            call mma_allocate(SDER2,NAS2*NAS2,Label='SDER2')
+            idSDer = idSDMat(iSym2,iCase2)
+            call DDAFILE(LuSTD,2,SDER2,nAS2*nAS2,idSDer)
+
+            call C2DER(SDER2,NAS2*NAS2)
+
+            idSDer = idSDMat(iSym2,iCase2)
+            call DDAFILE(LuSTD,1,SDER2,nAS2*nAS2,idSDer)
+            call mma_deallocate(SDER2)
+
+            !call Deallocate_GA_Array(LSGMX)
+          end if
+
+          !-SVC: no need for the replicate arrays any more, fall back to one array
+          !call RHS_SAVE(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
+          if ((ICASE2 == 12) .or. (ICASE2 == 13)) then
+            call RHS_FREE(lg_SGMX)
+          else
+            call Deallocate_GA_Array(LSGMX)
+          end if
+        end do
+      end do
+      call mma_deallocate(D2)
+      call mma_deallocate(D1)
+    end do
+  end do
+
+end do
+
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPUSGM = CPUSGM+(CPU1-CPU0)
+TIOSGM = TIOSGM+(TIO1-TIO0)
+
+call mma_deallocate(FIT_Full)
+call mma_deallocate(FTI_Full)
+call mma_deallocate(FIA_Full)
+call mma_deallocate(FAI_Full)
+call mma_deallocate(FTA_Full)
+call mma_deallocate(FAT_Full)
+do iSym=1,nSym
+  nullify(FIT(iSym)%A,FTI(iSym)%A,FIA(iSym)%A,FAI(iSym)%A,FTA(iSym)%A,FAT(iSym)%A)
+end do
 
 ! Transform contrav C  to ei%Agenbasis of H0(diag):
-      CALL PTRTOSR(1,IVEC,IVEC)
-      IF(IVEC.NE.JVEC) CALL PTRTOSR(1,JVEC,JVEC)
+call PTRTOSR(1,IVEC,IVEC)
+if (IVEC /= JVEC) call PTRTOSR(1,JVEC,JVEC)
 
+contains
 
-      Contains
-!
-!-----------------------------------------------------------------------
-!
-      Subroutine C1S1DER(SDER,nSDER)
-!
-      Implicit None
-!
-      integer(kind=iwp), intent(in):: nSDER
-      real(kind=wp), intent(inout):: SDER(nSDER)
+subroutine C1S1DER(SDER,nSDER)
 
-      integer(kind=iwp) iType
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      integer(kind=iwp) lg_SDER
-#endif
-!
-!     (T2Ct2*f)py * (T1Ct1)pz * dS1yz/da
-!     -1/2 (T2Ct2*f*S1*C1*Ct1)pt * (T1Ct1)pu * dS1tu/da
-!
-      !! Finalize the derivative of S1
-      !! 2S. (T2Ct2*f) * T1Ct1
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      if (is_real_par()) then
-        CALL GA_CREATE_STRIPED ('H',NAS1,NAS1,'SDER',lg_SDER)
-        CALL GA_PUT(lg_SDER,1,NAS1,1,NAS1,SDER,NAS1)
-        call GA_DGEMM ('N','T',NAS1,NAS1,NIS1,                          &
-     &                 Two,lg_CX,lg_SGM2,One,lg_SDER)
-      else
-#endif
-        Call DGEMM_('N','T',NAS1,NAS1,NIS1,                             &
-     &              Two,GA_Arrays(lg_CX)%A,NAS1,                        &
-     &                      GA_Arrays(lg_SGM2)%A,NAS1,                  &
-     &              One,SDER,NAS1)
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      end if
-#endif
-!     do i = 1, nas1*nis1
-!       write (u6,'(i4,2f20.10)') ,i,GA_Arrays(lg_cx)%A(i),
-!    &                              GA_Arrays(lg_sgm2)%A(i)
-!     end do
-!
-      !! Next, the derivative of C1
-      !! 2C. (T2Ct2*f) * S1*C1 (MO -> IC)
-      !!     lg_T * lg_V2 -> lg_V1
-      CALL RHS_ALLO(NIN1,NIS1,lg_V1)
-      ITYPE=1
-      !! SGM2 is local quantity, so put this in GA?
-      CALL RHS_SR2C (ITYPE,1,NAS1,NIS1,NIN1,lg_V1,lg_SGM2,              &
-     &               ICASE1,ISYM1)
-      !! 3C. (T2Ct2*f) * S1*C1 * Ct1 (IC -> MO)
-      !!     lg_T * lg_V1 -> lg_V2
-      ITYPE=0
-      CALL RHS_SR2C (ITYPE,0,NAS1,NIS1,NIN1,lg_V1,lg_SGM2,              &
-     &               ICASE1,ISYM1)
-      CALL RHS_FREE(lg_V1)
-!
-      !! 4C. (T1Ct1*f) * (T2Ct2St2*f*C1*Ct1)
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      if (is_real_par()) then
-        call GA_DGEMM ('N','T',NAS1,NAS1,NIS1,                          &
-     &                -One,lg_CX,lg_SGM2,One,lg_SDER)
-        CALL GA_GET(lg_SDER,1,NAS1,1,NAS1,SDER,NAS1)
-        bStat = GA_destroy(lg_SDER)
-      else
-#endif
-        Call DGEMM_('N','T',NAS1,NAS1,NIS1,                             &
-     &             -One,GA_Arrays(lg_CX)%A,NAS1,                        &
-     &                      GA_Arrays(lg_SGM2)%A,NAS1,                  &
-     &              One,SDER,NAS1)
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      end if
-#endif
-!
-      End Subroutine C1S1DER
-!
-!-----------------------------------------------------------------------
-!
-      Subroutine C2DER(SDER,nSDER)
-!
-      Implicit None
-!
-      integer(kind=iwp), intent(in):: nSDER
-      real(kind=wp), intent(inout):: SDER(nSDER)
+  integer(kind=iwp), intent(in) :: nSDER
+  real(kind=wp), intent(inout) :: SDER(nSDER)
+  integer(kind=iwp) iType
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  integer(kind=iwp) lg_SDER
+# endif
 
-      integer(kind=iwp) iType, lg_Sgm, lg_v2
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      integer(kind=iwp) lg_SDER
-#endif
-!
-!     -1/2 (T2Ct2)pu * dS2tu/da * (T1Ct1St1*f*C2*Ct2)pt
-!
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      if (is_real_par()) then
-        CALL GA_CREATE_STRIPED ('V',NAS2,NIS2,'SDER',lg_SGMX)
-        CALL GA_PUT(lg_SGMX,1,NAS2,1,NIS2,GA_Arrays(LSGMX)%A,NAS2)
-      else
-#endif
-       lg_SGMX = LSGMX
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      end if
-#endif
-!
-      !! For icase = 12 or 13, there is no need to transform,
-      !! so LTMP is always replicated, but T for A and C are
-      !! distributed?, so...
-      CALL RHS_ALLO(NIN2,NIS2,lg_V2)
-      !! 2. (T1Ct1St1*f) * C2 (MO -> IC; LTMP -> LTMP2)
-      ITYPE=0
-      CALL RHS_SR2C (ITYPE,1,NAS2,NIS2,NIN2,lg_V2,lg_SGMX,              &
-     &               ICASE2,ISYM2)
-      !! 3. (T1Ct1St1*f) * C2 * Ct2 (IC -> MO; LTMP2 -> LTMP)
-      CALL RHS_SR2C (ITYPE,0,NAS2,NIS2,NIN2,lg_V2,lg_SGMX,              &
-     &               ICASE2,ISYM2)
-      CALL RHS_FREE(lg_V2)
-!
-      !! 4. (T2Ct2*f) * (T1Ct1St1*f*C2*Ct2)
-      CALL RHS_ALLO(NAS2,NIS2,lg_SGM)
-      CALL RHS_READ(NAS2,NIS2,lg_SGM,ICASE2,ISYM2,IVEC)
-          IF (IVEC.NE.JVEC .AND. ILOOP.EQ.2) THEN
-            !! T = T + \lambda
-            If (SCAL.ne.One) CALL RHS_SCAL(NAS2,NIS2,lg_SGM,SCAL)
-            CALL RHS_ALLO(NAS2,NIS2,lg_V1)
-            CALL RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
-            CALL RHS_DAXPY(NAS2,NIS2,One,lg_V1,lg_SGM)
-            CALL RHS_FREE(lg_V1)
-          END IF
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      if (is_real_par()) then
-        CALL GA_CREATE_STRIPED ('H',NAS2,NAS2,'SDER',lg_SDER)
-        CALL GA_PUT(lg_SDER,1,NAS2,1,NAS2,SDER,NAS2)
-        call GA_DGEMM ('N','T',NAS2,NAS2,NIS2,                          &
-     &                -One,lg_SGM,lg_SGMX,One,lg_SDER)
-        CALL GA_GET(lg_SDER,1,NAS2,1,NAS2,SDER,NAS2)
-        bStat = GA_destroy(lg_SGMX)
-        bStat = GA_destroy(lg_SDER)
-      else
-#endif
-        Call DGEMM_('N','T',NAS2,NAS2,NIS2,                             &
-     &             -One,GA_Arrays(lg_SGM)%A,NAS2,                       &
-     &                      GA_Arrays(LSGMX)%A,NAS2,                    &
-     &              One,SDER,NAS2)
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-      end if
-#endif
-      CALL RHS_FREE(lg_SGM)
-!
-      End Subroutine C2DER
-!
-      End subroutine sigder
+  ! (T2Ct2*f)py * (T1Ct1)pz * dS1yz/da
+  ! -1/2 (T2Ct2*f*S1*C1*Ct1)pt * (T1Ct1)pu * dS1tu/da
+
+  !! Finalize the derivative of S1
+  !! 2S. (T2Ct2*f) * T1Ct1
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  if (is_real_par()) then
+    call GA_CREATE_STRIPED('H',NAS1,NAS1,'SDER',lg_SDER)
+    call GA_PUT(lg_SDER,1,NAS1,1,NAS1,SDER,NAS1)
+    call GA_DGEMM('N','T',NAS1,NAS1,NIS1,Two,lg_CX,lg_SGM2,One,lg_SDER)
+  else
+# endif
+    call DGEMM_('N','T',NAS1,NAS1,NIS1,Two,GA_Arrays(lg_CX)%A,NAS1,GA_Arrays(lg_SGM2)%A,NAS1,One,SDER,NAS1)
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  end if
+# endif
+  !do i=1,nas1*nis1
+  !  write(u6,'(i4,2f20.10)') ,i,GA_Arrays(lg_cx)%A(i),GA_Arrays(lg_sgm2)%A(i)
+  !end do
+
+  !! Next, the derivative of C1
+  !! 2C. (T2Ct2*f) * S1*C1 (MO -> IC)
+  !!     lg_T * lg_V2 -> lg_V1
+  call RHS_ALLO(NIN1,NIS1,lg_V1)
+  ITYPE = 1
+  !! SGM2 is local quantity, so put this in GA?
+  call RHS_SR2C(ITYPE,1,NAS1,NIS1,NIN1,lg_V1,lg_SGM2,ICASE1,ISYM1)
+  !! 3C. (T2Ct2*f) * S1*C1 * Ct1 (IC -> MO)
+  !!     lg_T * lg_V1 -> lg_V2
+  ITYPE = 0
+  call RHS_SR2C(ITYPE,0,NAS1,NIS1,NIN1,lg_V1,lg_SGM2,ICASE1,ISYM1)
+  call RHS_FREE(lg_V1)
+
+  !! 4C. (T1Ct1*f) * (T2Ct2St2*f*C1*Ct1)
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  if (is_real_par()) then
+    call GA_DGEMM('N','T',NAS1,NAS1,NIS1,-One,lg_CX,lg_SGM2,One,lg_SDER)
+    call GA_GET(lg_SDER,1,NAS1,1,NAS1,SDER,NAS1)
+    bStat = GA_destroy(lg_SDER)
+  else
+# endif
+    call DGEMM_('N','T',NAS1,NAS1,NIS1,-One,GA_Arrays(lg_CX)%A,NAS1,GA_Arrays(lg_SGM2)%A,NAS1,One,SDER,NAS1)
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  end if
+# endif
+
+end subroutine C1S1DER
+
+subroutine C2DER(SDER,nSDER)
+
+  integer(kind=iwp), intent(in) :: nSDER
+  real(kind=wp), intent(inout) :: SDER(nSDER)
+  integer(kind=iwp) iType, lg_Sgm, lg_v2
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  integer(kind=iwp) lg_SDER
+# endif
+
+  ! -1/2 (T2Ct2)pu * dS2tu/da * (T1Ct1St1*f*C2*Ct2)pt
+
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  if (is_real_par()) then
+    call GA_CREATE_STRIPED('V',NAS2,NIS2,'SDER',lg_SGMX)
+    call GA_PUT(lg_SGMX,1,NAS2,1,NIS2,GA_Arrays(LSGMX)%A,NAS2)
+  else
+# endif
+    lg_SGMX = LSGMX
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  end if
+# endif
+
+  !! For icase = 12 or 13, there is no need to transform,
+  !! so LTMP is always replicated, but T for A and C are
+  !! distributed?, so...
+  call RHS_ALLO(NIN2,NIS2,lg_V2)
+  !! 2. (T1Ct1St1*f) * C2 (MO -> IC; LTMP -> LTMP2)
+  ITYPE = 0
+  call RHS_SR2C(ITYPE,1,NAS2,NIS2,NIN2,lg_V2,lg_SGMX,ICASE2,ISYM2)
+  !! 3. (T1Ct1St1*f) * C2 * Ct2 (IC -> MO; LTMP2 -> LTMP)
+  call RHS_SR2C(ITYPE,0,NAS2,NIS2,NIN2,lg_V2,lg_SGMX,ICASE2,ISYM2)
+  call RHS_FREE(lg_V2)
+
+  !! 4. (T2Ct2*f) * (T1Ct1St1*f*C2*Ct2)
+  call RHS_ALLO(NAS2,NIS2,lg_SGM)
+  call RHS_READ(NAS2,NIS2,lg_SGM,ICASE2,ISYM2,IVEC)
+  if ((IVEC /= JVEC) .and. (ILOOP == 2)) then
+    !! T = T + \lambda
+    if (SCAL /= One) call RHS_SCAL(NAS2,NIS2,lg_SGM,SCAL)
+    call RHS_ALLO(NAS2,NIS2,lg_V1)
+    call RHS_READ(NAS2,NIS2,lg_V1,ICASE2,ISYM2,JVEC)
+    call RHS_DAXPY(NAS2,NIS2,One,lg_V1,lg_SGM)
+    call RHS_FREE(lg_V1)
+  end if
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  if (is_real_par()) then
+    call GA_CREATE_STRIPED('H',NAS2,NAS2,'SDER',lg_SDER)
+    call GA_PUT(lg_SDER,1,NAS2,1,NAS2,SDER,NAS2)
+    call GA_DGEMM('N','T',NAS2,NAS2,NIS2,-One,lg_SGM,lg_SGMX,One,lg_SDER)
+    call GA_GET(lg_SDER,1,NAS2,1,NAS2,SDER,NAS2)
+    bStat = GA_destroy(lg_SGMX)
+    bStat = GA_destroy(lg_SDER)
+  else
+# endif
+    call DGEMM_('N','T',NAS2,NAS2,NIS2,-One,GA_Arrays(lg_SGM)%A,NAS2,GA_Arrays(LSGMX)%A,NAS2,One,SDER,NAS2)
+# if defined(_MOLCAS_MPP_) && defined(_GA_)
+  end if
+# endif
+  call RHS_FREE(lg_SGM)
+
+end subroutine C2DER
+
+end subroutine sigder

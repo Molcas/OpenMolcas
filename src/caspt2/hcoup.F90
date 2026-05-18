@@ -10,17 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2014, Steven Vancoillie                                *
 !***********************************************************************
-      SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,NASHT,TG3,NTG3,HEL)
-      use caspt2_global, only:iPrGlb
-      use PrintLevel, only: DEBUG
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
-      use fake_GA, only: GA_Arrays
-      use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, CASES
-      use constants, only: Zero
-      use definitions, only: iwp, wp, u6
-      IMPLICIT NONE
+
+subroutine HCOUP(IVEC,JVEC,OVL,TG1,TG2,NASHT,TG3,NTG3,HEL)
 ! Compute the coupling Hamiltonian element defined as
 !     HEL = < ROOT1 | H * OMEGA | ROOT2 >
 ! assuming that IVEC contains a contravariant representation of
@@ -34,131 +25,122 @@
 ! and irreps and gets access to the process-specific block of the RHS.
 ! The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-      integer(kind=iwp), intent(in):: IVEC, JVEC, NASHT, NTG3
-      real(kind=wp), intent(in):: OVL
-      real(kind=wp), intent(out):: HEL
-      real(kind=wp), intent(in)::TG1(NASHT,NASHT)
-      real(kind=wp), intent(in):: TG2(NASHT,NASHT,NASHT,NASHT)
+use caspt2_global, only: iPrGlb
+use PrintLevel, only: DEBUG
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
+use fake_GA, only: GA_Arrays
+use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, CASES
+use constants, only: Zero
+use definitions, only: iwp, wp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
+real(kind=wp), intent(in) :: OVL
+real(kind=wp), intent(out) :: HEL
+real(kind=wp), intent(in) :: TG1(NASHT,NASHT)
+real(kind=wp), intent(in) :: TG2(NASHT,NASHT,NASHT,NASHT)
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      real(kind=wp), intent(in)::  TG3(NTG3)
-
-      real(kind=wp) HECOMP(14,9)
-      integer(kind=iwp) ICASE,ISYM,NAS,NIN,NIS,i,IC,IS,NHECOMP,         &
-     &                  lg_V1,IASTA1,IAEND1,IISTA1,IIEND1,              &
-     &                  iLo1,iHi1,jLo1,jHi1,MV1,NV1,                    &
-     &                  lg_V2,IASTA2,IAEND2,IISTA2,IIEND2,              &
-     &                  iLo2,iHi2,jLo2,jHi2,MV2,NV2
-      real(kind=wp) HEBLK, SUMCASE, SUMSYM
-
+real(kind=wp), intent(in) :: TG3(NTG3)
+real(kind=wp) HECOMP(14,9)
+integer(kind=iwp) ICASE, ISYM, NAS, NIN, NIS, IC, IS, NHECOMP, lg_V1, IASTA1, IAEND1, IISTA1, IIEND1, iLo1, iHi1, jLo1, jHi1, MV1, &
+                  NV1, lg_V2, IASTA2, IAEND2, IISTA2, IIEND2, iLo2, iHi2, jLo2, jHi2, MV2, NV2
+real(kind=wp) HEBLK, SUMCASE, SUMSYM
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
 
-
 ! Sketch of procedure:
 !  HEL=Zero
 !  Loop over every (case/symmetry)-block.
-!           If (No such vector block) Skip to end of loop
-!           Allocate two places for this block, VEC1 and VEC2
-!           Read VEC1 as IVEC component from file.
-!           Read VEC2 as JVEC component from file.
-!           Loop nest, computing
-!              HEL := HEL + VEC1*GOM*VEC2
-!           End of loop nest
-!           Deallocate VEC1 and VEC2
+!     If (No such vector block) Skip to end of loop
+!     Allocate two places for this block, VEC1 and VEC2
+!     Read VEC1 as IVEC component from file.
+!     Read VEC2 as JVEC component from file.
+!     Loop nest, computing
+!        HEL := HEL + VEC1*GOM*VEC2
+!     End of loop nest
+!     Deallocate VEC1 and VEC2
 !  End of loop.
 
-      HEL=Zero
-      HECOMP(:,:)=Zero
-      DO ICASE=1,13
-        DO ISYM=1,NSYM
-          NAS=NASUP(ISYM,ICASE)
-          NIN=NINDEP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-          HEBLK=Zero
+HEL = Zero
+HECOMP(:,:) = Zero
+do ICASE=1,13
+  do ISYM=1,NSYM
+    NAS = NASUP(ISYM,ICASE)
+    NIN = NINDEP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    HEBLK = Zero
 
-          IF(NAS*NIS*NIN/=0) THEN
+    if (NAS*NIS*NIN /= 0) then
 
-          CALL RHS_ALLO (NAS,NIS,lg_V1)
-          CALL RHS_ALLO (NAS,NIS,lg_V2)
-          CALL RHS_READ (NAS,NIS,lg_V1,ICASE,ISYM,IVEC)
-          CALL RHS_READ (NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
-          CALL RHS_ACCESS(NAS,NIS,lg_V1,iLo1,iHi1,jLo1,jHi1,MV1)
-          NV1=(iHi1-iLo1+1)*(jHi1-jLo1+1)
-          CALL RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
-          NV2=(iHi2-iLo2+1)*(jHi2-jLo2+1)
+      call RHS_ALLO(NAS,NIS,lg_V1)
+      call RHS_ALLO(NAS,NIS,lg_V2)
+      call RHS_READ(NAS,NIS,lg_V1,ICASE,ISYM,IVEC)
+      call RHS_READ(NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
+      call RHS_ACCESS(NAS,NIS,lg_V1,iLo1,iHi1,jLo1,jHi1,MV1)
+      NV1 = (iHi1-iLo1+1)*(jHi1-jLo1+1)
+      call RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
+      NV2 = (iHi2-iLo2+1)*(jHi2-jLo2+1)
 
-          IF ((iLo1.NE.iLo2) .OR.                                       &
-     &        (iHi1.NE.iHi2) .OR.                                       &
-     &        (jLo1.NE.jLo2) .OR.                                       &
-     &        (jHi1.NE.jHi2)) THEN
-            WRITE(u6,'(1X,A)') 'HCOUP: Error: block mismatch, abort...'
-            CALL ABEND()
-          END IF
+      if ((iLo1 /= iLo2) .or. (iHi1 /= iHi2) .or. (jLo1 /= jLo2) .or. (jHi1 /= jHi2)) then
+        write(u6,'(1X,A)') 'HCOUP: Error: block mismatch, abort...'
+        call ABEND()
+      end if
 
-#ifdef _MOLCAS_MPP_
-          IF (Is_Real_Par()) THEN
-            CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,                    &
-     &                     DBL_MB(MV1),NV1,                             &
-     &                     DBL_MB(MV2),NV2,                             &
-     &                     OVL,HEBLK,                                   &
-     &                     TG1,TG2,NASHT,TG3,NTG3)
-          ELSE
-#endif
-            CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,                    &
-     &                     GA_Arrays(MV1)%A,NV1,                        &
-     &                     GA_Arrays(MV2)%A,NV2,                        &
-     &                     OVL,HEBLK,                                   &
-     &                     TG1,TG2,NASHT,TG3,NTG3)
-#ifdef _MOLCAS_MPP_
-          END IF
-#endif
-          CALL RHS_RELEASE (lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
-          CALL RHS_RELEASE (lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
-          CALL RHS_FREE (lg_V1)
-          CALL RHS_FREE (lg_V2)
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,DBL_MB(MV1),NV1,DBL_MB(MV2),NV2,OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
+      else
+#     endif
+        call HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,GA_Arrays(MV1)%A,NV1,GA_Arrays(MV2)%A,NV2,OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
+      call RHS_RELEASE(lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
+      call RHS_RELEASE(lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
+      call RHS_FREE(lg_V1)
+      call RHS_FREE(lg_V2)
 
-          END IF
+    end if
 
-          HECOMP(ICASE,ISYM)=HEBLK
-          HEL=HEL+HEBLK
-        END DO
-      END DO
+    HECOMP(ICASE,ISYM) = HEBLK
+    HEL = HEL+HEBLK
+  end do
+end do
 
 ! Sum-reduce the per-process contributions
-      CALL GADGOP_SCAL(HEL,'+')
-      NHECOMP=14*9
-      CALL GADGOP(HECOMP,NHECOMP,'+')
+call GADGOP_SCAL(HEL,'+')
+NHECOMP = 14*9
+call GADGOP(HECOMP,NHECOMP,'+')
 
-      IF(IPRGLB.GE.DEBUG) THEN
-        DO ICASE=1,13
-          SUMSYM=Zero
-          DO ISYM=1,NSYM
-            SUMSYM=SUMSYM+HECOMP(ICASE,ISYM)
-          END DO
-          HECOMP(ICASE,NSYM+1)=SUMSYM
-        END DO
+if (IPRGLB >= DEBUG) then
+  do ICASE=1,13
+    SUMSYM = Zero
+    do ISYM=1,NSYM
+      SUMSYM = SUMSYM+HECOMP(ICASE,ISYM)
+    end do
+    HECOMP(ICASE,NSYM+1) = SUMSYM
+  end do
 
-        DO ISYM=1,NSYM+1
-          SUMCASE=Zero
-          DO ICASE=1,13
-            SUMCASE=SUMCASE+HECOMP(ICASE,ISYM)
-          END DO
-          HECOMP(14,ISYM)=SUMCASE
-        END DO
+  do ISYM=1,NSYM+1
+    SUMCASE = Zero
+    do ICASE=1,13
+      SUMCASE = SUMCASE+HECOMP(ICASE,ISYM)
+    end do
+    HECOMP(14,ISYM) = SUMCASE
+  end do
 
-        WRITE(u6,'(20a4)')('----',i=1,20)
-        WRITE(u6,*)                                                     &
-     &            'HCOUP: The contributions to the Hamiltonian coupling'
-        WRITE(u6,*)' elements, by case and by symmetry label.'
-        DO IC=1,13
-          WRITE(u6,'(1X,A8,9F12.8)')                                    &
-     &      CASES(IC),(HECOMP(IC,IS),IS=1,NSYM+1)
-        END DO
-        WRITE(u6,'(1X,A8,9F12.8)')                                      &
-     &    'Summed: ', (HECOMP(14,IS),IS=1,NSYM+1)
-        WRITE(u6,*)
-      END IF
+  write(u6,'(A)') repeat('-',80)
+  write(u6,*) 'HCOUP: The contributions to the Hamiltonian coupling'
+  write(u6,*) ' elements, by case and by symmetry label.'
+  do IC=1,13
+    write(u6,'(1X,A8,9F12.8)') CASES(IC),(HECOMP(IC,IS),IS=1,NSYM+1)
+  end do
+  write(u6,'(1X,A8,9F12.8)') 'Summed: ',(HECOMP(14,IS),IS=1,NSYM+1)
+  write(u6,*)
+end if
 
-      END SUBROUTINE HCOUP
+end subroutine HCOUP

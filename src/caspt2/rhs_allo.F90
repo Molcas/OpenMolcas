@@ -23,29 +23,30 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_ALLO (NAS,NIS,lg_W)
-      use definitions, only: iwp
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
-      use fake_GA, only: Allocate_GA_Array
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: NAS,NIS
-      integer(kind=iwp), intent(out):: lg_W
+subroutine RHS_ALLO(NAS,NIS,lg_W)
 
-      integer(kind=iwp) NW
+use definitions, only: iwp
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
+use fake_GA, only: Allocate_GA_Array
+
+implicit none
+integer(kind=iwp), intent(in) :: NAS, NIS
+integer(kind=iwp), intent(out) :: lg_W
+integer(kind=iwp) NW
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 
-      IF (Is_Real_Par()) THEN
-        CALL GA_CREATE_STRIPED ('V',NAS,NIS,'RHS',LG_W)
-      ELSE
+if (Is_Real_Par()) then
+  call GA_CREATE_STRIPED('V',NAS,NIS,'RHS',LG_W)
+else
 #endif
-        NW=NAS*NIS
-        lg_W=Allocate_GA_Array(NW,'RHS')
+  NW = NAS*NIS
+  lg_W = Allocate_GA_Array(NW,'RHS')
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END SUBROUTINE RHS_ALLO
+end subroutine RHS_ALLO

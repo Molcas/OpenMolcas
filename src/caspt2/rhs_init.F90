@@ -23,34 +23,34 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RHS_INIT()
-      use definitions, only: iwp, wp
-      use caspt2_global, only: LURHS
-      use caspt2_module, only: nSym, nISup, nASup, iOffRHS
-      IMPLICIT None
-      REAL(kind=wp) DUMMY(1)
-      integer(kind=iwp) iDisk, iCase, iSym, NAS, NIS, NW, NRHS, iLo,    &
-     &                  iHi, jLo, jHi
+subroutine RHS_INIT()
+
+use definitions, only: iwp, wp
+use caspt2_global, only: LURHS
+use caspt2_module, only: nSym, nISup, nASup, iOffRHS
+
+implicit none
+real(kind=wp) DUMMY(1)
+integer(kind=iwp) iDisk, iCase, iSym, NAS, NIS, NW, NRHS, iLo, iHi, jLo, jHi
 
 !-SVC: loop over symmetry/cases, get local patch of RHS, write, and then
 ! update the disk address in IOFFRHS
-      IDISK=0
-      DO ICASE=1,13
-        DO ISYM=1,NSYM
-          IOFFRHS(ISYM,ICASE)=IDISK
+IDISK = 0
+do ICASE=1,13
+  do ISYM=1,NSYM
+    IOFFRHS(ISYM,ICASE) = IDISK
 
-          NAS=NASUP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-          NW=NAS*NIS
+    NAS = NASUP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    NW = NAS*NIS
 
-          IF (NW.EQ.0) CYCLE
+    if (NW == 0) cycle
 
-          CALL RHS_DISTRIBUTION(NAS,NIS,iLo,iHi,jLo,jHi)
-          NRHS=NAS*(jHi-jLo+1)
-          CALL DDAFILE(LURHS(1),0,DUMMY,NRHS,IDISK)
+    call RHS_DISTRIBUTION(NAS,NIS,iLo,iHi,jLo,jHi)
+    NRHS = NAS*(jHi-jLo+1)
+    call DDAFILE(LURHS(1),0,DUMMY,NRHS,IDISK)
 
-        END DO
-      END DO
+  end do
+end do
 
-      END SUBROUTINE RHS_INIT
+end subroutine RHS_INIT

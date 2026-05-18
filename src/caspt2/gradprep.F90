@@ -10,36 +10,34 @@
 !                                                                      *
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
-      Subroutine GradPrep(nState,UEFF,VECROT)
 
-      use caspt2_global, only: iRoot1, iRoot2, jStLag
-      use caspt2_module, only: IFMSCOUP, JSTATE
-      use Constants, only: One, Half
-      use definitions, only: wp, iwp
+subroutine GradPrep(nState,UEFF,VECROT)
 
-      implicit none
+use caspt2_global, only: iRoot1, iRoot2, jStLag
+use caspt2_module, only: IFMSCOUP, JSTATE
+use Constants, only: One, Half
+use definitions, only: wp, iwp
 
-      integer(kind=iwp), intent(in) :: nState
-      real(kind=wp), intent(in) :: UEFF(nState,nState)
-      real(kind=wp), intent(inout) :: VECROT(nState)
+implicit none
+integer(kind=iwp), intent(in) :: nState
+real(kind=wp), intent(in) :: UEFF(nState,nState)
+real(kind=wp), intent(inout) :: VECROT(nState)
+real(kind=wp) :: TMP
+integer(kind=iwp) :: iState
 
-      real(kind=wp) :: TMP
-      integer(kind=iwp) :: iState
+! If i  = j, UIi*dHij/dx*UJj
+! If i \= j, (UIi*UJj+UJi*UIj)*dHij/dx*0.5
 
-!     If i  = j, UIi*dHij/dx*UJj
-!     If i \= j, (UIi*UJj+UJi*UIj)*dHij/dx*0.5
+!! Construct the rotation vector
+if (IFMSCOUP) then
+  do iState=1,nState
+    TMP = UEFF(iState,iRoot1)*UEFF(jState,iRoot2)+UEFF(iState,iRoot2)*UEFF(jState,iRoot1)
+    VECROT(iState) = TMP*Half
+  end do
+else
+  !write(u6,*) 'jState in gradprep: ',jstate
+  VECROT(jState) = One
+end if
+jStLag = jState
 
-      !! Construct the rotation vector
-      If (IFMSCOUP) Then
-        Do iState = 1, nState
-          TMP = UEFF(iState,iRoot1)*UEFF(jState,iRoot2)                 &
-     &        + UEFF(iState,iRoot2)*UEFF(jState,iRoot1)
-          VECROT(iState) = TMP*Half
-        End Do
-      Else
-!       write(u6,*) 'jState in gradprep: ',jstate
-        VECROT(jState) = One
-      End If
-      jStLag = jState
-
-      End Subroutine GradPrep
+end subroutine GradPrep

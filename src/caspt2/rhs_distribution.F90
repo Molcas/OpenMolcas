@@ -23,43 +23,44 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_DISTRIBUTION (NAS,NIS,iLo,iHi,jLo,jHi)
-      use definitions, only: iwp
+subroutine RHS_DISTRIBUTION(NAS,NIS,iLo,iHi,jLo,jHi)
+
+use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      IMPLICIT None
-      integer(kind=iwp), intent(in) :: NAS,NIS
-      integer(kind=iwp), intent(out) :: iLo,iHi,jLo,jHi
 
-
+implicit none
+integer(kind=iwp), intent(in) :: NAS, NIS
+integer(kind=iwp), intent(out) :: iLo, iHi, jLo, jHi
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=iwp) MYRANK, NPROCS, NBASE, NREST
+integer(kind=iwp) MYRANK, NPROCS, NBASE, NREST
 #endif
 
-      iLo=1
-      iHi=NAS
+iLo = 1
+iHi = NAS
 
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-        MYRANK=GA_NODEID()
-        NPROCS=GA_NNODES()
-        NBASE=NIS/NPROCS
-        NREST=NIS-NBASE*NPROCS
-        IF (MYRANK.LT.NREST) THEN
-          jLo=MYRANK*(NBASE+1)+1
-          jHi=jLo+NBASE
-        ELSE
-          jLo=NREST*(NBASE+1)+(MYRANK-NREST)*NBASE+1
-          jHi=jLo+NBASE-1
-        END IF
-      ELSE
+if (Is_Real_Par()) then
+  MYRANK = GA_NODEID()
+  NPROCS = GA_NNODES()
+  NBASE = NIS/NPROCS
+  NREST = NIS-NBASE*NPROCS
+  if (MYRANK < NREST) then
+    jLo = MYRANK*(NBASE+1)+1
+    jHi = jLo+NBASE
+  else
+    jLo = NREST*(NBASE+1)+(MYRANK-NREST)*NBASE+1
+    jHi = jLo+NBASE-1
+  end if
+else
 #endif
-        jLo=1
-        jHi=NIS
+  jLo = 1
+  jHi = NIS
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
-      END SUBROUTINE RHS_DISTRIBUTION
+
+end subroutine RHS_DISTRIBUTION

@@ -16,54 +16,50 @@
 ! aware subroutines
 !***********************************************************************
 
-      SUBROUTINE PSCAVEC (FACT,IVEC,JVEC)
-      use constants, only: Zero, One
-      use caspt2_global, ONLY: iPrGlb
-      USE PrintLevel, ONLY: USUAL
-      use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep,    &
-     &                         niSup
-      use definitions, only: iwp, wp, u6
-
-      IMPLICIT NONE
-
-      real(kind=wp), intent(in) ::  FACT
-      integer(kind=iwp), intent(in) :: IVEC,JVEC
-
-      real(kind=wp) :: CPU0,CPU1,CPU,TIO0,TIO1,TIO
-      integer(kind=iwp) :: ICASE,ISYM,NIN,NIS
-      integer(kind=iwp) :: lg_V
-
-      REAL(kind=wp) ::  SIGMA2
-      real(kind=wp), EXTERNAL :: RHS_DDOT
-
+subroutine PSCAVEC(FACT,IVEC,JVEC)
 ! Scale vector nr IVEC with scale factor FACT and put the result in
 ! vector nr JVEC: |JVEC> <- FACT * |IVEC>
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
 
-      IF(FACT.EQ.One.AND.IVEC.EQ.JVEC) RETURN
-      SIGMA2=Zero
-      DO ICASE=1,NCASES
-        DO ISYM=1,NSYM
-          NIN=NINDEP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-          IF (NIN*NIS.NE.0) THEN
-            CALL RHS_ALLO (NIN,NIS,lg_V)
-            CALL RHS_READ (NIN,NIS,lg_V,ICASE,ISYM,IVEC)
-            CALL RHS_SCAL (NIN,NIS,lg_V,FACT)
-            IF(FACT.EQ.-One)SIGMA2=SIGMA2                               &
-     &                               +RHS_DDOT(NIN,NIS,lg_V,lg_V)
-            CALL RHS_SAVE (NIN,NIS,lg_V,ICASE,ISYM,JVEC)
-            CALL RHS_FREE (lg_V)
-          END IF
-        END DO
-      END DO
-      IF ((IPRGLB.GE.USUAL).AND.(FACT.EQ.-One)) THEN ! it is at ITER=0
-         WRITE(u6,*)
-         WRITE(u6,'(1x,a,f18.10)') 'Variance of |WF0>: ',SIGMA2
-      END IF
+use constants, only: Zero, One
+use caspt2_global, only: iPrGlb
+use PrintLevel, only: USUAL
+use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep, niSup
+use definitions, only: iwp, wp, u6
 
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUSCA=CPUSCA+(CPU1-CPU0)
-      TIOSCA=TIOSCA+(TIO1-TIO0)
+implicit none
+real(kind=wp), intent(in) :: FACT
+integer(kind=iwp), intent(in) :: IVEC, JVEC
+real(kind=wp) :: CPU0, CPU1, CPU, TIO0, TIO1, TIO
+integer(kind=iwp) :: ICASE, ISYM, NIN, NIS
+integer(kind=iwp) :: lg_V
+real(kind=wp) :: SIGMA2
+real(kind=wp), external :: RHS_DDOT
 
-      END SUBROUTINE PSCAVEC
+call TIMING(CPU0,CPU,TIO0,TIO)
+
+if ((FACT == One) .and. (IVEC == JVEC)) return
+SIGMA2 = Zero
+do ICASE=1,NCASES
+  do ISYM=1,NSYM
+    NIN = NINDEP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    if (NIN*NIS /= 0) then
+      call RHS_ALLO(NIN,NIS,lg_V)
+      call RHS_READ(NIN,NIS,lg_V,ICASE,ISYM,IVEC)
+      call RHS_SCAL(NIN,NIS,lg_V,FACT)
+      if (FACT == -One) SIGMA2 = SIGMA2+RHS_DDOT(NIN,NIS,lg_V,lg_V)
+      call RHS_SAVE(NIN,NIS,lg_V,ICASE,ISYM,JVEC)
+      call RHS_FREE(lg_V)
+    end if
+  end do
+end do
+if ((IPRGLB >= USUAL) .and. (FACT == -One)) then ! it is at ITER=0
+  write(u6,*)
+  write(u6,'(1x,a,f18.10)') 'Variance of |WF0>: ',SIGMA2
+end if
+
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPUSCA = CPUSCA+(CPU1-CPU0)
+TIOSCA = TIOSCA+(TIO1-TIO0)
+
+end subroutine PSCAVEC

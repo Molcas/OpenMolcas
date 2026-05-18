@@ -8,27 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ASIND(IAS,ISYM,ICASE,IP,IQ,IR)
-      USE SUPERINDEX, only: MAGEB, MAGTB
-      use caspt2_module, only: NAGEBES, NAGTBES, IEXTIS
-      use definitions, only: iwp
-      IMPLICIT None
-      integer(kind=iwp), intent(in) :: IAS, ISYM, ICASE
-      integer(kind=iwp), intent(out) :: IP, IQ, IR
-      integer(kind=iwp) :: IABABS,  IAABS, IBABS
 
-      IF (ICASE==2) THEN
-         IABABS=IAS+NAGTBES(ISYM)
-         IAABS=MAGTB(1,IABABS)
-         IBABS=MAGTB(2,IABABS)
-      ELSE
-         IABABS=IAS+NAGEBES(ISYM)
-         IAABS=MAGEB(1,IABABS)
-         IBABS=MAGEB(2,IABABS)
-      END IF
+subroutine ASIND(IAS,ISYM,ICASE,IP,IQ,IR)
 
-      IP=IEXTIS(IAABS)
-      IQ=IEXTIS(IBABS)
-      IR=0
+use SUPERINDEX, only: MAGEB, MAGTB
+use caspt2_module, only: NAGEBES, NAGTBES, IEXTIS
+use definitions, only: iwp
 
-      END SUBROUTINE ASIND
+implicit none
+integer(kind=iwp), intent(in) :: IAS, ISYM, ICASE
+integer(kind=iwp), intent(out) :: IP, IQ, IR
+integer(kind=iwp) :: IABABS, IAABS, IBABS
+
+if (ICASE == 2) then
+  IABABS = IAS+NAGTBES(ISYM)
+  IAABS = MAGTB(1,IABABS)
+  IBABS = MAGTB(2,IABABS)
+else
+  IABABS = IAS+NAGEBES(ISYM)
+  IAABS = MAGEB(1,IABABS)
+  IBABS = MAGEB(2,IABABS)
+end if
+
+IP = IEXTIS(IAABS)
+IQ = IEXTIS(IBABS)
+IR = 0
+
+end subroutine ASIND

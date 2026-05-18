@@ -8,28 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PCOLLVEC(IVEC,iTYPE)
-      use definitions, only: iwp
-      use caspt2_module, only: nCases, nSym, nInDep, nASup, nISup
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: iVec, iType
 
-      integer(kind=iwp) iCase, iSym, NAS, NIS, NW
+subroutine PCOLLVEC(IVEC,iTYPE)
 
-!**************************************************************
-      DO ICASE=1,NCASES
-       DO ISYM=1,NSYM
-        IF(NINDEP(ISYM,ICASE).EQ.0) Cycle
-        IF (ITYPE.EQ.0) THEN
-          NAS=NINDEP(ISYM,ICASE)
-        ELSE
-          NAS=NASUP(ISYM,ICASE)
-        END IF
-        NIS=NISUP(ISYM,ICASE)
-        NW=NAS*NIS
-        IF(NW.EQ.0) Cycle
-        CALL DRA2SOLV (NAS,NIS,iCASE,iSYM,iVEC)
-       END DO
-      END DO
+use definitions, only: iwp
+use caspt2_module, only: nCases, nSym, nInDep, nASup, nISup
 
-      END SUBROUTINE PCOLLVEC
+implicit none
+integer(kind=iwp), intent(in) :: iVec, iType
+integer(kind=iwp) iCase, iSym, NAS, NIS, NW
+
+!***********************************************************************
+do ICASE=1,NCASES
+  do ISYM=1,NSYM
+    if (NINDEP(ISYM,ICASE) == 0) cycle
+    if (ITYPE == 0) then
+      NAS = NINDEP(ISYM,ICASE)
+    else
+      NAS = NASUP(ISYM,ICASE)
+    end if
+    NIS = NISUP(ISYM,ICASE)
+    NW = NAS*NIS
+    if (NW == 0) cycle
+    call DRA2SOLV(NAS,NIS,iCASE,iSYM,iVEC)
+  end do
+end do
+
+end subroutine PCOLLVEC

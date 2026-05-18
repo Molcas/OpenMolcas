@@ -8,59 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,      &
-     &                     CMO,nCMO)
 
-      use definitions, only: iwp, wp
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
-      integer(kind=iwp), intent(in):: nSym, nBas(nSym), nFro(nSym),     &
-     &                                nAsh(nSym), nIsh(nSym), nSsh(nSym)
-      real(kind=wp), intent(in)::  Thrs
-      integer(kind=iwp), intent(in):: nCMO
-      real(kind=wp), intent(inout)::  CMO(nCMO)
+subroutine Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO,nCMO)
 
-      real(kind=wp), allocatable:: Dens(:)
-      integer(kind=iwp) irc, iSym, kOff1, kOffC, l_Dens
-      real(kind=wp) yNrm
+use definitions, only: iwp, wp
+use stdalloc, only: mma_allocate, mma_deallocate
 
-      irc=0
-      l_Dens = 0
-      Do iSym = 1,nSym
-         l_Dens = max(l_Dens,nBas(iSym)**2)
-      End Do
-      Call mma_allocate(Dens,l_Dens,Label='Dens')
-      kOffC = 0
-      Do iSym = 1,nSym
-         If (nIsh(iSym) .gt. 0) Then
-            kOff1 = 1 + kOffC + nBas(iSym)*nFro(iSym)
-            Call GetDens_Localisation(Dens,CMO(kOff1),                  &
-     &                                nBas(iSym),nIsh(iSym))
-            Call FZero(CMO(kOff1),nBas(iSym)*nIsh(iSym))
-            Call ChoLoc(irc,Dens,CMO(kOff1),Thrs,yNrm,                  &
-     &                  nBas(iSym),nIsh(iSym))
-            If (irc .ne. 0) Then
-               Call mma_deallocate(Dens)
-               irc  = 1
-               Return
-            End If
-         End If
-         If (nSsh(iSym) .gt. 0) Then
-            kOff1= 1+kOffC+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
-            Call GetDens_Localisation(Dens,CMO(kOff1),                  &
-     &                                nBas(iSym),nSsh(iSym))
-            Call FZero(CMO(kOff1),nBas(iSym)*nSsh(iSym))
-            Call ChoLoc(irc,Dens,CMO(kOff1),Thrs,yNrm,                  &
-     &                  nBas(iSym),nSsh(iSym))
-            If (irc .ne. 0) Then
-               Call mma_deallocate(Dens)
-               irc  = 1
-               Return
-            End If
-         End If
-         kOffC = kOffC + nBas(iSym)**2
-      End Do
+implicit none
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nAsh(nSym), nIsh(nSym), nSsh(nSym)
+real(kind=wp), intent(in) :: Thrs
+integer(kind=iwp), intent(in) :: nCMO
+real(kind=wp), intent(inout) :: CMO(nCMO)
+real(kind=wp), allocatable :: Dens(:)
+integer(kind=iwp) irc, iSym, kOff1, kOffC, l_Dens
+real(kind=wp) yNrm
 
-      Call mma_deallocate(Dens)
+irc = 0
+l_Dens = 0
+do iSym=1,nSym
+  l_Dens = max(l_Dens,nBas(iSym)**2)
+end do
+call mma_allocate(Dens,l_Dens,Label='Dens')
+kOffC = 0
+do iSym=1,nSym
+  if (nIsh(iSym) > 0) then
+    kOff1 = 1+kOffC+nBas(iSym)*nFro(iSym)
+    call GetDens_Localisation(Dens,CMO(kOff1),nBas(iSym),nIsh(iSym))
+    call FZero(CMO(kOff1),nBas(iSym)*nIsh(iSym))
+    call ChoLoc(irc,Dens,CMO(kOff1),Thrs,yNrm,nBas(iSym),nIsh(iSym))
+    if (irc /= 0) then
+      call mma_deallocate(Dens)
+      irc = 1
+      return
+    end if
+  end if
+  if (nSsh(iSym) > 0) then
+    kOff1 = 1+kOffC+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
+    call GetDens_Localisation(Dens,CMO(kOff1),nBas(iSym),nSsh(iSym))
+    call FZero(CMO(kOff1),nBas(iSym)*nSsh(iSym))
+    call ChoLoc(irc,Dens,CMO(kOff1),Thrs,yNrm,nBas(iSym),nSsh(iSym))
+    if (irc /= 0) then
+      call mma_deallocate(Dens)
+      irc = 1
+      return
+    end if
+  end if
+  kOffC = kOffC+nBas(iSym)**2
+end do
 
-      End Subroutine Cho_x_Loc
+call mma_deallocate(Dens)
+
+end subroutine Cho_x_Loc

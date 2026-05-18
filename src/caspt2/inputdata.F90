@@ -14,369 +14,368 @@
 #include "compiler_features.h"
 
 module InputData
-  !SVC: this module contains a data structure to keep all input variables.
+!SVC: this module contains a data structure to keep all input variables.
 
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use constants, only: Zero, One
-  use definitions, only: wp,iwp,u6
-  use fciqmc_interface, only: DoFCIQMC, NonDiagonal, TransformToNormalOrder
-  use fortran_strings, only: str
+use stdalloc, only: mma_allocate, mma_deallocate
+use constants, only: Zero, One
+use definitions, only: wp, iwp, u6
+use fciqmc_interface, only: DoFCIQMC, NonDiagonal, TransformToNormalOrder
+use fortran_strings, only: str
 
-  implicit none
-  private
+implicit none
+private
 
-  type States
-    Integer(kind=iwp), allocatable :: State(:)
-  end type
+type States
+  integer(kind=iwp), allocatable :: State(:)
+end type
 
-  type InputTable
-    ! TITL      one line with a descriptive name
-    Character(len=128) :: Title = ' '
-    ! FILE      file to read CAS/RAS reference from
-    Character(len=128) :: File = 'JOBIPH'
-    ! MULT      the number of states, followed by the ID of each state
-    Logical(kind=iwp) :: MULT = .false.
-    Integer(kind=iwp) :: nMultState = 0
-    type(States)      :: MultGroup
-    Logical(kind=iwp) :: AllMult = .false.
-    ! XMUL      extended multi-state caspt2
-    Logical(kind=iwp) :: XMUL = .false.
-    Integer(kind=iwp) :: nXMulState = 0
-    type(States)      :: XMulGroup
-    Logical(kind=iwp) :: AllXMult = .false.
-    ! RMUL      rotated multi-state caspt2
-    Logical(kind=iwp) :: RMUL = .false.
-    Integer(kind=iwp) :: nRMulState = 0
-    type(States)      :: RMulGroup
-    Logical(kind=iwp) :: AllRMult = .false.
-    ! DWMS      use dynamical weighting to construct Fock
-    Logical(kind=iwp) :: DWMS = .false.
-    Integer(kind=iwp) :: DWType = -1
-    Real(kind=wp)     :: ZETA = One
-    ! LROO      compute only a single root, mutually exclusive with both MULT or XMUL
-    Logical(kind=iwp) :: LROO = .false.
-    Integer(kind=iwp) :: SingleRoot = 0
-    ! RLXR      root for which the gradient is computed
-    Integer(kind=iwp) :: RlxRoot = -1
+type InputTable
+  ! TITL      one line with a descriptive name
+  character(len=128) :: Title = ' '
+  ! FILE      file to read CAS/RAS reference from
+  character(len=128) :: File = 'JOBIPH'
+  ! MULT      the number of states, followed by the ID of each state
+  logical(kind=iwp) :: MULT = .false.
+  integer(kind=iwp) :: nMultState = 0
+  type(States) :: MultGroup
+  logical(kind=iwp) :: AllMult = .false.
+  ! XMUL      extended multi-state caspt2
+  logical(kind=iwp) :: XMUL = .false.
+  integer(kind=iwp) :: nXMulState = 0
+  type(States) :: XMulGroup
+  logical(kind=iwp) :: AllXMult = .false.
+  ! RMUL      rotated multi-state caspt2
+  logical(kind=iwp) :: RMUL = .false.
+  integer(kind=iwp) :: nRMulState = 0
+  type(States) :: RMulGroup
+  logical(kind=iwp) :: AllRMult = .false.
+  ! DWMS      use dynamical weighting to construct Fock
+  logical(kind=iwp) :: DWMS = .false.
+  integer(kind=iwp) :: DWType = -1
+  real(kind=wp) :: ZETA = One
+  ! LROO      compute only a single root, mutually exclusive with both MULT or XMUL
+  logical(kind=iwp) :: LROO = .false.
+  integer(kind=iwp) :: SingleRoot = 0
+  ! RLXR      root for which the gradient is computed
+  integer(kind=iwp) :: RlxRoot = -1
 
-    ! IPEA      the IPEA shift
-    Logical(kind=iwp) :: IPEA = .false.
-    Real(kind=wp)     :: ipea_shift = Zero
-    ! IMAG      the imaginary level shift
-    Real(kind=wp)     :: imag_shift = Zero
-    ! SHIF      the real level shift
-    Real(kind=wp)     :: real_shift = Zero
-    ! SIG1      sigma-1 regularization
-    Real(kind=wp)     :: sigma_1_epsilon = Zero
-    ! SIG2      sigma-2 regularization
-    Real(kind=wp)     :: sigma_2_epsilon = Zero
+  ! IPEA      the IPEA shift
+  logical(kind=iwp) :: IPEA = .false.
+  real(kind=wp) :: ipea_shift = Zero
+  ! IMAG      the imaginary level shift
+  real(kind=wp) :: imag_shift = Zero
+  ! SHIF      the real level shift
+  real(kind=wp) :: real_shift = Zero
+  ! SIG1      sigma-1 regularization
+  real(kind=wp) :: sigma_1_epsilon = Zero
+  ! SIG2      sigma-2 regularization
+  real(kind=wp) :: sigma_2_epsilon = Zero
 
-    ! several freeze-delete schemes, each of these should active
-    ! the general flag below, to indicate additional conversion is
-    ! needed on the input orbitals
-    Logical(kind=iwp) :: modify_correlating_MOs = .false.
-    ! AFRE      freeze orbitals that do not have sufficient density on specified 'active' atoms
-    Logical(kind=iwp) :: aFreeze = .false.
-    Integer(kind=iwp) :: lnFro = 0
-    Real(kind=wp)     :: ThrFr = Zero,ThrDe = Zero
-    Character(len=4), allocatable :: NamFro(:)
-    ! LOVC      freeze orbitals that are not localized no the active site
-    Logical(kind=iwp) :: LovCASPT2 = .false.
-    Real(kind=wp)     :: Thr_Atm = Zero
-    ! FNOC      delete a fraction of virtual orbitals
-    Logical(kind=iwp) :: FnoCASPT2 = .false.
-    Real(kind=wp)     :: VFrac = Zero
-    ! RegFNO    FNO regularization parameter
-    Real(kind=wp)     :: RegFNO = Zero
-    ! DOMP
-    Logical(kind=iwp) :: doMP2 = .false.
-    ! DOEN
-    Logical(kind=iwp) :: doEnv = .false.
-    ! VIRA
-    Logical(kind=iwp) :: VIRA = .false.
-    ! GHOS      excludes ghost orbitals from the PT2 treatment
-    Logical(kind=iwp) :: GhostDelete = .false.
-    Real(kind=wp)     :: ThrGD = Zero
+  ! several freeze-delete schemes, each of these should active
+  ! the general flag below, to indicate additional conversion is
+  ! needed on the input orbitals
+  logical(kind=iwp) :: modify_correlating_MOs = .false.
+  ! AFRE      freeze orbitals that do not have sufficient density on specified 'active' atoms
+  logical(kind=iwp) :: aFreeze = .false.
+  integer(kind=iwp) :: lnFro = 0
+  real(kind=wp) :: ThrFr = Zero, ThrDe = Zero
+  character(len=4), allocatable :: NamFro(:)
+  ! LOVC      freeze orbitals that are not localized no the active site
+  logical(kind=iwp) :: LovCASPT2 = .false.
+  real(kind=wp) :: Thr_Atm = Zero
+  ! FNOC      delete a fraction of virtual orbitals
+  logical(kind=iwp) :: FnoCASPT2 = .false.
+  real(kind=wp) :: VFrac = Zero
+  ! RegFNO    FNO regularization parameter
+  real(kind=wp) :: RegFNO = Zero
+  ! DOMP
+  logical(kind=iwp) :: doMP2 = .false.
+  ! DOEN
+  logical(kind=iwp) :: doEnv = .false.
+  ! VIRA
+  logical(kind=iwp) :: VIRA = .false.
+  ! GHOS      excludes ghost orbitals from the PT2 treatment
+  logical(kind=iwp) :: GhostDelete = .false.
+  real(kind=wp) :: ThrGD = Zero
 
-    ! FROZ      number of frozen orbitals in each irrep
-    Logical(kind=iwp) :: FROZ = .false.
-    Integer(kind=iwp), allocatable :: nFro(:)
-    ! DELE      number of deleted orbitals in each irrep
-    Logical(kind=iwp) :: DELE = .false.
-    Integer(kind=iwp), allocatable :: nDel(:)
-    ! DENS      computes full density matrix from the 1st-order wavefunction
-    Logical(kind=iwp) :: DENS = .false.
-    ! RFPE      make a perturbative reaction field calculation
-    Logical(kind=iwp) :: RFPert = .false.
-    ! THRE      thresholds for removal of:
-    !   ThrsHN    zero-norm components in the first-order perturbed
-    !             wave function
-    !   ThrsHS    linear dependencies between components of the first-
-    !             order perturbed wave function
-    Logical(kind=iwp) :: THRE = .false.
-    Real(kind=wp)     :: ThrsHN = 1.0e-10_wp,ThrsHS = 1.0e-8_wp
-    ! MAXI      maximum number of iterations for solving a system of
-    !           linear equations, default 20. A 0 indicates: use of
-    !           the diagonal zeroth order hamiltonian
-    Integer(kind=iwp) :: maxIter = 20
-    ! Conv      convergence criteria for solving a system of linear equations
-    Real(kind=wp)     :: ThrConv = 1.0e-6_wp
-    ! NOMI      do not create an PM-CAS wavefunction file (JobMix)
-    Logical(kind=iwp) :: NoMix = .false.
-    ! NOMU      do not perform a multistate interaction
-    Logical(kind=iwp) :: noMult = .false.
-    ! ONLY      in a MS calculation, compute a single root with couplings to the other roots
-    Integer(kind=iwp) :: OnlyRoot = 0
-    ! EFFE      read Heff coupling terms from the input and perform only the multistate part
-    Logical(kind=iwp) :: JMS = .false.
-    Real(kind=wp),allocatable :: Heff(:,:)
-    ! NOOR      do not print orbitals
-    Logical(kind=iwp) :: PrOrb = .true.
-    ! PROP      compute properties
-    ! NOPR      do not compute properties
-    Logical(kind=iwp) :: Properties = .false.
-    ! transformation of reference (input) orbitals
-    ! NOTR      do not transform to quasi-canonical orbitals,
-    !           regardless of the state of the reference orbitals
-    ! TRAN      transform to quasi-canonical orbitals, regardless
-    !           of the state of the reference orbitals
-    ! the default is to use transformation, unless the PT2 keyword
-    ! was used in the rasscf program and the fock matrix is standard
-    Character(len=8)  :: OrbIn = 'TRANSFOR'
-    ! OFEM      add orbital-free embedding potential to hamiltonian
-    Logical(kind=iwp) :: OFEmbedding = .false.
-    ! OUTP      control extent of orbital printing
-    Character(len=8)  :: OutFormat = 'DEFAULT '
-    ! PRWF      print the CI coefficients above this threshold
-    Real(kind=wp)     :: PrWF = 0.05_wp
-    ! PRSD      print the determinant expansion of CSFs
-    Logical(kind=iwp) :: PrSD = .false.
+  ! FROZ      number of frozen orbitals in each irrep
+  logical(kind=iwp) :: FROZ = .false.
+  integer(kind=iwp), allocatable :: nFro(:)
+  ! DELE      number of deleted orbitals in each irrep
+  logical(kind=iwp) :: DELE = .false.
+  integer(kind=iwp), allocatable :: nDel(:)
+  ! DENS      computes full density matrix from the 1st-order wavefunction
+  logical(kind=iwp) :: DENS = .false.
+  ! RFPE      make a perturbative reaction field calculation
+  logical(kind=iwp) :: RFPert = .false.
+  ! THRE      thresholds for removal of:
+  !   ThrsHN    zero-norm components in the first-order perturbed
+  !             wave function
+  !   ThrsHS    linear dependencies between components of the first-
+  !             order perturbed wave function
+  logical(kind=iwp) :: THRE = .false.
+  real(kind=wp) :: ThrsHN = 1.0e-10_wp, ThrsHS = 1.0e-8_wp
+  ! MAXI      maximum number of iterations for solving a system of
+  !           linear equations, default 20. A 0 indicates: use of
+  !           the diagonal zeroth order hamiltonian
+  integer(kind=iwp) :: maxIter = 20
+  ! Conv      convergence criteria for solving a system of linear equations
+  real(kind=wp) :: ThrConv = 1.0e-6_wp
+  ! NOMI      do not create an PM-CAS wavefunction file (JobMix)
+  logical(kind=iwp) :: NoMix = .false.
+  ! NOMU      do not perform a multistate interaction
+  logical(kind=iwp) :: noMult = .false.
+  ! ONLY      in a MS calculation, compute a single root with couplings to the other roots
+  integer(kind=iwp) :: OnlyRoot = 0
+  ! EFFE      read Heff coupling terms from the input and perform only the multistate part
+  logical(kind=iwp) :: JMS = .false.
+  real(kind=wp), allocatable :: Heff(:,:)
+  ! NOOR      do not print orbitals
+  logical(kind=iwp) :: PrOrb = .true.
+  ! PROP      compute properties
+  ! NOPR      do not compute properties
+  logical(kind=iwp) :: Properties = .false.
+  ! transformation of reference (input) orbitals
+  ! NOTR      do not transform to quasi-canonical orbitals,
+  !           regardless of the state of the reference orbitals
+  ! TRAN      transform to quasi-canonical orbitals, regardless
+  !           of the state of the reference orbitals
+  ! the default is to use transformation, unless the PT2 keyword
+  ! was used in the rasscf program and the fock matrix is standard
+  character(len=8) :: OrbIn = 'TRANSFOR'
+  ! OFEM      add orbital-free embedding potential to hamiltonian
+  logical(kind=iwp) :: OFEmbedding = .false.
+  ! OUTP      control extent of orbital printing
+  character(len=8) :: OutFormat = 'DEFAULT '
+  ! PRWF      print the CI coefficients above this threshold
+  real(kind=wp) :: PrWF = 0.05_wp
+  ! PRSD      print the determinant expansion of CSFs
+  logical(kind=iwp) :: PrSD = .false.
 
-    ! UNDOCUMENTED KEYWORDS
-    ! CHOL
-    Logical(kind=iwp) :: Chol = .false.
-    ! CHOI
-    Logical(kind=iwp) :: Choi = .false.
-    ! WTHR      thresholds for writing large components in the
-    !           first-order perturbed wave function, 3 values that
-    !           are for denominator, coefficient, and energy
-    Real(kind=wp) :: DnmThr = 0.3_wp,CmpThr = 0.025_wp,CntThr = 0.005_wp
-    ! FOCK      string representing the type of Fock matrix
-    Character(len=8)  :: FockType = 'STANDARD'
-    ! HZER      string representing the type of 0-order hamiltonian
-    Character(len=8)  :: Hzero = 'STANDARD'
-    ! G1SE      include secondary/inactive elements of the exchange
-    !           matrix in the g1 modification to the fock matrix
-    Logical(kind=iwp) :: G1SecIn = .false.
-    ! RHSD      use the RHS-ondemand algorithm for the calculation of the right-hand side
-    Logical(kind=iwp) :: RHSD = .false.
-    ! CUMU
-    Logical(kind=iwp) :: doCumulant = .false.
-    ! DMRG      DMRG-CASPT2 using QCMaquis
-    Logical(kind=iwp) :: DMRG = .false.
-    ! Compress MPS for (t)3-RDM computation to bond dimension given by CompressMPD
-    Integer(kind=iwp) :: CompressMPS = 0
-    ! SADREF    use state-averaged density even for SS-CASPT2 with
-    !           SA-CASSCF reference and MS-CASPT2 (not XMS)
-    Logical(kind=iwp) :: SADREF = .False.
-    ! DORT      use the conventional (canonical) orthonormalization for generating
-    !           internally contracted basis, rather than scaled (?)
-    !           procedure by the diagonal element. This option is
-    !           'sometimes' needed for analytic gradient.
-    Logical(kind=iwp) :: DORTHO = .False.
-    ! INVAR     specify the CASPT2 energy is invariant wrt active
-    !           orbital rotations. This is automatically set for
-    !           the case with IPEA shift. Otherwise, just for debug
-    !           purpose
-    Logical(kind=iwp) :: INVAR  = .True.
-    ! CVIN      Convergence threshold for non-invariant CASPT2 equation
-    Real(kind=wp) :: ThrConvInvar = 1.0e-07_wp
-    ! GRDT      used for single-point gradient calculation
-    Logical(kind=iwp) :: GRDT = .False.
-    ! NAC       compute NAC or interstate coupling vectors
-    Logical(kind=iwp) :: NAC = .False.
-    Integer(kind=iwp) :: iNACRoot1=0, iNACRoot2=0
-    ! CSF       compute CSF contributions in derivative coupling
-    Logical(kind=iwp) :: CSF = .True.
-    ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
-    !           and secondary orbital rotations. Development purpose
-    Logical(kind=iwp) :: IAINVAR = .True.
-    ! PRHS      Parallel strategy for RHS construction
-    !           '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
-    Character(len=7) :: PRHS = 'DEFAULT'
+  ! UNDOCUMENTED KEYWORDS
+  ! CHOL
+  logical(kind=iwp) :: Chol = .false.
+  ! CHOI
+  logical(kind=iwp) :: Choi = .false.
+  ! WTHR      thresholds for writing large components in the
+  !           first-order perturbed wave function, 3 values that
+  !           are for denominator, coefficient, and energy
+  real(kind=wp) :: DnmThr = 0.3_wp, CmpThr = 0.025_wp, CntThr = 0.005_wp
+  ! FOCK      string representing the type of Fock matrix
+  character(len=8) :: FockType = 'STANDARD'
+  ! HZER      string representing the type of 0-order hamiltonian
+  character(len=8) :: Hzero = 'STANDARD'
+  ! G1SE      include secondary/inactive elements of the exchange
+  !           matrix in the g1 modification to the fock matrix
+  logical(kind=iwp) :: G1SecIn = .false.
+  ! RHSD      use the RHS-ondemand algorithm for the calculation of the right-hand side
+  logical(kind=iwp) :: RHSD = .false.
+  ! CUMU
+  logical(kind=iwp) :: doCumulant = .false.
+  ! DMRG      DMRG-CASPT2 using QCMaquis
+  logical(kind=iwp) :: DMRG = .false.
+  ! Compress MPS for (t)3-RDM computation to bond dimension given by CompressMPD
+  integer(kind=iwp) :: CompressMPS = 0
+  ! SADREF    use state-averaged density even for SS-CASPT2 with
+  !           SA-CASSCF reference and MS-CASPT2 (not XMS)
+  logical(kind=iwp) :: SADREF = .false.
+  ! DORT      use the conventional (canonical) orthonormalization for generating
+  !           internally contracted basis, rather than scaled (?)
+  !           procedure by the diagonal element. This option is
+  !           'sometimes' needed for analytic gradient.
+  logical(kind=iwp) :: DORTHO = .false.
+  ! INVAR     specify the CASPT2 energy is invariant wrt active
+  !           orbital rotations. This is automatically set for
+  !           the case with IPEA shift. Otherwise, just for debug
+  !           purpose
+  logical(kind=iwp) :: INVAR = .true.
+  ! CVIN      Convergence threshold for non-invariant CASPT2 equation
+  real(kind=wp) :: ThrConvInvar = 1.0e-07_wp
+  ! GRDT      used for single-point gradient calculation
+  logical(kind=iwp) :: GRDT = .false.
+  ! NAC       compute NAC or interstate coupling vectors
+  logical(kind=iwp) :: NAC = .false.
+  integer(kind=iwp) :: iNACRoot1 = 0, iNACRoot2 = 0
+  ! CSF       compute CSF contributions in derivative coupling
+  logical(kind=iwp) :: CSF = .true.
+  ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
+  !           and secondary orbital rotations. Development purpose
+  logical(kind=iwp) :: IAINVAR = .true.
+  ! PRHS      Parallel strategy for RHS construction
+  !           '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
+  character(len=7) :: PRHS = 'DEFAULT'
 
-  end type ! end of type InputTable
+end type ! end of type InputTable
 
-  ! Define the Input as an InputTable structure
-  type(InputTable), allocatable :: Input
+! Define the Input as an InputTable structure
+type(InputTable), allocatable :: Input
 
-  public :: Input, readin_CASPT2, CleanUp_Input
+public :: Input, readin_CASPT2, CleanUp_Input
 
 contains
 
-  subroutine readin_CASPT2(LuIn,nSym)
-    !SVC read and store the input as independent as possible. Any sanity
-    ! checks not required for reading in the input should be postponed till
-    ! the proc_inp call (processing of input). The only variable needed here
-    ! is nSym, as some input lines assume knowledge of the number of irreps.
+subroutine readin_CASPT2(LuIn,nSym)
+  !SVC read and store the input as independent as possible. Any sanity
+  ! checks not required for reading in the input should be postponed till
+  ! the proc_inp call (processing of input). The only variable needed here
+  ! is nSym, as some input lines assume knowledge of the number of irreps.
 
-    Use text_file, Only: extend_line, next_non_comment
+  use text_file, only: extend_line, next_non_comment
 
-    Integer(kind=iwp),intent(in) :: LuIn,nSym
+  integer(kind=iwp), intent(in) :: LuIn, nSym
+  character(len=:), allocatable :: dLine, Line
+  character(len=4) :: Command, Word
+  integer(kind=iwp) :: i, j, iSym
+  integer(kind=iwp) :: nStates = 0
+  integer(kind=iwp) :: iSplit, iError
 
-    Character(len=:),allocatable :: dLine, Line
-    Character(len=4) :: Command,Word
+# ifdef _ENABLE_CHEMPS2_DMRG_
+  logical(kind=iwp) :: dochemps2 = .false.
+# endif
 
-    Integer(kind=iwp) :: i,j,iSym
-    Integer(kind=iwp) :: nStates = 0
-    Integer(kind=iwp) :: iSplit,iError
+  ! even if SCF was performed with FCIQMC, stochastic CASPT2 requires manual invocation.
+  DoFCIQMC = .false.
+  ! User needs to specify that they do not want to sample in pseudo-canonical orbitals.
+  NonDiagonal = .false.
+  ! for now, non-histogramming remains the default, hopefully that will change soon.
+  TransformToNormalOrder = .false.
 
-#ifdef _ENABLE_CHEMPS2_DMRG_
-    Logical(kind=iwp) :: dochemps2 = .false.
-#endif
+  rewind(LuIn)
+  call RdNLst(LuIn,'CASPT2')
 
-    ! even if SCF was performed with FCIQMC, stochastic CASPT2 requires manual invocation.
-    DoFCIQMC = .false.
-    ! User needs to specify that they do not want to sample in pseudo-canonical orbitals.
-    NonDiagonal = .false.
-    ! for now, non-histogramming remains the default, hopefully that will change soon.
-    TransformToNormalOrder = .false.
+  ! beginning of reading loop
+  do
 
-    rewind(LuIn)
-    call RdNLst(LuIn,'CASPT2')
+    if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+    Command = Line(1:min(4,len(Line)))
+    call Upcase(Command)
 
-    ! beginning of reading loop
-    do
-
-      if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-      Command = Line(1:min(4,len(Line)))
-      call Upcase(Command)
-
-      ! Note that when multiple values are required, extend_line may
-      ! be called (0 or more times) until the READ statement gives no error.
-      ! This allows the input to be split in lines more or less arbitrarily,
-      ! as if the values were read directly from the file.
-      select case (Command)
+    ! Note that when multiple values are required, extend_line may
+    ! be called (0 or more times) until the READ statement gives no error.
+    ! This allows the input to be split in lines more or less arbitrarily,
+    ! as if the values were read directly from the file.
+    select case (Command)
 
       case ('TITL')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,'(A128)') Input%Title
+        read(Line,'(A128)') Input%Title
 
-      ! File with the reference CAS/RAS wavefunction
       case ('FILE')
+        ! File with the reference CAS/RAS wavefunction
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         ! Not using list-directed input (*), because then the slash means end of input
-        read (Line,'(A)',IOStat=iError) Input%file
+        read(Line,'(A)',iostat=iError) Input%file
         if (iError /= 0) call IOError(Line)
 
-      ! Root selection
+      ! root selection
+
       case ('MULT')
         Input%MULT = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*) Word
+        read(Line,*) Word
         call Upcase(Word)
         if (Word == 'ALL') then
           nStates = 0
           Input%AllMult = .true.
         else
-          read (Line,*,IOStat=iError) nStates
+          read(Line,*,iostat=iError) nStates
           if (iError /= 0) call IOError(Line)
           if (nStates <= 0) call MultError(Line)
         end if
         call mma_allocate(Input%MultGroup%State,nStates,label='MultGroup')
         Input%nMultState = nStates
         iSplit = scan(Line,' ')
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line(iSplit:)
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) (Input%MultGroup%State(i),i=1,nStates)
+          read(dLine,*,iostat=iError) (Input%MultGroup%State(i),i=1,nStates)
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       case ('XMUL')
         Input%XMUL = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*) Word
+        read(Line,*) Word
         call Upcase(Word)
         if (Word == 'ALL') then
           nStates = 0
           Input%AllXMult = .true.
         else
-          read (Line,*,IOStat=iError) nStates
+          read(Line,*,iostat=iError) nStates
           if (iError /= 0) call IOError(Line)
           if (nStates <= 1) call StatesError(Line)
         end if
         call mma_allocate(Input%XMulGroup%State,nStates,label='XMulGroup')
         Input%nXMulState = nStates
         iSplit = scan(Line,' ')
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line(iSplit:)
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) (Input%XMulGroup%State(i),i=1,nStates)
+          read(dLine,*,iostat=iError) (Input%XMulGroup%State(i),i=1,nStates)
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       case ('RMUL')
         Input%RMUL = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*) Word
+        read(Line,*) Word
         call Upcase(Word)
         if (Word == 'ALL') then
           nStates = 0
           Input%AllRMult = .true.
         else
-          read (Line,*,IOStat=iError) nStates
+          read(Line,*,iostat=iError) nStates
           if (iError /= 0) call IOError(Line)
           if (nStates <= 1) call StatesError(Line)
         end if
         call mma_allocate(Input%RMulGroup%State,nStates,label='RMulGroup')
         Input%nRMulState = nStates
         iSplit = scan(Line,' ')
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line(iSplit:)
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) (Input%RMulGroup%State(i),i=1,nStates)
+          read(dLine,*,iostat=iError) (Input%RMulGroup%State(i),i=1,nStates)
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       case ('DWMS')
         Input%DWMS = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%ZETA
+        read(Line,*,iostat=iError) Input%ZETA
         if (iError /= 0) call IOError(Line)
 
       case ('DWTY')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%DWType
+        read(Line,*,iostat=iError) Input%DWType
         if (iError /= 0) call IOError(Line)
 
       case ('LROO')
         Input%LROO = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%SingleRoot
+        read(Line,*,iostat=iError) Input%SingleRoot
         if (iError /= 0) call IOError(Line)
 
       case ('RLXR')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%RlxRoot
+        read(Line,*,iostat=iError) Input%RlxRoot
         if (iError /= 0) call IOError(Line)
 
       ! freeze-deleted control
@@ -389,7 +388,7 @@ contains
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) (Input%nFro(iSym),iSym=1,nSym)
+          read(dLine,*,iostat=iError) (Input%nFro(iSym),iSym=1,nSym)
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -402,65 +401,65 @@ contains
         Input%DELE = .true.
         call mma_allocate(Input%nDel,nSYM,label='nDel')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) (Input%nDel(iSym),iSym=1,nSym)
+          read(dLine,*,iostat=iError) (Input%nDel(iSym),iSym=1,nSym)
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       ! equation solver control
 
       case ('MAXI')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%maxIter
+        read(Line,*,iostat=iError) Input%maxIter
         if (iError /= 0) call IOError(Line)
 
       case ('CONV')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%ThrConv
+        read(Line,*,iostat=iError) Input%ThrConv
         if (iError /= 0) call IOError(Line)
 
       case ('THRE')
         Input%THRE = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) Input%ThrsHN,Input%ThrsHS
+          read(dLine,*,iostat=iError) Input%ThrsHN,Input%ThrsHS
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       case ('SHIF')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%real_shift
+        read(Line,*,iostat=iError) Input%real_shift
         if (iError /= 0) call IOError(Line)
 
       case ('IMAG')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%imag_shift
+        read(Line,*,iostat=iError) Input%imag_shift
         if (iError /= 0) call IOError(Line)
 
       case ('SIG1')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%sigma_1_epsilon
+        read(Line,*,iostat=iError) Input%sigma_1_epsilon
         if (iError /= 0) call IOError(Line)
 
       case ('SIG2')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%sigma_2_epsilon
+        read(Line,*,iostat=iError) Input%sigma_2_epsilon
         if (iError /= 0) call IOError(Line)
 
       ! environment
@@ -475,7 +474,7 @@ contains
 
       case ('PRWF')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%PrWF
+        read(Line,*,iostat=iError) Input%PrWF
         if (iError /= 0) call IOError(Line)
 
       case ('OUTP')
@@ -490,18 +489,18 @@ contains
 
       case ('WTHR')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) Input%DNMTHR,Input%CMPTHR,Input%CNTTHR
+          read(dLine,*,iostat=iError) Input%DNMTHR,Input%CMPTHR,Input%CNTTHR
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       ! properties
 
@@ -533,7 +532,7 @@ contains
       case ('IPEA')
         Input%ipea = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%ipea_shift
+        read(Line,*,iostat=iError) Input%ipea_shift
         if (iError /= 0) call IOError(Line)
 
       ! cholesky
@@ -552,26 +551,26 @@ contains
         Input%aFreeze = .true.
         Input%modify_correlating_MOs = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) Input%lnFro,Input%ThrFr,Input%ThrDe
+          read(dLine,*,iostat=iError) Input%lnFro,Input%ThrFr,Input%ThrDe
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
         call mma_allocate(Input%NamFro,Input%lnFro,label='NamFro')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call Upcase(Line)
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) (Input%NamFro(i),i=1,Input%lnFro)
+          read(dLine,*,iostat=iError) (Input%NamFro(i),i=1,Input%lnFro)
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -579,25 +578,25 @@ contains
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       case ('LOVC')
         Input%LovCASPT2 = .true.
         Input%modify_correlating_MOs = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%thr_atm
+        read(Line,*,iostat=iError) Input%thr_atm
         if (iError /= 0) call IOError(Line)
 
       case ('FNOC')
         Input%FnoCASPT2 = .true.
         Input%modify_correlating_MOs = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%vFrac
+        read(Line,*,iostat=iError) Input%vFrac
         if (iError /= 0) call IOError(Line)
 
       case ('REGF')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%RegFNO
+        read(Line,*,iostat=iError) Input%RegFNO
         if (iError /= 0) call IOError(Line)
 
       case ('DOMP')
@@ -613,7 +612,7 @@ contains
         Input%GhostDelete = .true.
         Input%modify_correlating_MOs = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%ThrGD
+        read(Line,*,iostat=iError) Input%ThrGD
         if (iError /= 0) call IOError(Line)
 
       case ('NOMU')
@@ -621,7 +620,7 @@ contains
 
       case ('ONLY')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%OnlyRoot
+        read(Line,*,iostat=iError) Input%OnlyRoot
         if (iError /= 0) call IOError(Line)
 
       case ('NOMI')
@@ -630,98 +629,105 @@ contains
       case ('RHSD')
         Input%RHSD = .true.
 
-#ifdef _ENABLE_BLOCK_DMRG_
+#     ifdef _ENABLE_BLOCK_DMRG_
       case ('CUMU')
         Input%doCumulant = .true.
-#elif _ENABLE_CHEMPS2_DMRG_
+
+#     elif _ENABLE_CHEMPS2_DMRG_
       case ('CHEM')
         !Quan: Using the same variable doCumulant in Block
         Input%doCumulant = .true.
         dochemps2 = .true.
-#elif _DMRG_
+
+#     elif _DMRG_
       case ('DMRG')
         Input%DMRG = .true.
+
       case ('CMPS')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%CompressMPS
+        read(Line,*,iostat=iError) Input%CompressMPS
         if (iError /= 0) call IOError(Line)
 #endif
+
       case ('FCIQ')
         DoFciQMC = .true.
+
       case ('NDIA')
         NonDiagonal = .true.
+
       case ('NORD')
         TransformToNormalOrder = .true.
 
       case ('EFFE')
         Input%JMS = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) nStates
+        read(Line,*,iostat=iError) nStates
         if (iError /= 0) call IOError(Line)
         call mma_allocate(Input%Heff,nStates,nStates,label='Heff')
         Input%Heff = Zero
-        do i = 1,nStates
+        do i=1,nStates
           if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-          call mma_allocate (dLine,len(Line),label='dLine')
+          call mma_allocate(dLine,len(Line),label='dLine')
           dLine(:) = Line
           iError = -1
           do while (iError < 0)
-            read (dLine,*,IOStat=iError) (Input%Heff(i,j),j=1,nStates)
+            read(dLine,*,iostat=iError) (Input%Heff(i,j),j=1,nStates)
             if (iError > 0) call IOError(Line)
             if (iError < 0) then
               if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
               call extend_line(dLine,Line)
             end if
           end do
-          call mma_deallocate (dLine)
+          call mma_deallocate(dLine)
         end do
 
-      case('SADR')
+      case ('SADR')
         Input%SADREF = .true.
 
-      case('DORT')
-        Input%DORTHO = .true.
-      case('CORT') !! it is actually the canonical orthonormalization
+      case ('DORT')
         Input%DORTHO = .true.
 
-      case('INVA')
+      case ('CORT') !! it is actually the canonical orthonormalization
+        Input%DORTHO = .true.
+
+      case ('INVA')
         Input%INVAR = .false.
 
-      case('CVIN')
+      case ('CVIN')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%ThrConvInvar
+        read(Line,*,iostat=iError) Input%ThrConvInvar
         if (iError /= 0) call IOError(Line)
 
-      case('GRDT')
-        Input%GRDT  = .true.
+      case ('GRDT')
+        Input%GRDT = .true.
 
-      case('NAC ')
+      case ('NAC ')
         Input%NAC = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
-          read (dLine,*,IOStat=iError) Input%iNACRoot1,Input%iNACRoot2
+          read(dLine,*,iostat=iError) Input%iNACRoot1,Input%iNACRoot2
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
-      Case('NOCS')
+      case ('NOCS')
         Input%CSF = .false.
 
-      Case('IAIN')
+      case ('IAIN')
         Input%IAINVAR = .false.
 
       case ('PRHS')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call StdFmt(Line,Input%PRHS)
 
-        ! OBSOLETE KEYWORDS
+      ! OBSOLETE KEYWORDS
 
       case ('GRAD')
         call WarningMessage(2,'Obsolete keyword: '//Command)
@@ -751,87 +757,97 @@ contains
         call WarningMessage(2,'Obsolete keyword: '//Command)
         call Quit_OnUserError()
 
-        ! DONE WITH READING INPUT
+      ! DONE WITH READING INPUT
 
       case ('END ')
         exit
 
-        ! NO MATCH FOUND, UNKOWN KEYWORD
+      ! NO MATCH FOUND, UNKOWN KEYWORD
 
       case default
         call WarningMessage(2,'Unrecognized keyword: '//Command)
         call Quit_OnUserError()
 
-      end select
+    end select
 
-    end do ! end of reading loop
+  end do ! end of reading loop
 
-#ifdef _ENABLE_CHEMPS2_DMRG_
-    ! Check if nState>1
-    if ((dochemps2 .EQV. .true.) .and. (nStates > 1)) then
-      write (u6,*) 'CHEMPS2> Only State Specific calculation supported'
-      call Quit_OnUserError()
-    endif
-#endif
-
-    if ((DoFCIQMC .eqv. .true.) .and. (nStates > 1)) then
-      write (u6,*) 'FCIQMC supports only state-specific CASPT2.'
-      write (u6,*) 'You requested ' // str(nStates) // ' states.'
-      write (u6,*) 'Consult the manual for the keyword "Multistate".'
-      call Quit_OnUserError()
-    endif
-
-    call mma_deallocate(Line)
-
-    ! Normal exit
-    return
-
-  end subroutine readin_CASPT2
-
-  subroutine CleanUp_Input()
-    if (allocated(Input)) then
-      call mma_deallocate(Input%MultGroup%State,safe='*')
-      call mma_deallocate(Input%XMulGroup%State,safe='*')
-      call mma_deallocate(Input%RMulGroup%State,safe='*')
-      call mma_deallocate(Input%NamFro,safe='*')
-      call mma_deallocate(Input%nFro,safe='*')
-      call mma_deallocate(Input%nDel,safe='*')
-      call mma_deallocate(Input%Heff,safe='*')
-      ! The input structure itself is a scalar, allocated outside mma
-      deallocate(Input)
-    end if
-  end subroutine CleanUp_Input
-
-  subroutine IOError(line)
-    Character(len=*),intent(in) :: line
-
-    call WarningMessage(2,'I/O error when reading line.')
-    write (u6,*) 'Last line read from input: ',line
+# ifdef _ENABLE_CHEMPS2_DMRG_
+  ! Check if nState>1
+  if (dochemps2 .and. (nStates > 1)) then
+    write(u6,*) 'CHEMPS2> Only State Specific calculation supported'
     call Quit_OnUserError()
-  end subroutine IOError
+  end if
+# endif
 
-  subroutine EOFError(line)
-    Character(len=*),intent(in) :: line
-
-    call WarningMessage(2,'Premature end of input file.')
-    write (u6,*) 'Last line read from input: ',line
+  if (DoFCIQMC .and. (nStates > 1)) then
+    write(u6,*) 'FCIQMC supports only state-specific CASPT2.'
+    write(u6,*) 'You requested '//str(nStates)//' states.'
+    write(u6,*) 'Consult the manual for the keyword "Multistate".'
     call Quit_OnUserError()
-  end subroutine EOFError
+  end if
 
-  subroutine StatesError(line)
-    Character(len=*),intent(in) :: line
+  call mma_deallocate(Line)
 
-    call WarningMessage(2,'Number of XMULT or RMULT states must be > 1.')
-    write (u6,*) 'Last line read from input: ',line
-    call Quit_OnUserError()
-  end subroutine StatesError
+  ! Normal exit
+  return
 
-  subroutine MultError(line)
-    Character(len=*),intent(in) :: line
+end subroutine readin_CASPT2
 
-    call WarningMessage(2,'Number of MULT states must be > 0.')
-    write (u6,*) 'Last line read from input: ',line
-    call Quit_OnUserError()
-  end subroutine MultError
+subroutine CleanUp_Input()
+
+  if (allocated(Input)) then
+    call mma_deallocate(Input%MultGroup%State,safe='*')
+    call mma_deallocate(Input%XMulGroup%State,safe='*')
+    call mma_deallocate(Input%RMulGroup%State,safe='*')
+    call mma_deallocate(Input%NamFro,safe='*')
+    call mma_deallocate(Input%nFro,safe='*')
+    call mma_deallocate(Input%nDel,safe='*')
+    call mma_deallocate(Input%Heff,safe='*')
+    ! The input structure itself is a scalar, allocated outside mma
+    deallocate(Input)
+  end if
+
+end subroutine CleanUp_Input
+
+subroutine IOError(line)
+
+  character(len=*), intent(in) :: line
+
+  call WarningMessage(2,'I/O error when reading line.')
+  write(u6,*) 'Last line read from input: ',line
+  call Quit_OnUserError()
+
+end subroutine IOError
+
+subroutine EOFError(line)
+
+  character(len=*), intent(in) :: line
+
+  call WarningMessage(2,'Premature end of input file.')
+  write(u6,*) 'Last line read from input: ',line
+  call Quit_OnUserError()
+
+end subroutine EOFError
+
+subroutine StatesError(line)
+
+  character(len=*), intent(in) :: line
+
+  call WarningMessage(2,'Number of XMULT or RMULT states must be > 1.')
+  write(u6,*) 'Last line read from input: ',line
+  call Quit_OnUserError()
+
+end subroutine StatesError
+
+subroutine MultError(line)
+
+  character(len=*), intent(in) :: line
+
+  call WarningMessage(2,'Number of MULT states must be > 0.')
+  write(u6,*) 'Last line read from input: ',line
+  call Quit_OnUserError()
+
+end subroutine MultError
 
 end module InputData

@@ -23,136 +23,122 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_SR2C (ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2,           &
-     &                     ICASE,ISYM)
-      use definitions, only: iwp, wp, u6
-      use Constants, only: Zero, One
+subroutine RHS_SR2C(ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)
 !SVC: this routine transforms the RHS arrays from SR format (V1) to C
 !     format (V2) (IREV=0) and back (IREV=1), with ITYP specifying if
 !     only the T matrix is used (ITYP=0) or the product of S and T
 !     (ITYP=1).
+
+use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      use caspt2_global, only: LUSBT
-      use EQSOLV, only: IDTMAT, IDSTMAT
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use fake_GA, only: GA_Arrays
-      IMPLICIT None
-      integer(kind=iwp), intent(in)::ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2, &
-     &                               ICASE,ISYM
+use caspt2_global, only: LUSBT
+use EQSOLV, only: IDTMAT, IDSTMAT
+use stdalloc, only: mma_allocate, mma_deallocate
+use fake_GA, only: GA_Arrays
 
-      Real(kind=wp), Allocatable:: T(:)
-      integer(kind=iwp) IDT
-
+implicit none
+integer(kind=iwp), intent(in) :: ITYP, IREV, NAS, NIS, NIN, lg_V1, lg_V2, ICASE, ISYM
+real(kind=wp), allocatable :: T(:)
+integer(kind=iwp) IDT
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL(kind=iwp) bStat
-      integer(kind=iwp) lg_T, myRank,iLoV1,iHiV1,jLoV1,jHiV1,           &
-     &                               iLoV2,iHiV2,jLoV2,jHiV2,           &
-     &                  NROW1, NROW2, NCOL1, NCOL2,                     &
-     &                  mV1,LDV1,mV2,LDV2
+logical(kind=iwp) bStat
+integer(kind=iwp) lg_T, myRank, iLoV1, iHiV1, jLoV1, jHiV1, iLoV2, iHiV2, jLoV2, jHiV2, NROW1, NROW2, NCOL1, NCOL2, mV1, LDV1, &
+                  mV2, LDV2
 
-      IF (Is_Real_Par()) THEN
-        IF (ICASE.EQ.1 .OR. ICASE.EQ.4) THEN
-!-SVC: if case is A or C, the S/ST matrices are loaded as global arrays,
-!      then use the dgemm from GA to operate.
-          CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
-          IF (ITYP.EQ.0) THEN
-            CALL PSBMAT_READ ('T',iCase,iSym,lg_T,NAS*NIN)
-          ELSE IF (ITYP.EQ.1) THEN
-            CALL PSBMAT_READ ('M',iCase,iSym,lg_T,NAS*NIN)
-          ELSE
-            WRITE(u6,*) 'RHS_SR2C: invalid type = ', ITYP
-            CALL AbEnd()
-          END IF
+if (Is_Real_Par()) then
+  if ((ICASE == 1) .or. (ICASE == 4)) then
+    !-SVC: if case is A or C, the S/ST matrices are loaded as global arrays,
+    !      then use the dgemm from GA to operate.
+    call GA_CREATE_STRIPED('H',NAS,NIN,'TMAT',lg_T)
+    if (ITYP == 0) then
+      call PSBMAT_READ('T',iCase,iSym,lg_T,NAS*NIN)
+    else if (ITYP == 1) then
+      call PSBMAT_READ('M',iCase,iSym,lg_T,NAS*NIN)
+    else
+      write(u6,*) 'RHS_SR2C: invalid type = ',ITYP
+      call AbEnd()
+    end if
 
-          IF (IREV.EQ.0) THEN
-            CALL GA_DGEMM ('N','N',NAS,NIS,NIN,                         &
-     &                     One,lg_T,lg_V1,Zero,lg_V2)
-          ELSE
-            CALL GA_DGEMM ('T','N',NIN,NIS,NAS,                         &
-     &                     One,lg_T,lg_V2,Zero,lg_V1)
-          END IF
-          bStat = GA_Destroy(lg_T)
-        ELSE
-!-SVC: if case is not A or C, the S/ST matrices are stored in replicate
-!      fashion, and the RHS are stored as vertical stripes, so use dgemm
-!      on local memory, after accessing the local patch of the vector.
-          CALL mma_allocate(T,NAS*NIN,Label='T')
-          IF (ITYP.EQ.0) THEN
-            IDT=IDTMAT(ISYM,ICASE)
-          ELSE IF (ITYP.EQ.1) THEN
-            IDT=IDSTMAT(ISYM,ICASE)
-          ELSE
-            WRITE(u6,*) 'RHS_SR2C: invalid type = ', ITYP
-            CALL AbEnd()
-          END IF
-          CALL DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
-!-SVC: get the local vertical stripes of the V1 and V2 vectors
-          CALL GA_Sync()
-          myRank = GA_NodeID()
-          CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-          CALL GA_Distribution (lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
-          IF (jLoV1.NE.0.AND.jLoV2.NE.0) THEN
-            NROW1=iHiV1-iLoV1+1
-            NROW2=iHiV2-iLoV2+1
-            NCOL1=jHiV1-jLoV1+1
-            NCOL2=jHiV2-jLoV2+1
-            IF (NCOL1.NE.NCOL2 .OR. NROW1.NE.NIN .OR. NROW2.NE.NAS) THEN
-              WRITE(u6,*) 'RHS_SR2C: inconsistent stripe size'
-              WRITE(u6,'(A,I3)') 'ICASE = ', ICASE
-              WRITE(u6,'(A,I3)') 'ISYM  = ', ISYM
-              WRITE(u6,'(A,2I6)') 'NCOL1, NCOL2 = ', NCOL1, NCOL2
-              WRITE(u6,'(A,2I6)') 'NROW1, NIN   = ', NROW1, NIN
-              WRITE(u6,'(A,2I6)') 'NROW2, NAS   = ', NROW2, NAS
-              CALL AbEnd()
-            END IF
-            CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
-            CALL GA_Access (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-            IF (IREV.EQ.0) THEN
-              CALL DGEMM_('N','N',NAS,NCOL1,NIN,                        &
-     &                    One,T,NAS,DBL_MB(mV1),LDV1,                   &
-     &                    Zero,DBL_MB(mV2),LDV2)
-            ELSE
-              CALL DGEMM_('T','N',NIN,NCOL1,NAS,                        &
-     &                    One,T,NAS,DBL_MB(mV2),LDV2,                   &
-     &                    Zero,DBL_MB(mV1),LDV1)
-!             WRITE(6,*) 'Fingerprint =', RHS_DDOT(NAS,NIN,lg_V1,lg_V1)
-            END IF
-            CALL GA_Release_Update (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
-            CALL GA_Release_Update (lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
-          END IF
-          CALL mma_deallocate(T)
-          CALL GA_Sync()
-        END IF
-      ELSE
+    if (IREV == 0) then
+      call GA_DGEMM('N','N',NAS,NIS,NIN,One,lg_T,lg_V1,Zero,lg_V2)
+    else
+      call GA_DGEMM('T','N',NIN,NIS,NAS,One,lg_T,lg_V2,Zero,lg_V1)
+    end if
+    bStat = GA_Destroy(lg_T)
+  else
+    !-SVC: if case is not A or C, the S/ST matrices are stored in replicate
+    !      fashion, and the RHS are stored as vertical stripes, so use dgemm
+    !      on local memory, after accessing the local patch of the vector.
+    call mma_allocate(T,NAS*NIN,Label='T')
+    if (ITYP == 0) then
+      IDT = IDTMAT(ISYM,ICASE)
+    else if (ITYP == 1) then
+      IDT = IDSTMAT(ISYM,ICASE)
+    else
+      write(u6,*) 'RHS_SR2C: invalid type = ',ITYP
+      call AbEnd()
+    end if
+    call DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
+    !-SVC: get the local vertical stripes of the V1 and V2 vectors
+    call GA_Sync()
+    myRank = GA_NodeID()
+    call GA_Distribution(lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
+    call GA_Distribution(lg_V2,myRank,iLoV2,iHiV2,jLoV2,jHiV2)
+    if ((jLoV1 /= 0) .and. (jLoV2 /= 0)) then
+      NROW1 = iHiV1-iLoV1+1
+      NROW2 = iHiV2-iLoV2+1
+      NCOL1 = jHiV1-jLoV1+1
+      NCOL2 = jHiV2-jLoV2+1
+      if ((NCOL1 /= NCOL2) .or. (NROW1 /= NIN) .or. (NROW2 /= NAS)) then
+        write(u6,*) 'RHS_SR2C: inconsistent stripe size'
+        write(u6,'(A,I3)') 'ICASE = ',ICASE
+        write(u6,'(A,I3)') 'ISYM  = ',ISYM
+        write(u6,'(A,2I6)') 'NCOL1, NCOL2 = ',NCOL1,NCOL2
+        write(u6,'(A,2I6)') 'NROW1, NIN   = ',NROW1,NIN
+        write(u6,'(A,2I6)') 'NROW2, NAS   = ',NROW2,NAS
+        call AbEnd()
+      end if
+      call GA_Access(lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
+      call GA_Access(lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
+      if (IREV == 0) then
+        call DGEMM_('N','N',NAS,NCOL1,NIN,One,T,NAS,DBL_MB(mV1),LDV1,Zero,DBL_MB(mV2),LDV2)
+      else
+        call DGEMM_('T','N',NIN,NCOL1,NAS,One,T,NAS,DBL_MB(mV2),LDV2,Zero,DBL_MB(mV1),LDV1)
+        !write(u6,*) 'Fingerprint =',RHS_DDOT(NAS,NIN,lg_V1,lg_V1)
+      end if
+      call GA_Release_Update(lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
+      call GA_Release_Update(lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
+    end if
+    call mma_deallocate(T)
+    call GA_Sync()
+  end if
+else
 #endif
-        CALL mma_allocate(T,NAS*NIN,Label='T')
-        IF (ITYP.EQ.0) THEN
-          IDT=IDTMAT(ISYM,ICASE)
-        ELSE IF (ITYP.EQ.1) THEN
-          IDT=IDSTMAT(ISYM,ICASE)
-        ELSE
-          WRITE(u6,*) 'RHS_SR2C: invalid type = ', ITYP
-          CALL AbEnd()
-        END IF
-        CALL DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
-        IF (IREV.EQ.0) THEN
-          CALL DGEMM_('N','N',NAS,NIS,NIN,                              &
-     &                One,T,NAS,GA_Arrays(lg_V1)%A,NIN,                 &
-     &                Zero,GA_Arrays(lg_V2)%A,NAS)
-        ELSE
-          CALL DGEMM_('T','N',NIN,NIS,NAS,                              &
-     &                One,T,NAS,GA_Arrays(lg_V2)%A,NAS,                 &
-     &                Zero,GA_Arrays(lg_V1)%A,NIN)
-        END IF
-        CALL mma_deallocate(T)
+  call mma_allocate(T,NAS*NIN,Label='T')
+  if (ITYP == 0) then
+    IDT = IDTMAT(ISYM,ICASE)
+  else if (ITYP == 1) then
+    IDT = IDSTMAT(ISYM,ICASE)
+  else
+    write(u6,*) 'RHS_SR2C: invalid type = ',ITYP
+    call AbEnd()
+  end if
+  call DDAFILE(LUSBT,2,T,NAS*NIN,IDT)
+  if (IREV == 0) then
+    call DGEMM_('N','N',NAS,NIS,NIN,One,T,NAS,GA_Arrays(lg_V1)%A,NIN,Zero,GA_Arrays(lg_V2)%A,NAS)
+  else
+    call DGEMM_('T','N',NIN,NIS,NAS,One,T,NAS,GA_Arrays(lg_V2)%A,NAS,Zero,GA_Arrays(lg_V1)%A,NIN)
+  end if
+  call mma_deallocate(T)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #include "macros.fh"
-      unused_var(bStat)
+unused_var(bStat)
 #endif
 
-      END SUBROUTINE RHS_SR2C
+end subroutine RHS_SR2C

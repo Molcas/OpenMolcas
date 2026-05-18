@@ -10,49 +10,44 @@
 !                                                                      *
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
-      Subroutine Cholesky_Vectors(MODE,ITK,ITQ,JSYM,Array,mArray,nArray,&
-     &                            IBSTA,IBEND)
 
-      USE CHOVEC_IO, only: NVLOC_CHOBATCH, IDLOC_CHOGROUP, NPQ_CHOTYPE
-      use caspt2_module, only: NSYM
-      use definitions, only: wp, iwp
+subroutine Cholesky_Vectors(MODE,ITK,ITQ,JSYM,Array,mArray,nArray,IBSTA,IBEND)
 
-      implicit none
+use CHOVEC_IO, only: NVLOC_CHOBATCH, IDLOC_CHOGROUP, NPQ_CHOTYPE
+use caspt2_module, only: NSYM
+use definitions, only: wp, iwp
 
 #include "intent.fh"
 
-      integer(kind=iwp), intent(in) :: MODE, ITK, ITQ, JSYM, mArray,    &
-     &  IBSTA, IBEND
-      integer(kind=iwp), intent(out) :: nArray
-      real(kind=wp), intent(_OUT_) :: Array(mArray)
+implicit none
+integer(kind=iwp), intent(in) :: MODE, ITK, ITQ, JSYM, mArray, IBSTA, IBEND
+integer(kind=iwp), intent(out) :: nArray
+real(kind=wp), intent(_OUT_) :: Array(mArray)
+integer(kind=iwp) :: ICASE, LKETSM, LUCDER, ISYK, NQK, IB, NV, NKETSM, IDISK
 
-      integer(kind=iwp) :: ICASE, LKETSM, LUCDER, ISYK, NQK, IB, NV,    &
-     &  NKETSM, IDISK
+! ugly hack to convert separate k/q orbital types into a specific case
+ICASE = ITK*ITQ
+if (ICASE == 3) then
+  ICASE = 4
+else
+  ICASE = ICASE/2
+end if
 
-      ! ugly hack to convert separate k/q orbital types into a specific
-      ! case
-      ICASE=ITK*ITQ
-      IF (ICASE == 3) THEN
-        ICASE=4
-      ELSE
-        ICASE=ICASE/2
-      END IF
+LKETSM = 1
+LUCDER = 63 ! tentative
+do ISYK=1,NSYM
+  NQK = NPQ_CHOTYPE(ICASE,ISYK,JSYM)
+  if (NQK == 0) cycle
+  do IB=IBSTA,IBEND
+    NV = NVLOC_CHOBATCH(IB)
+    NKETSM = NQK*NV
+    IDISK = IDLOC_CHOGROUP(ICASE,ISYK,JSYM,IB)
+    !! MODE = 1: write
+    !! MODE = 2: read
+    call DDAFILE(LUCDER,MODE,Array(LKETSM),NKETSM,IDISK)
+    LKETSM = LKETSM+NKETSM
+  end do
+end do
+nArray = LKETSM-1
 
-      LKETSM=1
-      LUCDER = 63 ! tentative
-      DO ISYK=1,NSYM
-        NQK=NPQ_CHOTYPE(ICASE,ISYK,JSYM)
-        IF(NQK == 0) CYCLE
-        DO IB=IBSTA,IBEND
-          NV=NVLOC_CHOBATCH(IB)
-          NKETSM=NQK*NV
-          IDISK=IDLOC_CHOGROUP(ICASE,ISYK,JSYM,IB)
-          !! MODE = 1: write
-          !! MODE = 2: read
-          CALL DDAFILE(LUCDER,MODE,Array(LKETSM),NKETSM,IDISK)
-          LKETSM=LKETSM+NKETSM
-        END DO
-      END DO
-      nArray=LKETSM-1
-!
-      End Subroutine Cholesky_Vectors
+end subroutine Cholesky_Vectors

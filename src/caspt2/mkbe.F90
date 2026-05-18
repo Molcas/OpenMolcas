@@ -16,87 +16,83 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKBE(DREF,NDREF,FD)
-      use definitions, only: iwp, wp
-      use constants, only: Half, Two
-      use caspt2_global, only:ipea_shift
-      use caspt2_global, only:LUSBT
-      use EQSOLV, only: IDBMAT, IDSMAT
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM,NINDEP,NASH,NAES,EPSA,EASUM
-      IMPLICIT NONE
 
-      INTEGER(KIND=IWP), INTENT(IN):: NDREF
-      REAL(KIND=WP), INTENT(IN):: DREF(NDREF),FD(NDREF)
+subroutine MKBE(DREF,NDREF,FD)
 
-      Real(KIND=WP), ALLOCATABLE:: BE(:), S(:), SD(:)
-      INTEGER(KIND=IWP) ISYM,NINP,NINM,NAS,NBE,NS,IDS,IDIAG,I,IT,ITABS, &
-     &                  IX,IXABS,IBE,ID,IDISK,IDT
-      Real(KIND=WP) VALUE,ET,EX
+use definitions, only: iwp, wp
+use constants, only: Half, Two
+use caspt2_global, only: ipea_shift
+use caspt2_global, only: LUSBT
+use EQSOLV, only: IDBMAT, IDSMAT
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: NSYM, NINDEP, NASH, NAES, EPSA, EASUM
+
+implicit none
+integer(kind=iwp), intent(in) :: NDREF
+real(kind=wp), intent(in) :: DREF(NDREF), FD(NDREF)
+real(kind=wp), allocatable :: BE(:), S(:), SD(:)
+integer(kind=iwp) ISYM, NINP, NINM, NAS, NBE, NS, IDS, IDIAG, I, IT, ITABS, IX, IXABS, IBE, ID, IDISK, IDT
+real(kind=wp) value, ET, EX
 
 ! Set up the matrix BE(t,x)
 ! Formula used:
-!    BE(t,x)=-Ftx + (EASUM-Ex-Et)*Dtx
-!            + 2dtx Ex
+!    BE(t,x)=-Ftx + (EASUM-Ex-Et)*Dtx + 2dtx Ex
 
+do ISYM=1,NSYM
+  NINP = NINDEP(ISYM,6)
+  if (NINP == 0) cycle
+  NINM = NINDEP(ISYM,7)
+  NAS = NASH(ISYM)
+  NBE = (NAS*(NAS+1))/2
+  if (NBE > 0) then
+    call mma_allocate(BE,NBE,LABEL='BE')
+    !GG.Nov03  Load in SD the diagonal elements of SE matrix:
+    NS = (NAS*(NAS+1))/2
+    call mma_allocate(S,NS,Label='S')
+    call mma_allocate(SD,NAS,Label='SD')
+    IDS = IDSMAT(ISYM,6)
+    call DDAFILE(LUSBT,2,S,NS,IDS)
+    IDIAG = 0
+    do I=1,NAS
+      IDIAG = IDIAG+I
+      SD(I) = S(IDIAG)
+    end do
+    call mma_deallocate(S)
+    !GG End
+  end if
+  do IT=1,NAS
+    ITABS = IT+NAES(ISYM)
+    ET = EPSA(ITABS)
+    do IX=1,IT
+      IXABS = IX+NAES(ISYM)
+      EX = EPSA(IXABS)
+      IBE = (IT*(IT-1))/2+IX
+      ID = (ITABS*(ITABS-1))/2+IXABS
+      value = -FD(ID)+(EASUM-EX-ET)*DREF(ID)
+      if (ITABS == IXABS) value = value+Two*EX
+      !GG.Nov03
+      if (IT == IX) then
+        IDT = (ITABS*(ITABS+1))/2
+        value = value+ipea_shift*Half*DREF(IDT)*SD(IT)
+      end if
+      !GG End
+      BE(IBE) = value
+    end do
+  end do
 
-      DO ISYM=1,NSYM
-        NINP=NINDEP(ISYM,6)
-        IF(NINP.EQ.0) CYCLE
-        NINM=NINDEP(ISYM,7)
-        NAS=NASH(ISYM)
-        NBE=(NAS*(NAS+1))/2
-        IF(NBE.GT.0) THEN
-          CALL mma_allocate(BE,NBE,LABEL='BE')
-!GG.Nov03  Load in SD the diagonal elements of SE matrix:
-          NS=(NAS*(NAS+1))/2
-          CALL mma_allocate(S,NS,Label='S')
-          CALL mma_allocate(SD,NAS,Label='SD')
-          IDS=IDSMAT(ISYM,6)
-          CALL DDAFILE(LUSBT,2,S,NS,IDS)
-          IDIAG=0
-          DO I=1,NAS
-            IDIAG=IDIAG+I
-            SD(I)=S(IDIAG)
-          END DO
-          CALL mma_deallocate(S)
-        ENDIF
-!GG End
-        DO IT=1,NAS
-          ITABS=IT+NAES(ISYM)
-          ET=EPSA(ITABS)
-          DO IX=1,IT
-            IXABS=IX+NAES(ISYM)
-            EX=EPSA(IXABS)
-            IBE=(IT*(IT-1))/2+IX
-            ID=(ITABS*(ITABS-1))/2+IXABS
-            VALUE=-FD(ID)+(EASUM-EX-ET)*DREF(ID)
-            IF(ITABS.EQ.IXABS) THEN
-              VALUE=VALUE+Two*EX
-            END IF
-!GG.Nov03
-            IF (IT.eq.IX) THEN
-              IDT=(ITABS*(ITABS+1))/2
-              VALUE=VALUE+ipea_shift*Half*DREF(IDT)*SD(IT)
-            ENDIF
-!GG End
-            BE(IBE)=VALUE
-          END DO
-        END DO
+  ! Write to disk
+  if ((NBE > 0) .and. (NINDEP(ISYM,6) > 0)) then
+    IDISK = IDBMAT(ISYM,6)
+    call DDAFILE(LUSBT,1,BE,NBE,IDISK)
+    if ((NINM > 0) .and. (NINDEP(ISYM,7) > 0)) then
+      IDISK = IDBMAT(ISYM,7)
+      call DDAFILE(LUSBT,1,BE,NBE,IDISK)
+    end if
+    call mma_deallocate(BE)
+    !GG.Nov03 DisAlloc SD
+    call mma_deallocate(SD)
+    !GG End
+  end if
+end do
 
-! Write to disk
-        IF(NBE.GT.0.and.NINDEP(ISYM,6).GT.0) THEN
-          IDISK=IDBMAT(ISYM,6)
-          CALL DDAFILE(LUSBT,1,BE,NBE,IDISK)
-          IF(NINM.GT.0.and.NINDEP(ISYM,7).GT.0) THEN
-            IDISK=IDBMAT(ISYM,7)
-            CALL DDAFILE(LUSBT,1,BE,NBE,IDISK)
-          END IF
-          CALL mma_deallocate(BE)
-!GG.Nov03 DisAlloc SD
-          CALL mma_deallocate(SD)
-!GG End
-        END IF
-      END DO
-
-      END SUBROUTINE MKBE
+end subroutine MKBE

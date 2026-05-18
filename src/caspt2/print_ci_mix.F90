@@ -11,84 +11,82 @@
 ! Copyright (C) 1997, Per Ake Malmqvist                                *
 !               2018, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Subroutine Print_CI_Mix(EigVec)
-      Use RefWfn, Only: refwfn_active, refwfn_is_h5, refwfn_id,         &
-     &                  refwfn_filename, refwfn_close, iadr15
+
+subroutine Print_CI_Mix(EigVec)
+
+use RefWfn, only: refwfn_active, refwfn_is_h5, refwfn_id, refwfn_filename, refwfn_close, iadr15
 #ifdef _HDF5_
-      Use mh5, Only: mh5_open_file_r, mh5_fetch_dset
-      use caspt2_module, only: mState
+use mh5, only: mh5_open_file_r, mh5_fetch_dset
+use caspt2_module, only: mState
 #endif
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nState, nConf, STSym
-      use caspt2_module, only: CIThr
-      use definitions, only: iwp, wp, u6
-      Implicit None
-      Real(kind=wp), intent(in):: EigVec(nState,nState)
-      Integer(kind=iwp) :: iState, iiState, iDisk
-      Real(kind=wp), Allocatable, Dimension(:) :: cCI, mCI
-      Logical(kind=iwp) :: Close_refwfn
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: nState, nConf, STSym
+use caspt2_module, only: CIThr
+use definitions, only: iwp, wp, u6
+
+implicit none
+real(kind=wp), intent(in) :: EigVec(nState,nState)
+integer(kind=iwp) :: iState, iiState, iDisk
+real(kind=wp), allocatable, dimension(:) :: cCI, mCI
+logical(kind=iwp) :: Close_refwfn
 #ifdef _HDF5_
-      Integer(kind=iwp) :: jSNum
+integer(kind=iwp) :: jSNum
 #endif
 
+call mma_allocate(mCI,nConf,Label='MixCICoeff')
+call mma_allocate(cCI,nConf,Label='CICoeff')
 
-      Call mma_allocate(mCI, nConf, Label='MixCICoeff')
-      Call mma_allocate(cCI, nConf, Label='CICoeff')
+Close_refwfn = .false.
+if (.not. refwfn_active) then
+  ! bypass refwfn_open, because we don't want to set global stuff
+  if (refwfn_is_h5) then
+#   ifdef _HDF5_
+    refwfn_id = mh5_open_file_r(refwfn_filename)
+#   else
+    ! This should never happen
+    call AbEnd()
+#   endif
+  else
+    refwfn_id = 15
+    call DAName(refwfn_id,refwfn_filename)
+  end if
+  Close_refwfn = .true.
+end if
 
-      Close_refwfn = .False.
-      If (.Not.refwfn_active) Then
-        ! bypass refwfn_open, because we don't want to set global stuff
-        If (refwfn_is_h5) Then
-#ifdef _HDF5_
-          refwfn_id = mh5_open_file_r(refwfn_filename)
-#else
-! This should never happen
-          Call AbEnd()
-#endif
-        Else
-          refwfn_id=15
-          Call DAName(refwfn_id,refwfn_filename)
-        End If
-        Close_refwfn = .True.
-      End If
+call CollapseOutput(1,'Mixed CI coefficients:')
 
-      Call CollapseOutput(1,'Mixed CI coefficients:')
+write(u6,*)
+write(u6,*) ' The original CI arrays are now mixed as linear'
+write(u6,*) ' combinations, given by the eigenvectors.'
+write(u6,*)
 
-      Write(u6,*)
-      Write(u6,*)' The original CI arrays are now mixed as linear'
-      Write(u6,*)' combinations, given by the eigenvectors.'
-      Write(u6,*)
+do iState=1,nState
+  call FZero(mCI,nConf)
+  iDisk = iAdr15(4)
+  do iiState=1,nState
+    if (refwfn_is_h5) then
+#     ifdef _HDF5_
+      jSNum = mState(iiState)
+      call mh5_fetch_dset(refwfn_id,'CI_VECTORS',cCI,[nConf,1],[0,jSNum-1])
+#     else
+      ! This should never happen
+      call AbEnd()
+#     endif
+    else
+      call dDAFile(refwfn_id,2,cCI,nConf,iDisk)
+    end if
+    call daXpY_(nConf,EigVec(iiState,iState),cCI,1,mCI,1)
+  end do
+  write(u6,'(1X,A,I3)') ' The CI coefficients for the MIXED state nr. ',iState
+  call PrWf_CP2(stSym,nConf,mCI,CITHR)
+end do
 
-      Do iState=1,nState
-        Call FZero(mCI, nConf)
-        iDisk=iAdr15(4)
-        Do iiState=1,nState
-          If (refwfn_is_h5) Then
-#ifdef _HDF5_
-            jSNum=mState(iiState)
-            Call mh5_fetch_dset(                                        &
-     &           refwfn_id,'CI_VECTORS',cCI,[nConf,1],[0,jSNum-1])
-#else
-! This should never happen
-            Call AbEnd()
-#endif
-          Else
-            Call dDAFile(refwfn_id,2,cCI,nConf,iDisk)
-          End If
-          Call daXpY_(nConf,EigVec(iiState,iState),cCI,1,mCI,1)
-        End Do
-        Write(u6,'(1X,A,I3)')                                           &
-     &     ' The CI coefficients for the MIXED state nr. ',iState
-        Call PrWf_CP2(stSym,nConf,mCI,CITHR)
-      End Do
+call CollapseOutput(0,'Mixed CI coefficients:')
+write(u6,*)
 
-      Call CollapseOutput(0,'Mixed CI coefficients:')
-      Write(u6,*)
+if (Close_refwfn) call refwfn_close()
 
-      If (Close_refwfn) Call refwfn_close()
+call mma_deallocate(mCI)
+call mma_deallocate(cCI)
 
-      Call mma_deallocate(mCI)
-      Call mma_deallocate(cCI)
-
-
-      End Subroutine Print_CI_Mix
+end subroutine Print_CI_Mix

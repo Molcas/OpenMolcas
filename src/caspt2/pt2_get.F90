@@ -16,46 +16,47 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE PT2_GET(NSIZE,LAB,VEC)
-      use caspt2_global, only: LUDMAT
-      use caspt2_module, only: CLab10, iAdr10
-      use definitions, only: iwp, wp, u6
-      IMPLICIT NONE
 
-      INTEGER(kind=iwp), intent(in):: NSIZE
-      CHARACTER(len=*), intent(in):: LAB
-      REAL(kind=wp), intent(out):: VEC(NSIZE)
+subroutine PT2_GET(NSIZE,LAB,VEC)
 
-      CHARACTER(LEN=8) LAB1
+use caspt2_global, only: LUDMAT
+use caspt2_module, only: CLab10, iAdr10
+use definitions, only: iwp, wp, u6
 
-      INTEGER(kind=iwp) I,IAD,NSZ
+implicit none
+integer(kind=iwp), intent(in) :: NSIZE
+character(len=*), intent(in) :: LAB
+real(kind=wp), intent(out) :: VEC(NSIZE)
+character(len=8) LAB1
+integer(kind=iwp) I, IAD, NSZ
 #ifdef _DEBUGPRINT_
-      INTEGER(kind=iwp) J
+integer(kind=iwp) J
 #endif
 
-      I=9-LEN(LAB)
-      IF(I.GE.1) THEN
-        LAB1='        '
-        LAB1(I:8)=LAB
-      ELSE
-        LAB1=LAB(1:8)
-      END IF
+I = 9-len(LAB)
+if (I >= 1) then
+  LAB1 = '        '
+  LAB1(I:8) = LAB
+else
+  LAB1 = LAB(1:8)
+end if
 
 ! FIND DISK ADDRESS:
-      DO I=1,SIZE(CLAB10)
-        IF (CLAB10(I).EQ.LAB1) THEN
-          NSZ=MIN(IADR10(I,2),NSIZE)
-          IAD=IADR10(I,1)
-          CALL DDAFILE(LUDMAT,2,VEC,NSZ,IAD)
-#ifdef _DEBUGPRINT_
-          WRITE(u6,*) LAB1,' SUCCESSFULLY READ FROM LUDMAT.'
-          WRITE(u6,*)'         SIZE:',NSZ,' *8 BYTES'
-          WRITE(u6,*)' DISK ADDRESS:',IADR10(I,1)
-          WRITE(u6,'(10F12.8)') (VEC(J),J=1,MIN(10,NSZ))
-#endif
-          RETURN
-        END IF
-      END DO
-      WRITE(u6,*)' LABEL ',LAB1,' NOT FOUND ON LUDMAT.'
-      CALL ABEND()
-      END SUBROUTINE PT2_GET
+do I=1,size(CLAB10)
+  if (CLAB10(I) == LAB1) then
+    NSZ = min(IADR10(I,2),NSIZE)
+    IAD = IADR10(I,1)
+    call DDAFILE(LUDMAT,2,VEC,NSZ,IAD)
+#   ifdef _DEBUGPRINT_
+    write(u6,*) LAB1,' SUCCESSFULLY READ FROM LUDMAT.'
+    write(u6,*) '         SIZE:',NSZ,' *8 BYTES'
+    write(u6,*) ' DISK ADDRESS:',IADR10(I,1)
+    write(u6,'(10F12.8)') (VEC(J),J=1,min(10,NSZ))
+#   endif
+    return
+  end if
+end do
+write(u6,*) ' LABEL ',LAB1,' NOT FOUND ON LUDMAT.'
+call ABEND()
+
+end subroutine PT2_GET

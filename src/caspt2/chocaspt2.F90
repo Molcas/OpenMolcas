@@ -8,24 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module ChoCASPT2
+
+module ChoCASPT2
+
 use definitions, only: iwp
+
 ! Comment: numcho_pt2, InfVec_N2_PT2, and MaxVec_PT2 are copies
 ! of corresponding values in module Cholesky.
 ! Values are transferred at the beginning of caspt2.
-Integer(kind=iwp) Lsplit(8),nIsplit(8),nAsplit(8),      &
-        nksh(8),nkes(8),npsh(8),npes(8),          &
-        numcho_pt2(8),iALGO,InfVec_N2_PT2,MaxVec_PT2,             &
-        IF_CHO,NCHSPC,NHTSPC,NFTSPC,NFTSPC_TOT,                   &
-        MXNVC,MXCHARR
 
-Type ChoType
-   Integer(kind=iwp), Allocatable:: Unit(:)
-   Integer(kind=iwp), Allocatable:: ip(:)
-   Integer(kind=iwp), Allocatable:: np(:)
-   Integer(kind=iwp), Allocatable:: sp(:)
-End Type ChoType
+implicit none
 
-Type (ChoType) Stuff(8)
+integer(kind=iwp) Lsplit(8), nIsplit(8), nAsplit(8), nksh(8), nkes(8), npsh(8), npes(8), numcho_pt2(8), iALGO, InfVec_N2_PT2, &
+                  MaxVec_PT2, IF_CHO, NCHSPC, NHTSPC, NFTSPC, NFTSPC_TOT, MXNVC, MXCHARR
 
-END Module ChoCASPT2
+type ChoType
+  integer(kind=iwp), allocatable :: Unit(:)
+  integer(kind=iwp), allocatable :: ip(:)
+  integer(kind=iwp), allocatable :: np(:)
+  integer(kind=iwp), allocatable :: sp(:)
+end type ChoType
+
+type(ChoType) Stuff(8)
+
+end module ChoCASPT2

@@ -8,133 +8,132 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ADD1HAM(H1EFF,nH1Eff)
+
 ! NOT TESTED (used for OFEmbed below)
 !#define _OFEmbed_
-#ifdef _OFEmbed_
-      use RunFile_procedures, only: Get_dExcdRa
-      use OFembed, only: Do_OFemb, FMAux, OFE_First
-#endif
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use OneDat, only: sNoNuc, sNoOri
-      use caspt2_module, only: ERFSelf, NBTRI, nSym, PotNuc, RFpert,    &
-     &                         nBas
-      use constants, only: One
-      use definitions, only: iwp, wp
-#ifdef _DEBUGPRINT_
-      use definitions, only: u6
-#endif
-
-      Implicit None
-
-      integer(kind=iwp), intent(in):: nH1EFF
-      real(kind=wp), intent(inout):: H1EFF(nH1Eff)
+subroutine ADD1HAM(H1EFF,nH1Eff)
 ! ----------------------------------------------------------------
 ! Purpose: Reads and adds one-electron naked Hamiltonian into H1EFF.
 ! Dress it with reaction field (if any).
 ! Also get POTNUC at the same time.
-!
-      character(len=8) :: Label
-      Logical(kind=iwp) Found
-      real(kind=wp), allocatable:: ONEHAM(:), Temp(:)
-      integer(kind=iwp) ICOMP, IOPT, IRC, ISYLBL, iSym, nTemp
+
+#ifdef _OFEmbed_
+use RunFile_procedures, only: Get_dExcdRa
+use OFembed, only: Do_OFemb, FMAux, OFE_First
+#endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use OneDat, only: sNoNuc, sNoOri
+use caspt2_module, only: ERFSelf, NBTRI, nSym, PotNuc, RFpert, nBas
+use constants, only: One
+use definitions, only: iwp, wp
 #ifdef _DEBUGPRINT_
-      integer(kind=iwp) ISTLT
+use definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp), intent(in) :: nH1EFF
+real(kind=wp), intent(inout) :: H1EFF(nH1Eff)
+character(len=8) :: Label
+logical(kind=iwp) Found
+real(kind=wp), allocatable :: ONEHAM(:), Temp(:)
+integer(kind=iwp) ICOMP, IOPT, IRC, ISYLBL, iSym, nTemp
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) ISTLT
 #endif
 #ifdef _OFEmbed_
-      real(kind=wp), allocatable:: Coul(:)
+real(kind=wp), allocatable :: Coul(:)
 #endif
 
 ! Add naked one-el Hamiltonian in AO basis to H1EFF:
-      CALL mma_allocate(ONEHAM,NBTRI,Label='OneHam')
-      IRC=-1
-      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
-      ICOMP=1
-      ISYLBL=1
-      Label='OneHam'
-      CALL RDONE(IRC,IOPT,Label,ICOMP,ONEHAM,ISYLBL)
-      CALL DAXPY_(NBTRI,One,ONEHAM,1,H1EFF,1)
-      CALL mma_deallocate(ONEHAM)
+call mma_allocate(ONEHAM,NBTRI,Label='OneHam')
+IRC = -1
+IOPT = ibset(ibset(0,sNoOri),sNoNuc)
+ICOMP = 1
+ISYLBL = 1
+Label = 'OneHam'
+call RDONE(IRC,IOPT,Label,ICOMP,ONEHAM,ISYLBL)
+call DAXPY_(NBTRI,One,ONEHAM,1,H1EFF,1)
+call mma_deallocate(ONEHAM)
 
 ! Read nuclear repulsion energy:
-      IRC=-1
-      IOPT=0
-      ICOMP=0
-      ISYLBL=1
-      Call Get_dScalar('PotNuc',PotNuc)
+IRC = -1
+IOPT = 0
+ICOMP = 0
+ISYLBL = 1
+call Get_dScalar('PotNuc',PotNuc)
 
 ! If this is a perturbative reaction field calculation then
 ! modify the one-electron Hamiltonian by the reaction field and
 ! the nuclear attraction by the cavity self-energy
-      If ( RFpert ) then
-         nTemp=0
-         Do iSym=1,nSym
-            nTemp=nTemp+nBas(iSym)*(nBas(iSym)+1)/2
-         End Do
-         Call f_Inquire('RUNOLD',Found)
-         If (Found) Call NameRun('RUNOLD')
-         Call mma_allocate(Temp,nTemp,Label='Temp')
-         Call Get_dScalar('RF Self Energy',ERFSelf)
-         Call Get_dArray('Reaction field',Temp,nTemp)
-         If (Found) Call NameRun('#Pop')
-         PotNuc=PotNuc+ERFself
-         Call Daxpy_(nTemp,One,Temp,1,H1EFF,1)
-         Call mma_deallocate(Temp)
-      End If
+if (RFpert) then
+  nTemp = 0
+  do iSym=1,nSym
+    nTemp = nTemp+nBas(iSym)*(nBas(iSym)+1)/2
+  end do
+  call f_Inquire('RUNOLD',Found)
+  if (Found) call NameRun('RUNOLD')
+  call mma_allocate(Temp,nTemp,Label='Temp')
+  call Get_dScalar('RF Self Energy',ERFSelf)
+  call Get_dArray('Reaction field',Temp,nTemp)
+  if (Found) call NameRun('#Pop')
+  PotNuc = PotNuc+ERFself
+  call Daxpy_(nTemp,One,Temp,1,H1EFF,1)
+  call mma_deallocate(Temp)
+end if
 
 #ifdef _DEBUGPRINT_
-         WRITE(u6,*)' 1-EL HAMILTONIAN (MAY INCLUDE REACTION FIELD)'
-         ISTLT=0
-         DO ISYM=1,NSYM
-           IF ( NBAS(ISYM).GT.0 ) THEN
-             WRITE(u6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
-             CALL TRIPRT(' ',' ',H1EFF(1+ISTLT),NBAS(ISYM))
-             ISTLT=ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
-           END IF
-         END DO
+write(u6,*) ' 1-EL HAMILTONIAN (MAY INCLUDE REACTION FIELD)'
+ISTLT = 0
+do ISYM=1,NSYM
+  if (NBAS(ISYM) > 0) then
+    write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
+    call TRIPRT(' ',' ',H1EFF(1+ISTLT),NBAS(ISYM))
+    ISTLT = ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
+  end if
+end do
 #endif
 
 #ifdef _OFEmbed_
 ! If this is a perturbative Orbital-Free Embedding (OFE) calculation
 ! then modify the one-electron Hamiltonian by the OFE potential and
 ! the nuclear attraction by the Rep_EN
-      If ( Do_OFEmb ) then
-         nTemp=0
-         Do iSym=1,nSym
-            nTemp=nTemp+nBas(iSym)*(nBas(iSym)+1)/2
-         End Do
-         Call mma_allocate(Coul,nTemp,Label='Coul')
-         Coul(:)=Zero
-         If (OFE_First) Then
-            Call mma_allocate(FMaux,nTemp,Label='FMaux')
-            Call Coul_DMB(.true.,1,Rep_EN,FMaux,Coul,Coul,nTemp)
-         EndIf
-         Call DaXpY_(nTemp,One,FMaux,1,H1EFF,1)
-         Call mma_deallocate(Coul)
-         OFE_First=.false.
-!
-         Call NameRun('AUXRFIL') ! switch the RUNFILE name
-         Call Get_dExcdRa(Vxc,nVxc)
-         Call DaXpY_(nTemp,One,Vxc,1,H1EFF,1)
-         If (nVxc.eq.2*nTemp) Then ! but fix for Nuc Attr added twice
-            Call DaXpY_(nTemp,One,Vxc(1+nTemp:2*nTemp),1,H1EFF,1)
-            Call Get_dArray('Nuc Potential',Vxc,nTemp)
-            Call DaXpY_(nTemp,-One,Vxc,1,H1EFF,1)
-         EndIf
-         Call mma_deallocate(Vxc)
-         Call NameRun('#Pop')    ! switch back to old RUNFILE
-#ifdef _DEBUGPRINT_
-             WRITE(u6,*)' 1-EL HAMILTONIAN INCLUDING OFE POTENTIAL'
-             ISTLT=0
-             DO ISYM=1,NSYM
-               IF ( NBAS(ISYM).GT.0 ) THEN
-                 WRITE(u6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
-                 CALL TRIPRT(' ',' ',H1EFF(1+ISTLT),NBAS(ISYM))
-                 ISTLT=ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
-               END IF
-             END DO
-#endif
-      End If
+if (Do_OFEmb) then
+  nTemp = 0
+  do iSym=1,nSym
+    nTemp = nTemp+nBas(iSym)*(nBas(iSym)+1)/2
+  end do
+  call mma_allocate(Coul,nTemp,Label='Coul')
+  Coul(:) = Zero
+  if (OFE_First) then
+    call mma_allocate(FMaux,nTemp,Label='FMaux')
+    call Coul_DMB(.true.,1,Rep_EN,FMaux,Coul,Coul,nTemp)
+  end if
+  call DaXpY_(nTemp,One,FMaux,1,H1EFF,1)
+  call mma_deallocate(Coul)
+  OFE_First = .false.
+
+  call NameRun('AUXRFIL') ! switch the RUNFILE name
+  call Get_dExcdRa(Vxc,nVxc)
+  call DaXpY_(nTemp,One,Vxc,1,H1EFF,1)
+  if (nVxc == 2*nTemp) then ! but fix for Nuc Attr added twice
+    call DaXpY_(nTemp,One,Vxc(1+nTemp:2*nTemp),1,H1EFF,1)
+    call Get_dArray('Nuc Potential',Vxc,nTemp)
+    call DaXpY_(nTemp,-One,Vxc,1,H1EFF,1)
+  end if
+  call mma_deallocate(Vxc)
+  call NameRun('#Pop')    ! switch back to old RUNFILE
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' 1-EL HAMILTONIAN INCLUDING OFE POTENTIAL'
+  ISTLT = 0
+  do ISYM=1,NSYM
+    if (NBAS(ISYM) > 0) then
+      write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
+      call TRIPRT(' ',' ',H1EFF(1+ISTLT),NBAS(ISYM))
+      ISTLT = ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
+    end if
+  end do
+# endif
+end if
 #endif
 
-      END SUBROUTINE ADD1HAM
+end subroutine ADD1HAM

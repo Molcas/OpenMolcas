@@ -23,51 +23,53 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_PUT (NAS,NIS,lg_W,W)
+subroutine RHS_PUT(NAS,NIS,lg_W,W)
 !SVC: this routine copies a local buffer to a global array
-      use definitions, only: iwp, wp
+
+use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-      use definitions, only: u6
+use Para_Info, only: Is_Real_Par, King
+use definitions, only: u6
 #endif
-      use fake_GA, only: GA_Arrays
-      IMPLICIT None
-      integer(kind=iwp), Intent(In):: NAS,NIS,lg_W
-      real(kind=wp), Intent(in):: W(NAS*NIS)
+use fake_GA, only: GA_Arrays
+
+implicit none
+integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
+real(kind=wp), intent(in) :: W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=iwp) MAX_MESG_SIZE, NIS_BATCH, NIS_STA, NIS_END, IOFF
+integer(kind=iwp) MAX_MESG_SIZE, NIS_BATCH, NIS_STA, NIS_END, IOFF
 
-      IF (Is_Real_Par()) THEN
-        IF (KING()) THEN
-! SVC: when the _total_ size of a message exceeds 2**31-1 _bytes_,
-! some implementations (e.g. MPICH, and thus also Intel MPI) fail.
-! If this is the case, chop up the largest dimension and perform the
-! GA_Put in batches smaller than 2**31-1 bytes (I took 2**27 elements
-! which is 2**30 bytes).
-          MAX_MESG_SIZE = 2**27
-          IF (NAS*NIS.GT.MAX_MESG_SIZE) THEN
-            NIS_BATCH = MAX_MESG_SIZE / NAS
-            IF (NIS_BATCH.EQ.0) THEN
-              WRITE(u6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
-              WRITE(u6,'(1X,I12,A,I12)') NAS, ' > ', MAX_MESG_SIZE
-              CALL AbEnd()
-            END IF
-            DO NIS_STA=1,NIS,NIS_BATCH
-              NIS_END=MIN(NIS_STA+NIS_BATCH-1,NIS)
-              IOFF=NAS*(NIS_STA-1)+1
-              CALL GA_Put (lg_W,1,NAS,NIS_STA,NIS_END,W(IOFF),NAS)
-            END DO
-          ELSE
-            CALL GA_Put (lg_W,1,NAS,1,NIS,W,NAS)
-          END IF
-        END IF
-      ELSE
+if (Is_Real_Par()) then
+  if (KING()) then
+    ! SVC: when the _total_ size of a message exceeds 2**31-1 _bytes_,
+    ! some implementations (e.g. MPICH, and thus also Intel MPI) fail.
+    ! If this is the case, chop up the largest dimension and perform the
+    ! GA_Put in batches smaller than 2**31-1 bytes (I took 2**27 elements
+    ! which is 2**30 bytes).
+    MAX_MESG_SIZE = 2**27
+    if (NAS*NIS > MAX_MESG_SIZE) then
+      NIS_BATCH = MAX_MESG_SIZE/NAS
+      if (NIS_BATCH == 0) then
+        write(u6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
+        write(u6,'(1X,I12,A,I12)') NAS,' > ',MAX_MESG_SIZE
+        call AbEnd()
+      end if
+      do NIS_STA=1,NIS,NIS_BATCH
+        NIS_END = min(NIS_STA+NIS_BATCH-1,NIS)
+        IOFF = NAS*(NIS_STA-1)+1
+        call GA_Put(lg_W,1,NAS,NIS_STA,NIS_END,W(IOFF),NAS)
+      end do
+    else
+      call GA_Put(lg_W,1,NAS,1,NIS,W,NAS)
+    end if
+  end if
+else
 #endif
-        CALL DCOPY_(NAS*NIS,W,1,GA_Arrays(lg_W)%A,1)
+  call DCOPY_(NAS*NIS,W,1,GA_Arrays(lg_W)%A,1)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END SUBROUTINE RHS_PUT
+end subroutine RHS_PUT

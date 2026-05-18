@@ -16,44 +16,44 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE POLY1(CI,NCI)
-      use sguga, only: SGS
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nG1, iAdr10, cLab10
-      use definitions, only: iwp, wp
-      IMPLICIT NONE
+
+subroutine POLY1(CI,NCI)
 ! PER-AAKE MALMQUIST, 92-12-07
 ! THIS PROGRAM CALCULATES THE 1-EL DENSITY
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
 
-      INTEGER(kind=iwp), INTENT(IN) :: NCI
-      REAL(kind=wp), INTENT(IN) :: CI(NCI)
+use sguga, only: SGS
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: nG1, iAdr10, cLab10
+use definitions, only: iwp, wp
 
-      Integer(kind=iwp) :: nLev
-      Real(kind=wp), Allocatable:: SGM1(:), G1TMP(:)
+implicit none
+integer(kind=iwp), intent(in) :: NCI
+real(kind=wp), intent(in) :: CI(NCI)
+integer(kind=iwp) :: nLev
+real(kind=wp), allocatable :: SGM1(:), G1TMP(:)
 
-      nLev = SGS%nLev
+nLev = SGS%nLev
 
-      IF(NLEV>0) THEN
-        CALL mma_allocate(SGM1 ,NCI,LABEL='SGM1')
-        CALL mma_allocate(G1TMP,NG1,LABEL='G1TMP')
-        CALL DENS1_RPT2(CI,nCI,SGM1,nCI,G1TMP,nLev)
-      END IF
+if (NLEV > 0) then
+  call mma_allocate(SGM1,NCI,LABEL='SGM1')
+  call mma_allocate(G1TMP,NG1,LABEL='G1TMP')
+  call DENS1_RPT2(CI,nCI,SGM1,nCI,G1TMP,nLev)
+end if
 
 ! REINITIALIZE USE OF DMAT.
-! The fields IADR10 and CLAB10 are kept in caspt2_module.F90
-      IADR10(:,1)=-1
-      IADR10(:,2)=0
-      CLAB10(:)='   EMPTY'
-      IADR10(1,1)=0
+! The fields IADR10 and CLAB10 are kept in caspt2_module
+IADR10(:,1) = -1
+IADR10(:,2) = 0
+CLAB10(:) = '   EMPTY'
+IADR10(1,1) = 0
 ! HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
 ! ARRAY ON LUDMAT AND UPDATE THE TOC.
-      IF(NLEV>0) THEN
-        CALL PT2_PUT(NG1,' GAMMA1',G1TMP)
+if (NLEV > 0) then
+  call PT2_PUT(NG1,' GAMMA1',G1TMP)
 
-        CALL mma_deallocate(SGM1)
-        CALL mma_deallocate(G1TMP)
-      END IF
+  call mma_deallocate(SGM1)
+  call mma_deallocate(G1TMP)
+end if
 
-      END SUBROUTINE POLY1
-
+end subroutine POLY1

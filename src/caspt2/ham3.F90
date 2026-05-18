@@ -8,33 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
-      use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp
-      use constants, only: Zero, One, Two
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use sguga, only: SGS, CIS, EXS
-      use caspt2_module, only: NSYM,NASHT,ISCF,NACTEL,NCONF,IASYM
-      use Molcas, only: MxLev
-      use caspt2_module, only: MxCI
-      IMPLICIT NONE
 
-      integer(kind=iwp), intent(in):: NOP2,NOP3,ISYCI,NCI
-      real(kind=wp) , intent(in)::OP0
-      real(kind=wp), intent(in):: OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
-      real(kind=wp), intent(in):: CI(NCI)
-      real(kind=wp), intent(inout):: SGM(NCI)
-! Local arrays:
-      integer(kind=iwp) IATOG(MXLEV)
-      real(kind=wp), Allocatable:: SGM1(:), SGM2(:)
-      Integer(kind=iwp) nLev,ITABS,ISYM,I,IZ,IY,IYZ,ISYZ,ISYM1,NSGM1,   &
-     &                  LEVY,LEVZ,ISTU,ISVX,ISVXYZ,ISYM2,IT,ITMIN,ITU,  &
-     &                  ITUVXYZ,IU,IV,IVMIN,IVX,IVXYZ,IX,LEVT,LEVU,LEVV,&
-     &                  LEVX,NSGM2
-      real(kind=wp) OCCNO,X
-
-      nLev = SGS%nLev
-
+subroutine HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
 ! Purpose: Compute and add a contribution to SGM which is
 ! obtained from a sum of zero- one- two- and three-electron
 ! operators acting on wave function CI.
@@ -48,129 +23,148 @@
 ! NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 ! NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
 
-      IF(NCONF.EQ.0) RETURN
-      IF(ABS(OP0).GT.1.0E-15_wp) CALL DAXPY_(NCONF,OP0,CI,1,SGM,1)
-      IF(NACTEL.EQ.0) RETURN
+use Symmetry_Info, only: Mul
+use definitions, only: iwp, wp
+use constants, only: Zero, One, Two
+use stdalloc, only: mma_allocate, mma_deallocate
+use sguga, only: SGS, CIS, EXS
+use caspt2_module, only: NSYM, NASHT, ISCF, NACTEL, NCONF, IASYM
+use Molcas, only: MxLev
+use caspt2_module, only: MxCI
+
+implicit none
+integer(kind=iwp), intent(in) :: NOP2, NOP3, ISYCI, NCI
+real(kind=wp), intent(in) :: OP0
+real(kind=wp), intent(in) :: OP1(NASHT,NASHT), OP2(NOP2), OP3(NOP3)
+real(kind=wp), intent(in) :: CI(NCI)
+real(kind=wp), intent(inout) :: SGM(NCI)
+! Local arrays:
+integer(kind=iwp) IATOG(MXLEV)
+real(kind=wp), allocatable :: SGM1(:), SGM2(:)
+integer(kind=iwp) nLev, ITABS, ISYM, I, IZ, IY, IYZ, ISYZ, ISYM1, NSGM1, LEVY, LEVZ, ISTU, ISVX, ISVXYZ, ISYM2, IT, ITMIN, ITU, &
+                  ITUVXYZ, IU, IV, IVMIN, IVX, IVXYZ, IX, LEVT, LEVU, LEVV, LEVX, NSGM2
+real(kind=wp) OCCNO, X
+
+nLev = SGS%nLev
+
+if (NCONF == 0) return
+if (abs(OP0) > 1.0E-15_wp) call DAXPY_(NCONF,OP0,CI,1,SGM,1)
+if (NACTEL == 0) return
 
 ! Unless this is a special-case wave function, reserve space
 ! for intermediate results of elementary excitations.
-      IF(ISCF.EQ.0) THEN
-        CALL mma_allocate(SGM1,MXCI,Label='SGM1')
-        IF(NACTEL.GE.2) CALL mma_allocate(SGM2,MXCI,Label='SGM2')
-      END IF
+if (ISCF == 0) then
+  call mma_allocate(SGM1,MXCI,Label='SGM1')
+  if (NACTEL >= 2) call mma_allocate(SGM2,MXCI,Label='SGM2')
+end if
 ! Special cases:
-      OCCNO=Zero
-      IF(ISCF.EQ.1) OCCNO=Two
-      IF(ISCF.EQ.2) OCCNO=One
+OCCNO = Zero
+if (ISCF == 1) OCCNO = Two
+if (ISCF == 2) OCCNO = One
 
 ! Create reorder table giving the GUGA level, i.e. CI-coupling
 ! ordinal number of each active orbital.
-      ITABS=0
-      DO ISYM=1,NSYM
-        DO I=1,NLEV
-          IF(SGS%ISM(I).EQ.ISYM) THEN
-            ITABS=ITABS+1
-            IATOG(ITABS)=I
-          END IF
-        END DO
-      END DO
+ITABS = 0
+do ISYM=1,NSYM
+  do I=1,NLEV
+    if (SGS%ISM(I) == ISYM) then
+      ITABS = ITABS+1
+      IATOG(ITABS) = I
+    end if
+  end do
+end do
 
-      DO IZ=1,NASHT
-       DO IY=1,NASHT
-        IYZ=IY+(IZ-1)*NASHT
-        ISYZ=Mul(IASYM(IY),IASYM(IZ))
-        ISYM1=Mul(ISYZ,ISYCI)
-        NSGM1=CIS%NCSF(ISYM1)
-        IF(NSGM1.EQ.0) CYCLE
-        IF(ISCF.EQ.0) THEN
-! The general case:
-! Compute SGM1:=E(IY,IZ) PSI
-          SGM1(1:nSGM1)=Zero
-          LEVY=IATOG(IY)
-          LEVZ=IATOG(IZ)
-          CALL SG_Epq_Psi(SGS,CIS,EXS,                                  &
-     &                LEVY,LEVZ,One,ISYCI,CI,SGM1)
-! Add non-zero 1-el contribution to SGM:
-          IF(ISYZ.EQ.1) THEN
-            X=OP1(IY,IZ)
-            IF (ABS(X).GT.1.0E-15_wp)                                   &
-     &         SGM(1:nConf)=SGM(1:nConf)+X*SGM1(1:nConf)
-          END IF
-        ELSE
-! Closed-shell or hi-spin case:
-          IF(IY.NE.IZ) CYCLE
-          X=OCCNO*OP1(IY,IZ)
-          SGM(1)=SGM(1)+X*CI(1)
-        END IF
-        IF(NACTEL.EQ.1) CYCLE
-        DO IX=IZ,NASHT
-         IVMIN=1
-         IF(IX.EQ.IZ) IVMIN=IY
-         DO IV=IVMIN,NASHT
-          IVX=IV+(IX-1)*NASHT
-          ISVX=Mul(IASYM(IV),IASYM(IX))
-          ISVXYZ=Mul(ISVX,ISYZ)
-          IVXYZ=(IVX*(IVX-1))/2+IYZ
-          ISYM2=Mul(ISVX,ISYM1)
-          NSGM2=CIS%NCSF(ISYM2)
-          IF(NSGM2.EQ.0) CYCLE
-          IF(ISCF.EQ.0) THEN
-! The general case:
-! Compute SGM2:=E(IV,IX) SGM1
-            SGM2(1:nSGM2)=Zero
-            LEVV=IATOG(IV)
-            LEVX=IATOG(IX)
-            CALL SG_Epq_Psi(SGS,CIS,EXS,                                &
-     &                  LEVV,LEVX,One,ISYM1,SGM1,SGM2)
-! Add non-zero 2-el contribution to SGM:
-            IF(ISVXYZ.EQ.1) THEN
-              X=OP2(IVXYZ)
-              IF (ABS(X).GT.1.0E-15_wp)                                 &
-     &           SGM(1:nConf)=SGM(1:nConf)+X*SGM2(1:nConf)
-            END IF
-          ELSE
-! Closed-shell or hi-spin case:
-            IF(IY.NE.IZ) CYCLE
-            IF(IV.NE.IX) CYCLE
-            X=(OCCNO**2)*OP2(IVXYZ)
-            SGM(1)=SGM(1)+X*CI(1)
-          END IF
-          IF(NACTEL.EQ.2) CYCLE
-          DO IU=IX,NASHT
-           ITMIN=1
-           IF(IU.EQ.IX) ITMIN=IV
-           DO IT=ITMIN,NASHT
-            ITU=IT+(IU-1)*NASHT
-            ISTU=Mul(IASYM(IT),IASYM(IU))
-            IF(ISTU.NE.ISVXYZ) CYCLE
-            ITUVXYZ=((ITU+1)*ITU*(ITU-1))/6+IVXYZ
-            X=OP3(ITUVXYZ)
-            IF(ABS(X).LT.1.0E-15_wp) CYCLE
-! Add non-zero 3-el contribution to SGM:
-            IF(ISCF.EQ.0) THEN
-              LEVT=IATOG(IT)
-              LEVU=IATOG(IU)
-              CALL SG_Epq_Psi(SGS,CIS,EXS,                              &
-     &                    LEVT,LEVU,X,ISYM2,SGM2,SGM)
-            ELSE
-! Closed-shell or hi-spin case:
-              IF(IT.NE.IU) CYCLE
-              IF(IV.NE.IX) CYCLE
-              IF(IY.NE.IZ) CYCLE
-              X=(OCCNO**3)*OP3(ITUVXYZ)
-              SGM(1)=SGM(1)+X*CI(1)
-            END IF
-           END DO
-          END DO
-         END DO
-        END DO
-       END DO
-      END DO
+do IZ=1,NASHT
+  do IY=1,NASHT
+    IYZ = IY+(IZ-1)*NASHT
+    ISYZ = Mul(IASYM(IY),IASYM(IZ))
+    ISYM1 = Mul(ISYZ,ISYCI)
+    NSGM1 = CIS%NCSF(ISYM1)
+    if (NSGM1 == 0) cycle
+    if (ISCF == 0) then
+      ! The general case:
+      ! Compute SGM1:=E(IY,IZ) PSI
+      SGM1(1:nSGM1) = Zero
+      LEVY = IATOG(IY)
+      LEVZ = IATOG(IZ)
+      call SG_Epq_Psi(SGS,CIS,EXS,LEVY,LEVZ,One,ISYCI,CI,SGM1)
+      ! Add non-zero 1-el contribution to SGM:
+      if (ISYZ == 1) then
+        X = OP1(IY,IZ)
+        if (abs(X) > 1.0E-15_wp) SGM(1:nConf) = SGM(1:nConf)+X*SGM1(1:nConf)
+      end if
+    else
+      ! Closed-shell or hi-spin case:
+      if (IY /= IZ) cycle
+      X = OCCNO*OP1(IY,IZ)
+      SGM(1) = SGM(1)+X*CI(1)
+    end if
+    if (NACTEL == 1) cycle
+    do IX=IZ,NASHT
+      IVMIN = 1
+      if (IX == IZ) IVMIN = IY
+      do IV=IVMIN,NASHT
+        IVX = IV+(IX-1)*NASHT
+        ISVX = Mul(IASYM(IV),IASYM(IX))
+        ISVXYZ = Mul(ISVX,ISYZ)
+        IVXYZ = (IVX*(IVX-1))/2+IYZ
+        ISYM2 = Mul(ISVX,ISYM1)
+        NSGM2 = CIS%NCSF(ISYM2)
+        if (NSGM2 == 0) cycle
+        if (ISCF == 0) then
+          ! The general case:
+          ! Compute SGM2:=E(IV,IX) SGM1
+          SGM2(1:nSGM2) = Zero
+          LEVV = IATOG(IV)
+          LEVX = IATOG(IX)
+          call SG_Epq_Psi(SGS,CIS,EXS,LEVV,LEVX,One,ISYM1,SGM1,SGM2)
+          ! Add non-zero 2-el contribution to SGM:
+          if (ISVXYZ == 1) then
+            X = OP2(IVXYZ)
+            if (abs(X) > 1.0E-15_wp) SGM(1:nConf) = SGM(1:nConf)+X*SGM2(1:nConf)
+          end if
+        else
+          ! Closed-shell or hi-spin case:
+          if (IY /= IZ) cycle
+          if (IV /= IX) cycle
+          X = (OCCNO**2)*OP2(IVXYZ)
+          SGM(1) = SGM(1)+X*CI(1)
+        end if
+        if (NACTEL == 2) cycle
+        do IU=IX,NASHT
+          ITMIN = 1
+          if (IU == IX) ITMIN = IV
+          do IT=ITMIN,NASHT
+            ITU = IT+(IU-1)*NASHT
+            ISTU = Mul(IASYM(IT),IASYM(IU))
+            if (ISTU /= ISVXYZ) cycle
+            ITUVXYZ = ((ITU+1)*ITU*(ITU-1))/6+IVXYZ
+            X = OP3(ITUVXYZ)
+            if (abs(X) < 1.0E-15_wp) cycle
+            ! Add non-zero 3-el contribution to SGM:
+            if (ISCF == 0) then
+              LEVT = IATOG(IT)
+              LEVU = IATOG(IU)
+              call SG_Epq_Psi(SGS,CIS,EXS,LEVT,LEVU,X,ISYM2,SGM2,SGM)
+            else
+              ! Closed-shell or hi-spin case:
+              if (IT /= IU) cycle
+              if (IV /= IX) cycle
+              if (IY /= IZ) cycle
+              X = (OCCNO**3)*OP3(ITUVXYZ)
+              SGM(1) = SGM(1)+X*CI(1)
+            end if
+          end do
+        end do
+      end do
+    end do
+  end do
+end do
 
 ! Deallocate temporary arrays, if any:
-      IF(ISCF.EQ.0) THEN
-        CALL mma_deallocate(SGM1)
-        IF(NACTEL.GE.2) CALL mma_deallocate(SGM2)
-      END IF
+if (ISCF == 0) then
+  call mma_deallocate(SGM1)
+  if (NACTEL >= 2) call mma_deallocate(SGM2)
+end if
 
-      END SUBROUTINE HAM3
+end subroutine HAM3

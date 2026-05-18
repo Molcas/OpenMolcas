@@ -11,123 +11,110 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-      Subroutine CnstAntiC(DPT2Canti,UEFF,U0)
+subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 
-      use caspt2_global, only: iRoot1, iRoot2, OLagFull
-      use sguga, only: SGS
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp, iwp
-      use caspt2_module, only: ENERGY, NSYM, NCONF, NFRO, NISH, NASH,   &
-     &                         NASHT, NDEL, NORB, NBAS, NBAST, NBSQT,   &
-     &                         NSTATE
-      use Constants, only: Zero, Half
+use caspt2_global, only: iRoot1, iRoot2, OLagFull
+use sguga, only: SGS
+use stdalloc, only: mma_allocate, mma_deallocate
+use definitions, only: wp, iwp
+use caspt2_module, only: ENERGY, NSYM, NCONF, NFRO, NISH, NASH, NASHT, NDEL, NORB, NBAS, NBAST, NBSQT, NSTATE
+use Constants, only: Zero, Half
 
-      implicit none
+implicit none
+real(kind=wp), intent(inout) :: DPT2Canti(*)
+real(kind=wp), intent(in) :: UEFF(nState,nState), U0(*)
+real(kind=wp), allocatable :: CI1(:), CI2(:), SGM1(:), SGM2(:), TG1(:), G1(:,:), WRK1(:), WRK2(:)
+integer(kind=iwp) :: nLev, iStat, jStat, iMO1, iMO2, iSym, nOrbI1, nOrbI2, iOrb0, iOrb2, jOrb0, jOrb2, i, j
+real(kind=wp) :: Scal
 
-      real(kind=wp), intent(inout) :: DPT2Canti(*)
-      real(kind=wp), intent(in) :: UEFF(nState,nState), U0(*)
+nLev = SGS%nLev
 
-      real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),&
-     &                             G1(:,:),WRK1(:),WRK2(:)
-      integer(kind=iwp) :: nLev, iStat, jStat, iMO1, iMO2, iSym, nOrbI1,&
-     &  nOrbI2, iOrb0, iOrb2, jOrb0, jOrb2, i, j
-      real(kind=wp) :: Scal
+call mma_allocate(CI1,nConf,Label='CI1')
+call mma_allocate(CI2,nConf,Label='CI2')
+call mma_allocate(SGM1,nConf,Label='SGM1')
+call mma_allocate(SGM2,nConf,Label='SGM2')
+call mma_allocate(TG1,nAshT**2,Label='TG1')
+call mma_allocate(G1,nAshT,nAshT,Label='G1')
 
-      nLev = SGS%nLev
+G1(:,:) = Zero
+do iStat=1,nState
+  !! UEFF is in the CASSCF basis, so the CI coefficient
+  !! has to be transformed(-back) accordingly
+  call LoadCI_XMS('N',1,nConf,nState,CI1,iStat,U0)
+  do jStat=1,nState
+    if (iStat == jStat) cycle
+    call LoadCI_XMS('N',1,nConf,nState,CI2,jStat,U0)
 
-      call mma_allocate(CI1,nConf,Label='CI1')
-      call mma_allocate(CI2,nConf,Label='CI2')
-      call mma_allocate(SGM1,nConf,Label='SGM1')
-      call mma_allocate(SGM2,nConf,Label='SGM2')
-      call mma_allocate(TG1,nAshT**2,Label='TG1')
-      call mma_allocate(G1,nAshT,nAshT,Label='G1')
+    call Dens1T_RPT2(CI1,CI2,SGM1,TG1,nLev)
+    Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)-UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1)
+    Scal = Scal*Half
+    !call sqprt(tg1,5)
+    call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
+  end do
+end do
+!call sqprt(g1,5)
 
-      G1(:,:) = Zero
-      Do iStat = 1, nState
-        !! UEFF is in the CASSCF basis, so the CI coefficient
-        !! has to be transformed(-back) accordingly
-        Call LoadCI_XMS('N',1,nConf,nState,CI1,iStat,U0)
-        Do jStat = 1, nState
-          If (iStat == jStat) Cycle
-          Call LoadCI_XMS('N',1,nConf,nState,CI2,jStat,U0)
+call mma_deallocate(CI1)
+call mma_deallocate(CI2)
+call mma_deallocate(SGM1)
+call mma_deallocate(SGM2)
+call mma_deallocate(TG1)
 
-          Call Dens1T_RPT2(CI1,CI2,SGM1,TG1,nLev)
-          Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)                  &
-     &         - UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1)
-          Scal = Scal*Half
-!         call sqprt(tg1,5)
-          Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
-        End Do
-      End Do
-!     call sqprt(g1,5)
+!! The DPT2Canti computed so far has been doubled
+DPT2Canti(1:nBasT**2) = DPT2Canti(1:nBasT**2)*Half
 
-      call mma_deallocate(CI1)
-      call mma_deallocate(CI2)
-      call mma_deallocate(SGM1)
-      call mma_deallocate(SGM2)
-      call mma_deallocate(TG1)
+iMO1 = 1
+iMO2 = 1
+do iSym=1,nSym
+  nOrbI1 = nOrb(iSym)
+  nOrbI2 = nBas(iSym)-nDel(iSym)
+  if (nOrbI2 > 0) then
+    !! Add active orbital density
+    !! Probably incorrect if symmetry
+    do iOrb0=1,nAsh(iSym)
+      !iOrb1 = nIsh(iSym)+iOrb0
+      iOrb2 = nFro(iSym)+nIsh(iSym)+iOrb0
+      do jOrb0=1,nAsh(iSym)
+        !jOrb1 = nIsh(iSym)+jOrb0
+        jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
+        DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1)) = DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))+G1(iOrb0,jOrb0)
+      end do
+    end do
+  end if
+  iMO1 = iMO1+nOrbI1*nOrbI1
+  iMO2 = iMO2+nOrbI2*nOrbI2
+end do
+call mma_deallocate(G1)
 
-      !! The DPT2Canti computed so far has been doubled
-      DPT2Canti(1:nBasT**2) = DPT2Canti(1:nBasT**2)*Half
+!! Add orbital response
+call mma_allocate(WRK1,NBSQT,Label='WRK1')
+call mma_allocate(WRK2,NBSQT,Label='WRK2')
 
-      iMO1 = 1
-      iMO2 = 1
-      DO iSym = 1, nSym
-        nOrbI1 = nOrb(iSym)
-        nOrbI2 = nBas(iSym)-nDel(iSym)
-        If (nOrbI2 > 0) Then
-          !! Add active orbital density
-          !! Probably incorrect if symmetry
-          Do iOrb0 = 1, nAsh(iSym)
-            ! iOrb1 = nIsh(iSym)+iOrb0
-            iOrb2 = nFro(iSym)+nIsh(iSym)+iOrb0
-            Do jOrb0 = 1, nAsh(iSym)
-              ! jOrb1 = nIsh(iSym)+jOrb0
-              jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
-              DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))                  &
-     &          = DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))              &
-     &          + G1(iOrb0,jOrb0)
-            End Do
-          End Do
-        END IF
-        iMO1 = iMO1 + nOrbI1*nOrbI1
-        iMO2 = iMO2 + nOrbI2*nOrbI2
-      End Do
-      call mma_deallocate(G1)
+!! Scale with the CASPT2 energy difference
+Scal = ENERGY(iRoot2)-ENERGY(iRoot1)
+WRK1(1:nBasT**2) = Scal*DPT2Canti(1:nBasT**2)
+!! anti-symmetrize the orbital response
+call DGeSub(WRK1,nBas(1),'N',WRK1,nBas(1),'T',WRK2,nBas(1),nBas(1),nBas(1))
 
-      !! Add orbital response
-      call mma_allocate(WRK1,NBSQT,Label='WRK1')
-      call mma_allocate(WRK2,NBSQT,Label='WRK2')
+!! Probably, the way CSF term is computed in MOLCAS is different
+!! from in BAGEL; see Eqs.(51)--(53). In the active space, i.e.
+!! for SA-CASSCF, the orbital response in the active space cancel
+!! (see JCP 2004, 120, 7322), but not in off-diagonal blocks.
+!! The way MOLCAS computes adds more than the one BAGEL does, so
+!! the orbital response has to be subtracted?
+OLagFull(1:nBasT**2) = OLagFull(1:nBasT**2)-WRK1(1:nBasT**2)
 
-      !! Scale with the CASPT2 energy difference
-      Scal = ENERGY(iRoot2)-ENERGY(iRoot1)
-      WRK1(1:nBasT**2) = Scal*DPT2Canti(1:nBasT**2)
-      !! anti-symmetrize the orbital response
-      Call DGeSub(WRK1,nBas(1),'N',                                     &
-     &            WRK1,nBas(1),'T',                                     &
-     &            WRK2,nBas(1),                                         &
-     &            nBas(1),nBas(1))
+call mma_deallocate(WRK1)
+call mma_deallocate(WRK2)
 
-      !! Probably, the way CSF term is computed in MOLCAS is different
-      !! from in BAGEL; see Eqs.(51)--(53). In the active space, i.e.
-      !! for SA-CASSCF, the orbital response in the active space cancel
-      !! (see JCP 2004, 120, 7322), but not in off-diagonal blocks.
-      !! The way MOLCAS computes adds more than the one BAGEL does, so
-      !! the orbital response has to be subtracted?
-      OLagFull(1:nBasT**2) = OLagFull(1:nBasT**2) - WRK1(1:nBasT**2)
+!! S[x]^A:D = S[x]:D^A, according to alaska_util/csfgrad
+!! so antisymmetrize D
+do i=1,nBasT
+  do j=1,i-1
+    Scal = DPT2Canti(i+nBasT*(j-1))-DPT2Canti(j+nBasT*(i-1))
+    DPT2Canti(i+nBasT*(j-1)) = Scal*Half
+    DPT2Canti(j+nBasT*(i-1)) = -Scal*Half
+  end do
+end do
 
-      call mma_deallocate(WRK1)
-      call mma_deallocate(WRK2)
-
-      !! S[x]^A:D = S[x]:D^A, according to alaska_util/csfgrad.f
-      !! so antisymmetrize D
-      Do i = 1, nBasT
-        Do j = 1, i-1
-          Scal = DPT2Canti(i+nBasT*(j-1))                               &
-     &         - DPT2Canti(j+nBasT*(i-1))
-          DPT2Canti(i+nBasT*(j-1)) =  Scal*Half
-          DPT2Canti(j+nBasT*(i-1)) = -Scal*Half
-        End Do
-      End Do
-
-      End Subroutine CnstAntiC
+end subroutine CnstAntiC

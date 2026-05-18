@@ -16,65 +16,65 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM, NFRO, NORB, NDEL, NBAS
-      use constants, only: Zero, One, Two
-      use definitions, only: iwp, wp
-      IMPLICIT None
 
-      integer(kind=iwp), intent(in):: nDMAT,nCMO,nOcc,nCNAT
-      real(kind=wp), intent(in):: DMAT(nDMAT),CMO(nCMO)
-      real(kind=wp), intent(out):: OCC(nOcc),CNAT(nCNAT)
-
-      real(kind=wp), allocatable:: TMP(:)
-      integer(kind=iwp) IDMAT, IOCC, ICMO, ISYM, NF, NO, ND, NB, NTMP
+subroutine NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
 ! Given DMAT, symmetry-blocked array of triangular
 ! density matrices in MO basis, and symmetry-blocked
 ! array CMO of MO coefficients, return array of
 ! natural occupation numbers and MO coefficients of
 ! natural orbitals.
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: NSYM, NFRO, NORB, NDEL, NBAS
+use constants, only: Zero, One, Two
+use definitions, only: iwp, wp
 
-      IDMAT=0
-      IOCC=0
-      ICMO=0
-      DO ISYM=1,NSYM
-        NF=NFRO(ISYM)
-        NO=NORB(ISYM)
-        ND=NDEL(ISYM)
-        NB=NBAS(ISYM)
-!  Frozen orbitals:
-        IF(NF.GT.0) THEN
-          CALL DCOPY_(NF,[Two],0,OCC(IOCC+1),1)
-          IOCC=IOCC+NF
-          CALL DCOPY_(NB*NF,CMO(ICMO+1),1,CNAT(ICMO+1),1)
-          ICMO=ICMO+NB*NF
-        END IF
-! Inactive, active, and secondary orbitals:
-        IF(NO.GT.0) THEN
-          NTMP=(NO*(NO+1))/2
-          CALL mma_allocate(TMP,NTMP,Label='TMP')
-          CALL DCOPY_(NB*NO,CMO(ICMO+1),1,CNAT(ICMO+1),1)
-! For correct order, change sign.
-          CALL DYAX(NTMP,-One,DMAT(IDMAT+1),1,TMP,1)
-          CALL NIDiag(TMP,CNAT(ICMO+1),NO,NB)
-          CALL JACORD(TMP,CNAT(ICMO+1),NO,NB)
-          CALL VEIG(NO,TMP,OCC(IOCC+1))
-! Change back to positive sign.
-          CALL DSCAL_(NO,-One,OCC(IOCC+1),1)
-          IDMAT=IDMAT+NTMP
-          IOCC=IOCC+NO
-          ICMO=ICMO+NB*NO
-          CALL mma_deallocate(TMP)
-        END IF
-! Deleted orbitals:
-        IF(ND.GT.0) THEN
-          CALL DCOPY_(ND,[Zero],0,OCC(IOCC+1),1)
-          IOCC=IOCC+ND
-          CALL DCOPY_(NB*ND,CMO(ICMO+1),1,CNAT(ICMO+1),1)
-          ICMO=ICMO+NB*ND
-        END IF
-      END DO
+implicit none
+integer(kind=iwp), intent(in) :: nDMAT, nCMO, nOcc, nCNAT
+real(kind=wp), intent(in) :: DMAT(nDMAT), CMO(nCMO)
+real(kind=wp), intent(out) :: OCC(nOcc), CNAT(nCNAT)
+real(kind=wp), allocatable :: TMP(:)
+integer(kind=iwp) IDMAT, IOCC, ICMO, ISYM, NF, NO, ND, NB, NTMP
 
-      END SUBROUTINE NATORB_CASPT2
+IDMAT = 0
+IOCC = 0
+ICMO = 0
+do ISYM=1,NSYM
+  NF = NFRO(ISYM)
+  NO = NORB(ISYM)
+  ND = NDEL(ISYM)
+  NB = NBAS(ISYM)
+  !  Frozen orbitals:
+  if (NF > 0) then
+    call DCOPY_(NF,[Two],0,OCC(IOCC+1),1)
+    IOCC = IOCC+NF
+    call DCOPY_(NB*NF,CMO(ICMO+1),1,CNAT(ICMO+1),1)
+    ICMO = ICMO+NB*NF
+  end if
+  ! Inactive, active, and secondary orbitals:
+  if (NO > 0) then
+    NTMP = (NO*(NO+1))/2
+    call mma_allocate(TMP,NTMP,Label='TMP')
+    call DCOPY_(NB*NO,CMO(ICMO+1),1,CNAT(ICMO+1),1)
+    ! For correct order, change sign.
+    call DYAX(NTMP,-One,DMAT(IDMAT+1),1,TMP,1)
+    call NIDiag(TMP,CNAT(ICMO+1),NO,NB)
+    call JACORD(TMP,CNAT(ICMO+1),NO,NB)
+    call VEIG(NO,TMP,OCC(IOCC+1))
+    ! Change back to positive sign.
+    call DSCAL_(NO,-One,OCC(IOCC+1),1)
+    IDMAT = IDMAT+NTMP
+    IOCC = IOCC+NO
+    ICMO = ICMO+NB*NO
+    call mma_deallocate(TMP)
+  end if
+  ! Deleted orbitals:
+  if (ND > 0) then
+    call DCOPY_(ND,[Zero],0,OCC(IOCC+1),1)
+    IOCC = IOCC+ND
+    call DCOPY_(NB*ND,CMO(ICMO+1),1,CNAT(ICMO+1),1)
+    ICMO = ICMO+NB*ND
+  end if
+end do
+
+end subroutine NATORB_CASPT2

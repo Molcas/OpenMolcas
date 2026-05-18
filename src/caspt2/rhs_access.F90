@@ -23,55 +23,57 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_ACCESS (NAS,NIS,lg_W,iLo,iHi,jLo,jHi,MW)
+subroutine RHS_ACCESS(NAS,NIS,lg_W,iLo,iHi,jLo,jHi,MW)
 !SVC: this routine gives a pointer to the process-local part of the RHS
 !     If there is no valid local block, then the routine returns 0 for
 !     iLo and jLo, and -1 for iHi and jHi. This way, loops from lower
-      use definitions, only: iwp
+
+use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: NAS,NIS,lg_W
-      integer(kind=iwp), intent(out):: iLo,iHi,jLo,jHi,MW
+
+implicit none
+integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
+integer(kind=iwp), intent(out) :: iLo, iHi, jLo, jHi, MW
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=iwp) myRank, LDW
+integer(kind=iwp) myRank, LDW
 #endif
 
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-! get the superindex ranges of this process's block
-        myRank = GA_NodeID()
-        CALL GA_Distribution (lg_W,myRank,iLo,iHi,jLo,jHi)
+if (Is_Real_Par()) then
+  ! get the superindex ranges of this process's block
+  myRank = GA_NodeID()
+  call GA_Distribution(lg_W,myRank,iLo,iHi,jLo,jHi)
 
-        IF (iLo.NE.0 .AND. (iHi-iLo+1).NE.NAS) THEN
-          WRITE(6,*) 'RHS_ACCESS: mismatch in range of the superindices'
-          CALL AbEnd()
-        END IF
+  if ((iLo /= 0) .and. (iHi-iLo+1 /= NAS)) then
+    write(6,*) 'RHS_ACCESS: mismatch in range of the superindices'
+    call AbEnd()
+  end if
 
-! if the block is non-empty, get access to the block
-        IF (iLo.GT.0 .AND. jLo.GT.0) THEN
-          IF (iHi-iLo+1.NE.NAS) THEN
-            WRITE(6,*) 'RHS_ACCESS: Error: NAS mismatch, abort...'
-            CALL ABEND()
-          END IF
-          CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,MW,LDW)
-          IF (LDW.NE.NAS) THEN
-            WRITE(6,*) 'RHS_ACCESS: assert NAS=LDW failed, abort'
-            CALL AbEnd()
-          END IF
-        END IF
-      ELSE
+  ! if the block is non-empty, get access to the block
+  if ((iLo > 0) .and. (jLo > 0)) then
+    if (iHi-iLo+1 /= NAS) then
+      write(6,*) 'RHS_ACCESS: Error: NAS mismatch, abort...'
+      call ABEND()
+    end if
+    call GA_Access(lg_W,iLo,iHi,jLo,jHi,MW,LDW)
+    if (LDW /= NAS) then
+      write(6,*) 'RHS_ACCESS: assert NAS=LDW failed, abort'
+      call AbEnd()
+    end if
+  end if
+else
 #endif
-        iLo=1
-        iHi=NAS
-        jLo=1
-        jHi=NIS
-        MW=lg_W
+  iLo = 1
+  iHi = NAS
+  jLo = 1
+  jHi = NIS
+  MW = lg_W
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END SUBROUTINE RHS_ACCESS
+end subroutine RHS_ACCESS

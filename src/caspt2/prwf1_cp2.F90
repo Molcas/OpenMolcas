@@ -16,154 +16,145 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
-      use Symmetry_Info, only: Mul
-      use sguga, only: SGS, CIS
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM, ISPIN, PRSD
-      use Molcas, only: MxLev
-      use definitions, only: iwp, wp, u6
-      IMPLICIT None
-      Integer(kind=iwp), Intent(In):: ISYCI, mCI,nMidV
-      integer(kind=iwp), intent(in):: NOCSF(NSYM,NMIDV,NSYM),           &
-     &                                IOCSF(NSYM,NMIDV,NSYM)
-      integer(kind=iwp), intent(in):: NOW(2,NSYM,NMIDV),                &
-     &                                IOW(2,NSYM,NMIDV)
-      real(kind=wp), intent(in):: CI(mCI), THR
 
-      CHARACTER(LEN=256) LINE
-      CHARACTER(LEN=1) :: CODE(0:3)=['0','u','d','2']
-      integer(kind=iwp) ICS(MXLEV)
-      integer(kind=iwp) :: nLev, nIpWlk
-      integer(kind=iwp), ALLOCATABLE:: LEX(:)
-      real(kind=wp) COEF
-      integer(kind=iwp) IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0,  &
-     &                  IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP,     &
-     &                  IUW0, K, LENCSF, LEV, MV, NCI, NDWN, NNN, NUP
+subroutine PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
 
-      nLev  = SGS%nLev
-      nIpWlk= CIS%nIpWlk
+use Symmetry_Info, only: Mul
+use sguga, only: SGS, CIS
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: NSYM, ISPIN, PRSD
+use Molcas, only: MxLev
+use definitions, only: iwp, wp, u6
 
-! -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
-! -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
-! -- THE   U P P E R   PART OF THE WALK.
+implicit none
+integer(kind=iwp), intent(in) :: ISYCI, mCI, nMidV
+integer(kind=iwp), intent(in) :: NOCSF(NSYM,NMIDV,NSYM), IOCSF(NSYM,NMIDV,NSYM)
+integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
+real(kind=wp), intent(in) :: CI(mCI), THR
+character(len=256) LINE
+character(len=1) :: CODE(0:3) = ['0','u','d','2']
+integer(kind=iwp) ICS(MXLEV)
+integer(kind=iwp) :: nLev, nIpWlk
+integer(kind=iwp), allocatable :: LEX(:)
+real(kind=wp) COEF
+integer(kind=iwp) IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP, IUW0, K, LENCSF, LEV, &
+                  MV, NCI, NDWN, NNN, NUP
+
+nLev = SGS%nLev
+nIpWlk = CIS%nIpWlk
+
+! NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
+! ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
+! THE   U P P E R   PART OF THE WALK.
 
 ! SVC: set up a CSF string length as LENCSF
-      LINE=' '
-      LENCSF=0
-      ISY=0
-      DO LEV=1,NLEV
-        IF(ISY/=SGS%ISM(LEV)) THEN
-          ISY=SGS%ISM(LEV)
-          LENCSF=LENCSF+1
-        END IF
-        LENCSF=LENCSF+1
-      END DO
-      LENCSF=MIN(LENCSF,256)
-      LENCSF=MAX(LENCSF,10)
-
+LINE = ' '
+LENCSF = 0
+ISY = 0
+do LEV=1,NLEV
+  if (ISY /= SGS%ISM(LEV)) then
+    ISY = SGS%ISM(LEV)
+    LENCSF = LENCSF+1
+  end if
+  LENCSF = LENCSF+1
+end do
+LENCSF = min(LENCSF,256)
+LENCSF = max(LENCSF,10)
 
 ! Size of occup/spin coupling part of line:
-      WRITE(u6,*)' Occupation of active orbitals, and spin coupling'
-      WRITE(u6,*)' of open shells. (u,d: Spin up or down).'
-      WRITE(u6,*)' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
-      LINE(1:10)='Occupation'
-      WRITE(u6,'(2X,A10,2X,A16,2X,A,2(2X,A13))')                        &
-     & 'Conf','SGUGA info      ',LINE(1:LENCSF),                        &
-     & 'Coefficient','Weight'
+write(u6,*) ' Occupation of active orbitals, and spin coupling'
+write(u6,*) ' of open shells. (u,d: Spin up or down).'
+write(u6,*) ' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
+LINE(1:10) = 'Occupation'
+write(u6,'(2X,A10,2X,A16,2X,A,2(2X,A13))') 'Conf','SGUGA info      ',LINE(1:LENCSF),'Coefficient','Weight'
 
-!     SVC2010:
-!     allocate scratch memory for determinant expansion
-      IF (PRSD) THEN
-        CALL mma_allocate(LEX,NLEV,LABEL='LEX')
-      END IF
+! SVC2010:
+! allocate scratch memory for determinant expansion
+if (PRSD) call mma_allocate(LEX,NLEV,LABEL='LEX')
 
-      LINE=' '
+LINE = ''
 
-! -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
-!    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-      DO MV=1,NMIDV
-        DO ISYUP=1,NSYM
-          NCI=NOCSF(ISYUP,MV,ISYCI)
-          IF(NCI==0) Cycle
-          NUP=NOW(1,ISYUP,MV)
-          ISYDWN=Mul(ISYUP,ISYCI)
-          NDWN=NOW(2,ISYDWN,MV)
-          ICONF=IOCSF(ISYUP,MV,ISYCI)
-          IUW0=1-NIPWLK+IOW(1,ISYUP,MV)
-          IDW0=1-NIPWLK+IOW(2,ISYDWN,MV)
-          IDWNSV=0
-          DO IDWN=1,NDWN
-            DO IUP=1,NUP
-              ICONF=ICONF+1
-              COEF=CI(ICONF)
-! -- SKIP OR PRINT IT OUT?
-              IF(ABS(COEF)<THR) Cycle
-              IF(IDWNSV/=IDWN) THEN
-                ICDPOS=IDW0+IDWN*NIPWLK
-                ICDWN=CIS%ICASE(ICDPOS)
-! -- UNPACK LOWER WALK.
-                NNN=0
-                DO LEV=1,SGS%MIDLEV
-                  NNN=NNN+1
-                  IF(NNN==16) THEN
-                    NNN=1
-                    ICDPOS=ICDPOS+1
-                    ICDWN=CIS%ICASE(ICDPOS)
-                  END IF
-                  IC1=ICDWN/4
-                  ICS(LEV)=ICDWN-4*IC1
-                  ICDWN=IC1
-                End Do
-                IDWNSV=IDWN
-              END IF
-              ICUPOS=IUW0+NIPWLK*IUP
-              ICUP=CIS%ICASE(ICUPOS)
-! -- UNPACK UPPER WALK:
-              NNN=0
-              DO LEV=SGS%MIDLEV+1,NLEV
-                NNN=NNN+1
-                IF(NNN==16) THEN
-                  NNN=1
-                  ICUPOS=ICUPOS+1
-                  ICUP=CIS%ICASE(ICUPOS)
-                END IF
-                IC1=ICUP/4
-                ICS(LEV)=ICUP-4*IC1
-                ICUP=IC1
-              END DO
-! -- PRINT IT!
-              K=0
-              ISY=0
-              DO LEV=1,NLEV
-                IF(ISY/=SGS%ISM(LEV)) THEN
-                  ISY=SGS%ISM(LEV)
-                  K=K+1
-                  LINE(K:K)=' '
-                END IF
-                K=K+1
-                LINE(K:K)=CODE(ICS(LEV))
-              END DO
-              WRITE(u6,"(2X,I10,2X,'(',I2,':',I1,':',I4,'/',I4,')',     &
-     &       2X,A,2(2X,F13.6))")                                        &
-     &               ICONF,MV,ISYUP,IUP,IDWN,                           &
-     &               LINE(1:LENCSF),COEF,COEF**2
-!     SVC2010 experimental: add determinant expansion
-              IF (PRSD) THEN
-!     Specify projected spin in half integer units
-!     Default: use maximum spin projection
-               IMS = ISPIN-1
-               WRITE(u6,*)
-               CALL EXPCSF (ICS, NLEV, IMS, LEX, coef, 0)
-               WRITE(u6,*)
-              ENDIF
-            End Do
-          End Do
-        End Do
-      End Do
+! THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
+! WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
+do MV=1,NMIDV
+  do ISYUP=1,NSYM
+    NCI = NOCSF(ISYUP,MV,ISYCI)
+    if (NCI == 0) cycle
+    NUP = NOW(1,ISYUP,MV)
+    ISYDWN = Mul(ISYUP,ISYCI)
+    NDWN = NOW(2,ISYDWN,MV)
+    ICONF = IOCSF(ISYUP,MV,ISYCI)
+    IUW0 = 1-NIPWLK+IOW(1,ISYUP,MV)
+    IDW0 = 1-NIPWLK+IOW(2,ISYDWN,MV)
+    IDWNSV = 0
+    do IDWN=1,NDWN
+      do IUP=1,NUP
+        ICONF = ICONF+1
+        COEF = CI(ICONF)
+        ! SKIP OR PRINT IT OUT?
+        if (abs(COEF) < THR) cycle
+        if (IDWNSV /= IDWN) then
+          ICDPOS = IDW0+IDWN*NIPWLK
+          ICDWN = CIS%ICASE(ICDPOS)
+          ! UNPACK LOWER WALK.
+          NNN = 0
+          do LEV=1,SGS%MIDLEV
+            NNN = NNN+1
+            if (NNN == 16) then
+              NNN = 1
+              ICDPOS = ICDPOS+1
+              ICDWN = CIS%ICASE(ICDPOS)
+            end if
+            IC1 = ICDWN/4
+            ICS(LEV) = ICDWN-4*IC1
+            ICDWN = IC1
+          end do
+          IDWNSV = IDWN
+        end if
+        ICUPOS = IUW0+NIPWLK*IUP
+        ICUP = CIS%ICASE(ICUPOS)
+        ! UNPACK UPPER WALK:
+        NNN = 0
+        do LEV=SGS%MIDLEV+1,NLEV
+          NNN = NNN+1
+          if (NNN == 16) then
+            NNN = 1
+            ICUPOS = ICUPOS+1
+            ICUP = CIS%ICASE(ICUPOS)
+          end if
+          IC1 = ICUP/4
+          ICS(LEV) = ICUP-4*IC1
+          ICUP = IC1
+        end do
+        ! PRINT IT!
+        K = 0
+        ISY = 0
+        do LEV=1,NLEV
+          if (ISY /= SGS%ISM(LEV)) then
+            ISY = SGS%ISM(LEV)
+            K = K+1
+            LINE(K:K) = ' '
+          end if
+          K = K+1
+          LINE(K:K) = CODE(ICS(LEV))
+        end do
+        write(u6,'(2X,I10,2X,"(",I2,":",I1,":",I4,"/",I4,")",2X,A,2(2X,F13.6))') ICONF,MV,ISYUP,IUP,IDWN,LINE(1:LENCSF),COEF,COEF**2
+        ! SVC2010 experimental: add determinant expansion
+        if (PRSD) then
+          ! Specify projected spin in half integer units
+          ! Default: use maximum spin projection
+          IMS = ISPIN-1
+          write(u6,*)
+          call EXPCSF(ICS,NLEV,IMS,LEX,coef,0)
+          write(u6,*)
+        end if
+      end do
+    end do
+  end do
+end do
 
-!     SVC2010: free scratch for determinant expansion
-      IF (PRSD) CALL mma_deallocate(LEX)
-      WRITE(u6,*)
+! SVC2010: free scratch for determinant expansion
+if (PRSD) call mma_deallocate(LEX)
+write(u6,*)
 
-      END SUBROUTINE PRWF1_CP2
+end subroutine PRWF1_CP2

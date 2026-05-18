@@ -8,22 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE MLTR1 (IMLTOP,LST1,X,nX,F,nF,Y,nY)
-      use definitions, only: iwp, wp
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
-#endif
-      use Sigma_data, only: NLST1, INCF1, INCF2, INCX1, INCX2, INCX3,   &
-     &                      INCY1, INCY2, LEN1, LEN2, NFR1, VAL1
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: IMLTOP, nX, nF, nY
-      real(kind=wp), intent(inout):: X(nX),F(nF),Y(nY)
-      integer(kind=iwp), intent(in):: LST1(4,NLST1)
 
-      integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST, L1, L2, L3, L4,   &
-     &                  IX, IF, IY, I
-      real(kind=wp) V, A
-      real(kind=wp), external:: DDot_
+subroutine MLTR1(IMLTOP,LST1,X,nX,F,nF,Y,nY)
 ! Given a lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 ! four entries called L1,L2,L3,L4 for short, for a given
 ! item, and with V=VAL1(L4),
@@ -40,73 +26,87 @@
 ! The formal Y(p,q,r) is accessed as
 ! Y(1+INCX1*(p-1)+INCX2*(q-1)+INCX3*(r-1)), etc.
 
+use definitions, only: iwp, wp
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: MyRank, nProcs, Is_Real_Par
+#endif
+use Sigma_data, only: NLST1, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, LEN1, LEN2, NFR1, VAL1
+
+implicit none
+integer(kind=iwp), intent(in) :: IMLTOP, nX, nF, nY
+real(kind=wp), intent(inout) :: X(nX), F(nF), Y(nY)
+integer(kind=iwp), intent(in) :: LST1(4,NLST1)
+integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST, L1, L2, L3, L4, IX, IF, IY, I
+real(kind=wp) V, A
+real(kind=wp), external :: DDot_
+
 !SVC: determine outer loop properties
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-        ILST1_IOFF=MYRANK+1
-        ILST1_SKIP=NPROCS
-      ELSE
+if (Is_Real_Par()) then
+  ILST1_IOFF = MYRANK+1
+  ILST1_SKIP = NPROCS
+else
 #endif
-        ILST1_IOFF=1
-        ILST1_SKIP=1
+  ILST1_IOFF = 1
+  ILST1_SKIP = 1
 #ifdef _MOLCAS_MPP_
-      ENDIF
+end if
 #endif
 
-      SELECT CASE (IMLTOP)
-      CASE(0)
-        DO ILST=ILST1_IOFF,NLST1,ILST1_SKIP
-          L1=LST1(1,ILST)
-          L2=LST1(2,ILST)
-          L3=LST1(3,ILST)
-          L4=LST1(4,ILST)
-          V=VAL1(L4)
-          IX=INCX1*(L1-1)+1
-          IF=INCF1*(L2-1)+1
-          IY=INCY1*(L3-1)+1
-          DO I=1,LEN1
-            A=V*F(IF)
-            CALL DAXPY_(LEN2,A,Y(IY),INCY2,X(IX),INCX3)
-            IX=IX+INCX2
-            IF=IF+INCF2
-          END DO
-        END DO
-      CASE(1)
-        DO ILST=ILST1_IOFF,NLST1,ILST1_SKIP
-          L1=LST1(1,ILST)
-          L2=LST1(2,ILST)
-          L3=LST1(3,ILST)
-          L4=LST1(4,ILST)
-          V=VAL1(L4)
-          IX=INCX1*(L1-1)+1
-          IF=INCF1*(L2-1)+1
-          IY=INCY1*(L3-1)+1
-          DO I=1,LEN2
-            Y(IY)=Y(IY)+V*DDOT_(LEN1,F(IF),INCF2,X(IX),INCX2)
-            IX=IX+INCX3
-            IY=IY+INCY2
-          END DO
-        END DO
-      CASE DEFAULT
-        DO ILST=ILST1_IOFF,NLST1,ILST1_SKIP
-          L1=LST1(1,ILST)
-          L2=LST1(2,ILST)
-          L3=LST1(3,ILST)
-          L4=LST1(4,ILST)
-          V=VAL1(L4)
-          IX=INCX1*(L1-1)+1
-          IF=INCF1*(L2-1)+1
-          IY=INCY1*(L3-1)+1
-!     F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
-          DO I=1,LEN2
-            A=V*Y(IY)
-            CALL DAXPY_(LEN1,A,X(IX),INCX2,F(IF),INCF2)
-            IX=IX+INCX3
-            IY=IY+INCY2
-          END DO
-        END DO
-      END SELECT
+select case (IMLTOP)
+  case (0)
+    do ILST=ILST1_IOFF,NLST1,ILST1_SKIP
+      L1 = LST1(1,ILST)
+      L2 = LST1(2,ILST)
+      L3 = LST1(3,ILST)
+      L4 = LST1(4,ILST)
+      V = VAL1(L4)
+      IX = INCX1*(L1-1)+1
+      IF = INCF1*(L2-1)+1
+      IY = INCY1*(L3-1)+1
+      do I=1,LEN1
+        A = V*F(IF)
+        call DAXPY_(LEN2,A,Y(IY),INCY2,X(IX),INCX3)
+        IX = IX+INCX2
+        IF = IF+INCF2
+      end do
+    end do
+  case (1)
+    do ILST=ILST1_IOFF,NLST1,ILST1_SKIP
+      L1 = LST1(1,ILST)
+      L2 = LST1(2,ILST)
+      L3 = LST1(3,ILST)
+      L4 = LST1(4,ILST)
+      V = VAL1(L4)
+      IX = INCX1*(L1-1)+1
+      IF = INCF1*(L2-1)+1
+      IY = INCY1*(L3-1)+1
+      do I=1,LEN2
+        Y(IY) = Y(IY)+V*DDOT_(LEN1,F(IF),INCF2,X(IX),INCX2)
+        IX = IX+INCX3
+        IY = IY+INCY2
+      end do
+    end do
+  case DEFAULT
+    do ILST=ILST1_IOFF,NLST1,ILST1_SKIP
+      L1 = LST1(1,ILST)
+      L2 = LST1(2,ILST)
+      L3 = LST1(3,ILST)
+      L4 = LST1(4,ILST)
+      V = VAL1(L4)
+      IX = INCX1*(L1-1)+1
+      IF = INCF1*(L2-1)+1
+      IY = INCY1*(L3-1)+1
+      ! F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
+      do I=1,LEN2
+        A = V*Y(IY)
+        call DAXPY_(LEN1,A,X(IX),INCX2,F(IF),INCF2)
+        IX = IX+INCX3
+        IY = IY+INCY2
+      end do
+    end do
+end select
 
-      NFR1 =NFR1 +2*NLST1*LEN1*LEN2
+NFR1 = NFR1+2*NLST1*LEN1*LEN2
 
-      END SUBROUTINE MLTR1
+end subroutine MLTR1

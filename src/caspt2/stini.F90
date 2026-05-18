@@ -10,105 +10,96 @@
 !                                                                      *
 ! Copyright (C) 1998, Per Ake Malmqvist                                *
 !***********************************************************************
-      SUBROUTINE STINI(JSTATE)
+
+subroutine STINI(JSTATE)
+
 #ifdef _DMRG_
-      use qcmaquis_interface, only:qcmaquis_interface_set_state
-      use iso_c_binding, only: c_int
-      use caspt2_module, only: DMRG
+use qcmaquis_interface, only: qcmaquis_interface_set_state
+use iso_c_binding, only: c_int
+use caspt2_module, only: DMRG
 #endif
-      use caspt2_global, only:iPrGlb
-      use caspt2_global, only: DREF, PREF
-      use PrintLevel, only: DEBUG, USUAL
-      use caspt2_module, only: CPUFG3, ERef, nAshT, EASUM,              &
-     &                         TIOFG3, EPSA, mState, RefEne,            &
-     &                         CPUSIN, TIOSIN
-      use caspt2_module, only: iAdr10, CLab10
-      use constants, only: Zero
-      use definitions, only: iwp, wp, u6
-      IMPLICIT NONE
-      integer(kind=iwp), intent(in):: JSTATE
+use caspt2_global, only: iPrGlb
+use caspt2_global, only: DREF, PREF
+use PrintLevel, only: DEBUG, USUAL
+use caspt2_module, only: CPUFG3, ERef, nAshT, EASUM, TIOFG3, EPSA, mState, RefEne, CPUSIN, TIOSIN
+use caspt2_module, only: iAdr10, CLab10
+use constants, only: Zero
+use definitions, only: iwp, wp, u6
 
-      CHARACTER(LEN=50)  STLNE2
-!     timers
-      REAL(kind=wp) CPU0,CPU1,CPU,  CPTF0, CPTF11, CPE,                 &
-     &       TIO0,TIO1,TIO, TIOTF0,TIOTF11,TIOE
-!     indices
-      INTEGER(kind=iwp) :: I,J,IFTEST=0
-      Logical(kind=iwp), parameter:: mkF=.TRUE.
+implicit none
+integer(kind=iwp), intent(in) :: JSTATE
+character(len=50) STLNE2
+! timers
+real(kind=wp) CPU0, CPU1, CPU, CPTF0, CPTF11, CPE, TIO0, TIO1, TIO, TIOTF0, TIOTF11, TIOE
+! indices
+integer(kind=iwp) :: I, J, IFTEST = 0
+logical(kind=iwp), parameter :: mkF = .true.
 !***********************************************************************
-      CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+call TIMING(CPTF0,CPE,TIOTF0,TIOE)
 !***********************************************************************
 
-      Write(STLNE2,'(A,I0)')                                            &
-     &                'Compute H0 matrices for state ',MSTATE(JSTATE)
-      Call StatusLine('CASPT2: ',STLNE2)
-      IF(IPRGLB.GE.USUAL) THEN
-        WRITE(u6,'(20A4)')('****',I=1,20)
-        WRITE(u6,'(A,I4)')                                              &
-     &   ' Compute H0 matrices for state ',MSTATE(JSTATE)
-        WRITE(u6,'(20A4)')('----',I=1,20)
-      END IF
+write(STLNE2,'(A,I0)') 'Compute H0 matrices for state ',MSTATE(JSTATE)
+call StatusLine('CASPT2: ',STLNE2)
+if (IPRGLB >= USUAL) then
+  write(u6,'(A)') repeat('*',80)
+  write(u6,'(A,I4)') ' Compute H0 matrices for state ',MSTATE(JSTATE)
+  write(u6,'(A)') repeat('-',80)
+end if
 
 ! Reinitialize labels for saving density matrices on disk.
-! The fields IADR10 and CLAB10 are kept in the module caspt2_module.F90
-      IADR10(:,1)=-1
-      IADR10(:,2)=0
-      CLAB10(:)='   EMPTY'
-      IADR10(1,1)=0
+! The fields IADR10 and CLAB10 are kept in the module caspt2_module
+IADR10(:,1) = -1
+IADR10(:,2) = 0
+CLAB10(:) = '   EMPTY'
+IADR10(1,1) = 0
 
 #ifdef _DMRG_
-      if (DMRG) then
-        ! set state number here because in poly1 we have no reference
-        ! to which state we are computing
-        if (iPrGlb >= DEBUG) then
-          write (u6,*) 'STINI setting DMRG state number to ',           &
-     &                mstate(jstate)-1
-        endif
-        ! Convert to the root number despite having
-        ! set only the checkpoint file paths for the desired state(s)
-        call qcmaquis_interface_set_state(int(mstate(jstate)-1,c_int))
-      end if
+if (DMRG) then
+  ! set state number here because in poly1 we have no reference
+  ! to which state we are computing
+  if (iPrGlb >= DEBUG) write(u6,*) 'STINI setting DMRG state number to ',mstate(jstate)-1
+  ! Convert to the root number despite having
+  ! set only the checkpoint file paths for the desired state(s)
+  call qcmaquis_interface_set_state(int(mstate(jstate)-1,c_int))
+end if
 #endif
-      IF (IPRGLB.GE.DEBUG) THEN
-        WRITE(u6,*)' STINI calling POLY3...'
-      END IF
-      CALL TIMING(CPU0,CPU,TIO0,TIO)
+if (IPRGLB >= DEBUG) write(u6,*) ' STINI calling POLY3...'
+call TIMING(CPU0,CPU,TIO0,TIO)
 
-      CALL POLY3(mkF)
+call POLY3(mkF)
 
-      CALL TIMING(CPU1,CPU,TIO1,TIO)
-      CPUFG3=CPU1-CPU0
-      TIOFG3=TIO1-TIO0
-      IF (IPRGLB.GE.DEBUG) THEN
-        WRITE(u6,*)' STINI back from POLY3.'
-      END IF
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPUFG3 = CPU1-CPU0
+TIOFG3 = TIO1-TIO0
+if (IPRGLB >= DEBUG) write(u6,*) ' STINI back from POLY3.'
 
 ! GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
-      CALL GETDPREF(DREF,SIZE(DREF),PREF,SIZE(PREF))
+call GETDPREF(DREF,size(DREF),PREF,size(PREF))
 
-      IF ( IFTEST.NE.0 ) THEN
-        WRITE(u6,*)' DREF for state nr. ',MSTATE(JSTATE)
-        DO I=1,NASHT
-          WRITE(u6,'(1x,14f10.6)')(DREF((I*(I-1))/2+J),J=1,I)
-        END DO
-        WRITE(u6,*)
-      END IF
+if (IFTEST /= 0) then
+  write(u6,*) ' DREF for state nr. ',MSTATE(JSTATE)
+  do I=1,NASHT
+    write(u6,'(1x,14f10.6)') (DREF((I*(I-1))/2+J),J=1,I)
+  end do
+  write(u6,*)
+end if
 
-      EREF=REFENE(JSTATE)
+EREF = REFENE(JSTATE)
 ! With new DREF, recompute EASUM:
-      EASUM=Zero
-      DO I=1,NASHT
-        EASUM=EASUM+EPSA(I)*DREF((I*(I+1))/2)
-      END DO
+EASUM = Zero
+do I=1,NASHT
+  EASUM = EASUM+EPSA(I)*DREF((I*(I+1))/2)
+end do
 
-      IF(IPRGLB.GE.USUAL) THEN
-       WRITE(u6,'(20A4)')('----',I=1,20)
-       WRITE(u6,'(A)')' H0 matrices have been computed.'
-       WRITE(u6,*)
-      ENDIF
+if (IPRGLB >= USUAL) then
+  write(u6,'(A)') repeat('-',80)
+  write(u6,'(A)') ' H0 matrices have been computed.'
+  write(u6,*)
+end if
 !***********************************************************************
-      CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
-      CPUSIN=CPTF11-CPTF0
-      TIOSIN=TIOTF11-TIOTF0
+call TIMING(CPTF11,CPE,TIOTF11,TIOE)
+CPUSIN = CPTF11-CPTF0
+TIOSIN = TIOTF11-TIOTF0
 !***********************************************************************
-      END SUBROUTINE STINI
+
+end subroutine STINI

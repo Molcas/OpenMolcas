@@ -8,19 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      program main
+
+program main
+
 #ifdef _FPE_TRAP_
-      Use, Intrinsic :: IEEE_Exceptions
+use, intrinsic :: ieee_exceptions
 #endif
-      use definitions, only: iwp
-      implicit none
-      Character(Len=20), Parameter :: Module_Name = 'caspt2'
-      Integer(kind=iwp) :: ireturn
+use definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ireturn
+
 #ifdef _FPE_TRAP_
-      Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._4)
 #endif
 
-      Call Start(Module_Name)
-      Call caspt2(ireturn)
-      Call Finish(ireturn)
-      end program main
+call Start('caspt2')
+call caspt2(ireturn)
+call Finish(ireturn)
+
+end program main

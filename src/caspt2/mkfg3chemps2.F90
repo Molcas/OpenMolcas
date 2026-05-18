@@ -15,64 +15,61 @@
 #include "compiler_features.h"
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
-      use Symmetry_Info, only: Mul
-      use sguga, only: SGS
-      use caspt2_module, only: jState, nActel, EPSA, mState
-      use definitions, only: iwp, wp, Byte, u6
-      IMPLICIT NONE
+subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
 
-      LOGICAL(KIND=IWP), INTENT(IN) :: mkF
-      INTEGER(KIND=IWP), INTENT(IN) :: NLEV, NG3
-      REAL(KIND=WP), INTENT(OUT) ::G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
-      REAL(KIND=WP), INTENT(OUT) ::F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
-      REAL(KIND=WP), INTENT(OUT) :: G3(NG3), F3(nG3)
-      INTEGER(KIND=BYTE), INTENT(IN) :: idxG3(6,nG3)
+use Symmetry_Info, only: Mul
+use sguga, only: SGS
+use caspt2_module, only: jState, nActel, EPSA, mState
+use definitions, only: iwp, wp, Byte, u6
 
-      INTEGER(KIND=IWP) IY,IZ,IW
-      INTEGER(KIND=IWP) IYSYM,IXYSYM
-      INTEGER(KIND=IWP) NAC4
+implicit none
+logical(kind=iwp), intent(in) :: mkF
+integer(kind=iwp), intent(in) :: NLEV, NG3
+real(kind=wp), intent(out) :: G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
+real(kind=wp), intent(out) :: F1(NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV)
+real(kind=wp), intent(out) :: G3(NG3), F3(nG3)
+integer(kind=Byte), intent(in) :: idxG3(6,nG3)
+integer(kind=iwp) IY, IZ, IW
+integer(kind=iwp) IYSYM, IXYSYM
+integer(kind=iwp) NAC4
 
-      If(NACTEL.GT.1) Then
-        NAC4 = NLEV * NLEV * NLEV * NLEV
-        Call chemps2_load2pdm( nlev, G2, MSTATE(JSTATE) )
-        Call two2onerdm( nlev, NACTEL, G2, G1 )
-      Else
-        write(u6,*) "FATAL ERROR: DMRG-CASPT2 with                      &
-     & CHEMPS2 does not work with NACTEL=1"
-      End If
+if (NACTEL > 1) then
+  NAC4 = NLEV*NLEV*NLEV*NLEV
+  call chemps2_load2pdm(nlev,G2,MSTATE(JSTATE))
+  call two2onerdm(nlev,NACTEL,G2,G1)
+else
+  write(u6,*) 'FATAL ERROR: DMRG-CASPT2 with CHEMPS2 does not work with NACTEL=1'
+end if
 
 ! Double checked with CheMPS2::CASPT2::create_f_dots()
-      Do iz=1,nlev
-        iySym=SGS%ism(iz)
-        Do iy=1,nlev
-          ixySym=Mul(SGS%ism(iy),iySym)
-          If(mkF.AND.ixySym.EQ.1) Then
-            F1(iy,iz) = 0.0
-            Do iw=1,nlev
-              F1(iy,iz)=F1(iy,iz)+G2(iw,iw,iy,iz)*EPSA(iw)
-            End Do
-          End If
-        End Do
-      End Do
+do iz=1,nlev
+  iySym = SGS%ism(iz)
+  do iy=1,nlev
+    ixySym = Mul(SGS%ism(iy),iySym)
+    if (mkF .and. (ixySym == 1)) then
+      F1(iy,iz) = 0.0
+      do iw=1,nlev
+        F1(iy,iz) = F1(iy,iz)+G2(iw,iw,iy,iz)*EPSA(iw)
+      end do
+    end if
+  end do
+end do
 
-      If(NACTEL.GE.3) THEN
+if (NACTEL >= 3) then
 
-        If (mkF) call chemps2_load3pdm( nlev, idxG3, NG3, F3, .false.,  &
-     &                                  EPSA, F2, MSTATE(JSTATE) )
+  if (mkF) call chemps2_load3pdm(nlev,idxG3,NG3,F3,.false.,EPSA,F2,MSTATE(JSTATE))
 
-        call chemps2_load3pdm( nlev, idxG3, NG3, G3, mkF , EPSA,        &
-     &                         F2, MSTATE(JSTATE) )
+  call chemps2_load3pdm(nlev,idxG3,NG3,G3,mkF,EPSA,F2,MSTATE(JSTATE))
 
-      End If
+end if
 
-      End Subroutine mkfg3chemps2
+end subroutine mkfg3chemps2
 
 #elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-#     include "macros.fh"
-      subroutine empty_mkfg3chemps2()
-      end subroutine empty_mkfg3chemps2
+#include "macros.fh"
+subroutine empty_mkfg3chemps2()
+end subroutine empty_mkfg3chemps2
 
 #endif

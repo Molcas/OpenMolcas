@@ -16,293 +16,276 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO,NCMO)
-      use fciqmc_interface, only: DoFCIQMC, NonDiagonal
-      use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
-      use stdalloc, only: mma_allocate, mma_deallocate
-#if defined(_DMRG_)
-      use qcmaquis_interface, only: c_bool, c_int,                      &
-     &                              qcmaquis_interface_rotate_rdms
-      use caspt2_module, only: DMRG
-#endif
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_DMRG_)
-      use caspt2_module, only: jState, nAshT
-      use constants, only: zero
-#endif
-      use caspt2_module, only: iSCF, nConf, nOMx,                       &
-     &                         nState, nSym, STSym, nIsh, nRas1,        &
-     &                         nRas2, nRas3, nSsh, nOrb, nBas, nFro,    &
-     &                         EPS, EPSI, EPSA, nDel, EPSE
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
-      use caspt2_module, only: DoCumulant
-#endif
-      use definitions, only: iwp, wp, u6
-      IMPLICIT NONE
+
+subroutine MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO,NCMO)
 ! Transform to orbitals that diagonalize the diagonal blocks of FIFA.
 ! Affected data sets are CMO, C EPS, EPSI, EPSA, and EPSE. Also, the
 ! CI arrays are transformed on file LUCIEX.
 ! Note: FIFA is unchanged  and is not valid for the new orbitals.
 ! It will be recomputed later.
 ! The transformation matrices are returned in TORB.
-      INTEGER(kind=iwp), INTENT(IN) :: NFIFA,NTORB,NCMO
-      REAL(kind=wp), INTENT(IN) :: FIFA(NFIFA)
-! -------------------------------------------
-      REAL(kind=wp), INTENT(OUT) :: TORB(NTORB)
-      REAL(kind=wp), INTENT(INOUT) :: CMO(NCMO)
 
-!     indices
-      INTEGER(kind=iwp) I,II,IST,ISYM
-      INTEGER(kind=iwp) ITOSTA,ITOEND
-      INTEGER(kind=iwp) ICMOSTA,ICMOEND
-      INTEGER(kind=iwp) IDR,IDW
-      INTEGER(kind=iwp) IEPS,IEPSI,IEPSA,IEPSE
-      INTEGER(kind=iwp) IOSTA,IOEND
-      INTEGER(kind=iwp) NFOCK,NFES
-#if defined(_ENABLE_BLOCK_DMRG_) || defined(_DMRG_)
-      INTEGER(kind=iwp) NXMAT
-      REAL(kind=wp), ALLOCATABLE:: XMAT(:)
+use fciqmc_interface, only: DoFCIQMC, NonDiagonal
+use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
+use stdalloc, only: mma_allocate, mma_deallocate
+#if defined(_DMRG_)
+use qcmaquis_interface, only: c_bool, c_int, qcmaquis_interface_rotate_rdms
+use caspt2_module, only: DMRG
 #endif
-!     #orbitals per symmetry
-      INTEGER(kind=iwp) NO,NB
-      INTEGER(kind=iwp) NSCT,NCMOSCT
-!     work-arrays
-      REAL(kind=wp), ALLOCATABLE:: FOCK(:), CMO2(:), CI(:)
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_DMRG_)
+use caspt2_module, only: jState, nAshT
+use constants, only: zero
+#endif
+use caspt2_module, only: iSCF, nConf, nOMx, nState, nSym, STSym, nIsh, nRas1, nRas2, nRas3, nSsh, nOrb, nBas, nFro, EPS, EPSI, &
+                         EPSA, nDel, EPSE
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
+use caspt2_module, only: DoCumulant
+#endif
+use definitions, only: iwp, wp, u6
 
+implicit none
+integer(kind=iwp), intent(in) :: NFIFA, NTORB, NCMO
+real(kind=wp), intent(in) :: FIFA(NFIFA)
+real(kind=wp), intent(out) :: TORB(NTORB)
+real(kind=wp), intent(inout) :: CMO(NCMO)
+! indices
+integer(kind=iwp) I, II, IST, ISYM
+integer(kind=iwp) ITOSTA, ITOEND
+integer(kind=iwp) ICMOSTA, ICMOEND
+integer(kind=iwp) IDR, IDW
+integer(kind=iwp) IEPS, IEPSI, IEPSA, IEPSE
+integer(kind=iwp) IOSTA, IOEND
+integer(kind=iwp) NFOCK, NFES
+#if defined(_ENABLE_BLOCK_DMRG_) || defined(_DMRG_)
+integer(kind=iwp) NXMAT
+real(kind=wp), allocatable :: XMAT(:)
+#endif
+! #orbitals per symmetry
+integer(kind=iwp) NO, NB
+integer(kind=iwp) NSCT, NCMOSCT
+! work-arrays
+real(kind=wp), allocatable :: FOCK(:), CMO2(:), CI(:)
 
 ! Allocate space for temporary square Fock matrix in each symmetry:
-! NBMX=Max number of basis functions in any symmetry, in common in caspt2_module.F90
-      NFOCK=NOMX**2
-      CALL mma_allocate(FOCK,NFOCK,LABEL='FOCK')
+! NBMX=Max number of basis functions in any symmetry, in common in caspt2_module
+NFOCK = NOMX**2
+call mma_allocate(FOCK,NFOCK,LABEL='FOCK')
 ! Allocate space for new CMO coefficients:
-      CALL mma_allocate(CMO2,NCMO,LABEL='CMO2')
+call mma_allocate(CMO2,NCMO,LABEL='CMO2')
 
 ! In the loop over symmetries, NFES is the nr of Fock matrix
 ! elements processed in earlier symmetries.
-      NFES=0
-      IEPS=0
-      IEPSI=0
-      IEPSA=0
-      IEPSE=0
+NFES = 0
+IEPS = 0
+IEPSI = 0
+IEPSA = 0
+IEPSE = 0
 ! The transformation matrices for each symmetry
 ! will be collected into TORB and returned. This is
 ! necessary for later backtransformation to original
 ! MO basis.
 ! ITOSTA,ITOEND: Section of TORB for each subspace.
-      ITOEND=0
+ITOEND = 0
 ! ICMOSTA,ICMOEND: Section of CMO for each subspace.
-      ICMOEND=0
-      DO ISYM=1,NSYM
-        NO=NORB(ISYM)
-        NB=NBAS(ISYM)
-! Put Fock matrix in square format in FOCK
-        IF(NO.GT.0) THEN
-        CALL SQUARE(FIFA(NFES+1),FOCK,NO,1,NO)
-        END IF
-        ! the zero-ing out of the off-diagonal blocks happens here
-        ! diafck is not structured like rasscf/fckpt2.f
-! Number of orbitals processed so far in this symmetry:
-        IOEND=0
-! Frozen orbitals: Just copy frozen CMO coefficients.
-        NSCT=NFRO(ISYM)
-        IF(NSCT.GT.0) THEN
-         NCMOSCT=NBAS(ISYM)*NSCT
-         ICMOSTA=ICMOEND+1
-         ICMOEND=ICMOEND+NCMOSCT
-         CALL DCOPY_(NCMOSCT,CMO(ICMOSTA),1,CMO2(ICMOSTA),1)
-        END IF
-! Inactive block: Section length NSCT=NISH(ISYM)
-        NSCT=NISH(ISYM)
-        IF(NSCT.GT.0) THEN
-         IOSTA=IOEND+1
-         IOEND=IOEND+NSCT
-         NCMOSCT=NBAS(ISYM)*NSCT
-         ICMOSTA=ICMOEND+1
-         ICMOEND=ICMOEND+NCMOSCT
-         ITOSTA=ITOEND+1
-         ITOEND=ITOEND+NSCT**2
-         CALL DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),                  &
-     &               NB,CMO(ICMOSTA),CMO2(ICMOSTA))
-         DO I=1,NSCT
-          II=IOSTA-1+I
-          IEPS=IEPS+1
-          EPS(IEPS)=FOCK(II+NO*(II-1))
-          IEPSI=IEPSI+1
-          EPSI(IEPSI)=EPS(IEPS)
-         END DO
-        END IF
-! RAS1 block: Section length NSCT=NRAS1(ISYM)
-        NSCT=NRAS1(ISYM)
-        IF(NSCT.GT.0) THEN
-         IOSTA=IOEND+1
-         IOEND=IOEND+NSCT
-         NCMOSCT=NBAS(ISYM)*NSCT
-         ICMOSTA=ICMOEND+1
-         ICMOEND=ICMOEND+NCMOSCT
-         ITOSTA=ITOEND+1
-         ITOEND=ITOEND+NSCT**2
-         CALL DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),                  &
-     &               NB,CMO(ICMOSTA),CMO2(ICMOSTA))
-         DO I=1,NSCT
-          II=IOSTA-1+I
-          IEPS=IEPS+1
-          EPS(IEPS)=FOCK(II+NO*(II-1))
-          IEPSA=IEPSA+1
-          EPSA(IEPSA)=EPS(IEPS)
-         END DO
-        END IF
-! RAS2 block: Section length NSCT=NRAS2(ISYM)
-        NSCT=NRAS2(ISYM)
-        IF(NSCT.GT.0) THEN
-         IOSTA=IOEND+1
-         IOEND=IOEND+NSCT
-         NCMOSCT=NBAS(ISYM)*NSCT
-         ICMOSTA=ICMOEND+1
-         ICMOEND=ICMOEND+NCMOSCT
-         ITOSTA=ITOEND+1
-         ITOEND=ITOEND+NSCT**2
-         CALL DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),                  &
-     &               NB,CMO(ICMOSTA),CMO2(ICMOSTA))
-         DO I=1,NSCT
-          II=IOSTA-1+I
-          IEPS=IEPS+1
-          EPS(IEPS)=FOCK(II+NO*(II-1))
-          IEPSA=IEPSA+1
-          EPSA(IEPSA)=EPS(IEPS)
-         END DO
-        END IF
-! RAS3 block: Section length NSCT=NRAS3(ISYM)
-        NSCT=NRAS3(ISYM)
-        IF(NSCT.GT.0) THEN
-         IOSTA=IOEND+1
-         IOEND=IOEND+NSCT
-         NCMOSCT=NBAS(ISYM)*NSCT
-         ICMOSTA=ICMOEND+1
-         ICMOEND=ICMOEND+NCMOSCT
-         ITOSTA=ITOEND+1
-         ITOEND=ITOEND+NSCT**2
-         CALL DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),                  &
-     &               NB,CMO(ICMOSTA),CMO2(ICMOSTA))
-         DO I=1,NSCT
-          II=IOSTA-1+I
-          IEPS=IEPS+1
-          EPS(IEPS)=FOCK(II+NO*(II-1))
-          IEPSA=IEPSA+1
-          EPSA(IEPSA)=EPS(IEPS)
-         END DO
-        END IF
-! Secondary (virtual) block: Section length NSCT=NSSH(ISYM)
-        NSCT=NSSH(ISYM)
-        IF(NSCT.GT.0) THEN
-         IOSTA=IOEND+1
-         IOEND=IOEND+NSCT
-         NCMOSCT=NBAS(ISYM)*NSCT
-         ICMOSTA=ICMOEND+1
-         ICMOEND=ICMOEND+NCMOSCT
-         ITOSTA=ITOEND+1
-         ITOEND=ITOEND+NSCT**2
-         CALL DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),                  &
-     &               NB,CMO(ICMOSTA),CMO2(ICMOSTA))
-         DO I=1,NSCT
-          II=IOSTA-1+I
-          IEPS=IEPS+1
-          EPS(IEPS)=FOCK(II+NO*(II-1))
-          IEPSE=IEPSE+1
-          EPSE(IEPSE)=EPS(IEPS)
-         END DO
-        END IF
-! Deleted orbitals: Just copy deleted CMO coefficients.
-        NSCT=NDEL(ISYM)
-        IF(NSCT.GT.0) THEN
-         NCMOSCT=NBAS(ISYM)*NSCT
-         ICMOSTA=ICMOEND+1
-         ICMOEND=ICMOEND+NCMOSCT
-         CALL DCOPY_(NCMOSCT,CMO(ICMOSTA),1,CMO2(ICMOSTA),1)
-        END IF
+ICMOEND = 0
+do ISYM=1,NSYM
+  NO = NORB(ISYM)
+  NB = NBAS(ISYM)
+  ! Put Fock matrix in square format in FOCK
+  if (NO > 0) call SQUARE(FIFA(NFES+1),FOCK,NO,1,NO)
+  ! the zero-ing out of the off-diagonal blocks happens here
+  ! diafck is not structured like rasscf/fckpt2
+  ! Number of orbitals processed so far in this symmetry:
+  IOEND = 0
+  ! Frozen orbitals: Just copy frozen CMO coefficients.
+  NSCT = NFRO(ISYM)
+  if (NSCT > 0) then
+    NCMOSCT = NBAS(ISYM)*NSCT
+    ICMOSTA = ICMOEND+1
+    ICMOEND = ICMOEND+NCMOSCT
+    call DCOPY_(NCMOSCT,CMO(ICMOSTA),1,CMO2(ICMOSTA),1)
+  end if
+  ! Inactive block: Section length NSCT=NISH(ISYM)
+  NSCT = NISH(ISYM)
+  if (NSCT > 0) then
+    IOSTA = IOEND+1
+    IOEND = IOEND+NSCT
+    NCMOSCT = NBAS(ISYM)*NSCT
+    ICMOSTA = ICMOEND+1
+    ICMOEND = ICMOEND+NCMOSCT
+    ITOSTA = ITOEND+1
+    ITOEND = ITOEND+NSCT**2
+    call DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),NB,CMO(ICMOSTA),CMO2(ICMOSTA))
+    do I=1,NSCT
+      II = IOSTA-1+I
+      IEPS = IEPS+1
+      EPS(IEPS) = FOCK(II+NO*(II-1))
+      IEPSI = IEPSI+1
+      EPSI(IEPSI) = EPS(IEPS)
+    end do
+  end if
+  ! RAS1 block: Section length NSCT=NRAS1(ISYM)
+  NSCT = NRAS1(ISYM)
+  if (NSCT > 0) then
+    IOSTA = IOEND+1
+    IOEND = IOEND+NSCT
+    NCMOSCT = NBAS(ISYM)*NSCT
+    ICMOSTA = ICMOEND+1
+    ICMOEND = ICMOEND+NCMOSCT
+    ITOSTA = ITOEND+1
+    ITOEND = ITOEND+NSCT**2
+    call DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),NB,CMO(ICMOSTA),CMO2(ICMOSTA))
+    do I=1,NSCT
+      II = IOSTA-1+I
+      IEPS = IEPS+1
+      EPS(IEPS) = FOCK(II+NO*(II-1))
+      IEPSA = IEPSA+1
+      EPSA(IEPSA) = EPS(IEPS)
+    end do
+  end if
+  ! RAS2 block: Section length NSCT=NRAS2(ISYM)
+  NSCT = NRAS2(ISYM)
+  if (NSCT > 0) then
+    IOSTA = IOEND+1
+    IOEND = IOEND+NSCT
+    NCMOSCT = NBAS(ISYM)*NSCT
+    ICMOSTA = ICMOEND+1
+    ICMOEND = ICMOEND+NCMOSCT
+    ITOSTA = ITOEND+1
+    ITOEND = ITOEND+NSCT**2
+    call DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),NB,CMO(ICMOSTA),CMO2(ICMOSTA))
+    do I=1,NSCT
+      II = IOSTA-1+I
+      IEPS = IEPS+1
+      EPS(IEPS) = FOCK(II+NO*(II-1))
+      IEPSA = IEPSA+1
+      EPSA(IEPSA) = EPS(IEPS)
+    end do
+  end if
+  ! RAS3 block: Section length NSCT=NRAS3(ISYM)
+  NSCT = NRAS3(ISYM)
+  if (NSCT > 0) then
+    IOSTA = IOEND+1
+    IOEND = IOEND+NSCT
+    NCMOSCT = NBAS(ISYM)*NSCT
+    ICMOSTA = ICMOEND+1
+    ICMOEND = ICMOEND+NCMOSCT
+    ITOSTA = ITOEND+1
+    ITOEND = ITOEND+NSCT**2
+    call DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),NB,CMO(ICMOSTA),CMO2(ICMOSTA))
+    do I=1,NSCT
+      II = IOSTA-1+I
+      IEPS = IEPS+1
+      EPS(IEPS) = FOCK(II+NO*(II-1))
+      IEPSA = IEPSA+1
+      EPSA(IEPSA) = EPS(IEPS)
+    end do
+  end if
+  ! Secondary (virtual) block: Section length NSCT=NSSH(ISYM)
+  NSCT = NSSH(ISYM)
+  if (NSCT > 0) then
+    IOSTA = IOEND+1
+    IOEND = IOEND+NSCT
+    NCMOSCT = NBAS(ISYM)*NSCT
+    ICMOSTA = ICMOEND+1
+    ICMOEND = ICMOEND+NCMOSCT
+    ITOSTA = ITOEND+1
+    ITOEND = ITOEND+NSCT**2
+    call DIAFCK(NO,FOCK,IOSTA,IOEND,TORB(ITOSTA),NB,CMO(ICMOSTA),CMO2(ICMOSTA))
+    do I=1,NSCT
+      II = IOSTA-1+I
+      IEPS = IEPS+1
+      EPS(IEPS) = FOCK(II+NO*(II-1))
+      IEPSE = IEPSE+1
+      EPSE(IEPSE) = EPS(IEPS)
+    end do
+  end if
+  ! Deleted orbitals: Just copy deleted CMO coefficients.
+  NSCT = NDEL(ISYM)
+  if (NSCT > 0) then
+    NCMOSCT = NBAS(ISYM)*NSCT
+    ICMOSTA = ICMOEND+1
+    ICMOEND = ICMOEND+NCMOSCT
+    call DCOPY_(NCMOSCT,CMO(ICMOSTA),1,CMO2(ICMOSTA),1)
+  end if
 
-        NFES=NFES+(NO*(NO+1))/2
+  NFES = NFES+(NO*(NO+1))/2
 
-      END DO
+end do
 
 ! Actually, we will not use the old CMO array any more, so just
 ! overwrite it with the new ones and get rid of the allocated array.
-      CMO(:)=CMO2(:)
-      CALL mma_deallocate(CMO2)
+CMO(:) = CMO2(:)
+call mma_deallocate(CMO2)
 
 ! We will not use the Fock matrix either. It was just used temporarily
 ! for each turn of the symmetry loop. Skip it.
-      CALL mma_deallocate(FOCK)
+call mma_deallocate(FOCK)
 
 ! Finally, loop again over symmetries, transforming the CI:
 
-      IF(ISCF.EQ.0) THEN
-#ifdef _DMRG_
-        if (DMRG) then
-          NXMAT=NASHT**2
-          CALL mma_allocate(XMAT,NXMAT,LABEL='XMAT')
-          XMAT(:)=Zero
-          CALL MKXMAT(TORB,XMAT)
+if (ISCF == 0) then
+# ifdef _DMRG_
+  if (DMRG) then
+    NXMAT = NASHT**2
+    call mma_allocate(XMAT,NXMAT,LABEL='XMAT')
+    XMAT(:) = Zero
+    call MKXMAT(TORB,XMAT)
 
-          CALL qcmaquis_interface_rotate_rdms(int(JSTATE-1, c_int),     &
-     &      int(JSTATE-1, c_int), int(0, c_int), XMAT,                  &
-     &      logical(.false., c_bool))
-          do I=1,NSTATE
-            if (JSTATE .ne. I) then
-              Write(u6,*) "QCMaquis> Rotating tRDMs", JSTATE-1, I-1
-            CALL qcmaquis_interface_rotate_rdms(int(JSTATE-1, c_int),   &
-     &          int(I-1, c_int), int(0, c_int), XMAT,                   &
-     &          logical(.false., c_bool))
-            end if
-          end do
-          CALL mma_deallocate(XMAT)
-          end if
-#endif
+    call qcmaquis_interface_rotate_rdms(int(JSTATE-1,kind=c_int),int(JSTATE-1,kind=c_int),0_c_int,XMAT,.false._c_bool)
+    do I=1,NSTATE
+      if (JSTATE /= I) then
+        write(u6,*) 'QCMaquis> Rotating tRDMs',JSTATE-1,I-1
+        call qcmaquis_interface_rotate_rdms(int(JSTATE-1,kind=c_int),int(I-1,kind=c_int),0_c_int,XMAT,.false._c_bool)
+      end if
+    end do
+    call mma_deallocate(XMAT)
+  end if
+# endif
 
-        if (DoFCIQMC) then
-          if (NonDiagonal) then
-           Write(u6,*)'Transforming CASPT2 intermediates to '//         &
-     &               'pseudo-canonical orbitals.'
-          else
-            Write(u6,*)                                                 &
-     & 'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
-          end if
-        else
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
-          IF(.NOT.DoCumulant) THEN
-#endif
-            CALL mma_allocate(CI,NCONF,Label='CI')
-            DO IST=1,NSTATE
-             IDR=IDCIEX(IST)
-             CALL DDAFILE(LUCIEX,2,CI,NCONF,IDR)
+  if (DoFCIQMC) then
+    if (NonDiagonal) then
+      write(u6,*) 'Transforming CASPT2 intermediates to pseudo-canonical orbitals.'
+    else
+      write(u6,*) 'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
+    end if
+  else
+#   if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
+    if (.not. DoCumulant) then
+#   endif
+      call mma_allocate(CI,NCONF,Label='CI')
+      do IST=1,NSTATE
+        IDR = IDCIEX(IST)
+        call DDAFILE(LUCIEX,2,CI,NCONF,IDR)
 
-             Call mkTraCI(nTORB,TORB,STSYM,nConf,CI)
+        call mkTraCI(nTORB,TORB,STSYM,nConf,CI)
 
-             IDW=IDTCEX(IST)
-             CALL DDAFILE(LUCIEX,1,CI,NCONF,IDW)
-            END DO
-            CALL mma_deallocate(CI)
-#ifdef _ENABLE_BLOCK_DMRG_
-          ELSE
-! Transforming 2,3-RDMs from Block DMRG (1-RDM is computed from 2-RDM)
-! NN.14 : For the time, Block's dump files of RDMs are directly loaded,
-!         but those should be stored in JobIph file eventually.
-          NXMAT=NASHT**2
-! Workspace for transformation matrix
-            CALL mma_allocate(XMAT,NXMAT,LABEL='XMAT')
-            XMAT(:)=Zero
-            CALL MKXMAT(TORB,XMAT)
+        IDW = IDTCEX(IST)
+        call DDAFILE(LUCIEX,1,CI,NCONF,IDW)
+      end do
+      call mma_deallocate(CI)
+#   ifdef _ENABLE_BLOCK_DMRG_
+    else
+      ! Transforming 2,3-RDMs from Block DMRG (1-RDM is computed from 2-RDM)
+      ! NN.14 : For the time, Block's dump files of RDMs are directly loaded,
+      !         but those should be stored in JobIph file eventually.
+      NXMAT = NASHT**2
+      ! Workspace for transformation matrix
+      call mma_allocate(XMAT,NXMAT,LABEL='XMAT')
+      XMAT(:) = Zero
+      call MKXMAT(TORB,XMAT)
 
-            CALL block_tran2pdm(NASHT,XMAT,JSTATE,JSTATE)
-            CALL block_tran3pdm(NASHT,XMAT,JSTATE,JSTATE)
+      call block_tran2pdm(NASHT,XMAT,JSTATE,JSTATE)
+      call block_tran3pdm(NASHT,XMAT,JSTATE,JSTATE)
 
-            CALL mma_deallocate(XMAT)
-          END IF
-#elif _ENABLE_CHEMPS2_DMRG_
-          ELSE
-            Write(u6,*) 'CHEMPS2> MKRPTORB assumes '//                  &
-     &    'PSEUDOCANONICAL orbitals!'
-          END IF
-#endif
-        end if
-      END IF
+      call mma_deallocate(XMAT)
+    end if
+#   elif _ENABLE_CHEMPS2_DMRG_
+  else
+    write(u6,*) 'CHEMPS2> MKRPTORB assumes PSEUDOCANONICAL orbitals!'
+  end if
+# endif
+end if
+end if
 
-      END SUBROUTINE MKRPTORB
+end subroutine MKRPTORB

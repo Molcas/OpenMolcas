@@ -10,26 +10,25 @@
 !                                                                      *
 ! Copyright (C) 2019, Stefano Battaglia                                *
 !***********************************************************************
-      subroutine prettyprint(A,N,M)
+
+subroutine prettyprint(A,N,M)
 ! This subroutine pretty prints the NxM matrix A
-      use caspt2_module, only: mState
-      use definitions, only: iwp, wp, u6
-      implicit none
 
+use caspt2_module, only: mState
+use definitions, only: iwp, wp, u6
 
-! Input arguments
-      integer(kind=iwp), intent(in):: N,M
-      real(kind=wp), intent(in):: A(N,M)
+implicit none
+integer(kind=iwp), intent(in) :: N, M
+real(kind=wp), intent(in) :: A(N,M)
+integer(kind=iwp) i, j, jStart, jEnd
 
-      integer(kind=iwp) i,j,jStart,jEnd
+do jStart=1,N,5
+  jEnd = min(jStart+4,N)
+  write(u6,'(1x,5i16)') (mstate(j),j=jStart,jEnd)
+  do i=1,N
+    write(u6,'(1x,i3,2x,5f16.8)') mstate(i),(A(i,j),j=jStart,jEnd)
+  end do
+  write(u6,*)
+end do
 
-      do jStart=1,N,5
-        jEnd = min(jStart+4, N)
-        write(u6,'(1x,5i16)')(mstate(j),j=jStart,jEnd)
-        do i=1,N
-          write(u6,'(1x,i3,2x,5f16.8)')mstate(i),(A(i,j),j=jStart,jEnd)
-        end do
-        write(u6,*)
-      end do
-
-      end subroutine prettyprint
+end subroutine prettyprint

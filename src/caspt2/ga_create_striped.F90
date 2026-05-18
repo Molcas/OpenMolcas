@@ -16,70 +16,71 @@
 #include "compiler_features.h"
 
 #ifdef _MOLCAS_MPP_
-      SUBROUTINE GA_CREATE_STRIPED (ORI,NROW,NCOL,LABEL,LG_M)
-      use stdalloc, only: mma_allocate,mma_deallocate
-      use definitions, only: iwp, u6
-      IMPLICIT NONE
-      CHARACTER :: ORI
-      CHARACTER(LEN=*) :: LABEL
-      INTEGER(kind=iwp) :: NROW, NCOL, LG_M
+subroutine GA_CREATE_STRIPED(ORI,NROW,NCOL,LABEL,LG_M)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use definitions, only: iwp, u6
+
+implicit none
+character :: ORI
+character(len=*) :: LABEL
+integer(kind=iwp) :: NROW, NCOL, LG_M
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL(kind=iwp) :: BSTAT
-      INTEGER(kind=iwp) :: NPROCS
-      INTEGER(kind=iwp) :: NBLOCK1, NBLOCK2
-      INTEGER(kind=iwp), ALLOCATABLE :: MAP1(:), MAP2(:)
-      INTEGER(kind=iwp) :: NDIM, NBASE, NREST, IOFF, I
+logical(kind=iwp) :: BSTAT
+integer(kind=iwp) :: NPROCS
+integer(kind=iwp) :: NBLOCK1, NBLOCK2
+integer(kind=iwp), allocatable :: MAP1(:), MAP2(:)
+integer(kind=iwp) :: NDIM, NBASE, NREST, IOFF, I
 
-      NPROCS=GA_NNODES()
+NPROCS = GA_NNODES()
 
-      NBLOCK1=1
-      call MMA_ALLOCATE(MAP1,NBLOCK1,Label='MAP1')
-      MAP1(1)=1
+NBLOCK1 = 1
+call MMA_ALLOCATE(MAP1,NBLOCK1,Label='MAP1')
+MAP1(1) = 1
 
-      NDIM=0
-      IF (ORI.EQ.'H') THEN
-        NDIM=NROW
-      ELSE IF (ORI.EQ.'V') THEN
-        NDIM=NCOL
-      END IF
-      NBLOCK2=MIN(NDIM,NPROCS)
-      NBASE=NDIM/NPROCS
-      NREST=MOD(NDIM,NPROCS)
-      call MMA_ALLOCATE(MAP2,NBLOCK2,Label='MAP2')
-      IOFF=1
-      DO I=1,NBLOCK2
-        MAP2(I)=IOFF
-        IF (I.LE.NREST) THEN
-          IOFF=IOFF+NBASE+1
-        ELSE
-          IOFF=IOFF+NBASE
-        END IF
-      END DO
+NDIM = 0
+if (ORI == 'H') then
+  NDIM = NROW
+else if (ORI == 'V') then
+  NDIM = NCOL
+end if
+NBLOCK2 = min(NDIM,NPROCS)
+NBASE = NDIM/NPROCS
+NREST = mod(NDIM,NPROCS)
+call MMA_ALLOCATE(MAP2,NBLOCK2,Label='MAP2')
+IOFF = 1
+do I=1,NBLOCK2
+  MAP2(I) = IOFF
+  if (I <= NREST) then
+    IOFF = IOFF+NBASE+1
+  else
+    IOFF = IOFF+NBASE
+  end if
+end do
 
-      BSTAT=.FALSE.
-      IF (ORI.EQ.'H') THEN
-        BSTAT = GA_CREATE_IRREG (MT_DBL,NROW,NCOL,LABEL,                &
-     &                     MAP2,NBLOCK2,MAP1,NBLOCK1,LG_M)
-      ELSE IF (ORI.EQ.'V') THEN
-        BSTAT = GA_CREATE_IRREG (MT_DBL,NROW,NCOL,LABEL,                &
-     &                     MAP1,NBLOCK1,MAP2,NBLOCK2,LG_M)
-      END IF
+BSTAT = .false.
+if (ORI == 'H') then
+  BSTAT = GA_CREATE_IRREG(MT_DBL,NROW,NCOL,LABEL,MAP2,NBLOCK2,MAP1,NBLOCK1,LG_M)
+else if (ORI == 'V') then
+  BSTAT = GA_CREATE_IRREG(MT_DBL,NROW,NCOL,LABEL,MAP1,NBLOCK1,MAP2,NBLOCK2,LG_M)
+end if
 
-      call MMA_DEALLOCATE(MAP1)
-      call MMA_DEALLOCATE(MAP2)
+call MMA_DEALLOCATE(MAP1)
+call MMA_DEALLOCATE(MAP2)
 
-      IF (.NOT.bStat) THEN
-        WRITE(u6,*) 'GA_CREATE_HS: could not create array, abort'
-        CALL AbEnd()
-      END IF
-      END SUBROUTINE GA_CREATE_STRIPED
+if (.not. bStat) then
+  write(u6,*) 'GA_CREATE_HS: could not create array, abort'
+  call AbEnd()
+end if
+
+end subroutine GA_CREATE_STRIPED
 
 #elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-#     include "macros.fh"
-      subroutine empty_GA_CREATE_STRIPED()
-      end subroutine empty_GA_CREATE_STRIPED
+#include "macros.fh"
+subroutine empty_GA_CREATE_STRIPED()
+end subroutine empty_GA_CREATE_STRIPED
 
 #endif

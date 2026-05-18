@@ -16,24 +16,8 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MLTDXP(IMLTOP,LST1,LST2,X,nX,F,nF,Y,nY)
-      use definitions, only: iwp, wp
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
-#endif
-      use Sigma_data, only: NLST1, NLST2, INCF1, INCF2, INCX1, INCX2,   &
-     &                      INCX3, INCY1, INCY2, INCY3, LEN1, NFDXP,    &
-     &                      VAL1, VAL2
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: IMLTOP, nX, nF, nY
-      real(kind=wp), intent(inout):: X(nX),F(nF),Y(nY)
-      integer(kind=iwp), intent(in):: LST1(4,NLST1), LST2(4,NLST2)
 
-      integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST1, ILST2,           &
-     &                  L11, L12, L13, L14, L21, L22, L23, L24,         &
-     &                  IF, IX, IY
-      real(kind=wp) A, V, V1, V2
-      real(kind=wp), external:: DDot_
+subroutine MLTDXP(IMLTOP,LST1,LST2,X,nX,F,nF,Y,nY)
 ! Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 ! four entries called L11,L12,L13,L14 for short, for a given
 ! item, and with V1=VAL1(L14), and similar for the other list,
@@ -49,81 +33,96 @@
 ! The formal X(p,q,r) is accessed as
 ! X(1+INCX1*(p-1)+INCX2*(q-1)+INCX3*(r-1)), etc.
 
+use definitions, only: iwp, wp
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: MyRank, nProcs, Is_Real_Par
+#endif
+use Sigma_data, only: NLST1, NLST2, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, NFDXP, VAL1, VAL2
+
+implicit none
+integer(kind=iwp), intent(in) :: IMLTOP, nX, nF, nY
+real(kind=wp), intent(inout) :: X(nX), F(nF), Y(nY)
+integer(kind=iwp), intent(in) :: LST1(4,NLST1), LST2(4,NLST2)
+integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST1, ILST2, L11, L12, L13, L14, L21, L22, L23, L24, IF, IX, IY
+real(kind=wp) A, V, V1, V2
+real(kind=wp), external :: DDot_
+
 !SVC: determine outer loop properties
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-        ILST1_IOFF=MYRANK+1
-        ILST1_SKIP=NPROCS
-      ELSE
+if (Is_Real_Par()) then
+  ILST1_IOFF = MYRANK+1
+  ILST1_SKIP = NPROCS
+else
 #endif
-        ILST1_IOFF=1
-        ILST1_SKIP=1
+  ILST1_IOFF = 1
+  ILST1_SKIP = 1
 #ifdef _MOLCAS_MPP_
-      ENDIF
+end if
 #endif
 
-      SELECT CASE (IMLTOP)
-      CASE(0)
-        DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
-          L11=LST1(1,ILST1)
-          L12=LST1(2,ILST1)
-          L13=LST1(3,ILST1)
-          L14=LST1(4,ILST1)
-          V1=VAL1(L14)
-          DO ILST2=1,NLST2
-            L21=LST2(1,ILST2)
-            L22=LST2(2,ILST2)
-            L23=LST2(3,ILST2)
-            L24=LST2(4,ILST2)
-            V2=VAL2(L24)
-            IX=1+INCX1*(L11-1)+INCX2*(L21-1)
-            IY=1+INCY1*(L13-1)+INCY2*(L23-1)
-            IF=1+INCF1*(L12-1)+INCF2*(L22-1)
-            A=V1*V2*F(IF)
-            CALL DAXPY_(LEN1,A,Y(IY),INCY3,X(IX),INCX3)
-          END DO
-        END DO
-      CASE(1)
-        DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
-          L11=LST1(1,ILST1)
-          L12=LST1(2,ILST1)
-          L13=LST1(3,ILST1)
-          L14=LST1(4,ILST1)
-          V1=VAL1(L14)
-          DO ILST2=1,NLST2
-            L21=LST2(1,ILST2)
-            L22=LST2(2,ILST2)
-            L23=LST2(3,ILST2)
-            L24=LST2(4,ILST2)
-            V2=VAL2(L24)
-            IX=1+INCX1*(L11-1)+INCX2*(L21-1)
-            IY=1+INCY1*(L13-1)+INCY2*(L23-1)
-            IF=1+INCF1*(L12-1)+INCF2*(L22-1)
-            A=V1*V2*F(IF)
-            CALL DAXPY_(LEN1,A,X(IX),INCX3,Y(IY),INCY3)
-          END DO
-        END DO
-      CASE DEFAULT
-        DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
-          L11=LST1(1,ILST1)
-          L12=LST1(2,ILST1)
-          L13=LST1(3,ILST1)
-          L14=LST1(4,ILST1)
-          V1=VAL1(L14)
-          DO ILST2=1,NLST2
-            L21=LST2(1,ILST2)
-            L22=LST2(2,ILST2)
-            L23=LST2(3,ILST2)
-            L24=LST2(4,ILST2)
-            V2=VAL2(L24)
-            IX=1+INCX1*(L11-1)+INCX2*(L21-1)
-            IY=1+INCY1*(L13-1)+INCY2*(L23-1)
-            IF=1+INCF1*(L12-1)+INCF2*(L22-1)
-            A=V1*V2*F(IF)
-            V=V1*V2
-            F(IF)=F(IF)+V*DDOT_(LEN1,X(IX),INCX3,Y(IY),INCY3)
-          END DO
-        END DO
-      END SELECT
-      NFDXP=NFDXP+2*NLST1*NLST2*LEN1
-      END SUBROUTINE MLTDXP
+select case (IMLTOP)
+  case (0)
+    do ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
+      L11 = LST1(1,ILST1)
+      L12 = LST1(2,ILST1)
+      L13 = LST1(3,ILST1)
+      L14 = LST1(4,ILST1)
+      V1 = VAL1(L14)
+      do ILST2=1,NLST2
+        L21 = LST2(1,ILST2)
+        L22 = LST2(2,ILST2)
+        L23 = LST2(3,ILST2)
+        L24 = LST2(4,ILST2)
+        V2 = VAL2(L24)
+        IX = 1+INCX1*(L11-1)+INCX2*(L21-1)
+        IY = 1+INCY1*(L13-1)+INCY2*(L23-1)
+        IF = 1+INCF1*(L12-1)+INCF2*(L22-1)
+        A = V1*V2*F(IF)
+        call DAXPY_(LEN1,A,Y(IY),INCY3,X(IX),INCX3)
+      end do
+    end do
+  case (1)
+    do ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
+      L11 = LST1(1,ILST1)
+      L12 = LST1(2,ILST1)
+      L13 = LST1(3,ILST1)
+      L14 = LST1(4,ILST1)
+      V1 = VAL1(L14)
+      do ILST2=1,NLST2
+        L21 = LST2(1,ILST2)
+        L22 = LST2(2,ILST2)
+        L23 = LST2(3,ILST2)
+        L24 = LST2(4,ILST2)
+        V2 = VAL2(L24)
+        IX = 1+INCX1*(L11-1)+INCX2*(L21-1)
+        IY = 1+INCY1*(L13-1)+INCY2*(L23-1)
+        IF = 1+INCF1*(L12-1)+INCF2*(L22-1)
+        A = V1*V2*F(IF)
+        call DAXPY_(LEN1,A,X(IX),INCX3,Y(IY),INCY3)
+      end do
+    end do
+  case DEFAULT
+    do ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
+      L11 = LST1(1,ILST1)
+      L12 = LST1(2,ILST1)
+      L13 = LST1(3,ILST1)
+      L14 = LST1(4,ILST1)
+      V1 = VAL1(L14)
+      do ILST2=1,NLST2
+        L21 = LST2(1,ILST2)
+        L22 = LST2(2,ILST2)
+        L23 = LST2(3,ILST2)
+        L24 = LST2(4,ILST2)
+        V2 = VAL2(L24)
+        IX = 1+INCX1*(L11-1)+INCX2*(L21-1)
+        IY = 1+INCY1*(L13-1)+INCY2*(L23-1)
+        IF = 1+INCF1*(L12-1)+INCF2*(L22-1)
+        A = V1*V2*F(IF)
+        V = V1*V2
+        F(IF) = F(IF)+V*DDOT_(LEN1,X(IX),INCX3,Y(IY),INCY3)
+      end do
+    end do
+end select
+NFDXP = NFDXP+2*NLST1*NLST2*LEN1
+
+end subroutine MLTDXP

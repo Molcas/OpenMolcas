@@ -23,37 +23,39 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_ADD (NAS,NIS,lg_W,W)
+subroutine RHS_ADD(NAS,NIS,lg_W,W)
+
 !SVC: this routine adds to the local part of a global RHS array the
-      use definitions, only: iwp, wp
-      use constants, only: One
+use definitions, only: iwp, wp
+use constants, only: One
 !matching part of a replicate array.
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      use fake_GA, only: GA_Arrays
-      IMPLICIT None
-      integer(kind=iwp), Intent(in):: NAS,NIS,lg_W
-      real(kind=wp), Intent(In):: W(NAS,*)
+use fake_GA, only: GA_Arrays
+
+implicit none
+integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
+real(kind=wp), intent(in) :: W(NAS,*)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      integer(kind=iwp) myRank,iLo,iHi,jLo,jHi,NW,mW,LDW
+integer(kind=iwp) myRank, iLo, iHi, jLo, jHi, NW, mW, LDW
 
-      IF (Is_Real_Par()) THEN
-        myRank = GA_NodeID()
-        CALL GA_Distribution (lg_W,myRank,iLo,iHi,jLo,jHi)
-        IF (iLo.NE.0.AND.jLo.NE.0) THEN
-          NW=(iHi-iLo+1)*(jHi-jLo+1)
-          CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL DAXPY_(NW,One,W(iLo,jLo),1,DBL_MB(mW),1)
-          CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
-        END IF
-      ELSE
+if (Is_Real_Par()) then
+  myRank = GA_NodeID()
+  call GA_Distribution(lg_W,myRank,iLo,iHi,jLo,jHi)
+  if ((iLo /= 0) .and. (jLo /= 0)) then
+    NW = (iHi-iLo+1)*(jHi-jLo+1)
+    call GA_Access(lg_W,iLo,iHi,jLo,jHi,mW,LDW)
+    call DAXPY_(NW,One,W(iLo,jLo),1,DBL_MB(mW),1)
+    call GA_Release_Update(lg_W,iLo,iHi,jLo,jHi)
+  end if
+else
 #endif
-        CALL DAXPY_(NAS*NIS,One,W,1,GA_Arrays(lg_W)%A,1)
+  call DAXPY_(NAS*NIS,One,W,1,GA_Arrays(lg_W)%A,1)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      END SUBROUTINE RHS_ADD
+end subroutine RHS_ADD

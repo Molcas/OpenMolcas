@@ -16,57 +16,56 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKSE(DREF,NDREF)
-      use definitions, only: iwp, wp
-      use constants, only: Two
-      use caspt2_global, only: LUSBT
-      use EQSOLV, only: IDSMAT
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM,NINDEP,NASH,NAES
-      IMPLICIT NONE
 
-      INTEGER(kind=iwp), intent(in)::  NDREF
-      REAL(kind=wp), intent(in)::  DREF(NDREF)
-
-      REAL(kind=wp), ALLOCATABLE:: SE(:)
-      INTEGER(kind=iwp) ISYM,NINP,NINM,NAS,NSE,IT,ITABS,IX,IXABS,ISE,   &
-     &                  ID,IDISK
+subroutine MKSE(DREF,NDREF)
 ! Set up the matrix SE(t,x)
 ! Formula used:
 !    SE(t,x)=2*dtx - Dtx
 
+use definitions, only: iwp, wp
+use constants, only: Two
+use caspt2_global, only: LUSBT
+use EQSOLV, only: IDSMAT
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: NSYM, NINDEP, NASH, NAES
 
-      DO ISYM=1,NSYM
-        NINP=NINDEP(ISYM,6)
-        IF(NINP.EQ.0) CYCLE
-        NINM=NINDEP(ISYM,7)
-        NAS=NASH(ISYM)
-        NSE=(NAS*(NAS+1))/2
-        IF(NSE.GT.0) CALL mma_allocate(SE,NSE,Label='SE')
-        DO IT=1,NAS
-          ITABS=IT+NAES(ISYM)
-          DO IX=1,IT
-            IXABS=IX+NAES(ISYM)
-            ISE=(IT*(IT-1))/2+IX
-            ID=(ITABS*(ITABS-1))/2+IXABS
-            IF(ITABS.EQ.IXABS) THEN
-              SE(ISE)=Two-DREF(ID)
-            ELSE
-              SE(ISE)=-DREF(ID)
-            END IF
-          END DO
-        END DO
+implicit none
+integer(kind=iwp), intent(in) :: NDREF
+real(kind=wp), intent(in) :: DREF(NDREF)
+real(kind=wp), allocatable :: SE(:)
+integer(kind=iwp) ISYM, NINP, NINM, NAS, NSE, IT, ITABS, IX, IXABS, ISE, ID, IDISK
 
-! Write to disk
-        IF(NSE.GT.0.and.NINDEP(ISYM,6).GT.0) THEN
-          IDISK=IDSMAT(ISYM,6)
-          CALL DDAFILE(LUSBT,1,SE,NSE,IDISK)
-          IF(NINM.GT.0.and.NINDEP(ISYM,7).GT.0) THEN
-            IDISK=IDSMAT(ISYM,7)
-            CALL DDAFILE(LUSBT,1,SE,NSE,IDISK)
-          END IF
-          CALL mma_deallocate(SE)
-        END IF
-      END DO
+do ISYM=1,NSYM
+  NINP = NINDEP(ISYM,6)
+  if (NINP == 0) cycle
+  NINM = NINDEP(ISYM,7)
+  NAS = NASH(ISYM)
+  NSE = (NAS*(NAS+1))/2
+  if (NSE > 0) call mma_allocate(SE,NSE,Label='SE')
+  do IT=1,NAS
+    ITABS = IT+NAES(ISYM)
+    do IX=1,IT
+      IXABS = IX+NAES(ISYM)
+      ISE = (IT*(IT-1))/2+IX
+      ID = (ITABS*(ITABS-1))/2+IXABS
+      if (ITABS == IXABS) then
+        SE(ISE) = Two-DREF(ID)
+      else
+        SE(ISE) = -DREF(ID)
+      end if
+    end do
+  end do
 
-      END SUBROUTINE MKSE
+  ! Write to disk
+  if ((NSE > 0) .and. (NINDEP(ISYM,6) > 0)) then
+    IDISK = IDSMAT(ISYM,6)
+    call DDAFILE(LUSBT,1,SE,NSE,IDISK)
+    if ((NINM > 0) .and. (NINDEP(ISYM,7) > 0)) then
+      IDISK = IDSMAT(ISYM,7)
+      call DDAFILE(LUSBT,1,SE,NSE,IDISK)
+    end if
+    call mma_deallocate(SE)
+  end if
+end do
+
+end subroutine MKSE

@@ -16,20 +16,21 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE S_SCALE (NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
-      use definitions, only: iwp, wp
 
-      IMPLICIT None
+subroutine S_SCALE(NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
 
-      integer(kind=iwp), intent(in):: NAS, iLo, iHi, jLo, jHi, LDS
-      real(kind=wp), intent(In) :: SCA(NAS)
-      real(kind=wp), intent(InOut)::  S(LDS,*)
+use definitions, only: iwp, wp
 
-      integer(kind=iwp) J, I
+implicit none
+integer(kind=iwp), intent(in) :: NAS, iLo, iHi, jLo, jHi, LDS
+real(kind=wp), intent(in) :: SCA(NAS)
+real(kind=wp), intent(inout) :: S(LDS,*)
+integer(kind=iwp) J, I
 
-      DO J=jLo,jHi
-        DO I=iLo,iHi
-        S(I-iLo+1,J-jLo+1)=SCA(I)*SCA(J)*S(I-iLo+1,J-jLo+1)
-        END DO
-      END DO
-      END SUBROUTINE S_SCALE
+do J=jLo,jHi
+  do I=iLo,iHi
+    S(I-iLo+1,J-jLo+1) = SCA(I)*SCA(J)*S(I-iLo+1,J-jLo+1)
+  end do
+end do
+
+end subroutine S_SCALE

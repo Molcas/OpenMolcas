@@ -16,63 +16,63 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKPREF_RPT2(N,G2,PREF,NPREF)
-      use definitions, only: iwp, wp
-      IMPLICIT NONE
 
-      INTEGER(kind=iwp), INTENT(IN) :: N, NPREF
-      REAL(kind=wp), INTENT(IN) ::  G2(N,N,N,N)
-      REAL(kind=wp), INTENT(OUT) :: PREF(NPREF)
+subroutine MKPREF_RPT2(N,G2,PREF,NPREF)
 
-      INTEGER(kind=iwp) I,J,K,L,IJ,JI,KL,LK
-      INTEGER(kind=iwp) IJKL,IJLK,JIKL,JILK
-      INTEGER(kind=iwp) IJT,KLT,IJKLT
+use definitions, only: iwp, wp
 
-      REAL(kind=wp) P1,P2
+implicit none
+integer(kind=iwp), intent(in) :: N, NPREF
+real(kind=wp), intent(in) :: G2(N,N,N,N)
+real(kind=wp), intent(out) :: PREF(NPREF)
+integer(kind=iwp) I, J, K, L, IJ, JI, KL, LK
+integer(kind=iwp) IJKL, IJLK, JIKL, JILK
+integer(kind=iwp) IJT, KLT, IJKLT
+real(kind=wp) P1, P2
 
 ! Compute PREF(PQRS) = <0| 0.5*Epqrs |0>
 ! from G2(P,Q,R,S) = <0| Epqrs |0>
 ! Storage differs: PREF is triangular
 ! in the Fortran-like indices PQ, RS.
 
-      IJT=0
-      IJKLT=0
-      DO I=1,N
-        DO J=1,I
-          IJT=IJT+1
-          IJ=I+N*(J-1)
-          JI=J+N*(I-1)
-          KLT=0
-          DO K=1,N
-            DO L=1,K
-              KLT=KLT+1
-              IF(KLT.GT.IJT) GOTO 130
-              IJKLT=IJKLT+1
-              KL=K+N*(L-1)
-              LK=L+N*(K-1)
+IJT = 0
+IJKLT = 0
+do I=1,N
+  do J=1,I
+    IJT = IJT+1
+    IJ = I+N*(J-1)
+    JI = J+N*(I-1)
+    KLT = 0
+    do K=1,N
+      do L=1,K
+        KLT = KLT+1
+        if (KLT > IJT) goto 130
+        IJKLT = IJKLT+1
+        KL = K+N*(L-1)
+        LK = L+N*(K-1)
 
-              P1=0.5D0*G2(I,J,K,L)
-              P2=0.5D0*G2(I,J,L,K)
-              IF(J.GE.L) THEN
-                IJKL=(IJ*(IJ-1))/2+KL
-              ELSE
-                IJKL=(KL*(KL-1))/2+IJ
-              END IF
-              IF(J.GE.K) THEN
-                IJLK=(IJ*(IJ-1))/2+LK
-              ELSE
-                IJLK=(LK*(LK-1))/2+IJ
-              END IF
-              JIKL=(JI*(JI-1))/2+KL
-              JILK=(JI*(JI-1))/2+LK
-              PREF(IJKL)=P1
-              PREF(IJLK)=P2
-              PREF(JIKL)=P2
-              PREF(JILK)=P1
-            END DO
-          END DO
- 130    CONTINUE
-        END DO
-      END DO
+        P1 = 0.5d0*G2(I,J,K,L)
+        P2 = 0.5d0*G2(I,J,L,K)
+        if (J >= L) then
+          IJKL = (IJ*(IJ-1))/2+KL
+        else
+          IJKL = (KL*(KL-1))/2+IJ
+        end if
+        if (J >= K) then
+          IJLK = (IJ*(IJ-1))/2+LK
+        else
+          IJLK = (LK*(LK-1))/2+IJ
+        end if
+        JIKL = (JI*(JI-1))/2+KL
+        JILK = (JI*(JI-1))/2+LK
+        PREF(IJKL) = P1
+        PREF(IJLK) = P2
+        PREF(JIKL) = P2
+        PREF(JILK) = P1
+      end do
+    end do
+130 continue
+  end do
+end do
 
-      END SUBROUTINE MKPREF_RPT2
+end subroutine MKPREF_RPT2

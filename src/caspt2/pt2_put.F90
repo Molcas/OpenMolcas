@@ -16,50 +16,52 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE PT2_PUT(NSIZE,LAB,VEC)
-      use caspt2_global, only: LUDMAT
-      use caspt2_module, only: IADR10, cLab10
-      use definitions, only: iwp, wp, u6
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: NSIZE
-      CHARACTER(len=*), intent(in):: LAB
-      real(kind=wp), intent(inout):: VEC(NSIZE)
 
-      CHARACTER(len=8) LAB1
-      integer(kind=iwp) I, IAD
+subroutine PT2_PUT(NSIZE,LAB,VEC)
 
-      I=9-LEN(LAB)
-      IF(I>=1) THEN
-        LAB1='        '
-        LAB1(I:8)=LAB
-      ELSE
-        LAB1=LAB(1:8)
-      END IF
+use caspt2_global, only: LUDMAT
+use caspt2_module, only: IADR10, cLab10
+use definitions, only: iwp, wp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: NSIZE
+character(len=*), intent(in) :: LAB
+real(kind=wp), intent(inout) :: VEC(NSIZE)
+character(len=8) LAB1
+integer(kind=iwp) I, IAD
+
+I = 9-len(LAB)
+if (I >= 1) then
+  LAB1 = '        '
+  LAB1(I:8) = LAB
+else
+  LAB1 = LAB(1:8)
+end if
 
 ! FIND DISK ADDRESS:
-      DO I=1,SIZE(CLAB10)
-        IF(CLAB10(I)=='   EMPTY') THEN
-          CLAB10(I)=LAB1
-          IAD=IADR10(I,1)
-          IADR10(I,2)=NSIZE
-          CALL DDAFILE(LUDMAT,1,VEC,NSIZE,IAD)
-          IF(I<SIZE(CLAB10)) IADR10(I+1,1)=IAD
-          RETURN
-        ELSE IF (CLAB10(I)==LAB1) THEN
-          IF(NSIZE.GT.IADR10(I,2)) THEN
-             WRITE(u6,*)' ATTEMPT TO INCREASE SIZE OF A FIELD.'
-             WRITE(u6,*)' SUBROUTINE PUT FAILS.'
-             CALL ABEND()
-          End If
-          IAD=IADR10(I,1)
-          IADR10(I,2)=NSIZE
-          CALL DDAFILE(LUDMAT,1,VEC,NSIZE,IAD)
-          RETURN
-        END IF
-      END DO
+do I=1,size(CLAB10)
+  if (CLAB10(I) == '   EMPTY') then
+    CLAB10(I) = LAB1
+    IAD = IADR10(I,1)
+    IADR10(I,2) = NSIZE
+    call DDAFILE(LUDMAT,1,VEC,NSIZE,IAD)
+    if (I < size(CLAB10)) IADR10(I+1,1) = IAD
+    return
+  else if (CLAB10(I) == LAB1) then
+    if (NSIZE > IADR10(I,2)) then
+      write(u6,*) ' ATTEMPT TO INCREASE SIZE OF A FIELD.'
+      write(u6,*) ' SUBROUTINE PUT FAILS.'
+      call ABEND()
+    end if
+    IAD = IADR10(I,1)
+    IADR10(I,2) = NSIZE
+    call DDAFILE(LUDMAT,1,VEC,NSIZE,IAD)
+    return
+  end if
+end do
 
-      WRITE(u6,*)' NO MORE AVAILABLE FIELDS ON FILE DENS.'
-      WRITE(u6,*)' SUBROUTINE PUT FAILS.'
-      CALL ABEND()
+write(u6,*) ' NO MORE AVAILABLE FIELDS ON FILE DENS.'
+write(u6,*) ' SUBROUTINE PUT FAILS.'
+call ABEND()
 
-      END SUBROUTINE PT2_PUT
+end subroutine PT2_PUT

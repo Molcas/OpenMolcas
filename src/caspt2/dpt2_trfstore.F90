@@ -16,38 +16,33 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      Subroutine DPT2_TrfStore(Scal,NBSQT,DPT2q,DPT2n,Trf,WRK)
 
-      use caspt2_module, only: NSYM, NORB, NDEL, NBAS
-      use Constants, only: Zero, One
-      use definitions, only: wp, iwp
+subroutine DPT2_TrfStore(Scal,NBSQT,DPT2q,DPT2n,Trf,WRK)
 
-      implicit none
+use caspt2_module, only: NSYM, NORB, NDEL, NBAS
+use Constants, only: Zero, One
+use definitions, only: wp, iwp
 
 #include "intent.fh"
 
-      integer(kind=iwp), intent(in) :: NBSQT
-      real(kind=wp), intent(in) :: Scal, DPT2q(NBSQT), Trf(NBSQT)
-      real(kind=wp), intent(inout) :: DPT2n(NBSQT)
-      real(kind=wp), intent(_OUT_) :: WRK(NBSQT)
+implicit none
+integer(kind=iwp), intent(in) :: NBSQT
+real(kind=wp), intent(in) :: Scal, DPT2q(NBSQT), Trf(NBSQT)
+real(kind=wp), intent(inout) :: DPT2n(NBSQT)
+real(kind=wp), intent(_OUT_) :: WRK(NBSQT)
+integer(kind=iwp) :: iMO, iSym, nOrbI
 
-      integer(kind=iwp) :: iMO, iSym, nOrbI
+iMO = 1
+do iSym=1,nSym
+  if (nOrb(iSym) > 0) then
+    nOrbI = nBas(iSym)-nDel(iSym)
+    !! Quasi-canonical -> natural transformation of DPT2
+    call DGemm_('N','N',nOrbI,nOrbI,nOrbI,One,Trf(iMO),nOrbI,DPT2q(iMO),nOrbI,Zero,WRK,nOrbI)
+    call DGemm_('N','T',nOrbI,nOrbI,nOrbI,Scal,WRK,nOrbI,Trf(iMO),nOrbI,One,DPT2n(iMO),nOrbI)
+  end if
+  iMO = iMO+nOrbI*nOrbI
+end do
 
-      iMO = 1
-      Do iSym = 1, nSym
-        If (nOrb(iSym) > 0) Then
-          nOrbI = nBas(iSym)-nDel(iSym)
-          !! Quasi-canonical -> natural transformation of DPT2
-          Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,                        &
-     &                One,Trf(iMO),nOrbI,DPT2q(iMO),nOrbI,              &
-     &                Zero,WRK,nOrbI)
-          Call DGemm_('N','T',nOrbI,nOrbI,nOrbI,                        &
-     &                Scal,WRK,nOrbI,Trf(iMO),nOrbI,                    &
-     &                One,DPT2n(iMO),nOrbI)
-        End If
-        iMO  = iMO  + nOrbI*nOrbI
-      End Do
+return
 
-      Return
-
-      End Subroutine DPT2_TrfStore
+end subroutine DPT2_TrfStore

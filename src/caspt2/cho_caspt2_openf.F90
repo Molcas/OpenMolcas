@@ -30,9 +30,7 @@ character(len=7) :: FullNm
 character(len=*), parameter :: SecNam = 'Cho_CASPT2_OpenF'
 
 !******************************************************************
-if (nBatch > 999) then
-  call Cho_x_Quit(SecNam,' nBatch limited to 999 !!!',' ')
-end if
+if (nBatch > 999) call Cho_x_Quit(SecNam,' nBatch limited to 999 !!!',' ')
 call Get_iScalar('nSym',nSym)
 call Get_iArray('NumCho',NumCho,nSym)
 
@@ -56,9 +54,8 @@ end if
 
 ! Open or close files.
 ! --------------------
-if ((iTyp < 1) .or. (iTyp > 2)) then
-  call Cho_x_Quit(SecNam,'iTyp error',' ')
-end if
+
+if ((iTyp < 1) .or. (iTyp > 2)) call Cho_x_Quit(SecNam,'iTyp error',' ')
 
 if (iOpt == 1) then
   if (NumCho(iSym) > 0) then

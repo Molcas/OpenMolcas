@@ -11,42 +11,41 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-      SUBROUTINE POLY1_CLag(NCONF,NLEV,CI,CLag,RDMEIG)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp, iwp
-      use caspt2_module, only: MxCI, iAdr10, cLab10
-      IMPLICIT NONE
+subroutine POLY1_CLag(NCONF,NLEV,CI,CLag,RDMEIG)
 ! PER-AAKE MALMQUIST, 92-12-07
 ! THIS PROGRAM CALCULATES THE 1-EL DENSITY
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
-      integer(kind=iwp), intent(in) :: NCONF, NLEV
-      real(kind=wp), intent(in) :: CI(NCONF), RDMEIG(NLEV**2)
-      real(kind=wp), intent(inout) :: CLag(NCONF)
 
-      real(kind=wp), allocatable :: SGM1(:)
-      integer(kind=iwp) :: I
+use stdalloc, only: mma_allocate, mma_deallocate
+use definitions, only: wp, iwp
+use caspt2_module, only: MxCI, iAdr10, cLab10
 
-      IF(NLEV > 0) THEN
-        CALL MMA_ALLOCATE(SGM1,MXCI,LABEL='SGM1')
-        CALL DENS1_RPT2_CLag(CI,NCONF,SGM1,MXCI,CLag,NCONF,RDMEIG,nLev)
-      END IF
-!     return !! for test purpose
+implicit none
+integer(kind=iwp), intent(in) :: NCONF, NLEV
+real(kind=wp), intent(in) :: CI(NCONF), RDMEIG(NLEV**2)
+real(kind=wp), intent(inout) :: CLag(NCONF)
+real(kind=wp), allocatable :: SGM1(:)
+integer(kind=iwp) :: I
+
+if (NLEV > 0) then
+  call MMA_ALLOCATE(SGM1,MXCI,LABEL='SGM1')
+  call DENS1_RPT2_CLag(CI,NCONF,SGM1,MXCI,CLag,NCONF,RDMEIG,nLev)
+end if
+!return !! for test purpose
 
 ! REINITIALIZE USE OF DMAT.
-! The fields IADR10 and CLAB10 are kept in caspt2_module.F90
+! The fields IADR10 and CLAB10 are kept in caspt2_module
 ! CLAB10 replaces older field called LABEL.
-      DO I=1,64
-        IADR10(I,1)=-1
-        IADR10(I,2)=0
-        CLAB10(I)='   EMPTY'
-      END DO
-      IADR10(1,1)=0
+do I=1,64
+  IADR10(I,1) = -1
+  IADR10(I,2) = 0
+  CLAB10(I) = '   EMPTY'
+end do
+IADR10(1,1) = 0
 ! HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
 ! ARRAY ON LUDMAT AND UPDATE THE TOC.
-      IF(NLEV > 0) THEN
-        CALL MMA_DEALLOCATE(SGM1)
-      END IF
+if (NLEV > 0) call MMA_DEALLOCATE(SGM1)
 
-      return
+return
 
-      end subroutine POLY1_CLag
+end subroutine POLY1_CLag

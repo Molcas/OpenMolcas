@@ -16,18 +16,18 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE PRWF_CP2(ISYCI,NCO,CI,THR)
-      use definitions, only: wp, iwp, u6
-      use sguga, only: CIS
-      IMPLICIT NONE
-      INTEGER(KIND=IWP), INTENT(IN) :: ISYCI, NCO
-      REAL(KIND=WP), INTENT(IN) :: CI(NCO), THR
 
-      INTEGER(kind=iwp) I
+subroutine PRWF_CP2(ISYCI,NCO,CI,THR)
 
-      WRITE(u6,'(20A4)')('----',I=1,20)
-      WRITE(u6,'(a,es9.2)')' CI COEFFICIENTS LARGER THAN ',THR
-      CALL PRWF1_CP2(CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,nCO,  &
-     &               THR,CIS%nMidV)
+use definitions, only: wp, iwp, u6
+use sguga, only: CIS
 
-      END SUBROUTINE PRWF_CP2
+implicit none
+integer(kind=iwp), intent(in) :: ISYCI, NCO
+real(kind=wp), intent(in) :: CI(NCO), THR
+
+write(u6,'(A)') repeat('-',80)
+write(u6,'(a,es9.2)') ' CI COEFFICIENTS LARGER THAN ',THR
+call PRWF1_CP2(CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,nCO,THR,CIS%nMidV)
+
+end subroutine PRWF_CP2

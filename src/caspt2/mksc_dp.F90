@@ -16,86 +16,85 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE MKSC_DP (DREF,NDREF,PREF,NPREF,                        &
-     &                    iSYM,SC,NSC,iLo,iHi,jLo,jHi,LDC)
+
+subroutine MKSC_DP(DREF,NDREF,PREF,NPREF,iSYM,SC,NSC,iLo,iHi,jLo,jHi,LDC)
 ! In parallel, this subroutine is called on a local chunk of memory
 ! and LDC is set. In serial, the whole array is passed but then the
 ! storage uses a triangular scheme, and the LDC passed is zero.
-      use definitions, only: iwp, wp
-      use constants, only: Two
-      USE SUPERINDEX, only: MTUV
-      use caspt2_module, only: NASHT, nTUVES
-      IMPLICIT None
-      integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,NSC,            &
-     &                                 iLo,iHi,jLo,jHi,LDC
-      real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
-      real(kind=wp), intent(inout):: SC(NSC)
 
-      integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,      &
-     &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,          &
-     &                  IP2,IP,ID1,ID2,IVZ,ITX,ITZ,IVX
-      real(kind=wp) VALUE
+use definitions, only: iwp, wp
+use constants, only: Two
+use SUPERINDEX, only: MTUV
+use caspt2_module, only: NASHT, nTUVES
 
-      ISADR=0
+implicit none
+integer(kind=iwp), intent(in) :: NDREF, NPREF, iSYM, NSC, iLo, iHi, jLo, jHi, LDC
+real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
+real(kind=wp), intent(inout) :: SC(NSC)
+integer(kind=iwp) ISADR, IXYZ, IXYZABS, IXABS, IYABS, IZABS, ITUV, ITUVABS, ITABS, IUABS, IVABS, IVU, IYZ, IP1, IP2, IP, ID1, ID2, &
+                  IVZ, ITX, ITZ, IVX
+real(kind=wp) value
+
+ISADR = 0
 !-SVC20100831: fill in the G2 and G1 corrections for this SC block
-      DO IXYZ=jLo,jHi
-        IXYZABS=IXYZ+NTUVES(ISYM)
-        IXABS=MTUV(1,IXYZABS)
-        IYABS=MTUV(2,IXYZABS)
-        IZABS=MTUV(3,IXYZABS)
-        DO ITUV=iLo,iHi
-          ITUVABS=ITUV+NTUVES(ISYM)
-          ITABS=MTUV(1,ITUVABS)
-          IUABS=MTUV(2,ITUVABS)
-          IVABS=MTUV(3,ITUVABS)
-          IF (LDC.NE.0) THEN
-            VALUE=SC(1+iTUV-iLo+LDC*(iXYZ-jLo))
-          ELSE
-            IF (IXYZ.LE.ITUV) THEN
-              ISADR=(ITUV*(ITUV-1))/2+IXYZ
-              VALUE=SC(ISADR)
-            ELSE
-              CYCLE
-            ENDIF
-          END IF
-! Add  dyu Gvztx
-          IF(IYABS.EQ.IUABS) THEN
-            IVZ=IVABS+NASHT*(IZABS-1)
-            ITX=ITABS+NASHT*(IXABS-1)
-            IP1=MAX(IVZ,ITX)
-            IP2=MIN(IVZ,ITX)
-            IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+Two*PREF(IP)
-          END IF
-! Add  dyx Gvutz
-          IF(IYABS.EQ.IXABS) THEN
-            IVU=IVABS+NASHT*(IUABS-1)
-            ITZ=ITABS+NASHT*(IZABS-1)
-            IP1=MAX(IVU,ITZ)
-            IP2=MIN(IVU,ITZ)
-            IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+Two*PREF(IP)
-          END IF
-! Add  dtu Gvxyz + dtu dyx Gvz
-          IF(ITABS.EQ.IUABS) THEN
-            IVX=IVABS+NASHT*(IXABS-1)
-            IYZ=IYABS+NASHT*(IZABS-1)
-            IP1=MAX(IVX,IYZ)
-            IP2=MIN(IVX,IYZ)
-            IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+Two*PREF(IP)
-            IF(IYABS.EQ.IXABS) THEN
-              ID1=MAX(IVABS,IZABS)
-              ID2=MIN(IVABS,IZABS)
-              VALUE=VALUE+DREF((ID1*(ID1-1))/2+ID2)
-            END IF
-          END IF
-          IF (LDC.NE.0) THEN
-            SC(1+iTUV-iLo+LDC*(iXYZ-jLo))=VALUE
-          ELSE
-            SC(ISADR)=VALUE
-          END IF
-        END DO
-      END DO
+do IXYZ=jLo,jHi
+  IXYZABS = IXYZ+NTUVES(ISYM)
+  IXABS = MTUV(1,IXYZABS)
+  IYABS = MTUV(2,IXYZABS)
+  IZABS = MTUV(3,IXYZABS)
+  do ITUV=iLo,iHi
+    ITUVABS = ITUV+NTUVES(ISYM)
+    ITABS = MTUV(1,ITUVABS)
+    IUABS = MTUV(2,ITUVABS)
+    IVABS = MTUV(3,ITUVABS)
+    if (LDC /= 0) then
+      value = SC(1+iTUV-iLo+LDC*(iXYZ-jLo))
+    else
+      if (IXYZ <= ITUV) then
+        ISADR = (ITUV*(ITUV-1))/2+IXYZ
+        value = SC(ISADR)
+      else
+        cycle
+      end if
+    end if
+    ! Add  dyu Gvztx
+    if (IYABS == IUABS) then
+      IVZ = IVABS+NASHT*(IZABS-1)
+      ITX = ITABS+NASHT*(IXABS-1)
+      IP1 = max(IVZ,ITX)
+      IP2 = min(IVZ,ITX)
+      IP = (IP1*(IP1-1))/2+IP2
+      value = value+Two*PREF(IP)
+    end if
+    ! Add  dyx Gvutz
+    if (IYABS == IXABS) then
+      IVU = IVABS+NASHT*(IUABS-1)
+      ITZ = ITABS+NASHT*(IZABS-1)
+      IP1 = max(IVU,ITZ)
+      IP2 = min(IVU,ITZ)
+      IP = (IP1*(IP1-1))/2+IP2
+      value = value+Two*PREF(IP)
+    end if
+    ! Add  dtu Gvxyz + dtu dyx Gvz
+    if (ITABS == IUABS) then
+      IVX = IVABS+NASHT*(IXABS-1)
+      IYZ = IYABS+NASHT*(IZABS-1)
+      IP1 = max(IVX,IYZ)
+      IP2 = min(IVX,IYZ)
+      IP = (IP1*(IP1-1))/2+IP2
+      value = value+Two*PREF(IP)
+      if (IYABS == IXABS) then
+        ID1 = max(IVABS,IZABS)
+        ID2 = min(IVABS,IZABS)
+        value = value+DREF((ID1*(ID1-1))/2+ID2)
+      end if
+    end if
+    if (LDC /= 0) then
+      SC(1+iTUV-iLo+LDC*(iXYZ-jLo)) = value
+    else
+      SC(ISADR) = value
+    end if
+  end do
+end do
 
-      END SUBROUTINE MKSC_DP
+end subroutine MKSC_DP

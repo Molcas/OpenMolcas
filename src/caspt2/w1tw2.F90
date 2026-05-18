@@ -16,46 +16,44 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE W1TW2(IVEC,JVEC,CI,SGM,nCI)
-      use definitions, only: iwp, wp
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nAshT, STSym
-      implicit none
 
-
-      integer(kind=iwp), intent(in):: IVEC, JVEC, nCI
-      Real(kind=wp), intent(in):: ci(nCI)
-      Real(kind=wp), intent(inout)::  sgm(nCI)
-
-      integer(kind=iwp) :: nOp1, nOp2, nOp3
-      Real(kind=wp), Allocatable:: OP1(:), OP2(:), OP3(:)
-      Real(kind=wp):: OP0
-
+subroutine W1TW2(IVEC,JVEC,CI,SGM,nCI)
 ! Given contravariant indices of two wave operators W1 and W2,
 ! in the vectors numbered IVEC and JVEC on file (unit LUSOLV),
 ! compute the vector in CAS space
 !   | SGM > := | SGM > + (W1 conj)*(W2)*| CI >
 
+use definitions, only: iwp, wp
+use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_module, only: nAshT, STSym
+
+implicit none
+integer(kind=iwp), intent(in) :: IVEC, JVEC, nCI
+real(kind=wp), intent(in) :: ci(nCI)
+real(kind=wp), intent(inout) :: sgm(nCI)
+integer(kind=iwp) :: nOp1, nOp2, nOp3
+real(kind=wp), allocatable :: OP1(:), OP2(:), OP3(:)
+real(kind=wp) :: OP0
 
 ! (1): Compute a representation of the operator PCAS*W1T*W2
-      NOP1=NASHT**2
-      NOP2=(NOP1*(NOP1+1))/2
-      NOP3=(NOP2*(NOP1+2))/3
-      CALL mma_allocate(OP1,NOP1,Label='OP1')
-      CALL mma_allocate(OP2,NOP2,Label='OP2')
-      CALL mma_allocate(OP3,NOP3,Label='OP3')
+NOP1 = NASHT**2
+NOP2 = (NOP1*(NOP1+1))/2
+NOP3 = (NOP2*(NOP1+2))/3
+call mma_allocate(OP1,NOP1,Label='OP1')
+call mma_allocate(OP2,NOP2,Label='OP2')
+call mma_allocate(OP3,NOP3,Label='OP3')
 
-      CALL MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
+call MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
 
 ! Modify the coefficients, see subroutine MODOP.
 
-      CALL MODOP(OP1,NOP2,OP2,NOP3,OP3)
+call MODOP(OP1,NOP2,OP2,NOP3,OP3)
 
 ! (2) Apply the operators:
-      CALL HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,STSYM,CI,SGM,nCI)
+call HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,STSYM,CI,SGM,nCI)
 
-      CALL mma_deallocate(OP1)
-      CALL mma_deallocate(OP2)
-      CALL mma_deallocate(OP3)
+call mma_deallocate(OP1)
+call mma_deallocate(OP2)
+call mma_deallocate(OP3)
 
-      END SUBROUTINE W1TW2
+end subroutine W1TW2

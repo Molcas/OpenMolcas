@@ -16,26 +16,8 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-      SUBROUTINE FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,DREF,NDREF,          &
-     &                       HONE,nHONE)
-      use definitions, only: iwp, wp, u6
-      use constants, only: Zero, Half, One, Two
-      use caspt2_global, only: LUINTM
-      use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES, NoMx, NoTri
-      use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: nFIFA, NFIMO, NDREF, nHONE
-      real(kind=wp), intent(inout):: FIFA(nFIFA), FIMO(NFIMO)
-      real(kind=wp), intent(in)::DREF(NDREF), HONE(nHONE)
 
-      integer(kind=iwp) IAD2M(3,36*36)
-      integer(kind=iwp) NDIM2M, IDISK, IFSTA, NBR, NB3, NBNB,           &
-     &                  ISYS, IS3RS, NIP, NOP, NAESP, ISYQ, IS3PQ,      &
-     &                  ISADDR, IDISK1, ITABS, ITU, IUABS,              &
-     &                  nInts, nBUF
-      real(kind=wp) DTU
-      real(kind=wp), Allocatable:: BUF(:)
-
+subroutine FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,DREF,NDREF,HONE,nHONE)
 ! COMPUTE THE INACTIVE FOCK MATRIX IN MO BASIS.
 ! COMPUTE THE ACTIVE FOCK MATRIX IN MO BASIS.
 ! DEFINITIONS ARE:
@@ -48,110 +30,125 @@
 ! FIMO AND FAMO.
 ! CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
 
+use definitions, only: iwp, wp, u6
+use constants, only: Zero, Half, One, Two
+use caspt2_global, only: LUINTM
+use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES, NoMx, NoTri
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer(kind=iwp), intent(in) :: nFIFA, NFIMO, NDREF, nHONE
+real(kind=wp), intent(inout) :: FIFA(nFIFA), FIMO(NFIMO)
+real(kind=wp), intent(in) :: DREF(NDREF), HONE(nHONE)
+integer(kind=iwp) IAD2M(3,36*36)
+integer(kind=iwp) NDIM2M, IDISK, IFSTA, NBR, NB3, NBNB, ISYS, IS3RS, NIP, NOP, NAESP, ISYQ, IS3PQ, ISADDR, IDISK1, ITABS, ITU, &
+                  IUABS, nInts, nBUF
+real(kind=wp) DTU
+real(kind=wp), allocatable :: BUF(:)
+
 ! Inactive and active Fock matrices:
-      FIMO(:)=Zero
-      FIFA(:)=Zero ! ued temporarily as FAMO
+FIMO(:) = Zero
+FIFA(:) = Zero ! ued temporarily as FAMO
 
 ! notri=Size of an array with symmetry-blocked triangular
 ! submatrices, using non-frozen, non-deleted MO indices.
 ! NBUF=Max size of a LUINTM buffer.
-      NBUF=MAX(NOMX**2,notri)
-      CALL mma_allocate(BUF,NBUF,Label='BUF')
+NBUF = max(NOMX**2,notri)
+call mma_allocate(BUF,NBUF,Label='BUF')
 
-      NDIM2M=(NSYM*(NSYM+1))/2
-      IDISK=0
-      CALL IDAFILE(LUINTM,2,IAD2M,3*36*36,IDISK)
+NDIM2M = (NSYM*(NSYM+1))/2
+IDISK = 0
+call IDAFILE(LUINTM,2,IAD2M,3*36*36,IDISK)
 
-      Call Do_Loops(1) !     Do Coulomb contributions
-      Call Do_Loops(2) !     Do exchange contributions
+call Do_Loops(1) ! Do Coulomb contributions
+call Do_Loops(2) ! Do exchange contributions
 
-      CALL mma_deallocate(BUF)
+call mma_deallocate(BUF)
 
 ! FIMO comes from contractions over inactive orbitals, while FAMO from
 ! contractions over active orbitals and therefore are summed up together
 ! here into FIFA.
 
-      FIMO(1:notri) = FIMO(1:notri) + HONE(1:notri)
-      FIFA(1:notri) = FIFA(1:notri) + FIMO(1:notri)
+FIMO(1:notri) = FIMO(1:notri)+HONE(1:notri)
+FIFA(1:notri) = FIFA(1:notri)+FIMO(1:notri)
 
-      Contains
+contains
 
-      Subroutine Do_Loops(icase)
-      integer(kind=iwp), intent(in):: iCase
+subroutine Do_Loops(icase)
 
-      integer(kind=iwp) ISYR, ISYP, IT, IU
+  integer(kind=iwp), intent(in) :: iCase
+  integer(kind=iwp) ISYR, ISYP, IT, IU
 
-      IFSTA=1
-      DO ISYR=1,NSYM
-        NBR=NORB(ISYR)
-        IF(NBR.EQ.0) CYCLE
-        NB3=(NBR**2+NBR)/2
-        NBNB=NBR**2
-        ISYS=ISYR
-        IS3RS=(ISYR**2+ISYR)/2
-        DO ISYP=1,NSYM
-          NIP=NISH(ISYP)
-          NOP=NOSH(ISYP)
-          NAESP=NAES(ISYP)
-          IF(NOP.EQ.0) CYCLE
-          ISYQ=ISYP
-          IS3PQ=(ISYP*(ISYP+1))/2
-          ISADDR=IS3RS+NDIM2M*(IS3PQ-1)
-          IDISK1=IAD2M(iCase,ISADDR)
-          IF (IDISK1.EQ.0) THEN
-             If (iCase==1) Then
-               WRITE(u6,*)' FMAT: COULOMB INTEGRAL BUFFER MISSING!'
-             Else
-               WRITE(u6,*)' FMAT: EXCH-1  INTEGRAL BUFFER MISSING!'
-             End If
-             WRITE(u6,'(1X,A,4I4)')'SYMMETRY BLOCK:',ISYP,ISYQ,ISYR,ISYS
-             CALL ABEND()
-          END IF
-          If (iCase==1) Then
-             nInts=NB3
-          ELSE
-             nInts=NBNB
-          END IF
+  IFSTA = 1
+  do ISYR=1,NSYM
+    NBR = NORB(ISYR)
+    if (NBR == 0) cycle
+    NB3 = (NBR**2+NBR)/2
+    NBNB = NBR**2
+    ISYS = ISYR
+    IS3RS = (ISYR**2+ISYR)/2
+    do ISYP=1,NSYM
+      NIP = NISH(ISYP)
+      NOP = NOSH(ISYP)
+      NAESP = NAES(ISYP)
+      if (NOP == 0) cycle
+      ISYQ = ISYP
+      IS3PQ = (ISYP*(ISYP+1))/2
+      ISADDR = IS3RS+NDIM2M*(IS3PQ-1)
+      IDISK1 = IAD2M(iCase,ISADDR)
+      if (IDISK1 == 0) then
+        if (iCase == 1) then
+          write(u6,*) ' FMAT: COULOMB INTEGRAL BUFFER MISSING!'
+        else
+          write(u6,*) ' FMAT: EXCH-1  INTEGRAL BUFFER MISSING!'
+        end if
+        write(u6,'(1X,A,4I4)') 'SYMMETRY BLOCK:',ISYP,ISYQ,ISYR,ISYS
+        call ABEND()
+      end if
+      if (iCase == 1) then
+        nInts = NB3
+      else
+        nInts = NBNB
+      end if
 
-          DO IT=1,NOP
-            DO IU=1,IT
+      do IT=1,NOP
+        do IU=1,IT
 
-! Process here contributions to FIMO or FAMO.
+          ! Process here contributions to FIMO or FAMO.
 
-              IF(IT.LE.NIP .AND. IT.EQ.IU) THEN
-                CALL DDAFILE(LUINTM,2,BUF,nInts,IDISK1)
-                If (iCase==1) Then
-! ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
-                   CALL DAXPY_(NB3,Two,BUF,1,FIMO(IFSTA),1)
-                ELSE
-                   CALL TRIANG(NBR,BUF)
-! ADD -1* BUFFER INTO CORRECT POSITION OF  FIMO.
-                   CALL DAXPY_(NB3,-One,BUF,1,FIMO(IFSTA),1)
-                End If
-              ELSE IF(IT.GT.NIP .AND. IT.LE.NOP .AND.                   &
-     &                IU.GT.NIP .AND. IU.LE.NOP) THEN
-                ITABS=NAESP+(IT-NIP)
-                IUABS=NAESP+(IU-NIP)
-                ITU=(ITABS*(ITABS-1))/2 + IUABS
-                DTU=DREF(ITU)
-                IF(IT.EQ.IU) DTU=half*DTU
-                CALL DDAFILE(LUINTM,2,BUF,nInts,IDISK1)
-                If (iCase==1) Then
-                   CALL DAXPY_(NB3,Two*DTU,BUF,1,FIFA(IFSTA),1)
-                Else
-                   CALL TRIANG(NBR,BUF)
-                   CALL DAXPY_(NB3,-DTU,BUF,1,FIFA(IFSTA),1)
-                End If
-              ELSE
-                CALL DDAFILE(LUINTM,0,BUF,nInts,IDISK1)
-              END IF
+          if ((IT <= NIP) .and. (IT == IU)) then
+            call DDAFILE(LUINTM,2,BUF,nInts,IDISK1)
+            if (iCase == 1) then
+              ! ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
+              call DAXPY_(NB3,Two,BUF,1,FIMO(IFSTA),1)
+            else
+              call TRIANG(NBR,BUF)
+              ! ADD -1* BUFFER INTO CORRECT POSITION OF  FIMO.
+              call DAXPY_(NB3,-One,BUF,1,FIMO(IFSTA),1)
+            end if
+          else if ((IT > NIP) .and. (IT <= NOP) .and. (IU > NIP) .and. (IU <= NOP)) then
+            ITABS = NAESP+(IT-NIP)
+            IUABS = NAESP+(IU-NIP)
+            ITU = (ITABS*(ITABS-1))/2+IUABS
+            DTU = DREF(ITU)
+            if (IT == IU) DTU = half*DTU
+            call DDAFILE(LUINTM,2,BUF,nInts,IDISK1)
+            if (iCase == 1) then
+              call DAXPY_(NB3,Two*DTU,BUF,1,FIFA(IFSTA),1)
+            else
+              call TRIANG(NBR,BUF)
+              call DAXPY_(NB3,-DTU,BUF,1,FIFA(IFSTA),1)
+            end if
+          else
+            call DDAFILE(LUINTM,0,BUF,nInts,IDISK1)
+          end if
 
-            END DO
-          END DO
+        end do
+      end do
 
-        END DO
-        IFSTA=IFSTA+NB3
-      END DO
-      End Subroutine Do_Loops
+    end do
+    IFSTA = IFSTA+NB3
+  end do
+end subroutine Do_Loops
 
-      END SUBROUTINE FMAT_CASPT2
+end subroutine FMAT_CASPT2

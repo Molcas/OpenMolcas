@@ -16,108 +16,105 @@
 ! UNIVERSITY OF LUND                         *
 ! SWEDEN                                     *
 !--------------------------------------------*
-!*******************************************************************************
+
+!***********************************************************************
 ! Case C (ICASE=4)
-!*******************************************************************************
-      SUBROUTINE MKBC(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
-      use definitions, only: iwp, wp, Byte
-      use caspt2_global, only:iPrGlb
-      use PrintLevel, only: DEBUG
+!***********************************************************************
+subroutine MKBC(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
+
+use definitions, only: iwp, wp, Byte
+use caspt2_global, only: iPrGlb
+use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      use fake_GA, only: GA_Arrays
-      use caspt2_module, only: NSYM,NINDEP,NTUV
-      IMPLICIT NONE
+use fake_GA, only: GA_Arrays
+use caspt2_module, only: NSYM, NINDEP, NTUV
+
+implicit none
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER(KIND=IWP), INTENT(IN):: NDREF, NPREF, NG3
-      Real(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF),F3(NG3)
-      Real(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
-      INTEGER(KIND=Byte), INTENT(IN):: idxG3(6,NG3)
+integer(kind=iwp), intent(in) :: NDREF, NPREF, NG3
+real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), F3(NG3)
+real(kind=wp), intent(in) :: FD(NDREF), FP(NPREF)
+integer(kind=Byte), intent(in) :: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
-      Real(KIND=WP) Dummy(1)
-      INTEGER(KIND=IWP) MYRANK,MA
+real(kind=wp) Dummy(1)
+integer(kind=iwp) MYRANK, MA
 #endif
-      INTEGER(KIND=IWP) ILO,IHI,JLO,JHI,LDA,MBC
-      INTEGER(KIND=IWP) ICASE,ISYM,NIN,NAS,NBC,lg_BC
-      Real(KIND=WP) DBC
-      Real(KIND=WP), EXTERNAL:: PSBMAT_FPRINT
+integer(kind=iwp) ILO, IHI, JLO, JHI, LDA, MBC
+integer(kind=iwp) ICASE, ISYM, NIN, NAS, NBC, lg_BC
+real(kind=wp) DBC
+real(kind=wp), external :: PSBMAT_FPRINT
 
-      ICASE=4
+ICASE = 4
 ! LONG loop over superindex symmetry.
-      DO ISYM=1,NSYM
-        NIN=NINDEP(ISYM,ICASE)
-        IF(NIN.EQ.0) CYCLE
-        NAS=NTUV(ISYM)
-        NBC=(NAS*(NAS+1))/2
-        IF(NBC.LE.0) CYCLE
+do ISYM=1,NSYM
+  NIN = NINDEP(ISYM,ICASE)
+  if (NIN == 0) cycle
+  NAS = NTUV(ISYM)
+  NBC = (NAS*(NAS+1))/2
+  if (NBC <= 0) cycle
 
-! Set up the matrix BC(tuv,xyz) defined by the expression
-! <atuv|H0-E0|cxyz> = dac ( alpha(a) SC(tuv,xyz) + BC(tuv,xyz) )
-! Formula used:
-!    BC(tuv,xyz)
-!    = Fvutxyz +dyu Fvztx + dyx Fvutz + dtu Fvxyz + dtu dyx Fvz
-!    +(Ey+Eu-EASUM)*SC(tuv,xyz)
-!    -Eu*( dyu Gvztx + dtu Gvxyz )
-!    -Ey dyx Gvutz
-!    -(Eu+Ey)*( dtu dyx Gvz )
+  ! Set up the matrix BC(tuv,xyz) defined by the expression
+  ! <atuv|H0-E0|cxyz> = dac ( alpha(a) SC(tuv,xyz) + BC(tuv,xyz) )
+  ! Formula used:
+  !    BC(tuv,xyz)
+  !    = Fvutxyz +dyu Fvztx + dyx Fvutz + dtu Fvxyz + dtu dyx Fvz
+  !    +(Ey+Eu-EASUM)*SC(tuv,xyz)
+  !    -Eu*( dyu Gvztx + dtu Gvxyz )
+  !    -Ey dyx Gvutz
+  !    -(Eu+Ey)*( dtu dyx Gvz )
 
-! where dyu = Kronecker(y,u) etc. Gvutxyz=<Evutxyz>, etc.
-! Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
+  ! where dyu = Kronecker(y,u) etc. Gvutxyz=<Evutxyz>, etc.
+  ! Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 
-        CALL PSBMAT_GETMEM('BC',lg_BC,NAS)
-        CALL PSBMAT_READ('S',iCase,iSym,lg_BC,NAS)
+  call PSBMAT_GETMEM('BC',lg_BC,NAS)
+  call PSBMAT_READ('S',iCase,iSym,lg_BC,NAS)
 
-        ! fill in the 3-el parts
-#ifdef _MOLCAS_MPP_
-        IF (IS_REAL_PAR()) THEN
-          MYRANK = GA_NODEID()
-          CALL GA_DISTRIBUTION (LG_BC,MYRANK,ILO,IHI,JLO,JHI)
-          IF (JLO.NE.0 .AND. (JHI-JLO+1).NE.NAS) THEN
-            WRITE(6,*) 'MKBC: MISMATCH IN RANGE OF THE SUPERINDICES'
-            CALL ABEND()
-          END IF
-          IF (ILO.GT.0 .AND. JLO.GT.0) THEN
-            CALL GA_ACCESS (LG_BC,ILO,IHI,JLO,JHI,MA,LDA)
-            MBC=LDA*(JHI-JLO+1)
-            CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,iSYM,              &
-     &                   DBL_MB(MA),MBC,                                &
-     &                   ILO,IHI,JLO,JHI,LDA)
-            CALL MKBC_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,NAS,LDA,           &
-     &                       NG3,F3,IDXG3)
-            CALL GA_RELEASE_UPDATE (LG_BC,ILO,IHI,JLO,JHI)
-          ELSE
-            CALL MKBC_F3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDA,                &
-     &                       NG3,F3,IDXG3)
-          END IF
-        ELSE
-#endif
-          ILO=1
-          IHI=NAS
-          JLO=1
-          JHI=NAS
-          LDA=0
-          MBC=NAS*(NAS+1)/2
-          CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,                     &
-     &                 ISYM,GA_Arrays(lg_BC)%A(:),MBC,                  &
-     &                 ILO,IHI,JLO,JHI,LDA)
-          CALL MKBC_F3(ISYM,GA_Arrays(lg_BC)%A(:),MBC,NG3,F3,IDXG3)
+  ! fill in the 3-el parts
+# ifdef _MOLCAS_MPP_
+  if (IS_REAL_PAR()) then
+    MYRANK = GA_NODEID()
+    call GA_DISTRIBUTION(LG_BC,MYRANK,ILO,IHI,JLO,JHI)
+    if ((JLO /= 0) .and. (JHI-JLO+1 /= NAS)) then
+      write(6,*) 'MKBC: MISMATCH IN RANGE OF THE SUPERINDICES'
+      call ABEND()
+    end if
+    if ((ILO > 0) .and. (JLO > 0)) then
+      call GA_ACCESS(LG_BC,ILO,IHI,JLO,JHI,MA,LDA)
+      MBC = LDA*(JHI-JLO+1)
+      call MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,iSYM,DBL_MB(MA),MBC,ILO,IHI,JLO,JHI,LDA)
+      call MKBC_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,NAS,LDA,NG3,F3,IDXG3)
+      call GA_RELEASE_UPDATE(LG_BC,ILO,IHI,JLO,JHI)
+    else
+      call MKBC_F3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDA,NG3,F3,IDXG3)
+    end if
+  else
+# endif
+    ILO = 1
+    IHI = NAS
+    JLO = 1
+    JHI = NAS
+    LDA = 0
+    MBC = NAS*(NAS+1)/2
+    call MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,ISYM,GA_Arrays(lg_BC)%A(:),MBC,ILO,IHI,JLO,JHI,LDA)
+    call MKBC_F3(ISYM,GA_Arrays(lg_BC)%A(:),MBC,NG3,F3,IDXG3)
 
-#ifdef _MOLCAS_MPP_
-        END IF
-#endif
+# ifdef _MOLCAS_MPP_
+  end if
+# endif
 
-        CALL PSBMAT_WRITE('B',iCase,iSYM,lg_BC,NAS)
+  call PSBMAT_WRITE('B',iCase,iSYM,lg_BC,NAS)
 
-        IF(IPRGLB.GE.DEBUG) THEN
-          DBC=PSBMAT_FPRINT(lg_BC,NAS)
-          WRITE(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'C', ISYM, DBC
-        END IF
+  if (IPRGLB >= DEBUG) then
+    DBC = PSBMAT_FPRINT(lg_BC,NAS)
+    write(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'C',ISYM,DBC
+  end if
 
-        CALL PSBMAT_FREEMEM(lg_BC)
-      END DO
+  call PSBMAT_FREEMEM(lg_BC)
+end do
 
-      END SUBROUTINE MKBC
+end subroutine MKBC

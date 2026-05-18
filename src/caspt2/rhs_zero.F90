@@ -23,30 +23,31 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE RHS_ZERO(IVEC)
-      use definitions, only: iwp
-      use constants, only: Zero
-      use caspt2_module, only: NSYM,NASUP,NISUP
-      IMPLICIT None
-      Integer(kind=iwp), Intent(in):: IVEC
+subroutine RHS_ZERO(IVEC)
 
-      Integer(kind=iwp) ICASE, ISYM, NAS, NIS, NW, lg_W
+use definitions, only: iwp
+use constants, only: Zero
+use caspt2_module, only: NSYM, NASUP, NISUP
+
+implicit none
+integer(kind=iwp), intent(in) :: IVEC
+integer(kind=iwp) ICASE, ISYM, NAS, NIS, NW, lg_W
 
 !-SVC: zero out the entire RHS vector on IVEC
-      DO ICASE=1,13
-        DO ISYM=1,NSYM
+do ICASE=1,13
+  do ISYM=1,NSYM
 
-          NAS=NASUP(ISYM,ICASE)
-          NIS=NISUP(ISYM,ICASE)
-          NW=NAS*NIS
+    NAS = NASUP(ISYM,ICASE)
+    NIS = NISUP(ISYM,ICASE)
+    NW = NAS*NIS
 
-          IF (NW.NE.0) THEN
-            CALL RHS_ALLO(NAS,NIS,lg_W)
-            CALL RHS_SCAL(NAS,NIS,lg_W,Zero)
-            CALL RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
-            CALL RHS_FREE(lg_W)
-          END IF
-        END DO
-      END DO
+    if (NW /= 0) then
+      call RHS_ALLO(NAS,NIS,lg_W)
+      call RHS_SCAL(NAS,NIS,lg_W,Zero)
+      call RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
+      call RHS_FREE(lg_W)
+    end if
+  end do
+end do
 
-      END SUBROUTINE RHS_ZERO
+end subroutine RHS_ZERO

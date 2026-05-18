@@ -23,74 +23,75 @@
 ! and are loaded onto a global array when needed.
 !***********************************************************************
 
-      SUBROUTINE SOLV2DRA (NAS,NIS,iCASE,iSYM,iVEC)
+subroutine SOLV2DRA(NAS,NIS,iCASE,iSYM,iVEC)
 !SVC: FIXME: this temporary routine copies the RHS arrays from DRAs to
 !     LUSOLV and should be removed once the full parallelization is in
 !     place and transition is no longer needed.
-      use definitions, only: iwp
-#ifdef _MOLCAS_MPP_
-      use definitions, only: wp, u6
-      USE Para_Info, ONLY: Is_Real_Par, King
-      use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-#endif
-      use caspt2_global, only: LUSOLV, IDSCT
-      use EQSOLV, only: MXSCT
-      use fake_GA, only: GA_Arrays
-      use caspt2_module, only: MXCASE
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: NAS,NIS,iCASE,iSYM,iVEC
 
-      integer(kind=iwp) IDISK, lg_W, NW
+use definitions, only: iwp
+#ifdef _MOLCAS_MPP_
+use definitions, only: wp, u6
+use Para_Info, only: Is_Real_Par, King
+use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+#endif
+use caspt2_global, only: LUSOLV, IDSCT
+use EQSOLV, only: MXSCT
+use fake_GA, only: GA_Arrays
+use caspt2_module, only: MXCASE
+
+implicit none
+integer(kind=iwp), intent(in) :: NAS, NIS, iCASE, iSYM, iVEC
+integer(kind=iwp) IDISK, lg_W, NW
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-!     LOGICAL bStat
-      real(kind=wp), allocatable:: TMPW(:)
-      integer(kind=iwp) iMax, NCOL, ISTA, IEND
+!logical bStat
+real(kind=wp), allocatable :: TMPW(:)
+integer(kind=iwp) iMax, NCOL, ISTA, IEND
 #endif
 
-      CALL RHS_ALLO (NAS,NIS,lg_W)
+call RHS_ALLO(NAS,NIS,lg_W)
 
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
-!SVC: Read the global array from disk
-!SVC: Only the master process writes to LUSOLV!!
-!SVC: be careful to only call one-sided operations
-        IF (KING()) THEN
-!SVC: write the LUSOLV array to global RHS array
-!     later it should be completely removed when everything is parallel
-          CALL mma_MaxDBLE(iMax)
-!-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
-          iMax=MIN(NINT(0.95D0*iMax),134217728)
-          NCOL=MIN(iMAX,NAS*NIS)/NAS
-          IF (NCOL.LE.0) THEN
-            WRITE(u6,*) 'Not enough memory in SOLV2DRA, aborting...'
-            CALL AbEnd()
-          END IF
-          NW=NAS*NCOL
-          CALL mma_allocate(TMPW,NW,Label='TMPW')
-!SVC: Read local array from LUSOLV
-          IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-          DO ISTA=1,NIS,NCOL
-            IEND=MIN(ISTA+NCOL-1,NIS)
-            CALL DDAFILE(LUSOLV,2,TMPW,NAS*(IEND-ISTA+1),IDISK)
-            CALL GA_Put (lg_W,1,NAS,ISTA,IEND,TMPW,NAS)
-          END DO
-          CALL mma_deallocate(TMPW)
-        END IF
-        CALL GASync()
-!SVC: Destroy the global array
-!       bStat=GA_Destroy(lg_W)
-      ELSE
+if (Is_Real_Par()) then
+  !SVC: Read the global array from disk
+  !SVC: Only the master process writes to LUSOLV!!
+  !SVC: be careful to only call one-sided operations
+  if (KING()) then
+    !SVC: write the LUSOLV array to global RHS array
+    !     later it should be completely removed when everything is parallel
+    call mma_MaxDBLE(iMax)
+    !-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
+    iMax = min(nint(0.95d0*iMax),134217728)
+    NCOL = min(iMAX,NAS*NIS)/NAS
+    if (NCOL <= 0) then
+      write(u6,*) 'Not enough memory in SOLV2DRA, aborting...'
+      call AbEnd()
+    end if
+    NW = NAS*NCOL
+    call mma_allocate(TMPW,NW,Label='TMPW')
+    !SVC: Read local array from LUSOLV
+    IDISK = IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+    do ISTA=1,NIS,NCOL
+      IEND = min(ISTA+NCOL-1,NIS)
+      call DDAFILE(LUSOLV,2,TMPW,NAS*(IEND-ISTA+1),IDISK)
+      call GA_Put(lg_W,1,NAS,ISTA,IEND,TMPW,NAS)
+    end do
+    call mma_deallocate(TMPW)
+  end if
+  call GASync()
+  !SVC: Destroy the global array
+  !bStat = GA_Destroy(lg_W)
+else
 #endif
-        NW=NAS*NIS
-        IDISK=IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
-        CALL DDAFILE(LUSOLV,2,GA_Arrays(lg_W)%A,NW,IDISK)
+  NW = NAS*NIS
+  IDISK = IDSCT(1+MXSCT*(ISYM-1+8*(ICASE-1+MXCASE*(IVEC-1))))
+  call DDAFILE(LUSOLV,2,GA_Arrays(lg_W)%A,NW,IDISK)
 #ifdef _MOLCAS_MPP_
-      END IF
+end if
 #endif
 
-      CALL RHS_SAVE (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
-      CALL RHS_FREE (lg_W)
+call RHS_SAVE(NAS,NIS,lg_W,ICASE,ISYM,IVEC)
+call RHS_FREE(lg_W)
 
-      END SUBROUTINE SOLV2DRA
+end subroutine SOLV2DRA

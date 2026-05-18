@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine ClsFls_CASPT2()
+
+subroutine ClsFls_CASPT2()
 !***********************************************************************
 !     Close files.                                                     *
 !----------------------------------------------------------------------*
@@ -20,45 +21,45 @@
 !     University of Lund, Sweden, 1993                                 *
 !                                                                      *
 !***********************************************************************
-      use definitions, only: iwp
-      use caspt2_global, only:iPrGlb
-      use PrintLevel, only: SILENT
-      use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3,  &
-     &                       LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS,    &
-     &                       LUH0T, LUSOLV, LUSBT
-      use caspt2_module, only: IfChol
-      Implicit None
-      integer(kind=iwp) IMAT, iRc, IVEC
+
+use definitions, only: iwp
+use caspt2_global, only: iPrGlb
+use PrintLevel, only: SILENT
+use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS, LUH0T, LUSOLV, LUSBT
+use caspt2_module, only: IfChol
+
+implicit none
+integer(kind=iwp) IMAT, iRc, IVEC
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !-------------------------------------- -------------------------------*
 
-      Call DaClos(LUCIEX)
-      Call DaClos(LUONEM)
-      Call DaClos(LUINTM)
-      Call DaClos(LUDRA)
-      Call DaClos(LUDRATOT)
-      Call DaClos(LUHLF1)
-      Call DaClos(LUHLF2)
-      Call DaClos(LUHLF3)
-      Call DaClos(LUDMAT)
-      Call DaClos(LUSOLV)
-      Call DaClos(LUSBT)
-      DO IVEC=1,8
-        CALL DaClos(LURHS(IVEC))
-      END DO
-      DO IMAT=1,4
-        CALL DaClos(LUH0T(IMAT))
-      END DO
+call DaClos(LUCIEX)
+call DaClos(LUONEM)
+call DaClos(LUINTM)
+call DaClos(LUDRA)
+call DaClos(LUDRATOT)
+call DaClos(LUHLF1)
+call DaClos(LUHLF2)
+call DaClos(LUHLF3)
+call DaClos(LUDMAT)
+call DaClos(LUSOLV)
+call DaClos(LUSBT)
+do IVEC=1,8
+  call DaClos(LURHS(IVEC))
+end do
+do IMAT=1,4
+  call DaClos(LUH0T(IMAT))
+end do
 !---  close the ORDINT file -------------------------------------------*
-      If (.not.IfChol) then
-         iRc=-1
-         Call ClsOrd(iRc)
-         IF(IRC.NE.0 .AND. IPRGLB.GT.SILENT) THEN
-          Call WarningMessage(1,'Failed to close ORDINT file.')
-         END IF
-      End If
+if (.not. IfChol) then
+  iRc = -1
+  call ClsOrd(iRc)
+  if ((IRC /= 0) .and. (IPRGLB > SILENT)) call WarningMessage(1,'Failed to close ORDINT file.')
+end if
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-      End Subroutine ClsFls_CASPT2
+
+end subroutine ClsFls_CASPT2
