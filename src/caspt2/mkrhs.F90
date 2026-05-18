@@ -27,18 +27,17 @@ subroutine MKRHS(IVEC)
 ! combinations of MO integrals.
 ! This is the RHS vector in contravariant representation.
 
-use definitions, only: iwp, wp, u6
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: FIMO
+use caspt2_global, only: FIMO, iPrGlb
 use PrintLevel, only: VERBOSE
-use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: NASHT, NOMX
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) NERI, NFIMO
-real(kind=wp), allocatable, target :: ERI(:)
+integer(kind=iwp) :: NERI, NFIMO
 real(kind=wp), pointer :: ERI0(:), ERI1(:), ERI2(:), SCR(:)
+real(kind=wp), allocatable, target :: ERI(:)
 
 if (IPRGLB >= VERBOSE) write(u6,'(1X,A)') ' Using conventional MKRHS algorithm'
 

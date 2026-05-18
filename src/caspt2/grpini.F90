@@ -22,33 +22,26 @@ subroutine GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0,nState)
 ! The states in the group can be obtained from the ordered MSTATE array,
 ! for which a group offset JSTATE_OFF is passed in.
 
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX, CMOPT2, NCMO, Weight, TORB, FIMO
-use caspt2_global, only: LUONEM
 use fciqmc_interface, only: DoFCIQMC
 #ifdef _DMRG_
-use qcmaquis_interface
+use qcmaquis_interface, only: qcmaquis_interface_set_param
 #endif
 use PrintLevel, only: DEBUG, USUAL, VERBOSE
+use caspt2_global, only: CMO, CMO_Internal, CMOPT2, DMIX, DREF, FIFA, FIMO, iPrGlb, LUONEM, NCMO, TORB, Weight
+use caspt2_module, only: CIThr, CPUFMB, CPUGIN, CPUINT, DMRG, DoCumulant, iAd1m, IEOF1M, IfChol, IfDW, IfsadRef, IfXMS, jState, &
+                         mState, nConf, NoTri, STSym, TIOFMB, TIOGIN, TIOINT
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: CPUFMB, CPUINT, DMRG, DoCumulant, IEOF1M, IfDW, IfsadRef, IfXMS, jState, nConf, STSym, TIOFMB, TIOINT, &
-                         mState, iAd1m, IfChol, CPUGIN, TIOGIN, NoTri
-use caspt2_module, only: CIThr
 use Constants, only: Zero, One
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IGROUP, NGRP, JSTATE_OFF, nState
-#include "warnings.h"
-real(kind=wp), intent(inout) :: Heff(Nstate,Nstate)
-real(kind=wp), intent(inout) :: H0(Nstate,Nstate)
-real(kind=wp), intent(inout) :: U0(Nstate,Nstate)
-character(len=27) STLNE2
+real(kind=wp), intent(inout) :: Heff(Nstate,Nstate), H0(Nstate,Nstate), U0(Nstate,Nstate)
+integer(kind=iwp) :: I, iDisk, iState, J, K
+real(kind=wp) :: CPE, CPTF0, CPTF10, CPU, CPU0, CPU1, TIO, TIO0, TIO1, TIOE, TIOTF0, TIOTF10
+logical(kind=iwp) :: Initiate
+character(len=27) :: STLNE2
 real(kind=wp), allocatable :: CIRef(:,:), CIXMS(:), HONE(:)
-integer(kind=iwp) I, J, iDisk, K, iState
-real(kind=wp) CPU1, CPU0, TIO1, TIO0, CPU, TIO
-real(kind=wp) CPE, TIOE, CPTF0, TIOTF0, CPTF10, TIOTF10
-logical(kind=iwp) Initiate
 
 ! ----------------------------------------------------------------------
 call TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -303,6 +296,7 @@ subroutine GPRINI_FINISH()
   CPUGIN = CPTF10-CPTF0
   TIOGIN = TIOTF10-TIOTF0
   ! --------------------------------------------------------------------
+
 end subroutine GPRINI_FINISH
 
 end subroutine GRPINI

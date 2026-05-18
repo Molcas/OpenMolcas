@@ -19,25 +19,23 @@
 
 subroutine DIELMV(ICASE,nICASE,JCASE,nJCASE,NUP,NDWN,EMU)
 
-use definitions, only: iwp, wp
-use constants, only: Zero
-use sguga, only: SGS, CIS
+use sguga, only: CIS, SGS
 use caspt2_module, only: ETA
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nICASE, nJCASE, NUP, NDWN
-integer(kind=iwp), intent(in) :: ICASE(nICASE), JCASE(nJCASE)
+integer(kind=iwp), intent(in) :: nICASE, ICASE(nICASE), nJCASE, JCASE(nJCASE), NUP, NDWN
 real(kind=wp), intent(inout) :: EMU(NUP,NDWN)
-integer(kind=iwp) nLev, nIpWlk
-integer(kind=iwp) I, II, LV1, IC, LEV, IC1, ISTEP, IOC, J
-real(kind=wp) SUM
+integer(kind=iwp) :: I, IC, IC1, II, IOC, ISTEP, J, LEV, LV1, nIpWlk, nLev
+real(kind=wp) :: rSUM
 
 nLev = SGS%nLev
 nIpWlk = CIS%nIpWlk
 
 do I=1,NUP
   II = NIPWLK*(I-1)
-  SUM = Zero
+  rSUM = Zero
   do LV1=SGS%MIDLEV+1,NLEV,15
     II = II+1
     IC = ICASE(II)
@@ -45,18 +43,18 @@ do I=1,NUP
       IC1 = IC/4
       ISTEP = IC-4*IC1
       IOC = (ISTEP+1)/2
-      SUM = SUM+real(IOC,kind=wp)*ETA(LEV)
+      rSUM = rSUM+real(IOC,kind=wp)*ETA(LEV)
       IC = IC1
     end do
   end do
   do J=1,NDWN
-    EMU(I,J) = EMU(I,J)+SUM
+    EMU(I,J) = EMU(I,J)+rSUM
   end do
 end do
 ! THEN THE LOWER HALF:
 do I=1,NDWN
   II = NIPWLK*(I-1)
-  SUM = Zero
+  rSUM = Zero
   do LV1=1,SGS%MIDLEV,15
     II = II+1
     IC = JCASE(II)
@@ -64,12 +62,12 @@ do I=1,NDWN
       IC1 = IC/4
       ISTEP = IC-4*IC1
       IOC = (ISTEP+1)/2
-      SUM = SUM+real(IOC,kind=wp)*ETA(LEV)
+      rSUM = rSUM+real(IOC,kind=wp)*ETA(LEV)
       IC = IC1
     end do
   end do
   do J=1,NUP
-    EMU(J,I) = EMU(J,I)+SUM
+    EMU(J,I) = EMU(J,I)+rSUM
   end do
 end do
 

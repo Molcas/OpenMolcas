@@ -20,34 +20,32 @@
 subroutine SIZES()
 
 use Symmetry_Info, only: Mul
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: USUAL
 use SUPERINDEX, only: SUPINI
-use stdalloc, only: mma_MaxDBLE
-use caspt2_global, only: NCMO
-use caspt2_global, only: do_csf, do_grad, do_nac, if_invar, if_invaria, if_SSDM, ipea_shift
 use Cholesky, only: NumCho
-use EQSOLV, only: NLSTOT, NLIST, IFCOUP
-use caspt2_module, only: IfChol, IfDW, IfMSCoup, IfProp, IfXMS, IfRMS, nActEl, nAshT, nBasT, nBSqT, nBTri, nCases, nConf, nFroT, &
-                         nIMx, nIshT, nOSqT, nOTri, nSMx, nState, nSym, Zeta, nTU, nTGTU, nAsh, nISh, nSsh, nOrb, nInDep, nASup, &
-                         nISup
+use EQSOLV, only: IFCOUP, NLIST, NLSTOT
+use caspt2_global, only: do_csf, do_grad, do_nac, if_invar, if_invaria, if_SSDM, ipea_shift, iPrGlb, NCMO
+use caspt2_module, only: IfChol, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, MxCI, nActEl, nAsh, nAshT, nASup, nBasT, nBSqT, nBTri, &
+                         nCases, nConf, nFroT, nG1, nG2, nG3Tot, nIMx, nInDep, nISh, nIshT, nISup, nOrb, nOSqT, nOTri, nSMx, nSsh, &
+                         nState, nSym, nTGTU, nTU, Zeta
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: NAMX
 #endif
-use caspt2_module, only: MxCI, nG1, nG2, nG3Tot
-use constants, only: Zero, Half
-use definitions, only: iwp, wp, u6
+use stdalloc, only: mma_MaxDBLE
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "warnings.h"
-integer(kind=iwp) ICASE, ICASE1, ICASE2, ILIST, ISL1, ISL2, ISL3, ISYM, ISYM1, ISYM2, M, M11, M12, M21, M22, MAXAIS, MC1S1DER, &
-                  MC2DER, MEMBASE, MINBUF, MMX, MXLeft, MXLFT, N, NA, NAS, NAS1, NAS2, NBOTTOM, NCH, nCLag, NCX, NDD, NEED, NEED0, &
-                  NFIA, NFIT, NFTA, NG02, NG10, NG12, NG20, NG30, NGARR, ngrad, ngrad1, ngrad10, ngrad11, ngrad11_1, ngrad11_2, &
-                  ngrad2, ngrad3, ngrad4, ngrad5, ngrad6, ngrad6_1, ngrad6_2, ngrad7, ngrad7_1, ngrad7_2, ngrad8, ngrad9, NI, NIN, &
-                  NIN1, NIS, NIS1, NLISTS, NMKRHS, NMX, nOLag, nOMax, NPoly, nPrp, nPrp1, nPrp2, nRHSP, NS, nSgm1, nSgm2, nSigma, &
-                  nSigma_inner, nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT, nV, nVCUtil, nWLag, NX, M31, NIS2, NPLBUF
+integer(kind=iwp) :: ICASE, ICASE1, ICASE2, ILIST, ISL1, ISL2, ISL3, ISYM, ISYM1, ISYM2, M, M11, M12, M21, M22, M31, MAXAIS, &
+                     MC1S1DER, MC2DER, MEMBASE, MINBUF, MMX, MXLeft, MXLFT, N, NA, NAS, NAS1, NAS2, NBOTTOM, NCH, nCLag, NCX, NDD, &
+                     NEED, NEED0, NFIA, NFIT, NFTA, NG02, NG10, NG12, NG20, NG30, NGARR, ngrad, ngrad1, ngrad10, ngrad11, &
+                     ngrad11_1, ngrad11_2, ngrad2, ngrad3, ngrad4, ngrad5, ngrad6, ngrad6_1, ngrad6_2, ngrad7, ngrad7_1, ngrad7_2, &
+                     ngrad8, ngrad9, NI, NIN, NIN1, NIS, NIS1, NIS2, NLISTS, NMKRHS, NMX, nOLag, nOMax, NPLBUF, NPoly, nPrp, &
+                     nPrp1, nPrp2, nRHSP, NS, nSgm1, nSgm2, nSigma, nSigma_inner, nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT, &
+                     nV, nVCUtil, nWLag, NX
+real(kind=wp) :: XX, YY
 integer(kind=iwp), external :: iParDiv
-real(kind=wp) XX, YY
 
 ! Available workspace right now:
 call mma_MaxDBLE(MXLEFT)

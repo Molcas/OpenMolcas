@@ -20,14 +20,13 @@
 subroutine TRAFRO(MODE)
 
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
+use caspt2_module, only: IfChol, NASH, NFRO, NISH, NORB, NOSH, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NOSH, NSSH, NORB
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: MODE
-integer(kind=iwp) :: nFroTmp(8), nOshTmp(8), nOrbTmp(8)
-integer(kind=iwp) :: jSym
+integer(kind=iwp) :: jSym, nFroTmp(8), nOrbTmp(8), nOshTmp(8)
 
 if (Mode == 1) then
   do jSym=1,nSym

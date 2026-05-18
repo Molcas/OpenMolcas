@@ -14,17 +14,17 @@
 subroutine VVVO_Drv(nSym,nBas,nAux,nFro,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,lT2AO,T2AO,vLag,nOcc,nBasT,nBMX,CMO,DPT2AO,DPT2CAO, &
                     FPT2AO,FPT2CAO,DIA,DI,FIFA,FIMO)
 
-use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, iSym, iSymI, iSymJ, iSymK, iSymL, lT2AO, nBas(8), nAux(8), nFro(8), Keep(8), nOcc, nBasT, &
+integer(kind=iwp), intent(in) :: nSym, nBas(8), nAux(8), nFro(8), Keep(8), iSym, iSymI, iSymJ, iSymK, iSymL, lT2AO, nOcc, nBasT, &
                                  nBMX
-real(kind=wp), intent(in) :: CMO(nBasT**2), T2AO(lT2AO), DPT2AO(nBasT**2), DPT2CAO(nBasT**2), DIA(nBasT**2), DI(nBasT**2)
+real(kind=wp), intent(in) :: T2AO(lT2AO), CMO(nBasT**2), DPT2AO(nBasT**2), DPT2CAO(nBasT**2), DIA(nBasT**2), DI(nBasT**2)
 real(kind=wp), intent(inout) :: vLag(nBasT**2), FPT2AO(nBasT**2), FPT2CAO(nBasT**2), FIFA(nBasT**2), FIMO(nBasT**2)
+integer(kind=iwp) :: i, j, LBUF
 logical(kind=iwp) :: DoCholesky
 real(kind=wp), allocatable :: W1(:), W2(:), WRK(:)
-integer(kind=iwp) :: i, j, LBUF
 
 ! nAux is the number of occupied orbitals
 DoCholesky = .false.

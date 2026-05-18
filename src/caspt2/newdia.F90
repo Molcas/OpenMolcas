@@ -15,17 +15,16 @@ subroutine NEWDIA()
 ! Post-diagonalization modification of diagonal energy
 ! denominator terms for active and for non-active superindex.
 
-use caspt2_global, only: LUSBT
 use EQSOLV, only: IDBMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: nASup, nInDep, nISup, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: nSym, nInDep, nASup, nISup
-use constants, only: Zero
-use definitions, only: iwp, wp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) ICASE, ISYM, NIN, NAS, NIS, I
-integer(kind=iwp) JD
-real(kind=wp), allocatable :: BD(:), ID(:), C1(:), C2(:)
+integer(kind=iwp) :: I, ICASE, ISYM, JD, NAS, NIN, NIS
+real(kind=wp), allocatable :: BD(:), C1(:), C2(:), ID(:)
 
 do ICASE=1,13
   do ISYM=1,NSYM

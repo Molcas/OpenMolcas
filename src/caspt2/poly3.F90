@@ -37,32 +37,25 @@ subroutine POLY3(mkF)
 ! PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
 use fciqmc_interface, only: DoFCIQMC
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
 use PrintLevel, only: VERBOSE
-use sguga, only: SGS, L2ACT, CIS
-use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: DoCumulant, iSCF, jState, nActel, NAshT, nConf, nState, STSym, EPSA, mState
+use sguga, only: CIS, L2ACT, SGS
+use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
+use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, nActel, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState, &
+                         STSym
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
 use caspt2_module, only: DMRG
 #endif
-use caspt2_module, only: CIThr, nG1, nG2, nG3, nG3Tot, Eta
-use constants, only: Zero, One
-use definitions, only: iwp, wp, u6, Byte
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, byte
 
 implicit none
 logical(kind=iwp), intent(in) :: mkF
-integer(kind=iwp) ILEV
-integer(kind=iwp) NG3MAX
-integer(kind=iwp) ILUID
-integer(kind=iwp) IDCI
-integer(kind=iwp) IPARDIV
-integer(kind=Byte), allocatable :: idxG3(:,:)
-real(kind=wp), allocatable, target :: G1(:), G2(:), G3(:)
-real(kind=wp), allocatable, target :: F1_H(:), F2_H(:), F3_H(:)
-real(kind=wp), pointer :: F1(:), F2(:), F3(:)
+integer(kind=iwp) :: IDCI, ILEV, ILUID, IPARDIV, nCI, NG3MAX, nLev
+integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: CI(:)
-integer(kind=iwp) :: nLev, nCI
+real(kind=wp), allocatable, target :: F1_H(:), F2_H(:), F3_H(:), G1(:), G2(:), G3(:)
+real(kind=wp), pointer :: F1(:), F2(:), F3(:)
 
 nLev = SGS%nLev
 
@@ -101,7 +94,7 @@ if (mkF) then
   F2 => F2_H
   F3 => F3_H
 else
-  ! This is just done such that in the case of mkF=.FALSE. that
+  ! This is just done such that in the case of mkF=.false. that
   ! F1, F2, and F3 refer to an actual array.
   F1 => G1
   F2 => G2

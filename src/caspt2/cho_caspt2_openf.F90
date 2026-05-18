@@ -19,14 +19,14 @@ subroutine Cho_CASPT2_OpenF(iOpt,iTyp,iSym,nBatch)
 !          iTyp=3: vectors from (pi|qj) decomposition (Not
 !                  implemented yet!)
 
+use ChoCASPT2, only: nIsplit, Stuff
 use Definitions, only: iwp, u6
-use ChoCASPT2
 
 implicit none
 integer(kind=iwp), intent(in) :: iOpt, iTyp, iSym, nBatch
-integer(kind=iwp) :: iaddr, iB, LuV, nSym, NCALLS = 0, NUMCHO(8)
-character(len=3) :: BaseNm
+integer(kind=iwp) :: iaddr, iB, LuV, NCALLS = 0, nSym, NUMCHO(8)
 character(len=7) :: FullNm
+character(len=3) :: BaseNm
 character(len=*), parameter :: SecNam = 'Cho_CASPT2_OpenF'
 
 !******************************************************************
@@ -37,7 +37,7 @@ call Get_iArray('NumCho',NumCho,nSym)
 if (NCALLS == 0) then
   do iB=1,nBatch
     iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    Stuff(iSym)%Unit(iAddr) = -1
+    Stuff(iSym)%Unt(iAddr) = -1
   end do
 end if
 
@@ -47,7 +47,7 @@ end if
 if (iOpt == 0) then
   do iB=1,nBatch
     iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    Stuff(iSym)%Unit(iaddr) = -1
+    Stuff(iSym)%Unt(iaddr) = -1
   end do
   return
 end if
@@ -61,37 +61,37 @@ if (iOpt == 1) then
   if (NumCho(iSym) > 0) then
     do iB=1,nBatch
       iaddr = (iTyp-1)*nIsplit(iSym)+iB
-      if (Stuff(iSym)%Unit(iaddr) < 1) then
+      if (Stuff(iSym)%Unt(iaddr) < 1) then
         call Cho_caspt2_GetBaseNm(BaseNm,iTyp)
         write(FullNm,'(A3,I1,I3)') BaseNm,iSym,iB
         LuV = 7 ! initial guess
         call daName_MF_WA(LuV,FullNm) ! handle inquire/free unit
-        Stuff(iSym)%Unit(iaddr) = LuV
+        Stuff(iSym)%Unt(iaddr) = LuV
         write(u6,*) ' Unit number LuV is stored at address ',iaddr
       end if
     end do
   else
     do iB=1,nBatch
       iaddr = (iTyp-1)*nIsplit(iSym)+iB
-      Stuff(iSym)%Unit(iaddr) = -1
+      Stuff(iSym)%Unt(iaddr) = -1
     end do
   end if
 else if (iOpt == 2) then
   do iB=1,nBatch
     iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    if (Stuff(iSym)%Unit(iaddr) > 0) then
-      write(u6,*) ' Closing lStuff=',Stuff(iSym)%Unit(iaddr)
-      call daClos(Stuff(iSym)%Unit(iaddr))
-      Stuff(iSym)%Unit(iaddr) = -1
+    if (Stuff(iSym)%Unt(iaddr) > 0) then
+      write(u6,*) ' Closing lStuff=',Stuff(iSym)%Unt(iaddr)
+      call daClos(Stuff(iSym)%Unt(iaddr))
+      Stuff(iSym)%Unt(iaddr) = -1
     end if
   end do
 else if (iOpt == 3) then
   do iB=1,nBatch
     iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    if (Stuff(iSym)%Unit(iaddr) > 0) then
-      write(u6,*) ' Erasing lStuff=',Stuff(iSym)%Unit(iaddr)
-      call daEras(Stuff(iSym)%Unit(iaddr))
-      Stuff(iSym)%Unit(iaddr) = -1
+    if (Stuff(iSym)%Unt(iaddr) > 0) then
+      write(u6,*) ' Erasing lStuff=',Stuff(iSym)%Unt(iaddr)
+      call daEras(Stuff(iSym)%Unt(iaddr))
+      Stuff(iSym)%Unt(iaddr) = -1
     end if
   end do
 else

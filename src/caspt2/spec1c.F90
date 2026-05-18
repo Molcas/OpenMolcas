@@ -23,14 +23,14 @@ subroutine SPEC1C(IFC,FACT,ISYM,X,nX,Y,nY)
 ! the conjugate expression (summing into Y, values from X).
 
 use SUPERINDEX, only: KTUV
-use caspt2_module, only: nTUV, nAsh, nAES, nTUVES, nAshT, nSsh
-use definitions, only: iwp, wp
+use caspt2_module, only: nAES, nAsh, nAshT, nSsh, nTUV, nTUVES
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IFC, ISYM, nX, nY
 real(kind=wp), intent(in) :: FACT
 real(kind=wp), intent(inout) :: X(nX), Y(nY)
-integer(kind=iwp) NAS, NT, NA, IT, ITQ, IUQ, ITUU
+integer(kind=iwp) :: IT, ITQ, ITUU, IUQ, NA, NAS, NT
 
 NA = NSSH(ISYM)
 if (NA <= 0) return

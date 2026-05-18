@@ -13,17 +13,16 @@
 
 subroutine CnstFIFAFIMO(MODE)
 
-use caspt2_global, only: TraFro, OLag, FIMO_all, FIFA_all, FIFASA_all
-use caspt2_global, only: FIMO, FIFA, CMOPT2
+use caspt2_global, only: CMOPT2, FIFA, FIFA_all, FIFASA_all, FIMO, FIMO_all, OLag, TraFro
+use caspt2_module, only: IfChol, IFDW, IFRMS, IFXMS, NBAS, NBSQT, NFRO, NFROT, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
 use Constants, only: Zero
-use caspt2_module, only: IfChol, IFXMS, IFRMS, IFDW, NSYM, NFRO, NFROT, NBAS, NBSQT
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: MODE
+integer(kind=iwp) :: iSQ, iSym, iTr, nBasI
 real(kind=wp), allocatable :: WRK1(:), WRK2(:)
-integer(kind=iwp) :: iSQ, iTr, iSym, nBasI
 
 if (IfChol) then
   !! For DF or CD, we already have FIFA and FIMO in AO,

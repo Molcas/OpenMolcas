@@ -13,14 +13,14 @@
 
 subroutine LoadCI_XMS(Bas,Mode,nConf,nState,CI,iState,U0)
 
-use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
+use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX
+use caspt2_module, only: IFRMS, IFXMS
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
-use caspt2_module, only: IFXMS, IFRMS
 use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=1), intent(in) :: Bas
+character, intent(in) :: Bas
 integer(kind=iwp), intent(in) :: Mode, nConf, nState, iState
 real(kind=wp), intent(inout) :: CI(Nconf)
 real(kind=wp), intent(in) :: U0(nState,nState)
@@ -45,7 +45,7 @@ contains
 subroutine READ_CI(iState,IDEX,nIDEX)
 
   integer(kind=iwp), intent(in) :: iState, nIDEX, IDEX(nIDEX)
-  integer(kind=iwp) :: ID, I
+  integer(kind=iwp) :: I, ID
   real(kind=wp), allocatable :: WRK(:)
 
   if ((Mode == 0) .or. ((.not. IFXMS) .and. (.not. IFRMS))) then

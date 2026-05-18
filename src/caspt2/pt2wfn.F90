@@ -14,39 +14,41 @@
 
 module pt2wfn
 
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
+private
 
-integer(kind=iwp) :: pt2wfn_id
+# ifdef _HDF5_
+integer(kind=iwp) :: pt2wfn_cicoef, pt2wfn_dens, pt2wfn_energy, pt2wfn_heff, pt2wfn_id, pt2wfn_mocoef, pt2wfn_occnum, &
+                     pt2wfn_orbene, pt2wfn_refene
+#endif
 logical(kind=iwp) :: pt2wfn_is_h5 = .false.
-integer(kind=iwp) :: pt2wfn_refene, pt2wfn_energy
-integer(kind=iwp) :: pt2wfn_mocoef, pt2wfn_occnum, pt2wfn_orbene
-integer(kind=iwp) :: pt2wfn_cicoef
-integer(kind=iwp) :: pt2wfn_heff
-integer(kind=iwp) :: pt2wfn_dens
+
+public :: pt2wfn_close, pt2wfn_data, pt2wfn_densstore, pt2wfn_estore, pt2wfn_init
 
 contains
 
 subroutine pt2wfn_init()
   ! SVC: Create a wavefunction file. If another .wfn file already
   ! exists, it will be overwritten.
+
+  use Molcas, only: MxAct
   use refwfn, only: refwfn_active
 # ifdef _HDF5_
   use refwfn, only: refwfn_is_h5
-  use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_str, mh5_create_dset_real, mh5_put_dset, mh5_close_dset
+  use mh5, only: mh5_close_dset, mh5_create_dset_real, mh5_create_dset_str, mh5_create_file, mh5_init_attr, mh5_put_dset
   use sguga, only: L2ACT, LEVEL
   use caspt2_global, only: do_grad
-  use stdalloc, only: mma_allocate, mma_deallocate
   use caspt2_module, only: DMRG, IfMix, IfMSCOUP, IfProp, iSpin, lRoots, mState, nActEl, nBas, nBasT, nBSqT, nConf, nDel, nDet, &
-                           nEle3, nFro, nHole1, nIsh, nRas1, nRas2, nRas3, nRas3T, nSsh, nState, nSym, Root2State, STSym, nOrb, &
-                           nRas1T
+                           nEle3, nFro, nHole1, nIsh, nOrb, nRas1, nRas1T, nRas2, nRas3, nRas3T, nSsh, nState, nSym, Root2State, &
+                           STSym
+  use stdalloc, only: mma_allocate, mma_deallocate
 # endif
-  use Molcas, only: MxAct
 
 # ifdef _HDF5_
-  integer(kind=iwp) :: dsetid, ndmat, i
-  character(len=1), allocatable :: typestring(:)
+  integer(kind=iwp) :: dsetid, i, ndmat
+  character, allocatable :: typestring(:)
 # endif
 
   if (refwfn_active) then
@@ -164,18 +166,19 @@ subroutine pt2wfn_init()
 # ifdef _HDF5_
   end if
 # endif
+
 end subroutine pt2wfn_init
 
 subroutine pt2wfn_data()
 
 # ifdef _HDF5_
   use mh5, only: mh5_put_dset
+  use caspt2_global, only: IDCIEX, LUCIEX, LUONEM, NCMO
+  use caspt2_module, only: DMRG, iAd1m, nConf, nState
   use stdalloc, only: mma_allocate, mma_deallocate
-  use caspt2_global, only: NCMO, LUCIEX, IDCIEX, LUONEM
-  use caspt2_module, only: DMRG, nConf, nState, iAd1m
 
   real(kind=wp), allocatable :: BUF(:)
-  integer(kind=iwp) :: ISTATE, IDISK
+  integer(kind=iwp) :: IDISK, ISTATE
 
   if (pt2wfn_is_h5) then
     if (.not. DMRG) then
@@ -195,6 +198,7 @@ subroutine pt2wfn_data()
     call mma_deallocate(BUF)
   end if
 # endif
+
 end subroutine pt2wfn_data
 
 subroutine pt2wfn_estore(Heff,nState)

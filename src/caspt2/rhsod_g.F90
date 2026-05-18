@@ -14,27 +14,27 @@
 subroutine RHSOD_G(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
-use constants, only: Half, OneHalf
-use SUPERINDEX, only: MAGEB, MAREL, MAGTB
-use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
-use caspt2_global, only: iPrGlb
+use SUPERINDEX, only: MAGEB, MAGTB, MAREL
+use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
 use fake_GA, only: GA_Arrays
 #endif
-use caspt2_module, only: NSYM, NASUP, NISUP, NISH, NAGEB, NAGEBES, NSSH, NAGTB, NAGTBES
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NISH, NISUP, NSSH, NSYM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Half, OneHalf
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+integer(kind=iwp) :: IA, IAABS, IAEND, IAGEC, IAGECTOT, IAGTC, IAGTCTOT, IAJ, IASTA, IAV, IC, ICABS, iCASE, ICJ, ICV, IDX, IIEND, &
+                     IISTA, IJ, IJAGEC, IJAGECEND, IJAGECSTA, IJAGTC, IJAGTCEND, IJAGTCSTA, IOBRA(8,8), IOFF, IOFFAJ, IOFFAV, &
+                     IOFFCJ, IOFFCV, IOKET(8,8), ISYA, ISYAC, ISYC, ISYJ, ISYM, ISYV, IV, lg_W, MW, NAC, NAS, NBRABUF, NIS, NJ, &
+                     NKETBUF, NV, NW
+real(kind=wp) :: AVCJ, CVAJ, GM, GP, SCL
 real(kind=wp), allocatable :: BRABUF(:), KETBUF(:)
-real(kind=wp), parameter :: SQRTH = sqrt(Half), SQRTA = sqrt(OneHalf)
-real(kind=wp) AVCJ, CVAJ, GM, GP, SCL
-integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, IA, IAABS, IAGEC, IAGECTOT, IAGTC, IAGTCTOT, IAJ, IAV, IC, &
-                  ICABS, iCASE, ICJ, ICV, IDX, IJ, IJAGEC, IJAGECEND, IJAGECSTA, IJAGTC, IJAGTCEND, IJAGTCSTA, IOFF, IOFFAJ, &
-                  IOFFAV, IOFFCJ, IOFFCV, ISYA, ISYAC, ISYC, ISYJ, ISYM, ISYV, IV, NAC, NBRABUF, NJ, NKETBUF, NV, NW
+real(kind=wp), parameter :: SQRTA = sqrt(OneHalf), SQRTH = sqrt(Half)
 real(kind=wp), external :: DDot_
 !logical Incore
 #ifdef _MOLCAS_MPP_

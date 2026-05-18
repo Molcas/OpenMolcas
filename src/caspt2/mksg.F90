@@ -22,17 +22,17 @@ subroutine MKSG(DREF,NDREF)
 ! Formula used:
 !    SG(t,x)= Dtx
 
-use definitions, only: iwp, wp
-use caspt2_global, only: LUSBT
 use EQSOLV, only: IDSMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: NAES, NASH, NINDEP, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NASH, NAES
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF
 real(kind=wp), intent(in) :: DREF(NDREF)
+integer(kind=iwp) :: ID, IDISK, ISG, ISYM, IT, ITABS, IX, IXABS, NAS, NINM, NINP, NSG
 real(kind=wp), allocatable :: SG(:)
-integer(kind=iwp) ISYM, NINP, NINM, NAS, NSG, IT, ITABS, IX, IXABS, ISG, ID, IDISK
 
 do ISYM=1,NSYM
   NINP = NINDEP(ISYM,10)

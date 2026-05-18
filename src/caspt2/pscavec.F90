@@ -20,19 +20,17 @@ subroutine PSCAVEC(FACT,IVEC,JVEC)
 ! Scale vector nr IVEC with scale factor FACT and put the result in
 ! vector nr JVEC: |JVEC> <- FACT * |IVEC>
 
-use constants, only: Zero, One
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: USUAL
-use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep, niSup
-use definitions, only: iwp, wp, u6
+use caspt2_module, only: CPUSCA, nCases, nInDep, niSup, nSym, TIOSCA
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: FACT
 integer(kind=iwp), intent(in) :: IVEC, JVEC
-real(kind=wp) :: CPU0, CPU1, CPU, TIO0, TIO1, TIO
-integer(kind=iwp) :: ICASE, ISYM, NIN, NIS
-integer(kind=iwp) :: lg_V
-real(kind=wp) :: SIGMA2
+integer(kind=iwp) :: ICASE, ISYM, lg_V, NIN, NIS
+real(kind=wp) :: CPU, CPU0, CPU1, SIGMA2, TIO, TIO0, TIO1
 real(kind=wp), external :: RHS_DDOT
 
 call TIMING(CPU0,CPU,TIO0,TIO)

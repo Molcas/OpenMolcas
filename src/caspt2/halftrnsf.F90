@@ -50,26 +50,21 @@ subroutine HALFTRNSF(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,JREDC,CMO,NCMO,ISTA
 !
 !********************************************************
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero
 use Symmetry_Info, only: Mul
-use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas, nDimRS, nnBstR, nSym
+use Cholesky, only: iBas, iiBstR, IndRed, InfVec, iRS2F, nBas, nDimRS, nnBstR, nSym
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(inout) :: irc
-integer(kind=iwp), intent(in) :: lscr
+integer(kind=iwp), intent(inout) :: irc, JREDC
+integer(kind=iwp), intent(in) :: lscr, jVref, JVEC1, JNUM, NUMV, JSYM, NCMO, ISTART(8), NUSE(8), ipChoT(8), nWork
 real(kind=wp), intent(inout) :: Scr(lscr)
-integer(kind=iwp), intent(in) :: jVref, JVEC1, JNUM, NUMV, JSYM, NCMO
-integer(kind=iwp), intent(inout) :: JREDC
 real(kind=wp), intent(in) :: CMO(NCMO)
-integer(kind=iwp), intent(in) :: ISTART(8), NUSE(8), ipChoT(8), nWork
 real(kind=wp), intent(out) :: Work(nWork)
-integer(kind=iwp) IOFFC(8)
+integer(kind=iwp) :: iag, ias, ibg, ibs, IOC, IOFFC(8), iRab, ISCA, ISCB, ISYM, iSyma, iSymb, iSymp, jRab, JRED, JVEC, JVTRNS, &
+                     kchot, kRab, kscr, NBA, NBB, nElem, NREAD, NUSEA, NUSEB
 integer(kind=iwp), external :: cho_isao
-! iLoc = 3 means 'use scratch location in reduced index arrays'
-integer(kind=iwp), parameter :: iLoc = 3
-integer(kind=iwp) IOC, ISYM, iSymp, nElem, NREAD, JVEC, JVTRNS, JRED, iag, ias, ibg, ibs, iRab, ISCA, ISCB, iSyma, iSymb, jRab, &
-                  kchot, kRab, kscr, NBA, NBB, NUSEA, NUSEB
+integer(kind=iwp), parameter :: iLoc = 3 ! this means 'use scratch location in reduced index arrays'
 
 ! Offset counter into CMO array:
 IOC = 0

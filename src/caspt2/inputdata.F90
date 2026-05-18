@@ -11,82 +11,77 @@
 ! Copyright (C) Steven Vancoillie                                      *
 !***********************************************************************
 
-#include "compiler_features.h"
-
 module InputData
 !SVC: this module contains a data structure to keep all input variables.
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use constants, only: Zero, One
-use definitions, only: wp, iwp, u6
+use Data_Structures, only: Alloc1DiArray_Type
 use fciqmc_interface, only: DoFCIQMC, NonDiagonal, TransformToNormalOrder
 use fortran_strings, only: str
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
-type States
-  integer(kind=iwp), allocatable :: State(:)
-end type
-
 type InputTable
-  ! TITL      one line with a descriptive name
+  ! TITL  one line with a descriptive name
   character(len=128) :: Title = ' '
-  ! FILE      file to read CAS/RAS reference from
+  ! FILE  file to read CAS/RAS reference from
   character(len=128) :: File = 'JOBIPH'
-  ! MULT      the number of states, followed by the ID of each state
+  ! MULT  the number of states, followed by the ID of each state
   logical(kind=iwp) :: MULT = .false.
   integer(kind=iwp) :: nMultState = 0
-  type(States) :: MultGroup
+  type(Alloc1DiArray_Type) :: MultGroup
   logical(kind=iwp) :: AllMult = .false.
-  ! XMUL      extended multi-state caspt2
+  ! XMUL  extended multi-state caspt2
   logical(kind=iwp) :: XMUL = .false.
   integer(kind=iwp) :: nXMulState = 0
-  type(States) :: XMulGroup
+  type(Alloc1DiArray_Type) :: XMulGroup
   logical(kind=iwp) :: AllXMult = .false.
-  ! RMUL      rotated multi-state caspt2
+  ! RMUL  rotated multi-state caspt2
   logical(kind=iwp) :: RMUL = .false.
   integer(kind=iwp) :: nRMulState = 0
-  type(States) :: RMulGroup
+  type(Alloc1DiArray_Type) :: RMulGroup
   logical(kind=iwp) :: AllRMult = .false.
-  ! DWMS      use dynamical weighting to construct Fock
+  ! DWMS  use dynamical weighting to construct Fock
   logical(kind=iwp) :: DWMS = .false.
   integer(kind=iwp) :: DWType = -1
   real(kind=wp) :: ZETA = One
-  ! LROO      compute only a single root, mutually exclusive with both MULT or XMUL
+  ! LROO  compute only a single root, mutually exclusive with both MULT or XMUL
   logical(kind=iwp) :: LROO = .false.
   integer(kind=iwp) :: SingleRoot = 0
-  ! RLXR      root for which the gradient is computed
+  ! RLXR  root for which the gradient is computed
   integer(kind=iwp) :: RlxRoot = -1
 
-  ! IPEA      the IPEA shift
+  ! IPEA  the IPEA shift
   logical(kind=iwp) :: IPEA = .false.
   real(kind=wp) :: ipea_shift = Zero
-  ! IMAG      the imaginary level shift
+  ! IMAG  the imaginary level shift
   real(kind=wp) :: imag_shift = Zero
-  ! SHIF      the real level shift
+  ! SHIF  the real level shift
   real(kind=wp) :: real_shift = Zero
-  ! SIG1      sigma-1 regularization
+  ! SIG1  sigma-1 regularization
   real(kind=wp) :: sigma_1_epsilon = Zero
-  ! SIG2      sigma-2 regularization
+  ! SIG2  sigma-2 regularization
   real(kind=wp) :: sigma_2_epsilon = Zero
 
   ! several freeze-delete schemes, each of these should active
   ! the general flag below, to indicate additional conversion is
   ! needed on the input orbitals
   logical(kind=iwp) :: modify_correlating_MOs = .false.
-  ! AFRE      freeze orbitals that do not have sufficient density on specified 'active' atoms
+  ! AFRE  freeze orbitals that do not have sufficient density on specified 'active' atoms
   logical(kind=iwp) :: aFreeze = .false.
   integer(kind=iwp) :: lnFro = 0
   real(kind=wp) :: ThrFr = Zero, ThrDe = Zero
   character(len=4), allocatable :: NamFro(:)
-  ! LOVC      freeze orbitals that are not localized no the active site
+  ! LOVC  freeze orbitals that are not localized no the active site
   logical(kind=iwp) :: LovCASPT2 = .false.
   real(kind=wp) :: Thr_Atm = Zero
-  ! FNOC      delete a fraction of virtual orbitals
+  ! FNOC  delete a fraction of virtual orbitals
   logical(kind=iwp) :: FnoCASPT2 = .false.
   real(kind=wp) :: VFrac = Zero
-  ! RegFNO    FNO regularization parameter
+  ! RegFNO  FNO regularization parameter
   real(kind=wp) :: RegFNO = Zero
   ! DOMP
   logical(kind=iwp) :: doMP2 = .false.
@@ -94,123 +89,127 @@ type InputTable
   logical(kind=iwp) :: doEnv = .false.
   ! VIRA
   logical(kind=iwp) :: VIRA = .false.
-  ! GHOS      excludes ghost orbitals from the PT2 treatment
+  ! GHOS  excludes ghost orbitals from the PT2 treatment
   logical(kind=iwp) :: GhostDelete = .false.
   real(kind=wp) :: ThrGD = Zero
 
-  ! FROZ      number of frozen orbitals in each irrep
+  ! FROZ  number of frozen orbitals in each irrep
   logical(kind=iwp) :: FROZ = .false.
   integer(kind=iwp), allocatable :: nFro(:)
-  ! DELE      number of deleted orbitals in each irrep
+  ! DELE  number of deleted orbitals in each irrep
   logical(kind=iwp) :: DELE = .false.
   integer(kind=iwp), allocatable :: nDel(:)
-  ! DENS      computes full density matrix from the 1st-order wavefunction
+  ! DENS  computes full density matrix from the 1st-order wavefunction
   logical(kind=iwp) :: DENS = .false.
-  ! RFPE      make a perturbative reaction field calculation
+  ! RFPE  make a perturbative reaction field calculation
   logical(kind=iwp) :: RFPert = .false.
-  ! THRE      thresholds for removal of:
-  !   ThrsHN    zero-norm components in the first-order perturbed
-  !             wave function
-  !   ThrsHS    linear dependencies between components of the first-
-  !             order perturbed wave function
+  ! THRE  thresholds for removal of:
+  !   ThrsHN  zero-norm components in the first-order perturbed
+  !           wave function
+  !   ThrsHS  linear dependencies between components of the first-
+  !           order perturbed wave function
   logical(kind=iwp) :: THRE = .false.
   real(kind=wp) :: ThrsHN = 1.0e-10_wp, ThrsHS = 1.0e-8_wp
-  ! MAXI      maximum number of iterations for solving a system of
-  !           linear equations, default 20. A 0 indicates: use of
-  !           the diagonal zeroth order hamiltonian
+  ! MAXI  maximum number of iterations for solving a system of
+  !       linear equations, default 20. A 0 indicates: use of
+  !       the diagonal zeroth order hamiltonian
   integer(kind=iwp) :: maxIter = 20
-  ! Conv      convergence criteria for solving a system of linear equations
+  ! Conv  convergence criteria for solving a system of linear equations
   real(kind=wp) :: ThrConv = 1.0e-6_wp
-  ! NOMI      do not create an PM-CAS wavefunction file (JobMix)
+  ! NOMI  do not create an PM-CAS wavefunction file (JobMix)
   logical(kind=iwp) :: NoMix = .false.
-  ! NOMU      do not perform a multistate interaction
+  ! NOMU  do not perform a multistate interaction
   logical(kind=iwp) :: noMult = .false.
-  ! ONLY      in a MS calculation, compute a single root with couplings to the other roots
+  ! ONLY  in a MS calculation, compute a single root with couplings to the other roots
   integer(kind=iwp) :: OnlyRoot = 0
-  ! EFFE      read Heff coupling terms from the input and perform only the multistate part
+  ! EFFE  read Heff coupling terms from the input and perform only the multistate part
   logical(kind=iwp) :: JMS = .false.
   real(kind=wp), allocatable :: Heff(:,:)
-  ! NOOR      do not print orbitals
+  ! NOOR  do not print orbitals
   logical(kind=iwp) :: PrOrb = .true.
-  ! PROP      compute properties
-  ! NOPR      do not compute properties
+  ! PROP  compute properties
+  ! NOPR  do not compute properties
   logical(kind=iwp) :: Properties = .false.
   ! transformation of reference (input) orbitals
-  ! NOTR      do not transform to quasi-canonical orbitals,
-  !           regardless of the state of the reference orbitals
-  ! TRAN      transform to quasi-canonical orbitals, regardless
-  !           of the state of the reference orbitals
+  ! NOTR  do not transform to quasi-canonical orbitals,
+  !       regardless of the state of the reference orbitals
+  ! TRAN  transform to quasi-canonical orbitals, regardless
+  !       of the state of the reference orbitals
   ! the default is to use transformation, unless the PT2 keyword
   ! was used in the rasscf program and the fock matrix is standard
   character(len=8) :: OrbIn = 'TRANSFOR'
-  ! OFEM      add orbital-free embedding potential to hamiltonian
+  ! OFEM  add orbital-free embedding potential to hamiltonian
   logical(kind=iwp) :: OFEmbedding = .false.
-  ! OUTP      control extent of orbital printing
+  ! OUTP  control extent of orbital printing
   character(len=8) :: OutFormat = 'DEFAULT '
-  ! PRWF      print the CI coefficients above this threshold
+  ! PRWF  print the CI coefficients above this threshold
   real(kind=wp) :: PrWF = 0.05_wp
-  ! PRSD      print the determinant expansion of CSFs
+  ! PRSD  print the determinant expansion of CSFs
   logical(kind=iwp) :: PrSD = .false.
+  ! PRHS  Parallel strategy for RHS construction
+  !       '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
+  character(len=7) :: PRHS = 'DEFAULT'
+
+  ! DMRG-related keywords
+  ! CUMU
+  logical(kind=iwp) :: doCumulant = .false.
+  ! DMRG  DMRG-CASPT2 using QCMaquis
+  logical(kind=iwp) :: DMRG = .false.
+
+  ! Gradient-related keywords
+  ! SADREF  use state-averaged density even for SS-CASPT2 with
+  !         SA-CASSCF reference and MS-CASPT2 (not XMS)
+  logical(kind=iwp) :: SADREF = .false.
+  ! DORT  use the conventional (canonical) orthonormalization for generating
+  !       internally contracted basis, rather than scaled (?)
+  !       procedure by the diagonal element. This option is
+  !       'sometimes' needed for analytic gradient.
+  logical(kind=iwp) :: DORTHO = .false.
+  ! GRDT  used for single-point gradient calculation
+  logical(kind=iwp) :: GRDT = .false.
+  ! NAC  compute NAC or interstate coupling vectors
+  logical(kind=iwp) :: NAC = .false.
+  integer(kind=iwp) :: iNACRoot1 = 0, iNACRoot2 = 0
 
   ! UNDOCUMENTED KEYWORDS
   ! CHOL
   logical(kind=iwp) :: Chol = .false.
   ! CHOI
   logical(kind=iwp) :: Choi = .false.
-  ! WTHR      thresholds for writing large components in the
-  !           first-order perturbed wave function, 3 values that
-  !           are for denominator, coefficient, and energy
+  ! WTHR  thresholds for writing large components in the
+  !       first-order perturbed wave function, 3 values that
+  !       are for denominator, coefficient, and energy
   real(kind=wp) :: DnmThr = 0.3_wp, CmpThr = 0.025_wp, CntThr = 0.005_wp
-  ! FOCK      string representing the type of Fock matrix
+  ! FOCK  string representing the type of Fock matrix
   character(len=8) :: FockType = 'STANDARD'
-  ! HZER      string representing the type of 0-order hamiltonian
+  ! HZER  string representing the type of 0-order hamiltonian
   character(len=8) :: Hzero = 'STANDARD'
-  ! G1SE      include secondary/inactive elements of the exchange
-  !           matrix in the g1 modification to the fock matrix
+  ! G1SE  include secondary/inactive elements of the exchange
+  !       matrix in the g1 modification to the fock matrix
   logical(kind=iwp) :: G1SecIn = .false.
-  ! RHSD      use the RHS-ondemand algorithm for the calculation of the right-hand side
+  ! RHSD  use the RHS-ondemand algorithm for the calculation of the right-hand side
   logical(kind=iwp) :: RHSD = .false.
-  ! CUMU
-  logical(kind=iwp) :: doCumulant = .false.
-  ! DMRG      DMRG-CASPT2 using QCMaquis
-  logical(kind=iwp) :: DMRG = .false.
-  ! Compress MPS for (t)3-RDM computation to bond dimension given by CompressMPD
+  ! CompressMPS  for (t)3-RDM computation to bond dimension given by CompressMPD
   integer(kind=iwp) :: CompressMPS = 0
-  ! SADREF    use state-averaged density even for SS-CASPT2 with
-  !           SA-CASSCF reference and MS-CASPT2 (not XMS)
-  logical(kind=iwp) :: SADREF = .false.
-  ! DORT      use the conventional (canonical) orthonormalization for generating
-  !           internally contracted basis, rather than scaled (?)
-  !           procedure by the diagonal element. This option is
-  !           'sometimes' needed for analytic gradient.
-  logical(kind=iwp) :: DORTHO = .false.
-  ! INVAR     specify the CASPT2 energy is invariant wrt active
-  !           orbital rotations. This is automatically set for
-  !           the case with IPEA shift. Otherwise, just for debug
-  !           purpose
+  ! INVAR  specify the CASPT2 energy is invariant wrt active
+  !        orbital rotations. This is automatically set for
+  !        the case with IPEA shift. Otherwise, just for debug
+  !        purpose
   logical(kind=iwp) :: INVAR = .true.
-  ! CVIN      Convergence threshold for non-invariant CASPT2 equation
+  ! CVIN  Convergence threshold for non-invariant CASPT2 equation
   real(kind=wp) :: ThrConvInvar = 1.0e-07_wp
-  ! GRDT      used for single-point gradient calculation
-  logical(kind=iwp) :: GRDT = .false.
-  ! NAC       compute NAC or interstate coupling vectors
-  logical(kind=iwp) :: NAC = .false.
-  integer(kind=iwp) :: iNACRoot1 = 0, iNACRoot2 = 0
-  ! CSF       compute CSF contributions in derivative coupling
+  ! CSF  compute CSF contributions in derivative coupling
   logical(kind=iwp) :: CSF = .true.
-  ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
-  !           and secondary orbital rotations. Development purpose
+  ! IAINVAR  specify the CASPT2 energy is invariant wrt inactive
+  !          and secondary orbital rotations. Development purpose
   logical(kind=iwp) :: IAINVAR = .true.
-  ! PRHS      Parallel strategy for RHS construction
-  !           '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
-  character(len=7) :: PRHS = 'DEFAULT'
 
 end type ! end of type InputTable
 
 ! Define the Input as an InputTable structure
 type(InputTable), allocatable :: Input
 
-public :: Input, readin_CASPT2, CleanUp_Input
+public :: CleanUp_Input, Input, readin_CASPT2
 
 contains
 
@@ -223,16 +222,14 @@ subroutine readin_CASPT2(LuIn,nSym)
   use text_file, only: extend_line, next_non_comment
 
   integer(kind=iwp), intent(in) :: LuIn, nSym
-  character(len=:), allocatable :: dLine, Line
-  character(len=4) :: Command, Word
-  integer(kind=iwp) :: i, j, iSym
-  integer(kind=iwp) :: nStates = 0
-  integer(kind=iwp) :: iSplit, iError
-
+  integer(kind=iwp) :: i, iError, iSplit, iSym, j, nStates
 # ifdef _ENABLE_CHEMPS2_DMRG_
   logical(kind=iwp) :: dochemps2 = .false.
 # endif
+  character(len=4) :: Command, Word
+  character(len=:), allocatable :: dLine, Line
 
+  nStates = 0
   ! even if SCF was performed with FCIQMC, stochastic CASPT2 requires manual invocation.
   DoFCIQMC = .false.
   ! User needs to specify that they do not want to sample in pseudo-canonical orbitals.
@@ -282,14 +279,14 @@ subroutine readin_CASPT2(LuIn,nSym)
           if (iError /= 0) call IOError(Line)
           if (nStates <= 0) call MultError(Line)
         end if
-        call mma_allocate(Input%MultGroup%State,nStates,label='MultGroup')
+        call mma_allocate(Input%MultGroup%A,nStates,label='MultGroup')
         Input%nMultState = nStates
         iSplit = scan(Line,' ')
         call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line(iSplit:)
         iError = -1
         do while (iError < 0)
-          read(dLine,*,iostat=iError) (Input%MultGroup%State(i),i=1,nStates)
+          read(dLine,*,iostat=iError) (Input%MultGroup%A(i),i=1,nStates)
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -311,14 +308,14 @@ subroutine readin_CASPT2(LuIn,nSym)
           if (iError /= 0) call IOError(Line)
           if (nStates <= 1) call StatesError(Line)
         end if
-        call mma_allocate(Input%XMulGroup%State,nStates,label='XMulGroup')
+        call mma_allocate(Input%XMulGroup%A,nStates,label='XMulGroup')
         Input%nXMulState = nStates
         iSplit = scan(Line,' ')
         call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line(iSplit:)
         iError = -1
         do while (iError < 0)
-          read(dLine,*,iostat=iError) (Input%XMulGroup%State(i),i=1,nStates)
+          read(dLine,*,iostat=iError) (Input%XMulGroup%A(i),i=1,nStates)
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -340,14 +337,14 @@ subroutine readin_CASPT2(LuIn,nSym)
           if (iError /= 0) call IOError(Line)
           if (nStates <= 1) call StatesError(Line)
         end if
-        call mma_allocate(Input%RMulGroup%State,nStates,label='RMulGroup')
+        call mma_allocate(Input%RMulGroup%A,nStates,label='RMulGroup')
         Input%nRMulState = nStates
         iSplit = scan(Line,' ')
         call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line(iSplit:)
         iError = -1
         do while (iError < 0)
-          read(dLine,*,iostat=iError) (Input%RMulGroup%State(i),i=1,nStates)
+          read(dLine,*,iostat=iError) (Input%RMulGroup%A(i),i=1,nStates)
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -647,7 +644,7 @@ subroutine readin_CASPT2(LuIn,nSym)
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         read(Line,*,iostat=iError) Input%CompressMPS
         if (iError /= 0) call IOError(Line)
-#endif
+#     endif
 
       case ('FCIQ')
         DoFciQMC = .true.
@@ -797,9 +794,9 @@ end subroutine readin_CASPT2
 subroutine CleanUp_Input()
 
   if (allocated(Input)) then
-    call mma_deallocate(Input%MultGroup%State,safe='*')
-    call mma_deallocate(Input%XMulGroup%State,safe='*')
-    call mma_deallocate(Input%RMulGroup%State,safe='*')
+    call mma_deallocate(Input%MultGroup%A,safe='*')
+    call mma_deallocate(Input%XMulGroup%A,safe='*')
+    call mma_deallocate(Input%RMulGroup%A,safe='*')
     call mma_deallocate(Input%NamFro,safe='*')
     call mma_deallocate(Input%nFro,safe='*')
     call mma_deallocate(Input%nDel,safe='*')

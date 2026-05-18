@@ -21,25 +21,25 @@ subroutine ADD1HAM(H1EFF,nH1Eff)
 use RunFile_procedures, only: Get_dExcdRa
 use OFembed, only: Do_OFemb, FMAux, OFE_First
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
 use OneDat, only: sNoNuc, sNoOri
-use caspt2_module, only: ERFSelf, NBTRI, nSym, PotNuc, RFpert, nBas
-use constants, only: One
-use definitions, only: iwp, wp
+use caspt2_module, only: ERFSelf, nBas, NBTRI, nSym, PotNuc, RFpert
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use definitions, only: u6
+use Definitions, only: u6
 #endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nH1EFF
 real(kind=wp), intent(inout) :: H1EFF(nH1Eff)
-character(len=8) :: Label
-logical(kind=iwp) Found
-real(kind=wp), allocatable :: ONEHAM(:), Temp(:)
-integer(kind=iwp) ICOMP, IOPT, IRC, ISYLBL, iSym, nTemp
+integer(kind=iwp) :: ICOMP, IOPT, IRC, ISYLBL, iSym, nTemp
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) ISTLT
+integer(kind=iwp) :: ISTLT
 #endif
+logical(kind=iwp) :: Found
+character(len=8) :: Label
+real(kind=wp), allocatable :: ONEHAM(:), Temp(:)
 #ifdef _OFEmbed_
 real(kind=wp), allocatable :: Coul(:)
 #endif

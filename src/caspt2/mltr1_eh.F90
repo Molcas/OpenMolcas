@@ -14,16 +14,14 @@ subroutine MLTR1_EH(IMLTOP,LST1,X,NAS1,NIS1,JXOFF,F,NFT,NFA,Y,NAS2,jYLo,jYHi)
 ! for the H case.  The chunks span all rows (NAS2) and columns jYlo to
 ! jYHi. The array Y points to the beginning of a chunk.
 
-use definitions, only: iwp, wp
-use Sigma_data, only: NLST1, INCX3, VAL1
+use Sigma_data, only: INCX3, NLST1, VAL1
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IMLTOP, NAS1, NIS1, JXOFF, NFT, NFA, NAS2, jYLo, jYHi
-real(kind=wp), intent(inout) :: X(NAS1,NIS1), Y(NAS2,jYHi-jYLo+1)
-real(kind=wp), intent(inout) :: F(NFT,NFA)
-integer(kind=iwp), intent(in) :: LST1(4,NLST1)
-integer(kind=iwp) NA, ILST, L1, L2, L3, L4, JX, I, J, NI
-real(kind=wp) V, A
+integer(kind=iwp), intent(in) :: IMLTOP, LST1(4,NLST1), NAS1, NIS1, JXOFF, NFT, NFA, NAS2, jYLo, jYHi
+real(kind=wp), intent(inout) :: X(NAS1,NIS1), F(NFT,NFA), Y(NAS2,jYHi-jYLo+1)
+integer(kind=iwp) :: I, ILST, J, JX, L1, L2, L3, L4, NA, NI
+real(kind=wp) :: A, V
 real(kind=wp), external :: DDot_
 
 select case (IMLTOP)

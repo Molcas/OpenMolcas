@@ -15,12 +15,12 @@ subroutine prettyprint(A,N,M)
 ! This subroutine pretty prints the NxM matrix A
 
 use caspt2_module, only: mState
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: N, M
 real(kind=wp), intent(in) :: A(N,M)
-integer(kind=iwp) i, j, jStart, jEnd
+integer(kind=iwp) :: i, j, jEnd, jStart
 
 do jStart=1,N,5
   jEnd = min(jStart+4,N)

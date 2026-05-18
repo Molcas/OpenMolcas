@@ -24,23 +24,22 @@
 !***********************************************************************
 
 subroutine RHS_SAVE(NIN,NIS,lg_W,iCASE,iSYM,iVEC)
-
-use definitions, only: iwp
 !SVC: this routine reads an RHS array in SR format from disk
 
+use fake_GA, only: GA_Arrays
+use caspt2_global, only: LURHS
+use caspt2_module, only: IOFFRHS
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use definitions, only: u6
+use Definitions, only: u6
 #endif
-use caspt2_global, only: LURHS
-use fake_GA, only: GA_Arrays
-use caspt2_module, only: IOFFRHS
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NIN, NIS, lg_W, iCASE, iSYM, iVEC
-integer(kind=iwp) IDISK, NW
+integer(kind=iwp) :: IDISK, NW
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) myRank, ISTA, IEND, JSTA, JEND, mpt_W, LDW, NWPROC
+integer(kind=iwp) :: IEND, ISTA, JEND, JSTA, LDW, mpt_W, myRank, NWPROC
 #include "global.fh"
 #include "mafdecls.fh"
 

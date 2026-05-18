@@ -12,32 +12,28 @@
 subroutine setup_cho(nSym,nIsh,nAsh,nSsh,NumCho,mode)
 ! -------------------------
 ! This subroutine uses the input variables to compute
-! Stuff(:)%Unit(:), Stuff(:)%ip(:), Stuff(:)%np(:), Stuff%sp(:)
+! Stuff(:)%Unt(:), Stuff(:)%ip(:), Stuff(:)%np(:), Stuff(:)%sp(:)
 ! nisplit, nasplit,lsplit, each dimensioned (1:nsym),
 ! in module chocaspt2,
-! and allocates fields %Unit(:), %np(:), and %sp(:)
+! and allocates fields %Unt(:), %np(:), and %sp(:)
 ! each with sizes lsplit(1:nsym), and
 ! %ip(:), with teh sizes nsym*lsplit(1:nsym)
 ! -------------------------
 
 use Symmetry_Info, only: Mul
-use stdalloc, only: mma_MaxDBLE
-use ChoCASPT2, only: Stuff, lsplit, nisplit, nasplit, nksh, nkes, npsh, npes
-use stdalloc, only: mma_allocate, mma_deallocate
-use constants, only: Two
-use definitions, only: iwp, wp, u6
+use ChoCASPT2, only: nasplit, nisplit, nksh, npsh, Stuff
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
+use Constants, only: Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nIsh(nSym), nAsh(nSym), nSsh(nSym)
-integer(kind=iwp), intent(in) :: NumCho(nSym)
-character(len=*), intent(in) :: mode
-integer(kind=iwp) iAorb(8), iIorb(8), iKorb(8)
-character(len=4) modecopy
+integer(kind=iwp), intent(in) :: nSym, nIsh(nSym), nAsh(nSym), nSsh(nSym), NumCho(nSym)
+character(len=4), intent(in) :: mode
+integer(kind=iwp) :: I, iAorb(8), IfTest, iIorb(8), iK, iK1, iK2, iKorb(8), ioff, iS, iSP, iSym, iw, J, jfrac, jIAc, jS, jSym, &
+                     kEnd, kEndSym, kFrac, kS, kSta, kStaSym, lS, lsplit(8), mDiff, Mem1, MemMx, mRHS, nA, nAO, nI, nIAc, nIO, &
+                     nKsp, nkSum, nMin, nO, nOkrb, nOrb, nP, nPMax, nPOrb, npSum, nS
+real(kind=wp) :: xmb, xMemMx
 integer(kind=iwp), external :: cho_irange
-integer(kind=iwp) I, J, IfTest, iK, iK1, iK2, ioff, iS, iSP, iSym, iw, jfrac, jIAc, jS, jSym, kEnd, kEndSym, kFrac, kS, kSta, &
-                  kStaSym, lS, mDiff, Mem1, MemMx, mRHS, nA, nAO, nI, nIAc, nIO, nKsp, nkSum, nMin, nO, nOkrb, nOrb, nP, nPMax, &
-                  nPOrb, npSum, nS
-real(kind=wp) xmb, xMemMx
 
 #ifdef _DEBUGPRINT_
 IFTEST = 1
@@ -45,12 +41,10 @@ IFTEST = 1
 IFTEST = 0
 #endif
 
-modecopy = mode(1:4)
-call UpCase(modecopy)
-if (modecopy == 'FREE') then
+if (mode == 'FREE') then
   do jSym=1,nSym
     if (NumCho(jSym) > 0) then
-      call mma_deallocate(Stuff(jSym)%Unit)
+      call mma_deallocate(Stuff(jSym)%Unt)
       call mma_deallocate(Stuff(jSym)%ip)
       call mma_deallocate(Stuff(jSym)%np)
       call mma_deallocate(Stuff(jSym)%sp)
@@ -64,14 +58,12 @@ do i=1,8
   nisplit(i) = 0
   nasplit(i) = 0
   nksh(i) = 0
-  nkes(i) = 0
   npsh(i) = 0
-  npes(i) = 0
 end do
 
 ! PAM07: New arrays: 'k shells' = inactive+active orbitals
 ! 'p shells' = active+secondary orbitals
-!  nksh(isym)= Nr of shells by symmetry, nkes=nr of k shells in Earlier Symmetries:
+!  nksh(isym)= Nr of shells by symmetry:
 nksum = 0
 npsum = 0
 do isym=1,nsym
@@ -80,8 +72,6 @@ do isym=1,nsym
   ns = nssh(isym)
   nksh(isym) = ni+na
   npsh(isym) = na+ns
-  nkes(isym) = nksum
-  npes(isym) = npsum
   nksum = nksum+nksh(isym)
   npsum = npsum+npsh(isym)
 end do
@@ -223,11 +213,11 @@ do jSym=1,nSym
   call mma_allocate(Stuff(jsym)%sp,lsplit(jSym),Label='%sp')
   call mma_allocate(Stuff(jsym)%np,lsplit(jSym),Label='%np')
   call mma_allocate(Stuff(jsym)%ip,nSym*lsplit(jSym),Label='%ip')
-  call mma_allocate(Stuff(jsym)%Unit,lsplit(jSym),Label='%Unit')
+  call mma_allocate(Stuff(jsym)%Unt,lsplit(jSym),Label='%Unt')
   do i=1,lsplit(jSym)
     Stuff(jSym)%sp(i) = 0
     Stuff(jSym)%np(i) = 0
-    Stuff(jSym)%Unit(i) = 0
+    Stuff(jSym)%Unt(i) = 0
     do j=1,nsym
       Stuff(jsym)%ip(j+nsym*(i-1)) = 0
     end do

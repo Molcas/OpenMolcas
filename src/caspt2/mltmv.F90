@@ -34,17 +34,16 @@ subroutine MLTMV(IMLTOP,LST1,nLST1,X,nX,F,nF,Y,nY)
 ! X(1+INCX1*(p-1)+INCX2*(q-1)+INCX3*(r-1)), etc.
 
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: MyRank, nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
 #endif
-use Sigma_data, only: INCF1, INCF2, INCX1, INCY2, INCY3, LEN1, LEN2, NFMV, VAL1, INCY1, INCX2
-use definitions, only: iwp, wp
+use Sigma_data, only: INCF1, INCF2, INCX1, INCX2, INCY1, INCY2, INCY3, LEN1, LEN2, NFMV, VAL1
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IMLTOP, nLST1, nX, nF, nY
+integer(kind=iwp), intent(in) :: IMLTOP, nLST1, LST1(4,NLST1), nX, nF, nY
 real(kind=wp), intent(inout) :: X(nX), F(nF), Y(nY)
-integer(kind=iwp), intent(in) :: LST1(4,NLST1)
-integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST1, L1, L2, L3, L4, I, IF, IX, IY
-real(kind=wp) A, V
+integer(kind=iwp) :: I, I_F, ILST1, ILST1_IOFF, ILST1_SKIP, IX, IY, L1, L2, L3, L4
+real(kind=wp) :: A, V
 real(kind=wp), external :: DDot_
 
 !SVC: determine outer loop properties
@@ -69,12 +68,12 @@ select case (IMLTOP)
       L4 = LST1(4,ILST1)
       V = VAL1(L4)
       IX = INCX1*(L1-1)+1
-      IF = INCF1*(L2-1)+1
-      if ((IF < 1) .or. (IF > nF)) cycle
+      I_F = INCF1*(L2-1)+1
+      if ((I_F < 1) .or. (I_F > nF)) cycle
       IY = INCY1*(L3-1)+1
       ! X(L1,i) := Add V*F(L2,a)*Y(L3,i,a), i=1..LEN1, a=1..LEN2
       do I=1,LEN1
-        X(IX) = X(IX)+V*DDOT_(LEN2,F(IF),INCF2,Y(IY),INCY3)
+        X(IX) = X(IX)+V*DDOT_(LEN2,F(I_F),INCF2,Y(IY),INCY3)
         IX = IX+INCX2
         IY = IY+INCY2
       end do
@@ -87,15 +86,15 @@ select case (IMLTOP)
       L4 = LST1(4,ILST1)
       V = VAL1(L4)
       IX = INCX1*(L1-1)+1
-      IF = INCF1*(L2-1)+1
-      if ((IF < 1) .or. (IF > nF)) cycle
+      I_F = INCF1*(L2-1)+1
+      if ((I_F < 1) .or. (I_F > nF)) cycle
       IY = INCY1*(L3-1)+1
       ! or Y(L3,i,a):= Add V*F(L2,a)*X(L1,i), i=1..LEN1, a=1..LEN2
       do I=1,LEN2
-        A = V*F(IF)
+        A = V*F(I_F)
         call DAXPY_(LEN1,A,X(IX),INCX2,Y(IY),INCY2)
         IY = IY+INCY3
-        IF = if+INCF2
+        I_F = I_F+INCF2
       end do
     end do
   case default
@@ -106,13 +105,13 @@ select case (IMLTOP)
       L4 = LST1(4,ILST1)
       V = VAL1(L4)
       IX = INCX1*(L1-1)+1
-      IF = INCF1*(L2-1)+1
-      if ((If < 1) .or. (If > nF)) cycle
+      I_F = INCF1*(L2-1)+1
+      if ((I_F < 1) .or. (I_F > nF)) cycle
       IY = INCY1*(L3-1)+1
       ! F(L2,a) := Add V*X(L1,i)*Y(L3,i,a)
       do I=1,LEN1
         A = V*X(IX)
-        call DAXPY_(LEN2,A,Y(IY),INCY3,F(If),INCF2)
+        call DAXPY_(LEN2,A,Y(IY),INCY3,F(I_F),INCF2)
         IX = IX+INCX2
         IY = IY+INCY2
       end do

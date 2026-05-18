@@ -59,58 +59,35 @@
 subroutine MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
 
 use Symmetry_Info, only: Mul
-use caspt2_global, only: iPrGlb
 use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
-use caspt2_global, only: do_grad, nbuf1_grad, nStpGrd, iTasks_grad, nTasks_grad
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga, only: CIS, SGS, L2ACT, EXS
-use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-use Definitions, only: RtoB
-use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, EPSA
-use caspt2_module, only: MxCI
-use Molcas, only: MxLev
-use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
-use constants, only: Zero, One
-use definitions, only: iwp, wp, u6, Byte
+use sguga, only: CIS, EXS, L2ACT, SGS
+use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
+use caspt2_module, only: EPSA, MxCI, nActEl, nAshT, nBasT, nSym, STSym
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, byte, RtoB
 
 implicit none
 logical(kind=iwp), intent(in) :: mkF
-integer(kind=iwp), intent(in) :: nCI, NLEV
-integer(kind=iwp), intent(in) :: nG1, nG2
-integer(kind=iwp), intent(inout) :: nG3
+integer(kind=iwp), intent(in) :: nCI, NLEV, nG1, nG2
 real(kind=wp), intent(in) :: CI(nCI)
-real(kind=wp), intent(out) :: G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp), intent(out) :: F1(NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp), intent(out) :: G3(nG3), F3(nG3)
-integer(kind=Byte), intent(out) :: idxG3(6,nG3)
-real(kind=wp) DG1, DG2, DG3, DF1, DF2, DF3
-real(kind=wp) F1SUM, F2SUM
-integer(kind=iwp) I, J, IDX, JDX
-integer(kind=iwp) IB, IBMN, IBMX, IBUF, NB, NBTOT, IBUF1
-integer(kind=iwp) IP1, IP2, IP3, IP1MN, IP1MX, IP1I, IP1STA, IP1END, IP3MX, IQ1
-integer(kind=iwp) IG3, IG3OFF
-integer(kind=iwp) ISTU, ISVX, ISYZ
-integer(kind=iwp) IT, IU, IV, IX, IY, IZ
-integer(kind=iwp) ITLEV, IULEV, IVLEV, IXLEV, IYLEV, IZLEV
-integer(kind=iwp) NBUF1
-integer(kind=iwp) IOFFSET
-integer(kind=iwp) ISSG1, ISSG2, ISP1
-integer(kind=iwp) ITASK, ISUBTASK, ID, NTASKS, NSUBTASKS, MXTASK, MYTASK, MYBUFFER
-integer(kind=iwp) NSGM1, NSGM2
-integer(kind=iwp) NTRI1, NTRI2
-integer(kind=iwp) MEMMAX, MEMMAX_SAFE
-integer(kind=iwp) NLEV2
+integer(kind=iwp), intent(inout) :: nG3
+real(kind=wp), intent(out) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV), G3(nG3), F3(nG3)
+integer(kind=byte), intent(out) :: idxG3(6,nG3)
+integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, IP1STA, IP2, &
+                     IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, &
+                     IXLEV, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, NLEV2, &
+                     NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
+real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3, F1SUM, F2SUM
+integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
+real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFR(:), BUFT(:)
 real(kind=wp), external :: DDOT_, DNRM2_
-! translation tables for levels i,j to and from pair indices idx
-integer(kind=iwp), allocatable :: IJ2IDX(:,:)
-integer(kind=iwp), allocatable :: IDX2IJ(:,:)
-integer(kind=iwp), allocatable :: ICNJ(:)
-integer(kind=iwp) IP1_BUF(MXLEV**2)
-! result buffer, maximum size is the largest possible ip1 range,
+
+! IJ2IDX, IDX2IJ, ICNJ, IP1_BUF: translation tables for levels i,j to and from pair indices idx
+! BUFR: result buffer, maximum size is the largest possible ip1 range,
 ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
-real(kind=wp) BUFR(MXLEV**2)
-real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
-integer(kind=iwp), allocatable :: TASKLIST(:,:)
 
 ! Put in zeroes. Recognize special cases:
 if (nlev == 0) return
@@ -215,6 +192,9 @@ if (iPrGlb >= VERBOSE) then
   write(u6,'(2X,A,F16.9,A)') ' memory avail: ',(memmax*RtoB)*1.0e-9_wp,' GB'
   write(u6,'(2X,A,F16.9,A)') ' memory used:  ',(((nbuf1+3)*MXCI)*RtoB)*1.0e-9_wp,' GB'
 end if
+
+call mma_allocate(ip1_buf,nlev2,Label='ip1_buf')
+call mma_allocate(bufr,nlev2,Label='bufr')
 
 !***********************************************************************
 !                                                                      *
@@ -585,6 +565,8 @@ NG3 = iG3OFF
 !                                                                      *
 !***********************************************************************
 
+call mma_deallocate(ip1_buf)
+call mma_deallocate(bufr)
 call mma_deallocate(TASKLIST)
 ! free CI buffers
 call mma_deallocate(BUF1)

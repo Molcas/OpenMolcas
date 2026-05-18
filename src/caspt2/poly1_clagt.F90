@@ -17,16 +17,16 @@ subroutine POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
 
 use sguga, only: SGS
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
 use caspt2_module, only: nConf
-use caspt2_module, only: MxCI, iAdr10, cLab10
+use caspt2_module, only: cLab10, iAdr10, MxCI
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), RDMEIG(*), Scal
 real(kind=wp), intent(inout) :: CLag1(*), CLag2(*)
+integer(kind=iwp) :: I, nLev
 real(kind=wp), allocatable :: SGM1(:)
-integer(kind=iwp) :: nLev, I
 
 nLev = SGS%nLev
 

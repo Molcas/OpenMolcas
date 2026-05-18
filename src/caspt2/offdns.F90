@@ -24,26 +24,20 @@ subroutine OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,nX1,X2,nX2,DPT2,nDPT2,Y,nY,LIST,M
 ! again with wave functions interchanged.
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use constants, only: Half, One, Two, Three, Six
-use EQSOLV, only: IFCOUP, NLIST, LLIST
-use Sigma_data, only: VAL1, VAL2, IFTEST, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, LEN2, NLST1, NLST2
-use caspt2_module, only: NSYM, NISUP, NASUP, NASH, NORB, NSSH, NISH, NIGEJ, NIGTJ, NAGEB, NAGTB, NTGEU, NTUV, NTGTU
+use EQSOLV, only: IFCOUP, LLIST, NLIST
+use Sigma_data, only: IFTEST, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, LEN2, NLST1, NLST2, VAL1, VAL2
+use caspt2_module, only: NAGEB, NAGTB, NASH, NASUP, NIGEJ, NIGTJ, NISH, NISUP, NORB, NSSH, NSYM, NTGEU, NTGTU, NTUV
+use Constants, only: One, Two, Three, Six, Half, OneHalf
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ISYM1, ICASE1, ISYM2, ICASE2
-integer(kind=iwp), intent(in) :: nX1, nX2, nY, nDPT2, mLIST
-real(kind=wp), intent(inout) :: X1(nX1), X2(nX2), Y(nY)
-real(kind=wp), intent(inout) :: DPT2(nDPT2)
-integer(kind=iwp), intent(in) :: LIST(mList)
-integer(kind=iwp) IOFDIT(8), IOFDIA(8), IOFDTA(8)
-integer(kind=iwp) IOFCD(8,8), IOFCEP(8,8), IOFCEM(8,8), IOFCGP(8,8), IOFCGM(8,8)
-! Various constants:
-real(kind=wp), parameter :: SQR2 = sqrt(Two), SQR3 = sqrt(Three), SQR6 = sqrt(Six), SQRI2 = One/SQR2, SQRI6 = One/SQR6, &
-                            SQR32 = SQR3*SQRI2
-integer(kind=iwp) ICD, ICEM, ICEP, ICGM, ICGP, IDIA, IDIT, IDJB, IDOFF, IDTA, IJSYM, IMLTOP, IOXIA, ISYM, ISYM12, ISYMA, ISYMAB, &
-                  ISYMB, ISYMI, ISYMIJ, ISYMJ, IX, IXIA, IXTA, IXTI, IY, JSYM, KOD, LLST1, LLST2, NA, NAS1, NAS2, NB, NI, NIS1, &
-                  NJ, NO, NT, NU
+integer(kind=iwp), intent(in) :: ISYM1, ICASE1, ISYM2, ICASE2, nX1, nX2, nY, nDPT2, mLIST, LIST(mList)
+real(kind=wp), intent(inout) :: X1(nX1), X2(nX2), DPT2(nDPT2), Y(nY)
+integer(kind=iwp) :: ICD, ICEM, ICEP, ICGM, ICGP, IDIA, IDIT, IDJB, IDOFF, IDTA, IJSYM, IMLTOP, IOFCD(8,8), IOFCEM(8,8), &
+                     IOFCEP(8,8), IOFCGM(8,8), IOFCGP(8,8), IOFDIA(8), IOFDIT(8), IOFDTA(8), IOXIA, ISYM, ISYM12, ISYMA, ISYMAB, &
+                     ISYMB, ISYMI, ISYMIJ, ISYMJ, IX, IXIA, IXTA, IXTI, IY, JSYM, KOD, LLST1, LLST2, NA, NAS1, NAS2, NB, NI, NIS1, &
+                     NJ, NO, NT, NU
+real(kind=wp), parameter :: SQR2 = sqrt(Two), SQR3 = sqrt(Three), SQR32 = sqrt(OneHalf), SQRI2 = sqrt(Half), SQRI6 = One/sqrt(Six)
 
 NA = 0 ! dummy initialize
 

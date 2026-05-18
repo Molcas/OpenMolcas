@@ -14,17 +14,17 @@ subroutine TRANSFOCK(TORB,NTORB,F,NF,IDIR)
 ! one-electron matrix in storage format as e.g. FIFA and FIMO
 ! transform the matrix to use the new orbital basis.
 
-use definitions, only: iwp, wp
-use constants, only: Zero, One
+use caspt2_module, only: nIsh, nOMx, nRas1, nRas2, nRas3, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: nOMx, nIsh, nRas1, nRas2, nRas3, nSsh, nSym
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NTORB, NF, IDIR
 real(kind=wp), intent(in) :: TORB(NTORB)
 real(kind=wp), intent(inout) :: F(NF)
-real(kind=wp), allocatable :: FSQ(:), TSQ(:), TMP(:)
-integer(kind=iwp) NT, NI, NR1, NR2, NR3, NS, NO, IJOFF, ITOFF, I, J, II, JJ, IJ, ISYM, IOFF
+integer(kind=iwp) :: NT, NI, NR1, NR2, NR3, NS, NO, IJOFF, ITOFF, I, J, II, JJ, IJ, ISYM, IOFF
+real(kind=wp), allocatable :: FSQ(:), TMP(:), TSQ(:)
 
 NT = 0
 NOMX = 0

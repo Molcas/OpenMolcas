@@ -14,9 +14,9 @@
 ! write the CI vector of state Istate from memory into LUCIEX
 subroutine writeCI(CI,Istate)
 
-use definitions, only: iwp, wp
-use caspt2_global, only: LUCIEX, IDCIEX
+use caspt2_global, only: IDCIEX, LUCIEX
 use caspt2_module, only: nConf
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: CI(Nconf)

@@ -14,20 +14,19 @@ subroutine GETDPREF(DREF,NDREF,PREF,NPREF)
 ! GAMMA2, and construct DREF and PREF which are in a tringular
 ! storage.
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, Half
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG
+use caspt2_module, only: NASHT, NG1, NG2
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NASHT
-use caspt2_module, only: NG1, NG2
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
 real(kind=wp), intent(out) :: DREF(NDREF), PREF(NPREF)
+integer(kind=iwp) :: I, IJ, IJKL, IJKLT, IJLK, IJT, J, JI, JIKL, JILK, K, KL, KLT, L, LK, N2
+real(kind=wp) :: P1, P2
 real(kind=wp), allocatable :: G1(:), G2(:)
-integer(kind=iwp) I, J, IJ, IJT, IJKLT, N2, JI, KLT, K, L, KL, LK, IJKL, IJLK, JILK, JIKL
-real(kind=wp) P1, P2
 
 ! Remember: NDREF=1 if NASHT=0. Similar NPREF.
 DREF(1) = Zero

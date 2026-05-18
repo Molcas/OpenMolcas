@@ -22,17 +22,15 @@ subroutine POVLVEC(IVEC,JVEC,OVLAPS)
 ! symmetry in OVLAPS(0,ICASE), summed over case in OVLAPS(ISYM,0), total
 ! sum in OVLAPS(0,0).
 
-use constants, only: Zero
-use caspt2_module, only: NINDEP, NISUP, MxCase, nCASES, CPUOVL, TIOOVL, nSym
-use definitions, only: wp, iwp
+use caspt2_module, only: CPUOVL, MxCase, nCASES, NINDEP, NISUP, nSym, TIOOVL
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(out) :: OVLAPS(0:8,0:MXCASE)
 integer(kind=iwp), intent(in) :: iVec, jVec
-real(kind=wp) CPU, CPU0, CPU1
-real(kind=wp) TIO, TIO0, TIO1
-real(kind=wp) OVLTOT, OVL, OVLSUM
-integer(kind=iwp) iCase, iSym, lg_v1, lg_v2, NIN, NIS
+real(kind=wp), intent(out) :: OVLAPS(0:8,0:MXCASE)
+integer(kind=iwp) :: iCase, iSym, lg_v1, lg_v2, NIN, NIS
+real(kind=wp) :: CPU, CPU0, CPU1, OVL, OVLSUM, OVLTOT, TIO, TIO0, TIO1
 real(kind=wp), external :: RHS_DDOT
 
 call TIMING(CPU0,CPU,TIO0,TIO)

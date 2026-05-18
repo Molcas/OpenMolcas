@@ -15,9 +15,9 @@ subroutine CLagDXC_FG3(iSym,nAS,nAshT,NG3,NS,BDER,SDER,DF1,DF2,DF3,DG1,DG2,DG3,D
 
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV
-use caspt2_module, only: IASYM, EPSA, NTUVES
+use caspt2_module, only: EPSA, IASYM, NTUVES
 use Constants, only: Zero
-use definitions, only: wp, iwp, byte
+use Definitions, only: wp, iwp, byte
 
 implicit none
 integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, NG3, NS
@@ -25,7 +25,7 @@ real(kind=wp), intent(in) :: BDER(nAS,nAS), SDER(nAS,nAS), G2(nAshT,nAshT,nAshT,
 real(kind=wp), intent(inout) :: DF1(nAshT,nAshT), DF2(nAshT,nAshT,nAshT,nAshT), DF3(NG3), DG1(nAshT,nAshT), &
                                 DG2(nAshT,nAshT,nAshT,nAshT), DG3(NG3), DEPSA(nAshT,nAshT)
 integer(kind=byte), intent(in) :: idxG3(6,NG3)
-integer(kind=iwp) :: iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV, iSX, iSY, iSZ, ituvs, ixyzs, iTU, iVX, iYZ, jSYM, ISUP, JSUP, iW, &
+integer(kind=iwp) :: iG3, iST, iSU, ISUP, iSV, iSX, iSY, iSZ, iT, iTU, ituvs, iU, iV, iVX, iW, iX, ixyzs, iY, iYZ, iZ, JSUP, jSYM, &
                      NSEQ
 real(kind=wp) :: F3VAL, G3VAL
 

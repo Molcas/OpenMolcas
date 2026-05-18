@@ -32,29 +32,28 @@ subroutine prinp_caspt2()
 !                                                                      *
 !***********************************************************************
 
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: TERSE, USUAL, VERBOSE
-use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, ipea_shift, imag_shift, real_shift
-use caspt2_global, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
+use caspt2_global, only: do_csf, do_grad, do_nac, imag_shift, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, sigma_p_epsilon, &
+                         sigma_p_exponent
+use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, iSpin, &
+                         mState, nActel, nAsh, nAshT, nBas, nConf, nDel, nEle3, nFro, nHole1, nIsh, nIshT, nRoots, nSsh, nSshT, &
+                         nState, nSym, Orbin, RFPert, STSym, Zeta
 #ifdef _DMRG_
 use caspt2_global, only: compressMPS
 use caspt2_module, only: DMRG
 #endif
-use caspt2_module, only: nBas, nDel, nSsh, nAsh, nIsh, nFro, mState, Header, Zeta, STSym, RFPert, Orbin, nSym, nState, nSshT, &
-                         nRoots, nIshT, nHole1, nEle3, nConf, nAshT, nActel, iSpin, iSCF, iRlxRoot, IfXMS, IfsadRef, IfRMS, &
-                         IfMSCoup, IfMix, IfDW, IfDOrtho, HZero, DWType
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
 use caspt2_module, only: DoCumulant
 #endif
 use Constants, only: Zero, Half
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, iSym, left, lLine, lPaper
-character(len=8) :: fmt1, fmt2
 character(len=120) :: Line
-character(len=3) :: lIrrep(8)
 character(len=20) :: calctype, FockOpType
+character(len=8) :: fmt1, fmt2
+character(len=3) :: lIrrep(8)
 
 !----------------------------------------------------------------------*
 !     Start and define the paper width,                                *

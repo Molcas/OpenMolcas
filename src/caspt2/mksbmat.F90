@@ -12,20 +12,18 @@
 subroutine MKSBMAT()
 ! Set up S and B matrices for cases 1..13.
 
-use definitions, only: iwp, wp, u6, Byte
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
+use caspt2_global, only: DREF, LUSOLV, PREF
+use caspt2_module, only: NASHT, NG1, NG2, NG3
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_global, only: DREF, PREF
-use caspt2_global, only: LUSOLV
-use caspt2_module, only: NASHT
-use caspt2_module, only: NG1, NG2, NG3
+use Definitions, only: wp, iwp, u6, byte
 
 implicit none
-integer(kind=Byte), allocatable :: idxG3(:,:)
+integer(kind=iwp) :: iLUID
+logical(kind=iwp) :: Single_set_of_PCO
+integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: F1(:), F2(:), F3(:), FD(:), FP(:), G3(:)
-integer(kind=iwp) iLUID
-logical(kind=iwp) Single_set_of_PCO
 
 if (IPRGLB >= VERBOSE) then
   write(u6,*)

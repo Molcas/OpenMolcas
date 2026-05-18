@@ -20,19 +20,19 @@
 subroutine PT2_PUT(NSIZE,LAB,VEC)
 
 use caspt2_global, only: LUDMAT
-use caspt2_module, only: IADR10, cLab10
-use definitions, only: iwp, wp, u6
+use caspt2_module, only: cLab10, IADR10
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSIZE
 character(len=*), intent(in) :: LAB
 real(kind=wp), intent(inout) :: VEC(NSIZE)
-character(len=8) LAB1
-integer(kind=iwp) I, IAD
+integer(kind=iwp) :: I, IAD
+character(len=8) :: LAB1
 
 I = 9-len(LAB)
 if (I >= 1) then
-  LAB1 = '        '
+  LAB1 = ''
   LAB1(I:8) = LAB
 else
   LAB1 = LAB(1:8)

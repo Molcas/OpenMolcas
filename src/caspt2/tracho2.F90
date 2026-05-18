@@ -14,50 +14,35 @@
 subroutine TRACHO2(CMO,NCMO,DREF,NDREF,FFAO,FIAO,FAAO,IF_TRNSF)
 
 use Symmetry_Info, only: Mul
-use CHOVEC_IO, only: NVLOC_CHOBATCH, NPQ_CHOTYPE, chovec_save, chovec_load, chovec_coll
+use CHOVEC_IO, only: chovec_coll, chovec_load, chovec_save, NPQ_CHOTYPE, NVLOC_CHOBATCH
 use Cholesky, only: InfVec, nDimRS
 use ChoCASPT2, only: MXCHARR, MXNVC, NCHSPC, NFTSPC, NHTSPC, NUMCHO_PT2
-use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: nBTri, nBasT, nBSqT, nInaBx, nSecBx, nSym, nBas, nFro, nIsh, nAsh, RHSDirect, nBtches, nSsh, nBtch
+use caspt2_module, only: nAsh, nBas, nBasT, nBSqT, nBtch, nBtches, nBTri, nFro, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: PotNuc
-use definitions, only: u6
+use Definitions, only: u6
 #endif
-use constants, only: Zero, Half, One, Two
-use definitions, only: iwp, wp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "warnings.h"
 integer(kind=iwp), intent(in) :: NCMO, NDREF
 real(kind=wp), intent(in) :: CMO(NCMO), DREF(NDREF)
 real(kind=wp), intent(out) :: FFAO(NBTRI), FIAO(NBTRI), FAAO(NBTRI)
 logical(kind=iwp), intent(in) :: IF_TRNSF
-integer(kind=iwp) NCES(8), ip_HTVec(8)
-integer(kind=iwp) ISTART(8), NUSE(8)
-real(kind=wp) FACTC, FACTXA, FACTXI
-integer(kind=iwp) I, J, IC, IA, ICASE, IRC, ILOC
-integer(kind=iwp) JSTART
-integer(kind=iwp) JRED, JRED1, JRED2, JREDC, JNUM, JV1, JV2
-integer(kind=iwp) IASTA, IAEND, IISTA, IIEND
-integer(kind=iwp) NA, NASZ, NI, NISZ, NBUFFY, NF, NK, NW, NPQ, NRS
-integer(kind=iwp) IB, IBATCH, IBATCH_TOT, IBSTA, IBEND, NB, NBATCH
-integer(kind=iwp) IDFIJ, IDIIJ, IDAIJ
-integer(kind=iwp) IP_LHT
-integer(kind=iwp) LC, LO, LSC, LSO
-integer(kind=iwp) ISFA, ISFF, ISFI
-integer(kind=iwp) ISYM, JSYM, ISYMA, ISYMB, ISYMK, ISYMW, ISYP, ISYQ
-integer(kind=iwp) N, N1, N2
-integer(kind=iwp) ip_htspc
-integer(kind=iwp) NUMV, NVECS_RED, NHTOFF, MUSED
-real(kind=wp) SCL
-real(kind=wp), allocatable :: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
-real(kind=wp), allocatable :: VEC(:), DF_RED(:), DI_RED(:), DA_RED(:)
-real(kind=wp), allocatable :: FA_RED(:), FF_RED(:), FI_RED(:)
-real(kind=wp), allocatable :: BUFFY(:), CHSPC(:), FTSPC(:), HTSPC(:)
+integer(kind=iwp) :: I, IA, IAEND, IASTA, IB, IBATCH, IBATCH_TOT, IBEND, IBSTA, IC, ICASE, IDAIJ, IDFIJ, IDIIJ, IIEND, IISTA, &
+                     ILOC, ip_htspc, ip_HTVec(8), IP_LHT, IRC, ISFA, ISFF, ISFI, ISTART(8), ISYM, ISYMA, ISYMB, ISYMK, ISYMW, &
+                     ISYP, ISYQ, J, JNUM, JRED, JRED1, JRED2, JREDC, JSTART, JSYM, JV1, JV2, LC, LO, LSC, LSO, MUSED, N, N1, N2, &
+                     NA, NASZ, NB, NBATCH, NBUFFY, NCES(8), NF, NHTOFF, NI, NISZ, NK, NPQ, NRS, NUMV, NUSE(8), NVECS_RED, NW
+real(kind=wp) :: FACTC, FACTXA, FACTXI, SCL
+real(kind=wp), allocatable :: BUFFY(:), CHSPC(:), CNAT(:), DA(:), DA_RED(:), DF(:), DF_RED(:), DI(:), DI_RED(:), FA_RED(:), &
+                              FF_RED(:), FI_RED(:), FTSPC(:), HTSPC(:), OCC(:), VEC(:)
 #ifdef _DEBUGPRINT_
-real(kind=wp) E, ECORE, ECORE1, ECORE2
+real(kind=wp) :: E, ECORE, ECORE1, ECORE2
 real(kind=wp), external :: DDOT_
 #endif
+#include "warnings.h"
 
 !***********************************************************************
 ! ======================================================================

@@ -17,36 +17,39 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 
+#include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
+
 subroutine MKSC_G3_MPP(ISYM,SC,iLo,iHi,NAS,LDC,NG3,G3,idxG3)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, Byte, MPIInt
-use MPI
+use MPI, only: MPI_COMM_WORLD, MPI_INTEGER, MPI_REAL8
+#ifndef _NEED_EXPLICIT_MPI_INTERFACE_
+use MPI, only: MPI_ALLTOALL, MPI_ALLTOALLV
+#endif
 use SUPERINDEX, only: KTUV
-use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use caspt2_module, only: IASYM, NASHT, nTUVES
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
+use Definitions, only: wp, iwp, byte, MPIInt
 
 implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-integer(kind=iwp) ISYM, iLo, iHi, NAS, LDC, NG3
+integer(kind=iwp), intent(in) :: ISYM, iLo, iHi, NAS, LDC, NG3
 real(kind=wp), intent(out) :: SC(LDC,NAS)
 real(kind=wp), intent(in) :: G3(NG3)
-integer(kind=Byte), intent(in) :: idxG3(6,NG3)
-integer(kind=MPIInt), allocatable :: SCOUNTS(:), RCOUNTS(:)
-integer(kind=MPIInt), allocatable :: SCOUNTS2(:), RCOUNTS2(:)
-integer(kind=MPIInt), allocatable :: SDISPLS(:), RDISPLS(:)
-integer(kind=MPIInt), allocatable :: SDISPLS2(:), RDISPLS2(:)
-integer(kind=MPIInt), allocatable :: SENDIDX(:), RECVIDX(:)
-real(kind=wp), allocatable :: SENDVAL(:), RECVVAL(:)
+integer(kind=byte), intent(in) :: idxG3(6,NG3)
+
+integer(kind=iwp) :: I, IBLOCK, ICOL, iG3, IG3END, IG3STA, IOFFSET, IP, IROW, ISCAL, iST, iSU, ISUP, iSV, iSX, iSY, iSZ, iT, iTU, &
+                     ituvs, iU, iV, iVX, iX, ixyzs, iY, iYZ, iZ, JSUP, JSYM, MAXBUF, MAXMEM, NBLOCKS, NBUF, NG3B, NG3MAX, NPROCS, &
+                     NQOT, NRECV, NREM
 integer(kind=MPIInt) :: IERROR4
+real(kind=wp) :: G3VAL
 integer(kind=iwp), allocatable :: IBUF(:)
-integer(kind=iwp) iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV, iSX, iSY, iSZ, ituvs, ixyzs, iTU, iVX, iYZ, JSYM, ISUP, JSUP
-integer(kind=iwp) NG3MAX, NPROCS, MAXMEM, ISCAL, MAXBUF, NG3B, NBUF, NQOT, NREM, NBLOCKS, IBLOCK, IG3STA, IG3END, IROW, IP, &
-                  IOFFSET, I, ICOL, NRECV
-real(kind=wp) G3VAL
+integer(kind=MPIInt), allocatable :: RCOUNTS(:), RCOUNTS2(:), RDISPLS(:), RDISPLS2(:), RECVIDX(:), SCOUNTS(:), SCOUNTS2(:), &
+                                     SDISPLS(:), SDISPLS2(:), SENDIDX(:)
+real(kind=wp), allocatable :: RECVVAL(:), SENDVAL(:)
 integer(kind=iwp), external :: IPROW
+#include "global.fh"
+#include "mafdecls.fh"
 #include "mpi_interfaces.fh"
 
 ! Since we are stuck with collective calls to MPI_Alltoallv in
@@ -454,9 +457,10 @@ if (.false.) call UNUSED_INTEGER(iHi)
 
 end subroutine MKSC_G3_MPP
 
-#elif defined (NAGFOR)
+#elif ! defined (EMPTY_FILES)
+
 ! Some compilers do not like empty files
-subroutine empty_mksc_g3_mpp()
-end subroutine empty_mksc_g3_mpp
+#include "macros.fh"
+dummy_empty_procedure(MKSC_G3_MPP)
 
 #endif

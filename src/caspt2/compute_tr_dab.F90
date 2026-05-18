@@ -11,18 +11,18 @@
 
 subroutine Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMO,nCMO,OrbE,nOrbE,TrD)
 
-use constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nDel(nSym), nCMO, nOrbE
 real(kind=wp), intent(in) :: CMO(nCMO), OrbE(nOrbE)
 real(kind=wp), intent(out) :: TrD(nSym)
-integer(kind=iwp) nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-real(kind=wp), allocatable :: EOrb(:), DMat(:), CMON(:)
-real(kind=wp) Dummy
-integer(kind=iwp) iE, ifr, ioff, ip_Y, irc, iSkip, iSym, ito, iV, joff, k, kEOcc, kEVir, kfr, koff, kto, nBB, nOA, nOrb, nVV
+integer(kind=iwp) :: iE, ifr, ioff, ip_Y, irc, iSkip, iSym, ito, iV, joff, k, kEOcc, kEVir, kfr, koff, kto, lnDel(8), lnFro(8), &
+                     lnOcc(8), lnOrb(8), lnVir(8), nAct(8), nBB, nOA, nOrb, nVV
+real(kind=wp) :: Dummy
+real(kind=wp), allocatable :: CMON(:), DMat(:), EOrb(:)
 real(kind=wp), external :: DDot_
 
 nAct(:) = 0

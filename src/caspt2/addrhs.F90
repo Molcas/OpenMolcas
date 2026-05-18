@@ -11,36 +11,36 @@
 
 module ADDRHS
 
+use caspt2_global, only: iParRHS
+use Symmetry_Info, only: Mul
+use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
+use Definitions, only: wp, iwp, u6
+
 implicit none
 private
 
-public ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2, ADDRHSE, ADDRHSF, ADDRHSG, ADDRHSH
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
+
+public :: ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2, ADDRHSE, ADDRHSF, ADDRHSG, ADDRHSH
 
 contains
 
 subroutine ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,nBuff,Buff,idxBuf,Cho_Bra,Cho_Ket,NCHO)
 
-  use Symmetry_Info, only: Mul
-  use constants, only: Zero, One
-  use caspt2_global, only: iParRHS
   use SUPERINDEX, only: KTUV
   use caspt2_module, only: NINDEP, NTUV, NISH, NAES, NTUVES
-  use definitions, only: iwp, wp
 
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYJ, ISYX, NT, NJ, NV, NX, nBuff, NCHO
-  real(kind=wp), intent(out) :: TJVX(NT,NJ,NV,NX)
-  real(kind=wp), intent(out) :: Buff(nBuff)
+  real(kind=wp), intent(out) :: TJVX(NT,NJ,NV,NX), Buff(nBuff)
   integer(kind=iwp), intent(out) :: idxBuf(nBuff)
   real(kind=wp), intent(in) :: Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
+  integer(kind=iwp) :: IBUF, ICASE, IJ, ISYM, ISYT, ISYV, IT, ITABS, IV, IVABS, IW, IW1, IW2, IX, IXABS, LDA, lg_A, NAS, NIS, NWA
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: myRank, ILOV, IHIV, JLOV, JHIV, MV, LDV
+  integer(kind=iwp) :: IHIV, ILOV, JHIV, JLOV, LDV, MV, myRank
 # endif
-  integer(kind=iwp) IBUF, ICASE, IJ, ISYM, ISYT, ISYV, IT, ITABS, IV, IVABS, IW, IW1, IW2
-  integer(kind=iwp) IX, IXABS, LDA, lg_A, NAS, NIS, NWA
 
   !                                                                    *
   !*********************************************************************
@@ -149,28 +149,19 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
   ! t=v j=l WP(tv,jl)=add ((tj,vl))*(1/4)*(SQRT(2))
   ! t=v j<l WP(tv,lj)=add ((tj,vl))*(1/4)
 
-  use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp
-  use constants, only: Zero, One, Half, Two, Quart
-  use caspt2_global, only: iParRHS
-  use SUPERINDEX, only: KTGEU, KIGEJ, KTGTU, KIGTJ
-  use caspt2_module, only: NINDEP, NAES, NTGEU, NIGEJ, NTGTU, NIGTJ, NTGEUES, NIES, NIGEJES, NTGTUES, NIGTJES
+  use SUPERINDEX, only: KIGEJ, KIGTJ, KTGEU, KTGTU
+  use caspt2_module, only: NAES, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NINDEP, NTGEU, NTGEUES, NTGTU, NTGTUES
 
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYJ, ISYL, NT, NJ, NV, NL, nBuff, NCHO
-  real(kind=wp), intent(out) :: TJVL(NT,NJ,NV,NL)
-  real(kind=wp), intent(out) :: Buff(nBuff)
+  real(kind=wp), intent(out) :: TJVL(NT,NJ,NV,NL), Buff(nBuff)
   integer(kind=iwp), intent(out) :: idxBuf(nBuff)
   real(kind=wp), intent(in) :: Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
+  integer(kind=iwp) :: IBUF, ICASE, IJ, IJABS, IL, ILABS, ISYM, ISYT, ISYV, IT, ITABS, IV, IVABS, IVMAX, IW, IW1, IW2, LDBM, LDBP, &
+                       lg_BM, lg_BP, NASM, NASP, NISM, NISP, NWBM, NWBP
+  real(kind=wp) :: SCL, SCL1, SQ2
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: myRank, ILOV, IHIV, JLOV, JHIV, MV, LDV
+  integer(kind=iwp) :: IHIV, ILOV, JHIV, JLOV, LDV, MV, myRank
 # endif
-  integer(kind=iwp) IBUF, ICASE, IJ, ISYM, ISYT, ISYV, IT, ITABS, IV, IVABS, IW, IW1, IW2
-  integer(kind=iwp) IJABS, IL, ILABS, IVMAX, LDBM, LDBP, lg_BM, lg_BP, NASM, NASP, NISM, NISP, NWBM, NWBP
-  real(kind=wp) SCL, SCL1, SQ2
 
   !                                                                    *
   !*********************************************************************
@@ -418,28 +409,17 @@ subroutine ADDRHSC(IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,AUVX,nBuff,Buff,idxBuf,Cho_Br
   !   Allocate W. Put in W(uvx,a)=(au,vx) +
   !             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
 
-  use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp
-  use constants, only: Zero, One
-  use caspt2_global, only: iParRHS
   use SUPERINDEX, only: KTUV
-  use caspt2_module, only: NINDEP, NTUV, NSSH, NAES, NTUVES
+  use caspt2_module, only: NAES, NINDEP, NSSH, NTUV, NTUVES
 
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYU, ISYX, NA, NU, NV, NX, nBuff, NCHO
-  real(kind=wp), intent(out) :: AUVX(NA,NU,NV,NX)
-  real(kind=wp), intent(out) :: Buff(nBuff)
+  real(kind=wp), intent(out) :: AUVX(NA,NU,NV,NX), Buff(nBuff)
   integer(kind=iwp), intent(out) :: idxBuf(nBuff)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
+  integer(kind=iwp) :: IA, IBUF, ICASE, ISYA, ISYM, ISYV, IU, IUABS, IV, IVABS, IW, IW1, IW2, IX, IXABS, LDC, lg_C, NAS, NIS, NWC
 #ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: myRank, ILOV, IHIV, JLOV, JHIV, MV, LDV
-#endif
-  integer(kind=iwp) IBUF, ICASE, ISYM, ISYV, IV, IVABS, IW, IW1, IW2
-  integer(kind=iwp) IX, IXABS, NAS, NIS
-  integer(kind=iwp) IA, ISYA, IU, IUABS, LDC, lg_C, NWC
+  integer(kind=iwp) :: IHIV, ILOV, JHIV, JLOV, LDV, MV, myRank
+# endif
 
   !                                                                    *
   !*********************************************************************
@@ -539,30 +519,18 @@ subroutine ADDRHSD1(IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,AJVX,nBuff,Buff,idxBuf,Cho_B
   ! Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
   ! Compute W2(vu,al)=(au,vl)
 
-  use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp
-  use constants, only: Zero, One
-  use caspt2_global, only: iParRHS
   use SUPERINDEX, only: KTU
-  use caspt2_module, only: NINDEP, NTU, NSSH, NISUP, NINABX, NSECBX, NSYM, NISH, NAES, NTUES
+  use caspt2_module, only: NAES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSSH, NSYM, NTU, NTUES
 
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYJ, ISYX, NA, NJ, NV, NX, nBuff, NCHO
-  real(kind=wp), intent(out) :: AJVX(NV,NX,*)
-  real(kind=wp), intent(out) :: Buff(nBuff)
+  real(kind=wp), intent(out) :: AJVX(NV,NX,*), Buff(nBuff)
   integer(kind=iwp), intent(out) :: idxBuf(nBuff)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NX,NCHO)
-  integer(kind=iwp) IOFFD(8,8)
+  integer(kind=iwp) :: IA, IAEND, IAJ, IAJSTA, IASTA, IBUF, ICASE, IJ, IJEND, IJSTA, IO, IOFFD(8,8), ISA, ISI, ISW, ISYA, ISYM, &
+                       ISYV, IV, IVABS, IW, IW1, IW2, IX, IXABS, LDD, lg_D, NAS, NAS1, NASZ, NBXSZA, NBXSZJ, NIS, NJSZ, NWD
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: myRank, ILOV, IHIV, JLOV, JHIV, MV, LDV
+  integer(kind=iwp) :: IHIV, ILOV, JHIV, JLOV, LDV, MV, myRank
 # endif
-  integer(kind=iwp) IBUF, ICASE, ISYM, ISYV, IV, IVABS, IW, IW1, IW2
-  integer(kind=iwp) IA, ISYA
-  integer(kind=iwp) IAEND, IAJ, IAJSTA, IASTA, IJ, IJEND, IJSTA, IO, ISA, ISI, ISW, IX, IXABS, LDD, lg_D, NAS, NAS1, NASZ, NBXSZA, &
-                    NBXSZJ, NIS, NJSZ, NWD
 
   !                                                                    *
   !*********************************************************************
@@ -703,28 +671,18 @@ subroutine ADDRHSD2(IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,AUVL,nBuff,Buff,idxBuf,Cho_B
   ! Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
   ! Compute W2(vu,al)=(au,vl)
 
-  use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp
-  use constants, only: Zero, One
-  use caspt2_global, only: iParRHS
   use SUPERINDEX, only: KTU
-  use caspt2_module, only: NINDEP, NTU, NSSH, NISUP, NSYM, NISH, NAES, NTUES
+  use caspt2_module, only: NAES, NINDEP, NISH, NISUP, NSSH, NSYM, NTU, NTUES
 
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYU, ISYL, NA, NU, NV, NL, nBuff, NCHO
-  real(kind=wp), intent(out) :: AUVL(NA,NU,NV,NL)
-  real(kind=wp), intent(out) :: Buff(nBuff)
+  real(kind=wp), intent(out) :: AUVL(NA,NU,NV,NL), Buff(nBuff)
   integer(kind=iwp), intent(out) :: idxBuf(nBuff)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
-  integer(kind=iwp) IOFFD(8,8)
+  integer(kind=iwp) :: IA, IBUF, ICASE, IL, IO, IOFFD(8,8), ISYA, ISYI, ISYM, ISYV, ISYW, IU, IUABS, IV, IVABS, IW, IW1, IW2, LDD, &
+                       lg_D, NAS, NAS1, NIS, NWD
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: myRank, ILOV, IHIV, JLOV, JHIV, MV, LDV
+  integer(kind=iwp) :: IHIV, ILOV, JHIV, JLOV, LDV, MV, myRank
 # endif
-  integer(kind=iwp) IBUF, ICASE, ISYM, ISYV, IV, IVABS, IW, IW1, IW2
-  integer(kind=iwp) IA, IL, IO, ISYA, ISYI, ISYW, IU, IUABS, LDD, lg_D, NAS, NAS1, NIS, NWD
 
   !                                                                    *
   !*********************************************************************
@@ -834,31 +792,20 @@ end subroutine ADDRHSD2
 subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Bra,Cho_Ket,NCHO)
   ! Case E:
 
-  use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp
-  use constants, only: Zero, One, Half, OneHalf
-  use caspt2_global, only: iParRHS
   use SUPERINDEX, only: KIGEJ, KIGTJ
-  use caspt2_module, only: NIGEJ, NIGTJ, NSSH, NASH, NISUP, NINABX, NSECBX, NSYM, NIES, NIGEJES, NIGTJES
+  use caspt2_module, only: NASH, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NINABX, NISUP, NSECBX, NSSH, NSYM
 
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYJ, ISYL, NA, NJ, NV, NL, nBuff, NCHO
-  real(kind=wp), intent(out) :: AJVL(NV,NL,*)
-  real(kind=wp), intent(out) :: Buff(nBuff)
+  real(kind=wp), intent(out) :: AJVL(NV,NL,*), Buff(nBuff)
   integer(kind=iwp), intent(out) :: idxBuf(nBuff)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NL,NCHO)
-  integer(kind=iwp) IOFF1(8), IOFF2(8)
+  integer(kind=iwp) :: IA, IAEND, IAJ, IAJSTA, IASTA, IBUF, ICASE, IJ, IJABS, IJEND, IJSTA, IL, ILABS, IO1, IO2, IOFF1(8), &
+                       IOFF2(8), ISA, ISIJ, ISYA, ISYJL, ISYM, ISYV, IV, IW, IW1, IW2, JGEL, JGTL, LDEM, LDEP, lg_EM, lg_EP, NAS, &
+                       NASZ, NBXSZA, NBXSZJ, NISM, NISP, NJSZ, NW, NWM, NWP
+  real(kind=wp) :: SCL, SQ32
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: myRank, ILOV, IHIV, JLOV, JHIV, MV, LDV
+  integer(kind=iwp) :: IHIV, ILOV, JHIV, JLOV, LDV, MV, myRank
 # endif
-  integer(kind=iwp) IBUF, ICASE, ISYM, ISYV, IV, IW, IW1, IW2
-  integer(kind=iwp) IA, ISYA
-  integer(kind=iwp) IAEND, IAJ, IAJSTA, IASTA, IJ, IJEND, IJSTA, ISA, NAS, NASZ, NBXSZA, NBXSZJ, NJSZ
-  integer(kind=iwp) IJABS, IL, ILABS, IO1, IO2, ISIJ, ISYJL, JGEL, JGTL, LDEM, LDEP, lg_EM, lg_EP, NISM, NISP, NW, NWM, NWP
-  real(kind=wp) SCL, SQ32
 
   !                                                                    *
   !*********************************************************************
@@ -1130,32 +1077,22 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
   ! With new normalisation, replace /2 with /(2*SQRT(1+Kron(ac))
   !   WM(ux,ac)= -((aucx)-(axcu))/2
 
-  use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp
-  use constants, only: Zero, One, Half, Two, Quart
-  use caspt2_global, only: iParRHS
-  use SUPERINDEX, only: KTGEU, KAGEB, KTGTU, KAGTB
-  use caspt2_module, only: NTGEU, NAGEB, NTGTU, NAGTB, NINDEP, NAES, NTGEUES, NSES, NAGEBES, NTGTUES, NAGTBES
+  use SUPERINDEX, only: KAGEB, KAGTB, KTGEU, KTGTU
+  use caspt2_module, only: NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NINDEP, NSES, NTGEU, NTGEUES, NTGTU, NTGTUES
 # ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 # endif
 
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYU, ISYX, NA, NU, NC, NX, nBuff, NCHO
-  real(kind=wp), intent(out) :: AUCX(NA,NU,NC,NX)
-  real(kind=wp), intent(out) :: Buff(nBuff)
+  real(kind=wp), intent(out) :: AUCX(NA,NU,NC,NX), Buff(nBuff)
   integer(kind=iwp), intent(out) :: idxBuf(nBuff)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
+  integer(kind=iwp) :: IA, IAABS, IBUF, IC, ICABS, ICASE, ISYA, ISYC, ISYM, IU, IUABS, IW, IW1, IW2, IX, IXABS, IXMAX, LDFM, LDFP, &
+                       lg_FM, lg_FP, NASM, NASP, NISM, NISP, NWFM, NWFP
+  real(kind=wp) :: SCL, SCL1
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: myRank, ILOV, IHIV, JLOV, JHIV, MV, LDV
+  integer(kind=iwp) :: IHIV, ILOV, JHIV, JLOV, LDV, MV, myRank
 # endif
-  integer(kind=iwp) IBUF, ICASE, ISYM, IW, IW1, IW2
-  integer(kind=iwp) IA, IAABS, IC, ICABS, ISYA, ISYC, IU, IUABS, IX, IXABS, IXMAX, LDFM, LDFP, lg_FM, lg_FP, NASM, NASP, NISM, &
-                    NISP, NWFM, NWFP
-  real(kind=wp) SCL, SCL1
 
   !                                                                    *
   !*********************************************************************
@@ -1403,31 +1340,20 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
   !   WP(u,l,ac)=  ((aucl)+cual))/SQRT(2+2*Kron(ab))
   !   WM(u,l,ac)=  ((aucl)-cual))*SQRT(OneHalf)
 
-  use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp, u6
-  use constants, only: Zero, One, Half, OneHalf
-  use caspt2_global, only: iParRHS
   use SUPERINDEX, only: KAGEB, KAGTB
-  use caspt2_module, only: NAGEB, NAGTB, NSYM, NISH, NASH, NISUP, NSECBX, NSES, NAGEBES, NAGTBES
+  use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NISH, NISUP, NSECBX, NSES, NSYM
 
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYU, ISYL, NA, NU, NC, NL, NAUCL, nBuff, NCHO
-  real(kind=wp), intent(out) :: AUCL(NA,NU,*)
-  real(kind=wp), intent(out) :: Buff(nBuff)
+  real(kind=wp), intent(out) :: AUCL(NA,NU,*), Buff(nBuff)
   integer(kind=iwp), intent(out) :: idxBuf(nBuff)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
-  integer(kind=iwp) IOFF1(8), IOFF2(8)
+  integer(kind=iwp) :: IA, IAABS, IAGEC, IAGTC, IBUF, IC, ICABS, ICASE, ICEND, ICL, ICLSTA, ICSTA, IL, ILEND, ILSTA, IO1, IO2, &
+                       IOFF1(8), IOFF2(8), ISAB, ISI, ISYA, ISYAC, ISYC, ISYM, IU, IW, IW1, IW2, KCL, LDGM, LDGP, lg_GM, lg_GP, &
+                       NAS, NBXSZC, NBXSZL, NCSZ, NISM, NISP, NLSZ, NWGM, NWGP
+  real(kind=wp) :: SCL
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: myRank, ILOV, IHIV, JLOV, JHIV, MV, LDV
-  integer(kind=iwp) :: ITMP1, ITMP2
+  integer(kind=iwp) :: IHIV, ILOV, ITMP1, ITMP2, JHIV, JLOV, LDV, MV, myRank
 # endif
-  integer(kind=iwp) IBUF, ICASE, ISYM, IW, IW1, IW2
-  integer(kind=iwp) IA, IAABS, IAGEC, IAGTC, IC, ICABS, ICEND, ICL, ICLSTA, ICSTA, IL, ILEND, ILSTA, IO1, IO2, ISAB, ISI, ISYA, &
-                    ISYAC, ISYC, IU, KCL, LDGM, LDGP, lg_GM, lg_GP, NAS, NBXSZC, NBXSZL, NCSZ, NISM, NISP, NLSZ, NWGM, NWGP
-  real(kind=wp) SCL
 
   !                                                                    *
   !*********************************************************************
@@ -1730,30 +1656,21 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
   !   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
   !   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
 
-  use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp, u6
-  use constants, only: Zero, One, Half, Two, Three
-  use caspt2_global, only: iParRHS
-  use SUPERINDEX, only: KIGEJ, KAGEB, KIGTJ, KAGTB
-  use caspt2_module, only: NIGEJ, NAGEB, NIGTJ, NAGTB, NINABX, NSECBX, NIES, NSES, NIGEJES, NAGEBES, NIGTJES, NAGTBES
+  use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ
+  use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NINABX, NSECBX, NSES
 
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYJ, ISYL, NA, NJ, NC, NL, NAJCL, nBuff, NCHO
-  real(kind=wp), intent(out) :: AJCL(NC*NL,*)
-  real(kind=wp), intent(out) :: Buff(nBuff)
+  real(kind=wp), intent(out) :: AJCL(NC*NL,*), Buff(nBuff)
   integer(kind=iwp), intent(out) :: idxBuf(nBuff)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NC*NL,NCHO)
+  integer(kind=iwp) :: IA, IAABS, IAEND, IAGEC, IAGTC, IAJ, IAJSTA, IASTA, IBUF, IC, ICABS, ICASE, ICEND, ICL, ICLSTA, ICSTA, IJ, &
+                       IJABS, IJEND, IJGEL, IJGTL, IJSTA, IL, ILABS, ILEND, ILMAX, ILSTA, ISYA, ISYAC, ISYC, ISYJL, ISYM, IW, KAJ, &
+                       LDHM, LDHP, lg_HM, lg_HP, NASM, NASP, NASZ, NBXSZA, NBXSZC, NBXSZJ, NBXSZL, NCSZ, NISM, NISP, NJSZ, NWHM, &
+                       NWHP
+  real(kind=wp) :: SCL, SCL1
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: myRank, ILOV, IHIV, JLOV, JHIV, MV, LDV, ITMP1, ITMP2
+  integer(kind=iwp) :: IHIV, ILOV, ITMP1, ITMP2, JHIV, JLOV, LDV, MV, myRank
 # endif
-  integer(kind=iwp) IBUF, ICASE, ISYM, IW
-  integer(kind=iwp) IA, IAABS, IAEND, IAGEC, IAGTC, IAJ, IAJSTA, IASTA, IC, ICABS, ICEND, ICL, ICLSTA, ICSTA, IJ, IJABS, IJEND, &
-                    IJGEL, IJGTL, IJSTA, IL, ILABS, ILEND, ILMAX, ILSTA, ISYA, ISYAC, ISYC, ISYJL, KAJ, LDHM, LDHP, lg_HM, lg_HP, &
-                    NASM, NASP, NASZ, NBXSZA, NBXSZC, NBXSZJ, NBXSZL, NCSZ, NISM, NISP, NJSZ, NWHM, NWHP
-  real(kind=wp) SCL, SCL1
 
   !                                                                    *
   !*********************************************************************
@@ -2129,9 +2046,7 @@ end subroutine ADDRHSH
 #ifdef _MOLCAS_MPP_
 subroutine GADSUM_ADDRHS(buff,nbuff)
 
-  use definitions, only: iwp, wp
   use caspt2_global, only: MAXBUF
-  use definitions, only: iwp, wp
 
   integer(kind=iwp), intent(in) :: nbuff
   real(kind=wp), intent(inout) :: buff(nbuff)

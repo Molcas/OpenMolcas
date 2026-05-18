@@ -11,19 +11,18 @@
 
 subroutine GETDREF(DREF,NDREF)
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: NASHT,  NG1
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NASHT
-use caspt2_module, only: NG1
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF
 real(kind=wp), intent(out) :: DREF(NDREF)
+integer(kind=iwp) :: I, IJ, J
 real(kind=wp), allocatable :: G1(:)
-integer(kind=iwp) I, J, IJ
 
 ! Get active 1-el density matrix GAMMA1 and
 ! construct DREF in a tringular storage.

@@ -11,14 +11,13 @@
 
 subroutine mkTraCI(nTORB,TORB,STSYM,nConf,CI)
 
-use caspt2_module, only: nSym, nIsh, nAsh, nRas1, nRas2, nRas3, nSsh, nAES
-use definitions, only: iwp, wp
+use caspt2_module, only: nAES, nAsh, nIsh, nRas1, nRas2, nRas3, nSsh, nSym
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nTORB, STSYM, nCONF
-real(kind=wp), intent(inout) :: TORB(nTORB)
-real(kind=wp), intent(inout) :: CI(nConf)
-integer(kind=iwp) ITOEND, ISYM, NI, NA, NR1, NR2, NR3, NS, ITOSTA, ITO, iSTART
+real(kind=wp), intent(inout) :: TORB(nTORB), CI(nConf)
+integer(kind=iwp) :: iSTART, ISYM, ITO, ITOEND, ITOSTA, NA, NI, NR1, NR2, NR3, NS
 
 ITOEND = 0
 do ISYM=1,NSYM

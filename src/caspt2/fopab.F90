@@ -11,22 +11,21 @@
 
 subroutine FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
 
-use constants, only: Zero, One, Two
-use sguga, only: SGS, L2ACT, EXS, CIS
-use caspt2_global, only: LUCIEX, IDCIEX
+use sguga, only: CIS, EXS, L2ACT, SGS
+use caspt2_global, only: IDCIEX, LUCIEX
+use caspt2_module, only: ISCF, NAES, NASH, NCONF, NISH, NORB, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NORB, NISH, ISCF, NCONF, STSYM, NASH, NAES
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NFIFA, IBRA, IKET
 real(kind=wp), intent(in) :: FIFA(NFIFA)
 real(kind=wp), intent(out) :: FOPEL
-integer(kind=iwp) IOFF(8)
-integer(kind=iwp) :: nLev
+integer(kind=iwp) :: I, ID, IFTEST, II, IJ, IOF, IOFF(8), ISCR, IST, ISU, ISYM, IT, ITABS, ITTOT, ITUTOT, IU, IUABS, IUTOT, J, &
+                     LEVT, LEVU, NI, nLev
+real(kind=wp) :: EINACT, ESUM, FTU, OCC, TRC
 real(kind=wp), allocatable :: BRA(:), KET(:), SGM(:)
-integer(kind=iwp) IOF, ISYM, IFTEST, IJ, I, ID, II, ISCR, IST, ISU, IT, ITABS, ITTOT, ITUTOT, IU, IUABS, IUTOT, J, LEVT, LEVU, NI
-real(kind=wp) ESUM, OCC, EINACT, FTU, TRC
 real(kind=wp), external :: DDot_
 
 nLev = SGS%nLev

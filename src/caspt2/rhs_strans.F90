@@ -27,28 +27,28 @@ subroutine RHS_STRANS(NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,ISYM)
 !SVC: this routine transforms RHS array V1 by multiplying on the left
 !     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
 
-use caspt2_global, only: LUSBT
 use EQSOLV, only: IDSMAT
-use stdalloc, only: mma_allocate, mma_deallocate
 use fake_GA, only: GA_Arrays
+use caspt2_global, only: LUSBT
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use constants, only: One
-use definitions, only: u6
+use Constants, only: One
+use Definitions, only: u6
 #endif
-use definitions, only: iwp, wp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS, lg_V1, lg_V2, ICASE, ISYM
 real(kind=wp), intent(in) :: ALPHA
+integer(kind=iwp) :: IDS, NS
 real(kind=wp), allocatable :: S(:)
-integer(kind=iwp) IDS, NS
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iHiV1, iHiV2, iLoV1, iLoV2, jHiV1, jHiV2, jLoV1, jLoV2, LDV1, LDV2, lg_S, mV1, mV2, myRank, NCOL1, NCOL2, &
+                     NROW1, NROW2
+logical(kind=iwp) :: bStat
 #include "global.fh"
 #include "mafdecls.fh"
-logical(kind=iwp) bStat
-integer(kind=iwp) lg_S, myRank, iLoV1, iHiV1, jLoV1, jHiV1, iLoV2, iHiV2, jLoV2, jHiV2, NROW1, NROW2, NCOL1, NCOL2, mV1, LDV1, &
-                  mV2, LDV2
 
 if (Is_Real_Par()) then
   if ((ICASE == 1) .or. (ICASE == 4)) then

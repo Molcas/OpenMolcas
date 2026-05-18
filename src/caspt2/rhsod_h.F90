@@ -14,27 +14,26 @@
 subroutine RHSOD_H(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use constants, only: Half, One, Three
-use SUPERINDEX, only: MIGEJ, MIREL, MAGEB, MAREL, MIGTJ, MAGTB
-use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
-use caspt2_global, only: iPrGlb
+use SUPERINDEX, only: MAGEB, MAGTB, MAREL, MIGEJ, MIGTJ, MIREL
+use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
 use fake_GA, only: GA_Arrays
 #endif
-use caspt2_module, only: NSYM, NAGEB, NIGEJ, NIGEJES, NAGEBES, NSSH, NAGTB, NIGTJ, NIGTJES, NAGTBES
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NSSH, NSYM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Three, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) IOSYM(8,8)
+integer(kind=iwp) :: IA, IAABS, IAEND, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT, IAJ, IAL, IASTA, IC, ICABS, iCASE, ICJ, ICL, IDX, IIEND, &
+                     IISTA, IJ, IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL, ILABS, IOFFAJ, IOFFAL, IOFFCJ, IOFFCL, IOSYM(8,8), &
+                     ISYA, ISYC, ISYJ, ISYL, ISYM, lg_W, MW, NAS, NCHOBUF, NIS, NV, NW
+real(kind=wp) :: AJCL, ALCJ, HMACJL, HPACJL, SCL
 real(kind=wp), allocatable :: CHOBUF(:)
 real(kind=wp), parameter :: SQRT3 = sqrt(Three), SQRTH = sqrt(Half)
-real(kind=wp) :: AJCL, ALCJ, HMACJL, HPACJL, SCL
-integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, IA, IAABS, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT, IAJ, IAL, IC, &
-                  ICABS, iCASE, ICJ, ICL, IDX, IJ, IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL, ILABS, IOFFAJ, IOFFAL, IOFFCJ, &
-                  IOFFCL, ISYA, ISYC, ISYJ, ISYL, ISYM, NCHOBUF, NV, NW
 real(kind=wp), external :: DDot_
 !logical Incore
 #ifdef _MOLCAS_MPP_

@@ -21,32 +21,26 @@ subroutine FNO_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,vfrac,IFQCAN,DoMP2,
 !***********************************************************************
 
 use InputData, only: Input
-use constants, only: Zero, One
 use ChoMP2, only: DeMP2, MP2_small, shf
 use Molcas, only: MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-integer(kind=iwp), intent(in) :: nSym
-integer(kind=iwp), intent(in) :: nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym)
-integer(kind=iwp), intent(inout) :: nSsh(nSym), nDel(nSym)
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), NCMO
+integer(kind=iwp), intent(inout) :: nSsh(nSym), nDel(nSym), IFQCAN
 real(kind=wp), intent(in) :: vfrac
-integer(kind=iwp), intent(inout) :: IFQCAN
-real(kind=wp), intent(inout) :: EMP2
 logical(kind=iwp), intent(in) :: DoMP2
-integer(kind=iwp), intent(in) :: NCMO
-real(kind=wp), intent(inout) :: CMO(NCMO)
-integer(kind=iwp) ns_V(8), nAct(8)
-integer(kind=iwp) lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-real(kind=wp) TrDP(8), TrDF(8)
-real(kind=wp), allocatable :: CMOX(:), DMAT(:), OrbE(:)
+real(kind=wp), intent(inout) :: EMP2, CMO(NCMO)
+integer(kind=iwp) :: i, iAoff, iCMO, ifr, ioff, ip_X, ip_Y, ip_Z, ip_ZZ, ipEorb, ipOrbE, ipOrbE_, iSkip, iSym, ito, j, jD, joff, &
+                     k, kEOcc, kEVir, kfr, kij, koff, kto, lij, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, mAsh, &
+                     nAct(8), nBasT, nBmx, nBx, nOA, nOrb, ns_V(8), nSQ, nSx, ntri, nVV
+real(kind=wp) :: Delta_TrD, Dummy, STrDF, STrDP, tmp, TrDF(8), TrDP(8)
 integer(kind=iwp), allocatable :: ID(:)
-real(kind=wp) Delta_TrD, Dummy, STrDF, STrDP, tmp
+real(kind=wp), allocatable :: CMOX(:), DMAT(:), OrbE(:)
 real(kind=wp), external :: DDot_
-integer(kind=iwp) i, iAoff, iCMO, ifr, ioff, ip_X, ip_Y, ip_Z, ip_ZZ, ipEorb, ipOrbE_, iSkip, iSym, ito, j, jD, joff, k, kEOcc, &
-                  kEVir, kfr, kij, koff, kto, lij, lOff, mAsh, nBasT, nBmx, nBx, nOA, nOrb, nSQ, nSx, ntri, nVV, ipOrbE
 
 irc = 0
 MP2_small = .false.

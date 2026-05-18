@@ -11,12 +11,16 @@
 
 module Sigma_data
 
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
+private
 
+integer(kind=iwp) :: IFTEST, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, LEN2, NFDXP, NFMV, NFR1, NFSCA, NLST1, &
+                     NLST2
 real(kind=wp) :: VAL1(2), VAL2(2)
-integer(kind=iwp) :: INCX1, INCX2, INCX3, INCF1, INCF2, INCY1, INCY2, INCY3, LEN1, LEN2, NLST1, NLST2
-integer(kind=iwp) :: NFSCA, NFDXP, NFMV, NFR1, IFTEST
+
+public :: IFTEST, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, LEN2, NFDXP, NFMV, NFR1, NFSCA, NLST1, NLST2, &
+          VAL1, VAL2
 
 end module Sigma_data

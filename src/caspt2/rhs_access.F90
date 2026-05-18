@@ -28,22 +28,20 @@ subroutine RHS_ACCESS(NAS,NIS,lg_W,iLo,iHi,jLo,jHi,MW)
 !     If there is no valid local block, then the routine returns 0 for
 !     iLo and jLo, and -1 for iHi and jHi. This way, loops from lower
 
-use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use definitions, only: u6
+use Definitions, only: u6
 #endif
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
 integer(kind=iwp), intent(out) :: iLo, iHi, jLo, jHi, MW
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: LDW, myRank
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) myRank, LDW
-#endif
 
-#ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
   ! get the superindex ranges of this process's block
   myRank = GA_NodeID()

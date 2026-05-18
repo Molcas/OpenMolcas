@@ -10,23 +10,29 @@
 !***********************************************************************
 
 #include "compiler_features.h"
-
 #ifdef _MOLCAS_MPP_
+
 module allgather_wrapper
 
-use definitions, only: iwp, wp, u6
+use mpi, only: MPI_COMM_WORLD, MPI_INTEGER
+#ifndef _NEED_EXPLICIT_MPI_INTERFACE_
+use mpi, only: MPI_AllGatherV
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6, MPIInt
 
 implicit none
 private
-public :: allgather
-public :: allgather_R, allgather_I
-
-interface allgather
-  module procedure :: allgather_R, allgather_I
-end interface
 
 #include "mpi_interfaces.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+
+interface allgather
+  module procedure :: allgather_R, allgather_R2, allgather_I, allgather_I2
+end interface
+
+public :: allgather
 
 contains
 
@@ -37,19 +43,14 @@ subroutine ALLGATHER_R(SEND,NSEND,RECV,NRECV)
   !            The receiving buffer is allocated by this subroutine.
   !*********************************************************************
 
-  use mpi
-  use definitions, only: MPIInt
+  use mpi, only: MPI_REAL8
 
-# include "warnings.h"
-# include "global.fh"
-# include "mafdecls.fh"
-  integer(kind=iwp), intent(in) :: nSend
+  integer(kind=iwp), intent(in) :: nSend, nRecv
   real(kind=wp), intent(in) :: SEND(nSend)
-  integer(kind=iwp), intent(in) :: nRecv
   real(kind=wp), intent(out) :: RECV(nRecv)
-  integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
-  integer(kind=MPIInt), allocatable :: NRECV4(:), IDISP4(:)
-  integer(kind=iwp) :: nBytes, nProcs, i
+  integer(kind=iwp) :: i, nBytes, nProcs
+  integer(kind=MPIInt) :: IERROR4, ITYPE4, nRecv4Tot, NSEND4(1)
+  integer(kind=MPIInt), allocatable :: IDISP4(:), NRECV4(:)
 
   ITYPE4 = MPI_REAL8
   NBYTES = 8*NRECV
@@ -100,6 +101,17 @@ subroutine ALLGATHER_R(SEND,NSEND,RECV,NRECV)
 
 end subroutine allgather_R
 
+subroutine ALLGATHER_R2(SEND,NSEND,RECV,NRECV)
+  ! wrapper for 2-dimensional arrays
+
+  integer(kind=iwp), intent(in) :: nSend, nRecv
+  real(kind=wp), intent(in) :: SEND(:,:)
+  real(kind=wp), intent(out) :: RECV(:,:)
+
+  call ALLGATHER_R(SEND,NSEND,RECV,NRECV)
+
+end subroutine ALLGATHER_R2
+
 subroutine ALLGATHER_I(SEND,NSEND,RECV,NRECV)
   !*********************************************************************
   ! allgather: gathers local buffers SEND of size NSEND on
@@ -107,19 +119,17 @@ subroutine ALLGATHER_I(SEND,NSEND,RECV,NRECV)
   !            The receiving buffer is allocated by this subroutine.
   !*********************************************************************
 
-  use mpi
-  use definitions, only: MPIInt
+# ifdef _I8_
+  use mpi, only: MPI_INTEGER8
+# else
+  use mpi, only: MPI_INTEGER4
+# endif
 
-#include "warnings.h"
-#include "global.fh"
-#include "mafdecls.fh"
-  integer(kind=iwp), intent(in) :: nSend
-  integer(kind=iwp), intent(in) :: SEND(nSend)
-  integer(kind=iwp), intent(in) :: nRecv
+  integer(kind=iwp), intent(in) :: nSend, SEND(nSend), nRecv
   integer(kind=iwp), intent(out) :: RECV(nRecv)
-  integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
-  integer(kind=MPIInt), allocatable :: NRECV4(:), IDISP4(:)
-  integer(kind=iwp) :: nBytes, nProcs, i
+  integer(kind=iwp) :: i, nBytes, nProcs
+  integer(kind=MPIInt) :: IERROR4, ITYPE4, nRecv4Tot, NSEND4(1)
+  integer(kind=MPIInt), allocatable :: IDISP4(:), NRECV4(:)
 
 # ifdef _I8_
   ITYPE4 = MPI_INTEGER8
@@ -172,7 +182,18 @@ subroutine ALLGATHER_I(SEND,NSEND,RECV,NRECV)
   end if
   call MMA_DEALLOCATE(NRECV4)
   call MMA_DEALLOCATE(IDISP4)
+
 end subroutine allgather_I
+
+subroutine ALLGATHER_I2(SEND,NSEND,RECV,NRECV)
+  ! wrapper for 2-dimensional arrays
+
+  integer(kind=iwp), intent(in) :: nSend, SEND(:,:), nRecv
+  integer(kind=iwp), intent(out) :: RECV(:,:)
+
+  call ALLGATHER_I(SEND,NSEND,RECV,NRECV)
+
+end subroutine ALLGATHER_I2
 
 end module allgather_wrapper
 
@@ -180,7 +201,6 @@ end module allgather_wrapper
 
 ! Some compilers do not like empty files
 #include "macros.fh"
-subroutine empty_ALLGATHER()
-end subroutine empty_ALLGATHER
+dummy_empty_procedure(allgather_wrapper)
 
 #endif

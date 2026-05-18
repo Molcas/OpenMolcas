@@ -13,7 +13,7 @@
 
 pure function IPROW(IROW,NQOT,NREM)
 
-  use definitions, only: iwp
+  use Definitions, only: iwp
 
   integer(kind=iwp) :: IPROW
   integer(kind=iwp), intent(in) :: IROW, NQOT, NREM

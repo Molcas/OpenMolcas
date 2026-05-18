@@ -13,15 +13,15 @@
 
 subroutine DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA)
 
-use caspt2_module, only: NSYM, NFRO, NISH, NASH, NDEL, NBAS
+use caspt2_module, only: NASH, NBAS, NDEL, NFRO, NISH, NSYM
 use Constants, only: Half
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nOLag, nAshT, NBSQT
 real(kind=wp), intent(in) :: OLag(nOLag), FIFA(NBSQT)
 real(kind=wp), intent(inout) :: DEPSA(nAshT,nAshT)
-integer(kind=iwp) :: iMO, iSym, nAshI, nOrbI, nFroI, nIshI, nBasI, iAsh, iOrb, jAsh, jOrb
+integer(kind=iwp) :: iAsh, iMO, iOrb, iSym, jAsh, jOrb, nAshI, nBasI, nFroI, nIshI, nOrbI
 real(kind=wp) :: EigI, EigJ, OLagIJ, OLagJI, Tmp
 
 ! This is much easier; similar to the frozen core approximation.

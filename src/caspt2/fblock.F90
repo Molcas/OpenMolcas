@@ -23,14 +23,13 @@ subroutine FBLOCK(FIFA,NO,NI,NA,NS,FIT,FTI,FIA,FAI,FTA,FAT)
 ! SVC: add transposed submatrices to avoid complicated strides in the
 ! low-level sgm subroutines
 
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NO, NI, NA, NS
 real(kind=wp), intent(in) :: FIFA((NO*(NO+1))/2)
-real(kind=wp), intent(out) :: FIT(NI,NA), FIA(NI,NS), FTA(NA,NS)
-real(kind=wp), intent(out) :: FTI(NA,NI), FAI(NS,NI), FAT(NS,NA)
-integer(kind=iwp) IT, II, IA, ITTOT, IATOT, ITI, IAI, IAT
+real(kind=wp), intent(out) :: FIT(NI,NA), FTI(NA,NI), FIA(NI,NS), FAI(NS,NI), FTA(NA,NS), FAT(NS,NA)
+integer(kind=iwp) :: IA, IAI, IAT, IATOT, II, IT, ITI, ITTOT
 
 do IT=1,NA
   ITTOT = NI+IT

@@ -24,22 +24,22 @@
 !***********************************************************************
 
 subroutine RHS_GET(NAS,NIS,lg_W,W)
-
-use definitions, only: iwp, wp
 !SVC: this routine copies a global array to a local buffer
-#ifdef _MOLCAS_MPP_
-use definitions, only: u6
-use Para_Info, only: Is_Real_Par
-#endif
+
 use fake_GA, only: GA_Arrays
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+use Definitions, only: u6
+#endif
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
 real(kind=wp), intent(out) :: W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: IOFF, MAX_MESG_SIZE, NIS_BATCH, NIS_END, NIS_STA
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) MAX_MESG_SIZE, NIS_BATCH, NIS_STA, NIS_END, IOFF
 
 if (Is_Real_Par()) then
   ! SVC: when the _total_ size of a message exceeds 2**31-1 _bytes_,

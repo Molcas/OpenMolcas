@@ -14,19 +14,17 @@
 ! MO->AO or AO->MO transformation of 1-RDM
 subroutine OLagTrf(mode,iSym,NBSQT,CMO,DPT2,DPT2AO,WRK)
 
-use caspt2_module, only: NFRO, NORB, NDEL, NBAS
+use caspt2_module, only: NBAS, NDEL, NFRO, NORB
 use Constants, only: Zero, One, Half
-use definitions, only: wp, iwp
-
-#include "intent.fh"
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mode, iSym, NBSQT
 real(kind=wp), intent(in) :: CMO(NBSQT)
 real(kind=wp), intent(inout) :: DPT2(NBSQT), DPT2AO(NBSQT)
-real(kind=wp), intent(_OUT_) :: WRK(NBSQT)
+real(kind=wp), intent(out) :: WRK(NBSQT)
 real(kind=wp) :: Val
-integer(kind=iwp) :: iCMO, iAO, iMO, jSym, nBasI, nOrbI, iBas, jBas
+integer(kind=iwp) :: iAO, iBas, iCMO, iMO, jBas, jSym, nBasI, nOrbI
 
 !! Mode = 1: MO -> AO transformation
 !! Mode = 2: AO -> MO transformation

@@ -13,63 +13,37 @@
 
 subroutine DERFG3(CI,NCONF,NLEV,NG3,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 
+use PrintLevel, only: DEBUG, VERBOSE
+use Symmetry_Info, only: Mul
+use sguga, only: CIS, EXS, L2ACT, SGS
+use Molcas, only: MxLev
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
+use caspt2_global, only: iPrGlb, nbuf1_grad
+use caspt2_module, only: EPSA, MxCI, nActEl, nSym, STSym
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
-#endif
-use caspt2_global, only: iPrGlb
-use PrintLevel, only: DEBUG, VERBOSE
-use caspt2_global, only: nbuf1_grad
-#ifdef _MOLCAS_MPP_
 use caspt2_global, only: iTasks_grad, nTasks_grad
 #endif
-use Symmetry_Info, only: Mul
-use sguga, only: CIS, L2ACT, SGS, EXS
-use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-use definitions, only: iwp, wp, u6, RtoB
-use caspt2_module, only: nActEl, nSym, STSym, EPSA
-use Molcas, only: MxLev
-use caspt2_module, only: MxCI
-use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 integer(kind=iwp), intent(in) :: nCONF, NLEV, NG3
 real(kind=wp), intent(in) :: CI(nCONF), DG3(NG3), DF3(NG3), G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
 real(kind=wp), intent(inout) :: CLAG(NCONF), DG1(NLEV,NLEV), DG2(NLEV,NLEV,NLEV,NLEV), DF1(NLEV,NLEV), DF2(NLEV,NLEV,NLEV,NLEV), &
                                 DEPSA(NLEV,NLEV)
-integer(kind=iwp) :: I, J, IDX, JDX
-integer(kind=iwp) :: IB, IBMN, IBMX, IBUF, NB, NBTOT, IBUF1
-integer(kind=iwp) :: IP1, IP2, IP3, IP1MN, IP1MX, IP1I, IP1STA, IP1END, IP3MX, IQ1
-integer(kind=iwp) :: IG3, IG3OFF, IG3BK
-integer(kind=iwp) :: ISTU, ISVX, ISYZ
-integer(kind=iwp) :: IT, IU, IV, IX, IY, IZ
-integer(kind=iwp) :: ITLEV, IULEV, IVLEV, IXLEV, IYLEV, IZLEV, IXLEV0
-integer(kind=iwp) :: NBUF1, NBUFX, NDTU, NDAB
-integer(kind=iwp) :: IOFFSET
-integer(kind=iwp) :: ISSG1, ISSG2, ISP1
-integer(kind=iwp) :: ITASK, ISUBTASK, ID, NTASKS, NSUBTASKS, MXTASK, MYTASK, MYBUFFER
-integer(kind=iwp) :: NSGM1, NSGM2
-integer(kind=iwp) :: NTRI1, NTRI2
-integer(kind=iwp) :: MEMMAX !, MEMMAX_SAFE
-integer(kind=iwp) :: NLEV2
-integer(kind=iwp) :: ICSF
-real(kind=wp), external :: DDOT_
-! translation tables for levels i,j to and from pair indices idx
-integer(kind=iwp) :: IJ2IDX(MXLEV,MXLEV)
-integer(kind=iwp) :: IDX2IJ(2,MXLEV**2)
-integer(kind=iwp) :: ICNJ(MXLEV**2)
-integer(kind=iwp) :: IP1_BUF(MXLEV**2)
-real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:), DTU(:,:), DYZ(:), DAB(:,:), BUF3(:), BUF4(:), BUFX(:,:)
-integer(kind=iwp), allocatable :: TASKLIST(:,:)
-! result buffer, maximum size is the largest possible ip1 range,
-! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
-!real(kind=wp) BUFR(MXLEV**2)
-!integer(kind=iwp) :: LFCDer1,LFCDer2
-integer(kind=iwp) :: iTask_loc
-real(kind=wp) :: SCAL, ScalG, ScalF
-!real(kind=wp) :: tmp,tmp2
+integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ICSF, ID, IDX, IG3, IG3BK, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, &
+                     IP1STA, IP2, IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, iTask_loc, ITLEV, &
+                     IU, IULEV, IV, IVLEV, IX, IXLEV, IXLEV0, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MXTASK, MYBUFFER, MYTASK, NB, &
+                     NBTOT, NBUF1, NBUFX, NDAB, NDTU, NLEV2, nMidV, NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
+real(kind=wp) :: SCAL, ScalF, ScalG
 logical(kind=iwp) :: first
-integer(kind=iwp) :: nMidV
+integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
+real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUF3(:), BUF4(:), BUFD(:), BUFT(:), BUFX(:,:), DAB(:,:), DTU(:,:), DYZ(:)
+real(kind=wp), external :: DDOT_
+
+! IJ2IDX, IDX2IJ: translation tables for levels i,j to and from pair indices idx
 
 nMidV = CIS%nMidV
 
@@ -86,6 +60,8 @@ if (NCONF == 0) return
 nlev2 = nlev**2
 ntri1 = (nlev2-nlev)/2
 ntri2 = (nlev2+nlev)/2
+call mma_allocate(idx2ij,2,nlev2,Label='idx2ij')
+call mma_allocate(ij2idx,nlev,nlev,Label='ij2idx')
 idx = 0
 do i=1,nlev-1
   do j=i+1,nlev
@@ -105,12 +81,14 @@ do i=1,nlev
   idx2ij(1,idx) = i
   idx2ij(2,idx) = i
 end do
+call mma_allocate(icnj,nlev2,Label='icnj')
 do idx=1,nlev2
   i = idx2ij(1,idx)
   j = idx2ij(2,idx)
   jdx = ij2idx(j,i)
   icnj(idx) = jdx
 end do
+call mma_deallocate(ij2idx)
 
 ! Correction to G3: It is now <0| E_tu E_vx E_yz |0>
 ! Similar for F3 values.
@@ -302,6 +280,8 @@ end if
 !CPUT = CPTF10-CPTF0
 !WALLT = TIOTF10-TIOTF0
 !write(u6,*) 'PREP    : CPU/WALL TIME=',cput,wallt
+
+call mma_allocate(ip1_buf,nlev2,Label='ip1_buf')
 
 iG3OFF = 0
 iTask_loc = 1
@@ -678,6 +658,10 @@ if (is_real_par() .and. (iTask_loc-1 /= nTasks_grad)) then
   call abend()
 end if
 #endif
+
+call mma_deallocate(idx2ij)
+call mma_deallocate(icnj)
+call mma_deallocate(ip1_buf)
 
 call mma_deallocate(TASKLIST)
 ! free CI buffers

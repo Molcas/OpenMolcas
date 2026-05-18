@@ -20,43 +20,38 @@
 subroutine DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF,U0)
 
 use CHOVEC_IO, only: nvloc_chobatch
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
-use caspt2_global, only: do_grad, do_csf, if_invar, iRoot1, iRoot2, nOLag, if_invaria, if_SSDM, CLag, CLagFull, OLag, SLag, &
-                         DPT2_tot, DPT2C_tot, DPT2_AO_tot, DPT2C_AO_tot, DPT2Canti_tot, FIMO_all, FIFA_all, OMGDER, jStLag, Weight
-use caspt2_global, only: FIMO, FIFA
-use caspt2_global, only: DREF, DMIX, CMOPT2, TORB, NDREF
-use caspt2_global, only: IDCIEX, IDTCEX
 use PrintLevel, only: DEBUG, VERBOSE
+use EQSOLV, only: IVECC2, IVECR, IVECX
+use ChoCASPT2, only: iALGO, MaxVec_PT2, NumCho_PT2
+use sguga, only: SGS
+use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, &
+                         DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_invar, if_invaria, if_SSDM, &
+                         imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, real_shift, sigma_p_epsilon, &
+                         SLag, TORB, Weight
+use caspt2_module, only: DENORM, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASH, NASHT, NBAS, &
+                         NBAST, NBSQT, NCONF, NFROT, NISH, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, ZETA
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 use caspt2_global, only: nCLag
 #endif
-use EQSOLV, only: IVECX, IVECR, IVECC2
-use ChoCASPT2, only: NumCho_PT2, iALGO, MaxVec_PT2
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
-use caspt2_module, only: IfChol, IFDENS, IFMSCOUP, IFDW, IFSADREF, MAXIT, NSYM, NCONF, NFROT, NISH, NRAS1T, NRAS2T, NRAS3T, &
-                         NROOTS, NASH, NAES, NASHT, NORB, NBAS, NBAST, NOSQT, NBSQT, iRlxRoot, JSTATE, DENORM, ZETA, ORBIN
 use Constants, only: Zero, One, Two, Half
-use sguga, only: SGS
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
 real(kind=wp), intent(inout) :: DMAT(NDMAT)
 real(kind=wp), intent(in) :: UEFF(nState,nState), U0(nState,nState)
-real(kind=wp), allocatable :: VECROT(:)
-real(kind=wp), allocatable :: DPT(:), DSUM(:), DPT2(:), DPT2_AO(:), DPT2C_AO(:), FPT2(:), FPT2C(:), FPT2_AO(:), FPT2C_AO(:), &
-                              Trf(:), WRK1(:), WRK2(:), RDMSA(:,:), RDMEIG(:,:), DEPSA(:,:), DEPSA_diag(:), DIA(:), DI(:), &
-                              A_PT2(:), T2AO(:), CLagT(:,:), EigT(:,:), OMGT(:,:), CI1(:)
+integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, IDM, IDMOFF, IDRF, IDSOFF, IDSUM, II, IP, IQ, iSQ, iState, iStLag, ISYM, IT, &
+                     ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, JJ, liBasSq, liBasTr, lT2AO, NA, nAO, nBasI, nch, NDPT, &
+                     nDPTAO, NI, NLEV, NO, nOcc, nOrbI, NumChoTot
+real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, wgt, X
+integer(kind=iwp), allocatable :: ISAV(:)
+real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), DPT2_AO(:), &
+                              DPT2C_AO(:), DSUM(:), EigT(:,:), FPT2(:), FPT2_AO(:), FPT2C(:), FPT2C_AO(:), OMGT(:,:), RDMEIG(:,:), &
+                              RDMSA(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
 real(kind=wp), allocatable, target :: DPT2Canti_(:), DPT2C(:)
 real(kind=wp), pointer :: DPT2Canti(:)
-integer(kind=iwp) :: NDPT, nDPTAO, ISYM, NO, nAO, IDMOFF, NI, NA, II, IDM, IT, ITABS, ITTOT, IU, IUTOT, IDRF, IUABS, I, J, nch, &
-                     iState, JJ, iStLag, ibk, NumChoTot, nOcc, lT2AO, iSQ, iTR, nOrbI, iBasTr, iBasSq, liBasTr, liBasSq, jBasI, &
-                     IDSOFF, IP, IQ, IDSUM, nBasI, iBasI, NLEV
-integer(kind=iwp), allocatable :: ISAV(:)
-real(kind=wp) :: wgt, val, Scal, X
-real(kind=wp) :: CPTF0, CPE, TIOTF0, TIOE, CPTF10, TIOTF10, CPUT, WALLT
 
 if (do_grad) then
   !! Set indices for densities and partial derivatives

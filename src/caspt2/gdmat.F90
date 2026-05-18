@@ -37,16 +37,15 @@ subroutine GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,nCMO,OCC,nOCC,GDAO,nGDAO)
 ! The symmetry blocks of D are then stored triangularly
 ! after each other in the array GDAO.
 
-use constants, only: Zero
-use definitions, only: wp, iwp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NSYM, nCMO, nOcc, nGDAO
+integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), ISTART(NSYM), NUSE(NSYM), nCMO, nOcc, nGDAO
 real(kind=wp), intent(in) :: CNAT(nCMO), OCC(nOcc)
 real(kind=wp), intent(out) :: GDAO(nGDAO)
-integer(kind=iwp), intent(in) :: ISTART(NSYM), NUSE(NSYM), NBAS(NSYM)
-integer(kind=iwp) IOEND, ICEND, IDAB, ISYM, NB, NW, IW1, IW2, IA, IB, IW
-real(kind=wp) DAB
+integer(kind=iwp) :: IOEND, ICEND, IDAB, ISYM, NB, NW, IW1, IW2, IA, IB, IW
+real(kind=wp) :: DAB
 
 IOEND = 0
 ICEND = 0

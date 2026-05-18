@@ -20,18 +20,18 @@
 subroutine EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,CMO,Trf,FPT2,FPT2C,FIFA,FIMO,RDMSA)
 
 use caspt2_global, only: OLag
+use caspt2_module, only: NASH, NBAS, NBAST, NDEL, NFRO, NFROT, NISH, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: NSYM, NFRO, NFROT, NISH, NASH, NORB, NDEL, NBAS, NBAST
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nAshT
 real(kind=wp), intent(in) :: DPT2(NBSQT), DPT2C(NBSQT), FPT2AO(NBSQT), FPT2CAO(NBSQT), CMO(NBSQT), Trf(NBSQT), FPT2(NBSQT), &
                              FPT2C(NBSQT), FIFA(NBSQT), FIMO(NBSQT), RDMSA(nAshT**2)
 real(kind=wp), intent(inout) :: RDMEIG(nAshT**2)
-real(kind=wp), allocatable :: WRK1(:), FPT2_loc(:), FPT2C_loc(:), RDMqc(:)
-integer(kind=iwp) :: iCMO, iAO, iSym, nBasI, nOrbI, iSQ, nFroI, nIshI, nAshI, nCor, iSQA, iT, iTabs, iU, iUabs, iTU, iTUA
+integer(kind=iwp) :: iAO, iCMO, iSQ, iSQA, iSym, iT, iTabs, iTU, iTUA, iU, iUabs, nAshI, nBasI, nCor, nFroI, nIshI, nOrbI
+real(kind=wp), allocatable :: FPT2_loc(:), FPT2C_loc(:), RDMqc(:), WRK1(:)
 
 call mma_allocate(WRK1,NBSQT,Label='WRK1')
 call mma_allocate(FPT2_loc,NBSQT,Label='FPT2_loc')

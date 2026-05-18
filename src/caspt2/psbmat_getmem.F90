@@ -18,14 +18,15 @@ subroutine PSBMAT_GETMEM(cNAME,lg_M,nSize)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-use fake_ga, only: GA_arrays, Allocate_GA_Array
-use constants, only: Zero
-use definitions, only: iwp
+use fake_ga, only: Allocate_GA_Array, GA_arrays
+use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) lg_M, nSize
-character(len=*) cNAME
-integer(kind=iwp) nTri
+character(len=*), intent(in) :: cNAME
+integer(kind=iwp), intent(out) :: lg_M
+integer(kind=iwp), intent(in) :: nSize
+integer(kind=iwp) :: nTri
 
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then

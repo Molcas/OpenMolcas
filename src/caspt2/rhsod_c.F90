@@ -14,27 +14,25 @@
 subroutine RHSOD_C(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use constants, only: Zero
-use SUPERINDEX, only: MTUV, MTREL, KTUV
-use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
-use caspt2_global, only: iPrGlb
+use SUPERINDEX, only: KTUV, MTREL, MTUV
+use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-use caspt2_global, only: FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
 use fake_GA, only: GA_Arrays
 #endif
-use caspt2_module, only: NACTEL, NASHT, NSYM, NASUP, NISUP, NTUVES, NSSH, NASH, NISH, NAES, NORB
+use caspt2_global, only: FIMO, iPrGlb
+use caspt2_module, only: NACTEL, NAES, NASH, NASHT, NASUP, NISH, NISUP, NORB, NSSH, NSYM, NTUVES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+integer(kind=iwp) :: IA, IAEND, IASTA, IAT, IATOT, ICASE, IDX, IIEND, IISTA, IOBRA(8,8), IOFFAT, IOFFVX, IOKET(8,8), ISYA, ISYM, &
+                     ISYT, ISYV, ISYX, IT, ITABS, ITTOT, ITVV, ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS, IVX, IX, IXABS, lg_W, MW, &
+                     NAS, NBRA, NFIMOES, NIS, NKET, NV, NW
+real(kind=wp) :: ADDONE, ATVX, FAT, SUMU
 real(kind=wp), allocatable :: BRA(:), KET(:)
-real(kind=wp) ADDONE, ATVX, FAT, SUMU
-integer(kind=iwp) IA, NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, IAT, IATOT, ICASE, IDX, IOFFAT, IOFFVX, ISYA, ISYM, ISYT, &
-                  ISYV, ISYX, IT, ITABS, ITTOT, ITVV, ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS, IVX, IX, IXABS, NBRA, NFIMOES, NKET, &
-                  NV, NW
 real(kind=wp), external :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"

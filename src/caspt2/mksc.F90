@@ -22,32 +22,29 @@
 !***********************************************************************
 subroutine MKSC(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
 
-use definitions, only: iwp, wp, u6, Byte
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use fake_GA, only: GA_Arrays
-use caspt2_module, only: NSYM, NINDEP, NTUV
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: NINDEP, NSYM, NTUV
+use Definitions, only: wp, iwp, u6, byte
 
 implicit none
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 integer(kind=iwp), intent(in) :: NDREF, NPREF, NG3
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
 real(kind=wp), intent(inout) :: G3(NG3)
-integer(kind=Byte), intent(in) :: idxG3(6,NG3)
-#ifdef _MOLCAS_MPP_
-real(kind=wp) Dummy(1)
-integer(kind=iwp) MYRANK, MC
-#endif
-integer(kind=iwp) ILO, IHI, JLO, JHI, LDC
-integer(kind=iwp) ICASE, ISYM, lg_SC, NAS, NIN, NSC, MSC
-real(kind=wp) DSC
+integer(kind=byte), intent(in) :: idxG3(6,NG3)
+integer(kind=iwp) :: ICASE, IHI, ILO, ISYM, JHI, JLO, LDC, lg_SC, MSC, NAS, NIN, NSC
+real(kind=wp) :: DSC
 real(kind=wp), external :: PSBMAT_FPRINT
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: MC, MYRANK
+real(kind=wp) :: Dummy(1)
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
 
 ICASE = 4
 ! LONG loop over superindex symmetry.

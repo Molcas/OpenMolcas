@@ -14,27 +14,21 @@
 
 subroutine xdwinit(Heff,H0,U0,nState)
 
-use Constants, only: Zero, One
-use definitions, only: wp, iwp, u6
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: do_grad
-use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
-use caspt2_global, only: FIFA, DREF, FIMO
-use caspt2_global, only: LUONEM
 use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
+use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, DREF, FIFA, FIMO, iPrGlb, LUONEM, NCMO
+use caspt2_module, only: CIThr, iAd1m, iSCF, mState, nAshT, nConf, NoTri, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: iSCF, nAshT, nConf, NoTri, STSym, iAd1m, mState
-use caspt2_module, only: CIThr
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NState
 real(kind=wp), intent(inout) :: Heff(Nstate,Nstate)
-real(kind=wp), intent(inout) :: H0(Nstate,Nstate)
-real(kind=wp), intent(inout) :: U0(Nstate,Nstate)
-real(kind=wp) :: wgt, FIJ
-integer(kind=iwp) :: iState, iDisk, I, J
-real(kind=wp), allocatable :: CI(:), DAVE(:), CIRef(:,:), CIXMS(:), HONE(:)
-logical(kind=iwp) Initiate
+real(kind=wp), intent(out) :: H0(Nstate,Nstate), U0(Nstate,Nstate)
+integer(kind=iwp) :: I, iDisk, iState, J
+real(kind=wp) :: FIJ, wgt
+logical(kind=iwp) :: Initiate
+real(kind=wp), allocatable :: CI(:), CIRef(:,:), CIXMS(:), DAVE(:), HONE(:)
 
 ! Allocate memory for CI array state averaged 1-RDM
 call mma_allocATE(CI,NCONF,Label='CI')

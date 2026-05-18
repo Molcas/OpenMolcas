@@ -19,21 +19,20 @@
 
 subroutine PMLTSCA(KOD,IMLTOP,LST1,LST2,X,NXI,NXA,F,NFI,NFA,lg_Y,NAS2,NIS2)
 
-use definitions, only: iwp, wp, u6
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use Sigma_data, only: NLST1, NLST2
 use fake_GA, only: GA_Arrays
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: KOD, IMLTOP, NXI, NXA, NFI, NFA, lg_Y, NAS2, NIS2
+integer(kind=iwp), intent(in) :: KOD, IMLTOP, LST1(4,NLST1), LST2(4,NLST2), NXI, NXA, NFI, NFA, lg_Y, NAS2, NIS2
 real(kind=wp), intent(inout) :: X(NXI,NXA), F(NFI,NFA)
-integer(kind=iwp), intent(in) :: LST1(4,NLST1), LST2(4,NLST2)
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iYHi, iYLo, jYHi, jYLo, LDY, mY, myRank
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) myRank, iYLo, iYHi, jYLo, jYHi, mY, LDY
 
 ! SVC: Determine the index ranges of the local chunks of lg_Y.
 ! The boundaries and leading dimension are stored in a common block for

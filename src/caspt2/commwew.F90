@@ -18,35 +18,30 @@
 !--------------------------------------------*
 
 subroutine COMMWEW(IVEC,JVEC,DCOM)
-
-use Symmetry_Info, only: Mul
-use constants, only: Zero, One, Two
-use SUPERINDEX, only: KTUV, KTGEU, KTGTU, KTU
-use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_global, only: LUSBT
-use EQSOLV, only: IDSMAT
-use caspt2_module, only: NSYM, NASUP, NISUP, NASHT, NTUVES, NASH, NAES, IASYM, NTGEUES, NTGTUES, NTUES
-use definitions, only: iwp, wp
-
-implicit none
-integer(kind=iwp), intent(in) :: IVEC, JVEC
-real(kind=wp), intent(inout) :: DCOM(NASHT,NASHT)
-real(kind=wp), allocatable :: CBLK(:), TBLK(:), SMAT(:)
-integer(kind=iwp) ICASE, ISYM, NAS, NIS, NCBLK, NS, IDS
-integer(kind=iwp) K000, IIS, ISYMT, ISYMTU, ISYMU, ISYMX, ITABS, ITUX, ITUY, ITXU, ITYU, IU, IUABS, IX, IXABS, IXTU, IY, IYABS, &
-                  IYTU, NAX
-real(kind=wp) SUM
-integer(kind=iwp) IT, IXT, IYT
-real(kind=wp) PARTSUM
-real(kind=wp) SGN
-integer(kind=iwp) ITX1, ITX2, ITY1, ITY2, IXT1, IXT2, IYT1, IYT2, NAS1
-
 ! This subroutine is one of the components needed to compute the active/active
 ! transition density matrix elements for the two first-order vectors IVEC and
 ! JVEC.
 ! Adds, into the matrix DCOM, a correction obtained by commutation relations.
 ! Present assumption: The two vectors nr. IVEC and JVEC, stored on LUSOLV,
 ! are both in contravariant representation. Possibly, IVEC equals JVEC.
+
+use Symmetry_Info, only: Mul
+use SUPERINDEX, only: KTGEU, KTGTU, KTU, KTUV
+use EQSOLV, only: IDSMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: IASYM, NAES, NASH, NASHT, NASUP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES, NTUVES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: IVEC, JVEC
+real(kind=wp), intent(inout) :: DCOM(NASHT,NASHT)
+integer(kind=iwp) :: ICASE, IDS, IIS, ISYM, ISYMT, ISYMTU, ISYMU, ISYMX, IT, ITABS, ITUX, ITUY, ITX1, ITX2, ITXU, ITY1, ITY2, &
+                     ITYU, IU, IUABS, IX, IXABS, IXT, IXT1, IXT2, IXTU, IY, IYABS, IYT, IYT1, IYT2, IYTU, K000, NAS, NAS1, NAX, &
+                     NCBLK, NIS, NS
+real(kind=wp) :: PARTSUM, rSUM, SGN
+real(kind=wp), allocatable :: CBLK(:), SMAT(:), TBLK(:)
 
 do ICASE=1,11
   do ISYM=1,NSYM
@@ -87,7 +82,7 @@ do ICASE=1,11
             do IY=1,NAX
               IYABS = NAES(ISYMX)+IY
 
-              SUM = Zero
+              rSUM = Zero
               ISYMTU = Mul(ISYMX,ISYM)
               do ITABS=1,NASHT
                 ISYMT = IASYM(ITABS)
@@ -103,14 +98,14 @@ do ICASE=1,11
                   ITUX = KTUV(ITABS,IUABS,IXABS)-K000
 
                   do IIS=1,NIS
-                    SUM = SUM+CBLK(IXTU+NAS*(IIS-1))*TBLK(IYTU+NAS*(IIS-1))
-                    SUM = SUM+CBLK(ITXU+NAS*(IIS-1))*TBLK(ITYU+NAS*(IIS-1))
-                    SUM = SUM-CBLK(ITUY+NAS*(IIS-1))*TBLK(ITUX+NAS*(IIS-1))
+                    rSUM = rSUM+CBLK(IXTU+NAS*(IIS-1))*TBLK(IYTU+NAS*(IIS-1))
+                    rSUM = rSUM+CBLK(ITXU+NAS*(IIS-1))*TBLK(ITYU+NAS*(IIS-1))
+                    rSUM = rSUM-CBLK(ITUY+NAS*(IIS-1))*TBLK(ITUX+NAS*(IIS-1))
                   end do
 
                 end do
               end do
-              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
             end do
           end do
@@ -125,7 +120,7 @@ do ICASE=1,11
             do IY=1,NAX
               IYABS = NAES(ISYMX)+IY
 
-              SUM = Zero
+              rSUM = Zero
               ISYMT = Mul(ISYMX,ISYM)
               do IT=1,NASH(ISYMT)
                 ITABS = NAES(ISYMT)+IT
@@ -144,9 +139,9 @@ do ICASE=1,11
                   PARTSUM = PARTSUM+CBLK(IXT+NAS*(IIS-1))*TBLK(IYT+NAS*(IIS-1))
                 end do
                 if (ITABS == IXABS) PARTSUM = Two*PARTSUM
-                SUM = SUM+PARTSUM
+                rSUM = rSUM+PARTSUM
               end do
-              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
             end do
           end do
@@ -161,7 +156,7 @@ do ICASE=1,11
             do IY=1,NAX
               IYABS = NAES(ISYMX)+IY
 
-              SUM = Zero
+              rSUM = Zero
               ISYMT = Mul(ISYMX,ISYM)
               do IT=1,NASH(ISYMT)
                 ITABS = NAES(ISYMT)+IT
@@ -184,10 +179,10 @@ do ICASE=1,11
                 do IIS=1,NIS
                   PARTSUM = PARTSUM+CBLK(IXT+NAS*(IIS-1))*TBLK(IYT+NAS*(IIS-1))
                 end do
-                SUM = SUM+SGN*PARTSUM
+                rSUM = rSUM+SGN*PARTSUM
 
               end do
-              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
             end do
           end do
@@ -204,7 +199,7 @@ do ICASE=1,11
             do IY=1,NAX
               IYABS = NAES(ISYMX)+IY
 
-              SUM = Zero
+              rSUM = Zero
               ISYMTU = Mul(ISYMX,ISYM)
               do ITABS=1,NASHT
                 ISYMT = IASYM(ITABS)
@@ -220,14 +215,14 @@ do ICASE=1,11
                   ITUX = KTUV(ITABS,IUABS,IXABS)-K000
 
                   do IIS=1,NIS
-                    SUM = SUM-CBLK(IYTU+NAS*(IIS-1))*TBLK(IXTU+NAS*(IIS-1))
-                    SUM = SUM+CBLK(ITXU+NAS*(IIS-1))*TBLK(ITYU+NAS*(IIS-1))
-                    SUM = SUM-CBLK(ITUY+NAS*(IIS-1))*TBLK(ITUX+NAS*(IIS-1))
+                    rSUM = rSUM-CBLK(IYTU+NAS*(IIS-1))*TBLK(IXTU+NAS*(IIS-1))
+                    rSUM = rSUM+CBLK(ITXU+NAS*(IIS-1))*TBLK(ITYU+NAS*(IIS-1))
+                    rSUM = rSUM-CBLK(ITUY+NAS*(IIS-1))*TBLK(ITUX+NAS*(IIS-1))
                   end do
 
                 end do
               end do
-              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
             end do
           end do
@@ -244,7 +239,7 @@ do ICASE=1,11
             do IY=1,NAX
               IYABS = NAES(ISYMX)+IY
 
-              SUM = Zero
+              rSUM = Zero
               ISYMT = Mul(ISYMX,ISYM)
               do IT=1,NASH(ISYMT)
                 ITABS = NAES(ISYMT)+IT
@@ -257,13 +252,13 @@ do ICASE=1,11
                 ITX2 = ITX1+NAS1
                 ITY2 = ITY1+NAS1
                 do IIS=1,NIS
-                  SUM = SUM+CBLK(IXT1+NAS*(IIS-1))*TBLK(IYT1+NAS*(IIS-1))
-                  SUM = SUM-CBLK(ITY1+NAS*(IIS-1))*TBLK(ITX1+NAS*(IIS-1))
-                  SUM = SUM+CBLK(IXT2+NAS*(IIS-1))*TBLK(IYT2+NAS*(IIS-1))
-                  SUM = SUM-CBLK(ITY2+NAS*(IIS-1))*TBLK(ITX2+NAS*(IIS-1))
+                  rSUM = rSUM+CBLK(IXT1+NAS*(IIS-1))*TBLK(IYT1+NAS*(IIS-1))
+                  rSUM = rSUM-CBLK(ITY1+NAS*(IIS-1))*TBLK(ITX1+NAS*(IIS-1))
+                  rSUM = rSUM+CBLK(IXT2+NAS*(IIS-1))*TBLK(IYT2+NAS*(IIS-1))
+                  rSUM = rSUM-CBLK(ITY2+NAS*(IIS-1))*TBLK(ITX2+NAS*(IIS-1))
                 end do
               end do
-              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
             end do
           end do
@@ -277,11 +272,11 @@ do ICASE=1,11
           do IY=1,NAX
             IYABS = NAES(ISYM)+IY
 
-            SUM = Zero
+            rSUM = Zero
             do IIS=1,NIS
-              SUM = SUM+CBLK(IX+NAS*(IIS-1))*TBLK(IY+NAS*(IIS-1))
+              rSUM = rSUM+CBLK(IX+NAS*(IIS-1))*TBLK(IY+NAS*(IIS-1))
             end do
-            DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+            DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
           end do
         end do
@@ -294,11 +289,11 @@ do ICASE=1,11
           do IY=1,NAX
             IYABS = NAES(ISYM)+IY
 
-            SUM = Zero
+            rSUM = Zero
             do IIS=1,NIS
-              SUM = SUM+CBLK(IX+NAS*(IIS-1))*TBLK(IY+NAS*(IIS-1))
+              rSUM = rSUM+CBLK(IX+NAS*(IIS-1))*TBLK(IY+NAS*(IIS-1))
             end do
-            DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+            DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
           end do
         end do
@@ -312,7 +307,7 @@ do ICASE=1,11
             do IY=1,NAX
               IYABS = NAES(ISYMX)+IY
 
-              SUM = Zero
+              rSUM = Zero
               ISYMT = Mul(ISYMX,ISYM)
               do IT=1,NASH(ISYMT)
                 ITABS = NAES(ISYMT)+IT
@@ -331,10 +326,10 @@ do ICASE=1,11
                   PARTSUM = PARTSUM-CBLK(IYT+NAS*(IIS-1))*TBLK(IXT+NAS*(IIS-1))
                 end do
                 if (ITABS == IYABS) PARTSUM = Two*PARTSUM
-                SUM = SUM+PARTSUM
+                rSUM = rSUM+PARTSUM
 
               end do
-              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
             end do
           end do
@@ -349,7 +344,7 @@ do ICASE=1,11
             do IY=1,NAX
               IYABS = NAES(ISYMX)+IY
 
-              SUM = Zero
+              rSUM = Zero
               ISYMT = Mul(ISYMX,ISYM)
               do IT=1,NASH(ISYMT)
                 ITABS = NAES(ISYMT)+IT
@@ -372,10 +367,10 @@ do ICASE=1,11
                 do IIS=1,NIS
                   PARTSUM = PARTSUM-CBLK(IYT+NAS*(IIS-1))*TBLK(IXT+NAS*(IIS-1))
                 end do
-                SUM = SUM+SGN*PARTSUM
+                rSUM = rSUM+SGN*PARTSUM
 
               end do
-              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+              DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
             end do
           end do
@@ -389,11 +384,11 @@ do ICASE=1,11
           do IY=1,NAX
             IYABS = NAES(ISYM)+IY
 
-            SUM = Zero
+            rSUM = Zero
             do IIS=1,NIS
-              SUM = SUM-CBLK(IY+NAS*(IIS-1))*TBLK(IX+NAS*(IIS-1))
+              rSUM = rSUM-CBLK(IY+NAS*(IIS-1))*TBLK(IX+NAS*(IIS-1))
             end do
-            DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+            DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
           end do
         end do
@@ -406,11 +401,11 @@ do ICASE=1,11
           do IY=1,NAX
             IYABS = NAES(ISYM)+IY
 
-            SUM = Zero
+            rSUM = Zero
             do IIS=1,NIS
-              SUM = SUM-CBLK(IY+NAS*(IIS-1))*TBLK(IX+NAS*(IIS-1))
+              rSUM = rSUM-CBLK(IY+NAS*(IIS-1))*TBLK(IX+NAS*(IIS-1))
             end do
-            DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+SUM
+            DCOM(IXABS,IYABS) = DCOM(IXABS,IYABS)+rSUM
 
           end do
         end do

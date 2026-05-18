@@ -71,51 +71,44 @@ subroutine OLagNS_RI(iSym0,NBSQT,MaxVec_PT2,DPT2C,DPT2Canti,A_PT2)
 
 use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: NVLOC_CHOBATCH
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: do_csf, iStpGrd
 use PrintLevel, only: VERBOSE
 use EQSOLV, only: IVECC2
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: iwp, wp, u6
 use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array
 use Para_Info, only: Is_Real_Par
 #endif
-use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH, NAES, NSSH, NSES, NORBT, NINABX, NSECBX
-use caspt2_module, only: NTUV, NTU, NTGEU, NTGTU, NIGEJ, NIGTJ, NAGEB, NAGTB, NTUVES, NTUES, NTGEUES, NTGTUES, NIGEJES, NIGTJES, &
-                         NAGEBES, NAGTBES, NASUP, NISUP, NINDEP, NBTCH, NBTCHES
-use Constants, only: Zero, One, Quart, Half, Two, Three, OneHalf
+use caspt2_global, only: do_csf, iPrGlb, iStpGrd
+use caspt2_module, only: NACTEL, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, NIGEJES, &
+                         NIGTJ, NIGTJES, NINABX, NINDEP, NISH, NISUP, NORBT, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, NTGTU, &
+                         NTGTUES, NTU, NTUES, NTUV, NTUVES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
+use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
 #include "macros.fh"
 
 implicit none
-#include "warnings.h"
+integer(kind=iwp), intent(in) :: iSym0, NBSQT, MaxVec_PT2
+real(kind=wp), intent(inout) :: DPT2C(NBSQT), DPT2Canti(NBSQT), A_PT2(MaxVec_PT2,MaxVec_PT2)
+integer(kind=iwp) :: IAABS, IAEND, IAGEC, IAGTC, IAJ, IAJSTA, iAtot, IB, IB1, IB2, IBEND, IBGRP, IBSTA, ICABS, ICASE, ICEND, ICL, &
+                     ICLSTA, IJABS, IJEND, IJGEL, IJGTL, iJtot, ILABS, ILEND, ILMAX, IO, IO1, IO2, IOFFCV, ipT, ipTanti, ipTM, &
+                     ipTP, ISAB, ISI, ISIJ, iStpGrd_sav, ISYA, ISYAC, ISYC, ISYII, ISYJ, ISYJL, ISYL, iSym, ISYT, ISYU, ISYV, &
+                     ISYX, ITABS, iTtot, IUABS, iUtot, IVABS, IVMAX, iVtot, IW, IW1, IW2, IXABS, IXMAX, iXtot, JB, JBEND, JBGRP, &
+                     JBSTA, JGEL, JGTL, JOFFCV, JSYM, KAJ, KCL, MXBGRP, MXPIQK, NADDBUF, NAS, NAS1, NASM, NASP, NASZ, NBGRP, nBra, &
+                     NBXSZA, NBXSZC, NBXSZJ, NBXSZL, NCHOBUF, NCSZ, NIN, NINM, NINP, NIS, NISM, NISP, NJSZ, nKet, nOrbA, nSh(8,3), &
+                     NV, NVEC, NVI, NVJ, NW, NWA, NWBM, NWBP, NWC, NWD, NWEM, NWEP, NWFM, NWFP, NWGM, NWGP, NWHM, NWHP
+real(kind=wp) :: SCL, SCL1, SCLNEL
+integer(kind=iwp), allocatable :: BGRP(:,:)
+real(kind=wp), allocatable :: BRA(:), BRAD(:), KET(:), KETD(:), PIQK(:)
+integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
+real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ3 = sqrt(Three), SQ05 = sqrt(Half), SQ32 = sqrt(OneHalf)
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: i, lg_V, lg_V1, myRank, ndim2, NPROCS
+integer(kind=iwp), allocatable :: map2(:)
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-integer(kind=iwp), intent(in) :: iSym0, NBSQT, MaxVec_PT2
-real(kind=wp), intent(inout) :: DPT2C(NBSQT), DPT2Canti(NBSQT), A_PT2(MaxVec_PT2,MaxVec_PT2)
-integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
-integer(kind=iwp), allocatable :: BGRP(:,:)
-real(kind=wp), allocatable :: BRA(:), KET(:), BRAD(:), KETD(:), PIQK(:)
-#ifdef _MOLCAS_MPP_
-integer(kind=iwp), allocatable :: map2(:)
-integer(kind=iwp) :: myRank, NPROCS, i, lg_V, lg_V1, ndim2
-#endif
-integer(kind=iwp) :: nSh(8,3), iSym, JSYM, IB1, IB2, MXBGRP, IBGRP, IB, NBGRP, iStpGrd_sav, NCHOBUF, MXPIQK, NADDBUF, IOFFCV, &
-                     IBSTA, IBEND, NV, nBra, nKet, NVI, JOFFCV, JBGRP, JBSTA, JBEND, NVJ, JB
-real(kind=wp) :: SCLNEL
-integer(kind=iwp) :: ICASE, ISYT, ISYU, ISYV, ISYX, ISYJ, ISYL, ISYA, ISYC, ISYJL, ISYAC, ISYII, ISIJ, ISAB, ISI, NAS, NIS, NIN, &
-                     NAS1, NASP, NISP, NINP, NASM, NISM, NINM, NWA, NWBP, NWBM, NWC, NWD, NWEP, NWEM, NWFP, NWFM, NWGP, NWGM, &
-                     NWHP, NWHM, NW, NVEC, ipT, ipTP, ipTM, ipTanti, ITABS, iTtot, IUABS, iUtot, IVABS, iVtot, IVMAX, IXABS, &
-                     iXtot, IXMAX, IJABS, iJtot, ILABS, IAABS, iAtot, ICABS, IW1, IW2, IW, nOrbA, IO, IO1, IO2, NBXSZA, NBXSZC, &
-                     NBXSZJ, NBXSZL, IAEND, NASZ, ICEND, NCSZ, IJEND, NJSZ, ILEND, ILMAX, IAJSTA, IAJ, KAJ, ICLSTA, ICL, KCL, &
-                     IAGEC, IAGTC, IJGEL, IJGTL, JGEL, JGTL
-real(kind=wp) :: SCL, SCL1
-real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ3 = sqrt(Three), SQ05 = sqrt(Half), SQ32 = sqrt(OneHalf)
 
 nSh(1:nSym,Inactive) = NISH(1:nSym)
 nSh(1:nSym,Active) = NASH(1:nSym)
@@ -404,19 +397,19 @@ return
 
 contains
 
-subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,case,nBra,nKet,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD)
+subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,iCase,nBra,nKet,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD)
 
   use caspt2_global, only: iPrGlb
   use PrintLevel, only: DEBUG
 
   integer(kind=iwp), intent(in) :: ITI, ITP, ITK, ITQ, nBra, nKet
-  character(len=2), intent(in) :: case
+  character(len=2), intent(in) :: iCase
   real(kind=wp), intent(in) :: Cho_Bra(nBra), Cho_Ket(nKet)
   real(kind=wp), intent(inout) :: Cho_BraD(nBra), Cho_KetD(nKet)
-  integer(kind=iwp) :: LBRASM, ISYI, NI, ISYP, NP, NPI, NBRASM,LKETSM, ISYK, NK, ISYQ, NQ, NQK, NKETSM, NPIQK, KPI, KQK
-  real(kind=wp) :: TotCPU0, TotWall0, TotCPU1, TotWall1
+  integer(kind=iwp) :: ISYI, ISYK, ISYP, ISYQ, KPI, KQK, LBRASM, LKETSM, NBRASM, NI, NK, NKETSM, NP, NPI, NPIQK, NQ, NQK
+  real(kind=wp) :: TotCPU0, TotCPU1, TotWall0, TotWall1
 
-  if (iPrGlb >= DEBUG) write(u6,*) 'Processing RHS block '//case
+  if (iPrGlb >= DEBUG) write(u6,*) 'Processing RHS block '//iCase
 
   LBRASM = 1
   call CWTime(TotCPU0,TotWall0)
@@ -448,15 +441,15 @@ subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,case,nBra,nKet,Cho_Bra,Cho_Ket,Cho_BraD,Ch
       ! larger than some predefined maximum buffer size.
       NPIQK = NPI*NQK
       if (NPIQK > MXPIQK) then
-        if (case == 'H') then
+        if (iCase == 'H') then
           KPI = MXPIQK/NQK
           NPIQK = KPI*NQK
-        else if (case == 'G') then
+        else if (iCase == 'G') then
           KQK = MXPIQK/NPI
           NPIQK = NPI*KQK
         else
           write(u6,*) ' NPIQK > MXPIQK and case != G or H'
-          write(u6,'(A,A2)') ' CASE =   ',case
+          write(u6,'(A,A2)') ' CASE =   ',iCase
           write(u6,'(A,I12)') ' NPIQK =  ',NPIQK
           write(u6,'(A,I12)') ' MXPIQK = ',MXPIQK
           write(u6,*) ' This should not happen, please report.'
@@ -470,7 +463,7 @@ subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,case,nBra,nKet,Cho_Bra,Cho_Ket,Cho_BraD,Ch
       end if
 
       !! NBUFF(=nAddBuf) is removed
-      select case (case)
+      select case (iCase)
         case ('A ')
           call OLagNS_RI_A(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('B ')
@@ -498,7 +491,7 @@ subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,case,nBra,nKet,Cho_Bra,Cho_Ket,Cho_BraD,Ch
     LBRASM = LBRASM+NBRASM
   end do
   call CWTime(TotCPU1,TotWall1)
-  if (IPRGLB >= VERBOSE) write(u6,'(" CPU/Wall Time (Case ",A2,"):",2f10.2)') case,totcpu1-totcpu0,totwall1-totwall0
+  if (IPRGLB >= VERBOSE) write(u6,'(" CPU/Wall Time (Case ",A2,"):",2f10.2)') iCase,totcpu1-totcpu0,totwall1-totwall0
 
   return
 
@@ -513,7 +506,7 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,NTJVX,Cho_Bra,Cho_Ket,Cho_BraD
   real(kind=wp), intent(out) :: TJVX(NT,NJ,NV,NX)
   real(kind=wp), intent(in) :: Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NT,NJ,NCHO), Cho_KetD(NV,NX,NCHO)
-  integer(kind=iwp) :: IT, IJ, IV, IX
+  integer(kind=iwp) :: IJ, IT, IV, IX
 
   ISYJ = ISYI
   ISYX = ISYK
@@ -619,13 +612,13 @@ end subroutine OLagNS_RI_A
 
 subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
-  use SUPERINDEX, only: KIGTJ, KIGEJ, KTGTU, KTGEU
+  use SUPERINDEX, only: KIGEJ, KIGTJ, KTGEU, KTGTU
 
   integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NJ, NV, NL, NTJVL, NCHO
   real(kind=wp), intent(out) :: TJVL(NT,NJ,NV,NL)
   real(kind=wp), intent(in) :: Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NT,NJ,NCHO), Cho_KetD(NV,NL,NCHO)
-  integer(kind=iwp) :: IT, IV, IJ, IL
+  integer(kind=iwp) :: IJ, IL, IT, IV
 
   ISYJ = ISYI
   ISYL = ISYK
@@ -798,15 +791,15 @@ end subroutine OLagNS_RI_B
 
 subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,NAUVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
-  use SUPERINDEX
+  use SUPERINDEX, only: KTUV
   use caspt2_global, only: do_csf
 
   integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NV, NX, NAUVX, NCHO
   real(kind=wp), intent(out) :: AUVX(NA,NU,NV,NX)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO), Cho_KetD(NV,NX,NCHO)
-  real(kind=wp) :: ValCF
   integer(kind=iwp) :: IA, IU, IV, IX
+  real(kind=wp) :: ValCF
 
   ISYU = ISYI
   ISYX = ISYK
@@ -917,12 +910,10 @@ subroutine OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,NAJVX,Cho_Bra,Cho_Ket,Cho_Bra
   use caspt2_global, only: do_csf
 
   integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NX, NAJVX, NCHO
-  real(kind=wp), intent(_OUT_) :: AJVX(NV,NX,NA*NJ)
+  real(kind=wp), intent(out) :: AJVX(NV,NX,NA*NJ)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO), Cho_KetD(NV,NX,NCHO)
-  !logical Incore
-  integer(kind=iwp) :: IOFFD(8,8)
-  integer(kind=iwp) :: ISW, ISA, IASTA, IJSTA, IJ, IA, IX, IV
+  integer(kind=iwp) :: IA, IASTA, IJ, IJSTA, IOFFD(8,8), ISA, ISW, IV, IX
 
   ISYJ = ISYI
   ISYX = ISYK
@@ -1053,9 +1044,7 @@ subroutine OLagNS_RI_D2(ISYI,ISYK,NA,NU,NV,NL,AUVL,NAUVL,Cho_Bra,Cho_Ket,Cho_Bra
   real(kind=wp), intent(out) :: AUVL(NA,NU,NV,NL)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO), Cho_KetD(NV,NL,NCHO)
-  !logical Incore
-  integer(kind=iwp) :: IOFFD(8,8)
-  integer(kind=iwp) :: ISYW, ISYA, IA, IU, IV, IL
+  integer(kind=iwp) :: IA, IL, IOFFD(8,8), ISYA, ISYW, IU, IV
 
   ISYU = ISYI
   ISYL = ISYK
@@ -1156,15 +1145,13 @@ end subroutine OLagNS_RI_D2
 
 subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
-  use SUPERINDEX, only: KIGTJ, KIGEJ
+  use SUPERINDEX, only: KIGEJ, KIGTJ
 
   integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NL, NAJVL, NCHO
-  real(kind=wp), intent(_OUT_) :: AJVL(NV,NL,NA*NJ)
+  real(kind=wp), intent(out) :: AJVL(NV,NL,NA*NJ)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO), Cho_KetD(NV,NL,NCHO)
-  !logical Incore
-  integer(kind=iwp) :: IOFF1(8), IOFF2(8)
-  integer(kind=iwp) :: ISA, IASTA, IJSTA, IJ, IA, IV, IL
+  integer(kind=iwp) :: IA, IASTA, IJ, IJSTA, IL, IOFF1(8), IOFF2(8), ISA, IV
 
   ISYJ = ISYI
   ISYL = ISYK
@@ -1384,7 +1371,7 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,NAUCX,Cho_Bra,Cho_Ket,Cho_BraD
   real(kind=wp), intent(out) :: AUCX(NA,NU,NC,NX)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO), Cho_KetD(NC,NX,NCHO)
-  integer(kind=iwp) :: IU, IX, IA, IC
+  integer(kind=iwp) :: IA, IC, IU, IX
 
   ISYU = ISYI
   ISYX = ISYK
@@ -1564,12 +1551,10 @@ subroutine OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,Cho_Bra,Cho_Ket,Cho_BraD
   use SUPERINDEX, only: KAGEB, KAGTB
 
   integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NC, NL, NAUCL, NCHO
-  real(kind=wp), intent(_OUT_) :: AUCL(NA,NU,NC*NL)
+  real(kind=wp), intent(out) :: AUCL(NA,NU,NC*NL)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NL,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO), Cho_KetD(NC,NL,NCHO)
-  !logical Incore
-  integer(kind=iwp) :: IOFF1(8), IOFF2(8)
-  integer(kind=iwp) :: ISI, ICSTA, ILSTA, IL, IC, IA, IU
+  integer(kind=iwp) :: IA, IC, ICSTA, IL, ILSTA, IOFF1(8), IOFF2(8), ISI, IU
 
   ISYU = ISYI
   ISYL = ISYK
@@ -1801,10 +1786,10 @@ subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,Cho_Bra,Cho_Ket,Cho_BraD
   use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ
 
   integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NC, NL, NAJCL, NCHO
-  real(kind=wp), intent(_OUT_) :: AJCL(NC*NL,NA*NJ)
+  real(kind=wp), intent(out) :: AJCL(NC*NL,NA*NJ)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO), Cho_Ket(NC,NL,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO), Cho_KetD(NC,NL,NCHO)
-  integer(kind=iwp) :: IASTA, IJSTA, ICSTA, ILSTA, IJ, IA, IL, IC
+  integer(kind=iwp) :: IA, IASTA, IC, ICSTA, IJ, IJSTA, IL, ILSTA
 
   ISYJ = ISYI
   ISYL = ISYK
@@ -2067,8 +2052,8 @@ subroutine Cnst_A_PT2(block1,block2)
   integer(kind=iwp), intent(in) :: block1, block2
   integer(kind=iwp) :: ndim1
 # ifdef _MOLCAS_MPP_
+  integer(kind=iwp) :: IHIV1, ILOV1, iRank, JHIV1, JLOV1, MV1
   logical(kind=iwp) :: bstat
-  integer(kind=iwp) :: ILOV1, IHIV1, JLOV1, JHIV1, MV1, iRank
 # endif
 
   ndim1 = nSh(iSym0,block1)*nSh(iSym0,block2)

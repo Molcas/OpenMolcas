@@ -2091,8 +2091,7 @@ contains
 
 subroutine Allocate_and_Load_PSOP()
 
-  integer KPROP
-  integer IAMX, IAMY, IAMZ
+  integer :: IAMX, IAMY, IAMZ, KPROP
 
   IAMX = 0
   IAMY = 0

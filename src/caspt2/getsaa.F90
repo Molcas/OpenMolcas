@@ -14,16 +14,15 @@
 subroutine get_Saa(nSym,nBas,nOrb,Smn,nSmn,Xmo,nXmo,Saa,nSaa)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use constants, only: Zero, One
-use definitions, only: iwp, wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym)
-integer(kind=iwp), intent(in) :: nXmo, nSmn, nSaa
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb(nSym), nSmn, nXmo, nSaa
 real(kind=wp), intent(in) :: Smn(nSmn), Xmo(nXmo)
 real(kind=wp), intent(out) :: Saa(nSaa)
+integer(kind=iwp) :: iSym, iX, j, jK, jX, jZ, kX, lk, lX, mOb, nBX
 real(kind=wp), allocatable :: Z(:)
-integer(kind=iwp) mOb, iSym, iX, kX, lX, nBX, j, jK, jX, jZ, lk
 real(kind=wp), external :: DDot_
 
 mOb = nBas(1)*nOrb(1)

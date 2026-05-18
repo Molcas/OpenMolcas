@@ -19,20 +19,19 @@
 
 subroutine MKBG(DREF,NDREF,FD)
 
-use definitions, only: iwp, wp
-use constants, only: half, two
-use caspt2_global, only: ipea_shift
-use caspt2_global, only: LUSBT
-use EQSOLV, only: IDSMAT, IDBMAT
+use EQSOLV, only: IDBMAT, IDSMAT
+use caspt2_global, only: ipea_shift, LUSBT
+use caspt2_module, only: EASUM, NAES, NASH, NINDEP, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NASH, NAES, EASUM
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF
 real(kind=wp), intent(in) :: DREF(NDREF), FD(NDREF)
+integer(kind=iwp) :: I, IBG, ID, IDIAG, IDISK, IDS, IDT, ISYM, IT, ITABS, IX, IXABS, NAS, NBG, NINM, NINP, NS
+real(kind=wp) :: Val
 real(kind=wp), allocatable :: BG(:), S(:), SD(:)
-integer(kind=iwp) ISYM, NINP, NINM, NAS, NBG, NS, IDS, IDIAG, I, IT, ITABS, IX, IXABS, IBG, ID, IDISK, IDT
-real(kind=wp) value
 
 ! Set up the matrix BG(t,x)
 ! Formula used:
@@ -67,12 +66,12 @@ do ISYM=1,NSYM
       IBG = (IT*(IT-1))/2+IX
       ID = (ITABS*(ITABS-1))/2+IXABS
       !GG.Nov03
-      value = FD(ID)-EASUM*DREF(ID)
+      Val = FD(ID)-EASUM*DREF(ID)
       if (IT == IX) then
         IDT = (ITABS*(ITABS+1))/2
-        value = value+ipea_shift*half*(two-DREF(IDT))*SD(IT)
+        Val = Val+ipea_shift*half*(two-DREF(IDT))*SD(IT)
       end if
-      BG(IBG) = value
+      BG(IBG) = Val
       !BG(BG) = FD(ID)-EASUM*DREF(ID)
       !GG End
     end do

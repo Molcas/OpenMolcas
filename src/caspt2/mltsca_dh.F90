@@ -27,15 +27,14 @@ subroutine MLTSCA_DH(IMLTOP,LST1,LST2,X,NXI,NXA,F,NFI,NFA,Y,NAS2,jYLo,jYHi)
 ! or for IMLTOP=2, compute
 !     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
 
-use definitions, only: iwp, wp
 use Sigma_data, only: NLST1, NLST2, VAL1, VAL2
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IMLTOP, NXI, NXA, NFI, NFA, NAS2, jYLo, jYHi
+integer(kind=iwp), intent(in) :: IMLTOP, LST1(4,NLST1), LST2(4,NLST2), NXI, NXA, NFI, NFA, NAS2, jYLo, jYHi
 real(kind=wp), intent(inout) :: X(NXI,NXA), F(NFI,NFA), Y(NAS2,jYHi-jYLo+1)
-integer(kind=iwp), intent(in) :: LST1(4,NLST1), LST2(4,NLST2)
-integer(kind=iwp) ILST1, ILST2, JY, L11, L12, L13, L14, L21, L23, L24, L22
-real(kind=wp) V1, V2
+integer(kind=iwp) :: ILST1, ILST2, JY, L11, L12, L13, L14, L21, L22, L23, L24
+real(kind=wp) :: V1, V2
 
 if (IMLTOP == 0) then
   do ILST1=1,NLST1

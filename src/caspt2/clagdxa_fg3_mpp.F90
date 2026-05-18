@@ -11,31 +11,32 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
+#include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
+
 subroutine CLagDXA_FG3_MPP(ISYM,NASHT,NG3,lg_BDER,lg_SDER,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G2,idxG3)
 
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV
-use definitions, only: iwp, RtoB, wp, byte
-use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Para_Info, only: Is_Real_Par, nProcs
-use caspt2_module, only: IASYM, EPSA, NTUVES
+use caspt2_module, only: EPSA, IASYM, NTUVES
 use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
+use Definitions, only: wp, iwp, byte, RtoB
 
 implicit none
-#include "global.fh"
-#include "mafdecls.fh"
 integer(kind=iwp), intent(in) :: ISYM, NASHT, NG3, lg_BDER, lg_SDER
 real(kind=wp), intent(inout) :: DG1(NASHT,NASHT), DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3), DF1(NASHT,NASHT), &
                                 DF2(NASHT,NASHT,NASHT,NASHT), DF3(NG3), DEPSA(NASHT,NASHT)
 real(kind=wp), intent(in) :: G2(NASHT,NASHT,NASHT,NASHT)
 integer(kind=byte), intent(in) :: idxG3(6,NG3)
+integer(kind=iwp) :: i, IBLOCK, ICOL, iG3, IG3END, IG3STA, IROW, iscal, iST, iSU, iSV, iSX, iSY, iSZ, iT, iTU, ituvs, iU, iV, iVX, &
+                     IW, iX, ixyzs, iY, iYZ, iZ, jSym, MAXBUF, MAXMEM, NBLOCKS, NBUF, NELB, NELS, NG3B, NG3MAX, NtotELB, NtotELS
+real(kind=wp) :: F3VAL, G3VAL
 integer(kind=iwp), allocatable :: INDI(:), INDJ(:), NELBsav(:), NELSsav(:)
 real(kind=wp), allocatable :: BUFFB(:), BUFFS(:)
-integer(kind=iwp) :: NG3MAX, MAXMEM, iscal, MAXBUF, NG3B, NBUF, NBLOCKS, IBLOCK, IG3STA, IG3END, NtotELB, NtotELS, iG3, NELB, &
-                     NELS, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV, iSX, iSY, iSZ, ituvs, ixyzs, iTU, iVX, iYZ, jSym, IROW, ICOL, i, &
-                     IW
-real(kind=wp) :: G3VAL, F3VAL
+#include "global.fh"
+#include "mafdecls.fh"
 
 ! Since we are stuck with collective calls to MPI_Alltoallv in
 ! order to gather the elements, each process needs to loop over
@@ -317,8 +318,10 @@ return
 
 end subroutine CLagDXA_FG3_MPP
 
-#elif defined (NAGFOR)
+#elif ! defined (EMPTY_FILES)
+
 ! Some compilers do not like empty files
-subroutine empty_CLagDXA_FG3_MPP()
-end subroutine empty_CLagDXA_FG3_MPP
+#include "macros.fh"
+dummy_empty_procedure(CLagDXA_FG3_MPP)
+
 #endif

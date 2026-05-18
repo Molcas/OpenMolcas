@@ -15,26 +15,23 @@ subroutine CnstInt(Mode,INT1,INT2)
 
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use caspt2_global, only: FIMO_all
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: iwp, wp
-use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NASHT, NBAS, NBAST, NBSQT, NBTCH, NBTCHES
-!use caspt2_module, only: NSSH
-use Constants, only: Zero, One, Half
+use caspt2_module, only: IfChol, NASH, NASHT, NBAS, NBAST, NBSQT, NBTCH, NBTCHES, NFRO, NISH, NSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: Mode
 real(kind=wp), intent(out) :: INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT)
+integer(kind=iwp) :: iAshI, IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOrb, iSym, iSymA, iSymB, iSymI, iSymJ, iT, iTU, iU, iV, iVX, iX, &
+                     jAshI, jOrb, JSYM, kAshI, lAshI, MXBGRP, MXPIQK, NADDBUF, nBasI, NBGRP, NCHOBUF, nCorI, nFroI, nIshI, nKET, NV
+real(kind=wp) :: SCAL, Val
 integer(kind=iwp), allocatable :: BGRP(:,:)
-real(kind=wp), allocatable :: WRK1(:), WRK2(:), KET(:)
+real(kind=wp), allocatable :: KET(:), WRK1(:), WRK2(:)
 integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
-integer(kind=iwp) :: iSym, nFroI, nIshI, nCorI, nBasI, iAshI, jAshI, iSymA, iSymI, iSymB, iSymJ, JSYM, IB, IB1, IB2, MXBGRP, &
-                     IBGRP, NBGRP, NCHOBUF, MXPIQK, NADDBUF, IBSTA, IBEND, NV, nKET, kAshI, lAshI, iT, iU, iTU, iV, iX, iVX, iOrb, &
-                     jOrb
-!integer(kind=iwp) :: nSh(8,3)
-real(kind=wp) :: Val, SCAL
 
 INT1(:,:) = Zero
 Int2(:,:,:,:) = Zero

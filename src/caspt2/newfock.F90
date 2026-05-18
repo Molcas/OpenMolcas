@@ -41,28 +41,21 @@ subroutine NEWFOCK(FIFA,NFIFA,CMO,NCMO,DREF,nDREF)
 
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: USUAL
+use caspt2_module, only: FockType, IfChol, nAES, nAMx, nAsh, nAshT, nIMx, nIsh, nOMx, nOrb, nOSqT, nSMx, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: FockType, IfChol, nAMx, nAshT, nIMx, nOMx, nOSqT, nSMx, nSym, nIsh, nAsh, nSsh, nAES, nOrb
-use constants, only: Zero, One, Two, Half
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NFIFA, NCMO, nDREF
-real(kind=wp), intent(in) :: CMO(NCMO), DREF(nDREF)
 real(kind=wp), intent(inout) :: FIFA(NFIFA)
-real(kind=wp) D, DDVX, EIGVAL
-integer(kind=iwp) LINT, LSC, LSC1, LSC2, LSCR, LEV1, LEV2, LEIG, LXAI, LXPQ, LXQP
-integer(kind=iwp) IFGFOCK
-integer(kind=iwp) I, J
-integer(kind=iwp) II, IP, IQ, IR, IS, IV, IX
-integer(kind=iwp) IA, IATOT, IT, ITTOT, ITABS, IU, IUTOT, IUABS, ITU
-integer(kind=iwp) NA, NA2, NA3, MA, MI, MTRES, N3, NI, NIA, NINT, NO, NAS, NASQES, NASQT, NATR, NATRES, NOSQES, NOTRES, NS, NSCR, &
-                  NSCR1, NSCR2, NSCR3, NSQES, NTRES
-integer(kind=iwp) ISC, KFIFA
-integer(kind=iwp) IDDVX, IDREF, IDTT, IDTU, IDUT
-integer(kind=iwp) ISYM, ISYMPQ, ISYMRS
-real(kind=wp) VAL, VALTU, VALUT, X
-real(kind=wp), allocatable :: int(:), DSQ(:), DD(:), DDTR(:), TWOMDSQ(:), XMAT(:), SC(:)
+real(kind=wp), intent(in) :: CMO(NCMO), DREF(nDREF)
+integer(kind=iwp) :: I, IA, IATOT, IDDVX, IDREF, IDTT, IDTU, IDUT, IFGFOCK, II, IP, IQ, IR, IS, ISC, ISYM, ISYMPQ, ISYMRS, IT, &
+                     ITABS, ITTOT, ITU, IU, IUABS, IUTOT, IV, IX, J, KFIFA, LEIG, LEV1, LEV2, LINT, LSC, LSC1, LSC2, LSCR, LXAI, &
+                     LXPQ, LXQP, MA, MI, MTRES, N3, NA, NA2, NA3, NAS, NASQES, NASQT, NATR, NATRES, NI, NIA, NINTBUF, NO, NOSQES, &
+                     NOTRES, NS, NSCR, NSCR1, NSCR2, NSCR3, NSQES, NTRES
+real(kind=wp) :: D, DDVX, EIGVAL, VAL, VALTU, VALUT, X
+real(kind=wp), allocatable :: INTBUF(:), DSQ(:), DD(:), DDTR(:), TWOMDSQ(:), XMAT(:), SC(:)
 
 ! I never meant to cause you any sorrow
 if (FOCKTYPE == 'STANDARD') return
@@ -99,7 +92,7 @@ do ISYM=1,NSYM
   NASQT = NASQT+NA**2
   NATR = NATR+(NA*(NA+1))/2
 end do
-NINT = NOMX**2
+NINTBUF = NOMX**2
 NSCR1 = NAMX*max(2*NAMX,NIMX,NSMX)
 NSCR2 = 3*NAMX*(NAMX+1)
 NSCR3 = NAMX*(3*NAMX+1)
@@ -108,9 +101,9 @@ if (FOCKTYPE == 'G2') NSCR = NSCR2
 if (FOCKTYPE == 'G3') NSCR = NSCR3
 
 ! Allocate memory: Integral buffer and scratch array:
-call mma_allocate(INT,2*NINT,LABEL='INT')
+call mma_allocate(INTBUF,2*NINTBUF,LABEL='INTBUF')
 LINT = 1
-LSCR = LINT+NINT
+LSCR = LINT+NINTBUF
 call mma_allocate(SC,NSCR,Label='SC')
 LSC = 1
 ! Form symmetry-packed squares of density matrix DSQ, and
@@ -185,11 +178,11 @@ else
           IR = IV+MI
           do IX=1,IV
             IS = IX+MI
-            call EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,INT,int(LSCR))
+            call EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,INTBUF,INTBUF(LSCR))
             IDDVX = MTRES+(IV*(IV-1))/2+IX
             DDVX = DDTR(IDDVX)
             if (IR == IS) DDVX = Half*DDVX
-            call DAXPY_(NO**2,DDVX,INT,1,XMAT(1+NOSQES),1)
+            call DAXPY_(NO**2,DDVX,INTBUF,1,XMAT(1+NOSQES),1)
           end do
         end do
         MTRES = MTRES+(MA*(MA+1))/2
@@ -366,7 +359,7 @@ select case (FOCKTYPE)
 end select
 
 call mma_deallocate(SC)
-call mma_deallocate(INT)
+call mma_deallocate(INTBUF)
 call mma_deallocate(DSQ)
 call mma_deallocate(TWOMDSQ)
 call mma_deallocate(DD)

@@ -13,8 +13,6 @@
 
 module CHOVEC_IO
 
-use definitions, only: iwp, wp
-
 ! SVC: subroutines to read/write transformed cholesky vectors from/to
 ! disk. These are used in tracho (where they are written) and in rhsod
 ! (where they are read into a global array).
@@ -67,16 +65,18 @@ use definitions, only: iwp, wp
 ! total amount of cholesky vectors in a certain symmetry
 ! NVTOT_CHOSYM
 
-implicit none
+use Definitions, only: wp, iwp
 
-integer, allocatable :: NVLOC_CHOBATCH(:)
-integer, allocatable :: IDLOC_CHOGROUP(:,:,:,:)
-integer(kind=iwp), allocatable :: NVGLB_CHOBATCH(:)
-integer(kind=iwp), allocatable :: IDGLB_CHOGROUP(:,:,:,:)
+implicit none
+private
+
 integer(kind=iwp) :: NVTOT_CHOSYM(8)
+integer(kind=iwp), allocatable :: IDGLB_CHOGROUP(:,:,:,:), IDLOC_CHOGROUP(:,:,:,:), NVGLB_CHOBATCH(:), NVLOC_CHOBATCH(:)
+
+public :: CHOVEC_COLL, CHOVEC_LOAD, CHOVEC_READ, CHOVEC_SAVE, CHOVEC_SIZE, IDGLB_CHOGROUP, IDLOC_CHOGROUP, NPQ_CHOTYPE, &
+          NVGLB_CHOBATCH, NVLOC_CHOBATCH, NVTOT_CHOSYM
 
 contains
-
 
 function NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
   !*********************************************************************
@@ -90,7 +90,7 @@ function NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
   use Symmetry_Info, only: Mul
   use caspt2_module, only: nAsh, nIsh, nSSh
 
-  integer(kind=iwp) NPQ_CHOTYPE
+  integer(kind=iwp) :: NPQ_CHOTYPE
   integer(kind=iwp), intent(in) :: ICASE, ISYQ, JSYM
   integer(kind=iwp) :: ISYP, NP, NQ
 
@@ -127,8 +127,7 @@ subroutine CHOVEC_SIZE(ICASE,NCHOBUF,IOFF)
 
   integer(kind=iwp), intent(in) :: ICASE
   integer(kind=iwp), intent(out) :: NCHOBUF, IOFF(8,8)
-  integer(kind=iwp) :: ISYK, ISYQ, JSYM
-  integer(kind=iwp) :: NPQ, NVTOT
+  integer(kind=iwp) :: ISYK, ISYQ, JSYM, NPQ, NVTOT
 
   NCHOBUF = 0
   do JSYM=1,NSYM
@@ -149,25 +148,22 @@ subroutine CHOVEC_READ(ICASE,CHOBUF,nCHOBUF)
   ! are indexed as CHOBUF(IVEC,IQ,IK)
   !*********************************************************************
 
+  use caspt2_module, only: nSym, nBtches, nBtch
+  use caspt2_global, only: LUDRA
 # ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
   use caspt2_global, only: LUDRATOT
 # endif
-  use caspt2_global, only: LUDRA
   use stdalloc, only: mma_allocate, mma_deallocate
-  use caspt2_module, only: nSym, nBtches, nBtch
 
+  integer(kind=iwp), intent(in) :: ICASE, nCHOBUF
+  real(kind=wp), intent(inout) :: CHOBUF(nCHOBUF)
+  integer(kind=iwp) :: I, IB, IBEND, IBOFF, IBSTA, IDISK, IOFF, ISYQ, J, JSYM, NBUF, NPQ, NV, NVTOT
+  real(kind=wp), allocatable :: BUF(:)
 # ifdef _MOLCAS_MPP_
 # include "global.fh"
 # include "mafdecls.fh"
 # endif
-  integer(kind=iwp), intent(in) :: ICASE, nCHOBUF
-  real(kind=wp), intent(inout) :: CHOBUF(nCHOBUF)
-  integer(kind=iwp) :: I, J, IOFF, IDISK
-  integer(kind=iwp) :: IB, IBSTA, IBEND, IBOFF
-  integer(kind=iwp) :: JSYM, ISYQ
-  integer(kind=iwp) :: NBUF, NPQ, NV, NVTOT
-  real(kind=wp), allocatable :: BUF(:)
 
   IOFF = 0
   do JSYM=1,NSYM
@@ -216,18 +212,18 @@ subroutine CHOVEC_SAVE(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
   !*********************************************************************
   ! Write Cholesky vectors to disk.
   !*********************************************************************
+
   use caspt2_global, only: LUDRA
 # ifdef _DEBUGPRINT_
-  use definitions, only: u6
+  use Definitions, only: u6
 # endif
 
-# include "warnings.h"
   integer(kind=iwp), intent(in) :: NCHOBUF, ICASE, ISYQ, JSYM, IB
   real(kind=wp), intent(inout) :: CHOBUF(NCHOBUF)
-  integer(kind=iwp) NPQ, JNUM, IDISK
+  integer(kind=iwp) :: IDISK, JNUM, NPQ
 # ifdef _DEBUGPRINT_
-  integer(kind=iwp) NBUF
-  real(kind=wp) SQFP
+  integer(kind=iwp) :: NBUF
+  real(kind=wp) :: SQFP
   real(kind=wp), external :: DNRM2_
 # endif
 
@@ -253,16 +249,15 @@ subroutine CHOVEC_LOAD(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 
   use caspt2_global, only: LUDRA
 # ifdef _DEBUGPRINT_
-  use definitions, only: u6
+  use Definitions, only: u6
 # endif
 
-# include "warnings.h"
   integer(kind=iwp), intent(in) :: NCHOBUF, ICASE, ISYQ, JSYM, IB
   real(kind=wp), intent(out) :: CHOBUF(NCHOBUF)
-  integer(kind=iwp) NPQ, JNUM, IDISK
+  integer(kind=iwp) :: IDISK, JNUM, NPQ
 # ifdef _DEBUGPRINT_
-  integer(kind=iwp) NBUF
-  real(kind=wp) SQFP
+  integer(kind=iwp) :: NBUF
+  real(kind=wp) :: SQFP
   real(kind=wp), external :: DNRM2_
 # endif
 
@@ -288,66 +283,55 @@ subroutine CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
   !*********************************************************************
 
 # ifdef _MOLCAS_MPP_
-  use MPI, only: MPI_REAL8, MPI_COMM_WORLD
-# ifdef _I8_
-  use MPI, only: MPI_INTEGER8, MPI_INTEGER
-# else
-  use MPI, only: MPI_INTEGER4, MPI_INTEGER
-# endif
-  use Para_Info, only: nProcs, Is_Real_Par
+  use MPI, only: MPI_COMM_WORLD, MPI_INTEGER, MPI_REAL8
+  use Para_Info, only: Is_Real_Par, nProcs
   use caspt2_global, only: LUDRATOT
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use definitions, only: MPIInt
-  use chocaspt2, only: NFTSPC_TOT
   use caspt2_module, only: RHSDirect
+  use chocaspt2, only: NFTSPC_TOT
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Definitions, only: MPIInt
 # endif
 
-# include "warnings.h"
   integer(kind=iwp), intent(in) :: NCHOBUF, ICASE, ISYQ, JSYM, IB
   real(kind=wp), intent(inout) :: CHOBUF(NCHOBUF)
 # ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-  integer(kind=MPIInt) IERROR4, ITYPE
-  integer(kind=iwp) :: I, JNUM, JNUMT, NPQ, NUMSEND(1), IDISKT, IERROR
-  integer(kind=MPIInt), allocatable :: DISP(:), size(:)
-  real(kind=wp), allocatable :: TRANSP(:), RECVBUF(:)
+  integer(kind=iwp) :: I, IDISKT, IERROR, JNUM, JNUMT, NPQ, NUMSEND(1)
+  integer(kind=MPIInt) :: IERROR4, ITYPE
+  integer(kind=MPIInt), allocatable :: DISP(:), SIZ(:)
+  real(kind=wp), allocatable :: RECVBUF(:), TRANSP(:)
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: MY_N, NOFF
   real(kind=wp) :: SQFP
   real(kind=wp), external :: DDOT_
 # endif
+# include "global.fh"
+# include "mafdecls.fh"
 # endif
 
 # ifdef _MOLCAS_MPP_
-# ifdef _I8_
-  ITYPE = MPI_INTEGER8
-# else
-  ITYPE = MPI_INTEGER4
-# endif
   ITYPE = MPI_INTEGER
   if (Is_Real_Par()) then
     ! for true parallel, also communicate chunks to each process, write them
     ! to LUDRATOT, so first allocate memory for the fully transformed
     ! vectors, and for the per-process size and offset into LUDRATOT
     call mma_allocate(DISP,NPROCS,Label='DISP')
-    call mma_allocate(SIZE,NPROCS,LABEL='SIZE')
+    call mma_allocate(SIZ,NPROCS,LABEL='SIZ')
 
     ! gather sizes of local cholesky bits
     NPQ = NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
     JNUM = NVLOC_CHOBATCH(IB)
     NUMSEND(1) = NPQ*JNUM
-    call MPI_Allgather(NUMSEND,1_MPIInt,ITYPE,size(1:NPROCS),1_MPIInt,ITYPE,MPI_COMM_WORLD,IERROR4)
+    call MPI_Allgather(NUMSEND,1_MPIInt,ITYPE,SIZ(1:NPROCS),1_MPIInt,ITYPE,MPI_COMM_WORLD,IERROR4)
     ! compute offsets into the receiving array
     DISP(1) = 0
     do I=2,NPROCS
-      DISP(I) = DISP(I-1)+size(I-1)
+      DISP(I) = DISP(I-1)+SIZ(I-1)
     end do
 
     ! collect the vectors
     call mma_allocate(RECVBUF,NFTSPC_TOT,Label='RECVBUF')
     call MPI_Barrier(MPI_COMM_WORLD,IERROR4)
-    call MPI_Allgatherv_(CHOBUF,NCHOBUF,NUMSEND(1),MPI_REAL8,RECVBUF,NFTSPC_TOT,SIZE,DISP,NPROCS,MPI_REAL8,MPI_COMM_WORLD,IERROR)
+    call MPI_Allgatherv_(CHOBUF,NCHOBUF,NUMSEND(1),MPI_REAL8,RECVBUF,NFTSPC_TOT,SIZ,DISP,NPROCS,MPI_REAL8,MPI_COMM_WORLD,IERROR)
 
     JNUMT = NVGLB_CHOBATCH(IB)
     ! disk offset is block offset + preceding block size
@@ -366,7 +350,7 @@ subroutine CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 #   ifdef _DEBUGPRINT_
     write(u6,*) ' process block, size, offset, fingerprint'
     do I=1,NPROCS
-      MY_N = size(I)
+      MY_N = SIZ(I)
       NOFF = 1+DISP(I)
       SQFP = DDOT_(MY_N,RECVBUF(NOFF:),1,RECVBUF(NOFF:),1)
       write(u6,'(A,I6,A,2I12,ES20.12)') ' [',I,'] ',MY_N,NOFF,SQFP
@@ -374,7 +358,7 @@ subroutine CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 #   endif
     call mma_deallocate(RECVBUF)
     call mma_deallocate(DISP)
-    call mma_deallocate(SIZE)
+    call mma_deallocate(SIZ)
   end if
 # else
   ! Avoid unused argument warnings
@@ -397,26 +381,18 @@ subroutine MPI_Allgatherv_(SENDBUF,NSENDBUF,NSEND,MPITYPES,RCVBUF,NRCVBUF,NRCV,N
 
   use MPI, only: MPI_COMM_WORLD
   use stdalloc, only: mma_allocate, mma_deallocate
-  use definitions, only: MPIInt
+  use Definitions, only: MPIInt
 # ifdef _I8_
-  use definitions, only: u6
+  use Definitions, only: u6
 # endif
 
-  integer(kind=iwp), intent(in) :: NSENDBUF
-  real(kind=wp), intent(inout) :: SENDBUF(NSENDBUF)
-  integer(kind=iwp), intent(in) :: NSEND
-  integer(kind=MPIInt), intent(in) :: MPITYPES
-  integer(kind=iwp), intent(in) :: NRCVBUF
-  real(kind=wp), intent(inout) :: RCVBUF(NRCVBUF)
-  integer(kind=iwp), intent(in) :: MPROCS
-  integer(kind=MPIInt), intent(in) :: NRCV(MPROCS), NOFF(MPROCS)
-  integer(kind=MPIInt), intent(in) :: MPITYPER, MPICOMM
+  integer(kind=iwp), intent(in) :: NSENDBUF, NSEND, NRCVBUF, MPROCS
+  real(kind=wp), intent(inout) :: SENDBUF(NSENDBUF), RCVBUF(NRCVBUF)
+  integer(kind=MPIInt), intent(in) :: MPITYPES, NRCV(MPROCS), NOFF(MPROCS), MPITYPER, MPICOMM
   integer(kind=iwp), intent(out) :: IERROR
-  integer(kind=MPIInt) :: NPROCS
-  integer(kind=MPIInt) :: NSEND4
-  integer(kind=MPIInt), allocatable :: NRCV4(:), NOFF4(:)
-  integer(kind=MPIInt) :: IERROR4
   integer(kind=iwp) :: I
+  integer(kind=MPIInt) :: IERROR4, NPROCS, NSEND4
+  integer(kind=MPIInt), allocatable :: NRCV4(:), NOFF4(:)
 # ifdef _I8_
   integer(kind=iwp) :: NRCVTOT
 # endif

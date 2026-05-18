@@ -16,16 +16,16 @@ subroutine GradPrep(nState,UEFF,VECROT)
 use caspt2_global, only: iRoot1, iRoot2, jStLag
 use caspt2_module, only: IFMSCOUP, JSTATE
 use Constants, only: One, Half
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nState
 real(kind=wp), intent(in) :: UEFF(nState,nState)
 real(kind=wp), intent(inout) :: VECROT(nState)
-real(kind=wp) :: TMP
 integer(kind=iwp) :: iState
+real(kind=wp) :: TMP
 
-! If i  = j, UIi*dHij/dx*UJj
+! If i == j, UIi*dHij/dx*UJj
 ! If i \= j, (UIi*UJj+UJi*UIj)*dHij/dx*0.5
 
 !! Construct the rotation vector

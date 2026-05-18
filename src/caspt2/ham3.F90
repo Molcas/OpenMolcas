@@ -24,26 +24,21 @@ subroutine HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
 ! NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
-use constants, only: Zero, One, Two
-use stdalloc, only: mma_allocate, mma_deallocate
-use sguga, only: SGS, CIS, EXS
-use caspt2_module, only: NSYM, NASHT, ISCF, NACTEL, NCONF, IASYM
+use sguga, only: CIS, EXS, SGS
 use Molcas, only: MxLev
-use caspt2_module, only: MxCI
+use caspt2_module, only: IASYM, ISCF, MxCI, NACTEL, NASHT, NCONF, NSYM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NOP2, NOP3, ISYCI, NCI
-real(kind=wp), intent(in) :: OP0
-real(kind=wp), intent(in) :: OP1(NASHT,NASHT), OP2(NOP2), OP3(NOP3)
-real(kind=wp), intent(in) :: CI(NCI)
+real(kind=wp), intent(in) :: OP0, OP1(NASHT,NASHT), OP2(NOP2), OP3(NOP3), CI(NCI)
 real(kind=wp), intent(inout) :: SGM(NCI)
-! Local arrays:
-integer(kind=iwp) IATOG(MXLEV)
+integer(kind=iwp) :: I, IATOG(MXLEV), ISTU, ISVX, ISVXYZ, ISYM, ISYM1, ISYM2, ISYZ, IT, ITABS, ITMIN, ITU, ITUVXYZ, IU, IV, IVMIN, &
+                     IVX, IVXYZ, IX, IY, IYZ, IZ, LEVT, LEVU, LEVV, LEVX, LEVY, LEVZ, nLev, NSGM1, NSGM2
+real(kind=wp) :: OCCNO, X
 real(kind=wp), allocatable :: SGM1(:), SGM2(:)
-integer(kind=iwp) nLev, ITABS, ISYM, I, IZ, IY, IYZ, ISYZ, ISYM1, NSGM1, LEVY, LEVZ, ISTU, ISVX, ISVXYZ, ISYM2, IT, ITMIN, ITU, &
-                  ITUVXYZ, IU, IV, IVMIN, IVX, IVXYZ, IX, LEVT, LEVU, LEVV, LEVX, NSGM2
-real(kind=wp) OCCNO, X
 
 nLev = SGS%nLev
 

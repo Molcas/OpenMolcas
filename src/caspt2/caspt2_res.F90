@@ -13,18 +13,17 @@
 
 subroutine CASPT2_Res(VECROT,nVECROT)
 
-use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
-use caspt2_global, only: jStLag, iVecL
-use EQSOLV, only: IRHS, IVECX, IVECR, IVECC, IVECC2, IVECW
+use caspt2_global, only: imag_shift, iVecL, jStLag, real_shift, sigma_p_epsilon
 use caspt2_module, only: IFMSCOUP, NSTATE
-use Constants, only: Zero, One, Half, Two
-use definitions, only: wp, iwp, u6
+use EQSOLV, only: IRHS, IVECC, IVECC2, IVECR, IVECW, IVECX
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nVECROT
 real(kind=wp), intent(in) :: VECROT(nVECROT)
+integer(kind=iwp) :: ICONV, iRHSbk, iStLag, iVecRbk, iVecXbk
 real(kind=wp) :: SAV, SAVI, savreg, Scal
-integer(kind=iwp) :: iVecXbk, iVecRbk, iRHSbk, iStLag, ICONV
 integer(kind=iwp), parameter :: iVecG = 8
 
 !! 1) Calculate the derivative of the CASPT2 energy with respect

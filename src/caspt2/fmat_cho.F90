@@ -15,24 +15,22 @@ subroutine FMAT_CHO(CMO,NCMO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,FIFA,NFIFA)
 ! TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
 ! TO MO BASIS FOR USE IN CASPT2.
 
-use constants, only: Zero, One
+use caspt2_module, only: NBAS, NBTRI, NFRO, NORB, notri, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NBTRI, notri, NSYM, NBAS, NORB, NFRO
-use definitions, only: iwp, wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use definitions, only: u6
+use Definitions, only: u6
 #endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NCMO, NHONE, NFIMO, NFIFA
-real(kind=wp), intent(in) :: CMO(NCMO)
-real(kind=wp), intent(in) :: FIAO(NBTRI), FAAO(NBTRI)
-real(kind=wp), intent(in) :: HONE(NHONE)
+real(kind=wp), intent(in) :: CMO(NCMO), FIAO(NBTRI), FAAO(NBTRI), HONE(NHONE)
 real(kind=wp), intent(out) :: FIMO(NFIMO), FIFA(NFIFA)
+integer(kind=iwp) :: I, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI, NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
 real(kind=wp), allocatable :: SCR1(:), SCR2(:), SCR3(:)
-integer(kind=iwp) I, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI, NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) ISTLT
+integer(kind=iwp) :: ISTLT
 real(kind=wp), allocatable :: FAMO(:)
 #endif
 

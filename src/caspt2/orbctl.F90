@@ -23,21 +23,20 @@ subroutine ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA,FIMO,nFIMO)
 ! active, and secondary subblocks.
 
 use fciqmc_interface, only: DoFCIQMC
+use Printlevel, only: DEBUG, VERBOSE
 use caspt2_global, only: iPrGlb
-use Printlevel, only: debug, verbose
+use caspt2_module, only: bName, EPS, nBas, nBasT, nDel, nFro, nOrb, nSym, OutFmt, PrOrb, ThrEne, ThrOcc
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne, ThrOcc, nFro, nOrb, nBasT, EPS, nDel
-use constants, only: Zero, Two, Five
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, Two, Five
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NCMO, NTORB, nFIFA, nFIMO
 real(kind=wp), intent(inout) :: CMO(NCMO)
 real(kind=wp), intent(out) :: TORB(NTORB)
 real(kind=wp), intent(inout) :: FIFA(nFIFA), FIMO(nFIMO)
-integer(kind=iwp) ISYM
-integer(kind=iwp) I1, I2
-real(kind=wp) OCC_DUM(1)
+integer(kind=iwp) :: I1, I2, ISYM
+real(kind=wp) :: OCC_DUM(1)
 real(kind=wp), allocatable :: OrbE(:)
 
 ! Determine PT2 orbitals, and transform CI coeffs.

@@ -11,7 +11,7 @@
 ! Copyright (C) 2008, Francesco Aquilante                              *
 !***********************************************************************
 
-subroutine Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,NAME,nName,nUniqAt,Thrs,IFQCAN,DoMP2,DoEnv,all_Vir,EMP2,CMO,NCMO)
+subroutine Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,bNAME,nName,nUniqAt,Thrs,IFQCAN,DoMP2,DoEnv,all_Vir,EMP2,CMO,NCMO)
 !***********************************************************************
 !                                                                      *
 ! Purpose:  setup of Localized occupied-virtual CASPT2 (LovCASPT2).    *
@@ -31,43 +31,33 @@ use OneDat, only: sNoNuc, sNoOri
 use Molcas, only: LenIn, MxAtom, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
-integer(kind=iwp), intent(in) :: nSym
-integer(kind=iwp), intent(inout) :: nFro(nSym), nIsh(nSym), nSsh(nSym), nDel(nSym)
-integer(kind=iwp), intent(in) :: nBas(nSym), nAsh(nSym)
-integer(kind=iwp), intent(in) :: nNAME
-character(Len=LenIn+8), intent(in) :: NAME(nNAME)
-integer(kind=iwp), intent(in) :: nUniqAt
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nAsh(nSym), nNAME, nUniqAt, NCMO
+integer(kind=iwp), intent(inout) :: nFro(nSym), nIsh(nSym), nSsh(nSym), nDel(nSym), IFQCAN
+character(len=LenIn+8), intent(in) :: bNAME(nNAME)
 real(kind=wp), intent(in) :: Thrs
-integer(kind=iwp), intent(inout) :: IFQCAN
 logical(kind=iwp), intent(inout) :: DoMP2
 logical(kind=iwp), intent(in) :: DoEnv, all_Vir
 real(kind=wp), intent(out) :: EMP2
-integer(kind=iwp), intent(in) :: NCMO
 real(kind=wp), intent(inout) :: CMO(nCMO)
-character(Len=LenIn) blank, NamAct(mxAtom)
+integer(kind=iwp) :: i, iAt, iBat, iCMO, iComp, iDo, ie, ik, iloc, iOff, iopt, ip_X, ip_Y, ipAsh, ipCMO, ipEorb, ipOrbE, ipQa, iQ, &
+                     iQa, iSkip, iSQ, iSym, iSymLbl, iV, jAt, jBas, jBat, jCMO, jDo, jjCMO, jjZ, jOff, jQ, jZ, kBas, kEOcc, kEVir, &
+                     kfr, kOff, kto, l_nBas_per_Atom, l_nBas_Start, lBas, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, &
+                     lsq, ltri, mAsh, mOff, nActa, nAk, nBasT, nBat, nBk, nBmx, nBx, nOA, nOrb, ns_O(8), ns_V(8), nSQ, nTri, nVV
+real(kind=wp) :: Dumm, E2_ab, E2_Aonly, STrA, STrF, STrX, TrA(8), TrF(8), TrX(8)
+logical(kind=iwp) :: ortho
 character(len=8) :: Label
-logical(kind=iwp) ortho
-real(kind=wp) TrA(8), TrF(8), TrX(8)
-integer(kind=iwp) ns_O(8), ns_V(8)
-integer(kind=iwp) lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+character(len=LenIn) :: NamAct(mxAtom)
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:), D_A(:), D_Vir(:)
-real(kind=wp), allocatable :: SQ(:), SLT(:), CMOX(:), Q(:), Z(:)
-real(kind=wp), allocatable :: Saa(:), XMO(:), DMat(:), OrbE(:)
-real(kind=wp) Dumm, E2_ab, E2_Aonly, STrA, STrF, STrX
+real(kind=wp), allocatable :: CMOX(:), DMat(:), OrbE(:), Q(:), Saa(:), SLT(:), SQ(:), XMO(:), Z(:)
 real(kind=wp), parameter :: Thrd = 1.0e-6_wp
 real(kind=wp), external :: DDot_
-integer(kind=iwp) i, iAt, iBat, iCMO, iComp, iDo, ie, ik, iloc, iOff, iopt, ip_X, ip_Y, ipAsh, ipCMO, ipEorb, ipQa, iQ, iQa, &
-                  iSkip, iSQ, iSym, iSymLbl, iV, jAt, jBas, jBat, jCMO, jDo, jjCMO, jjZ, jOff, jQ, jZ, kBas, kEOcc, kEVir, kfr, &
-                  kOff, kto, l_nBas_per_Atom, l_nBas_Start, lBas, lOff, lsq, ltri, mAsh, mOff, nActa, nAk, nBasT, nBat, nBk, nBmx, &
-                  nOA, nOrb, nSQ, nTri, nVV, ipOrbE, nBx
 
 irc = 0
 EMP2 = Zero
-blank = '   '
 iDo = 0
 jDo = 0
 if (DoEnv .and. DoMP2) then
@@ -117,7 +107,7 @@ if ((nUniqAt < 1) .or. (nUniqAt > MxAtom)) then
   call Abend()
 end if
 do iAt=1,nUniqAt
-  NamAct(iAt) = blank
+  NamAct(iAt) = ''
 end do
 
 ! Allocate and get index arrays for basis functions per atom.
@@ -172,7 +162,7 @@ do iSym=1,nSym
   call DGEMM_('N','N',nBas(iSym),nAsh(iSym),nBas(iSym),One,SQ(iSQ),nBx,CMOX(ipAsh),nBx,Zero,Z,nBx)
   jBas = lBas+1
   kBas = lBas+nBas(iSym)
-  call BasFun_Atom_Sym(nBas_per_Atom,nBas_Start,Name,jBas,kBas,nUniqAt,.false.)
+  call BasFun_Atom_Sym(nBas_per_Atom,nBas_Start,bName,jBas,kBas,nUniqAt,.false.)
   do ik=0,nAsh(iSym)-1
     nAk = nUniqAt*ik
     nBk = nBas(iSym)*ik
@@ -193,7 +183,7 @@ do iSym=1,nSym
     Q(iQa) = Q(iQa)+ddot_(nAsh(iSym),Q(jQ),nUniqAt,Q(jQ),nUniqAt)
     if (sqrt(Q(iQa)) >= Thrs) then
       jBat = nBas_Start(1+iAt)+lBas
-      NamAct(iAt+1) = Name(jBat)(1:LenIn)
+      NamAct(iAt+1) = bName(jBat)(1:LenIn)
     end if
   end do
   lBas = lBas+nBas(iSym)
@@ -207,7 +197,7 @@ call mma_deallocate(Q)
 call mma_allocate(D_A,nUniqAt,Label='D_A')
 nActa = 0
 do iAt=1,nUniqAt
-  if (NamAct(iAt) /= blank) then
+  if (NamAct(iAt) /= '') then
     nActa = nActa+1
     D_A(nActa) = iAt
   end if
@@ -217,7 +207,7 @@ do iAt=1,nActa
   NamAct(iAt) = NamAct(jAt)
 end do
 do iAt=nActa+1,nUniqAt
-  NamAct(iAt) = blank
+  NamAct(iAt) = ''
 end do
 write(u6,*)
 write(u6,'(A,F15.6)') ' Threshold for atom selection: ',Thrs
@@ -287,7 +277,7 @@ do iSym=1,nSym
 end do
 ortho = .true.
 
-call get_Orb_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),SQ,Saa,Name,NamAct,nSym,nActa,nIsh,nBas,ortho,Thrs,ns_O)
+call get_Orb_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),SQ,Saa,bName,NamAct,nSym,nActa,nIsh,nBas,ortho,Thrs,ns_O)
 if (irc /= 0) return
 iOff = 0
 kOff = 0
@@ -351,7 +341,7 @@ else
   ortho = .false.
   call get_Saa(nSym,nBas,nSsh,SQ,size(SQ),XMO,size(XMO),Saa,size(Saa))
 
-  call get_Vir_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),SQ,Name,NamAct,D_vir,nSym,nActa,nSsh,nBas,ortho,ns_V)
+  call get_Vir_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),SQ,bName,NamAct,D_vir,nSym,nActa,nSsh,nBas,ortho,ns_V)
   if (irc /= 0) return
   call mma_deallocate(D_vir)
   iOff = 0

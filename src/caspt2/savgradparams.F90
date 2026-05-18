@@ -18,41 +18,32 @@
 
 subroutine SavGradParams(Mode,IDSAVGRD)
 
-use caspt2_global, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, NBUF1_GRAD, iTasks_grad, nTasks_grad
-#ifdef _MOLCAS_MPP_
-use caspt2_global, only: LURHS
-use caspt2_module, only: IOFFRHS
-#endif
-use caspt2_global, only: DREF, PREF
-use caspt2_global, only: LUSOLV, LUSBT
-use definitions, only: iwp, wp, byte
-use stdalloc, only: mma_allocate, mma_deallocate
-use EQSOLV, only: IDSMAT, IDBMAT, IDSTMAT, IVECX, IDTMAT
+use EQSOLV, only: IDBMAT, IDSMAT, IDSTMAT, IDTMAT, IVECX
 use fake_GA, only: GA_Arrays
+use caspt2_global, only: do_lindep, DREF, IDBoriMat, iTasks_grad, LUGRAD, LUSBT, LUSOLV, LUSTD, NBUF1_GRAD, nTasks_grad, PREF
+use caspt2_module, only: E2Tot, EASum, ERef, jState, MxCase, nAshT, nASup, nBTri, nCases, nG1, nG2, nG3, nG3Tot, nInDep, nISup, &
+                         nState, nSym, RefEne, RFPert
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, myRank
-use caspt2_module, only: iAdr10, cLab10
+use caspt2_global, only: LURHS
+use caspt2_module, only: cLab10, iAdr10, IOFFRHS
 #endif
-use caspt2_module, only: E2Tot, EASum, ERef, jState, MxCase, nAshT, nBTri, nState, nSym, RFPert, nCases, nInDep, nISup, nASup, &
-                         RefEne
-use caspt2_module, only: nG1, nG2, nG3, nG3Tot
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, byte
 
 implicit none
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-logical(kind=iwp) bStat
-#endif
 integer(kind=iwp), intent(in) :: Mode
 integer(kind=iwp), intent(inout) :: IDSAVGRD
-integer(kind=iwp) :: IORW, ID, NIN, NAS, NIS, NNN, NMAX, ISYM, ICASE, iLUID
-#ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: I, lg_ST, lg_S, lg_T, ISTA, IEND, JSTA, JEND, mV1, LDW, IDISK, LDM, NBLOCK
-#endif
-real(kind=wp), allocatable :: WRK1(:)
+integer(kind=iwp) :: ICASE, ID, iLUID, IORW, ISYM, NAS, NIN, NIS, NMAX, NNN
 integer(kind=iwp), allocatable :: IWRK1(:)
 integer(kind=byte), allocatable :: idxG3(:,:)
-!character(len=80) :: Label
+real(kind=wp), allocatable :: WRK1(:)
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: I, IDISK, IEND, ISTA, JEND, JSTA, LDM, LDW, lg_S, lg_ST, lg_T, mV1, NBLOCK
+logical(kind=iwp) :: bStat
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
 
 !! Shift the address due to SavGradParams2
 if (IDSAVGRD == 0) then
@@ -409,7 +400,7 @@ contains
 
 subroutine SaveReadT1()
 
-  integer(kind=iwp) :: lg_V1, NVEC, ICASE_, ISYM_
+  integer(kind=iwp) :: ICASE_, ISYM_, lg_V1, NVEC
 
   !! IVECX = T (solution; not quasi-variational, before lambda-eq)
   IVECX = 2

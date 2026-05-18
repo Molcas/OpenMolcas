@@ -11,30 +11,31 @@
 ! Copyright (C) 2021, Stefano Battaglia                                *
 !***********************************************************************
 
+#include "compiler_features.h"
 #ifdef _DMRG_
+
 subroutine mkfg3qcm(mkF,nLev,G1,F1,G2,F2,G3,F3,idxG3,nG3)
 
+use, intrinsic :: iso_c_binding, only: c_bool
 use Symmetry_Info, only: Mul
-use stdalloc, only: mma_allocate, mma_deallocate
-use qcmaquis_interface
+use qcmaquis_interface, only: qcmaquis_interface_get_1rdm_full, qcmaquis_interface_get_2rdm_full, &
+                              qcmaquis_interface_get_3rdm_full, qcmaquis_interface_get_fock_contracted_4rdm_full, &
+                              qcmaquis_interface_read_fock_contracted_4rdm
 use printLevel, only: verbose
 use sguga, only: SGS
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: jState, EPSA
+use caspt2_module, only: EPSA, jState
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use definitions, only: wp, iwp, byte, u6
+use Definitions, only: wp, iwp, u6, byte
 
 implicit none
 logical(kind=iwp), intent(in) :: mkF
 integer(kind=iwp), intent(in) :: nLev, nG3
-real(kind=wp), intent(out) :: G1(nLev,nLev), G2(nLev,nLev,nLev,nLev)
-real(kind=wp), intent(out) :: F1(nLev,nLev), F2(nLev,nLev,nLev,nLev)
-real(kind=wp), intent(out) :: G3(nG3), F3(nG3)
+real(kind=wp), intent(out) :: G1(nLev,nLev), F1(nLev,nLev), G2(nLev,nLev,nLev,nLev), F2(nLev,nLev,nLev,nLev), G3(nG3), F3(nG3)
 integer(kind=byte), intent(in) :: idxG3(6,nG3)
+integer(kind=iwp) :: i, t, u, v, w, x, y, z
 real(kind=wp), allocatable :: G3tmp(:,:,:,:,:,:), TG3tmp(:,:,:,:,:,:)
-! Real(kind=wp), allocatable :: G4(:,:,:,:,:)
-integer(kind=iwp) :: t, u, v, w, x, y, z
-integer(kind=iwp) :: i
 
 ! This might be memory hungry
 call mma_allocate(G3tmp,nLev,nLev,nLev,nLev,nLev,nLev,Label='G3Tmp')
@@ -118,10 +119,10 @@ call mma_deallocate(TG3tmp)
 ! call mma_deallocate(G4)
 end subroutine mkfg3qcm
 
-#elif defined (NAGFOR)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-subroutine empty_mkfg3qcm()
-end subroutine empty_mkfg3qcm
+#include "macros.fh"
+dummy_empty_procedure(mkfg3qcm)
 
 #endif

@@ -32,15 +32,15 @@ subroutine GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 use Symmetry_Info, only: Mul
-use sguga, only: SGS, CIS, EXS
-use constants, only: Zero, One
-use definitions, only: iwp, wp, u6
+use sguga, only: CIS, EXS, SGS
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI, nCI, MSGM
 real(kind=wp), intent(in) :: CI(nCI)
 real(kind=wp), intent(inout) :: SGM(MSGM)
-integer(kind=iwp) IS, JS, IJS, ISSG, NSGM
+integer(kind=iwp) :: IJS, IS, ISSG, JS, NSGM
 
 SGM(1:MSGM) = Zero
 IS = SGS%ISM(ILEV)

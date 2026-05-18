@@ -20,18 +20,17 @@
 subroutine MKSMAT()
 ! Set up S matrices for cases 1..13.
 
-use definitions, only: iwp, wp, u6, byte
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
+use caspt2_global, only: DREF, LUSOLV, PREF
+use caspt2_module, only: NASHT, NG3
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_global, only: DREF, PREF, LUSOLV
-use caspt2_module, only: NASHT
-use caspt2_module, only: NG3
+use Definitions, only: wp, iwp, u6, byte
 
 implicit none
+integer(kind=iwp) :: iLUID
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: G3(:)
-integer(kind=iwp) iLUID
 
 if (IPRGLB >= VERBOSE) then
   write(u6,*)

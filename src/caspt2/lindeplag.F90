@@ -17,21 +17,19 @@ subroutine LinDepLag(BDer,SDer,nAS,nIN,iSym,iCase)
 ! See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
 ! Section II C 3 "Non-invariance with respect to orthogonal..."
 
-use caspt2_global, only: LUSTD, idBoriMat
-use caspt2_global, only: LUSBT
 use EQSOLV, only: idSMAT
+use caspt2_global, only: idBoriMat, LUSBT, LUSTD
+use caspt2_module, only: IFDORTHO, THRSHN, THRSHS
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: THRSHN, THRSHS, IFDORTHO
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAS, nIN, iSym, iCase
 real(kind=wp), intent(inout) :: BDer(nAS,nAS), SDer(nAS,nAS)
-real(kind=wp) :: WGRONK(2)
-real(kind=wp), allocatable :: S(:), SS(:,:), VEC(:,:), EIG(:), SCA(:), SCRATCH(:), LAG(:,:), B(:), F(:,:)
-integer(kind=iwp) :: NS, idS, IJ, I, J, IDIAG, INFO, NSCRATCH, IDB, NB
-real(kind=wp) :: SD, SCAL, EVAL, FACT
+integer(kind=iwp) :: I, IDB, IDIAG, idS, IJ, INFO, J, NB, NS, NSCRATCH
+real(kind=wp) :: EVAL, FACT, SCAL, SD, WGRONK(2)
+real(kind=wp), allocatable :: B(:), EIG(:), F(:,:), LAG(:,:), S(:), SCA(:), SCRATCH(:), SS(:,:), VEC(:,:)
 
 !! Obtain the X matrix
 !! First, read S

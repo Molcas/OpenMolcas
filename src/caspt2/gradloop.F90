@@ -18,36 +18,30 @@ subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav,nState)
 ! in the first loop (for energy) and are restored in the second loop
 ! below (by calling SavGradParams)
 
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: do_grad, IDSAVGRD, iStpGrd
 use PrintLevel, only: USUAL, VERBOSE
 use EQSOLV, only: iRHS, iVecC, iVecC2, iVecR, iVecW, iVecX
-use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUSCA, CPUSER, CPUSGM, &
-                         CPUSIN, CPUVEC, CPUPRP, CPUPT2, CPURHS, CPUSBM, TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, &
-                         TIONAD, TIOOVL, TIOPCG, TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC, TIOPRP, TIOPT2, TIORHS, TIOSBM, Energy, &
-                         IfChol, IfDens, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot, jState, nGroup, nGroupState, mState
-use constants, only: Zero
-use definitions, only: iwp, wp, u6
+use caspt2_global, only: do_grad, IDSAVGRD, iPrGlb, iStpGrd
+use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUPRP, CPUPT2, CPURHS, &
+                         CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, IfRMS, &
+                         IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, &
+                         TIOLCS, TIONAD, TIOOVL, TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "warnings.h"
 integer(kind=iwp), intent(in) :: nState
-! Effective Hamiltonian
-!real(kind=wp), allocatable :: Heff(:,:), Ueff(:,:)
-real(kind=wp), intent(inout) :: Heff(nState,nState), Ueff(nState,nState)
-! Zeroth-order Hamiltonian
-!real(kind=wp), allocatable :: H0(:,:), U0(:,:)
-real(kind=wp), intent(inout) :: H0(nState,nState), U0(nState,nState), H0Sav(nState,nState)
+real(kind=wp), intent(inout) :: Heff(nState,nState), Ueff(nState,nState), H0(nState,nState), U0(nState,nState), H0Sav(nState,nState)
+integer(kind=iwp) :: ICONV, IGROUP, ISTATE, JSTATE_OFF, LAXITY
+real(kind=wp) :: CPE, CPTF0, CPTF11, CPTF12, CPTF13, CPTF14, CPUTOT, TIOE, TIOTF0, TIOTF11, TIOTF12, TIOTF13, TIOTF14, TIOTOT
 character(len=60) :: STLNE2
-! Timers
-real(kind=wp) :: CPTF0, CPTF11, CPTF12, CPTF13, CPTF14, TIOTF0, TIOTF11, TIOTF12, TIOTF13, TIOTF14, CPE, CPUTOT, TIOE, TIOTOT
-! Indices
-integer(kind=iwp) :: ISTATE, IGROUP, JSTATE_OFF
-! Convergence check
-integer(kind=iwp) :: ICONV
-! For verification only
-integer(kind=iwp) LAXITY
 integer(kind=iwp), external :: Cho_X_GetTol
+
+! Effective Hamiltonian: Heff, Ueff
+! Zeroth-order Hamiltonian: H0, U0, H0Sav
+! Timers: CPTF0, CPTF11, CPTF12, CPTF13, CPTF14, TIOTF0, TIOTF11, TIOTF12, TIOTF13, TIOTF14, CPE, CPUTOT, TIOE, TIOTOT
+! Indices: ISTATE, IGROUP, JSTATE_OFF
+! Convergence check: ICONV
+! For verification only: LAXITY
 
 IDSAVGRD = 0
 
@@ -159,6 +153,7 @@ end do stateloop2
 contains
 
 subroutine Iter_Timing()
+
   if (ISTATE == 1) then
     CPUTOT = CPUTOT+CPUGIN
     TIOTOT = TIOTOT+TIOGIN
@@ -200,6 +195,7 @@ subroutine Iter_Timing()
     write(u6,'(A,2F14.2)') ' Total time             ',CPUTOT,TIOTOT
     write(u6,*)
   end if
+
 end subroutine Iter_Timing
 
 end subroutine GradLoop

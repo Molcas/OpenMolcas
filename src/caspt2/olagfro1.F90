@@ -14,14 +14,14 @@
 subroutine OLagFro1(NBSQT,nOLag,DPT2,OLag)
 
 use caspt2_global, only: FIFA_all
-use caspt2_module, only: NSYM, NFRO, NISH, NBAS, NDEL
+use caspt2_module, only: NBAS, NDEL, NFRO, NISH, NSYM
 use Constants, only: Zero, Half
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nOLag
 real(kind=wp), intent(inout) :: DPT2(NBSQT), OLag(nOLag)
-integer(kind=iwp) :: iMO, iSym, nOrbI, nFroI, nIshI, nBasI, iOrb, jOrb
+integer(kind=iwp) :: iMO, iOrb, iSym, jOrb, nBasI, nFroI, nIshI, nOrbI
 real(kind=wp) :: Tmp
 
 iMO = 1

@@ -14,15 +14,15 @@
 subroutine OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
 
 use Symmetry_Info, only: Mul
+use caspt2_module, only: NACTEL, NASH, NBAS, NDEL, NFRO, NISH, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: NSYM, NACTEL, NFRO, NISH, NASH, NSSH, NDEL, NBAS
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iSym, NBSQT, lT2AO
 real(kind=wp), intent(inout) :: DPT2C(NBSQT), T2AO(lT2AO)
-real(kind=wp), allocatable :: Int1(:), Scr1(:), Amp1(:)
-integer(kind=iwp) :: nMaxOrb, jSym, lInt, iSymI, iSymJ, iSymIJ, iSymA, iSymB, iSymAB, iSymIJAB, iCase
+integer(kind=iwp) :: iCase, iSymA, iSymAB, iSymB, iSymI, iSymIJ, iSymIJAB, iSymJ, jSym, lInt, nMaxOrb
+real(kind=wp), allocatable :: Amp1(:), Int1(:), Scr1(:)
 
 !! orbital Lagrangian from the T-amplitude
 !! See the loop structure in rhs_mp2

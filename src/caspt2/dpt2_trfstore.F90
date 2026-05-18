@@ -19,17 +19,15 @@
 
 subroutine DPT2_TrfStore(Scal,NBSQT,DPT2q,DPT2n,Trf,WRK)
 
-use caspt2_module, only: NSYM, NORB, NDEL, NBAS
+use caspt2_module, only: NBAS, NDEL, NORB, NSYM
 use Constants, only: Zero, One
-use definitions, only: wp, iwp
-
-#include "intent.fh"
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT
 real(kind=wp), intent(in) :: Scal, DPT2q(NBSQT), Trf(NBSQT)
 real(kind=wp), intent(inout) :: DPT2n(NBSQT)
-real(kind=wp), intent(_OUT_) :: WRK(NBSQT)
+real(kind=wp), intent(out) :: WRK(NBSQT)
 integer(kind=iwp) :: iMO, iSym, nOrbI
 
 iMO = 1

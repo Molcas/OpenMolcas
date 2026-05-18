@@ -35,28 +35,24 @@
 subroutine SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,X1,nX1,X2,nX2,lg_Y,LIST,mList)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
-use Constants, only: One, Half, Two, Three, Six
-use Fockof, only: IOFFIA, FIT, FTI, FIA, FAI, FTA, FAT
-use EQSOLV, only: nList, LList, IfCoup
-use Sigma_data, only: Val1, Val2, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, LEN2, nLst1, nLst2
+use Fockof, only: FAI, FAT, FIA, FIT, FTA, FTI, IOFFIA
+use EQSOLV, only: IfCoup, LList, nList
+use Sigma_data, only: INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, LEN2, nLst1, nLst2, Val1, Val2
 use fake_GA, only: GA_Arrays
-use caspt2_module, only: nIsh, nAsh, nSSh, nSym, nISUP, nASUP, nIGEJ, nIGTJ, nAGEB, nAGTB, nTGEU, nTUV, nTGTU, nTGEU
+use caspt2_module, only: nAGEB, nAGTB, nAsh, nASUP, nIGEJ, nIGTJ, nIsh, nISUP, nSSh, nSym, nTGEU, nTGEU, nTGTU, nTUV
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: Cases
 #endif
-use definitions, only: iwp, wp, u6
+use Constants, only: One, Two, Three, Six, Half, OneHalf
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: IMLTOP, ISYM1, ICASE1, ISYM2, ICASE2, nX1, nX2, mList
+integer(kind=iwp), intent(in) :: IMLTOP, ISYM1, ICASE1, ISYM2, ICASE2, nX1, nX2, mList, LIST(mLIST)
 real(kind=wp), intent(inout) :: X1(nX1), X2(nX2)
-integer(kind=iwp), intent(in) :: LIST(mLIST)
-integer(kind=iwp) IOFCD(8,8), IOFCEP(8,8), IOFCEM(8,8), IOFCGP(8,8), IOFCGM(8,8)
-! Various constants:
-real(kind=wp), parameter :: SQR2 = sqrt(Two), SQR3 = sqrt(Three), SQR6 = sqrt(Six), SQRI2 = One/SQR2, SQRI6 = One/SQR6, &
-                            SQR32 = SQR3*SQRI2
-integer(kind=iwp) lg_Y, ICD, ICEM, ICEP, ICGM, ICGP, IJSYM, ISYM, ISYM12, ISYMA, ISYMAB, ISYMB, ISYMI, ISYMIJ, ISYMJ, IX, IXIA, &
-                  IXTA, IXTI, IY, JSYM, JXOFF, KOD, LLST1, LLST2, NA, NAS1, NAS2, NB, NFA, NFI, NFT, NI, NIS1, NIS2, NJ, NT, NU
+integer(kind=iwp) :: ICD, ICEM, ICEP, ICGM, ICGP, IJSYM, IOFCD(8,8), IOFCEM(8,8), IOFCEP(8,8), IOFCGM(8,8), IOFCGP(8,8), ISYM, &
+                     ISYM12, ISYMA, ISYMAB, ISYMB, ISYMI, ISYMIJ, ISYMJ, IX, IXIA, IXTA, IXTI, IY, JSYM, JXOFF, KOD, lg_Y, LLST1, &
+                     LLST2, NA, NAS1, NAS2, NB, NFA, NFI, NFT, NI, NIS1, NIS2, NJ, NT, NU
+real(kind=wp), parameter :: SQR2 = sqrt(Two), SQR3 = sqrt(Three), SQR32 = sqrt(OneHalf), SQRI2 = sqrt(Half), SQRI6 = One/sqrt(Six)
 
 ! Compute a contribution from a single block (ISYM2,ICASE2)
 ! of expansion vector to a single block (ISYM1,ICASE1)

@@ -18,26 +18,23 @@ subroutine hefval(ist,jst,dvalue)
 ! vector is stored. This depends on the MOs used, but is actually
 ! the same for all the root states.
 
-use Constants, only: Zero
-use definitions, only: wp, iwp, u6
-use caspt2_global, only: luciex, idtcex, iPrGlb
 use printLevel, only: debug
 use eqsolv, only: iVecC, iVecW
-use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: iSCF, nAshT, nConf, nState, STSym
+use caspt2_global, only: idtcex, iPrGlb, luciex
+use caspt2_module, only: iSCF, MxCI, nAshT, nConf, nState, STSym
 #if defined _DMRG_
 use caspt2_module, only: DMRG
 #endif
-use caspt2_module, only: MxCI
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ist, jst
 real(kind=wp), intent(out) :: dvalue
-integer(kind=iwp) :: i
-integer(kind=iwp) :: ntg1, ntg2, ntg3
-integer(kind=iwp) :: idci
-real(kind=wp) :: ovl, dummy(1)
-real(kind=wp), allocatable :: tg1(:), tg2(:), tg3(:), ci1(:), ci2(:)
+integer(kind=iwp) :: i, idci, ntg1, ntg2, ntg3
+real(kind=wp) :: dummy(1), ovl
+real(kind=wp), allocatable :: ci1(:), ci2(:), tg1(:), tg2(:), tg3(:)
 
 ! We evaluate the effective Hamiltonian matrix element in two steps.
 

@@ -22,17 +22,18 @@ subroutine MKRHSC(IVEC,FIMO,NFIMO,ERI,nERI,SCR,nSCR)
 ! number IVEC of LUSOLV for case 4 (ATVX).
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
 use SUPERINDEX, only: KTUV
-use fake_GA, only: GA_Arrays, Allocate_GA_Array, Deallocate_GA_Array
-use caspt2_module, only: NSYM, NORB, NINDEP, NTUV, NSSH, NASH, NISH, NAES, NSSH, NTUVES, NASHT, NACTEL
+use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
+use caspt2_module, only: NACTEL, NAES, NASH, NASHT, NINDEP, NISH, NORB, NSSH, NSSH, NSYM, NTUV, NTUVES
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, NFIMO, nERI, nSCR
 real(kind=wp), intent(inout) :: FIMO(NFIMO), ERI(nERI), SCR(nSCR)
-integer(kind=iwp) NFNXT, ISYM, NFIMOES, NAS, NIS, NV, LW, ISYMT, ISYMUV, ISYMU, ISYMV, IU, IUTOT, IUABS, IV, IVTOT, IVABS, IA, &
-                  IATOT, IT, ITTOT, ITABS, IW1, IW2, IW, IBUF, IFIMO, IYABS, IYYW, IYYWA, ICASE
-real(kind=wp) SUM, ONEADD
+
+integer(kind=iwp) :: IA, IATOT, IBUF, ICASE, IFIMO, ISYM, ISYMT, ISYMU, ISYMUV, ISYMV, IT, ITABS, ITTOT, IU, IUABS, IUTOT, IV, &
+                     IVABS, IVTOT, IW, IW1, IW2, IYABS, IYYW, IYYWA, LW, NAS, NFIMOES, NFNXT, NIS, NV
+real(kind=wp) :: ONEADD, rSUM
 
 NFNXT = 0
 do ISYM=1,NSYM
@@ -83,13 +84,13 @@ do ISYM=1,NSYM
     do IA=1,NSSH(ISYM)
       IATOT = IA+NISH(ISYM)+NASH(ISYM)
       IFIMO = NFIMOES+(IATOT*(IATOT-1))/2+ITTOT
-      SUM = FIMO(IFIMO)
+      rSUM = FIMO(IFIMO)
       do IYABS=1,NASHT
         IYYW = KTUV(IYABS,IYABS,ITABS)-NTUVES(ISYM)
         IYYWA = IYYW+NAS*(IA-1)
-        SUM = SUM-GA_Arrays(LW)%A(IYYWA)
+        rSUM = rSUM-GA_Arrays(LW)%A(IYYWA)
       end do
-      ONEADD = SUM/real(max(1,NACTEL),kind=wp)
+      ONEADD = rSUM/real(max(1,NACTEL),kind=wp)
       do ISYMU=1,NSYM
         do IU=1,NASH(ISYMU)
           IUABS = IU+NAES(ISYMU)

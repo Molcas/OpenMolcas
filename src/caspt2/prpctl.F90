@@ -19,36 +19,32 @@
 
 subroutine PRPCTL(MODE,UEFF,U0,nState)
 
-use constants, only: Zero, One, Two, Five, Half, Quart
 use PT2WFN, only: PT2WFN_DENSSTORE
-use caspt2_global, only: iPrGlb
 use OneDat, only: sNoNuc, sNoOri
-use caspt2_global, only: do_grad, do_nac, iRoot1, iRoot2, SLag, DPT2_tot, DPT2C_tot
-use caspt2_global, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO, LISTS
-use caspt2_global, only: LUONEM
 use PrintLevel, only: USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
 use EQSOLV, only: IVECX, NLSTOT
-use caspt2_module, only: IFMSCOUP, IFPROP, irlxroot, ISCF, JSTATE, BNAME, NASHT, NBAST, NCONF, NSYM, OUTFMT, PRORB, THRENE, &
-                         THROCC, NORB, NBAS, NISH, NASH, IAD1M, NFRO, NRAS1, NRAS2, NRAS3, MSTATE, NDEL, Energy, MSTATE
-use definitions, only: iwp, wp, u6
+use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, do_nac, DPT2_tot, DPT2C_tot, iPrGlb, iRoot1, iRoot2, LISTS, LUONEM, &
+                         NCMO, SLag, TORB
+use caspt2_module, only: BNAME, Energy, IAD1M, IFMSCOUP, IFPROP, irlxroot, ISCF, JSTATE, MSTATE, MSTATE, NASH, NASHT, NBAS, NBAST, &
+                         NCONF, NDEL, NFRO, NISH, NORB, NRAS1, NRAS2, NRAS3, NSYM, OUTFMT, PRORB, THRENE, THROCC
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Five, Half, Quart
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Mode, nState
 real(kind=wp), intent(in) :: UEFF(NSTATE,NSTATE), U0(nState,nState)
-logical(kind=iwp) FullMlk, lSave, Do_ESPF
-character(Len=8) Label
-character(Len=128) FILENAME, MDNAME
-character(Len=80) Note
-integer(kind=iwp) IndType(56)
-real(kind=wp) Dummy(2), DUM(1), SCAL
-integer(kind=iwp) NFROSAV(NSYM), NORBSAV(NSYM)
-real(kind=wp), allocatable :: DMAT(:), CI1(:), CI2(:), SGM(:), TG1(:,:), CNAT(:), OCC(:), Scr(:)
-integer(kind=iwp) I, iComp, IDISK, IDMAT, IDMOFF, IERR, II, II2, IJ, IJ2, IndT, iOpt, iRc, iShift, ISTATE, iSyLbl, ISYM, iUHF, &
-                  KSTATE, LUTMP, N, nDens, NDMAT, NO, NOCC
+integer(kind=iwp) :: I, iComp, IDISK, IDMAT, IDMOFF, IERR, II, II2, IJ, IJ2, IndType(7,8), iOpt, iRc, ISTATE, iSyLbl, ISYM, iUHF, &
+                     KSTATE, LUTMP, N, nDens, NDMAT, NFROSAV(NSYM), NO, NOCC, NORBSAV(NSYM)
+real(kind=wp) :: Dummy(2), DUM(1), SCAL
+logical(kind=iwp) :: Do_ESPF, FullMlk, lSave
+character(len=128) :: FILENAME, MDNAME
+character(len=80) :: Note
+character(len=8) :: Label
+real(kind=wp), allocatable :: CI1(:), CI2(:), CNAT(:), DMAT(:), OCC(:), Scr(:), SGM(:), TG1(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 
 if (IPRGLB >= USUAL) then
@@ -257,24 +253,13 @@ LUTMP = ISFREEUNIT(LUTMP)
 !----------------------------------------------------------------------*
 !     Make typeindex information                                       *
 !----------------------------------------------------------------------*
-iShift = 0
-do ISYM=1,NSYM
-  IndT = 0
-  IndType(1+iShift) = NFRO(ISYM)
-  IndT = IndT+NFRO(ISYM)
-  IndType(2+iShift) = NISH(ISYM)
-  IndT = IndT+NISH(ISYM)
-  IndType(3+iShift) = NRAS1(ISYM)
-  IndT = IndT+NRAS1(ISYM)
-  IndType(4+iShift) = NRAS2(ISYM)
-  IndT = IndT+NRAS2(ISYM)
-  IndType(5+iShift) = NRAS3(ISYM)
-  IndT = IndT+NRAS3(ISYM)
-  IndType(7+iShift) = NDEL(ISYM)
-  IndT = IndT+NDEL(ISYM)
-  IndType(6+iShift) = NBAS(ISYM)-IndT
-  iShift = iShift+7
-end do
+IndType(1,1:NSYM) = NFRO(1:NSYM)
+IndType(2,1:NSYM) = NISH(1:NSYM)
+IndType(3,1:NSYM) = NRAS1(1:NSYM)
+IndType(4,1:NSYM) = NRAS2(1:NSYM)
+IndType(5,1:NSYM) = NRAS3(1:NSYM)
+IndType(6,1:NSYM) = NDEL(1:NSYM)
+IndType(7,1:NSYM) = NBAS(1:NSYM)-sum(IndType(1:6,1:NSYM),dim=1)
 if (NSTATE > 1) then
   write(Note,'(A41,I3,A3,f22.12)') '* CASPT2 natural orbitals for root number',N,' E=',Energy(JSTATE)
 else

@@ -13,21 +13,18 @@
 
 subroutine Energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMO,nCMO,OrbE,nOrbE,E2_ab)
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym
-integer(kind=iwp), intent(in) :: nBas(nSym), nFro(nSym), nIsh(nSym)
-integer(kind=iwp), intent(in) :: nAsh(nSym), nSsh(nSym), nDel(nSym)
-integer(kind=iwp), intent(in) :: nCMO, nOrbE
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nDel(nSym), nCMO, nOrbE
 real(kind=wp), intent(in) :: CMO(nCMO), OrbE(nOrbE)
 real(kind=wp), intent(out) :: E2_ab
-integer(kind=iwp) nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-real(kind=wp) Dummy(1)
-real(kind=wp), allocatable :: Eorb(:), CMOX(:)
-integer(kind=iwp) iE, ifr, ioff, irc, iSkip, iSym, ito, joff, k, kEOcc, kEVir, kfr, koff, kto, nBB, nOA, nOrb, nVV
+integer(kind=iwp) :: iE, ifr, ioff, irc, iSkip, iSym, ito, joff, k, kEOcc, kEVir, kfr, koff, kto, lnDel(8), lnFro(8), lnOcc(8), &
+                     lnOrb(8), lnVir(8), nAct(8), nBB, nOA, nOrb, nVV
+real(kind=wp) :: Dummy(1)
+real(kind=wp), allocatable :: CMOX(:), Eorb(:)
 
 call Izero(nAct,nSym)
 nVV = 0

@@ -24,7 +24,9 @@
 ! 2*(NAS**2), if the matrix multiplications are rewritten to occur in
 ! batch mode.  However, unlike in the replicate routine, this amount is
 ! divided over processors.
+#include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
+
 subroutine SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
 ! On entry, the DRA metafiles contain the matrices S and B for cases A
 ! (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk
@@ -39,36 +41,32 @@ subroutine SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
 #ifdef _SCALAPACK_
 use scalapack_mod, only: GA_PDSYEVX_
 #endif
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: INSANE
 use Para_Info, only: King
-use caspt2_global, only: LUSBT
-use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD, idBoriMat
-use EQSOLV, only: IDSMAT, IDTMAT, IDBMAT
-use stdalloc, only: mma_allocate, mma_deallocate
+use EQSOLV, only: IDBMAT, IDSMAT, IDTMAT
+use caspt2_global, only: do_grad, do_lindep, idBoriMat, iPrGlb, LUSBT, LUSTD, nStpGrd
 use caspt2_module, only: nASup, nISup, Cases, IfDOrtho, ThrShn, ThrShs, nInDep, BMATRIX, BTRANS, BSPECT
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iSym, iCase
 real(kind=wp), intent(out) :: CondNr, CPU
-!-SVC20100902: global arrays header files
+integer(kind=iwp) :: I, IDB, IDB2, IDS, IDT, IEND, iHi, iLo, IOFF, ISTA, J, jHi, jLo, lDB, LDS, LDV, lg_B, lg_S, lg_ST, lg_T, &
+                     lg_V, lg_X, mB, MS, mV, MyRank, NAS, NCOEF, NCOL, NIN, NIS, NTMP
+real(kind=wp) :: CPU1, CPU2, CPUE, dTrans, FP, SDiag, SZ, SZMAX, SZMIN, TIO, TIOE
+logical(kind=iwp) :: bSTAT
+character(len=2) :: cCASE, cSYM
+real(kind=wp), allocatable :: BD(:), COL(:), COND(:), EIG(:), SCA(:), SD(:), TMP(:), TRANS(:)
+#ifndef _SCALAPACK_
+integer(kind=iwp) :: Info, NSCRATCH
+real(kind=wp) :: WGRONK(2)
+real(kind=wp), allocatable :: SCRATCH(:), VEC(:)
+#endif
+real(kind=wp), external :: PSBMAT_FPRINT, DNRM2_
 #include "global.fh"
 #include "mafdecls.fh"
-#ifndef _SCALAPACK_
-real(kind=wp) WGRONK(2)
-real(kind=wp), allocatable :: VEC(:), SCRATCH(:)
-integer(kind=iwp) Info, NSCRATCH
-#endif
-logical(kind=iwp) bSTAT
-character(len=2) cSYM, cCASE
-real(kind=wp), allocatable :: COL(:), TMP(:), SD(:), SCA(:), EIG(:), COND(:), TRANS(:), BD(:)
-integer(kind=iwp) NAS, NIS, NCOEF, lg_S, NCOL, NTMP, IOFF, J, IDS, MyRank, iLo, iHi, jLo, jHi, ISTA, IEND, MS, LDS, I, lg_V, NIN, &
-                  mV, LDV, lg_T, IDT, lg_B, mB, lDB, IDB, IDB2, lg_X, lg_ST
-real(kind=wp) FP, SDiag, SZMIN, SZMAX, SZ, dTrans
-real(kind=wp) CPU1, CPUE, TIO, TIOE, CPU2
-real(kind=wp), external :: PSBMAT_FPRINT, DNRM2_
 
 ! Initialize the DRA I/O subsystem with default values.
 
@@ -474,10 +472,10 @@ unused_var(bStat)
 
 end subroutine SBDIAG_MPP
 
-#elif defined (NAGFOR)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-subroutine empty_sbmiag_mpp()
-end subroutine empty_sbmiag_mpp
+#include "macros.fh"
+dummy_empty_procedure(SBDIAG_MPP)
 
 #endif

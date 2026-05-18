@@ -22,20 +22,18 @@ subroutine MKRHSD(IVEC,FIMO,NFIMO,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
 ! number IVEC of LUSOLV, for case 5, AIVX.
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
-use constants, only: Zero
 use SUPERINDEX, only: KTU
-use fake_GA, only: GA_Arrays, Allocate_GA_Array, Deallocate_GA_Array
-use caspt2_module, only: NSYM, NINDEP, NSSH, NISH, NTU, NISUP, NACTEL, NORB, NAES, NASH, NTUES
+use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
+use caspt2_module, only: NACTEL, NAES, NASH, NINDEP, NISH, NISUP, NORB, NSSH, NSYM, NTU, NTUES
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, NFIMO, nERI1, nERI2, nSCR
-real(kind=wp), intent(inout) :: FIMO(NFIMO)
-real(kind=wp), intent(inout) :: ERI1(nERI1), ERI2(nERI2), SCR(nSCR)
-integer(kind=iwp) IOFF(8)
-integer(kind=iwp) ISYM, IO, ISYMI, NAS1, NAS, NIS, NV, LW, NFSUM, NFIMOES, ISYMA, ISYMU, ISYMT, II, IU, IUABS, IUTOT, IA, IATOT, &
-                  IT, ITABS, ITTOT, IWA, IWI, IW1, IW2, IBUF1, IBUF2, ICASE
-real(kind=wp) ONEADD, FAI, WAITU
+real(kind=wp), intent(inout) :: FIMO(NFIMO), ERI1(nERI1), ERI2(nERI2), SCR(nSCR)
+integer(kind=iwp) :: IA, IATOT, IBUF1, IBUF2, ICASE, II, IO, IOFF(8), ISYM, ISYMA, ISYMI, ISYMT, ISYMU, IT, ITABS, ITTOT, IU, &
+                     IUABS, IUTOT, IW1, IW2, IWA, IWI, LW, NAS, NAS1, NFIMOES, NFSUM, NIS, NV
+real(kind=wp) :: FAI, ONEADD, WAITU
 
 do ISYM=1,NSYM
   if (NINDEP(ISYM,5) == 0) cycle

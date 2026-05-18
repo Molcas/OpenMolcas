@@ -27,27 +27,26 @@ subroutine TRDNS2O(IVEC,JVEC,DPT2,MDPT2,NDPT2,SCAL)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_global, only: LISTS
 use EQSOLV, only: IfCoup
 use fake_GA, only: GA_Arrays
-use caspt2_module, only: FockType, G1SecIn, nActEl, nSym, nOrb, nInDep, nISup, nASup, nIsh, nSsh, nAsh
-use constants, only: Zero, One
-use definitions, only: iwp, wp
+use caspt2_global, only: LISTS
+use caspt2_module, only: FockType, G1SecIn, nActEl, nAsh, nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: MDPT2
-integer(kind=iwp), intent(inout) :: NDPT2
-integer(kind=iwp), intent(in) :: IVEC, JVEC
-real(kind=wp), intent(in) :: SCAL
+integer(kind=iwp), intent(in) :: IVEC, JVEC, MDPT2
 real(kind=wp), intent(inout) :: DPT2(MDPT2)
-real(kind=wp), allocatable :: WEC1(:), SCR(:)
+integer(kind=iwp), intent(inout) :: NDPT2
+real(kind=wp), intent(in) :: SCAL
+integer(kind=iwp) :: iCase1, iCase2, idoff, idpq, idqp, iLoop, iMltOp, ip, iq, iSta, iSym, iSym1, iSym2, lScr, lScr2, lVec1, &
+                     lVec2, na, nas1, nas2, ni, nis1, nis2, nLoop, no, nVec1, nVec2, nWec1
+real(kind=wp) :: Fact
+real(kind=wp), allocatable :: SCR(:), WEC1(:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: TMP1(:), TMP2(:)
 #endif
-real(kind=wp) Fact
-integer(kind=iwp) iCase1, iCase2, idoff, idpq, idqp, iLoop, iMltOp, ip, iq, iSta, iSym, iSym1, iSym2, lScr, lScr2, lVec1, lVec2, &
-                  na, nas1, nas2, ni, nis1, nis2, nLoop, no, nVec1, nVec2, nWec1
 
 ! If the G1 correction to the Fock matrix is used, then the
 ! inactive/virtual coupling elements (which are non-zero for the

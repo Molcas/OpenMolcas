@@ -13,39 +13,35 @@ subroutine H0SPCT()
 ! Write pertinent warnings and statistics for the energy
 ! denominators, i.e. the spectrum of (H0(diag)-E0).
 
-use definitions, only: iwp, wp, u6
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: dnmThr, cntThr, cmpThr
-use caspt2_global, only: LUSBT
 use PrintLevel, only: VERBOSE
 #ifdef _MOLCAS_MPP_
-use allgather_wrapper, only: allgather_R, allgather_I
+use allgather_wrapper, only: allgather
 use Para_Info, only: Is_Real_Par
 #endif
-use EQSOLV, only: IRHS, IVECX, IDBMAT
-use stdalloc, only: mma_allocate, mma_deallocate
+use EQSOLV, only: IDBMAT, IRHS, IVECX
 use fake_GA, only: GA_Arrays
+use caspt2_global, only: cmpThr, cntThr, dnmThr, iPrGlb, LUSBT
 use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, CASES, ORBNAM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: IAEND, IAS, IASTA, IBUF, ICASE, IIEND, IIS, IISTA, IP, IQ, IR, IS, ISYM, JD, lg_RHS, lg_VEC, MAXBUF, NAS, &
+                     NBUF, NIN, NIS
+real(kind=wp) :: COEF, DNOM, ECNT, RHS
+character(len=80) :: LINE
+integer(kind=iwp), allocatable, target :: IDXBUF(:,:)
+integer(kind=iwp), pointer :: IDX(:,:)
+real(kind=wp), allocatable :: BD(:), ID(:)
+real(kind=wp), allocatable, target :: VALBUF(:,:)
+real(kind=wp), pointer :: VAL(:,:)
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: LD, myRank, mRHS, mVEC
+integer(kind=iwp), allocatable, target :: IDX_H(:,:)
+real(kind=wp), allocatable, target :: VAL_H(:,:)
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-character(len=80) LINE
-integer(kind=iwp), allocatable, target :: IDXBUF(:,:)
-real(kind=wp), allocatable, target :: VALBUF(:,:)
-#ifdef _MOLCAS_MPP_
-integer(kind=iwp), allocatable, target :: IDX_H(:,:)
-real(kind=wp), allocatable, target :: VAL_H(:,:)
-integer(kind=iwp) myRank, mRHS, LD, mVEC
-#endif
-integer(kind=iwp), pointer :: IDX(:,:)
-real(kind=wp), pointer :: VAL(:,:)
-real(kind=wp), allocatable :: BD(:), ID(:)
-real(kind=wp) COEF, DNOM, ECNT, RHS
-integer(kind=iwp) IAEND, IAS, IASTA, IBUF, ICASE, IIEND, IIS, IISTA, IP, IQ, IR, IS, ISYM, JD, lg_RHS, lg_VEC, MAXBUF, NAS, NBUF, &
-                  NIN, NIS
 
 write(u6,*)
 call CollapseOutput(1,'Denominators, etc.')
@@ -173,8 +169,8 @@ do ICASE=1,13
       call GAIGOP_SCAL(NBUF,'+')
       call mma_allocate(IDX_H,2,NBUF,LABEL='IDX_H')
       call mma_allocate(VAL_H,4,NBUF,LABEL='VAL_H')
-      call allgather_I(IDXBUF,2*IBUF,IDX_H,2*NBUF)
-      call allgather_R(VALBUF,4*IBUF,VAL_H,4*NBUF)
+      call allgather(IDXBUF,2*IBUF,IDX_H,2*NBUF)
+      call allgather(VALBUF,4*IBUF,VAL_H,4*NBUF)
       IDX => IDX_H
       VAL => VAL_H
     else

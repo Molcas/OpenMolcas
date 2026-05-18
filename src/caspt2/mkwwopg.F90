@@ -21,18 +21,18 @@ subroutine MKWWOPG(IVEC,JVEC,OP1)
 !  (W1(t,aij) conj)*(W2(x,bkl)) = dik*djl*dab* Etx
 ! the same for both cases 10 and 11.
 
-use definitions, only: iwp, wp
-use constants, only: Zero, One
 use EQSOLV, only: MODVEC
+use caspt2_module, only: NAES, NASHT, NASUP, NINDEP, NISUP, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, NASHT, NAES
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC
 real(kind=wp), intent(inout) :: OP1(NASHT,NASHT)
+integer(kind=iwp) :: ICASE, IIEND, IISTA, ISCT, ISYM, IT, ITABS, IW1, IW2, IWPROD, IX, IXABS, MDVEC, NAS, NCOL, NIS, NWPROD
+real(kind=wp) :: W_PROD
 real(kind=wp), allocatable :: W1(:), W2(:), WPROD(:)
-integer(kind=iwp) ICASE, ISYM, NAS, NIS, MDVEC, NWPROD, ISCT, IISTA, IIEND, NCOL, IW1, ITABS, IW2, IT, IX, IWPROD, IXABS
-real(kind=wp) W_PROD
 
 ! Loop over cases
 do ICASE=10,11

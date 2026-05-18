@@ -14,32 +14,27 @@
 subroutine DEPSAOffC(NCONF,NSTATE,NASHT,NBAST,CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 
 use Symmetry_Info, only: Mul
-use caspt2_global, only: IPrGlb
 use PrintLevel, only: VERBOSE
-use caspt2_global, only: ConvInvar, SLag
-use sguga, only: SGS, CIS
-use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: iwp, wp, u6
-use Constants, only: Zero, One, Half
-use caspt2_module, only: IFXMS, IFRMS, NSYM, STSYM, NFRO, NISH, NASH, NORB, NBAS, ISCF, NBTCH, NBTCHES, NROOTS
-!use caspt2_module, only: NSSH
+use sguga, only: CIS, SGS
+use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag
+use caspt2_module, only: IFRMS, IFXMS, ISCF, NASH, NBAS, NBTCH, NBTCHES, NFRO, NISH, NORB, NROOTS, NSYM, STSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, NSTATE, NASHT, NBAST
 real(kind=wp), intent(inout) :: CLag(nConf,nState), DEPSA(nAshT,nAshT), WRK1(nBasT,nBasT), WRK2(nBasT**2)
 real(kind=wp), intent(in) :: FIFA(nBasT**2), FIMO(nBasT**2), U0(nState,nState)
-real(kind=wp), allocatable :: VecST(:,:), VecS1(:,:), VecS2(:,:), VecCID(:,:), VecPre(:), VecFancy(:), VecCIT(:,:), INT1(:), &
-                              INT2(:), G2(:)
-real(kind=wp), allocatable :: Eact(:)
-real(kind=wp) :: Thres, DeltaC, Delta, Delta0, AlphaC, Alpha, ResCI, Beta, Res
+integer(kind=iwp) :: ID, iState, isyci, iSym, Iter, MaxIter, nLev, nMidV
+real(kind=wp) :: Alpha, AlphaC, Beta, CPE, CPTF0, CPTF1, CPTF2, CPUT, Delta, Delta0, DeltaC, Res, ResCI, Thres, TIOE, TIOTF0, &
+                 TIOTF1, TIOTF2, WALLT
+real(kind=wp), allocatable :: Eact(:), G2(:), INT1(:), INT2(:), VecCID(:,:), VecCIT(:,:), VecFancy(:), VecPre(:), VecS1(:,:), &
+                              VecS2(:,:), VecST(:,:)
 real(kind=wp), external :: DDot_
-integer(kind=iwp) :: nLev, nMidV, iSym, ID, iState, isyci, MaxIter, Iter
-real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, TIOE, TIOTF0
-real(kind=wp) :: CPTF1, CPTF2, TIOTF1, TIOTF2
 
 nLev = SGS%nLev
 nMidV = CIS%nMidV
@@ -261,9 +256,9 @@ subroutine CLagFinalOffC(nState,SLag)
 
   integer(kind=iwp), intent(in) :: nState
   real(kind=wp), intent(inout) :: SLag(nState**2)
-  real(kind=wp), allocatable :: CI1(:), CI2(:)
   integer(kind=iwp) :: ijst, ilStat, jlStat
-  real(kind=wp) :: Scal, Ovl
+  real(kind=wp) :: Ovl, Scal
+  real(kind=wp), allocatable :: CI1(:), CI2(:)
   real(kind=wp), external :: DDot_
 
   ! Orthogonalize the partial derivative with respect to CI coeff
@@ -324,17 +319,17 @@ end subroutine CLagFinalOffC
 subroutine CnstInt(Mode,nAshT,INT1,INT2)
 
   use CHOVEC_IO, only: NVLOC_CHOBATCH
-  use caspt2_module, only: IfChol, NFRO, NBAS
+  use caspt2_module, only: IfChol, NBAS, NFRO
 
   integer(kind=iwp), intent(in) :: Mode, nAshT
   real(kind=wp), intent(inout) :: INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT)
+  integer(kind=iwp) :: iAshI, IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOrb, iSymA, iSymB, iSymI, iSymJ, iT, iTU, iU, iV, iVX, iX, &
+                       jAshI, jOrb, JSYM, kAshI, lAshI, MXBGRP, MXPIQK, NADDBUF, nBasI, NBGRP, NCHOBUF, nCorI, nFroI, nIshI, nKET, &
+                       NV
+  real(kind=wp) :: Val
   integer(kind=iwp), allocatable :: BGRP(:,:)
   real(kind=wp), allocatable :: KET(:)
   integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
-  integer(kind=iwp) :: nFroI, nIshI, nCorI, nBasI, iAshI, jAshI, iSymA, iSymI, iSymB, iSymJ, JSYM, IB, IB1, IB2, MXBGRP, IBGRP, &
-                       NBGRP, NCHOBUF, MXPIQK, NADDBUF, IBSTA, IBEND, NV, nKET, kAshI, lAshI, iT, iU, iTU, iV, iX, iVX, iOrb, jOrb
-  !integer(kind=iwp) :: nSh(8,3)
-  real(kind=wp) :: Val
 
   INT1(:,:) = Zero
   Int2(:,:,:,:) = Zero
@@ -508,18 +503,17 @@ end subroutine CnstInt
 subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
 
   use sguga, only: L2ACT
-  use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
+  use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
   use Constants, only: Two
 
   integer(kind=iwp), intent(in) :: Mode, nConf, nState, nAshT
   real(kind=wp), intent(in) :: CIin(nConf,nState), INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT)
   real(kind=wp), intent(out) :: CIout(nConf,nState)
+  integer(kind=iwp) :: ilStat, ISSG, IST, ISTU, ISU, ISV, ISVX, ISX, IT, iTask, IU, IV, IX, jlStat, kState, LT, LU, LV, LVX, LX, &
+                       nLev, NSGM, nTasks
+  real(kind=wp) :: Ovl
   real(kind=wp), allocatable :: SGM1(:), SGM2(:)
   integer(kind=iwp), allocatable :: TASK(:,:)
-  integer(kind=iwp) :: nLev, nTasks, iTask, LT, LU, kState, IST, IT, ISU, IU, ISTU, ISSG, NSGM, LVX, LV, ISV, IV, LX, ISX, ISVX, &
-                       IX, ilStat, jlStat
-  real(kind=wp) :: Ovl
-  !logical tras,uras,vras,xras
 
   nLev = SGS%nLev
 
@@ -628,10 +622,10 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
   integer(kind=iwp), intent(in) :: nConf, nState, nAshT
   real(kind=wp), intent(in) :: CI(nConf,nState), CIT(nConf,nState), INT2(nAshT,nAshT,nAshT,nAshT)
   real(kind=wp), intent(out) :: G1(nAshT,nAshT), G2(nAshT,nAshT,nAshT,nAshT)
-  real(kind=wp), allocatable :: SGM1(:), SGM2(:), G1T(:), G2T(:), Fock(:), FockOut(:)
-  integer(kind=iwp) :: nLev, kState, ilState, jlState, iS, jS, iA, jA, ip1, ip2, ipS, ijS, kS, lS, kAsh, kAA, lAsh, lAA, iAsh, &
-                       ipQ, jAsh, ipM, imo, iOrb, jOrb
-  real(kind=wp) :: Wgt, vSLag, rd, EigI, EigJ, OLagIJ, Tmp
+  integer(kind=iwp) :: iA, iAsh, ijS, ilState, imo, iOrb, ip1, ip2, ipM, ipQ, ipS, iS, jA, jAsh, jlState, jOrb, jS, kAA, kAsh, kS, &
+                       kState, lAA, lAsh, lS, nLev
+  real(kind=wp) :: EigI, EigJ, OLagIJ, rd, Tmp, vSLag, Wgt
+  real(kind=wp), allocatable :: Fock(:), FockOut(:), G1T(:), G2T(:), SGM1(:), SGM2(:)
 
   nLev = SGS%nLev
 
@@ -784,15 +778,12 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
   use molcas, only: MXLEV
   use Constants, only: Two, Four
 
-# include "intent.fh"
-
   integer(kind=iwp), intent(in) :: ISYCI, NCONF, NROOTS, nLev, nMidV
+  real(kind=wp), intent(out) :: PRE(nConf), Fancy(nRoots,nRoots,nRoots)
   real(kind=wp), intent(in) :: CI(nConf*nRoots), INT1(NLEV,NLEV), INT2(NLEV,NLEV,NLEV,NLEV)
-  real(kind=wp), intent(_OUT_) :: PRE(nConf)
-  real(kind=wp), intent(out) :: Fancy(nRoots,nRoots,nRoots)
-  real(kind=wp) :: ICS(MXLEV), val, val2, Ene, dnum
-  integer(kind=iwp) :: nIpWlk, LENCSF, ISY, LEV, MV, ISYUP, NCI, NUP, ISYDWN, NDWN, ICONF, IUW0, IDW0, IDWN, IUP, ICDPOS, ICDWN, &
-                       NNN, IC1, ICUP, K, IDWNSV, ICUPOS, LEV2, iSt, jSt, kSt
+  integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, iSt, ISY, ISYDWN, ISYUP, IUP, IUW0, jSt, K, &
+                       kSt, LENCSF, LEV, LEV2, MV, NCI, NDWN, nIpWlk, NNN, NUP
+  real(kind=wp) :: dnum, Ene, ICS(MXLEV), val, val2
 
   nIpWlk = CIS%nIpWlk
 
@@ -953,8 +944,8 @@ subroutine DoPrec(nConf,nRoots,VecIN,VecOUT,CI,Pre,Fancy)
   integer(kind=iwp), intent(in) :: nConf, nRoots
   real(kind=wp), intent(in) :: VecIN(nConf,nRoots), Pre(nConf), Fancy(nRoots,nRoots,nRoots)
   real(kind=wp), intent(out) :: VecOUT(nConf,nRoots), CI(nConf,nRoots)
-  integer(kind=iwp) :: iRoots, iConf, jRoots, kRoots
-  real(kind=wp) :: rcoeff(nRoots), alpha(nRoots)
+  integer(kind=iwp) :: iConf, iRoots, jRoots, kRoots
+  real(kind=wp) :: alpha(nRoots), rcoeff(nRoots)
 
   !! Standard inverse of the diagonal elements
   do iRoots=1,nRoots

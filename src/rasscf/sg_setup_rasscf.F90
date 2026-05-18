@@ -24,7 +24,7 @@ use rasscf_global, only: DoDMRG
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate
 #endif
-use definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(inout) :: DBG, SkipGUGA

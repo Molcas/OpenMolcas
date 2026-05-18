@@ -22,16 +22,16 @@ subroutine MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 ! in case of a true parallel run we need to put the local array in a
 ! global array and then save that to disk in a distributed fashion.
 
-use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 use fake_GA, only: GA_Arrays
 #endif
 use caspt2_module, only: NASUP, NISUP
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ICASE, ISYM, IVEC, LW
-integer(kind=iwp) NAS, NIS, lg_w
+integer(kind=iwp) :: lg_w, NAS, NIS
 
 NAS = NASUP(ISYM,ICASE)
 NIS = NISUP(ISYM,ICASE)

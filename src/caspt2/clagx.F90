@@ -14,29 +14,27 @@
 subroutine CLagX(IFF,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
 
 use PrintLevel, only: VERBOSE
-use caspt2_global, only: iPrGlb
-use Constants, only: Zero
-use definitions, only: wp, iwp, u6
-use stdalloc, only: mma_allocate, mma_deallocate
 use sguga, only: SGS
-use caspt2_module, only: NASH, ISCF, JSTATE, EPSA
-use caspt2_module, only: NG1, NG2, NG3, NG3TOT
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: EPSA, ISCF, JSTATE, NASH, NG1, NG2, NG3, NG3TOT
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#endif
 integer(kind=iwp), intent(in) :: IFF, nConf, nRoots, nState, nAshT
 real(kind=wp), intent(inout) :: CLag(nConf,nRoots), DEPSA(nAshT,nAshT)
 real(kind=wp), intent(in) :: VECROT(nState)
-real(kind=wp), allocatable :: G1(:), G2(:), G3(:)
-real(kind=wp), allocatable :: DG1(:), DG2(:), DG3(:), DF1(:), DF2(:), DF3(:)
-integer(kind=iwp) :: nLev, iT, iU
+integer(kind=iwp) :: iT, iU, nLev
 real(kind=wp) :: DEASUM
-real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0, TIOTF10
+real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, TIOE, TIOTF0, TIOTF10, WALLT
+real(kind=wp), allocatable :: DF1(:), DF2(:), DF3(:), DG1(:), DG2(:), DG3(:), G1(:), G2(:), G3(:)
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#endif
 
 nLev = SGS%nLev
 

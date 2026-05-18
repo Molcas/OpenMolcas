@@ -24,14 +24,14 @@ subroutine SPEC1D(IFC,FACT,X,nX,Y,nY)
 
 use SUPERINDEX, only: KTU
 use caspt2_module, only: nAshT, nASup, nISup
-use constants, only: Zero
-use definitions, only: iwp, wp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IFC, nX, nY
 real(kind=wp), intent(in) :: FACT
 real(kind=wp), intent(inout) :: X(nX), Y(nY)
-integer(kind=iwp) NAS, NIS, ITQ, ITT
+integer(kind=iwp) :: ITQ, ITT, NAS, NIS
 
 NIS = NISUP(1,5)
 if (NIS == 0) return

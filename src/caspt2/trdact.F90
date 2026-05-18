@@ -26,27 +26,20 @@ subroutine TRDACT(IVEC,JVEC,DTU)
 ! in the notation of the comments.
 
 use sguga, only: SGS
+use caspt2_global, only: IDTCEX, LUCIEX
+use caspt2_module, only: iASym, iSCF, jState, MxCI, nAes, nAsh, nAshT, nAshT, nConf, nSym, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_global, only: LUCIEX, IDTCEX
-use caspt2_module, only: nAshT, iSCF, jState, nConf, nSym, STSym, iASym, nAes, nAshT, nAsh
-use caspt2_module, only: MxCI
-use Molcas, only: MxLev
-use constants, only: Zero, One, Two
-use definitions, only: iwp, wp
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) IVEC, JVEC
-real(kind=wp) DTU(NASHT,NASHT)
-! Local array:
-integer(kind=iwp) IATOG(MXLEV)
-real(kind=wp), allocatable :: TRDOP1(:), TRDOP2(:), TRDOP3(:)
-integer(kind=iwp) :: NOP1, NOP2, NOP3
-real(kind=wp), allocatable :: TRDTMP(:), TRDCI(:), TRDSGM(:)
-integer(kind=iwp) :: I, ID
-integer(kind=iwp) :: ISYM, ISYMT
-integer(kind=iwp) :: ITABS, ITLEV, IU, IUABS, IULEV
-real(kind=wp) :: OP0, OCCNUM, SCP, DDOT_
-integer(kind=iwp) :: nLev
+integer(kind=iwp), intent(in) :: IVEC, JVEC
+real(kind=wp), intent(inout) :: DTU(NASHT,NASHT)
+integer(kind=iwp) :: I, ID, ISYM, ISYMT, ITABS, ITLEV, IU, IUABS, IULEV, nLev, NOP1, NOP2, NOP3
+real(kind=wp) :: OCCNUM, OP0, SCP
+integer(kind=iwp), allocatable :: IATOG(:)
+real(kind=wp), allocatable :: TRDCI(:), TRDOP1(:), TRDOP2(:), TRDOP3(:), TRDSGM(:), TRDTMP(:)
+real(kind=wp), external :: DDOT_
 
 nLev = SGS%nLev
 
@@ -82,6 +75,7 @@ call MMA_DEALLOCATE(TRDOP3)
 if (ISCF == 0) then
   ! Create reorder table giving the GUGA level, i.e. CI-coupling
   ! ordinal number of each active orbital.
+  call mma_allocate(IATOG,NLEV,Label='IATOG')
   ITABS = 0
   do ISYM=1,NSYM
     do I=1,NLEV
@@ -104,6 +98,7 @@ if (ISCF == 0) then
     end do
   end do
   call MMA_DEALLOCATE(TRDSGM)
+  call MMA_DEALLOCATE(IATOG)
 else
   OCCNUM = Two
   if (ISCF == 2) OCCNUM = One

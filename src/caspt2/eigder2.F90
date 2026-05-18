@@ -20,19 +20,18 @@
 subroutine EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA,RDMSA,DEPSA,WRK1,WRK2)
 
 use caspt2_global, only: OLag
+use caspt2_module, only: NASH, NBAS, NBAST, NDEL, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: NSYM, NFRO, NISH, NASH, NDEL, NBAS, NBAST
 use Constants, only: Zero, One, Two
-
-#include "intent.fh"
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nAshT
-real(kind=wp), intent(_OUT_) :: RDMEIG(NBSQT), WRK1(NBSQT), WRK2(NBSQT)
+real(kind=wp), intent(inout) :: RDMEIG(NBSQT)
 real(kind=wp), intent(in) :: Trf(NBSQT), FIFA(NBSQT), RDMSA(nAshT**2), DEPSA(nAshT**2)
+real(kind=wp), intent(out) :: WRK1(NBSQT), WRK2(NBSQT)
+integer(kind=iwp) :: iSQ, iSQA, iSym, iT, iTabs, iTU, iTUA, iU, iUabs, nAshI, nCor, nFroI, nIshI, nOrbI
 real(kind=wp), allocatable :: FPT2_loc(:), RDMqc(:)
-integer(kind=iwp) :: iSQ, iSym, nOrbI, nFroI, nIshI, nAshI, nCor, iSQA, iT, iTabs, iU, iUabs, iTU, iTUA
 
 call mma_allocate(FPT2_loc,NBSQT,Label='FPT2_loc')
 

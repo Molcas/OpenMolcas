@@ -24,15 +24,14 @@
 
 subroutine NEWB()
 
+use EQSOLV, only: iDBMat, iDSMat
 use caspt2_global, only: LUSBT
-use EQSOLV, only: iDSMat, iDBMat
+use caspt2_module, only: nASup, nISup, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: nSym, nASup, nISup
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) ICASE, ISYM, NAS, NIS, NCOEF
-integer(kind=iwp) IDS, NS, IDB, NB
+integer(kind=iwp) :: ICASE, IDB, IDS, ISYM, NAS, NB, NCOEF, NIS, NS
 real(kind=wp), allocatable :: S(:), B(:)
 
 ! Modify B matrices, if requested.

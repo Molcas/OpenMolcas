@@ -14,10 +14,10 @@
 subroutine Backtransform(Heff,Ueff,U0,nState)
 ! Back-transform Heff and Ueff to the basis of the original CASSCF states.
 
-use definitions, only: wp, iwp
-use constants, only: Zero, One
+use caspt2_module, only: IFRMS, IFXMS
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: IFXMS, IFRMS
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: Nstate

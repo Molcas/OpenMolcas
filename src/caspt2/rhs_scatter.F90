@@ -30,22 +30,19 @@ subroutine RHS_SCATTER(LDW,lg_W,Buff,idxW,nBuff)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 #endif
 use fake_GA, only: GA_Arrays
-#ifdef _MOLCAS_MPP_
-use constants, only: One
-#endif
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: LDW, lg_W, nBuff
+integer(kind=iwp), intent(in) :: LDW, lg_W, nBuff, idxW(nBuff)
 real(kind=wp), intent(in) :: Buff(nBuff)
-integer(kind=iwp), intent(in) :: idxW(nBuff)
-integer(kind=iwp) I
+integer(kind=iwp) :: I
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp), allocatable :: TMPW1(:), TMPW2(:)
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp), allocatable :: TMPW1(:), TMPW2(:)
 #else
 #include "macros.fh"
 unused_var(LDW)

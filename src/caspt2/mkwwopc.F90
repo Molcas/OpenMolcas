@@ -26,19 +26,19 @@ subroutine MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
 
 use SUPERINDEX, only: MTUV
 use EQSOLV, only: MODVEC
+use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP, NTUVES
-use constants, only: Zero, One
-use definitions, only: iwp, wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NOP2, NOP3
 real(kind=wp), intent(inout) :: OP1(NASHT,NASHT), OP2(NOP2), OP3(NOP3)
+integer(kind=iwp) :: ICASE, IIEND, IISTA, ISCT, ISYM, ITABS, ITUV, ITUVABS, ITUVEND, ITUVSTA, ITX, ITZ, IUABS, IVABS, IVU, IVX, &
+                     IVZ, IW1, IW2, IWPROD, IXABS, IXYZ, IXYZABS, IXYZEND, IXYZSTA, IYABS, IYZ, IZABS, JTX, JVU, JVUTXYZ, JVUTZ, &
+                     JVXYZ, JVZTX, JYZ, LW1A, LW2A, MDVEC, MWS1, MWS2, NAS, NCOL, NIS, NWPROD, NWSCT
+real(kind=wp) :: W_PROD
 real(kind=wp), allocatable :: W1(:), W2(:), WPROD(:)
-integer(kind=iwp) ICASE, IIEND, IISTA, ISCT, ISYM, ITABS, IUABS, IW1, IW2, IWPROD, IXABS, IYABS, MDVEC, NAS, NCOL, NIS, NWPROD, &
-                  ITUV, ITUVABS, ITUVEND, ITUVSTA, ITX, ITZ, IVABS, IVU, IVX, IVZ, IXYZ, IXYZABS, IXYZEND, IXYZSTA, IYZ, IZABS, &
-                  JTX, JVU, JVUTXYZ, JVUTZ, JVXYZ, JVZTX, JYZ, LW1A, LW2A, MWS1, MWS2, NWSCT
-real(kind=wp) W_PROD
 
 ICASE = 4
 ! Loop over symmetry ISYM

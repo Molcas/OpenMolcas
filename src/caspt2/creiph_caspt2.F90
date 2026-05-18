@@ -20,33 +20,27 @@ subroutine CREIPH_CASPT2(Heff,Ueff,U0,nState)
 ! Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 ! energies.
 
-use constants, only: Zero
 use fciqmc_interface, only: DoFCIQMC
-use caspt2_global, only: iPrGlb, Weight
 use PrintLevel, only: USUAL
-use Molcas, only: LenIn, MxLev
-use REFWFN, only: REFWFN_FILENAME, IADR15
+use REFWFN, only: IADR15, REFWFN_FILENAME
 use sguga, only: L2ACT, LEVEL
-use caspt2_global, only: CMO, CMO_Internal, NCMO
-use stdalloc, only: mma_allocate, mma_deallocate
-use Molcas, only: LenIn, MxAct, MxOrb, MxRoot
+use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
-use caspt2_module, only: DOCUMULANT, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, ISPIN, LROOTS, NACTEL, BNAME, &
-                         NASH, NBAS, NBSQT, NCONF, NDEL, NELE3, NFRO, NHOLE1, NISH, NRAS1, NRAS2, NRAS3, NROOTS, NSYM, POTNUC, &
-                         STSYM, TITLE, MSTATE, ENERGY, MSTATE
-use caspt2_module, only: CITHR, MXCI
-use definitions, only: iwp, wp, u6
+use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
+use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, ISPIN, &
+                         LROOTS, MSTATE, MSTATE, MXCI, NACTEL, NASH, NBAS, NBSQT, NCONF, NDEL, NELE3, NFRO, NHOLE1, NISH, NRAS1, &
+                         NRAS2, NRAS3, NROOTS, NSYM, POTNUC, STSYM, TITLE
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Nstate
 real(kind=wp), intent(in) :: Heff(Nstate,Nstate), Ueff(Nstate,Nstate), U0(Nstate,Nstate)
-integer(kind=iwp) JOBIPH, JOBMIX
-real(kind=wp) Weight_(MxRoot)
-real(kind=wp), allocatable :: CI1(:), CI2(:), OLDE(:), EFFCP(:)
-integer(kind=iwp), allocatable :: JROOT(:), IDIST(:)
-integer(kind=iwp) I, IAD15, IDISK, IDR, IDW, IISTATE, ISNUM, ISTATE, J, JSNUM, MROOTS, NIDIST, NOLDE, ID
-real(kind=wp) X
-integer(kind=iwp) xLevel(MxLev), xL2Act(MxLev)
+integer(kind=iwp) :: I, IAD15, ID, IDISK, IDR, IDW, IISTATE, ISNUM, ISTATE, J, JOBIPH, JOBMIX, JSNUM, MROOTS, NIDIST, NOLDE
+real(kind=wp) :: X
+integer(kind=iwp), allocatable :: IDIST(:), JROOT(:), xL2Act(:), xLevel(:)
+real(kind=wp), allocatable :: CI1(:), CI2(:), EFFCP(:), OLDE(:), Weight_(:)
 
 ! Not called, if .not. IFMIX, then only the new CI coefficients are
 ! printed, no JOBMIX file is created.
@@ -109,12 +103,12 @@ else
   call ICOPY(MXROOT,IROOT,1,JROOT,1)
   MROOTS = NROOTS
 end if
-! Initialize WEIGHT_() (which is unused) just so detection
-! of uninitialized memory does not get its knickers twisted
-call DCOPY_(MXROOT,[Zero],0,WEIGHT_,1)
+call mma_allocate(Weight_,MxRoot,Label='Weight_')
 WEIGHT_(1:NROOTS) = WEIGHT(1:NROOTS)
+WEIGHT_(NROOTS+1:) = Zero
 call WR_RASSCF_INFO(JOBMIX,1,iAd15,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,8,BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144, &
                     TITLE,4*18*MXTIT,POTNUC,LROOTS,MROOTS,JROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,Weight_)
+call mma_deallocate(Weight_)
 call mma_deallocate(JROOT)
 ! Copy MO coefficients from JOBIPH to JOBMIX
 NCMO = NBSQT
@@ -158,11 +152,15 @@ call mma_deallocate(OLDE)
 IAD15 = IADR15(18)
 !SVC: translates levels to orbital index
 !Copy to local array since L2Act and Level are protected.
+call mma_allocate(xL2Act,MxLev,Label='xL2Act')
+call mma_allocate(xLevel,MxLev,Label='xLevel')
 XL2Act(:) = L2Act(:)
 call IDAFILE(JOBMIX,1,xL2ACT,mxAct,IAD15)
 !SVC: translates orbital index to levels
 XLevel(:) = Level(:)
 call IDAFILE(JOBMIX,1,xLEVEL,mxAct,IAD15)
+call mma_deallocate(xL2Act)
+call mma_deallocate(xLevel)
 
 ! PAM07: Eliminate unsafe IPOSFILE calls, use instead dummy i/o operations
 ! to find disk addresses to CI arrays:

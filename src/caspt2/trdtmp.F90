@@ -11,19 +11,18 @@
 
 subroutine TRDTMP(DPT2,NDPT2)
 
-use definitions, only: iwp, wp
-use constants, only: Zero
 use Para_Info, only: King
-use stdalloc, only: mma_allocate, mma_deallocate
 use EQSOLV, only: iVecc
-use caspt2_module, only: nSym, nIsh, nAsh, nOrb, nAES, nAshT
+use caspt2_module, only: nAES, nAsh, nAshT, nIsh, nOrb, nSym
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDPT2
 real(kind=wp), intent(inout) :: DPT2(NDPT2)
+integer(kind=iwp) :: idpt, iofdpt, isym, it, itabs, itq, iu, iuabs, iuq, na, ndtemp, ni, no
 real(kind=wp), allocatable :: DTemp(:,:)
-integer(kind=iwp) idpt, iofdpt, isym, it, itabs, itq, iu, iuabs, iuq, na, ndtemp, ni, no
-real(kind=wp) value
 
 if (nasht == 0) return
 
@@ -49,9 +48,8 @@ do isym=1,nsym
     do iu=1,na
       iuq = ni+iu
       iuabs = naes(isym)+iu
-      value = dtemp(itabs,iuabs)
       idpt = iofdpt+itq+no*(iuq-1)
-      DPT2(idpt) = DPT2(idpt)+value
+      DPT2(idpt) = DPT2(idpt)+dtemp(itabs,iuabs)
     end do
   end do
   iofdpt = iofdpt+no**2

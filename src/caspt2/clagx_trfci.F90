@@ -14,14 +14,14 @@
 subroutine CLagX_TrfCI(NCONF,CI)
 
 use caspt2_global, only: TAT, TORB
-use caspt2_module, only: NSYM, STSYM, NISH, NRAS1, NRAS2, NRAS3, NSSH
+use caspt2_module, only: NISH, NRAS1, NRAS2, NRAS3, NSSH, NSYM, STSYM
 use Constants, only: Zero
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF
 real(kind=wp), intent(inout) :: CI(NCONF)
-integer(kind=iwp) :: IOFF1, IOFF2, ISYM, NI, NR1, NR2, NR3, NS, I, J, IJ, JI, NISH_SAVE(8)
+integer(kind=iwp) :: I, IJ, IOFF1, IOFF2, ISYM, J, JI, NI, NISH_SAVE(8), NR1, NR2, NR3, NS
 
 TAT(:) = Zero
 

@@ -25,15 +25,15 @@
 
 subroutine RHS_FPRINT(CTYPE,IVEC)
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero
-use caspt2_module, only: NSYM, NASUP, NINDEP, NISUP
+use caspt2_module, only: NASUP, NINDEP, NISUP, NSYM
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: IVEC
 character(len=*), intent(in) :: CTYPE
+integer(kind=iwp), intent(in) :: IVEC
+integer(kind=iwp) :: ICASE, ISYM, lg_W, NAS, NIN, NIS, NROW
 real(kind=wp) :: FP(8)
-integer(kind=iwp) NROW, ICASE, ISYM, NAS, NIN, NIS, lg_W
 real(kind=wp), external :: RHS_DDOT
 
 !-SVC: print out DNRM2 of the all RHS components

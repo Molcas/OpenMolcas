@@ -24,20 +24,19 @@ subroutine TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 ! The present solution gives just a reasonable approximation,
 ! with correct trace.
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, Two
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: DREF
 use PrintLevel, only: VERBOSE
-use caspt2_module, only: nActEl, nAshT, nSym, nInDep, nISup, nIsh, nAsh, nOrb, nAES
+use caspt2_global, only: DREF, iPrGlb
+use caspt2_module, only: nActEl, nAES, nAsh, nAshT, nInDep, nIsh, nISup, nOrb, nSym
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NDPT2
 real(kind=wp), intent(inout) :: DPT2(NDPT2)
-integer(kind=iwp) :: NACTD(13) = [1,2,2,-1,0,1,1,-2,-2,-1,-1,0,0]
-real(kind=wp) COEF1, COEF2, D, DR, OVL
-integer(kind=iwp) ICASE, IOFDPT, ISYM, IT, ITABS, ITQ, ITU, IU, IUABS, IUQ, IUT, lVec1, lVec2, NA, NADIFF, NAHOLE, NI, NIN, NIS, &
-                  NO, nVec
+integer(kind=iwp) :: ICASE, IOFDPT, ISYM, IT, ITABS, ITQ, ITU, IU, IUABS, IUQ, IUT, lVec1, lVec2, NA, NADIFF, NAHOLE, NI, NIN, &
+                     NIS, NO, nVec
+real(kind=wp) :: COEF1, COEF2, D, DR, OVL
+integer(kind=iwp), parameter :: NACTD(13) = [1,2,2,-1,0,1,1,-2,-2,-1,-1,0,0]
 real(kind=wp), external :: RHS_DDOT
 
 if (IPRGLB >= VERBOSE) then

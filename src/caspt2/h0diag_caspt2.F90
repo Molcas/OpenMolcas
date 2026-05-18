@@ -24,15 +24,13 @@ subroutine H0DIAG_CASPT2(ISYCI,DIAG,nDiag,NOW,IOW,nMidV)
 use Symmetry_Info, only: Mul
 use sguga, only: CIS
 use caspt2_module, only: nSym
-use constants, only: Zero
-use definitions, only: iwp, wp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-! INPUT ARRAYS:
-integer(kind=iwp), intent(in) :: nMidV, ISYCI, nDiag
-integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
+integer(kind=iwp), intent(in) :: ISYCI, nDiag, nMidV, NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
 real(kind=wp), intent(out) :: DIAG(nDiag)
-integer(kind=iwp) IEMU, MV, ISYUP, NUP, ISYDWN, NDWN, ICS, JCS, NC
+integer(kind=iwp) :: ICS, IEMU, ISYDWN, ISYUP, JCS, MV, NC, NDWN, NUP
 
 DIAG(:) = Zero
 IEMU = 1

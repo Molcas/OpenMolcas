@@ -18,34 +18,28 @@
 !--------------------------------------------*
 
 subroutine DENS2T_RPT2(NLEV,NCONF,MXCI,CI1,CI2,SGM1,SGM2,G1,G2)
+! Purpose: Compute the 1- and 2-electron density matrix
+! arrays G1 and G2.
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG
-use sguga, only: SGS, L2ACT, CIS
+use sguga, only: CIS, L2ACT, SGS
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: iSCF, nActEl, nAshT, nG1, nG2, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: iSCF, nActEl, nAshT, STSym
-use caspt2_module, only: nG1, nG2
-use constants, only: Zero, One, Two, Four
-use definitions, only: wp, iwp, u6
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NLEV, NCONF, MXCI
 real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF)
 real(kind=wp), intent(out) :: SGM1(MXCI), SGM2(MXCI), G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp) :: GTU, GTUVX !! ,GTUXV
-integer(kind=iwp) :: ID
-integer(kind=iwp) :: IST, ISU, ISV, ISX, ISTU, ISVX
-integer(kind=iwp) :: IT, IU, IV, IX, LT, LU, LV, LX, LVX
-integer(kind=iwp) :: itu, ivx
-integer(kind=iwp) :: ITASK, NTASKS
-integer(kind=iwp) :: ISSG1, ISSG2, NSGM1, NSGM2
-real(kind=wp), external :: DDOT_, DNRM2_
+integer(kind=iwp) :: ID, ISSG1, ISSG2, IST, ISTU, ISU, ISV, ISVX, ISX, IT, ITASK, itu, IU, IV, ivx, IX, LT, LU, LV, LVX, LX, &
+                     NSGM1, NSGM2, NTASKS
+real(kind=wp) :: GTU, GTUVX
 integer(kind=iwp), allocatable :: Task(:,:)
-
-! Purpose: Compute the 1- and 2-electron density matrix
-! arrays G1 and G2.
+real(kind=wp), external :: DDOT_, DNRM2_
 
 G1(:,:) = Zero
 G2(:,:,:,:) = Zero

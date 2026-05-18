@@ -13,21 +13,20 @@
 
 subroutine DerHEff(nConf,nRoots,nState,CLag,VECROT)
 
-use caspt2_global, only: LUCIEX, IDTCEX
-use EQSOLV, only: IVECW, IVECC
+use caspt2_global, only: IDTCEX, LUCIEX
+use EQSOLV, only: IVECC, IVECW
+use caspt2_module, only: ISCF, JSTATE, MXCI, NASHT, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: STSYM, NASHT, ISCF, JSTATE
-use caspt2_module, only: MXCI
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nConf, nRoots, nState
 real(kind=wp), intent(inout) :: CLag(nConf,nRoots)
 real(kind=wp), intent(in) :: VECROT(nState)
-integer(kind=iwp) :: IST, JST, I, NTG1, NTG2, NTG3, IDCI
-real(kind=wp) :: OVL, DUMMY(1)
-real(kind=wp), allocatable :: DTG1(:), DTG2(:), DTG3(:), CI1(:), CI2(:), CI3(:)
+integer(kind=iwp) :: I, IDCI, IST, JST, NTG1, NTG2, NTG3
+real(kind=wp) :: DUMMY(1), OVL
+real(kind=wp), allocatable :: CI1(:), CI2(:), CI3(:), DTG1(:), DTG2(:), DTG3(:)
 
 !return
 

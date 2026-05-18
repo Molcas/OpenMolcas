@@ -15,15 +15,15 @@ subroutine TWO2ONERDM(NA,NE,G2,G1)
 ! Compute 1-RDM from 2-RDM
 ! Written by N. Nakatani, Oct. 2014
 
-use definitions, only: iwp, wp
-use constants, only: Zero
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NA, NE
 real(kind=wp), intent(in) :: G2(NA,NA,NA,NA)
 real(kind=wp), intent(out) :: G1(NA,NA)
-integer(kind=iwp) I, J, K
-real(kind=wp) G1TMP
+integer(kind=iwp) :: I, J, K
+real(kind=wp) :: G1TMP
 
 do I=1,NA
   do J=1,NA

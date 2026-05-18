@@ -22,18 +22,18 @@ subroutine MKRHSA(IVEC,FIMO,NFIMO,ERI,nERI,SCR,nSCR)
 ! number IVEC of LUSOLV, for case 1 (VJTU).
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
-use constants, only: Zero
 use SUPERINDEX, only: KTUV
-use fake_GA, only: GA_Arrays, Allocate_GA_Array, Deallocate_GA_Array
-use caspt2_module, only: NSYM, NORB, NINDEP, NTUV, NISH, NASH, NISH, NAES, NTUVES, NACTEL
+use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
+use caspt2_module, only: NACTEL, NAES, NASH, NINDEP, NISH, NISH, NORB, NSYM, NTUV, NTUVES
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, NFIMO, nERI, nSCR
 real(kind=wp), intent(inout) :: FIMO(NFIMO), ERI(nERI), SCR(nSCR)
-integer(kind=iwp) NFNXT, ISYM, NFIMOES, NAS, NIS, NV, NI, LW, ISYMT, ISYMUV, ISYMU, ISYMV, IT, ITTOT, ITABS, II, IU, IUTOT, IUABS, &
-                  IV, IVTOT, IVABS, IW1, IW2, IW, IBUF, ICASE
-real(kind=wp) FTI, ONEADD, WTUVI
+integer(kind=iwp) :: IBUF, ICASE, II, ISYM, ISYMT, ISYMU, ISYMUV, ISYMV, IT, ITABS, ITTOT, IU, IUABS, IUTOT, IV, IVABS, IVTOT, IW, &
+                     IW1, IW2, LW, NAS, NFIMOES, NFNXT, NI, NIS, NV
+real(kind=wp) :: FTI, ONEADD, WTUVI
 
 NFNXT = 0
 do ISYM=1,NSYM

@@ -22,21 +22,21 @@
 !***********************************************************************
 subroutine MKSB(DREF,NDREF,PREF,NPREF)
 
-use definitions, only: iwp, wp
-use constants, only: Two, Four, Eight
-use SUPERINDEX, only: MTU, MTGEU, KTU, KTGTU
-use caspt2_global, only: LUSBT
+use SUPERINDEX, only: KTGTU, KTU, MTGEU, MTU
 use EQSOLV, only: IDSMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: NASHT, NINDEP, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES, NTU, NTUES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NASHT, NSYM, NINDEP, NTU, NTUES, NTGEU, NTGTU, NTGEUES, NTGTUES
+Use constants, only: Two, Four, Eight
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
-real(kind=wp), allocatable :: SB(:), SBP(:), SBM(:)
-integer(kind=iwp) ISYM, NINP, NAS, NSB, ITUABS, ITABS, IUABS, IXY, IXYABS, IXABS, IYABS, ISADR, IXT, IYU, IP1, IP2, IP, ID1, ID2, &
-                  ID, IDISK, ISMADR, ISPADR, ITGEU, ITGEUABS, ITGTU, ITU, IXGEY, IXGEYABS, IXGTY, IYX, NASM, NASP, NSBM, NSBP
-real(kind=wp) value, STUXY, STUYX
+integer(kind=iwp) :: ID, ID1, ID2, IDISK, IP, IP1, IP2, ISADR, ISMADR, ISPADR, ISYM, ITABS, ITGEU, ITGEUABS, ITGTU, ITU, ITUABS, &
+                     IUABS, IXABS, IXGEY, IXGEYABS, IXGTY, IXT, IXY, IXYABS, IYABS, IYU, IYX, NAS, NASM, NASP, NINP, NSB, NSBM, NSBP
+real(kind=wp) :: STUXY, STUYX, Val
+real(kind=wp), allocatable :: SB(:), SBM(:), SBP(:)
 
 ! Set up the matrices SBP(tu,xy) and SBM(tu,xy)
 ! Formulae used:
@@ -65,39 +65,39 @@ do ISYM=1,NSYM
       IP1 = max(IXT,IYU)
       IP2 = min(IXT,IYU)
       IP = (IP1*(IP1-1))/2+IP2
-      value = Four*PREF(IP)
+      Val = Four*PREF(IP)
       ! Add  -4 dxt Dyu + 8dxt dyu
       if (IXABS == ITABS) then
         ID1 = max(IYABS,IUABS)
         ID2 = min(IYABS,IUABS)
         ID = (ID1*(ID1-1))/2+ID2
-        value = value-Four*DREF(ID)
-        if (IYABS == IUABS) value = value+Eight
+        Val = Val-Four*DREF(ID)
+        if (IYABS == IUABS) Val = Val+Eight
       end if
       ! Add  -4 dyu Dxt
       if (IYABS == IUABS) then
         ID1 = max(IXABS,ITABS)
         ID2 = min(IXABS,ITABS)
         ID = (ID1*(ID1-1))/2+ID2
-        value = value-Four*DREF(ID)
+        Val = Val-Four*DREF(ID)
       end if
       ! Add  +2 dyt Dxu
       if (IYABS == ITABS) then
         ID1 = max(IXABS,IUABS)
         ID2 = min(IXABS,IUABS)
         ID = (ID1*(ID1-1))/2+ID2
-        value = value+Two*DREF(ID)
+        Val = Val+Two*DREF(ID)
       end if
       ! Add  -4dxu dyt + 2dxu Dyt
       if (IXABS == IUABS) then
         ID1 = max(IYABS,ITABS)
         ID2 = min(IYABS,ITABS)
         ID = (ID1*(ID1-1))/2+ID2
-        value = value+Two*DREF(ID)
-        if (IYABS == ITABS) value = value-Four
+        Val = Val+Two*DREF(ID)
+        if (IYABS == ITABS) Val = Val-Four
       end if
       ISADR = (ITU*(ITU-1))/2+IXY
-      SB(ISADR) = value
+      SB(ISADR) = Val
     end do
   end do
   NASP = NTGEU(ISYM)

@@ -22,19 +22,19 @@ subroutine MKRHSB(IVEC,ERI,nERI,SCR,nSCR)
 ! number IVEC of LUSOLV for cases 2 and 3 (VJTI).
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
-use constants, only: Quart, Half, Two
-use SUPERINDEX, only: KTGEU, KTGTU, KIGEJ, KIGTJ
-use fake_GA, only: GA_Arrays, Allocate_GA_Array, Deallocate_GA_Array
-use caspt2_module, only: NSYM, NINDEP, NTGEU, NIGEJ, NTGTU, NIGTJ, NASH, NISH, NAES, NTGEUES, NTGTUES, NIGEJES, NIES, NORB, NIGTJES
+use SUPERINDEX, only: KIGEJ, KIGTJ, KTGEU, KTGTU
+use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
+use caspt2_module, only: NAES, NASH, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NINDEP, NISH, NORB, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES
+use Constants, only: Two, Half, Quart
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, nERI, nSCR
 real(kind=wp), intent(inout) :: ERI(nERI), SCR(nSCR)
+integer(kind=iwp) :: IBUF, ICASE, II, IIABS, IIJM, IIJP, IJ, IJABS, ISYM, ISYMI, ISYMJ, ISYMT, ISYMU, IT, ITABS, ITTOT, ITUM, &
+                     ITUP, IU, IUABS, IUTOT, IWM, JWP, LWM, LWP, NASM, NASP, NINM, NINP, NISM, NISP, NVM, NVP
+real(kind=wp) :: Val
 real(kind=wp), parameter :: SQ2 = sqrt(Two)
-integer(kind=iwp) ISYM, NINP, NINM, NASP, NISP, NVP, NASM, NISM, NVM, LWP, LWM, ISYMT, ISYMU, ISYMI, ISYMJ, IT, ITABS, ITTOT, IU, &
-                  IUABS, IUTOT, ITUP, ITUM, II, IIABS, IJ, IJABS, IBUF, IIJP, JWP, IIJM, IWM, ICASE
-real(kind=wp) value
 
 ! VJTI CASE:
 do ISYM=1,NSYM
@@ -78,25 +78,25 @@ do ISYM=1,NSYM
               do IJ=1,NISH(ISYMJ)
                 IJABS = IJ+NIES(ISYMJ)
                 IBUF = II+NORB(ISYMI)*(IJ-1)
-                value = Half*ERI(IBUF)
+                Val = Half*ERI(IBUF)
                 if (IIABS >= IJABS) then
                   IIJP = KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                   JWP = ITUP+NASP*(IIJP-1)
                   if (IIABS > IJABS) then
-                    GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+value
+                    GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+Val
                     IIJM = KIGTJ(IIABS,IJABS)-NIGTJES(ISYM)
                     IWM = ITUM+NASM*(IIJM-1)
-                    GA_Arrays(LWM)%A(IWM) = GA_Arrays(LWM)%A(IWM)+value
+                    GA_Arrays(LWM)%A(IWM) = GA_Arrays(LWM)%A(IWM)+Val
                   else
-                    GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+SQ2*value
+                    GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+SQ2*Val
                   end if
                 else
                   IIJP = KIGEJ(IJABS,IIABS)-NIGEJES(ISYM)
                   JWP = ITUP+NASP*(IIJP-1)
-                  GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+value
+                  GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+Val
                   IIJM = KIGTJ(IJABS,IIABS)-NIGTJES(ISYM)
                   IWM = ITUM+NASM*(IIJM-1)
-                  GA_Arrays(LWM)%A(IWM) = GA_Arrays(LWM)%A(IWM)-value
+                  GA_Arrays(LWM)%A(IWM) = GA_Arrays(LWM)%A(IWM)-Val
                 end if
               end do
             end do
@@ -106,19 +106,19 @@ do ISYM=1,NSYM
               do IJ=1,NISH(ISYMJ)
                 IJABS = IJ+NIES(ISYMJ)
                 IBUF = II+NORB(ISYMI)*(IJ-1)
-                value = Quart*ERI(IBUF)
+                Val = Quart*ERI(IBUF)
                 if (IIABS >= IJABS) then
                   IIJP = KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                   JWP = ITUP+NASP*(IIJP-1)
                   if (IIABS > IJABS) then
-                    GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+value
+                    GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+Val
                   else
-                    GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+SQ2*value
+                    GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+SQ2*Val
                   end if
                 else
                   IIJP = KIGEJ(IJABS,IIABS)-NIGEJES(ISYM)
                   JWP = ITUP+NASP*(IIJP-1)
-                  GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+value
+                  GA_Arrays(LWP)%A(JWP) = GA_Arrays(LWP)%A(JWP)+Val
                 end if
               end do
             end do

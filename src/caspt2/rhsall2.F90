@@ -17,32 +17,30 @@ subroutine RHSALL2(IVEC)
 ! ================================================================
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, One
 use CHOVEC_IO, only: NVLOC_CHOBATCH
-use caspt2_global, only: iPrGlb, FIMO, PIQK, Buff, idxb
 use PrintLevel, only: VERBOSE
-use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NISH, NASH, NSSH, NASHT, NBTCHES, NBTCH, NAES
+use caspt2_global, only: Buff, FIMO, idxb, iPrGlb, PIQK
+use caspt2_module, only: NAES, NASH, NASHT, NBTCH, NBTCHES, NISH, NSSH, NSYM
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: NASUP, NISUP
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "warnings.h"
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
-integer(kind=iwp) nSh(8,3)
-integer(kind=iwp), save :: NUMERR = 0
-real(kind=wp), allocatable :: TUVX(:), BRA(:), KET(:)
-integer(kind=iwp), allocatable :: BGRP(:,:)
-integer(kind=iwp) IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK, iOffp, iOffQ, ISYI, ISYK, ISYP, ISYQ, JSYM, LBRASM, LKETSM, &
-                  MXBGRP, MXPIQK, NADDBUF, NBGRP, nBra, NBRASM, NCHOBUF, NG1, NG2, NI, NK, nKet, NKETSM, NP, NPI, NQ, NQK, NTUVX, NV
+integer(kind=iwp) :: IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK, iOffp, iOffQ, ISYI, ISYK, ISYP, ISYQ, JSYM, LBRASM, LKETSM, &
+                     MXBGRP, MXPIQK, NADDBUF, NBGRP, nBra, NBRASM, NCHOBUF, NG1, NG2, NI, NK, nKet, NKETSM, NP, NPI, NQ, NQK, &
+                     nSh(8,3), NTUVX, NUMERR = 0, NV
 #ifdef _DEBUGPRINT_
-real(kind=wp) DNRM2
+integer(kind=iwp) :: ICASE, ISYM, lg_W, NAS, NIS
+real(kind=wp) :: DNRM2
 real(kind=wp), external :: RHS_DDot
-integer(kind=iwp) ISYM, lg_W, NAS, NIS, ICASE
 #endif
+integer(kind=iwp), allocatable :: BGRP(:,:)
+real(kind=wp), allocatable :: BRA(:), KET(:), TUVX(:)
+integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
 
 !                                                                      *
 !***********************************************************************

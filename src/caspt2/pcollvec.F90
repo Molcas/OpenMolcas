@@ -11,12 +11,12 @@
 
 subroutine PCOLLVEC(IVEC,iTYPE)
 
-use definitions, only: iwp
-use caspt2_module, only: nCases, nSym, nInDep, nASup, nISup
+use caspt2_module, only: nASup, nCases, nInDep, nISup, nSym
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iVec, iType
-integer(kind=iwp) iCase, iSym, NAS, NIS, NW
+integer(kind=iwp) :: iCase, iSym, NAS, NIS, NW
 
 !***********************************************************************
 do ICASE=1,NCASES

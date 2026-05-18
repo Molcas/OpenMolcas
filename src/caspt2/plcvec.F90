@@ -18,18 +18,15 @@
 
 subroutine PLCVEC(ALPHA,BETA,IVEC,JVEC)
 
-use constants, only: Zero, One
-use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPULCS, TIOLCS
-use definitions, only: iwp, wp
+use caspt2_module, only: CPULCS, nCases, nInDep, NISUP, nSym, TIOLCS
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-
 real(kind=wp), intent(in) :: Alpha, Beta
 integer(kind=iwp), intent(in) :: iVec, jVec
-real(kind=wp) CPU, CPU0, CPU1
-real(kind=wp) TIO, TIO0, TIO1
-integer(kind=iwp) iCase, iSym, lg_v1, lg_v2
-integer(kind=iwp) NIN, NIS
+integer(kind=iwp) :: iCase, iSym, lg_v1, lg_v2, NIN, NIS
+real(kind=wp) :: CPU, CPU0, CPU1, TIO, TIO0, TIO1
 
 ! |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 

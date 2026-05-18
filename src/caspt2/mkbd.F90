@@ -19,23 +19,21 @@
 
 subroutine MKBD(DREF,NDREF,PREF,NPREF,FD,FP)
 
-use definitions, only: iwp, wp
-use constants, only: Half, Two, Four
 use SUPERINDEX, only: MTU
-use caspt2_global, only: ipea_shift
-use caspt2_global, only: LUSBT
-use EQSOLV, only: IDSMAT, IDBMAT
+use EQSOLV, only: IDBMAT, IDSMAT
+use caspt2_global, only: ipea_shift, LUSBT
+use caspt2_module, only: EASUM, EPSA, NASHT, NINDEP, NSYM, NTU, NTUES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NTU, EASUM, NASHT, NTUES, EPSA
+use Constants, only: Two, Four, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
-real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
-real(kind=wp), intent(in) :: FD(NDREF), FP(NPREF)
+real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), FD(NDREF), FP(NPREF)
+integer(kind=iwp) :: I, IB11, IB12, IB21, IB22, ID, ID1, ID2, IDIAG, IDISK, IDS, IDT, IDU, IP, IP1, IP2, ISYM, ITABS, ITU, ITU2, &
+                     ITUABS, IUABS, IUTP, IUYP, IXABS, IXTP, IXY, IXY2, IXYABS, IXYP, IYABS, NAS, NAS2, NBD, NIN, NS2
+real(kind=wp) :: B11, B22, DUY, ET, ETX, EX, FUY
 real(kind=wp), allocatable :: BD(:), S(:), SD(:)
-integer(kind=iwp) ISYM, NIN, NAS, NBD, NS2, NAS2, IDS, IDIAG, I, ITU, ITU2, ITUABS, ITABS, IUABS, IXY, IXY2, IXYABS, IXABS, IYABS, &
-                  IB11, IB21, IB12, IB22, IUTP, IXYP, IP1, IP2, IP, ID, ID1, ID2, IDISK, IDT, IDU, IUYP, IXTP
-real(kind=wp) ET, EX, B11, B22, ETX, FUY, DUY
 
 ! Set up the matrix BD(tuP,xyQ),P and Q are 1 or 2,
 ! Formulae used:

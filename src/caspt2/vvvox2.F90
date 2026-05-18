@@ -17,23 +17,23 @@ use Symmetry_Info, only: Mul
 use ChoVec_io, only: NVLOC_CHOBATCH
 use Cholesky, only: InfVec
 use caspt2_global, only: LuGAMMA
-use ChoCASPT2, only: numcho_pt2, NCHSPC, MXNVC
+use ChoCASPT2, only: MXNVC, NCHSPC, numcho_pt2
+use caspt2_module, only: IFMSCOUP, iRlxRoot, JSTATE, NASH, NBAS, NBTCHES, NFROT, NISH, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
-use caspt2_module, only: IFMSCOUP, NSYM, NFROT, NISH, NASH, NSSH, NBAS, JSTATE, iRlxRoot, NBTCHES
-use Constants, only: Zero, One, Half, Two
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "warnings.h"
 integer(kind=iwp), intent(in) :: nAux(8), KEEP(8), iSym, iSymI, iSymJ, iSymK, iSymL, nBasT
 real(kind=wp), intent(inout) :: vLag(nBasT,nBasT), WRK(nBasT,nBasT), FPT2AO(nBasT**2), FPT2CAO(nBasT**2), FIFA(nBasT**2), &
                                 FIMO(nBasT**2)
 real(kind=wp), intent(in) :: CMO(nBasT,nBasT), DPT2AO(nBasT**2), DPT2CAO(nBasT**2)
-real(kind=wp), allocatable :: CHSPC(:), HTSPC(:), HTVec(:)
-integer(kind=iwp) :: ISTLT(8), ISTSQ(8), iSkip(8), ipWRK(8), jSym, nAuxT, nB, nB2, nB3, nBasI, KEEPI, nBasJ, KEEPJ, iSymIJ, &
-                     nBasIJ, nBasK, KEEPK, iSMax, iSymL_, nBasL, KEEPL, nBasKL, nIshI, nAshI, nSshI, nOrbI, IBATCH_TOT, JRED1, &
-                     JRED2, JRED, JSTART, NVECS_RED, ILOC, IRC, NBATCH, JV1, IBATCH, JNUM, JV2, JREDC, NUMV, MUSED, iVec, i, j
+integer(kind=iwp) :: i, IBATCH, IBATCH_TOT, ILOC, ipWRK(8), IRC, iSkip(8), iSMax, ISTLT(8), ISTSQ(8), iSymIJ, iSymL_, iVec, j, &
+                     JNUM, JRED, JRED1, JRED2, JREDC, JSTART, jSym, JV1, JV2, KEEPI, KEEPJ, KEEPK, KEEPL, MUSED, nAshI, nAuxT, nB, &
+                     nB2, nB3, nBasI, nBasIJ, nBasJ, nBasK, nBasKL, nBasL, NBATCH, nIshI, nOrbI, nSshI, NUMV, NVECS_RED
 real(kind=wp) :: tmp
+real(kind=wp), allocatable :: CHSPC(:), HTSPC(:), HTVec(:)
+#include "warnings.h"
 
 do jSym=1,nSym
   iSkip(jSym) = 1
@@ -261,13 +261,13 @@ subroutine FDGTRF(ChoVec,DD,FF)
 end subroutine FDGTRF
 
 subroutine VVVOTRA_RI(CMO,CHSPC_,NCHSPC,HTSPC_,NVEC,IBSTA,IBEND,nOrbI)
+  !! CHSPC is used as a temporary array
 
   integer(kind=iwp), intent(in) :: NCHSPC, NVEC, IBSTA, IBEND, nOrbI
   real(kind=wp), intent(in) :: CMO(nBasI,nOrbI)
-  !! CHSPC is used as a temporary array
   real(kind=wp), intent(inout) :: CHSPC_(NCHSPC), HTSPC_(nOrbI,nBasT,NVEC)
-  integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
   integer(kind=iwp) :: IPQ, jVec, nBra
+  integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
 
   !! BraAI
   call Cholesky_Vectors(2,Inactive,Active,JSYM,CHSPC_,NCHSPC,nBra,IBSTA,IBEND)

@@ -14,29 +14,29 @@
 subroutine OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,T2AO,DIA,DI,FIFA,FIMO,A_PT2)
 
 use iSD_data, only: iSD
-use caspt2_global, only: LuGAMMA, LuCMOPT2, LuAPT2, OLag
+use caspt2_global, only: LuAPT2, LuCMOPT2, LuGAMMA, OLag
 use caspt2_global, only: CMOPT2
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
-use Constants, only: Zero, One
-use caspt2_module, only: IFMSCOUP, IFXMS, IFRMS, IFDW, IFSADREF, NSYM, NFRO, NISH, NASH, NSSH, NBAS, NBAST, NBMX, NSTATE, JSTATE, &
-                         iRlxRoot
+use caspt2_module, only: IFDW, IFMSCOUP, IFRMS, IFSADREF, IFXMS, iRlxRoot, JSTATE, NASH, NBAS, NBAST, NBMX, NFRO, NISH, NSSH, &
+                         NSTATE, NSYM
 #ifdef _MOLCAS_MPP_
-use caspt2_module, only: NFROT
-use caspt2_global, only: nOLag
 use Para_Info, only: Is_Real_Par
+use caspt2_global, only: nOLag
+use caspt2_module, only: NFROT
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iSym, NBSQT, lT2AO, MaxVec_PT2
 real(kind=wp), intent(in) :: DPT2AO(NBSQT), DPT2CAO(NBSQT), T2AO(lT2AO), DIA(NBSQT), DI(NBSQT)
-real(kind=wp), intent(inout) :: FPT2AO(NBSQT), FPT2CAO(NBSQT), A_PT2(MaxVec_PT2**2), FIFA(NBSQT), FIMO(NBSQT)
+real(kind=wp), intent(inout) :: FPT2AO(NBSQT), FPT2CAO(NBSQT), FIFA(NBSQT), FIMO(NBSQT), A_PT2(MaxVec_PT2**2)
+integer(kind=iwp) :: i, iBas, iBas0, id, iOcc, iost, IRC, iRec, iSh, iSymA, iSymB, iSymI, iSymJ, j, jBas, jBas0, jOcc, jSh, &
+                     KEEP(8), loc1, loc2, lRealName, MaxShlAO, nBasI, nBasJ, nBasX(8), nDiff, nocc, nOrbA, nSkal, nSSDM, nSymX
+logical(kind=iwp) :: DoCholesky, DoRys, is_error, Square
 character(len=4096) :: RealName
-logical(kind=iwp) :: DoRys, DoCholesky, is_error, Square
-real(kind=wp), allocatable :: T_hbf(:,:,:,:), vLag(:), WRK1(:), WRK2(:)
 integer(kind=iwp), allocatable :: iOffAO(:)
-integer(kind=iwp) :: nBasX(8), KEEP(8), IRC, nSymX, id, lRealName, iost, iSymI, iSymJ, iSymA, iSymB, nocc, i, nSSDM, nDiff, nSkal, &
-                     MaxShlAO, iSh, nBasI, jSh, nBasJ, iBas0, iBas, jBas0, jBas, iOcc, jOcc, loc1, loc2, j, iRec, nOrbA
+real(kind=wp), allocatable :: T_hbf(:,:,:,:), vLag(:), WRK1(:), WRK2(:)
 integer(kind=iwp), external :: isFreeUnit
 
 ! ----- (VV|VO)

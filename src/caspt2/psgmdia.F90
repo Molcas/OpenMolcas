@@ -21,17 +21,17 @@ subroutine PSGMDIA(ALPHA,BETA,IVEC,JVEC)
 ! Compute |JVEC> := BETA*|JVEC> + ALPHA*(H0(diag)-E0)*|IVEC>
 ! If real_shift /= Zero or imag_shift /= Zero, use a modified H0
 
-use definitions, only: iwp, wp
-use constants, only: Zero
-use caspt2_global, only: LUSBT
 use EQSOLV, only: IDBMat
+use caspt2_global, only: LUSBT
+use caspt2_module, only: nASup, nInDep, nISup, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: nSym, nInDep, nASup, nISup
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: ALPHA, BETA
 integer(kind=iwp), intent(in) :: IVEC, JVEC
-integer(kind=iwp) ICASE, ISYM, NIN, NAS, NIS, JD, lg_V1, lg_V2
+integer(kind=iwp) :: ICASE, ISYM, JD, lg_V1, lg_V2, NAS, NIN, NIS
 real(kind=wp), allocatable :: BD(:), ID(:)
 
 do ICASE=1,13

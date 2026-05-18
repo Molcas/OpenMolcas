@@ -20,18 +20,16 @@
 subroutine CnstTrf(nTrf,Trf0,Trf)
 
 use caspt2_global, only: TraFro
-use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NRAS1, NRAS2, NRAS3, NASH, NSSH, NDEL, NBAS
-use definitions, only: wp, iwp
+use caspt2_module, only: IfChol, NASH, NBAS, NDEL, NFRO, NISH, NRAS1, NRAS2, NRAS3, NSSH, NSYM
 use Constants, only: One
-
-#include "intent.fh"
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nTrf
 real(kind=wp), intent(in) :: Trf0(nTrf)
-real(kind=wp), intent(_OUT_) :: Trf(nTrf)
-integer(kind=iwp) :: iSQ, iTOrb, ipTrfL, iSym, nBasI, nFroI, nIshI, nAshI, nSshI, nDelI, NR1, NR2, NR3, nCor, nVir, I, J, iIsh, &
-                     jIsh, IJ, iAsh, jAsh, iSsh, jSsh
+real(kind=wp), intent(inout) :: Trf(nTrf)
+integer(kind=iwp) :: I, iAsh, iIsh, IJ, ipTrfL, iSQ, iSsh, iSym, iTOrb, J, jAsh, jIsh, jSsh, nAshI, nBasI, nCor, nDelI, nFroI, &
+                     nIshI, NR1, NR2, NR3, nSshI, nVir
 
 iSQ = 0
 iTOrb = 1 ! LTOrb

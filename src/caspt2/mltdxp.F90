@@ -33,18 +33,17 @@ subroutine MLTDXP(IMLTOP,LST1,LST2,X,nX,F,nF,Y,nY)
 ! The formal X(p,q,r) is accessed as
 ! X(1+INCX1*(p-1)+INCX2*(q-1)+INCX3*(r-1)), etc.
 
-use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: MyRank, nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
 #endif
-use Sigma_data, only: NLST1, NLST2, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, NFDXP, VAL1, VAL2
+use Sigma_data, only: INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, NFDXP, NLST1, NLST2, VAL1, VAL2
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IMLTOP, nX, nF, nY
+integer(kind=iwp), intent(in) :: IMLTOP, LST1(4,NLST1), LST2(4,NLST2), nX, nF, nY
 real(kind=wp), intent(inout) :: X(nX), F(nF), Y(nY)
-integer(kind=iwp), intent(in) :: LST1(4,NLST1), LST2(4,NLST2)
-integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST1, ILST2, L11, L12, L13, L14, L21, L22, L23, L24, IF, IX, IY
-real(kind=wp) A, V, V1, V2
+integer(kind=iwp) :: I_F, ILST1, ILST1_IOFF, ILST1_SKIP, ILST2, IX, IY, L11, L12, L13, L14, L21, L22, L23, L24
+real(kind=wp) :: A, V, V1, V2
 real(kind=wp), external :: DDot_
 
 !SVC: determine outer loop properties
@@ -76,8 +75,8 @@ select case (IMLTOP)
         V2 = VAL2(L24)
         IX = 1+INCX1*(L11-1)+INCX2*(L21-1)
         IY = 1+INCY1*(L13-1)+INCY2*(L23-1)
-        IF = 1+INCF1*(L12-1)+INCF2*(L22-1)
-        A = V1*V2*F(IF)
+        I_F = 1+INCF1*(L12-1)+INCF2*(L22-1)
+        A = V1*V2*F(I_F)
         call DAXPY_(LEN1,A,Y(IY),INCY3,X(IX),INCX3)
       end do
     end do
@@ -96,8 +95,8 @@ select case (IMLTOP)
         V2 = VAL2(L24)
         IX = 1+INCX1*(L11-1)+INCX2*(L21-1)
         IY = 1+INCY1*(L13-1)+INCY2*(L23-1)
-        IF = 1+INCF1*(L12-1)+INCF2*(L22-1)
-        A = V1*V2*F(IF)
+        I_F = 1+INCF1*(L12-1)+INCF2*(L22-1)
+        A = V1*V2*F(I_F)
         call DAXPY_(LEN1,A,X(IX),INCX3,Y(IY),INCY3)
       end do
     end do
@@ -116,10 +115,10 @@ select case (IMLTOP)
         V2 = VAL2(L24)
         IX = 1+INCX1*(L11-1)+INCX2*(L21-1)
         IY = 1+INCY1*(L13-1)+INCY2*(L23-1)
-        IF = 1+INCF1*(L12-1)+INCF2*(L22-1)
-        A = V1*V2*F(IF)
+        I_F = 1+INCF1*(L12-1)+INCF2*(L22-1)
+        A = V1*V2*F(I_F)
         V = V1*V2
-        F(IF) = F(IF)+V*DDOT_(LEN1,X(IX),INCX3,Y(IY),INCY3)
+        F(I_F) = F(I_F)+V*DDOT_(LEN1,X(IX),INCX3,Y(IY),INCY3)
       end do
     end do
 end select

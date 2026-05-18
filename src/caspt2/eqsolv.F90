@@ -11,15 +11,15 @@
 
 module EQSOLV
 
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
+private
 
-integer(kind=iwp), parameter, private :: MXCASE = 13
-integer(kind=iwp), parameter :: MXVEC = 6, MXBLK = 40*256*256
-integer(kind=iwp) IDSMAT(8,MXCASE), IDBMAT(8,MXCASE), IDTMAT(8,MXCASE), IDSTMAT(8,MXCASE), MODVEC(8,MXCASE), NLIST(8,8,17), &
-                  LLIST(8,8,17), NLSTOT, MXSCT
-integer(kind=iwp) IRHS, IVECX, IVECR, IVECC, IVECC2, IVECW
+integer(kind=iwp), parameter :: MXCASE = 13
+integer(kind=iwp) :: IDBMAT(8,MXCASE), IDSMAT(8,MXCASE), IDSTMAT(8,MXCASE), IDTMAT(8,MXCASE), IRHS, IVECC, IVECC2, IVECR, IVECW, &
+                     IVECX, LLIST(8,8,17), MODVEC(8,MXCASE), MXSCT, NLIST(8,8,17), NLSTOT
+! This is not a parameter, because the G1 correction modifies it
 integer(kind=iwp) :: IFCOUP(MXCASE,MXCASE) = reshape( &
                      [0, 1, 2, 0, 3, 4, 5, 0, 0, 0, 0, 0, 0, &
                       0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, &
@@ -35,5 +35,7 @@ integer(kind=iwp) :: IFCOUP(MXCASE,MXCASE) = reshape( &
                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &
                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], &
                      [MXCASE,MXCASE])
+
+public :: IDBMAT, IDSMAT, IDSTMat, IDTMAT, IFCOUP, iRHS, iVecC, iVecC2, iVecR, iVecW, iVecX, LLIST, MODVEC, MXSCT, NLIST, NLSTOT
 
 end module EQSOLV

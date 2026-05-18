@@ -26,14 +26,14 @@
 function RHS_DDOT(NAS,NIS,lg_V1,lg_V2)
 !SVC: this routine computes the DDOT of the RHS arrays V1 and V2
 
-use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use fake_GA, only: GA_Arrays
+use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) RHS_DDOT
+real(kind=wp) :: RHS_DDOT
 integer(kind=iwp), intent(in) :: NAS, NIS, lg_V1, lg_V2
 real(kind=wp), external :: DDot_
 #ifdef _MOLCAS_MPP_

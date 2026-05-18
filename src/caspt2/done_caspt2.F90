@@ -37,16 +37,16 @@ subroutine Done_CASPT2(CMO,nCMO,OCC,nOCC,D,nD)
 !                                                                      *
 !***********************************************************************
 
-use caspt2_module, only: nSym, nBas
+use caspt2_module, only: nBas, nSym
 use Constants, only: Zero, Two
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nCMO, nOcc, nD
 real(kind=wp), intent(in) :: CMO(nCMO), OCC(nOCC)
 real(kind=wp), intent(out) :: D(nD)
-integer(kind=iwp) iOff1, iOff2, iOff3, iSym, iBas, i, ii, j, k
-real(kind=wp) :: Sum
+integer(kind=iwp) :: i, iBas, ii, iOff1, iOff2, iOff3, iSym, j, k
+real(kind=wp) :: rSum
 
 iOff1 = 0
 iOff2 = 0
@@ -57,12 +57,12 @@ do iSym=1,nSym
   do i=1,iBas
     ii = (i*i-i)/2
     do j=1,i
-      Sum = Zero
+      rSum = Zero
       do k=1,iBas
-        Sum = Sum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
+        rSum = rSum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
       end do
-      D(iOff2+ii+j) = Two*Sum
-      if (j == i) D(iOff2+ii+j) = Sum
+      D(iOff2+ii+j) = Two*rSum
+      if (j == i) D(iOff2+ii+j) = rSum
     end do
   end do
   iOff1 = iOff1+iBas*iBas

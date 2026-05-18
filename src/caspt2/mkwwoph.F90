@@ -19,16 +19,16 @@ subroutine MKWWOPH(IVEC,JVEC,OP0)
 !  (W1(ij,ab) conj)*(W2(kl,cd)) = dik*djl*dac*dbd
 ! the same for both cases 10 and 11.
 
-use definitions, only: iwp, wp
 use EQSOLV, only: MODVEC
+use caspt2_module, only: NASUP, NINDEP, NISUP, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC
 real(kind=wp), intent(inout) :: OP0
+integer(kind=iwp) :: ICASE, IIEND, IISTA, ISCT, ISYM, MDVEC, NAS, NCOL, NIS, NSCT
 real(kind=wp), allocatable :: W1(:), W2(:)
-integer(kind=iwp) ICASE, ISYM, NAS, NIS, MDVEC, ISCT, IISTA, IIEND, NCOL, NSCT
 real(kind=wp), external :: DDot_
 
 ! Loop over cases

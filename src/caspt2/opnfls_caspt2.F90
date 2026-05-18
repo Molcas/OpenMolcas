@@ -23,14 +23,14 @@ subroutine OpnFls_CASPT2()
 !  University of Lund, Sweden, 1993
 !***********************************************************************
 
-use definitions, only: iwp, u6
-use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS, LUH0T, LUSOLV, LUSBT
+use caspt2_global, only: LUCIEX, LUDMAT, LUDRA, LUDRATOT, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LURHS, LUSBT, LUSOLV
 use caspt2_module, only: IfChol
+use Definitions, only: iwp, u6
 
 implicit none
-character(len=2) CVEC, CMAT
-integer(kind=iwp) iMat, iOpt, iRC, iVec, LUINTA
-logical(kind=iwp) IfDirect, Found2
+integer(kind=iwp) :: iMat, iOpt, iRC, iVec, LUINTA
+logical(kind=iwp) :: Found2, IfDirect
+character(len=2) :: CMAT, CVEC
 
 !----------------------------------------------------------------------*
 !  Start

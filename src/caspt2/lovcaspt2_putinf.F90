@@ -13,17 +13,16 @@
 subroutine LovCASPT2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,isFNO)
 ! Purpose: put info in MP2 common blocks.
 
-use definitions, only: wp, iwp
-use constants, only: Zero
 use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def, MxQualMP2, OED_Thr, &
                   set_cd_thr, shf, SOS_mp2, Span_Def, SpanMP2, ThrMP2, Verbose
-use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mSym
-integer(kind=iwp), intent(in) :: lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+integer(kind=iwp), intent(in) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 logical(kind=iwp), intent(in) :: isFNO
-integer(kind=iwp) iSym
+integer(kind=iwp) :: iSym
 
 nSym = mSym
 

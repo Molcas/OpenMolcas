@@ -19,17 +19,17 @@
 
 subroutine SBDIAG()
 
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-use caspt2_module, only: nSym, ThrShn, ThrShs, Cases, nASup, nISup, nInDep
-use definitions, only: iwp, wp, u6
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: Cases, nASup, nInDep, nISup, nSym, ThrShn, ThrShs
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) CondNr, CPU
-integer(kind=iwp) iCase, iPar0, iPar1, iSym
+integer(kind=iwp) :: iCase, iPar0, iPar1, iSym
+real(kind=wp) :: CondNr, CPU
 
 if (IPRGLB >= VERBOSE) then
   write(u6,*)

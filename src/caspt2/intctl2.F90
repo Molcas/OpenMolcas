@@ -11,19 +11,18 @@
 
 subroutine INTCTL2(CMO,nCMO,DREF,nDREF,FIFA,NFIFA,HONE,nHONE,FIMO,nFIMO)
 
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
 use PrintLevel, only: DEBUG
-use stdalloc, only: mma_allocate, mma_deallocate
+use caspt2_global, only: do_grad, FIFA_all, FIMO_all, iPrGlb, nStpGrd
 use caspt2_module, only: nBTri
-use definitions, only: iwp, wp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nCMO, nDREF, NFIFA, nHONE, nFIMO
 real(kind=wp), intent(in) :: CMO(nCMO), DREF(nDREF), HONE(nHONE)
 real(kind=wp), intent(out) :: FIFA(NFIFA), FIMO(nFIMO)
-logical(kind=iwp), parameter :: IF_TRNSF = .false.
 real(kind=wp), allocatable :: FFAO(:), FIAO(:), FAAO(:)
+logical(kind=iwp), parameter :: IF_TRNSF = .false.
 
 ! Compute using Cholesky vectors.
 ! Frozen, inactive and active Fock matrix in AO basis:

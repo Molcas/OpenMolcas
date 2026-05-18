@@ -27,20 +27,19 @@ subroutine EQCTL2(ICONV)
 ! At position IVEC=IVECC2, the solution array, in covariant repr.
 ! At position IVEC=IVECW, the RHS array, in contravariant repr.
 
-use definitions, only: iwp, wp, u6
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: nStpGrd, do_grad, iStpGrd
 use PrintLevel, only: INSANE, USUAL, VERBOSE
 use EQSOLV, only: IRHS, IVECC, IVECC2, IVECR, IVECW, IVECX
 use ChoCASPT2, only: iALGO
-use caspt2_module, only: NINDEP, NISUP, NASUP, CPUEIG, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, &
-                         CPUVEC, E2TOT, HZERO, IfChol, NSYM, RHSDIRECT, SDECOM, SMATRIX, TIOEIG, TIOLCS, TIONAD, TIOOVL, TIOPCG, &
+use caspt2_global, only: do_grad, iPrGlb, iStpGrd, nStpGrd
+use caspt2_module, only: CPUEIG, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUVEC, E2TOT, HZERO, &
+                         IfChol, NASUP, NINDEP, NISUP, NSYM, RHSDIRECT, SDECOM, SMATRIX, TIOEIG, TIOLCS, TIONAD, TIOOVL, TIOPCG, &
                          TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOVEC
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: ICONV
-real(kind=wp) CPU0, CPU, TIO0, TIO, CPU1, TIO1
-integer(kind=iwp) ICASE, ISYM, LAXITY
+integer(kind=iwp) :: ICASE, ISYM, LAXITY
+real(kind=wp) :: CPU, CPU0, CPU1, TIO, TIO0, TIO1
 integer(kind=iwp), external :: Cho_X_GetTol
 
 if (iStpGrd == 1) then

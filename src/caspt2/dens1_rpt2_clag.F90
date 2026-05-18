@@ -12,24 +12,6 @@
 !***********************************************************************
 
 subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,RDMEIG,nLev)
-
-use Symmetry_Info, only: Mul
-use sguga, only: SGS, L2ACT, CIS
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
-use caspt2_module, only: STSym
-use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-use Para_Info, only: Is_Real_Par, King, nProcs
-#endif
-
-implicit none
-integer(kind=iwp), intent(in) :: NCI, NSGM1, nLev, nConf
-real(kind=wp), intent(in) :: CI(NCI), RDMEIG(NLEV,NLEV)
-real(kind=wp), intent(inout) :: SGM1(NSGM1), CLag(nConf)
-integer(kind=iwp), allocatable :: TASK(:,:)
-integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK, NTASKS, ISSG, NSGM
-
 ! Purpose: Compute the 1-electron density matrix array G1.
 
 ! For the general cases, we use actual CI routine calls, and
@@ -37,6 +19,23 @@ integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK, NTASKS, ISSG, NS
 ! We will use level inices LT,LU... in these calls, but produce
 ! the density matrices with usual active orbital indices.
 ! Translation tables L2ACT and LEVEL, in caspt2_module
+
+use Symmetry_Info, only: Mul
+use sguga, only: CIS, L2ACT, SGS
+use caspt2_module, only: STSym
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
+use Para_Info, only: Is_Real_Par, King, nProcs
+#endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: NCI, NSGM1, nConf, nLev
+real(kind=wp), intent(in) :: CI(NCI), RDMEIG(NLEV,NLEV)
+real(kind=wp), intent(inout) :: SGM1(NSGM1), CLag(nConf)
+integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTASKS
+integer(kind=iwp), allocatable :: TASK(:,:)
 
 ! SVC20100311: set up a task table with LT,LU
 ! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM

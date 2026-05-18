@@ -22,8 +22,8 @@ subroutine MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
 ! as operating on the CASSCF space.
 
 use caspt2_module, only: NASHT
-use constants, only: Zero
-use definitions, only: iwp, wp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NOP2, NOP3

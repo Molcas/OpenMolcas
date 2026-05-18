@@ -22,23 +22,18 @@ subroutine MKLIST(LIST,mList)
 !  coefficients -- See sgm for usage.
 
 use Symmetry_Info, only: Mul
-use SUPERINDEX, only: MTU, KTUV, MTGEU, MTGTU, KTU, KTGEU, KTGTU, KIGEJ, KIGTJ, KAGEB, KAGTB
+use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ, KTGEU, KTGTU, KTU, KTUV, MTGEU, MTGTU, MTU
 use EQSOLV, only: llist, nlist
-use caspt2_module, only: nAshT, nSym, nAES, NTUES, NTUVES, NTU, nAsh, NTGEUES, NTGEU, NTGTUES, NTGTU, NTGEUES, NTGTUES, NIES, &
-                         NIGEJES, NIGTJES, NIGEJES, NIGTJES, nIsh, NSES, NAGEBES, NAGTBES, NAGEBES, nSsh
-use definitions, only: iwp
+use caspt2_module, only: nAES, NAGEBES, NAGEBES, NAGTBES, nAsh, nAshT, NIES, NIGEJES, NIGEJES, NIGTJES, NIGTJES, nIsh, NSES, nSsh, &
+                         nSym, NTGEU, NTGEUES, NTGEUES, NTGTU, NTGTUES, NTGTUES, NTU, NTUES, NTUVES
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mLIST
 integer(kind=iwp), intent(out) :: LIST(mList)
-integer(kind=iwp) IA, IB, II, IJ, IT, IU
-integer(kind=iwp) IAB, IIJ, ITU, ITU1, ITU2, IUT1, IUT2, IUV, IUU2
-integer(kind=iwp) ITUV, IUTV, IUVT, IVTU, IVUT
-integer(kind=iwp) IAQ, IBQ, IIQ, IJQ, ITQ, IUQ, IVQ, IUVQ
-integer(kind=iwp) ILIST, ISL1, ISL2, ISL3
-integer(kind=iwp) LADR, LADR1, LADR2, LADR3, LADR4, LADR5, LADR6, LADR7, LADR8, LADR9, LADR10, LADR11, LADR12, LADR13, LADR14, &
-                  LADR15, LADR16, LADR17
-integer(kind=iwp) NOFF
+integer(kind=iwp) :: IA, IAB, IAQ, IB, IBQ, II, IIJ, IIQ, IJ, IJQ, ILIST, ISL1, ISL2, ISL3, IT, ITQ, ITU, ITU1, ITU2, ITUV, IU, &
+                     IUQ, IUT1, IUT2, IUTV, IUU2, IUV, IUVQ, IUVT, IVQ, IVTU, IVUT, LADR, LADR1, LADR10, LADR11, LADR12, LADR13, &
+                     LADR14, LADR15, LADR16, LADR17, LADR2, LADR3, LADR4, LADR5, LADR6, LADR7, LADR8, LADR9, NOFF
 
 LIST(:) = 0
 LADR = 1

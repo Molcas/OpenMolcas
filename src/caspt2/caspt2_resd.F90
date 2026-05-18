@@ -17,15 +17,13 @@ subroutine CASPT2_ResD(Mode,NIN,NIS,lg_W1,lg_W2,DIN,DIS)
 use Para_Info, only: Is_Real_Par
 #endif
 use fake_GA, only: GA_Arrays
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: Mode, NIN, NIS, lg_W1, lg_W2
 real(kind=wp), intent(in) :: DIN(NIN), DIS(NIS)
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: myRank, iLo1, iHi1, jLo1, jHi1, iLo2, iHi2, jLo2, jHi2, NROW, NCOL, mW1, LDW1, mW2, LDW2
-#endif
-#ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iHi1, iHi2, iLo1, iLo2, jHi1, jHi2, jLo1, jLo2, LDW1, LDW2, mW1, mW2, myRank, NCOL, NROW
 #include "global.fh"
 #include "mafdecls.fh"
 #endif

@@ -14,25 +14,24 @@
 subroutine RHSOD_A(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use SUPERINDEX, only: MTUV, MTREL
-use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
-use caspt2_global, only: iPrGlb
+use SUPERINDEX, only: MTREL, MTUV
+use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-use caspt2_global, only: FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
 use fake_GA, only: GA_Arrays
 #endif
-use caspt2_module, only: NSYM, NTUV, NISH, NACTEL, NORB, NTUVES, NASH
+use caspt2_global, only: FIMO, iPrGlb
+use caspt2_module, only: NACTEL, NASH, NISH, NORB, NSYM, NTUV, NTUVES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+integer(kind=iwp) :: IAEND, IASTA, ICASE, IDX, IIEND, IISTA, IJ, IOBRA(8,8), IOFFTJ, IOFFVX, IOKET(8,8), ISYJ, ISYM, ISYT, ISYV, &
+                     ISYX, IT, ITABS, ITJ, ITTOT, ITVX, ITVXTOT, IV, IVABS, IVX, IX, IXABS, lg_W, MW, NAS, NBRA, NFIMOES, NIS, &
+                     NKET, NV, NW
+real(kind=wp) :: ATVXJ, FTJ, TJVX
 real(kind=wp), allocatable :: BRA(:), KET(:)
-real(kind=wp) ATVXJ, FTJ, TJVX
-integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, ICASE, IDX, IJ, IOFFTJ, IOFFVX, ISYJ, ISYM, ISYT, ISYV, ISYX, &
-                  IT, ITABS, ITJ, ITTOT, ITVX, ITVXTOT, IV, IVABS, IVX, IX, IXABS, NBRA, NFIMOES, NKET, NV, NW
 real(kind=wp), external :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"

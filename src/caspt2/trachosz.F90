@@ -14,38 +14,30 @@
 subroutine TRACHOSZ()
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
-use CHOVEC_IO, only: NVLOC_CHOBATCH, NPQ_CHOTYPE, IDGLB_CHOGROUP, IDLOC_CHOGROUP, NVTOT_CHOSYM, NVGLB_CHOBATCH
+use CHOVEC_IO, only: IDGLB_CHOGROUP, IDLOC_CHOGROUP, NPQ_CHOTYPE, NVGLB_CHOBATCH, NVLOC_CHOBATCH, NVTOT_CHOSYM
 use Para_Info, only: nProcs
 use Cholesky, only: InfVec
-use caspt2_global, only: do_grad
-use stdalloc, only: mma_MaxDBLE, mma_allocate
-use caspt2_global, only: LUDRA, LUDRATOT
-use ChoCASPT2, only: MxCharR, MxNVC, nChSpc, nFtSpc, nHtSpc, nKsh, NumCho_pt2, nPsh
-use caspt2_module, only: nBasT, nSym, nBas, nFro, nBtches, nBtch, nIsh, nAsh
+use ChoCASPT2, only: MxCharR, MxNVC, nChSpc, nFtSpc, nHtSpc, nKsh, nPsh, NumCho_pt2
 #ifdef _MOLCAS_MPP_
 use ChoCASPT2, only: NFTSPC_TOT
 #endif
+use caspt2_global, only: do_grad, LUDRA, LUDRATOT
+use caspt2_module, only: nAsh, nBas, nBasT, nBtch, nBtches, nFro, nIsh, nSym
+use stdalloc, only: mma_allocate, mma_MaxDBLE
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-#include "warnings.h"
+integer(kind=iwp) :: IB, IBATCH_TOT, IBEND, IBSTA, ICASE, IDISK, ISYMA, ISYMB, ISYQ, JRED, JRED1, JRED2, JSTART, JSYM, MXFTARR, &
+                     MXHTARR, MXSPC, NBATCH, NBATCH_TOT, NJSCT, NPB, NPQ, NV, NVACC, NVACT, NVECS_RED
+real(kind=wp) :: Dummy(1)
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: NJSCT_TOT
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) NJSCT_TOT
 #endif
-integer(kind=iwp) IB, IBSTA, IBEND, IBATCH_TOT, NBATCH, NV
-integer(kind=iwp) ICASE, ISYMA, ISYMB, ISYQ, JSYM, NPB, NPQ
-integer(kind=iwp) JRED, JRED1, JRED2, JSTART
-integer(kind=iwp) IDISK
-integer(kind=iwp) MXFTARR, MXHTARR
-integer(kind=iwp) MXSPC
-integer(kind=iwp) NVACT, NVACC, NVECS_RED
-integer(kind=iwp) NBATCH_TOT, NJSCT
-real(kind=wp) Dummy(1)
 
 ! ======================================================================
 ! Determine sectioning size to use for the full-transformed MO vectors

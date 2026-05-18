@@ -12,8 +12,8 @@
 !***********************************************************************
 
 #include "compiler_features.h"
-
 #ifdef _ENABLE_BLOCK_DMRG_
+
 subroutine MKFG3CU4(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,W3)
 ! Load 1-el, 2-el, and 3-el density matrices to resp. G1, G2, and G3
 ! and compute 1-el to 4-el contractions of Fock operator F1, F2, and F3.
@@ -22,22 +22,17 @@ subroutine MKFG3CU4(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,W3)
 ! Written by N. Nakatani, Oct. 2014
 
 use Symmetry_Info, only: Mul
-use constants, only: Half
-use definitions, only: iwp, wp, Byte
+use Constants, only: Half
+use Definitions, only: wp, iwp, byte
 
 implicit none
-logical(kind=iwp), intent(in) :: mkF,
+logical(kind=iwp), intent(in) :: mkF
 integer(kind=iwp), intent(in) :: NLEV, nG3
-real(kind=wp), intent(out) :: G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp), intent(out) :: F1(NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp), intent(out) :: G3(nG3), F3(nG3)
-integer(kind=Byte), intent(in) :: idxG3(6,nG3)
+real(kind=wp), intent(out) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV), G3(nG3), F3(nG3)
+integer(kind=byte), intent(in) :: idxG3(6,nG3)
 real(kind=wp), intent(in) :: W3(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp) G1SUM
-integer(kind=iwp) IT, IU, IV, IX, IY, IZ, IW
-integer(kind=iwp) JT, JU, JV, JX, JY, JZ
-integer(kind=iwp) IZSYM, IYZSYM, IXYZSYM, IVXYZSYM
-integer(kind=iwp) IG3
+integer(kind=iwp) :: IG3, IT, IU, IV, IVXYZSYM, IW, IX, IXYZSYM, IY, IYZSYM, IZ, IZSYM, JT, JU, JV, JX, JY, JZ
+real(kind=wp) :: G1SUM
 real(kind=wp), external :: CU4F3H
 
 if (NACTEL > 1) then
@@ -152,7 +147,6 @@ end subroutine MKFG3CU4
 
 ! Some compilers do not like empty files
 #include "macros.fh"
-subroutine empty_MKFG3CU4()
-end subroutine empty_MKFG3CU4
+dummy_empty_procedure(MKFG3CU)
 
 #endif

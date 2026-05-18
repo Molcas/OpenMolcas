@@ -14,9 +14,7 @@ subroutine PT2CLS()
 use INPUTDATA, only: CLEANUP_INPUT
 use SUPERINDEX, only: SUPFREE
 use PT2WFN, only: PT2WFN_CLOSE
-use sguga, only: SGS, CIS, EXS, SG_Free
-use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX, DWGT, CMOPT2, TAT, TORB, IDSCT, Weight, IDCIEX, IDTCEX
-use stdalloc, only: mma_deallocate
+use sguga, only: CIS, EXS, SG_Free, SGS
 #ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_deinit
 use qcmaquis_interface_cfg, only: dmrg_file
@@ -28,12 +26,13 @@ use caspt2_module, only: DMRG
 use OFembed, only: FMaux
 #endif
 use ChoCASPT2, only: NASplit, NISplit, NumCho_PT2
+use caspt2_global, only: CMOPT2, DMIX, DREF, DWGT, FIFA, FIMO, IDCIEX, IDSCT, IDTCEX, PREF, TAT, TORB, Weight
 use caspt2_module, only: IfChol, nAsh, nIsh, nSsh, nSym
-use definitions, only: iwp, u6
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) iSym
-integer(kind=iwp) irc
+integer(kind=iwp) :: irc, iSym
 
 if (IfChol) then
   ! Finalize Cholesky information
@@ -48,7 +47,7 @@ if (IfChol) then
     call Cho_Caspt2_OpenF(3,2,iSym,nAsplit(iSym)) !close+delete
   end do
   ! Deallocate memory used as index arrays in the setup section
-  call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Free')
+  call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'FREE')
 # if 0
   ! NOT TESTED
   call mma_deallocate(FMaux,safe='*')

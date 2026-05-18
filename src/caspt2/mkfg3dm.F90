@@ -33,64 +33,43 @@
 !
 
 #include "compiler_features.h"
-
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined _DMRG_
+
 subroutine MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,NLEV,mG3)
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga, only: CIS, SGS, L2ACT
-use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-use Definitions, only: RtoB
-use caspt2_module, only: nActEl, nSym, STSym
+use sguga, only: CIS, L2ACT, SGS
+use Molcas, only: MxLev
+use caspt2_module, only: MxCI, nActEl, nG1, nG2, nG3, nSym, STSym
 #ifdef _DMRG_
 use caspt2_module, only: DMRG
 #endif
-use Molcas, only: MxLev
-use caspt2_module, only: MxCI, nG1, nG2, nG3
-use constants, only: Zero
-use definitions, only: iwp, wp, Byte, u6
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6, byte, RtoB
 
 implicit none
 logical(kind=iwp), intent(in) :: mkF
 integer(kind=iwp), intent(in) :: NLEV, mG3
-real(kind=wp), intent(out) :: G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp), intent(out) :: F1(NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp), intent(out) :: G3(mG3), F3(mG3)
-integer(kind=Byte), intent(out) :: idxG3(6,mG3)
-real(kind=wp) DG1, DG2, DG3, DF1, DF2, DF3
-integer(kind=iwp) I, J, IDX, JDX
-integer(kind=iwp) IB, IBMN, IBMX, IBUF, NB, NBTOT, IBUF1
-integer(kind=iwp) IP1, IP2, IP3, IP1MN, IP1MX, IP1I, IP1STA, IP1END, IP3MX, IQ1
-integer(kind=iwp) IG3, IG3OFF
-integer(kind=iwp) ISTU, ISVX, ISYZ
-integer(kind=iwp) IT, IU, IV, IX, IY, IZ
-integer(kind=iwp) ITLEV, IULEV, IVLEV, IXLEV, IYLEV, IZLEV
-integer(kind=iwp) NBUF1
-integer(kind=iwp) IOFFSET
-integer(kind=iwp) ISSG1, ISSG2, ISP1
-integer(kind=iwp) ITASK, ISUBTASK, ID, NTASKS, NSUBTASKS, MXTASK, MYTASK, MYBUFFER
-integer(kind=iwp) NTRI1, NTRI2
-integer(kind=iwp) MEMMAX, MEMMAX_SAFE
-integer(kind=iwp) NLEV2
+real(kind=wp), intent(out) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV), G3(mG3), F3(mG3)
+integer(kind=byte), intent(out) :: idxG3(6,mG3)
+integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, IP1STA, IP2, &
+                     IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, &
+                     IXLEV, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, NCI, &
+                     NLEV2, NSUBTASKS, NTASKS, NTRI1, NTRI2
+real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3
 #ifdef _ENABLE_BLOCK_DMRG_
-integer(kind=iwp) NLEV4
+integer(kind=iwp) :: NLEV4
 real(kind=wp), allocatable :: G3Tmp(:)
 #endif
-integer(kind=iwp) NCI
+integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TaskList(:,:)
+real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFT(:)
 real(kind=wp), external :: DDOT_, DNRM2_
-! translation tables for levels i,j to and from pair indices idx
-integer(kind=iwp) IJ2IDX(MXLEV,MXLEV)
-integer(kind=iwp) IDX2IJ(2,MXLEV**2)
-integer(kind=iwp) ICNJ(MXLEV**2)
-integer(kind=iwp) IP1_BUF(MXLEV**2)
-real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
-integer(kind=iwp), allocatable :: TaskList(:,:)
-! result buffer, maximum size is the largest possible ip1 range,
-! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
-!real(kind=wp) BUFR(MXLEV**2)
+
+! IJ2IDX, IDX2IJ, ICNJ, IP1_BUF: translation tables for levels i,j to and from pair indices idx
 
 ! Put in zeroes. Recognize special cases:
 if (nlev == 0) return
@@ -116,6 +95,8 @@ if (NCI == 0) return
 nlev2 = nlev**2
 ntri1 = (nlev2-nlev)/2
 ntri2 = (nlev2+nlev)/2
+call mma_allocate(ij2idx,nlev,nlev,Label='ij2idx')
+call mma_allocate(idx2ij,2,nlev2,Label='idx2ij')
 idx = 0
 do i=1,nlev-1
   do j=i+1,nlev
@@ -135,12 +116,14 @@ do i=1,nlev
   idx2ij(1,idx) = i
   idx2ij(2,idx) = i
 end do
+call mma_allocate(icnj,nlev2,Label='icnj')
 do idx=1,nlev2
   i = idx2ij(1,idx)
   j = idx2ij(2,idx)
   jdx = ij2idx(j,i)
   icnj(idx) = jdx
 end do
+call mma_deallocate(ij2idx)
 
 call mma_MaxDBLE(memmax)
 
@@ -165,6 +148,8 @@ if (iPrGlb >= VERBOSE) then
   write(u6,'(2X,A,F16.9,A)') ' memory avail: ',(memmax*RtoB)*1.0e-9_wp,' GB'
   write(u6,'(2X,A,F16.9,A)') ' memory used:  ',(((nbuf1+3)*MXCI)*RtoB)*1.0e-9_wp,' GB'
 end if
+
+call mma_allocate(ip1_buf,nlev2,Label='ip1_buf')
 
 iG3OFF = 0
 ! A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
@@ -436,6 +421,9 @@ end do
 !-SVC20100831: set correct number of elements in new G3
 NG3 = iG3OFF
 
+call mma_deallocate(idx2ij)
+call mma_deallocate(icnj)
+call mma_deallocate(ip1_buf)
 call mma_deallocate(TASKLIST)
 ! free CI buffers
 call mma_deallocate(BUF1)
@@ -505,7 +493,6 @@ end subroutine MKFG3DM
 
 ! Some compilers do not like empty files
 #include "macros.fh"
-subroutine empty_MKFG3DM()
-end subroutine empty_MKFG3DM
+dummy_empty_procedure(MKFG3DM)
 
 #endif

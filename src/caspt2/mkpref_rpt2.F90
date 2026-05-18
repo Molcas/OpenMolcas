@@ -18,23 +18,20 @@
 !--------------------------------------------*
 
 subroutine MKPREF_RPT2(N,G2,PREF,NPREF)
+! Compute PREF(PQRS) = <0| 0.5*Epqrs |0>
+! from G2(P,Q,R,S) = <0| Epqrs |0>
+! Storage differs: PREF is triangular
+! in the Fortran-like indices PQ, RS.
 
 use Constants, only: Half
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N, NPREF
 real(kind=wp), intent(in) :: G2(N,N,N,N)
 real(kind=wp), intent(out) :: PREF(NPREF)
-integer(kind=iwp) I, J, K, L, IJ, JI, KL, LK
-integer(kind=iwp) IJKL, IJLK, JIKL, JILK
-integer(kind=iwp) IJT, KLT, IJKLT
-real(kind=wp) P1, P2
-
-! Compute PREF(PQRS) = <0| 0.5*Epqrs |0>
-! from G2(P,Q,R,S) = <0| Epqrs |0>
-! Storage differs: PREF is triangular
-! in the Fortran-like indices PQ, RS.
+integer(kind=iwp) :: I, IJ, IJKL, IJKLT, IJLK, IJT, J, JI, JIKL, JILK, K, KL, KLT, L, LK
+real(kind=wp) :: P1, P2
 
 IJT = 0
 IJKLT = 0

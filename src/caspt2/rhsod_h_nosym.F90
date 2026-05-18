@@ -13,33 +13,30 @@
 
 subroutine RHSOD_H_NOSYM(IVEC)
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, Half, One, Three
-use SUPERINDEX, only: MIGEJ, MAGEB, MIGTJ, MAGTB
-use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
-use caspt2_global, only: iPrGlb
+use SUPERINDEX, only: MAGEB, MAGTB, MIGEJ, MIGTJ
+use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
 use fake_GA, only: GA_Arrays
 #endif
-use caspt2_module, only: NSSHT, NAGEB, NIGEJ, NAGTB, NIGTJ
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: NAGEB, NAGTB, NIGEJ, NIGTJ, NSSHT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) IOSYM(8,8)
-real(kind=wp), allocatable :: CHOBUF(:)
-real(kind=wp) AJCL, ALCJ, HMACJL, HPACJL, SCL
-integer(kind=iwp) IA, IASTA, IAEND, IISTA, IIEND, MW, IAGEB, IAGTB, IC, iCASE, IDX, IJ, IJGEL, IJGTL, IL, lg_W, LIJOFF, LILOFF, &
-                  NAS, NBLOCK, NCHOBUF, NIS, NV, NW
-!logical Incore
+integer(kind=iwp) :: IA, IAEND, IAGEB, IAGTB, IASTA, IC, iCASE, IDX, IIEND, IISTA, IJ, IJGEL, IJGTL, IL, IOSYM(8,8), lg_W, LIJOFF, &
+                     LILOFF, MW, NAS, NBLOCK, NCHOBUF, NIS, NV, NW
+real(kind=wp) :: AJCL, ALCJ, HMACJL, HPACJL, SCL
+real(kind=wp), allocatable :: AIBJ(:,:), CHOBUF(:)
+integer(kind=iwp), parameter :: NOSYM = 1
+real(kind=wp), parameter :: SQRT3 = sqrt(Three), SQRTH = sqrt(Half)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-integer(kind=iwp), parameter :: NOSYM = 1
-real(kind=wp), allocatable :: AIBJ(:,:)
-real(kind=wp), parameter :: SQRT3 = sqrt(Three), SQRTH = sqrt(Half)
 
 if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case H'
 

@@ -25,16 +25,16 @@
 
 subroutine RHS_ALLO(NAS,NIS,lg_W)
 
-use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use fake_GA, only: Allocate_GA_Array
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS
 integer(kind=iwp), intent(out) :: lg_W
-integer(kind=iwp) NW
+integer(kind=iwp) :: NW
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

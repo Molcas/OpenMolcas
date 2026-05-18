@@ -35,21 +35,18 @@
 
 subroutine PRESDIA(IVEC,JVEC,OVLAPS)
 
-use caspt2_global, only: LUSBT
 use EQSOLV, only: IDBMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: MxCase, nASup, nInDep, nISup, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: nISup, nASup, nInDep, MxCase, nSym
-use constants, only: Zero
-use definitions, only: iwp, wp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC
 real(kind=wp), intent(inout) :: OVLAPS(0:8,0:MXCASE)
-integer(kind=iwp) ICASE, ISYM
-integer(kind=iwp) NAS, NIS, NIN
-integer(kind=iwp) lg_V
-integer(kind=iwp) JD
-real(kind=wp) OVL, DOVL, OVLSUM, OVLTOT
+integer(kind=iwp) :: ICASE, ISYM, JD, lg_V, NAS, NIN, NIS
+real(kind=wp) :: DOVL, OVL, OVLSUM, OVLTOT
 real(kind=wp), allocatable :: BD(:), ID(:)
 
 ! Apply the resolvent of the diagonal part of H0 to a coefficient

@@ -12,16 +12,14 @@
 subroutine red2full(XLT,nXLT,Xab,nXab)
 
 use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR, nSym
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nXLT, nXab
-real(kind=wp), intent(in) :: Xab(nXab)
 real(kind=wp), intent(inout) :: XLT(nXLT)
-integer(kind=iwp) ISLT(8)
+real(kind=wp), intent(in) :: Xab(nXab)
+integer(kind=iwp) :: iab, iag, ias, ibg, ibs, iLoc, iRab, IS, ISLT(8), ISYM, iSyma, jRab, jSym, kRab, kto, NB
 integer(kind=iwp), external :: cho_isao
-integer(kind=iwp) iLoc, jSym, IS, ISYM, NB
-integer(kind=iwp) jRab, kRab, iRab, iag, ibg, iSyma, ias, ibs, iab, kto
 
 ! Select table column for use with caspt2:
 iLoc = 3

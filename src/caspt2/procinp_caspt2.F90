@@ -14,60 +14,49 @@ subroutine procinp_caspt2()
 ! initialize global common-block variables appropriately.
 
 use inputData, only: input
-use caspt2_global, only: iPrGlb, cmpThr, cntThr, dnmThr
-use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, ipea_shift, imag_shift, real_shift
-use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, if_invar, iParRHS, iRoot1, iRoot2, if_invaria, ConvInvar, if_equalW, &
-                         if_SSDM, MAXBUF, Weight
 use PrintLevel, only: TERSE
 use UnixInfo, only: SuperName
-#ifdef _MOLCAS_MPP_
-use definitions, only: MPIInt
-use Para_Info, only: Is_Real_Par, nProcs
-#endif
+use Molcas, only: MxRoot, MxSym
+use caspt2_global, only: cmpThr, cntThr, CompressMPS, ConvInvar, dnmThr, do_csf, do_grad, do_lindep, do_nac, if_equalW, if_invar, &
+                         if_invaria, if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, MAXBUF, real_shift, &
+                         sigma_p_epsilon, sigma_p_exponent, Weight
+use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, DMRG, DoCumulant, DWType, FockType, G1SECIN, HZero, IfChol, IfDens, &
+                         IfDOrtho, IfDW, IfMix, IFMSCoup, IfProp, IfRMS, IfsadRef, IfXMS, iRlxRoot, iRoot, JMS, MaxIt, mState, &
+                         nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, nRas1T, nRas3T, nRoots, nRoots, nSsh, &
+                         nState, nSym, OrbIn, OutFmt, PrOrb, PRSD, RFPERT, RHSDirect, Root2State, SDECOM, SMatrix, ThrConv, &
+                         ThrEne, ThrOCC, ThrSHN, ThrSHS, Zeta
 #ifdef _DMRG_
-use stdalloc, only: mma_allocate
 use qcmaquis_info, only: qcm_group_names
-use qcmaquis_interface_cfg
-use qcmaquis_interface, only: qcmaquis_interface_init_checkpoint, qcmaquis_interface_set_param, qcmaquis_interface_remove_param
+use qcmaquis_interface_cfg, only: dmrg_file, qcmaquis_param
+use qcmaquis_interface, only: qcmaquis_interface_init_checkpoint, qcmaquis_interface_remove_param, qcmaquis_interface_set_param
 use PrintLevel, only: VERBOSE
+use stdalloc, only: mma_allocate
 #endif
-use caspt2_global, only: CompressMPS
-! NOT TESTED
 #if 0
+! NOT TESTED
 use OFembed, only: Do_OFemb
 #endif
-use Molcas, only: MxRoot, MxSym
-use caspt2_module, only: nGroupState, mState, nDel, nSsh, nFro, nIsh, Zeta, ThrSHS, ThrSHN, ThrOCC, ThrEne, ThrConv, SMatrix, &
-                         SDECOM, Root2State, RHSDirect, RFPERT, PRSD, OutFmt, OrbIn, PrOrb, nSym, nState, nRas3T, nRas1T, nRoots, &
-                         nLYRoot, nLYGroup, nGroup, nCases, MaxIt, nRoots, iRoot, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfProp, JMS, &
-                         IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, HZero, G1SECIN, FockType, DWType, DoCumulant, BTrans, &
-                         BSpect, BMatrix, DMRG
-
-use caspt2_module, only: CIThr
-use constants, only: Zero, Quart
-use definitions, only: iwp, wp, u6, RtoB
+use Constants, only: Zero, Quart
+use Definitions, only: wp, iwp, u6, RtoB
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par, nProcs
+use Definitions, only: MPIInt
+#endif
 
 implicit none
-integer(kind=iwp) :: iDummy
-! Number of non-valence orbitals per symmetry
-integer(kind=iwp) :: nCore(mxSym)
-integer(kind=iwp) :: nDiff, NFI, NSD
-! Geometry-determining root
-logical(kind=iwp) :: Is_iRlxRoot_Set, do_real, do_imag, do_sigp
-! Environment
-character(Len=180) :: Env
-! NAC or not
-character(Len=16) :: mstate1
-logical(kind=iwp) :: Found
-integer(kind=iwp) :: I, J
-integer(kind=iwp) :: iSym
-! State selection
-integer(kind=iwp) :: iGroup, iOff
-! Numerical gradients
-logical(kind=iwp) :: DNG, DNG_available
-integer(kind=iwp) :: iDNG
+integer(kind=iwp) :: I, iDNG, iDummy, iGroup, iOff, iSym, J, nCore(mxSym), nDiff, NFI, NSD
+logical(kind=iwp) :: DNG, DNG_available, do_imag, do_real, do_sigp, Found, Is_iRlxRoot_Set
+character(len=180) :: Env
+character(len=16) :: mstate1
 integer(kind=iwp), external :: isStructure
 logical(kind=iwp), external :: RF_On
+
+! nCore: Number of non-valence orbitals per symmetry
+! Is_iRlxRoot_Set: Geometry-determining root
+! Env: Environment
+! mstate1: NAC or not
+! iGroup: State selection
+! DNG: Numerical gradients
 
 ! Hzero and Focktype are merged together into Hzero. We keep the
 ! variable Focktype not to break the input keyword which is documented
@@ -234,7 +223,7 @@ if (Input%MULT) then
   else
     ! Save the states that need to be computed
     do I=1,Input%nMultState
-      MSTATE(I) = Input%MultGroup%State(I)
+      MSTATE(I) = Input%MultGroup%A(I)
       NSTATE = NSTATE+1
     end do
     NGROUP = Input%nMultState
@@ -261,7 +250,7 @@ if (Input%XMUL) then
       NGROUPSTATE(1:NGROUP) = 1
     else
       do I=1,Input%nXMulState
-        MSTATE(I) = Input%XMulGroup%State(I)
+        MSTATE(I) = Input%XMulGroup%A(I)
         NSTATE = NSTATE+1
       end do
       NGROUP = Input%nXMulState
@@ -278,7 +267,7 @@ if (Input%XMUL) then
       NGROUP = 1
       NGROUPSTATE(NGROUP) = Input%nXMulState
       do I=1,Input%nXMulState
-        MSTATE(I) = Input%XMulGroup%State(I)
+        MSTATE(I) = Input%XMulGroup%A(I)
         NSTATE = NSTATE+1
       end do
     end if
@@ -298,7 +287,7 @@ if (Input%RMUL) then
     NGROUPSTATE(1:NGROUP) = 1
   else
     do I=1,Input%nRMulState
-      MSTATE(I) = Input%RMulGroup%State(I)
+      MSTATE(I) = Input%RMulGroup%A(I)
       NSTATE = NSTATE+1
     end do
     NGROUP = Input%nRMulState

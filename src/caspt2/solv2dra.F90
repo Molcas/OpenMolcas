@@ -28,26 +28,25 @@ subroutine SOLV2DRA(NAS,NIS,iCASE,iSYM,iVEC)
 !     LUSOLV and should be removed once the full parallelization is in
 !     place and transition is no longer needed.
 
-use definitions, only: iwp
-#ifdef _MOLCAS_MPP_
-use definitions, only: wp, u6
-use Para_Info, only: Is_Real_Par, King
-use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-#endif
-use caspt2_global, only: LUSOLV, IDSCT
 use EQSOLV, only: MXSCT
 use fake_GA, only: GA_Arrays
+use caspt2_global, only: IDSCT, LUSOLV
 use caspt2_module, only: MXCASE
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par, King
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
+use Definitions, only: wp, u6
+#endif
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS, iCASE, iSYM, iVEC
-integer(kind=iwp) IDISK, lg_W, NW
+integer(kind=iwp) :: IDISK, lg_W, NW
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: IEND, iMax, ISTA, NCOL
+real(kind=wp), allocatable :: TMPW(:)
 #include "global.fh"
 #include "mafdecls.fh"
-!logical bStat
-real(kind=wp), allocatable :: TMPW(:)
-integer(kind=iwp) iMax, NCOL, ISTA, IEND
 #endif
 
 call RHS_ALLO(NAS,NIS,lg_W)

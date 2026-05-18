@@ -15,15 +15,15 @@ subroutine caspt2_grad_invaria2(NDPT2,nOLag,DPT2,OLag)
 ! See the IPEA-shift implementation for the active block non-invariance, and the sigma^P implementation for the non-invariance
 ! with respect to rotations in the internally contracted basis
 
+use caspt2_module, only: EPSE, EPSI, nAsh, nBas, nDel, nFro, nIsh, nSsh, nSym
 use Constants, only: Half
-use definitions, only: iwp, wp
-use caspt2_module, only: nSym, nDel, nIsh, EPSI, nSsh, nAsh, EPSE, nBas, nFro
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDPT2, nOLag
 real(kind=wp), intent(inout) :: DPT2(NDPT2)
 real(kind=wp), intent(in) :: OLag(nOLag)
-integer(kind=iwp) :: iMO, iSym, nOrbI, nFroI, nIshI, nAshI, nSshI, iOrb, jOrb
+integer(kind=iwp) :: iMO, iOrb, iSym, jOrb, nAshI, nFroI, nIshI, nOrbI, nSshI
 real(kind=wp) :: Tmp
 
 iMO = 1

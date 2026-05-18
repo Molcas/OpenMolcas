@@ -15,14 +15,14 @@ subroutine R2FIP(CHSPC,NCHSPC,WRK,ipWRK,NUMV,nBasT,iSym,iSkip,irc,JREDC)
 ! Transform the reduced form to the full form in place
 
 use Cholesky, only: INFVEC, nDimRS, nnBstR
-use definitions, only: wp, iwp
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NCHSPC, ipWRK(8), NUMV, nBasT, iSym, iSkip(8)
 real(kind=wp), intent(inout) :: CHSPC(NCHSPC), WRK(nBasT*nBasT)
 integer(kind=iwp), intent(inout) :: irc, JREDC
-integer(kind=iwp) :: kloc, iVec, lscr, JREDL, ipVecL, jloc, l_NDIMRS
+integer(kind=iwp) :: ipVecL, iVec, jloc, JREDL, kloc, l_NDIMRS, lscr
 
 l_NDIMRS = size(nDIMRS)
 kloc = 0

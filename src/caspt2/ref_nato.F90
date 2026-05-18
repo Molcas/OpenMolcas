@@ -18,18 +18,18 @@ subroutine REF_NATO(DREF,nDREF,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
 ! coefficients of  natural orbitals. Frozen, inactive and virtual
 ! orbitals are copied unchanged.
 
-use constants, only: Zero, One, Two
+use caspt2_module, only: NASH, NBAS, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NFRO, NISH, NASH, NBAS
-use definitions, only: iwp, wp
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDREF, nCMO, nOcc, nCNAT
 real(kind=wp), intent(in) :: DREF(nDREF), CMO(nCMO)
 real(kind=wp), intent(out) :: OCC(nOcc), CNAT(nCNAT)
+integer(kind=iwp) :: I, ICMO, IDREF, II, IOCC, ISYM, J, JJ, LIJ, NA, NB, NF, NFI, NI, NSD, NTMP
+real(kind=wp) :: OC
 real(kind=wp), allocatable :: TMP(:)
-integer(kind=iwp) IDREF, IOCC, ICMO, ISYM, NF, NI, NA, NB, I, II, J, JJ, LIJ, NFI, NSD, NTMP
-real(kind=wp) OC
 
 IDREF = 0
 IOCC = 0

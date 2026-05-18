@@ -19,8 +19,8 @@
 
 subroutine PRWF_CP2(ISYCI,NCO,CI,THR)
 
-use definitions, only: wp, iwp, u6
 use sguga, only: CIS
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ISYCI, NCO

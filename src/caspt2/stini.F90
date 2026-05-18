@@ -14,26 +14,23 @@
 subroutine STINI(JSTATE)
 
 #ifdef _DMRG_
+use, intrinsic :: iso_c_binding, only: c_int
 use qcmaquis_interface, only: qcmaquis_interface_set_state
-use iso_c_binding, only: c_int
 use caspt2_module, only: DMRG
 #endif
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: DREF, PREF
 use PrintLevel, only: DEBUG, USUAL
-use caspt2_module, only: CPUFG3, ERef, nAshT, EASUM, TIOFG3, EPSA, mState, RefEne, CPUSIN, TIOSIN
-use caspt2_module, only: iAdr10, CLab10
-use constants, only: Zero
-use definitions, only: iwp, wp, u6
+use caspt2_global, only: DREF, iPrGlb, PREF
+use caspt2_module, only: CLab10, CPUFG3, CPUSIN, EASUM, EPSA, ERef, iAdr10, mState, nAshT, RefEne, TIOFG3, TIOSIN
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: JSTATE
-character(len=50) STLNE2
-! timers
-real(kind=wp) CPU0, CPU1, CPU, CPTF0, CPTF11, CPE, TIO0, TIO1, TIO, TIOTF0, TIOTF11, TIOE
-! indices
-integer(kind=iwp) :: I, J, IFTEST = 0
-logical(kind=iwp), parameter :: mkF = .true.
+integer(kind=iwp) :: I, J
+real(kind=wp) :: CPE, CPTF0, CPTF11, CPU, CPU0, CPU1, TIO, TIO0, TIO1, TIOE, TIOTF0, TIOTF11
+character(len=50) :: STLNE2
+logical(kind=iwp), parameter :: IFTEST = .false., mkF = .true.
+
 !***********************************************************************
 call TIMING(CPTF0,CPE,TIOTF0,TIOE)
 !***********************************************************************
@@ -76,7 +73,7 @@ if (IPRGLB >= DEBUG) write(u6,*) ' STINI back from POLY3.'
 ! GETDPREF: Restructure GAMMA1 and GAMMA2, as DREF and PREF arrays.
 call GETDPREF(DREF,size(DREF),PREF,size(PREF))
 
-if (IFTEST /= 0) then
+if (IFTEST) then
   write(u6,*) ' DREF for state nr. ',MSTATE(JSTATE)
   do I=1,NASHT
     write(u6,'(1x,14f10.6)') (DREF((I*(I-1))/2+J),J=1,I)

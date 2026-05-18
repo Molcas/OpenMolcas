@@ -27,14 +27,14 @@ subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)
 
 use caspt2_global, only: imag_shift, real_shift, sigma_p_epsilon, sigma_p_exponent
 use Constants, only: Zero, One
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nRow, nCol, LDW
 real(kind=wp), intent(inout) :: W(LDW,nCol), dOvl
 real(kind=wp), intent(in) :: dIn(nRow), dIs(nCol)
 integer(kind=iwp) :: i, j, p
-real(kind=wp) :: delta, delta_inv, tmp, sigma, epsilon
+real(kind=wp) :: delta, delta_inv, eps, sigma, tmp
 
 dOvl = Zero
 do j=1,nCol
@@ -44,10 +44,10 @@ do j=1,nCol
     ! inverse denominator plus imaginary shift
     delta_inv = delta/(delta**2+imag_shift**2)
     ! multiply by (inverse) sigma-p regularizer
-    epsilon = sigma_p_epsilon
+    eps = sigma_p_epsilon
     p = sigma_p_exponent
-    if (epsilon > Zero) then
-      sigma = One/epsilon**p
+    if (eps > Zero) then
+      sigma = One/eps**p
       delta_inv = delta_inv*(One-exp(-sigma*abs(delta)**p))
     end if
     tmp = delta_inv*W(i,j)

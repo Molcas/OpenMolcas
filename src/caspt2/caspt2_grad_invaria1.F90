@@ -16,15 +16,14 @@ subroutine caspt2_grad_invaria1(NDPT2,DPT2)
 ! Therefore, remove the off-diagonal elements. They are computed in caspt2_grad_invaria2 using orbital derivatives.
 ! The diagonal elements are correct.
 
+use caspt2_module, only: nAsh, nIsh, nOrb, nSsh, nSym
 use Constants, only: Zero
-use definitions, only: iwp, wp
-use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOrb
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDPT2
 real(kind=wp), intent(inout) :: DPT2(NDPT2)
-integer(kind=iwp) :: IOFDIJ(8), IOFDAB(8)
-integer(kind=iwp) :: idij, is, ni, na, ns, no, idtu, idab, isym, ii, ij, ia, ib
+integer(kind=iwp) :: ia, ib, idab, idij, idtu, ii, ij, IOFDAB(8), IOFDIJ(8), is, isym, na, ni, no, ns
 
 IDIJ = 0
 do IS=1,NSYM

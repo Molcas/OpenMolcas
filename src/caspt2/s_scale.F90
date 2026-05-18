@@ -19,13 +19,13 @@
 
 subroutine S_SCALE(NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
 
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, iLo, iHi, jLo, jHi, LDS
 real(kind=wp), intent(in) :: SCA(NAS)
 real(kind=wp), intent(inout) :: S(LDS,*)
-integer(kind=iwp) J, I
+integer(kind=iwp) :: I, J
 
 do J=jLo,jHi
   do I=iLo,iHi

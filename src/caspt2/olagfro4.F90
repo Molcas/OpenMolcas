@@ -15,33 +15,29 @@ subroutine OLagFro4(NBSQT,iSym0,iSymI,iSymJ,iSymK,iSymL0,DPT2AO,DPT2CAO,FPT2AO,F
 
 use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: NVLOC_CHOBATCH
-use Cholesky, only: InfVec, nDimRS
-use ChoCASPT2, only: NUMCHO_PT2, NCHSPC, MXNVC
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
-use Constants, only: Zero, One, Half
+use Cholesky, only: InfVec, nDimRS, nnBstR
+use ChoCASPT2, only: MXNVC, NCHSPC, NUMCHO_PT2
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 #endif
-use caspt2_module, only: NSYM, NBAS, NBTCHES
-
-#include "intent.fh"
+use caspt2_module, only: NBAS, NBTCHES, NSYM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: NBSQT, iSym0, iSymI, iSymJ, iSymK, iSymL0
+real(kind=wp), intent(inout) :: DPT2AO(NBSQT), DPT2CAO(NBSQT)
+real(kind=wp), intent(out) :: FPT2AO(NBSQT), FPT2CAO(NBSQT), WRK1(NBSQT)
+integer(kind=iwp) :: i, IBATCH, IBATCH_TOT, ILOC, ipVecL, ipWRK(8), IRC, iSkip(8), iSMax, ISTLT(8), ISTSQ(8), iSwap, iSym, iSymIJ, &
+                     iSymL, iVec, j, JNUM, JRED, JRED1, JRED2, JREDC, JREDL, JSTART, jSym, JV1, JV2, JVEC1, jVref, lscr, MUSED, &
+                     nB, nB2, nB3, nBasI, nBasIJ, nBasJ, nBasK, nBasKL, nBasL, NBATCH, NUMV, NVECS_RED
+real(kind=wp) :: tmp
+real(kind=wp), allocatable :: CHSPC(:), WRK2(:)
 #include "warnings.h"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #endif
-integer(kind=iwp), intent(in) :: NBSQT, iSym0, iSymI, iSymJ, iSymK, iSymL0
-real(kind=wp), intent(inout) :: DPT2AO(NBSQT), DPT2CAO(NBSQT)
-real(kind=wp), intent(_OUT_) :: FPT2AO(NBSQT), FPT2CAO(NBSQT), WRK1(NBSQT)
-real(kind=wp), allocatable :: CHSPC(:), WRK2(:)
-integer(kind=iwp) :: ISTLT(8), ISTSQ(8), iSkip(8), ipWRK(8), nnbstr(8,3), iSym, maxvec, n2, jSym, nB, nB2, nB3, nBasI, nBasJ, &
-                     iSymIJ, nBasIJ, nBasK, iSMax, iSymL, nBasL, nBasKL, IBATCH_TOT, JRED1, JRED2, JSTART, NVECS_RED, ILOC, IRC, &
-                     JRED, NBATCH, JV1, IBATCH, JNUM, JV2, JREDC, NUMV, MUSED, ipVecL, iVec, jVref, lscr, JREDL, JVEC1, iSwap, i, j
-real(kind=wp) :: tmp
-
-! INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
 !! It shoudl be zero, but just in case
 FPT2AO(1:NBSQT) = Zero
@@ -60,7 +56,6 @@ end if
 #endif
 
 iSym = iSym0
-call getritrfinfo(nnbstr,maxvec,n2)
 
 ISTSQ(1) = 0
 ISTLT(1) = 0

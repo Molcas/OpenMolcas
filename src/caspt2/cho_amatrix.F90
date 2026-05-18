@@ -19,10 +19,10 @@ use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use CHOVEC_IO, only: NVLOC_CHOBATCH
+use caspt2_module, only: nAsh, nBtch, nBtches, nIsh, nOrb, nOSqT, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT, nOrb, nBtch, nBtches
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nXMAT, nCMO, NATR
@@ -30,10 +30,10 @@ real(kind=wp), intent(inout) :: XMAT(nXMAT)
 real(kind=wp), intent(in) :: CMO(nCMO), DDTR(NATR)
 integer(kind=iwp) :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP, MXCHOBUF, MXINT, MXPIQK, NADDBUFF, NBUF, NCHOBUF, NINTS, NLB, NLK, &
                      NV
+type(DSBA_Type) :: HDSQ
 integer(kind=iwp), allocatable :: BGRP(:,:,:), ICA(:), ICI(:), ICV(:), IXMAT(:), NBGRP(:), NVEC(:,:)
 real(kind=wp), allocatable :: BRABUF(:), KETBUF(:)
 real(kind=wp), allocatable, target :: INTBUF(:)
-type(DSBA_Type) :: HDSQ
 integer(kind=iwp), parameter :: Inac = 1, Acti = 2, Virt = 3
 
 ! Transform Cholesky vectors, this will have to be redone after
@@ -161,10 +161,10 @@ contains
 
 subroutine Accum(bBlock,kBlock,bBuf,nbBuf,kBuf,nkBuf,IB,IK)
 
+  integer(kind=iwp), intent(in) :: bBlock, kBlock, IB(NSYM), IK(NSYM)
   integer(kind=iwp), intent(in) :: nbBuf, nkBuf
-  integer(kind=iwp) :: bBlock, kBlock, IB(NSYM), IK(NSYM)
-  real(kind=wp) :: bBuf(nbBuf), kBuf(nkBuf)
-  integer(kind=iwp) :: B1, BS, BSWCH, bOff(NSYM), I, II, IJ, IJT, J, JA, JJ, K1, KS, KSWCH, kOff(NSYM), NA, NB(NSYM), NK(NSYM), &
+  real(kind=wp), intent(in) :: bBuf(nbBuf), kBuf(nkBuf)
+  integer(kind=iwp) :: B1, bOff(NSYM), BS, BSWCH, I, II, IJ, IJT, J, JA, JJ, K1, kOff(NSYM), KS, KSWCH, NA, NB(NSYM), NK(NSYM), &
                        PQSYM, TUSYM
   logical(kind=iwp) :: diag
   real(kind=wp), pointer, contiguous :: INT2(:,:)
@@ -175,6 +175,7 @@ subroutine Accum(bBlock,kBlock,bBuf,nbBuf,kBuf,nkBuf,IB,IK)
   ! QB,QK = index function for bra/ket
   ! BSWCH,KSWCH = aux switch for generalizing integral access
   !               (1 if inactive, which come before active)
+
   BSWCH = 0
   select case (bBlock)
     case (Inac)

@@ -11,15 +11,15 @@
 
 subroutine FULLTRNSF(NP,NW,NB,CMOBLK,NJ,BUF_HT,BUF_FT)
 
-use constants, only: Zero, One
-use definitions, only: iwp, wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NP, NW, NB, NJ
-real(kind=wp), intent(in) :: CMOBLK(NB,NP)
-! In: Vectors of type HALF(W,J,B) = Sum(CHO(AB,J)*CMO(A,W),A=1,NBAS)
-real(kind=wp), intent(in) :: BUF_HT(NW*NJ,NB)
+real(kind=wp), intent(in) :: CMOBLK(NB,NP), BUF_HT(NW*NJ,NB)
 real(kind=wp), intent(out) :: BUF_FT(NP,NW*NJ)
+
+! In: Vectors of type HALF(W,J,B) = Sum(CHO(AB,J)*CMO(A,W),A=1,NBAS)
 
 ! Compute fully transformed Cholesky vector buffer:
 !  FULL(P,W,J)=Sum(CMO(B,P)*HALF(W,J,B),B=1,NB)

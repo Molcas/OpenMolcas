@@ -21,30 +21,20 @@
 subroutine PCG(ICONV)
 
 use INPUTDATA, only: INPUT
-use caspt2_global, only: EMP2
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: sigma_p_epsilon, imag_shift, real_shift
-use caspt2_global, only: do_grad, nStpGrd
-use caspt2_global, only: LISTS
+use caspt2_global, only: do_grad, EMP2, imag_shift, iPrGlb, LISTS, nStpGrd, real_shift, sigma_p_epsilon
 use PrintLevel, only: TERSE, USUAL
-use stdalloc, only: mma_allocate, mma_deallocate
 use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecX, NLSTOT
-use caspt2_module, only: DeNorm, E2Corr, E2Tot, MxCase, ERef, IfChol, MaxIt, nSym, rNorm, ThrConv, Cases
-use constants, only: Zero, One, Two
-use definitions, only: iwp, wp, u6
+use caspt2_module, only: Cases, DeNorm, E2Corr, E2Tot, ERef, IfChol, MaxIt, MxCase, nSym, rNorm, ThrConv
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ICONV
-integer(kind=iwp) IC, IS, ITER
-integer(kind=iwp) IVECP, IVECT, IVECU
-integer(kind=iwp) LAXITY
+integer(kind=iwp) :: IC, IS, ITER, IVECP, IVECT, IVECU, LAXITY
+real(kind=wp) :: ALPHA, BETA, DSCALE, E2NONV, EAIVX, EATVX, EBJAI, EBJAT, EBVAT, ECORR(0:8,0:MXCASE), ESHIFT, EVJAI, EVJTI, EVJTU, &
+                 OVLAPS(0:8,0:MXCASE), PR, PT, REFWGT, SAV, SAVI, savreg, UR
 integer(kind=iwp), external :: Cho_X_GetTol
-real(kind=wp) ALPHA, BETA, PR, PT, UR
-real(kind=wp) ECORR(0:8,0:MXCASE)
-real(kind=wp) EAIVX, EATVX, EBJAI, EBJAT, EBVAT, EVJAI, EVJTI, EVJTU
-real(kind=wp) E2NONV, ESHIFT
-real(kind=wp) OVLAPS(0:8,0:MXCASE)
-real(kind=wp) SAV, SAVI, savreg, DSCALE, REFWGT
 
 ! Flag to tell whether convergence was obtained
 ICONV = 0

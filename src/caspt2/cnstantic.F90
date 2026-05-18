@@ -13,19 +13,19 @@
 
 subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 
-use caspt2_global, only: iRoot1, iRoot2, OLagFull
 use sguga, only: SGS
+use caspt2_global, only: iRoot1, iRoot2, OLagFull
+use caspt2_module, only: ENERGY, NASH, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NORB, NSTATE, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: ENERGY, NSYM, NCONF, NFRO, NISH, NASH, NASHT, NDEL, NORB, NBAS, NBAST, NBSQT, NSTATE
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: DPT2Canti(*)
 real(kind=wp), intent(in) :: UEFF(nState,nState), U0(*)
-real(kind=wp), allocatable :: CI1(:), CI2(:), SGM1(:), SGM2(:), TG1(:), G1(:,:), WRK1(:), WRK2(:)
-integer(kind=iwp) :: nLev, iStat, jStat, iMO1, iMO2, iSym, nOrbI1, nOrbI2, iOrb0, iOrb2, jOrb0, jOrb2, i, j
+integer(kind=iwp) :: i, iMO1, iMO2, iOrb0, iOrb2, iStat, iSym, j, jOrb0, jOrb2, jStat, nLev, nOrbI1, nOrbI2
 real(kind=wp) :: Scal
+real(kind=wp), allocatable :: CI1(:), CI2(:), G1(:,:), SGM1(:), SGM2(:), TG1(:), WRK1(:), WRK2(:)
 
 nLev = SGS%nLev
 

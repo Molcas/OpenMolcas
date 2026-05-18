@@ -11,24 +11,26 @@
 
 module ChoCASPT2
 
-use definitions, only: iwp
-
 ! Comment: numcho_pt2, InfVec_N2_PT2, and MaxVec_PT2 are copies
 ! of corresponding values in module Cholesky.
 ! Values are transferred at the beginning of caspt2.
 
-implicit none
+use Definitions, only: iwp
 
-integer(kind=iwp) Lsplit(8), nIsplit(8), nAsplit(8), nksh(8), nkes(8), npsh(8), npes(8), numcho_pt2(8), iALGO, InfVec_N2_PT2, &
-                  MaxVec_PT2, IF_CHO, NCHSPC, NHTSPC, NFTSPC, NFTSPC_TOT, MXNVC, MXCHARR
+implicit none
+private
 
 type ChoType
-  integer(kind=iwp), allocatable :: Unit(:)
+  integer(kind=iwp), allocatable :: Unt(:)
   integer(kind=iwp), allocatable :: ip(:)
   integer(kind=iwp), allocatable :: np(:)
   integer(kind=iwp), allocatable :: sp(:)
 end type ChoType
 
-type(ChoType) Stuff(8)
+integer(kind=iwp) :: iALGO, MaxVec_PT2, MXCHARR, MXNVC, nAsplit(8), NCHSPC, NFTSPC, NFTSPC_TOT, NHTSPC, nIsplit(8), nksh(8), &
+                     npsh(8), numcho_pt2(8)
+type(ChoType) :: Stuff(8)
+
+public :: iALGO, MaxVec_PT2, MXCHARR, MXNVC, NASplit, NCHSPC, NFTSPC, NFTSPC_TOT, NHTSPC, NISplit, nksh, npsh, NumCho_PT2, Stuff
 
 end module ChoCASPT2

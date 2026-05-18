@@ -16,28 +16,27 @@ subroutine CLagDXC_DP(iSym,nAS,nAshT,BDER,SDER,DG1,DG2,DF1,DF2,DEPSA,DEASUM,iLo,
 use SUPERINDEX, only: MTUV
 use caspt2_global, only: ipea_shift
 use caspt2_module, only: EASUM, EPSA, NTUVES
-use Constants, only: Zero, Half, Four
-use definitions, only: wp, iwp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
+use Constants, only: Zero, Four, Half
+use Definitions, only: wp, iwp
 
 implicit none
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#else
-#include "macros.fh"
-#endif
 integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, iLo, iHi, jLo, jHi, LDC, lg_S
 real(kind=wp), intent(in) :: BDER((iHi-iLo+1)*(jHi-jLo+1)), SC((iHi-iLo+1)*(jHi-jLo+1)), SC2((iHi-iLo+1)*(jHi-jLo+1))
 real(kind=wp), intent(inout) :: SDER((iHi-iLo+1)*(jHi-jLo+1)), DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT), DF1(nAshT,nAshT), &
                                 DF2(nAshT,nAshT,nAshT,nAshT), DEPSA(nAshT,nAshT), DEASUM, G1(nAshT,nAshT), &
                                 G2(nAshT,nAshT,nAshT,nAshT)
-integer(kind=iwp) :: ISADR, NROW, iLoS, jLoS, IXYZ, IXYZABS, IXABS, IYABS, IZABS, ITUV, ITUVABS, ITABS, IUABS, IVABS, ISADR2, &
-                     iWabs, iTWV, iXWZ
-real(kind=wp) :: EU, EY, EYU, FACT, ValB, bsBDER, ValS
+integer(kind=iwp) :: iLoS, ISADR, ISADR2, ITABS, ITUV, ITUVABS, iTWV, IUABS, IVABS, iWabs, IXABS, iXWZ, IXYZ, IXYZABS, IYABS, &
+                     IZABS, jLoS, NROW
+real(kind=wp) :: bsBDER, EU, EY, EYU, FACT, ValB, ValS
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: irank, iHiS, jHiS
+integer(kind=iwp) :: iHiS, irank, jHiS
+#include "global.fh"
+#else
+#include "macros.fh"
+unused_var(lg_S)
 #endif
 
 ! LDC == 0, if not parallel; SC is triangular
@@ -55,8 +54,6 @@ if (is_real_par()) then
   NROW = jHiS-jLoS+1 !! = NAS
   call GA_GET(lg_S,jLoS,jHiS,iLoS,iHiS,SC2,NROW)
 end if
-#else
-unused_var(lg_S)
 #endif
 do IXYZ=jLo,jHi
   IXYZABS = IXYZ+NTUVES(ISYM)

@@ -21,17 +21,14 @@ subroutine PT2_GET(NSIZE,LAB,VEC)
 
 use caspt2_global, only: LUDMAT
 use caspt2_module, only: CLab10, iAdr10
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSIZE
 character(len=*), intent(in) :: LAB
 real(kind=wp), intent(out) :: VEC(NSIZE)
-character(len=8) LAB1
-integer(kind=iwp) I, IAD, NSZ
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) J
-#endif
+integer(kind=iwp) :: I, IAD, NSZ
+character(len=8) :: LAB1
 
 I = 9-len(LAB)
 if (I >= 1) then
@@ -51,7 +48,7 @@ do I=1,size(CLAB10)
     write(u6,*) LAB1,' SUCCESSFULLY READ FROM LUDMAT.'
     write(u6,*) '         SIZE:',NSZ,' *8 BYTES'
     write(u6,*) ' DISK ADDRESS:',IADR10(I,1)
-    write(u6,'(10F12.8)') (VEC(J),J=1,min(10,NSZ))
+    write(u6,'(10F12.8)') VEC(1:min(10,NSZ))
 #   endif
     return
   end if

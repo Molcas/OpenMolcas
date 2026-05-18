@@ -13,29 +13,30 @@
 
 subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
-use caspt2_global, only: do_nac, do_csf, iRoot1, iRoot2, nOLag, CLag, CLagFull, OLag, DPT2_tot, FIFA_all, FIFASA_all
-use caspt2_global, only: FIFA, TORB, NDREF
-use caspt2_global, only: CMOPT2, if_equalW, weight
 use sguga, only: SGS
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: ENERGY, IFXMS, IFRMS, IFDW, STSYM, NCONF, NFRO, NISH, NASHT, NDEL, NBAS, NBAST, NBSQT, NROOTS, NSTATE, &
-                         ZETA, ORBIN, MXCI
-use Constants, only: Zero, One, Half, Two, Quart
+use caspt2_global, only: CLag, CLagFull, CMOPT2, do_csf, do_nac, DPT2_tot, FIFA, FIFA_all, FIFASA_all, if_equalW, iRoot1, iRoot2, &
+                         NDREF, nOLag, OLag, TORB, weight
+use caspt2_module, only: ENERGY, IFDW, IFRMS, IFXMS, MXCI, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NROOTS, NSTATE, &
+                         ORBIN, STSYM, ZETA
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: H0(nState,nState), U0(nState,nState), OMGDER(nState,nState)
 real(kind=wp), intent(inout) :: UEFF(nState,nState)
-real(kind=wp), allocatable :: CI1(:), CI2(:), SGM1(:), SGM2(:), TG1(:), TG2(:), DG1(:), DG2(:), DG3(:), G1(:,:), RDMEIG(:,:), &
-                              DPT2(:), Trf(:), RDMSA(:,:), WRK1(:), WRK2(:), DPT2_AO(:)
-real(kind=wp) :: SLag(nState*nState), Scal, OVL, EEI, EEJ, fact, Wgt, TRC, EINACT, EDIFF
-integer(kind=iwp) :: nLev, iStat, jStat, NTG1, NTG3, iState, kStat, lStat, nOrbI, nBasI, iAsh, jAsh, nCor, I, II
+integer(kind=iwp) :: I, iAsh, II, iStat, iState, jAsh, jStat, kStat, lStat, nBasI, nCor, nLev, nOrbI, NTG1, NTG3
+real(kind=wp) :: EDIFF, EEI, EEJ, EINACT, fact, OVL, Scal, TRC, Wgt
+real(kind=wp), allocatable :: CI1(:), CI2(:), DG1(:), DG2(:), DG3(:), DPT2(:), DPT2_AO(:), G1(:,:), RDMEIG(:,:), RDMSA(:,:), &
+                              SGM1(:), SGM2(:), SLag(:), TG1(:), TG2(:), Trf(:), WRK1(:), WRK2(:)
 real(kind=wp), external :: ddot_
 
 nLev = SGS%nLev
+
+call mma_allocate(SLag,nState**2,Label='SLag')
 
 ! The XMS rotation applies to any variants: XMS-CASPT2, XDW-CASPT2,
 ! and RMS-CASPT2.
@@ -353,6 +354,8 @@ if (do_csf) then
 
   call mma_deallocate(CI1)
 end if
+
+call mma_deallocate(SLag)
 
 !! Finally, add to the total CI derivative array
 CLagFull(:,:) = CLagFull(:,:)+CLag(:,:)

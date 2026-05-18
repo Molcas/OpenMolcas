@@ -12,28 +12,26 @@
 subroutine PT2INI()
 
 use INPUTDATA, only: INPUT, READIN_CASPT2
-use PT2WFN, only: PT2WFN_INIT, PT2WFN_DATA
-use REFWFN, only: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA, REFWFN_CLOSE
+use PT2WFN, only: PT2WFN_DATA, PT2WFN_INIT
+use REFWFN, only: REFWFN_CLOSE, REFWFN_DATA, REFWFN_INFO, REFWFN_INIT
+use Cholesky, only: MaxVec, NumCho
+use ChoCASPT2, only: MaxVec_PT2, NASPlit, NISplit, NumCho_PT2
+use spool, only: Close_LuSpool, SpoolInp
+use Molcas, only: LenIn
+use caspt2_global, only: CMOPT2, DMIX, do_grad, DREF, DWGT, FIFA, FIMO, iStpGrd, NCMO, NDREF, NPREF, NTAT, NTORB, PREF, TAT, TORB
+use caspt2_module, only: bName, Header, ifChol, jState, nAsh, nBas, nBasT, nBSqT, nIsh, nOTri, nSsh, nState, nSym
 #ifdef _DMRG_
 use qcmaquis_interface_cfg, only: qcmaquis_param
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG
+use caspt2_global, only: iPrGlb
 use caspt2_module, only: DMRG, nAshT
 #endif
-use caspt2_global, only: do_grad, iStpGrd
-use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX, DWGT, CMOPT2, TAT, NTAT, TORB, NTORB, NDREF, NPREF, NCMO
 use stdalloc, only: mma_allocate
-use ChoCASPT2, only: InfVec_N2_PT2, MaxVec_PT2, NASPlit, NISplit, NumCho_PT2
-use spool, only: SpoolInp, Close_LuSpool
-use Molcas, only: LenIn
-use caspt2_module, only: nSym, Header, ifChol, jState, bName, nAsh, nBas, nIsh, nOTri, nBasT, nBSqT, nSsh, nState
-use constants, only: Zero
-use definitions, only: iwp, u6
+use Constants, only: Zero
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) LuSpool
-! Cholesky
-integer(kind=iwp) iSym, iRC
+integer(kind=iwp) :: iRC, iSym, LuSpool
 
 call SETTIM()
 
@@ -135,9 +133,10 @@ if (IfChol) then
     write(u6,*) 'CASPT2: Non-zero rc in Cho_X_init'
     call QUIT(irc)
   end if
-  ! import_ch transfers some values from Cholesky module to chocaspt2
-  call import_cho(numcho_pt2,infvec_n2_pt2,maxvec_pt2)
-  call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_pt2,'Allo')
+  ! transfer some values from Cholesky module to chocaspt2
+  NumCho_PT2(:) = NumCho(:)
+  MaxVec_PT2 = MaxVec
+  call setup_cho(nSym,nIsh,nAsh,nSsh,NumCho_PT2,'ALLO')
   ! get unit numbers for Cholesky MO vectors
   do iSym=1,nSym
     call Cho_Caspt2_OpenF(0,1,iSym,nIsplit(iSym))

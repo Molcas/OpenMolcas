@@ -11,27 +11,29 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
+#include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
+
 subroutine DF3_DEPSA_MPP(NG3,NASHT,DF3,DEPSA,lg_S,idxG3)
 
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV
 use Para_Info, only: nProcs
-use definitions, only: wp, iwp, byte
-use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: IASYM, NTUVES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, byte
 
 implicit none
-#include "global.fh"
-#include "mafdecls.fh"
 integer(kind=iwp), intent(in) :: NG3, NASHT, lg_S
 real(kind=wp), intent(in) :: DF3(NG3)
 real(kind=wp), intent(inout) :: DEPSA(NASHT,NASHT)
 integer(kind=byte), intent(in) :: idxG3(6,NG3)
-real(kind=wp), allocatable :: WRK(:)
-integer(kind=iwp) :: isym, iRank, ILO, IHI, JLO, JHI, NROW, NCOL, iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV, iSX, iSY, iSZ, &
-                     ituvs, ixyzs, ISUP1, ISUP2, JSUP1, JSUP2, IW, NSEQ
+integer(kind=iwp) :: iG3, IHI, ILO, iRank, iST, iSU, ISUP1, ISUP2, iSV, iSX, iSY, isym, iSZ, iT, ituvs, iU, iV, IW, iX, ixyzs, iY, &
+                     iZ, JHI, JLO, JSUP1, JSUP2, NCOL, NROW, NSEQ
 real(kind=wp) :: F3VAL
+real(kind=wp), allocatable :: WRK(:)
+#include "global.fh"
+#include "mafdecls.fh"
 
 !! do depsa
 isym = 1
@@ -84,8 +86,10 @@ return
 
 end subroutine DF3_DEPSA_MPP
 
-#elif defined (NAGFOR)
+#elif ! defined (EMPTY_FILES)
+
 ! Some compilers do not like empty files
-subroutine empty_DF3_DEPSA_MPP()
-end subroutine empty_DF3_DEPSA_MPP
+#include "macros.fh"
+dummy_empty_procedure(DF3_DEPSA_MPP)
+
 #endif

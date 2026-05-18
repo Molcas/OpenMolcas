@@ -12,16 +12,16 @@
 subroutine NSIND(INS,ISYM,ICASE,IP,IQ,IR)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, u6
-use SUPERINDEX, only: MIGEJ, MIGTJ, MAGTB, MAGEB
-use caspt2_module, only: NIES, IINAIS, NIGEJES, NSES, NSYM, NIGTJES, IEXTIS, NISH, NSSH, NIGEJ, NIGTJ, NAGEBES, NAGTBES, NAGEB, &
-                         NAGTB
+use SUPERINDEX, only: MAGEB, MAGTB, MIGEJ, MIGTJ
+use caspt2_module, only: IEXTIS, IINAIS, NAGEB, NAGEBES, NAGTB, NAGTBES, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NISH, NSES, NSSH, &
+                         NSYM
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: INS, ISYM, ICASE
 integer(kind=iwp), intent(out) :: IP, IQ, IR
-integer(kind=iwp) IA, IAABS, IAB, IABABS, IAIJ, IBABS, II, IIA, IIAB, IIABS, IIJ, IIJABS, IJABS, ISYMA, ISYMAB, ISYMI, ISYMIJ, NA, &
-                  NAB, NAIJ, NI, NIA, NIAB, NIJ
+integer(kind=iwp) :: IA, IAABS, IAB, IABABS, IAIJ, IBABS, II, IIA, IIAB, IIABS, IIJ, IIJABS, IJABS, ISYMA, ISYMAB, ISYMI, ISYMIJ, &
+                     NA, NAB, NAIJ, NI, NIA, NIAB, NIJ
 
 select case (ICASE)
   case (1)

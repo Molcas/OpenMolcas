@@ -14,19 +14,17 @@
 subroutine OLagFroD(NBSQT,NASHT,DIA,DI,RDMSA,Trf)
 
 use caspt2_global, only: CMOPT2
+use caspt2_module, only: NASH, NBAS, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: NSYM, NFRO, NISH, NASH, NBAS
 use Constants, only: Zero, One, Two
-
-#include "intent.fh"
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nAshT
-real(kind=wp), intent(_OUT_) :: DIA(NBSQT), DI(NBSQT)
+real(kind=wp), intent(out) :: DIA(NBSQT), DI(NBSQT)
 real(kind=wp), intent(in) :: RDMSA(nAshT**2), Trf(NBSQT)
+integer(kind=iwp) :: iAOsq, iAOtr, iSym, nAshI, nBasI, nCorI, nFroI, nIshI
 real(kind=wp), allocatable :: WRK1(:), WRK2(:)
-integer(kind=iwp) :: iAOtr, iAOsq, iSym, nFroI, nIshI, nAshI, nBasI, nCorI
 
 call mma_allocate(WRK1,NBSQT,Label='WRK1')
 call mma_allocate(WRK2,NBSQT,Label='WRK2')

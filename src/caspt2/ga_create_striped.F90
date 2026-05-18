@@ -14,24 +14,23 @@
 !divided evenly, with the remainder spread over the leading stripes.
 
 #include "compiler_features.h"
-
 #ifdef _MOLCAS_MPP_
+
 subroutine GA_CREATE_STRIPED(ORI,NROW,NCOL,LABEL,LG_M)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: iwp, u6
+use Definitions, only: iwp, u6
 
 implicit none
-character :: ORI
-character(len=*) :: LABEL
-integer(kind=iwp) :: NROW, NCOL, LG_M
+character, intent(in) :: ORI
+integer(kind=iwp), intent(in) :: NROW, NCOL
+character(len=*), intent(in) :: LABEL
+integer(kind=iwp), intent(in) :: LG_M
+integer(kind=iwp) :: I, IOFF, NBASE, NBLOCK1, NBLOCK2, NDIM, NPROCS, NREST
+logical(kind=iwp) :: BSTAT
+integer(kind=iwp), allocatable :: MAP1(:), MAP2(:)
 #include "global.fh"
 #include "mafdecls.fh"
-logical(kind=iwp) :: BSTAT
-integer(kind=iwp) :: NPROCS
-integer(kind=iwp) :: NBLOCK1, NBLOCK2
-integer(kind=iwp), allocatable :: MAP1(:), MAP2(:)
-integer(kind=iwp) :: NDIM, NBASE, NREST, IOFF, I
 
 NPROCS = GA_NNODES()
 
@@ -80,7 +79,6 @@ end subroutine GA_CREATE_STRIPED
 
 ! Some compilers do not like empty files
 #include "macros.fh"
-subroutine empty_GA_CREATE_STRIPED()
-end subroutine empty_GA_CREATE_STRIPED
+dummy_empty_procedure(GA_CREATE_STRIPED)
 
 #endif

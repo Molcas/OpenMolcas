@@ -22,22 +22,22 @@
 
 subroutine RHSOD_NOSYM(IVEC)
 
-use definitions, only: iwp, u6
-#ifdef _DEBUGPRINT_
-use definitions, only: wp
-use caspt2_module, only: nASup, nISup, nSym
-#endif
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: VERBOSE
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use caspt2_global, only: iPrGlb
+#ifdef _DEBUGPRINT_
+use caspt2_module, only: nASup, nISup, nSym
+use Definitions, only: wp
+#endif
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) iCase, iSym, NAS, NIS, lg_W
-real(kind=wp) DNRM2
+integer(kind=iwp) :: iCase, iSym, lg_W, NAS, NIS
+real(kind=wp) :: DNRM2
 real(kind=wp), external :: RHS_DDot
 #endif
 

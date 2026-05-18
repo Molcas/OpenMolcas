@@ -14,24 +14,23 @@
 
 subroutine Print_CI_Mix(EigVec)
 
-use RefWfn, only: refwfn_active, refwfn_is_h5, refwfn_id, refwfn_filename, refwfn_close, iadr15
+use RefWfn, only: iadr15, refwfn_active, refwfn_close, refwfn_filename, refwfn_id, refwfn_is_h5
+use caspt2_module, only: CIThr, nConf, nState, STSym
 #ifdef _HDF5_
-use mh5, only: mh5_open_file_r, mh5_fetch_dset
+use mh5, only: mh5_fetch_dset, mh5_open_file_r
 use caspt2_module, only: mState
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: nState, nConf, STSym
-use caspt2_module, only: CIThr
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: EigVec(nState,nState)
-integer(kind=iwp) :: iState, iiState, iDisk
-real(kind=wp), allocatable, dimension(:) :: cCI, mCI
-logical(kind=iwp) :: Close_refwfn
+integer(kind=iwp) :: iDisk, iiState, iState
 #ifdef _HDF5_
 integer(kind=iwp) :: jSNum
 #endif
+logical(kind=iwp) :: Close_refwfn
+real(kind=wp), allocatable, dimension(:) :: cCI, mCI
 
 call mma_allocate(mCI,nConf,Label='MixCICoeff')
 call mma_allocate(cCI,nConf,Label='CICoeff')

@@ -11,58 +11,51 @@
 ! Copyright (C) 2007, Bjorn O. Roos                                    *
 !***********************************************************************
 
-subroutine AFREEZ(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,NAME,nName,NAMFRO,LNFRO,DPQ,nDPQ,THRFR,THRDE,IFQCAN,CMO,NCMO)
-!****************************************************************************
-!                                                                           *
-! Purpose: to select orbitals, which will be frozen in the CASPT2           *
-! calculations based on a selection of atoms controlled by the input        *
-! keyword AFREeze.                                                          *
-! Each inactive orbital is checked for the fraction of electrons located    *
-! on the selected atoms. If smaller than a given threshold, the orbital     *
-! will be frozen.                                                           *
-! Called by READIN_CASPT2                                                   *
-! Author: B. O. Roos in July 2007 for MOLCAS-7                              *
-!     Calling parameters:                                                   *
-!     NSYM   : Number of symmetries                                         *
-!     NFRO   : Number of frozen orbitals (modified by the program)          *
-!     NISH   : Number of inactive orbitals                                  *
-!     Name   : Center and function type label per basis function            *
-!     Namfro : names of atoms to be selected (length lnfro)                 *
-!     Labfro : labels for orbitals to be frozen                             *
-!     CMO    : Orbital coefficients                                         *
-!     DPQ    : The charge matrix for a given orbital                        *
-!     THRFR : Threshold for freezing orbitals                               *
-!     THRDE : Threshold for deleting orbitals                               *
-!                                                                           *
-!****************************************************************************
+subroutine AFREEZ(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,bNAME,nName,NAMFRO,LNFRO,DPQ,nDPQ,THRFR,THRDE,IFQCAN,CMO,NCMO)
+!***********************************************************************
+!                                                                      *
+! Purpose: to select orbitals, which will be frozen in the CASPT2      *
+! calculations based on a selection of atoms controlled by the input   *
+! keyword AFREeze.                                                     *
+! Each inactive orbital is checked for the fraction of electrons       *
+! located on the selected atoms. If smaller than a given threshold,    *
+! the orbital will be frozen.                                          *
+! Called by READIN_CASPT2                                              *
+! Author: B. O. Roos in July 2007 for MOLCAS-7                         *
+!     Calling parameters:                                              *
+!     NSYM   : Number of symmetries                                    *
+!     NFRO   : Number of frozen orbitals (modified by the program)     *
+!     NISH   : Number of inactive orbitals                             *
+!     bName  : Center and function type label per basis function       *
+!     Namfro : names of atoms to be selected (length lnfro)            *
+!     Labfro : labels for orbitals to be frozen                        *
+!     CMO    : Orbital coefficients                                    *
+!     DPQ    : The charge matrix for a given orbital                   *
+!     THRFR  : Threshold for freezing orbitals                         *
+!     THRDE  : Threshold for deleting orbitals                         *
+!                                                                      *
+!***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use definitions, only: iwp, wp, u6
 use Molcas, only: LenIn, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NSYM
-integer(kind=iwp), intent(in) :: NBAS(NSYM), NASH(NSYM)
-integer(kind=iwp), intent(inout) :: NFRO(NSYM), NISH(NSYM), NSSH(NSYM), NDEL(NSYM)
-integer(kind=iwp), intent(in) :: nName
-character(len=LenIn+8), intent(in) :: NAME(nName)
-integer(kind=iwp), intent(in) :: LnFro
+integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), NASH(NSYM), nName, LnFro, nDPQ, NCMO
+integer(kind=iwp), intent(inout) :: NFRO(NSYM), NISH(NSYM), NSSH(NSYM), NDEL(NSYM), IFQCAN
+character(len=LenIn+8), intent(in) :: bNAME(nName)
 character(len=4), intent(in) :: NAMFRO(LnFro)
-integer(kind=iwp), intent(in) :: nDPQ
 real(kind=wp), intent(out) :: DPQ(nDPQ)
 real(kind=wp), intent(in) :: THRFR, THRDE
-integer(kind=iwp), intent(inout) :: IFQCAN
-integer(kind=iwp), intent(in) :: NCMO
 real(kind=wp), intent(inout) :: CMO(nCMO)
-integer(kind=iwp) :: LABFRO(mxbas)
-real(kind=wp), allocatable :: SMAT(:)
+integer(kind=iwp) :: I, ib, iComp, imo, imo0, iname, iopt, ipp, ipq, ipq0, ipq1, iqq, irc, ist1, ist2, isym, isymlbl, &
+                     LABFRO(MxBas), nb2, NBAST, nbi, ndi, nfi, nfro1, ni, nin, np, nq, nsi, NSMAT, ntri
+real(kind=wp) :: chksum, selch, Swap
 character(len=8) :: Label
+real(kind=wp), allocatable :: SMAT(:)
 real(kind=wp), parameter :: Thrs = 1.0e-6_wp
-real(kind=wp) chksum, selch, Swap
-integer(kind=iwp) :: I, ib, iComp, imo, imo0, iname, iopt, ipp, ipq, ipq0, iqq, irc, ist1, ist2, isym, isymlbl, nb2, NBAST, nbi, &
-                     ndi, nfi, nfro1, ni, np, nq, nsi, NSMAT, ntri, ipq1, nin
 
 !----------------------------------------------------------------------*
 !     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
@@ -198,7 +191,7 @@ do isym=1,nsym
       do np=1,nbi
         ipp = ipp+np
         do iname=1,lnfro
-          if (name(ib+np)(1:4) == namfro(iname)) selch = selch+DPQ(ipp)
+          if (bNAME(ib+np)(1:4) == namfro(iname)) selch = selch+DPQ(ipp)
         end do
       end do
       if (abs(selch) < thrfr) labfro(ni) = 1
@@ -300,7 +293,7 @@ do isym=1,nsym
       do np=1,nbi
         ipp = ipp+np
         do iname=1,lnfro
-          if (name(ib+np)(1:4) == namfro(iname)) selch = selch+DPQ(ipp)
+          if (bNAME(ib+np)(1:4) == namfro(iname)) selch = selch+DPQ(ipp)
         end do
       end do
       if (abs(selch) > thrde) labfro(ni) = 1

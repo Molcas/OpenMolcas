@@ -13,21 +13,20 @@
 
 subroutine CLagEig(if_SSDMloc,force_equal,nConf,nRoots,nState,nLev,CLag,RDMEIG)
 
-use caspt2_global, only: DREF, DWGT
-use caspt2_global, only: OMGDER, Weight
+use caspt2_global, only: DREF, DWGT, OMGDER, Weight
+use caspt2_module, only: IFDW, IFSADREF, ISCF, JSTATE, NASHT, ZETA
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: IFSADREF, IFDW, NASHT, ISCF, JSTATE, ZETA
 use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp), intent(in) :: if_SSDMloc, force_equal
 integer(kind=iwp), intent(in) :: nConf, nRoots, nState, nLev
 real(kind=wp), intent(inout) :: CLag(nConf,nRoots)
 real(kind=wp), intent(in) :: RDMEIG(nLev**2)
-real(kind=wp), allocatable :: CI1(:), WRK(:)
 integer(kind=iwp) :: iState
-real(kind=wp) :: WGT, Scal
+real(kind=wp) :: Scal, WGT
+real(kind=wp), allocatable :: CI1(:), WRK(:)
 real(kind=wp), external :: DDOT_
 
 ! MODE=0: Either state-averaged or DWGT matrix

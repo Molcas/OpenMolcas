@@ -20,19 +20,19 @@ use Para_Info, only: Is_Real_Par
 use caspt2_global, only: LUH0T
 #endif
 use caspt2_global, only: LUSBT
-use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
+use EQSOLV, only: IDBMAT, IDSMAT, IDSTMAT, IDTMAT
 use fake_ga, only: GA_arrays
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) iCASE, iSym, lg_M, nSize
-character(len=*) cNAME
+character(len=*), intent(in) :: cNAME
+integer(kind=iwp), intent(in) :: iCASE, iSym, lg_M, nSize
+integer(kind=iwp) :: IDISK, nBlock
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: IEND, iSTA, JEND, JSTA, LDM, LU, mpt_M, myRank
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) LU, myRank, iSTA, IEND, JSTA, JEND, mpt_M, LDM
 #endif
-integer(kind=iwp) IDISK, nBlock
 
 if (CNAME == 'S') then
 # ifdef _MOLCAS_MPP_

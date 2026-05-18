@@ -13,21 +13,21 @@
 
 subroutine GrdIni()
 
-use caspt2_global, only: LuPT2, LuGAMMA, LuCMOPT2, LuAPT2, do_nac, do_lindep, LUGRAD, LUSTD, iStpGrd, idBoriMat, TraFro, CLag, &
-                         CLagFull, OLag, OLagFull, SLag, WLag, nCLag, nOLag, nWLag, DPT2_tot, DPT2C_tot, DPT2_AO_tot, &
-                         DPT2C_AO_tot, DPT2Canti_tot, FIMO_all, FIFA_all, FIFASA_all, idSDMat, OMGDER, iTasks_grad
+use caspt2_global, only: CLag, CLagFull, do_lindep, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, &
+                         FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, iStpGrd, iTasks_grad, LuAPT2, LuCMOPT2, LuGAMMA, &
+                         LUGRAD, LuPT2, LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, OMGDER, SLag, TraFro, WLag
+use caspt2_module, only: IfChol, IFDW, IFRMS, IFXMS, MAXIT, NASH, NASHT, NASUP, NBAS, NBSQT, NBTRI, NCONF, NFROT, NISH, NSTATE, &
+                         NSYM, ZETA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use definitions, only: wp, iwp
-use caspt2_module, only: IfChol, IFXMS, IFRMS, IFDW, MAXIT, NSYM, NCONF, NFROT, NISH, NASH, NASHT, NBAS, NBTRI, NBSQT, NSTATE, &
-                         ZETA, NASUP
+use Definitions, only: wp, iwp
 
 implicit none
-character(len=128) :: FileName
+integer(kind=iwp) :: iCase, idSD, idSD_, idSDer, iost, iSym, LENGTH, lRealName, MaxLen, nAS, NS
+logical(kind=iwp) :: Exists, is_error
 character(len=4096) :: RealName
+character(len=128) :: FileName
 real(kind=wp), allocatable :: WRK(:)
-logical(kind=iwp) :: is_error, Exists
-integer(kind=iwp) :: LENGTH, iost, iCase, iSym, idSD, idSD_, idSDer, nAS, NS, MaxLen, lRealName
 integer(kind=iwp), external :: isFreeUnit
 
 iStpGrd = 1

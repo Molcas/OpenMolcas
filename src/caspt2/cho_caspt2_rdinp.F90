@@ -19,18 +19,17 @@ subroutine CHO_CASPT2_RDINP(DFonly,LuSpool)
 !***********************************************************************
 
 use Fock_util_global, only: ALGO, Deco, DensityCheck, REORD
-use definitions, only: iwp, u6
 use Cholesky, only: timings
-use ChoCASPT2, only: iAlGO
+use ChoCASPT2, only: iALGO
+use Definitions, only: iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DFonly
 integer(kind=iwp), intent(in) :: LuSpool
-character(Len=180) KWord, Key
-character(Len=180), external :: Get_Ln
-character(len=16), parameter :: SECNAM = 'CHO_CASPT2_RDINP'
-integer(kind=iwp) iChrct, Last
+integer(kind=iwp) :: iChrct, Last
+character(len=180) :: KWord, Key
 integer(kind=iwp), external :: iCLast
+character(len=180), external :: Get_Ln
 
 !                                                                      *
 !***********************************************************************
@@ -73,7 +72,7 @@ integer(kind=iwp), external :: iCLast
 ! Default  parameters
 
 if (DFonly) then
-  iAlGO = 1
+  iALGO = 1
   ALGO = 2
   REORD = .false.
   DECO = .true.
@@ -83,7 +82,7 @@ if (DFonly) then
 end if
 
 ! set some parameters if not specified in ChoInput section
-iAlGO = 1
+iALGO = 1
 ALGO = 2
 REORD = .false.
 DECO = .true.
@@ -146,7 +145,7 @@ do
       iChrct = len(KWord)
       Last = iCLast(KWord,iChrct)
       write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-      write(u6,*) SECNAM,' Error in keyword.'
+      write(u6,*) 'CHO_CASPT2_RDINP Error in keyword.'
       call ABEND()
   end select
 end do

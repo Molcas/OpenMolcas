@@ -13,14 +13,14 @@
 
 subroutine OLagFro0(NOSQT,NBSQT,DPT2_ori,DPT2)
 
-use caspt2_module, only: NSYM, NFRO, NORB, NDEL, NBAS
-use definitions, only: wp, iwp
+use caspt2_module, only: NBAS, NDEL, NFRO, NORB, NSYM
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NOSQT, NBSQT
 real(kind=wp), intent(in) :: DPT2_ori(NOSQT)
 real(kind=wp), intent(inout) :: DPT2(NBSQT)
-integer(kind=iwp) :: iMO1, iMO2, iSym, nOrbI1, nOrbI2, nFroI, iOrb, iOrb1, iOrb2, jOrb, jOrb1, jOrb2
+integer(kind=iwp) :: iMO1, iMO2, iOrb, iOrb1, iOrb2, iSym, jOrb, jOrb1, jOrb2, nFroI, nOrbI1, nOrbI2
 
 iMO1 = 1
 iMO2 = 1

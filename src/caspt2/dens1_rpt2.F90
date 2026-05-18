@@ -20,8 +20,12 @@
 subroutine DENS1_RPT2(CI,nCI,SGM1,nSGM1,G1,nLev)
 
 use Symmetry_Info, only: Mul
+use fciqmc_interface, only: DoFCIQMC, load_fciqmc_g1
+use PrintLevel, only: DEBUG
+use sguga, only: CIS, L2ACT, SGS
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use caspt2_global, only: iPrGlb
-use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
+use caspt2_module, only: iSCF, jState, mState, nActEl, nAshT, nG1, STSym
 #ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_get_1rdm_full
 use caspt2_module, only: DMRG
@@ -29,31 +33,21 @@ use caspt2_module, only: DMRG
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use caspt2_module, only: DoCumulant
 #endif
-use PrintLevel, only: DEBUG
-use sguga, only: SGS, L2ACT, CIS
 use stdalloc, only: mma_allocate, mma_deallocate
-use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
-use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,mState
-use caspt2_module, only: nG1
-use constants, only: Zero, One, Two
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nCI, nSGM1, nLev
 real(kind=wp), intent(in) :: CI(nCI)
-real(kind=wp), intent(out) :: SGM1(nSGM1)
-real(kind=wp), intent(out) :: G1(NLEV,NLEV)
+real(kind=wp), intent(out) :: SGM1(nSGM1), G1(NLEV,NLEV)
+integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTASKS
+real(kind=wp) :: GTU
 #ifdef _ENABLE_CHEMPS2_DMRG_
-real(kind=wp) G2(NLEV,NLEV,NLEV,NLEV)
+real(kind=wp) :: G2(NLEV,NLEV,NLEV,NLEV)
 #endif
-real(kind=wp) GTU
-integer(kind=iwp) ID
-integer(kind=iwp) IST, ISU, ISTU
-integer(kind=iwp) IT, IU, LT, LU
-integer(kind=iwp) ITASK, NTASKS
-integer(kind=iwp) ISSG, NSGM
-real(kind=wp), external :: DDOT_, DNRM2_
 integer(kind=iwp), allocatable :: TASK(:,:)
+real(kind=wp), external :: DDOT_, DNRM2_
 
 ! Purpose: Compute the 1-electron density matrix array G1.
 
@@ -157,7 +151,8 @@ call End_Stuff()
 contains
 
 subroutine End_Stuff()
-#ifdef _ENABLE_CHEMPS2_DMRG_
+
+# ifdef _ENABLE_CHEMPS2_DMRG_
   if (DoCumulant) then
     if (NACTEL > 1) then
       !QP: At this point, only load 2RDM of one state, JSTATE=1
@@ -167,7 +162,7 @@ subroutine End_Stuff()
       write(u6,*) 'FATAL ERROR: DMRG-CASPT2 with CHEMPS2 does not work with NACTEL=1'
     end if
   end if
-#endif
+# endif
 
   ! DEBUG print while developing DMRG-CASPT2
   !do i=1,nLev
@@ -179,6 +174,7 @@ subroutine End_Stuff()
     write(u6,'("DEBUG> ",A)') 'DENS1_RPT2: norms of the 1-el density matrix:'
     write(u6,'("DEBUG> ",A,1X,ES21.14)') 'G1:',DNRM2_(NG1,G1,1)
   end if
+
 end subroutine End_Stuff
 
 end subroutine DENS1_RPT2

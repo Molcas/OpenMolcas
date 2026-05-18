@@ -19,24 +19,22 @@
 
 subroutine MKBB(DREF,NDREF,PREF,NPREF,FD,FP)
 
-use definitions, only: iwp, wp
-use constants, only: Half, Two, Four, Eight
-use SUPERINDEX, only: MTU, MTGEU, KTU, KTGTU
-use caspt2_global, only: ipea_shift
-use caspt2_global, only: LUSBT
-use EQSOLV, only: IDSMAT, IDBMAT
+use SUPERINDEX, only: KTGTU, KTU, MTGEU, MTU
+use EQSOLV, only: IDBMAT, IDSMAT
+use caspt2_global, only: ipea_shift, LUSBT
+use caspt2_module, only: EASUM, EPSA, NASHT, NINDEP, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES, NTU, NTUES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NTU, NTUES, NASHT, EASUM, EPSA, NTGEU, NTGEUES, NTGTU, NTGTUES
+use Constants, only: Two, Four, Eight, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
-real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
-real(kind=wp), intent(in) :: FD(NDREF), FP(NPREF)
+real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), FD(NDREF), FP(NPREF)
+integer(kind=iwp) :: I, IBADR, IBMADR, IBPADR, ID, ID1, ID2, IDIAG, IDISK, IDSM, IDSP, IDT, IDU, INSM, IP, IP1, IP2, ISYM, ITABS, &
+                     ITGEU, ITGEUABS, ITGTU, ITU, ITUABS, IUABS, IXABS, IXGEY, IXGEYABS, IXGTY, IXT, IXY, IXYABS, IYABS, IYU, IYX, &
+                     NAS, NASM, NASP, NBB, NBBM, NBBP, NINP, NSM, NSP
+real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BTUXY, BTUYX, ET, EU, EX, EY, Val
 real(kind=wp), allocatable :: BB(:), BBP(:), SP(:), SDP(:), BBM(:), SM(:), SDM(:)
-integer(kind=iwp) ISYM, NINP, NAS, NBB, ITU, ITUABS, ITABS, IUABS, IXY, IXYABS, IXABS, IYABS, IBADR, IXT, IYU, IP1, IP2, IP, I, &
-                  IBMADR, IBPADR, ID, ID1, ID2, IDIAG, IDISK, IDSM, IDSP, IDT, IDU, INSM, ITGEU, ITGEUABS, ITGTU, IXGEY, IXGEYABS, &
-                  IXGTY, IYX, NASM, NASP, NBBM, NBBP, NSM, NSP
-real(kind=wp) ET, EU, EX, EY, ATUXY, ATUX, ATYU, ATUY, ATYX, BTUYX, BTUXY, value
 
 ! Set up the matrices BBP(tu,xy) and BBM(tu,xy)
 ! Formulae used:
@@ -77,16 +75,16 @@ do ISYM=1,NSYM
       IP2 = min(IXT,IYU)
       IP = (IP1*(IP1-1))/2+IP2
       ATUXY = EASUM-ET-EU-EX-EY
-      value = Four*(FP(IP)-ATUXY*PREF(IP))
+      Val = Four*(FP(IP)-ATUXY*PREF(IP))
       ! Add  + 4*dxt ( (A-Et-Ey-Eu)*Dyu - Fyu)
       if (IXABS == ITABS) then
         ID1 = max(IYABS,IUABS)
         ID2 = min(IYABS,IUABS)
         ID = (ID1*(ID1-1))/2+ID2
         ATYU = EASUM-ET-EY-EU
-        value = value+Four*(ATYU*DREF(ID)-FD(ID))
+        Val = Val+Four*(ATYU*DREF(ID)-FD(ID))
         ! Add  + 8*dxt*dyu (Et+Ey)
-        if (IYABS == IUABS) value = value+Eight*(ET+EY)
+        if (IYABS == IUABS) Val = Val+Eight*(ET+EY)
       end if
       ! Add  + 4*dyu ( (A-Et-Ey-Ex)*Dxt - Fxt)
       if (IYABS == IUABS) then
@@ -94,7 +92,7 @@ do ISYM=1,NSYM
         ID2 = min(IXABS,ITABS)
         ID = (ID1*(ID1-1))/2+ID2
         ATYX = EASUM-ET-EY-EX
-        value = value+Four*(ATYX*DREF(ID)-FD(ID))
+        Val = Val+Four*(ATYX*DREF(ID)-FD(ID))
       end if
       ! Add  - 2*dyt ( (A-Et-Eu-Ex)*Dxu - Fxu)
       if (IYABS == ITABS) then
@@ -102,9 +100,9 @@ do ISYM=1,NSYM
         ID2 = min(IXABS,IUABS)
         ID = (ID1*(ID1-1))/2+ID2
         ATUX = EASUM-ET-EU-EX
-        value = value-Two*(ATUX*DREF(ID)-FD(ID))
+        Val = Val-Two*(ATUX*DREF(ID)-FD(ID))
         ! Add  - 4*dxu*dyt (Et+Ex)
-        if (IXABS == IUABS) value = value-Four*(ET+EX)
+        if (IXABS == IUABS) Val = Val-Four*(ET+EX)
       end if
       ! Add  - 2*dxu ( (A-Et-Eu-Ey)*Dyt - Fyt)
       if (IXABS == IUABS) then
@@ -112,9 +110,9 @@ do ISYM=1,NSYM
         ID2 = min(IYABS,ITABS)
         ID = (ID1*(ID1-1))/2+ID2
         ATUY = EASUM-ET-EU-EY
-        value = value-Two*(ATUY*DREF(ID)-FD(ID))
+        Val = Val-Two*(ATUY*DREF(ID)-FD(ID))
       end if
-      BB(IBADR) = value
+      BB(IBADR) = Val
     end do
   end do
   NASP = NTGEU(ISYM)

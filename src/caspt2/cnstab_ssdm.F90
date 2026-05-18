@@ -20,16 +20,16 @@
 subroutine CnstAB_SSDM(NBSQT,DPT2AO,SSDM)
 
 use ChoVec_io, only: NVLOC_CHOBATCH
-use Cholesky, only: InfVec, nDimRS
-use caspt2_global, only: LuGAMMA, LuAPT2
-use ChoCASPT2, only: NumCho_PT2, MaxVec_PT2, NCHSPC, MXNVC
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
-use caspt2_module, only: NSYM, NBAS, NBAST, NBTCHES
-use Constants, only: Zero, One, Two
+use Cholesky, only: InfVec, nDimRS, nnBstR
+use ChoCASPT2, only: MaxVec_PT2, MXNVC, NCHSPC, NumCho_PT2
+use caspt2_global, only: LuAPT2, LuGAMMA
+use caspt2_module, only: NBAS, NBAST, NBTCHES, NSYM
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: Is_Real_Par, nProcs, myRank
+use Para_Info, only: Is_Real_Par, myRank, nProcs
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "warnings.h"
@@ -39,23 +39,20 @@ implicit none
 #endif
 integer(kind=iwp), intent(in) :: NBSQT
 real(kind=wp), intent(in) :: DPT2AO(NBSQT), SSDM(NBSQT)
-integer(kind=iwp) :: iSkip(8), ipWRK(8), nnbstr(8,3)
-character(len=4096) :: RealName
+integer(kind=iwp) :: IBATCH, IBATCH_TOT, id, ILOC, iost, ipV1, ipV2, ipVecL, ipWRK(8), IRC, iSkip(8), iSym, iVec, JBATCH, &
+                     JBATCH_TOT, JNUM, JRED, JRED1, JRED2, JREDC, JREDL, JSTART, jSym, JV1, JV2, KNUM, KV1, KV2, lRealName, lscr, &
+                     MUSED, nBasI, NBATCH, NumChoTot, NUMV, NUMVI, NUMVJ, NVECS_RED
 logical(kind=iwp) :: is_error
-real(kind=wp), allocatable :: A_PT2(:), CHSPC(:), HTVec(:), WRK(:), V1(:), V2(:), B_SSDM(:)
-integer(kind=iwp) :: maxvec, n2, iSym, NumChoTot, jSym, nBasI, id, lRealName, iost, JRED1, JRED2, ipV1, ipV2, IBATCH_TOT, JRED, &
-                     JSTART, NVECS_RED, ILOC, IRC, NBATCH, JV1, IBATCH, JNUM, JV2, JREDC, NUMV, ipVecL, iVec, lscr, JREDL, MUSED, &
-                     NUMVI, KV1, JBATCH_TOT, JBATCH, KNUM, KV2, NUMVJ
-real(kind=wp), external :: ddot_
+character(len=4096) :: RealName
+real(kind=wp), allocatable :: A_PT2(:), B_SSDM(:), CHSPC(:), HTVec(:), V1(:), V2(:), WRK(:)
 integer(kind=iwp), external :: isFreeUnit
+real(kind=wp), external :: ddot_
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: i, IHIV1, ILOV1, iRank, JHIV1, JLOV1, JVG, lg_V1, MV1, NDIM1
 logical(kind=iwp) :: bStat
 integer(kind=iwp), allocatable :: map2(:)
-integer(kind=iwp) :: i, lg_V1, ILOV1, IHIV1, JLOV1, JHIV1, MV1, NDIM1, JVG, iRank
 #endif
 
-! INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
-call getritrfinfo(nnbstr,maxvec,n2)
 iSym = 1 !! iSym0
 
 NumChoTot = 0

@@ -13,27 +13,26 @@ subroutine TRAONE(CMO,NCMO,HONE,nHONE)
 ! Objective: Transformation of one-electron integrals
 ! (effective one electron Hamiltonian) for CASPT2.
 
-use constants, only: Zero, Half, One, Two
 use OneDat, only: sNoNuc, sNoOri
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: VERBOSE
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: ERFSELF, nBas, nBMX, nBSqT, nBTri, nDel, nFro, nFroT, nOrb, nOTri, nSym, PotNuc, RFPert
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: ERFSELF, nBMX, nBSqT, nBTri, nFroT, nOTri, nSym, PotNuc, RFPert, nBas, nFro, nDel, nOrb
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "warnings.h"
 integer(kind=iwp), intent(in) :: NCMO, nHONE
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(inout) :: HONE(nHONE)
-integer(kind=iwp) nBasXX(8), Keep(8)
-logical(kind=iwp) iSquar, Found
+integer(kind=iwp) :: I, iAO, IB, ICMO, ICOMP, IERR, IFTEST, IJ, IMO, IOFF, IOPT, IRC, ISTLT, ISTMO, ISTSQ, ISYLBL, ISYM, JB, &
+                     Keep(8), NB, nBasXX(8), NF, NSYMXX, nTemp, NWTMP
+real(kind=wp) :: ECORE, EONE, ETWO, ExFac
+logical(kind=iwp) :: Found, iSquar
 character(len=8) :: Label
-real(kind=wp), allocatable :: WFLT(:), Temp(:), WDLT(:), WDSQ(:), WFMO(:), WTMP(:)
-real(kind=wp) ECORE, EONE, ETWO, ExFac
-integer(kind=iwp) I, iAO, IB, ICMO, ICOMP, IERR, IFTEST, IJ, IMO, IOFF, IOPT, IRC, ISTLT, ISTMO, ISTSQ, ISYLBL, ISYM, JB, NB, NF, &
-                  NSYMXX, nTemp, NWTMP
+real(kind=wp), allocatable :: Temp(:), WDLT(:), WDSQ(:), WFLT(:), WFMO(:), WTMP(:)
 real(kind=wp), external :: DDot_
+#include "warnings.h"
 
 #ifdef _DEBUGPRINT_
 IFTEST = 1

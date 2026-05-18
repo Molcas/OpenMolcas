@@ -20,15 +20,14 @@ subroutine PTRTOC(ITYPE,IVEC,JVEC)
 ! Transform RHS vectors from SR format to C format.
 ! ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
+use caspt2_module, only: CPUVEC, NASUP, nCases, nInDep, NISUP, nSym, TIOVEC
 use Constants, only: Zero
-use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPUVEC, TIOVEC, NASUP
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iType, iVec, jVec
-real(kind=wp) CPU, CPU0, CPU1
-real(kind=wp) TIO, TIO0, TIO1
-integer(kind=iwp) iCase, iSym, lg_v1, lg_v2, NAS, NIN, NIS
+real(kind=wp) :: CPU, CPU0, CPU1, TIO, TIO0, TIO1
+integer(kind=iwp) :: iCase, iSym, lg_v1, lg_v2, NAS, NIN, NIS
 
 call TIMING(CPU0,CPU,TIO0,TIO)
 

@@ -17,21 +17,15 @@ subroutine wfnsizes()
 !***********************************************************************
 
 use Molcas, only: MxAct, MxIna, MxOrb
-use caspt2_global, only: NTAT, NTORB, NPREF, NDREF
-use caspt2_module, only: iSCF, iSpin, MxExt, nActEl, nAmx, nAshT, nBasT, nBMx, nBSqT, nBTri, nIMx, nInaBx, nIshT, nOMx, nOrbT, &
-                         nOSqT, nOTri, nRas1T, nRas2T, nRas3T, nSecBx, nSMx, nSshT, nSym, nIes, nAes, nSes, nOsh, nFroT, nAsh, &
-                         nSsh, nDel, nOrb, nIsh, nFro, nRas1, nRas2, nRas3, nBas, OrbNam, IINAIS, iExtIS, iiSym, iaSym, ISNAM
+use caspt2_global, only: NDREF, NPREF, NTAT, NTORB
+use caspt2_module, only: iaSym, iExtIS, IINAIS, iiSym, iSCF, ISNAM, iSpin, MxExt, nActEl, nAes, nAmx, nAsh, nAshT, nBas, nBasT, &
+                         nBMx, nBSqT, nBTri, nDel, nFro, nFroT, nIes, nIMx, nInaBx, nIsh, nIshT, nOMx, nOrb, nOrbT, nOsh, nOSqT, &
+                         nOTri, nRas1, nRas1T, nRas2, nRas2T, nRas3, nRas3T, nSecBx, nSes, nSMx, nSsh, nSshT, nSym, OrbNam
 use caspt2_module, only: nG1, nG2, nG3Tot
-use definitions, only: iwp, u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) NASHT2
-integer(kind=iwp) NI, NR1, NR2, NR3, NS, N123
-integer(kind=iwp) I, iSym
-! Table sizes
-integer(kind=iwp) IIABS, ITABS
-integer(kind=iwp) IS, IO
-integer(kind=iwp) ITOT, IINA, IEXT
+integer(kind=iwp) :: I, IEXT, IIABS, IINA, IO, IS, iSym, ITABS, ITOT, N123, NASHT2, NI, NR1, NR2, NR3, NS
 
 NFROT = 0
 NISHT = 0

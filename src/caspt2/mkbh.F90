@@ -22,15 +22,15 @@ subroutine MKBH()
 ! matrices. This costs nothing, and saves conditional
 ! looping, etc in the rest of the routines.
 
-use constants, only: Zero
 use EQSOLV, only: IDBMAT
 use caspt2_global, only: LUSBT
-use caspt2_module, only: NSYM, NINDEP
-use definitions, only: iwp, wp
+use caspt2_module, only: NINDEP, NSYM
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) DUM(1)
-integer(kind=iwp) ISYM, ICASE, NIN, IDISK
+integer(kind=iwp) :: ICASE, IDISK, ISYM, NIN
+real(kind=wp) :: DUM(1)
 
 DUM(1) = Zero
 do ISYM=1,NSYM

@@ -17,20 +17,22 @@
 ! SWEDEN                                     *
 !--------------------------------------------*
 
+#include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
+
 subroutine V_SCALE(EIG,SCA,V,nRows,NAS,LDV,NIN,COND)
 
 use caspt2_module, only: ThrShS
-use constants, only: Zero, One
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nRows, NAS, LDV, NIN
 real(kind=wp), intent(in) :: EIG(NAS), SCA(NAS)
 real(kind=wp), intent(inout) :: V(LDV,*)
 real(kind=wp), intent(out) :: COND(NIN)
-integer(kind=iwp) jVEC, J, I, iVec
-real(kind=wp) EVAL, FACT, SZ
+integer(kind=iwp) :: I, iVec, J, jVEC
+real(kind=wp) :: EVAL, FACT, SZ
 
 jVEC = 0
 do J=1,NAS
@@ -65,10 +67,10 @@ if (NIN >= 2) then
 end if
 end subroutine V_SCALE
 
-#elif defined (NAGFOR)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-subroutine empty_vscale()
-end subroutine empty_vscale
+#include "macros.fh"
+dummy_empty_procedure(V_SCALE)
 
 #endif

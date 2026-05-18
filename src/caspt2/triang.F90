@@ -20,14 +20,14 @@
 subroutine triang(nrow,a)
 ! Convert a square matrix to triangular in-place.
 
-use constants, only: Half
-use definitions, only: iwp, wp
+use Constants, only: Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nrow
 real(kind=wp), intent(inout) :: a(nrow**2)
-integer(kind=iwp) i, j, ij, ji
-real(kind=wp) symm
+integer(kind=iwp) :: i, ij, j, ji
+real(kind=wp) :: symm
 
 do i=2,nrow
   do j=1,i-1

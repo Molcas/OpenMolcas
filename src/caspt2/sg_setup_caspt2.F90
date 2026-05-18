@@ -15,15 +15,14 @@ subroutine SG_SETUP_CASPT2()
 
 use Molcas, only: MxLev
 use fciqmc_interface, only: DoFCIQMC
-use stdalloc, only: mma_allocate
 use RefWfn, only: L2Act, Level
-use sguga, only: SGS, CIS, EXS, SG_Init, SG_Init_Simple
-use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, nActEl, nEle3, nHole1, nRas1, nRas2, nRas3, nSym, STSym
-use caspt2_module, only: nAsh, MxCI
-use definitions, only: iwp
+use sguga, only: CIS, EXS, SG_Init, SG_Init_Simple, SGS
+use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, MxCI, nActEl, nAsh, nEle3, nHole1, nRas1, nRas2, nRas3, nSym, STSym
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) I, IT, nLEV, ILEV, ISYM, ISM(MxLev)
+integer(kind=iwp) :: I, ILEV, ISM(MxLev), ISYM, IT, nLEV
 
 nLEV = 0
 do ISYM=1,NSYM

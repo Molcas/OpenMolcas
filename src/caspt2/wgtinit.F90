@@ -13,19 +13,17 @@
 
 subroutine wgtinit(H,nState)
 
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
-use caspt2_global, only: DWGT
+use caspt2_global, only: DWGT, iPrGlb
 use caspt2_module, only: DWType, IfDW, IfXMS, Zeta
-use constants, only: Zero, One
-use definitions, only: wp, iwp, u6
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nState
 real(kind=wp), intent(in) :: H(nState,nState)
-real(kind=wp) :: Ealpha, Ebeta, Egamma, Dab, Dag, xi_ag, xi_ab, Wtot
-real(kind=wp) :: Hab, Hag
 integer(kind=iwp) :: I, J, K
+real(kind=wp) :: Dab, Dag, Ealpha, Ebeta, Egamma, Hab, Hag, Wtot, xi_ab, xi_ag
 
 if (IPRGLB >= DEBUG) write(u6,*) ' Entered wgtinit.'
 

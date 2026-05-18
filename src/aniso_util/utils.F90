@@ -71,7 +71,7 @@ character(len=*), intent(in) :: a
 integer(kind=iwp), intent(in) :: n
 complex(kind=wp), intent(in) :: M(n,n)
 integer(kind=iwp) :: i, j
-character(len=50) fmtline
+character(len=50) :: fmtline
 
 write(u6,*)
 write(u6,'(2a)') 'print: ',a
@@ -93,7 +93,7 @@ character(len=*), intent(in) :: a
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(in) :: M(n,n)
 integer(kind=iwp) :: i, j
-character(len=50) fmtline
+character(len=50) :: fmtline
 
 write(u6,*)
 write(u6,'(2a)') 'print: ',a

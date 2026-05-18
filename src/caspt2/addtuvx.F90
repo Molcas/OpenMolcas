@@ -11,26 +11,26 @@
 
 subroutine ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,TUVX,nTUVX,PIQK,nPIQK,NUMERR)
 
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use definitions, only: u6
+use Definitions, only: u6
 #else
 use Constants, only: One
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NP, NI, NQ, NK, NASHT, iOffP, iOffI, iOffQ, iOffK
-integer(kind=iwp), intent(in) :: nTUVX, nPIQK
-real(kind=wp), intent(in) :: PIQK(nPIQK)
+integer(kind=iwp), intent(in) :: NP, NI, NQ, NK, NASHT, iOffP, iOffI, iOffQ, iOffK, nTUVX, nPIQK
 real(kind=wp), intent(inout) :: TUVX(nTUVX)
+real(kind=wp), intent(in) :: PIQK(nPIQK)
 integer(kind=iwp), intent(inout) :: NUMERR
-integer(kind=iwp) iU, iUVX1, iUVX2, iV, iVX1, iVX2, iX, iX1, iX2
-#ifndef _DEBUGPRINT_
+<<<<<<< HEAD
+integer(kind=iwp) :: iU, iUVX1, iUVX2, iV, iVX1, iVX2, iX, iX1, iX2
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iPIQK, iT, iTUVX
 #include "warnings.h"
+#else
 #include "macros.fh"
 unused_var(NUMERR)
-#else
-integer(kind=iwp) iPIQK, iT, iTUVX
 #endif
 
 ! Add into correct positions in TUVX:

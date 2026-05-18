@@ -26,22 +26,22 @@
 subroutine RHS_READ(NIN,NIS,lg_W,iCASE,iSYM,iVEC)
 !SVC: this routine reads an RHS array in SR format from disk
 
-use definitions, only: iwp
+use fake_GA, only: GA_Arrays
+use caspt2_global, only: LURHS
+use caspt2_module, only: IOFFRHS
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use definitions, only: u6
+use Definitions, only: u6
 #endif
-use caspt2_global, only: LURHS
-use fake_GA, only: GA_Arrays
-use caspt2_module, only: IOFFRHS
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NIN, NIS, lg_W, iCASE, iSYM, iVEC
-integer(kind=iwp) IDISK, NWPROC
+integer(kind=iwp) :: IDISK, NWPROC
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) myRank, ISTA, IEND, JSTA, JEND, mpt_W, LDW
+integer(kind=iwp) :: IEND, ISTA, JEND, JSTA, LDW, mpt_W, myRank
 
 if (Is_Real_Par()) then
   call GA_Sync()

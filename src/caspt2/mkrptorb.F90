@@ -26,45 +26,36 @@ subroutine MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO,NCMO)
 ! The transformation matrices are returned in TORB.
 
 use fciqmc_interface, only: DoFCIQMC, NonDiagonal
-use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
-use stdalloc, only: mma_allocate, mma_deallocate
-#if defined(_DMRG_)
-use qcmaquis_interface, only: c_bool, c_int, qcmaquis_interface_rotate_rdms
-use caspt2_module, only: DMRG
-#endif
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_DMRG_)
-use caspt2_module, only: jState, nAshT
-use constants, only: zero
-#endif
-use caspt2_module, only: iSCF, nConf, nOMx, nState, nSym, STSym, nIsh, nRas1, nRas2, nRas3, nSsh, nOrb, nBas, nFro, EPS, EPSI, &
-                         EPSA, nDel, EPSE
+use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX
+use caspt2_module, only: EPS, EPSA, EPSE, EPSI, iSCF, nBas, nConf, nDel, nFro, nIsh, nOMx, nOrb, nRas1, nRas2, nRas3, nSsh, &
+                         nState, nSym, STSym
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
 use caspt2_module, only: DoCumulant
 #endif
-use definitions, only: iwp, wp, u6
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_DMRG_)
+use caspt2_module, only: jState, nAshT
+use Constants, only: Zero
+#endif
+#if defined(_DMRG_)
+use, intrinsic :: iso_c_binding, only: c_bool, c_int
+use qcmaquis_interface, only: qcmaquis_interface_rotate_rdms
+use caspt2_module, only: DMRG
+#endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NFIFA, NTORB, NCMO
 real(kind=wp), intent(in) :: FIFA(NFIFA)
 real(kind=wp), intent(out) :: TORB(NTORB)
 real(kind=wp), intent(inout) :: CMO(NCMO)
-! indices
-integer(kind=iwp) I, II, IST, ISYM
-integer(kind=iwp) ITOSTA, ITOEND
-integer(kind=iwp) ICMOSTA, ICMOEND
-integer(kind=iwp) IDR, IDW
-integer(kind=iwp) IEPS, IEPSI, IEPSA, IEPSE
-integer(kind=iwp) IOSTA, IOEND
-integer(kind=iwp) NFOCK, NFES
+integer(kind=iwp) :: I, ICMOEND, ICMOSTA, IDR, IDW, IEPS, IEPSA, IEPSE, IEPSI, II, IOEND, IOSTA, IST, ISYM, ITOEND, ITOSTA, NB, &
+                     NCMOSCT, NFES, NFOCK, NO, NSCT
+real(kind=wp), allocatable :: CI(:), CMO2(:), FOCK(:)
 #if defined(_ENABLE_BLOCK_DMRG_) || defined(_DMRG_)
-integer(kind=iwp) NXMAT
+integer(kind=iwp) :: NXMAT
 real(kind=wp), allocatable :: XMAT(:)
 #endif
-! #orbitals per symmetry
-integer(kind=iwp) NO, NB
-integer(kind=iwp) NSCT, NCMOSCT
-! work-arrays
-real(kind=wp), allocatable :: FOCK(:), CMO2(:), CI(:)
 
 ! Allocate space for temporary square Fock matrix in each symmetry:
 ! NBMX=Max number of basis functions in any symmetry, in common in caspt2_module

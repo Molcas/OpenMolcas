@@ -9,28 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Process_RHS_Block(ITI,ITP,ITK,ITQ,case,Cho_Bra,nBra,Cho_Ket,nKet,nSh,JSYM,IVEC,NV)
+subroutine Process_RHS_Block(ITI,ITP,ITK,ITQ,nCase,Cho_Bra,nBra,Cho_Ket,nKet,nSh,JSYM,IVEC,NV)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use caspt2_global, only: iPrGlb, PIQK, BUFF, idxb
 use PrintLevel, only: DEBUG
-use caspt2_module, only: NSYM
 use AddRHS, only: ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2, ADDRHSE, ADDRHSF, ADDRHSG, ADDRHSH
+use caspt2_global, only: BUFF, idxb, iPrGlb, PIQK
+use caspt2_module, only: NSYM
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ITI, ITP, ITK, ITQ
-character(len=2), intent(in) :: case
-integer(kind=iwp), intent(in) :: nBra, nKet
+integer(kind=iwp), intent(in) :: ITI, ITP, ITK, ITQ, nBra, nKet, nSh(8,3), JSYM, iVec, nV
+character(len=2), intent(in) :: nCase
 real(kind=wp), intent(in) :: Cho_Bra(nBra), Cho_Ket(nKet)
-integer(kind=iwp), intent(in) :: nSh(8,3), JSYM, iVec, nV
-integer(kind=iwp) ISYI, ISYK, ISYP, ISYQ, KPI, KQK, LBRASM, LKETSM, NBRASM, NI, NK, NKETSM, NP, NPI, NPIQK, NQ, NQK
-integer(kind=iwp) mxPIQK, nBuff
+integer(kind=iwp) :: ISYI, ISYK, ISYP, ISYQ, KPI, KQK, LBRASM, LKETSM, mxPIQK, NBRASM, nBuff, NI, NK, NKETSM, NP, NPI, NPIQK, NQ, &
+                     NQK
 
 mxPIQK = size(PIQK)
 nBuff = size(BUFF)
 
-if (iPrGlb >= DEBUG) write(u6,*) 'Processing RHS block '//case
+if (iPrGlb >= DEBUG) write(u6,*) 'Processing RHS block '//nCase
 
 LBRASM = 1
 do ISYI=1,NSYM
@@ -61,15 +59,15 @@ do ISYI=1,NSYM
     ! larger than some predefined maximum buffer size.
     NPIQK = NPI*NQK
     if (NPIQK > MXPIQK) then
-      if (case == 'H') then
+      if (nCase == 'H') then
         KPI = MXPIQK/NQK
         NPIQK = KPI*NQK
-      else if (case == 'G') then
+      else if (nCase == 'G') then
         KQK = MXPIQK/NPI
         NPIQK = NPI*KQK
       else
         write(u6,*) ' NPIQK > MXPIQK and case != G or H'
-        write(u6,'(A,A2)') ' CASE =   ',case
+        write(u6,'(A,A2)') ' CASE =   ',nCase
         write(u6,'(A,I12)') ' NPIQK =  ',NPIQK
         write(u6,'(A,I12)') ' MXPIQK = ',MXPIQK
         write(u6,*) ' This should not happen, please report.'
@@ -83,7 +81,7 @@ do ISYI=1,NSYM
       call AbEnd()
     end if
 
-    select case (case)
+    select case (nCase)
       case ('A ')
         call ADDRHSA(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
       case ('B ')

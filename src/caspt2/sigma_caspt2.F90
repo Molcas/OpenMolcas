@@ -23,28 +23,26 @@ subroutine SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
 ! where the vectors are represented in transformed basis and
 ! are  stored at positions IVEC and JVEC on the LUSOLV unit.
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, One
-use Fockof, only: FIT, FAI_Full, FIA_Full, FIT_Full, FTA_Full, IOFFIT, IOFFIA, IOFFTA, FTI, FIA, FTI_Full, FAI, FTA, FAT, FAT_Full
-use caspt2_global, only: FIFA, LISTS
-use stdalloc, only: mma_allocate, mma_deallocate
+use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
 use EQSOLV, only: IFCoup
 use Sigma_data, only: IFTEST, NFDXP, NFMV, NFR1, NFSCA
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
-use caspt2_module, only: CPUSGM, TIOSGM, FockType, G1SecIn, MaxIt, nActEl, nCases, nSym, ThrShn, ThrShS, nIsh, nAsh, nSsh, nOrb, &
-                         nInDep, nISup, nASup
+use caspt2_global, only: FIFA, LISTS
+use caspt2_module, only: CPUSGM, FockType, G1SecIn, MaxIt, nActEl, nAsh, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, &
+                         ThrShn, ThrShS, TIOSGM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: ALPHA, BETA
 integer(kind=iwp), intent(in) :: IVEC, JVEC
-real(kind=wp), allocatable :: SGM1(:), SGM2(:), D1(:), D2(:)
-real(kind=wp) CPU, CPU0, CPU1
-real(kind=wp) TIO, TIO0, TIO1
-real(kind=wp) Fact, XTST
+integer(kind=iwp) :: iCASE1, iCase2, IfC, IFIFA, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, lg_SgmX, lSgm2_Sta, &
+                     lSgmX, lSgmX_Sta, Max_MESG_Size, NA, NAS1, NAS2, nCX, ND1, ND2, NFIA, NFIT, NFTA, NI, NIS1, NIS2, NO, NS, &
+                     nSgm1, nSgm2, nSgm2_Blk, nSgmX, nSgmX_blk
+real(kind=wp) :: CPU, CPU0, CPU1, Fact, TIO, TIO0, TIO1, XTST
+real(kind=wp), allocatable :: D1(:), D2(:), SGM1(:), SGM2(:)
 real(kind=wp), external :: RHS_DDot, DDot_
-integer(kind=iwp) iCASE1, iCase2, IfC, IFIFA, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, lg_SgmX, lSgm2_Sta, lSgmX, &
-                  lSgmX_Sta, Max_MESG_Size, NA, NAS1, NAS2, nCX, ND1, ND2, NFIA, NFIT, NFTA, NI, NIS1, NIS2, NO, NS, nSgm1, nSgm2, &
-                  nSgm2_Blk, nSgmX, nSgmX_blk
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Entering SIGMA.'

@@ -17,21 +17,16 @@ subroutine correlating_orbitals()
 !***********************************************************************
 
 use InputData, only: Input
-use constants, only: Zero
-use caspt2_global, only: EMP2
+use caspt2_global, only: EMP2, LUONEM, NCMO
+use caspt2_module, only: BNAME, iAd1m, IfChol, IfQCAN, nAsh, nBas, nBSqT, nDel, nFro, nIsh, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_global, only: NCMO
-use caspt2_global, only: LUONEM
-use caspt2_module, only: IfChol, IfQCAN, BNAME, nBSqT, nSym, iAd1m, nFro, nIsh, nSsh, nDel, nBas, nAsh
-use constants, only: Zero, One
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: I, IDISK, iRC, iSkp, iSym, NDPQ, ntri, nUniqAt
+real(kind=wp) :: Dummy(1)
 real(kind=wp), allocatable :: CMO_X(:), DPQ(:)
-integer(kind=iwp) IDISK
-integer(kind=iwp) ntri, NDPQ
-real(kind=wp) Dummy(1)
-integer I, iRC, iSkp, iSym, nUniqAt
 
 call Get_iScalar('Unique atoms',nUniqAt)
 

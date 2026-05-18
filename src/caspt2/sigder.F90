@@ -19,38 +19,32 @@
 
 subroutine SIGDER(IVEC,JVEC,SCAL)
 
-use definitions, only: wp, iwp
-use constants, only: Zero, One, Two
-use Fockof, only: FAI_Full, FAT_Full, FIA_Full, FIT_Full, FTA_Full, FTI_Full, IOFFIT, IOFFIA, IOFFTA, FIT, FTI, FIA, FAI, FAT, FTA
-use caspt2_global, only: LUSTD, idSDMat
-use caspt2_global, only: FIFA, LISTS
-use stdalloc, only: mma_allocate, mma_deallocate
+use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
 use EQSOLV, only: IFCOUP
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 use Para_Info, only: Is_Real_Par
 #endif
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
-use caspt2_module, only: CPUSGM, TIOSGM, FockType, G1SecIn, nActEl, nCases, nSym, nASup, nIsh, nAsh, nSsh, nOrb, nInDep, nISup
+use caspt2_global, only: FIFA, idSDMat, LISTS, LUSTD
+use caspt2_module, only: CPUSGM, FockType, G1SecIn, nActEl, nAsh, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, TIOSGM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-#if defined(_MOLCAS_MPP_) && defined(_GA_)
-#include "global.fh"
-#endif
 integer(kind=iwp), intent(in) :: iVec, jVec
 real(kind=wp), intent(in) :: Scal
-real(kind=wp) CPU, CPU0, CPU1
-real(kind=wp) TIO, TIO0, TIO1
-real(kind=wp) FACT
-integer(kind=iwp) iCase, iCase1, idSDer, IfC, IFIFA, iLoop, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, Lg_SgmX, &
-                  lg_V1, lSgmX, lSgmX_Sta, Max_MESG_SIZE, NA, NAS, NAS1, NAS2, nCX, nD1, NFIA, NFIT, NFTA, NI, NIN1, NIN2, NIS1, &
-                  NIS2, nLoop, NO, NS, nSgm1, nSgm2, lSgm2_Sta, nD2, iCase2, nSgm2_Blk, nSgmX, nSgmX_Blk
-real(kind=wp), allocatable :: WRK(:), SDER1(:), SDER2(:), SGM1(:), D1(:), SGM2(:), D2(:)
-integer(kind=iwp) MaxLen
+integer(kind=iwp) :: iCase, iCase1, idSDer, IfC, IFIFA, iLoop, IMLTOP, ISYM, ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2, Lg_SgmX, &
+                     lg_V1, lSgmX, lSgmX_Sta, Max_MESG_SIZE, NA, NAS, NAS1, NAS2, nCX, nD1, NFIA, NFIT, NFTA, NI, NIN1, NIN2, &
+                     NIS1, NIS2, nLoop, NO, NS, nSgm1, nSgm2, lSgm2_Sta, nD2, iCase2, nSgm2_Blk, nSgmX, nSgmX_Blk, MaxLen
+real(kind=wp) :: CPU, CPU0, CPU1, FACT, TIO, TIO0, TIO1
+real(kind=wp), allocatable :: D1(:), D2(:), SDER1(:), SDER2(:), SGM1(:), SGM2(:), WRK(:)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 logical(kind=iwp) :: bStat
+#include "global.fh"
 #endif
 
 ! Work in the MO basis
@@ -480,9 +474,9 @@ subroutine C1S1DER(SDER,nSDER)
 
   integer(kind=iwp), intent(in) :: nSDER
   real(kind=wp), intent(inout) :: SDER(nSDER)
-  integer(kind=iwp) iType
+  integer(kind=iwp) :: iType
 # if defined(_MOLCAS_MPP_) && defined(_GA_)
-  integer(kind=iwp) lg_SDER
+  integer(kind=iwp) :: lg_SDER
 # endif
 
   ! (T2Ct2*f)py * (T1Ct1)pz * dS1yz/da
@@ -537,9 +531,9 @@ subroutine C2DER(SDER,nSDER)
 
   integer(kind=iwp), intent(in) :: nSDER
   real(kind=wp), intent(inout) :: SDER(nSDER)
-  integer(kind=iwp) iType, lg_Sgm, lg_v2
+  integer(kind=iwp) :: iType, lg_Sgm, lg_v2
 # if defined(_MOLCAS_MPP_) && defined(_GA_)
-  integer(kind=iwp) lg_SDER
+  integer(kind=iwp) :: lg_SDER
 # endif
 
   ! -1/2 (T2Ct2)pu * dS2tu/da * (T1Ct1St1*f*C2*Ct2)pt

@@ -27,18 +27,17 @@ subroutine EQCTL1()
 ! At position IVEC=IVECC2, the solution array, in covariant repr.
 ! At position IVEC=IVECW, the RHS array, in contravariant repr.
 
-use caspt2_global, only: do_grad
-use caspt2_global, only: LUSOLV, LUSBT, IDSCT
+use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX, MxSct, ModVec, IDSMat, IDBMat, IDTMat, IDSTMat
+use caspt2_global, only: do_grad, IDSCT, LUSBT, LUSOLV
+use caspt2_module, only: MxCase, nASup, nCases, nG2, nG3Tot, nInDep, nISup, nSym
 use stdalloc, only: mma_allocate
-use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX, MxBlk, MxSct, ModVec, IDSMat, IDBMat, MxVec, IDTMat, IDSTMat
-use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup, nInDep
-use caspt2_module, only: nG2, nG3Tot
-use definitions, only: wp, iwp, ItoB, RtoI, u6
+use Definitions, only: wp, iwp, u6, ItoB, RtoI
 
 implicit none
+integer(kind=iwp) :: ICASE, IDS, IDS1, IDS2, IDUM(1), IDV, iPad, iPARDIV, ISCT, ISYM, IVEC, LADDR, LENGTH, LSTA, MXWRT, NAS, NB, &
+                     NBD, NCOEF, NG3MAX, NID, NIDSCT, NIN, NIS, NISCT, NS, NT
 real(kind=wp) :: DUMMY(1)
-integer(kind=iwp) :: IDUM(1), ICASE, IDS, IDS1, IDS2, IDV, iPad, ISCT, ISYM, IVEC, LADDR, LENGTH, LSTA, MXWRT, NAS, NB, NBD, &
-                     NCOEF, NG3MAX, NID, NIDSCT, NS, NT, iPARDIV, NIN, NIS, NISCT
+integer(kind=iwp), parameter :: MXBLK = 40*256*256, MXVEC = 6
 
 IRHS = 1
 IVECX = 2

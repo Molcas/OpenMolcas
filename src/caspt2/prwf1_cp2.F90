@@ -20,25 +20,21 @@
 subroutine PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
 
 use Symmetry_Info, only: Mul
-use sguga, only: SGS, CIS
+use sguga, only: CIS, SGS
+use caspt2_module, only: ISPIN, NSYM, PRSD
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, ISPIN, PRSD
-use Molcas, only: MxLev
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ISYCI, mCI, nMidV
-integer(kind=iwp), intent(in) :: NOCSF(NSYM,NMIDV,NSYM), IOCSF(NSYM,NMIDV,NSYM)
-integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
+integer(kind=iwp), intent(in) :: nMidV, NOCSF(NSYM,NMIDV,NSYM), IOCSF(NSYM,NMIDV,NSYM), NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), &
+                                 ISYCI, mCI
 real(kind=wp), intent(in) :: CI(mCI), THR
-character(len=256) LINE
-character(len=1) :: CODE(0:3) = ['0','u','d','2']
-integer(kind=iwp) ICS(MXLEV)
-integer(kind=iwp) :: nLev, nIpWlk
-integer(kind=iwp), allocatable :: LEX(:)
-real(kind=wp) COEF
-integer(kind=iwp) IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP, IUW0, K, LENCSF, LEV, &
-                  MV, NCI, NDWN, NNN, NUP
+integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP, IUW0, K, LENCSF, &
+                     LEV, MV, NCI, NDWN, nIpWlk, nLev, NNN, NUP
+real(kind=wp) :: COEF
+character(len=256) :: LINE
+integer(kind=iwp), allocatable :: ICS(:), LEX(:)
+character, parameter :: CODE(0:3) = ['0','u','d','2']
 
 nLev = SGS%nLev
 nIpWlk = CIS%nIpWlk
@@ -46,6 +42,8 @@ nIpWlk = CIS%nIpWlk
 ! NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 ! ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
 ! THE   U P P E R   PART OF THE WALK.
+
+call mma_allocate(ICS,NLEV,Label='ICS')
 
 ! SVC: set up a CSF string length as LENCSF
 LINE = ' '
@@ -152,6 +150,8 @@ do MV=1,NMIDV
     end do
   end do
 end do
+
+call mma_deallocate(ICS)
 
 ! SVC2010: free scratch for determinant expansion
 if (PRSD) call mma_deallocate(LEX)

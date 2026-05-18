@@ -16,12 +16,12 @@ function PSBMAT_FPRINT(lg_M,NM)
 use Para_Info, only: Is_Real_Par
 #endif
 use fake_ga, only: GA_arrays
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) PSBMAT_FPRINT
-integer(kind=iwp) lg_M, NM
-integer(kind=iwp) nTri
+real(kind=wp) :: PSBMAT_FPRINT
+integer(kind=iwp), intent(in) :: lg_M, NM
+integer(kind=iwp) :: nTri
 real(kind=wp), external :: DNRM2_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -34,7 +34,7 @@ if (Is_Real_Par()) then
 else
 #endif
   nTri = (NM*(NM+1))/2
-  PSBMAT_FPRINT = DNRM2_(nTri,GA_Arrays(lg_M)%A(:),1)
+  PSBMAT_FPRINT = DNRM2_(nTri,GA_Arrays(lg_M)%A,1)
 #ifdef _MOLCAS_MPP_
 end if
 #endif

@@ -11,19 +11,19 @@
 
 subroutine MODRHS(IVEC,FIMO,NFIMO)
 
-use definitions, only: iwp, wp
-use SUPERINDEX, only: KTUV, KTU
+use SUPERINDEX, only: KTU, KTUV
+use caspt2_module, only: NACTEL, NAES, NASH, NASHT, NASUP, NINDEP, NISH, NISUP, NORB, NSSH, NSYM, NTUES, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NTUV, NISH, NASH, NAES, NACTEL, NASHT, NTUVES, NORB, NSSH, NISUP, NASUP, NTUES
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, NFIMO
 real(kind=wp), intent(in) :: FIMO(NFIMO)
+integer(kind=iwp) :: IA, IAJ, IATOT, ICASE, IFOFF, IJ, ISYJ, ISYM, ISYT, ISYU, IT, ITABS, ITTOT, IU, IUABS, IUU, IVABS, IW1, IW2, &
+                     IWD, IX, IXABS, IXTOT, IYABS, IYYW, IYYWA, lg_A, lg_C, lg_D, NAJ, NAS, NAT, NAX, NIJ, NIS, NIT, NIX, NO, NSJ, &
+                     NSX, NWA, NWC, NWD
+real(kind=wp) :: ONEADD, rSUM, Val
 real(kind=wp), allocatable :: WA(:), WC(:), WD(:)
-integer(kind=iwp) ICASE, IFOFF, ISYM, NAS, NIS, NWA, ISYJ, ISYT, NAT, NIT, IT, ITTOT, ITABS, IJ, IVABS, IW1, IW2, IA, IAJ, IATOT, &
-                  ISYU, IU, IUABS, IUU, IWD, IX, IXABS, IXTOT, IYABS, IYYW, lg_A, lg_C, lg_D, NAJ, NAX, NIJ, NIX, NO, NSJ, NSX, &
-                  NWC, NWD, IYYWA
-real(kind=wp) ONEADD, SUM, value
 
 !**************************************************************
 ! Case A:
@@ -49,11 +49,11 @@ do ISYM=1,NSYM
       ITTOT = NIT+IT
       ITABS = NAES(ISYT)+IT
       do IJ=1,NIT
-        value = FIMO(IFOFF+(ITTOT*(ITTOT-1))/2+IJ)/real(max(1,NACTEL),kind=wp)
+        Val = FIMO(IFOFF+(ITTOT*(ITTOT-1))/2+IJ)/real(max(1,NACTEL),kind=wp)
         do IVABS=1,NASHT
           IW1 = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
           IW2 = IJ
-          WA(IW1+NAS*(IW2-1)) = WA(IW1+NAS*(IW2-1))+value
+          WA(IW1+NAS*(IW2-1)) = WA(IW1+NAS*(IW2-1))+Val
         end do
       end do
     end do
@@ -93,13 +93,13 @@ do ISYM=1,NSYM
       IXABS = NAES(ISYM)+IX
       do IA=1,NSX
         IATOT = NIX+NAX+IA
-        SUM = FIMO(IFOFF+(IATOT*(IATOT-1))/2+IXTOT)
+        rSUM = FIMO(IFOFF+(IATOT*(IATOT-1))/2+IXTOT)
         do IYABS=1,NASHT
           IYYW = KTUV(IYABS,IYABS,IXABS)-NTUVES(ISYM)
           IYYWA = IYYW+NAS*(IA-1)
-          SUM = SUM-WC(IYYWA)
+          rSUM = rSUM-WC(IYYWA)
         end do
-        ONEADD = SUM/real(max(1,NACTEL),kind=wp)
+        ONEADD = rSUM/real(max(1,NACTEL),kind=wp)
         do IUABS=1,NASHT
           IW1 = KTUV(IXABS,IUABS,IUABS)-NTUVES(ISYM)
           IW2 = IA

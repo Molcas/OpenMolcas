@@ -28,27 +28,27 @@ subroutine MS_STRANS(IVEC,JVEC,NASHT,NTG3,OVL,TG1,TG2,TG3,HEL,SCAL)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG
 use fake_GA, only: GA_Arrays
-use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, CASES
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: CASES, NASUP, NINDEP, NISUP, NSYM
 use Constants, only: Zero
-use definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
 real(kind=wp), intent(inout) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 real(kind=wp), intent(out) :: HEL
 real(kind=wp), intent(in) :: SCAL
-! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-real(kind=wp) :: HECOMP(14,9), HEBLK, SUMSYM, SUMCASE
-integer(kind=iwp) :: ICASE, ISYM, NAS, NIN, NIS, lg_V1, iLo1, iHi1, jLo1, jHi1, MV1, lg_V2, iLo2, iHi2, jLo2, jHi2, MV2, NHECOMP, &
-                     IC, IS
-integer(kind=iwp) :: nvlen
+integer(kind=iwp) :: IC, ICASE, iHi1, iHi2, iLo1, iLo2, IS, ISYM, jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, MV1, MV2, NAS, NHECOMP, &
+                     NIN, NIS, nvlen
+real(kind=wp) :: HEBLK, HECOMP(14,9), SUMCASE, SUMSYM
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+
+! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
 ! Sketch of procedure:
 !  Loop over every (case/symmetry)-block.

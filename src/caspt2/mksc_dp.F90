@@ -22,18 +22,18 @@ subroutine MKSC_DP(DREF,NDREF,PREF,NPREF,iSYM,SC,NSC,iLo,iHi,jLo,jHi,LDC)
 ! and LDC is set. In serial, the whole array is passed but then the
 ! storage uses a triangular scheme, and the LDC passed is zero.
 
-use definitions, only: iwp, wp
-use constants, only: Two
 use SUPERINDEX, only: MTUV
 use caspt2_module, only: NASHT, nTUVES
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF, iSYM, NSC, iLo, iHi, jLo, jHi, LDC
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
 real(kind=wp), intent(inout) :: SC(NSC)
-integer(kind=iwp) ISADR, IXYZ, IXYZABS, IXABS, IYABS, IZABS, ITUV, ITUVABS, ITABS, IUABS, IVABS, IVU, IYZ, IP1, IP2, IP, ID1, ID2, &
-                  IVZ, ITX, ITZ, IVX
-real(kind=wp) value
+integer(kind=iwp) :: ID1, ID2, IP, IP1, IP2, ISADR, ITABS, ITUV, ITUVABS, ITX, ITZ, IUABS, IVABS, IVU, IVX, IVZ, IXABS, IXYZ, &
+                     IXYZABS, IYABS, IYZ, IZABS
+real(kind=wp) :: Val
 
 ISADR = 0
 !-SVC20100831: fill in the G2 and G1 corrections for this SC block
@@ -48,11 +48,11 @@ do IXYZ=jLo,jHi
     IUABS = MTUV(2,ITUVABS)
     IVABS = MTUV(3,ITUVABS)
     if (LDC /= 0) then
-      value = SC(1+iTUV-iLo+LDC*(iXYZ-jLo))
+      Val = SC(1+iTUV-iLo+LDC*(iXYZ-jLo))
     else
       if (IXYZ <= ITUV) then
         ISADR = (ITUV*(ITUV-1))/2+IXYZ
-        value = SC(ISADR)
+        Val = SC(ISADR)
       else
         cycle
       end if
@@ -64,7 +64,7 @@ do IXYZ=jLo,jHi
       IP1 = max(IVZ,ITX)
       IP2 = min(IVZ,ITX)
       IP = (IP1*(IP1-1))/2+IP2
-      value = value+Two*PREF(IP)
+      Val = Val+Two*PREF(IP)
     end if
     ! Add  dyx Gvutz
     if (IYABS == IXABS) then
@@ -73,7 +73,7 @@ do IXYZ=jLo,jHi
       IP1 = max(IVU,ITZ)
       IP2 = min(IVU,ITZ)
       IP = (IP1*(IP1-1))/2+IP2
-      value = value+Two*PREF(IP)
+      Val = Val+Two*PREF(IP)
     end if
     ! Add  dtu Gvxyz + dtu dyx Gvz
     if (ITABS == IUABS) then
@@ -82,17 +82,17 @@ do IXYZ=jLo,jHi
       IP1 = max(IVX,IYZ)
       IP2 = min(IVX,IYZ)
       IP = (IP1*(IP1-1))/2+IP2
-      value = value+Two*PREF(IP)
+      Val = Val+Two*PREF(IP)
       if (IYABS == IXABS) then
         ID1 = max(IVABS,IZABS)
         ID2 = min(IVABS,IZABS)
-        value = value+DREF((ID1*(ID1-1))/2+ID2)
+        Val = Val+DREF((ID1*(ID1-1))/2+ID2)
       end if
     end if
     if (LDC /= 0) then
-      SC(1+iTUV-iLo+LDC*(iXYZ-jLo)) = value
+      SC(1+iTUV-iLo+LDC*(iXYZ-jLo)) = Val
     else
-      SC(ISADR) = value
+      SC(ISADR) = Val
     end if
   end do
 end do

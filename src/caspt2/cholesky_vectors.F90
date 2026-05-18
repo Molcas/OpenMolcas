@@ -13,17 +13,15 @@
 
 subroutine Cholesky_Vectors(MODE,ITK,ITQ,JSYM,Array,mArray,nArray,IBSTA,IBEND)
 
-use CHOVEC_IO, only: NVLOC_CHOBATCH, IDLOC_CHOGROUP, NPQ_CHOTYPE
+use CHOVEC_IO, only: IDLOC_CHOGROUP, NPQ_CHOTYPE, NVLOC_CHOBATCH
 use caspt2_module, only: NSYM
-use definitions, only: wp, iwp
-
-#include "intent.fh"
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: MODE, ITK, ITQ, JSYM, mArray, IBSTA, IBEND
 integer(kind=iwp), intent(out) :: nArray
-real(kind=wp), intent(_OUT_) :: Array(mArray)
-integer(kind=iwp) :: ICASE, LKETSM, LUCDER, ISYK, NQK, IB, NV, NKETSM, IDISK
+real(kind=wp), intent(inout) :: Array(mArray)
+integer(kind=iwp) :: IB, ICASE, IDISK, ISYK, LKETSM, LUCDER, NKETSM, NQK, NV
 
 ! ugly hack to convert separate k/q orbital types into a specific case
 ICASE = ITK*ITQ

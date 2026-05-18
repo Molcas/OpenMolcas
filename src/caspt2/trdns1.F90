@@ -31,27 +31,24 @@ subroutine TRDNS1(IVEC,DPT1,NDPT1)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
 use fake_GA, only: GA_Arrays
-use caspt2_module, only: nActel, nSym, nIsh, nAsh, nSsh, nInDep, nISup, nASup, nAsh, nOrb
-use constants, only: Zero, One
-use definitions, only: iwp, wp
-#define RHS_ X_RHS_
+use caspt2_module, only: nActel, nAsh, nAsh, nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, NDPT1
 real(kind=wp), intent(inout) :: DPT1(NDPT1)
+integer(kind=iwp) :: IA, ICASE, ID, IDOFF, II, IMLTOP, ISYM, IT, ITTOT, IW, IWAI, IWAT, IWOFF, IWTI, lVec, NA, NAS, NI, NIS, NO, &
+                     NS, NVEC, NWAI, NWAT, NWTI
+real(kind=wp) :: FACT
+real(kind=wp), allocatable :: WAI(:), WAT(:), WTI(:)
 #ifdef _MOLCAS_MPP_
+real(kind=wp), allocatable :: TMP(:)
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-real(kind=wp), allocatable :: WTI(:), WAT(:), WAI(:)
-#ifdef _MOLCAS_MPP_
-real(kind=wp), allocatable :: TMP(:)
-#endif
-real(kind=wp) FACT
-integer(kind=iwp) IA, ICASE, ID, IDOFF, II, IMLTOP, ISYM, IT, ITTOT, IW, IWAI, IWAT, IWOFF, IWTI, lVec, NA, NAS, NI, NIS, NO, NS, &
-                  NVEC, NWAI, NWAT, NWTI
 
 ! Transform to standard representation, covariant form.
 call PTRTOC(1,IVEC,IVEC)

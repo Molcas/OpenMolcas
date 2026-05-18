@@ -20,17 +20,17 @@
 subroutine MKBA_F3(ISYM,BA,MBA,NG3,F3,idxG3)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, Byte
 use SUPERINDEX, only: KTUV
-use caspt2_module, only: NASHT, IASYM, nTUVES
+use caspt2_module, only: IASYM, NASHT, nTUVES
+use Definitions, only: wp, iwp, byte
 
 implicit none
 integer(kind=iwp), intent(in) :: ISYM, MBA, NG3
 real(kind=wp), intent(inout) :: BA(MBA)
 real(kind=wp), intent(in) :: F3(NG3)
-integer(kind=Byte), intent(in) :: idxG3(6,NG3)
-integer(kind=iwp) iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV, iSX, iSY, iSZ, ituvs, ixyzs, iTU, iVX, iYZ, jSYM, ISUP, JSUP, ISADR
-real(kind=wp) F3VAL
+integer(kind=byte), intent(in) :: idxG3(6,NG3)
+integer(kind=iwp) :: iG3, ISADR, iST, iSU, ISUP, iSV, iSX, iSY, iSZ, iT, iTU, ituvs, iU, iV, iVX, iX, ixyzs, iY, iYZ, iZ, JSUP, jSYM
+real(kind=wp) :: F3VAL
 
 !-SVC20100831: determine indices in SA where a certain F3 value will end up
 do iG3=1,NG3

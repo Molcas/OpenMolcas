@@ -11,7 +11,9 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
+#include "compiler_features.h"
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
+
 subroutine LinDepLag_MPP(lg_BDER,lg_SDER,nAS,nIN,iSym,iCase)
 ! Parallel LinDepLag
 ! We always use the canonical orthonormalization.
@@ -19,25 +21,25 @@ subroutine LinDepLag_MPP(lg_BDER,lg_SDER,nAS,nIN,iSym,iCase)
 #ifdef _SCALAPACK_
 use scalapack_mod, only: GA_PDSYEVX_
 #endif
-use caspt2_global, only: LUSTD, idBoriMat
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
+use caspt2_global, only: idBoriMat, LUSTD
 use caspt2_module, only: THRSHS
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "global.fh"
-#include "mafdecls.fh"
 integer(kind=iwp), intent(in) :: lg_BDER, lg_SDER, nAS, nIN, iSym, iCase
+integer(kind=iwp) :: I, IDB, iHi, iLo, J, jHi, jLo, LDB, LDV, lg_B, lg_Lag, lg_S, lg_Vec, mB, mV, myRank
+real(kind=wp) :: EVAL, FACT
+logical(kind=iwp) :: bStat
+real(kind=wp), allocatable :: EIG(:)
 #if ! defined (_SCALAPACK_)
 real(kind=wp) :: WGRONK(2)
-integer(kind=iwp) :: NSCRATCH, info
-real(kind=wp), allocatable :: VEC(:), SCRATCH(:)
+integer(kind=iwp) :: info, NSCRATCH
+real(kind=wp), allocatable :: SCRATCH(:), VEC(:)
 #endif
-logical(kind=iwp) :: bStat
-integer(kind=iwp) :: lg_S, myRank, lg_Vec, iLo, iHi, jLo, jHi, mV, LDV, I, lg_Lag, lg_B, IDB, mB, LDB, J
-real(kind=wp) :: EVAL, FACT
-real(kind=wp), allocatable :: EIG(:)
+#include "global.fh"
+#include "mafdecls.fh"
 
 !! Obtain the X matrix
 !! First, read S
@@ -158,10 +160,10 @@ unused_var(bStat)
 
 end subroutine LinDepLag_MPP
 
-#elif defined (NAGFOR)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-subroutine empty_LinDepLag_MPP()
-end subroutine empty_LinDepLag_MPP
+#include "macros.fh"
+dummy_empty_procedure(LinDepLag_MPP)
 
 #endif

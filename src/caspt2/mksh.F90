@@ -22,15 +22,15 @@ subroutine MKSH()
 ! matrices. This costs nothing, and saves conditional
 ! looping, etc in the rest  of the routines.
 
-use caspt2_module, only: NSYM, NINDEP
+use caspt2_module, only: NINDEP, NSYM
 use caspt2_global, only: LUSBT
 use EQSOLV, only: IDSMAT
-use constants, only: One
-use definitions, only: iwp, wp
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) Dum(1)
-integer(kind=iwp) ISYM, ICASE, IDISK, NIN
+integer(kind=iwp) :: ICASE, IDISK, ISYM, NIN
+real(kind=wp) :: Dum(1)
 
 DUM(1) = One
 do ISYM=1,NSYM

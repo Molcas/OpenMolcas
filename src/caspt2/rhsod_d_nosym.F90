@@ -14,33 +14,31 @@
 subroutine RHSOD_D_NOSYM(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use constants, only: One
-use SUPERINDEX, only: MIA, MAREL, MIREL, MTU, MTREL, KTU
-use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
-use caspt2_global, only: iPrGlb
+use SUPERINDEX, only: KTU, MAREL, MIA, MIREL, MTREL, MTU
+use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-use caspt2_global, only: FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
 use fake_GA, only: GA_Arrays
 #endif
-use caspt2_module, only: NACTEL, NASHT, NSYM, NORB, NASUP, NISUP, NIAES, NTUES, NSSH, NASH, NISH, NISH
+use caspt2_global, only: FIMO, iPrGlb
+use caspt2_module, only: NACTEL, NASH, NASHT, NASUP, NIAES, NISH, NISH, NISUP, NORB, NSSH, NSYM, NTUES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
-real(kind=wp), allocatable :: BRABUF1(:), KETBUF1(:), BRABUF2(:), KETBUF2(:)
+integer(kind=iwp) :: IA, IAABS, IAEND, IAEND1, IAEND2, IAJ, IAJTOT, IASTA, IASTA1, IASTA2, IATOT, iCASE, IDX, IFIMOES, IIEND, &
+                     IISTA, IJ, IJABS, IOAJ, IOAV, IOBRA1(8,8), IOBRA2(8,8), IOFFAJ, IOFFAV, IOFFTJ, IOFFTV, IOKET1(8,8), &
+                     IOKET2(8,8), IOTJ, IOTV, ISYA, ISYJ, ISYM, ISYT, ISYV, IT, ITABS, ITV, IUABS, IUU, IV, IVABS, lg_W, MW, NAS, &
+                     NAS1, NBRABUF1, NBRABUF2, NFIMOES(8), NIS, NKETBUF1, NKETBUF2, NV, NW
+real(kind=wp) :: ACTINV, AJTV, AVTJ, FAJ, ONEADD
+real(kind=wp), allocatable :: BRABUF1(:), BRABUF2(:), KETBUF1(:), KETBUF2(:)
+real(kind=wp), external :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-integer(kind=iwp) NFIMOES(8)
-real(kind=wp) ACTINV, AJTV, AVTJ, FAJ, ONEADD
-integer(kind=iwp) IA, IAABS, NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, IAEND1, IAEND2, IAJ, IAJTOT, IASTA1, IASTA2, IATOT, &
-                  iCASE, IDX, IFIMOES, IJ, IJABS, IOAJ, IOAV, IOFFAJ, IOFFAV, IOFFTJ, IOFFTV, IOTJ, IOTV, ISYA, ISYJ, ISYM, ISYT, &
-                  ISYV, IT, ITABS, ITV, IUABS, IUU, IV, IVABS, NAS1, NBRABUF1, NBRABUF2, NKETBUF1, NKETBUF2, NV, NW
-real(kind=wp), external :: DDot_
 
 if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case D'
 

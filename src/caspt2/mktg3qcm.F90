@@ -11,30 +11,30 @@
 ! Copyright (C) 2025, Stefano Battaglia                                *
 !***********************************************************************
 
+#include "compiler_features.h"
 #ifdef _DMRG_
+
 subroutine mktg3qcm(lsym1,lsym2,state1,state2,ovl,tg1,tg2,ntg3,tg3)
 ! state 1: bra
 ! state 2: ket
 
+use, intrinsic :: iso_c_binding, only: c_bool, c_int
 use Symmetry_Info, only: Mul
-use stdalloc, only: mma_allocate, mma_deallocate
-use qcmaquis_interface
-use definitions, only: wp, iwp, u6
-use caspt2_global, only: iPrGlb
+use qcmaquis_interface, only: qcmaquis_interface_get_trans_1rdm_full, qcmaquis_interface_get_trans_2rdm_full, &
+                              qcmaquis_interface_get_trans_3rdm_full, qcmaquis_interface_read_rdm_full
 use printLevel, only: debug
 use sguga, only: SGS
+use caspt2_global, only: iPrGlb
 use caspt2_module, only: nAshT
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: lsym1, lsym2, state1, state2, ntg3
-real(kind=wp), intent(out) :: tg1(nasht,nasht), tg2(nasht,nasht,nasht,nasht)
-real(kind=wp), intent(out) :: tg3(ntg3), ovl
-real(kind=wp), allocatable :: tg3_tmp(:,:,:,:,:,:)
-integer(kind=iwp) :: t, u, v, x, y, z
-integer(kind=iwp) :: ituvxyz, sym_sig1, sym_sig2, sym_tau
-! Detecting phase
-real(kind=wp), allocatable :: tg1_tmp(:,:)
+real(kind=wp), intent(out) :: ovl, tg1(nasht,nasht), tg2(nasht,nasht,nasht,nasht), tg3(ntg3)
+integer(kind=iwp) :: ituvxyz, sym_sig1, sym_sig2, sym_tau, t, u, v, x, y, z
+real(kind=wp), allocatable :: tg1_tmp(:,:), tg3_tmp(:,:,:,:,:,:)
 
 if (iPrGlb >= debug) then
   write(u6,*) '=== QCM: Building TRANSITION-RDM ==='
@@ -122,10 +122,10 @@ end do
 call mma_deallocate(tg3_tmp)
 end subroutine mktg3qcm
 
-#elif defined (NAGFOR)
+#elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-subroutine empty_mkfg3qcm()
-end subroutine empty_mkfg3qcm
+#include "macros.fh"
+dummy_empty_procedure(mktg3qcm)
 
 #endif

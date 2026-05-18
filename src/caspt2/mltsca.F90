@@ -28,17 +28,16 @@ subroutine MLTSCA(IMLTOP,LST1,NLST1,LST2,NLST2,X,nX,F,nF,Y,nY)
 !     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
 
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: MyRank, nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
 #endif
 use Sigma_data, only: INCF1, INCF2, INCX1, INCX2, INCY1, INCY2, NFSCA, VAL1, VAL2
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IMLTOP, NLST1, NLST2, nX, nF, nY
+integer(kind=iwp), intent(in) :: IMLTOP, NLST1, LST1(4,NLST1), NLST2, LST2(4,NLST2), nX, nF, nY
 real(kind=wp), intent(inout) :: X(nX), F(nF), Y(nY)
-integer(kind=iwp), intent(in) :: LST1(4,NLST1), LST2(4,NLST2)
-integer(kind=iwp) if, ILST1, ILST1_IOFF, ILST1_SKIP, ILST2, IX, IY, L11, L12, L13, L14, L21, L22, L23, L24
-real(kind=wp) V1, V2
+integer(kind=iwp) :: I_F, ILST1, ILST1_IOFF, ILST1_SKIP, ILST2, IX, IY, L11, L12, L13, L14, L21, L22, L23, L24
+real(kind=wp) :: V1, V2
 
 !SVC: determine outer loop properties
 #ifdef _MOLCAS_MPP_
@@ -67,9 +66,9 @@ if (IMLTOP == 0) then
       L24 = LST2(4,ILST2)
       V2 = VAL2(L24)
       IX = 1+INCX1*(L11-1)+INCX2*(L21-1)
-      if = 1+INCF1*(L12-1)+INCF2*(L22-1)
+      I_F = 1+INCF1*(L12-1)+INCF2*(L22-1)
       IY = 1+INCY1*(L13-1)+INCY2*(L23-1)
-      X(IX) = X(IX)+V1*V2*F(if)*Y(IY)
+      X(IX) = X(IX)+V1*V2*F(I_F)*Y(IY)
     end do
   end do
 else if (IMLTOP == 1) then
@@ -86,9 +85,9 @@ else if (IMLTOP == 1) then
       L24 = LST2(4,ILST2)
       V2 = VAL2(L24)
       IX = 1+INCX1*(L11-1)+INCX2*(L21-1)
-      if = 1+INCF1*(L12-1)+INCF2*(L22-1)
+      I_F = 1+INCF1*(L12-1)+INCF2*(L22-1)
       IY = 1+INCY1*(L13-1)+INCY2*(L23-1)
-      Y(IY) = Y(IY)+V1*V2*F(if)*X(IX)
+      Y(IY) = Y(IY)+V1*V2*F(I_F)*X(IX)
     end do
   end do
 else
@@ -105,9 +104,9 @@ else
       L24 = LST2(4,ILST2)
       V2 = VAL2(L24)
       IX = 1+INCX1*(L11-1)+INCX2*(L21-1)
-      if = 1+INCF1*(L12-1)+INCF2*(L22-1)
+      I_F = 1+INCF1*(L12-1)+INCF2*(L22-1)
       IY = 1+INCY1*(L13-1)+INCY2*(L23-1)
-      F(if) = F(if)+V1*V2*X(IX)*Y(IY)
+      F(I_F) = F(I_F)+V1*V2*X(IX)*Y(IY)
     end do
   end do
 end if

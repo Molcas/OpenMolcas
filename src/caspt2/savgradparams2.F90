@@ -23,14 +23,14 @@ subroutine SavGradParams2(Mode,UEFF,U0,H0,nState)
 ! the SavGradParams subroutine should also be updated
 
 use caspt2_global, only: LUGRAD
-use definitions, only: iwp, wp
-use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: Energy, ERFSelf, nBTri, RFPert
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: Mode, nState
 real(kind=wp), intent(inout) :: UEFF(nState,nState), U0(nState,nstate), H0(nSTate,nState)
-integer(kind=iwp) :: IORW, ID
+integer(kind=iwp) :: ID, IORW
 real(kind=wp), allocatable :: lTemp(:)
 
 !! Decide what to do

@@ -14,13 +14,13 @@
 subroutine CLagSym(nAshT,DG1,DG2,DF1,DF2,mode)
 
 use Constants, only: Half, Quart
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAshT, mode
 real(kind=wp), intent(inout) :: DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT), DF1(nAshT,nAshT), DF2(nAshT,nAshT,nAshT,nAshT)
 integer(kind=iwp) :: iI, iJ, iK, iL
-real(kind=wp) :: Val1, Val2, Val3, Val4, Val
+real(kind=wp) :: Val, Val1, Val2, Val3, Val4
 
 !return
 !if (mode == 0) then

@@ -14,29 +14,28 @@
 subroutine RHSOD_E_NOSYM(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use Constants, only: Half, OneHalf
-use SUPERINDEX, only: MIGEJ, MIREL, MIGTJ, MIREL
-use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
-use caspt2_global, only: iPrGlb
+use SUPERINDEX, only: MIGEJ, MIGTJ, MIREL, MIREL
+use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
 use fake_GA, only: GA_Arrays
 #endif
-use caspt2_module, only: NSYM, NASUP, NISUP, NSSH, NIGEJ, NASH, NIGEJES, NIGTJ, NIGTJES
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: NASH, NASUP, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NISUP, NSSH, NSYM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Half, OneHalf
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+integer(kind=iwp) :: IA, IAEND, IAJ, IAJGEL, IAJGELEND, IAJGELSTA, IAJGTL, IAJGTLEND, IAJGTLSTA, IAL, IASTA, iCASE, IDX, IIEND, &
+                     IISTA, IJ, IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL, ILABS, IOBRA(8,8), IOFF, IOFFAJ, IOFFAL, IOFFVJ, &
+                     IOFFVL, IOKET(8,8), ISYA, ISYJ, ISYJL, ISYL, ISYM, ISYV, IV, IVJ, IVL, lg_W, MW, NA, NAS, NBRABUF, NIS, NJL, &
+                     NKETBUF, NV, NW
+real(kind=wp) :: AJVL, ALVJ, EM, EP, SCL
 real(kind=wp), allocatable :: BRABUF(:), KETBUF(:)
-real(kind=wp), parameter :: SQRTH = sqrt(Half), SQRTA = sqrt(OneHalf)
-real(kind=wp) AJVL, ALVJ, EM, EP, SCL
-integer(kind=iwp) IA, NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, IAJ, IAJGEL, IAJGELEND, IAJGELSTA, IAJGTL, IAJGTLEND, &
-                  IAJGTLSTA, IAL, iCASE, IDX, IJ, IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL, ILABS, IOFF, IOFFAJ, IOFFAL, &
-                  IOFFVJ, IOFFVL, ISYA, ISYJ, ISYJL, ISYL, ISYM, ISYV, IV, IVJ, IVL, NA, NBRABUF, NJL, NKETBUF, NV, NW
+real(kind=wp), parameter :: SQRTA = sqrt(OneHalf), SQRTH = sqrt(Half)
 real(kind=wp), external :: DDot_
-!logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

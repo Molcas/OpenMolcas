@@ -28,21 +28,22 @@ subroutine MKWWOPB(IVEC,JVEC,OP0,OP1,NOP2,OP2)
 ! W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Extyu - 2 Eytxu -6dxt Eyu
 !           -6dyu Ext +6dyt Exu +6dxu Eyt +12 dxt dyu -12 dxu dyt)
 
-use definitions, only: iwp, wp
-use Constants, only: Zero, One, Two, Four, Six, Twelve
 use SUPERINDEX, only: MTGEU, MTGTU
 use EQSOLV, only: MODVEC
+use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP, NTGEUES, NTGTUES
+use Constants, only: Zero, One, Two, Four, Six, Twelve
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NOP2
 real(kind=wp), intent(inout) :: OP0, OP1(NASHT,NASHT), OP2(NOP2)
-real(kind=wp), allocatable, target :: W1(:), W2_H(:), WPROD(:)
+integer(kind=iwp) :: ICASE, IIEND, IISTA, ISCT, ISYM, ITABS, ITU, ITUABS, IUABS, IW1, IW2, IWPROD, IXABS, IXT, IXU, IXY, IXYABS, &
+                     IYABS, IYT, IYU, JXTYU, JYTXU, MDVEC, NAS, NCOL, NIS, NWPROD
+real(kind=wp) :: W_PROD
+real(kind=wp), allocatable :: WPROD(:)
+real(kind=wp), allocatable, target :: W1(:), W2_H(:)
 real(kind=wp), pointer :: W2(:)
-integer(kind=iwp) ICASE, IIEND, IISTA, ISCT, ISYM, ITABS, ITU, ITUABS, IUABS, IW1, IW2, IWPROD, IXABS, IXT, IXU, IXY, IXYABS, &
-                  IYABS, IYT, IYU, JXTYU, JYTXU, MDVEC, NAS, NCOL, NIS, NWPROD
-real(kind=wp) W_PROD
 
 ! FIRST THE B+ i.e. VJTI+ i.e. CASE 2 -----------------------------
 ICASE = 2

@@ -21,19 +21,19 @@ subroutine NADIAG()
 ! Set up non-active diagonal elements of H0.
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use SUPERINDEX, only: MIGEJ, MIGTJ, MAGEB, MAGTB
-use caspt2_global, only: LUSBT
+use SUPERINDEX, only: MAGEB, MAGTB, MIGEJ, MIGTJ
 use EQSOLV, only: IDBMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: EPSE, EPSI, NAGEB, NAGEBES, NAGEBES, NAGTB, NAGTBES, NASUP, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NINDEP, &
+                         NISH, NISUP, NSES, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NISUP, NASUP, NIES, EPSI, NIGEJES, NSES, NIGTJES, EPSE, NSSH, NISH, NIGEJ, NAGEBES, &
-                         NAGEBES, NAGEB, NIGTJ, NAGTBES, NAGTB
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) Dummy(1), EDIAG
+integer(kind=iwp) :: I2, I2ABS, IA, IAABS, IAB, IABQ, IBABS, ICASE, IDID, II, IIABS, IIJ, IIJQ, IIQ, IIS, IJABS, ISYM, ISYMA, &
+                     ISYMAB, ISYMI, ISYMIJ, NAS, NIN, NIS
+real(kind=wp) :: Dummy(1), EDIAG
 real(kind=wp), allocatable :: BD(:), ID(:)
-integer(kind=iwp) ICASE, ISYM, I2, I2ABS, IA, IAABS, IAB, IABQ, IBABS, IDID, II, IIABS, IIJ, IIJQ, IIQ, IIS, IJABS, ISYMA, ISYMAB, &
-                  ISYMI, ISYMIJ, NAS, NIN, NIS
 
 do ICASE=1,13
   do ISYM=1,NSYM

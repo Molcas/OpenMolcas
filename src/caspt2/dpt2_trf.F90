@@ -19,18 +19,18 @@
 
 subroutine DPT2_Trf(NBSQT,nAshT,DPT2,DPT2AO,CMO,DEPSA,DSUM)
 
+use caspt2_module, only: NASH, NBAS, NDEL, NFRO, NISH, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
 use Constants, only: Zero, One, Half
-use caspt2_module, only: NSYM, NFRO, NISH, NASH, NORB, NDEL, NBAS
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nAshT
 real(kind=wp), intent(inout) :: DPT2(NBSQT), DPT2AO(NBSQT), DSUM(NBSQT)
 real(kind=wp), intent(in) :: CMO(NBSQT), DEPSA(nAshT,nAshT)
-real(kind=wp), allocatable :: WRK(:)
+integer(kind=iwp) :: iAO, iCMO, iMO, iOrb, iOrb0, iSym, jOrb, jOrb0, nBasI, nOrbI
 real(kind=wp) :: Val
-integer(kind=iwp) :: iCMO, iAO, iMO, iSym, nBasI, nOrbI, iOrb0, iOrb, jOrb0, jOrb
+real(kind=wp), allocatable :: WRK(:)
 
 !! DPT2 transformation
 !! Just transform DPT2 (in MO, block-squared) to DPT2AO (in AO,

@@ -25,32 +25,29 @@ subroutine HCOUP(IVEC,JVEC,OVL,TG1,TG2,NASHT,TG3,NTG3,HEL)
 ! and irreps and gets access to the process-specific block of the RHS.
 ! The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use fake_GA, only: GA_Arrays
-use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, CASES
-use constants, only: Zero
-use definitions, only: iwp, wp, u6
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: CASES, NASUP, NINDEP, NISUP, NSYM
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
-real(kind=wp), intent(in) :: OVL
+real(kind=wp), intent(in) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 real(kind=wp), intent(out) :: HEL
-real(kind=wp), intent(in) :: TG1(NASHT,NASHT)
-real(kind=wp), intent(in) :: TG2(NASHT,NASHT,NASHT,NASHT)
-! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-real(kind=wp), intent(in) :: TG3(NTG3)
-real(kind=wp) HECOMP(14,9)
-integer(kind=iwp) ICASE, ISYM, NAS, NIN, NIS, IC, IS, NHECOMP, lg_V1, IASTA1, IAEND1, IISTA1, IIEND1, iLo1, iHi1, jLo1, jHi1, MV1, &
-                  NV1, lg_V2, IASTA2, IAEND2, IISTA2, IIEND2, iLo2, iHi2, jLo2, jHi2, MV2, NV2
-real(kind=wp) HEBLK, SUMCASE, SUMSYM
+integer(kind=iwp) :: IAEND1, IAEND2, IASTA1, IASTA2, IC, ICASE, iHi1, iHi2, IIEND1, IIEND2, IISTA1, IISTA2, iLo1, iLo2, IS, ISYM, &
+                     jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, MV1, MV2, NAS, NHECOMP, NIN, NIS, NV1, NV2
+real(kind=wp) :: HEBLK, HECOMP(14,9), SUMCASE, SUMSYM
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+
+! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
 ! Sketch of procedure:
 !  HEL=Zero

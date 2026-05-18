@@ -19,22 +19,19 @@
 
 subroutine RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT,nVSCT)
 
-use definitions, only: iwp, wp
-use caspt2_global, only: LUSOLV, IDSCT
-use EQSOLV, only: MxSCT, ModVec
-use caspt2_module, only: NASUP, NISUP, MxCASE
+use EQSOLV, only: ModVec, MxSCT
+use caspt2_global, only: IDSCT, LUSOLV
+use caspt2_module, only: MxCASE, NASUP, NISUP
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: cases
-use definitions, only: u6
+use Definitions, only: u6
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ISCT, iSYM, ICASE, IVEC, nVSCT
 real(kind=wp), intent(out) :: VSCT(nVSCT)
-integer(kind=iwp) iDS, MDVEC, NAS, NIS, NCOEF, NCOL, NSCT
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) I
-#endif
+integer(kind=iwp) :: iDS, MDVEC, NAS, NCOEF, NCOL, NIS, NSCT
 
 ! Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
@@ -53,7 +50,7 @@ NSCT = NAS*NCOL
 call DDAFILE(LUSOLV,2,VSCT,NSCT,IDS)
 #ifdef _DEBUGPRINT_
 write(u6,*) ' First few elements:'
-write(u6,'(1x,5f15.6)') (VSCT(I),I=1,min(NSCT,10))
+write(u6,'(1x,5f15.6)') VSCT(1:min(10,NSCT))
 #endif
 
 end subroutine RDSCTC

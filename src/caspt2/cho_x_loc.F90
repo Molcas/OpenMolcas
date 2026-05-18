@@ -11,17 +11,17 @@
 
 subroutine Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO,nCMO)
 
-use definitions, only: iwp, wp
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nAsh(nSym), nIsh(nSym), nSsh(nSym)
+integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(in) :: Thrs
-integer(kind=iwp), intent(in) :: nCMO
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nCMO
 real(kind=wp), intent(inout) :: CMO(nCMO)
+integer(kind=iwp) :: iSym, kOff1, kOffC, l_Dens
+real(kind=wp) :: yNrm
 real(kind=wp), allocatable :: Dens(:)
-integer(kind=iwp) irc, iSym, kOff1, kOffC, l_Dens
-real(kind=wp) yNrm
 
 irc = 0
 l_Dens = 0

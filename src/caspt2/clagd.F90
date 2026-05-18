@@ -13,44 +13,36 @@
 
 subroutine CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,VECROT)
 
-use caspt2_global, only: imag_shift, iVecL, sigma_p_epsilon, LUSBT, LUSOLV, ipea_shift
-use Constants, only: Zero, Half, Two, Four
-use EQSOLV, only: IDSMAT, IDBMAT, IRHS, IVECX, IVECR, IVECW
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, byte
+use EQSOLV, only: IDBMAT, IDSMAT, IRHS, IVECR, IVECW, IVECX
 use fake_GA, only: GA_Arrays
-use caspt2_module, only: IFMSCOUP, NSYM, NASH, NAES, NASUP, NISUP, NINDEP, EPSA, EASUM, NTUES, NTGEUES, NTGTUES
+use caspt2_global, only: imag_shift, ipea_shift, iVecL, LUSBT, LUSOLV, sigma_p_epsilon
+use caspt2_module, only: EASUM, EPSA, IFMSCOUP, NAES, NASH, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES
 #ifdef _MOLCAS_MPP_
 use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
-use definitions, only: u6
 use Para_Info, only: Is_Real_Par, King
+use Definitions, only: u6
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two, Four, Half
+use Definitions, only: wp, iwp, byte
 
 implicit none
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 integer(kind=iwp), intent(in) :: NASHT, NG3, NSTATE
 real(kind=wp), intent(inout) :: G1(NASHT,NASHT), G2(NASHT,NASHT,NASHT,NASHT), G3(NG3), DG1(NASHT,NASHT), &
                                 DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3), DF1(NASHT,NASHT), DF2(NASHT,NASHT,NASHT,NASHT), DF3(NG3), &
                                 DEASUM, DEPSA(NASHT,NASHT)
 real(kind=wp), intent(in) :: VECROT(NSTATE)
-real(kind=wp), allocatable :: LBD(:), LID(:) !!,VEC1(:),VEC2(:)
-real(kind=wp), allocatable :: SMat(:), BDER(:), SDER(:)
+integer(kind=iwp) :: iCase, ID, idS, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUabs, iTU2, iTUabs, iUabs, iVabs, iXabs, iXgeYabs, &
+                     iXgtYabs, iXY2, iXYabs, iYabs, lg_V1, lg_V2, lg_V3, lg_V4, lg_V5, NAS, NIN, NIS, NS, NSEQ, NVEC
+real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BDERval, bsBDER, ET, EU, EX, EY, ScalB1, ScalB2, ScalS1, ScalS2, SDERval
+real(kind=wp), allocatable :: BDER(:), LBD(:), LID(:), SDER(:), SMat(:)
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: IHI, ILO, JHI, JLO, LDV, lg_S, mS, MYRANK
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: VEC1(:), VEC2(:), VEC3(:), VEC4(:), VEC5(:)
+#include "global.fh"
+#include "mafdecls.fh"
 #endif
-integer(kind=iwp) :: iCase, iSym, NIN, NIS, NVEC, NAS, ID, iLUID
-#ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: MYRANK, lg_S, mS, LDV
-integer(kind=iwp) :: ILO, IHI, JLO, JHI
-#endif
-integer(kind=iwp) :: NS, idS, idum, iTabs, iUabs, iVabs, iXabs, iYabs, iTU2, iTUabs, iTgeUabs, iTgtUabs, iXY2, iXYabs, iXgeYabs, &
-                     iXgtYabs, NSEQ
-integer(kind=iwp) :: lg_V1, lg_V2, lg_V3, lg_V4, lg_V5
-real(kind=wp) :: ScalB1, ScalB2, ScalS1, ScalS2, ET, EU, EX, EY, ATUXY, BDERval, bsBDER, SDERval, ATYU, ATYX, ATUX, ATUY
 
 do iCase=1,11
   !cycle
@@ -343,8 +335,8 @@ subroutine CLagDXB(NAS,BDER,SDER)
   integer(kind=iwp), intent(in) :: NAS
   real(kind=wp), intent(in) :: BDER(NAS,NAS)
   real(kind=wp), intent(inout) :: SDER(NAS,NAS)
+  integer(kind=iwp) :: iT, iTU, iU, iV, iX, iXY, iY
   real(kind=wp), allocatable :: WrkBbf(:,:,:,:), WrkSbf(:,:,:,:)
-  integer(kind=iwp) :: iTU, iXY, iT, iU, iX, iY, iV
 
   call mma_allocate(WrkBbf,nAshT,nAshT,nAshT,nAshT,Label='WrkBbf')
   call mma_allocate(WrkSbf,nAshT,nAshT,nAshT,nAshT,Label='WrkSbf')
@@ -596,8 +588,8 @@ subroutine CLagDXD(NAS,BDER,SDER)
   integer(kind=iwp), intent(in) :: NAS
   real(kind=wp), intent(in) :: BDER(NAS,NAS)
   real(kind=wp), intent(inout) :: SDER(NAS,NAS)
-  real(kind=wp) :: BDER1, BDER2, SDER1, SDER2, ETX
-  integer(kind=iwp) :: iTU, iXY, iV
+  integer(kind=iwp) :: iTU, iV, iXY
+  real(kind=wp) :: BDER1, BDER2, ETX, SDER1, SDER2
 
   if (ipea_shift /= Zero) then
     NS = NAS*(NAS+1)/2
@@ -692,8 +684,8 @@ subroutine CLagDXE(NAS,BDER,SDER)
   integer(kind=iwp), intent(in) :: NAS
   real(kind=wp), intent(in) :: BDER(NAS,NAS)
   real(kind=wp), intent(inout) :: SDER(NAS,NAS)
+  integer(kind=iwp) :: IT, IU, IV
   real(kind=wp) :: VAL
-  integer(kind=iwp) :: IT, IU, iV
 
   if (ipea_shift /= Zero) then
     NS = NAS*(NAS+1)/2
@@ -848,8 +840,8 @@ subroutine CLagDXG(NAS,BDER,SDER)
   integer(kind=iwp), intent(in) :: NAS
   real(kind=wp), intent(in) :: BDER(NAS,NAS)
   real(kind=wp), intent(inout) :: SDER(NAS,NAS)
-  real(kind=wp) :: VAL
   integer(kind=iwp) :: IT, IU
+  real(kind=wp) :: VAL
 
   if (ipea_shift /= Zero) then
     NS = NAS*(NAS+1)/2
@@ -888,17 +880,17 @@ end subroutine CLagDXG
 subroutine CLagDX_MPP()
 
   use caspt2_global, only: iVecL
-  use caspt2_module, only: MAXIT, JSTATE
+  use caspt2_module, only: JSTATE, MAXIT
   use Constants, only: One
 
-# include "global.fh"
-# include "mafdecls.fh"
+  integer(kind=iwp) :: i, idB, idSD, iHiV1, iICB, iLoV1, j, jHiV1, jICB, jLoV1, LDV1, lg_BDER, lg_SDER, lg_T, lg_WRK, lg_WRK2, &
+                       mBDER, mSDER, mV1, myrank, NCOL, NROW
+  real(kind=wp) :: EigI, EigJ, SCAL, tmp
+  logical(kind=iwp) :: bStat, invar_act
   integer(kind=byte), allocatable :: idxG3(:,:)
   real(kind=wp), allocatable :: EIG(:), WRK(:,:)
-  logical(kind=iwp) :: bStat, invar_act
-  integer(kind=iwp) :: myrank, lg_T, lg_WRK, lg_WRK2, lg_BDER, iLoV1, iHiV1, jLoV1, jHiV1, NROW, NCOL, idB, mV1, LDV1, i, j, iICB, &
-                       jICB, lg_SDER, idSD, mBDER, mSDER
-  real(kind=wp) :: SCAL, EigI, EigJ, tmp
+# include "global.fh"
+# include "mafdecls.fh"
 
   ! Construct active density in NAS basis
   ! Although non-GA version is also implemented, I noticed that

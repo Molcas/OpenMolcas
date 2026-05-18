@@ -24,17 +24,17 @@ subroutine NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
 ! natural occupation numbers and MO coefficients of
 ! natural orbitals.
 
+use caspt2_module, only: NBAS, NDEL, NFRO, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NFRO, NORB, NDEL, NBAS
-use constants, only: Zero, One, Two
-use definitions, only: iwp, wp
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDMAT, nCMO, nOcc, nCNAT
 real(kind=wp), intent(in) :: DMAT(nDMAT), CMO(nCMO)
 real(kind=wp), intent(out) :: OCC(nOcc), CNAT(nCNAT)
+integer(kind=iwp) :: ICMO, IDMAT, IOCC, ISYM, NB, ND, NF, NO, NTMP
 real(kind=wp), allocatable :: TMP(:)
-integer(kind=iwp) IDMAT, IOCC, ICMO, ISYM, NF, NO, ND, NB, NTMP
 
 IDMAT = 0
 IOCC = 0

@@ -25,13 +25,13 @@
 
 subroutine RHS_ZERO(IVEC)
 
-use definitions, only: iwp
-use constants, only: Zero
-use caspt2_module, only: NSYM, NASUP, NISUP
+use caspt2_module, only: NASUP, NISUP, NSYM
+use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) ICASE, ISYM, NAS, NIS, NW, lg_W
+integer(kind=iwp) :: ICASE, ISYM, lg_W, NAS, NIS, NW
 
 !-SVC: zero out the entire RHS vector on IVEC
 do ICASE=1,13

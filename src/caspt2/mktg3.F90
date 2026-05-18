@@ -29,37 +29,33 @@ subroutine MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 !     k  = min(tu,vx,yz)
 ! tu stands for the pair index tu= t + NASHT*(u-1), etc., and t is
 ! the usual active orbital number, when they are enumerated across
-! all the symmetries (The ''absolute'' active index).
+! all the symmetries (The "absolute" active index).
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, One, Two
-use sguga, only: EXS, SGS, L2ACT, CIS
-use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-use caspt2_module, only: NASHT, ISCF, NACTEL, IASYM
+use sguga, only: CIS, EXS, L2ACT, SGS
+use caspt2_module, only: IASYM, ISCF, NACTEL, NASHT
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs, MyRank
 #endif
 use caspt2_module, only: MxCI
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: LSYM1, LSYM2
+integer(kind=iwp), intent(in) :: LSYM1, LSYM2, NTG3
 real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI)
-real(kind=wp), intent(out) :: OVL
-real(kind=wp), intent(out) :: TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT)
-integer(kind=iwp), intent(in) :: NTG3
-real(kind=wp), intent(out) :: TG3(NTG3)
-integer(kind=iwp) :: nLev
+real(kind=wp), intent(out) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
+integer(kind=iwp) :: IL, IND1, IND2, IND3, IP, IP1, IP1END, IP1STA, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, ISSG2, ISTAU, &
+                     IT, IT1, IT2, IT3, ITG3, ITS, IU, IU1, IU2, IU3, IUS, IV, IVS, IX, IXS, IY, IYS, IZ, IZS, JL, jtuvxyz, L, &
+                     LFROM, LP2LEV1, LP2LEV2, LSGM1, LSGM2, LTAU, LTO, NCI1, nLev, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
+real(kind=wp) :: OCC, VAL
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iTask
 logical(kind=iwp) :: Poor_Par
-integer(kind=iwp) iTask
 #endif
 integer(kind=iwp), allocatable :: P2LEV(:)
 real(kind=wp), allocatable :: TG3WRK(:)
-integer(kind=iwp) IL, IND1, IND2, IND3, IP, IP1, IP1END, IP1STA, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, ISSG2, ISTAU, IT, &
-                  IT1, IT2, IT3, ITG3, ITS, IU, IU1, IU2, IU3, IUS, IV, IVS, IX, IXS, IY, IYS, IZ, IZS, JL, jtuvxyz, L, LFROM, &
-                  LP2LEV1, LP2LEV2, LSGM1, LSGM2, LTAU, LTO, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
-real(kind=wp) OCC, VAL
 real(kind=wp), external :: DDot_
 
 nLev = SGS%nLev

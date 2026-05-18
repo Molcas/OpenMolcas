@@ -12,13 +12,13 @@
 subroutine ASIND(IAS,ISYM,ICASE,IP,IQ,IR)
 
 use SUPERINDEX, only: MAGEB, MAGTB
-use caspt2_module, only: NAGEBES, NAGTBES, IEXTIS
-use definitions, only: iwp
+use caspt2_module, only: IEXTIS, NAGEBES, NAGTBES
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IAS, ISYM, ICASE
 integer(kind=iwp), intent(out) :: IP, IQ, IR
-integer(kind=iwp) :: IABABS, IAABS, IBABS
+integer(kind=iwp) :: IAABS, IABABS, IBABS
 
 if (ICASE == 2) then
   IABABS = IAS+NAGTBES(ISYM)

@@ -20,19 +20,18 @@ subroutine DIAFCK(NO,FOCK,IOSTA,IOEND,TSCT,NB,CMO1SCT,CMO2SCT)
 ! transformation matrix, CMO1SCT is a section of the CMO array (in)
 ! and CMO2SCT the same, transformed.
 
-use constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: iwp, wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NO, IOSTA, IOEND, NB
 real(kind=wp), intent(inout) :: FOCK(NO,NO)
-real(kind=wp), intent(out) :: TSCT(IOSTA:IOEND,IOSTA:IOEND)
+real(kind=wp), intent(out) :: TSCT(IOSTA:IOEND,IOSTA:IOEND), CMO2SCT(NB,*)
 real(kind=wp), intent(in) :: CMO1SCT(NB,*)
-real(kind=wp), intent(out) :: CMO2SCT(NB,*)
+integer(kind=iwp) :: I, IJ, J, JMX, K, NSCT
+real(kind=wp) :: SWAP, V, VMX
 real(kind=wp), allocatable :: TMP(:)
-integer(kind=iwp) I, IJ, J, JMX, K, NSCT
-real(kind=wp) V, VMX, SWAP
 
 ! Size of orbital section to process:
 NSCT = IOEND+1-IOSTA

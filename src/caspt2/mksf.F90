@@ -24,21 +24,21 @@ subroutine MKSF(PREF,NPREF)
 !    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
 !    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
 
-use definitions, only: iwp, wp
-use constants, only: Four
-use SUPERINDEX, only: MTU, MTGEU, KTU, MTGEU, KTGTU
-use caspt2_global, only: LUSBT
+use SUPERINDEX, only: KTGTU, KTU, MTGEU, MTGEU, MTU
 use EQSOLV, only: IDSMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: NASHT, NINDEP, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES, NTU, NTUES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NTU, NTUES, NASHT, NTGEU, NTGEUES, NTGTU, NTGTUES
+use Constants, only: Four
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NPREF
 real(kind=wp), intent(in) :: PREF(NPREF)
-real(kind=wp), allocatable :: SF(:), SFP(:), SFM(:)
-integer(kind=iwp) ISYM, NINP, NAS, NSF, ITU, ITUABS, ITABS, IUABS, IXY, IXYABS, IXABS, IYABS, ISADR, ITX, IUY, IP1, IP2, IP, &
-                  IDISK, ISMADR, ISPADR, ITGEU, ITGEUABS, ITGTU, IXGEY, IXGEYABS, IXGTY, IYX, NASM, NASP, NSFM, NSFP
-real(kind=wp) value, STUXY, STUYX
+integer(kind=iwp) :: IDISK, IP, IP1, IP2, ISADR, ISMADR, ISPADR, ISYM, ITABS, ITGEU, ITGEUABS, ITGTU, ITU, ITUABS, ITX, IUABS, &
+                     IUY, IXABS, IXGEY, IXGEYABS, IXGTY, IXY, IXYABS, IYABS, IYX, NAS, NASM, NASP, NINP, NSF, NSFM, NSFP
+real(kind=wp) :: STUXY, STUYX
+real(kind=wp), allocatable :: SF(:), SFM(:), SFP(:)
 
 ! Loop over superindex symmetry.
 do ISYM=1,NSYM
@@ -61,8 +61,7 @@ do ISYM=1,NSYM
       IP1 = max(ITX,IUY)
       IP2 = min(ITX,IUY)
       IP = (IP1*(IP1-1))/2+IP2
-      value = Four*PREF(IP)
-      SF(ISADR) = value
+      SF(ISADR) = Four*PREF(IP)
     end do
   end do
   NASP = NTGEU(ISYM)

@@ -14,19 +14,17 @@
 subroutine OLagFro3(NBSQT,FIFA,FIMO,WRK1,WRK2)
 
 use caspt2_global, only: CMOPT2
+use caspt2_module, only: NBAS, NBTRI, NDEL, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: NSYM, NDEL, NBAS, NBTRI
-
-#include "intent.fh"
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT
 real(kind=wp), intent(inout) :: FIFA(NBSQT), FIMO(NBSQT)
-real(kind=wp), intent(_OUT_) :: WRK1(NBSQT), WRK2(NBSQT)
-character(Len=8) :: Label
+real(kind=wp), intent(out) :: WRK1(NBSQT), WRK2(NBSQT)
+integer(kind=iwp) :: iAO, iAOtr, iCMO, ICOMP, iMO, IOPT, IRC, ISYLBL, iSym, nBasI, nOrbI
+character(len=8) :: Label
 real(kind=wp), allocatable :: WFLT(:)
-integer(kind=iwp) :: IRC, IOPT, ICOMP, ISYLBL, iAO, iAOtr, iCMO, iMO, iSym, nBasI, nOrbI
 
 !! Read H_{\mu \nu}
 call mma_allocate(WFLT,NBTRI,Label='WFLT')

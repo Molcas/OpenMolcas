@@ -29,26 +29,26 @@ subroutine RHS_SR2C(ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)
 !     only the T matrix is used (ITYP=0) or the product of S and T
 !     (ITYP=1).
 
-use definitions, only: iwp, wp, u6
-use Constants, only: Zero, One
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use caspt2_global, only: LUSBT
-use EQSOLV, only: IDTMAT, IDSTMAT
-use stdalloc, only: mma_allocate, mma_deallocate
+use EQSOLV, only: IDSTMAT, IDTMAT
 use fake_GA, only: GA_Arrays
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ITYP, IREV, NAS, NIS, NIN, lg_V1, lg_V2, ICASE, ISYM
+integer(kind=iwp) :: IDT
 real(kind=wp), allocatable :: T(:)
-integer(kind=iwp) IDT
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iHiV1, iHiV2, iLoV1, iLoV2, jHiV1, jHiV2, jLoV1, jLoV2, LDV1, LDV2, lg_T, mV1, mV2, myRank, NCOL1, NCOL2, &
+                     NROW1, NROW2
+logical(kind=iwp) :: bStat
 #include "global.fh"
 #include "mafdecls.fh"
-logical(kind=iwp) bStat
-integer(kind=iwp) lg_T, myRank, iLoV1, iHiV1, jLoV1, jHiV1, iLoV2, iHiV2, jLoV2, jHiV2, NROW1, NROW2, NCOL1, NCOL2, mV1, LDV1, &
-                  mV2, LDV2
 
 if (Is_Real_Par()) then
   if ((ICASE == 1) .or. (ICASE == 4)) then

@@ -19,15 +19,15 @@
 
 subroutine AddDEPSA(nDPT2,nAshT,DPT2,DEPSA)
 
-use caspt2_module, only: NSYM, NFRO, NISH, NASH, NORB, NDEL, NBAS
+use caspt2_module, only: NASH, NBAS, NDEL, NFRO, NISH, NORB, NSYM
 use Constants, only: Half
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDPT2, nAshT
 real(kind=wp), intent(inout) :: DPT2(nDPT2)
 real(kind=wp), intent(in) :: DEPSA(nAshT,nAshT)
-integer(kind=iwp) :: iMO1, iMO2, iSym, nOrbI1, nOrbI2, iOrb0, iOrb2, jOrb0, jOrb2, iOrb, jOrb
+integer(kind=iwp) :: iMO1, iMO2, iOrb, iOrb0, iOrb2, iSym, jOrb, jOrb0, jOrb2, nOrbI1, nOrbI2
 real(kind=wp) :: Val
 
 iMO1 = 1

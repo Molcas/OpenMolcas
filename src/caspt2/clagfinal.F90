@@ -13,19 +13,19 @@
 
 subroutine CLagFinal(nConf,nRoots,nState,CLag,SLag)
 
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: VERBOSE
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: ISCF, REFENE
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
-use caspt2_module, only: REFENE, ISCF
 use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nConf, nRoots, nState
 real(kind=wp), intent(inout) :: CLag(nConf,nRoots), SLag(nState**2)
-real(kind=wp), allocatable :: CI1(:), CI2(:)
 integer(kind=iwp) :: ijst, ilStat, jlStat
-real(kind=wp) :: Scal, Ovl
+real(kind=wp) :: Ovl, Scal
+real(kind=wp), allocatable :: CI1(:), CI2(:)
 real(kind=wp), external :: DDOT_
 
 call mma_allocate(CI1,nConf,Label='CI1')

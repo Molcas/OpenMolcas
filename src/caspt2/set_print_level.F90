@@ -13,7 +13,7 @@ subroutine Set_Print_Level()
 
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: SILENT, USUAL
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), external :: iPrintLevel

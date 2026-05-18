@@ -12,39 +12,35 @@
 subroutine MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,NCHOBUF,NPIQK,NADDBUF)
 
 use Symmetry_Info, only: Mul
-use definitions, only: wp, iwp, u6
 use CHOVEC_IO, only: NVLOC_CHOBATCH
-use caspt2_global, only: iParRHS, iPrGlb, iStpGrd
 use PrintLevel, only: VERBOSE
-use stdalloc, only: mma_MaxDBLE
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-use caspt2_module, only: NSYM, NASHT, NISUP, NISH, NASH, NSSH, NTU, NTUV, NASH, NIGEJ, NIGTJ, NAGEB, NAGTB, NTGEU, NTGTU, NBTCHES, &
-                         NBTCH
+use caspt2_global, only: iParRHS, iPrGlb, iStpGrd
+use caspt2_module, only: NAGEB, NAGTB, NASH, NASH, NASHT, NBTCH, NBTCHES, NIGEJ, NIGTJ, NISH, NISUP, NSSH, NSYM, NTGEU, NTGTU, &
+                         NTU, NTUV
+use stdalloc, only: mma_MaxDBLE
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: JSYM
-integer(kind=iwp), intent(out) :: NBGRP
-integer(kind=iwp), intent(out) :: LBGRP(2,*)
-integer(kind=iwp), intent(out) :: NCHOBUF, NPIQK, NADDBUF
-integer(kind=iwp) IB, IB1, IB2, IBGRP, ICASE, ISYI, ISYK, ISYP, ISYQ, MAXBUFF, MAXCHOL, MAXPIQK, MINBUFF, MINCHOL, MINGOOD, &
-                  MINNICE, MINPIQK, MINSLOW, MXAVAIL, MXBATCH, MXCHOVEC, MXNPITOT, MXRHS, NCHOVEC, NCHUNK, NI, NK, NP, NPI, NQ, &
-                  NQK, NV, NVECTOT
-integer(kind=iwp), external :: iPARDIV
-integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
-integer(kind=iwp) nSh(8,3)
+integer(kind=iwp), intent(out) :: LBGRP(2,*), NBGRP, NCHOBUF, NPIQK, NADDBUF
+integer(kind=iwp) :: IB, IB1, IB2, IBGRP, ICASE, ISYI, ISYK, ISYM, ISYP, ISYQ, MAXBUFF, MAXCHOL, MAXPIQK, MINBUFF, MINCHOL, &
+                     MINGOOD, MINNICE, MINPIQK, MINSLOW, MXAVAIL, MXBATCH, MXCHOVEC, MXNPITOT, MXRHS, NCHOVEC, NCHUNK, NI, NK, NP, &
+                     NPI, NQ, NQK, nSh(8,3), NV, NVECTOT
 logical(kind=iwp) :: call_from_grad
-integer(kind=iwp) :: ITYPE(4,9) = reshape([Inactive,Active ,Active  ,Active , &
-                                           Inactive,Active ,Inactive,Active , &
-                                           Inactive,Virtual,Active  ,Active , &
-                                           Inactive,Virtual,Inactive,Virtual, &
-                                           Active  ,Virtual,Active  ,Active , &
-                                           Active  ,Virtual,Active  ,Virtual, &
-                                           Active  ,Virtual,Inactive,Active , &
-                                           Active  ,Virtual,Inactive,Virtual, &
-                                           Inactive,Virtual,Inactive,Active ],[4,9])
-integer(kind=iwp) ISYM
+integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3, &
+                                ITYPE(4,9) = reshape([Inactive,Active ,Active  ,Active , &
+                                                      Inactive,Active ,Inactive,Active , &
+                                                      Inactive,Virtual,Active  ,Active , &
+                                                      Inactive,Virtual,Inactive,Virtual, &
+                                                      Active  ,Virtual,Active  ,Active , &
+                                                      Active  ,Virtual,Active  ,Virtual, &
+                                                      Active  ,Virtual,Inactive,Active , &
+                                                      Active  ,Virtual,Inactive,Virtual, &
+                                                      Inactive,Virtual,Inactive,Active ],[4,9])
+integer(kind=iwp), external :: iPARDIV
 
 call_from_grad = .false.
 if (iStpGrd == -1) call_from_grad = .true.

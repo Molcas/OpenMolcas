@@ -19,40 +19,34 @@
 
 module SUPERINDEX
 
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), allocatable, save :: KTU(:,:), MTU(:,:), KTUV(:,:,:), MTUV(:,:), KTGEU(:,:), MTGEU(:,:), KTGTU(:,:), &
-                                        MTGTU(:,:), KAGEB(:,:), MAGEB(:,:), KAGTB(:,:), MAGTB(:,:), KIGEJ(:,:), MIGEJ(:,:), &
-                                        KIGTJ(:,:), MIGTJ(:,:), KIA(:,:), MIA(:,:), MIREL(:,:), MTREL(:,:), MAREL(:,:)
+private
+
+integer(kind=iwp), allocatable :: KAGEB(:,:), KAGTB(:,:), KIA(:,:), KIGEJ(:,:), KIGTJ(:,:), KTGEU(:,:), KTGTU(:,:), KTU(:,:), &
+                                  KTUV(:,:,:), MAGEB(:,:), MAGTB(:,:), MAREL(:,:), MIA(:,:), MIGEJ(:,:), MIGTJ(:,:), MIREL(:,:), &
+                                  MTGEU(:,:), MTGTU(:,:), MTREL(:,:), MTU(:,:), MTUV(:,:)
+
+public :: KAGEB, KAGTB, KIGEJ, KIGTJ, KTGEU, KTGTU, KTU, KTUV, MAGEB, MAGTB, MAREL, MIA, MIGEJ, MIGTJ, MIREL, MTGEU, MTGTU, MTREL, &
+          MTU, MTUV, SUPFREE, SUPINI
 
 contains
 
 subroutine SUPINI()
 
-  use stdalloc, only: mma_allocate
   use Symmetry_Info, only: Mul
-  use caspt2_module, only: nInDep, MxCase, nAshT, nCases, nIshT, nAshT, nSym, nTUVEs, nAsh, nSshT, nAes, nTUV, nTUES, nTGEUES, &
-                           nTGTUES, nTU, nTGEU, nTGTU, nIGEJES, nIGTJES, nIsh, nIES, nIGEJ, nIGTJ, nAGEBES, nAGTBES, nSsh, nSES, &
-                           nAGEB, nIAES, nSES, nSsh, nAGTB, Cases, nASUP, nISUP
+  use caspt2_module, only: Cases, MxCase, nAes, nAGEB, nAGEBES, nAGTB, nAGTBES, nAsh, nAshT, nAshT, nASUP, nCases, nIAES, nIES, &
+                           nIGEJ, nIGEJES, nIGTJ, nIGTJES, nInDep, nIsh, nIshT, nISUP, nSES, nSES, nSsh, nSsh, nSshT, nSym, nTGEU, &
+                           nTGEUES, nTGTU, nTGTUES, nTU, nTUES, nTUV, nTUVEs
+  use stdalloc, only: mma_allocate
 
-  character(len=8), parameter :: CSNAME(MXCASE) = ['VJTU    ','VJTIP   ','VJTIM   ','ATVX    ','AIVX    ','VJAIP   ','VJAIM   ', &
-                                                   'BVATP   ','BVATM   ','BJATP   ','BJATM   ','BJAIP   ','BJAIM   ']
-  integer(kind=iwp) ISYM, ICASE
-  integer(kind=iwp) NSUM, NCOUNT
-  integer(kind=iwp) IA, IB, II, IJ, IT, IU, IV
-  integer(kind=iwp) IAQ, IBQ, IIQ, IJQ, ITQ, IUQ, IVQ
-  integer(kind=iwp) ISA, ISB, ISI, ISJ, IST, ISU, ISV
-  integer(kind=iwp) IAGEB, IAGTB, NMAGEB, NMAGTB
-  integer(kind=iwp) IIGEJ, IIGTJ, NMIGEJ, NMIGTJ
-  integer(kind=iwp) ITGEU, ITGTU, NMTGEU, NMTGTU, ITUV
-  integer(kind=iwp) IIA, ITU, NMIA
-  integer(kind=iwp) IS1, IS2, ISYA, ISYI, ISUV
-  integer(kind=iwp) JC0, JCM, JCP
-  integer(kind=iwp) NC0, NCM, NCP
-  integer(kind=iwp) JCOUNT
-  integer(kind=iwp) N, N5, N6, N7, N10, N11
-  integer(kind=iwp) NAT, NAU, NAV, NII, NIJ, NSA, NSB
+  integer(kind=iwp) :: IA, IAGEB, IAGTB, IAQ, IB, IBQ, ICASE, II, IIA, IIGEJ, IIGTJ, IIQ, IJ, IJQ, IS1, IS2, ISA, ISB, ISI, ISJ, &
+                       IST, ISU, ISUV, ISV, ISYA, ISYI, ISYM, IT, ITGEU, ITGTU, ITQ, ITU, ITUV, IU, IUQ, IV, IVQ, JC0, JCM, &
+                       JCOUNT, JCP, N, N10, N11, N5, N6, N7, NAT, NAU, NAV, NC0, NCM, NCOUNT, NCP, NII, NIJ, NMAGEB, NMAGTB, NMIA, &
+                       NMIGEJ, NMIGTJ, NMTGEU, NMTGTU, NSA, NSB, NSUM
+  character(len=*), parameter :: CSNAME(MXCASE) = [character(len=8) :: 'VJTU','VJTIP','VJTIM','ATVX','AIVX','VJAIP','VJAIM', &
+                                                                       'BVATP','BVATM','BJATP','BJATM','BJAIP','BJAIM']
 
   call MMA_ALLOCATE(KTUV,NASHT,NASHT,NASHT,Label='KTUV')
   call MMA_ALLOCATE(MTUV,3,NASHT**3,Label='MTUV')

@@ -26,18 +26,17 @@ subroutine MLTR1(IMLTOP,LST1,X,nX,F,nF,Y,nY)
 ! The formal Y(p,q,r) is accessed as
 ! Y(1+INCX1*(p-1)+INCX2*(q-1)+INCX3*(r-1)), etc.
 
-use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: MyRank, nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
 #endif
-use Sigma_data, only: NLST1, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, LEN1, LEN2, NFR1, VAL1
+use Sigma_data, only: INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, LEN1, LEN2, NFR1, NLST1, VAL1
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IMLTOP, nX, nF, nY
+integer(kind=iwp), intent(in) :: IMLTOP, LST1(4,NLST1), nX, nF, nY
 real(kind=wp), intent(inout) :: X(nX), F(nF), Y(nY)
-integer(kind=iwp), intent(in) :: LST1(4,NLST1)
-integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST, L1, L2, L3, L4, IX, IF, IY, I
-real(kind=wp) V, A
+integer(kind=iwp) :: I, I_F, ILST, ILST1_IOFF, ILST1_SKIP, IX, IY, L1, L2, L3, L4
+real(kind=wp) :: A, V
 real(kind=wp), external :: DDot_
 
 !SVC: determine outer loop properties
@@ -62,13 +61,13 @@ select case (IMLTOP)
       L4 = LST1(4,ILST)
       V = VAL1(L4)
       IX = INCX1*(L1-1)+1
-      IF = INCF1*(L2-1)+1
+      I_F = INCF1*(L2-1)+1
       IY = INCY1*(L3-1)+1
       do I=1,LEN1
-        A = V*F(IF)
+        A = V*F(I_F)
         call DAXPY_(LEN2,A,Y(IY),INCY2,X(IX),INCX3)
         IX = IX+INCX2
-        IF = IF+INCF2
+        I_F = I_F+INCF2
       end do
     end do
   case (1)
@@ -79,10 +78,10 @@ select case (IMLTOP)
       L4 = LST1(4,ILST)
       V = VAL1(L4)
       IX = INCX1*(L1-1)+1
-      IF = INCF1*(L2-1)+1
+      I_F = INCF1*(L2-1)+1
       IY = INCY1*(L3-1)+1
       do I=1,LEN2
-        Y(IY) = Y(IY)+V*DDOT_(LEN1,F(IF),INCF2,X(IX),INCX2)
+        Y(IY) = Y(IY)+V*DDOT_(LEN1,F(I_F),INCF2,X(IX),INCX2)
         IX = IX+INCX3
         IY = IY+INCY2
       end do
@@ -95,12 +94,12 @@ select case (IMLTOP)
       L4 = LST1(4,ILST)
       V = VAL1(L4)
       IX = INCX1*(L1-1)+1
-      IF = INCF1*(L2-1)+1
+      I_F = INCF1*(L2-1)+1
       IY = INCY1*(L3-1)+1
       ! F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
       do I=1,LEN2
         A = V*Y(IY)
-        call DAXPY_(LEN1,A,X(IX),INCX2,F(IF),INCF2)
+        call DAXPY_(LEN1,A,X(IX),INCX2,F(I_F),INCF2)
         IX = IX+INCX3
         IY = IY+INCY2
       end do

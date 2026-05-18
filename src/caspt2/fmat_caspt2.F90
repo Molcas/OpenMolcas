@@ -30,20 +30,19 @@ subroutine FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,DREF,NDREF,HONE,nHONE)
 ! FIMO AND FAMO.
 ! CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, Half, One, Two
 use caspt2_global, only: LUINTM
-use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES, NoMx, NoTri
+use caspt2_module, only: NAES, NISH, NoMx, NORB, NOSH, NoTri, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nFIFA, NFIMO, NDREF, nHONE
-real(kind=wp), intent(inout) :: FIFA(nFIFA), FIMO(NFIMO)
+real(kind=wp), intent(out) :: FIFA(nFIFA), FIMO(NFIMO)
 real(kind=wp), intent(in) :: DREF(NDREF), HONE(nHONE)
-integer(kind=iwp) IAD2M(3,36*36)
-integer(kind=iwp) NDIM2M, IDISK, IFSTA, NBR, NB3, NBNB, ISYS, IS3RS, NIP, NOP, NAESP, ISYQ, IS3PQ, ISADDR, IDISK1, ITABS, ITU, &
-                  IUABS, nInts, nBUF
-real(kind=wp) DTU
+integer(kind=iwp) :: IAD2M(3,36*36), IDISK, IDISK1, IFSTA, IS3PQ, IS3RS, ISADDR, ISYQ, ISYS, ITABS, ITU, IUABS, NAESP, NB3, NBNB, &
+                     NBR, nBUF, NDIM2M, nInts, NIP, NOP
+real(kind=wp) :: DTU
 real(kind=wp), allocatable :: BUF(:)
 
 ! Inactive and active Fock matrices:
@@ -77,7 +76,7 @@ contains
 subroutine Do_Loops(icase)
 
   integer(kind=iwp), intent(in) :: iCase
-  integer(kind=iwp) ISYR, ISYP, IT, IU
+  integer(kind=iwp) :: ISYP, ISYR, IT, IU
 
   IFSTA = 1
   do ISYR=1,NSYM

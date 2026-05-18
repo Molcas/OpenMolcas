@@ -26,21 +26,21 @@
 subroutine RHS_RESDIA(NIN,NIS,lg_W,DIN,DIS,DOVL)
 ! Apply the resolvent of the diagonal part of H0 to an RHS array
 
-use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use constants, only: Zero
+use Constants, only: Zero
 #endif
 use fake_GA, only: GA_Arrays
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NIN, NIS, lg_W
 real(kind=wp), intent(in) :: DIN(NIN), DIS(NIS)
 real(kind=wp), intent(out) :: DOVL
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iHi, iLo, jHi, jLo, LDW, mW, myRank, NCOL, NROW
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) myRank, iLo, iHi, jLo, jHi, NROW, NCOL, mW, LDW
 
 if (Is_Real_Par()) then
   DOVL = Zero

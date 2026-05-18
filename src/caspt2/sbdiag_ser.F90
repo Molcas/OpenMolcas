@@ -37,29 +37,22 @@ subroutine SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
 ! LUSOLV is assumed not to be in use yet, so we use it
 ! for temporary storage.
 
-use constants, only: Zero, One
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD, idBoriMat
-use caspt2_global, only: LUSOLV, LUSBT
 use PrintLevel, only: INSANE
-use EQSOLV, only: IDTMAT, IDBMAT, IDSMAT, IDSTMAT
+use EQSOLV, only: IDBMAT, IDSMAT, IDSTMAT, IDTMAT
+use caspt2_global, only: do_grad, do_lindep, idBoriMat, iPrGlb, LUSBT, LUSOLV, LUSTD, nStpGrd
+use caspt2_module, only: BMatrix, BSpect, BTrans, Cases, IfDOrtho, nASup, nG3, nInDep, nISup, ThrShn, ThrShs
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: BMatrix, BSpect, BTrans, IfDOrtho, ThrShn, ThrShs, nASup, nISup, Cases, nInDep, nG3
-use definitions, only: wp, iwp, ItoB, u6
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, ItoB
 
 implicit none
 integer(kind=iwp), intent(in) :: iSym, iCase
 real(kind=wp), intent(out) :: CondNr, CPU
-! For fooling some compilers:
-real(kind=wp) WGRONK(2)
-real(kind=wp), allocatable :: S(:), SD(:), SCA(:)
-real(kind=wp), allocatable :: VEC(:), EIG(:), SCRATCH(:)
-real(kind=wp), allocatable :: B(:), BD(:), BX(:), XBX(:)
-real(kind=wp), allocatable :: TRANS(:), AUX(:), ST(:)
-real(kind=wp) :: CPU1, CPU2, CPUE, EVAL, FACT, FP, SDIAG, SZ, SZMAX, SZMIN, TIO, TIOE
+integer(kind=iwp) :: I, IDB, IDB2, IDIAG, IDS, IDST, IDT, IDTMP, IDTMP0, IJ, INFO, iPad, J, JOFF, KEND, KSTA, LTRANS1, LVNEW, &
+                     LVSTA, NAS, NAUX, NB, NBNEW, NCOEF, NCOL, NIN, NIS, NS, NSCRATCH
+real(kind=wp) :: CPU1, CPU2, CPUE, EVAL, FACT, FP, SDIAG, SZ, SZMAX, SZMIN, TIO, TIOE, WGRONK(2)
+real(kind=wp), allocatable :: AUX(:), B(:), BD(:), BX(:), EIG(:), S(:), SCA(:), SCRATCH(:), SD(:), ST(:), TRANS(:), VEC(:), XBX(:)
 real(kind=wp), external :: DNRM2_
-integer(kind=iwp) :: I, IDB, IDB2, IDIAG, IDS, IDST, IDT, IDTMP, IDTMP0, IJ, INFO, iPad, J, KEND, KSTA, LTRANS1, LVNEW, LVSTA, &
-                     NAS, NAUX, NB, NBNEW, NCOEF, NCOL, NIN, NIS, NS, NSCRATCH, JOFF
 
 SDiag = Zero ! dummy initialize
 

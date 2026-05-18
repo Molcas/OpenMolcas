@@ -14,20 +14,19 @@
 subroutine MS_Res(MODE,IST,JST,Scal)
 ! Compute the derivative of E^PT2 with respct to the T amplitude
 
-use caspt2_global, only: LUCIEX, IDTCEX
 use EQSOLV, only: IVECC, IVECC2, IVECW
+use caspt2_global, only: IDTCEX, LUCIEX
+use caspt2_module, only: ISCF, MXCI, NASHT, NCONF, NSTATE, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: STSYM, NCONF, NASHT, ISCF, NSTATE
-use caspt2_module, only: MXCI
 use Constants, only: Zero
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: MODE, IST, JST
 real(kind=wp), intent(in) :: Scal
-integer(kind=iwp) :: I, NTG1, NTG2, NTG3, IDCI
-real(kind=wp) :: DVALUE, OVL, DUMMY(1)
-real(kind=wp), allocatable :: TG1(:), TG2(:), TG3(:), CI1(:), CI2(:)
+integer(kind=iwp) :: I, IDCI, NTG1, NTG2, NTG3
+real(kind=wp) :: DUMMY(1), DVALUE, OVL
+real(kind=wp), allocatable :: CI1(:), CI2(:), TG1(:), TG2(:), TG3(:)
 
 ! We evaluate the effective Hamiltonian matrix element in two steps.
 

@@ -13,36 +13,16 @@
 
 module Fockof
 
-use definitions, only: iwp, wp
+use Data_Structures, only: V1
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
-public :: IOFFIT, IOFFIA, IOFFTA
-public :: FIT, FIT_Full
-public :: FTI, FTI_Full
-public :: FIA, FIA_Full
-public :: FAI, FAI_Full
-public :: FTA, FTA_Full
-public :: FAT, FAT_Full
-
-type rPointers
-  real(kind=wp), pointer :: A(:) => null()
-end type rPointers
-
-type(rPointers) :: FIT(8)
-real(kind=wp), allocatable, target :: FIT_Full(:)
-type(rPointers) :: FTI(8)
-real(kind=wp), allocatable, target :: FTI_Full(:)
-type(rPointers) :: FIA(8)
-real(kind=wp), allocatable, target :: FIA_Full(:)
-type(rPointers) :: FAI(8)
-real(kind=wp), allocatable, target :: FAI_Full(:)
-type(rPointers) :: FTA(8)
-real(kind=wp), allocatable, target :: FTA_Full(:)
-type(rPointers) :: FAT(8)
-real(kind=wp), allocatable, target :: FAT_Full(:)
-
 integer(kind=iwp) :: IOFFIT(8), IOFFIA(8), IOFFTA(8)
+type(V1) :: FAI(8), FAT(8), FIA(8), FIT(8), FTA(8), FTI(8)
+real(kind=wp), allocatable, target :: FAI_Full(:), FAT_Full(:), FIA_Full(:), FIT_Full(:), FTA_Full(:), FTI_Full(:)
+
+public :: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
 
 end module Fockof

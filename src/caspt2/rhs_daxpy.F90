@@ -26,20 +26,19 @@
 subroutine RHS_DAXPY(NAS,NIS,ALPHA,lg_V1,lg_V2)
 !SVC: this routine computes product ALPHA * V1 and adds to V2
 
-use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use fake_GA, only: GA_Arrays
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NAS, NIS
+integer(kind=iwp), intent(in) :: NAS, NIS, lg_V1, lg_V2
 real(kind=wp), intent(in) :: ALPHA
-integer(kind=iwp), intent(in) :: lg_V1, lg_V2
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iHiV1, iHiV2, iLoV1, iLoV2, jHiV1, jHiV2, jLoV1, jLoV2, LDV1, LDV2, mV1, mV2, myRank, NV1, NV2
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) myRank, iLoV1, iHiV1, jLoV1, jHiV1, iLoV2, iHiV2, jLoV2, jHiV2, NV1, NV2, mV1, LDV1, mV2, LDV2
 
 if (Is_Real_Par()) then
   myRank = GA_NodeID()

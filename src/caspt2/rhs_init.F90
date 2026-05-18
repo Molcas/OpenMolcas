@@ -25,13 +25,13 @@
 
 subroutine RHS_INIT()
 
-use definitions, only: iwp, wp
 use caspt2_global, only: LURHS
-use caspt2_module, only: nSym, nISup, nASup, iOffRHS
+use caspt2_module, only: iOffRHS, nASup, nISup, nSym
+use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) DUMMY(1)
-integer(kind=iwp) iDisk, iCase, iSym, NAS, NIS, NW, NRHS, iLo, iHi, jLo, jHi
+real(kind=wp) :: DUMMY(1)
+integer(kind=iwp) :: iCase, iDisk, iHi, iLo, iSym, jHi, jLo, NAS, NIS, NRHS, NW
 
 !-SVC: loop over symmetry/cases, get local patch of RHS, write, and then
 ! update the disk address in IOFFRHS

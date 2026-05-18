@@ -16,15 +16,15 @@ subroutine ModDip()
 ! mclr/out_pt2
 ! Note that Last Dipole Moments are actually not used anywhere
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
 use caspt2_module, only: LROOTS, NROOTS, NSTATE, ROOT2STATE
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), allocatable :: DMs1(:,:), DMs2(:,:)
+integer(kind=iwp) :: i, j, nData
 logical(kind=iwp) :: Found
-integer(kind=iwp) :: nData, i, j
+real(kind=wp), allocatable :: DMs1(:,:), DMs2(:,:)
 
 if (NSTATE == lRoots) return
 

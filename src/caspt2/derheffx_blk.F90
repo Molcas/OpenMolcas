@@ -20,21 +20,22 @@ subroutine DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,IISTA,IIEND,V1,V2,OVL,DT
 ! only computes part of the HEL value, which is then sum reduced in the
 ! calling subroutine.
 
-use SUPERINDEX, only: MTU, MTUV, MTGEU, MTGTU
-use caspt2_module, only: NAES, NTUVES, NTUES, NTGEUES, NTGTUES
-use definitions, only: wp, iwp
+use SUPERINDEX, only: MTGEU, MTGTU, MTU, MTUV
+use caspt2_module, only: NAES, NTGEUES, NTGTUES, NTUES, NTUVES
 use Constants, only: Zero, Two, Four, Eight
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NTG3, NASHT, IISTA, IIEND
+integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NASHT, NTG3, IISTA, IIEND
 real(kind=wp), intent(in) :: V1(nvlen), V2(nvlen)
 real(kind=wp), intent(out) :: OVL
 real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT), DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3)
-! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-integer(kind=iwp) :: NISBLK, IAS, IASABS, ITABS, IUABS, IVABS, JAS, JASABS, IXABS, IYABS, IZABS, IND1, IND2, IND3, JND1, JND2, &
-                     JND3, ITG3, NAS1, IAS1, IAS2, JAS1, JAS2
+integer(kind=iwp) :: IAS, IAS1, IAS2, IASABS, IND1, IND2, IND3, ITABS, ITG3, IUABS, IVABS, IXABS, IYABS, IZABS, JAS, JAS1, JAS2, &
+                     JASABS, JND1, JND2, JND3, NAS1, NISBLK
 real(kind=wp) :: VAL, VAL11, VAL12, VAL21, VAL22
 real(kind=wp), external :: ddot_
+
+! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
 if (IISTA <= 0) return
 

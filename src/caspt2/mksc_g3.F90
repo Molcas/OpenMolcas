@@ -20,17 +20,17 @@
 subroutine MKSC_G3(ISYM,SC,NSC,NG3,G3,idxG3)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, Byte
 use SUPERINDEX, only: KTUV
-use caspt2_module, only: NASHT, IASYM, NTUVES
+use caspt2_module, only: IASYM, NASHT, NTUVES
+use Definitions, only: wp, iwp, byte
 
 implicit none
 integer(kind=iwp), intent(in) :: ISYM, NSC, NG3
 real(kind=wp), intent(out) :: SC(NSC)
 real(kind=wp), intent(in) :: G3(NG3)
-integer(kind=Byte), intent(in) :: idxG3(6,NG3)
-integer(kind=iwp) iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV, iSX, iSY, iSZ, ituvs, ixyzs, iTU, iVX, iYZ, JSYM, ISUP, JSUP, ISADR
-real(kind=wp) G3VAL
+integer(kind=byte), intent(in) :: idxG3(6,NG3)
+integer(kind=iwp) :: iG3, ISADR, iST, iSU, ISUP, iSV, iSX, iSY, iSZ, iT, iTU, ituvs, iU, iV, iVX, iX, ixyzs, iY, iYZ, iZ, JSUP, JSYM
+real(kind=wp) :: G3VAL
 
 !-SVC20100831: determine indices in SC where a certain G3 value will end up
 do iG3=1,NG3

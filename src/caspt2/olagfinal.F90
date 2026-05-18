@@ -13,19 +13,18 @@
 
 subroutine OLagFinal(nOLag,nTrf,OLagLoc,Trf)
 
-use caspt2_global, only: CMOPT2
-use caspt2_global, only: OLagFull, WLag
+use caspt2_global, only: CMOPT2, OLagFull, WLag
+use caspt2_module, only: IFMSCOUP, iRlxRoot, JSTATE, NBAS, NBAST, NBSQT, NBTRI, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use definitions, only: wp, iwp, u6
-use caspt2_module, only: IFMSCOUP, NSYM, NBAS, NBAST, NBTRI, NBSQT, JSTATE, iRlxRoot
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nOLag, nTrf
 real(kind=wp), intent(inout) :: OLagLoc(nOLag)
 real(kind=wp), intent(in) :: Trf(nTrf)
-real(kind=wp), allocatable :: WRK(:), WLagLoc(:)
-integer(kind=iwp) :: iBasTr, iBasSq, iSym, nBasI, liBasTr, liBasSq, iBasI, jBasI, liBasSq2
+integer(kind=iwp) :: iBasI, iBasSq, iBasTr, iSym, jBasI, liBasSq, liBasSq2, liBasTr, nBasI
+real(kind=wp), allocatable :: WLagLoc(:), WRK(:)
 
 call mma_allocate(WRK,NBSQT,Label='WRK')
 call mma_allocate(WLagLoc,NBSQT,Label='WLagLoc')

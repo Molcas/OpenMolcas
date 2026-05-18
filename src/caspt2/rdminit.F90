@@ -13,24 +13,22 @@
 
 subroutine rdminit()
 
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
-use caspt2_global, only: LUONEM
 use PrintLevel, only: DEBUG
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _DMRG_
-use qcmaquis_interface, only: qcmaquis_interface_set_state
 use iso_c_binding, only: c_int
+use qcmaquis_interface, only: qcmaquis_interface_set_state
 use caspt2_module, only: DMRG, mState
 #endif
-use caspt2_module, only: ISCF, nConf, nState, iAd1m
-use constants, only: Zero, One
-use definitions, only: iwp, wp, u6
+use caspt2_global, only: CMO, CMO_Internal, DMIX, DREF, DWGT, iPrGlb, LUONEM, NCMO
+use caspt2_module, only: iAd1m, ISCF, nConf, nState
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: I, J, iDisk
+real(kind=wp) :: Wij
 real(kind=wp), allocatable :: CI(:)
-integer(kind=iwp) iDisk, I, J
-real(kind=wp) Wij
 
 if (IPRGLB >= DEBUG) write(u6,*) ' Entered rdminit.'
 

@@ -15,8 +15,8 @@ subroutine VVVOX(NSYM,NBAS,NFRO,KEEP,iSymI,iSymJ,iSymK,iSymL,NBMX,T2AO,vLag,CMO,
                  FPT2CAO,DIA,DI,FIFA,FIMO)
 
 use Symmetry_Info, only: Mul
-use definitions, only: wp, iwp, u6
 use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSYM, NBAS(8), NFRO(8), KEEP(8), iSymI, iSymJ, iSymK, iSymL, NBMX, nOcc, nBasT, LBUF
@@ -24,8 +24,8 @@ real(kind=wp), intent(in) :: T2AO(nOcc,nBasT,nOcc,nBasT), CMO(nBasT,nBasT), DPT2
                              DI(nBasT**2)
 real(kind=wp), intent(inout) :: vLag(nBasT,nBasT), X1(LBUF), X2(NBMX*NBMX), WRK(nBasT**2), FPT2AO(nBasT**2), FPT2CAO(nBasT**2), &
                                 FIFA(nBasT**2), FIMO(nBasT**2)
-integer(kind=iwp) :: ISTLT(8), ISTSQ(8), iSym, nB, nB2, nB3, nFroT, nBasI, KEEPI, nBasJ, KEEPJ, iSymIJ, nBasIJ, nBasK, KEEPK, &
-                     iSMax, iSymL_, nBasL, KEEPL, nBasKL, IOPT, LPQ, IPQ, NPQ, IP, JQ, IRC, ISX
+integer(kind=iwp) :: IOPT, IP, IPQ, IRC, iSMax, ISTLT(8), ISTSQ(8), ISX, iSym, iSymIJ, iSymL_, JQ, KEEPI, KEEPJ, KEEPK, KEEPL, &
+                     LPQ, nB, nB2, nB3, nBasI, nBasIJ, nBasJ, nBasK, nBasKL, nBasL, nFroT, NPQ
 
 ISTSQ(1) = 0
 ISTLT(1) = 0
@@ -223,9 +223,9 @@ subroutine FDGTRF(DD,FF)
 
   real(kind=wp), intent(in) :: DD(nBasT**2)
   real(kind=wp), intent(inout) :: FF(nBasT**2)
+  integer(kind=iwp) :: iSD, iSF
   real(kind=wp) :: Val
   real(kind=wp), external :: ddot_
-  integer(kind=iwp) :: iSF, iSD
 
   !! Coulomb
   Val = DDot_(nBasK*nBasL,X2,1,DD(ISTSQ(iSymI)+1),1)

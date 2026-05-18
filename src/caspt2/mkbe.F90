@@ -19,20 +19,19 @@
 
 subroutine MKBE(DREF,NDREF,FD)
 
-use definitions, only: iwp, wp
-use constants, only: Half, Two
-use caspt2_global, only: ipea_shift
-use caspt2_global, only: LUSBT
 use EQSOLV, only: IDBMAT, IDSMAT
+use caspt2_global, only: ipea_shift, LUSBT
+use caspt2_module, only: EASUM, EPSA, NAES, NASH, NINDEP, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NASH, NAES, EPSA, EASUM
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF
 real(kind=wp), intent(in) :: DREF(NDREF), FD(NDREF)
+integer(kind=iwp) :: I, IBE, ID, IDIAG, IDISK, IDS, IDT, ISYM, IT, ITABS, IX, IXABS, NAS, NBE, NINM, NINP, NS
+real(kind=wp) :: ET, EX, Val
 real(kind=wp), allocatable :: BE(:), S(:), SD(:)
-integer(kind=iwp) ISYM, NINP, NINM, NAS, NBE, NS, IDS, IDIAG, I, IT, ITABS, IX, IXABS, IBE, ID, IDISK, IDT
-real(kind=wp) value, ET, EX
 
 ! Set up the matrix BE(t,x)
 ! Formula used:
@@ -68,15 +67,15 @@ do ISYM=1,NSYM
       EX = EPSA(IXABS)
       IBE = (IT*(IT-1))/2+IX
       ID = (ITABS*(ITABS-1))/2+IXABS
-      value = -FD(ID)+(EASUM-EX-ET)*DREF(ID)
-      if (ITABS == IXABS) value = value+Two*EX
+      Val = -FD(ID)+(EASUM-EX-ET)*DREF(ID)
+      if (ITABS == IXABS) Val = Val+Two*EX
       !GG.Nov03
       if (IT == IX) then
         IDT = (ITABS*(ITABS+1))/2
-        value = value+ipea_shift*Half*DREF(IDT)*SD(IT)
+        Val = Val+ipea_shift*Half*DREF(IDT)*SD(IT)
       end if
       !GG End
-      BE(IBE) = value
+      BE(IBE) = Val
     end do
   end do
 

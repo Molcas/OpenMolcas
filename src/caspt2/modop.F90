@@ -15,15 +15,15 @@ subroutine MODOP(OP1,NOP2,OP2,NOP3,OP3)
 ! calculated using products of elementary excitation
 ! operators rather than normal-ordered products.
 
-use caspt2_module, only: NASHT, NACTEL
-use definitions, only: iwp, wp
+use caspt2_module, only: NACTEL, NASHT
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NOP2, NOP3
 real(kind=wp), intent(inout) :: OP1(NASHT,NASHT), OP2(NOP2)
 real(kind=wp), intent(in) :: OP3(NOP3)
-integer(kind=iwp) I, J, K, L, IJ, KL, M, N, MN, IJKLMN, IL, IN, KN, IND, IJKL
-real(kind=wp) X
+integer(kind=iwp) :: I, I_N, IJ, IJKL, IJKLMN, IL, IND, J, K, KL, KN, L, M, MN, N
+real(kind=wp) :: X
 
 if (NACTEL > 2) then
 
@@ -57,11 +57,11 @@ if (NACTEL > 2) then
               end if
 
               if (M == J) then
-                IN = I+NASHT*(N-1)
-                if (IN >= KL) then
-                  IND = (IN*(IN-1))/2+KL
+                I_N = I+NASHT*(N-1)
+                if (I_N >= KL) then
+                  IND = (I_N*(I_N-1))/2+KL
                 else
-                  IND = (KL*(KL-1))/2+IN
+                  IND = (KL*(KL-1))/2+I_N
                 end if
                 OP2(IND) = OP2(IND)-X
               end if

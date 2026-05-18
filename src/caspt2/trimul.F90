@@ -21,18 +21,18 @@ subroutine TRIMUL(N,M,ALPHA,ASYM,X,LDX,Y,LDY)
 ! Multiply symmetric matrix ASYM with matrix X.
 ! Scale result with ALPHA and add it to matrix Y.
 
-use constants, only: One
-use definitions, only: iwp, wp
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N, M, LDX, LDY
 real(kind=wp), intent(in) :: ALPHA, ASYM((N*(N+1))/2), X(LDX,M)
 real(kind=wp), intent(inout) :: Y(LDY,M)
-integer(kind=iwp) I
+integer(kind=iwp) :: I
 
 do I=1,M
-  !call DSLMX(N,ALPHA,ASYM,X(1,I),1,Y(1,I),1)
-  call DSPMV_('U',N,ALPHA,ASYM,X(1,I),1,One,Y(1,I),1)
+  !call DSLMX(N,ALPHA,ASYM,X(:,I),1,Y(:,I),1)
+  call DSPMV_('U',N,ALPHA,ASYM,X(:,I),1,One,Y(:,I),1)
 end do
 
 end subroutine TRIMUL

@@ -13,18 +13,16 @@
 
 subroutine OLagFro2(NBSQT,DPT2,FPT2,ERI,Scr)
 
-use caspt2_module, only: NSYM, NFRO, NISH, NDEL, NBAS
+use caspt2_module, only: NBAS, NDEL, NFRO, NISH, NSYM
 use Constants, only: Half
-use definitions, only: wp, iwp
-
-#include "intent.fh"
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT
 real(kind=wp), intent(in) :: DPT2(NBSQT)
 real(kind=wp), intent(inout) :: FPT2(NBSQT)
-real(kind=wp), intent(_OUT_) :: ERI(NBSQT), Scr(NBSQT)
-integer(kind=iwp) :: iMO, iSymI, iSymJ, iSymA, iSymB, iSym, nOrbI, nFroI, nIshI, iOrb, jOrb
+real(kind=wp), intent(out) :: ERI(NBSQT), Scr(NBSQT)
+integer(kind=iwp) :: iMO, iOrb, iSym, iSymA, iSymB, iSymI, iSymJ, jOrb, nFroI, nIshI, nOrbI
 real(kind=wp) :: Scal, Val
 
 !write(u6,*) 'FPT2 before frozen orbital'

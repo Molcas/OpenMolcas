@@ -14,15 +14,15 @@
 subroutine DWDER(OMGDER,HEFF,SLag)
 ! Computes the derivative of weight factor in XDW-CASPT2
 
-use definitions, only: wp, iwp
-use caspt2_module, only: NSTATE, DWTYPE, ZETA
+use caspt2_module, only: DWTYPE, NSTATE, ZETA
 use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: OMGDER(nState,nState), HEFF(nState,nState)
 real(kind=wp), intent(inout) :: SLag(nState,nState)
 integer(kind=iwp) :: ilStat, jlStat, klStat
-real(kind=wp) :: Ebeta, Ealpha, Factor, Egamma, Dag, Hag, DEROMG, Scal, DERAB, DERAC, Dbg, Hbg
+real(kind=wp) :: Dag, Dbg, DERAB, DERAC, DEROMG, Ealpha, Ebeta, Egamma, Factor, Hag, Hbg, Scal
 
 do ilStat=1,nState
   Ebeta = HEFF(ilStat,ilStat)

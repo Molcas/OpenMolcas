@@ -18,18 +18,17 @@
 !--------------------------------------------*
 
 subroutine MKDREF_RPT2(N,G1,DREF,nDREF)
+! Compute DREF(PQ) = <0| Epq |0>
+! from G1(P,Q) = <0| Epq |0>
+! Storage differs: DREF is triangular.
 
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N, NDREF
 real(kind=wp), intent(in) :: G1(N,N)
 real(kind=wp), intent(out) :: DREF(NDREF)
-integer(kind=iwp) I, J, IJ
-
-! Compute DREF(PQ) = <0| Epq |0>
-! from G1(P,Q) = <0| Epq |0>
-! Storage differs: DREF is triangular.
+integer(kind=iwp) :: I, IJ, J
 
 do I=1,N
   do J=1,I

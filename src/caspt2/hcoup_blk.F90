@@ -20,24 +20,21 @@ subroutine HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,nV1,V2,nV2,OVL,HEBLK,TG1,TG2,
 ! only computes part of the HEL value, which is then sum reduced in the
 ! calling subroutine.
 
-use constants, only: Zero, Two, Four, Eight
-use SUPERINDEX, only: MTUV, MTGEU, MTGTU, MTU
-use caspt2_module, only: NTUVES, NTGEUES, NTUES, NAES, NTGTUES
-use definitions, only: iwp, wp
+use SUPERINDEX, only: MTGEU, MTGTU, MTU, MTUV
+use caspt2_module, only: NAES, NTGEUES, NTGTUES, NTUES, NTUVES
+use Constants, only: Zero, Two, Four, Eight
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, IISTA, IIEND, NV1, NV2, NASHT, NTG3
-real(kind=wp), intent(in) :: V1(NV1), V2(NV2)
-real(kind=wp), intent(in) :: OVL
+real(kind=wp), intent(in) :: V1(NV1), V2(NV2), OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 real(kind=wp), intent(out) :: HEBLK
-real(kind=wp), intent(in) :: TG1(NASHT,NASHT)
-real(kind=wp), intent(in) :: TG2(NASHT,NASHT,NASHT,NASHT)
-! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-real(kind=wp), intent(in) :: TG3(NTG3)
-integer(kind=iwp) NISBLK, IAS, IASABS, ITABS, IUABS, IVABS, JAS, JASABS, IXABS, IYABS, IZABS, IND1, IND2, IND3, JND1, JND2, JND3, &
-                  IAS1, IAS2, JAS1, JAS2, ITG3, NAS1
-real(kind=wp) GUTXY, GUY, SA, SBM, SBP, SBtuxy, SBtuyx, SC, SD11, SD12, SD21, SD22, SE, SFM, SFP, SFtuxy, SFtuyx, SG, TMP
+integer(kind=iwp) :: IAS, IAS1, IAS2, IASABS, IND1, IND2, IND3, ITABS, ITG3, IUABS, IVABS, IXABS, IYABS, IZABS, JAS, JAS1, JAS2, &
+                     JASABS, JND1, JND2, JND3, NAS1, NISBLK
+real(kind=wp) :: GUTXY, GUY, SA, SBM, SBP, SBtuxy, SBtuyx, SC, SD11, SD12, SD21, SD22, SE, SFM, SFP, SFtuxy, SFtuyx, SG, TMP
 real(kind=wp), external :: DDot_
+
+! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
 HEBLK = Zero
 

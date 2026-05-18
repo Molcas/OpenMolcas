@@ -14,28 +14,26 @@
 subroutine RHSOD_C_NOSYM(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use Constants, only: Zero
-use SUPERINDEX, only: MTUV, MTREL, KTUV
-use CHOVEC_IO, only: NVTOT_CHOSYM, CHOVEC_SIZE, CHOVEC_READ
-use caspt2_global, only: iPrGlb
+use SUPERINDEX, only: KTUV, MTREL, MTUV
+use CHOVEC_IO, only: CHOVEC_READ, CHOVEC_SIZE, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-use caspt2_global, only: FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
 use fake_GA, only: GA_Arrays
 #endif
-use caspt2_module, only: nActEl, nAshT, nSym, nASup, nISup, NTUVES, nSsh, nAsh, nIsh, NAES, nOrb
+use caspt2_global, only: FIMO, iPrGlb
+use caspt2_module, only: nActEl, NAES, nAsh, nAshT, nASup, nIsh, nISup, nOrb, nSsh, nSym, NTUVES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+integer(kind=iwp) :: IA, IAEND, IASTA, IAT, IATOT, iCASE, IDX, IIEND, IISTA, IOBRA(8,8), IOFFAT, IOFFVX, IOKET(8,8), ISYA, iSym, &
+                     ISYT, ISYV, ISYX, IT, ITABS, ITTOT, ITVV, ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS, IVX, IX, IXABS, lg_W, mW, &
+                     NAS, NBRA, NFIMOES, NIS, NKET, NV, NW
+real(kind=wp) :: AddOne, ATVX, FAT, SUMU
 real(kind=wp), allocatable :: BRA(:), KET(:)
-real(kind=wp) AddOne, ATVX, FAT, SUMU
 real(kind=wp), external :: DDot_
-integer(kind=iwp) IA, IAEND, IASTA, IAT, IATOT, iCASE, IDX, IIEND, IISTA, IOFFAT, IOFFVX, ISYA, iSym, ISYT, ISYV, ISYX, IT, ITABS, &
-                  ITTOT, ITVV, ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS, IVX, IX, IXABS, lg_W, mW, NAS, NBRA, NFIMOES, NIS, NKET, NV, &
-                  NW
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

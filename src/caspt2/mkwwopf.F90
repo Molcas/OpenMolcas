@@ -26,22 +26,22 @@ subroutine MKWWOPF(IVEC,JVEC,NOP2,OP2)
 ! For the F- case (i.e. case 9)
 ! W1(tu,ab)(conj)*W2(xy,cd) = (dac*dbd)*(2 Etxuy - 2 Etyux)
 
-use definitions, only: iwp, wp
-use constants, only: Zero, One, Two
 use SUPERINDEX, only: MTGEU, MTGTU
 use EQSOLV, only: MODVEC
+use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP, NTGEUES, NTGTUES
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NOP2
 real(kind=wp), intent(inout) :: OP2(NOP2)
-real(kind=wp), allocatable, target :: W1(:), W2_H(:)
+integer(kind=iwp) :: ICASE, IIEND, IISTA, ISCT, ISYM, ITABS, ITU, ITUABS, ITX, ITY, IUABS, IUX, IUY, IW1, IW2, IWPROD, IXABS, IXY, &
+                     IXYABS, IYABS, JTXUY, JTYUX, MDVEC, NAS, NCOL, NIS, NWPROD
+real(kind=wp) :: W_PROD
 real(kind=wp), allocatable :: WPROD(:)
+real(kind=wp), allocatable, target :: W1(:), W2_H(:)
 real(kind=wp), pointer :: W2(:)
-integer(kind=iwp) ICASE, ISYM, NAS, NIS, MDVEC, NWPROD, ISCT, IISTA, IIEND, NCOL, IW1, ITABS, IW2, IWPROD, IXABS, ITU, ITUABS, &
-                  ITX, ITY, IUABS, IUX, IUY, IXY, IXYABS, IYABS, JTXUY, JTYUX
-real(kind=wp) W_PROD
 
 ! FIRST THE F+ i.e. BVAT+ i.e. CASE 8 -----------------------------
 ICASE = 8

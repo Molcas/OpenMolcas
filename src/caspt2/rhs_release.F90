@@ -26,13 +26,13 @@
 subroutine RHS_RELEASE(lg_W,iLo,iHi,jLo,jHi)
 !SVC: this routine releases a local block back to the global array
 
-use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(inout) :: lg_W, iLo, iHi, jLo, jHi
+integer(kind=iwp), intent(in) :: lg_W, iLo, iHi, jLo, jHi
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

@@ -13,26 +13,22 @@
 !***********************************************************************
 
 #include "compiler_features.h"
-
 #ifdef _ENABLE_CHEMPS2_DMRG_
+
 subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
 
 use Symmetry_Info, only: Mul
 use sguga, only: SGS
-use caspt2_module, only: jState, nActel, EPSA, mState
+use caspt2_module, only: EPSA, jState, mState, nActel
 use Constants, only: Zero
-use definitions, only: iwp, wp, Byte, u6
+use Definitions, only: wp, iwp, byte, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: mkF
 integer(kind=iwp), intent(in) :: NLEV, NG3
-real(kind=wp), intent(out) :: G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp), intent(out) :: F1(NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV)
-real(kind=wp), intent(out) :: G3(NG3), F3(nG3)
-integer(kind=Byte), intent(in) :: idxG3(6,nG3)
-integer(kind=iwp) IY, IZ, IW
-integer(kind=iwp) IYSYM, IXYSYM
-integer(kind=iwp) NAC4
+real(kind=wp), intent(out) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV), G3(NG3), F3(nG3)
+integer(kind=byte), intent(in) :: idxG3(6,nG3)
+integer(kind=iwp) :: IW, IXYSYM, IY, IYSYM, IZ, NAC4
 
 if (NACTEL > 1) then
   NAC4 = NLEV*NLEV*NLEV*NLEV
@@ -70,7 +66,6 @@ end subroutine mkfg3chemps2
 
 ! Some compilers do not like empty files
 #include "macros.fh"
-subroutine empty_mkfg3chemps2()
-end subroutine empty_mkfg3chemps2
+dummy_empty_procedure(mkfg3chemps2)
 
 #endif

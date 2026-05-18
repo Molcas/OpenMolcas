@@ -14,32 +14,21 @@
 subroutine TRACHO3(CMO,NCMO)
 
 use Symmetry_Info, only: Mul
-use CHOVEC_IO, only: NVLOC_ChoBatch, npq_ChoType, ChoVec_Save, ChoVec_load, ChoVec_Coll
+use CHOVEC_IO, only: ChoVec_Coll, ChoVec_load, ChoVec_Save, npq_ChoType, NVLOC_ChoBatch
 use Cholesky, only: InfVec
-use ChoCASPT2, only: MxNVc, nChSpc, nHtSpc, NumCho_PT2, nFtSpc
+use ChoCASPT2, only: MxNVc, nChSpc, nFtSpc, nHtSpc, NumCho_PT2
+use caspt2_module, only: nAsh, nBas, nBtch, nBtches, nFro, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: nInaBx, nSecBx, nSym, RHSDirect, nBas, nBtches, nFro, nIsh, nAsh, nSsh, nBtch
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "warnings.h"
 integer(kind=iwp), intent(in) :: NCMO
 real(kind=wp), intent(in) :: CMO(NCMO)
-integer(kind=iwp) NCES(8), ip_HTVec(8)
-integer(kind=iwp) ISTART(8), NUSE(8)
-integer(kind=iwp) IC, ICASE, IRC, ILOC
-integer(kind=iwp) JSTART
-integer(kind=iwp) JRED, JRED1, JRED2, JREDC, JNUM, JV1, JV2
-integer(kind=iwp) IASTA, IAEND, IISTA, IIEND
-integer(kind=iwp) NA, NASZ, NI, NISZ, NBUFFY, NPQ
-integer(kind=iwp) IB, IBATCH, IBATCH_TOT, IBSTA, IBEND, NBATCH
-integer(kind=iwp) IP_LHT
-integer(kind=iwp) ISYM, JSYM, ISYMA, ISYMB, ISYP, ISYQ
-integer(kind=iwp) N, N1, N2
-integer(kind=iwp) ip_htspc
-integer(kind=iwp) NUMV, NVECS_RED, NHTOFF, MUSED
-real(kind=wp), allocatable :: CHSPC(:), FTSPC(:), HTSPC(:)
-real(kind=wp), allocatable :: BUFFY(:)
+integer(kind=iwp) :: IAEND, IASTA, IB, IBATCH, IBATCH_TOT, IBEND, IBSTA, IC, ICASE, IIEND, IISTA, ILOC, ip_htspc, ip_HTVec(8), &
+                     IP_LHT, IRC, ISTART(8), ISYM, ISYMA, ISYMB, ISYP, ISYQ, JNUM, JRED, JRED1, JRED2, JREDC, JSTART, JSYM, JV1, &
+                     JV2, MUSED, N, N1, N2, NA, NASZ, NBATCH, NBUFFY, NCES(8), NHTOFF, NI, NISZ, NPQ, NUMV, NUSE(8), NVECS_RED
+real(kind=wp), allocatable :: BUFFY(:), CHSPC(:), FTSPC(:), HTSPC(:)
+#include "warnings.h"
 
 !***********************************************************************
 ! ======================================================================

@@ -23,17 +23,17 @@ subroutine W1TW2(IVEC,JVEC,CI,SGM,nCI)
 ! compute the vector in CAS space
 !   | SGM > := | SGM > + (W1 conj)*(W2)*| CI >
 
-use definitions, only: iwp, wp
-use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: nAshT, STSym
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, nCI
 real(kind=wp), intent(in) :: ci(nCI)
 real(kind=wp), intent(inout) :: sgm(nCI)
 integer(kind=iwp) :: nOp1, nOp2, nOp3
-real(kind=wp), allocatable :: OP1(:), OP2(:), OP3(:)
 real(kind=wp) :: OP0
+real(kind=wp), allocatable :: OP1(:), OP2(:), OP3(:)
 
 ! (1): Compute a representation of the operator PCAS*W1T*W2
 NOP1 = NASHT**2

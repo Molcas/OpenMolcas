@@ -24,21 +24,21 @@ subroutine MKSD(DREF,NDREF,PREF,NPREF)
 !    SD(tu2,xy1)= -(Gutxy + dxt Duy)
 !    SD(tu2,xy2)= -Gxtuy +2*dxt Duy
 
-use definitions, only: iwp, wp
-use constants, only: Half, Two
 use SUPERINDEX, only: MTU
-use caspt2_global, only: LUSBT
 use EQSOLV, only: IDSMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: NASHT, NINDEP, NSYM, NTU, NTUES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NTU, NTUES, NASHT
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
+integer(kind=iwp) :: ID, ID1, ID2, IDISK, IP, IP1, IP2, IS11, IS12, IS21, IS22, ISYM, ITABS, ITU, ITU2, ITUABS, IUABS, IUTP, IUYP, &
+                     IXABS, IXTP, IXY, IXY2, IXYABS, IXYP, IYABS, NAS, NIN, NSD
+real(kind=wp) :: DUY, GUTXY, GXTUY, S11, S22
 real(kind=wp), allocatable :: SD(:)
-integer(kind=iwp) ISYM, NIN, NAS, NSD, ITU, ITU2, ITUABS, ITABS, IUABS, IXY, IXY2, IXYABS, IXABS, IYABS, IS11, IS21, IS12, IS22, &
-                  IUTP, IXYP, IP1, IP2, IP, IXTP, IUYP, ID, ID1, ID2, IDISK
-real(kind=wp) GUTXY, GXTUY, S11, S22, DUY
 
 ! Loop over superindex symmetry.
 do ISYM=1,NSYM

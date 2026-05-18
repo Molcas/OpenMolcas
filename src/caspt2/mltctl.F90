@@ -19,23 +19,23 @@
 
 subroutine MLTCTL(HEFF,EIGVEC,U0)
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, Half, One
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: TERSE, USUAL, VERBOSE
+use caspt2_module, only: ENERGY, IfChol, IFDW, IFRMS, IFXMS, JMS, MSTATE, NSTATE
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSTATE, IfChol, IFDW, IFRMS, IFXMS, JMS, MSTATE, ENERGY
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(inout) :: HEFF(NSTATE,NSTATE)
 real(kind=wp), intent(out) :: EIGVEC(NSTATE,NSTATE)
 real(kind=wp), intent(in) :: U0(Nstate,Nstate)
-integer(kind=iwp) LAXITY, I, IEND, II0, IJ, ISTA, J, NHTRI, NUMAT
+integer(kind=iwp) :: I, IEND, II0, IJ, ISTA, J, LAXITY, NHTRI, NUMAT
+real(kind=wp) :: DSHIFT
+character(len=8) :: INLAB
+character(len=3) :: variant
+real(kind=wp), allocatable :: HTRI(:), UMAT(:,:), Utmp(:,:)
 integer(kind=iwp), external :: Cho_X_GetTol
-character(len=8) INLAB
-character(len=3) variant
-real(kind=wp), allocatable :: Utmp(:,:), UMAT(:,:), HTRI(:)
-real(kind=wp) DSHIFT
 
 if (IPRGLB >= TERSE) then
   call CollapseOutput(1,'Multi-State CASPT2 section:')

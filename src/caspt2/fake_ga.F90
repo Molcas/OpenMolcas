@@ -12,37 +12,39 @@
 module fake_ga
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use constants, only: Zero
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
-integer(kind=iwp), parameter :: max_ga_arrays = 10
-real(kind=wp) DBL_MB(2)
-integer(kind=iwp) :: iga_arrays = 0
 type ga_type
-  integer(kind=iwp) :: g_a           ! global array handler
+  !integer(kind=iwp) :: g_a           ! global array handler
   real(kind=wp), allocatable :: A(:) ! local array
-  integer(kind=iwp) :: index         ! Array(1)=DBL_MB(index)
-  integer(kind=iwp) :: iLow = 1
-  integer(kind=iwp) :: iHi
-  integer(kind=iwp) :: jLow = 1
-  integer(kind=iwp) :: jHi
-  integer(kind=iwp) :: Length
+  !integer(kind=iwp) :: idx           ! Array(1)=DBL_MB(idx)
+  !integer(kind=iwp) :: iLow = 1
+  !integer(kind=iwp) :: iHi
+  !integer(kind=iwp) :: jLow = 1
+  !integer(kind=iwp) :: jHi
+  !integer(kind=iwp) :: Length
 end type ga_type
 
+integer(kind=iwp), parameter :: max_ga_arrays = 10
+
+integer(kind=iwp) :: iga_arrays = 0
+real(kind=wp) :: DBL_MB(2)
 type(ga_type) :: GA_arrays(max_ga_arrays)
 
 public :: GA_arrays, Allocate_GA_Array, Deallocate_GA_Array, DBL_MB
 
 contains
 
-integer(kind=iwp) function Allocate_GA_Array(nSize,Label) result(lg_A)
+function Allocate_GA_Array(nSize,Label) result(lg_A)
 
+  integer(kind=iwp) :: lg_A
   integer(kind=iwp), intent(in) :: nSize
   character(len=*), intent(in) :: Label
-  integer(kind=iwp) i
+  integer(kind=iwp) :: i
 
   lg_A = 0
   do i=1,max_ga_arrays

@@ -61,11 +61,16 @@ subroutine CASPT2(IRETURN)
 !***********************************************************************
 
 use INPUTDATA, only: INPUT
-use PT2WFN, only: PT2WFN_ESTORE, PT2WFN_DATA
+use PT2WFN, only: PT2WFN_DATA, PT2WFN_ESTORE
 use fciqmc_interface, only: DoFCIQMC
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: do_grad, nStpGrd, iStpGrd, IDSAVGRD
+use caspt2_global, only: do_grad, IDSAVGRD, iPrGlb, iStpGrd, nStpGrd
+use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUPRP, CPUPT2, CPURHS, &
+                         CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, E2ToT, Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, &
+                         IfRMS, IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, nLyGroup, nLyRoot, nState, RefEne, TIOEIG, &
+                         TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, TIONAD, TIOOVL, TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, &
+                         TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC
 use PrintLevel, only: TERSE, USUAL, VERBOSE
+use EQSOLV, only: iRHS, iVecC, iVecC2, iVecR, iVecW, iVecX
 #ifdef _DMRG_
 use, intrinsic :: iso_c_binding, only: c_bool, c_int
 use qcmaquis_interface, only: qcmaquis_interface_compute_and_store_123rdm_full, &
@@ -73,36 +78,26 @@ use qcmaquis_interface, only: qcmaquis_interface_compute_and_store_123rdm_full, 
 use caspt2_module, only: DMRG
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: auTocm, auToeV, auTokJmol
-use EQSOLV, only: iRHS, iVecC, iVecC2, iVecR, iVecW, iVecX
-use caspt2_module, only: E2ToT, IfChol, IfDens, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot, jState, nGroup, nLyGroup, nLyRoot, &
-                         nState, RefEne, Energy, nGroupState, mState, CPUGIN, CPUINT, CPUFMB, CPUSIN, CPUFG3, CPUPT2, CPUSBM, &
-                         CPUEIG, CPUNAD, CPURHS, CPUSER, CPUPCG, CPUSCA, CPULCS, CPUOVL, CPUVEC, CPUSGM, CPUPRP, CPUGRD, TIOGIN, &
-                         TIOINT, TIOFMB, TIOSIN, TIOFG3, TIOPT2, TIOSBM, TIOEIG, TIONAD, TIORHS, TIOSER, TIOPCG, TIOSCA, TIOLCS, &
-                         TIOOVL, TIOVEC, TIOSGM, TIOPRP, TIOGRD
-use constants, only: Zero, One
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero, One, auTocm, auToeV, auTokJmol
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: IRETURN
-#include "warnings.h"
-character(len=60) STLNE2
-real(kind=wp) CPTF12, CPTF13, CPTF14, TIOTF12, TIOTF13, TIOTF14, CPE, CPUTOT, TIOE, TIOTOT, CPTF0, CPTF11, TIOTF0, TIOTF11
+integer(kind=iwp) :: ICONV, IGROUP, ISTATE, JSTATE_OFF
 #ifdef _DMRG_
-integer(kind=iwp) J
+integer(kind=iwp) :: I, J
 #endif
-integer(kind=iwp) ISTATE
-integer(kind=iwp) IGROUP, JSTATE_OFF
-integer(kind=iwp) ICONV
-real(kind=wp) RELAU, RELEV, RELCM, RELKJ
-real(kind=wp), allocatable :: Heff(:,:), Ueff(:,:)
-real(kind=wp), allocatable :: H0(:,:), U0(:,:)
-real(kind=wp), allocatable :: UeffSav(:,:), U0Sav(:,:), H0Sav(:,:), ESav(:)
-logical(kind=iwp) :: IFGRDT0 = .false.
+real(kind=wp) :: CPE, CPTF0, CPTF11, CPTF12, CPTF13, CPTF14, CPUTOT, RELAU, RELCM, RELEV, RELKJ, TIOE, TIOTF0, TIOTF11, TIOTF12, &
+                 TIOTF13, TIOTF14, TIOTOT
+logical(kind=iwp) :: IFGRDT0
+character(len=60) :: STLNE2
+real(kind=wp), allocatable :: ESav(:), H0(:,:), H0Sav(:,:), Heff(:,:), U0(:,:), U0Sav(:,:), Ueff(:,:), UeffSav(:,:)
+#include "warnings.h"
 
 call StatusLine('CASPT2: ','Just starting')
 
 IRETURN = 0
+IFGRDT0 = .false.
 
 !=======================================================================
 !
@@ -351,7 +346,7 @@ contains
 
 subroutine Print_Truff()
 
-  integer(kind=iwp) I
+  integer(kind=iwp) :: I
 
   if (IRETURN /= 0) then
     call CASPT2_TERM()
@@ -395,7 +390,7 @@ end subroutine Print_Truff
 
 subroutine Post_Process()
 
-  integer(kind=iwp) I
+  integer(kind=iwp) :: I
 
   if (.not. doFCIQMC) then
     if (iStpGrd /= 2) then
@@ -502,7 +497,7 @@ end subroutine CASPT2_TERM
 
 subroutine HEFF_INI()
 
-  integer(kind=iwp) I
+  integer(kind=iwp) :: I
 
   ! Initialize effective Hamiltonian and eigenvectors
   call MMA_ALLOCATE(Heff,Nstate,Nstate,Label='Heff')

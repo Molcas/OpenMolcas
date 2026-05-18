@@ -22,18 +22,17 @@ subroutine MCCTL(HEFF,NSTATE,JSTATE)
 
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: VERBOSE
+use caspt2_module, only: E2Corr, mState, NLYRoot
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: E2Corr, NLYRoot, mState
-use constants, only: Zero
-use definitions, only: iwp, wp, u6
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSTATE, JSTATE
 real(kind=wp), intent(inout) :: HEFF(NSTATE,NSTATE)
-integer(kind=iwp) ISTATE
-real(kind=wp) DVALUE
-real(kind=wp) TOTCPU1, TOTWALL1, TOTCPU2, TOTWALL2
-character(len=160) string
+integer(kind=iwp) :: ISTATE
+real(kind=wp) :: DVALUE, TOTCPU1, TOTCPU2, TOTWALL1, TOTWALL2
+character(len=160) :: string
 real(kind=wp), allocatable :: cpu_timing(:), wall_timing(:)
 
 call mma_allocate(cpu_timing,nstate,'timing in mcctl')

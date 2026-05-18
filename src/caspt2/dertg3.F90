@@ -34,24 +34,23 @@ subroutine DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,C
 ! all the symmetries (The ''absolute'' active index).
 
 use Symmetry_Info, only: Mul
-use sguga, only: SGS, L2ACT, CIS, EXS
-use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-use definitions, only: iwp, wp, u6
-use caspt2_module, only: NACTEL, ISCF, IASYM
-use caspt2_module, only: MXCI
+use sguga, only: CIS, EXS, L2ACT, SGS
+use caspt2_module, only: IASYM, ISCF, MXCI, NACTEL
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DOG3
 integer(kind=iwp), intent(in) :: LSYM1, LSYM2, NCONF, NASHT, NTG3
 real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), OVL
 real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT), DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3), CLAG1(NCONF), CLAG2(NCONF)
-real(kind=wp), allocatable :: TG3WRK(:), BUF1(:), DTU(:,:), DYZ(:,:)
-integer(kind=iwp), allocatable :: P2LEV(:)
-integer(kind=iwp) :: nLev, LP2LEV1, LP2LEV2, IP, IL, JL, IP1, IT, IU, ITU, ITS, IUS, IS1, IP2, IV, IX, IVX, IVS, IXS, IS2, IP3, &
-                     IY, IZ, IYS, IZS, IS3, IYZ, JTU, JVX, JYZ, JTUVXYZ, NCI1, NVECS, NTG3WRK, NYZBUF, NTUBUF, LSGM1, LTAU, LSGM2, &
-                     IP3STA, IP3END, LTO, ISSG2, IP1STA, IP1END, ISSG1, LFROM, LFROMD, IM, JM, ISTAU, NTAU, ibuf
+integer(kind=iwp) :: ibuf, IL, IM, IP, IP1, IP1END, IP1STA, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, ISSG2, ISTAU, IT, ITS, &
+                     ITU, IU, IUS, IV, IVS, IVX, IX, IXS, IY, IYS, IYZ, IZ, IZS, JL, JM, JTU, JTUVXYZ, JVX, JYZ, LFROM, LFROMD, &
+                     LP2LEV1, LP2LEV2, LSGM1, LSGM2, LTAU, LTO, NCI1, nLev, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
 real(kind=wp) :: VAL
+integer(kind=iwp), allocatable :: P2LEV(:)
+real(kind=wp), allocatable :: BUF1(:), DTU(:,:), DYZ(:,:), TG3WRK(:)
 
 nLev = SGS%nLev
 

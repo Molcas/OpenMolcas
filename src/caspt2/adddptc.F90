@@ -21,15 +21,13 @@ subroutine AddDPTC(nDPTC,nDSUM,DPTC,DSUM)
 
 use caspt2_module, only: NSYM, NFRO, NORB, NBAS
 use Constants, only: Half
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
-
 integer(kind=iwp), intent(in) :: nDPTC, nDSUM
 real(kind=wp), intent(in) :: DPTC(nDPTC)
 real(kind=wp), intent(inout) :: DSUM(nDSUM)
-
-integer(kind=iwp) :: iMO1, iMO2, iSym, nOrbI1, nOrbI2, iOrb0, iOrb1, jOrb0, jOrb1, iOrb, jOrb
+integer(kind=iwp) :: iMO1, iMO2, iOrb, iOrb0, iOrb1, iSym, jOrb, jOrb0, jOrb1, nOrbI1, nOrbI2
 real(kind=wp) :: Val
 
 iMO1 = 1

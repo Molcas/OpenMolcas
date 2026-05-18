@@ -22,20 +22,19 @@ subroutine MKRHSG(IVEC,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
 ! number IVEC of LUSOLV, for cases 10 and 11 (BJAT).
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
-use constants, only: half, One, two, three
 use SUPERINDEX, only: KAGEB, KAGTB
-use fake_GA, only: GA_Arrays, Allocate_GA_Array, Deallocate_GA_Array
-use caspt2_module, only: NSYM, NINDEP, NISH, NAGEB, NAGTB, NASH, NISUP, NISUP, NSSH, NSES, NORB, NAGEBES, NAGTBES
+use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
+use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NINDEP, NISH, NISUP, NISUP, NORB, NSES, NSSH, NSYM
+use Constants, only: Half, OneHalf
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, nERI1, nERI2, nSCR
 real(kind=wp), intent(inout) :: ERI1(nERI1), ERI2(nERI2), SCR(nSCR)
-integer(kind=iwp) IOFF1(8), IOFF2(8)
-real(kind=wp), parameter :: SQ2 = sqrt(Two), SQI2 = One/SQ2, SQ3 = sqrt(Three), SQ32 = SQ3*SQI2
-integer(kind=iwp) ISYM, IO1, IO2, NAS, NISP, NISM, NVP, NVM, LWP, LWM, ISYMA, ISYMB, ISYMAB, ISYMI, IT, ITTOT, II, IA, IAABS, &
-                  IATOT, IB, IBABS, IBTOT, IBUF, IWA, IAGEB, IWIP, JWP, IAGTB, IWIM, IWM, ICASE
-real(kind=wp) A, B
+integer(kind=iwp) :: IA, IAABS, IAGEB, IAGTB, IATOT, IB, IBABS, IBTOT, IBUF, ICASE, II, IO1, IO2, IOFF1(8), IOFF2(8), ISYM, ISYMA, &
+                     ISYMAB, ISYMB, ISYMI, IT, ITTOT, IWA, IWIM, IWIP, IWM, JWP, LWM, LWP, NAS, NISM, NISP, NVM, NVP
+real(kind=wp) :: A, B
+real(kind=wp), parameter :: SQI2 = sqrt(Half), SQ32 = sqrt(OneHalf)
 
 do ISYM=1,NSYM
   if (NINDEP(ISYM,10)+NINDEP(ISYM,11) == 0) cycle

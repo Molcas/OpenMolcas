@@ -26,20 +26,20 @@
 subroutine RHS_PUT(NAS,NIS,lg_W,W)
 !SVC: this routine copies a local buffer to a global array
 
-use definitions, only: iwp, wp
+use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
-use definitions, only: u6
+use Definitions, only: u6
 #endif
-use fake_GA, only: GA_Arrays
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
 real(kind=wp), intent(in) :: W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: IOFF, MAX_MESG_SIZE, NIS_BATCH, NIS_END, NIS_STA
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) MAX_MESG_SIZE, NIS_BATCH, NIS_STA, NIS_END, IOFF
 
 if (Is_Real_Par()) then
   if (KING()) then

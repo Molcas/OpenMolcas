@@ -11,12 +11,11 @@
 
 subroutine EXCIND(IAS,INS,ISYM,ICASE,IP,IQ,IR,IS)
 
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IAS, INS, ISYM, ICASE
 integer(kind=iwp), intent(out) :: IP, IQ, IR, IS
-external ASIND
 integer(kind=iwp) :: IR1, IR2
 
 !PAM99 New call sequence for ASIND

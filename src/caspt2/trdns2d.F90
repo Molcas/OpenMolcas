@@ -23,32 +23,28 @@ subroutine TRDNS2D(IVEC,JVEC,DPT2,NDPT2,SCAL)
 ! submatrices.IVEC, JVEC stands for the 1st-order perturbed
 ! CASPT2 wave functions in vectors nr IVEC, JVEC on LUSOLV.
 
-use definitions, only: iwp, wp
-use constants, only: Zero, One
-use caspt2_global, only: imag_shift, sigma_p_epsilon
-use caspt2_global, only: do_grad
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 #endif
-use caspt2_global, only: LUSBT, LISTS
 use EQSOLV, only: iDBMat
-use stdalloc, only: mma_allocate, mma_deallocate
 use fake_GA, only: GA_Arrays
-use caspt2_module, only: nSym, nInDep, nISup, nASup
+use caspt2_global, only: do_grad, imag_shift, LISTS, LUSBT, sigma_p_epsilon
+use caspt2_module, only: nASup, nInDep, nISup, nSym
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NDPT2
 real(kind=wp), intent(inout) :: DPT2(NDPT2)
 real(kind=wp), intent(in) :: SCAL
+integer(kind=iwp) :: ICASE, ISYM, jD, lg_v1, lg_v2, NAS, NIN, NIS, nVec
 real(kind=wp), allocatable :: BD(:), ID(:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: VEC1(:), VEC2(:)
+#include "global.fh"
+#include "mafdecls.fh"
 #endif
-integer(kind=iwp) ICASE, ISYM, jD, lg_v1, lg_v2, NAS, NIN, NIS, nVec
 
 ! Inact/Inact and Virt/Virt blocks:
 do ICASE=1,13

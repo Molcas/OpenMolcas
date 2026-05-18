@@ -13,18 +13,18 @@
 
 subroutine PCG_RES(ICONV)
 
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: TERSE, USUAL
 use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecX
-use caspt2_module, only: MxCase, MaxIt, rNorm, ThrConv
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: MaxIt, MxCase, rNorm, ThrConv
 use Constants, only: Zero, One
-use definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ICONV
 integer(kind=iwp) :: ITER, IVECP, IVECT, IVECU
-real(kind=wp) :: ALPHA, BETA, PR, PT, UR, ECORR(0:8,0:MXCASE), EAIVX, EATVX, EBJAI, EBJAT, EBVAT, EVJAI, EVJTI, EVJTU, E2NONV, &
-                 OVLAPS(0:8,0:MXCASE), DSCALE
+real(kind=wp) :: ALPHA, BETA, DSCALE, E2NONV, EAIVX, EATVX, EBJAI, EBJAT, EBVAT, ECORR(0:8,0:MXCASE), EVJAI, EVJTI, EVJTU, &
+                 OVLAPS(0:8,0:MXCASE), PR, PT, UR
 logical(kind=iwp) :: converged
 
 ! Flag to tell wether convergence was obtained

@@ -14,27 +14,26 @@
 subroutine RHSOD_F_NOSYM(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp, u6
-use constants, only: Half
-use SUPERINDEX, only: MAGEB, MAREL, MTGEU, MTREL, MAGTB, MTGTU
-use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
-use caspt2_global, only: iPrGlb
+use SUPERINDEX, only: MAGEB, MAGTB, MAREL, MTGEU, MTGTU, MTREL
+use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
 use fake_GA, only: GA_Arrays
 #endif
-use caspt2_module, only: NSYM, NASUP, NISUP, NAGEBES, NTGEUES, NSSH, NAGTBES, NTGTUES
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: NAGEBES, NAGTBES, NASUP, NISUP, NSSH, NSYM, NTGEUES, NTGTUES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) IOSYM(8,8)
+integer(kind=iwp) :: IA, IAABS, IAEND, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT, IASTA, IAT, IAV, IC, ICABS, iCASE, ICT, ICV, IDX, IIEND, &
+                     IISTA, IOFFAT, IOFFAV, IOFFCT, IOFFCV, IOSYM(8,8), ISYA, ISYC, ISYM, ISYT, ISYV, IT, ITABS, ITGEU, ITGEUTOT, &
+                     ITGTU, ITGTUTOT, IV, IVABS, lg_W, MW, NAS, NCHOBUF, NIS, NV, NW
+real(kind=wp) :: ATCV, AVCT, FMTVAC, FPTVAC, SCL
 real(kind=wp), allocatable :: CHOBUF(:)
 real(kind=wp), parameter :: SQRTH = sqrt(Half)
-real(kind=wp) ATCV, AVCT, FMTVAC, FPTVAC, SCL
-integer(kind=iwp) IA, IAABS, IAEND, IASTA, IIEND, IISTA, MW, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT, IAT, IAV, IC, ICABS, iCASE, ICT, &
-                  ICV, IDX, IOFFAT, IOFFAV, IOFFCT, IOFFCV, ISYA, ISYC, ISYM, ISYT, ISYV, IT, ITABS, ITGEU, ITGEUTOT, ITGTU, &
-                  ITGTUTOT, IV, IVABS, lg_W, NAS, NCHOBUF, NIS, NV, NW
 real(kind=wp), external :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"

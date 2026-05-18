@@ -13,13 +13,12 @@
 subroutine MkFock(CMO,nCMO,FIMO,NFIMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE,INITIATE)
 
 use caspt2_module, only: IfChol
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nCMO, nFIMO, nFIFA, nDREF, nHONE
 real(kind=wp), intent(in) :: CMO(nCMO), DREF(nDREF)
-real(kind=wp), intent(inout) :: FIMO(nFIMO), FIFA(nFIFA)
-real(kind=wp), intent(inout) :: HONE(nHONE)
+real(kind=wp), intent(inout) :: FIMO(nFIMO), FIFA(nFIFA), HONE(nHONE)
 logical(kind=iwp), intent(inout) :: INITIATE
 
 if (INITIATE) call TraOne(CMO,nCMO,HONE,nHONE)

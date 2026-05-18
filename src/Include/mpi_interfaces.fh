@@ -17,7 +17,7 @@
 #ifdef _NEED_EXPLICIT_MPI_INTERFACE_
 interface
 
-  subroutine MPI_AllGatherV(sendbuf,sendcount,sendtype,recvbuf,recvcount,displs,recvtype,comm,ierror)
+  subroutine MPI_AllGatherV(sendbuf,sendcount,sendtype,recvbuf,recvcounts,displs,recvtype,comm,ierror)
     use Definitions, only: MPIInt
     type(*), intent(in) :: sendbuf(..)
     integer(kind=MPIInt), intent(in) :: sendcount, sendtype, recvcounts(*), displs(*), recvtype, comm
@@ -37,7 +37,7 @@ interface
     use Definitions, only: MPIInt
     type(*), intent(inout) :: buffer(..)
     integer(kind=MPIInt), intent(in) :: count, datatype, root, comm
-    integer, optional, intent(out) :: ierror
+    integer(kind=MPIInt), optional, intent(out) :: ierror
   end subroutine MPI_BCast
 
 end interface

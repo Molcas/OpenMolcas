@@ -16,14 +16,14 @@
 subroutine eigen(A,U,N)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use constants, only: Zero, One
-use definitions, only: iwp, wp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) N
-real(kind=wp) A(N,N)
-real(kind=wp) U(N,N)
-integer(kind=iwp) :: NSCR, IJ, I, J
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(N,N)
+real(kind=wp), intent(out) :: U(N,N)
+integer(kind=iwp) :: I, IJ, J, NSCR
 real(kind=wp), allocatable :: SCR(:)
 
 NSCR = (N*(N+1))/2

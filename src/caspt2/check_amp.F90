@@ -13,14 +13,13 @@
 
 subroutine Check_Amp(nSym,nOcc,nVir,iSkip)
 
-use definitions, only: iwp
 use Symmetry_Info, only: Mul
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nOcc(nSym), nVir(nSym)
 integer(kind=iwp), intent(out) :: iSkip
-integer(kind=iwp) iSym, iSymi, iSyma
-integer(kind=iwp) nT1amTot, nT1am(8)
+integer(kind=iwp) :: iSym, iSyma, iSymi, nT1am(8), nT1amTot
 
 iSkip = 0
 nT1amTot = 0

@@ -11,18 +11,17 @@
 
 subroutine TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
 
-use definitions, only: iwp, wp
-use constants, only: Zero, Half, One, OneHalf
-use sguga, only: LEVEL, SGS, CIS, EXS
+use sguga, only: CIS, EXS, LEVEL, SGS
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half, OneHalf
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ISTART, NDIM, STSym, NCI
-real(kind=wp), intent(inout) :: XMAT(NDIM,NDIM)
-real(kind=wp), intent(inout) :: CI(NCI)
-real(kind=wp), allocatable :: XSAV(:,:), TVEC(:), SGM(:)
-real(kind=wp) Fact, SCL, XJM
-integer(kind=iwp) I, IORB, J, JORB, LI, LJ, M
+real(kind=wp), intent(inout) :: XMAT(NDIM,NDIM), CI(NCI)
+integer(kind=iwp) :: I, IORB, J, JORB, LI, LJ, M
+real(kind=wp) :: Fact, SCL, XJM
+real(kind=wp), allocatable :: SGM(:), TVEC(:), XSAV(:,:)
 
 if (NDIM <= 0) return
 

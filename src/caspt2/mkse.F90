@@ -22,18 +22,18 @@ subroutine MKSE(DREF,NDREF)
 ! Formula used:
 !    SE(t,x)=2*dtx - Dtx
 
-use definitions, only: iwp, wp
-use constants, only: Two
-use caspt2_global, only: LUSBT
 use EQSOLV, only: IDSMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: NAES, NASH, NINDEP, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NASH, NAES
+use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF
 real(kind=wp), intent(in) :: DREF(NDREF)
+integer(kind=iwp) :: ID, IDISK, ISE, ISYM, IT, ITABS, IX, IXABS, NAS, NINM, NINP, NSE
 real(kind=wp), allocatable :: SE(:)
-integer(kind=iwp) ISYM, NINP, NINM, NAS, NSE, IT, ITABS, IX, IXABS, ISE, ID, IDISK
 
 do ISYM=1,NSYM
   NINP = NINDEP(ISYM,6)

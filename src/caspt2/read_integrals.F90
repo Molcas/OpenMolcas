@@ -11,37 +11,33 @@
 ! Copyright (C) 2025, Stefano Battaglia                                *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _DMRG_
+
 subroutine read_integrals()
 
+use, intrinsic :: iso_c_binding, only: c_int
 use Symmetry_Info, only: Mul
+use printLevel, only: debug
+use rasscf_global, only: Emy
+use qcmaquis_interface, only: qcmaquis_interface_optimize, qcmaquis_interface_remove_param, qcmaquis_interface_set_state, &
+                              qcmaquis_interface_update_integrals_C
+use caspt2_global, only: FIMO, iPrGlb
+use caspt2_module, only: nAsh, nAshT, nFro, nIsh, nOrb, nOsh, nState, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use caspt2_global, only: FIMO, iPrGlb
-use printLevel, only: debug
-use rasscf_global, only: Emy
-#ifdef _DMRG_
-use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, qcmaquis_interface_optimize, qcmaquis_interface_set_state, &
-                              qcmaquis_interface_remove_param
-use caspt2_module, only: nState
-#endif
-use iso_c_binding, only: c_int
-use caspt2_module, only: nAshT, nSym, nFro, nIsh, nAsh, nOsh, nOrb
 
 implicit none
-real(kind=wp), allocatable :: ERI(:,:), SCR(:,:)
-integer(kind=iwp) :: tSym, t_nFro, t_nIsh, t_nAsh, t_nOsh, t_nOrb, uSym, u_nFro, u_nIsh, u_nAsh, u_nOsh, u_nOrb, tuSym, vSym, &
-                     v_nIsh, v_nAsh, v_nOsh, v, xSym, x_nIsh, x_nAsh, x_nOsh, x, t, u, n
-! Arrays that get passed to QCMaquis
-integer(c_int), dimension(:), allocatable :: indices
-real(kind=wp), dimension(:), allocatable :: values
-! calculate the size of the arrays
-integer(kind=iwp) :: arr_size = 0
-integer(kind=iwp) :: max_index2
-! Offset for values and indices array
-integer(kind=iwp) :: offset
+integer(kind=iwp) :: arr_size, max_index2, n, NACPAR, offset, t, t_nAsh, t_nFro, t_nIsh, t_nOrb, t_nOsh, tSym, tuSym, u, u_nAsh, &
+                     u_nFro, u_nIsh, u_nOrb, u_nOsh, uSym, v, v_nAsh, v_nIsh, v_nOsh, vSym, x, x_nAsh, x_nIsh, x_nOsh, xSym
+integer(c_int), allocatable :: indices(:)
+real(kind=wp), allocatable :: ERI(:,:), SCR(:,:), values(:)
 real(kind=wp), parameter :: threshold = 1.0e-16_wp
-integer(kind=iwp) NACPAR
+
+! indices, values: Arrays that get passed to QCMaquis
+! arr_size, max_index2: calculate the size of the arrays
+! offset: Offset for values and indices array
 
 write(u6,*) '=== QCM: Rotating Orbitals to SS === '
 
@@ -157,7 +153,6 @@ values(offset) = EMY
 indices(4*(offset-1)+1:4*(offset-1)+4) = 0_c_int
 
 ! Rotate MPS wavefunction to new orbitals
-#ifdef _DMRG_
 call qcmaquis_interface_update_integrals_C(indices,values,int(offset,kind=c_int))
 do n=1,NSTATE
   call qcmaquis_interface_remove_param('MEASURE[trans1rdm]')
@@ -167,9 +162,16 @@ do n=1,NSTATE
   call qcmaquis_interface_set_state(int(n-1,c_int))
   call qcmaquis_interface_optimize()
 end do
-#endif
 
 call mma_deallocate(indices)
 call mma_deallocate(values)
 
 end subroutine read_integrals
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(read_integrals)
+
+#endif

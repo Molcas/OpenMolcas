@@ -24,23 +24,23 @@
 !***********************************************************************
 
 subroutine RHS_ADD(NAS,NIS,lg_W,W)
-
 !SVC: this routine adds to the local part of a global RHS array the
-use definitions, only: iwp, wp
-use constants, only: One
 !matching part of a replicate array.
+
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use fake_GA, only: GA_Arrays
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
 real(kind=wp), intent(in) :: W(NAS,*)
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iHi, iLo, jHi, jLo, LDW, mW, myRank, NW
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) myRank, iLo, iHi, jLo, jHi, NW, mW, LDW
 
 if (Is_Real_Par()) then
   myRank = GA_NodeID()

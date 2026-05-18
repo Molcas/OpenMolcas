@@ -20,23 +20,23 @@
 
 subroutine RHSOD(IVEC)
 
-use definitions, only: iwp, u6
-#ifdef _DEBUGPRINT_
-use definitions, only: wp
-use caspt2_module, only: NSYM, NASUP, NISUP
-#endif
-use caspt2_global, only: iPrGlb
 use PrintLevel, only: VERBOSE
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use caspt2_global, only: iPrGlb
+#ifdef _DEBUGPRINT_
+use caspt2_module, only: NASUP, NISUP, NSYM
+use Definitions, only: wp
+#endif
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iVec
 #ifdef _DEBUGPRINT_
-real(kind=wp) DNRM2
+integer(kind=iwp) :: ICASE, ISYM, lg_W, NAS, NIS
+real(kind=wp) :: DNRM2
 real(kind=wp), external :: RHS_DDot
-integer(kind=iwp) ICASE, ISYM, NAS, NIS, lg_W
 #endif
 
 if (IPRGLB >= VERBOSE) write(u6,'(1X,A)') ' Using RHS on-demand algorithm'

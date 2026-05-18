@@ -13,13 +13,13 @@
 
 subroutine CLagEigT(CLag,RDMEIG,SLag,EINACT)
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: NCONF, ISCF, NSTATE
-use Constants, only: One, Two
+use caspt2_module, only: ISCF, NCONF, NSTATE
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Two
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: CLag(nConf,nState)

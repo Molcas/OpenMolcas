@@ -20,19 +20,17 @@
 subroutine DEPSATrf(NBSQT,nAshT,DEPSA,FPT2,WRK1,WRK2)
 
 use caspt2_global, only: CMOPT2
+use caspt2_module, only: IfChol, NASH, NBAS, NBAST, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NBAS, NBAST
 use Constants, only: Zero, Half
-
-#include "intent.fh"
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nAshT
 real(kind=wp), intent(in) :: DEPSA(nAshT,nAshT)
-real(kind=wp), intent(_OUT_) :: FPT2(NBSQT), WRK1(NBSQT), WRK2(NBSQT)
+real(kind=wp), intent(out) :: FPT2(NBSQT), WRK1(NBSQT), WRK2(NBSQT)
+integer(kind=iwp) :: iAsh, iAshI, iOrb, iSym, iSymA, iSymB, iSymI, iSymJ, jAsh, jAshI, jOrb, nBasI, nCorI
 real(kind=wp), allocatable :: DAO(:), DMO(:)
-integer(kind=iwp) :: iSym, iSymA, iSymI, iSymB, iSymJ, nCorI, nBasI, iAsh, jAsh, iAshI, iOrb, jAshI, jOrb
 
 FPT2(1:nBasT**2) = Zero
 

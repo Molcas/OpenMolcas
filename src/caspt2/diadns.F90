@@ -27,33 +27,24 @@ subroutine DIADNS(ISYM,ICASE,VEC1,nVec1,VEC2,nVec2,DPT2,nDPT2,LIST,mList)
 ! since it requires transformation to standard (Non-ON) basis.
 
 use Symmetry_Info, only: Mul
-use constants, only: Zero, One, Two
 use caspt2_global, only: do_grad
 use EQSOLV, only: LLIST, NLIST
 use Sigma_data, only: IFTEST, INCX1, INCX2, INCX3, INCY1, INCY2, LEN1, NLST1, VAL1
+use caspt2_module, only: NAGEB, NAGTB, NASH, NASUP, NIGEJ, NIGTJ, NIMX, NINDEP, NISH, NISUP, NORB, NORB, NSMX, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NIMX, NSMX, NSYM, NINDEP, NISUP, NASUP, NISH, NORB, NIGEJ, NIGTJ, NAGEB, NAGTB, NORB, NASH, NSSH
-use definitions, only: iwp, wp
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nVEC1, nVec2, nDPT2, mList
-integer(kind=iwp), intent(in) :: ISYM, ICASE
+integer(kind=iwp), intent(in) :: ISYM, ICASE, nVEC1, nVec2, nDPT2, mList, LIST(mList)
 real(kind=wp), intent(in) :: VEC1(nVec1), VEC2(nVec2)
 real(kind=wp), intent(inout) :: DPT2(nDPT2)
-integer(kind=iwp), intent(in) :: LIST(mList)
-integer(kind=iwp) IOFDIJ(8), IOFDAB(8)
-integer(kind=iwp) IOFCD(8,8)
+integer(kind=iwp) :: IA, IB, ICD, ICEM, ICEP, ICGM, ICGP, IDAB, IDII, IDIJ, IDTU, II, III, IJ, IJS, INCA, IOFCD(8,8), IOFDAB(8), &
+                     IOFDIJ(8), IS, ISYMA, ISYMC, ISYMCA, ISYMI, ISYMK, ISYMKI, IV, IV1, IV11, IV2, IV22, IY, IY1, IY2, IYOFF, JS, &
+                     LLST1, MU, NA, NAKI, NAS, NC, NCA, NCAY, NI, NICA, NIN, NIS, NK, NKI, NKIY, NO, NOA, NOI, NS, NVEC, NX
+real(kind=wp) :: OVL, rSUM
 real(kind=wp), allocatable :: X1(:), X2(:)
 real(kind=wp), parameter :: SQR2 = sqrt(Two)
-integer(kind=iwp) NIN, NIS, NAS, NVEC, IDIJ, IS, NI, NA, NO, IDTU, IDAB, JS, ICD, ICEP, ICEM, ICGP, ICGM, IJS
-integer(kind=iwp) IDII, II, III, IJ, IV1, IV2, LLST1
-integer(kind=iwp) ISYMI, ISYMK, NK, NKI, NX
-integer(kind=iwp) IA, IB, NS
-integer(kind=iwp) INCA, ISYMA, IV, IV11, IV22, NOA, NOI
-integer(kind=iwp) ISYMKI, IY, IY1, IY2, IYOFF, MU, NAKI, NKIY
-integer(kind=iwp) ISYMC, NC, NCA
-integer(kind=iwp) ISYMCA, NCAY, NICA
-real(kind=wp) OVL, SUM
 real(kind=wp), external :: DDOT_
 
 NIN = NINDEP(ISYM,ICASE)
@@ -196,14 +187,14 @@ select case (ICASE)
         IV2 = IV+NIN*(II-1)
         do IJ=1,NI
           IDIJ = IOFDIJ(ISYMI)+II+NOI*(IJ-1)
-          SUM = DPT2(IDIJ)
+          rSUM = DPT2(IDIJ)
           IV1 = IV+NIN*(IJ-1)
           do IA=1,NS
             IV11 = IV1+INCA*(IA-1)
             IV22 = IV2+INCA*(IA-1)
-            SUM = SUM-DDOT_(NIN,VEC1(IV11),1,VEC2(IV22),1)
+            rSUM = rSUM-DDOT_(NIN,VEC1(IV11),1,VEC2(IV22),1)
           end do
-          DPT2(IDIJ) = SUM
+          DPT2(IDIJ) = rSUM
         end do
       end do
       do IA=1,NS
@@ -270,13 +261,13 @@ select case (ICASE)
       do IA=1,NA
         do IB=1,NA
           IDAB = IOFDAB(ISYMA)+IA+NOA*(IB-1)
-          SUM = DPT2(IDAB)
+          rSUM = DPT2(IDAB)
           do MU=1,NIN
             IY1 = IYOFF+MU+NIN*(IA-1)
             IY2 = IYOFF+MU+NIN*(IB-1)
-            SUM = SUM+DDOT_(NKIY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
+            rSUM = rSUM+DDOT_(NKIY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
           end do
-          DPT2(IDAB) = SUM
+          DPT2(IDAB) = rSUM
         end do
       end do
       IYOFF = IYOFF+NIN*NA*NKIY
@@ -381,13 +372,13 @@ select case (ICASE)
       do II=1,NI
         do IJ=1,NI
           IDIJ = IOFDIJ(ISYMI)+II+NOI*(IJ-1)
-          SUM = DPT2(IDIJ)
+          rSUM = DPT2(IDIJ)
           do MU=1,NIN
             IY1 = IYOFF+MU+NIN*(IJ-1)
             IY2 = IYOFF+MU+NIN*(II-1)
-            SUM = SUM-DDOT_(NCAY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
+            rSUM = rSUM-DDOT_(NCAY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
           end do
-          DPT2(IDIJ) = SUM
+          DPT2(IDIJ) = rSUM
         end do
       end do
       IYOFF = IYOFF+NIN*NI*NCAY
@@ -483,22 +474,19 @@ end select
 contains
 
 subroutine MLTUNF(LST,nLST,X,nX,Y,nY)
-! Given a list with entries LST(4,ITEM), ITEM=1,NLST,
-! with entries called L1,L2,L3,L4 for given ITEM, and
-! an array of the form Y(p,q), compute the matrix
-!    X(p,L1,L2) := Add V*Y(p,L3), p=1..LEN1
-! where V=VAL1(L4), looped over ITEM=1,NLST.
-! Note: Arrays are addressed by strides given in common.
+  ! Given a list with entries LST(4,ITEM), ITEM=1,NLST,
+  ! with entries called L1,L2,L3,L4 for given ITEM, and
+  ! an array of the form Y(p,q), compute the matrix
+  !    X(p,L1,L2) := Add V*Y(p,L3), p=1..LEN1
+  ! where V=VAL1(L4), looped over ITEM=1,NLST.
+  ! Note: Arrays are addressed by strides given in common.
 
-  use Sigma_data, only: INCX1, INCX2, INCX3, INCY1, INCY2, LEN1, VAL1
-  use definitions, only: iwp, wp
-
-  integer(kind=iwp), intent(in) :: nLST, nX, nY
+  integer(kind=iwp), intent(in) :: nLST, LST(4,nLST), nX, nY
   real(kind=wp), intent(inout) :: X(nX)
   real(kind=wp), intent(in) :: Y(nY)
-  integer(kind=iwp), intent(in) :: LST(4,NLST)
-  integer(kind=iwp) ILST, L1, L2, L3, L4, IX, IY
-  real(kind=wp) V
+  integer(kind=iwp) :: ILST, IX, IY, L1, L2, L3, L4
+  real(kind=wp) :: V
+
   do ILST=1,NLST
     L1 = LST(1,ILST)
     L2 = LST(2,ILST)

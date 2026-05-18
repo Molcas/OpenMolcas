@@ -16,16 +16,16 @@ subroutine POLY1_CLag(NCONF,NLEV,CI,CLag,RDMEIG)
 ! THIS PROGRAM CALCULATES THE 1-EL DENSITY
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
 
+use caspt2_module, only: cLab10, iAdr10, MxCI
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
-use caspt2_module, only: MxCI, iAdr10, cLab10
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, NLEV
 real(kind=wp), intent(in) :: CI(NCONF), RDMEIG(NLEV**2)
 real(kind=wp), intent(inout) :: CLag(NCONF)
-real(kind=wp), allocatable :: SGM1(:)
 integer(kind=iwp) :: I
+real(kind=wp), allocatable :: SGM1(:)
 
 if (NLEV > 0) then
   call MMA_ALLOCATE(SGM1,MXCI,LABEL='SGM1')

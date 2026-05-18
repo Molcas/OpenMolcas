@@ -27,14 +27,14 @@ subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs)
 
 use caspt2_global, only: imag_shift, real_shift, sigma_p_epsilon, sigma_p_exponent
 use Constants, only: Zero, One
-use definitions, only: wp, iwp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nRow, nCol, LDW
 real(kind=wp), intent(inout) :: W(LDW,nCol)
 real(kind=wp), intent(in) :: dIn(nRow), dIs(nCol)
 integer(kind=iwp) :: i, j, p
-real(kind=wp) :: delta, sigma, epsilon
+real(kind=wp) :: delta, sigma, eps
 
 do j=1,nCol
   do i=1,nRow
@@ -43,10 +43,10 @@ do j=1,nCol
     ! add the imaginary shift
     delta = delta+imag_shift**2/delta
     ! multiply by sigma-p regularizer
-    epsilon = sigma_p_epsilon
+    eps = sigma_p_epsilon
     p = sigma_p_exponent
-    if (epsilon > Zero) then
-      sigma = One/epsilon**p
+    if (eps > Zero) then
+      sigma = One/eps**p
       delta = delta/(One-exp(-sigma*abs(delta)**p))
     end if
 

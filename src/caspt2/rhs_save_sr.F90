@@ -25,12 +25,12 @@
 
 subroutine RHS_SAVE_SR(lg_W,iCASE,iSYM,iVEC)
 
-use definitions, only: iwp
 use caspt2_module, only: NINDEP, NISUP
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lg_W, iCASE, iSYM, iVEC
-integer(kind=iwp) NIN, NIS
+integer(kind=iwp) :: NIN, NIS
 
 NIN = NINDEP(ISYM,ICASE)
 NIS = NISUP(ISYM,ICASE)

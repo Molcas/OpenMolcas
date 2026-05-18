@@ -15,22 +15,21 @@ subroutine DENS1T_RPT2(CI1,CI2,SGM1,G1,NLEV)
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
-use caspt2_global, only: iPrGlb
-use sguga, only: SGS, L2ACT, CIS
+use sguga, only: CIS, L2ACT, SGS
 use PrintLevel, only: DEBUG
+use caspt2_global, only: iPrGlb
+use caspt2_module, only: iSCF, MxCI, nActEl, nAshT, nG1, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp, u6
-use caspt2_module, only: iSCF, nActEl, nAshT, STSym
-use caspt2_module, only: MxCI, nG1
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nLev
 real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI)
+integer(kind=iwp), intent(in) :: nLev
 real(kind=wp), intent(out) :: SGM1(MXCI), G1(NLEV,NLEV)
-integer(kind=iwp), allocatable :: TASK(:,:)
-integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK, NTASKS, ISSG, NSGM
+integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTASKS
 real(kind=wp) :: GTU
+integer(kind=iwp), allocatable :: TASK(:,:)
 real(kind=wp), external :: ddot_, dnrm2_
 
 ! Purpose: Compute the 1- and 2-electron density matrix

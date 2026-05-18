@@ -19,22 +19,19 @@
 
 subroutine RDBLKC(ISYM,ICASE,IVEC,VEC,nVEC)
 
-use definitions, only: iwp, wp
-use caspt2_global, only: LUSOLV, IDSCT
-use EQSOLV, only: MxSct, ModVec
-use caspt2_module, only: NASUP, NISUP, MxCase
+use EQSOLV, only: ModVec, MxSct
+use caspt2_global, only: IDSCT, LUSOLV
+use caspt2_module, only: MxCase, NASUP, NISUP
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: CASES
-use definitions, only: u6
+use Definitions, only: u6
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iSym, iCase, iVec, nVec
 real(kind=wp), intent(out) :: VEC(nVec)
-integer(kind=iwp) NAS, NIS, NCOEF, MDVEC, IDV, LVEC, IISTA, NCOL, NBLK
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) I
-#endif
+integer(kind=iwp) :: IDV, IISTA, LVEC, MDVEC, NAS, NBLK, NCOEF, NCOL, NIS
 
 ! Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
@@ -57,7 +54,7 @@ do IISTA=1,NIS,MDVEC
 end do
 #ifdef _DEBUGPRINT_
 write(u6,*) ' First few elements:'
-write(u6,'(1x,5f15.6)') (VEC(I),I=1,min(NCOEF,10))
+write(u6,'(1x,5f15.6)') VEC(1:min(10,NCOEF))
 #endif
 
 end subroutine RDBLKC

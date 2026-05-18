@@ -24,19 +24,18 @@ subroutine DERSPE(NLEV,NG3,DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use sguga, only: LEVEL
-use caspt2_module, only: NACTEL, ISCF
-use caspt2_module, only: ETA
+use caspt2_module, only: ETA, ISCF, NACTEL
 use Constants, only: Zero, One, Two
-use definitions, only: wp, iwp, byte, u6
+use Definitions, only: wp, iwp, byte, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NLEV, NG3
 real(kind=wp), intent(in) :: DF1(NLEV,NLEV), DF2(NLEV,NLEV,NLEV,NLEV), DF3(NG3), G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV), G3(NG3)
 integer(kind=byte), intent(inout) :: idxG3(6,NG3)
 real(kind=wp), intent(inout) :: DEPSA(NLEV,NLEV)
-integer(kind=iwp) :: I, NLEV2, NLEV4, iG3, nTask, ID, iTask, IND1, IND2, IT1, IU1, LU1, IT2, IU2, LU2, IT3, IU3, IND3, LU3, LT, &
-                     IT, IU, LU, IV, LV
-real(kind=wp) :: ESUM, DESUM, OCC
+integer(kind=iwp) :: I, ID, iG3, IND1, IND2, IND3, IT, IT1, IT2, IT3, iTask, IU, IU1, IU2, IU3, IV, LT, LU, LU1, LU2, LU3, LV, &
+                     NLEV2, NLEV4, nTask
+real(kind=wp) :: DESUM, ESUM, OCC
 
 ESUM = Zero
 DESUM = Zero

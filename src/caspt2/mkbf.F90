@@ -19,23 +19,22 @@
 
 subroutine MKBF(DREF,NDREF,PREF,NPREF,FP)
 
-use definitions, only: iwp, wp
-use constants, only: Half, Four
-use SUPERINDEX, only: MTU, MTGEU, KTU, KTGTU
-use caspt2_global, only: ipea_shift
-use caspt2_global, only: LUSBT
-use EQSOLV, only: IDSMAT, IDBMAT
+use SUPERINDEX, only: KTGTU, KTU, MTGEU, MTU
+use EQSOLV, only: IDBMAT, IDSMAT
+use caspt2_global, only: ipea_shift, LUSBT
+use caspt2_module, only: EASUM, NASHT, NINDEP, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES, NTU, NTUES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NSYM, NINDEP, NTU, NTUES, NASHT, NTGEU, EASUM, NTGTU, NTGEUES, NTGTUES
+use Constants, only: Four, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
-real(kind=wp) PREF(NPREF), FP(NPREF), DREF(NDREF)
-real(kind=wp), allocatable :: BF(:), BFP(:), SDP(:), SP(:), BFM(:), SDM(:), SM(:)
-integer(kind=iwp) ISYM, NINP, NAS, NBF, ITU, ITUABS, ITABS, IUABS, IXY, IXYABS, IXABS, IYABS, IBADR, ITX, IUY, IP1, IP2, IP, NASP, &
-                  NBFP, NSP, IDSP, IDIAG, I, NASM, NBFM, NSM, IDSM, IBMADR, IBPADR, IDISK, IDT, IDU, INSM, ITGEU, ITGEUABS, ITGTU, &
-                  IXGEY, IXGEYABS, IXGTY, IYX
-real(kind=wp) BTUXY, BTUYX
+real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), FP(NPREF)
+integer(kind=iwp) :: I, IBADR, IBMADR, IBPADR, IDIAG, IDISK, IDSM, IDSP, IDT, IDU, INSM, IP, IP1, IP2, ISYM, ITABS, ITGEU, &
+                     ITGEUABS, ITGTU, ITU, ITUABS, ITX, IUABS, IUY, IXABS, IXGEY, IXGEYABS, IXGTY, IXY, IXYABS, IYABS, IYX, NAS, &
+                     NASM, NASP, NBF, NBFM, NBFP, NINP, NSM, NSP
+real(kind=wp) :: BTUXY, BTUYX
+real(kind=wp), allocatable :: BF(:), BFM(:), BFP(:), SDM(:), SDP(:), SM(:), SP(:)
 
 ! Set up the matrices BFP(tu,xy) and BFM(tu,xy)
 ! Formulae used:

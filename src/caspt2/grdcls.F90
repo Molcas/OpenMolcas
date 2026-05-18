@@ -13,32 +13,30 @@
 
 subroutine GrdCls(IRETURN,nState,UEFF,U0,H0)
 
-use caspt2_global, only: iPrGlb
-use caspt2_global, only: LuPT2, LuAPT2, do_nac, do_csf, iRoot1, iRoot2, LUGRAD, LUSTD, TraFro, CLag, CLagFull, OLag, OLagFull, &
-                         SLag, WLag, nOLag, nWLag, DPT2_tot, DPT2C_tot, DPT2_AO_tot, DPT2C_AO_tot, DPT2Canti_tot, FIMO_all, &
-                         FIFA_all, FIFASA_all, OMGDER, iTasks_grad
 use PrintLevel, only: VERBOSE
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half, Two
-use definitions, only: wp, iwp, u6
-use caspt2_module, only: REFENE, RFPERT, IfChol, IFMSCOUP, IFXMS, IFRMS, IFDW, NCONF, nFroT, NBAST, NBTRI, NBSQT, iRlxRoot, &
-                         NROOTS, DWTYPE, Zeta
+use caspt2_global, only: CLag, CLagFull, do_csf, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, FIFA_all, &
+                         FIFASA_all, FIMO_all, iPrGlb, iRoot1, iRoot2, iTasks_grad, LuAPT2, LUGRAD, LuPT2, LUSTD, nOLag, nWLag, &
+                         OLag, OLagFull, OMGDER, SLag, TraFro, WLag
+use caspt2_module, only: DWTYPE, IfChol, IFDW, IFMSCOUP, IFRMS, IFXMS, iRlxRoot, NBAST, NBSQT, NBTRI, NCONF, nFroT, NROOTS, &
+                         REFENE, RFPERT, Zeta
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IRETURN, nState
-real(kind=wp), intent(in) :: H0(nState,nState)
 real(kind=wp), intent(inout) :: UEFF(nState,nState), U0(nState,nState)
-character(Len=16) :: mstate1
-logical(kind=iwp) :: DEB, Found
-logical(kind=iwp), external :: RF_On
-real(kind=wp), allocatable :: HEFF1(:,:), WRK1(:,:), WRK2(:,:), CI1(:,:)
+real(kind=wp), intent(in) :: H0(nState,nState)
 integer(kind=iwp) :: i, iGo, ilStat, j, jlStat
+real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, WALLT
+logical(kind=iwp) :: DEB, Found
+character(len=16) :: mstate1
+real(kind=wp), allocatable :: CI1(:,:), HEFF1(:,:), WRK1(:,:), WRK2(:,:)
 integer(kind=iwp), external :: isFreeUnit
-real(kind=wp) :: Scal
-real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0, TIOTF10
+logical(kind=iwp), external :: RF_On
 
 !! In case convergence of CASPT2 equation failed
 !! Call this subroutine just deallocate memory

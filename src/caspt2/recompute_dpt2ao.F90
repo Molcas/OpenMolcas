@@ -13,20 +13,19 @@
 
 subroutine Recompute_DPT2AO(NDIM,DPT2,DPT2C,DPT2AO,DPT2CAO)
 
-use definitions, only: wp, iwp
-use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_global, only: LUONEM
-use caspt2_module, only: NSYM, NBAS, IAD1M
+use caspt2_module, only: IAD1M, NBAS, NSYM
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NDIM ! = NBSQT
+integer(kind=iwp), intent(in) :: NDIM
 real(kind=wp), intent(inout) :: DPT2(NDIM), DPT2C(NDIM), DPT2AO(NDIM), DPT2CAO(NDIM)
-real(kind=wp), allocatable :: WRK1(:), WRK2(:), WRK3(:), WRK4(:)
+integer(kind=iwp) :: iBasI, iBasSq, iBasTr, IDISK, iSym, jBasI, liBasSq, liBasTr, ljBasSq, nBasI
 real(kind=wp) :: val
-integer(kind=iwp) :: IDISK, iBasTr, iBasSq, iSym, nBasI, liBasTr, liBasSq, ljBasSq, iBasI, jBasI, NBSQT
+real(kind=wp), allocatable :: WRK1(:), WRK2(:), WRK3(:), WRK4(:)
 
-NBSQT = NDIM
 call mma_allocate(WRK1,NDIM,Label='WRK1')
 call mma_allocate(WRK2,NDIM,Label='WRK2')
 call mma_allocate(WRK3,NDIM,Label='WRK3')
@@ -40,8 +39,8 @@ DPT2CAO(1:NDIM) = Zero
 iBasTr = 1
 iBasSq = 1
 do iSym=1,nSym
-  call OLagTrf(1,iSym,NBSQT,WRK1,DPT2,WRK3,WRK2)
-  call OLagTrf(1,iSym,NBSQT,WRK1,DPT2C,WRK4,WRK2)
+  call OLagTrf(1,iSym,NDIM,WRK1,DPT2,WRK3,WRK2)
+  call OLagTrf(1,iSym,NDIM,WRK1,DPT2C,WRK4,WRK2)
   nBasI = nBas(iSym)
   liBasTr = iBasTr
   liBasSq = iBasSq

@@ -29,33 +29,29 @@ subroutine OLagNS_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,iSymI,iSymJ,nMaxOrb,ER
 !          (*O|V*) is split into (*A|A*), (*A|V*)
 
 use Symmetry_Info, only: Mul
-use SUPERINDEX, only: KTU, KTUV, KTGEU, KTGTU, KAGEB, KAGTB, KIGEJ, KIGTJ
-use caspt2_global, only: OLag
+use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ, KTGEU, KTGTU, KTU, KTUV
 use EQSOLV, only: IVECC2
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, iwp
 use fake_GA, only: GA_Arrays
-use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH, NAES, NSSH, NSES, NBAS, NBAST, NTU, NAGEB, NAGTB, NTUVES, NTUES, &
-                         NTGEUES, NTGTUES, NIGEJES, NIGTJES, NAGEBES, NAGTBES, NASUP, NISUP
-use Constants, only: Zero, One, Half, Two, Three
-
-#include "intent.fh"
+use caspt2_global, only: OLag
+use caspt2_module, only: NACTEL, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NASUP, NBAS, NBAST, NFRO, NIES, NIGEJES, NIGTJES, &
+                         NISH, NISUP, NSES, NSSH, NSYM, NTGEUES, NTGTUES, NTU, NTUES, NTUVES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iCase, NBSQT, lT2AO, iSym, iSymA, iSymB, iSymI, iSymJ, nMaxOrb
-real(kind=wp), intent(_OUT_) :: ERI1(NBSQT)
-real(kind=wp), intent(out) :: Amp1(nMaxOrb,nMaxOrb), Scr(nMaxOrb,nMaxOrb)
+real(kind=wp), intent(out) :: ERI1(NBSQT), Amp1(nMaxOrb,nMaxOrb), Scr(nMaxOrb,nMaxOrb)
 real(kind=wp), intent(inout) :: DPT2C(NBSQT), T2AO(lT2AO)
-real(kind=wp), allocatable :: WRK1(:), WRK2(:)
+integer(kind=iwp) :: iAabs, iAgeB, iAgtB, iAS, iASM, iASP, iAtot, iBabs, iBtot, IgeJ, IgtJ, iIabs, iIS, iISM, iISP, iItot, iJabs, &
+                     iJtot, IO1, IO2, IOFF1(8), IOFF2(8), ipTC, ipTCM, ipTCP, iSymAB, iSymK, iTabs, iUabs, iVabs, iVaHM, iVaHP, &
+                     iVaM, iVaP, iVHM, iVHP, iViHM, iViHM0, iViHP, iViHP0, iViM, iViP, iVjM, iVjP, IW1, nAS, nAshA, nAshB, nAshI, &
+                     nAshJ, nASM, nASP, nBasA, nBasB, nBasI, nBasJ, nCorA, nCorB, nCorI, nCorJ, nFroA, nFroB, nFroI, nFroJ, nIS, &
+                     nIshA, nIshB, nIshI, nIshJ, nISM, nISP, nJ, nOccA, nOccA2, nOccB, nOccB2, nOrbA, nSshA, nSshB
+real(kind=wp) :: Fac, ONEADD, SQ2, SQ3, SQI2, ValA, ValBM, ValBP, ValC1, ValC2, ValD1, ValD2, ValEM, ValEP, ValFM, ValFP, ValGM, &
+                 ValGP, ValHM, ValHP
 logical(kind=iwp) :: PM
-integer(kind=iwp) :: IOFF1(8), IOFF2(8), IO1, IO2, iSymK, iSymAB, nASP, nISP, nASM, nISM, ipTCP, ipTCM, nAS, nIS, ipTC, nFroI, &
-                     nFroJ, nFroA, nFroB, nIshI, nIshJ, nIshA, nIshB, nAshI, nAshJ, nAshA, nAshB, nSshA, nSshB, nBasI, nBasJ, &
-                     nBasA, nBasB, nCorI, nCorJ, nCorA, nCorB, nOccA, nOccB, nOccA2, nOccB2, nOrbA
-integer(kind=iwp) :: iIabs, iJabs, iJtot, iAabs, iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ, iViP, iVaP, iViM, iVaM, &
-                     iAtot, iItot, IgeJ, IgtJ, iASP, iISP, iASM, iISM, iAgeB, iVjP, iAgtB, iVjM, iViHP0, iViHP, iViHM0, iViHM, &
-                     iVaHP, iVHP, iVaHM, iVHM
-real(kind=wp) :: SQ2, SQI2, SQ3, Fac
-real(kind=wp) :: ValA, ValBP, ValBM, ValC1, ValC2, ONEADD, ValD1, ValD2, ValEP, ValEM, ValFP, ValFM, ValGP, ValGM, ValHP, ValHM
+real(kind=wp), allocatable :: WRK1(:), WRK2(:)
 
 ! EXCH(ISYP,ISYI,ISYQ,ISYJ,II,IJ,ERI,SCR)
 
@@ -198,7 +194,7 @@ contains
 subroutine OLagNS_A(AmpL1)
 
   real(kind=wp), intent(out) :: AmpL1(nAshA,nAshB)
-  integer(kind=iwp) :: iI, iJ, iA, iB
+  integer(kind=iwp) :: iA, iB, iI, iJ
 
   if (nAshI*nIshJ*nAshA*nAshB == 0) return
 
@@ -267,7 +263,7 @@ end subroutine OLagNS_A
 subroutine OLagNS_B(AmpL1)
 
   real(kind=wp), intent(out) :: AmpL1(nAshA,nAshB)
-  integer(kind=iwp) :: iI, iJ, iA, iB
+  integer(kind=iwp) :: iA, iB, iI, iJ
 
   if (nIshI*nIshJ*nAshA*nAshB == 0) return
 
@@ -356,7 +352,7 @@ end subroutine OLagNS_B
 subroutine OLagNS_C(AmpL1)
 
   real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
-  integer(kind=iwp) :: iI, iJ, iA, iB, iXabs
+  integer(kind=iwp) :: iA, iB, iI, iJ, iXabs
 
   if (nAshI*nAshJ*nSshA*nAshB == 0) return
 
@@ -475,7 +471,7 @@ end subroutine OLagNS_C
 subroutine OLagNS_D(AmpL1)
 
   real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
-  integer(kind=iwp) :: iI, iJ, iA, iB
+  integer(kind=iwp) :: iA, iB, iI, iJ
 
   if (nAshI*nIshJ*nSshA*nAshB == 0) return
 
@@ -551,7 +547,7 @@ end subroutine OLagNS_D
 subroutine OLagNS_E(AmpL1)
 
   real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
-  integer(kind=iwp) :: iI, iJ, iA, iB
+  integer(kind=iwp) :: iA, iB, iI, iJ
 
   if (nIshI*nIshJ*nSshA*nAshB == 0) return
 
@@ -617,7 +613,7 @@ end subroutine OLagNS_E
 subroutine OLagNS_F(AmpL1)
 
   real(kind=wp), intent(out) :: AmpL1(nSshA,nSshB)
-  integer(kind=iwp) :: iI, iJ, iA, iB
+  integer(kind=iwp) :: iA, iB, iI, iJ
 
   if (nAshI*nAshJ*nSshA*nSshB == 0) return
 
@@ -689,7 +685,7 @@ end subroutine OLagNS_F
 subroutine OLagNS_G(AmpL1)
 
   real(kind=wp), intent(out) :: AmpL1(nSshA,nSshB)
-  integer(kind=iwp) :: iI, iJ, iA, iB
+  integer(kind=iwp) :: iA, iB, iI, iJ
 
   if (nAshI*nIshJ*nSshA*nSshB == 0) return
 
@@ -756,7 +752,7 @@ end subroutine OLagNS_G
 subroutine OLagNS_H(AmpL1)
 
   real(kind=wp), intent(out) :: AmpL1(nSshA,nSshB)
-  integer(kind=iwp) :: iI, iJ, iA, iB
+  integer(kind=iwp) :: iA, iB, iI, iJ
 
   if (nIshI*nIshJ*nSshA*nSshB == 0) return
 
@@ -847,7 +843,7 @@ subroutine OLagNS_post1(iLeft,iRight,ERI,AmpMO)
 
   integer(kind=iwp), intent(in) :: iLeft, iRight
   real(kind=wp), intent(in) :: ERI(NBSQT), AmpMO(NBSQT)
-  integer(kind=iwp) :: nSkpA, nSkpB, nDimA, nDimB
+  integer(kind=iwp) :: nDimA, nDimB, nSkpA, nSkpB
 
   nSkpA = 0
   nSkpB = 0

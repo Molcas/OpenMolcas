@@ -13,26 +13,24 @@
 
 subroutine CLagDX(Mode,iSym,iCase,VEC1,VEC2,VEC3,VEC4,nIN,nIS,nAS,nState,VECROT,VEC5,lg_V2,BDERmat,SDERmat)
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
-use caspt2_global, only: do_lindep, LUSTD, idSDMat
-use caspt2_global, only: LUSBT
-use EQSOLV, only: IVECR, IDBMAT, IDTMAT
-use definitions, only: wp, iwp
-use caspt2_module, only: IFMSCOUP, MAXIT, JSTATE
-use Constants, only: Zero, One, Half, Two
+use EQSOLV, only: IDBMAT, IDTMAT, IVECR
+use caspt2_global, only: do_lindep, idSDMat, imag_shift, LUSBT, LUSTD, real_shift, sigma_p_epsilon
+use caspt2_module, only: IFMSCOUP, JSTATE, MAXIT
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mode, iSym, iCase, nIN, nIS, nAS, nState, lg_V2
-real(kind=wp), intent(in) :: VEC1(NIN*NIS), VEC3(NIN*NIS), VEC4(NAS*NIS), VEC5(NIN*NIS), VECROT(nState)
+real(kind=wp), intent(in) :: VEC1(NIN*NIS), VEC3(NIN*NIS), VEC4(NAS*NIS), VECROT(nState), VEC5(NIN*NIS)
 real(kind=wp), intent(inout) :: VEC2(NIN*NIS), BDERmat(NAS*NAS), SDERmat(NAS*NAS)
-real(kind=wp), allocatable :: WRK1(:), WRK2(:), WRK3(:), TRANS(:), EIG(:)
-integer(kind=iwp) :: idT, idB, iICB, jICB, idSD
-real(kind=wp) :: SCAL, EigI, EigJ, tmp
+integer(kind=iwp) :: idB, idSD, idT, iICB, jICB
+real(kind=wp) :: EigI, EigJ, SCAL, tmp
 logical(kind=iwp) :: invar_act
+real(kind=wp), allocatable :: EIG(:), TRANS(:), WRK1(:), WRK2(:), WRK3(:)
 
 !! sigma^P may not introduce non-invariance, so the name may be
 !! simply confusing. I just do not know how to apply the

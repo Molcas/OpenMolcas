@@ -25,18 +25,18 @@
 
 subroutine RHS_DISTRIBUTION(NAS,NIS,iLo,iHi,jLo,jHi)
 
-use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS
 integer(kind=iwp), intent(out) :: iLo, iHi, jLo, jHi
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: MYRANK, NBASE, NPROCS, NREST
 #include "global.fh"
 #include "mafdecls.fh"
-integer(kind=iwp) MYRANK, NPROCS, NBASE, NREST
 #endif
 
 iLo = 1

@@ -26,20 +26,20 @@ subroutine MKWWOPD(IVEC,JVEC,OP1,NOP2,OP2)
 !  (W1B(tu,ai) conj)*(W2A(tu,ai)) =  -(Eutxy + dtx Euy)
 !  (W1B(tu,ai) conj)*(W2B(tu,ai)) =  -Extuy + 2dtx Euy
 
-use definitions, only: iwp, wp
-use constants, only: Zero, One, Two
 use SUPERINDEX, only: MTU
 use EQSOLV, only: MODVEC
+use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTUES
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP, NTUES
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NOP2
 real(kind=wp), intent(inout) :: OP1(NASHT,NASHT), OP2(NOP2)
+integer(kind=iwp) :: ICASE, IIEND, IISTA, ISCT, ISYM, ITABS, IUABS, IUT, IUY, IW1A, IW1B, IW2A, IW2B, IWPRAA, IWPRAB, IWPRBA, &
+                     IWPRBB, IXABS, IXT, IXY, IYABS, JTU, JTUABS, JUTXY, JXTUY, JXY, JXYABS, MDVEC, NAS, NAS1, NCOL, NIS, NWPROD
+real(kind=wp) :: WPRAA, WPRAB, WPRBA, WPRBB
 real(kind=wp), allocatable :: W1(:), W2(:), WPROD(:)
-integer(kind=iwp) ICASE, IIEND, IISTA, ISCT, ISYM, ITABS, IUABS, IXABS, IYABS, MDVEC, NAS, NCOL, NIS, NWPROD, IUT, IUY, IW1A, &
-                  IW1B, IW2A, IW2B, IWPRAA, IWPRAB, IWPRBA, IWPRBB, IXT, IXY, JTU, JTUABS, JUTXY, JXTUY, JXY, JXYABS, NAS1
-real(kind=wp) WPRAA, WPRAB, WPRBA, WPRBB
 
 ICASE = 5
 ! Loop over symmetry ISYM

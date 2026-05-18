@@ -23,15 +23,15 @@ subroutine POLY1(CI,NCI)
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
 
 use sguga, only: SGS
+use caspt2_module, only: cLab10, iAdr10, nG1
 use stdalloc, only: mma_allocate, mma_deallocate
-use caspt2_module, only: nG1, iAdr10, cLab10
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NCI
 real(kind=wp), intent(in) :: CI(NCI)
 integer(kind=iwp) :: nLev
-real(kind=wp), allocatable :: SGM1(:), G1TMP(:)
+real(kind=wp), allocatable :: G1TMP(:), SGM1(:)
 
 nLev = SGS%nLev
 
