@@ -63,15 +63,17 @@ The minimum requirements are:
 * GNU make
   See URL |GnuWWW| and navigate to the gnumake page or go directly
   to |GnuMakeWWW|
-* Perl (version 5.008 or higher)
+* Python and the pyparsing module.
 
-|openmolcas| also depends on `libwignernj
-<https://github.com/susilehtola/libwignernj>`_, a library for the exact
-evaluation of Wigner 3j, 6j and 9j symbols. This dependency is handled
-automatically: CMake uses a system installation if one is found (via
-``find_package``), and otherwise downloads and builds the library from
-source while CMake runs. The automatic download requires :program:`git`
-and an internet connection.
+|openmolcas| also depends on `Libxc <https://libxc.gitlab.io/>`_ (a library of
+exchange-correlation and kinetic energy functionals for density-functional
+theory) and `libwignernj <https://github.com/susilehtola/libwignernj>`_ (a
+library for the exact evaluation of Wigner 3j, 6j and 9j symbols). These
+dependencies are handled automatically: CMake uses a system installation if one
+is found (in the location specified by ``EXTERNAL_LIBXC`` or via
+``find_package``), and otherwise downloads and builds the libraries from source
+while CMake runs. The automatic download requires :program:`git` and an
+internet connection.
 
 Also, you can benefit from following optional dependencies:
 

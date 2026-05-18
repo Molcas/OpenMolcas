@@ -33,12 +33,12 @@ subroutine termCF(ANGMOM,AMFI,ESFS,ldimcf,d,maxes2,iopt,nlanth,iprint)
 !                   iopt = 4   -- maxes is the unity matrix ( original Z
 !                                 is the quantization axis )
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, cZero, cOne, Onei, auTocm
 #ifdef _DISABLED_
 use wigner_util, only: wcg_real
 use Constants, only: One, Two, Half
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, cZero, cOne, Onei, auTocm
 use Definitions, only: wp, iwp, u6
 
 implicit none

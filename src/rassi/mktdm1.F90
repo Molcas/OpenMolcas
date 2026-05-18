@@ -25,8 +25,8 @@ use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_get_onetdm_spin, qcmaquis_mps
 use rassi_global_arrays, only: LROOT
 #endif
 use Symmetry_Info, only: MUL
-use stdalloc, only: mma_allocate, mma_deallocate
 use wigner_util, only: dclebs
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 

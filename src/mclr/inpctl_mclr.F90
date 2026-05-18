@@ -32,7 +32,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iPL
-integer(kind=iwp) :: i, ii, ipCII, iSSM, iMode
+integer(kind=iwp) :: i, ii, iMode, ipCII, iSSM
 character(len=8) :: Method
 integer(kind=iwp), allocatable :: index_SD(:) ! not final version
 real(kind=wp), allocatable :: CITmp(:), CIVec(:,:), vector_cidmrg(:)
@@ -106,8 +106,8 @@ if (iMethod == 2) then
     if (.not. (doDMRG .and. doMCLR)) then ! yma
       ! transform to sym. group
 
-      iMode=1
-      Call SG2SymG(CITmp,SIZE(CITmp),iMode,State_Sym)
+      iMode = 1
+      call SG2SymG(CITmp,size(CITmp),iMode,State_Sym)
 
     end if
 
