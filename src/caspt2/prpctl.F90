@@ -24,10 +24,11 @@ use OneDat, only: sNoNuc, sNoOri
 use PrintLevel, only: USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use caspt2_global, only: do_grad
 #endif
 use EQSOLV, only: IVECX, NLSTOT
-use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, do_nac, DPT2_tot, DPT2C_tot, iPrGlb, iRoot1, iRoot2, LISTS, LUONEM, &
-                         NCMO, SLag, TORB
+use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_nac, DPT2_tot, DPT2C_tot, iPrGlb, iRoot1, iRoot2, LISTS, LUONEM, NCMO, &
+                         SLag, TORB
 use caspt2_module, only: BNAME, Energy, IAD1M, IFMSCOUP, IFPROP, irlxroot, ISCF, JSTATE, MSTATE, MSTATE, NASH, NASHT, NBAS, NBAST, &
                          NCONF, NDEL, NFRO, NISH, NORB, NRAS1, NRAS2, NRAS3, NSYM, OUTFMT, PRORB, THRENE, THROCC
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -63,8 +64,6 @@ if (Is_Real_Par() .and. (IPRGLB >= USUAL) .and. (.not. do_grad)) then
   write(u6,'(1X,A)') ' to a significant speed up.'
   write(u6,'(1X,A)') ' ====================================='
 end if
-#else
-call unused_logical(do_grad)
 #endif
 
 ! PAM2008 When this subroutine is called, theMSTATE calculation has been done

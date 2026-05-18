@@ -23,7 +23,6 @@ integer(kind=iwp), intent(in) :: NP, NI, NQ, NK, NASHT, iOffP, iOffI, iOffQ, iOf
 real(kind=wp), intent(inout) :: TUVX(nTUVX)
 real(kind=wp), intent(in) :: PIQK(nPIQK)
 integer(kind=iwp), intent(inout) :: NUMERR
-<<<<<<< HEAD
 integer(kind=iwp) :: iU, iUVX1, iUVX2, iV, iVX1, iVX2, iX, iX1, iX2
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iPIQK, iT, iTUVX

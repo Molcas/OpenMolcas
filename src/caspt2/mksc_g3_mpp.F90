@@ -20,7 +20,7 @@
 #include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
 
-subroutine MKSC_G3_MPP(ISYM,SC,iLo,iHi,NAS,LDC,NG3,G3,idxG3)
+subroutine MKSC_G3_MPP(ISYM,SC,iLo,NAS,LDC,NG3,G3,idxG3)
 
 use Symmetry_Info, only: Mul
 use MPI, only: MPI_COMM_WORLD, MPI_INTEGER, MPI_REAL8
@@ -33,7 +33,7 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Definitions, only: wp, iwp, byte, MPIInt
 
 implicit none
-integer(kind=iwp), intent(in) :: ISYM, iLo, iHi, NAS, LDC, NG3
+integer(kind=iwp), intent(in) :: ISYM, iLo, NAS, LDC, NG3
 real(kind=wp), intent(out) :: SC(LDC,NAS)
 real(kind=wp), intent(in) :: G3(NG3)
 integer(kind=byte), intent(in) :: idxG3(6,NG3)
@@ -450,10 +450,6 @@ call MMA_DEALLOCATE(SDISPLS2)
 call MMA_DEALLOCATE(RDISPLS2)
 
 call MMA_DEALLOCATE(IBUF)
-return
-
-! Avoid unused argument warnings
-if (.false.) call UNUSED_INTEGER(iHi)
 
 end subroutine MKSC_G3_MPP
 

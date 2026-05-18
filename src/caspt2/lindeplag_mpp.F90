@@ -153,10 +153,9 @@ call GA_DGEMM('N','T',NAS,NAS,NAS,One,lg_Lag,lg_Vec,One,lg_SDER)
 
 call PSBMAT_FREEMEM(lg_Vec)
 bSTAT = GA_Destroy(lg_Lag)
-call PSBMAT_FREEMEM(lg_B)
-
 #include "macros.fh"
 unused_var(bStat)
+call PSBMAT_FREEMEM(lg_B)
 
 end subroutine LinDepLag_MPP
 

@@ -70,6 +70,8 @@ if (Is_Real_Par()) then
       call GA_DGEMM('T','N',NIN,NIS,NAS,One,lg_T,lg_V2,Zero,lg_V1)
     end if
     bStat = GA_Destroy(lg_T)
+#   include "macros.fh"
+    unused_var(bStat)
   else
     !-SVC: if case is not A or C, the S/ST matrices are stored in replicate
     !      fashion, and the RHS are stored as vertical stripes, so use dgemm
@@ -137,8 +139,6 @@ else
   call mma_deallocate(T)
 #ifdef _MOLCAS_MPP_
 end if
-#include "macros.fh"
-unused_var(bStat)
 #endif
 
 end subroutine RHS_SR2C

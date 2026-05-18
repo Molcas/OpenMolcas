@@ -361,14 +361,12 @@ subroutine CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
     call mma_deallocate(SIZ)
   end if
 # else
-  ! Avoid unused argument warnings
-  if (.false.) then
-    call Unused_real_array(CHOBUF)
-    call Unused_integer(ICASE)
-    call Unused_integer(ISYQ)
-    call Unused_integer(JSYM)
-    call Unused_integer(IB)
-  end if
+# include "macros.fh"
+  unused_var(CHOBUF)
+  unused_var(ICASE)
+  unused_var(ISYQ)
+  unused_var(JSYM)
+  unused_var(IB)
 # endif
 
 end subroutine CHOVEC_COLL

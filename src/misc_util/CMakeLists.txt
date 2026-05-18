@@ -142,7 +142,6 @@ set (sources
      trnsps.F90
      twodat.F90
      unfold.F90
-     unused.F90
      upki4.F90
      upkr8.F90
      veig.F90

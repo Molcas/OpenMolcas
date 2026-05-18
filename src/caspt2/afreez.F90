@@ -339,7 +339,4 @@ if (IFQCAN /= 0) IFQCAN = 0 ! MOs to be recanonicalized on exit
 
 call MMA_DEALLOCATE(SMAT)
 
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NCMO)
-
 end subroutine AFREEZ

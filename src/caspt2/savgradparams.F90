@@ -348,6 +348,8 @@ do ISYM=1,NSYM
           end if
           call PSBMAT_WRITE('T',iCase,iSym,lg_T,NAS*NIN)
           bStat = GA_Destroy(lg_T)
+#         include "macros.fh"
+          unused_var(bStat)
         end if
       else
 #     endif
@@ -358,8 +360,6 @@ do ISYM=1,NSYM
         end if
 #     ifdef _MOLCAS_MPP_
       end if
-#     include "macros.fh"
-      unused_var(bStat)
 #     endif
       !! Eigenvalue
       if (NIN > 0) then

@@ -287,13 +287,13 @@ if (is_real_par()) then
   end do
   call GADGOP(A_PT2,MaxVec_PT2**2,'+')
   bStat = GA_Destroy(lg_V1)
+# include "macros.fh"
+  unused_var(bStat)
 
   call GADGOP(V1,MaxVec_PT2,'+')
   call GADGOP(V2,MaxVec_PT2,'+')
   call mma_deallocate(MAP2)
 end if
-#include "macros.fh"
-unused_var(bStat)
 #endif
 
 !! Coulomb for A_PT2

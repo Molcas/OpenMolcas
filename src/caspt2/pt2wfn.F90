@@ -27,6 +27,8 @@ logical(kind=iwp) :: pt2wfn_is_h5 = .false.
 
 public :: pt2wfn_close, pt2wfn_data, pt2wfn_densstore, pt2wfn_estore, pt2wfn_init
 
+#include "macros.fh"
+
 contains
 
 subroutine pt2wfn_init()
@@ -218,8 +220,7 @@ subroutine pt2wfn_estore(Heff,nState)
     if (IFMSCOUP) call mh5_put_dset(pt2wfn_heff,Heff)
   end if
 # else
-  ! Avoid unused argument warnings
-  if (.false.) call Unused_real_array(Heff)
+  unused_var(Heff)
 #endif
 
 end subroutine pt2wfn_estore
@@ -237,8 +238,7 @@ subroutine pt2wfn_densstore(Dmat,nDmat)
 # ifdef _HDF5_
   if (pt2wfn_is_h5) call mh5_put_dset(pt2wfn_dens,Dmat,[nDmat,1],[0,JSTATE-1])
 # else
-  ! Avoid unused argument warnings
-  if (.false.) call Unused_real_array(Dmat)
+  unused_var(Dmat)
 # endif
 
 end subroutine pt2wfn_densstore

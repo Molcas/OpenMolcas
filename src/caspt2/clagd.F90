@@ -282,7 +282,7 @@ if (is_real_par()) then
     call I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
     !! DF3 is done after icase=4
     !! construct G3 matrix in lg_S
-    call MKSC_G3_MPP(ISYM,DBL_MB(mS),ILO,IHI,NAS,LDV,NG3,G3,IDXG3)
+    call MKSC_G3_MPP(ISYM,DBL_MB(mS),ILO,NAS,LDV,NG3,G3,IDXG3)
     call GA_Release_Update(lg_S,ILO,IHI,JLO,JHI)
     call DF3_DEPSA_MPP(NG3,NASHT,DF3,DEPSA,lg_S,idxG3)
 
@@ -1290,7 +1290,7 @@ subroutine CLagDX_MPP()
 
     !! DF3 is done after icase=4
     !! construct G3 matrix in lg_S
-    !call MKSC_G3_MPP(ISYM,DBL_MB(mS),ILO,IHI,NAS,LDV,NG3,G3,IDXG3)
+    !call MKSC_G3_MPP(ISYM,DBL_MB(mS),ILO,NAS,LDV,NG3,G3,IDXG3)
     !call GA_Release_Update(lg_S,ILO,IHI,JLO,JHI)
     !call DF3_DEPSA_MPP(DF3,DEPSA,lg_S,idxG3)
   else

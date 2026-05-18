@@ -58,6 +58,8 @@ if (Is_Real_Par()) then
     call PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
     call GA_DGEMM('N','N',NAS,NIS,NAS,ALPHA,lg_S,lg_V1,One,lg_V2)
     bStat = GA_Destroy(lg_S)
+#   include "macros.fh"
+    unused_var(bStat)
   else
     !-SVC: if case is not A or C, the S/ST matrices are stored in replicate
     !      fashion, and the RHS are stored as vertical stripes, so use
@@ -104,8 +106,6 @@ else
   call mma_deallocate(S)
 #ifdef _MOLCAS_MPP_
 end if
-#include "macros.fh"
-unused_var(bStat)
 #endif
 
 end subroutine RHS_STRANS
