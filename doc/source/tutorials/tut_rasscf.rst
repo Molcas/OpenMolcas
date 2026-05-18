@@ -298,3 +298,58 @@ can be used by the program :program:`LUSCUS` to produce spin densities.
 
 :kword:`LUMORB`/:kword:`FILEORB`
   use definition of active space from Orbital file
+
+.. _TUT\:sec\:rasscf_mrcc:
+
+Generating a MRCC :file:`fort.55` file
+--------------------------------------
+
+The :kword:`DMPO` keyword in :program:`RASSCF` can be used to produce a
+:file:`fort.55` integral file compatible with the external :program:`MRCC`
+program. The example below shows a full Ne atom calculation in :math:`D_{2h}`
+symmetry with the 6-31G basis set. The :kword:`OutOrbitals` keyword is set to
+``CANOnical`` so that the orbitals are generated in the ordering expected by
+MRCC. ::
+
+  &GATEWAY
+    coord
+      1
+      angstrom
+      Ne  0.000000  0.000000  0.000000
+    Basis = 6-31G
+  &SEWARD
+  &SCF
+  Threshold = 0.5D-14 0.5D-14 0.5D-14 0.5D-14
+  &RASSCF
+    OutOrbitals = CANOnical
+    nActEl = 10 0 0
+    Ras2 = 3 2 2 0 2 0 0 0
+    DMPO
+
+After a successful run the output directory will contain :file:`FCIDUMP`,
+:file:`H5FCIDUMP`, and :file:`fort.55`. The first three lines of
+:file:`fort.55` contain the number of active orbitals and electrons, the
+symmetry labels of each orbital (in MRCC numbering), and a status flag
+(``150000``). The body contains the two-electron integrals in 4-fold
+format, followed by the one-electron Fock matrix elements and the core energy.
+A representative excerpt is shown below::
+
+  9 10
+  1 1 8 7 6 8 7 6 1
+   150000
+    0.59714357098308239458E+01    1    1    1    1
+   -0.61544791370099327654E+00    1    1    2    1
+    0.14511291442379423700E+01    1    1    2    2
+    0.14202268915001943217E+01    1    1    3    3
+    0.14202268915001940996E+01    1    1    4    4
+    0.14202268915001934335E+01    1    1    5    5
+   -0.65913529905519829821E+00    1    1    6    3
+    0.12066215855970596760E+01    1    1    6    6
+   -0.65913529905519818719E+00    1    1    7    4
+    0.12066215855970596760E+01    1    1    7    7
+   ...
+   -0.49907071595579829193E+02    1    1    0    0
+    0.91075835830516549407E+00    2    1    0    0
+   -0.11077183024840106640E+02    2    2    0    0
+   ...
+    0.00000000000000000000E+00    0    0    0    0
