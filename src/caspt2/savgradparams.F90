@@ -453,7 +453,7 @@ subroutine SaveReadT1()
 #         endif
             if (NAS*NIS > 0) then
               call DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
-              call RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
+              call RHS_SAVE(NIN,NIS,lg_V1,ICASE_,ISYM_,IVECX)
             end if
 #         ifdef _MOLCAS_MPP_
           end if
@@ -499,7 +499,7 @@ subroutine SaveReadT1()
 #         endif
             if (NIN*NIS > 0) then
               call DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NIN*NIS,IDSAVGRD)
-              call RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
+              call RHS_SAVE(NIN,NIS,lg_V1,ICASE_,ISYM_,IVECX)
             end if
 #         ifdef _MOLCAS_MPP_
           end if

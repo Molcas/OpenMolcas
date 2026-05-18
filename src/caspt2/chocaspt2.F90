@@ -15,22 +15,16 @@ module ChoCASPT2
 ! of corresponding values in module Cholesky.
 ! Values are transferred at the beginning of caspt2.
 
+use Data_Structures, only: Alloc1DiArray_Type
 use Definitions, only: iwp
 
 implicit none
 private
 
-type ChoType
-  integer(kind=iwp), allocatable :: Unt(:)
-  integer(kind=iwp), allocatable :: ip(:)
-  integer(kind=iwp), allocatable :: np(:)
-  integer(kind=iwp), allocatable :: sp(:)
-end type ChoType
-
 integer(kind=iwp) :: iALGO, MaxVec_PT2, MXCHARR, MXNVC, nAsplit(8), NCHSPC, NFTSPC, NFTSPC_TOT, NHTSPC, nIsplit(8), nksh(8), &
                      npsh(8), numcho_pt2(8)
-type(ChoType) :: Stuff(8)
+type(Alloc1DiArray_Type) :: Unt(8)
 
-public :: iALGO, MaxVec_PT2, MXCHARR, MXNVC, NASplit, NCHSPC, NFTSPC, NFTSPC_TOT, NHTSPC, NISplit, nksh, npsh, NumCho_PT2, Stuff
+public :: iALGO, MaxVec_PT2, MXCHARR, MXNVC, NASplit, NCHSPC, NFTSPC, NFTSPC_TOT, NHTSPC, NISplit, nksh, npsh, NumCho_PT2, Unt
 
 end module ChoCASPT2

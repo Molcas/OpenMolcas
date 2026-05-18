@@ -534,11 +534,11 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,NTJVX,Cho_Bra,Cho_Ket,Cho_BraD
       if (Is_Real_Par()) then
         ! copy global array to local buffer
         call RHS_ALLO(nAS,nIS,lg_V)
-        call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+        call RHS_READ(nAS,nIS,lg_V,iCase,iSym,iVecC2)
         ipT = Allocate_GA_Array(nAS*nIS,'ipT')
         call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A,nAS)
         if (do_csf) then
-          call RHS_READ_C(lg_V,iCase,iSym,7)
+          call RHS_READ(nAS,nIS,lg_V,iCase,iSym,7)
           ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
           call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A,nAS)
         end if
@@ -547,10 +547,10 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,NTJVX,Cho_Bra,Cho_Ket,Cho_BraD
       else
 #     endif
         call RHS_ALLO(nAS,nIS,ipT)
-        call RHS_READ_C(ipT,iCase,iSym,iVecC2)
+        call RHS_READ(nAS,nIS,ipT,iCase,iSym,iVecC2)
         if (do_csf) then
           call RHS_ALLO(nAS,nIS,ipTanti)
-          call RHS_READ_C(ipTanti,iCase,iSym,7)
+          call RHS_READ(nAS,nIS,ipTanti,iCase,iSym,7)
         end if
 #     ifdef _MOLCAS_MPP_
       end if
@@ -663,7 +663,7 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,Cho_Bra,Cho_Ket,Cho_BraD
         if (Is_Real_Par()) then
           ! copy global array to local buffer
           call RHS_ALLO(nASP,nISP,lg_V)
-          call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+          call RHS_READ(nASP,nISP,lg_V,iCase,iSym,iVecC2)
           ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
           call GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A,nASP)
           call RHS_FREE(lg_V)
@@ -671,7 +671,7 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,Cho_Bra,Cho_Ket,Cho_BraD
         else
 #       endif
           call RHS_ALLO(nASP,nISP,ipTP)
-          call RHS_READ_C(ipTP,iCase,iSym,iVecC2)
+          call RHS_READ(nASP,nISP,ipTP,iCase,iSym,iVecC2)
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
@@ -729,7 +729,7 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,Cho_Bra,Cho_Ket,Cho_BraD
         if (Is_Real_Par()) then
           ! copy global array to local buffer
           call RHS_ALLO(nASM,nISM,lg_V)
-          call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+          call RHS_READ(nASM,nISM,lg_V,iCase,iSym,iVecC2)
           ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
           call GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A,nASM)
           call RHS_FREE(lg_V)
@@ -737,7 +737,7 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,Cho_Bra,Cho_Ket,Cho_BraD
         else
 #       endif
           call RHS_ALLO(nASM,nISM,ipTM)
-          call RHS_READ_C(ipTM,iCase,iSym,iVecC2)
+          call RHS_READ(nASM,nISM,ipTM,iCase,iSym,iVecC2)
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
@@ -826,11 +826,11 @@ subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,NAUVX,Cho_Bra,Cho_Ket,Cho_BraD
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) then
         call RHS_ALLO(nAS,nIS,lg_V)
-        call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+        call RHS_READ(nAS,nIS,lg_V,iCase,iSym,iVecC2)
         ipT = Allocate_GA_Array(nAS*nIS,'ipT')
         call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A,nAS)
         if (do_csf) then
-          call RHS_READ_C(lg_V,iCase,iSym,7)
+          call RHS_READ(nAS,nIS,lg_V,iCase,iSym,7)
           ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
           call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A,nAS)
         end if
@@ -839,10 +839,10 @@ subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,NAUVX,Cho_Bra,Cho_Ket,Cho_BraD
       else
 #     endif
         call RHS_ALLO(nAS,nIS,ipT)
-        call RHS_READ_C(ipT,iCase,iSym,iVecC2)
+        call RHS_READ(nAS,nIS,ipT,iCase,iSym,iVecC2)
         if (do_csf) then
           call RHS_ALLO(nAS,nIS,ipTanti)
-          call RHS_READ_C(ipTanti,iCase,iSym,7)
+          call RHS_READ(nAS,nIS,ipTanti,iCase,iSym,7)
         end if
 #     ifdef _MOLCAS_MPP_
       end if
@@ -950,11 +950,11 @@ subroutine OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,NAJVX,Cho_Bra,Cho_Ket,Cho_Bra
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) then
         call RHS_ALLO(nAS,nIS,lg_V)
-        call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+        call RHS_READ(nAS,nIS,lg_V,iCase,iSym,iVecC2)
         ipT = Allocate_GA_Array(nAS*nIS,'ipT')
         call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A,nAS)
         if (do_csf) then
-          call RHS_READ_C(lg_V,iCase,iSym,7)
+          call RHS_READ(nAS,nIS,lg_V,iCase,iSym,7)
           ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
           call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A,nAS)
         end if
@@ -963,10 +963,10 @@ subroutine OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,NAJVX,Cho_Bra,Cho_Ket,Cho_Bra
       else
 #     endif
         call RHS_ALLO(nAS,nIS,ipT)
-        call RHS_READ_C(ipT,iCase,iSym,iVecC2)
+        call RHS_READ(nAS,nIS,ipT,iCase,iSym,iVecC2)
         if (do_csf) then
           call RHS_ALLO(nAS,nIS,ipTanti)
-          call RHS_READ_C(ipTanti,iCase,iSym,7)
+          call RHS_READ(nAS,nIS,ipTanti,iCase,iSym,7)
         end if
 #     ifdef _MOLCAS_MPP_
       end if
@@ -1081,11 +1081,11 @@ subroutine OLagNS_RI_D2(ISYI,ISYK,NA,NU,NV,NL,AUVL,NAUVL,Cho_Bra,Cho_Ket,Cho_Bra
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) then
         call RHS_ALLO(nAS,nIS,lg_V)
-        call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+        call RHS_READ(nAS,nIS,lg_V,iCase,iSym,iVecC2)
         ipT = Allocate_GA_Array(nAS*nIS,'ipT')
         call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A,nAS)
         if (do_csf) then
-          call RHS_READ_C(lg_V,iCase,iSym,7)
+          call RHS_READ(nAS,nIS,lg_V,iCase,iSym,7)
           ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
           call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A,nAS)
         end if
@@ -1094,10 +1094,10 @@ subroutine OLagNS_RI_D2(ISYI,ISYK,NA,NU,NV,NL,AUVL,NAUVL,Cho_Bra,Cho_Ket,Cho_Bra
       else
 #     endif
         call RHS_ALLO(nAS,nIS,ipT)
-        call RHS_READ_C(ipT,iCase,iSym,iVecC2)
+        call RHS_READ(nAS,nIS,ipT,iCase,iSym,iVecC2)
         if (do_csf) then
           call RHS_ALLO(nAS,nIS,ipTanti)
-          call RHS_READ_C(ipTanti,iCase,iSym,7)
+          call RHS_READ(nAS,nIS,ipTanti,iCase,iSym,7)
         end if
 #     ifdef _MOLCAS_MPP_
       end if
@@ -1196,7 +1196,7 @@ subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,Cho_Bra,Cho_Ket,Cho_BraD
         if (Is_Real_Par()) then
           ! copy global array to local buffer
           call RHS_ALLO(nASP,nISP,lg_V)
-          call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+          call RHS_READ(nASP,nISP,lg_V,iCase,iSym,iVecC2)
           ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
           call GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A,nASP)
           call RHS_FREE(lg_V)
@@ -1204,7 +1204,7 @@ subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,Cho_Bra,Cho_Ket,Cho_BraD
         else
 #       endif
           call RHS_ALLO(nASP,nISP,ipTP)
-          call RHS_READ_C(ipTP,iCase,iSym,iVecC2)
+          call RHS_READ(nASP,nISP,ipTP,iCase,iSym,iVecC2)
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
@@ -1284,7 +1284,7 @@ subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,Cho_Bra,Cho_Ket,Cho_BraD
         if (Is_Real_Par()) then
           ! copy global array to local buffer
           call RHS_ALLO(nASM,nISM,lg_V)
-          call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+          call RHS_READ(nASM,nISM,lg_V,iCase,iSym,iVecC2)
           ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
           call GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A,nASM)
           call RHS_FREE(lg_V)
@@ -1292,7 +1292,7 @@ subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,Cho_Bra,Cho_Ket,Cho_BraD
         else
 #       endif
           call RHS_ALLO(nASM,nISM,ipTM)
-          call RHS_READ_C(ipTM,iCase,iSym,iVecC2)
+          call RHS_READ(nASM,nISM,ipTM,iCase,iSym,iVecC2)
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
@@ -1418,7 +1418,7 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,NAUCX,Cho_Bra,Cho_Ket,Cho_BraD
         if (Is_Real_Par()) then
           ! copy global array to local buffer
           call RHS_ALLO(nASP,nISP,lg_V)
-          call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+          call RHS_READ(nASP,nISP,lg_V,iCase,iSym,iVecC2)
           ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
           call GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A,nASP)
           call RHS_FREE(lg_V)
@@ -1426,7 +1426,7 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,NAUCX,Cho_Bra,Cho_Ket,Cho_BraD
         else
 #       endif
           call RHS_ALLO(nASP,nISP,ipTP)
-          call RHS_READ_C(ipTP,iCase,iSym,iVecC2)
+          call RHS_READ(nASP,nISP,ipTP,iCase,iSym,iVecC2)
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
@@ -1486,7 +1486,7 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,NAUCX,Cho_Bra,Cho_Ket,Cho_BraD
         if (Is_Real_Par()) then
           ! copy global array to local buffer
           call RHS_ALLO(nASM,nISM,lg_V)
-          call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+          call RHS_READ(nASM,nISM,lg_V,iCase,iSym,iVecC2)
           ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
           call GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A,nASM)
           call RHS_FREE(lg_V)
@@ -1494,7 +1494,7 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,NAUCX,Cho_Bra,Cho_Ket,Cho_BraD
         else
 #       endif
           call RHS_ALLO(nASM,nISM,ipTM)
-          call RHS_READ_C(ipTM,iCase,iSym,iVecC2)
+          call RHS_READ(nASM,nISM,ipTM,iCase,iSym,iVecC2)
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
@@ -1601,7 +1601,7 @@ subroutine OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,Cho_Bra,Cho_Ket,Cho_BraD
         if (Is_Real_Par()) then
           ! copy global array to local buffer
           call RHS_ALLO(nASP,nISP,lg_V)
-          call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+          call RHS_READ(nASP,nISP,lg_V,iCase,iSym,iVecC2)
           ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
           call GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A,nASP)
           call RHS_FREE(lg_V)
@@ -1609,7 +1609,7 @@ subroutine OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,Cho_Bra,Cho_Ket,Cho_BraD
         else
 #       endif
           call RHS_ALLO(nASP,nISP,ipTP)
-          call RHS_READ_C(ipTP,iCase,iSym,iVecC2)
+          call RHS_READ(nASP,nISP,ipTP,iCase,iSym,iVecC2)
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
@@ -1695,7 +1695,7 @@ subroutine OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,Cho_Bra,Cho_Ket,Cho_BraD
         if (Is_Real_Par()) then
           ! copy global array to local buffer
           call RHS_ALLO(nASM,nISM,lg_V)
-          call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+          call RHS_READ(nASM,nISM,lg_V,iCase,iSym,iVecC2)
           ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
           call GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A,nASM)
           call RHS_FREE(lg_V)
@@ -1703,7 +1703,7 @@ subroutine OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,Cho_Bra,Cho_Ket,Cho_BraD
         else
 #       endif
           call RHS_ALLO(nASM,nISM,ipTM)
-          call RHS_READ_C(ipTM,iCase,iSym,iVecC2)
+          call RHS_READ(nASM,nISM,ipTM,iCase,iSym,iVecC2)
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
@@ -1827,7 +1827,7 @@ subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,Cho_Bra,Cho_Ket,Cho_BraD
       if (Is_Real_Par()) then
         ! copy global array to local buffer
         call RHS_ALLO(nASP,nISP,lg_V)
-        call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+        call RHS_READ(nASP,nISP,lg_V,iCase,iSym,iVecC2)
         ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
         call GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A,nASP)
         call RHS_FREE(lg_V)
@@ -1835,7 +1835,7 @@ subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,Cho_Bra,Cho_Ket,Cho_BraD
       else
 #     endif
         call RHS_ALLO(nASP,nISP,ipTP)
-        call RHS_READ_C(ipTP,iCase,iSym,iVecC2)
+        call RHS_READ(nASP,nISP,ipTP,iCase,iSym,iVecC2)
 #     ifdef _MOLCAS_MPP_
       end if
 #     endif
@@ -1942,7 +1942,7 @@ subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,Cho_Bra,Cho_Ket,Cho_BraD
       if (Is_Real_Par()) then
         ! copy global array to local buffer
         call RHS_ALLO(nASM,nISM,lg_V)
-        call RHS_READ_C(lg_V,iCase,iSym,iVecC2)
+        call RHS_READ(nASM,nISM,lg_V,iCase,iSym,iVecC2)
         ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
         call GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A,nASM)
         call RHS_FREE(lg_V)
@@ -1950,7 +1950,7 @@ subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,Cho_Bra,Cho_Ket,Cho_BraD
       else
 #     endif
         call RHS_ALLO(nASM,nISM,ipTM)
-        call RHS_READ_C(ipTM,iCase,iSym,iVecC2)
+        call RHS_READ(nASM,nISM,ipTM,iCase,iSym,iVecC2)
 #     ifdef _MOLCAS_MPP_
       end if
 #     endif

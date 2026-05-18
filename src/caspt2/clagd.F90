@@ -115,7 +115,7 @@ do iCase=1,11
       call RHS_READ_SR(lg_V3,iCase,iSym,iRHS)
       !! lg_V4 = RHS (in MO basis)
       call RHS_ALLO(nAS,nIS,lg_V4)
-      call RHS_READ_C(lg_V4,iCase,iSym,iVecW)
+      call RHS_READ(nAS,nIS,lg_V4,iCase,iSym,iVecW)
       !! lg_V5 = RHS2 (in IC basis)
       if (IFMSCOUP) then
         call RHS_ALLO(nIN,nIS,lg_V5)
@@ -1215,7 +1215,7 @@ subroutine CLagDX_MPP()
   bStat = GA_destroy(lg_T)
   !! lg_V1 = VEC4 = RHS (in MO basis)
   call RHS_ALLO(nAS,nIS,lg_V1)
-  call RHS_READ_C(lg_V1,iCase,iSym,iVecW)
+  call RHS_READ(nAS,nIS,lg_V1,iCase,iSym,iVecW)
 
   call GA_DGEMM('N','T',NAS,NAS,NIS,Two,lg_WRK,lg_V1,One,lg_SDER)
 

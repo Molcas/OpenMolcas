@@ -78,7 +78,7 @@ do ISYM=1,NSYM
   NVEC = NIS*NAS
   if (NVEC == 0) goto 100
   call RHS_ALLO(NAS,NIS,LVEC)
-  call RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
+  call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
   FACT = One/real(max(1,NACTEL),kind=wp)
 # ifdef _MOLCAS_MPP_
   if (IS_REAL_PAR()) then
@@ -113,7 +113,7 @@ do ISYM=1,NSYM
   if (NVEC == 0) goto 200
   if (NSSH(ISYM)*NASH(ISYM) == 0) goto 200
   call RHS_ALLO(NAS,NIS,LVEC)
-  call RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
+  call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
   FACT = One/real(max(1,NACTEL),kind=wp)
 # ifdef _MOLCAS_MPP_
   if (IS_REAL_PAR()) then
@@ -146,7 +146,7 @@ NAS = NASUP(ISYM,ICASE)
 NVEC = NIS*NAS
 if (NVEC == 0) goto 300
 call RHS_ALLO(NAS,NIS,LVEC)
-call RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
+call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
 FACT = One/real(max(1,NACTEL),kind=wp)
 #ifdef _MOLCAS_MPP_
 if (IS_REAL_PAR()) then

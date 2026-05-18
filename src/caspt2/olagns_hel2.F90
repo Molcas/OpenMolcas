@@ -97,11 +97,11 @@ if (PM) then
   !if (nINM /= 0) nVec = nINM*nISM
   if (nASP*nISP /= 0) then
     call RHS_ALLO(nASP,nISP,ipTCP)
-    call RHS_READ_C(ipTCP,iCase,iSym,iVecC2)
+    call RHS_READ(nASP,nISP,ipTCP,iCase,iSym,iVecC2)
   end if
   if (nASM*nISM /= 0) then
     call RHS_ALLO(nASM,nISM,ipTCM)
-    call RHS_READ_C(ipTCM,iCase+1,iSym,iVecC2)
+    call RHS_READ(nASM,nISM,ipTCM,iCase+1,iSym,iVecC2)
   end if
 else
   !nIN = nINDEP(iSym,iCase)
@@ -110,7 +110,7 @@ else
   !if (nIN /= 0) nVec = nIN*nIS
   if (nAS*nIS /= 0) then
     call RHS_ALLO(nAS,nIS,ipTC)
-    call RHS_READ_C(ipTC,iCase,iSym,iVecC2)
+    call RHS_READ(nAS,nIS,ipTC,iCase,iSym,iVecC2)
   end if
 end if
 

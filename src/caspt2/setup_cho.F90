@@ -12,16 +12,14 @@
 subroutine setup_cho(nSym,nIsh,nAsh,nSsh,NumCho,mode)
 ! -------------------------
 ! This subroutine uses the input variables to compute
-! Stuff(:)%Unt(:), Stuff(:)%ip(:), Stuff(:)%np(:), Stuff(:)%sp(:)
-! nisplit, nasplit,lsplit, each dimensioned (1:nsym),
-! in module chocaspt2,
-! and allocates fields %Unt(:), %np(:), and %sp(:)
-! each with sizes lsplit(1:nsym), and
-! %ip(:), with teh sizes nsym*lsplit(1:nsym)
+! Unt, nisplit, nasplit, lsplit
+! each dimensioned (1:nsym),
+! in module chocaspt2
 ! -------------------------
 
 use Symmetry_Info, only: Mul
-use ChoCASPT2, only: nasplit, nisplit, nksh, npsh, Stuff
+use Data_Structures, only: Alloc1DiArray_Type
+use ChoCASPT2, only: nasplit, nisplit, nksh, npsh, Unt
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
@@ -33,6 +31,7 @@ integer(kind=iwp) :: I, iAorb(8), IfTest, iIorb(8), iK, iK1, iK2, iKorb(8), ioff
                      kEnd, kEndSym, kFrac, kS, kSta, kStaSym, lS, lsplit(8), mDiff, Mem1, MemMx, mRHS, nA, nAO, nI, nIAc, nIO, &
                      nKsp, nkSum, nMin, nO, nOkrb, nOrb, nP, nPMax, nPOrb, npSum, nS
 real(kind=wp) :: xmb, xMemMx
+type(Alloc1DiArray_Type) :: ip(8), mp(8), sp(8)
 integer(kind=iwp), external :: cho_irange
 
 #ifdef _DEBUGPRINT_
@@ -43,12 +42,7 @@ IFTEST = 0
 
 if (mode == 'FREE') then
   do jSym=1,nSym
-    if (NumCho(jSym) > 0) then
-      call mma_deallocate(Stuff(jSym)%Unt)
-      call mma_deallocate(Stuff(jSym)%ip)
-      call mma_deallocate(Stuff(jSym)%np)
-      call mma_deallocate(Stuff(jSym)%sp)
-    end if
+    call mma_deallocate(Unt(jSym)%A,safe='*')
   end do
   return
 end if
@@ -115,9 +109,9 @@ end do
 ! vectors with a fixed inactive orbital index (Inactive vectors), and
 ! nASplit(jSym) batches with vectors with a fixed active index
 ! (Active vectors). Each batch has vectors with fixed index within a
-! range of size Stuff(jSym)%sp(i) where i is in 1..nISplit(jSym) or
+! range of size sp(jSym)%A(i) where i is in 1..nISplit(jSym) or
 !  in nISplit(jSym)+1..nISplit(jSym)+nASplit(jSym).
-! The vectors themselves have a size of Stuff(jSym)%np(i)
+! The vectors themselves have a size of mp(jSym)%A(i)
 ! The vectors are generally referred to as e.g. p#k, where #k stands
 ! for the fixed inactive or active orbital, while p is all the orbitals
 ! with a symmetry such that the compound symmetry label is JSYM.
@@ -210,16 +204,16 @@ do jSym=1,nSym
   !xmNeedNow = xmNeed+real((3+nSym,kind=wp)*lsplit(jSym))
 
   ! Allocate arrays, in all (3+nSym)*lsplit(jSym) elements:
-  call mma_allocate(Stuff(jsym)%sp,lsplit(jSym),Label='%sp')
-  call mma_allocate(Stuff(jsym)%np,lsplit(jSym),Label='%np')
-  call mma_allocate(Stuff(jsym)%ip,nSym*lsplit(jSym),Label='%ip')
-  call mma_allocate(Stuff(jsym)%Unt,lsplit(jSym),Label='%Unt')
+  call mma_allocate(sp(jsym)%A,lsplit(jSym),Label='sp')
+  call mma_allocate(mp(jsym)%A,lsplit(jSym),Label='np')
+  call mma_allocate(ip(jsym)%A,nSym*lsplit(jSym),Label='ip')
+  call mma_allocate(Unt(jsym)%A,lsplit(jSym),Label='%Unt')
   do i=1,lsplit(jSym)
-    Stuff(jSym)%sp(i) = 0
-    Stuff(jSym)%np(i) = 0
-    Stuff(jSym)%Unt(i) = 0
+    sp(jSym)%A(i) = 0
+    mp(jSym)%A(i) = 0
+    Unt(jSym)%A(i) = 0
     do j=1,nsym
-      Stuff(jsym)%ip(j+nsym*(i-1)) = 0
+      ip(jsym)%A(j+nsym*(i-1)) = 0
     end do
   end do
 
@@ -227,11 +221,11 @@ do jSym=1,nSym
   jS = 0
   if (nmin > 0) jS = nIO/nmin
   do i=0,jS-1
-    Stuff(jSym)%sp(1+i) = nMin
+    sp(jSym)%A(1+i) = nMin
   end do
   mDiff = jS*nmin-nIO
   if (mDiff > 0) then
-    Stuff(jSym)%sp(1+jS) = mDiff
+    sp(jSym)%A(1+jS) = mDiff
     jS = jS+1
   end if
   nisplit(jSym) = jS
@@ -240,11 +234,11 @@ do jSym=1,nSym
   jS = 0
   if (nmin > 0) jS = nAO/nmin
   do i=0,jS-1
-    Stuff(jSym)%sp(1+nisplit(jSym)+i) = nmin
+    sp(jSym)%A(1+nisplit(jSym)+i) = nmin
   end do
   mDiff = jS*nmin-nAO
   if (mDiff > 0) then
-    Stuff(jSym)%sp(1+nisplit(jSym)+jS) = mDiff
+    sp(jSym)%A(1+nisplit(jSym)+jS) = mDiff
     jS = jS+1
   end if
   nasplit(jSym) = jS
@@ -257,7 +251,7 @@ do jSym=1,nSym
     ! ioff+1 is the first orbital of partition isp.
     lS = cho_irange(ioff+1,iIorb,nSym,.false.)
     ! lS is its symmetry.
-    iK = Stuff(jSym)%sp(isp)+ioff
+    iK = sp(jSym)%A(isp)+ioff
     ! iK is the last orbital of the partition, and kS its symmetry
     kS = cho_irange(iK,iIorb,nSym,.false.)
 
@@ -269,15 +263,15 @@ do jSym=1,nSym
       ! ipip(jSym) is pointer to an array dimensioned iP(nSym,nisplit(jSym))
       ! which is used for offsets. In some other array, after the position
       ! iP(jS,isp) follows space for nAsh(jS)+nSsh(jS) items.
-      Stuff(jSym)%ip(jS+nsym*(isp-1)) = nPorb
+      ip(jSym)%A(jS+nsym*(isp-1)) = nPorb
       ! Update nPorb.
       nPorb = nPorb+nAsh(jS)+nSsh(jS)
     end do
 
     ! ipnp(jSym) is pointer to an array dimensioned nP(nisplit(jSym))
     ! It gives the total size for the items mentioned above.
-    Stuff(jSym)%np(isp) = nPorb
-    ioff = ioff+Stuff(jSym)%sp(isp)
+    mp(jSym)%A(isp) = nPorb
+    ioff = ioff+sp(jSym)%A(isp)
   end do
 
   ! Here follows similar arrays for the active orbitals.
@@ -286,16 +280,16 @@ do jSym=1,nSym
   ioff = 0
   do isp=1,nasplit(jSym)
     lS = cho_irange(ioff+1,iAorb,nSym,.false.)
-    iw = Stuff(jSym)%sp(nisplit(jSym)+isp)
+    iw = sp(jSym)%A(nisplit(jSym)+isp)
     kS = cho_irange(iw,iAorb,nSym,.false.)
     nPorb = 0
     do iS=lS,kS
       jS = Mul(iS,jSym)
-      Stuff(jSym)%ip(jS+nsym*(nisplit(jSym)+isp-1)) = nPorb
+      ip(jSym)%A(jS+nsym*(nisplit(jSym)+isp-1)) = nPorb
       nPorb = nPorb+nAsh(jS)+nSsh(jS)
     end do
-    Stuff(jSym)%np(nisplit(jSym)+isp) = nPorb
-    ioff = ioff+Stuff(jSym)%sp(nisplit(jSym)+isp)
+    mp(jSym)%A(nisplit(jSym)+isp) = nPorb
+    ioff = ioff+sp(jSym)%A(nisplit(jSym)+isp)
   end do
 
 99 continue
@@ -318,26 +312,32 @@ if (iftest /= 0) then
     kend = 0
     do isp=1,nisplit(jsym)
       ksta = kend+1
-      kend = kend+Stuff(jSym)%sp(isp)
+      kend = kend+sp(jSym)%A(isp)
       kstasym = cho_irange(ksta,iIorb,nSym,.false.)
       kendsym = cho_irange(kend,iIorb,nSym,.false.)
-      nPorb = Stuff(jSym)%np(isp)
+      nPorb = mp(jSym)%A(isp)
       write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)') isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-      write(u6,'(1x,a,8i8)') ' iP Offsets:',(Stuff(jSym)%ip(nSym*(isp-1)+Mul(jSym,iS)),iS=1,nSym)
+      write(u6,'(1x,a,8i8)') ' iP Offsets:',(ip(jSym)%A(nSym*(isp-1)+Mul(jSym,iS)),iS=1,nSym)
       write(u6,*)
     end do
     kend = 0
     do isp=1,nasplit(jsym)
       ksta = kend+1
-      kend = kend+Stuff(jSym)%sp(nisplit(jSym)+isp)
+      kend = kend+sp(jSym)%A(nisplit(jSym)+isp)
       kstasym = cho_irange(ksta,iAorb,nSym,.false.)
       kendsym = cho_irange(kend,iAorb,nSym,.false.)
-      nPorb = Stuff(jSym)%np(nisplit(jSym)+isp)
+      nPorb = mp(jSym)%A(nisplit(jSym)+isp)
       write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)') isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-      write(u6,'(1x,a,8i8)') ' iP Offsets:', (Stuff(jSym)%ip(nSym*(nisplit(jSym)+isp-1)+Mul(jSym,iS)),iS=1,nSym)
+      write(u6,'(1x,a,8i8)') ' iP Offsets:', (ip(jSym)%A(nSym*(nisplit(jSym)+isp-1)+Mul(jSym,iS)),iS=1,nSym)
       write(u6,*)
     end do
   end do
 end if
+
+do jSym=1,nSym
+  call mma_deallocate(sp(jSym)%A,safe='*')
+  call mma_deallocate(mp(jSym)%A,safe='*')
+  call mma_deallocate(ip(jSym)%A,safe='*')
+end do
 
 end subroutine setup_cho
