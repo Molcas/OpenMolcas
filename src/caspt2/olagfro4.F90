@@ -13,6 +13,7 @@
 
 subroutine OLagFro4(NBSQT,iSym0,iSymI,iSymJ,iSymK,iSymL0,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK1)
 
+use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use Cholesky, only: InfVec, nDimRS
 use ChoCASPT2, only: NUMCHO_PT2, NCHSPC, MXNVC
@@ -77,7 +78,7 @@ end do
 
 nBasI = nBas(iSymI)
 nBasJ = nBas(iSymJ)
-iSymIJ = 1+ieor(iSymI-1,iSymJ-1)
+iSymIJ = Mul(iSymI,iSymJ)
 nBasIJ = nBasI*nBasJ
 if (iSymI == iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
 if (nBasIJ == 0) return
@@ -85,7 +86,7 @@ if (nBasIJ == 0) return
 nBasK = nBas(iSymK)
 iSMax = iSymK
 if (iSymK == iSymI) iSMax = iSymJ
-iSymL = 1+ieor(iSymIJ-1,iSymK-1)
+iSymL = Mul(iSymIJ,iSymK)
 if (iSymL > iSMax) return !! should not
 nBasL = nBas(iSymL0)
 nBasKL = nBasK*nBasL

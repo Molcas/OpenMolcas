@@ -13,6 +13,7 @@
 
 subroutine VVVOX2(nAux,KEEP,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,vLag,CMO,WRK,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,FIFA,FIMO)
 
+use Symmetry_Info, only: Mul
 use ChoVec_io, only: NVLOC_CHOBATCH
 use Cholesky, only: InfVec
 use caspt2_global, only: LuGAMMA
@@ -57,7 +58,7 @@ KEEPI = KEEP(iSymI)
 nBasJ = nBas(iSymJ)
 KEEPJ = KEEP(iSymJ)
 !nAuxJ = nAux(iSymJ)
-iSymIJ = 1+ieor(iSymI-1,iSymJ-1)
+iSymIJ = Mul(iSymI,iSymJ)
 nBasIJ = nBasI*nBasJ
 if (iSymI == iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
 if (nBasIJ == 0) return
@@ -67,7 +68,7 @@ KEEPK = KEEP(iSymK)
 !nAuxK = nAux(iSymK)
 iSMax = iSymK
 if (iSymK == iSymI) iSMax = iSymJ
-iSymL_ = 1+ieor(iSymIJ-1,iSymK-1)
+iSymL_ = Mul(iSymIJ,iSymK)
 if (iSymL_ > iSMax) return !! should not
 nBasL = nBas(iSymL_)
 KEEPL = KEEP(iSymL_)

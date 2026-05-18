@@ -20,6 +20,7 @@ subroutine setup_cho(nSym,nIsh,nAsh,nSsh,NumCho,mode)
 ! %ip(:), with teh sizes nsym*lsplit(1:nsym)
 ! -------------------------
 
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_MaxDBLE
 use ChoCASPT2, only: Stuff, lsplit, nisplit, nasplit, nksh, nkes, npsh, npes
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -37,15 +38,6 @@ integer(kind=iwp) I, J, IfTest, iK, iK1, iK2, ioff, iS, iSP, iSym, iw, jfrac, jI
                   kStaSym, lS, mDiff, Mem1, MemMx, mRHS, nA, nAO, nI, nIAc, nIO, nKsp, nkSum, nMin, nO, nOkrb, nOrb, nP, nPMax, &
                   nPOrb, npSum, nS
 real(kind=wp) xmb, xMemMx
-! Statement functions
-integer(kind=iwp) MulD2h, nIc, nAc
-! **********************************************************************
-nIc(i,j) = Stuff(j)%sp(i)
-!*****
-nAc(i,j) = Stuff(j)%sp(nisplit(j)+i)
-!*****
-MulD2h(i,j) = ieor(i-1,j-1)+1
-! **********************************************************************
 
 #ifdef _DEBUGPRINT_
 IFTEST = 1
@@ -187,7 +179,7 @@ do jSym=1,nSym
     nP = 0
     do iK=iK1,iK2
       kS = cho_irange(iK,iKorb,nSym,.false.)
-      jS = MulD2h(kS,jSym)
+      jS = Mul(kS,jSym)
       nP = nP+nAsh(jS)+nSsh(jS)
     end do
     ! nPmax will be the largest number of such pairs in any piece.
@@ -198,7 +190,7 @@ do jSym=1,nSym
   ! of numbers no matter what jSym is.
   mRHS = 0
   do iS=1,nSym
-    jS = MulD2h(iS,jSym)
+    jS = Mul(iS,jSym)
     mRHS = max(mRHS,max(nAsh(jS),nSsh(jS)))
   end do
 
@@ -275,8 +267,7 @@ do jSym=1,nSym
     ! ioff+1 is the first orbital of partition isp.
     lS = cho_irange(ioff+1,iIorb,nSym,.false.)
     ! lS is its symmetry.
-    iK = nIc(isp,jSym)+ioff
-    ! Note: nIc(isp,jSym)=Stuff(jSym)%sp(isp)
+    iK = Stuff(jSym)%sp(isp)+ioff
     ! iK is the last orbital of the partition, and kS its symmetry
     kS = cho_irange(iK,iIorb,nSym,.false.)
 
@@ -284,7 +275,7 @@ do jSym=1,nSym
     ! Loop over the symmetry range of inactive orbitals in the partition
     do iS=lS,kS
       ! jS is then the symmetry of its companion orbital in the pair.
-      jS = MulD2h(iS,jSym)
+      jS = Mul(iS,jSym)
       ! ipip(jSym) is pointer to an array dimensioned iP(nSym,nisplit(jSym))
       ! which is used for offsets. In some other array, after the position
       ! iP(jS,isp) follows space for nAsh(jS)+nSsh(jS) items.
@@ -296,7 +287,7 @@ do jSym=1,nSym
     ! ipnp(jSym) is pointer to an array dimensioned nP(nisplit(jSym))
     ! It gives the total size for the items mentioned above.
     Stuff(jSym)%np(isp) = nPorb
-    ioff = ioff+nIc(isp,jSym)
+    ioff = ioff+Stuff(jSym)%sp(isp)
   end do
 
   ! Here follows similar arrays for the active orbitals.
@@ -305,16 +296,16 @@ do jSym=1,nSym
   ioff = 0
   do isp=1,nasplit(jSym)
     lS = cho_irange(ioff+1,iAorb,nSym,.false.)
-    iw = nAc(isp,jSym)+ioff
+    iw = Stuff(jSym)%sp(nisplit(jSym)+isp)
     kS = cho_irange(iw,iAorb,nSym,.false.)
     nPorb = 0
     do iS=lS,kS
-      jS = MulD2h(iS,jSym)
+      jS = Mul(iS,jSym)
       Stuff(jSym)%ip(jS+nsym*(nisplit(jSym)+isp-1)) = nPorb
       nPorb = nPorb+nAsh(jS)+nSsh(jS)
     end do
     Stuff(jSym)%np(nisplit(jSym)+isp) = nPorb
-    ioff = ioff+nAc(isp,jSym)
+    ioff = ioff+Stuff(jSym)%sp(nisplit(jSym)+isp)
   end do
 
 99 continue
@@ -342,7 +333,7 @@ if (iftest /= 0) then
       kendsym = cho_irange(kend,iIorb,nSym,.false.)
       nPorb = Stuff(jSym)%np(isp)
       write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)') isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-      write(u6,'(1x,a,8i8)') ' iP Offsets:',(Stuff(jSym)%ip(nSym*(isp-1)+MulD2h(jSym,iS)),iS=1,nSym)
+      write(u6,'(1x,a,8i8)') ' iP Offsets:',(Stuff(jSym)%ip(nSym*(isp-1)+Mul(jSym,iS)),iS=1,nSym)
       write(u6,*)
     end do
     kend = 0
@@ -353,7 +344,7 @@ if (iftest /= 0) then
       kendsym = cho_irange(kend,iAorb,nSym,.false.)
       nPorb = Stuff(jSym)%np(nisplit(jSym)+isp)
       write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)') isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-      write(u6,'(1x,a,8i8)') ' iP Offsets:', (Stuff(jSym)%ip(nSym*(nisplit(jSym)+isp-1)+MulD2h(jSym,iS)),iS=1,nSym)
+      write(u6,'(1x,a,8i8)') ' iP Offsets:', (Stuff(jSym)%ip(nSym*(nisplit(jSym)+isp-1)+Mul(jSym,iS)),iS=1,nSym)
       write(u6,*)
     end do
   end do

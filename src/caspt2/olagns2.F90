@@ -13,6 +13,7 @@
 
 subroutine OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
 
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use definitions, only: wp, iwp
 use caspt2_module, only: NSYM, NACTEL, NFRO, NISH, NASH, NSSH, NDEL, NBAS
@@ -43,13 +44,13 @@ do iSymI=1,nSym !! Symmetry of occupied (docc+act) orbitals
   if (nFro(iSymI)+nIsh(iSymI)+nAsh(iSymI) == 0) cycle
   do iSymJ=1,iSymI
     if (nFro(iSymJ)+nIsh(iSymJ)+nAsh(iSymJ) == 0) cycle
-    iSymIJ = 1+ieor(iSymI-1,iSymJ-1)
+    iSymIJ = Mul(iSymI,iSymJ)
     do iSymA=1,nSym !! Symmetry of non-filled (act+virt) orbs
       if (nAsh(iSymA)+nSsh(iSymA)+nDel(iSymA) == 0) cycle
       do iSymB=1,iSymA
         if (nAsh(iSymB)+nSsh(iSymB)+nDel(iSymB) == 0) cycle
-        iSymAB = 1+ieor(iSymA-1,iSymB-1)
-        iSymIJAB = 1+ieor(iSymIJ-1,iSymAB-1)
+        iSymAB = Mul(iSymA,iSymB)
+        iSymIJAB = Mul(iSymIJ,iSymAB)
         if (iSym /= iSymIJAB) cycle
         do iCase=1,13
           call OLagNs_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,iSymI,iSymJ,nMaxOrb,Int1,Amp1,Scr1,DPT2C,T2AO)

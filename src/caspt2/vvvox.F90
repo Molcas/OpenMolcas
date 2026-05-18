@@ -14,6 +14,7 @@
 subroutine VVVOX(NSYM,NBAS,NFRO,KEEP,iSymI,iSymJ,iSymK,iSymL,NBMX,T2AO,vLag,CMO,nOcc,nBasT,LBUF,X1,X2,WRK,DPT2AO,DPT2CAO,FPT2AO, &
                  FPT2CAO,DIA,DI,FIFA,FIMO)
 
+use Symmetry_Info, only: Mul
 use definitions, only: wp, iwp, u6
 use Constants, only: Zero, One, Half
 
@@ -46,7 +47,7 @@ KEEPI = KEEP(iSymI)
 nBasJ = nBas(iSymJ)
 KEEPJ = KEEP(iSymJ)
 !nAuxJ = nAux(iSymJ)
-iSymIJ = 1+ieor(iSymI-1,iSymJ-1)
+iSymIJ = Mul(iSymI,iSymJ)
 nBasIJ = nBasI*nBasJ
 if (iSymI == iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
 if (nBasIJ == 0) return
@@ -56,7 +57,7 @@ KEEPK = KEEP(iSymK)
 !nAuxK = nAux(iSymK)
 iSMax = iSymK
 if (iSymK == iSymI) iSMax = iSymJ
-iSymL_ = 1+ieor(iSymIJ-1,iSymK-1)
+iSymL_ = Mul(iSymIJ,iSymK)
 if (iSymL_ > iSMax) return !! should not
 nBasL = nBas(iSymL_)
 KEEPL = KEEP(iSymL_)

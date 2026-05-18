@@ -688,7 +688,7 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
   !! 1) FIMO term
   do iS=1,nSym
     if (nBas(iS) > 0) then
-      jS = ieor(is-1,iSym-1)+1
+      jS = Mul(iS,iSym)
       do iA=1,nAsh(is)
         do jA=1,nAsh(js)
           !rd = rDens1(iA+nA(iS),jA+nA(js))
@@ -707,12 +707,12 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
 
   !! 2) two-electron term (only CreQADD part)
   do iS=1,nSym
-    ipS = ieor(is-1,isym-1)+1
+    ipS = Mul(iS,iSym)
     if (norb(ips) /= 0) then
       do jS=1,nsym
-        ijS = ieor(is-1,js-1)+1
+        ijS = Mul(iS,jS)
         do kS=1,nSym
-          ls = ieor(ijs-1,ieor(ks-1,isym-1))+1
+          lS = Mul(ijs,Mul(kS,iSym))
           !                                                            *
           !*************************************************************
           !                                                            *
@@ -749,7 +749,7 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
   !! 4) Divide by the difference of orbital energies
   call mma_allocate(FockOut,nAshT**2,Label='FockOut')
   do iS=1,nSym
-    jS = ieor(iS-1,iSym-1)+1
+    jS = Mul(iS,iSym)
     if (nAsh(is)*nAsh(jS) /= 0) then
       !! Anti-symmetrize
       call DGeSub(Fock,nAsh(iS),'N',Fock,nAsh(jS),'T',FockOut,nAsh(iS),nAsh(iS),nAsh(jS))
