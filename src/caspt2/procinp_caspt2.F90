@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-subroutine procinp_caspt2
+subroutine procinp_caspt2()
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
   use inputData, only: input
