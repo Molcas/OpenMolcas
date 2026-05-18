@@ -1,32 +1,32 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
-      SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,nX1,X2,nX2,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
+      SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,nX1,X2,nX2,        &
      &                  DPT2,nDPT2,Y,nY,LIST,MLIST)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half, One, Two, Three, Six
       use EQSOLV, only: IFCOUP, NLIST, LLIST
-      use Sigma_data, only: VAL1, VAL2, IFTEST, INCF1, INCF2, INCX1,
-     &                      INCX2, INCX3, INCY1, INCY2, INCY3, LEN1,
+      use Sigma_data, only: VAL1, VAL2, IFTEST, INCF1, INCF2, INCX1,    &
+     &                      INCX2, INCX3, INCY1, INCY2, INCY3, LEN1,    &
      &                      LEN2, NLST1, NLST2
-      use caspt2_module, only: NSYM, NISUP, NASUP, NASH, NORB,
-     &                         NSSH, NISH, NIGEJ, NIGTJ, NAGEB, NAGTB,
+      use caspt2_module, only: NSYM, NISUP, NASUP, NASH, NORB,          &
+     &                         NSSH, NISH, NIGEJ, NIGTJ, NAGEB, NAGTB,  &
      &                         NTGEU, NTUV, NTGTU
       IMPLICIT None
 
@@ -37,25 +37,25 @@
       integer(kind=iwp), intent(in):: LIST(mList)
 
       integer(kind=iwp) IOFDIT(8),IOFDIA(8),IOFDTA(8)
-      integer(kind=iwp) IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
+      integer(kind=iwp) IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8), &
      &                  IOFCGM(8,8)
-C Various constants:
-      real(kind=wp), parameter:: SQR2=SQRT(Two), SQR3=SQRT(Three),
-     &                           SQR6=SQRT(Six), SQRI2=One/SQR2,
+! Various constants:
+      real(kind=wp), parameter:: SQR2=SQRT(Two), SQR3=SQRT(Three),      &
+     &                           SQR6=SQRT(Six), SQRI2=One/SQR2,        &
      &                           SQRI6=One/SQR6, SQR32=SQR3*SQRI2
-      Integer(kind=iwp) ICD, ICEM, ICEP, ICGM, ICGP, IDIA, IDIT, IDJB,
-     &                  IDOFF, IDTA, IJSYM, IMLTOP, IOXIA, ISYM, ISYM12,
-     &                  ISYMA, ISYMAB, ISYMB, ISYMI, ISYMIJ, ISYMJ, IX,
-     &                  IXIA, IXTA, IXTI, IY, JSYM, KOD, LLST1, LLST2,
+      Integer(kind=iwp) ICD, ICEM, ICEP, ICGM, ICGP, IDIA, IDIT, IDJB,  &
+     &                  IDOFF, IDTA, IJSYM, IMLTOP, IOXIA, ISYM, ISYM12,&
+     &                  ISYMA, ISYMAB, ISYMB, ISYMI, ISYMIJ, ISYMJ, IX, &
+     &                  IXIA, IXTA, IXTI, IY, JSYM, KOD, LLST1, LLST2,  &
      &                  NA, NAS1, NAS2, NB, NI, NIS1, NJ, NO, NT, NU
-C Compute off-diagonal contributions to a trans density matrix.
-C Sub-diagonal blocks only. If a density matrix is required,
-C i.e. both wave functions equal, use symmetry. Else, call
-C again with wave functions interchanged.
+! Compute off-diagonal contributions to a trans density matrix.
+! Sub-diagonal blocks only. If a density matrix is required,
+! i.e. both wave functions equal, use symmetry. Else, call
+! again with wave functions interchanged.
 
 
       NA = 0 ! dummy initialize
-*
+!
       IFTEST=0
       IMLTOP=2
       KOD=IFCOUP(ICASE2,ICASE1)
@@ -65,7 +65,7 @@ C again with wave functions interchanged.
       NAS1=NASUP(ISYM1,ICASE1)
       NIS1=NISUP(ISYM1,ICASE1)
       NAS2=NASUP(ISYM2,ICASE2)
-C Set up various offset arrays:
+! Set up various offset arrays:
       IDOFF=0
       DO ISYM=1,NSYM
         NI=NISH(ISYM)
@@ -96,9 +96,9 @@ C Set up various offset arrays:
       END DO
 
       Select case (KOD)
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(1)
-C  A&BP One-el
+!  A&BP One-el
       NLST1=NLIST(ISYM1,ISYM2,12)
       NLST2=NLIST(ISYM1,ISYM2,14)
       IF(NLST1*NLST2/=0) THEN
@@ -117,13 +117,13 @@ C  A&BP One-el
         IY=1
         INCY1=1
         INCY2=NTGEU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &              X1(IXTI),SIZE(X1(IXTI:)),
-     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,         &
+     &              X1(IXTI),SIZE(X1(IXTI:)),                           &
+     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),                       &
      &              Y(IY),SIZE(Y(IY:)))
       END IF
 
-C  A&BP Two-el
+!  A&BP Two-el
       NLST1=NLIST(ISYM1,ISYM2, 3)
       NLST2=NLIST(ISYM1,ISYM2,14)
       IF(NLST1*NLST2/=0) THEN
@@ -142,14 +142,14 @@ C  A&BP Two-el
         IY=1
         INCY1=1
         INCY2=NTGEU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &              X2(IX),SIZE(X2(IX:)),
-     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,         &
+     &              X2(IX),SIZE(X2(IX:)),                               &
+     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),                       &
      &              Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(2)
-C A&BM One-el
+! A&BM One-el
       NLST1=NLIST(ISYM1,ISYM2,13)
       NLST2=NLIST(ISYM1,ISYM2,15)
       IF(NLST1*NLST2/=0) THEN
@@ -157,10 +157,10 @@ C A&BM One-el
         VAL1(1)= Three
         VAL1(2)=-Three
         LLST2=LLIST(ISYM1,ISYM2,15)
-* Original:
-*       VAL2(1)=-One
-*       VAL2(2)= One
-* Fix for sign error noted by Takeshi, May 2015:
+! Original:
+!       VAL2(1)=-One
+!       VAL2(2)= One
+! Fix for sign error noted by Takeshi, May 2015:
         VAL2(1)= One
         VAL2(2)=-One
         IXTI=1
@@ -172,13 +172,13 @@ C A&BM One-el
         IY=1
         INCY1=1
         INCY2=NTGTU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &              X1(IXTI),SIZE(X1(IXTI:)),
-     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,         &
+     &              X1(IXTI),SIZE(X1(IXTI:)),                           &
+     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),                       &
      &              Y(IY),SIZE(Y(IY:)))
       END IF
 
-C A&BM Two-el
+! A&BM Two-el
       NLST1=NLIST(ISYM1,ISYM2, 4)
       NLST2=NLIST(ISYM1,ISYM2,15)
       IF(NLST1*NLST2/=0) THEN
@@ -186,10 +186,10 @@ C A&BM Two-el
         VAL1(1)=-One
         VAL1(2)= One
         LLST2=LLIST(ISYM1,ISYM2,15)
-* Original:
-*       VAL2(1)=-One
-*       VAL2(2)= One
-* Fix for sign error noted by Takeshi, May 2015:
+! Original:
+!       VAL2(1)=-One
+!       VAL2(2)= One
+! Fix for sign error noted by Takeshi, May 2015:
         VAL2(1)= One
         VAL2(2)=-One
         IX=1
@@ -201,15 +201,15 @@ C A&BM Two-el
         IY=1
         INCY1=1
         INCY2=NTGTU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &              X2(IX),SIZE(X2(IX:)),
-     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,         &
+     &              X2(IX),SIZE(X2(IX:)),                               &
+     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),                       &
      &              Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(3)
 
-C  A&D  Two-el
+!  A&D  Two-el
       LLST1=LLIST(ISYM1,ISYM2, 1)
       NLST1=NLIST(ISYM1,ISYM2, 1)
       IF(NLST1/=0) THEN
@@ -227,15 +227,15 @@ C  A&D  Two-el
         INCY3=NAS2*NISH(ISYM1)
         LEN1=NISH(ISYM1)
         LEN2=NSSH(ISYM12)
-        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &             X2(IX),SIZE(X2(IX:)),
-     &             DPT2(IDTA),SIZE(DPT2(IDTA:)),
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                            &
+     &             X2(IX),SIZE(X2(IX:)),                                &
+     &             DPT2(IDTA),SIZE(DPT2(IDTA:)),                        &
      &             Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(4)
 
-C  A&EP One-el
+!  A&EP One-el
       NT=NASH(ISYM1)
       IF(ISYM2==ISYM1 .AND. NT/=0) THEN
        DO ISYMIJ=1,NSYM
@@ -258,17 +258,17 @@ C  A&EP One-el
           INCY3=NT
           LEN1=NT
           LEN2=NA
-          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &               X1(IXTI),SIZE(X1(IXTI:)),
-     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                          &
+     &               X1(IXTI),SIZE(X1(IXTI:)),                          &
+     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),                      &
      &               Y(IY),SIZE(Y(IY:)))
         END IF
        END DO
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(5)
 
-C  A&EM One-el
+!  A&EM One-el
       NT=NASH(ISYM1)
       IF(ISYM2==ISYM1 .AND. NT/=0) THEN
        DO ISYMIJ=1,NSYM
@@ -291,17 +291,17 @@ C  A&EM One-el
           INCY3=NT
           LEN1=NT
           LEN2=NA
-          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &               X1(IXTI),SIZE(X1(IXTI:)),
-     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                          &
+     &               X1(IXTI),SIZE(X1(IXTI:)),                          &
+     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),                      &
      &               Y(IY),SIZE(Y(IY:)))
         END IF
        END DO
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(6)
 
-C  BP&EP Two-el
+!  BP&EP Two-el
       NA=NSSH(ISYM12)
       NLST1=NLIST(ISYM1,ISYM2, 9)
       IF(NA*NLST1/=0) THEN
@@ -320,23 +320,23 @@ C  BP&EP Two-el
         INCY3=NAS2
         LEN1=NIS1
         LEN2=NA
-        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &             X2(IX),SIZE(X2(IX:)),
-     &             DPT2(IDTA),SIZE(DPT2(IDTA:)),
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                            &
+     &             X2(IX),SIZE(X2(IX:)),                                &
+     &             DPT2(IDTA),SIZE(DPT2(IDTA:)),                        &
      &             Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(7)
 
-C  BM&EM Two-el
+!  BM&EM Two-el
       NA=NSSH(ISYM12)
       NLST1=NLIST(ISYM1,ISYM2,10)
       IF(NA*NLST1/=0) THEN
         LLST1=LLIST(ISYM1,ISYM2,10)
-* Original:
-*       VAL1(1)=-SQRI6
-*       VAL1(2)= SQRI6
-* Fix for sign error noted by Takeshi, May 2015:
+! Original:
+!       VAL1(1)=-SQRI6
+!       VAL1(2)= SQRI6
+! Fix for sign error noted by Takeshi, May 2015:
         VAL1(1)= SQRI6
         VAL1(2)=-SQRI6
         IX=1
@@ -351,15 +351,15 @@ C  BM&EM Two-el
         INCY3=NAS2
         LEN1=NIS1
         LEN2=NA
-        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &             X2(IX),SIZE(X2(IX:)),
-     &             DPT2(IDTA),SIZE(DPT2(IDTA:)),
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                            &
+     &             X2(IX),SIZE(X2(IX:)),                                &
+     &             DPT2(IDTA),SIZE(DPT2(IDTA:)),                        &
      &             Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(8)
 
-C  C&D  One-el
+!  C&D  One-el
       NI=NISH(ISYM12)
       NLST1=NLIST(ISYM1,ISYM2,11)
       IF(NI*NLST1/=0) THEN
@@ -378,13 +378,13 @@ C  C&D  One-el
         INCY3=NAS2
         LEN1=NSSH(ISYM1)
         LEN2=NI
-        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &             X1(IXTA),SIZE(X1(IXTA:)),
-     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                            &
+     &             X1(IXTA),SIZE(X1(IXTA:)),                            &
+     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),                        &
      &             Y(IY),SIZE(Y(IY:)))
       END IF
 
-C  C&D  Two-el
+!  C&D  Two-el
       NI=NISH(ISYM12)
       NLST1=NLIST(ISYM1,ISYM2, 2)
       IF(NI*NLST1/=0) THEN
@@ -403,15 +403,15 @@ C  C&D  Two-el
         INCY3=NAS2
         LEN1=NSSH(ISYM1)
         LEN2=NI
-        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &             X2(IX),SIZE(X2(IX:)),
-     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                            &
+     &             X2(IX),SIZE(X2(IX:)),                                &
+     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),                        &
      &             Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(9)
 
-C  C&FP One-el
+!  C&FP One-el
       NLST1=NLIST(ISYM1,ISYM2,12)
       NLST2=NLIST(ISYM1,ISYM2,16)
       IF(NLST1/=0) THEN
@@ -430,13 +430,13 @@ C  C&FP One-el
         IY=1
         INCY1=1
         INCY2=NTGEU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &              X1(IXTA),SIZE(X1(IXTA:)),
-     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,         &
+     &              X1(IXTA),SIZE(X1(IXTA:)),                           &
+     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),                       &
      &              Y(IY),SIZE(Y(IY:)))
       END IF
 
-C  C&FP Two-el
+!  C&FP Two-el
       NLST1=NLIST(ISYM1,ISYM2, 5)
       NLST2=NLIST(ISYM1,ISYM2,16)
       IF(NLST1*NLST2/=0) THEN
@@ -455,15 +455,15 @@ C  C&FP Two-el
         IY=1
         INCY1=1
         INCY2=NTGEU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &              X2(IX),SIZE(X2(IX:)),
-     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,         &
+     &              X2(IX),SIZE(X2(IX:)),                               &
+     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),                       &
      &              Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(10)
 
-C  C&FM One-el
+!  C&FM One-el
       NLST1=NLIST(ISYM1,ISYM2,13)
       NLST2=NLIST(ISYM1,ISYM2,17)
       IF(NLST1*NLST2/=0) THEN
@@ -482,13 +482,13 @@ C  C&FM One-el
         IY=1
         INCY1=1
         INCY2=NTGTU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &              X1(IXTA),SIZE(X1(IXTA:)),
-     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,         &
+     &              X1(IXTA),SIZE(X1(IXTA:)),                           &
+     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),                       &
      &              Y(IY),SIZE(Y(IY:)))
       END IF
 
-C  C&FM Two-el
+!  C&FM Two-el
       NLST1=NLIST(ISYM1,ISYM2, 6)
       NLST2=NLIST(ISYM1,ISYM2,17)
       IF(NLST1*NLST2/=0) THEN
@@ -507,15 +507,15 @@ C  C&FM Two-el
         IY=1
         INCY1=1
         INCY2=NTGTU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &              X2(IX),SIZE(X2(IX:)),
-     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,         &
+     &              X2(IX),SIZE(X2(IX:)),                               &
+     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),                       &
      &              Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(11)
 
-C  C&GP One-el
+!  C&GP One-el
       NT=NASH(ISYM1)
       IF(ISYM2.EQ.ISYM1 .AND. NT/=0) THEN
        DO ISYMAB=1,NSYM
@@ -538,17 +538,17 @@ C  C&GP One-el
           INCY3=NT
           LEN1=NT
           LEN2=NI
-          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &               X1(IXTA),SIZE(X1(IXTA:)),
-     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                          &
+     &               X1(IXTA),SIZE(X1(IXTA:)),                          &
+     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),                      &
      &               Y(IY),SIZE(Y(IY:)))
         END IF
        END DO
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(12)
 
-C  C&GM One-el
+!  C&GM One-el
       NT=NASH(ISYM1)
       IF(ISYM2.EQ.ISYM1 .AND. NT/=0) THEN
        DO ISYMAB=1,NSYM
@@ -571,17 +571,17 @@ C  C&GM One-el
           INCY3=NT
           LEN1=NT
           LEN2=NI
-          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &               X1(IXTA),SIZE(X1(IXTA:)),
-     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                          &
+     &               X1(IXTA),SIZE(X1(IXTA:)),                          &
+     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),                      &
      &               Y(IY),SIZE(Y(IY:)))
         END IF
        END DO
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(13)
 
-C  D&EP One-el
+!  D&EP One-el
       NT=NASH(ISYM2)
       IF(ISYM1==1 .AND. NT/=0) THEN
        IOXIA=0
@@ -606,16 +606,16 @@ C  D&EP One-el
           INCY3=1
           LEN1=NA
           LEN2=NT
-          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &               X1(IXIA),SIZE(X1(IXIA:)),
-     &               DPT2(IDIT),SIZE(DPT2(IDIT:)),
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                          &
+     &               X1(IXIA),SIZE(X1(IXIA:)),                          &
+     &               DPT2(IDIT),SIZE(DPT2(IDIT:)),                      &
      &               Y(IY),SIZE(Y(IY:)))
         END IF
         IOXIA=IOXIA+NI*NA
        END DO
       END IF
 
-C  D&EP Two-el
+!  D&EP Two-el
       NLST1=NLIST(ISYM1,ISYM2, 7)
       NU=NASH(ISYM2)
       IF(NLST1*NU/=0) THEN
@@ -644,17 +644,17 @@ C  D&EP Two-el
           INCY2=NU*NA
           INCY3=NU
           LEN1=NA
-          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX:),SIZE(X2(IX:)),
-     &                DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),                   &
+     &                X2(IX:),SIZE(X2(IX:)),                            &
+     &                DPT2(IDIT:),SIZE(DPT2(IDIT:)),                    &
      &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(14)
 
-C  D&EM One-el
+!  D&EM One-el
       NT=NASH(ISYM2)
       IF(ISYM1==1 .AND. NT/=0) THEN
        IOXIA=0
@@ -679,16 +679,16 @@ C  D&EM One-el
           INCY3=1
           LEN1=NA
           LEN2=NT
-          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &               X1(IXIA),SIZE(X1(IXIA:)),
-     &               DPT2(IDIT),SIZE(DPT2(IDIT:)),
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                          &
+     &               X1(IXIA),SIZE(X1(IXIA:)),                          &
+     &               DPT2(IDIT),SIZE(DPT2(IDIT:)),                      &
      &               Y(IY),SIZE(Y(IY:)))
         END IF
         IOXIA=IOXIA+NI*NA
        END DO
       END IF
 
-C  D&EM Two-el
+!  D&EM Two-el
       NLST1=NLIST(ISYM1,ISYM2, 7)
       NU=NASH(ISYM2)
       IF(NLST1*NU/=0) THEN
@@ -717,17 +717,17 @@ C  D&EM Two-el
           INCY2=NU*NA
           INCY3=NU
           LEN1=NA
-          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX:),SIZE(X2(IX:)),
-     &                DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),                   &
+     &                X2(IX:),SIZE(X2(IX:)),                            &
+     &                DPT2(IDIT:),SIZE(DPT2(IDIT:)),                    &
      &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(15)
 
-C  D&GP Two-el
+!  D&GP Two-el
       NLST1=NLIST(ISYM1,ISYM2, 8)
       NU=NASH(ISYM2)
       IF(NLST1*NU/=0) THEN
@@ -755,17 +755,17 @@ C  D&GP Two-el
           INCY2=NU*NI
           INCY3=NU
           LEN1=NI
-          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX:),SIZE(X2(IX:)),
-     &                DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),                   &
+     &                X2(IX:),SIZE(X2(IX:)),                            &
+     &                DPT2(IDTA:),SIZE(DPT2(IDTA:)),                    &
      &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(16)
 
-C  D&GM Two-el
+!  D&GM Two-el
       NLST1=NLIST(ISYM1,ISYM2, 8)
       NU=NASH(ISYM2)
       IF(NLST1*NU/=0) THEN
@@ -794,17 +794,17 @@ C  D&GM Two-el
           INCY2=NU*NI
           INCY3=NU
           LEN1=NI
-          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX:),SIZE(X2(IX:)),
-     &                DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),                   &
+     &                X2(IX:),SIZE(X2(IX:)),                            &
+     &                DPT2(IDTA:),SIZE(DPT2(IDTA:)),                    &
      &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(17)
 
-C  EP&HP Two-el
+!  EP&HP Two-el
       NA=NSSH(ISYM12)
       NLST1=NLIST(ISYM12,ISYM2,16)
       IF(NA*NLST1/=0) THEN
@@ -823,15 +823,15 @@ C  EP&HP Two-el
         INCY2=NAS2
         LEN1=NAS1
         LEN2=NIGEJ(ISYM2)
-        CALL MLTR1(IMLTOP,LIST(LLST1),
-     &             X2(IX:),SIZE(X2(IX:)),
-     &             DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+        CALL MLTR1(IMLTOP,LIST(LLST1),                                  &
+     &             X2(IX:),SIZE(X2(IX:)),                               &
+     &             DPT2(IDTA:),SIZE(DPT2(IDTA:)),                       &
      &             Y(IY:),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(18)
 
-C  EM&HM Two-el
+!  EM&HM Two-el
       NA=NSSH(ISYM12)
       NLST1=NLIST(ISYM12,ISYM2,17)
       IF(NA*NLST1/=0) THEN
@@ -850,15 +850,15 @@ C  EM&HM Two-el
         INCY2=NAS2
         LEN1=NAS1
         LEN2=NIGTJ(ISYM2)
-        CALL MLTR1(IMLTOP,LIST(LLST1),
-     &             X2(IX:),SIZE(X2(IX:)),
-     &             DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+        CALL MLTR1(IMLTOP,LIST(LLST1),                                  &
+     &             X2(IX:),SIZE(X2(IX:)),                               &
+     &             DPT2(IDTA:),SIZE(DPT2(IDTA:)),                       &
      &             Y(IY:),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(19)
 
-C  FP&GP Two-el
+!  FP&GP Two-el
       NI=NISH(ISYM12)
       NLST1=NLIST(ISYM1,ISYM2, 9)
       IF(NI*NLST1/=0) THEN
@@ -877,15 +877,15 @@ C  FP&GP Two-el
         INCY3=NAS2
         LEN1=NIS1
         LEN2=NI
-        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &             X2(IX),SIZE(X2(IX:)),
-     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                            &
+     &             X2(IX),SIZE(X2(IX:)),                                &
+     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),                        &
      &             Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(20)
 
-C  FM&GM Two-el
+!  FM&GM Two-el
       NI=NISH(ISYM12)
       NLST1=NLIST(ISYM1,ISYM2,10)
       IF(NI*NLST1/=0) THEN
@@ -904,15 +904,15 @@ C  FM&GM Two-el
         INCY3=NAS2
         LEN1=NIS1
         LEN2=NI
-        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
-     &             X2(IX),SIZE(X2(IX:)),
-     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,                            &
+     &             X2(IX),SIZE(X2(IX:)),                                &
+     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),                        &
      &             Y(IY),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(21)
 
-C  GP&HP Two-el
+!  GP&HP Two-el
       LLST1=LLIST(ISYM12,ISYM2,14)
       NLST1=NLIST(ISYM12,ISYM2,14)
       IF(NLST1/=0) THEN
@@ -930,15 +930,15 @@ C  GP&HP Two-el
         INCY2=1
         LEN1=NAS1
         LEN2=NAS2
-        CALL MLTR1(IMLTOP,LIST(LLST1),
-     &             X2(IX:),SIZE(X2(IX:)),
-     &             DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+        CALL MLTR1(IMLTOP,LIST(LLST1),                                  &
+     &             X2(IX:),SIZE(X2(IX:)),                               &
+     &             DPT2(IDIT:),SIZE(DPT2(IDIT:)),                       &
      &             Y(IY:),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(22)
 
-C  GM&HM Two-el
+!  GM&HM Two-el
       LLST1=LLIST(ISYM12,ISYM2,15)
       NLST1=NLIST(ISYM12,ISYM2,15)
       IF(NLST1/=0) THEN
@@ -956,15 +956,15 @@ C  GM&HM Two-el
         INCY2=1
         LEN1=NAS1
         LEN2=NAS2
-        CALL MLTR1(IMLTOP,LIST(LLST1),
-     &             X2(IX:),SIZE(X2(IX:)),
-     &             DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+        CALL MLTR1(IMLTOP,LIST(LLST1),                                  &
+     &             X2(IX:),SIZE(X2(IX:)),                               &
+     &             DPT2(IDIT:),SIZE(DPT2(IDIT:)),                       &
      &             Y(IY:),SIZE(Y(IY:)))
       END IF
-C  -----------------------------------------------
+!  -----------------------------------------------
       Case(23)
 
-C  D&HP One-el
+!  D&HP One-el
       IF(ISYM1==1) THEN
       IOXIA=0
       DO ISYMI=1,NSYM
@@ -993,19 +993,19 @@ C  D&HP One-el
          IY=1
          INCY1=NAGEB(ISYM2)
          INCY2=1
-         CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &               X1(IXIA),SIZE(X1(IXIA:)),
-     &               DPT2(IDJB),SIZE(DPT2(IDJB:)),
+         CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,        &
+     &               X1(IXIA),SIZE(X1(IXIA:)),                          &
+     &               DPT2(IDJB),SIZE(DPT2(IDJB:)),                      &
      &               Y(IY),SIZE(Y(IY:)))
        END IF
        IOXIA=IOXIA+NI*NA
       END DO
       END IF
 
-C  ---------------------------
+!  ---------------------------
       Case(24)
 
-C  D&HM One-el
+!  D&HM One-el
       IF(ISYM1==1) THEN
       IOXIA=0
       DO ISYMI=1,NSYM
@@ -1034,15 +1034,15 @@ C  D&HM One-el
          IY=1
          INCY1=NAGTB(ISYM2)
          INCY2=1
-         CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
-     &               X1(IXIA),SIZE(X1(IXIA:)),
-     &               DPT2(IDJB),SIZE(DPT2(IDJB:)),
+         CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,        &
+     &               X1(IXIA),SIZE(X1(IXIA:)),                          &
+     &               DPT2(IDJB),SIZE(DPT2(IDJB:)),                      &
      &               Y(IY),SIZE(Y(IY:)))
        END IF
        IOXIA=IOXIA+NI*NA
       END DO
       END IF
-C  ---------------------------
+!  ---------------------------
       Case default
         WRITE(6,*)' INTERNAL ERROR: OffDns reached invalid KOD=',KOD
         Call Abend()

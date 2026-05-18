@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1998  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1998  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE MKSMAT()
       use definitions, only: iwp, wp, u6, byte
       use caspt2_global, only:iPrGlb
@@ -25,7 +25,7 @@
       use caspt2_module, only: NASHT
       use caspt2_module, only: NG3
       IMPLICIT None
-C     Set up S matrices for cases 1..13.
+!     Set up S matrices for cases 1..13.
       INTEGER(kind=byte), ALLOCATABLE :: idxG3(:,:)
 
       real(kind=wp), ALLOCATABLE:: G3(:)
@@ -38,13 +38,13 @@ C     Set up S matrices for cases 1..13.
       END IF
 
       IF(NASHT.GT.0) THEN
-CSVC: print header for debug info
+!SVC: print header for debug info
         IF(IPRGLB.GE.DEBUG) THEN
           WRITE(u6,'("DEBUG> ",A)') 'CASE SYM S-MATRIX NORM'
           WRITE(u6,'("DEBUG> ",A)') '==== === ============='
         END IF
-C For the cases A and C, begin by reading in the local storage
-C  part of the three-electron density matrix G3:
+! For the cases A and C, begin by reading in the local storage
+!  part of the three-electron density matrix G3:
         CALL mma_allocate(G3,NG3,Label='G3')
         CALL PT2_GET(NG3,'GAMMA3',G3)
 
@@ -58,7 +58,7 @@ C  part of the three-electron density matrix G3:
         CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
 
-C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
+!-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
         CALL MKSB(DREF,SIZE(DREF),PREF,SIZE(PREF))
         CALL MKSD(DREF,SIZE(DREF),PREF,SIZE(PREF))
         CALL MKSE(DREF,SIZE(DREF))
@@ -79,9 +79,9 @@ C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
       Implicit none
       real(kind=wp) Dum(1)
       integer(kind=iwp) ISYM,ICASE,IDISK,NIN
-C For completeness, even case H has formally S and B
-C matrices. This costs nothing, and saves conditional
-C looping, etc in the rest  of the routines.
+! For completeness, even case H has formally S and B
+! matrices. This costs nothing, and saves conditional
+! looping, etc in the rest  of the routines.
       DUM(1)=One
       DO ISYM=1,NSYM
         DO ICASE=12,13
@@ -95,9 +95,9 @@ C looping, etc in the rest  of the routines.
       End Subroutine MKSH
 
 
-********************************************************************************
-* Case A (ICASE=1)
-********************************************************************************
+!*******************************************************************************
+! Case A (ICASE=1)
+!*******************************************************************************
       SUBROUTINE MKSA(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
       use definitions, only: iwp, wp, u6, Byte
       use caspt2_global, only:iPrGlb
@@ -126,18 +126,18 @@ C looping, etc in the rest  of the routines.
       real(kind=wp) DSA
 
       ICASE=1
-C LONG loop over superindex symmetry.
+! LONG loop over superindex symmetry.
       DO ISYM=1,NSYM
         NIN=NINDEP(ISYM,ICASE)
         IF(NIN.EQ.0) CYCLE
         NAS=NTUV(ISYM)
         NSA=(NAS*(NAS+1))/2
         IF(NSA.LE.0) CYCLE
-C Set up the matrix SA(tuv,xyz) defined by the expression
-C <ituv|kxyz> = dik SA(tuv,xyz)
-C Formula used:
-C    SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
-C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
+! Set up the matrix SA(tuv,xyz) defined by the expression
+! <ituv|kxyz> = dik SA(tuv,xyz)
+! Formula used:
+!    SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
+!         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
 
         CALL PSBMAT_GETMEM('SA',lg_SA,NAS)
 
@@ -152,15 +152,15 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
             CALL GA_ACCESS (LG_SA,ILO,IHI,JLO,JHI,MA,LDA)
-            CALL MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,NAS,LDA,
+            CALL MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,NAS,LDA,           &
      &                       NG3,G3,IDXG3)
             MSA=LDA*(jHi-jLo+1)
-            CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &                   ISYM,DBL_MB(MA),MSA,
+            CALL MKSA_DP(DREF,NDREF,PREF,NPREF,                         &
+     &                   ISYM,DBL_MB(MA),MSA,                           &
      &                   ILO,IHI,JLO,JHI,LDA)
             CALL GA_RELEASE_UPDATE (LG_SA,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDA,
+            CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDA,                &
      &                       NG3,G3,IDXG3)
           END IF
         ELSE
@@ -172,8 +172,8 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           LDA=0
           MSA=NAS*(NAS+1)/2
           CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),MSA,NG3,G3,IDXG3)
-          CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SA)%A(:),MSA,
+          CALL MKSA_DP(DREF,NDREF,PREF,NPREF,                           &
+     &                 ISYM,GA_Arrays(lg_SA)%A(:),MSA,                  &
      &                 ILO,IHI,JLO,JHI,LDA)
 #ifdef _MOLCAS_MPP_
         END IF
@@ -203,11 +203,11 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
-      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
+      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,  &
      &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP,ISADR
       real(kind=wp) G3VAL
 
-C-SVC20100831: determine indices in SA where a certain G3 value will end up
+!-SVC20100831: determine indices in SA where a certain G3 value will end up
       DO iG3=1,NG3
         iT=idxG3(1,iG3)
         iU=idxG3(2,iG3)
@@ -228,9 +228,9 @@ C-SVC20100831: determine indices in SA where a certain G3 value will end up
         iVX=iV+NASHT*(iX-1)
         iYZ=iY+NASHT*(iZ-1)
         G3VAL=-G3(iG3)
-C-SVC20100829: 12 equivalent cases, of which the second
-C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
-C  - G(tuvxyz) -> SA(xut,vyz)
+!-SVC20100829: 12 equivalent cases, of which the second
+!  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
+!  - G(tuvxyz) -> SA(xut,vyz)
         jSYM=Mul(IASYM(iX),Mul(IASYM(iU),IASYM(iT)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iX,iU,iT)-nTUVES(jSYM)
@@ -244,7 +244,7 @@ C  - G(tuvxyz) -> SA(xut,vyz)
         if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
 
         if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(vxtuyz) -> SA(uxv,tyz)
+!  - G(vxtuyz) -> SA(uxv,tyz)
         jSYM=Mul(IASYM(iU),Mul(IASYM(iX),IASYM(iV)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iU,iX,iV)-nTUVES(jSYM)
@@ -254,7 +254,7 @@ C  - G(vxtuyz) -> SA(uxv,tyz)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(yzvxtu) -> SA(xzy,vtu)
+!  - G(yzvxtu) -> SA(xzy,vtu)
         jSYM=Mul(IASYM(iX),Mul(IASYM(iZ),IASYM(iY)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iX,iZ,iY)-nTUVES(jSYM)
@@ -264,7 +264,7 @@ C  - G(yzvxtu) -> SA(xzy,vtu)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(tuyzvx) -> SA(zut,yvx)
+!  - G(tuyzvx) -> SA(zut,yvx)
         jSYM=Mul(IASYM(iZ),Mul(IASYM(iU),IASYM(iT)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iZ,iU,iT)-nTUVES(jSYM)
@@ -276,7 +276,7 @@ C  - G(tuyzvx) -> SA(zut,yvx)
         ENDIF
        ENDIF
 
-C  - G(yztuvx) -> SA(uzy,tvx)
+!  - G(yztuvx) -> SA(uzy,tvx)
         jSYM=Mul(IASYM(iU),Mul(IASYM(iZ),IASYM(iY)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iU,iZ,iY)-nTUVES(jSYM)
@@ -286,7 +286,7 @@ C  - G(yztuvx) -> SA(uzy,tvx)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(vxyztu) -> SA(zxv,ytu)
+!  - G(vxyztu) -> SA(zxv,ytu)
         jSYM=Mul(IASYM(iZ),Mul(IASYM(iX),IASYM(iV)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iZ,iX,iV)-nTUVES(jSYM)
@@ -303,7 +303,7 @@ C  - G(vxyztu) -> SA(zxv,ytu)
         if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
         if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
         if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
-C  - G(utxvzy) -> SA(vtu,xzy)
+!  - G(utxvzy) -> SA(vtu,xzy)
         jSYM=Mul(IASYM(iV),Mul(IASYM(iT),IASYM(iU)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iV,iT,iU)-nTUVES(jSYM)
@@ -316,7 +316,7 @@ C  - G(utxvzy) -> SA(vtu,xzy)
         if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
 
         if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(xvutzy) -> SA(tvx,uzy)
+!  - G(xvutzy) -> SA(tvx,uzy)
         jSYM=Mul(IASYM(iT),Mul(IASYM(iV),IASYM(iX)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iT,iV,iX)-nTUVES(jSYM)
@@ -326,7 +326,7 @@ C  - G(xvutzy) -> SA(tvx,uzy)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(zyxvut) -> SA(vyz,xut)
+!  - G(zyxvut) -> SA(vyz,xut)
         jSYM=Mul(IASYM(iV),Mul(IASYM(iY),IASYM(iZ)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iV,iY,iZ)-nTUVES(jSYM)
@@ -336,7 +336,7 @@ C  - G(zyxvut) -> SA(vyz,xut)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(utzyxv) -> SA(ytu,zxv)
+!  - G(utzyxv) -> SA(ytu,zxv)
         jSYM=Mul(IASYM(iY),Mul(IASYM(iT),IASYM(iU)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iY,iT,iU)-nTUVES(jSYM)
@@ -348,7 +348,7 @@ C  - G(utzyxv) -> SA(ytu,zxv)
         ENDIF
        ENDIF
 
-C  - G(zyutxv) -> SA(tyz,uxv)
+!  - G(zyutxv) -> SA(tyz,uxv)
         jSYM=Mul(IASYM(iT),Mul(IASYM(iY),IASYM(iZ)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iT,iY,iZ)-nTUVES(jSYM)
@@ -358,7 +358,7 @@ C  - G(zyutxv) -> SA(tyz,uxv)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(xvzyut) -> SA(yvx,zut)
+!  - G(xvzyut) -> SA(yvx,zut)
         jSYM=Mul(IASYM(iY),Mul(IASYM(iV),IASYM(iX)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iY,iV,iX)-nTUVES(jSYM)
@@ -374,7 +374,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       END SUBROUTINE MKSA_G3
 
 #ifdef _MOLCAS_MPP_
-      SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,NAS,LDA,
+      SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,NAS,LDA,                   &
      &                       NG3,G3,idxG3)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, MPIInt, Byte
@@ -404,11 +404,11 @@ C  - G(xvzyut) -> SA(yvx,zut)
       integer(kind=MPIInt) :: IERROR4
 
       integer(kind=iwp), ALLOCATABLE :: IBUF(:)
-      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
+      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,  &
      &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP
-      integer(kind=iwp) NG3MAX,NPROCS,
-     &                  MAXMEM,iscal,MAXBUF,NG3B,NBUF,NQOT,NREM,
-     &                  NBLOCKS,IBLOCK,IG3STA,IG3END,IROW,IP,
+      integer(kind=iwp) NG3MAX,NPROCS,                                  &
+     &                  MAXMEM,iscal,MAXBUF,NG3B,NBUF,NQOT,NREM,        &
+     &                  NBLOCKS,IBLOCK,IG3STA,IG3END,IROW,IP,           &
      &                  IOFFSET,I,ICOL,NRECV
       real(kind=wp)     G3VAL
 
@@ -440,8 +440,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
       ! we need two real and four integer values per element
-      iscal = (storage_size(SENDVAL)+2*storage_size(SENDIDX)+
-     &         storage_size(RECVVAL)+2*storage_size(RECVIDX))/
+      iscal = (storage_size(SENDVAL)+2*storage_size(SENDIDX)+           &
+     &         storage_size(RECVVAL)+2*storage_size(RECVIDX))/          &
      &        storage_size(1.0_wp)
       !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
       MAXBUF=MIN(NINT(0.95E0_wp*MAXMEM)/iscal,2000000000/8)
@@ -625,9 +625,9 @@ C  - G(xvzyut) -> SA(yvx,zut)
           iVX=iV+NASHT*(iX-1)
           iYZ=iY+NASHT*(iZ-1)
           G3VAL=-G3(iG3)
-C-SVC20100829: 12 equivalent cases, of which the second
-C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
-C  - G(tuvxyz) -> SA(xut,vyz)
+!-SVC20100829: 12 equivalent cases, of which the second
+!  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
+!  - G(tuvxyz) -> SA(xut,vyz)
           jSYM=Mul(IASYM(iX),Mul(IASYM(iU),IASYM(iT)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iX,iU,iT)-nTUVES(jSYM)
@@ -641,7 +641,7 @@ C  - G(tuvxyz) -> SA(xut,vyz)
           if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
 
           if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(vxtuyz) -> SA(uxv,tyz)
+!  - G(vxtuyz) -> SA(uxv,tyz)
           jSYM=Mul(IASYM(iU),Mul(IASYM(iX),IASYM(iV)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iU,iX,iV)-nTUVES(jSYM)
@@ -652,7 +652,7 @@ C  - G(vxtuyz) -> SA(uxv,tyz)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(yzvxtu) -> SA(xzy,vtu)
+!  - G(yzvxtu) -> SA(xzy,vtu)
           jSYM=Mul(IASYM(iX),Mul(IASYM(iZ),IASYM(iY)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iX,iZ,iY)-nTUVES(jSYM)
@@ -663,7 +663,7 @@ C  - G(yzvxtu) -> SA(xzy,vtu)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(tuyzvx) -> SA(zut,yvx)
+!  - G(tuyzvx) -> SA(zut,yvx)
           jSYM=Mul(IASYM(iZ),Mul(IASYM(iU),IASYM(iT)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iZ,iU,iT)-nTUVES(jSYM)
@@ -676,7 +676,7 @@ C  - G(tuyzvx) -> SA(zut,yvx)
           ENDIF
           ENDIF
 
-C  - G(yztuvx) -> SA(uzy,tvx)
+!  - G(yztuvx) -> SA(uzy,tvx)
           jSYM=Mul(IASYM(iU),Mul(IASYM(iZ),IASYM(iY)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iU,iZ,iY)-nTUVES(jSYM)
@@ -687,7 +687,7 @@ C  - G(yztuvx) -> SA(uzy,tvx)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(vxyztu) -> SA(zxv,ytu)
+!  - G(vxyztu) -> SA(zxv,ytu)
           jSYM=Mul(IASYM(iZ),Mul(IASYM(iX),IASYM(iV)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iZ,iX,iV)-nTUVES(jSYM)
@@ -705,7 +705,7 @@ C  - G(vxyztu) -> SA(zxv,ytu)
           if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
           if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
           if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
-C  - G(utxvzy) -> SA(vtu,xzy)
+!  - G(utxvzy) -> SA(vtu,xzy)
           jSYM=Mul(IASYM(iV),Mul(IASYM(iT),IASYM(iU)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iV,iT,iU)-nTUVES(jSYM)
@@ -719,7 +719,7 @@ C  - G(utxvzy) -> SA(vtu,xzy)
           if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
 
           if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(xvutzy) -> SA(tvx,uzy)
+!  - G(xvutzy) -> SA(tvx,uzy)
           jSYM=Mul(IASYM(iT),Mul(IASYM(iV),IASYM(iX)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iT,iV,iX)-nTUVES(jSYM)
@@ -730,7 +730,7 @@ C  - G(xvutzy) -> SA(tvx,uzy)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(zyxvut) -> SA(vyz,xut)
+!  - G(zyxvut) -> SA(vyz,xut)
           jSYM=Mul(IASYM(iV),Mul(IASYM(iY),IASYM(iZ)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iV,iY,iZ)-nTUVES(jSYM)
@@ -741,7 +741,7 @@ C  - G(zyxvut) -> SA(vyz,xut)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(utzyxv) -> SA(ytu,zxv)
+!  - G(utzyxv) -> SA(ytu,zxv)
           jSYM=Mul(IASYM(iY),Mul(IASYM(iT),IASYM(iU)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iY,iT,iU)-nTUVES(jSYM)
@@ -755,7 +755,7 @@ C  - G(utzyxv) -> SA(ytu,zxv)
 
           ENDIF
 
-C  - G(zyutxv) -> SA(tyz,uxv)
+!  - G(zyutxv) -> SA(tyz,uxv)
           jSYM=Mul(IASYM(iT),Mul(IASYM(iY),IASYM(iZ)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iT,iY,iZ)-nTUVES(jSYM)
@@ -766,7 +766,7 @@ C  - G(zyutxv) -> SA(tyz,uxv)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(xvzyut) -> SA(yvx,zut)
+!  - G(xvzyut) -> SA(yvx,zut)
           jSYM=Mul(IASYM(iY),Mul(IASYM(iV),IASYM(iX)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iY,iV,iX)-nTUVES(jSYM)
@@ -780,8 +780,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
         END DO
 
         ! Now we need to determine the receive counts.
-        CALL MPI_ALLTOALL(SCOUNTS, ONE4, MPI_INTEGER,
-     &                    RCOUNTS, ONE4, MPI_INTEGER,
+        CALL MPI_ALLTOALL(SCOUNTS, ONE4, MPI_INTEGER,                   &
+     &                    RCOUNTS, ONE4, MPI_INTEGER,                   &
      &                    MPI_COMM_WORLD, IERROR4)
 
         IOFFSET=0
@@ -800,11 +800,11 @@ C  - G(xvzyut) -> SA(yvx,zut)
 
         ! Now, it is time to collect the appropriate values and indices
         ! in their respective receive buffers.
-        CALL MPI_ALLTOALLV(SENDVAL, SCOUNTS, SDISPLS, MPI_REAL8,
-     &                     RECVVAL, RCOUNTS, RDISPLS, MPI_REAL8,
+        CALL MPI_ALLTOALLV(SENDVAL, SCOUNTS, SDISPLS, MPI_REAL8,        &
+     &                     RECVVAL, RCOUNTS, RDISPLS, MPI_REAL8,        &
      &                     MPI_COMM_WORLD, IERROR4)
-        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER,
-     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER,
+        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER,    &
+     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER,    &
      &                     MPI_COMM_WORLD, IERROR4)
 
         ! Finally, fill the local chunk of the SA matrix (block of rows)
@@ -834,7 +834,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
 
       call MMA_DEALLOCATE(IBUF)
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL UNUSED_INTEGER(iHi)
 
       CONTAINS
@@ -856,28 +856,28 @@ c Avoid unused argument warnings
       END SUBROUTINE MKSA_G3_MPP
 #endif
 
-      SUBROUTINE MKSA_DP (DREF,NDREF,PREF,NPREF,
+      SUBROUTINE MKSA_DP (DREF,NDREF,PREF,NPREF,                        &
      &                    iSYM,SA,NSA,iLo,iHi,jLo,jHi,LDA)
-C In parallel, this subroutine is called on a local chunk of memory
-C and LDA is set. In serial, the whole array is passed but then the
-C storage uses a triangular scheme, and the LDA passed is zero.
+! In parallel, this subroutine is called on a local chunk of memory
+! and LDA is set. In serial, the whole array is passed but then the
+! storage uses a triangular scheme, and the LDA passed is zero.
       use definitions, only: iwp, wp
       use constants, only: Two, Four
       USE SUPERINDEX, only: MTUV
       use caspt2_module, only: NASHT, nTUVES
       IMPLICIT None
-      integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,NSA,
+      integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,NSA,             &
      &                                iLo,iHi,jLo,jHi,LDA
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
       real(kind=wp), intent(inout):: SA(NSA)
 
-      integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
-     &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,
+      integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,      &
+     &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,          &
      &                  IP2,IP,ID1,ID2,ID,IVT,IVZ,IXT,IXZ
       real(kind=wp) VALUE
 
       ISADR=0
-C-SVC20100831: fill in the G2 and G1 corrections for SA
+!-SVC20100831: fill in the G2 and G1 corrections for SA
       DO IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
         IXABS=MTUV(1,IXYZABS)
@@ -888,7 +888,7 @@ C-SVC20100831: fill in the G2 and G1 corrections for SA
           ITABS=MTUV(1,ITUVABS)
           IUABS=MTUV(2,ITUVABS)
           IVABS=MTUV(3,ITUVABS)
-C Add  2 dtx Gvuyz + 2 dtx dyu Gvz
+! Add  2 dtx Gvuyz + 2 dtx dyu Gvz
           IF (LDA.NE.0) THEN
             VALUE=SA(1+(iTUV-iLo)+LDA*(iXYZ-jLo))
           ELSE
@@ -913,7 +913,7 @@ C Add  2 dtx Gvuyz + 2 dtx dyu Gvz
               VALUE=VALUE+Two*DREF(ID)
             END IF
           END IF
-C Add  -dxu Gvtyz -dxu dyt Gvz
+! Add  -dxu Gvtyz -dxu dyt Gvz
           IF(IXABS.EQ.IUABS) THEN
             IVT=IVABS+NASHT*(ITABS-1)
             IYZ=IYABS+NASHT*(IZABS-1)
@@ -928,7 +928,7 @@ C Add  -dxu Gvtyz -dxu dyt Gvz
               VALUE=VALUE - DREF(ID)
             END IF
           END IF
-C Add  -dyt Gvuxz
+! Add  -dyt Gvuxz
           IF(IYABS.EQ.ITABS) THEN
             IVU=IVABS+NASHT*(IUABS-1)
             IXZ=IXABS+NASHT*(IZABS-1)
@@ -937,7 +937,7 @@ C Add  -dyt Gvuxz
             IP=(IP1*(IP1-1))/2+IP2
             VALUE=VALUE - Two*PREF(IP)
           END IF
-C Add -dyu Gvzxt
+! Add -dyu Gvzxt
           IF(IYABS.EQ.IUABS) THEN
             IVZ=IVABS+NASHT*(IZABS-1)
             IXT=IXABS+NASHT*(ITABS-1)
@@ -956,9 +956,9 @@ C Add -dyu Gvzxt
 
       END SUBROUTINE MKSA_DP
 
-********************************************************************************
-* Case C (ICASE=4)
-********************************************************************************
+!*******************************************************************************
+! Case C (ICASE=4)
+!*******************************************************************************
       SUBROUTINE MKSC(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
       use definitions, only: iwp, wp, u6, Byte
       use caspt2_global, only:iPrGlb
@@ -988,7 +988,7 @@ C Add -dyu Gvzxt
       real(kind=wp), EXTERNAL:: PSBMAT_FPRINT
 
       ICASE=4
-C LONG loop over superindex symmetry.
+! LONG loop over superindex symmetry.
       DO ISYM=1,NSYM
         NIN=NINDEP(ISYM,ICASE)
         IF(NIN.EQ.0) CYCLE
@@ -996,11 +996,11 @@ C LONG loop over superindex symmetry.
         NSC=(NAS*(NAS+1))/2
         IF(NSC.LE.0) CYCLE
 
-C Set up the matrix SC(tuv,xyz) defined by the expression
-C <atuv|cxyz> = dac SC(tuv,xyz)
-C Formula used:
-C    SC(tuv,xyz)
-C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
+! Set up the matrix SC(tuv,xyz) defined by the expression
+! <atuv|cxyz> = dac SC(tuv,xyz)
+! Formula used:
+!    SC(tuv,xyz)
+!    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
 
         CALL PSBMAT_GETMEM('SC',lg_SC,NAS)
 
@@ -1015,15 +1015,15 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
             CALL GA_ACCESS (LG_SC,ILO,IHI,JLO,JHI,MC,LDC)
-            CALL MKSC_G3_MPP(ISYM,DBL_MB(MC),ILO,IHI,NAS,LDC,
+            CALL MKSC_G3_MPP(ISYM,DBL_MB(MC),ILO,IHI,NAS,LDC,           &
      &                       NG3,G3,IDXG3)
             MSC=LDC*(jHi-jLo+1)
-            CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &                   ISYM,DBL_MB(MC),MSC,
+            CALL MKSC_DP(DREF,NDREF,PREF,NPREF,                         &
+     &                   ISYM,DBL_MB(MC),MSC,                           &
      &                   ILO,IHI,JLO,JHI,LDC)
             CALL GA_RELEASE_UPDATE (LG_SC,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKSC_G3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDC,
+            CALL MKSC_G3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDC,                &
      &                       NG3,G3,IDXG3)
           END IF
         ELSE
@@ -1035,8 +1035,8 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           LDC=0
           MSC=NAS*(NAS+1)/2
           CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),MSC,NG3,G3,IDXG3)
-          CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SC)%A(:),MSC,
+          CALL MKSC_DP(DREF,NDREF,PREF,NPREF,                           &
+     &                 ISYM,GA_Arrays(lg_SC)%A(:),MSC,                  &
      &                 ILO,IHI,JLO,JHI,LDC)
 #ifdef _MOLCAS_MPP_
         END IF
@@ -1066,11 +1066,11 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
-      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
+      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,  &
      &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP,ISADR
       real(kind=wp) G3VAL
 
-C-SVC20100831: determine indices in SC where a certain G3 value will end up
+!-SVC20100831: determine indices in SC where a certain G3 value will end up
       DO iG3=1,NG3
         iT=idxG3(1,iG3)
         iU=idxG3(2,iG3)
@@ -1091,9 +1091,9 @@ C-SVC20100831: determine indices in SC where a certain G3 value will end up
         iVX=iV+NASHT*(iX-1)
         iYZ=iY+NASHT*(iZ-1)
         G3VAL=G3(iG3)
-C-SVC20100829: 12 equivalent cases, of which the second
-C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
-C  - G(tuvxyz) -> SC(vut,xyz)
+!-SVC20100829: 12 equivalent cases, of which the second
+!  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
+!  - G(tuvxyz) -> SC(vut,xyz)
         jSYM=Mul(IASYM(iV),Mul(IASYM(iU),IASYM(iT)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iV,iU,iT)-nTUVES(jSYM)
@@ -1105,7 +1105,7 @@ C  - G(tuvxyz) -> SC(vut,xyz)
         ENDIF
         if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
         if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(vxtuyz) -> SC(txv,uyz)
+!  - G(vxtuyz) -> SC(txv,uyz)
         jSYM=Mul(IASYM(iT),Mul(IASYM(iX),IASYM(iV)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iT,iX,iV)-nTUVES(jSYM)
@@ -1115,7 +1115,7 @@ C  - G(vxtuyz) -> SC(txv,uyz)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(yzvxtu) -> SC(vzy,xtu)
+!  - G(yzvxtu) -> SC(vzy,xtu)
         jSYM=Mul(IASYM(iV),Mul(IASYM(iZ),IASYM(iY)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iV,iZ,iY)-nTUVES(jSYM)
@@ -1125,7 +1125,7 @@ C  - G(yzvxtu) -> SC(vzy,xtu)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(tuyzvx) -> SC(yut,zvx)
+!  - G(tuyzvx) -> SC(yut,zvx)
         jSYM=Mul(IASYM(iY),Mul(IASYM(iU),IASYM(iT)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iY,iU,iT)-nTUVES(jSYM)
@@ -1136,7 +1136,7 @@ C  - G(tuyzvx) -> SC(yut,zvx)
           END IF
         ENDIF
        ENDIF
-C  - G(yztuvx) -> SC(tzy,uvx)
+!  - G(yztuvx) -> SC(tzy,uvx)
         jSYM=Mul(IASYM(iT),Mul(IASYM(iZ),IASYM(iY)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iT,iZ,iY)-nTUVES(jSYM)
@@ -1146,7 +1146,7 @@ C  - G(yztuvx) -> SC(tzy,uvx)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(vxyztu) -> SC(yxv,ztu)
+!  - G(vxyztu) -> SC(yxv,ztu)
         jSYM=Mul(IASYM(iY),Mul(IASYM(iX),IASYM(iV)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iY,iX,iV)-nTUVES(jSYM)
@@ -1161,7 +1161,7 @@ C  - G(vxyztu) -> SC(yxv,ztu)
         if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
         if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
         if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
-C  - G(utxvzy) -> SC(xtu,vzy)
+!  - G(utxvzy) -> SC(xtu,vzy)
         jSYM=Mul(IASYM(iX),Mul(IASYM(iT),IASYM(iU)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iX,iT,iU)-nTUVES(jSYM)
@@ -1173,7 +1173,7 @@ C  - G(utxvzy) -> SC(xtu,vzy)
         ENDIF
         if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
         if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(xvutzy) -> SC(uvx,tzy)
+!  - G(xvutzy) -> SC(uvx,tzy)
         jSYM=Mul(IASYM(iU),Mul(IASYM(iV),IASYM(iX)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iU,iV,iX)-nTUVES(jSYM)
@@ -1183,7 +1183,7 @@ C  - G(xvutzy) -> SC(uvx,tzy)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(zyxvut) -> SC(xyz,vut)
+!  - G(zyxvut) -> SC(xyz,vut)
         jSYM=Mul(IASYM(iX),Mul(IASYM(iY),IASYM(iZ)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iX,iY,iZ)-nTUVES(jSYM)
@@ -1193,7 +1193,7 @@ C  - G(zyxvut) -> SC(xyz,vut)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(utzyxv) -> SC(ztu,yxv)
+!  - G(utzyxv) -> SC(ztu,yxv)
         jSYM=Mul(IASYM(iZ),Mul(IASYM(iT),IASYM(iU)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iZ,iT,iU)-nTUVES(jSYM)
@@ -1204,7 +1204,7 @@ C  - G(utzyxv) -> SC(ztu,yxv)
           END IF
         ENDIF
        ENDIF
-C  - G(zyutxv) -> SC(uyz,txv)
+!  - G(zyutxv) -> SC(uyz,txv)
         jSYM=Mul(IASYM(iU),Mul(IASYM(iY),IASYM(iZ)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iU,iY,iZ)-nTUVES(jSYM)
@@ -1214,7 +1214,7 @@ C  - G(zyutxv) -> SC(uyz,txv)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
-C  - G(xvzyut) -> SC(zvx,yut)
+!  - G(xvzyut) -> SC(zvx,yut)
         jSYM=Mul(IASYM(iZ),Mul(IASYM(iV),IASYM(iX)))
         IF (jSYM.EQ.iSYM) THEN
           ISUP=KTUV(iZ,iV,iX)-nTUVES(jSYM)
@@ -1258,10 +1258,10 @@ C  - G(xvzyut) -> SC(zvx,yut)
       integer(kind=MPIInt) :: IERROR4
 
       INTEGER(kind=iwp), ALLOCATABLE :: IBUF(:)
-      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
+      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,  &
      &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP
-      integer(kind=iwp) NG3MAX,NPROCS,MAXMEM,ISCAL,MAXBUF,NG3B,
-     &                  NBUF,NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,
+      integer(kind=iwp) NG3MAX,NPROCS,MAXMEM,ISCAL,MAXBUF,NG3B,         &
+     &                  NBUF,NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,    &
      &                  IROW,IP,IOFFSET,I,ICOL,NRECV
       real(kind=wp) G3VAL
 
@@ -1292,8 +1292,8 @@ C  - G(xvzyut) -> SC(zvx,yut)
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      iscal = (storage_size(SENDVAL)+2*storage_size(SENDIDX)+
-     &         storage_size(RECVVAL)+2*storage_size(RECVIDX))/
+      iscal = (storage_size(SENDVAL)+2*storage_size(SENDIDX)+           &
+     &         storage_size(RECVVAL)+2*storage_size(RECVIDX))/          &
      &        storage_size(1.0_wp)
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
 
@@ -1343,9 +1343,9 @@ C  - G(xvzyut) -> SC(zvx,yut)
           iTU=iT+NASHT*(iU-1)
           iVX=iV+NASHT*(iX-1)
           iYZ=iY+NASHT*(iZ-1)
-C-SVC20100829: 12 equivalent cases, of which the second
-C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
-C  - G(tuvxyz) -> SC(vut,xyz)
+!-SVC20100829: 12 equivalent cases, of which the second
+!  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
+!  - G(tuvxyz) -> SC(vut,xyz)
           jSYM=Mul(IASYM(iV),Mul(IASYM(iU),IASYM(iT)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iV,iU,iT)-nTUVES(jSYM)
@@ -1354,21 +1354,21 @@ C  - G(tuvxyz) -> SC(vut,xyz)
           ENDIF
           if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
           if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(vxtuyz) -> SC(txv,uyz)
+!  - G(vxtuyz) -> SC(txv,uyz)
           jSYM=Mul(IASYM(iT),Mul(IASYM(iX),IASYM(iV)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iT,iX,iV)-nTUVES(jSYM)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-C  - G(yzvxtu) -> SC(vzy,xtu)
+!  - G(yzvxtu) -> SC(vzy,xtu)
           jSYM=Mul(IASYM(iV),Mul(IASYM(iZ),IASYM(iY)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iV,iZ,iY)-nTUVES(jSYM)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-C  - G(tuyzvx) -> SC(yut,zvx)
+!  - G(tuyzvx) -> SC(yut,zvx)
           jSYM=Mul(IASYM(iY),Mul(IASYM(iU),IASYM(iT)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iY,iU,iT)-nTUVES(jSYM)
@@ -1376,14 +1376,14 @@ C  - G(tuyzvx) -> SC(yut,zvx)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
        ENDIF
-C  - G(yztuvx) -> SC(tzy,uvx)
+!  - G(yztuvx) -> SC(tzy,uvx)
           jSYM=Mul(IASYM(iT),Mul(IASYM(iZ),IASYM(iY)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iT,iZ,iY)-nTUVES(jSYM)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-C  - G(vxyztu) -> SC(yxv,ztu)
+!  - G(vxyztu) -> SC(yxv,ztu)
           jSYM=Mul(IASYM(iY),Mul(IASYM(iX),IASYM(iV)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iY,iX,iV)-nTUVES(jSYM)
@@ -1395,7 +1395,7 @@ C  - G(vxyztu) -> SC(yxv,ztu)
           if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
           if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
           if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
-C  - G(utxvzy) -> SC(xtu,vzy)
+!  - G(utxvzy) -> SC(xtu,vzy)
           jSYM=Mul(IASYM(iX),Mul(IASYM(iT),IASYM(iU)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iX,iT,iU)-nTUVES(jSYM)
@@ -1404,21 +1404,21 @@ C  - G(utxvzy) -> SC(xtu,vzy)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
           if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(xvutzy) -> SC(uvx,tzy)
+!  - G(xvutzy) -> SC(uvx,tzy)
           jSYM=Mul(IASYM(iU),Mul(IASYM(iV),IASYM(iX)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iU,iV,iX)-nTUVES(jSYM)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-C  - G(zyxvut) -> SC(xyz,vut)
+!  - G(zyxvut) -> SC(xyz,vut)
           jSYM=Mul(IASYM(iX),Mul(IASYM(iY),IASYM(iZ)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iX,iY,iZ)-nTUVES(jSYM)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-C  - G(utzyxv) -> SC(ztu,yxv)
+!  - G(utzyxv) -> SC(ztu,yxv)
           jSYM=Mul(IASYM(iZ),Mul(IASYM(iT),IASYM(iU)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iZ,iT,iU)-nTUVES(jSYM)
@@ -1426,14 +1426,14 @@ C  - G(utzyxv) -> SC(ztu,yxv)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
        ENDIF
-C  - G(zyutxv) -> SC(uyz,txv)
+!  - G(zyutxv) -> SC(uyz,txv)
           jSYM=Mul(IASYM(iU),Mul(IASYM(iY),IASYM(iZ)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iU,iY,iZ)-nTUVES(jSYM)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-C  - G(xvzyut) -> SC(zvx,yut)
+!  - G(xvzyut) -> SC(zvx,yut)
           jSYM=Mul(IASYM(iZ),Mul(IASYM(iV),IASYM(iX)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iZ,iV,iX)-nTUVES(jSYM)
@@ -1472,9 +1472,9 @@ C  - G(xvzyut) -> SC(zvx,yut)
           iVX=iV+NASHT*(iX-1)
           iYZ=iY+NASHT*(iZ-1)
           G3VAL=G3(iG3)
-C-SVC20100829: 12 equivalent cases, of which the second
-C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
-C  - G(tuvxyz) -> SC(vut,xyz)
+!-SVC20100829: 12 equivalent cases, of which the second
+!  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
+!  - G(tuvxyz) -> SC(vut,xyz)
           jSYM=Mul(IASYM(iV),Mul(IASYM(iU),IASYM(iT)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iV,iU,iT)-nTUVES(jSYM)
@@ -1487,7 +1487,7 @@ C  - G(tuvxyz) -> SC(vut,xyz)
           ENDIF
           if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
           if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(vxtuyz) -> SC(txv,uyz)
+!  - G(vxtuyz) -> SC(txv,uyz)
           jSYM=Mul(IASYM(iT),Mul(IASYM(iX),IASYM(iV)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iT,iX,iV)-nTUVES(jSYM)
@@ -1498,7 +1498,7 @@ C  - G(vxtuyz) -> SC(txv,uyz)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(yzvxtu) -> SC(vzy,xtu)
+!  - G(yzvxtu) -> SC(vzy,xtu)
           jSYM=Mul(IASYM(iV),Mul(IASYM(iZ),IASYM(iY)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iV,iZ,iY)-nTUVES(jSYM)
@@ -1509,7 +1509,7 @@ C  - G(yzvxtu) -> SC(vzy,xtu)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(tuyzvx) -> SC(yut,zvx)
+!  - G(tuyzvx) -> SC(yut,zvx)
           jSYM=Mul(IASYM(iY),Mul(IASYM(iU),IASYM(iT)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iY,iU,iT)-nTUVES(jSYM)
@@ -1521,7 +1521,7 @@ C  - G(tuyzvx) -> SC(yut,zvx)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
        ENDIF
-C  - G(yztuvx) -> SC(tzy,uvx)
+!  - G(yztuvx) -> SC(tzy,uvx)
           jSYM=Mul(IASYM(iT),Mul(IASYM(iZ),IASYM(iY)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iT,iZ,iY)-nTUVES(jSYM)
@@ -1532,7 +1532,7 @@ C  - G(yztuvx) -> SC(tzy,uvx)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(vxyztu) -> SC(yxv,ztu)
+!  - G(vxyztu) -> SC(yxv,ztu)
           jSYM=Mul(IASYM(iY),Mul(IASYM(iX),IASYM(iV)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iY,iX,iV)-nTUVES(jSYM)
@@ -1548,7 +1548,7 @@ C  - G(vxyztu) -> SC(yxv,ztu)
           if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
           if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
           if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
-C  - G(utxvzy) -> SC(xtu,vzy)
+!  - G(utxvzy) -> SC(xtu,vzy)
           jSYM=Mul(IASYM(iX),Mul(IASYM(iT),IASYM(iU)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iX,iT,iU)-nTUVES(jSYM)
@@ -1561,7 +1561,7 @@ C  - G(utxvzy) -> SC(xtu,vzy)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
           if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
-C  - G(xvutzy) -> SC(uvx,tzy)
+!  - G(xvutzy) -> SC(uvx,tzy)
           jSYM=Mul(IASYM(iU),Mul(IASYM(iV),IASYM(iX)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iU,iV,iX)-nTUVES(jSYM)
@@ -1572,7 +1572,7 @@ C  - G(xvutzy) -> SC(uvx,tzy)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(zyxvut) -> SC(xyz,vut)
+!  - G(zyxvut) -> SC(xyz,vut)
           jSYM=Mul(IASYM(iX),Mul(IASYM(iY),IASYM(iZ)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iX,iY,iZ)-nTUVES(jSYM)
@@ -1583,7 +1583,7 @@ C  - G(zyxvut) -> SC(xyz,vut)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(utzyxv) -> SC(ztu,yxv)
+!  - G(utzyxv) -> SC(ztu,yxv)
           jSYM=Mul(IASYM(iZ),Mul(IASYM(iT),IASYM(iU)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iZ,iT,iU)-nTUVES(jSYM)
@@ -1595,7 +1595,7 @@ C  - G(utzyxv) -> SC(ztu,yxv)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
        ENDIF
-C  - G(zyutxv) -> SC(uyz,txv)
+!  - G(zyutxv) -> SC(uyz,txv)
           jSYM=Mul(IASYM(iU),Mul(IASYM(iY),IASYM(iZ)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iU,iY,iZ)-nTUVES(jSYM)
@@ -1606,7 +1606,7 @@ C  - G(zyutxv) -> SC(uyz,txv)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-C  - G(xvzyut) -> SC(zvx,yut)
+!  - G(xvzyut) -> SC(zvx,yut)
           jSYM=Mul(IASYM(iZ),Mul(IASYM(iV),IASYM(iX)))
           IF (jSYM.EQ.iSYM) THEN
             IROW=KTUV(iZ,iV,iX)-nTUVES(jSYM)
@@ -1620,8 +1620,8 @@ C  - G(xvzyut) -> SC(zvx,yut)
         END DO
 
         ! Now we need to determine the receive counts.
-        CALL MPI_ALLTOALL(SCOUNTS, ONE4, MPI_INTEGER,
-     &                    RCOUNTS, ONE4, MPI_INTEGER,
+        CALL MPI_ALLTOALL(SCOUNTS, ONE4, MPI_INTEGER,                   &
+     &                    RCOUNTS, ONE4, MPI_INTEGER,                   &
      &                    MPI_COMM_WORLD, IERROR4)
 
         IOFFSET=0
@@ -1640,11 +1640,11 @@ C  - G(xvzyut) -> SC(zvx,yut)
 
         ! Now, it is time to collect the appropriate values and indices
         ! in their respective receive buffers.
-        CALL MPI_ALLTOALLV(SENDVAL, SCOUNTS, SDISPLS, MPI_REAL8,
-     &                     RECVVAL, RCOUNTS, RDISPLS, MPI_REAL8,
+        CALL MPI_ALLTOALLV(SENDVAL, SCOUNTS, SDISPLS, MPI_REAL8,        &
+     &                     RECVVAL, RCOUNTS, RDISPLS, MPI_REAL8,        &
      &                     MPI_COMM_WORLD, IERROR4)
-        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER,
-     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER,
+        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER,    &
+     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER,    &
      &                     MPI_COMM_WORLD, IERROR4)
 
         ! Finally, fill the local chunk of the SC matrix (block of rows)
@@ -1674,7 +1674,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
 
       call MMA_DEALLOCATE(IBUF)
       RETURN
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL UNUSED_INTEGER(iHi)
 
       CONTAINS
@@ -1696,28 +1696,28 @@ c Avoid unused argument warnings
       END SUBROUTINE MKSC_G3_MPP
 #endif
 
-      SUBROUTINE MKSC_DP (DREF,NDREF,PREF,NPREF,
+      SUBROUTINE MKSC_DP (DREF,NDREF,PREF,NPREF,                        &
      &                    iSYM,SC,NSC,iLo,iHi,jLo,jHi,LDC)
-C In parallel, this subroutine is called on a local chunk of memory
-C and LDC is set. In serial, the whole array is passed but then the
-C storage uses a triangular scheme, and the LDC passed is zero.
+! In parallel, this subroutine is called on a local chunk of memory
+! and LDC is set. In serial, the whole array is passed but then the
+! storage uses a triangular scheme, and the LDC passed is zero.
       use definitions, only: iwp, wp
       use constants, only: Two
       USE SUPERINDEX, only: MTUV
       use caspt2_module, only: NASHT, nTUVES
       IMPLICIT None
-      integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,NSC,
+      integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,NSC,            &
      &                                 iLo,iHi,jLo,jHi,LDC
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
       real(kind=wp), intent(inout):: SC(NSC)
 
-      integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
-     &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,
+      integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,      &
+     &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,          &
      &                  IP2,IP,ID1,ID2,IVZ,ITX,ITZ,IVX
       real(kind=wp) VALUE
 
       ISADR=0
-C-SVC20100831: fill in the G2 and G1 corrections for this SC block
+!-SVC20100831: fill in the G2 and G1 corrections for this SC block
       DO IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
         IXABS=MTUV(1,IXYZABS)
@@ -1738,7 +1738,7 @@ C-SVC20100831: fill in the G2 and G1 corrections for this SC block
               CYCLE
             ENDIF
           END IF
-C Add  dyu Gvztx
+! Add  dyu Gvztx
           IF(IYABS.EQ.IUABS) THEN
             IVZ=IVABS+NASHT*(IZABS-1)
             ITX=ITABS+NASHT*(IXABS-1)
@@ -1747,7 +1747,7 @@ C Add  dyu Gvztx
             IP=(IP1*(IP1-1))/2+IP2
             VALUE=VALUE+Two*PREF(IP)
           END IF
-C Add  dyx Gvutz
+! Add  dyx Gvutz
           IF(IYABS.EQ.IXABS) THEN
             IVU=IVABS+NASHT*(IUABS-1)
             ITZ=ITABS+NASHT*(IZABS-1)
@@ -1756,7 +1756,7 @@ C Add  dyx Gvutz
             IP=(IP1*(IP1-1))/2+IP2
             VALUE=VALUE+Two*PREF(IP)
           END IF
-C Add  dtu Gvxyz + dtu dyx Gvz
+! Add  dtu Gvxyz + dtu dyx Gvz
           IF(ITABS.EQ.IUABS) THEN
             IVX=IVABS+NASHT*(IXABS-1)
             IYZ=IYABS+NASHT*(IZABS-1)
@@ -1780,9 +1780,9 @@ C Add  dtu Gvxyz + dtu dyx Gvz
 
       END SUBROUTINE MKSC_DP
 
-********************************************************************************
-* Case B (ICASE=2,3)
-********************************************************************************
+!*******************************************************************************
+! Case B (ICASE=2,3)
+!*******************************************************************************
       SUBROUTINE MKSB(DREF,NDREF,PREF,NPREF)
       use definitions, only: iwp, wp
       use constants, only: Two, Four, Eight
@@ -1790,7 +1790,7 @@ C Add  dtu Gvxyz + dtu dyx Gvz
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NASHT,NSYM,NINDEP,NTU,NTUES,NTGEU,NTGTU,
+      use caspt2_module, only: NASHT,NSYM,NINDEP,NTU,NTUES,NTGEU,NTGTU, &
      &                         NTGEUES,NTGTUES
       IMPLICIT None
 
@@ -1799,22 +1799,22 @@ C Add  dtu Gvxyz + dtu dyx Gvz
 
       REAL(kind=wp), ALLOCATABLE:: SB(:), SBP(:), SBM(:)
 
-      integer(kind=iwp) ISYM,NINP,NAS,NSB,ITUABS,ITABS,IUABS,IXY,IXYABS,
-     &                  IXABS,IYABS,ISADR,IXT,IYU,IP1,IP2,IP,ID1,ID2,ID,
-     &                  IDISK,ISMADR,ISPADR,ITGEU,ITGEUABS,ITGTU,ITU,
+      integer(kind=iwp) ISYM,NINP,NAS,NSB,ITUABS,ITABS,IUABS,IXY,IXYABS,&
+     &                  IXABS,IYABS,ISADR,IXT,IYU,IP1,IP2,IP,ID1,ID2,ID,&
+     &                  IDISK,ISMADR,ISPADR,ITGEU,ITGEUABS,ITGTU,ITU,   &
      &                  IXGEY,IXGEYABS,IXGTY,IYX,NASM,NASP,NSBM,NSBP
       REAL(kind=wp) VALUE,STUXY,STUYX
 
-C Set up the matrices SBP(tu,xy) and SBM(tu,xy)
-C Formulae used:
-C    SB(tu,xy)=
-C    = 4 Pxtyu -4dxt Dyu -4dyu Dxt +2dyt Dxu + 8 dxt dyu
-C      -4dxu dyt + 2dxu Dyt
-C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
-C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
+! Set up the matrices SBP(tu,xy) and SBM(tu,xy)
+! Formulae used:
+!    SB(tu,xy)=
+!    = 4 Pxtyu -4dxt Dyu -4dyu Dxt +2dyt Dxu + 8 dxt dyu
+!      -4dxu dyt + 2dxu Dyt
+!    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
+!    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
 
 
-C Loop over superindex symmetry.
+! Loop over superindex symmetry.
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,2)
         IF(NINP.EQ.0) CYCLE
@@ -1836,7 +1836,7 @@ C Loop over superindex symmetry.
             IP2=MIN(IXT,IYU)
             IP=(IP1*(IP1-1))/2+IP2
             VALUE=Four*PREF(IP)
-C Add  -4 dxt Dyu + 8dxt dyu
+! Add  -4 dxt Dyu + 8dxt dyu
             IF(IXABS.EQ.ITABS) THEN
               ID1=MAX(IYABS,IUABS)
               ID2=MIN(IYABS,IUABS)
@@ -1844,21 +1844,21 @@ C Add  -4 dxt Dyu + 8dxt dyu
               VALUE=VALUE-Four*DREF(ID)
               IF(IYABS.EQ.IUABS) VALUE=VALUE+Eight
             END IF
-C Add  -4 dyu Dxt
+! Add  -4 dyu Dxt
             IF(IYABS.EQ.IUABS) THEN
               ID1=MAX(IXABS,ITABS)
               ID2=MIN(IXABS,ITABS)
               ID=(ID1*(ID1-1))/2+ID2
               VALUE=VALUE-Four*DREF(ID)
             END IF
-C Add  +2 dyt Dxu
+! Add  +2 dyt Dxu
             IF(IYABS.EQ.ITABS) THEN
               ID1=MAX(IXABS,IUABS)
               ID2=MIN(IXABS,IUABS)
               ID=(ID1*(ID1-1))/2+ID2
               VALUE=VALUE+Two*DREF(ID)
             END IF
-C Add  -4dxu dyt + 2dxu Dyt
+! Add  -4dxu dyt + 2dxu Dyt
             IF(IXABS.EQ.IUABS) THEN
               ID1=MAX(IYABS,ITABS)
               ID2=MIN(IYABS,ITABS)
@@ -1911,7 +1911,7 @@ C Add  -4dxu dyt + 2dxu Dyt
         END DO
         IF(NSB.GT.0) CALL mma_deallocate(SB)
 
-C Write to disk, and save size and address.
+! Write to disk, and save size and address.
         IF(NSBP.GT.0) THEN
           IDISK=IDSMAT(ISYM,2)
           CALL DDAFILE(LUSBT,1,SBP,NSBP,IDISK)
@@ -1942,19 +1942,19 @@ C Write to disk, and save size and address.
       REAL(kind=wp), intent(in)::  DREF(NDREF),PREF(NPREF)
 
       REAL(kind=wp), ALLOCATABLE:: SD(:)
-      INTEGER(kind=iwp) ISYM,NIN,NAS,NSD,ITU,ITU2,ITUABS,ITABS,IUABS,
-     &                  IXY,IXY2,IXYABS,IXABS,IYABS,IS11,IS21,IS12,
-     &                  IS22,IUTP,IXYP,IP1,IP2,IP,IXTP,IUYP,ID,ID1,ID2,
+      INTEGER(kind=iwp) ISYM,NIN,NAS,NSD,ITU,ITU2,ITUABS,ITABS,IUABS,   &
+     &                  IXY,IXY2,IXYABS,IXABS,IYABS,IS11,IS21,IS12,     &
+     &                  IS22,IUTP,IXYP,IP1,IP2,IP,IXTP,IUYP,ID,ID1,ID2, &
      &                  IDISK
       REAL(kind=wp) GUTXY,GXTUY,S11,S22,DUY
-C Set up the matrix SD(tuP,xyQ),P and Q are 1 or 2,
-C Formulae used:
-C    SD(tu1,xy1)=2*(Gutxy + dxt Duy)
-C    SD(tu2,xy1)= -(Gutxy + dxt Duy)
-C    SD(tu2,xy2)= -Gxtuy +2*dxt Duy
+! Set up the matrix SD(tuP,xyQ),P and Q are 1 or 2,
+! Formulae used:
+!    SD(tu1,xy1)=2*(Gutxy + dxt Duy)
+!    SD(tu2,xy1)= -(Gutxy + dxt Duy)
+!    SD(tu2,xy2)= -Gxtuy +2*dxt Duy
 
 
-C Loop over superindex symmetry.
+! Loop over superindex symmetry.
       DO ISYM=1,NSYM
         NIN=NINDEP(ISYM,5)
         IF(NIN.EQ.0) CYCLE
@@ -1997,17 +1997,17 @@ C Loop over superindex symmetry.
               S11=S11+Two*DUY
               S22=S22+Two*DUY
             END IF
-C    SD(tu1,xy1)=2*(Gutxy + dtx Duy)
+!    SD(tu1,xy1)=2*(Gutxy + dtx Duy)
             SD(IS11)= S11
-C    SD(tu2,xy1)= -(Gutxy + dtx Duy)
+!    SD(tu2,xy1)= -(Gutxy + dtx Duy)
             SD(IS21)=-Half*S11
             SD(IS12)=-Half*S11
-C    SD(tu2,xy2)= -Gxtuy +2*dtx Duy
+!    SD(tu2,xy2)= -Gxtuy +2*dtx Duy
             SD(IS22)= S22
           END DO
         END DO
 
-C Write to disk
+! Write to disk
         IF(NSD.GT.0) THEN
          IF(NINDEP(ISYM,5).GT.0) THEN
           IDISK=IDSMAT(ISYM,5)
@@ -2032,11 +2032,11 @@ C Write to disk
       REAL(kind=wp), intent(in)::  DREF(NDREF)
 
       REAL(kind=wp), ALLOCATABLE:: SE(:)
-      INTEGER(kind=iwp) ISYM,NINP,NINM,NAS,NSE,IT,ITABS,IX,IXABS,ISE,
+      INTEGER(kind=iwp) ISYM,NINP,NINM,NAS,NSE,IT,ITABS,IX,IXABS,ISE,   &
      &                  ID,IDISK
-C Set up the matrix SE(t,x)
-C Formula used:
-C    SE(t,x)=2*dtx - Dtx
+! Set up the matrix SE(t,x)
+! Formula used:
+!    SE(t,x)=2*dtx - Dtx
 
 
       DO ISYM=1,NSYM
@@ -2060,7 +2060,7 @@ C    SE(t,x)=2*dtx - Dtx
           END DO
         END DO
 
-C Write to disk
+! Write to disk
         IF(NSE.GT.0.and.NINDEP(ISYM,6).GT.0) THEN
           IDISK=IDSMAT(ISYM,6)
           CALL DDAFILE(LUSBT,1,SE,NSE,IDISK)
@@ -2081,7 +2081,7 @@ C Write to disk
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM,NINDEP,NTU,NTUES,NASHT,NTGEU,
+      use caspt2_module, only: NSYM,NINDEP,NTU,NTUES,NASHT,NTGEU,       &
      &                         NTGEUES,NTGTU,NTGTUES
       IMPLICIT NONE
 
@@ -2089,20 +2089,20 @@ C Write to disk
       REAL(kind=wp), intent(in)::  PREF(NPREF)
 
       REAL(kind=wp), ALLOCATABLE:: SF(:), SFP(:), SFM(:)
-      INTEGER(kind=iwp) ISYM,NINP,NAS,NSF,ITU,ITUABS,ITABS,IUABS,IXY,
-     &                  IXYABS,IXABS,IYABS,ISADR,ITX,IUY,IP1,IP2,IP,
-     &                  IDISK,ISMADR,ISPADR,ITGEU,ITGEUABS,ITGTU,IXGEY,
+      INTEGER(kind=iwp) ISYM,NINP,NAS,NSF,ITU,ITUABS,ITABS,IUABS,IXY,   &
+     &                  IXYABS,IXABS,IYABS,ISADR,ITX,IUY,IP1,IP2,IP,    &
+     &                  IDISK,ISMADR,ISPADR,ITGEU,ITGEUABS,ITGTU,IXGEY, &
      &                  IXGEYABS,IXGTY,IYX,NASM,NASP,NSFM,NSFP
       REAL(kind=wp) VALUE,STUXY,STUYX
-C Set up the matrices SFP(tu,xy) and SFM(tu,xy)
-C Formulae used:
-C    SF(tu,xy)= 4 Ptxuy
-C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
-C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
+! Set up the matrices SFP(tu,xy) and SFM(tu,xy)
+! Formulae used:
+!    SF(tu,xy)= 4 Ptxuy
+!    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
+!    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
 
 
 
-C Loop over superindex symmetry.
+! Loop over superindex symmetry.
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,8)
         IF(NINP.EQ.0) CYCLE
@@ -2170,7 +2170,7 @@ C Loop over superindex symmetry.
         END DO
         IF(NSF.GT.0) CALL mma_deallocate(SF)
 
-C Write to disk
+! Write to disk
         IF(NSFP.GT.0.and.NINDEP(ISYM,8).GT.0) THEN
           IDISK=IDSMAT(ISYM,8)
           CALL DDAFILE(LUSBT,1,SFP,NSFP,IDISK)
@@ -2199,11 +2199,11 @@ C Write to disk
       REAL(kind=wp), intent(in)::  DREF(NDREF)
 
       REAL(kind=wp), ALLOCATABLE:: SG(:)
-      INTEGER(kind=iwp) ISYM,NINP,NINM,NAS,NSG,IT,ITABS,IX,IXABS,ISG,
+      INTEGER(kind=iwp) ISYM,NINP,NINM,NAS,NSG,IT,ITABS,IX,IXABS,ISG,   &
      &                  ID,IDISK
-C Set up the matrix SG(t,x)
-C Formula used:
-C    SG(t,x)= Dtx
+! Set up the matrix SG(t,x)
+! Formula used:
+!    SG(t,x)= Dtx
 
 
       DO ISYM=1,NSYM
@@ -2223,7 +2223,7 @@ C    SG(t,x)= Dtx
           END DO
         END DO
 
-C Write to disk
+! Write to disk
         IF(NSG.GT.0.and.NINDEP(ISYM,10).GT.0) THEN
           IDISK=IDSMAT(ISYM,10)
           CALL DDAFILE(LUSBT,1,SG,NSG,IDISK)

@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE MKSBMAT()
       use definitions, only: iwp, wp, Byte, u6
       use caspt2_global, only:iPrGlb
@@ -18,10 +18,10 @@
       use caspt2_module, only: NASHT
       use caspt2_module, only: NG1, NG2, NG3
       IMPLICIT NONE
-C Set up S and B matrices for cases 1..13.
+! Set up S and B matrices for cases 1..13.
 
       INTEGER(kind=Byte), ALLOCATABLE :: idxG3(:,:)
-      real(kind=wp), ALLOCATABLE:: F1(:), F2(:), F3(:), FD(:), FP(:),
+      real(kind=wp), ALLOCATABLE:: F1(:), F2(:), F3(:), FD(:), FP(:),   &
      &                                           G3(:)
       INTEGER(kind=iwp) iLUID
       Logical(kind=iwp) Single_set_of_PCO
@@ -41,15 +41,15 @@ C Set up S and B matrices for cases 1..13.
       END IF
 
       IF(NASHT/=0) THEN
-CSVC: print header for debug info
+!SVC: print header for debug info
         IF(IPRGLB.GE.DEBUG) THEN
           WRITE(u6,'("DEBUG> ",A)') 'CASE SYM S/B-MATRIX NORM'
           WRITE(u6,'("DEBUG> ",A)') '==== === ==============='
         END IF
-C For the cases A and C, begin by reading in the local storage
-C  part of the three-electron density matrix G3:
+! For the cases A and C, begin by reading in the local storage
+!  part of the three-electron density matrix G3:
 
-C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
+!-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
 
         CALL mma_allocate(F1,NG1,Label='F1')
         CALL PT2_GET(NG1,'DELTA1',F1)

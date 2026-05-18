@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE MODOP(OP1,NOP2,OP2,NOP3,OP3)
       use caspt2_module, only: NASHT, NACTEL
       use definitions, only: iwp, wp
@@ -19,10 +19,10 @@
 
       integer(kind=iwp) I,J,K,L,IJ,KL,M,N,MN,IJKLMN,IL,IN,KN,IND,IJKL
       real(kind=wp) X
-C Purpose: Modify the coefficients in OP1 and OP2, using the
-C input values of OP2 and OP3, so that the operators can be
-C calculated using products of elementary excitation
-C operators rather than normal-ordered products.
+! Purpose: Modify the coefficients in OP1 and OP2, using the
+! input values of OP2 and OP3, so that the operators can be
+! calculated using products of elementary excitation
+! operators rather than normal-ordered products.
 
 
       IF (NACTEL>2) THEN

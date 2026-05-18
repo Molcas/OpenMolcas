@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-************************************************************************
-* This file contains boiler-plate code to allow developers to experiment
-* with modifications to the zero-order hamiltonian. To enable them,
-* add appropriate code, and use 'HZero = Custom' in the input.
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!***********************************************************************
+! This file contains boiler-plate code to allow developers to experiment
+! with modifications to the zero-order hamiltonian. To enable them,
+! add appropriate code, and use 'HZero = Custom' in the input.
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE NEWB()
       use caspt2_global, only: LUSBT
       use EQSOLV, only: iDSMat, iDBMat
@@ -33,7 +33,7 @@
       INTEGER(kind=iwp) IDS,NS,IDB,NB
       REAL(kind=wp), ALLOCATABLE:: S(:), B(:)
 
-C Modify B matrices, if requested.
+! Modify B matrices, if requested.
 
 
       DO ICASE=1,11
@@ -50,7 +50,7 @@ C Modify B matrices, if requested.
           CALL mma_allocate(B,NB,LABEL='B')
           IDB=IDBMAT(ISYM,ICASE)
           CALL DDAFILE(LUSBT,2,B,NB,IDB)
-C Modify B matrix, using S matrix and some other data.
+! Modify B matrix, using S matrix and some other data.
           CALL mma_deallocate(B)
           CALL mma_deallocate(S)
         END DO
@@ -71,8 +71,8 @@ C Modify B matrix, using S matrix and some other data.
       INTEGER(kind=iwp) JD
       REAL(kind=wp), ALLOCATABLE:: BD(:), ID(:), C1(:), C2(:)
 
-C Post-diagonalization modification of diagonal energy
-C denominator terms for active and for non-active superindex.
+! Post-diagonalization modification of diagonal energy
+! denominator terms for active and for non-active superindex.
 
 
       DO ICASE=1,13
@@ -82,21 +82,21 @@ C denominator terms for active and for non-active superindex.
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
           IF(NIS.EQ.0) CYCLE
-C Remember: NIN values in BDIAG, but must read NAS for correct
-C positioning.
+! Remember: NIN values in BDIAG, but must read NAS for correct
+! positioning.
           CALL mma_allocate(BD,NAS,LABEL='BD')
           CALL mma_allocate(ID,NIS,LABEL='ID')
           CALL mma_allocate(C1,NAS,LABEL='C1')
           CALL mma_allocate(C2,NIS,LABEL='C2')
           JD=IDBMAT(ISYM,ICASE)
-C Active, and non-active, energy denominators:
+! Active, and non-active, energy denominators:
           CALL DDAFILE(LUSBT,2,BD,NAS,JD)
           CALL DDAFILE(LUSBT,2,ID,NIS,JD)
-C Active, and non-active, corrections:
-C (Replace this strange example with something sensible)
+! Active, and non-active, corrections:
+! (Replace this strange example with something sensible)
           C1(:)=Zero
           C2(:)=Zero
-C Modifications are added to the usual diagonal energies:
+! Modifications are added to the usual diagonal energies:
           DO I=1,NAS
             BD(I)=BD(I)+C1(I)
           END DO
@@ -106,7 +106,7 @@ C Modifications are added to the usual diagonal energies:
           JD=IDBMAT(ISYM,ICASE)
           CALL DDAFILE(LUSBT,1,BD,NAS,JD)
           CALL DDAFILE(LUSBT,1,ID,NIS,JD)
-C Added modifications are saved on LUSBT.
+! Added modifications are saved on LUSBT.
           CALL DDAFILE(LUSBT,1,C1,NAS,JD)
           CALL DDAFILE(LUSBT,1,C2,NIS,JD)
 

@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2008, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 2008  PER-AKE MALMQUIST                    *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2008, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 2008  PER-AKE MALMQUIST                    *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT,nVSCT)
       use definitions, only: iwp, wp
       use caspt2_global, only: LUSOLV, IDSCT
@@ -35,11 +35,11 @@
 #endif
 
 
-C Read coefficient vector from LUSOLV (C repres).
+! Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
         WRITE(u6,*)' RDSCTC (Normal repres.)'
-        WRITE(u6,'(a,i2,a,a,a,i2,a,i2)')' Vector nr.',IVEC,
-     &          '  Case ',CASES(ICASE),' Symm ',ISYM,
+        WRITE(u6,'(a,i2,a,a,a,i2,a,i2)')' Vector nr.',IVEC,             &
+     &          '  Case ',CASES(ICASE),' Symm ',ISYM,                   &
      &          ' Section ',ISCT
 #endif
       NAS=NASUP(ISYM,ICASE)
@@ -47,8 +47,8 @@ C Read coefficient vector from LUSOLV (C repres).
       NCOEF=NAS*NIS
       IF(NCOEF.EQ.0) RETURN
       MDVEC=MODVEC(ISYM,ICASE)
-*      IDS=IDSCT(ISCT,ISYM,ICASE,IVEC)
-      IDS=IDSCT(ISCT+MXSCT*(ISYM-1+8*
+!      IDS=IDSCT(ISCT,ISYM,ICASE,IVEC)
+      IDS=IDSCT(ISCT+MXSCT*(ISYM-1+8*                                   &
      &                         (ICASE-1+MXCASE*(IVEC-1))))
       NCOL=MIN(NIS-MDVEC*(ISCT-1),MDVEC)
       NSCT=NAS*NCOL
@@ -72,16 +72,16 @@ C Read coefficient vector from LUSOLV (C repres).
       integer(kind=iwp), intent(in):: iSym,iCase,iVec,nVec
       real(kind=wp), intent(out):: VEC(nVec)
 
-      integer(kind=iwp) NAS, NIS, NCOEF, MDVEC, IDV, LVEC, IISTA,
+      integer(kind=iwp) NAS, NIS, NCOEF, MDVEC, IDV, LVEC, IISTA,       &
      &                  NCOL, NBLK
 #ifdef _DEBUGPRINT_
       integer(kind=iwp) I
 #endif
 
-C Read coefficient vector from LUSOLV (C repres).
+! Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
         WRITE(u6,*)' RDBLKC (Normal repres.)'
-        WRITE(u6,'(a,i2,a,a,a,i2)')' Vector nr.',IVEC,
+        WRITE(u6,'(a,i2,a,a,a,i2)')' Vector nr.',IVEC,                  &
      &          '  Case ',CASES(ICASE),' Symm ',ISYM
 #endif
       NAS=NASUP(ISYM,ICASE)
@@ -89,8 +89,8 @@ C Read coefficient vector from LUSOLV (C repres).
       NCOEF=NAS*NIS
       IF(NCOEF.EQ.0) RETURN
       MDVEC=MODVEC(ISYM,ICASE)
-*      IDV=IDSCT(1,ISYM,ICASE,IVEC)
-      IDV=IDSCT(1+MXSCT*(ISYM-1+8*
+!      IDV=IDSCT(1,ISYM,ICASE,IVEC)
+      IDV=IDSCT(1+MXSCT*(ISYM-1+8*                                      &
      &                         (ICASE-1+MXCASE*(IVEC-1))))
       LVEC=1
       DO IISTA=1,NIS,MDVEC
@@ -105,18 +105,18 @@ C Read coefficient vector from LUSOLV (C repres).
 #endif
       END SUBROUTINE RDBLKC
 
-************************************************************************
-* New VECTOR UTILITIES, written by Steven Vancoillie, May 2011
-* A set of subroutines that can transform RHS arrays using the parallel
-* aware subroutines
-************************************************************************
+!***********************************************************************
+! New VECTOR UTILITIES, written by Steven Vancoillie, May 2011
+! A set of subroutines that can transform RHS arrays using the parallel
+! aware subroutines
+!***********************************************************************
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PSCAVEC (FACT,IVEC,JVEC)
       use constants, only: Zero, One
       use caspt2_global, ONLY: iPrGlb
       USE PrintLevel, ONLY: USUAL
-      use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep,
+      use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep,    &
      &                         niSup
       use definitions, only: iwp, wp, u6
 
@@ -132,8 +132,8 @@ C Read coefficient vector from LUSOLV (C repres).
       REAL(kind=wp) ::  SIGMA2
       real(kind=wp), EXTERNAL :: RHS_DDOT
 
-C Scale vector nr IVEC with scale factor FACT and put the result in
-C vector nr JVEC: |JVEC> <- FACT * |IVEC>
+! Scale vector nr IVEC with scale factor FACT and put the result in
+! vector nr JVEC: |JVEC> <- FACT * |IVEC>
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 
       IF(FACT.EQ.One.AND.IVEC.EQ.JVEC) RETURN
@@ -146,7 +146,7 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
             CALL RHS_ALLO (NIN,NIS,lg_V)
             CALL RHS_READ (NIN,NIS,lg_V,ICASE,ISYM,IVEC)
             CALL RHS_SCAL (NIN,NIS,lg_V,FACT)
-            IF(FACT.EQ.-One)SIGMA2=SIGMA2
+            IF(FACT.EQ.-One)SIGMA2=SIGMA2                               &
      &                               +RHS_DDOT(NIN,NIS,lg_V,lg_V)
             CALL RHS_SAVE (NIN,NIS,lg_V,ICASE,ISYM,JVEC)
             CALL RHS_FREE (lg_V)
@@ -164,10 +164,10 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
 
       END SUBROUTINE PSCAVEC
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE POVLVEC (IVEC,JVEC,OVLAPS)
       use constants, only: Zero
-      use caspt2_module, only: NINDEP, NISUP, MxCase, nCASES, CPUOVL,
+      use caspt2_module, only: NINDEP, NISUP, MxCase, nCASES, CPUOVL,   &
      &                         TIOOVL, nSym
       use definitions, only: wp, iwp
       IMPLICIT None
@@ -181,10 +181,10 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
       integer(kind=iwp) iCase, iSym, lg_v1, lg_v2, NIN, NIS
       real(kind=wp), External :: RHS_DDOT
 
-C Compute overlaps of vectors nr IVEC and JVEC in SR format!, for each
-C individual case and symmetry block, in OVLAPS(ISYM,ICASE), summed over
-C symmetry in OVLAPS(0,ICASE), summed over case in OVLAPS(ISYM,0), total
-C sum in OVLAPS(0,0).
+! Compute overlaps of vectors nr IVEC and JVEC in SR format!, for each
+! individual case and symmetry block, in OVLAPS(ISYM,ICASE), summed over
+! symmetry in OVLAPS(0,ICASE), summed over case in OVLAPS(ISYM,0), total
+! sum in OVLAPS(0,0).
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 
       OVLTOT=Zero
@@ -226,10 +226,10 @@ C sum in OVLAPS(0,0).
 
       END SUBROUTINE POVLVEC
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PLCVEC (ALPHA,BETA,IVEC,JVEC)
       use constants, only: Zero, One
-      use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPULCS,
+      use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPULCS,     &
      &                         TIOLCS
       use definitions, only: iwp, wp
       IMPLICIT None
@@ -242,7 +242,7 @@ C sum in OVLAPS(0,0).
       integer(kind=iwp) iCase, iSym, lg_v1, lg_v2
       integer(kind=iwp) NIN, NIS
 
-C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
+! |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
       IF(BETA==One.AND.ALPHA==Zero) RETURN
 
@@ -290,10 +290,10 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
       END SUBROUTINE PLCVEC
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOC (ITYPE,IVEC,JVEC)
       use Constants, only: Zero
-      use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPUVEC,
+      use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPUVEC,     &
      &                         TIOVEC, NASUP
       use definitions, only: iwp, wp
       IMPLICIT None
@@ -304,8 +304,8 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
       real(kind=wp) TIO, TIO0, TIO1
       integer(kind=iwp) iCase, iSym, lg_v1, lg_v2, NAS, NIN, NIS
 
-C Transform RHS vectors from SR format to C format.
-C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
+! Transform RHS vectors from SR format to C format.
+! ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 
@@ -323,7 +323,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
             IF(NIN.GT.0) THEN
               CALL RHS_ALLO (NIN,NIS,lg_V1)
               CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)
-              CALL RHS_SR2C (ITYPE,0,NAS,NIS,NIN,
+              CALL RHS_SR2C (ITYPE,0,NAS,NIS,NIN,                       &
      &                       lg_V1,lg_V2,ICASE,ISYM)
               CALL RHS_FREE (lg_V1)
             ELSE
@@ -346,10 +346,10 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
       END SUBROUTINE PTRTOC
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOSR (ITYPE,IVEC,JVEC)
       use Constants, only: Zero
-      use caspt2_module, only: nSym, nInDep, nASup, nISup, nCases,
+      use caspt2_module, only: nSym, nInDep, nASup, nISup, nCases,      &
      &                         CPUVec, TIOVec
       use definitions, only: iwp, wp
       IMPLICIT None
@@ -361,8 +361,8 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
       real(kind=wp) CPU1, CPU0, TIO1, TIO0, CPU, TIO
 
 
-C Transform RHS vectors from SR format to C format.
-C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
+! Transform RHS vectors from SR format to C format.
+! ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 
@@ -380,7 +380,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
             IF(NAS.GT.0) THEN
               CALL RHS_ALLO (NAS,NIS,lg_V2)
               CALL RHS_READ (NAS,NIS,lg_V2,ICASE,ISYM,IVEC)
-              CALL RHS_SR2C (ITYPE,1,NAS,NIS,NIN,
+              CALL RHS_SR2C (ITYPE,1,NAS,NIS,NIN,                       &
      &                       lg_V1,lg_V2,ICASE,ISYM)
               CALL RHS_FREE (lg_V2)
             ELSE

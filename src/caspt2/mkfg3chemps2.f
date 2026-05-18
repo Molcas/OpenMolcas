@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2016, Sebastian Wouters                                *
-*               2016, Quan Phung                                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2016, Sebastian Wouters                                *
+!               2016, Quan Phung                                       *
+!***********************************************************************
 
 #include "compiler_features.h"
 
@@ -38,7 +38,7 @@
         Call chemps2_load2pdm( nlev, G2, MSTATE(JSTATE) )
         Call two2onerdm( nlev, NACTEL, G2, G1 )
       Else
-        write(u6,*) "FATAL ERROR: DMRG-CASPT2 with
+        write(u6,*) "FATAL ERROR: DMRG-CASPT2 with                      &
      & CHEMPS2 does not work with NACTEL=1"
       End If
 
@@ -58,10 +58,10 @@
 
       If(NACTEL.GE.3) THEN
 
-        If (mkF) call chemps2_load3pdm( nlev, idxG3, NG3, F3, .false.,
+        If (mkF) call chemps2_load3pdm( nlev, idxG3, NG3, F3, .false.,  &
      &                                  EPSA, F2, MSTATE(JSTATE) )
 
-        call chemps2_load3pdm( nlev, idxG3, NG3, G3, mkF , EPSA,
+        call chemps2_load3pdm( nlev, idxG3, NG3, G3, mkF , EPSA,        &
      &                         F2, MSTATE(JSTATE) )
 
       End If

@@ -1,34 +1,34 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
 
-      SUBROUTINE DIADNS(ISYM,ICASE,VEC1,nVec1,VEC2,nVec2,DPT2,nDPT2,
+      SUBROUTINE DIADNS(ISYM,ICASE,VEC1,nVec1,VEC2,nVec2,DPT2,nDPT2,    &
      &                  LIST,mList)
 
       use Symmetry_Info, only: Mul
       use constants, only: Zero, One, Two
       use caspt2_global, only: do_grad
       use EQSOLV, only: LLIST,NLIST
-      use Sigma_data, only: IFTEST,INCX1,INCX2,INCX3,INCY1,INCY2,LEN1,
+      use Sigma_data, only: IFTEST,INCX1,INCX2,INCX3,INCY1,INCY2,LEN1,  &
      &                      NLST1,VAL1
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NIMX,NSMX,NSYM,NINDEP,NISUP,NASUP,NISH,
-     &                         NORB,NIGEJ,NIGTJ,NAGEB,NAGTB,NORB,
+      use caspt2_module, only: NIMX,NSMX,NSYM,NINDEP,NISUP,NASUP,NISH,  &
+     &                         NORB,NIGEJ,NIGTJ,NAGEB,NAGTB,NORB,       &
      &                         NASH,NSSH
       use definitions, only: iwp, wp
       IMPLICIT NONE
@@ -43,7 +43,7 @@
       integer(kind=iwp) IOFCD(8,8)
       real(kind=wp), ALLOCATABLE:: X1(:), X2(:)
       real(kind=wp), Parameter:: SQR2=SQRT(Two)
-      integer(kind=iwp) NIN,NIS,NAS,NVEC,IDIJ,IS,NI,NA,NO,IDTU,
+      integer(kind=iwp) NIN,NIS,NAS,NVEC,IDIJ,IS,NI,NA,NO,IDTU,         &
      &                  IDAB,JS,ICD,ICEP,ICEM,ICGP,ICGM,IJS
       integer(kind=iwp) IDII,II,III,IJ,IV1,IV2,LLST1
       integer(kind=iwp) ISYMI,ISYMK,NK,NKI,NX
@@ -55,13 +55,13 @@
       real(kind=wp) OVL,SUM
       real(kind=wp), EXTERNAL:: DDOT_
 
-C Compute diagonal-block contribs to a trans density matrix.
-C Vector blocks are in spectral resolution basis (ON).
-C Each square matrix block of density matrix elements is
-C computed and stored in full, even if VEC1=VEC2.
-C Present implementation does not compute active-active
-C contributions. This should be added in a separate routine,
-C since it requires transformation to standard (Non-ON) basis.
+! Compute diagonal-block contribs to a trans density matrix.
+! Vector blocks are in spectral resolution basis (ON).
+! Each square matrix block of density matrix elements is
+! computed and stored in full, even if VEC1=VEC2.
+! Present implementation does not compute active-active
+! contributions. This should be added in a separate routine,
+! since it requires transformation to standard (Non-ON) basis.
 
       NIN=NINDEP(ISYM,ICASE)
       IF(NIN==0) RETURN
@@ -71,7 +71,7 @@ C since it requires transformation to standard (Non-ON) basis.
       NVEC=NIN*NIS
 
       IFTEST=0
-C Set up various offset arrays:
+! Set up various offset arrays:
       IDIJ=0
       DO IS=1,NSYM
         NI=NISH(IS)
@@ -100,7 +100,7 @@ C Set up various offset arrays:
         END DO
       END DO
 
-C Core contribution:
+! Core contribution:
       IF (.NOT.do_grad) THEN
         OVL=DDOT_(NVEC,VEC1,1,VEC2,1)
         DO IS=1,NSYM
@@ -113,14 +113,14 @@ C Core contribution:
           END DO
         END DO
       END IF
-*
+!
       LLST1 = 0 ! dummy initialize
       NLST1 = 0 ! dummy initialize
-*
+!
       SELECT CASE (ICASE)
-C -----------------------------------------------
+! -----------------------------------------------
       CASE(1)
-C Case A
+! Case A
       NI=NISH(ISYM)
       NO=NORB(ISYM)
       DO II=1,NI
@@ -128,15 +128,15 @@ C Case A
         DO IJ=1,NI
           IDIJ=IOFDIJ(ISYM)+II+NO*(IJ-1)
           IV1=1+NIN*(IJ-1)
-          DPT2(IDIJ)=DPT2(IDIJ)-
+          DPT2(IDIJ)=DPT2(IDIJ)-                                        &
      &           DDOT_(NIN,VEC1(IV1),1,VEC2(IV2),1)
         END DO
       END DO
-C -----------------------------------------------
+! -----------------------------------------------
       CASE(2,3)
-C Case BP
-C Case BM
-C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
+! Case BP
+! Case BM
+! Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
       NX=NIN*NIMX**2
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
@@ -168,18 +168,18 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        LEN1=NIN
        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
-C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
+! D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        IDIJ=1+IOFDIJ(ISYMI)
        NO=NORB(ISYMI)
-       CALL DGEMM_('T','N',NI,NI,NIN*NK,-One,
-     &            X2,NIN*NK,X1,NIN*NK,
+       CALL DGEMM_('T','N',NI,NI,NIN*NK,-One,                           &
+     &            X2,NIN*NK,X1,NIN*NK,                                  &
      &            One,DPT2(IDIJ),NO)
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-C -----------------------------------------------
+! -----------------------------------------------
       CASE(4)
-C Case C
+! Case C
       NS=NSSH(ISYM)
       NO=NORB(ISYM)
       DO IA=1,NS
@@ -187,13 +187,13 @@ C Case C
         DO IB=1,NS
           IDAB=IOFDAB(ISYM)+IA+NO*(IB-1)
           IV2=1+NIN*(IB-1)
-          DPT2(IDAB)=DPT2(IDAB)+
+          DPT2(IDAB)=DPT2(IDAB)+                                        &
      &          DDOT_(NIN,VEC1(IV1),1,VEC2(IV2),1)
         END DO
       END DO
-C -----------------------------------------------
+! -----------------------------------------------
       CASE(5)
-C Case D
+! Case D
       DO ISYMA=1,NSYM
        NS=NSSH(ISYMA)
        NOA=NORB(ISYMA)
@@ -222,16 +222,16 @@ C Case D
          DO IB=1,NS
            IDAB=IOFDAB(ISYMA)+IA+NOA*(IB-1)
            IV2=IV+INCA*(IB-1)
-           DPT2(IDAB)=DPT2(IDAB)+
+           DPT2(IDAB)=DPT2(IDAB)+                                       &
      &             DDOT_(INCA,VEC1(IV1),1,VEC2(IV2),1)
          END DO
        END DO
       END DO
 
-C -----------------------------------------------
+! -----------------------------------------------
       CASE(6,7)
-C Case EP
-C Case EM
+! Case EP
+! Case EM
       NX=NIN*NSMX*NIMX**2
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
@@ -243,8 +243,8 @@ C Case EM
        IF(ICASE==6) NKIY=NIGEJ(ISYMKI)
        IF(ICASE==7) NKIY=NIGTJ(ISYMKI)
        IY=1+IYOFF
-C First, contributions to DIJ.
-C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
+! First, contributions to DIJ.
+! Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
        DO ISYMK=1,NSYM
         ISYMI=Mul(ISYMK,ISYMKI)
         NK=NISH(ISYMK)
@@ -273,14 +273,14 @@ C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
         LEN1=NIN*NA
         CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY),nVEC1-IY+1)
         CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY),nVEC2-IY+1)
-C  D(I,J) := Add contraction -X2(MU,A,K,I)*X1(MU,A,K,J):
+!  D(I,J) := Add contraction -X2(MU,A,K,I)*X1(MU,A,K,J):
         IDIJ=1+IOFDIJ(ISYMI)
         NOI=NORB(ISYMI)
-        CALL DGEMM_('T','N',NI,NI,NIN*NA*NK,-One,
-     &             X2,NIN*NA*NK,X1,NIN*NA*NK,
+        CALL DGEMM_('T','N',NI,NI,NIN*NA*NK,-One,                       &
+     &             X2,NIN*NA*NK,X1,NIN*NA*NK,                           &
      &             One,DPT2(IDIJ),NOI)
        END DO
-C Second, contributions to DAB.
+! Second, contributions to DAB.
        IF(NKIY==0) CYCLE
        DO IA=1,NA
         DO IB=1,NA
@@ -298,11 +298,11 @@ C Second, contributions to DAB.
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-C -----------------------------------------------
+! -----------------------------------------------
       CASE(8,9)
-C Case FP
-C Case FM
-C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
+! Case FP
+! Case FM
+! Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
       NX=NIN*NSMX**2
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
@@ -334,19 +334,19 @@ C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
        LEN1=NIN
        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
-C D(A,B) := Add contraction  X1(MU,C,A)*X2(MU,C,B):
+! D(A,B) := Add contraction  X1(MU,C,A)*X2(MU,C,B):
        IDAB=1+IOFDAB(ISYMA)
        NOA=NORB(ISYMA)
-       CALL DGEMM_('T','N',NA,NA,NIN*NC,+One,
-     &            X1,NIN*NC,X2,NIN*NC,
+       CALL DGEMM_('T','N',NA,NA,NIN*NC,+One,                           &
+     &            X1,NIN*NC,X2,NIN*NC,                                  &
      &            One,DPT2(IDAB),NOA)
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-C -----------------------------------------------
+! -----------------------------------------------
       CASE(10,11)
-C Case GP
-C Case GM
+! Case GP
+! Case GM
       NX=NIN*NIMX*NSMX**2
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
@@ -358,8 +358,8 @@ C Case GM
        IF(ICASE==10) NCAY=NAGEB(ISYMCA)
        IF(ICASE==11) NCAY=NAGTB(ISYMCA)
        IY=1+IYOFF
-C First, contributions to DAB.
-C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
+! First, contributions to DAB.
+! Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
        DO ISYMC=1,NSYM
         ISYMA=Mul(ISYMC,ISYMCA)
         NC=NSSH(ISYMC)
@@ -388,14 +388,14 @@ C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
         LEN1=NIN*NI
         CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY),nVec1-IY+1)
         CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY),nVec2-IY+1)
-C  D(A,B) := Add contraction +X1(MU,I,C,A)*X2(MU,I,C,B):
+!  D(A,B) := Add contraction +X1(MU,I,C,A)*X2(MU,I,C,B):
         IDAB=1+IOFDAB(ISYMA)
         NOA=NORB(ISYMA)
-        CALL DGEMM_('T','N',NA,NA,NIN*NI*NC,+One,
-     &             X1,NIN*NI*NC,X2,NIN*NI*NC,
+        CALL DGEMM_('T','N',NA,NA,NIN*NI*NC,+One,                       &
+     &             X1,NIN*NI*NC,X2,NIN*NI*NC,                           &
      &             One,DPT2(IDAB),NOA)
        END DO
-C Second, contributions to DIJ.
+! Second, contributions to DIJ.
        IF(NCAY==0) CYCLE
        DO II=1,NI
         DO IJ=1,NI
@@ -413,11 +413,11 @@ C Second, contributions to DIJ.
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-C -----------------------------------------------
+! -----------------------------------------------
       CASE(12,13)
-C Case HP
-C Case HM
-C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
+! Case HP
+! Case HM
+! Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
       NX=NAS*NIMX**2
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
@@ -449,16 +449,16 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        LEN1=NAS
        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
-C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
+! D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        IDIJ=1+IOFDIJ(ISYMI)
        NOI=NORB(ISYMI)
-       CALL DGEMM_('T','N',NI,NI,NAS*NK,-One,
-     &            X2,NAS*NK,X1,NAS*NK,
+       CALL DGEMM_('T','N',NI,NI,NAS*NK,-One,                           &
+     &            X2,NAS*NK,X1,NAS*NK,                                  &
      &            One,DPT2(IDIJ),NOI)
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
+! Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
       NX=NIS*NSMX**2
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
@@ -490,11 +490,11 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
        LEN1=NIS
        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
-C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
+! D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
        IDAB=1+IOFDAB(ISYMA)
        NOA=NORB(ISYMA)
-       CALL DGEMM_('N','T',NA,NA,NIS*NC,+One,
-     &            X1,NA,X2,NA,
+       CALL DGEMM_('N','T',NA,NA,NIS*NC,+One,                           &
+     &            X1,NA,X2,NA,                                          &
      &            One,DPT2(IDAB),NOA)
       END DO
       Call mma_deallocate(X1)
@@ -502,7 +502,7 @@ C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
       CASE DEFAULT
         CALL ABEND()
       END SELECT
-C -----------------------------------------------
+! -----------------------------------------------
       Contains
 
       SUBROUTINE MLTUNF(LST,nLST,X,nX,Y,nY)
@@ -516,12 +516,12 @@ C -----------------------------------------------
 
       integer(kind=iwp) ILST,L1,L2,L3,L4,IX,IY
       real(kind=wp) V
-C Given a list with entries LST(4,ITEM), ITEM=1,NLST,
-C with entries called L1,L2,L3,L4 for given ITEM, and
-C an array of the form Y(p,q), compute the matrix
-C    X(p,L1,L2) := Add V*Y(p,L3), p=1..LEN1
-C where V=VAL1(L4), looped over ITEM=1,NLST.
-C Note: Arrays are addressed by strides given in common.
+! Given a list with entries LST(4,ITEM), ITEM=1,NLST,
+! with entries called L1,L2,L3,L4 for given ITEM, and
+! an array of the form Y(p,q), compute the matrix
+!    X(p,L1,L2) := Add V*Y(p,L3), p=1..LEN1
+! where V=VAL1(L4), looped over ITEM=1,NLST.
+! Note: Arrays are addressed by strides given in common.
       DO ILST=1,NLST
         L1=LST(1,ILST)
         L2=LST(2,ILST)

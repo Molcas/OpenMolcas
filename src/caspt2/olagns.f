@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Yoshio Nishimoto                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Yoshio Nishimoto                                 *
+!***********************************************************************
       SUBROUTINE OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: NSYM, NACTEL, NFRO, NISH, NASH, NSSH,
+      use caspt2_module, only: NSYM, NACTEL, NFRO, NISH, NASH, NSSH,    &
      &                         NDEL, NBAS
 
       implicit none
@@ -23,7 +23,7 @@
       real(kind=wp), intent(inout) :: DPT2C(NBSQT), T2AO(lT2AO)
 
       real(kind=wp), allocatable :: Int1(:), Scr1(:), Amp1(:)
-      integer(kind=iwp) :: nMaxOrb, jSym, lInt, iSymI, iSymJ, iSymIJ,
+      integer(kind=iwp) :: nMaxOrb, jSym, lInt, iSymI, iSymJ, iSymIJ,   &
      &  iSymA, iSymB, iSymAB, iSymIJAB, iCase
 
       !! orbital Lagrangian from the T-amplitude
@@ -55,8 +55,8 @@
               iSymIJAB = 1 + iEor(iSymIJ-1,iSymAB-1)
               If (iSym /= iSymIJAB) Cycle
               Do iCase = 1, 13
-                Call OLagNs_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,
-     &                           iSymI,iSymJ,nMaxOrb,Int1,Amp1,Scr1,
+                Call OLagNs_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,    &
+     &                           iSymI,iSymJ,nMaxOrb,Int1,Amp1,Scr1,    &
      &                           DPT2C,T2AO)
               End Do
             End Do
@@ -74,21 +74,21 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE OLagNS_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,iSymI,
+      SUBROUTINE OLagNS_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,iSymI,  &
      &                       iSymJ,nMaxOrb,ERI1,Amp1,Scr,DPT2C,T2AO)
 
       use Symmetry_Info, only: Mul
-      USE SUPERINDEX, only: KTU, KTUV, KTGEU, KTGTU, KAGEB, KAGTB,
+      USE SUPERINDEX, only: KTU, KTUV, KTGEU, KTGTU, KAGEB, KAGTB,      &
      &                      KIGEJ, KIGTJ
       use caspt2_global, only: OLag
       use EQSOLV, only: IVECC2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use fake_GA, only: GA_Arrays
-      use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH,
-     &                         NAES, NSSH, NSES, NBAS, NBAST, NTU,
-     &                         NAGEB, NAGTB, NTUVES, NTUES, NTGEUES,
-     &                         NTGTUES, NIGEJES, NIGTJES, NAGEBES,
+      use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH,    &
+     &                         NAES, NSSH, NSES, NBAS, NBAST, NTU,      &
+     &                         NAGEB, NAGTB, NTUVES, NTUES, NTGEUES,    &
+     &                         NTGTUES, NIGEJES, NIGTJES, NAGEBES,      &
      &                         NAGTBES, NASUP, NISUP
       use Constants, only: Zero, One, Half, Two, Three
 
@@ -96,29 +96,29 @@
 
 #include "intent.fh"
 
-      integer(kind=iwp), intent(in) :: iCase, NBSQT, lT2AO, iSym, iSymA,
+      integer(kind=iwp), intent(in) :: iCase, NBSQT, lT2AO, iSym, iSymA,&
      &   iSymB, iSymI,iSymJ, nMaxOrb
       real(kind=wp), intent(_OUT_) :: ERI1(NBSQT)
-      real(kind=wp), intent(out) :: Amp1(nMaxOrb,nMaxOrb),
+      real(kind=wp), intent(out) :: Amp1(nMaxOrb,nMaxOrb),              &
      &  Scr(nMaxOrb,nMaxOrb)
       real(kind=wp), intent(inout) :: DPT2C(NBSQT), T2AO(lT2AO)
 
       real(kind=wp), allocatable :: WRK1(:), WRK2(:)
 
       logical(kind=iwp) :: PM
-      integer(kind=iwp) :: IOFF1(8), IOFF2(8), IO1, IO2, iSymK, iSymAB,
-     &  nASP, nISP, nASM, nISM, ipTCP, ipTCM, nAS, nIS, ipTC, nFroI,
-     &  nFroJ, nFroA, nFroB, nIshI, nIshJ, nIshA, nIshB, nAshI, nAshJ,
-     &  nAshA, nAshB, nSshA, nSshB, nBasI, nBasJ, nBasA, nBasB,
-     &  nCorI, nCorJ, nCorA, nCorB, nOccA, nOccB, nOccA2, nOccB2,
+      integer(kind=iwp) :: IOFF1(8), IOFF2(8), IO1, IO2, iSymK, iSymAB, &
+     &  nASP, nISP, nASM, nISM, ipTCP, ipTCM, nAS, nIS, ipTC, nFroI,    &
+     &  nFroJ, nFroA, nFroB, nIshI, nIshJ, nIshA, nIshB, nAshI, nAshJ,  &
+     &  nAshA, nAshB, nSshA, nSshB, nBasI, nBasJ, nBasA, nBasB,         &
+     &  nCorI, nCorJ, nCorA, nCorB, nOccA, nOccB, nOccA2, nOccB2,       &
      &  nOrbA
-      integer(kind=iwp) :: iIabs, iJabs, iJtot, iAabs,
-     &  iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ,
-     &  iViP, iVaP, iViM, iVaM, iAtot, iItot, IgeJ, IgtJ, iASP,
-     &  iISP, iASM, iISM, iAgeB, iVjP, iAgtB, iVjM, iViHP0, iViHP,
+      integer(kind=iwp) :: iIabs, iJabs, iJtot, iAabs,                  &
+     &  iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ,           &
+     &  iViP, iVaP, iViM, iVaM, iAtot, iItot, IgeJ, IgtJ, iASP,         &
+     &  iISP, iASM, iISM, iAgeB, iVjP, iAgtB, iVjM, iViHP0, iViHP,      &
      &  iViHM0, iViHM, iVaHP, iVHP, iVaHM, iVHM
       real(kind=wp) :: SQ2, SQI2, SQ3, Fac
-      real(kind=wp) :: ValA, ValBP, ValBM, ValC1, ValC2, ONEADD, ValD1,
+      real(kind=wp) :: ValA, ValBP, ValBM, ValC1, ValC2, ONEADD, ValD1, &
      &  ValD2, ValEP, ValEM, ValFP, ValFM, ValGP, ValGM, ValHP, ValHM
 !
 !     DMNS_{ijkl}*d(ij|kl)/dx -> (pj|kl)*D_{qjkl} + (ip|kl)*D_{iqkl}
@@ -148,9 +148,9 @@
 !     write(u6,*) 'icase = ', icase
 
       PM = .false.
-      If (iCase == 2 .or. iCase == 6 .or .iCase == 8 .or.
+      If (iCase == 2 .or. iCase == 6 .or. iCase == 8 .or.               &
      &    iCase == 10 .or. iCase == 12) PM = .true.
-      If (iCase == 3 .or. iCase == 7 .or .iCase == 9 .or.
+      If (iCase == 3 .or. iCase == 7 .or. iCase == 9 .or.               &
      &    iCase == 11 .or. iCase == 13) Return
 
       SQ2    = SQRT(Two)
@@ -307,8 +307,8 @@
 !         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
           If (iSymI /= iSymJ) Fac = Two
 
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,
-     &              iI+nCorI,iJ+nFroJ,
+          Call Exch(iSymA,iSymI,iSymB,iSymJ,                            &
+     &              iI+nCorI,iJ+nFroJ,                                  &
      &              ERI1,Scr)
 
           AmpL1(:,:) = Zero
@@ -337,7 +337,7 @@
 
               If (iUabs == iVabs) Then
                 !! For FIMO derivative
-                DPT2C(iBtot+nOrbA*(iJtot-1))
+                DPT2C(iBtot+nOrbA*(iJtot-1))                            &
      &            = DPT2C(iBtot+nOrbA*(iJtot-1)) + ValA
               End If
 
@@ -386,8 +386,8 @@
 !         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
           If (iSymI /= iSymJ) Fac = Two
 
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,
-     &              iI+nFroI,iJ+nFroJ,
+          Call Exch(iSymA,iSymI,iSymB,iSymJ,                            &
+     &              iI+nFroI,iJ+nFroJ,                                  &
      &              ERI1,Scr)
 
           AmpL1(:,:) = Zero
@@ -483,8 +483,8 @@
 !         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
           If (iSymI /= iSymJ) Fac = Two
 
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,
-     &              iI+nCorI,iJ+nCorJ,
+          Call Exch(iSymA,iSymI,iSymB,iSymJ,                            &
+     &              iI+nCorI,iJ+nCorJ,                                  &
      &              ERI1,Scr)
 
           AmpL1(:,:) = Zero
@@ -544,7 +544,7 @@
 !               ONEADD = ONEADD*Two
                 iAS = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
                 ONEADD = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*Two
-                DPT2C(iAtot+nOrbA*(iBtot-1))
+                DPT2C(iAtot+nOrbA*(iBtot-1))                            &
      &            = DPT2C(iAtot+nOrbA*(iBtot-1)) + ONEADD
 
                 !! For -sum(y)(ay,yt) -> (ay,ty) derivative
@@ -562,16 +562,16 @@
                 ONEADD = Zero
                 Do iXabs = 1, nAshI !?
                   iAS = kTUV(iTabs,iXabs,iXabs) - nTUVes(iSym)
-                  ONEADD = ONEADD
+                  ONEADD = ONEADD                                       &
      &                   + GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))
                 End Do
                 ONEADD = Two*ONEADD/real(MAX(1,NACTEL),kind=wp)
-                AmpL1(iAtot-nCorA,iBtot-nCorA)
+                AmpL1(iAtot-nCorA,iBtot-nCorA)                          &
      &            = AmpL1(iAtot-nCorA,iBtot-nCorA) - ONEADD
               End If
-              AmpL1(iAtot-nCorA,iBtot-nCorB)
+              AmpL1(iAtot-nCorA,iBtot-nCorB)                            &
      &          = AmpL1(iAtot-nCorA,iBtot-nCorB) + ValC1
-              AmpL1(iBtot-nCorB,iAtot-nCorA)
+              AmpL1(iBtot-nCorB,iAtot-nCorA)                            &
      &          = AmpL1(iBtot-nCorB,iAtot-nCorA) + ValC2
             End Do
           End Do
@@ -585,7 +585,7 @@
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu}
-          Call OLagNS_post2(nAshA+nSshA,nAshB+nSshB,nCorA,nCorB,
+          Call OLagNS_post2(nAshA+nSshA,nAshB+nSshB,nCorA,nCorB,        &
      &                      AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
           Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
@@ -618,8 +618,8 @@
 !         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
           If (iSymI /= iSymJ) Fac = Two
 
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,
-     &              iI+nCorI,iJ+nFroJ,
+          Call Exch(iSymA,iSymI,iSymB,iSymJ,                            &
+     &              iI+nCorI,iJ+nFroJ,                                  &
      &              ERI1,Scr)
 
           AmpL1(:,:) = Zero
@@ -656,7 +656,7 @@
 
               !! Fock contributions from the inactive density
               If (iItot == iBtot) Then
-                DPT2C(iAtot+nOrbA*(iJtot-1))
+                DPT2C(iAtot+nOrbA*(iJtot-1))                            &
      &            = DPT2C(iAtot+nOrbA*(iJtot-1)) + ValD1
               End If
 
@@ -674,7 +674,7 @@
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu}
-          Call OLagNS_post2(nAshA+nSshA,nAshB+nSshB,nCorA,nCorB,
+          Call OLagNS_post2(nAshA+nSshA,nAshB+nSshB,nCorA,nCorB,        &
      &                      AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
           Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
@@ -707,8 +707,8 @@
 !         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
           If (iSymI /= iSymJ) Fac = Two
 
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,
-     &              iI+nFroI,iJ+nFroJ,
+          Call Exch(iSymA,iSymI,iSymB,iSymJ,                            &
+     &              iI+nFroI,iJ+nFroJ,                                  &
      &              ERI1,Scr)
 
           AmpL1(:,:) = Zero
@@ -730,7 +730,7 @@
                 ValEP = ValEP * SQ2
                 iASM  = iBabs
                 iISM  = iAabs + nSshA*(IgtJ-1)+iOFF1(iSymA)
-                ValEM = GA_Arrays(ipTCM)%A(iASM+nASM*(iISM-1))
+                ValEM = GA_Arrays(ipTCM)%A(iASM+nASM*(iISM-1))          &
      &                *SQ2*SQ3
               Else
               End If
@@ -749,7 +749,7 @@
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu}
-          Call OLagNS_post2(nAshA+nSshA,nAshB+nSshB,nCorA,nCorB,
+          Call OLagNS_post2(nAshA+nSshA,nAshB+nSshB,nCorA,nCorB,        &
      &                      AmpL1,WRK2)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
           Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
@@ -782,8 +782,8 @@
 !         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
           If (iSymI /= iSymJ) Fac = Two
 
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,
-     &              iI+nCorI,iJ+nCorJ,
+          Call Exch(iSymA,iSymI,iSymB,iSymJ,                            &
+     &              iI+nCorI,iJ+nCorJ,                                  &
      &              ERI1,Scr)
 
           AmpL1(:,:) = Zero
@@ -860,8 +860,8 @@
 !         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
           If (iSymI /= iSymJ) Fac = Two
 
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,
-     &              iI+nCorI,iJ+nFroJ,
+          Call Exch(iSymA,iSymI,iSymB,iSymJ,                            &
+     &              iI+nCorI,iJ+nFroJ,                                  &
      &              ERI1,Scr)
 
           AmpL1(:,:) = Zero
@@ -939,8 +939,8 @@
 !         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
           If (iSymI /= iSymJ) Fac = Two
 
-          Call Exch(iSymA,iSymI,iSymB,iSymJ,
-     &              iI+nFroI,iJ+nFroJ,
+          Call Exch(iSymA,iSymI,iSymB,iSymJ,                            &
+     &              iI+nFroI,iJ+nFroJ,                                  &
      &              ERI1,Scr)
 
           AmpL1(:,:) = Zero
@@ -1061,11 +1061,11 @@
         nSkpB = nCorB
       End If
 
-      Call DGEMM_('N','T',nOrbA,nDimA,nDimB,
-     &            One,ERI(1+nOrbA*nSkpB),nOrbA,AmpMO,nDimA,
+      Call DGEMM_('N','T',nOrbA,nDimA,nDimB,                            &
+     &            One,ERI(1+nOrbA*nSkpB),nOrbA,AmpMO,nDimA,             &
      &            One,OLAG(nOrbA*nSkpB+1),nOrbA)
-      Call DGEMM_('T','N',nOrbA,nDimA,nDimB,
-     &            One,ERI(nSkpA+1),nOrbA,AmpMO,nDimA,
+      Call DGEMM_('T','N',nOrbA,nDimA,nDimB,                            &
+     &            One,ERI(nSkpA+1),nOrbA,AmpMO,nDimA,                   &
      &            One,OLAG(nOrbA*nSkpB+1),nOrbA)
 
       End Subroutine OLagNS_post1
@@ -1082,11 +1082,11 @@
       real(kind=wp), intent(in) :: AmpMO(nDimA,nDimB)
       real(kind=wp), intent(out) :: AmpAO(nBasA,nBasB)
 
-       Call DGEMM_('N','N',nBasA,nDimB,nDimA,
-     &             One,CMOPT2(1+nBasA*nSkpA),nBasA,AmpMO,nDimA,
+       Call DGEMM_('N','N',nBasA,nDimB,nDimA,                           &
+     &             One,CMOPT2(1+nBasA*nSkpA),nBasA,AmpMO,nDimA,         &
      &             Zero,WRK1,nBasA)
-       Call DGEMM_('N','T',nBasA,nBasB,nDimB,
-     &             One,WRK1,nBasA,CMOPT2(1+nBasB*nSkpB),nBasA,
+       Call DGEMM_('N','T',nBasA,nBasB,nDimB,                           &
+     &             One,WRK1,nBasA,CMOPT2(1+nBasB*nSkpB),nBasA,          &
      &             Zero,AmpAO,nBasA)
 
       End Subroutine OLagNS_post2
@@ -1105,9 +1105,9 @@
 
       Do iBas = 1, nBasI
         Do jBas = 1, nBasJ
-          TampAO(iJabs,jBas,iIabs,iBas)
+          TampAO(iJabs,jBas,iIabs,iBas)                                 &
      &      = TampAO(iJabs,jBas,iIabs,iBas) + TampIJ(iBas,jBas)
-          TampAO(iIabs,jBas,iJabs,iBas)
+          TampAO(iIabs,jBas,iJabs,iBas)                                 &
      &      = TampAO(iIabs,jBas,iJabs,iBas) + TampIJ(jBas,iBas)
         End Do
       End Do
@@ -1135,7 +1135,7 @@
       real(kind=wp), intent(_OUT_) :: WRK(NBSQT)
 
       real(kind=wp) :: Val
-      integer(kind=iwp) :: iCMO, iAO, iMO, jSym, nBasI, nOrbI, iBas,
+      integer(kind=iwp) :: iCMO, iAO, iMO, jSym, nBasI, nOrbI, iBas,    &
      &  jBas
 
       !! Mode = 1: MO -> AO transformation
@@ -1154,16 +1154,16 @@
         nOrbI = nBas(iSym)-nDel(iSym)
         If (Mode == 1) Then
           !! MO -> AO
-          CALL DGEMM_('N','N',nBasI,nOrbI,nOrbI,
-     &                One,CMO(iCMO),nBasI,DPT2(iMO),nOrbI,
+          CALL DGEMM_('N','N',nBasI,nOrbI,nOrbI,                        &
+     &                One,CMO(iCMO),nBasI,DPT2(iMO),nOrbI,              &
      &                Zero,WRK,nBasI)
-          CALL DGEMM_('N','T',nBasI,nBasI,nOrbI,
-     &                One,WRK,nBasI,CMO(iCMO),nBasI,
+          CALL DGEMM_('N','T',nBasI,nBasI,nOrbI,                        &
+     &                One,WRK,nBasI,CMO(iCMO),nBasI,                    &
      &                Zero,DPT2AO(iAO),nBasI)
           !! Symmetrize, just in case
           Do iBas = 1, nBasI
             Do jBas = 1, iBas-1
-              Val =(DPT2AO(iAO+iBas-1+nBasI*(jBas-1))
+              Val =(DPT2AO(iAO+iBas-1+nBasI*(jBas-1))                   &
      &            + DPT2AO(iAO+jBas-1+nBasI*(iBas-1)))*Half
               DPT2AO(iAO+iBas-1+nBasI*(jBas-1)) = Val
               DPT2AO(iAO+jBas-1+nBasI*(iBas-1)) = Val
@@ -1171,11 +1171,11 @@
           End Do
         Else If (Mode == 2) Then
           !! AO -> MO
-          CALL DGEMM_('T','N',nOrbI,nBasI,nBasI,
-     &                One,CMO(iCMO),nBasI,DPT2AO(iAO),nBasI,
+          CALL DGEMM_('T','N',nOrbI,nBasI,nBasI,                        &
+     &                One,CMO(iCMO),nBasI,DPT2AO(iAO),nBasI,            &
      &                Zero,WRK,nOrbI)
-          CALL DGEMM_('N','N',nOrbI,nOrbI,nBasI,
-     &                One,WRK,nOrbI,CMO(iCMO),nBasI,
+          CALL DGEMM_('N','N',nOrbI,nOrbI,nBasI,                        &
+     &                One,WRK,nOrbI,CMO(iCMO),nBasI,                    &
      &                Zero,DPT2(iMO),nOrbI)
         End If
       END IF

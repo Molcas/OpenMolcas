@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Yoshio Nishimoto                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Yoshio Nishimoto                                 *
+!***********************************************************************
       Subroutine CASPT2_Res(VECROT,nVECROT)
 
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
@@ -138,7 +138,7 @@
       real(kind=wp), intent(in) :: DIN(NIN), DIS(NIS)
 
 #ifdef _MOLCAS_MPP_
-      integer(kind=iwp) :: myRank, iLo1, iHi1, jLo1, jHi1, iLo2, iHi2,
+      integer(kind=iwp) :: myRank, iLo1, iHi1, jLo1, jHi1, iLo2, iHi2,  &
      &                     jLo2, jHi2, NROW, NCOL, mW1, LDW1, mW2, LDW2
 #endif
 
@@ -162,7 +162,7 @@
           NCOL=jHi1-jLo1+1
           CALL GA_Access (lg_W1,iLo1,iHi1,jLo1,jHi1,mW1,LDW1)
           CALL GA_Access (lg_W2,iLo2,iHi2,jLo2,jHi2,mW2,LDW2)
-          CALL CASPT2_ResD2(MODE,NROW,NCOL,DBL_MB(mW1),DBL_MB(mW2),
+          CALL CASPT2_ResD2(MODE,NROW,NCOL,DBL_MB(mW1),DBL_MB(mW2),     &
      &                      LDW1,DIN(iLo1),DIS(jLo1))
           CALL GA_Release_Update (lg_W1,iLo1,iHi1,jLo1,jHi1)
           CALL GA_Release_Update (lg_W2,iLo2,iHi2,jLo2,jHi2)
@@ -170,7 +170,7 @@
         CALL GA_Sync()
       ELSE
 #endif
-        CALL CASPT2_ResD2(MODE,NIN,NIS,GA_Arrays(lg_W1)%A,
+        CALL CASPT2_ResD2(MODE,NIN,NIS,GA_Arrays(lg_W1)%A,              &
      &                    GA_Arrays(lg_W2)%A,NIN,DIN,DIS)
 #ifdef _MOLCAS_MPP_
       END IF
@@ -185,7 +185,7 @@
 
       use Constants, only: Zero, One
       use definitions, only: wp, iwp
-      use caspt2_global, only: real_shift, imag_shift,
+      use caspt2_global, only: real_shift, imag_shift,                  &
      &                         sigma_p_epsilon, sigma_p_exponent
 
       implicit none
@@ -195,7 +195,7 @@
       real(kind=wp),     intent(in)    :: dIn(nRow), dIs(nCol)
 
       integer(kind=iwp) :: i, j, p
-      real(kind=wp) :: scal, delta, delta_inv, sigma, epsilon, expscal,
+      real(kind=wp) :: scal, delta, delta_inv, sigma, epsilon, expscal, &
      &                 delta_ps
 
       ! See Eqs.(16), (17), and (22) in Stefano's sigma-regularization
@@ -231,8 +231,8 @@
             p = sigma_p_exponent
             if (epsilon > Zero) then
               sigma = One/epsilon**p
-              delta_inv
-     *          = delta_inv * (One - exp(-sigma*abs(delta)**p))
+              delta_inv                                                 &
+     &          = delta_inv * (One - exp(-sigma*abs(delta)**p))
             end if
             !! The following SCAL is the actual residual
             scal = One - (dIn(i)+dIs(j))*delta_inv
@@ -258,9 +258,9 @@
               delta_inv = One/(One - expscal)
               ! Correct only for diagonal elements
               ! Use the canonical constraint for off-diagonal elements
-              W1(i,j) = delta_inv*W1(i,j)*expscal*delta/epsilon
-     *                 *abs(delta/epsilon)**real(p-1,kind=wp)
-     *                 *real(p,kind=wp)
+              W1(i,j) = delta_inv*W1(i,j)*expscal*delta/epsilon         &
+     &                 *abs(delta/epsilon)**real(p-1,kind=wp)           &
+     &                 *real(p,kind=wp)
               W2(i,j) = delta_inv*W2(i,j)
             end if
           case (3)
@@ -299,8 +299,8 @@
       integer(kind=iwp), intent(out) :: ICONV
 
       integer(kind=iwp) :: I, ITER, IVECP, IVECT, IVECU
-      real(kind=wp) :: ALPHA,BETA,PR,PT,UR,ECORR(0:8,0:MXCASE),EAIVX,
-     &                 EATVX,EBJAI,EBJAT,EBVAT,EVJAI,EVJTI,EVJTU,E2NONV,
+      real(kind=wp) :: ALPHA,BETA,PR,PT,UR,ECORR(0:8,0:MXCASE),EAIVX,   &
+     &                 EATVX,EBJAI,EBJAT,EBVAT,EVJAI,EVJTI,EVJTU,E2NONV,&
      &                 OVLAPS(0:8,0:MXCASE),DSCALE
       logical(kind=iwp) :: converged
 
@@ -348,8 +348,8 @@
             WRITE(u6,*)
         WRITE(u6,*) 'Solving the Lambda equation for analytic gradients'
             WRITE(u6,'(25A5)')('-----',I=1,25)
-            WRITE(u6,'(2X,A,A)')
-     & 'IT.      VJTU        VJTI        ATVX        AIVX        VJAI ',
+            WRITE(u6,'(2X,A,A)')                                        &
+     & 'IT.      VJTU        VJTI        ATVX        AIVX        VJAI ',&
      & '       BVAT        BJAT        BJAI        TOTAL       RNORM  '
             WRITE(u6,'(25A5)')('-----',I=1,25)
           END IF
@@ -386,7 +386,7 @@
             EBJAI=ECORR(0,12)+ECORR(0,13)
             E2NONV=ECORR(0,0)
             IF(IPRGLB >= USUAL) THEN
-            WRITE(u6,'(1X,I3,1X,10F12.6)') ITER,EVJTU,EVJTI,EATVX,EAIVX,
+            WRITE(u6,'(1X,I3,1X,10F12.6)') ITER,EVJTU,EVJTI,EATVX,EAIVX,&
      &                            EVJAI,EBVAT,EBJAT,EBJAI,E2NONV,RNORM
               CALL XFLUSH(u6)
             END IF

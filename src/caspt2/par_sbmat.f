@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
-* WRAPPERS FOR PARALLEL S AND B MATRIX ROUTINES
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+! WRAPPERS FOR PARALLEL S AND B MATRIX ROUTINES
+!
       SUBROUTINE PSBMAT_GETMEM(cNAME,lg_M,nSize)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -19,9 +19,9 @@
       use constants, only: Zero
       use definitions, only: iwp
       IMPLICIT None
-CSVC2010: create square global array S/B for symmetry iSYM
-C with integer handle lg_M or if replicate or serial, create
-C tridiagonal local array at Work(lg_M)
+!SVC2010: create square global array S/B for symmetry iSYM
+! with integer handle lg_M or if replicate or serial, create
+! tridiagonal local array at Work(lg_M)
       Integer(kind=iwp) lg_M, nSize
       CHARACTER(len=*) cNAME
 
@@ -49,9 +49,9 @@ C tridiagonal local array at Work(lg_M)
       use fake_ga, only: Deallocate_GA_Array
       use definitions, only: iwp
       IMPLICIT NONE
-CSVC2010: destroy square global array S/B for symmetry iSYM
-C with integer handle lg_M or if replicate or serial, free the
-C tridiagonal local array at Work(lg_M)
+!SVC2010: destroy square global array S/B for symmetry iSYM
+! with integer handle lg_M or if replicate or serial, free the
+! tridiagonal local array at Work(lg_M)
       Integer(kind=iwp) lg_M
 
 #ifdef _MOLCAS_MPP_
@@ -75,8 +75,8 @@ C tridiagonal local array at Work(lg_M)
       END SUBROUTINE PSBMAT_FREEMEM
 
       SUBROUTINE PSBMAT_WRITE(cNAME,iCase,iSym,lg_M,nSize)
-CSVC20100902: write the global array lg_M to disk using DRA interface,
-C or if replicate or serial, write WORK(lg_M) to LUSBT
+!SVC20100902: write the global array lg_M to disk using DRA interface,
+! or if replicate or serial, write WORK(lg_M) to LUSBT
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
       use caspt2_global, only: LUH0T
@@ -146,9 +146,9 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       END SUBROUTINE PSBMAT_WRITE
 
       SUBROUTINE PSBMAT_READ(cNAME,iCase,iSym,lg_M,nSize)
-CSVC20100902: read the disk array stored as cName+iSym using DRA
-C interface into global array lg_M, or if replicate or serial, read from
-C LUSBT into WORK(lg_M)
+!SVC20100902: read the disk array stored as cName+iSym using DRA
+! interface into global array lg_M, or if replicate or serial, read from
+! LUSBT into WORK(lg_M)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
       use caspt2_global, only: LUH0T

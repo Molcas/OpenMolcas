@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1988,1991,1992,1998, Per Ake Malmqvist                 *
-************************************************************************
-*--------------------------------------------*
-* 1998  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1988,1991,1992,1998, Per Ake Malmqvist                 *
+!***********************************************************************
+!--------------------------------------------*
+! 1998  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE POLY3(mkF)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
@@ -23,7 +23,7 @@
       use PrintLevel, only: VERBOSE
       use sguga, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: DoCumulant, iSCF, jState, nActel, NAshT,
+      use caspt2_module, only: DoCumulant, iSCF, jState, nActel, NAshT, &
      &                         nConf, nState, STSym, EPSA, mState
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
       use caspt2_module, only: DMRG
@@ -32,23 +32,23 @@
       use constants, only: Zero, One
       use definitions, only: iwp, wp, u6, Byte
       IMPLICIT NONE
-C  IBM TEST VERSION 0, 1988-06-23.
-C  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.
-C  NEW VERSION 1992-12-05, FOR MOLCAS-3 VERSION.
-C  NEW VERSION 1998-10-02
-C  AUTHOR: PER-AAKE MALMQUIST
+!  IBM TEST VERSION 0, 1988-06-23.
+!  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.
+!  NEW VERSION 1992-12-05, FOR MOLCAS-3 VERSION.
+!  NEW VERSION 1998-10-02
+!  AUTHOR: PER-AAKE MALMQUIST
 
-C THIS PROGRAM CALCULATES 1-EL, 2-EL, AND 3-EL
-C DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
-C IF THE INTEGER KEY IFF.EQ.1, THEN
-C IT ALSO PRODUCES THE CONTRACTIONS OF 1-EL -- 4-EL
-C DENSITY MATRICES WITH THE FOCK OPERATOR USED IN
-C THE CASSCF-MP2 PROGRAM. THE RESULTS ARE WRITTEN
-C TO FILE IN SEVERAL FORMS, TO SUPPORT BOTH KERSTINS
-C PRESENT PROGRAM AND ALSO SUCH NEW PROCEDURES WHICH
-C MIGHT TAKE ADVANTAGE OF ALL INDEX PERMUTATION SYMMETRIES.
-C THE RDSTAT AND THE GUGA ROUTINES USED IN THIS
-C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
+! THIS PROGRAM CALCULATES 1-EL, 2-EL, AND 3-EL
+! DENSITY MATRICES FOR A CASSCF WAVE FUNCTION.
+! IF THE INTEGER KEY IFF.EQ.1, THEN
+! IT ALSO PRODUCES THE CONTRACTIONS OF 1-EL -- 4-EL
+! DENSITY MATRICES WITH THE FOCK OPERATOR USED IN
+! THE CASSCF-MP2 PROGRAM. THE RESULTS ARE WRITTEN
+! TO FILE IN SEVERAL FORMS, TO SUPPORT BOTH KERSTINS
+! PRESENT PROGRAM AND ALSO SUCH NEW PROCEDURES WHICH
+! MIGHT TAKE ADVANTAGE OF ALL INDEX PERMUTATION SYMMETRIES.
+! THE RDSTAT AND THE GUGA ROUTINES USED IN THIS
+! PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
 
       Logical(kind=iwp), intent(in):: mkF
@@ -70,7 +70,7 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
       nCI=CIS%NCSF(STSYM)
 
       IF (mkF) THEN
-C ORBITAL ENERGIES IN CI-COUPLING ORDER:
+! ORBITAL ENERGIES IN CI-COUPLING ORDER:
         DO ILEV=1,NLEV
           ETA(ILEV)=EPSA(L2ACT(ILEV))
         END DO
@@ -79,10 +79,10 @@ C ORBITAL ENERGIES IN CI-COUPLING ORDER:
       CALL mma_allocate(G1,NG1,LABEL='G1')
       CALL mma_allocate(G2,NG2,LABEL='G2')
 
-C-SVC20100831: recompute approximate max NG3 size needed
+!-SVC20100831: recompute approximate max NG3 size needed
       NG3MAX=iPARDIV(NG3TOT,NG2)
 
-C-SVC20100831: allocate local G3 matrices
+!-SVC20100831: allocate local G3 matrices
       CALL mma_allocate(G3,NG3MAX,LABEL='G3')
 
       CALL mma_allocate(idxG3,6,NG3MAX,label='idxG3')
@@ -92,7 +92,7 @@ C-SVC20100831: allocate local G3 matrices
       G2(1)=Zero
       G3(1)=Zero
 
-C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
+! ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
       IF (mkF) THEN
         CALL mma_allocate(F1_H,NG1,LABEL='F1_H')
         CALL mma_allocate(F2_H,NG2,LABEL='F2_H')
@@ -108,10 +108,10 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
         F3=>G3
       END IF
 
-* NG3 will change inside subroutine MKFG3 to the actual
-* number of nonzero elements, that is why here we allocate
-* with NG3MAX, but we only store (PT2_PUT) the first NG3
-* elements of the G3 and F3
+! NG3 will change inside subroutine MKFG3 to the actual
+! number of nonzero elements, that is why here we allocate
+! with NG3MAX, but we only store (PT2_PUT) the first NG3
+! elements of the G3 and F3
       NG3=NG3MAX
 
       if (.not. DoFCIQMC) then
@@ -123,7 +123,7 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
           IF (IPRGLB.GE.VERBOSE) THEN
             WRITE(u6,*)
             IF (NSTATE.GT.1) THEN
-              WRITE(u6,'(A,I4)')
+              WRITE(u6,'(A,I4)')                                        &
      &       ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
             ELSE
               WRITE(u6,*)' With new orbitals, the CI array is:'
@@ -138,12 +138,12 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
       IF (ISCF/=0.AND.NACTEL/=0) THEN
         CALL SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nAshT,nG3)
       ELSE IF (ISCF==0) THEN
-C-SVC20100903: during mkfg3, NG3 is set to the actual value
+!-SVC20100903: during mkfg3, NG3 is set to the actual value
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
         IF (.NOT. DoCumulant .AND. .NOT. DMRG) THEN
 #endif
           If (.NOT.ALLOCATED(CI)) CALL mma_allocate(CI,1,LABEL='CI')
-          CALL MKFG3(mkF,CI,nCI,
+          CALL MKFG3(mkF,CI,nCI,                                        &
      &               G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
         ELSE

@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine Done_CASPT2(CMO,nCMO,OCC,nOCC,D,nD)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Compute the active one-body density                              *
-*                                                                      *
-*     calling arguments:                                               *
-*     CMO     : input, array of real(kind=wp)                          *
-*               MO-coefficients                                        *
-*     OCC     : input, array of real(kind=wp)                          *
-*               occupation numbers                                     *
-*     D       : output, array of real(kind=wp)                         *
-*               total one-body density                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Compute the active one-body density                              *
+!                                                                      *
+!     calling arguments:                                               *
+!     CMO     : input, array of real(kind=wp)                          *
+!               MO-coefficients                                        *
+!     OCC     : input, array of real(kind=wp)                          *
+!               occupation numbers                                     *
+!     D       : output, array of real(kind=wp)                         *
+!               total one-body density                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       use caspt2_module, only: nSym, nBas
       use Constants, only: Zero, Two
@@ -58,8 +58,8 @@
           Do j = 1,i
             Sum = Zero
             Do k = 1,iBas
-              Sum = Sum + OCC(iOff3+k)
-     &                  * CMO(iOff1+(k-1)*iBas+i)
+              Sum = Sum + OCC(iOff3+k)                                  &
+     &                  * CMO(iOff1+(k-1)*iBas+i)                       &
      &                  * CMO(iOff1+(k-1)*iBas+j)
             End Do
             D(iOff2+ii+j) = Two*Sum

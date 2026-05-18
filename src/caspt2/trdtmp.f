@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE TRDTMP(DPT2,NDPT2)
       use definitions, only: iwp, wp
       use constants, only: Zero
@@ -22,7 +22,7 @@
       real(kind=wp), intent(inout):: DPT2(NDPT2)
 
       real(kind=wp), Allocatable:: DTemp(:,:)
-      integer(kind=iwp) idpt, iofdpt, isym, it, itabs, itq, iu, iuabs,
+      integer(kind=iwp) idpt, iofdpt, isym, it, itabs, itq, iu, iuabs,  &
      &                  iuq, na, ndtemp, ni, no
       real(kind=wp) Value
 
@@ -32,10 +32,10 @@
       ndtemp=nasht**2
       call mma_allocate(dtemp,nAshT,nAshT,Label='DTemp')
       DTemp(:,:)=Zero
-CSVC: trdact is still serial and expects to work on the LUSOLV file,
-C which is only on the master node. As long as the MKWW subroutines are
-C not functioning in parallel, this part should be done only on the
-C master node:
+!SVC: trdact is still serial and expects to work on the LUSOLV file,
+! which is only on the master node. As long as the MKWW subroutines are
+! not functioning in parallel, this part should be done only on the
+! master node:
       IF (KING()) call trdact(IVECC,IVECC,dtemp)
 
       call GADGOP(DTEMP,NDTEMP,'+')

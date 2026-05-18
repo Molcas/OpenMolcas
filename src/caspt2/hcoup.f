@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2014, Steven Vancoillie                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2014, Steven Vancoillie                                *
+!***********************************************************************
       SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,NASHT,TG3,NTG3,HEL)
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG
@@ -21,32 +21,32 @@
       use constants, only: Zero
       use definitions, only: iwp, wp, u6
       IMPLICIT NONE
-C Compute the coupling Hamiltonian element defined as
-C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
-C assuming that IVEC contains a contravariant representation of
-C H|ROOT1>, JVEC contains a contravariant representation of
-C OMEGA|ROOT2>, and OVL, TG1, TG2, TG3 contain the overlap (normally
-C expected to be 0 or 1) and active transition density matrices of ROOT1
-C and ROOT2. See also subroutine TSVEC for explanations.
+! Compute the coupling Hamiltonian element defined as
+!     HEL = < ROOT1 | H * OMEGA | ROOT2 >
+! assuming that IVEC contains a contravariant representation of
+! H|ROOT1>, JVEC contains a contravariant representation of
+! OMEGA|ROOT2>, and OVL, TG1, TG2, TG3 contain the overlap (normally
+! expected to be 0 or 1) and active transition density matrices of ROOT1
+! and ROOT2. See also subroutine TSVEC for explanations.
 
-C SVC (March 2014): modification of original code to handle distributed
-C RHS arrays. There is now a main HCOUP subroutine that loops over cases
-C and irreps and gets access to the process-specific block of the RHS.
-C The coupling for that block is computed by the subroutine HCOUP_BLK.
+! SVC (March 2014): modification of original code to handle distributed
+! RHS arrays. There is now a main HCOUP subroutine that loops over cases
+! and irreps and gets access to the process-specific block of the RHS.
+! The coupling for that block is computed by the subroutine HCOUP_BLK.
 
       integer(kind=iwp), intent(in):: IVEC, JVEC, NASHT, NTG3
       real(kind=wp), intent(in):: OVL
       real(kind=wp), intent(out):: HEL
       real(kind=wp), intent(in)::TG1(NASHT,NASHT)
       real(kind=wp), intent(in):: TG2(NASHT,NASHT,NASHT,NASHT)
-C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
+! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       real(kind=wp), intent(in)::  TG3(NTG3)
 
       real(kind=wp) HECOMP(14,9)
-      integer(kind=iwp) ICASE,ISYM,NAS,NIN,NIS,i,IC,IS,NHECOMP,
-     &                  lg_V1,IASTA1,IAEND1,IISTA1,IIEND1,
-     &                  iLo1,iHi1,jLo1,jHi1,MV1,NV1,
-     &                  lg_V2,IASTA2,IAEND2,IISTA2,IIEND2,
+      integer(kind=iwp) ICASE,ISYM,NAS,NIN,NIS,i,IC,IS,NHECOMP,         &
+     &                  lg_V1,IASTA1,IAEND1,IISTA1,IIEND1,              &
+     &                  iLo1,iHi1,jLo1,jHi1,MV1,NV1,                    &
+     &                  lg_V2,IASTA2,IAEND2,IISTA2,IIEND2,              &
      &                  iLo2,iHi2,jLo2,jHi2,MV2,NV2
       real(kind=wp) HEBLK, SUMCASE, SUMSYM
 
@@ -56,18 +56,18 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 #endif
 
 
-C Sketch of procedure:
-C  HEL=Zero
-C  Loop over every (case/symmetry)-block.
-C           If (No such vector block) Skip to end of loop
-C           Allocate two places for this block, VEC1 and VEC2
-C           Read VEC1 as IVEC component from file.
-C           Read VEC2 as JVEC component from file.
-C           Loop nest, computing
-C              HEL := HEL + VEC1*GOM*VEC2
-C           End of loop nest
-C           Deallocate VEC1 and VEC2
-C  End of loop.
+! Sketch of procedure:
+!  HEL=Zero
+!  Loop over every (case/symmetry)-block.
+!           If (No such vector block) Skip to end of loop
+!           Allocate two places for this block, VEC1 and VEC2
+!           Read VEC1 as IVEC component from file.
+!           Read VEC2 as JVEC component from file.
+!           Loop nest, computing
+!              HEL := HEL + VEC1*GOM*VEC2
+!           End of loop nest
+!           Deallocate VEC1 and VEC2
+!  End of loop.
 
       HEL=Zero
       HECOMP(:,:)=Zero
@@ -89,9 +89,9 @@ C  End of loop.
           CALL RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
           NV2=(iHi2-iLo2+1)*(jHi2-jLo2+1)
 
-          IF ((iLo1.NE.iLo2) .OR.
-     &        (iHi1.NE.iHi2) .OR.
-     &        (jLo1.NE.jLo2) .OR.
+          IF ((iLo1.NE.iLo2) .OR.                                       &
+     &        (iHi1.NE.iHi2) .OR.                                       &
+     &        (jLo1.NE.jLo2) .OR.                                       &
      &        (jHi1.NE.jHi2)) THEN
             WRITE(u6,'(1X,A)') 'HCOUP: Error: block mismatch, abort...'
             CALL ABEND()
@@ -99,17 +99,17 @@ C  End of loop.
 
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
-            CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                     DBL_MB(MV1),NV1,
-     &                     DBL_MB(MV2),NV2,
-     &                     OVL,HEBLK,
+            CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,                    &
+     &                     DBL_MB(MV1),NV1,                             &
+     &                     DBL_MB(MV2),NV2,                             &
+     &                     OVL,HEBLK,                                   &
      &                     TG1,TG2,NASHT,TG3,NTG3)
           ELSE
 #endif
-            CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                     GA_Arrays(MV1)%A,NV1,
-     &                     GA_Arrays(MV2)%A,NV2,
-     &                     OVL,HEBLK,
+            CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,                    &
+     &                     GA_Arrays(MV1)%A,NV1,                        &
+     &                     GA_Arrays(MV2)%A,NV2,                        &
+     &                     OVL,HEBLK,                                   &
      &                     TG1,TG2,NASHT,TG3,NTG3)
 #ifdef _MOLCAS_MPP_
           END IF
@@ -126,7 +126,7 @@ C  End of loop.
         END DO
       END DO
 
-C Sum-reduce the per-process contributions
+! Sum-reduce the per-process contributions
       CALL GADGOP_SCAL(HEL,'+')
       NHECOMP=14*9
       CALL GADGOP(HECOMP,NHECOMP,'+')
@@ -149,36 +149,36 @@ C Sum-reduce the per-process contributions
         END DO
 
         WRITE(u6,'(20a4)')('----',i=1,20)
-        WRITE(u6,*)
+        WRITE(u6,*)                                                     &
      &            'HCOUP: The contributions to the Hamiltonian coupling'
         WRITE(u6,*)' elements, by case and by symmetry label.'
         DO IC=1,13
-          WRITE(u6,'(1X,A8,9F12.8)')
+          WRITE(u6,'(1X,A8,9F12.8)')                                    &
      &      CASES(IC),(HECOMP(IC,IS),IS=1,NSYM+1)
         END DO
-        WRITE(u6,'(1X,A8,9F12.8)')
+        WRITE(u6,'(1X,A8,9F12.8)')                                      &
      &    'Summed: ', (HECOMP(14,IS),IS=1,NSYM+1)
         WRITE(u6,*)
       END IF
 
       END SUBROUTINE HCOUP
 
-      SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,nV1,V2,nV2,
+      SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,nV1,V2,nV2,    &
      &                     OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
       use constants, only: Zero, Two, Four, Eight
       USE SUPERINDEX, only: MTUV, MTGEU, MTGTU, MTU
       use caspt2_module, only: NTUVES, NTGEUES, NTUES, NAES, NTGTUES
       use definitions, only: iwp, wp
-C Compute a contribution to the coupling Hamiltonian element (HEL)
-C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
-C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
-C with A the active superindex and I the inactive superindex. Since
-C the inactive superindex is partitioned over processes, each process
-C only computes part of the HEL value, which is then sum reduced in the
-C calling subroutine.
+! Compute a contribution to the coupling Hamiltonian element (HEL)
+! defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
+! arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
+! with A the active superindex and I the inactive superindex. Since
+! the inactive superindex is partitioned over processes, each process
+! only computes part of the HEL value, which is then sum reduced in the
+! calling subroutine.
       IMPLICIT NONE
 
-      integer(kind=iwp), intent(in):: ICASE,ISYM,NAS,IISTA,IIEND,
+      integer(kind=iwp), intent(in):: ICASE,ISYM,NAS,IISTA,IIEND,       &
      &                                NV1,NV2,NASHT, NTG3
       real(kind=wp), intent(in):: V1(NV1), V2(NV2)
       real(kind=wp), intent(in):: OVL
@@ -186,16 +186,16 @@ C calling subroutine.
 
       real(kind=wp), intent(in):: TG1(NASHT,NASHT)
       real(kind=wp), intent(in):: TG2(NASHT,NASHT,NASHT,NASHT)
-C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
+! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       real(kind=wp), intent(in):: TG3(NTG3)
 
-      integer(kind=iwp) NISBLK,
-     &                  IAS, IASABS, ITABS, IUABS, IVABS,
-     &                  JAS, JASABS, IXABS, IYABS, IZABS,
-     &                  IND1, IND2, IND3, JND1, JND2, JND3,
+      integer(kind=iwp) NISBLK,                                         &
+     &                  IAS, IASABS, ITABS, IUABS, IVABS,               &
+     &                  JAS, JASABS, IXABS, IYABS, IZABS,               &
+     &                  IND1, IND2, IND3, JND1, JND2, JND3,             &
      &                  IAS1, IAS2, JAS1, JAS2, ITG3, NAS1
-      real(kind=wp) GUTXY, GUY, SA, SBM, SBP, SBtuxy, SBtuyx, SC,
-     &              SD11, SD12, SD21, SD22, SE, SFM, SFP, SFtuxy,
+      real(kind=wp) GUTXY, GUY, SA, SBM, SBP, SBtuxy, SBtuyx, SC,       &
+     &              SD11, SD12, SD21, SD22, SE, SFM, SFP, SFtuxy,       &
      &              SFtuyx, SG, TMP
       real(kind=wp), external:: DDot_
 
@@ -205,7 +205,7 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
       NISBLK=IIEND-IISTA+1
       SELECT CASE (ICASE)
-************************************************************************
+!***********************************************************************
       CASE (1)
         DO IAS=1,NAS
           IASABS=NTUVES(ISYM)+IAS
@@ -217,12 +217,12 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
             IXABS=MTUV(1,JASABS)
             IYABS=MTUV(2,JASABS)
             IZABS=MTUV(3,JASABS)
-C Compute and use SA(ITABS IUABS IVABS, IXABS IYABS IZABS)
-C Formulae used:
-C  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
-C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
-C Gvuxtyz is stored using full permutation symmetry of three pairs
-C (vu),(xt), and (yz):
+! Compute and use SA(ITABS IUABS IVABS, IXABS IYABS IZABS)
+! Formulae used:
+!  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
+!         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
+! Gvuxtyz is stored using full permutation symmetry of three pairs
+! (vu),(xt), and (yz):
             IND1=IVABS+NASHT*(IUABS-1)
             IND2=IXABS+NASHT*(ITABS-1)
             IND3=IYABS+NASHT*(IZABS-1)
@@ -256,9 +256,9 @@ C (vu),(xt), and (yz):
               END IF
             END IF
             ITG3=((JND1+1)*JND1*(JND1-1))/6+(JND2*(JND2-1))/2+JND3
-C  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
-C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
-C Compute TMP=Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
+!  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
+!         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
+! Compute TMP=Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
             TMP=TG3(ITG3)
             IF(IYABS.EQ.IUABS) THEN
               TMP=TMP+TG2(IVABS,IZABS,IXABS,ITABS)
@@ -272,7 +272,7 @@ C Compute TMP=Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
             IF(IXABS.EQ.IUABS) THEN
               TMP=TMP+TG2(IVABS,ITABS,IYABS,IZABS)
             END IF
-C SA is the negative of this, and then some correction:
+! SA is the negative of this, and then some correction:
             SA=-TMP
             IF(IXABS.EQ.ITABS) THEN
               SA=SA+Two*TG2(IVABS,IUABS,IYABS,IZABS)
@@ -280,12 +280,12 @@ C SA is the negative of this, and then some correction:
                 SA=SA+Two*TG1(IVABS,IZABS)
               END IF
             END IF
-C SA has been computed.
+! SA has been computed.
 
             HEBLK=HEBLK+SA*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(4)
         DO IAS=1,NAS
           IASABS=NTUVES(ISYM)+IAS
@@ -297,14 +297,14 @@ C SA has been computed.
             ITABS=MTUV(1,JASABS)
             IYABS=MTUV(2,JASABS)
             IZABS=MTUV(3,JASABS)
-C Compute and use SC(IXABS IUABS IVABS, ITABS IYABS IZABS)
-C In SBMAT, the formula is written as SC(tuv,xyz)
-C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
-C Rewritten, in order to reuse same quantities as in SA:
-C  SC(xuv,tyz)
-C    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
-C Gvuxtyz is stored using full permutation symmetry of three pairs
-C (vu),(xt), and (yz):
+! Compute and use SC(IXABS IUABS IVABS, ITABS IYABS IZABS)
+! In SBMAT, the formula is written as SC(tuv,xyz)
+!    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
+! Rewritten, in order to reuse same quantities as in SA:
+!  SC(xuv,tyz)
+!    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
+! Gvuxtyz is stored using full permutation symmetry of three pairs
+! (vu),(xt), and (yz):
             IND1=IVABS+NASHT*(IUABS-1)
             IND2=IXABS+NASHT*(ITABS-1)
             IND3=IYABS+NASHT*(IZABS-1)
@@ -338,8 +338,8 @@ C (vu),(xt), and (yz):
               END IF
             END IF
             ITG3=((JND1+1)*JND1*(JND1-1))/6+(JND2*(JND2-1))/2+JND3
-C  SC(xuv,tyz) (rewritten, swapping x and t)
-C    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
+!  SC(xuv,tyz) (rewritten, swapping x and t)
+!    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
             TMP=TG3(ITG3)
             IF(IYABS.EQ.IUABS) THEN
               TMP=TMP+TG2(IVABS,IZABS,IXABS,ITABS)
@@ -358,7 +358,7 @@ C    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
             HEBLK=HEBLK+SC*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(2)
         DO IAS=1,NAS
           IASABS=NTGEUES(ISYM)+IAS
@@ -368,15 +368,15 @@ C    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
             JASABS=NTGEUES(ISYM)+JAS
             IXABS=MTGEU(1,JASABS)
             IYABS=MTGEU(2,JASABS)
-C Formulae used:
-C    SB(tu,xy)=
-C    = 2 Gxtyu -4dxt Gyu -4dyu Gxt +2dyt Gxu + 8 dxt dyu
-C      -4dxu dyt + 2dxu Gyt
-C    SB(tu,yx)=
-C    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
-C      -4dyu dxt + 2dyu Gxt
-C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
-C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
+! Formulae used:
+!    SB(tu,xy)=
+!    = 2 Gxtyu -4dxt Gyu -4dyu Gxt +2dyt Gxu + 8 dxt dyu
+!      -4dxu dyt + 2dxu Gyt
+!    SB(tu,yx)=
+!    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
+!      -4dyu dxt + 2dyu Gxt
+!    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
+!    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
             SBtuxy=Two *TG2(IXABS,ITABS,IYABS,IUABS)
             SBtuyx=Two *TG2(IYABS,ITABS,IXABS,IUABS)
             IF(IXABS.EQ.ITABS) THEN
@@ -409,7 +409,7 @@ C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
             HEBLK=HEBLK+SBP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(3)
         DO IAS=1,NAS
           IASABS=NTGTUES(ISYM)+IAS
@@ -419,15 +419,15 @@ C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
             JASABS=NTGTUES(ISYM)+JAS
             IXABS=MTGTU(1,JASABS)
             IYABS=MTGTU(2,JASABS)
-C Formulae used:
-C    SB(tu,xy)=
-C    = 2 Gxtyu -4dxt Gyu -4dyu Gxt +2dyt Gxu + 8 dxt dyu
-C      -4dxu dyt + 2dxu Gyt
-C    SB(tu,yx)=
-C    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
-C      -4dyu dxt + 2dyu Gxt
-C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
-C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
+! Formulae used:
+!    SB(tu,xy)=
+!    = 2 Gxtyu -4dxt Gyu -4dyu Gxt +2dyt Gxu + 8 dxt dyu
+!      -4dxu dyt + 2dxu Gyt
+!    SB(tu,yx)=
+!    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
+!      -4dyu dxt + 2dyu Gxt
+!    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
+!    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
             SBtuxy=Two*TG2(IXABS,ITABS,IYABS,IUABS)
             SBtuyx=Two*TG2(IYABS,ITABS,IXABS,IUABS)
             IF(IXABS.EQ.ITABS) THEN
@@ -460,7 +460,7 @@ C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
             HEBLK=HEBLK+SBM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(5)
         NAS1=NAS/2
         DO IAS1=1,NAS1
@@ -473,11 +473,11 @@ C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
             JASABS=NTUES(ISYM)+JAS1
             IXABS=MTU(1,JASABS)
             IYABS=MTU(2,JASABS)
-C Formulae used:
-C    SD11(tu1,xy1)=2*(Gutxy + dtx Guy)
-C    SD12(tu2,xy1)= -(Gutxy + dtx Guy)
-C    SD21(tu2,xy1)= -(Gutxy + dtx Guy)
-C    SD22(tu2,xy2)= -Gxtuy +2*dtx Guy
+! Formulae used:
+!    SD11(tu1,xy1)=2*(Gutxy + dtx Guy)
+!    SD12(tu2,xy1)= -(Gutxy + dtx Guy)
+!    SD21(tu2,xy1)= -(Gutxy + dtx Guy)
+!    SD22(tu2,xy2)= -Gxtuy +2*dtx Guy
             GUTXY= TG2(IUABS,ITABS,IXABS,IYABS)
             SD11=Two*GUTXY
             SD12= -GUTXY
@@ -497,35 +497,35 @@ C    SD22(tu2,xy2)= -Gxtuy +2*dtx Guy
             HEBLK=HEBLK+SD22*DDOT_(NISBLK,V2(JAS2),NAS,V1(IAS2),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(6)
         DO IAS=1,NAS
           ITABS=IAS+NAES(ISYM)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
-C Formula used: SE(t,x)=2*dxt - Dxt
+! Formula used: SE(t,x)=2*dxt - Dxt
             SE=-TG1(IXABS,ITABS)
             IF(IXABS.EQ.ITABS) SE=SE+Two*OVL
             HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(7)
         DO IAS=1,NAS
           ITABS=IAS+NAES(ISYM)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
-C Formula used: SE(t,x)=2*dxt - Dxt
+! Formula used: SE(t,x)=2*dxt - Dxt
             SE=-TG1(IXABS,ITABS)
             IF(IXABS.EQ.ITABS) SE=SE+Two*OVL
             HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(8)
-C ========================================================
-C Compute and use SFP(ITABS IUABS , IXABS IYABS)
-C and (later, similar) SFM(ITABS IUABS , IXABS IYABS)
+! ========================================================
+! Compute and use SFP(ITABS IUABS , IXABS IYABS)
+! and (later, similar) SFM(ITABS IUABS , IXABS IYABS)
         DO IAS=1,NAS
           IASABS=NTGEUES(ISYM)+IAS
           ITABS=MTGEU(1,IASABS)
@@ -534,10 +534,10 @@ C and (later, similar) SFM(ITABS IUABS , IXABS IYABS)
             JASABS=NTGEUES(ISYM)+JAS
             IXABS=MTGEU(1,JASABS)
             IYABS=MTGEU(2,JASABS)
-C Formulae used:
-C    SF(tu,xy)= 2 Gtxuy
-C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
-C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
+! Formulae used:
+!    SF(tu,xy)= 2 Gtxuy
+!    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
+!    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
             SFtuxy=Two*TG2(ITABS,IXABS,IUABS,IYABS)
             SFtuyx=Two*TG2(ITABS,IYABS,IUABS,IXABS)
 
@@ -545,10 +545,10 @@ C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
             HEBLK=HEBLK+SFP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(9)
-C ========================================================
-C Compute and use SFM(ITABS IUABS, IXABS ,IYABS)
+! ========================================================
+! Compute and use SFM(ITABS IUABS, IXABS ,IYABS)
         DO IAS=1,NAS
           IASABS=NTGTUES(ISYM)+IAS
           ITABS=MTGTU(1,IASABS)
@@ -557,10 +557,10 @@ C Compute and use SFM(ITABS IUABS, IXABS ,IYABS)
             JASABS=NTGTUES(ISYM)+JAS
             IXABS=MTGTU(1,JASABS)
             IYABS=MTGTU(2,JASABS)
-C Formulae used:
-C    SF(tu,xy)= 4 Ptxuy
-C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
-C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
+! Formulae used:
+!    SF(tu,xy)= 4 Ptxuy
+!    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
+!    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
             SFtuxy=Two*TG2(ITABS,IXABS,IUABS,IYABS)
             SFtuyx=Two*TG2(ITABS,IYABS,IUABS,IXABS)
 
@@ -568,42 +568,42 @@ C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
             HEBLK=HEBLK+SFM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
-C CASES GP, GM
-C Compute and use SG(ITABS , IXABS) (Same for cases GP and GM)
-************************************************************************
+!***********************************************************************
+! CASES GP, GM
+! Compute and use SG(ITABS , IXABS) (Same for cases GP and GM)
+!***********************************************************************
       CASE(10)
         DO IAS=1,NAS
           ITABS=IAS+NAES(ISYM)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
-C Formula used: SG(t,x)= Gtx
+! Formula used: SG(t,x)= Gtx
             SG= TG1(ITABS,IXABS)
 
             HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(11)
         DO IAS=1,NAS
           ITABS=IAS+NAES(ISYM)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
-C Formula used: SG(t,x)= Gtx
+! Formula used: SG(t,x)= Gtx
             SG= TG1(ITABS,IXABS)
 
             HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(12)
-        IF (ABS(OVL).GE.1.0E-12_wp)
+        IF (ABS(OVL).GE.1.0E-12_wp)                                     &
      &     HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
-************************************************************************
+!***********************************************************************
       CASE(13)
-        IF (ABS(OVL).GE.1.0E-12_wp)
+        IF (ABS(OVL).GE.1.0E-12_wp)                                     &
      &     HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
-************************************************************************
+!***********************************************************************
       END SELECT
 
       END SUBROUTINE HCOUP_BLK

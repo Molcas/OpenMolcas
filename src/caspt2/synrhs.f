@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE PCOLLVEC(IVEC,iTYPE)
       use definitions, only: iwp
       use caspt2_module, only: nCases, nSym, nInDep, nASup, nISup
@@ -16,7 +16,7 @@
 
       integer(kind=iwp) iCase, iSym, NAS, NIS, NW
 
-***************************************************************
+!**************************************************************
       DO ICASE=1,NCASES
        DO ISYM=1,NSYM
         IF(NINDEP(ISYM,ICASE).EQ.0) Cycle
@@ -43,7 +43,7 @@
 
       integer(kind=iwp) iCase, iSym, NAS, NIS, NW
 
-***************************************************************
+!**************************************************************
       DO ICASE=1,NCASES
        DO ISYM=1,NSYM
         IF(NINDEP(ISYM,ICASE).EQ.0) Cycle

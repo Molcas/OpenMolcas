@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE SBDIAG()
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_module, only: nSym, ThrShn, ThrShs, Cases, nASup,
+      use caspt2_module, only: nSym, ThrShn, ThrShs, Cases, nASup,      &
      &  nISup, nInDep
       use definitions, only: iwp, wp, u6
       IMPLICIT None
@@ -33,38 +33,38 @@
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(u6,*)
-        WRITE(u6,*)' Find transformation matrices to eigenbasis'//
+        WRITE(u6,*)' Find transformation matrices to eigenbasis'//      &
      &     ' of block-diagonal part of H0.'
         WRITE(u6,*)' Eliminate linear dependency. Thresholds for:'
         WRITE(u6,'(A,G12.4)')'   Initial squared norm  :',THRSHN
         WRITE(u6,'(A,G12.4)')'   Eigenvalue of scaled S:',THRSHS
       END IF
 
-C SVC.20100904: there are now two SBDIAG versions: a replicate
-C subroutine expecting replicate S and B matrices (in upper triangular
-C column-wise storage) and performing transformations on each process,
-C and a global array subroutine expecting S and B matrices in global
-C arrays (full column-wise storage) spread over processes.  The latter
-C is currently used only for cases 1 (A) and 4 (C), for which global
-C array mksmat and mkbmat routines have been implemented, as these can
-C grow very big with increasing size of the active space.  For now, we
-C still use the replicate routines for the other cases as they have more
-C modest array sizes.
+! SVC.20100904: there are now two SBDIAG versions: a replicate
+! subroutine expecting replicate S and B matrices (in upper triangular
+! column-wise storage) and performing transformations on each process,
+! and a global array subroutine expecting S and B matrices in global
+! arrays (full column-wise storage) spread over processes.  The latter
+! is currently used only for cases 1 (A) and 4 (C), for which global
+! array mksmat and mkbmat routines have been implemented, as these can
+! grow very big with increasing size of the active space.  For now, we
+! still use the replicate routines for the other cases as they have more
+! modest array sizes.
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(u6,*)
-        WRITE(u6,*)' Condition numbers are computed after diagonal'//
+        WRITE(u6,*)' Condition numbers are computed after diagonal'//   &
      &     ' scaling and after removal of'
-        WRITE(u6,*)' linear dependency. Resulting sizes, condition'//
+        WRITE(u6,*)' linear dependency. Resulting sizes, condition'//   &
      &     ' numbers, and times:'
-        WRITE(u6,'(3X,A10,4A12,A9)')
+        WRITE(u6,'(3X,A10,4A12,A9)')                                    &
      &     'CASE(SYM)','NASUP','NISUP','NINDEP','COND NR','CPU (s)'
       ENDIF
 
       DO iCASE=1,11
         DO ISYM=1,NSYM
 #ifdef _MOLCAS_MPP_
-            IF (IS_REAL_PAR() .AND.
+            IF (IS_REAL_PAR() .AND.                                     &
      &          (ICASE.EQ.1.OR.ICASE.EQ.4)) THEN
               CALL SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
             ELSE
@@ -74,16 +74,16 @@ C modest array sizes.
             END IF
 #endif
             IF (IPRGLB.GE.VERBOSE) THEN
-              WRITE(u6,'(3X,A6,A1,I1,A1,1X,3I12,G11.2,I9)')
-     &         CASES(ICASE),'(',ISYM,')',
-     &         NASUP(ISYM,ICASE),NISUP(ISYM,ICASE),
+              WRITE(u6,'(3X,A6,A1,I1,A1,1X,3I12,G11.2,I9)')             &
+     &         CASES(ICASE),'(',ISYM,')',                               &
+     &         NASUP(ISYM,ICASE),NISUP(ISYM,ICASE),                     &
      &         NINDEP(ISYM,ICASE),CONDNR,NINT(CPU)
             END IF
 
         END DO
       END DO
 
-C usually print info on the total number of parameters
+! usually print info on the total number of parameters
       IPAR0=0
       IPAR1=0
       DO ICASE=1,13
@@ -104,14 +104,14 @@ C usually print info on the total number of parameters
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
       use constants, only: Zero, One
       use caspt2_global, only: iPrGlb
-      use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
-     *                         idBoriMat
+      use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,      &
+     &                         idBoriMat
       use caspt2_global, only: LUSOLV, LUSBT
       use PrintLevel, only: INSANE
       use EQSOLV, only: IDTMAT, IDBMAT, IDSMAT, IDSTMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: BMatrix, BSpect, BTrans, IfDOrtho,
-     &                         ThrShn, ThrShs, nASup, nISup, Cases,
+      use caspt2_module, only: BMatrix, BSpect, BTrans, IfDOrtho,       &
+     &                         ThrShn, ThrShs, nASup, nISup, Cases,     &
      &                         nInDep, nG3
       use definitions, only: wp, iwp, ItoB, u6
       IMPLICIT None
@@ -119,7 +119,7 @@ C usually print info on the total number of parameters
       integer(kind=iwp), Intent(in):: iSym, iCase
       real(kind=wp), Intent(out):: CondNr, CPU
 
-* For fooling some compilers:
+! For fooling some compilers:
       REAL(kind=wp) WGRONK(2)
 
       REAL(kind=wp), allocatable:: S(:), SD(:), SCA(:)
@@ -127,32 +127,32 @@ C usually print info on the total number of parameters
       REAL(kind=wp), allocatable:: B(:), BD(:), BX(:), XBX(:)
       REAL(kind=wp), allocatable:: TRANS(:), AUX(:), ST(:)
 
-      REAL(kind=wp) :: CPU1, CPU2, CPUE, EVAL, FACT, FP, SDIAG, SZ,
+      REAL(kind=wp) :: CPU1, CPU2, CPUE, EVAL, FACT, FP, SDIAG, SZ,     &
      &                 SZMAX, SZMIN, TIO, TIOE
       REAL(kind=wp), external :: DNRM2_
-      integer(kind=iwp) :: I, IDB, IDB2, IDIAG, IDS, IDST, IDT, IDTMP,
-     &                     IDTMP0, IJ, INFO, iPad, J, KEND, KSTA,
-     &                     LTRANS1, LVNEW, LVSTA, NAS, NAUX, NB, NBNEW,
+      integer(kind=iwp) :: I, IDB, IDB2, IDIAG, IDS, IDST, IDT, IDTMP,  &
+     &                     IDTMP0, IJ, INFO, iPad, J, KEND, KSTA,       &
+     &                     LTRANS1, LVNEW, LVSTA, NAS, NAUX, NB, NBNEW, &
      &                     NCOEF, NCOL, NIN, NIS, NS, NSCRATCH, JOFF
 
-C On entry, the file LUSBT contains overlap matrices SMAT at disk
-C addresses IDSMAT(ISYM,ICASE), ISYM=1..NSYM, ICASE=1..11, and
-C similarly BMAT matrices at IDBMAT(ISYM,ICASE).
-C These matrices are stored in a triangular format.
-C The rectangular matrices TRANS are computed, such that
-C    Sum(J) of BMAT(I,J)*TRANS(J,MU) =
-C       Sum(J) of  SMAT(I,J)*TRANS(J,MU)*BDIAG(MU)
-C where I,J are in 1..NASUP(ISYM,ICASE)
-C        MU is in 1..NINDEP(ISYM,ICASE)
-C NINDEP is the numerically effective rank of SMAT, and the
-C columns of TRANS are orthonormal:
-C    Sum(I,J) of  SMAT(I,J)*TRANS(J,MU)*TRANS(J,NU) = Kron(MU,NU)
-C BMAT is destroyed, and is overwritten by BDIAG(MU) and
-C TRANS(I,MU), with addresses IDBMAT(ISYM,ICASE) and
-C IDTMAT(ISYM,ICASE). Enough file space was thus originally
-C reserved on LUSBT to allow this overlay.
-C LUSOLV is assumed not to be in use yet, so we use it
-C for temporary storage.
+! On entry, the file LUSBT contains overlap matrices SMAT at disk
+! addresses IDSMAT(ISYM,ICASE), ISYM=1..NSYM, ICASE=1..11, and
+! similarly BMAT matrices at IDBMAT(ISYM,ICASE).
+! These matrices are stored in a triangular format.
+! The rectangular matrices TRANS are computed, such that
+!    Sum(J) of BMAT(I,J)*TRANS(J,MU) =
+!       Sum(J) of  SMAT(I,J)*TRANS(J,MU)*BDIAG(MU)
+! where I,J are in 1..NASUP(ISYM,ICASE)
+!        MU is in 1..NINDEP(ISYM,ICASE)
+! NINDEP is the numerically effective rank of SMAT, and the
+! columns of TRANS are orthonormal:
+!    Sum(I,J) of  SMAT(I,J)*TRANS(J,MU)*TRANS(J,NU) = Kron(MU,NU)
+! BMAT is destroyed, and is overwritten by BDIAG(MU) and
+! TRANS(I,MU), with addresses IDBMAT(ISYM,ICASE) and
+! IDTMAT(ISYM,ICASE). Enough file space was thus originally
+! reserved on LUSBT to allow this overlay.
+! LUSOLV is assumed not to be in use yet, so we use it
+! for temporary storage.
 
       SDiag = Zero ! dummy initialize
 
@@ -165,7 +165,7 @@ C for temporary storage.
       IF(NCOEF.EQ.0) RETURN
 
       IF (IPRGLB.GE.INSANE) THEN
-        WRITE(u6,'("DEBUG> ",A12,A7,I2,A2,A6,A2,A5,I1)')
+        WRITE(u6,'("DEBUG> ",A12,A7,I2,A2,A6,A2,A5,I1)')                &
      &  'SBDIAG_SER: ','CASE ',ICASE,' (',CASES(ICASE),') ','SYM ',ISYM
       END IF
 
@@ -185,7 +185,7 @@ C for temporary storage.
         WRITE(u6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM: ', FP
       END IF
 
-C For some purposes, we need to save the diagonal elements:
+! For some purposes, we need to save the diagonal elements:
       IF(BMATRIX.EQ.'YES') THEN
         IF(BTRANS.NE.'YES') THEN
           CALL mma_allocate(SD,NAS,Label='SD')
@@ -197,10 +197,10 @@ C For some purposes, we need to save the diagonal elements:
         END IF
       END IF
 
-C FIRST, FIND NIN ORTHONORMAL VECTORS BY SCALED SYMMETRIC ON.
-C Addition, for the scaled symmetric ON: the S matrix is scaled
-C to make the diagonal elements close to 1.
-C Extremely small values give scale factor exactly zero.
+! FIRST, FIND NIN ORTHONORMAL VECTORS BY SCALED SYMMETRIC ON.
+! Addition, for the scaled symmetric ON: the S matrix is scaled
+! to make the diagonal elements close to 1.
+! Extremely small values give scale factor exactly zero.
       CALL mma_allocate(SCA,NAS,Label='SCA')
       IDIAG=0
       DO I=1,NAS
@@ -210,7 +210,7 @@ C Extremely small values give scale factor exactly zero.
           SCA(I)=One
         Else
           IF(SDiag.GT.THRSHN) THEN
-* Small variations of the scale factor were beneficial
+! Small variations of the scale factor were beneficial
             SCA(I)=(One+DBLE(I)*3.0E-6_wp)/SQRT(SDiag)
           ELSE
             SCA(I)=Zero
@@ -224,14 +224,14 @@ C Extremely small values give scale factor exactly zero.
           S(IJ)=S(IJ)*SCA(I)*SCA(J)
         END DO
       END DO
-C End of addition.
+! End of addition.
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NS,S,1)
-        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM AFTER SCALING: ',
+        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM AFTER SCALING: ',  &
      &        FP
       END IF
 
-C DIAGONALIZE THE SCALED S MATRIX:
+! DIAGONALIZE THE SCALED S MATRIX:
       CALL mma_allocate(VEC,NAS**2,Label='VEC')
       CALL mma_allocate(EIG,NAS,Label='EIG')
 
@@ -259,7 +259,7 @@ C DIAGONALIZE THE SCALED S MATRIX:
         write(u6,'("DEBUG> ",A,ES21.14)') 'Smat eigval norm: ', fp
       end if
 
-C Form orthonormal vectors by scaling eigenvectors
+! Form orthonormal vectors by scaling eigenvectors
       NIN=0
       DO I=1,NAS
         EVAL=EIG(I)
@@ -276,13 +276,13 @@ C Form orthonormal vectors by scaling eigenvectors
       END DO
       NINDEP(ISYM,ICASE)=NIN
       CALL mma_deallocate(EIG)
-C Addition, for the scaled symmetric ON.
+! Addition, for the scaled symmetric ON.
       DO I=1,NAS
         CALL DSCAL_(NIN,SCA(I),VEC(I:),NAS)
       END DO
 
       CALL mma_deallocate(SCA)
-C The condition number, after scaling, disregarding linear dep.
+! The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN
         SZMIN=1.0E99_wp
         SZMAX=Zero
@@ -293,15 +293,15 @@ C The condition number, after scaling, disregarding linear dep.
         END DO
         CONDNR=(SZMAX/SZMIN)**2
       END IF
-C End of addition.
+! End of addition.
       IF(NIN.EQ.0) THEN
         CALL mma_deallocate(VEC)
         RETURN
       END IF
 
       IF(BMATRIX.EQ.'NO') THEN
-C In some calculations, we do not use B matrices.
-C Just write the transformation matrix and branch out:
+! In some calculations, we do not use B matrices.
+! Just write the transformation matrix and branch out:
         IDT=IDTMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,1,VEC,NAS*NIN,IDT)
         CALL mma_deallocate(VEC)
@@ -310,13 +310,13 @@ C Just write the transformation matrix and branch out:
         END IF
         RETURN
       ELSE IF (BTRANS.NE.'YES') THEN
-C In other calculations, B matrix is used, but not transformed.
-C We may need the diagonal active energies: the diagonal values of
-C B divided by the diagonal values of S. These are placed where
-C the eigenvalues would go in ordinary CASPT2.
-C NOTE: On LUSBT, the transformation matrices partly overwrite
-C and destroy the B matrices. The diagonal elements of B must be
-C extracted before the transformation matrix is written.
+! In other calculations, B matrix is used, but not transformed.
+! We may need the diagonal active energies: the diagonal values of
+! B divided by the diagonal values of S. These are placed where
+! the eigenvalues would go in ordinary CASPT2.
+! NOTE: On LUSBT, the transformation matrices partly overwrite
+! and destroy the B matrices. The diagonal elements of B must be
+! extracted before the transformation matrix is written.
         CALL mma_allocate(BD,NAS,Label='BD')
         NB=(NAS*(NAS+1))/2
         CALL mma_allocate(B,NB,Label='B')
@@ -328,7 +328,7 @@ C extracted before the transformation matrix is written.
           BD(I)=B(IDIAG)
         END DO
         CALL mma_deallocate(B)
-C Now, the transformation matrix can be written out.
+! Now, the transformation matrix can be written out.
         IDT=IDTMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,1,VEC,NAS*NIN,IDT)
         CALL mma_deallocate(VEC)
@@ -341,17 +341,17 @@ C Now, the transformation matrix can be written out.
         CALL mma_deallocate(SD)
         CALL mma_deallocate(BD)
         IF (IPRGLB.GE.INSANE) THEN
-          WRITE(u6,'("DEBUG> ",A)')
+          WRITE(u6,'("DEBUG> ",A)')                                     &
      &         'SBDIAG: skip B matrix transformation'
           WRITE(u6,'("DEBUG> ",A)')'        but keep B_ii/S_ii values'
         END IF
         RETURN
       END IF
 
-C TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
-C USE LUSOLV AS TEMPORARY STORAGE. WE MAY NEED SECTIONING.
-C NOTE: SECTIONING MUST BE  PRECISELY THE SAME AS WHEN LATER
-C READ BACK (SEE BELOW).
+! TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
+! USE LUSOLV AS TEMPORARY STORAGE. WE MAY NEED SECTIONING.
+! NOTE: SECTIONING MUST BE  PRECISELY THE SAME AS WHEN LATER
+! READ BACK (SEE BELOW).
       NAUX=MIN(19,NIN)
       IDTMP=IDTMP0
       CALL DDAFILE(LUSOLV,1,VEC,NAS*NAUX,IDTMP)
@@ -363,11 +363,11 @@ C READ BACK (SEE BELOW).
       END DO
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NAS**2,VEC,1)
-        WRITE(u6,'("DEBUG> ",A,ES21.14)')
+        WRITE(u6,'("DEBUG> ",A,ES21.14)')                               &
      &   'EIGENVECTOR NORM BEFORE B TRANS: ', FP
       END IF
 
-C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY VEC
+! TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY VEC
       IDB=IDBMAT(ISYM,ICASE)
       NB=NS
       CALL mma_allocate(B,NB,Label='B')
@@ -388,30 +388,30 @@ C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY VEC
         LVSTA=1+NAS*(J-1)
         BX(:)=Zero
 #ifdef _CRAY_C90_
-        CALL SSPMV('U',NAS,One,B,VEC(LVSTA),1,
+        CALL SSPMV('U',NAS,One,B,VEC(LVSTA),1,                          &
      &                           One,BX,1)
 #else
-*        CALL DSLMX(NAS,One,B,VEC(LVSTA),1,
-*     &                                   BX,1)
-        CALL DSPMV_('U',NAS,One,B,VEC(LVSTA),1,
+!        CALL DSLMX(NAS,One,B,VEC(LVSTA),1,
+!     &                                   BX,1)
+        CALL DSPMV_('U',NAS,One,B,VEC(LVSTA),1,                         &
      &                           One,BX,1)
 #endif
-C BX: B * Vector number J.
+! BX: B * Vector number J.
         CALL DCOPY_(J,[Zero],0,XBX,1)
-        CALL DGEMM_('T','N',
-     &              J,1,NAS,
-     &              One,VEC,NAS,
-     &              BX,NAS,
+        CALL DGEMM_('T','N',                                            &
+     &              J,1,NAS,                                            &
+     &              One,VEC,NAS,                                        &
+     &              BX,NAS,                                             &
      &              Zero,XBX,J)
-C XBX CONTAINS NOW THE UPPERTRIANGULAR
-C ELEMENTS OF THE J-th COLUMN OF TRANSFORMED B MATRIX.
+! XBX CONTAINS NOW THE UPPERTRIANGULAR
+! ELEMENTS OF THE J-th COLUMN OF TRANSFORMED B MATRIX.
         CALL DCOPY_(J,XBX,1,VEC(LVSTA),1)
       END DO
       CALL mma_deallocate(BX)
       CALL mma_deallocate(XBX)
       CALL mma_deallocate(B)
-C VEC HAS NOW BEEN DESTROYED (OVERWRITTEN BY NEW B).
-C COPY TO TRIANGULAR STORAGE.
+! VEC HAS NOW BEEN DESTROYED (OVERWRITTEN BY NEW B).
+! COPY TO TRIANGULAR STORAGE.
       NBNEW=(NIN*(NIN+1))/2
       CALL mma_allocate(B,NBNEW,Label='B')
       DO J=1,NIN
@@ -424,11 +424,11 @@ C COPY TO TRIANGULAR STORAGE.
         WRITE(u6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM AFTER TRANS: ', FP
       END IF
 
-C DIAGONALIZE THE TRANSFORMED B MATRIX.
+! DIAGONALIZE THE TRANSFORMED B MATRIX.
       CALL mma_allocate(EIG,NIN,Label='EIG')
       CALL mma_allocate(VEC,NIN**2,Label='VEC')
       CALL TIMING(CPU1,CPUE,TIO,TIOE)
-C - Alt 0: Use diagonal approxim., if allowed:
+! - Alt 0: Use diagonal approxim., if allowed:
       IF(BSPECT.NE.'YES')  THEN
         IDIAG=0
         Write (6,*) 'Sbdiag: THis code does not make sense!'
@@ -460,27 +460,27 @@ C - Alt 0: Use diagonal approxim., if allowed:
         WRITE(u6,'("DEBUG> ",A,ES21.14)') 'BMAT EIGENVALUE NORM: ', FP
       END IF
 
-C The eigenvalues are written back at same position as the
-C original B matrix, which is destroyed:
+! The eigenvalues are written back at same position as the
+! original B matrix, which is destroyed:
       IDB=IDBMAT(ISYM,ICASE)
       CALL DDAFILE(LUSBT,1,EIG,NIN,IDB)
       CALL mma_deallocate(EIG)
 
-C Finally, we must form the composite transformation matrix,
-C  = (NAS*NIN matrix on disk) * (NIN*NIN matrix in core).
-C Assume enough space since we got rid of S/B matrices.
-C Specifically, assume we have enough space for the two
-C full matrices, plus an additional 19 columns of results.
+! Finally, we must form the composite transformation matrix,
+!  = (NAS*NIN matrix on disk) * (NIN*NIN matrix in core).
+! Assume enough space since we got rid of S/B matrices.
+! Specifically, assume we have enough space for the two
+! full matrices, plus an additional 19 columns of results.
       NAUX=MIN(19,NIN)
       CALL mma_allocate(TRANS,NAS*NIN,Label='TRANS')
       CALL mma_allocate(AUX  ,NAS*NAUX,Label='AUX')
       IDTMP=IDTMP0
       CALL DDAFILE(LUSOLV,2,AUX,NAS*NAUX,IDTMP)
       IF(BTRANS.EQ.'YES') THEN
-        CALL DGEMM_('N','N',
-     &              NAS,NIN,NAUX,
-     &              One,AUX,NAS,
-     &              VEC,NIN,
+        CALL DGEMM_('N','N',                                            &
+     &              NAS,NIN,NAUX,                                       &
+     &              One,AUX,NAS,                                        &
+     &              VEC,NIN,                                            &
      &              Zero,TRANS,NAS)
       ELSE
         CALL DCOPY_(NAS*NAUX,AUX,1,TRANS,1)
@@ -490,8 +490,8 @@ C full matrices, plus an additional 19 columns of results.
         NCOL=1+KEND-KSTA
         CALL DDAFILE(LUSOLV,2,AUX,NAS*NCOL,IDTMP)
         IF(BTRANS.EQ.'YES') THEN
-          CALL DGEMM_('N','N',NAS,NIN,NCOL,One,
-     &              AUX,NAS,VEC(KSTA),NIN,
+          CALL DGEMM_('N','N',NAS,NIN,NCOL,One,                         &
+     &              AUX,NAS,VEC(KSTA),NIN,                              &
      &              One,TRANS,NAS)
         ELSE
           LTRANS1=1+NAS*(KSTA-1)
@@ -507,8 +507,8 @@ C full matrices, plus an additional 19 columns of results.
         WRITE(u6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', FP
       END IF
 
-C-SVC: compute S*T and store on disk for later use by RHS vector
-C      utilities.
+!-SVC: compute S*T and store on disk for later use by RHS vector
+!      utilities.
       NS=(NAS*(NAS+1))/2
       CALL mma_allocate(S,NS,Label='S')
       IDS=IDSMAT(ISYM,ICASE)
@@ -528,13 +528,13 @@ C      utilities.
 
       END SUBROUTINE SBDIAG_SER
 
-C SVC2010: The following subroutine computes the transformation
-C matrices using global arrays rather than replicate arrays.  Currently,
-C the maximum memory scales approximately as 3*(NAS**2), which is twice
-C what is needed in the replicate routines.  It can be reduced to
-C 2*(NAS**2), if the matrix multiplications are rewritten to occur in
-C batch mode.  However, unlike in the replicate routine, this amount is
-C divided over processors.
+! SVC2010: The following subroutine computes the transformation
+! matrices using global arrays rather than replicate arrays.  Currently,
+! the maximum memory scales approximately as 3*(NAS**2), which is twice
+! what is needed in the replicate routines.  It can be reduced to
+! 2*(NAS**2), if the matrix multiplications are rewritten to occur in
+! batch mode.  However, unlike in the replicate routine, this amount is
+! divided over processors.
 #ifdef _MOLCAS_MPP_
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
 #ifdef _SCALAPACK_
@@ -544,11 +544,11 @@ C divided over processors.
       use PrintLevel, only: INSANE
       USE Para_Info, ONLY: King
       use caspt2_global, only: LUSBT
-      use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
+      use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,      &
      &                         idBoriMat
       use EQSOLV, only: IDSMAT, IDTMAT, IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nASup, nISup, Cases, IfDOrtho, ThrShn,
+      use caspt2_module, only: nASup, nISup, Cases, IfDOrtho, ThrShn,   &
      &                         ThrShs, nInDep, BMATRIX, BTRANS, BSPECT
       use Constants, only: Zero, One
       use definitions, only: iwp, wp, u6
@@ -556,7 +556,7 @@ C divided over processors.
 
       integer(kind=iwp), intent(in):: iSym, iCase
       real(kind=wp), intent(out):: CondNr, CPU
-C-SVC20100902: global arrays header files
+!-SVC20100902: global arrays header files
 #include "global.fh"
 #include "mafdecls.fh"
 #ifndef _SCALAPACK_
@@ -566,27 +566,27 @@ C-SVC20100902: global arrays header files
 #endif
       LOGICAL(kind=iwp) bSTAT
       CHARACTER(LEN=2) cSYM,cCASE
-      real(kind=wp), allocatable:: COL(:), TMP(:), SD(:), SCA(:),
+      real(kind=wp), allocatable:: COL(:), TMP(:), SD(:), SCA(:),       &
      &                             EIG(:), COND(:), TRANS(:), BD(:)
-      integer(kind=iwp) NAS, NIS, NCOEF, lg_S, NCOL, NTMP, IOFF, J, IDS,
-     &                  MyRank, iLo, iHi, jLo, jHi, ISTA, IEND, MS, LDS,
-     &                  I, lg_V, NIN, mV, LDV, lg_T, IDT, lg_B, mB, lDB,
+      integer(kind=iwp) NAS, NIS, NCOEF, lg_S, NCOL, NTMP, IOFF, J, IDS,&
+     &                  MyRank, iLo, iHi, jLo, jHi, ISTA, IEND, MS, LDS,&
+     &                  I, lg_V, NIN, mV, LDV, lg_T, IDT, lg_B, mB, lDB,&
      &                  IDB, IDB2, lg_X, lg_ST
       real(kind=wp) FP, SDiag, SZMIN, SZMAX, SZ, dTrans
       real(kind=wp) CPU1, CPUE, TIO, TIOE, CPU2
       real(kind=wp), External:: PSBMAT_FPRINT, DNRM2_
 
-C On entry, the DRA metafiles contain the matrices S and B for cases A
-C (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk
-C in full square format.  The rectangular matrices T are computed, such
-C that Sum_(J) [B(I,J)*T(J,MU)] = Sum_(J) [S(I,J)*T(J,MU)*BD(MU)], where
-C I,J are in the range (1,NASUP(ISYM,ICASE)) and MU is in the range
-C (1,NINDEP(ISYM,ICASE)).  NINDEP is the numerically effective rank of
-C S, and the columns of T are orthonormal: Sum_(I,J)
-C [S(I,J)*T(J,MU)*T(J,NU)] = Kron(MU,NU).  B is destroyed, and is
-C overwritten by BD(MU) and T(I,MU), which is stored in a DRA metafile.
+! On entry, the DRA metafiles contain the matrices S and B for cases A
+! (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk
+! in full square format.  The rectangular matrices T are computed, such
+! that Sum_(J) [B(I,J)*T(J,MU)] = Sum_(J) [S(I,J)*T(J,MU)*BD(MU)], where
+! I,J are in the range (1,NASUP(ISYM,ICASE)) and MU is in the range
+! (1,NINDEP(ISYM,ICASE)).  NINDEP is the numerically effective rank of
+! S, and the columns of T are orthonormal: Sum_(I,J)
+! [S(I,J)*T(J,MU)*T(J,NU)] = Kron(MU,NU).  B is destroyed, and is
+! overwritten by BD(MU) and T(I,MU), which is stored in a DRA metafile.
 
-C Initialize the DRA I/O subsystem with default values.
+! Initialize the DRA I/O subsystem with default values.
 
       IF (iCASE.NE.1.AND.iCASE.NE.4) THEN
         WRITE(u6,*) 'Invalid CASE number used for global SBDIAG, Abort'
@@ -595,7 +595,7 @@ C Initialize the DRA I/O subsystem with default values.
 
       write(unit=cCase, fmt='(I2.2)') iCase
       write(unit=cSYM, fmt='(I2.2)') iSYM
-C Start a long loop over irreps:
+! Start a long loop over irreps:
 
       CPU=Zero
       CONDNR=Zero
@@ -605,11 +605,11 @@ C Start a long loop over irreps:
       IF(NCOEF.EQ.0) RETURN
 
       IF (IPRGLB.GE.INSANE) THEN
-        WRITE(u6,'("DEBUG> ",A12,A5,I2,A2,A6,A2,A5,I1)')
+        WRITE(u6,'("DEBUG> ",A12,A5,I2,A2,A6,A2,A5,I1)')                &
      &  'SBDIAG_MPP: ','CASE ',ICASE,' (',CASES(ICASE),') ','SYM ',ISYM
       END IF
 
-C Allocate memory for the S matrix and read it from disk:
+! Allocate memory for the S matrix and read it from disk:
       CALL PSBMAT_GETMEM ('S',lg_S,NAS)
       CALL PSBMAT_READ ('S',iCase,iSym,lg_S,NAS)
       IF (IPRGLB.GE.INSANE) THEN
@@ -617,9 +617,9 @@ C Allocate memory for the S matrix and read it from disk:
         WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM: ', FP
       END IF
 
-C The S matrices are needed later on by non-global routines.  Take the
-C oportunity to save them to LUSBT here.  FIXME: Should be removed once
-C full parallelization of use of S matrices is achieved.
+! The S matrices are needed later on by non-global routines.  Take the
+! oportunity to save them to LUSBT here.  FIXME: Should be removed once
+! full parallelization of use of S matrices is achieved.
       IF (KING()) THEN
         NCOL=NAS
         NTMP=(NAS*(NAS+1))/2
@@ -637,8 +637,8 @@ C full parallelization of use of S matrices is achieved.
         CALL mma_deallocate(TMP)
       END IF
 
-C Save the diagonal elements from the S matrix for easy access later on.
-C FIXME: nicer way to do this?
+! Save the diagonal elements from the S matrix for easy access later on.
+! FIXME: nicer way to do this?
       CALL mma_allocate(SD,NAS,Label='SD')
       SD(:)=Zero
       myRank = GA_NodeID()
@@ -654,7 +654,7 @@ C FIXME: nicer way to do this?
       END IF
       CALL GADGOP (SD,NAS,'+')
 
-C Calculate the scaling factors and store them in array SCA.
+! Calculate the scaling factors and store them in array SCA.
       CALL mma_allocate(SCA,NAS,Label='SCA')
       DO I=1,NAS
         SDiag=SD(I)
@@ -669,7 +669,7 @@ C Calculate the scaling factors and store them in array SCA.
         END IF
       END DO
 
-C Scale the elements S(I,J) with the factor SCA(I)*SCA(J).
+! Scale the elements S(I,J) with the factor SCA(I)*SCA(J).
       myRank = GA_NodeID()
       call GA_Distribution (lg_S, myRank, iLo, iHi, jLo, jHi)
       IF (iLo.NE.0) THEN
@@ -687,19 +687,19 @@ C Scale the elements S(I,J) with the factor SCA(I)*SCA(J).
 
       CALL mma_allocate(EIG,NAS,Label='EIG')
       EIG(:)=Zero
-C Diagonalize the global array S.  Some (old) reports about parallel
-C performance recommend PDSYEVX or PDSYEVR as fastest methods if
-C eigenvectors are needed (FIXME: should time this).  For the linear
-C dependence removal, split eigenvectors in horizontal stripes so that
-C each processor has a row window of all column vectors
+! Diagonalize the global array S.  Some (old) reports about parallel
+! performance recommend PDSYEVX or PDSYEVR as fastest methods if
+! eigenvectors are needed (FIXME: should time this).  For the linear
+! dependence removal, split eigenvectors in horizontal stripes so that
+! each processor has a row window of all column vectors
 #ifdef _SCALAPACK_
       CALL PSBMAT_GETMEM('VMAT',lg_V,NAS)
       CALL GA_PDSYEVX_ (lg_S, lg_V, EIG, 0)
       bSTAT = GA_Destroy (lg_S)
 #else
-C here for the non-ScaLAPACK version: copy matrix to master process,
-C diagonalize using the serial DSYEV routine, and copy the resulting
-C eigenvectors back to a global array.  Then distribute the eigenvalues.
+! here for the non-ScaLAPACK version: copy matrix to master process,
+! diagonalize using the serial DSYEV routine, and copy the resulting
+! eigenvectors back to a global array.  Then distribute the eigenvalues.
       IF (myRank.EQ.0) THEN
         CALL mma_allocate(VEC,NAS**2,Label='VEC')
         CALL GA_Get (lg_S, 1, NAS, 1, NAS, VEC, NAS)
@@ -709,7 +709,7 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
         CALL DSYEV_('V','L',NAS,VEC,NAS,EIG,WGRONK,-1,INFO)
         NSCRATCH=INT(WGRONK(1))
         CALL mma_allocate(SCRATCH,NSCRATCH,Label='SCRATCH')
-        CALL DSYEV_('V','L',NAS,VEC,NAS,EIG,
+        CALL DSYEV_('V','L',NAS,VEC,NAS,EIG,                            &
      &              SCRATCH,NSCRATCH,INFO)
         CALL mma_deallocate(SCRATCH)
       END IF
@@ -744,7 +744,7 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
 
       CALL mma_allocate(COND,NIN,Label='COND')
       COND(:)=Zero
-C Form orthonormal transformation vectors by scaling the eigenvectors.
+! Form orthonormal transformation vectors by scaling the eigenvectors.
       call GA_Sync()
       myRank = GA_NodeID()
       call GA_Distribution (lg_V, myRank, iLo, iHi, jLo, jHi)
@@ -754,7 +754,7 @@ C Form orthonormal transformation vectors by scaling the eigenvectors.
           WRITE(u6,*) 'SBDIAG_MPP: error in striping of lg_V, ABORT'
           CALL ABEND()
         END IF
-        call V_SCALE (EIG,SCA(iLo),DBL_MB(mV),
+        call V_SCALE (EIG,SCA(iLo),DBL_MB(mV),                          &
      &              iHi-iLo+1,jHi-jLo+1,LDV,NIN,COND)
         call GA_Release_Update (lg_V, iLo, iHi, jLo, jHi)
       END IF
@@ -763,8 +763,8 @@ C Form orthonormal transformation vectors by scaling the eigenvectors.
       CALL mma_deallocate(EIG)
       CALL mma_deallocate(SCA)
 
-C The condition number, after scaling, disregarding linear dep.
-C FIXME: adapt to local subroutine for global array lg_V
+! The condition number, after scaling, disregarding linear dep.
+! FIXME: adapt to local subroutine for global array lg_V
       IF(NIN.GE.2) THEN
         CALL GADGOP (COND,NIN,'+')
         SZMIN=1.0E99_wp
@@ -778,18 +778,18 @@ C FIXME: adapt to local subroutine for global array lg_V
       END IF
       CALL mma_deallocate(COND)
 
-C Copy the NIN non-linear dependent eigenvectors to the transformation
-C matrix T(NAS,NIN).
+! Copy the NIN non-linear dependent eigenvectors to the transformation
+! matrix T(NAS,NIN).
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
-      call GA_Copy_Patch ('N', lg_V, 1, NAS, 1, NIN,
+      call GA_Copy_Patch ('N', lg_V, 1, NAS, 1, NIN,                    &
      &                         lg_T, 1, NAS, 1, NIN)
       bStat = GA_Destroy (lg_V)
 
       IF(BMATRIX.EQ.'NO      ') THEN
-C In some calculations, we do not use B matrices.
-C Write the T matrix to disk and exit.  FIXME: This
-C should be removed when the transformation matrices are stored as disk
-C resident arrays only.
+! In some calculations, we do not use B matrices.
+! Write the T matrix to disk and exit.  FIXME: This
+! should be removed when the transformation matrices are stored as disk
+! resident arrays only.
         IF (KING()) THEN
           CALL mma_allocate(TRANS,NAS*NIN,Label='TRANS')
           call GA_Get (lg_T, 1, NAS, 1, NIN, TRANS, NAS)
@@ -804,10 +804,10 @@ C resident arrays only.
         bStat = GA_Destroy (lg_T)
         RETURN
       ELSE IF(BTRANS.NE.'YES') THEN
-C In other calculations, the B matrix is used but not transformed.  We
-C may need the diagonal active energies, i.e. the diagonal values of B
-C divided by the diagonal values of S. These are placed where the
-C eigenvalues would go in ordinary CASPT2.
+! In other calculations, the B matrix is used but not transformed.  We
+! may need the diagonal active energies, i.e. the diagonal values of B
+! divided by the diagonal values of S. These are placed where the
+! eigenvalues would go in ordinary CASPT2.
         CALL PSBMAT_GETMEM ('B',lg_B,NAS)
         CALL PSBMAT_READ ('B',iCase,iSym,lg_B,NAS)
         CALL mma_allocate(BD,NAS,Label='BD')
@@ -832,9 +832,9 @@ C eigenvalues would go in ordinary CASPT2.
         IDB=IDBMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,1,BD,NAS,IDB)
         CALL mma_deallocate(BD)
-C Write the transformation matrices after the diagonal values of B.
-C FIXME: This should be removed when the transformation matrices are
-C stored as disk resident arrays only.
+! Write the transformation matrices after the diagonal values of B.
+! FIXME: This should be removed when the transformation matrices are
+! stored as disk resident arrays only.
         IF (KING()) THEN
           CALL mma_allocate(TRANS,NAS*NIN,Label='TRANS')
           call GA_Get (lg_T, 1, NAS, 1, NIN, TRANS, NAS)
@@ -851,12 +851,12 @@ C stored as disk resident arrays only.
       END IF
       CALL mma_deallocate(SD)
 
-C TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
+! TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
       CALL PSBMAT_WRITE ('T',iCase,iSym,lg_T,NAS*NIN)
 
       IF (IPRGLB.GE.INSANE) THEN
         FP=PSBMAT_FPRINT(lg_T,NAS)
-        WRITE(u6,'(1X,A,ES21.14)')
+        WRITE(u6,'(1X,A,ES21.14)')                                      &
      &   'EIGENVECTOR NORM BEFORE B TRANS: ', FP
       END IF
 
@@ -876,16 +876,16 @@ C TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
         WRITE(u6,'(1X,A,ES21.14)') 'BMAT NORM: ', FP
       END IF
 
-C FIXME: Perform transformation of B using horizontal stripes of B or
-C vertical stripes of T to reduce memory usage if necessary as indicated
-C by the available memory, which is now scaling as approx. 3*(NAS**2).
+! FIXME: Perform transformation of B using horizontal stripes of B or
+! vertical stripes of T to reduce memory usage if necessary as indicated
+! by the available memory, which is now scaling as approx. 3*(NAS**2).
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'XMAT',lg_X)
-      call GA_DGEMM ('N', 'N', NAS, NIN, NAS, One,
+      call GA_DGEMM ('N', 'N', NAS, NIN, NAS, One,                      &
      &               lg_B, lg_T, Zero, lg_X )
       bStat = GA_Destroy (lg_B)
 
       CALL GA_CREATE_STRIPED ('H',NIN,NIN,'BMAT',lg_B)
-      call GA_DGEMM ('T', 'N', NIN, NIN, NAS, One,
+      call GA_DGEMM ('T', 'N', NIN, NIN, NAS, One,                      &
      &               lg_T, lg_X, Zero, lg_B )
       bStat = GA_Destroy (lg_X)
       bStat = GA_Destroy (lg_T)
@@ -897,19 +897,19 @@ C by the available memory, which is now scaling as approx. 3*(NAS**2).
 
       CALL TIMING(CPU1,CPUE,TIO,TIOE)
 
-C Diagonalize the transformed B matrix.
+! Diagonalize the transformed B matrix.
       CALL mma_allocate(EIG,NIN,Label='EIG')
       EIG(:)=Zero
       IF(BSPECT.NE.'YES')  THEN
-C Use diagonal approxim., if allowed.
-C        call GA_Fill (lg_V, Zero)
+! Use diagonal approxim., if allowed.
+!        call GA_Fill (lg_V, Zero)
         call GA_Zero (lg_V)
-C FIXME: this original code seemed wrong, using uninitialized SD?
-*       IDIAG=1
-*       DO I=1,NIN
-*         EIG(I)=B(IDIAG)/SD
-*         IDIAG=IDIAG+1+NIN-I
-*       END DO
+! FIXME: this original code seemed wrong, using uninitialized SD?
+!       IDIAG=1
+!       DO I=1,NIN
+!         EIG(I)=B(IDIAG)/SD
+!         IDIAG=IDIAG+1+NIN-I
+!       END DO
         WRITE(u6,*) 'GLOB_SBDIAG: option not implemented'
         call AbEnd()
       ELSE
@@ -927,7 +927,7 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
           call dsyev_('V','L',NIN,VEC,NIN,EIG,WGRONK,-1,INFO)
           NSCRATCH=INT(WGRONK(1))
           CALL mma_allocate(SCRATCH,NSCRATCH,Label='SCRATCH')
-          call dsyev_('V','L',NIN,VEC,NIN,EIG,
+          call dsyev_('V','L',NIN,VEC,NIN,EIG,                          &
      &               SCRATCH,NSCRATCH,INFO)
           CALL mma_deallocate(SCRATCH)
         END IF
@@ -946,8 +946,8 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
         WRITE(u6,'(1X,A,ES21.14)') 'BMAT EIGENVALUE NORM: ', FP
       END IF
 
-C The eigenvalues are written back at same position as the
-C original B matrix, which is destroyed:
+! The eigenvalues are written back at same position as the
+! original B matrix, which is destroyed:
       IDB=IDBMAT(ISYM,ICASE)
       CALL DDAFILE(LUSBT,1,EIG,NIN,IDB)
       CALL mma_deallocate(EIG)
@@ -955,36 +955,36 @@ C original B matrix, which is destroyed:
       CALL TIMING(CPU2,CPUE,TIO,TIOE)
       CPU=CPU+CPU2-CPU1
 
-C Finally, we must form the composite transformation matrix: T(NAS,NIN)
-C matrix on disk * V(NIN*NIN) matrix in core.  FIXME: for now, asume
-C there is enough memory for the full transformation, scaling as
-C approx. 3*(NAS**2).  Should be determined by the available memory.
+! Finally, we must form the composite transformation matrix: T(NAS,NIN)
+! matrix on disk * V(NIN*NIN) matrix in core.  FIXME: for now, asume
+! there is enough memory for the full transformation, scaling as
+! approx. 3*(NAS**2).  Should be determined by the available memory.
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'XMAT',lg_X)
       CALL PSBMAT_READ ('T',iCase,iSym,lg_X,NAS*NIN)
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
-      call GA_DGEMM ('N', 'N', NAS, NIN, NIN, One,
+      call GA_DGEMM ('N', 'N', NAS, NIN, NIN, One,                      &
      &               lg_X, lg_V, Zero, lg_T )
       bStat = GA_Destroy (lg_X)
       bStat = GA_Destroy (lg_V)
 
-C Write the composite transformation matrix to disk.
+! Write the composite transformation matrix to disk.
       CALL PSBMAT_WRITE ('T',iCase,iSym,lg_T,NAS*NIN)
 
-C Additonally, compute S*T and store in on disk for later use by the RHS
-C vector utitlities
+! Additonally, compute S*T and store in on disk for later use by the RHS
+! vector utitlities
       CALL PSBMAT_GETMEM ('S',lg_S,NAS)
       CALL PSBMAT_READ ('S',iCase,iSym,lg_S,NAS)
 
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'STMAT',lg_ST)
-      call GA_DGEMM ('N', 'N', NAS, NIN, NAS, One,
+      call GA_DGEMM ('N', 'N', NAS, NIN, NAS, One,                      &
      &               lg_S, lg_T, Zero, lg_ST )
       bStat = GA_Destroy (lg_S)
 
       CALL PSBMAT_WRITE ('M',iCase,iSym,lg_ST,NAS*NIN)
       bStat = GA_Destroy (lg_ST)
 
-C For now, also keep the transformation matrix on disk as a
-C replicate array.  FIXME: Should be removed later.
+! For now, also keep the transformation matrix on disk as a
+! replicate array.  FIXME: Should be removed later.
       IF (KING()) THEN
         CALL mma_allocate(TRANS,NAS*NIN,Label='TRANS')
         call GA_Get (lg_T, 1, NAS, 1, NIN, TRANS, NAS)
@@ -1052,15 +1052,15 @@ C replicate array.  FIXME: Should be removed later.
         END IF
       END DO
       IF (jVEC.NE.NIN) THEN
-        WRITE(u6,*) 'V_SCALE: '//
+        WRITE(u6,*) 'V_SCALE: '//                                       &
      &      'inconsitency in linear dependence removal, ABORT'
         call AbEnd()
       END IF
-C Addition, for the scaled symmetric ON.
+! Addition, for the scaled symmetric ON.
       DO I=1,nRows
         CALL DSCAL_(NIN,SCA(I),V(I,1),LDV)
       END DO
-C The condition number, after scaling, disregarding linear dep.
+! The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN
         DO jVEC=1,NIN
           SZ=Zero

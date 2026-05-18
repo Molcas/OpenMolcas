@@ -53,9 +53,9 @@
       REAL(kind=wp) OVL,DOVL,OVLSUM,OVLTOT
       REAL(kind=wp), ALLOCATABLE:: BD(:), ID(:)
 
-C Apply the resolvent of the diagonal part of H0 to a coefficient
-C vector in vector nr. IVEC on LUSOLV. Put the results in vector
-C nr. JVEC. Also compute overlaps, see OVLVEC for structure.
+! Apply the resolvent of the diagonal part of H0 to a coefficient
+! vector in vector nr. IVEC on LUSOLV. Put the results in vector
+! nr. JVEC. Also compute overlaps, see OVLVEC for structure.
 
       OVLTOT=Zero
       OVLAPS(:,:)=Zero
@@ -68,8 +68,8 @@ C nr. JVEC. Also compute overlaps, see OVLVEC for structure.
           IF (NIN<=0) CYCLE
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-C Remember: NIN values in BDIAG, but must read NAS for correct
-C positioning.
+! Remember: NIN values in BDIAG, but must read NAS for correct
+! positioning.
           CALL mma_allocate(BD,NAS,LABEL='BD')
           CALL mma_allocate(ID,NIS,LABEL='ID')
 

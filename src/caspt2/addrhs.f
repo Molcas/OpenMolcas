@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Module ADDRHS
       Private
-      Public ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2, ADDRHSE,
+      Public ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2, ADDRHSE,    &
      &       ADDRHSF, ADDRHSG, ADDRHSH
 
       Contains
-      SUBROUTINE ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,
-     &                   nBuff,Buff,idxBuf,
+      SUBROUTINE ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,          &
+     &                   nBuff,Buff,idxBuf,                             &
      &                   Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
       use constants, only: Zero, One
@@ -28,25 +28,25 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,  &
      &                                nBuff, NCHO
       real(kind=wp), Intent(out):: TJVX(NT,NJ,NV,NX)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp), intent(in):: Cho_Bra(NT,NJ,NCHO),
+      real(kind=wp), intent(in):: Cho_Bra(NT,NJ,NCHO),                  &
      &                            Cho_Ket(NV,NX,NCHO)
-*      Logical Incore
+!      Logical Incore
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
-      integer(kind=iwp) IBUF,ICASE,IJ,ISYM,ISYT,ISYV,IT,ITABS,IV,IVABS,
+      integer(kind=iwp) IBUF,ICASE,IJ,ISYM,ISYT,ISYV,IT,ITABS,IV,IVABS, &
      &                  IW,IW1,IW2
       integer(kind=iwp) IX,IXABS,LDA,lg_A,NAS,NIS,NWA
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       ISYT=Mul(JSYM,ISYJ)
       ISYV=Mul(JSYM,ISYX)
       ISYM=ISYJ
@@ -55,29 +55,29 @@
       NIS=NISH(ISYM)
       NWA=NAS*NIS
       IF(NWA==0) RETURN
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Incore or partitioned option.
-*
-*     Incore=nBuff>=NWA+NT*NJ*NV*NX
-*     If (.NOT.Incore) Then
-*        Write (6,*) 'Sort out of memory in ADDRHSA'
-*        Call Abend()
-*     End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      CALL DGEMM_('N','T',NT*NJ,NV*NX,NCHO,
-     &            One,Cho_Bra,NT*NJ,
-     &                Cho_Ket,NV*NX,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Incore or partitioned option.
+!
+!     Incore=nBuff>=NWA+NT*NJ*NV*NX
+!     If (.NOT.Incore) Then
+!        Write (6,*) 'Sort out of memory in ADDRHSA'
+!        Call Abend()
+!     End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+      CALL DGEMM_('N','T',NT*NJ,NV*NX,NCHO,                             &
+     &            One,Cho_Bra,NT*NJ,                                    &
+     &                Cho_Ket,NV*NX,                                    &
      &            Zero,TJVX,NT*NJ)
-*
-C Compute W(tvx,j)=(tj,vx) + FIMO(t,j)*delta(v,x)/NACTEL
+!
+! Compute W(tvx,j)=(tj,vx) + FIMO(t,j)*delta(v,x)/NACTEL
       ICASE=1
-*     LWA=1+NT*NJ*NV*NX
+!     LWA=1+NT*NJ*NV*NX
       LDA=NAS
-C Read W:
+! Read W:
       CALL RHS_ALLO (NAS,NIS,lg_A)
       CALL RHS_READ (NAS,NIS,lg_A,iCASE,iSYM,iVEC)
 
@@ -93,7 +93,7 @@ C Read W:
            IW1=KTUV(ITABS,IVABS,IXABS)-NTUVES(ISYM)
            IW2=IJ
            IW=IW1+NAS*(IW2-1)
-*SVC       Buff(LWA-1+IW)=Buff(LWA-1+IW)+TJVX(IT,IJ,IV,IX)
+!SVC       Buff(LWA-1+IW)=Buff(LWA-1+IW)+TJVX(IT,IJ,IV,IX)
            IBUF=IBUF+1
            idxBuf(IBUF)=IW
            Buff(IBUF)=TJVX(IT,IJ,IV,IX)
@@ -127,9 +127,9 @@ C Read W:
             IXABS=IX+NAES(ISYX)
             IW1=KTUV(ITABS,IVABS,IXABS)-NTUVES(ISYM)
             if (IW1 >= ILOV .and. IW1 <= IHIV) then
-             DBL_MB(MV+IW1-ILOV+LDA*(IW2-JLOV))
-     *         = DBL_MB(MV+IW1-ILOV+LDA*(IW2-JLOV))
-     *         + TJVX(IT,IJ,IV,IX)
+             DBL_MB(MV+IW1-ILOV+LDA*(IW2-JLOV))                         &
+     &         = DBL_MB(MV+IW1-ILOV+LDA*(IW2-JLOV))                     &
+     &         + TJVX(IT,IJ,IV,IX)
             end if
            END DO
           END DO
@@ -140,68 +140,68 @@ C Read W:
 #endif
       end if
 
-C Put W on disk:
+! Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_A,iCASE,iSYM,iVEC)
       CALL RHS_FREE(lg_A)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       END SUBROUTINE ADDRHSA
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,
-     &                   nBuff,Buff,idxBuf,
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+      SUBROUTINE ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,          &
+     &                   nBuff,Buff,idxBuf,                             &
      &                   Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTGEU, KIGEJ, KTGTU, KIGTJ
-      use caspt2_module, only: NINDEP, NAES, NTGEU, NIGEJ, NTGTU,
-     &                         NIGTJ, NTGEUES, NIES, NIGEJES, NTGTUES,
+      use caspt2_module, only: NINDEP, NAES, NTGEU, NIGEJ, NTGTU,       &
+     &                         NIGTJ, NTGEUES, NIES, NIGEJES, NTGTUES,  &
      &                         NIGTJES
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-Case B:
-* t>v j>l WP(tv,jl)=add ((tj,vl))*(1/2)
-* t>v j=l WP(tv,jl)=add ((tj,vl))*(1/2)*(SQRT(2))
-* t>v j<l WP(tv,lj)=add ((tj,vl))*(1/2)
+!ase B:
+! t>v j>l WP(tv,jl)=add ((tj,vl))*(1/2)
+! t>v j=l WP(tv,jl)=add ((tj,vl))*(1/2)*(SQRT(2))
+! t>v j<l WP(tv,lj)=add ((tj,vl))*(1/2)
 
-* t=v j>l WP(tv,jl)=add ((tj,vl))*(1/4)
-* t=v j=l WP(tv,jl)=add ((tj,vl))*(1/4)*(SQRT(2))
-* t=v j<l WP(tv,lj)=add ((tj,vl))*(1/4)
+! t=v j>l WP(tv,jl)=add ((tj,vl))*(1/4)
+! t=v j=l WP(tv,jl)=add ((tj,vl))*(1/4)*(SQRT(2))
+! t=v j<l WP(tv,lj)=add ((tj,vl))*(1/4)
 
-      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,  &
      &                                nBuff, NCHO
       real(kind=wp), intent(out):: TJVL(NT,NJ,NV,NL)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp), intent(in):: Cho_Bra(NT,NJ,NCHO),
+      real(kind=wp), intent(in):: Cho_Bra(NT,NJ,NCHO),                  &
      &                            Cho_Ket(NV,NL,NCHO)
-*      Logical Incore
+!      Logical Incore
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
-      integer(kind=iwp) IBUF,ICASE,IJ,ISYM,ISYT,ISYV,IT,ITABS,IV,IVABS,
+      integer(kind=iwp) IBUF,ICASE,IJ,ISYM,ISYT,ISYV,IT,ITABS,IV,IVABS, &
      &                  IW,IW1,IW2
-      integer(kind=iwp) IJABS,IL,ILABS,IVMAX,LDBM,LDBP,lg_BM,lg_BP,NASM,
+      integer(kind=iwp) IJABS,IL,ILABS,IVMAX,LDBM,LDBP,lg_BM,lg_BP,NASM,&
      &                  NASP,NISM,NISP,NWBM,NWBP
       real(kind=wp) SCL, SCL1, SQ2
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       ISYT=Mul(JSYM,ISYJ)
       ISYV=Mul(JSYM,ISYL)
       IF(ISYT<ISYV) RETURN
       SQ2=SQRT(Two)
       ISYM=Mul(ISYJ,ISYL)
-*
+!
       IF(NINDEP(ISYM,2)>0) THEN
-* The plus combination:
+! The plus combination:
        ICASE=2
        NASP=NTGEU(ISYM)
        NISP=NIGEJ(ISYM)
@@ -210,7 +210,7 @@ Case B:
        NWBP=0
       ENDIF
       IF(NINDEP(ISYM,3)>0) THEN
-* The minus combination:
+! The minus combination:
        ICASE=3
        NASM=NTGTU(ISYM)
        NISM=NIGTJ(ISYM)
@@ -219,37 +219,37 @@ Case B:
        NWBM=0
       ENDIF
       If (Max(NWBP,NWBM)<=0) RETURN
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Incore or partitioned option.
-*
-*     Incore=nBuff>=Max(NWBP,NWBM)+NT*NJ*NV*NL
-*     If (.NOT.Incore) Then
-*        Write (6,*) 'Sort out of memory in ADDRHSB'
-*        Call Abend()
-*     End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      CALL DGEMM_('N','T',NT*NJ,NV*NL,NCHO,
-     &            One,Cho_Bra,NT*NJ,
-     &                  Cho_Ket,NV*NL,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Incore or partitioned option.
+!
+!     Incore=nBuff>=Max(NWBP,NWBM)+NT*NJ*NV*NL
+!     If (.NOT.Incore) Then
+!        Write (6,*) 'Sort out of memory in ADDRHSB'
+!        Call Abend()
+!     End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+      CALL DGEMM_('N','T',NT*NJ,NV*NL,NCHO,                             &
+     &            One,Cho_Bra,NT*NJ,                                    &
+     &                  Cho_Ket,NV*NL,                                  &
      &            Zero,TJVL,NT*NJ)
 #ifdef _MOLCAS_MPP_
       if (iParRHS == 2) call GADSUM_ADDRHS(TJVL,NT*NJ*NV*NL)
 #endif
       If (NWBP>0) THEN
-*
+!
       IF(NINDEP(ISYM,2)>0) THEN
-* The plus combination:
+! The plus combination:
        ICASE=2
        NASP=NTGEU(ISYM)
        NISP=NIGEJ(ISYM)
        NWBP=NASP*NISP
-*      LWBP=1+NT*NJ*NV*NL
+!      LWBP=1+NT*NJ*NV*NL
        LDBP=NASP
-C Read WP:
+! Read WP:
        CALL RHS_ALLO (NASP,NISP,lg_BP)
        CALL RHS_READ (NASP,NISP,lg_BP,iCASE,iSYM,iVEC)
 
@@ -276,7 +276,7 @@ C Read WP:
              IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
             END IF
             IW=IW1+NASP*(IW2-1)
-*           Buff(LWBP-1+IW)=Buff(LWBP-1+IW)+SCL*TJVL(IT,IJ,IV,IL)
+!           Buff(LWBP-1+IW)=Buff(LWBP-1+IW)+SCL*TJVL(IT,IJ,IV,IL)
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*TJVL(IT,IJ,IV,IL)
@@ -319,9 +319,9 @@ C Read WP:
               IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
              END IF
              if (IW2 >= JLOV .and. IW2 <= JHIV) then
-              DBL_MB(MV+IW1-ILOV+LDBP*(IW2-JLOV))
-     *          = DBL_MB(MV+IW1-ILOV+LDBP*(IW2-JLOV))
-     *          + SCL*TJVL(IT,IJ,IV,IL)
+              DBL_MB(MV+IW1-ILOV+LDBP*(IW2-JLOV))                       &
+     &          = DBL_MB(MV+IW1-ILOV+LDBP*(IW2-JLOV))                   &
+     &          + SCL*TJVL(IT,IJ,IV,IL)
              end if
             END DO
            END DO
@@ -332,23 +332,23 @@ C Read WP:
 #endif
        end if
 
-C Put WBP on disk:
+! Put WBP on disk:
        CALL RHS_SAVE (NASP,NISP,lg_BP,iCASE,iSYM,iVEC)
        CALL RHS_FREE(lg_BP)
       END IF
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       IF(NINDEP(ISYM,3)>0) THEN
-* The minus combination:
+! The minus combination:
        ICASE=3
        NASM=NTGTU(ISYM)
        NISM=NIGTJ(ISYM)
        NWBM=NASM*NISM
-*      LWBM=1+NT*NJ*NV*NL
+!      LWBM=1+NT*NJ*NV*NL
        LDBM=NASM
-C Read WM:
+! Read WM:
        CALL RHS_ALLO (NASM,NISM,lg_BM)
        CALL RHS_READ (NASM,NISM,lg_BM,iCASE,iSYM,iVEC)
 
@@ -368,14 +368,14 @@ C Read WM:
            IF(IJABS>ILABS) THEN
             IW2=KIGTJ(IJABS,ILABS)-NIGTJES(ISYM)
             IW=IW1+NASM*(IW2-1)
-*           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)+Half*TJVL(IT,IJ,IV,IL)
+!           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)+Half*TJVL(IT,IJ,IV,IL)
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=Half*TJVL(IT,IJ,IV,IL)
            ELSE IF (IJABS<ILABS) THEN
             IW2=KIGTJ(ILABS,IJABS)-NIGTJES(ISYM)
             IW=IW1+NASM*(IW2-1)
-*           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)-Half*TJVL(IT,IJ,IV,IL)
+!           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)-Half*TJVL(IT,IJ,IV,IL)
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=-Half*TJVL(IT,IJ,IV,IL)
@@ -413,16 +413,16 @@ C Read WM:
             IF(IJABS>ILABS) THEN
              IW2=KIGTJ(IJABS,ILABS)-NIGTJES(ISYM)
              if (IW2 >= JLOV .and. IW2 <= JHIV) then
-               DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
-     *           = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
-     *           + Half*TJVL(IT,IJ,IV,IL)
+               DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))                      &
+     &           = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))                  &
+     &           + Half*TJVL(IT,IJ,IV,IL)
              end if
             ELSE IF (IJABS<ILABS) THEN
              IW2=KIGTJ(ILABS,IJABS)-NIGTJES(ISYM)
              if (IW2 >= JLOV .and. IW2 <= JHIV) then
-               DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
-     *           = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
-     *           - Half*TJVL(IT,IJ,IV,IL)
+               DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))                      &
+     &           = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))                  &
+     &           - Half*TJVL(IT,IJ,IV,IL)
              end if
             END IF
             IF (IBUF==NBUFF) THEN
@@ -438,18 +438,18 @@ C Read WM:
 #endif
       end if
 
-C Put WBM on disk:
+! Put WBM on disk:
        CALL RHS_SAVE (NASM,NISM,lg_BM,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_BM)
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       END SUBROUTINE ADDRHSB
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE ADDRHSC(IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,AUVX,
-     &                   nBuff,Buff,idxBuf,
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+      SUBROUTINE ADDRHSC(IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,AUVX,          &
+     &                   nBuff,Buff,idxBuf,                             &
      &                   Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
@@ -462,28 +462,28 @@ C Put WBM on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,  &
      &                                nBuff, NCHO
       real(kind=wp), intent(out):: AUVX(NA,NU,NV,NX)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),
+      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),                  &
      &                            Cho_Ket(NV,NX,NCHO)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
-*      Logical Incore
-      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IVABS,
+!      Logical Incore
+      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IVABS,                  &
      &                  IW,IW1,IW2
       integer(kind=iwp) IX,IXABS,NAS,NIS
       integer(kind=iwp) IA,ISYA,IU,IUABS,LDC,lg_C,NWC
-Case C:
-C   Allocate W. Put in W(uvx,a)=(au,vx) +
-C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!ase C:
+!   Allocate W. Put in W(uvx,a)=(au,vx) +
+!             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       ISYA=Mul(JSYM,ISYU)
       ISYV=Mul(JSYM,ISYX)
       ISYM=ISYA
@@ -492,28 +492,28 @@ C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
       NIS=NSSH(ISYM)
       NWC=NAS*NIS
       IF(NWC==0) RETURN
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Incore or partitioned option.
-*
-*     Incore=nBuff>=NWC+NA*NU*NV*NX
-*     If (.NOT.Incore) Then
-*        Write (6,*) 'Sort out of memory in ADDRHSC'
-*        Call Abend()
-*     End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      CALL DGEMM_('N','T',NA*NU,NV*NX,NCHO,
-     &            One,Cho_Bra,NA*NU,
-     &                  Cho_Ket,NV*NX,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Incore or partitioned option.
+!
+!     Incore=nBuff>=NWC+NA*NU*NV*NX
+!     If (.NOT.Incore) Then
+!        Write (6,*) 'Sort out of memory in ADDRHSC'
+!        Call Abend()
+!     End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+      CALL DGEMM_('N','T',NA*NU,NV*NX,NCHO,                             &
+     &            One,Cho_Bra,NA*NU,                                    &
+     &                  Cho_Ket,NV*NX,                                  &
      &            Zero,AUVX,NA*NU)
-*
+!
       ICASE=4
-*     LWC=1+NA*NU*NV*NX
+!     LWC=1+NA*NU*NV*NX
       LDC=NAS
-C Read W:
+! Read W:
       CALL RHS_ALLO (NAS,NIS,lg_C)
       CALL RHS_READ (NAS,NIS,lg_C,iCASE,iSYM,iVEC)
       if (iParRHS == 1) then
@@ -528,7 +528,7 @@ C Read W:
            IW1=KTUV(IUABS,IVABS,IXABS)-NTUVES(ISYM)
            IW2=IA
            IW=IW1+NAS*(IW2-1)
-*          Buff(LWC-1+IW)=Buff(LWC-1+IW)+AUVX(IA,IU,IV,IX)
+!          Buff(LWC-1+IW)=Buff(LWC-1+IW)+AUVX(IA,IU,IV,IX)
            IBUF=IBUF+1
            idxBuf(IBUF)=IW
            Buff(IBUF)=AUVX(IA,IU,IV,IX)
@@ -560,9 +560,9 @@ C Read W:
             IXABS=IX+NAES(ISYX)
             IW1=KTUV(IUABS,IVABS,IXABS)-NTUVES(ISYM)
             if (IW1 >= ILOV .and. IW1 <= IHIV) then
-             DBL_MB(MV+IW1-ILOV+LDC*(IW2-JLOV))
-     *         = DBL_MB(MV+IW1-ILOV+LDC*(IW2-JLOV))
-     *         + AUVX(IA,IU,IV,IX)
+             DBL_MB(MV+IW1-ILOV+LDC*(IW2-JLOV))                         &
+     &         = DBL_MB(MV+IW1-ILOV+LDC*(IW2-JLOV))                     &
+     &         + AUVX(IA,IU,IV,IX)
             end if
            END DO
           END DO
@@ -572,56 +572,56 @@ C Read W:
        end if
 #endif
       end if
-C Put W on disk:
+! Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_C,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_C)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       END SUBROUTINE ADDRHSC
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE ADDRHSD1(IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,AJVX,
-     &                    nBuff,Buff,idxBuf,
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+      SUBROUTINE ADDRHSD1(IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,AJVX,         &
+     &                    nBuff,Buff,idxBuf,                            &
      &                    Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTU
-      use caspt2_module, only: NINDEP, NTU, NSSH, NISUP, NINABX,
+      use caspt2_module, only: NINDEP, NTU, NSSH, NISUP, NINABX,        &
      &                         NSECBX, NSYM, NISH, NAES, NTUES
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,  &
      &                                nBuff, NCHO
       real(kind=wp), intent(out):: AJVX(NV,NX,*)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp), intent(in):: Cho_Bra(NA*NJ,NCHO),
+      real(kind=wp), intent(in):: Cho_Bra(NA*NJ,NCHO),                  &
      &                            Cho_Ket(NV,NX,NCHO)
-*      Logical Incore
+!      Logical Incore
       integer(kind=iwp) IOFFD(8,8)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
-      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IVABS,
+      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IVABS,                  &
      &                  IW,IW1,IW2
       integer(kind=iwp) IA,ISYA
-      integer(kind=iwp) IAEND,IAJ,IAJSTA,IASTA,IJ,IJEND,IJSTA,IO,ISA,
-     &                  ISI,ISW,IX,IXABS,LDD,lg_D,NAS,NAS1,NASZ,NBXSZA,
+      integer(kind=iwp) IAEND,IAJ,IAJSTA,IASTA,IJ,IJEND,IJSTA,IO,ISA,   &
+     &                  ISI,ISW,IX,IXABS,LDD,lg_D,NAS,NAS1,NASZ,NBXSZA, &
      &                  NBXSZJ,NIS,NJSZ,NWD
-Case D:
-C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
-C Compute W2(vu,al)=(au,vl)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!ase D:
+! Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
+! Compute W2(vu,al)=(au,vl)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       DO ISW=1,NSYM
        IO=0
        DO ISA=1,NSYM
@@ -640,30 +640,30 @@ C Compute W2(vu,al)=(au,vl)
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
       IF(NWD==0) RETURN
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Incore or partitioned option?
-*
-*     Incore=nBuff>=NWD+NA*NJ*NV*NX
-*     If (.NOT.Incore) Then
-*        Write (6,*) 'Sort out of memory in ADDRHSD1'
-*        Call Abend()
-*     End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-C     CALL DGEMM_('N','T',NA*NJ,NV*NX,NCHO,
-C    &            One,Cho_Bra,NA*NJ,
-C    &                  Cho_Ket,NV*NX,
-C    &            Zero,AJVX,NA*NJ)
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Incore or partitioned option?
+!
+!     Incore=nBuff>=NWD+NA*NJ*NV*NX
+!     If (.NOT.Incore) Then
+!        Write (6,*) 'Sort out of memory in ADDRHSD1'
+!        Call Abend()
+!     End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     CALL DGEMM_('N','T',NA*NJ,NV*NX,NCHO,
+!    &            One,Cho_Bra,NA*NJ,
+!    &                  Cho_Ket,NV*NX,
+!    &            Zero,AJVX,NA*NJ)
+!
 
-C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
+! Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
       ICASE=5
-*     LWD=1+NA*NJ*NV*NX
+!     LWD=1+NA*NJ*NV*NX
       LDD=NAS
-C Read W:
+! Read W:
       CALL RHS_ALLO (NAS,NIS,lg_D)
       CALL RHS_READ (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
 #ifdef _MOLCAS_MPP_
@@ -685,9 +685,9 @@ C Read W:
           NJSZ=IJEND-IJSTA+1
 
           IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-          CALL DGEMM_('N','T',NV*NX,NASZ*NJSZ,NCHO,
-     &         One,Cho_Ket,NV*NX,
-     &         Cho_Bra(IAJSTA,1),NA*NJ,
+          CALL DGEMM_('N','T',NV*NX,NASZ*NJSZ,NCHO,                     &
+     &         One,Cho_Ket,NV*NX,                                       &
+     &         Cho_Bra(IAJSTA,1),NA*NJ,                                 &
      &         Zero,AJVX,NV*NX)
 
       if (iParRHS == 1) then
@@ -706,8 +706,8 @@ C Read W:
            IW2=IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
            IW=IW1+NAS*(IW2-1)
            IBUF=IBUF+1
-*          WD=Buff(LWD-1+IW)+AJVX(IV,IX,IAJ)
-*          Buff(LWD-1+IW)=WD
+!          WD=Buff(LWD-1+IW)+AJVX(IV,IX,IAJ)
+!          Buff(LWD-1+IW)=WD
            idxBuf(IBUF)=IW
            Buff(IBUF)=AJVX(IV,IX,IAJ)
            IF (IBUF==NBUFF) THEN
@@ -739,9 +739,9 @@ C Read W:
 
             IW1=KTU(IVABS,IXABS)-NTUES(ISYM)
             if (IW1 >= ILOV .and. IW1 <= IHIV) then
-             DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))
-     *         = DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))
-     *         + AJVX(IV,IX,IAJ)
+             DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))                         &
+     &         = DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))                     &
+     &         + AJVX(IV,IX,IAJ)
             end if
            END DO
           END DO
@@ -759,53 +759,53 @@ C Read W:
         CALL GA_Release_Update(lg_D,ILOV,IHIV,JLOV,JHIV,MV,LDV)
       end if
 #endif
-C Put W on disk:
+! Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_D)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       END SUBROUTINE ADDRHSD1
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE ADDRHSD2(IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,AUVL,
-     &                    nBuff,Buff,idxBuf,
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+      SUBROUTINE ADDRHSD2(IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,AUVL,         &
+     &                    nBuff,Buff,idxBuf,                            &
      &                    Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTU
-      use caspt2_module, only: NINDEP, NTU, NSSH, NISUP,
+      use caspt2_module, only: NINDEP, NTU, NSSH, NISUP,                &
      &                         NSYM, NISH, NAES, NTUES
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,  &
      &                                nBuff, NCHO
       real(kind=wp), intent(out):: AUVL(NA,NU,NV,NL)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),
+      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),                  &
      &                            Cho_Ket(NV,NL,NCHO)
-*      Logical Incore
+!      Logical Incore
       integer(kind=iwp) IOFFD(8,8)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
-      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IVABS,
+      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IVABS,                  &
      &                  IW,IW1,IW2
-      integer(kind=iwp) IA,IL,IO,ISYA,ISYI,ISYW,IU,IUABS,LDD,lg_D,NAS,
+      integer(kind=iwp) IA,IL,IO,ISYA,ISYI,ISYW,IU,IUABS,LDD,lg_D,NAS,  &
      &                  NAS1,NIS,NWD
-Case D:
-C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
-C Compute W2(vu,al)=(au,vl)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!ase D:
+! Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
+! Compute W2(vu,al)=(au,vl)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       DO ISYW=1,NSYM
        IO=0
        DO ISYA=1,NSYM
@@ -824,30 +824,30 @@ C Compute W2(vu,al)=(au,vl)
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
       IF(NWD==0) RETURN
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Incore or partitioned option?
-*
-*     Incore=nBuff>=NWD+NA*NU*NV*NL
-*     If (.NOT.Incore) Then
-*        Write (6,*) 'Sort out of memory in ADDRHSD2'
-*        Call Abend()
-*     End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-      CALL DGEMM_('N','T',NA*NU,NV*NL,NCHO,
-     &            One,Cho_Bra,NA*NU,
-     &                  Cho_Ket,NV*NL,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Incore or partitioned option?
+!
+!     Incore=nBuff>=NWD+NA*NU*NV*NL
+!     If (.NOT.Incore) Then
+!        Write (6,*) 'Sort out of memory in ADDRHSD2'
+!        Call Abend()
+!     End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+      CALL DGEMM_('N','T',NA*NU,NV*NL,NCHO,                             &
+     &            One,Cho_Bra,NA*NU,                                    &
+     &                  Cho_Ket,NV*NL,                                  &
      &            Zero,AUVL,NA*NU)
-*
-C Compute W2(vu,al)=(au,vl)
+!
+! Compute W2(vu,al)=(au,vl)
       ICASE=5
-*     LWD=1+NA*NU*NV*NL
+!     LWD=1+NA*NU*NV*NL
       LDD=NAS
-C Read W:
+! Read W:
       CALL RHS_ALLO (NAS,NIS,lg_D)
       CALL RHS_READ (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
 
@@ -862,7 +862,7 @@ C Read W:
            IW1=NAS1+KTU(IVABS,IUABS)-NTUES(ISYM)
            IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
            IW=IW1+NAS*(IW2-1)
-*          Buff(LWD-1+IW)=Buff(LWD-1+IW)+AUVL(IA,IU,IV,IL)
+!          Buff(LWD-1+IW)=Buff(LWD-1+IW)+AUVL(IA,IU,IV,IL)
            IBUF=IBUF+1
            idxBuf(IBUF)=IW
            Buff(IBUF)=AUVL(IA,IU,IV,IL)
@@ -894,9 +894,9 @@ C Read W:
            DO IL=1,NL
             IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
             if (IW2 >= JLOV .and. IW2 <= JHIV) then
-              DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))
-     *          = DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))
-     *          + AUVL(IA,IU,IV,IL)
+              DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))                        &
+     &          = DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))                    &
+     &          + AUVL(IA,IU,IV,IL)
             end if
            END DO
           END DO
@@ -906,63 +906,63 @@ C Read W:
        end if
 #endif
       end if
-*
-C Put W on disk:
+!
+! Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_D)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       END SUBROUTINE ADDRHSD2
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,
-     &                   nBuff,Buff,idxBuf,
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+      SUBROUTINE ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,          &
+     &                   nBuff,Buff,idxBuf,                             &
      &                   Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KIGEJ, KIGTJ
-      use caspt2_module, only: NIGEJ, NIGTJ, NSSH, NASH,
-     &                         NISUP, NINABX, NSECBX, NSYM, NIES,
+      use caspt2_module, only: NIGEJ, NIGTJ, NSSH, NASH,                &
+     &                         NISUP, NINABX, NSECBX, NSYM, NIES,       &
      &                         NIGEJES, NIGTJES
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,  &
      &                                nBuff, NCHO
       real(kind=wp), intent(out):: AJVL(NV,NL,*)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp), intent(in):: Cho_Bra(NA*NJ,NCHO),
+      real(kind=wp), intent(in):: Cho_Bra(NA*NJ,NCHO),                  &
      &                            Cho_Ket(NV,NL,NCHO)
-*      Logical Incore
+!      Logical Incore
       integer(kind=iwp) IOFF1(8),IOFF2(8)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
       integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IW,IW1,IW2
       integer(kind=iwp) IA,ISYA
-      integer(kind=iwp) IAEND,IAJ,IAJSTA,IASTA,IJ,IJEND,IJSTA,ISA,
+      integer(kind=iwp) IAEND,IAJ,IAJSTA,IASTA,IJ,IJEND,IJSTA,ISA,      &
      &                  NAS,NASZ,NBXSZA,NBXSZJ,NJSZ
-      integer(kind=iwp) IJABS,IL,ILABS,IO1,IO2,ISIJ,ISYJL,JGEL,JGTL,
+      integer(kind=iwp) IJABS,IL,ILABS,IO1,IO2,ISIJ,ISYJL,JGEL,JGTL,    &
      &                  LDEM,LDEP,lg_EM,lg_EP,NISM,NISP,NW,NWM,NWP
       real(kind=wp) SCL,SQ32
-Case E:
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!ase E:
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       SQ32=SQRT(OneHalf)
       ISYA=Mul(JSYM,ISYJ)
       ISYV=Mul(JSYM,ISYL)
       ISYM=ISYV
       ISYJL=Mul(ISYJ,ISYL)
 
-C Set up offset table:
+! Set up offset table:
       IO1=0
       IO2=0
       DO ISA=1,NSYM
@@ -980,33 +980,33 @@ C Set up offset table:
       NWM=NAS*NISM
       NW=NWP+NWM
       If (NW==0) RETURN
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Incore or partitioned option?
-*
-*     Incore=nBuff>=Max(NWP,NWM)+NA*NJ*NV*NL
-*     If (.NOT.Incore) Then
-*        Write (6,*) 'Sort out of memory in ADDRHSE'
-*        Call Abend()
-*     End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-C     CALL DGEMM_('N','T',NA*NJ,NV*NL,NCHO,
-C    &            One,Cho_Bra,NA*NJ,
-C    &                  Cho_Ket,NV*NL,
-C    &            Zero,AJVL,NA*NJ)
-*
-*     LWE=1+NA*NJ*NV*NL
-*     LWEP=LWE
-*     LWEM=LWE
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Incore or partitioned option?
+!
+!     Incore=nBuff>=Max(NWP,NWM)+NA*NJ*NV*NL
+!     If (.NOT.Incore) Then
+!        Write (6,*) 'Sort out of memory in ADDRHSE'
+!        Call Abend()
+!     End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     CALL DGEMM_('N','T',NA*NJ,NV*NL,NCHO,
+!    &            One,Cho_Bra,NA*NJ,
+!    &                  Cho_Ket,NV*NL,
+!    &            Zero,AJVL,NA*NJ)
+!
+!     LWE=1+NA*NJ*NV*NL
+!     LWEP=LWE
+!     LWEM=LWE
       LDEP=NAS
       LDEM=NAS
-* The plus combination:
+! The plus combination:
       IF (NWP>0) THEN
        ICASE=6
-C Read WP:
+! Read WP:
       CALL RHS_ALLO (NAS,NISP,lg_EP)
       CALL RHS_READ (NAS,NISP,lg_EP,iCASE,iSYM,iVEC)
 #ifdef _MOLCAS_MPP_
@@ -1028,9 +1028,9 @@ C Read WP:
            NJSZ=IJEND-IJSTA+1
 
            IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-           CALL DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,
-     &          One,Cho_Ket,NV*NL,
-     &          Cho_Bra(IAJSTA,1),NA*NJ,
+           CALL DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,                    &
+     &          One,Cho_Ket,NV*NL,                                      &
+     &          Cho_Bra(IAJSTA,1),NA*NJ,                                &
      &          Zero,AJVL,NV*NL)
       if (iParRHS == 1) then
        IAJ=0
@@ -1053,8 +1053,8 @@ C Read WP:
            IW1=IV
            IW2=IA+NA*(JGEL-1)+IOFF1(ISYA)
            IW=IW1+NAS*(IW2-1)
-C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
-*          Buff(LWEP-1+IWEP)=Buff(LWEP-1+IWEP)+SCL*AJVL(IV,IL,IAJ)
+!   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
+!          Buff(LWEP-1+IWEP)=Buff(LWEP-1+IWEP)+SCL*AJVL(IV,IL,IAJ)
            IBUF=IBUF+1
            idxBuf(IBUF)=IW
            Buff(IBUF)=SCL*AJVL(IV,IL,IAJ)
@@ -1092,9 +1092,9 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
             END IF
             IW2=IA+NA*(JGEL-1)+IOFF1(ISYA)
             if (IW2 >= JLOV .and. IW2 <= JHIV) then
-              DBL_MB(MV+IW1-ILOV+LDEP*(IW2-JLOV))
-     *          = DBL_MB(MV+IW1-ILOV+LDEP*(IW2-JLOV))
-     *          + SCL*AJVL(IV,IL,IAJ)
+              DBL_MB(MV+IW1-ILOV+LDEP*(IW2-JLOV))                       &
+     &          = DBL_MB(MV+IW1-ILOV+LDEP*(IW2-JLOV))                   &
+     &          + SCL*AJVL(IV,IL,IAJ)
             end if
            END DO
           END DO
@@ -1115,13 +1115,13 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
       CALL RHS_SAVE (NAS,NISP,lg_EP,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_EP)
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
-* The minus combination:
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! The minus combination:
       IF (NWM>0) THEN
        ICASE=7
-C Read WM:
+! Read WM:
       CALL RHS_ALLO (NAS,NISM,lg_EM)
       CALL RHS_READ (NAS,NISM,lg_EM,iCASE,iSYM,iVEC)
 #ifdef _MOLCAS_MPP_
@@ -1143,9 +1143,9 @@ C Read WM:
            NJSZ=IJEND-IJSTA+1
 
            IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-           CALL DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,
-     &          One,Cho_Ket,NV*NL,
-     &          Cho_Bra(IAJSTA,1),NA*NJ,
+           CALL DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,                    &
+     &          One,Cho_Ket,NV*NL,                                      &
+     &          Cho_Bra(IAJSTA,1),NA*NJ,                                &
      &          Zero,AJVL,NV*NL)
 
       if (iParRHS == 1) then
@@ -1170,7 +1170,7 @@ C Read WM:
             IW1=IV
             IW2=IA+NA*(JGTL-1)+IOFF2(ISYA)
             IW=IW1+NAS*(IW2-1)
-*           Buff(LWEM-1+IWEM)=Buff(LWEM-1+IWEM)+SCL*AJVL(IV,IL,IAJ)
+!           Buff(LWEM-1+IWEM)=Buff(LWEM-1+IWEM)+SCL*AJVL(IV,IL,IAJ)
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*AJVL(IV,IL,IAJ)
@@ -1210,9 +1210,9 @@ C Read WM:
              END IF
              IW2=IA+NA*(JGTL-1)+IOFF2(ISYA)
              if (IW2 >= JLOV .and. IW2 <= JHIV) then
-               DBL_MB(MV+IW1-ILOV+LDEM*(IW2-JLOV))
-     *           = DBL_MB(MV+IW1-ILOV+LDEM*(IW2-JLOV))
-     *           + SCL*AJVL(IV,IL,IAJ)
+               DBL_MB(MV+IW1-ILOV+LDEM*(IW2-JLOV))                      &
+     &           = DBL_MB(MV+IW1-ILOV+LDEM*(IW2-JLOV))                  &
+     &           + SCL*AJVL(IV,IL,IAJ)
              end if
             END IF
            END DO
@@ -1234,22 +1234,22 @@ C Read WM:
       CALL RHS_SAVE (NAS,NISM,lg_EM,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_EM)
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       END SUBROUTINE ADDRHSE
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,
-     &                   nBuff,Buff,idxBuf,
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+      SUBROUTINE ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,          &
+     &                   nBuff,Buff,idxBuf,                             &
      &                   Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTGEU, KAGEB, KTGTU, KAGTB
-      use caspt2_module, only: NTGEU, NAGEB, NTGTU, NAGTB, NINDEP,
-     &                         NAES, NTGEUES, NSES, NAGEBES, NTGTUES,
+      use caspt2_module, only: NTGEU, NAGEB, NTGTU, NAGTB, NINDEP,      &
+     &                         NAES, NTGEUES, NSES, NAGEBES, NTGTUES,   &
      &                         NAGTBES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -1259,38 +1259,38 @@ C Read WM:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,  &
      &                                nBuff, NCHO
       real(kind=wp), intent(out):: AUCX(NA,NU,NC,NX)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),
+      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),                  &
      &                            Cho_Ket(NC,NX,NCHO)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
-*      Logical Incore
+!      Logical Incore
       integer(kind=iwp) IBUF,ICASE,ISYM,IW,IW1,IW2
-      integer(kind=iwp) IA,IAABS,IC,ICABS,ISYA,ISYC,IU,IUABS,IX,IXABS,
-     &                  IXMAX,LDFM,LDFP,lg_FM,lg_FP,NASM,NASP,NISM,NISP,
+      integer(kind=iwp) IA,IAABS,IC,ICABS,ISYA,ISYC,IU,IUABS,IX,IXABS,  &
+     &                  IXMAX,LDFM,LDFP,lg_FM,lg_FP,NASM,NASP,NISM,NISP,&
      &                  NWFM,NWFP
       real(kind=wp)     SCL,SCL1
-Case F:
-C   WP(ux,ac)=((aucx)+(axcu))*(1-Kron(x,u)/2) /2
-C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ac))
-C   WM(ux,ac)= -((aucx)-(axcu))/2
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!ase F:
+!   WP(ux,ac)=((aucx)+(axcu))*(1-Kron(x,u)/2) /2
+! With new normalisation, replace /2 with /(2*SQRT(1+Kron(ac))
+!   WM(ux,ac)= -((aucx)-(axcu))/2
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       IF(ISYU<ISYX) RETURN
 
       ISYA=Mul(JSYM,ISYU)
       ISYC=Mul(JSYM,ISYX)
       ISYM=Mul(ISYU,ISYX)
-*
+!
       IF(NINDEP(ISYM,8)>0) THEN
-* The plus combination:
+! The plus combination:
        NASP=NTGEU(ISYM)
        NISP=NAGEB(ISYM)
        NWFP=NASP*NISP
@@ -1299,7 +1299,7 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
       ENDIF
       IF(NINDEP(ISYM,9)>0) THEN
        ICASE=9
-* The minus combination:
+! The minus combination:
        NASM=NTGTU(ISYM)
        NISM=NAGTB(ISYM)
        NWFM=NASM*NISM
@@ -1307,37 +1307,37 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
        NWFM=0
       ENDIF
       If (NWFP+NWFM<=0) RETURN
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Incore or partitioned option?
-*
-*     Incore=nBuff>=Max(NWFP,NWFM)+NA*NU*NC*NX
-*     If (.NOT.Incore) Then
-*        Write (6,*) 'Sort out of memory in ADDRHSF'
-*        Call Abend()
-*     End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      CALL DGEMM_('N','T',NA*NU,NC*NX,NCHO,
-     &            One,Cho_Bra,NA*NU,
-     &                  Cho_Ket,NC*NX,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Incore or partitioned option?
+!
+!     Incore=nBuff>=Max(NWFP,NWFM)+NA*NU*NC*NX
+!     If (.NOT.Incore) Then
+!        Write (6,*) 'Sort out of memory in ADDRHSF'
+!        Call Abend()
+!     End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+      CALL DGEMM_('N','T',NA*NU,NC*NX,NCHO,                             &
+     &            One,Cho_Bra,NA*NU,                                    &
+     &                  Cho_Ket,NC*NX,                                  &
      &            Zero,AUCX,NA*NU)
 #ifdef _MOLCAS_MPP_
       IF (iParRHS == 2) call GADSUM_ADDRHS(AUCX,NA*NU*NC*NX)
 #endif
-*
+!
       IF (NWFP>0) THEN
       IF(NINDEP(ISYM,8)>0) THEN
-* The plus combination:
+! The plus combination:
        ICASE=8
        NASP=NTGEU(ISYM)
        NISP=NAGEB(ISYM)
        NWFP=NASP*NISP
-*      LWFP=1+NA*NU*NC*NX
+!      LWFP=1+NA*NU*NC*NX
        LDFP=NASP
-C Read WP:
+! Read WP:
        CALL RHS_ALLO (NASP,NISP,lg_FP)
        CALL RHS_READ (NASP,NISP,lg_FP,iCASE,iSYM,iVEC)
 
@@ -1364,8 +1364,8 @@ C Read WP:
              IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
             END IF
             IW=IW1+NASP*(IW2-1)
-*           WFP=Buff(LWFP-1+IW)+SCL*AUCX(IA,IU,IC,IX)
-*           Buff(LWFP-1+IW)=WFP
+!           WFP=Buff(LWFP-1+IW)+SCL*AUCX(IA,IU,IC,IX)
+!           Buff(LWFP-1+IW)=WFP
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*AUCX(IA,IU,IC,IX)
@@ -1409,9 +1409,9 @@ C Read WP:
               IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
              END IF
              if (IW2 >= JLOV .and. IW2 <= JHIV) then
-              DBL_MB(MV+IW1-ILOV+LDFP*(IW2-JLOV))
-     *        = DBL_MB(MV+IW1-ILOV+LDFP*(IW2-JLOV))
-     *        + SCL*AUCX(IA,IU,IC,IX)
+              DBL_MB(MV+IW1-ILOV+LDFP*(IW2-JLOV))                       &
+     &        = DBL_MB(MV+IW1-ILOV+LDFP*(IW2-JLOV))                     &
+     &        + SCL*AUCX(IA,IU,IC,IX)
              end if
             END DO
            END DO
@@ -1426,19 +1426,19 @@ C Read WP:
        CALL RHS_FREE (lg_FP)
       END IF
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       IF (NWFM<=0) RETURN
       IF(NINDEP(ISYM,9)>0) THEN
        ICASE=9
-* The minus combination:
+! The minus combination:
        NASM=NTGTU(ISYM)
        NISM=NAGTB(ISYM)
        NWFM=NASM*NISM
-*      LWFM=1+NA*NU*NC*NX
+!      LWFM=1+NA*NU*NC*NX
        LDFM=NASM
-C Read WM:
+! Read WM:
        CALL RHS_ALLO (NASM,NISM,lg_FM)
        CALL RHS_READ (NASM,NISM,lg_FM,iCASE,iSYM,iVEC)
 #ifdef _MOLCAS_MPP_
@@ -1465,14 +1465,14 @@ C Read WM:
             IF(IAABS>ICABS) THEN
              IW2=KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
              IW=IW1+NASM*(IW2-1)
-*            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)-Half*AUCX(IA,IU,IC,IX)
+!            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)-Half*AUCX(IA,IU,IC,IX)
              IBUF=IBUF+1
              idxBuf(IBUF)=IW
              Buff(IBUF)=-Half*AUCX(IA,IU,IC,IX)
             ELSE IF(IAABS<ICABS) THEN
              IW2=KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
              IW=IW1+NASM*(IW2-1)
-*            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)+Half*AUCX(IA,IU,IC,IX)
+!            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)+Half*AUCX(IA,IU,IC,IX)
              IBUF=IBUF+1
              idxBuf(IBUF)=IW
              Buff(IBUF)=Half*AUCX(IA,IU,IC,IX)
@@ -1506,16 +1506,16 @@ C Read WM:
              IF(IAABS>ICABS) THEN
               IW2=KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
               if (IW2 >= JLOV .and. IW2 <= JHIV) then
-               DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
-     *           = DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
-     *           - Half*AUCX(IA,IU,IC,IX)
+               DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))                      &
+     &           = DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))                  &
+     &           - Half*AUCX(IA,IU,IC,IX)
               end if
              ELSE IF(IAABS<ICABS) THEN
               IW2=KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
               if (IW2 >= JLOV .and. IW2 <= JHIV) then
-               DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
-     *           = DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
-     *           + Half*AUCX(IA,IU,IC,IX)
+               DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))                      &
+     &           = DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))                  &
+     &           + Half*AUCX(IA,IU,IC,IX)
               end if
              END IF
             END DO
@@ -1527,63 +1527,63 @@ C Read WM:
 #endif
        end if
 
-C Put WFM on disk:
+! Put WFM on disk:
        CALL RHS_SAVE (NASM,NISM,lg_FM,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_FM)
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       END SUBROUTINE ADDRHSF
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,
-     &                   nBuff,Buff,idxBuf,
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+      SUBROUTINE ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,    &
+     &                   nBuff,Buff,idxBuf,                             &
      &                   Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KAGEB, KAGTB
-      use caspt2_module, only: NAGEB, NAGTB, NSYM, NISH, NASH,
+      use caspt2_module, only: NAGEB, NAGTB, NSYM, NISH, NASH,          &
      &                         NISUP, NSECBX, NSES, NAGEBES, NAGTBES
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,  &
      &                                NAUCL, nBuff, NCHO
       real(kind=wp), intent(out):: AUCL(NA,NU,*)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),
+      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),                  &
      &                            Cho_Ket(NC*NL,NCHO)
-*      Logical Incore
+!      Logical Incore
       integer(kind=iwp) IOFF1(8),IOFF2(8)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
       integer(kind=iwp) :: ITMP1, ITMP2
 #endif
       integer(kind=iwp) IBUF,ICASE,ISYM,IW,IW1,IW2
-      integer(kind=iwp) IA,IAABS,IAGEC,IAGTC,IC,ICABS,ICEND,ICL,ICLSTA,
-     &                  ICSTA,IL,ILEND,ILSTA,IO1,IO2,ISAB,ISI,ISYA,
-     &                  ISYAC,ISYC,IU,KCL,LDGM,LDGP,lg_GM,lg_GP,NAS,
+      integer(kind=iwp) IA,IAABS,IAGEC,IAGTC,IC,ICABS,ICEND,ICL,ICLSTA, &
+     &                  ICSTA,IL,ILEND,ILSTA,IO1,IO2,ISAB,ISI,ISYA,     &
+     &                  ISYAC,ISYC,IU,KCL,LDGM,LDGP,lg_GM,lg_GP,NAS,    &
      &                  NBXSZC,NBXSZL,NCSZ,NISM,NISP,NLSZ,NWGM,NWGP
       real(kind=wp) SCL
-Case G:
-C   WP(u,l,ac)=  ((aucl)+cual))/SQRT(2+2*Kron(ab))
-C   WM(u,l,ac)=  ((aucl)-cual))*SQRT(OneHalf)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!ase G:
+!   WP(u,l,ac)=  ((aucl)+cual))/SQRT(2+2*Kron(ab))
+!   WM(u,l,ac)=  ((aucl)-cual))*SQRT(OneHalf)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
 
       ISYA=Mul(JSYM,ISYU)
       ISYC=Mul(JSYM,ISYL)
       ISYM=ISYU
       ISYAC=Mul(ISYA,ISYC)
-C Set up offset table:
+! Set up offset table:
       IO1=0
       IO2=0
       DO ISI=1,NSYM
@@ -1594,40 +1594,40 @@ C Set up offset table:
         IO2=IO2+NISH(ISI)*NAGTB(ISAB)
       END DO
 
-C   Allocate W with parts WP,WM
+!   Allocate W with parts WP,WM
       NAS=NASH(ISYM)
       NISP=NISUP(ISYM,10)
       NISM=NISUP(ISYM,11)
       NWGP=NAS*NISP
       NWGM=NAS*NISM
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Incore or partitioned option?
-*
-*     Incore=nBuff>=Max(NWGP,NWGM)+NA*NU*NC*NL
-*     If (.NOT.Incore) Then
-*        Write (6,*) 'Sort out of memory in ADDRHSG'
-*        Call Abend()
-*     End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-C     CALL DGEMM_('N','T',NA*NU,NC*NL,NCHO,
-C    &            One,Cho_Bra,NA*NU,
-C    &                  Cho_Ket,NC*NL,
-C    &            Zero,AUCL,NA*NU)
-*
-*     LWG=1+NA*NU*NC*NL
-*     LWGP=LWG
-*     LWGM=LWG
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Incore or partitioned option?
+!
+!     Incore=nBuff>=Max(NWGP,NWGM)+NA*NU*NC*NL
+!     If (.NOT.Incore) Then
+!        Write (6,*) 'Sort out of memory in ADDRHSG'
+!        Call Abend()
+!     End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     CALL DGEMM_('N','T',NA*NU,NC*NL,NCHO,
+!    &            One,Cho_Bra,NA*NU,
+!    &                  Cho_Ket,NC*NL,
+!    &            Zero,AUCL,NA*NU)
+!
+!     LWG=1+NA*NU*NC*NL
+!     LWGP=LWG
+!     LWGM=LWG
       LDGP=NAS
       LDGM=NAS
-*
-* The plus combination:
+!
+! The plus combination:
       IF (NWGP>0) THEN
        ICASE=10
-C Read WP:
+! Read WP:
        CALL RHS_ALLO (NAS,NISP,lg_GP)
        CALL RHS_READ (NAS,NISP,lg_GP,iCASE,iSYM,iVEC)
 #ifdef _MOLCAS_MPP_
@@ -1638,10 +1638,10 @@ C Read WP:
        end if
 #endif
 
-C to keep memory advantage, scale NL so that NC*NL fits in KCL
-C (scaling NL does not affect ordering of integrals = safe)
+! to keep memory advantage, scale NL so that NC*NL fits in KCL
+! (scaling NL does not affect ordering of integrals = safe)
        NBXSZC=NSECBX
-C      NBXSZJ=NINABX
+!      NBXSZJ=NINABX
        KCL=NAUCL/(NA*NU)
        NBXSZL=KCL/NC
        IF (NBXSZL<=0) THEN
@@ -1658,9 +1658,9 @@ C      NBXSZJ=NINABX
           NLSZ=ILEND-ILSTA+1
 
           ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-          CALL DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,
-     &         One,Cho_Bra,NA*NU,
-     &         Cho_Ket(ICLSTA,1),NC*NL,
+          CALL DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,                     &
+     &         One,Cho_Bra,NA*NU,                                       &
+     &         Cho_Ket(ICLSTA,1),NC*NL,                                 &
      &         Zero,AUCL,NA*NU)
 
       if (iParRHS == 1) then
@@ -1685,7 +1685,7 @@ C      NBXSZJ=NINABX
            IW2=IL+NL*(IAGEC-1)+IOFF1(ISYL)
            IW=IW1+NAS*(IW2-1)
            IBUF=IBUF+1
-*          Buff(LWGP-1+IW)=Buff(LWGP-1+IW)+SCL*AUCL(IA,IU,ICL)
+!          Buff(LWGP-1+IW)=Buff(LWGP-1+IW)+SCL*AUCL(IA,IU,ICL)
            idxBuf(IBUF)=IW
            Buff(IBUF)=SCL*AUCL(IA,IU,ICL)
            IF (IBUF==NBUFF) THEN
@@ -1723,9 +1723,9 @@ C      NBXSZJ=NINABX
            DO IU=1,NU
             IW1 = IU
             if (IW1 >= ILOV .and. IW1 <= IHIV) then
-              DBL_MB(MV+IW1-ILOV+LDGP*(IW2-JLOV))
-     *          = DBL_MB(MV+IW1-ILOV+LDGP*(IW2-JLOV))
-     *          + SCL*AUCL(IA,IU,ICL)
+              DBL_MB(MV+IW1-ILOV+LDGP*(IW2-JLOV))                       &
+     &          = DBL_MB(MV+IW1-ILOV+LDGP*(IW2-JLOV))                   &
+     &          + SCL*AUCL(IA,IU,ICL)
             end if
            END DO
           END DO
@@ -1746,13 +1746,13 @@ C      NBXSZJ=NINABX
        CALL RHS_SAVE (NAS,NISP,lg_GP,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_GP)
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
-* The minus combination:
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! The minus combination:
       IF (NWGM>0) THEN
        ICASE=11
-C Read WGM:
+! Read WGM:
        CALL RHS_ALLO (NAS,NISM,lg_GM)
        CALL RHS_READ (NAS,NISM,lg_GM,iCASE,iSYM,iVEC)
 #ifdef _MOLCAS_MPP_
@@ -1763,10 +1763,10 @@ C Read WGM:
        end if
 #endif
 
-C to keep memory advantage, scale NL so that NC*NL fits in KCL
-C (scaling NL does not affect ordering of integrals = safe)
+! to keep memory advantage, scale NL so that NC*NL fits in KCL
+! (scaling NL does not affect ordering of integrals = safe)
        NBXSZC=NSECBX
-C      NBXSZJ=NINABX
+!      NBXSZJ=NINABX
        KCL=NAUCL/(NA*NU)
        NBXSZL=KCL/NC
        IF (NBXSZL<=0) THEN
@@ -1783,9 +1783,9 @@ C      NBXSZJ=NINABX
           NLSZ=ILEND-ILSTA+1
 
           ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-          CALL DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,
-     &         One,Cho_Bra,NA*NU,
-     &         Cho_Ket(ICLSTA,1),NC*NL,
+          CALL DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,                     &
+     &         One,Cho_Bra,NA*NU,                                       &
+     &         Cho_Ket(ICLSTA,1),NC*NL,                                 &
      &         Zero,AUCL,NA*NU)
 
       if (iParRHS == 1) then
@@ -1805,7 +1805,7 @@ C      NBXSZJ=NINABX
             IW1=IU
             IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
             IW=IW1+NAS*(IW2-1)
-*           Buff(LWGM-1+IW)=Buff(LWGM-1+IW)+SCL*AUCL(IA,IU,ICL)
+!           Buff(LWGM-1+IW)=Buff(LWGM-1+IW)+SCL*AUCL(IA,IU,ICL)
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*AUCL(IA,IU,ICL)
@@ -1821,7 +1821,7 @@ C      NBXSZJ=NINABX
             IW1=IU
             IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
             IW=IW1+NAS*(IW2-1)
-*           Buff(LWGM-1+IW)=Buff(LWGM-1+IW)+SCL*AUCL(IA,IU,ICL)
+!           Buff(LWGM-1+IW)=Buff(LWGM-1+IW)+SCL*AUCL(IA,IU,ICL)
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*AUCL(IA,IU,ICL)
@@ -1857,9 +1857,9 @@ C      NBXSZJ=NINABX
             DO IU=1,NU
               ITMP1 = IU
               if (ITMP1 >= ILOV .and. ITMP1 <= IHIV) then
-                DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))
-     *            = DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))
-     *            + SCL*AUCL(IA,IU,ICL)
+                DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))                 &
+     &            = DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))             &
+     &            + SCL*AUCL(IA,IU,ICL)
               end if
             END DO
            ELSE IF(IAABS<ICABS) THEN
@@ -1870,9 +1870,9 @@ C      NBXSZJ=NINABX
             DO IU=1,NU
               ITMP1 = IU
               if (ITMP1 >= ILOV .and. ITMP1 <= IHIV) then
-                DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))
-     *            = DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))
-     *            + SCL*AUCL(IA,IU,ICL)
+                DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))                 &
+     &            = DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))             &
+     &            + SCL*AUCL(IA,IU,ICL)
               end if
             END DO
            END IF
@@ -1894,53 +1894,53 @@ C      NBXSZJ=NINABX
        CALL RHS_SAVE (NAS,NISM,lg_GM,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_GM)
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       END SUBROUTINE ADDRHSG
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,
-     &                   nBuff,Buff,idxBuf,
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+      SUBROUTINE ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,    &
+     &                   nBuff,Buff,idxBuf,                             &
      &                   Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, Two, Three
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KIGEJ, KAGEB, KIGTJ, KAGTB
-      use caspt2_module, only: NIGEJ, NAGEB, NIGTJ, NAGTB, NINABX,
-     &                         NSECBX, NIES, NSES, NIGEJES, NAGEBES,
+      use caspt2_module, only: NIGEJ, NAGEB, NIGTJ, NAGTB, NINABX,      &
+     &                         NSECBX, NIES, NSES, NIGEJES, NAGEBES,    &
      &                         NIGTJES, NAGTBES
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,  &
      &                                NAJCL, nBuff, NCHO
       real(kind=wp), intent(out):: AJCL(NC*NL,*)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp), intent(in):: Cho_Bra(NA*NJ,NCHO),
+      real(kind=wp), intent(in):: Cho_Bra(NA*NJ,NCHO),                  &
      &                            Cho_Ket(NC*NL,NCHO)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV,ITMP1,ITMP2
 #endif
-*      Logical Incore
+!      Logical Incore
       integer(kind=iwp) IBUF,ICASE,ISYM,IW
-      integer(kind=iwp) IA,IAABS,IAEND,IAGEC,IAGTC,IAJ,IAJSTA,IASTA,IC,
-     &                  ICABS,ICEND,ICL,ICLSTA,ICSTA,IJ,IJABS,IJEND,
-     &                  IJGEL,IJGTL,IJSTA,IL,ILABS,ILEND,ILMAX,ILSTA,
-     &                  ISYA,ISYAC,ISYC,ISYJL,KAJ,LDHM,LDHP,lg_HM,lg_HP,
-     &                  NASM,NASP,NASZ,NBXSZA,NBXSZC,NBXSZJ,NBXSZL,NCSZ,
+      integer(kind=iwp) IA,IAABS,IAEND,IAGEC,IAGTC,IAJ,IAJSTA,IASTA,IC, &
+     &                  ICABS,ICEND,ICL,ICLSTA,ICSTA,IJ,IJABS,IJEND,    &
+     &                  IJGEL,IJGTL,IJSTA,IL,ILABS,ILEND,ILMAX,ILSTA,   &
+     &                  ISYA,ISYAC,ISYC,ISYJL,KAJ,LDHM,LDHP,lg_HM,lg_HP,&
+     &                  NASM,NASP,NASZ,NBXSZA,NBXSZC,NBXSZJ,NBXSZL,NCSZ,&
      &                  NISM,NISP,NJSZ,NWHM,NWHP
       real(kind=wp)     SCL,SCL1
-* Case H:
-C   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
-C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
-*                                                                      *
-************************************************************************
-*                                                                      *
+! Case H:
+!   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
+!   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       IF(ISYJ<ISYL) RETURN
       ISYA=Mul(JSYM,ISYJ)
       ISYC=Mul(JSYM,ISYL)
@@ -1948,7 +1948,7 @@ C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
       ISYAC=ISYM
       ISYJL=ISYM
 
-C   Allocate WHP,WHM
+!   Allocate WHP,WHM
       NASP=NAGEB(ISYM)
       NISP=NIGEJ(ISYM)
       NWHP=NASP*NISP
@@ -1956,41 +1956,41 @@ C   Allocate WHP,WHM
       NASM=NAGTB(ISYM)
       NISM=NIGTJ(ISYM)
       NWHM=NASM*NISM
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Incore or partitioned option?
-*
-*     Incore=nBuff>=Max(NWHP,NWHM)+NC*NL
-*     If (.NOT.Incore) Then
-*        Write (6,*) 'Sort out of memory in ADDRHSH'
-*        Call Abend()
-*     End If
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Incore or partitioned option?
+!
+!     Incore=nBuff>=Max(NWHP,NWHM)+NC*NL
+!     If (.NOT.Incore) Then
+!        Write (6,*) 'Sort out of memory in ADDRHSH'
+!        Call Abend()
+!     End If
 
-*     nBatch=MIN((nBuff-MAX(NWHP,NWHM))/(NC*NL),NA*NJ)
-*     IF((iPrGlb>=DEBUG).AND.(nBatch<NA*NJ)) THEN
-*       WRITE(6,'(1X,A)') 'less memory than ideal for ADDRHSH:'
-*       WRITE(6,'(1X,A12,I12)') 'needed    = ', NA*NJ*NC*NL
-*       WRITE(6,'(1X,A12,I12)') 'available = ', nBatch*NC*NL
-*     ENDIF
+!     nBatch=MIN((nBuff-MAX(NWHP,NWHM))/(NC*NL),NA*NJ)
+!     IF((iPrGlb>=DEBUG).AND.(nBatch<NA*NJ)) THEN
+!       WRITE(6,'(1X,A)') 'less memory than ideal for ADDRHSH:'
+!       WRITE(6,'(1X,A12,I12)') 'needed    = ', NA*NJ*NC*NL
+!       WRITE(6,'(1X,A12,I12)') 'available = ', nBatch*NC*NL
+!     ENDIF
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     CALL DGEMM_('N','T',NA*NJ,NC*NL,NCHO,
-*    &            One,Cho_Bra,NA*NJ,
-*    &                  Cho_Ket,NC*NL,
-*    &            Zero,AJCL,NA*NJ)
-*
-*     LWHP=1+nBatch*NC*NL
-*     LWHM=LWHP
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     CALL DGEMM_('N','T',NA*NJ,NC*NL,NCHO,
+!    &            One,Cho_Bra,NA*NJ,
+!    &                  Cho_Ket,NC*NL,
+!    &            Zero,AJCL,NA*NJ)
+!
+!     LWHP=1+nBatch*NC*NL
+!     LWHM=LWHP
       LDHP=NASP
       LDHM=NASM
-*
-* The plus combination:
+!
+! The plus combination:
       IF (NWHP>0) THEN
        ICASE=12
-C Read WP:
+! Read WP:
        CALL RHS_ALLO (NASP,NISP,lg_HP)
        CALL RHS_READ (NASP,NISP,lg_HP,iCASE,iSYM,iVEC)
 
@@ -2002,14 +2002,14 @@ C Read WP:
        end if
 #endif
 
-C WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
-C-SVC20100313: use only part of aj but all of cl, this introduces
-C a reordered loop over parts of the RHS array.
+! WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
+!-SVC20100313: use only part of aj but all of cl, this introduces
+! a reordered loop over parts of the RHS array.
 
-C to keep memory advantage, scale NJ so that NA*NJ fits in KAJ
-C (scaling NJ or NL does not affect ordering of integrals = safe)
+! to keep memory advantage, scale NJ so that NA*NJ fits in KAJ
+! (scaling NJ or NL does not affect ordering of integrals = safe)
        NBXSZA=NSECBX
-C      NBXSZJ=NINABX
+!      NBXSZJ=NINABX
        KAJ=NAJCL/(NC*NL)
        NBXSZJ=KAJ/NA
        IF (NBXSZJ<=0) THEN
@@ -2028,9 +2028,9 @@ C      NBXSZJ=NINABX
            NJSZ=IJEND-IJSTA+1
 
            IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-           CALL DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,
-     &          One,Cho_Ket,NC*NL,
-     &          Cho_Bra(IAJSTA,1),NA*NJ,
+           CALL DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,                    &
+     &          One,Cho_Ket,NC*NL,                                      &
+     &          Cho_Bra(IAJSTA,1),NA*NJ,                                &
      &          Zero,AJCL,NC*NL)
 
       if (iParRHS == 1) then
@@ -2070,8 +2070,8 @@ C      NBXSZJ=NINABX
                  IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
                END IF
                IW=IAGEC+NAGEB(ISYM)*(IJGEL-1)
-*              Buff(LWHP-1+IW)=Buff(LWHP-1+IW)+
-*    &                          SCL*AJCL(ICLSTA+ICL-1,IAJ)
+!              Buff(LWHP-1+IW)=Buff(LWHP-1+IW)+
+!    &                          SCL*AJCL(ICLSTA+ICL-1,IAJ)
                IBUF=IBUF+1
                idxBuf(IBUF)=IW
                Buff(IBUF)=SCL*AJCL(ICLSTA+ICL-1,IAJ)
@@ -2135,9 +2135,9 @@ C      NBXSZJ=NINABX
                if (IAGEC >= ILOV .and. IAGEC <= IHIV) then
                  ITMP1 = IAGEC
                  ITMP2 = IJGEL
-                 DBL_MB(MV+ITMP1-ILOV+LDHP*(ITMP2-JLOV))
-     *             = DBL_MB(MV+ITMP1-ILOV+LDHP*(ITMP2-JLOV))
-     *             + SCL*AJCL(ICLSTA+ICL-1,IAJ)
+                 DBL_MB(MV+ITMP1-ILOV+LDHP*(ITMP2-JLOV))                &
+     &             = DBL_MB(MV+ITMP1-ILOV+LDHP*(ITMP2-JLOV))            &
+     &             + SCL*AJCL(ICLSTA+ICL-1,IAJ)
                end if
              END DO
            END DO
@@ -2159,13 +2159,13 @@ C      NBXSZJ=NINABX
        CALL RHS_SAVE (NASP,NISP,lg_HP,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_HP)
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
-* The minus combination:
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! The minus combination:
       IF (NWHM==0) RETURN
       ICASE=13
-C Read WM:
+! Read WM:
       CALL RHS_ALLO (NASM,NISM,lg_HM)
       CALL RHS_READ (NASM,NISM,lg_HM,iCASE,iSYM,iVEC)
 
@@ -2176,10 +2176,10 @@ C Read WM:
         if (JLOV > 0) CALL GA_Access(lg_HM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
       end if
 #endif
-*
-C VM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
+!
+! VM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
        NBXSZA=NSECBX
-C      NBXSZJ=NINABX
+!      NBXSZJ=NINABX
        KAJ=NAJCL/(NC*NL)
        NBXSZJ=KAJ/NA
        IF (NBXSZJ<=0) THEN
@@ -2197,9 +2197,9 @@ C      NBXSZJ=NINABX
            NJSZ=IJEND-IJSTA+1
 
            IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-           CALL DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,
-     &          One,Cho_Ket,NC*NL,
-     &          Cho_Bra(IAJSTA,1),NA*NJ,
+           CALL DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,                    &
+     &          One,Cho_Ket,NC*NL,                                      &
+     &          Cho_Bra(IAJSTA,1),NA*NJ,                                &
      &          Zero,AJCL,NC*NL)
 
       if (iParRHS == 1) then
@@ -2239,8 +2239,8 @@ C      NBXSZJ=NINABX
                 CYCLE
               ENDIF
               IW=IAGTC+NAGTB(ISYM)*(IJGTL-1)
-*             Buff(LWHM-1+IW)=Buff(LWHM-1+IW)+
-*    &                         SCL*AJCL(ICLSTA+ICL-1,IAJ)
+!             Buff(LWHM-1+IW)=Buff(LWHM-1+IW)+
+!    &                         SCL*AJCL(ICLSTA+ICL-1,IAJ)
               IBUF=IBUF+1
               idxBuf(IBUF)=IW
               Buff(IBUF)=SCL*AJCL(ICLSTA+ICL-1,IAJ)
@@ -2304,9 +2304,9 @@ C      NBXSZJ=NINABX
               if (IAGTC >= ILOV .and. IAGTC <= IHIV) then
                 ITMP1 = IAGTC
                 ITMP2 = IJGTL
-                DBL_MB(MV+ITMP1-ILOV+LDHM*(ITMP2-JLOV))
-     *            = DBL_MB(MV+ITMP1-ILOV+LDHM*(ITMP2-JLOV))
-     *            + SCL*AJCL(ICLSTA+ICL-1,IAJ)
+                DBL_MB(MV+ITMP1-ILOV+LDHM*(ITMP2-JLOV))                 &
+     &            = DBL_MB(MV+ITMP1-ILOV+LDHM*(ITMP2-JLOV))             &
+     &            + SCL*AJCL(ICLSTA+ICL-1,IAJ)
               end if
             END DO
           END DO
@@ -2327,9 +2327,9 @@ C      NBXSZJ=NINABX
 #endif
       CALL RHS_SAVE (NASM,NISM,lg_HM,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_HM)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       END SUBROUTINE ADDRHSH
 
 #ifdef _MOLCAS_MPP_

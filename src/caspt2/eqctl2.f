@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 2005  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 2005  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
       use definitions, only: iwp, wp, u6
       use caspt2_global, only: iPrGlb
@@ -23,26 +23,26 @@
       use PrintLevel, only: INSANE, USUAL, VERBOSE
       use EQSOLV, only: IRHS,IVECC,IVECC2,IVECR,IVECW,IVECX
       use ChoCASPT2, only: iALGO
-      use caspt2_module, only: NINDEP, NISUP, NASUP, CPUEIG,CPULCS,
-     &                         CPUNAD,CPUOVL,CPUPCG,CPURHS,CPUSBM,
-     &                         CPUSCA,CPUSER,CPUSGM,CPUVEC,E2TOT,
-     &                         HZERO,IfChol,NSYM,RHSDIRECT,SDECOM,
-     &                         SMATRIX,TIOEIG,TIOLCS,TIONAD,TIOOVL,
-     &                         TIOPCG,TIORHS,TIOSBM,TIOSCA,TIOSER,
+      use caspt2_module, only: NINDEP, NISUP, NASUP, CPUEIG,CPULCS,     &
+     &                         CPUNAD,CPUOVL,CPUPCG,CPURHS,CPUSBM,      &
+     &                         CPUSCA,CPUSER,CPUSGM,CPUVEC,E2TOT,       &
+     &                         HZERO,IfChol,NSYM,RHSDIRECT,SDECOM,      &
+     &                         SMATRIX,TIOEIG,TIOLCS,TIONAD,TIOOVL,     &
+     &                         TIOPCG,TIORHS,TIOSBM,TIOSCA,TIOSER,      &
      &                         TIOSGM,TIOVEC
       IMPLICIT None
       integer(kind=iwp), intent(inout):: ICONV
 
       real(kind=wp) CPU0,CPU,TIO0,TIO,CPU1,TIO1
       integer(kind=iwp) ICASE, ISYM, LAXITY
-C On return, the following data sets will be defined and stored
-C on LUSOLV.
-C At position IVEC=IRHS, the RHS array, in SR representation.
-C At position IVEC=IVECX, the solution array, in SR representation.
-C At position IVEC=IVECR, the residual array, in SR representation.
-C At position IVEC=IVECC, the solution array, in contravariant rep.
-C At position IVEC=IVECC2, the solution array, in covariant repr.
-C At position IVEC=IVECW, the RHS array, in contravariant repr.
+! On return, the following data sets will be defined and stored
+! on LUSOLV.
+! At position IVEC=IRHS, the RHS array, in SR representation.
+! At position IVEC=IVECX, the solution array, in SR representation.
+! At position IVEC=IVECR, the residual array, in SR representation.
+! At position IVEC=IVECC, the solution array, in contravariant rep.
+! At position IVEC=IVECC2, the solution array, in covariant repr.
+! At position IVEC=IVECW, the RHS array, in contravariant repr.
 
       integer(kind=iwp), EXTERNAL :: Cho_X_GetTol
 
@@ -55,14 +55,14 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
           WRITE(u6,'(1X,A)') '--------------------------'
         END IF
 
-C Compute S and (possibly) B matrices and write them on LUSBT
-C this uses previously stored data on LUSOLV!!
+! Compute S and (possibly) B matrices and write them on LUSBT
+! this uses previously stored data on LUSOLV!!
         CALL GASync()
         CALL TIMING(CPU0,CPU,TIO0,TIO)
 
-* Necessary to reset NINDEP to conservative estimate. It gets its
-* final value after SBDIAG call, but must have its original value when
-* calling MKSMAT and MKBMAT.
+! Necessary to reset NINDEP to conservative estimate. It gets its
+! final value after SBDIAG call, but must have its original value when
+! calling MKSMAT and MKBMAT.
         DO ICASE=1,13
          DO ISYM=1,NSYM
           NINDEP(ISYM,ICASE)=NASUP(ISYM,ICASE)
@@ -72,7 +72,7 @@ C this uses previously stored data on LUSOLV!!
 
         IF (SMATRIX/='NO      ') CALL MKSBMAT()
 
-C Modify B matrices, if necessary:
+! Modify B matrices, if necessary:
         IF(HZERO.EQ.'CUSTOM') CALL NEWB()
 
         CALL GASync()
@@ -80,8 +80,8 @@ C Modify B matrices, if necessary:
         CPUSBM=CPU1-CPU0
         TIOSBM=TIO1-TIO0
 
-C Linear dependence removal, ON transformation of S matrix,
-C and spectral resolution of H0:
+! Linear dependence removal, ON transformation of S matrix,
+! and spectral resolution of H0:
         CALL GASync()
         CALL TIMING(CPU0,CPU,TIO0,TIO)
 
@@ -93,37 +93,37 @@ C and spectral resolution of H0:
         TIOEIG=TIO1-TIO0
       End If
 
-C The transformation matrices have now been computed and
-C written at disk addresses given by IDTMAT().
-C The B matrices were destroyed here. In their place,
-C at the IDBMAT() addresses, we find two sets of diagonal
-C energy values. Each consists of: first the energies of
-C the active combination, which are eigenvalues of the
-C B matrix using overlap S; then the energies of the
-C non-active combinations. Usually, only the first set of
-C energies is used. The second is used, in a manner specific
-C to future modifications, for additional energy parameters
-C of more sophisticated H0 or resolvent definitions.
-C Modif PAM 961022: If BMATRIX='YES     ', diagonal energies
-C are put at IDBMAT(). If BTRANS='YES     ', these are the
-C diagonal values of B after transformation to ON basis.
-C If furthermore BSPECT='YES     ', the ON basis consists
-C of eigenvectors. This is the usual CASPT2 situation.
-C However, if only BMATRIX is 'YES     ', then the values
-C are the diagonal values of B divided by diagonal values
-C of S.
+! The transformation matrices have now been computed and
+! written at disk addresses given by IDTMAT().
+! The B matrices were destroyed here. In their place,
+! at the IDBMAT() addresses, we find two sets of diagonal
+! energy values. Each consists of: first the energies of
+! the active combination, which are eigenvalues of the
+! B matrix using overlap S; then the energies of the
+! non-active combinations. Usually, only the first set of
+! energies is used. The second is used, in a manner specific
+! to future modifications, for additional energy parameters
+! of more sophisticated H0 or resolvent definitions.
+! Modif PAM 961022: If BMATRIX='YES     ', diagonal energies
+! are put at IDBMAT(). If BTRANS='YES     ', these are the
+! diagonal values of B after transformation to ON basis.
+! If furthermore BSPECT='YES     ', the ON basis consists
+! of eigenvectors. This is the usual CASPT2 situation.
+! However, if only BMATRIX is 'YES     ', then the values
+! are the diagonal values of B divided by diagonal values
+! of S.
 
       CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 
-C Non-active part of diagonal elements of H0 are computed
-C and written to LUSBT:
+! Non-active part of diagonal elements of H0 are computed
+! and written to LUSBT:
       CALL NADIAG()
-C Modify diagonal elements, if requested:
+! Modify diagonal elements, if requested:
       IF(HZERO.EQ.'CUSTOM') CALL NEWDIA()
 
-C A second set of energy parameters may now have been
-C computed and written to LUSBT.
+! A second set of energy parameters may now have been
+! computed and written to LUSBT.
       CALL GASync()
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUNAD=CPU1-CPU0
@@ -145,12 +145,12 @@ C computed and written to LUSBT.
       CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 
-C-SVC: initialize the RHS array offsets
+!-SVC: initialize the RHS array offsets
       CALL RHS_INIT()
-C at this point LUSOLV is not used as a temporary disk anymore, so it's
-C safe to initialize it (safe to write zeros to LUSOLV or delete it)
+! at this point LUSOLV is not used as a temporary disk anymore, so it's
+! safe to initialize it (safe to write zeros to LUSOLV or delete it)
 
-C Set up right-hand side matrix elements.
+! Set up right-hand side matrix elements.
       IF(IfChol .AND. iALGO.eq.1) THEN
         IF (RHSDIRECT) THEN
           IF (NSYM.EQ.1) THEN
@@ -177,7 +177,7 @@ C Set up right-hand side matrix elements.
         CALL RHS_FPRINT('C',IVECW)
       END IF
 
-C-SVC: start PCG routine, set timers.
+!-SVC: start PCG routine, set timers.
       CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
       CPUSCA=0
@@ -191,12 +191,12 @@ C-SVC: start PCG routine, set timers.
       TIOSGM=0
       TIOVEC=0
 
-C Transform RHS of CASPT2 equations to eigenbasis for H0:
+! Transform RHS of CASPT2 equations to eigenbasis for H0:
       CALL PTRTOSR(1,IVECW,IRHS)
 
       IF (IPRGLB.GE.INSANE) THEN
         WRITE(u6,'("DEBUG> ")')
-        WRITE(u6,'("DEBUG> ",A)')
+        WRITE(u6,'("DEBUG> ",A)')                                       &
      &   'Norms of the RHS blocks (H0 eigenbasis):'
         CALL RHS_FPRINT('SR',IRHS)
       END IF
@@ -214,13 +214,13 @@ C Transform RHS of CASPT2 equations to eigenbasis for H0:
       CALL PTRTOC(0,IVECX,IVECC)
       CALL PTRTOC(1,IVECX,IVECC2)
 
-C-SVC: end of PCG routine, compute total time.
+!-SVC: end of PCG routine, compute total time.
       CALL GASync()
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUPCG=CPU1-CPU0
       TIOPCG=TIO1-TIO0
 
-C-SVC: collect and print information on coefficients/denominators
+!-SVC: collect and print information on coefficients/denominators
       if (nStpGrd == 1 .or. (nStpGrd == 2 .and. .not.do_grad)) then
         IF(IPRGLB.GE.USUAL) THEN
           CALL H0SPCT()

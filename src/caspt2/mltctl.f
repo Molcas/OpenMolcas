@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1998  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1998  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE MLTCTL(HEFF,EIGVEC,U0)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, Half, One
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: TERSE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSTATE, IfChol, IFDW, IFRMS, IFXMS, JMS,
+      use caspt2_module, only: NSTATE, IfChol, IFDW, IFRMS, IFXMS, JMS, &
      &                         MSTATE,  ENERGY
       IMPLICIT None
       real(kind=wp), intent(inout):: HEFF(NSTATE,NSTATE)
@@ -46,11 +46,11 @@
         END IF
       END IF
 
-C Write out the effective Hamiltonian, for use in e.g. RASSI:
+! Write out the effective Hamiltonian, for use in e.g. RASSI:
       INLAB='HEFF'
       CALL put_darray(INLAB,HEFF,NSTATE**2)
 
-C Analyze the effective Hamiltonian:
+! Analyze the effective Hamiltonian:
       DSHIFT=Zero
       IF(HEFF(1,1).LE.-100.0E0_wp) THEN
         DSHIFT=-DBLE(INT(-HEFF(1,1)))
@@ -60,7 +60,7 @@ C Analyze the effective Hamiltonian:
       END DO
 
       IF(IPRGLB.GE.TERSE .and. DSHIFT.NE.Zero) THEN
-        WRITE(u6,*)
+        WRITE(u6,*)                                                     &
      &  ' Output diagonal energies have been shifted. Add ',DSHIFT
        END IF
 
@@ -71,14 +71,14 @@ C Analyze the effective Hamiltonian:
           WRITE(u6,*)
           WRITE(u6,'(1x,5I16)')(MSTATE(I),I=ISTA,IEND)
           DO J=1,NSTATE
-            WRITE(u6,'(1x,I3,3X,5F16.8)')
+            WRITE(u6,'(1x,I3,3X,5F16.8)')                               &
      &            MSTATE(J),(HEFF(J,I),I=ISTA,IEND)
           END DO
         END DO
       END IF
 
-C Diagonalize:
-C Use a symmetrized matrix, in triangular storage:
+! Diagonalize:
+! Use a symmetrized matrix, in triangular storage:
       NUMAT=NSTATE**2
       NHTRI=(NUMAT+NSTATE)/2
       CALL mma_allocate(UMAT,NSTATE,NSTATE,LABEL='UMAT')
@@ -99,7 +99,7 @@ C Use a symmetrized matrix, in triangular storage:
           WRITE(u6,'(1x,5I16)')(MSTATE(I),I=ISTA,IEND)
           DO I=ISTA,NSTATE
             II0=(I*(I-1))/2
-            WRITE(u6,'(1x,I3,3X,5F16.8)')
+            WRITE(u6,'(1x,I3,3X,5F16.8)')                               &
      &            MSTATE(I),(HTRI(II0+J),J=ISTA,MIN(I,IEND))
           END DO
         END DO
@@ -128,10 +128,10 @@ C Use a symmetrized matrix, in triangular storage:
           variant = 'MS '
         End If
           WRITE(u6,*)
-          WRITE(u6,'(6X,A,A)')' Total ',trim(variant)//
+          WRITE(u6,'(6X,A,A)')' Total ',trim(variant)//                 &
      &      '-CASPT2 energies:'
           DO I=1,NSTATE
-            Call PrintResult(u6,'(6x,A,I3,5X,A,F16.8)',trim(variant)//
+            Call PrintResult(u6,'(6x,A,I3,5X,A,F16.8)',trim(variant)//  &
      &      '-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
           END DO
       END IF
@@ -147,10 +147,10 @@ C Use a symmetrized matrix, in triangular storage:
           WRITE(u6,*)
         END DO
         if (IFXMS.or.IFRMS) then
-* Transform eigenvectors into the original input basis
+! Transform eigenvectors into the original input basis
           call mma_allocate(Utmp,Nstate,Nstate,Label='Utmp')
-          call dgemm_('N','N',Nstate,Nstate,Nstate,
-     &                One,U0,Nstate,eigvec,Nstate,
+          call dgemm_('N','N',Nstate,Nstate,Nstate,                     &
+     &                One,U0,Nstate,eigvec,Nstate,                      &
      &                Zero,Utmp,Nstate)
           WRITE(u6,'(6X,A)')' In terms of the input states:'
           DO ISTA=1,NSTATE,5
@@ -166,13 +166,13 @@ C Use a symmetrized matrix, in triangular storage:
         WRITE(u6,*)
       END IF
 
-* Restore original effective Hamiltonian
+! Restore original effective Hamiltonian
       DO I=1,NSTATE
         HEFF(I,I)=HEFF(I,I)+DSHIFT
       END DO
 
-* In automatic verification calculations, the precision is lower
-* in case of Cholesky calculation.
+! In automatic verification calculations, the precision is lower
+! in case of Cholesky calculation.
       LAXITY=8
       IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
       Call Add_Info('E_MSPT2',ENERGY,nState,LAXITY)

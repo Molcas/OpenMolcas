@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1997, Per Ake Malmqvist                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1997, Per Ake Malmqvist                                *
+!***********************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0,nState)
       use constants, only: Zero
       use fciqmc_interface, only: DoFCIQMC
@@ -22,40 +22,40 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Molcas, only: LenIn, MxAct, MxOrb, MxRoot
       use RASDim, only: MxIter, MxTit
-      use caspt2_module, only: DOCUMULANT,HEADER,IFMIX,IFMSCOUP,
-     &                         IFQCAN,IFRMS,IFXMS,IROOT,ISCF,ISPIN,
-     &                         LROOTS,
-     &                         NACTEL,BNAME,NASH,NBAS,NBSQT,NCONF,
-     &                         NDEL,NELE3,NFRO,NHOLE1,NISH,NRAS1,NRAS2,
-     &                         NRAS3,NROOTS,NSYM,POTNUC,STSYM,TITLE,
+      use caspt2_module, only: DOCUMULANT,HEADER,IFMIX,IFMSCOUP,        &
+     &                         IFQCAN,IFRMS,IFXMS,IROOT,ISCF,ISPIN,     &
+     &                         LROOTS,                                  &
+     &                         NACTEL,BNAME,NASH,NBAS,NBSQT,NCONF,      &
+     &                         NDEL,NELE3,NFRO,NHOLE1,NISH,NRAS1,NRAS2, &
+     &                         NRAS3,NROOTS,NSYM,POTNUC,STSYM,TITLE,    &
      &                         MSTATE,ENERGY,MSTATE
       use caspt2_module, only: CITHR,MXCI
       use definitions, only: iwp, wp, u6
       IMPLICIT None
-C Normal operation: A new file, 'JOBMIX', will be created, with the
-C CMO's and CI arrays of the JOBIPH, except that the CI arrays have
-C been modified. They are now linear combinations of the original ones,
-C using coefficients taken from the eigenvectors of the effective
-C Hamiltonian.
-C Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
-C energies.
+! Normal operation: A new file, 'JOBMIX', will be created, with the
+! CMO's and CI arrays of the JOBIPH, except that the CI arrays have
+! been modified. They are now linear combinations of the original ones,
+! using coefficients taken from the eigenvectors of the effective
+! Hamiltonian.
+! Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
+! energies.
       integer(kind=iwp), intent(in):: Nstate
-      real(kind=wp), intent(in):: Heff(Nstate,Nstate),
-     &                            Ueff(Nstate,Nstate),
+      real(kind=wp), intent(in):: Heff(Nstate,Nstate),                  &
+     &                            Ueff(Nstate,Nstate),                  &
      &                            U0(Nstate,Nstate)
 
       integer(kind=iwp) JOBIPH, JOBMIX
       real(kind=wp) Weight_(MxRoot)
       real(kind=wp), allocatable:: CI1(:), CI2(:), OLDE(:), EFFCP(:)
       integer(kind=iwp), allocatable:: JROOT(:), IDIST(:)
-      integer(kind=iwp) I,IAD15,IDISK,IDR,IDW,IISTATE,ISNUM,ISTATE,J,
+      integer(kind=iwp) I,IAD15,IDISK,IDR,IDW,IISTATE,ISNUM,ISTATE,J,   &
      &                  JSNUM,MROOTS,NIDIST,NOLDE,ID
       real(kind=wp) X
       Integer(kind=iwp) xLevel(MxLev), xL2Act(MxLev)
 
 
-C Not called, if .NOT.IFMIX, then only the new CI coefficients are
-C printed, no JOBMIX file is created.
+! Not called, if .NOT.IFMIX, then only the new CI coefficients are
+! printed, no JOBMIX file is created.
       IF (IFMSCOUP.AND.(ISCF.EQ.0)) THEN
         IF (.NOT.IFMIX) THEN
           IF (IPRGLB.GE.USUAL) CALL PRINT_CI_MIX(Ueff)
@@ -78,16 +78,16 @@ C printed, no JOBMIX file is created.
         WRITE(u6,'(20A4)')('****',I=1,20)
       END IF
 
-* Note that JOBIPH file will contain all the RASSCF CI vectors
-* plus a CASPT2 effective Hamiltonian for the selected states.
-* The effective Hamiltonian for the states not included in the
-* CASPT2 treatment will be diagonal with RASSCF energies!
+! Note that JOBIPH file will contain all the RASSCF CI vectors
+! plus a CASPT2 effective Hamiltonian for the selected states.
+! The effective Hamiltonian for the states not included in the
+! CASPT2 treatment will be diagonal with RASSCF energies!
 
-* The JOBMIX will contain the (possibly mixed) CI vectors,
-* with CASPT2 energies for the selected states and zero energy
-* for states not included in the CASPT2 treatment
-* If NoMulti was specified, the original state indexing is
-* maintained, otherwise the new states are just 1, 2, 3...
+! The JOBMIX will contain the (possibly mixed) CI vectors,
+! with CASPT2 energies for the selected states and zero energy
+! for states not included in the CASPT2 treatment
+! If NoMulti was specified, the original state indexing is
+! maintained, otherwise the new states are just 1, 2, 3...
 
       CALL mma_allocate(CI1,MXCI,Label='CI1')
       CALL mma_allocate(CI2,MXCI,Label='CI2')
@@ -95,15 +95,15 @@ C printed, no JOBMIX file is created.
       CALL DANAME(JOBIPH,refwfn_filename)
       JOBMIX=11
       CALL DANAME(JOBMIX,'JOBMIX')
-C IADR15 is already known (it is the table of contents of the
-C JOBIPH file). When copying/modifying selected data from JOBIPH
-C to JOBMIX, we use the same TOC array, IADR15.
+! IADR15 is already known (it is the table of contents of the
+! JOBIPH file). When copying/modifying selected data from JOBIPH
+! to JOBMIX, we use the same TOC array, IADR15.
       IAD15=0
       CALL IDAFILE(JOBIPH,2,IADR15,30,IAD15)
       IAD15=0
       CALL IDAFILE(JOBMIX,1,IADR15,30,IAD15)
       IAD15=IADR15(1)
-* Modify root index in case of MS
+! Modify root index in case of MS
       CALL mma_allocate(JROOT,MXROOT,LABEL='JROOT')
       IF (IFMSCOUP) THEN
         CALL ICOPY(MXROOT,[0],0,JROOT,1)
@@ -115,20 +115,20 @@ C to JOBMIX, we use the same TOC array, IADR15.
         CALL ICOPY(MXROOT,IROOT,1,JROOT,1)
         MROOTS=NROOTS
       END IF
-* Initialize WEIGHT_() (which is unused) just so detection
-* of uninitialized memory does not get its knickers twisted
+! Initialize WEIGHT_() (which is unused) just so detection
+! of uninitialized memory does not get its knickers twisted
       CALL DCOPY_(MXROOT,[Zero],0,WEIGHT_,1)
       WEIGHT_(1:NROOTS) = WEIGHT(1:NROOTS)
-      CALL WR_RASSCF_INFO(JOBMIX,1,iAd15,
-     &                    NACTEL,ISPIN,NSYM,STSYM,
-     &                    NFRO,NISH,NASH,NDEL,NBAS,8,
-     &                    BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144,
-     &                    TITLE,4*18*MXTIT,POTNUC,
-     &                    LROOTS,MROOTS,JROOT,MXROOT,NRAS1,
-     &                    NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,
+      CALL WR_RASSCF_INFO(JOBMIX,1,iAd15,                               &
+     &                    NACTEL,ISPIN,NSYM,STSYM,                      &
+     &                    NFRO,NISH,NASH,NDEL,NBAS,8,                   &
+     &                    BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144,       &
+     &                    TITLE,4*18*MXTIT,POTNUC,                      &
+     &                    LROOTS,MROOTS,JROOT,MXROOT,NRAS1,             &
+     &                    NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,              &
      &                    Weight_)
       CALL mma_deallocate(JROOT)
-* Copy MO coefficients from JOBIPH to JOBMIX
+! Copy MO coefficients from JOBIPH to JOBMIX
       NCMO=NBSQT
       CALL mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
       CMO=>CMO_Internal
@@ -136,7 +136,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
       CALL DDAFILE(JOBIPH,2,CMO,NCMO,IAD15)
       IAD15=IADR15(9)
       CALL DDAFILE(JOBMIX,1,CMO,NCMO,IAD15)
-* If IFQCAN.EQ.0, there is also an additional CMO set:
+! If IFQCAN.EQ.0, there is also an additional CMO set:
       IF(IFQCAN.EQ.0) THEN
         IAD15=IADR15(2)
         CALL DDAFILE(JOBIPH,2,CMO,NCMO,IAD15)
@@ -145,14 +145,14 @@ C to JOBMIX, we use the same TOC array, IADR15.
       END IF
       CALL mma_deallocate(CMO_Internal)
       nullify(CMO)
-* Copy all CI coefficients
+! Copy all CI coefficients
       IDR=IADR15(4)
       IDW=IADR15(4)
       DO I=1,LROOTS
       CALL DDAFILE(JOBIPH,2,CI1,NCONF,IDR)
       CALL DDAFILE(JOBMIX,1,CI1,NCONF,IDW)
       END DO
-* Replace old energy array with (MS-)CASPT2 energy values:
+! Replace old energy array with (MS-)CASPT2 energy values:
       NOLDE=MXROOT*MXITER
       CALL mma_allocate(OLDE,NOLDE,LABEL='OLDE')
       OLDE(:)=Zero
@@ -168,16 +168,16 @@ C to JOBMIX, we use the same TOC array, IADR15.
       CALL DDAFILE(JOBMIX,1,OLDE,NOLDE,IAD15)
       CALL mma_deallocate(OLDE)
       IAD15=IADR15(18)
-CSVC: translates levels to orbital index
+!SVC: translates levels to orbital index
 !     Copy to local array since L2Act and Level are protected.
       XL2Act(:)=L2Act(:)
       CALL IDAFILE(JOBMIX,1,xL2ACT,mxAct,IAD15)
-CSVC: translates orbital index to levels
+!SVC: translates orbital index to levels
       XLevel(:)=Level(:)
       CALL IDAFILE(JOBMIX,1,xLEVEL,mxAct,IAD15)
 
-* PAM07: Eliminate unsafe IPOSFILE calls, use instead dummy i/o operations
-* to find disk addresses to CI arrays:
+! PAM07: Eliminate unsafe IPOSFILE calls, use instead dummy i/o operations
+! to find disk addresses to CI arrays:
       NIDIST=0
       DO ISTATE=1,NSTATE
         JSNUM=MSTATE(ISTATE)
@@ -187,21 +187,21 @@ CSVC: translates orbital index to levels
       ID=IADR15(4)
       DO JSNUM=1,NIDIST
         IDIST(JSNUM)=ID
-* This dummy operation does nothing, merely updates file pointer ID
+! This dummy operation does nothing, merely updates file pointer ID
         CALL DDAFILE(JOBIPH,0,CI1,NCONF,ID)
       END DO
-* PAM07: Now IDIST() is used, instead of IPOSFILE, below!
+! PAM07: Now IDIST() is used, instead of IPOSFILE, below!
 
-C PAM05: Now CREIPH is called also in the NOMULT=1 case, to allow making
-C a JOBMIX file also when NOMULT was ordered. Then the energies
-C will be state-specific, of course. But no mixing of CI vectors.
+! PAM05: Now CREIPH is called also in the NOMULT=1 case, to allow making
+! a JOBMIX file also when NOMULT was ordered. Then the energies
+! will be state-specific, of course. But no mixing of CI vectors.
       IF (IFMSCOUP) THEN
-C Also write effective Hamiltonian on Jobiph file:
+! Also write effective Hamiltonian on Jobiph file:
         CALL mma_allocate(EFFCP,LROOTS**2,Label='EFFCP')
-C Read the effective Hamiltonian on JobIph file:
+! Read the effective Hamiltonian on JobIph file:
         IAD15=IADR15(17)
         CALL DDAFILE(JOBIPH,2,EFFCP,LROOTS**2,IAD15)
-C Replace the relevant elements:
+! Replace the relevant elements:
         DO I=1,NSTATE
           ISNUM=MSTATE(I)
           DO J=1,NSTATE
@@ -209,10 +209,10 @@ C Replace the relevant elements:
             EFFCP(ISNUM+LROOTS*(JSNUM-1))=HEFF(I,J)
           END DO
         END DO
-C Write the present effective Hamiltonian:
+! Write the present effective Hamiltonian:
         IAD15=IADR15(17)
         CALL DDAFILE(JOBIPH,1,EFFCP,LROOTS**2,IAD15)
-C Write a diagonal Hamiltonian in the JOBMIX:
+! Write a diagonal Hamiltonian in the JOBMIX:
         IAD15=IADR15(17)
         CALL DCOPY_(LROOTS**2,[Zero],0,EFFCP,1)
         DO ISTATE=1,NSTATE
@@ -220,7 +220,7 @@ C Write a diagonal Hamiltonian in the JOBMIX:
         END DO
         CALL DDAFILE(JOBMIX,1,EFFCP,LROOTS**2,IAD15)
         CALL mma_deallocate(EFFCP)
-* Now 'mix' those states that were treated in the multi-state CASPT2
+! Now 'mix' those states that were treated in the multi-state CASPT2
         IF (IPRGLB.GE.USUAL) THEN
           WRITE(u6,*)
           CALL CollapseOutput(1,'Mixed CI coefficients:')
@@ -236,7 +236,7 @@ C Write a diagonal Hamiltonian in the JOBMIX:
           END DO
           IF(ISCF.EQ.0) THEN
             IF(IPRGLB.GE.USUAL) THEN
-              WRITE(u6,'(1x,a,i3)')
+              WRITE(u6,'(1x,a,i3)')                                     &
      &        ' The CI coefficients for the MIXED state nr. ',ISTATE
               CALL PRWF_CP2(STSYM,NCONF,CI2,CITHR)
             END IF
@@ -248,9 +248,9 @@ C Write a diagonal Hamiltonian in the JOBMIX:
           CALL CollapseOutput(0,'Mixed CI coefficients:')
           WRITE(u6,*)
         END IF
-C In case of XMS/XDW/RMS and NOMUL, the CI vectors are replaced by the
-C rotated zeroth-order states (they should have been printed earlier,
-C in grpini)
+! In case of XMS/XDW/RMS and NOMUL, the CI vectors are replaced by the
+! rotated zeroth-order states (they should have been printed earlier,
+! in grpini)
       ELSE IF (IFXMS.or.IFRMS) THEN
         DO ISTATE=1,NSTATE
           ISNUM=MSTATE(ISTATE)

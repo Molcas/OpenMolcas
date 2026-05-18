@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE FMAT_CHO(CMO,NCMO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE FMAT_CHO(CMO,NCMO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,     &
      &                                                       FIFA,NFIFA)
       use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NBTRI, notri, NSYM, NBAS,
+      use caspt2_module, only: NBTRI, notri, NSYM, NBAS,                &
      &                         NORB, NFRO
       use definitions, only: iwp, wp
 #ifdef _DEBUGPRINT_
@@ -26,7 +26,7 @@
       real(kind=wp), intent(out):: FIMO(NFIMO),FIFA(NFIFA)
 
       real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:)
-      integer(kind=iwp) I, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI,
+      integer(kind=iwp) I, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI,         &
      &                  NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
 #ifdef _DEBUGPRINT_
       integer(kind=iwp) ISTLT
@@ -35,10 +35,10 @@
 
       FIMO(:)=Zero
       FIFA(:)=Zero ! initially used as FAMO
-C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
-C REPRESENTED BY CHOLESKY VECTORS:
-C TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
-C TO MO BASIS FOR USE IN CASPT2.
+! THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
+! REPRESENTED BY CHOLESKY VECTORS:
+! TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
+! TO MO BASIS FOR USE IN CASPT2.
 
 
       NBBT=0
@@ -68,11 +68,11 @@ C TO MO BASIS FOR USE IN CASPT2.
        NO_X = Max(1,NO)
        NF=NFRO(ISYM)
        LSCI=LSC+NF*NB
-* The inactive Fock matrix:
+! The inactive Fock matrix:
        CALL SQUARE(FIAO(IFAO),SCR1,NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,
+       CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,                       &
      &            CMO(LSCI),NB,Zero,SCR2,NB)
-       CALL DGEMM_('T','N',NO,NO,NB, One,CMO(LSCI),NB,
+       CALL DGEMM_('T','N',NO,NO,NB, One,CMO(LSCI),NB,                  &
      &            SCR2,NB,Zero,SCR3,NO_X)
        IJ=0
        DO I=1,NO
@@ -81,11 +81,11 @@ C TO MO BASIS FOR USE IN CASPT2.
          FIMO(IOFMO+IJ)=SCR3(I+NO*(J-1))
         END DO
        END DO
-* The active Fock matrix:
+! The active Fock matrix:
        CALL SQUARE(FAAO(IFAO),SCR1,NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,
+       CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,                       &
      &            CMO(LSCI),NB,Zero,SCR2,NB)
-       CALL DGEMM_('T','N',NO,NO,NB, One,CMO(LSCI),NB,
+       CALL DGEMM_('T','N',NO,NO,NB, One,CMO(LSCI),NB,                  &
      &            SCR2,NB,Zero,SCR3,NO_X)
        IJ=0
        DO I=1,NO

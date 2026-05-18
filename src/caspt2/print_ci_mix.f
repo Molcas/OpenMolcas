@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1997, Per Ake Malmqvist                                *
-*               2018, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1997, Per Ake Malmqvist                                *
+!               2018, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       Subroutine Print_CI_Mix(EigVec)
-      Use RefWfn, Only: refwfn_active, refwfn_is_h5, refwfn_id,
+      Use RefWfn, Only: refwfn_active, refwfn_is_h5, refwfn_id,         &
      &                  refwfn_filename, refwfn_close, iadr15
 #ifdef _HDF5_
       Use mh5, Only: mh5_open_file_r, mh5_fetch_dset
@@ -42,7 +42,7 @@
 #ifdef _HDF5_
           refwfn_id = mh5_open_file_r(refwfn_filename)
 #else
-* This should never happen
+! This should never happen
           Call AbEnd()
 #endif
         Else
@@ -66,10 +66,10 @@
           If (refwfn_is_h5) Then
 #ifdef _HDF5_
             jSNum=mState(iiState)
-            Call mh5_fetch_dset(
+            Call mh5_fetch_dset(                                        &
      &           refwfn_id,'CI_VECTORS',cCI,[nConf,1],[0,jSNum-1])
 #else
-* This should never happen
+! This should never happen
             Call AbEnd()
 #endif
           Else
@@ -77,7 +77,7 @@
           End If
           Call daXpY_(nConf,EigVec(iiState,iState),cCI,1,mCI,1)
         End Do
-        Write(u6,'(1X,A,I3)')
+        Write(u6,'(1X,A,I3)')                                           &
      &     ' The CI coefficients for the MIXED state nr. ',iState
         Call PrWf_CP2(stSym,nConf,mCI,CITHR)
       End Do

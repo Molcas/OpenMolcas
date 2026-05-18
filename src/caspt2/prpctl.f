@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE PRPCTL(MODE,UEFF,U0,nState)
       use constants, only: Zero, Half, One, Two,Five
       USE PT2WFN, only: PT2WFN_DENSSTORE
       use caspt2_global, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
-      use caspt2_global, only: do_grad,do_nac,iRoot1,iRoot2,SLag,
+      use caspt2_global, only: do_grad,do_nac,iRoot1,iRoot2,SLag,       &
      &                         DPT2_tot,DPT2C_tot
-      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,
+      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,   &
      &                       LISTS
       use caspt2_global, only: LUONEM
       use PrintLevel, only: USUAL, VERBOSE
@@ -32,11 +32,11 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV, only: IVECX, NLSTOT
-      use caspt2_module, only: IFMSCOUP, IFPROP, irlxroot,
-     &                         ISCF, JSTATE, BNAME, NASHT, NBAST, NCONF,
-     &                         NSYM, OUTFMT, PRORB, THRENE, THROCC,
-     &                         NORB, NBAS, NISH, NASH, IAD1M, NFRO,
-     &                         NRAS1, NRAS2, NRAS3, MSTATE, NDEL,
+      use caspt2_module, only: IFMSCOUP, IFPROP, irlxroot,              &
+     &                         ISCF, JSTATE, BNAME, NASHT, NBAST, NCONF,&
+     &                         NSYM, OUTFMT, PRORB, THRENE, THROCC,     &
+     &                         NORB, NBAS, NISH, NASH, IAD1M, NFRO,     &
+     &                         NRAS1, NRAS2, NRAS3, MSTATE, NDEL,       &
      &                         Energy, MSTATE
       use definitions, only: iwp, wp, u6
 
@@ -52,11 +52,11 @@
       integer(kind=iwp) IndType(56)
       real(kind=wp) Dummy(2), DUM(1), SCAL
       integer(kind=iwp) NFROSAV(NSYM),NORBSAV(NSYM)
-      real(kind=wp), allocatable :: DMAT(:),CI1(:),CI2(:),SGM(:),
+      real(kind=wp), allocatable :: DMAT(:),CI1(:),CI2(:),SGM(:),       &
      &                              TG1(:,:),CNAT(:),OCC(:),Scr(:)
-      integer(kind=iwp) I, iComp, IDISK, IDMAT, IDMOFF, IERR, II, II2,
-     &                  IJ, IJ2, IndT, iOpt, iRc, iShift, ISTATE,
-     &                  iSyLbl, ISYM, iUHF, KSTATE, LUTMP, N, nDens,
+      integer(kind=iwp) I, iComp, IDISK, IDMAT, IDMOFF, IERR, II, II2,  &
+     &                  IJ, IJ2, IndT, iOpt, iRc, iShift, ISTATE,       &
+     &                  iSyLbl, ISYM, iUHF, KSTATE, LUTMP, N, nDens,    &
      &                  NDMAT, NO, NOCC
       integer(kind=iwp), external:: IsFreeUnit
 
@@ -80,11 +80,11 @@
       call unused_logical(do_grad)
 #endif
 
-* PAM2008 When this subroutine is called, theMSTATE calculation has been done
-* for the (individual) state nr JSTATE in 1,2,..,NSTATE.
-* The corresponding CI-root from rasscf, the root state for this PT2,
-* is number MSTATE(JSTATE) on the input JOBIPH file.
-* JSTATE,NSTATE and MSTATE() are in the caspt2_module.F90 file.
+! PAM2008 When this subroutine is called, theMSTATE calculation has been done
+! for the (individual) state nr JSTATE in 1,2,..,NSTATE.
+! The corresponding CI-root from rasscf, the root state for this PT2,
+! is number MSTATE(JSTATE) on the input JOBIPH file.
+! JSTATE,NSTATE and MSTATE() are in the caspt2_module.F90 file.
       IERR=0
       IF(NSTATE.GT.1) THEN
        N=MSTATE(JSTATE)
@@ -108,11 +108,11 @@
        WRITE(u6,'(20A4)')('----',I=1,20)
       END IF
 
-C Compute density matrix, output orbitals, and properties.
+! Compute density matrix, output orbitals, and properties.
 
-C Compute density matrix of CASPT2 wave function, in MO basis,
-C to produce output orbitals.
-C This density matrix may be approximated in several ways, see DENS.
+! Compute density matrix of CASPT2 wave function, in MO basis,
+! to produce output orbitals.
+! This density matrix may be approximated in several ways, see DENS.
       NDMAT=0
       NOCC=0
       IF (MODE.EQ.0) THEN
@@ -150,12 +150,12 @@ C This density matrix may be approximated in several ways, see DENS.
           DO II = 1, NO
             DO IJ = 1, II
               !! second-order (DPT2) and first-order (DPT2C)
-              DMAT(1+IDMAT) = DPT2_TOT(IDMOFF+II+NO*(IJ-1))
-     *                      + DPT2C_TOT(IDMOFF+II+NO*(IJ-1))*0.25e+00_wp
+              DMAT(1+IDMAT) = DPT2_TOT(IDMOFF+II+NO*(IJ-1))             &
+     &                      + DPT2C_TOT(IDMOFF+II+NO*(IJ-1))*0.25e+00_wp
               IF (.NOT.DO_NAC) THEN
                 !! Add the reference density matrix (inactive)
-                IF (II.EQ.IJ .and. II.LE.NFRO(ISYM)+NISH(ISYM))
-     *            DMAT(1+IDMAT) = DMAT(1+IDMAT) + Two
+                IF (II.EQ.IJ .and. II.LE.NFRO(ISYM)+NISH(ISYM))         &
+     &            DMAT(1+IDMAT) = DMAT(1+IDMAT) + Two
               END IF
               IDMAT = IDMAT + 1
             END DO
@@ -176,8 +176,8 @@ C This density matrix may be approximated in several ways, see DENS.
           DO KSTATE = 1, NSTATE
             SCAL = SLag(ISTATE,KSTATE)
             IF (.NOT.DO_NAC) THEN
-              IF (ISTATE.EQ.IROOT1.AND.KSTATE.EQ.IROOT2)
-     *          SCAL = SCAL + One
+              IF (ISTATE.EQ.IROOT1.AND.KSTATE.EQ.IROOT2)                &
+     &          SCAL = SCAL + One
             END IF
             IF (ABS(SCAL).LE.1.0e-09_wp) CYCLE
             IF (ISCF.NE.0) THEN
@@ -185,16 +185,16 @@ C This density matrix may be approximated in several ways, see DENS.
             ELSE
               CALL LOADCI_XMS('N',1,NCONF,NSTATE,CI2,KSTATE,U0)
             END IF
-            Call Dens1T_RPT2(CI1,CI2,
-     *                       SGM,TG1,nAshT)
+            Call Dens1T_RPT2(CI1,CI2,                                   &
+     &                       SGM,TG1,nAshT)
             CALL DSCAL_(NASHT**2,SCAL,TG1,1)
             DO II = 1, NASH(1)
               II2 = II+NFRO(1)+NISH(1)
               DO IJ = 1, II
                 IJ2 = IJ+NFRO(1)+NISH(1)
-                DMAT(II2*(II2-1)/2+IJ2)
-     *            = DMAT(II2*(II2-1)/2+IJ2)
-     *            + TG1(II,IJ)*Half + TG1(IJ,II)*Half
+                DMAT(II2*(II2-1)/2+IJ2)                                 &
+     &            = DMAT(II2*(II2-1)/2+IJ2)                             &
+     &            + TG1(II,IJ)*Half + TG1(IJ,II)*Half
               END DO
             END DO
           END DO
@@ -214,7 +214,7 @@ C This density matrix may be approximated in several ways, see DENS.
         CALL ICOPY(NSYM,NBAS,1,NORB,1)
       END IF
 
-C Compute natural orbitals of CASPT2 wave function.
+! Compute natural orbitals of CASPT2 wave function.
       CALL mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
       CMO=>CMO_Internal
       CMO(:)=CMOPT2(:)
@@ -228,7 +228,7 @@ C Compute natural orbitals of CASPT2 wave function.
       CALL NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOCC,CNAT,nCMO)
       CALL mma_deallocate(CMO_Internal)
       nullify(CMO)
-C Backtransform density matrix to original MO basis before storing
+! Backtransform density matrix to original MO basis before storing
       CALL TRANSFOCK(TORB,SIZE(TORB),DMAT,NDMAT,-1)
       CALL PT2WFN_DENSSTORE(DMAT,NDMAT)
       call mma_deallocate(DMAT)
@@ -245,8 +245,8 @@ C Backtransform density matrix to original MO basis before storing
         RETURN
       END IF
 
-C Write natural orbitals as standard orbital file on PT2ORB
-* PAM2008: Separate PT2ORB files for each state:
+! Write natural orbitals as standard orbital file on PT2ORB
+! PAM2008: Separate PT2ORB files for each state:
       FILENAME='PT2ORB'
       MDNAME='MD_PT2'
       IF(NSTATE.GT.1.AND.MODE.EQ.0) THEN
@@ -264,16 +264,16 @@ C Write natural orbitals as standard orbital file on PT2ORB
         WRITE(MDNAME(8:10),'(I3)') N
        END IF
       END IF
-* PAM2008: For MS-CASPT2 with more than one state, orbital files will
-* now be numbered PT2ORB.1 ... PT2ORB.999
-* depending on which CI-root of the rasscf calculation that was
-* the root state of the PT2.
+! PAM2008: For MS-CASPT2 with more than one state, orbital files will
+! now be numbered PT2ORB.1 ... PT2ORB.999
+! depending on which CI-root of the rasscf calculation that was
+! the root state of the PT2.
       LUTMP=19
       LUTMP=ISFREEUNIT(LUTMP)
-* PAM 2008: Add typeindex information:
-*----------------------------------------------------------------------*
-*     Make typeindex information                                       *
-*----------------------------------------------------------------------*
+! PAM 2008: Add typeindex information:
+!----------------------------------------------------------------------*
+!     Make typeindex information                                       *
+!----------------------------------------------------------------------*
       iShift=0
       DO ISYM=1,NSYM
         IndT=0
@@ -293,26 +293,26 @@ C Write natural orbitals as standard orbital file on PT2ORB
         iShift=iShift+7
       EndDo
       If (NSTATE.GT.1) THEN
-        Write(Note,'(A41,I3,A3,f22.12)')
-     &   '* CASPT2 natural orbitals for root number',N,
+        Write(Note,'(A41,I3,A3,f22.12)')                                &
+     &   '* CASPT2 natural orbitals for root number',N,                 &
      &   ' E=',Energy(JSTATE)
       Else
         Note='* CASPT2 natural orbitals'
       End If
 
-      CALL WRVEC(FILENAME,LUTMP,'COI',NSYM,NBAS,NBAS,
+      CALL WRVEC(FILENAME,LUTMP,'COI',NSYM,NBAS,NBAS,                   &
      &  CNAT, OCC,Dummy  ,IndType,Note)
       iUHF=0
       Call Molden_Interface(iUHF,FILENAME,MDNAME)
 
-C Write natural orbitals to standard output.
+! Write natural orbitals to standard output.
       IF ( IPRGLB.GE.VERBOSE) THEN
        WRITE(u6,*)
-       WRITE(u6,'(A)')'  The CASPT2 orbitals are computed as natural '//
+       WRITE(u6,'(A)')'  The CASPT2 orbitals are computed as natural '//&
      &          'orbitals of a density matrix'
        WRITE(u6,'(A)')'  defined as:'
        WRITE(u6,'(A)')'   D = (D0 + D1 + D2)/<PSI|PSI>'
-       WRITE(u6,'(A)')' where D0..D2 are zeroth..2nd order'//
+       WRITE(u6,'(A)')' where D0..D2 are zeroth..2nd order'//           &
      &                ' contributions'
        WRITE(u6,'(A)')' and |PSI> is the total wave function.'
        WRITE(u6,'(A)')' A new RasOrb file named PT2ORB is prepared.'
@@ -324,13 +324,13 @@ C Write natural orbitals to standard output.
            THRENE=Five
            THROCC=5.0e-04_wp
          END IF
-         CALL PRIMO('Output orbitals from CASPT2',
-     &           .TRUE.,.FALSE.,THROCC,THRENE,NSYM,NBAS,
+         CALL PRIMO('Output orbitals from CASPT2',                      &
+     &           .TRUE.,.FALSE.,THROCC,THRENE,NSYM,NBAS,                &
      &            NBAS,BNAME,DUM,OCC,CNAT,-1)
        END IF
       END IF
 
-* compute Mulliken's orbital populations
+! compute Mulliken's orbital populations
 
       IF ( IPRGLB.GE.USUAL ) THEN
         WRITE(u6,*)
@@ -347,13 +347,13 @@ C Write natural orbitals to standard output.
         Call RdOne(iRc,iOpt,Label,iComp,Scr,iSyLbl)
         If ( iRc.eq.0 ) then
            lSave = MSTATE(JSTATE) .eq. irlxroot
-           Call Charge(nSym,nBas,bName,
+           Call Charge(nSym,nBas,bName,                                 &
      &               CNAT,OCC,Scr,2,FullMlk,lSave)
         End If
         call mma_deallocate(Scr)
       END IF
 
-* compute one-electron properties
+! compute one-electron properties
 
       IF ( IPRGLB.GE.USUAL ) THEN
         WRITE(u6,*)
@@ -366,28 +366,28 @@ C Write natural orbitals to standard output.
          nDens=nDens+nBas(i)*(nBas(i)+1)/2
       End Do
       call mma_allocate(Scr,NDENS,Label='Scr')
-*
+!
       Call DOne_Caspt2(CNAT,nCMO,OCC,nOcc,Scr,nDENS)
       Call Put_dArray('D1ao',Scr,nDens)
-*
+!
       Note='Temporary orbital file used by prpt.'
       if (mode.eq.1) Note='var'
       LuTmp=50
       LuTmp=IsFreeUnit(LuTmp)
-      Call WrVec('TMPORB',LuTmp,'CO',nSym,nBas,nBas,
+      Call WrVec('TMPORB',LuTmp,'CO',nSym,nBas,nBas,                    &
      &            CNAT,OCC,Dummy,IndType,Note)
       Call Prpt()
-cnf
-*
-*------- ESPF analysis
+!nf
+!
+!------- ESPF analysis
       Call DecideOnESPF(Do_ESPF)
       lSave = MSTATE(JSTATE) .eq. irlxroot
       If (Do_ESPF) Call espf_analysis(lSave)
-cnf
-*
-*---- On return from PrPt the 1-particle matrix is stored
-*     in the beginning of the scratch array.
-*
+!nf
+!
+!---- On return from PrPt the 1-particle matrix is stored
+!     in the beginning of the scratch array.
+!
       call mma_deallocate(Scr)
       call mma_deallocate(CNAT)
       call mma_deallocate(OCC)

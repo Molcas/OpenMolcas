@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994,1996,2014, Per Ake Malmqvist                      *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994,1996,2014, Per Ake Malmqvist                      *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO,NCMO,DREF,nDREF)
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: USUAL
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: FockType, IfChol, nAMx, nAshT,
-     &                         nIMx, nOMx, nOSqT, nSMx, nSym, nIsh,
+      use caspt2_module, only: FockType, IfChol, nAMx, nAshT,           &
+     &                         nIMx, nOMx, nOSqT, nSMx, nSym, nIsh,     &
      &                         nAsh, nSsh, nAES, nOrb
       use constants, only: Zero, One, Two
       use definitions, only: iwp, wp
@@ -31,60 +31,60 @@
       REAL(kind=wp), intent(inout):: FIFA(NFIFA)
 
       REAL(kind=wp) D,DDVX,EIGVAL
-      INTEGER(kind=iwp) LINT,LSC,LSC1,LSC2,LSCR,
+      INTEGER(kind=iwp) LINT,LSC,LSC1,LSC2,LSCR,                        &
      &                  LEV1,LEV2,LEIG,LXAI,LXPQ,LXQP
       INTEGER(kind=iwp) IFGFOCK
       INTEGER(kind=iwp) I,J
       INTEGER(kind=iwp) II,IP,IQ,IR,IS,IV,IX
       INTEGER(kind=iwp) IA,IATOT,IT,ITTOT,ITABS,IU,IUTOT,IUABS,ITU
-      INTEGER(kind=iwp) NA,NA2,NA3,MA,MI,MTRES,N3,NI,NIA,NINT,NO,
-     &                  NAS,NASQES,NASQT,NATR,NATRES,NOSQES,NOTRES,
+      INTEGER(kind=iwp) NA,NA2,NA3,MA,MI,MTRES,N3,NI,NIA,NINT,NO,       &
+     &                  NAS,NASQES,NASQT,NATR,NATRES,NOSQES,NOTRES,     &
      &                  NS,NSCR,NSCR1,NSCR2,NSCR3,NSQES,NTRES
       INTEGER(kind=iwp) ISC,KFIFA
       INTEGER(kind=iwp) IDDVX,IDREF,IDTT,IDTU,IDUT
       INTEGER(kind=iwp) ISYM,ISYMPQ,ISYMRS
       REAL(kind=wp) VAL,VALTU,VALUT,X
 
-      Real(kind=wp), allocatable:: INT(:), DSQ(:), DD(:), DDTR(:),
+      Real(kind=wp), allocatable:: INT(:), DSQ(:), DD(:), DDTR(:),      &
      &                      TWOMDSQ(:), XMAT(:), SC(:)
-c Purpose: Modify the standard fock matrix for experimental
-c purposes. The string variable FOCKTYPE (character*8) has a
-c keyword value given as input. The experimental user modifies
-c this routine to suit his purposes, and links with the rest
-c of the program. The Fock matrix is given as call parameter
-c and returned after modification.
-c To define the modified Fock matrix, a number of arrays on
-c  LUONE may be useful. In addition, the active 1- and 2-
-c electron density matrices, and the inactive Fock matrix
-c FIMO, are available in workspace at DREF,
-c PREF,FIMO, and FIFA.
-c Two-electron integrals involving non-frozen, non-deleted
-c orbitals, at most two secondary, are available from
-c subroutines COUL and EXCH (See).
-c Meaningful modifications must define a Fock operator
-c which is invariant to transformations among inactives,
-c among actives, and among virtuals.
-c Coded 94-01-31 by Malmqvist, for CASPT2 MOLCAS-3.
-c Modif 96-10-06 by Malmqvist, restructured, options added.
-c Modif 14-03-19 by Malmqvist, restructured, options removed.
+! Purpose: Modify the standard fock matrix for experimental
+! purposes. The string variable FOCKTYPE (character*8) has a
+! keyword value given as input. The experimental user modifies
+! this routine to suit his purposes, and links with the rest
+! of the program. The Fock matrix is given as call parameter
+! and returned after modification.
+! To define the modified Fock matrix, a number of arrays on
+!  LUONE may be useful. In addition, the active 1- and 2-
+! electron density matrices, and the inactive Fock matrix
+! FIMO, are available in workspace at DREF,
+! PREF,FIMO, and FIFA.
+! Two-electron integrals involving non-frozen, non-deleted
+! orbitals, at most two secondary, are available from
+! subroutines COUL and EXCH (See).
+! Meaningful modifications must define a Fock operator
+! which is invariant to transformations among inactives,
+! among actives, and among virtuals.
+! Coded 94-01-31 by Malmqvist, for CASPT2 MOLCAS-3.
+! Modif 96-10-06 by Malmqvist, restructured, options added.
+! Modif 14-03-19 by Malmqvist, restructured, options removed.
 
       ! I never meant to cause you any sorrow
       IF(FOCKTYPE.EQ.'STANDARD') RETURN
 
-* Options MC and MC2 removed, PAM March 2014.
-*CPAM96 The option FOCKTYPE='MC      ' added 961006. This option will
-*C replace the active/active block with the MCSCF Fock matrix
-*C while zeroing any non-diagonal blocks. This option is usually
-*C quite ridiculous, but it can be used in very particular cases
-*C when all active orbitals are singly occupied.
-*CPAM96 The option FOCKTYPE='MC2     ' added 961006. Similar to the
-*C above, but using as  active/active block the matrix
-*C    D**(-1/2) FMC D**(-1/2)
+! Options MC and MC2 removed, PAM March 2014.
+!CPAM96 The option FOCKTYPE='MC      ' added 961006. This option will
+!C replace the active/active block with the MCSCF Fock matrix
+!C while zeroing any non-diagonal blocks. This option is usually
+!C quite ridiculous, but it can be used in very particular cases
+!C when all active orbitals are singly occupied.
+!CPAM96 The option FOCKTYPE='MC2     ' added 961006. Similar to the
+!C above, but using as  active/active block the matrix
+!C    D**(-1/2) FMC D**(-1/2)
 
 
-CPAM A very long IF-block is replaced by a forward GOTO for clarity:
-CPAM      IF((FOCKTYPE.EQ.'G1      '.OR.FOCKTYPE.EQ.'G2      '.OR.
-CPAM     &   FOCKTYPE.EQ.'G3      ').AND.NASHT.GT.0) THEN
+!PAM A very long IF-block is replaced by a forward GOTO for clarity:
+!PAM      IF((FOCKTYPE.EQ.'G1      '.OR.FOCKTYPE.EQ.'G2      '.OR.
+!PAM     &   FOCKTYPE.EQ.'G3      ').AND.NASHT.GT.0) THEN
       IFGFOCK=0
       IF(FOCKTYPE.EQ.'G1      ') IFGFOCK=1
       IF(FOCKTYPE.EQ.'G2      ') IFGFOCK=1
@@ -92,12 +92,12 @@ CPAM     &   FOCKTYPE.EQ.'G3      ').AND.NASHT.GT.0) THEN
 
       IF(IFGFOCK.EQ.0) GOTO 300
       IF(IPRGLB.GE.USUAL) THEN
-        WRITE(6,*)' THE FOCK MATRIX IS MODIFIED BY KEYWORD'//
+        WRITE(6,*)' THE FOCK MATRIX IS MODIFIED BY KEYWORD'//           &
      &               ' FOCKTYPE=',FOCKTYPE
       END IF
       IF(NASHT.LE.0) GOTO 300
-c
-c       Determine sizes of areas for memory allocation
+!
+!       Determine sizes of areas for memory allocation
         NASQT=0
         NATR=0
         DO 5 ISYM=1,NSYM
@@ -115,22 +115,22 @@ c       Determine sizes of areas for memory allocation
         NSCR=NSCR1
         IF(FOCKTYPE.EQ.'G2      ') NSCR=NSCR2
         IF(FOCKTYPE.EQ.'G3      ') NSCR=NSCR3
-c
-c Allocate memory: Integral buffer and scratch array:
+!
+! Allocate memory: Integral buffer and scratch array:
         CALL mma_allocate(INT,2*NINT,LABEL='INT')
         LINT=1
         LSCR=LINT+NINT
         CALL mma_allocate(SC,NSCR,Label='SC')
         LSC=1
-c Form symmetry-packed squares of density matrix DSQ, and
-c similarly (2I-DSQ)
+! Form symmetry-packed squares of density matrix DSQ, and
+! similarly (2I-DSQ)
         CALL mma_allocate(DSQ,NASQT,Label='DSQ')
         CALL mma_allocate(TWOMDSQ,NASQT,LABEL='TWOMDSQ')
-c Symmetry-packed triangles of D*(2I-D)
+! Symmetry-packed triangles of D*(2I-D)
         CALL mma_allocate(DDTR,NATR,Label='DDTR')
-c Temporary use of single square symmetry-block:
+! Temporary use of single square symmetry-block:
         CALL mma_allocate(DD,NAMX**2,Label='DD')
-C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
+! The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
         CALL mma_allocate(XMAT,NOSQT,Label='XMAT')
         NSQES=0
         DO ISYM=1,NSYM
@@ -157,19 +157,19 @@ C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
           END DO
           NSQES=NSQES+NA**2
         END DO
-c
-c Create the matrix DDTR =D(2I-D) (triangular symmetry blocks)
-C Use also temporary DD, single symmetry blocks of D*(2I-D):
+!
+! Create the matrix DDTR =D(2I-D) (triangular symmetry blocks)
+! Use also temporary DD, single symmetry blocks of D*(2I-D):
         NTRES=1
         NSQES=1
         DO ISYM=1,NSYM
           NA=NASH(ISYM)
           IF(NA.GT.0) THEN
             N3=(NA*(NA+1))/2
-            CALL DGEMM_('N','N',
-     &                  NA,NA,NA,
-     &                  One,DSQ(NSQES),NA,
-     &                  TWOMDSQ(NSQES),NA,
+            CALL DGEMM_('N','N',                                        &
+     &                  NA,NA,NA,                                       &
+     &                  One,DSQ(NSQES),NA,                              &
+     &                  TWOMDSQ(NSQES),NA,                              &
      &                  Zero,DD,NA)
             CALL TRIANG(NA,DD)
             CALL DCOPY_(N3,DD,1,DDTR(NTRES),1)
@@ -178,7 +178,7 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
           END IF
         END DO
 
-C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
+! Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
         XMAT(:)=Zero
         IF (IfChol) THEN
           CALL Cho_Amatrix(XMAT,NOSQT,CMO,NCMO,DDTR,NATR)
@@ -198,12 +198,12 @@ C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
                   IR=IV+MI
                   DO IX=1,IV
                     IS=IX+MI
-                    CALL EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,
+                    CALL EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,        &
      &                        INT,INT(LSCR))
                     IDDVX=MTRES+(IV*(IV-1))/2+IX
                     DDVX=DDTR(IDDVX)
                     IF(IR.EQ.IS) DDVX=0.5D0*DDVX
-                    CALL DAXPY_(NO**2,DDVX,INT,1,
+                    CALL DAXPY_(NO**2,DDVX,INT,1,                       &
      &                                    XMAT(1+NOSQES),1)
                   END DO
                 END DO
@@ -222,12 +222,12 @@ C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
             END IF
           END DO
         END IF
-c
-c Determine the correction to the Fock matrix
+!
+! Determine the correction to the Fock matrix
         SELECT CASE (FOCKTYPE)
 
         CASE('G1      ')
-C Focktype=g1 case. A very long IF block.
+! Focktype=g1 case. A very long IF block.
           NOSQES=0
           NOTRES=0
           NASQES=0
@@ -239,13 +239,13 @@ C Focktype=g1 case. A very long IF block.
             NIA=NI+NA
             NAS=NA+NS
             IF(NIA*NAS.LE.0) GO TO 31
-c
-c the active-inactive block
+!
+! the active-inactive block
             IF(NA*NI.GT.0) THEN
-              CALL DGEMM_('N','N',
-     &                    NA,NI,NA,
-     &                    One,TWOMDSQ(1+NASQES),NA,
-     &                    XMAT(1+NOSQES+NI),NO,
+              CALL DGEMM_('N','N',                                      &
+     &                    NA,NI,NA,                                     &
+     &                    One,TWOMDSQ(1+NASQES),NA,                     &
+     &                    XMAT(1+NOSQES+NI),NO,                         &
      &                    Zero,SC,NA)
               DO IT=1,NA
                 ITTOT=NI+IT
@@ -256,8 +256,8 @@ c the active-inactive block
                 END DO
               END DO
             ENDIF
-c
-c the secondary-inactive block
+!
+! the secondary-inactive block
             IF(NS*NI.GT.0) THEN
               DO IA=1,NS
                 IATOT=NI+NA+IA
@@ -268,19 +268,19 @@ c the secondary-inactive block
                 END DO
               END DO
             ENDIF
-c
-c the active-active block
+!
+! the active-active block
             IF(NA.GT.0) THEN
               IX=NOSQES+NI+1+NO*NI
-              CALL DGEMM_('N','N',
-     &                    NA,NA,NA,
-     &                    One,DSQ(1+NASQES),NA,
-     &                    XMAT(IX),NO,
+              CALL DGEMM_('N','N',                                      &
+     &                    NA,NA,NA,                                     &
+     &                    One,DSQ(1+NASQES),NA,                         &
+     &                    XMAT(IX),NO,                                  &
      &                    Zero,SC(LSC+NA*NA),NA)
-              CALL DGEMM_('N','N',
-     &                    NA,NA,NA,
-     &                    One,SC(LSC+NA*NA),NA,
-     &                    TWOMDSQ(1+NASQES),NA,
+              CALL DGEMM_('N','N',                                      &
+     &                    NA,NA,NA,                                     &
+     &                    One,SC(LSC+NA*NA),NA,                         &
+     &                    TWOMDSQ(1+NASQES),NA,                         &
      &                    Zero,SC,NA)
               DO IT=1,NA
                 ITTOT=NI+IT
@@ -293,14 +293,14 @@ c the active-active block
                 END DO
               END DO
             ENDIF
-c
-c the secondary-active block
+!
+! the secondary-active block
             IF(NS*NA.GT.0) THEN
               IX=NOSQES+NI+NA+1+NO*NI
-              CALL DGEMM_('N','N',
-     &                    NS,NA,NA,
-     &                    One,XMAT(IX),NO,
-     &                    DSQ(1+NASQES),NA,
+              CALL DGEMM_('N','N',                                      &
+     &                    NS,NA,NA,                                     &
+     &                    One,XMAT(IX),NO,                              &
+     &                    DSQ(1+NASQES),NA,                             &
      &                    Zero,SC,NS)
               DO IA=1,NS
                 IATOT=NI+NA+IA
@@ -311,15 +311,15 @@ c the secondary-active block
                 END DO
               END DO
             ENDIF
-c
+!
    31       CONTINUE
             NOSQES=NOSQES+NO**2
             NOTRES=NOTRES+(NO*(NO+1))/2
             NASQES=NASQES+NA**2
    30     CONTINUE
-C Focktype=g1 case ends.
+! Focktype=g1 case ends.
         CASE('G2      ','G3      ')
-C Focktype=g2 or g3
+! Focktype=g2 or g3
           NOSQES=0
           NOTRES=0
           NASQES=0
@@ -332,30 +332,30 @@ C Focktype=g2 or g3
             NA2=NA*NA
             NA3=(NA+NA2)/2
             IF(NA.LE.0) GO TO 131
-c
-c Determine the matrix blocks of the correction to
-c the Fock matrix and add them to the Fock matrix
-c
-C Form the selection matrix as a temporary square matrix.
-C Compute it by spectral resolution.
-C First, form a copy of the triangular D(2I-D) matrix block,
-C and diagonalize it. The DDTR copy at LSC:
+!
+! Determine the matrix blocks of the correction to
+! the Fock matrix and add them to the Fock matrix
+!
+! Form the selection matrix as a temporary square matrix.
+! Compute it by spectral resolution.
+! First, form a copy of the triangular D(2I-D) matrix block,
+! and diagonalize it. The DDTR copy at LSC:
             CALL DCOPY_(NA3,DDTR(1+NATRES),1,SC,1)
-C A unit matrix at LEV1, to become eigenvectors:
+! A unit matrix at LEV1, to become eigenvectors:
             LEV1=LSC+NA2
             CALL DCOPY_(NA2,[Zero],0,SC(LEV1),1)
             CALL DCOPY_(NA, [One],0,SC(LEV1),NA+1)
-C A call to NIDiag diagonalizes the triangular matrix:
+! A call to NIDiag diagonalizes the triangular matrix:
             CALL NIDiag(SC,SC(LEV1),NA,NA)
             CALL JACORD(SC,SC(LEV1),NA,NA)
-C Make a copy of the eigenvector matrix:
+! Make a copy of the eigenvector matrix:
             LEV2=LEV1+NA2
             CALL DCOPY_(NA2,SC(LEV1),1,SC(LEV2),1)
-C Put eigenvalues at LEIG:
+! Put eigenvalues at LEIG:
             LEIG=LEV2+NA2
             CALL VEIG(NA,SC,SC(LEIG))
-C Now scale the second array of eigenvectors with any required
-C function of the eigenvalues:
+! Now scale the second array of eigenvectors with any required
+! function of the eigenvalues:
             DO J=1,NA
               EIGVAL=SC(LEIG-1+J)
               IF(FOCKTYPE.EQ.'G2      ') THEN
@@ -367,28 +367,28 @@ C function of the eigenvalues:
                 SC(LEV2-1+I+NA*(J-1))=X*SC(LEV2-1+I+NA*(J-1))
               END DO
             END DO
-C Now the selection matrix can be formed, at LSC:
-            CALL DGEMM_('N','T',
-     &                  NA,NA,NA,
-     &                  One,SC(LEV1),NA,
-     &                  SC(LEV2),NA,
+! Now the selection matrix can be formed, at LSC:
+            CALL DGEMM_('N','T',                                        &
+     &                  NA,NA,NA,                                       &
+     &                  One,SC(LEV1),NA,                                &
+     &                  SC(LEV2),NA,                                    &
      &                  Zero,SC(LSC),NA)
-C Obviously, the FOCKTYPE=G3 case can be obtained by just
-C squaring the DDTR block into SC.
+! Obviously, the FOCKTYPE=G3 case can be obtained by just
+! squaring the DDTR block into SC.
 
-C Focktype=g2 or g3
+! Focktype=g2 or g3
             IX=NOSQES+NI+1+NO*NI
             LSC1=LSC+NA2
             LSC2=LSC1+NA2
-            CALL DGEMM_('N','N',
-     &                  NA,NA,NA,
-     &                  One,SC(LSC),NA,
-     &                  XMAT(IX),NO,
+            CALL DGEMM_('N','N',                                        &
+     &                  NA,NA,NA,                                       &
+     &                  One,SC(LSC),NA,                                 &
+     &                  XMAT(IX),NO,                                    &
      &                  Zero,SC(LSC1),NA)
-            CALL DGEMM_('N','N',
-     &                  NA,NA,NA,
-     &                  One,SC(LSC1),NA,
-     &                  SC(LSC),NA,
+            CALL DGEMM_('N','N',                                        &
+     &                  NA,NA,NA,                                       &
+     &                  One,SC(LSC1),NA,                                &
+     &                  SC(LSC),NA,                                     &
      &                  Zero,SC(LSC2),NA)
             DO IT=1,NA
               ITTOT=NI+IT
@@ -399,7 +399,7 @@ C Focktype=g2 or g3
                 FIFA(KFIFA)=FIFA(KFIFA)-SC(LSC2-1+ITU)
               END DO
             END DO
-c
+!
   131       CONTINUE
             NOSQES=NOSQES+NO**2
             NOTRES=NOTRES+(NO*(NO+1))/2
@@ -408,8 +408,8 @@ c
   130     CONTINUE
         CASE DEFAULT
         END SELECT
-c
-c
+!
+!
         CALL mma_deallocate(SC)
         CALL mma_deallocate(INT)
         CALL mma_deallocate(DSQ)

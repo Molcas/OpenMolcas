@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Stefano Battaglia                                *
-************************************************************************
-* This subroutine diagonalizes a real symmetric matrix A using
-* the Jacobi algorithm
-**
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Stefano Battaglia                                *
+!***********************************************************************
+! This subroutine diagonalizes a real symmetric matrix A using
+! the Jacobi algorithm
+!*
       subroutine eigen(A,U,N)
       use stdalloc, only: mma_allocate, mma_deallocate
       use constants, only: Zero, One
@@ -39,11 +39,11 @@
         end do
       end do
 
-* Initialize U as the identity matrix
+! Initialize U as the identity matrix
       U(:,:)=Zero
       call dcopy_(N,[One],0,U,N+1)
 
-* Call Jacobi algorithm
+! Call Jacobi algorithm
       call JACOB(SCR,U,N,N)
 
       call mma_deallocate(SCR)

@@ -1,30 +1,30 @@
-*ERI0***********************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!ERI0***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine wfnsizes()
-************************************************************************
-*
-* Compute various orbital sizes
-*
-************************************************************************
+!***********************************************************************
+!
+! Compute various orbital sizes
+!
+!***********************************************************************
       use Molcas, only: MxAct, MxIna, MxOrb
       use caspt2_global, only: NTAT, NTORB, NPREF, NDREF
-      use caspt2_module, only: iSCF, iSpin, MxExt,
-     &                         nActEl, nAmx, nAshT, nBasT, nBMx, nBSqT,
-     &                         nBTri, nIMx, nInaBx, nIshT, nOMx,
-     &                         nOrbT, nOSqT, nOTri, nRas1T,
-     &                         nRas2T, nRas3T, nSecBx, nSMx, nSshT,
-     &                         nSym, nIes, nAes, nSes, nOsh, nFroT,
-     &                         nAsh, nSsh, nDel, nOrb, nIsh, nFro,
-     &                         nRas1, nRas2, nRas3, nBas, OrbNam,
-     &                         IINAIS, iExtIS,
+      use caspt2_module, only: iSCF, iSpin, MxExt,                      &
+     &                         nActEl, nAmx, nAshT, nBasT, nBMx, nBSqT, &
+     &                         nBTri, nIMx, nInaBx, nIshT, nOMx,        &
+     &                         nOrbT, nOSqT, nOTri, nRas1T,             &
+     &                         nRas2T, nRas3T, nSecBx, nSMx, nSshT,     &
+     &                         nSym, nIes, nAes, nSes, nOsh, nFroT,     &
+     &                         nAsh, nSsh, nDel, nOrb, nIsh, nFro,      &
+     &                         nRas1, nRas2, nRas3, nBas, OrbNam,       &
+     &                         IINAIS, iExtIS,                          &
      &                         iiSym, iaSym, ISNAM
       use caspt2_module, only: nG1, nG2, nG3Tot
       use definitions, only: iwp, u6
@@ -34,7 +34,7 @@
       Integer(kind=iwp) NI, NR1, NR2, NR3, NS, N123
       Integer(kind=iwp) I, iSym
 
-* Table sizes
+! Table sizes
       Integer(kind=iwp) IIABS, ITABS
       Integer(kind=iwp) IS, IO
       Integer(kind=iwp) ITOT, IINA, IEXT
@@ -79,12 +79,12 @@
         NOMX=MAX(NOMX,NORB(ISYM))
         NBMX=MAX(NBMX,NBAS(ISYM))
       END DO
-C Set RHS Boxes to maximum size
+! Set RHS Boxes to maximum size
       NINABX=NIMX
       NSECBX=NSMX
       NBTRI=(NBSQT+NBAST)/2
       NOTRI=(NOSQT+NORBT)/2
-* Size of orbital transformation arrays:
+! Size of orbital transformation arrays:
       NTORB=0
       NTAT=0
       DO ISYM=1,NSYM
@@ -97,10 +97,10 @@ C Set RHS Boxes to maximum size
         NTAT=NTAT+N123
         NTORB=NTORB+NI**2+N123+NS**2
       END DO
-C Sizes of DREF and PREF arrays:
+! Sizes of DREF and PREF arrays:
       NDREF=1
       NPREF=1
-C Sizes of GAMMA1, GAMMA2, and GAMMA3:
+! Sizes of GAMMA1, GAMMA2, and GAMMA3:
       NG1=1
       NG2=1
       NG3TOT=1
@@ -113,17 +113,17 @@ C Sizes of GAMMA1, GAMMA2, and GAMMA3:
         NG3TOT=((NG1+2)*(NG1+1)*NG1)/6
       END IF
 
-C  Identify the wave function type
+!  Identify the wave function type
       ISCF=0
       IF((ISPIN.EQ.NACTEL+1).AND.(NACTEL.EQ.NASHT)) ISCF=2
       IF(NASHT.EQ.0) ISCF=1
       IF(NACTEL.EQ.2*NASHT) ISCF=1
 
-************************************************************************
-*
-* Create orbital name vector
-*
-************************************************************************
+!***********************************************************************
+!
+! Create orbital name vector
+!
+!***********************************************************************
       IS=0
       ITOT=0
       IINA=0
@@ -133,7 +133,7 @@ C  Identify the wave function type
         DO I=1,NFRO(ISYM)
           ITOT=ITOT+1
           IO=IO+1
-          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')
+          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')                      &
      &      'Fr',ISYM,'.',IO
         END DO
         DO I=1,NISH(ISYM)
@@ -141,13 +141,13 @@ C  Identify the wave function type
           IINA=IINA+1
           IINAIS(IINA)=ITOT
           IO=IO+1
-          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')
+          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')                      &
      &      'In',ISYM,'.',IO
         END DO
         DO I=1,NASH(ISYM)
           ITOT=ITOT+1
           IO=IO+1
-          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')
+          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')                      &
      &      'Ac',ISYM,'.',IO
         END DO
         DO I=1,NSSH(ISYM)
@@ -155,7 +155,7 @@ C  Identify the wave function type
           IEXT=IEXT+1
           IEXTIS(IEXT)=ITOT
           IO=IO+1
-          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')
+          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')                      &
      &      'Se',ISYM,'.',IO
           IS=IS+1
           ISNAM(IS)=ORBNAM(ITOT)
@@ -163,16 +163,16 @@ C  Identify the wave function type
         DO I=1,NDEL(ISYM)
           ITOT=ITOT+1
           IO=IO+1
-          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')
+          WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')                      &
      &      'De',ISYM,'.',IO
         END DO
       END DO
 
-************************************************************************
-*
-* Precompute table sizes
-*
-************************************************************************
+!***********************************************************************
+!
+! Precompute table sizes
+!
+!***********************************************************************
       IIABS=0
       ITABS=0
       DO ISYM=1,NSYM
@@ -187,7 +187,7 @@ C  Identify the wave function type
         END DO
       END DO
 
-*---  Check consistency of the orbitals
+!---  Check consistency of the orbitals
       If ( NISHT.gt.MXINA ) Then
         Call WarningMessage(2,'Too many inactive orbitals.')
         WRITE(u6,'(a,2i8)')' NISHT >  MXINA:',NISHT,MXINA
@@ -209,10 +209,10 @@ C  Identify the wave function type
         Call Quit_OnUserError()
       End If
 
-*
-* GG-Nov04  The following informations must be passed to the Cholesky
-* transformation section through RunFile. COMMON blocks cannot be
-* used due to several conflicts.
+!
+! GG-Nov04  The following informations must be passed to the Cholesky
+! transformation section through RunFile. COMMON blocks cannot be
+! used due to several conflicts.
       Call Put_iScalar('nSym',nSym)
       Call Put_iArray('nFroPT',nFro,nSym)
       Call Put_iArray('nIsh'  ,nIsh,nSym)

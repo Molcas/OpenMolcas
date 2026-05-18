@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 !SVC: DGA can't distribute stripes for some small dimensions so we have
 !to explicitly use the irregular versions. These is a wrapper routine to
 !create horizontal (H) and vertical (V) stripes. The dimensions are
@@ -59,10 +59,10 @@
 
       BSTAT=.FALSE.
       IF (ORI.EQ.'H') THEN
-        BSTAT = GA_CREATE_IRREG (MT_DBL,NROW,NCOL,LABEL,
+        BSTAT = GA_CREATE_IRREG (MT_DBL,NROW,NCOL,LABEL,                &
      &                     MAP2,NBLOCK2,MAP1,NBLOCK1,LG_M)
       ELSE IF (ORI.EQ.'V') THEN
-        BSTAT = GA_CREATE_IRREG (MT_DBL,NROW,NCOL,LABEL,
+        BSTAT = GA_CREATE_IRREG (MT_DBL,NROW,NCOL,LABEL,                &
      &                     MAP1,NBLOCK1,MAP2,NBLOCK2,LG_M)
       END IF
 

@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine correlating_orbitals()
-************************************************************************
-*
-* Alter the correlating orbital space by various freeze-delete schemes.
-*
-************************************************************************
+!***********************************************************************
+!
+! Alter the correlating orbital space by various freeze-delete schemes.
+!
+!***********************************************************************
       use InputData, only: Input
       use constants, only: Zero
       use caspt2_global, only: EMP2
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: NCMO
       use caspt2_global, only: LUONEM
-      use caspt2_module, only: IfChol, IfQCAN, BNAME, nBSqT, nSym,
+      use caspt2_module, only: IfChol, IfQCAN, BNAME, nBSqT, nSym,      &
      &                         iAd1m, nFro, nIsh, nSsh, nDel, nBas, nAsh
       use constants, only: Zero, One
       use definitions, only: iwp, wp, u6
@@ -34,31 +34,31 @@
 
       Call Get_iScalar('Unique atoms',nUniqAt)
 
-* memory to store MOs
+! memory to store MOs
       NCMO=NBSQT
       CALL MMA_ALLOCATE(CMO_X,NCMO,Label='CMO_X')
 
-* Read the MOs from the LUONEM file
+! Read the MOs from the LUONEM file
       IDISK=IAD1M(1)
       CALL DDAFILE(LUONEM,2,CMO_X,NCMO,IDISK)
 
-* AFreeze CASPT2 calculation, available only with
-* Cholesky or RI type integral representation.
+! AFreeze CASPT2 calculation, available only with
+! Cholesky or RI type integral representation.
       If(Input % AFreeze) then
         If (.not.IfChol) Then
           Call WarningMessage(2,'AFreeze needs Cholesky/RI.')
           Call Quit_OnUserError()
         End If
         Write(u6,'(A)') ' Additional orbitals will be frozen or deleted'
-        Write(u6,'(A,18A4)') ' Selected atoms:  ',
+        Write(u6,'(A,18A4)') ' Selected atoms:  ',                      &
      &    (Input%namfro(i),i=1,Input%lnfro)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Frozen orbitals before selection:    ',(nfro(i),i=1,nsym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Inactive orbitals before selection:  ',(nish(i),i=1,nsym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Secondary orbitals before selection: ',(nssh(i),i=1,nsym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Deleted orbitals before selection:   ',(ndel(i),i=1,nsym)
         ntri=0
         Do isym=1,nsym
@@ -66,23 +66,23 @@
         Enddo
         NDPQ=ntri
         CALL MMA_ALLOCATE(DPQ,NDPQ,Label='DPQ')
-        Call AFreez(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,BNAME,
-     &              SIZE(BNAME),
-     &              INPUT%NAMFRO,INPUT%LNFRO,DPQ,nDPQ,
+        Call AFreez(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,BNAME,           &
+     &              SIZE(BNAME),                                        &
+     &              INPUT%NAMFRO,INPUT%LNFRO,DPQ,nDPQ,                  &
      &              Input%THRFR,Input%THRDE,IFQCAN,CMO_X,NCMO)
         CALL MMA_DEALLOCATE(DPQ)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Frozen orbitals after selection     ',(nfro(i),i=1,nsym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Inactive orbitals after selection   ',(nish(i),i=1,nsym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Secondary orbitals after selection: ',(nssh(i),i=1,nsym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Deleted orbitals after selection:   ',(ndel(i),i=1,nsym)
       Endif
 
-* LOV CASPT2 calculation, available only with
-* Cholesky or RI type integral representation.
+! LOV CASPT2 calculation, available only with
+! Cholesky or RI type integral representation.
       If (Input % LovCASPT2) then
         If (.not.IfChol) Then
           Call WarningMessage(2,'LOV-CASPT2 needs Cholesky/RI.')
@@ -97,35 +97,35 @@
           Call Quit_OnUserError()
         End If
 
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A)') ' Start LovCASPT2 section '
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A,8I4)')
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Frozen orbitals before selection:   ',(nFro(i),i=1,nSym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Inactive orbitals before selection: ',(nIsh(i),i=1,nSym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Secondary orbitals before selection:',(nSsh(i),i=1,nSym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
         EMP2=Zero
-        Call Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                  BNAME,SIZE(BNAME),nUniqAt,Input%thr_atm,IFQCAN,
-     &                  Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO_X,
+        Call Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,         &
+     &                  BNAME,SIZE(BNAME),nUniqAt,Input%thr_atm,IFQCAN, &
+     &                  Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO_X,  &
      &                  NCMO)
 
         If (irc.ne.0) Then
           write(u6,*) 'LovCASPT2 returned rc= ',irc
           Call abend()
         EndIf
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A)') ' End LovCASPT2 section '
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A,8I4)')
         iSkp=0
@@ -133,13 +133,13 @@
           iSkp=Max(iSkp,nAsh(iSym))
         End Do
         If (iSkp.lt.1) Call xquit(0)
-        Write(u6,'(A,8I4)') ' Going to perform CASPT2 calculation '//
+        Write(u6,'(A,8I4)') ' Going to perform CASPT2 calculation '//   &
      &                      'on the active region only.'
         Write(u6,'(A,8I4)')
       Endif
 
-* Frozen Natural Orbital CASPT2 calculation, available only with
-* Cholesky or RI type integral representation.
+! Frozen Natural Orbital CASPT2 calculation, available only with
+! Cholesky or RI type integral representation.
       If (Input % FnoCASPT2) then
         If (.not.IfChol) Then
           Call WarningMessage(2,'FNO-CASPT2 needs Cholesky/RI.')
@@ -152,26 +152,26 @@
           Call Quit_OnUserError()
         End If
 
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A)') ' Start FNO-CASPT2 section '
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A,8I4)')
         If (Input%vfrac.ge.Zero) Then
-          Write(u6,'(A,I3,A)') ' NOs specified as ',
+          Write(u6,'(A,I3,A)') ' NOs specified as ',                    &
      &    int(Input%vfrac*1.0D2),'% of the total virtual space'
         Else
-          Write(u6,'(A,I3,A)') ' NOs specified as ',
+          Write(u6,'(A,I3,A)') ' NOs specified as ',                    &
      &    100-int(abs(Input%vfrac)*1.0D2),'% of DEcorr '
         EndIf
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Secondary orbitals before selection:',(nSsh(i),i=1,nSym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
         EMP2=Zero
-        Call FNO_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
+        Call FNO_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,         &
      &           Input%vfrac,IFQCAN,Input%DoMP2,EMP2,CMO_X,NCMO)
 
         If (irc.ne.0) Then
@@ -179,10 +179,10 @@
           Call abend()
         EndIf
         Write(u6,'(A,8I4)')
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A)') ' End FNO-CASPT2 section '
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A,8I4)')
         Write(u6,'(A,8I4)')
@@ -194,18 +194,18 @@
           Call Quit_OnUserError()
         End If
 
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A)') ' GHOST virtual space removal'
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A,8I4)')
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Secondary orbitals before selection:',(nSsh(i),i=1,nSym)
-        Write(u6,'(A,8I4)')
+        Write(u6,'(A,8I4)')                                             &
      &  ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
-        Call Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
+        Call Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,      &
      &          BNAME,nUniqAt,Input%ThrGD,.True.,CMO_X,Dummy)
 
         If (irc.ne.0) Then
@@ -213,19 +213,19 @@
           Call abend()
         EndIf
         Write(u6,'(A,8I4)')
-        Write(u6,'(A)')
+        Write(u6,'(A)')                                                 &
      &  '-------------------------------------------------------'
         Write(u6,'(A,8I4)')
         Write(u6,'(A,8I4)')
       Endif
 
-* Store the MOs on the LUONEM file
+! Store the MOs on the LUONEM file
       IDISK=IAD1M(1)
       CALL DDAFILE(LUONEM,1,CMO_X,NCMO,IDISK)
 
       CALL MMA_DEALLOCATE(CMO_X)
 
-* we need to force recanonicalization of the orbitals later
+! we need to force recanonicalization of the orbitals later
       IFQCAN=0
 
       end subroutine correlating_orbitals

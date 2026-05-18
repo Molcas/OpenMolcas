@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 2006  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 2006  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nLev,mG3)
       use constants, only: Zero, One, Two
       use sguga, only: LEVEL
@@ -26,18 +26,18 @@
       use definitions, only: iwp, wp, byte
       IMPLICIT None
       integer(kind=iwp), intent(in):: nLev, mG3
-      real(kind=wp), intent(out) ::G1(nLev,nLev),
-     &                             G2(nLev,nLev,nLev,nLev),
+      real(kind=wp), intent(out) ::G1(nLev,nLev),                       &
+     &                             G2(nLev,nLev,nLev,nLev),             &
      &                             G3(mG3)
-      real(kind=wp), intent(out) ::F1(nLev,nLev),
-     &                             F2(nLev,nLev,nLev,nLev),
+      real(kind=wp), intent(out) ::F1(nLev,nLev),                       &
+     &                             F2(nLev,nLev,nLev,nLev),             &
      &                             F3(mG3)
       INTEGER(kind=byte), intent(Out) ::  idxG3(6,mG3)
-C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
-C OR CLOSED-SHELL SCF CASE.
+! SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
+! OR CLOSED-SHELL SCF CASE.
       real(kind=wp) ESUM, Occ, Val
-      Integer(kind=iwp) :: I, ID, IG3, IND1, IND2, IND3, IT, IT1, IT2,
-     &                     IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1,
+      Integer(kind=iwp) :: I, ID, IG3, IND1, IND2, IND3, IT, IT1, IT2,  &
+     &                     IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1,  &
      &                     LU2, LU3, NLEV2, NLEV4, NTASK
 
 
@@ -52,7 +52,7 @@ C OR CLOSED-SHELL SCF CASE.
       DO I=1,NLEV
         ESUM=ESUM+ETA(I)
       END DO
-C ISCF=1 for closed-shell, =2 for hispin
+! ISCF=1 for closed-shell, =2 for hispin
       OCC=Two
       IF(ISCF==2) OCC=One
       DO IT=1,nLev
@@ -95,7 +95,7 @@ C ISCF=1 for closed-shell, =2 for hispin
 
       iG3=0
       nTask=NLEV4
-C SVC20100908 initialize the series of tasks
+! SVC20100908 initialize the series of tasks
       Call Init_Tsk(ID, nTask)
 
       Outer : Do
@@ -124,16 +124,16 @@ C SVC20100908 initialize the series of tasks
         LU3=LEVEL(IU3)
         VAL=G1(IT1,IU1)*G1(IT2,IU2)*G1(IT3,IU3)
 
-C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
-C Add here the necessary Kronecker deltas times 2-body matrix
-C elements and lower, so we get a true normal-ordered density matrix
-C element.
+! Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
+! Add here the necessary Kronecker deltas times 2-body matrix
+! elements and lower, so we get a true normal-ordered density matrix
+! element.
 
-C <PSI1|E(T1,U1,T2,U2,T3,U3)|PSI2>
-C = <PSI1|E(T1,U1)E(T2,U2)E(T3,U3)|PSI2>
-C -D(T3,U2)*(G2(T1,U1,T2,U3)+D(T2,U1)*G1(T1,U3))
-C -D(T2,U1)*G2(T1,U2,T3,U3)
-C -D(T3,U1)*G2(T2,U2,T1,U3)
+! <PSI1|E(T1,U1,T2,U2,T3,U3)|PSI2>
+! = <PSI1|E(T1,U1)E(T2,U2)E(T3,U3)|PSI2>
+! -D(T3,U2)*(G2(T1,U1,T2,U3)+D(T2,U1)*G1(T1,U3))
+! -D(T2,U1)*G2(T1,U2,T3,U3)
+! -D(T3,U1)*G2(T2,U2,T1,U3)
 
         IF(IT3.EQ.IU2) THEN
           VAL=VAL-G2(IT1,IU1,IT2,IU3)
@@ -148,7 +148,7 @@ C -D(T3,U1)*G2(T2,U2,T1,U3)
           VAL=VAL-G2(IT2,IU2,IT1,IU3)
         END IF
 
-C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
+! VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
         iG3=iG3+1
         idxG3(1,iG3)=INT(iT1,kind=byte)
         idxG3(2,iG3)=INT(iU1,kind=byte)
@@ -162,14 +162,14 @@ C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
         END DO
       END DO
 
-CSVC: The master node now continues to only handle task scheduling,
-C     needed to achieve better load balancing. So it exits from the task
-C     list.  It has to do it here since each process gets at least one
-C     task.
+!SVC: The master node now continues to only handle task scheduling,
+!     needed to achieve better load balancing. So it exits from the task
+!     list.  It has to do it here since each process gets at least one
+!     task.
 
       End Do Outer
 
-C SVC2010: no more tasks, wait here for the others.
+! SVC2010: no more tasks, wait here for the others.
       CALL Free_Tsk(ID)
 
       NG3=iG3

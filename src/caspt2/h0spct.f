@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE H0SPCT()
       use definitions, only: iwp, wp, u6
       use caspt2_global, only:iPrGlb
@@ -41,31 +41,31 @@
       REAL(KIND=WP), POINTER:: VAL(:,:)=>Null()
       REAL(KIND=WP), ALLOCATABLE:: BD(:), ID(:)
       REAL(KIND=WP) COEF,DNOM,ECNT,RHS
-      INTEGER(KIND=IWP) I,IAEND,IAS,IASTA,IBUF,ICASE,IIEND,IIS,IISTA,
-     &                  IP,IQ,IR,IS,ISYM,JD,lg_RHS,lg_VEC,MAXBUF,NAS,
+      INTEGER(KIND=IWP) I,IAEND,IAS,IASTA,IBUF,ICASE,IIEND,IIS,IISTA,   &
+     &                  IP,IQ,IR,IS,ISYM,JD,lg_RHS,lg_VEC,MAXBUF,NAS,   &
      &                  NBUF,NIN,NIS
 
-C Write pertinent warnings and statistics for the energy
-C denominators, i.e. the spectrum of (H0(diag)-E0).
+! Write pertinent warnings and statistics for the energy
+! denominators, i.e. the spectrum of (H0(diag)-E0).
 
 
       WRITE(u6,*)
       Call CollapseOutput(1,'Denominators, etc.')
       WRITE(u6,'(10A11)')('-----------',i=1,10)
-      WRITE(u6,'(A)')' Report on small energy denominators, large'//
+      WRITE(u6,'(A)')' Report on small energy denominators, large'//    &
      &   ' coefficients, and large energy contributions.'
 
       IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(u6,'(A)')
-     &   '  The ACTIVE-MIX index denotes linear combinations'//
+        WRITE(u6,'(A)')                                                 &
+     &   '  The ACTIVE-MIX index denotes linear combinations'//         &
      &   ' which gives ON expansion functions'
         WRITE(u6,'(A)')'  and makes H0 diagonal within type.'
-        WRITE(u6,'(A)')
-     &   '  DENOMINATOR: The (H0_ii - E0) value from the above-'//
+        WRITE(u6,'(A)')                                                 &
+     &   '  DENOMINATOR: The (H0_ii - E0) value from the above-'//      &
      &   'mentioned diagonal approximation.'
         WRITE(u6,'(A)')'  RHS VALUE  : Right-Hand Side of CASPT2 Eqs.'
-        WRITE(u6,'(A)')
-     &   '  COEFFICIENT: Multiplies each of the above ON terms'//
+        WRITE(u6,'(A)')                                                 &
+     &   '  COEFFICIENT: Multiplies each of the above ON terms'//       &
      &   ' in the first-order wave function.'
         WRITE(u6,'(A)')' Thresholds used:'
         WRITE(u6,'(a,f7.4)')'         Denominators:',DNMTHR
@@ -74,17 +74,17 @@ C denominators, i.e. the spectrum of (H0(diag)-E0).
         WRITE(u6,*)
       END IF
 
-      WRITE(u6,'(A)')'CASE  SYMM ACTIVE-MIX  NON-ACTIVE'
-     &            //' INDICES          DENOMINATOR'
-     &            //'     RHS VALUE       COEFFICIENT'
+      WRITE(u6,'(A)')'CASE  SYMM ACTIVE-MIX  NON-ACTIVE'                &
+     &            //' INDICES          DENOMINATOR'                     &
+     &            //'     RHS VALUE       COEFFICIENT'                  &
      &            //'     CONTRIBUTION'
 
-CSVC: initial buffer size, will be reallocated on the fly
+!SVC: initial buffer size, will be reallocated on the fly
       MAXBUF=1024
       CALL mma_allocate(IDXBUF,2,MAXBUF,LABEL='IDXBUF')
       CALL mma_allocate(VALBUF,4,MAXBUF,LABEL='VALBUF')
 
-C Very long loop over symmetry and case:
+! Very long loop over symmetry and case:
       DO ICASE=1,13
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
@@ -95,8 +95,8 @@ C Very long loop over symmetry and case:
           LINE(1:12)=CASES(ICASE)//'    '
           WRITE(LINE(10:10),'(i1)') ISYM
 
-C Remember: NIN values in BDIAG, but must read NAS for correct
-C positioning.
+! Remember: NIN values in BDIAG, but must read NAS for correct
+! positioning.
           CALL mma_allocate(BD,NAS,LABEL='BD')
           CALL mma_allocate(ID,NIS,LABEL='ID')
           JD=IDBMAT(ISYM,ICASE)
@@ -110,9 +110,9 @@ C positioning.
           IBUF=0
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
-* Get the superindex ranges of this process's block. If no elements are
-* owned by a process, then ilo=0 and ihi=-1 such that the loop further
-* down will just be skipped.
+! Get the superindex ranges of this process's block. If no elements are
+! owned by a process, then ilo=0 and ihi=-1 such that the loop further
+! down will just be skipped.
             CALL GA_Sync()
             myRank = GA_NodeID()
             CALL GA_Distribution (lg_RHS,myRank,IASTA,IAEND,IISTA,IIEND)
@@ -120,7 +120,7 @@ C positioning.
               WRITE(u6,*) 'RHSOD: mismatch in range of the superindices'
               CALL AbEnd()
             END IF
-* if the block is non-empty, loop over its elements
+! if the block is non-empty, loop over its elements
             IF (IASTA.GT.0 .AND. IISTA.GT.0) THEN
               CALL GA_Access (lg_RHS,IASTA,IAEND,IISTA,IIEND,mRHS,LD)
               CALL GA_Access (lg_VEC,IASTA,IAEND,IISTA,IIEND,mVEC,LD)
@@ -139,9 +139,9 @@ C positioning.
           END IF
 #endif
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
           DO IIS=IISTA,IIEND
             DO IAS=IASTA,IAEND
               DNOM=BD(IAS)+ID(IIS)
@@ -157,9 +157,9 @@ C positioning.
               END IF
 #endif
               ECNT=COEF*RHS
-              IF (ABS(DNOM).LT.DNMTHR .OR.
-     &            ABS(COEF).GT.CMPTHR .OR.
-     &            ABS(ECNT).GT.CNTTHR )
+              IF (ABS(DNOM).LT.DNMTHR .OR.                              &
+     &            ABS(COEF).GT.CMPTHR .OR.                              &
+     &            ABS(ECNT).GT.CNTTHR )                                 &
      &        THEN
                 IF (IBUF.LT.MAXBUF) THEN
                   IBUF=IBUF+1
@@ -215,7 +215,7 @@ C positioning.
               LINE(37:44)=ORBNAM(IS)
               LINE(45:46)='  '
             ELSE
-              WRITE(LINE(13:22),'(A2,I1,A1,I4.4)')
+              WRITE(LINE(13:22),'(A2,I1,A1,I4.4)')                      &
      &                               'Mu',ISYM,'.',IAS
               CALL NSIND(IIS,ISYM,ICASE,IP,IQ,IR)
               LINE(23:30)=ORBNAM(IP)
@@ -239,7 +239,7 @@ C positioning.
           CALL mma_deallocate(BD)
           CALL mma_deallocate(ID)
 
-C End of very long loop over symmetry and case:
+! End of very long loop over symmetry and case:
         END DO
       END DO
 

@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE TRDNS1(IVEC,DPT1,NDPT1)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
-      use caspt2_module, only: nActel, nSym, nIsh, nAsh, nSsh, nInDep,
+      use caspt2_module, only: nActel, nSym, nIsh, nAsh, nSsh, nInDep,  &
      &                         nISup, nASup, nAsh, nOrb
       use constants, only: Zero, One
       use definitions, only: iwp, wp
@@ -40,21 +40,21 @@
       real(kind=wp), ALLOCATABLE:: TMP(:)
 #endif
       real(kind=wp) FACT
-      integer(kind=iwp) IA, ICASE, ID, IDOFF, II, IMLTOP, ISYM, IT,
-     &                  ITTOT, IW, IWAI, IWAT, IWOFF, IWTI, lVec, NA,
+      integer(kind=iwp) IA, ICASE, ID, IDOFF, II, IMLTOP, ISYM, IT,     &
+     &                  ITTOT, IW, IWAI, IWAT, IWOFF, IWTI, lVec, NA,   &
      &                  NAS, NI, NIS, NO, NS, NVEC, NWAI, NWAT, NWTI
 
-C Add to the transition density matrix DPT1,
-C    DPT1(p,q) = Add <IVEC| E(p,q) |0>.
-C where IVEC stands for the 1st-order perturbed CASPT2
-C wave function stored as vector nr IVEC on LUSOLV.
-C DPT1 is stored as symmetry-blocked array of square matrices.
-C Each square matrix is actually lower block triangle, but is
-C stored in full, including zero elements.
+! Add to the transition density matrix DPT1,
+!    DPT1(p,q) = Add <IVEC| E(p,q) |0>.
+! where IVEC stands for the 1st-order perturbed CASPT2
+! wave function stored as vector nr IVEC on LUSOLV.
+! DPT1 is stored as symmetry-blocked array of square matrices.
+! Each square matrix is actually lower block triangle, but is
+! stored in full, including zero elements.
 
-C Only cases A, C and D(Symm 1) contributes.
+! Only cases A, C and D(Symm 1) contributes.
 
-C Transform to standard representation, covariant form.
+! Transform to standard representation, covariant form.
       CALL PTRTOC(1,IVEC,IVEC)
 
       NWTI=0
@@ -89,14 +89,14 @@ C Transform to standard representation, covariant form.
           IF (KING()) THEN
             CALL mma_allocate(TMP,NVEC,Label='TMP')
             CALL RHS_GET (NAS,NIS,LVEC,TMP)
-            CALL SPEC1A(IMLTOP,FACT,ISYM,TMP,SIZE(TMP),
+            CALL SPEC1A(IMLTOP,FACT,ISYM,TMP,SIZE(TMP),                 &
      &                                   WTI(IWOFF),SIZE(WTI(IWOFF:)))
             CALL mma_deallocate(TMP)
           END IF
         ELSE
 #endif
-          CALL SPEC1A(IMLTOP,FACT,ISYM,
-     &               GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),
+          CALL SPEC1A(IMLTOP,FACT,ISYM,                                 &
+     &               GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),         &
      &               WTI(IWOFF),SIZE(WTI(IWOFF:)))
 #ifdef _MOLCAS_MPP_
         END IF
@@ -126,14 +126,14 @@ C Transform to standard representation, covariant form.
           IF (KING()) THEN
             CALL mma_allocate(TMP,NVEC,LABEL='TMP')
             CALL RHS_GET (NAS,NIS,LVEC,TMP)
-            CALL SPEC1C(IMLTOP,FACT,ISYM,TMP,SIZE(TMP),
+            CALL SPEC1C(IMLTOP,FACT,ISYM,TMP,SIZE(TMP),                 &
      &                                   WAT(IWOFF),SIZE(WAT(IWOFF:)))
             CALL mma_deallocate(TMP)
           END IF
         ELSE
 #endif
-          CALL SPEC1C(IMLTOP,FACT,ISYM,
-     &                GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),
+          CALL SPEC1C(IMLTOP,FACT,ISYM,                                 &
+     &                GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),        &
      &                WAT(IWOFF),SIZE(WAT(IWOFF:)))
 #ifdef _MOLCAS_MPP_
         END IF
@@ -166,8 +166,8 @@ C Transform to standard representation, covariant form.
         END IF
       ELSE
 #endif
-        CALL SPEC1D(IMLTOP,FACT,
-     &              GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),
+        CALL SPEC1D(IMLTOP,FACT,                                        &
+     &              GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),          &
      &              WAI,nWAI)
 #ifdef _MOLCAS_MPP_
       END IF
@@ -175,14 +175,14 @@ C Transform to standard representation, covariant form.
       CALL RHS_FREE(LVEC)
  300  CONTINUE
 
-C Transform vectors back to eigenbasis of H0(diag).
+! Transform vectors back to eigenbasis of H0(diag).
       CALL PTRTOSR(0,IVEC,IVEC)
 
       IF(NWTI.GT.0) CALL GADGOP(WTI,NWTI,'+')
       IF(NWAI.GT.0) CALL GADGOP(WAI,NWAI,'+')
       IF(NWAT.GT.0) CALL GADGOP(WAT,NWAT,'+')
-C Put transition density elements in temporaries W into
-C proper positions, as subdiagonal matrices in DPT1:
+! Put transition density elements in temporaries W into
+! proper positions, as subdiagonal matrices in DPT1:
       IDOFF=0
       IWTI=0
       IWAI=0

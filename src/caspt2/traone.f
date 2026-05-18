@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE TRAONE(CMO,NCMO,HONE,nHONE)
       use constants, only: Zero, Half, One, Two
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: ERFSELF, nBMX, nBSqT,
-     &                         nBTri, nFroT, nOTri, nSym, PotNuc,
+      use caspt2_module, only: ERFSELF, nBMX, nBSqT,                    &
+     &                         nBTri, nFroT, nOTri, nSym, PotNuc,       &
      &                         RFPert, nBas, nFro, nDel, nOrb
       use definitions, only: iwp, wp, u6
       IMPLICIT None
@@ -27,16 +27,16 @@
       integer(kind=iwp) nBasXX(8),Keep(8)
       logical(kind=iwp) iSquar, Found
       character(len=8) :: Label
-      real(kind=wp), allocatable:: WFLT(:), Temp(:), WDLT(:), WDSQ(:),
+      real(kind=wp), allocatable:: WFLT(:), Temp(:), WDLT(:), WDSQ(:),  &
      &                      WFMO(:), WTMP(:)
       real(kind=wp) ECORE, EONE, ETWO, ExFac
-      integer(kind=iwp) I, iAO, IB, ICMO, ICOMP, IERR, IFTEST,
-     &                  IJ, IMO, IOFF, IOPT, IRC, ISTLT, ISTMO, ISTSQ,
+      integer(kind=iwp) I, iAO, IB, ICMO, ICOMP, IERR, IFTEST,          &
+     &                  IJ, IMO, IOFF, IOPT, IRC, ISTLT, ISTMO, ISTSQ,  &
      &                  ISYLBL, ISYM, JB, NB, NF, NSYMXX, nTemp, NWTMP
       real(kind=wp), External:: DDot_
 
-c Objective: Transformation of one-electron integrals
-c (effective one electron Hamiltonian) for CASPT2.
+! Objective: Transformation of one-electron integrals
+! (effective one electron Hamiltonian) for CASPT2.
 
 #ifdef _DEBUGPRINT_
       IFTEST=1
@@ -66,9 +66,9 @@ c (effective one electron Hamiltonian) for CASPT2.
         WRITE(u6,'(1x,8I5)')(NBASXX(I),I=1,NSYMXX)
         CALL ABEND()
       END IF
-c Allocate FLT,DLT, and DSQ.
+! Allocate FLT,DLT, and DSQ.
       CALL mma_allocate(WFLT,NBTRI,Label='WFLT')
-c Read nuclear repulsion energy:
+! Read nuclear repulsion energy:
       IRC=-1
       IOPT=0
       ICOMP=0
@@ -76,7 +76,7 @@ c Read nuclear repulsion energy:
       IF ( IFTEST.NE.0 ) WRITE(u6,*)' GET POTNUC FROM RUNFILE'
       Call Get_dScalar('PotNuc',PotNuc)
       IF ( IFTEST.NE.0 ) WRITE(u6,*)' POTNUC:',POTNUC
-c Read one-electron hamiltonian matrix into FLT.
+! Read one-electron hamiltonian matrix into FLT.
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICOMP=1
@@ -103,9 +103,9 @@ c Read one-electron hamiltonian matrix into FLT.
         END DO
       END IF
 
-c If this is a perturbative reaction field calculation then
-c modifiy the one-electron Hamiltonian by the reaction field and
-c the nuclear attraction by the cavity self-energy
+! If this is a perturbative reaction field calculation then
+! modifiy the one-electron Hamiltonian by the reaction field and
+! the nuclear attraction by the cavity self-energy
 
       If ( RFpert ) then
          nTemp=0
@@ -113,7 +113,7 @@ c the nuclear attraction by the cavity self-energy
             nTemp=nTemp+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
          Call mma_allocate(Temp,nTemp,Label='Temp')
-*
+!
          Call f_Inquire('RUNOLD',Found)
          If (Found) Call NameRun('RUNOLD')
          Call Get_dScalar('RF Self Energy',ERFSelf)
@@ -121,7 +121,7 @@ c the nuclear attraction by the cavity self-energy
          If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
          Call Daxpy_(nTemp,One,Temp,1,WFLT,1)
-*
+!
          Call mma_deallocate(Temp)
          IF ( IFTEST.NE.0 ) THEN
            WRITE(u6,*)' 1-EL HAMILTONIAN INCLUDING REACTION FIELD'
@@ -138,14 +138,14 @@ c the nuclear attraction by the cavity self-energy
 
       EONE=Zero
       ETWO=Zero
-c The following section is needed for frozen orbitals:
+! The following section is needed for frozen orbitals:
       IF (NFROT/=0) THEN
       CALL mma_allocate(WDLT,NBTRI,LABEL='WDLT')
       CALL mma_allocate(WDSQ,NBSQT,LABEL='WDSQ')
-c Compute the density matrix of the frozen orbitals
-c The DLT matrix contains the same data as DSQ, but
-c with symmetry blocks in lower triangular format, and
-c with non-diagonal elements doubled.
+! Compute the density matrix of the frozen orbitals
+! The DLT matrix contains the same data as DSQ, but
+! with symmetry blocks in lower triangular format, and
+! with non-diagonal elements doubled.
       WDLT(:)=Zero
       WDSQ(:)=Zero
       ISTMO=1
@@ -155,9 +155,9 @@ c with non-diagonal elements doubled.
         NF=NFRO(ISYM)
         NB=NBAS(ISYM)
         IF (NB*NF>0) THEN
-           CALL DGEMM_('N','T',NB,NB,NF,
-     &                 Two,CMO(ISTMO),NB,
-     &                     CMO(ISTMO),NB,
+           CALL DGEMM_('N','T',NB,NB,NF,                                &
+     &                 Two,CMO(ISTMO),NB,                               &
+     &                     CMO(ISTMO),NB,                               &
      &                Zero,WDSQ(ISTSQ),NB)
            IJ=ISTLT-1
            DO IB=1,NB
@@ -173,29 +173,29 @@ c with non-diagonal elements doubled.
         ISTLT=ISTLT+NB*(NB+1)/2
       END DO
 
-c One-electron contribution to the core energy.
-c Note that FLT still contains only the naked
-c  one-electron hamiltonian.
+! One-electron contribution to the core energy.
+! Note that FLT still contains only the naked
+!  one-electron hamiltonian.
       EONE=DDOT_(NBTRI,WDLT,1,WFLT,1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Generate Fock-matrix for frozen orbitals
-*     and compute the total core energy
-*     Look out-- we temporarily allocate all available memory.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Generate Fock-matrix for frozen orbitals
+!     and compute the total core energy
+!     Look out-- we temporarily allocate all available memory.
+!
       ExFac=One
-      Call FTwo_Drv(nSym,nBas,nFro,KEEP,WDLT,WDSQ,WFLT,NBTRI,
+      Call FTwo_Drv(nSym,nBas,nFro,KEEP,WDLT,WDSQ,WFLT,NBTRI,           &
      &              ExFac,nBMX,CMO)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-c Compute the two-electron contribution to the core energy
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute the two-electron contribution to the core energy
       ETWO=Half*(DDOT_(NBTRI,WDLT,1,WFLT,1)-EONE)
       CALL mma_deallocate(WDSQ)
       CALL mma_deallocate(WDLT)
-c Previous section was bypassed if NFROT.EQ.0.
+! Previous section was bypassed if NFROT.EQ.0.
       END IF
 
       ECORE=POTNUC+EONE+ETWO
@@ -206,12 +206,12 @@ c Previous section was bypassed if NFROT.EQ.0.
          WRITE(u6,'(6X,A,ES20.10)') '       TOTAL CORE ENERGY:',ECORE
       ENDIF
 
-c Allocate FMO, TMP:
+! Allocate FMO, TMP:
       NWTMP=2*NBMX**2
       CALL mma_allocate(WFMO,notri,LABEL='WFMO')
       CALL mma_allocate(WTMP,NWTMP,LABEL='WTMP')
 
-c Transform one-electron effective Hamiltonian:
+! Transform one-electron effective Hamiltonian:
       WFMO(:)=Zero
       WTMP(:)=Zero
       ICMO=1
@@ -223,13 +223,13 @@ c Transform one-electron effective Hamiltonian:
          IF(NORB(ISYM).GT.0) THEN
            CALL SQUARE(WFLT(IAO),WTMP,1,NBAS(ISYM),NBAS(ISYM))
 
-           CALL DGEMM_('T','N',NORB(ISYM),NBAS(ISYM),NBAS(ISYM),
-     &                  One,CMO(ICMO),NBAS(ISYM),WTMP,
+           CALL DGEMM_('T','N',NORB(ISYM),NBAS(ISYM),NBAS(ISYM),        &
+     &                  One,CMO(ICMO),NBAS(ISYM),WTMP,                  &
      &                  NBAS(ISYM),Zero,WTMP(IOFF),NORB(ISYM))
 
-           Call DGEMM_Tri('N','N',NORB(ISYM),NORB(ISYM),NBAS(ISYM),
-     &                    One,WTMP(IOFF),NORB(ISYM),
-     &                          CMO(ICMO),NBAS(ISYM),
+           Call DGEMM_Tri('N','N',NORB(ISYM),NORB(ISYM),NBAS(ISYM),     &
+     &                    One,WTMP(IOFF),NORB(ISYM),                    &
+     &                          CMO(ICMO),NBAS(ISYM),                   &
      &                    Zero,WFMO(IMO),NORB(ISYM))
          END IF
          ICMO=ICMO+NBAS(ISYM)*(NORB(ISYM)+NDEL(ISYM))

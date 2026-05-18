@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE SPEC1D(IFC,FACT,X,nX,Y,nY)
       USE SUPERINDEX, only: KTU
       USE caspt2_module, only: nAshT, nASup, nISup
@@ -27,9 +27,9 @@
       REAL(kind=wp), intent(inout):: X(nX),Y(nY)
 
       INTEGER(kind=iwp) NAS,NIS,ITQ,ITT
-C If IFC=0, compute
-C X(tt1,ia) <- X(tt1,ia)+FACT*Y(ia), else
-C the conjugate expression (summing into Y, values from X).
+! If IFC=0, compute
+! X(tt1,ia) <- X(tt1,ia)+FACT*Y(ia), else
+! the conjugate expression (summing into Y, values from X).
 
       NIS=NISUP(1,5)
       IF(NIS==0) RETURN

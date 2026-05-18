@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Yoshio Nishimoto                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Yoshio Nishimoto                                 *
+!***********************************************************************
       Subroutine GrdIni()
 
-      use caspt2_global, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,
-     &                         do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
-     &                         idBoriMat,TraFro,
-     &                         CLag,CLagFull,OLag,OLagFull,SLag,WLag,
-     &                         nCLag,nOLag,nWLag,
-     &                         DPT2_tot,DPT2C_tot,DPT2_AO_tot,
-     &                         DPT2C_AO_tot,DPT2Canti_tot,
-     &                         FIMO_all,FIFA_all,FIFASA_all,idSDMat,
+      use caspt2_global, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,           &
+     &                         do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,   &
+     &                         idBoriMat,TraFro,                        &
+     &                         CLag,CLagFull,OLag,OLagFull,SLag,WLag,   &
+     &                         nCLag,nOLag,nWLag,                       &
+     &                         DPT2_tot,DPT2C_tot,DPT2_AO_tot,          &
+     &                         DPT2C_AO_tot,DPT2Canti_tot,              &
+     &                         FIMO_all,FIFA_all,FIFASA_all,idSDMat,    &
      &                         OMGDER,iTasks_grad
       use stdalloc, only: mma_allocate,mma_deallocate
       use Constants, only: Zero
       use definitions, only: wp, iwp
-      use caspt2_module, only: IfChol, IFXMS, IFRMS, IFDW, MAXIT, NSYM,
-     &                         NCONF, NFROT, NISH, NASH, NASHT, NBAS,
+      use caspt2_module, only: IfChol, IFXMS, IFRMS, IFDW, MAXIT, NSYM, &
+     &                         NCONF, NFROT, NISH, NASH, NASHT, NBAS,   &
      &                         NBTRI, NBSQT, NSTATE, ZETA, NASUP
 
       implicit none
@@ -36,7 +36,7 @@
       real(kind=wp),allocatable :: WRK(:)
 
       Logical(kind=iwp) :: is_error, Exists
-      integer(kind=iwp) :: LENGTH, iost, iCase, iSym, idSD, idSD_,
+      integer(kind=iwp) :: LENGTH, iost, iCase, iSym, idSD, idSD_,      &
      &                     idSDer, nAS, NS, MaxLen, lRealName
       integer(kind=iwp), external :: isFreeUnit
 
@@ -57,17 +57,17 @@
       Else
         LENGTH = nIsh(1) + nAsh(1)
       End If
-      Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                     'DIRECT','UNFORMATTED',
-     &                      iost,.TRUE.,
+      Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),              &
+     &                     'DIRECT','UNFORMATTED',                      &
+     &                      iost,.TRUE.,                                &
      &                      LENGTH**2*8,'REPLACE',is_error)
       Close (LuGAMMA)
 
       If (.not.IfChol) Then
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         LuCMOPT2 = isFreeUnit(LuCMOPT2)
-        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT',
-     &                       'UNFORMATTED',iost,.FALSE.,1,'REPLACE',
+        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT',  &
+     &                       'UNFORMATTED',iost,.FALSE.,1,'REPLACE',    &
      &                        is_error)
         Close (LuCMOPT2)
       End If
@@ -201,22 +201,22 @@
       Subroutine GrdCls(IRETURN,nState,UEFF,U0,H0)
 
       use caspt2_global, only: iPrGlb
-      use caspt2_global, only: LuPT2,LuAPT2,
-     &                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
-     &                           LUSTD,TraFro,
-     &                           CLag,CLagFull,OLag,OLagFull,SLag,WLag,
-     &                           nOLag,nWLag,
-     &                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
-     &                           DPT2C_AO_tot,DPT2Canti_tot,
-     &                           FIMO_all,FIFA_all,FIFASA_all,OMGDER,
+      use caspt2_global, only: LuPT2,LuAPT2,                            &
+     &                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,    &
+     &                           LUSTD,TraFro,                          &
+     &                           CLag,CLagFull,OLag,OLagFull,SLag,WLag, &
+     &                           nOLag,nWLag,                           &
+     &                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,        &
+     &                           DPT2C_AO_tot,DPT2Canti_tot,            &
+     &                           FIMO_all,FIFA_all,FIFASA_all,OMGDER,   &
      &                           iTasks_grad
       use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate,mma_deallocate
       use Constants, only: Zero, One, Half, Two
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: REFENE, RFPERT, IfChol, IFMSCOUP, IFXMS,
-     &                         IFRMS, IFDW, NCONF, nFroT, NBAST,
-     &                         NBTRI, NBSQT, iRlxRoot, NROOTS, DWTYPE,
+      use caspt2_module, only: REFENE, RFPERT, IfChol, IFMSCOUP, IFXMS, &
+     &                         IFRMS, IFDW, NCONF, nFroT, NBAST,        &
+     &                         NBTRI, NBSQT, iRlxRoot, NROOTS, DWTYPE,  &
      &                         Zeta
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -226,19 +226,19 @@
 
       integer(kind=iwp), intent(in) :: IRETURN, nState
       real(kind=wp), intent(in) :: H0(nState,nState)
-      real(kind=wp), intent(inout) :: UEFF(nState,nState),
+      real(kind=wp), intent(inout) :: UEFF(nState,nState),              &
      &                                U0(nState,nState)
 
       Character(Len=16) :: mstate1
       logical(kind=iwp) :: DEB,Found
       logical(kind=iwp), external :: RF_On
 
-      real(kind=wp), allocatable :: HEFF1(:,:),WRK1(:,:),WRK2(:,:),
+      real(kind=wp), allocatable :: HEFF1(:,:),WRK1(:,:),WRK2(:,:),     &
      &                             CI1(:,:)
       integer(kind=iwp) :: i, iGo, ilStat, j, jlStat
       integer(kind=iwp), external :: isFreeUnit
       real(kind=wp) :: Scal
-      real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0,
+      real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0,   &
      &                 TIOTF10
 
       !! In case convergence of CASPT2 equation failed
@@ -260,11 +260,11 @@
           Do ilStat = 1, nState
            HEFF1(ilStat,ilStat) = REFENE(ilStat)
           End Do
-          Call DGEMM_('T','N',nState,nState,nState,
-     &                One,U0,nState,HEFF1,nState,
+          Call DGEMM_('T','N',nState,nState,nState,                     &
+     &                One,U0,nState,HEFF1,nState,                       &
      &                Zero,WRK1,nState)
-          Call DGEMM_('N','N',nState,nState,nState,
-     &                One,WRK1,nState,U0,nState,
+          Call DGEMM_('N','N',nState,nState,nState,                     &
+     &                One,WRK1,nState,U0,nState,                        &
      &                Zero,HEFF1,nState)
 
           !! Derivative of Heff[1] in XMS basis
@@ -272,11 +272,11 @@
           !! considered when we construct the auxiliary density in the
           !! XMS-specific term
           call DWDER(OMGDER,HEFF1,SLag)
-          Call DGEMM_('N','N',nState,nState,nState,
-     &                One,U0,nState,SLag,nState,
+          Call DGEMM_('N','N',nState,nState,nState,                     &
+     &                One,U0,nState,SLag,nState,                        &
      &                Zero,WRK2,nState)
-          Call DGEMM_('N','T',nState,nState,nState,
-     &                One,WRK2,nState,U0,nState,
+          Call DGEMM_('N','T',nState,nState,nState,                     &
+     &                One,WRK2,nState,U0,nState,                        &
      &                Zero,WRK1,nState)
 
           WRK2(:,:) = Zero
@@ -290,7 +290,7 @@
             End If
             If (.not.do_nac) Then
               Do jlStat = 1, ilStat-1
-                WRK1(ilStat,jlStat) =
+                WRK1(ilStat,jlStat) =                                   &
      &            WRK1(ilStat,jlStat)+WRK1(jlStat,ilStat)
                 WRK1(jlStat,ilStat) = Zero
               End Do
@@ -299,7 +299,7 @@
           SLag(:,:) = WRK1(:,:)
         End If
 
-        IF (IFXMS .or. IFRMS .or.
+        IF (IFXMS .or. IFRMS .or.                                       &
      &     (IFMSCOUP .and. do_nac .and. do_csf)) Then
           If (.not.IFXMS .and. .not.IFRMS) Then
             !! For MS-CASPT2, only the second term in eq.(68)
@@ -320,18 +320,18 @@
         !! Now, compute the state Lagrangian and do some projections
         !! If PCM, we have to obtain internal state rotation parameters
         !! self-consistently, so we should not call this subroutine
-        If (.not.RF_On())
-     *    Call CLagFinal(nConf,nRoots,nState,CLagFull,SLag)
+        If (.not.RF_On())                                               &
+     &    Call CLagFinal(nConf,nRoots,nState,CLagFull,SLag)
 
         !! Add MS-CASPT2 contributions
         If (IFMSCOUP) Then
           Do ilStat = 1, nState
             Do jlStat = 1, ilStat
               If (do_nac) Then
-                If (.not.IFXMS .and. .not.IFRMS .and. ilstat /= jlstat)
+                If (.not.IFXMS .and. .not.IFRMS .and. ilstat /= jlstat) &
      &            Cycle
 
-                Scal = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)
+                Scal = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)          &
      &               + UEFF(jlStat,iRoot1)*UEFF(ilStat,iRoot2)
                 Scal = Scal*Half
                 SLag(ilStat,jlStat) = SLag(ilStat,jlStat) + Scal
@@ -380,8 +380,8 @@
         !! No need to do this for SLag.
         If (IFXMS .or. IFRMS) Then
           call mma_allocate(CI1,nConf,nState,Label='CI1')
-          Call DGEMM_('N','T',nConf,nState,nState,
-     &                One,CLagFull,nConf,U0,nState,
+          Call DGEMM_('N','T',nConf,nState,nState,                      &
+     &                One,CLagFull,nConf,U0,nState,                     &
      &                Zero,CI1,nConf)
           CLagFull(:,:) = CI1(:,:)
           call mma_deallocate(CI1)
@@ -468,7 +468,7 @@
         !! D^PT2 in AO (not used?)
         if (RFpert .and. IFMSCOUP) then
           !! Recompute DPT2AO and DPT2AO for PCM
-          Call Recompute_DPT2AO(NBSQT,DPT2_tot,DPT2C_tot,
+          Call Recompute_DPT2AO(NBSQT,DPT2_tot,DPT2C_tot,               &
      &                          DPT2_AO_tot,DPT2C_AO_tot)
         end if
         If (DEB) call TriPrt('DPT2_AO_tot', '', DPT2_AO_tot, nBast)
@@ -642,7 +642,7 @@
       !! Construct the rotation vector
       If (IFMSCOUP) Then
         Do iState = 1, nState
-          TMP = UEFF(iState,iRoot1)*UEFF(jState,iRoot2)
+          TMP = UEFF(iState,iRoot1)*UEFF(jState,iRoot2)                 &
      &        + UEFF(iState,iRoot2)*UEFF(jState,iRoot1)
           VECROT(iState) = TMP*Half
         End Do
@@ -663,7 +663,7 @@
       use stdalloc, only: mma_allocate,mma_deallocate
       use Constants, only: Zero, One, Half
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: IFMSCOUP, NSYM, NBAS, NBAST, NBTRI,
+      use caspt2_module, only: IFMSCOUP, NSYM, NBAS, NBAST, NBTRI,      &
      &                         NBSQT, JSTATE, iRlxRoot
 
       implicit none
@@ -673,7 +673,7 @@
       real(kind=wp), intent(in) :: Trf(nTrf)
 
       real(kind=wp), allocatable :: WRK(:), WLagLoc(:)
-      integer(kind=iwp) :: iBasTr, iBasSq, iSym, nBasI, liBasTr,
+      integer(kind=iwp) :: iBasTr, iBasSq, iSym, nBasI, liBasTr,        &
      &                     liBasSq, iBasI, jBasI, liBasSq2
 
       call mma_allocate(WRK,NBSQT,Label='WRK')
@@ -690,11 +690,11 @@
 
       !! W(MO) -> W(AO) using the quasi-canonical orbitals
       !! No need to back transform to natural orbital basis
-      Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     &            One,CMOPT2,nBasT,WLagLoc,nBasT,
+      Call DGemm_('N','N',nBasT,nBasT,nBasT,                            &
+     &            One,CMOPT2,nBasT,WLagLoc,nBasT,                       &
      &            Zero,WRK,nBasT)
-      Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     &            One,WRK,nBasT,CMOPT2,nBasT,
+      Call DGemm_('N','T',nBasT,nBasT,nBasT,                            &
+     &            One,WRK,nBasT,CMOPT2,nBasT,                           &
      &            Zero,WLagLoc,nBasT)
 
       !! square -> triangle for WLag(AO)
@@ -731,22 +731,22 @@
 
       !! Transform quasi-canonical -> natural MO basis
       !! orbital Lagrangian
-      Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     &            One,Trf,nBasT,OLagLoc,nBasT,
+      Call DGemm_('N','N',nBasT,nBasT,nBasT,                            &
+     &            One,Trf,nBasT,OLagLoc,nBasT,                          &
      &            Zero,WRK,nBasT)
-      Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     &            One,WRK,nBasT,Trf,nBasT,
+      Call DGemm_('N','T',nBasT,nBasT,nBasT,                            &
+     &            One,WRK,nBasT,Trf,nBasT,                              &
      &            Zero,OLagLoc,nBasT)
       !! sufficient only for active
       nBasI = nBas(1)
       WRK(1:nBasI**2) = OLagLoc(1:nBasI**2)
-      Call DGeSub(WRK,nBas(1),'N',
-     &            WRK,nBas(1),'T',
-     &            OLagLoc,nBas(1),
+      Call DGeSub(WRK,nBas(1),'N',                                      &
+     &            WRK,nBas(1),'T',                                      &
+     &            OLagLoc,nBas(1),                                      &
      &            nBas(1),nBas(1))
       ! accumulate orbital Lagrangian only for MS,XMS,XDW,RMS,
       ! but not for SS-CASPT2
-      if (jState == iRlxRoot .or. IFMSCOUP)
+      if (jState == iRlxRoot .or. IFMSCOUP)                             &
      &  OLagFull(1:nOLag) = OLagFull(1:nOLag) + OLagLoc(1:nOLag)
 
       call mma_deallocate(WRK)
@@ -757,13 +757,13 @@
 !
       Subroutine CnstFIFAFIMO(MODE)
 
-      use caspt2_global, only: TraFro, OLag,
+      use caspt2_global, only: TraFro, OLag,                            &
      &                           FIMO_all, FIFA_all, FIFASA_all
       use caspt2_global, only: FIMO, FIFA, CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
       use Constants, only: Zero
-      use caspt2_module, only: IfChol, IFXMS, IFRMS, IFDW, NSYM, NFRO,
+      use caspt2_module, only: IfChol, IFXMS, IFRMS, IFDW, NSYM, NFRO,  &
      &                         NFROT, NBAS, NBSQT
 
       implicit none
@@ -802,14 +802,14 @@
             If (MODE == 0 .and. (IFDW .or. IFRMS)) Then
               !! with the state-average
               !! FIFASA_all will be natural basis
-              Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIFASA_all(1+iSQ),WRK1,
+              Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIFASA_all(1+iSQ),WRK1,  &
      &                     WRK2)
 !             write (u6 'fifasa in MO'
 !             call sqprt(fifasa_all(1+isq),nbasi)
             Else If (MODE == 1) Then
               !! with the state-specific or dynamically weighted
               !! FIFA will be quasi-canonical basis
-              Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIFA_all(1+iSQ),WRK1,
+              Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIFA_all(1+iSQ),WRK1,    &
      &                     WRK2)
 !             write (u6 'fifa in MO'
 !             call sqprt(fifa_all(1+isq),nbasi)
@@ -821,11 +821,11 @@
               !! orbitals simultaneously?
               If (nFroT /= 0) Then
                 WRK2(1:nBasI*nBasI) = WRK1(1:nBasI*nBasI)
-                CALL DIAFCK(NBAS(ISYM),FIFA_all,1,NFRO(ISYM),
+                CALL DIAFCK(NBAS(ISYM),FIFA_all,1,NFRO(ISYM),           &
      &                      TraFro,NBAS(ISYM),CMOPT2,WRK2)
-                CMOPT2(1:NBAS(ISYM)*NFRO(ISYM))
+                CMOPT2(1:NBAS(ISYM)*NFRO(ISYM))                         &
      &            = WRK2(1:NBAS(ISYM)*NFRO(ISYM))
-                Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIFA_all(1+iSQ),WRK1,
+                Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIFA_all(1+iSQ),WRK1,  &
      &                       WRK2)
               End If
             End If
@@ -837,7 +837,7 @@
               Call SQUARE(FIMO(1+iTr),FIMO_all(1+iSQ),1,nBasI,nBasI)
             Else
               Call SQUARE(FIMO_all(1+iTr),WRK1,1,nBasI,nBasI)
-              Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIMO_all(1+iSQ),WRK1,
+              Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIMO_all(1+iSQ),WRK1,    &
      &                     OLag)
 !             write (u6 'fimo in MO'
 !             call sqprt(fimo_all(1+isq),nbasi)
@@ -849,7 +849,7 @@
         call mma_deallocate(WRK1)
         call mma_deallocate(WRK2)
 
-        If (IFXMS .and. .not.IFDW)
+        If (IFXMS .and. .not.IFDW)                                      &
      &    FIFASA_all(1:NBSQT) = FIFA_all(1:NBSQT)
       Else
         If (nFroT /= 0) Then
@@ -864,7 +864,7 @@
             iSQ = iSQ + nBasI*nBasI
             iTR = iTR + nBasI*(nBasI+1)/2
           End Do
-          If (IFXMS .and. .not.IFDW)
+          If (IFXMS .and. .not.IFDW)                                    &
      &      FIFASA_all(1:NBSQT) = FIFA_all(1:NBSQT)
         End If
 
@@ -901,13 +901,13 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: NDIM ! = NBSQT
-      real(kind=wp), intent(inout) :: DPT2(NDIM), DPT2C(NDIM),
+      real(kind=wp), intent(inout) :: DPT2(NDIM), DPT2C(NDIM),          &
      &  DPT2AO(NDIM), DPT2CAO(NDIM)
 
       real(kind=wp), allocatable :: WRK1(:), WRK2(:), WRK3(:), WRK4(:)
 
       real(kind=wp) :: val
-      integer(kind=iwp) :: IDISK, iBasTr, iBasSq, iSym, nBasI, liBasTr,
+      integer(kind=iwp) :: IDISK, iBasTr, iBasSq, iSym, nBasI, liBasTr, &
      &                     liBasSq, ljBasSq, iBasI, jBasI, NBSQT
 
       NBSQT = NDIM

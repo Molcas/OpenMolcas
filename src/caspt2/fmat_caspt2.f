@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992,1994, Per Ake Malmqvist                           *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
-      SUBROUTINE FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,DREF,NDREF,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992,1994, Per Ake Malmqvist                           *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
+      SUBROUTINE FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,DREF,NDREF,          &
      &                       HONE,nHONE)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, Half, One, Two
@@ -29,32 +29,32 @@
       real(kind=wp), intent(in)::DREF(NDREF), HONE(nHONE)
 
       integer(kind=iwp) IAD2M(3,36*36)
-      integer(kind=iwp) NDIM2M, IDISK, IFSTA, NBR, NB3, NBNB,
-     &                  ISYS, IS3RS, NIP, NOP, NAESP, ISYQ, IS3PQ,
-     &                  ISADDR, IDISK1, ITABS, ITU, IUABS,
+      integer(kind=iwp) NDIM2M, IDISK, IFSTA, NBR, NB3, NBNB,           &
+     &                  ISYS, IS3RS, NIP, NOP, NAESP, ISYQ, IS3PQ,      &
+     &                  ISADDR, IDISK1, ITABS, ITU, IUABS,              &
      &                  nInts, nBUF
       real(kind=wp) DTU
       real(kind=wp), Allocatable:: BUF(:)
 
-C COMPUTE THE INACTIVE FOCK MATRIX IN MO BASIS.
-C COMPUTE THE ACTIVE FOCK MATRIX IN MO BASIS.
-C DEFINITIONS ARE:
-C FIMO(P,Q)= H(P,Q)+ SUM( (2*(PQ,KK)-(PK,QK)) OVER INACTIVE K)
-C WHERE H(P,Q) IS THE CORE FOCK MATRIX OBTAINED FROM THE
-C TRANSFORMATION PART, I.E., THE CI 1-ELECTRON HAMILTONIAN.
-C SIMILARLY,
-C FAMO(P,Q)= (1/2)*SUM( (2*(PQ,TU)-(PU,QT))*DREF(T,U) OVER ACTIVE T,U)
-C THIS ROUTINE USES DIRECTLY THE TRANSFORMED INTEGRALS TO SET UP
-C FIMO AND FAMO.
-C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
+! COMPUTE THE INACTIVE FOCK MATRIX IN MO BASIS.
+! COMPUTE THE ACTIVE FOCK MATRIX IN MO BASIS.
+! DEFINITIONS ARE:
+! FIMO(P,Q)= H(P,Q)+ SUM( (2*(PQ,KK)-(PK,QK)) OVER INACTIVE K)
+! WHERE H(P,Q) IS THE CORE FOCK MATRIX OBTAINED FROM THE
+! TRANSFORMATION PART, I.E., THE CI 1-ELECTRON HAMILTONIAN.
+! SIMILARLY,
+! FAMO(P,Q)= (1/2)*SUM( (2*(PQ,TU)-(PU,QT))*DREF(T,U) OVER ACTIVE T,U)
+! THIS ROUTINE USES DIRECTLY THE TRANSFORMED INTEGRALS TO SET UP
+! FIMO AND FAMO.
+! CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
 
-c Inactive and active Fock matrices:
+! Inactive and active Fock matrices:
       FIMO(:)=Zero
       FIFA(:)=Zero ! ued temporarily as FAMO
 
-c notri=Size of an array with symmetry-blocked triangular
-c submatrices, using non-frozen, non-deleted MO indices.
-c NBUF=Max size of a LUINTM buffer.
+! notri=Size of an array with symmetry-blocked triangular
+! submatrices, using non-frozen, non-deleted MO indices.
+! NBUF=Max size of a LUINTM buffer.
       NBUF=MAX(NOMX**2,notri)
       CALL mma_allocate(BUF,NBUF,Label='BUF')
 
@@ -67,9 +67,9 @@ c NBUF=Max size of a LUINTM buffer.
 
       CALL mma_deallocate(BUF)
 
-* FIMO comes from contractions over inactive orbitals, while FAMO from
-* contractions over active orbitals and therefore are summed up together
-* here into FIFA.
+! FIMO comes from contractions over inactive orbitals, while FAMO from
+! contractions over active orbitals and therefore are summed up together
+! here into FIFA.
 
       FIMO(1:notri) = FIMO(1:notri) + HONE(1:notri)
       FIFA(1:notri) = FIFA(1:notri) + FIMO(1:notri)
@@ -116,19 +116,19 @@ c NBUF=Max size of a LUINTM buffer.
           DO IT=1,NOP
             DO IU=1,IT
 
-C Process here contributions to FIMO or FAMO.
+! Process here contributions to FIMO or FAMO.
 
               IF(IT.LE.NIP .AND. IT.EQ.IU) THEN
                 CALL DDAFILE(LUINTM,2,BUF,nInts,IDISK1)
                 If (iCase==1) Then
-C ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
+! ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
                    CALL DAXPY_(NB3,Two,BUF,1,FIMO(IFSTA),1)
                 ELSE
                    CALL TRIANG(NBR,BUF)
-C ADD -1* BUFFER INTO CORRECT POSITION OF  FIMO.
+! ADD -1* BUFFER INTO CORRECT POSITION OF  FIMO.
                    CALL DAXPY_(NB3,-One,BUF,1,FIMO(IFSTA),1)
                 End If
-              ELSE IF(IT.GT.NIP .AND. IT.LE.NOP .AND.
+              ELSE IF(IT.GT.NIP .AND. IT.LE.NOP .AND.                   &
      &                IU.GT.NIP .AND. IU.LE.NOP) THEN
                 ITABS=NAESP+(IT-NIP)
                 IUABS=NAESP+(IU-NIP)

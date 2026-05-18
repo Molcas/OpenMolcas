@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,nDiag,NOW,IOW,nMidV)
       use Symmetry_Info, only: Mul
       use sguga, only: CIS
@@ -23,17 +23,17 @@
       use constants, only: Zero
       use definitions, only: iwp, wp
       IMPLICIT None
-C INPUT ARRAYS:
+! INPUT ARRAYS:
 
 
       Integer(kind=iwp), Intent(In):: nMidV, ISYCI, nDiag
-      Integer(kind=iwp), Intent(In):: NOW(2,NSYM,NMIDV),
+      Integer(kind=iwp), Intent(In):: NOW(2,NSYM,NMIDV),                &
      &                                IOW(2,NSYM,NMIDV)
       Real(kind=wp), Intent(Out):: DIAG(nDiag)
 
       Integer(kind=iwp) IEMU, MV, ISYUP, NUP, ISYDWN, NDWN, ICS, JCS, NC
-C PURPOSE: FORM AN ARRAY OF DIAGONAL HAMILTONIAN MATRIX ELEMENTS
-C FOR THE SPECIFIED TOTAL SYMMETRY ISYCI
+! PURPOSE: FORM AN ARRAY OF DIAGONAL HAMILTONIAN MATRIX ELEMENTS
+! FOR THE SPECIFIED TOTAL SYMMETRY ISYCI
 
       DIAG(:)=Zero
       IEMU=1
@@ -47,8 +47,8 @@ C FOR THE SPECIFIED TOTAL SYMMETRY ISYCI
           ICS=1+IOW(1,ISYUP,MV)
           JCS=1+IOW(2,ISYDWN,MV)
           NC=NUP*NDWN
-          CALL DIELMV(CIS%ICASE(ICS),SIZE(CIS%ICASE(ICS:)),
-     &                CIS%ICASE(JCS),SIZE(CIS%ICASE(JCS:)),
+          CALL DIELMV(CIS%ICASE(ICS),SIZE(CIS%ICASE(ICS:)),             &
+     &                CIS%ICASE(JCS),SIZE(CIS%ICASE(JCS:)),             &
      &                NUP,NDWN,DIAG(IEMU))
           IEMU=IEMU+NC
         END DO

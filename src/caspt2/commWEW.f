@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1998  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1998  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE COMMWEW(IVEC,JVEC,DCOM)
       use Symmetry_Info, only: Mul
       use constants, only: Zero, One, Two
@@ -23,7 +23,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDSMAT
-      use caspt2_module, only: NSYM,NASUP,NISUP,NASHT,NTUVES,NASH,NAES,
+      use caspt2_module, only: NSYM,NASUP,NISUP,NASHT,NTUVES,NASH,NAES, &
      &                         IASYM,NTGEUES,NTGTUES,NTUES
       use definitions, only: iwp, wp
       IMPLICIT NONE
@@ -33,8 +33,8 @@
 
       REAL(KIND=WP), ALLOCATABLE :: CBLK(:), TBLK(:), SMAT(:)
       INTEGER(KIND=IWP) ICASE,ISYM,NAS,NIS,NCBLK,NS,IDS
-      INTEGER(KIND=IWP) K000,IIS,ISYMT,ISYMTU,ISYMU,ISYMX,ITABS,ITUX,
-     &                  ITUY,ITXU,ITYU,IU,IUABS,IX,IXABS,IXTU,IY,IYABS,
+      INTEGER(KIND=IWP) K000,IIS,ISYMT,ISYMTU,ISYMU,ISYMX,ITABS,ITUX,   &
+     &                  ITUY,ITXU,ITYU,IU,IUABS,IX,IXABS,IXTU,IY,IYABS, &
      &                  IYTU,NAX
       REAL(KIND=WP) SUM
       INTEGER(KIND=IWP) IT,IXT,IYT
@@ -42,12 +42,12 @@
       REAL(KIND=WP) SGN
       INTEGER(KIND=IWP) ITX1,ITX2,ITY1,ITY2,IXT1,IXT2,IYT1,IYT2,NAS1
 
-C This subroutine is one of the components needed to compute the active/active
-C transition density matrix elements for the two first-order vectors IVEC and
-C JVEC.
-C Adds, into the matrix DCOM, a correction obtained by commutation relations.
-C Present assumption: The two vectors nr. IVEC and JVEC, stored on LUSOLV,
-C are both in contravariant representation. Possibly, IVEC equals JVEC.
+! This subroutine is one of the components needed to compute the active/active
+! transition density matrix elements for the two first-order vectors IVEC and
+! JVEC.
+! Adds, into the matrix DCOM, a correction obtained by commutation relations.
+! Present assumption: The two vectors nr. IVEC and JVEC, stored on LUSOLV,
+! are both in contravariant representation. Possibly, IVEC equals JVEC.
 
       DO ICASE=1,11
         DO ISYM=1,NSYM
@@ -55,31 +55,31 @@ C are both in contravariant representation. Possibly, IVEC equals JVEC.
           NIS=NISUP(ISYM,ICASE)
           NCBLK=NAS*NIS
           IF(NCBLK.EQ.0) CYCLE
-C Allocate CBLK, TBLK
+! Allocate CBLK, TBLK
           CALL MMA_ALLOCATE(CBLK,NCBLK,Label='CBLK')
           CALL MMA_ALLOCATE(TBLK,NCBLK,Label='TBLK')
-C First, read in the ICASE, ISYM block of coefficients from JVEC into CBLK:
-C Note carefully, this is not a mistake: vector JVEC into CBLK it is!
+! First, read in the ICASE, ISYM block of coefficients from JVEC into CBLK:
+! Note carefully, this is not a mistake: vector JVEC into CBLK it is!
           CALL RDBLKC(ISYM,ICASE,JVEC,CBLK,NCBLK)
-C Allocate overlap matrix:
+! Allocate overlap matrix:
           NS=(NAS*(NAS+1))/2
           CALL MMA_ALLOCATE(SMAT,NS)
           IDS=IDSMAT(ISYM,ICASE)
           CALL DDAFILE(LUSBT,2,SMAT,NS,IDS)
-C Compute TBLK as the covariant representation of vector JVEC, by multiplying
-C with the overlap matrix. Then get rid of the overlap matrix.
+! Compute TBLK as the covariant representation of vector JVEC, by multiplying
+! with the overlap matrix. Then get rid of the overlap matrix.
           CALL DCOPY_(NCBLK,[Zero],0,TBLK,1)
           CALL TRIMUL(NAS,NIS,One,SMAT,CBLK,NAS,TBLK,NAS)
           CALL MMA_DEALLOCATE(SMAT)
-C Finally, if IVEC not equals JVEC, read in the contravariant block of vector
-C IVEC into CBLK:
+! Finally, if IVEC not equals JVEC, read in the contravariant block of vector
+! IVEC into CBLK:
           IF(IVEC.NE.JVEC) THEN
             CALL RDBLKC(ISYM,ICASE,IVEC,CBLK,NCBLK)
           END IF
-C Finally, branch to the appropriate code section:
+! Finally, branch to the appropriate code section:
 
       SELECT CASE (ICASE)
-C Case 1 code section:
+! Case 1 code section:
       CASE (1)
       K000=NTUVES(ISYM)
 
@@ -106,11 +106,11 @@ C Case 1 code section:
                 ITUX=KTUV(ITABS,IUABS,IXABS)-K000
 
                 DO IIS=1,NIS
-                  SUM=SUM+CBLK(IXTU+NAS*(IIS-1))
+                  SUM=SUM+CBLK(IXTU+NAS*(IIS-1))                        &
      &                                *TBLK(IYTU+NAS*(IIS-1))
-                  SUM=SUM+CBLK(ITXU+NAS*(IIS-1))
+                  SUM=SUM+CBLK(ITXU+NAS*(IIS-1))                        &
      &                                *TBLK(ITYU+NAS*(IIS-1))
-                  SUM=SUM-CBLK(ITUY+NAS*(IIS-1))
+                  SUM=SUM-CBLK(ITUY+NAS*(IIS-1))                        &
      &                                *TBLK(ITUX+NAS*(IIS-1))
                 END DO
 
@@ -122,7 +122,7 @@ C Case 1 code section:
         END DO
       END DO
 
-C Case 2 code section:
+! Case 2 code section:
       CASE (2)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
@@ -147,7 +147,7 @@ C Case 2 code section:
               END IF
               PARTSUM=Zero
               DO IIS=1,NIS
-                PARTSUM=PARTSUM+CBLK(IXT+NAS*(IIS-1))
+                PARTSUM=PARTSUM+CBLK(IXT+NAS*(IIS-1))                   &
      &                               *TBLK(IYT+NAS*(IIS-1))
               END DO
               IF(ITABS.EQ.IXABS) PARTSUM=Two*PARTSUM
@@ -159,7 +159,7 @@ C Case 2 code section:
         END DO
       END DO
 
-C Case 3 code section:
+! Case 3 code section:
       CASE (3)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
@@ -189,7 +189,7 @@ C Case 3 code section:
               END IF
               PARTSUM=Zero
               DO IIS=1,NIS
-                PARTSUM=PARTSUM+CBLK(IXT+NAS*(IIS-1))
+                PARTSUM=PARTSUM+CBLK(IXT+NAS*(IIS-1))                   &
      &                                *TBLK(IYT+NAS*(IIS-1))
               END DO
               SUM=SUM+SGN*PARTSUM
@@ -201,7 +201,7 @@ C Case 3 code section:
         END DO
       END DO
 
-C Case 4 code section:
+! Case 4 code section:
       CASE (4)
       K000=NTUVES(ISYM)
 
@@ -228,11 +228,11 @@ C Case 4 code section:
                 ITUX=KTUV(ITABS,IUABS,IXABS)-K000
 
                 DO IIS=1,NIS
-                  SUM=SUM-CBLK(IYTU+NAS*(IIS-1))
+                  SUM=SUM-CBLK(IYTU+NAS*(IIS-1))                        &
      &                         *TBLK(IXTU+NAS*(IIS-1))
-                  SUM=SUM+CBLK(ITXU+NAS*(IIS-1))
+                  SUM=SUM+CBLK(ITXU+NAS*(IIS-1))                        &
      &                         *TBLK(ITYU+NAS*(IIS-1))
-                  SUM=SUM-CBLK(ITUY+NAS*(IIS-1))
+                  SUM=SUM-CBLK(ITUY+NAS*(IIS-1))                        &
      &                         *TBLK(ITUX+NAS*(IIS-1))
                 END DO
 
@@ -244,7 +244,7 @@ C Case 4 code section:
         END DO
       END DO
 
-C Case 5 code section:
+! Case 5 code section:
       CASE (5)
       NAS1=NAS/2
 
@@ -268,13 +268,13 @@ C Case 5 code section:
               ITX2=ITX1+NAS1
               ITY2=ITY1+NAS1
               DO IIS=1,NIS
-                SUM=SUM+CBLK(IXT1+NAS*(IIS-1))
+                SUM=SUM+CBLK(IXT1+NAS*(IIS-1))                          &
      &                      *TBLK(IYT1+NAS*(IIS-1))
-                SUM=SUM-CBLK(ITY1+NAS*(IIS-1))
+                SUM=SUM-CBLK(ITY1+NAS*(IIS-1))                          &
      &                      *TBLK(ITX1+NAS*(IIS-1))
-                SUM=SUM+CBLK(IXT2+NAS*(IIS-1))
+                SUM=SUM+CBLK(IXT2+NAS*(IIS-1))                          &
      &                      *TBLK(IYT2+NAS*(IIS-1))
-                SUM=SUM-CBLK(ITY2+NAS*(IIS-1))
+                SUM=SUM-CBLK(ITY2+NAS*(IIS-1))                          &
      &                      *TBLK(ITX2+NAS*(IIS-1))
               END DO
             END DO
@@ -284,7 +284,7 @@ C Case 5 code section:
         END DO
       END DO
 
-C Case 6 code section:
+! Case 6 code section:
       CASE (6)
       NAX=NASH(ISYM)
       DO IX=1,NAX
@@ -294,7 +294,7 @@ C Case 6 code section:
 
           SUM=Zero
           DO IIS=1,NIS
-            SUM=SUM+CBLK(IX+NAS*(IIS-1))
+            SUM=SUM+CBLK(IX+NAS*(IIS-1))                                &
      &                      *TBLK(IY+NAS*(IIS-1))
           END DO
           DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
@@ -302,7 +302,7 @@ C Case 6 code section:
         END DO
       END DO
 
-C Case 7 code section:
+! Case 7 code section:
       CASE (7)
       NAX=NASH(ISYM)
       DO IX=1,NAX
@@ -312,7 +312,7 @@ C Case 7 code section:
 
           SUM=Zero
           DO IIS=1,NIS
-            SUM=SUM+CBLK(IX+NAS*(IIS-1))
+            SUM=SUM+CBLK(IX+NAS*(IIS-1))                                &
      &                   *TBLK(IY+NAS*(IIS-1))
           END DO
           DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
@@ -320,7 +320,7 @@ C Case 7 code section:
         END DO
       END DO
 
-C Case 8 code section:
+! Case 8 code section:
       CASE (8)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
@@ -345,7 +345,7 @@ C Case 8 code section:
               END IF
               PARTSUM=Zero
               DO IIS=1,NIS
-                PARTSUM=PARTSUM-CBLK(IYT+NAS*(IIS-1))
+                PARTSUM=PARTSUM-CBLK(IYT+NAS*(IIS-1))                   &
      &                       *TBLK(IXT+NAS*(IIS-1))
               END DO
               IF(ITABS.EQ.IYABS) PARTSUM=Two*PARTSUM
@@ -358,7 +358,7 @@ C Case 8 code section:
         END DO
       END DO
 
-C Case 9 code section:
+! Case 9 code section:
       CASE (9)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
@@ -388,7 +388,7 @@ C Case 9 code section:
               END IF
               PARTSUM=Zero
               DO IIS=1,NIS
-                PARTSUM=PARTSUM-CBLK(IYT+NAS*(IIS-1))
+                PARTSUM=PARTSUM-CBLK(IYT+NAS*(IIS-1))                   &
      &                               *TBLK(IXT+NAS*(IIS-1))
               END DO
               SUM=SUM+SGN*PARTSUM
@@ -400,7 +400,7 @@ C Case 9 code section:
         END DO
       END DO
 
-C Case 10 code section:
+! Case 10 code section:
       CASE (10)
       NAX=NASH(ISYM)
       DO IX=1,NAX
@@ -410,7 +410,7 @@ C Case 10 code section:
 
           SUM=Zero
           DO IIS=1,NIS
-            SUM=SUM-CBLK(IY+NAS*(IIS-1))
+            SUM=SUM-CBLK(IY+NAS*(IIS-1))                                &
      &                   *TBLK(IX+NAS*(IIS-1))
           END DO
           DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
@@ -418,7 +418,7 @@ C Case 10 code section:
         END DO
       END DO
 
-C Case 11 code section:
+! Case 11 code section:
       CASE (11)
       NAX=NASH(ISYM)
       DO IX=1,NAX
@@ -428,7 +428,7 @@ C Case 11 code section:
 
           SUM=Zero
           DO IIS=1,NIS
-            SUM=SUM-CBLK(IY+NAS*(IIS-1))
+            SUM=SUM-CBLK(IY+NAS*(IIS-1))                                &
      &                   *TBLK(IX+NAS*(IIS-1))
           END DO
           DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
@@ -444,7 +444,7 @@ C Case 11 code section:
       CALL MMA_DEALLOCATE(CBLK)
       CALL MMA_DEALLOCATE(TBLK)
 
-C Here ends the loops over ISYM and ICASE.
+! Here ends the loops over ISYM and ICASE.
         END DO
       END DO
 

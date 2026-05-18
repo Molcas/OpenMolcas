@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Yoshio Nishimoto                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Yoshio Nishimoto                                 *
+!***********************************************************************
 
       Subroutine MS_Res(MODE,IST,JST,Scal)
       use caspt2_global, only: LUCIEX, IDTCEX
@@ -76,13 +76,13 @@
 !! the overlap-like term constructe with transition density
 !! matrices. The output is IVECC (MODE=1) or IVECC2 (MODE=2)
       IF (MODE == 1) THEN
-        CALL MS_STRANS(IVECW,IVECC,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,
+        CALL MS_STRANS(IVECW,IVECC,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,   &
      &                 SCAL)
       ELSE IF (MODE == 2) THEN
-        CALL MS_STRANS(IVECC,IVECC2,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,
+        CALL MS_STRANS(IVECC,IVECC2,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,  &
      &                 SCAL)
       ELSE IF (MODE == 3) THEN
-        CALL MS_STRANS(IVECW,IVECC,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,
+        CALL MS_STRANS(IVECW,IVECC,NASHT,NTG3,OVL,TG1,TG2,TG3,DVALUE,   &
      &                 SCAL)
       END IF
 
@@ -94,7 +94,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE MS_STRANS(IVEC,JVEC,NASHT,NTG3,OVL,TG1,TG2,TG3,HEL,
+      SUBROUTINE MS_STRANS(IVEC,JVEC,NASHT,NTG3,OVL,TG1,TG2,TG3,HEL,    &
      &                     SCAL)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -121,15 +121,15 @@
 ! The coupling for that block is computed by the subroutine HCOUP_BLK.
 
       integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
-      real(kind=wp), intent(inout) :: OVL, TG1(NASHT,NASHT),
+      real(kind=wp), intent(inout) :: OVL, TG1(NASHT,NASHT),            &
      &  TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
       real(kind=wp), intent(out) :: HEL
       real(kind=wp), intent(in) :: SCAL
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
       real(kind=wp) :: HECOMP(14,9), HEBLK, SUMSYM, SUMCASE
-      integer(kind=iwp) :: ICASE, ISYM, NAS, NIN, NIS, lg_V1, iLo1,
-     &  iHi1, jLo1, jHi1, MV1, lg_V2, iLo2, iHi2, jLo2, jHi2, MV2,
+      integer(kind=iwp) :: ICASE, ISYM, NAS, NIN, NIS, lg_V1, iLo1,     &
+     &  iHi1, jLo1, jHi1, MV1, lg_V2, iLo2, iHi2, jLo2, jHi2, MV2,      &
      &  NHECOMP, i, IC, IS
       integer(kind=iwp) :: nvlen
 
@@ -169,7 +169,7 @@
             CALL RHS_ACCESS(NAS,NIS,lg_V1,iLo1,iHi1,jLo1,jHi1,MV1)
             CALL RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
 
-            IF ((iLo1 /= iLo2) .OR. (iHi1 /= iHi2) .OR.
+            IF ((iLo1 /= iLo2) .OR. (iHi1 /= iHi2) .OR.                 &
      &          (jLo1 /= jLo2) .OR. (jHi1 /= jHi2)) THEN
               WRITE(u6,'(1X,A)')'HCOUP: Error: block mismatch, abort...'
               CALL ABEND()
@@ -179,14 +179,14 @@
 
 #ifdef _MOLCAS_MPP_
             IF (Is_Real_Par()) THEN
-              CALL MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,
-     &                        jLo1,jHi1,DBL_MB(MV1),DBL_MB(MV2),OVL,
+              CALL MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,       &
+     &                        jLo1,jHi1,DBL_MB(MV1),DBL_MB(MV2),OVL,    &
      &                        TG1,TG2,TG3,SCAL)
             ELSE
 #endif
-              CALL MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,
-     &                        jLo1,jHi1,GA_Arrays(MV1)%A,
-     &                        GA_Arrays(MV2)%A,OVL,
+              CALL MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,       &
+     &                        jLo1,jHi1,GA_Arrays(MV1)%A,               &
+     &                        GA_Arrays(MV2)%A,OVL,                     &
      &                        TG1,TG2,TG3,SCAL)
 #ifdef _MOLCAS_MPP_
             END IF
@@ -227,15 +227,15 @@
         END DO
 
         WRITE(u6,'(20a4)')('----',i=1,20)
-        WRITE(u6,*)
+        WRITE(u6,*)                                                     &
      &          'HCOUP: The contributions to the Hamiltonian coupling'
         WRITE(u6,*)' elements, by case and by symmetry label.'
         DO IC=1,13
-          WRITE(u6,'(1X,A8,9F12.8)')
+          WRITE(u6,'(1X,A8,9F12.8)')                                    &
      &      CASES(IC),(HECOMP(IC,IS),IS=1,NSYM+1)
         END DO
         CALL XFLUSH(u6)
-        WRITE(u6,'(1X,A8,9F12.8)')
+        WRITE(u6,'(1X,A8,9F12.8)')                                      &
      &    'Summed: ', (HECOMP(14,IS),IS=1,NSYM+1)
         WRITE(u6,*)
       END IF
@@ -244,7 +244,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,IISTA,
+      SUBROUTINE MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,IISTA,   &
      &                         IIEND,V1,V2,OVL,TG1,TG2,TG3,SCAL)
       USE SUPERINDEX, only: MTU, MTUV, MTGEU, MTGTU
       use caspt2_module, only: NAES, NTUVES, NTUES, NTGEUES, NTGTUES
@@ -259,24 +259,24 @@
 ! calling subroutine.
       implicit none
 
-      integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NASHT,
+      integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NASHT,  &
      &                                 NTG3, IISTA, IIEND
       real(kind=wp), intent(in) :: V1(nvlen), OVL, SCAL
-      real(kind=wp), intent(inout) :: V2(nvlen), TG1(NASHT,NASHT),
+      real(kind=wp), intent(inout) :: V2(nvlen), TG1(NASHT,NASHT),      &
      &  TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
-      integer(kind=iwp) :: NISBLK, IAS, IASABS, ITABS, IUABS, IVABS,
-     &  JAS, JASABS, IXABS, IYABS, IZABS, IND1, IND2, IND3, JND1,
+      integer(kind=iwp) :: NISBLK, IAS, IASABS, ITABS, IUABS, IVABS,    &
+     &  JAS, JASABS, IXABS, IYABS, IZABS, IND1, IND2, IND3, JND1,       &
      &  JND2, JND3, ITG3, NAS1, IAS1, IAS2, JAS1, JAS2
-      real(kind=wp) :: TMP, SA, SC, SBtuxy, SBtuyx, SBP, SBM, GUTXY,
+      real(kind=wp) :: TMP, SA, SC, SBtuxy, SBtuyx, SBP, SBM, GUTXY,    &
      &  SD11, SD12, SD21, SD22, GUY, SE, SFtuxy, SFtuyx, SFP, SFM, SG
 
       IF (IISTA <= 0) RETURN
 
       NISBLK=IIEND-IISTA+1
       SELECT CASE (ICASE)
-************************************************************************
+!***********************************************************************
       CASE (1)
         DO IAS=1,NAS
           IASABS=NTUVES(ISYM)+IAS
@@ -360,7 +360,7 @@
 !           End Do
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(4)
         DO IAS=1,NAS
           IASABS=NTUVES(ISYM)+IAS
@@ -434,7 +434,7 @@
             Call DaXpY_(NISBLK,SC*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(2)
         DO IAS=1,NAS
           IASABS=NTGEUES(ISYM)+IAS
@@ -486,7 +486,7 @@
             Call DaXpY_(NISBLK,SBP*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(3)
         DO IAS=1,NAS
           IASABS=NTGTUES(ISYM)+IAS
@@ -538,7 +538,7 @@
             Call DaXpY_(NISBLK,SBM*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(5)
         NAS1=NAS/2
         DO IAS1=1,NAS1
@@ -579,7 +579,7 @@
             Call DaXpY_(NISBLK,SD22*SCAL,V1(IAS2),NAS,V2(JAS2),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(6)
         DO IAS=1,NAS
           ITABS=IAS+NAES(ISYM)
@@ -592,7 +592,7 @@
             Call DaXpY_(NISBLK,SE*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(7)
         DO IAS=1,NAS
           ITABS=IAS+NAES(ISYM)
@@ -605,7 +605,7 @@
             Call DaXpY_(NISBLK,SE*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(8)
 ! ========================================================
 ! Compute and use SFP(ITABS IUABS , IXABS IYABS)
@@ -630,7 +630,7 @@
             Call DaXpY_(NISBLK,SFP*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(9)
 ! ========================================================
 ! Compute and use SFM(ITABS IUABS, IXABS ,IYABS)
@@ -654,10 +654,10 @@
             Call DaXpY_(NISBLK,SFM*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 ! CASES GP, GM
 ! Compute and use SG(ITABS , IXABS) (Same for cases GP and GM)
-************************************************************************
+!***********************************************************************
       CASE(10)
         DO IAS=1,NAS
           ITABS=IAS+NAES(ISYM)
@@ -673,7 +673,7 @@
 !           End Do
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(11)
         DO IAS=1,NAS
           ITABS=IAS+NAES(ISYM)
@@ -689,17 +689,17 @@
 !           End Do
           END DO
         END DO
-************************************************************************
+!***********************************************************************
       CASE(12)
         IF(ABS(OVL) >= 1.0e-12_wp) THEN
 !         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
         END IF
-************************************************************************
+!***********************************************************************
       CASE(13)
         IF(ABS(OVL) >= 1.0e-12_wp) THEN
 !         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
         END IF
-************************************************************************
+!***********************************************************************
       END SELECT
       Return
       end subroutine MS_STRANS_BLK
@@ -733,7 +733,7 @@
         Call READ_CI(iState,IDTCEX,SIZE(IDTCEX))
 !       ID = IDTCEX(1) !! quasi-canonical
       ELse
-        write (u6,*)'the first argument in LoadCI_XMS should be either',
+        write (u6,*)'the first argument in LoadCI_XMS should be either',&
      &              'N (natural) or C (quasi-canonical)'
         call abend()
       End If
@@ -768,16 +768,16 @@
 !
       Subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
-      use caspt2_global, only: do_nac, do_csf, iRoot1, iRoot2,
-     &                         nOLag, CLag,CLagFull,OLag,DPT2_tot,
+      use caspt2_global, only: do_nac, do_csf, iRoot1, iRoot2,          &
+     &                         nOLag, CLag,CLagFull,OLag,DPT2_tot,      &
      &                         FIFA_all,FIFASA_all
       use caspt2_global, only: FIFA, TORB, NDREF
       use caspt2_global, only: CMOPT2, if_equalW, weight
       use sguga, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: ENERGY, IFXMS, IFRMS, IFDW, STSYM, NCONF,
-     &                         NFRO, NISH, NASHT, NDEL, NBAS, NBAST,
+      use caspt2_module, only: ENERGY, IFXMS, IFRMS, IFDW, STSYM, NCONF,&
+     &                         NFRO, NISH, NASHT, NDEL, NBAS, NBAST,    &
      &                         NBSQT, NROOTS, NSTATE, ZETA, ORBIN, MXCI
       use Constants, only: Zero, One, Half, Two, Quart
 #ifdef _MOLCAS_MPP_
@@ -786,18 +786,18 @@
 
       implicit none
 
-      real(kind=wp), intent(in) :: H0(nState,nState), U0(nState,nState),
+      real(kind=wp), intent(in) :: H0(nState,nState), U0(nState,nState),&
      &                             OMGDER(nState,nState)
       real(kind=wp), intent(inout) :: UEFF(nState,nState)
 
-      real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),
-     &                             TG2(:),DG1(:),DG2(:),DG3(:),G1(:,:),
-     &                             RDMEIG(:,:),DPT2(:),Trf(:),
+      real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),&
+     &                             TG2(:),DG1(:),DG2(:),DG3(:),G1(:,:), &
+     &                             RDMEIG(:,:),DPT2(:),Trf(:),          &
      &                             RDMSA(:,:),WRK1(:),WRK2(:),DPT2_AO(:)
 
-      real(kind=wp) :: SLag(nState*nState), Scal, OVL, EEI, EEJ, fact,
+      real(kind=wp) :: SLag(nState*nState), Scal, OVL, EEI, EEJ, fact,  &
      &  Wgt, TRC, EINACT, EDIFF
-      integer(kind=iwp) :: nLev, iStat, jStat, NTG1, NTG3, iState,
+      integer(kind=iwp) :: nLev, iStat, jStat, NTG1, NTG3, iState,      &
      &  kStat, lStat, nOrbI, nBasI, iAsh, jAsh, nCor, I, II
       real(kind=wp), external :: ddot_
 
@@ -824,8 +824,8 @@
 
         !! Forward transformation of UEFF (CASSCF basis to XMS basis)
         !! SLag is used as a working array
-        Call DGEMM_('T','N',nState,nState,nState,
-     &              One,U0,nState,UEFF,nState,
+        Call DGEMM_('T','N',nState,nState,nState,                       &
+     &              One,U0,nState,UEFF,nState,                          &
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
 
@@ -844,7 +844,7 @@
             Call CnstInt(1,DG1,DG2)
 
             If (do_nac) Then
-              Scal =(UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
+              Scal =(UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)              &
      &             + UEFF(jStat,iRoot1)*UEFF(iStat,iRoot2))*Half
             Else
               Scal = UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
@@ -861,7 +861,7 @@
             NTG1 = NASHT**2
             NTG3 = (NTG1*(NTG1+1)*(NTG1+2))/6
             OVL = Zero
-            CALL DERTG3(.False.,STSYM,STSYM,NCONF,NASHT,CI1,CI2,OVL,
+            CALL DERTG3(.False.,STSYM,STSYM,NCONF,NASHT,CI1,CI2,OVL,    &
      &                  DG1,DG2,NTG3,DG3,CLag(1,iStat),CLag(1,jStat))
             call mma_deallocate(DG3)
           End Do
@@ -871,8 +871,8 @@
 
         !! Back transformation of UEFF (XMS basis to CASSCF basis)
         !! SLag is used as a working array
-        Call DGEMM_('N','N',nState,nState,nState,
-     &              One,U0,nState,UEFF,nState,
+        Call DGEMM_('N','N',nState,nState,nState,                       &
+     &              One,U0,nState,UEFF,nState,                          &
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
         call mma_deallocate(DG1)
@@ -903,7 +903,7 @@
               Call LoadCI_XMS('N',0,nConf,nState,CI2,jStat,U0)
               EEJ = H0(jStat,jStat)
 
-              Scal = DDOT_(nConf,CI1,1,CLagFull(1,jStat),1)
+              Scal = DDOT_(nConf,CI1,1,CLagFull(1,jStat),1)             &
      &             - DDOT_(nConf,CI2,1,CLagFull(1,iStat),1)
               If (do_csf) Then
                 !! JCTC 2017, 13, 2561: eq.(66)
@@ -912,9 +912,9 @@
                 fact = Zero
                 Do kStat = 1, nState
                   Do lStat = 1, nState
-                    fact = fact
-     &                   + (UEFF(kStat,iRoot1)*UEFF(lStat,iRoot2)
-     &                   -  UEFF(kStat,iRoot2)*UEFF(lStat,iRoot1))*Half
+                    fact = fact                                         &
+     &                   + (UEFF(kStat,iRoot1)*UEFF(lStat,iRoot2)       &
+     &                   -  UEFF(kStat,iRoot2)*UEFF(lStat,iRoot1))*Half &
      &                   * U0(kStat,iStat)*U0(lStat,jStat)
                   End Do
                 End Do
@@ -941,7 +941,7 @@
             If (ABS(SLag(iStat+nState*(jStat-1))) <= 1.0e-10_wp) Cycle
             Call LoadCI_XMS('C',0,nConf,nState,CI2,jStat,U0)
 
-            Call Dens1T_RPT2(CI1,CI2,
+            Call Dens1T_RPT2(CI1,CI2,                                   &
      &                       SGM1,TG1,nLev)
             Scal = SLag(iStat+nState*(jStat-1))*Two
             Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
@@ -987,11 +987,11 @@
 
         !! FIFA: natural -> quasi-canonical
         If (IFDW .or. IFRMS) Then
-          Call DGemm_('T','N',nOrbI,nOrbI,nOrbI,
-     &                One,Trf,nBasI,FIFASA_all,nOrbI,
+          Call DGemm_('T','N',nOrbI,nOrbI,nOrbI,                        &
+     &                One,Trf,nBasI,FIFASA_all,nOrbI,                   &
      &                Zero,WRK1,nOrbI)
-          Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,
-     &                One,WRK1,nOrbI,Trf,nBasI,
+          Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,                        &
+     &                One,WRK1,nOrbI,Trf,nBasI,                         &
      &                Zero,FIFASA_all,nOrbI)
         End If
 !       Call DCopy_(NBSQT,FIFASA_all,1,FIFA_all,1)
@@ -1059,7 +1059,7 @@
 !       call sqprt(fifa_all,nbast)
         Do iAsh = 1, nAshT
           Do jAsh = 1, nAshT
-            G1(iAsh,jAsh) = FIFA_all( nFro(1)
+            G1(iAsh,jAsh) = FIFA_all( nFro(1)                           &
      &          + nIsh(1) + iAsh + nBas(1)*(nFro(1)+nIsh(1)+jAsh-1))
           End Do
         End Do
@@ -1067,19 +1067,19 @@
         !! Transform quasi-canonical to natural
         nCor = nFro(1)+nIsh(1)
 !     call sqprt(trf,nbast)
-        Call DGemm_('N','N',nAshT,nAshT,nAshT,
-     &              One,Trf(1+nBasT*nCor+nCor),nBasT,G1,nAshT,
+        Call DGemm_('N','N',nAshT,nAshT,nAshT,                          &
+     &              One,Trf(1+nBasT*nCor+nCor),nBasT,G1,nAshT,          &
      &              Zero,FIFA_all,nAshT)
 !     call sqprt(FIFA_all,nasht)
-        Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     &              One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,
+        Call DGemm_('N','T',nAshT,nAshT,nAshT,                          &
+     &              One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,    &
      &              Zero,G1,nAshT)
 !     call sqprt(g1,nasht)
-        Call DGemm_('N','N',nAshT,nAshT,nAshT,
-     &              One,Trf(1+nBasT*nCor+nCor),nBasT,RDMEIG,nAshT,
+        Call DGemm_('N','N',nAshT,nAshT,nAshT,                          &
+     &              One,Trf(1+nBasT*nCor+nCor),nBasT,RDMEIG,nAshT,      &
      &              Zero,FIFA_all,nAshT)
-        Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     &              One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,
+        Call DGemm_('N','T',nAshT,nAshT,nAshT,                          &
+     &              One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,    &
      &              Zero,RDMEIG,nAshT)
         call mma_deallocate(Trf)
 
@@ -1092,7 +1092,7 @@
           TRC=TRC+FIFA(II)
         END DO
 !     END DO
-* Contribution from inactive orbitals:
+! Contribution from inactive orbitals:
         EINACT=Two*TRC
         !! This EINACT may be wrong. Perhaps, FIFA has to be
         !! back-transformed to natural orbital basis. However, this does
@@ -1105,7 +1105,7 @@
         Call CLagEigT(CLag,G1,SLag,EINACT)
 
         !! 2) Implicit CI derivative
-        Call CLagEig(.False.,.True.,nConf,nRoots,nState,nLev,CLag,
+        Call CLagEig(.False.,.True.,nConf,nRoots,nState,nLev,CLag,      &
      &               RDMEIG)
 
 #ifdef _MOLCAS_MPP_
@@ -1128,8 +1128,8 @@
         !! Do in the natural orbital in the XMS basis
         !! because CLag is like that
         !! CASSCF -> XMS
-        Call DGEMM_('T','N',nState,nState,nState,
-     &              One,U0,nState,UEFF,nState,
+        Call DGEMM_('T','N',nState,nState,nState,                       &
+     &              One,U0,nState,UEFF,nState,                          &
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
 
@@ -1137,7 +1137,7 @@
         Do iStat = 1, nState
           Call LoadCI_XMS('N',0,nConf,nState,CI1,iStat,U0)
           Do jStat = 1, nState
-            Scal = (UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
+            Scal = (UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)               &
      &           -  UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*Half
             Scal = Scal * EDIFF
             Call DaXpY_(nConf,Scal,CI1,1,CLag(1,jStat),1)
@@ -1145,8 +1145,8 @@
         End Do
 
         !! XMS -> CASSCF
-        Call DGEMM_('N','N',nState,nState,nState,
-     &              One,U0,nState,UEFF,nState,
+        Call DGEMM_('N','N',nState,nState,nState,                       &
+     &              One,U0,nState,UEFF,nState,                          &
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
 
@@ -1202,7 +1202,7 @@
           Scal = SLag(iStat+nState*(jStat-1))*Two
           If (ABS(Scal) <= 1.0e-09_wp) Cycle
 
-          Call Poly1_CLagT(CI1,CI2,
+          Call Poly1_CLagT(CI1,CI2,                                     &
      &                     CLag(1,iStat),CLag(1,jStat),RDMEIG,Scal)
           !! Inactive terms
 #ifdef _MOLCAS_MPP_
@@ -1210,9 +1210,9 @@
           !! whereas GADGOP will be done later, so divide
           if (is_real_par()) Scal = Scal/real(nProcs,kind=wp)
 #endif
-          CLag(1:nconf,jStat) = CLag(1:nconf,jStat)
+          CLag(1:nconf,jStat) = CLag(1:nconf,jStat)                     &
      &      + Scal*EINACT*CI1(1:nconf)
-          CLag(1:nconf,iStat) = CLag(1:nconf,iStat)
+          CLag(1:nconf,iStat) = CLag(1:nconf,iStat)                     &
      &      + Scal*EINACT*CI2(1:nconf)
         End Do
       End Do
@@ -1234,11 +1234,11 @@
       use caspt2_module, only: MxCI, iAdr10, cLab10
 
       IMPLICIT NONE
-* PER-AAKE MALMQUIST, 92-12-07
-* THIS PROGRAM CALCULATES THE 1-EL DENSITY
-* MATRIX FOR A CASSCF WAVE FUNCTION.
+! PER-AAKE MALMQUIST, 92-12-07
+! THIS PROGRAM CALCULATES THE 1-EL DENSITY
+! MATRIX FOR A CASSCF WAVE FUNCTION.
 
-      real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), RDMEIG(*),
+      real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), RDMEIG(*),   &
      &                             Scal
       real(kind=wp), intent(inout) :: CLag1(*), CLag2(*)
 
@@ -1249,21 +1249,21 @@
 
       IF(NLEV > 0) THEN
         call mma_allocate(SGM1,MXCI,Label='SGM1')
-        CALL DENS1T_RPT2_CLag(CI1,CI2,SGM1,
+        CALL DENS1T_RPT2_CLag(CI1,CI2,SGM1,                             &
      &                        CLag1,CLag2,RDMEIG,Scal,nLev)
       END IF
 
-* REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in caspt2_module.F90
-* CLAB10 replaces older field called LABEL.
+! REINITIALIZE USE OF DMAT.
+! The fields IADR10 and CLAB10 are kept in caspt2_module.F90
+! CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
         IADR10(I,2)=0
         CLAB10(I)='   EMPTY'
       END DO
       IADR10(1,1)=0
-* HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
-* ARRAY ON LUDMAT AND UPDATE THE TOC.
+! HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
+! ARRAY ON LUDMAT AND UPDATE THE TOC.
       IF(NLEV > 0) THEN
         call mma_deallocate(SGM1)
       END IF
@@ -1273,7 +1273,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,SCAL,
+      SUBROUTINE DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,SCAL, &
      &                            nLev)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
@@ -1286,26 +1286,26 @@
       IMPLICIT NONE
 
       integer(kind=iwp), intent(in) :: nLev
-      real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI),
+      real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI),                &
      &                             RDMEIG(NLEV,NLEV), SCAL
-      real(kind=wp), intent(inout) :: SGM1(MXCI), CLag1(nConf),
+      real(kind=wp), intent(inout) :: SGM1(MXCI), CLag1(nConf),         &
      &                                CLag2(nConf)
 
       integer(kind=iwp),allocatable :: TASK(:,:)
 
-      integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK,
+      integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK,   &
      &                     NTASKS, ISSG, NSGM
 
-* Purpose: Compute the 1-electron density matrix array G1.
+! Purpose: Compute the 1-electron density matrix array G1.
 
-* For the general cases, we use actual CI routine calls, and
-* have to take account of orbital order.
-* We will use level inices LT,LU... in these calls, but produce
-* the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in caspt2_module.F90
+! For the general cases, we use actual CI routine calls, and
+! have to take account of orbital order.
+! We will use level inices LT,LU... in these calls, but produce
+! the density matrices with usual active orbital indices.
+! Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
-* SVC20100311: set up a task table with LT,LU
-* SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
+! SVC20100311: set up a task table with LT,LU
+! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
       nTasks=(nLev**2+nLev)/2
       nTasks = nLev**2
       CALL mma_allocate (Task,nTasks,2,Label='TASK')
@@ -1337,10 +1337,10 @@
 
       Call Init_Tsk(ID, nTasks)
 
-* SVC20100311: BEGIN SEPARATE TASK EXECUTION
+! SVC20100311: BEGIN SEPARATE TASK EXECUTION
       do while (Rsv_Tsk(ID,iTask))
-* Compute SGM1 = E_UT acting on CI, with T.ge.U,
-* i.e., lowering operations. These are allowed in RAS.
+! Compute SGM1 = E_UT acting on CI, with T.ge.U,
+! i.e., lowering operations. These are allowed in RAS.
         LT=TASK(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
@@ -1352,19 +1352,19 @@
         ISSG=Mul(ISTU,STSYM)
         NSGM=CIS%NCSF(ISSG)
         IF(NSGM == 0) cycle
-* GETSGM2 computes E_UT acting on CI and saves it on SGM1
+! GETSGM2 computes E_UT acting on CI and saves it on SGM1
         IF(ISTU == 1) THEN
           CALL GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
-          CLag2(1:NSGM) = CLag2(1:NSGM)
+          CLag2(1:NSGM) = CLag2(1:NSGM)                                 &
      &      + SCAL*RDMEIG(IT,IU)*SGM1(1:NSGM)
           CALL GETSGM2(LU,LT,STSYM,CI2,MXCI,SGM1,NSGM)
-          CLag1(1:NSGM) = CLag1(1:NSGM)
+          CLag1(1:NSGM) = CLag1(1:NSGM)                                 &
      &      + SCAL*RDMEIG(IT,IU)*SGM1(1:NSGM)
         END IF
-* SVC: The master node now continues to only handle task scheduling,
-*      needed to achieve better load balancing. So it exits from the task
-*      list. It has to do it here since each process gets at least one
-*      task.
+! SVC: The master node now continues to only handle task scheduling,
+!      needed to achieve better load balancing. So it exits from the task
+!      list. It has to do it here since each process gets at least one
+!      task.
       end do
       CALL Free_Tsk(ID)
       CALL mma_deallocate(Task)
@@ -1379,7 +1379,7 @@
       use caspt2_global, only: FIMO_all
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
-      use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NASHT,
+      use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NASHT,   &
      &                         NBAS, NBAST, NBSQT, NBTCH, NBTCHES
 !     use caspt2_module, only: NSSH
       use Constants, only: Zero, One, Half
@@ -1390,16 +1390,16 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: Mode
-      real(kind=wp), intent(out) :: INT1(nAshT,nAshT),
+      real(kind=wp), intent(out) :: INT1(nAshT,nAshT),                  &
      &                              INT2(nAshT,nAshT,nAshT,nAshT)
 
       integer(kind=iwp),allocatable :: BGRP(:,:)
       real(kind=wp),allocatable :: WRK1(:),WRK2(:),KET(:)
 
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
-      integer(kind=iwp) ::  iSym, nFroI, nIshI, nCorI, nBasI,
-     &  iAshI, jAshI, iSymA, iSymI, iSymB, iSymJ, JSYM, IB, IB1, IB2,
-     &  MXBGRP, IBGRP, NBGRP, NCHOBUF, MXPIQK, NADDBUF, IBSTA, IBEND,
+      integer(kind=iwp) ::  iSym, nFroI, nIshI, nCorI, nBasI,           &
+     &  iAshI, jAshI, iSymA, iSymI, iSymB, iSymJ, JSYM, IB, IB1, IB2,   &
+     &  MXBGRP, IBGRP, NBGRP, NCHOBUF, MXPIQK, NADDBUF, IBSTA, IBEND,   &
      &  NV, nKET, kAshI, lAshI, iT, iU, iTU, iV, iX, iVX, iOrb, jOrb
 !     integer(kind=iwp) :: nSh(8,3)
       real(kind=wp) :: Val, SCAL
@@ -1453,7 +1453,7 @@
           END DO
           NBGRP=MXBGRP
 
-          CALL MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,
+          CALL MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,                         &
      &                         NCHOBUF,MXPIQK,NADDBUF)
           call mma_allocate(KET,NCHOBUF,Label='KETBUF')
           Do IBGRP=1,NBGRP
@@ -1468,14 +1468,14 @@
 
             !! int2(tuvx) = (tu|vx)/2
             !! This can be computed without frozen orbitals
-            Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                                KET,SIZE(KET),nKet,
+            Call Get_Cholesky_Vectors(Active,Active,JSYM,               &
+     &                                KET,SIZE(KET),nKet,               &
      &                                IBSTA,IBEND)
 
             If (IBGRP == 1) SCAL = Zero
             If (IBGRP /= 1) SCAL = One
-            Call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,
-     &                  Half,KET,NASH(JSYM)**2,KET,NASH(JSYM)**2,
+            Call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,         &
+     &                  Half,KET,NASH(JSYM)**2,KET,NASH(JSYM)**2,       &
      &                  SCAL   ,INT2,NASH(JSYM)**2)
           End Do
           call mma_deallocate(KET)
@@ -1491,8 +1491,8 @@
             !! Put in INT2
             Do kAshI = 1, nAsh(iSym)
               Do lAshI = 1, nAsh(iSym)
-                INT2(iAshI,jAshI,kAshI,lAshI)
-     &        = INT2(iAshI,jAshI,kAshI,lAshI)
+                INT2(iAshI,jAshI,kAshI,lAshI)                           &
+     &        = INT2(iAshI,jAshI,kAshI,lAshI)                           &
      &        + WRK1(nCorI+kAshI+nBasT*(nCorI+lAshI-1))*Half
               End Do
             End Do
@@ -1534,8 +1534,8 @@
       use sguga, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: ENERGY, NSYM, NCONF, NFRO, NISH, NASH,
-     &                         NASHT, NDEL, NORB, NBAS, NBAST, NBSQT,
+      use caspt2_module, only: ENERGY, NSYM, NCONF, NFRO, NISH, NASH,   &
+     &                         NASHT, NDEL, NORB, NBAS, NBAST, NBSQT,   &
      &                         NSTATE
       use Constants, only: Zero, Half
 
@@ -1544,9 +1544,9 @@
       real(kind=wp), intent(inout) :: DPT2Canti(*)
       real(kind=wp), intent(in) :: UEFF(nState,nState), U0(*)
 
-      real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),
+      real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),&
      &                             G1(:,:),WRK1(:),WRK2(:)
-      integer(kind=iwp) :: nLev, iStat, jStat, iMO1, iMO2, iSym, nOrbI1,
+      integer(kind=iwp) :: nLev, iStat, jStat, iMO1, iMO2, iSym, nOrbI1,&
      &  nOrbI2, iOrb0, iOrb2, jOrb0, jOrb2, i, j
       real(kind=wp) :: Scal
 
@@ -1569,7 +1569,7 @@
           Call LoadCI_XMS('N',1,nConf,nState,CI2,jStat,U0)
 
           Call Dens1T_RPT2(CI1,CI2,SGM1,TG1,nLev)
-          Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)
+          Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)                  &
      &         - UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1)
           Scal = Scal*Half
 !         call sqprt(tg1,5)
@@ -1601,8 +1601,8 @@
             Do jOrb0 = 1, nAsh(iSym)
               ! jOrb1 = nIsh(iSym)+jOrb0
               jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
-              DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
-     &          = DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
+              DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))                  &
+     &          = DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))              &
      &          + G1(iOrb0,jOrb0)
             End Do
           End Do
@@ -1620,9 +1620,9 @@
       Scal = ENERGY(iRoot2)-ENERGY(iRoot1)
       WRK1(1:nBasT**2) = Scal*DPT2Canti(1:nBasT**2)
       !! anti-symmetrize the orbital response
-      Call DGeSub(WRK1,nBas(1),'N',
-     &            WRK1,nBas(1),'T',
-     &            WRK2,nBas(1),
+      Call DGeSub(WRK1,nBas(1),'N',                                     &
+     &            WRK1,nBas(1),'T',                                     &
+     &            WRK2,nBas(1),                                         &
      &            nBas(1),nBas(1))
 
       !! Probably, the way CSF term is computed in MOLCAS is different
@@ -1640,7 +1640,7 @@
       !! so antisymmetrize D
       Do i = 1, nBasT
         Do j = 1, i-1
-          Scal = DPT2Canti(i+nBasT*(j-1))
+          Scal = DPT2Canti(i+nBasT*(j-1))                               &
      &         - DPT2Canti(j+nBasT*(i-1))
           DPT2Canti(i+nBasT*(j-1)) =  Scal*Half
           DPT2Canti(j+nBasT*(i-1)) = -Scal*Half
@@ -1672,7 +1672,7 @@
 
       integer(kind=iwp), allocatable :: TASK(:,:)
 
-      integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK,
+      integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK,   &
      &  NTASKS, ISSG, NSGM
       real(kind=wp) :: GTU
 
@@ -1695,11 +1695,11 @@
         END DO
       else
 
-* For the general cases, we use actual CI routine calls, and
-* have to take account of orbital order.
-* We will use level inices LT,LU... in these calls, but produce
-* the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in caspt2_module.F90
+! For the general cases, we use actual CI routine calls, and
+! have to take account of orbital order.
+! We will use level inices LT,LU... in these calls, but produce
+! the density matrices with usual active orbital indices.
+! Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 !-SVC20100311: set up a task table with LT,LU
         nTasks=(nLev**2+nLev)/2
@@ -1720,8 +1720,8 @@
 
 !-SVC20100311: BEGIN SEPARATE TASK EXECUTION
         do while (Rsv_Tsk(ID,iTask))
-* Compute SGM1 = E_UT acting on CI, with T.ge.U,
-* i.e., lowering operations. These are allowed in RAS.
+! Compute SGM1 = E_UT acting on CI, with T.ge.U,
+! i.e., lowering operations. These are allowed in RAS.
 !         LTU=0
 !         DO LT=1,NLEV
           LT=TASK(iTask,1)
@@ -1754,7 +1754,7 @@
       end if
 
       IF(iPrGlb >= DEBUG) THEN
-        WRITE(u6,'("DEBUG> ",A)')
+        WRITE(u6,'("DEBUG> ",A)')                                       &
      &   'DENS1_RPT2: norms of the density matrices:'
         WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') 'G1:', DNRM2_(NG1,G1,1)
       ENDIF
@@ -1771,12 +1771,12 @@
 
       implicit none
 
-      real(kind=wp), intent(in) :: OMGDER(nState,nState),
+      real(kind=wp), intent(in) :: OMGDER(nState,nState),               &
      &  HEFF(nState,nState)
       real(kind=wp), intent(inout) :: SLag(nState,nState)
 
       integer(kind=iwp) :: ilStat, jlStat, klStat
-      real(kind=wp) :: Ebeta, Ealpha, Factor, Egamma, Dag, Hag, DEROMG,
+      real(kind=wp) :: Ebeta, Ealpha, Factor, Egamma, Dag, Hag, DEROMG, &
      &  Scal, DERAB, DERAC, Dbg, Hbg
 !
 !     Computes the derivative of weight factor in XDW-CASPT2
@@ -1792,12 +1792,12 @@
             If (DWType == 1) Then
               Factor = Factor + exp(-zeta*(Ealpha - Egamma)**2)
             Else If (DWType == 2) Then
-              Factor = Factor
+              Factor = Factor                                           &
      &          + exp(-zeta*(Ealpha/HEFF(jlStat,klStat))**2)
             Else If (DWType == 3) Then
               Dag = abs(Ealpha - Egamma) + 1.0e-9_wp
               Hag = abs(HEFF(jlStat,klStat))
-              Factor = Factor
+              Factor = Factor                                           &
      &          + exp(-zeta*Dag/(sqrt(Hag)+tiny(Hag)))
             End If
           End Do
@@ -1812,7 +1812,7 @@
             SLag(ilStat,ilStat) = SLag(ilStat,ilStat) - Scal
           Else If (DWType == 2) Then
             DERAB = EXP(-ZETA*(Ealpha/HEFF(jlStat,ilStat))**2)/Factor
-            DERAB = DERAB*Two*DEROMG*ZETA
+            DERAB = DERAB*Two*DEROMG*ZETA                               &
      &            *(Ealpha/HEFF(jlStat,ilStat))**2
             Scal  = -DERAB/Ealpha
             SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
@@ -1822,7 +1822,7 @@
             Dag = abs(Ealpha - Ebeta) + 1.0e-9_wp
             Hag = abs(HEFF(jlStat,ilStat))
             DERAB = EXP(-ZETA*Dag/(sqrt(Hag)+Tiny(Hag)))/Factor
-            DERAB = -ZETA*DERAB*Dag/(sqrt(Hag)+tiny(Hag))
+            DERAB = -ZETA*DERAB*Dag/(sqrt(Hag)+tiny(Hag))               &
      &              *DEROMG
             Scal = DERAB/Dag
             If (Ealpha-Ebeta <= Zero) Scal = -Scal
@@ -1837,15 +1837,15 @@
           Do klStat = 1, nState
             Egamma = HEFF(klStat,klStat)
             If (DWtype == 1) Then
-              DERAC = EXP(-ZETA*(Ealpha-Ebeta)**2)/(Factor*Factor)
+              DERAC = EXP(-ZETA*(Ealpha-Ebeta)**2)/(Factor*Factor)      &
      &               *EXP(-ZETA*(Ealpha-Egamma)**2)
               Scal = Two*ZETA*DERAC*(Ealpha-Egamma)*DEROMG
               SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
               SLag(klStat,klStat) = SLag(klStat,klStat) - Scal
             Else If (DWType == 2) Then
-              DERAC = EXP(-ZETA*(Ealpha/HEFF(jlStat,klStat))**2)/Factor
+              DERAC = EXP(-ZETA*(Ealpha/HEFF(jlStat,klStat))**2)/Factor &
      &              * EXP(-ZETA*(Ealpha/HEFF(jlStat,ilStat))**2)/Factor
-              DERAC =-DERAC*Two*DEROMG*ZETA
+              DERAC =-DERAC*Two*DEROMG*ZETA                             &
      &              *(Ealpha/HEFF(jlStat,klStat))**2
               Scal  = -DERAC/Ealpha
               SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
@@ -1854,9 +1854,9 @@
             Else IF (DWType == 3) Then
               Dbg = abs(Ealpha - Egamma) + 1.0e-9_wp
               Hbg = abs(HEFF(jlStat,klStat))
-              DERAC =EXP(-ZETA*Dag/(sqrt(Hag)+tiny(Hag)))/Factor
+              DERAC =EXP(-ZETA*Dag/(sqrt(Hag)+tiny(Hag)))/Factor        &
      &              *EXP(-ZETA*Dbg/(sqrt(Hbg)+tiny(Hbg)))/Factor
-              DERAC = ZETA*DERAC*Dbg/(sqrt(Hbg)+tiny(Hbg))
+              DERAC = ZETA*DERAC*Dbg/(sqrt(Hbg)+tiny(Hbg))              &
      &                *DEROMG
               Scal = DERAC/Dbg
               If (Ealpha-Egamma <= Zero) Scal = -Scal

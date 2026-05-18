@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE NSIND(INS,ISYM,ICASE,IP,IQ,IR)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, u6
       USE SUPERINDEX, only: MIGEJ,MIGTJ,MAGTB,MAGEB
-      use caspt2_module, only: NIES,IINAIS,NIGEJES,NSES,NSYM,NIGTJES,
-     &                         IEXTIS,NISH,NSSH,NIGEJ,NIGTJ,NAGEBES,
+      use caspt2_module, only: NIES,IINAIS,NIGEJES,NSES,NSYM,NIGTJES,   &
+     &                         IEXTIS,NISH,NSSH,NIGEJ,NIGTJ,NAGEBES,    &
      &                         NAGTBES,NAGEB,NAGTB
       IMPLICIT None
       integer(kind=iwp), intent(in):: INS,ISYM,ICASE
       integer(kind=iwp), intent(out):: IP,IQ,IR
 
-      integer(kind=iwp) IA, IAABS, IAB, IABABS, IAIJ, IBABS, II, IIA,
-     &                  IIAB, IIABS, IIJ, IIJABS, IJABS, ISYMA, ISYMAB,
+      integer(kind=iwp) IA, IAABS, IAB, IABABS, IAIJ, IBABS, II, IIA,   &
+     &                  IIAB, IIABS, IIJ, IIJABS, IJABS, ISYMA, ISYMAB, &
      &                  ISYMI, ISYMIJ, NA, NAB, NAIJ, NI, NIA, NIAB, NIJ
 
       Select case(ICASE)

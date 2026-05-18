@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Per Ake Malmqvist                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Per Ake Malmqvist                                      *
+!***********************************************************************
       SUBROUTINE TRACHO3(CMO,NCMO)
       use Symmetry_Info, only: Mul
-      USE CHOVEC_IO, only: NVLOC_ChoBatch, npq_ChoType, ChoVec_Save,
+      USE CHOVEC_IO, only: NVLOC_ChoBatch, npq_ChoType, ChoVec_Save,    &
      &                     ChoVec_load, ChoVec_Coll
       use Cholesky, only: InfVec
       use ChoCASPT2, only: MxNVc, nChSpc, nHtSpc, NumCho_PT2, nFtSpc
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nInaBx, nSecBx, nSym, RHSDirect, nBas,
+      use caspt2_module, only: nInaBx, nSecBx, nSym, RHSDirect, nBas,   &
      &                         nBtches, nFro, nIsh, nAsh, nSsh, nBtch
       use definitions, only: iwp, wp, u6
       IMPLICIT NONE
-* ----------------------------------------------------------------
+! ----------------------------------------------------------------
 #include "warnings.h"
       INTEGER(kind=iwp), intent(in):: NCMO
       REAL(kind=wp), intent(in):: CMO(NCMO)
@@ -42,25 +42,25 @@
       REAL(kind=wp), ALLOCATABLE:: CHSPC(:), FTSPC(:), HTSPC(:)
       REAL(kind=wp), ALLOCATABLE:: BUFFY(:)
 
-************************************************************************
-* ======================================================================
-* This section deals with density matrices and CMO''s
-* Offsets into CMO arrays:
+!***********************************************************************
+! ======================================================================
+! This section deals with density matrices and CMO''s
+! Offsets into CMO arrays:
       IC=0
       DO ISYM=1,NSYM
        NCES(ISYM)=IC
        IC=IC+NBAS(ISYM)**2
       END DO
 
-* ======================================================================
+! ======================================================================
       CALL mma_allocate(CHSPC,NCHSPC,LABEL='CHSPC')
       CALL mma_allocate(HTSPC,NHTSPC,LABEL='HTSPC')
       ip_HTSPC=1
       CALL mma_allocate(FTSPC,NFTSPC,LABEL='FTSPC')
-* ======================================================================
+! ======================================================================
 
       !IBATCH_TOT=0
-* Loop over JSYM
+! Loop over JSYM
       DO JSYM=1,NSYM
       IBATCH_TOT=NBTCHES(JSYM)
 
@@ -68,9 +68,9 @@
 
       JRED1=InfVec(1,2,jSym)
       JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
-*     Write(u6,*)'tracho3:  JRED1,JRED2:',JRED1,JRED2
+!     Write(u6,*)'tracho3:  JRED1,JRED2:',JRED1,JRED2
 
-* Loop over JRED
+! Loop over JRED
       DO JRED=JRED1,JRED2
 
       CALL Cho_X_nVecRS(JRED,JSYM,JSTART,NVECS_RED)
@@ -78,17 +78,17 @@
 
       ILOC=3
       CALL CHO_X_SETRED(IRC,ILOC,JRED)
-* For a reduced set, the structure is known, including
-* the mapping between reduced index and basis set pairs.
-* The reduced set is divided into suitable batches.
-* First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
+! For a reduced set, the structure is known, including
+! the mapping between reduced index and basis set pairs.
+! The reduced set is divided into suitable batches.
+! First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
 
-* Determine batch length for this reduced set.
-* Make sure to use the same formula as in the creation of disk
-* address tables, etc, above:
+! Determine batch length for this reduced set.
+! Make sure to use the same formula as in the creation of disk
+! address tables, etc, above:
       NBATCH=1+(NVECS_RED-1)/MXNVC
 
-* Loop over IBATCH
+! Loop over IBATCH
       JV1=JSTART
       DO IBATCH=1,NBATCH
       IBATCH_TOT=IBATCH_TOT+1
@@ -97,7 +97,7 @@
       JV2=JV1+JNUM-1
 
       JREDC=JRED
-* Read a batch of reduced vectors
+! Read a batch of reduced vectors
       CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,JSYM,NUMV,JREDC,MUSED)
       IF(NUMV.ne.JNUM) THEN
         write(u6,*)' Rats! CHO_VECRD was called, assuming it to'
@@ -115,7 +115,7 @@
         write(u6,*)' Let the program continue and see what happens.'
       END IF
 
-* Frozen half-transformation:
+! Frozen half-transformation:
       NHTOFF=0
       DO ISYMA=1,NSYM
        ISYMB=Mul(ISYMA,JSYM)
@@ -124,15 +124,15 @@
        NUSE(ISYMA)=NFRO(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,                  &
      &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 
-* Inactive half-transformation:
-* Vectors of type HALF(K,J,B) = Sum(CHO(AB,J)*CMO(A,K) where
-* A,B are basis functions of symmetry ISYMA, ISYMB,
-* K is inactive of symmetry ISYMA, J is vector number in 1..NUMV
-* numbered within the present batch.
-* Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
+! Inactive half-transformation:
+! Vectors of type HALF(K,J,B) = Sum(CHO(AB,J)*CMO(A,K) where
+! A,B are basis functions of symmetry ISYMA, ISYMB,
+! K is inactive of symmetry ISYMA, J is vector number in 1..NUMV
+! numbered within the present batch.
+! Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
        ISYMB=Mul(ISYMA,JSYM)
@@ -141,71 +141,71 @@
        NUSE(ISYMA)=NISH(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,                  &
      &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 
-* Loop over ISYQ
+! Loop over ISYQ
       DO ISYQ=1,NSYM
        ISYP=Mul(ISYQ,JSYM)
 
        N=NBAS(ISYP)
-* ---------------------------------------------------
+! ---------------------------------------------------
        N1=NASH(ISYP)
        N2=NISH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-*   Compute fully transformed TK
+!   Compute fully transformed TK
        IF(N1*N2.GT.0) THEN
         CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
         CALL CHOVEC_SAVE(FTSPC,NFTSPC,1,ISYQ,JSYM,IBATCH_TOT)
        END IF
-* ---------------------------------------------------
+! ---------------------------------------------------
        N1=NSSH(ISYP)
        N2=NISH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP)+NASH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-*   Compute fully transformed AK
+!   Compute fully transformed AK
        IF(N1*N2.GT.0) THEN
 
-C     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
+!     CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
 
-C =SVC= modified for using boxed ordering of pairs, note that the boxed
-C routine is less efficient than the original one (loop over J values)
+! =SVC= modified for using boxed ordering of pairs, note that the boxed
+! routine is less efficient than the original one (loop over J values)
         NA=N1
         NI=N2
-C Allocate memory for small buffer used in FULLTRNSF_BOXED
+! Allocate memory for small buffer used in FULLTRNSF_BOXED
         NBUFFY=NA*NI
         CALL mma_allocate(BUFFY,NBUFFY,LABEL='BUFFY')
-C Loop over boxes
+! Loop over boxes
         DO IASTA=1,NA,nSecBX
          IAEND=MIN(IASTA-1+nSecBX,NA)
          NASZ=1+IAEND-IASTA
          DO IISTA=1,NI,nInaBX
           IIEND=MIN(IISTA-1+nInaBX,NI)
           NISZ=1+IIEND-IISTA
-C =SVC= note that WITHIN this box, the index of the outer box A (P in
-C the FULLTRNSF subroutine, i.e. the secondary orbital index) is the
-C fast-running index, as LFT([A],[I],J) = CMO(P,[A])^T * LHT([I],J,P)^T
-C with P=1,NB.  So if used in e.g. ADDRHS as BRA(c,l,J), making an inner
-C loop over secondary orbital index c is more efficient.
-          CALL FULLTRNSF_BOXED (IASTA,IISTA,NASZ,NISZ,NA,NI,
-     &                          N,CMO(IC+N*(IASTA-1)),JNUM,
+! =SVC= note that WITHIN this box, the index of the outer box A (P in
+! the FULLTRNSF subroutine, i.e. the secondary orbital index) is the
+! fast-running index, as LFT([A],[I],J) = CMO(P,[A])^T * LHT([I],J,P)^T
+! with P=1,NB.  So if used in e.g. ADDRHS as BRA(c,l,J), making an inner
+! loop over secondary orbital index c is more efficient.
+          CALL FULLTRNSF_BOXED (IASTA,IISTA,NASZ,NISZ,NA,NI,            &
+     &                          N,CMO(IC+N*(IASTA-1)),JNUM,             &
      &                          HTSPC(IP_LHT),FTSPC,BUFFY)
          ENDDO
         ENDDO
         CALL mma_deallocate(BUFFY)
         CALL CHOVEC_SAVE(FTSPC,NFTSPC,4,ISYQ,JSYM,IBATCH_TOT)
        END IF
-* End loop ISYQ
+! End loop ISYQ
       END DO
-* ---------------------------------------------------
+! ---------------------------------------------------
 
-* Active scaled natural orbitals half-transformation:
-* Vectors of type HALF(W,J,B) = Sum(CHO(AB,J)*CMO(A,W) where
-* A,B are basis functions of symmetry ISYMA, ISYMB,
-* W is active of symmetry ISYMA, J is vector number in 1..NUMV
-* numbered within the present batch.
-* Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
+! Active scaled natural orbitals half-transformation:
+! Vectors of type HALF(W,J,B) = Sum(CHO(AB,J)*CMO(A,W) where
+! A,B are basis functions of symmetry ISYMA, ISYMB,
+! W is active of symmetry ISYMA, J is vector number in 1..NUMV
+! numbered within the present batch.
+! Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
        ISYMB=Mul(ISYMA,JSYM)
@@ -214,9 +214,9 @@ C loop over secondary orbital index c is more efficient.
        NUSE(ISYMA)=NASH(ISYMA)
        NHTOFF=NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       END DO
-* ---------------------------------------------------
-* Active half-transformation:
-      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
+! ---------------------------------------------------
+! Active half-transformation:
+      CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,                  &
      &    JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 
 
@@ -224,40 +224,40 @@ C loop over secondary orbital index c is more efficient.
        ISYP=Mul(ISYQ,JSYM)
 
        N=NBAS(ISYP)
-* ---------------------------------------------------
-* Loop over ISYQ
+! ---------------------------------------------------
+! Loop over ISYQ
        N1=NASH(ISYP)
        N2=NASH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-* Compute fully transformed TV
+! Compute fully transformed TV
        IF(N1*N2.GT.0) THEN
         CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
         CALL CHOVEC_SAVE(FTSPC,NFTSPC,2,ISYQ,JSYM,IBATCH_TOT)
        END IF
-* ---------------------------------------------------
+! ---------------------------------------------------
        N1=NSSH(ISYP)
        N2=NASH(ISYQ)
        IC=1+NCES(ISYP) +(NFRO(ISYP)+NISH(ISYP)+NASH(ISYP))*N
        IP_LHT=IP_HTVEC(ISYQ)
-*   Compute fully transformed AV
+!   Compute fully transformed AV
        IF(N1*N2.GT.0) THEN
         CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
         CALL CHOVEC_SAVE(FTSPC,NFTSPC,3,ISYQ,JSYM,IBATCH_TOT)
        END IF
-* ---------------------------------------------------
-* End loop ISYQ
+! ---------------------------------------------------
+! End loop ISYQ
       END DO
 
-* 800  CONTINUE
-* End loop IBATCH
+! 800  CONTINUE
+! End loop IBATCH
        JV1=JV1+JNUM
       END DO
 
-* End loop JRED
+! End loop JRED
       END DO
 
-* End loop JSYM
+! End loop JSYM
       END DO
 
       ! if using the RHS on-demand, we need all cholesky vectors on each

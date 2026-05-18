@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Yoshio Nishimoto                                 *
-************************************************************************
-      Subroutine OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2AO,DPT2CAO,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Yoshio Nishimoto                                 *
+!***********************************************************************
+      Subroutine OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2AO,DPT2CAO,   &
      &                    FPT2AO,FPT2CAO,T2AO,DIA,DI,FIFA,FIMO,A_PT2)
       USE iSD_data, only: iSD
       use caspt2_global, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag
@@ -18,9 +18,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use Constants, only: Zero, One
-      use caspt2_module, only: IFMSCOUP, IFXMS, IFRMS, IFDW, IFSADREF,
-     &                         NSYM, NFRO, NISH, NASH, NSSH,
-     &                         NBAS, NBAST, NBMX, NSTATE, JSTATE,
+      use caspt2_module, only: IFMSCOUP, IFXMS, IFRMS, IFDW, IFSADREF,  &
+     &                         NSYM, NFRO, NISH, NASH, NSSH,            &
+     &                         NBAS, NBAST, NBMX, NSTATE, JSTATE,       &
      &                         iRlxRoot
 #ifdef _MOLCAS_MPP_
       use caspt2_module, only: NFROT
@@ -31,19 +31,19 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: iSym, NBSQT, lT2AO, MaxVec_PT2
-      real(kind=wp), intent(in) :: DPT2AO(NBSQT), DPT2CAO(NBSQT),
+      real(kind=wp), intent(in) :: DPT2AO(NBSQT), DPT2CAO(NBSQT),       &
      &  T2AO(lT2AO), DIA(NBSQT), DI(NBSQT)
-      real(kind=wp), intent(inout) :: FPT2AO(NBSQT), FPT2CAO(NBSQT),
+      real(kind=wp), intent(inout) :: FPT2AO(NBSQT), FPT2CAO(NBSQT),    &
      &  A_PT2(MaxVec_PT2**2), FIFA(NBSQT), FIMO(NBSQT)
 
       character(len=4096) :: RealName
       logical(kind=iwp) :: DoRys, DoCholesky, is_error, Square
-      real(kind=wp), allocatable :: T_hbf(:,:,:,:), vLag(:), WRK1(:),
+      real(kind=wp), allocatable :: T_hbf(:,:,:,:), vLag(:), WRK1(:),   &
      &                              WRK2(:)
       integer(kind=iwp), allocatable :: iOffAO(:)
-      integer(kind=iwp) :: nBasX(8), KEEP(8), IRC, nSymX, id, lRealName,
-     &  iost, iSymI, iSymJ, iSymA, iSymB, nocc, i, nSSDM, nDiff, nSkal,
-     &  MaxShlAO, iSh, nBasI, jSh, nBasJ, iBas0, iBas, jBas0, jBas,
+      integer(kind=iwp) :: nBasX(8), KEEP(8), IRC, nSymX, id, lRealName,&
+     &  iost, iSymI, iSymJ, iSymA, iSymB, nocc, i, nSSDM, nDiff, nSkal, &
+     &  MaxShlAO, iSh, nBasI, jSh, nBasJ, iBas0, iBas, jBas0, jBas,     &
      &  iOcc, jOcc, loc1, loc2, j, iRec, nOrbA
       integer(kind=iwp), external :: isFreeUnit
 !
@@ -75,7 +75,7 @@
           id = 0
           call ddafile(LUAPT2, 2, WRK2, MaxVec_PT2**2, id)
 
-          A_PT2(1:MaxVec_PT2**2) = A_PT2(1:MaxVec_PT2**2)
+          A_PT2(1:MaxVec_PT2**2) = A_PT2(1:MaxVec_PT2**2)               &
      &      + WRK2(1:MaxVec_PT2**2)
           call mma_deallocate(WRK2)
         End If
@@ -91,9 +91,9 @@
         !rewind(LuGamma)
         Call PrgmTranslate('GAMMA',RealName,lRealName)
         LuGAMMA = isFreeUnit(LuGAMMA)
-        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                       'DIRECT','UNFORMATTED',
-     &                        iost,.TRUE.,
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),            &
+     &                       'DIRECT','UNFORMATTED',                    &
+     &                        iost,.TRUE.,                              &
      &                        nBas(iSym)**2*8,'OLD',is_error)
       End If
       !! 2) Compute ERI (mu rho | nu sigma)
@@ -112,12 +112,12 @@
       isymb = 1
 !     nocc = nfro(1)+nish(1)+nash(1)
       nocc = nish(1)+nash(1)
-      Call VVVO_Drv(nSym,nBas,nIsh,nFro,KEEP,
-     &              iSym,iSymI,iSymA,iSymJ,iSymB,
-     &              lT2AO,T2AO,vLag,
-     &              nOcc,nBasT,nBMX,
-     &              CMOPT2(1+nBasT*nFro(iSymA)),
-     &              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
+      Call VVVO_Drv(nSym,nBas,nIsh,nFro,KEEP,                           &
+     &              iSym,iSymI,iSymA,iSymJ,iSymB,                       &
+     &              lT2AO,T2AO,vLag,                                    &
+     &              nOcc,nBasT,nBMX,                                    &
+     &              CMOPT2(1+nBasT*nFro(iSymA)),                        &
+     &              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,                      &
      &              DIA,DI,FIFA,FIMO)
 
       !! Save the half transformed integrals on disk.
@@ -129,8 +129,8 @@
         !! This is only for conventional calculations!!
         Call PrgmTranslate('CMOPT2',RealName,lRealName)
         LuCMOPT2 = isFreeUnit(LuCMOPT2)
-        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),
-     &                       'DIRECT','UNFORMATTED',
+        Call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),           &
+     &                       'DIRECT','UNFORMATTED',                    &
      &                        iost,.FALSE.,1,'OLD',is_error)
         !! First, CMOPT2 has to be saved. The MO coefficient matrix in
         !! grvg1.f may be different from CMOPT2.
@@ -183,9 +183,9 @@
 !
         Call PrgmTranslate('GAMMA',RealName,lRealName)
         LuGAMMA = isFreeUnit(LuGAMMA)
-        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
-     &                       'DIRECT','UNFORMATTED',
-     &                        iost,.TRUE.,
+        Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),            &
+     &                       'DIRECT','UNFORMATTED',                    &
+     &                        iost,.TRUE.,                              &
      &                        nOcc*nOcc*8,'OLD',is_error)
         if (is_error) then
         write (u6,*) 'Something is wrong in opening LuGamma in olagvvvo'
@@ -209,7 +209,7 @@
         End Do
         ! nMax = MaxShlAO*MaxShlAO*nOcc*nOcc
 
-        call mma_allocate(T_hbf,nOcc,nOcc,MaxShlAO,MaxShlAO,
+        call mma_allocate(T_hbf,nOcc,nOcc,MaxShlAO,MaxShlAO,            &
      &                    Label='T_hbf')
         Do iSh = 1, nSkal
           !! iSD(2,iSh): number of AOs of the shell
@@ -223,23 +223,23 @@
                 jBas = iOffAO(jSh) + jBas0
                 Do iOcc = 1, nOcc
                   Do jOcc = 1, nOcc
-                    loc1 = jOcc-1 + (jBas-1)*nOcc
-     &                   + (iOcc-1)*nOcc*nBasT
+                    loc1 = jOcc-1 + (jBas-1)*nOcc                       &
+     &                   + (iOcc-1)*nOcc*nBasT                          &
      &                   + (iBas-1)*nOcc*nBasT*nOcc
-                    loc2 = iOcc-1 + (iBas-1)*nOcc
-     &                   + (jOcc-1)*nOcc*nBasT
+                    loc2 = iOcc-1 + (iBas-1)*nOcc                       &
+     &                   + (jOcc-1)*nOcc*nBasT                          &
      &                   + (jBas-1)*nOcc*nBasT*nOcc
-                    T_hbf(iOcc,jOcc,iBas0,jBas0)
+                    T_hbf(iOcc,jOcc,iBas0,jBas0)                        &
      &                = T2AO(loc1+1)+T2AO(loc2+1)
                   End Do
                 End Do
                 iRec = iBas+nBasT*(jBas-1)
                 if (ifmscoup .and. jstate /= 1) then
                   read (lugamma,rec=irec) (wrk1(i),i=1,nocc*nocc)
-                  call daxpy_(nocc*nocc,One,wrk2,1,
+                  call daxpy_(nocc*nocc,One,wrk2,1,                     &
      &                        t_hbf(1,1,ibas0,jbas0),1)
                 end if
-                Write (LuGamma,Rec=iRec)
+                Write (LuGamma,Rec=iRec)                                &
      &            ((T_hbf(i,j,iBas0,jBas0),i=1,nOcc),j=1,nOcc)
               End Do
             End Do
@@ -263,8 +263,8 @@
       If (DoCholesky) nOcc = nOrbA-nFro(iSymA)
 !     write(u6,*) 'vLag'
 !     call sqprt(vLag,nbast)
-      CALL DGEMM_('T','N',nOrbA,nOcc,nBasT,
-     &            One,CMOPT2,nBasT,vLag,nBasT,
+      CALL DGEMM_('T','N',nOrbA,nOcc,nBasT,                             &
+     &            One,CMOPT2,nBasT,vLag,nBasT,                          &
      &            One,OLAG(nOrbA*nFro(iSymA)+1),nOrbA)
 !     write(u6,*) 'olag after vvvo'
 !     call sqprt(olag,nbast)
@@ -286,10 +286,10 @@
 !-----------------------------------------------------------------------
 !
       !! focktwo_drv.f
-      Subroutine VVVO_Drv(nSym,nBas,nAux,nFro,Keep,
-     &                    iSym,iSymI,iSymJ,iSymK,iSymL,
-     &                    lT2AO,T2AO,vLag,nOcc,nBasT,
-     &                    nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
+      Subroutine VVVO_Drv(nSym,nBas,nAux,nFro,Keep,                     &
+     &                    iSym,iSymI,iSymJ,iSymK,iSymL,                 &
+     &                    lT2AO,T2AO,vLag,nOcc,nBasT,                   &
+     &                    nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,       &
      &                    DIA,DI,FIFA,FIMO)
 
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
@@ -297,20 +297,20 @@
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: nSym, iSym, iSymI, iSymJ, iSymK,
-     &  iSymL, lT2AO, nBas(8), nAux(8), nFro(8), Keep(8), nOcc, nBasT,
+      integer(kind=iwp), intent(in) :: nSym, iSym, iSymI, iSymJ, iSymK, &
+     &  iSymL, lT2AO, nBas(8), nAux(8), nFro(8), Keep(8), nOcc, nBasT,  &
      &  nBMX
-      real(kind=wp), intent(in) :: CMO(nBasT**2), T2AO(lT2AO),
+      real(kind=wp), intent(in) :: CMO(nBasT**2), T2AO(lT2AO),          &
      &  DPT2AO(nBasT**2), DPT2CAO(nBasT**2), DIA(nBasT**2), DI(nBasT**2)
-      real(kind=wp), intent(inout) :: vLag(nBasT**2), FPT2AO(nBasT**2),
+      real(kind=wp), intent(inout) :: vLag(nBasT**2), FPT2AO(nBasT**2), &
      &  FPT2CAO(nBasT**2), FIFA(nBasT**2), FIMO(nBasT**2)
 
       logical(kind=iwp) :: DoCholesky
       real(kind=wp), allocatable :: W1(:), W2(:), WRK(:)
 
       integer(kind=iwp) :: i, j, LBUF
-*
-* nAux is the number of occupied orbitals
+!
+! nAux is the number of occupied orbitals
       DoCholesky=.false.
       Call DecideOnCholesky(DoCholesky)
 !     IF (DoCholesky.and.ALGO == 2)THEN
@@ -321,16 +321,16 @@
 
       call mma_allocate(W2,NBMX*NBMX,Label='W2')
       call mma_allocate(WRK,nBasT*nBasT,Label='WRK')
-*
+!
       Call mma_MaxDBLE(LBUF)
       If (DoCholesky) LBUF = NBMX*NBMX+1
-*
-* Standard building of the Fock matrix from Two-el integrals
-*
+!
+! Standard building of the Fock matrix from Two-el integrals
+!
       call mma_allocate(W1,LBUF,Label='W1')
 
       If (LBUF < 1+NBMX**2) Then
-         WRITE(u6,*)' FockTwo_Drv Error: Too little memory remains for'
+         WRITE(u6,*)' FockTwo_Drv Error: Too little memory remains for' &
      &     //' the call to FOCKTWO.'
          WRITE(u6,*)' Largest allocatable array size LBUF=',LBUF
          WRITE(u6,*)' Max nr of bf in any symmetry,  NBMX=',NBMX
@@ -338,18 +338,18 @@
          WRITE(u6,*)'    (All in Real*8-size words)'
          Call  ABEND()
       End If
-*
+!
       IF (DoCholesky) Then
-        Call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,
-     &              vLag,CMO,WRK,
-     &              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
+        Call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,       &
+     &              vLag,CMO,WRK,                                       &
+     &              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,                      &
      &              FIFA,FIMO)
       Else
-        Call VVVOX(nSym,nBas,nFro,Keep,
-     &             iSymI,iSymJ,iSymK,iSymL,NBMX,
-     &             T2AO,vLag,CMO,nOcc,nBasT,
-     &             LBUF,W1,W2,WRK,
-     &             DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
+        Call VVVOX(nSym,nBas,nFro,Keep,                                 &
+     &             iSymI,iSymJ,iSymK,iSymL,NBMX,                        &
+     &             T2AO,vLag,CMO,nOcc,nBasT,                            &
+     &             LBUF,W1,W2,WRK,                                      &
+     &             DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,                       &
      &             DIA,DI,FIFA,FIMO)
       End If
       !! vLag must be transposed
@@ -363,16 +363,16 @@
       call mma_deallocate(WRK)
       call mma_deallocate(W1)
       call mma_deallocate(W2)
-*
+!
       End SUBROUTINE VVVO_Drv
 !
 !-----------------------------------------------------------------------
 !
       !! focktwo.f
-      SUBROUTINE VVVOX(NSYM,NBAS,NFRO,KEEP,
-     &                 iSymI,iSymJ,iSymK,iSymL,NBMX,
-     &                 T2AO,vLag,CMO,nOcc,nBasT,LBUF,X1,X2,WRK,
-     &                 DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
+      SUBROUTINE VVVOX(NSYM,NBAS,NFRO,KEEP,                             &
+     &                 iSymI,iSymJ,iSymK,iSymL,NBMX,                    &
+     &                 T2AO,vLag,CMO,nOcc,nBasT,LBUF,X1,X2,WRK,         &
+     &                 DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,                   &
      &                 DIA,DI,FIFA,FIMO)
 
       use definitions, only: wp, iwp, u6
@@ -380,18 +380,18 @@
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: NSYM, NBAS(8), NFRO(8), KEEP(8),
+      integer(kind=iwp), intent(in) :: NSYM, NBAS(8), NFRO(8), KEEP(8), &
      &  iSymI, iSymJ, iSymK, iSymL, NBMX, nOcc, nBasT, LBUF
-      real(kind=wp), intent(in) :: T2AO(nOcc,nBasT,nOcc,nBasT),
-     &  CMO(nBasT,nBasT), DPT2AO(nBasT**2), DPT2CAO(nBasT**2),
+      real(kind=wp), intent(in) :: T2AO(nOcc,nBasT,nOcc,nBasT),         &
+     &  CMO(nBasT,nBasT), DPT2AO(nBasT**2), DPT2CAO(nBasT**2),          &
      &  DIA(nBasT**2), DI(nBasT**2)
-      real(kind=wp), intent(inout) :: vLag(nBasT,nBasT), X1(LBUF),
-     &  X2(NBMX*NBMX), WRK(nBasT**2), FPT2AO(nBasT**2),
+      real(kind=wp), intent(inout) :: vLag(nBasT,nBasT), X1(LBUF),      &
+     &  X2(NBMX*NBMX), WRK(nBasT**2), FPT2AO(nBasT**2),                 &
      &  FPT2CAO(nBasT**2), FIFA(nBasT**2), FIMO(nBasT**2)
 
-      integer(kind=iwp) ::ISTLT(8), ISTSQ(8), iSym, nB, nB2, nB3, nFroT,
-     &  nBasI, KEEPI, nBasJ, KEEPJ, iSymIJ, nBasIJ, nBasK, KEEPK, iSMax,
-     &  iSymL_, nBasL, KEEPL, nBasKL, IOPT, LPQ, IPQ, NPQ, IP, JQ, IRC,
+      integer(kind=iwp) ::ISTLT(8), ISTSQ(8), iSym, nB, nB2, nB3, nFroT,&
+     &  nBasI, KEEPI, nBasJ, KEEPJ, iSymIJ, nBasIJ, nBasK, KEEPK, iSMax,&
+     &  iSymL_, nBasL, KEEPL, nBasKL, IOPT, LPQ, IPQ, NPQ, IP, JQ, IRC, &
      &  ISX
 !
       ISTSQ(1)=0
@@ -486,19 +486,19 @@
 !           If (DoCholesky) Then
 !           Else
             !! (mu(ip) rho(jq) | nu sigma) -> (mu(ip) rho(jq) | j sigma)
-            call dgemm_('T','N',nOcc,nBasT,nBasT,
-     &                  One,CMO,nBasT,X2,nBasT,
+            call dgemm_('T','N',nOcc,nBasT,nBasT,                       &
+     &                  One,CMO,nBasT,X2,nBasT,                         &
      &                  Zero,WRK,nOcc)
             !! wrk(j,sigma) for the given mu(ip), mu(jq)
             !! T2AO(j,sigma,i,rho) = T_{ij}^{rho sigma}
             !! rather than L_{mu i}, L_{i mu} is computed
             !! L_{i mu} = wrk(j,sigma)*(T2AO(j,sigma,i,rho)
-            call dgemv_('t',nOcc*nBasT,nOcc,
-     &                  One,t2ao(1,1,1,jq),nOcc*nBasT,wrk,1,
+            call dgemv_('t',nOcc*nBasT,nOcc,                            &
+     &                  One,t2ao(1,1,1,jq),nOcc*nBasT,wrk,1,            &
      &                  One,vlag(1,ip),1)
             if (ip /= jq) then
-              call dgemv_('t',nOcc*nBasT,nOcc,
-     &                    One,t2ao(1,1,1,ip),nOcc*nBasT,wrk,1,
+              call dgemv_('t',nOcc*nBasT,nOcc,                          &
+     &                    One,t2ao(1,1,1,ip),nOcc*nBasT,wrk,1,          &
      &                    One,vlag(1,jq),1)
 !           call dgemm_('T','T',nOcc,nBasT,nBasT,
 !    *                  One,CMO,nBasT,X2,nBasT,
@@ -625,16 +625,16 @@
       !! Exchange
       iSF = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
       iSD = ISTSQ(iSymI) + (iP-1)*nBasI+1
-      CALL DGEMV_('N',nBasK,nBasL,
-     &           -Half,X2,nBasK,DD(iSD),1,
+      CALL DGEMV_('N',nBasK,nBasL,                                      &
+     &           -Half,X2,nBasK,DD(iSD),1,                              &
      &            One,FF(iSF),1)
       If (iP /= jQ) Then
         iSF = ISTSQ(iSymI) + jQ + nBasJ*(iP-1)
         FF(iSF) = FF(iSF) + Val
         iSF = ISTSQ(iSymI) + (iP-1)*nBasI+1
         iSD = ISTSQ(iSymI) + (jQ-1)*nBasJ+1
-        CALL DGEMV_('N',nBasK,nBasL,
-     &             -Half,X2,nBasK,DD(iSD),1,
+        CALL DGEMV_('N',nBasK,nBasL,                                    &
+     &             -Half,X2,nBasK,DD(iSD),1,                            &
      &              One,FF(iSF),1)
       End If
 
@@ -645,9 +645,9 @@
 !-----------------------------------------------------------------------
 !
       !! mabe taken from tracho3.f
-      SUBROUTINE VVVOX2(nAux,KEEP,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,
-     &                  vLag,CMO,WRK,
-     &                  DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
+      SUBROUTINE VVVOX2(nAux,KEEP,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,   &
+     &                  vLag,CMO,WRK,                                   &
+     &                  DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,                  &
      &                  FIFA,FIMO)
 
       use ChoVec_io, only: NVLOC_CHOBATCH
@@ -656,7 +656,7 @@
       use ChoCASPT2, only: numcho_pt2, NCHSPC, MXNVC
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: IFMSCOUP, NSYM, NFROT, NISH, NASH, NSSH,
+      use caspt2_module, only: IFMSCOUP, NSYM, NFROT, NISH, NASH, NSSH, &
      &                         NBAS, JSTATE, iRlxRoot, NBTCHES
       use Constants, only: Zero, One, Half, Two
 
@@ -664,20 +664,20 @@
 
 #include "warnings.h"
 
-      integer(kind=iwp), intent(in) :: nAux(8), KEEP(8), iSym, iSymI,
+      integer(kind=iwp), intent(in) :: nAux(8), KEEP(8), iSym, iSymI,   &
      &  iSymJ, iSymK, iSymL, nBasT
-      real(kind=wp), intent(inout) :: vLag(nBasT,nBasT),
-     &  WRK(nBasT,nBasT), FPT2AO(nBasT**2), FPT2CAO(nBasT**2),
+      real(kind=wp), intent(inout) :: vLag(nBasT,nBasT),                &
+     &  WRK(nBasT,nBasT), FPT2AO(nBasT**2), FPT2CAO(nBasT**2),          &
      &  FIFA(nBasT**2), FIMO(nBasT**2)
-      real(kind=wp), intent(in) :: CMO(nBasT,nBasT), DPT2AO(nBasT**2),
+      real(kind=wp), intent(in) :: CMO(nBasT,nBasT), DPT2AO(nBasT**2),  &
      &  DPT2CAO(nBasT**2)
 
       real(kind=wp), allocatable :: CHSPC(:), HTSPC(:), HTVec(:)
-      integer(kind=iwp) :: ISTLT(8), ISTSQ(8), iSkip(8), ipWRK(8), jSym,
-     &  nAuxT, nB, nB2, nB3, nBasI, KEEPI, nBasJ, KEEPJ, iSymIJ, nBasIJ,
-     &  nBasK, KEEPK, iSMax, iSymL_, nBasL, KEEPL, nBasKL, nIshI, nAshI,
-     &  nSshI, nOrbI, IBATCH_TOT, JRED1, JRED2, JRED, JSTART, NVECS_RED,
-     &  ILOC, IRC, NBATCH, JV1, IBATCH, JNUM, JV2, JREDC, NUMV, MUSED,
+      integer(kind=iwp) :: ISTLT(8), ISTSQ(8), iSkip(8), ipWRK(8), jSym,&
+     &  nAuxT, nB, nB2, nB3, nBasI, KEEPI, nBasJ, KEEPJ, iSymIJ, nBasIJ,&
+     &  nBasK, KEEPK, iSMax, iSymL_, nBasL, KEEPL, nBasKL, nIshI, nAshI,&
+     &  nSshI, nOrbI, IBATCH_TOT, JRED1, JRED2, JRED, JSTART, NVECS_RED,&
+     &  ILOC, IRC, NBATCH, JV1, IBATCH, JNUM, JV2, JREDC, NUMV, MUSED,  &
      &  iVec, i, j
       real(kind=wp) :: tmp
 
@@ -756,7 +756,7 @@
       JRED1=InfVec(1,2,jSym)
       JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
 
-* Loop over JRED
+! Loop over JRED
       DO JRED=JRED1,JRED2
 
         CALL Cho_X_nVecRS(JRED,iSym,JSTART,NVECS_RED)
@@ -764,18 +764,18 @@
 
         ILOC=3
         CALL CHO_X_SETRED(IRC,ILOC,JRED)
-* For a reduced set, the structure is known, including
-* the mapping between reduced index and basis set pairs.
-* The reduced set is divided into suitable batches.
-* First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
+! For a reduced set, the structure is known, including
+! the mapping between reduced index and basis set pairs.
+! The reduced set is divided into suitable batches.
+! First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
         ! JEND=JSTART+NVECS_RED-1
 
-* Determine batch length for this reduced set.
-* Make sure to use the same formula as in the creation of disk
-* address tables, etc, above:
+! Determine batch length for this reduced set.
+! Make sure to use the same formula as in the creation of disk
+! address tables, etc, above:
         NBATCH=1+(NVECS_RED-1)/MXNVC
 
-* Loop over IBATCH
+! Loop over IBATCH
         JV1=JSTART
         DO IBATCH=1,NBATCH
 !         Write(u6,*) 'ibatch,nbatch = ', ibatch,nbatch
@@ -798,14 +798,14 @@
 
           !! 1) Half back-transformation of Bra and Ket density
           !! Read the 3c-2e pseudo-density (in MO), and half transform
-          CALL VVVOTRA_RI(CMO,CHSPC,SIZE(CHSPC),HTSPC,
+          CALL VVVOTRA_RI(CMO,CHSPC,SIZE(CHSPC),HTSPC,                  &
      &                    JNUM,IBATCH_TOT,IBATCH_TOT,nOrbI)
 
           !! 2) read AO Cholesky vectors,
           !!    then, (strange) reduced form -> squared AO (mu nu|iVec)
           JREDC=JRED
-* Read a batch of reduced vectors
-          CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,iSym,
+! Read a batch of reduced vectors
+          CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,iSym,                     &
      &                            NUMV,JREDC,MUSED)
           IF(NUMV /= JNUM) THEN
             write(u6,*)' Rats! CHO_VECRD was called, assuming it to'
@@ -826,30 +826,30 @@
           !! (strange) reduced form -> squared AO (mu nu|iVec)
           !! is it possible to avoid this transformation?
       ! choptr.fh
-          Call R2FIP(CHSPC,SIZE(CHSPC),WRK,ipWRK,NUMV,
+          Call R2FIP(CHSPC,SIZE(CHSPC),WRK,ipWRK,NUMV,                  &
      &               nBasT,iSym,iSkip,irc,JREDC)
 !
 !           ----- Fock-like transformations (if needed) -----
 !
           If (nFroT == 0) Then
             Do iVec = 1, NUMV
-              Call FDGTRF(CHSPC(1+nBasT**2*(iVec-1)),
+              Call FDGTRF(CHSPC(1+nBasT**2*(iVec-1)),                   &
      &                    DPT2AO,FPT2AO)
-              Call FDGTRF(CHSPC(1+nBasT**2*(iVec-1)),
+              Call FDGTRF(CHSPC(1+nBasT**2*(iVec-1)),                   &
      &                    DPT2CAO,FPT2CAO)
             End Do
           End If
 
           !! 3) Contract with Cholesky vectors
-          Call DGemm_('N','T',nOrbI,nBasI,nBasI*JNUM,
-     &                Two,HTSPC,nOrbI,CHSPC,nBasI,
+          Call DGemm_('N','T',nOrbI,nBasI,nBasI*JNUM,                   &
+     &                Two,HTSPC,nOrbI,CHSPC,nBasI,                      &
      &                One,vLag,nBasI)
 
           !! 4) Construct the 3c-2e pseudo-density in AO
           !! D_{p nu} -> D_{mu nu}
           !! i.e., construct B_PT2, used in ALASKA
-          Call DGemm_('N','N',nBasI,nBasI*JNUM,nOrbI,
-     &                One,CMO(1,1),nBasI,HTSPC,nOrbI,
+          Call DGemm_('N','N',nBasI,nBasI*JNUM,nOrbI,                   &
+     &                One,CMO(1,1),nBasI,HTSPC,nOrbI,                   &
      &                Zero,CHSPC,nBasI)
 
           !! 5) Save the 3c-2e pseudo-density in the disk
@@ -857,13 +857,13 @@
           Do iVec = 1, NUMV
             If (IFMSCOUP .and. jState /= 1) Then
               Read (LuGamma,Rec=iVec+JV1-1) HTVec(1:nBasI**2)
-              Call DaXpY_(nBasI**2,One,
-     &                    CHSPC(1+nBasI**2*(iVec-1)),1,
+              Call DaXpY_(nBasI**2,One,                                 &
+     &                    CHSPC(1+nBasI**2*(iVec-1)),1,                 &
      &                    HTVec,1)
               Write (LuGamma,Rec=iVec+JV1-1) HTVec(1:nBasI**2)
             Else
              if (jState == iRlxRoot .or. IFMSCOUP) then
-              Write (LuGamma,Rec=iVec+JV1-1)
+              Write (LuGamma,Rec=iVec+JV1-1)                            &
      &        CHSPC(1+nBasI**2*(iVec-1):nBasI**2*iVec)
              end if
             End If
@@ -918,16 +918,16 @@
       Call DaXpY_(nBasI**2,Scal,ChoVec,1,FF,1)
 
       !! Exchange
-      Call DGEMM_('T','N',nBasI,nBasI,nBasI,
-     &            One,ChoVec,nBasI,DD,nBasI,
+      Call DGEMM_('T','N',nBasI,nBasI,nBasI,                            &
+     &            One,ChoVec,nBasI,DD,nBasI,                            &
      &            Zero,WRK,nBasI)
-      Call DGEMM_('T','T',nBasI,nBasI,nBasI,
-     &           -Half,ChoVec,nBasI,WRK,nBasI,
+      Call DGEMM_('T','T',nBasI,nBasI,nBasI,                            &
+     &           -Half,ChoVec,nBasI,WRK,nBasI,                          &
      &            One,FF,nBasI)
 
       End Subroutine FDGTRF
 
-      Subroutine VVVOTRA_RI(CMO,CHSPC_,NCHSPC,HTSPC_,NVEC,IBSTA,IBEND,
+      Subroutine VVVOTRA_RI(CMO,CHSPC_,NCHSPC,HTSPC_,NVEC,IBSTA,IBEND,  &
      &                      nOrbI)
 
       implicit none
@@ -935,77 +935,77 @@
       integer(kind=iwp), intent(in) :: NCHSPC, NVEC, IBSTA, IBEND, nOrbI
       real(kind=wp), intent(in) :: CMO(nBasI,nOrbI)
       !! CHSPC is used as a temporary array
-      real(kind=wp), intent(inout) :: CHSPC_(NCHSPC),
+      real(kind=wp), intent(inout) :: CHSPC_(NCHSPC),                   &
      &                                HTSPC_(nOrbI,nBasT,NVEC)
 
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
       integer(kind=iwp) :: IPQ, jVec, nBra
 
       !! BraAI
-      Call Cholesky_Vectors(2,Inactive,Active,JSYM,CHSPC_,NCHSPC,
+      Call Cholesky_Vectors(2,Inactive,Active,JSYM,CHSPC_,NCHSPC,       &
      &                      nBra,IBSTA,IBEND)
       IPQ = nAshI*nIshI
       Do jVec = 1, NVEC
         ! a. AI -> mu I
-        Call DGemm_('T','T',nIshI,nBasI,nAshI,
-     &              One,CHSPC_(1+IPQ*(jVec-1)),nAshI,
-     &                  CMO(1,1+nIshI),nBasI,
+        Call DGemm_('T','T',nIshI,nBasI,nAshI,                          &
+     &              One,CHSPC_(1+IPQ*(jVec-1)),nAshI,                   &
+     &                  CMO(1,1+nIshI),nBasI,                           &
      &              Zero,HTSPC_(1,1,jVec),nOrbI)
         ! a. AI -> A mu
-        Call DGemm_('N','T',nAshI,nBasI,nIshI,
-     &              One,CHSPC_(1+IPQ*(jVec-1)),nAshI,
-     &                  CMO(1,1),nBasI,
+        Call DGemm_('N','T',nAshI,nBasI,nIshI,                          &
+     &              One,CHSPC_(1+IPQ*(jVec-1)),nAshI,                   &
+     &                  CMO(1,1),nBasI,                                 &
      &              Zero,HTSPC_(1+nIshI,1,jVec),nOrbI)
       End Do
 
       !! BraSI
-      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,CHSPC_,NCHSPC,
+      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,CHSPC_,NCHSPC,      &
      &                      nBra,IBSTA,IBEND)
       IPQ = nIshI*nSshI
       Do jVec = 1, NVEC
         ! b. SI -> mu I
-        Call DGemm_('T','T',nIshI,nBasI,nSshI,
-     &              One,CHSPC_(1+IPQ*(jVec-1)),nSshI,
-     &                  CMO(1,1+nIshI+nAshI),nBasI,
+        Call DGemm_('T','T',nIshI,nBasI,nSshI,                          &
+     &              One,CHSPC_(1+IPQ*(jVec-1)),nSshI,                   &
+     &                  CMO(1,1+nIshI+nAshI),nBasI,                     &
      &              One,HTSPC_(1,1,jVec),nOrbI)
         ! a. SI -> S mu
-        Call DGemm_('N','T',nSshI,nBasI,nIshI,
-     &              One,CHSPC_(1+IPQ*(jVec-1)),nSshI,
-     &                  CMO(1,1),nBasI,
+        Call DGemm_('N','T',nSshI,nBasI,nIshI,                          &
+     &              One,CHSPC_(1+IPQ*(jVec-1)),nSshI,                   &
+     &                  CMO(1,1),nBasI,                                 &
      &              Zero,HTSPC_(1+nIshI+nAshI,1,jVec),nOrbI)
       End Do
 
       !! BraSA
-      Call Cholesky_Vectors(2,Active,Virtual,JSYM,CHSPC_,NCHSPC,
+      Call Cholesky_Vectors(2,Active,Virtual,JSYM,CHSPC_,NCHSPC,        &
      &                      nBra,IBSTA,IBEND)
       IPQ = nAshI*nSshI
       Do jVec = 1, NVEC
         ! d. SA -> mu A
-        Call DGemm_('T','T',nAshI,nBasI,nSshI,
-     &              One,CHSPC_(1+IPQ*(jVec-1)),nSshI,
-     &                  CMO(1,1+nIshI+nAshI),nBasI,
+        Call DGemm_('T','T',nAshI,nBasI,nSshI,                          &
+     &              One,CHSPC_(1+IPQ*(jVec-1)),nSshI,                   &
+     &                  CMO(1,1+nIshI+nAshI),nBasI,                     &
      &              One,HTSPC_(1+nIshI,1,jVec),nOrbI)
         ! b. SA -> S mu
-        Call DGemm_('N','T',nSshI,nBasI,nAshI,
-     &              One,CHSPC_(1+IPQ*(jVec-1)),nSshI,
-     &                  CMO(1,1+nIshI),nBasI,
+        Call DGemm_('N','T',nSshI,nBasI,nAshI,                          &
+     &              One,CHSPC_(1+IPQ*(jVec-1)),nSshI,                   &
+     &                  CMO(1,1+nIshI),nBasI,                           &
      &              One,HTSPC_(1+nIshI+nAshI,1,jVec),nOrbI)
       End Do
 
       !! BraAA
-      Call Cholesky_Vectors(2,Active,Active,JSYM,CHSPC_,NCHSPC,
+      Call Cholesky_Vectors(2,Active,Active,JSYM,CHSPC_,NCHSPC,         &
      &                      nBra,IBSTA,IBEND)
       IPQ = nAshI*nAshI
       Do jVec = 1, NVEC
         ! b. AA -> mu A
-        Call DGemm_('T','T',nAshI,nBasI,nAshI,
-     &              One,CHSPC_(1+IPQ*(jVec-1)),nAshI,
-     &                  CMO(1,1+nIshI),nBasI,
+        Call DGemm_('T','T',nAshI,nBasI,nAshI,                          &
+     &              One,CHSPC_(1+IPQ*(jVec-1)),nAshI,                   &
+     &                  CMO(1,1+nIshI),nBasI,                           &
      &              One,HTSPC_(1+nIshI,1,jVec),nOrbI)
         ! c. AA -> A mu
-        Call DGemm_('N','T',nAshI,nBasI,nAshI,
-     &              One,CHSPC_(1+IPQ*(jVec-1)),nAshI,
-     &                  CMO(1,1+nIshI),nBasI,
+        Call DGemm_('N','T',nAshI,nBasI,nAshI,                          &
+     &              One,CHSPC_(1+IPQ*(jVec-1)),nAshI,                   &
+     &                  CMO(1,1+nIshI),nBasI,                           &
      &              One,HTSPC_(1+nIshI,1,jVec),nOrbI)
       End Do
 
@@ -1027,7 +1027,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine R2FIP(CHSPC,NCHSPC,WRK,ipWRK,NUMV,nBasT,iSym,
+      Subroutine R2FIP(CHSPC,NCHSPC,WRK,ipWRK,NUMV,nBasT,iSym,          &
      &                iSkip,irc,JREDC)
 
       Use Cholesky, only: INFVEC, nDimRS, nnBstR
@@ -1036,12 +1036,12 @@
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: NCHSPC, ipWRK(8), NUMV, nBasT,
+      integer(kind=iwp), intent(in) :: NCHSPC, ipWRK(8), NUMV, nBasT,   &
      &  iSym, iSkip(8)
       real(kind=wp), intent(inout) :: CHSPC(NCHSPC), WRK(nBasT*nBasT)
       integer(kind=iwp), intent(inout) :: irc, JREDC
 
-      integer(kind=iwp) :: kloc, iVec, lscr, JREDL, ipVecL, jloc,
+      integer(kind=iwp) :: kloc, iVec, lscr, JREDL, ipVecL, jloc,       &
      &  l_NDIMRS
 !
 !     Transform the reduced form to the full form in place
@@ -1069,8 +1069,8 @@
         End If
         ipVecL = ipVecL - lscr
         WRK(1:nBasT**2) = Zero
-        Call Cho_ReOrdr(irc,CHSPC(ipVecL),lscr,1,
-     &                  1,1,1,iSym,JREDC,2,ipWRK,WRK,
+        Call Cho_ReOrdr(irc,CHSPC(ipVecL),lscr,1,                       &
+     &                  1,1,1,iSym,JREDC,2,ipWRK,WRK,                   &
      &                  iSkip)
         CHSPC(jloc:jloc+nBasT**2-1) = WRK(1:nBasT**2)
         jloc = jloc-nBasT**2

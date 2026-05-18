@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE PSGMDIA(ALPHA,BETA,IVEC,JVEC)
       use definitions, only: iwp, wp
       use constants, only: Zero
@@ -30,8 +30,8 @@
       integer(kind=iwp) ICASE, ISYM, NIN, NAS, NIS, JD, lg_V1, lg_V2
       real(kind=wp), ALLOCATABLE:: BD(:), ID(:)
 
-C Compute |JVEC> := BETA*|JVEC> + ALPHA*(H0(diag)-E0)*|IVEC>
-C If real_shift.ne.Zero or imag_shift.ne.Zero, use a modified H0
+! Compute |JVEC> := BETA*|JVEC> + ALPHA*(H0(diag)-E0)*|IVEC>
+! If real_shift.ne.Zero or imag_shift.ne.Zero, use a modified H0
 
       DO ICASE=1,13
         DO ISYM=1,NSYM
@@ -40,8 +40,8 @@ C If real_shift.ne.Zero or imag_shift.ne.Zero, use a modified H0
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
           IF(NIS.EQ.0) Cycle
-C Remember: NIN values in BDIAG, but must read NAS for correct
-C positioning.
+! Remember: NIN values in BDIAG, but must read NAS for correct
+! positioning.
           CALL mma_allocate(BD,NAS,LABEL='BD')
           CALL mma_allocate(ID,NIS,LABEL='ID')
           JD=IDBMAT(ISYM,ICASE)
@@ -55,8 +55,8 @@ C positioning.
             IF(BETA.NE.1) THEN
               CALL RHS_SCAL (NIN,NIS,lg_V2,BETA)
             END IF
-*         ELSE
-*           CALL RHS_SCAL (NIN,NIS,lg_V2,Zero)
+!         ELSE
+!           CALL RHS_SCAL (NIN,NIS,lg_V2,Zero)
           END IF
 
           IF(ALPHA.NE.Zero) THEN

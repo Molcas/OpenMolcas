@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 
       use definitions, only: iwp, wp
@@ -23,7 +23,7 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF
       use PrintLevel, only: VERBOSE
-      use caspt2_module, only: nActEl, nAshT, nSym, nInDep, nISup,
+      use caspt2_module, only: nActEl, nAshT, nSym, nInDep, nISup,      &
      &                         nIsh, nAsh, nOrb, nAES
       IMPLICIT None
 
@@ -31,19 +31,19 @@
       integer(kind=iwp), intent(in):: IVEC, JVEC, NDPT2
       real(kind=wp), intent(inout):: DPT2(NDPT2)
 
-      integer(kind=iwp) ::
+      integer(kind=iwp) ::                                              &
      &               NACTD(13)=[1, 2, 2,-1, 0, 1, 1,-2,-2,-1,-1, 0, 0]
       real(kind=wp) COEF1, COEF2, D, DR, OVL
-      integer(kind=iwp) ICASE, IOFDPT, ISYM, IT, ITABS, ITQ, ITU, IU,
-     &                  IUABS, IUQ, IUT, lVec1, lVec2, NA, NADIFF,
+      integer(kind=iwp) ICASE, IOFDPT, ISYM, IT, ITABS, ITQ, ITU, IU,   &
+     &                  IUABS, IUQ, IUT, lVec1, lVec2, NA, NADIFF,      &
      &                  NAHOLE, NI, NIN, NIS, NO, nVec
       real(kind=wp), External:: RHS_DDOT
 
-C Add to the diagonal blocks of transition density matrix,
-C    DPT2(p,q) = Add <IVEC| E(p,q) |JVEC>,
-C where p,q are active indices. Compare TRDNS2D.
-C The present solution gives just a reasonable approximation,
-C with correct trace.
+! Add to the diagonal blocks of transition density matrix,
+!    DPT2(p,q) = Add <IVEC| E(p,q) |JVEC>,
+! where p,q are active indices. Compare TRDNS2D.
+! The present solution gives just a reasonable approximation,
+! with correct trace.
       IF ( IPRGLB.GE.VERBOSE ) THEN
       Call WarningMessage(1,'Computing approximated density.')
       WRITE(6,*)' The active/active submatrices of the density'

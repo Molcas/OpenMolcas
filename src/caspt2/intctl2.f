@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE INTCTL2(CMO,nCMO,DREF,nDREF,FIFA,NFIFA,HONE,nHONE,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE INTCTL2(CMO,nCMO,DREF,nDREF,FIFA,NFIFA,HONE,nHONE,     &
      &                   FIMO,nFIMO)
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
@@ -24,14 +24,14 @@
       LOGICAL(KIND=IWP), parameter:: IF_TRNSF=.False.
       Real(kind=wp), Allocatable:: FFAO(:), FIAO(:), FAAO(:)
 
-* Compute using Cholesky vectors.
-* Frozen, inactive and active Fock matrix in AO basis:
+! Compute using Cholesky vectors.
+! Frozen, inactive and active Fock matrix in AO basis:
       Call mma_allocate(FFAO,NBTRI,LABEL='FFAO')
       Call mma_allocate(FIAO,NBTRI,LABEL='FIAO')
       Call mma_allocate(FAAO,NBTRI,LABEL='FAAO')
 
-* tracho2 makes many allocations but should deallocate everything
-* before its return.
+! tracho2 makes many allocations but should deallocate everything
+! before its return.
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 calling TRACHO2...'
         CALL XFLUSH(6)
@@ -43,9 +43,9 @@
         WRITE(6,*)' INTCTL2 back from TRACHO2.'
         CALL XFLUSH(6)
       END IF
-* All extra allocations inside tracho2 should now be gone.
+! All extra allocations inside tracho2 should now be gone.
 
-* For gradient calculation, it is good to have FIAO and FAAO
+! For gradient calculation, it is good to have FIAO and FAAO
       IF (do_grad.or.nStpGrd.eq.2) THEN
 
         !! FFAO has one-electron Hamiltonian
@@ -54,7 +54,7 @@
 
       END IF
 
-* Transform to MO basis: generating HONE, FIMO and FIFA
+! Transform to MO basis: generating HONE, FIMO and FIFA
       Call FMat_Cho(CMO,nCMO,FIAO,FAAO,HONE,nHONE,FIMO,nFIMO,FIFA,nFIFA)
 
       Call mma_deallocate(FFAO)

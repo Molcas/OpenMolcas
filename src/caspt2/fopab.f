@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
       use constants, only: Zero, One, Two
       use sguga, only: SGS, L2ACT, EXS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM,NORB,NISH,ISCF,NCONF,STSYM,NASH,
+      use caspt2_module, only: NSYM,NORB,NISH,ISCF,NCONF,STSYM,NASH,    &
      &                         NAES
       use definitions, only: iwp, wp
       IMPLICIT None
@@ -22,25 +22,25 @@
       real(kind=wp), intent(in):: FIFA(NFIFA)
       real(kind=wp), intent(out):: FOPEL
 
-* Purely local array, offsets:
+! Purely local array, offsets:
       integer(kind=iwp) IOFF(8)
       integer(kind=iwp) :: nLev
       real(kind=wp), allocatable:: BRA(:), KET(:), SGM(:)
-      integer(kind=iwp) IOF,ISYM,IFTEST,IJ,I,ID,II,ISCR,IST,ISU,IT,
-     &                  ITABS,ITTOT,ITUTOT,IU,IUABS,IUTOT,J,LEVT,LEVU,
+      integer(kind=iwp) IOF,ISYM,IFTEST,IJ,I,ID,II,ISCR,IST,ISU,IT,     &
+     &                  ITABS,ITTOT,ITUTOT,IU,IUABS,IUTOT,J,LEVT,LEVU,  &
      &                  NI
       real(kind=wp) ESUM,OCC,EINACT,FTU,TRC
       real(kind=wp), external:: DDot_
 
       nLev = SGS%nLev
 
-* Procedure for computing one matrix element of the Fock matrix in the
-* basis of the CASSCF states: <BRA|FOP|KET>
-* In: The (possibly average) Fock matrix, active indices only, over the
-* original CASSCF orbitals and the indices of the two states
+! Procedure for computing one matrix element of the Fock matrix in the
+! basis of the CASSCF states: <BRA|FOP|KET>
+! In: The (possibly average) Fock matrix, active indices only, over the
+! original CASSCF orbitals and the indices of the two states
 
 
-* Offset table for accessing FIFA array:
+! Offset table for accessing FIFA array:
       IOF=0
       DO ISYM=1,NSYM
         IOFF(ISYM)=IOF
@@ -59,10 +59,10 @@
         END DO
       END IF
 
-* Specialized code for Closed-shell or Hi-spin HF:
-* Sum up diagonal elements of FIFA times occ. number
-* FIXME: This only works for diagonal elements, thus
-* in the case of XMS this will not work...
+! Specialized code for Closed-shell or Hi-spin HF:
+! Sum up diagonal elements of FIFA times occ. number
+! FIXME: This only works for diagonal elements, thus
+! in the case of XMS this will not work...
       IF (ISCF.EQ.1 .OR. ISCF.EQ.2) THEN
         ESUM=Zero
         IF (IBRA.EQ.IKET) THEN
@@ -85,8 +85,8 @@
         RETURN
       END IF
 
-* General CASSCF or RASSCF case:
-* Sum up trace of FIFA over inactive orbitals only:
+! General CASSCF or RASSCF case:
+! Sum up trace of FIFA over inactive orbitals only:
       TRC=Zero
       DO ISYM=1,NSYM
         DO I=1,NISH(ISYM)
@@ -94,20 +94,20 @@
           TRC=TRC+FIFA(II)
         END DO
       END DO
-* Contribution from inactive orbitals:
+! Contribution from inactive orbitals:
       EINACT=Two*TRC
 
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' Energy contrib from inactive orbitals:',EINACT
       END IF
 
-* Allocate arrays for ket and bra wave functions
+! Allocate arrays for ket and bra wave functions
       CALL mma_allocate(BRA,NCONF,Label='BRA')
       CALL mma_allocate(KET,NCONF,Label='KET')
-* Allocate array for sigma = Fock operator acting on ket:
+! Allocate array for sigma = Fock operator acting on ket:
       CALL mma_allocate(SGM,NCONF,LABEL='SGM')
 
-* Load ket wave function
+! Load ket wave function
       ID=IDCIEX(IKET)
       CALL DDAFILE(LUCIEX,2,KET,NCONF,ID)
 
@@ -118,8 +118,8 @@
         WRITE(6,'(1x,5F16.8)')(KET(I),I=1,ISCR)
       END IF
 
-* Compute (lowering part of) FIFA operator acting on
-* the ket wave function.
+! Compute (lowering part of) FIFA operator acting on
+! the ket wave function.
       CALL DCOPY_(NCONF,[Zero],0,SGM,1)
       DO LEVU=1,NLEV
         IUABS=L2ACT(LEVU)
@@ -137,11 +137,11 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0e-16_wp) CYCLE
-          CALL SG_Epq_Psi(SGS,CIS,EXS,
+          CALL SG_Epq_Psi(SGS,CIS,EXS,                                  &
      &                LEVT,LEVU,FTU,STSYM,KET,SGM)
         END DO
       END DO
-* Add contribution from inactive part:
+! Add contribution from inactive part:
       CALL DAXPY_(NCONF,EINACT,KET,1,SGM,1)
 
       IF (IFTEST.GT.0) THEN
@@ -149,11 +149,11 @@
         WRITE(6,'(1x,5F16.8)')(SGM(I),I=1,NCONF)
       END IF
 
-* Load bra wave function
+! Load bra wave function
       ID=IDCIEX(IBRA)
       CALL DDAFILE(LUCIEX,2,BRA,NCONF,ID)
 
-* Put matrix element into FOPEL:
+! Put matrix element into FOPEL:
       FOPEL=DDOT_(NCONF,BRA,1,SGM,1)
 
       IF (IFTEST.GT.0) THEN
@@ -161,10 +161,10 @@
         WRITE(6,'(1x,5f16.8)')(FOPEL)
       END IF
 
-* Compute (strictly lowering part of) FIFA operator acting on |BRA>.
-* We are computing contributions <KET|Etu|BRA> with t<u, then
-* using them as <BRA|Eut|KET>
-* Note that I already have BRA in memory
+! Compute (strictly lowering part of) FIFA operator acting on |BRA>.
+! We are computing contributions <KET|Etu|BRA> with t<u, then
+! using them as <BRA|Eut|KET>
+! Note that I already have BRA in memory
       CALL DCOPY_(NCONF,[Zero],0,SGM,1)
       DO LEVU=2,NLEV
         IUABS=L2ACT(LEVU)
@@ -182,7 +182,7 @@
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
           IF(ABS(FTU).LT.1.0E-16_wp) CYCLE
-          CALL SG_Epq_Psi(SGS,CIS,EXS,
+          CALL SG_Epq_Psi(SGS,CIS,EXS,                                  &
      &                LEVT,LEVU,FTU,STSYM,BRA,SGM)
         END DO
       END DO
@@ -192,11 +192,11 @@
         WRITE(6,'(1x,5F16.8)')(SGM(I),I=1,NCONF)
       END IF
 
-* Load ket wave function
+! Load ket wave function
       ID=IDCIEX(IKET)
       CALL DDAFILE(LUCIEX,2,KET,NCONF,ID)
 
-* Add contribution to matrix element FOPEL
+! Add contribution to matrix element FOPEL
       FOPEL=FOPEL+DDOT_(NCONF,KET,1,SGM,1)
 
       IF (IFTEST.GT.0) THEN

@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2014, Naoki Nakatani                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2014, Naoki Nakatani                                   *
+!***********************************************************************
 
 #include "compiler_features.h"
 
 #ifdef _ENABLE_BLOCK_DMRG_
       Subroutine MKFG3CU4(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,W3)
-*
-* Load 1-el, 2-el, and 3-el density matrices to resp. G1, G2, and G3
-* and compute 1-el to 4-el contractions of Fock operator F1, F2, and F3.
-* For F3, use cumulant reconstruction from 1-el, 2-el, and 3-el density matrices.
-*
-* Written by N. Nakatani, Oct. 2014
-*
+!
+! Load 1-el, 2-el, and 3-el density matrices to resp. G1, G2, and G3
+! and compute 1-el to 4-el contractions of Fock operator F1, F2, and F3.
+! For F3, use cumulant reconstruction from 1-el, 2-el, and 3-el density matrices.
+!
+! Written by N. Nakatani, Oct. 2014
+!
       use Symmetry_Info, only: Mul
       use constants, only: Half
       use definitions, only: iwp, wp, Byte
       IMPLICIT NONE
-*
-*
+!
+!
       LOGICAL(KIND=IWP), INTENT(IN) :: mkF,
       INTEGER(KIND=IWP), INTENT(IN):: NLEV, nG3
       REAL(KIND=WP), INTENT(OUT) ::G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
@@ -35,7 +35,7 @@
       REAL(KIND=WP), INTENT(OUT) :: G3(nG3), F3(nG3)
       INTEGER(Kind=Byte), INTENT(IN) :: idxG3(6,nG3)
       REAL(KIND=WP), INTENT(IN) :: W3(NLEV,NLEV,NLEV,NLEV)
-*
+!
       REAL(KIND=WP)  G1SUM
       INTEGER(KIND=IWP) IT,IU,IV,IX,IY,IZ,IW
       INTEGER(KIND=IWP) JT,JU,JV,JX,JY,JZ
@@ -43,12 +43,12 @@
       INTEGER(KIND=IWP) IG3
 
       REAL(KIND=WP), EXTERNAL :: CU4F3H
-*
-*
+!
+!
       If(NACTEL.GT.1) Then
-* load 2-el density matrix
+! load 2-el density matrix
         Call block_load2pdm(nlev,G2,jstate,jstate)
-* compute 1-el density matrix from 2-el density matrix
+! compute 1-el density matrix from 2-el density matrix
         Do iu=1,nlev
           Do it=1,nlev
             G1sum=Zero
@@ -61,10 +61,10 @@
           End Do
         End Do
       Else
-* special case for NACTEL = 1
+! special case for NACTEL = 1
         Call block_load1pdm(nlev,G1,jstate,jstate)
       End If
-*
+!
       Do iz=1,nlev
         izSym=ism(iz)
         Do iy=1,nlev
@@ -77,14 +77,14 @@
         End Do
       End Do
 
-* skip 3RDM part if NACTEL <= 2
+! skip 3RDM part if NACTEL <= 2
       If(NACTEL.LE.2) RETURN
 
       Do iz=1,nlev
         izSym=ism(iz)
         Do iy=1,nlev
           iyzSym=Mul(ism(iy),izSym)
-* load 3PDM of which is G3(:,:,:,:,iy,iz)
+! load 3PDM of which is G3(:,:,:,:,iy,iz)
           Call block_load3pdm2f(nlev,W3,jstate,jstate,iy,iz)
           If(mkF) Then
             Do ix=1,nlev
@@ -93,7 +93,7 @@
                 ivxyzSym=Mul(ism(iv),ixyzSym)
                 If(ivxyzSym.EQ.1) Then
                   Do iw=1,nlev
-                    F2(iv,ix,iy,iz)=F2(iv,ix,iy,iz)
+                    F2(iv,ix,iy,iz)=F2(iv,ix,iy,iz)                     &
      &                             +W3(iw,iw,iv,ix)*EPSA(iw)
                   End Do
                 End If
@@ -111,13 +111,13 @@
             If(iy.EQ.jy.AND.iz.EQ.jz) Then
               G3(iG3)=W3(jt,ju,jv,jx)
               If(mkF) Then
-* CU4F3 Contrib. :: + G1(lT,lT)*G3(iP,iQ,jP,jQ,kP,kQ)
+! CU4F3 Contrib. :: + G1(lT,lT)*G3(iP,iQ,jP,jQ,kP,kQ)
                 F3(iG3)=F3(iG3)+EASUM*G3(iG3)
                 Do iw=1,nlev
-                  F3(iG3)=F3(iG3)
-* CU4F3 Contrib. :: - 0.5D0*G1(iP,lT)*G3(lT,iQ,jP,jQ,kP,kQ)
-     &                   -Half*G1(jt,iw)*W3(iw,ju,jv,jx)*EPSA(iw)
-* CU4F3 Contrib. :: - 0.5D0*G1(lT,iQ)*G3(iP,lT,jP,jQ,kP,kQ)
+                  F3(iG3)=F3(iG3)                                       &
+! CU4F3 Contrib. :: - 0.5D0*G1(iP,lT)*G3(lT,iQ,jP,jQ,kP,kQ)
+     &                   -Half*G1(jt,iw)*W3(iw,ju,jv,jx)*EPSA(iw)       &
+! CU4F3 Contrib. :: - 0.5D0*G1(lT,iQ)*G3(iP,lT,jP,jQ,kP,kQ)
      &                   -Half*G1(iw,ju)*W3(jt,iw,jv,jx)*EPSA(iw)
                 End Do
               End If
@@ -125,27 +125,27 @@
 
             If(mkF.AND.iy.EQ.jy.AND.iz.EQ.jz) Then
               Do iw=1,nlev
-                F3(iG3)=F3(iG3)
-* CU4F3 Contrib. :: - 0.5D0*G1(jP,lT)*G3(lT,jQ,iP,iQ,kP,kQ)
-     &                 -Half*G1(jv,iw)*W3(iw,jx,jt,ju)*EPSA(iw)
-* CU4F3 Contrib. :: - 0.5D0*G1(lT,jQ)*G3(jP,lT,iP,iQ,kP,kQ)
+                F3(iG3)=F3(iG3)                                         &
+! CU4F3 Contrib. :: - 0.5D0*G1(jP,lT)*G3(lT,jQ,iP,iQ,kP,kQ)
+     &                 -Half*G1(jv,iw)*W3(iw,jx,jt,ju)*EPSA(iw)         &
+! CU4F3 Contrib. :: - 0.5D0*G1(lT,jQ)*G3(jP,lT,iP,iQ,kP,kQ)
      &                 -Half*G1(iw,jx)*W3(jv,iw,jt,ju)*EPSA(iw)
               End Do
             End If
 
             If(mkF.AND.iy.EQ.jv.AND.iz.EQ.jx) Then
               Do iw=1,nlev
-                F3(iG3)=F3(iG3)
-* CU4F3 Contrib. :: - 0.5D0*G1(kP,lT)*G3(lT,kQ,iP,iQ,jP,jQ)
-     &                 -Half*G1(jy,iw)*W3(iw,jz,jt,ju)*EPSA(iw)
-* CU4F3 Contrib. :: - 0.5D0*G1(lT,kQ)*G3(kP,lT,iP,iQ,jP,jQ)
+                F3(iG3)=F3(iG3)                                         &
+! CU4F3 Contrib. :: - 0.5D0*G1(kP,lT)*G3(lT,kQ,iP,iQ,jP,jQ)
+     &                 -Half*G1(jy,iw)*W3(iw,jz,jt,ju)*EPSA(iw)         &
+! CU4F3 Contrib. :: - 0.5D0*G1(lT,kQ)*G3(kP,lT,iP,iQ,jP,jQ)
      &                 -Half*G1(iw,jz)*W3(jy,iw,jt,ju)*EPSA(iw)
               End Do
             End If
           End Do
         End Do
       End Do
-*
+!
       If(mkF) Then
         Do iG3=1,NG3
           it=idxG3(1,iG3)
@@ -154,7 +154,7 @@
           ix=idxG3(4,iG3)
           iy=idxG3(5,iG3)
           iz=idxG3(6,iG3)
-          F3(iG3)=F3(iG3)+CU4F3H(nlev,EPSA,EASUM,
+          F3(iG3)=F3(iG3)+CU4F3H(nlev,EPSA,EASUM,                       &
      &                    G1,G2,F1,F2,it,iu,iv,ix,iy,iz)
         End Do
       End If

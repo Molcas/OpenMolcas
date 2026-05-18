@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Yoshio Nishimoto                                 *
-************************************************************************
-      SUBROUTINE DERFG3(CI,NCONF,NLEV,NG3,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Yoshio Nishimoto                                 *
+!***********************************************************************
+      SUBROUTINE DERFG3(CI,NCONF,NLEV,NG3,CLAG,DG1,DG2,DG3,DF1,DF2,DF3, &
      &                  DEPSA,G1,G2)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -35,15 +35,15 @@
 
 
       integer(kind=iwp), intent(in) :: nCONF, NLEV, NG3
-      real(kind=wp), intent(in) :: CI(nCONF), DG3(NG3), DF3(NG3),
+      real(kind=wp), intent(in) :: CI(nCONF), DG3(NG3), DF3(NG3),       &
      &  G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
-      real(kind=wp), intent(inout) :: CLAG(NCONF), DG1(NLEV,NLEV),
-     &  DG2(NLEV,NLEV,NLEV,NLEV), DF1(NLEV,NLEV),
+      real(kind=wp), intent(inout) :: CLAG(NCONF), DG1(NLEV,NLEV),      &
+     &  DG2(NLEV,NLEV,NLEV,NLEV), DF1(NLEV,NLEV),                       &
      &  DF2(NLEV,NLEV,NLEV,NLEV), DEPSA(NLEV,NLEV)
 
       integer(kind=iwp) :: I,J,IDX,JDX
       integer(kind=iwp) :: IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
-      integer(kind=iwp) :: IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,
+      integer(kind=iwp) :: IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,  &
      &                     IP3MX,IQ1
       integer(kind=iwp) :: IG3,IG3OFF,IG3BK
       integer(kind=iwp) :: ISTU,ISVX,ISYZ
@@ -52,7 +52,7 @@
       integer(kind=iwp) :: NBUF1,NBUFX,NDTU,NDAB
       integer(kind=iwp) :: IOFFSET
       integer(kind=iwp) :: ISSG1,ISSG2,ISP1
-      integer(kind=iwp) :: ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,
+      integer(kind=iwp) :: ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,          &
      &                     MXTASK,MYTASK,MYBUFFER
       integer(kind=iwp) :: NSGM1,NSGM2
       integer(kind=iwp) :: NTRI1,NTRI2
@@ -68,7 +68,7 @@
       integer(kind=iwp) :: ICNJ(MXLEV**2)
       integer(kind=iwp) :: IP1_BUF(MXLEV**2)
 
-      REAL(KIND=WP),ALLOCATABLE:: BUF1(:,:),BUF2(:),BUFT(:),BUFD(:),
+      REAL(KIND=WP),ALLOCATABLE:: BUF1(:,:),BUF2(:),BUFT(:),BUFD(:),    &
      &  DTU(:,:),DYZ(:),DAB(:,:),BUF3(:),BUF4(:),BUFX(:,:)
       INTEGER(KIND=IWP),ALLOCATABLE:: TASKLIST(:,:)
 
@@ -88,7 +88,7 @@
       IF(nlev == 0) return
       IF(NACTEL == 0) return
 
-* This should not happen, but...
+! This should not happen, but...
       IF(NCONF == 0) return
 
 ! Here, for regular CAS or RAS cases.
@@ -123,11 +123,11 @@
         icnj(idx)=jdx
       end do
 
-* Correction to G3: It is now <0| E_tu E_vx E_yz |0>
-* Similar for F3 values.
-* These corrections are already done in CLagDXA_FG3 and CLagDXC_FG3
+! Correction to G3: It is now <0| E_tu E_vx E_yz |0>
+! Similar for F3 values.
+! These corrections are already done in CLagDXA_FG3 and CLagDXC_FG3
 
-* Correction to F2: Some values not computed follow from symmetry
+! Correction to F2: Some values not computed follow from symmetry
       do ip1=1,nlev2-1
        itlev=idx2ij(1,ip1)
        iulev=idx2ij(2,ip1)
@@ -161,12 +161,12 @@
         DF2(iz,iy,iu,it)=Scal
        end do
       end do
-* Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
+! Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
        do iz=1,nlev
         do iy=1,nlev
          do iu=1,nlev
           do it=1,nlev
-           DG2(it,iu,iy,iz) = DG2(it,iu,iy,iz)
+           DG2(it,iu,iy,iz) = DG2(it,iu,iy,iz)                          &
      &      - DF2(it,iu,iy,iz)*(EPSA(iu)+EPSA(iy))
            !! DEPSA-related operations in the preparation step
            !! are done only on the master node
@@ -174,9 +174,9 @@
            if (king()) then
 #endif
             do ix=1,nlev
-             DEPSA(iu,ix) = DEPSA(iu,ix)
+             DEPSA(iu,ix) = DEPSA(iu,ix)                                &
      &         - DF2(it,iu,iy,iz)*G2(it,ix,iy,iz)
-             DEPSA(ix,iy) = DEPSA(ix,iy)
+             DEPSA(ix,iy) = DEPSA(ix,iy)                                &
      &         - DF2(it,iu,iy,iz)*G2(it,iu,ix,iz)
             end do
 #ifdef _MOLCAS_MPP_
@@ -206,7 +206,7 @@
 
 
 
-* Correction to G2: Some values not computed follow from symmetry
+! Correction to G2: Some values not computed follow from symmetry
       do ip1=1,nlev2-1
        itlev=idx2ij(1,ip1)
        iulev=idx2ij(2,ip1)
@@ -240,7 +240,7 @@
         DG2(iz,iy,iu,it)=Scal
        end do
       end do
-* Correction to G2: It is now = <0| E_tu E_yz |0>
+! Correction to G2: It is now = <0| E_tu E_yz |0>
       do iu=1,nlev
        do iz=1,nlev
         do it=1,nlev
@@ -248,12 +248,12 @@
         end do
        end do
       end do
-* Additional correction terms for F1
+! Additional correction terms for F1
       Do iT = 1, NLEV
         Do iU = 1, NLEV
           !! With the improved algorithm, symmetrizing the DF1
           !! contribution to DF1 here is somehow required
-          DG1(iT,iU) = DG1(iT,iU)
+          DG1(iT,iU) = DG1(iT,iU)                                       &
      &      - (DF1(iT,iU)+DF1(iU,iT))*EPSA(iU)*Half
         End Do
       End Do
@@ -277,16 +277,16 @@
 
       call mma_MaxDBLE(memmax)
 
-* Use *almost* all remaining memory:
+! Use *almost* all remaining memory:
 !     memmax_safe=int(dble(memmax)*0.95D0)
 
-* Buffers to compute CI expansion vectors into:
-* <Psi0|E_ip1 | E_ip2 E_ip3|Psi0>
-* buf1: bra buffer with E_ip1 excitations of Psi0
-*       holds multiple CI vectors (allowed by memory)
-* buf2: ket buffer for an E_ip3 excitation of Psi0
-* buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
-* bufd: diagonal matrix elements to compute the F matrix
+! Buffers to compute CI expansion vectors into:
+! <Psi0|E_ip1 | E_ip2 E_ip3|Psi0>
+! buf1: bra buffer with E_ip1 excitations of Psi0
+!       holds multiple CI vectors (allowed by memory)
+! buf2: ket buffer for an E_ip3 excitation of Psi0
+! buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
+! bufd: diagonal matrix elements to compute the F matrix
       nbuf1= nbuf1_grad
       ndtu = nbuf1
       ndab = nbuf1
@@ -311,9 +311,9 @@
       IF(iPrGlb >= VERBOSE) THEN
         WRITE(u6,*)
         WRITE(u6,'(2X,A)') 'Constructing derivatives of G3/F3'
-        WRITE(u6,'(2X,A,F16.9,A)') ' memory avail: ',
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory avail: ',                   &
      &    (memmax*RtoB)/1.0e+09_wp, ' GB'
-        WRITE(u6,'(2X,A,F16.9,A)') ' memory used:  ',
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory used:  ',                   &
      &    (((3*nbuf1+6+nlev)*MXCI)*RtoB)/1.0e+09_wp, ' GB'
         call xFlush(u6)
       ENDIF
@@ -325,8 +325,8 @@
       iG3OFF=0
       iTask_loc = 1
       first = .true.
-* A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
-* This also allows precomputing the Hamiltonian (H0) diagonal elements.
+! A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
+! This also allows precomputing the Hamiltonian (H0) diagonal elements.
       DO issg1=1,nsym
        isp1=Mul(issg1,STSYM)
        nsgm1=CIS%ncsf(issg1)
@@ -346,7 +346,7 @@
           ip1_buf(ibuf1)=ip1
           IF (ibuf1 == 1) TaskList(iTask,1)=ip1
         ENDIF
-        IF (ibuf1 == nbuf1 .OR. (ibuf1 > 0 .AND.
+        IF (ibuf1 == nbuf1 .OR. (ibuf1 > 0 .AND.                        &
      &         (ip1 == ntri2 .OR. ip1 == nlev2))) THEN
             TaskList(iTask,2)=ip1_buf(ibuf1)
             TaskList(iTask,3)=ibuf1
@@ -385,23 +385,23 @@
 
       IF(iPrGlb >= DEBUG) THEN
         IF (nSubTasks > 0) THEN
-          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')                 &
 !-position 12345678901234567890
-     &    '--------',
-     &    '------------',
-     &    '----',
+     &    '--------',                                                   &
+     &    '------------',                                               &
+     &    '----',                                                       &
      &    '---------'
-          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')                 &
 !-position 12345678901234567890
-     &    'task ID ',
-     &    ' ip1 range  ',
-     &    'ip3 ',
+     &    'task ID ',                                                   &
+     &    ' ip1 range  ',                                               &
+     &    'ip3 ',                                                       &
      &    '#elements'
-          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')                 &
 !-position 12345678901234567890
-     &    '--------',
-     &    '------------',
-     &    '----',
+     &    '--------',                                                   &
+     &    '------------',                                               &
+     &    '----',                                                       &
      &    '---------'
           call xFlush(u6)
         END IF
@@ -471,7 +471,7 @@
             ibuf1=ibuf1+1
             ip1_buf(ibuf1)=ip1i
             BUF1(1:nsgm1,ibuf1) = Zero
-            CALL SG_Epq_Psi(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,                                &
      &                  IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
            end if
           end do
@@ -504,12 +504,12 @@
 
             !! left derivative of DF1
             Do icsf = 1, nsgm1
-              DTU(icsf,ib) = DTU(icsf,ib)
+              DTU(icsf,ib) = DTU(icsf,ib)                               &
      &          + DF1(it,iu)*BUFD(icsf)*CI(icsf)
             End Do
             !! right derivative of DF1
             Do icsf = 1, nsgm1
-              CLag(icsf) = CLag(icsf)
+              CLag(icsf) = CLag(icsf)                                   &
      &          + DF1(it,iu)*BUF1(icsf,ib)*BUFD(icsf)
             End Do
 !           G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
@@ -530,17 +530,17 @@
 !       do ip3=1,ip3mx
 
 !-SVC20100309: PAM's magic formula
-*       iCnt=iSubTask-iOffSet
-*       ip3=int(dble(ntri2)+1.5D0 -
-*    &       sqrt((dble(ntri2)+0.5d0)**2-2*iCnt+0.000001D0))
-*       ip2=iCnt-((ip3-1)*ntri2-((ip3-1)*(ip3-2))/2 )+ip3-1
+!       iCnt=iSubTask-iOffSet
+!       ip3=int(dble(ntri2)+1.5D0 -
+!    &       sqrt((dble(ntri2)+0.5d0)**2-2*iCnt+0.000001D0))
+!       ip2=iCnt-((ip3-1)*ntri2-((ip3-1)*(ip3-2))/2 )+ip3-1
 
 !-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 
 !       write(u6,*) 'ip3 = ', ip3
 !       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         iq1=icnj(ip3)
-* The indices corresponding to pair index p3:
+! The indices corresponding to pair index p3:
         iylev=idx2ij(1,ip3)
         izlev=idx2ij(2,ip3)
         isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
@@ -573,7 +573,7 @@
             !! right derivative
             buft(1:mxci) = buf1(1:mxci,ib)
             Do icsf = 1, nsgm1
-              BUF3(icsf) = BUF3(icsf)
+              BUF3(icsf) = BUF3(icsf)                                   &
      &          + ScalG*BUFT(icsf) + ScalF*BUFT(icsf)*BUFD(icsf)
             End Do
 
@@ -592,7 +592,7 @@
         Do ixlev0 = 1, nlev
           Do ivlev = 1, nlev
             BUFX(1:nsgm1,ivlev) = Zero
-            CALL SG_Epq_Psi(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,                                &
      &                  IVLEV,IXLEV0,One,STSYM,BUF2,BUFX(1,ivlev))
           End Do
           iG3OFF = iG3bk
@@ -605,8 +605,8 @@
             if(isvx /= Mul(issg1,issg2)) cycle
             !! <I|EvxEyz|0>
             If (IXLEV == IXLEV0) BUFT(1:nsgm1) = BUFX(1:nsgm1,IVLEV)
-*-----------
-* Max and min values of index p1:
+!-----------
+! Max and min values of index p1:
             ip1mx=ntri2
             if(ip3 <= ntri1) then
               ip1mx=nlev2
@@ -614,7 +614,7 @@
             end if
             ip1mn=max(ip2,ip1sta)
             ip1mx=min(ip1mx,ip1end)
-* The corresponding locations in the Sgm1 buffer:
+! The corresponding locations in the Sgm1 buffer:
             ibmn=999999
             ibmx=-999999
             do ib=ibuf1,1,-1
@@ -643,10 +643,10 @@
               idx=ip1_buf(ibmn-1+ib)
 
               !! <I|EvxEyz|0>*Dtuvxyz + <I|fEvxEyz|0>*Ftuvxyz
-              DTU(1:nsgm1,ibmn+ib-1) = DTU(1:nsgm1,ibmn+ib-1)
+              DTU(1:nsgm1,ibmn+ib-1) = DTU(1:nsgm1,ibmn+ib-1)           &
      &          + DG3(iG3)*BUFT(1:nsgm1) + DF3(iG3)*BUF3(1:nsgm1)
               !! DEPSA of the BUFD term
-              DAB(1:nsgm1,ibmn+ib-1) = DAB(1:nsgm1,ibmn+ib-1)
+              DAB(1:nsgm1,ibmn+ib-1) = DAB(1:nsgm1,ibmn+ib-1)           &
      &          + DF3(iG3)*BUFT(1:nsgm1)
             end do
 !
@@ -662,16 +662,16 @@
               idx=ip1_buf(ibmn-1+ib)
 
               !! BUF3 = <0|Etu|I>*Dtuvxyz
-              BUF3(1:nsgm1) = BUF3(1:nsgm1)
+              BUF3(1:nsgm1) = BUF3(1:nsgm1)                             &
      &          + DG3(iG3)*BUF1(1:nsgm1,ibmn+ib-1)
               !! BUFC = <0|Etu|I>*Ftuvxyz
-              BUF4(1:nsgm1) = BUF4(1:nsgm1)
+              BUF4(1:nsgm1) = BUF4(1:nsgm1)                             &
      &          + DF3(iG3)*BUF1(1:nsgm1,ibmn+ib-1)
             end do
 
             !! DEPSA of the -EPSA(iv) term
-            Call DGEMV_('T',nsgm1,NLEV,
-     &                 -One,BUFX,mxci,buf4,1,
+            Call DGEMV_('T',nsgm1,NLEV,                                 &
+     &                 -One,BUFX,mxci,buf4,1,                           &
      &                  One,DEPSA(1,IVLEV),1)
 
             !! Scale the DF3 contribution with the diagonal Fock
@@ -692,7 +692,7 @@
         CALL SG_Epq_Psi(SGS,CIS,EXS,IZLEV,IYLEV,One,STSYM,DYZ,CLAG)
 
         IF(iPrGlb >= DEBUG) THEN
-          WRITE(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
+          WRITE(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')  &
      &      iSubTask, ip1sta, ip1end, ip3, nbtot
           call xFlush(u6)
         END IF
@@ -715,22 +715,22 @@
 
       IF(iPrGlb >= DEBUG) THEN
         IF (nSubTasks > 0) THEN
-          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')                 &
 !-position 12345678901234567890
-     &    '--------',
-     &    '------------',
-     &    '----',
+     &    '--------',                                                   &
+     &    '------------',                                               &
+     &    '----',                                                       &
      &    '---------'
         END IF
       END IF
 
-* End of sectioning loop over symmetry of Sgm1 wave functions.
+! End of sectioning loop over symmetry of Sgm1 wave functions.
       END DO
 
 #ifdef _MOLCAS_MPP_
       if (is_real_par() .and. (iTask_loc-1 /= nTasks_grad)) then
         write (u6,*)
-        write (u6,*) 'Somehow, the number of tasks in mkfg3.f and ',
+        write (u6,*) 'Somehow, the number of tasks in mkfg3.f and ',    &
      &              'derfg3.f is not consistent...'
         write (u6,*) 'probably, bug'
         write (u6,*) '# of tasks in  mkfg3.f = ', nTasks_grad
@@ -773,9 +773,9 @@
         Do IALEVloc = 1, NLEV
           Do IBLEVloc = 1, NLEV
             BUF2(:) = Zero
-            CALL SG_Epq_Psi(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,                                &
      &                 IALEVloc,IBLEVloc,One,STSYM,DAB(1,ibloc),BUF2)
-            DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)
+            DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)         &
      &        + DDot_(nsgm1,BUF1(1,IBloc),1,BUF2,1)
           End Do
         End Do
@@ -785,24 +785,24 @@
 
       END SUBROUTINE DERFG3
 
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 2006  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 2006  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE DERSPE(NLEV,NG3,DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use sguga, only: LEVEL
@@ -814,8 +814,8 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: NLEV, NG3
-      real(kind=wp), intent(in) :: DF1(NLEV,NLEV),
-     &  DF2(NLEV,NLEV,NLEV,NLEV), DF3(NG3), G1(NLEV,NLEV),
+      real(kind=wp), intent(in) :: DF1(NLEV,NLEV),                      &
+     &  DF2(NLEV,NLEV,NLEV,NLEV), DF3(NG3), G1(NLEV,NLEV),              &
      &  G2(NLEV,NLEV,NLEV,NLEV), G3(NG3)
       integer(kind=byte), intent(inout) :: idxG3(6,NG3)
       real(kind=wp), intent(inout) :: DEPSA(NLEV,NLEV)
@@ -823,8 +823,8 @@
 ! SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 ! OR CLOSED-SHELL SCF CASE.
 
-      integer(kind=iwp) :: I, NLEV2, NLEV4, iG3, nTask, ID, iTask,
-     &  IND1, IND2, IT1, IU1, LU1, IT2, IU2, LU2, IT3, IU3, IND3, LU3,
+      integer(kind=iwp) :: I, NLEV2, NLEV4, iG3, nTask, ID, iTask,      &
+     &  IND1, IND2, IT1, IU1, LU1, IT2, IU2, LU2, IT3, IU3, IND3, LU3,  &
      &  LT, IT, IU, LU, IV, LV
       real(kind=wp) :: ESUM, DESUM, OCC
 
@@ -840,10 +840,10 @@
 !     if (NACTEL == 1 .or. NACTEL == 2) NG3 = 0
       if (NACTEL /= 1) then
         if (NACTEL /= 2) then
-          write(u6,*) 'I have not implemented for non-standard Psi0, ',
-     &      'when A and C subspaces contribute to the energy, ',
+          write(u6,*) 'I have not implemented for non-standard Psi0, ', &
+     &      'when A and C subspaces contribute to the energy, ',        &
      &      'in particular'
-          write(u6,*) 'I cannot debug, ',
+          write(u6,*) 'I cannot debug, ',                               &
      &      'because I do not know when it happens'
 !         call abend()
 

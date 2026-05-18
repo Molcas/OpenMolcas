@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Per Ake Malmqvist                                *
-*               2019, Stefano Battaglia                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Per Ake Malmqvist                                *
+!               2019, Stefano Battaglia                                *
+!***********************************************************************
       SUBROUTINE CASPT2(IRETURN)
       USE INPUTDATA, ONLY: INPUT
       use PT2WFN, ONLY: PT2WFN_ESTORE,PT2WFN_DATA
@@ -20,107 +20,107 @@
       use PrintLevel, only: TERSE, USUAL, VERBOSE
 #ifdef _DMRG_
       use, intrinsic :: iso_c_binding, only: c_bool, c_int
-      use qcmaquis_interface, only:
-     &    qcmaquis_interface_compute_and_store_123rdm_full,
+      use qcmaquis_interface, only:                                     &
+     &    qcmaquis_interface_compute_and_store_123rdm_full,             &
      &    qcmaquis_interface_compute_and_store_trans_123rdm_full
       use caspt2_module, only: DMRG
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       USE Constants, ONLY: auTocm, auToeV, auTokJmol
       use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
-      use caspt2_module, only: E2ToT, IfChol, IfDens, IfDW,
-     &                         IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot,
-     &                         jState, nGroup, nLyGroup, nLyRoot,
-     &                         nState, RefEne, Energy, nGroupState,
-     &                         mState,
-     &                         CPUGIN,CPUINT,CPUFMB,
-     &                         CPUSIN,CPUFG3,
-     &                        CPUPT2,CPUSBM,CPUEIG,CPUNAD,CPURHS,CPUSER,
-     &                        CPUPCG,CPUSCA,CPULCS,CPUOVL,CPUVEC,CPUSGM,
-     &                         CPUPRP,CPUGRD,
-     &                         TIOGIN,TIOINT,TIOFMB,
-     &                         TIOSIN,TIOFG3,
-     &                        TIOPT2,TIOSBM,TIOEIG,TIONAD,TIORHS,TIOSER,
-     &                        TIOPCG,TIOSCA,TIOLCS,TIOOVL,TIOVEC,TIOSGM,
+      use caspt2_module, only: E2ToT, IfChol, IfDens, IfDW,             &
+     &                         IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot,&
+     &                         jState, nGroup, nLyGroup, nLyRoot,       &
+     &                         nState, RefEne, Energy, nGroupState,     &
+     &                         mState,                                  &
+     &                         CPUGIN,CPUINT,CPUFMB,                    &
+     &                         CPUSIN,CPUFG3,                           &
+     &                        CPUPT2,CPUSBM,CPUEIG,CPUNAD,CPURHS,CPUSER,&
+     &                        CPUPCG,CPUSCA,CPULCS,CPUOVL,CPUVEC,CPUSGM,&
+     &                         CPUPRP,CPUGRD,                           &
+     &                         TIOGIN,TIOINT,TIOFMB,                    &
+     &                         TIOSIN,TIOFG3,                           &
+     &                        TIOPT2,TIOSBM,TIOEIG,TIONAD,TIORHS,TIOSER,&
+     &                        TIOPCG,TIOSCA,TIOLCS,TIOOVL,TIOVEC,TIOSGM,&
      &                         TIOPRP,TIOGRD
       use constants, only: Zero, One
       use definitions, only: iwp, wp, u6
 
       IMPLICIT NONE
       INTEGER(kind=iwp), intent(out):: IRETURN
-*----------------------------------------------------------------------*
-*     1998  PER-AAKE MALMQUIST                                         *
-*     DEPARTMENT OF THEORETICAL CHEMISTRY                              *
-*     UNIVERSITY OF LUND, SWEDEN                                       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     1998  PER-AAKE MALMQUIST                                         *
+!     DEPARTMENT OF THEORETICAL CHEMISTRY                              *
+!     UNIVERSITY OF LUND, SWEDEN                                       *
+!----------------------------------------------------------------------*
 
-C     SECOND ORDER PERTURBATION CALCULATIONS WITH A CASSCF
-C     REFERENCE FUNCTION.
+!     SECOND ORDER PERTURBATION CALCULATIONS WITH A CASSCF
+!     REFERENCE FUNCTION.
 
-C     ORIGINAL CASPT2 PROGRAM WRITTEN 890526 BY:
-C     KERSTIN ANDERSSON (ALL CASPT2 CODE WITH FOLLOWING EXCEPTIONS)
-C     PER-AKE MALMQVIST (THE GUGA PART)
-C     BJORN O ROOS      (THE INTEGRAL TRANSFORMATION)
+!     ORIGINAL CASPT2 PROGRAM WRITTEN 890526 BY:
+!     KERSTIN ANDERSSON (ALL CASPT2 CODE WITH FOLLOWING EXCEPTIONS)
+!     PER-AKE MALMQVIST (THE GUGA PART)
+!     BJORN O ROOS      (THE INTEGRAL TRANSFORMATION)
 
-C     MODIFIED 1991-02-23 BY PER-AAKE MALMQUIST, FOR USE WITH THE
-C     MOLCAS RASSCF PROGRAM.
+!     MODIFIED 1991-02-23 BY PER-AAKE MALMQUIST, FOR USE WITH THE
+!     MOLCAS RASSCF PROGRAM.
 
-C     ALL PROGRAM REWRITTEN (MALMQVIST 1993) FOR MOLCAS VERSION 3,
-C     EXCEPT TRACTL AND TRA2 KEPT BUT SLIGHTLY MODIFIED, AND ALSO:
-C     INTERFACING WITH MOLCAS-3 BY MARCUS FUELSCHER
+!     ALL PROGRAM REWRITTEN (MALMQVIST 1993) FOR MOLCAS VERSION 3,
+!     EXCEPT TRACTL AND TRA2 KEPT BUT SLIGHTLY MODIFIED, AND ALSO:
+!     INTERFACING WITH MOLCAS-3 BY MARCUS FUELSCHER
 
-C     REWRITTEN FOR 1) EXACT ACTIVE DENSITY MATRIX
-C     2) QUANTITIES NEEDED FOR GRADIENTS
-C     3) MULTI-STATE CASPT2
-C     BY MALMQVIST 1998.
-C
-C     SINCE THEN, THE FOLLOWING MODIFICATIONS HAVE BEEN MADE:
-C     IPEA HAMILTONIAN BY G. GHIGO & P. MALMQVIST
-C       Chem. Phys. Lett. 396, pp 142 (2004)
-C       http://dx.doi.org/10.1016/j.cplett.2004.08.032
-C     LOVCASPT2/FNOCASPT2/AFREEZE BY B. ROOS & F. AQUILANTE
-C       J. Chem. Phys. 131, 034113 (2009)
-C       http://dx.doi.org/10.1063/1.3157463
-C     CHOLESKY SUPPORT BY P. MALMQVIST AND F. AQUILANTE
-C       J. Chem. Theory Comput. 4 (5), pp 694-702 (2008)
-C       http://dx/doi.org/10.1021/ct700263h
-C     RASPT2 BY P. MALMQVIST
-C       J. Chem. Phys. 128, 204109 (2008)
-C       http://dx.doi.org/10.1063/1.2920188
-C     PARALLELIZATION BY S. VANCOILLIE
-C       J. Comp. Chem. 34, pp 1937-1948 (2013)
-C       http://dx.doi.org/10.1002/jcc.23342
-C     MAJOR REFACTORING OF INITIALIZATION PHASE AND ADDITION OF
-C     HDF5 SUPPORT BY S. VANCOILLIE (2016)
-C
-************************************************************************
+!     REWRITTEN FOR 1) EXACT ACTIVE DENSITY MATRIX
+!     2) QUANTITIES NEEDED FOR GRADIENTS
+!     3) MULTI-STATE CASPT2
+!     BY MALMQVIST 1998.
+!
+!     SINCE THEN, THE FOLLOWING MODIFICATIONS HAVE BEEN MADE:
+!     IPEA HAMILTONIAN BY G. GHIGO & P. MALMQVIST
+!       Chem. Phys. Lett. 396, pp 142 (2004)
+!       http://dx.doi.org/10.1016/j.cplett.2004.08.032
+!     LOVCASPT2/FNOCASPT2/AFREEZE BY B. ROOS & F. AQUILANTE
+!       J. Chem. Phys. 131, 034113 (2009)
+!       http://dx.doi.org/10.1063/1.3157463
+!     CHOLESKY SUPPORT BY P. MALMQVIST AND F. AQUILANTE
+!       J. Chem. Theory Comput. 4 (5), pp 694-702 (2008)
+!       http://dx/doi.org/10.1021/ct700263h
+!     RASPT2 BY P. MALMQVIST
+!       J. Chem. Phys. 128, 204109 (2008)
+!       http://dx.doi.org/10.1063/1.2920188
+!     PARALLELIZATION BY S. VANCOILLIE
+!       J. Comp. Chem. 34, pp 1937-1948 (2013)
+!       http://dx.doi.org/10.1002/jcc.23342
+!     MAJOR REFACTORING OF INITIALIZATION PHASE AND ADDITION OF
+!     HDF5 SUPPORT BY S. VANCOILLIE (2016)
+!
+!***********************************************************************
 #include "warnings.h"
       CHARACTER(len=60) STLNE2
-* Timers
-      REAL(kind=wp)  CPTF12, CPTF13, CPTF14,
-     &               TIOTF12,TIOTF13,TIOTF14,
-     &               CPE,CPUTOT,TIOE,TIOTOT,
+! Timers
+      REAL(kind=wp)  CPTF12, CPTF13, CPTF14,                            &
+     &               TIOTF12,TIOTF13,TIOTF14,                           &
+     &               CPE,CPUTOT,TIOE,TIOTOT,                            &
      &               CPTF0, CPTF11, TIOTF0, TIOTF11
-* Indices
+! Indices
       INTEGER(kind=iwp) I
 #ifdef _DMRG_
       integer(kind=iwp) J
 #endif
       INTEGER(kind=iwp) ISTATE
       INTEGER(kind=iwp) IGROUP,JSTATE_OFF
-* Convergence check
+! Convergence check
       INTEGER(kind=iwp) ICONV
-* Relative energies
+! Relative energies
       REAL(kind=wp)  RELAU,RELEV,RELCM,RELKJ
 
-* Effective Hamiltonian
+! Effective Hamiltonian
       REAL(kind=wp), ALLOCATABLE :: Heff(:,:), Ueff(:,:)
 
-* Zeroth-order Hamiltonian
+! Zeroth-order Hamiltonian
       REAL(kind=wp), ALLOCATABLE :: H0(:,:), U0(:,:)
 
-* Gradient stuff
-      REAL(kind=wp), ALLOCATABLE :: UeffSav(:,:),
+! Gradient stuff
+      REAL(kind=wp), ALLOCATABLE :: UeffSav(:,:),                       &
      &                              U0Sav(:,:),H0Sav(:,:),ESav(:)
       LOGICAL(kind=iwp) :: IFGRDT0 = .False.
 
@@ -128,8 +128,8 @@ C
 
       IRETURN = 0
 
-*======================================================================*
-*
+!======================================================================*
+!
 !     Miscellaneous setup, reading of the input and start of writing
 !     input parameters in the log file.
       CALL PT2INI()
@@ -138,7 +138,7 @@ C
 !     single state calculations are treated as an one-dimensional case.
       CALL HEFF_INI()
 
-* If the EFFE keyword has been used proceed to the MS coupling section.
+! If the EFFE keyword has been used proceed to the MS coupling section.
       IF (INPUT%JMS) THEN
         Call Print_Truff()
         Call Post_Process()
@@ -146,10 +146,10 @@ C
         Return
       END IF
 
-* Before entering the long loop over groups and states, precompute
-* the 1-RDMs for all states and mix them according to the type of
-* calculation: MS, XMS, DW or XDW. This is done in the natural
-* orbital basis.
+! Before entering the long loop over groups and states, precompute
+! the 1-RDMs for all states and mix them according to the type of
+! calculation: MS, XMS, DW or XDW. This is done in the natural
+! orbital basis.
 
       call rdminit()
 
@@ -181,23 +181,23 @@ C
         Call DCopy_(Nstate,ENERGY,1,Esav,1)
         Call DCopy_(Nstate*Nstate,UEFF,1,UEFFSav,1)
         Call DCopy_(Nstate*Nstate,U0,1,U0Sav,1)
-        If ((IFXMS .and. IFDW) .or. IFRMS)
-     *    Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
+        If ((IFXMS .and. IFDW) .or. IFRMS)                              &
+     &    Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
         iStpGrd = 2
         Call Post_Process()
         Call CASPT2_TERM()
         Return
       End If
 
-* FIRST GRAD LOOP ITER
+! FIRST GRAD LOOP ITER
 #ifdef _DMRG_
       if (DMRG) then
         do I=1,NSTATE
-          call qcmaquis_interface_compute_and_store_123rdm_full(
+          call qcmaquis_interface_compute_and_store_123rdm_full(        &
      &      int(I-1, c_int), logical(.true., c_bool))
           do J=1,NSTATE
             if (I .ne. J) then
-          call qcmaquis_interface_compute_and_store_trans_123rdm_full(
+          call qcmaquis_interface_compute_and_store_trans_123rdm_full(  &
      &    int(I-1, c_int), int(J-1, c_int), logical(.true., c_bool))
             end if
           end do
@@ -206,13 +206,13 @@ C
 #endif
 
 
-***********************************************************************
-*                                                                     *
-*                                                                     *
-***********************************************************************
-* For (X)Multi-State, a long loop over root states.
-* The states are ordered by group, with each group containing a number
-* of group states for which GRPINI is called.
+!**********************************************************************
+!                                                                     *
+!                                                                     *
+!**********************************************************************
+! For (X)Multi-State, a long loop over root states.
+! The states are ordered by group, with each group containing a number
+! of group states for which GRPINI is called.
       JSTATE_OFF=0
       STATELOOP: DO IGROUP=1,NGROUP
 
@@ -255,7 +255,7 @@ C
 !         to the PCO basis.
 !      8. Drops the NO CMO orbitals as stored in CMO.
 !
-       CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,
+       CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,               &
      &             HEFF,H0,U0,nState)
 
        If (do_grad) CALL CNSTFIFAFIMO(1)
@@ -264,7 +264,7 @@ C
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
 
-* Skip this state if we only need 1 state and it isn't this "one".
+! Skip this state if we only need 1 state and it isn't this "one".
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
 
 !        STINI (state init?) does the following
@@ -281,14 +281,14 @@ C
 !
          CALL STINI(JSTATE)
 
-* Solve CASPT2 equation system and compute corr energies.
+! Solve CASPT2 equation system and compute corr energies.
          IF (IPRGLB.GE.USUAL) THEN
             WRITE(6,'(20A4)')('****',I=1,20)
             WRITE(6,*)' CASPT2 EQUATION SOLUTION'
             WRITE(6,'(20A4)')('----',I=1,20)
          END IF
 
-         Write(STLNE2,'(A,I0)')'Solve CASPT2 eqs. for state ',
+         Write(STLNE2,'(A,I0)')'Solve CASPT2 eqs. for state ',          &
      &                               MSTATE(JSTATE)
 
          CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
@@ -297,7 +297,7 @@ C
 
          CALL EQCTL2(ICONV)
 
-* Save the final caspt2 energy in the global array ENERGY():
+! Save the final caspt2 energy in the global array ENERGY():
          ENERGY(JSTATE)=E2TOT
 
          CALL TIMING(CPTF12,CPE,TIOTF12,TIOE)
@@ -305,12 +305,12 @@ C
          TIOPT2=TIOTF12-TIOTF11
 
          IF (ICONV .NE. 0) THEN
-* No convergence. Skip the rest of the calculation.
+! No convergence. Skip the rest of the calculation.
            IRETURN = _RC_NOT_CONVERGED_
            EXIT STATELOOP
          END IF
 
-* Orbitals, properties:
+! Orbitals, properties:
 
          ! if the dens keyword is used, need accurate density and
          ! for that the serial LUSOLV file is needed, in that case copy
@@ -345,9 +345,9 @@ C
         if (.not. DoFCIQMC) then
 
          IF (IFMSCOUP) THEN
-C     If this was NOT a gradient, calculation, then the multi-state
-C     couplings are more efficiently computed via three-body
-C     transition density matrices.
+!     If this was NOT a gradient, calculation, then the multi-state
+!     couplings are more efficiently computed via three-body
+!     transition density matrices.
            IF (IPRGLB.GE.VERBOSE) THEN
               WRITE(6,*)
               WRITE(6,'(20A4)')('****',I=1,20)
@@ -361,7 +361,7 @@ C     transition density matrices.
 
         Call Iter_Timing()
 
-* End of long loop over states in the group
+! End of long loop over states in the group
        END DO
 
        IF (IPRGLB.GE.USUAL) THEN
@@ -369,25 +369,25 @@ C     transition density matrices.
          WRITE(6,*)
        END IF
 
-* End of long loop over groups
+! End of long loop over groups
         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
       END DO STATELOOP
 
-***********************************************************************
-*                                                                     *
-*                                                                     *
-***********************************************************************
+!**********************************************************************
+!                                                                     *
+!                                                                     *
+!**********************************************************************
 
       Call Print_Truff()
       Call Post_Process()
       Call CASPT2_TERM()
 
-***********************************************************************
-*                                                                     *
+!**********************************************************************
+!                                                                     *
       CONTAINS
-*                                                                     *
-***********************************************************************
-*                                                                     *
+!                                                                     *
+!**********************************************************************
+!                                                                     *
       Subroutine Print_Truff()
       implicit None
       integer(kind=iwp) I
@@ -407,13 +407,13 @@ C     transition density matrices.
        ELSE
         DO I=1,NSTATE
          IF ((NLYROOT.NE.0).AND.(I.NE.NLYROOT)) CYCLE
-         CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',
+         CALL PrintResult(6,'(6x,A,I3,5X,A,F16.8)',                     &
      &    'CASPT2 Root',MSTATE(I),'Total energy:',ENERGY(I),1)
         END DO
         IF(IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
          WRITE(6,*)
          WRITE(6,*)' Relative CASPT2 energies:'
-         WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
+         WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')                 &
      &     'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
          ISTATE=1
          DO I=2,NSTATE
@@ -424,7 +424,7 @@ C     transition density matrices.
           RELEV = RELAU * auToeV
           RELCM = RELAU * auTocm
           RELKJ = RELAU * auTokJmol
-          WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
+          WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')        &
      &     MSTATE(I), RELAU, RELEV, RELCM, RELKJ
          END DO
         END IF
@@ -445,14 +445,14 @@ C     transition density matrices.
 
             IF (IPRGLB.GE.VERBOSE.AND.(NLYROOT.EQ.0)) THEN
              WRITE(6,*)' Relative (X)MS-CASPT2 energies:'
-             WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')
+             WRITE(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)')             &
      &         'Root', '(a.u.)', '(eV)', '(cm^-1)', '(kJ/mol)'
              DO I=1,NSTATE
               RELAU = ENERGY(I)-ENERGY(1)
               RELEV = RELAU * auToeV
               RELCM = RELAU * auTocm
               RELKJ = RELAU * auTokJmol
-              WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')
+              WRITE(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)')    &
      &         I, RELAU, RELEV, RELCM, RELKJ
              END DO
              WRITE(6,*)
@@ -465,7 +465,7 @@ C     transition density matrices.
         If (nStpGrd == 2) Then
           IF (IPRGLB.GE.TERSE) THEN
             WRITE(6,'(20A4)')('****',I=1,20)
-            WRITE(6,'(A)')
+            WRITE(6,'(A)')                                              &
      &      ' SECOND RUN to compute analytical gradients/NAC quantities'
             WRITE(6,'(20A4)')('----',I=1,20)
             WRITE(6,*)
@@ -489,8 +489,8 @@ C     transition density matrices.
           Call GradLoop(Heff,Ueff,H0,U0,H0Sav,nState)
         End If
 
-* Back-transform the effective Hamiltonian and the transformation matrix
-* to the basis of original CASSCF states
+! Back-transform the effective Hamiltonian and the transformation matrix
+! to the basis of original CASSCF states
         If (nStpGrd == 2) Then
           CALL Backtransform(Heff,UeffSav,U0sav,nState)
           Call DCopy_(nState*nState,UeffSav,1,Ueff,1)
@@ -499,25 +499,25 @@ C     transition density matrices.
           CALL Backtransform(Heff,Ueff,U0,nState)
         End If
 
-* create a JobMix file
-* (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
+! create a JobMix file
+! (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
         CALL CREIPH_CASPT2(Heff,Ueff,U0,nState)
 
-* Store the PT2 energy and effective Hamiltonian on the wavefunction file
+! Store the PT2 energy and effective Hamiltonian on the wavefunction file
         CALL PT2WFN_ESTORE(HEFF,nState)
 
-* Store rotated states if XMUL + NOMUL
+! Store rotated states if XMUL + NOMUL
         IF ((IFXMS .or. IFRMS) .AND. (.NOT.IFMSCOUP)) CALL PT2WFN_DATA()
 
-* store information on runfile for geometry optimizations
+! store information on runfile for geometry optimizations
         Call Put_iScalar('NumGradRoot',iRlxRoot)
         Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
       end if
       End Subroutine Post_Process
 
-*                                                                     *
-***********************************************************************
-*                                                                     *
+!                                                                     *
+!**********************************************************************
+!                                                                     *
 
       Subroutine CASPT2_TERM()
 
@@ -532,7 +532,7 @@ C     transition density matrices.
         End If
       End If
 
-C Free resources, close files
+! Free resources, close files
       CALL PT2CLS()
 
       CALL MMA_DEALLOCATE(UEFF)
@@ -540,7 +540,7 @@ C Free resources, close files
       CALL MMA_DEALLOCATE(HEFF)
       CALL MMA_DEALLOCATE(H0)
 
-C     PRINT I/O AND SUBROUTINE CALL STATISTICS
+!     PRINT I/O AND SUBROUTINE CALL STATISTICS
       IF ( IPRGLB.GE.USUAL ) THEN
         CALL FASTIO('STATUS')
       END IF
@@ -551,32 +551,32 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       Subroutine HEFF_INI()
       Implicit None
       Integer(kind=iwp) I
-* Initialize effective Hamiltonian and eigenvectors
+! Initialize effective Hamiltonian and eigenvectors
       CALL MMA_ALLOCATE(Heff,Nstate,Nstate,Label='Heff')
       CALL MMA_ALLOCATE(Ueff,Nstate,Nstate,Label='Ueff')
       Heff(:,:)=Zero
       Ueff(:,:)=Zero
-* Initialize zeroth-order Hamiltonian and eigenvectors
+! Initialize zeroth-order Hamiltonian and eigenvectors
       CALL MMA_ALLOCATE(H0,Nstate,Nstate,Label='H0')
       CALL MMA_ALLOCATE(U0,Nstate,Nstate,Label='U0')
       H0(:,:)=Zero
-* U0 is initialized as the identity matrix, in the case of a
-* standard MS-CASPT2 calculation it will not be touched anymore
+! U0 is initialized as the identity matrix, in the case of a
+! standard MS-CASPT2 calculation it will not be touched anymore
       U0(:,:)=Zero
       call dcopy_(Nstate,[One],0,U0,Nstate+1)
-*
-* Some preparations for gradient calculation
+!
+! Some preparations for gradient calculation
       IF (do_grad) Then
         CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
         CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
         IDSAVGRD = 0
       End If
-*======================================================================*
-* Put the CASSCF energies on the diagonal of Heff, i.e. form the
-* first-order corrected effective Hamiltonian:
-*     Heff[1] = PHP
-* and later on we will add the second-order correction
-* Heff(2) = PH \Omega_1 P to Heff[1]
+!======================================================================*
+! Put the CASSCF energies on the diagonal of Heff, i.e. form the
+! first-order corrected effective Hamiltonian:
+!     Heff[1] = PHP
+! and later on we will add the second-order correction
+! Heff(2) = PH \Omega_1 P to Heff[1]
       DO I=1,NSTATE
         HEFF(I,I) = REFENE(I)
       END DO
@@ -584,8 +584,8 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
         Write(u6,*)' Heff[1] in the original model space basis:'
         call prettyprint(Heff,Nstate,Nstate)
       END IF
-* If the EFFE keyword has been used, we already have the multi state
-* coupling Hamiltonian effective matrix, just copy the energies.
+! If the EFFE keyword has been used, we already have the multi state
+! coupling Hamiltonian effective matrix, just copy the energies.
       IF (INPUT%JMS) THEN
         ! in case of XMS, XDW, RMS, we need to rotate the states
         if (IFXMS .or. IFRMS) then
@@ -597,9 +597,9 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
         HEFF(:,:)=INPUT%HEFF(:,:)
       ELSE
 
-* In case of a XDW-CASPT2 calculation we first rotate the CASSCF
-* states according to the XMS prescription in xdwinit
-      if ((IFXMS .and. IFDW) .or. (IFRMS)) call xdwinit(Heff,H0,U0,
+! In case of a XDW-CASPT2 calculation we first rotate the CASSCF
+! states according to the XMS prescription in xdwinit
+      if ((IFXMS .and. IFDW) .or. (IFRMS)) call xdwinit(Heff,H0,U0,     &
      &                                                  nState)
       call wgtinit(Heff,nState)
       END IF
@@ -629,14 +629,14 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
 
         IF (IPRGLB.GE.VERBOSE) THEN
           WRITE(6,*)
-          WRITE(6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',
+          WRITE(6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',       &
      &                         MSTATE(JSTATE)
           WRITE(6,*)
-          WRITE(6,'(A)')       '                        '//
-     &                         ' cpu time  (s) '//
+          WRITE(6,'(A)')       '                        '//             &
+     &                         ' cpu time  (s) '//                      &
      &                         ' wall time (s) '
-          WRITE(6,'(A)')       '                        '//
-     &                         ' ------------- '//
+          WRITE(6,'(A)')       '                        '//             &
+     &                         ' ------------- '//                      &
      &                         ' ------------- '
           WRITE(6,*)
           WRITE(6,'(A,2F14.2)')'  Group initialization  ',CPUGIN,TIOGIN
@@ -664,8 +664,8 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
           WRITE(6,*)
         END IF
       End Subroutine Iter_Timing
-*                                                                     *
-***********************************************************************
-*                                                                     *
+!                                                                     *
+!**********************************************************************
+!                                                                     *
 
       END SUBROUTINE CASPT2

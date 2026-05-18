@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE NADIAG()
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, u6
@@ -23,20 +23,20 @@
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM, NINDEP, NISUP, NASUP, NIES, EPSI,
-     &                         NIGEJES, NSES, NIGTJES, EPSE, NSSH,
-     &                         NISH, NIGEJ, NAGEBES, NAGEBES, NAGEB,
+      use caspt2_module, only: NSYM, NINDEP, NISUP, NASUP, NIES, EPSI,  &
+     &                         NIGEJES, NSES, NIGTJES, EPSE, NSSH,      &
+     &                         NISH, NIGEJ, NAGEBES, NAGEBES, NAGEB,    &
      &                         NIGTJ, NAGTBES, NAGTB
       IMPLICIT NONE
 
       real(kind=wp) Dummy(1), EDIAG
       real(kind=wp), ALLOCATABLE:: BD(:), ID(:)
-      integer(kind=iwp) ICASE, ISYM, I2, I2ABS, IA, IAABS, IAB, IABQ,
-     &                  IBABS, IDID, II, IIABS, IIJ, IIJQ, IIQ, IIS,
-     &                  IJABS, ISYMA, ISYMAB, ISYMI, ISYMIJ, NAS, NIN,
+      integer(kind=iwp) ICASE, ISYM, I2, I2ABS, IA, IAABS, IAB, IABQ,   &
+     &                  IBABS, IDID, II, IIABS, IIJ, IIJQ, IIQ, IIS,    &
+     &                  IJABS, ISYMA, ISYMAB, ISYMI, ISYMIJ, NAS, NIN,  &
      &                  NIS
 
-C Set up non-active diagonal elements of H0.
+! Set up non-active diagonal elements of H0.
 
 
       DO ICASE=1,13
@@ -52,14 +52,14 @@ C Set up non-active diagonal elements of H0.
 
           SELECT CASE (ICASE)
           CASE (1)
-C VJTU CASE:
+! VJTU CASE:
              DO IIS=1,NIS
                IIQ=IIS+NIES(ISYM)
                ID(IIS)= -EPSI(IIQ)
              END DO
 
           CASE (2)
-C VJTIP CASE:
+! VJTIP CASE:
              DO IIS=1,NIS
                IIQ=IIS+NIGEJES(ISYM)
                IIABS=MIGEJ(1,IIQ)
@@ -68,7 +68,7 @@ C VJTIP CASE:
              END DO
 
           CASE (3)
-C VJTIM CASE:
+! VJTIM CASE:
              DO IIS=1,NIS
                IIQ=IIS+NIGTJES(ISYM)
                IIABS=MIGTJ(1,IIQ)
@@ -77,14 +77,14 @@ C VJTIM CASE:
              END DO
 
           CASE (4)
-C ATVX  CASE:
+! ATVX  CASE:
              DO IIS=1,NIS
                 IIQ=IIS+NSES(ISYM)
                 ID(IIS)= +EPSE(IIQ)
              END DO
 
           CASE (5)
-C AIVX  CASE:
+! AIVX  CASE:
              IIS=0
              DO ISYMA=1,NSYM
                ISYMI=Mul(ISYMA,ISYM)
@@ -100,7 +100,7 @@ C AIVX  CASE:
              END DO
 
           CASE (6)
-C VJAIP CASE:
+! VJAIP CASE:
              IIS=0
              DO ISYMA=1,NSYM
                ISYMIJ=Mul(ISYMA,ISYM)
@@ -118,7 +118,7 @@ C VJAIP CASE:
              END DO
 
           CASE (7)
-C VJAIM CASE:
+! VJAIM CASE:
              IIS=0
              DO ISYMA=1,NSYM
                ISYMIJ=Mul(ISYMA,ISYM)
@@ -136,7 +136,7 @@ C VJAIM CASE:
              END DO
 
           CASE (8)
-C BVATP CASE:
+! BVATP CASE:
              DO IIS=1,NIS
                IIQ=IIS+NAGEBES(ISYM)
                IAABS=MAGEB(1,IIQ)
@@ -145,7 +145,7 @@ C BVATP CASE:
              END DO
 
           CASE (9)
-C BVATM CASE:
+! BVATM CASE:
              DO IIS=1,NIS
                IIQ=IIS+NAGTBES(ISYM)
                IAABS=MAGTB(1,IIQ)
@@ -154,7 +154,7 @@ C BVATM CASE:
              END DO
 
           CASE (10)
-C BJATP CASE:
+! BJATP CASE:
              IIS=0
              DO ISYMI=1,NSYM
                ISYMAB=Mul(ISYMI,ISYM)
@@ -172,7 +172,7 @@ C BJATP CASE:
              END DO
 
           CASE (11)
-C BJATM CASE:
+! BJATM CASE:
              IIS=0
              DO ISYMI=1,NSYM
                ISYMAB=Mul(ISYMI,ISYM)
@@ -190,7 +190,7 @@ C BJATM CASE:
              END DO
 
           CASE (12)
-C BJAIP CASE:
+! BJAIP CASE:
              DO IAB=1,NAGEB(ISYM)
                IABQ=IAB+NAGEBES(ISYM)
                IAABS=MAGEB(1,IABQ)
@@ -208,7 +208,7 @@ C BJAIP CASE:
              END DO
 
           CASE (13)
-C BJAIM CASE:
+! BJAIM CASE:
              DO IAB=1,NAGTB(ISYM)
                IABQ=IAB+NAGTBES(ISYM)
                IAABS=MAGTB(1,IABQ)
@@ -230,13 +230,13 @@ C BJAIM CASE:
              CALL ABEND()
           END SELECT
 
-C NOTE: BDIAG elements used in cases 12 & 13.
+! NOTE: BDIAG elements used in cases 12 & 13.
       IDID=IDBMAT(ISYM,ICASE)
       IF(ICASE.GT.11) THEN
         CALL DDAFILE(LUSBT,1,BD,NAS,IDID)
         CALL mma_deallocate(BD)
       ELSE
-C Dummy read the BDIAG elements. NOTE: NAS, not NIN.
+! Dummy read the BDIAG elements. NOTE: NAS, not NIN.
         CALL DDAFILE(LUSBT,0,Dummy,NAS,IDID)
       END IF
       CALL DDAFILE(LUSBT,1,ID,NIS,IDID)

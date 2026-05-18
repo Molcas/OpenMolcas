@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1998  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1998  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE W1TW2(IVEC,JVEC,CI,SGM,nCI)
       use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -31,13 +31,13 @@
       Real(kind=wp), Allocatable:: OP1(:), OP2(:), OP3(:)
       Real(kind=wp):: OP0
 
-C Given contravariant indices of two wave operators W1 and W2,
-C in the vectors numbered IVEC and JVEC on file (unit LUSOLV),
-C compute the vector in CAS space
-C   | SGM > := | SGM > + (W1 conj)*(W2)*| CI >
+! Given contravariant indices of two wave operators W1 and W2,
+! in the vectors numbered IVEC and JVEC on file (unit LUSOLV),
+! compute the vector in CAS space
+!   | SGM > := | SGM > + (W1 conj)*(W2)*| CI >
 
 
-C (1): Compute a representation of the operator PCAS*W1T*W2
+! (1): Compute a representation of the operator PCAS*W1T*W2
       NOP1=NASHT**2
       NOP2=(NOP1*(NOP1+1))/2
       NOP3=(NOP2*(NOP1+2))/3
@@ -47,11 +47,11 @@ C (1): Compute a representation of the operator PCAS*W1T*W2
 
       CALL MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
 
-C Modify the coefficients, see subroutine MODOP.
+! Modify the coefficients, see subroutine MODOP.
 
       CALL MODOP(OP1,NOP2,OP2,NOP3,OP3)
 
-C (2) Apply the operators:
+! (2) Apply the operators:
       CALL HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,STSYM,CI,SGM,nCI)
 
       CALL mma_deallocate(OP1)

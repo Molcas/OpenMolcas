@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE ADD1HAM(H1EFF,nH1Eff)
-* NOT TESTED (used for OFEmbed below)
+! NOT TESTED (used for OFEmbed below)
 !#define _OFEmbed_
 #ifdef _OFEmbed_
       use RunFile_procedures, only: Get_dExcdRa
@@ -17,7 +17,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use OneDat, only: sNoNuc, sNoOri
-      use caspt2_module, only: ERFSelf, NBTRI, nSym, PotNuc, RFpert,
+      use caspt2_module, only: ERFSelf, NBTRI, nSym, PotNuc, RFpert,    &
      &                         nBas
       use constants, only: One
       use definitions, only: iwp, wp
@@ -29,11 +29,11 @@
 
       integer(kind=iwp), intent(in):: nH1EFF
       real(kind=wp), intent(inout):: H1EFF(nH1Eff)
-* ----------------------------------------------------------------
-* Purpose: Reads and adds one-electron naked Hamiltonian into H1EFF.
-* Dress it with reaction field (if any).
-* Also get POTNUC at the same time.
-*
+! ----------------------------------------------------------------
+! Purpose: Reads and adds one-electron naked Hamiltonian into H1EFF.
+! Dress it with reaction field (if any).
+! Also get POTNUC at the same time.
+!
       character(len=8) :: Label
       Logical(kind=iwp) Found
       real(kind=wp), allocatable:: ONEHAM(:), Temp(:)
@@ -45,7 +45,7 @@
       real(kind=wp), allocatable:: Coul(:)
 #endif
 
-c Add naked one-el Hamiltonian in AO basis to H1EFF:
+! Add naked one-el Hamiltonian in AO basis to H1EFF:
       CALL mma_allocate(ONEHAM,NBTRI,Label='OneHam')
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
@@ -56,16 +56,16 @@ c Add naked one-el Hamiltonian in AO basis to H1EFF:
       CALL DAXPY_(NBTRI,One,ONEHAM,1,H1EFF,1)
       CALL mma_deallocate(ONEHAM)
 
-c Read nuclear repulsion energy:
+! Read nuclear repulsion energy:
       IRC=-1
       IOPT=0
       ICOMP=0
       ISYLBL=1
       Call Get_dScalar('PotNuc',PotNuc)
 
-c If this is a perturbative reaction field calculation then
-c modify the one-electron Hamiltonian by the reaction field and
-c the nuclear attraction by the cavity self-energy
+! If this is a perturbative reaction field calculation then
+! modify the one-electron Hamiltonian by the reaction field and
+! the nuclear attraction by the cavity self-energy
       If ( RFpert ) then
          nTemp=0
          Do iSym=1,nSym
@@ -95,9 +95,9 @@ c the nuclear attraction by the cavity self-energy
 #endif
 
 #ifdef _OFEmbed_
-c If this is a perturbative Orbital-Free Embedding (OFE) calculation
-c then modify the one-electron Hamiltonian by the OFE potential and
-c the nuclear attraction by the Rep_EN
+! If this is a perturbative Orbital-Free Embedding (OFE) calculation
+! then modify the one-electron Hamiltonian by the OFE potential and
+! the nuclear attraction by the Rep_EN
       If ( Do_OFEmb ) then
          nTemp=0
          Do iSym=1,nSym
@@ -112,7 +112,7 @@ c the nuclear attraction by the Rep_EN
          Call DaXpY_(nTemp,One,FMaux,1,H1EFF,1)
          Call mma_deallocate(Coul)
          OFE_First=.false.
-*
+!
          Call NameRun('AUXRFIL') ! switch the RUNFILE name
          Call Get_dExcdRa(Vxc,nVxc)
          Call DaXpY_(nTemp,One,Vxc,1,H1EFF,1)

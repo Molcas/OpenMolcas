@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Steven Vancoillie                                      *
-************************************************************************
-*SVC: compute RHS elements "on demand". If we have access to all the
-* Cholesky vectors, we can just instruct a process to compute its own
-* block of RHS elements, computing the integrals directly. This is much
-* more computationally intensive, but should scale much better since we
-* go from a badly scaling scatter algorithm to no communication at all.
-* This also eliminates the need for the GA library in creating the RHS.
-* FIXME: optimizations needed, remove double computation of integrals
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Steven Vancoillie                                      *
+!***********************************************************************
+!SVC: compute RHS elements "on demand". If we have access to all the
+! Cholesky vectors, we can just instruct a process to compute its own
+! block of RHS elements, computing the integrals directly. This is much
+! more computationally intensive, but should scale much better since we
+! go from a badly scaling scatter algorithm to no communication at all.
+! This also eliminates the need for the GA library in creating the RHS.
+! FIXME: optimizations needed, remove double computation of integrals
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD(IVEC)
       use definitions, only: iwp
 #ifdef _DEBUGPRINT_
@@ -59,7 +59,7 @@
       CALL RHSOD_H(IVEC)
 
 #ifdef _DEBUGPRINT_
-* compute and print RHS fingerprints
+! compute and print RHS fingerprints
       WRITE(6,'(1X,A4,1X,A3,1X,A18)') 'Case','Sym','Fingerprint'
       WRITE(6,'(1X,A4,1X,A3,1X,A18)') '====','===','==========='
       DO ICASE=1,13
@@ -78,11 +78,11 @@
 
       END SUBROUTINE RHSOD
 
-************************************************************************
-* SUBROUTINES FOR THE SEPARATE CASES
-************************************************************************
+!***********************************************************************
+! SUBROUTINES FOR THE SEPARATE CASES
+!***********************************************************************
 
-*|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+!|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
       SUBROUTINE RHSOD_A(IVEC)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
@@ -102,10 +102,10 @@
       integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
       real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
       real(kind=wp) ATVXJ,  FTJ, TJVX
-      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
-     &                  ICASE, IDX, IJ, IOFFTJ, IOFFVX, ISYJ, ISYM,
-     &                  ISYT, ISYV, ISYX, IT, ITABS, ITJ, ITTOT, ITVX,
-     &                  ITVXTOT, IV, IVABS, IVX, IX, IXABS, NBRA,
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, &
+     &                  ICASE, IDX, IJ, IOFFTJ, IOFFVX, ISYJ, ISYM,     &
+     &                  ISYT, ISYV, ISYX, IT, ITABS, ITJ, ITTOT, ITVX,  &
+     &                  ITVXTOT, IV, IVABS, IVX, IX, IXABS, NBRA,       &
      &                  NFIMOES, NKET, NV, NW
       real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
@@ -117,14 +117,14 @@
         WRITE(6,*) 'RHS on demand: case A'
       END IF
 
-************************************************************************
-* Case A:
-C   RHS(tvx,j)=(tj,vx)+FIMO(t,j)*kron(v,x)/NACTEL
-************************************************************************
+!***********************************************************************
+! Case A:
+!   RHS(tvx,j)=(tj,vx)+FIMO(t,j)*kron(v,x)/NACTEL
+!***********************************************************************
 
-************************************************************************
-CSVC: read in all the cholesky vectors (need all symmetries)
-************************************************************************
+!***********************************************************************
+!SVC: read in all the cholesky vectors (need all symmetries)
+!***********************************************************************
       CALL CHOVEC_SIZE(1,NBRA,IOBRA)
       CALL CHOVEC_SIZE(2,NKET,IOKET)
 
@@ -135,9 +135,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_READ(2,KET,NKET)
 
       ICASE=1
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       NFIMOES=0
       DO ISYM=1,NSYM
 
@@ -153,9 +153,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
         DO IJ=IISTA,IIEND
           ISYJ=ISYM
           DO ITVX=IASTA,IAEND ! these are always all elements
@@ -193,7 +193,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
@@ -202,14 +202,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
 
       END DO
-************************************************************************
+!***********************************************************************
 
       CALL mma_deallocate(BRA)
       CALL mma_deallocate(KET)
 
       END SUBROUTINE RHSOD_A
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_C(IVEC)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
@@ -223,7 +223,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NACTEL, NASHT, NSYM, NASUP, NISUP,
+      use caspt2_module, only: NACTEL, NASHT, NSYM, NASUP, NISUP,       &
      &                         NTUVES, NSSH, NASH, NISH, NAES, NORB
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
@@ -231,10 +231,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
       real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
       real(kind=wp) ADDONE, ATVX, FAT, SUMU
-      integer(kind=iwp) IA, NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND,
-     &                  MW, IAT, IATOT, ICASE, IDX, IOFFAT, IOFFVX,
-     &                  ISYA, ISYM, ISYT, ISYV, ISYX, IT, ITABS, ITTOT,
-     &                  ITVV, ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS,
+      integer(kind=iwp) IA, NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, &
+     &                  MW, IAT, IATOT, ICASE, IDX, IOFFAT, IOFFVX,     &
+     &                  ISYA, ISYM, ISYT, ISYV, ISYX, IT, ITABS, ITTOT, &
+     &                  ITVV, ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS,    &
      &                  IVX, IX, IXABS, NBRA, NFIMOES, NKET, NV, NW
       real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
@@ -246,14 +246,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         WRITE(6,*) 'RHS on demand: case C'
       END IF
 
-************************************************************************
-* Case C:
-C   RHS(tvx,a)=(at,vx)+(FIMO(a,t)-Sum_u(au,ut))*delta(v,x)/NACTEL
-************************************************************************
+!***********************************************************************
+! Case C:
+!   RHS(tvx,a)=(at,vx)+(FIMO(a,t)-Sum_u(au,ut))*delta(v,x)/NACTEL
+!***********************************************************************
 
-************************************************************************
-CSVC: read in all the cholesky vectors (need all symmetries)
-************************************************************************
+!***********************************************************************
+!SVC: read in all the cholesky vectors (need all symmetries)
+!***********************************************************************
       CALL CHOVEC_SIZE(3,NBRA,IOBRA)
       CALL CHOVEC_SIZE(2,NKET,IOKET)
 
@@ -264,9 +264,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_READ(2,KET,NKET)
 
       ICASE=4
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       NFIMOES=0
       DO ISYM=1,NSYM
 
@@ -282,9 +282,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
         DO IA=IISTA,IIEND
           ISYA=ISYM
           DO ITVX=IASTA,IAEND ! these are always all elements
@@ -338,13 +338,13 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=DBL_MB(MW+IDX-1)+ADDONE
 #else
-              GA_Arrays(lg_w)%A(IDX)=GA_Arrays(lg_w)%A(IDX)
+              GA_Arrays(lg_w)%A(IDX)=GA_Arrays(lg_w)%A(IDX)             &
      &                                  +ADDONE
 #endif
             END DO
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
@@ -353,19 +353,19 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
 
       END DO
-************************************************************************
+!***********************************************************************
 
       CALL mma_deallocate(BRA)
       CALL mma_deallocate(KET)
 
       END SUBROUTINE RHSOD_C
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_B(IVEC)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half
-      USE SUPERINDEX, only: MIGEJ, MIREL, MTGEU, MTREL, MIGTJ, MTREL,
+      USE SUPERINDEX, only: MIGEJ, MIREL, MTGEU, MTREL, MIGTJ, MTREL,   &
      &                      MTGTU
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
@@ -374,7 +374,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NSYM, NASUP, NISUP, NIGEJES, NTGEUES,
+      use caspt2_module, only: NSYM, NASUP, NISUP, NIGEJES, NTGEUES,    &
      &                         NASH, NASH, NIGTJES, NTGTUES
 
       IMPLICIT None
@@ -385,14 +385,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       real(kind=wp), ALLOCATABLE:: CHOBUF(:)
       real(kind=wp), parameter :: SQRTH=SQRT(Half)
       real(kind=wp) BMTVJL, BPTVJL, SCL, TJVL, TLVJ
-      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
-     &                  iCASE, IDX, IJ, IJABS, IJGEL, IJGELTOT, IJGTL,
-     &                  IJGTLTOT, IL, ILABS, IOFFTJ, IOFFTL, IOFFVJ,
-     &                  IOFFVL, ISYJ, ISYL, ISYM, ISYT, ISYV, IT, ITABS,
-     &                  ITGEU, ITGEUTOT, ITGTU, ITGTUTOT, ITJ, ITL, IV,
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, &
+     &                  iCASE, IDX, IJ, IJABS, IJGEL, IJGELTOT, IJGTL,  &
+     &                  IJGTLTOT, IL, ILABS, IOFFTJ, IOFFTL, IOFFVJ,    &
+     &                  IOFFVL, ISYJ, ISYL, ISYM, ISYT, ISYV, IT, ITABS,&
+     &                  ITGEU, ITGEUTOT, ITGTU, ITGTUTOT, ITJ, ITL, IV, &
      &                  IVABS, IVJ, IVL, NCHOBUF, NV, NW
       real(kind=wp), External :: DDot_
-*      Logical Incore
+!      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -402,17 +402,17 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         WRITE(6,*) 'RHS on demand: case B'
       END IF
 
-************************************************************************
-* Case B (2,3):
-C   Let  W(tv,j,l)=(jt,lv):
-C   BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
-C   BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
-************************************************************************
+!***********************************************************************
+! Case B (2,3):
+!   Let  W(tv,j,l)=(jt,lv):
+!   BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
+!   BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
+!***********************************************************************
 
 
-************************************************************************
-CSVC: read in all the cholesky vectors (need all symmetries)
-************************************************************************
+!***********************************************************************
+!SVC: read in all the cholesky vectors (need all symmetries)
+!***********************************************************************
       CALL CHOVEC_SIZE(1,NCHOBUF,IOSYM)
 
       CALL mma_allocate(CHOBUF,NCHOBUF,LABEL='CHOBUF')
@@ -420,9 +420,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_READ(1,CHOBUF,NCHOBUF)
 
       iCASE=2
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NASUP(ISYM,ICASE)
@@ -435,9 +435,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
         DO IJGEL=IISTA,IIEND
           IJGELTOT=IJGEL+NIGEJES(ISYM)
           IJABS=MIGEJ(1,IJGELTOT)
@@ -483,20 +483,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
 
 
       iCASE=3
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NASUP(ISYM,ICASE)
@@ -509,9 +509,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
         DO IJGTL=IISTA,IIEND
           IJGTLTOT=IJGTL+NIGTJES(ISYM)
           IJABS=MIGTJ(1,IJGTLTOT)
@@ -557,24 +557,24 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
       CALL mma_deallocate(CHOBUF)
 
       END SUBROUTINE RHSOD_B
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_F(IVEC)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half
-      USE SUPERINDEX, only: MAGEB, MAREL, MTGEU, MTREL, MAGTB, MAREL,
+      USE SUPERINDEX, only: MAGEB, MAREL, MTGEU, MTREL, MAGTB, MAREL,   &
      &                      MTGTU
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
@@ -583,7 +583,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NSYM, NASUP, NISUP, NAGEBES, NTGEUES,
+      use caspt2_module, only: NSYM, NASUP, NISUP, NAGEBES, NTGEUES,    &
      &                         NSSH, NAGTBES, NTGTUES
 
       IMPLICIT None
@@ -594,14 +594,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       real(kind=wp), ALLOCATABLE:: CHOBUF(:)
       real(kind=wp), parameter :: SQRTH=SQRT(Half)
       real(kind=wp) ATCV, AVCT, FMTVAC, FPTVAC, SCL
-      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
-     &                  IA, IAABS, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT,
-     &                  IAT, IAV, IC, ICABS, iCASE, ICT, ICV, IDX,
-     &                  IOFFAT, IOFFAV, IOFFCT, IOFFCV, ISYA, ISYC,
-     &                  ISYM, ISYT, ISYV, IT, ITABS, ITGEU, ITGEUTOT,
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, &
+     &                  IA, IAABS, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT,    &
+     &                  IAT, IAV, IC, ICABS, iCASE, ICT, ICV, IDX,      &
+     &                  IOFFAT, IOFFAV, IOFFCT, IOFFCV, ISYA, ISYC,     &
+     &                  ISYM, ISYT, ISYV, IT, ITABS, ITGEU, ITGEUTOT,   &
      &                  ITGTU, ITGTUTOT, IV, IVABS, NCHOBUF, NV, NW
       real(kind=wp), External :: DDot_
-*      Logical Incore
+!      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -611,16 +611,16 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         WRITE(6,*) 'RHS on demand: case F'
       END IF
 
-************************************************************************
-* Case F (8,9):
-C FP(tv,ac)=((at,cv)+(av,ct))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(a,c))
-C FM(tv,ac)= -((at,cv)-(av,ct))/(2*SQRT(1+Kron(a,c))
-************************************************************************
+!***********************************************************************
+! Case F (8,9):
+! FP(tv,ac)=((at,cv)+(av,ct))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(a,c))
+! FM(tv,ac)= -((at,cv)-(av,ct))/(2*SQRT(1+Kron(a,c))
+!***********************************************************************
 
 
-************************************************************************
-CSVC: read in all the cholesky vectors (need all symmetries)
-************************************************************************
+!***********************************************************************
+!SVC: read in all the cholesky vectors (need all symmetries)
+!***********************************************************************
       CALL CHOVEC_SIZE(3,NCHOBUF,IOSYM)
 
       CALL mma_allocate(CHOBUF,NCHOBUF,LABEL='CHOBUF')
@@ -628,9 +628,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_READ(3,CHOBUF,NCHOBUF)
 
       iCASE=8
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NASUP(ISYM,ICASE)
@@ -643,9 +643,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
         DO IAGEB=IISTA,IIEND
           IAGEBTOT=IAGEB+NAGEBES(ISYM)
           IAABS=MAGEB(1,IAGEBTOT)
@@ -691,20 +691,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
 
 
       iCASE=9
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NASUP(ISYM,ICASE)
@@ -717,9 +717,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
         DO IAGTB=IISTA,IIEND
           IAGTBTOT=IAGTB+NAGTBES(ISYM)
           IAABS=MAGTB(1,IAGTBTOT)
@@ -765,19 +765,19 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
       CALL mma_deallocate(CHOBUF)
 
       END SUBROUTINE RHSOD_F
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_H(IVEC)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
@@ -790,7 +790,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NSYM, NAGEB, NIGEJ, NIGEJES, NAGEBES,
+      use caspt2_module, only: NSYM, NAGEB, NIGEJ, NIGEJES, NAGEBES,    &
      &                         NSSH, NAGTB, NIGTJ, NIGTJES, NAGTBES
 
       IMPLICIT None
@@ -801,14 +801,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       real(kind=wp), ALLOCATABLE:: CHOBUF(:)
       real(kind=wp), parameter:: SQRT3=SQRT(Three), SQRTH=SQRT(Half)
       real(kind=wp) :: AJCL, ALCJ, HMACJL, HPACJL, SCL
-      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
-     &                  IA, IAABS, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT,
-     &                  IAJ, IAL, IC, ICABS, iCASE, ICJ, ICL, IDX, IJ,
-     &                  IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL,
-     &                  ILABS, IOFFAJ, IOFFAL, IOFFCJ, IOFFCL, ISYA,
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, &
+     &                  IA, IAABS, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT,    &
+     &                  IAJ, IAL, IC, ICABS, iCASE, ICJ, ICL, IDX, IJ,  &
+     &                  IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL,    &
+     &                  ILABS, IOFFAJ, IOFFAL, IOFFCJ, IOFFCL, ISYA,    &
      &                  ISYC, ISYJ, ISYL, ISYM, NCHOBUF, NV, NW
       real(kind=wp), External :: DDot_
-*      Logical Incore
+!      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -818,15 +818,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         WRITE(6,*) 'RHS on demand: case H'
       END IF
 
-************************************************************************
-* Case H:
-C   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
-C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
-************************************************************************
+!***********************************************************************
+! Case H:
+!   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
+!   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
+!***********************************************************************
 
-************************************************************************
-CSVC: read in all the cholesky vectors (need all symmetries)
-************************************************************************
+!***********************************************************************
+!SVC: read in all the cholesky vectors (need all symmetries)
+!***********************************************************************
       CALL CHOVEC_SIZE(4,NCHOBUF,IOSYM)
 
       CALL mma_allocate(CHOBUF,NCHOBUF,LABEL='CHOBUF')
@@ -834,9 +834,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_READ(4,CHOBUF,NCHOBUF)
 
       iCASE=12
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NAGEB(ISYM)
@@ -849,9 +849,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
         DO IJGEL=IISTA,IIEND
           IJGELTOT=IJGEL+NIGEJES(ISYM)
           IJABS=MIGEJ(1,IJGELTOT)
@@ -897,20 +897,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
 
 
       iCASE=13
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NAGTB(ISYM)
@@ -923,9 +923,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
         DO IJGTL=IISTA,IIEND
           IJGTLTOT=IJGTL+NIGTJES(ISYM)
           IJABS=MIGTJ(1,IJGTLTOT)
@@ -969,20 +969,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
       CALL mma_deallocate(CHOBUF)
 
       END SUBROUTINE RHSOD_H
 
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_D(IVEC)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
@@ -996,24 +996,24 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NACTEL, NASHT, NSYM, NORB, NASUP, NISUP,
+      use caspt2_module, only: NACTEL, NASHT, NSYM, NORB, NASUP, NISUP, &
      &                         NIAES, NTUES, NSSH, NASH, NISH
 
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: IVEC
 
-      integer(kind=iwp) IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8),
+      integer(kind=iwp) IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8),          &
      &                  IOKET2(8,8)
-      real(kind=wp), ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
+      real(kind=wp), ALLOCATABLE:: BRABUF1(:), KETBUF1(:),              &
      &                      BRABUF2(:), KETBUF2(:)
       real(kind=wp) ACTINV, AJTV, AVTJ, FAJ, ONEADD
-      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
-     &                  IA, IAABS, IAEND1, IAEND2, IAJ, IAJTOT, IASTA1,
-     &                  IASTA2, IATOT, iCASE, IDX, IFIMOES,  IJ, IJABS,
-     &                  IOAJ, IOAV, IOFFAJ, IOFFAV, IOFFTJ, IOFFTV,
-     &                  IOTJ, IOTV, ISYA, ISYJ, ISYM, ISYT, ISYV, IT,
-     &                  ITABS, ITV, IUABS, IUU, IV, IVABS, NAS1,
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, &
+     &                  IA, IAABS, IAEND1, IAEND2, IAJ, IAJTOT, IASTA1, &
+     &                  IASTA2, IATOT, iCASE, IDX, IFIMOES,  IJ, IJABS, &
+     &                  IOAJ, IOAV, IOFFAJ, IOFFAV, IOFFTJ, IOFFTV,     &
+     &                  IOTJ, IOTV, ISYA, ISYJ, ISYM, ISYT, ISYV, IT,   &
+     &                  ITABS, ITV, IUABS, IUU, IV, IVABS, NAS1,        &
      &                  NBRABUF1, NBRABUF2, NKETBUF1, NKETBUF2, NV, NW
       real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
@@ -1026,15 +1026,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         WRITE(6,*) 'RHS on demand: case D'
       END IF
 
-************************************************************************
-* Case D (5,6):
-C D1(tv,aj)=(aj,tv) + FIMO(a,j)*Kron(t,v)/NACTEL
-C D2(tv,aj)=(tj,av)
-************************************************************************
+!***********************************************************************
+! Case D (5,6):
+! D1(tv,aj)=(aj,tv) + FIMO(a,j)*Kron(t,v)/NACTEL
+! D2(tv,aj)=(tj,av)
+!***********************************************************************
 
-************************************************************************
-CSVC: read in all the cholesky vectors (need all symmetries)
-************************************************************************
+!***********************************************************************
+!SVC: read in all the cholesky vectors (need all symmetries)
+!***********************************************************************
       CALL CHOVEC_SIZE(4,NBRABUF1,IOBRA1)
       CALL CHOVEC_SIZE(2,NKETBUF1,IOKET1)
 
@@ -1054,9 +1054,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_READ(1,KETBUF2,NKETBUF2)
 
       iCASE=5
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       ! set up FIMO access
       ACTINV=One/DBLE(MAX(1,NACTEL))
       IFIMOES=0
@@ -1084,9 +1084,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         IASTA2=IAEND1+1
         IAEND2=IAEND
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
         DO IAJ=IISTA,IIEND
           IAJTOT=IAJ+NIAES(ISYM)
           IJABS=MIA(1,IAJTOT)
@@ -1130,7 +1130,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifdef _MOLCAS_MPP_
               DBL_MB(MW+IDX-1)=DBL_MB(MW+IDX-1)+ONEADD
 #else
-              GA_Arrays(lg_w)%A(IDX)=GA_Arrays(lg_w)%A(IDX)
+              GA_Arrays(lg_w)%A(IDX)=GA_Arrays(lg_w)%A(IDX)             &
      &                                  +ONEADD
 #endif
             END DO
@@ -1159,14 +1159,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
 
       END DO
-************************************************************************
+!***********************************************************************
 
       CALL mma_deallocate(BRABUF1)
       CALL mma_deallocate(KETBUF1)
@@ -1174,11 +1174,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL mma_deallocate(BRABUF2)
       CALL mma_deallocate(KETBUF2)
 
-************************************************************************
+!***********************************************************************
 
       END SUBROUTINE RHSOD_D
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_E(IVEC)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
@@ -1191,7 +1191,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NSYM, NASUP, NISUP, NSSH, NIGEJ,
+      use caspt2_module, only: NSYM, NASUP, NISUP, NSSH, NIGEJ,         &
      &                         NIGEJES, NASH, NIGTJ, NIGTJES
 
       IMPLICIT None
@@ -1202,15 +1202,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
       real(kind=wp), parameter:: SQRTH=SQRT(Half), SQRTA=SQRT(OneHalf)
       real(kind=wp) AJVL, ALVJ, EM, EP, SCL
-      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
-     &                  IA, IAJ, IAJGEL, IAJGELEND, IAJGELSTA, IAJGTL,
-     &                  IAJGTLEND, IAJGTLSTA, IAL, iCASE, IDX, IJ,
-     &                  IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL,
-     &                  ILABS, IOFF, IOFFAJ, IOFFAL, IOFFVJ, IOFFVL,
-     &                  ISYA, ISYJ, ISYJL, ISYL, ISYM, ISYV, IV, IVJ,
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, &
+     &                  IA, IAJ, IAJGEL, IAJGELEND, IAJGELSTA, IAJGTL,  &
+     &                  IAJGTLEND, IAJGTLSTA, IAL, iCASE, IDX, IJ,      &
+     &                  IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL,    &
+     &                  ILABS, IOFF, IOFFAJ, IOFFAL, IOFFVJ, IOFFVL,    &
+     &                  ISYA, ISYJ, ISYJL, ISYL, ISYM, ISYV, IV, IVJ,   &
      &                  IVL, NA, NBRABUF, NJL, NKETBUF, NV, NW
       real(kind=wp), External :: DDot_
-*      Logical Incore
+!      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1220,23 +1220,23 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         WRITE(6,*) 'RHS on demand: case E'
       END IF
 
-************************************************************************
-* Case E (6,7):
-C EP(v,ajl)=((aj,vl)+(al,vj))/SQRT(2+2*Kron(j,l))
-C EM(v,ajl)=((aj,vl)-(al,vj))*SQRT(3/2)
-************************************************************************
+!***********************************************************************
+! Case E (6,7):
+! EP(v,ajl)=((aj,vl)+(al,vj))/SQRT(2+2*Kron(j,l))
+! EM(v,ajl)=((aj,vl)-(al,vj))*SQRT(3/2)
+!***********************************************************************
 
-* -SVC- Case E is slightly special, in that the inactive superindices are
-* so large, that it is suboptimal to have a direct translation table for
-* them. Instead, the code loops over symmetry blocks of A-JL and figures
-* out if the indices on the processor fall within a block or not. Within
-* a A-JL symmetry block, NA(ISYA) and NIGEJ(ISYJL) are known, so they can
-* be determined by integer(kind=iwp) division. This could be optimized by combining
-* it with loop peeling (on the todo list?).
+! -SVC- Case E is slightly special, in that the inactive superindices are
+! so large, that it is suboptimal to have a direct translation table for
+! them. Instead, the code loops over symmetry blocks of A-JL and figures
+! out if the indices on the processor fall within a block or not. Within
+! a A-JL symmetry block, NA(ISYA) and NIGEJ(ISYJL) are known, so they can
+! be determined by integer(kind=iwp) division. This could be optimized by combining
+! it with loop peeling (on the todo list?).
 
-************************************************************************
-CSVC: read in all the cholesky vectors (need all symmetries)
-************************************************************************
+!***********************************************************************
+!SVC: read in all the cholesky vectors (need all symmetries)
+!***********************************************************************
       CALL CHOVEC_SIZE(4,NBRABUF,IOBRA)
       CALL CHOVEC_SIZE(1,NKETBUF,IOKET)
 
@@ -1247,9 +1247,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_READ(1,KETBUF,NKETBUF)
 
       iCASE=6
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NASUP(ISYM,ICASE)
@@ -1262,9 +1262,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
 ! find start and end block
         IOFF=0
         DO ISYA=1,NSYM
@@ -1322,20 +1322,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
           IOFF=IOFF+NA*NJL
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
 
 
       iCASE=7
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NASUP(ISYM,ICASE)
@@ -1348,9 +1348,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
 ! find start and end block
         IOFF=0
         DO ISYA=1,NSYM
@@ -1403,20 +1403,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
           IOFF=IOFF+NA*NJL
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
       CALL mma_deallocate(BRABUF)
       CALL mma_deallocate(KETBUF)
 
       END SUBROUTINE RHSOD_E
 
-*||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
+!||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_G(IVEC)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
@@ -1429,7 +1429,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NSYM, NASUP, NISUP, NISH, NAGEB,
+      use caspt2_module, only: NSYM, NASUP, NISUP, NISH, NAGEB,         &
      &                         NAGEBES, NSSH, NAGTB, NAGTBES
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
@@ -1438,15 +1438,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
       real(kind=wp), parameter :: SQRTH=SQRT(Half), SQRTA=SQRT(OneHalf)
       real(kind=wp) AVCJ, CVAJ, GM, GP, SCL
-      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
-     &                  IA, IAABS, IAGEC, IAGECTOT, IAGTC, IAGTCTOT,
-     &                  IAJ, IAV, IC, ICABS, iCASE, ICJ, ICV, IDX, IJ,
-     &                  IJAGEC, IJAGECEND, IJAGECSTA, IJAGTC, IJAGTCEND,
-     &                  IJAGTCSTA, IOFF, IOFFAJ, IOFFAV, IOFFCJ, IOFFCV,
-     &                  ISYA, ISYAC, ISYC, ISYJ, ISYM, ISYV, IV, NAC,
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, &
+     &                  IA, IAABS, IAGEC, IAGECTOT, IAGTC, IAGTCTOT,    &
+     &                  IAJ, IAV, IC, ICABS, iCASE, ICJ, ICV, IDX, IJ,  &
+     &                  IJAGEC, IJAGECEND, IJAGECSTA, IJAGTC, IJAGTCEND,&
+     &                  IJAGTCSTA, IOFF, IOFFAJ, IOFFAV, IOFFCJ, IOFFCV,&
+     &                  ISYA, ISYAC, ISYC, ISYJ, ISYM, ISYV, IV, NAC,   &
      &                  NBRABUF, NJ, NKETBUF, NV, NW
       real(kind=wp), External :: DDot_
-*      Logical Incore
+!      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1456,24 +1456,24 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         WRITE(6,*) 'RHS on demand: case G'
       END IF
 
-************************************************************************
-* Case G (10,11):
-C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
-C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
-************************************************************************
+!***********************************************************************
+! Case G (10,11):
+! GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
+! GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
+!***********************************************************************
 
-* -SVC- Case G is slightly special, in that the inactive superindices are
-* so large, that it is suboptimal to have a direct translation table for
-* them. Instead, the code loops over symmetry blocks of J-AC and figures
-* out if the indices on the processor fall within a block or not. Within
-* a J-AC symmetry block, NJ(ISYJ) and NAGEB(ISYAC) are known, so they can
-* be determined by integer(kind=iwp) division. This could be optimized by combining
-* it with loop peeling (on the todo list?).
+! -SVC- Case G is slightly special, in that the inactive superindices are
+! so large, that it is suboptimal to have a direct translation table for
+! them. Instead, the code loops over symmetry blocks of J-AC and figures
+! out if the indices on the processor fall within a block or not. Within
+! a J-AC symmetry block, NJ(ISYJ) and NAGEB(ISYAC) are known, so they can
+! be determined by integer(kind=iwp) division. This could be optimized by combining
+! it with loop peeling (on the todo list?).
 
 
-************************************************************************
-CSVC: read in all the cholesky vectors (need all symmetries)
-************************************************************************
+!***********************************************************************
+!SVC: read in all the cholesky vectors (need all symmetries)
+!***********************************************************************
       CALL CHOVEC_SIZE(3,NBRABUF,IOBRA)
       CALL CHOVEC_SIZE(4,NKETBUF,IOKET)
 
@@ -1484,9 +1484,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL CHOVEC_READ(4,KETBUF,NKETBUF)
 
       iCASE=10
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NASUP(ISYM,ICASE)
@@ -1499,9 +1499,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
 ! find start and end block
         IOFF=0
         DO ISYJ=1,NSYM
@@ -1540,7 +1540,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               IOFFAJ=1+IOKET(ISYA,ISYJ)+NV*IAJ
               CVAJ=DDOT_(NV,BRABUF(IOFFCV),1,KETBUF(IOFFAJ),1)
 
-C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
+! GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
               IF (IAABS==ICABS) THEN
                 SCL=Half
               ELSE
@@ -1559,20 +1559,20 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
 
           IOFF=IOFF+NJ*NAC
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
 
 
       iCASE=11
-************************************************************************
-* outer loop over symmetry blocks in the RHS
-************************************************************************
+!***********************************************************************
+! outer loop over symmetry blocks in the RHS
+!***********************************************************************
       DO ISYM=1,NSYM
 
         NAS=NASUP(ISYM,ICASE)
@@ -1585,9 +1585,9 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
         NW=NAS*(IIEND-IISTA+1)
 
-************************************************************************
-* inner loop over RHS elements in symmetry ISYM
-************************************************************************
+!***********************************************************************
+! inner loop over RHS elements in symmetry ISYM
+!***********************************************************************
 ! find start and end block
         IOFF=0
         DO ISYJ=1,NSYM
@@ -1626,7 +1626,7 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
               IOFFAJ=1+IOKET(ISYA,ISYJ)+NV*IAJ
               CVAJ=DDOT_(NV,BRABUF(IOFFCV),1,KETBUF(IOFFAJ),1)
 
-C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
+! GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
               GM=SQRTA*(AVCJ-CVAJ)
 ! write element GM
               IDX=IV+NAS*(IJAGTC+IOFF-IISTA)
@@ -1640,13 +1640,13 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
 
           IOFF=IOFF+NJ*NAC
         END DO
-************************************************************************
+!***********************************************************************
 
         CALL RHS_Release_Update (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
       END DO
-************************************************************************
+!***********************************************************************
 
       CALL mma_deallocate(BRABUF)
       CALL mma_deallocate(KETBUF)

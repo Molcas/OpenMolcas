@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE MLTSCA(IMLTOP,LST1,NLST1,LST2,NLST2,X,nX,F,nF,Y,nY)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
-      use Sigma_data, only: INCF1, INCF2, INCX1, INCX2,
+      use Sigma_data, only: INCF1, INCF2, INCX1, INCX2,                 &
      &                      INCY1, INCY2, NFSCA, VAL1, VAL2
       use definitions, only: iwp, wp
       IMPLICIT None
@@ -28,19 +28,19 @@
       real(kind=wp), intent(inout):: X(nX),F(nF),Y(nY)
       integer(kind=iwp), intent(in)::  LST1(4,NLST1), LST2(4,NLST2)
 
-      integer(kind=iwp) IF, ILST1, ILST1_IOFF, ILST1_SKIP, ILST2,
+      integer(kind=iwp) IF, ILST1, ILST1_IOFF, ILST1_SKIP, ILST2,       &
      &                  IX, IY, L11, L12, L13, L14, L21, L22, L23, L24
       real(kind=wp) V1, V2
-C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
-C four entries called L11,L12,L13,L14 for short, for a given
-C item, and with V1=VAL1(L14), and similar for the other list,
-C compute, for IMLTOP=0 or 1 respectively,
-C     X(L11,L21) := Add V1*V2*F(L12,L22)*Y(L13,L23)
-C  or Y(L13,L23) := Add V1*V2*F(L12,L22)*X(L11,L21)
-C or for IMLTOP=2, compute
-C     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
+! Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
+! four entries called L11,L12,L13,L14 for short, for a given
+! item, and with V1=VAL1(L14), and similar for the other list,
+! compute, for IMLTOP=0 or 1 respectively,
+!     X(L11,L21) := Add V1*V2*F(L12,L22)*Y(L13,L23)
+!  or Y(L13,L23) := Add V1*V2*F(L12,L22)*X(L11,L21)
+! or for IMLTOP=2, compute
+!     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
 
-CSVC: determine outer loop properties
+!SVC: determine outer loop properties
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         ILST1_IOFF=MYRANK+1
@@ -115,29 +115,29 @@ CSVC: determine outer loop properties
       NFSCA=NFSCA+4*NLST1*NLST2
       END SUBROUTINE MLTSCA
 
-      SUBROUTINE MLTSCA_DH(IMLTOP,LST1,LST2,
-     &                     X,NXI,NXA,F,NFI,NFA,
+      SUBROUTINE MLTSCA_DH(IMLTOP,LST1,LST2,                            &
+     &                     X,NXI,NXA,F,NFI,NFA,                         &
      &                     Y,NAS2,jYLo,jYHi)
       use definitions, only: iwp, wp
       use Sigma_data, only: NLST1, NLST2, VAL1, VAL2
       IMPLICIT None
-      integer(kind=iwp), intent(in):: IMLTOP,NXI,NXA,NFI,NFA,NAS2,jYLo,
+      integer(kind=iwp), intent(in):: IMLTOP,NXI,NXA,NFI,NFA,NAS2,jYLo, &
      &                                jYHi
-      real(kind=wp), intent(inout):: X(NXI,NXA),F(NFI,NFA),
+      real(kind=wp), intent(inout):: X(NXI,NXA),F(NFI,NFA),             &
      &                               Y(NAS2,jYHi-jYLo+1)
       integer(kind=iwp), intent(in)::  LST1(4,NLST1), LST2(4,NLST2)
 
-      integer(kind=iwp) ILST1, ILST2, JY, L11, L12, L13, L14, L21, L23,
+      integer(kind=iwp) ILST1, ILST2, JY, L11, L12, L13, L14, L21, L23, &
      &                  L24, L22
       real(kind=wp) V1, V2
-C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
-C four entries called L11,L12,L13,L14 for short, for a given
-C item, and with V1=VAL1(L14), and similar for the other list,
-C compute, for IMLTOP=0 or 1 respectively,
-C     X(L11,L21) := Add V1*V2*F(L12,L22)*Y(L13,L23)
-C  or Y(L13,L23) := Add V1*V2*F(L12,L22)*X(L11,L21)
-C or for IMLTOP=2, compute
-C     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
+! Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
+! four entries called L11,L12,L13,L14 for short, for a given
+! item, and with V1=VAL1(L14), and similar for the other list,
+! compute, for IMLTOP=0 or 1 respectively,
+!     X(L11,L21) := Add V1*V2*F(L12,L22)*Y(L13,L23)
+!  or Y(L13,L23) := Add V1*V2*F(L12,L22)*X(L11,L21)
+! or for IMLTOP=2, compute
+!     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
 
       IF(IMLTOP.EQ.0) THEN
         DO ILST1=1,NLST1
@@ -198,11 +198,11 @@ C     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
         END DO
       END IF
 
-*     NFSCA=NFSCA+4*NLST1*NLST2
+!     NFSCA=NFSCA+4*NLST1*NLST2
       END SUBROUTINE MLTSCA_DH
 
-      SUBROUTINE PMLTSCA(KOD,IMLTOP,LST1,LST2,
-     &                   X,NXI,NXA,F,NFI,NFA,
+      SUBROUTINE PMLTSCA(KOD,IMLTOP,LST1,LST2,                          &
+     &                   X,NXI,NXA,F,NFI,NFA,                           &
      &                   lg_Y,NAS2,NIS2)
       use definitions, only: iwp, wp, u6
 #ifdef _MOLCAS_MPP_
@@ -211,7 +211,7 @@ C     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
       use Sigma_data, only: NLST1, NLST2
       use fake_GA, only: GA_Arrays
       IMPLICIT None
-      integer(kind=iwp), intent(in):: KOD,IMLTOP,NXI,NXA,NFI,NFA,lg_Y,
+      integer(kind=iwp), intent(in):: KOD,IMLTOP,NXI,NXA,NFI,NFA,lg_Y,  &
      &                                NAS2,NIS2
       real(kind=wp), intent(inout):: X(NXI,NXA),F(NFI,NFA)
       integer(kind=iwp), intent(in):: LST1(4,NLST1), LST2(4,NLST2)
@@ -220,24 +220,24 @@ C     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
 #include "mafdecls.fh"
       integer(kind=iwp)myRank,iYLo,iYHi,jYLo,jYHi,mY,LDY
 
-C SVC: Determine the index ranges of the local chunks of lg_Y.
-C The boundaries and leading dimension are stored in a common block for
-C access inside the lower-level routines.
-C For now, only case H is handled as a distributed array, which is
-C always the Y array.
+! SVC: Determine the index ranges of the local chunks of lg_Y.
+! The boundaries and leading dimension are stored in a common block for
+! access inside the lower-level routines.
+! For now, only case H is handled as a distributed array, which is
+! always the Y array.
       IF (Is_Real_Par()) THEN
         CALL GA_Sync()
         myRank = GA_NodeID()
-*     CALL GA_Distribution (lg_X,myRank,iXLo,iXHi,jXLo,jXHi)
-*     IF (iXLo.NE.0.AND.jXLo.NE.0) THEN
-*       CALL GA_Access (lg_X,iXLo,iXHi,jXLo,jXHi,mX,LDX)
-*     END IF
+!     CALL GA_Distribution (lg_X,myRank,iXLo,iXHi,jXLo,jXHi)
+!     IF (iXLo.NE.0.AND.jXLo.NE.0) THEN
+!       CALL GA_Access (lg_X,iXLo,iXHi,jXLo,jXHi,mX,LDX)
+!     END IF
         CALL GA_Distribution (lg_Y,myRank,iYLo,iYHi,jYLo,jYHi)
         IF (iYLo/=0.AND.jYLo/=0) THEN
           CALL GA_Access (lg_Y,iYLo,iYHi,jYLo,jYHi,mY,LDY)
           IF (KOD.EQ.23 .OR. KOD.EQ.24) THEN
-            CALL MLTSCA_DH(IMLTOP,LST1,LST2,
-     &                   X,NXI,NXA,F,NFI,NFA,
+            CALL MLTSCA_DH(IMLTOP,LST1,LST2,                            &
+     &                   X,NXI,NXA,F,NFI,NFA,                           &
      &                   DBL_MB(mY),NAS2,jYLo,jYHi)
           ELSE
             WRITE(u6,*) 'PMLTSCA: not supposed to be here'
@@ -249,8 +249,8 @@ C always the Y array.
       ELSE
 #endif
         IF (KOD==23 .OR. KOD==24) THEN
-          CALL MLTSCA_DH(IMLTOP,LST1,LST2,
-     &                   X,NXI,NXA,F,NFI,NFA,
+          CALL MLTSCA_DH(IMLTOP,LST1,LST2,                              &
+     &                   X,NXI,NXA,F,NFI,NFA,                           &
      &                   GA_Arrays(lg_Y)%A,NAS2,1,NIS2)
         ELSE
           WRITE(u6,*) 'PMLTSCA: not supposed to be here'

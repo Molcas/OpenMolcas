@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
 #include "compiler_features.h"
 
@@ -31,11 +31,11 @@
       use mpi
       use definitions, only: MPIInt
       implicit none
-************************************************************************
-* allgather: gathers local buffers SEND of size NSEND on
-*            each process into a buffer RECV of size NRECV.
-*            The receiving buffer is allocated by this subroutine.
-************************************************************************
+!***********************************************************************
+! allgather: gathers local buffers SEND of size NSEND on
+!            each process into a buffer RECV of size NRECV.
+!            The receiving buffer is allocated by this subroutine.
+!***********************************************************************
 #include "warnings.h"
 
 #include "global.fh"
@@ -67,8 +67,8 @@
 
 ! first, gather the sendbuffer size of each process in NRECV4
       NSEND4(1)=INT(NSEND,kind=MPIInt)
-      CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,
-     &                   NRECV4,ONE4,MPI_INTEGER,
+      CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,                       &
+     &                   NRECV4,ONE4,MPI_INTEGER,                       &
      &                   MPI_COMM_WORLD, IERROR4)
       IF (IERROR4.NE.0) THEN
         WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
@@ -92,11 +92,11 @@
       END DO
 
 ! gather the local send buffers into the receive buffer
-      CALL MPI_ALLGATHERV(SEND,NSEND4(1),ITYPE4,
-     &                    RECV,NRECV4,IDISP4,ITYPE4,
+      CALL MPI_ALLGATHERV(SEND,NSEND4(1),ITYPE4,                        &
+     &                    RECV,NRECV4,IDISP4,ITYPE4,                    &
      &                    MPI_COMM_WORLD,IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',      &
      &                        IERROR4
         CALL ABEND()
       END IF
@@ -108,11 +108,11 @@
       use mpi
       use definitions, only: MPIInt
       implicit none
-************************************************************************
-* allgather: gathers local buffers SEND of size NSEND on
-*            each process into a buffer RECV of size NRECV.
-*            The receiving buffer is allocated by this subroutine.
-************************************************************************
+!***********************************************************************
+! allgather: gathers local buffers SEND of size NSEND on
+!            each process into a buffer RECV of size NRECV.
+!            The receiving buffer is allocated by this subroutine.
+!***********************************************************************
 #include "warnings.h"
 
 #include "global.fh"
@@ -149,8 +149,8 @@
 
 ! first, gather the sendbuffer size of each process in NRECV4
       NSEND4(1)=INT(NSEND,kind=MPIInt)
-      CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,
-     &                   NRECV4,ONE4,MPI_INTEGER,
+      CALL MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,                       &
+     &                   NRECV4,ONE4,MPI_INTEGER,                       &
      &                   MPI_COMM_WORLD, IERROR4)
       IF (IERROR4.NE.0) THEN
         WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
@@ -174,11 +174,11 @@
       END DO
 
 ! gather the local send buffers into the receive buffer
-      CALL MPI_ALLGATHERV(SEND,NSEND4(1),ITYPE4,
-     &                    RECV,NRECV4,IDISP4,ITYPE4,
+      CALL MPI_ALLGATHERV(SEND,NSEND4(1),ITYPE4,                        &
+     &                    RECV,NRECV4,IDISP4,ITYPE4,                    &
      &                    MPI_COMM_WORLD,IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',      &
      &                        IERROR4
         CALL ABEND()
       END IF

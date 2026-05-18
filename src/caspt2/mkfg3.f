@@ -1,68 +1,68 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Per Ake Malmqvist                                      *
-*               Steven Vancoillie                                      *
-************************************************************************
-C> @brief
-C>  Procedure for computing 1-body, 2-body, and 3-body
-C>  density elements with active indices only,
-C>  and related matrices obtained from contractions with
-C>  the diagonal one-electron Hamiltonian.
-C> @author Per &Aring;ke Malmqvist
-C> @modified_by Steven Vancoillie
-C>
-C> @details
-C> Computation of the 1-, 2-, and 3-body density matrices defined as
-C> \f{align}{
-C> G1(t,u)         &= \langle 0 \lvert E_{tu} \rvert 0 \rangle \\
-C> G2(t,u,v,x)     &= \langle 0 \lvert E_{tuvx} \rvert 0 \rangle \\
-C> G3(t,u,v,x,y,z) &= \langle 0 \lvert E_{tuvxyz} \rvert 0 \rangle \\
-C> \f}
-C> and the contractions with the diagonal 1-el Hamiltonian
-C> \f{align}{
-C> F1(t,u)         &= \sum_w \langle 0 \lvert E_{tuww} \rvert 0 \rangle e_w \\
-C> F2(t,u,v,x)     &= \sum_w \langle 0 \lvert E_{tuvxww} \rvert 0 \rangle e_w \\
-C> F3(t,u,v,x,y,z) &= \sum_w \langle 0 \lvert E_{tuvxyzww} \rvert 0 \rangle e_w \\
-C> \f}
-C> Storage: \p G1 and \p G2 are simple two- and four-index arrays, and
-C> includes also such zeroes that are implied by symmetry.
-C> But \p G3 is quite large, and while it is stored with zeroes, it
-C> is made more compact by calculating only the minimum amount of
-C> unique values and storing the active indices in the array \p idxG3.
-C> Later, the full matrix can be restored on the fly by using the
-C> full permutational symmetry (see ::mksmat and ::mkbmat). The
-C> same storage applies to the \f$ F \f$ matrices.
-C>
-C> @param[in]  mkF   switch to activate computation of \f$ F \f$ matrices
-C> @param[in]  CI    wave function CI coefficients, with symmetry \c STSYM
-C> @param[in]  nCI   number of CI coefficients, with symmetry \c STSYM
-C> @param[out] G1    1-body active density matrix
-C> @param[out] G2    2-body active density matrix
-C> @param[out] G3    process-local part of 3-body active density matrix
-C> @param[out] F1    1-body active density matrix contracted with
-C>                   diagonal 1-el Hamiltonian
-C> @param[out] F2    2-body active density matrix contracted with
-C>                   diagonal 1-el Hamiltonian
-C> @param[out] F3    process-local part of 3-body active density matrix
-C>                   contracted with diagonal 1-el Hamiltonian
-C> @param[out] idxG3 table to translate from process-local array index
-C>                   to active indices
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Per Ake Malmqvist                                      *
+!               Steven Vancoillie                                      *
+!***********************************************************************
+!> @brief
+!>  Procedure for computing 1-body, 2-body, and 3-body
+!>  density elements with active indices only,
+!>  and related matrices obtained from contractions with
+!>  the diagonal one-electron Hamiltonian.
+!> @author Per &Aring;ke Malmqvist
+!> @modified_by Steven Vancoillie
+!>
+!> @details
+!> Computation of the 1-, 2-, and 3-body density matrices defined as
+!> \f{align}{
+!> G1(t,u)         &= \langle 0 \lvert E_{tu} \rvert 0 \rangle \\
+!> G2(t,u,v,x)     &= \langle 0 \lvert E_{tuvx} \rvert 0 \rangle \\
+!> G3(t,u,v,x,y,z) &= \langle 0 \lvert E_{tuvxyz} \rvert 0 \rangle \\
+!> \f}
+!> and the contractions with the diagonal 1-el Hamiltonian
+!> \f{align}{
+!> F1(t,u)         &= \sum_w \langle 0 \lvert E_{tuww} \rvert 0 \rangle e_w \\
+!> F2(t,u,v,x)     &= \sum_w \langle 0 \lvert E_{tuvxww} \rvert 0 \rangle e_w \\
+!> F3(t,u,v,x,y,z) &= \sum_w \langle 0 \lvert E_{tuvxyzww} \rvert 0 \rangle e_w \\
+!> \f}
+!> Storage: \p G1 and \p G2 are simple two- and four-index arrays, and
+!> includes also such zeroes that are implied by symmetry.
+!> But \p G3 is quite large, and while it is stored with zeroes, it
+!> is made more compact by calculating only the minimum amount of
+!> unique values and storing the active indices in the array \p idxG3.
+!> Later, the full matrix can be restored on the fly by using the
+!> full permutational symmetry (see ::mksmat and ::mkbmat). The
+!> same storage applies to the \f$ F \f$ matrices.
+!>
+!> @param[in]  mkF   switch to activate computation of \f$ F \f$ matrices
+!> @param[in]  CI    wave function CI coefficients, with symmetry \c STSYM
+!> @param[in]  nCI   number of CI coefficients, with symmetry \c STSYM
+!> @param[out] G1    1-body active density matrix
+!> @param[out] G2    2-body active density matrix
+!> @param[out] G3    process-local part of 3-body active density matrix
+!> @param[out] F1    1-body active density matrix contracted with
+!>                   diagonal 1-el Hamiltonian
+!> @param[out] F2    2-body active density matrix contracted with
+!>                   diagonal 1-el Hamiltonian
+!> @param[out] F3    process-local part of 3-body active density matrix
+!>                   contracted with diagonal 1-el Hamiltonian
+!> @param[out] idxG3 table to translate from process-local array index
+!>                   to active indices
 
-      SUBROUTINE MKFG3(mkF,CI,nCI,
+      SUBROUTINE MKFG3(mkF,CI,nCI,                                      &
      &                 G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
       use Symmetry_Info, only: Mul
       use caspt2_global, only: iPrGlb
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
-      use caspt2_global, only: do_grad, nbuf1_grad, nStpGrd,
-     *                         iTasks_grad,nTasks_grad
+      use caspt2_global, only: do_grad, nbuf1_grad, nStpGrd,            &
+     &                         iTasks_grad,nTasks_grad
       use PrintLevel, only: DEBUG, VERBOSE
       use sguga, only: CIS, SGS, L2ACT, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
@@ -81,9 +81,9 @@ C>                   to active indices
       INTEGER(kind=iwp), INTENT(IN) :: nG1, nG2
       INTEGER(kind=iwp), INTENT(INOUT) :: nG3
       real(kind=wp), INTENT(IN) :: CI(nCI)
-      real(kind=wp), INTENT(OUT) :: G1(NLEV,NLEV),
+      real(kind=wp), INTENT(OUT) :: G1(NLEV,NLEV),                      &
      &                              G2(NLEV,NLEV,NLEV,NLEV)
-      real(kind=wp), INTENT(OUT) :: F1(NLEV,NLEV),
+      real(kind=wp), INTENT(OUT) :: F1(NLEV,NLEV),                      &
      &                              F2(NLEV,NLEV,NLEV,NLEV)
       real(kind=wp), INTENT(OUT) :: G3(nG3), F3(nG3)
       INTEGER(kind=Byte), INTENT(OUT) :: idxG3(6,nG3)
@@ -92,7 +92,7 @@ C>                   to active indices
       real(kind=wp) F1SUM,F2SUM
       INTEGER(kind=iwp) I,J,IDX,JDX
       INTEGER(kind=iwp) IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
-      INTEGER(kind=iwp) IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,
+      INTEGER(kind=iwp) IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,     &
      &                  IP3MX,IQ1
       INTEGER(kind=iwp) IG3,IG3OFF
       INTEGER(kind=iwp) ISTU,ISVX,ISYZ
@@ -101,7 +101,7 @@ C>                   to active indices
       INTEGER(kind=iwp) NBUF1
       INTEGER(kind=iwp) IOFFSET
       INTEGER(kind=iwp) ISSG1,ISSG2,ISP1
-      INTEGER(kind=iwp) ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,MXTASK,
+      INTEGER(kind=iwp) ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,MXTASK,      &
      &                  MYTASK,MYBUFFER
       INTEGER(kind=iwp) NSGM1,NSGM2
       INTEGER(kind=iwp) NTRI1,NTRI2
@@ -122,7 +122,7 @@ C>                   to active indices
       REAL(kind=wp), ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
       INTEGER(kind=iwp), ALLOCATABLE:: TASKLIST(:,:)
 
-C Put in zeroes. Recognize special cases:
+! Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) RETURN
 
       G1(:,:)=Zero
@@ -136,10 +136,10 @@ C Put in zeroes. Recognize special cases:
 
       IF(NACTEL.EQ.0) RETURN
 
-* This should not happen, but...
+! This should not happen, but...
       IF(NCI.EQ.0) RETURN
 
-C Here, for regular CAS or RAS cases.
+! Here, for regular CAS or RAS cases.
 
       Call mma_allocate(IJ2IDX,nLev,nLev,Label='IJ2IDX')
       Call mma_allocate(IDX2IJ,2,nLev**2,Label='IDX2IJ')
@@ -148,35 +148,35 @@ C Here, for regular CAS or RAS cases.
       IDX2IJ(:,:)=-1
       ICNJ(:)=-1
 
-C Special pair index idx2ij allows true RAS cases to be handled:
+! Special pair index idx2ij allows true RAS cases to be handled:
       nlev2=nlev**2
       ntri1=(nlev2-nlev)/2
       ntri2=(nlev2+nlev)/2
       idx=0
       do i=1,nlev-1
         do j=i+1,nlev
-C     i<j
+!     i<j
           idx=idx+1
           ij2idx(i,j)=idx
           idx2ij(1,idx)=i
           idx2ij(2,idx)=j
-C     i>j
+!     i>j
           jdx=nlev2+1-idx ! note the reverse indexation, ...-idx!
           ij2idx(j,i)=jdx
           idx2ij(1,jdx)=j
           idx2ij(2,jdx)=i
         end do
       end do
-C     i=j
+!     i=j
       do i=1,nlev
         idx=ntri1+i
         ij2idx(i,i)=idx
         idx2ij(1,idx)=i
         idx2ij(2,idx)=i
       end do
-C     Loop over the compond index, idx, corresponding to (i,j) and
-C     tabulate in icnj(idx) the compound index jdx that corresponds
-C     to the pair (j,i)
+!     Loop over the compond index, idx, corresponding to (i,j) and
+!     tabulate in icnj(idx) the compound index jdx that corresponds
+!     to the pair (j,i)
       do idx=1,nlev2
         i=idx2ij(1,idx)
         j=idx2ij(2,idx)
@@ -187,16 +187,16 @@ C     to the pair (j,i)
 
       call mma_MaxDBLE(memmax)
 
-* Use *almost* all remaining memory:
+! Use *almost* all remaining memory:
       memmax_safe=int(dble(memmax)*0.95_wp)
 
-* Buffers to compute CI expansion vectors into:
-* <Psi0|E_ip1 | E_ip2 E_ip3|Psi0>
-* buf1: bra buffer with E_ip1 excitations of Psi0
-*       holds multiple CI vectors (allowed by memory)
-* buf2: ket buffer for an E_ip3 excitation of Psi0
-* buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
-* bufd: diagonal matrix elements to compute the F matrix
+! Buffers to compute CI expansion vectors into:
+! <Psi0|E_ip1 | E_ip2 E_ip3|Psi0>
+! buf1: bra buffer with E_ip1 excitations of Psi0
+!       holds multiple CI vectors (allowed by memory)
+! buf2: ket buffer for an E_ip3 excitation of Psi0
+! buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
+! bufd: diagonal matrix elements to compute the F matrix
       nbuf1=max(1,min(nlev2,(memmax_safe-3*mxci)/mxci))
       !! if gradient, nbuf1 must be consistent here and in derfg3.f
       if (do_grad .or. nStpGrd==2) then
@@ -215,28 +215,28 @@ C     to the pair (j,i)
       CALL mma_allocate(BUFT,MXCI,LABEL='BUFT')
       CALL mma_allocate(BUFD,MXCI,LABEL='BUFD')
 
-C-SVC20100301: calculate maximum number of tasks possible
+!-SVC20100301: calculate maximum number of tasks possible
       MXTASK=(NTRI2-1)/NBUF1+1+(NTRI1-1)/NBUF1+1
       CALL mma_allocate (TaskList,mxTask,4,LABEL='TaskList')
 
       IF(iPrGlb.GE.VERBOSE) THEN
         WRITE(u6,*)
         WRITE(u6,'(2X,A)') 'Constructing G3/F3'
-        WRITE(u6,'(2X,A,F16.9,A)') ' memory avail: ',
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory avail: ',                   &
      &    (memmax*RtoB)/1.0D9, ' GB'
-        WRITE(u6,'(2X,A,F16.9,A)') ' memory used:  ',
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory used:  ',                   &
      &    (((nbuf1+3)*MXCI)*RtoB)/1.0D9, ' GB'
       ENDIF
 
-************************************************************************
-*                                                                      *
-* A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
-* This also allows precomputing the Hamiltonian (H0) diagonal elements.
-*                                                                      *
+!***********************************************************************
+!                                                                      *
+! A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
+! This also allows precomputing the Hamiltonian (H0) diagonal elements.
+!                                                                      *
       iG3OFF=0
       Symmetry_Loop: DO issg1=1,nsym   ! Symmetry index of E_ut/0>
-*                                                                      *
-************************************************************************
+!                                                                      *
+!***********************************************************************
 
         isp1=Mul(issg1,stsym)       ! Symmetry index of E_ut
 
@@ -252,8 +252,8 @@ C-SVC20100301: calculate maximum number of tasks possible
 
         end if
 
-C-SVC20100301: calculate number of larger tasks for this symmetry, this
-C-is basically the number of buffers we fill with SG_Epq_Psi vectors.
+!-SVC20100301: calculate number of larger tasks for this symmetry, this
+!-is basically the number of buffers we fill with SG_Epq_Psi vectors.
 
       iTask=1
       ibuf1=0
@@ -272,8 +272,8 @@ C-is basically the number of buffers we fill with SG_Epq_Psi vectors.
 
 !       Terminate if buffer is full, or,
 !       if
-        IF (ibuf1==nbuf1 .OR.
-     &     (ibuf1>0.AND.
+        IF (ibuf1==nbuf1 .OR.                                           &
+     &     (ibuf1>0.AND.                                                &
      &         (ip1.EQ.ntri2.OR.ip1.EQ.nlev2))) THEN
             TaskList(iTask,2)=ip1_buf(ibuf1)  ! End ip1 index
             TaskList(iTask,3)=ibuf1           ! End ibuf value
@@ -286,7 +286,7 @@ C-is basically the number of buffers we fill with SG_Epq_Psi vectors.
       nTasks=iTask
       IF (ibuf1==0) nTasks=nTasks-1
 
-C-SVC20100309: calculate number of inner loop iteration tasks.
+!-SVC20100309: calculate number of inner loop iteration tasks.
       iOffSet=0
       DO iTask=1,nTasks
         TaskList(iTask,4)=iOffSet
@@ -295,10 +295,10 @@ C-SVC20100309: calculate number of inner loop iteration tasks.
         ip3mx=ntri2
         if(ip1end.le.ntri2) ip3mx=ip1end
         if(ip1sta.gt.ntri2) ip3mx=ntri1
-C-SVC20100309: Currently -we are going to limit this to the ip3-loop and
-C-leave the ip2-loop intact.  This was based on the large overhead which
-C-was observed for a very large number of small tasks.
-C       iOffSet=iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
+!-SVC20100309: Currently -we are going to limit this to the ip3-loop and
+!-leave the ip2-loop intact.  This was based on the large overhead which
+!-was observed for a very large number of small tasks.
+!       iOffSet=iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
         iOffSet=iOffSet+ip3mx
       ENDDO
       nSubTasks=iOffSet
@@ -309,37 +309,37 @@ C       iOffSet=iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
 
       IF(iPrGlb.GE.DEBUG) THEN
         IF (nSubTasks .GT. 0) THEN
-          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
-C-position 12345678901234567890
-     &    "--------",
-     &    "------------",
-     &    "----",
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')                 &
+!-position 12345678901234567890
+     &    "--------",                                                   &
+     &    "------------",                                               &
+     &    "----",                                                       &
      &    "---------"
-          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
-C-position 12345678901234567890
-     &    "task ID ",
-     &    " ip1 range  ",
-     &    "ip3 ",
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')                 &
+!-position 12345678901234567890
+     &    "task ID ",                                                   &
+     &    " ip1 range  ",                                               &
+     &    "ip3 ",                                                       &
      &    "#elements"
-          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
-C-position 12345678901234567890
-     &    "--------",
-     &    "------------",
-     &    "----",
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')                 &
+!-position 12345678901234567890
+     &    "--------",                                                   &
+     &    "------------",                                               &
+     &    "----",                                                       &
      &    "---------"
         END IF
       END IF
 
-C-SVC20100301: initialize the series of subtasks
+!-SVC20100301: initialize the series of subtasks
       Call Init_Tsk(ID, nSubTasks)
 
       myBuffer=0
       Do
 
-C-SVC20100908: first check: can I actually do any task?
+!-SVC20100908: first check: can I actually do any task?
       IF ((NG3-iG3OFF).LT.nbuf1*ntri2) Exit
-C-SVC20100831: initialize counter for offset into G3
-C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
+!-SVC20100831: initialize counter for offset into G3
+!-SVC20100302: BEGIN SEPARATE TASK EXECUTION
       If (.NOT.Rsv_Tsk(ID,iSubTask)) Exit
 
       myTask=nTasks
@@ -354,16 +354,16 @@ C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
 
       iOffSet=TaskList(iTask,4)
 
-C-SVC20100310: one task handles a range of ip1 values
-C-that are in the buffer and one ip3 value, for which
-C-a loop over ip2 values is then executed.
+!-SVC20100310: one task handles a range of ip1 values
+!-that are in the buffer and one ip3 value, for which
+!-a loop over ip2 values is then executed.
       ip1sta=TaskList(iTask,1)
       ip1end=TaskList(iTask,2)
       ip3=iSubTask-iOffSet
 
-C-SVC20100301: fill the buffer with sigma vectors if they
-C-have not been computed yet, else just get the number of
-C-sigma vectors in the buffer.
+!-SVC20100301: fill the buffer with sigma vectors if they
+!-have not been computed yet, else just get the number of
+!-sigma vectors in the buffer.
       IF (myBuffer.NE.iTask) THEN
         ibuf1=0
 
@@ -382,7 +382,7 @@ C-sigma vectors in the buffer.
           ip1_buf(ibuf1)=ip1i
 ! form E_ut |0>
           BUF1(1:nSgm1,iBuf1)=Zero
-          CALL SG_Epq_Psi(SGS,CIS,EXS,
+          CALL SG_Epq_Psi(SGS,CIS,EXS,                                  &
      &                IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
          end if
         end do
@@ -407,14 +407,14 @@ C-sigma vectors in the buffer.
         ibuf1=TaskList(iTask,3)
       ENDIF
 
-C-SVC20100301: necessary batch of sigma vectors is now in the buffer
+!-SVC20100301: necessary batch of sigma vectors is now in the buffer
       if (.not. DoFCIQMC) then
           ! The ip1 buffer could be the same on different processes
           ! so only compute the G1 contribution when ip3 is 1, as
           ! this will only be one task per buffer.
 
-C form <0| *  E_ut|0> = G_tu and
-C      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
+! form <0| *  E_ut|0> = G_tu and
+!      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
 
           if (issg1.eq.stsym.AND.ip3.eq.1) then
             IF (mkF) THEN
@@ -444,22 +444,22 @@ C      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
           end if
       end if
 
-C     ip3mx=ntri2
-C     if(ip1end.le.ntri2) ip3mx=ip1end
-C     if(ip1sta.gt.ntri2) ip3mx=ntri1
-C-SVC20100309: loop over ip3, ip2
-C     do ip3=1,ip3mx
+!     ip3mx=ntri2
+!     if(ip1end.le.ntri2) ip3mx=ip1end
+!     if(ip1sta.gt.ntri2) ip3mx=ntri1
+!-SVC20100309: loop over ip3, ip2
+!     do ip3=1,ip3mx
 
-C-SVC20100309: PAM's magic formula
-*     iCnt=iSubTask-iOffSet
-*     ip3=int(dble(ntri2)+1.5D0 -
-*    &     sqrt((dble(ntri2)+0.5d0)**2-2*iCnt+0.000001D0))
-*     ip2=iCnt-((ip3-1)*ntri2-((ip3-1)*(ip3-2))/2 )+ip3-1
+!-SVC20100309: PAM's magic formula
+!     iCnt=iSubTask-iOffSet
+!     ip3=int(dble(ntri2)+1.5D0 -
+!    &     sqrt((dble(ntri2)+0.5d0)**2-2*iCnt+0.000001D0))
+!     ip2=iCnt-((ip3-1)*ntri2-((ip3-1)*(ip3-2))/2 )+ip3-1
 
-C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
+!-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 
       iq1=icnj(ip3)
-* The indices corresponding to pair index p3:
+! The indices corresponding to pair index p3:
       iylev=idx2ij(1,ip3)
       izlev=idx2ij(2,ip3)
       isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
@@ -469,8 +469,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       if (.not. DoFCIQMC) then
           nsgm2=CIS%ncsf(issg2)
           BUF2(1:nSgm2)=Zero
-C form <0| E_zy|
-          CALL SG_Epq_Psi(SGS,CIS,EXS,
+! form <0| E_zy|
+          CALL SG_Epq_Psi(SGS,CIS,EXS,                                  &
      &                IYLEV,IZLEV,One,STSYM,CI,BUF2)
 
           if(issg2.eq.issg1) then
@@ -482,8 +482,8 @@ C form <0| E_zy|
               iulev=idx2ij(2,idx)
               it=L2ACT(itlev)
               iu=L2ACT(iulev)
-C form <0| E_zy E_ut |0> = G_tu,yz
-C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
+! form <0| E_zy E_ut |0> = G_tu,yz
+!      <0| E_zy * H0 * E_ut |0> = F_tu,yz
               G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
               F2sum=Zero
               do i=1,nsgm1
@@ -517,11 +517,11 @@ C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
         if (.not. DoFCIQMC) then
             BUFT(1:nSgm1)=Zero
 ! form <0| E_zy E_xv
-            CALL SG_Epq_Psi(SGS,CIS,EXS,
+            CALL SG_Epq_Psi(SGS,CIS,EXS,                                &
      &                  IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
         end if
-*-----------
-* Max and min values of index p1:
+!-----------
+! Max and min values of index p1:
         ip1mx=ntri2
         if(ip3.le.ntri1) then
           ip1mx=nlev2
@@ -529,7 +529,7 @@ C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
         end if
         ip1mn=max(ip2,ip1sta)
         ip1mx=min(ip1mx,ip1end)
-* The corresponding locations in the Sgm1 buffer:
+! The corresponding locations in the Sgm1 buffer:
         ibmn=999999
         ibmx=-999999
         do ib=ibuf1,1,-1
@@ -543,15 +543,15 @@ C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
         nb=ibmx-ibmn+1
         if(nb>0) Then
 
-*-----------
-* Contract the Sgm1 wave functions with the Tau wave function.
+!-----------
+! Contract the Sgm1 wave functions with the Tau wave function.
         if (.not. DoFCIQMC) then
 ! form <0| E_zy E_xv * E_ut|0>
-            call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
+            call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,            &
      &           buft,1,Zero,bufr,1)
-* and distribute this result into G3:
+! and distribute this result into G3:
             G3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
-* and copy the active indices into idxG3:
+! and copy the active indices into idxG3:
         end if
         do ib=1,nb
          iG3=iG3OFF+ib
@@ -570,16 +570,16 @@ C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
 
         if (.not. DoFCIQMC) then
             IF(mkF) THEN
-* Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
+! Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
 ! form <0| E_zy E_xv (H0 -e_v)
                 BufT(1:nSgm1)=(BufD(1:nSgm1)-EpsA(iV))*BufT(1:nSgm1)
 !               do icsf=1,nsgm1
 !                 buft(icsf)= (bufd(icsf)-epsa(iv))*buft(icsf)
 !               end do
-* so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
+! so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
 
 ! form <0| E_zy E_xv (H0 -e_v) E_ut|0> = F3(iuv,xyz)
-                call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
+                call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,        &
      &           buft,1,Zero,bufr,1)
                 F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
             END IF
@@ -592,7 +592,7 @@ C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
       end do
 
       IF(iPrGlb.GE.DEBUG) THEN
-        WRITE(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
+        WRITE(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')    &
      &    iSubTask, ip1sta, ip1end, ip3, nbtot
       END IF
       !! consistent tasks must be executed here and in derfg3.f for grad
@@ -601,37 +601,37 @@ C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
         iTasks_grad(nTasks_grad) = iSubTask
       end if
 
-CSVC: The master node now continues to only handle task scheduling,
-C     needed to achieve better load balancing. So it exits from the task
-C     list.  It has to do it here since each process gets at least one
-C     task.
+!SVC: The master node now continues to only handle task scheduling,
+!     needed to achieve better load balancing. So it exits from the task
+!     list.  It has to do it here since each process gets at least one
+!     task.
 
-C-SVC20100301: end of the task
+!-SVC20100301: end of the task
       End Do
 
-C-SVC20100302: no more tasks, wait here for the others, then proceed
-C with next symmetry
+!-SVC20100302: no more tasks, wait here for the others, then proceed
+! with next symmetry
       CALL Free_Tsk(ID)
 
       IF(iPrGlb.GE.DEBUG) THEN
         IF (nSubTasks .GT. 0) THEN
-          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
-C-position 12345678901234567890
-     &    "--------",
-     &    "------------",
-     &    "----",
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')                 &
+!-position 12345678901234567890
+     &    "--------",                                                   &
+     &    "------------",                                               &
+     &    "----",                                                       &
      &    "---------"
         END IF
       END IF
 
-************************************************************************
-*                                                                      *
-* End of sectioning loop over symmetry of Sgm1 wave functions.
+!***********************************************************************
+!                                                                      *
+! End of sectioning loop over symmetry of Sgm1 wave functions.
       END DO Symmetry_Loop
-C-SVC20100831: set correct number of elements in new G3
+!-SVC20100831: set correct number of elements in new G3
       NG3=iG3OFF
-*                                                                      *
-************************************************************************
+!                                                                      *
+!***********************************************************************
 
       CALL mma_deallocate(TASKLIST)
       ! free CI buffers
@@ -640,8 +640,8 @@ C-SVC20100831: set correct number of elements in new G3
       CALL mma_deallocate(BUFT)
       CALL mma_deallocate(BUFD)
 
-C-SVC20100302: Synchronized add into the densitry matrices
-C  only for the G1 and G2 replicate arrays
+!-SVC20100302: Synchronized add into the densitry matrices
+!  only for the G1 and G2 replicate arrays
       CALL GADGOP(G1,NG1,'+')
       CALL GADGOP(G2,NG2,'+')
 
@@ -695,7 +695,7 @@ C  only for the G1 and G2 replicate arrays
             do iy=1,nlev
              do iu=1,nlev
               do it=1,nlev
-               F2(it,iu,iy,iz)=F2(it,iu,iy,iz)-
+               F2(it,iu,iy,iz)=F2(it,iu,iy,iz)-                         &
      &               (EPSA(iu)+EPSA(iy))*G2(it,iu,iy,iz)
               end do
              end do
@@ -704,7 +704,7 @@ C  only for the G1 and G2 replicate arrays
            do iz=1,nlev
             do iu=1,nlev
              do it=1,nlev
-              F2(it,iu,iu,iz)=F2(it,iu,iu,iz)-
+              F2(it,iu,iu,iz)=F2(it,iu,iu,iz)-                          &
      &              (F1(it,iz)+EPSA(iu)*G1(it,iz))
              end do
             end do
@@ -799,8 +799,8 @@ C  only for the G1 and G2 replicate arrays
       Call mma_deallocate(icnj)
 
       IF(iPrGlb.GE.DEBUG) THEN
-CSVC: if running parallel, G3/F3 are spread over processes,
-C     so make sure that the _total_ fingerprint is computed
+!SVC: if running parallel, G3/F3 are spread over processes,
+!     so make sure that the _total_ fingerprint is computed
         dG1=DNRM2_(NG1,G1,1)
         dG2=DNRM2_(NG2,G2,1)
         dG3=DDOT_(NG3,G3,1,G3,1)

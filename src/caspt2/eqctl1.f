@@ -1,45 +1,45 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 2005  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 2005  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE EQCTL1()
       use caspt2_global, only: do_grad
       use caspt2_global, only: LUSOLV, LUSBT, IDSCT
       use stdalloc, only: mma_allocate
-      use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX,
-     &                  MxBlk, MxSct, ModVec, IDSMat, IDBMat, MxVec,
+      use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX,       &
+     &                  MxBlk, MxSct, ModVec, IDSMat, IDBMat, MxVec,    &
      &                  IDTMat, IDSTMat
-      use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup,
+      use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup,      &
      &                         nInDep
       use caspt2_module, only: nG2, nG3Tot
       use definitions, only: wp, iwp, ItoB, RtoI, u6
       IMPLICIT None
-C On return, the following data sets will be defined and stored
-C on LUSOLV.
-C At position IVEC=IRHS, the RHS array, in SR representation.
-C At position IVEC=IVECX, the solution array, in SR representation.
-C At position IVEC=IVECR, the residual array, in SR representation.
-C At position IVEC=IVECC, the solution array, in contravariant rep.
-C At position IVEC=IVECC2, the solution array, in covariant repr.
-C At position IVEC=IVECW, the RHS array, in contravariant repr.
+! On return, the following data sets will be defined and stored
+! on LUSOLV.
+! At position IVEC=IRHS, the RHS array, in SR representation.
+! At position IVEC=IVECX, the solution array, in SR representation.
+! At position IVEC=IVECR, the residual array, in SR representation.
+! At position IVEC=IVECC, the solution array, in contravariant rep.
+! At position IVEC=IVECC2, the solution array, in covariant repr.
+! At position IVEC=IVECW, the RHS array, in contravariant repr.
       REAL(kind=wp) ::DUMMY(1)
-      INTEGER(kind=iwp) :: IDUM(1), ICASE, IDS, IDS1, IDS2, IDV, iPad,
-     &                     ISCT, ISYM, IVEC, LADDR, LENGTH, LSTA, MXWRT,
-     &                     NAS, NB, NBD, NCOEF, NG3MAX, NID, NIDSCT, NS,
+      INTEGER(kind=iwp) :: IDUM(1), ICASE, IDS, IDS1, IDS2, IDV, iPad,  &
+     &                     ISCT, ISYM, IVEC, LADDR, LENGTH, LSTA, MXWRT,&
+     &                     NAS, NB, NBD, NCOEF, NG3MAX, NID, NIDSCT, NS,&
      &                     NT, iPARDIV, NIN, NIS, NISCT
 
       IRHS  =1
@@ -49,8 +49,8 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
       IVECC2=5
       IVECW =6
 
-CSVC: MODVEC isn't used in the Cholesky version, and neither in the
-C sigma routines any more. Probably only in MKRHS...
+!SVC: MODVEC isn't used in the Cholesky version, and neither in the
+! sigma routines any more. Probably only in MKRHS...
       MXSCT=1
       DO ICASE=1,NCASES
         DO ISYM=1,NSYM
@@ -59,7 +59,7 @@ C sigma routines any more. Probably only in MKRHS...
           NIS=NISUP(ISYM,ICASE)
           NCOEF=NAS*NIS
           IF(NCOEF.GT.0) THEN
-C Module lengths for reading/writing:
+! Module lengths for reading/writing:
             MODVEC(ISYM,ICASE)=MAX(1,MIN(MXBLK/NAS,NIS))
             MXSCT=MAX(MXSCT,1+(NIS-1)/MODVEC(ISYM,ICASE))
           ENDIF
@@ -69,9 +69,9 @@ C Module lengths for reading/writing:
       CALL mma_allocate(IDSCT,NIDSCT,Label='IDSCT')
 
 #ifdef _DEBUG
-CSVC: when using Cholesky decomposition, the actual use of the RHS
-C vector sizes is automatically controlled in RHSALL2. Furthermore, the
-C sigma routines now use the full RHS size.
+!SVC: when using Cholesky decomposition, the actual use of the RHS
+! vector sizes is automatically controlled in RHSALL2. Furthermore, the
+! sigma routines now use the full RHS size.
       IF (.NOT.IFCHOL) THEN
         WRITE(u6,*)
         WRITE(u6,*)' Size of vector buffers for coefficient arrays.'
@@ -85,7 +85,7 @@ C sigma routines now use the full RHS size.
             NVCMX=MAX(NVCMX,NVC)
             NBLK=0
             IF(NVC.GT.0) NBLK=1+(NISUP(ISYM,ICASE)-1)/NCOL
-            WRITE(u6,'(2x,I2,3x,I2,3x,I16,3X,I16,3X,I16,3x,I16)')
+            WRITE(u6,'(2x,I2,3x,I2,3x,I16,3X,I16,3X,I16,3x,I16)')       &
      &                     ICASE,ISYM,NROW,NCOL,NBLK,NVC
           END DO
         END DO
@@ -95,7 +95,7 @@ C sigma routines now use the full RHS size.
       ELSE
         WRITE(u6,*)
         WRITE(u6,*)' Sizes of the coefficient arrays.'
-        WRITE(u6,'(2X,A4,2X,A4,2X,5X,A4,5X,2X,5X,A4,5X,2X,5X,A4,5X)')
+        WRITE(u6,'(2X,A4,2X,A4,2X,5X,A4,5X,2X,5X,A4,5X,2X,5X,A4,5X)')   &
      &          'CASE','SYM','NROW','NCOL','SIZE'
         NVCMX=0
         DO ICASE=1,NCASES
@@ -104,7 +104,7 @@ C sigma routines now use the full RHS size.
             NCOL=NISUP(ISYM,ICASE)
             NVC=NROW*NCOL
             NVCMX=MAX(NVCMX,NVC)
-            WRITE(u6,'(2x,I4,2x,I4,2x,I16,2X,I16,2X,I16)')
+            WRITE(u6,'(2x,I4,2x,I4,2x,I16,2X,I16,2X,I16)')              &
      &                     ICASE,ISYM,NROW,NCOL,NVC
           END DO
         END DO
@@ -127,8 +127,8 @@ C sigma routines now use the full RHS size.
           DO ISYM=1,NSYM
             NAS=NASUP(ISYM,ICASE)
             NIS=NISUP(ISYM,ICASE)
-C NINDEP() IS HERE SET PROVISIONALLY. IT WILL
-C BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
+! NINDEP() IS HERE SET PROVISIONALLY. IT WILL
+! BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
             NCOEF=NAS*NIS
             MXWRT=Max(1,NAS*MODVEC(ISYM,ICASE))
             NISCT=NCOEF/MXWRT+Min(1,Mod(NCOEF,MXWRT))
@@ -143,7 +143,7 @@ C BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
             DO ISCT=1,NISCT
               LSTA=MXWRT*(ISCT-1)
               LENGTH=RtoI*MIN(NCOEF-LSTA,MXWRT)
-              LADDR=ISCT+MXSCT*(ISYM-1+8*
+              LADDR=ISCT+MXSCT*(ISYM-1+8*                               &
      &                         (ICASE-1+MXCASE*(IVEC-1)))
               IDSCT(LADDR)=IDV
               CALL IDAFILE(LUSOLV,0,IDUM,LENGTH,IDV)
@@ -152,11 +152,11 @@ C BE ADJUSTED FOR LINEAR DEPENDENCE LATER.
         END DO
       END DO
 
-C IDSCT(ISCT,ISYM,ICASE,IVEC) now gives the disk address, on LUSOLV,
-C to the ISCT section of the (ISYM,ICASE) block of a vector
-C containing expansion C coefficients of excitation operators.
-C IVEC=1..MXVEC enumerates the different vectors needed to solve
-C the equations.
+! IDSCT(ISCT,ISYM,ICASE,IVEC) now gives the disk address, on LUSOLV,
+! to the ISCT section of the (ISYM,ICASE) block of a vector
+! containing expansion C coefficients of excitation operators.
+! IVEC=1..MXVEC enumerates the different vectors needed to solve
+! the equations.
       IDSMAT(:,:)=-1
       IDS=0
       DO ICASE=1,NCASES
@@ -165,7 +165,7 @@ C the equations.
           IF(NIN.GT.0) THEN
             IDSMAT(ISYM,ICASE)=IDS
             NAS=NASUP(ISYM,ICASE)
-*           NS=(NAS*(NAS+1))/2
+!           NS=(NAS*(NAS+1))/2
             NS=NAS**2
             IF(ICASE.EQ.12) NS=1
             IF(ICASE.EQ.13) NS=1
@@ -174,15 +174,15 @@ C the equations.
         END DO
       END DO
 
-C IDSMAT(ISYM,ICASE) gives the disk address on LUSBT to the
-C (ISYM,ICASE) section of the overlap matrix for the basis
-C of excitation wave function terms: those that result from
-C the basic excitation operators acting on Psi0.
+! IDSMAT(ISYM,ICASE) gives the disk address on LUSBT to the
+! (ISYM,ICASE) section of the overlap matrix for the basis
+! of excitation wave function terms: those that result from
+! the basic excitation operators acting on Psi0.
       DO ICASE=1,NCASES
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-*         NB=(NAS*(NAS+1))/2
+!         NB=(NAS*(NAS+1))/2
           NB=NAS**2
           IF(ICASE.EQ.12) NB=1
           IF(ICASE.EQ.13) NB=1
@@ -207,10 +207,10 @@ C the basic excitation operators acting on Psi0.
         END DO
       END DO
 
-C IDBMAT(ISYM,ICASE) is similar to IDSMAT() but gives disk address
-C to the (ISYM,ICASE) diagonal block of matrix elements of H0
-C over the excitation wave function terms.
-C IDTMAT() similarly addresses transformation matrices that
-C orthonormalize the S matrix blocks.
+! IDBMAT(ISYM,ICASE) is similar to IDSMAT() but gives disk address
+! to the (ISYM,ICASE) diagonal block of matrix elements of H0
+! over the excitation wave function terms.
+! IDTMAT() similarly addresses transformation matrices that
+! orthonormalize the S matrix blocks.
 
       END SUBROUTINE EQCTL1

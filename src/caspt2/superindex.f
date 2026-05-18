@@ -1,52 +1,52 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       MODULE SUPERINDEX
       use definitions, only: iwp
       IMPLICIT NONE
-      INTEGER(kind=iwp), ALLOCATABLE, SAVE ::
-     &  KTU(:,:),    MTU(:,:),
-     &  KTUV(:,:,:), MTUV(:,:),
-     &  KTGEU(:,:),  MTGEU(:,:),
-     &  KTGTU(:,:),  MTGTU(:,:),
-     &  KAGEB(:,:),  MAGEB(:,:),
-     &  KAGTB(:,:),  MAGTB(:,:),
-     &  KIGEJ(:,:),  MIGEJ(:,:),
-     &  KIGTJ(:,:),  MIGTJ(:,:),
-     &  KIA(:,:),    MIA(:,:),
+      INTEGER(kind=iwp), ALLOCATABLE, SAVE ::                           &
+     &  KTU(:,:),    MTU(:,:),                                          &
+     &  KTUV(:,:,:), MTUV(:,:),                                         &
+     &  KTGEU(:,:),  MTGEU(:,:),                                        &
+     &  KTGTU(:,:),  MTGTU(:,:),                                        &
+     &  KAGEB(:,:),  MAGEB(:,:),                                        &
+     &  KAGTB(:,:),  MAGTB(:,:),                                        &
+     &  KIGEJ(:,:),  MIGEJ(:,:),                                        &
+     &  KIGTJ(:,:),  MIGTJ(:,:),                                        &
+     &  KIA(:,:),    MIA(:,:),                                          &
      &  MIREL(:,:), MTREL(:,:), MAREL(:,:)
 
       CONTAINS
       SUBROUTINE SUPINI
       use stdalloc, only: mma_allocate
       use Symmetry_Info, only: Mul
-      use caspt2_module, only: nInDep, MxCase, nAshT, nCases, nIshT,
-     &                         nAshT, nSym, nTUVEs, nAsh, nSshT,
-     &                         nAes, nTUV, nTUES,
-     &                         nTGEUES, nTGTUES, nTU, nTGEU,
-     &                         nTGTU, nIGEJES, nIGTJES, nIsh,
-     &                         nIES, nIGEJ, nIGTJ, nAGEBES,
-     &                         nAGTBES, nSsh, nSES, nAGEB, nIAES,
+      use caspt2_module, only: nInDep, MxCase, nAshT, nCases, nIshT,    &
+     &                         nAshT, nSym, nTUVEs, nAsh, nSshT,        &
+     &                         nAes, nTUV, nTUES,                       &
+     &                         nTGEUES, nTGTUES, nTU, nTGEU,            &
+     &                         nTGTU, nIGEJES, nIGTJES, nIsh,           &
+     &                         nIES, nIGEJ, nIGTJ, nAGEBES,             &
+     &                         nAGTBES, nSsh, nSES, nAGEB, nIAES,       &
      &                         nSES, nSsh, nAGTB, Cases, nASUP, nISUP
       IMPLICIT NONE
-      CHARACTER(LEN=8), Parameter :: CSNAME(MXCASE)=[
-     &              'VJTU    ','VJTIP   ','VJTIM   ',
-     &     'ATVX    ','AIVX    ','VJAIP   ','VJAIM   ','BVATP   ',
+      CHARACTER(LEN=8), Parameter :: CSNAME(MXCASE)=[                   &
+     &              'VJTU    ','VJTIP   ','VJTIM   ',                   &
+     &     'ATVX    ','AIVX    ','VJAIP   ','VJAIM   ','BVATP   ',      &
      &     'BVATM   ','BJATP   ','BJATM   ','BJAIP   ','BJAIM   ']
       INTEGER(kind=iwp) ISYM,ICASE
       INTEGER(kind=iwp) NSUM,NCOUNT
@@ -159,7 +159,7 @@
         NTGTU(ISYM)=NCM
       END DO
 
-CPAM99 Use allocated workspace instead of MAGEB, MAGTB:
+!PAM99 Use allocated workspace instead of MAGEB, MAGTB:
       NMAGEB=(NSSHT*(NSSHT+1))/2
       NMAGTB=(NSSHT*(NSSHT-1))/2
       CALL MMA_ALLOCATE(MAGEB,2,NMAGEB,Label='MAGEB')
@@ -180,14 +180,14 @@ CPAM99 Use allocated workspace instead of MAGEB, MAGTB:
       NMIA=NISHT*NSSHT
       CALL MMA_ALLOCATE(MIA,2,NMIA,Label='MIA')
 
-C Construct tables for inactive and secondary pair indices:
+! Construct tables for inactive and secondary pair indices:
       IIGEJ=0
       IIGTJ=0
       IAGEB=0
       IAGTB=0
       IIA=0
       DO ISYM=1,NSYM
-C Inactive pair indices:
+! Inactive pair indices:
         NIGEJES(ISYM)=IIGEJ
         NIGTJES(ISYM)=IIGTJ
         NCM=0
@@ -219,7 +219,7 @@ C Inactive pair indices:
         NIGEJ(ISYM)=NCP
         NIGTJ(ISYM)=NCM
 
-C Secondary pair indices:
+! Secondary pair indices:
         NAGEBES(ISYM)=IAGEB
         NAGTBES(ISYM)=IAGTB
         NCM=0
@@ -250,7 +250,7 @@ C Secondary pair indices:
         NAGEB(ISYM)=NCP
         NAGTB(ISYM)=NCM
 
-C Inactive-Secondary pair indices:
+! Inactive-Secondary pair indices:
         NIAES(ISYM)=IIA
         DO ISYA=1,NSYM
           ISYI=Mul(ISYA,ISYM)
@@ -267,7 +267,7 @@ C Inactive-Secondary pair indices:
         END DO
 
       END DO
-* End of loop over symmetries.
+! End of loop over symmetries.
 
 
       DO ICASE=1,NCASES
@@ -319,15 +319,15 @@ C Inactive-Secondary pair indices:
         NSUM=0
         DO ISYM=1,NSYM
           N=NASUP(ISYM,ICASE)*NISUP(ISYM,ICASE)
-C Preliminary value for NINDEP: Nr of independent active params:
+! Preliminary value for NINDEP: Nr of independent active params:
           NINDEP(ISYM,ICASE)=NASUP(ISYM,ICASE)
           IF(N.EQ.0) NINDEP(ISYM,ICASE)=0
           NSUM=NSUM+N
         END DO
       END DO
 
-CSVC: prepare tables to translate from absolute indices to
-C(index,symmetry) pairs.
+!SVC: prepare tables to translate from absolute indices to
+!(index,symmetry) pairs.
 
       CALL MMA_ALLOCATE(MIREL,2,NISHT,Label='MIREL')
       CALL MMA_ALLOCATE(MTREL,2,NASHT,Label='MTREL')

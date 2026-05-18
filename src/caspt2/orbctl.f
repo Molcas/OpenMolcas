@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1994  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA,FIMO,nFIMO)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne,
+      use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne,&
      &                         ThrOcc, nFro, nOrb, nBasT, EPS, nDel
       use constants, only: Zero, Two, Five
       use definitions, only: iwp, wp
@@ -36,26 +36,26 @@
       REAL(kind=wp)  OCC_DUM(1)
       REAL(kind=wp), ALLOCATABLE:: OrbE(:)
 
-C Calculate transformation matrix to PT2 orbitals, defined as those
-C that have standard Fock matrix FIFA diagonal within inactive,
-C active, and secondary subblocks.
+! Calculate transformation matrix to PT2 orbitals, defined as those
+! that have standard Fock matrix FIFA diagonal within inactive,
+! active, and secondary subblocks.
 
-c Determine PT2 orbitals, and transform CI coeffs.
+! Determine PT2 orbitals, and transform CI coeffs.
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL calling MKRPTORB...'
       END IF
-* The CMO coefficient array is changed by orthonormal transformations of
-* each of the inactive,Ras1,Ras2,Ras3,and secondary (i.e. virtual) orbitals
-* in each symmetry. The transformation matrices are stored as a sequence of
-* square matrices in TORB. The transformation is such that each of the
-* diagonal blocks of the Fock matrix FIFA is diagonalized.
-* MKRPTORB will at the same time transform each of the CI arrays on file
-* such that, with new CMO vectors, they still represent the original
-* wave function.
+! The CMO coefficient array is changed by orthonormal transformations of
+! each of the inactive,Ras1,Ras2,Ras3,and secondary (i.e. virtual) orbitals
+! in each symmetry. The transformation matrices are stored as a sequence of
+! square matrices in TORB. The transformation is such that each of the
+! diagonal blocks of the Fock matrix FIFA is diagonalized.
+! MKRPTORB will at the same time transform each of the CI arrays on file
+! such that, with new CMO vectors, they still represent the original
+! wave function.
 
-* The CI arrays are on file with unit number LUCIEX. There is NSTATE
-* CI arrays, stored sequentially. The original set starts at disk address
-* IDCIEX(1), the transformed ones are written after IDTCEX(1).
+! The CI arrays are on file with unit number LUCIEX. There is NSTATE
+! CI arrays, stored sequentially. The original set starts at disk address
+! IDCIEX(1), the transformed ones are written after IDTCEX(1).
 
       CALL MKRPTORB(FIFA,nFIFA,TORB,nTORB,CMO,NCMO)
 
@@ -63,7 +63,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
       END IF
 
-* Use the transformation matrices to change the FIMO and FIFA arrays:
+! Use the transformation matrices to change the FIMO and FIFA arrays:
       if (.not. DoFCIQMC) then
           CALL TRANSFOCK(TORB,nTORB,FIMO,SIZE(FIMO),1)
           CALL TRANSFOCK(TORB,nTORB,FIFA,nFIFA,1)
@@ -74,7 +74,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
       end if
 
       IF ( IPRGLB.GE.VERBOSE ) THEN
-c Print new orbitals. First, form array of orbital energies.
+! Print new orbitals. First, form array of orbital energies.
       CALL mma_allocate(ORBE,NBAST,Label='ORBE')
       I1=1
       I2=1
@@ -93,10 +93,10 @@ c Print new orbitals. First, form array of orbital energies.
           I2=I2+NDEL(ISYM)
         END IF
       END DO
-c Then call utility routine PRIMO.
-        WRITE(6,*) ' The internal wave function representation has'//
+! Then call utility routine PRIMO.
+        WRITE(6,*) ' The internal wave function representation has'//   &
      &             ' been changed to use quasi-canonical orbitals:'
-        WRITE(6,*) ' those which diagonalize the Fock matrix within'//
+        WRITE(6,*) ' those which diagonalize the Fock matrix within'//  &
      &             ' inactive-inactive,'
         WRITE(6,*) ' active-active and virtual-virtual submatrices.'
         IF(.NOT. PRORB) THEN
@@ -106,7 +106,7 @@ c Then call utility routine PRIMO.
           RETURN
         END IF
 
-C Print orbitals. Different options:
+! Print orbitals. Different options:
         IF ( OUTFMT.EQ.'LONG    ' ) THEN
           THRENE=Two**31
           THROCC=-Two**31
@@ -114,8 +114,8 @@ C Print orbitals. Different options:
           THRENE=Five
           THROCC=5.0e-04_wp
         END IF
-        CALL PRIMO(' Quasi-canonical orbitals',.FALSE.,.TRUE.,
-     &              THROCC,THRENE,NSYM,NBAS,NBAS,BNAME,
+        CALL PRIMO(' Quasi-canonical orbitals',.FALSE.,.TRUE.,          &
+     &              THROCC,THRENE,NSYM,NBAS,NBAS,BNAME,                 &
      &              ORBE,OCC_DUM,CMO,-1)
         CALL mma_deallocate(ORBE)
       END IF

@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2023, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2023, Ignacio Fdez. Galvan                             *
+!***********************************************************************
 
       SUBROUTINE Cho_Amatrix(XMAT,nXMAT,CMO,NCMO,DDTR,NATR)
 ! Calculation of the "exchange" matrix for the G1,G2,G3 Fock operators
@@ -21,7 +21,7 @@
       USE CHOVEC_IO, ONLY: NVLOC_CHOBATCH
       USE stdalloc, ONLY: mma_allocate, mma_deallocate
       USE Constants, ONLY: Zero, One, Half
-      use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT,
+      use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT,           &
      &                         nOrb, nBtch, nBtches
       use definitions, only: iwp, wp
 
@@ -29,11 +29,11 @@
       INTEGER(kind=iwp), intent(in) :: nXMAT, nCMO, NATR
       REAL(kind=wp), intent(inout) :: XMAT(nXMAT)
       REAL(kind=wp), intent(in) :: CMO(nCMO), DDTR(NATR)
-      INTEGER(kind=iwp) :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP,
-     &                     MXCHOBUF, MXINT, MXPIQK, NADDBUFF, NBUF,
+      INTEGER(kind=iwp) :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP,   &
+     &                     MXCHOBUF, MXINT, MXPIQK, NADDBUFF, NBUF,     &
      &                     NCHOBUF, NINTS, NLB, NLK, NV
-      INTEGER(kind=iwp), ALLOCATABLE :: BGRP(:,:,:), ICA(:), ICI(:),
-     &                                  ICV(:), IXMAT(:), NBGRP(:),
+      INTEGER(kind=iwp), ALLOCATABLE :: BGRP(:,:,:), ICA(:), ICI(:),    &
+     &                                  ICV(:), IXMAT(:), NBGRP(:),     &
      &                                  NVEC(:,:)
       REAL(kind=wp), ALLOCATABLE :: BRABUF(:), KETBUF(:)
       REAL(kind=wp), ALLOCATABLE, TARGET :: INTBUF(:)
@@ -85,7 +85,7 @@
           BGRP(:,I,ISYM) = NBTCHES(ISYM)+I
         END DO
         ! Max size for Cholesky vectors
-        CALL MEMORY_ESTIMATE(ISYM,BGRP(:,:,ISYM),NBGRP(ISYM),NCHOBUF,
+        CALL MEMORY_ESTIMATE(ISYM,BGRP(:,:,ISYM),NBGRP(ISYM),NCHOBUF,   &
      &                       MXPIQK,NADDBUFF)
         MXBGRP = MAX(MXBGRP,NBGRP(ISYM))
         MXCHOBUF = MAX(MXCHOBUF,NCHOBUF)
@@ -128,32 +128,32 @@
           NV = NVEC(IBGRP,ISYM)
           IF (NV == 0) EXIT
           ! Inactive-Inactive
-          CALL Get_Cholesky_Vectors(Inac,Acti,ISYM,BRABUF,SIZE(BRABUF),
+          CALL Get_Cholesky_Vectors(Inac,Acti,ISYM,BRABUF,SIZE(BRABUF), &
      &                              NBUF,IB1,IB2)
-          CALL Accum(Inac,Inac,BRABUF,SIZE(BRABUF),
+          CALL Accum(Inac,Inac,BRABUF,SIZE(BRABUF),                     &
      &                         BRABUF,SIZE(BRABUF),ICI,ICI)
           ! Inactive-Active
-          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,KETBUF,SIZE(KETBUF),
+          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,KETBUF,SIZE(KETBUF), &
      &                              NBUF,IB1,IB2)
-          CALL Accum(Inac,Acti,BRABUF,SIZE(BRABUF),
+          CALL Accum(Inac,Acti,BRABUF,SIZE(BRABUF),                     &
      &                         KETBUF,SIZE(KETBUF),ICI,ICA)
           ! Active-Active
-          CALL Accum(Acti,Acti,KETBUF,SIZE(KETBUF),
+          CALL Accum(Acti,Acti,KETBUF,SIZE(KETBUF),                     &
      &                         KETBUF,SIZE(KETBUF),ICA,ICA)
           ! Inactive-Virtual
-          CALL Get_Cholesky_Vectors(Virt,Acti,ISYM,KETBUF,SIZE(KETBUF),
+          CALL Get_Cholesky_Vectors(Virt,Acti,ISYM,KETBUF,SIZE(KETBUF), &
      &                              NBUF,IB1,IB2)
-          CALL Accum(Inac,Virt,BRABUF,SIZE(BRABUF),
+          CALL Accum(Inac,Virt,BRABUF,SIZE(BRABUF),                     &
      &                         KETBUF,SIZE(KETBUF),ICI,ICV)
           ! Virtual-Virtual
-          CALL Accum(Virt,Virt,KETBUF,SIZE(KETBUF),
+          CALL Accum(Virt,Virt,KETBUF,SIZE(KETBUF),                     &
      &                         KETBUF,SIZE(KETBUF),ICV,ICV)
           ! Active-Virtual
           ! We could have saved these Cholesky vectors,
           ! but there's joy in repetition
-          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,BRABUF,SIZE(BRABUF),
+          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,BRABUF,SIZE(BRABUF), &
      &                              NBUF,IB1,IB2)
-          CALL Accum(Acti,Virt,BRABUF,SIZE(BRABUF),
+          CALL Accum(Acti,Virt,BRABUF,SIZE(BRABUF),                     &
      &                         KETBUF,SIZE(KETBUF),ICA,ICV)
         END DO
       END DO
@@ -181,8 +181,8 @@
       integer(kind=iwp), Intent(in):: nbBuf, nkBuf
       INTEGER(kind=iwp) :: bBlock, kBlock, IB(NSYM), IK(NSYM)
       REAL(kind=wp) :: bBuf(nbBuf), kBuf(nkBuf)
-      INTEGER(kind=iwp) :: B1, BS, BSWCH, bOff(NSYM), I, II, IJ, IJT, J,
-     &                     JA, JJ, K1, KS, KSWCH, kOff(NSYM), NA,
+      INTEGER(kind=iwp) :: B1, BS, BSWCH, bOff(NSYM), I, II, IJ, IJT, J,&
+     &                     JA, JJ, K1, KS, KSWCH, kOff(NSYM), NA,       &
      &                     NB(NSYM), NK(NSYM), PQSYM, TUSYM
       LOGICAL(kind=iwp) :: diag
       REAL(kind=wp), POINTER, CONTIGUOUS :: INT2(:,:)
@@ -240,7 +240,7 @@
         ! Reconstruct the (bBlock,Active|kBlock,Active) integrals
         NLB = NB(PQSYM)*NA
         NLK = NK(PQSYM)*NA
-        CALL dgemm_('N','T',NLB,NLK,NV,One,bBUF(IB(TUSYM)*NV+1),NLB,
+        CALL dgemm_('N','T',NLB,NLK,NV,One,bBUF(IB(TUSYM)*NV+1),NLB,    &
      &              kBUF(IK(TUSYM)*NV+1),NLK,Zero,INTBUF,NLB)
         IF (NLB*NLK == 0) CYCLE
         INT2(1:NLB,1:NLK) => INTBUF(1:NLB*NLK)
@@ -257,19 +257,19 @@
         DO J=1,NK(PQSYM)
           DO I=1,NB(PQSYM)
             ! Index of this element in XMAT
-            IJ = IXMAT(PQSYM)+
+            IJ = IXMAT(PQSYM)+                                          &
      &           (kOff(PQSYM)+J-1)*NORB(PQSYM)+bOff(PQSYM)+I-1
             ! Index of (p1|**) and (**|q1)
             II = (I-1)*B1+1
             JJ = (J-1)*K1+1
             DO JA=1,NA
-              XMAT(IJ) = XMAT(IJ)+dDot_(NA,INT2(II:,JJ),BS,
+              XMAT(IJ) = XMAT(IJ)+dDot_(NA,INT2(II:,JJ),BS,             &
      &                   HDSQ%SB(TUSYM)%A2(:,JA),1)
               JJ = JJ+KS
             END DO
             ! Symmetric element
             IF (diag .AND. (I == J)) EXIT
-            IJT = IXMAT(PQSYM)+
+            IJT = IXMAT(PQSYM)+                                         &
      &            (bOff(PQSYM)+I-1)*NORB(PQSYM)+kOff(PQSYM)+J-1
             XMAT(IJT) = XMAT(IJ)
           END DO

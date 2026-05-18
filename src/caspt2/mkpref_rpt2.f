@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 2006  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 2006  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE MKPREF_RPT2(N,G2,PREF,NPREF)
       use definitions, only: iwp, wp
       IMPLICIT NONE
@@ -30,10 +30,10 @@
 
       REAL(kind=wp) P1,P2
 
-C Compute PREF(PQRS) = <0| 0.5*Epqrs |0>
-C from G2(P,Q,R,S) = <0| Epqrs |0>
-C Storage differs: PREF is triangular
-C in the Fortran-like indices PQ, RS.
+! Compute PREF(PQRS) = <0| 0.5*Epqrs |0>
+! from G2(P,Q,R,S) = <0| Epqrs |0>
+! Storage differs: PREF is triangular
+! in the Fortran-like indices PQ, RS.
 
       IJT=0
       IJKLT=0

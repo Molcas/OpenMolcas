@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2006, Per Ake Malmqvist                                *
-************************************************************************
-*--------------------------------------------*
-* 2006  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2006, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 2006  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
       SUBROUTINE DENS2T_RPT2 (NLEV,NCONF,MXCI,CI1,CI2,SGM1,SGM2,G1,G2)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
@@ -32,7 +32,7 @@
 
       integer(kind=iwp), intent(in):: NLEV, NCONF, MXCI
       real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF)
-      real(kind=wp), intent(out) :: SGM1(MXCI), SGM2(MXCI),
+      real(kind=wp), intent(out) :: SGM1(MXCI), SGM2(MXCI),             &
      &  G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
 
       real(kind=wp) :: GTU,GTUVX !! ,GTUXV
@@ -47,14 +47,14 @@
       real(kind=wp), EXTERNAL :: DDOT_, DNRM2_
       integer(kind=iwp), ALLOCATABLE :: Task(:,:)
 
-c Purpose: Compute the 1- and 2-electron density matrix
-c arrays G1 and G2.
+! Purpose: Compute the 1- and 2-electron density matrix
+! arrays G1 and G2.
 
       G1(:,:) = Zero
       G2(:,:,:,:) = Zero
 
-C For the special cases, there is no actual CI-routines involved:
-c Special code for hi-spin case:
+! For the special cases, there is no actual CI-routines involved:
+! Special code for hi-spin case:
       IF (ISCF == 2) THEN
         DO IT = 1, NASHT
           G1(IT,IT) = One
@@ -67,7 +67,7 @@ c Special code for hi-spin case:
         END DO
         return
       END IF
-c Special code for closed-shell:
+! Special code for closed-shell:
       IF (ISCF == 1 .AND. NACTEL > 0) THEN
         DO IT = 1, NASHT
           G1(IT,IT) = Two
@@ -82,13 +82,13 @@ c Special code for closed-shell:
         return
       END IF
 
-* For the general cases, we use actual CI routine calls, and
-* have to take account of orbital order.
-* We will use level inices LT,LU... in these calls, but produce
-* the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in caspt2_module.F90
+! For the general cases, we use actual CI routine calls, and
+! have to take account of orbital order.
+! We will use level inices LT,LU... in these calls, but produce
+! the density matrices with usual active orbital indices.
+! Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
-C-SVC20100311: set up a task table with LT,LU
+!-SVC20100311: set up a task table with LT,LU
       nTasks = (nLev**2+nLev)/2
       nTasks =  nLev**2
 
@@ -106,11 +106,11 @@ C-SVC20100311: set up a task table with LT,LU
 
       Call Init_Tsk(ID, nTasks)
 
-C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
+!-SVC20100311: BEGIN SEPARATE TASK EXECUTION
       do while (Rsv_Tsk(ID,iTask))
 
-* Compute SGM1 = E_UT acting on CI, with T.ge.U,
-* i.e., lowering operations. These are allowed in RAS.
+! Compute SGM1 = E_UT acting on CI, with T.ge.U,
+! i.e., lowering operations. These are allowed in RAS.
         LT=Task(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
@@ -125,7 +125,7 @@ C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
           if (ISTU == STSYM) then
             GTU=DDOT_(NSGM1,CI2,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU
-C           G1(IU,IT)=GTU
+!           G1(IU,IT)=GTU
           end if
           LVX=0
           DO LV=1,NLEV!LT
@@ -135,38 +135,38 @@ C           G1(IU,IT)=GTU
               LVX=LVX+1
               ISX=SGS%ISM(LX)
               ISVX=Mul(ISV,ISX)
-C             IF(ISVX /= ISTU) cycle
+!             IF(ISVX /= ISTU) cycle
               IX=L2ACT(LX)
               ISSG2=Mul(ISVX,ISSG1)
               NSGM2=CIS%NCSF(ISSG2)
               IF (NSGM2 == 0) cycle
               if (ISSG2 == STSYM) then
-C               IF(LX.EQ.LT) THEN
-C then actually T=U=V=X.
-C                 GTUVX=DDOT_(NSGM,SGM1,1,SGM1,1)
-C               ELSE
+!               IF(LX.EQ.LT) THEN
+! then actually T=U=V=X.
+!                 GTUVX=DDOT_(NSGM,SGM1,1,SGM1,1)
+!               ELSE
                   CALL GETSGM2(LX,LV,ISSG1,SGM1,NCONF,SGM2,NSGM2)
                   GTUVX=DDOT_(NSGM2,CI2,1,SGM2,1)
-C               END IF
+!               END IF
 
-C               IF(LV.EQ.LX) THEN
-C                 GTUXV=GTUVX
-C               ELSE
-C                 IF(LVX.EQ.LTU) THEN
-C                   GTUXV=DDOT_(NSGM,SGM1,1,SGM1,1)
-C                 ELSE
-C                   CALL GETSGM2(LX,LV,STSYM,CI,MXCI,SGM2,NSGM)
-C                   GTUXV=DDOT_(NSGM,SGM1,1,SGM2,1)
-C                 END IF
-C               END IF
+!               IF(LV.EQ.LX) THEN
+!                 GTUXV=GTUVX
+!               ELSE
+!                 IF(LVX.EQ.LTU) THEN
+!                   GTUXV=DDOT_(NSGM,SGM1,1,SGM1,1)
+!                 ELSE
+!                   CALL GETSGM2(LX,LV,STSYM,CI,MXCI,SGM2,NSGM)
+!                   GTUXV=DDOT_(NSGM,SGM1,1,SGM2,1)
+!                 END IF
+!               END IF
                 G2(IT,IU,IV,IX)=G2(IT,IU,IV,IX)+GTUVX
-C               G2(IT,IU,IX,IV)=GTUXV
+!               G2(IT,IU,IX,IV)=GTUXV
               end if
             END DO
           END DO
 
           CALL GETSGM2(LU,LT,STSYM,CI2,NCONF,SGM1,NSGM1)
-C         IF(ISTU == 1) THEN
+!         IF(ISTU == 1) THEN
           if (ISTU == STSYM) then
             GTU=DDOT_(NSGM1,CI1,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU
@@ -177,11 +177,11 @@ C         IF(ISTU == 1) THEN
             IV=L2ACT(LV)
             DO LX=1,NLEV
               LVX=LVX+1
-C             IF(LVX.GT.LTU) cycle
+!             IF(LVX.GT.LTU) cycle
               ISX=SGS%ISM(LX)
               IX=L2ACT(LX)
               ISVX=Mul(ISV,ISX)
-C             IF (ISVX /= ISTU) cycle
+!             IF (ISVX /= ISTU) cycle
               ISSG2=Mul(ISVX,ISSG1)
               NSGM2=CIS%NCSF(ISSG2)
               IF (NSGM2 == 0) cycle
@@ -193,10 +193,10 @@ C             IF (ISVX /= ISTU) cycle
             END DO
           END DO
 
-CSVC: The master node now continues to only handle task scheduling,
-C     needed to achieve better load balancing. So it exits from the task
-C     list.  It has to do it here since each process gets at least one
-C     task.
+!SVC: The master node now continues to only handle task scheduling,
+!     needed to achieve better load balancing. So it exits from the task
+!     list.  It has to do it here since each process gets at least one
+!     task.
 
       end do
 
@@ -207,8 +207,8 @@ C     task.
       CALL GAdGOP (G1,NG1,'+')
       CALL GAdGOP (G2,NG2,'+')
 
-C     Write(u6,*) "before"
-C     call sqprt(g2,nlev**2)
+!     Write(u6,*) "before"
+!     call sqprt(g2,nlev**2)
       Do LT = 1, NLEV
         IT = L2ACT(LT)
         Do LU = 1, NLEV
@@ -230,56 +230,56 @@ C     call sqprt(g2,nlev**2)
       end do
       end do
       end do
-C-SVC20100311: serial part: add corrections to G2
-C     DO LT=1,NLEV
-C      IT=L2ACT(LT)
-C      DO LX=1,LT
-C       IX=L2ACT(LX)
-C       DO LU=LX,LT
-C        IU=L2ACT(LU)
-C        G2(IT,IU,IU,IX)=G2(IT,IU,IU,IX)-G1(IT,IX)
-C       END DO
-C      END DO
-C     END DO
-C     DO LT=2,NLEV
-C      IT=L2ACT(LT)
-C      DO LX=2,LT
-C       IX=L2ACT(LX)
-C       DO LU=1,LX-1
-C        IU=L2ACT(LU)
-C        G2(IT,IU,IU,IX)=G2(IT,IU,IU,IX)-G1(IT,IX)
-C       END DO
-C      END DO
-C     END DO
-C     LTU=0
-C     DO LT=1,NLEV
-C      IT=L2ACT(LT)
-C      DO LU=1,LT
-C       LTU=LTU+1
-C       IU=L2ACT(LU)
-C       LVX=0
-C       DO LV=1,LT
-C        IV=L2ACT(LV)
-C        DO LX=1,LV
-C         LVX=LVX+1
-C         IX=L2ACT(LX)
-C         IF(LVX.GT.LTU) GOTO 225
-C         GTUVX=G2(IT,IU,IV,IX)
-C         G2(IU,IT,IX,IV)=GTUVX
-C         G2(IV,IX,IT,IU)=GTUVX
-C         G2(IX,IV,IU,IT)=GTUVX
-C         GTUXV=G2(IT,IU,IX,IV)
-C         G2(IU,IT,IV,IX)=GTUXV
-C         G2(IX,IV,IT,IU)=GTUXV
-C         G2(IV,IX,IU,IT)=GTUXV
-C        END DO
-C       END DO
-C225    CONTINUE
-C      END DO
-C     END DO
+!-SVC20100311: serial part: add corrections to G2
+!     DO LT=1,NLEV
+!      IT=L2ACT(LT)
+!      DO LX=1,LT
+!       IX=L2ACT(LX)
+!       DO LU=LX,LT
+!        IU=L2ACT(LU)
+!        G2(IT,IU,IU,IX)=G2(IT,IU,IU,IX)-G1(IT,IX)
+!       END DO
+!      END DO
+!     END DO
+!     DO LT=2,NLEV
+!      IT=L2ACT(LT)
+!      DO LX=2,LT
+!       IX=L2ACT(LX)
+!       DO LU=1,LX-1
+!        IU=L2ACT(LU)
+!        G2(IT,IU,IU,IX)=G2(IT,IU,IU,IX)-G1(IT,IX)
+!       END DO
+!      END DO
+!     END DO
+!     LTU=0
+!     DO LT=1,NLEV
+!      IT=L2ACT(LT)
+!      DO LU=1,LT
+!       LTU=LTU+1
+!       IU=L2ACT(LU)
+!       LVX=0
+!       DO LV=1,LT
+!        IV=L2ACT(LV)
+!        DO LX=1,LV
+!         LVX=LVX+1
+!         IX=L2ACT(LX)
+!         IF(LVX.GT.LTU) GOTO 225
+!         GTUVX=G2(IT,IU,IV,IX)
+!         G2(IU,IT,IX,IV)=GTUVX
+!         G2(IV,IX,IT,IU)=GTUVX
+!         G2(IX,IV,IU,IT)=GTUVX
+!         GTUXV=G2(IT,IU,IX,IV)
+!         G2(IU,IT,IV,IX)=GTUXV
+!         G2(IX,IV,IT,IU)=GTUXV
+!         G2(IV,IX,IU,IT)=GTUXV
+!        END DO
+!       END DO
+!225    CONTINUE
+!      END DO
+!     END DO
 
       IF(iPrGlb >= DEBUG) THEN
-        WRITE(u6,'("DEBUG> ",A)')
+        WRITE(u6,'("DEBUG> ",A)')                                       &
      &   "DENS2_RPT2: norms of the density matrices:"
         WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
         WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G2:", DNRM2_(NG2,G2,1)
