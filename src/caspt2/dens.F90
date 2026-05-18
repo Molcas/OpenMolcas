@@ -882,7 +882,7 @@ if (do_grad) then
   call mma_deallocate(FPT2_AO)
   call mma_deallocate(FPT2C_AO)
   if (do_csf) call mma_deallocate(DPT2Canti_)
-  DPT2Canti => null()
+  nullify(DPT2Canti)
 
   !! Finalize OLag (anti-symmetrize) and construct WLag
   call OLagFinal(nOLag,NBSQT,OLag,Trf)

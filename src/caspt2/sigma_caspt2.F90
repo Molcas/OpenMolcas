@@ -23,7 +23,7 @@ subroutine SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
 ! where the vectors are represented in transformed basis and
 ! are  stored at positions IVEC and JVEC on the LUSOLV unit.
 
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: Zero, One
 use Fockof, only: FIT, FAI_Full, FIA_Full, FIT_Full, FTA_Full, IOFFIT, IOFFIA, IOFFTA, FTI, FIA, FTI_Full, FAI, FTA, FAT, FAT_Full
 use caspt2_global, only: FIFA, LISTS
@@ -47,10 +47,10 @@ integer(kind=iwp) iCASE1, iCase2, IfC, IFIFA, IMLTOP, ISYM, ISYM1, ISYM2, lCX, l
                   nSgm2_Blk, nSgmX, nSgmX_blk
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Entering SIGMA.'
-write(6,*) ' Compute |JVEC> := Beta*|JVEC> + Alpha*(H0-E0)|IVEC>'
-write(6,'(1x,a,2f15.6)') 'Alpha,Beta:',Alpha,Beta
-write(6,'(1x,a,2i5)') 'IVEC,JVEC:',IVEC,JVEC
+write(u6,*) ' Entering SIGMA.'
+write(u6,*) ' Compute |JVEC> := Beta*|JVEC> + Alpha*(H0-E0)|IVEC>'
+write(u6,'(1x,a,2f15.6)') 'Alpha,Beta:',Alpha,Beta
+write(u6,'(1x,a,2i5)') 'IVEC,JVEC:',IVEC,JVEC
 #endif
 
 ! If the G1 correction to the Fock matrix is used, then the
@@ -185,15 +185,15 @@ do ICASE1=1,11
           XTST = DDOT_(NCX,GA_Arrays(LCX)%A,1,GA_Arrays(LCX)%A,1)
         end if
 
-        if (XTST > 1.0d12) then
-          write(6,'(1x,a,6i10)') ' SIGMA A. ICASE2,ISYM2:',ICASE2,ISYM2
+        if (XTST > 1.0e12_wp) then
+          write(u6,'(1x,a,6i10)') ' SIGMA A. ICASE2,ISYM2:',ICASE2,ISYM2
           call Crash()
         end if
 
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
-        write(6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
-        write(6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
+        write(u6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
+        write(u6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
+        write(u6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
 #       endif
         ! Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
         call SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,SGM1,size(SGM1),SGM2,size(SGM2),LCX,LISTS,size(LISTS))
@@ -206,17 +206,17 @@ do ICASE1=1,11
 
         ! Check for colossal values of SGM2 and SGM1
         XTST = DDOT_(NSGM2,SGM2,1,SGM2,1)
-        if (XTST > 1.0d12) then
-          write(6,'(1x,a,6i10)') ' SIGMA B. ICASE1,ISYM1:',ICASE1,ISYM1
-          write(6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
+        if (XTST > 1.0e12_wp) then
+          write(u6,'(1x,a,6i10)') ' SIGMA B. ICASE1,ISYM1:',ICASE1,ISYM1
+          write(u6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
           call Crash()
         end if
 
         if (NSGM1 > 0) then
           XTST = DDOT_(NSGM1,SGM1,1,SGM1,1)
-          if (XTST > 1.0d12) then
-            write(6,'(1x,a,6i10)') ' SIGMA B2. ICASE1,ISYM1:',ICASE1,ISYM1
-            write(6,'(1x,a,6i10)') '           ICASE2,ISYM2:',ICASE2,ISYM2
+          if (XTST > 1.0e12_wp) then
+            write(u6,'(1x,a,6i10)') ' SIGMA B2. ICASE1,ISYM1:',ICASE1,ISYM1
+            write(u6,'(1x,a,6i10)') '           ICASE2,ISYM2:',ICASE2,ISYM2
             call Crash()
           end if
         end if
@@ -241,7 +241,7 @@ do ICASE1=1,11
     ! If there are 1-electron contributions, add them into the 2-el
     ! part (This requires a non-empty active space.)
     if (NSGM1 > 0) then
-      FACT = One/(dble(max(1,NACTEL)))
+      FACT = One/real(max(1,NACTEL),kind=wp)
       if (ICASE1 == 1) then
         call SPEC1A(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
       else if (ICASE1 == 4) then
@@ -251,8 +251,8 @@ do ICASE1=1,11
       end if
 
       XTST = DDOT_(NSGM2,SGM2,1,SGM2,1)
-      if (XTST > 1.0d12) then
-        write(6,'(1x,a,6i10)') ' SIGMA C. ICASE1,ISYM1:',ICASE1,ISYM1
+      if (XTST > 1.0e12_wp) then
+        write(u6,'(1x,a,6i10)') ' SIGMA C. ICASE1,ISYM1:',ICASE1,ISYM1
         call Crash()
       end if
 
@@ -270,9 +270,9 @@ do ICASE1=1,11
     call RHS_READ(NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
 
     XTST = RHS_DDOT(NAS1,NIS1,lg_SGMX,lg_SGMX)
-    if (XTST > 1.0d12) then
-      write(6,'(1x,a,6i10)') ' SIGMA D. ICASE1,ISYM1:',ICASE1,ISYM1
-      write(6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
+    if (XTST > 1.0e12_wp) then
+      write(u6,'(1x,a,6i10)') ' SIGMA D. ICASE1,ISYM1:',ICASE1,ISYM1
+      write(u6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
       call Crash()
     end if
 
@@ -284,9 +284,9 @@ do ICASE1=1,11
     call RHS_FREE(lg_SGM2)
 
     XTST = RHS_DDOT(NAS1,NIS1,lg_SGMX,lg_SGMX)
-    if (XTST > 1.0d12) then
-      write(6,'(1x,a,6i10)') ' SIGMA E. ICASE1,ISYM1:',ICASE1,ISYM1
-      write(6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
+    if (XTST > 1.0e12_wp) then
+      write(u6,'(1x,a,6i10)') ' SIGMA E. ICASE1,ISYM1:',ICASE1,ISYM1
+      write(u6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
       call Crash()
     end if
 
@@ -315,8 +315,8 @@ do ICASE1=1,11
     call RHS_READ(NAS1,NIS1,lg_CX,ICASE1,ISYM1,IVEC)
 
     XTST = RHS_DDOT(NAS1,NIS1,lg_CX,lg_CX)
-    if (XTST > 1.0d12) then
-      write(6,'(1x,a,6i10)') ' SIGMA F. ICASE1,ISYM1:',ICASE1,ISYM1
+    if (XTST > 1.0e12_wp) then
+      write(u6,'(1x,a,6i10)') ' SIGMA F. ICASE1,ISYM1:',ICASE1,ISYM1
       call Crash()
     end if
 
@@ -329,9 +329,9 @@ do ICASE1=1,11
 
     !PAM Sanity check:
     XTST = RHS_DDOT(NAS1,NIS1,lg_D2,lg_D2)
-    if (XTST > 1.0d12) then
-      write(6,'(1x,a,6i10)') ' SIGMA G1 ICASE1,ISYM1:',ICASE1,ISYM1
-      write(6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
+    if (XTST > 1.0e12_wp) then
+      write(u6,'(1x,a,6i10)') ' SIGMA G1 ICASE1,ISYM1:',ICASE1,ISYM1
+      write(u6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
       call Crash()
     end if
 
@@ -341,7 +341,7 @@ do ICASE1=1,11
 
     ND1 = 0
     IMLTOP = 1
-    FACT = One/(dble(max(1,NACTEL)))
+    FACT = One/real(max(1,NACTEL),kind=wp)
     if (ICASE1 == 1) then
       ND1 = NASH(ISYM1)*NISH(ISYM1)
       if (ND1 > 0) then
@@ -368,9 +368,9 @@ do ICASE1=1,11
 
     if (ND1 > 0) then
       XTST = DDOT_(ND1,D1,1,D1,1)
-      if (XTST > 1.0d12) then
-        write(6,'(1x,a,6i10)') ' SIGMA G2 ICASE1,ISYM1:',ICASE1,ISYM1
-        write(6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
+      if (XTST > 1.0e12_wp) then
+        write(u6,'(1x,a,6i10)') ' SIGMA G2 ICASE1,ISYM1:',ICASE1,ISYM1
+        write(u6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
         call Crash()
       end if
     end if
@@ -394,16 +394,16 @@ do ICASE1=1,11
 
         ! SVC: this array is just zero....
         !XTST = DDOT_(NSGMX,GA_Array(LSGMX)%A,1,GA_Array(LSGMX)%A,1)
-        !if (XTST > 1.0D12) then
-        !  write(6,'(1x,a,6i10)') ' SIGMA H. ICASE1,ISYM1:',ICASE1,ISYM1
-        !  write(6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
+        !if (XTST > 1.0e12_wp) then
+        !  write(u6,'(1x,a,6i10)') ' SIGMA H. ICASE1,ISYM1:',ICASE1,ISYM1
+        !  write(u6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
         !  call Crash()
         !end if
 
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
-        write(6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
-        write(6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
+        write(u6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
+        write(u6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
+        write(u6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
 #       endif
         ! Compute contribution SGMX <- D2, and SGMX <- D1  if any
         call SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,D1,size(D1),D2,size(D2),LSGMX,LISTS,size(LISTS))
@@ -414,9 +414,9 @@ do ICASE1=1,11
           XTST = DDOT_(NSGMX,GA_Arrays(LSGMX)%A,1,GA_Arrays(LSGMX)%A,1)
         end if
 
-        if (XTST > 1.0d12) then
-          write(6,'(1x,a,6i10)') ' SIGMA I. ICASE1,ISYM1:',ICASE1,ISYM1
-          write(6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
+        if (XTST > 1.0e12_wp) then
+          write(u6,'(1x,a,6i10)') ' SIGMA I. ICASE1,ISYM1:',ICASE1,ISYM1
+          write(u6,'(1x,a,6i10)') '          ICASE2,ISYM2:',ICASE2,ISYM2
           call Crash()
         end if
 
@@ -447,12 +447,12 @@ CPUSGM = CPUSGM+(CPU1-CPU0)
 TIOSGM = TIOSGM+(TIO1-TIO0)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' End of SIGMA. Flop counts:'
-write(6,'(a,i12)') ' In MLTSCA:',NFSCA
-write(6,'(a,i12)') ' In MLTDXP:',NFDXP
-write(6,'(a,i12)') ' In MLTMV :',NFMV
-write(6,'(a,i12)') ' In MLTR1 :',NFR1
-write(6,*)
+write(u6,*) ' End of SIGMA. Flop counts:'
+write(u6,'(a,i12)') ' In MLTSCA:',NFSCA
+write(u6,'(a,i12)') ' In MLTDXP:',NFDXP
+write(u6,'(a,i12)') ' In MLTMV :',NFMV
+write(u6,'(a,i12)') ' In MLTR1 :',NFR1
+write(u6,*)
 #endif
 
 call mma_deallocate(FIT_Full)
@@ -474,12 +474,12 @@ contains
 
 subroutine Crash()
 
-  write(6,*) ' Colossal value detected in SIGMA.'
-  write(6,*) ' This implies that the thresholds used for linear'
-  write(6,*) ' dependence removal must be increased.'
-  write(6,*) ' Present values, THRSHN, THRSHS:',THRSHN,THRSHS
-  write(6,*) ' Use keyword THRESHOLD in input to increase these'
-  write(6,*) ' values and then run again.'
+  write(u6,*) ' Colossal value detected in SIGMA.'
+  write(u6,*) ' This implies that the thresholds used for linear'
+  write(u6,*) ' dependence removal must be increased.'
+  write(u6,*) ' Present values, THRSHN, THRSHS:',THRSHN,THRSHS
+  write(u6,*) ' Use keyword THRESHOLD in input to increase these'
+  write(u6,*) ' values and then run again.'
   call ABEND()
 
 end subroutine Crash

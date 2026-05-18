@@ -967,7 +967,7 @@ select case (KOD)
       end do
     end if
     !---------------------------
-  case DEFAULT
+  case default
     write(u6,*) ' INTERNAL ERROR: SGM reached invalid KOD=',KOD
     call Abend()
 end select

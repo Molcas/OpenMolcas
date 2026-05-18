@@ -48,7 +48,7 @@ do iStat=1,nState
     !! One of doubling is due to the symmetry of iStat and jStat
     !Scal = SLag(iStat+nState*(jStat-1))*Four
     Scal = SLag(iStat+nState*(jStat-1))*Two
-    if (abs(Scal) <= 1.0e-09_wp) cycle
+    if (abs(Scal) <= 1.0e-9_wp) cycle
 
     call Poly1_CLagT(CI1,CI2,CLag(1,iStat),CLag(1,jStat),RDMEIG,Scal)
     !! Inactive terms

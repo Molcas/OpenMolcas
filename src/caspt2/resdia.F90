@@ -26,6 +26,7 @@
 subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)
 
 use caspt2_global, only: imag_shift, real_shift, sigma_p_epsilon, sigma_p_exponent
+use Constants, only: Zero, One
 use definitions, only: wp, iwp
 
 implicit none
@@ -35,7 +36,7 @@ real(kind=wp), intent(in) :: dIn(nRow), dIs(nCol)
 integer(kind=iwp) :: i, j, p
 real(kind=wp) :: delta, delta_inv, tmp, sigma, epsilon
 
-dOvl = 0.0_wp
+dOvl = Zero
 do j=1,nCol
   do i=1,nRow
     ! energy denominator plus real shift
@@ -45,9 +46,9 @@ do j=1,nCol
     ! multiply by (inverse) sigma-p regularizer
     epsilon = sigma_p_epsilon
     p = sigma_p_exponent
-    if (epsilon > 0.0_wp) then
-      sigma = 1.0_wp/epsilon**p
-      delta_inv = delta_inv*(1.0_wp-exp(-sigma*abs(delta)**p))
+    if (epsilon > Zero) then
+      sigma = One/epsilon**p
+      delta_inv = delta_inv*(One-exp(-sigma*abs(delta)**p))
     end if
     tmp = delta_inv*W(i,j)
     dOvl = dOvl+tmp*W(i,j)

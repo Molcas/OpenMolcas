@@ -213,8 +213,7 @@ if ((nStpGrd == 1) .or. ((nStpGrd == 2) .and. (.not. do_grad))) then
     else
       write(u6,'(6x,a,f18.10)') 'Reference energy:                 ',EREF
       write(u6,'(6x,a,f18.10)') 'Active-Site E2 (Non-variational): ',E2NONV
-      if ((real_shift /= Zero) .or. (imag_shift /= Zero)) &
-        write(u6,'(6x,a,f18.10)') 'Shift correction:                 ',ESHIFT
+      if ((real_shift /= Zero) .or. (imag_shift /= Zero)) write(u6,'(6x,a,f18.10)') 'Shift correction:                 ',ESHIFT
       write(u6,'(6x,a,f18.10)') 'Active-Site E2 (Variational):     ',E2CORR
       write(u6,'(6x,a,f18.10)') 'Frozen region E2 :                ',EMP2
       write(u6,'(6x,a,f18.10)') 'Residual norm:                    ',RNORM

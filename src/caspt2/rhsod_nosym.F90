@@ -22,7 +22,7 @@
 
 subroutine RHSOD_NOSYM(IVEC)
 
-use definitions, only: iwp
+use definitions, only: iwp, u6
 #ifdef _DEBUGPRINT_
 use definitions, only: wp
 use caspt2_module, only: nASup, nISup, nSym
@@ -42,13 +42,13 @@ real(kind=wp), external :: RHS_DDot
 #endif
 
 if (IPRGLB >= VERBOSE) then
-  write(6,'(1X,A)') ' Using special RHS on-demand algorithm,'
-  write(6,'(1X,A)') ' optimized for non-symmetric molecules'
+  write(u6,'(1X,A)') ' Using special RHS on-demand algorithm,'
+  write(u6,'(1X,A)') ' optimized for non-symmetric molecules'
 end if
 
 #ifdef _MOLCAS_MPP_
 if (.not. Is_Real_Par()) then
-  write(6,'(1X,A)') 'RHSOD_NOSYM: error: fake parallel not supported'
+  write(u6,'(1X,A)') 'RHSOD_NOSYM: error: fake parallel not supported'
   call AbEnd()
 end if
 #endif
@@ -64,8 +64,8 @@ call RHSOD_H_NOSYM(IVEC)
 
 #ifdef _DEBUGPRINT_
 ! compute and print RHS fingerprints
-write(6,'(1X,A4,1X,A3,1X,A18)') 'Case','Sym','Fingerprint'
-write(6,'(1X,A4,1X,A3,1X,A18)') '====','===','==========='
+write(u6,'(1X,A4,1X,A3,1X,A18)') 'Case','Sym','Fingerprint'
+write(u6,'(1X,A4,1X,A3,1X,A18)') '====','===','==========='
 do ICASE=1,13
   do ISYM=1,NSYM
     NAS = NASUP(ISYM,ICASE)
@@ -74,7 +74,7 @@ do ICASE=1,13
       call RHS_ALLO(NAS,NIS,lg_W)
       call RHS_READ(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
       DNRM2 = RHS_DDOT(NAS,NIS,lg_W,lg_W)
-      write(6,'(1X,I4,1X,I3,1X,F18.11)') ICASE,ISYM,DNRM2
+      write(u6,'(1X,I4,1X,I3,1X,F18.11)') ICASE,ISYM,DNRM2
     end if
   end do
 end do

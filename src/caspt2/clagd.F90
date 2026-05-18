@@ -1189,7 +1189,7 @@ subroutine CLagDX_MPP()
   !if (King()) then
   !  call mma_allocate(VEC1,NAS*NAS,Label='VEC1')
   !  call GA_GET(lg_sder,1,NAS,1,NAS,VEC1,NAS)
-  !  write(6,*) 'S DERIVATIVE IN NAS (1)'
+  !  write(u6,*) 'S DERIVATIVE IN NAS (1)'
   !  call SQPRT(VEC1,NAS)
   !  call mma_deallocate(VEC1)
   !end if

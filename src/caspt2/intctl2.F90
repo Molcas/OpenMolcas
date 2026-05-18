@@ -16,7 +16,7 @@ use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
 use PrintLevel, only: DEBUG
 use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: nBTri
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nCMO, nDREF, NFIFA, nHONE, nFIMO
@@ -33,17 +33,11 @@ call mma_allocate(FAAO,NBTRI,LABEL='FAAO')
 
 ! tracho2 makes many allocations but should deallocate everything
 ! before its return.
-if (IPRGLB >= DEBUG) then
-  write(6,*) ' INTCTL2 calling TRACHO2...'
-  call XFLUSH(6)
-end if
+if (IPRGLB >= DEBUG) write(u6,*) ' INTCTL2 calling TRACHO2...'
 
 call TraCho2(CMO,nCMO,DREF,nDREF,FFAO,FIAO,FAAO,IF_TRNSF)
 
-if (IPRGLB >= DEBUG) then
-  write(6,*) ' INTCTL2 back from TRACHO2.'
-  call XFLUSH(6)
-end if
+if (IPRGLB >= DEBUG) write(u6,*) ' INTCTL2 back from TRACHO2.'
 ! All extra allocations inside tracho2 should now be gone.
 
 ! For gradient calculation, it is good to have FIAO and FAAO

@@ -21,6 +21,7 @@ use printLevel, only: verbose
 use sguga, only: SGS
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: jState, EPSA
+use Constants, only: Zero
 use definitions, only: wp, iwp, byte, u6
 
 implicit none
@@ -53,7 +54,7 @@ call qcmaquis_interface_get_3rdm_full(G3tmp)
 ! call qcmaquis_interface_read_rdm_full(int(JSTATE-1,kind=c_int),int(JSTATE-1,kind=c_int),G3tmp,int(3,kind=c_int))
 
 ! TODO: This should be removed in the future
-TG3tmp = 0.0_wp  ! Initialize TG3tmp to zero
+TG3tmp = Zero  ! Initialize TG3tmp to zero
 call qcmaquis_interface_get_fock_contracted_4rdm_full(EPSA,0)
 call qcmaquis_interface_read_fock_contracted_4rdm(TG3tmp,logical(.false.,c_bool))
 

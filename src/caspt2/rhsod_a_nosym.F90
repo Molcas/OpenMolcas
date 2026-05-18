@@ -14,7 +14,7 @@
 subroutine RHSOD_A_NOSYM(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use SUPERINDEX, only: MTUV, MTREL
 use CHOVEC_IO, only: NVTOT_ChoSym, ChoVec_Size, ChoVec_read
 use caspt2_global, only: iPrGlb
@@ -39,7 +39,7 @@ integer(kind=iwp) iAEnd, iASta, iCase, IDX, IIEnd, IJ, IOFFTJ, IOFFVX, ISYJ, iSy
 #include "mafdecls.fh"
 #endif
 
-if (iPrGlb >= DEBUG) write(6,*) 'RHS on demand: case A'
+if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case A'
 
 !***********************************************************************
 ! Case A:
@@ -104,7 +104,7 @@ do ISYM=1,NSYM
       if ((ISYT == ISYJ) .and. (IVABS == IXABS)) then
         ITTOT = IT+NISH(ISYT)
         FTJ = FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+IJ)
-        ATVXJ = TJVX+FTJ/dble(max(1,NACTEL))
+        ATVXJ = TJVX+FTJ/real(max(1,NACTEL),kind=wp)
       else
         ATVXJ = TJVX
       end if

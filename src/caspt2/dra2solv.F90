@@ -67,7 +67,7 @@ if (Is_Real_Par()) then
     !     in that case.
     call mma_MaxDBLE(iMax)
     !-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
-    iMax = min(nint(0.95d0*iMax),134217728)
+    iMax = min(nint(0.95_wp*iMax),134217728)
     NCOL = min(iMAX,NAS*NIS)/NAS
     if (NCOL <= 0) then
       write(u6,*) 'Not enough memory in DRA2SOLV, aborting...'

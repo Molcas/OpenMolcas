@@ -24,7 +24,7 @@ subroutine TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 ! The present solution gives just a reasonable approximation,
 ! with correct trace.
 
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: Zero, Two
 use caspt2_global, only: iPrGlb
 use caspt2_global, only: DREF
@@ -42,8 +42,8 @@ real(kind=wp), external :: RHS_DDOT
 
 if (IPRGLB >= VERBOSE) then
   call WarningMessage(1,'Computing approximated density.')
-  write(6,*) ' The active/active submatrices of the density'
-  write(6,*) ' matrix is roughly approximated only.'
+  write(u6,*) ' The active/active submatrices of the density'
+  write(u6,*) ' matrix is roughly approximated only.'
 end if
 
 COEF1 = Zero
@@ -69,10 +69,10 @@ do ICASE=1,13
     call RHS_FREE(LVEC2)
   end do
   if (NADIFF > 0) then
-    COEF1 = COEF1+OVL*dble(NADIFF)/dble(max(1,NAHOLE))
-    COEF2 = COEF2+OVL*dble(NAHOLE-NADIFF)/dble(max(1,NAHOLE))
+    COEF1 = COEF1+OVL*real(NADIFF,kind=wp)/real(max(1,NAHOLE),kind=wp)
+    COEF2 = COEF2+OVL*real(NAHOLE-NADIFF,kind=wp)/real(max(1,NAHOLE),kind=wp)
   else
-    COEF2 = COEF2+OVL*dble(NACTEL+NADIFF)/dble(max(1,NACTEL))
+    COEF2 = COEF2+OVL*real(NACTEL+NADIFF,kind=wp)/real(max(1,NACTEL),kind=wp)
   end if
 end do
 

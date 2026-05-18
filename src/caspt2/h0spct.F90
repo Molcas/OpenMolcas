@@ -40,8 +40,8 @@ integer(kind=iwp), allocatable, target :: IDX_H(:,:)
 real(kind=wp), allocatable, target :: VAL_H(:,:)
 integer(kind=iwp) myRank, mRHS, LD, mVEC
 #endif
-integer(kind=iwp), pointer :: IDX(:,:) => null()
-real(kind=wp), pointer :: VAL(:,:) => null()
+integer(kind=iwp), pointer :: IDX(:,:)
+real(kind=wp), pointer :: VAL(:,:)
 real(kind=wp), allocatable :: BD(:), ID(:)
 real(kind=wp) COEF, DNOM, ECNT, RHS
 integer(kind=iwp) IAEND, IAS, IASTA, IBUF, ICASE, IIEND, IIS, IISTA, IP, IQ, IR, IS, ISYM, JD, lg_RHS, lg_VEC, MAXBUF, NAS, NBUF, &
@@ -228,9 +228,8 @@ do ICASE=1,13
 end do
 
 call mma_deallocate(IDXBUF)
-IDX => null()
 call mma_deallocate(VALBUF)
-VAL => null()
+nullify(IDX,VAL)
 
 call CollapseOutput(0,'Denominators, etc.')
 

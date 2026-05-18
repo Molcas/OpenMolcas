@@ -108,7 +108,7 @@ function NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
     case (4)
       NP = NSSH(ISYP)
       NQ = NISH(ISYQ)
-    case DEFAULT
+    case default
       NP = 0
       NQ = 0
       call SYSABENDMSG('NPQ_CHOTYPE','invalid case number','')
@@ -309,7 +309,6 @@ subroutine CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 # include "global.fh"
 # include "mafdecls.fh"
   integer(kind=MPIInt) IERROR4, ITYPE
-  integer(kind=MPIInt), parameter :: ONE4 = 1
   integer(kind=iwp) :: I, JNUM, JNUMT, NPQ, NUMSEND(1), IDISKT, IERROR
   integer(kind=MPIInt), allocatable :: DISP(:), size(:)
   real(kind=wp), allocatable :: TRANSP(:), RECVBUF(:)
@@ -338,7 +337,7 @@ subroutine CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
     NPQ = NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
     JNUM = NVLOC_CHOBATCH(IB)
     NUMSEND(1) = NPQ*JNUM
-    call MPI_Allgather(NUMSEND,ONE4,ITYPE,size(1:NPROCS),ONE4,ITYPE,MPI_COMM_WORLD,IERROR4)
+    call MPI_Allgather(NUMSEND,1_MPIInt,ITYPE,size(1:NPROCS),1_MPIInt,ITYPE,MPI_COMM_WORLD,IERROR4)
     ! compute offsets into the receiving array
     DISP(1) = 0
     do I=2,NPROCS
@@ -399,6 +398,9 @@ subroutine MPI_Allgatherv_(SENDBUF,NSENDBUF,NSEND,MPITYPES,RCVBUF,NRCVBUF,NRCV,N
   use MPI, only: MPI_COMM_WORLD
   use stdalloc, only: mma_allocate, mma_deallocate
   use definitions, only: MPIInt
+# ifdef _I8_
+  use definitions, only: u6
+# endif
 
   integer(kind=iwp), intent(in) :: NSENDBUF
   real(kind=wp), intent(inout) :: SENDBUF(NSENDBUF)
@@ -427,9 +429,9 @@ subroutine MPI_Allgatherv_(SENDBUF,NSENDBUF,NSEND,MPITYPES,RCVBUF,NRCVBUF,NRCV,N
     NRCVTOT = NRCVTOT+NRCV(I)
   end do
   if (8*NRCVTOT > 2147483647) then
-    write(6,'(1X,A)') 'MPI_Allgatherv: total rcv buf > 2**31-1'
-    write(6,'(1X,A)') 'workaround to avoid buffers >2GB failed'
-    write(6,'(1X,A)') '-> please report this as a bug!'
+    write(u6,'(1X,A)') 'MPI_Allgatherv: total rcv buf > 2**31-1'
+    write(u6,'(1X,A)') 'workaround to avoid buffers >2GB failed'
+    write(u6,'(1X,A)') '-> please report this as a bug!'
     call ABEND()
   end if
 # endif

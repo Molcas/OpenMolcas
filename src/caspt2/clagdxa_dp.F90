@@ -152,13 +152,13 @@ do IXYZ=jLo,jHi
     ! 2dtx ( Fvuyz-Et*Gvuyz )
     ! 2 dtx Gvuyz + 2 dtx dyu Gvz
     if (iTabs == iXabs) then
-      !! VALUE=VALUE+Four*(FP(IP)-ET*PREF(IP))
+      !VALUE = VALUE+Four*(FP(IP)-ET*PREF(IP))
       DF2(iVabs,iUabs,iYabs,iZabs) = DF2(iVabs,iUabs,iYabs,iZabs)+Two*ValB
       DG2(iVabs,iUabs,iYabs,iZabs) = DG2(iVabs,iUabs,iYabs,iZabs)-Two*ET*ValB
 
-      !! VALUE=VALUE+Four*PREF(IP)
+      !VALUE = VALUE+Four*PREF(IP)
       DG2(iVabs,iUabs,iYabs,iZabs) = DG2(iVabs,iUabs,iYabs,iZabs)+Two*ValS
-      !! VALUE=VALUE+Two*DREF(ID)
+      !VALUE = VALUE+Two*DREF(ID)
       if (iYabs == iUabs) DG1(iVabs,iZabs) = DG1(iVabs,iZabs)+Two*ValS
     end if
     DEPSA(iTabs,iXabs) = DEPSA(iTabs,iXabs) -Two*ValB*G2(iVabs,iUabs,iYabs,iZabs)
@@ -166,12 +166,12 @@ do IXYZ=jLo,jHi
     ! dxu ( -Fvtyz + Eu*Gvtyz )
     ! -dxu Gvtyz -dxu dyt Gvz
     if (iXabs == iUabs) then
-      !! VALUE=VALUE-Two*(FP(IP)-EU*PREF(IP))
+      !VALUE = VALUE-Two*(FP(IP)-EU*PREF(IP))
       DF2(iVabs,iTabs,iYabs,iZabs) = DF2(iVabs,iTabs,iYabs,iZabs)-ValB
       DG2(iVabs,iTabs,iYabs,iZabs) = DG2(iVabs,iTabs,iYabs,iZabs)+EU*ValB
-      !! VALUE=VALUE - Two*PREF(IP)
+      !VALUE = VALUE-Two*PREF(IP)
       DG2(iVabs,iTabs,iYabs,iZabs) = DG2(iVabs,iTabs,iYabs,iZabs)-ValS
-      !! VALUE=VALUE - DREF(ID)
+      !VALUE = VALUE-DREF(ID)
       if (iYabs == iTabs) DG1(iVabs,iZabs) = DG1(iVabs,iZabs)-ValS
     end if
     DEPSA(iXabs,iUabs) = DEPSA(iXabs,iUabs) +ValB*G2(iVabs,iTabs,iYabs,iZabs)
@@ -179,16 +179,16 @@ do IXYZ=jLo,jHi
     ! dyt ( -Fvuxz + Et*Gvuxz +dxu (-Fvz+(Et+Eu)*Gvz))
     ! -dyt Gvuxz
     if (iYabs == iTabs) then
-      !! VALUE=VALUE-Two*(FP(IP)-ET*PREF(IP))
+      !VALUE = VALUE-Two*(FP(IP)-ET*PREF(IP))
       DF2(iVabs,iUabs,iXabs,iZabs) = DF2(iVabs,iUabs,iXabs,iZabs)-ValB
       DG2(iVabs,iUabs,iXabs,iZabs) = DG2(iVabs,iUabs,iXabs,iZabs)+ET*ValB
       if (iXabs == iUabs) then
-        !! VALUE=VALUE - (FD(ID)-ETU*DREF(ID))
+        !VALUE = VALUE-(FD(ID)-ETU*DREF(ID))
         DF1(iVabs,iZabs) = DF1(iVabs,iZabs)-ValB
         DG1(iVabs,iZabs) = DG1(iVabs,iZabs)+ETU*ValB
       end if
 
-      !! VALUE=VALUE - Two*PREF(IP)
+      !VALUE = VALUE-Two*PREF(IP)
       DG2(iVabs,iUabs,iXabs,iZabs) = DG2(iVabs,iUabs,iXabs,iZabs)-ValS
     end if
     DEPSA(iYabs,iTabs) = DEPSA(iYabs,iTabs) +ValB*G2(iVabs,iUabs,iXabs,iZabs)
@@ -197,16 +197,16 @@ do IXYZ=jLo,jHi
 
     ! -dyu Gvzxt
     if (iYabs == iUabs) then
-      !! VALUE=VALUE-Two*(FP(IP)-EU*PREF(IP))
+      !VALUE = VALUE-Two*(FP(IP)-EU*PREF(IP))
       DF2(iVabs,iZabs,iXabs,iTabs) = DF2(iVabs,iZabs,iXabs,iTabs)-ValB
       DG2(iVabs,iZabs,iXabs,iTabs) = DG2(iVabs,iZabs,iXabs,iTabs)+EU*ValB
       if (iXabs == iTabs) then
-        !! VALUE=VALUE+Two*(FD(ID)-ETU*DREF(ID))
+        !VALUE = VALUE+Two*(FD(ID)-ETU*DREF(ID))
         DF1(iVabs,iZabs) = DF1(iVabs,iZabs)+Two*ValB
         DG1(iVabs,iZabs) = DG1(iVabs,iZabs)-Two*ETU*ValB
       end if
 
-      !! VALUE=VALUE - Two*PREF(IP)
+      !VALUE = VALUE-Two*PREF(IP)
       DG2(iVabs,iZabs,iXabs,iTabs) = DG2(iVabs,iZabs,iXabs,iTabs)-ValS
     end if
     DEPSA(iYabs,iUabs) = DEPSA(iYabs,iUabs) +ValB*G2(iVabs,iZabs,iXabs,iTabs)

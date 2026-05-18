@@ -14,7 +14,7 @@
 subroutine RHSOD_C(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: Zero
 use SUPERINDEX, only: MTUV, MTREL, KTUV
 use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
@@ -41,7 +41,7 @@ real(kind=wp), external :: DDot_
 #include "mafdecls.fh"
 #endif
 
-if (iPrGlb >= DEBUG) write(6,*) 'RHS on demand: case C'
+if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case C'
 
 !***********************************************************************
 ! Case C:
@@ -128,7 +128,7 @@ do ISYM=1,NSYM
         SUMU = SUMU+GA_Arrays(lg_W)%A(IDX)
 #       endif
       end do
-      ADDONE = (FAT-SUMU)/dble(max(1,NACTEL))
+      ADDONE = (FAT-SUMU)/real(max(1,NACTEL),kind=wp)
       do IVABS=1,NASHT
         ITVV = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
         IDX = ITVV+NAS*(IA-IISTA)

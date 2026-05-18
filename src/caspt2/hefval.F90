@@ -18,6 +18,7 @@ subroutine hefval(ist,jst,dvalue)
 ! vector is stored. This depends on the MOs used, but is actually
 ! the same for all the root states.
 
+use Constants, only: Zero
 use definitions, only: wp, iwp, u6
 use caspt2_global, only: luciex, idtcex, iPrGlb
 use printLevel, only: debug
@@ -51,9 +52,9 @@ ntg3 = max(1,ntg3)
 call mma_allocate(tg1,ntg1,label='TG1')
 call mma_allocate(tg2,ntg2,label='TG2')
 call mma_allocate(tg3,ntg3,label='TG3')
-tg1(1) = 0.0e0_wp
-tg2(1) = 0.0e0_wp
-tg3(1) = 0.0e0_wp
+tg1(1) = Zero
+tg2(1) = Zero
+tg3(1) = Zero
 
 #if defined _DMRG_
 if (DMRG) then

@@ -63,7 +63,7 @@ do I=1,Nstate
   if (DMRG) then
     ! set state number here because in poly1 we have no reference
     ! to which state we are computing
-    if (iPrGlb >= DEBUG) write(6,*) 'STINI setting DMRG state number to ',mstate(i)-1
+    if (iPrGlb >= DEBUG) write(u6,*) 'STINI setting DMRG state number to ',mstate(i)-1
     ! Convert to the root number despite having
     ! set only the checkpoint file paths for the desired state(s)
     call qcmaquis_interface_set_state(int(mstate(i)-1,c_int))

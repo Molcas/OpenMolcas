@@ -13,7 +13,7 @@
 subroutine LovCASPT2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,isFNO)
 ! Purpose: put info in MP2 common blocks.
 
-use definitions, only: iwp
+use definitions, only: wp, iwp
 use constants, only: Zero
 use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def, MxQualMP2, OED_Thr, &
                   set_cd_thr, shf, SOS_mp2, Span_Def, SpanMP2, ThrMP2, Verbose
@@ -37,7 +37,7 @@ end do
 
 ChoAlg = 2
 DecoMP2 = Decom_Def
-ThrMP2 = -9.9d9
+ThrMP2 = -9.9e9_wp
 SpanMP2 = Span_Def
 MxQualMP2 = MxQual_Def
 ChkDecoMP2 = .false.
@@ -45,8 +45,8 @@ ForceBatch = .false.
 Verbose = .false.
 SOS_mp2 = .false.
 set_cd_thr = .true.
-OED_Thr = 1.0d-8
-C_os = 1.3d0
+OED_Thr = 1.0e-8_wp
+C_os = 1.3_wp
 EOSMP2 = Zero
 shf = Zero
 

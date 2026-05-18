@@ -17,7 +17,7 @@ use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
 use caspt2_global, only: DWGT
 use caspt2_module, only: DWType, IfDW, IfXMS, Zeta
-use constants, only: One
+use constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 
 implicit none
@@ -27,21 +27,21 @@ real(kind=wp) :: Ealpha, Ebeta, Egamma, Dab, Dag, xi_ag, xi_ab, Wtot
 real(kind=wp) :: Hab, Hag
 integer(kind=iwp) :: I, J, K
 
-if (IPRGLB >= DEBUG) write(6,*) ' Entered wgtinit.'
+if (IPRGLB >= DEBUG) write(u6,*) ' Entered wgtinit.'
 
 ! Initialize array of weights with all zeros
-DWGT(:,:) = 00d0
+DWGT(:,:) = Zero
 
 ! Main loop over all states to compute the weights
 do I=1,nState
 
-  if (IFDW .and. (zeta >= 0.0_wp)) then
+  if (IFDW .and. (zeta >= Zero)) then
     ! If it is an XDW-CASPT2 calculation, the weights are computed
     Ebeta = H(I,I)
     ! Compute normalization factor Wtot, i.e. the sum of all weights
     do J=1,nState
       Ealpha = H(J,J)
-      Wtot = 0.0_wp
+      Wtot = Zero
       do K=1,nState
         Egamma = H(K,K)
 
@@ -89,7 +89,7 @@ do I=1,nState
   else if (IFXMS .and. (.not. IFDW)) then
     ! If it is an XMS-CASPT2 calculation, all the weights are equal,
     ! i.e. they all are 1/nState
-    call dcopy_(nState**2,[1.0_wp/nState],0,DWGT,1)
+    call dcopy_(nState**2,[One/nState],0,DWGT,1)
 
   else
     ! If it is a normal MS-CASPT2, RMS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity

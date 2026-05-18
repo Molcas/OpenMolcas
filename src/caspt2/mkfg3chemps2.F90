@@ -20,6 +20,7 @@ subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
 use Symmetry_Info, only: Mul
 use sguga, only: SGS
 use caspt2_module, only: jState, nActel, EPSA, mState
+use Constants, only: Zero
 use definitions, only: iwp, wp, Byte, u6
 
 implicit none
@@ -47,7 +48,7 @@ do iz=1,nlev
   do iy=1,nlev
     ixySym = Mul(SGS%ism(iy),iySym)
     if (mkF .and. (ixySym == 1)) then
-      F1(iy,iz) = 0.0
+      F1(iy,iz) = Zero
       do iw=1,nlev
         F1(iy,iz) = F1(iy,iz)+G2(iw,iw,iy,iz)*EPSA(iw)
       end do

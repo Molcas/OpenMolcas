@@ -24,7 +24,7 @@ subroutine OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,nX1,X2,nX2,DPT2,nDPT2,Y,nY,LIST,M
 ! again with wave functions interchanged.
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: Half, One, Two, Three, Six
 use EQSOLV, only: IFCOUP, NLIST, LLIST
 use Sigma_data, only: VAL1, VAL2, IFTEST, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, LEN2, NLST1, NLST2
@@ -925,7 +925,7 @@ select case (KOD)
     end if
     ! ---------------------------
   case default
-    write(6,*) ' INTERNAL ERROR: OffDns reached invalid KOD=',KOD
+    write(u6,*) ' INTERNAL ERROR: OffDns reached invalid KOD=',KOD
     call Abend()
 end select
 

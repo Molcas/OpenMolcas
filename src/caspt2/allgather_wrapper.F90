@@ -49,7 +49,6 @@ subroutine ALLGATHER_R(SEND,NSEND,RECV,NRECV)
   real(kind=wp), intent(out) :: RECV(nRecv)
   integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
   integer(kind=MPIInt), allocatable :: NRECV4(:), IDISP4(:)
-  integer(kind=MPIInt), parameter :: ONE4 = 1
   integer(kind=iwp) :: nBytes, nProcs, i
 
   ITYPE4 = MPI_REAL8
@@ -68,7 +67,7 @@ subroutine ALLGATHER_R(SEND,NSEND,RECV,NRECV)
 
   ! first, gather the sendbuffer size of each process in NRECV4
   NSEND4(1) = int(NSEND,kind=MPIInt)
-  call MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,NRECV4,ONE4,MPI_INTEGER,MPI_COMM_WORLD,IERROR4)
+  call MPI_ALLGATHER(NSEND4,1_MPIInt,MPI_INTEGER,NRECV4,1_MPIInt,MPI_INTEGER,MPI_COMM_WORLD,IERROR4)
   if (IERROR4 /= 0) then
     write(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
     call ABEND()
@@ -120,7 +119,6 @@ subroutine ALLGATHER_I(SEND,NSEND,RECV,NRECV)
   integer(kind=iwp), intent(out) :: RECV(nRecv)
   integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
   integer(kind=MPIInt), allocatable :: NRECV4(:), IDISP4(:)
-  integer(kind=MPIInt), parameter :: ONE4 = 1
   integer(kind=iwp) :: nBytes, nProcs, i
 
 # ifdef _I8_
@@ -144,7 +142,7 @@ subroutine ALLGATHER_I(SEND,NSEND,RECV,NRECV)
 
   ! first, gather the sendbuffer size of each process in NRECV4
   NSEND4(1) = int(NSEND,kind=MPIInt)
-  call MPI_ALLGATHER(NSEND4,ONE4,MPI_INTEGER,NRECV4,ONE4,MPI_INTEGER,MPI_COMM_WORLD,IERROR4)
+  call MPI_ALLGATHER(NSEND4,1_MPIInt,MPI_INTEGER,NRECV4,1_MPIInt,MPI_INTEGER,MPI_COMM_WORLD,IERROR4)
   if (IERROR4 /= 0) then
     write(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
     call ABEND()

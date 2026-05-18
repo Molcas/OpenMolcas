@@ -28,7 +28,7 @@ use Printlevel, only: debug, verbose
 use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne, ThrOcc, nFro, nOrb, nBasT, EPS, nDel
 use constants, only: Zero, Two, Five
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NCMO, NTORB, nFIFA, nFIMO
@@ -41,7 +41,7 @@ real(kind=wp) OCC_DUM(1)
 real(kind=wp), allocatable :: OrbE(:)
 
 ! Determine PT2 orbitals, and transform CI coeffs.
-if (IPRGLB >= DEBUG) write(6,*) ' ORBCTL calling MKRPTORB...'
+if (IPRGLB >= DEBUG) write(u6,*) ' ORBCTL calling MKRPTORB...'
 ! The CMO coefficient array is changed by orthonormal transformations of
 ! each of the inactive,Ras1,Ras2,Ras3,and secondary (i.e. virtual) orbitals
 ! in each symmetry. The transformation matrices are stored as a sequence of
@@ -57,14 +57,14 @@ if (IPRGLB >= DEBUG) write(6,*) ' ORBCTL calling MKRPTORB...'
 
 call MKRPTORB(FIFA,nFIFA,TORB,nTORB,CMO,NCMO)
 
-if (IPRGLB >= DEBUG) write(6,*) ' ORBCTL back from MKRPTORB.'
+if (IPRGLB >= DEBUG) write(u6,*) ' ORBCTL back from MKRPTORB.'
 
 ! Use the transformation matrices to change the FIMO and FIFA arrays:
 if (.not. DoFCIQMC) then
   call TRANSFOCK(TORB,nTORB,FIMO,size(FIMO),1)
   call TRANSFOCK(TORB,nTORB,FIFA,nFIFA,1)
 
-  if (IPRGLB >= DEBUG) write(6,*) ' ORBCTL back from TRANSFOCK.'
+  if (IPRGLB >= DEBUG) write(u6,*) ' ORBCTL back from TRANSFOCK.'
 end if
 
 if (IPRGLB >= VERBOSE) then
@@ -88,12 +88,12 @@ if (IPRGLB >= VERBOSE) then
     end if
   end do
   ! Then call utility routine PRIMO.
-  write(6,*) ' The internal wave function representation has been changed to use quasi-canonical orbitals:'
-  write(6,*) ' those which diagonalize the Fock matrix within inactive-inactive,'
-  write(6,*) ' active-active and virtual-virtual submatrices.'
+  write(u6,*) ' The internal wave function representation has been changed to use quasi-canonical orbitals:'
+  write(u6,*) ' those which diagonalize the Fock matrix within inactive-inactive,'
+  write(u6,*) ' active-active and virtual-virtual submatrices.'
   if (.not. PRORB) then
-    write(6,*) ' On user''s request, the quasi-canonical orbitals'
-    write(6,*) ' will not be printed.'
+    write(u6,*) ' On user''s request, the quasi-canonical orbitals'
+    write(u6,*) ' will not be printed.'
     call mma_deallocate(ORBE)
     return
   end if
@@ -104,7 +104,7 @@ if (IPRGLB >= VERBOSE) then
     THROCC = -Two**31
   else if (OUTFMT == 'DEFAULT ') then
     THRENE = Five
-    THROCC = 5.0e-04_wp
+    THROCC = 5.0e-4_wp
   end if
   call PRIMO(' Quasi-canonical orbitals',.false.,.true.,THROCC,THRENE,NSYM,NBAS,NBAS,BNAME,ORBE,OCC_DUM,CMO,-1)
   call mma_deallocate(ORBE)

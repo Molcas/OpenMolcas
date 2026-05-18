@@ -22,7 +22,7 @@
 !***********************************************************************
 subroutine MKBC(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
 
-use definitions, only: iwp, wp, Byte
+use definitions, only: iwp, wp, u6, Byte
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
@@ -80,7 +80,7 @@ do ISYM=1,NSYM
     MYRANK = GA_NODEID()
     call GA_DISTRIBUTION(LG_BC,MYRANK,ILO,IHI,JLO,JHI)
     if ((JLO /= 0) .and. (JHI-JLO+1 /= NAS)) then
-      write(6,*) 'MKBC: MISMATCH IN RANGE OF THE SUPERINDICES'
+      write(u6,*) 'MKBC: MISMATCH IN RANGE OF THE SUPERINDICES'
       call ABEND()
     end if
     if ((ILO > 0) .and. (JLO > 0)) then
@@ -111,7 +111,7 @@ do ISYM=1,NSYM
 
   if (IPRGLB >= DEBUG) then
     DBC = PSBMAT_FPRINT(lg_BC,NAS)
-    write(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'C',ISYM,DBC
+    write(u6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'C',ISYM,DBC
   end if
 
   call PSBMAT_FREEMEM(lg_BC)

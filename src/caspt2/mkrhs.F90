@@ -62,10 +62,7 @@ if (NASHT > 0) then
 end if
 call MKRHSH(IVEC,ERI1,NERI,ERI2,NERI,SCR,NERI)
 
-ERI0 => null()
-ERI1 => null()
-ERI2 => null()
-SCR => null()
+nullify(ERI0,ERI1,ERI2,SCR)
 call mma_deallocate(ERI)
 
 end subroutine MKRHS

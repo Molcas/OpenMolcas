@@ -187,7 +187,7 @@ subroutine Accum(bBlock,kBlock,bBuf,nbBuf,kBuf,nkBuf,IB,IK)
     case (Virt)
       NB(:) = NSSH(1:NSYM)
       bOff(:) = NISH(1:NSYM)+NASH(1:NSYM)
-    case DEFAULT ! Nothing compares 2 U
+    case default ! Nothing compares 2 U
       ! (just to keep compilers happy)
       NB(:) = 0
       bOff(:) = 0
@@ -205,7 +205,7 @@ subroutine Accum(bBlock,kBlock,bBuf,nbBuf,kBuf,nkBuf,IB,IK)
     case (Virt)
       NK(:) = NSSH(1:NSYM)
       kOff(:) = NISH(1:NSYM)+NASH(1:NSYM)
-    case DEFAULT
+    case default
       NK(:) = 0
       kOff(:) = 0
       call Abend()

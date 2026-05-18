@@ -44,7 +44,7 @@ real(kind=wp) :: CPTF1, CPTF2, TIOTF1, TIOTF2
 nLev = SGS%nLev
 nMidV = CIS%nMidV
 
-Thres = ConvInvar !! 1.0d-07
+Thres = ConvInvar !! 1.0e-7_wp
 
 if (IPRGLB >= VERBOSE) then
   write(u6,*)
@@ -668,7 +668,7 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
     ilState = kState
     do jlState=1,ilState-1
       vSLag = -Half*SLag(ilState,jlState)
-      if (abs(vSLag) <= 1.0e-08_wp) cycle
+      if (abs(vSLag) <= 1.0e-8_wp) cycle
       call Dens2T_RPT2(NLEV,NCONF,MXCI,CI(1,ilState),CI(1,jlState),SGM1,SGM2,G1T,G2T)
       call DaXpY_(NG1,vSLag,G1T,1,G1,1)
       call DaXpY_(NG2,vSLag,G2T,1,G2,1)

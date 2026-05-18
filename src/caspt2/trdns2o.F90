@@ -115,7 +115,7 @@ do ILOOP=1,NLOOP
       end if
       ! Form WEC1 from VEC1, if needed.
       NWEC1 = 0
-      FACT = One/(dble(max(1,NACTEL)))
+      FACT = One/real(max(1,NACTEL),kind=wp)
       if (ICASE1 == 1) NWEC1 = NASH(ISYM1)*NISH(ISYM1)
       if (ICASE1 == 4) NWEC1 = NASH(ISYM1)*NSSH(ISYM1)
       if ((ICASE1 == 5) .and. (ISYM1 == 1)) NWEC1 = NIS1

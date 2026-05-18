@@ -441,7 +441,7 @@ subroutine OLagNS_C(AmpL1)
             !    ONEADD = ONEADD+Work(ipT+iV-1)*Work(LST+IW1-1+nAS*(iICB-1))
             !  end do
             !end do
-            !ONEADD = Two*ONEADD/DBLE(MAX(1,NACTEL))
+            !ONEADD = Two*ONEADD/real(MAX(1,NACTEL),kind=wp)
             ONEADD = Zero
             do iXabs=1,nAshI !?
               iAS = kTUV(iTabs,iXabs,iXabs)-nTUVes(iSym)

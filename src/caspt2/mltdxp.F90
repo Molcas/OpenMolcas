@@ -101,7 +101,7 @@ select case (IMLTOP)
         call DAXPY_(LEN1,A,X(IX),INCX3,Y(IY),INCY3)
       end do
     end do
-  case DEFAULT
+  case default
     do ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
       L11 = LST1(1,ILST1)
       L12 = LST1(2,ILST1)

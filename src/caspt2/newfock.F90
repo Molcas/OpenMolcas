@@ -43,8 +43,8 @@ use caspt2_global, only: iPrGlb
 use PrintLevel, only: USUAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: FockType, IfChol, nAMx, nAshT, nIMx, nOMx, nOSqT, nSMx, nSym, nIsh, nAsh, nSsh, nAES, nOrb
-use constants, only: Zero, One, Two
-use definitions, only: iwp, wp
+use constants, only: Zero, One, Two, Half
+use definitions, only: iwp, wp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NFIFA, NCMO, nDREF
@@ -85,7 +85,7 @@ if (FOCKTYPE == 'G2') IFGFOCK = 1
 if (FOCKTYPE == 'G3') IFGFOCK = 1
 
 if (IFGFOCK == 0) goto 300
-if (IPRGLB >= USUAL) write(6,*) ' THE FOCK MATRIX IS MODIFIED BY KEYWORD FOCKTYPE=',FOCKTYPE
+if (IPRGLB >= USUAL) write(u6,*) ' THE FOCK MATRIX IS MODIFIED BY KEYWORD FOCKTYPE=',FOCKTYPE
 if (NASHT <= 0) goto 300
 
 ! Determine sizes of areas for memory allocation
@@ -188,7 +188,7 @@ else
             call EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,INT,int(LSCR))
             IDDVX = MTRES+(IV*(IV-1))/2+IX
             DDVX = DDTR(IDDVX)
-            if (IR == IS) DDVX = 0.5d0*DDVX
+            if (IR == IS) DDVX = Half*DDVX
             call DAXPY_(NO**2,DDVX,INT,1,XMAT(1+NOSQES),1)
           end do
         end do
@@ -198,7 +198,7 @@ else
         do IQ=1,IP-1
           LXPQ = NOSQES+IP+NO*(IQ-1)
           LXQP = NOSQES+IQ+NO*(IP-1)
-          VAL = 0.5d0*(XMAT(LXPQ)+XMAT(LXQP))
+          VAL = Half*(XMAT(LXPQ)+XMAT(LXQP))
           XMAT(LXPQ) = VAL
           XMAT(LXQP) = VAL
         end do
@@ -262,7 +262,7 @@ select case (FOCKTYPE)
             KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
             VALTU = SC(IT+NA*(IU-1))
             VALUT = SC(IU+NA*(IT-1))
-            FIFA(KFIFA) = FIFA(KFIFA)-0.5d0*(VALTU+VALUT)
+            FIFA(KFIFA) = FIFA(KFIFA)-Half*(VALTU+VALUT)
           end do
         end do
       end if
@@ -363,7 +363,6 @@ select case (FOCKTYPE)
       NASQES = NASQES+NA**2
       NATRES = NATRES+(NA*(NA+1))/2
     end do
-  case DEFAULT
 end select
 
 call mma_deallocate(SC)

@@ -73,7 +73,7 @@ do ISYM=1,NSYM
             ONEADD = Zero
             if (ISYM == 1) then
               FAI = FIMO(NFIMOES+(IATOT*(IATOT-1))/2+II)
-              ONEADD = FAI/dble(max(1,NACTEL))
+              ONEADD = FAI/real(max(1,NACTEL),kind=wp)
             end if
             do IT=1,NASH(ISYMT)
               ITABS = IT+NAES(ISYMT)

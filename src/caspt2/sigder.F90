@@ -31,6 +31,9 @@ use Para_Info, only: Is_Real_Par
 #endif
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_module, only: CPUSGM, TIOSGM, FockType, G1SecIn, nActEl, nCases, nSym, nASup, nIsh, nAsh, nSsh, nOrb, nInDep, nISup
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
@@ -234,9 +237,9 @@ do ILOOP=1,NLOOP
           end if
 
 #         ifdef _DEBUGPRINT_
-          write(6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
-          write(6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
-          write(6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
+          write(u6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
+          write(u6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
+          write(u6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
 #         endif
           ! Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
           call SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,SGM1,size(SGM1),SGM2,size(SGM2),LCX,LISTS,size(LISTS))
@@ -261,7 +264,7 @@ do ILOOP=1,NLOOP
       ! If there are 1-electron contributions, add them into the 2-el
       ! part (This requires a non-empty active space.)
       if (NSGM1 > 0) then
-        FACT = One/(dble(max(1,NACTEL)))
+        FACT = One/real(max(1,NACTEL),kind=wp)
         if (ICASE1 == 1) then
           call SPEC1A(IMLTOP,FACT,ISYM1,SGM2,size(SGM2),SGM1,size(SGM1))
         else if (ICASE1 == 4) then
@@ -360,7 +363,7 @@ do ILOOP=1,NLOOP
       ND1 = 0
       !LD1 = 1
       IMLTOP = 1
-      FACT = One/(dble(max(1,NACTEL)))
+      FACT = One/real(max(1,NACTEL),kind=wp)
       if (ICASE1 == 1) then
         ND1 = NASH(ISYM1)*NISH(ISYM1)
         if (ND1 > 0) then
@@ -405,9 +408,9 @@ do ILOOP=1,NLOOP
           end if
 
 #         ifdef _DEBUGPRINT_
-          write(6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
-          write(6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
-          write(6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
+          write(u6,*) ' ISYM1,ICASE1:',ISYM1,ICASE1
+          write(u6,*) ' ISYM2,ICASE2:',ISYM2,ICASE2
+          write(u6,*) ' SIGMA calling SGM with IMLTOP=',IMLTOP
 #         endif
           ! Compute contribution SGMX <- D2, and SGMX <- D1  if any
           call SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,D1,size(D1),D2,size(D2),LSGMX,LISTS,size(LISTS))

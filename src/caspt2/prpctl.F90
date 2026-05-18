@@ -19,7 +19,7 @@
 
 subroutine PRPCTL(MODE,UEFF,U0,nState)
 
-use constants, only: Zero, Half, One, Two, Five
+use constants, only: Zero, One, Two, Five, Half, Quart
 use PT2WFN, only: PT2WFN_DENSSTORE
 use caspt2_global, only: iPrGlb
 use OneDat, only: sNoNuc, sNoOri
@@ -52,9 +52,9 @@ integer(kind=iwp) I, iComp, IDISK, IDMAT, IDMOFF, IERR, II, II2, IJ, IJ2, IndT, 
 integer(kind=iwp), external :: IsFreeUnit
 
 if (IPRGLB >= USUAL) then
-  write(6,*)
-  write(6,'(A)') repeat('*',80)
-  write(6,*) ' CASPT2 PROPERTY SECTION'
+  write(u6,*)
+  write(u6,'(A)') repeat('*',80)
+  write(u6,*) ' CASPT2 PROPERTY SECTION'
 end if
 
 #ifdef _MOLCAS_MPP_
@@ -139,7 +139,7 @@ else
     do II=1,NO
       do IJ=1,II
         !! second-order (DPT2) and first-order (DPT2C)
-        DMAT(1+IDMAT) = DPT2_TOT(IDMOFF+II+NO*(IJ-1))+DPT2C_TOT(IDMOFF+II+NO*(IJ-1))*0.25e+00_wp
+        DMAT(1+IDMAT) = DPT2_TOT(IDMOFF+II+NO*(IJ-1))+DPT2C_TOT(IDMOFF+II+NO*(IJ-1))*Quart
         if (.not. DO_NAC) then
           !! Add the reference density matrix (inactive)
           if ((II == IJ) .and. (II <= NFRO(ISYM)+NISH(ISYM))) DMAT(1+IDMAT) = DMAT(1+IDMAT)+Two
@@ -165,7 +165,7 @@ else
       if (.not. DO_NAC) then
         if ((ISTATE == IROOT1) .and. (KSTATE == IROOT2)) SCAL = SCAL+One
       end if
-      if (abs(SCAL) <= 1.0e-09_wp) cycle
+      if (abs(SCAL) <= 1.0e-9_wp) cycle
       if (ISCF /= 0) then
         CI2(1) = One
       else
@@ -300,7 +300,7 @@ if (IPRGLB >= VERBOSE) then
       THROCC = -Two**31
     else if (OUTFMT == 'DEFAULT ') then
       THRENE = Five
-      THROCC = 5.0e-04_wp
+      THROCC = 5.0e-4_wp
     end if
     call PRIMO('Output orbitals from CASPT2',.true.,.false.,THROCC,THRENE,NSYM,NBAS,NBAS,BNAME,DUM,OCC,CNAT,-1)
   end if

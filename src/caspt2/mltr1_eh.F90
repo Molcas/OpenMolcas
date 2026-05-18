@@ -56,7 +56,7 @@ select case (IMLTOP)
         Y(L3,J-jYLo+1) = Y(L3,J-jYLo+1)+V*DDOT_(NAS1,F(1,L2),1,X(1,JX+NA*(J-1)),1)
       end do
     end do
-  case DEFAULT
+  case default
     NI = INCX3/NAS1
     do ILST=1,NLST1
       L1 = LST1(1,ILST)

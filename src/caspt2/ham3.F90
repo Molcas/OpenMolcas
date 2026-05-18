@@ -48,7 +48,7 @@ real(kind=wp) OCCNO, X
 nLev = SGS%nLev
 
 if (NCONF == 0) return
-if (abs(OP0) > 1.0E-15_wp) call DAXPY_(NCONF,OP0,CI,1,SGM,1)
+if (abs(OP0) > 1.0e-15_wp) call DAXPY_(NCONF,OP0,CI,1,SGM,1)
 if (NACTEL == 0) return
 
 ! Unless this is a special-case wave function, reserve space
@@ -91,7 +91,7 @@ do IZ=1,NASHT
       ! Add non-zero 1-el contribution to SGM:
       if (ISYZ == 1) then
         X = OP1(IY,IZ)
-        if (abs(X) > 1.0E-15_wp) SGM(1:nConf) = SGM(1:nConf)+X*SGM1(1:nConf)
+        if (abs(X) > 1.0e-15_wp) SGM(1:nConf) = SGM(1:nConf)+X*SGM1(1:nConf)
       end if
     else
       ! Closed-shell or hi-spin case:
@@ -121,7 +121,7 @@ do IZ=1,NASHT
           ! Add non-zero 2-el contribution to SGM:
           if (ISVXYZ == 1) then
             X = OP2(IVXYZ)
-            if (abs(X) > 1.0E-15_wp) SGM(1:nConf) = SGM(1:nConf)+X*SGM2(1:nConf)
+            if (abs(X) > 1.0e-15_wp) SGM(1:nConf) = SGM(1:nConf)+X*SGM2(1:nConf)
           end if
         else
           ! Closed-shell or hi-spin case:
@@ -140,7 +140,7 @@ do IZ=1,NASHT
             if (ISTU /= ISVXYZ) cycle
             ITUVXYZ = ((ITU+1)*ITU*(ITU-1))/6+IVXYZ
             X = OP3(ITUVXYZ)
-            if (abs(X) < 1.0E-15_wp) cycle
+            if (abs(X) < 1.0e-15_wp) cycle
             ! Add non-zero 3-el contribution to SGM:
             if (ISCF == 0) then
               LEVT = IATOG(IT)

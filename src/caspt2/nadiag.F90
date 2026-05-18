@@ -220,7 +220,7 @@ do ICASE=1,13
           ID(IIJ) = EDIAG
         end do
 
-      case DEFAULT
+      case default
         write(u6,*) 'NADIAG: illegal case number'
         call ABEND()
     end select

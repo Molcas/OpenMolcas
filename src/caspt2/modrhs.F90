@@ -49,7 +49,7 @@ do ISYM=1,NSYM
       ITTOT = NIT+IT
       ITABS = NAES(ISYT)+IT
       do IJ=1,NIT
-        value = FIMO(IFOFF+(ITTOT*(ITTOT-1))/2+IJ)/dble(max(1,NACTEL))
+        value = FIMO(IFOFF+(ITTOT*(ITTOT-1))/2+IJ)/real(max(1,NACTEL),kind=wp)
         do IVABS=1,NASHT
           IW1 = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
           IW2 = IJ
@@ -99,7 +99,7 @@ do ISYM=1,NSYM
           IYYWA = IYYW+NAS*(IA-1)
           SUM = SUM-WC(IYYWA)
         end do
-        ONEADD = SUM/dble(max(1,NACTEL))
+        ONEADD = SUM/real(max(1,NACTEL),kind=wp)
         do IUABS=1,NASHT
           IW1 = KTUV(IXABS,IUABS,IUABS)-NTUVES(ISYM)
           IW2 = IA
@@ -145,7 +145,7 @@ if (NINDEP(ISYM,5)*NWD /= 0) then
     do IA=1,NSJ
       IATOT = NIJ+NAJ+IA
       do IJ=1,NIJ
-        ONEADD = FIMO(IFOFF+(IATOT*(IATOT-1))/2+IJ)/dble(max(1,NACTEL))
+        ONEADD = FIMO(IFOFF+(IATOT*(IATOT-1))/2+IJ)/real(max(1,NACTEL),kind=wp)
         IAJ = IAJ+1
         do ISYU=1,NSYM
           do IU=1,NASH(ISYU)

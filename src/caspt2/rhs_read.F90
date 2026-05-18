@@ -29,6 +29,7 @@ subroutine RHS_READ(NIN,NIS,lg_W,iCASE,iSYM,iVEC)
 use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use definitions, only: u6
 #endif
 use caspt2_global, only: LURHS
 use fake_GA, only: GA_Arrays
@@ -49,7 +50,7 @@ if (Is_Real_Par()) then
   if ((IEND-ISTA+1 == NIN) .and. (ISTA > 0)) then
     call GA_Access(lg_W,ISTA,IEND,JSTA,JEND,mpt_W,LDW)
     if (LDW /= NIN) then
-      write(6,*) 'RHS_READ: Assumption NIN==LDW wrong'
+      write(u6,*) 'RHS_READ: Assumption NIN==LDW wrong'
       call AbEnd()
     end if
     NWPROC = NIN*(JEND-JSTA+1)

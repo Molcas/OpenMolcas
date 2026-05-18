@@ -136,9 +136,9 @@ if (Input%FnoCASPT2) then
   write(u6,'(A)') '-------------------------------------------------------'
   write(u6,'(A,8I4)')
   if (Input%vfrac >= Zero) then
-    write(u6,'(A,I3,A)') ' NOs specified as ',int(Input%vfrac*1.0d2),'% of the total virtual space'
+    write(u6,'(A,I3,A)') ' NOs specified as ',int(Input%vfrac*100.0_wp),'% of the total virtual space'
   else
-    write(u6,'(A,I3,A)') ' NOs specified as ',100-int(abs(Input%vfrac)*1.0d2),'% of DEcorr '
+    write(u6,'(A,I3,A)') ' NOs specified as ',100-int(abs(Input%vfrac)*100.0_wp),'% of DEcorr '
   end if
   write(u6,'(A,8I4)') ' Secondary orbitals before selection:',(nSsh(i),i=1,nSym)
   write(u6,'(A,8I4)') ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)

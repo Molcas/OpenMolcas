@@ -415,7 +415,7 @@ do ICASE=1,11
           end do
         end do
 
-      case DEFAULT
+      case default
         call ABEND()
     end select
 

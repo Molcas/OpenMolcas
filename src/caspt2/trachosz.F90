@@ -26,6 +26,9 @@ use caspt2_module, only: nBasT, nSym, nBas, nFro, nBtches, nBtch, nIsh, nAsh
 #ifdef _MOLCAS_MPP_
 use ChoCASPT2, only: NFTSPC_TOT
 #endif
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "warnings.h"
@@ -72,7 +75,7 @@ call mma_MaxDBLE(MXSPC)
 MXSPC = MXSPC-7*MXCHARR
 
 ! Use 80% of this:
-MXSPC = int(dble(MXSPC)*0.8d0)
+MXSPC = int(real(MXSPC,kind=wp)*0.8_wp)
 ! Max number of vectors that will fit in memory:
 !SVC: added space for 2x the collected chovecs
 MXNVC = MXSPC/(MXCHARR+MXHTARR+MXFTARR+2*nProcs*MXFTARR)
@@ -130,15 +133,15 @@ NFTSPC_TOT = NJSCT_TOT*MXFTARR
 #endif
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' To be allocated for ...'
-write(6,'(A,1X,I12)') '   Chol. vectors: NCHSPC     =',NCHSPC
-write(6,'(A,1X,I12)') '   half-transf  : NHTSPC     =',NHTSPC
-write(6,'(A,1X,I12)') '   full-transf:   NFTSPC     =',NFTSPC
+write(u6,*) ' To be allocated for ...'
+write(u6,'(A,1X,I12)') '   Chol. vectors: NCHSPC     =',NCHSPC
+write(u6,'(A,1X,I12)') '   half-transf  : NHTSPC     =',NHTSPC
+write(u6,'(A,1X,I12)') '   full-transf:   NFTSPC     =',NFTSPC
 #ifdef _MOLCAS_MPP_
-write(6,'(A,1X,I12)') '   full-transf:   NFTSPC_TOT =',NFTSPC_TOT
+write(u6,'(A,1X,I12)') '   full-transf:   NFTSPC_TOT =',NFTSPC_TOT
 #endif
-write(6,*) ' Cholesky vectors per symmetry:'
-write(6,'(1X,8I12)') (NUMCHO_PT2(JSYM),JSYM=1,NSYM)
+write(u6,*) ' Cholesky vectors per symmetry:'
+write(u6,'(1X,8I12)') (NUMCHO_PT2(JSYM),JSYM=1,NSYM)
 #endif
 
 ! Set up tables with the number of cholesky vectors per batch and disk

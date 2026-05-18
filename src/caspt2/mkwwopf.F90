@@ -78,7 +78,7 @@ do ISYM=1,NSYM
   ! Deallocate W1 and W2
   call mma_deallocate(W1)
   if (JVEC /= IVEC) call mma_deallocate(W2_H)
-  W2 => null()
+  nullify(W2)
 
   ! Loop over (TU)
   do ITU=1,NAS
@@ -154,7 +154,7 @@ do ISYM=1,NSYM
   ! Deallocate W1 and W2
   call mma_deallocate(W1)
   if (JVEC /= IVEC) call mma_deallocate(W2_H)
-  W2 => null()
+  nullify(W2)
 
   ! Loop over (TU)
   do ITU=1,NAS

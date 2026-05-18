@@ -14,7 +14,7 @@
 subroutine RHSOD_B_NOSYM(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: Half
 use SUPERINDEX, only: MIGEJ, MIREL, MTGEU, MTREL, MIGTJ, MTGTU
 use CHOVEC_IO, only: NVTOT_ChoSym, ChoVec_Size, ChoVec_Read
@@ -41,7 +41,7 @@ real(kind=wp), external :: DDot_
 #include "mafdecls.fh"
 #endif
 
-if (iPrGlb >= DEBUG) write(6,*) 'RHS on demand: case B'
+if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case B'
 
 !***********************************************************************
 ! Case B (2,3):
@@ -183,7 +183,7 @@ do ISYM=1,NSYM
 
       ! BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
       SCL = Half
-      !if (ITABS == IVABS) SCL = SCL*0.5D0
+      !if (ITABS == IVABS) SCL = SCL*Half
       !if (ILABS == IJABS) SCL = SCL*SQRTH
       BMTVJL = SCL*(TJVL-TLVJ)
       ! write element BM(tv,jl)

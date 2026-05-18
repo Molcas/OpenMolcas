@@ -31,6 +31,7 @@ subroutine RHS_ACCESS(NAS,NIS,lg_W,iLo,iHi,jLo,jHi,MW)
 use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use definitions, only: u6
 #endif
 
 implicit none
@@ -49,19 +50,19 @@ if (Is_Real_Par()) then
   call GA_Distribution(lg_W,myRank,iLo,iHi,jLo,jHi)
 
   if ((iLo /= 0) .and. (iHi-iLo+1 /= NAS)) then
-    write(6,*) 'RHS_ACCESS: mismatch in range of the superindices'
+    write(u6,*) 'RHS_ACCESS: mismatch in range of the superindices'
     call AbEnd()
   end if
 
   ! if the block is non-empty, get access to the block
   if ((iLo > 0) .and. (jLo > 0)) then
     if (iHi-iLo+1 /= NAS) then
-      write(6,*) 'RHS_ACCESS: Error: NAS mismatch, abort...'
+      write(u6,*) 'RHS_ACCESS: Error: NAS mismatch, abort...'
       call ABEND()
     end if
     call GA_Access(lg_W,iLo,iHi,jLo,jHi,MW,LDW)
     if (LDW /= NAS) then
-      write(6,*) 'RHS_ACCESS: assert NAS=LDW failed, abort'
+      write(u6,*) 'RHS_ACCESS: assert NAS=LDW failed, abort'
       call AbEnd()
     end if
   end if

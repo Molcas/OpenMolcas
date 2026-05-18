@@ -101,9 +101,9 @@ call mma_allocate(B_SSDM,NCHSPC+NBSQT,Label='B_SSDM')
 
 if (NUMCHO_PT2(iSym) == 0) return
 
-! ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(iSym-1))
-! JRED1=iWork(ipnt)
-! JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
+!ipnt = ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(iSym-1))
+!JRED1 = iWork(ipnt)
+!JRED2 = iWork(ipnt-1+NumCho_PT2(iSym))
 JRED1 = InfVec(1,2,iSym)
 JRED2 = InfVec(NumCho_PT2(iSym),2,iSym)
 

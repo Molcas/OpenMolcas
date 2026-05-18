@@ -46,6 +46,7 @@ use caspt2_module, only: nBas, nDel, nSsh, nAsh, nIsh, nFro, mState, Header, Zet
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
 use caspt2_module, only: DoCumulant
 #endif
+use Constants, only: Zero, Half
 use definitions, only: iwp, wp, u6
 
 implicit none
@@ -99,7 +100,7 @@ if (iprglb >= USUAL) then
   write(u6,fmt2//'A,T45,I6)') 'Number of inactive orbitals',NISHT
   write(u6,fmt2//'A,T45,I6)') 'Number of active orbitals',NASHT
   write(u6,fmt2//'A,T45,I6)') 'Number of secondary orbitals',NSSHT
-  write(u6,fmt2//'A,T45,F6.1)') 'Spin quantum number',0.5_wp*real(ISPIN-1,kind=wp)
+  write(u6,fmt2//'A,T45,F6.1)') 'Spin quantum number',Half*real(ISPIN-1,kind=wp)
   write(u6,fmt2//'A,T45,I6)') 'State symmetry',STSYM
   write(u6,fmt2//'A,T40,I11)') 'Number of CSFs',NCONF
   write(u6,fmt2//'A,T45,I6)') 'Number of CASSCF root(s) available',NROOTS
@@ -225,7 +226,7 @@ if (iprglb >= TERSE) then
   write(u6,fmt2//'A,T45,F9.2)') 'IPEA shift',ipea_shift
   write(u6,fmt2//'A,T45,F9.2)') 'Real shift',real_shift
   write(u6,fmt2//'A,T45,F9.2)') 'Imaginary shift',imag_shift
-  if (sigma_p_epsilon > 0.0_wp) then
+  if (sigma_p_epsilon > Zero) then
     if (sigma_p_exponent == 1) then
       write(u6,fmt2//'A,T45,F9.2)') 'Sigma^1 regularizer',sigma_p_epsilon
     else

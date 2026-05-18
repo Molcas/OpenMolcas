@@ -44,11 +44,8 @@ use caspt2_module, only: nGroupState, mState, nDel, nSsh, nFro, nIsh, Zeta, ThrS
                          BSpect, BMatrix, DMRG
 
 use caspt2_module, only: CIThr
-use constants, only: Zero
-use definitions, only: iwp, wp, RtoB
-#ifdef _DMRG_
-use definitions, only: u6
-#endif
+use constants, only: Zero, Quart
+use definitions, only: iwp, wp, u6, RtoB
 
 implicit none
 integer(kind=iwp) :: iDummy
@@ -106,7 +103,7 @@ else
     if (Env == 'YES') then
       ipea_shift = Zero
     else
-      ipea_shift = 0.25d0
+      ipea_shift = Quart
     end if
   end if
 end if
@@ -122,24 +119,24 @@ real_shift = Input%real_shift
 imag_shift = Input%imag_shift
 
 ! sigma-p regularizers
-if ((input%sigma_1_epsilon /= 0.0_wp) .and. (input%sigma_2_epsilon /= 0.0_wp)) then
+if ((input%sigma_1_epsilon /= Zero) .and. (input%sigma_2_epsilon /= Zero)) then
   call WarningMessage(2,'SIG1 and SIG2 keywords are mutually exclusive')
   call Quit_OnUserError()
 end if
 
-if (input%sigma_1_epsilon > 0.0_wp) then
+if (input%sigma_1_epsilon > Zero) then
   sigma_p_epsilon = Input%sigma_1_epsilon
   sigma_p_exponent = 1
 end if
 
-if (input%sigma_2_epsilon > 0.0_wp) then
+if (input%sigma_2_epsilon > Zero) then
   sigma_p_epsilon = Input%sigma_2_epsilon
   sigma_p_exponent = 2
 end if
 
-do_real = real_shift > 0.0_wp
-do_imag = imag_shift > 0.0_wp
-do_sigp = sigma_p_epsilon > 0.0_wp
+do_real = real_shift > Zero
+do_imag = imag_shift > Zero
+do_sigp = sigma_p_epsilon > Zero
 if ((do_real .and. (do_imag .or. do_sigp)) .or. (do_imag .and. do_sigp)) then
   call WarningMessage(2,'More than one intruder-state removal technique active: SHIFt/IMAGinary/SIG1/SIG2 are mutually exclusive!')
   call Quit_OnUserError()
@@ -353,8 +350,8 @@ end if
 ! Finally, some sanity checks.
 if ((NSTATE <= 0) .or. (NSTATE > MXROOT)) then
   call WarningMessage(2,'Number of states is <0 or too large.')
-  write(6,'(a,i8)') ' NSTATE = ',NSTATE
-  write(6,*) ' Check usage of keywords MULT/XMUL/RMUL.'
+  write(u6,'(a,i8)') ' NSTATE = ',NSTATE
+  write(u6,*) ' Check usage of keywords MULT/XMUL/RMUL.'
   call Quit_OnUserError()
 end if
 ! setup root to state translation
@@ -373,7 +370,7 @@ if (iRlxRoot == -1) iRlxRoot = NSTATE
 if (iRlxRoot > NSTATE) then
   if (IPRGLB >= TERSE) then
     call WarningMessage(1,'Too large iRlxRoot.')
-    write(6,*) ' Reset to NSTATE=',NSTATE
+    write(u6,*) ' Reset to NSTATE=',NSTATE
   end if
   iRlxRoot = NSTATE
 end if
@@ -434,11 +431,11 @@ end if
 !***********************************************************************
 if (Input%OFEmbedding) then
   Do_OFemb = .true.
-  write(6,*)
-  write(6,*) '  --------------------------------------'
-  write(6,*) '   Orbital-Free Embedding Calculation   '
-  write(6,*) '  --------------------------------------'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '  --------------------------------------'
+  write(u6,*) '   Orbital-Free Embedding Calculation   '
+  write(u6,*) '  --------------------------------------'
+  write(u6,*)
 end if
 #endif
 !***********************************************************************
@@ -531,8 +528,8 @@ THRSHN = Input%THRSHN
 THRSHS = Input%THRSHS
 THRCONV = Input%THRCONV
 CITHR = Input%PrWF
-THRENE = 5.0e+01_wp
-THROCC = 5.0e-04_wp
+THRENE = 50.0_wp
+THROCC = 5.0e-4_wp
 MAXIT = Input%MaxIter
 DNMTHR = Input%DNMTHR
 CMPTHR = Input%CMPTHR
@@ -644,7 +641,7 @@ if (isStructure() == 1) then
 
     ! check weaker constraints, if not met, revert to numerical gradients
     if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
-    if ((ipea_shift /= 0.0_wp) .and. (.not. ifChol)) do_grad = .false.
+    if ((ipea_shift /= Zero) .and. (.not. ifChol)) do_grad = .false.
     if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
   end if
 end if
@@ -694,18 +691,18 @@ end if
 IFSADREF = input%SADREF
 IFDORTHO = input%DORTHO
 if_invar = input%INVAR
-if (ipea_shift /= 0.0_wp) if_invar = .false.
+if (ipea_shift /= Zero) if_invar = .false.
 if_invaria = input%IAINVAR
-if (sigma_p_epsilon /= 0.0_wp) if_invaria = .false. !! I'm not sure this is necessary, but it is needed for now
+if (sigma_p_epsilon /= Zero) if_invaria = .false. !! I'm not sure this is necessary, but it is needed for now
 ConvInvar = input%ThrConvInvar
 
-if ((ipea_shift /= 0.0_wp) .and. do_grad .and. (.not. IFDORTHO)) then
+if ((ipea_shift /= Zero) .and. do_grad .and. (.not. IFDORTHO)) then
   call warningMessage(2,'Analytic gradients with IPEA shift must use the CORT or DORT option.')
   call quit_onUserError()
 end if
 
 #ifdef _MOLCAS_MPP_
-if (do_grad .and. (sigma_p_epsilon /= 0.0_wp) .and. (nProcs > 1)) then
+if (do_grad .and. (sigma_p_epsilon /= Zero) .and. (nProcs > 1)) then
   call warningMessage(2,'Analytic gradients without the sigma^P regularization not available in parallel executions.')
   call quit_onUserError()
 end if

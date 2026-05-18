@@ -14,6 +14,7 @@
 
 subroutine xdwinit(Heff,H0,U0,nState)
 
+use Constants, only: Zero, One
 use definitions, only: wp, iwp, u6
 use caspt2_global, only: iPrGlb
 use caspt2_global, only: do_grad
@@ -38,17 +39,17 @@ logical(kind=iwp) Initiate
 ! Allocate memory for CI array state averaged 1-RDM
 call mma_allocATE(CI,NCONF,Label='CI')
 call mma_allocate(DAVE,size(DREF),Label='DAVE')
-DAVE(:) = 0.0_wp
+DAVE(:) = Zero
 
 ! Set the weight for the density averaging
-wgt = 1.0_wp/real(Nstate,kind=wp)
+wgt = One/real(Nstate,kind=wp)
 
 ! Loop over all states to compute the state-average density matrix
 do Istate=1,Nstate
 
   if (ISCF /= 0) then
     ! Special case for a single Slater determinant
-    CI(1) = 1.0_wp
+    CI(1) = One
   else
     ! Get the CI array
     call loadCI(CI,Istate)
@@ -103,7 +104,7 @@ do J=1,Nstate
   ! Loop over bra functions
   do I=1,Nstate
     ! Compute matrix element <I|F|J> and store it into H0
-    FIJ = 0.0_wp
+    FIJ = Zero
     call FOPAB(FIFA,size(FIFA),I,J,FIJ)
     H0(I,J) = FIJ
   end do
@@ -154,7 +155,7 @@ end do
 call mma_allocate(CIXMS,Nconf,Label='CIXMS')
 do J=1,Nstate
   ! Transform the states
-  call dgemm_('N','N',Nconf,1,Nstate,1.0_wp,CIREF,Nconf,U0(:,J),Nstate,0.0_wp,CIXMS,Nconf)
+  call dgemm_('N','N',Nconf,1,Nstate,One,CIREF,Nconf,U0(:,J),Nstate,Zero,CIXMS,Nconf)
 
   ! Write the rotated CI coefficients back into LUCIEX and REPLACE the
   ! original unrotated CASSCF states. Note that the original states

@@ -12,7 +12,7 @@
 subroutine Process_RHS_Block(ITI,ITP,ITK,ITQ,case,Cho_Bra,nBra,Cho_Ket,nKet,nSh,JSYM,IVEC,NV)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use caspt2_global, only: iPrGlb, PIQK, BUFF, idxb
 use PrintLevel, only: DEBUG
 use caspt2_module, only: NSYM
@@ -30,7 +30,7 @@ integer(kind=iwp) mxPIQK, nBuff
 mxPIQK = size(PIQK)
 nBuff = size(BUFF)
 
-if (iPrGlb >= DEBUG) write(6,*) 'Processing RHS block '//case
+if (iPrGlb >= DEBUG) write(u6,*) 'Processing RHS block '//case
 
 LBRASM = 1
 do ISYI=1,NSYM
@@ -68,18 +68,18 @@ do ISYI=1,NSYM
         KQK = MXPIQK/NPI
         NPIQK = NPI*KQK
       else
-        write(6,*) ' NPIQK > MXPIQK and case != G or H'
-        write(6,'(A,A2)') ' CASE =   ',case
-        write(6,'(A,I12)') ' NPIQK =  ',NPIQK
-        write(6,'(A,I12)') ' MXPIQK = ',MXPIQK
-        write(6,*) ' This should not happen, please report.'
+        write(u6,*) ' NPIQK > MXPIQK and case != G or H'
+        write(u6,'(A,A2)') ' CASE =   ',case
+        write(u6,'(A,I12)') ' NPIQK =  ',NPIQK
+        write(u6,'(A,I12)') ' MXPIQK = ',MXPIQK
+        write(u6,*) ' This should not happen, please report.'
         call AbEnd()
       end if
     end if
 
     !-SVC: sanity check
     if (NPIQK <= 0) then
-      write(6,'(1X,A)') ' ADDRHS: zero-sized NPIQK'
+      write(u6,'(1X,A)') ' ADDRHS: zero-sized NPIQK'
       call AbEnd()
     end if
 

@@ -13,7 +13,7 @@
 
 function NOVERM(N,M)
 
-use Definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: NOVERM

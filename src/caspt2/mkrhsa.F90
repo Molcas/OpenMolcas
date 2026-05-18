@@ -61,7 +61,7 @@ do ISYM=1,NSYM
           ONEADD = Zero
           if (ISYMT == ISYM) then
             FTI = FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+II)
-            ONEADD = FTI/dble(max(1,NACTEL))
+            ONEADD = FTI/real(max(1,NACTEL),kind=wp)
           end if
           do IU=1,NASH(ISYMU)
             IUTOT = IU+NISH(ISYMU)

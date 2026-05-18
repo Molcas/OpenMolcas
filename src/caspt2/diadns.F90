@@ -476,7 +476,7 @@ select case (ICASE)
     end do
     call mma_deallocate(X1)
     call mma_deallocate(X2)
-  case DEFAULT
+  case default
     call ABEND()
 end select
 

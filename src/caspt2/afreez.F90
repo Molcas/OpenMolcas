@@ -59,7 +59,7 @@ real(kind=wp), intent(inout) :: CMO(nCMO)
 integer(kind=iwp) :: LABFRO(mxbas)
 real(kind=wp), allocatable :: SMAT(:)
 character(len=8) :: Label
-real(kind=wp), parameter :: Thrs = 1.e-06_wp
+real(kind=wp), parameter :: Thrs = 1.0e-6_wp
 real(kind=wp) chksum, selch, Swap
 integer(kind=iwp) :: I, ib, iComp, imo, imo0, iname, iopt, ipp, ipq, ipq0, iqq, irc, ist1, ist2, isym, isymlbl, nb2, NBAST, nbi, &
                      ndi, nfi, nfro1, ni, np, nq, nsi, NSMAT, ntri, ipq1, nin
@@ -68,7 +68,7 @@ integer(kind=iwp) :: I, ib, iComp, imo, imo0, iname, iopt, ipp, ipq, ipq0, iqq, 
 !     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
 !----------------------------------------------------------------------*
 
-!write(6,*) 'Entering AFreez'
+!write(u6,*) 'Entering AFreez'
 NBAST = 0
 ntri = 0
 do I=1,NSYM
@@ -187,7 +187,7 @@ do isym=1,nsym
         ipp = ipp+np
         chksum = chksum+DPQ(ipp)
       end do
-      if (abs(chksum-One) > 1.e-08_wp) then
+      if (abs(chksum-One) > 1.0e-8_wp) then
         write(u6,*) 'Error on Checksum in Afreez. Value is not equal to 1:',isym,ni,chksum
         write(u6,*) 'Freezing extra orbitals in CASPT2 stops.'
         call Abend()
@@ -288,12 +288,12 @@ do isym=1,nsym
         ipp = ipp+np
         chksum = chksum+DPQ(ipp)
       end do
-      if (abs(chksum-One) > 1.e-08_wp) then
+      if (abs(chksum-One) > 1.0e-8_wp) then
         write(u6,*) 'Error on Checksum in Afreez. Value is not equal to 1:',isym,ni,chksum
         write(u6,*) 'Deleting extra orbitals in CASPT2 stops.'
         call Abend()
       end if
-      !write(6,*) 'Checksum',isym,ni,chksum
+      !write(u6,*) 'Checksum',isym,ni,chksum
       ! Add diagonal elements that belong to selected atoms
       selch = Zero
       ipp = 0

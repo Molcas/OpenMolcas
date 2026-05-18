@@ -24,6 +24,7 @@ use caspt2_global, only: iPrGlb
 use printLevel, only: debug
 use sguga, only: SGS
 use caspt2_module, only: nAshT
+use Constants, only: Zero
 
 implicit none
 integer(kind=iwp), intent(in) :: lsym1, lsym2, state1, state2, ntg3
@@ -42,9 +43,9 @@ end if
 
 ! This might be memory hungry
 call mma_allocate(tg3_tmp,nasht,nasht,nasht,nasht,nasht,nasht)
-tg3_tmp(:,:,:,:,:,:) = 0.0_wp
-tg2(:,:,:,:) = 0.0
-tg1(:,:) = 0.0
+tg3_tmp(:,:,:,:,:,:) = Zero
+tg2(:,:,:,:) = Zero
+tg1(:,:) = Zero
 
 ! Needed to detect phase
 ! We compute the transition RDM in two ways in order to detect if a phase
@@ -64,7 +65,7 @@ call qcmaquis_interface_read_rdm_full(int(state2-1,kind=c_int),int(state1-1,kind
 ! Detecting phase flip
 ! TODO: Implement this check, should abort
 ! currently fails as the two TDMs are not always the same
-if (dabs(tg1(1,1))-dabs(tg1_tmp(1,1)) > 1e-9) then
+if (abs(tg1(1,1))-abs(tg1_tmp(1,1)) > 1.0e-9_wp) then
   write(u6,*) 'Internal error: 1-TDM do not correspond to the same state'
   write(u6,*) 'TG1:'
   do u=1,nasht
@@ -76,17 +77,17 @@ if (dabs(tg1(1,1))-dabs(tg1_tmp(1,1)) > 1e-9) then
 end if
 
 ! Rotating MPS or TDM yields different phase different phase
-if (tg1(1,1)*tg1_tmp(1,1) < 0.0) then
+if (tg1(1,1)*tg1_tmp(1,1) < Zero) then
   write(u6,*) 'Phase flip detected: flipping phase'
-  tg1(:,:) = -1.0*tg1(:,:)
-  tg2(:,:,:,:) = -1.0*tg2(:,:,:,:)
-  tg3_tmp(:,:,:,:,:,:) = -1.0*tg3_tmp(:,:,:,:,:,:)
+  tg1(:,:) = -tg1(:,:)
+  tg2(:,:,:,:) = -tg2(:,:,:,:)
+  tg3_tmp(:,:,:,:,:,:) = -tg3_tmp(:,:,:,:,:,:)
 end if
 call mma_deallocate(tg1_tmp)
 
 ! TODO: compute the overlap, check in the original code how
 ! ovl = qcmaquis_interface_get_overlap_with_ket_bra(int(state1-1, c_int), int(state2-1, c_int))
-ovl = 0.0_wp
+ovl = Zero
 
 do z=1,nasht
   do y=1,nasht

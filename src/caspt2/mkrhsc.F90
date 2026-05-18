@@ -89,7 +89,7 @@ do ISYM=1,NSYM
         IYYWA = IYYW+NAS*(IA-1)
         SUM = SUM-GA_Arrays(LW)%A(IYYWA)
       end do
-      ONEADD = SUM/dble(max(1,NACTEL))
+      ONEADD = SUM/real(max(1,NACTEL),kind=wp)
       do ISYMU=1,NSYM
         do IU=1,NASH(ISYMU)
           IUABS = IU+NAES(ISYMU)

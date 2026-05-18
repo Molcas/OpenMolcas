@@ -412,10 +412,10 @@ select case (ICASE)
     end do
     !*******************************************************************
   case (12)
-    if (abs(OVL) >= 1.0E-12_wp) HEBLK = HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
+    if (abs(OVL) >= 1.0e-12_wp) HEBLK = HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
     !*******************************************************************
   case (13)
-    if (abs(OVL) >= 1.0E-12_wp) HEBLK = HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
+    if (abs(OVL) >= 1.0e-12_wp) HEBLK = HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
     !*******************************************************************
 end select
 

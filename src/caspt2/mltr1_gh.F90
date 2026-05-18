@@ -60,7 +60,7 @@ select case (IMLTOP)
         end do
       end if
     end do
-  case DEFAULT
+  case default
     NI = INCX3/NAS1
     do ILST=1,NLST1
       L1 = LST1(1,ILST)

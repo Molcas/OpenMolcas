@@ -194,7 +194,7 @@ STATELOOP: do IGROUP=1,NGROUP
   if (IPRGLB >= USUAL) then
     write(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
     call CollapseOutput(1,trim(STLNE2))
-    write(6,*)
+    write(u6,*)
   end if
 
   ! GRPINI (group init?) does a number of things as follows (note this
@@ -249,9 +249,9 @@ STATELOOP: do IGROUP=1,NGROUP
 
     ! Solve CASPT2 equation system and compute corr energies.
     if (IPRGLB >= USUAL) then
-      write(6,'(A)') repeat('*',80)
-      write(6,*) ' CASPT2 EQUATION SOLUTION'
-      write(6,'(A)') repeat('-',80)
+      write(u6,'(A)') repeat('*',80)
+      write(u6,*) ' CASPT2 EQUATION SOLUTION'
+      write(u6,'(A)') repeat('-',80)
     end if
 
     write(STLNE2,'(A,I0)') 'Solve CASPT2 eqs. for state ',MSTATE(JSTATE)
@@ -295,9 +295,9 @@ STATELOOP: do IGROUP=1,NGROUP
 
     else
       if (IPRGLB >= USUAL) then
-        write(6,*)
-        write(6,*) '  (Skipping property calculation,'
-        write(6,*) '   use PROP keyword to activate)'
+        write(u6,*)
+        write(u6,*) '  (Skipping property calculation,'
+        write(u6,*) '   use PROP keyword to activate)'
       end if
     end if
     !! Save many quantities needed for gradient calculations
@@ -314,9 +314,9 @@ STATELOOP: do IGROUP=1,NGROUP
         ! couplings are more efficiently computed via three-body
         ! transition density matrices.
         if (IPRGLB >= VERBOSE) then
-          write(6,*)
-          write(6,'(A)') repeat('*',80)
-          write(6,*) ' CASPT2 MULTI-STATE COUPLINGS SECTION'
+          write(u6,*)
+          write(u6,'(A)') repeat('*',80)
+          write(u6,*) ' CASPT2 MULTI-STATE COUPLINGS SECTION'
         end if
         call StatusLine('CASPT2: ','Multi-State couplings')
         call MCCTL(HEFF,NSTATE,JSTATE)
@@ -331,7 +331,7 @@ STATELOOP: do IGROUP=1,NGROUP
 
   if (IPRGLB >= USUAL) then
     call CollapseOutput(0,'CASPT2 computation for group ')
-    write(6,*)
+    write(u6,*)
   end if
 
   ! End of long loop over groups
@@ -359,22 +359,22 @@ subroutine Print_Truff()
   end if
 
   if (IPRGLB >= TERSE) then
-    write(6,*) ' Total CASPT2 energies:'
+    write(u6,*) ' Total CASPT2 energies:'
     if (IFXMS .or. IFRMS) then
-      write(6,*)
-      write(6,*) ' State-specific CASPT2 energies obtained using'
-      write(6,*) ' rotated states do not have a well-defined physical'
-      write(6,*) ' meaning, however they can be extracted from the'
-      write(6,*) ' diagonal of the effective Hamiltonian.'
+      write(u6,*)
+      write(u6,*) ' State-specific CASPT2 energies obtained using'
+      write(u6,*) ' rotated states do not have a well-defined physical'
+      write(u6,*) ' meaning, however they can be extracted from the'
+      write(u6,*) ' diagonal of the effective Hamiltonian.'
     else
       do I=1,NSTATE
         if ((NLYROOT /= 0) .and. (I /= NLYROOT)) cycle
-        call PrintResult(6,'(6x,A,I3,5X,A,F16.8)','CASPT2 Root',MSTATE(I),'Total energy:',ENERGY(I),1)
+        call PrintResult(u6,'(6x,A,I3,5X,A,F16.8)','CASPT2 Root',MSTATE(I),'Total energy:',ENERGY(I),1)
       end do
       if ((IPRGLB >= VERBOSE) .and. (NLYROOT == 0)) then
-        write(6,*)
-        write(6,*) ' Relative CASPT2 energies:'
-        write(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)') 'Root','(a.u.)','(eV)','(cm^-1)','(kJ/mol)'
+        write(u6,*)
+        write(u6,*) ' Relative CASPT2 energies:'
+        write(u6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)') 'Root','(a.u.)','(eV)','(cm^-1)','(kJ/mol)'
         ISTATE = 1
         do I=2,NSTATE
           if (ENERGY(I) < ENERGY(ISTATE)) ISTATE = I
@@ -384,7 +384,7 @@ subroutine Print_Truff()
           RELEV = RELAU*auToeV
           RELCM = RELAU*auTocm
           RELKJ = RELAU*auTokJmol
-          write(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)') MSTATE(I),RELAU,RELEV,RELCM,RELKJ
+          write(u6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)') MSTATE(I),RELAU,RELEV,RELCM,RELKJ
         end do
       end if
     end if
@@ -405,16 +405,16 @@ subroutine Post_Process()
         call MLTCTL(HEFF,UEFF,U0)
 
         if ((IPRGLB >= VERBOSE) .and. (NLYROOT == 0)) then
-          write(6,*) ' Relative (X)MS-CASPT2 energies:'
-          write(6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)') 'Root','(a.u.)','(eV)','(cm^-1)','(kJ/mol)'
+          write(u6,*) ' Relative (X)MS-CASPT2 energies:'
+          write(u6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)') 'Root','(a.u.)','(eV)','(cm^-1)','(kJ/mol)'
           do I=1,NSTATE
             RELAU = ENERGY(I)-ENERGY(1)
             RELEV = RELAU*auToeV
             RELCM = RELAU*auTocm
             RELKJ = RELAU*auTokJmol
-            write(6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)') I,RELAU,RELEV,RELCM,RELKJ
+            write(u6,'(1X,I4,4X,F12.8,1X,F10.2,1X,F10.1,1X,F10.2)') I,RELAU,RELEV,RELCM,RELKJ
           end do
-          write(6,*)
+          write(u6,*)
         end if
       end if
     end if
@@ -423,11 +423,11 @@ subroutine Post_Process()
 
     if (nStpGrd == 2) then
       if (IPRGLB >= TERSE) then
-        write(6,'(A)') repeat('*',80)
-        write(6,'(A)') ' SECOND RUN to compute analytical gradients/NAC quantities'
-        write(6,'(A)') repeat('-',80)
-        write(6,*)
-        call XFlush(6)
+        write(u6,'(A)') repeat('*',80)
+        write(u6,'(A)') ' SECOND RUN to compute analytical gradients/NAC quantities'
+        write(u6,'(A)') repeat('-',80)
+        write(u6,*)
+        call XFlush(u6)
       end if
       do_grad = .true.
       call DCopy_(nState,ENERGY,1,Esav,1)
@@ -579,35 +579,35 @@ subroutine Iter_Timing()
   end if
 
   if (IPRGLB >= VERBOSE) then
-    write(6,*)
-    write(6,'(A,I6)') '  CASPT2 TIMING INFO FOR STATE ',MSTATE(JSTATE)
-    write(6,*)
-    write(6,'(A)') '                         cpu time  (s)  wall time (s)'
-    write(6,'(A)') '                         -------------  -------------'
-    write(6,*)
-    write(6,'(A,2F14.2)') '  Group initialization  ',CPUGIN,TIOGIN
-    write(6,'(A,2F14.2)') '  - Fock matrix build   ',CPUFMB,TIOFMB
-    write(6,'(A,2F14.2)') '  - integral transforms ',CPUINT,TIOINT
-    write(6,'(A,2F14.2)') '  State initialization  ',CPUSIN,TIOSIN
-    write(6,'(A,2F14.2)') '  - density matrices    ',CPUFG3,TIOFG3
-    write(6,'(A,2F14.2)') '  CASPT2 equations      ',CPUPT2,TIOPT2
-    write(6,'(A,2F14.2)') '  - H0 S/B matrices     ',CPUSBM,TIOSBM
-    write(6,'(A,2F14.2)') '  - H0 S/B diag         ',CPUEIG,TIOEIG
-    write(6,'(A,2F14.2)') '  - H0 NA diag          ',CPUNAD,TIONAD
-    write(6,'(A,2F14.2)') '  - RHS construction    ',CPURHS,TIORHS
-    write(6,'(A,2F14.2)') '  - PCG solver          ',CPUPCG,TIOPCG
-    write(6,'(A,2F14.2)') '    - scaling           ',CPUSCA,TIOSCA
-    write(6,'(A,2F14.2)') '    - lin. comb.        ',CPULCS,TIOLCS
-    write(6,'(A,2F14.2)') '    - inner products    ',CPUOVL,TIOOVL
-    write(6,'(A,2F14.2)') '    - basis transforms  ',CPUVEC,TIOVEC
-    write(6,'(A,2F14.2)') '    - sigma routines    ',CPUSGM,TIOSGM
-    write(6,'(A,2F14.2)') '  - array collection    ',CPUSER,TIOSER
-    write(6,'(A,2F14.2)') '  Properties            ',CPUPRP,TIOPRP
+    write(u6,*)
+    write(u6,'(A,I6)') '  CASPT2 TIMING INFO FOR STATE ',MSTATE(JSTATE)
+    write(u6,*)
+    write(u6,'(A)') '                         cpu time  (s)  wall time (s)'
+    write(u6,'(A)') '                         -------------  -------------'
+    write(u6,*)
+    write(u6,'(A,2F14.2)') '  Group initialization  ',CPUGIN,TIOGIN
+    write(u6,'(A,2F14.2)') '  - Fock matrix build   ',CPUFMB,TIOFMB
+    write(u6,'(A,2F14.2)') '  - integral transforms ',CPUINT,TIOINT
+    write(u6,'(A,2F14.2)') '  State initialization  ',CPUSIN,TIOSIN
+    write(u6,'(A,2F14.2)') '  - density matrices    ',CPUFG3,TIOFG3
+    write(u6,'(A,2F14.2)') '  CASPT2 equations      ',CPUPT2,TIOPT2
+    write(u6,'(A,2F14.2)') '  - H0 S/B matrices     ',CPUSBM,TIOSBM
+    write(u6,'(A,2F14.2)') '  - H0 S/B diag         ',CPUEIG,TIOEIG
+    write(u6,'(A,2F14.2)') '  - H0 NA diag          ',CPUNAD,TIONAD
+    write(u6,'(A,2F14.2)') '  - RHS construction    ',CPURHS,TIORHS
+    write(u6,'(A,2F14.2)') '  - PCG solver          ',CPUPCG,TIOPCG
+    write(u6,'(A,2F14.2)') '    - scaling           ',CPUSCA,TIOSCA
+    write(u6,'(A,2F14.2)') '    - lin. comb.        ',CPULCS,TIOLCS
+    write(u6,'(A,2F14.2)') '    - inner products    ',CPUOVL,TIOOVL
+    write(u6,'(A,2F14.2)') '    - basis transforms  ',CPUVEC,TIOVEC
+    write(u6,'(A,2F14.2)') '    - sigma routines    ',CPUSGM,TIOSGM
+    write(u6,'(A,2F14.2)') '  - array collection    ',CPUSER,TIOSER
+    write(u6,'(A,2F14.2)') '  Properties            ',CPUPRP,TIOPRP
     if (.not. DoFCIQMC) then ! MS-CASPT2 currently not possible
-      write(6,'(A,2F14.2)') '  MS coupling           ',CPUGRD,TIOGRD
+      write(u6,'(A,2F14.2)') '  MS coupling           ',CPUGRD,TIOGRD
     end if
-    write(6,'(A,2F14.2)') ' Total time             ',CPUTOT,TIOTOT
-    write(6,*)
+    write(u6,'(A,2F14.2)') ' Total time             ',CPUTOT,TIOTOT
+    write(u6,*)
   end if
 
 end subroutine Iter_Timing

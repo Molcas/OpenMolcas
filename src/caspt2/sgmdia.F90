@@ -26,6 +26,7 @@
 subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs)
 
 use caspt2_global, only: imag_shift, real_shift, sigma_p_epsilon, sigma_p_exponent
+use Constants, only: Zero, One
 use definitions, only: wp, iwp
 
 implicit none
@@ -44,9 +45,9 @@ do j=1,nCol
     ! multiply by sigma-p regularizer
     epsilon = sigma_p_epsilon
     p = sigma_p_exponent
-    if (epsilon > 0.0_wp) then
-      sigma = 1.0_wp/epsilon**p
-      delta = delta/(1.0_wp-exp(-sigma*abs(delta)**p))
+    if (epsilon > Zero) then
+      sigma = One/epsilon**p
+      delta = delta/(One-exp(-sigma*abs(delta)**p))
     end if
 
     W(i,j) = delta*W(i,j)

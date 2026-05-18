@@ -118,22 +118,12 @@ else
   do i=1,nBasT*nBasT
     write(LuCMOPT2) CMOPT2(i)
   end do
-  write(LuCMOPT2) nIsh(1)+nAsh(1)
-  write(LuCMOPT2) nIsh(2)+nAsh(2)
-  write(LuCMOPT2) nIsh(3)+nAsh(3)
-  write(LuCMOPT2) nIsh(4)+nAsh(4)
-  write(LuCMOPT2) nIsh(5)+nAsh(5)
-  write(LuCMOPT2) nIsh(6)+nAsh(6)
-  write(LuCMOPT2) nIsh(7)+nAsh(7)
-  write(LuCMOPT2) nIsh(8)+nAsh(8)
-  write(LuCMOPT2) nFro(1)
-  write(LuCMOPT2) nFro(2)
-  write(LuCMOPT2) nFro(3)
-  write(LuCMOPT2) nFro(4)
-  write(LuCMOPT2) nFro(5)
-  write(LuCMOPT2) nFro(6)
-  write(LuCMOPT2) nFro(7)
-  write(LuCMOPT2) nFro(8)
+  do i=1,8
+    write(LuCMOPT2) nIsh(i)+nAsh(i)
+  end do
+  do i=1,8
+    write(LuCMOPT2) nFro(i)
+  end do
   !! Number of state-specific density matrix
   !! It is needed, because the separable contribution to the
   !! electron repulsion integral is different

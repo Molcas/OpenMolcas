@@ -50,8 +50,8 @@ if (Is_Real_Par()) then
     call GA_Release_Update(lg_W2,iLo2,iHi2,jLo2,jHi2)
   end if
   call GA_Sync()
-#endif
 else
+#endif
   call CASPT2_ResD2(MODE,NIN,NIS,GA_Arrays(lg_W1)%A,GA_Arrays(lg_W2)%A,NIN,DIN,DIS)
 #ifdef _MOLCAS_MPP_
 end if

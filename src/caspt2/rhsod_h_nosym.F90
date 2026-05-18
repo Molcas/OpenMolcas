@@ -13,7 +13,7 @@
 
 subroutine RHSOD_H_NOSYM(IVEC)
 
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: Zero, Half, One, Three
 use SUPERINDEX, only: MIGEJ, MAGEB, MIGTJ, MAGTB
 use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
@@ -41,7 +41,7 @@ integer(kind=iwp), parameter :: NOSYM = 1
 real(kind=wp), allocatable :: AIBJ(:,:)
 real(kind=wp), parameter :: SQRT3 = sqrt(Three), SQRTH = sqrt(Half)
 
-if (iPrGlb >= DEBUG) write(6,*) 'RHS on demand: case H'
+if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case H'
 
 !***********************************************************************
 ! Case H:

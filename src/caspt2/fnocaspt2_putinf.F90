@@ -46,7 +46,7 @@ Verbose = .false.
 SOS_mp2 = .false.
 set_cd_thr = .true.
 OED_Thr = 1.0e-8_wp
-C_os = 1.3e0_wp
+C_os = 1.3_wp
 EOSMP2 = Zero
 
 DoFNO = .true.

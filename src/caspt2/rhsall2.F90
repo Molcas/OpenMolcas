@@ -17,7 +17,7 @@ subroutine RHSALL2(IVEC)
 ! ================================================================
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: Zero, One
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use caspt2_global, only: iPrGlb, FIMO, PIQK, Buff, idxb
@@ -54,7 +54,7 @@ call ICopy(NSYM,NSSH,1,nSh(1,Virtual),1)
 !***********************************************************************
 !                                                                      *
 
-if (IPRGLB >= VERBOSE) write(6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
+if (IPRGLB >= VERBOSE) write(u6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
 
 ! TUVX RHSX        Na^4
 ! TJVX RHSA        Na^3 Ni
@@ -101,10 +101,10 @@ do JSYM=1,NSYM
 
   call MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,NCHOBUF,MXPIQK,NADDBUF)
   if (IPRGLB > VERBOSE) then
-    write(6,*)
-    write(6,'(A,I12)') '  Number of Cholesky batches: ',IB2-IB1+1
-    write(6,'(A,I12)') '  Number of batch groups:     ',NBGRP
-    write(6,*)
+    write(u6,*)
+    write(u6,'(A,I12)') '  Number of Cholesky batches: ',IB2-IB1+1
+    write(u6,'(A,I12)') '  Number of batch groups:     ',NBGRP
+    write(u6,*)
   end if
 
   ! buffers are kept allocated until the end of JSYM loop.
@@ -130,8 +130,8 @@ do JSYM=1,NSYM
     end do
 
     if (IPRGLB > VERBOSE) then
-      write(6,'(A,I12)') '  Cholesky vectors in this group = ',NV
-      write(6,*)
+      write(u6,'(A,I12)') '  Cholesky vectors in this group = ',NV
+      write(u6,*)
     end if
     !                                                                  *
     !*******************************************************************
@@ -170,7 +170,7 @@ do JSYM=1,NSYM
         NKETSM = NQK*NV
 
         if (NPI*NQK > mxPIQK) then
-          write(6,*) 'NPIQK larger than mxPIQK in TUVX, bug?'
+          write(u6,*) 'NPIQK larger than mxPIQK in TUVX, bug?'
           call AbEnd()
         end if
         call DGEMM_('N','T',NPI,NQK,NV,One,KET(LBRASM),NPI,KET(LKETSM),NQK,Zero,PIQK,NPI)
@@ -324,8 +324,8 @@ call MODRHS(IVEC,FIMO,size(FIMO))
 
 #ifdef _DEBUGPRINT_
 ! compute and print RHS fingerprints
-write(6,'(1X,A4,1X,A3,1X,A18)') 'Case','Sym','Fingerprint'
-write(6,'(1X,A4,1X,A3,1X,A18)') '====','===','==========='
+write(u6,'(1X,A4,1X,A3,1X,A18)') 'Case','Sym','Fingerprint'
+write(u6,'(1X,A4,1X,A3,1X,A18)') '====','===','==========='
 do ICASE=1,13
   do ISYM=1,NSYM
     NAS = NASUP(ISYM,ICASE)
@@ -334,7 +334,7 @@ do ICASE=1,13
       call RHS_ALLO(NAS,NIS,lg_W)
       call RHS_READ(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
       DNRM2 = RHS_DDOT(NAS,NIS,lg_W,lg_W)
-      write(6,'(1X,I4,1X,I3,1X,F18.11)') ICASE,ISYM,DNRM2
+      write(u6,'(1X,I4,1X,I3,1X,F18.11)') ICASE,ISYM,DNRM2
     end if
   end do
 end do

@@ -14,7 +14,7 @@
 subroutine RHSOD_F_NOSYM(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: Half
 use SUPERINDEX, only: MAGEB, MAREL, MTGEU, MTREL, MAGTB, MTGTU
 use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
@@ -41,7 +41,7 @@ real(kind=wp), external :: DDot_
 #include "mafdecls.fh"
 #endif
 
-if (iPrGlb >= DEBUG) write(6,*) 'RHS on demand: case F'
+if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case F'
 
 !***********************************************************************
 ! Case F (8,9):
@@ -182,8 +182,8 @@ do ISYM=1,NSYM
 
       ! FM(tv,ac)= -((at,cv)-(av,ct))/(2*SQRT(1+Kron(a,c))
       SCL = Half
-      !IF (ITABS==IVABS) SCL=SCL*0.5D0
-      !IF (IAABS==ICABS) SCL=SCL*SQRTH
+      !if (ITABS == IVABS) SCL = SCL*Half
+      !if (IAABS == ICABS) SCL = SCL*SQRTH
       FMTVAC = SCL*(AVCT-ATCV)
       ! write element FM(tv,ac)
       IDX = ITGTU+NAS*(IAGTB-IISTA)

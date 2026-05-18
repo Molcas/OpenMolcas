@@ -101,12 +101,12 @@ FIMO(1:NoTri) = FIMO(:)+HONE(:)
 FIFA(1:NoTri) = FIMO(:)+FIFA(:)
 
 #ifdef _DEBUGPRINT_
-write(6,*) '      INACTIVE FOCK MATRIX IN MO BASIS'
+write(u6,*) '      INACTIVE FOCK MATRIX IN MO BASIS'
 ISTLT = 1
 do ISYM=1,NSYM
   NO = NORB(ISYM)
   if (NO > 0) then
-    write(6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
+    write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FIMO(ISTLT),NO)
     ISTLT = ISTLT+(NO*(NO+1))/2
   end if
@@ -114,23 +114,23 @@ end do
 
 call mma_allocate(FAMO,nFIMO,Label='FAMO')
 FAMO(:) = FIFA(:)-FIMO(:)
-write(6,*) '        ACTIVE FOCK MATRIX IN MO BASIS'
+write(u6,*) '        ACTIVE FOCK MATRIX IN MO BASIS'
 ISTLT = 1
 do ISYM=1,NSYM
   NO = NORB(ISYM)
   if (NO > 0) then
-    write(6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
+    write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FAMO(ISTLT),NO)
     ISTLT = ISTLT+(NO*(NO+1))/2
   end if
 end do
 call mma_deallocate(FAMO)
 
-write(6,*) '      TOTAL FOCK MATRIX IN MO BASIS'
+write(u6,*) '      TOTAL FOCK MATRIX IN MO BASIS'
 ISTLT = 1
 do ISYM=1,NSYM
   if (NORB(ISYM) > 0) then
-    write(6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
+    write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FIFA(ISTLT),NORB(ISYM))
     ISTLT = ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
   end if

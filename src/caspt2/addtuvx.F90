@@ -12,7 +12,9 @@
 subroutine ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,TUVX,nTUVX,PIQK,nPIQK,NUMERR)
 
 use definitions, only: iwp, wp
-#ifndef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+use definitions, only: u6
+#else
 use Constants, only: One
 #endif
 
@@ -51,7 +53,7 @@ do iX=0,NK-1
           ITUVX = NTUVX+1
           NUMERR = NUMERR+1
           if (NUMERR > 100) then
-            write(6,*) ' THIS IS TOO MUCH -- STOP.'
+            write(u6,*) ' THIS IS TOO MUCH -- STOP.'
             call QUIT(_RC_INTERNAL_ERROR_)
           end if
         end if

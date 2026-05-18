@@ -175,9 +175,7 @@ if (NLEV > 0) then
     call mma_deallocate(F2_H)
     call mma_deallocate(F3_H)
   end if
-  F1 => null()
-  F2 => null()
-  F3 => null()
+  nullify(F1,F2,F3)
 end if
 
 end subroutine POLY3

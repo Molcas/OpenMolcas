@@ -31,7 +31,7 @@ do I=1,NA
     do K=1,NA
       G1TMP = G1TMP+G2(K,K,J,I)
     end do
-    G1(J,I) = G1TMP/dble(NE-1)
+    G1(J,I) = G1TMP/real(NE-1,kind=wp)
   end do
 end do
 

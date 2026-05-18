@@ -178,7 +178,7 @@ call mma_deallocate(IJ2IDX)
 call mma_MaxDBLE(memmax)
 
 ! Use *almost* all remaining memory:
-memmax_safe = int(dble(memmax)*0.95_wp)
+memmax_safe = int(real(memmax,kind=wp)*0.95_wp)
 
 ! Buffers to compute CI expansion vectors into:
 ! <Psi0|E_ip1 | E_ip2 E_ip3|Psi0>
@@ -212,8 +212,8 @@ call mma_allocate(TaskList,mxTask,4,LABEL='TaskList')
 if (iPrGlb >= VERBOSE) then
   write(u6,*)
   write(u6,'(2X,A)') 'Constructing G3/F3'
-  write(u6,'(2X,A,F16.9,A)') ' memory avail: ',(memmax*RtoB)/1.0d9,' GB'
-  write(u6,'(2X,A,F16.9,A)') ' memory used:  ',(((nbuf1+3)*MXCI)*RtoB)/1.0d9,' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory avail: ',(memmax*RtoB)*1.0e-9_wp,' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory used:  ',(((nbuf1+3)*MXCI)*RtoB)*1.0e-9_wp,' GB'
 end if
 
 !***********************************************************************
@@ -419,7 +419,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
 
     !-SVC20100309: PAM's magic formula
     !iCnt = iSubTask-iOffSet
-    !ip3 = int(dble(ntri2)+1.5D0-sqrt((dble(ntri2)+0.5d0)**2-2*iCnt+0.000001D0))
+    !ip3 = int(real(ntri2,kind=wp)+OneHalf-sqrt((real(ntri2,kind=wp)+Half)**2-2*iCnt+1.0e-6_wp))
     !ip2 = iCnt-((ip3-1)*ntri2-((ip3-1)*(ip3-2))/2 )+ip3-1
 
     !-SVC20100309: use simpler procedure by keeping inner ip2-loop intact

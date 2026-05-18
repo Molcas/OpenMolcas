@@ -14,7 +14,7 @@
 subroutine RHSOD_H(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: Half, One, Three
 use SUPERINDEX, only: MIGEJ, MIREL, MAGEB, MAREL, MIGTJ, MAGTB
 use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
@@ -42,7 +42,7 @@ real(kind=wp), external :: DDot_
 #include "mafdecls.fh"
 #endif
 
-if (iPrGlb >= DEBUG) write(6,*) 'RHS on demand: case H'
+if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case H'
 
 !***********************************************************************
 ! Case H:

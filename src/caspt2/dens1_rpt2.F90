@@ -171,7 +171,7 @@ subroutine End_Stuff()
 
   ! DEBUG print while developing DMRG-CASPT2
   !do i=1,nLev
-  !  write(6,'(1x,14f10.6)') (G1(i,j),j=1,nLev)
+  !  write(u6,'(1x,14f10.6)') (G1(i,j),j=1,nLev)
   !end do
   !write (u6,*)
 

@@ -35,8 +35,8 @@ use caspt2_module, only: IfChol, IfDW, IfMSCoup, IfProp, IfXMS, IfRMS, nActEl, n
 use caspt2_module, only: NAMX
 #endif
 use caspt2_module, only: MxCI, nG1, nG2, nG3Tot
-use constants, only: Zero
-use definitions, only: iwp, wp
+use constants, only: Zero, Half
+use definitions, only: iwp, wp, u6
 
 implicit none
 #include "warnings.h"
@@ -68,8 +68,8 @@ if (NACTEL > 0) then
   NGARR = 2*(NG10+NG20+NG02+NG30+NG12)
   NPOLY = NPOLY+NGARR+5*MXCI
   MXLFT = MXLEFT-NPOLY
-  XX = 0.5d0*dble(3*MXCI+3)
-  YY = dble(MXLFT)
+  XX = Half*real(3*MXCI+3,kind=wp)
+  YY = real(MXLFT,kind=wp)
   ! Allowed by memory:
   NPLBUF = int(sqrt(YY+XX**2)-XX)
   ! Preferred size for efficiency:
@@ -211,11 +211,11 @@ NSIGMA = NSIGMA+NBOTTOM
 ! PRPCTL needs:
 ! In DIADNS alone, NDD words are needed:
 #ifdef _DEBUGPRINT_
-write(6,*) ' Memory requirements for PRPCTL (Above SGUGA).'
-write(6,*)
-write(6,*) ' PRP1) First phase of PRPCTL.'
-write(6,*)
-write(6,*) '    A) DIADNS alone, broken up in case/symm:'
+write(u6,*) ' Memory requirements for PRPCTL (Above SGUGA).'
+write(u6,*)
+write(u6,*) ' PRP1) First phase of PRPCTL.'
+write(u6,*)
+write(u6,*) '    A) DIADNS alone, broken up in case/symm:'
 #endif
 MMX = 0
 do ICASE=1,13
@@ -246,9 +246,9 @@ do ICASE=1,13
       if (NIS > 0) then
         NAS = NASUP(ISYM,ICASE)
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' Case, Symm:',ICASE,ISYM
-        write(6,*) ' NIN,NAS,NIS:',NIN,NAS,NIS
-        write(6,*) ' NIMX,NSMX:',NIMX,NAMX
+        write(u6,*) ' Case, Symm:',ICASE,ISYM
+        write(u6,*) ' NIN,NAS,NIS:',NIN,NAS,NIS
+        write(u6,*) ' NIMX,NSMX:',NIMX,NAMX
 #       endif
         if ((ICASE == 2) .or. (ICASE == 3)) NX = NIN*NIMX**2
         if ((ICASE == 6) .or. (ICASE == 7)) NX = NIN*NSMX*NIMX**2
@@ -258,37 +258,37 @@ do ICASE=1,13
       end if
     end if
 #   ifdef _DEBUGPRINT_
-    write(6,'(1x,a,2i4,5x,i8)') '      Case, symm:',ICASE,ISYM,2*NX
+    write(u6,'(1x,a,2i4,5x,i8)') '      Case, symm:',ICASE,ISYM,2*NX
 #   endif
     NDD = max(2*NX,NDD)
   end do
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) '       DIADNS needs the maximum, or NDD=',NDD
+write(u6,*) '       DIADNS needs the maximum, or NDD=',NDD
 #endif
 NCMO = NBSQT
 NPRP1 = NBOTTOM+NCMO+notri+NLSTOT+2*NOSQT+MMX+NDD
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) '    B) Also needed, for 1st phase of PRPCTL:'
-write(6,'(1x,a,i8)') '       NBOTTOM:',NBOTTOM
-write(6,'(1x,a,i8)') '       NCMO   :',NCMO
-write(6,'(1x,a,i8)') '       notri :',notri
-write(6,'(1x,a,i8)') '       NLSTOT :',NLSTOT
-write(6,'(1x,a,i8)') '     2*NOSQT  :',2*NOSQT
-write(6,'(1x,a,i8)') '       MMX    :',MMX
+write(u6,*)
+write(u6,*) '    B) Also needed, for 1st phase of PRPCTL:'
+write(u6,'(1x,a,i8)') '       NBOTTOM:',NBOTTOM
+write(u6,'(1x,a,i8)') '       NCMO   :',NCMO
+write(u6,'(1x,a,i8)') '       notri :',notri
+write(u6,'(1x,a,i8)') '       NLSTOT :',NLSTOT
+write(u6,'(1x,a,i8)') '     2*NOSQT  :',2*NOSQT
+write(u6,'(1x,a,i8)') '       MMX    :',MMX
 #endif
 NPRP2 = NBOTTOM+2*NCMO+notri+NBAST*(NBAST+1)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' PRP2) Second phase of PRPCTL.'
-write(6,*)
-write(6,'(1x,a,i8)') '       NBOTTOM:',NBOTTOM
-write(6,'(1x,a,i8)') '     2*NCMO   :',2*NCMO
-write(6,'(1x,a,i8)') '       notri :',notri
-write(6,'(1x,a,i8)') 'NBAST*(NBAST+1)',NBAST*(NBAST+1)
+write(u6,*) ' PRP2) Second phase of PRPCTL.'
+write(u6,*)
+write(u6,'(1x,a,i8)') '       NBOTTOM:',NBOTTOM
+write(u6,'(1x,a,i8)') '     2*NCMO   :',2*NCMO
+write(u6,'(1x,a,i8)') '       notri :',notri
+write(u6,'(1x,a,i8)') 'NBAST*(NBAST+1)',NBAST*(NBAST+1)
 #endif
 
 ! (rough) memory estimation for gradients
@@ -488,92 +488,92 @@ if (do_grad) then
   ngrad = NBOTTOM+ngrad1+ngrad2+max(ngrad3,ngrad4,ngrad5,ngrad6,ngrad7,ngrad8,ngrad9,ngrad10,ngrad11,NPRP1-NBOTTOM)
 
 # ifdef _DEBUGPRINT_
-  write(6,*) ' PRP3) Gradient.'
-  write(6,*)
-  write(6,'(1x,a,i12,a)') 'NBOTTOM        :',NBOTTOM,' (essential)'
-  write(6,'(1x,a,i12,a)') 'caspt2_grad    :',ngrad1,' (essential)'
-  write(6,'(1x,a,i12,a)') 'dens           :',ngrad2,' (essential)'
-  write(6,'(1x,a,i12)') '(Part of) PRP1 :',NPRP1-NBOTTOM
-  write(6,'(1x,a,i12)') 'caspt2_res     :',ngrad3
-  write(6,'(1x,a,i12)') 'trnds2o        :',ngrad4
-  write(6,'(1x,a,i12)') 'sigder         :',ngrad5
-  write(6,'(1x,a,i12)') 'clagx          :',ngrad6
-  write(6,'(1x,a,i12)') 'derheff        :',ngrad7
-  write(6,'(1x,a,i12)') 'DEPSAOffC      :',ngrad8
-  write(6,'(1x,a,i12)') 'OLagNS/OLagVVVO:',ngrad9
-  write(6,'(1x,a,i12)') 'CnstAB_SSDM    :',ngrad10
-  write(6,'(1x,a,i12)') 'XMS_Grad       :',ngrad11
-  write(6,'(1x,a,a )') '----------------','------------'
-  write(6,'(1x,a,i12)') 'Total Estimate :',ngrad
+  write(u6,*) ' PRP3) Gradient.'
+  write(u6,*)
+  write(u6,'(1x,a,i12,a)') 'NBOTTOM        :',NBOTTOM,' (essential)'
+  write(u6,'(1x,a,i12,a)') 'caspt2_grad    :',ngrad1,' (essential)'
+  write(u6,'(1x,a,i12,a)') 'dens           :',ngrad2,' (essential)'
+  write(u6,'(1x,a,i12)') '(Part of) PRP1 :',NPRP1-NBOTTOM
+  write(u6,'(1x,a,i12)') 'caspt2_res     :',ngrad3
+  write(u6,'(1x,a,i12)') 'trnds2o        :',ngrad4
+  write(u6,'(1x,a,i12)') 'sigder         :',ngrad5
+  write(u6,'(1x,a,i12)') 'clagx          :',ngrad6
+  write(u6,'(1x,a,i12)') 'derheff        :',ngrad7
+  write(u6,'(1x,a,i12)') 'DEPSAOffC      :',ngrad8
+  write(u6,'(1x,a,i12)') 'OLagNS/OLagVVVO:',ngrad9
+  write(u6,'(1x,a,i12)') 'CnstAB_SSDM    :',ngrad10
+  write(u6,'(1x,a,i12)') 'XMS_Grad       :',ngrad11
+  write(u6,'(1x,a,a )') '----------------','------------'
+  write(u6,'(1x,a,i12)') 'Total Estimate :',ngrad
 # endif
 end if
 
 NPRP = 0
 if (IFPROP .or. do_grad) NPRP = max(NPRP1,NPRP2,ngrad)
 if (IPRGLB >= USUAL) then
-  write(6,'(A)') repeat('-',80)
-  write(6,*) 'Estimated memory requirements:'
-  write(6,'(a,i12)') '  POLY3 :             ',NPOLY
-  write(6,'(a,i12)') '  RHS:                ',NMKRHS
-  write(6,'(a,i12)') '  SIGMA :             ',NSIGMA
-  write(6,'(a,i12)') '  PRPCTL:             ',NPRP
+  write(u6,'(A)') repeat('-',80)
+  write(u6,*) 'Estimated memory requirements:'
+  write(u6,'(a,i12)') '  POLY3 :             ',NPOLY
+  write(u6,'(a,i12)') '  RHS:                ',NMKRHS
+  write(u6,'(a,i12)') '  SIGMA :             ',NSIGMA
+  write(u6,'(a,i12)') '  PRPCTL:             ',NPRP
   !SVC: NPRP includes NDD if it is needed, so this is confusing
-  !write(6,'(a,i12)') '  DIADNS:             ',NDD
-  write(6,'(a,i12)') ' Available workspace: ',MXLEFT
-  write(6,*)
+  !write(u6,'(a,i12)') '  DIADNS:             ',NDD
+  write(u6,'(a,i12)') ' Available workspace: ',MXLEFT
+  write(u6,*)
 end if
 
 NEED0 = max(NPOLY,NMKRHS,NSIGMA)
 NEED = max(NEED0,NPRP)
 if (NEED > MXLEFT) then
   if (NEED0 <= MXLEFT) then
-    write(6,'(5X,A)') repeat('*',26)
-    write(6,'(5X,A)') ' Memory problem!! The memory is insufficient '
-    write(6,'(5X,A)') ' for the property section.'
-    write(6,'(5X,A,I5,A)') '* Need at least ',2+NEED/119000,' MB *'
+    write(u6,'(5X,A)') repeat('*',26)
+    write(u6,'(5X,A)') ' Memory problem!! The memory is insufficient '
+    write(u6,'(5X,A)') ' for the property section.'
+    write(u6,'(5X,A,I5,A)') '* Need at least ',2+NEED/119000,' MB *'
     if (do_grad) then
-      write(6,'(5X,A)') ' The property (including gradient) section will be skipped.'
-      write(6,'(5X,A)') ' If you cannot increase the memory, consider using numerical gradients'
-      if (IFPROP) write(6,'(5X,A)') ' (without PROPerty keyword)'
+      write(u6,'(5X,A)') ' The property (including gradient) section will be skipped.'
+      write(u6,'(5X,A)') ' If you cannot increase the memory, consider using numerical gradients'
+      if (IFPROP) write(u6,'(5X,A)') ' (without PROPerty keyword)'
     else
-      write(6,'(5X,A)') ' The property section will be skipped.'
+      write(u6,'(5X,A)') ' The property section will be skipped.'
     end if
-    write(6,'(5X,A)') repeat('*',26)
+    write(u6,'(5X,A)') repeat('*',26)
     if (do_grad) call Quit(_RC_MEMORY_ERROR_)
     NEED = NEED0
     IFPROP = .false.
   else if (.not. IFCHOL) then
     ! not a Cholesky calculation, keep old memory requirements
-    write(6,'(5X,A)') repeat('*',26)
-    write(6,'(5X,A)') '* Insufficient memory !! *'
-    write(6,'(5X,A,I5,A)') '* Need at least ',2+NEED0/119000,' MB *'
-    write(6,'(5X,A)') repeat('*',26)
-    write(6,*)
-    write(6,*) ' Program execution stops -- sorry!'
-    write(6,*)
+    write(u6,'(5X,A)') repeat('*',26)
+    write(u6,'(5X,A)') '* Insufficient memory !! *'
+    write(u6,'(5X,A,I5,A)') '* Need at least ',2+NEED0/119000,' MB *'
+    write(u6,'(5X,A)') repeat('*',26)
+    write(u6,*)
+    write(u6,*) ' Program execution stops -- sorry!'
+    write(u6,*)
     call Quit(_RC_MEMORY_ERROR_)
   else if (max(NPOLY,NSIGMA) <= MXLEFT) then
     ! This is a Cholesky calculation, only give recommended amount
-    write(6,'(5X,A)') repeat('*',40)
-    write(6,'(5X,A,I5,A)') '* Below comfortable memory of ',2+NEED0/119000,' MB *'
-    write(6,'(5X,A)') repeat('*',40)
-    write(6,*)
-    write(6,*) ' Program will try to adapt'
-    write(6,*) ' If it fails, please raise the memory to at least',2+max(NPOLY,int(0.55d0*NMKRHS),NSIGMA)/119000,' MB'
-    write(6,*) ' (Maybe more, this aint rocket science)'
-    write(6,*)
-    write(6,*) ' With print level DEBUG you will get some more'
-    write(6,*) ' informative memory estimates during computation'
-    write(6,*)
+    write(u6,'(5X,A)') repeat('*',40)
+    write(u6,'(5X,A,I5,A)') '* Below comfortable memory of ',2+NEED0/1.19e5_wp,' MB *'
+    write(u6,'(5X,A)') repeat('*',40)
+    write(u6,*)
+    write(u6,*) ' Program will try to adapt'
+    write(u6,*) ' If it fails, please raise the memory to at least',2+max(NPOLY,int(0.55_wp*NMKRHS),NSIGMA)/1.19e5_wp,' MB'
+    write(u6,*) ' (Maybe more, this aint rocket science)'
+    write(u6,*)
+    write(u6,*) ' With print level DEBUG you will get some more'
+    write(u6,*) ' informative memory estimates during computation'
+    write(u6,*)
   else
-    write(6,'(5X,A)') repeat('*',26)
-    write(6,'(5X,A)') '* Insufficient memory... *'
-    write(6,'(5X,A)') repeat('*',26)
-    write(6,*)
-    write(6,'(A,I6,A)') ' If possible, I would like to have   ',NEED0/119000,' MB'
-    write(6,'(A,I6,A)') ' Please raise the memory to at least ',max(NPOLY,int(0.55d0*NMKRHS),NSIGMA)/119000,' MB'
-    write(6,*) ' (Maybe more, this aint rocket science)'
-    write(6,*)
+    write(u6,'(5X,A)') repeat('*',26)
+    write(u6,'(5X,A)') '* Insufficient memory... *'
+    write(u6,'(5X,A)') repeat('*',26)
+    write(u6,*)
+    write(u6,'(A,I6,A)') ' If possible, I would like to have   ',NEED0/1.19e5_wp,' MB'
+    write(u6,'(A,I6,A)') ' Please raise the memory to at least ',max(NPOLY,int(0.55_wp*NMKRHS),NSIGMA)/1.19e5_wp,' MB'
+    write(u6,*) ' (Maybe more, this aint rocket science)'
+    write(u6,*)
     call Quit(_RC_MEMORY_ERROR_)
   end if
 end if

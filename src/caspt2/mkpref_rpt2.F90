@@ -19,6 +19,7 @@
 
 subroutine MKPREF_RPT2(N,G2,PREF,NPREF)
 
+use Constants, only: Half
 use definitions, only: iwp, wp
 
 implicit none
@@ -51,8 +52,8 @@ do I=1,N
         KL = K+N*(L-1)
         LK = L+N*(K-1)
 
-        P1 = 0.5d0*G2(I,J,K,L)
-        P2 = 0.5d0*G2(I,J,L,K)
+        P1 = Half*G2(I,J,K,L)
+        P2 = Half*G2(I,J,L,K)
         if (J >= L) then
           IJKL = (IJ*(IJ-1))/2+KL
         else

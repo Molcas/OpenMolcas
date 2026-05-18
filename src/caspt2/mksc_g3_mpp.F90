@@ -40,7 +40,6 @@ integer(kind=MPIInt), allocatable :: SDISPLS(:), RDISPLS(:)
 integer(kind=MPIInt), allocatable :: SDISPLS2(:), RDISPLS2(:)
 integer(kind=MPIInt), allocatable :: SENDIDX(:), RECVIDX(:)
 real(kind=wp), allocatable :: SENDVAL(:), RECVVAL(:)
-integer(kind=MPIInt), parameter :: ONE4 = 1, TWO4 = 2
 integer(kind=MPIInt) :: IERROR4
 integer(kind=iwp), allocatable :: IBUF(:)
 integer(kind=iwp) iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV, iSX, iSY, iSZ, ituvs, ixyzs, iTU, iVX, iYZ, JSYM, ISUP, JSUP
@@ -76,7 +75,7 @@ call MMA_ALLOCATE(IBUF,NPROCS,Label='IBUF')
 ! buffers for sending and receiving values and indices)
 call mma_MaxDBLE(MAXMEM)
 iscal = (storage_size(SENDVAL)+2*storage_size(SENDIDX)+storage_size(RECVVAL)+2*storage_size(RECVIDX))/storage_size(1.0_wp)
-MAXBUF = min(nint(0.95d0*MAXMEM)/iscal,2000000000/8)
+MAXBUF = min(nint(0.95_wp*MAXMEM)/iscal,2000000000/8)
 
 ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
 ! This guarantees that e.g. if all processes send all their data
@@ -131,7 +130,7 @@ do IBLOCK=1,NBLOCKS
     if (jSYM == iSYM) then
       IROW = KTUV(iV,iU,iT)-nTUVES(jSYM)
       IP = IPROW(IROW,NQOT,NREM)
-      SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+      SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
     end if
     if (.not. ((iTU == iVX) .and. (iVX == iYZ))) then
       if (.not. ((iTU == iVX) .or. (iTU == iYZ) .or. (iVX == iYZ))) then
@@ -140,21 +139,21 @@ do IBLOCK=1,NBLOCKS
         if (jSYM == iSYM) then
           IROW = KTUV(iT,iX,iV)-nTUVES(jSYM)
           IP = IPROW(IROW,NQOT,NREM)
-          SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+          SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
         end if
         !  - G(yzvxtu) -> SC(vzy,xtu)
         jSYM = Mul(IASYM(iV),Mul(IASYM(iZ),IASYM(iY)))
         if (jSYM == iSYM) then
           IROW = KTUV(iV,iZ,iY)-nTUVES(jSYM)
           IP = IPROW(IROW,NQOT,NREM)
-          SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+          SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
         end if
         !  - G(tuyzvx) -> SC(yut,zvx)
         jSYM = Mul(IASYM(iY),Mul(IASYM(iU),IASYM(iT)))
         if (jSYM == iSYM) then
           IROW = KTUV(iY,iU,iT)-nTUVES(jSYM)
           IP = IPROW(IROW,NQOT,NREM)
-          SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+          SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
         end if
       end if
       !  - G(yztuvx) -> SC(tzy,uvx)
@@ -162,14 +161,14 @@ do IBLOCK=1,NBLOCKS
       if (jSYM == iSYM) then
         IROW = KTUV(iT,iZ,iY)-nTUVES(jSYM)
         IP = IPROW(IROW,NQOT,NREM)
-        SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+        SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
       end if
       !  - G(vxyztu) -> SC(yxv,ztu)
       jSYM = Mul(IASYM(iY),Mul(IASYM(iX),IASYM(iV)))
       if (jSYM == iSYM) then
         IROW = KTUV(iY,iX,iV)-nTUVES(jSYM)
         IP = IPROW(IROW,NQOT,NREM)
-        SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+        SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
       end if
     end if
     if ((iT == iU) .and. (iV == iX) .and. (iY == iZ)) cycle
@@ -181,7 +180,7 @@ do IBLOCK=1,NBLOCKS
     if (jSYM == iSYM) then
       IROW = KTUV(iX,iT,iU)-nTUVES(jSYM)
       IP = IPROW(IROW,NQOT,NREM)
-      SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+      SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
     end if
     if ((iTU == iVX) .and. (iVX == iYZ)) cycle
     if (.not. ((iTU == iVX) .or. (iTU == iYZ) .or. (iVX == iYZ))) then
@@ -190,21 +189,21 @@ do IBLOCK=1,NBLOCKS
       if (jSYM == iSYM) then
         IROW = KTUV(iU,iV,iX)-nTUVES(jSYM)
         IP = IPROW(IROW,NQOT,NREM)
-        SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+        SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
       end if
       !  - G(zyxvut) -> SC(xyz,vut)
       jSYM = Mul(IASYM(iX),Mul(IASYM(iY),IASYM(iZ)))
       if (jSYM == iSYM) then
         IROW = KTUV(iX,iY,iZ)-nTUVES(jSYM)
         IP = IPROW(IROW,NQOT,NREM)
-        SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+        SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
       end if
       !  - G(utzyxv) -> SC(ztu,yxv)
       jSYM = Mul(IASYM(iZ),Mul(IASYM(iT),IASYM(iU)))
       if (jSYM == iSYM) then
         IROW = KTUV(iZ,iT,iU)-nTUVES(jSYM)
         IP = IPROW(IROW,NQOT,NREM)
-        SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+        SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
       end if
     end if
     !  - G(zyutxv) -> SC(uyz,txv)
@@ -212,14 +211,14 @@ do IBLOCK=1,NBLOCKS
     if (jSYM == iSYM) then
       IROW = KTUV(iU,iY,iZ)-nTUVES(jSYM)
       IP = IPROW(IROW,NQOT,NREM)
-      SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+      SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
     end if
     !  - G(xvzyut) -> SC(zvx,yut)
     jSYM = Mul(IASYM(iZ),Mul(IASYM(iV),IASYM(iX)))
     if (jSYM == iSYM) then
       IROW = KTUV(iZ,iV,iX)-nTUVES(jSYM)
       IP = IPROW(IROW,NQOT,NREM)
-      SCOUNTS(IP) = SCOUNTS(IP)+ONE4
+      SCOUNTS(IP) = SCOUNTS(IP)+1_MPIInt
     end if
   end do
 
@@ -401,16 +400,16 @@ do IBLOCK=1,NBLOCKS
   end do
 
   ! Now we need to determine the receive counts.
-  call MPI_ALLTOALL(SCOUNTS,ONE4,MPI_INTEGER,RCOUNTS,ONE4,MPI_INTEGER,MPI_COMM_WORLD,IERROR4)
+  call MPI_ALLTOALL(SCOUNTS,1_MPIInt,MPI_INTEGER,RCOUNTS,1_MPIInt,MPI_INTEGER,MPI_COMM_WORLD,IERROR4)
 
   IOFFSET = 0
   do I=1,NPROCS
     RDISPLS(I) = int(IOFFSET,kind=MPIInt)
     IOFFSET = IOFFSET+RCOUNTS(I)
-    SCOUNTS2(I) = TWO4*SCOUNTS(I)
-    RCOUNTS2(I) = TWO4*RCOUNTS(I)
-    SDISPLS2(I) = TWO4*SDISPLS(I)
-    RDISPLS2(I) = TWO4*RDISPLS(I)
+    SCOUNTS2(I) = 2_MPIInt*SCOUNTS(I)
+    RCOUNTS2(I) = 2_MPIInt*RCOUNTS(I)
+    SDISPLS2(I) = 2_MPIInt*SDISPLS(I)
+    RDISPLS2(I) = 2_MPIInt*RDISPLS(I)
   end do
   NRECV = IOFFSET
 

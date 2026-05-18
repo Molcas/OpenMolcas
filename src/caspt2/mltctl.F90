@@ -53,7 +53,7 @@ call put_darray(INLAB,HEFF,NSTATE**2)
 
 ! Analyze the effective Hamiltonian:
 DSHIFT = Zero
-if (HEFF(1,1) <= -100.0e0_wp) DSHIFT = -dble(int(-HEFF(1,1)))
+if (HEFF(1,1) <= -100.0_wp) DSHIFT = -real(ceiling(HEFF(1,1)),kind=wp)
 do I=1,NSTATE
   HEFF(I,I) = HEFF(I,I)-DSHIFT
 end do
@@ -148,7 +148,7 @@ if (IPRGLB >= USUAL) then
       do J=1,NSTATE
         write(u6,'(6x,5F16.8)') (Utmp(J,I),I=ISTA,IEND)
       end do
-      write(6,*)
+      write(u6,*)
     end do
     call mma_deallocate(Utmp)
   end if

@@ -87,7 +87,7 @@ select case (IMLTOP)
         IY = IY+INCY2
       end do
     end do
-  case DEFAULT
+  case default
     do ILST=ILST1_IOFF,NLST1,ILST1_SKIP
       L1 = LST1(1,ILST)
       L2 = LST1(2,ILST)

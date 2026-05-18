@@ -46,7 +46,7 @@ do iState=1,nState
     else
       WGT = One/nState ! this should not happen...
     end if
-    if (abs(wgt) <= 1.0e-09_wp) cycle
+    if (abs(wgt) <= 1.0e-9_wp) cycle
     if (ISCF == 0) then
       call LoadCI(CI1,iState)
     else
@@ -56,7 +56,7 @@ do iState=1,nState
     call Poly1_CLag(NCONF,NLEV,CI1,CLag(1,iState),WRK)
   else
     Wgt = DWgt(iState,jState)
-    if (abs(wgt) > 1.0e-09_wp) then
+    if (abs(wgt) > 1.0e-9_wp) then
       if (ISCF == 0) then
         call LoadCI(CI1,iState)
       else

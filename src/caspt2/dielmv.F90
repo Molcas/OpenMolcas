@@ -45,7 +45,7 @@ do I=1,NUP
       IC1 = IC/4
       ISTEP = IC-4*IC1
       IOC = (ISTEP+1)/2
-      SUM = SUM+dble(IOC)*ETA(LEV)
+      SUM = SUM+real(IOC,kind=wp)*ETA(LEV)
       IC = IC1
     end do
   end do
@@ -64,7 +64,7 @@ do I=1,NDWN
       IC1 = IC/4
       ISTEP = IC-4*IC1
       IOC = (ISTEP+1)/2
-      SUM = SUM+dble(IOC)*ETA(LEV)
+      SUM = SUM+real(IOC,kind=wp)*ETA(LEV)
       IC = IC1
     end do
   end do

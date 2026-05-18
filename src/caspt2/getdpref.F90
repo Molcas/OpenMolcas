@@ -91,7 +91,6 @@ call mma_deallocate(G2)
 
 if (IPRGLB >= DEBUG) then
   write(u6,*) ' GETDPREF has constructed DREF and PREF.'
-  call XFLUSH(6)
 end if
 
 end subroutine GETDPREF

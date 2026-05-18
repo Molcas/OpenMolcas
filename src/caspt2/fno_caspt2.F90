@@ -75,14 +75,14 @@ do i=1,nSym
   mAsh = max(mAsh,nAsh(i))
 end do
 if (nBasT > mxBas) then
-  write(6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+  write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
   call Abend()
 end if
 
 !----------------------------------------------------------------------*
 !     Read the molecular orbitals from JobIph                          *
 !----------------------------------------------------------------------*
-if (IFQCAN == 0) write(6,'(/6X,A)') 'No pseudocanonical RASSCF orbitals found! I will proceed with FDIAG values.'
+if (IFQCAN == 0) write(u6,'(/6X,A)') 'No pseudocanonical RASSCF orbitals found! I will proceed with FDIAG values.'
 call mma_allocate(CMOX,2*NCMO,Label='CMOX')
 iCMO = 1+NCMO
 ! This is not the best solution, but I wanted to avoid having to rewrite
@@ -191,7 +191,7 @@ do iSym=1,nSym
     iOff = iOff+nSsh(iSym)**2
     TrDF(iSym) = ddot_(nSsh(iSym),OrbE(ip_Z),1,[One],0)
     if (vfrac >= Zero) then
-      ns_V(iSym) = int(vfrac*dble(nSsh(iSym)))
+      ns_V(iSym) = int(vfrac*nSsh(iSym))
       TrDP(iSym) = ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
     else
       ns_V(iSym) = nSsh(iSym)-1

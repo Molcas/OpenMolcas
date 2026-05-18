@@ -50,7 +50,7 @@ if (NG3MAX == 0) return
 call mma_MaxDBLE(MAXMEM)
 ! we need two real and two integer values per element
 iscal = (iwp*2+wp*2)/RtoB
-!MAXBUF = min(nint(0.95D0*MAXMEM)/4,2000000000/8)
+!MAXBUF = min(nint(0.95_wp*MAXMEM)/4,2000000000/8)
 MAXBUF = min(nint(0.95_wp*MAXMEM,kind=iwp)/iscal,2000000000/8)
 MAXBUF = MAXBUF-2*NG3 !! for NELBsav and NELSsav
 

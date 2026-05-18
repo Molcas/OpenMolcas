@@ -20,7 +20,7 @@
 subroutine MKBMAT()
 ! Set up B matrices for cases 1..13.
 
-use definitions, only: iwp, wp, Byte, u6
+use definitions, only: iwp, wp, u6, Byte
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -35,8 +35,8 @@ real(kind=wp), allocatable :: F1(:), F2(:), F3(:), FD(:), FP(:)
 integer(kind=iwp) iLUID
 
 if (IPRGLB >= VERBOSE) then
-  write(6,*)
-  write(6,*) ' Construct B matrices'
+  write(u6,*)
+  write(u6,*) ' Construct B matrices'
 end if
 
 if (NASHT /= 0) then

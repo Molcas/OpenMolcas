@@ -12,7 +12,7 @@
 subroutine MKSBMAT()
 ! Set up S and B matrices for cases 1..13.
 
-use definitions, only: iwp, wp, Byte, u6
+use definitions, only: iwp, wp, u6, Byte
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -28,8 +28,8 @@ integer(kind=iwp) iLUID
 logical(kind=iwp) Single_set_of_PCO
 
 if (IPRGLB >= VERBOSE) then
-  write(6,*)
-  write(6,*) ' Construct S and B matrices'
+  write(u6,*)
+  write(u6,*) ' Construct S and B matrices'
 end if
 
 ! Single_set_of_PCO=.TRUE.

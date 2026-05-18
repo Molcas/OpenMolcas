@@ -57,7 +57,8 @@ integer(kind=iwp) lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:), D_A(:), D_Vir(:)
 real(kind=wp), allocatable :: SQ(:), SLT(:), CMOX(:), Q(:), Z(:)
 real(kind=wp), allocatable :: Saa(:), XMO(:), DMat(:), OrbE(:)
-real(kind=wp) Dumm, E2_ab, E2_Aonly, STrA, STrF, STrX, Thrd
+real(kind=wp) Dumm, E2_ab, E2_Aonly, STrA, STrF, STrX
+real(kind=wp), parameter :: Thrd = 1.0e-6_wp
 real(kind=wp), external :: DDot_
 integer(kind=iwp) i, iAt, iBat, iCMO, iComp, iDo, ie, ik, iloc, iOff, iopt, ip_X, ip_Y, ipAsh, ipCMO, ipEorb, ipQa, iQ, iQa, &
                   iSkip, iSQ, iSym, iSymLbl, iV, jAt, jBas, jBat, jCMO, jDo, jjCMO, jjZ, jOff, jQ, jZ, kBas, kEOcc, kEVir, kfr, &
@@ -251,7 +252,6 @@ if (DoEnv) &
 !        2) virtual orbitals ---> lin. indep. PAOs (non-orthonormal)   *
 !                                                                      *
 !----------------------------------------------------------------------*
-Thrd = 1.e-06_wp
 call mma_allocate(D_vir,nBasT,Label='D_Vir')
 call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMOX(ipCMO:),SQ,D_vir)
 

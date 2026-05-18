@@ -41,7 +41,7 @@ if (NACTEL > 2) then
               if (MN > KL) cycle
               IJKLMN = ((IJ+1)*IJ*(IJ-1))/6+(KL*(KL-1))/2+MN
               X = OP3(IJKLMN)
-              if (abs(X) < 1.0E-15_wp) cycle
+              if (abs(X) < 1.0e-15_wp) cycle
 
               if (K == J) then
                 IL = I+NASHT*(L-1)

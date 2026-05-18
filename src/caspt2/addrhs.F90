@@ -61,7 +61,7 @@ subroutine ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,nBuff,Buff,idxBuf,Cho_Br
 
   !Incore = nBuff >= NWA+NT*NJ*NV*NX
   !if (.not. Incore) then
-  !  write(6,*) 'Sort out of memory in ADDRHSA'
+  !  write(u6,*) 'Sort out of memory in ADDRHSA'
   !  call Abend()
   !end if
   !                                                                    *
@@ -208,7 +208,7 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
 
   !Incore = nBuff >= max(NWBP,NWBM)+NT*NJ*NV*NL
   !if (.not. Incore) then
-  !  write(6,*) 'Sort out of memory in ADDRHSB'
+  !  write(u6,*) 'Sort out of memory in ADDRHSB'
   !  call Abend()
   !end if
   !                                                                    *
@@ -460,7 +460,7 @@ subroutine ADDRHSC(IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,AUVX,nBuff,Buff,idxBuf,Cho_Br
 
   !Incore = nBuff >= NWC+NA*NU*NV*NX
   !if (.not. Incore) then
-  !  write(6,*) 'Sort out of memory in ADDRHSC'
+  !  write(u6,*) 'Sort out of memory in ADDRHSC'
   !  call Abend()
   !end if
   !                                                                    *
@@ -590,10 +590,10 @@ subroutine ADDRHSD1(IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,AJVX,nBuff,Buff,idxBuf,Cho_B
   !*********************************************************************
   !                                                                    *
   ! Incore or partitioned option?
-  !
+
   !Incore = nBuff >= NWD+NA*NJ*NV*NX
   !if (.not. Incore) then
-  !  write(6,*) 'Sort out of memory in ADDRHSD1'
+  !  write(u6,*) 'Sort out of memory in ADDRHSD1'
   !  call Abend()
   !end if
   !                                                                    *
@@ -755,7 +755,7 @@ subroutine ADDRHSD2(IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,AUVL,nBuff,Buff,idxBuf,Cho_B
 
   !Incore = nBuff >= NWD+NA*NU*NV*NL
   !if (.not. Incore) then
-  !  write(6,*) 'Sort out of memory in ADDRHSD2'
+  !  write(u6,*) 'Sort out of memory in ADDRHSD2'
   !  call Abend()
   !end if
   !                                                                    *
@@ -895,7 +895,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
 
   !Incore = nBuff >= Max(NWP,NWM)+NA*NJ*NV*NL
   !if (.not. Incore) then
-  !  write(6,*) 'Sort out of memory in ADDRHSE'
+  !  write(u6,*) 'Sort out of memory in ADDRHSE'
   !  call Abend()
   !end if
   !                                                                    *
@@ -1192,8 +1192,8 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
 
   !Incore = nBuff >= max(NWFP,NWFM)+NA*NU*NC*NX
   !if (.not. Incore) then
-  !   write(6,*) 'Sort out of memory in ADDRHSF'
-  !   call Abend()
+  !  write(u6,*) 'Sort out of memory in ADDRHSF'
+  !  call Abend()
   !end if
   !                                                                    *
   !*********************************************************************
@@ -1404,7 +1404,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
   !   WM(u,l,ac)=  ((aucl)-cual))*SQRT(OneHalf)
 
   use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp
+  use definitions, only: iwp, wp, u6
   use constants, only: Zero, One, Half, OneHalf
   use caspt2_global, only: iParRHS
   use SUPERINDEX, only: KAGEB, KAGTB
@@ -1458,11 +1458,11 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
   !*********************************************************************
   !                                                                    *
   ! Incore or partitioned option?
-  !
+
   !Incore = nBuff >= max(NWGP,NWGM)+NA*NU*NC*NL
   !if (.not. Incore) then
-  !   write(6,*) 'Sort out of memory in ADDRHSG'
-  !   call Abend()
+  !  write(u6,*) 'Sort out of memory in ADDRHSG'
+  !  call Abend()
   !end if
   !                                                                    *
   !*********************************************************************
@@ -1496,7 +1496,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
     KCL = NAUCL/(NA*NU)
     NBXSZL = KCL/NC
     if (NBXSZL <= 0) then
-      write(6,*) 'Not enough memory in ADDRHSG, I give up'
+      write(u6,*) 'Not enough memory in ADDRHSG, I give up'
       call Abend()
     end if
 
@@ -1610,7 +1610,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
     KCL = NAUCL/(NA*NU)
     NBXSZL = KCL/NC
     if (NBXSZL <= 0) then
-      write(6,*) 'Not enough memory in ADDRHSG, I give up'
+      write(u6,*) 'Not enough memory in ADDRHSG, I give up'
       call Abend()
     end if
 
@@ -1731,7 +1731,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
   !   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
 
   use Symmetry_Info, only: Mul
-  use definitions, only: iwp, wp
+  use definitions, only: iwp, wp, u6
   use constants, only: Zero, One, Half, Two, Three
   use caspt2_global, only: iParRHS
   use SUPERINDEX, only: KIGEJ, KAGEB, KIGTJ, KAGTB
@@ -1777,18 +1777,18 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
   !*********************************************************************
   !                                                                    *
   ! Incore or partitioned option?
-  !
+
   !Incore = nBuff >= max(NWHP,NWHM)+NC*NL
   !if (.not. Incore) then
-  !   write(6,*) 'Sort out of memory in ADDRHSH'
+  !   write(u6,*) 'Sort out of memory in ADDRHSH'
   !   call Abend()
   !end if
 
   !nBatch = min((nBuff-max(NWHP,NWHM))/(NC*NL),NA*NJ)
   !if ((iPrGlb >= DEBUG) .and. (nBatch < NA*NJ)) then
-  !  write(6,'(1X,A)') 'less memory than ideal for ADDRHSH:'
-  !  write(6,'(1X,A12,I12)') 'needed    = ',NA*NJ*NC*NL
-  !  write(6,'(1X,A12,I12)') 'available = ',nBatch*NC*NL
+  !  write(u6,'(1X,A)') 'less memory than ideal for ADDRHSH:'
+  !  write(u6,'(1X,A12,I12)') 'needed    = ',NA*NJ*NC*NL
+  !  write(u6,'(1X,A12,I12)') 'available = ',nBatch*NC*NL
   !end if
 
   !                                                                    *
@@ -1826,7 +1826,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
     KAJ = NAJCL/(NC*NL)
     NBXSZJ = KAJ/NA
     if (NBXSZJ <= 0) then
-      write(6,*) 'Not enough memory in ADDRHSH, I give up'
+      write(u6,*) 'Not enough memory in ADDRHSH, I give up'
       call Abend()
     end if
 
@@ -1987,7 +1987,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
   KAJ = NAJCL/(NC*NL)
   NBXSZJ = KAJ/NA
   if (NBXSZJ <= 0) then
-    write(6,*) 'Not enough memory in ADDRHSH, I give up'
+    write(u6,*) 'Not enough memory in ADDRHSH, I give up'
     call Abend()
   end if
   NBXSZC = NSECBX

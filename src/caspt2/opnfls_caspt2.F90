@@ -23,7 +23,7 @@ subroutine OpnFls_CASPT2()
 !  University of Lund, Sweden, 1993
 !***********************************************************************
 
-use definitions, only: iwp
+use definitions, only: iwp, u6
 use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS, LUH0T, LUSOLV, LUSBT
 use caspt2_module, only: IfChol
 
@@ -66,13 +66,13 @@ call DANAME_MF_wa(LUDRATOT,'DRARRT')
 !-SVC: assign logical units for RHS arrays and open files for writing
 do IVEC=1,8
   LURHS(IVEC) = 50+IVEC
-  write(unit=CVEC,fmt='(I2.2)') IVEC
+  write(CVEC,'(I2.2)') IVEC
   call DANAME_MF_WA(LURHS(IVEC),'RHS_'//CVEC)
 end do
 !-SVC: assign logical units for SBT arrays and open files for writing
 do IMAT=1,4
   LUH0T(IMAT) = 60+IMAT
-  write(unit=CMAT,fmt='(I2.2)') IMAT
+  write(CMAT,'(I2.2)') IMAT
   call DANAME_MF_WA(LUH0T(IMAT),'H0T_'//CMAT)
 end do
 ! Temporary unit with density matrices
@@ -99,14 +99,14 @@ call DANAME_MF_wa(LUINTM,'MOLINT')
 call f_Inquire('ORDINT',Found2)
 call DecideOnDirect(.false.,Found2,IfDirect,IfChol)
 if (IfChol) then
-  !if (IPRGLB >= USUAL) write(6,*) 'This is a Cholesky CASPT2'
+  !if (IPRGLB >= USUAL) write(u6,*) 'This is a Cholesky CASPT2'
 else
-  !if (IPRGLB >= USUAL) writE(6,*) 'This is a conventional CASPT2'
+  !if (IPRGLB >= USUAL) writE(u6,*) 'This is a conventional CASPT2'
   iRc = -1
   iOpt = 0
   call OpnOrd(iRc,iOpt,'ORDINT',LUINTA)
   if (iRc /= 0) then
-    write(6,*) 'OPNFLS Error: Failed to open the ORDINT file.'
+    write(u6,*) 'OPNFLS Error: Failed to open the ORDINT file.'
     call ABEND()
   end if
 end if

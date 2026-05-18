@@ -116,7 +116,7 @@ do I=1,NAS
   else
     if (SDiag > THRSHN) then
       ! Small variations of the scale factor were beneficial
-      SCA(I) = (One+dble(I)*3.0E-6_wp)/sqrt(SDiag)
+      SCA(I) = (One+real(I,kind=wp)*3.0e-6_wp)/sqrt(SDiag)
     else
       SCA(I) = Zero
     end if
@@ -324,8 +324,8 @@ call TIMING(CPU1,CPUE,TIO,TIOE)
 ! - Alt 0: Use diagonal approxim., if allowed:
 if (BSPECT /= 'YES') then
   IDIAG = 0
-  write(6,*) 'Sbdiag: THis code does not make sense!'
-  write(6,*) '        SDiag is not properly defined!'
+  write(u6,*) 'Sbdiag: THis code does not make sense!'
+  write(u6,*) '        SDiag is not properly defined!'
   call Abend()
   do I=1,NIN
     IDIAG = IDIAG+I

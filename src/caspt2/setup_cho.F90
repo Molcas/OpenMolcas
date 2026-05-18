@@ -115,7 +115,7 @@ do iSym=1,nSym
   nAO = nAO+nAsh(iSym)
 end do
 
-!xO = dble(nO)
+!xO = real(nO,kind=wp)
 
 ! Task: set up the necessary administration of transformed Cholesky
 ! vectors. Each such vector is characterized by the composite symmetry
@@ -138,7 +138,7 @@ do jSym=1,nSym
   if (NumCho(jSym) < 1) goto 99
 
   call mma_MaxDBLE(MemMx)
-  xMemMx = dble(MemMx)
+  xMemMx = real(MemMx,kind=wp)
   ! xMemMx = largest allocatable field.
 
   jfrac = 1
@@ -146,17 +146,17 @@ do jSym=1,nSym
 10 continue
   Mem1 = 2*NumCho(jSym)/jfrac  ! hold 2 vectors in memory
   if ((Mem1 == 0) .and. (jfrac > 1)) then
-    write(6,*) ' Setup_cho fails to set up the data structures'
-    write(6,*) ' used for the Cholesky vectors.'
-    write(6,*) ' Too little memory is available at this point.'
-    write(6,*) ' Details:'
-    xmb = xMemMx/1048576.0e0_wp
-    write(6,'(1x,a,1x,f10.3)') ' Largest contiguous allocatable memory (MB):',xmb
-    xmb = Two*dble(NUMCHO(JSYM))/1048576.0e0_wp
-    write(6,'(1x,a,1x,f10.3)') '                        2*NumCho(jSym) (MB):',xmb
-    write(6,*) ' Divided up on jFrac pieces. jFrac=',jFrac
-    write(6,*) ' If this seems odd, please tell Molcas programmers.'
-    write(6,*) ' Right now, the allocated memory is:'
+    write(u6,*) ' Setup_cho fails to set up the data structures'
+    write(u6,*) ' used for the Cholesky vectors.'
+    write(u6,*) ' Too little memory is available at this point.'
+    write(u6,*) ' Details:'
+    xmb = xMemMx/(Two**20)
+    write(u6,'(1x,a,1x,f10.3)') ' Largest contiguous allocatable memory (MB):',xmb
+    xmb = Two*real(NUMCHO(JSYM),kind=wp)/(Two**20)
+    write(u6,'(1x,a,1x,f10.3)') '                        2*NumCho(jSym) (MB):',xmb
+    write(u6,*) ' Divided up on jFrac pieces. jFrac=',jFrac
+    write(u6,*) ' If this seems odd, please tell Molcas programmers.'
+    write(u6,*) ' Right now, the allocated memory is:'
     call Cho_x_Quit('setup_cho',': Sorry! Too little memory!!',' ')
   end if
 
@@ -197,10 +197,10 @@ do jSym=1,nSym
   ! Conversion to real(kind=wp) to avoid integer overflow on 32-bit machines
 
   ! PAM:Why would this be 'mem for right-hand side?'
-  !xRHS = dble(mRHS**2)           ! mem. for right hand side
-  !xLpk = dble(Mem1*nPmax*nKsp)   ! store Cholesky MO vectors
-  !xPIQK = dble((nPmax*nKsp)**2)   ! store integrals
-  !xmNeed = xO+xPIQK+max(xLpk,Two*xRHS) ! Fmat+integrals+rhs
+  !xRHS = real(mRHS**2,kind=wp)          ! mem. for right hand side
+  !xLpk = real(Mem1*nPmax*nKsp,kind=wp)  ! store Cholesky MO vectors
+  !xPIQK = real((nPmax*nKsp)**2,kind=wp) ! store integrals
+  !xmNeed = xO+xPIQK+max(xLpk,Two*xRHS)  ! Fmat+integrals+rhs
 
   ! This also looks strange -- nIAc=all the inact+act orbitals no matter what.?
   nIAc = nOkrb
@@ -217,7 +217,7 @@ do jSym=1,nSym
   lsplit(jSym) = lsplit(jSym)+1 ! separate out Ina from Act
 
   ! Need xmNeedNow units of memory
-  !xmNeedNow = xmNeed+dble((3+nSym)*lsplit(jSym))
+  !xmNeedNow = xmNeed+real((3+nSym,kind=wp)*lsplit(jSym))
 
   ! Allocate arrays, in all (3+nSym)*lsplit(jSym) elements:
   call mma_allocate(Stuff(jsym)%sp,lsplit(jSym),Label='%sp')

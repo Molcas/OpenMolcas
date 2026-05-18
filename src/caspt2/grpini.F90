@@ -74,7 +74,6 @@ if (IPRGLB >= USUAL) then
   write(u6,'(A)') repeat('*',80)
   write(u6,'(A,I3)') ' Multi-State initialization phase begins for group ',IGROUP
   write(u6,'(A)') repeat('-',80)
-  call XFlush(6)
 end if
 
 ! ----------------------------------------------------------------------

@@ -142,7 +142,7 @@ select case (ICASE)
       end if
       IIAB = IIAB-NIAB
     end do
-  case DEFAULT
+  case default
     write(u6,*) 'NSIND BJAT: Impossible situation.'
     call ABEND()
 end select

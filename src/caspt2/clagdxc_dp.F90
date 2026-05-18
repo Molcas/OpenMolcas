@@ -141,11 +141,11 @@ do IXYZ=jLo,jHi
     ! dyu ( Fvztx - EPSA(u)*Gvztx )
     ! dyu Gvztx
     if (IYABS == IUABS) then
-      !! VALUE=VALUE+Two*(FP(IP)-EU*PREF(IP))
+      !VALUE = VALUE+Two*(FP(IP)-EU*PREF(IP))
       DF2(iVabs,iZabs,iTabs,iXabs) = DF2(iVabs,iZabs,iTabs,iXabs)+ValB
       DG2(iVabs,iZabs,iTabs,iXabs) = DG2(iVabs,iZabs,iTabs,iXabs)-EU*ValB
 
-      !! VALUE=VALUE+Two*PREF(IP)
+      !VALUE = VALUE+Two*PREF(IP)
       DG2(iVabs,iZabs,iTabs,iXabs) = DG2(iVabs,iZabs,iTabs,iXabs)+ValS
     end if
     DEPSA(iYabs,iUabs) = DEPSA(iYabs,iUabs) -ValB*G2(iVabs,iZabs,iTabs,iXabs)
@@ -153,11 +153,11 @@ do IXYZ=jLo,jHi
     ! dyx ( Fvutz - EPSA(y)*Gvutz )
     ! dyx Gvutz -> dut Gzyxv
     if (IYABS == IXABS) then
-      !! VALUE=VALUE+Two*(FP(IP)-EY*PREF(IP))
+      !VALUE = VALUE+Two*(FP(IP)-EY*PREF(IP))
       DF2(iVabs,iUabs,iTabs,iZabs) = DF2(iVabs,iUabs,iTabs,iZabs)+ValB
       DG2(iVabs,iUabs,iTabs,iZabs) = DG2(iVabs,iUabs,iTabs,iZabs)-EY*ValB
 
-      !! VALUE=VALUE+Two*PREF(IP)
+      !VALUE = VALUE+Two*PREF(IP)
       DG2(iVabs,iUabs,iTabs,iZabs) = DG2(iVabs,iUabs,iTabs,iZabs)+ValS
     end if
     DEPSA(iYabs,iXabs) = DEPSA(iYabs,iXabs) -ValB*G2(iVabs,iUabs,iTabs,iZabs)
@@ -166,18 +166,18 @@ do IXYZ=jLo,jHi
     !        (EPSA(u)+EPSA(y)*dyz Gvz)
     ! dtu Gvxyz + dtu dyx Gvz
     if (ITABS == IUABS) then
-      !! VALUE=VALUE+Two*(FP(IP)-EU*PREF(IP))
+      !VALUE = VALUE+Two*(FP(IP)-EU*PREF(IP))
       DF2(iVabs,iXabs,iYabs,iZabs) = DF2(iVabs,iXabs,iYabs,iZabs)+ValB
       DG2(iVabs,iXabs,iYabs,iZabs) = DG2(iVabs,iXabs,iYabs,iZabs)-EU*ValB
 
-      !! VALUE=VALUE+Two*PREF(IP)
+      !VALUE = VALUE+Two*PREF(IP)
       DG2(iVabs,iXabs,iYabs,iZabs) = DG2(iVabs,iXabs,iYabs,iZabs)+ValS
       if (IYABS == IXABS) then
-        !! VALUE=VALUE+FD(ID)-EYU*DREF(ID)
+        !VALUE = VALUE+FD(ID)-EYU*DREF(ID)
         DF1(iVabs,iZabs) = DF1(iVabs,iZabs)+ValB
         DG1(iVabs,iZabs) = DG1(iVabs,iZabs)-EYU*ValB
 
-        !! VALUE=VALUE+DREF((ID1*(ID1-1))/2+ID2)
+        !VALUE = VALUE+DREF((ID1*(ID1-1))/2+ID2)
         DG1(iVabs,iZabs) = DG1(iVabs,iZabs)+ValS
       end if
     end if

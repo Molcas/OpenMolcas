@@ -77,8 +77,8 @@ if ((iCASE /= 1) .and. (iCASE /= 4)) then
   call AbEnd()
 end if
 
-write(unit=cCase,fmt='(I2.2)') iCase
-write(unit=cSYM,fmt='(I2.2)') iSYM
+write(cCase,'(I2.2)') iCase
+write(cSYM,'(I2.2)') iSYM
 ! Start a long loop over irreps:
 
 CPU = Zero
@@ -96,7 +96,7 @@ call PSBMAT_GETMEM('S',lg_S,NAS)
 call PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
 if (IPRGLB >= INSANE) then
   FP = PSBMAT_FPRINT(lg_S,NAS)
-  write(6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM: ',FP
+  write(u6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM: ',FP
 end if
 
 ! The S matrices are needed later on by non-global routines.  Take the
@@ -144,7 +144,7 @@ do I=1,NAS
     SCA(I) = One
   else
     if (SDiag > THRSHN) then
-      SCA(I) = (One+dble(I)*3.0E-6_wp)/sqrt(SDiag)
+      SCA(I) = (One+real(I,kind=wp)*3.0e-6_wp)/sqrt(SDiag)
     else
       SCA(I) = Zero
     end if
@@ -305,7 +305,7 @@ else if (BTRANS /= 'YES') then
   call GADGOP(BD,NAS,'+')
   bStat = GA_Destroy(lg_B)
   do I=1,NAS
-    SDiag = SD(I)+1.0E-15_wp
+    SDiag = SD(I)+1.0e-15_wp
     BD(I) = BD(I)/SDiag
   end do
   IDB = IDBMAT(ISYM,ICASE)

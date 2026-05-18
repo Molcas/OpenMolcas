@@ -14,7 +14,7 @@
 subroutine RHSOD_D_NOSYM(IVEC)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp, wp
+use definitions, only: iwp, wp, u6
 use constants, only: One
 use SUPERINDEX, only: MIA, MAREL, MIREL, MTU, MTREL, KTU
 use CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
@@ -42,7 +42,7 @@ integer(kind=iwp) IA, IAABS, NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW, IAE
                   ISYV, IT, ITABS, ITV, IUABS, IUU, IV, IVABS, NAS1, NBRABUF1, NBRABUF2, NKETBUF1, NKETBUF2, NV, NW
 real(kind=wp), external :: DDot_
 
-if (iPrGlb >= DEBUG) write(6,*) 'RHS on demand: case D'
+if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case D'
 
 !***********************************************************************
 ! Case D (5,6):
@@ -76,7 +76,7 @@ iCASE = 5
 ! outer loop over symmetry blocks in the RHS
 !***********************************************************************
 ! set up FIMO access
-ACTINV = One/dble(max(1,NACTEL))
+ACTINV = One/real(max(1,NACTEL),kind=wp)
 IFIMOES = 0
 do ISYM=1,NSYM
   NFIMOES(ISYM) = IFIMOES

@@ -540,8 +540,8 @@ ISFF = 1
 do ISYM=1,NSYM
   NB = NBAS(ISYM)
   if (NB > 0) then
-    write(6,'(6X,A)')
-    write(6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
+    write(u6,'(6X,A)')
+    write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FFAO(ISFF),NB)
     ISFI = ISFF+(NB*(NB+1))/2
   end if

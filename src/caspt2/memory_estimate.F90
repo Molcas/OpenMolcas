@@ -12,7 +12,7 @@
 subroutine MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,NCHOBUF,NPIQK,NADDBUF)
 
 use Symmetry_Info, only: Mul
-use definitions, only: iwp
+use definitions, only: wp, iwp, u6
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use caspt2_global, only: iParRHS, iPrGlb, iStpGrd
 use PrintLevel, only: VERBOSE
@@ -133,8 +133,8 @@ do ICASE=1,9
     end do
   end do
 end do
-MAXBUFF = nint(sqrt(dble(MAXPIQK)))
-MINBUFF = nint(sqrt(dble(MINPIQK)))
+MAXBUFF = nint(sqrt(real(MAXPIQK,kind=wp)))
+MINBUFF = nint(sqrt(real(MINPIQK,kind=wp)))
 
 ! In some cases, we do not use the buffer arrays
 if (call_from_grad .or. (iParRHS == 2)) then
@@ -181,23 +181,23 @@ if (call_from_grad) then
 end if
 
 if (IPRGLB > VERBOSE) then
-  write(6,*)
-  write(6,'(A,I1)') '  Memory estimates in RHSALL, SYM ',JSYM
-  write(6,'(A,2X,I16)') '   allocatable:    ',MXAVAIL
-  write(6,'(A,2X,I16)') '   recommended:    ',MINNICE
-  write(6,'(A,2X,I16)') '   convenient:     ',MINGOOD
-  write(6,'(A,2X,I16)') '   minimum:        ',MINSLOW
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A,I1)') '  Memory estimates in RHSALL, SYM ',JSYM
+  write(u6,'(A,2X,I16)') '   allocatable:    ',MXAVAIL
+  write(u6,'(A,2X,I16)') '   recommended:    ',MINNICE
+  write(u6,'(A,2X,I16)') '   convenient:     ',MINGOOD
+  write(u6,'(A,2X,I16)') '   minimum:        ',MINSLOW
+  write(u6,*)
   if (MXAVAIL >= MINNICE) then
-    write(6,*) ' I can use all cholesky vectors at once'
-    write(6,*) ' as well as the whole integral matrixi.'
+    write(u6,*) ' I can use all cholesky vectors at once'
+    write(u6,*) ' as well as the whole integral matrixi.'
   else if (MXAVAIL >= MINGOOD) then
-    write(6,*) ' I will group batches of cholesky vectors'
-    write(6,*) ' and then maximize use of the integral matrix.'
+    write(u6,*) ' I will group batches of cholesky vectors'
+    write(u6,*) ' and then maximize use of the integral matrix.'
   else if (MXAVAIL >= MINSLOW) then
-    write(6,*) ' I will at least try to group batches.'
+    write(u6,*) ' I will at least try to group batches.'
   else
-    write(6,*) ' Do you see my problem?'
+    write(u6,*) ' Do you see my problem?'
   end if
 end if
 
@@ -244,35 +244,35 @@ else if (MXAVAIL >= MINSLOW) then
   LBGRP(2,IBGRP) = IB2
   NBGRP = IBGRP
 else
-  write(6,*)
-  write(6,*) '  Not enough memory in RHSLL2...'
-  write(6,'(A,I16)') '   allocatable:    ',MXAVAIL
-  write(6,'(A,I16)') '   minimum:        ',MINSLOW
+  write(u6,*)
+  write(u6,*) '  Not enough memory in RHSLL2...'
+  write(u6,'(A,I16)') '   allocatable:    ',MXAVAIL
+  write(u6,'(A,I16)') '   minimum:        ',MINSLOW
   call AbEnd()
 end if
 
 !SVC: sanity check, should not happen.
 if (MXRHS > MXAVAIL-2*NCHOBUF-NPIQK-2*NADDBUF) then
-  write(6,*)
-  write(6,*) 'RHSALL2: RHS allocation will starve.'
-  write(6,*) 'Possible bug in memory estimate.'
-  write(6,*) 'This should not happen, please report.'
-  write(6,*)
-  write(6,'(2X,A8,2X,I14)') 'MXAVAIL ',MXAVAIL
-  write(6,'(2X,A8,2X,I14)') 'MXRHS   ',MXRHS
-  write(6,'(2X,A8,2X,I14)') 'NCHOBUF ',NCHOBUF
-  write(6,'(2X,A8,2X,I14)') 'NPIQK   ',NPIQK
-  write(6,'(2X,A8,2X,I14)') 'NADDBUF ',NADDBUF
+  write(u6,*)
+  write(u6,*) 'RHSALL2: RHS allocation will starve.'
+  write(u6,*) 'Possible bug in memory estimate.'
+  write(u6,*) 'This should not happen, please report.'
+  write(u6,*)
+  write(u6,'(2X,A8,2X,I14)') 'MXAVAIL ',MXAVAIL
+  write(u6,'(2X,A8,2X,I14)') 'MXRHS   ',MXRHS
+  write(u6,'(2X,A8,2X,I14)') 'NCHOBUF ',NCHOBUF
+  write(u6,'(2X,A8,2X,I14)') 'NPIQK   ',NPIQK
+  write(u6,'(2X,A8,2X,I14)') 'NADDBUF ',NADDBUF
   call AbEnd()
 end if
 
 if (IPRGLB > VERBOSE) then
-  write(6,*)
-  write(6,'(A16,2A16)') '  Buffer sizes:','           used','          ideal'
-  write(6,'(A16,2I16)') '  ChoVecs:  ',2*NCHOBUF,2*MAXCHOL
-  write(6,'(A16,2I16)') '  Integral: ',NPIQK,MAXPIQK
-  write(6,'(A16,2I16)') '  Scatter:  ',2*NADDBUF,2*MAXBUFF
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A16,2A16)') '  Buffer sizes:','           used','          ideal'
+  write(u6,'(A16,2I16)') '  ChoVecs:  ',2*NCHOBUF,2*MAXCHOL
+  write(u6,'(A16,2I16)') '  Integral: ',NPIQK,MAXPIQK
+  write(u6,'(A16,2I16)') '  Scatter:  ',2*NADDBUF,2*MAXBUFF
+  write(u6,*)
 end if
 
 end subroutine MEMORY_ESTIMATE

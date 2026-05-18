@@ -124,7 +124,7 @@ if (ISCF == 0) then
   NVECS = NTG3WRK/MXCI
   NTG3WRK = NVECS*MXCI
   ! Find optimal subdivision of available vectors:
-  NYZBUF = nint(dble(NVECS-1)/dble(NASHT))
+  NYZBUF = nint(real(NVECS-1,kind=wp)/real(NASHT,kind=wp))
   NYZBUF = max(1,NYZBUF)
   NTUBUF = min(NASHT**2,NVECS-1-NYZBUF)
   NYZBUF = NVECS-1-NTUBUF
