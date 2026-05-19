@@ -352,7 +352,7 @@ A representative excerpt is shown below::
     0.91075835830516549407E+00    2    1    0    0
    -0.11077183024840106640E+02    2    2    0    0
    ...
-     0.00000000000000000000E+00    0    0    0    0
+    0.00000000000000000000E+00    0    0    0    0
 
 A complete workflow that runs |openmolcas| to generate the integral
 files and then calls the external :program:`MRCC` program can be
