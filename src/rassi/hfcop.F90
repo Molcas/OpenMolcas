@@ -72,12 +72,13 @@ module hyperfine
   integer(kind=iwp)               :: MSPROJ,  MPLET
   real(kind=wp)                   :: S1, S2, SM1, SM2,FACT, MPLET1,MSPROJ1, MPLET2, MSPROJ2,   &
                                      IMLTPL, CGm, Co, CGp, Cx, Cy, ETHR_in_cm
-  real(kind=wp),allocatable       :: CGo_mat(:,:), CGx_mat(:,:), CGy_mat(:,:),h_hfc_rms(:,:)
+  real(kind=wp),allocatable       :: CGo_mat(:,:), CGx_mat(:,:), CGy_mat(:,:)
 
 
   ! Hamiltonian
   complex(kind=wp),allocatable    :: h_FC(:,:,:) , h_SD(:,:,:), h_FCSD(:,:,:), h_PSO(:,:,:),   &
-                                     h_TOT(:,:,:), USO(:,:), h_Zeeman(:,:,:), h_rms_nuc(:,:)
+                                     h_TOT(:,:,:), USO(:,:), h_Zeeman(:,:,:)
+  real(kind=wp),allocatable       :: h_rms_nuc(:,:), h_hfc_rms(:,:)
 
 
   ! Iterators and indices
