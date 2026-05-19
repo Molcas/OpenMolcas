@@ -352,4 +352,79 @@ A representative excerpt is shown below::
     0.91075835830516549407E+00    2    1    0    0
    -0.11077183024840106640E+02    2    2    0    0
    ...
-    0.00000000000000000000E+00    0    0    0    0
+     0.00000000000000000000E+00    0    0    0    0
+
+A complete workflow that runs |openmolcas| to generate the integral
+files and then calls the external :program:`MRCC` program can be
+submitted with the following SLURM script.  The working directory must
+contain the |openmolcas| input file (e.g. ``in.input``) and the
+:program:`MRCC` input file ``MINP``.  An example for a Ne atom in
+:math:`D_{2h}` symmetry with the 6-31G basis set is given below. ::
+
+  #!/bin/sh
+  ##SBATCH --partition=gpu
+  #SBATCH --job-name=OpenMolcas-MRCC
+  #SBATCH --nodes=1
+  #SBATCH --ntasks-per-node=1
+  #SBATCH --gres=gpu:1
+  #SBATCH --gpus-per-task=1
+
+  module load conda/3-2023.09
+
+  export I_MPI_FABRICS=ofi
+
+  mpirun -genvall -np $SLURM_NPROCS pymolcas --clean -f in.input
+  dmrcc
+
+The corresponding |openmolcas| input file ``in.input`` reads::
+
+  &GATEWAY
+    coord
+      1
+      angstrom
+      Ne  0.000000  0.000000  0.000000
+    Basis = 6-31G
+  &SEWARD
+  &SCF
+  Threshold = 0.5D-14 0.5D-14 0.5D-14 0.5D-14
+  &RASSCF
+    OutOrbitals = CANOnical
+    nActEl = 10 0 0
+    Ras2 = 3 2 2 0 2 0 0 0
+    DMPO
+
+and the :program:`MRCC` input file ``MINP`` reads::
+
+  basis=6-31G-EMSL
+  iface=cfour
+  uncontract=off
+  calc=CCSDTQ
+  ccprog=mrcc
+  #mem=8GB
+  core=corr
+  itol=18
+  scftol=13
+  cctol=10
+  ccmaxit=999
+  scfmaxit=9999
+  scfiguess=ao
+  scftype=RHF
+  #rohftype=standard
+  rest=2
+  charge=+0
+  mult=1
+  #refdet=serialno
+  #1-5
+  symm=1
+  occ=2,0,0,0,0,1,1,1
+  geom
+  NE
+
+  #Li 1 R
+  #R=3.065
+
+  #unit=angstroms
+
+  tprint=0.01
+  verbosity=3
+  #nstate=4
