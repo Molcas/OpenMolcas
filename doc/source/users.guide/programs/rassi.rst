@@ -1442,7 +1442,7 @@ Keywords
   The first line specifies the number of atoms. The second line lists the atoms for which HFCCs are to be calculated; the keyword "all" (single line) may be used to include every atom.
   To convert values to MHz, users must define the nuclear g-factor of the corresponding atom.
   For convenience, OpenMolcas also allows alternative approaches by specifying one of the following keywords: :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC` .
-  By default (when :kword:`HFCOper` is absent and users do not specify :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC`), the keyword :kword:`AUNZ` will be automatically turned on.
+  By default (when :kword:`HFCOper` is absent and users do not specify :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC`), the keyword :kword:`AUNG` will be automatically turned on.
 
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAt" APPEAR="Hyperfine Coupling Atoms" KIND="INTS_LOOKUP" LEVEL="ADVANCED">

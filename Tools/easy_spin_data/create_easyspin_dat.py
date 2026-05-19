@@ -34,9 +34,7 @@ GITHUB_URL = (
     "https://raw.githubusercontent.com/"
     "StollLab/EasySpin/main/easyspin/private/isotopedata.txt"
 )
-print("")
-print("")
-print("")
+
 def ensure_isotopedata():
     """Download/refresh isotopedata.txt from GitHub."""
     # If file does not exist, or you always want the latest, download it
@@ -45,10 +43,7 @@ def ensure_isotopedata():
         download_file()
     else:
         print("File already exists, not downloading. ",LOCAL_PATH)
-        print("")
         print("If you want to update EasySpin database, simply delete isotopedata.txt file then re-run.")
-        print("")
-        print("")
 
 def download_file():
     resp = requests.get(GITHUB_URL, timeout=30)
@@ -63,18 +58,6 @@ raw_data =[]
 isotope_data= []
 element_map = []
 
-def format_fortran_float(value):
-    if value == 'NaN':
-        return 'ieee_value(0.0d0, ieee_signaling_nan)'
-    else:
-        return f"{float(value):11.8f}d0"
-
-def format_fortran_spin(value):
-    if value == 'NaN':
-        return 'ieee_value(0.0d0, ieee_signaling_nan)'
-    else:
-        return f"{value}d0"
-
 def format_boolean(value):
     if value == '*':
         return '.false.'
@@ -86,6 +69,8 @@ print("This tool has created the file hfc_ezspin_dat.F90 at:")
 print(HFC_DATA_FILE)
 print()
 print()
+print("NOTE: [OpenMOLCAS] Default hyperfine spin database includes an additional record for 141Ce. REF: 10.61092/iaea.zhrz-3g5j")
+print("      If you download a new isotope data from EasySpin, 141Ce might not be included.")
 SRC_DIR = '/'.join(os.getcwd().split('/')[:-2]) + '/src'
 
 with open(LOCAL_PATH, "r") as data_file:
@@ -101,10 +86,10 @@ with open(LOCAL_PATH, "r") as data_file:
             A = int(parts[1])
             is_stable = format_boolean(parts[2])
             symbol = parts[3]
-            spin = format_fortran_spin(parts[5])
-            g_factor  = format_fortran_float(parts[6])
+            spin =parts[5]
+            g_factor  = parts[6]
             abundance = parts[7]
-            electric_quad = format_fortran_float(parts[8])
+            electric_quad = parts[8]
             raw_data.append([Z, A, is_stable, spin, g_factor, abundance, electric_quad,symbol])
 
         line = data_file.readline()
@@ -116,7 +101,7 @@ raw_data =sorted (
 )
 # Reformat data for Fortran output [Double precision values]
 for row in raw_data:
-    isotope_data.append([int(row[0]), row[1], row[2], row[3], row[4], format_fortran_float(row[5]), row[6], row[7]])
+    isotope_data.append([int(row[0]), row[1], row[2], row[3], row[4], row[5], row[6], row[7]])
 # Create element map [begin_index, end_index] in database
 Z=1
 i=1
@@ -157,7 +142,6 @@ with open(HFC_DATA_FILE, "w") as fortran_file:
 
 
 module hfc_data
-  use, intrinsic     :: ieee_arithmetic
   use stdalloc,      only: mma_allocate, mma_deallocate
   use Definitions,   only: iwp, wp
   implicit none
@@ -226,11 +210,11 @@ module hfc_data
     for i, isotope in enumerate(isotope_data):
         fortran_file.write(f'''
 !--> Record {i+1:03d}    = {isotope_data[i][1]}{isotope_data[i][7]}
-    ezspin_db({i+1})%AtNumb      = {isotope_data[i][0]}
-    ezspin_db({i+1})%MassNum     = {isotope_data[i][1]}
-    ezspin_db({i+1})%abundance    = {isotope_data[i][5]}
-    ezspin_db({i+1})%nucspin      = {isotope_data[i][3]}
-    ezspin_db({i+1})%gfactor      = {isotope_data[i][4]}
+    ezspin_db({i+1})%AtNumb      = {isotope_data[i][0]}_iwp
+    ezspin_db({i+1})%MassNum     = {isotope_data[i][1]}_iwp
+    ezspin_db({i+1})%abundance    = {isotope_data[i][5]}_wp
+    ezspin_db({i+1})%nucspin      = {isotope_data[i][3]}_wp
+    ezspin_db({i+1})%gfactor      = {isotope_data[i][4]}_wp
 ''')
 
   # PLEASE UNCOMMENT LINES BELOW IF NEEDED
@@ -256,11 +240,14 @@ module hfc_data
     real(kind=wp), intent(in)    :: nucspin
     real(kind=wp)                :: gfactor
     integer(kind=iwp)            :: iRec, first_rec, last_rec
+    logical(kind=iwp)            :: not_found_gfac
+
 
     first_rec = elem_map_db(AtNumb)%first_rec
     last_rec  = elem_map_db(AtNumb)%last_rec
 
-    gfactor = ieee_value(0.0d0, ieee_signaling_nan)  ! default value if not found
+    gfactor = 0.0_wp
+    not_found_gfac = .true.
     do iRec=first_rec,last_rec
       if (abs(ezspin_db(iRec)%nucspin - nucspin) < 1e-5_wp) then
         gfactor = ezspin_db(iRec)%gfactor
@@ -268,11 +255,7 @@ module hfc_data
       endif
     enddo
 
-    if (ieee_is_nan(gfactor)) then
-      gfactor = 0.0d0
-      call warning_not_found(1)
-    endif
-
+    if (not_found_gfac) call warning_not_found(1)
     call isot_info(AtNumb, gfactor, nucspin)
 
   end function gfactor_by_nucspin
@@ -285,23 +268,22 @@ module hfc_data
     real(kind=wp), intent(in)    :: gfactor
     real(kind=wp)                :: nucspin
     integer(kind=iwp)            :: iRec, first_rec, last_rec
+    logical(kind=iwp)            :: not_found_spin
 
     first_rec = elem_map_db(AtNumb)%first_rec
     last_rec  = elem_map_db(AtNumb)%last_rec
 
-    nucspin = ieee_value(0.0d0, ieee_signaling_nan)  ! default value if not found
+    nucspin = 0.5_wp
+    not_found_spin = .true.
     do iRec=first_rec,last_rec
-      if (abs(ezspin_db(iRec)%gfactor - gfactor) < 1e-3_wp) then
+      if (abs(ezspin_db(iRec)%gfactor - gfactor) < 0.001_wp) then
+        not_found_spin = .false.
         nucspin = ezspin_db(iRec)%nucspin
         exit
       endif
     enddo
 
-    if (ieee_is_nan(nucspin)) then
-      nucspin = 0.5d0
-      call warning_not_found(0)
-    endif
-
+    if (not_found_spin) call warning_not_found(0)
     call isot_info(AtNumb, gfactor, nucspin)
 
   end function nucspin_by_gfactor
@@ -313,14 +295,19 @@ module hfc_data
     integer(kind=iwp),intent(in) :: AtNumb, MassNum
     real(kind=wp), intent(out)   :: nucspin, gfactor
     integer(kind=iwp)            :: iRec, first_rec, last_rec
+    logical(kind=iwp)            :: not_found_gfac , not_found_spin
 
     first_rec = elem_map_db(AtNumb)%first_rec
     last_rec  = elem_map_db(AtNumb)%last_rec
 
-    nucspin = ieee_value(0.0d0, ieee_signaling_nan)  ! default value if not found
-    gfactor = ieee_value(0.0d0, ieee_signaling_nan)  ! default value if not found
+    nucspin = 0.5_wp
+    gfactor = 0.0_wp
+    not_found_gfac = .true.
+    not_found_spin = .true.
     do iRec=first_rec,last_rec
       if (ezspin_db(iRec)%MassNum == MassNum) then
+        not_found_gfac = .false.
+        not_found_spin = .false.
         nucspin = ezspin_db(iRec)%nucspin
         gfactor = ezspin_db(iRec)%gfactor
         exit
@@ -328,16 +315,8 @@ module hfc_data
     enddo
 
 
-    if (ieee_is_nan(nucspin)) then
-      nucspin = 0.5d0
-      call warning_not_found(0)
-    endif
-
-    if (ieee_is_nan(gfactor)) then
-      gfactor = 0.0d0
-      call warning_not_found(1)
-    endif
-
+    if (not_found_spin) call warning_not_found(0)
+    if (not_found_gfac) call warning_not_found(1)
     call isot_info(AtNumb, gfactor, nucspin, MassNum)
 
   end subroutine gfac_spin_by_mass
@@ -349,25 +328,29 @@ module hfc_data
     integer(kind=iwp),intent(in)           :: AtNumb
     real(kind=wp), intent(out)             :: gfactor, nucspin
     integer(kind=iwp)                      :: iRec, first_rec, last_rec
+    logical(kind=iwp)                      :: not_found_gfac, not_found_spin
 
     first_rec = elem_map_db(AtNumb)%first_rec
     last_rec  = elem_map_db(AtNumb)%last_rec
 
-    gfactor = ieee_value(0.0d0, ieee_signaling_nan)  ! default value if not found
+    nucspin = 0.5_wp
+    gfactor = 0.0_wp
+    not_found_gfac = .true.
+    not_found_spin = .true.
     do iRec=first_rec,last_rec
       if (ezspin_db(iRec)%gfactor /= 0.0_wp) then
+        not_found_gfac = .false.
+        not_found_spin = .false.
         gfactor = ezspin_db(iRec)%gfactor
         nucspin = ezspin_db(iRec)%nucspin
         exit
       endif
     enddo
 
-    if (ieee_is_nan(gfactor)) then
-      gfactor = 0.0d0
-      call warning_not_found(1)
-    endif
-
+    if (not_found_spin) call warning_not_found(0)
+    if (not_found_gfac) call warning_not_found(1)
     call isot_info(AtNumb, gfactor, nucspin)
+
   end subroutine get_first_nonzero_gfactor
 !======================================================================
 

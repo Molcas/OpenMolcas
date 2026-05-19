@@ -116,10 +116,9 @@ module hyperfine
     if(allocated(pNMR_req)) call setup_pNMR_calc(PROP)
 !-----------------------------------------------------
 
-! do_calc :: calculate Hyperfine hamiltonian for a specified atom
+! do_calc :: calculate Hyperfine hamiltonian
 ! do_EPR  :: calculate A tensor, principal values for EPR spectroscopy
-! do_pNMR :: calculate paramagnetic NMR chemical shift [Curie and Linear Response] for specified atoms
-
+! do_pNMR :: calculate paramagnetic NMR chemical shift [Curie and Linear Response]
 ! Calculation begins----------------------------------
     iACalc = 0
     ipNMR_Calc = 0
@@ -151,7 +150,7 @@ module hyperfine
 
     NSS = size(USOR,1)
     call mma_allocate(USO, NSS, NSS, Label='USO')
-    USO = cmplx(USOR,USOI,kind=wp)
+    USO(:,:) = cmplx(USOR(:,:),USOI(:,:),kind=wp)
 
 
     call mma_allocate(h_FC,   3, NSS, NSS, Label='h_FC')
@@ -163,8 +162,9 @@ module hyperfine
     if(HypF_rms_Req) then
       call mma_allocate(h_hfc_rms, NSS, NSS, Label='h_hfc_rms')
       call mma_allocate(h_rms_nuc, NSS, NSS, Label='h_rms_nuc')
-      h_hfc_rms(:,:)=Zero
-
+      ! IMPORTANT: h_hfc_rms must be initialized to zero, as it is updated via addition within the loop.
+      !            h_rms_nuc will be re-assigned later, therefore it does not need to be initialized
+      h_hfc_rms(:,:) = Zero
     endif
 
     if(allocated(Atens_Req)) then
@@ -180,7 +180,7 @@ module hyperfine
 ! GET: AtNumb(Z)
     call mma_allocate(LAtNumb,NAtoms, Label='LAtNumb')
     call Get_dArray('Nuclear charge', rtemp, nAtoms)
-    LAtNumb = int(rtemp)
+    LAtNumb(:) = int(rtemp(:))
 
 ! GET: Eenergy of SO states (ESO)
     call mma_allocate(ESO,NSS, Label='ESO')
@@ -229,8 +229,8 @@ module hyperfine
       CGM = FACT*DCLEBS(S2,One,S1,SM2,-One,SM1)
       CGo_mat(ISS,JSS)=FACT*DCLEBS(S2,One,S1,SM2,Zero,SM1)
       CGP = FACT*DCLEBS(S2,One,S1,SM2,One,SM1)
-      CGx_mat(ISS,JSS)=SQRT(Half)*(CGm-CGp)
-      CGy_mat(ISS,JSS)=SQRT(Half)*(CGm+CGp)
+      CGx_mat(ISS,JSS) = SQRT(Half)*(CGm-CGp)
+      CGy_mat(ISS,JSS) = SQRT(Half)*(CGm+CGp)
     end do
   end do
 ! MAPSP and MAPMS are not needed anymore, but MAPST is required to compute h_HFC
@@ -258,7 +258,7 @@ module hyperfine
     real(kind=wp), intent(in)  ::  PROP(NSTATE,NSTATE,NPROP)
     integer(kind=iwp) :: lmb
     real(kind=wp) :: dlt_T, Zstat, dlt_E
-    real(kind=wp),parameter :: pBoltz_cutoff = 10.0_wp **(-100), dltE_cutoff = 10.0_wp ** (-12)
+    real(kind=wp),parameter :: pBoltz_cutoff = 10.0_wp **(-100), dltE_cutoff = 10.0_wp ** (-6)
 
     call mma_allocate(Curie_ChemShift, NPNMR_Calc, 4, NTP, Label="Curie_ChemShift")
     call mma_allocate(LinRes_ChemShift, NPNMR_Calc, 4, NTP, Label="LinRes_ChemShift")
@@ -268,7 +268,7 @@ module hyperfine
     dlt_T=(TMAXP-TMINP)/(real(NTP-1 ,kind=wp))
     if(TMINP == Zero) then
       write(6,*) "WARNING: TMINP is set to zero. Adjusting TMINP to 0.1K to avoid numerical issues."
-      Temp_in_K(1)=0.1d0
+      Temp_in_K(1)=0.1_wp
     else
       Temp_in_K(1)=TMINP
     endif
@@ -281,13 +281,14 @@ module hyperfine
     call mma_allocate(pBoltz,NTP,NSS, Label="p_Boltz")
     do iT=1,NTP
       pBoltz(iT,:) = exp(-ESO(:)/kBoltzman_in_cm/Temp_in_K(iT))
+      ! Truncate :: Prevent overflow/underflow when excited states have very high energies
+      where (pBoltz(iT,:) < pBoltz_cutoff)
+        pBoltz(iT,:) = Zero
+      end where
       Zstat        = sum(pBoltz(iT,:))
       pBoltz(iT,:) = pBoltz(iT,:)/Zstat
     enddo
-    ! Truncate :: Prevent overflow/underflow when excited states have very high energies
-    where (pBoltz < pBoltz_cutoff)
-      pBoltz = Zero
-    end where
+
 
 ! Calc 1/dE
     call mma_allocate(dE_inv,NSS,NSS,Label="dE_inv")
@@ -372,7 +373,7 @@ module hyperfine
     endif
     if(do_pNMR) call calc_pNMR_Tensor(h_SD,2)
 !-----------------------------------
-    h_FCSD = h_FC + h_SD
+    h_FCSD(:,:,:) = h_FC(:,:,:) + h_SD(:,:,:)
     if(do_EPR) then
       call calc_A_tens(A_tens,h_FCSD)
       call calc_prin_val(A_tens,3)
@@ -386,7 +387,7 @@ module hyperfine
     endif
     if(do_pNMR) call calc_pNMR_Tensor(h_PSO,3)
 !-----------------------------------
-    h_TOT = h_FCSD + h_PSO
+    h_TOT(:,:,:) = h_FCSD(:,:,:) + h_PSO(:,:,:)
     if(do_EPR) then
       call calc_A_tens(A_tens,h_TOT)
       call calc_prin_val(A_tens,5)
@@ -406,7 +407,7 @@ module hyperfine
     h_FC(1,:,:)=cmplx(CGx_mat(:,:)*ASD_zz(:,:),0.0_wp,kind=wp)
     h_FC(2,:,:)=cmplx(0.0_wp,CGy_mat(:,:)*ASD_zz(:,:),kind=wp)
     h_FC(3,:,:)=cmplx(CGo_mat(:,:)*ASD_zz(:,:),0.0_wp,kind=wp)
-    h_FC = TwoThird * h_FC
+    h_FC(:,:,:) = TwoThird * h_FC(:,:,:)
 
     call to_cmpl_SO_states(h_FC)
 
@@ -446,10 +447,10 @@ module hyperfine
       call gfac_spin_by_mass(LAtNumb(iAtom), NucMass(iAtom), NucGFac(iAtom), NucSpin(iAtom))
     case(3)
       write(6,'(11X,A31,F6.2)') 'USE: NSPIn [RASSI input]   I = ', NucSpin(iAtom)
-      NucGFac(iAtom) = gfactor_by_nucspin(LAtNumb(iAtom), NucSpin(iAtom))
+      NucGFac(iAtom) = gfactor_by_NucSpin(LAtNumb(iAtom), NucSpin(iAtom))
     case(4)
       write(6,'(11X,A37,F12.8)') 'USE: GNUC [RASSI input]   g-factor = ', NucGFac(iAtom)
-      NucSpin(iAtom) = nucspin_by_gfactor(LAtNumb(iAtom), NucGFac(iAtom))
+      NucSpin(iAtom) = NucSpin_by_gfactor(LAtNumb(iAtom), NucGFac(iAtom))
     case(5)
       write(6,'(11X,A28,F12.8)') 'USE: Most abundance non-zero'
       call get_first_nonzero_gfactor(LAtNumb(iAtom),NucGFac(iAtom),NucSpin(iAtom))
@@ -463,29 +464,29 @@ module hyperfine
     real(kind=wp)           :: Weights(NAtoms)
     integer(kind=iwp)       :: case
     logical(kind=iwp)       :: use_seward_mass, not_set_by_users
-!PURPOSE: To find g-factor and isospin for given atoms in EZSpin database.
+!PURPOSE: To find g-factor and NucSpin for given atoms in EZSpin database.
 
-! Case 1: Use SEWARD, GATEWAY mass  --> get g-factor and isospin
-! Case 2: Use ISOMAss [RASSI] --> get g-factor and isospin
-! Case 3: Use ISOSPin [RASSI] --> get g-factor
-! Case 4: Use GNUC    [RASSI] --> get isospin
+! Case 1: Use SEWARD, GATEWAY mass  --> get g-factor and NucSpin
+! Case 2: Use ISOMAss [RASSI] --> get g-factor and NucSpin
+! Case 3: Use NucSpin [RASSI] --> get g-factor
+! Case 4: Use GNUC    [RASSI] --> get NucSpin
 ! Case 5: Use Most abundant non-zero g-factor (useful for EPR-HFCC)
 
-! Note: Isospin and mass number (integer) has higher priority [IF-ELSE] than g-factor (the last case).
+! Note: NucSpin and mass number (integer) has higher priority [IF-ELSE] than g-factor (the last case).
 
     call init_isotope_data()
 
-    if (.not. allocated(NucSpin))     call mma_allocate(NucSpin,NAtoms,"Isospin")
+    if (.not. allocated(NucSpin))     call mma_allocate(NucSpin,NAtoms,"NucSpin")
     if (.not. allocated(NucGFac))     call mma_allocate(NucGFac,NAtoms,"gNuc")
 
     call Get_dArray('Weights', Weights, NAtoms)
 
 
-! DEFAULT SETTINGS (if users do NOT specify anything : ISOMass, ISOSpin or GNUC in RASSI input)
+! DEFAULT SETTINGS (if users do NOT specify anything : ISOMass, NucSpin or GNUC in RASSI input)
 !------------------
-!       1. HFCOperator --> CASE 1 use SEWARD mass to get g-factor and isospin
+!       1. HFCOperator --> CASE 1 use SEWARD mass to get g-factor and NucSpin
 !                      REASON: to be consistent with molecular dynamics simulations where mass affects the forces on nuclei.
-!       2. HFCAtoms    --> CASE 5 use most abundant non-zero g-factor to get g-factor and isospin
+!       2. HFCAtoms    --> CASE 5 use most abundant non-zero g-factor to get g-factor and NucSpin
 !                      REASON: Users want to compute EPR parameters without looking up the isotopic information.
 !                              This is convienient because the code also print out the conversion factor.
     use_seward_mass = .false.
@@ -502,9 +503,9 @@ module hyperfine
     if (NGFac_set)        case = 4
     if (AutoSelect_GFac)  case = 5
 
-!   If users specify both ISOSpin and GNUC, they should use "HISO" keyword
+!   If users specify both NucSpin and GNUC, they should use "HISO" keyword
 !   to indicate hypothetical isotopes rather than finding real isotopes in EZSpin data.
-!   Hypo_Iso will be turned on automatically if both ISOSpin and GNUC are set by users.
+!   Hypo_Iso will be turned on automatically if both NucSpin and GNUC are set by users.
     if (NSpin_set .and. NGFac_set) Hypo_Iso = .true.
 
 ! When HFC_RMS hamiltonian is requested, we need to process the nuclear data for ALL atoms.
@@ -656,6 +657,7 @@ subroutine print_EPR_summary()
   real(kind=wp)             :: conv, Aiso_tot
   character(len=5)          :: unit ="(MHz)"
   character(len=12)         :: undef_res
+  character(len=16)         :: string_val
 
   write(6,*)
   write(6,*)
@@ -670,7 +672,6 @@ subroutine print_EPR_summary()
 
 !--> Unit conversion to MHz
 !--------------------------
-  call Add_Info('Prinvals_TOT',[prin_vals(1,5,1),prin_vals(1,5,2),prin_vals(1,5,3)],3,5)
   iACalc = 0
   do iAtom = 1, nAtoms
     if (Atens_Req(iAtom)) then
@@ -694,7 +695,7 @@ subroutine print_EPR_summary()
 !--> Print principal values
       write(6,*) ""
       write(6,'(3X,A10,A6,A12,F12.4,A12,F3.1)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)), &
-              ' g-factor = ',NucGFac(iAtom),'  Isospin = ',NucSpin(iAtom)
+              ' g-factor = ',NucGFac(iAtom),'  NucSpin = ',NucSpin(iAtom)
       write(6,*) ""
       write(6,'(3X,A4,2X,A7,A5,5X,A7,A5,3(2X,A7,A5))') 'Comp',                         &
       ' TOTAL ',unit,'    FC ',unit,'    SD ',unit,'  FCSD ',unit,'   PSO ',unit
@@ -734,8 +735,9 @@ subroutine print_EPR_summary()
   write(6,'(A88)')  "       2. If a different isotope is required, you can convert the reported values to MHz"
   write(6,'(A65)')  "          without restarting by using the provided formula below:"
   write(6,*)
+  write(string_val,'(F12.4)') con_to_MHz
   write(6,'(A52,E11.4)') "                A(MHz) = A(au) * nuclear-g-factor * ", -gElectron * beta_e * beta_n
-  write(6,'(A60,F12.4)') "             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ", con_to_MHz
+  write(6,'(A60,A16)') "             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ", adjustl(string_val)
   write(6,*)
   write(6,*)
 
@@ -869,15 +871,15 @@ subroutine get_degen_states(opt)
   lambda=1
   prev_ener=ESO(1)
 
-  do ISS=2, NSS
+  do ISS = 2, NSS
     if(abs(ESO(ISS) - prev_ener) > ETHR_in_cm) then
-      degen_end_idx(lambda)=ISS-1
-      lambda=lambda+1
-      degen_start_idx(lambda)=ISS
-      prev_ener=ESO(ISS)
+      degen_end_idx(lambda) = ISS-1
+      lambda = lambda+1
+      degen_start_idx(lambda) = ISS
+      prev_ener = ESO(ISS)
     endif
   end do
-  degen_end_idx(n_uniq_ener)=NSS
+  degen_end_idx(n_uniq_ener) = NSS
 
   write(6,*)
   write(6,*)
@@ -1097,9 +1099,9 @@ end subroutine assign_abc_signs
     ! Print absolute principal values without signs
     write(6,*) ''
     write(6,'(20X,A31,A7)') 'ABS. PRINCIPAL VALUES [+/-] :: ', contrib_lab(contrib)
-    write(6,'(12X,A49)') repeat('.',52)
+    write(6,'(12X,A52)') repeat('.',52)
     write(6,'(20X,A12,12X,A4,11X,A5)')  "sqrt(eigval)", "(au)", "(MHz)"
-    write(6,'(12X,A49)') repeat('.',52)
+    write(6,'(12X,A52)') repeat('.',52)
     do i=1,3
       prvl = prin_vals(iACalc,contrib,i)
       write(6,'(12X,A2,A1,A1,3X,E13.6,3x,E13.6,3x,E13.6)') 'A_', xyz(i),xyz(i), &
@@ -1125,7 +1127,7 @@ subroutine update_h_HFC_RMS(h_HFC)
   ! end do
 
   ! OPTIMIZED VERSION :: FULLY VECTORIZED
-  h_rms_nuc =  sum(abs(h_HFC(1:3,:,:))**2, dim=1)
+  h_rms_nuc(:,:) =  sum(abs(h_HFC(1:3,:,:))**2, dim=1)
 
   ! Scale with factor || I_sq ||^2
   NSpin_I = NucSpin(iAtom)
@@ -1134,7 +1136,7 @@ subroutine update_h_HFC_RMS(h_HFC)
   h_rms_nuc(:,:) = fac * h_rms_nuc(:,:)
 
   ! Update h_RMS for this nuclei
-  h_hfc_rms = h_hfc_rms + h_rms_nuc
+  h_hfc_rms(:,:) = h_hfc_rms(:,:) + h_rms_nuc(:,:)
 
   if (iAtom == NAtoms) then
     ! Note: con_to_MHz = gElectron*beta_e*beta_n*auToHz*1e-6_wp
@@ -1216,7 +1218,7 @@ subroutine calc_h_Zeeman(PROP)
     END IF
   END DO
 
-  Angmom(:,:,:)=Zero
+  Angmom(:,:,:) = Zero
 
   CALL SMMAT(PROP,Angmom(1,:,:),NSS,IAMX,0)
   CALL SMMAT(PROP,Angmom(2,:,:),NSS,IAMY,0)
@@ -1231,10 +1233,10 @@ subroutine calc_h_Zeeman(PROP)
   Re_h_Zeeman(3,:,:) = -gElectron * Re_h_Zeeman(3,:,:)
   Im_h_Zeeman(:,:,:) = Im_h_Zeeman(:,:,:) + Angmom(:,:,:)
 
-  h_Zeeman = cmplx(Re_h_Zeeman,Im_h_Zeeman, kind=wp)
+  h_Zeeman(:,:,:) = cmplx(Re_h_Zeeman(:,:,:),Im_h_Zeeman(:,:,:), kind=wp)
   call to_cmpl_SO_states(h_Zeeman)
 
-  h_Zeeman = h_Zeeman / Two
+  h_Zeeman(:,:,:) = h_Zeeman(:,:,:) / Two
 
   call mma_deallocate(Re_h_Zeeman)
   call mma_deallocate(Im_h_Zeeman)
@@ -1266,8 +1268,8 @@ subroutine calc_pNMR_Tensor(h_HFC,contrib)
 
   do i = 1, 3
     do j = 1, 3
-      Z_HFC_int_oper(i,j,:,:)  = real(h_Zeeman(i,:,:) * conjg(h_HFC(j,:,:)), kind=wp)
-      Z_HFC_over_dE(i,j,:,:)      = Z_HFC_int_oper(i,j,:,:) * dE_inv(:,:)
+      Z_HFC_int_oper(i,j,:,:) = real(h_Zeeman(i,:,:) * conjg(h_HFC(j,:,:)), kind=wp)
+      Z_HFC_over_dE(i,j,:,:)  = Z_HFC_int_oper(i,j,:,:) * dE_inv(:,:)
     end do
   end do
 
@@ -1287,17 +1289,8 @@ subroutine calc_pNMR_Tensor(h_HFC,contrib)
       ! Vectorized Curie tensor is trivial, loop between lmb_a and lmb_ap
       C_tens(iT,:,:) = C_tens(iT,:,:) +  pBoltz(iT,ISS) * sum(Z_HFC_int_oper(:,:,ISS,lmb_a:lmb_ap), dim=3)
 
-      ! if(lmb_a > 1) then
-      !   do JSS = 1, lmb_a - 1
-      !     LinRes_tens(iT,:,:) = LinRes_tens(iT,:,:) + pBoltz(iT,ISS)* hZ_times_hHyF(:,:,ISS,JSS)/dE(ISS,JSS)
-      !   enddo
-      ! endif
-      ! if(lmb_ap < NSS) then
-      !   do JSS = lmb_ap+1, NSS
-      !     LinRes_tens(iT,:,:) = LinRes_tens(iT,:,:) + pBoltz(iT,ISS)* hZ_times_hHyF(:,:,ISS,JSS)/dE(ISS,JSS)
-      !   enddo
-      ! endif
-
+      ! Non-degenerate states will contribute to Linear Response term
+      ! Two if-logic has been used to avoid empty array (lmb_a == 1 means 1:lmb_a-1 == 1:0)
       if(lmb_a > 1)    LR_tens(iT,:,:) = LR_tens(iT,:,:) + pBoltz(iT,ISS)* sum(Z_HFC_over_dE(:,:,ISS,1:lmb_a-1), dim=3)
       if(lmb_ap < NSS) LR_tens(iT,:,:) = LR_tens(iT,:,:) + pBoltz(iT,ISS)* sum(Z_HFC_over_dE(:,:,ISS,lmb_ap+1:NSS), dim=3)
 
