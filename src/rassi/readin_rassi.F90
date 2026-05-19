@@ -16,15 +16,17 @@ subroutine READIN_RASSI()
 use Cholesky, only: timings
 use Cntrl, only: ALGO, Nscreen, dmpk, QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRSXY, PRORB, PRTRA, PRCI, BINA, NATO, NBINA, NRNATO, &
                  RFPERT, IFTRD1, NSOPR, NPROP, PRDIPVEC, TDIPMIN, NJOB, CIH5, CIThr, IFHAM, IFSO, IFNTO, SOThr_Prt, nSOThr_Prt, &
-                 nState, IfHEXT, IfHEff, IfHCOM, IFEJOB, IfHDia, IfShft, ToFile, IfJ2, IfJZ, IFGCAL, EPraThr, IFACALSD, IFACALFC, &
-                 IFACALSDON, IFACALPSO, IFATCALSA, IFGTSHSA, MULTIP, IFVANVLECK, TMINS, TMAXS, NTS, IFSONCINI, TMINP, TMAXP, NTP, &
+                 nState, IfHEXT, IfHEff, IfHCOM, IFEJOB, IfHDia, IfShft, ToFile, IfJ2, IfJZ, IFGCAL, DEGEN_ETHR,  &
+                 IFGTSHSA, MULTIP, IFVANVLECK, TMINS, TMAXS, NTS, TMINP, TMAXP, NTP, &
                  NOSO, IFCURD, IFARGU, IFXCAL, NBSTEP, BSTART, BINCRE, BANGRES, NTSTEP, TSTART, TINCRE, IFMCAL, PRXVR, PRXVE, &
                  PRXVS, PRMER, PRMEE, PRMES, HOP, TRACK, NOHAM, ONLY_OVERLAPS, IFDCPL, IFTRD2, IFTDM, DQVD, ALPHZ, BETAE, DIPR, &
                  OSTHR_DIPR, QIPR, OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO, DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, DCHO, &
                  DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE, REDUCELOOP, LOOPDIVIDE, LOOPMAX, l_Eff, Do_SK, Do_Pol, RHODYN, &
-                 MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM, EPrThr, LPRPR, lHami, IfACAL, IFACALFCON, IFACALFCSDON, IFGTCALSA, &
+                 MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM, EPrThr, LPRPR, lHami, IFGTCALSA, &
                  DYSEXPSF, ISTAT, MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA, SONTO, SONTOSTATES, SONAT, SONATNSTATE, SODIAG, &
-                 SODIAGNSTATE
+                 SODIAGNSTATE, Atens_Req, pNMR_req, HypF_rms_Req, NucMass, NMass_set, NucSpin, NSpin_set, NucGFac,  &
+                 NGFac_set, PSO_idx, ASD_idx, Hypo_Iso, LCSTATES, NATens_Calc, NAtoms, NPNMR_Calc, NCOUP, AutoSelect_GFac
+
 use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 use frenkel_global_vars, only: DoCoul, doexch, DoExcitonics, excl, iTyp, labB, nestla, nestlb, valst
 use kVectors, only: e_Vector, k_Vector, nk_Vector
@@ -35,7 +37,7 @@ use spool, only: Close_LuSpool, Spoolinp
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
 #endif
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -46,6 +48,8 @@ logical(kind=iwp) :: lExists
 character(len=80) ::LINE
 character(len=8) :: TRYNAME
 character(len=7) :: input_id
+integer(kind=iwp), allocatable :: iTemp_arr(:)
+real(kind=wp), allocatable     :: rTemp_arr(:)
 
 call SpoolInp(LuIn)
 
@@ -384,40 +388,8 @@ do
       write(u6,*) 'Identity Hamiltonian turned on'
       LHAMI = .true.
 
-    case ('EPRA')
-      ! BP - Hyperfine calculations
-      !write(u6,*)"EPRA read"
-      IFACAL = .true.
-      read(LuIn,*,iostat=istatus) EPRATHR
-      call LineCheck(istatus)
-      if (EPRATHR < Zero) EPRATHR = Zero
-
-    case ('AFCO')
-      !write(u6,*) 'AFCO read'
-      IFACALSD = .false.
-
-    case ('ASDO')
-      !write(u6,*) 'ASDO read'
-      IFACALFC = .false.
-
-    case ('AFCC')
-      ! Kamal Sharkas beg - PSO Hyperfine calculations
-      IFACALFCON = .true.
-
-    case ('ASDC')
-      IFACALSDON = .true.
-
-    case ('FCSD')
-      IFACALFCSDON = .true.
-
-    case ('APSO')
-      IFACALPSO = .true.
-
     case ('GTSA')
       IFGTCALSA = .true.
-
-    case ('ATSA')
-      IFATCALSA = .true.
 
     case ('SHMP')
       IFGTSHSA = .true.
@@ -430,7 +402,6 @@ do
       call LineCheck(istatus)
 
     case ('NMRT')
-      IFSONCINI = .true.
       read(LuIn,*,iostat=istatus) TMINP,TMAXP,NTP
       call LineCheck(istatus)
       ! Kamal Sharkas end - PSO Hyperfine calculations
@@ -668,6 +639,121 @@ do
       ! VKochetov 2021 enable saving more data to hdf5
       rhodyn = .true.
 
+    case('HFCA')
+      call mma_allocate(Atens_req,NAtoms,Label='Atens_req')
+      Atens_req(:) = .false.
+      read(LuIn,*,iostat=istatus) Line
+      call LineCheck(istatus)
+      call UpCase(Line)
+      if (Line == "ALL") then
+        NATens_Calc = NAtoms
+        Atens_req(:) = .TRUE.
+      else
+        Read(line,*) NATens_Calc
+        call mma_allocate(iTemp_arr,NATens_Calc,Label='iTemp_arr')
+        read(LuIn,*,iostat=istatus) (iTemp_arr(i),i=1,NATens_Calc)
+        call LineCheck(istatus)
+        do I=1,NATens_Calc
+          Atens_req(iTemp_arr(I)) = .TRUE.
+        end do
+        call mma_deallocate(iTemp_arr)
+      endif
+
+      case('NMRA')
+        call mma_allocate(pNMR_req,NAtoms,Label='pNMR_req')
+        pNMR_req(:) = .false.
+        read(LuIn,*,iostat=istatus) LINE
+        call LineCheck(istatus)
+        call UpCase(LINE)
+        IF (line == "ALL") then
+          NPNMR_Calc = NAtoms
+          pNMR_req(:) = .TRUE.
+        else
+          Read(line,*) NPNMR_Calc
+          call mma_allocate(iTemp_arr,NPNMR_Calc,Label='iTemp_arr')
+          Linenr=Linenr+1
+          read(LuIn,*,iostat=istatus)   (iTemp_arr(i), i = 1, NPNMR_Calc)
+          call LineCheck(istatus)
+          do I=1,NPNMR_Calc
+            pNMR_req(iTemp_arr(I)) = .TRUE.
+          end do
+          call mma_deallocate(iTemp_arr)
+        endif
+        Linenr=Linenr+1
+
+      case ('DETH')
+        read(LuIn,*,iostat=istatus) DEGEN_ETHR
+        call LineCheck(istatus)
+        if (DEGEN_ETHR < Zero) DEGEN_ETHR = Zero
+
+      case('NCOU')
+        read(LuIn,*,iostat=istatus) NCOUP
+        call LineCheck(istatus)
+
+      case('COUP')
+        read(LuIn,*,iostat=istatus) NCOUP
+        call LineCheck(istatus)
+        call mma_allocate(LCSTATES,NCOUP,Label='LCSTATES')
+        read(LuIn,*,iostat=istatus) (LCSTATES(i), i = 1, NCOUP)
+        call LineCheck(istatus)
+
+      case('HFCO')
+        HypF_rms_Req=.TRUE.
+
+      case('HISO')
+        Hypo_Iso = .TRUE.
+
+      case('AUNG')
+        AutoSelect_GFac = .true.
+
+      case('GNUC')
+        NGFac_set   = .true.
+        call mma_allocate(NucGFac,NAtoms,Label='gNuc')
+        NucGFac(:) = -100.0_wp
+        call mma_allocate(rTemp_arr,NATens_Calc,Label='rTemp_arr')
+        read(LuIn,*,iostat=istatus) (rTemp_arr(i), i = 1, NATens_Calc)
+        call LineCheck(istatus)
+        Read(LINE,*)
+        j=1
+        do i=1,NAtoms
+          if(Atens_req(I)) then
+            NucGFac(i)=rTemp_arr(j)
+            j=j+1
+          endif
+        enddo
+        call mma_deallocate(rTemp_arr)
+
+      case('NMAS')
+        NMass_set = .true.
+        call mma_allocate(NucMass,NAtoms,'NucMass')
+        NucMass(:) = -100_iwp
+        call mma_allocate(iTemp_arr,NATens_Calc,Label='iTemp_arr')
+        read(LuIn,*,iostat=istatus)   (iTemp_arr(i), i = 1, NATens_Calc)
+        j=1
+        do i=1,NAtoms
+          if(Atens_req(I)) then
+            NucMass(i)=iTemp_arr(j)
+            j=j+1
+          endif
+        enddo
+        call mma_deallocate(iTemp_arr)
+
+      case('NSPI')
+        NSpin_set = .true.
+        call mma_allocate(NucSpin,NAtoms,Label='NucSpin')
+        NucSpin(:)=-100.0_wp
+        call mma_allocate(rTemp_arr,NATens_Calc,Label='rTemp_arr')
+        read(LuIn,*,iostat=istatus)   (rTemp_arr(i), i = 1, NATens_Calc)
+        j=1
+        do i=1,NAtoms
+          if(Atens_req(I)) then
+            NucSpin(i)=rTemp_arr(j)
+            j=j+1
+          endif
+        enddo
+        call mma_deallocate(rTemp_arr)
+
+
 #   ifdef _DMRG_
     case ('QDSC')
       QDPT2SC = .true.
@@ -799,6 +885,10 @@ if (JBNAME(1) == 'UNDEFINE') then
   end if
 end if
 
+IF (HypF_rms_Req .or. allocated(Atens_Req) .or. allocated(pNMR_req)) THEN
+  call gen_hfc_prop_labels()
+endif
+
 call XFLUSH(u6)
 
 call Close_LuSpool(LuIn)
@@ -823,5 +913,59 @@ subroutine LineCheck(code)
   end select
 
 end subroutine LineCheck
+
+!----------------------------------------------------------------------
+subroutine gen_proplab(prop_lab,iAtom,nComp,idx)
+!PURPOSE: Generate a specific property for iAtom with nComp
+  integer, intent(in)            :: nComp, iAtom
+  character(len=4), intent(in)   :: prop_lab
+  character(len=4)               :: temp_lab
+  integer                        :: iC
+  integer,optional,intent(out)   :: idx(:,:)
+
+  DO iC=1,nComp
+    WRITE(temp_lab,'(I4)') iAtom
+    PNAME(NPROP+1)=prop_lab//temp_lab
+    ICOMP(NPROP+1)=iC
+    idx(iAtom,iC)=NPROP+1
+    NPROP=NPROP+1
+  ENDDO
+endsubroutine
+!----------------------------------------------------------------------
+subroutine gen_hfc_prop_labels()
+  integer :: iAtom
+  logical :: do_prop
+!PURPOSE: Post-processing to generate PROPerties labels
+!         for HFC and pNMR calculations.
+
+! write(6,*) "Auto-generate labels for HFC"
+! write(6,*) "NPROP ", NPROP, "MXPROP ", MXPROP
+
+! Hyperfine calculation needs ASD and PSOP properties
+  call mma_allocate(ASD_idx,NAtoms,6,'LASD')
+  call mma_allocate(PSO_idx,NAtoms,3,'LPSO')
+  ASD_idx(:,:)=-1
+  PSO_idx(:,:)=-1
+
+  do iAtom = 1, NAtoms
+    if (.not. HypF_rms_Req .and. allocated(Atens_req)) then
+      do_prop = Atens_req(iAtom)
+    else if (.not. HypF_rms_Req .and. allocated(pNMR_req)) then
+      do_prop = pNMR_req(iAtom)
+    end if
+    if (do_prop) then
+      call gen_proplab('ASD ', iAtom, 6, ASD_idx)
+      call gen_proplab('PSOP', iAtom, 3, PSO_idx)
+    end if
+  end do
+
+  if (allocated(pNMR_req)) then
+    do i=1,3
+      PNAME(NPROP+1)='AngMom'
+      ICOMP(NPROP+1)=i
+      NPROP=NPROP+1
+    end do
+  end if
+end subroutine
 
 end subroutine READIN_RASSI

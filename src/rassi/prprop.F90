@@ -14,10 +14,12 @@ subroutine PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,EigVec)
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: SODYSAMPS
 use kVectors, only: k_Vector, nk_Vector
-use Cntrl, only: BAngRes, BIncre, BStart, DIPR, Do_SK, Do_TMom, DoCD, DYSO, EPrThr, iComp, IfACAL, IfGCAL, IfGTCALSA, IfGTSHSA, &
+use Cntrl, only: BAngRes, BIncre, BStart, DIPR, Do_SK, Do_TMom, DoCD, DYSO, EPrThr, iComp, IfGCAL, IfGTCALSA, IfGTSHSA, &
                  IfMCal, IFSO, IfvanVleck, IfXCal, IPUSED, ISOCMP, LoopDivide, LoopMax, LPRPR, MLTPLT, MULTIP, NBSTep, NPROP, &
                  NSOPR, NSTATE, NTS, nTStep, OSThr_DIPR, OSthr_QIPR, PNAME, PNUC, PORIG, PRDIPCOM, PRMEE, PRMES, PRXVE, PTYPE, &
-                 QIALL, QIPR, ReduceLoop, RSPR, RSThr, SOPRNM, SOPRTP, TIncre, TMaxs, TMins, Tolerance, TStart
+                 QIALL, QIPR, ReduceLoop, RSPR, RSThr, SOPRNM, SOPRTP, TIncre, TMaxs, TMins, Tolerance, TStart, &
+                 HypF_rms_Req, Atens_Req, pNMR_req
+use hyperfine, only: HFCOP
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use RASSIWfn, only: wfn_sfs_amfi, wfn_sfs_angmom, wfn_sfs_edipmom, wfn_sos_angmomi, wfn_sos_angmomr, wfn_sos_dys, &
@@ -2254,7 +2256,9 @@ end if
 !*****************************************************
 
 ! Skip if not a hyperfine calculation
-if (IFACAL) call HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,ESO,XYZCHR,BOLTZ_K)
+  if(HypF_rms_Req .or. allocated(Atens_Req) .or. allocated(pNMR_req)) then
+    call HFCOP(PROP,USOR,USOI,JBNUM)
+  endif
 
 !*****************************************************
 !* Experimental hyperfine tensor stuff ends here

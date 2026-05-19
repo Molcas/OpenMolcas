@@ -118,6 +118,15 @@ private
 ! NCI1    - Configuration's number of state 1
 ! ChkHop  - If .true. switches on the TSH algorithm
 
+!
+! LAt_ACALC            - list of atoms for which A-tensors will be calculated
+! LASD(atom,comp)      - list ASD properties
+! LPSO(atom,comp)      - list PSO properties
+! LMASS                - list of isotopes (defined in RASSI) for HFC
+! LSPIN                - list of spin quantum numbers for isotopes in LISOTO
+! NCSTATES             - number of coupled states
+! LCSTATES             - list of coupled states
+
 !----------------------------------------------------------------------*
 !     Define files ( file names and unit numbers )                     *
 !----------------------------------------------------------------------*
@@ -137,13 +146,13 @@ integer(kind=iwp) :: ALGO, DCHO, DYSEXPSF, DYSEXPSO, IBINA(2,MxRoot), ICOMP(MXPR
                      NDEL1(8), NDET(MXJOB), NELE3(MXJOB), NELE31, NFRO1(8), NHOL11, NHOLE1(MXJOB), NISH1(8), NJOB, NPROP, nQuad, &
                      NRNATO, NROOT1, NROOTS(MXJOB), NRS11(8), NRS21(8), NRS31(8), Nscreen, NSOPR, NSOTHR_PRT, NSTAT(MXJOB), &
                      NSTATE, NSYM1, NTP, NTS, NTSTEP, OCAN, SODIAGNSTATE = 0, SONATNSTATE = 0, SONTOSTATES = 0
-real(kind=wp) :: ALPHZ, BANGRES, BETAE, BINCRE, BSTART, CITHR, COOR(3,MXATOM), dmpk, EMIN, EPRATHR, EPRTHR, ERFNUC, OSTHR_DIPR, &
+real(kind=wp) :: ALPHZ, BANGRES, BETAE, BINCRE, BSTART, CITHR, COOR(3,MXATOM), dmpk, EMIN, DEGEN_ETHR, EPRTHR, ERFNUC, OSTHR_DIPR, &
                  OSTHR_QIPR, PNUC(MXPROP) = Zero, PORIG(3,MXPROP) = Zero, RSTHR, SOTHR_PRT, TDIPMIN, TINCRE, TMAXP, TMAXS, &
                  TMGr_thrs, TMINP, TMINS, TOLERANCE, TSTART
 logical(kind=iwp) :: BINA, ChkHop, CIH5, DCHS, DIPR, Do_Pol, Do_SK, Do_TMOM, DOCD, DoGSOR, DQVD, DYSEXPORT, DYSO, &
-                     Force_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HOP, IFACAL, IFACALFC, IFACALFCON, IFACALFCSDON, IFACALPSO, IFACALSD, &
-                     IFACALSDON, IFARGU, IFATCALSA, IFCURD, IfDCpl, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, &
-                     IFHEFF, IFHEXT, IFMCAL, IfNTO, IFSHFT, IFSO, IFSONCINI, IFTDM, IFTRD1, IFTRD2, IFVANVLECK, IFXCAL, LHAMI, &
+                     Force_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HOP,  &
+                     IFARGU, IFCURD, IfDCpl, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, &
+                     IFHEFF, IFHEXT, IFMCAL, IfNTO, IFSHFT, IFSO, IFTDM, IFTRD1, IFTRD2, IFVANVLECK, IFXCAL, LHAMI, &
                      LPRPR, NATO, NOHAM, NOSO, ONLY_OVERLAPS, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, &
                      PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, QDPT2EV, QDPT2SC, QIALL, QIPR, REDUCELOOP, RFpert, RHODyn, RSPR, &
                      SaveDens, SECOND_TIME, TDYS, ToFile, TRACK
@@ -157,11 +166,17 @@ character(len=2) :: HEAD1(72)
 integer(kind=iwp), allocatable :: SODIAG(:), SONAT(:), SONTO(:,:)
 real(kind=wp), allocatable :: HEff(:,:), RefEne(:)
 
+integer(kind=iwp)  :: NATens_Calc,NCOUP, NPNMR_Calc
+INTEGER(kind=iwp), allocatable :: ASD_idx(:,:) , PSO_idx(:,:) , NucMass(:), LCSTATES(:)
+logical(kind=iwp), allocatable  :: Atens_Req(:), pNMR_req(:)
+logical(kind=iwp)  :: AutoSelect_GFac  , NSpin_set , NGFac_set, NMass_set, HypF_rms_Req , Hypo_Iso
+real(kind=wp),  allocatable  :: NucSpin(:), NucGFac(:)
+
 public :: ALGO, AlphZ, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5, CITHR, Coor, DCHO, DCHS, DIPR, dmpk, Do_Pol, &
-          Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, DYSO, EMin, EPRATHR, EPRThr, ERFNuc, FnEig, FnTOM, &
-          FORCE_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, HOP, IBINA, ICOMP, IDCMO, IFACAL, IFACALFC, IFACALFCON, &
-          IFACALFCSDON, IFACALPSO, IFACALSD, IFACALSDON, IfArgu, IFATCALSA, IfCurd, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, &
-          IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IfJ2, IfJz, IFMCAL, IFNTO, IFSHFT, IFSO, IFSONCINI, IfTDM, IfTrD1, IFTRD2, &
+          Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, DYSO, EMin, DEGEN_ETHR, EPRThr, ERFNuc, FnEig, FnTOM, &
+          FORCE_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, HOP, IBINA, ICOMP, IDCMO,  &
+           IfArgu, IfCurd, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, &
+          IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IfJ2, IfJz, IFMCAL, IFNTO, IFSHFT, IFSO, IfTDM, IfTrD1, IFTRD2, &
           IfvanVleck, IFXCAL, IPUSED, IROOT1, IRREP, ISOCMP, ISTAT, ISTATE1, ISTATE2, iToc15, JBNAME, L_Eff, LHAMI, LOOPDIVIDE, &
           LOOPMAX, LPRPR, LROT1, lSym1, lSym2, LuEig, LuExc, LuIph, LuMck, LuOne, LuOrd, LuTDM, LUTOM, MINAME, MLTPLT, MORSBITS, &
           MPLET1, MULTIP, MXJOB, MXPROP, NACTE, NACTE1, NASH1, NATO, nAtoms, NBAS1, NBINA, NBSTep, nCI1, nCI2, NCONF, NCONF1, &
@@ -170,6 +185,8 @@ public :: ALGO, AlphZ, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5
           OSThr_DiPr, OSThr_QIPR, PNAME, PNUC, PORIG, PRCI, PRDIPCOM, PrDipVec, PRMEE, PRMER, PRMES, PRORB, PrRaw, PRSXY, PRTRA, &
           PrWeight, PRXVE, PRXVR, PRXVS, PTYPE, QDPT2EV, QDPT2SC, QIAll, QIPR, RASTYP, REDUCELOOP, RefEne, RFPert, RhoDyn, RSPR, &
           RSThr, SAVEDENS, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, &
-          TDipMin, TDYS, TIncre, TITLE1, TMAXP, TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart
+          TDipMin, TDYS, TIncre, TITLE1, TMAXP, TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart ,               &
+          NATens_Calc, NCOUP, NPNMR_Calc, ASD_idx, PSO_idx, NucMass, LCSTATES, Atens_Req, pNMR_req, AutoSelect_GFac,            &
+          NGFac_set, NMass_set, NSpin_set, HypF_rms_Req, Hypo_Iso, NucSpin, NucGFac
 
-end module Cntrl
+End Module Cntrl
