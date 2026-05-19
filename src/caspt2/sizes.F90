@@ -149,18 +149,17 @@ if (.not. IFCHOL) then
   do ICASE=1,13
     do ISYM=1,NSYM
       NIN = NINDEP(ISYM,ICASE)
-      if (NIN == 0) goto 10
+      if (NIN == 0) cycle
       NAS = NASUP(ISYM,ICASE)
       NIS = NISUP(ISYM,ICASE)
       NV = NAS*NIS
-      if (NV == 0) goto 10
+      if (NV == 0) cycle
       if (ICASE > 11) then
         N = NV
       else
         N = 2*NV+(NAS*(NAS+1))/2
       end if
       NMX = max(N,NMX)
-10    continue
     end do
   end do
   NMKRHS = NMKRHS+NMX
@@ -219,18 +218,17 @@ MMX = 0
 do ICASE=1,13
   do ISYM=1,NSYM
     NIN = NINDEP(ISYM,ICASE)
-    if (NIN == 0) goto 11
+    if (NIN == 0) cycle
     NAS = NASUP(ISYM,ICASE)
     NIS = NISUP(ISYM,ICASE)
     NV = NAS*NIS
-    if (NV == 0) goto 11
+    if (NV == 0) cycle
     if (ICASE > 11) then
       M = 2*NV
     else
       M = 3*NV+(NAS*(NAS+1))/2
     end if
     MMX = max(M,MMX)
-11  continue
   end do
 end do
 

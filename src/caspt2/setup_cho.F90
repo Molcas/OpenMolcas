@@ -119,7 +119,7 @@ end do
 ! with 'J' generally. This is the summation index in the definition of
 ! the cholesky vectors.
 do jSym=1,nSym
-  if (NumCho(jSym) < 1) goto 99
+  if (NumCho(jSym) < 1) cycle
 
   call mma_MaxDBLE(MemMx)
   xMemMx = real(MemMx,kind=wp)
@@ -127,32 +127,30 @@ do jSym=1,nSym
 
   jfrac = 1
 
-10 continue
-  Mem1 = 2*NumCho(jSym)/jfrac  ! hold 2 vectors in memory
-  if ((Mem1 == 0) .and. (jfrac > 1)) then
-    write(u6,*) ' Setup_cho fails to set up the data structures'
-    write(u6,*) ' used for the Cholesky vectors.'
-    write(u6,*) ' Too little memory is available at this point.'
-    write(u6,*) ' Details:'
-    xmb = xMemMx/(Two**20)
-    write(u6,'(1x,a,1x,f10.3)') ' Largest contiguous allocatable memory (MB):',xmb
-    xmb = Two*real(NUMCHO(JSYM),kind=wp)/(Two**20)
-    write(u6,'(1x,a,1x,f10.3)') '                        2*NumCho(jSym) (MB):',xmb
-    write(u6,*) ' Divided up on jFrac pieces. jFrac=',jFrac
-    write(u6,*) ' If this seems odd, please tell Molcas programmers.'
-    write(u6,*) ' Right now, the allocated memory is:'
-    call Cho_x_Quit('setup_cho',': Sorry! Too little memory!!',' ')
-  end if
+  do
+    Mem1 = 2*NumCho(jSym)/jfrac  ! hold 2 vectors in memory
+    if ((Mem1 == 0) .and. (jfrac > 1)) then
+      write(u6,*) ' Setup_cho fails to set up the data structures'
+      write(u6,*) ' used for the Cholesky vectors.'
+      write(u6,*) ' Too little memory is available at this point.'
+      write(u6,*) ' Details:'
+      xmb = xMemMx/(Two**20)
+      write(u6,'(1x,a,1x,f10.3)') ' Largest contiguous allocatable memory (MB):',xmb
+      xmb = Two*real(NUMCHO(JSYM),kind=wp)/(Two**20)
+      write(u6,'(1x,a,1x,f10.3)') '                        2*NumCho(jSym) (MB):',xmb
+      write(u6,*) ' Divided up on jFrac pieces. jFrac=',jFrac
+      write(u6,*) ' If this seems odd, please tell Molcas programmers.'
+      write(u6,*) ' Right now, the allocated memory is:'
+      call Cho_x_Quit('setup_cho',': Sorry! Too little memory!!',' ')
+    end if
 
-  kfrac = 0
-  kfrac = kfrac+1
-  ! Subdivide the set of orbitals into kfrac pieces of size <= nKsp
-  nKsp = nOkrb/kfrac
-  ! If kfrac has grown too large, start again using kfrac=1 but larger jfrac
-  if (nKsp == 0) then
+    kfrac = 1
+    ! Subdivide the set of orbitals into kfrac pieces of size <= nKsp
+    nKsp = nOkrb/kfrac
+    ! If kfrac has grown too large, start again using kfrac=1 but larger jfrac
+    if (nKsp /= 0) exit
     jfrac = jfrac+1
-    goto 10
-  end if
+  end do
 
   ! Loop over pieces of the orbital set:
   nPmax = 0
@@ -291,8 +289,6 @@ do jSym=1,nSym
     mp(jSym)%A(nisplit(jSym)+isp) = nPorb
     ioff = ioff+sp(jSym)%A(nisplit(jSym)+isp)
   end do
-
-99 continue
 
 end do
 

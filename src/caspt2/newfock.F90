@@ -70,16 +70,11 @@ if (FOCKTYPE == 'STANDARD') return
 !C above, but using as  active/active block the matrix
 !C    D**(-1/2) FMC D**(-1/2)
 
-!PAM A very long IF-block is replaced by a forward GOTO for clarity:
-!PAM if (((FOCKTYPE == 'G1') .or. (FOCKTYPE == 'G2') .or. (FOCKTYPE == 'G3')) .and. (NASHT > 0)) then
 IFGFOCK = 0
-if (FOCKTYPE == 'G1') IFGFOCK = 1
-if (FOCKTYPE == 'G2') IFGFOCK = 1
-if (FOCKTYPE == 'G3') IFGFOCK = 1
+if ((FOCKTYPE == 'G1') .or. (FOCKTYPE == 'G2') .or. (FOCKTYPE == 'G3')) IFGFOCK = 1
 
-if (IFGFOCK == 0) goto 300
+if ((IFGFOCK == 0) .or. (NASHT <= 0)) return
 if (IPRGLB >= USUAL) write(u6,*) ' THE FOCK MATRIX IS MODIFIED BY KEYWORD FOCKTYPE=',FOCKTYPE
-if (NASHT <= 0) goto 300
 
 ! Determine sizes of areas for memory allocation
 NASQT = 0
@@ -216,65 +211,65 @@ select case (FOCKTYPE)
       NO = NORB(ISYMPQ)
       NIA = NI+NA
       NAS = NA+NS
-      if (NIA*NAS <= 0) GO TO 31
+      if (NIA*NAS > 0) then
 
-      ! the active-inactive block
-      if (NA*NI > 0) then
-        call DGEMM_('N','N',NA,NI,NA,One,TWOMDSQ(1+NASQES),NA,XMAT(1+NOSQES+NI),NO,Zero,SC,NA)
-        do IT=1,NA
-          ITTOT = NI+IT
-          do II=1,NI
-            KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+II
-            ISC = IT+NA*(II-1)
-            FIFA(KFIFA) = FIFA(KFIFA)-SC(ISC)
-          end do
-        end do
-      end if
-
-      ! the secondary-inactive block
-      if (NS*NI > 0) then
-        do IA=1,NS
-          IATOT = NI+NA+IA
-          do II=1,NI
-            KFIFA = NOTRES+(IATOT*(IATOT-1))/2+II
-            LXAI = NOSQES+IATOT+NO*(II-1)
-            FIFA(KFIFA) = FIFA(KFIFA)-Two*XMAT(LXAI)
-          end do
-        end do
-      end if
-
-      ! the active-active block
-      if (NA > 0) then
-        IX = NOSQES+NI+1+NO*NI
-        call DGEMM_('N','N',NA,NA,NA,One,DSQ(1+NASQES),NA,XMAT(IX),NO,Zero,SC(LSC+NA*NA),NA)
-        call DGEMM_('N','N',NA,NA,NA,One,SC(LSC+NA*NA),NA,TWOMDSQ(1+NASQES),NA,Zero,SC,NA)
-        do IT=1,NA
-          ITTOT = NI+IT
-          do IU=1,IT
-            IUTOT = NI+IU
-            KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
-            VALTU = SC(IT+NA*(IU-1))
-            VALUT = SC(IU+NA*(IT-1))
-            FIFA(KFIFA) = FIFA(KFIFA)-Half*(VALTU+VALUT)
-          end do
-        end do
-      end if
-
-      ! the secondary-active block
-      if (NS*NA > 0) then
-        IX = NOSQES+NI+NA+1+NO*NI
-        call DGEMM_('N','N',NS,NA,NA,One,XMAT(IX),NO,DSQ(1+NASQES),NA,Zero,SC,NS)
-        do IA=1,NS
-          IATOT = NI+NA+IA
+        ! the active-inactive block
+        if (NA*NI > 0) then
+          call DGEMM_('N','N',NA,NI,NA,One,TWOMDSQ(1+NASQES),NA,XMAT(1+NOSQES+NI),NO,Zero,SC,NA)
           do IT=1,NA
             ITTOT = NI+IT
-            KFIFA = NOTRES+(IATOT*(IATOT-1))/2+ITTOT
-            FIFA(KFIFA) = FIFA(KFIFA)-SC(IA+NS*(IT-1))
+            do II=1,NI
+              KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+II
+              ISC = IT+NA*(II-1)
+              FIFA(KFIFA) = FIFA(KFIFA)-SC(ISC)
+            end do
           end do
-        end do
-      end if
+        end if
 
-31    continue
+        ! the secondary-inactive block
+        if (NS*NI > 0) then
+          do IA=1,NS
+            IATOT = NI+NA+IA
+            do II=1,NI
+              KFIFA = NOTRES+(IATOT*(IATOT-1))/2+II
+              LXAI = NOSQES+IATOT+NO*(II-1)
+              FIFA(KFIFA) = FIFA(KFIFA)-Two*XMAT(LXAI)
+            end do
+          end do
+        end if
+
+        ! the active-active block
+        if (NA > 0) then
+          IX = NOSQES+NI+1+NO*NI
+          call DGEMM_('N','N',NA,NA,NA,One,DSQ(1+NASQES),NA,XMAT(IX),NO,Zero,SC(LSC+NA*NA),NA)
+          call DGEMM_('N','N',NA,NA,NA,One,SC(LSC+NA*NA),NA,TWOMDSQ(1+NASQES),NA,Zero,SC,NA)
+          do IT=1,NA
+            ITTOT = NI+IT
+            do IU=1,IT
+              IUTOT = NI+IU
+              KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
+              VALTU = SC(IT+NA*(IU-1))
+              VALUT = SC(IU+NA*(IT-1))
+              FIFA(KFIFA) = FIFA(KFIFA)-Half*(VALTU+VALUT)
+            end do
+          end do
+        end if
+
+        ! the secondary-active block
+        if (NS*NA > 0) then
+          IX = NOSQES+NI+NA+1+NO*NI
+          call DGEMM_('N','N',NS,NA,NA,One,XMAT(IX),NO,DSQ(1+NASQES),NA,Zero,SC,NS)
+          do IA=1,NS
+            IATOT = NI+NA+IA
+            do IT=1,NA
+              ITTOT = NI+IT
+              KFIFA = NOTRES+(IATOT*(IATOT-1))/2+ITTOT
+              FIFA(KFIFA) = FIFA(KFIFA)-SC(IA+NS*(IT-1))
+            end do
+          end do
+        end if
+
+      end if
       NOSQES = NOSQES+NO**2
       NOTRES = NOTRES+(NO*(NO+1))/2
       NASQES = NASQES+NA**2
@@ -293,64 +288,64 @@ select case (FOCKTYPE)
       NIA = NI+NA
       NA2 = NA*NA
       NA3 = (NA+NA2)/2
-      if (NA <= 0) GO TO 131
+      if (NA > 0) then
 
-      ! Determine the matrix blocks of the correction to
-      ! the Fock matrix and add them to the Fock matrix
+        ! Determine the matrix blocks of the correction to
+        ! the Fock matrix and add them to the Fock matrix
 
-      ! Form the selection matrix as a temporary square matrix.
-      ! Compute it by spectral resolution.
-      ! First, form a copy of the triangular D(2I-D) matrix block,
-      ! and diagonalize it. The DDTR copy at LSC:
-      call DCOPY_(NA3,DDTR(1+NATRES),1,SC,1)
-      ! A unit matrix at LEV1, to become eigenvectors:
-      LEV1 = LSC+NA2
-      call DCOPY_(NA2,[Zero],0,SC(LEV1),1)
-      call DCOPY_(NA,[One],0,SC(LEV1),NA+1)
-      ! A call to NIDiag diagonalizes the triangular matrix:
-      call NIDiag(SC,SC(LEV1),NA,NA)
-      call JACORD(SC,SC(LEV1),NA,NA)
-      ! Make a copy of the eigenvector matrix:
-      LEV2 = LEV1+NA2
-      call DCOPY_(NA2,SC(LEV1),1,SC(LEV2),1)
-      ! Put eigenvalues at LEIG:
-      LEIG = LEV2+NA2
-      call VEIG(NA,SC,SC(LEIG))
-      ! Now scale the second array of eigenvectors with any required
-      ! function of the eigenvalues:
-      do J=1,NA
-        EIGVAL = SC(LEIG-1+J)
-        if (FOCKTYPE == 'G2') then
-          X = sqrt(max(Zero,EIGVAL))
-        else
-          X = EIGVAL
-        end if
-        do I=1,NA
-          SC(LEV2-1+I+NA*(J-1)) = X*SC(LEV2-1+I+NA*(J-1))
+        ! Form the selection matrix as a temporary square matrix.
+        ! Compute it by spectral resolution.
+        ! First, form a copy of the triangular D(2I-D) matrix block,
+        ! and diagonalize it. The DDTR copy at LSC:
+        call DCOPY_(NA3,DDTR(1+NATRES),1,SC,1)
+        ! A unit matrix at LEV1, to become eigenvectors:
+        LEV1 = LSC+NA2
+        call DCOPY_(NA2,[Zero],0,SC(LEV1),1)
+        call DCOPY_(NA,[One],0,SC(LEV1),NA+1)
+        ! A call to NIDiag diagonalizes the triangular matrix:
+        call NIDiag(SC,SC(LEV1),NA,NA)
+        call JACORD(SC,SC(LEV1),NA,NA)
+        ! Make a copy of the eigenvector matrix:
+        LEV2 = LEV1+NA2
+        call DCOPY_(NA2,SC(LEV1),1,SC(LEV2),1)
+        ! Put eigenvalues at LEIG:
+        LEIG = LEV2+NA2
+        call VEIG(NA,SC,SC(LEIG))
+        ! Now scale the second array of eigenvectors with any required
+        ! function of the eigenvalues:
+        do J=1,NA
+          EIGVAL = SC(LEIG-1+J)
+          if (FOCKTYPE == 'G2') then
+            X = sqrt(max(Zero,EIGVAL))
+          else
+            X = EIGVAL
+          end if
+          do I=1,NA
+            SC(LEV2-1+I+NA*(J-1)) = X*SC(LEV2-1+I+NA*(J-1))
+          end do
         end do
-      end do
-      ! Now the selection matrix can be formed, at LSC:
-      call DGEMM_('N','T',NA,NA,NA,One,SC(LEV1),NA,SC(LEV2),NA,Zero,SC(LSC),NA)
-      ! Obviously, the FOCKTYPE=G3 case can be obtained by just
-      ! squaring the DDTR block into SC.
+        ! Now the selection matrix can be formed, at LSC:
+        call DGEMM_('N','T',NA,NA,NA,One,SC(LEV1),NA,SC(LEV2),NA,Zero,SC(LSC),NA)
+        ! Obviously, the FOCKTYPE=G3 case can be obtained by just
+        ! squaring the DDTR block into SC.
 
-      ! Focktype=g2 or g3
-      IX = NOSQES+NI+1+NO*NI
-      LSC1 = LSC+NA2
-      LSC2 = LSC1+NA2
-      call DGEMM_('N','N',NA,NA,NA,One,SC(LSC),NA,XMAT(IX),NO,Zero,SC(LSC1),NA)
-      call DGEMM_('N','N',NA,NA,NA,One,SC(LSC1),NA,SC(LSC),NA,Zero,SC(LSC2),NA)
-      do IT=1,NA
-        ITTOT = NI+IT
-        do IU=1,IT
-          IUTOT = NI+IU
-          KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
-          ITU = IT+NA*(IU-1)
-          FIFA(KFIFA) = FIFA(KFIFA)-SC(LSC2-1+ITU)
+        ! Focktype=g2 or g3
+        IX = NOSQES+NI+1+NO*NI
+        LSC1 = LSC+NA2
+        LSC2 = LSC1+NA2
+        call DGEMM_('N','N',NA,NA,NA,One,SC(LSC),NA,XMAT(IX),NO,Zero,SC(LSC1),NA)
+        call DGEMM_('N','N',NA,NA,NA,One,SC(LSC1),NA,SC(LSC),NA,Zero,SC(LSC2),NA)
+        do IT=1,NA
+          ITTOT = NI+IT
+          do IU=1,IT
+            IUTOT = NI+IU
+            KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
+            ITU = IT+NA*(IU-1)
+            FIFA(KFIFA) = FIFA(KFIFA)-SC(LSC2-1+ITU)
+          end do
         end do
-      end do
 
-131   continue
+      end if
       NOSQES = NOSQES+NO**2
       NOTRES = NOTRES+(NO*(NO+1))/2
       NASQES = NASQES+NA**2
@@ -365,6 +360,5 @@ call mma_deallocate(TWOMDSQ)
 call mma_deallocate(DD)
 call mma_deallocate(DDTR)
 call mma_deallocate(XMAT)
-300 continue
 
 end subroutine NEWFOCK

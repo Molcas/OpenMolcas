@@ -48,7 +48,7 @@ integer(kind=iwp) :: i, iAt, iBat, iCMO, iComp, iDo, ie, ik, iloc, iOff, iopt, i
                      kfr, kOff, kto, l_nBas_per_Atom, l_nBas_Start, lBas, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, &
                      lsq, ltri, mAsh, mOff, nActa, nAk, nBasT, nBat, nBk, nBmx, nBx, nOA, nOrb, ns_O(8), ns_V(8), nSQ, nTri, nVV
 real(kind=wp) :: Dumm, E2_ab, E2_Aonly, STrA, STrF, STrX, TrA(8), TrF(8), TrX(8)
-logical(kind=iwp) :: ortho
+logical(kind=iwp) :: ortho, Skip
 character(len=8) :: Label
 character(len=LenIn) :: NamAct(mxAtom)
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:), D_A(:), D_Vir(:)
@@ -212,276 +212,278 @@ end do
 write(u6,*)
 write(u6,'(A,F15.6)') ' Threshold for atom selection: ',Thrs
 write(u6,*)
+Skip = .false.
 if (nActa /= 0) then
   write(u6,'(A,I3,A)') ' Selected ',nActa,' atoms: '
   write(u6,*)
   write(u6,*) (NamAct(i),i=1,nActa)
   write(u6,*)
-elseif ((.not. DoMP2) .and. (.not. DoEnv)) then
-  write(u6,'(A,18A4)') ' Selected atoms: *** None *** '
-  Go To 2000
 else
   write(u6,'(A,18A4)') ' Selected atoms: *** None *** '
+  if ((.not. DoMP2) .and. (.not. DoEnv)) Skip = .true.
 end if
 
-call mma_deallocate(D_A)
-!----------------------------------------------------------------------*
+if (.not. Skip) then
+  call mma_deallocate(D_A)
+  !--------------------------------------------------------------------*
 
-call mma_allocate(OrbE,4*nOrb,Label='OrbE')
-ipOrbE = 1
-call Get_darray('RASSCF OrbE',OrbE(ipOrbE),nOrb)
-call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMOX(ipCMO),nCMO,OrbE(ipOrbE),4*nOrb,TrX)
+  call mma_allocate(OrbE,4*nOrb,Label='OrbE')
+  ipOrbE = 1
+  call Get_darray('RASSCF OrbE',OrbE(ipOrbE),nOrb)
+  call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMOX(ipCMO),nCMO,OrbE(ipOrbE),4*nOrb,TrX)
 
-! MP2 calculation on the whole system (incompatible with DoMP2)
-if (DoEnv) &
-  call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMOX(ipCMO:),size(CMOX(ipCMO:)),OrbE(ipOrbE:),size(OrbE(ipOrbE:)),E2_ab)
-!----------------------------------------------------------------------*
-!     Localize the inactive and virtual orbitals                       *
-!                                                                      *
-!        1) inactive orbitals ---> cholesky orbitals (orthonormal)     *
-!        2) virtual orbitals ---> lin. indep. PAOs (non-orthonormal)   *
-!                                                                      *
-!----------------------------------------------------------------------*
-call mma_allocate(D_vir,nBasT,Label='D_Vir')
-call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMOX(ipCMO:),SQ,D_vir)
+  ! MP2 calculation on the whole system (incompatible with DoMP2)
+  if (DoEnv) &
+    call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMOX(ipCMO:),size(CMOX(ipCMO:)),OrbE(ipOrbE:),size(OrbE(ipOrbE:)),E2_ab)
+  !--------------------------------------------------------------------*
+  !   Localize the inactive and virtual orbitals                       *
+  !                                                                    *
+  !      1) inactive orbitals ---> cholesky orbitals (orthonormal)     *
+  !      2) virtual orbitals ---> lin. indep. PAOs (non-orthonormal)   *
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  call mma_allocate(D_vir,nBasT,Label='D_Vir')
+  call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMOX(ipCMO:),SQ,D_vir)
 
-if (irc /= 0) then
-  write(u6,*) 'Localization failed in LovCASPT2'
-  call Abend()
-end if
+  if (irc /= 0) then
+    write(u6,*) 'Localization failed in LovCASPT2'
+    call Abend()
+  end if
 
-ipEorb = ipOrbE+nOrb
-kEOcc = ipEorb+nOrb
-kEVir = kEOcc+nOrb
-call mma_allocate(Xmo,2*NCMO,Label='XMO')
-iCMO = 1+NCMO
-call mma_allocate(Saa,nOrb,Label='Saa')
-Saa(:) = One
+  ipEorb = ipOrbE+nOrb
+  kEOcc = ipEorb+nOrb
+  kEVir = kEOcc+nOrb
+  call mma_allocate(Xmo,2*NCMO,Label='XMO')
+  iCMO = 1+NCMO
+  call mma_allocate(Saa,nOrb,Label='Saa')
+  Saa(:) = One
 
-! Inactive orbital selection
-!----------------------------------------------------------------------*
-iOff = 0
-kOff = 0
-lOff = 0
-mOff = 0
-do iSym=1,nSym
-  jOff = iOff+nBas(iSym)*nFro(iSym)
-  call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(ipCMO+jOff),1,XMO(1+kOff),1)
-  call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(1+jOff),1,XMO(iCMO+kOff),1)
-  jOff = lOff+nFro(iSym)
-  call dcopy_(nIsh(iSym),OrbE(ipOrbE+jOff),1,OrbE(ipEorb+mOff),1)
-  iOff = iOff+nBas(iSym)**2
-  kOff = kOff+nBas(iSym)*nIsh(iSym)
-  lOff = lOff+nBas(iSym)
-  mOff = mOff+nIsh(iSym)
-end do
-ortho = .true.
-
-call get_Orb_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),SQ,Saa,bName,NamAct,nSym,nActa,nIsh,nBas,ortho,Thrs,ns_O)
-if (irc /= 0) return
-iOff = 0
-kOff = 0
-do iSym=1,nSym
-  lOff = iOff+nBas(iSym)*nFro(iSym)
-  do ik=nIsh(iSym),1,-1
-    jOff = kOff+nBas(iSym)*(ik-1)
-    call dcopy_(nBas(iSym),XMO(iCMO+jOff),1,CMOX(1+lOff),1)
-    lOff = lOff+nBas(iSym)
-  end do
-  iOff = iOff+nBas(iSym)**2
-  kOff = kOff+nBas(iSym)*nIsh(iSym)
-end do
-iloc = 0
-loff = 0
-do iSym=1,nSym
-  do ik=nIsh(iSym),ns_O(iSym)+1,-1
-    ie = ipEorb+loff+ik-1
-    OrbE(kEOcc+iloc) = OrbE(ie)
-    iloc = iloc+1
-  end do
-  loff = loff+nIsh(iSym)
-end do
-joff = 0
-loff = 0
-do iSym=1,nSym
-  koff = joff+nFro(iSym)+nIsh(iSym)-ns_O(iSym)
-  do ik=0,ns_O(iSym)-1
-    ie = ipEorb+loff+ik
-    OrbE(ipOrbE+koff+ik) = OrbE(ie)
-  end do
-  loff = loff+nIsh(iSym)
-  joff = joff+nBas(iSym)
-end do
-
-if (all_Vir) then
-
-  do iSym=1,nSym
-    ns_V(iSym) = nSsh(iSym)
-  end do
-
-else
-
-  ! Virtual orbital selection
+  ! Inactive orbital selection
   !--------------------------------------------------------------------*
   iOff = 0
   kOff = 0
   lOff = 0
   mOff = 0
   do iSym=1,nSym
-    jOff = iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
-    call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(ipCMO+jOff),1,XMO(1+kOff),1)
-    call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(1+jOff),1,XMO(iCMO+kOff),1)
-    jOff = lOff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
-    call dcopy_(nSsh(iSym),OrbE(ipOrbE+jOff),1,OrbE(ipEorb+mOff),1)
+    jOff = iOff+nBas(iSym)*nFro(iSym)
+    call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(ipCMO+jOff),1,XMO(1+kOff),1)
+    call dcopy_(nBas(iSym)*nIsh(iSym),CMOX(1+jOff),1,XMO(iCMO+kOff),1)
+    jOff = lOff+nFro(iSym)
+    call dcopy_(nIsh(iSym),OrbE(ipOrbE+jOff),1,OrbE(ipEorb+mOff),1)
     iOff = iOff+nBas(iSym)**2
-    kOff = kOff+nBas(iSym)*nSsh(iSym)
+    kOff = kOff+nBas(iSym)*nIsh(iSym)
     lOff = lOff+nBas(iSym)
-    mOff = mOff+nSsh(iSym)
+    mOff = mOff+nIsh(iSym)
   end do
-  ortho = .false.
-  call get_Saa(nSym,nBas,nSsh,SQ,size(SQ),XMO,size(XMO),Saa,size(Saa))
+  ortho = .true.
 
-  call get_Vir_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),SQ,bName,NamAct,D_vir,nSym,nActa,nSsh,nBas,ortho,ns_V)
+  call get_Orb_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),SQ,Saa,bName,NamAct,nSym,nActa,nIsh,nBas,ortho,Thrs,ns_O)
   if (irc /= 0) return
-  call mma_deallocate(D_vir)
   iOff = 0
   kOff = 0
   do iSym=1,nSym
-    jOff = iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
-    call dcopy_(nBas(iSym)*nSsh(iSym),XMO(iCMO+kOff),1,CMOX(1+jOff),1)
+    lOff = iOff+nBas(iSym)*nFro(iSym)
+    do ik=nIsh(iSym),1,-1
+      jOff = kOff+nBas(iSym)*(ik-1)
+      call dcopy_(nBas(iSym),XMO(iCMO+jOff),1,CMOX(1+lOff),1)
+      lOff = lOff+nBas(iSym)
+    end do
     iOff = iOff+nBas(iSym)**2
-    kOff = kOff+nBas(iSym)*nSsh(iSym)
+    kOff = kOff+nBas(iSym)*nIsh(iSym)
   end do
   iloc = 0
   loff = 0
   do iSym=1,nSym
-    do ik=ns_V(iSym)+1,nSsh(iSym)
+    do ik=nIsh(iSym),ns_O(iSym)+1,-1
       ie = ipEorb+loff+ik-1
-      OrbE(kEVir+iloc) = OrbE(ie)
+      OrbE(kEOcc+iloc) = OrbE(ie)
       iloc = iloc+1
     end do
-    loff = loff+nSsh(iSym)
+    loff = loff+nIsh(iSym)
   end do
   joff = 0
   loff = 0
   do iSym=1,nSym
-    koff = joff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
-    do ik=0,ns_V(iSym)-1
+    koff = joff+nFro(iSym)+nIsh(iSym)-ns_O(iSym)
+    do ik=0,ns_O(iSym)-1
       ie = ipEorb+loff+ik
       OrbE(ipOrbE+koff+ik) = OrbE(ie)
     end do
+    loff = loff+nIsh(iSym)
     joff = joff+nBas(iSym)
-    loff = loff+nSsh(iSym)
   end do
 
-end if
+  if (all_Vir) then
 
-! MP2 calculation on the Frozen region
-!----------------------------------------------------------------------*
-if (DoMP2) then
-
-  iDo = 0
-  jDo = 0
-  nVV = 0
-  nOA = 0
-  do iSym=1,nSym  ! setup info
-    lnOrb(iSym) = nBas(iSym)
-    lnOcc(iSym) = nIsh(iSym)-ns_O(iSym)
-    lnFro(iSym) = nFro(iSym)+ns_O(iSym)
-    lnDel(iSym) = nDel(iSym)+ns_V(iSym)
-    lnVir(iSym) = nSsh(iSym)-ns_V(iSym)
-    iDo = max(iDo,lnOcc(iSym))
-    jDo = max(jDo,lnVir(iSym))
-    nVV = nVV+lnVir(iSym)**2
-    nOA = nOA+lnOcc(iSym)
-  end do
-  if (min(iDo,jDo) == 0) goto 1000
-
-  call mma_allocate(Dmat,nVV+nOA,Label='DMat')
-  ip_X = 1
-  ip_Y = ip_X+nVV
-  DMat(:) = Zero
-  call FZero(XMO(iCMO),NCMO)
-  iOff = 0
-  do iSym=1,nSym
-    kfr = 1+iOff+nBas(iSym)*nFro(iSym)
-    kto = iCMO+iOff+nBas(iSym)*lnFro(iSym)
-    call dcopy_(nBas(iSym)*lnOcc(iSym),CMOX(kfr),1,XMO(kto),1)
-    kfr = 1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym)+ns_V(iSym))
-    kto = kto+nBas(iSym)*lnOcc(iSym)
-    call dcopy_(nBas(iSym)*lnVir(iSym),CMOX(kfr),1,XMO(kto),1)
-    iOff = iOff+nBas(iSym)**2
-  end do
-  call Check_Amp(nSym,lnOcc,lnVir,iSkip)
-  if (iSkip > 0) then
-    call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.true.)
-    call ChoMP2_Drv(irc,Dumm,XMO(iCMO),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
-    call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.false.)
-    call ChoMP2_Drv(irc,EMP2,XMO(iCMO),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
-    if (irc /= 0) then
-      write(u6,*) 'Frozen region MP2 failed'
-      call Abend()
-    end if
-    iV = ip_X
     do iSym=1,nSym
-      TrF(iSym) = ddot_(lnVir(iSym),DMAT(iV),1+lnVir(iSym),[One],0)
-      iV = iV+lnVir(iSym)**2
+      ns_V(iSym) = nSsh(iSym)
     end do
-  end if
-  call mma_deallocate(Dmat)
-1000 write(u6,*)
 
-  if (nActa == 0) then
-    write(u6,'(A,F18.10)') ' Frozen region MP2 correction: ',EMP2
+  else
+
+    ! Virtual orbital selection
+    !------------------------------------------------------------------*
+    iOff = 0
+    kOff = 0
+    lOff = 0
+    mOff = 0
+    do iSym=1,nSym
+      jOff = iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
+      call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(ipCMO+jOff),1,XMO(1+kOff),1)
+      call dcopy_(nBas(iSym)*nSsh(iSym),CMOX(1+jOff),1,XMO(iCMO+kOff),1)
+      jOff = lOff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
+      call dcopy_(nSsh(iSym),OrbE(ipOrbE+jOff),1,OrbE(ipEorb+mOff),1)
+      iOff = iOff+nBas(iSym)**2
+      kOff = kOff+nBas(iSym)*nSsh(iSym)
+      lOff = lOff+nBas(iSym)
+      mOff = mOff+nSsh(iSym)
+    end do
+    ortho = .false.
+    call get_Saa(nSym,nBas,nSsh,SQ,size(SQ),XMO,size(XMO),Saa,size(Saa))
+
+    call get_Vir_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),SQ,bName,NamAct,D_vir,nSym,nActa,nSsh,nBas,ortho,ns_V)
+    if (irc /= 0) return
+    call mma_deallocate(D_vir)
+    iOff = 0
+    kOff = 0
+    do iSym=1,nSym
+      jOff = iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
+      call dcopy_(nBas(iSym)*nSsh(iSym),XMO(iCMO+kOff),1,CMOX(1+jOff),1)
+      iOff = iOff+nBas(iSym)**2
+      kOff = kOff+nBas(iSym)*nSsh(iSym)
+    end do
+    iloc = 0
+    loff = 0
+    do iSym=1,nSym
+      do ik=ns_V(iSym)+1,nSsh(iSym)
+        ie = ipEorb+loff+ik-1
+        OrbE(kEVir+iloc) = OrbE(ie)
+        iloc = iloc+1
+      end do
+      loff = loff+nSsh(iSym)
+    end do
+    joff = 0
+    loff = 0
+    do iSym=1,nSym
+      koff = joff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
+      do ik=0,ns_V(iSym)-1
+        ie = ipEorb+loff+ik
+        OrbE(ipOrbE+koff+ik) = OrbE(ie)
+      end do
+      joff = joff+nBas(iSym)
+      loff = loff+nSsh(iSym)
+    end do
+
+  end if
+
+  ! MP2 calculation on the Frozen region
+  !--------------------------------------------------------------------*
+  if (DoMP2) then
+
+    iDo = 0
+    jDo = 0
+    nVV = 0
+    nOA = 0
+    do iSym=1,nSym  ! setup info
+      lnOrb(iSym) = nBas(iSym)
+      lnOcc(iSym) = nIsh(iSym)-ns_O(iSym)
+      lnFro(iSym) = nFro(iSym)+ns_O(iSym)
+      lnDel(iSym) = nDel(iSym)+ns_V(iSym)
+      lnVir(iSym) = nSsh(iSym)-ns_V(iSym)
+      iDo = max(iDo,lnOcc(iSym))
+      jDo = max(jDo,lnVir(iSym))
+      nVV = nVV+lnVir(iSym)**2
+      nOA = nOA+lnOcc(iSym)
+    end do
+    if (min(iDo,jDo) /= 0) then
+
+      call mma_allocate(Dmat,nVV+nOA,Label='DMat')
+      ip_X = 1
+      ip_Y = ip_X+nVV
+      DMat(:) = Zero
+      call FZero(XMO(iCMO),NCMO)
+      iOff = 0
+      do iSym=1,nSym
+        kfr = 1+iOff+nBas(iSym)*nFro(iSym)
+        kto = iCMO+iOff+nBas(iSym)*lnFro(iSym)
+        call dcopy_(nBas(iSym)*lnOcc(iSym),CMOX(kfr),1,XMO(kto),1)
+        kfr = 1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym)+ns_V(iSym))
+        kto = kto+nBas(iSym)*lnOcc(iSym)
+        call dcopy_(nBas(iSym)*lnVir(iSym),CMOX(kfr),1,XMO(kto),1)
+        iOff = iOff+nBas(iSym)**2
+      end do
+      call Check_Amp(nSym,lnOcc,lnVir,iSkip)
+      if (iSkip > 0) then
+        call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.true.)
+        call ChoMP2_Drv(irc,Dumm,XMO(iCMO),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
+        call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.false.)
+        call ChoMP2_Drv(irc,EMP2,XMO(iCMO),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
+        if (irc /= 0) then
+          write(u6,*) 'Frozen region MP2 failed'
+          call Abend()
+        end if
+        iV = ip_X
+        do iSym=1,nSym
+          TrF(iSym) = ddot_(lnVir(iSym),DMAT(iV),1+lnVir(iSym),[One],0)
+          iV = iV+lnVir(iSym)**2
+        end do
+      end if
+      call mma_deallocate(Dmat)
+
+    end if
     write(u6,*)
+
+    if (nActa == 0) then
+      write(u6,'(A,F18.10)') ' Frozen region MP2 correction: ',EMP2
+      write(u6,*)
+    end if
   end if
+
+  !--------------------------------------------------------------------*
+
+  call mma_deallocate(Saa)
+  call mma_deallocate(XMO)
+
+  ! Update the nFro, nIsh, nSsh, nDel for the Active site CASPT2
+  do iSym=1,nSym
+    nFro(iSym) = nFro(iSym)+nIsh(iSym)-ns_O(iSym)
+    nIsh(iSym) = ns_O(iSym)
+    nDel(iSym) = nDel(iSym)+nSsh(iSym)-ns_V(iSym)
+    nSsh(iSym) = ns_V(iSym)
+    iDo = max(iDo,nIsh(iSym))
+    jDo = max(jDo,nSsh(iSym))
+  end do
+
+  call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMOX,nCMO,OrbE(ipOrbE),4*nOrb,TrA)
+
+  write(u6,*) '------------------------------------------------------'
+  write(u6,*) ' Symm.  Tr(D):  Active        Frozen        Full      '
+  write(u6,*) '------------------------------------------------------'
+  STrA = Zero
+  STrF = Zero
+  STrX = Zero
+  do iSym=1,nSym
+    if (DoEnv) TrF(iSym) = TrX(iSym) ! just a convention
+    write(u6,'(2X,I4,10X,G11.4,3X,G11.4,3X,G11.4)') iSym,TrA(iSym),TrF(iSym),TrX(iSym)
+    STrA = STrA+TrA(iSym)
+    STrF = STrF+TrF(iSym)
+    STrX = STrX+TrX(iSym)
+  end do
+  write(u6,*) '------------------------------------------------------'
+  write(u6,'(A,G11.4,3X,G11.4,3X,G11.4)') '          Sum:  ',STrA,STrF,STrX
+  write(u6,*) '------------------------------------------------------'
+  write(u6,*)
+
+  if (DoEnv) then
+    call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMOX,size(CMOX),OrbE(ipOrbE:),size(OrbE(ipOrbE:)),E2_Aonly)
+    EMP2 = E2_ab-E2_Aonly
+    !write(u6,'(A,F18.10)') ' MP2 correction (environment): ',EMP2
+    !write(u6,*)
+  end if
+
+  call mma_deallocate(OrbE)
 end if
 
-!----------------------------------------------------------------------*
-
-call mma_deallocate(Saa)
-call mma_deallocate(XMO)
-
-! Update the nFro, nIsh, nSsh, nDel for the Active site CASPT2
-do iSym=1,nSym
-  nFro(iSym) = nFro(iSym)+nIsh(iSym)-ns_O(iSym)
-  nIsh(iSym) = ns_O(iSym)
-  nDel(iSym) = nDel(iSym)+nSsh(iSym)-ns_V(iSym)
-  nSsh(iSym) = ns_V(iSym)
-  iDo = max(iDo,nIsh(iSym))
-  jDo = max(jDo,nSsh(iSym))
-end do
-
-call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMOX,nCMO,OrbE(ipOrbE),4*nOrb,TrA)
-
-write(u6,*) '------------------------------------------------------'
-write(u6,*) ' Symm.  Tr(D):  Active        Frozen        Full      '
-write(u6,*) '------------------------------------------------------'
-STrA = Zero
-STrF = Zero
-STrX = Zero
-do iSym=1,nSym
-  if (DoEnv) TrF(iSym) = TrX(iSym) ! just a convention
-  write(u6,'(2X,I4,10X,G11.4,3X,G11.4,3X,G11.4)') iSym,TrA(iSym),TrF(iSym),TrX(iSym)
-  STrA = STrA+TrA(iSym)
-  STrF = STrF+TrF(iSym)
-  STrX = STrX+TrX(iSym)
-end do
-write(u6,*) '------------------------------------------------------'
-write(u6,'(A,G11.4,3X,G11.4,3X,G11.4)') '          Sum:  ',STrA,STrF,STrX
-write(u6,*) '------------------------------------------------------'
-write(u6,*)
-
-if (DoEnv) then
-  call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMOX,size(CMOX),OrbE(ipOrbE:),size(OrbE(ipOrbE:)),E2_Aonly)
-  EMP2 = E2_ab-E2_Aonly
-  !write(u6,'(A,F18.10)') ' MP2 correction (environment): ',EMP2
-  !write(u6,*)
-end if
-
-call mma_deallocate(OrbE)
-
-2000 continue
 if (min(iDo,jDo) == 0) then
   write(u6,*)
   write(u6,*) ' None of the inactive or virtual orbitals has been'

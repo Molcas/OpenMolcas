@@ -41,10 +41,10 @@ do I=1,N
     IJ = I+N*(J-1)
     JI = J+N*(I-1)
     KLT = 0
-    do K=1,N
+    outer: do K=1,N
       do L=1,K
         KLT = KLT+1
-        if (KLT > IJT) goto 130
+        if (KLT > IJT) exit outer
         IJKLT = IJKLT+1
         KL = K+N*(L-1)
         LK = L+N*(K-1)
@@ -68,8 +68,7 @@ do I=1,N
         PREF(JIKL) = P2
         PREF(JILK) = P1
       end do
-    end do
-130 continue
+    end do outer
   end do
 end do
 

@@ -16,7 +16,6 @@ subroutine DERFG3(CI,NCONF,NLEV,NG3,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
 use sguga, only: CIS, EXS, L2ACT, SGS
-use Molcas, only: MxLev
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use caspt2_global, only: iPrGlb, nbuf1_grad
 use caspt2_module, only: EPSA, MxCI, nActEl, nSym, STSym

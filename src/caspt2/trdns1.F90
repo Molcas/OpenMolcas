@@ -66,104 +66,103 @@ do ISYM=1,NSYM
 end do
 
 IMLTOP = 1
-if (NWTI == 0) goto 110
-call mma_allocate(WTI,NWTI,LABEL='WTI')
-WTI(:) = Zero
-ICASE = 1
-IWOFF = 1
-do ISYM=1,NSYM
-  if (NINDEP(ISYM,ICASE) == 0) goto 100
-  NIS = NISUP(ISYM,ICASE)
-  NAS = NASUP(ISYM,ICASE)
-  NVEC = NIS*NAS
-  if (NVEC == 0) goto 100
-  call RHS_ALLO(NAS,NIS,LVEC)
-  call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
-  FACT = One/real(max(1,NACTEL),kind=wp)
-# ifdef _MOLCAS_MPP_
-  if (IS_REAL_PAR()) then
-    if (KING()) then
-      call mma_allocate(TMP,NVEC,Label='TMP')
-      call RHS_GET(NAS,NIS,LVEC,TMP)
-      call SPEC1A(IMLTOP,FACT,ISYM,TMP,size(TMP),WTI(IWOFF),size(WTI(IWOFF:)))
-      call mma_deallocate(TMP)
+if (NWTI /= 0) then
+  call mma_allocate(WTI,NWTI,LABEL='WTI')
+  WTI(:) = Zero
+  ICASE = 1
+  IWOFF = 1
+  do ISYM=1,NSYM
+    if (NINDEP(ISYM,ICASE) == 0) cycle
+    NIS = NISUP(ISYM,ICASE)
+    NAS = NASUP(ISYM,ICASE)
+    NVEC = NIS*NAS
+    if (NVEC == 0) cycle
+    call RHS_ALLO(NAS,NIS,LVEC)
+    call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
+    FACT = One/real(max(1,NACTEL),kind=wp)
+#   ifdef _MOLCAS_MPP_
+    if (IS_REAL_PAR()) then
+      if (KING()) then
+        call mma_allocate(TMP,NVEC,Label='TMP')
+        call RHS_GET(NAS,NIS,LVEC,TMP)
+        call SPEC1A(IMLTOP,FACT,ISYM,TMP,size(TMP),WTI(IWOFF),size(WTI(IWOFF:)))
+        call mma_deallocate(TMP)
+      end if
+    else
+#   endif
+      call SPEC1A(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%A,size(GA_Arrays(LVEC)%A),WTI(IWOFF),size(WTI(IWOFF:)))
+#   ifdef _MOLCAS_MPP_
     end if
-  else
-# endif
-    call SPEC1A(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%A,size(GA_Arrays(LVEC)%A),WTI(IWOFF),size(WTI(IWOFF:)))
-# ifdef _MOLCAS_MPP_
-  end if
-# endif
-  call RHS_FREE(LVEC)
-  IWOFF = IWOFF+NASH(ISYM)*NISH(ISYM)
-100 continue
-end do
-110 continue
-
-if (NWAT == 0) goto 210
-call mma_allocate(WAT,NWAT,Label='WAT')
-WAT(:) = Zero
-ICASE = 4
-IWOFF = 1
-do ISYM=1,NSYM
-  if (NINDEP(ISYM,ICASE) == 0) goto 200
-  NIS = NISUP(ISYM,ICASE)
-  NAS = NASUP(ISYM,ICASE)
-  NVEC = NIS*NAS
-  if (NVEC == 0) goto 200
-  if (NSSH(ISYM)*NASH(ISYM) == 0) goto 200
-  call RHS_ALLO(NAS,NIS,LVEC)
-  call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
-  FACT = One/real(max(1,NACTEL),kind=wp)
-# ifdef _MOLCAS_MPP_
-  if (IS_REAL_PAR()) then
-    if (KING()) then
-      call mma_allocate(TMP,NVEC,LABEL='TMP')
-      call RHS_GET(NAS,NIS,LVEC,TMP)
-      call SPEC1C(IMLTOP,FACT,ISYM,TMP,size(TMP),WAT(IWOFF),size(WAT(IWOFF:)))
-      call mma_deallocate(TMP)
-    end if
-  else
-# endif
-    call SPEC1C(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%A,size(GA_Arrays(LVEC)%A),WAT(IWOFF),size(WAT(IWOFF:)))
-# ifdef _MOLCAS_MPP_
-  end if
-# endif
-  call RHS_FREE(LVEC)
-  IWOFF = IWOFF+NSSH(ISYM)*NASH(ISYM)
-200 continue
-end do
-210 continue
-
-if (NWAI == 0) goto 300
-call mma_allocate(WAI,NWAI,Label='WAI')
-WAI(:) = Zero
-ICASE = 5
-ISYM = 1
-if (NINDEP(ISYM,ICASE) == 0) goto 300
-NIS = NISUP(ISYM,ICASE)
-NAS = NASUP(ISYM,ICASE)
-NVEC = NIS*NAS
-if (NVEC == 0) goto 300
-call RHS_ALLO(NAS,NIS,LVEC)
-call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
-FACT = One/real(max(1,NACTEL),kind=wp)
-#ifdef _MOLCAS_MPP_
-if (IS_REAL_PAR()) then
-  if (KING()) then
-    call mma_allocate(TMP,NVEC,LABEL='TMP')
-    call RHS_GET(NAS,NIS,LVEC,TMP)
-    call SPEC1D(IMLTOP,FACT,TMP,NVEC,WAI,NWAI)
-    call mma_deallocate(TMP)
-  end if
-else
-#endif
-  call SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC)%A,size(GA_Arrays(LVEC)%A),WAI,nWAI)
-#ifdef _MOLCAS_MPP_
+#   endif
+    call RHS_FREE(LVEC)
+    IWOFF = IWOFF+NASH(ISYM)*NISH(ISYM)
+  end do
 end if
-#endif
-call RHS_FREE(LVEC)
-300 continue
+
+if (NWAT /= 0) then
+  call mma_allocate(WAT,NWAT,Label='WAT')
+  WAT(:) = Zero
+  ICASE = 4
+  IWOFF = 1
+  do ISYM=1,NSYM
+    if (NINDEP(ISYM,ICASE) == 0) cycle
+    NIS = NISUP(ISYM,ICASE)
+    NAS = NASUP(ISYM,ICASE)
+    NVEC = NIS*NAS
+    if (NVEC == 0) cycle
+    if (NSSH(ISYM)*NASH(ISYM) == 0) cycle
+    call RHS_ALLO(NAS,NIS,LVEC)
+    call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
+    FACT = One/real(max(1,NACTEL),kind=wp)
+#   ifdef _MOLCAS_MPP_
+    if (IS_REAL_PAR()) then
+      if (KING()) then
+        call mma_allocate(TMP,NVEC,LABEL='TMP')
+        call RHS_GET(NAS,NIS,LVEC,TMP)
+        call SPEC1C(IMLTOP,FACT,ISYM,TMP,size(TMP),WAT(IWOFF),size(WAT(IWOFF:)))
+        call mma_deallocate(TMP)
+      end if
+    else
+#   endif
+      call SPEC1C(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%A,size(GA_Arrays(LVEC)%A),WAT(IWOFF),size(WAT(IWOFF:)))
+#   ifdef _MOLCAS_MPP_
+    end if
+#   endif
+    call RHS_FREE(LVEC)
+    IWOFF = IWOFF+NSSH(ISYM)*NASH(ISYM)
+  end do
+end if
+
+if (NWAI /= 0) then
+  call mma_allocate(WAI,NWAI,Label='WAI')
+  WAI(:) = Zero
+  ICASE = 5
+  do ISYM=1,1
+    if (NINDEP(ISYM,ICASE) == 0) cycle
+    NIS = NISUP(ISYM,ICASE)
+    NAS = NASUP(ISYM,ICASE)
+    NVEC = NIS*NAS
+    if (NVEC == 0) cycle
+    call RHS_ALLO(NAS,NIS,LVEC)
+    call RHS_READ(NAS,NIS,LVEC,ICASE,ISYM,IVEC)
+    FACT = One/real(max(1,NACTEL),kind=wp)
+#   ifdef _MOLCAS_MPP_
+    if (IS_REAL_PAR()) then
+      if (KING()) then
+        call mma_allocate(TMP,NVEC,LABEL='TMP')
+        call RHS_GET(NAS,NIS,LVEC,TMP)
+        call SPEC1D(IMLTOP,FACT,TMP,NVEC,WAI,NWAI)
+        call mma_deallocate(TMP)
+      end if
+    else
+#   endif
+      call SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC)%A,size(GA_Arrays(LVEC)%A),WAI,nWAI)
+#   ifdef _MOLCAS_MPP_
+    end if
+#   endif
+    call RHS_FREE(LVEC)
+  end do
+end if
 
 ! Transform vectors back to eigenbasis of H0(diag).
 call PTRTOSR(0,IVEC,IVEC)
