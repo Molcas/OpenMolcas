@@ -119,7 +119,7 @@ if (RFpert) then
   call Get_dArray('Reaction field',Temp,nTemp)
   if (Found) call NameRun('#Pop')
   PotNuc = PotNuc+ERFself
-  call Daxpy_(nTemp,One,Temp,1,WFLT,1)
+  WFLT(1:nTemp) = WFLT(1:nTemp)+Temp(:)
 
   call mma_deallocate(Temp)
   if (IFTEST /= 0) then

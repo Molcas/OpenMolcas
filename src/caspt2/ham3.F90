@@ -43,7 +43,7 @@ real(kind=wp), allocatable :: SGM1(:), SGM2(:)
 nLev = SGS%nLev
 
 if (NCONF == 0) return
-if (abs(OP0) > 1.0e-15_wp) call DAXPY_(NCONF,OP0,CI,1,SGM,1)
+if (abs(OP0) > 1.0e-15_wp) SGM(1:NCONF) = SGM(1:NCONF)+OP0*CI(1:NCONF)
 if (NACTEL == 0) return
 
 ! Unless this is a special-case wave function, reserve space

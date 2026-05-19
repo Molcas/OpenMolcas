@@ -162,7 +162,7 @@ if (ISCF == 0) then
       IYS = IASYM(IY)
       IZS = IASYM(IZ)
       ISSG2 = Mul(Mul(IYS,IZS),LSYM2)
-      call DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
+      TG3WRK(LTO:LTO+MXCI-1) = Zero
       ! LTO is first element of Sigma2 = E(YZ) Psi2
       call SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
       if (ISSG2 == LSYM1) TG1(IY,IZ) = DDOT_(NCI1,CI1,1,TG3WRK(LTO),1)
@@ -182,7 +182,7 @@ if (ISCF == 0) then
         ITS = IASYM(IT)
         IUS = IASYM(IU)
         ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
-        call DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
+        TG3WRK(LTO:LTO+MXCI-1) = Zero
         call SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
         LTO = LTO+MXCI
       end do
@@ -213,7 +213,7 @@ if (ISCF == 0) then
           IXS = IASYM(IX)
           ISTAU = Mul(Mul(IVS,IXS),ISSG2)
           NTAU = CIS%NCSF(ISTAU)
-          call DCOPY_(MXCI,[Zero],0,TG3WRK(LTAU),1)
+          TG3WRK(LTAU:LTAU+MXCI-1) = Zero
           ! LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           call SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           if (ISTAU == LSYM1) TG2(IV,IX,IY,IZ) = DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)

@@ -45,9 +45,9 @@ integer(kind=iwp), external :: iPARDIV
 call_from_grad = .false.
 if (iStpGrd == -1) call_from_grad = .true.
 
-call ICopy(NSYM,NISH,1,nSh(1,Inactive),1)
-call ICopy(NSYM,NASH,1,nSh(1,Active),1)
-call ICopy(NSYM,NSSH,1,nSh(1,Virtual),1)
+nSh(1:NSYM,Inactive) = NISH(1:NSYM)
+nSh(1:NSYM,Active) = NASH(1:NSYM)
+nSh(1:NSYM,Virtual) = NSSH(1:NSYM)
 
 !SVC: compute the maximum RHS size that will be allocated per node, this
 !     will be later allocated when addrhs routines are called. If global

@@ -73,16 +73,16 @@ if (IPRGLB >= VERBOSE) then
   I2 = 1
   do ISYM=1,NSYM
     if (NFRO(ISYM) > 0) then
-      call DCOPY_(NFRO(ISYM),[Zero],0,ORBE(I2),1)
+      ORBE(I2:I2+NFRO(ISYM)-1) = Zero
       I2 = I2+NFRO(ISYM)
     end if
     if (NORB(ISYM) > 0) then
-      call DCOPY_(NORB(ISYM),EPS(I1),1,ORBE(I2),1)
+      ORBE(I2:I2+NORB(ISYM)-1) = EPS(I1:I1+NORB(ISYM)-1)
       I1 = I1+NORB(ISYM)
       I2 = I2+NORB(ISYM)
     end if
     if (NDEL(ISYM) > 0) then
-      call DCOPY_(NDEL(ISYM),[Zero],0,ORBE(I2),1)
+      ORBE(I2:I2+NDEL(ISYM)-1) = Zero
       I2 = I2+NDEL(ISYM)
     end if
   end do

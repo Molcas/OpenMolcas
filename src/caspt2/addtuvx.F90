@@ -14,8 +14,6 @@ subroutine ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,TUVX,nTUVX,PIQK,nPI
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
-#else
-use Constants, only: One
 #endif
 
 implicit none
@@ -60,7 +58,7 @@ do iX=0,NK-1
         TUVX(iTUVX) = TUVX(iTUVX)+PIQK(iPIQK)
       end do
 #     else
-      call DaXpY_(nP,One,PIQK(1+iUVX2),1,TUVX(1+iOffP+iUVX1),1)
+      TUVX(1+iOffP+iUVX1:nP+iOffP+iUVX1) = TUVX(1+iOffP+iUVX1:nP+iOffP+iUVX1)+PIQK(1+iUVX2:nP+iUVX2)
 #     endif
     end do
   end do

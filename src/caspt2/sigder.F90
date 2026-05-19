@@ -86,7 +86,7 @@ do iCase=1,11
 end do
 
 call mma_allocate(WRK,MaxLen,Label='WRK')
-call DCopy_(MaxLen,[Zero],0,WRK,1)
+WRK(:) = Zero
 
 do iCase=1,11
   do iSym=1,nSym

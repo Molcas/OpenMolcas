@@ -77,7 +77,7 @@ do iSymp=1,nSym
   if (nUse(iSymp) /= 0) then
     iSymb = Mul(JSYM,iSymp)
     nElem = nUse(iSymp)*nBas(iSymb)*NUMV
-    call dCopy_(nElem,[Zero],0,Work(ipChoT(iSymp)),1)
+    Work(ipChoT(iSymp):ipChoT(iSymp)+nElem-1) = Zero
   end if
 end do
 

@@ -12,6 +12,7 @@
 subroutine Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO,nCMO)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -34,7 +35,7 @@ do iSym=1,nSym
   if (nIsh(iSym) > 0) then
     kOff1 = 1+kOffC+nBas(iSym)*nFro(iSym)
     call GetDens_Localisation(Dens,CMO(kOff1),nBas(iSym),nIsh(iSym))
-    call FZero(CMO(kOff1),nBas(iSym)*nIsh(iSym))
+    CMO(kOff1:kOff1+nBas(iSym)*nIsh(iSym)-1) = Zero
     call ChoLoc(irc,Dens,CMO(kOff1),Thrs,yNrm,nBas(iSym),nIsh(iSym))
     if (irc /= 0) then
       call mma_deallocate(Dens)
@@ -45,7 +46,7 @@ do iSym=1,nSym
   if (nSsh(iSym) > 0) then
     kOff1 = 1+kOffC+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
     call GetDens_Localisation(Dens,CMO(kOff1),nBas(iSym),nSsh(iSym))
-    call FZero(CMO(kOff1),nBas(iSym)*nSsh(iSym))
+    CMO(kOff1:kOff1+nBas(iSym)*nSsh(iSym)-1) = Zero
     call ChoLoc(irc,Dens,CMO(kOff1),Thrs,yNrm,nBas(iSym),nSsh(iSym))
     if (irc /= 0) then
       call mma_deallocate(Dens)

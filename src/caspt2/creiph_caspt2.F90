@@ -38,7 +38,6 @@ implicit none
 integer(kind=iwp), intent(in) :: Nstate
 real(kind=wp), intent(in) :: Heff(Nstate,Nstate), Ueff(Nstate,Nstate), U0(Nstate,Nstate)
 integer(kind=iwp) :: I, IAD15, ID, IDISK, IDR, IDW, IISTATE, ISNUM, ISTATE, J, JOBIPH, JOBMIX, JSNUM, MROOTS, NIDIST, NOLDE
-real(kind=wp) :: X
 integer(kind=iwp), allocatable :: IDIST(:), JROOT(:), xL2Act(:), xLevel(:)
 real(kind=wp), allocatable :: CI1(:), CI2(:), EFFCP(:), OLDE(:), Weight_(:)
 
@@ -94,13 +93,13 @@ IAD15 = IADR15(1)
 ! Modify root index in case of MS
 call mma_allocate(JROOT,MXROOT,LABEL='JROOT')
 if (IFMSCOUP) then
-  call ICOPY(MXROOT,[0],0,JROOT,1)
+  JROOT(:) = 0
   do ISTATE=1,NSTATE
     JROOT(ISTATE) = ISTATE
   end do
   MROOTS = NSTATE
 else
-  call ICOPY(MXROOT,IROOT,1,JROOT,1)
+  JROOT(:) = IROOT(:)
   MROOTS = NROOTS
 end if
 call mma_allocate(Weight_,MxRoot,Label='Weight_')
@@ -139,7 +138,7 @@ NOLDE = MXROOT*MXITER
 call mma_allocate(OLDE,NOLDE,LABEL='OLDE')
 OLDE(:) = Zero
 if (IFMSCOUP) then
-  call DCOPY_(NSTATE,ENERGY,1,OLDE,1)
+  OLDE(1:NSTATE) = ENERGY(1:NSTATE)
 else
   do ISTATE=1,NSTATE
     ISNUM = MSTATE(ISTATE)
@@ -200,7 +199,7 @@ if (IFMSCOUP) then
   call DDAFILE(JOBIPH,1,EFFCP,LROOTS**2,IAD15)
   ! Write a diagonal Hamiltonian in the JOBMIX:
   IAD15 = IADR15(17)
-  call DCOPY_(LROOTS**2,[Zero],0,EFFCP,1)
+  EFFCP(:) = Zero
   do ISTATE=1,NSTATE
     EFFCP((ISTATE-1)*LROOTS+ISTATE) = ENERGY(ISTATE)
   end do
@@ -212,13 +211,12 @@ if (IFMSCOUP) then
     call CollapseOutput(1,'Mixed CI coefficients:')
   end if
   do ISTATE=1,NSTATE
-    call DCOPY_(MXCI,[Zero],0,CI2,1)
+    CI2(:) = Zero
     do IISTATE=1,NSTATE
       JSNUM = MSTATE(IISTATE)
       IDISK = IDIST(JSNUM)
       call DDAFILE(JOBIPH,2,CI1,NCONF,IDISK)
-      X = Ueff(IISTATE,ISTATE)
-      call DAXPY_(NCONF,X,CI1,1,CI2,1)
+      CI2(1:NCONF) = CI2(1:NCONF)+Ueff(IISTATE,ISTATE)*CI1(1:NCONF)
     end do
     if (ISCF == 0) then
       if (IPRGLB >= USUAL) then
@@ -239,13 +237,12 @@ else if (IFXMS .or. IFRMS) then
   ! in grpini)
   do ISTATE=1,NSTATE
     ISNUM = MSTATE(ISTATE)
-    call DCOPY_(MXCI,[Zero],0,CI2,1)
+    CI2(:) = Zero
     do IISTATE=1,NSTATE
       JSNUM = MSTATE(IISTATE)
       IDISK = IDIST(JSNUM)
       call DDAFILE(JOBIPH,2,CI1,NCONF,IDISK)
-      X = U0(IISTATE,ISTATE)
-      call DAXPY_(NCONF,X,CI1,1,CI2,1)
+      CI2(1:NCONF) = CI2(1:NCONF)+U0(IISTATE,ISTATE)*CI1(1:NCONF)
     end do
     IDISK = IDIST(ISNUM)
     call DDAFILE(JOBMIX,1,CI2,NCONF,IDISK)

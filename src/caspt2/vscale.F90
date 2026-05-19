@@ -32,19 +32,13 @@ real(kind=wp), intent(in) :: EIG(NAS), SCA(NAS)
 real(kind=wp), intent(inout) :: V(LDV,*)
 real(kind=wp), intent(out) :: COND(NIN)
 integer(kind=iwp) :: I, iVec, J, jVEC
-real(kind=wp) :: EVAL, FACT, SZ
+real(kind=wp) :: SZ
 
 jVEC = 0
 do J=1,NAS
-  EVAL = EIG(J)
-  if (EVAL >= THRSHS) then
+  if (EIG(J) >= THRSHS) then
     jVEC = jVEC+1
-    FACT = One/sqrt(EVAL)
-    if (jVEC == J) then
-      call DSCAL_(nRows,FACT,V(1,J),1)
-    else
-      call DYAX(nRows,FACT,V(1,J),1,V(1,jVEC),1)
-    end if
+    V(:,jVEC) = V(:,J)/sqrt(EIG(J))
   end if
 end do
 if (jVEC /= NIN) then
@@ -52,8 +46,8 @@ if (jVEC /= NIN) then
   call AbEnd()
 end if
 ! Addition, for the scaled symmetric ON.
-do I=1,nRows
-  call DSCAL_(NIN,SCA(I),V(I,1),LDV)
+do I=1,NIN
+  V(1:nRows,I) = SCA(1:nRows)*V(1:nRows,I)
 end do
 ! The condition number, after scaling, disregarding linear dep.
 if (NIN >= 2) then

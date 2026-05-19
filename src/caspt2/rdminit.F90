@@ -15,7 +15,7 @@ subroutine rdminit()
 
 use PrintLevel, only: DEBUG
 #ifdef _DMRG_
-use iso_c_binding, only: c_int
+use, intrinsic :: iso_c_binding, only: c_int
 use qcmaquis_interface, only: qcmaquis_interface_set_state
 use caspt2_module, only: DMRG, mState
 #endif
@@ -82,7 +82,7 @@ do I=1,Nstate
     ! is already in DMIX (contributions of other states already computed)
     ! and store it in DMIX
     DMIX(:,J) = DMIX(:,J)+wij*DREF(:)
-    !call daxpy_(SIZE(DREF),wij,DREF,1,DMIX(:,J),1)
+    !DMIX(:,J) = DMIX(:,J)+wij*DREF(:)
   end do
 
   ! End of long loop over states

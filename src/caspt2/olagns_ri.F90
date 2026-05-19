@@ -465,23 +465,23 @@ subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,iCase,nBra,nKet,Cho_Bra,Cho_Ket,Cho_BraD,C
       !! NBUFF(=nAddBuf) is removed
       select case (iCase)
         case ('A ')
-          call OLagNS_RI_A(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
+          call OLagNS_RI_A(ISYI,ISYK,NP,NI,NQ,NK,PIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('B ')
-          call OLagNS_RI_B(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
+          call OLagNS_RI_B(ISYI,ISYK,NP,NI,NQ,NK,PIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('D1')
-          call OLagNS_RI_D1(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
+          call OLagNS_RI_D1(ISYI,ISYK,NP,NI,NQ,NK,PIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('H ')
           call OLagNS_RI_H(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('C ')
-          call OLagNS_RI_C(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
+          call OLagNS_RI_C(ISYI,ISYK,NP,NI,NQ,NK,PIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('F ')
-          call OLagNS_RI_F(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
+          call OLagNS_RI_F(ISYI,ISYK,NP,NI,NQ,NK,PIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('D2')
-          call OLagNS_RI_D2(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
+          call OLagNS_RI_D2(ISYI,ISYK,NP,NI,NQ,NK,PIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('G ')
           call OLagNS_RI_G(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('E ')
-          call OLagNS_RI_E(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
+          call OLagNS_RI_E(ISYI,ISYK,NP,NI,NQ,NK,PIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case default
           call Abend()
       end select
@@ -497,12 +497,12 @@ subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,iCase,nBra,nKet,Cho_Bra,Cho_Ket,Cho_BraD,C
 
 end subroutine OLagNS_RI2
 
-subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,NTJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
+subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
   use SUPERINDEX, only: KTUV
   use caspt2_global, only: do_csf
 
-  integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NJ, NV, NX, NTJVX, NCHO
+  integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NJ, NV, NX, NCHO
   real(kind=wp), intent(out) :: TJVX(NT,NJ,NV,NX)
   real(kind=wp), intent(in) :: Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NT,NJ,NCHO), Cho_KetD(NV,NX,NCHO)
@@ -558,7 +558,7 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,NTJVX,Cho_Bra,Cho_Ket,Cho_BraD
     end if
   end if
 
-  call DCopy_(NTJVX,[Zero],0,TJVX,1)
+  TJVX(:,:,:,:) = Zero
 
   nOrbT = nFro(iSyT)+nIsh(iSyT)+nAsh(iSyT)+nSsh(iSyT)
   do IT=1,NT
@@ -610,11 +610,11 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,NTJVX,Cho_Bra,Cho_Ket,Cho_BraD
 
 end subroutine OLagNS_RI_A
 
-subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
+subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
   use SUPERINDEX, only: KIGEJ, KIGTJ, KTGEU, KTGTU
 
-  integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NJ, NV, NL, NTJVL, NCHO
+  integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NJ, NV, NL, NCHO
   real(kind=wp), intent(out) :: TJVL(NT,NJ,NV,NL)
   real(kind=wp), intent(in) :: Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NT,NJ,NCHO), Cho_KetD(NV,NL,NCHO)
@@ -648,7 +648,7 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,Cho_Bra,Cho_Ket,Cho_BraD
   end if
   if (max(NWBP,NWBM) <= 0) return
 
-  call DCopy_(NTJVL,[Zero],0,TJVL,1)
+  TJVL(:,:,:,:) = Zero
 
   if ((NWBP > 0) .and. (NINDEP(ISYM,2) > 0)) then
     !! Read the T-amplitude
@@ -789,12 +789,12 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,Cho_Bra,Cho_Ket,Cho_BraD
 
 end subroutine OLagNS_RI_B
 
-subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,NAUVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
+subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
   use SUPERINDEX, only: KTUV
   use caspt2_global, only: do_csf
 
-  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NV, NX, NAUVX, NCHO
+  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NV, NX, NCHO
   real(kind=wp), intent(out) :: AUVX(NA,NU,NV,NX)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO), Cho_KetD(NV,NX,NCHO)
@@ -850,7 +850,7 @@ subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,NAUVX,Cho_Bra,Cho_Ket,Cho_BraD
     end if
   end if
 
-  call DCopy_(NAUVX,[Zero],0,AUVX,1)
+  AUVX(:,:,:,:) = Zero
 
   nOrbA = nFro(iSyA)+nIsh(iSyA)+nAsh(iSyA)+nSsh(iSyA)
   do IA=1,NA
@@ -904,12 +904,12 @@ subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,NAUVX,Cho_Bra,Cho_Ket,Cho_BraD
 
 end subroutine OLagNS_RI_C
 
-subroutine OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,NAJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
+subroutine OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
   use SUPERINDEX, only: KTU
   use caspt2_global, only: do_csf
 
-  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NX, NAJVX, NCHO
+  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NX, NCHO
   real(kind=wp), intent(out) :: AJVX(NV,NX,NA*NJ)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO), Cho_KetD(NV,NX,NCHO)
@@ -985,7 +985,7 @@ subroutine OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,NAJVX,Cho_Bra,Cho_Ket,Cho_Bra
       NJSZ = IJEND-IJSTA+1
 
       IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-      call DCopy_(NAJVX,[Zero],0,AJVX,1)
+      AJVX(:,:,:) = Zero
 
       nOrbA = nFro(iSyA)+nIsh(iSyA)+nAsh(iSyA)+nSsh(iSyA)
       IAJ = 0
@@ -1036,11 +1036,11 @@ subroutine OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,NAJVX,Cho_Bra,Cho_Ket,Cho_Bra
 
 end subroutine OLagNS_RI_D1
 
-subroutine OLagNS_RI_D2(ISYI,ISYK,NA,NU,NV,NL,AUVL,NAUVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
+subroutine OLagNS_RI_D2(ISYI,ISYK,NA,NU,NV,NL,AUVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
   use SUPERINDEX, only: KTU
 
-  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NV, NL, NAUVL, NCHO
+  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NV, NL, NCHO
   real(kind=wp), intent(out) :: AUVL(NA,NU,NV,NL)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO), Cho_KetD(NV,NL,NCHO)
@@ -1105,7 +1105,7 @@ subroutine OLagNS_RI_D2(ISYI,ISYK,NA,NU,NV,NL,AUVL,NAUVL,Cho_Bra,Cho_Ket,Cho_Bra
     end if
   end if
 
-  call DCopy_(NAUVL,[Zero],0,AUVL,1)
+  AUVL(:,:,:,:) = Zero
 
   do IA=1,NA
     do IU=1,NU
@@ -1143,11 +1143,11 @@ subroutine OLagNS_RI_D2(ISYI,ISYK,NA,NU,NV,NL,AUVL,NAUVL,Cho_Bra,Cho_Ket,Cho_Bra
 
 end subroutine OLagNS_RI_D2
 
-subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
+subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
   use SUPERINDEX, only: KIGEJ, KIGTJ
 
-  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NL, NAJVL, NCHO
+  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NL, NCHO
   real(kind=wp), intent(out) :: AJVL(NV,NL,NA*NJ)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO), Cho_KetD(NV,NL,NCHO)
@@ -1222,7 +1222,7 @@ subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,Cho_Bra,Cho_Ket,Cho_BraD
         NJSZ = IJEND-IJSTA+1
 
         IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-        call DCopy_(NAJVL,[Zero],0,AJVL,1)
+        AJVL(:,:,:) = Zero
 
         IAJ = 0
         do IJ=IJSTA,IJEND
@@ -1310,7 +1310,7 @@ subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,Cho_Bra,Cho_Ket,Cho_BraD
         NJSZ = IJEND-IJSTA+1
 
         IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-        call DCopy_(NAJVL,[Zero],0,AJVL,1)
+        AJVL(:,:,:) = Zero
 
         IAJ = 0
         do IJ=IJSTA,IJEND
@@ -1363,11 +1363,11 @@ subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,Cho_Bra,Cho_Ket,Cho_BraD
 
 end subroutine OLagNS_RI_E
 
-subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,NAUCX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
+subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
   use SUPERINDEX, only: KTGTU, KTGEU, KAGTB, KAGEB
 
-  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NC, NX, NAUCX, NCHO
+  integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NC, NX, NCHO
   real(kind=wp), intent(out) :: AUCX(NA,NU,NC,NX)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO), Cho_KetD(NC,NX,NCHO)
@@ -1401,7 +1401,7 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,NAUCX,Cho_Bra,Cho_Ket,Cho_BraD
   end if
   if (NWFP+NWFM <= 0) return
 
-  call DCopy_(NAUCX,[Zero],0,AUCX,1)
+  AUCX(:,:,:,:) = Zero
 
   ! ---- FP
 
@@ -1632,7 +1632,7 @@ subroutine OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,Cho_Bra,Cho_Ket,Cho_BraD
         !NLSZ = ILEND-ILSTA+1
 
         ICLSTA = 1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-        call DCopy_(NAUCL,[Zero],0,AUCL,1)
+        AUCL(:,:,:) = Zero
 
         ICL = 0
         !IBUF = 0
@@ -1726,7 +1726,7 @@ subroutine OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,Cho_Bra,Cho_Ket,Cho_BraD
         !NLSZ = ILEND-ILSTA+1
 
         ICLSTA = 1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-        call DCopy_(NAUCL,[Zero],0,AUCL,1)
+        AUCL(:,:,:) = Zero
 
         ICL = 0
         !IBUF = 0
@@ -1861,7 +1861,7 @@ subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,Cho_Bra,Cho_Ket,Cho_BraD
       NJSZ = IJEND-IJSTA+1
 
       IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-      call DCopy_(NAJCL,[Zero],0,AJCL,1)
+      AJCL(:,:) = Zero
 
       do ICSTA=1,NC,NBXSZC
         ICEND = min(ICSTA-1+NBXSZC,NC)
@@ -1975,7 +1975,7 @@ subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,Cho_Bra,Cho_Ket,Cho_BraD
       NJSZ = IJEND-IJSTA+1
 
       IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-      call DCopy_(NAJCL,[Zero],0,AJCL,1)
+      AJCL(:,:) = Zero
 
       do ICSTA=1,NC,NBXSZC
         ICEND = min(ICSTA-1+NBXSZC,NC)
@@ -2077,6 +2077,8 @@ subroutine Cnst_A_PT2(block1,block2)
     !! provides access to local data in the specified patch of
     !! the array owned by the calling process
     call GA_ACCESS(LG_V1,ILOV1,IHIV1,JLOV1,JHIV1,MV1,NDIM1)
+    ! can't use array statement because DBL_MB is out of bounds!
+    !DBL_MB(MV1:MV1+NDIM1*(JHIV1-JLOV1+1)-1) = BRA(1:NDIM1*(JHIV1-JLOV1+1))
     call DCOPY_(NDIM1*(JHIV1-JLOV1+1),BRA,1,DBL_MB(MV1),1)
     !! releases access to a global array, when the data was
     !! accessed for writing

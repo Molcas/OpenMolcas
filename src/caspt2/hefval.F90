@@ -66,7 +66,7 @@ else if (.not. DMRG) then
     do i=1,nstate
       if (i == ist) then
         call ddafile(luciex,2,ci1,nconf,idci)
-        if (i == jst) call dcopy_(nconf,ci1,1,ci2,1)
+        if (i == jst) ci2(1:nconf) = ci1(1:nconf)
       else if (i == jst) then
         call ddafile(luciex,2,ci2,nconf,idci)
       else

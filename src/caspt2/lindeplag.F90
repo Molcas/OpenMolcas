@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nAS, nIN, iSym, iCase
 real(kind=wp), intent(inout) :: BDer(nAS,nAS), SDer(nAS,nAS)
 integer(kind=iwp) :: I, IDB, IDIAG, idS, IJ, INFO, J, NB, NS, NSCRATCH
-real(kind=wp) :: EVAL, FACT, SCAL, SD, WGRONK(2)
+real(kind=wp) :: SD, WGRONK(2)
 real(kind=wp), allocatable :: B(:), EIG(:), F(:,:), LAG(:,:), S(:), SCA(:), SCRATCH(:), SS(:,:), VEC(:,:)
 
 !! Obtain the X matrix
@@ -88,8 +88,7 @@ call dsyev_('V','U',NAS,VEC,NAS,EIG,SCRATCH,NSCRATCH,INFO)
 call mma_deallocate(SCRATCH)
 
 do I=1,NAS
-  SCAL = SCA(I)
-  call DSCAL_(NAS,SCAL,VEC(I,1),NAS)
+  VEC(I,:) = SCA(I)*VEC(I,:)
 end do
 call mma_deallocate(SCA)
 call mma_deallocate(S)
@@ -97,10 +96,7 @@ call mma_deallocate(S)
 !! Scale only the independent vectors to avoid
 !! any numerically unstable computation
 do I=1,NAS
-  EVAL = EIG(I)
-  if (EVAL < THRSHS) cycle
-  FACT = One/sqrt(EVAL)
-  call DScal_(nAS,FACT,VEC(1,I),1)
+  if (EIG(I) > THRSHS) VEC(:,I) = VEC(:,I)/sqrt(EIG(I))
 end do
 
 call mma_allocate(LAG,NAS,NAS,Label='LAG')
@@ -140,7 +136,7 @@ F(nAS-nIN+1:nAS,nAS-nIN+1:nAS) = Zero
 call DGEMM_('N','N',NAS,NAS,NAS,One,VEC,NAS,F,NAS,Zero,LAG,NAS)
 call DGEMM_('N','T',NAS,NAS,NAS,One,LAG,NAS,VEC,NAS,Zero,F,NAS)
 
-call DaXpY_(nAS*nAS,One,F,1,SDER,1)
+SDER(:,:) = SDER(:,:)+F(:,:)
 
 call mma_deallocate(LAG)
 call mma_deallocate(B)

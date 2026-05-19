@@ -223,7 +223,7 @@ if (do_grad) then
   !! Note that DPT2 has the index of frozen orbitals.
   !! Note also that unrelaxed (w/o Z-vector) dipole moments with
   !! frozen orbitals must be wrong.
-  !call dcopy_(ndpt,[Zero],0,dpt,1)
+  !dpt(:) = Zero
   if ((nFroT == 0) .and. if_invaria) then
     DPT2(1:nOsqT) = DSUM(1:nOsqT)
   else
@@ -343,7 +343,9 @@ if (do_grad) then
   if (.not. if_invar) then
     !! But, save the diagonal elements
     call mma_allocate(DEPSA_diag,nAshT,Label='DEPSA_diag')
-    call DCopy_(nAshT,DEPSA,nAshT+1,DEPSA_diag,1)
+    do i=1,nAshT
+      DEPSA_diag(i) = DEPSA(i,i)
+    end do
     !! Clear
     DEPSA(:,:) = Zero
   end if
@@ -669,7 +671,9 @@ if (do_grad) then
     !! Add the density that comes from orbital Lagrangian
     call DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA_all)
     !! Restore the diagonal elements
-    call DCopy_(nAshT,DEPSA_diag,1,DEPSA,nAshT+1)
+    do i=1,nAshT
+      DEPSA(i,i) = DEPSA_diag(i)
+    end do
     call mma_deallocate(DEPSA_diag)
     if (IPRGLB >= VERBOSE) then
       write(u6,*) 'DEPSA computed again'
@@ -690,7 +694,7 @@ if (do_grad) then
         end do
       end do
     end if
-    !call dcopy_(nasht**2,[Zero],0,depsa,1)
+    !depsa(:,:) = Zero
 
     !! We have to do many things again...
     !! Just add DEPSA to DPT2
@@ -761,7 +765,7 @@ if (do_grad) then
   !do iSym=1,nSym
   !  nOrbI = nBas(iSym)-nDel(iSym)
   !  nSQ = nOrbI*nOrbI
-  !  call DaXpY_(nSQ,One,WRK2(1+iSQ),1,DPT2_tot(1+iSQ),1)
+  !  DPT2_tot(iSQ+1:iSQ+nSQ) = DPT2_tot(iSQ+1:iSQ+nSQ)+WRK2(iSQ+1:iSQ+nSQ)
   !  iSQ = iSQ+nSQ
   !end do
 
@@ -772,7 +776,7 @@ if (do_grad) then
   !do iSym=1,nSym
   !  nOrbI = nBas(iSym)-nDel(iSym)
   !  nSQ = nOrbI*nOrbI
-  !  call DaXpY_(nSQ,Two,WRK2(1+iSQ),1,DPT2C_tot(1+iSQ),1)
+  !  DPT2C_tot(iSQ+1:iSQ+nSQ) = DPT2C_tot(iSQ+1:iSQ+nSQ)+Two*WRK2(iSQ+1:iSQ+nSQ)
   !  iSQ = iSQ+nSQ
   !end do
   !call abend()
@@ -838,7 +842,8 @@ if (do_grad) then
     call mma_deallocate(CI1)
     !! WRK2 is the SCF density (for nstate=nroots)
     call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
-    call DaXpY_(nAshT**2,-One,WRK2,1,RDMSA,1)
+    RDMSA(:,:) = RDMSA(:,:)-reshape(WRK2(1:nAshT**2),[nAshT,nAshT])
+
     !! Construct the SS minus SA density matrix in WRK1
     call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
     !! Subtract the inactive part

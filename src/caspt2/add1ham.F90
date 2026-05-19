@@ -24,7 +24,6 @@ use OFembed, only: Do_OFemb, FMAux, OFE_First
 use OneDat, only: sNoNuc, sNoOri
 use caspt2_module, only: ERFSelf, nBas, NBTRI, nSym, PotNuc, RFpert
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -52,7 +51,7 @@ ICOMP = 1
 ISYLBL = 1
 Label = 'OneHam'
 call RDONE(IRC,IOPT,Label,ICOMP,ONEHAM,ISYLBL)
-call DAXPY_(NBTRI,One,ONEHAM,1,H1EFF,1)
+H1EFF(1:NBTRI) = H1EFF(1:NBTRI)+ONEHAM(:)
 call mma_deallocate(ONEHAM)
 
 ! Read nuclear repulsion energy:
@@ -77,7 +76,7 @@ if (RFpert) then
   call Get_dArray('Reaction field',Temp,nTemp)
   if (Found) call NameRun('#Pop')
   PotNuc = PotNuc+ERFself
-  call Daxpy_(nTemp,One,Temp,1,H1EFF,1)
+  H1EFF(1:nTemp) = H1EFF(1:nTemp)+Temp(:)
   call mma_deallocate(Temp)
 end if
 
@@ -108,17 +107,17 @@ if (Do_OFEmb) then
     call mma_allocate(FMaux,nTemp,Label='FMaux')
     call Coul_DMB(.true.,1,Rep_EN,FMaux,Coul,Coul,nTemp)
   end if
-  call DaXpY_(nTemp,One,FMaux,1,H1EFF,1)
+  H1EFF(1:nTemp) = H1EFF(1:nTemp)+FMaux(:)
   call mma_deallocate(Coul)
   OFE_First = .false.
 
   call NameRun('AUXRFIL') ! switch the RUNFILE name
   call Get_dExcdRa(Vxc,nVxc)
-  call DaXpY_(nTemp,One,Vxc,1,H1EFF,1)
+  H1EFF(1:nTemp) = H1EFF(1:nTemp)+Vxc(1:nTemp)
   if (nVxc == 2*nTemp) then ! but fix for Nuc Attr added twice
-    call DaXpY_(nTemp,One,Vxc(1+nTemp:2*nTemp),1,H1EFF,1)
+    H1EFF(1:nTemp) = H1EFF(1:nTemp)+Vxc(1+nTemp:2*nTemp)
     call Get_dArray('Nuc Potential',Vxc,nTemp)
-    call DaXpY_(nTemp,-One,Vxc,1,H1EFF,1)
+    H1EFF(1:nTemp) = H1EFF(1:nTemp)-Vxc(1:nTemp)
   end if
   call mma_deallocate(Vxc)
   call NameRun('#Pop')    ! switch back to old RUNFILE

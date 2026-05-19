@@ -139,7 +139,7 @@ end do
 
 ! Create the matrix DDTR =D(2I-D) (triangular symmetry blocks)
 ! Use also temporary DD, single symmetry blocks of D*(2I-D):
-NTRES = 1
+NTRES = 0
 NSQES = 1
 do ISYM=1,NSYM
   NA = NASH(ISYM)
@@ -147,7 +147,7 @@ do ISYM=1,NSYM
     N3 = (NA*(NA+1))/2
     call DGEMM_('N','N',NA,NA,NA,One,DSQ(NSQES),NA,TWOMDSQ(NSQES),NA,Zero,DD,NA)
     call TRIANG(NA,DD)
-    call DCOPY_(N3,DD,1,DDTR(NTRES),1)
+    DDTR(NTRES+1:NTRES+N3) = DD(1:N3)
     NTRES = NTRES+N3
     NSQES = NSQES+NA**2
   end if
@@ -177,7 +177,7 @@ else
             IDDVX = MTRES+(IV*(IV-1))/2+IX
             DDVX = DDTR(IDDVX)
             if (IR == IS) DDVX = Half*DDVX
-            call DAXPY_(NO**2,DDVX,INTBUF,1,XMAT(1+NOSQES),1)
+            XMAT(NOSQES+1:NOSQES+NO**2) = XMAT(NOSQES+1:NOSQES+NO**2)+DDVX*INTBUF(1:NO**2)
           end do
         end do
         MTRES = MTRES+(MA*(MA+1))/2
@@ -297,17 +297,16 @@ select case (FOCKTYPE)
         ! Compute it by spectral resolution.
         ! First, form a copy of the triangular D(2I-D) matrix block,
         ! and diagonalize it. The DDTR copy at LSC:
-        call DCOPY_(NA3,DDTR(1+NATRES),1,SC,1)
+        SC(1:NA3) = DDTR(NATRES+1:NATRES+NA3)
         ! A unit matrix at LEV1, to become eigenvectors:
         LEV1 = LSC+NA2
-        call DCOPY_(NA2,[Zero],0,SC(LEV1),1)
-        call DCOPY_(NA,[One],0,SC(LEV1),NA+1)
+        call unitmat(SC(LEV1),NA)
         ! A call to NIDiag diagonalizes the triangular matrix:
         call NIDiag(SC,SC(LEV1),NA,NA)
         call JACORD(SC,SC(LEV1),NA,NA)
         ! Make a copy of the eigenvector matrix:
         LEV2 = LEV1+NA2
-        call DCOPY_(NA2,SC(LEV1),1,SC(LEV2),1)
+        SC(LEV2:LEV2+NA2-1) = SC(LEV1:LEV1+NA2-1)
         ! Put eigenvalues at LEIG:
         LEIG = LEV2+NA2
         call VEIG(NA,SC,SC(LEIG))

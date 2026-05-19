@@ -55,7 +55,7 @@ do J=1,NDIM
   ! where U(I) = T(I)-Kronecker(I,J).
   JORB = ISTART-1+J
   LJ = LEVEL(JORB)
-  call DYAX(NCI,(OneHalf-Half*TVEC(J)),CI,1,SGM,1)
+  SGM(1:NCI) = (OneHalf-Half*TVEC(J))*CI(1:NCI)
   do I=1,NDIM
     IORB = ISTART-1+I
     LI = LEVEL(IORB)

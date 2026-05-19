@@ -73,7 +73,7 @@ select case (IMLTOP)
         ! F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
         do I=1,NAS2
           A = V*Y(I,JY)
-          call DAXPY_(NAS1,A,X(1,JX+NI*(I-1)),1,F(1,L2),1)
+          F(1:NAS1,L2) = F(1:NAS1,L2)+A*X(:,JX+NI*(I-1))
         end do
       end if
     end do

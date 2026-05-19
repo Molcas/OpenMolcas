@@ -108,7 +108,7 @@ if (KING()) then
   iOFF = 0
   do J=1,NAS
     call GA_Get(lg_S,1,J,J,J,COL,NAS)
-    call DCOPY_(J,COL,1,TMP(1+iOFF),1)
+    TMP(iOFF+1:iOFF+J) = COL(1:J)
     iOFF = iOFF+J
   end do
   call mma_deallocate(COL)

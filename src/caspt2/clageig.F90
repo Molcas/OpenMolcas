@@ -52,7 +52,7 @@ do iState=1,nState
       CI1(1) = One
     end if
     WRK(1:NLEV**2) = RDMEIG(1:NLEV**2)*WGT
-    call Poly1_CLag(NCONF,NLEV,CI1,CLag(1,iState),WRK)
+    call Poly1_CLag(NCONF,NLEV,CI1,CLag(:,iState),WRK)
   else
     Wgt = DWgt(iState,jState)
     if (abs(wgt) > 1.0e-9_wp) then
@@ -62,7 +62,7 @@ do iState=1,nState
         CI1(1) = One
       end if
       WRK(1:NLEV**2) = RDMEIG(1:NLEV**2)*WGT
-      call Poly1_CLag(NCONF,NLEV,CI1,CLag(1,iState),WRK)
+      call Poly1_CLag(NCONF,NLEV,CI1,CLag(:,iState),WRK)
     end if
 
     !! Derivative of omega for dynamically weighted density
@@ -97,7 +97,7 @@ call mma_deallocate(WRK)
 !if (proj) then
 !  ovl = ddot_(nconf*nstate,ci1,1,clag,1)
 !  write(u6,*) 'projection coeff = ',ovl
-!  call daxpy_(nconf*nstate,-ovl,ci1,1,clag,1)
+!  clag(:,1:nstate) = clag(:,1:nstate)-ovl*ci1(nconf*nstate)
 !  write(u6,*) 'clag after projection'
 !  do istate=1,nstate
 !    write(u6,*) 'state = ',istate

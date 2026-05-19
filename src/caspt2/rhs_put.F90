@@ -67,7 +67,7 @@ if (Is_Real_Par()) then
   end if
 else
 #endif
-  call DCOPY_(NAS*NIS,W,1,GA_Arrays(lg_W)%A,1)
+  GA_Arrays(lg_W)%A(1:NAS*NIS) = W(:)
 #ifdef _MOLCAS_MPP_
 end if
 #endif

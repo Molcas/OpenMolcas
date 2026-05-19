@@ -90,8 +90,7 @@ if (IRETURN == 0) then
   if (IFXMS .or. IFRMS .or. (IFMSCOUP .and. do_nac .and. do_csf)) then
     if (.not. IFXMS .and. (.not. IFRMS)) then
       !! For MS-CASPT2, only the second term in eq.(68)
-      U0(:,:) = Zero
-      call DCopy_(nState,[One],0,U0,nState+1)
+      call unitmat(U0,nState)
     end if
 
     call TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -261,9 +260,9 @@ if (IRETURN == 0) then
     !! considered in the CASPT2 module
     if (ifmscoup) then
       ! I do not remember why this should be halved
-      call daxpy_(NBTRI,Half,DPT2C_AO_tot,1,DPT2_AO_tot,1)
+      DPT2_AO_tot(1:NBTRI) = DPT2_AO_tot(1:NBTRI)+Half*DPT2C_AO_tot(1:NBTRI)
     else
-      call daxpy_(NBTRI,One,DPT2C_AO_tot,1,DPT2_AO_tot,1)
+      DPT2_AO_tot(1:NBTRI) = DPT2_AO_tot(1:NBTRI)+DPT2C_AO_tot(1:NBTRI)
     end if
     call Put_dArray('D1aoVar',DPT2_AO_tot,NBTRI)
   else

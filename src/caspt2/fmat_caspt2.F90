@@ -33,7 +33,7 @@ subroutine FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,DREF,NDREF,HONE,nHONE)
 use caspt2_global, only: LUINTM
 use caspt2_module, only: NAES, NISH, NoMx, NORB, NOSH, NoTri, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -119,11 +119,11 @@ subroutine Do_Loops(icase)
             call DDAFILE(LUINTM,2,BUF,nInts,IDISK1)
             if (iCase == 1) then
               ! ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
-              call DAXPY_(NB3,Two,BUF,1,FIMO(IFSTA),1)
+              FIMO(IFSTA:IFSTA+NB3-1) = FIMO(IFSTA:IFSTA+NB3-1)+Two*BUF(1:NB3)
             else
               call TRIANG(NBR,BUF)
               ! ADD -1* BUFFER INTO CORRECT POSITION OF  FIMO.
-              call DAXPY_(NB3,-One,BUF,1,FIMO(IFSTA),1)
+              FIMO(IFSTA:IFSTA+NB3-1) = FIMO(IFSTA:IFSTA+NB3-1)-BUF(1:NB3)
             end if
           else if ((IT > NIP) .and. (IT <= NOP) .and. (IU > NIP) .and. (IU <= NOP)) then
             ITABS = NAESP+(IT-NIP)
@@ -133,10 +133,10 @@ subroutine Do_Loops(icase)
             if (IT == IU) DTU = half*DTU
             call DDAFILE(LUINTM,2,BUF,nInts,IDISK1)
             if (iCase == 1) then
-              call DAXPY_(NB3,Two*DTU,BUF,1,FIFA(IFSTA),1)
+              FIFA(IFSTA:IFSTA+NB3-1) = FIFA(IFSTA:IFSTA+NB3-1)+Two*DTU*BUF(1:NB3)
             else
               call TRIANG(NBR,BUF)
-              call DAXPY_(NB3,-DTU,BUF,1,FIFA(IFSTA),1)
+              FIFA(IFSTA:IFSTA+NB3-1) = FIFA(IFSTA:IFSTA+NB3-1)-DTU*BUF(1:NB3)
             end if
           else
             call DDAFILE(LUINTM,0,BUF,nInts,IDISK1)

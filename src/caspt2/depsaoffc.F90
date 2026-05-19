@@ -618,6 +618,7 @@ end subroutine TimesE2
 subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
 
   use caspt2_module, only: MXCI, NG1, NG2
+  use Constants, only: Two
 
   integer(kind=iwp), intent(in) :: nConf, nState, nAshT
   real(kind=wp), intent(in) :: CI(nConf,nState), CIT(nConf,nState), INT2(nAshT,nAshT,nAshT,nAshT)
@@ -643,10 +644,10 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
   call mma_allocate(G1T,NG1,Label='GT1')
   call mma_allocate(G2T,NG2,Label='GT2')
 
-   !! This is for CASSCF orbital Lagrangian, but this may not contribute
-   !call Dens2T_RPT2(NLEV,NCONF,MXCI,CI(1,jState),CI(1,jState),SGM1,SGM2,G1T,G2T)
-   !call DaXpY_(NG1,-Half,G1T,1,G1,1)
-   !call DaXpY_(NG2,-Half,G2T,1,G2,1)
+  !! This is for CASSCF orbital Lagrangian, but this may not contribute
+  !call Dens2T_RPT2(NLEV,NCONF,MXCI,CI(1,jState),CI(1,jState),SGM1,SGM2,G1T,G2T)
+  !G1(:,:) = G1(:,:)-Half*reshape(G1T(:),[nAshT,nAshT])
+  !G2(:,:,:,:) = G2(:,:,:,:)-Half*reshape(G2T(:),[nAshT,nAshT,nAshT,nAshT])
 
   do kState=1,nState
     !Wgt = DWgt(iState,iState)
@@ -654,8 +655,8 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
 
     !! <CI|Etu|CIT>+<CIT|Etu|CI> and the t+ u+ x v variant
     call Dens2T_RPT2(NLEV,NCONF,MXCI,CI(1,kState),CIT(1,kState),SGM1,SGM2,G1T,G2T)
-    call DaXpY_(NG1,WGT,G1T,1,G1,1)
-    call DaXpY_(NG2,WGT,G2T,1,G2,1)
+    G1(:,:) = G1(:,:)+WGT*reshape(G1T(:),[nAshT,nAshT])
+    G2(:,:,:,:) = G2(:,:,:,:)+WGT*reshape(G2T(:),[nAshT,nAshT,nAshT,nAshT])
 
     !! For the orbital contribution of CASSCF Lagrangian
     !! Just add the SLag rotation contributions
@@ -664,8 +665,8 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
       vSLag = -Half*SLag(ilState,jlState)
       if (abs(vSLag) <= 1.0e-8_wp) cycle
       call Dens2T_RPT2(NLEV,NCONF,MXCI,CI(1,ilState),CI(1,jlState),SGM1,SGM2,G1T,G2T)
-      call DaXpY_(NG1,vSLag,G1T,1,G1,1)
-      call DaXpY_(NG2,vSLag,G2T,1,G2,1)
+      G1(:,:) = G1(:,:)+vSLag*reshape(G1T(:),[nAshT,nAshT])
+      G2(:,:,:,:) = G2(:,:,:,:)+vSLag*reshape(G2T(:),[nAshT,nAshT,nAshT,nAshT])
     end do
   end do
 
@@ -689,9 +690,9 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
           !ip1 = nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)-1
           !ip2 = nBas(iS)*(nIsh(js)+jA-1)+ipmat(is,js)
           rd = G1(iA,jA)
-          ip1 = 1+nFro(jS)+nIsh(jS)+nBas(iS)*(nFro(iS)+nIsh(iS)+iA-1)
-          ip2 = 1+nAsh(iS)*(jA-1)
-          call DaXpY_(nAsh(iS),Rd,FIMO(ip1),1,Fock(ip2),1)
+          ip1 = nFro(jS)+nIsh(jS)+nBas(iS)*(nFro(iS)+nIsh(iS)+iA-1)
+          ip2 = nAsh(iS)*(jA-1)
+          Fock(ip2+1:ip2+nAsh(iS)) = Fock(ip2+1:ip2+nAsh(iS))+Rd*FIMO(ip1+1:ip1+nAsh(iS))
         end do
       end do
     end if
@@ -723,7 +724,7 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
                 ipQ = nAsh(ipS)*(iAsh-1)
                 do jAsh=1,nAsh(jS)
                   ipM = nFro(ipS)+nIsh(ipS)+(nFro(jS)+nIsh(jS)+jAsh-1)*nBas(ipS)
-                  call DaXpY_(nAsh(ipS),G2(iAsh,jAsh,kAsh,lAsh)*2,INT2(1,jAsh,kAsh,lAsh),1,Fock(1+ipQ),1)
+                  Fock(ipQ+1:ipQ+nAsh(ipS)) = Fock(ipQ+1:ipQ+nAsh(ipS))+Two*G2(iAsh,jAsh,kAsh,lAsh)*INT2(1:nAsh(ipS),jAsh,kAsh,lAsh)
                   ipM = ipM+nOrb(ipS)
 
                 end do

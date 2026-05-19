@@ -101,7 +101,7 @@ nOrbI = nIshI+nAshI+nSshI
 
 call mma_allocate(CHSPC,NCHSPC,Label='CHSPC')
 call mma_allocate(HTSPC,NCHSPC,Label='HISPC')
-call mma_allocate(HTVec,nBasT*nBasT,Label='HTVEC')
+call mma_allocate(HTVec,nBasT**2,Label='HTVEC')
 
 IBATCH_TOT = NBTCHES(iSym)
 
@@ -202,7 +202,7 @@ do JRED=JRED1,JRED2
     do iVec=1,NUMV
       if (IFMSCOUP .and. (jState /= 1)) then
         read(LuGamma,rec=iVec+JV1-1) HTVec(1:nBasI**2)
-        call DaXpY_(nBasI**2,One,CHSPC(1+nBasI**2*(iVec-1)),1,HTVec,1)
+        HTVec(1:nBasI**2) = HTVec(1:nBasI**2)+CHSPC(nBasI**2*(iVec-1)+1:nBasI**2*iVec)
         write(LuGamma,rec=iVec+JV1-1) HTVec(1:nBasI**2)
       else if ((jState == iRlxRoot) .or. IFMSCOUP) then
         write(LuGamma,rec=iVec+JV1-1) CHSPC(1+nBasI**2*(iVec-1):nBasI**2*iVec)
@@ -247,12 +247,10 @@ subroutine FDGTRF(ChoVec,DD,FF)
 
   real(kind=wp), intent(in) :: ChoVec(nBasI**2), DD(nBasI**2)
   real(kind=wp), intent(inout) :: FF(nBasI**2)
-  real(kind=wp) :: Scal
   real(kind=wp), external :: ddot_
 
   !! Coulomb
-  Scal = DDot_(nBasI**2,DD,1,ChoVec,1)
-  call DaXpY_(nBasI**2,Scal,ChoVec,1,FF,1)
+  FF(:) = FF(:)+DDot_(nBasI**2,DD,1,ChoVec,1)*ChoVec(:)
 
   !! Exchange
   call DGEMM_('T','N',nBasI,nBasI,nBasI,One,ChoVec,nBasI,DD,nBasI,Zero,WRK,nBasI)

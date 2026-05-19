@@ -26,7 +26,7 @@ subroutine NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
 
 use caspt2_module, only: NBAS, NDEL, NFRO, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
@@ -46,23 +46,23 @@ do ISYM=1,NSYM
   NB = NBAS(ISYM)
   !  Frozen orbitals:
   if (NF > 0) then
-    call DCOPY_(NF,[Two],0,OCC(IOCC+1),1)
+    OCC(IOCC+1:IOCC+NF) = Two
     IOCC = IOCC+NF
-    call DCOPY_(NB*NF,CMO(ICMO+1),1,CNAT(ICMO+1),1)
+    CNAT(ICMO+1:ICMO+NB*NF) = CMO(ICMO+1:ICMO+NB*NF)
     ICMO = ICMO+NB*NF
   end if
   ! Inactive, active, and secondary orbitals:
   if (NO > 0) then
     NTMP = (NO*(NO+1))/2
     call mma_allocate(TMP,NTMP,Label='TMP')
-    call DCOPY_(NB*NO,CMO(ICMO+1),1,CNAT(ICMO+1),1)
+    CNAT(ICMO+1:ICMO+NB*NO) = CMO(ICMO+1:ICMO+NB*NO)
     ! For correct order, change sign.
-    call DYAX(NTMP,-One,DMAT(IDMAT+1),1,TMP,1)
+    TMP(:) = -DMAT(IDMAT+1:IDMAT+NTMP)
     call NIDiag(TMP,CNAT(ICMO+1),NO,NB)
     call JACORD(TMP,CNAT(ICMO+1),NO,NB)
     call VEIG(NO,TMP,OCC(IOCC+1))
     ! Change back to positive sign.
-    call DSCAL_(NO,-One,OCC(IOCC+1),1)
+    OCC(IOCC+1:IOCC+NO) = -OCC(IOCC+1:IOCC+NO)
     IDMAT = IDMAT+NTMP
     IOCC = IOCC+NO
     ICMO = ICMO+NB*NO
@@ -70,9 +70,9 @@ do ISYM=1,NSYM
   end if
   ! Deleted orbitals:
   if (ND > 0) then
-    call DCOPY_(ND,[Zero],0,OCC(IOCC+1),1)
+    OCC(IOCC+1:IOCC+ND) = Zero
     IOCC = IOCC+ND
-    call DCOPY_(NB*ND,CMO(ICMO+1),1,CNAT(ICMO+1),1)
+    CNAT(ICMO+1:ICMO+NB*ND) = CMO(ICMO+1:ICMO+NB*ND)
     ICMO = ICMO+NB*ND
   end if
 end do

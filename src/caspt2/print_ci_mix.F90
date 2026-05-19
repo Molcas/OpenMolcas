@@ -21,6 +21,7 @@ use mh5, only: mh5_fetch_dset, mh5_open_file_r
 use caspt2_module, only: mState
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,7 +31,7 @@ integer(kind=iwp) :: iDisk, iiState, iState
 integer(kind=iwp) :: jSNum
 #endif
 logical(kind=iwp) :: Close_refwfn
-real(kind=wp), allocatable, dimension(:) :: cCI, mCI
+real(kind=wp), allocatable :: cCI(:), mCI(:)
 
 call mma_allocate(mCI,nConf,Label='MixCICoeff')
 call mma_allocate(cCI,nConf,Label='CICoeff')
@@ -60,7 +61,7 @@ write(u6,*) ' combinations, given by the eigenvectors.'
 write(u6,*)
 
 do iState=1,nState
-  call FZero(mCI,nConf)
+  mCI(:) = Zero
   iDisk = iAdr15(4)
   do iiState=1,nState
     if (refwfn_is_h5) then
@@ -74,7 +75,7 @@ do iState=1,nState
     else
       call dDAFile(refwfn_id,2,cCI,nConf,iDisk)
     end if
-    call daXpY_(nConf,EigVec(iiState,iState),cCI,1,mCI,1)
+    mCI(:) = EigVec(iiState,iState)*cCI(:)
   end do
   write(u6,'(1X,A,I3)') ' The CI coefficients for the MIXED state nr. ',iState
   call PrWf_CP2(stSym,nConf,mCI,CITHR)

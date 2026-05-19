@@ -31,12 +31,12 @@ real(kind=wp), intent(inout) :: UEFF(nState,nState)
 integer(kind=iwp) :: I, iAsh, II, iStat, iState, jAsh, jStat, kStat, lStat, nBasI, nCor, nLev, nOrbI, NTG1, NTG3
 real(kind=wp) :: EDIFF, EEI, EEJ, EINACT, fact, OVL, Scal, TRC, Wgt
 real(kind=wp), allocatable :: CI1(:), CI2(:), DG1(:), DG2(:), DG3(:), DPT2(:), DPT2_AO(:), G1(:,:), RDMEIG(:,:), RDMSA(:,:), &
-                              SGM1(:), SGM2(:), SLag(:), TG1(:), TG2(:), Trf(:), WRK1(:), WRK2(:)
+                              SGM1(:), SGM2(:), SLag(:,:), TG1(:,:), TG2(:), Trf(:), WRK1(:), WRK2(:)
 real(kind=wp), external :: ddot_
 
 nLev = SGS%nLev
 
-call mma_allocate(SLag,nState**2,Label='SLag')
+call mma_allocate(SLag,nState,nState,Label='SLag')
 
 ! The XMS rotation applies to any variants: XMS-CASPT2, XDW-CASPT2,
 ! and RMS-CASPT2.
@@ -46,7 +46,7 @@ if (IFXMS .or. IFRMS) then
   call mma_allocate(CI2,nConf,Label='CI2')
   call mma_allocate(SGM1,MXCI,Label='SGM1')
   call mma_allocate(SGM2,MXCI,Label='SGM2')
-  call mma_allocate(TG1,nAshT**2,Label='TG1')
+  call mma_allocate(TG1,nAshT,nAshT,Label='TG1')
   call mma_allocate(TG2,nAshT**4,Label='TG2')
 
   call mma_allocate(DG1,nAshT**2,Label='DG1')
@@ -60,7 +60,7 @@ if (IFXMS .or. IFRMS) then
   !! Forward transformation of UEFF (CASSCF basis to XMS basis)
   !! SLag is used as a working array
   call DGEMM_('T','N',nState,nState,nState,One,U0,nState,UEFF,nState,Zero,SLag,nState)
-  call DCopy_(nState**2,SLag,1,UEFF,1)
+  UEFF(:,:) = SLag(:,:)
 
   !! Then actual calculation
   CLag(1:nconf,1:nstate) = Zero
@@ -70,7 +70,7 @@ if (IFXMS .or. IFRMS) then
       call LoadCI_XMS('C',0,nConf,nState,CI2,jStat,U0)
 
       call Dens2T_RPT2(NLEV,NCONF,MXCI,CI1,CI2,SGM1,SGM2,TG1,TG2)
-      TG1(:) = TG1(:)*Half
+      TG1(:,:) = TG1(:,:)*Half
       TG2(:) = TG2(:)*Half
       DG1(:) = Zero
       DG2(:) = Zero
@@ -101,7 +101,7 @@ if (IFXMS .or. IFRMS) then
   !! Back transformation of UEFF (XMS basis to CASSCF basis)
   !! SLag is used as a working array
   call DGEMM_('N','N',nState,nState,nState,One,U0,nState,UEFF,nState,Zero,SLag,nState)
-  call DCopy_(nState**2,SLag,1,UEFF,1)
+  UEFF(:,:) = SLag(:,:)
   call mma_deallocate(DG1)
   call mma_deallocate(DG2)
 
@@ -119,13 +119,13 @@ if (IFXMS .or. IFRMS) then
   !! The diagonal element is always zero.
   !! The code has an additional scaling with 0.5,
   !! because some contributions are doubled.
-  SLag(:) = Zero
+  SLag(:,:) = Zero
   do iStat=1,nState
     call LoadCI_XMS('N',0,nConf,nState,CI1,iStat,U0)
     EEI = H0(iStat,iStat)
     do jStat=1,iStat
       if (iStat == jStat) then
-        SLag(iStat+nState*(jStat-1)) = Zero
+        SLag(iStat,jStat) = Zero
       else
         call LoadCI_XMS('N',0,nConf,nState,CI2,jStat,U0)
         EEJ = H0(jStat,jStat)
@@ -145,8 +145,8 @@ if (IFXMS .or. IFRMS) then
           Scal = Scal+fact*(ENERGY(iRoot2)-ENERGY(iRoot1))*Two
         end if
         Scal = Quart*Scal/(EEJ-EEI)
-        SLag(iStat+nState*(jStat-1)) = Scal
-        SLag(jStat+nState*(iStat-1)) = Scal
+        SLag(iStat,jStat) = Scal
+        SLag(jStat,iStat) = Scal
       end if
     end do
   end do
@@ -162,12 +162,11 @@ if (IFXMS .or. IFRMS) then
   do iStat=1,nState
     call LoadCI_XMS('C',0,nConf,nState,CI1,iStat,U0)
     do jStat=1,nState
-      if (abs(SLag(iStat+nState*(jStat-1))) <= 1.0e-10_wp) cycle
+      if (abs(SLag(iStat,jStat)) <= 1.0e-10_wp) cycle
       call LoadCI_XMS('C',0,nConf,nState,CI2,jStat,U0)
 
       call Dens1T_RPT2(CI1,CI2,SGM1,TG1,nLev)
-      Scal = SLag(iStat+nState*(jStat-1))*Two
-      call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
+      G1(:,:) = G1(:,:)+Two*SLag(iStat,jStat)*TG1(:,:)
     end do
   end do
 
@@ -213,7 +212,6 @@ if (IFXMS .or. IFRMS) then
     call DGemm_('T','N',nOrbI,nOrbI,nOrbI,One,Trf,nBasI,FIFASA_all,nOrbI,Zero,WRK1,nOrbI)
     call DGemm_('N','N',nOrbI,nOrbI,nOrbI,One,WRK1,nOrbI,Trf,nBasI,Zero,FIFASA_all,nOrbI)
   end if
-  !call DCopy_(NBSQT,FIFASA_all,1,FIFA_all,1)
   FIFA_all(1:NBSQT) = FIFASA_all(1:NBSQT)
 
   !! Orbital derivatives of FIFA
@@ -251,11 +249,11 @@ if (IFXMS .or. IFRMS) then
     call mma_deallocate(CI1)
     !! WRK2 is the SCF density (for nstate=nroots)
     call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
-    call DaXpY_(nAshT**2,-One,WRK2,1,RDMSA,1)
+    RDMSA(:,:) = RDMSA(:,:)-reshape(WRK2(1:nAshT**2),[nAshT,nAshT])
     !! Construct the SS minus SA density matrix in WRK1
     call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
     !! Subtract the inactive part
-    call DaXpY_(nBasT**2,-One,WRK2,1,WRK1,1)
+    WRK1(1:nBasT**2) = WRK1(1:nBasT**2)-WRK2(1:nBasT**2)
     !! Save
     call CnstAB_SSDM(NBSQT,DPT2_AO,WRK1)
     call mma_deallocate(DPT2_AO)
@@ -336,21 +334,20 @@ if (do_csf) then
   !! because CLag is like that
   !! CASSCF -> XMS
   call DGEMM_('T','N',nState,nState,nState,One,U0,nState,UEFF,nState,Zero,SLag,nState)
-  call DCopy_(nState**2,SLag,1,UEFF,1)
+  UEFF(:,:) = SLag(:,:)
 
   EDIFF = ENERGY(iRoot2)-ENERGY(iRoot1)
   do iStat=1,nState
     call LoadCI_XMS('N',0,nConf,nState,CI1,iStat,U0)
     do jStat=1,nState
-      Scal = (UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)-UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*Half
-      Scal = Scal*EDIFF
-      call DaXpY_(nConf,Scal,CI1,1,CLag(1,jStat),1)
+      Scal = (UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)-UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*Half*EDIFF
+      CLag(:,jStat) = CLag(:,jStat)+Scal*CI1(:)
     end do
   end do
 
   !! XMS -> CASSCF
   call DGEMM_('N','N',nState,nState,nState,One,U0,nState,UEFF,nState,Zero,SLag,nState)
-  call DCopy_(nState**2,SLag,1,UEFF,1)
+  UEFF(:,:) = SLag(:,:)
 
   call mma_deallocate(CI1)
 end if

@@ -209,6 +209,8 @@ do JRED=JRED1,JRED2
 
 #   ifdef _MOLCAS_MPP_
     if (is_real_par()) then
+      ! can't use array statement because DBL_MB is out of bounds!
+      !DBL_MB(mV1+NDIM1*(JV1-1):mV1+NDIM1*(JV1-1)+nBasT**2*NUMV-1) = B_SSDM(1:nBasT**2*NUMV)
       call DCopy_(nBasT**2*NUMV,B_SSDM,1,DBL_MB(mV1+NDIM1*(JV1-1)),1)
     else
 #   endif

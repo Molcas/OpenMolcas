@@ -204,7 +204,7 @@ if (IVEC /= JVEC) then
   do ISYM=1,NSYM
     NO = NORB(ISYM)
     call TRNSPS(NO,NO,DPT2(ISTA),SCR)
-    call DCOPY_(NO*NO,SCR,1,DPT2(ISTA),1)
+    DPT2(ISTA:ISTA+NO**2-1) = SCR(1:NO**2)
     ISTA = ISTA+NO**2
   end do
   call mma_deallocate(SCR)

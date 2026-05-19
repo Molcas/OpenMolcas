@@ -56,7 +56,6 @@ set (sources
      gs_order.F90
      hasnonnegativediagonal.F90
      i4len.F90
-     icopy.F90
      index_functions.F90
      inipkr8.F90
      init_getint.F90

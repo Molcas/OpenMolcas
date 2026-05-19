@@ -34,12 +34,12 @@ integer(kind=iwp), intent(inout) :: nSsh(nSym), nDel(nSym), IFQCAN
 real(kind=wp), intent(in) :: vfrac
 logical(kind=iwp), intent(in) :: DoMP2
 real(kind=wp), intent(inout) :: EMP2, CMO(NCMO)
-integer(kind=iwp) :: i, iAoff, iCMO, ifr, ioff, ip_X, ip_Y, ip_Z, ip_ZZ, ipEorb, ipOrbE, ipOrbE_, iSkip, iSym, ito, j, jD, joff, &
-                     k, kEOcc, kEVir, kfr, kij, koff, kto, lij, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, mAsh, &
+integer(kind=iwp) :: i, iAoff, ifr, ioff, ip_X, ip_Y, ip_Z, ip_ZZ, ipEorb, ipOrbE, ipOrbE_, iSkip, iSym, ito, j, jD, joff, k, &
+                     kEOcc, kEVir, kfr, kij, koff, kto, lij, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, mAsh, &
                      nAct(8), nBasT, nBmx, nBx, nOA, nOrb, ns_V(8), nSQ, nSx, ntri, nVV
 real(kind=wp) :: Delta_TrD, Dummy, STrDF, STrDP, tmp, TrDF(8), TrDP(8)
 integer(kind=iwp), allocatable :: ID(:)
-real(kind=wp), allocatable :: CMOX(:), DMAT(:), OrbE(:)
+real(kind=wp), allocatable :: CMOX(:,:), DMAT(:), OrbE(:)
 real(kind=wp), external :: DDot_
 
 irc = 0
@@ -77,11 +77,10 @@ end if
 !     Read the molecular orbitals from JobIph                          *
 !----------------------------------------------------------------------*
 if (IFQCAN == 0) write(u6,'(/6X,A)') 'No pseudocanonical RASSCF orbitals found! I will proceed with FDIAG values.'
-call mma_allocate(CMOX,2*NCMO,Label='CMOX')
-iCMO = 1+NCMO
+call mma_allocate(CMOX,NCMO,2,Label='CMOX')
 ! This is not the best solution, but I wanted to avoid having to rewrite
 ! the indexing code below just to use the CMO array directly
-call dcopy_(NCMO,CMO,1,CMOX,1)
+CMOX(:,1) = CMO(:)
 call mma_allocate(OrbE,4*nOrb,Label='OrbE')
 ipOrbE = 1
 call Get_darray('RASSCF OrbE',OrbE(ipOrbE),nOrb)
@@ -115,10 +114,10 @@ koff = 0
 do iSym=1,nSym
   ifr = ipOrbE+ioff+nFro(iSym)
   ito = kEOcc+joff
-  call dcopy_(lnOcc(iSym),OrbE(ifr),1,OrbE(ito),1)
+  OrbE(ito:ito+lnOcc(iSym)-1) = OrbE(ifr:ifr+lnOcc(iSym)-1)
   ifr = ipOrbE+ioff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
   ito = kEVir+koff
-  call dcopy_(nSsh(iSym),OrbE(ifr),1,OrbE(ito),1)
+  OrbE(ito:ito+nSsh(iSym)-1) = OrbE(ifr:ifr+nSsh(iSym)-1)
   ioff = ioff+nBas(iSym)
   joff = joff+lnOcc(iSym)
   koff = koff+nSsh(iSym)
@@ -129,20 +128,20 @@ ip_X = 1
 ip_Y = ip_X+nVV
 
 call FnoCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
-call FZero(CMOX(iCMO),NCMO)
+CMOX(:,2) = Zero
 iOff = 0
 do iSym=1,nSym
   kfr = 1+iOff+nBas(iSym)*nFro(iSym)
-  kto = iCMO+iOff+nBas(iSym)*lnFro(iSym)
-  call dcopy_(nBas(iSym)*lnOcc(iSym),CMOX(kfr),1,CMOX(kto),1)
+  kto = 1+iOff+nBas(iSym)*lnFro(iSym)
+  CMOX(kto:kto+nBas(iSym)*lnOcc(iSym)-1,2) = CMOX(kfr:kfr+nBas(iSym)*lnOcc(iSym)-1,1)
   kfr = 1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
   kto = kto+nBas(iSym)*lnOcc(iSym)
-  call dcopy_(nBas(iSym)*lnVir(iSym),CMOX(kfr),1,CMOX(kto),1)
+  CMOX(kto:kto+nBas(iSym)*lnVir(iSym)-1,2) = CMOX(kfr:kfr+nBas(iSym)*lnVir(iSym)-1,1)
   iOff = iOff+nBas(iSym)**2
 end do
 call Check_Amp(nSym,lnOcc,lnVir,iSkip)
 if (iSkip > 0) then
-  call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
+  call ChoMP2_Drv(irc,Dummy,CMOX(:,2),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
   if (irc /= 0) then
     write(u6,*) 'MP2 pseudodensity calculation failed !'
     call Abend()
@@ -179,9 +178,9 @@ do iSym=1,nSym
     end do
 
     ! Compute new MO coeff. : X=C*U
-    kfr = iCMO+jOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
+    kfr = 1+jOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
     kto = 1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
-    call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),One,CMOX(kfr),nBas(iSym),DMAT(jD),nSsh(iSym),Zero,CMOX(kto),nBas(iSym))
+    call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),One,CMOX(kfr,2),nBas(iSym),DMAT(jD),nSsh(iSym),Zero,CMOX(kto,1),nBas(iSym))
     iOff = iOff+nSsh(iSym)**2
     TrDF(iSym) = ddot_(nSsh(iSym),OrbE(ip_Z),1,[One],0)
     if (vfrac >= Zero) then
@@ -224,7 +223,7 @@ end do
 ! Write the resorted MOs back to JobIph
 
 IFQCAN = 0 ! MOs need to be recanonicalized on exit
-call dcopy_(NCMO,CMOX,1,CMO,1)
+CMO(:) = CMOX(:,1)
 
 ! Reset MP2_small for this new call to ChoMP2_Drv
 call Check_Amp(nSym,lnOcc,nSsh,iSkip)
@@ -246,10 +245,10 @@ if (MP2_small) then
     call Get_Can_Lorb(OrbE(kEVir+lOff),OrbE(ipOrbE+jOff),nSsh(iSym),lnVir(iSym),iD,DMAT(jD))
 
     kfr = 1+kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
-    kto = iCMO+kOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
+    kto = 1+kOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
     nBx = max(1,nBas(iSym))
     nSx = max(1,nSsh(iSym))
-    call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),One,CMOX(kfr),nBx,DMAT(jD),nSx,Zero,CMOX(kto),nBx)
+    call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),One,CMOX(kfr,1),nBx,DMAT(jD),nSx,Zero,CMOX(kto,2),nBx)
 
     lOff = lOff+lnVir(iSym)
     kOff = kOff+nBas(iSym)**2
@@ -261,7 +260,7 @@ if (MP2_small) then
 
   EMP2 = DeMP2
   DeMP2 = Zero
-  call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
+  call ChoMP2_Drv(irc,Dummy,CMOX(:,2),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
   if (irc /= 0) then
     write(u6,*) 'MP2 in truncated virtual space failed !'
     call Abend()

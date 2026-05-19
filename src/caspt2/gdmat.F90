@@ -53,7 +53,7 @@ IDAB = 0
 do ISYM=1,NSYM
   NB = NBAS(ISYM)
   if (NB < 1) cycle
-  call DCOPY_((NB*(NB+1))/2,[Zero],0,GDAO(IDAB+1),1)
+  GDAO(IDAB+1:IDAB+(NB*(NB+1))/2) = Zero
   NW = NUSE(ISYM)
   if (NW > 0) then
     IW1 = ISTART(ISYM)

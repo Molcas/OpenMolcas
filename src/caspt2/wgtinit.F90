@@ -27,14 +27,9 @@ real(kind=wp) :: Dab, Dag, Ealpha, Ebeta, Egamma, Hab, Hag, Wtot, xi_ab, xi_ag
 
 if (IPRGLB >= DEBUG) write(u6,*) ' Entered wgtinit.'
 
-! Initialize array of weights with all zeros
-DWGT(:,:) = Zero
-
-! Main loop over all states to compute the weights
-do I=1,nState
-
-  if (IFDW .and. (zeta >= Zero)) then
-    ! If it is an XDW-CASPT2 calculation, the weights are computed
+if (IFDW .and. (zeta >= Zero)) then
+  ! If it is an XDW-CASPT2 calculation, the weights are computed
+  do I=1,nState
     Ebeta = H(I,I)
     ! Compute normalization factor Wtot, i.e. the sum of all weights
     do J=1,nState
@@ -83,20 +78,18 @@ do I=1,nState
       DWGT(I,J) = exp(-zeta*xi_ab)/Wtot
 
     end do
+  end do
 
-  else if (IFXMS .and. (.not. IFDW)) then
-    ! If it is an XMS-CASPT2 calculation, all the weights are equal,
-    ! i.e. they all are 1/nState
-    call dcopy_(nState**2,[One/nState],0,DWGT,1)
+else if (IFXMS .and. (.not. IFDW)) then
+  ! If it is an XMS-CASPT2 calculation, all the weights are equal,
+  ! i.e. they all are 1/nState
+  DWGT(:,:) = One/real(nState,kind=wp)
 
-  else
-    ! If it is a normal MS-CASPT2, RMS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity
-    ! the weight vectors are the standard unit vectors e_1, e_2, ...
-    DWGT(I,I) = One
-  end if
-
-  ! End of loop over states
-end do
+else
+  ! If it is a normal MS-CASPT2, RMS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity
+  ! the weight vectors are the standard unit vectors e_1, e_2, ...
+  call unitmat(DWGT,nState)
+end if
 
 ! In case it is a XDW calculation, print out the weights
 if (IFDW .and. (IPRGLB >= VERBOSE)) then

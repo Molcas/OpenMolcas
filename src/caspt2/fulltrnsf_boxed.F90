@@ -30,7 +30,7 @@ integer(kind=iwp) :: IPW, J
 iPW = 1+NW*(IPSTA-1)+NPSZ*(IWSTA-1)
 do J=1,NJ
   call DGEMM_('T','T',NPSZ,NWSZ,NB,One,CMOBLK,NB,BUF_HT(IWSTA,J,1),NW*NJ,Zero,BUFFY,NPSZ)
-  call DCOPY_(NPSZ*NWSZ,BUFFY,1,BUF_FT(iPW,J),1)
+  BUF_FT(iPW:iPW+NPSZ*NWSZ-1,J) = pack(BUFFY(:,:),.true.)
 end do
 
 end subroutine FULLTRNSF_BOXED

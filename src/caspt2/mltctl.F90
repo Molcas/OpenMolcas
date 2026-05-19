@@ -98,8 +98,7 @@ if (IPRGLB >= USUAL) then
     end do
   end do
 end if
-UMAT(:,:) = Zero
-call DCOPY_(NSTATE,[One],0,UMAT,NSTATE+1)
+call unitmat(UMAT,NSTATE)
 call NIDiag(HTRI,UMAT,NSTATE,NSTATE)
 call JACORD(HTRI,UMAT,NSTATE,NSTATE)
 do I=1,NSTATE

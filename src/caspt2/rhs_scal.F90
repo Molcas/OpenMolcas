@@ -50,9 +50,9 @@ if (Is_Real_Par()) then
 else
 #endif
   if (FACT == Zero) then
-    call DCOPY_(NAS*NIS,[Zero],0,GA_Arrays(lg_W)%A,1)
+    GA_Arrays(lg_W)%A(1:NAS*NIS) = Zero
   else if (FACT /= One) then
-    call DSCAL_(NAS*NIS,FACT,GA_Arrays(lg_W)%A,1)
+    GA_Arrays(lg_W)%A(1:NAS*NIS) = FACT*GA_Arrays(lg_W)%A(1:NAS*NIS)
   end if
 #ifdef _MOLCAS_MPP_
 end if

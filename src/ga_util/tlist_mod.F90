@@ -322,7 +322,7 @@ subroutine ReInit_PPList(Semi_Direct)
       TskList(1:nTasks,1:2) => TskL(1:2*nTasks)
 
       ! Copy first the task indices of tasks that were exectuted
-      call ICopy(mTasks,TskList(:,2),1,TskList(:,1),1)
+      TskList(1:mTasks,1) = TskList(1:mTasks,2)
 
       ! Now copy task indices of tasks which were not executed by this node.
       ! Change the order so that the first task it the largest in the list.

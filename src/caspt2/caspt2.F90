@@ -78,7 +78,7 @@ use qcmaquis_interface, only: qcmaquis_interface_compute_and_store_123rdm_full, 
 use caspt2_module, only: DMRG
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, auTocm, auToeV, auTokJmol
+use Constants, only: Zero, auTocm, auToeV, auTokJmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -139,7 +139,7 @@ if (do_grad .and. IFMSCOUP) then
   call MMA_ALLOCATE(ESav,Nstate)
   call MMA_ALLOCATE(H0Sav,Nstate,Nstate)
   ! at this stage, H0 is just a zero matrix
-  if ((IFXMS .and. IFDW) .or. IFRMS) call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
+  if ((IFXMS .and. IFDW) .or. IFRMS) H0Sav(:,:) = H0(:,:)
 end if
 
 !! iStpGrd = 0 means PT2GRD is found and program requests gradient
@@ -147,10 +147,10 @@ end if
 !! and directly goes to the gradient part
 if (iStpGrd == 0) then
   call SavGradParams2(2,UEFF,U0,H0,Nstate)
-  call DCopy_(Nstate,ENERGY,1,Esav,1)
-  call DCopy_(Nstate*Nstate,UEFF,1,UEFFSav,1)
-  call DCopy_(Nstate*Nstate,U0,1,U0Sav,1)
-  if ((IFXMS .and. IFDW) .or. IFRMS) call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
+  Esav(:) = ENERGY(1:Nstate)
+  UEFFSav(:,:) = UEFF(:,:)
+  U0Sav(:,:) = U0(:,:)
+  if ((IFXMS .and. IFDW) .or. IFRMS) H0Sav(:,:) = H0(:,:)
   iStpGrd = 2
   call Post_Process()
   call CASPT2_TERM()
@@ -425,15 +425,15 @@ subroutine Post_Process()
         call XFlush(u6)
       end if
       do_grad = .true.
-      call DCopy_(nState,ENERGY,1,Esav,1)
-      call DCopy_(nState**2,Ueff,1,UeffSav,1)
-      if (IFXMS .or. IFRMS) call DCopy_(nState**2,U0,1,U0Sav,1)
+      Esav(:) = ENERGY(1:nState)
+      UeffSav(:,:) = Ueff(:,:)
+      if (IFXMS .or. IFRMS) U0Sav(:,:) = U0(:,:)
 
       !! Somehow H0 is wrong for XDW-CASPT2
       !! Maybe, H0(1,1) is computed with rotated basis with
       !! DW-density, while the true value is computed with SA-density
       if (do_grad .and. IFMSCOUP) then
-        if ((IFXMS .and. IFDW) .or. IFRMS) call DCopy_(nState*nState,H0Sav,1,H0,1)
+        if ((IFXMS .and. IFDW) .or. IFRMS) H0(:,:) = H0Sav(:,:)
       end if
       call SavGradParams2(1,UEFF,U0,H0,nState)
 
@@ -444,8 +444,8 @@ subroutine Post_Process()
     ! to the basis of original CASSCF states
     if (nStpGrd == 2) then
       call Backtransform(Heff,UeffSav,U0sav,nState)
-      call DCopy_(nState*nState,UeffSav,1,Ueff,1)
-      call DCopy_(nState,ESav,1,ENERGY,1)
+      Ueff(:,:) = UeffSav(:,:)
+      ENERGY(1:nState) = ESav(:)
     else
       call Backtransform(Heff,Ueff,U0,nState)
     end if
@@ -510,8 +510,7 @@ subroutine HEFF_INI()
   H0(:,:) = Zero
   ! U0 is initialized as the identity matrix, in the case of a
   ! standard MS-CASPT2 calculation it will not be touched anymore
-  U0(:,:) = Zero
-  call dcopy_(Nstate,[One],0,U0,Nstate+1)
+  call unitmat(U0,Nstate)
 
   ! Some preparations for gradient calculation
   if (do_grad) then

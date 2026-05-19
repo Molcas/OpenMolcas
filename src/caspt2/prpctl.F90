@@ -107,7 +107,7 @@ if (MODE == 0) then
     NOCC = NOCC+NBAS(ISYM)
   end do
   call mma_allocate(DMAT,NDMAT,Label='DMAT')
-  call DCOPY_(NDMAT,[Zero],0,DMAT,1)
+  DMAT(:) = Zero
   call mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
   call MKLIST(LISTS,NLSTOT)
   call DENS(IVECX,NDMAT,NSTATE,DMAT,UEFF,U0)
@@ -124,7 +124,7 @@ else
     NOCC = NOCC+NBAS(ISYM)
   end do
   call mma_allocate(DMAT,NDMAT,Label='DMAT')
-  call DCOPY_(NDMAT,[Zero],0,DMAT,1)
+  DMAT(:) = Zero
   !! Copy the unrelaxed density matrix to triangular
   !! The basis of DPT2_tot is natural (CASSCF)
   IDMAT = 0
@@ -167,7 +167,7 @@ else
         call LOADCI_XMS('N',1,NCONF,NSTATE,CI2,KSTATE,U0)
       end if
       call Dens1T_RPT2(CI1,CI2,SGM,TG1,nAshT)
-      call DSCAL_(NASHT**2,SCAL,TG1,1)
+      TG1(:,:) = SCAL*TG1(:,:)
       do II=1,NASH(1)
         II2 = II+NFRO(1)+NISH(1)
         do IJ=1,II
@@ -186,10 +186,10 @@ else
   !! Accordingly, the natural orbitals should be generated
   !! by diagonalizing all orbitals (including frozen), so
   !! make the number of frozen orbitals zero for the moment.
-  call ICOPY(NSYM,NFRO,1,NFROSAV,1)
-  call ICOPY(NSYM,NORB,1,NORBSAV,1)
-  call ICOPY(NSYM,[0],0,NFRO,1)
-  call ICOPY(NSYM,NBAS,1,NORB,1)
+  NFROSAV(1:NSYM) = NFRO(1:NSYM)
+  NORBSAV(1:NSYM) = NORB(1:NSYM)
+  NFRO(1:NSYM) = 0
+  NORB(1:NSYM) = NBAS(1:NSYM)
 end if
 
 ! Compute natural orbitals of CASPT2 wave function.
@@ -212,8 +212,8 @@ call PT2WFN_DENSSTORE(DMAT,NDMAT)
 call mma_deallocate(DMAT)
 if (MODE == 1) then
   !! Restore with frozen orbitals
-  call ICOPY(NSYM,NFROSAV,1,NFRO,1)
-  call ICOPY(NSYM,NORBSAV,1,NORB,1)
+  NFRO(1:NSYM) = NFROSAV(1:NSYM)
+  NORB(1:NSYM) = NORBSAV(1:NSYM)
 end if
 
 if (IFMSCOUP .and. (MODE == 0) .and. (.not. IFPROP)) then

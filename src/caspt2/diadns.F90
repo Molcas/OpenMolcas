@@ -129,8 +129,8 @@ select case (ICASE)
       NI = NISH(ISYMI)
       NKI = NK*NI
       if (NKI == 0) cycle
-      call DCOPY_(NIN*NKI,[Zero],0,X1,1)
-      call DCOPY_(NIN*NKI,[Zero],0,X2,1)
+      X1(1:NIN*NKI) = Zero
+      X2(1:NIN*NKI) = Zero
       if (ICASE == 2) then
         LLST1 = LLIST(ISYMK,ISYM,14)
         NLST1 = NLIST(ISYMK,ISYM,14)
@@ -229,8 +229,8 @@ select case (ICASE)
         NI = NISH(ISYMI)
         NAKI = NA*NK*NI
         if (NAKI == 0) cycle
-        call DCOPY_(NIN*NAKI,[Zero],0,X1,1)
-        call DCOPY_(NIN*NAKI,[Zero],0,X2,1)
+        X1(1:NIN*NAKI) = Zero
+        X2(1:NIN*NAKI) = Zero
         if (ICASE == 6) then
           LLST1 = LLIST(ISYMK,ISYMKI,14)
           NLST1 = NLIST(ISYMK,ISYMKI,14)
@@ -288,8 +288,8 @@ select case (ICASE)
       NA = NSSH(ISYMA)
       NCA = NC*NA
       if (NCA == 0) cycle
-      call DCOPY_(NIN*NCA,[Zero],0,X1,1)
-      call DCOPY_(NIN*NCA,[Zero],0,X2,1)
+      X1(1:NIN*NCA) = Zero
+      X2(1:NIN*NCA) = Zero
       if (ICASE == 8) then
         LLST1 = LLIST(ISYMC,ISYM,16)
         NLST1 = NLIST(ISYMC,ISYM,16)
@@ -340,8 +340,8 @@ select case (ICASE)
         NA = NSSH(ISYMA)
         NICA = NI*NC*NA
         if (NICA == 0) cycle
-        call DCOPY_(NIN*NICA,[Zero],0,X1,1)
-        call DCOPY_(NIN*NICA,[Zero],0,X2,1)
+        X1(1:NIN*NICA) = Zero
+        X2(1:NIN*NICA) = Zero
         if (ICASE == 10) then
           LLST1 = LLIST(ISYMC,ISYMCA,16)
           NLST1 = NLIST(ISYMC,ISYMCA,16)
@@ -399,8 +399,8 @@ select case (ICASE)
       NI = NISH(ISYMI)
       NKI = NK*NI
       if (NKI == 0) cycle
-      call DCOPY_(NAS*NKI,[Zero],0,X1,1)
-      call DCOPY_(NAS*NKI,[Zero],0,X2,1)
+      X1(1:NAS*NKI) = Zero
+      X2(1:NAS*NKI) = Zero
       if (ICASE == 12) then
         LLST1 = LLIST(ISYMK,ISYM,14)
         NLST1 = NLIST(ISYMK,ISYM,14)
@@ -438,8 +438,8 @@ select case (ICASE)
       NA = NSSH(ISYMA)
       NCA = NC*NA
       if (NCA == 0) cycle
-      call DCOPY_(NIS*NCA,[Zero],0,X1,1)
-      call DCOPY_(NIS*NCA,[Zero],0,X2,1)
+      X1(1:NIS*NCA) = Zero
+      X2(1:NIS*NCA) = Zero
       if (ICASE == 12) then
         LLST1 = LLIST(ISYMA,ISYM,16)
         NLST1 = NLIST(ISYMA,ISYM,16)

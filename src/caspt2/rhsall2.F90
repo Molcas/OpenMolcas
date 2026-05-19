@@ -45,9 +45,9 @@ integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call ICopy(NSYM,NISH,1,nSh(1,Inactive),1)
-call ICopy(NSYM,NASH,1,nSh(1,Active),1)
-call ICopy(NSYM,NSSH,1,nSh(1,Virtual),1)
+nSh(1:NSYM,Inactive) = NISH(1:NSYM)
+nSh(1:NSYM,Active) = NASH(1:NSYM)
+nSh(1:NSYM,Virtual) = NSSH(1:NSYM)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

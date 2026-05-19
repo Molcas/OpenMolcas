@@ -58,10 +58,10 @@ koff = 0
 do iSym=1,nSym
   ifr = 1+ioff+nFro(iSym)
   ito = kEOcc+joff
-  call dcopy_(lnOcc(iSym),OrbE(ifr),1,EORb(ito),1)
+  EORb(ito:ito+lnOcc(iSym)-1) = OrbE(ifr:ifr+lnOcc(iSym)-1)
   ifr = 1+ioff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
   ito = kEVir+koff
-  call dcopy_(nSsh(iSym),OrbE(ifr),1,EORb(ito),1)
+  EORb(ito:ito+nSsh(iSym)-1) = OrbE(ifr:ifr+nSsh(iSym)-1)
   ioff = ioff+nBas(iSym)
   joff = joff+lnOcc(iSym)
   koff = koff+nSsh(iSym)
@@ -78,10 +78,10 @@ iOff = 0
 do iSym=1,nSym
   kfr = 1+iOff+nBas(iSym)*nFro(iSym)
   kto = 1+iOff+nBas(iSym)*lnFro(iSym)
-  call dcopy_(nBas(iSym)*lnOcc(iSym),CMO(kfr),1,CMON(kto),1)
+  CMON(kto:kto+nBas(iSym)*lnOcc(iSym)-1) = CMO(kfr:kfr+nBas(iSym)*lnOcc(iSym)-1)
   kfr = 1+iOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
   kto = kto+nBas(iSym)*lnOcc(iSym)
-  call dcopy_(nBas(iSym)*lnVir(iSym),CMO(kfr),1,CMON(kto),1)
+  CMON(kto:kto+nBas(iSym)*lnVir(iSym)-1) = CMO(kfr:kfr+nBas(iSym)*lnVir(iSym)-1)
   iOff = iOff+nBas(iSym)**2
 end do
 

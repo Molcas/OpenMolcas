@@ -379,7 +379,7 @@ do IP3STA=1,NASHT**2,NYZBUF
                 DTU(1:MXCI,1+IP1-IP1STA) = DTU(1:MXCI,1+IP1-IP1STA)+DTG3(JTUVXYZ)*TG3WRK(LTAU:LTAU+MXCI-1)
                 !! For right derivative: <Psi1|Etu|I> * Dtuvxyz
                 !! This is also (slightly) faster than DGEMV, apparently
-                call DaXpY_(MXCI,DTG3(JTUVXYZ),TG3WRK(LSGM1+MXCI*(IP1-IP1STA)),1,BUF1,1)
+                BUF1(:) = BUF1(:)+DTG3(JTUVXYZ)*TG3WRK(LSGM1+MXCI*(IP1-IP1STA):LSGM1+MXCI*(IP1-IP1STA+1)-1)
               end if
               ! End of symmetry requirement IF-clause:
             end if

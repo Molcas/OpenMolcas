@@ -83,11 +83,10 @@ do iSym=1,nSym
   ! Construct the active density of the orbital energy
   ! Assume the state-averaged density (SS- and XMS-CASPT2)
   !nSeq = 0
-  !call DCopy_(nAshI*nAshI,[Zero],0,WRK1,1)
+  !WRK1(1:nAshI**2) = Zero
   !do iState=1,nState
-  !  Wgt = DWgt(iState,iState)
-  !  Wgt = One/nState
-  !  call DaXpY_(nDRef,Wgt,DMIX(:,iState),1,WRK1,1)
+  !  Wgt = DWgt(iState,iState)/real(nState,kind=wp)
+  !  WRK1(1:nDRef) = WRK1(1:nDRef)+Wgt*DMIX(:,iState)
   !end do
   ! RDM of CASSCF
   ! RDMSA is defined by a set of natural orbitals.

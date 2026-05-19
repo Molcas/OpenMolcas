@@ -30,7 +30,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: lg_BDER, lg_SDER, nAS, nIN, iSym, iCase
 integer(kind=iwp) :: I, IDB, iHi, iLo, J, jHi, jLo, LDB, LDV, lg_B, lg_Lag, lg_S, lg_Vec, mB, mV, myRank
-real(kind=wp) :: EVAL, FACT
 logical(kind=iwp) :: bStat
 real(kind=wp), allocatable :: EIG(:)
 #if ! defined (_SCALAPACK_)
@@ -90,10 +89,9 @@ if (iLo /= 0) then
     call ABEND()
   end if
   do I=1,jHi-jLo+1 ! NAS
-    EVAL = EIG(I)
-    if (EVAL < THRSHS) cycle
-    FACT = One/sqrt(EVAL)
-    call DScal_(iHi-iLo+1,FACT,DBL_MB(mV+LDV*(I-1)),1)
+    ! can't use array statement because DBL_MB is out of bounds!
+    !if (EIG(I) >= THRSHS) DBL_MB(mV+LDV*(I-1):mV+LDV*(I-1)+jHi-jLo) = DBL_MB(mV+LDV*(I-1):mV+LDV*(I-1)+jHi-jLo)/sqrt(EIG(I))
+    if (EIG(I) >= THRSHS) call DScal_(iHi-iLo+1,One/sqrt(EIG(I)),DBL_MB(mV+LDV*(I-1)),1)
   end do
   call GA_Release_Update(lg_Vec,iLo,iHi,jLo,jHi)
 end if

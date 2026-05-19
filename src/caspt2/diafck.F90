@@ -46,8 +46,7 @@ do I=IOSTA,IOEND
   end do
 end do
 ! Put unit matrix into TSCT:
-call DCOPY_(NSCT**2,[Zero],0,TSCT,1)
-call DCOPY_(NSCT,[One],0,TSCT,NSCT+1)
+call unitmat(TSCT,NSCT)
 ! Diagonalize, and order for best submatrix condition:
 call Jacob(TMP,TSCT,NSCT,NSCT)
 
@@ -80,7 +79,7 @@ end do
 
 ! Transform the Fock matrix:
 call DGEMM_('N','N',NO,NSCT,NSCT,One,FOCK(1,IOSTA),NO,TSCT,NSCT,Zero,TMP,NO)
-call DCOPY_(NO*NSCT,TMP,1,FOCK(1,IOSTA),1)
+FOCK(:,IOSTA:IOEND) = reshape(TMP(:),[NO,NSCT])
 
 do I=IOSTA,IOEND
   do J=1,NO

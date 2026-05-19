@@ -66,7 +66,7 @@ select case (IMLTOP)
       JX = JXOFF+L1
       do J=jYLo,jYHi
         A = V*Y(L3,J-jYLo+1)
-        call DAXPY_(NAS1,A,X(1,JX+(J-1)*NI),1,F(1,L2),1)
+        F(1:NAS1,L2) = F(1:NAS1,L2)+A*X(:,JX+(J-1)*NI)
       end do
     end do
 end select

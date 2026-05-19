@@ -76,11 +76,11 @@ if (nlev == 0) return
 
 G1(:,:) = Zero
 G2(:,:,:,:) = Zero
-call DCOPY_(NG3,[Zero],0,G3,1)
+G3(1:NG3) = Zero
 if (mkF) then
   F1(:,:) = Zero
   F2(:,:,:,:) = Zero
-  call DCOPY_(NG3,[Zero],0,F3,1)
+  F3(1:NG3) = Zero
 end if
 
 if (NACTEL == 0) return
@@ -253,7 +253,7 @@ do issg1=1,nsym
         if (istu == isp1) then
           ibuf1 = ibuf1+1
           ip1_buf(ibuf1) = ip1i
-          !call dcopy_(nsgm1,[Zero],0,BUF1(:,ibuf1),1)
+          !BUF1(1:nsgm1,ibuf1) = Zero
           !call SG_Epq_Psi(IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
         end if
       end do
@@ -310,7 +310,7 @@ do issg1=1,nsym
     !nsgm2 = CIS%ncsf(issg2)
     iy = L2ACT(iylev)
     iz = L2ACT(izlev)
-    !call dcopy_(nsgm2,Zero,0,BUF2,1)
+    !BUF2(1:nsgm2) = Zero
     !call SG_Epq_Psi(IYLEV,IZLEV,One,STSYM,CI,BUF2)
     !if (issg2 == issg1) then
     !  do ib=1,ibuf1
@@ -337,7 +337,7 @@ do issg1=1,nsym
       iv = L2ACT(ivlev)
       ix = L2ACT(ixlev)
       if (isvx == Mul(issg1,issg2)) then
-        !call dcopy_(nsgm1,[Zero],0,BUFT,1)
+        !BUFT(1:nsgm1) = Zero
         !call SG_Epq_Psi(IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
         !-----------
         ! Max and min values of index p1:
@@ -366,7 +366,7 @@ do issg1=1,nsym
           ! Contract the Sgm1 wave functions with the Tau wave function.
           !call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,buft,1,Zero,bufr,1)
           ! and distribute this result into G3:
-          !call DCOPY_(nb,bufr,1,G3(iG3OFF+1),1)
+          !G3(iG3OFF+1:iG3OFF+bufr) = bufr(1:nb)
           ! and copy the active indices into idxG3:
           do ib=1,nb
             iG3 = iG3OFF+ib
@@ -388,8 +388,8 @@ do issg1=1,nsym
           !    buft(icsf) = (bufd(icsf)-epsa(iv))*buft(icsf)
           !  end do
           !  ! so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-          ! call DGEMV_('T',nsgm1,nb,One,BUF1(:ibmn),mxci,buft,1,Zero,bufr,1)
-          ! call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
+          !  call DGEMV_('T',nsgm1,nb,One,BUF1(:ibmn),mxci,buft,1,Zero,bufr,1)
+          !  F3(iG3OFF+1:iG3OFF+nb) = bufr(1:nb)
           !end if
           iG3OFF = iG3OFF+nb
           nbtot = nbtot+nb

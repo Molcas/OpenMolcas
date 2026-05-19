@@ -124,7 +124,7 @@ do ICASE=1,13
       call RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
       call CASPT2_ResD(2,nIN,nIS,lg_V1,lg_V2,BD,ID)
 
-      call DScal_(NDPT2,-One,DPT2,1)
+      DPT2(:) = -DPT2(:)
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) then
         if (KING()) then
@@ -149,7 +149,7 @@ do ICASE=1,13
 #     ifdef _MOLCAS_MPP_
       end if
 #     endif
-      call DScal_(NDPT2,-One,DPT2,1)
+      DPT2(:) = -DPT2(:)
       call mma_deallocate(BD)
       call mma_deallocate(ID)
     end if

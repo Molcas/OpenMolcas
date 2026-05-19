@@ -16,7 +16,6 @@
 subroutine eigen(A,U,N)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -38,8 +37,7 @@ do I=1,N
 end do
 
 ! Initialize U as the identity matrix
-U(:,:) = Zero
-call dcopy_(N,[One],0,U,N+1)
+call unitmat(U,N)
 
 ! Call Jacobi algorithm
 call JACOB(SCR,U,N,N)

@@ -20,7 +20,7 @@ subroutine REF_NATO(DREF,nDREF,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
 
 use caspt2_module, only: NASH, NBAS, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
@@ -42,16 +42,16 @@ do ISYM=1,NSYM
   ! Frozen and inactive orbitals:
   NFI = NF+NI
   if (NFI > 0) then
-    call DCOPY_(NFI,[Two],0,OCC(IOCC+1),1)
+    OCC(IOCC+1:IOCC+NFI) = Two
     IOCC = IOCC+NFI
-    call DCOPY_(NB*NFI,CMO(ICMO+1),1,CNAT(ICMO+1),1)
+    CNAT(ICMO+1:ICMO+NB*NFI) = CMO(ICMO+1:ICMO+NB*NFI)
     ICMO = ICMO+NB*NFI
   end if
   ! Active orbitals:
   if (NA > 0) then
     NTMP = (NA*(NA+1))/2
     call mma_allocate(TMP,NTMP,LABEL='TMP')
-    call DCOPY_(NB*NA,CMO(ICMO+1),1,CNAT(ICMO+1),1)
+    CNAT(ICMO+1:ICMO+NB*NA) = CMO(ICMO+1:ICMO+NB*NA)
     ! For correct ordering, change sign.
     LIJ = 1
     do I=1,NA
@@ -67,7 +67,7 @@ do ISYM=1,NSYM
     call VEIG(NA,TMP,OCC(IOCC+1))
     call mma_deallocate(TMP)
     ! Change back to positive sign.
-    call DSCAL_(NA,-One,OCC(IOCC+1),1)
+    OCC(IOCC+1:IOCC+NA) = -OCC(IOCC+1:IOCC+NA)
     ! Certain CAS or RAS wave functions can legitimately have
     ! occupation numbers that are exactly 0 or 2. These may become
     ! inappropriate by rounding. Fix that as well.
@@ -84,9 +84,9 @@ do ISYM=1,NSYM
   ! Secondary and deleted orbitals:
   NSD = NB-(NFI+NA)
   if (NSD > 0) then
-    call DCOPY_(NSD,[Zero],0,OCC(IOCC+1),1)
+    OCC(IOCC+1:IOCC+NSD) = Zero
     IOCC = IOCC+NSD
-    call DCOPY_(NB*NSD,CMO(ICMO+1),1,CNAT(ICMO+1),1)
+    CNAT(ICMO+1:ICMO+NB*NSD) = CMO(ICMO+1:ICMO+NB*NSD)
     ICMO = ICMO+NB*NSD
   end if
 end do

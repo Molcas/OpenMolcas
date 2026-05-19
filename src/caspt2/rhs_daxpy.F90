@@ -51,13 +51,15 @@ if (Is_Real_Par()) then
     call GA_Access(lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
     call GA_Access(lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
     ! V2 <- alpha*V1 + V2
+    ! can't use array statement because DBL_MB is out of bounds!
+    !DBL_MB(mV2:mV2+NV1-1) = DBL_MB(mV2:mV2+NV1-1)+ALPHA*DBL_MB(mV1:mV1+NV1-1)
     call DAXPY_(NV1,ALPHA,DBL_MB(mV1),1,DBL_MB(mV2),1)
     call GA_Release_Update(lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
     call GA_Release(lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
   end if
 else
 #endif
-  call DAXPY_(NAS*NIS,ALPHA,GA_Arrays(lg_V1)%A,1,GA_Arrays(lg_V2)%A,1)
+  GA_Arrays(lg_V2)%A(1:NAS*NIS) = GA_Arrays(lg_V2)%A(1:NAS*NIS)+ALPHA*GA_Arrays(lg_V1)%A(1:NAS*NIS)
 #ifdef _MOLCAS_MPP_
 end if
 #endif

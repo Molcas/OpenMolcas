@@ -35,7 +35,7 @@ integer(kind=iwp) :: I, IA, IAEND, IASTA, IB, IBATCH, IBATCH_TOT, IBEND, IBSTA, 
                      ILOC, ip_htspc, ip_HTVec(8), IP_LHT, IRC, ISFA, ISFF, ISFI, ISTART(8), ISYM, ISYMA, ISYMB, ISYMK, ISYMW, &
                      ISYP, ISYQ, J, JNUM, JRED, JRED1, JRED2, JREDC, JSTART, JSYM, JV1, JV2, LC, LO, LSC, LSO, MUSED, N, N1, N2, &
                      NA, NASZ, NB, NBATCH, NBUFFY, NCES(8), NF, NHTOFF, NI, NISZ, NK, NPQ, NRS, NUMV, NUSE(8), NVECS_RED, NW
-real(kind=wp) :: FACTC, FACTXA, FACTXI, SCL
+real(kind=wp) :: FACTC, FACTXA, FACTXI
 real(kind=wp), allocatable :: BUFFY(:), CHSPC(:), CNAT(:), DA(:), DA_RED(:), DF(:), DF_RED(:), DI(:), DI_RED(:), FA_RED(:), &
                               FF_RED(:), FI_RED(:), FTSPC(:), HTSPC(:), OCC(:), VEC(:)
 #ifdef _DEBUGPRINT_
@@ -122,8 +122,7 @@ do ISYM=1,NSYM
   LO = LSO+NF+NI
   LC = LSC+NB*(NF+NI)
   do IA=1,NA
-    SCL = sqrt(Half*OCC(LO))
-    call DSCAL_(NB,SCL,CNAT(LC),1)
+    CNAT(LC:LC+NB-1) = sqrt(Half*OCC(LO))*CNAT(LC:LC+NB-1)
     LO = LO+1
     LC = LC+NB
   end do

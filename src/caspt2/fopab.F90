@@ -113,7 +113,7 @@ end if
 
 ! Compute (lowering part of) FIFA operator acting on
 ! the ket wave function.
-call DCOPY_(NCONF,[Zero],0,SGM,1)
+SGM(:) = Zero
 do LEVU=1,NLEV
   IUABS = L2ACT(LEVU)
   ISU = SGS%ISM(LEVU)
@@ -134,7 +134,7 @@ do LEVU=1,NLEV
   end do
 end do
 ! Add contribution from inactive part:
-call DAXPY_(NCONF,EINACT,KET,1,SGM,1)
+SGM(:) = SGM(:)+EINACT*KET(:)
 
 if (IFTEST > 0) then
   write(u6,*) ' SGM array from (lowering F)|KET>:'
@@ -157,7 +157,7 @@ end if
 ! We are computing contributions <KET|Etu|BRA> with t<u, then
 ! using them as <BRA|Eut|KET>
 ! Note that I already have BRA in memory
-call DCOPY_(NCONF,[Zero],0,SGM,1)
+SGM(:) = Zero
 do LEVU=2,NLEV
   IUABS = L2ACT(LEVU)
   ISU = SGS%ISM(LEVU)

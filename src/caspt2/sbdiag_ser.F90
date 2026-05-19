@@ -48,10 +48,10 @@ use Definitions, only: wp, iwp, u6, ItoB
 implicit none
 integer(kind=iwp), intent(in) :: iSym, iCase
 real(kind=wp), intent(out) :: CondNr, CPU
-integer(kind=iwp) :: I, IDB, IDB2, IDIAG, IDS, IDST, IDT, IDTMP, IDTMP0, IJ, INFO, iPad, J, JOFF, KEND, KSTA, LTRANS1, LVNEW, &
-                     LVSTA, NAS, NAUX, NB, NBNEW, NCOEF, NCOL, NIN, NIS, NS, NSCRATCH
-real(kind=wp) :: CPU1, CPU2, CPUE, EVAL, FACT, FP, SDIAG, SZ, SZMAX, SZMIN, TIO, TIOE, WGRONK(2)
-real(kind=wp), allocatable :: AUX(:), B(:), BD(:), BX(:), EIG(:), S(:), SCA(:), SCRATCH(:), SD(:), ST(:), TRANS(:), VEC(:), XBX(:)
+integer(kind=iwp) :: I, IDB, IDB2, IDIAG, IDS, IDST, IDT, IDTMP, IDTMP0, IJ, INFO, iPad, J, JOFF, KEND, KSTA, LTRANS1, NAS, NAUX, &
+                     NB, NBNEW, NCOEF, NCOL, NIN, NIS, NS, NSCRATCH
+real(kind=wp) :: CPU1, CPU2, CPUE, FP, SDIAG, SZ, SZMAX, SZMIN, TIO, TIOE, WGRONK(2)
+real(kind=wp), allocatable :: AUX(:), B(:), BD(:), BX(:), EIG(:), S(:), SCA(:), SCRATCH(:), SD(:), ST(:), TRANS(:), VEC(:,:), XBX(:)
 real(kind=wp), external :: DNRM2_
 
 SDiag = Zero ! dummy initialize
@@ -129,7 +129,7 @@ if (IPRGLB >= INSANE) then
 end if
 
 ! DIAGONALIZE THE SCALED S MATRIX:
-call mma_allocate(VEC,NAS**2,Label='VEC')
+call mma_allocate(VEC,NAS,NAS,Label='VEC')
 call mma_allocate(EIG,NAS,Label='EIG')
 
 call TIMING(CPU1,CPUE,TIO,TIOE)
@@ -137,7 +137,7 @@ IJ = 0
 do J=1,NAS
   do I=1,J
     IJ = IJ+1
-    VEC(NAS*(J-1)+I) = S(IJ)
+    VEC(I,J) = S(IJ)
   end do
 end do
 INFO = 0
@@ -159,23 +159,16 @@ end if
 ! Form orthonormal vectors by scaling eigenvectors
 NIN = 0
 do I=1,NAS
-  EVAL = EIG(I)
-  if (EVAL < THRSHS) cycle
-  FACT = One/sqrt(EVAL)
-  NIN = NIN+1
-  LVSTA = 1+NAS*(I-1)
-  if (NIN == I) then
-    call DSCAL_(NAS,FACT,VEC(LVSTA:),1)
-  else
-    LVNEW = 1+NAS*(NIN-1)
-    call DYAX(NAS,FACT,VEC(LVSTA:),1,VEC(LVNEW:),1)
+  if (EIG(I) > THRSHS) then
+    NIN = NIN+1
+    VEC(:,NIN) = VEC(:,I)/sqrt(EIG(I))
   end if
 end do
 NINDEP(ISYM,ICASE) = NIN
 call mma_deallocate(EIG)
 ! Addition, for the scaled symmetric ON.
-do I=1,NAS
-  call DSCAL_(NIN,SCA(I),VEC(I:),NAS)
+do I=1,NIN
+  VEC(:,I) = SCA(:)*VEC(:,I)
 end do
 
 call mma_deallocate(SCA)
@@ -184,7 +177,7 @@ if (NIN >= 2) then
   SZMIN = 1.0e99_wp
   SZMAX = Zero
   do I=1,NIN
-    SZ = DNRM2_(NAS,VEC(1+NAS*(I-1):),1)
+    SZ = DNRM2_(NAS,VEC(:,I),1)
     SZMIN = min(SZMIN,SZ)
     SZMAX = max(SZMAX,SZ)
   end do
@@ -252,8 +245,7 @@ call DDAFILE(LUSOLV,1,VEC,NAS*NAUX,IDTMP)
 do KSTA=NAUX+1,NIN,NAUX
   KEND = min(KSTA-1+NAUX,NIN)
   NCOL = 1+KEND-KSTA
-  LVSTA = 1+NAS*(KSTA-1)
-  call DDAFILE(LUSOLV,1,VEC(LVSTA),NAS*NCOL,IDTMP)
+  call DDAFILE(LUSOLV,1,VEC(:,KSTA:KEND),NAS*NCOL,IDTMP)
 end do
 if (IPRGLB >= INSANE) then
   FP = DNRM2_(NAS**2,VEC,1)
@@ -278,20 +270,19 @@ end if
 call mma_allocate(BX,NAS,Label='BX')
 call mma_allocate(XBX,NAS,Label='XBX')
 do J=NIN,1,-1
-  LVSTA = 1+NAS*(J-1)
   BX(:) = Zero
-#ifdef _CRAY_C90_
-  call SSPMV('U',NAS,One,B,VEC(LVSTA),1,One,BX,1)
-#else
-  !call DSLMX(NAS,One,B,VEC(LVSTA),1,BX,1)
-  call DSPMV_('U',NAS,One,B,VEC(LVSTA),1,One,BX,1)
-#endif
+# ifdef _CRAY_C90_
+  call SSPMV('U',NAS,One,B,VEC(:,J),1,One,BX,1)
+# else
+  !call DSLMX(NAS,One,B,VEC(:,J),1,BX,1)
+  call DSPMV_('U',NAS,One,B,VEC(:,J),1,One,BX,1)
+# endif
   ! BX: B * Vector number J.
-  call DCOPY_(J,[Zero],0,XBX,1)
+  XBX(1:J) = Zero
   call DGEMM_('T','N',J,1,NAS,One,VEC,NAS,BX,NAS,Zero,XBX,J)
   ! XBX CONTAINS NOW THE UPPERTRIANGULAR
   ! ELEMENTS OF THE J-th COLUMN OF TRANSFORMED B MATRIX.
-  call DCOPY_(J,XBX,1,VEC(LVSTA),1)
+  VEC(1:J,J) = XBX(1:J)
 end do
 call mma_deallocate(BX)
 call mma_deallocate(XBX)
@@ -302,7 +293,7 @@ NBNEW = (NIN*(NIN+1))/2
 call mma_allocate(B,NBNEW,Label='B')
 do J=1,NIN
   JOFF = (J*(J-1))/2
-  call DCOPY_(J,VEC(1+NAS*(J-1):),1,B(1+JOFF:),1)
+  B(JOFF+1:JOFF+J) = VEC(1:J,J)
 end do
 call mma_deallocate(VEC)
 if (IPRGLB >= INSANE) then
@@ -312,7 +303,7 @@ end if
 
 ! DIAGONALIZE THE TRANSFORMED B MATRIX.
 call mma_allocate(EIG,NIN,Label='EIG')
-call mma_allocate(VEC,NIN**2,Label='VEC')
+call mma_allocate(VEC,NIN,NIN,Label='VEC')
 call TIMING(CPU1,CPUE,TIO,TIOE)
 ! - Alt 0: Use diagonal approxim., if allowed:
 if (BSPECT /= 'YES') then
@@ -329,7 +320,7 @@ else
   do J=1,NIN
     do I=1,J
       IJ = IJ+1
-      VEC(NIN*(J-1)+I) = B(IJ)
+      VEC(I,J) = B(IJ)
     end do
   end do
   call DSYEV_('V','U',NIN,VEC,NIN,EIG,WGRONK,-1,INFO)
@@ -365,17 +356,17 @@ call DDAFILE(LUSOLV,2,AUX,NAS*NAUX,IDTMP)
 if (BTRANS == 'YES') then
   call DGEMM_('N','N',NAS,NIN,NAUX,One,AUX,NAS,VEC,NIN,Zero,TRANS,NAS)
 else
-  call DCOPY_(NAS*NAUX,AUX,1,TRANS,1)
+  TRANS(1:NAS*NAUX) = AUX(:)
 end if
 do KSTA=NAUX+1,NIN,NAUX
   KEND = min(KSTA-1+NAUX,NIN)
   NCOL = 1+KEND-KSTA
   call DDAFILE(LUSOLV,2,AUX,NAS*NCOL,IDTMP)
   if (BTRANS == 'YES') then
-    call DGEMM_('N','N',NAS,NIN,NCOL,One,AUX,NAS,VEC(KSTA),NIN,One,TRANS,NAS)
+    call DGEMM_('N','N',NAS,NIN,NCOL,One,AUX,NAS,VEC(KSTA,1),NIN,One,TRANS,NAS)
   else
-    LTRANS1 = 1+NAS*(KSTA-1)
-    call DCOPY_(NAS*NCOL,AUX,1,TRANS(LTRANS1),1)
+    LTRANS1 = NAS*(KSTA-1)
+    TRANS(LTRANS1+1:LTRANS1+NAS*NCOL) = AUX(1:NAS*NCOL)
   end if
 end do
 call mma_deallocate(AUX)

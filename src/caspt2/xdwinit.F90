@@ -57,7 +57,7 @@ do Istate=1,Nstate
 
   ! Average the density
   DAVE(:) = DAVE(:)+DREF(:)
-  !call DAXPY_(SIZE(DREF),wgt,DREF,1,DAVE,1)
+  !DAVE(:) = DAVE(:)+wgt*DREF(:)
 
 end do
 DAVE(:) = Wgt*DAVE(:)
