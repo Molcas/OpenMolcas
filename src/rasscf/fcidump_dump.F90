@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
+!               2026, Jaafar Mehrez                                    *                  
 !***********************************************************************
 
 #include "macros.fh"
