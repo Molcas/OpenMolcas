@@ -1468,7 +1468,7 @@ Keywords
   atoms specified by :kword:`HFCAt`. For example, 199Hg has a spin of 1/2, which can be specified as 0.5.
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NSPIn" APPEAR="Nuclear Spins" KIND="INTS_LOOKUP" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NSPIn" APPEAR="Nuclear Spins" KIND="REALS_LOOKUP" LEVEL="ADVANCED">
               %%Keyword: NSPIn <advanced>
               <HELP>
               This keyword specifies the nuclear spins of the atoms.

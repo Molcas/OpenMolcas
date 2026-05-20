@@ -124,6 +124,7 @@ Stefan Knecht
 Vladislav Kochetov  
 Jesper Wisborg Krogh  
 Teodoro Laino  
+Dong Q. Le  
 Susi Lehtola  
 Giovanni Li Manni  
 Roland Lindh  
@@ -210,5 +211,4 @@ Lila Zapp
 Alexander Zech  
 Yan Zhao  
 Chen Zhou  
-J. Patrick Zobel 
-Dong Q. Le
+J. Patrick Zobel  

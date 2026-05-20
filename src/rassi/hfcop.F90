@@ -1160,7 +1160,7 @@ subroutine calc_h_PSO(PROP)
     call SMMAT(PROP,Im_h_PSO(i,:,:),NSS,PSO_idx(iAtom,i),i)
   enddo
 
-  h_PSO = cmplx(0.0_wp, Im_h_PSO, kind=wp)
+  h_PSO(:,:,:) = cmplx(0.0_wp, Im_h_PSO(:,:,:), kind=wp)
 
   call mma_deallocate(Im_h_PSO)
 
