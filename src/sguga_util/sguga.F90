@@ -57,11 +57,26 @@ public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkSgNum, SG_Free
 public :: SG_Init_Simple
 
-integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
-                                IC1(26)   = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
-                                IC2(26)   = [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3], &
-                                ISVC(26)  = [1,1,1,1,1,6,1,5,1,2,4,7,2,1,7,3,2,2,1,5,1,6,1,1,1,1], &
-                                ITVPT(26) = [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3]
+! This lists 26 different types of segments, i=1,...,26
+!  1- 4: segments of the head walk from the loop head to the graph head
+!  5- 8: head segments
+!  9-13: intermediate segments for the case delta(b)=-1
+! 14-18: intermediate segments for the case delta(b)=+1
+! 19-22: tails segments
+! 23-26: segments of the tail walk from the loop tail to the graph tail
+
+! Vector descriptions:
+! IC1(i) and IC2(i): each segment, i, is described by the pair of step vector (IC1(i),IC2(I)), where IC1(i) is the step vector of
+! the bra CSF and iC2(i) is the step vector of the ket CSF.
+! IBVPT(i):
+!  ISVC(i): the index ISVC(i), tells which formula to use to compute the segment value of the associated segment
+! ITVPT(i):
+integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0, 1,1,2,2, 1,1,2,1,1, 2,2,1,2,2, 3,3,3,3, 3,3,3,3], &
+                                IC1(26)   = [0,1,2,3, 0,2,0,1, 0,1,1,2,3, 0,1,2,2,3, 1,3,2,3, 0,1,2,3], &
+                                IC2(26)   = [0,1,2,3, 1,3,2,3, 0,1,2,2,3, 0,1,1,2,3, 0,2,0,1, 0,1,2,3], &
+                                ISVC(26)  = [1,1,1,1, 1,6,1,5, 1,2,4,7,2, 1,7,3,2,2, 1,5,1,6, 1,1,1,1], &
+                                ITVPT(26) = [0,0,0,0, 0,0,0,0, 1,1,1,1,1, 2,2,2,2,2, 1,1,2,2, 3,3,3,3]
+
 
 contains
 
@@ -69,7 +84,7 @@ subroutine MKSGUGA(SGS,CIS)
 ! PURPOSE: MAKE THE GUGA TABLES
 ! NOTE:    TO RETAIN THE TABLES AVAILABLE FOR LATER PURPOSES
 !          THE START ADDRESSES OF OF THE ARRAYS ETC. ARE STORED IN
-!          THREE USER DEFINED TYPES. Consult the gugx module for the details.
+!          THREE USER DEFINED TYPES. Consult the sguga module for the details.
 
   type(SGStruct), target, intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
@@ -1224,6 +1239,7 @@ do IVLT=1,SGS%nVert
     IVRT = IVLT
     if ((ITT == 1) .or. (ITT == 2)) IVRT = CIS%IVR(IVLT,ITT)
     if (IVRT == 0) cycle
+
     IVLB = SGS%Down(IVLT,IC1(ISGT))
     if (IVLB == 0) cycle
     IVRB = SGS%Down(IVRT,IC2(ISGT))
