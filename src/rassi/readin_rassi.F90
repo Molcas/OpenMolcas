@@ -934,26 +934,33 @@ endsubroutine
 !----------------------------------------------------------------------
 subroutine gen_hfc_prop_labels()
   integer :: iAtom
-  logical :: do_prop
+  logical :: do_calc, do_EPR, do_pNMR
 !PURPOSE: Post-processing to generate PROPerties labels
 !         for HFC and pNMR calculations.
 
-! write(6,*) "Auto-generate labels for HFC"
-! write(6,*) "NPROP ", NPROP, "MXPROP ", MXPROP
-
-! Hyperfine calculation needs ASD and PSOP properties
   call mma_allocate(ASD_idx,NAtoms,6,'LASD')
   call mma_allocate(PSO_idx,NAtoms,3,'LPSO')
-  ASD_idx(:,:)=-1
-  PSO_idx(:,:)=-1
 
+  ASD_idx(:,:) = -1
+  PSO_idx(:,:) = -1
+
+!NOTE  : This logic follows the same branching structure as route_calc in hfcop.F90, but skips iterator updates.
   do iAtom = 1, NAtoms
-    if (.not. HypF_rms_Req .and. allocated(Atens_req)) then
-      do_prop = Atens_req(iAtom)
-    else if (.not. HypF_rms_Req .and. allocated(pNMR_req)) then
-      do_prop = pNMR_req(iAtom)
-    end if
-    if (do_prop) then
+
+    do_calc  = .false.
+    do_EPR   = .false.
+    do_pNMR  = .false.
+
+    if (allocated(Atens_Req)) do_EPR = Atens_Req(iAtom)
+    if (allocated(pNMR_req)) do_pNMR = pNMR_req(iAtom)
+
+    if (HypF_rms_Req) then
+      do_calc = .true.
+    else
+      do_calc = do_EPR .or. do_pNMR
+    endif
+
+    if (do_calc) then
       call gen_proplab('ASD ', iAtom, 6, ASD_idx)
       call gen_proplab('PSOP', iAtom, 3, PSO_idx)
     end if
