@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
-!               2026, Jaafar Mehrez                                    *                  
+!               2026, Nike Dattani                                     *
+!               2026, Jaafar Mehrez                                    *
 !***********************************************************************
 
 #include "macros.fh"

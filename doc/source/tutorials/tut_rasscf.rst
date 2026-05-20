@@ -362,7 +362,7 @@ contain the |openmolcas| input file (e.g. ``in.input``) and the
 :math:`D_{2h}` symmetry with the 6-31G basis set is given below. ::
 
   #!/bin/sh
-  ##SBATCH --partition=gpu
+  #SBATCH --partition=gpu
   #SBATCH --job-name=OpenMolcas-MRCC
   #SBATCH --nodes=1
   #SBATCH --ntasks-per-node=1
@@ -400,7 +400,6 @@ and the :program:`MRCC` input file ``MINP`` reads::
   uncontract=off
   calc=CCSDTQ
   ccprog=mrcc
-  #mem=8GB
   core=corr
   itol=18
   scftol=13
@@ -409,16 +408,18 @@ and the :program:`MRCC` input file ``MINP`` reads::
   scfmaxit=9999
   scfiguess=ao
   scftype=RHF
-  #rohftype=standard
   rest=2
   charge=+0
   mult=1
-  #refdet=serialno
-  #1-5
   symm=1
   occ=2,0,0,0,0,1,1,1
   geom
   NE
-
   tprint=0.01
   verbosity=3
+
+Both workflows produce the same total energy, confirming that the
+integrals are transferred correctly::
+
+  MRCC-MRCC       : -128.589 793 424 699
+  OpenMolcas-MRCC : -128.589 793 424 699
