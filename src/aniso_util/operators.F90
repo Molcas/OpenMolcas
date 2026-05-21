@@ -30,6 +30,7 @@ subroutine ITO(N,k,q,C0,Cp,Cm)
 ! Cm = O- operator (output), complex
 ! C0 = CG0  (output), real number, positive
 
+use wigner_util, only: wcg_real
 use Constants, only: Half, cOne
 use Definitions, only: wp, iwp
 
@@ -50,8 +51,8 @@ do m1=1,n
   do m2=1,n
     rm1 = rS-real(m1-1,kind=wp)
     rm2 = rS-real(m2-1,kind=wp)
-    call Clebsch_Gordan(rS,rm2,rK,rQ,rS,rm1,CGp)
-    call Clebsch_Gordan(rS,rm2,rK,-rQ,rS,rm1,CGm)
+    CGp = wcg_real(rS,rm2,rK,rQ,rS,rm1)
+    CGm = wcg_real(rS,rm2,rK,-rQ,rS,rm1)
     Cp(m1,m2) = CGp/C0*cOne
     Cm(m1,m2) = CGm/C0*cOne
   end do
@@ -197,6 +198,7 @@ subroutine Stewens_matrixel(N,M,d,ITO_O,ITO_W,IPRINT)
 !               operators in the basis of effective spin eigenfunctions
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use wigner_util, only: wcg_real
 use Constants, only: Zero, Half, cZero, cOne
 use Definitions, only: wp, iwp, u6
 
@@ -248,7 +250,7 @@ do ms1=-(d-NPAR)/2,(d-NPAR)/2
     end if
     coeffCG = Zero
 
-    call Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
+    coeffCG = wcg_real(a,al,b,bt,c,gm)
 
     ITO_PLUS(ms1,ms2) = coeffCG*COEFF_REDUS*cOne
 
@@ -286,7 +288,7 @@ do ms1=-(d-NPAR)/2,(d-NPAR)/2
     end if
     coeffCG = Zero
 
-    call Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
+    coeffCG = wcg_real(a,al,b,bt,c,gm)
 
     ITO_MINUS(ms1,ms2) = coeffCG*COEFF_REDUS*cOne
 
@@ -435,256 +437,6 @@ return
 
 end subroutine COEFF_REDUS_SUB
 
-subroutine Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
-
-use Constants, only: Zero, Two
-use Definitions, only: wp, iwp
-
-implicit none
-real(kind=wp), intent(in) :: a, al, b, bt, c, gm
-real(kind=wp), intent(out) :: coeffCG
-integer(kind=iwp) :: i, lb1, lb2
-real(kind=wp) :: s1, s2, u
-real(kind=wp), external :: fct
-
-! exclude the cases for which CG coefficients are exactly zero
-coeffCG = Zero
-if ((al+bt) /= gm) return
-if (a < Zero) return
-if (b < Zero) return
-if (c < Zero) return
-if (abs(al) > a) return
-if (abs(bt) > b) return
-if (abs(gm) > c) return
-if ((abs(a-b) > c) .or. ((a+b) < c)) return
-if ((abs(b-c) > a) .or. ((b+c) < a)) return
-if ((abs(c-a) > b) .or. ((c+a) < b)) return
-if (mod(nint(Two*a),2) /= mod(nint(Two*abs(al)),2)) return
-if (mod(nint(Two*b),2) /= mod(nint(Two*abs(bt)),2)) return
-if (mod(nint(Two*c),2) /= mod(nint(Two*abs(gm)),2)) return
-u = Zero
-lb1 = int(min(c-b+al,c-a-bt))
-lb2 = int(min(a+b-c,a-al,b+bt))
-if (lb1 < 0) then
-  if (-lb1 > lb2) then
-    coeffCG = Zero
-    return
-  else
-
-    do i=-lb1,lb2
-      u = u+real((-1)**i,kind=wp)/ &
-          real(fct(i)*fct(nint(a-al-i))*fct(nint(b+bt-i))*fct(nint(a+b-c-i))*fct(nint(c-b+al+i))*fct(nint(c-a-bt+i)),kind=wp)
-    end do
-  end if
-else
-  do i=0,lb2
-    u = u+real((-1)**i,kind=wp)/ &
-        real(fct(i)*fct(nint(a-al-i))*fct(nint(b+bt-i))*fct(nint(a+b-c-i))*fct(nint(c-b+al+i))*fct(nint(c-a-bt+i)),kind=wp)
-  end do
-end if
-
-s1 = sqrt(real(fct(nint(a+b-c))*fct(nint(a-b+c))*fct(nint(-a+b+c)),kind=wp)/real(fct(nint(a+b+c+1)),kind=wp))
-s2 = sqrt(real(fct(nint(a+al))*fct(nint(a-al))*fct(nint(b+bt))*fct(nint(b-bt))*fct(nint(c+gm))*fct(nint(c-gm))*(2*c+1),kind=wp))
-
-coeffCG = u*s1*s2
-
-return
-
-end subroutine Clebsch_Gordan
-
-function W9J(a,b,c,d,e,f,g,h,j)
-! Calculates a Wigner 9-j symbol. Argument a-j are Integer and are
-! twice the true value of the 9-j's arguments, in the form
-! { a b c }
-! { d e f }
-! { g h j }
-! this is the implementation the formula 10.2.4. (20) from:
-!   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
-
-use Constants, only: Zero
-use Definitions, only: wp, iwp
-
-implicit none
-real(kind=wp) :: W9J
-integer(kind=iwp), intent(in) :: a, b, c, d, e, f, g, h, j
-integer(kind=iwp) :: n, nhig, nlow
-real(kind=wp), external :: W6J
-logical(kind=iwp), external :: check_triangle
-
-W9j = Zero
-if (mod(a+b,2) /= mod(c,2)) return
-if (mod(d+e,2) /= mod(f,2)) return
-if (mod(g+h,2) /= mod(j,2)) return
-if (mod(a+d,2) /= mod(g,2)) return
-if (mod(b+e,2) /= mod(h,2)) return
-if (mod(c+f,2) /= mod(j,2)) return
-if ((abs(a-b) > c) .or. (a+b < c)) return
-if ((abs(d-e) > f) .or. (d+e < f)) return
-if ((abs(g-h) > j) .or. (g+h < j)) return
-if ((abs(a-d) > g) .or. (a+d < g)) return
-if ((abs(b-e) > h) .or. (b+e < h)) return
-if ((abs(c-f) > j) .or. (c+f < j)) return
-if (.not. check_triangle(a,b,c)) return
-if (.not. check_triangle(d,e,f)) return
-if (.not. check_triangle(g,h,j)) return
-if (.not. check_triangle(a,d,g)) return
-if (.not. check_triangle(b,e,h)) return
-if (.not. check_triangle(c,f,j)) return
-
-nlow = max(abs(a-j)/2,abs(d-h)/2,abs(b-f)/2)
-nhig = min((a+j)/2,(d+h)/2,(b+f)/2)
-
-do n=nlow,nhig
-  W9j = W9j+real(2*n+1,kind=wp)*real((-1)**(2*n),kind=wp)*W6J(a,b,c,f,j,2*n)*W6J(d,e,f,b,2*n,h)*W6J(g,h,j,2*n,a,d)
-end do
-
-return
-
-end function W9J
-
-function W6J(a,b,c,d,e,f)
-! Calculates a Wigner 6-j symbol. Argument a-f are positive Integer
-! and are twice the true value of the 6-j's arguments, in the form
-! { a b c }
-! { d e f }
-!
-! this is the implementation the formula 9.2.1. (1) from:
-!   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
-
-use Constants, only: Zero
-use Definitions, only: wp, iwp
-
-implicit none
-real(kind=wp) :: W6J
-integer(kind=iwp), intent(in) :: a, b, c, d, e, f
-integer(kind=iwp) :: n, nhig, nlow
-real(kind=wp) :: rsum
-real(kind=wp), external :: dlt, fct
-logical(kind=iwp), external :: check_triangle
-
-W6J = Zero
-if (mod(a+b,2) /= mod(c,2)) return
-if (mod(c+d,2) /= mod(e,2)) return
-if (mod(a+e,2) /= mod(f,2)) return
-if (mod(b+d,2) /= mod(f,2)) return
-if ((abs(a-b) > c) .or. (a+b < c)) return
-if ((abs(c-d) > e) .or. (c+d < e)) return
-if ((abs(a-e) > f) .or. (a+e < f)) return
-if ((abs(b-d) > f) .or. (b+d < f)) return
-
-if (.not. check_triangle(a,b,c)) return
-if (.not. check_triangle(c,d,e)) return
-if (.not. check_triangle(a,e,f)) return
-if (.not. check_triangle(b,d,f)) return
-
-nlow = max((a+b+c)/2,(c+d+e)/2,(b+d+f)/2,(a+e+f)/2)
-nhig = min((a+b+d+e)/2,(b+c+e+f)/2,(a+c+d+f)/2)
-
-rsum = Zero
-do n=nlow,nhig
-  rsum = rsum+real((-1)**n,kind=wp)*fct(n+1)/fct((a+c+d+f)/2-n)/fct((b+c+e+f)/2-n)/fct(n-(a+b+c)/2)/fct(n-(c+d+e)/2)/ &
-         fct(n-(a+e+f)/2)/fct(n-(b+d+f)/2)/fct((a+b+d+e)/2-n)
-end do
-W6J = dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*rsum
-
-return
-
-end function W6J
-
-function W3J(j1,j2,j3,m1,m2,m3)
-! Calculates a Wigner 3-j symbol. Argument j1,j2,j3 are positive Integer
-! and are twice the true value of the 3-j's arguments, in the form
-! { j1 j2 j3 }
-! { m1 m2 m3 }
-!
-! this is the implementation the formula 8.1.2. (11) from:
-!   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
-
-use Constants, only: Zero, Half
-use Definitions, only: wp, iwp
-
-implicit none
-real(kind=wp) :: W3J
-integer(kind=iwp), intent(in) :: j1, j2, j3, m1, m2, m3
-real(kind=wp) :: coeffCG
-
-W3J = Zero
-call Clebsch_Gordan(real(j1,kind=wp)*Half,real(m1,kind=wp)*Half,real(j2,kind=wp)*Half,real(m2,kind=wp)*Half,real(j3,kind=wp)*Half, &
-                    -real(m3,kind=wp)*Half,coeffCG)
-if (coeffCG == Zero) return
-W3J = real((-1)**((j1-j2-m3)/2),kind=wp)*coeffCG/sqrt(real(j3+1,kind=wp))
-
-return
-
-end function W3J
-
-function WCG(a,al,b,bt,c,gm)
-! Calculates a Clebsch-Gordan Coefficient. Argument a, al, b, bt, c, gm are Integer,
-! double their actual value.
-! (   c/2, gm/2            )
-! ( C                      )
-! (   a/2, al/2, b/2, bt/2 )
-! this is the implementation the formula 8.2.1. (3) from:
-!   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-!   "Quantum Theory of Angular Momentum", World Scientific, 1988.
-
-use Constants, only: Zero
-use Definitions, only: wp, iwp
-
-implicit none
-real(kind=wp) :: WCG
-integer(kind=iwp), intent(in) :: a, al, b, bt, c, gm
-integer(kind=iwp) :: i, lb1, lb2
-real(kind=wp) :: u
-real(kind=wp), external :: dlt, fct
-
-WCG = Zero
-
-if ((al+bt) /= gm) return
-if (a < 0) return
-if (b < 0) return
-if (c < 0) return
-if (abs(al) > a) return
-if (abs(bt) > b) return
-if (abs(gm) > c) return
-if ((abs(a-b) > c) .or. ((a+b) < c)) return
-if ((abs(b-c) > a) .or. ((b+c) < a)) return
-if ((abs(c-a) > b) .or. ((c+a) < b)) return
-if (mod(a,2) /= mod(abs(al),2)) return
-if (mod(b,2) /= mod(abs(bt),2)) return
-if (mod(c,2) /= mod(abs(gm),2)) return
-u = Zero
-lb1 = min((c-b+al)/2,(c-a-bt)/2)
-lb2 = min((a+b-c)/2,(a-al)/2,(b+bt)/2)
-if (lb1 < 0) then
-  if (-lb1 > lb2) then
-    WCG = Zero
-    return
-  else
-    do i=-lb1,lb2
-      u = u+real((-1)**i,kind=wp)/ &
-          (fct(i)*fct((a+b-c-2*i)/2)*fct((c-b+al+2*i)/2)*fct((c-a-bt+2*i)/2)*fct((a-al-2*i)/2)*fct((b+bt-2*i)/2))
-    end do
-  end if
-else
-  do i=0,lb2
-    u = u+real((-1)**i,kind=wp)/ &
-        (fct(i)*fct((a+b-c-2*i)/2)*fct((c-b+al+2*i)/2)*fct((c-a-bt+2*i)/2)*fct((a-al-2*i)/2)*fct((b+bt-2*i)/2))
-  end do
-end if
-WCG = u*dlt(a,b,c)*sqrt(fct((a+al)/2)*fct((a-al)/2)*fct((b+bt)/2)*fct((b-bt)/2)*fct((c+gm)/2)*fct((c-gm)/2)*(c+1))
-
-!write(u6,'(A)') 'a,  al,  b,  bt,  c,  gm'
-!write(u6,'(6(F4.1,2x),F20.14)') real(a,kind=wp)*Half,real(al,kind=wp)*Half,real(b,kind=wp)*Half,real(bt,kind=wp)*Half, &
-!                                real(c,kind=wp)*Half,real(gm,kind=wp)*Half,WCG
-
-return
-
-end function WCG
-
 function dlt(a,b,c)
 ! calculates the delta(a,b,c) function using the formula 8.2.1. from:
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
@@ -828,6 +580,7 @@ function RedME(La,Sa,LaP,SaP,L,S)
 !
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 
+use wigner_util, only: wcg
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -836,7 +589,6 @@ real(kind=wp) :: RedME
 integer(kind=iwp), intent(in) :: La, Sa, LaP, SaP, L, S
 integer(kind=iwp) :: JaP, jm, js, l_orb, s_orb
 real(kind=wp) :: factor, temp
-real(kind=wp), external :: WCG
 
 RedME = Zero
 l_orb = 6  ! double of true value l_orb = 3
@@ -873,6 +625,7 @@ function jot1(t,L,ML,S,MS,La,Sa,LaP,SaP)
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 !    Substitutions:
 
+use wigner_util, only: w9j, wcg
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
@@ -882,7 +635,7 @@ real(kind=wp), intent(in) :: t
 integer(kind=iwp), intent(in) :: L, ML, S, MS, La, Sa, LaP, SaP
 integer(kind=iwp) :: Ja, l_orb
 real(kind=wp) :: txt
-real(kind=wp), external :: RedME, W9J, WCG
+real(kind=wp), external :: RedME
 
 jot1 = Zero
 l_orb = 6  ! double of true value l_orb = 3
@@ -913,6 +666,7 @@ function jot0(t,L,ML,La,Sa,LaP,SaP)
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 !    Substitutions:
 
+use wigner_util, only: w6j, wcg
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
@@ -922,7 +676,7 @@ real(kind=wp), intent(in) :: t
 integer(kind=iwp), intent(in) :: L, ML, La, Sa, LaP, SaP
 integer(kind=iwp) :: Ja, l_orb
 real(kind=wp) :: txt, W9Jl
-real(kind=wp), external :: RedME, W6J, WCG
+real(kind=wp), external :: RedME
 
 jot0 = Zero
 l_orb = 6  ! double of true value l_orb = 3
@@ -948,6 +702,7 @@ end function jot0
 
 subroutine verify_CG(N)
 
+use wigner_util, only: wcg_real
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
@@ -973,18 +728,18 @@ do k=1,n-1
 
         mf = (-1)**nint(rK)
         ! (a , alpha, b, beta,    c,  gamma)
-        call Clebsch_Gordan(rJ,rM2,rK,rQ,rJ,rM1,CG_A)
-        call Clebsch_Gordan(rK,rQ,rJ,rM2,rJ,rM1,CG_B)
-        call Clebsch_Gordan(rJ,-rM2,rK,-rQ,rJ,-rM1,CG_C)
-        call Clebsch_Gordan(rK,-rQ,rJ,-rM2,rJ,-rM1,CG_D)
+        CG_A = wcg_real(rJ,rM2,rK,rQ,rJ,rM1)
+        CG_B = wcg_real(rK,rQ,rJ,rM2,rJ,rM1)
+        CG_C = wcg_real(rJ,-rM2,rK,-rQ,rJ,-rM1)
+        CG_D = wcg_real(rK,-rQ,rJ,-rM2,rJ,-rM1)
 
         rfE = ((-1)**(rJ-rM2))*(sqrt(real(n,kind=wp)/(Two*rK+One)))
-        call Clebsch_Gordan(rJ,rM2,rJ,-rM1,rK,-rQ,CG_E)
-        call Clebsch_Gordan(rJ,rM1,rJ,-rM2,rK,rQ,CG_F)
+        CG_E = wcg_real(rJ,rM2,rJ,-rM1,rK,-rQ)
+        CG_F = wcg_real(rJ,rM1,rJ,-rM2,rK,rQ)
 
         rfG = (-1)**(rK+rQ)
-        call Clebsch_Gordan(rJ,-rM1,rK,rQ,rJ,-rM2,CG_G)
-        call Clebsch_Gordan(rK,-rQ,rJ,rM1,rJ,rM2,CG_H)
+        CG_G = wcg_real(rJ,-rM1,rK,rQ,rJ,-rM2)
+        CG_H = wcg_real(rK,-rQ,rJ,rM1,rJ,rM2)
 
         prn = (CG_A /= Zero) .or. (CG_B /= Zero) .or. (CG_C /= Zero) .or. (CG_D /= Zero) .or. (CG_E /= Zero) .or. &
               (CG_F /= Zero) .or. (CG_G /= Zero) .or. (CG_H /= Zero)

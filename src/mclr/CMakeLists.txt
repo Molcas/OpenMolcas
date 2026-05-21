@@ -57,7 +57,6 @@ set (sources
      ci_kap.F90
      ci_reconstruct.F90
      cisize.F90
-     clebsch_gordan_mclr.F90
      clsfls_mclr.F90
      cmp2cn.F90
      cmsrdmat.F90

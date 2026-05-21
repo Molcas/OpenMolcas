@@ -12,6 +12,7 @@
 subroutine JKQPar_Naoya(N1,N2,HEXCH,Jpar)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use wigner_util, only: wcg
 use Constants, only: cZero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -26,7 +27,6 @@ integer(kind=iwp) :: is1, is2, j1, j2, js1, js2, k1, k2, ms1, ms2, ns1, ns2, q1,
 real(kind=wp) :: FACT, OPER
 complex(kind=wp) :: trace
 complex(kind=wp), allocatable :: QMAT(:,:,:,:)
-real(kind=wp), external :: WCG
 
 call mma_allocate(QMAT,N1,N1,N2,N2,label='QMAT')
 

@@ -26,6 +26,7 @@ use rassi_global_arrays, only: LROOT
 #endif
 use Symmetry_Info, only: MUL
 use stdalloc, only: mma_allocate, mma_deallocate
+use wigner_util, only: dclebs
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -35,7 +36,7 @@ integer(kind=iwp), intent(in) :: LSYM1, MPLET1, MSPROJ1, IFSBTAB1(*), LSYM2, MPL
 real(kind=wp), intent(in) :: DET1(*), DET2(*)
 real(kind=wp), intent(out) :: SIJ, TDM1(NASHT,NASHT), TSDM1(NASHT,NASHT), WTDM1(NASHT,NASHT)
 integer(kind=iwp) :: IORB, ISORB, ISYOP, ITABS, IUABS, JORB, JSORB, MS2OP, NASORB, NSPD1
-real(kind=wp) :: CGCOEF, DCLEBS, FACT, GAA, GAB, GBA, GBB, RED, S1, S2, SM, SM1, SM2, TMATEL
+real(kind=wp) :: CGCOEF, FACT, GAA, GAB, GBA, GBB, RED, S1, S2, SM, SM1, SM2, TMATEL
 real(kind=wp), allocatable :: SPD1(:)
 #ifdef _DMRG_
 real(kind=wp), allocatable :: TDMAA(:), TDMBB(:)

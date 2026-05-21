@@ -22,6 +22,7 @@ use Cntrl, only: EPRATHR, ICOMP, IFACALFC, IFACALFCON, IFACALFCSDON, IFACALPSO, 
                  IFSONCINI, MLTPLT, MULTIP, NPROP, NSTATE, NTP, PNAME, TMAXP, TMINP
 use hfc_logical, only: MAG_X2C
 use stdalloc, only: mma_allocate, mma_deallocate
+use wigner_util, only: dclebs
 use Constants, only: Zero, One, Two, Half, Quart, OneHalf, cZero, auTocm, c_in_au, gElectron
 use Definitions, only: wp, iwp, u6
 
@@ -33,7 +34,7 @@ character, intent(in) :: xyzchr(3)
 integer(kind=iwp) :: I, IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6, IC, ICEN, ICOUNT, IERR, iFinal, IFUNCT, IMLTPL, IPROP, &
                      ISO, ISS, IStart, ISTATE, IT, IXYZ, J, JC, JOB, JSS, JSTATE, JXYZ, KDGN, KPROP, KXYZ, MPLET, MPLET1, MPLET2, &
                      MSPROJ, MSPROJ1, MSPROJ2
-real(kind=wp) :: ACNT, Alpha, Alpha2, AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, CG0, CGM, CGP, CGX, CGY, CurieT(3,3), DCLEBS, &
+real(kind=wp) :: ACNT, Alpha, Alpha2, AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, CG0, CGM, CGP, CGX, CGY, CurieT(3,3), &
                  DiamT(3,3), DLT_E, DLTTA, EDIFF, EEX, EEY, EEZ, EVI(3), EVR(3), FACT, FEGVAL, GSENERGY, GTENS(3,3), GTIJ, &
                  GTOTAL(3,3), HFC_1(3,3), HFC_2(3,3), HFC_3(3,3), p_Boltz, S1, S2, SM1, SM2, TMPMAT(3,3), TMPVEC(3,3), Zstat
 character(len=8) :: DMPPROP, PSOPROP, SDPROP

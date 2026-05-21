@@ -65,6 +65,14 @@ The minimum requirements are:
   to |GnuMakeWWW|
 * Perl (version 5.008 or higher)
 
+|openmolcas| also depends on `libwignernj
+<https://github.com/susilehtola/libwignernj>`_, a library for the exact
+evaluation of Wigner 3j, 6j and 9j symbols. This dependency is handled
+automatically: CMake uses a system installation if one is found (via
+``find_package``), and otherwise downloads and builds the library from
+source while CMake runs. The automatic download requires :program:`git`
+and an internet connection.
+
 Also, you can benefit from following optional dependencies:
 
 * CMake (version 2.8.11 or higher, recommendeded for easier configuration)
