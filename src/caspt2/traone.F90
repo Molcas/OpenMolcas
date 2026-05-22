@@ -25,8 +25,8 @@ implicit none
 integer(kind=iwp), intent(in) :: NCMO, nHONE
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(inout) :: HONE(nHONE)
-integer(kind=iwp) :: I, iAO, IB, ICMO, ICOMP, IERR, IFTEST, IJ, IMO, IOFF, IOPT, IRC, ISTLT, ISTMO, ISTSQ, ISYLBL, ISYM, JB, &
-                     Keep(8), NB, nBasXX(8), NF, NSYMXX, nTemp, NWTMP
+integer(kind=iwp) :: I, iAO, IB, ICMO, ICOMP, IERR, IFTEST, IJ, IMO, IOFF, IOPT, IRC, ISTLT, ISTMO, ISTSQ, ISYLBL, ISYM, Keep(8), &
+                     NB, nBasXX(8), NF, NSYMXX, nTemp, NWTMP
 real(kind=wp) :: ECORE, EONE, ETWO, ExFac
 logical(kind=iwp) :: Found, iSquar
 character(len=8) :: Label
@@ -48,10 +48,11 @@ if (IPRGLB >= VERBOSE) then
     write(u6,*) 'TRAONE OrdInt status: non-squared'
   end if
 end if
-IERR = 0
-do ISYM=1,NSYM
-  if (NBAS(ISYM) /= NBASXX(ISYM)) IERR = 1
-end do
+if (any(NBAS(1:NSYM) /= NBASXX(1:NSYM))) then
+  IERR = 1
+else
+  IERR = 0
+end if
 if (IERR /= 0) then
   write(u6,*) '     *** ERROR IN SUBROUTINE TRAONE ***'
   write(u6,*) '          INCOMPATIBLE BASIS DATA'
@@ -107,10 +108,7 @@ end if
 ! the nuclear attraction by the cavity self-energy
 
 if (RFpert) then
-  nTemp = 0
-  do iSym=1,nSym
-    nTemp = nTemp+nBas(iSym)*(nBas(iSym)+1)/2
-  end do
+  nTemp = sum(nBas(1:nSym)*(nBas(1:nSym)+1)/2)
   call mma_allocate(Temp,nTemp,Label='Temp')
 
   call f_Inquire('RUNOLD',Found)
@@ -157,10 +155,8 @@ if (NFROT /= 0) then
       call DGEMM_('N','T',NB,NB,NF,Two,CMO(ISTMO),NB,CMO(ISTMO),NB,Zero,WDSQ(ISTSQ),NB)
       IJ = ISTLT-1
       do IB=1,NB
-        do JB=1,IB
-          IJ = IJ+1
-          WDLT(IJ) = Two*WDSQ(ISTSQ+JB-1+(IB-1)*NB)
-        end do
+        WDLT(IJ+1:IJ+IB) = Two*WDSQ(ISTSQ+(IB-1)*NB:ISTSQ+(IB-1)*NB+IB-1)
+        IJ = IJ+IB
         WDLT(IJ) = Half*WDLT(IJ)
       end do
     end if

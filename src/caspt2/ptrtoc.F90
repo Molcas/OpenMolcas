@@ -32,8 +32,7 @@ integer(kind=iwp) :: iCase, iSym, lg_v1, lg_v2, NAS, NIN, NIS
 call TIMING(CPU0,CPU,TIO0,TIO)
 
 do ICASE=1,NCASES
-  if ((IVEC == JVEC) .and. (ICASE == 12)) cycle
-  if ((IVEC == JVEC) .and. (ICASE == 13)) cycle
+  if ((IVEC == JVEC) .and. ((ICASE == 12) .or. (ICASE == 13))) cycle
   do ISYM=1,NSYM
     NAS = NASUP(ISYM,ICASE)
     if (NAS == 0) cycle

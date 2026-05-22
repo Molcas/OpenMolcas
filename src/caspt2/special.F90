@@ -31,8 +31,8 @@ implicit none
 integer(kind=iwp), intent(in) :: nLev, mG3
 real(kind=wp), intent(out) :: G1(nLev,nLev), G2(nLev,nLev,nLev,nLev), G3(mG3), F1(nLev,nLev), F2(nLev,nLev,nLev,nLev), F3(mG3)
 integer(kind=byte), intent(out) :: idxG3(6,mG3)
-integer(kind=iwp) :: I, ID, IG3, IND1, IND2, IND3, IT, IT1, IT2, IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1, LU2, LU3, NLEV2, &
-                     NLEV4, NTASK
+integer(kind=iwp) :: ID, IG3, IND1, IND2, IND3, IT, IT1, IT2, IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1, LU2, LU3, NLEV2, NLEV4, &
+                     NTASK
 real(kind=wp) :: ESUM, Occ, Val
 
 G1(:,:) = Zero
@@ -42,10 +42,7 @@ F1(:,:) = Zero
 F2(:,:,:,:) = Zero
 F3(:) = Zero
 
-ESUM = Zero
-do I=1,NLEV
-  ESUM = ESUM+ETA(I)
-end do
+ESUM = sum(ETA(1:NLEV))
 ! ISCF=1 for closed-shell, =2 for hispin
 OCC = Two
 if (ISCF == 2) OCC = One

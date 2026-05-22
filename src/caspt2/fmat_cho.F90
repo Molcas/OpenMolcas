@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NCMO, NHONE, NFIMO, NFIFA
 real(kind=wp), intent(in) :: CMO(NCMO), FIAO(NBTRI), FAAO(NBTRI), HONE(NHONE)
 real(kind=wp), intent(out) :: FIMO(NFIMO), FIFA(NFIFA)
-integer(kind=iwp) :: I, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI, NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
+integer(kind=iwp) :: I, IFAO, IJ, IOFMO, ISYM, LSC, LSCI, NB, NBBMX, NBOMX, NF, NO, NO_X, NOOMX
 real(kind=wp), allocatable :: SCR1(:), SCR2(:), SCR3(:)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: ISTLT
@@ -37,18 +37,9 @@ real(kind=wp), allocatable :: FAMO(:)
 FIMO(:) = Zero
 FIFA(:) = Zero ! initially used as FAMO
 
-NBBT = 0
-NBBMX = 0
-NBOMX = 0
-NOOMX = 0
-do ISYM=1,NSYM
-  NB = NBAS(ISYM)
-  NO = NORB(ISYM)
-  NBBT = NBBT+(NB*(NB+1))/2
-  NBBMX = max(NBBMX,NB*NB)
-  NBOMX = max(NBOMX,NB*NO)
-  NOOMX = max(NOOMX,NO*NO)
-end do
+NBBMX = maxval(NBAS(1:NSYM)**2)
+NBOMX = maxval(NBAS(1:NSYM)*NORB(1:NSYM))
+NOOMX = maxval(NORB(1:NSYM)**2)
 
 call mma_allocate(SCR1,NBBMX,LABEL='SCR1')
 call mma_allocate(SCR2,NBOMX,LABEL='SCR2')
@@ -70,10 +61,8 @@ do ISYM=1,NSYM
   call DGEMM_('T','N',NO,NO,NB,One,CMO(LSCI),NB,SCR2,NB,Zero,SCR3,NO_X)
   IJ = 0
   do I=1,NO
-    do J=1,I
-      IJ = IJ+1
-      FIMO(IOFMO+IJ) = SCR3(I+NO*(J-1))
-    end do
+    FIMO(IOFMO+IJ+1:IOFMO+IJ+I) = SCR3(I:I+NO*(I-1):NO)
+    IJ = IJ+I
   end do
   ! The active Fock matrix:
   call SQUARE(FAAO(IFAO),SCR1,NB,1,NB)
@@ -81,10 +70,8 @@ do ISYM=1,NSYM
   call DGEMM_('T','N',NO,NO,NB,One,CMO(LSCI),NB,SCR2,NB,Zero,SCR3,NO_X)
   IJ = 0
   do I=1,NO
-    do J=1,I
-      IJ = IJ+1
-      FIFA(IOFMO+IJ) = SCR3(I+NO*(J-1))
-    end do
+    FIFA(IOFMO+IJ+1:IOFMO+IJ+I) = SCR3(I:I+NO*(I-1):NO)
+    IJ = IJ+I
   end do
   IFAO = IFAO+(NB*(NB+1))/2
   IOFMO = IOFMO+(NO*(NO+1))/2

@@ -133,13 +133,7 @@ if (do_nac) then
   DPT2Canti_tot(:) = Zero
 end if
 
-MaxLen = 0
-do iCase=1,11
-  do iSym=1,nSym
-    nAS = nASUP(iSym,iCase)
-    MaxLen = max(MaxLen,nAS*nAS)
-  end do
-end do
+MaxLen = maxval(nASUP(1:nSym,1:11)**2)
 
 call mma_allocate(WRK,MaxLen,Label='WRK')
 WRK(:) = Zero

@@ -893,13 +893,12 @@ subroutine OLagNS_post3(iIabs,iJabs,TampAO,TampIJ)
   integer(kind=iwp), intent(in) :: iIabs, iJabs
   real(kind=wp), intent(inout) :: TampAO(nOccA2,nBasI,nOccB2,nBasJ)
   real(kind=wp), intent(in) :: TampIJ(nBasI,nBasJ)
-  integer(kind=iwp) :: iBas, jBas
+  integer(kind=iwp) :: iBas
 
   do iBas=1,nBasI
-    do jBas=1,nBasJ
-      TampAO(iJabs,jBas,iIabs,iBas) = TampAO(iJabs,jBas,iIabs,iBas)+TampIJ(iBas,jBas)
-      TampAO(iIabs,jBas,iJabs,iBas) = TampAO(iIabs,jBas,iJabs,iBas)+TampIJ(jBas,iBas)
-    end do
+    ! FIXME: this can't work if iBas /= jBas
+    TampAO(iJabs,:,iIabs,iBas) = TampAO(iJabs,:,iIabs,iBas)+TampIJ(iBas,:)
+    TampAO(iIabs,:,iJabs,iBas) = TampAO(iIabs,:,iJabs,iBas)+TampIJ(:,iBas)
   end do
 
 end subroutine OLagNS_post3

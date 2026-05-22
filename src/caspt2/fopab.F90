@@ -22,8 +22,8 @@ implicit none
 integer(kind=iwp), intent(in) :: NFIFA, IBRA, IKET
 real(kind=wp), intent(in) :: FIFA(NFIFA)
 real(kind=wp), intent(out) :: FOPEL
-integer(kind=iwp) :: I, ID, IFTEST, II, IJ, IOF, IOFF(8), ISCR, IST, ISU, ISYM, IT, ITABS, ITTOT, ITUTOT, IU, IUABS, IUTOT, J, &
-                     LEVT, LEVU, NI, nLev
+integer(kind=iwp) :: I, ID, IFTEST, II, IJ, IOFF(8), ISCR, IST, ISU, ISYM, IT, ITABS, ITTOT, ITUTOT, IU, IUABS, IUTOT, J, LEVT, &
+                     LEVU, NI, nLev
 real(kind=wp) :: EINACT, ESUM, FTU, OCC, TRC
 real(kind=wp), allocatable :: BRA(:), KET(:), SGM(:)
 real(kind=wp), external :: DDot_
@@ -36,10 +36,9 @@ nLev = SGS%nLev
 ! original CASSCF orbitals and the indices of the two states
 
 ! Offset table for accessing FIFA array:
-IOF = 0
-do ISYM=1,NSYM
-  IOFF(ISYM) = IOF
-  IOF = IOF+(NORB(ISYM)*(NORB(ISYM)+1))/2
+IOFF(1) = 0
+do ISYM=1,NSYM-1
+  IOFF(ISYM+1) = IOFF(ISYM)+(NORB(ISYM)*(NORB(ISYM)+1))/2
 end do
 
 IFTEST = 0

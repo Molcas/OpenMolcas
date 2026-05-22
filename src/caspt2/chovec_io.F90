@@ -158,7 +158,7 @@ subroutine CHOVEC_READ(ICASE,CHOBUF,nCHOBUF)
 
   integer(kind=iwp), intent(in) :: ICASE, nCHOBUF
   real(kind=wp), intent(inout) :: CHOBUF(nCHOBUF)
-  integer(kind=iwp) :: I, IB, IBEND, IBOFF, IBSTA, IDISK, IOFF, ISYQ, J, JSYM, NBUF, NPQ, NV, NVTOT
+  integer(kind=iwp) :: IB, IBEND, IBOFF, IBSTA, IDISK, IOFF, ISYQ, J, JSYM, NBUF, NPQ, NV, NVTOT
   real(kind=wp), allocatable :: BUF(:)
 # ifdef _MOLCAS_MPP_
 # include "global.fh"
@@ -183,18 +183,14 @@ subroutine CHOVEC_READ(ICASE,CHOBUF,nCHOBUF)
           ! cholesky vectors already transposed
           call DDAFILE(LUDRATOT,2,BUF,NBUF,IDISK)
           do J=1,NPQ
-            do I=1,NV
-              CHOBUF(IOFF+IBOFF+I+NVTOT*(J-1)) = BUF(I+NV*(J-1))
-            end do
+            CHOBUF(IOFF+IBOFF+NVTOT*(J-1)+1:IOFF+IBOFF+NVTOT*(J-1)+NV) = BUF(NV*(J-1)+1:NV*J)
           end do
         else
 #       endif
           ! cholesky vectors not transposed
           call DDAFILE(LUDRA,2,BUF,NBUF,IDISK)
           do J=1,NPQ
-            do I=1,NV
-              CHOBUF(IOFF+IBOFF+I+NVTOT*(J-1)) = BUF(J+NPQ*(I-1))
-            end do
+            CHOBUF(IOFF+IBOFF+NVTOT*(J-1)+1:IOFF+IBOFF+NVTOT*(J-1)+NV) = BUF(J:J+NPQ*(NV-1):NPQ)
           end do
 #       ifdef _MOLCAS_MPP_
         end if
@@ -388,7 +384,6 @@ subroutine MPI_Allgatherv_(SENDBUF,NSENDBUF,NSEND,MPITYPES,RCVBUF,NRCVBUF,NRCV,N
   real(kind=wp), intent(inout) :: SENDBUF(NSENDBUF), RCVBUF(NRCVBUF)
   integer(kind=MPIInt), intent(in) :: MPITYPES, NRCV(MPROCS), NOFF(MPROCS), MPITYPER, MPICOMM
   integer(kind=iwp), intent(out) :: IERROR
-  integer(kind=iwp) :: I
   integer(kind=MPIInt) :: IERROR4, NPROCS, NSEND4
   integer(kind=MPIInt), allocatable :: NRCV4(:), NOFF4(:)
 # ifdef _I8_
@@ -398,10 +393,7 @@ subroutine MPI_Allgatherv_(SENDBUF,NSENDBUF,NSEND,MPITYPES,RCVBUF,NRCVBUF,NRCV,N
   call MPI_COMM_SIZE(MPI_COMM_WORLD,NPROCS,IERROR4)
 
 # ifdef _I8_
-  NRCVTOT = 0
-  do I=1,NPROCS
-    NRCVTOT = NRCVTOT+NRCV(I)
-  end do
+  NRCVTOT = sum(NRCV(1:NPROCS))
   if (8*NRCVTOT > 2147483647) then
     write(u6,'(1X,A)') 'MPI_Allgatherv: total rcv buf > 2**31-1'
     write(u6,'(1X,A)') 'workaround to avoid buffers >2GB failed'
@@ -413,10 +405,8 @@ subroutine MPI_Allgatherv_(SENDBUF,NSENDBUF,NSEND,MPITYPES,RCVBUF,NRCVBUF,NRCV,N
   call MMA_ALLOCATE(NRCV4,int(NPROCS,kind=iwp),Label='NRCV4')
   call MMA_ALLOCATE(NOFF4,int(NPROCS,kind=iwp),Label='NOFF4')
   NSEND4 = int(NSEND,kind=MPIInt)
-  do I=1,NPROCS
-    NRCV4(I) = int(NRCV(I),kind=MPIInt)
-    NOFF4(I) = int(NOFF(I),kind=MPIInt)
-  end do
+  NRCV4(:) = int(NRCV(1:NPROCS),kind=MPIInt)
+  NOFF4(:) = int(NOFF(1:NPROCS),kind=MPIInt)
   call MPI_Allgatherv(SENDBUF,NSEND4,MPITYPES,RCVBUF,NRCV4,NOFF4,MPITYPER,MPICOMM,IERROR4)
 
   IERROR = IERROR4

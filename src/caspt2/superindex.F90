@@ -36,17 +36,15 @@ contains
 subroutine SUPINI()
 
   use Symmetry_Info, only: Mul
-  use caspt2_module, only: Cases, MxCase, nAes, nAGEB, nAGEBES, nAGTB, nAGTBES, nAsh, nAshT, nAshT, nASUP, nCases, nIAES, nIES, &
-                           nIGEJ, nIGEJES, nIGTJ, nIGTJES, nInDep, nIsh, nIshT, nISUP, nSES, nSES, nSsh, nSsh, nSshT, nSym, nTGEU, &
-                           nTGEUES, nTGTU, nTGTUES, nTU, nTUES, nTUV, nTUVEs
+  use caspt2_module, only: nAes, nAGEB, nAGEBES, nAGTB, nAGTBES, nAsh, nAshT, nAshT, nASUP, nCases, nIAES, nIES, nIGEJ, nIGEJES, &
+                           nIGTJ, nIGTJES, nInDep, nIsh, nIshT, nISUP, nSES, nSES, nSsh, nSsh, nSshT, nSym, nTGEU, nTGEUES, nTGTU, &
+                           nTGTUES, nTU, nTUES, nTUV, nTUVEs
   use stdalloc, only: mma_allocate
 
   integer(kind=iwp) :: IA, IAGEB, IAGTB, IAQ, IB, IBQ, ICASE, II, IIA, IIGEJ, IIGTJ, IIQ, IJ, IJQ, IS1, IS2, ISA, ISB, ISI, ISJ, &
                        IST, ISU, ISUV, ISV, ISYA, ISYI, ISYM, IT, ITGEU, ITGTU, ITQ, ITU, ITUV, IU, IUQ, IV, IVQ, JC0, JCM, &
                        JCOUNT, JCP, N, N10, N11, N5, N6, N7, NAT, NAU, NAV, NC0, NCM, NCOUNT, NCP, NII, NIJ, NMAGEB, NMAGTB, NMIA, &
                        NMIGEJ, NMIGTJ, NMTGEU, NMTGTU, NSA, NSB, NSUM
-  character(len=*), parameter :: CSNAME(MXCASE) = [character(len=8) :: 'VJTU','VJTIP','VJTIM','ATVX','AIVX','VJAIP','VJAIM', &
-                                                                       'BVATP','BVATM','BJATP','BJATM','BJAIP','BJAIM']
 
   call MMA_ALLOCATE(KTUV,NASHT,NASHT,NASHT,Label='KTUV')
   call MMA_ALLOCATE(MTUV,3,NASHT**3,Label='MTUV')
@@ -251,10 +249,6 @@ subroutine SUPINI()
 
   end do
   ! End of loop over symmetries.
-
-  do ICASE=1,NCASES
-    CASES(ICASE) = CSNAME(ICASE)
-  end do
 
   do ISYM=1,NSYM
     NASUP(ISYM,1) = NTUV(ISYM)

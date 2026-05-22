@@ -89,12 +89,8 @@ do JSYM=1,NSYM
   MXBGRP = IB2-IB1+1
   if (MXBGRP <= 0) cycle
   call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
-  IBGRP = 1
-  do IB=IB1,IB2
-    BGRP(1,IBGRP) = IB
-    BGRP(2,IBGRP) = IB
-    IBGRP = IBGRP+1
-  end do
+  BGRP(1,1:IB2-IB1+1) = [(IB,IB=IB1,IB2)]
+  BGRP(2,1:IB2-IB1+1) = [(IB,IB=IB1,IB2)]
   NBGRP = MXBGRP
 
   call MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,NCHOBUF,MXPIQK,NADDBUF)
@@ -122,10 +118,7 @@ do JSYM=1,NSYM
     IBSTA = BGRP(1,IBGRP)
     IBEND = BGRP(2,IBGRP)
 
-    NV = 0
-    do IB=IBSTA,IBEND
-      NV = NV+NVLOC_CHOBATCH(IB)
-    end do
+    NV = sum(NVLOC_CHOBATCH(IBSTA:IBEND))
 
     if (IPRGLB > VERBOSE) then
       write(u6,'(A,I12)') '  Cholesky vectors in this group = ',NV

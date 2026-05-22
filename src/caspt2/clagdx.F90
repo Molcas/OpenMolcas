@@ -121,12 +121,9 @@ if (invar_act) then
   !! contributions of the derivative of the IC vector is
   !! considered later.
   !! -(e_o + e_p)*dS/da
-  do iICB=1,nIN
-    EigI = EIG(iICB)
-    do jICB=1,nIN
-      EigJ = EIG(jICB)
-      WRK1(iICB+nIN*(jICB-1)) = -WRK1(iICB+nIN*(jICB-1))*(EigI+EigJ)*Half
-    end do
+  do jICB=1,nIN
+    EigJ = EIG(jICB)
+    WRK1(nIN*(jICB-1)+1:nIN*jICB) = -WRK1(nIN*(jICB-1)+1:nIN*jICB)*(EIG(:)+EigJ)*Half
   end do
 else
   WRK3(1:NIN**2) = WRK1(1:NIN**2)
@@ -153,19 +150,15 @@ if (.not. invar_act) then
     EigI = EIG(iICB)
     do jICB=1,iICB-1 !NIN
       EigJ = EIG(jICB)
-      tmp = WRK1(iICB+NIN*(jICB-1))-WRK1(jICB+NIN*(iICB-1))
-      tmp = tmp/(EigI-EigJ)
+      tmp = (WRK1(iICB+NIN*(jICB-1))-WRK1(jICB+NIN*(iICB-1)))/(EigI-EigJ)
       WRK3(iICB+NIN*(jICB-1)) = tmp
       WRK3(jICB+NIN*(iICB-1)) = tmp
     end do
   end do
   !! -(e_o + e_p)*dS/da
-  do iICB=1,nIN
-    EigI = EIG(iICB)
-    do jICB=1,nIN
-      EigJ = EIG(jICB)
-      WRK1(iICB+NIN*(jICB-1)) = WRK1(iICB+NIN*(jICB-1))-WRK3(iICB+nIN*(jICB-1))*(EigI+EigJ)*Half
-    end do
+  do jICB=1,nIN
+    EigJ = EIG(jICB)
+    WRK1(nIN*(jICB-1)+1:nIN*jICB) = WRK1(nIN*(jICB-1)+1:nIN*jICB)-WRK3(nIN*(jICB-1)+1:nIN*jICB)*(EIG(:)+EigJ)*Half
   end do
   !! IC -> MO (B matrix)
   call DGEMM_('N','N',nAS,nIN,nIN,One,TRANS,nAS,WRK3,nIN,Zero,WRK2,nAS)

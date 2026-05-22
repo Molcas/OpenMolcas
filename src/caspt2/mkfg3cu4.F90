@@ -21,6 +21,7 @@ subroutine MKFG3CU4(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,W3)
 !
 ! Written by N. Nakatani, Oct. 2014
 
+use caspt2_module, only: EPSA
 use Symmetry_Info, only: Mul
 use Constants, only: Half
 use Definitions, only: wp, iwp, byte
@@ -99,32 +100,22 @@ do iz=1,nlev
       jz = idxG3(6,iG3)
       if ((iy == jy) .and. (iz == jz)) then
         G3(iG3) = W3(jt,ju,jv,jx)
-        if (mkF) then
-          ! CU4F3 Contrib. :: + G1(lT,lT)*G3(iP,iQ,jP,jQ,kP,kQ)
-          F3(iG3) = F3(iG3)+EASUM*G3(iG3)
-          do iw=1,nlev
-            ! CU4F3 Contrib. :: - 0.5D0*G1(iP,lT)*G3(lT,iQ,jP,jQ,kP,kQ)
-            ! CU4F3 Contrib. :: - 0.5D0*G1(lT,iQ)*G3(iP,lT,jP,jQ,kP,kQ)
-            F3(iG3) = F3(iG3)-Half*G1(jt,iw)*W3(iw,ju,jv,jx)*EPSA(iw)-Half*G1(iw,ju)*W3(jt,iw,jv,jx)*EPSA(iw)
-          end do
-        end if
+        ! CU4F3 Contrib. :: + G1(lT,lT)*G3(iP,iQ,jP,jQ,kP,kQ)
+        ! CU4F3 Contrib. :: - 0.5D0*G1(iP,lT)*G3(lT,iQ,jP,jQ,kP,kQ)
+        ! CU4F3 Contrib. :: - 0.5D0*G1(lT,iQ)*G3(iP,lT,jP,jQ,kP,kQ)
+        if (mkF) &
+          F3(iG3) = F3(iG3)+EASUM*G3(iG3)-Half*sum(G1(jt,:)*W3(:,ju,jv,jx)*EPSA(1:nlev)-Half*G1(:,ju)*W3(jt,:,jv,jx)*EPSA(1:nlev))
       end if
 
-      if (mkF .and. (iy == jy) .and. (iz == jz)) then
-        do iw=1,nlev
-          ! CU4F3 Contrib. :: - 0.5D0*G1(jP,lT)*G3(lT,jQ,iP,iQ,kP,kQ)
-          ! CU4F3 Contrib. :: - 0.5D0*G1(lT,jQ)*G3(jP,lT,iP,iQ,kP,kQ)
-          F3(iG3) = F3(iG3)-Half*G1(jv,iw)*W3(iw,jx,jt,ju)*EPSA(iw)-Half*G1(iw,jx)*W3(jv,iw,jt,ju)*EPSA(iw)
-        end do
-      end if
+      ! CU4F3 Contrib. :: - 0.5D0*G1(jP,lT)*G3(lT,jQ,iP,iQ,kP,kQ)
+      ! CU4F3 Contrib. :: - 0.5D0*G1(lT,jQ)*G3(jP,lT,iP,iQ,kP,kQ)
+      if (mkF .and. (iy == jy) .and. (iz == jz)) &
+        F3(iG3) = F3(iG3)-Half*G1(jv,:)*W3(:,jx,jt,ju)*EPSA(1:nlev)-Half*G1(:,jx)*W3(jv,:,jt,ju)*EPSA(1:nlev)
 
-      if (mkF .and. (iy == jv) .and. (iz == jx)) then
-        do iw=1,nlev
-          ! CU4F3 Contrib. :: - 0.5D0*G1(kP,lT)*G3(lT,kQ,iP,iQ,jP,jQ)
-          ! CU4F3 Contrib. :: - 0.5D0*G1(lT,kQ)*G3(kP,lT,iP,iQ,jP,jQ)
-          F3(iG3) = F3(iG3)-Half*G1(jy,iw)*W3(iw,jz,jt,ju)*EPSA(iw)-Half*G1(iw,jz)*W3(jy,iw,jt,ju)*EPSA(iw)
-        end do
-      end if
+      ! CU4F3 Contrib. :: - 0.5D0*G1(kP,lT)*G3(lT,kQ,iP,iQ,jP,jQ)
+      ! CU4F3 Contrib. :: - 0.5D0*G1(lT,kQ)*G3(kP,lT,iP,iQ,jP,jQ)
+      if (mkF .and. (iy == jv) .and. (iz == jx)) &
+        F3(iG3) = F3(iG3)-Half*G1(jy,:)*W3(:,jz,jt,ju)*EPSA(1:nlev)-Half*G1(:,jz)*W3(jy,:,jt,ju)*EPSA(1:nlev)
     end do
   end do
 end do

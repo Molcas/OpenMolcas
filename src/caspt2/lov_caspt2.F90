@@ -70,30 +70,20 @@ if (all_Vir .and. DoMP2) then
   write(u6,'(/,A)') ' DoMP2 will be ignored.'
   DoMP2 = .false.
 end if
-do iSym=1,nSym
-  TrA(iSym) = 0
-  TrF(iSym) = 0
-  TrX(iSym) = 0
-end do
+TrA(1:nSym) = 0
+TrF(1:nSym) = 0
+TrX(1:nSym) = 0
 
 !----------------------------------------------------------------------*
 !     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
 !----------------------------------------------------------------------*
 
-nBasT = 0
-ntri = 0
-nSQ = 0
-nBmx = 0
-mAsh = 0
-nOrb = 0
-do i=1,nSym
-  nBasT = nBasT+nBas(i)
-  nOrb = nOrb+nFro(i)+nIsh(i)+nAsh(i)+nSsh(i)+nDel(i)
-  ntri = ntri+nBas(i)*(nBas(i)+1)/2
-  nSQ = nSQ+nBas(i)**2
-  nBmx = max(nBmx,nBas(i))
-  mAsh = max(mAsh,nAsh(i))
-end do
+nBasT = sum(nBas(:))
+ntri = sum(nBas(:)*(nBas(:)+1)/2)
+nSQ = sum(nBas(:)**2)
+nBmx = maxval(nBas(:))
+mAsh = maxval(nAsh(:))
+nOrb = sum(nFro(:)+nIsh(:)+nAsh(:)+nSsh(:)+nDel(:))
 if (nBasT > mxBas) then
   write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
   call Abend()
@@ -107,9 +97,7 @@ if ((nUniqAt < 1) .or. (nUniqAt > MxAtom)) then
   call Abend()
 end if
 call mma_allocate(NamAct,nUniqAt,Label='NamAct')
-do iAt=1,nUniqAt
-  NamAct(iAt) = ''
-end do
+NamAct(:) = ''
 
 ! Allocate and get index arrays for basis functions per atom.
 ! -----------------------------------------------------------
@@ -206,9 +194,7 @@ do iAt=1,nActa
   jAt = D_A(iAt)
   NamAct(iAt) = NamAct(jAt)
 end do
-do iAt=nActa+1,nUniqAt
-  NamAct(iAt) = ''
-end do
+NamAct(nActa+1:) = ''
 write(u6,*)
 write(u6,'(A,F15.6)') ' Threshold for atom selection: ',Thrs
 write(u6,*)
@@ -310,9 +296,7 @@ if (.not. Skip) then
 
   if (all_Vir) then
 
-    do iSym=1,nSym
-      ns_V(iSym) = nSsh(iSym)
-    end do
+    ns_V(1:nSym) = nSsh(:)
 
   else
 
@@ -375,21 +359,16 @@ if (.not. Skip) then
   !--------------------------------------------------------------------*
   if (DoMP2) then
 
-    iDo = 0
-    jDo = 0
-    nVV = 0
-    nOA = 0
-    do iSym=1,nSym  ! setup info
-      lnOrb(iSym) = nBas(iSym)
-      lnOcc(iSym) = nIsh(iSym)-ns_O(iSym)
-      lnFro(iSym) = nFro(iSym)+ns_O(iSym)
-      lnDel(iSym) = nDel(iSym)+ns_V(iSym)
-      lnVir(iSym) = nSsh(iSym)-ns_V(iSym)
-      iDo = max(iDo,lnOcc(iSym))
-      jDo = max(jDo,lnVir(iSym))
-      nVV = nVV+lnVir(iSym)**2
-      nOA = nOA+lnOcc(iSym)
-    end do
+    ! setup info
+    lnOrb(1:nSym) = nBas(:)
+    lnOcc(1:nSym) = nIsh(:)-ns_O(1:nSym)
+    lnFro(1:nSym) = nFro(:)+ns_O(1:nSym)
+    lnDel(1:nSym) = nDel(:)+ns_V(1:nSym)
+    lnVir(1:nSym) = nSsh(:)-ns_V(1:nSym)
+    iDo = maxval(lnOcc(1:nSym))
+    jDo = maxval(lnVir(1:nSym))
+    nVV = sum(lnVir(1:nSym)**2)
+    nOA = sum(lnOcc(1:nSym))
     if (min(iDo,jDo) /= 0) then
 
       call mma_allocate(Dmat,nVV+nOA,Label='DMat')
@@ -419,7 +398,7 @@ if (.not. Skip) then
         end if
         iV = ip_X
         do iSym=1,nSym
-          TrF(iSym) = ddot_(lnVir(iSym),DMAT(iV),1+lnVir(iSym),[One],0)
+          TrF(iSym) = sum(DMAT(iV:iV+lnVir(iSym)**2-1:1+lnVir(iSym)))
           iV = iV+lnVir(iSym)**2
         end do
       end if
@@ -440,14 +419,12 @@ if (.not. Skip) then
   call mma_deallocate(XMO)
 
   ! Update the nFro, nIsh, nSsh, nDel for the Active site CASPT2
-  do iSym=1,nSym
-    nFro(iSym) = nFro(iSym)+nIsh(iSym)-ns_O(iSym)
-    nIsh(iSym) = ns_O(iSym)
-    nDel(iSym) = nDel(iSym)+nSsh(iSym)-ns_V(iSym)
-    nSsh(iSym) = ns_V(iSym)
-    iDo = max(iDo,nIsh(iSym))
-    jDo = max(jDo,nSsh(iSym))
-  end do
+  nFro(:) = nFro(:)+nIsh(:)-ns_O(1:nSym)
+  nIsh(:) = ns_O(1:nSym)
+  nDel(:) = nDel(:)+nSsh(:)-ns_V(1:nSym)
+  nSsh(:) = ns_V(1:nSym)
+  iDo = maxval(nIsh(:))
+  jDo = maxval(nSsh(:))
 
   call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMOX(:,1),nCMO,OrbE(:,1),nOrb,TrA)
 

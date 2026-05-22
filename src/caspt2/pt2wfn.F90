@@ -49,7 +49,7 @@ subroutine pt2wfn_init()
 # endif
 
 # ifdef _HDF5_
-  integer(kind=iwp) :: dsetid, i, ndmat
+  integer(kind=iwp) :: dsetid, ndmat
   character, allocatable :: typestring(:)
 # endif
 
@@ -151,10 +151,7 @@ subroutine pt2wfn_init()
 
     ! density matrices
     if (IFPROP .or. do_grad) then
-      ndmat = 0
-      do i=1,NSYM
-        ndmat = ndmat+(NORB(i)**2+NORB(i))/2
-      end do
+      ndmat = sum((NORB(1:NSYM)**2+NORB(1:NSYM))/2)
 
       pt2wfn_dens = mh5_create_dset_real(pt2wfn_id,'DENSITY_MATRIX',2,[ndmat,NSTATE])
       call mh5_init_attr(pt2wfn_dens,'DESCRIPTION', &

@@ -222,11 +222,9 @@ if (Input%MULT) then
     NGROUPSTATE(1:NGROUP) = 1
   else
     ! Save the states that need to be computed
-    do I=1,Input%nMultState
-      MSTATE(I) = Input%MultGroup%A(I)
-      NSTATE = NSTATE+1
-    end do
     NGROUP = Input%nMultState
+    MSTATE(1:NGROUP) = Input%MultGroup%A(1:NGROUP)
+    NSTATE = NSTATE+NGROUP
     NGROUPSTATE(1:NGROUP) = 1
   end if
 end if
@@ -249,11 +247,9 @@ if (Input%XMUL) then
       NGROUP = NSTATE
       NGROUPSTATE(1:NGROUP) = 1
     else
-      do I=1,Input%nXMulState
-        MSTATE(I) = Input%XMulGroup%A(I)
-        NSTATE = NSTATE+1
-      end do
       NGROUP = Input%nXMulState
+      MSTATE(1:NGROUP) = Input%XMulGroup%A(1:NGROUP)
+      NSTATE = NSTATE+NGROUP
       NGROUPSTATE(1:NGROUP) = 1
     end if
     ! This is a XMS-CASPT2: one group with all the states
@@ -266,10 +262,8 @@ if (Input%XMUL) then
     else
       NGROUP = 1
       NGROUPSTATE(NGROUP) = Input%nXMulState
-      do I=1,Input%nXMulState
-        MSTATE(I) = Input%XMulGroup%A(I)
-        NSTATE = NSTATE+1
-      end do
+      MSTATE(1:NGROUPSTATE(NGROUP)) = Input%XMulGroup%A(1:NGROUPSTATE(NGROUP))
+      NSTATE = NSTATE+NGROUPSTATE(NGROUP)
     end if
   end if
 end if
@@ -286,11 +280,9 @@ if (Input%RMUL) then
     NGROUP = NSTATE
     NGROUPSTATE(1:NGROUP) = 1
   else
-    do I=1,Input%nRMulState
-      MSTATE(I) = Input%RMulGroup%A(I)
-      NSTATE = NSTATE+1
-    end do
     NGROUP = Input%nRMulState
+    MSTATE(1:NGROUP) = Input%RMulGroup%A(1:NGROUP)
+    NSTATE = NSTATE+NGROUP
     NGROUPSTATE(1:NGROUP) = 1
   end if
 end if
@@ -344,7 +336,7 @@ if ((NSTATE <= 0) .or. (NSTATE > MXROOT)) then
   call Quit_OnUserError()
 end if
 ! setup root to state translation
-ROOT2STATE = 0
+ROOT2STATE(:) = 0
 do I=1,NSTATE
   ROOT2STATE(MSTATE(I)) = I
 end do

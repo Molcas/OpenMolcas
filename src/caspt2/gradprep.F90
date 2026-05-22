@@ -22,18 +22,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nState
 real(kind=wp), intent(in) :: UEFF(nState,nState)
 real(kind=wp), intent(inout) :: VECROT(nState)
-integer(kind=iwp) :: iState
-real(kind=wp) :: TMP
 
 ! If i == j, UIi*dHij/dx*UJj
 ! If i \= j, (UIi*UJj+UJi*UIj)*dHij/dx*0.5
 
 !! Construct the rotation vector
 if (IFMSCOUP) then
-  do iState=1,nState
-    TMP = UEFF(iState,iRoot1)*UEFF(jState,iRoot2)+UEFF(iState,iRoot2)*UEFF(jState,iRoot1)
-    VECROT(iState) = TMP*Half
-  end do
+  VECROT(:) = Half*(UEFF(:,iRoot1)*UEFF(jState,iRoot2)+UEFF(:,iRoot2)*UEFF(jState,iRoot1))
 else
   !write(u6,*) 'jState in gradprep: ',jstate
   VECROT(jState) = One

@@ -80,7 +80,7 @@ integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3OFF, IOFFS
                      IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, &
                      IXLEV, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, NLEV2, &
                      NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
-real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3, F1SUM, F2SUM
+real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3
 integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFR(:), BUFT(:)
 real(kind=wp), external :: DDOT_, DNRM2_
@@ -371,12 +371,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             iulev = idx2ij(2,idx)
             it = L2ACT(itlev)
             iu = L2ACT(iulev)
-            G1(it,iu) = DDOT_(nsgm1,CI,1,BUF1(:,ib),1)
-            F1sum = Zero
-            do i=1,nsgm1
-              F1sum = F1sum+CI(i)*BUF1(i,ib)*bufd(i)
-            end do
-            F1(it,iu) = F1sum-EPSA(iu)*G1(it,iu)
+            G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
+            F1(it,iu) = sum(CI(1:nsgm1)*BUF1(1:nsgm1,ib)*bufd(1:nsgm1))-EPSA(iu)*G1(it,iu)
           end do
         else
           do ib=1,ibuf1
@@ -385,7 +381,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             iulev = idx2ij(2,idx)
             it = L2ACT(itlev)
             iu = L2ACT(iulev)
-            G1(it,iu) = DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
+            G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
           end do
         end if
       end if
@@ -429,12 +425,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             iu = L2ACT(iulev)
             ! form <0| E_zy E_ut |0> = G_tu,yz
             !      <0| E_zy * H0 * E_ut |0> = F_tu,yz
-            G2(it,iu,iy,iz) = DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
-            F2sum = Zero
-            do i=1,nsgm1
-              F2sum = F2sum+BUF2(i)*bufd(i)*buf1(i,ib)
-            end do
-            F2(it,iu,iy,iz) = F2sum
+            G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
+            F2(it,iu,iy,iz) = sum(BUF2(1:nsgm1)*bufd(1:nsgm1)*buf1(1:nsgm1,ib))
           end do
         else
           do ib=1,ibuf1
@@ -443,7 +435,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             iulev = idx2ij(2,idx)
             it = L2ACT(itlev)
             iu = L2ACT(iulev)
-            G2(it,iu,iy,iz) = DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
+            G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
           end do
         end if
 

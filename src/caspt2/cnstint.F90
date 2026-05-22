@@ -28,7 +28,7 @@ integer(kind=iwp), intent(in) :: Mode
 real(kind=wp), intent(out) :: INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT)
 integer(kind=iwp) :: iAshI, IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOrb, iSym, iSymA, iSymB, iSymI, iSymJ, iT, iTU, iU, iV, iVX, iX, &
                      jAshI, jOrb, JSYM, kAshI, lAshI, MXBGRP, MXPIQK, NADDBUF, nBasI, NBGRP, NCHOBUF, nCorI, nFroI, nIshI, nKET, NV
-real(kind=wp) :: SCAL, Val
+real(kind=wp) :: SCAL
 integer(kind=iwp), allocatable :: BGRP(:,:)
 real(kind=wp), allocatable :: KET(:), WRK1(:), WRK2(:)
 integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
@@ -49,11 +49,8 @@ call mma_allocate(WRK2,NBSQT,Label='WRK2')
 ! --- One-Electron Integral
 
 !! Read H_{\mu \nu}
-do iAshI=1,nAsh(iSym)
-  do jAshI=1,nAsh(iSym)
-    Val = FIMO_all(nCorI+iAshI+nBasI*(nCorI+jAshI-1))
-    INT1(iAshI,jAshI) = INT1(iAshI,jAshI)+Val
-  end do
+do jAshI=1,nAsh(iSym)
+  INT1(1:nAsh(iSym),jAshI) = INT1(1:nAsh(iSym),jAshI)+FIMO_all(nCorI+nBasI*(nCorI+jAshI-1)+1:nCorI+nBasI*(nCorI+jAshI-1)+nAsh(iSym))
 end do
 
 ! --- Two-Electron Integral
@@ -76,8 +73,7 @@ if (IfChol) then
     call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
     IBGRP = 1
     do IB=IB1,IB2
-      BGRP(1,IBGRP) = IB
-      BGRP(2,IBGRP) = IB
+      BGRP(:,IBGRP) = IB
       IBGRP = IBGRP+1
     end do
     NBGRP = MXBGRP
@@ -89,10 +85,7 @@ if (IfChol) then
       IBSTA = BGRP(1,IBGRP)
       IBEND = BGRP(2,IBGRP)
 
-      NV = 0
-      do IB=IBSTA,IBEND
-        NV = NV+NVLOC_CHOBATCH(IB)
-      end do
+      NV = sum(NVLOC_CHOBATCH(IBSTA:IBEND))
 
       !! int2(tuvx) = (tu|vx)/2
       !! This can be computed without frozen orbitals
@@ -113,9 +106,10 @@ else
 
       call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
       !! Put in INT2
-      do kAshI=1,nAsh(iSym)
-        do lAshI=1,nAsh(iSym)
-          INT2(iAshI,jAshI,kAshI,lAshI) = INT2(iAshI,jAshI,kAshI,lAshI)+WRK1(nCorI+kAshI+nBasT*(nCorI+lAshI-1))*Half
+      do lAshI=1,nAsh(iSym)
+        do kAshI=1,nAsh(iSym)
+          INT2(iAshI,jAshI,1:nAsh(iSym),lAshI) = INT2(iAshI,jAshI,1:nAsh(iSym),lAshI)+ &
+                                                 WRK1(nCorI+nBasT*(nCorI+lAshI-1)+1:nCorI+nBasT*(nCorI+lAshI-1)+nAsh(iSym))*Half
         end do
       end do
     end do

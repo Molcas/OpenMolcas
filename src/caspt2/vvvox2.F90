@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine VVVOX2(nAux,KEEP,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,vLag,CMO,WRK,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,FIFA,FIMO)
+subroutine VVVOX2(KEEP,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,vLag,CMO,WRK,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,FIFA,FIMO)
 
 use Symmetry_Info, only: Mul
 use ChoVec_io, only: NVLOC_CHOBATCH
@@ -24,32 +24,28 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nAux(8), KEEP(8), iSym, iSymI, iSymJ, iSymK, iSymL, nBasT
+integer(kind=iwp), intent(in) :: KEEP(8), iSym, iSymI, iSymJ, iSymK, iSymL, nBasT
 real(kind=wp), intent(inout) :: vLag(nBasT,nBasT), WRK(nBasT,nBasT), FPT2AO(nBasT**2), FPT2CAO(nBasT**2), FIFA(nBasT**2), &
                                 FIMO(nBasT**2)
 real(kind=wp), intent(in) :: CMO(nBasT,nBasT), DPT2AO(nBasT**2), DPT2CAO(nBasT**2)
 integer(kind=iwp) :: i, IBATCH, IBATCH_TOT, ILOC, ipWRK(8), IRC, iSkip(8), iSMax, ISTLT(8), ISTSQ(8), iSymIJ, iSymL_, iVec, j, &
-                     JNUM, JRED, JRED1, JRED2, JREDC, JSTART, jSym, JV1, JV2, KEEPI, KEEPJ, KEEPK, KEEPL, MUSED, nAshI, nAuxT, nB, &
-                     nB2, nB3, nBasI, nBasIJ, nBasJ, nBasK, nBasKL, nBasL, NBATCH, nIshI, nOrbI, nSshI, NUMV, NVECS_RED
+                     JNUM, JRED, JRED1, JRED2, JREDC, JSTART, jSym, JV1, JV2, KEEPI, KEEPJ, KEEPK, KEEPL, MUSED, nAshI, nB, nB2, &
+                     nB3, nBasI, nBasIJ, nBasJ, nBasK, nBasKL, nBasL, NBATCH, nIshI, nOrbI, nSshI, NUMV, NVECS_RED
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: CHSPC(:), HTSPC(:), HTVec(:)
 #include "warnings.h"
 
-do jSym=1,nSym
-  iSkip(jSym) = 1
-  ipWRK(jSym) = 1
-end do
+iSkip(1:nSym) = 1
+ipWRK(1:nSym) = 1
 
 ISTSQ(1) = 0
 ISTLT(1) = 0
-nAuxT = 0
 do jSym=2,nSym
   nB = nBas(jSym-1)
   nB2 = nB*nB
   nB3 = (nB2+nB)/2
   ISTSQ(jSym) = ISTSQ(jSym-1)+nB2
   ISTLT(jSym) = ISTLT(jSym-1)+nB3
-  nAuxT = nAuxT+nAux(jSym)
 end do
 
 nBasI = nBas(iSymI)

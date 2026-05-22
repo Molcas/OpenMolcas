@@ -23,7 +23,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: I, ICASE, ISYM, JD, NAS, NIN, NIS
+integer(kind=iwp) :: ICASE, ISYM, JD, NAS, NIN, NIS
 real(kind=wp), allocatable :: BD(:), C1(:), C2(:), ID(:)
 
 do ICASE=1,13
@@ -48,12 +48,8 @@ do ICASE=1,13
     C1(:) = Zero
     C2(:) = Zero
     ! Modifications are added to the usual diagonal energies:
-    do I=1,NAS
-      BD(I) = BD(I)+C1(I)
-    end do
-    do I=1,NIS
-      ID(I) = ID(I)+C2(I)
-    end do
+    BD(:) = BD(:)+C1(:)
+    ID(:) = ID(:)+C2(:)
     JD = IDBMAT(ISYM,ICASE)
     call DDAFILE(LUSBT,1,BD,NAS,JD)
     call DDAFILE(LUSBT,1,ID,NIS,JD)

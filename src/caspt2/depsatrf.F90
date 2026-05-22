@@ -29,7 +29,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NBSQT, nAshT
 real(kind=wp), intent(in) :: DEPSA(nAshT,nAshT)
 real(kind=wp), intent(out) :: FPT2(NBSQT), WRK1(NBSQT), WRK2(NBSQT)
-integer(kind=iwp) :: iAsh, iAshI, iOrb, iSym, iSymA, iSymB, iSymI, iSymJ, jAsh, jAshI, jOrb, nBasI, nCorI
+integer(kind=iwp) :: iAshI, iOrb, iSym, iSymA, iSymB, iSymI, iSymJ, jAsh, jAshI, jOrb, nBasI, nCorI
 real(kind=wp), allocatable :: DAO(:), DMO(:)
 
 FPT2(1:nBasT**2) = Zero
@@ -51,10 +51,8 @@ if (IfChol) then
     DMO(:) = Zero
     nCorI = nFro(iSym)+nIsh(iSym)
     nBasI = nBas(iSym)
-    do iAsh=1,nAsh(iSym)
-      do jAsh=1,nAsh(iSym)
-        DMO(nCorI+iAsh+nBasI*(nCorI+jAsh-1)) = DEPSA(iAsh,jAsh)
-      end do
+    do jAsh=1,nAsh(iSym)
+      DMO(nCorI+nBasI*(nCorI+jAsh-1)+1:nCorI+nBasI*(nCorI+jAsh-1)+nAsh(iSym)) = DEPSA(1:nAsh(iSym),jAsh)
     end do
     call OLagTrf(1,iSym,NBSQT,CMOPT2,DMO,DAO,WRK1)
   end do

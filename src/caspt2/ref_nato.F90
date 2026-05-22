@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nDREF, nCMO, nOcc, nCNAT
 real(kind=wp), intent(in) :: DREF(nDREF), CMO(nCMO)
 real(kind=wp), intent(out) :: OCC(nOcc), CNAT(nCNAT)
-integer(kind=iwp) :: I, ICMO, IDREF, II, IOCC, ISYM, J, JJ, LIJ, NA, NB, NF, NFI, NI, NSD, NTMP
+integer(kind=iwp) :: I, ICMO, IDREF, II, IOCC, ISYM, LIJ, NA, NB, NF, NFI, NI, NSD, NTMP
 real(kind=wp) :: OC
 real(kind=wp), allocatable :: TMP(:)
 
@@ -53,14 +53,11 @@ do ISYM=1,NSYM
     call mma_allocate(TMP,NTMP,LABEL='TMP')
     CNAT(ICMO+1:ICMO+NB*NA) = CMO(ICMO+1:ICMO+NB*NA)
     ! For correct ordering, change sign.
-    LIJ = 1
+    LIJ = 0
     do I=1,NA
       II = I+IDREF
-      do J=1,I
-        JJ = J+IDREF
-        TMP(LIJ) = -DREF((II*(II-1))/2+JJ)
-        LIJ = LIJ+1
-      end do
+      TMP(LIJ+1:LIJ+I) = -DREF((II*(II-1))/2+IDREF+1:(II*(II+1))/2)
+      LIJ = LIJ+I
     end do
     call NIDiag(TMP,CNAT(ICMO+1),NA,NB)
     call JACORD(TMP,CNAT(ICMO+1),NA,NB)

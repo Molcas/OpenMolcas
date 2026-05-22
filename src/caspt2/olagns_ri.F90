@@ -94,7 +94,7 @@ real(kind=wp), intent(inout) :: DPT2C(NBSQT), DPT2Canti(NBSQT), A_PT2(MaxVec_PT2
 integer(kind=iwp) :: IAABS, IAEND, IAGEC, IAGTC, IAJ, IAJSTA, iAtot, IB, IB1, IB2, IBEND, IBGRP, IBSTA, ICABS, ICASE, ICEND, ICL, &
                      ICLSTA, IJABS, IJEND, IJGEL, IJGTL, iJtot, ILABS, ILEND, ILMAX, IO, IO1, IO2, IOFFCV, ipT, ipTanti, ipTM, &
                      ipTP, ISAB, ISI, ISIJ, iStpGrd_sav, ISYA, ISYAC, ISYC, ISYII, ISYJ, ISYJL, ISYL, iSym, ISYT, ISYU, ISYV, &
-                     ISYX, ITABS, iTtot, IUABS, iUtot, IVABS, IVMAX, iVtot, IW, IW1, IW2, IXABS, IXMAX, iXtot, JB, JBEND, JBGRP, &
+                     ISYX, ITABS, iTtot, IUABS, iUtot, IVABS, IVMAX, iVtot, IW, IW1, IW2, IXABS, IXMAX, iXtot, JBEND, JBGRP, &
                      JBSTA, JGEL, JGTL, JOFFCV, JSYM, KAJ, KCL, MXBGRP, MXPIQK, NADDBUF, NAS, NAS1, NASM, NASP, NASZ, NBGRP, nBra, &
                      NBXSZA, NBXSZC, NBXSZJ, NBXSZL, NCHOBUF, NCSZ, NIN, NINM, NINP, NIS, NISM, NISP, NJSZ, nKet, nOrbA, nSh(8,3), &
                      NV, NVEC, NVI, NVJ, NW, NWA, NWBM, NWBP, NWC, NWD, NWEM, NWEP, NWFM, NWFP, NWGM, NWGP, NWHM, NWHP
@@ -130,12 +130,8 @@ do JSYM=1,NSYM
   MXBGRP = IB2-IB1+1
   if (MXBGRP <= 0) cycle
   call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
-  IBGRP = 1
-  do IB=IB1,IB2
-    BGRP(1,IBGRP) = IB
-    BGRP(2,IBGRP) = IB
-    IBGRP = IBGRP+1
-  end do
+  BGRP(1,1:IB2-IB1+1) = [(IB,IB=IB1,IB2)]
+  BGRP(2,1:IB2-IB1+1) = [(IB,IB=IB1,IB2)]
   NBGRP = MXBGRP
 
   !! With iStpGrd = -1, we try to allocate 4 large arrays
@@ -164,10 +160,7 @@ do JSYM=1,NSYM
     IBSTA = BGRP(1,IBGRP)
     IBEND = BGRP(2,IBGRP)
 
-    NV = 0
-    do IB=IBSTA,IBEND
-      NV = NV+NVLOC_CHOBATCH(IB)
-    end do
+    NV = sum(NVLOC_CHOBATCH(IBSTA:IBEND))
 
     if (IPRGLB > VERBOSE) then
       write(u6,'(A,I12)') '  Cholesky vectors in this group = ',NV
@@ -325,7 +318,7 @@ do JSYM=1,NSYM
     ! End of loop over batches, IB
     call Cholesky_Vectors(1,Inactive,Virtual,JSYM,BRAD,size(BRAD),nBra,IBSTA,IBEND)
     call Cholesky_Vectors(1,Inactive,Active,JSYM,KETD,size(KETD),nKet,IBSTA,IBEND)
-      !! Construct A_PT2
+    !! Construct A_PT2
     NVI = NV
     JOFFCV = 1
     do JBGRP=1,NBGRP
@@ -333,21 +326,18 @@ do JSYM=1,NSYM
       JBSTA = BGRP(1,JBGRP)
       JBEND = BGRP(2,JBGRP)
 
-      NVJ = 0
-      do JB=JBSTA,JBEND
-        NVJ = NVJ+NVLOC_CHOBATCH(JB)
-      end do
+      NVJ = sum(NVLOC_CHOBATCH(JBSTA:JBEND))
 
-        !! BraAI
+      !! BraAI
       call Cnst_A_PT2(Inactive,Active)
 
-        !! BraSI
+      !! BraSI
       call Cnst_A_PT2(Inactive,Virtual)
 
-        !! BraSA
+      !! BraSA
       call Cnst_A_PT2(Active,Virtual)
 
-        !! BraAA
+      !! BraAA
       call Cnst_A_PT2(Active,Active)
       JOFFCV = JOFFCV+NVJ
     end do !! end of JBGRP loop

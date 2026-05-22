@@ -27,7 +27,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: I, J, iDisk
-real(kind=wp) :: Wij
 real(kind=wp), allocatable :: CI(:)
 
 if (IPRGLB >= DEBUG) write(u6,*) ' Entered rdminit.'
@@ -77,12 +76,12 @@ do I=1,Nstate
   do J=1,Nstate
     ! Retrieve the weight of the contribution of state I to the density
     ! of state J
-    wij = DWGT(I,J)
+    !wij = DWGT(I,J)
     ! Multiply density of state I with weight wij and add it to whatever
     ! is already in DMIX (contributions of other states already computed)
     ! and store it in DMIX
-    DMIX(:,J) = DMIX(:,J)+wij*DREF(:)
     !DMIX(:,J) = DMIX(:,J)+wij*DREF(:)
+    DMIX(:,J) = DMIX(:,J)+DWGT(I,J)*DREF(:)
   end do
 
   ! End of long loop over states

@@ -32,9 +32,9 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nH1EFF
 real(kind=wp), intent(inout) :: H1EFF(nH1Eff)
-integer(kind=iwp) :: ICOMP, IOPT, IRC, ISYLBL, iSym, nTemp
+integer(kind=iwp) :: ICOMP, IOPT, IRC, ISYLBL, nTemp
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ISTLT
+integer(kind=iwp) :: ISTLT, iSym
 #endif
 logical(kind=iwp) :: Found
 character(len=8) :: Label
@@ -65,10 +65,7 @@ call Get_dScalar('PotNuc',PotNuc)
 ! modify the one-electron Hamiltonian by the reaction field and
 ! the nuclear attraction by the cavity self-energy
 if (RFpert) then
-  nTemp = 0
-  do iSym=1,nSym
-    nTemp = nTemp+nBas(iSym)*(nBas(iSym)+1)/2
-  end do
+  nTemp = sum(nBas(1:nSym)*(nBas(1:nSym)+1)/2)
   call f_Inquire('RUNOLD',Found)
   if (Found) call NameRun('RUNOLD')
   call mma_allocate(Temp,nTemp,Label='Temp')
@@ -97,10 +94,7 @@ end do
 ! then modify the one-electron Hamiltonian by the OFE potential and
 ! the nuclear attraction by the Rep_EN
 if (Do_OFEmb) then
-  nTemp = 0
-  do iSym=1,nSym
-    nTemp = nTemp+nBas(iSym)*(nBas(iSym)+1)/2
-  end do
+  nTemp = sum(nBas(1:nSym)*(nBas(1:nSym)+1)/2)
   call mma_allocate(Coul,nTemp,Label='Coul')
   Coul(:) = Zero
   if (OFE_First) then

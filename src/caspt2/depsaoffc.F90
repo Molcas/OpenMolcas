@@ -111,7 +111,7 @@ end if
 call TimesE2(0,nConf,nState,nAshT,VecCIT,VecS1,INT1,INT2)
 do iState=1,nState
   !! scaling with nState is due to the division in TimesE2
-  Eact(iState) = -Half*nState*DDot_(nConf,VecS1(1,iState),1,VecCIT(1,iState),1)
+  Eact(iState) = -Half*nState*dot_product(VecS1(:,iState),VecCIT(:,iState))
 end do
 isyci = 1
 
@@ -144,13 +144,11 @@ Delta = DeltaC
 Delta0 = Delta
 
 if (IPRGLB >= VERBOSE) write(u6,*) ' Iteration       Delta           Res(CI)          DeltaC'
-VecCIT(1:nConf,1:nState) = Zero
+VecCIT(:,:) = Zero
 if (Delta0 > abs(Thres)) then
   do Iter=1,MaxIter
     if (nConf == 1) then
-      do iState=1,nState
-        VecCIT(1,iState) = One
-      end do
+      VecCIT(1,:) = One
       exit
     end if
     !! Compute Ap
@@ -324,9 +322,7 @@ subroutine CnstInt(Mode,nAshT,INT1,INT2)
   integer(kind=iwp), intent(in) :: Mode, nAshT
   real(kind=wp), intent(inout) :: INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT)
   integer(kind=iwp) :: iAshI, IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOrb, iSymA, iSymB, iSymI, iSymJ, iT, iTU, iU, iV, iVX, iX, &
-                       jAshI, jOrb, JSYM, kAshI, lAshI, MXBGRP, MXPIQK, NADDBUF, nBasI, NBGRP, NCHOBUF, nCorI, nFroI, nIshI, nKET, &
-                       NV
-  real(kind=wp) :: Val
+                       jAshI, jOrb, JSYM, MXBGRP, MXPIQK, NADDBUF, nBasI, NBGRP, NCHOBUF, nCorI, nFroI, nIshI, nKET, NV
   integer(kind=iwp), allocatable :: BGRP(:,:)
   real(kind=wp), allocatable :: KET(:)
   integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
@@ -357,17 +353,13 @@ subroutine CnstInt(Mode,nAshT,INT1,INT2)
   !  RIn_Ene = RIn_Ene+Two*WRK1(iCorI,iCorI)
   !end do
   !! Put in INT1
-  !do iAshI=1,nAsh(iSym)
-  !  do jAshI=1,nAsh(iSym)
-  !    Val = WRK1(nCorI+iAshI,nCorI+jAshI)
-  !    INT1(iAshI,jAshI) = INT1(iAshI,jAshI)+Val
+  !do jAshI=1,nAsh(iSym)
+  !  do iAshI=1,nAsh(iSym)
+  !    INT1(1:nAsh(iSym),1:nAsh(iSym)) = INT1(1:nAsh(iSym),1:nAsh(iSym))+WRK1(nCorI+1:nCorI+nAsh(iSym),nCorI+1:nCorI+nAsh(iSym))
   !  end do
   !end do
-  do iAshI=1,nAsh(iSym)
-    do jAshI=1,nAsh(iSym)
-      Val = FIMO(nCorI+iAshI+nBasI*(nCorI+jAshI-1))
-      INT1(iAshI,jAshI) = INT1(iAshI,jAshI)+Val
-    end do
+  do jAshI=1,nAsh(iSym)
+    INT1(1:nAsh(iSym),jAshI) = INT1(1:nAsh(iSym),jAshI)+FIMO(nCorI+nBasI*(nCorI+jAshI-1)+1:nCorI+nBasI*(nCorI+jAshI-1)+nAsh(iSym))
   end do
 
   ! --- Two-Electron Integral
@@ -402,12 +394,8 @@ subroutine CnstInt(Mode,nAshT,INT1,INT2)
       MXBGRP = IB2-IB1+1
       if (MXBGRP <= 0) cycle
       call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
-      IBGRP = 1
-      do IB=IB1,IB2
-        BGRP(1,IBGRP) = IB
-        BGRP(2,IBGRP) = IB
-        IBGRP = IBGRP+1
-      end do
+      BGRP(1,1:IB2-IB1+1) = [(IB,IB=IB1,IB2)]
+      BGRP(2,1:IB2-IB1+1) = [(IB,IB=IB1,IB2)]
       NBGRP = MXBGRP
 
       call MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,NCHOBUF,MXPIQK,NADDBUF)
@@ -421,10 +409,7 @@ subroutine CnstInt(Mode,nAshT,INT1,INT2)
         IBEND = BGRP(2,IBGRP)
         !write(u6,*) ibsta,ibend
 
-        NV = 0
-        do IB=IBSTA,IBEND
-          NV = NV+NVLOC_CHOBATCH(IB)
-        end do
+        NV = sum(NVLOC_CHOBATCH(IBSTA:IBEND))
 
         !! int2(tuvx) = (tu|vx)/2
         !! This can be computed without frozen orbitals
@@ -447,11 +432,8 @@ subroutine CnstInt(Mode,nAshT,INT1,INT2)
         !  INT1(iAshI,jAshI) = INT1(iAshI,jAshI)+Two*WRK1(iCorI,iCorI)
         !end do
         !! Put in INT2
-        do kAshI=1,nAsh(iSym)
-          do lAshI=1,nAsh(iSym)
-            INT2(iAshI,jAshI,kAshI,lAshI) = INT2(iAshI,jAshI,kAshI,lAshI)+WRK1(nCorI+kAshI,nCorI+lAshI)*Half
-          end do
-        end do
+        INT2(iAshI,jAshI,1:nAsh(iSym),1:nAsh(iSym)) = INT2(iAshI,jAshI,1:nAsh(iSym),1:nAsh(iSym))+ &
+                                                      WRK1(nCorI+1:nCorI+nAsh(iSym),nCorI+1:nCorI+nAsh(iSym))*Half
 
         !call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
         !! Put in INT1
@@ -525,11 +507,9 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
 
   iTask = 0
   do LT=1,nLev
-    do LU=1,nLev
-      iTask = iTask+1
-      TASK(iTask,1) = LT
-      TASK(iTask,2) = LU
-    end do
+    TASK(iTask+1:iTask+nLev,1) = LT
+    TASK(iTask+1:iTask+nLev,2) = [(LU,LU=1,nLev)]
+    iTask = iTask+nLev
   end do
   if (iTask /= nTasks) write(u6,*) 'ERROR nTasks'
 
@@ -623,7 +603,7 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
   integer(kind=iwp), intent(in) :: nConf, nState, nAshT
   real(kind=wp), intent(in) :: CI(nConf,nState), CIT(nConf,nState), INT2(nAshT,nAshT,nAshT,nAshT)
   real(kind=wp), intent(out) :: G1(nAshT,nAshT), G2(nAshT,nAshT,nAshT,nAshT)
-  integer(kind=iwp) :: iA, iAsh, ijS, ilState, imo, iOrb, ip1, ip2, ipM, ipQ, ipS, iS, jA, jAsh, jlState, jOrb, jS, kAA, kAsh, kS, &
+  integer(kind=iwp) :: iA, iAsh, ijS, ilState, imo, iOrb, ip1, ip2, ipQ, ipS, iS, jA, jAsh, jlState, jOrb, jS, kAA, kAsh, kS, &
                        kState, lAA, lAsh, lS, nLev
   real(kind=wp) :: EigI, EigJ, OLagIJ, rd, Tmp, vSLag, Wgt
   real(kind=wp), allocatable :: Fock(:), FockOut(:), G1T(:), G2T(:), SGM1(:), SGM2(:)
@@ -723,10 +703,7 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
               do iAsh=1,nAsh(iS)
                 ipQ = nAsh(ipS)*(iAsh-1)
                 do jAsh=1,nAsh(jS)
-                  ipM = nFro(ipS)+nIsh(ipS)+(nFro(jS)+nIsh(jS)+jAsh-1)*nBas(ipS)
                   Fock(ipQ+1:ipQ+nAsh(ipS)) = Fock(ipQ+1:ipQ+nAsh(ipS))+Two*G2(iAsh,jAsh,kAsh,lAsh)*INT2(1:nAsh(ipS),jAsh,kAsh,lAsh)
-                  ipM = ipM+nOrb(ipS)
-
                 end do
               end do
 
@@ -945,14 +922,12 @@ subroutine DoPrec(nConf,nRoots,VecIN,VecOUT,CI,Pre,Fancy)
   integer(kind=iwp), intent(in) :: nConf, nRoots
   real(kind=wp), intent(in) :: VecIN(nConf,nRoots), Pre(nConf), Fancy(nRoots,nRoots,nRoots)
   real(kind=wp), intent(out) :: VecOUT(nConf,nRoots), CI(nConf,nRoots)
-  integer(kind=iwp) :: iConf, iRoots, jRoots, kRoots
-  real(kind=wp) :: alpha(nRoots), rcoeff(nRoots)
+  integer(kind=iwp) :: iRoots, jRoots
+  real(kind=wp) :: alpha, rcoeff(nRoots)
 
   !! Standard inverse of the diagonal elements
   do iRoots=1,nRoots
-    do iConf=1,nConf
-      VecOUT(iConf,iRoots) = VecIN(iConf,iRoots)/(Pre(iConf)+Eact(iRoots))
-    end do
+    VecOUT(:,iRoots) = VecIN(:,iRoots)/(Pre(:)+Eact(iRoots))
   end do
 
   !! Construct reference CI vectors
@@ -963,20 +938,12 @@ subroutine DoPrec(nConf,nRoots,VecIN,VecOUT,CI,Pre,Fancy)
   !! The so-called fancy precondioner
   do iRoots=1,nRoots
     do jRoots=1,nRoots
-      rcoeff(jRoots) = DDot_(nconf,VecOUT(1,iRoots),1,CI(1,jRoots),1)
+      rcoeff(jRoots) = dot_product(VecOUT(:,iRoots),CI(:,jRoots))
     end do
 
     do jRoots=1,nRoots
-      alpha(jRoots) = Zero
-      do kRoots=1,nRoots
-        alpha(jRoots) = alpha(jRoots)+Fancy(jRoots,kRoots,iRoots)*rcoeff(kRoots)
-      end do
-    end do
-
-    do jRoots=1,nRoots
-      do iConf=1,nConf
-        VecOUT(iConf,iRoots) = VecOUT(iConf,iRoots)-CI(iConf,jRoots)*alpha(jRoots)/(Pre(iConf)+Eact(iRoots))
-      end do
+      alpha = dot_product(Fancy(jRoots,:,iRoots),rcoeff(:))
+      VecOUT(:,iRoots) = VecOUT(:,iRoots)-CI(:,jRoots)*alpha/(Pre(:)+Eact(iRoots))
     end do
   end do
 

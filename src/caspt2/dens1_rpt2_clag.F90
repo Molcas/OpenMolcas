@@ -45,25 +45,19 @@ call mma_allocate(Task,nTasks,2,Label='TASK')
 iTask = 0
 ! First, IL < JL pairs.
 do LT=1,nLev-1
-  do LU=LT+1,nLev
-    iTask = iTask+1
-    TASK(iTask,1) = LT
-    TASK(iTask,2) = LU
-  end do
+  TASK(iTask+1:iTask+nLev-LT,1) = LT
+  TASK(iTask+1:iTask+nLev-LT,2) = [(LU,LU=LT+1,nLev)]
+  iTask = iTask+nLev-LT
 end do
 ! Then, IL = JL pairs.
-do LT=1,nLev
-  iTask = iTask+1
-  TASK(iTask,1) = LT
-  TASK(iTask,2) = LT
-end do
+TASK(iTask+1:iTask+nLev,1) = [(LT,LT=1,nLev)]
+TASK(iTask+1:iTask+nLev,2) = [(LT,LT=1,nLev)]
+iTask = iTask+nLev
 ! Last, IL > JL pairs.
 do LT=2,nLev
-  do LU=1,LT-1
-    iTask = iTask+1
-    TASK(iTask,1) = LT
-    TASK(iTask,2) = LU
-  end do
+  TASK(iTask+1:iTask+LT-1,1) = LT
+  TASK(iTask+1:iTask+LT-1,2) = [(LU,LU=1,LT-1)]
+  iTask = iTask+LT-1
 end do
 if (iTask /= nTasks) write(u6,*) 'ERROR nTasks'
 

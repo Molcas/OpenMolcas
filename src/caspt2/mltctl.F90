@@ -80,10 +80,8 @@ call mma_allocate(UMAT,NSTATE,NSTATE,LABEL='UMAT')
 call mma_allocate(HTRI,NHTRI,LABEL='HTRI')
 IJ = 0
 do I=1,NSTATE
-  do J=1,I
-    IJ = IJ+1
-    HTRI(IJ) = Half*(HEFF(I,J)+HEFF(J,I))
-  end do
+  HTRI(IJ+1:IJ+I) = Half*(HEFF(I,1:I)+HEFF(1:I,I))
+  IJ = IJ+I
 end do
 if (IPRGLB >= USUAL) then
   write(u6,*)

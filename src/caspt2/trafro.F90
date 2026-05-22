@@ -26,17 +26,15 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: MODE
-integer(kind=iwp) :: jSym, nFroTmp(8), nOrbTmp(8), nOshTmp(8)
+integer(kind=iwp) :: nFroTmp(8), nOrbTmp(8), nOshTmp(8)
 
 if (Mode == 1) then
-  do jSym=1,nSym
-    nFroTmp(jSym) = nFro(jSym)
-    nOshTmp(jSym) = nOsh(jSym)
-    nOrbTmp(jSym) = nOrb(jSym)
-    nOsh(jSym) = nFro(jSym)+nIsh(jSym)+nAsh(jSym)
-    nOrb(jSym) = nOsh(jSym)+nSsh(jSym)
-    nFro(jSym) = 0
-  end do
+  nFroTmp(1:nSym) = nFro(1:nSym)
+  nOshTmp(1:nSym) = nOsh(1:nSym)
+  nOrbTmp(1:nSym) = nOrb(1:nSym)
+  nOsh(1:nSym) = nFro(1:nSym)+nIsh(1:nSym)+nAsh(1:nSym)
+  nOrb(1:nSym) = nOsh(1:nSym)+nSsh(1:nSym)
+  nFro(1:nSym) = 0
 end if
 
 call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
@@ -51,11 +49,9 @@ call mma_deallocate(CMO_Internal)
 nullify(CMO)
 
 if (Mode == 1) then
-  do jSym=1,nSym
-    nFro(jSym) = nFroTmp(jSym)
-    nOsh(jSym) = nOshTmp(jSym)
-    nOrb(jSym) = nOrbTmp(jSym)
-  end do
+  nFro(1:nSym) = nFroTmp(1:nSym)
+  nOsh(1:nSym) = nOshTmp(1:nSym)
+  nOrb(1:nSym) = nOrbTmp(1:nSym)
 end if
 
 return

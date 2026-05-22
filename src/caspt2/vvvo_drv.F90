@@ -11,18 +11,17 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine VVVO_Drv(nSym,nBas,nAux,nFro,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,lT2AO,T2AO,vLag,nOcc,nBasT,nBMX,CMO,DPT2AO,DPT2CAO, &
-                    FPT2AO,FPT2CAO,DIA,DI,FIFA,FIMO)
+subroutine VVVO_Drv(nSym,nBas,nFro,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,lT2AO,T2AO,vLag,nOcc,nBasT,nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO, &
+                    FPT2CAO,DIA,DI,FIFA,FIMO)
 
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nBas(8), nAux(8), nFro(8), Keep(8), iSym, iSymI, iSymJ, iSymK, iSymL, lT2AO, nOcc, nBasT, &
-                                 nBMX
+integer(kind=iwp), intent(in) :: nSym, nBas(8), nFro(8), Keep(8), iSym, iSymI, iSymJ, iSymK, iSymL, lT2AO, nOcc, nBasT, nBMX
 real(kind=wp), intent(in) :: T2AO(lT2AO), CMO(nBasT**2), DPT2AO(nBasT**2), DPT2CAO(nBasT**2), DIA(nBasT**2), DI(nBasT**2)
 real(kind=wp), intent(inout) :: vLag(nBasT**2), FPT2AO(nBasT**2), FPT2CAO(nBasT**2), FIFA(nBasT**2), FIMO(nBasT**2)
-integer(kind=iwp) :: i, j, LBUF
+integer(kind=iwp) :: LBUF
 logical(kind=iwp) :: DoCholesky
 real(kind=wp), allocatable :: W1(:), W2(:), WRK(:)
 
@@ -55,7 +54,7 @@ if (LBUF < 1+NBMX**2) then
 end if
 
 if (DoCholesky) then
-  call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,vLag,CMO,WRK,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,FIFA,FIMO)
+  call VVVOX2(Keep,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,vLag,CMO,WRK,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,FIFA,FIMO)
 else
   call VVVOX(nSym,nBas,nFro,Keep,iSymI,iSymJ,iSymK,iSymL,NBMX,T2AO,vLag,CMO,nOcc,nBasT,LBUF,W1,W2,WRK,DPT2AO,DPT2CAO,FPT2AO, &
              FPT2CAO,DIA,DI,FIFA,FIMO)
@@ -63,11 +62,7 @@ end if
 !! vLag must be transposed
 !! In VVVOX(2) subroutines, vLag(p,mu) is constructed.
 WRK(1:nBasT**2) = vLag(1:nBasT**2)
-do i=1,nbast
-  do j=1,nbast
-    vlag(i+nbast*(j-1)) = WRK(j+nbast*(i-1))
-  end do
-end do
+call trnsps(nBasT,nBasT,WRK,vLag)
 call mma_deallocate(WRK)
 call mma_deallocate(W1)
 call mma_deallocate(W2)

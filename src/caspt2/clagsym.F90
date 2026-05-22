@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine CLagSym(nAshT,DG1,DG2,DF1,DF2,mode)
+subroutine CLagSym(nAshT,DG1,DG2,DF1,DF2, mode)
 
 use Constants, only: Half, Quart
 use Definitions, only: wp, iwp
@@ -20,81 +20,71 @@ implicit none
 integer(kind=iwp), intent(in) :: nAshT, mode
 real(kind=wp), intent(inout) :: DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT), DF1(nAshT,nAshT), DF2(nAshT,nAshT,nAshT,nAshT)
 integer(kind=iwp) :: iI, iJ, iK, iL
-real(kind=wp) :: Val, Val1, Val2, Val3, Val4
+real(kind=wp) :: Val
 
 !return
 !if (mode == 0) then
 do iI=1,nAshT
   do iJ=1,iI-1
-    Val1 = DG1(iI,iJ)
-    Val2 = DG1(iJ,iI)
-    DG1(iI,iJ) = (Val1+Val2)*Half
-    DG1(iJ,iI) = (Val1+Val2)*Half
-    Val1 = DF1(iI,iJ)
-    Val2 = DF1(iJ,iI)
-    DF1(iI,iJ) = (Val1+Val2)*Half
-    DF1(iJ,iI) = (Val1+Val2)*Half
+    Val = (DG1(iI,iJ)+DG1(iJ,iI))*Half
+    DG1(iI,iJ) = Val
+    DG1(iJ,iI) = Val
+    Val = (DF1(iI,iJ)+DF1(iJ,iI))*Half
+    DF1(iI,iJ) = Val
+    DF1(iJ,iI) = Val
   end do
 end do
 !end if
 
-if (mode == 0) then
-  !! Follow G2 symmetry
-  do iI=1,nAshT
-    do iJ=1,nAshT
-      do iK=1,nAshT
-        do iL=1,nAshT
-          Val1 = DG2(iI,iJ,iK,iL)
-          Val2 = DG2(iJ,iI,iL,iK)
-          Val3 = DG2(iK,iL,iI,iJ)
-          Val4 = DG2(iL,iK,iJ,iI)
-          Val = (Val1+Val2+Val3+Val4)*Quart
-          DG2(iI,iJ,iK,iL) = Val
-          DG2(iJ,iI,iL,iK) = Val
-          DG2(iK,iL,iI,iJ) = Val
-          DG2(iL,iK,iJ,iI) = Val
-          Val1 = DF2(iI,iJ,iK,iL)
-          Val2 = DF2(iJ,iI,iL,iK)
-          Val3 = DF2(iK,iL,iI,iJ)
-          Val4 = DF2(iL,iK,iJ,iI)
-          Val = (Val1+Val2+Val3+Val4)*Quart
-          DF2(iI,iJ,iK,iL) = Val
-          DF2(iJ,iI,iL,iK) = Val
-          DF2(iK,iL,iI,iJ) = Val
-          DF2(iL,iK,iJ,iI) = Val
+select case (mode)
+  case (0)
+    !! Follow G2 symmetry
+    do iI=1,nAshT
+      do iJ=1,nAshT
+        do iK=1,nAshT
+          do iL=1,nAshT
+            Val = (DG2(iI,iJ,iK,iL)+DG2(iJ,iI,iL,iK)+DG2(iK,iL,iI,iJ)+DG2(iL,iK,iJ,iI))*Quart
+            DG2(iI,iJ,iK,iL) = Val
+            DG2(iJ,iI,iL,iK) = Val
+            DG2(iK,iL,iI,iJ) = Val
+            DG2(iL,iK,iJ,iI) = Val
+            Val = (DF2(iI,iJ,iK,iL)+DF2(iJ,iI,iL,iK)+DF2(iK,iL,iI,iJ)+DF2(iL,iK,iJ,iI))*Quart
+            DF2(iI,iJ,iK,iL) = Val
+            DF2(iJ,iI,iL,iK) = Val
+            DF2(iK,iL,iI,iJ) = Val
+            DF2(iL,iK,iJ,iI) = Val
+          end do
         end do
       end do
     end do
-  end do
-else if (mode == 1) then
-  !! Follow EtuEyz symmetry
-  do iI=1,nAshT
-    do iJ=1,nAshT
-      do iK=1,nAshT
-        do iL=1,nAshT
-          Val1 = DG2(iI,iJ,iK,iL)
-          Val2 = DG2(iL,iK,iJ,iI)
-          Val = (Val1+Val2)*Quart
-          ! DG2(iI,iJ,iK,iL) = Val
-          ! DG2(iL,iK,iJ,iI) = Val
-          !if ((ii /= il) .and. (ij /= ik)) then
-          !  DG2(iI,iJ,iK,iL) = Two*val
-          !  DG2(iL,iK,iJ,iI) = Zero
-          !end if
-          Val1 = DF2(iI,iJ,iK,iL)
-          Val2 = DF2(iL,iK,iJ,iI)
-          Val = (Val1+Val2)*Quart
-          ! DF2(iI,iJ,iK,iL) = Val
-          ! DF2(iL,iK,iJ,iI) = Val
-          !if ((ii /= il) .and. (ij /= ik)) then
-          !  DF2(iI,iJ,iK,iL) = Two*val
-          !  DF2(iL,iK,iJ,iI) = Zero
-          !end if
-        end do
-      end do
-    end do
-  end do
-end if
+  case (1)
+    !! Follow EtuEyz symmetry
+    !do iI=1,nAshT
+    !  do iJ=1,nAshT
+    !    do iK=1,nAshT
+    !      do iL=1,nAshT
+    !        Val = (DG2(iI,iJ,iK,iL)+DG2(iL,iK,iJ,iI))*Quart
+    !        if ((ii /= il) .and. (ij /= ik)) then
+    !          DG2(iI,iJ,iK,iL) = Two*Val
+    !          DG2(iL,iK,iJ,iI) = Zero
+    !        else
+    !          DG2(iI,iJ,iK,iL) = Val
+    !          DG2(iL,iK,iJ,iI) = Val
+    !        end if
+    !        Val = (DF2(iI,iJ,iK,iL)+DF2(iL,iK,iJ,iI))*Quart
+    !        if ((ii /= il) .and. (ij /= ik)) then
+    !          DF2(iI,iJ,iK,iL) = Two*Val
+    !         DF2(iL,iK,iJ,iI) = Zero
+    !        else
+    !          DF2(iI,iJ,iK,iL) = Val
+    !          DF2(iL,iK,iJ,iI) = Val
+    !        end if
+    !      end do
+    !    end do
+    !  end do
+    !end do
+  case (2)
+end select
 
 return
 

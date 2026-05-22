@@ -12,42 +12,35 @@
 subroutine Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,CMO,nCMO,OrbE,nOrbE,TrD)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nDel(nSym), nCMO, nOrbE
 real(kind=wp), intent(in) :: CMO(nCMO), OrbE(nOrbE)
 real(kind=wp), intent(out) :: TrD(nSym)
-integer(kind=iwp) :: iE, ifr, ioff, ip_Y, irc, iSkip, iSym, ito, iV, joff, k, kEOcc, kEVir, kfr, koff, kto, lnDel(8), lnFro(8), &
+integer(kind=iwp) :: iE, ifr, ioff, ip_Y, irc, iSkip, iSym, ito, iV, joff, kEOcc, kEVir, kfr, koff, kto, lnDel(8), lnFro(8), &
                      lnOcc(8), lnOrb(8), lnVir(8), nAct(8), nBB, nOA, nOrb, nVV
 real(kind=wp) :: Dummy
 real(kind=wp), allocatable :: CMON(:), DMat(:), EOrb(:)
-real(kind=wp), external :: DDot_
 
 nAct(:) = 0
-nVV = 0
+nVV = sum(nSsh(:)**2)
 nOrb = 0
 do iSym=1,nSym
-  iE = 1+nOrb+nFro(iSym)+nIsh(iSym)
-  do k=0,nAsh(iSym)-1
-    if (OrbE(iE+k) < Zero) nAct(iSym) = nAct(iSym)+1
-  end do
-  nVV = nVV+nSsh(iSym)**2
+  iE = nOrb+nFro(iSym)+nIsh(iSym)
+  nAct(iSym) = count(OrbE(iE+1:iE+nAsh(iSym)) < Zero)
   nOrb = nOrb+nBas(iSym)
 end do
 
-nBB = 0
-nOA = 0
-do iSym=1,nSym  ! setup info
-  lnOrb(iSym) = nBas(iSym)
-  lnFro(iSym) = nFro(iSym)
-  lnOcc(iSym) = nIsh(iSym)+nAct(iSym)
-  lnVir(iSym) = nSsh(iSym)
-  lnDel(iSym) = nDel(iSym)
-  nBB = nBB+nBas(iSym)**2
-  nOA = nOA+lnOcc(iSym)
-end do
+! setup info
+lnOrb(1:nSym) = nBas(:)
+lnFro(1:nSym) = nFro(:)
+lnOcc(1:nSym) = nIsh(:)+nAct(1:nSym)
+lnVir(1:nSym) = nSsh(:)
+lnDel(1:nSym) = nDel(:)
+nBB = sum(nBas(:)**2)
+nOA = sum(lnOcc(1:nSym))
 
 call mma_allocate(Eorb,2*nOrb,Label='EOrb')
 kEOcc = 1
@@ -101,9 +94,9 @@ else
 end if
 call mma_deallocate(CMON)
 
-iV = 1
+iV = 0
 do iSym=1,nSym
-  TrD(iSym) = ddot_(lnVir(iSym),DMat(iV:),1+lnVir(iSym),[One],0)
+  TrD(iSym) = sum(DMat(iV+1:iV+lnVir(iSym)**2:1+lnVir(iSym)))
   iV = iV+lnVir(iSym)**2
 end do
 call mma_deallocate(Dmat)

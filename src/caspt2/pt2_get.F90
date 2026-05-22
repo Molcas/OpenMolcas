@@ -32,7 +32,7 @@ character(len=8) :: LAB1
 
 I = 9-len(LAB)
 if (I >= 1) then
-  LAB1 = '        '
+  LAB1 = ''
   LAB1(I:8) = LAB
 else
   LAB1 = LAB(1:8)

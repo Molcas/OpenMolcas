@@ -32,7 +32,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: I2, I2ABS, IA, IAABS, IAB, IABQ, IBABS, ICASE, IDID, II, IIABS, IIJ, IIJQ, IIQ, IIS, IJABS, ISYM, ISYMA, &
                      ISYMAB, ISYMI, ISYMIJ, NAS, NIN, NIS
-real(kind=wp) :: Dummy(1), EDIAG
+real(kind=wp) :: Dummy(1)
 real(kind=wp), allocatable :: BD(:), ID(:)
 
 do ICASE=1,13
@@ -48,10 +48,7 @@ do ICASE=1,13
     select case (ICASE)
       case (1)
         ! VJTU CASE:
-        do IIS=1,NIS
-          IIQ = IIS+NIES(ISYM)
-          ID(IIS) = -EPSI(IIQ)
-        end do
+        ID(1:NIS) = -EPSI(NIES(ISYM)+1:NIES(ISYM)+NIS)
 
       case (2)
         ! VJTIP CASE:
@@ -73,10 +70,7 @@ do ICASE=1,13
 
       case (4)
         ! ATVX  CASE:
-        do IIS=1,NIS
-          IIQ = IIS+NSES(ISYM)
-          ID(IIS) = +EPSE(IIQ)
-        end do
+        ID(1:NIS) = EPSE(NSES(ISYM)+1:NSES(ISYM)+NIS)
 
       case (5)
         ! AIVX  CASE:
@@ -88,8 +82,7 @@ do ICASE=1,13
             do II=1,NISH(ISYMI)
               IIABS = II+NIES(ISYMI)
               IIS = IIS+1
-              EDIAG = -EPSI(IIABS)+EPSE(IAABS)
-              ID(IIS) = EDIAG
+              ID(IIS) = -EPSI(IIABS)+EPSE(IAABS)
             end do
           end do
         end do
@@ -106,8 +99,7 @@ do ICASE=1,13
             do IA=1,NSSH(ISYMA)
               IAABS = IA+NSES(ISYMA)
               IIS = IIS+1
-              EDIAG = -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
-              ID(IIS) = EDIAG
+              ID(IIS) = -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
             end do
           end do
         end do
@@ -124,8 +116,7 @@ do ICASE=1,13
             do IA=1,NSSH(ISYMA)
               IAABS = IA+NSES(ISYMA)
               IIS = IIS+1
-              EDIAG = -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
-              ID(IIS) = EDIAG
+              ID(IIS) = -EPSI(IIABS)-EPSI(IJABS)+EPSE(IAABS)
             end do
           end do
         end do
@@ -136,7 +127,7 @@ do ICASE=1,13
           IIQ = IIS+NAGEBES(ISYM)
           IAABS = MAGEB(1,IIQ)
           IBABS = MAGEB(2,IIQ)
-          ID(IIS) = +EPSE(IAABS)+EPSE(IBABS)
+          ID(IIS) = EPSE(IAABS)+EPSE(IBABS)
         end do
 
       case (9)
@@ -145,7 +136,7 @@ do ICASE=1,13
           IIQ = IIS+NAGTBES(ISYM)
           IAABS = MAGTB(1,IIQ)
           IBABS = MAGTB(2,IIQ)
-          ID(IIS) = +EPSE(IAABS)+EPSE(IBABS)
+          ID(IIS) = EPSE(IAABS)+EPSE(IBABS)
         end do
 
       case (10)
@@ -160,8 +151,7 @@ do ICASE=1,13
             do II=1,NISH(ISYMI)
               IIABS = II+NIES(ISYMI)
               IIS = IIS+1
-              EDIAG = -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
-              ID(IIS) = EDIAG
+              ID(IIS) = -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
             end do
           end do
         end do
@@ -178,8 +168,7 @@ do ICASE=1,13
             do II=1,NISH(ISYMI)
               IIABS = II+NIES(ISYMI)
               IIS = IIS+1
-              EDIAG = -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
-              ID(IIS) = EDIAG
+              ID(IIS) = -EPSI(IIABS)+EPSE(IAABS)+EPSE(IBABS)
             end do
           end do
         end do
@@ -191,15 +180,13 @@ do ICASE=1,13
           IAABS = MAGEB(1,IABQ)
           IBABS = MAGEB(2,IABQ)
           IIS = IIS+1
-          EDIAG = EPSE(IAABS)+EPSE(IBABS)
-          BD(IAB) = EDIAG
+          BD(IAB) = EPSE(IAABS)+EPSE(IBABS)
         end do
         do IIJ=1,NIGEJ(ISYM)
           IIJQ = IIJ+NIGEJES(ISYM)
           IIABS = MIGEJ(1,IIJQ)
           IJABS = MIGEJ(2,IIJQ)
-          EDIAG = -EPSI(IIABS)-EPSI(IJABS)
-          ID(IIJ) = EDIAG
+          ID(IIJ) = -EPSI(IIABS)-EPSI(IJABS)
         end do
 
       case (13)
@@ -209,15 +196,13 @@ do ICASE=1,13
           IAABS = MAGTB(1,IABQ)
           IBABS = MAGTB(2,IABQ)
           IIS = IIS+1
-          EDIAG = EPSE(IAABS)+EPSE(IBABS)
-          BD(IAB) = EDIAG
+          BD(IAB) = EPSE(IAABS)+EPSE(IBABS)
         end do
         do IIJ=1,NIGTJ(ISYM)
           IIJQ = IIJ+NIGTJES(ISYM)
           IIABS = MIGTJ(1,IIJQ)
           IJABS = MIGTJ(2,IIJQ)
-          EDIAG = -EPSI(IIABS)-EPSI(IJABS)
-          ID(IIJ) = EDIAG
+          ID(IIJ) = -EPSI(IIABS)-EPSI(IJABS)
         end do
 
       case default

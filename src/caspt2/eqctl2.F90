@@ -60,12 +60,15 @@ if (iStpGrd == 1) then
   ! calling MKSMAT and MKBMAT.
   do ICASE=1,13
     do ISYM=1,NSYM
-      NINDEP(ISYM,ICASE) = NASUP(ISYM,ICASE)
-      if (NISUP(ISYM,ICASE) == 0) NINDEP(ISYM,ICASE) = 0
+      if (NISUP(ISYM,ICASE) == 0) then
+        NINDEP(ISYM,ICASE) = 0
+      else
+        NINDEP(ISYM,ICASE) = NASUP(ISYM,ICASE)
+      end if
     end do
   end do
 
-  if (SMATRIX /= 'NO      ') call MKSBMAT()
+  if (SMATRIX /= 'NO') call MKSBMAT()
 
   ! Modify B matrices, if necessary:
   if (HZERO == 'CUSTOM') call NEWB()
@@ -80,7 +83,7 @@ if (iStpGrd == 1) then
   call GASync()
   call TIMING(CPU0,CPU,TIO0,TIO)
 
-  if (SDECOM /= 'NO      ') call SBDIAG()
+  if (SDECOM /= 'NO') call SBDIAG()
 
   call GASync()
   call TIMING(CPU1,CPU,TIO1,TIO)

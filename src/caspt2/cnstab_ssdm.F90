@@ -41,7 +41,7 @@ integer(kind=iwp), intent(in) :: NBSQT
 real(kind=wp), intent(in) :: DPT2AO(NBSQT), SSDM(NBSQT)
 integer(kind=iwp) :: IBATCH, IBATCH_TOT, id, ILOC, iost, ipV1, ipV2, ipVecL, ipWRK(8), IRC, iSkip(8), iSym, iVec, JBATCH, &
                      JBATCH_TOT, JNUM, JRED, JRED1, JRED2, JREDC, JREDL, JSTART, jSym, JV1, JV2, KNUM, KV1, KV2, lRealName, lscr, &
-                     MUSED, nBasI, NBATCH, NumChoTot, NUMV, NUMVI, NUMVJ, NVECS_RED
+                     MUSED, nBasI, NBATCH, NUMV, NUMVI, NUMVJ, NVECS_RED
 logical(kind=iwp) :: is_error
 character(len=4096) :: RealName
 real(kind=wp), allocatable :: A_PT2(:), B_SSDM(:), CHSPC(:), HTVec(:), V1(:), V2(:), WRK(:)
@@ -55,10 +55,6 @@ integer(kind=iwp), allocatable :: map2(:)
 
 iSym = 1 !! iSym0
 
-NumChoTot = 0
-do jSym=1,nSym
-  NumChoTot = NumChoTot+NumCho_PT2(jSym)
-end do
 do jSym=1,nSym
   iSkip(jSym) = 1
 # ifdef _MOLCAS_MPP_
@@ -108,7 +104,7 @@ JRED2 = InfVec(NumCho_PT2(iSym),2,iSym)
 if (is_real_par()) then
   call mma_allocate(MAP2,nProcs,Label='MAP2')
   MAP2(:) = 0
-  MAP2(myRank+1) = NumChoTot ! MJRED2-JRED1+1
+  MAP2(myRank+1) = sum(NumCho_PT2(1:nSym)) ! MJRED2-JRED1+1
   call GAIGOP(MAP2,NPROCS,'+')
   !ndim2 = sum(map2)
 

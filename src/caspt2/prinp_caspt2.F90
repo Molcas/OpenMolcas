@@ -141,9 +141,7 @@ if (iprglb >= USUAL) then
 end if
 
 call Get_cArray('Irreps',lIrrep,24)
-do iSym=1,nSym
-  lIrrep(iSym) = adjustr(lIrrep(iSym))
-end do
+lIrrep(1:nSym) = adjustr(lIrrep(1:nSym))
 
 if (iprglb >= USUAL) then
   write(u6,*)

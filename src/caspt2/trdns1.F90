@@ -53,17 +53,9 @@ real(kind=wp), allocatable :: TMP(:)
 ! Transform to standard representation, covariant form.
 call PTRTOC(1,IVEC,IVEC)
 
-NWTI = 0
-NWAI = 0
-NWAT = 0
-do ISYM=1,NSYM
-  NI = NISH(ISYM)
-  NA = NASH(ISYM)
-  NS = NSSH(ISYM)
-  NWTI = NWTI+NA*NI
-  NWAI = NWAI+NS*NI
-  NWAT = NWAT+NS*NA
-end do
+NWTI = sum(NASH(1:NSYM)*NISH(1:NSYM))
+NWAI = sum(NSSH(1:NSYM)*NISH(1:NSYM))
+NWAT = sum(NSSH(1:NSYM)*NASH(1:NSYM))
 
 IMLTOP = 1
 if (NWTI /= 0) then

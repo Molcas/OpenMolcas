@@ -100,8 +100,8 @@ isyma = 1
 isymb = 1
 !nocc = nfro(1)+nish(1)+nash(1)
 nocc = nish(1)+nash(1)
-call VVVO_Drv(nSym,nBas,nIsh,nFro,KEEP,iSym,iSymI,iSymA,iSymJ,iSymB,lT2AO,T2AO,vLag,nOcc,nBasT,nBMX,CMOPT2(1+nBasT*nFro(iSymA)), &
-              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,DIA,DI,FIFA,FIMO)
+call VVVO_Drv(nSym,nBas,nFro,KEEP,iSym,iSymI,iSymA,iSymJ,iSymB,lT2AO,T2AO,vLag,nOcc,nBasT,nBMX,CMOPT2(1+nBasT*nFro(iSymA)),DPT2AO, &
+              DPT2CAO,FPT2AO,FPT2CAO,DIA,DI,FIFA,FIMO)
 
 !! Save the half transformed integrals on disk.
 !! It will be used in drvg1 etc for gradient.

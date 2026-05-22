@@ -38,7 +38,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: Mode, nState
 real(kind=wp), intent(in) :: UEFF(NSTATE,NSTATE), U0(nState,nState)
-integer(kind=iwp) :: I, iComp, IDISK, IDMAT, IDMOFF, IERR, II, II2, IJ, IJ2, IndType(7,8), iOpt, iRc, ISTATE, iSyLbl, ISYM, iUHF, &
+integer(kind=iwp) :: iComp, IDISK, IDMAT, IDMOFF, IERR, II, II2, IJ, IJ2, IndType(7,8), iOpt, iRc, ISTATE, iSyLbl, ISYM, iUHF, &
                      KSTATE, LUTMP, N, nDens, NDMAT, NFROSAV(NSYM), NO, NOCC, NORBSAV(NSYM)
 real(kind=wp) :: Dummy(2), DUM(1), SCAL
 logical(kind=iwp) :: Do_ESPF, FullMlk, lSave
@@ -98,14 +98,10 @@ if (IPRGLB >= USUAL) write(u6,'(A)') repeat('-',80)
 ! to produce output orbitals.
 ! This density matrix may be approximated in several ways, see DENS.
 NDMAT = 0
-NOCC = 0
+NOCC = sum(NBAS(1:NSYM))
 if (MODE == 0) then
   !! Density matrix for each state (single-state)
-  do ISYM=1,NSYM
-    NO = NORB(ISYM)
-    NDMAT = NDMAT+(NO**2+NO)/2
-    NOCC = NOCC+NBAS(ISYM)
-  end do
+  NDMAT = sum((NORB(1:NSYM)**2+NORB(1:NSYM))/2)
   call mma_allocate(DMAT,NDMAT,Label='DMAT')
   DMAT(:) = Zero
   call mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
@@ -118,11 +114,7 @@ else
   !! the density computed here is what we call a correct unrelaxed
   !! correlated CASPT2 density
   !! Called after gradient calculations, only, from GrdCls
-  do ISYM=1,NSYM
-    NO = NBAS(ISYM)
-    NDMAT = NDMAT+(NO**2+NO)/2
-    NOCC = NOCC+NBAS(ISYM)
-  end do
+  NDMAT = sum((NBAS(1:NSYM)**2+NBAS(1:NSYM))/2)
   call mma_allocate(DMAT,NDMAT,Label='DMAT')
   DMAT(:) = Zero
   !! Copy the unrelaxed density matrix to triangular
@@ -170,10 +162,8 @@ else
       TG1(:,:) = SCAL*TG1(:,:)
       do II=1,NASH(1)
         II2 = II+NFRO(1)+NISH(1)
-        do IJ=1,II
-          IJ2 = IJ+NFRO(1)+NISH(1)
-          DMAT(II2*(II2-1)/2+IJ2) = DMAT(II2*(II2-1)/2+IJ2)+TG1(II,IJ)*Half+TG1(IJ,II)*Half
-        end do
+        IJ2 = II2*(II2-1)/2+NFRO(1)+NISH(1)
+        DMAT(IJ2+1:IJ2+II) = DMAT(IJ2+1:IJ2+II)+(TG1(II,1:II)+TG1(1:II,II))*Half
       end do
     end do
   end do
@@ -320,10 +310,7 @@ if (IPRGLB >= USUAL) then
   write(u6,'(6X,A)') '-----------------------------------------'
 end if
 
-nDens = 0
-do i=1,nSym
-  nDens = nDens+nBas(i)*(nBas(i)+1)/2
-end do
+nDens = sum(nBas(1:nSym)*(nBas(1:nSym)+1)/2)
 call mma_allocate(Scr,NDENS,Label='Scr')
 
 call DOne_Caspt2(CNAT,nCMO,OCC,nOcc,Scr,nDENS)

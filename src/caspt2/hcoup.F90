@@ -41,7 +41,7 @@ real(kind=wp), intent(in) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT)
 real(kind=wp), intent(out) :: HEL
 integer(kind=iwp) :: IAEND1, IAEND2, IASTA1, IASTA2, IC, ICASE, iHi1, iHi2, IIEND1, IIEND2, IISTA1, IISTA2, iLo1, iLo2, IS, ISYM, &
                      jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, MV1, MV2, NAS, NHECOMP, NIN, NIS, NV1, NV2
-real(kind=wp) :: HEBLK, HECOMP(14,9), SUMCASE, SUMSYM
+real(kind=wp) :: HEBLK, HECOMP(14,9)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -115,19 +115,11 @@ call GADGOP(HECOMP,NHECOMP,'+')
 
 if (IPRGLB >= DEBUG) then
   do ICASE=1,13
-    SUMSYM = Zero
-    do ISYM=1,NSYM
-      SUMSYM = SUMSYM+HECOMP(ICASE,ISYM)
-    end do
-    HECOMP(ICASE,NSYM+1) = SUMSYM
+    HECOMP(ICASE,NSYM+1) = sum(HECOMP(ICASE,1:NSYM))
   end do
 
   do ISYM=1,NSYM+1
-    SUMCASE = Zero
-    do ICASE=1,13
-      SUMCASE = SUMCASE+HECOMP(ICASE,ISYM)
-    end do
-    HECOMP(14,ISYM) = SUMCASE
+    HECOMP(14,ISYM) = sum(HECOMP(1:13,ISYM))
   end do
 
   write(u6,'(A)') repeat('-',80)

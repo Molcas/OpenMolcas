@@ -62,11 +62,9 @@ else
 
   iTask = 0
   do LT=1,nLev
-    do LU=1,nLev!LT
-      iTask = iTask+1
-      TASK(iTask,1) = LT
-      TASK(iTask,2) = LU
-    end do
+    TASK(iTask+1:iTask+nLev,1) = LT
+    TASK(iTask+1:iTask+nLev,2) = [(LU,LU=1,nLev)]
+    iTask = iTask+nLev
   end do
   if (iTask /= nTasks) write(u6,*) 'ERROR nTasks'
 

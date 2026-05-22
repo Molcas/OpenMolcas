@@ -24,18 +24,12 @@ real(kind=wp), intent(in) :: CMO(NBSQT)
 real(kind=wp), intent(inout) :: DPT2(NBSQT), DPT2AO(NBSQT)
 real(kind=wp), intent(out) :: WRK(NBSQT)
 real(kind=wp) :: Val
-integer(kind=iwp) :: iAO, iBas, iCMO, iMO, jBas, jSym, nBasI, nOrbI
+integer(kind=iwp) :: iBas, iCMO, iMO, jBas, nBasI, nOrbI
 
 !! Mode = 1: MO -> AO transformation
 !! Mode = 2: AO -> MO transformation
-iCMO = 1
-iAO = 1
-iMO = 1
-do jSym=1,iSym-1
-  iCMO = iCMO+nBas(jSym)**2 !! ??
-  iAO = iAO+nBas(jSym)**2
-  iMO = iMO+(nOrb(jSym)+nFro(jSym))**2
-end do
+iCMO = 1+sum(nBas(1:iSym-1)**2)
+iMO = 1+sum((nOrb(1:iSym-1)+nFro(1:iSym-1))**2)
 
 if (nOrb(iSym)+nFro(iSym) > 0) then
   nBasI = nBas(iSym)
@@ -43,18 +37,18 @@ if (nOrb(iSym)+nFro(iSym) > 0) then
   if (Mode == 1) then
     !! MO -> AO
     call DGEMM_('N','N',nBasI,nOrbI,nOrbI,One,CMO(iCMO),nBasI,DPT2(iMO),nOrbI,Zero,WRK,nBasI)
-    call DGEMM_('N','T',nBasI,nBasI,nOrbI,One,WRK,nBasI,CMO(iCMO),nBasI,Zero,DPT2AO(iAO),nBasI)
+    call DGEMM_('N','T',nBasI,nBasI,nOrbI,One,WRK,nBasI,CMO(iCMO),nBasI,Zero,DPT2AO(iCMO),nBasI)
     !! Symmetrize, just in case
     do iBas=1,nBasI
       do jBas=1,iBas-1
-        Val = (DPT2AO(iAO+iBas-1+nBasI*(jBas-1))+DPT2AO(iAO+jBas-1+nBasI*(iBas-1)))*Half
-        DPT2AO(iAO+iBas-1+nBasI*(jBas-1)) = Val
-        DPT2AO(iAO+jBas-1+nBasI*(iBas-1)) = Val
+        Val = (DPT2AO(iCMO+iBas-1+nBasI*(jBas-1))+DPT2AO(iCMO+jBas-1+nBasI*(iBas-1)))*Half
+        DPT2AO(iCMO+iBas-1+nBasI*(jBas-1)) = Val
+        DPT2AO(iCMO+jBas-1+nBasI*(iBas-1)) = Val
       end do
     end do
   else if (Mode == 2) then
     !! AO -> MO
-    call DGEMM_('T','N',nOrbI,nBasI,nBasI,One,CMO(iCMO),nBasI,DPT2AO(iAO),nBasI,Zero,WRK,nOrbI)
+    call DGEMM_('T','N',nOrbI,nBasI,nBasI,One,CMO(iCMO),nBasI,DPT2AO(iCMO),nBasI,Zero,WRK,nOrbI)
     call DGEMM_('N','N',nOrbI,nOrbI,nBasI,One,WRK,nOrbI,CMO(iCMO),nBasI,Zero,DPT2(iMO),nOrbI)
   end if
 end if

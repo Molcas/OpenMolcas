@@ -40,10 +40,8 @@ call mma_allocate(TMP,NO*NSCT,Label='TMP')
 ! Put part of FOCK to be diagonalized into triangular scratch area:
 IJ = 0
 do I=IOSTA,IOEND
-  do J=IOSTA,I
-    IJ = IJ+1
-    TMP(IJ) = FOCK(I,J)
-  end do
+  TMP(IJ+1:IJ+I-IOSTA+1) = FOCK(I,IOSTA:I)
+  IJ = IJ+I-IOSTA+1
 end do
 ! Put unit matrix into TSCT:
 call unitmat(TSCT,NSCT)
@@ -70,11 +68,7 @@ do I=IOSTA,IOEND
     end do
   end if
 
-  if (TSCT(I,I) < Zero) then
-    do K=IOSTA,IOEND
-      TSCT(K,I) = -TSCT(K,I)
-    end do
-  end if
+  if (TSCT(I,I) < Zero) TSCT(IOSTA:IOEND,I) = -TSCT(IOSTA:IOEND,I)
 end do
 
 ! Transform the Fock matrix:
@@ -82,9 +76,7 @@ call DGEMM_('N','N',NO,NSCT,NSCT,One,FOCK(1,IOSTA),NO,TSCT,NSCT,Zero,TMP,NO)
 FOCK(:,IOSTA:IOEND) = reshape(TMP(:),[NO,NSCT])
 
 do I=IOSTA,IOEND
-  do J=1,NO
-    FOCK(I,J) = TMP(J+NO*(I-IOSTA))
-  end do
+  FOCK(I,1:NO) = TMP(NO*(I-IOSTA)+1:NO*(I-IOSTA+1))
 end do
 
 call DGEMM_('T','N',NSCT,NSCT,NSCT,One,TSCT,NSCT,TMP(IOSTA),NO,Zero,FOCK(IOSTA,IOSTA),NO)

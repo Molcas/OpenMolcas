@@ -56,10 +56,7 @@ if ((FOCKTYPE == 'G1') .and. (.not. G1SECIN)) then
   IFCOUP(13,5) = 0
 end if
 
-NDPT2 = 0
-do ISYM=1,NSYM
-  NDPT2 = NDPT2+NORB(ISYM)**2
-end do
+NDPT2 = sum(NORB(1:NSYM)**2)
 
 ! Loop over ordering: First, <IVEC|...|JVEC>, then reverse.
 ! For each order, compute the upper-triangular blocks.

@@ -25,10 +25,7 @@ real(kind=wp) :: yNrm
 real(kind=wp), allocatable :: Dens(:)
 
 irc = 0
-l_Dens = 0
-do iSym=1,nSym
-  l_Dens = max(l_Dens,nBas(iSym)**2)
-end do
+l_Dens = maxval(nBas(1:nSym)**2)
 call mma_allocate(Dens,l_Dens,Label='Dens')
 kOffC = 0
 do iSym=1,nSym

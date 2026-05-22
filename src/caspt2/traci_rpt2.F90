@@ -33,11 +33,9 @@ SGM(:) = Zero
 
 do J=1,NDIM
   FACT = One/XMAT(J,J)
-  do I=1,NDIM
-    TVEC(I) = -FACT*XMAT(I,J)
-    XMAT(I,J) = Zero
-  end do
+  TVEC(:) = -FACT*XMAT(:,J)
   TVEC(J) = FACT
+  XMAT(:,J) = Zero
   XMAT(J,J) = One
   ! Array T now contains a factor of XMAT of the form
   ! (e(1),..e(k-1),T,..,e(n)), where e(i) is the standard
@@ -45,9 +43,7 @@ do J=1,NDIM
   ! Apply its inverse to XMAT.
   do M=J+1,NDIM
     XJM = XMAT(J,M)
-    do I=1,NDIM
-      XMAT(I,M) = XMAT(I,M)+TVEC(I)*XJM
-    end do
+    XMAT(:,M) = XMAT(:,M)+TVEC(:)*XJM
     XMAT(J,M) = TVEC(J)*XJM
   end do
   ! Transform CI array:

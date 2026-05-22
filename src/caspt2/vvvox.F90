@@ -36,10 +36,7 @@ do iSym=2,nSym
   ISTSQ(iSym) = ISTSQ(iSym-1)+nB2
   ISTLT(iSym) = ISTLT(iSym-1)+nB3
 end do
-nFroT = 0
-do iSym=1,nSym
-  nFroT = nFroT+nFro(iSym)
-end do
+nFroT = sum(nFro(1:nSym))
 
 nBasI = nBas(iSymI)
 KEEPI = KEEP(iSymI)

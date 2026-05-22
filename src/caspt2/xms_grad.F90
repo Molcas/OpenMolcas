@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: H0(nState,nState), U0(nState,nState), OMGDER(nState,nState)
 real(kind=wp), intent(inout) :: UEFF(nState,nState)
-integer(kind=iwp) :: I, iAsh, II, iStat, iState, jAsh, jStat, kStat, lStat, nBasI, nCor, nLev, nOrbI, NTG1, NTG3
+integer(kind=iwp) :: I, iStat, iState, jAsh, jStat, kStat, nBasI, nCor, nLev, nOrbI, NTG1, NTG3
 real(kind=wp) :: EDIFF, EEI, EEJ, EINACT, fact, OVL, Scal, TRC, Wgt
 real(kind=wp), allocatable :: CI1(:), CI2(:), DG1(:), DG2(:), DG3(:), DPT2(:), DPT2_AO(:), G1(:,:), RDMEIG(:,:), RDMSA(:,:), &
                               SGM1(:), SGM2(:), SLag(:,:), TG1(:,:), TG2(:), Trf(:), WRK1(:), WRK2(:)
@@ -137,10 +137,7 @@ if (IFXMS .or. IFRMS) then
           !! kStat and lStat: CASSCF
           fact = Zero
           do kStat=1,nState
-            do lStat=1,nState
-              fact = fact+(UEFF(kStat,iRoot1)*UEFF(lStat,iRoot2)-UEFF(kStat,iRoot2)*UEFF(lStat,iRoot1))*Half*U0(kStat,iStat)* &
-                     U0(lStat,jStat)
-            end do
+            fact = fact+sum((UEFF(kStat,iRoot1)*UEFF(:,iRoot2)-UEFF(kStat,iRoot2)*UEFF(:,iRoot1))*Half*U0(kStat,iStat)*U0(:,jStat))
           end do
           Scal = Scal+fact*(ENERGY(iRoot2)-ENERGY(iRoot1))*Two
         end if
@@ -243,8 +240,7 @@ if (IFXMS .or. IFRMS) then
       call LoadCI_XMS('N',1,nConf,nState,CI1,iState,U0)
       call POLY1(CI1,nConf)
       call GETDREF(WRK2,nDRef)
-      wgt = Weight(iState)
-      WRK1(1:nDRef) = WRK1(1:nDRef)+Wgt*WRK2(1:nDRef)
+      WRK1(1:nDRef) = WRK1(1:nDRef)+Weight(iState)*WRK2(1:nDRef)
     end do
     call mma_deallocate(CI1)
     !! WRK2 is the SCF density (for nstate=nroots)
@@ -274,10 +270,8 @@ if (IFXMS .or. IFRMS) then
   !! a: Extract FIFA in the AS for explicit CI derivative
   !!    Note that this FIFA uses state-averaged density matrix
   !call sqprt(fifa_all,nbast)
-  do iAsh=1,nAshT
-    do jAsh=1,nAshT
-      G1(iAsh,jAsh) = FIFA_all(nFro(1)+nIsh(1)+iAsh+nBas(1)*(nFro(1)+nIsh(1)+jAsh-1))
-    end do
+  do jAsh=1,nAshT
+    G1(:,jAsh) = FIFA_all(nFro(1)+nIsh(1)+nBas(1)*(nFro(1)+nIsh(1)+jAsh-1)+1:nFro(1)+nIsh(1)+nBas(1)*(nFro(1)+nIsh(1)+jAsh-1)+nAshT)
   end do
   !call sqprt(g1),nasht)
   !! Transform quasi-canonical to natural
@@ -296,8 +290,7 @@ if (IFXMS .or. IFRMS) then
   !do ISYM=1,NSYM
   do I=1,NISH(1) ! ISYM)
     !II = IOFF(ISYM)+(I*(I+1))/2
-    II = (I*(I+1))/2
-    TRC = TRC+FIFA(II)
+    TRC = TRC+FIFA(I*(I+1)/2)
   end do
   !end do
   ! Contribution from inactive orbitals:
@@ -340,8 +333,7 @@ if (do_csf) then
   do iStat=1,nState
     call LoadCI_XMS('N',0,nConf,nState,CI1,iStat,U0)
     do jStat=1,nState
-      Scal = (UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)-UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*Half*EDIFF
-      CLag(:,jStat) = CLag(:,jStat)+Scal*CI1(:)
+      CLag(:,jStat) = CLag(:,jStat)+(UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)-UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*Half*EDIFF*CI1(:)
     end do
   end do
 

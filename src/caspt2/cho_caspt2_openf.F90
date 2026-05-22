@@ -34,22 +34,13 @@ if (nBatch > 999) call Cho_x_Quit(SecNam,' nBatch limited to 999 !!!',' ')
 call Get_iScalar('nSym',nSym)
 call Get_iArray('NumCho',NumCho,nSym)
 
-if (NCALLS == 0) then
-  do iB=1,nBatch
-    iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    Unt(iSym)%A(iAddr) = -1
-  end do
-end if
-
 ! Initialize units and return for iOpt=0.
 ! ---------------------------------------
 
-if (iOpt == 0) then
-  do iB=1,nBatch
-    iaddr = (iTyp-1)*nIsplit(iSym)+iB
-    Unt(iSym)%A(iaddr) = -1
-  end do
-  return
+if ((iOpt == 0) .or. (NCALLS == 0)) then
+  iaddr = (iTyp-1)*nIsplit(iSym)
+  Unt(iSym)%A(iaddr+1:iaddr+nBatch) = -1
+  if (iOpt == 0) return
 end if
 
 ! Open or close files.
@@ -71,10 +62,8 @@ if (iOpt == 1) then
       end if
     end do
   else
-    do iB=1,nBatch
-      iaddr = (iTyp-1)*nIsplit(iSym)+iB
-      Unt(iSym)%A(iaddr) = -1
-    end do
+    iaddr = (iTyp-1)*nIsplit(iSym)
+    Unt(iSym)%A(iaddr+1:iaddr+nBatch) = -1
   end if
 else if (iOpt == 2) then
   do iB=1,nBatch

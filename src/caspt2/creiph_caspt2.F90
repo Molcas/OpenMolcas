@@ -93,10 +93,8 @@ IAD15 = IADR15(1)
 ! Modify root index in case of MS
 call mma_allocate(JROOT,MXROOT,LABEL='JROOT')
 if (IFMSCOUP) then
-  JROOT(:) = 0
-  do ISTATE=1,NSTATE
-    JROOT(ISTATE) = ISTATE
-  end do
+  JROOT(1:NSTATE) = [(ISTATE,ISTATE=1,NSTATE)]
+  JROOT(NSTATE+1:) = 0
   MROOTS = NSTATE
 else
   JROOT(:) = IROOT(:)
@@ -141,8 +139,7 @@ if (IFMSCOUP) then
   OLDE(1:NSTATE) = ENERGY(1:NSTATE)
 else
   do ISTATE=1,NSTATE
-    ISNUM = MSTATE(ISTATE)
-    OLDE(ISNUM) = ENERGY(ISTATE)
+    OLDE(MSTATE(ISTATE)) = ENERGY(ISTATE)
   end do
 end if
 IAD15 = IADR15(6)
@@ -163,11 +160,7 @@ call mma_deallocate(xLevel)
 
 ! PAM07: Eliminate unsafe IPOSFILE calls, use instead dummy i/o operations
 ! to find disk addresses to CI arrays:
-NIDIST = 0
-do ISTATE=1,NSTATE
-  JSNUM = MSTATE(ISTATE)
-  NIDIST = max(NIDIST,JSNUM)
-end do
+NIDIST = maxval(MSTATE(1:NSTATE))
 call mma_allocate(IDIST,NIDIST,Label='IDIST')
 ID = IADR15(4)
 do JSNUM=1,NIDIST

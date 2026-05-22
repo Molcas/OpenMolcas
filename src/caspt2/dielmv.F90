@@ -27,7 +27,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nICASE, ICASE(nICASE), nJCASE, JCASE(nJCASE), NUP, NDWN
 real(kind=wp), intent(inout) :: EMU(NUP,NDWN)
-integer(kind=iwp) :: I, IC, IC1, II, IOC, ISTEP, J, LEV, LV1, nIpWlk, nLev
+integer(kind=iwp) :: I, IC, IC1, II, IOC, ISTEP, LEV, LV1, nIpWlk, nLev
 real(kind=wp) :: rSUM
 
 nLev = SGS%nLev
@@ -47,9 +47,7 @@ do I=1,NUP
       IC = IC1
     end do
   end do
-  do J=1,NDWN
-    EMU(I,J) = EMU(I,J)+rSUM
-  end do
+  EMU(I,:) = EMU(I,:)+rSUM
 end do
 ! THEN THE LOWER HALF:
 do I=1,NDWN
@@ -66,9 +64,7 @@ do I=1,NDWN
       IC = IC1
     end do
   end do
-  do J=1,NUP
-    EMU(J,I) = EMU(J,I)+rSUM
-  end do
+  EMU(:,I) = EMU(:,I)+rSUM
 end do
 
 end subroutine DIELMV

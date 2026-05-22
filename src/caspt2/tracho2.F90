@@ -33,8 +33,8 @@ real(kind=wp), intent(out) :: FFAO(NBTRI), FIAO(NBTRI), FAAO(NBTRI)
 logical(kind=iwp), intent(in) :: IF_TRNSF
 integer(kind=iwp) :: I, IA, IAEND, IASTA, IB, IBATCH, IBATCH_TOT, IBEND, IBSTA, IC, ICASE, IDAIJ, IDFIJ, IDIIJ, IIEND, IISTA, &
                      ILOC, ip_htspc, ip_HTVec(8), IP_LHT, IRC, ISFA, ISFF, ISFI, ISTART(8), ISYM, ISYMA, ISYMB, ISYMK, ISYMW, &
-                     ISYP, ISYQ, J, JNUM, JRED, JRED1, JRED2, JREDC, JSTART, JSYM, JV1, JV2, LC, LO, LSC, LSO, MUSED, N, N1, N2, &
-                     NA, NASZ, NB, NBATCH, NBUFFY, NCES(8), NF, NHTOFF, NI, NISZ, NK, NPQ, NRS, NUMV, NUSE(8), NVECS_RED, NW
+                     ISYP, ISYQ, JNUM, JRED, JRED1, JRED2, JREDC, JSTART, JSYM, JV1, JV2, LC, LO, LSC, LSO, MUSED, N, N1, N2, NA, &
+                     NASZ, NB, NBATCH, NBUFFY, NCES(8), NF, NHTOFF, NI, NISZ, NK, NPQ, NRS, NUMV, NUSE(8), NVECS_RED, NW
 real(kind=wp) :: FACTC, FACTXA, FACTXI
 real(kind=wp), allocatable :: BUFFY(:), CHSPC(:), CNAT(:), DA(:), DA_RED(:), DF(:), DF_RED(:), DI(:), DI_RED(:), FA_RED(:), &
                               FF_RED(:), FI_RED(:), FTSPC(:), HTSPC(:), OCC(:), VEC(:)
@@ -69,43 +69,32 @@ FIAO(:) = Zero
 FAAO(:) = Zero
 ! Construct density matrix for frozen orbitals
 call mma_allocate(DF,NBTRI,Label='DF')
-do ISYM=1,NSYM
-  ISTART(ISYM) = 1
-  NUSE(ISYM) = NFRO(ISYM)
-end do
+ISTART(1:NSYM) = 1
+NUSE(1:NSYM) = NFRO(1:NSYM)
 call GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,NBSQT,OCC,NBasT,DF,NBTRI)
 ! Construct density matrix for inactive orbitals
 call mma_allocate(DI,NBTRI,Label='DI')
-do ISYM=1,NSYM
-  ISTART(ISYM) = NFRO(ISYM)+1
-  NUSE(ISYM) = NISH(ISYM)
-end do
+ISTART(1:NSYM) = NFRO(1:NSYM)+1
+NUSE(1:NSYM) = NISH(1:NSYM)
 call GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,NBSQT,OCC,NBasT,DI,NBTRI)
 ! Same, for active density:
 call mma_allocate(DA,NBTRI,Label='DA')
-do ISYM=1,NSYM
-  ISTART(ISYM) = NFRO(ISYM)+NISH(ISYM)+1
-  NUSE(ISYM) = NASH(ISYM)
-end do
+ISTART(1:NSYM) = NFRO(1:NSYM)+NISH(1:NSYM)+1
+NUSE(1:NSYM) = NASH(1:NSYM)
 call GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,NBSQT,OCC,NBasT,DA,NBTRI)
 ! The Cholesky routines want density matrices in a particular storage, and
 ! also the off-diagonal elements should be doubled. Double them:
-IDFIJ = 1
-IDIIJ = 1
-IDAIJ = 1
+IDFIJ = 0
+IDIIJ = 0
+IDAIJ = 0
 do ISYM=1,NSYM
   do I=1,NBAS(ISYM)
-    do J=1,I-1
-      DF(IDFIJ) = Two*DF(IDFIJ)
-      DI(IDIIJ) = Two*DI(IDIIJ)
-      DA(IDAIJ) = Two*DA(IDAIJ)
-      IDFIJ = IDFIJ+1
-      IDIIJ = IDIIJ+1
-      IDAIJ = IDAIJ+1
-    end do
-    IDFIJ = IDFIJ+1
-    IDIIJ = IDIIJ+1
-    IDAIJ = IDAIJ+1
+    DF(IDFIJ+1:IDFIJ+I-1) = Two*DF(IDFIJ+1:IDFIJ+I-1)
+    DI(IDIIJ+1:IDIIJ+I-1) = Two*DI(IDIIJ+1:IDIIJ+I-1)
+    DA(IDAIJ+1:IDAIJ+I-1) = Two*DA(IDAIJ+1:IDAIJ+I-1)
+    IDFIJ = IDFIJ+I
+    IDIIJ = IDIIJ+I
+    IDAIJ = IDAIJ+I
   end do
 end do
 

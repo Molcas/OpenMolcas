@@ -34,7 +34,7 @@ use Definitions, only: wp, iwp, byte
 implicit none
 integer(kind=iwp), intent(in) :: Mode
 integer(kind=iwp), intent(inout) :: IDSAVGRD
-integer(kind=iwp) :: ICASE, ID, iLUID, IORW, ISYM, NAS, NIN, NIS, NMAX, NNN
+integer(kind=iwp) :: ICASE, ID, iLUID, IORW, ISYM, NAS, NIN, NIS, NMAX
 integer(kind=iwp), allocatable :: IWRK1(:)
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: WRK1(:)
@@ -95,25 +95,21 @@ end if
 call mma_deallocate(IWRK1)
 call IDAFILE(LUGRAD,IORW,iTasks_grad,NASHT**2,IDSAVGRD)
 
-NMAX = 0
+NMAX = NG3
 
 do ISYM=1,NSYM
   do ICASE=1,11
     NIN = NINDEP(ISYM,ICASE)
     NAS = NASUP(ISYM,ICASE)
     NIS = NISUP(ISYM,ICASE)
-    NNN = NAS*(NAS+1)/2
-    NNN = max(NNN,NAS*NIN)
-    NNN = max(NNN,NIS)
-    NMAX = max(NNN,NMAX)
+    NMAX = max(NMAX,NAS*(NAS+1)/2,NAS*NIN,NIS)
   end do
   do ICASE=12,13
     NAS = NASUP(ISYM,ICASE)
     NIS = NISUP(ISYM,ICASE)
-    NMAX = max(NAS*NIS,NMAX)
+    NMAX = max(NMAX,NAS*NIS)
   end do
 end do
-NMAX = max(NMAX,NG3)
 
 call mma_allocate(WRK1,NMAX,Label='WRK1')
 
@@ -147,11 +143,9 @@ else if (IORW == 2) then
   if (is_real_par()) then
     !! Reset, because NG3 can be different
     !! STINI has been skipped
-    do I=1,64
-      IADR10(I,1) = -1
-      IADR10(I,2) = 0
-      CLAB10(I) = '   EMPTY'
-    end do
+    IADR10(:,1) = -1
+    IADR10(:,2) = 0
+    CLAB10(:) = '   EMPTY'
     IADR10(1,1) = 0
   end if
 # endif

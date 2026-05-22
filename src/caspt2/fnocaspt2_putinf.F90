@@ -22,17 +22,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mSym, lnOrb(mSym), lnOcc(mSym), lnFro(mSym), lnDel(mSym), lnVir(mSym)
-integer(kind=iwp) :: iSym
 
 nSym = mSym
-
-do iSym=1,nSym
-  nOrb(iSym) = lnOrb(iSym)
-  nOcc(iSym) = lnOcc(iSym)
-  nFro(iSym) = lnFro(iSym)
-  nDel(iSym) = lnDel(iSym)
-  nExt(iSym) = lnVir(iSym)
-end do
+nOrb(1:nSym) = lnOrb(:)
+nOcc(1:nSym) = lnOcc(:)
+nFro(1:nSym) = lnFro(:)
+nDel(1:nSym) = lnDel(:)
+nExt(1:nSym) = lnVir(:)
 
 ChoAlg = 2
 DecoMP2 = Decom_Def
@@ -49,9 +45,6 @@ C_os = 1.3_wp
 EOSMP2 = Zero
 
 DoFNO = .true.
-l_Dii = nOcc(1)
-do iSym=2,nSym
-  l_Dii = l_Dii+nOcc(iSym)
-end do
+l_Dii = sum(nOcc(1:nSym))
 
 end subroutine FnoCASPT2_putInf

@@ -40,11 +40,9 @@ idS = idSMAT(iSym,iCase)
 call DDAFILE(LUSBT,2,S,NS,idS)
 IJ = 0
 do J=1,NAS
-  do I=1,J
-    IJ = IJ+1
-    SS(I,J) = S(IJ)
-    SS(J,I) = S(IJ)
-  end do
+  SS(1:J,J) = S(IJ+1:IJ+J)
+  SS(J,1:J) = S(IJ+1:IJ+J)
+  IJ = IJ+J
 end do
 
 call mma_allocate(VEC,NAS,NAS,Label='VEC')
@@ -67,18 +65,14 @@ do I=1,NAS
 end do
 IJ = 0
 do J=1,NAS
-  do I=1,J
-    IJ = IJ+1
-    S(IJ) = S(IJ)*SCA(I)*SCA(J)
-  end do
+  S(IJ+1:IJ+J) = S(IJ+1:IJ+J)*SCA(1:J)*SCA(J)
+  IJ = IJ+J
 end do
 
 IJ = 0
 do J=1,NAS
-  do I=1,J
-    IJ = IJ+1
-    VEC(I,J) = S(IJ)
-  end do
+  VEC(1:J,J) = S(IJ+1:IJ+J)
+  IJ = IJ+J
 end do
 INFO = 0
 call dsyev_('V','L',NAS,VEC,NAS,EIG,WGRONK,-1,INFO)
@@ -107,11 +101,9 @@ call DDAFILE(LUSTD,2,B,NB,IDB)
 call mma_allocate(F,NAS,NAS,Label='F')
 IJ = 0
 do J=1,NAS
-  do I=1,J
-    IJ = IJ+1
-    F(I,J) = B(IJ)
-    F(J,I) = B(IJ)
-  end do
+  F(1:J,J) = B(IJ+1:IJ+J)
+  F(J,1:J) = B(IJ+1:IJ+J)
+  IJ = IJ+J
 end do
 
 !! Compute the partial derivative

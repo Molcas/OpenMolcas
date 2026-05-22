@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp), intent(in) :: IFF, nConf, nRoots, nState, nAshT
 real(kind=wp), intent(inout) :: CLag(nConf,nRoots), DEPSA(nAshT,nAshT)
 real(kind=wp), intent(in) :: VECROT(nState)
-integer(kind=iwp) :: iT, iU, nLev
+integer(kind=iwp) :: iT, nLev
 real(kind=wp) :: DEASUM
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, TIOE, TIOTF0, TIOTF10, WALLT
 real(kind=wp), allocatable :: DF1(:), DF2(:), DF3(:), DG1(:), DG2(:), DG3(:), G1(:), G2(:), G3(:)
@@ -94,9 +94,7 @@ call CLagSym(nAshT,DG1,DG2,DF1,DF2,0)
 do iT=1,nAsh(1)
   DG1(iT+nAsh(1)*(iT-1)) = DG1(iT+nAsh(1)*(iT-1))+DEASUM*EPSA(iT)
   if (ISCF == 0) then
-    do iU=1,nAsh(1)
-      DEPSA(iT,iU) = DEPSA(iT,iU)+DEASUM*G1(iT+nAsh(1)*(iU-1))
-    end do
+    DEPSA(iT,1:nAsh(1)) = DEPSA(iT,1:nAsh(1))+DEASUM*G1(iT:iT+nAsh(1)*(nAsh(1)-1):nAsh(1))
   else
     !! ?
   end if

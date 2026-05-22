@@ -36,6 +36,7 @@ subroutine AFREEZ(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,bNAME,nName,NAMFRO,LNFRO,DP
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use Molcas, only: LenIn, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -50,8 +51,8 @@ character(len=4), intent(in) :: NAMFRO(LnFro)
 real(kind=wp), intent(out) :: DPQ(nDPQ)
 real(kind=wp), intent(in) :: THRFR, THRDE
 real(kind=wp), intent(inout) :: CMO(nCMO)
-integer(kind=iwp) :: I, ib, iComp, imo, imo0, iname, iopt, ipp, ipq, ipq0, ipq1, iqq, irc, ist1, ist2, isym, isymlbl, &
-                     LABFRO(MxBas), nb2, NBAST, nbi, ndi, nfi, nfro1, ni, nin, np, nq, nsi, NSMAT, ntri
+integer(kind=iwp) :: ib, iComp, imo, imo0, iname, iopt, ipp, ipq0, ipq1, iqq, irc, ist1, ist2, isym, isymlbl, LABFRO(MxBas), &
+                     NBAST, nbi, ndi, nfi, nfro1, ni, nin, np, nq, nsi, NSMAT, ntri
 real(kind=wp) :: chksum, selch, Swap
 character(len=8) :: Label
 real(kind=wp), allocatable :: SMAT(:)
@@ -62,12 +63,8 @@ real(kind=wp), parameter :: Thrs = 1.0e-6_wp
 !----------------------------------------------------------------------*
 
 !write(u6,*) 'Entering AFreez'
-NBAST = 0
-ntri = 0
-do I=1,NSYM
-  NBAST = NBAST+NBAS(I)
-  ntri = (nbas(i)+nbas(i)**2)/2+ntri
-end do
+NBAST = sum(NBAS(1:NSYM))
+ntri = sum(nTri_Elem(NBAS(1:NSYM)))
 if (NBAST > MXBAS) then
   write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
   call Abend()
@@ -118,14 +115,8 @@ end if
 !     each orbital.                                                    *
 !----------------------------------------------------------------------*
 
-nb2 = 0
-do isym=1,nsym
-  nb2 = nb2+nbas(isym)*(nbas(isym)+1)/2
-end do
-!write(u6,*) 'Starting the calculation',nb2
-do i=1,nb2
-  DPQ(i) = Zero
-end do
+!write(u6,*) 'Starting the calculation',ntri
+DPQ(1:ntri) = Zero
 ib = 0
 imo0 = 0
 ipq0 = 0
@@ -135,19 +126,13 @@ do isym=1,nsym
   nin = nish(isym)
   imo = imo0+nbi*nfi
   if (nin /= 0) then
-    do i=1,nin
-      labfro(i) = 0
-    end do
+    labfro(1:nin) = 0
     do ni=1,nin
       !write(u6,*) 'loop over sym and inactive orbitals',isym,ni
-      ipq = ipq0
       ipq1 = 0
       do np=1,nbi
-        do nq=1,np
-          ipq = ipq+1
-          ipq1 = ipq1+1
-          DPQ(ipq1) = CMO(imo+np)*CMO(imo+nq)*SMAT(ipq)
-        end do
+        DPQ(ipq1+1:ipq1+np) = CMO(imo+np)*CMO(imo+1:imo+np)*SMAT(ipq0+ipq1+1:ipq0+ipq1+np)
+        ipq1 = ipq1+np
       end do
       ! DPQ is the charge matrix for orbital ni in symmetry isym
       ! Now add non-diagonal elements to the diagonal
@@ -165,11 +150,6 @@ do isym=1,nsym
           end if
         end do
       end do
-      ipp = 0
-      do np=1,nbi
-        ipp = ipp+np
-        !write(u6,*) 'diagonal element',ipp,DPQ(ipp)
-      end do
 
       ! The diagonal now contains the charges for each basis function
       ! Add charges for basis functions centered on the selected atoms
@@ -178,6 +158,7 @@ do isym=1,nsym
       ipp = 0
       do np=1,nbi
         ipp = ipp+np
+        !write(u6,*) 'diagonal element',ipp,DPQ(ipp)
         chksum = chksum+DPQ(ipp)
       end do
       if (abs(chksum-One) > 1.0e-8_wp) then
@@ -222,9 +203,7 @@ do isym=1,nsym
 end do
 ! Now sort virtual orbitals
 ! Orbitals with too low population on selected atoms will be deleted
-do i=1,nb2
-  DPQ(i) = Zero
-end do
+DPQ(1:ntri) = Zero
 ib = 0
 imo0 = 0
 ipq0 = 0
@@ -236,19 +215,13 @@ do isym=1,nsym
   ndel(isym) = ndi+nsi
   imo = imo0+nbi*(nfro(isym)+nish(isym)+nash(isym))
   if (nsi /= 0) then
-    do i=1,nsi
-      labfro(i) = 0
-    end do
+    labfro(1:nsi) = 0
     do ni=1,nsi
       !write(u6,*) 'loop over sym and secondary orbitals',isym,ni
-      ipq = ipq0
       ipq1 = 0
       do np=1,nbi
-        do nq=1,np
-          ipq = ipq+1
-          ipq1 = ipq1+1
-          DPQ(ipq1) = CMO(imo+np)*CMO(imo+nq)*SMAT(ipq)
-        end do
+        DPQ(ipq1+1:ipq1+np) = CMO(imo+np)*CMO(imo+1:imo+np)*SMAT(ipq0+ipq1+1:ipq0+ipq1+np)
+        ipq1 = ipq1+np
       end do
       ! DPQ is the charge matrix for orbital ni in symmetry isym
       ! Now add non-diagonal elements to the diagonal
@@ -266,11 +239,6 @@ do isym=1,nsym
           end if
         end do
       end do
-      ipp = 0
-      do np=1,nbi
-        ipp = ipp+np
-        !write(u6,*) 'diagonal element',ipp,DPQ(ipp)
-      end do
 
       ! The diagonal now contains the charges for each basis function
       ! Add charges for basis functions centered on the selected atoms
@@ -279,6 +247,7 @@ do isym=1,nsym
       ipp = 0
       do np=1,nbi
         ipp = ipp+np
+        !write(u6,*) 'diagonal element',ipp,DPQ(ipp)
         chksum = chksum+DPQ(ipp)
       end do
       if (abs(chksum-One) > 1.0e-8_wp) then

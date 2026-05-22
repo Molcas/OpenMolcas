@@ -75,16 +75,13 @@ subroutine ALLGATHER_R(SEND,NSEND,RECV,NRECV)
   end if
 
   ! check sum of send buffers against size of the receive buffer
-  NRECV4TOT = 0
-  do I=0,NPROCS-1
-    NRECV4TOT = NRECV4TOT+NRECV4(I)
-  end do
+  NRECV4TOT = sum(NRECV4(0:NPROCS-1))
   if (NRECV4TOT /= NRECV) then
     write(u6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
     call ABEND()
   end if
 
-  ! compute the displacments from the different sizes in IDISP
+  ! compute the displacements from the different sizes in IDISP
   IDISP4(0) = 0
   do I=1,NPROCS-1
     IDISP4(I) = IDISP4(I-1)+NRECV4(I-1)
@@ -159,16 +156,13 @@ subroutine ALLGATHER_I(SEND,NSEND,RECV,NRECV)
   end if
 
   ! check sum of send buffers against size of the receive buffer
-  NRECV4TOT = 0
-  do I=0,NPROCS-1
-    NRECV4TOT = NRECV4TOT+NRECV4(I)
-  end do
+  NRECV4TOT = sum(NRECV4(0:NPROCS-1))
   if (NRECV4TOT /= NRECV) then
     write(u6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
     call ABEND()
   end if
 
-  ! compute the displacments from the different sizes in IDISP
+  ! compute the displacements from the different sizes in IDISP
   IDISP4(0) = 0
   do I=1,NPROCS-1
     IDISP4(I) = IDISP4(I-1)+NRECV4(I-1)

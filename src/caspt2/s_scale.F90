@@ -25,12 +25,10 @@ implicit none
 integer(kind=iwp), intent(in) :: NAS, iLo, iHi, jLo, jHi, LDS
 real(kind=wp), intent(in) :: SCA(NAS)
 real(kind=wp), intent(inout) :: S(LDS,*)
-integer(kind=iwp) :: I, J
+integer(kind=iwp) :: J
 
 do J=jLo,jHi
-  do I=iLo,iHi
-    S(I-iLo+1,J-jLo+1) = SCA(I)*SCA(J)*S(I-iLo+1,J-jLo+1)
-  end do
+  S(1:iHi-iLo+1,J-jLo+1) = SCA(iLo:iHi)*SCA(J)*S(1:iHi-iLo+1,J-jLo+1)
 end do
 
 end subroutine S_SCALE

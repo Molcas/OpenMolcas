@@ -40,10 +40,8 @@ do i=2,nrow
 end do
 ij = 0
 do i=1,nrow
-  do j=1,i
-    ij = ij+1
-    a(ij) = a(j+nrow*(i-1))
-  end do
+  a(ij+1:ij+i) = a(nrow*(i-1)+1:nrow*(i-1)+i)
+  ij = ij+i
 end do
 
 end subroutine triang

@@ -87,12 +87,9 @@ do ISYM=1,NSYM
 end do
 ! Number of Cholesky vectors per group and symmetry
 call mma_allocate(NVEC,MXBGRP,NSYM,Label='NVEC')
-NVEC(:,:) = 0
 do ISYM=1,NSYM
   do IBGRP=1,NBGRP(ISYM)
-    do I=BGRP(1,IBGRP,ISYM),BGRP(2,IBGRP,ISYM)
-      NVEC(IBGRP,ISYM) = NVEC(IBGRP,ISYM)+NVLOC_CHOBATCH(I)
-    end do
+    NVEC(IBGRP,ISYM) = sum(NVLOC_CHOBATCH(BGRP(1,IBGRP,ISYM):BGRP(2,IBGRP,ISYM)))
   end do
 end do
 

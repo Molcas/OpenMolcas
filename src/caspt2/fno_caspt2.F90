@@ -34,13 +34,11 @@ integer(kind=iwp), intent(inout) :: nSsh(nSym), nDel(nSym), IFQCAN
 real(kind=wp), intent(in) :: vfrac
 logical(kind=iwp), intent(in) :: DoMP2
 real(kind=wp), intent(inout) :: EMP2, CMO(NCMO)
-integer(kind=iwp) :: i, iAoff, ifr, ioff, ip_X, ip_Y, ip_Z, ip_ZZ, ipEorb, ipOrbE, ipOrbE_, iSkip, iSym, ito, j, jD, joff, k, &
-                     kEOcc, kEVir, kfr, kij, koff, kto, lij, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, mAsh, &
-                     nAct(8), nBasT, nBmx, nBx, nOA, nOrb, ns_V(8), nSQ, nSx, ntri, nVV
+integer(kind=iwp) :: i, iAoff, ifr, ioff, ip_X, ip_Y, ipOrbE, iSkip, iSym, ito, j, jD, joff, k, kfr, kij, koff, kto, lij, &
+                     lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), lOff, nAct(8), nBasT, nBx, nOA, nOrb, ns_V(8), nSx, nVV
 real(kind=wp) :: Delta_TrD, Dummy, STrDF, STrDP, tmp, TrDF(8), TrDP(8)
 integer(kind=iwp), allocatable :: ID(:)
-real(kind=wp), allocatable :: CMOX(:,:), DMAT(:), OrbE(:)
-real(kind=wp), external :: DDot_
+real(kind=wp), allocatable :: CMOX(:,:), DMAT(:), OrbE(:,:)
 
 irc = 0
 MP2_small = .false.
@@ -50,24 +48,11 @@ shf = Input%RegFNO
 !     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
 !----------------------------------------------------------------------*
 
-nBasT = 0
-ntri = 0
-nSQ = 0
-nBmx = 0
-mAsh = 0
-nOrb = 0
-nVV = 0
-do i=1,nSym
-  nAct(i) = 0
-  ns_V(i) = 0
-  nBasT = nBasT+nBas(i)
-  nOrb = nOrb+nFro(i)+nIsh(i)+nAsh(i)+nSsh(i)+nDel(i)
-  ntri = ntri+nBas(i)*(nBas(i)+1)/2
-  nSQ = nSQ+nBas(i)**2
-  nVV = nVV+nSsh(i)**2
-  nBmx = max(nBmx,nBas(i))
-  mAsh = max(mAsh,nAsh(i))
-end do
+nAct(:) = 0
+ns_V(:) = 0
+nBasT = sum(nBas(:))
+nOrb = sum(nFro(:)+nIsh(:)+nAsh(:)+nSsh(:)+nDel(:))
+nVV = sum(nSsh(:)**2)
 if (nBasT > mxBas) then
   write(u6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
   call Abend()
@@ -81,43 +66,33 @@ call mma_allocate(CMOX,NCMO,2,Label='CMOX')
 ! This is not the best solution, but I wanted to avoid having to rewrite
 ! the indexing code below just to use the CMO array directly
 CMOX(:,1) = CMO(:)
-call mma_allocate(OrbE,4*nOrb,Label='OrbE')
-ipOrbE = 1
-call Get_darray('RASSCF OrbE',OrbE(ipOrbE),nOrb)
+call mma_allocate(OrbE,nOrb,4,Label='OrbE')
+call Get_darray('RASSCF OrbE',OrbE(:,1),nOrb)
 iAoff = 0
 do iSym=1,nSym
-  ipOrbE_ = ipOrbE+iAoff+nFro(iSym)+nIsh(iSym)
-  do k=0,nAsh(iSym)-1
-    if (OrbE(ipOrbE_+k) < Zero) nAct(iSym) = nAct(iSym)+1
-  end do
+  ipOrbE = iAoff+nFro(iSym)+nIsh(iSym)
+  nAct(iSym) = count(OrbE(ipOrbE+1:ipOrbE+nAsh(iSym),1) < Zero)
   iAoff = iAoff+nBas(iSym)
 end do
 
-nOA = 0
-do iSym=1,nSym  ! setup info
-  lnOrb(iSym) = nBas(iSym)
-  lnFro(iSym) = nFro(iSym)
-  lnOcc(iSym) = nIsh(iSym)+nAct(iSym)
-  nOA = nOA+lnOcc(iSym)
-  lnVir(iSym) = nSsh(iSym)
-  lnDel(iSym) = nDel(iSym)
-end do
+! setup info
+lnOrb(1:nSym) = nBas(:)
+lnFro(1:nSym) = nFro(:)
+lnOcc(1:nSym) = nIsh(:)+nAct(1:nSym)
+lnVir(1:nSym) = nSsh(:)
+lnDel(1:nSym) = nDel(:)
+nOA = sum(lnOcc(1:nSym))
 
-ip_ZZ = ipOrbE
-ipEorb = ipOrbE+nOrb
-ip_Z = ipEorb
-kEOcc = ipEorb+nOrb
-kEVir = kEOcc+nOrb
-ioff = 0
-joff = 0
-koff = 0
+ioff = 1
+joff = 1
+koff = 1
 do iSym=1,nSym
-  ifr = ipOrbE+ioff+nFro(iSym)
-  ito = kEOcc+joff
-  OrbE(ito:ito+lnOcc(iSym)-1) = OrbE(ifr:ifr+lnOcc(iSym)-1)
-  ifr = ipOrbE+ioff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
-  ito = kEVir+koff
-  OrbE(ito:ito+nSsh(iSym)-1) = OrbE(ifr:ifr+nSsh(iSym)-1)
+  ifr = ioff+nFro(iSym)
+  ito = joff
+  OrbE(ito:ito+lnOcc(iSym)-1,3) = OrbE(ifr:ifr+lnOcc(iSym)-1,1)
+  ifr = ioff+nFro(iSym)+nIsh(iSym)+nAsh(iSym)
+  ito = koff
+  OrbE(ito:ito+nSsh(iSym)-1,4) = OrbE(ifr:ifr+nSsh(iSym)-1,1)
   ioff = ioff+nBas(iSym)
   joff = joff+lnOcc(iSym)
   koff = koff+nSsh(iSym)
@@ -141,7 +116,7 @@ do iSym=1,nSym
 end do
 call Check_Amp(nSym,lnOcc,lnVir,iSkip)
 if (iSkip > 0) then
-  call ChoMP2_Drv(irc,Dummy,CMOX(:,2),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
+  call ChoMP2_Drv(irc,Dummy,CMOX(:,2),OrbE(:,3),OrbE(:,4),DMAT(ip_X),DMAT(ip_Y))
   if (irc /= 0) then
     write(u6,*) 'MP2 pseudodensity calculation failed !'
     call Abend()
@@ -162,7 +137,7 @@ do iSym=1,nSym
   if (nSsh(iSym) > 0) then
     jD = ip_X+iOff
     ! Eigenvectors will be in increasing order of eigenvalues
-    call Eigen_Molcas(nSsh(iSym),DMAT(jD),OrbE(ip_Z),OrbE(ip_ZZ))
+    call Eigen_Molcas(nSsh(iSym),DMAT(jD),OrbE(:,2),OrbE(:,1))
     ! Reorder to get relevant eigenpairs first
     do j=1,nSsh(iSym)/2
       do i=1,nSsh(iSym)
@@ -172,9 +147,9 @@ do iSym=1,nSym
         DMAT(lij) = DMAT(kij)
         DMAT(kij) = tmp
       end do
-      tmp = OrbE(ip_Z-1+j)
-      OrbE(ip_Z-1+j) = OrbE(ip_Z+nSsh(iSym)-j)
-      OrbE(ip_Z+nSsh(iSym)-j) = tmp
+      tmp = OrbE(j,2)
+      OrbE(j,2) = OrbE(nSsh(iSym)-j+1,2)
+      OrbE(nSsh(iSym)-j+1,2) = tmp
     end do
 
     ! Compute new MO coeff. : X=C*U
@@ -182,18 +157,18 @@ do iSym=1,nSym
     kto = 1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
     call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),One,CMOX(kfr,2),nBas(iSym),DMAT(jD),nSsh(iSym),Zero,CMOX(kto,1),nBas(iSym))
     iOff = iOff+nSsh(iSym)**2
-    TrDF(iSym) = ddot_(nSsh(iSym),OrbE(ip_Z),1,[One],0)
+    TrDF(iSym) = sum(OrbE(1:nSsh(iSym),2))
     if (vfrac >= Zero) then
       ns_V(iSym) = int(vfrac*nSsh(iSym))
-      TrDP(iSym) = ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
+      TrDP(iSym) = sum(OrbE(1:ns_V(iSym),2))
     else
       ns_V(iSym) = nSsh(iSym)-1
-      TrDP(iSym) = ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
+      TrDP(iSym) = sum(OrbE(1:ns_V(iSym),2))
       Delta_TrD = TrDP(iSym)-TrDF(iSym) ! this is negative
       Delta_TrD = Delta_TrD/TrDF(iSym)
       do while (Delta_TrD > vfrac)
         ns_V(iSym) = ns_V(iSym)-1
-        TrDP(iSym) = ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
+        TrDP(iSym) = sum(OrbE(1:ns_V(iSym),2))
         Delta_TrD = (TrDP(iSym)-TrDF(iSym))/TrDF(iSym)
       end do
     end if
@@ -215,10 +190,8 @@ write(u6,'(A,G13.6,4X,G13.6)') '   Sum :               ',STrDF,STrDP
 write(u6,*) '------------------------------------------------------'
 
 ! Update the nSsh, nDel for FNO-CASPT2
-do iSym=1,nSym
-  nDel(iSym) = nDel(iSym)+nSsh(iSym)-ns_V(iSym)
-  nSsh(iSym) = ns_V(iSym)
-end do
+nDel(:) = nDel(:)+nSsh(:)-ns_V(1:nSym)
+nSsh(:) = ns_V(1:nSym)
 
 ! Write the resorted MOs back to JobIph
 
@@ -233,19 +206,17 @@ if (MP2_small) then
   call FnoCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,nDel,nSsh)
 
   call mma_allocate(iD,nOrb,Label='iD')
-  do k=1,nOrb
-    iD(k) = k
-  end do
-  lOff = 0
-  kOff = 0
-  jOff = 0
+  iD(:) = [(k,k=1,nOrb)]
+  lOff = 1
+  kOff = 1
+  jOff = 1
   iOff = 0
   do iSym=1,nSym  ! canonical orb. in the reduced virtual space
     jD = ip_X+iOff
-    call Get_Can_Lorb(OrbE(kEVir+lOff),OrbE(ipOrbE+jOff),nSsh(iSym),lnVir(iSym),iD,DMAT(jD))
+    call Get_Can_Lorb(OrbE(lOff,4),OrbE(jOff,1),nSsh(iSym),lnVir(iSym),iD,DMAT(jD))
 
-    kfr = 1+kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
-    kto = 1+kOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
+    kfr = kOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
+    kto = kOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
     nBx = max(1,nBas(iSym))
     nSx = max(1,nSsh(iSym))
     call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),One,CMOX(kfr,1),nBx,DMAT(jD),nSx,Zero,CMOX(kto,2),nBx)
@@ -256,11 +227,10 @@ if (MP2_small) then
     iOff = iOff+lnVir(iSym)**2
   end do
   call mma_deallocate(iD)
-  kEVir = ipOrbE
 
   EMP2 = DeMP2
   DeMP2 = Zero
-  call ChoMP2_Drv(irc,Dummy,CMOX(:,2),OrbE(kEOcc),OrbE(kEVir),DMAT(ip_X),DMAT(ip_Y))
+  call ChoMP2_Drv(irc,Dummy,CMOX(:,2),OrbE(:,3),OrbE(:,1),DMAT(ip_X),DMAT(ip_Y))
   if (irc /= 0) then
     write(u6,*) 'MP2 in truncated virtual space failed !'
     call Abend()

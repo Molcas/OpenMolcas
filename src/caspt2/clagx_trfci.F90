@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NCONF
 real(kind=wp), intent(inout) :: CI(NCONF)
-integer(kind=iwp) :: I, IJ, IOFF1, IOFF2, ISYM, J, JI, NI, NISH_SAVE(8), NR1, NR2, NR3, NS
+integer(kind=iwp) :: I, IOFF1, IOFF2, ISYM, NI, NISH_SAVE(8), NR1, NR2, NR3, NS
 
 TAT(:) = Zero
 
@@ -37,31 +37,19 @@ do ISYM=1,NSYM
   IOFF1 = IOFF1+NI**2
   ! Copy RAS1 transformation matrix transposed to TAT:
   do I=1,NR1
-    do J=1,NR1
-      IJ = I+NR1*(J-1)
-      JI = J+NR1*(I-1)
-      TAT(IOFF2+JI) = TORB(IOFF1+IJ)
-    end do
+    TAT(IOFF2+NR1*(I-1)+1:IOFF2+NR1*I) = TORB(IOFF1+I:IOFF1+I+NR1*(NR1-1):NR1)
   end do
   IOFF1 = IOFF1+NR1**2
   IOFF2 = IOFF2+NR1**2
   ! Copy RAS2 transformation matrix transposed to TAT:
   do I=1,NR2
-    do J=1,NR2
-      IJ = I+NR2*(J-1)
-      JI = J+NR2*(I-1)
-      TAT(IOFF2+JI) = TORB(IOFF1+IJ)
-    end do
+    TAT(IOFF2+NR2*(I-1)+1:IOFF2+NR2*I) = TORB(IOFF1+I:IOFF1+I+NR2*(NR2-1):NR2)
   end do
   IOFF1 = IOFF1+NR2**2
   IOFF2 = IOFF2+NR2**2
   ! Copy RAS2 transformation matrix transposed to TAT:
   do I=1,NR3
-    do J=1,NR3
-      IJ = I+NR3*(J-1)
-      JI = J+NR3*(I-1)
-      TAT(IOFF2+JI) = TORB(IOFF1+IJ)
-    end do
+    TAT(IOFF2+NR3*(I-1)+1:IOFF2+NR3*I) = TORB(IOFF1+I:IOFF1+I+NR3*(NR3-1):NR3)
   end do
   IOFF1 = IOFF1+NR3**2
   IOFF2 = IOFF2+NR3**2

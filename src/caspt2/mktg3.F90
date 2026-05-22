@@ -48,13 +48,13 @@ real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI)
 real(kind=wp), intent(out) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 integer(kind=iwp) :: IL, IND1, IND2, IND3, IP, IP1, IP1END, IP1STA, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, ISSG2, ISTAU, &
                      IT, IT1, IT2, IT3, ITG3, ITS, IU, IU1, IU2, IU3, IUS, IV, IVS, IX, IXS, IY, IYS, IZ, IZS, JL, jtuvxyz, L, &
-                     LFROM, LP2LEV1, LP2LEV2, LSGM1, LSGM2, LTAU, LTO, NCI1, nLev, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
+                     LFROM, LSGM1, LSGM2, LTAU, LTO, NCI1, nLev, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
 real(kind=wp) :: OCC, VAL
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iTask
 logical(kind=iwp) :: Poor_Par
 #endif
-integer(kind=iwp), allocatable :: P2LEV(:)
+integer(kind=iwp), allocatable :: P2LEV(:,:)
 real(kind=wp), allocatable :: TG3WRK(:)
 real(kind=wp), external :: DDot_
 
@@ -75,31 +75,23 @@ if (ISCF == 0) then
   ! Here, for regular CAS or RAS cases.
 
   ! Special pair index allows true RAS cases to be handled:
-  call mma_allocate(P2LEV,2*NASHT**2,Label='P2LEV')
-  LP2LEV1 = 1
-  LP2LEV2 = 1+NASHT**2
+  call mma_allocate(P2LEV,2,NASHT**2,Label='P2LEV')
   IP = 0
   ! First, IL < JL pairs.
   do IL=1,NLEV-1
-    do JL=IL+1,NLEV
-      IP = IP+1
-      P2LEV(LP2LEV1-1+IP) = IL
-      P2LEV(LP2LEV2-1+IP) = JL
-    end do
+    P2LEV(1,IP+1:IP+NLEV-IL) = IL
+    P2LEV(2,IP+1:IP+NLEV-IL) = [(JL,JL=IL+1,NLEV)]
+    IP = IP+NLEV-IL
   end do
   ! Then, IL = JL pairs.
-  do IL=1,NLEV
-    IP = IP+1
-    P2LEV(LP2LEV1-1+IP) = IL
-    P2LEV(LP2LEV2-1+IP) = IL
-  end do
+  P2LEV(1,IP+1:IP+NLEV) = [(IL,IL=1,NLEV)]
+  P2LEV(2,IP+1:IP+NLEV) = [(IL,IL=1,NLEV)]
+  IP = IP+NLEV
   ! Last, IL > JL pairs.
   do IL=2,NLEV
-    do JL=1,IL-1
-      IP = IP+1
-      P2LEV(LP2LEV1-1+IP) = IL
-      P2LEV(LP2LEV2-1+IP) = JL
-    end do
+    P2LEV(1,IP+1:IP+IL-1) = IL
+    P2LEV(2,IP+1:IP+IL-1) = [(JL,JL=1,IL-1)]
+    IP = IP+IL-1
   end do
   ! If now any matrix element E(t1u1)E(t2u2)..E(tnun) is arranged
   ! such that the pair indices are non-decreasing, then the matrix
@@ -155,8 +147,8 @@ if (ISCF == 0) then
     LTO = LSGM2
     do IP3=IP3STA,IP3END
       ! Translate to levels in the SGUGA coupling order:
-      IL = P2LEV(LP2LEV1-1+IP3)
-      JL = P2LEV(LP2LEV2-1+IP3)
+      IL = P2LEV(1,IP3)
+      JL = P2LEV(2,IP3)
       IY = L2ACT(IL)
       IZ = L2ACT(JL)
       IYS = IASYM(IY)
@@ -175,8 +167,8 @@ if (ISCF == 0) then
       LTO = LSGM1
       do IP1=IP1STA,IP1END
         ! Translate to levels:
-        JL = P2LEV(LP2LEV1-1+IP1)
-        IL = P2LEV(LP2LEV2-1+IP1)
+        JL = P2LEV(1,IP1)
+        IL = P2LEV(2,IP1)
         IT = L2ACT(IL)
         IU = L2ACT(JL)
         ITS = IASYM(IT)
@@ -198,15 +190,15 @@ if (ISCF == 0) then
           end if
         end if
 #       endif
-        IY = L2ACT(P2LEV(LP2LEV1-1+IP3))
-        IZ = L2ACT(P2LEV(LP2LEV2-1+IP3))
+        IY = L2ACT(P2LEV(1,IP3))
+        IZ = L2ACT(P2LEV(2,IP3))
         ! LFROM will be start element of Sigma2=E(YZ) Psi2
         IYS = IASYM(IY)
         IZS = IASYM(IZ)
         ISSG2 = Mul(Mul(IYS,IZS),LSYM2)
         do IP2=IP3,IP1END
-          IL = P2LEV(LP2LEV1-1+IP2)
-          JL = P2LEV(LP2LEV2-1+IP2)
+          IL = P2LEV(1,IP2)
+          JL = P2LEV(2,IP2)
           IV = L2ACT(IL)
           IX = L2ACT(JL)
           IVS = IASYM(IV)
@@ -218,8 +210,8 @@ if (ISCF == 0) then
           call SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           if (ISTAU == LSYM1) TG2(IV,IX,IY,IZ) = DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
           do IP1=max(IP2,IP1STA),IP1END
-            IT = L2ACT(P2LEV(LP2LEV1-1+IP1))
-            IU = L2ACT(P2LEV(LP2LEV2-1+IP1))
+            IT = L2ACT(P2LEV(1,IP1))
+            IU = L2ACT(P2LEV(2,IP1))
             ITS = IASYM(IT)
             IUS = IASYM(IU)
             ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -261,11 +253,11 @@ if (ISCF == 0) then
   ! First, the 2-particle density matrix:
   ! <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
   do IP1=1,NASHT**2
-    IT = L2ACT(P2LEV(LP2LEV1-1+IP1))
-    IU = L2ACT(P2LEV(LP2LEV2-1+IP1))
+    IT = L2ACT(P2LEV(1,IP1))
+    IU = L2ACT(P2LEV(2,IP1))
     do IP2=1,IP1
-      IV = L2ACT(P2LEV(LP2LEV1-1+IP2))
-      IX = L2ACT(P2LEV(LP2LEV2-1+IP2))
+      IV = L2ACT(P2LEV(1,IP2))
+      IX = L2ACT(P2LEV(2,IP2))
       if (IV == IU) TG2(IT,IU,IV,IX) = TG2(IT,IU,IV,IX)-TG1(IT,IX)
       TG2(IV,IX,IT,IU) = TG2(IT,IU,IV,IX)
     end do
@@ -275,20 +267,20 @@ if (ISCF == 0) then
   ! -D(Y,X)*(TG2(T,U,V,Z)+D(V,U)*TG1(T,Z))
   ! -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
   do IP1=1,NASHT**2
-    IT = L2ACT(P2LEV(LP2LEV1-1+IP1))
-    IU = L2ACT(P2LEV(LP2LEV2-1+IP1))
+    IT = L2ACT(P2LEV(1,IP1))
+    IU = L2ACT(P2LEV(2,IP1))
     ITS = IASYM(IT)
     IUS = IASYM(IU)
     IS1 = Mul(Mul(ITS,IUS),LSYM1)
     do IP2=1,IP1
-      IV = L2ACT(P2LEV(LP2LEV1-1+IP2))
-      IX = L2ACT(P2LEV(LP2LEV2-1+IP2))
+      IV = L2ACT(P2LEV(1,IP2))
+      IX = L2ACT(P2LEV(2,IP2))
       IVS = IASYM(IV)
       IXS = IASYM(IX)
       IS2 = Mul(Mul(IVS,IXS),IS1)
       do IP3=1,IP2
-        IY = L2ACT(P2LEV(LP2LEV1-1+IP3))
-        IZ = L2ACT(P2LEV(LP2LEV2-1+IP3))
+        IY = L2ACT(P2LEV(1,IP3))
+        IZ = L2ACT(P2LEV(2,IP3))
         IYS = IASYM(IY)
         IZS = IASYM(IZ)
         IS3 = Mul(Mul(IYS,IZS),IS2)

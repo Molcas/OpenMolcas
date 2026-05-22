@@ -53,10 +53,8 @@ do iSym=1,nSym
   !end do
   !! frozen
   if (IfChol) then
-    do I=1,nFroI
-      do J=1,nFroI
-        Trf(ipTrfL+I+nBasI*(J-1)) = TraFro(I+nFroI*(J-1))
-      end do
+    do J=1,nFroI
+      Trf(ipTrfL+nBasI*(J-1)+1:ipTrfL+nBasI*(J-1)+nFroI) = TraFro(nFroI*(J-1)+1:nFroI*J)
     end do
   else
     do iIsh=1,nFroI

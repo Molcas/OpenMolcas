@@ -24,7 +24,6 @@ implicit none
 integer(kind=iwp), intent(in) :: NCONF, NLEV
 real(kind=wp), intent(in) :: CI(NCONF), RDMEIG(NLEV**2)
 real(kind=wp), intent(inout) :: CLag(NCONF)
-integer(kind=iwp) :: I
 real(kind=wp), allocatable :: SGM1(:)
 
 if (NLEV > 0) then
@@ -36,11 +35,9 @@ end if
 ! REINITIALIZE USE OF DMAT.
 ! The fields IADR10 and CLAB10 are kept in caspt2_module
 ! CLAB10 replaces older field called LABEL.
-do I=1,64
-  IADR10(I,1) = -1
-  IADR10(I,2) = 0
-  CLAB10(I) = '   EMPTY'
-end do
+IADR10(:,1) = -1
+IADR10(:,2) = 0
+CLAB10(:) = '   EMPTY'
 IADR10(1,1) = 0
 ! HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
 ! ARRAY ON LUDMAT AND UPDATE THE TOC.

@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: NDREF
 real(kind=wp), intent(out) :: DREF(NDREF)
-integer(kind=iwp) :: I, IJ, J
+integer(kind=iwp) :: I, IJ
 real(kind=wp), allocatable :: G1(:)
 
 ! Get active 1-el density matrix GAMMA1 and
@@ -35,10 +35,8 @@ if (NASHT == 0) return
 call mma_allocate(G1,NG1,Label='G1')
 call PT2_GET(NG1,'GAMMA1',G1)
 do I=1,NASHT
-  do J=1,I
-    IJ = (I*(I-1))/2+J
-    DREF(IJ) = G1(I+NASHT*(J-1))
-  end do
+  IJ = (I*(I-1))/2
+  DREF(IJ+1:IJ+I) = G1(I:I+NASHT*(I-1):NASHT)
 end do
 call mma_deallocate(G1)
 

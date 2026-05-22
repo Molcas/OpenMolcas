@@ -73,15 +73,11 @@ if (IRETURN == 0) then
       if (DWTYPE == 1) then
         WRK2(ilStat,ilStat) = SLag(ilStat,ilStat)
       else if ((DWTYPE == 2) .or. (DWTYPE == 3)) then
-        do jlStat=1,nState
-          WRK2(ilStat,jlStat) = SLag(ilStat,jlStat)
-        end do
+        WRK2(ilStat,:) = SLag(ilStat,:)
       end if
       if (.not. do_nac) then
-        do jlStat=1,ilStat-1
-          WRK1(ilStat,jlStat) = WRK1(ilStat,jlStat)+WRK1(jlStat,ilStat)
-          WRK1(jlStat,ilStat) = Zero
-        end do
+        WRK1(ilStat,1:ilStat-1) = WRK1(ilStat,1:ilStat-1)+WRK1(1:ilStat-1,ilStat)
+        WRK1(1:ilStat-1,ilStat) = Zero
       end if
     end do
     SLag(:,:) = WRK1(:,:)

@@ -117,10 +117,8 @@ do I=1,NAS
 end do
 IJ = 0
 do J=1,NAS
-  do I=1,J
-    IJ = IJ+1
-    S(IJ) = S(IJ)*SCA(I)*SCA(J)
-  end do
+  S(IJ+1:IJ+J) = S(IJ+1:IJ+J)*SCA(1:J)*SCA(J)
+  IJ = IJ+J
 end do
 ! End of addition.
 if (IPRGLB >= INSANE) then
@@ -135,10 +133,8 @@ call mma_allocate(EIG,NAS,Label='EIG')
 call TIMING(CPU1,CPUE,TIO,TIOE)
 IJ = 0
 do J=1,NAS
-  do I=1,J
-    IJ = IJ+1
-    VEC(I,J) = S(IJ)
-  end do
+  VEC(1:J,J) = S(IJ+1:IJ+J)
+  IJ = IJ+J
 end do
 INFO = 0
 call dsyev_('V','L',NAS,VEC,NAS,EIG,WGRONK,-1,INFO)
@@ -220,10 +216,7 @@ else if (BTRANS /= 'YES') then
   IDT = IDTMAT(ISYM,ICASE)
   call DDAFILE(LUSBT,1,VEC,NAS*NIN,IDT)
   call mma_deallocate(VEC)
-  do I=1,NAS
-    SDiag = SD(I)+1.0e-15_wp
-    BD(I) = BD(I)/SDiag
-  end do
+  BD(:) = BD(:)/(SD(:)+1.0e-15_wp)
   IDB = IDBMAT(ISYM,ICASE)
   call DDAFILE(LUSBT,1,BD,NAS,IDB)
   call mma_deallocate(SD)
@@ -318,10 +311,8 @@ if (BSPECT /= 'YES') then
 else
   IJ = 0
   do J=1,NIN
-    do I=1,J
-      IJ = IJ+1
-      VEC(I,J) = B(IJ)
-    end do
+    VEC(1:J,J) = B(IJ+1:IJ+J)
+    IJ = IJ+J
   end do
   call DSYEV_('V','U',NIN,VEC,NIN,EIG,WGRONK,-1,INFO)
   NSCRATCH = int(WGRONK(1))

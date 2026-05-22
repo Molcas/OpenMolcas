@@ -55,7 +55,7 @@ integer(kind=iwp), intent(in) :: iSym, iCase
 real(kind=wp), intent(out) :: CondNr, CPU
 integer(kind=iwp) :: I, IDB, IDB2, IDS, IDT, IEND, iHi, iLo, IOFF, ISTA, J, jHi, jLo, lDB, LDS, LDV, lg_B, lg_S, lg_ST, lg_T, &
                      lg_V, lg_X, mB, MS, mV, MyRank, NAS, NCOEF, NCOL, NIN, NIS, NTMP
-real(kind=wp) :: CPU1, CPU2, CPUE, dTrans, FP, SDiag, SZ, SZMAX, SZMIN, TIO, TIOE
+real(kind=wp) :: CPU1, CPU2, CPUE, dTrans, FP, SDiag, SZMAX, SZMIN, TIO, TIOE
 logical(kind=iwp) :: bSTAT
 character(len=2) :: cCASE, cSYM
 real(kind=wp), allocatable :: BD(:), COL(:), COND(:), EIG(:), SCA(:), SD(:), TMP(:), TRANS(:)
@@ -205,10 +205,7 @@ if (IPRGLB >= INSANE) then
   write(u6,'("DEBUG> ",A,ES21.14)') 'SMAT EIGENVALUE NORM: ',FP
 end if
 
-NIN = 0
-do J=1,NAS
-  if (EIG(J) >= THRSHS) NIN = NIN+1
-end do
+NIN = count(EIG(:) >= THRSHS)
 NINDEP(ISYM,ICASE) = NIN
 if (NIN == 0) then
   call mma_deallocate(SCA)
@@ -245,13 +242,8 @@ call mma_deallocate(SCA)
 ! FIXME: adapt to local subroutine for global array lg_V
 if (NIN >= 2) then
   call GADGOP(COND,NIN,'+')
-  SZMIN = 1.0e99_wp
-  SZMAX = Zero
-  do I=1,NIN
-    SZ = COND(I)
-    SZMIN = min(SZMIN,SZ)
-    SZMAX = max(SZMAX,SZ)
-  end do
+  SZMIN = min(1.0e99_wp,minval(COND(:)))
+  SZMAX = max(Zero,maxval(COND(:)))
   CONDNR = SZMAX/SZMIN
 end if
 call mma_deallocate(COND)
@@ -302,10 +294,7 @@ else if (BTRANS /= 'YES') then
   end if
   call GADGOP(BD,NAS,'+')
   bStat = GA_Destroy(lg_B)
-  do I=1,NAS
-    SDiag = SD(I)+1.0e-15_wp
-    BD(I) = BD(I)/SDiag
-  end do
+  BD(:) = BD(:)/(SD(:)+1.0e-15_wp)
   IDB = IDBMAT(ISYM,ICASE)
   call DDAFILE(LUSBT,1,BD,NAS,IDB)
   call mma_deallocate(BD)

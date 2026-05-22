@@ -23,21 +23,10 @@ implicit none
 integer(kind=iwp), intent(in) :: NTORB, NF, IDIR
 real(kind=wp), intent(in) :: TORB(NTORB)
 real(kind=wp), intent(inout) :: F(NF)
-integer(kind=iwp) :: NT, NI, NR1, NR2, NR3, NS, NO, IJOFF, ITOFF, I, J, II, JJ, IJ, ISYM, IOFF
+integer(kind=iwp) :: NI, NR1, NR2, NR3, NS, NO, IJOFF, ITOFF, I, J, JJ, IJ, ISYM, IOFF
 real(kind=wp), allocatable :: FSQ(:), TMP(:), TSQ(:)
 
-NT = 0
-NOMX = 0
-do ISYM=1,NSYM
-  NI = NISH(ISYM)
-  NR1 = NRAS1(ISYM)
-  NR2 = NRAS2(ISYM)
-  NR3 = NRAS3(ISYM)
-  NS = NSSH(ISYM)
-  NO = NI+NR1+NR2+NR3+NS
-  NOMX = max(NOMX,NO)
-  NT = NT+NI**2+NR1**2+NR2**2+NR3**2+NS**2
-end do
+NOMX = maxval(NISH(1:NSYM)+NRAS1(1:NSYM)+NRAS2(1:NSYM)+NRAS3(1:NSYM)+NSSH(1:NSYM))
 
 call mma_allocate(FSQ,NOMX**2,LABEL='FSQ')
 call mma_allocate(TSQ,NOMX**2,LABEL='TSQ')
@@ -58,50 +47,37 @@ do ISYM=1,NSYM
   TSQ(1:NO**2) = Zero
   ! Copy inactive TORB block to TSQ
   IOFF = 0
-  do I=1,NI
-    do J=1,NI
-      TSQ(I+NO*(J-1)) = TORB(ITOFF+I+NI*(J-1))
-    end do
+  do J=1,NI
+    JJ = IOFF+J
+    TSQ(IOFF+NO*(JJ-1)+1:IOFF+NO*(JJ-1)+NI) = TORB(ITOFF+NI*(J-1)+1:ITOFF+NI*J)
   end do
   ! Copy ras1 T block to TSQ, and so on..
   ITOFF = ITOFF+NI**2
   IOFF = IOFF+NI
-  do I=1,NR1
-    II = IOFF+I
-    do J=1,NR1
-      JJ = IOFF+J
-      TSQ(II+NO*(JJ-1)) = TORB(ITOFF+I+NR1*(J-1))
-    end do
+  do J=1,NR1
+    JJ = IOFF+J
+    TSQ(IOFF+NO*(JJ-1)+1:IOFF+NO*(JJ-1)+NR1) = TORB(ITOFF+NR1*(J-1)+1:ITOFF+NR1*J)
   end do
 
   ITOFF = ITOFF+NR1**2
   IOFF = IOFF+NR1
-  do I=1,NR2
-    II = IOFF+I
-    do J=1,NR2
-      JJ = IOFF+J
-      TSQ(II+NO*(JJ-1)) = TORB(ITOFF+I+NR2*(J-1))
-    end do
+  do J=1,NR2
+    JJ = IOFF+J
+    TSQ(IOFF+NO*(JJ-1)+1:IOFF+NO*(JJ-1)+NR2) = TORB(ITOFF+NR2*(J-1)+1:ITOFF+NR2*J)
   end do
 
   ITOFF = ITOFF+NR2**2
   IOFF = IOFF+NR2
-  do I=1,NR3
-    II = IOFF+I
-    do J=1,NR3
-      JJ = IOFF+J
-      TSQ(II+NO*(JJ-1)) = TORB(ITOFF+I+NR3*(J-1))
-    end do
+  do J=1,NR3
+    JJ = IOFF+J
+    TSQ(IOFF+NO*(JJ-1)+1:IOFF+NO*(JJ-1)+NR3) = TORB(ITOFF+NR3*(J-1)+1:ITOFF+NR3*J)
   end do
   ! Finally, the secondary orbitals (non-deleted, virtual).
   ITOFF = ITOFF+NR3**2
   IOFF = IOFF+NR3
-  do I=1,NS
-    II = IOFF+I
-    do J=1,NS
-      JJ = IOFF+J
-      TSQ(II+NO*(JJ-1)) = TORB(ITOFF+I+NS*(J-1))
-    end do
+  do J=1,NS
+    JJ = IOFF+J
+    TSQ(IOFF+NO*(JJ-1)+1:IOFF+NO*(JJ-1)+NS) = TORB(ITOFF+NS*(J-1)+1:ITOFF+NS*J)
   end do
   ITOFF = ITOFF+NS**2
   ! Now transfer the Fock matrix block to square storage:
@@ -126,12 +102,10 @@ do ISYM=1,NSYM
     call DGEMM_('N','N',NO,NO,NO,One,TSQ,NO,TMP,NO,Zero,FSQ,NO)
   end if
   ! Transfer FSQ values back to F, in triangular storage.
-  IJ = 0
+  IJ = IJOFF
   do I=1,NO
-    do J=1,I
-      IJ = IJ+1
-      F(IJOFF+IJ) = FSQ(I+NO*(J-1))
-    end do
+    F(IJ+1:IJ+I) = FSQ(I:I+NO*(I-1):NO)
+    IJ = IJ+I
   end do
   IJOFF = IJOFF+(NO*(NO+1))/2
   ! and repeat, using next symmetry block.

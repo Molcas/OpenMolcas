@@ -185,6 +185,7 @@ do JSYM=1,NSYM
         IDLOC_CHOGROUP(ICASE,ISYQ,JSYM,IBATCH_TOT) = IDISK
       end do
     end do
+    IDLOC_CHOGROUP(:,1:NSYM,JSYM,IBATCH_TOT) = IDISK
   end do
 end do
 
@@ -201,14 +202,12 @@ call GAIGOP(NVGLB_CHOBATCH,NBATCH_TOT,'+')
 #endif
 
 ! sum over same-symmetry batches
-NVTOT_CHOSYM = 0
+NVTOT_CHOSYM(:) = 0
 do JSYM=1,NSYM
   IBSTA = NBTCHES(JSYM)+1
   IBEND = NBTCHES(JSYM)+NBTCH(JSYM)
-  do IB=IBSTA,IBEND
-    ! total size is sum over global batch sizes
-    NVTOT_CHOSYM(JSYM) = NVTOT_CHOSYM(JSYM)+NVGLB_CHOBATCH(IB)
-  end do
+  ! total size is sum over global batch sizes
+  NVTOT_CHOSYM(JSYM) = sum(NVGLB_CHOBATCH(IBSTA:IBEND))
 end do
 
 call MMA_ALLOCATE(IDGLB_CHOGROUP,4,8,8,NBATCH_TOT,Label='IDGLB_CHOGROUP')

@@ -37,13 +37,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "warnings.h"
-integer(kind=iwp) :: ICASE, ICASE1, ICASE2, ILIST, ISL1, ISL2, ISL3, ISYM, ISYM1, ISYM2, M, M11, M12, M21, M22, M31, MAXAIS, &
-                     MC1S1DER, MC2DER, MEMBASE, MINBUF, MMX, MXLeft, MXLFT, N, NA, NAS, NAS1, NAS2, NBOTTOM, NCH, nCLag, NCX, NDD, &
-                     NEED, NEED0, NFIA, NFIT, NFTA, NG02, NG10, NG12, NG20, NG30, NGARR, ngrad, ngrad1, ngrad10, ngrad11, &
-                     ngrad11_1, ngrad11_2, ngrad2, ngrad3, ngrad4, ngrad5, ngrad6, ngrad6_1, ngrad6_2, ngrad7, ngrad7_1, ngrad7_2, &
-                     ngrad8, ngrad9, NI, NIN, NIN1, NIS, NIS1, NIS2, NLISTS, NMKRHS, NMX, nOLag, nOMax, NPLBUF, NPoly, nPrp, &
-                     nPrp1, nPrp2, nRHSP, NS, nSgm1, nSgm2, nSigma, nSigma_inner, nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT, &
-                     nV, nVCUtil, nWLag, NX
+integer(kind=iwp) :: ICASE, ICASE1, ICASE2, ISL1, ISL2, ISL3, ISYM, ISYM1, ISYM2, M, M11, M12, M21, M22, M31, MAXAIS, MC1S1DER, &
+                     MC2DER, MEMBASE, MINBUF, MMX, MXLeft, MXLFT, N, NAS, NAS1, NAS2, NBOTTOM, NCH, nCLag, NCX, NDD, NEED, NEED0, &
+                     NFIA, NFIT, NFTA, NG02, NG10, NG12, NG20, NG30, NGARR, ngrad, ngrad1, ngrad10, ngrad11, ngrad11_1, ngrad11_2, &
+                     ngrad2, ngrad3, ngrad4, ngrad5, ngrad6, ngrad6_1, ngrad6_2, ngrad7, ngrad7_1, ngrad7_2, ngrad8, ngrad9, NIN, &
+                     NIN1, NIS, NIS1, NIS2, NMKRHS, NMX, nOLag, nOMax, NPLBUF, NPoly, nPrp, nPrp1, nPrp2, nRHSP, nSgm1, nSgm2, &
+                     nSigma, nSigma_inner, nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT, nV, nVCUtil, nWLag, NX
 real(kind=wp) :: XX, YY
 integer(kind=iwp), external :: iParDiv
 
@@ -113,35 +112,24 @@ do ISL1=1,NSYM
     NLIST(ISL1,ISL3,8) = NLIST(ISL1,ISL3,7)
     NLIST(ISL1,ISL3,9) = NASH(ISL2)*NASH(ISL3)
     NLIST(ISL1,ISL3,10) = NLIST(ISL1,ISL3,9)
-    if (ISL1 == 1) NLIST(ISL1,ISL3,10) = NLIST(ISL1,ISL3,9)-NASH(ISL2)
+    if (ISL1 == 1) NLIST(ISL1,ISL3,10) = NLIST(ISL1,ISL3,10)-NASH(ISL2)
     NLIST(ISL1,ISL3,12) = NASH(ISL1)*NASH(ISL2)
     NLIST(ISL1,ISL3,13) = NLIST(ISL1,ISL3,12)
-    if (ISL3 == 1) NLIST(ISL1,ISL3,13) = NLIST(ISL1,ISL3,12)-NASH(ISL1)
+    if (ISL3 == 1) NLIST(ISL1,ISL3,13) = NLIST(ISL1,ISL3,13)-NASH(ISL1)
     NLIST(ISL1,ISL3,11) = NLIST(ISL1,ISL3,12)
     if (ISL3 == 1) NLIST(ISL1,ISL3,11) = NLIST(ISL1,ISL3,11)+NASH(ISL1)*NASHT
     NLIST(ISL1,ISL3,14) = NISH(ISL1)*NISH(ISL2)
     NLIST(ISL1,ISL3,15) = NLIST(ISL1,ISL3,14)
-    if (ISL3 == 1) NLIST(ISL1,ISL3,15) = NLIST(ISL1,ISL3,14)-NISH(ISL1)
+    if (ISL3 == 1) NLIST(ISL1,ISL3,15) = NLIST(ISL1,ISL3,15)-NISH(ISL1)
     NLIST(ISL1,ISL3,16) = NSSH(ISL1)*NSSH(ISL2)
     NLIST(ISL1,ISL3,17) = NLIST(ISL1,ISL3,16)
-    if (ISL3 == 1) NLIST(ISL1,ISL3,17) = NLIST(ISL1,ISL3,16)-NSSH(ISL1)
+    if (ISL3 == 1) NLIST(ISL1,ISL3,17) = NLIST(ISL1,ISL3,17)-NSSH(ISL1)
   end do
 end do
-NLISTS = 0
-do ILIST=1,17
-  do ISL1=1,NSYM
-    do ISL3=1,NSYM
-      NLISTS = NLISTS+NLIST(ISL1,ISL3,ILIST)
-    end do
-  end do
-end do
-NLSTOT = 4*NLISTS
+NLSTOT = 4*sum(NLIST(1:NSYM,1:NSYM,:))
 
 ! maximum orbitals in an irrep
-NOMAX = 0
-do ISYM=1,NSYM
-  NOMAX = max(NOMAX,NORB(ISYM))
-end do
+NOMAX = maxval(NORB(1:NSYM))
 if (.not. IFCHOL) then
   ! MKRHS needs:
   NMKRHS = 2*NOMAX**2
@@ -170,16 +158,8 @@ if (.not. IFCHOL) then
   !end if
 else
   ! RHSALL2 and ADDRHS needs:
-  NMKRHS = 0
-  do ICASE=1,13
-    do ISYM=1,NSYM
-      NAS = NASUP(ISYM,ICASE)
-      NIS = NISUP(ISYM,ICASE)
-      NMKRHS = max(NMKRHS,NAS*NIS)
-    end do
-  end do
-  NMKRHS = iPARDIV(NMKRHS,2*NOMAX**2)
-  NMKRHS = 2*NMKRHS
+  NMKRHS = maxval(NASUP(1:NSYM,:)*NISUP(1:NSYM,:))
+  NMKRHS = 2*iPARDIV(NMKRHS,2*NOMAX**2)
 end if
 NMKRHS = NMKRHS+NBOTTOM
 
@@ -202,8 +182,7 @@ do ICASE=1,13
     NVCUTIL = max(NVCUTIL,2*NRHSP)
   end do
 end do
-NSIGMA = max(NSIGMA_INNER+NSIGMA_OUTER,NVCUTIL)
-NSIGMA = NSIGMA+NBOTTOM
+NSIGMA = max(NSIGMA_INNER+NSIGMA_OUTER,NVCUTIL)+NBOTTOM
 
 ! PRPCTL needs:
 ! In DIADNS alone, NDD words are needed:
@@ -321,20 +300,9 @@ if (do_grad) then
   ngrad4 = NDD*3/2
 
   ! gradient: off-diagonal derivatives (sigder)
-  NFIT = 0
-  NFIA = 0
-  NFTA = 0
-  do ISYM=1,NSYM
-    NI = NISH(ISYM)
-    NA = NASH(ISYM)
-    NS = NSSH(ISYM)
-    NFIT = NFIT+NA*NI
-    NFIA = NFIA+NS*NI
-    NFTA = NFTA+NS*NA
-  end do
-  NFIT = NFIT+1
-  NFIA = NFIA+1
-  NFTA = NFTA+1
+  NFIT = sum(NASH(1:NSYM)*NISH(1:NSYM))+1
+  NFIA = sum(NSSH(1:NSYM)*NISH(1:NSYM))+1
+  NFTA = sum(NSSH(1:NSYM)*NASH(1:NSYM))+1
 
   MMX = 0
   do ICASE1=1,11

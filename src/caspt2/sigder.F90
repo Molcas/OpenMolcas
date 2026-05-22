@@ -77,13 +77,7 @@ logical(kind=iwp) :: bStat
 ! derivatives. Here constructs these derivatives in the MO basis,
 ! but not in the internally contracted basis.
 
-MaxLen = 0
-do iCase=1,11
-  do iSym=1,nSym
-    nAS = nASUP(iSym,iCase)
-    MaxLen = max(MaxLen,nAS*nAS)
-  end do
-end do
+MaxLen = maxval(nASUP(1:nSym,1:11)**2)
 
 call mma_allocate(WRK,MaxLen,Label='WRK')
 WRK(:) = Zero

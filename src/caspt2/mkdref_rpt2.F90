@@ -28,13 +28,11 @@ implicit none
 integer(kind=iwp), intent(in) :: N, NDREF
 real(kind=wp), intent(in) :: G1(N,N)
 real(kind=wp), intent(out) :: DREF(NDREF)
-integer(kind=iwp) :: I, IJ, J
+integer(kind=iwp) :: I, IJ
 
 do I=1,N
-  do J=1,I
-    IJ = (I*(I-1))/2+J
-    DREF(IJ) = G1(I,J)
-  end do
+  IJ = (I*(I-1))/2
+  DREF(IJ+1:IJ+I) = G1(I,1:I)
 end do
 
 end subroutine MKDREF_RPT2

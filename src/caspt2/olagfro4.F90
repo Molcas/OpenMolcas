@@ -66,10 +66,8 @@ do jSym=2,nSym
   ISTSQ(jSym) = ISTSQ(jSym-1)+nB2
   ISTLT(jSym) = ISTLT(jSym-1)+nB3
 end do
-do jSym=1,nSym
-  iSkip(jSym) = 1
-  ipWRK(jSym) = 1
-end do
+iSkip(1:nSym) = 1
+ipWRK(1:nSym) = 1
 
 nBasI = nBas(iSymI)
 nBasJ = nBas(iSymJ)

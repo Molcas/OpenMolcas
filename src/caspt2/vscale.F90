@@ -31,8 +31,7 @@ integer(kind=iwp), intent(in) :: nRows, NAS, LDV, NIN
 real(kind=wp), intent(in) :: EIG(NAS), SCA(NAS)
 real(kind=wp), intent(inout) :: V(LDV,*)
 real(kind=wp), intent(out) :: COND(NIN)
-integer(kind=iwp) :: I, iVec, J, jVEC
-real(kind=wp) :: SZ
+integer(kind=iwp) :: I, J, jVEC
 
 jVEC = 0
 do J=1,NAS
@@ -52,11 +51,7 @@ end do
 ! The condition number, after scaling, disregarding linear dep.
 if (NIN >= 2) then
   do jVEC=1,NIN
-    SZ = Zero
-    do iVEC=1,nRows
-      SZ = SZ+V(iVEC,jVEC)**2
-    end do
-    COND(jVEC) = SZ
+    COND(jVEC) = sum(V(1:nRows,jVec)**2)
   end do
 end if
 end subroutine V_SCALE

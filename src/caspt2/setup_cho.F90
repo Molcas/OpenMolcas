@@ -27,9 +27,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nIsh(nSym), nAsh(nSym), nSsh(nSym), NumCho(nSym)
 character(len=4), intent(in) :: mode
-integer(kind=iwp) :: I, iAorb(8), IfTest, iIorb(8), iK, iK1, iK2, iKorb(8), ioff, iS, iSP, iSym, iw, J, jfrac, jIAc, jS, jSym, &
-                     kEnd, kEndSym, kFrac, kS, kSta, kStaSym, lS, lsplit(8), mDiff, Mem1, MemMx, mRHS, nA, nAO, nI, nIAc, nIO, &
-                     nKsp, nkSum, nMin, nO, nOkrb, nOrb, nP, nPMax, nPOrb, npSum, nS
+integer(kind=iwp) :: iAorb(8), IfTest, iIorb(8), iK, iK1, iK2, iKorb(8), ioff, iS, iSP, iSym, iw, jfrac, jIAc, jS, jSym, kEnd, &
+                     kEndSym, kFrac, kS, kSta, kStaSym, lS, lsplit(8), mDiff, Mem1, MemMx, mRHS, nAO, nIAc, nIO, nKsp, nMin, &
+                     nOkrb, nP, nPMax, nPOrb
 real(kind=wp) :: xmb, xMemMx
 type(Alloc1DiArray_Type) :: ip(8), mp(8), sp(8)
 integer(kind=iwp), external :: cho_irange
@@ -47,28 +47,17 @@ if (mode == 'FREE') then
   return
 end if
 
-do i=1,8
-  lsplit(i) = 0
-  nisplit(i) = 0
-  nasplit(i) = 0
-  nksh(i) = 0
-  npsh(i) = 0
-end do
+lsplit(:) = 0
+nisplit(:) = 0
+nasplit(:) = 0
+nksh(:) = 0
+npsh(:) = 0
 
 ! PAM07: New arrays: 'k shells' = inactive+active orbitals
 ! 'p shells' = active+secondary orbitals
 !  nksh(isym)= Nr of shells by symmetry:
-nksum = 0
-npsum = 0
-do isym=1,nsym
-  ni = nish(isym)
-  na = nash(isym)
-  ns = nssh(isym)
-  nksh(isym) = ni+na
-  npsh(isym) = na+ns
-  nksum = nksum+nksh(isym)
-  npsum = npsum+npsh(isym)
-end do
+nksh(1:nsym) = nish(1:nsym)+nash(1:nsym)
+npsh(1:nsym) = nash(1:nsym)+nssh(1:nsym)
 
 ! Local arrays:
 ! iIorb(iSym) = Nr of inactive orbitals in earlier symmetries.
@@ -76,28 +65,19 @@ end do
 ! iKorb(iSym) = iIorb(iSym) + iAorb(iSym)
 iIorb(1) = 0
 iAorb(1) = 0
-iKorb(1) = 0
 do iSym=2,nSym
   iIorb(iSym) = iIorb(iSym-1)+nIsh(iSym-1)
   iAorb(iSym) = iAorb(iSym-1)+nAsh(iSym-1)
-  iKorb(iSym) = iIorb(iSym)+iAorb(iSym)
 end do
+iKorb(1:nSym) = iIorb(1:nSym)+iAorb(1:nSym)
 
 ! nIO   = total number of inactive orbitals.
 ! nAO   = total number of active orbitals.
 ! nOkrb = total number of inactive+active orbitals.
 ! nOrb  = total number of orbitals
-nOkrb = 0
-nIO = 0
-nAO = 0
-nO = 0
-do iSym=1,nSym
-  nOkrb = nOkrb+nIsh(iSym)+nAsh(iSym)
-  nOrb = nIsh(iSym)+nAsh(iSym)+nSsh(iSym)
-  nO = nO+nOrb*(nOrb+1)/2
-  nIO = nIO+nIsh(iSym)
-  nAO = nAO+nAsh(iSym)
-end do
+nIO = sum(nIsh(1:nSym))
+nAO = sum(nAsh(1:nSym))
+nOkrb = nIO+nAO
 
 !xO = real(nO,kind=wp)
 
@@ -205,25 +185,19 @@ do jSym=1,nSym
   call mma_allocate(sp(jsym)%A,lsplit(jSym),Label='sp')
   call mma_allocate(mp(jsym)%A,lsplit(jSym),Label='np')
   call mma_allocate(ip(jsym)%A,nSym*lsplit(jSym),Label='ip')
-  call mma_allocate(Unt(jsym)%A,lsplit(jSym),Label='%Unt')
-  do i=1,lsplit(jSym)
-    sp(jSym)%A(i) = 0
-    mp(jSym)%A(i) = 0
-    Unt(jSym)%A(i) = 0
-    do j=1,nsym
-      ip(jsym)%A(j+nsym*(i-1)) = 0
-    end do
-  end do
+  call mma_allocate(Unt(jsym)%A,lsplit(jSym),Label='Unt')
+  sp(jSym)%A(:) = 0
+  mp(jSym)%A(:) = 0
+  Unt(jSym)%A(:) = 0
+  ip(jsym)%A(:) = 0
 
   nmin = min(nIO,nIAc)
   jS = 0
   if (nmin > 0) jS = nIO/nmin
-  do i=0,jS-1
-    sp(jSym)%A(1+i) = nMin
-  end do
+  sp(jSym)%A(1:jS) = nMin
   mDiff = jS*nmin-nIO
   if (mDiff > 0) then
-    sp(jSym)%A(1+jS) = mDiff
+    sp(jSym)%A(jS+1) = mDiff
     jS = jS+1
   end if
   nisplit(jSym) = jS
@@ -231,12 +205,10 @@ do jSym=1,nSym
   nmin = min(nAO,nIAc)
   jS = 0
   if (nmin > 0) jS = nAO/nmin
-  do i=0,jS-1
-    sp(jSym)%A(1+nisplit(jSym)+i) = nmin
-  end do
+  sp(jSym)%A(nisplit(jSym)+1:nisplit(jSym)+jS) = nmin
   mDiff = jS*nmin-nAO
   if (mDiff > 0) then
-    sp(jSym)%A(1+nisplit(jSym)+jS) = mDiff
+    sp(jSym)%A(nisplit(jSym)+jS+1) = mDiff
     jS = jS+1
   end if
   nasplit(jSym) = jS

@@ -21,34 +21,26 @@ implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nSsh(nSym), nDel(nSym), nCMO, nOrbE
 real(kind=wp), intent(in) :: CMO(nCMO), OrbE(nOrbE)
 real(kind=wp), intent(out) :: E2_ab
-integer(kind=iwp) :: iE, ifr, ioff, irc, iSkip, iSym, ito, joff, k, kEOcc, kEVir, kfr, koff, kto, lnDel(8), lnFro(8), lnOcc(8), &
-                     lnOrb(8), lnVir(8), nAct(8), nBB, nOA, nOrb, nVV
+integer(kind=iwp) :: iE, ifr, ioff, irc, iSkip, iSym, ito, joff, kEOcc, kEVir, kfr, koff, kto, lnDel(8), lnFro(8), lnOcc(8), &
+                     lnOrb(8), lnVir(8), nAct(8), nBB, nOrb
 real(kind=wp) :: Dummy(1)
 real(kind=wp), allocatable :: CMOX(:), Eorb(:)
 
 nAct(:) = 0
-nVV = 0
 nOrb = 0
 do iSym=1,nSym
-  iE = 1+nOrb+nFro(iSym)+nIsh(iSym)
-  do k=0,nAsh(iSym)-1
-    if (OrbE(iE+k) < Zero) nAct(iSym) = nAct(iSym)+1
-  end do
-  nVV = nVV+nSsh(iSym)**2
+  iE = nOrb+nFro(iSym)+nIsh(iSym)
+  nAct(iSym) = count(OrbE(iE+1:iE+nAsh(iSym)) < Zero)
   nOrb = nOrb+nBas(iSym)
 end do
 
-nBB = 0
-nOA = 0
-do iSym=1,nSym  ! setup info
-  lnOrb(iSym) = nBas(iSym)
-  lnFro(iSym) = nFro(iSym)
-  lnOcc(iSym) = nIsh(iSym)+nAct(iSym)
-  lnVir(iSym) = nSsh(iSym)
-  lnDel(iSym) = nDel(iSym)
-  nBB = nBB+nBas(iSym)**2
-  nOA = nOA+lnOcc(iSym)
-end do
+! setup info
+lnOrb(1:nSym) = nBas(:)
+lnFro(1:nSym) = nFro(:)
+lnOcc(1:nSym) = nIsh(:)+nAct(:)
+lnVir(1:nSym) = nSsh(:)
+lnDel(1:nSym) = nDel(:)
+nBB = sum(nBas(:)**2)
 
 call mma_allocate(Eorb,2*nOrb,Label='Eorb')
 kEOcc = 1

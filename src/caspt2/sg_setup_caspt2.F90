@@ -22,14 +22,13 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: I, ILEV, ISM(MxLev), ISYM, IT, nLEV
+integer(kind=iwp) :: ISM(MxLev), ISYM, IT, nLEV
 
 nLEV = 0
 do ISYM=1,NSYM
   do IT=1,NASH(ISYM)
     nLEV = nLEV+1
-    ILEV = LEVEL(nLEV)
-    ISM(ILEV) = ISYM
+    ISM(LEVEL(nLEV)) = ISYM
   end do
 end do
 
@@ -51,10 +50,7 @@ else
   call mma_allocate(EXS%VTab,[1,1],Label='EXS%VTab')
 end if
 
-MXCI = 1
-do I=1,NSYM
-  MXCI = max(MXCI,CIS%NCSF(I))
-end do
+MXCI = maxval(CIS%NCSF(1:NSYM))
 
 ! NOTE: AT THIS POINT, WE HAVE ALLOCATED MEMORY SPACE FOR SGUGA USE:
 ! MVL,MVR,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,ICASE,ICOUP,VTAB,TMP.

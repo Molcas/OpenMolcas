@@ -370,10 +370,7 @@ subroutine Print_Truff()
         write(u6,*)
         write(u6,*) ' Relative CASPT2 energies:'
         write(u6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)') 'Root','(a.u.)','(eV)','(cm^-1)','(kJ/mol)'
-        ISTATE = 1
-        do I=2,NSTATE
-          if (ENERGY(I) < ENERGY(ISTATE)) ISTATE = I
-        end do
+        ISTATE = minloc(ENERGY(1:NSTATE),dim=1)
         do I=1,NSTATE
           RELAU = ENERGY(I)-ENERGY(ISTATE)
           RELEV = RELAU*auToeV

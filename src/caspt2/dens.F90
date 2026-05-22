@@ -22,7 +22,7 @@ subroutine DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF,U0)
 use CHOVEC_IO, only: nvloc_chobatch
 use PrintLevel, only: DEBUG, VERBOSE
 use EQSOLV, only: IVECC2, IVECR, IVECX
-use ChoCASPT2, only: iALGO, MaxVec_PT2, NumCho_PT2
+use ChoCASPT2, only: iALGO, MaxVec_PT2
 use sguga, only: SGS
 use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, &
                          DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_invar, if_invaria, if_SSDM, &
@@ -43,8 +43,8 @@ integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
 real(kind=wp), intent(inout) :: DMAT(NDMAT)
 real(kind=wp), intent(in) :: UEFF(nState,nState), U0(nState,nState)
 integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, IDM, IDMOFF, IDRF, IDSOFF, IDSUM, II, IP, IQ, iSQ, iState, iStLag, ISYM, IT, &
-                     ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, JJ, liBasSq, liBasTr, lT2AO, NA, nAO, nBasI, nch, NDPT, &
-                     nDPTAO, NI, NLEV, NO, nOcc, nOrbI, NumChoTot
+                     ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, JJ, liBasSq, liBasTr, lT2AO, NA, nBasI, nch, NDPT, nDPTAO, NI, &
+                     NLEV, NO, nOcc, nOrbI
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, wgt, X
 integer(kind=iwp), allocatable :: ISAV(:)
 real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), DPT2_AO(:), &
@@ -61,14 +61,8 @@ if (do_grad) then
   ! Compute total density matrix as symmetry-blocked array of
   ! triangular matrices in DMAT. Size of a triangular submatrix is
   !  (NORB(ISYM)*(NORB(ISYM)+1))/2.
-  NDPT = 0
-  nDPTAO = 0
-  do ISYM=1,NSYM
-    NO = NORB(ISYM)
-    nAO = nBas(iSym)
-    NDPT = NDPT+NO**2
-    nDPTAO = nDPTAO+nAO**2
-  end do
+  NDPT = sum(NORB(1:nSym)**2)
+  nDPTAO = sum(nBas(1:nSym)**2)
   ! shouldn't be necessary, is already done outside
   DMAT(1:NDMAT) = Zero
   ! First, put in the reference density matrix.
@@ -245,8 +239,7 @@ if (do_grad) then
   if (IFSADREF) then
     WRK1(1:nDRef) = Zero
     do iState=1,nState
-      wgt = Weight(iState)
-      WRK1(1:nDRef) = WRK1(1:nDRef)+Wgt*DMix(1:nDRef,iState)
+      WRK1(1:nDRef) = WRK1(1:nDRef)+Weight(iState)*DMix(1:nDRef,iState)
     end do
   else
     WRK1(1:nDRef) = DMix(1:nDRef,jState)
@@ -418,11 +411,7 @@ if (do_grad) then
   !! Construct orbital Lagrangian that comes from the derivative
   !! of ERIs. Also, do the Fock transformation of the DPT2 and
   !! DPT2C densities.
-  NumChoTot = 0
   if (IfChol) then
-    do iSym=1,nSym
-      NumChoTot = NumChoTot+NumCho_PT2(iSym)
-    end do
     call mma_allocate(A_PT2,MaxVec_PT2**2,Label='A_PT2')
     A_PT2(:) = Zero
   else
@@ -900,11 +889,7 @@ else
   ! Compute total density matrix as symmetry-blocked array of
   ! triangular matrices in DMAT. Size of a triangular submatrix is
   ! (NORB(ISYM)*(NORB(ISYM)+1))/2.
-  NDPT = 0
-  do ISYM=1,NSYM
-    NO = NORB(ISYM)
-    NDPT = NDPT+NO**2
-  end do
+  NDPT = sum(NORB(1:nSym)**2)
   DMAT(1:NDMAT) = Zero
   ! First, put in the reference density matrix.
   IDMOFF = 0

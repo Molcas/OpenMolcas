@@ -32,8 +32,8 @@ real(kind=wp), intent(inout) :: G1(NASHT,NASHT), G2(NASHT,NASHT,NASHT,NASHT), G3
                                 DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3), DF1(NASHT,NASHT), DF2(NASHT,NASHT,NASHT,NASHT), DF3(NG3), &
                                 DEASUM, DEPSA(NASHT,NASHT)
 real(kind=wp), intent(in) :: VECROT(NSTATE)
-integer(kind=iwp) :: iCase, ID, idS, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUabs, iTU2, iTUabs, iUabs, iVabs, iXabs, iXgeYabs, &
-                     iXgtYabs, iXY2, iXYabs, iYabs, lg_V1, lg_V2, lg_V3, lg_V4, lg_V5, NAS, NIN, NIS, NS, NSEQ, NVEC
+integer(kind=iwp) :: iCase, ID, idS, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUabs, iTU2, iTUabs, iUabs, iXabs, iXgeYabs, iXgtYabs, &
+                     iXY2, iXYabs, iYabs, lg_V1, lg_V2, lg_V3, lg_V4, lg_V5, NAS, NIN, NIS, NS, NSEQ, NVEC
 real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BDERval, bsBDER, ET, EU, EX, EY, ScalB1, ScalB2, ScalS1, ScalS2, SDERval
 real(kind=wp), allocatable :: BDER(:), LBD(:), LID(:), SDER(:), SMat(:)
 #ifdef _MOLCAS_MPP_
@@ -335,7 +335,7 @@ subroutine CLagDXB(NAS,BDER,SDER)
   integer(kind=iwp), intent(in) :: NAS
   real(kind=wp), intent(in) :: BDER(NAS,NAS)
   real(kind=wp), intent(inout) :: SDER(NAS,NAS)
-  integer(kind=iwp) :: iT, iTU, iU, iV, iX, iXY, iY
+  integer(kind=iwp) :: iT, iTU, iU, iX, iXY, iY
   real(kind=wp), allocatable :: WrkBbf(:,:,:,:), WrkSbf(:,:,:,:)
 
   call mma_allocate(WrkBbf,nAshT,nAshT,nAshT,nAshT,Label='WrkBbf')
@@ -451,12 +451,10 @@ subroutine CLagDXB(NAS,BDER,SDER)
           !! EASUM derivative
           DEASUM = DEASUM-BDERval*G2(iX,iT,iY,iU)
           !! EPSA derivative
-          do iV=1,NASHT
-            DEPSA(iT,iV) = DEPSA(iT,iV)+BDERval*G2(iX,iV,iY,iU)
-            DEPSA(iU,iV) = DEPSA(iU,iV)+BDERval*G2(iX,iT,iY,iV)
-            DEPSA(iX,iV) = DEPSA(iX,iV)+BDERval*G2(iV,iT,iY,iU)
-            DEPSA(iY,iV) = DEPSA(iY,iV)+BDERval*G2(iX,iT,iV,iU)
-          end do
+          DEPSA(iT,:) = DEPSA(iT,:)+BDERval*G2(iX,:,iY,iU)
+          DEPSA(iU,:) = DEPSA(iU,:)+BDERval*G2(iX,iT,iY,:)
+          DEPSA(iX,:) = DEPSA(iX,:)+BDERval*G2(:,iT,iY,iU)
+          DEPSA(iY,:) = DEPSA(iY,:)+BDERval*G2(iX,iT,:,iU)
 
           BDERval = BDERval*Two
           SDERval = SDERval*Two
@@ -470,10 +468,8 @@ subroutine CLagDXB(NAS,BDER,SDER)
             !! EASUM derivative
             DEASUM = DEASUM+BDERval*G1(iY,iU)
             !! EPSA derivative
-            do iV=1,NASHT
-              DEPSA(iY,iV) = DEPSA(iY,iV)-BDERval*G1(iV,iU)
-              DEPSA(iU,iV) = DEPSA(iU,iV)-BDERval*G1(iY,iV)
-            end do
+            DEPSA(iY,:) = DEPSA(iY,:)-BDERval*G1(:,iU)
+            DEPSA(iU,:) = DEPSA(iU,:)-BDERval*G1(iY,:)
           end if
           !! Additional EPSA derivative
           DEPSA(iX,iT) = DEPSA(iX,iT)-BDERval*G1(iY,iU)
@@ -490,10 +486,8 @@ subroutine CLagDXB(NAS,BDER,SDER)
             !! EASUM derivative
             DEASUM = DEASUM+BDERval*G1(iX,iT)
             !! EPSA derivative
-            do iV=1,NASHT
-              DEPSA(iX,iV) = DEPSA(iX,iV)-BDERval*G1(iV,iT)
-              DEPSA(iT,iV) = DEPSA(iT,iV)-BDERval*G1(iX,iV)
-            end do
+            DEPSA(iX,:) = DEPSA(iX,:)-BDERval*G1(:,iT)
+            DEPSA(iT,:) = DEPSA(iT,:)-BDERval*G1(iX,:)
           end if
           !! Additional EPSA derivative
           DEPSA(iY,iU) = DEPSA(iY,iU)-BDERval*G1(iX,iT)
@@ -510,10 +504,8 @@ subroutine CLagDXB(NAS,BDER,SDER)
             !! EASUM derivative
             DEASUM = DEASUM-BDERval*G1(iX,iU)
             !! EPSA derivative
-            do iV=1,NASHT
-              DEPSA(iX,iV) = DEPSA(iX,iV)+BDERval*G1(iV,iU)
-              DEPSA(iU,iV) = DEPSA(iU,iV)+BDERval*G1(iX,iV)
-            end do
+            DEPSA(iX,:) = DEPSA(iX,:)+BDERval*G1(:,iU)
+            DEPSA(iU,:) = DEPSA(iU,:)+BDERval*G1(iX,:)
           end if
           !! Additional EPSA derivative
           DEPSA(iY,iT) = DEPSA(iY,iT)+BDERval*G1(iX,iU)
@@ -530,10 +522,8 @@ subroutine CLagDXB(NAS,BDER,SDER)
             !! EASUM derivative
             DEASUM = DEASUM-BDERval*G1(iY,iT)
             !! EPSA derivative
-            do iV=1,NASHT
-              DEPSA(iY,iV) = DEPSA(iY,iV)+BDERval*G1(iV,iT)
-              DEPSA(iT,iV) = DEPSA(iT,iV)+BDERval*G1(iY,iV)
-            end do
+            DEPSA(iY,:) = DEPSA(iY,:)+BDERval*G1(:,iT)
+            DEPSA(iT,:) = DEPSA(iT,:)+BDERval*G1(iY,:)
           end if
           !! Additional EPSA derivative
           DEPSA(iX,iU) = DEPSA(iX,iU)+BDERval*G1(iY,iT)
@@ -588,7 +578,7 @@ subroutine CLagDXD(NAS,BDER,SDER)
   integer(kind=iwp), intent(in) :: NAS
   real(kind=wp), intent(in) :: BDER(NAS,NAS)
   real(kind=wp), intent(inout) :: SDER(NAS,NAS)
-  integer(kind=iwp) :: iTU, iV, iXY
+  integer(kind=iwp) :: iTU, iXY
   real(kind=wp) :: BDER1, BDER2, ETX, SDER1, SDER2
 
   if (ipea_shift /= Zero) then
@@ -624,11 +614,10 @@ subroutine CLagDXD(NAS,BDER,SDER)
         DG1(iUabs,iYabs) = DG1(iUabs,iYabs)+Two*(ET-EASUM)*BDER1
         DEASUM = DEASUM-Two*G1(iUabs,iYabs)*BDER1
       end if
-      do iV=1,nAsh(iSym)
-        IVABS = IV+NAES(ISYM)
-        DEPSA(iTabs,iVabs) = DEPSA(iTabs,iVabs)+Two*BDER1*G2(iUabs,iVabs,iXabs,iYabs)
-        DEPSA(iXabs,iVabs) = DEPSA(iXabs,iVabs)+Two*BDER1*G2(iUabs,iTabs,iVabs,iYabs)
-      end do
+      DEPSA(iTabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM)) = DEPSA(iTabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM))+ &
+                                                        Two*BDER1*G2(iUabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM),iXabs,iYabs)
+      DEPSA(iXabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM)) = DEPSA(iXabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM))+ &
+                                                        Two*BDER1*G2(iUabs,iTabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM),iYabs)
       DEPSA(iTabs,iXabs) = DEPSA(iTabs,iXabs)+Two*G1(iUabs,iYabs)*BDER1
 
       !! Derivative of B22
@@ -640,11 +629,10 @@ subroutine CLagDXD(NAS,BDER,SDER)
         DG1(iUabs,iYabs) = DG1(iUabs,iYabs)+Two*(EX-EASUM)*BDER2
         DEASUM = DEASUM-Two*G1(iUabs,iYabs)*BDER2
       end if
-      do iV=1,nAsh(iSym)
-        IVABS = IV+NAES(ISYM)
-        DEPSA(iTabs,iVabs) = DEPSA(iTabs,iVabs)-BDER2*G2(iXabs,iVabs,iUabs,iYabs)
-        DEPSA(iXabs,iVabs) = DEPSA(iXabs,iVabs)-BDER2*G2(iVabs,iTabs,iUabs,iYabs)
-      end do
+      DEPSA(iTabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM)) = DEPSA(iTabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM))- &
+                                                        BDER2*G2(iXabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM),iUabs,iYabs)
+      DEPSA(iXabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM)) = DEPSA(iXabs,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM))- &
+                                                        BDER2*G2(NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM),iTabs,iUabs,iYabs)
       DEPSA(iXabs,iTabs) = DEPSA(iXabs,iTabs)+Two*G1(iUabs,iYabs)*BDER2
 
       if ((iTU == iXY) .and. (ipea_shift /= Zero)) then
@@ -684,7 +672,7 @@ subroutine CLagDXE(NAS,BDER,SDER)
   integer(kind=iwp), intent(in) :: NAS
   real(kind=wp), intent(in) :: BDER(NAS,NAS)
   real(kind=wp), intent(inout) :: SDER(NAS,NAS)
-  integer(kind=iwp) :: IT, IU, IV
+  integer(kind=iwp) :: IT, IU
   real(kind=wp) :: VAL
 
   if (ipea_shift /= Zero) then
@@ -714,10 +702,8 @@ subroutine CLagDXE(NAS,BDER,SDER)
       DG1(ITABS,IUABS) = DG1(ITABS,IUABS)+(EASUM-ET-EU)*BDER(IT,IU)
       DEASUM = DEASUM+G1(ITABS,IUABS)*BDER(IT,IU)
       DF1(ITABS,IUABS) = DF1(ITABS,IUABS)-BDER(IT,IU)
-      do IV=1,NASH(ISYM)
-        IVABS = IV+NAES(ISYM)
-        DEPSA(ITABS,IUABS) = DEPSA(ITABS,IUABS)-G1(ITABS,IVABS)*BDER(IV,IU)-G1(IUABS,IVABS)*BDER(IV,IT)
-      end do
+      DEPSA(ITABS,IUABS) = DEPSA(ITABS,IUABS)-sum(G1(ITABS,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM))*BDER(1:NASH(ISYM),IU)+ &
+                                                  G1(IUABS,NAES(ISYM)+1:NAES(ISYM)+NASH(ISYM))*BDER(1:NASH(ISYM),IT))
       DEPSA(ITABS,IUABS) = DEPSA(ITABS,IUABS)+Two*BDER(IT,IU)
       !! Derivative of the S matrix
       DG1(ITABS,IUABS) = DG1(ITABS,IUABS)-SDER(IT,IU)
@@ -1070,6 +1056,8 @@ subroutine CLagDX_MPP()
       do j=1,NCOL
         jICB = j+jLoV1-1
         EigJ = EIG(jICB)
+        ! can't use array statement because DBL_MB is out of bounds!
+        !DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1) = -DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1)*(EIG(iLoV1:iLoV1+NROW-1)+EigJ)*Half
         do i=1,NROW
           iICB = i+iLoV1-1
           EigI = EIG(iICB)
@@ -1150,6 +1138,9 @@ subroutine CLagDX_MPP()
       do j=1,NCOL
         jICB = j+jLoV1-1
         EigJ = EIG(jICB)
+        ! can't use array statement because DBL_MB is out of bounds!
+        !DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1) = DBL_MB(mV1+NROW*(j-1):mV1+NROW*j-1)- &
+        !                                      DBL_MB(mBDER+NROW*(j-1):mBDER+NROW*j-1)*(EIG(iLoV1:iLoV1+NROW-1)+EigJ)*Half
         do i=1,NROW
           iICB = i+iLoV1-1
           EigI = EIG(iICB)
@@ -1235,6 +1226,8 @@ subroutine CLagDX_MPP()
     NROW = IHI-ILO+1
     NCOL = JHI-JLO+1
     do J=1,NCOL
+      ! can't use array statement because DBL_MB is out of bounds!
+      !DBL_MB(mSDER+NROW*(J-1):mSDER+NROW*J-1) = DBL_MB(mSDER+NROW*(J-1):mSDER+NROW*J-1)+WRK(ILO:ILO+NROW-1,J+JLO-1)*Half
       do I=1,NROW
         DBL_MB(mSDER+I-1+NROW*(J-1)) = DBL_MB(mSDER+I-1+NROW*(J-1))+WRK(I+ILO-1,J+JLO-1)*Half
       end do

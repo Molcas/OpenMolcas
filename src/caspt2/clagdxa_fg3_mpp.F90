@@ -30,8 +30,8 @@ real(kind=wp), intent(inout) :: DG1(NASHT,NASHT), DG2(NASHT,NASHT,NASHT,NASHT), 
                                 DF2(NASHT,NASHT,NASHT,NASHT), DF3(NG3), DEPSA(NASHT,NASHT)
 real(kind=wp), intent(in) :: G2(NASHT,NASHT,NASHT,NASHT)
 integer(kind=byte), intent(in) :: idxG3(6,NG3)
-integer(kind=iwp) :: i, IBLOCK, ICOL, iG3, IG3END, IG3STA, IROW, iscal, iST, iSU, iSV, iSX, iSY, iSZ, iT, iTU, ituvs, iU, iV, iVX, &
-                     IW, iX, ixyzs, iY, iYZ, iZ, jSym, MAXBUF, MAXMEM, NBLOCKS, NBUF, NELB, NELS, NG3B, NG3MAX, NtotELB, NtotELS
+integer(kind=iwp) :: IBLOCK, ICOL, iG3, IG3END, IG3STA, IROW, iscal, iST, iSU, iSV, iSX, iSY, iSZ, iT, iTU, ituvs, iU, iV, iVX, &
+                     iX, ixyzs, iY, iYZ, iZ, jSym, MAXBUF, MAXMEM, NBLOCKS, NBUF, NELB, NELS, NG3B, NG3MAX, NtotELB, NtotELS
 real(kind=wp) :: F3VAL, G3VAL
 integer(kind=iwp), allocatable :: INDI(:), INDJ(:), NELBsav(:), NELSsav(:)
 real(kind=wp), allocatable :: BUFFB(:), BUFFS(:)
@@ -258,18 +258,11 @@ do IBLOCK=1,NBLOCKS
     NELB = NELBsav(iG3-IG3STA+1)
     NELS = NELSsav(iG3-IG3STA+1)
 
-    F3VAL = Zero
-    do i=1,NELB
-      NtotELB = NtotELB+1
-      F3VAL = F3VAL-BUFFB(NtotELB)
-    end do
+    F3VAL = -sum(BUFFB(NtotELB+1:NtotELB+NELB))
+    NtotELB = NtotELB+NELB
 
-    G3VAL = Zero
-    do i=1,NELS
-      NtotELS = NtotELS+1
-      G3VAL = G3VAL-BUFFS(NtotELS)
-    end do
-    G3VAL = G3VAL-(EPSA(iU)+EPSA(iY))*F3VAL
+    G3VAL = -sum(BUFFS(NtotELS+1:NtotELS+NELS))-(EPSA(iU)+EPSA(iY))*F3VAL
+    NtotELS = NtotELS+NELS
 
     DF3(iG3) = DF3(iG3)+F3VAL
     DG3(iG3) = DG3(iG3)+G3VAL
@@ -280,17 +273,13 @@ do IBLOCK=1,NBLOCKS
     if (iY == iX) then
       DF2(iT,iU,iV,iZ) = DF2(iT,iU,iV,iZ)-F3VAL
       DG2(iT,iU,iV,iZ) = DG2(iT,iU,iV,iZ)-EPSA(iU)*F3VAL
-      do iW=1,nAshT
-        DEPSA(iU,iW) = DEPSA(iU,iW)-F3VAL*G2(iT,iW,iV,iZ)
-      end do
+      DEPSA(iU,:) = DEPSA(iU,:)-F3VAL*G2(iT,:,iV,iZ)
       DG2(iT,iU,iV,iZ) = DG2(iT,iU,iV,iZ)-G3VAL
     end if
     if (iV == iU) then
       DF2(iT,iX,iY,iZ) = DF2(iT,iX,iY,iZ)-F3VAL
       DG2(iT,iX,iY,iZ) = DG2(iT,iX,iY,iZ)-EPSA(iY)*F3VAL
-      do iW=1,nAshT
-        DEPSA(iW,iY) = DEPSA(iW,iY)-F3VAL*G2(iT,iX,iW,iZ)
-      end do
+      DEPSA(:,iY) = DEPSA(:,iY)-F3VAL*G2(iT,iX,:,iZ)
       DG2(iT,iX,iY,iZ) = DG2(iT,iX,iY,iZ)-G3VAL
     end if
     if (iY == iU) then

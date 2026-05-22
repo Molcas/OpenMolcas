@@ -187,17 +187,13 @@ do iG3=1,NG3
   if (iY == iX) then
     DF2(iT,iU,iV,iZ) = DF2(iT,iU,iV,iZ)-F3VAL
     DG2(iT,iU,iV,iZ) = DG2(iT,iU,iV,iZ)-EPSA(iU)*F3VAL
-    do iW=1,nAshT
-      DEPSA(iU,iW) = DEPSA(iU,iW)-F3VAL*G2(iT,iW,iV,iZ)
-    end do
+    DEPSA(iU,:) = DEPSA(iU,:)-F3VAL*G2(iT,:,iV,iZ)
     DG2(iT,iU,iV,iZ) = DG2(iT,iU,iV,iZ)-G3VAL
   end if
   if (iV == iU) then
     DF2(iT,iX,iY,iZ) = DF2(iT,iX,iY,iZ)-F3VAL
     DG2(iT,iX,iY,iZ) = DG2(iT,iX,iY,iZ)-EPSA(iY)*F3VAL
-    do iW=1,nAshT
-      DEPSA(iW,iY) = DEPSA(iW,iY)-F3VAL*G2(iT,iX,iW,iZ)
-    end do
+    DEPSA(:,iY) = DEPSA(:,iY)-F3VAL*G2(iT,iX,:,iZ)
     DG2(iT,iX,iY,iZ) = DG2(iT,iX,iY,iZ)-G3VAL
   end if
   if (iY == iU) then

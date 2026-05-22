@@ -32,8 +32,7 @@ real(kind=wp) :: CPU, CPU0, CPU1, TIO, TIO0, TIO1
 call TIMING(CPU0,CPU,TIO0,TIO)
 
 do ICASE=1,NCASES
-  if ((IVEC == JVEC) .and. (ICASE == 12)) cycle
-  if ((IVEC == JVEC) .and. (ICASE == 13)) cycle
+  if ((IVEC == JVEC) .and. ((ICASE == 12) .or. (ICASE == 13))) cycle
   do ISYM=1,NSYM
     NIN = NINDEP(ISYM,ICASE)
     if (NIN == 0) cycle

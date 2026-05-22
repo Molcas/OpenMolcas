@@ -77,16 +77,8 @@ if ((IFGFOCK == 0) .or. (NASHT <= 0)) return
 if (IPRGLB >= USUAL) write(u6,*) ' THE FOCK MATRIX IS MODIFIED BY KEYWORD FOCKTYPE=',FOCKTYPE
 
 ! Determine sizes of areas for memory allocation
-NASQT = 0
-NATR = 0
-do ISYM=1,NSYM
-  NI = NISH(ISYM)
-  NA = NASH(ISYM)
-  NS = NSSH(ISYM)
-  NO = NORB(ISYM)
-  NASQT = NASQT+NA**2
-  NATR = NATR+(NA*(NA+1))/2
-end do
+NASQT = sum(NASH(1:NSYM)**2)
+NATR = sum(NASH(1:NSYM)*(NASH(1:NSYM)+1)/2)
 NINTBUF = NOMX**2
 NSCR1 = NAMX*max(2*NAMX,NIMX,NSMX)
 NSCR2 = 3*NAMX*(NAMX+1)
@@ -319,9 +311,7 @@ select case (FOCKTYPE)
           else
             X = EIGVAL
           end if
-          do I=1,NA
-            SC(LEV2-1+I+NA*(J-1)) = X*SC(LEV2-1+I+NA*(J-1))
-          end do
+          SC(LEV2+NA*(J-1):LEV2+NA*J-1) = X*SC(LEV2+NA*(J-1):LEV2+NA*J-1)
         end do
         ! Now the selection matrix can be formed, at LSC:
         call DGEMM_('N','T',NA,NA,NA,One,SC(LEV1),NA,SC(LEV2),NA,Zero,SC(LSC),NA)

@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), FD(NDREF), FP(NPREF)
-integer(kind=iwp) :: I, IBADR, IBMADR, IBPADR, ID, ID1, ID2, IDIAG, IDISK, IDSM, IDSP, IDT, IDU, INSM, IP, IP1, IP2, ISYM, ITABS, &
+integer(kind=iwp) :: I, IBADR, IBMADR, IBPADR, ID, ID1, ID2,IDIAG, IDISK, IDSM, IDSP, IDT, IDU, INSM, IP, IP1, IP2, ISYM, ITABS, &
                      ITGEU, ITGEUABS, ITGTU, ITU, ITUABS, IUABS, IXABS, IXGEY, IXGEYABS, IXGTY, IXT, IXY, IXYABS, IYABS, IYU, IYX, &
                      NAS, NASM, NASP, NBB, NBBM, NBBP, NINP, NSM, NSP
 real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BTUXY, BTUYX, ET, EU, EX, EY, Val

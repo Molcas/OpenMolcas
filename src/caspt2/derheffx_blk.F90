@@ -328,10 +328,10 @@ select case (ICASE)
     ! Compute and use SG(ITABS , IXABS) (Same for cases GP and GM)
     !*******************************************************************
   case (10)
-    do IAS=1,NAS
-      ITABS = IAS+NAES(ISYM)
-      do JAS=1,NAS
-        IXABS = JAS+NAES(ISYM)
+    do JAS=1,NAS
+      IXABS = JAS+NAES(ISYM)
+      do IAS=1,NAS
+        ITABS = IAS+NAES(ISYM)
         ! Formula used: SG(t,x)= Gtx
         !           SG= TG1(ITABS,IXABS)
         DTG1(ITABS,IXABS) = DTG1(ITABS,IXABS)+DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
@@ -339,10 +339,10 @@ select case (ICASE)
     end do
     !*******************************************************************
   case (11)
-    do IAS=1,NAS
-      ITABS = IAS+NAES(ISYM)
-      do JAS=1,NAS
-        IXABS = JAS+NAES(ISYM)
+    do JAS=1,NAS
+      IXABS = JAS+NAES(ISYM)
+      do IAS=1,NAS
+        ITABS = IAS+NAES(ISYM)
         ! Formula used: SG(t,x)= Gtx
         !           SG= TG1(ITABS,IXABS)
         DTG1(ITABS,IXABS) = DTG1(ITABS,IXABS)+DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)

@@ -22,7 +22,7 @@ implicit none
 integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: A(N,N)
 real(kind=wp), intent(out) :: U(N,N)
-integer(kind=iwp) :: I, IJ, J, NSCR
+integer(kind=iwp) :: I, IJ, NSCR
 real(kind=wp), allocatable :: SCR(:)
 
 NSCR = (N*(N+1))/2
@@ -30,10 +30,8 @@ call mma_allocate(SCR,NSCR,LABEL='SCR')
 
 IJ = 0
 do I=1,N
-  do J=1,I
-    IJ = IJ+1
-    SCR(IJ) = A(I,J)
-  end do
+  SCR(IJ+1:IJ+I) = A(I,1:I)
+  IJ = IJ+I
 end do
 
 ! Initialize U as the identity matrix

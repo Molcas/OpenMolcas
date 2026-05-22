@@ -51,7 +51,7 @@ do ICASE=12,13
       NSCT = NAS*NCOL
       call RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
       call RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
-    ! Pick up a symmetry block of W1 and W2
+      ! Pick up a symmetry block of W1 and W2
       OP0 = OP0+DDOT_(NSCT,W1,1,W2,1)
     end do
     call mma_deallocate(W1)

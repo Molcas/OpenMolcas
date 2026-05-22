@@ -87,11 +87,9 @@ call mma_allocate(Task,nTasks,2,Label='Task')
 
 iTask = 0
 do LT=1,nLev
-  do LU=1,nLev!LT
-    iTask = iTask+1
-    Task(iTask,1) = LT
-    Task(iTask,2) = LU
-  end do
+  Task(iTask+1:iTask+nLev,1) = LT
+  Task(iTask+1:iTask+nLev,2) = [(LU,LU=1,nLev)]
+  iTask = iTask+nLev
 end do
 if (iTask /= nTasks) write(u6,*) 'ERROR nTasks'
 

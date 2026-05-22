@@ -25,10 +25,7 @@ integer(kind=iwp) :: iSym, iX, j, jK, jX, jZ, kX, lk, lX, mOb, nBX
 real(kind=wp), allocatable :: Z(:)
 real(kind=wp), external :: DDot_
 
-mOb = nBas(1)*nOrb(1)
-do iSym=2,nSym
-  mOb = max(mOb,nBas(iSym)*nOrb(iSym))
-end do
+mOb = maxval(nBas(:)*nOrb(:))
 call mma_allocate(Z,mOb,Label='Z')
 
 iX = 1
