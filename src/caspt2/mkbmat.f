@@ -183,11 +183,11 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
             CALL MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
      &                   DBL_MB(MA),MBA,
      &                   ILO,IHI,JLO,JHI,LDA)
-            CALL MKBA_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
+            CALL MKBA_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,NAS,LDA,
      &                       NG3,F3,IDXG3)
             CALL GA_RELEASE_UPDATE (LG_BA,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKBA_F3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
+            CALL MKBA_F3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDA,
      &                       NG3,F3,IDXG3)
           END IF
         ELSE
@@ -499,8 +499,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
       END SUBROUTINE MKBA_F3
 
 #ifdef _MOLCAS_MPP_
-      SUBROUTINE MKBA_F3_MPP(ISYM,BA,iLo,iHi,jLo,jHi,LDA,
-     &                       NG3,F3,idxG3)
+      SUBROUTINE MKBA_F3_MPP(ISYM,BA,iLo,iHi,NAS,LDA,NG3,F3,idxG3)
       use Symmetry_Info, only: Mul
       USE MPI
       USE SUPERINDEX, only: KTUV
@@ -513,8 +512,8 @@ C  - F(xvzyut) -> BA(yvx,zut)
 #include "global.fh"
 #include "mafdecls.fh"
 
-      INTEGER(KIND=IWP), INTENT(IN):: ISYM,iLo,iHi,jLo,jHi,LDA,NG3
-      REAL(KIND=WP), INTENT(INOUT):: BA(LDA,jHi-jLo+1)
+      INTEGER(KIND=IWP), INTENT(IN):: ISYM,iLo,iHi,NAS,LDA,NG3
+      REAL(KIND=WP), INTENT(INOUT):: BA(LDA,NAS)
       REAL(KIND=WP),INTENT(IN):: F3(NG3)
       INTEGER(KIND=Byte),INTENT(IN):: idxG3(6,NG3)
 
@@ -530,7 +529,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
       integer(kind=MPIInt) :: IERROR4
 
       INTEGER(KIND=IWP), ALLOCATABLE :: IBUF(:)
-      INTEGER(KIND=IWP) NG3MAX,NPROCS,iscal,MAXBUF,NG3B,NBUF,NAS,
+      INTEGER(KIND=IWP) NG3MAX,NPROCS,iscal,MAXBUF,NG3B,NBUF,
      &                  NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,MAXMEM,
      &                  IG3,IT,IU,IV,IX,IY,IZ,IST,ISU,ISV,ISX,ISY,ISZ,
      &                  ITUVS,IXYZS,ITU,IVX,IYZ,JSYM,IROW,IP,IOFFSET,I,
@@ -583,7 +582,6 @@ C  - F(xvzyut) -> BA(yvx,zut)
 
       ! Finally, we need some info on the layout of the global array in
       ! order to compute the process row of the row index.
-      NAS=jHi-jLo+1
       NQOT=NAS/NPROCS
       NREM=NAS-NPROCS*NQOT
 
@@ -925,8 +923,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
         DO I=1,NRECV
           ISUP=RECVIDX(2*I-1)
           JSUP=RECVIDX(2*I)
-          BA(ISUP-ILO+1,JSUP-JLO+1)=
-     &      BA(ISUP-ILO+1,JSUP-JLO+1)+RECVVAL(I)
+          BA(ISUP-ILO+1,JSUP)= BA(ISUP-ILO+1,JSUP)+RECVVAL(I)
         END DO
 
         call MMA_DEALLOCATE(RECVVAL)
@@ -1040,11 +1037,11 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
             CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
      &                   DBL_MB(MA),MBC,
      &                   ILO,IHI,JLO,JHI,LDA)
-            CALL MKBC_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
+            CALL MKBC_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,NAS,LDA,
      &                       NG3,F3,IDXG3)
             CALL GA_RELEASE_UPDATE (LG_BC,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKBC_F3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
+            CALL MKBC_F3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDA,
      &                       NG3,F3,IDXG3)
           END IF
         ELSE
@@ -1343,8 +1340,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
       END SUBROUTINE MKBC_F3
 
 #ifdef _MOLCAS_MPP_
-      SUBROUTINE MKBC_F3_MPP(ISYM,BC,iLo,iHi,jLo,jHi,LDC,
-     &                       NG3,F3,idxG3)
+      SUBROUTINE MKBC_F3_MPP(ISYM,BC,iLo,iHi,NAS,LDC,NG3,F3,idxG3)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, Byte
       USE MPI
@@ -1357,8 +1353,8 @@ C  - F(xvzyut) -> BC(zvx,yut)
 #include "global.fh"
 #include "mafdecls.fh"
 
-      INTEGER(KIND=IWP), INTENT(IN):: ISYM,iLo,iHi,jLo,jHi,LDC,NG3
-      REAL(KIND=WP), INTENT(INOUT):: BC(LDC,jHi-jLo+1)
+      INTEGER(KIND=IWP), INTENT(IN):: ISYM,iLo,iHi,NAS,LDC,NG3
+      REAL(KIND=WP), INTENT(INOUT):: BC(LDC,NAS)
       REAL(KIND=WP), INTENT(IN):: F3(NG3)
       INTEGER(kind=Byte),INTENT(IN):: idxG3(6,NG3)
 
@@ -1374,7 +1370,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
       integer(kind=MPIInt) :: IERROR4
 
       INTEGER(KIND=IWP), ALLOCATABLE :: IBUF(:)
-      INTEGER(KIND=IWP) NG3MAX,NPROCS,iscal,MAXBUF,NG3B,NBUF,NAS,
+      INTEGER(KIND=IWP) NG3MAX,NPROCS,iscal,MAXBUF,NG3B,NBUF,
      &                  NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,MAXMEM,
      &                  IT,IG3,IU,IV,IX,IY,IZ,IST,ISU,ISV,ISX,ISY,ISZ,
      &                  ITUVS,IXYZS,ITU,IVX,IYZ,JSYM,IROW,IP,IOFFSET,I,
@@ -1427,7 +1423,6 @@ C  - F(xvzyut) -> BC(zvx,yut)
 
       ! Finally, we need some info on the layout of the global array in
       ! order to compute the process row of the row index.
-      NAS=jHi-jLo+1
       NQOT=NAS/NPROCS
       NREM=NAS-NPROCS*NQOT
 
@@ -1768,8 +1763,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
         DO I=1,NRECV
           ISUP=RECVIDX(2*I-1)
           JSUP=RECVIDX(2*I)
-          BC(ISUP-ILO+1,JSUP-JLO+1)=
-     &      BC(ISUP-ILO+1,JSUP-JLO+1)+RECVVAL(I)
+          BC(ISUP-ILO+1,JSUP)=BC(ISUP-ILO+1,JSUP)+RECVVAL(I)
         END DO
 
         call MMA_DEALLOCATE(RECVVAL)
