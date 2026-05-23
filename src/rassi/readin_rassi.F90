@@ -917,11 +917,11 @@ end subroutine LineCheck
 !----------------------------------------------------------------------
 subroutine gen_proplab(prop_lab,iAtom,nComp,idx)
 !PURPOSE: Generate a specific property for iAtom with nComp
-  integer, intent(in)            :: nComp, iAtom
+  integer(kind=iwp), intent(in)            :: nComp, iAtom
   character(len=4), intent(in)   :: prop_lab
   character(len=4)               :: temp_lab
-  integer                        :: iC
-  integer,optional,intent(out)   :: idx(:,:)
+  integer(kind=iwp)              :: iC
+  integer(kind=iwp),optional,intent(out)   :: idx(:,:)
 
   DO iC=1,nComp
     WRITE(temp_lab,'(I4)') iAtom
@@ -933,8 +933,8 @@ subroutine gen_proplab(prop_lab,iAtom,nComp,idx)
 endsubroutine
 !----------------------------------------------------------------------
 subroutine gen_hfc_prop_labels()
-  integer :: iAtom
-  logical :: do_calc, do_EPR, do_pNMR
+  integer(kind=iwp) :: iAtom, iAxis
+  logical(kind=iwp) :: do_calc, do_EPR, do_pNMR
 !PURPOSE: Post-processing to generate PROPerties labels
 !         for HFC and pNMR calculations.
 
@@ -967,9 +967,9 @@ subroutine gen_hfc_prop_labels()
   end do
 
   if (allocated(pNMR_req)) then
-    do i=1,3
-      PNAME(NPROP+1)='AngMom'
-      ICOMP(NPROP+1)=i
+    do iAxis = 1, 3
+      PNAME(NPROP+1) = 'AngMom'
+      ICOMP(NPROP+1) = iAxis
       NPROP=NPROP+1
     end do
   end if

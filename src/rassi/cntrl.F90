@@ -118,14 +118,19 @@ private
 ! NCI1    - Configuration's number of state 1
 ! ChkHop  - If .true. switches on the TSH algorithm
 
-!
-! LAt_ACALC            - list of atoms for which A-tensors will be calculated
-! LASD(atom,comp)      - list ASD properties
-! LPSO(atom,comp)      - list PSO properties
-! LMASS                - list of isotopes (defined in RASSI) for HFC
-! LSPIN                - list of spin quantum numbers for isotopes in LISOTO
-! NCSTATES             - number of coupled states
-! LCSTATES             - list of coupled states
+!----- Variables for HFCOP.F90
+! NATens_Calc            - Number of A_tensor calc. (EPR)
+! NPNMR_Calc             - Number of pNMR tensor calc.
+! NCOUP                  - Number of coupling states
+! ASD_idx(atom,comp)     - list[NAtoms] ASD properties
+! PSO_idx(atom,comp)     - list[NAtoms] PSO properties
+! Atens_Req              - list[NAtoms] of logical values whether A_tensor is requested for iAtom
+! pNMR_req               - list[NAtoms] of logical values whether pNMR_tensor is requested for iAtom
+! LCSTATES               - list of coupling states
+! NucMass                - list[NATens_Calc] of nuclear mass (integer A=Z+N)
+! NucSpin                - list[NATens_Calc] of spin quantum numbers of nuclei
+! NucGFac                - list[NATens_Calc] of nuclear g-factor
+! Hypo_Iso               - Hypothetical isotope [to request to ignore whether an isotope exists or not]
 
 !----------------------------------------------------------------------*
 !     Define files ( file names and unit numbers )                     *
