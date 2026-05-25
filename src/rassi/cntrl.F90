@@ -191,7 +191,7 @@ public :: ALGO, AlphZ, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5
           PrWeight, PRXVE, PRXVR, PRXVS, PTYPE, QDPT2EV, QDPT2SC, QIAll, QIPR, RASTYP, REDUCELOOP, RefEne, RFPert, RhoDyn, RSPR, &
           RSThr, SAVEDENS, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, &
           TDipMin, TDYS, TIncre, TITLE1, TMAXP, TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart ,               &
-          NATens_Calc, NCOUP, NPNMR_Calc, ASD_idx, PSO_idx, AngMom_idx, NucMass, LCSTATES, Atens_Req, pNMR_req, AutoSelect_GFac,            &
+          NATens_Calc, NCOUP, NPNMR_Calc, ASD_idx, PSO_idx, AngMom_idx, NucMass, LCSTATES, Atens_Req, pNMR_req, AutoSelect_GFac, &
           GNuc_set, NMass_set, NSpin_set, HypF_rms_Req, Hypo_Iso, NucSpin, GNuc
 
 End Module Cntrl
