@@ -1,0 +1,741 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2026, Dong Q. Le                                       *
+!***********************************************************************
+! Data derived from EasySpin (https://easyspin.org/)                   *
+! Copyright (c) 2026                                                   *
+! Licensed under the MIT License.                                      *
+! Please see the file readme_easyspin_license.md in the                *
+! Tools/create_easy_spin_data directory for licence details.           *
+!***********************************************************************
+
+
+! HEADER FORMAT---------------------------------------------
+!
+!>>> Element ___ Z: ___ Isotope Record: ___ - ___ TOTAL: ___
+!           13-15  20-22               40-42 46-48     57-59
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+!1-4     8-13      17-24          28-39     43-49          54-64    71-73
+!
+! Note: stable -, radioactive *
+!----------------------------------------------HEADER FORMAT
+
+
+
+
+@ NUMBER_OF_ELEMENTS 118             NUMBER_OF_ISOTOPES 352
+
+
+>>> Element H     Z:   1       Records:   1 -   3    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+   1        1          1    99.98850000       0.5     5.58569470      .T.
+   2        1          2     0.01150000       1.0     0.85743823      .T.
+   3        1          3     0.00000000       0.5     5.95792492      .F.
+
+>>> Element He    Z:   2       Records:   4 -   5    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+   4        2          4    99.99986300       0.0     0.00000000      .T.
+   5        2          3     0.00013700       0.5    -4.25525062      .T.
+
+>>> Element Li    Z:   3       Records:   6 -   7    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+   6        3          7    92.41000000       1.5     2.17093800      .T.
+   7        3          6     7.59000000       1.0     0.82204300      .T.
+
+>>> Element Be    Z:   4       Records:   8 -   8    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+   8        4          9   100.00000000       1.5    -0.78495333      .T.
+
+>>> Element B     Z:   5       Records:   9 -  10    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+   9        5         11    80.10000000       1.5     1.79225200      .T.
+  10        5         10    19.90000000       3.0     0.60015453      .T.
+
+>>> Element C     Z:   6       Records:  11 -  13    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  11        6         12    98.93000000       0.0     0.00000000      .T.
+  12        6         13     1.07000000       0.5     1.40473800      .T.
+  13        6         14     0.00000000       0.0     0.00000000      .F.
+
+>>> Element N     Z:   7       Records:  14 -  15    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  14        7         14    99.63200000       1.0     0.40357300      .T.
+  15        7         15     0.36800000       0.5    -0.56611380      .T.
+
+>>> Element O     Z:   8       Records:  16 -  18    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  16        8         16    99.75700000       0.0     0.00000000      .T.
+  17        8         18     0.20500000       0.0     0.00000000      .T.
+  18        8         17     0.03800000       2.5    -0.75741720      .T.
+
+>>> Element F     Z:   9       Records:  19 -  19    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  19        9         19   100.00000000       0.5     5.25664200      .T.
+
+>>> Element Ne    Z:  10       Records:  20 -  22    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  20       10         20    90.48000000       0.0     0.00000000      .T.
+  21       10         22     9.25000000       0.0     0.00000000      .T.
+  22       10         21     0.27000000       1.5    -0.44113333      .T.
+
+>>> Element Na    Z:  11       Records:  23 -  24    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  23       11         23   100.00000000       1.5     1.47833333      .T.
+  24       11         22     0.00000000       3.0     0.58200000      .F.
+
+>>> Element Mg    Z:  12       Records:  25 -  27    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  25       12         24    78.99000000       0.0     0.00000000      .T.
+  26       12         26    11.01000000       0.0     0.00000000      .T.
+  27       12         25    10.00000000       2.5    -0.34213200      .T.
+
+>>> Element Al    Z:  13       Records:  28 -  28    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  28       13         27   100.00000000       2.5     1.45628000      .T.
+
+>>> Element Si    Z:  14       Records:  29 -  31    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  29       14         28    92.22970000       0.0     0.00000000      .T.
+  30       14         29     4.68320000       0.5    -1.11010400      .T.
+  31       14         30     3.08720000       0.0     0.00000000      .T.
+
+>>> Element P     Z:  15       Records:  32 -  32    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  32       15         31   100.00000000       0.5     2.26185000      .T.
+
+>>> Element S     Z:  16       Records:  33 -  36    TOTAL ISOTOPES:    4
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  33       16         32    94.93000000       0.0     0.00000000      .T.
+  34       16         34     4.29000000       0.0     0.00000000      .T.
+  35       16         33     0.76000000       1.5     0.42883333      .T.
+  36       16         36     0.02000000       0.0     0.00000000      .T.
+
+>>> Element Cl    Z:  17       Records:  37 -  39    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  37       17         35    75.78000000       1.5     0.54780000      .T.
+  38       17         37    24.22000000       1.5     0.45600000      .T.
+  39       17         36     0.00000000       2.0     0.64245000      .F.
+
+>>> Element Ar    Z:  18       Records:  40 -  43    TOTAL ISOTOPES:    4
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  40       18         40    99.60030000       0.0     0.00000000      .T.
+  41       18         36     0.33650000       0.0     0.00000000      .T.
+  42       18         38     0.06320000       0.0     0.00000000      .T.
+  43       18         39     0.00000000       3.5    -0.45428571      .F.
+
+>>> Element K     Z:  19       Records:  44 -  46    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  44       19         39    93.25810000       1.5     0.26098000      .T.
+  45       19         41     6.73020000       1.5     0.14324800      .T.
+  46       19         40     0.01170000       4.0    -0.32449250      .T.
+
+>>> Element Ca    Z:  20       Records:  47 -  53    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  47       20         40    96.94100000       0.0     0.00000000      .T.
+  48       20         44     2.08600000       0.0     0.00000000      .T.
+  49       20         42     0.64700000       0.0     0.00000000      .T.
+  50       20         48     0.18700000       0.0     0.00000000      .T.
+  51       20         43     0.13500000       3.5    -0.37638000      .T.
+  52       20         46     0.00400000       0.0     0.00000000      .T.
+  53       20         41     0.00000000       3.5    -0.45555143      .F.
+
+>>> Element Sc    Z:  21       Records:  54 -  54    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  54       21         45   100.00000000       3.5     1.35828571      .T.
+
+>>> Element Ti    Z:  22       Records:  55 -  59    TOTAL ISOTOPES:    5
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  55       22         48    73.72000000       0.0     0.00000000      .T.
+  56       22         46     8.25000000       0.0     0.00000000      .T.
+  57       22         47     7.44000000       2.5    -0.31460000      .T.
+  58       22         49     5.41000000       3.5    -0.31468571      .T.
+  59       22         50     5.18000000       0.0     0.00000000      .T.
+
+>>> Element V     Z:  23       Records:  60 -  61    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  60       23         51    99.75000000       3.5     1.46614286      .T.
+  61       23         50     0.25000000       6.0     0.55575000      .T.
+
+>>> Element Cr    Z:  24       Records:  62 -  65    TOTAL ISOTOPES:    4
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  62       24         52    83.78900000       0.0     0.00000000      .T.
+  63       24         53     9.50100000       1.5    -0.31480000      .T.
+  64       24         50     4.34500000       0.0     0.00000000      .T.
+  65       24         54     2.36500000       0.0     0.00000000      .T.
+
+>>> Element Mn    Z:  25       Records:  66 -  67    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  66       25         55   100.00000000       2.5     1.37868000      .T.
+  67       25         53     0.00000000       3.5     1.42942857      .F.
+
+>>> Element Fe    Z:  26       Records:  68 -  71    TOTAL ISOTOPES:    4
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  68       26         56    91.75400000       0.0     0.00000000      .T.
+  69       26         54     5.84500000       0.0     0.00000000      .T.
+  70       26         57     2.11900000       0.5     0.18040000      .T.
+  71       26         58     0.28200000       0.0     0.00000000      .T.
+
+>>> Element Co    Z:  27       Records:  72 -  73    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  72       27         59   100.00000000       3.5     1.31860000      .T.
+  73       27         60     0.00000000       5.0     0.75980000      .F.
+
+>>> Element Ni    Z:  28       Records:  74 -  78    TOTAL ISOTOPES:    5
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  74       28         58    68.07690000       0.0     0.00000000      .T.
+  75       28         60    26.22310000       0.0     0.00000000      .T.
+  76       28         62     3.63450000       0.0     0.00000000      .T.
+  77       28         61     1.13990000       1.5    -0.49820000      .T.
+  78       28         64     0.92560000       0.0     0.00000000      .T.
+
+>>> Element Cu    Z:  29       Records:  79 -  80    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  79       29         63    69.17000000       1.5     1.48246000      .T.
+  80       29         65    30.83000000       1.5     1.58799333      .T.
+
+>>> Element Zn    Z:  30       Records:  81 -  85    TOTAL ISOTOPES:    5
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  81       30         64    48.63000000       0.0     0.00000000      .T.
+  82       30         66    27.90000000       0.0     0.00000000      .T.
+  83       30         68    18.75000000       0.0     0.00000000      .T.
+  84       30         67     4.10000000       2.5     0.35018000      .T.
+  85       30         70     0.62000000       0.0     0.00000000      .T.
+
+>>> Element Ga    Z:  31       Records:  86 -  87    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  86       31         69    60.10800000       1.5     1.34334667      .T.
+  87       31         71    39.89200000       1.5     1.70688667      .T.
+
+>>> Element Ge    Z:  32       Records:  88 -  92    TOTAL ISOTOPES:    5
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  88       32         74    36.28000000       0.0     0.00000000      .T.
+  89       32         72    27.54000000       0.0     0.00000000      .T.
+  90       32         70    20.84000000       0.0     0.00000000      .T.
+  91       32         73     7.73000000       4.5    -0.19516444      .T.
+  92       32         76     7.61000000       0.0     0.00000000      .T.
+
+>>> Element As    Z:  33       Records:  93 -  93    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  93       33         75   100.00000000       1.5     0.95886667      .T.
+
+>>> Element Se    Z:  34       Records:  94 - 100    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+  94       34         80    49.61000000       0.0     0.00000000      .T.
+  95       34         78    23.77000000       0.0     0.00000000      .T.
+  96       34         76     9.37000000       0.0     0.00000000      .T.
+  97       34         82     8.73000000       0.0     0.00000000      .T.
+  98       34         77     7.63000000       0.5     1.06712000      .T.
+  99       34         74     0.89000000       0.0     0.00000000      .T.
+ 100       34         79     0.00000000       3.5    -0.29085714      .F.
+
+>>> Element Br    Z:  35       Records: 101 - 102    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 101       35         79    50.69000000       1.5     1.40306667      .T.
+ 102       35         81    49.31000000       1.5     1.51240000      .T.
+
+>>> Element Kr    Z:  36       Records: 103 - 109    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 103       36         84    57.00000000       0.0     0.00000000      .T.
+ 104       36         86    17.30000000       0.0     0.00000000      .T.
+ 105       36         82    11.58000000       0.0     0.00000000      .T.
+ 106       36         83    11.49000000       4.5    -0.21571778      .T.
+ 107       36         80     2.28000000       0.0     0.00000000      .T.
+ 108       36         78     0.35000000       0.0     0.00000000      .T.
+ 109       36         85     0.00000000       4.5    -0.22344444      .F.
+
+>>> Element Rb    Z:  37       Records: 110 - 111    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 110       37         85    72.17000000       2.5     0.54122400      .T.
+ 111       37         87    27.83000000       1.5     1.83419333      .T.
+
+>>> Element Sr    Z:  38       Records: 112 - 115    TOTAL ISOTOPES:    4
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 112       38         88    82.58000000       0.0     0.00000000      .T.
+ 113       38         86     9.86000000       0.0     0.00000000      .T.
+ 114       38         87     7.00000000       4.5    -0.24292444      .T.
+ 115       38         84     0.56000000       0.0     0.00000000      .T.
+
+>>> Element Y     Z:  39       Records: 116 - 116    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 116       39         89   100.00000000       0.5    -0.27459600      .T.
+
+>>> Element Zr    Z:  40       Records: 117 - 121    TOTAL ISOTOPES:    5
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 117       40         90    51.45000000       0.0     0.00000000      .T.
+ 118       40         94    17.38000000       0.0     0.00000000      .T.
+ 119       40         92    17.15000000       0.0     0.00000000      .T.
+ 120       40         91    11.22000000       2.5    -0.52048000      .T.
+ 121       40         96     2.80000000       0.0     0.00000000      .T.
+
+>>> Element Nb    Z:  41       Records: 122 - 122    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 122       41         93   100.00000000       4.5     1.36735556      .T.
+
+>>> Element Mo    Z:  42       Records: 123 - 129    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 123       42         98    24.13000000       0.0     0.00000000      .T.
+ 124       42         96    16.68000000       0.0     0.00000000      .T.
+ 125       42         95    15.92000000       2.5    -0.36388000      .T.
+ 126       42         92    14.84000000       0.0     0.00000000      .T.
+ 127       42        100     9.63000000       0.0     0.00000000      .T.
+ 128       42         97     9.55000000       2.5    -0.37148000      .T.
+ 129       42         94     9.25000000       0.0     0.00000000      .T.
+
+>>> Element Tc    Z:  43       Records: 130 - 130    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 130       43         99     0.00000000       4.5     1.25562222      .F.
+
+>>> Element Ru    Z:  44       Records: 131 - 137    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 131       44        102    31.55000000       0.0     0.00000000      .T.
+ 132       44        104    18.62000000       0.0     0.00000000      .T.
+ 133       44        101    17.06000000       2.5    -0.28832000      .T.
+ 134       44         99    12.76000000       2.5    -0.25724000      .T.
+ 135       44        100    12.60000000       0.0     0.00000000      .T.
+ 136       44         96     5.54000000       0.0     0.00000000      .T.
+ 137       44         98     1.87000000       0.0     0.00000000      .T.
+
+>>> Element Rh    Z:  45       Records: 138 - 138    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 138       45        103   100.00000000       0.5    -0.17658000      .T.
+
+>>> Element Pd    Z:  46       Records: 139 - 144    TOTAL ISOTOPES:    6
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 139       46        106    27.33000000       0.0     0.00000000      .T.
+ 140       46        108    26.46000000       0.0     0.00000000      .T.
+ 141       46        105    22.33000000       2.5    -0.25520000      .T.
+ 142       46        110    11.72000000       0.0     0.00000000      .T.
+ 143       46        104    11.14000000       0.0     0.00000000      .T.
+ 144       46        102     1.02000000       0.0     0.00000000      .T.
+
+>>> Element Ag    Z:  47       Records: 145 - 146    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 145       47        107    51.83900000       0.5    -0.22711000      .T.
+ 146       47        109    48.16100000       0.5    -0.26109400      .T.
+
+>>> Element Cd    Z:  48       Records: 147 - 154    TOTAL ISOTOPES:    8
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 147       48        114    28.73000000       0.0     0.00000000      .T.
+ 148       48        112    24.13000000       0.0     0.00000000      .T.
+ 149       48        111    12.80000000       0.5    -1.18970000      .T.
+ 150       48        110    12.49000000       0.0     0.00000000      .T.
+ 151       48        113    12.22000000       0.5    -1.24452000      .T.
+ 152       48        116     7.49000000       0.0     0.00000000      .T.
+ 153       48        106     1.25000000       0.0     0.00000000      .T.
+ 154       48        108     0.89000000       0.0     0.00000000      .T.
+
+>>> Element In    Z:  49       Records: 155 - 156    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 155       49        115    95.71000000       4.5     1.22946667      .T.
+ 156       49        113     4.29000000       4.5     1.22684444      .T.
+
+>>> Element Sn    Z:  50       Records: 157 - 166    TOTAL ISOTOPES:   10
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 157       50        120    32.58000000       0.0     0.00000000      .T.
+ 158       50        118    24.22000000       0.0     0.00000000      .T.
+ 159       50        116    14.54000000       0.0     0.00000000      .T.
+ 160       50        119     8.59000000       0.5    -2.09180000      .T.
+ 161       50        117     7.68000000       0.5    -1.99900000      .T.
+ 162       50        124     5.79000000       0.0     0.00000000      .T.
+ 163       50        122     4.63000000       0.0     0.00000000      .T.
+ 164       50        112     0.97000000       0.0     0.00000000      .T.
+ 165       50        114     0.66000000       0.0     0.00000000      .T.
+ 166       50        115     0.34000000       0.5    -1.83480000      .T.
+
+>>> Element Sb    Z:  51       Records: 167 - 169    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 167       51        121    57.21000000       2.5     1.34320000      .T.
+ 168       51        123    42.79000000       3.5     0.72734286      .T.
+ 169       51        125     0.00000000       3.5     0.75142857      .F.
+
+>>> Element Te    Z:  52       Records: 170 - 177    TOTAL ISOTOPES:    8
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 170       52        130    34.08000000       0.0     0.00000000      .T.
+ 171       52        128    31.74000000       0.0     0.00000000      .T.
+ 172       52        126    18.84000000       0.0     0.00000000      .T.
+ 173       52        125     7.07000000       0.5    -1.77400000      .T.
+ 174       52        124     4.74000000       0.0     0.00000000      .T.
+ 175       52        122     2.55000000       0.0     0.00000000      .T.
+ 176       52        123     0.89000000       0.5    -1.47160000      .T.
+ 177       52        120     0.09000000       0.0     0.00000000      .T.
+
+>>> Element I     Z:  53       Records: 178 - 179    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 178       53        127   100.00000000       2.5     1.12348000      .T.
+ 179       53        129     0.00000000       3.5     0.74757143      .F.
+
+>>> Element Xe    Z:  54       Records: 180 - 188    TOTAL ISOTOPES:    9
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 180       54        132    26.89000000       0.0     0.00000000      .T.
+ 181       54        129    26.44000000       0.5    -1.55592200      .T.
+ 182       54        131    21.18000000       1.5     0.46123000      .T.
+ 183       54        134    10.44000000       0.0     0.00000000      .T.
+ 184       54        136     8.87000000       0.0     0.00000000      .T.
+ 185       54        130     4.08000000       0.0     0.00000000      .T.
+ 186       54        128     1.92000000       0.0     0.00000000      .T.
+ 187       54        124     0.09000000       0.0     0.00000000      .T.
+ 188       54        126     0.09000000       0.0     0.00000000      .T.
+
+>>> Element Cs    Z:  55       Records: 189 - 192    TOTAL ISOTOPES:    4
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 189       55        133   100.00000000       3.5     0.73651429      .T.
+ 190       55        134     0.00000000       4.0     0.74732500      .F.
+ 191       55        135     0.00000000       3.5     0.77951429      .F.
+ 192       55        137     0.00000000       3.5     0.81068571      .F.
+
+>>> Element Ba    Z:  56       Records: 193 - 200    TOTAL ISOTOPES:    8
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 193       56        138    71.69800000       0.0     0.00000000      .T.
+ 194       56        137    11.23200000       1.5     0.62500000      .T.
+ 195       56        136     7.85400000       0.0     0.00000000      .T.
+ 196       56        135     6.59200000       1.5     0.55873333      .T.
+ 197       56        134     2.41700000       0.0     0.00000000      .T.
+ 198       56        130     0.10600000       0.0     0.00000000      .T.
+ 199       56        132     0.10100000       0.0     0.00000000      .T.
+ 200       56        133     0.00000000       0.5    -1.54380000      .F.
+
+>>> Element La    Z:  57       Records: 201 - 203    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 201       57        139    99.91000000       3.5     0.79402857      .T.
+ 202       57        138     0.09000000       5.0     0.74168000      .T.
+ 203       57        137     0.00000000       3.5     0.77028571      .F.
+
+>>> Element Ce    Z:  58       Records: 204 - 208    TOTAL ISOTOPES:    5
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 204       58        140    88.45000000       0.0     0.00000000      .T.
+ 205       58        142    11.11400000       0.0     0.00000000      .T.
+ 206       58        138     0.25100000       0.0     0.00000000      .T.
+ 207       58        136     0.18500000       0.0     0.00000000      .T.
+ 208       58        141     0.00000000       3.5     0.31430000      .F.
+
+>>> Element Pr    Z:  59       Records: 209 - 209    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 209       59        141   100.00000000       2.5     1.70640000      .T.
+
+>>> Element Nd    Z:  60       Records: 210 - 216    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 210       60        142    27.20000000       0.0     0.00000000      .T.
+ 211       60        144    23.80000000       0.0     0.00000000      .T.
+ 212       60        146    17.20000000       0.0     0.00000000      .T.
+ 213       60        143    12.20000000       3.5    -0.30428571      .T.
+ 214       60        145     8.30000000       3.5    -0.18742857      .T.
+ 215       60        148     5.70000000       0.0     0.00000000      .T.
+ 216       60        150     5.60000000       0.0     0.00000000      .T.
+
+>>> Element Pm    Z:  61       Records: 217 - 217    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 217       61        147     0.00000000       3.5     0.73714286      .F.
+
+>>> Element Sm    Z:  62       Records: 218 - 225    TOTAL ISOTOPES:    8
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 218       62        152    26.75000000       0.0     0.00000000      .T.
+ 219       62        154    22.75000000       0.0     0.00000000      .T.
+ 220       62        147    14.99000000       3.5    -0.23114286      .T.
+ 221       62        149    13.82000000       3.5    -0.19077143      .T.
+ 222       62        148    11.24000000       0.0     0.00000000      .T.
+ 223       62        150     7.38000000       0.0     0.00000000      .T.
+ 224       62        144     3.07000000       0.0     0.00000000      .T.
+ 225       62        151     0.00000000       2.5    -0.14420000      .F.
+
+>>> Element Eu    Z:  63       Records: 226 - 230    TOTAL ISOTOPES:    5
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 226       63        153    52.19000000       2.5     0.61176000      .T.
+ 227       63        151    47.81000000       2.5     1.38540000      .T.
+ 228       63        152     0.00000000       3.0    -0.64513333      .F.
+ 229       63        154     0.00000000       3.0    -0.66666667      .F.
+ 230       63        155     0.00000000       2.5     0.60640000      .F.
+
+>>> Element Gd    Z:  64       Records: 231 - 237    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 231       64        158    24.84000000       0.0     0.00000000      .T.
+ 232       64        160    21.86000000       0.0     0.00000000      .T.
+ 233       64        156    20.47000000       0.0     0.00000000      .T.
+ 234       64        157    15.65000000       1.5    -0.22653333      .T.
+ 235       64        155    14.80000000       1.5    -0.17273333      .T.
+ 236       64        154     2.18000000       0.0     0.00000000      .T.
+ 237       64        152     0.20000000       0.0     0.00000000      .T.
+
+>>> Element Tb    Z:  65       Records: 238 - 240    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 238       65        159   100.00000000       1.5     1.33933333      .T.
+ 239       65        157     0.00000000       1.5     1.35333333      .F.
+ 240       65        160     0.00000000       3.0     0.56600000      .F.
+
+>>> Element Dy    Z:  66       Records: 241 - 247    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 241       66        164    28.18000000       0.0     0.00000000      .T.
+ 242       66        162    25.51000000       0.0     0.00000000      .T.
+ 243       66        163    24.90000000       2.5     0.26840000      .T.
+ 244       66        161    18.91000000       2.5    -0.19160000      .T.
+ 245       66        160     2.34000000       0.0     0.00000000      .T.
+ 246       66        158     0.10000000       0.0     0.00000000      .T.
+ 247       66        156     0.06000000       0.0     0.00000000      .T.
+
+>>> Element Ho    Z:  67       Records: 248 - 248    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 248       67        165   100.00000000       3.5     1.18857143      .T.
+
+>>> Element Er    Z:  68       Records: 249 - 254    TOTAL ISOTOPES:    6
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 249       68        166    33.61000000       0.0     0.00000000      .T.
+ 250       68        168    26.78000000       0.0     0.00000000      .T.
+ 251       68        167    22.93000000       3.5    -0.16065714      .T.
+ 252       68        170    14.93000000       0.0     0.00000000      .T.
+ 253       68        164     1.61000000       0.0     0.00000000      .T.
+ 254       68        162     0.14000000       0.0     0.00000000      .T.
+
+>>> Element Tm    Z:  69       Records: 255 - 256    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 255       69        169   100.00000000       0.5    -0.46200000      .T.
+ 256       69        171     0.00000000       0.5    -0.46000000      .F.
+
+>>> Element Yb    Z:  70       Records: 257 - 263    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 257       70        174    31.83000000       0.0     0.00000000      .T.
+ 258       70        172    21.83000000       0.0     0.00000000      .T.
+ 259       70        173    16.13000000       2.5    -0.27120000      .T.
+ 260       70        171    14.28000000       0.5     0.98460000      .T.
+ 261       70        176    12.76000000       0.0     0.00000000      .T.
+ 262       70        170     3.04000000       0.0     0.00000000      .T.
+ 263       70        168     0.13000000       0.0     0.00000000      .T.
+
+>>> Element Lu    Z:  71       Records: 264 - 267    TOTAL ISOTOPES:    4
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 264       71        175    97.41000000       3.5     0.63591429      .T.
+ 265       71        176     2.59000000       7.0     0.45142857      .T.
+ 266       71        173     0.00000000       3.5     0.64942857      .F.
+ 267       71        174     0.00000000       1.0     1.98200000      .F.
+
+>>> Element Hf    Z:  72       Records: 268 - 273    TOTAL ISOTOPES:    6
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 268       72        180    35.08000000       0.0     0.00000000      .T.
+ 269       72        178    27.28000000       0.0     0.00000000      .T.
+ 270       72        177    18.60000000       3.5     0.22600000      .T.
+ 271       72        179    13.62000000       4.5    -0.14197778      .T.
+ 272       72        176     5.26000000       0.0     0.00000000      .T.
+ 273       72        174     0.16000000       0.0     0.00000000      .T.
+
+>>> Element Ta    Z:  73       Records: 274 - 275    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 274       73        181    99.98800000       3.5     0.67342857      .T.
+ 275       73        180     0.01200000       9.0     0.53288889      .T.
+
+>>> Element W     Z:  74       Records: 276 - 280    TOTAL ISOTOPES:    5
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 276       74        184    30.64000000       0.0     0.00000000      .T.
+ 277       74        186    28.43000000       0.0     0.00000000      .T.
+ 278       74        182    26.50000000       0.0     0.00000000      .T.
+ 279       74        183    14.31000000       0.5     0.23384000      .T.
+ 280       74        180     0.12000000       0.0     0.00000000      .T.
+
+>>> Element Re    Z:  75       Records: 281 - 282    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 281       75        187    62.60000000       2.5     1.27552000      .T.
+ 282       75        185    37.40000000       2.5     1.26280000      .T.
+
+>>> Element Os    Z:  76       Records: 283 - 289    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 283       76        192    40.78000000       0.0     0.00000000      .T.
+ 284       76        190    26.26000000       0.0     0.00000000      .T.
+ 285       76        189    16.15000000       1.5     0.43840000      .T.
+ 286       76        188    13.24000000       0.0     0.00000000      .T.
+ 287       76        187     1.96000000       0.5     0.12780000      .T.
+ 288       76        186     1.59000000       0.0     0.00000000      .T.
+ 289       76        184     0.02000000       0.0     0.00000000      .T.
+
+>>> Element Ir    Z:  77       Records: 290 - 291    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 290       77        193    62.70000000       1.5     0.10866667      .T.
+ 291       77        191    37.30000000       1.5     0.10013333      .T.
+
+>>> Element Pt    Z:  78       Records: 292 - 297    TOTAL ISOTOPES:    6
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 292       78        195    33.83200000       0.5     1.20540000      .T.
+ 293       78        194    32.96700000       0.0     0.00000000      .T.
+ 294       78        196    25.24200000       0.0     0.00000000      .T.
+ 295       78        198     7.16300000       0.0     0.00000000      .T.
+ 296       78        192     0.78400000       0.0     0.00000000      .T.
+ 297       78        190     0.01400000       0.0     0.00000000      .T.
+
+>>> Element Au    Z:  79       Records: 298 - 298    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 298       79        197   100.00000000       1.5     0.09680000      .T.
+
+>>> Element Hg    Z:  80       Records: 299 - 305    TOTAL ISOTOPES:    7
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 299       80        202    29.86000000       0.0     0.00000000      .T.
+ 300       80        200    23.10000000       0.0     0.00000000      .T.
+ 301       80        199    16.87000000       0.5     1.01180000      .T.
+ 302       80        201    13.18000000       1.5    -0.37346667      .T.
+ 303       80        198     9.97000000       0.0     0.00000000      .T.
+ 304       80        204     6.87000000       0.0     0.00000000      .T.
+ 305       80        196     0.15000000       0.0     0.00000000      .T.
+
+>>> Element Tl    Z:  81       Records: 306 - 308    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 306       81        205    70.47600000       0.5     3.26400000      .T.
+ 307       81        203    29.52400000       0.5     3.23200000      .T.
+ 308       81        204     0.00000000       2.0     0.04500000      .F.
+
+>>> Element Pb    Z:  82       Records: 309 - 312    TOTAL ISOTOPES:    4
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 309       82        208    52.40000000       0.0     0.00000000      .T.
+ 310       82        206    24.10000000       0.0     0.00000000      .T.
+ 311       82        207    22.10000000       0.5     1.18120000      .T.
+ 312       82        204     1.40000000       0.0     0.00000000      .T.
+
+>>> Element Bi    Z:  83       Records: 313 - 314    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 313       83        209   100.00000000       4.5     0.90933333      .T.
+ 314       83        207     0.00000000       4.5     0.90508889      .F.
+
+>>> Element Po    Z:  84       Records: 315 - 315    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 315       84        209     0.00000000       0.5     1.36000000      .F.
+
+>>> Element At    Z:  85       Records: 316 - 316    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 316       85          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Rn    Z:  86       Records: 317 - 317    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 317       86          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Fr    Z:  87       Records: 318 - 318    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 318       87          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Ra    Z:  88       Records: 319 - 319    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 319       88          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Ac    Z:  89       Records: 320 - 320    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 320       89        227     0.00000000       1.5     0.81333333      .F.
+
+>>> Element Th    Z:  90       Records: 321 - 322    TOTAL ISOTOPES:    2
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 321       90        232   100.00000000       0.0     0.00000000      .T.
+ 322       90        229     0.00000000       2.5     0.18400000      .F.
+
+>>> Element Pa    Z:  91       Records: 323 - 323    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 323       91        231   100.00000000       1.5     1.32666667      .F.
+
+>>> Element U     Z:  92       Records: 324 - 326    TOTAL ISOTOPES:    3
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 324       92        238    99.27450000       0.0     0.00000000      .F.
+ 325       92        235     0.72000000       3.5    -0.10857143      .F.
+ 326       92        234     0.00550000       0.0     0.00000000      .F.
+
+>>> Element Np    Z:  93       Records: 327 - 327    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 327       93        237     0.00000000       2.5     1.26400000      .F.
+
+>>> Element Pu    Z:  94       Records: 328 - 328    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 328       94        239     0.00000000       0.5     0.40400000      .F.
+
+>>> Element Am    Z:  95       Records: 329 - 329    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 329       95        243     0.00000000       2.5     0.60800000      .F.
+
+>>> Element Cm    Z:  96       Records: 330 - 330    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 330       96          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Bk    Z:  97       Records: 331 - 331    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 331       97          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Cf    Z:  98       Records: 332 - 332    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 332       98          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Es    Z:  99       Records: 333 - 333    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 333       99          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Fm    Z: 100       Records: 334 - 334    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 334      100          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Md    Z: 101       Records: 335 - 335    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 335      101          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element No    Z: 102       Records: 336 - 336    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 336      102          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Lr    Z: 103       Records: 337 - 337    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 337      103          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Rf    Z: 104       Records: 338 - 338    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 338      104          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Db    Z: 105       Records: 339 - 339    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 339      105          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Sg    Z: 106       Records: 340 - 340    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 340      106          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Bh    Z: 107       Records: 341 - 341    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 341      107          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Hs    Z: 108       Records: 342 - 342    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 342      108          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Mt    Z: 109       Records: 343 - 343    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 343      109          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Ds    Z: 110       Records: 344 - 344    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 344      110          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Rg    Z: 111       Records: 345 - 345    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 345      111          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Cn    Z: 112       Records: 346 - 346    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 346      112          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Nh    Z: 113       Records: 347 - 347    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 347      113          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Fl    Z: 114       Records: 348 - 348    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 348      114          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Mc    Z: 115       Records: 349 - 349    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 349      115          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Lv    Z: 116       Records: 350 - 350    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 350      116          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Ts    Z: 117       Records: 351 - 351    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 351      117          0     0.00000000      -1.0    -0.00000000      .F.
+
+>>> Element Og    Z: 118       Records: 352 - 352    TOTAL ISOTOPES:    1
+!Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
+ 352      118          0     0.00000000      -1.0    -0.00000000      .F.

@@ -28,7 +28,7 @@ set (sources
      getdens.F90
      gfprnt_i.F90
      hfc_logical.F90
-     hfc_ezspin_dat.F90
+     spin_data.F90
      imostabundantisotope.F90
      inporbfmt.F90
      interf.F90

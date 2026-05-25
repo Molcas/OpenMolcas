@@ -27,7 +27,8 @@ module hyperfine
   use Constants,   only: Zero, Half, One, Two, Three, Four, Six, Twelve, auTocm, c_in_au,      &
                          gElectron, auToHz, kBoltzmann, auTokJ
   use stdalloc,    only: mma_allocate, mma_deallocate
-  use hfc_data
+  use spin_data,   only: initialize_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass,         &
+                         GNUC_by_nucspin, NUCSPIN_by_gnuc, get_first_nonzero_GNUC
   use Cntrl,       only: NSTATE, NPROP, PNAME,NAtoms, MULTIP, ICOMP, MLTPLT, ASD_idx, PSO_idx, &
                          NPNMR_Calc, pNMR_req, HypF_rms_Req, NATens_Calc, Atens_Req,           &
                          NucMass, NMass_set, NucSpin, NSpin_set, NucGFac, NGFac_set, Hypo_Iso, &
@@ -36,6 +37,8 @@ module hyperfine
   use hfc_logical, only: MAG_X2C
 
   implicit none
+
+  private
 
   ! RASSI runtime variables
   integer(kind=iwp)               :: NSS
@@ -112,7 +115,9 @@ module hyperfine
 ! Setup reused variables------------------------------
     call setup_hfc_calc(JBNUM,USOR,USOI)
     if(allocated(pNMR_req)) call setup_pNMR_calc(PROP)
-!-----------------------------------------------------
+!----------------------------------------------------
+
+
 
 ! do_calc :: calculate Hyperfine hamiltonian
 ! do_EPR  :: calculate A tensor, principal values for EPR spectroscopy
@@ -149,7 +154,7 @@ module hyperfine
     integer(kind=iwp),allocatable   :: MAPSP(:), MAPMS(:)
     integer(kind=iwp)               :: MSPROJ,  MPLET, ISS, JSS, ISTATE, JSTATE
     real(kind=wp)                   :: S1, S2, SM1, SM2,FACT, MPLET1,MSPROJ1, MPLET2, MSPROJ2,   &
-                                       IMLTPL, CGm, Co, CGp, Cx, Cy
+                                       CGm, CGp
 
     NSS = size(USOR,1)
     call mma_allocate(USO, NSS, NSS, Label='USO')
@@ -440,7 +445,7 @@ module hyperfine
 
 
 !======================================================================
-  subroutine proc_nuc_spin_data(iAtom,case,seward_mass)
+  subroutine proc_nuc_spin(iAtom,case,seward_mass)
     integer(kind=iwp), intent(in)             :: iAtom, case
     integer(kind=iwp), intent(in), optional   :: seward_mass
 
@@ -448,19 +453,19 @@ module hyperfine
     select case (case)
     case(1)
       write(6,'(11X,A38)') 'USE: Isotopic mass [SEWARD or GATEWAY]'
-      call gfac_spin_by_mass(LAtNumb(iAtom), seward_mass, NucGFac(iAtom),NucSpin(iAtom))
+      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), seward_mass, NucGFac(iAtom),NucSpin(iAtom))
     case(2)
       write(6,'(11X,A31,I0)') 'USE: NMASs [RASSI input]   A = ', NucMass(iAtom)
-      call gfac_spin_by_mass(LAtNumb(iAtom), NucMass(iAtom), NucGFac(iAtom), NucSpin(iAtom))
+      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), NucMass(iAtom), NucGFac(iAtom), NucSpin(iAtom))
     case(3)
       write(6,'(11X,A31,F6.2)') 'USE: NSPIn [RASSI input]   I = ', NucSpin(iAtom)
-      NucGFac(iAtom) = gfactor_by_NucSpin(LAtNumb(iAtom), NucSpin(iAtom))
+      NucGFac(iAtom) = GNUC_by_nucspin(LAtNumb(iAtom), NucSpin(iAtom))
     case(4)
       write(6,'(11X,A37,F12.8)') 'USE: GNUC [RASSI input]   g-factor = ', NucGFac(iAtom)
-      NucSpin(iAtom) = NucSpin_by_gfactor(LAtNumb(iAtom), NucGFac(iAtom))
+      NucSpin(iAtom) = NUCSPIN_by_gnuc(LAtNumb(iAtom), NucGFac(iAtom))
     case(5)
       write(6,'(11X,A28,F12.8)') 'USE: Most abundance non-zero'
-      call get_first_nonzero_gfactor(LAtNumb(iAtom),NucGFac(iAtom),NucSpin(iAtom))
+      call get_first_nonzero_GNUC(LAtNumb(iAtom),NucGFac(iAtom),NucSpin(iAtom))
     end select
 
   end subroutine
@@ -482,7 +487,7 @@ module hyperfine
 
 ! Note: NucSpin and mass number (integer) has higher priority [IF-ELSE] than g-factor (the last case).
 
-    call init_isotope_data()
+    call initialize_spin_data()
 
     if (.not. allocated(NucSpin))     call mma_allocate(NucSpin,NAtoms,"NucSpin")
     if (.not. allocated(NucGFac))     call mma_allocate(NucGFac,NAtoms,"gNuc")
@@ -524,21 +529,21 @@ module hyperfine
                             (NMass_set .and. NucMass(iAtom)  == -100_iwp)
 
         if(not_set_by_users) then
-          call proc_nuc_spin_data(iAtom, 1, int(Weights(iAtom)))
+          call proc_nuc_spin(iAtom, 1, int(Weights(iAtom)))
         else
-          if(.not. Hypo_Iso) call proc_nuc_spin_data(iAtom, case, int(Weights(iAtom)))
+          if(.not. Hypo_Iso) call proc_nuc_spin(iAtom, case, int(Weights(iAtom)))
         endif
       enddo
 ! Only process atoms for which A tensors (EPR parameters) are requested.
     else
       do iAtom = 1, NAtoms
         if (Atens_Req(iAtom)) then
-          if (.not. Hypo_Iso) call proc_nuc_spin_data(iAtom, case, int(Weights(iAtom)))
+          if (.not. Hypo_Iso) call proc_nuc_spin(iAtom, case, int(Weights(iAtom)))
         end if
       enddo
     endif
 
-    call free_isotope_data()
+    call free_spin_data()
   end subroutine
 !======================================================================
 
