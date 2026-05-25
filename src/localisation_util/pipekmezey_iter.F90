@@ -51,7 +51,7 @@ real(kind=wp) :: dqdq,largest, alpha
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.false., modHess=.true.
 character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
-real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,eta1,eta2
+real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,eta1,eta2, scalingfac
 
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
 integer(kind=iwp) :: rc
@@ -580,7 +580,10 @@ subroutine rescale_disp(Disp)
 #   ifdef _DEBUGPRINT_
         Write(u6,*) 'Rescale Kappa(:)'
 #   endif
-    Disp(:) = (Thr/DD)*Disp(:)
+        scalingfac = Thr/DD
+        Disp(:) = scalingfac*Disp(:)
+    else
+        scalingfac = One
     End If
 
 end subroutine rescale_disp
