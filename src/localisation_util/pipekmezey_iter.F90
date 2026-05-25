@@ -219,6 +219,7 @@ largest=Zero
 nDIIS=0
 OldFunctional = Zero
 
+scalingfac = One
 GEKRange = .false.
 ResetGEK = .false.
 switched = .false.
