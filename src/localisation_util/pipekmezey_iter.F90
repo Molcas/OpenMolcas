@@ -211,7 +211,7 @@ case default
 end select
 
 
-call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,modHess,gradnorm)
+call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
 FirstFunctional = Functional
 NRFunc = Functional
 Delta = Functional
@@ -287,7 +287,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         ! just for seeing how many positive diagonal elements
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,modHess,gradnorm)
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -308,7 +308,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 
         ! Before taking a new step, we evaluate the Hessian at the current point
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,modHess,gradnorm)
+        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! GRADIENT ASCENT STEP

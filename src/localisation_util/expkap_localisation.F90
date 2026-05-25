@@ -27,7 +27,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nOrb2Loc
 real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),Umat(nOrb2Loc,nOrb2Loc)
 integer(kind=iwp) i, j
-logical(kind=iwp), parameter:: OLD=.True.
 
 !Call RecPrt('Kappa',' ',Kappa,nOrb2Loc,nOrb2Loc)
 Do i=1, nOrb2Loc
@@ -44,9 +43,10 @@ Do i=1, nOrb2Loc
 End Do
 
 
-If (Old) Then
+#define _OLD_
+#ifdef _OLD_
 Call expkap_localisation_Local(kappa,nOrb2Loc,Umat)
-Else
+#else
 Block
    use constants, only: One
    use stdalloc, only: mma_allocate, mma_deallocate
@@ -77,8 +77,10 @@ Block
    Call mma_deallocate(ipiv)
    Call mma_deallocate(wsp)
 End Block
-End If
+#endif
 
+!#define _TEST_
+#ifdef _TEST_
 Block
 use constants, only: One
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -110,6 +112,7 @@ Do i = 1, nOrb2Loc
 End Do
 Call mma_deallocate(UnitMatrix)
 End Block
+#endif
 
 Contains
 

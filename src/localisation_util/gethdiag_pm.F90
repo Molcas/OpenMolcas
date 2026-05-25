@@ -33,7 +33,7 @@ logical(kind=iwp) :: SORange,prnt=.false.,prnt2=.false.
 real(kind=wp) :: maxel
 #endif
 
-npos= Zero
+npos= 0
 
 ! set to false, if positive diagonal elements
 SORange = .true.
