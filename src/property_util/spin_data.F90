@@ -41,13 +41,13 @@ module spin_data
   type(element),allocatable   :: elements(:)
   type(isotope),allocatable   :: isotopes(:)
 
-  public :: initialize_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass, &
+  public :: init_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass, &
             GNUC_by_nucspin, NUCSPIN_by_gnuc, get_first_nonzero_GNUC
 
 
   contains
 
-  subroutine initialize_spin_data()
+  subroutine init_spin_data()
     logical(kind=iwp)   :: Found
     character(len=180)  :: Line
     character(len=*), parameter :: SPINDATA_NAME = 'SPINDATA'

@@ -27,14 +27,12 @@ module hyperfine
   use Constants,   only: Zero, Half, One, Two, Three, Four, Six, Twelve, auTocm, c_in_au,      &
                          gElectron, auToHz, kBoltzmann, auTokJ
   use stdalloc,    only: mma_allocate, mma_deallocate
-  use spin_data,   only: initialize_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass,         &
+  use spin_data,   only: init_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass,         &
                          GNUC_by_nucspin, NUCSPIN_by_gnuc, get_first_nonzero_GNUC
   use Cntrl,       only: NSTATE, NPROP, PNAME,NAtoms, MULTIP, ICOMP, MLTPLT, ASD_idx, PSO_idx, &
                          NPNMR_Calc, pNMR_req, HypF_rms_Req, NATens_Calc, Atens_Req,           &
                          NucMass, NMass_set, NucSpin, NSpin_set, NucGFac, NGFac_set, Hypo_Iso, &
                          AutoSelect_GFac, LCSTATES, NCOUP, NTP, TMINP, TMAXP, DEGEN_ETHR
-
-  use hfc_logical, only: MAG_X2C
 
   implicit none
 
@@ -44,9 +42,8 @@ module hyperfine
   integer(kind=iwp)               :: NSS
   real(kind=wp), allocatable      :: ESO(:)
 
-
   ! Conversion factors
-  real(kind=wp), parameter :: e_proton_mass_ratio = 1836.152673426d0,                          &
+  real(kind=wp), parameter :: e_proton_mass_ratio = 1836.152673426_wp,                         & !CODATA 2022
                               beta_e = One/(Two*c_in_au), TwoThird = Two/Three,                &
                               beta_n = beta_e/e_proton_mass_ratio,                             &
                               con_to_MHz = -gElectron*beta_e*beta_n*auToHz*1.0e-6_wp,          &
@@ -54,12 +51,10 @@ module hyperfine
                               to_ppm = 1.0e6_wp * auTocm * alpha2,                             &
                               au2J = auTokJ*1.0e3_wp, kBoltzman_in_cm = kBoltzmann*auTocm/au2J
 
-
   ! EPR Calc. :: A tensor, principal and isotropic values
   real(kind=wp)                   :: Atens_fac
   real(kind=wp), allocatable      :: prin_vals(:,:,:)
   logical(kind=iwp), allocatable  :: signs_resolved(:)
-
 
   ! PNMR Calc :: Shielding tensor, Chemical Shift
   real(kind=wp),allocatable       :: Temp_in_K(:), pBoltz(:,:), Z_HFC_int_oper(:,:,:,:),       &
@@ -69,26 +64,22 @@ module hyperfine
   integer(kind=iwp), allocatable  ::  degen_group(:)
   integer(kind=iwp)               ::  n_uniq_ener
 
-
   ! State information and Wigner-Eckart theorem
   integer(kind=iwp),allocatable   :: MAPST(:)
-  real(kind=wp) :: ETHR_in_cm
+  real(kind=wp)                   :: ETHR_in_cm
   real(kind=wp),allocatable       :: CGo_mat(:,:), CGx_mat(:,:), CGy_mat(:,:)
-
 
   ! Hamiltonian
   complex(kind=wp),allocatable    :: h_FC(:,:,:) , h_SD(:,:,:), h_FCSD(:,:,:), h_PSO(:,:,:),   &
                                      h_TOT(:,:,:), USO(:,:), h_Zeeman(:,:,:)
   real(kind=wp),allocatable       :: h_rms_nuc(:,:), h_hfc_rms(:,:)
 
-
   ! Iterators and indices
-  integer(kind=iwp)               :: JOB, IERR, nData, iACalc, ipNMR_Calc
+  integer(kind=iwp)               :: iACalc, ipNMR_Calc
   integer(kind=iwp), allocatable  :: degen_start_idx(:), degen_end_idx(:)
   character(LEN=1)                :: xyz(3) = ['x', 'y', 'z']
   character(len=7)                :: contrib_lab(5) = [character(len=7) :: '[TOTAL]', '[FC]',  &
                                     '[SD]', '[FCSD]', '[PSO]']
-
 
   ! Isotopes and electronic structure
   real(kind=wp)                      ::  e_spin
@@ -107,17 +98,16 @@ module hyperfine
 
 
   subroutine HFCOP(PROP,USOR,USOI,JBNUM)
-    integer(kind=iwp)               :: iAtom
     integer(kind=iwp), intent(in)   ::  JBNUM(NSTATE)
     real(kind=wp), intent(in)       ::  PROP(NSTATE,NSTATE,NPROP), USOR(:,:), USOI(:,:)
+
+    integer(kind=iwp)               :: iAtom
 
 
 ! Setup reused variables------------------------------
     call setup_hfc_calc(JBNUM,USOR,USOI)
     if(allocated(pNMR_req)) call setup_pNMR_calc(PROP)
 !----------------------------------------------------
-
-
 
 ! do_calc :: calculate Hyperfine hamiltonian
 ! do_EPR  :: calculate A tensor, principal values for EPR spectroscopy
@@ -130,13 +120,11 @@ module hyperfine
       if(do_calc)       call calc_h_HFC(iAtom,PROP)
       if(HypF_rms_Req)  call update_h_HFC_RMS(iAtom,h_TOT)
     enddo
-!-----------------------------------------------------
 
 ! Printing final results------------------------------
     if (HypF_rms_Req) call save_h_rms()
     if(allocated(Atens_Req)) call print_EPR_summary()
     if(allocated(pNMR_req))  call print_pNMR_summary()
-!-----------------------------------------------------
 
     call cleanup_hfcop()
 
@@ -147,19 +135,18 @@ module hyperfine
 !======================================================================
   subroutine setup_hfc_calc(JBNUM, USOR, USOI)
     integer(kind=iwp), intent(in)   :: JBNUM(NSTATE)
-    real(kind=wp)                   :: rtemp(NAtoms)
-    real(kind=wp)                   :: DCLEBS
     real(kind=wp),intent(in)        :: USOR(:,:), USOI(:,:)
 
     integer(kind=iwp),allocatable   :: MAPSP(:), MAPMS(:)
-    integer(kind=iwp)               :: MSPROJ,  MPLET, ISS, JSS, ISTATE, JSTATE
+    integer(kind=iwp)               :: MSPROJ,  MPLET, ISS, JSS, ISTATE, JSTATE, JOB
     real(kind=wp)                   :: S1, S2, SM1, SM2,FACT, MPLET1,MSPROJ1, MPLET2, MSPROJ2,   &
-                                       CGm, CGp
+                                       CGm, CGp, DCLEBS
+    real(kind=wp), allocatable      :: rtemp(:)
 
+    ! Form transformation matrix USO with complex numbers
     NSS = size(USOR,1)
     call mma_allocate(USO, NSS, NSS, Label='USO')
     USO(:,:) = cmplx(USOR(:,:),USOI(:,:),kind=wp)
-
 
     call mma_allocate(h_FC,   3, NSS, NSS, Label='h_FC')
     call mma_allocate(h_SD,   3, NSS, NSS, Label='h_SD')
@@ -186,9 +173,11 @@ module hyperfine
     call Get_cArray('Unique Atom Names',LAtomLbl,LenIn*nAtoms)
 
 ! GET: AtNumb(Z)
+    call mma_allocate(rtemp,NAtoms, Label="rtemp_hfcop")
     call mma_allocate(LAtNumb,NAtoms, Label='LAtNumb')
     call Get_dArray('Nuclear charge', rtemp, nAtoms)
     LAtNumb(:) = int(rtemp(:))
+    call mma_deallocate(rtemp)
 
 ! GET: Eenergy of SO states (ESO)
     call mma_allocate(ESO,NSS, Label='ESO')
@@ -212,12 +201,10 @@ module hyperfine
     end do
   end do
 
-
-! CALC: Clebsch-Gordan coefficients
+! CALC: Clebsch-Gordan coefficients. Store CGo, CGx, CGy to matrices
   call mma_allocate(CGo_mat,NSS,NSS,Label='CGo')
   call mma_allocate(CGx_mat,NSS,NSS,Label='CGx')
   call mma_allocate(CGy_mat,NSS,NSS,Label='CGy')
-
 
 ! Wigner-Eckart theorem
   do ISS=1,NSS
@@ -263,11 +250,12 @@ module hyperfine
 
 !======================================================================
   subroutine setup_pNMR_calc(PROP)
-    real(kind=wp), intent(in)   ::  PROP(NSTATE,NSTATE,NPROP)
+    real(kind=wp), intent(in)   :: PROP(NSTATE,NSTATE,NPROP)
+
     real(kind=wp)               :: dlt_T, Zstat, dlt_E
     real(kind=wp),parameter     :: pBoltz_cutoff = 10.0_wp **(-100), dltE_cutoff = 10.0_wp ** (-6)
-
     integer(kind=iwp)           :: iT, ISS, JSS, lmb
+
 
     call mma_allocate(Curie_ChemShift, NPNMR_Calc, 4, NTP, Label="Curie_ChemShift")
     call mma_allocate(LinRes_ChemShift, NPNMR_Calc, 4, NTP, Label="LinRes_ChemShift")
@@ -318,7 +306,8 @@ module hyperfine
     call mma_allocate(Z_HFC_over_dE,3,3 ,NSS,NSS, Label="Z_HFC_over_dE" )
     call mma_allocate(Z_HFC_int_oper,3,3,NSS,NSS, Label="Z_HFC_int_oper")
 
-
+    ! This is only needed for pNMR calculations to include excited states. For EPR (A_tensor), we only take
+    ! degenerate ground states. Therefore, it does not appear in setup_hfc_calc subroutine
     call mma_allocate(degen_group,NSS, Label="degen_group")
     n_uniq_ener = size(degen_start_idx)
     do lmb = 1, n_uniq_ener
@@ -336,11 +325,12 @@ module hyperfine
   subroutine calc_h_HFC(iAtom, PROP)
     integer(kind=iwp), intent(in) :: iAtom
     real(kind=wp), intent(in)     :: PROP(NSTATE,NSTATE,NPROP)
+
     real(kind=wp) ,allocatable    :: ASD(:,:,:)
     integer(kind=iwp)             :: idx(6)
     real(kind=wp)                 :: A_tens(3,3)
-
     integer(kind=iwp)             :: ISS, JSS, iState, jState
+
 
     idx(:) = ASD_idx(iAtom,:)
     call mma_allocate(ASD,6,NSS,NSS,Label="ASD")
@@ -473,10 +463,10 @@ module hyperfine
 
 !======================================================================
   subroutine proc_spin_data()
-    real(kind=wp)           :: Weights(NAtoms)
-    integer(kind=iwp)       :: case
-    logical(kind=iwp)       :: use_seward_mass, not_set_by_users
-    integer(kind=iwp)       :: iAtom
+    real(kind=wp),allocatable   :: Weights(:)
+    integer(kind=iwp)           :: case
+    logical(kind=iwp)           :: use_seward_mass, not_set_by_users
+    integer(kind=iwp)           :: iAtom
 !PURPOSE: To find g-factor and NucSpin for given atoms in EZSpin database.
 
 ! Case 1: Use SEWARD, GATEWAY mass  --> get g-factor and NucSpin
@@ -487,11 +477,12 @@ module hyperfine
 
 ! Note: NucSpin and mass number (integer) has higher priority [IF-ELSE] than g-factor (the last case).
 
-    call initialize_spin_data()
+    call init_spin_data()
 
     if (.not. allocated(NucSpin))     call mma_allocate(NucSpin,NAtoms,"NucSpin")
     if (.not. allocated(NucGFac))     call mma_allocate(NucGFac,NAtoms,"gNuc")
 
+    call mma_allocate(Weights,NAtoms,"weights_hfcop")
     call Get_dArray('Weights', Weights, NAtoms)
 
 
@@ -543,6 +534,7 @@ module hyperfine
       enddo
     endif
 
+    call mma_deallocate(Weights)
     call free_spin_data()
   end subroutine
 !======================================================================
@@ -589,11 +581,11 @@ module hyperfine
 !======================================================================
   subroutine print_isotope_info()
     integer(kind=iwp)  :: iAtom
-    write(6,*)
-    write(6,*)
 
+
+    write(6,*)
+    write(6,*)
     if(HypF_rms_Req) then
-
       ! Print full table (Spin G-factor)
       write(6,'(7X,A32)') repeat('-',32)
       write(6,'(7X,A32)')'Atom     Spin           g-Factor'
@@ -620,6 +612,7 @@ module hyperfine
 !======================================================================
 subroutine print_pNMR_summary()
   integer(kind=iwp)     :: iAtom, iT, iContr
+
 
   write(6,*)
   write(6,*)
@@ -674,8 +667,8 @@ subroutine print_EPR_summary()
   character(len=5)          :: unit ="(MHz)"
   character(len=12)         :: undef_res
   character(len=16)         :: string_val
-
   integer(kind=iwp)         :: iAtom, iContr, iAxis
+
 
   write(6,*)
   write(6,*)
@@ -689,7 +682,6 @@ subroutine print_EPR_summary()
   call assign_hfc_prvl_signs()
 
 !--> Unit conversion to MHz
-!--------------------------
   iACalc = 0
   do iAtom = 1, nAtoms
     if (Atens_Req(iAtom)) then
@@ -698,19 +690,17 @@ subroutine print_EPR_summary()
       prin_vals(iACalc,:,:) = conv * prin_vals(iACalc,:,:)
     end if
   end do
-!--------------------------
 
-
-!--> Print summary table in MHz unit
+!--> Print Electronic State information
   write(6,'(3X,A29,F6.2,2X,A27,I0)') '>>> Electronic Pseudospin :: ',e_spin, "Number of Coupling States: ",NCOUP
   write(6,*)
   write(6,*)
+
+!--> Print summary table of principal values in MHz unit
   iACalc = 0
   do iAtom = 1, nAtoms
     if (Atens_Req(iAtom)) then
       iACalc = iACalc + 1
-
-!--> Print principal values
       write(6,*) ""
       write(6,'(3X,A10,A6,A12,F12.4,A12,F3.1)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)), &
               ' g-factor = ',NucGFac(iAtom),'  NucSpin = ',NucSpin(iAtom)
@@ -753,8 +743,9 @@ subroutine print_EPR_summary()
   write(6,'(A88)')  "       2. If a different isotope is required, you can convert the reported values to MHz"
   write(6,'(A65)')  "          without restarting by using the provided formula below:"
   write(6,*)
+  write(string_val,'(F12.4)')  -gElectron * beta_e * beta_n
+  write(6,'(A52,A16)') "                A(MHz) = A(au) * nuclear-g-factor * ", adjustl(string_val)
   write(string_val,'(F12.4)') con_to_MHz
-  write(6,'(A52,E11.4)') "                A(MHz) = A(au) * nuclear-g-factor * ", -gElectron * beta_e * beta_n
   write(6,'(A60,A16)') "             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ", adjustl(string_val)
   write(6,*)
   write(6,*)
@@ -766,17 +757,17 @@ end subroutine
 !======================================================================
 subroutine to_cmpl_SO_states(h)
   complex(kind=wp), intent(out) :: h(3,NSS,NSS)
+
   complex(kind=wp),allocatable  :: tmp_matr(:,:)
   integer(kind=iwp)             :: u
 
-  call mma_allocate(tmp_matr,NSS,NSS)
 
+  call mma_allocate(tmp_matr,NSS,NSS)
   tmp_matr=cmplx(Zero,Zero,kind=wp)
   do u = 1, 3
     call zgemm_('n','n',NSS,NSS,NSS,cmplx(1.0_wp,0.0_wp,kind=wp),h(u,:,:),NSS,USO,NSS,cmplx(0.0_wp,0.0_wp,kind=wp),tmp_matr,NSS)
     call zgemm_('c','n',NSS,NSS,NSS,cmplx(1.0_wp,0.0_wp,kind=wp),USO,NSS,tmp_matr,NSS,cmplx(0.0_wp,0.0_wp,kind=wp),h(u,:,:),NSS)
   enddo
-
   call mma_deallocate(tmp_matr)
 
 end subroutine
@@ -822,7 +813,7 @@ end subroutine
       NCOUP = degen_end_idx(1) - degen_start_idx(1) + 1_iwp
     else
       ! If NCOUP or COUP are not specified, coupling states for the A tensor
-      ! are derived from GROUND STATES via get_coupled_degen_states, controlled by ETHR.
+      ! are derived from GROUND STATES via get_degen_states, controlled by ETHR.
 
       ! Get NCOUP from previous call get_degen_states(1)
       NCOUP = degen_end_idx(1) - degen_start_idx(1) + 1_iwp
@@ -869,9 +860,8 @@ subroutine get_degen_states(opt)
   real(kind=wp)     :: prev_ener, ener
   integer(kind=iwp) :: ISS
 
-! Similar to get_Atens_coupled_states() but for pNMR shift calculation
 ! Count number of degenerate groups
-  prev_ener=ESO(1)
+  prev_ener = ESO(1)
   n_uniq_ener=1
   do ISS = 2, NSS
     if (abs(ESO(ISS) - prev_ener) >= ETHR_in_cm) then
@@ -880,7 +870,7 @@ subroutine get_degen_states(opt)
     endif
   end do
 
-! get_coupled_degen_states() can be called multiple times, after shifting energy by NCOU or COUPLedstates.
+! get_degen_states() can be called multiple times, after shifting energy by NCOU or COUPLedstates.
   if (allocated(degen_start_idx)) call mma_deallocate(degen_start_idx)
   if (allocated(degen_end_idx)) call mma_deallocate(degen_end_idx)
 
@@ -923,13 +913,9 @@ end subroutine
 
 !======================================================================
 subroutine calc_A_tens(A_tens,h_HFC)
-  ! INPUT VARIABLE
   complex(kind=wp), intent(in)  :: h_HFC(3,NSS,NSS)
-
-  ! OUTPUT VARIABLE
   real(kind=wp),intent(out)     :: A_tens(3,3)
 
-  ! LOCAL VARIABLE
   integer(kind=iwp)             :: u, w
   complex(kind=wp), allocatable :: h_temp(:,:,:)
 
@@ -966,6 +952,7 @@ subroutine calc_A_tens(A_tens,h_HFC)
 
   call mma_deallocate(h_temp)
   ! Atens_fac is determined by subroutine get_Atens_coupled_states()
+  ! PSEUDOSPIN APPROACH :  REF: 10.1021/acs.jctc.0c01005
   A_tens(:,:) = Atens_fac * A_tens(:,:)
 
 end subroutine
@@ -1007,8 +994,8 @@ end subroutine
 subroutine assign_abc_signs(a,b,c,is_determined)
   real(kind=wp), intent(out)    :: a, b, c
   logical,intent(out)           :: is_determined
-  real(kind=wp)                 :: tol, max_left_absval, abs_a,abs_b,abs_c
 
+  real(kind=wp)                 :: tol, max_left_absval, abs_a,abs_b,abs_c
 ! PURPOSE: Determine signs of this equatiion:
 !           a  +/- |b| = +/- |c|
 ! where sign(a) is fixed (always positive or negative). OUTPUT: sign(b), sign(c)
@@ -1077,11 +1064,12 @@ end subroutine assign_abc_signs
   subroutine calc_prin_val(iAtom,A_tens,contrib)
     real(kind=wp), intent(in)    :: A_tens(3,3)
     integer(kind=iwp),intent(in) :: contrib
+    integer(kind=iwp),intent(in) :: iAtom
+
     real(kind=wp)                :: X(3,3),EVR(3), EVI(3), prvl, fnorm_diag, fnorm_off_diag, tmpmat(3,3), dnrm2_
     real(kind=wp),parameter      :: to_au = -gElectron * beta_e * beta_n
+    integer(kind=iwp)            :: iAxis, IERR
 
-    integer(kind=iwp)            :: iAxis
-    integer(kind=iwp),intent(in) :: iAtom
 
 ! VARIABLE DESCRIPTION:
 !   fnorm_diag:       Frobenius norm of diag(sm_a)
@@ -1142,7 +1130,9 @@ end subroutine assign_abc_signs
 subroutine update_h_HFC_RMS(iAtom, h_HFC)
   integer(kind=iwp),intent(in)  :: iAtom
   complex(kind=wp), intent(in)  :: h_HFC(3,NSS,NSS)
+
   real(kind=wp)                 :: I_sq, NSpin_I, fac
+
 
   ! VERSION 1: PARTLY VECTORIZED
   ! h_rms_nuc =  abs(h_HFC(1,:,:))**2 + abs(h_HFC(2,:,:))**2 + abs(h_HFC(3,:,:))**2
@@ -1176,21 +1166,19 @@ end subroutine
 
 !======================================================================
 subroutine calc_h_PSO(iAtom,PROP)
-  real(kind=wp), intent(in)       :: PROP(NSTATE,NSTATE,NPROP)
-  real(kind=wp), allocatable      :: Im_h_PSO(:,:,:)
   integer(kind=iwp),intent(in)    :: iAtom
+  real(kind=wp), intent(in)       :: PROP(NSTATE,NSTATE,NPROP)
+
+  real(kind=wp), allocatable      :: Im_h_PSO(:,:,:)
   integer(kind=iwp)               :: u
 
+
   call mma_allocate(Im_h_PSO,3,NSS,NSS, Label="Im_h_PSO")
-
   Im_h_PSO(:,:,:) = Zero
-
   do u = 1, 3
     call SMMAT(PROP,Im_h_PSO(u,:,:),NSS,PSO_idx(iAtom,u),u)
   enddo
-
   h_PSO(:,:,:) = cmplx(0.0_wp, Im_h_PSO(:,:,:), kind=wp)
-
   call mma_deallocate(Im_h_PSO)
 
   call to_cmpl_SO_states(h_PSO)
@@ -1227,8 +1215,10 @@ end subroutine save_h_rms
 !======================================================================
 subroutine calc_h_Zeeman(PROP)
   real(kind=wp), intent(in)   :: PROP(NSTATE,NSTATE,NPROP)
+
   real(kind=wp), allocatable  :: Re_h_Zeeman(:,:,:) , Im_h_Zeeman(:,:,:),Angmom(:,:,:)
   integer(kind=iwp)           :: IAMX, IAMY, IAMZ, IPROP
+
 
   call mma_allocate(Re_h_Zeeman, 3, NSS, NSS, Label='Re_h_Zeeman')
   call mma_allocate(Im_h_Zeeman, 3, NSS, NSS, Label='Im_h_Zeeman')
@@ -1277,16 +1267,14 @@ endsubroutine calc_h_Zeeman
 
 
 !======================================================================
-subroutine calc_pNMR_Tensor(iAtom,h_HFC,contrib)
-! INPUT VARIABLES
+subroutine calc_pNMR_Tensor(iAtom,h_HFC,iContr)
   integer(kind=iwp), intent(in)   :: iAtom
-  complex(kind=wp), intent(in)    ::  h_HFC(3,NSS,NSS)
-  integer(kind=iwp), intent(in)   ::  contrib
-! LOCAL VARIABLES
-  real(kind=wp)                   ::  fac
-  integer(kind=iwp)               ::  lmb_a, lmb_ap, lmb
+  complex(kind=wp), intent(in)    :: h_HFC(3,NSS,NSS)
+  integer(kind=iwp), intent(in)   :: iContr
 
-  integer(kind=iwp)                ::  u, w, ISS, iT
+  real(kind=wp)                   :: fac
+  integer(kind=iwp)               :: lmb_a, lmb_ap, lmb
+  integer(kind=iwp)               :: u, w, ISS, iT
 
 ! VARIABLES DESCRIPTION
 ! REF: DOI: 10.1021/acs.jctc.6b00462   [eq. 1]
@@ -1296,8 +1284,13 @@ subroutine calc_pNMR_Tensor(iAtom,h_HFC,contrib)
 ! Z_HFC_over_dE       : Z_HFC_interaction / delta_E(ij)
 ! LR_tens             : Linear Response tensor [first term,  eq 1]
 ! C_tens              : Curie tensor           [second term, eq 1]
+! iContr              : Contribution: FC = 1
+!                                     SD = 2
+!                                    PSO = 3
+!                                  Total = 4
 
 
+! Calculate temperature-indepedent terms (numerator) in ! REF: DOI: 10.1021/acs.jctc.6b00462 Eq. 1
   do u = 1, 3
     do w = 1, 3
       Z_HFC_int_oper(u,w,:,:) = real(h_Zeeman(u,:,:) * conjg(h_HFC(w,:,:)), kind=wp)
@@ -1305,20 +1298,18 @@ subroutine calc_pNMR_Tensor(iAtom,h_HFC,contrib)
     end do
   end do
 
+! Linear response, Curie pNMR tensor are temperature-dependent
   LR_tens(:,:,:) = Zero
   C_tens(:,:,:)  = Zero
-!--------------------Calculate numerators for pNMR and Curie term----------------------
   do iT = 1, NTP
-    ! Curie term contribution [degenerate states]
     do ISS = 1, NSS
-
-      ! Lambda (lmb) is a group of degenereate states DOI: 10.1021/acs.jctc.6b00462   [eq. 1]
+      ! lambda (lmb) is a group of degenereate states
       ! All degenerate states have the SAME lambda
       lmb     = degen_group(ISS)
       lmb_a   = degen_start_idx(lmb)
       lmb_ap  = degen_end_idx(lmb)
 
-      ! Vectorized Curie tensor is trivial, loop between lmb_a and lmb_ap
+      ! Vectorized Curie tensor is trivial, loop between lmb_a and lmb_ap [degenerate states]
       C_tens(iT,:,:) = C_tens(iT,:,:) +  pBoltz(iT,ISS) * sum(Z_HFC_int_oper(:,:,ISS,lmb_a:lmb_ap), dim=3)
 
       ! Non-degenerate states will contribute to Linear Response term
@@ -1331,24 +1322,27 @@ subroutine calc_pNMR_Tensor(iAtom,h_HFC,contrib)
     C_tens(iT,:,:) = fac * C_tens(iT,:,:)
   enddo !Temperature
 
+! Unit conversion to ppm
   C_tens(:,:,:) =  to_ppm * C_tens(:,:,:)
   fac = to_ppm * Two
   LR_tens(:,:,:) = fac * LR_tens(:,:,:)
-!-----------------------------------------------
-  Curie_ChemShift(ipNMR_Calc,contrib,:)  = -(C_tens(:,1,1)+C_tens(:,2,2)+C_tens(:,3,3))/Three
-  LinRes_ChemShift(ipNMR_Calc,contrib,:) = -(LR_tens(:,1,1)+LR_tens(:,2,2)+LR_tens(:,3,3))/Three
 
+! Calculate chemical shift by average diagonal elements
+! Store chemical shift to print summary later
+  Curie_ChemShift(ipNMR_Calc,iContr,:)  = -(C_tens(:,1,1)+C_tens(:,2,2)+C_tens(:,3,3))/Three
+  LinRes_ChemShift(ipNMR_Calc,iContr,:) = -(LR_tens(:,1,1)+LR_tens(:,2,2)+LR_tens(:,3,3))/Three
 
+! Print output
   write(6,*) ''
   write(6,'(3X,A66)') repeat('-',66)
-  write(6,'(3X,A10,A6,A19,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'LINEAR RESPONSE :: ', contrib_lab(contrib)
+  write(6,'(3X,A10,A6,A19,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'LINEAR RESPONSE :: ', contrib_lab(iContr)
   write(6,'(3X,A66)') repeat('-',66)
   write(6,'(3X,A8,16X,A7,15X,A11)') 'Temp (K)', 'Tensor', 'Shift (ppm)'
   do iT=1,NTP
     call print_pNMR_tens(Temp_in_K(iT), LR_tens(iT,:,:))
   end do
   write(6,'(3X,A66)') repeat('-',66)
-  write(6,'(3X,A10,A6,A9,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'CURIE :: ', contrib_lab(contrib)
+  write(6,'(3X,A10,A6,A9,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'CURIE :: ', contrib_lab(iContr)
   write(6,'(3X,A66)') repeat('-',66)
   write(6,'(3X,A8,16X,A7,15X,A11)') 'Temp (K)', 'Tensor', 'Chemical Shift (ppm)'
   do iT=1,NTP
@@ -1365,8 +1359,11 @@ end subroutine
 !======================================================================
   subroutine print_pNMR_tens(temp, tensor)
     real(kind=wp), intent(in) :: temp, tensor(3,3)
+
     real(kind=wp)             :: shift
     integer(kind=iwp)         :: u
+
+
     shift = -(tensor(1,1)+tensor(2,2)+tensor(3,3))/Three
     write(6,'(2X,F6.1,3(2x,ES12.3),2X,F15.3)') temp, tensor(1,1:3), shift
     do u = 2, 3
