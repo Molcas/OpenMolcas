@@ -139,6 +139,7 @@ logical(kind=iwp) :: Do_ESPF
 logical(kind=iwp), external :: PCM_On
 #endif
 integer(kind=iwp), external :: IsFreeUnit, isStructure
+external :: RdOne
 real(kind=wp), external :: Get_ExFac
 #include "warnings.h"
 
@@ -685,16 +686,11 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       if (DumpOnly) then
         call mma_allocate(orbital_E,nTot)
         call mma_allocate(folded_Fock,nAcPar)
-        call transform(iter, &
-                       CMO=CMO(:), &
-                       DIAF=DIAF(:), &
-                       D1I_AO=D1I(:), &
-                       D1A_AO=D1A(:), &
-                       D1S_MO=DSPN(:), &
-                       F_IN=FI(:), &
-                       orbital_E=orbital_E, &
-                       folded_Fock=folded_Fock)
-        call make_fcidumps('FCIDUMP','H5FCIDUMP',orbital_E,folded_Fock,TUVX=tuvx(:),core_energy=EMY)
+        call transform(iter,CMO=CMO(:),DIAF=DIAF(:),D1I_AO=D1I(:), &
+                       D1A_AO=D1A(:),D1S_MO=DSPN(:),F_IN=FI(:), &
+                       orbital_E=orbital_E,folded_Fock=folded_Fock)
+        call make_fcidumps('FCIDUMP','H5FCIDUMP',orbital_E,folded_Fock, &
+                           TUVX=tuvx(:),core_energy=EMY,fort55_path='fort.55')
         call mma_deallocate(orbital_E)
         call mma_deallocate(folded_Fock)
         write(u6,*) 'FCIDMP file generated. Here for serving you!'
