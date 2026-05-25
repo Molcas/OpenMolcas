@@ -61,7 +61,6 @@ def download_file():
 
 ensure_isotopedata()
 
-
 isotopes = []
 
 with open(EASYSPIN_DAT_FILE, "r") as isotopedatatxt:
@@ -131,8 +130,8 @@ num_elements = len(firstIsotope_idx)
 print("\n\n\n")
 print("PARSING SUMMARY")
 print("---------------")
-print("Number of Elements:", num_elements)
-print("Number of Isotopes:", numb_isotopes)
+print("Number of Elements: ", num_elements)
+print("Number of Isotopes: ", numb_isotopes)
 
 
 with open(MOLCAS_SPIN_DATA_FILE, "w") as spin_dat_file:

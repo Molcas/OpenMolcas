@@ -29,8 +29,8 @@ module spin_data
     integer(kind=iwp)             :: MassNum
     real(kind=wp)                 :: Abundance
     real(kind=wp)                 :: NucSpin
-    real(kind=wp)                 :: NucGfac
-    logical(iwp)                  :: Stable
+    real(kind=wp)                 :: GNuc
+    logical(kind=iwp)             :: Stable
   end type isotope
 
   type :: element
@@ -40,6 +40,9 @@ module spin_data
 
   type(element),allocatable   :: elements(:)
   type(isotope),allocatable   :: isotopes(:)
+
+  integer(kind=iwp)                       :: first_isotope, last_isotope
+  logical(kind=iwp)                       :: not_found_gnuc , not_found_spin
 
   public :: init_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass, &
             GNUC_by_nucspin, NUCSPIN_by_gnuc, get_first_nonzero_GNUC
@@ -114,14 +117,14 @@ module spin_data
           read(Line(17:24), *, iostat=Err1) isotopes(iRec)%MassNum
           read(Line(28:39), *, iostat=Err2) isotopes(iRec)%Abundance
           read(Line(43:49), *, iostat=Err3) isotopes(iRec)%NucSpin
-          read(Line(54:64), *, iostat=Err4) isotopes(iRec)%NucGfac
+          read(Line(54:64), *, iostat=Err4) isotopes(iRec)%GNuc
           read(Line(71:73), *, iostat=Err5) isotopes(iRec)%Stable
 
           if (Err  > 0) write(u6,*) "spin_data.F90: Error reading Line in spin_data.txt"
           if (Err1 > 0) write(u6,*) "spin_data.F90: Error reading MassNum"
           if (Err2 > 0) write(u6,*) "spin_data.F90: Error reading Abundance"
           if (Err3 > 0) write(u6,*) "spin_data.F90: Error reading NucSpin"
-          if (Err4 > 0) write(u6,*) "spin_data.F90: Error reading NucGfac"
+          if (Err4 > 0) write(u6,*) "spin_data.F90: Error reading GNuc"
           if (Err5 > 0) write(u6,*) "spin_data.F90: Error reading Stable"
           if ((Err+Err1+Err2+Err3+Err4+Err5) > 0) call AbEnd()
         end do
@@ -134,40 +137,53 @@ module spin_data
 
 
 !======================================================================
-  function GNUC_by_nucspin(AtNumb,NucSpin) result(NucGfac)
-    integer(kind=iwp),intent(in) :: AtNumb
-    real(kind=wp), intent(in)    :: NucSpin
-    real(kind=wp)                :: NucGfac
-    integer(kind=iwp)            :: iRec, first_isotope, last_isotope
-    logical(kind=iwp)            :: not_found_gfac
+  subroutine GNUC_by_nucspin(AtNumb,GNuc,NucSpin,Stability)
+    integer(kind=iwp),intent(in)            :: AtNumb
+    real(kind=wp),intent(out)               :: GNuc
+    real(kind=wp), intent(in)               :: NucSpin
+    character(len=1), intent(out), optional :: Stability
+
+    integer(kind=iwp)                       :: iRec
 
 
     first_isotope = elements(AtNumb)%first_isotope
     last_isotope  = elements(AtNumb)%last_isotope
 
-    NucGfac = 0.0_wp
-    not_found_gfac = .true.
+    GNuc = 0.0_wp
+    not_found_gnuc = .true.
     do iRec=first_isotope,last_isotope
       if (abs(isotopes(iRec)%NucSpin - NucSpin) < 1e-5_wp) then
-        NucGfac = isotopes(iRec)%NucGfac
+        not_found_gnuc = .false.
+        GNuc = isotopes(iRec)%GNuc
+
+        if(present(Stability)) then
+          if (isotopes(iRec)%Stable) then
+            Stability = '-'
+          else
+            Stability = '*'
+          endif
+        endif
+
         exit
       endif
     enddo
 
-    if (not_found_gfac) call warning_not_found(1)
-    call isot_info(AtNumb, NucGfac, NucSpin)
+    if (not_found_gnuc) call warning_not_found(1)
+    call isot_info(AtNumb, GNuc, NucSpin)
 
-  end function GNUC_by_nucspin
+  end subroutine GNUC_by_nucspin
 !======================================================================
 
 
 !======================================================================
-  function NUCSPIN_by_gnuc(AtNumb,NucGfac) result(NucSpin)
-    integer(kind=iwp),intent(in) :: AtNumb
-    real(kind=wp), intent(in)    :: NucGfac
-    real(kind=wp)                :: NucSpin
-    integer(kind=iwp)            :: iRec, first_isotope, last_isotope
-    logical(kind=iwp)            :: not_found_spin
+  subroutine NUCSPIN_by_gnuc(AtNumb, GNuc, NucSpin, Stability)
+    integer(kind=iwp),intent(in)            :: AtNumb
+    real(kind=wp), intent(in)               :: GNuc
+    real(kind=wp), intent(out)              :: NucSpin
+    character(len=1), intent(out), optional :: Stability
+
+    integer(kind=iwp)                       :: iRec
+
 
     first_isotope = elements(AtNumb)%first_isotope
     last_isotope  = elements(AtNumb)%last_isotope
@@ -175,99 +191,130 @@ module spin_data
     NucSpin = 0.5_wp
     not_found_spin = .true.
     do iRec=first_isotope,last_isotope
-      if (abs(isotopes(iRec)%NucGfac - NucGfac) < 0.001_wp) then
+      if (abs(isotopes(iRec)%GNuc - GNuc) < 0.001_wp) then
         not_found_spin = .false.
         NucSpin = isotopes(iRec)%NucSpin
+
+        if(present(Stability)) then
+          if (isotopes(iRec)%Stable) then
+            Stability = '-'
+          else
+            Stability = '*'
+          endif
+        endif
+
         exit
       endif
     enddo
 
     if (not_found_spin) call warning_not_found(0)
-    call isot_info(AtNumb, NucGfac, NucSpin)
+    call isot_info(AtNumb, GNuc, NucSpin)
 
-  end function NUCSPIN_by_gnuc
+  end subroutine NUCSPIN_by_gnuc
 !======================================================================
 
 
 !======================================================================
-  subroutine GNUC_NUCSPIN_by_nucmass(AtNumb,MassNum,NucGfac,NucSpin)
-    integer(kind=iwp),intent(in) :: AtNumb, MassNum
-    real(kind=wp), intent(out)   :: NucSpin, NucGfac
-    integer(kind=iwp)            :: iRec, first_isotope, last_isotope
-    logical(kind=iwp)            :: not_found_gfac , not_found_spin
+  subroutine GNUC_NUCSPIN_by_nucmass(AtNumb,MassNum,GNuc,NucSpin, Stability)
+    integer(kind=iwp),intent(in)            :: AtNumb, MassNum
+    real(kind=wp), intent(out)              :: NucSpin, GNuc
+    character(len=1), intent(out), optional :: Stability
+
+    integer(kind=iwp)                       :: iRec
+
 
     first_isotope = elements(AtNumb)%first_isotope
     last_isotope  = elements(AtNumb)%last_isotope
 
     NucSpin = 0.5_wp
-    NucGfac = 0.0_wp
-    not_found_gfac = .true.
+    GNuc = 0.0_wp
+    not_found_gnuc = .true.
     not_found_spin = .true.
     do iRec=first_isotope,last_isotope
       if (isotopes(iRec)%MassNum == MassNum) then
-        not_found_gfac = .false.
+        not_found_gnuc = .false.
         not_found_spin = .false.
         NucSpin = isotopes(iRec)%NucSpin
-        NucGfac = isotopes(iRec)%NucGfac
+        GNuc = isotopes(iRec)%GNuc
+
+        if(present(Stability)) then
+          if (isotopes(iRec)%Stable) then
+            Stability = '-'
+          else
+            Stability = '*'
+          endif
+        endif
+
         exit
       endif
     enddo
 
-
     if (not_found_spin) call warning_not_found(0)
-    if (not_found_gfac) call warning_not_found(1)
-    call isot_info(AtNumb, NucGfac, NucSpin, MassNum)
+    if (not_found_gnuc) call warning_not_found(1)
+    call isot_info(AtNumb, GNuc, NucSpin, MassNum)
 
   end subroutine GNUC_NUCSPIN_by_nucmass
 !======================================================================
 
 
 !======================================================================
-  subroutine get_first_nonzero_GNUC(AtNumb, NucGfac,NucSpin)
-    integer(kind=iwp),intent(in)           :: AtNumb
-    real(kind=wp), intent(out)             :: NucGfac, NucSpin
-    integer(kind=iwp)                      :: iRec, first_isotope, last_isotope
-    logical(kind=iwp)                      :: not_found_gfac, not_found_spin
+  subroutine get_first_nonzero_GNUC(AtNumb, GNuc,NucSpin,Stability)
+    integer(kind=iwp),intent(in)            :: AtNumb
+    real(kind=wp), intent(out)              :: GNuc, NucSpin
+    character(len=1), intent(out), optional :: Stability
+
+    integer(kind=iwp)                       :: iRec
+
 
     first_isotope = elements(AtNumb)%first_isotope
     last_isotope  = elements(AtNumb)%last_isotope
 
     NucSpin = 0.5_wp
-    NucGfac = 0.0_wp
-    not_found_gfac = .true.
+    GNuc = 0.0_wp
+    not_found_gnuc = .true.
     not_found_spin = .true.
     do iRec=first_isotope,last_isotope
-      if (isotopes(iRec)%NucGfac /= 0.0_wp) then
-        not_found_gfac = .false.
+      if (isotopes(iRec)%GNuc /= 0.0_wp) then
+        not_found_gnuc = .false.
         not_found_spin = .false.
-        NucGfac = isotopes(iRec)%NucGfac
+        GNuc = isotopes(iRec)%GNuc
         NucSpin = isotopes(iRec)%NucSpin
+
+        if(present(Stability)) then
+          if (isotopes(iRec)%Stable) then
+            Stability = '-'
+          else
+            Stability = '*'
+          endif
+        endif
+
         exit
       endif
     enddo
 
     if (not_found_spin) call warning_not_found(0)
-    if (not_found_gfac) call warning_not_found(1)
-    call isot_info(AtNumb, NucGfac, NucSpin)
+    if (not_found_gnuc) call warning_not_found(1)
+    call isot_info(AtNumb, GNuc, NucSpin)
 
   end subroutine get_first_nonzero_GNUC
 !======================================================================
 
 
 !======================================================================
-  subroutine isot_info(AtNumb, NucGfac, NucSpin,MassNum)
-    integer(kind=iwp), intent(in) :: AtNumb
+  subroutine isot_info(AtNumb, GNuc, NucSpin,MassNum)
+    integer(kind=iwp), intent(in)           :: AtNumb
     integer(kind=iwp), intent(in), optional :: MassNum
-    real(kind=wp), intent(in)     :: NucGfac, NucSpin
+    real(kind=wp), intent(in)               :: GNuc, NucSpin
 
-    write(6,'(11X,A18)')    repeat('_', 18)
-    write(6,'(11X,A18,I0)')    'INFO          Z = ', AtNumb
+
+    write(u6,'(11X,A18)')    repeat('_', 18)
+    write(u6,'(11X,A18,I0)')    'INFO          Z = ', AtNumb
     if (present(MassNum)) then
-      write(6,'(11X,A18,I0)')    '              A = ', MassNum
+      write(u6,'(11X,A18,I0)')    '              A = ', MassNum
     endif
-    write(6,'(11X,A18,F12.8)') '       g-factor = ', NucGfac
-    write(6,'(11X,A18,F5.2)')  '        NucSpin = ', NucSpin
-    write(6,*) ''
+    write(u6,'(11X,A18,F12.8)') '       g-factor = ', GNuc
+    write(u6,'(11X,A18,F5.2)')  '        NucSpin = ', NucSpin
+    write(u6,*) ''
   end subroutine isot_info
 !======================================================================
 
@@ -277,11 +324,11 @@ module spin_data
     integer(kind=iwp), intent(in) :: option
 
     if(option == 0) then
-      write(6,'(11X,A37)')  'WARNING: Not found a matching record!'
-      write(6,'(20X,A61)')  'Defaulting to NucSpin = 0.5. This value might be fictitious. '
+      write(u6,'(11X,A37)')  'WARNING: Not found a matching record!'
+      write(u6,'(20X,A61)')  'Defaulting to NucSpin = 0.5. This value might be fictitious. '
     else if(option == 1) then
-      write(6,'(11X,A37)')  'WARNING: Not found a matching record!'
-      write(6,'(20X,A61)')  'Defaulting to g-factor = 0.0. This value might be fictitious.'
+      write(u6,'(11X,A37)')  'WARNING: Not found a matching record!'
+      write(u6,'(20X,A61)')  'Defaulting to g-factor = 0.0. This value might be fictitious.'
     endif
   end subroutine warning_not_found
 !======================================================================
@@ -289,17 +336,12 @@ module spin_data
 
 !======================================================================
   subroutine free_spin_data()
-    integer :: istat
+    integer(kind=iwp) :: istat
 
     deallocate(isotopes, stat=istat)
-    if (istat > 0) then
-      write(6,*) ' Error in deallocating EasySpin isotopes.'
-    end if
-
+    if (istat > 0) write(u6,*) ' Error in deallocating EasySpin isotopes.'
     deallocate(elements, stat=istat)
-    if (istat > 0) then
-      write(6,*) ' Error in deallocating EasySpin elements.'
-    end if
+    if (istat > 0) write(u6,*) ' Error in deallocating EasySpin elements.'
 
   end subroutine free_spin_data
 

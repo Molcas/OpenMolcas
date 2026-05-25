@@ -23,16 +23,18 @@ module hyperfine
   use RASSIWfn,    only: wfn_h_hfc_rms
 #endif
   use Molcas,      only: LenIn
-  use Definitions, only: iwp, wp
-  use Constants,   only: Zero, Half, One, Two, Three, Four, Six, Twelve, auTocm, c_in_au,      &
+  use Definitions, only: iwp, wp, u6
+  use Constants,   only: Zero, Half, One, Two, Three, Twelve, auTocm, c_in_au,      &
                          gElectron, auToHz, kBoltzmann, auTokJ
   use stdalloc,    only: mma_allocate, mma_deallocate
   use spin_data,   only: init_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass,         &
                          GNUC_by_nucspin, NUCSPIN_by_gnuc, get_first_nonzero_GNUC
-  use Cntrl,       only: NSTATE, NPROP, PNAME,NAtoms, MULTIP, ICOMP, MLTPLT, ASD_idx, PSO_idx, &
+  use Cntrl,       only: NSTATE, NPROP, PNAME,NAtoms, MLTPLT, ASD_idx, PSO_idx, AngMom_idx, &
                          NPNMR_Calc, pNMR_req, HypF_rms_Req, NATens_Calc, Atens_Req,           &
-                         NucMass, NMass_set, NucSpin, NSpin_set, NucGFac, NGFac_set, Hypo_Iso, &
+                         NucMass, NMass_set, NucSpin, NSpin_set, GNuc, GNuc_set, Hypo_Iso, &
                          AutoSelect_GFac, LCSTATES, NCOUP, NTP, TMINP, TMAXP, DEGEN_ETHR
+
+  use HFC_logical, only: MAG_X2C
 
   implicit none
 
@@ -85,6 +87,7 @@ module hyperfine
   real(kind=wp)                      ::  e_spin
   integer(kind=iwp), allocatable     ::  LAtNumb(:)
   character(len=LenIn), allocatable  ::  LAtomLbl(:)
+  character(len=1), allocatable      ::  LStability(:)
 
   ! Routing variables
   logical(kind=iwp)                  :: do_calc, do_EPR, do_pNMR
@@ -102,6 +105,12 @@ module hyperfine
     real(kind=wp), intent(in)       ::  PROP(NSTATE,NSTATE,NPROP), USOR(:,:), USOI(:,:)
 
     integer(kind=iwp)               :: iAtom
+
+    if (.not. MAG_X2C) then
+      write(u6,*) "The HFCOper, HFCAt, NMRAt options require the RX2C and MXTC keywords in &SEWARD."
+      write(u6,*) "For the non-relativistic limit, set CLIGHT in &SEWARD to a large value."
+      call AbEnd()
+    endif
 
 
 ! Setup reused variables------------------------------
@@ -138,7 +147,7 @@ module hyperfine
     real(kind=wp),intent(in)        :: USOR(:,:), USOI(:,:)
 
     integer(kind=iwp),allocatable   :: MAPSP(:), MAPMS(:)
-    integer(kind=iwp)               :: MSPROJ,  MPLET, ISS, JSS, ISTATE, JSTATE, JOB
+    integer(kind=iwp)               :: MSPROJ,  MPLET, ISS, JSS, JOB, ISTATE
     real(kind=wp)                   :: S1, S2, SM1, SM2,FACT, MPLET1,MSPROJ1, MPLET2, MSPROJ2,   &
                                        CGm, CGp, DCLEBS
     real(kind=wp), allocatable      :: rtemp(:)
@@ -208,13 +217,13 @@ module hyperfine
 
 ! Wigner-Eckart theorem
   do ISS=1,NSS
-    ISTATE = MAPST(ISS)
+
     MPLET1 = MAPSP(ISS)
     MSPROJ1 = MAPMS(ISS)
     S1 = Half*real(MPLET1-1,kind=wp)
     SM1 = Half*real(MSPROJ1,kind=wp)
     do JSS=1,NSS
-      JSTATE = MAPST(JSS)
+
       MPLET2 = MAPSP(JSS)
       MSPROJ2 = MAPMS(JSS)
       S2 = Half*real(MPLET2-1,kind=wp)
@@ -233,6 +242,7 @@ module hyperfine
   call mma_deallocate(MAPMS)
 
 ! Process spin data (Nuclear spin + g-Factor)
+  call mma_allocate(LStability, NAtoms, "Stability")
   if (HypF_rms_Req .or. allocated(Atens_Req)) then
     call proc_spin_data()
     call print_isotope_info()
@@ -264,7 +274,7 @@ module hyperfine
     call mma_allocate(Temp_in_K,NTP, Label="Temp_in_K")
     dlt_T=(TMAXP-TMINP)/(real(NTP-1 ,kind=wp))
     if(TMINP == Zero) then
-      write(6,*) "WARNING: TMINP is set to zero. Adjusting TMINP to 0.1K to avoid numerical issues."
+      write(u6,*) "WARNING: TMINP is set to zero. Adjusting TMINP to 0.1K to avoid numerical issues."
       Temp_in_K(1)=0.1_wp
     else
       Temp_in_K(1)=TMINP
@@ -344,15 +354,15 @@ module hyperfine
     enddo
 
     if(do_EPR .or. do_pNMR) then
-      write(6,*) ""
-      write(6,*) ""
-      write(6,*) ""
-      write(6,*) ""
-      write(6,'(3X,A30)') repeat("=",30)
-      if (do_EPR .and. do_pNMR)       write(6,'(3X,A24,A6)') "HFC & pNMR Calc. for :: ", LAtomLbl(iAtom)
-      if (do_EPR .and. .not. do_pNMR) write(6,'(6X,A17,A6)') "HFC Calc. for :: ", LAtomLbl(iAtom)
-      if (.not. do_EPR .and. do_pNMR) write(6,'(6X,A18,A6)') "pNMR Calc. for :: ", LAtomLbl(iAtom)
-      write(6,'(3X,A30)') repeat("=",30)
+      write(u6,*) ""
+      write(u6,*) ""
+      write(u6,*) ""
+      write(u6,*) ""
+      write(u6,'(3X,A30)') repeat("=",30)
+      if (do_EPR .and. do_pNMR)       write(u6,'(3X,A24,A6)') "HFC & pNMR Calc. for :: ", LAtomLbl(iAtom)
+      if (do_EPR .and. .not. do_pNMR) write(u6,'(6X,A17,A6)') "HFC Calc. for :: ", LAtomLbl(iAtom)
+      if (.not. do_EPR .and. do_pNMR) write(u6,'(6X,A18,A6)') "pNMR Calc. for :: ", LAtomLbl(iAtom)
+      write(u6,'(3X,A30)') repeat("=",30)
     endif
 
 ! NOTE: While it is possible to make the code concise by enclosing if(do_EPR) or do_pNMR
@@ -395,6 +405,8 @@ module hyperfine
       call calc_prin_val(iAtom,A_tens,5)
     endif
     if(do_pNMR) call calc_pNMR_Tensor(iAtom,h_TOT,4)
+
+    if (do_EPR) call assign_hfc_prvl_signs()
 
     call mma_deallocate(ASD)
 
@@ -439,23 +451,23 @@ module hyperfine
     integer(kind=iwp), intent(in)             :: iAtom, case
     integer(kind=iwp), intent(in), optional   :: seward_mass
 
-    write(6,'(7X,A18,A6)') 'Process for atom: ', LAtomLbl(iAtom)
+    write(u6,'(7X,A18,A6)') 'Process for atom: ', LAtomLbl(iAtom)
     select case (case)
     case(1)
-      write(6,'(11X,A38)') 'USE: Isotopic mass [SEWARD or GATEWAY]'
-      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), seward_mass, NucGFac(iAtom),NucSpin(iAtom))
+      write(u6,'(11X,A38)') 'USE: Isotopic mass [SEWARD or GATEWAY]'
+      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), seward_mass, GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     case(2)
-      write(6,'(11X,A31,I0)') 'USE: NMASs [RASSI input]   A = ', NucMass(iAtom)
-      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), NucMass(iAtom), NucGFac(iAtom), NucSpin(iAtom))
+      write(u6,'(11X,A31,I0)') 'USE: NMASs [RASSI input]   A = ', NucMass(iAtom)
+      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), NucMass(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
     case(3)
-      write(6,'(11X,A31,F6.2)') 'USE: NSPIn [RASSI input]   I = ', NucSpin(iAtom)
-      NucGFac(iAtom) = GNUC_by_nucspin(LAtNumb(iAtom), NucSpin(iAtom))
+      write(u6,'(11X,A31,F6.2)') 'USE: NSPIn [RASSI input]   I = ', NucSpin(iAtom)
+      call GNUC_by_nucspin(LAtNumb(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
     case(4)
-      write(6,'(11X,A37,F12.8)') 'USE: GNUC [RASSI input]   g-factor = ', NucGFac(iAtom)
-      NucSpin(iAtom) = NUCSPIN_by_gnuc(LAtNumb(iAtom), NucGFac(iAtom))
+      write(u6,'(11X,A37,F12.8)') 'USE: GNUC [RASSI input]   g-factor = ', GNuc(iAtom)
+      call NUCSPIN_by_gnuc(LAtNumb(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
     case(5)
-      write(6,'(11X,A28,F12.8)') 'USE: Most abundance non-zero'
-      call get_first_nonzero_GNUC(LAtNumb(iAtom),NucGFac(iAtom),NucSpin(iAtom))
+      write(u6,'(11X,A28,F12.8)') 'USE: Most abundance non-zero'
+      call get_first_nonzero_GNUC(LAtNumb(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     end select
 
   end subroutine
@@ -480,7 +492,7 @@ module hyperfine
     call init_spin_data()
 
     if (.not. allocated(NucSpin))     call mma_allocate(NucSpin,NAtoms,"NucSpin")
-    if (.not. allocated(NucGFac))     call mma_allocate(NucGFac,NAtoms,"gNuc")
+    if (.not. allocated(GNuc))     call mma_allocate(GNuc,NAtoms,"gNuc")
 
     call mma_allocate(Weights,NAtoms,"weights_hfcop")
     call Get_dArray('Weights', Weights, NAtoms)
@@ -496,27 +508,28 @@ module hyperfine
     use_seward_mass = .false.
     ! Setting DEFAULT case based on user input
     if (HypF_rms_Req) then
-      if(.not. (AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. NGFac_set)) use_seward_mass = .true.
+      if(.not. (AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
     else if (allocated(Atens_Req)) then
-      if(.not. (AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. NGFac_set)) AutoSelect_GFac   = .true.
+      if(.not. (AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) AutoSelect_GFac   = .true.
     endif
 
     if (use_seward_mass)  case = 1
     if (NMass_set)        case = 2
     if (NSpin_set)        case = 3
-    if (NGFac_set)        case = 4
+    if (GNuc_set)        case = 4
     if (AutoSelect_GFac)  case = 5
 
 !   If users specify both NucSpin and GNUC, they should use "HISO" keyword
 !   to indicate hypothetical isotopes rather than finding real isotopes in EZSpin data.
 !   Hypo_Iso will be turned on automatically if both NucSpin and GNUC are set by users.
-    if (NSpin_set .and. NGFac_set) Hypo_Iso = .true.
+    if (NSpin_set .and. GNuc_set) Hypo_Iso = .true.
 
+    write(u6,*) ""
 ! When HFC_RMS hamiltonian is requested, we need to process the nuclear data for ALL atoms.
     if (HypF_rms_Req) then
       do iAtom = 1, NAtoms
         not_set_by_users = (NSpin_set  .and. NucSpin(iAtom)  == -100.0_wp)  .or. &
-                            (NGFac_set .and. NucGFac(iAtom)  == -100.0_wp)  .or. &
+                            (GNuc_set .and. GNuc(iAtom)  == -100.0_wp)  .or. &
                             (NMass_set .and. NucMass(iAtom)  == -100_iwp)
 
         if(not_set_by_users) then
@@ -553,7 +566,9 @@ module hyperfine
 ! do_pNMR   |     ___    |    ___   |   TRUE    |
 !------------------------------------------------
 !   --- : to be determined by this subroutine.
-
+!
+! Note: iACalc and ipNMR_Calc are global variables controlled by route_calc for long-passing.
+!       Do not use iACalc, ipNMR_Calc for loops.
     do_calc  = .false.
     do_EPR   = .false.
     do_pNMR  = .false.
@@ -583,27 +598,28 @@ module hyperfine
     integer(kind=iwp)  :: iAtom
 
 
-    write(6,*)
-    write(6,*)
+    write(u6,*)
+    write(u6,*)
     if(HypF_rms_Req) then
       ! Print full table (Spin G-factor)
-      write(6,'(7X,A32)') repeat('-',32)
-      write(6,'(7X,A32)')'Atom     Spin           g-Factor'
-      write(6,'(7X,A32)') repeat('-',32)
+      write(u6,'(7X,A37)') repeat('-',37)
+      write(u6,'(7X,A37)')'Atom     Spin           g-Factor Note'
+      write(u6,'(7X,A37)') repeat('-',37)
       do iAtom=1,NAtoms
-        write(6,'(7X,A6,1x,F6.2,7x,F12.8)') LAtomLbl(iAtom), NucSpin(iAtom), NucGFac(iAtom)
+        write(u6,'(7X,A6,1x,F6.2,7x,F12.8,2X,A1)') LAtomLbl(iAtom), NucSpin(iAtom), GNuc(iAtom), LStability(iAtom)
       enddo
-      write(6,'(7X,A32)') repeat('-',32)
+      write(u6,'(7X,A37)') repeat('-',37)
 
     else
     ! Otherwise, only print g-factor. Spin is not needed for EPR calc.
-      write(6,'(7X,A22)') repeat('-',22)
-      write(6,'(7X,A22)')'Atom          g-Factor'
-      write(6,'(7X,A22)') repeat('-',22)
+      write(u6,'(7X,A27)') repeat('-',27)
+      write(u6,'(7X,A27)')'Atom          g-Factor Note'
+      write(u6,'(7X,A27)') repeat('-',27)
       do iAtom=1,NAtoms
-        if(Atens_Req(iAtom)) write(6,'(7X,A6,4x,F12.8)') LAtomLbl(iAtom), NucGFac(iAtom)
+        if(Atens_Req(iAtom)) write(u6,'(7X,A6,4x,F12.8,2X,A1)') LAtomLbl(iAtom), GNuc(iAtom), LStability(iAtom)
       enddo
-      write(6,'(7X,A22)') repeat('-',22)
+      write(u6,'(7X,A27)') repeat('-',27)
+      write(u6,'(7X,A23)') "radioactive *, stable -"
     endif
   end subroutine
 !======================================================================
@@ -614,45 +630,45 @@ subroutine print_pNMR_summary()
   integer(kind=iwp)     :: iAtom, iT, iContr
 
 
-  write(6,*)
-  write(6,*)
-  write(6,*)
-  write(6,'(3X,A96)') REPEAT('=',96)
-  write(6,'(36X,A28)') 'Summary pNMR Chemical Shifts'
-  write(6,'(3X,A96)') REPEAT('=',96)
-  write(6,*)
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(3X,A96)') REPEAT('=',96)
+  write(u6,'(36X,A28)') 'Summary pNMR Chemical Shifts'
+  write(u6,'(3X,A96)') REPEAT('=',96)
+  write(u6,*)
+  write(u6,*)
 
   ipNMR_Calc = 0
   do iAtom = 1, nAtoms
 
     if (pNMR_req(iAtom)) then
       ipNMR_Calc = ipNMR_Calc + 1
-      write(6,*) ""
-      write(6,'(3X,A10,A6)') '>>> ATOM: ', adjustl(LAtomLbl(iAtom))
-      write(6,*) ""
+      write(u6,*) ""
+      write(u6,'(3X,A10,A6)') '>>> ATOM: ', adjustl(LAtomLbl(iAtom))
+      write(u6,*) ""
 
-      write(6,'(3X,A66)') repeat('-',66)
-      write(6,'(3X,A10,A6,A20)') '>>> ATOM: ', adjustl(LAtomLbl(iAtom)), 'CURIE CHEMICAL SHIFT'
-      write(6,'(3X,A66)') repeat('-',66)
-      write(6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') 'Temp(K)',                                  &
+      write(u6,'(3X,A66)') repeat('-',66)
+      write(u6,'(3X,A10,A6,A20)') '>>> ATOM: ', adjustl(LAtomLbl(iAtom)), 'CURIE CHEMICAL SHIFT'
+      write(u6,'(3X,A66)') repeat('-',66)
+      write(u6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') 'Temp(K)',                                  &
       ' Curie (ppm)', "        [FC]", "        [SD]",  "       [PSO]"
-      write(6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') repeat('-',7),(repeat('-',12), iContr=1,4)
+      write(u6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') repeat('-',7),(repeat('-',12), iContr=1,4)
       do iT = 1, NTP
-        write(6,'(3X,F7.1,2x,F12.2,5x,F12.2,2(2x,F12.2))') Temp_in_K(iT) ,                        &
+        write(u6,'(3X,F7.1,2x,F12.2,5x,F12.2,2(2x,F12.2))') Temp_in_K(iT) ,                        &
         Curie_ChemShift(ipNMR_Calc,4,iT), (Curie_ChemShift(ipNMR_Calc,iContr,iT), iContr=1,3)
       enddo
 
 
-      write(6,'(3X,A66)') repeat('-',66)
-      write(6,'(3X,A10,A6,A30)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)), 'LINEAR RESPONSE CHEMICAL SHIFT'
-      write(6,'(3X,A66)') repeat('-',66)
-      write(6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') 'Temp(K)',                                  &
+      write(u6,'(3X,A66)') repeat('-',66)
+      write(u6,'(3X,A10,A6,A30)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)), 'LINEAR RESPONSE CHEMICAL SHIFT'
+      write(u6,'(3X,A66)') repeat('-',66)
+      write(u6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') 'Temp(K)',                                  &
       'LinRes (ppm)', "        [FC]", "        [SD]", "       [PSO]"
-      write(6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') repeat('-',7),(repeat('-',12), iContr=1,4)
+      write(u6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') repeat('-',7),(repeat('-',12), iContr=1,4)
 
       do iT = 1, NTP
-        write(6,'(3X,F7.1,2x,F12.2,5x,F12.2,2(2x,F12.2))') Temp_in_K(iT) ,                        &
+        write(u6,'(3X,F7.1,2x,F12.2,5x,F12.2,2(2x,F12.2))') Temp_in_K(iT) ,                        &
         LinRes_ChemShift(ipNMR_Calc,4,iT), (LinRes_ChemShift(ipNMR_Calc,iContr,iT), iContr=1,3)
       enddo
     endif
@@ -670,85 +686,84 @@ subroutine print_EPR_summary()
   integer(kind=iwp)         :: iAtom, iContr, iAxis
 
 
-  write(6,*)
-  write(6,*)
-  write(6,*)
-  write(6,'(3X,A96)') REPEAT('=',96)
-  write(6,'(36X,A28)') 'Summary HFC Principal Values'
-  write(6,'(3X,A96)') REPEAT('=',96)
-  write(6,*)
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(3X,A96)') REPEAT('=',96)
+  write(u6,'(36X,A28)') 'Summary HFC Principal Values'
+  write(u6,'(3X,A96)') REPEAT('=',96)
+  write(u6,*)
+  write(u6,*)
 
-  call assign_hfc_prvl_signs()
 
 !--> Unit conversion to MHz
   iACalc = 0
   do iAtom = 1, nAtoms
     if (Atens_Req(iAtom)) then
       iACalc = iACalc + 1
-      conv = con_to_MHz * NucGFac(iAtom)
+      conv = con_to_MHz * GNuc(iAtom)
       prin_vals(iACalc,:,:) = conv * prin_vals(iACalc,:,:)
     end if
   end do
 
 !--> Print Electronic State information
-  write(6,'(3X,A29,F6.2,2X,A27,I0)') '>>> Electronic Pseudospin :: ',e_spin, "Number of Coupling States: ",NCOUP
-  write(6,*)
-  write(6,*)
+  write(u6,'(3X,A29,F6.2,2X,A27,I0)') '>>> Electronic Pseudospin :: ',e_spin, "Number of Coupling States: ",NCOUP
+  write(u6,*)
+  write(u6,*)
 
 !--> Print summary table of principal values in MHz unit
   iACalc = 0
   do iAtom = 1, nAtoms
     if (Atens_Req(iAtom)) then
       iACalc = iACalc + 1
-      write(6,*) ""
-      write(6,'(3X,A10,A6,A12,F12.4,A12,F3.1)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)), &
-              ' g-factor = ',NucGFac(iAtom),'  NucSpin = ',NucSpin(iAtom)
-      write(6,*) ""
-      write(6,'(3X,A4,2X,A7,A5,5X,A7,A5,3(2X,A7,A5))') 'Comp',                         &
+      write(u6,*) ""
+      write(u6,'(3X,A10,A6,A17,F3.1,3X,A19,F9.6)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)), &
+              '  Nuclear Spin = ',NucSpin(iAtom), 'Nuclear g-factor = ',GNuc(iAtom)
+      write(u6,*) ""
+      write(u6,'(3X,A4,2X,A7,A5,5X,A7,A5,3(2X,A7,A5))') 'Comp',                         &
       ' TOTAL ',unit,'    FC ',unit,'    SD ',unit,'  FCSD ',unit,'   PSO ',unit
-      write(6,'(3X,A4,2X,A12,5X,A12,3(2X,A12))') repeat('-',4),(repeat('-',12), iContr=1,5)
+      write(u6,'(3X,A4,2X,A12,5X,A12,3(2X,A12))') repeat('-',4),(repeat('-',12), iContr=1,5)
 
       do iAxis = 1, 3
-        write(6,'(3X,A2,A1,A1,2x,F12.2,5x,F12.2,3(2x,F12.2))') 'A_',xyz(iAxis),xyz(iAxis), &
+        write(u6,'(3X,A2,A1,A1,2x,F12.2,5x,F12.2,3(2x,F12.2))') 'A_',xyz(iAxis),xyz(iAxis), &
         prin_vals(iACalc,5,iAxis) , (prin_vals(iACalc,iContr,iAxis), iContr=1,4)
       enddo
 
 !--> Print isotropic values
       if (signs_resolved(iACalc)) then
         Aiso_tot = sum(prin_vals(iACalc,5,:))/Three
-        write(6,'(3X,A4,2X,A12,5X,A12,3(2X,A12))') repeat('-',4),(repeat('-',12), iContr=1,5)
-        write(6,'(3X,A5,1x,F12.2,5x,F12.2,3(2x,F12.2))') 'A_iso', &
+        write(u6,'(3X,A4,2X,A12,5X,A12,3(2X,A12))') repeat('-',4),(repeat('-',12), iContr=1,5)
+        write(u6,'(3X,A5,1x,F12.2,5x,F12.2,3(2x,F12.2))') 'A_iso', &
         abs(Aiso_tot) , (abs(sum(prin_vals(iACalc,iContr,:))/Three), iContr = 1, 4)
-        write(6,*) ""
-        write(6,'(3X,A33,F13.3,1X,A5)') ">>>>  Isotropic HFCCs (Total)  = ", abs(Aiso_TOT) , unit
-        write(6,*) ""
+        write(u6,*) ""
+        write(u6,'(3X,A33,F13.3,1X,A5)') ">>>>  Isotropic HFCCs (Total)  = ", abs(Aiso_TOT) , unit
+        write(u6,*) ""
       else
         undef_res = "-/+/-/+/-"
-        write(6,'(3X,A5,1x,A12,5x,A12,3(2x,A12))') 'A_iso', undef_res, undef_res, undef_res, undef_res, undef_res
-        write(6,*) ""
-        write(6,'(17x,A57)') 'NOTE: Signs of principal values cannot be determined.'
+        write(u6,'(3X,A5,1x,A12,5x,A12,3(2x,A12))') 'A_iso', undef_res, undef_res, undef_res, undef_res, undef_res
+        write(u6,*) ""
+        write(u6,'(17x,A57)') 'NOTE: Signs of principal values cannot be determined.'
       endif
     endif
   enddo
 
   ! FUTURE IMPROVEMENT: Accurate sign determination needs spin density at nucleus. There will be an update for this feature.
 
-  write(6,*)
-  write(6,*)
-  write(6,*) "   ------------"
-  write(6,*) "     ( Note )"
-  write(6,*) "   ------------"
-  write(6,'(A93)')  "       1. All isotropic hyperfine coupling constants (HFCCs) are reported as absolute values."
-  write(6,'(A88)')  "       2. If a different isotope is required, you can convert the reported values to MHz"
-  write(6,'(A65)')  "          without restarting by using the provided formula below:"
-  write(6,*)
-  write(string_val,'(F12.4)')  -gElectron * beta_e * beta_n
-  write(6,'(A52,A16)') "                A(MHz) = A(au) * nuclear-g-factor * ", adjustl(string_val)
-  write(string_val,'(F12.4)') con_to_MHz
-  write(6,'(A60,A16)') "             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ", adjustl(string_val)
-  write(6,*)
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) "   ------------"
+  write(u6,*) "     ( Note )"
+  write(u6,*) "   ------------"
+  write(u6,'(A93)')  "       1. All isotropic hyperfine coupling constants (HFCCs) are reported as absolute values."
+  write(u6,'(A88)')  "       2. If a different isotope is required, you can convert the reported values to MHz"
+  write(u6,'(A65)')  "          without restarting by using the provided formula below:"
+  write(u6,*)
+
+  write(u6,'(A52,E12.4)') "                A(MHz) = A(au) * nuclear-g-factor * ", -gElectron * beta_e * beta_n
+  write(string_val,'(F13.6)') con_to_MHz
+  write(u6,'(A60,A16)') "             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ", adjustl(string_val)
+  write(u6,*)
+  write(u6,*)
 
 end subroutine
 !======================================================================
@@ -790,7 +805,7 @@ end subroutine
     ! NCOUP > COUPL :: NCOUP has higher priority than CPOUP
     if(NCOUP > 0_iwp) then
       if(allocated(LCSTATES)) then
-        write(6,'(7X, A86)') "WARNING: Both NCOUP/COUP are set. --> NCOUP will be used and LCSTATES will be ignored."
+        write(u6,'(7X, A86)') "WARNING: Both NCOUP/COUP are set. --> NCOUP will be used and LCSTATES will be ignored."
         call mma_deallocate(LCSTATES)
       end if
       call mma_allocate(LCSTATES,NCOUP,'LCStates')
@@ -826,18 +841,18 @@ end subroutine
 
     if(allocated(Atens_Req)) then
       ! Print states used to calculate A_HFC
-      write(6,*)
-      write(6,*)
-      write(6,'(7X,A25)') " A TENSOR Coupling States"
-      write(6,'(7X,A25)') '-------------------------'
-      write(6,'(7X,A25)') 'SO-State           ENERGY'
-      write(6,'(7X,A25)') '-------------------------'
+      write(u6,*)
+      write(u6,*)
+      write(u6,'(7X,A25)') " A TENSOR Coupling States"
+      write(u6,'(7X,A25)') '-------------------------'
+      write(u6,'(7X,A25)') 'SO-State           ENERGY'
+      write(u6,'(7X,A25)') '-------------------------'
       do ISS = 1, NCOUP
-        write(6,'(7X,I4,6x,F15.6)') LCSTATES(ISS), ESO(LCSTATES(ISS))
+        write(u6,'(7X,I4,6x,F15.6)') LCSTATES(ISS), ESO(LCSTATES(ISS))
       enddo
-      write(6,'(7X,A25)') '-------------------------'
-      write(6,*)
-      write(6,*)
+      write(u6,'(7X,A25)') '-------------------------'
+      write(u6,*)
+      write(u6,*)
 
       ! PSEUDOSPIN APPROACH
       !--------------------
@@ -892,21 +907,21 @@ subroutine get_degen_states(opt)
   end do
   degen_end_idx(n_uniq_ener) = NSS
 
-  write(6,*)
-  write(6,*)
-  if (opt == 1) write(6,'(7x,A34,E9.2,A3)') "RASSI DEGENERATE SO-STATES within ", DEGEN_ETHR," au"
-  if (opt == 2) write(6,'(12x,A35)') "<< SHIFTED by NCOU/COUP keywords >>"
-  write(6,'(7X,A45)') repeat('-',45)
-  write(6,'(7X,A45)') 'Range [SO-State]  Degen.       Energy (cm^-1)'
-  write(6,'(7X,A45)') repeat('-',45)
+  write(u6,*)
+  write(u6,*)
+  if (opt == 1) write(u6,'(7x,A34,E9.2,A3)') "RASSI DEGENERATE SO-STATES within ", DEGEN_ETHR," au"
+  if (opt == 2) write(u6,'(12x,A35)') "<< SHIFTED by NCOU/COUP keywords >>"
+  write(u6,'(7X,A45)') repeat('-',45)
+  write(u6,'(7X,A45)') 'Range [SO-State]  Degen.       Energy (cm^-1)'
+  write(u6,'(7X,A45)') repeat('-',45)
   do lmb = 1, n_uniq_ener
     first_state = degen_start_idx(lmb)
     last_state  = degen_end_idx(lmb)
     degeneracy  = last_state - first_state + 1_iwp
     ener        = ESO(degen_start_idx(lmb))
-    write(6,'(10X,I3,A2,I3,8X,I2,9X,F15.6)') first_state, " - ", last_state, degeneracy, ener
+    write(u6,'(10X,I3,A2,I3,8X,I2,9X,F15.6)') first_state, " - ", last_state, degeneracy, ener
   enddo
-  write(6,'(7X,A45)') repeat('-',45)
+  write(u6,'(7X,A45)') repeat('-',45)
 end subroutine
  !======================================================================
 
@@ -964,28 +979,24 @@ end subroutine
     logical(kind=iwp)     :: is_determined(3)
     integer(kind=iwp)     :: iAxis
 
-    do iACalc = 1, NATens_Calc
+    !----------------------------------------------
+    ! STEP 1: determine FC  +/- SD  =  +/- FCSD
+    is_determined(:) = .false.
+    do iAxis = 1, 3
+      ! call assign_abc_signs(FC_prvl(iACalc,i), SD_prvl(iACalc,i),FCSD_prvl(iACalc,i),is_determined(i))
+      call assign_abc_signs(prin_vals(iACalc,1,iAxis), prin_vals(iACalc,2,iAxis),prin_vals(iACalc,3,iAxis),is_determined(iAxis))
+    enddo
+    if (all(is_determined)) then
 
-      !----------------------------------------------
-      ! STEP 1: determine FC  +/- SD  =  +/- FCSD
+    !----------------------------------------------
+    ! STEP 2: determine FCSD  +/- PSO  =  +/- TOTAL
       is_determined(:) = .false.
       do iAxis = 1, 3
-        ! call assign_abc_signs(FC_prvl(iACalc,i), SD_prvl(iACalc,i),FCSD_prvl(iACalc,i),is_determined(i))
-        call assign_abc_signs(prin_vals(iACalc,1,iAxis), prin_vals(iACalc,2,iAxis),prin_vals(iACalc,3,iAxis),is_determined(iAxis))
+        ! call assign_abc_signs(FCSD_prvl(iACalc,i),PSO_prvl(iACalc,i),Tot_prvl(iACalc,i),is_determined(i))
+        call assign_abc_signs(prin_vals(iACalc,3,iAxis), prin_vals(iACalc,4,iAxis),prin_vals(iACalc,5,iAxis),is_determined(iAxis))
       enddo
-      if (all(is_determined)) then
-
-      !----------------------------------------------
-      ! STEP 2: determine FCSD  +/- PSO  =  +/- TOTAL
-        is_determined(:) = .false.
-        do iAxis = 1, 3
-          ! call assign_abc_signs(FCSD_prvl(iACalc,i),PSO_prvl(iACalc,i),Tot_prvl(iACalc,i),is_determined(i))
-          call assign_abc_signs(prin_vals(iACalc,3,iAxis), prin_vals(iACalc,4,iAxis),prin_vals(iACalc,5,iAxis),is_determined(iAxis))
-        enddo
-      endif
-      if(all(is_determined)) signs_resolved(iACalc) = .true.
-    enddo
-
+    endif
+    if(all(is_determined)) signs_resolved(iACalc) = .true.
   end subroutine assign_hfc_prvl_signs
 !======================================================================
 
@@ -1061,9 +1072,9 @@ end subroutine assign_abc_signs
 
 
 !======================================================================
-  subroutine calc_prin_val(iAtom,A_tens,contrib)
+  subroutine calc_prin_val(iAtom,A_tens,iContr)
     real(kind=wp), intent(in)    :: A_tens(3,3)
-    integer(kind=iwp),intent(in) :: contrib
+    integer(kind=iwp),intent(in) :: iContr
     integer(kind=iwp),intent(in) :: iAtom
 
     real(kind=wp)                :: X(3,3),EVR(3), EVI(3), prvl, fnorm_diag, fnorm_off_diag, tmpmat(3,3), dnrm2_
@@ -1074,7 +1085,10 @@ end subroutine assign_abc_signs
 ! VARIABLE DESCRIPTION:
 !   fnorm_diag:       Frobenius norm of diag(sm_a)
 !   fnorm_off_diag:   Frobenius norm of off-diag(sm_a)
-
+! iContr              : Contribution: FC = 1
+!                                     SD = 2
+!                                    PSO = 3
+!                                  Total = 4
     tmpmat(:,:) = A_tens(:,:)
     X(:,:) = Zero
     EVR(:) = Zero
@@ -1090,36 +1104,36 @@ end subroutine assign_abc_signs
     fnorm_off_diag = dnrm2_(9, tmpmat, 1)
 
     if (fnorm_off_diag/fnorm_diag > 0.05_wp) then
-      write(6,*) ''
-      write(6,*) ''
-      write(6,'(3X,A48,F6.4,A5)') 'WARNING: Relative Frobenius diag/off-diag norm: ', 100.0_wp * fnorm_off_diag/fnorm_diag, " > 5%"
+      write(u6,*) ''
+      write(u6,*) ''
+      write(u6,'(3X,A48,F6.4,A5)') 'WARNING: Relative Frobenius diag/off-diag norm: ', 100.0_wp * fnorm_off_diag/fnorm_diag, " > 5%"
     end if
 
     ! principal values (sqrt of diagonal elements)
-    prin_vals(iACalc,contrib,:) = SQRT(EVR(:))
+    prin_vals(iACalc,iContr,:) = SQRT(EVR(:))
 
     ! Print A-tensor, the principal axes and eigenvalues
-    write(6,*) ''
-    write(6,*) ''
-    write(6,'(3X,A96)') REPEAT('-',96)
-    write(6,'(3X,A10,A6,A22,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'HYPERFINE COUPLING :: ', contrib_lab(contrib)
-    write(6,'(3X,A96)') REPEAT('-',96)
-    write(6,'(14X,A17,29X,A14,14X,A11)') "A-tensor (A=aa^T)","principal axes", "eigenvalues"
-    write(6,'(12x,3(A1,12x),3x,3(A1,12x))') xyz(1:3),xyz(1:3)
+    write(u6,*) ''
+    write(u6,*) ''
+    write(u6,'(3X,A96)') REPEAT('-',96)
+    write(u6,'(3X,A10,A6,A22,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'HYPERFINE COUPLING :: ', contrib_lab(iContr)
+    write(u6,'(3X,A96)') REPEAT('-',96)
+    write(u6,'(14X,A17,29X,A14,14X,A11)') "A-tensor (A=aa^T)","principal axes", "eigenvalues"
+    write(u6,'(12x,3(A1,12x),3x,3(A1,12x))') xyz(1:3),xyz(1:3)
     do iAxis = 1, 3
-      write(6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3),2x,ES12.3)') xyz(iAxis), A_tens(iAxis,1:3), X(iAxis,1:3), EVR(iAxis)
+      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3),2x,ES12.3)') xyz(iAxis), A_tens(iAxis,1:3), X(iAxis,1:3), EVR(iAxis)
     end do
 
     ! Print absolute principal values without signs
-    write(6,*) ''
-    write(6,'(20X,A31,A7)') 'ABS. PRINCIPAL VALUES [+/-] :: ', contrib_lab(contrib)
-    write(6,'(12X,A52)') repeat('.',52)
-    write(6,'(20X,A12,12X,A4,11X,A5)')  "sqrt(eigval)", "(au)", "(MHz)"
-    write(6,'(12X,A52)') repeat('.',52)
+    write(u6,*) ''
+    write(u6,'(20X,A31,A7)') 'ABS. PRINCIPAL VALUES [+/-] :: ', contrib_lab(iContr)
+    write(u6,'(12X,A52)') repeat('.',52)
+    write(u6,'(20X,A12,12X,A4,11X,A5)')  "sqrt(eigval)", "(au)", "(MHz)"
+    write(u6,'(12X,A52)') repeat('.',52)
     do iAxis = 1, 3
-      prvl = prin_vals(iACalc,contrib,iAxis)
-      write(6,'(12X,A2,A1,A1,3X,E13.6,3x,E13.6,3x,E13.6)') 'A_', xyz(iAxis),xyz(iAxis), &
-      prvl,  prvl*to_au,  prvl*con_to_MHz*NucGFac(iAtom)
+      prvl = prin_vals(iACalc,iContr,iAxis)
+      write(u6,'(12X,A2,A1,A1,3X,E13.6,3x,E13.6,3x,E13.6)') 'A_', xyz(iAxis),xyz(iAxis), &
+      prvl,  prvl*to_au,  prvl*con_to_MHz*GNuc(iAtom)
     end do
 
   end subroutine calc_prin_val
@@ -1149,7 +1163,7 @@ subroutine update_h_HFC_RMS(iAtom, h_HFC)
   ! Scale with factor || I_sq ||^2
   NSpin_I = NucSpin(iAtom)
   I_sq = NSpin_I * (NSpin_I + One) * (Two * NSpin_I + One) / Three
-  fac  = I_sq * NucGFac(iAtom)**2
+  fac  = I_sq * GNuc(iAtom)**2
   h_rms_nuc(:,:) = fac * h_rms_nuc(:,:)
 
   ! Update h_RMS for this nuclei
@@ -1217,7 +1231,6 @@ subroutine calc_h_Zeeman(PROP)
   real(kind=wp), intent(in)   :: PROP(NSTATE,NSTATE,NPROP)
 
   real(kind=wp), allocatable  :: Re_h_Zeeman(:,:,:) , Im_h_Zeeman(:,:,:),Angmom(:,:,:)
-  integer(kind=iwp)           :: IAMX, IAMY, IAMZ, IPROP
 
 
   call mma_allocate(Re_h_Zeeman, 3, NSS, NSS, Label='Re_h_Zeeman')
@@ -1229,19 +1242,11 @@ subroutine calc_h_Zeeman(PROP)
   Re_h_Zeeman(:,:,:) = Zero
   Im_h_Zeeman(:,:,:) = Zero
 
-  DO IPROP=1,NPROP
-    IF(PNAME(IPROP)(1:6).EQ.'ANGMOM') THEN
-      IF(ICOMP(IPROP).EQ.1) IAMX=IPROP
-      IF(ICOMP(IPROP).EQ.2) IAMY=IPROP
-      IF(ICOMP(IPROP).EQ.3) IAMZ=IPROP
-    END IF
-  END DO
-
   Angmom(:,:,:) = Zero
 
-  CALL SMMAT(PROP,Angmom(1,:,:),NSS,IAMX,0)
-  CALL SMMAT(PROP,Angmom(2,:,:),NSS,IAMY,0)
-  CALL SMMAT(PROP,Angmom(3,:,:),NSS,IAMZ,0)
+  CALL SMMAT(PROP,Angmom(1,:,:),NSS,AngMom_idx(1),0)
+  CALL SMMAT(PROP,Angmom(2,:,:),NSS,AngMom_idx(2),0)
+  CALL SMMAT(PROP,Angmom(3,:,:),NSS,AngMom_idx(3),0)
 
   CALL SMMAT(PROP,Re_h_Zeeman(1,:,:),NSS,0,1)
   CALL SMMAT(PROP,Im_h_Zeeman(2,:,:),NSS,0,2)
@@ -1333,24 +1338,24 @@ subroutine calc_pNMR_Tensor(iAtom,h_HFC,iContr)
   LinRes_ChemShift(ipNMR_Calc,iContr,:) = -(LR_tens(:,1,1)+LR_tens(:,2,2)+LR_tens(:,3,3))/Three
 
 ! Print output
-  write(6,*) ''
-  write(6,'(3X,A66)') repeat('-',66)
-  write(6,'(3X,A10,A6,A19,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'LINEAR RESPONSE :: ', contrib_lab(iContr)
-  write(6,'(3X,A66)') repeat('-',66)
-  write(6,'(3X,A8,16X,A7,15X,A11)') 'Temp (K)', 'Tensor', 'Shift (ppm)'
+  write(u6,*) ''
+  write(u6,'(3X,A66)') repeat('-',66)
+  write(u6,'(3X,A10,A6,A19,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'LINEAR RESPONSE :: ', contrib_lab(iContr)
+  write(u6,'(3X,A66)') repeat('-',66)
+  write(u6,'(3X,A8,16X,A7,18X,A17)') 'Temp (K)', 'Tensor', 'Chem. Shift (ppm)'
   do iT=1,NTP
     call print_pNMR_tens(Temp_in_K(iT), LR_tens(iT,:,:))
   end do
-  write(6,'(3X,A66)') repeat('-',66)
-  write(6,'(3X,A10,A6,A9,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'CURIE :: ', contrib_lab(iContr)
-  write(6,'(3X,A66)') repeat('-',66)
-  write(6,'(3X,A8,16X,A7,15X,A11)') 'Temp (K)', 'Tensor', 'Chemical Shift (ppm)'
+  write(u6,'(3X,A66)') repeat('-',66)
+  write(u6,'(3X,A10,A6,A9,A7)') '>>> ATOM: ', LAtomLbl(iAtom), 'CURIE :: ', contrib_lab(iContr)
+  write(u6,'(3X,A66)') repeat('-',66)
+  write(u6,'(3X,A8,16X,A7,18X,A17)') 'Temp (K)', 'Tensor', 'Chem. Shift (ppm)'
   do iT=1,NTP
     call print_pNMR_tens(Temp_in_K(iT), C_tens(iT,:,:))
   end do
-  write(6,*) ''
-  write(6,*) ''
-  write(6,*) ''
+  write(u6,*) ''
+  write(u6,*) ''
+  write(u6,*) ''
 
 end subroutine
 !======================================================================
@@ -1364,12 +1369,12 @@ end subroutine
     integer(kind=iwp)         :: u
 
 
-    shift = -(tensor(1,1)+tensor(2,2)+tensor(3,3))/Three
-    write(6,'(2X,F6.1,3(2x,ES12.3),2X,F15.3)') temp, tensor(1,1:3), shift
+    shift = -(tensor(1,1) + tensor(2,2) + tensor(3,3))/Three
+    write(u6,'(2X,F6.1,3(2x,ES12.3),4X,F15.3)') temp, tensor(1,1:3), shift
     do u = 2, 3
-      write(6,'(8X,3(2x,ES12.3))') tensor(u,1:3)
+      write(u6,'(8X,3(2x,ES12.3))') tensor(u,1:3)
     end do
-    write(6,*) ""
+    write(u6,*) ""
   end subroutine print_pNMR_tens
 !======================================================================
 
@@ -1383,6 +1388,7 @@ end subroutine
     call mma_deallocate(CGo_mat)
     call mma_deallocate(LAtNumb)
     call mma_deallocate(LAtomLbl)
+    call mma_deallocate(LStability)
     call mma_deallocate(USO)
     call mma_deallocate(ESO)
     call mma_deallocate(h_FC)
@@ -1405,6 +1411,7 @@ end subroutine
 
       call mma_deallocate(Z_HFC_int_oper)
       call mma_deallocate(Z_HFC_over_dE)
+      call mma_deallocate(AngMom_idx)
       call mma_deallocate(h_Zeeman)
 
       call mma_deallocate(dE_inv)
@@ -1415,7 +1422,7 @@ end subroutine
 
 
     if (allocated(NucSpin))   call mma_deallocate(NucSpin)
-    if (allocated(NucGFac))   call mma_deallocate(NucGFac)
+    if (allocated(GNuc))   call mma_deallocate(GNuc)
     if (allocated(LCSTATES))  call mma_deallocate(LCSTATES)
 
     if (allocated(ASD_idx))   call mma_deallocate(ASD_idx)

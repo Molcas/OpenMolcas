@@ -24,8 +24,9 @@ use Cntrl, only: ALGO, Nscreen, dmpk, QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRS
                  DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE, REDUCELOOP, LOOPDIVIDE, LOOPMAX, l_Eff, Do_SK, Do_Pol, RHODYN, &
                  MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM, EPrThr, LPRPR, lHami, IFGTCALSA, &
                  DYSEXPSF, ISTAT, MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA, SONTO, SONTOSTATES, SONAT, SONATNSTATE, SODIAG, &
-                 SODIAGNSTATE, Atens_Req, pNMR_req, HypF_rms_Req, NucMass, NMass_set, NucSpin, NSpin_set, NucGFac,  &
-                 NGFac_set, PSO_idx, ASD_idx, Hypo_Iso, LCSTATES, NATens_Calc, NAtoms, NPNMR_Calc, NCOUP, AutoSelect_GFac
+                 SODIAGNSTATE, Atens_Req, pNMR_req, HypF_rms_Req, NucMass, NMass_set, NucSpin, NSpin_set, GNuc,  &
+                 GNuc_set, PSO_idx, ASD_idx, Hypo_Iso, LCSTATES, NATens_Calc, NAtoms, NPNMR_Calc, NCOUP, AutoSelect_GFac, &
+                 AngMom_idx
 
 use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 use frenkel_global_vars, only: DoCoul, doexch, DoExcitonics, excl, iTyp, labB, nestla, nestlb, valst
@@ -707,9 +708,9 @@ do
         AutoSelect_GFac = .true.
 
       case('GNUC')
-        NGFac_set   = .true.
-        call mma_allocate(NucGFac,NAtoms,Label='gNuc')
-        NucGFac(:) = -100.0_wp
+        GNuc_set   = .true.
+        call mma_allocate(GNuc,NAtoms,Label='gNuc')
+        GNuc(:) = -100.0_wp
         call mma_allocate(rTemp_arr,NATens_Calc,Label='rTemp_arr')
         read(LuIn,*,iostat=istatus) (rTemp_arr(i), i = 1, NATens_Calc)
         call LineCheck(istatus)
@@ -717,7 +718,7 @@ do
         j=1
         do i=1,NAtoms
           if(Atens_req(I)) then
-            NucGFac(i)=rTemp_arr(j)
+            GNuc(i)=rTemp_arr(j)
             j=j+1
           endif
         enddo
@@ -927,16 +928,18 @@ subroutine gen_proplab(prop_lab,iAtom,nComp,idx)
     WRITE(temp_lab,'(I4)') iAtom
     PNAME(NPROP+1)=prop_lab//temp_lab
     ICOMP(NPROP+1)=iC
-    idx(iAtom,iC)=NPROP+1
     NPROP=NPROP+1
+    idx(iAtom,iC)=NPROP
   ENDDO
 endsubroutine
 !----------------------------------------------------------------------
 subroutine gen_hfc_prop_labels()
-  integer(kind=iwp) :: iAtom, iAxis
+  integer(kind=iwp) :: iAtom, iC
   logical(kind=iwp) :: do_calc, do_EPR, do_pNMR
-!PURPOSE: Post-processing to generate PROPerties labels
-!         for HFC and pNMR calculations.
+  ! PURPOSE: Generate PROP property labels for HFC and pNMR calculations.
+  ! NOTE   : This subroutine may be deprecated if OpenMolcas stops using the PNAME label.
+  !          In that case, property indices (ASD, PSOP) can be fed directly to the HFCOP subroutine.
+
 
   call mma_allocate(ASD_idx,NAtoms,6,'LASD')
   call mma_allocate(PSO_idx,NAtoms,3,'LPSO')
@@ -946,7 +949,6 @@ subroutine gen_hfc_prop_labels()
 
 !NOTE  : This logic follows the same branching structure as route_calc in hfcop.F90, but skips iterator updates.
   do iAtom = 1, NAtoms
-
     do_calc  = .false.
     do_EPR   = .false.
     do_pNMR  = .false.
@@ -967,10 +969,12 @@ subroutine gen_hfc_prop_labels()
   end do
 
   if (allocated(pNMR_req)) then
-    do iAxis = 1, 3
+    call mma_allocate(AngMom_idx,3,"AngMom_idx")
+    do iC = 1, 3
       PNAME(NPROP+1) = 'AngMom'
-      ICOMP(NPROP+1) = iAxis
-      NPROP=NPROP+1
+      ICOMP(NPROP+1) = iC
+      NPROP = NPROP+1
+      AngMom_idx(iC) = NPROP
     end do
   end if
 end subroutine

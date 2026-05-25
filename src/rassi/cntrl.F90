@@ -172,10 +172,10 @@ integer(kind=iwp), allocatable :: SODIAG(:), SONAT(:), SONTO(:,:)
 real(kind=wp), allocatable :: HEff(:,:), RefEne(:)
 
 integer(kind=iwp)  :: NATens_Calc,NCOUP, NPNMR_Calc
-INTEGER(kind=iwp), allocatable :: ASD_idx(:,:) , PSO_idx(:,:) , NucMass(:), LCSTATES(:)
+INTEGER(kind=iwp), allocatable :: ASD_idx(:,:) , PSO_idx(:,:), AngMom_idx(:) , NucMass(:), LCSTATES(:)
 logical(kind=iwp), allocatable  :: Atens_Req(:), pNMR_req(:)
-logical(kind=iwp)  :: AutoSelect_GFac  , NSpin_set , NGFac_set, NMass_set, HypF_rms_Req , Hypo_Iso
-real(kind=wp),  allocatable  :: NucSpin(:), NucGFac(:)
+logical(kind=iwp)  :: AutoSelect_GFac  , NSpin_set , GNuc_set, NMass_set, HypF_rms_Req , Hypo_Iso
+real(kind=wp),  allocatable  :: NucSpin(:), GNuc(:)
 
 public :: ALGO, AlphZ, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5, CITHR, Coor, DCHO, DCHS, DIPR, dmpk, Do_Pol, &
           Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, DYSO, EMin, DEGEN_ETHR, EPRThr, ERFNuc, FnEig, FnTOM, &
@@ -191,7 +191,7 @@ public :: ALGO, AlphZ, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5
           PrWeight, PRXVE, PRXVR, PRXVS, PTYPE, QDPT2EV, QDPT2SC, QIAll, QIPR, RASTYP, REDUCELOOP, RefEne, RFPert, RhoDyn, RSPR, &
           RSThr, SAVEDENS, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, &
           TDipMin, TDYS, TIncre, TITLE1, TMAXP, TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart ,               &
-          NATens_Calc, NCOUP, NPNMR_Calc, ASD_idx, PSO_idx, NucMass, LCSTATES, Atens_Req, pNMR_req, AutoSelect_GFac,            &
-          NGFac_set, NMass_set, NSpin_set, HypF_rms_Req, Hypo_Iso, NucSpin, NucGFac
+          NATens_Calc, NCOUP, NPNMR_Calc, ASD_idx, PSO_idx, AngMom_idx, NucMass, LCSTATES, Atens_Req, pNMR_req, AutoSelect_GFac,            &
+          GNuc_set, NMass_set, NSpin_set, HypF_rms_Req, Hypo_Iso, NucSpin, GNuc
 
 End Module Cntrl
