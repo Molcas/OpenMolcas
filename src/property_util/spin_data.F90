@@ -51,9 +51,8 @@ module spin_data
     logical(kind=iwp)   :: Found
     character(len=180)  :: Line
     character(len=*), parameter :: SPINDATA_NAME = 'SPINDATA'
-    integer(kind=iwp) :: NumbElem, NumbIso, SpinData, AtNumb, MassNumb, iRec, FirstIso, LastIso
+    integer(kind=iwp) :: NumbElem, NumbIso, SpinData, AtNumb, iRec, FirstIso, LastIso
     integer(kind=iwp) :: Err, Err1,Err2,Err3,Err4,Err5
-    real(kind=wp)     :: NucGfac, NucSpin, Abudance
     integer(kind=iwp), external :: IsFreeUnit
 
 
