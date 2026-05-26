@@ -210,7 +210,7 @@ logical(kind=iwp) bStat
         !! Active overlap
 #ifdef _MOLCAS_MPP_
         if (is_real_par() .and. (icase==1 .or. icase==4)) then
-          if (NAS > 0 .and. NIS > 0) then
+          if (NIN > 0) then
             CALL PSBMAT_GETMEM('S',lg_S,NAS)
             CALL PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
             CALL GA_Distribution (lg_S,myRank,ISTA,IEND,JSTA,JEND)
@@ -224,9 +224,9 @@ logical(kind=iwp) bStat
           end if
         else
 #endif
-          if (NAS > 0) then
+          if (NIN > 0) then
             ID = IDSMAT(ISYM,ICASE)
-            If (ID>=0) THEN
+            If (ID >= 0) THEN
                CALL DDAFILE(LUSBT,2,WRK1,NAS*(NAS+1)/2,ID)
                CALL DDAFILE(LUGRAD,1,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
             End If
@@ -302,7 +302,7 @@ logical(kind=iwp) bStat
         !! Active overlap
 #ifdef _MOLCAS_MPP_
         if (is_real_par() .and. (icase==1 .or. icase==4)) then
-          if (NAS > 0 .and. NIS > 0) then
+          if (NIN > 0) then
             CALL PSBMAT_GETMEM('S',lg_S,NAS)
             CALL GA_Distribution (lg_S,myRank,ISTA,IEND,JSTA,JEND)
             IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
@@ -316,9 +316,9 @@ logical(kind=iwp) bStat
           end if
         else
 #endif
-          if (NAS > 0) then
+          if (NIN > 0) then
             ID = IDSMAT(ISYM,ICASE)
-            If (ID>=0) THEN
+            If (ID >= 0) THEN
                CALL DDAFILE(LUGRAD,2,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
                CALL DDAFILE(LUSBT,1,WRK1,NAS*(NAS+1)/2,ID)
             END IF
