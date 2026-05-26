@@ -13,7 +13,11 @@
 
 subroutine kriging_model()
 
-!#define _DPOSV_
+#define _DPOSV_
+! Use DPOSV since the matrix A is symmetric and have positive eigenvalues.
+! DGESV is an alternative backup if there for some reasons is a problem. It is the general solver for a
+! general matrix, and is slower than the DPOSV option.
+
 use kriging_mod, only: blaAI, blAI, blavAI, blvAI, detR, dy, full_R, Index_PGEK, Kv, lh, m_t, mblAI, Model_Type, nD, nInter_Eff, &
                        nPoints, nSet, ordinary, Rones, sb, sbmev, sbO, variance, y
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -48,8 +52,10 @@ call RecPrt('PSI',' ',A,m_t,m_t)
 ! Now form (A^{-1} f) (to be used for the computation of the dispersion)
 
 #ifdef _DPOSV_
+! Cholesky decomposition, A=LL^T
 call DPOSV_('U',m_t,1,A,m_t,B,m_t,INFO)
 #else
+! LU decomposition, A=LU
 call DGESV_(m_t,1,A,m_t,IPIV,B,m_t,INFO)
 #endif
 

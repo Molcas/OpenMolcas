@@ -210,21 +210,23 @@ logical(kind=iwp) bStat
         !! Active overlap
 #ifdef _MOLCAS_MPP_
         if (is_real_par() .and. (icase==1 .or. icase==4)) then
-          CALL PSBMAT_GETMEM('S',lg_S,NAS)
-          CALL PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
-          CALL GA_Distribution (lg_S,myRank,ISTA,IEND,JSTA,JEND)
-          IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
-            CALL GA_Access (lg_S,ISTA,IEND,JSTA,JEND,mV1,LDM)
-            NBLOCK=LDM*(JEND-JSTA+1)
-            CALL DDAFILE(LUGRAD,1,DBL_MB(mV1),NBLOCK,IDSAVGRD)
-            CALL GA_Release (lg_S,ISTA,IEND,JSTA,JEND)
-          END IF
-          CALL PSBMAT_FREEMEM(lg_S)
+          if (NIN > 0) then
+            CALL PSBMAT_GETMEM('S',lg_S,NAS)
+            CALL PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
+            CALL GA_Distribution (lg_S,myRank,ISTA,IEND,JSTA,JEND)
+            IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
+              CALL GA_Access (lg_S,ISTA,IEND,JSTA,JEND,mV1,LDM)
+              NBLOCK=LDM*(JEND-JSTA+1)
+              CALL DDAFILE(LUGRAD,1,DBL_MB(mV1),NBLOCK,IDSAVGRD)
+              CALL GA_Release (lg_S,ISTA,IEND,JSTA,JEND)
+            END IF
+            CALL PSBMAT_FREEMEM(lg_S)
+          end if
         else
 #endif
-          if (NAS > 0) then
+          if (NIN > 0) then
             ID = IDSMAT(ISYM,ICASE)
-            If (ID>=0) THEN
+            If (ID >= 0) THEN
                CALL DDAFILE(LUSBT,2,WRK1,NAS*(NAS+1)/2,ID)
                CALL DDAFILE(LUGRAD,1,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
             End If
@@ -235,16 +237,18 @@ logical(kind=iwp) bStat
         !! ST matrix
 #ifdef _MOLCAS_MPP_
         if (is_real_par() .and. (icase==1 .or. icase==4)) then
-          CALL GA_CREATE_STRIPED ('H',NAS,NIN,'STMAT',lg_ST)
-          CALL PSBMAT_READ ('M',iCase,iSym,lg_ST,NAS*NIN)
-          CALL GA_Distribution (lg_ST,myRank,ISTA,IEND,JSTA,JEND)
-          IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
-            CALL GA_Access (lg_ST,ISTA,IEND,JSTA,JEND,mV1,LDM)
-            NBLOCK=LDM*(JEND-JSTA+1)
-            CALL DDAFILE(LUGRAD,1,DBL_MB(mV1),NBLOCK,IDSAVGRD)
-            CALL GA_Release (lg_ST,ISTA,IEND,JSTA,JEND)
-          END IF
-          bStat = GA_Destroy (lg_ST)
+          if (NAS*NIN > 0) then
+            CALL GA_CREATE_STRIPED ('H',NAS,NIN,'STMAT',lg_ST)
+            CALL PSBMAT_READ ('M',iCase,iSym,lg_ST,NAS*NIN)
+            CALL GA_Distribution (lg_ST,myRank,ISTA,IEND,JSTA,JEND)
+            IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
+              CALL GA_Access (lg_ST,ISTA,IEND,JSTA,JEND,mV1,LDM)
+              NBLOCK=LDM*(JEND-JSTA+1)
+              CALL DDAFILE(LUGRAD,1,DBL_MB(mV1),NBLOCK,IDSAVGRD)
+              CALL GA_Release (lg_ST,ISTA,IEND,JSTA,JEND)
+            END IF
+            bStat = GA_Destroy (lg_ST)
+          end if
         else
 #endif
           if (NAS*NIN > 0) then
@@ -258,16 +262,18 @@ logical(kind=iwp) bStat
         !! Transformation matrix (eigenvector)
 #ifdef _MOLCAS_MPP_
         if (is_real_par() .and. (icase==1 .or. icase==4)) then
-          CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
-          CALL PSBMAT_READ ('T',iCase,iSym,lg_T,NAS*NIN)
-          CALL GA_Distribution (lg_T,myRank,ISTA,IEND,JSTA,JEND)
-          IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
-            CALL GA_Access (lg_T,ISTA,IEND,JSTA,JEND,mV1,LDM)
-            NBLOCK=LDM*(JEND-JSTA+1)
-            CALL DDAFILE(LUGRAD,1,DBL_MB(mV1),NBLOCK,IDSAVGRD)
-            CALL GA_Release (lg_T,ISTA,IEND,JSTA,JEND)
-          END IF
-          bStat = GA_Destroy (lg_T)
+          if (NAS*NIN > 0) then
+            CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
+            CALL PSBMAT_READ ('T',iCase,iSym,lg_T,NAS*NIN)
+            CALL GA_Distribution (lg_T,myRank,ISTA,IEND,JSTA,JEND)
+            IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
+              CALL GA_Access (lg_T,ISTA,IEND,JSTA,JEND,mV1,LDM)
+              NBLOCK=LDM*(JEND-JSTA+1)
+              CALL DDAFILE(LUGRAD,1,DBL_MB(mV1),NBLOCK,IDSAVGRD)
+              CALL GA_Release (lg_T,ISTA,IEND,JSTA,JEND)
+            END IF
+            bStat = GA_Destroy (lg_T)
+          end if
         else
 #endif
           if (NAS*NIN > 0) then
@@ -296,21 +302,23 @@ logical(kind=iwp) bStat
         !! Active overlap
 #ifdef _MOLCAS_MPP_
         if (is_real_par() .and. (icase==1 .or. icase==4)) then
-          CALL PSBMAT_GETMEM('S',lg_S,NAS)
-          CALL GA_Distribution (lg_S,myRank,ISTA,IEND,JSTA,JEND)
-          IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
-            CALL GA_Access (lg_S,ISTA,IEND,JSTA,JEND,mV1,LDM)
-            NBLOCK=LDM*(JEND-JSTA+1)
-            CALL DDAFILE(LUGRAD,2,DBL_MB(mV1),NBLOCK,IDSAVGRD)
-            CALL GA_Release (lg_S,ISTA,IEND,JSTA,JEND)
-          END IF
-          CALL PSBMAT_WRITE('S',iCase,iSym,lg_S,NAS)
-          CALL PSBMAT_FREEMEM(lg_S)
+          if (NIN > 0) then
+            CALL PSBMAT_GETMEM('S',lg_S,NAS)
+            CALL GA_Distribution (lg_S,myRank,ISTA,IEND,JSTA,JEND)
+            IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
+              CALL GA_Access (lg_S,ISTA,IEND,JSTA,JEND,mV1,LDM)
+              NBLOCK=LDM*(JEND-JSTA+1)
+              CALL DDAFILE(LUGRAD,2,DBL_MB(mV1),NBLOCK,IDSAVGRD)
+              CALL GA_Release (lg_S,ISTA,IEND,JSTA,JEND)
+            END IF
+            CALL PSBMAT_WRITE('S',iCase,iSym,lg_S,NAS)
+            CALL PSBMAT_FREEMEM(lg_S)
+          end if
         else
 #endif
-          if (NAS > 0) then
+          if (NIN > 0) then
             ID = IDSMAT(ISYM,ICASE)
-            If (ID>=0) THEN
+            If (ID >= 0) THEN
                CALL DDAFILE(LUGRAD,2,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
                CALL DDAFILE(LUSBT,1,WRK1,NAS*(NAS+1)/2,ID)
             END IF
@@ -321,16 +329,18 @@ logical(kind=iwp) bStat
         !! ST matrix
 #ifdef _MOLCAS_MPP_
         if (is_real_par() .and. (icase==1 .or. icase==4)) then
-          CALL GA_CREATE_STRIPED ('H',NAS,NIN,'STMAT',lg_ST)
-          CALL GA_Distribution (lg_ST,myRank,ISTA,IEND,JSTA,JEND)
-          IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
-            CALL GA_Access (lg_ST,ISTA,IEND,JSTA,JEND,mV1,LDM)
-            NBLOCK=LDM*(JEND-JSTA+1)
-            CALL DDAFILE(LUGRAD,2,DBL_MB(mV1),NBLOCK,IDSAVGRD)
-            CALL GA_Release (lg_ST,ISTA,IEND,JSTA,JEND)
-          END IF
-          CALL PSBMAT_WRITE ('M',iCase,iSym,lg_ST,NAS*NIN)
-          bStat = GA_Destroy (lg_ST)
+          if (NAS*NIN > 0) then
+            CALL GA_CREATE_STRIPED ('H',NAS,NIN,'STMAT',lg_ST)
+            CALL GA_Distribution (lg_ST,myRank,ISTA,IEND,JSTA,JEND)
+            IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
+              CALL GA_Access (lg_ST,ISTA,IEND,JSTA,JEND,mV1,LDM)
+              NBLOCK=LDM*(JEND-JSTA+1)
+              CALL DDAFILE(LUGRAD,2,DBL_MB(mV1),NBLOCK,IDSAVGRD)
+              CALL GA_Release (lg_ST,ISTA,IEND,JSTA,JEND)
+            END IF
+            CALL PSBMAT_WRITE ('M',iCase,iSym,lg_ST,NAS*NIN)
+            bStat = GA_Destroy (lg_ST)
+          end if
         else
 #endif
           if (NAS*NIN > 0) then
@@ -344,16 +354,18 @@ logical(kind=iwp) bStat
         !! Transformation matrix (eigenvector)
 #ifdef _MOLCAS_MPP_
         if (is_real_par() .and. (icase==1 .or. icase==4)) then
-          CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
-          CALL GA_Distribution (lg_T,myRank,ISTA,IEND,JSTA,JEND)
-          IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
-            CALL GA_Access (lg_T,ISTA,IEND,JSTA,JEND,mV1,LDM)
-            NBLOCK=LDM*(JEND-JSTA+1)
-            CALL DDAFILE(LUGRAD,2,DBL_MB(mV1),NBLOCK,IDSAVGRD)
-            CALL GA_Release (lg_T,ISTA,IEND,JSTA,JEND)
-          END IF
-          CALL PSBMAT_WRITE ('T',iCase,iSym,lg_T,NAS*NIN)
-          bStat = GA_Destroy (lg_T)
+          if (NAS*NIN > 0) then
+            CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
+            CALL GA_Distribution (lg_T,myRank,ISTA,IEND,JSTA,JEND)
+            IF (ISTA.GT.0 .AND. JSTA.GT.0) THEN
+              CALL GA_Access (lg_T,ISTA,IEND,JSTA,JEND,mV1,LDM)
+              NBLOCK=LDM*(JEND-JSTA+1)
+              CALL DDAFILE(LUGRAD,2,DBL_MB(mV1),NBLOCK,IDSAVGRD)
+              CALL GA_Release (lg_T,ISTA,IEND,JSTA,JEND)
+            END IF
+            CALL PSBMAT_WRITE ('T',iCase,iSym,lg_T,NAS*NIN)
+            bStat = GA_Destroy (lg_T)
+          end if
         else
 #endif
           if (NAS*NIN > 0) then
