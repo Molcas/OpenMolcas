@@ -24,13 +24,13 @@ module hyperfine
 #endif
   use Molcas,      only: LenIn
   use Definitions, only: iwp, wp, u6
-  use Constants,   only: Zero, Half, One, Two, Three, Twelve, auTocm, c_in_au,      &
-                         gElectron, auToHz, kBoltzmann, auTokJ
+  use Constants,   only: Zero, Half, One, Two, Three, Twelve,                              &
+                         auTocm, c_in_au, gElectron, auToHz, kBoltzmann, auTokJ
   use stdalloc,    only: mma_allocate, mma_deallocate
-  use spin_data,   only: init_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass,         &
+  use spin_data,   only: init_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass,          &
                          GNUC_by_nucspin, NUCSPIN_by_gnuc, get_first_nonzero_GNUC
-  use Cntrl,       only: NSTATE, NPROP, PNAME,NAtoms, MLTPLT, ASD_idx, PSO_idx, AngMom_idx, &
-                         NPNMR_Calc, pNMR_req, HypF_rms_Req, NATens_Calc, Atens_Req,           &
+  use Cntrl,       only: NSTATE, NPROP,NAtoms, MLTPLT, ASD_idx, PSO_idx, AngMom_idx,       &
+                         NPNMR_Calc, pNMR_req, HypF_rms_Req, NATens_Calc, Atens_Req,       &
                          NucMass, NMass_set, NucSpin, NSpin_set, GNuc, GNuc_set, Hypo_Iso, &
                          AutoSelect_GFac, LCSTATES, NCOUP, NTP, TMINP, TMAXP, DEGEN_ETHR
 
@@ -327,7 +327,6 @@ module hyperfine
     call calc_h_Zeeman(PROP)
 
   end subroutine
-
 !======================================================================
 
 
@@ -405,8 +404,6 @@ module hyperfine
       call calc_prin_val(iAtom,A_tens,5)
     endif
     if(do_pNMR) call calc_pNMR_Tensor(iAtom,h_TOT,4)
-
-    if (do_EPR) call assign_hfc_prvl_signs()
 
     call mma_deallocate(ASD)
 
@@ -679,11 +676,12 @@ end subroutine
 
 !======================================================================
 subroutine print_EPR_summary()
-  real(kind=wp)             :: conv, Aiso_tot
-  character(len=5)          :: unit ="(MHz)"
-  character(len=12)         :: undef_res
-  character(len=16)         :: string_val
-  integer(kind=iwp)         :: iAtom, iContr, iAxis
+  real(kind=wp)               :: conv, Aiso_tot
+  character(len=5)            :: unit ="(MHz)"
+  character(len=12)           :: undef_res
+  character(len=16)           :: string_val
+  integer(kind=iwp)           :: iAtom, iContr, iAxis, iCheckVal
+  real(kind=wp), allocatable  :: checkfile_vals(:)
 
 
   write(u6,*)
@@ -695,6 +693,29 @@ subroutine print_EPR_summary()
   write(u6,*)
   write(u6,*)
 
+  !--> Checkfile
+  !        (1) Checkfile should be generated before converting to MHz.
+  !            The reason is nuclear gfactor might be updated every year,
+  !            which might generate numerical noise in test cases (if spin_data is updated)
+  !        (2) Sign determination is experimental. Unsigned principal values are better.
+  !        (3) The diagonalization step in A_tensor is sometimes sensitive to compilers and geometry [also symmetry breaking].
+  !            Test case should be independent of axis choices.
+  !
+  ! ----------> checkfile_vals = (ABS(A_xx) + ABS(A_yy) + ABS(A_zz))/3     [note. this not prvl or isotropic vals]
+  call mma_allocate(checkfile_vals, NATens_Calc * 5, Label="EPR_checkfile")
+  iACalc    = 0
+  iCheckVal = 0
+  do iAtom = 1, nAtoms
+    if (Atens_Req(iAtom)) then
+      iACalc = iACalc + 1
+      do iContr = 1, 5
+        iCheckVal = iCheckVal + 1
+        checkfile_vals(iCheckVal) = sum(abs(prin_vals(iACalc,iContr,1:3)))/Three
+      enddo
+    endif
+  enddo
+  call Add_Info("EPR_HFCOP_CHKVAL", checkfile_vals, NATens_Calc * 5 , 2)
+  call mma_deallocate(checkfile_vals)
 
 !--> Unit conversion to MHz
   iACalc = 0
@@ -703,6 +724,7 @@ subroutine print_EPR_summary()
       iACalc = iACalc + 1
       conv = con_to_MHz * GNuc(iAtom)
       prin_vals(iACalc,:,:) = conv * prin_vals(iACalc,:,:)
+      call assign_hfc_prvl_signs()
     end if
   end do
 
@@ -983,20 +1005,21 @@ end subroutine
     ! STEP 1: determine FC  +/- SD  =  +/- FCSD
     is_determined(:) = .false.
     do iAxis = 1, 3
-      ! call assign_abc_signs(FC_prvl(iACalc,i), SD_prvl(iACalc,i),FCSD_prvl(iACalc,i),is_determined(i))
       call assign_abc_signs(prin_vals(iACalc,1,iAxis), prin_vals(iACalc,2,iAxis),prin_vals(iACalc,3,iAxis),is_determined(iAxis))
     enddo
-    if (all(is_determined)) then
 
+    if (all(is_determined)) then
     !----------------------------------------------
     ! STEP 2: determine FCSD  +/- PSO  =  +/- TOTAL
       is_determined(:) = .false.
       do iAxis = 1, 3
-        ! call assign_abc_signs(FCSD_prvl(iACalc,i),PSO_prvl(iACalc,i),Tot_prvl(iACalc,i),is_determined(i))
         call assign_abc_signs(prin_vals(iACalc,3,iAxis), prin_vals(iACalc,4,iAxis),prin_vals(iACalc,5,iAxis),is_determined(iAxis))
       enddo
+      if(all(is_determined)) signs_resolved(iACalc) = .true.
     endif
-    if(all(is_determined)) signs_resolved(iACalc) = .true.
+
+    if (.not.signs_resolved(iACalc)) prin_vals(iACalc,:,:) = abs(prin_vals(iACalc,:,:))
+
   end subroutine assign_hfc_prvl_signs
 !======================================================================
 
@@ -1022,6 +1045,7 @@ subroutine assign_abc_signs(a,b,c,is_determined)
   abs_b = abs(b)
   abs_c = abs(c)
   max_left_absval = maxval([abs_a,abs_b])
+  is_determined = .false.
 
 
   if( abs_c > max_left_absval ) then
@@ -1055,16 +1079,10 @@ subroutine assign_abc_signs(a,b,c,is_determined)
       if (a >= Zero) then
         b = - abs_b
         if (abs_a < abs_b) c = - abs_c
-      else ! a < Zero
+      else if (a < Zero) then
         if (abs_a > abs_b) c = - abs_c
       endif
     endif
-  endif
-
-  if(.not. is_determined) then
-    a = abs_a
-    b = abs_b
-    c = abs_c
   endif
 
 end subroutine assign_abc_signs
@@ -1087,8 +1105,9 @@ end subroutine assign_abc_signs
 !   fnorm_off_diag:   Frobenius norm of off-diag(sm_a)
 ! iContr              : Contribution: FC = 1
 !                                     SD = 2
-!                                    PSO = 3
-!                                  Total = 4
+!                                   FCSD = 3
+!                                    PSO = 4
+!                                  Total = 5
     tmpmat(:,:) = A_tens(:,:)
     X(:,:) = Zero
     EVR(:) = Zero
