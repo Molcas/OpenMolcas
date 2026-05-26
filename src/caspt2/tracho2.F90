@@ -13,6 +13,7 @@
 
 subroutine TRACHO2(CMO,NCMO,DREF,NDREF,FFAO,FIAO,FAAO,IF_TRNSF)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: chovec_coll, chovec_load, chovec_save, NPQ_CHOTYPE, NVLOC_CHOBATCH
 use Cholesky, only: InfVec, nDimRS
@@ -258,7 +259,7 @@ do JSYM=1,NSYM
         if (NB*NK /= 0) &
           call DGEMM_TRI('T','N',NB,NB,NK*JNUM,FactXI,HTSPC(ip_HTVec(iSymk)),NK*JNUM,HTSPC(ip_HTVec(iSymk)),NK*JNUM,One, &
                          FFAO(ISFF),NB)
-        ISFF = ISFF+(NB*(NB+1))/2
+        ISFF = ISFF+nTri_Elem(NB)
       end do
 
       ! Inactive half-transformation:
@@ -290,7 +291,7 @@ do JSYM=1,NSYM
         if (NB*NK /= 0) &
           call DGEMM_TRI('T','N',NB,NB,NK*JNUM,FactXI,HTSPC(ip_HTVec(iSymk)),NK*JNUM,HTSPC(ip_HTVec(iSymk)),NK*JNUM,One, &
                          FIAO(ISFI),NB)
-        ISFI = ISFI+(NB*(NB+1))/2
+        ISFI = ISFI+nTri_Elem(NB)
       end do
       !write(u6,*) ' Inactive Fock mat in FIAO'
       !write(u6,'(1x,8f10.4)') (FIAO(i),i=1,nbtri)
@@ -379,7 +380,7 @@ do JSYM=1,NSYM
         if (NB*NW /= 0) &
           call DGEMM_TRI('T','N',NB,NB,NW*JNUM,FactXA,HTSPC(ip_HTVec(iSymw)),NW*JNUM,HTSPC(ip_HTVec(iSymw)),NW*JNUM,One, &
                          FAAO(ISFA),NB)
-        ISFA = ISFA+(NB*(NB+1))/2
+        ISFA = ISFA+nTri_Elem(NB)
       end do
 
       !write(u6,*) ' Active Fock matrix in FAAO.'
@@ -516,7 +517,7 @@ do ISYM=1,NSYM
     write(u6,'(6X,A)')
     write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FFAO(ISFF),NB)
-    ISFI = ISFF+(NB*(NB+1))/2
+    ISFI = ISFF+nTri_Elem(NB)
   end if
 end do
 write(u6,'(6X,A)')
@@ -528,7 +529,7 @@ do ISYM=1,NSYM
     write(u6,'(6X,A)')
     write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FIAO(ISFI),NB)
-    ISFI = ISFI+(NB*(NB+1))/2
+    ISFI = ISFI+nTri_Elem(NB)
   end if
 end do
 write(u6,'(6X,A)')
@@ -540,7 +541,7 @@ do ISYM=1,NSYM
     write(u6,'(6X,A)')
     write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FAAO(ISFA),NB)
-    ISFA = ISFA+(NB*(NB+1))/2
+    ISFA = ISFA+nTri_Elem(NB)
   end if
 end do
 #endif

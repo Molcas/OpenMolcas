@@ -22,6 +22,7 @@
 !***********************************************************************
 subroutine MKBA(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
 
+use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -51,7 +52,7 @@ do ISYM=1,NSYM
   NIN = NINDEP(ISYM,ICASE)
   if (NIN == 0) cycle
   NAS = NTUV(ISYM)
-  NBA = (NAS*(NAS+1))/2
+  NBA = nTri_Elem(NAS)
   if (NBA <= 0) cycle
 
   ! Set up the matrix BA(tuv,xyz) defined by the expression
@@ -93,7 +94,7 @@ do ISYM=1,NSYM
     IHI = NAS
     JLO = 1
     JHI = NAS
-    MBA = NAS*(NAS+1)/2
+    MBA = nTri_Elem(NAS)
     call MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,ISYM,GA_Arrays(lg_BA)%A(:),MBA,ILO,IHI,JLO,JHI,LDA)
     call MKBA_F3(ISYM,GA_Arrays(lg_BA)%A(:),MBA,NG3,F3,IDXG3)
 # ifdef _MOLCAS_MPP_

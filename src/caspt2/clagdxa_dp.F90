@@ -13,6 +13,7 @@
 
 subroutine CLagDXA_DP(iSym,nAS,nAshT,BDER,SDER,DG1,DG2,DF1,DF2,DEPSA,DEASUM,iLo,iHi,jLo,jHi,LDA,G1,G2,SA,SA2,lg_S)
 
+use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: MTUV
 use caspt2_global, only: ipea_shift
 use caspt2_module, only: EASUM, EPSA, NTUVES
@@ -84,7 +85,7 @@ do IXYZ=jLo,jHi
       bsBDER = ipea_shift*Half*ValB
       SDER(iSAdr) = SDER(iSAdr)+bsBDER*(Two+G1(iTabs,iTabs)+G1(iUabs,iUabs)-G1(iVabs,iVabs))
       if (LDA == 0) then
-        iSAdr2 = iTUV*(iTUV+1)/2
+        iSAdr2 = nTri_Elem(iTUV)
       else
         ISADR2 = 1+iTUV-iLo+LDA*(iTUV-jLo)
       end if
@@ -101,22 +102,22 @@ do IXYZ=jLo,jHi
       do iWabs=1,nAshT
         !! EU derivative
         iTWV = iTabs+nAshT*(iWabs-1)+nAshT**2*(iVabs-1)
-        iSAdr2 = max(iTWV,iXYZ)*(max(iTWV,iXYZ)-1)/2+min(iTWV,iXYZ)
+        iSAdr2 = iTri(iTWV,iXYZ)
         DEPSA(iWabs,iUabs) = DEPSA(iWabs,iUabs)+ValB*SA(iSAdr2)
 
         !! EY derivative
         iXWZ = iXabs+nAshT*(iWabs-1)+nAshT**2*(iZabs-1)
-        iSAdr2 = max(iTUV,iXWZ)*(max(iTUV,iXWZ)-1)/2+min(iTUV,iXWZ)
+        iSAdr2 = iTri(iTUV,iXWZ)
         DEPSA(iWabs,iYabs) = DEPSA(iWabs,iYabs)+ValB*SA(iSAdr2)
 
         !! EX derivative
         iWYZ = iWabs+nAshT*(iYabs-1)+nAshT**2*(iZabs-1)
-        iSAdr2 = max(iTUV,iWYZ)*(max(iTUV,iWYZ)-1)/2+min(iTUV,iWYZ)
+        iSAdr2 = iTri(iTUV,iWYZ)
         DEPSA(iWabs,iXabs) = DEPSA(iWabs,iXabs)+ValB*SA(iSAdr2)
 
         !! ET derivative
         iWUV = iWabs+nAshT*(iUabs-1)+nAshT**2*(iVabs-1)
-        iSAdr2 = max(iWUV,iXYZ)*(max(iWUV,iXYZ)-1)/2+min(iWUV,iXYZ)
+        iSAdr2 = iTri(iWUV,iXYZ)
         DEPSA(iWabs,iTabs) = DEPSA(iWabs,iTabs)+ValB*SA(iSAdr2)
       end do
     else
@@ -143,7 +144,7 @@ do IXYZ=jLo,jHi
       end do
     end if
 
-    if (LDA == 0) iSAdr = max(iTUV,iXYZ)*(max(iTUV,iXYZ)-1)/2+min(iTUV,iXYZ)
+    if (LDA == 0) iSAdr = iTri(iTUV,iXYZ)
     DEASUM = DEASUM-ValB*SA(iSAdr)
 
     ! 2dtx ( Fvuyz-Et*Gvuyz )
@@ -158,7 +159,7 @@ do IXYZ=jLo,jHi
       !VALUE = VALUE+Two*DREF(ID)
       if (iYabs == iUabs) DG1(iVabs,iZabs) = DG1(iVabs,iZabs)+Two*ValS
     end if
-    DEPSA(iTabs,iXabs) = DEPSA(iTabs,iXabs) -Two*ValB*G2(iVabs,iUabs,iYabs,iZabs)
+    DEPSA(iTabs,iXabs) = DEPSA(iTabs,iXabs)-Two*ValB*G2(iVabs,iUabs,iYabs,iZabs)
 
     ! dxu ( -Fvtyz + Eu*Gvtyz )
     ! -dxu Gvtyz -dxu dyt Gvz
@@ -171,7 +172,7 @@ do IXYZ=jLo,jHi
       !VALUE = VALUE-DREF(ID)
       if (iYabs == iTabs) DG1(iVabs,iZabs) = DG1(iVabs,iZabs)-ValS
     end if
-    DEPSA(iXabs,iUabs) = DEPSA(iXabs,iUabs) +ValB*G2(iVabs,iTabs,iYabs,iZabs)
+    DEPSA(iXabs,iUabs) = DEPSA(iXabs,iUabs)+ValB*G2(iVabs,iTabs,iYabs,iZabs)
 
     ! dyt ( -Fvuxz + Et*Gvuxz +dxu (-Fvz+(Et+Eu)*Gvz))
     ! -dyt Gvuxz
@@ -188,7 +189,7 @@ do IXYZ=jLo,jHi
       !VALUE = VALUE-Two*PREF(IP)
       DG2(iVabs,iUabs,iXabs,iZabs) = DG2(iVabs,iUabs,iXabs,iZabs)-ValS
     end if
-    DEPSA(iYabs,iTabs) = DEPSA(iYabs,iTabs) +ValB*G2(iVabs,iUabs,iXabs,iZabs)
+    DEPSA(iYabs,iTabs) = DEPSA(iYabs,iTabs)+ValB*G2(iVabs,iUabs,iXabs,iZabs)
     if (iYabs == iTabs) DEPSA(iXabs,iUabs) = DEPSA(iXabs,iUabs)+ValB*G1(iVabs,iZabs)
     if (iXabs == iUabs) DEPSA(iYabs,iTabs) = DEPSA(iYabs,iTabs)+ValB*G1(iVabs,iZabs)
 
@@ -206,7 +207,7 @@ do IXYZ=jLo,jHi
       !VALUE = VALUE-Two*PREF(IP)
       DG2(iVabs,iZabs,iXabs,iTabs) = DG2(iVabs,iZabs,iXabs,iTabs)-ValS
     end if
-    DEPSA(iYabs,iUabs) = DEPSA(iYabs,iUabs) +ValB*G2(iVabs,iZabs,iXabs,iTabs)
+    DEPSA(iYabs,iUabs) = DEPSA(iYabs,iUabs)+ValB*G2(iVabs,iZabs,iXabs,iTabs)
     if (iYabs == iUabs) DEPSA(iXabs,iTabs) = DEPSA(iXabs,iTabs)-Two*ValB*G1(iVabs,iZabs)
     if (iXabs == iTabs) DEPSA(iYabs,iUabs) = DEPSA(iYabs,iUabs)-Two*ValB*G1(iVabs,iZabs)
   end do

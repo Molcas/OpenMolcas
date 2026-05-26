@@ -14,6 +14,7 @@
 subroutine MS_Res(MODE,IST,JST,Scal)
 ! Compute the derivative of E^PT2 with respct to the T amplitude
 
+use Index_Functions, only: nTri3_Elem
 use EQSOLV, only: IVECC, IVECC2, IVECW
 use caspt2_global, only: IDTCEX, LUCIEX
 use caspt2_module, only: ISCF, MXCI, NASHT, NCONF, NSTATE, STSYM
@@ -32,7 +33,7 @@ real(kind=wp), allocatable :: CI1(:), CI2(:), TG1(:), TG2(:), TG3(:)
 
 NTG1 = NASHT**2
 NTG2 = NASHT**4
-NTG3 = (NTG1*(NTG1+1)*(NTG1+2))/6
+NTG3 = nTri3_Elem(NTG1)
 ! Note: Need proper allocation even if unused, sinced allocated
 ! arrays are in subroutine parameter lists of MKTG3, HCOUP.
 NTG1 = max(1,NTG1)

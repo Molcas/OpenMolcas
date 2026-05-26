@@ -22,6 +22,7 @@ subroutine MKSA_DP(DREF,NDREF,PREF,NPREF,iSYM,SA,NSA,iLo,iHi,jLo,jHi,LDA)
 ! and LDA is set. In serial, the whole array is passed but then the
 ! storage uses a triangular scheme, and the LDA passed is zero.
 
+use Index_Functions, only: iTri
 use SUPERINDEX, only: MTUV
 use caspt2_module, only: NASHT, nTUVES
 use Constants, only: Two, Four
@@ -31,8 +32,8 @@ implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF, iSYM, NSA, iLo, iHi, jLo, jHi, LDA
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
 real(kind=wp), intent(inout) :: SA(NSA)
-integer(kind=iwp) :: ID, ID1, ID2, IP, IP1, IP2, ISADR, ITABS, ITUV, ITUVABS, IUABS, IVABS, IVT, IVU, IVZ, IXABS, IXT, IXYZ, &
-                     IXYZABS, IXZ, IYABS, IYZ, IZABS
+integer(kind=iwp) :: ID, IP, ISADR, ITABS, ITUV, ITUVABS, IUABS, IVABS, IVT, IVU, IVZ, IXABS, IXT, IXYZ, IXYZABS, IXZ, IYABS, IYZ, &
+                     IZABS
 real(kind=wp) :: Val
 
 ISADR = 0
@@ -50,23 +51,19 @@ do IXYZ=jLo,jHi
     ! Add  2 dtx Gvuyz + 2 dtx dyu Gvz
     if (LDA /= 0) then
       Val = SA(1+(iTUV-iLo)+LDA*(iXYZ-jLo))
-    else if (IXYZ <= ITUV) then
-      ISADR = (ITUV*(ITUV-1))/2+IXYZ
-      Val = SA(ISADR)
-    else
+    else if (IXYZ > ITUV) then
       cycle
+    else
+      ISADR = iTri(ITUV,IXYZ)
+      Val = SA(ISADR)
     end if
     if (ITABS == IXABS) then
       IVU = IVABS+NASHT*(IUABS-1)
       IYZ = IYABS+NASHT*(IZABS-1)
-      IP1 = max(IVU,IYZ)
-      IP2 = min(IVU,IYZ)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IVU,IYZ)
       Val = Val+Four*PREF(IP)
       if (IYABS == IUABS) then
-        ID1 = max(IVABS,IZABS)
-        ID2 = min(IVABS,IZABS)
-        ID = (ID1*(ID1-1))/2+ID2
+        ID = iTri(IVABS,IZABS)
         Val = Val+Two*DREF(ID)
       end if
     end if
@@ -74,14 +71,10 @@ do IXYZ=jLo,jHi
     if (IXABS == IUABS) then
       IVT = IVABS+NASHT*(ITABS-1)
       IYZ = IYABS+NASHT*(IZABS-1)
-      IP1 = max(IVT,IYZ)
-      IP2 = min(IVT,IYZ)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IVT,IYZ)
       Val = Val-Two*PREF(IP)
       if (IYABS == ITABS) then
-        ID1 = max(IVABS,IZABS)
-        ID2 = min(IVABS,IZABS)
-        ID = (ID1*(ID1-1))/2+ID2
+        ID = iTri(IVABS,IZABS)
         Val = Val-DREF(ID)
       end if
     end if
@@ -89,18 +82,14 @@ do IXYZ=jLo,jHi
     if (IYABS == ITABS) then
       IVU = IVABS+NASHT*(IUABS-1)
       IXZ = IXABS+NASHT*(IZABS-1)
-      IP1 = max(IVU,IXZ)
-      IP2 = min(IVU,IXZ)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IVU,IXZ)
       Val = Val-Two*PREF(IP)
     end if
     ! Add -dyu Gvzxt
     if (IYABS == IUABS) then
       IVZ = IVABS+NASHT*(IZABS-1)
       IXT = IXABS+NASHT*(ITABS-1)
-      IP1 = max(IVZ,IXT)
-      IP2 = min(IVZ,IXT)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IVZ,IXT)
       Val = Val-Two*PREF(IP)
     end if
     if (LDA /= 0) then

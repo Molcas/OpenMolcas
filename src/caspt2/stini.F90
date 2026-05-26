@@ -13,6 +13,7 @@
 
 subroutine STINI(JSTATE)
 
+use Index_Functions, only: iTri, nTri_Elem
 #ifdef _DMRG_
 use, intrinsic :: iso_c_binding, only: c_int
 use qcmaquis_interface, only: qcmaquis_interface_set_state
@@ -76,7 +77,7 @@ call GETDPREF(DREF,size(DREF),PREF,size(PREF))
 if (IFTEST) then
   write(u6,*) ' DREF for state nr. ',MSTATE(JSTATE)
   do I=1,NASHT
-    write(u6,'(1x,14f10.6)') (DREF((I*(I-1))/2+J),J=1,I)
+    write(u6,'(1x,14f10.6)') (DREF(iTri(I,J)),J=1,I)
   end do
   write(u6,*)
 end if
@@ -85,7 +86,7 @@ EREF = REFENE(JSTATE)
 ! With new DREF, recompute EASUM:
 EASUM = Zero
 do I=1,NASHT
-  EASUM = EASUM+EPSA(I)*DREF((I*(I+1))/2)
+  EASUM = EASUM+EPSA(I)*DREF(nTri_Elem(I))
 end do
 
 if (IPRGLB >= USUAL) then

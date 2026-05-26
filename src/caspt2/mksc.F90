@@ -22,6 +22,7 @@
 !***********************************************************************
 subroutine MKSC(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
 
+use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -36,11 +37,11 @@ integer(kind=iwp), intent(in) :: NDREF, NPREF, NG3
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
 real(kind=wp), intent(inout) :: G3(NG3)
 integer(kind=byte), intent(in) :: idxG3(6,NG3)
-integer(kind=iwp) :: ICASE, IHI, ILO, ISYM, JHI, JLO, LDC, lg_SC, MSC, NAS, NIN, NSC
+integer(kind=iwp) :: ICASE, IHI, ILO, ISYM, JHI, JLO, LDC, lg_SC, NAS, NIN, NSC
 real(kind=wp) :: DSC
 real(kind=wp), external :: PSBMAT_FPRINT
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: MC, MYRANK
+integer(kind=iwp) :: MC, MSC, MYRANK
 real(kind=wp) :: Dummy(1)
 #include "global.fh"
 #include "mafdecls.fh"
@@ -52,7 +53,7 @@ do ISYM=1,NSYM
   NIN = NINDEP(ISYM,ICASE)
   if (NIN == 0) cycle
   NAS = NTUV(ISYM)
-  NSC = (NAS*(NAS+1))/2
+  NSC = nTri_Elem(NAS)
   if (NSC <= 0) cycle
 
   ! Set up the matrix SC(tuv,xyz) defined by the expression
@@ -88,9 +89,8 @@ do ISYM=1,NSYM
     jLo = 1
     jHi = NAS
     LDC = 0
-    MSC = NAS*(NAS+1)/2
-    call MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),MSC,NG3,G3,IDXG3)
-    call MKSC_DP(DREF,NDREF,PREF,NPREF,ISYM,GA_Arrays(lg_SC)%A(:),MSC,ILO,IHI,JLO,JHI,LDC)
+    call MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),NSC,NG3,G3,IDXG3)
+    call MKSC_DP(DREF,NDREF,PREF,NPREF,ISYM,GA_Arrays(lg_SC)%A(:),NSC,ILO,IHI,JLO,JHI,LDC)
 # ifdef _MOLCAS_MPP_
   end if
 # endif

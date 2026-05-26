@@ -19,6 +19,7 @@
 
 subroutine MKBE(DREF,NDREF,FD)
 
+use Index_Functions, only: iTri, nTri_Elem
 use EQSOLV, only: IDBMAT, IDSMAT
 use caspt2_global, only: ipea_shift, LUSBT
 use caspt2_module, only: EASUM, EPSA, NAES, NASH, NINDEP, NSYM
@@ -29,7 +30,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NDREF
 real(kind=wp), intent(in) :: DREF(NDREF), FD(NDREF)
-integer(kind=iwp) :: I, IBE, ID, IDIAG, IDISK, IDS, IDT, ISYM, IT, ITABS, IX, IXABS, NAS, NBE, NINM, NINP, NS
+integer(kind=iwp) :: I, IBE, ID, IDIAG, IDISK, IDS, IDT, ISYM, IT, ITABS, IX, IXABS, NAS, NBE, NINM, NINP
 real(kind=wp) :: ET, EX, Val
 real(kind=wp), allocatable :: BE(:), S(:), SD(:)
 
@@ -42,15 +43,14 @@ do ISYM=1,NSYM
   if (NINP == 0) cycle
   NINM = NINDEP(ISYM,7)
   NAS = NASH(ISYM)
-  NBE = (NAS*(NAS+1))/2
+  NBE = nTri_Elem(NAS)
   if (NBE > 0) then
     call mma_allocate(BE,NBE,LABEL='BE')
     !GG.Nov03  Load in SD the diagonal elements of SE matrix:
-    NS = (NAS*(NAS+1))/2
-    call mma_allocate(S,NS,Label='S')
+    call mma_allocate(S,NBE,Label='S')
     call mma_allocate(SD,NAS,Label='SD')
     IDS = IDSMAT(ISYM,6)
-    call DDAFILE(LUSBT,2,S,NS,IDS)
+    call DDAFILE(LUSBT,2,S,NBE,IDS)
     IDIAG = 0
     do I=1,NAS
       IDIAG = IDIAG+I
@@ -65,13 +65,13 @@ do ISYM=1,NSYM
     do IX=1,IT
       IXABS = IX+NAES(ISYM)
       EX = EPSA(IXABS)
-      IBE = (IT*(IT-1))/2+IX
-      ID = (ITABS*(ITABS-1))/2+IXABS
+      IBE = iTri(IT,IX)
+      ID = iTri(ITABS,IXABS)
       Val = -FD(ID)+(EASUM-EX-ET)*DREF(ID)
       if (ITABS == IXABS) Val = Val+Two*EX
       !GG.Nov03
       if (IT == IX) then
-        IDT = (ITABS*(ITABS+1))/2
+        IDT = nTri_Elem(ITABS)
         Val = Val+ipea_shift*Half*DREF(IDT)*SD(IT)
       end if
       !GG End

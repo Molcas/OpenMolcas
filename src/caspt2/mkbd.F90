@@ -19,6 +19,7 @@
 
 subroutine MKBD(DREF,NDREF,PREF,NPREF,FD,FP)
 
+use Index_Functions, only: nTri_Elem
 use SUPERINDEX, only: MTU
 use EQSOLV, only: IDBMAT, IDSMAT
 use caspt2_global, only: ipea_shift, LUSBT
@@ -31,7 +32,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), FD(NDREF), FP(NPREF)
 integer(kind=iwp) :: I, IB11, IB12, IB21, IB22, ID, ID1, ID2, IDIAG, IDISK, IDS, IDT, IDU, IP, IP1, IP2, ISYM, ITABS, ITU, ITU2, &
-                     ITUABS, IUABS, IUTP, IUYP, IXABS, IXTP, IXY, IXY2, IXYABS, IXYP, IYABS, NAS, NAS2, NBD, NIN, NS2
+                     ITUABS, IUABS, IUTP, IUYP, IXABS, IXTP, IXY, IXY2, IXYABS, IXYP, IYABS, NAS, NAS2, NBD, NIN
 real(kind=wp) :: B11, B22, DUY, ET, ETX, EX, FUY
 real(kind=wp), allocatable :: BD(:), S(:), SD(:)
 
@@ -49,16 +50,15 @@ do ISYM=1,NSYM
   NIN = NINDEP(ISYM,5)
   if (NIN == 0) cycle
   NAS = NTU(ISYM)
-  NBD = (2*NAS*(2*NAS+1))/2
+  NBD = nTri_Elem(2*NAS)
   if (NBD > 0) then
     call mma_allocate(BD,NBD,Label='BD')
     !GG.Nov03  Load in SD the diagonal elements of SD matrix:
-    NS2 = (2*NAS*(2*NAS+1))/2
     NAS2 = 2*NAS
-    call mma_allocate(S,NS2,Label='S')
+    call mma_allocate(S,NBD,Label='S')
     call mma_allocate(SD,NAS2,Label='SD')
     IDS = IDSMAT(ISYM,5)
-    call DDAFILE(LUSBT,2,S,NS2,IDS)
+    call DDAFILE(LUSBT,2,S,NBD,IDS)
     IDIAG = 0
     do I=1,NAS2
       IDIAG = IDIAG+I

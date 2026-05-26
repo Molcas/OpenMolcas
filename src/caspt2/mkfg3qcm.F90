@@ -62,7 +62,7 @@ call qcmaquis_interface_read_fock_contracted_4rdm(TG3tmp,logical(.false.,c_bool)
 ! call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp, epsa, CompressMPS)
 
 ! number of elements in the contracted 4-index of the 4-RDM
-! n4 = (nLev*(nLev+1)*(nLev+2)*(nLev+3)/24)
+! n4 = nTri4_Elem(nLev)
 ! call mma_allocate(G4,n4,nLev,nLev,nLev,nLev,Label='G4')
 ! call qcmaquis_interface_get_4rdm_full(G4)
 

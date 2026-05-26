@@ -19,6 +19,7 @@
 
 subroutine MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,iSYM,BA,MBA,iLo,iHi,jLo,jHi,LDA)
 
+use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: MTUV
 use caspt2_global, only: ipea_shift
 use caspt2_module, only: EASUM, EPSA, NASHT, NTUVES, NTUVES
@@ -29,8 +30,8 @@ implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF, iSYM, MBA, iLo, iHi, jLo, jHi, LDA
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), FD(NDREF), FP(NPREF)
 real(kind=wp), intent(inout) :: BA(MBA)
-integer(kind=iwp) :: ID, ID1, ID2, IDT, IDU, IDV, IP, IP1, IP2, ISADR, ITABS, ITUV, ITUVABS, IUABS, IVABS, IVT, IVU, IVZ, IXABS, &
-                     IXT, IXYZ, IXYZABS, IXZ, IYABS, IYZ, IZABS
+integer(kind=iwp) :: ID, IDT, IDU, IDV, IP, ISADR, ITABS, ITUV, ITUVABS, IUABS, IVABS, IVT, IVU, IVZ, IXABS, IXT, IXYZ, IXYZABS, &
+                     IXZ, IYABS, IYZ, IZABS
 real(kind=wp) :: ET, ETU, EU, EX, EY, FACT, Val
 
 !SV.20100831: fill in the F2 and F1 corrections for this BA block
@@ -53,24 +54,17 @@ do IXYZ=jLo,jHi
     FACT = EY+EU+EX+ET-EASUM
     ISADR = 1+iTUV-iLo+LDA*(iXYZ-jLo)
     if (LDA == 0) then
-      if (iXYZ <= iTUV) then
-        ISADR = (ITUV*(ITUV-1))/2+IXYZ
-      else
-        cycle
-      end if
+      if (iXYZ > iTUV) cycle
+      ISADR = iTri(ITUV,IXYZ)
     end if
     Val = FACT*BA(ISADR)
     if (IYABS == IUABS) then
       IVZ = IVABS+NASHT*(IZABS-1)
       IXT = IXABS+NASHT*(ITABS-1)
-      IP1 = max(IVZ,IXT)
-      IP2 = min(IVZ,IXT)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IVZ,IXT)
       Val = Val-Two*(FP(IP)-EU*PREF(IP))
       if (IXABS == ITABS) then
-        ID1 = max(IVABS,IZABS)
-        ID2 = min(IVABS,IZABS)
-        ID = (ID1*(ID1-1))/2+ID2
+        ID = iTri(IVABS,IZABS)
         Val = Val+Two*(FD(ID)-ETU*DREF(ID))
       end if
     end if
@@ -78,14 +72,10 @@ do IXYZ=jLo,jHi
     if (IYABS == ITABS) then
       IVU = IVABS+NASHT*(IUABS-1)
       IXZ = IXABS+NASHT*(IZABS-1)
-      IP1 = max(IVU,IXZ)
-      IP2 = min(IVU,IXZ)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IVU,IXZ)
       Val = Val-Two*(FP(IP)-ET*PREF(IP))
       if (IXABS == IUABS) then
-        ID1 = max(IVABS,IZABS)
-        ID2 = min(IVABS,IZABS)
-        ID = (ID1*(ID1-1))/2+ID2
+        ID = iTri(IVABS,IZABS)
         Val = Val-(FD(ID)-ETU*DREF(ID))
       end if
     end if
@@ -93,25 +83,21 @@ do IXYZ=jLo,jHi
     if (IXABS == IUABS) then
       IVT = IVABS+NASHT*(ITABS-1)
       IYZ = IYABS+NASHT*(IZABS-1)
-      IP1 = max(IVT,IYZ)
-      IP2 = min(IVT,IYZ)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IVT,IYZ)
       Val = Val-Two*(FP(IP)-EU*PREF(IP))
     end if
     ! Add  2dtx ( Fvuyz-Et*Gvuyz )
     if (ITABS == IXABS) then
       IVU = IVABS+NASHT*(IUABS-1)
       IYZ = IYABS+NASHT*(IZABS-1)
-      IP1 = max(IVU,IYZ)
-      IP2 = min(IVU,IYZ)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IVU,IYZ)
       Val = Val+Four*(FP(IP)-ET*PREF(IP))
     end if
     !GG.Nov03
     if (ITUV == IXYZ) then
-      IDT = (ITABS*(ITABS+1))/2
-      IDU = (IUABS*(IUABS+1))/2
-      IDV = (IVABS*(IVABS+1))/2
+      IDT = nTri_Elem(ITABS)
+      IDU = nTri_Elem(IUABS)
+      IDV = nTri_Elem(IVABS)
       Val = Val+ipea_shift*Half*BA(ISADR)*(Two-DREF(IDV)+DREF(IDT)+DREF(IDU))
     end if
     !GG End

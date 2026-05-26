@@ -25,6 +25,7 @@ subroutine MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO,NCMO)
 ! It will be recomputed later.
 ! The transformation matrices are returned in TORB.
 
+use Index_Functions, only: nTri_Elem
 use fciqmc_interface, only: DoFCIQMC, NonDiagonal
 use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX
 use caspt2_module, only: EPS, EPSA, EPSE, EPSI, iSCF, nBas, nConf, nDel, nFro, nIsh, nOMx, nOrb, nRas1, nRas2, nRas3, nSsh, &
@@ -200,7 +201,7 @@ do ISYM=1,NSYM
     CMO2(ICMOSTA:ICMOEND) = CMO(ICMOSTA:ICMOEND)
   end if
 
-  NFES = NFES+(NO*(NO+1))/2
+  NFES = NFES+nTri_Elem(NO)
 
 end do
 

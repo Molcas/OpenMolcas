@@ -22,6 +22,7 @@ subroutine MKSE(DREF,NDREF)
 ! Formula used:
 !    SE(t,x)=2*dtx - Dtx
 
+use Index_Functions, only: iTri, nTri_Elem
 use EQSOLV, only: IDSMAT
 use caspt2_global, only: LUSBT
 use caspt2_module, only: NAES, NASH, NINDEP, NSYM
@@ -40,14 +41,14 @@ do ISYM=1,NSYM
   if (NINP == 0) cycle
   NINM = NINDEP(ISYM,7)
   NAS = NASH(ISYM)
-  NSE = (NAS*(NAS+1))/2
+  NSE = nTri_Elem(NAS)
   if (NSE > 0) call mma_allocate(SE,NSE,Label='SE')
   do IT=1,NAS
     ITABS = IT+NAES(ISYM)
     do IX=1,IT
       IXABS = IX+NAES(ISYM)
-      ISE = (IT*(IT-1))/2+IX
-      ID = (ITABS*(ITABS-1))/2+IXABS
+      ISE = iTri(IT,IX)
+      ID = iTri(ITABS,IXABS)
       if (ITABS == IXABS) then
         SE(ISE) = Two-DREF(ID)
       else

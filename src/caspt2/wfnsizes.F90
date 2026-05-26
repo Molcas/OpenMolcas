@@ -16,6 +16,7 @@ subroutine wfnsizes()
 !
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Molcas, only: MxAct, MxIna, MxOrb
 use caspt2_global, only: NDREF, NPREF, NTAT, NTORB
 use caspt2_module, only: iaSym, iExtIS, IINAIS, iiSym, iSCF, ISNAM, iSpin, MxExt, nActEl, nAes, nAmx, nAsh, nAshT, nBas, nBasT, &
@@ -55,8 +56,8 @@ end do
 ! Set RHS Boxes to maximum size
 NINABX = NIMX
 NSECBX = NSMX
-NBTRI = (NBSQT+NBAST)/2
-NOTRI = (NOSQT+NORBT)/2
+NBTRI = sum(nTri_Elem(NBAS(1:NSYM)))
+NOTRI = sum(nTri_Elem(NORB(1:NSYM)))
 ! Size of orbital transformation arrays:
 NTORB = 0
 NTAT = 0
@@ -78,12 +79,12 @@ NG1 = 1
 NG2 = 1
 NG3TOT = 1
 if (NASHT > 0) then
-  NDREF = (NASHT**2+NASHT)/2
+  NDREF = nTri_Elem(NASHT)
   NASHT2 = NASHT**2
-  NPREF = (NASHT2**2+NASHT2)/2
+  NPREF = nTri_Elem(NASHT2)
   NG1 = NASHT**2
   NG2 = NG1**2
-  NG3TOT = ((NG1+2)*(NG1+1)*NG1)/6
+  NG3TOT = nTri3_Elem(NG1)
 end if
 
 ! Identify the wave function type

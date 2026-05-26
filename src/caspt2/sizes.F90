@@ -19,6 +19,7 @@
 
 subroutine SIZES()
 
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use PrintLevel, only: USUAL
 use SUPERINDEX, only: SUPINI
@@ -45,6 +46,7 @@ integer(kind=iwp) :: ICASE, ICASE1, ICASE2, ISL1, ISL2, ISL3, ISYM, ISYM1, ISYM2
                      nSigma, nSigma_inner, nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT, nV, nVCUtil, nWLag, NX
 real(kind=wp) :: XX, YY
 integer(kind=iwp), external :: iParDiv
+integer(kind=iwp), parameter :: Magic = 119000
 
 ! Available workspace right now:
 call mma_MaxDBLE(MXLEFT)
@@ -72,7 +74,7 @@ if (NACTEL > 0) then
   ! Preferred size for efficiency:
   NPLBUF = max(MINBUF,NPLBUF)
   ! Actual max needed in-core:
-  NPLBUF = min(NPLBUF,(NASHT*(NASHT+1))/2)
+  NPLBUF = min(NPLBUF,nTri_Elem(NASHT))
   NPOLY = NPOLY+NPLBUF*(NPLBUF+3+3*MXCI)
   !write(u6,*) ' Memory requirements for POLY3 (Above SGUGA):'
   !write(u6,*) '   CI vector                      :',MXCI
@@ -94,7 +96,7 @@ call SUPINI()
 !NG3C = 0
 !do ISYM=1,NSYM
 !  N = NTUV(ISYM)
-!  NG3C = NG3C+(N*(N+1))/2
+!  NG3C = NG3C+nTri_Elem(N)
 !end do
 !NG3C = iPARDIV(NG3TOT,NG2)
 
@@ -145,7 +147,7 @@ if (.not. IFCHOL) then
       if (ICASE > 11) then
         N = NV
       else
-        N = 2*NV+(NAS*(NAS+1))/2
+        N = 2*NV+nTri_Elem(NAS)
       end if
       NMX = max(N,NMX)
     end do
@@ -205,7 +207,7 @@ do ICASE=1,13
     if (ICASE > 11) then
       M = 2*NV
     else
-      M = 3*NV+(NAS*(NAS+1))/2
+      M = 3*NV+nTri_Elem(NAS)
     end if
     MMX = max(M,MMX)
   end do
@@ -322,7 +324,7 @@ if (do_grad) then
       M11 = NSGM2+NSGM1
       M12 = 2*iPARDIV(NSGM2,0)+NSGM2
       if (ICASE1 <= 11) then
-        M12 = M12+iPARDIV(max(NSGM2,NAS1*(NAS1+1)/2),0)
+        M12 = M12+iPARDIV(max(NSGM2,nTri_Elem(NAS1)),0)
       else
         M12 = M12+iPARDIV(NSGM2,0)
       end if
@@ -369,22 +371,23 @@ if (do_grad) then
       if (IFMSCOUP) M = M+NIN*NIS
       ! inside CLagDX
       M = M+2*NAS**2+NAS*min(NAS,NIS)+NAS*NIN+NIN
-      if (ICASE == 1) then
-        M = M+NAS*(NAS+1)/2+NG3TOT
-      else if ((ICASE == 2) .or. (ICASE == 3)) then
-        M = M+2*NASHT**4
-        if (IPEA_SHIFT /= Zero) M = M+NAS*(NAS+1)/2
-      else if (ICASE == 4) then
-        M = M+NAS*(NAS+1)/2+NG3TOT
-      else if (ICASE == 5) then
-        if (IPEA_SHIFT /= Zero) M = M+NAS*(NAS+1)/2
-      else if ((ICASE == 6) .or. (ICASE == 7)) then
-        if (IPEA_SHIFT /= Zero) M = M+NAS*(NAS+1)/2
-      else if ((ICASE == 8) .or. (ICASE == 9)) then
-        if (IPEA_SHIFT /= Zero) M = M+NAS*(NAS+1)/2
-      else if ((ICASE == 10) .or. (ICASE == 11)) then
-        if (IPEA_SHIFT /= Zero) M = M+NAS*(NAS+1)/2
-      end if
+      select case (ICASE)
+        case (1)
+          M = M+nTri_Elem(NAS)+NG3TOT
+        case (2,3)
+          M = M+2*NASHT**4
+          if (IPEA_SHIFT /= Zero) M = M+nTri_Elem(NAS)
+        case (4)
+          M = M+nTri_Elem(NAS)+NG3TOT
+        case (5)
+          if (IPEA_SHIFT /= Zero) M = M+nTri_Elem(NAS)
+        case (6,7)
+          if (IPEA_SHIFT /= Zero) M = M+nTri_Elem(NAS)
+        case (8,9)
+          if (IPEA_SHIFT /= Zero) M = M+nTri_Elem(NAS)
+        case (10,11)
+          if (IPEA_SHIFT /= Zero) M = M+nTri_Elem(NAS)
+      end select
       MMX = max(M,MMX)
     end do
   end do
@@ -399,7 +402,7 @@ if (do_grad) then
   ! gradient: effective Hamiltonian (DerHEff)
   NTG1 = NASHT**2
   NTG2 = NASHT**4
-  NTG3 = (NTG1*(NTG1+1)*(NTG1+2))/6
+  NTG3 = nTri3_Elem(NTG1)
   ngrad7 = NTG1+NTG2+NTG3
   ! DerHeffX
   MAXAIS = 0
@@ -494,7 +497,7 @@ if (NEED > MXLEFT) then
     write(u6,'(5X,A)') repeat('*',26)
     write(u6,'(5X,A)') ' Memory problem!! The memory is insufficient '
     write(u6,'(5X,A)') ' for the property section.'
-    write(u6,'(5X,A,I5,A)') '* Need at least ',2+NEED/119000,' MB *'
+    write(u6,'(5X,A,I5,A)') '* Need at least ',2+NEED/Magic,' MB *'
     if (do_grad) then
       write(u6,'(5X,A)') ' The property (including gradient) section will be skipped.'
       write(u6,'(5X,A)') ' If you cannot increase the memory, consider using numerical gradients'
@@ -510,7 +513,7 @@ if (NEED > MXLEFT) then
     ! not a Cholesky calculation, keep old memory requirements
     write(u6,'(5X,A)') repeat('*',26)
     write(u6,'(5X,A)') '* Insufficient memory !! *'
-    write(u6,'(5X,A,I5,A)') '* Need at least ',2+NEED0/119000,' MB *'
+    write(u6,'(5X,A,I5,A)') '* Need at least ',2+NEED0/Magic,' MB *'
     write(u6,'(5X,A)') repeat('*',26)
     write(u6,*)
     write(u6,*) ' Program execution stops -- sorry!'
@@ -519,11 +522,11 @@ if (NEED > MXLEFT) then
   else if (max(NPOLY,NSIGMA) <= MXLEFT) then
     ! This is a Cholesky calculation, only give recommended amount
     write(u6,'(5X,A)') repeat('*',40)
-    write(u6,'(5X,A,I5,A)') '* Below comfortable memory of ',2+NEED0/1.19e5_wp,' MB *'
+    write(u6,'(5X,A,I5,A)') '* Below comfortable memory of ',2+NEED0/Magic,' MB *'
     write(u6,'(5X,A)') repeat('*',40)
     write(u6,*)
     write(u6,*) ' Program will try to adapt'
-    write(u6,*) ' If it fails, please raise the memory to at least',2+max(NPOLY,int(0.55_wp*NMKRHS),NSIGMA)/1.19e5_wp,' MB'
+    write(u6,*) ' If it fails, please raise the memory to at least',2+max(NPOLY,int(0.55_wp*NMKRHS),NSIGMA)/Magic,' MB'
     write(u6,*) ' (Maybe more, this aint rocket science)'
     write(u6,*)
     write(u6,*) ' With print level DEBUG you will get some more'
@@ -534,8 +537,8 @@ if (NEED > MXLEFT) then
     write(u6,'(5X,A)') '* Insufficient memory... *'
     write(u6,'(5X,A)') repeat('*',26)
     write(u6,*)
-    write(u6,'(A,I6,A)') ' If possible, I would like to have   ',NEED0/1.19e5_wp,' MB'
-    write(u6,'(A,I6,A)') ' Please raise the memory to at least ',max(NPOLY,int(0.55_wp*NMKRHS),NSIGMA)/1.19e5_wp,' MB'
+    write(u6,'(A,I6,A)') ' If possible, I would like to have   ',NEED0/Magic,' MB'
+    write(u6,'(A,I6,A)') ' Please raise the memory to at least ',max(NPOLY,int(0.55_wp*NMKRHS),NSIGMA)/Magic,' MB'
     write(u6,*) ' (Maybe more, this aint rocket science)'
     write(u6,*)
     call Quit(_RC_MEMORY_ERROR_)

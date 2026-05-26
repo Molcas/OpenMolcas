@@ -23,7 +23,7 @@ subroutine MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 ! is made more compact by the following addressing:
 
 ! <Psi1|E_tuvxyz|Psi2> is stored in TG3(ITG3) where
-!    ITG3= ((i+1)*i*(i-1))/6 + (j*(j-1))/2 + k
+!    ITG3= nTri3_Elem(i-1) + nTri_Elem(j-1) + k
 !     i  = max(tu,vx,yz)
 !     j  = mid(tu,vx,yz)
 !     k  = min(tu,vx,yz)
@@ -31,6 +31,7 @@ subroutine MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 ! the usual active orbital number, when they are enumerated across
 ! all the symmetries (The "absolute" active index).
 
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use sguga, only: CIS, EXS, L2ACT, SGS
 use caspt2_module, only: IASYM, ISCF, NACTEL, NASHT
@@ -353,7 +354,7 @@ else
               if (IT3 == IU1) VAL = VAL-TG2(IT2,IU2,IT1,IU3)
 
               ! VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
-              ITG3 = ((IND1+1)*IND1*(IND1-1))/6+(IND2*(IND2-1))/2+IND3
+              ITG3 = nTri3_Elem(IND1-1)+nTri_Elem(IND2-1)+IND3
               TG3(ITG3) = VAL
 
             end do

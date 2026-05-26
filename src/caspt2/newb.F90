@@ -24,6 +24,7 @@
 
 subroutine NEWB()
 
+use Index_Functions, only: nTri_Elem
 use EQSOLV, only: iDBMat, iDSMat
 use caspt2_global, only: LUSBT
 use caspt2_module, only: nASup, nISup, nSym
@@ -42,7 +43,7 @@ do ICASE=1,11
     NIS = NISUP(ISYM,ICASE)
     NCOEF = NAS*NIS
     if (NCOEF == 0) cycle
-    NS = (NAS*(NAS+1))/2
+    NS = nTri_Elem(NAS)
     call mma_allocate(S,NS,LABEL='S')
     IDS = IDSMAT(ISYM,ICASE)
     call DDAFILE(LUSBT,2,S,NS,IDS)

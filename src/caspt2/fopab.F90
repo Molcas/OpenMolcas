@@ -11,6 +11,7 @@
 
 subroutine FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
 
+use Index_Functions, only: iTri, nTri_Elem
 use sguga, only: CIS, EXS, L2ACT, SGS
 use caspt2_global, only: IDCIEX, LUCIEX
 use caspt2_module, only: ISCF, NAES, NASH, NCONF, NISH, NORB, NSYM, STSYM
@@ -38,7 +39,7 @@ nLev = SGS%nLev
 ! Offset table for accessing FIFA array:
 IOFF(1) = 0
 do ISYM=1,NSYM-1
-  IOFF(ISYM+1) = IOFF(ISYM)+(NORB(ISYM)*(NORB(ISYM)+1))/2
+  IOFF(ISYM+1) = IOFF(ISYM)+nTri_Elem(NORB(ISYM))
 end do
 
 IFTEST = 0
@@ -63,12 +64,12 @@ if ((ISCF == 1) .or. (ISCF == 2)) then
     do ISYM=1,NSYM
       OCC = Two
       do I=1,NISH(ISYM)
-        ESUM = ESUM+OCC*FIFA(IOFF(ISYM)+(I*(I+1))/2)
+        ESUM = ESUM+OCC*FIFA(IOFF(ISYM)+nTri_Elem(I))
       end do
       if (ISCF == 2) OCC = One
       do J=1,NASH(ISYM)
         I = NISH(ISYM)+J
-        ESUM = ESUM+OCC*FIFA(IOFF(ISYM)+(I*(I+1))/2)
+        ESUM = ESUM+OCC*FIFA(IOFF(ISYM)+nTri_Elem(I))
       end do
     end do
   else
@@ -84,7 +85,7 @@ end if
 TRC = Zero
 do ISYM=1,NSYM
   do I=1,NISH(ISYM)
-    II = IOFF(ISYM)+(I*(I+1))/2
+    II = IOFF(ISYM)+nTri_Elem(I)
     TRC = TRC+FIFA(II)
   end do
 end do
@@ -125,8 +126,7 @@ do LEVU=1,NLEV
     IST = ISU
     IT = ITABS-NAES(IST)
     ITTOT = NI+IT
-    ITUTOT = (IUTOT*(IUTOT-1))/2+ITTOT
-    if (ITTOT > IUTOT) ITUTOT = (ITTOT*(ITTOT-1))/2+IUTOT
+    ITUTOT = iTri(IUTOT,ITTOT)
     FTU = FIFA(IOFF(ISU)+ITUTOT)
     if (abs(FTU) < 1.0e-16_wp) cycle
     call SG_Epq_Psi(SGS,CIS,EXS,LEVT,LEVU,FTU,STSYM,KET,SGM)
@@ -169,8 +169,7 @@ do LEVU=2,NLEV
     IST = ISU
     IT = ITABS-NAES(IST)
     ITTOT = NI+IT
-    ITUTOT = (IUTOT*(IUTOT-1))/2+ITTOT
-    if (ITTOT > IUTOT) ITUTOT = (ITTOT*(ITTOT-1))/2+IUTOT
+    ITUTOT = iTri(IUTOT,ITTOT)
     FTU = FIFA(IOFF(ISU)+ITUTOT)
     if (abs(FTU) < 1.0e-16_wp) cycle
     call SG_Epq_Psi(SGS,CIS,EXS,LEVT,LEVU,FTU,STSYM,BRA,SGM)

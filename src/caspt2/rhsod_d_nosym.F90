@@ -13,6 +13,7 @@
 
 subroutine RHSOD_D_NOSYM(IVEC)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTU, MAREL, MIA, MIREL, MTREL, MTU
 use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
@@ -78,7 +79,7 @@ ACTINV = One/real(max(1,NACTEL),kind=wp)
 IFIMOES = 0
 do ISYM=1,NSYM
   NFIMOES(ISYM) = IFIMOES
-  IFIMOES = IFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
+  IFIMOES = IFIMOES+nTri_Elem(NORB(ISYM))
 end do
 
 do ISYM=1,NSYM
@@ -138,7 +139,7 @@ do ISYM=1,NSYM
     ! now, dress with FIMO(a,j), only if T==V, so ISYT==ISYV, so if ISYM==1
     if (ISYM == 1) then
       IATOT = IA+NISH(ISYA)+NASH(ISYA)
-      FAJ = FIMO(NFIMOES(ISYA)+(IATOT*(IATOT-1))/2+IJ)
+      FAJ = FIMO(NFIMOES(ISYA)+iTri(IATOT,IJ))
       ONEADD = FAJ*ACTINV
       do IUABS=1,NASHT
         IUU = KTU(IUABS,IUABS)

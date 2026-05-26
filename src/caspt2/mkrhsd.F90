@@ -21,6 +21,7 @@ subroutine MKRHSD(IVEC,FIMO,NFIMO,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
 ! Set up RHS vector of PT2 Linear Equation System, in vector
 ! number IVEC of LUSOLV, for case 5, AIVX.
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTU
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
@@ -56,7 +57,7 @@ do ISYM=1,NSYM
   NFSUM = 0
   do ISYMI=1,NSYM
     NFIMOES = NFSUM
-    NFSUM = NFSUM+(NORB(ISYMI)*(NORB(ISYMI)+1))/2
+    NFSUM = NFSUM+nTri_Elem(NORB(ISYMI))
     ISYMA = Mul(ISYMI,ISYM)
     do ISYMU=1,NSYM
       ISYMT = Mul(ISYMU,ISYM)
@@ -70,7 +71,7 @@ do ISYM=1,NSYM
             IATOT = IA+NISH(ISYMA)+NASH(ISYMA)
             ONEADD = Zero
             if (ISYM == 1) then
-              FAI = FIMO(NFIMOES+(IATOT*(IATOT-1))/2+II)
+              FAI = FIMO(NFIMOES+iTri(IATOT,II))
               ONEADD = FAI/real(max(1,NACTEL),kind=wp)
             end if
             do IT=1,NASH(ISYMT)

@@ -20,6 +20,7 @@ subroutine DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,IISTA,IIEND,V1,V2,OVL,DT
 ! only computes part of the HEL value, which is then sum reduced in the
 ! calling subroutine.
 
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use SUPERINDEX, only: MTGEU, MTGTU, MTU, MTUV
 use caspt2_module, only: NAES, NTGEUES, NTGTUES, NTUES, NTUVES
 use Constants, only: Zero, Two, Four, Eight
@@ -91,7 +92,7 @@ select case (ICASE)
             JND3 = IND1
           end if
         end if
-        ITG3 = ((JND1+1)*JND1*(JND1-1))/6+(JND2*(JND2-1))/2+JND3
+        ITG3 = nTri3_Elem(JND1-1)+nTri_Elem(JND2-1)+JND3
         !  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
         ! Compute TMP=Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
         VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
@@ -160,7 +161,7 @@ select case (ICASE)
             JND3 = IND1
           end if
         end if
-        ITG3 = ((JND1+1)*JND1*(JND1-1))/6+(JND2*(JND2-1))/2+JND3
+        ITG3 = nTri3_Elem(JND1-1)+nTri_Elem(JND2-1)+JND3
         !  SC(xuv,tyz) (rewritten, swapping x and t)
         !    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
         VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
@@ -356,7 +357,7 @@ select case (ICASE)
   case (13)
     OVL = OVL+DDOT_(NAS*NISBLK,V2,1,V1,1)
     !if (abs(OVL) >= 1.0e-12_wp) HEBLK = HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
-  !*********************************************************************
+    !*******************************************************************
 end select
 
 return

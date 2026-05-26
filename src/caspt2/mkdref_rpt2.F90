@@ -22,6 +22,7 @@ subroutine MKDREF_RPT2(N,G1,DREF,nDREF)
 ! from G1(P,Q) = <0| Epq |0>
 ! Storage differs: DREF is triangular.
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -31,7 +32,7 @@ real(kind=wp), intent(out) :: DREF(NDREF)
 integer(kind=iwp) :: I, IJ
 
 do I=1,N
-  IJ = (I*(I-1))/2
+  IJ = nTri_Elem(I-1)
   DREF(IJ+1:IJ+I) = G1(I,1:I)
 end do
 

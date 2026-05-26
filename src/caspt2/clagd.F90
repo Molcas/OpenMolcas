@@ -13,6 +13,7 @@
 
 subroutine CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,VECROT)
 
+use Index_Functions, only: nTri_Elem
 use EQSOLV, only: IDBMAT, IDSMAT, IRHS, IVECR, IVECW, IVECX
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: imag_shift, ipea_shift, iVecL, LUSBT, LUSOLV, sigma_p_epsilon
@@ -304,7 +305,7 @@ subroutine CLagDXA(NAS,BDER,SDER)
   real(kind=wp), intent(inout) :: SDER(NAS,NAS)
   integer(kind=byte), allocatable :: idxG3(:,:)
 
-  NS = NAS*(NAS+1)/2
+  NS = nTri_Elem(NAS)
   call mma_allocate(SMat,NS,Label='SMat')
   idS = idSMAT(iSym,1)
   call DDAFILE(LUSBT,2,SMat,NS,idS)
@@ -344,7 +345,7 @@ subroutine CLagDXB(NAS,BDER,SDER)
   WrkSbf(:,:,:,:) = Zero
 
   if (ipea_shift /= Zero) then
-    NS = NAS*(NAS+1)/2
+    NS = nTri_Elem(NAS)
     call mma_allocate(SMat,NS,Label='SMat')
     idS = idSMAT(iSym,iCase)
     call DDAFILE(LUSBT,2,SMat,NS,idS)
@@ -391,9 +392,9 @@ subroutine CLagDXB(NAS,BDER,SDER)
 
       !! For IPEA shift
       if ((iTU == iXY) .and. (ipea_shift /= Zero)) then
-        !idT = (iTabs*(iTabs+1))/2
-        !idU = (iUabs*(iUabs+1))/2
-        NSEQ = iTU*(iTU+1)/2
+        !idT = nTri_Elem(iTabs)
+        !idU = nTri_Elem(iUabs)
+        NSEQ = nTri_Elem(iTU)
         bsBDER = ipea_shift*Half*BDERval
         !! ipea_shift*Half*(DREF(IDT)+DREF(IDU))*SDP(ITGEU)
         DG1(iTabs,iTabs) = DG1(iTabs,iTabs)+bsBDER*SMat(NSEQ)
@@ -547,7 +548,7 @@ subroutine CLagDXC(NAS,BDER,SDER)
   real(kind=wp), intent(inout) :: SDER(NAS,NAS)
   integer(kind=byte), allocatable :: idxG3(:,:)
 
-  NS = NAS*(NAS+1)/2
+  NS = nTri_Elem(NAS)
   call mma_allocate(SMat,NS,Label='SMat')
   idS = idSMAT(iSym,4)
   call DDAFILE(LUSBT,2,SMat,NS,idS)
@@ -582,7 +583,7 @@ subroutine CLagDXD(NAS,BDER,SDER)
   real(kind=wp) :: BDER1, BDER2, ETX, SDER1, SDER2
 
   if (ipea_shift /= Zero) then
-    NS = NAS*(NAS+1)/2
+    NS = nTri_Elem(NAS)
     call mma_allocate(SMat,NS,Label='SMat')
     idS = idSMAT(iSym,iCase)
     call DDAFILE(LUSBT,2,SMat,NS,idS)
@@ -638,13 +639,13 @@ subroutine CLagDXD(NAS,BDER,SDER)
       if ((iTU == iXY) .and. (ipea_shift /= Zero)) then
         !! ipea_shift*Half*(Two-DREF(IDU)+DREF(IDT))*SD(ITU)
         bsBDER = ipea_shift*Half*BDER(iTU,iXY)
-        NSEQ = iTU*(iTU+1)/2
+        NSEQ = nTri_Elem(iTU)
         DG1(iTabs,iTabs) = DG1(iTabs,iTabs)+bsBDER*SMat(NSEQ)
         DG1(iUabs,iUabs) = DG1(iUabs,iUabs)-bsBDER*SMat(NSEQ)
         SDER(iTU,iXY) = SDER(iTU,iXY)+bsBDER*(Two+G1(iTabs,iTabs)-G1(iUabs,iUabs))
         !! ipea_shift*Half*(Two-DREF(IDU)+DREF(IDT))*SD(ITU+NAS)
         bsBDER = ipea_shift*Half*BDER(iTU2,iXY2)
-        NSEQ = iTU2*(iTU2+1)/2
+        NSEQ = nTri_Elem(iTU2)
         DG1(iTabs,iTabs) = DG1(iTabs,iTabs)+bsBDER*SMat(NSEQ)
         DG1(iUabs,iUabs) = DG1(iUabs,iUabs)-bsBDER*SMat(NSEQ)
         SDER(iTU2,iXY2) = SDER(iTU2,iXY2)+bsBDER*(Two+G1(iTabs,iTabs)-G1(iUabs,iUabs))
@@ -676,7 +677,7 @@ subroutine CLagDXE(NAS,BDER,SDER)
   real(kind=wp) :: VAL
 
   if (ipea_shift /= Zero) then
-    NS = NAS*(NAS+1)/2
+    NS = nTri_Elem(NAS)
     call mma_allocate(SMat,NS,Label='SMat')
     idS = idSMAT(iSym,6)
     call DDAFILE(LUSBT,2,SMat,NS,idS)
@@ -685,7 +686,7 @@ subroutine CLagDXE(NAS,BDER,SDER)
       ITABS = IT+NAES(ISYM)
       VAL = ipea_shift*Half*BDER(IT,IT)
       SDER(IT,IT) = SDER(IT,IT)+G1(ITABS,ITABS)*VAL
-      NSEQ = IT*(IT-1)/2+IT
+      NSEQ = nTri_Elem(IT)
       DG1(ITABS,ITABS) = DG1(ITABS,ITABS)+SMat(NSEQ)*VAL
     end do
     call mma_deallocate(SMat)
@@ -724,7 +725,7 @@ subroutine CLagDXF(NAS,BDER,SDER)
   integer(kind=iwp) :: iTU, iXY
 
   if (ipea_shift /= Zero) then
-    NS = NAS*(NAS+1)/2
+    NS = nTri_Elem(NAS)
     call mma_allocate(SMat,NS,Label='SMat')
     idS = idSMAT(iSym,iCase)
     call DDAFILE(LUSBT,2,SMat,NS,idS)
@@ -764,9 +765,9 @@ subroutine CLagDXF(NAS,BDER,SDER)
 
       BDERval = BDER(ITU,IXY)
       if ((iTU == iXY) .and. (ipea_shift /= Zero)) then
-        !idT = (iTabs*(iTabs+1))/2
-        !idU = (iUabs*(iUabs+1))/2
-        NSEQ = iTU*(iTU+1)/2
+        !idT = nTri_Elem(iTabs)
+        !idU = nTri_Elem(iUabs)
+        NSEQ = nTri_Elem(iTU)
         bsBDER = ipea_shift*Half*BDERval
         !! ipea_shift*Half*(Four-DREF(IDT)-DREF(IDU))*SDP(ITGEU)
         DG1(iTabs,iTabs) = DG1(iTabs,iTabs)-SMat(NSEQ)*bsBDER
@@ -830,7 +831,7 @@ subroutine CLagDXG(NAS,BDER,SDER)
   real(kind=wp) :: VAL
 
   if (ipea_shift /= Zero) then
-    NS = NAS*(NAS+1)/2
+    NS = nTri_Elem(NAS)
     call mma_allocate(SMat,NS,Label='SMat')
     idS = idSMAT(iSym,10)
     call DDAFILE(LUSBT,2,SMat,NS,idS)
@@ -839,7 +840,7 @@ subroutine CLagDXG(NAS,BDER,SDER)
       ITABS = IT+NAES(ISYM)
       VAL = ipea_shift*Half*BDER(IT,IT)
       SDER(IT,IT) = SDER(IT,IT)+(Two-G1(ITABS,ITABS))*VAL
-      NSEQ = IT*(IT-1)/2+IT
+      NSEQ = nTri_Elem(IT)
       DG1(ITABS,ITABS) = DG1(ITABS,ITABS)-SMat(NSEQ)*VAL
     end do
     call mma_deallocate(SMat)

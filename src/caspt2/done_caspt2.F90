@@ -37,6 +37,7 @@ subroutine Done_CASPT2(CMO,nCMO,OCC,nOCC,D,nD)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use caspt2_module, only: nBas, nSym
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
@@ -45,7 +46,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nCMO, nOcc, nD
 real(kind=wp), intent(in) :: CMO(nCMO), OCC(nOCC)
 real(kind=wp), intent(out) :: D(nD)
-integer(kind=iwp) :: i, iBas, ii, iOff1, iOff2, iOff3, iSym, j, k
+integer(kind=iwp) :: i, iBas, iOff1, iOff2, iOff3, iSym, j, k
 real(kind=wp) :: rSum
 
 iOff1 = 0
@@ -55,18 +56,20 @@ do iSym=1,nSym
   iBas = nBas(iSym)
   if (iBas == 0) cycle
   do i=1,iBas
-    ii = (i*i-i)/2
     do j=1,i
       rSum = Zero
       do k=1,iBas
         rSum = rSum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
       end do
-      D(iOff2+ii+j) = Two*rSum
-      if (j == i) D(iOff2+ii+j) = rSum
+      if (j == i) then
+        D(iOff2+iTri(i,j)) = rSum
+      else
+        D(iOff2+iTri(i,j)) = Two*rSum
+      end if
     end do
   end do
   iOff1 = iOff1+iBas*iBas
-  iOff2 = iOff2+(iBas*iBas+iBas)/2
+  iOff2 = iOff2+nTri_Elem(iBas)
   iOff3 = iOff3+iBas
 end do
 

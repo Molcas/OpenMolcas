@@ -19,6 +19,7 @@
 
 subroutine DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF,U0)
 
+use Index_Functions, only: iTri, nTri_Elem
 use CHOVEC_IO, only: nvloc_chobatch
 use PrintLevel, only: DEBUG, VERBOSE
 use EQSOLV, only: IVECC2, IVECR, IVECX
@@ -60,7 +61,7 @@ if (do_grad) then
 
   ! Compute total density matrix as symmetry-blocked array of
   ! triangular matrices in DMAT. Size of a triangular submatrix is
-  !  (NORB(ISYM)*(NORB(ISYM)+1))/2.
+  !  nTri_Elem(NORB(ISYM)).
   NDPT = sum(NORB(1:nSym)**2)
   nDPTAO = sum(nBas(1:nSym)**2)
   ! shouldn't be necessary, is already done outside
@@ -72,7 +73,7 @@ if (do_grad) then
     NA = NASH(ISYM)
     NO = NORB(ISYM)
     do II=1,NI
-      IDM = IDMOFF+(II*(II+1))/2
+      IDM = IDMOFF+nTri_Elem(II)
       DMAT(IDM) = Two
     end do
     do IT=1,NA
@@ -81,12 +82,12 @@ if (do_grad) then
       do IU=1,IT
         IUABS = NAES(ISYM)+IU
         IUTOT = NI+IU
-        IDRF = (ITABS*(ITABS-1))/2+IUABS
-        IDM = IDMOFF+((ITTOT*(ITTOT-1))/2+IUTOT)
+        IDRF = iTri(ITABS,IUABS)
+        IDM = IDMOFF+iTri(ITTOT,IUTOT)
         DMAT(IDM) = DREF(IDRF)
       end do
     end do
-    IDMOFF = IDMOFF+(NO*(NO+1))/2
+    IDMOFF = IDMOFF+nTri_Elem(NO)
   end do
   !write(u6,*) ' DENS. Initial DMAT:'
   !write(u6,'(1x,8f16.8)') (dmat(i),i=1,ndmat)
@@ -580,12 +581,12 @@ if (do_grad) then
       !write(u6,*) 'fpt'
       !call sqprt(dpt2,nbast)
     end if
-      !write(u6,*) 'fifa_all'
-      !call sqprt(fifa_all,12)
-      !write(u6,*) 'fimo_all'
-      !call sqprt(fimo_all,12)
-      !! Construct FIFA and FIMO
-      !call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
+    !write(u6,*) 'fifa_all'
+    !call sqprt(fifa_all,12)
+    !write(u6,*) 'fimo_all'
+    !call sqprt(fimo_all,12)
+    !! Construct FIFA and FIMO
+    !call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
   else ! there are no frozen orbitals
     iSQ = 0
     iTR = 0
@@ -594,7 +595,7 @@ if (do_grad) then
       call SQUARE(FIFA(1+iTR),FIFA_all(1+iSQ),1,nOrbI,nOrbI)
       call SQUARE(FIMO(1+iTR),FIMO_all(1+iSQ),1,nOrbI,nOrbI)
       iSQ = iSQ+nOrbI*nOrbI
-      iTR = iTR+nOrbI*(nOrbI+1)/2
+      iTR = iTR+nTri_Elem(nOrbI)
     end do
   end if
   call mma_deallocate(DIA)
@@ -795,8 +796,8 @@ if (do_grad) then
           liBasTr = liBasTr+1
         end do
       end do
-      iBasTr = iBasTr+nBasI*(nBasI+1)/2
-      iBasSq = iBasSq+nBasI*nBasI
+      iBasTr = iBasTr+nTri_Elem(nBasI)
+      iBasSq = iBasSq+nBasI**2
     end do
   end if
 
@@ -888,7 +889,7 @@ else
   !! without gradient
   ! Compute total density matrix as symmetry-blocked array of
   ! triangular matrices in DMAT. Size of a triangular submatrix is
-  ! (NORB(ISYM)*(NORB(ISYM)+1))/2.
+  ! nTri_Elem(NORB(ISYM)).
   NDPT = sum(NORB(1:nSym)**2)
   DMAT(1:NDMAT) = Zero
   ! First, put in the reference density matrix.
@@ -898,7 +899,7 @@ else
     NA = NASH(ISYM)
     NO = NORB(ISYM)
     do II=1,NI
-      IDM = IDMOFF+(II*(II+1))/2
+      IDM = IDMOFF+nTri_Elem(II)
       DMAT(IDM) = Two
     end do
     do IT=1,NA
@@ -907,12 +908,12 @@ else
       do IU=1,IT
         IUABS = NAES(ISYM)+IU
         IUTOT = NI+IU
-        IDRF = (ITABS*(ITABS-1))/2+IUABS
-        IDM = IDMOFF+((ITTOT*(ITTOT-1))/2+IUTOT)
+        IDRF = iTri(ITABS,IUABS)
+        IDM = IDMOFF+iTri(ITTOT,IUTOT)
         DMAT(IDM) = DREF(IDRF)
       end do
     end do
-    IDMOFF = IDMOFF+(NO*(NO+1))/2
+    IDMOFF = IDMOFF+nTri_Elem(NO)
   end do
   !write(u6,*) ' DENS. Initial DMAT:'
   !write(u6,'(1x,8f16.8)') (dmat(i),i=1,ndmat)
@@ -953,12 +954,12 @@ do ISYM=1,NSYM
   NO = NORB(ISYM)
   do IP=1,NO
     do IQ=1,IP
-      IDM = IDMOFF+(IP*(IP-1))/2+IQ
+      IDM = IDMOFF+iTri(IP,IQ)
       IDSUM = IDSOFF+IP+NO*(IQ-1)
       DMAT(IDM) = DMAT(IDM)+DSUM(IDSUM)
     end do
   end do
-  IDMOFF = IDMOFF+(NO*(NO+1))/2
+  IDMOFF = IDMOFF+nTri_Elem(NO)
   IDSOFF = IDSOFF+NO**2
 end do
 call mma_deallocate(DSUM)

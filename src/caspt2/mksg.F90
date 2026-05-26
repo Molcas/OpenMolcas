@@ -22,6 +22,7 @@ subroutine MKSG(DREF,NDREF)
 ! Formula used:
 !    SG(t,x)= Dtx
 
+use Index_Functions, only: iTri, nTri_Elem
 use EQSOLV, only: IDSMAT
 use caspt2_global, only: LUSBT
 use caspt2_module, only: NAES, NASH, NINDEP, NSYM
@@ -39,14 +40,14 @@ do ISYM=1,NSYM
   if (NINP == 0) cycle
   NINM = NINDEP(ISYM,11)
   NAS = NASH(ISYM)
-  NSG = (NAS*(NAS+1))/2
+  NSG = nTri_Elem(NAS)
   if (NSG > 0) call mma_allocate(SG,NSG,Label='SG')
   do IT=1,NAS
     ITABS = IT+NAES(ISYM)
     do IX=1,IT
       IXABS = IX+NAES(ISYM)
-      ISG = (IT*(IT-1))/2+IX
-      ID = (ITABS*(ITABS-1))/2+IXABS
+      ISG = iTri(IT,IX)
+      ID = iTri(ITABS,IXABS)
       SG(ISG) = DREF(ID)
     end do
   end do

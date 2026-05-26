@@ -14,6 +14,7 @@ subroutine PSBMAT_WRITE(cNAME,iCase,iSym,lg_M,nSize)
 !SVC20100902: write the global array lg_M to disk using DRA interface,
 ! or if replicate or serial, write WORK(lg_M) to LUSBT
 
+use Index_Functions, only: nTri_Elem
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 use caspt2_global, only: LUH0T
@@ -33,31 +34,32 @@ integer(kind=iwp) :: IEND, ISTA, JEND, JSTA, LDM, LU, mpt_M, myRank
 #include "mafdecls.fh"
 #endif
 
-if (CNAME == 'S') then
-# ifdef _MOLCAS_MPP_
-  LU = LUH0T(1)
-# endif
-  IDISK = IDSMAT(iSym,iCase)
-  nBlock = (nSize*(nSize+1))/2
-else if (CNAME == 'B') then
-# ifdef _MOLCAS_MPP_
-  LU = LUH0T(2)
-# endif
-  IDISK = IDBMAT(iSym,iCase)
-  nBlock = (nSize*(nSize+1))/2
-else if (CNAME == 'T') then
-# ifdef _MOLCAS_MPP_
-  LU = LUH0T(3)
-# endif
-  IDISK = IDTMAT(iSym,iCase)
-  nBlock = nSize
-else if (CNAME == 'M') then
-# ifdef _MOLCAS_MPP_
-  LU = LUH0T(4)
-# endif
-  IDISK = IDSTMAT(iSym,iCase)
-  nBlock = nSize
-end if
+select case (CNAME)
+  case ('S')
+#   ifdef _MOLCAS_MPP_
+    LU = LUH0T(1)
+#   endif
+    IDISK = IDSMAT(iSym,iCase)
+    nBlock = nTri_Elem(nSize)
+  case ('B')
+#   ifdef _MOLCAS_MPP_
+    LU = LUH0T(2)
+#   endif
+    IDISK = IDBMAT(iSym,iCase)
+    nBlock = nTri_Elem(nSize)
+  case ('T')
+#   ifdef _MOLCAS_MPP_
+    LU = LUH0T(3)
+#   endif
+    IDISK = IDTMAT(iSym,iCase)
+    nBlock = nSize
+  case ('M')
+#   ifdef _MOLCAS_MPP_
+    LU = LUH0T(4)
+#   endif
+    IDISK = IDSTMAT(iSym,iCase)
+    nBlock = nSize
+end select
 
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then

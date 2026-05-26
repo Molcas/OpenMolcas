@@ -23,6 +23,7 @@ subroutine MKPREF_RPT2(N,G2,PREF,NPREF)
 ! Storage differs: PREF is triangular
 ! in the Fortran-like indices PQ, RS.
 
+use Index_Functions, only: iTri
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
@@ -51,18 +52,10 @@ do I=1,N
 
         P1 = Half*G2(I,J,K,L)
         P2 = Half*G2(I,J,L,K)
-        if (J >= L) then
-          IJKL = (IJ*(IJ-1))/2+KL
-        else
-          IJKL = (KL*(KL-1))/2+IJ
-        end if
-        if (J >= K) then
-          IJLK = (IJ*(IJ-1))/2+LK
-        else
-          IJLK = (LK*(LK-1))/2+IJ
-        end if
-        JIKL = (JI*(JI-1))/2+KL
-        JILK = (JI*(JI-1))/2+LK
+        IJKL = iTri(IJ,KL)
+        IJLK = iTri(IJ,LK)
+        JIKL = iTri(JI,KL)
+        JILK = iTri(JI,LK)
         PREF(IJKL) = P1
         PREF(IJLK) = P2
         PREF(JIKL) = P2

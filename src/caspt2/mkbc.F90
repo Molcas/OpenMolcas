@@ -22,6 +22,7 @@
 !***********************************************************************
 subroutine MKBC(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
 
+use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -51,7 +52,7 @@ do ISYM=1,NSYM
   NIN = NINDEP(ISYM,ICASE)
   if (NIN == 0) cycle
   NAS = NTUV(ISYM)
-  NBC = (NAS*(NAS+1))/2
+  NBC = nTri_Elem(NAS)
   if (NBC <= 0) cycle
 
   ! Set up the matrix BC(tuv,xyz) defined by the expression
@@ -95,7 +96,7 @@ do ISYM=1,NSYM
     JLO = 1
     JHI = NAS
     LDA = 0
-    MBC = NAS*(NAS+1)/2
+    MBC = nTri_Elem(NAS)
     call MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,ISYM,GA_Arrays(lg_BC)%A(:),MBC,ILO,IHI,JLO,JHI,LDA)
     call MKBC_F3(ISYM,GA_Arrays(lg_BC)%A(:),MBC,NG3,F3,IDXG3)
 

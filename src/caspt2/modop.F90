@@ -15,6 +15,7 @@ subroutine MODOP(OP1,NOP2,OP2,NOP3,OP3)
 ! calculated using products of elementary excitation
 ! operators rather than normal-ordered products.
 
+use Index_Functions, only: iTri, nTri_Elem, nTri3_Elem
 use caspt2_module, only: NACTEL, NASHT
 use Definitions, only: wp, iwp
 
@@ -39,40 +40,26 @@ if (NACTEL > 2) then
             do N=1,NASHT
               MN = M+NASHT*(N-1)
               if (MN > KL) cycle
-              IJKLMN = ((IJ+1)*IJ*(IJ-1))/6+(KL*(KL-1))/2+MN
+              IJKLMN = nTri3_Elem(IJ-1)+nTri_Elem(KL-1)+MN
               X = OP3(IJKLMN)
               if (abs(X) < 1.0e-15_wp) cycle
 
               if (K == J) then
                 IL = I+NASHT*(L-1)
-                if (IL >= MN) then
-                  IND = (IL*(IL-1))/2+MN
-                else
-                  IND = (MN*(MN-1))/2+IL
-                end if
+                IND = iTri(IL,MN)
                 OP2(IND) = OP2(IND)-X
-                if (M == L) then
-                  OP1(I,N) = OP1(I,N)-X
-                end if
+                if (M == L) OP1(I,N) = OP1(I,N)-X
               end if
 
               if (M == J) then
                 I_N = I+NASHT*(N-1)
-                if (I_N >= KL) then
-                  IND = (I_N*(I_N-1))/2+KL
-                else
-                  IND = (KL*(KL-1))/2+I_N
-                end if
+                IND = iTri(I_N,KL)
                 OP2(IND) = OP2(IND)-X
               end if
 
               if (M == L) then
                 KN = K+NASHT*(N-1)
-                if (KN >= IJ) then
-                  IND = (KN*(KN-1))/2+IJ
-                else
-                  IND = (IJ*(IJ-1))/2+KN
-                end if
+                IND = iTri(KN,IJ)
                 OP2(IND) = OP2(IND)-X
               end if
 
@@ -97,7 +84,7 @@ if (NACTEL > 1) then
           if (KL > IJ) cycle
 
           if (J == K) then
-            IJKL = (IJ*(IJ-1))/2+KL
+            IJKL = iTri(IJ,KL)
             OP1(I,L) = OP1(I,L)-OP2(IJKL)
           end if
 

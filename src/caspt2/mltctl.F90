@@ -19,6 +19,7 @@
 
 subroutine MLTCTL(HEFF,EIGVEC,U0)
 
+use Index_Functions, only: nTri_Elem
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: TERSE, USUAL, VERBOSE
 use caspt2_module, only: ENERGY, IfChol, IFDW, IFRMS, IFXMS, JMS, MSTATE, NSTATE
@@ -91,7 +92,7 @@ if (IPRGLB >= USUAL) then
     write(u6,*)
     write(u6,'(1x,5I16)') (MSTATE(I),I=ISTA,IEND)
     do I=ISTA,NSTATE
-      II0 = (I*(I-1))/2
+      II0 = nTri_Elem(I-1)
       write(u6,'(1x,I3,3X,5F16.8)') MSTATE(I),(HTRI(II0+J),J=ISTA,min(I,IEND))
     end do
   end do
@@ -100,7 +101,7 @@ call unitmat(UMAT,NSTATE)
 call NIDiag(HTRI,UMAT,NSTATE,NSTATE)
 call JACORD(HTRI,UMAT,NSTATE,NSTATE)
 do I=1,NSTATE
-  ENERGY(I) = DSHIFT+HTRI((I*(I+1))/2)
+  ENERGY(I) = DSHIFT+HTRI(nTri_Elem(I))
   EIGVEC(:,I) = UMAT(:,I)
 end do
 call mma_deallocate(UMAT)

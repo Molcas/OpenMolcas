@@ -24,6 +24,7 @@ subroutine MKSD(DREF,NDREF,PREF,NPREF)
 !    SD(tu2,xy1)= -(Gutxy + dxt Duy)
 !    SD(tu2,xy2)= -Gxtuy +2*dxt Duy
 
+use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: MTU
 use EQSOLV, only: IDSMAT
 use caspt2_global, only: LUSBT
@@ -35,8 +36,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF)
-integer(kind=iwp) :: ID, ID1, ID2, IDISK, IP, IP1, IP2, IS11, IS12, IS21, IS22, ISYM, ITABS, ITU, ITU2, ITUABS, IUABS, IUTP, IUYP, &
-                     IXABS, IXTP, IXY, IXY2, IXYABS, IXYP, IYABS, NAS, NIN, NSD
+integer(kind=iwp) :: ID, IDISK, IP, IS11, IS12, IS21, IS22, ISYM, ITABS, ITU, ITU2, ITUABS, IUABS, IUTP, IUYP, IXABS, IXTP, IXY, &
+                     IXY2, IXYABS, IXYP, IYABS, NAS, NIN, NSD
 real(kind=wp) :: DUY, GUTXY, GXTUY, S11, S22
 real(kind=wp), allocatable :: SD(:)
 
@@ -45,7 +46,7 @@ do ISYM=1,NSYM
   NIN = NINDEP(ISYM,5)
   if (NIN == 0) cycle
   NAS = NTU(ISYM)
-  NSD = (2*NAS*(2*NAS+1))/2
+  NSD = nTri_Elem(2*NAS)
   if (NSD > 0) call mma_allocate(SD,NSD,LABEL='SD')
   do ITU=1,NAS
     ITU2 = ITU+NAS
@@ -57,28 +58,22 @@ do ISYM=1,NSYM
       IXYABS = IXY+NTUES(ISYM)
       IXABS = MTU(1,IXYABS)
       IYABS = MTU(2,IXYABS)
-      IS11 = (ITU*(ITU-1))/2+IXY
-      IS21 = (ITU2*(ITU2-1))/2+IXY
-      IS12 = (IXY2*(IXY2-1))/2+ITU
-      IS22 = (ITU2*(ITU2-1))/2+IXY2
+      IS11 = iTri(ITU,IXY)
+      IS21 = iTri(ITU2,IXY)
+      IS12 = iTri(IXY2,ITU)
+      IS22 = iTri(ITU2,IXY2)
       IUTP = IUABS+NASHT*(ITABS-1)
       IXYP = IXABS+NASHT*(IYABS-1)
-      IP1 = max(IUTP,IXYP)
-      IP2 = min(IUTP,IXYP)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IUTP,IXYP)
       GUTXY = Two*PREF(IP)
       IXTP = IXABS+NASHT*(ITABS-1)
       IUYP = IUABS+NASHT*(IYABS-1)
-      IP1 = max(IXTP,IUYP)
-      IP2 = min(IXTP,IUYP)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IXTP,IUYP)
       GXTUY = Two*PREF(IP)
       S11 = Two*GUTXY
       S22 = -GXTUY
       if (IXABS == ITABS) then
-        ID1 = max(IUABS,IYABS)
-        ID2 = min(IUABS,IYABS)
-        ID = (ID1*(ID1-1))/2+ID2
+        ID = iTri(IUABS,IYABS)
         DUY = DREF(ID)
         S11 = S11+Two*DUY
         S22 = S22+Two*DUY

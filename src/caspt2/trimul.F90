@@ -21,12 +21,13 @@ subroutine TRIMUL(N,M,ALPHA,ASYM,X,LDX,Y,LDY)
 ! Multiply symmetric matrix ASYM with matrix X.
 ! Scale result with ALPHA and add it to matrix Y.
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N, M, LDX, LDY
-real(kind=wp), intent(in) :: ALPHA, ASYM((N*(N+1))/2), X(LDX,M)
+real(kind=wp), intent(in) :: ALPHA, ASYM(nTri_Elem(N)), X(LDX,M)
 real(kind=wp), intent(inout) :: Y(LDY,M)
 integer(kind=iwp) :: I
 

@@ -35,6 +35,7 @@ subroutine pt2wfn_init()
   ! SVC: Create a wavefunction file. If another .wfn file already
   ! exists, it will be overwritten.
 
+  use Index_Functions, only: nTri_Elem
   use Molcas, only: MxAct
   use refwfn, only: refwfn_active
 # ifdef _HDF5_
@@ -151,7 +152,7 @@ subroutine pt2wfn_init()
 
     ! density matrices
     if (IFPROP .or. do_grad) then
-      ndmat = sum((NORB(1:NSYM)**2+NORB(1:NSYM))/2)
+      ndmat = sum(nTri_Elem(NORB(1:NSYM)))
 
       pt2wfn_dens = mh5_create_dset_real(pt2wfn_id,'DENSITY_MATRIX',2,[ndmat,NSTATE])
       call mh5_init_attr(pt2wfn_dens,'DESCRIPTION', &

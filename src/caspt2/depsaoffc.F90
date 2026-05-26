@@ -74,7 +74,7 @@ call mma_allocate(VecST,nConf,nState,Label='VecST')
 call mma_allocate(VecS1,nConf,nState,Label='VecS1')
 call mma_allocate(VecS2,nConf,nState,Label='VecS2')
 call mma_allocate(VecCID,nConf,nState,Label='VecCID')
-!call mma_allocate(VecS,nState*(nState-1)/2,Label='VecS')
+!call mma_allocate(VecS,nTri_Elem(nState-1),Label='VecS')
 call mma_allocate(VecPre,nConf,Label='VecPre')
 call mma_allocate(VecFancy,nState**3,Label='VecFancy')
 

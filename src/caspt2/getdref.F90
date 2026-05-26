@@ -11,9 +11,10 @@
 
 subroutine GETDREF(DREF,NDREF)
 
+use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: NASHT,  NG1
+use caspt2_module, only: NASHT, NG1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -35,7 +36,7 @@ if (NASHT == 0) return
 call mma_allocate(G1,NG1,Label='G1')
 call PT2_GET(NG1,'GAMMA1',G1)
 do I=1,NASHT
-  IJ = (I*(I-1))/2
+  IJ = nTri_Elem(I-1)
   DREF(IJ+1:IJ+I) = G1(I:I+NASHT*(I-1):NASHT)
 end do
 call mma_deallocate(G1)

@@ -24,6 +24,7 @@ subroutine MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
 !  W1(tuv,a)(conj)*W2(xyz,b) = dab * ( Evutxyz +dyu Evztx
 !                       + dyx Evutz + dtu Evxyz + dtu dyx Evz )
 
+use Index_Functions, only: iTri, nTri_Elem, nTri3_Elem
 use SUPERINDEX, only: MTUV
 use EQSOLV, only: MODVEC
 use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTUVES
@@ -126,39 +127,27 @@ do ISYM=1,NSYM
                 JYZ = ITX
               end if
             end if
-            JVUTXYZ = ((JVU+1)*JVU*(JVU-1))/6+(JTX*(JTX-1))/2+JYZ
+            JVUTXYZ = nTri3_Elem(JVU-1)+nTri_Elem(JTX-1)+JYZ
             OP3(JVUTXYZ) = OP3(JVUTXYZ)+WPROD(IWPROD)
             ! Contrib to 2-particle operator, from  dyu Evztx:
             if (IYABS == IUABS) then
               IVZ = IVABS+NASHT*(IZABS-1)
               ITX = ITABS+NASHT*(IXABS-1)
-              if (IVZ >= ITX) then
-                JVZTX = (IVZ*(IVZ-1))/2+ITX
-              else
-                JVZTX = (ITX*(ITX-1))/2+IVZ
-              end if
+              JVZTX = iTri(IVZ,ITX)
               OP2(JVZTX) = OP2(JVZTX)+W_PROD
             end if
             ! Contrib to 2-particle operator, from  dyx Evutz:
             if (IYABS == IXABS) then
               IVU = IVABS+NASHT*(IUABS-1)
               ITZ = ITABS+NASHT*(IZABS-1)
-              if (IVU >= ITZ) then
-                JVUTZ = (IVU*(IVU-1))/2+ITZ
-              else
-                JVUTZ = (ITZ*(ITZ-1))/2+IVU
-              end if
+              JVUTZ = iTri(IVU,ITZ)
               OP2(JVUTZ) = OP2(JVUTZ)+W_PROD
             end if
             ! Contrib to 2-particle operator, from  dtu Evxyz:
             if (ITABS == IUABS) then
               IVX = IVABS+NASHT*(IXABS-1)
               IYZ = IYABS+NASHT*(IZABS-1)
-              if (IVX >= IYZ) then
-                JVXYZ = (IVX*(IVX-1))/2+IYZ
-              else
-                JVXYZ = (IYZ*(IYZ-1))/2+IVX
-              end if
+              JVXYZ = iTri(IVX,IYZ)
               OP2(JVXYZ) = OP2(JVXYZ)+W_PROD
               ! Contrib to 1-particle operator, from  dtu dyx Evz:
               if (IYABS == IXABS) OP1(IVABS,IZABS) = OP1(IVABS,IZABS)+W_PROD

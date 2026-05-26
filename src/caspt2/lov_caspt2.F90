@@ -27,6 +27,7 @@ subroutine Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,bNAME,nName,nUniqAt
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use Molcas, only: LenIn, MxAtom, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -79,7 +80,7 @@ TrX(1:nSym) = 0
 !----------------------------------------------------------------------*
 
 nBasT = sum(nBas(:))
-ntri = sum(nBas(:)*(nBas(:)+1)/2)
+ntri = sum(nTri_Elem(nBas(:)))
 nSQ = sum(nBas(:)**2)
 nBmx = maxval(nBas(:))
 mAsh = maxval(nAsh(:))
@@ -122,7 +123,7 @@ ltri = 1
 lsq = 1
 do iSym=1,nSym
   call Square(SLT(ltri),SQ(lsq),1,nBas(iSym),nBas(iSym))
-  ltri = ltri+nBas(iSym)*(nBAs(iSym)+1)/2
+  ltri = ltri+nTri_Elem(nBas(iSym))
   lsq = lsq+nBas(iSym)**2
 end do
 call mma_deallocate(SLT)

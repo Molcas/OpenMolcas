@@ -28,6 +28,7 @@
 
 subroutine get_tg3_index(t,u,v,x,y,z,nasht,ituvxyz)
 
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Definitions, only: iwp
 
 implicit none
@@ -72,6 +73,6 @@ else
 end if
 
 ! Calculate the linear index using the sorted pair indices
-ituvxyz = ((jtu+1)*jtu*(jtu-1))/6+(jvx*(jvx-1))/2+jyz
+ituvxyz = nTri3_Elem(jtu-1)+nTri_Elem(jvx-1)+jyz
 
 end subroutine get_tg3_index

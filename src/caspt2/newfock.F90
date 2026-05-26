@@ -39,6 +39,7 @@ subroutine NEWFOCK(FIFA,NFIFA,CMO,NCMO,DREF,nDREF)
 ! Modif 96-10-06 by Malmqvist, restructured, options added.
 ! Modif 14-03-19 by Malmqvist, restructured, options removed.
 
+use Index_Functions, only: iTri, nTri_Elem
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: USUAL
 use caspt2_module, only: FockType, IfChol, nAES, nAMx, nAsh, nAshT, nIMx, nIsh, nOMx, nOrb, nOSqT, nSMx, nSsh, nSym
@@ -61,14 +62,14 @@ real(kind=wp), allocatable :: INTBUF(:), DSQ(:), DD(:), DDTR(:), TWOMDSQ(:), XMA
 if (FOCKTYPE == 'STANDARD') return
 
 ! Options MC and MC2 removed, PAM March 2014.
-!CPAM96 The option FOCKTYPE='MC' added 961006. This option will
-!C replace the active/active block with the MCSCF Fock matrix
-!C while zeroing any non-diagonal blocks. This option is usually
-!C quite ridiculous, but it can be used in very particular cases
-!C when all active orbitals are singly occupied.
-!CPAM96 The option FOCKTYPE='MC2' added 961006. Similar to the
-!C above, but using as  active/active block the matrix
-!C    D**(-1/2) FMC D**(-1/2)
+!PAM96 The option FOCKTYPE='MC' added 961006. This option will
+! replace the active/active block with the MCSCF Fock matrix
+! while zeroing any non-diagonal blocks. This option is usually
+! quite ridiculous, but it can be used in very particular cases
+! when all active orbitals are singly occupied.
+!PAM96 The option FOCKTYPE='MC2' added 961006. Similar to the
+! above, but using as  active/active block the matrix
+!    D**(-1/2) FMC D**(-1/2)
 
 IFGFOCK = 0
 if ((FOCKTYPE == 'G1') .or. (FOCKTYPE == 'G2') .or. (FOCKTYPE == 'G3')) IFGFOCK = 1
@@ -78,7 +79,7 @@ if (IPRGLB >= USUAL) write(u6,*) ' THE FOCK MATRIX IS MODIFIED BY KEYWORD FOCKTY
 
 ! Determine sizes of areas for memory allocation
 NASQT = sum(NASH(1:NSYM)**2)
-NATR = sum(NASH(1:NSYM)*(NASH(1:NSYM)+1)/2)
+NATR = sum(nTri_Elem(NASH(1:NSYM)))
 NINTBUF = NOMX**2
 NSCR1 = NAMX*max(2*NAMX,NIMX,NSMX)
 NSCR2 = 3*NAMX*(NAMX+1)
@@ -110,7 +111,7 @@ do ISYM=1,NSYM
     ITABS = IT+NAES(ISYM)
     do IU=1,NA
       IUABS = IU+NAES(ISYM)
-      IDREF = (ITABS*(ITABS-1))/2+IUABS
+      IDREF = iTri(ITABS,IUABS)
       D = DREF(IDREF)
       IDTU = NSQES+IT+NA*(IU-1)
       IDUT = NSQES+IU+NA*(IT-1)
@@ -136,7 +137,7 @@ NSQES = 1
 do ISYM=1,NSYM
   NA = NASH(ISYM)
   if (NA > 0) then
-    N3 = (NA*(NA+1))/2
+    N3 = nTri_Elem(NA)
     call DGEMM_('N','N',NA,NA,NA,One,DSQ(NSQES),NA,TWOMDSQ(NSQES),NA,Zero,DD,NA)
     call TRIANG(NA,DD)
     DDTR(NTRES+1:NTRES+N3) = DD(1:N3)
@@ -166,13 +167,13 @@ else
           do IX=1,IV
             IS = IX+MI
             call EXCH(ISYMPQ,ISYMRS,ISYMPQ,ISYMRS,IR,IS,INTBUF,INTBUF(LSCR))
-            IDDVX = MTRES+(IV*(IV-1))/2+IX
+            IDDVX = MTRES+iTri(IV,IX)
             DDVX = DDTR(IDDVX)
             if (IR == IS) DDVX = Half*DDVX
             XMAT(NOSQES+1:NOSQES+NO**2) = XMAT(NOSQES+1:NOSQES+NO**2)+DDVX*INTBUF(1:NO**2)
           end do
         end do
-        MTRES = MTRES+(MA*(MA+1))/2
+        MTRES = MTRES+nTri_Elem(MA)
       end do
       do IP=2,NO
         do IQ=1,IP-1
@@ -211,7 +212,7 @@ select case (FOCKTYPE)
           do IT=1,NA
             ITTOT = NI+IT
             do II=1,NI
-              KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+II
+              KFIFA = NOTRES+iTri(ITTOT,II)
               ISC = IT+NA*(II-1)
               FIFA(KFIFA) = FIFA(KFIFA)-SC(ISC)
             end do
@@ -223,7 +224,7 @@ select case (FOCKTYPE)
           do IA=1,NS
             IATOT = NI+NA+IA
             do II=1,NI
-              KFIFA = NOTRES+(IATOT*(IATOT-1))/2+II
+              KFIFA = NOTRES+iTri(IATOT,II)
               LXAI = NOSQES+IATOT+NO*(II-1)
               FIFA(KFIFA) = FIFA(KFIFA)-Two*XMAT(LXAI)
             end do
@@ -239,7 +240,7 @@ select case (FOCKTYPE)
             ITTOT = NI+IT
             do IU=1,IT
               IUTOT = NI+IU
-              KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
+              KFIFA = NOTRES+iTri(ITTOT,IUTOT)
               VALTU = SC(IT+NA*(IU-1))
               VALUT = SC(IU+NA*(IT-1))
               FIFA(KFIFA) = FIFA(KFIFA)-Half*(VALTU+VALUT)
@@ -255,7 +256,7 @@ select case (FOCKTYPE)
             IATOT = NI+NA+IA
             do IT=1,NA
               ITTOT = NI+IT
-              KFIFA = NOTRES+(IATOT*(IATOT-1))/2+ITTOT
+              KFIFA = NOTRES+iTri(IATOT,ITTOT)
               FIFA(KFIFA) = FIFA(KFIFA)-SC(IA+NS*(IT-1))
             end do
           end do
@@ -263,7 +264,7 @@ select case (FOCKTYPE)
 
       end if
       NOSQES = NOSQES+NO**2
-      NOTRES = NOTRES+(NO*(NO+1))/2
+      NOTRES = NOTRES+nTri_Elem(NO)
       NASQES = NASQES+NA**2
     end do
     ! Focktype=g1 case ends.
@@ -278,8 +279,8 @@ select case (FOCKTYPE)
       NA = NASH(ISYMPQ)
       NO = NORB(ISYMPQ)
       NIA = NI+NA
-      NA2 = NA*NA
-      NA3 = (NA+NA2)/2
+      NA2 = NA**2
+      NA3 = nTri_Elem(NA)
       if (NA > 0) then
 
         ! Determine the matrix blocks of the correction to
@@ -328,7 +329,7 @@ select case (FOCKTYPE)
           ITTOT = NI+IT
           do IU=1,IT
             IUTOT = NI+IU
-            KFIFA = NOTRES+(ITTOT*(ITTOT-1))/2+IUTOT
+            KFIFA = NOTRES+iTri(ITTOT,IUTOT)
             ITU = IT+NA*(IU-1)
             FIFA(KFIFA) = FIFA(KFIFA)-SC(LSC2-1+ITU)
           end do
@@ -336,9 +337,9 @@ select case (FOCKTYPE)
 
       end if
       NOSQES = NOSQES+NO**2
-      NOTRES = NOTRES+(NO*(NO+1))/2
+      NOTRES = NOTRES+nTri_Elem(NO)
       NASQES = NASQES+NA**2
-      NATRES = NATRES+(NA*(NA+1))/2
+      NATRES = NATRES+nTri_Elem(NA)
     end do
 end select
 

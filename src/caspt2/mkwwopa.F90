@@ -30,6 +30,7 @@ subroutine MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
 ! only at this routine; similar changes in MKWWOPB--MKWWOPH.
 ! ------------------------------------------------------------
 
+use Index_Functions, only: iTri, nTri_Elem, nTri3_Elem
 use SUPERINDEX, only: MTUV
 use EQSOLV, only: MODVEC
 use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTUVES
@@ -149,59 +150,39 @@ do ISYM=1,NSYM
                 JYZ = IXT
               end if
             end if
-            JVUXTYZ = ((JVU+1)*JVU*(JVU-1))/6+(JXT*(JXT-1))/2+JYZ
+            JVUXTYZ = nTri3_Elem(JVU-1)+nTri_Elem(JXT-1)+JYZ
             OP3(JVUXTYZ) = OP3(JVUXTYZ)-W_PROD
             ! Contrib to 2-particle operator, from -dyu Evzxt:
             if (IYABS == IUABS) then
               IVZ = IVABS+NASHT*(IZABS-1)
               IXT = IXABS+NASHT*(ITABS-1)
-              if (IVZ >= IXT) then
-                JVZXT = (IVZ*(IVZ-1))/2+IXT
-              else
-                JVZXT = (IXT*(IXT-1))/2+IVZ
-              end if
+              JVZXT = iTri(IVZ,IXT)
               OP2(JVZXT) = OP2(JVZXT)-W_PROD
             end if
             ! Contrib to 2-particle operator, from -dyt Evuxz:
             if (IYABS == ITABS) then
               IVU = IVABS+NASHT*(IUABS-1)
               IXZ = IXABS+NASHT*(IZABS-1)
-              if (IVU >= IXZ) then
-                JVUXZ = (IVU*(IVU-1))/2+IXZ
-              else
-                JVUXZ = (IXZ*(IXZ-1))/2+IVU
-              end if
+              JVUXZ = iTri(IVU,IXZ)
               OP2(JVUXZ) = OP2(JVUXZ)-W_PROD
               ! Contrib to 1-particle operator, from -dxu dyt Evz:
-              if (IXABS == IUABS) then
-                OP1(IVABS,IZABS) = OP1(IVABS,IZABS)-W_PROD
-              end if
+              if (IXABS == IUABS) OP1(IVABS,IZABS) = OP1(IVABS,IZABS)-W_PROD
             end if
             ! Contrib to 2-particle operator, from -dxu Evtyz:
             if (IXABS == IUABS) then
               IVT = IVABS+NASHT*(ITABS-1)
               IYZ = IYABS+NASHT*(IZABS-1)
-              if (IVT >= IYZ) then
-                JVTYZ = (IVT*(IVT-1))/2+IYZ
-              else
-                JVTYZ = (IYZ*(IYZ-1))/2+IVT
-              end if
+              JVTYZ = iTri(IVT,IYZ)
               OP2(JVTYZ) = OP2(JVTYZ)-W_PROD
             end if
             ! Contrib to 2-particle operator, from +2 dtx Evuyz:
             if (ITABS == IXABS) then
               IVU = IVABS+NASHT*(IUABS-1)
               IYZ = IYABS+NASHT*(IZABS-1)
-              if (IVU >= IYZ) then
-                JVUYZ = (IVU*(IVU-1))/2+IYZ
-              else
-                JVUYZ = (IYZ*(IYZ-1))/2+IVU
-              end if
+              JVUYZ = iTri(IVU,IYZ)
               OP2(JVUYZ) = OP2(JVUYZ)+Two*W_PROD
               ! Contrib to 1-particle operator, from +2 dtx dyu Evz:
-              if (IYABS == IUABS) then
-                OP1(IVABS,IZABS) = OP1(IVABS,IZABS)+Two*W_PROD
-              end if
+              if (IYABS == IUABS) OP1(IVABS,IZABS) = OP1(IVABS,IZABS)+Two*W_PROD
             end if
           end do
         end do

@@ -158,7 +158,7 @@ do ICASE=1,NCASES
     if (NIN > 0) then
       IDSMAT(ISYM,ICASE) = IDS
       NAS = NASUP(ISYM,ICASE)
-      !NS = (NAS*(NAS+1))/2
+      !NS = nTri_Elem(NAS)
       NS = NAS**2
       if (ICASE == 12) NS = 1
       if (ICASE == 13) NS = 1
@@ -175,7 +175,7 @@ do ICASE=1,NCASES
   do ISYM=1,NSYM
     NAS = NASUP(ISYM,ICASE)
     NIS = NISUP(ISYM,ICASE)
-    !NB = (NAS*(NAS+1))/2
+    !NB = nTri_Elem(NAS)
     NB = NAS**2
     if (ICASE == 12) NB = 1
     if (ICASE == 13) NB = 1

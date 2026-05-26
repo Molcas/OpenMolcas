@@ -13,6 +13,7 @@
 
 subroutine OLagFroD(NBSQT,NASHT,DIA,DI,RDMSA,Trf)
 
+use Index_Functions, only: nTri_Elem
 use caspt2_global, only: CMOPT2
 use caspt2_module, only: NASH, NBAS, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -64,7 +65,7 @@ do iSym=1,nSym
   call DGemm_('N','N',nBasI,nAshI,nAshI,One,CMOPT2(1+nBasI*nCorI),nBasI,WRK1,nAshI,Zero,WRK2,nBasI)
   call DGemm_('N','T',nBasI,nBasI,nAshI,One,WRK2,nBasI,CMOPT2(1+nBasI*nCorI),nBasI,One,DIA,nBasI)
 
-  iAOtr = iAOtr+nBasI*(nBasI+1)/2
+  iAOtr = iAOtr+nTri_Elem(nBasI)
   iAOsq = iAOsq+nBasI*nBasI
 end do
 

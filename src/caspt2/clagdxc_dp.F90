@@ -13,6 +13,7 @@
 
 subroutine CLagDXC_DP(iSym,nAS,nAshT,BDER,SDER,DG1,DG2,DF1,DF2,DEPSA,DEASUM,iLo,iHi,jLo,jHi,LDC,G1,G2,SC,SC2,lg_S)
 
+use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: MTUV
 use caspt2_global, only: ipea_shift
 use caspt2_module, only: EASUM, EPSA, NTUVES
@@ -82,7 +83,7 @@ do IXYZ=jLo,jHi
       bsBDER = ipea_shift*Half*ValB
       SDER(iSAdr) = SDER(iSAdr)+bsBDER*(Four-G1(iTabs,iTabs)+G1(iUabs,iUabs)-G1(iVabs,iVabs))
       if (LDC == 0) then
-        iSAdr2 = iTUV*(iTUV+1)/2
+        iSAdr2 = nTri_Elem(iTUV)
       else
         ISADR2 = 1+iTUV-iLo+LDC*(iTUV-jLo)
       end if
@@ -92,7 +93,7 @@ do IXYZ=jLo,jHi
     end if
 
     !! First VALUE contribution in MKBC_DP (FACT)
-    !if (LDC == 0) ISADR = ITUV*(ITUV-1)/2+IXYZ
+    !if (LDC == 0) ISADR = iTri(ITUV,IXYZ)
     SDER(ISADR) = SDER(ISADR)+FACT*ValB
     ValS = SDER(ISADR)
 
@@ -102,21 +103,21 @@ do IXYZ=jLo,jHi
     if (ldc == 0) then
       do iWabs=1,nAshT
         iTWV = iTabs+nAshT*(iWabs-1)+nAshT**2*(iVabs-1)
-        iSAdr2 = max(iTWV,iXYZ)*(max(iTWV,iXYZ)-1)/2+min(iTWV,iXYZ)
+        iSAdr2 = iTri(iTWV,iXYZ)
         DEPSA(iWabs,iUabs) = DEPSA(iWabs,iUabs)+ValB*SC(iSAdr2)
 
         iXWZ = iXabs+nAshT*(iWabs-1)+nAshT**2*(iZabs-1)
-        iSAdr2 = max(iTUV,iXWZ)*(max(iTUV,iXWZ)-1)/2+min(iTUV,iXWZ)
+        iSAdr2 = iTri(iTUV,iXWZ)
         DEPSA(iWabs,iYabs) = DEPSA(iWabs,iYabs)+ValB*SC(iSAdr2)
       end do
     else
-    !! assume SC has all columns (which is reasonable)
-    !iTWV = iTabs+nAshT**2*(iVabs-1)
-    !ISADR2 = 1+iTWV-jLoS+NROW*(iXYZ-iLoS)
-    !call DaXpY_(nAshT,ValB,SC2(iSAdr2),nAshT,DEPSA(1,iUabs),1)
-    !iXWZ = iXabs+nAshT**2*(iZabs-1)
-    !ISADR2 = 1+iTUV-iLo+LDC*(iXWZ-jLo)
-    !call DaXpY_(nAshT,ValB,SC(iSAdr2),LDC*nAshT,DEPSA(1,iYabs),1)
+      !! assume SC has all columns (which is reasonable)
+      !iTWV = iTabs+nAshT**2*(iVabs-1)
+      !ISADR2 = 1+iTWV-jLoS+NROW*(iXYZ-iLoS)
+      !call DaXpY_(nAshT,ValB,SC2(iSAdr2),nAshT,DEPSA(1,iUabs),1)
+      !iXWZ = iXabs+nAshT**2*(iZabs-1)
+      !ISADR2 = 1+iTUV-iLo+LDC*(iXWZ-jLo)
+      !call DaXpY_(nAshT,ValB,SC(iSAdr2),LDC*nAshT,DEPSA(1,iYabs),1)
       do iWabs=1,nAshT
         !! we do not have all elements, so use distributed memory
         iTWV = iTabs+nAshT*(iWabs-1)+nAshT**2*(iVabs-1)
@@ -132,7 +133,7 @@ do IXYZ=jLo,jHi
 
     !! If non-parallel, overlap is triangular
     !! If parallel, the index is the same to that of SDER
-    if (LDC == 0) iSAdr = max(iTUV,iXYZ)*(max(iTUV,iXYZ)-1)/2+min(iTUV,iXYZ)
+    if (LDC == 0) iSAdr = iTri(iTUV,iXYZ)
     DEASUM = DEASUM-ValB*SC(iSAdr)
 
     ! dyu ( Fvztx - EPSA(u)*Gvztx )
@@ -145,7 +146,7 @@ do IXYZ=jLo,jHi
       !VALUE = VALUE+Two*PREF(IP)
       DG2(iVabs,iZabs,iTabs,iXabs) = DG2(iVabs,iZabs,iTabs,iXabs)+ValS
     end if
-    DEPSA(iYabs,iUabs) = DEPSA(iYabs,iUabs) -ValB*G2(iVabs,iZabs,iTabs,iXabs)
+    DEPSA(iYabs,iUabs) = DEPSA(iYabs,iUabs)-ValB*G2(iVabs,iZabs,iTabs,iXabs)
 
     ! dyx ( Fvutz - EPSA(y)*Gvutz )
     ! dyx Gvutz -> dut Gzyxv
@@ -157,7 +158,7 @@ do IXYZ=jLo,jHi
       !VALUE = VALUE+Two*PREF(IP)
       DG2(iVabs,iUabs,iTabs,iZabs) = DG2(iVabs,iUabs,iTabs,iZabs)+ValS
     end if
-    DEPSA(iYabs,iXabs) = DEPSA(iYabs,iXabs) -ValB*G2(iVabs,iUabs,iTabs,iZabs)
+    DEPSA(iYabs,iXabs) = DEPSA(iYabs,iXabs)-ValB*G2(iVabs,iUabs,iTabs,iZabs)
 
     ! dtu ( Fvxyz - EPSA(u)*Gvxyz + dyx Fvz -
     !        (EPSA(u)+EPSA(y)*dyz Gvz)
@@ -174,11 +175,11 @@ do IXYZ=jLo,jHi
         DF1(iVabs,iZabs) = DF1(iVabs,iZabs)+ValB
         DG1(iVabs,iZabs) = DG1(iVabs,iZabs)-EYU*ValB
 
-        !VALUE = VALUE+DREF((ID1*(ID1-1))/2+ID2)
+        !VALUE = VALUE+DREF(iTri(ID1,ID2))
         DG1(iVabs,iZabs) = DG1(iVabs,iZabs)+ValS
       end if
     end if
-    DEPSA(iTabs,iUabs) = DEPSA(iTabs,iUabs) -ValB*G2(iVabs,iXabs,iYabs,iZabs)
+    DEPSA(iTabs,iUabs) = DEPSA(iTabs,iUabs)-ValB*G2(iVabs,iXabs,iYabs,iZabs)
     if (iYabs == iXabs) DEPSA(iTabs,iUabs) = DEPSA(iTabs,iUabs)-ValB*G1(iVabs,iZabs)
     if (iTabs == iUabs) DEPSA(iYabs,iXabs) = DEPSA(iYabs,iXabs)-ValB*G1(iVabs,iZabs)
   end do

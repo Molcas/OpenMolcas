@@ -56,7 +56,6 @@ else
   ! Translation tables L2ACT and LEVEL, in caspt2_module
 
   !-SVC20100311: set up a task table with LT,LU
-  nTasks = (nLev**2+nLev)/2
   nTasks = nLev**2
   call mma_allocate(Task,nTasks,2,Label='TASK')
 

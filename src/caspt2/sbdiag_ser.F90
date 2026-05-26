@@ -37,6 +37,7 @@ subroutine SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
 ! LUSOLV is assumed not to be in use yet, so we use it
 ! for temporary storage.
 
+use Index_Functions, only: nTri_Elem
 use PrintLevel, only: INSANE
 use EQSOLV, only: IDBMAT, IDSMAT, IDSTMAT, IDTMAT
 use caspt2_global, only: do_grad, do_lindep, idBoriMat, iPrGlb, LUSBT, LUSOLV, LUSTD, nStpGrd
@@ -74,7 +75,7 @@ if (do_grad .or. (nStpGrd == 2)) then
   IDTMP0 = 6*NG3+iPad
 end if
 
-NS = (NAS*(NAS+1))/2
+NS = nTri_Elem(NAS)
 call mma_allocate(S,NS,Label='S')
 IDS = IDSMAT(ISYM,ICASE)
 call DDAFILE(LUSBT,2,S,NS,IDS)
@@ -202,7 +203,7 @@ else if (BTRANS /= 'YES') then
   ! and destroy the B matrices. The diagonal elements of B must be
   ! extracted before the transformation matrix is written.
   call mma_allocate(BD,NAS,Label='BD')
-  NB = (NAS*(NAS+1))/2
+  NB = nTri_Elem(NAS)
   call mma_allocate(B,NB,Label='B')
   IDB = IDBMAT(ISYM,ICASE)
   call DDAFILE(LUSBT,2,B,NB,IDB)
@@ -282,10 +283,10 @@ call mma_deallocate(XBX)
 call mma_deallocate(B)
 ! VEC HAS NOW BEEN DESTROYED (OVERWRITTEN BY NEW B).
 ! COPY TO TRIANGULAR STORAGE.
-NBNEW = (NIN*(NIN+1))/2
+NBNEW = nTri_Elem(NIN)
 call mma_allocate(B,NBNEW,Label='B')
 do J=1,NIN
-  JOFF = (J*(J-1))/2
+  JOFF = nTri_Elem(J-1)
   B(JOFF+1:JOFF+J) = VEC(1:J,J)
 end do
 call mma_deallocate(VEC)
@@ -370,7 +371,7 @@ if (IPRGLB >= INSANE) then
 end if
 
 !-SVC: compute S*T and store on disk for later use by RHS vector utilities.
-NS = (NAS*(NAS+1))/2
+NS = nTri_Elem(NAS)
 call mma_allocate(S,NS,Label='S')
 IDS = IDSMAT(ISYM,ICASE)
 call DDAFILE(LUSBT,2,S,NS,IDS)

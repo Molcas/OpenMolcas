@@ -25,7 +25,7 @@ subroutine DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,C
 ! is made more compact by the following addressing:
 
 ! <Psi1|E_tuvxyz|Psi2> is stored in TG3(ITG3) where
-!    ITG3= ((i+1)*i*(i-1))/6 + (j*(j-1))/2 + k
+!    ITG3= nTri3_Elem(i-1)) + nTri_Elem(j-1) + k
 !     i  = max(tu,vx,yz)
 !     j  = mid(tu,vx,yz)
 !     k  = min(tu,vx,yz)
@@ -33,6 +33,7 @@ subroutine DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,C
 ! the usual active orbital number, when they are enumerated across
 ! all the symmetries (The ''absolute'' active index).
 
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use sguga, only: CIS, EXS, L2ACT, SGS
 use caspt2_module, only: IASYM, ISCF, MXCI, NACTEL
@@ -148,11 +149,11 @@ if (DOG3) then
               JYZ = IVX
             end if
           end if
-          JTUVXYZ = ((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
+          JTUVXYZ = nTri3_Elem(JTU-1)+nTri_Elem(JVX-1)+JYZ
           VAL = DTG3(JTUVXYZ)
           if (IY == IX) then
             DTG2(IT,IU,IV,IZ) = DTG2(IT,IU,IV,IZ)-VAL
-            if (IV == IU)  DTG1(IT,IZ) = DTG1(IT,IZ)-VAL
+            if (IV == IU) DTG1(IT,IZ) = DTG1(IT,IZ)-VAL
           end if
           if (IV == IU) DTG2(IT,IX,IY,IZ) = DTG2(IT,IX,IY,IZ)-VAL
           if (IY == IU) DTG2(IV,IX,IT,IZ) = DTG2(IV,IX,IT,IZ)-VAL
@@ -362,7 +363,7 @@ do IP3STA=1,NASHT**2,NYZBUF
                   JYZ = IVX
                 end if
               end if
-              JTUVXYZ = ((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
+              JTUVXYZ = nTri3_Elem(JTU-1)+nTri_Elem(JVX-1)+JYZ
               if (DTG3(JTUVXYZ) /= Zero) then
                 !! For left derivative: <I|Evx Eyz|Psi2> * Dtuvxyz
                 !! I don't understand, but this is much faster than

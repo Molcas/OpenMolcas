@@ -23,6 +23,7 @@ subroutine W1TW2(IVEC,JVEC,CI,SGM,nCI)
 ! compute the vector in CAS space
 !   | SGM > := | SGM > + (W1 conj)*(W2)*| CI >
 
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use caspt2_module, only: nAshT, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -37,8 +38,8 @@ real(kind=wp), allocatable :: OP1(:), OP2(:), OP3(:)
 
 ! (1): Compute a representation of the operator PCAS*W1T*W2
 NOP1 = NASHT**2
-NOP2 = (NOP1*(NOP1+1))/2
-NOP3 = (NOP2*(NOP1+2))/3
+NOP2 = nTri_Elem(NOP1)
+NOP3 = nTri3_Elem(NOP1)
 call mma_allocate(OP1,NOP1,Label='OP1')
 call mma_allocate(OP2,NOP2,Label='OP2')
 call mma_allocate(OP3,NOP3,Label='OP3')

@@ -27,6 +27,7 @@ subroutine RHS_STRANS(NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,ISYM)
 !SVC: this routine transforms RHS array V1 by multiplying on the left
 !     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
 
+use Index_Functions, only: nTri_Elem
 use EQSOLV, only: IDSMAT
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: LUSBT
@@ -65,7 +66,7 @@ if (Is_Real_Par()) then
     !      fashion, and the RHS are stored as vertical stripes, so use
     !      trimul on local memory, after accessing the local patch of the
     !      vector.
-    NS = (NAS*(NAS+1))/2
+    NS = nTri_Elem(NAS)
     call mma_allocate(S,NS,Label='S')
     IDS = IDSMAT(ISYM,ICASE)
     call DDAFILE(LUSBT,2,S,NS,IDS)
@@ -98,7 +99,7 @@ if (Is_Real_Par()) then
   end if
 else
 #endif
-  NS = (NAS*(NAS+1))/2
+  NS = nTri_Elem(NAS)
   call mma_allocate(S,NS,Label='S')
   IDS = IDSMAT(ISYM,ICASE)
   call DDAFILE(LUSBT,2,S,NS,IDS)

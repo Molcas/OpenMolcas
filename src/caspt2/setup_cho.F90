@@ -296,7 +296,7 @@ if (iftest /= 0) then
       kendsym = cho_irange(kend,iAorb,nSym,.false.)
       nPorb = mp(jSym)%A(nisplit(jSym)+isp)
       write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)') isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-      write(u6,'(1x,a,8i8)') ' iP Offsets:', (ip(jSym)%A(nSym*(nisplit(jSym)+isp-1)+Mul(jSym,iS)),iS=1,nSym)
+      write(u6,'(1x,a,8i8)') ' iP Offsets:',(ip(jSym)%A(nSym*(nisplit(jSym)+isp-1)+Mul(jSym,iS)),iS=1,nSym)
       write(u6,*)
     end do
   end do

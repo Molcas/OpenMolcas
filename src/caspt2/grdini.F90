@@ -13,6 +13,7 @@
 
 subroutine GrdIni()
 
+use Index_Functions, only: nTri_Elem
 use caspt2_global, only: CLag, CLagFull, do_lindep, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, &
                          FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, iStpGrd, iTasks_grad, LuAPT2, LuCMOPT2, LuGAMMA, &
                          LUGRAD, LuPT2, LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, OMGDER, SLag, TraFro, WLag
@@ -145,7 +146,7 @@ if (do_lindep) then
     do iSym=1,nSym
       idBoriMat(iSym,iCase) = idSD
       NAS = NASUP(ISYM,ICASE)
-      NS = (NAS*(NAS+1))/2
+      NS = nTri_Elem(NAS)
       call DDAFILE(LuSTD,0,WRK,NS,idSD)
       idSD_ = idBoriMat(iSym,iCase)
       call DDAFILE(LuSTD,1,WRK,NS,idSD_)

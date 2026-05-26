@@ -24,6 +24,7 @@ subroutine NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
 ! natural occupation numbers and MO coefficients of
 ! natural orbitals.
 
+use Index_Functions, only: nTri_Elem
 use caspt2_module, only: NBAS, NDEL, NFRO, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -53,7 +54,7 @@ do ISYM=1,NSYM
   end if
   ! Inactive, active, and secondary orbitals:
   if (NO > 0) then
-    NTMP = (NO*(NO+1))/2
+    NTMP = nTri_Elem(NO)
     call mma_allocate(TMP,NTMP,Label='TMP')
     CNAT(ICMO+1:ICMO+NB*NO) = CMO(ICMO+1:ICMO+NB*NO)
     ! For correct order, change sign.

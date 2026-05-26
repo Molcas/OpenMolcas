@@ -14,6 +14,7 @@
 
 subroutine xdwinit(Heff,H0,U0,nState)
 
+use Index_Functions, only: iTri
 use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, DREF, FIFA, FIMO, iPrGlb, LUONEM, NCMO
 use caspt2_module, only: CIThr, iAd1m, iSCF, mState, nAshT, nConf, NoTri, STSym
@@ -65,7 +66,7 @@ DAVE(:) = Wgt*DAVE(:)
 if (IPRGLB >= INSANE) then
   write(u6,*) ' State-average 1-RDM'
   do I=1,NASHT
-    write(u6,'(1x,14f10.6)') (DAVE((I*(I-1))/2+J),J=1,I)
+    write(u6,'(1x,14f10.6)') (DAVE(iTri(I,J)),J=1,I)
   end do
   write(u6,*)
 end if

@@ -21,6 +21,7 @@ subroutine MKRHSA(IVEC,FIMO,NFIMO,ERI,nERI,SCR,nSCR)
 ! Set up RHS vector of PT2 Linear Equation System, in vector
 ! number IVEC of LUSOLV, for case 1 (VJTU).
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
@@ -38,7 +39,7 @@ real(kind=wp) :: FTI, ONEADD, WTUVI
 NFNXT = 0
 do ISYM=1,NSYM
   NFIMOES = NFNXT
-  NFNXT = NFNXT+(NORB(ISYM)*(NORB(ISYM)+1))/2
+  NFNXT = NFNXT+nTri_Elem(NORB(ISYM))
   if (NINDEP(ISYM,1) == 0) cycle
   NAS = NTUV(ISYM)
   NIS = NISH(ISYM)
@@ -60,7 +61,7 @@ do ISYM=1,NSYM
           call COUL(ISYMU,ISYMV,ISYMT,ISYM,ITTOT,II,ERI,SCR)
           ONEADD = Zero
           if (ISYMT == ISYM) then
-            FTI = FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+II)
+            FTI = FIMO(NFIMOES+iTri(ITTOT,II))
             ONEADD = FTI/real(max(1,NACTEL),kind=wp)
           end if
           do IU=1,NASH(ISYMU)

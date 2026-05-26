@@ -15,6 +15,7 @@ subroutine FMAT_CHO(CMO,NCMO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,FIFA,NFIFA)
 ! TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
 ! TO MO BASIS FOR USE IN CASPT2.
 
+use Index_Functions, only: nTri_Elem
 use caspt2_module, only: NBAS, NBTRI, NFRO, NORB, notri, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -73,8 +74,8 @@ do ISYM=1,NSYM
     FIFA(IOFMO+IJ+1:IOFMO+IJ+I) = SCR3(I:I+NO*(I-1):NO)
     IJ = IJ+I
   end do
-  IFAO = IFAO+(NB*(NB+1))/2
-  IOFMO = IOFMO+(NO*(NO+1))/2
+  IFAO = IFAO+nTri_Elem(NB)
+  IOFMO = IOFMO+nTri_Elem(NO)
   LSC = LSC+NB**2
 end do
 
@@ -93,7 +94,7 @@ do ISYM=1,NSYM
   if (NO > 0) then
     write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FIMO(ISTLT),NO)
-    ISTLT = ISTLT+(NO*(NO+1))/2
+    ISTLT = ISTLT+nTri_Elem(NO)
   end if
 end do
 
@@ -106,7 +107,7 @@ do ISYM=1,NSYM
   if (NO > 0) then
     write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FAMO(ISTLT),NO)
-    ISTLT = ISTLT+(NO*(NO+1))/2
+    ISTLT = ISTLT+nTri_Elem(NO)
   end if
 end do
 call mma_deallocate(FAMO)
@@ -117,7 +118,7 @@ do ISYM=1,NSYM
   if (NORB(ISYM) > 0) then
     write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',FIFA(ISTLT),NORB(ISYM))
-    ISTLT = ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
+    ISTLT = ISTLT+nTri_Elem(NORB(ISYM))
   end if
 end do
 

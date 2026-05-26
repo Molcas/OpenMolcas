@@ -26,6 +26,7 @@ subroutine MKWWOPD(IVEC,JVEC,OP1,NOP2,OP2)
 !  (W1B(tu,ai) conj)*(W2A(tu,ai)) =  -(Eutxy + dtx Euy)
 !  (W1B(tu,ai) conj)*(W2B(tu,ai)) =  -Extuy + 2dtx Euy
 
+use Index_Functions, only: iTri
 use SUPERINDEX, only: MTU
 use EQSOLV, only: MODVEC
 use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTUES
@@ -103,20 +104,12 @@ do ISYM=1,NSYM
       ! (W1B(tu,ai) conj)*(W2A(tu,ai)) =  -(Eutxy + dtx Euy)
       ! (W1B(tu,ai) conj)*(W2B(tu,ai)) =  -Extuy + 2dtx Euy
       ! Contrib to 2-particle operator, from Eutxy:
-      if (IUT >= IXY) then
-        JUTXY = (IUT*(IUT-1))/2+IXY
-      else
-        JUTXY = (IXY*(IXY-1))/2+IUT
-      end if
+      JUTXY = iTri(IUT,IXY)
       OP2(JUTXY) = OP2(JUTXY)+(Two*WPRAA-WPRAB-WPRBA)
       ! Contrib to 1-particle operator, from Euy:
       if (ITABS == IXABS) OP1(IUABS,IYABS) = OP1(IUABS,IYABS)+(Two*WPRAA-WPRAB-WPRBA+Two*WPRBB)
       ! Contrib to 2-particle operator, from Extuy:
-      if (IXT >= IUY) then
-        JXTUY = (IXT*(IXT-1))/2+IUY
-      else
-        JXTUY = (IUY*(IUY-1))/2+IXT
-      end if
+      JXTUY = iTri(IXT,IUY)
       OP2(JXTUY) = OP2(JXTUY)-WPRBB
     end do
   end do

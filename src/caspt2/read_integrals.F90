@@ -17,6 +17,7 @@
 subroutine read_integrals()
 
 use, intrinsic :: iso_c_binding, only: c_int
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use printLevel, only: debug
 use rasscf_global, only: Emy
@@ -46,13 +47,13 @@ if (iPrGlb >= debug) then
   write(u6,*) '---------------'
 end if
 
-NACPAR = (nAshT*(nAshT+1))/2
+NACPAR = nTri_Elem(nAshT)
 
 ! calculate the maximum size of the integral array, can be less b/c of symmetry
-max_index2 = NACPAR*(NACPAR+1)/2
+max_index2 = nTri_Elem(NACPAR)
 
 ! core energy + one-electron integrals + two-electron integrals
-arr_size = 1+max_index2+max_index2*(max_index2+1)/2
+arr_size = 1+max_index2+nTri_Elem(max_index2)
 call mma_allocate(indices,4*arr_size)
 indices(:) = 0
 call mma_allocate(values,arr_size)
@@ -136,9 +137,9 @@ do vSym=1,nSym
   v_nOsh = nOsh(vSym)
   do v=v_nIsh+1,v_nOsh
     do x=x_nIsh+1,v
+      n = iTri(v,x)
       t = max(v,x)
       u = min(v,x)
-      n = u+t*(t-1)/2
       if (abs(FIMO(n)) < threshold) cycle
       values(offset) = FIMO(n)
       indices(4*(offset-1)+1:4*(offset-1)+4) = [int(t-v_nIsh,kind=c_int),int(u-v_nIsh,kind=c_int),0_c_int,0_c_int]

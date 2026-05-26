@@ -15,6 +15,7 @@
 
 subroutine eigen(A,U,N)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -25,7 +26,7 @@ real(kind=wp), intent(out) :: U(N,N)
 integer(kind=iwp) :: I, IJ, NSCR
 real(kind=wp), allocatable :: SCR(:)
 
-NSCR = (N*(N+1))/2
+NSCR = nTri_Elem(N)
 call mma_allocate(SCR,NSCR,LABEL='SCR')
 
 IJ = 0

@@ -38,6 +38,7 @@ subroutine SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
 ! [S(I,J)*T(J,MU)*T(J,NU)] = Kron(MU,NU).  B is destroyed, and is
 ! overwritten by BD(MU) and T(I,MU), which is stored in a DRA metafile.
 
+use Index_Functions, only: nTri_Elem
 #ifdef _SCALAPACK_
 use scalapack_mod, only: GA_PDSYEVX_
 #endif
@@ -102,7 +103,7 @@ end if
 ! full parallelization of use of S matrices is achieved.
 if (KING()) then
   NCOL = NAS
-  NTMP = (NAS*(NAS+1))/2
+  NTMP = nTri_Elem(NAS)
   call mma_allocate(COL,NCOL,Label='COL')
   call mma_allocate(TMP,NTMP,Label='TMP')
   iOFF = 0

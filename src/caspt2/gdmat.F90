@@ -37,6 +37,7 @@ subroutine GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,nCMO,OCC,nOCC,GDAO,nGDAO)
 ! The symmetry blocks of D are then stored triangularly
 ! after each other in the array GDAO.
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -53,7 +54,7 @@ IDAB = 0
 do ISYM=1,NSYM
   NB = NBAS(ISYM)
   if (NB < 1) cycle
-  GDAO(IDAB+1:IDAB+(NB*(NB+1))/2) = Zero
+  GDAO(IDAB+1:IDAB+nTri_Elem(NB)) = Zero
   NW = NUSE(ISYM)
   if (NW > 0) then
     IW1 = ISTART(ISYM)
@@ -69,7 +70,7 @@ do ISYM=1,NSYM
       end do
     end do
   else
-    IDAB = IDAB+(NB*(NB+1))/2
+    IDAB = IDAB+nTri_Elem(NB)
   end if
   IOEND = IOEND+NB
   ICEND = ICEND+NB**2

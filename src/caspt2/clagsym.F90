@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine CLagSym(nAshT,DG1,DG2,DF1,DF2, mode)
+subroutine CLagSym(nAshT,DG1,DG2,DF1,DF2,mode)
 
 use Constants, only: Half, Quart
 use Definitions, only: wp, iwp

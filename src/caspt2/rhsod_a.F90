@@ -13,6 +13,7 @@
 
 subroutine RHSOD_A(IVEC)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: MTREL, MTUV
 use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
@@ -69,7 +70,7 @@ do ISYM=1,NSYM
   NW = NAS*NIS
 
   if (NW == 0) then
-    NFIMOES = NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
+    NFIMOES = NFIMOES+nTri_Elem(NORB(ISYM))
     cycle
   end if
 
@@ -102,7 +103,7 @@ do ISYM=1,NSYM
       ! A(tvx,j) = (tjvx) + FIMO(t,j)*delta(v,x)/NACTEL
       if ((ISYT == ISYJ) .and. (IVABS == IXABS)) then
         ITTOT = IT+NISH(ISYT)
-        FTJ = FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+IJ)
+        FTJ = FIMO(NFIMOES+iTri(ITTOT,IJ))
         ATVXJ = TJVX+FTJ/real(max(1,NACTEL),kind=wp)
       else
         ATVXJ = TJVX
@@ -122,7 +123,7 @@ do ISYM=1,NSYM
   call RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
   call RHS_FREE(lg_W)
 
-  NFIMOES = NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
+  NFIMOES = NFIMOES+nTri_Elem(NORB(ISYM))
 
 end do
 !***********************************************************************

@@ -22,6 +22,7 @@
 !***********************************************************************
 subroutine MKSA(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
 
+use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -35,11 +36,11 @@ implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF, NG3
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), G3(NG3)
 integer(kind=byte), intent(in) :: idxG3(6,NG3)
-integer(kind=iwp) :: ICASE, IHI, ILO, ISYM, JHI, JLO, LDA, lg_SA, MSA, NAS, NIN, NSA
+integer(kind=iwp) :: ICASE, IHI, ILO, ISYM, JHI, JLO, LDA, lg_SA, NAS, NIN, NSA
 real(kind=wp) :: DSA
 real(kind=wp), external :: PSBMAT_FPRINT
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: MA, MYRANK
+integer(kind=iwp) :: MA, MSA, MYRANK
 real(kind=wp) :: Dummy(1)
 #include "global.fh"
 #include "mafdecls.fh"
@@ -51,7 +52,7 @@ do ISYM=1,NSYM
   NIN = NINDEP(ISYM,ICASE)
   if (NIN == 0) cycle
   NAS = NTUV(ISYM)
-  NSA = (NAS*(NAS+1))/2
+  NSA = nTri_Elem(NAS)
   if (NSA <= 0) cycle
   ! Set up the matrix SA(tuv,xyz) defined by the expression
   ! <ituv|kxyz> = dik SA(tuv,xyz)
@@ -85,9 +86,8 @@ do ISYM=1,NSYM
     jLo = 1
     jHi = NAS
     LDA = 0
-    MSA = NAS*(NAS+1)/2
-    call MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),MSA,NG3,G3,IDXG3)
-    call MKSA_DP(DREF,NDREF,PREF,NPREF,ISYM,GA_Arrays(lg_SA)%A(:),MSA,ILO,IHI,JLO,JHI,LDA)
+    call MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),NSA,NG3,G3,IDXG3)
+    call MKSA_DP(DREF,NDREF,PREF,NPREF,ISYM,GA_Arrays(lg_SA)%A(:),NSA,ILO,IHI,JLO,JHI,LDA)
 # ifdef _MOLCAS_MPP_
   end if
 # endif

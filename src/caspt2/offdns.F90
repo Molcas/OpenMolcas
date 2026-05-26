@@ -911,7 +911,7 @@ select case (KOD)
           IY = 1
           INCY1 = NAGTB(ISYM2)
           INCY2 = 1
-          call MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,X1(IXIA),size(X1(IXIA:)),DPT2(IDJB),size(DPT2(IDJB:)),Y(IY),&
+          call MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,X1(IXIA),size(X1(IXIA:)),DPT2(IDJB),size(DPT2(IDJB:)),Y(IY), &
                       size(Y(IY:)))
         end if
         IOXIA = IOXIA+NI*NA

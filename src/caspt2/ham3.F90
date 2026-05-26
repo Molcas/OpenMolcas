@@ -23,6 +23,7 @@ subroutine HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
 ! NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 ! NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
 
+use Index_Functions, only: iTri, nTri3_Elem
 use Symmetry_Info, only: Mul
 use sguga, only: CIS, EXS, SGS
 use Molcas, only: MxLev
@@ -102,7 +103,7 @@ do IZ=1,NASHT
         IVX = IV+(IX-1)*NASHT
         ISVX = Mul(IASYM(IV),IASYM(IX))
         ISVXYZ = Mul(ISVX,ISYZ)
-        IVXYZ = (IVX*(IVX-1))/2+IYZ
+        IVXYZ = iTri(IVX,IYZ)
         ISYM2 = Mul(ISVX,ISYM1)
         NSGM2 = CIS%NCSF(ISYM2)
         if (NSGM2 == 0) cycle
@@ -133,7 +134,7 @@ do IZ=1,NASHT
             ITU = IT+(IU-1)*NASHT
             ISTU = Mul(IASYM(IT),IASYM(IU))
             if (ISTU /= ISVXYZ) cycle
-            ITUVXYZ = ((ITU+1)*ITU*(ITU-1))/6+IVXYZ
+            ITUVXYZ = nTri3_Elem(ITU-1)+IVXYZ
             X = OP3(ITUVXYZ)
             if (abs(X) < 1.0e-15_wp) cycle
             ! Add non-zero 3-el contribution to SGM:

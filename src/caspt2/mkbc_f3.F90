@@ -19,6 +19,7 @@
 
 subroutine MKBC_F3(ISYM,BC,NBC,NG3,F3,idxG3)
 
+use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV
 use caspt2_module, only: IASYM, NASHT, nTUVES
@@ -61,7 +62,7 @@ do iG3=1,NG3
     ISUP = KTUV(iV,iU,iT)-nTUVES(jSYM)
     JSUP = KTUV(iX,iY,iZ)-nTUVES(jSYM)
     if (JSUP <= ISUP) then
-      ISADR = (ISUP*(ISUP-1))/2+JSUP
+      ISADR = iTri(ISUP,JSUP)
       BC(ISADR) = BC(ISADR)+F3VAL
     end if
   end if
@@ -73,7 +74,7 @@ do iG3=1,NG3
         ISUP = KTUV(iT,iX,iV)-nTUVES(jSYM)
         JSUP = KTUV(iU,iY,iZ)-nTUVES(jSYM)
         if (JSUP <= ISUP) then
-          ISADR = (ISUP*(ISUP-1))/2+JSUP
+          ISADR = iTri(ISUP,JSUP)
           BC(ISADR) = BC(ISADR)+F3VAL
         end if
       end if
@@ -83,7 +84,7 @@ do iG3=1,NG3
         ISUP = KTUV(iV,iZ,iY)-nTUVES(jSYM)
         JSUP = KTUV(iX,iT,iU)-nTUVES(jSYM)
         if (JSUP <= ISUP) then
-          ISADR = (ISUP*(ISUP-1))/2+JSUP
+          ISADR = iTri(ISUP,JSUP)
           BC(ISADR) = BC(ISADR)+F3VAL
         end if
       end if
@@ -93,7 +94,7 @@ do iG3=1,NG3
         ISUP = KTUV(iY,iU,iT)-nTUVES(jSYM)
         JSUP = KTUV(iZ,iV,iX)-nTUVES(jSYM)
         if (JSUP <= ISUP) then
-          ISADR = (ISUP*(ISUP-1))/2+JSUP
+          ISADR = iTri(ISUP,JSUP)
           BC(ISADR) = BC(ISADR)+F3VAL
         end if
       end if
@@ -104,7 +105,7 @@ do iG3=1,NG3
       ISUP = KTUV(iT,iZ,iY)-nTUVES(jSYM)
       JSUP = KTUV(iU,iV,iX)-nTUVES(jSYM)
       if (JSUP <= ISUP) then
-        ISADR = (ISUP*(ISUP-1))/2+JSUP
+        ISADR = iTri(ISUP,JSUP)
         BC(ISADR) = BC(ISADR)+F3VAL
       end if
     end if
@@ -114,7 +115,7 @@ do iG3=1,NG3
       ISUP = KTUV(iY,iX,iV)-nTUVES(jSYM)
       JSUP = KTUV(iZ,iT,iU)-nTUVES(jSYM)
       if (JSUP <= ISUP) then
-        ISADR = (ISUP*(ISUP-1))/2+JSUP
+        ISADR = iTri(ISUP,JSUP)
         BC(ISADR) = BC(ISADR)+F3VAL
       end if
     end if
@@ -129,7 +130,7 @@ do iG3=1,NG3
     ISUP = KTUV(iX,iT,iU)-nTUVES(jSYM)
     JSUP = KTUV(iV,iZ,iY)-nTUVES(jSYM)
     if (JSUP <= ISUP) then
-      ISADR = (ISUP*(ISUP-1))/2+JSUP
+      ISADR = iTri(ISUP,JSUP)
       BC(ISADR) = BC(ISADR)+F3VAL
     end if
   end if
@@ -141,7 +142,7 @@ do iG3=1,NG3
       ISUP = KTUV(iU,iV,iX)-nTUVES(jSYM)
       JSUP = KTUV(iT,iZ,iY)-nTUVES(jSYM)
       if (JSUP <= ISUP) then
-        ISADR = (ISUP*(ISUP-1))/2+JSUP
+        ISADR = iTri(ISUP,JSUP)
         BC(ISADR) = BC(ISADR)+F3VAL
       end if
     end if
@@ -151,7 +152,7 @@ do iG3=1,NG3
       ISUP = KTUV(iX,iY,iZ)-nTUVES(jSYM)
       JSUP = KTUV(iV,iU,iT)-nTUVES(jSYM)
       if (JSUP <= ISUP) then
-        ISADR = (ISUP*(ISUP-1))/2+JSUP
+        ISADR = iTri(ISUP,JSUP)
         BC(ISADR) = BC(ISADR)+F3VAL
       end if
     end if
@@ -161,7 +162,7 @@ do iG3=1,NG3
       ISUP = KTUV(iZ,iT,iU)-nTUVES(jSYM)
       JSUP = KTUV(iY,iX,iV)-nTUVES(jSYM)
       if (JSUP <= ISUP) then
-        ISADR = (ISUP*(ISUP-1))/2+JSUP
+        ISADR = iTri(ISUP,JSUP)
         BC(ISADR) = BC(ISADR)+F3VAL
       end if
     end if
@@ -172,7 +173,7 @@ do iG3=1,NG3
     ISUP = KTUV(iU,iY,iZ)-nTUVES(jSYM)
     JSUP = KTUV(iT,iX,iV)-nTUVES(jSYM)
     if (JSUP <= ISUP) then
-      ISADR = (ISUP*(ISUP-1))/2+JSUP
+      ISADR = iTri(ISUP,JSUP)
       BC(ISADR) = BC(ISADR)+F3VAL
     end if
   end if
@@ -182,7 +183,7 @@ do iG3=1,NG3
     ISUP = KTUV(iZ,iV,iX)-nTUVES(jSYM)
     JSUP = KTUV(iY,iU,iT)-nTUVES(jSYM)
     if (JSUP <= ISUP) then
-      ISADR = (ISUP*(ISUP-1))/2+JSUP
+      ISADR = iTri(ISUP,JSUP)
       BC(ISADR) = BC(ISADR)+F3VAL
     end if
   end if

@@ -28,6 +28,7 @@ subroutine MKWWOPB(IVEC,JVEC,OP0,OP1,NOP2,OP2)
 ! W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Extyu - 2 Eytxu -6dxt Eyu
 !           -6dyu Ext +6dyt Exu +6dxu Eyt +12 dxt dyu -12 dxu dyt)
 
+use Index_Functions, only: iTri
 use SUPERINDEX, only: MTGEU, MTGTU
 use EQSOLV, only: MODVEC
 use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES
@@ -104,11 +105,7 @@ do ISYM=1,NSYM
       ! W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Extyu + 2 Eytxu -2dxt Eyu
       !           -2dyu Ext -2dyt Exu -2dxu Eyt + 4 dxt dyu + 4 dxu dyt)
       ! Contrib to 2-particle operator, from 2 Extyu:
-      if (IXT >= IYU) then
-        JXTYU = (IXT*(IXT-1))/2+IYU
-      else
-        JXTYU = (IYU*(IYU-1))/2+IXT
-      end if
+      JXTYU = iTri(IXT,IYU)
       OP2(JXTYU) = OP2(JXTYU)+Two*W_PROD
       ! Contrib to 1-particle operator, from -2dxt Eyu
       if (IXABS == ITABS) OP1(IYABS,IUABS) = OP1(IYABS,IUABS)-Two*W_PROD
@@ -119,11 +116,7 @@ do ISYM=1,NSYM
         if (IXABS == ITABS) OP0 = OP0+Four*W_PROD
       end if
       ! Contrib to 2-particle operator, from 2 Eytxu:
-      if (IYT > IXU) then
-        JYTXU = (IYT*(IYT-1))/2+IXU
-      else
-        JYTXU = (IXU*(IXU-1))/2+IYT
-      end if
+      JYTXU = iTri(IYT,IXU)
       OP2(JYTXU) = OP2(JYTXU)+Two*W_PROD
       ! Contrib to 1-particle operator, from -2dyt Exu
       if (IYABS == ITABS) OP1(IXABS,IUABS) = OP1(IXABS,IUABS)-Two*W_PROD
@@ -192,11 +185,7 @@ do ISYM=1,NSYM
       ! W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Extyu - 2 Eytxu -6dxt Eyu
       !           -6dyu Ext +6dyt Exu +6dxu Eyt +12 dxt dyu -12 dxu dyt)
       ! Contrib to 2-particle operator, from 2 Extyu:
-      if (IXT >= IYU) then
-        JXTYU = (IXT*(IXT-1))/2+IYU
-      else
-        JXTYU = (IYU*(IYU-1))/2+IXT
-      end if
+      JXTYU = iTri(IXT,IYU)
       OP2(JXTYU) = OP2(JXTYU)+Two*W_PROD
       ! Contrib to 1-particle operator, from -6dxt Eyu
       if (IXABS == ITABS) OP1(IYABS,IUABS) = OP1(IYABS,IUABS)-Six*W_PROD
@@ -207,11 +196,7 @@ do ISYM=1,NSYM
         if (IXABS == ITABS) OP0 = OP0+Twelve*W_PROD
       end if
       ! Contrib to 2-particle operator, from -2 Eytxu:
-      if (IYT >= IXU) then
-        JYTXU = (IYT*(IYT-1))/2+IXU
-      else
-        JYTXU = (IXU*(IXU-1))/2+IYT
-      end if
+      JYTXU = iTri(IYT,IXU)
       OP2(JYTXU) = OP2(JYTXU)-Two*W_PROD
       ! Contrib to 1-particle operator, from +6dyt Exu
       if (IYABS == ITABS) OP1(IXABS,IUABS) = OP1(IXABS,IUABS)+Six*W_PROD

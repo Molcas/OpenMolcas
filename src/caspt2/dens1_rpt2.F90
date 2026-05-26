@@ -19,6 +19,7 @@
 
 subroutine DENS1_RPT2(CI,nCI,SGM1,nSGM1,G1,nLev)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use fciqmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
@@ -96,7 +97,7 @@ end if
 
 ! SVC20100311: set up a task table with LT,LU
 ! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
-nTasks = (nLev**2+nLev)/2
+nTasks = nTri_Elem(nLev)
 
 call mma_allocate(Task,nTasks,2,Label='TASK')
 

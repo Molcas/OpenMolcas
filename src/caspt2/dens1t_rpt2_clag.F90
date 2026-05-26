@@ -36,7 +36,6 @@ integer(kind=iwp), allocatable :: TASK(:,:)
 
 ! SVC20100311: set up a task table with LT,LU
 ! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
-nTasks = (nLev**2+nLev)/2
 nTasks = nLev**2
 call mma_allocate(Task,nTasks,2,Label='TASK')
 

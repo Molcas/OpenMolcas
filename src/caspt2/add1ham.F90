@@ -17,6 +17,7 @@ subroutine ADD1HAM(H1EFF,nH1Eff)
 ! Dress it with reaction field (if any).
 ! Also get POTNUC at the same time.
 
+use Index_Functions, only: nTri_Elem
 #ifdef _OFEmbed_
 use RunFile_procedures, only: Get_dExcdRa
 use OFembed, only: Do_OFemb, FMAux, OFE_First
@@ -65,7 +66,7 @@ call Get_dScalar('PotNuc',PotNuc)
 ! modify the one-electron Hamiltonian by the reaction field and
 ! the nuclear attraction by the cavity self-energy
 if (RFpert) then
-  nTemp = sum(nBas(1:nSym)*(nBas(1:nSym)+1)/2)
+  nTemp = sum(nTri_Elem(nBas(1:nSym)))
   call f_Inquire('RUNOLD',Found)
   if (Found) call NameRun('RUNOLD')
   call mma_allocate(Temp,nTemp,Label='Temp')
@@ -84,7 +85,7 @@ do ISYM=1,NSYM
   if (NBAS(ISYM) > 0) then
     write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
     call TRIPRT(' ',' ',H1EFF(1+ISTLT),NBAS(ISYM))
-    ISTLT = ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
+    ISTLT = ISTLT+nTri_Elem(NBAS(ISYM))
   end if
 end do
 #endif
@@ -94,7 +95,7 @@ end do
 ! then modify the one-electron Hamiltonian by the OFE potential and
 ! the nuclear attraction by the Rep_EN
 if (Do_OFEmb) then
-  nTemp = sum(nBas(1:nSym)*(nBas(1:nSym)+1)/2)
+  nTemp = sum(nTri_Elem(nBas(1:nSym)))
   call mma_allocate(Coul,nTemp,Label='Coul')
   Coul(:) = Zero
   if (OFE_First) then
@@ -122,7 +123,7 @@ if (Do_OFEmb) then
     if (NBAS(ISYM) > 0) then
       write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
       call TRIPRT(' ',' ',H1EFF(1+ISTLT),NBAS(ISYM))
-      ISTLT = ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
+      ISTLT = ISTLT+nTri_Elem(NBAS(ISYM))
     end if
   end do
 # endif

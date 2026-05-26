@@ -18,6 +18,7 @@ subroutine REF_NATO(DREF,nDREF,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
 ! coefficients of  natural orbitals. Frozen, inactive and virtual
 ! orbitals are copied unchanged.
 
+use Index_Functions, only: iTri, nTri_Elem
 use caspt2_module, only: NASH, NBAS, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -49,14 +50,14 @@ do ISYM=1,NSYM
   end if
   ! Active orbitals:
   if (NA > 0) then
-    NTMP = (NA*(NA+1))/2
+    NTMP = nTri_Elem(NA)
     call mma_allocate(TMP,NTMP,LABEL='TMP')
     CNAT(ICMO+1:ICMO+NB*NA) = CMO(ICMO+1:ICMO+NB*NA)
     ! For correct ordering, change sign.
     LIJ = 0
     do I=1,NA
       II = I+IDREF
-      TMP(LIJ+1:LIJ+I) = -DREF((II*(II-1))/2+IDREF+1:(II*(II+1))/2)
+      TMP(LIJ+1:LIJ+I) = -DREF(iTri(II,IDREF)+1:nTri_Elem(II))
       LIJ = LIJ+I
     end do
     call NIDiag(TMP,CNAT(ICMO+1),NA,NB)

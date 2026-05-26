@@ -13,6 +13,7 @@
 
 subroutine DerHEff(nConf,nRoots,nState,CLag,VECROT)
 
+use Index_Functions, only: nTri3_Elem
 use caspt2_global, only: IDTCEX, LUCIEX
 use EQSOLV, only: IVECC, IVECW
 use caspt2_module, only: ISCF, JSTATE, MXCI, NASHT, STSYM
@@ -34,7 +35,7 @@ real(kind=wp), allocatable :: CI1(:), CI2(:), CI3(:), DTG1(:), DTG2(:), DTG3(:)
 
 NTG1 = NASHT**2
 NTG2 = NASHT**4
-NTG3 = (NTG1*(NTG1+1)*(NTG1+2))/6
+NTG3 = nTri3_Elem(NTG1)
 ! Note: Need proper allocation even if unused, sinced allocated
 ! arrays are in subroutine parameter lists of MKTG3, HCOUP.
 NTG1 = max(1,NTG1)

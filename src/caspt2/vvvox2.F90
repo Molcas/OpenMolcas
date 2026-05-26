@@ -13,6 +13,7 @@
 
 subroutine VVVOX2(KEEP,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,vLag,CMO,WRK,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,FIFA,FIMO)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use ChoVec_io, only: NVLOC_CHOBATCH
 use Cholesky, only: InfVec
@@ -42,8 +43,8 @@ ISTSQ(1) = 0
 ISTLT(1) = 0
 do jSym=2,nSym
   nB = nBas(jSym-1)
-  nB2 = nB*nB
-  nB3 = (nB2+nB)/2
+  nB2 = nB**2
+  nB3 = nTri_Elem(nB2)
   ISTSQ(jSym) = ISTSQ(jSym-1)+nB2
   ISTLT(jSym) = ISTLT(jSym-1)+nB3
 end do
@@ -56,7 +57,7 @@ KEEPJ = KEEP(iSymJ)
 !nAuxJ = nAux(iSymJ)
 iSymIJ = Mul(iSymI,iSymJ)
 nBasIJ = nBasI*nBasJ
-if (iSymI == iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
+if (iSymI == iSymJ) nBasIJ = nTri_Elem(nBasI)
 if (nBasIJ == 0) return
 
 nBasK = nBas(iSymK)
@@ -70,7 +71,7 @@ nBasL = nBas(iSymL_)
 KEEPL = KEEP(iSymL_)
 !nAuxL = nAux(iSymL_)
 nBasKL = nBasK*nBasL
-if (iSymK == iSymL) nBasKL = (nBasK*(nBasK+1))/2
+if (iSymK == iSymL) nBasKL = nTri_Elem(nBasK)
 if (nBasKL == 0) return
 
 ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?

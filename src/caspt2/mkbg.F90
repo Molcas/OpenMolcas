@@ -19,6 +19,7 @@
 
 subroutine MKBG(DREF,NDREF,FD)
 
+use Index_Functions, only: iTri, nTri_Elem
 use EQSOLV, only: IDBMAT, IDSMAT
 use caspt2_global, only: ipea_shift, LUSBT
 use caspt2_module, only: EASUM, NAES, NASH, NINDEP, NSYM
@@ -29,7 +30,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NDREF
 real(kind=wp), intent(in) :: DREF(NDREF), FD(NDREF)
-integer(kind=iwp) :: I, IBG, ID, IDIAG, IDISK, IDS, IDT, ISYM, IT, ITABS, IX, IXABS, NAS, NBG, NINM, NINP, NS
+integer(kind=iwp) :: I, IBG, ID, IDIAG, IDISK, IDS, IDT, ISYM, IT, ITABS, IX, IXABS, NAS, NBG, NINM, NINP
 real(kind=wp) :: Val
 real(kind=wp), allocatable :: BG(:), S(:), SD(:)
 
@@ -42,15 +43,14 @@ do ISYM=1,NSYM
   if (NINP == 0) cycle
   NINM = NINDEP(ISYM,11)
   NAS = NASH(ISYM)
-  NBG = (NAS*(NAS+1))/2
+  NBG = nTri_Elem(NAS)
   if (NBG > 0) then
     call mma_Allocate(BG,NBG,LABEL='BG')
     !GG.Nov03  Load in SD the diagonal elements of SG matrix:
-    NS = (NAS*(NAS+1))/2
-    call mma_allocate(S,NS,Label='S')
+    call mma_allocate(S,NBG,Label='S')
     call mma_allocate(SD,NAS,Label='SD')
     IDS = IDSMAT(ISYM,10)
-    call DDAFILE(LUSBT,2,S,NS,IDS)
+    call DDAFILE(LUSBT,2,S,NBG,IDS)
     IDIAG = 0
     do I=1,NAS
       IDIAG = IDIAG+I
@@ -63,12 +63,12 @@ do ISYM=1,NSYM
     ITABS = IT+NAES(ISYM)
     do IX=1,IT
       IXABS = IX+NAES(ISYM)
-      IBG = (IT*(IT-1))/2+IX
-      ID = (ITABS*(ITABS-1))/2+IXABS
+      IBG = iTri(IT,IX)
+      ID = iTri(ITABS,IXABS)
       !GG.Nov03
       Val = FD(ID)-EASUM*DREF(ID)
       if (IT == IX) then
-        IDT = (ITABS*(ITABS+1))/2
+        IDT = nTri_Elem(ITABS)
         Val = Val+ipea_shift*half*(two-DREF(IDT))*SD(IT)
       end if
       BG(IBG) = Val

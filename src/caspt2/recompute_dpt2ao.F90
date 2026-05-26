@@ -13,6 +13,7 @@
 
 subroutine Recompute_DPT2AO(NDIM,DPT2,DPT2C,DPT2AO,DPT2CAO)
 
+use Index_Functions, only: nTri_Elem
 use caspt2_global, only: LUONEM
 use caspt2_module, only: IAD1M, NBAS, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -61,7 +62,7 @@ do iSym=1,nSym
       liBasTr = liBasTr+1
     end do
   end do
-  iBasTr = iBasTr+nBasI*(nBasI+1)/2
+  iBasTr = iBasTr+nTri_Elem(nBasI)
 end do
 
 call mma_deallocate(WRK1)

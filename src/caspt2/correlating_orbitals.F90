@@ -16,6 +16,7 @@ subroutine correlating_orbitals()
 !
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use InputData, only: Input
 use caspt2_global, only: EMP2, LUONEM, NCMO
 use caspt2_module, only: BNAME, iAd1m, IfChol, IfQCAN, nAsh, nBas, nBSqT, nDel, nFro, nIsh, nSsh, nSym
@@ -24,7 +25,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: I, IDISK, iRC, iSkp, NDPQ, ntri, nUniqAt
+integer(kind=iwp) :: I, IDISK, iRC, iSkp, NDPQ, nUniqAt
 real(kind=wp) :: Dummy(1)
 real(kind=wp), allocatable :: CMO_X(:), DPQ(:)
 
@@ -51,8 +52,7 @@ if (Input%AFreeze) then
   write(u6,'(A,8I4)') ' Inactive orbitals before selection:  ',(nish(i),i=1,nsym)
   write(u6,'(A,8I4)') ' Secondary orbitals before selection: ',(nssh(i),i=1,nsym)
   write(u6,'(A,8I4)') ' Deleted orbitals before selection:   ',(ndel(i),i=1,nsym)
-  ntri = sum((nbas(1:nsym)+nbas(1:nsym)**2)/2)
-  NDPQ = ntri
+  NDPQ = sum(nTri_Elem(nbas(1:nsym)))
   call MMA_ALLOCATE(DPQ,NDPQ,Label='DPQ')
   call AFreez(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,BNAME,size(BNAME),INPUT%NAMFRO,INPUT%LNFRO,DPQ,nDPQ,Input%THRFR,Input%THRDE, &
               IFQCAN,CMO_X,NCMO)

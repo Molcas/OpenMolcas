@@ -13,6 +13,7 @@
 
 subroutine RHSOD_C_NOSYM(IVEC)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV, MTREL, MTUV
 use CHOVEC_IO, only: CHOVEC_READ, CHOVEC_SIZE, NVTOT_CHOSYM
@@ -70,7 +71,7 @@ do ISYM=1,NSYM
   NW = NAS*NIS
 
   if (NW == 0) then
-    NFIMOES = NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
+    NFIMOES = NFIMOES+nTri_Elem(NORB(ISYM))
     cycle
   end if
 
@@ -114,7 +115,7 @@ do ISYM=1,NSYM
     IATOT = IA+NISH(ISYM)+NASH(ISYM)
     do IT=1,NASH(ISYM)
       ITTOT = IT+NISH(ISYM)
-      FAT = FIMO(NFIMOES+(IATOT*(IATOT-1))/2+ITTOT)
+      FAT = FIMO(NFIMOES+iTri(IATOT,ITTOT))
       SUMU = Zero
       ITABS = NAES(ISYM)+IT
       do IUABS=1,NASHT
@@ -144,7 +145,7 @@ do ISYM=1,NSYM
   call RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
   call RHS_FREE(lg_W)
 
-  NFIMOES = NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
+  NFIMOES = NFIMOES+nTri_Elem(NORB(ISYM))
 
 end do
 !***********************************************************************

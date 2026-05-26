@@ -293,7 +293,7 @@ if (IFXMS .or. IFRMS) call mma_deallocate(FIFASA_all)
 if (IFDW .and. (zeta >= Zero)) call mma_deallocate(OMGDER)
 if (do_nac) call mma_deallocate(DPT2Canti_tot)
 
- ! Prepare for MCLR
+! Prepare for MCLR
 iGo = 3
 call Put_iScalar('SA ready',iGo)
 ! overwrites whatever was set in CASSCF with the relax

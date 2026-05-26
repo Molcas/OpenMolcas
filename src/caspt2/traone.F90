@@ -13,6 +13,7 @@ subroutine TRAONE(CMO,NCMO,HONE,nHONE)
 ! Objective: Transformation of one-electron integrals
 ! (effective one electron Hamiltonian) for CASPT2.
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use PrintLevel, only: VERBOSE
 use caspt2_global, only: iPrGlb
@@ -98,7 +99,7 @@ if (IFTEST /= 0) then
     if (NBAS(ISYM) > 0) then
       write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
       call TRIPRT(' ',' ',WFLT(ISTLT),NBAS(ISYM))
-      ISTLT = ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
+      ISTLT = ISTLT+nTri_Elem(NBAS(ISYM))
     end if
   end do
 end if
@@ -108,7 +109,7 @@ end if
 ! the nuclear attraction by the cavity self-energy
 
 if (RFpert) then
-  nTemp = sum(nBas(1:nSym)*(nBas(1:nSym)+1)/2)
+  nTemp = sum(nTri_Elem(nBas(1:nSym)))
   call mma_allocate(Temp,nTemp,Label='Temp')
 
   call f_Inquire('RUNOLD',Found)
@@ -127,7 +128,7 @@ if (RFpert) then
       if (NBAS(ISYM) > 0) then
         write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
         call TRIPRT(' ',' ',WFLT(ISTLT),NBAS(ISYM))
-        ISTLT = ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
+        ISTLT = ISTLT+nTri_Elem(NBAS(ISYM))
       end if
     end do
   end if
@@ -160,9 +161,9 @@ if (NFROT /= 0) then
         WDLT(IJ) = Half*WDLT(IJ)
       end do
     end if
-    ISTMO = ISTMO+NB*NB
-    ISTSQ = ISTSQ+NB*NB
-    ISTLT = ISTLT+NB*(NB+1)/2
+    ISTMO = ISTMO+NB**2
+    ISTSQ = ISTSQ+NB**2
+    ISTLT = ISTLT+nTri_Elem(NB)
   end do
 
   ! One-electron contribution to the core energy.
@@ -220,8 +221,8 @@ do ISYM=1,NSYM
                    NORB(ISYM))
   end if
   ICMO = ICMO+NBAS(ISYM)*(NORB(ISYM)+NDEL(ISYM))
-  IAO = IAO+NBAS(ISYM)*(NBAS(ISYM)+1)/2
-  IMO = IMO+NORB(ISYM)*(NORB(ISYM)+1)/2
+  IAO = IAO+nTri_Elem(NBAS(ISYM))
+  IMO = IMO+nTri_Elem(NORB(ISYM))
 end do
 
 if (IFTEST /= 0) then
@@ -231,7 +232,7 @@ if (IFTEST /= 0) then
     if (NORB(ISYM) > 0) then
       write(u6,'(6X,A,I2)') ' SYMMETRY SPECIES:',ISYM
       call TRIPRT(' ',' ',WFMO(ISTLT),NORB(ISYM))
-      ISTLT = ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
+      ISTLT = ISTLT+nTri_Elem(NORB(ISYM))
     end if
   end do
 end if

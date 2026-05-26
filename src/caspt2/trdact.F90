@@ -25,6 +25,7 @@ subroutine TRDACT(IVEC,JVEC,DTU)
 ! to be contravariant representations of the wave operators W1 and W2,
 ! in the notation of the comments.
 
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use sguga, only: SGS
 use caspt2_global, only: IDTCEX, LUCIEX
 use caspt2_module, only: iASym, iSCF, jState, MxCI, nAes, nAsh, nAshT, nAshT, nConf, nSym, STSym
@@ -45,8 +46,8 @@ nLev = SGS%nLev
 
 ! (1): Compute a representation of the operator PCAS*W1T*W2
 NOP1 = NASHT**2
-NOP2 = (NOP1*(NOP1+1))/2
-NOP3 = (NOP2*(NOP1+2))/3
+NOP2 = nTri_Elem(NOP1)
+NOP3 = nTri3_Elem(NOP1)
 call MMA_ALLOCATE(TRDOP1,NOP1)
 call MMA_ALLOCATE(TRDOP2,NOP2)
 call MMA_ALLOCATE(TRDOP3,NOP3)

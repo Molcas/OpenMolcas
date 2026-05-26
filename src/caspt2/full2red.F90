@@ -11,6 +11,7 @@
 
 subroutine full2red(XLT,nXLT,Xab,nXab)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR, nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -32,7 +33,7 @@ IS = 0
 do ISYM=1,NSYM
   ISLT(ISYM) = IS
   NB = NBAS(ISYM)
-  IS = IS+(NB*(NB+1))/2
+  IS = IS+nTri_Elem(NB)
 end do
 
 do jRab=1,nnBstR(jSym,iLoc)
@@ -43,11 +44,7 @@ do jRab=1,nnBstR(jSym,iLoc)
   iSyma = cho_isao(iag)
   ias = iag-ibas(iSyma)
   ibs = ibg-ibas(iSyma)
-  if (ias >= ibs) then
-    iab = (ias*(ias-1))/2+ibs
-  else
-    iab = (ibs*(ibs-1))/2+ias
-  end if
+  iab = iTri(ias,ibs)
   kfrom = isLT(iSyma)+iab
   Xab(jRab) = Xab(jRab)+XLT(kfrom)
 end do

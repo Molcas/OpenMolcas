@@ -13,6 +13,7 @@
 
 subroutine DERFG3(CI,NCONF,NLEV,NG3,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 
+use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
 use sguga, only: CIS, EXS, L2ACT, SGS
@@ -56,8 +57,8 @@ if (NCONF == 0) return
 
 ! Special pair index idx2ij allows true RAS cases to be handled:
 nlev2 = nlev**2
-ntri1 = (nlev2-nlev)/2
-ntri2 = (nlev2+nlev)/2
+ntri1 = nTri_Elem(nlev-1)
+ntri2 = nTri_Elem(nlev)
 call mma_allocate(idx2ij,2,nlev2,Label='idx2ij')
 call mma_allocate(ij2idx,nlev,nlev,Label='ij2idx')
 idx = 0
@@ -318,7 +319,7 @@ do issg1=1,nsym
     !-SVC20100309: Currently -we are going to limit this to the ip3-loop and
     !-leave the ip2-loop intact.  This was based on the large overhead which
     !-was observed for a very large number of small tasks.
-    !iOffSet = iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
+    !iOffSet = iOffSet+ip3mx*ntri2-nTri_Elem(ip3mx-1)
     iOffSet = iOffSet+ip3mx
   end do
   nSubTasks = iOffSet
@@ -451,7 +452,7 @@ do issg1=1,nsym
     !-SVC20100309: PAM's magic formula
     !iCnt = iSubTask-iOffSet
     !ip3 = int(real(ntri2,kind=wp)+OneHalf-sqrt((real(ntri2,kind=wp)+Half)**2-2*iCnt+1.0e-6_wp))
-    !ip2 = iCnt-((ip3-1)*ntri2-((ip3-1)*(ip3-2))/2 )+ip3-1
+    !ip2 = iCnt-((ip3-1)*ntri2-nTri_Elem(ip3-2)+ip3-1
 
     !-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 

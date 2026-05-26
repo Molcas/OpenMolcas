@@ -26,6 +26,7 @@ subroutine MKWWOPF(IVEC,JVEC,NOP2,OP2)
 ! For the F- case (i.e. case 9)
 ! W1(tu,ab)(conj)*W2(xy,cd) = (dac*dbd)*(2 Etxuy - 2 Etyux)
 
+use Index_Functions, only: iTri
 use SUPERINDEX, only: MTGEU, MTGTU
 use EQSOLV, only: MODVEC
 use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES
@@ -101,18 +102,10 @@ do ISYM=1,NSYM
       ! Remember: C For the F+ case (i.e. case 8)
       ! W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Etxuy + 2 Etyux)
       ! Contrib to 2-particle operator, from 2 Etxuy:
-      if (ITX >= IUY) then
-        JTXUY = (ITX*(ITX-1))/2+IUY
-      else
-        JTXUY = (IUY*(IUY-1))/2+ITX
-      end if
+      JTXUY = iTri(ITX,IUY)
       OP2(JTXUY) = OP2(JTXUY)+Two*W_PROD
       ! Contrib to 2-particle operator, from 2 Etyux:
-      if (ITY >= IUX) then
-        JTYUX = (ITY*(ITY-1))/2+IUX
-      else
-        JTYUX = (IUX*(IUX-1))/2+ITY
-      end if
+      JTYUX = iTri(ITY,IUX)
       OP2(JTYUX) = OP2(JTYUX)+Two*W_PROD
     end do
   end do
@@ -177,18 +170,10 @@ do ISYM=1,NSYM
       ! Remember: C For the F- case (i.e. case 9)
       ! W1(tu,ij)(conj)*W2(xy,kl) = (dik*djl)*(2 Etxuy - 2 Etyux)
       ! Contrib to 2-particle operator, from 2 Etxuy:
-      if (ITX >= IUY) then
-        JTXUY = (ITX*(ITX-1))/2+IUY
-      else
-        JTXUY = (IUY*(IUY-1))/2+ITX
-      end if
+      JTXUY = iTri(ITX,IUY)
       OP2(JTXUY) = OP2(JTXUY)+Two*W_PROD
       ! Contrib to 2-particle operator, from -2 Etyux:
-      if (ITY >= IUX) then
-        JTYUX = (ITY*(ITY-1))/2+IUX
-      else
-        JTYUX = (IUX*(IUX-1))/2+ITY
-      end if
+      JTYUX = iTri(ITY,IUX)
       OP2(JTYUX) = OP2(JTYUX)-Two*W_PROD
     end do
   end do

@@ -13,6 +13,7 @@
 
 subroutine CLagDXC_FG3(iSym,nAS,nAshT,NG3,NS,BDER,SDER,DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,SC,idxG3)
 
+use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV
 use caspt2_module, only: EPSA, IASYM, NTUVES
@@ -166,12 +167,12 @@ do iG3=1,NG3
   do iW=1,nAshT
     ISUP = KTUV(iV,iW,iT)-nTUVES(iSYM)
     JSUP = KTUV(iX,iY,iZ)-nTUVES(iSYM)
-    NSEQ = max(iSup,jSup)*(max(iSup,jSup)-1)/2+min(iSup,jSup)
+    NSEQ = iTri(iSup,jSup)
     DEPSA(iW,iU) = DEPSA(iW,iU)-F3VAL*SC(NSEQ)
 
     ISUP = KTUV(iV,iU,iT)-nTUVES(iSYM)
     JSUP = KTUV(iX,iW,iZ)-nTUVES(iSYM)
-    NSEQ = max(iSup,jSup)*(max(iSup,jSup)-1)/2+min(iSup,jSup)
+    NSEQ = iTri(iSup,jSup)
     DEPSA(iW,iY) = DEPSA(iW,iY)-F3VAL*SC(NSEQ)
   end do
 

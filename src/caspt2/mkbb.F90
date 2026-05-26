@@ -19,6 +19,7 @@
 
 subroutine MKBB(DREF,NDREF,PREF,NPREF,FD,FP)
 
+use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: KTGTU, KTU, MTGEU, MTU
 use EQSOLV, only: IDBMAT, IDSMAT
 use caspt2_global, only: ipea_shift, LUSBT
@@ -30,9 +31,9 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), FD(NDREF), FP(NPREF)
-integer(kind=iwp) :: I, IBADR, IBMADR, IBPADR, ID, ID1, ID2,IDIAG, IDISK, IDSM, IDSP, IDT, IDU, INSM, IP, IP1, IP2, ISYM, ITABS, &
-                     ITGEU, ITGEUABS, ITGTU, ITU, ITUABS, IUABS, IXABS, IXGEY, IXGEYABS, IXGTY, IXT, IXY, IXYABS, IYABS, IYU, IYX, &
-                     NAS, NASM, NASP, NBB, NBBM, NBBP, NINP, NSM, NSP
+integer(kind=iwp) :: I, IBADR, IBMADR, IBPADR, ID, IDIAG, IDISK, IDSM, IDSP, IDT, IDU, INSM, IP, ISYM, ITABS, ITGEU, ITGEUABS, &
+                     ITGTU, ITU, ITUABS, IUABS, IXABS, IXGEY, IXGEYABS, IXGTY, IXT, IXY, IXYABS, IYABS, IYU, IYX, NAS, NASM, NASP, &
+                     NBB, NBBM, NBBP, NINP
 real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BTUXY, BTUYX, ET, EU, EX, EY, Val
 real(kind=wp), allocatable :: BB(:), BBP(:), SP(:), SDP(:), BBM(:), SM(:), SDM(:)
 
@@ -54,7 +55,7 @@ do ISYM=1,NSYM
   NINP = NINDEP(ISYM,2)
   if (NINP == 0) cycle
   NAS = NTU(ISYM)
-  NBB = (NAS*(NAS+1))/2
+  NBB = nTri_Elem(NAS)
   if (NBB > 0) call mma_allocate(BB,NBB,Label='BB')
   do ITU=1,NAS
     ITUABS = ITU+NTUES(ISYM)
@@ -68,19 +69,15 @@ do ISYM=1,NSYM
       IYABS = MTU(2,IXYABS)
       EX = EPSA(IXABS)
       EY = EPSA(IYABS)
-      IBADR = (ITU*(ITU-1))/2+IXY
+      IBADR = iTri(ITU,IXY)
       IXT = IXABS+NASHT*(ITABS-1)
       IYU = IYABS+NASHT*(IUABS-1)
-      IP1 = max(IXT,IYU)
-      IP2 = min(IXT,IYU)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(IXT,IYU)
       ATUXY = EASUM-ET-EU-EX-EY
       Val = Four*(FP(IP)-ATUXY*PREF(IP))
       ! Add  + 4*dxt ( (A-Et-Ey-Eu)*Dyu - Fyu)
       if (IXABS == ITABS) then
-        ID1 = max(IYABS,IUABS)
-        ID2 = min(IYABS,IUABS)
-        ID = (ID1*(ID1-1))/2+ID2
+        ID = iTri(IYABS,IUABS)
         ATYU = EASUM-ET-EY-EU
         Val = Val+Four*(ATYU*DREF(ID)-FD(ID))
         ! Add  + 8*dxt*dyu (Et+Ey)
@@ -88,17 +85,13 @@ do ISYM=1,NSYM
       end if
       ! Add  + 4*dyu ( (A-Et-Ey-Ex)*Dxt - Fxt)
       if (IYABS == IUABS) then
-        ID1 = max(IXABS,ITABS)
-        ID2 = min(IXABS,ITABS)
-        ID = (ID1*(ID1-1))/2+ID2
+        ID = iTri(IXABS,ITABS)
         ATYX = EASUM-ET-EY-EX
         Val = Val+Four*(ATYX*DREF(ID)-FD(ID))
       end if
       ! Add  - 2*dyt ( (A-Et-Eu-Ex)*Dxu - Fxu)
       if (IYABS == ITABS) then
-        ID1 = max(IXABS,IUABS)
-        ID2 = min(IXABS,IUABS)
-        ID = (ID1*(ID1-1))/2+ID2
+        ID = iTri(IXABS,IUABS)
         ATUX = EASUM-ET-EU-EX
         Val = Val-Two*(ATUX*DREF(ID)-FD(ID))
         ! Add  - 4*dxu*dyt (Et+Ex)
@@ -106,9 +99,7 @@ do ISYM=1,NSYM
       end if
       ! Add  - 2*dxu ( (A-Et-Eu-Ey)*Dyt - Fyt)
       if (IXABS == IUABS) then
-        ID1 = max(IYABS,ITABS)
-        ID2 = min(IYABS,ITABS)
-        ID = (ID1*(ID1-1))/2+ID2
+        ID = iTri(IYABS,ITABS)
         ATUY = EASUM-ET-EU-EY
         Val = Val-Two*(ATUY*DREF(ID)-FD(ID))
       end if
@@ -116,15 +107,14 @@ do ISYM=1,NSYM
     end do
   end do
   NASP = NTGEU(ISYM)
-  NBBP = (NASP*(NASP+1))/2
+  NBBP = nTri_Elem(NASP)
   if (NBBP > 0) then
     call mma_allocate(BBP,NBBP,Label='BBP')
     !GG.Nov03  Load in SDP the diagonal elements of SBP matrix:
-    NSP = (NASP*(NASP+1))/2
-    call mma_allocate(SP,NSP,Label='SP')
+    call mma_allocate(SP,NBBP,Label='SP')
     call mma_allocate(SDP,NASP,Label='SDP')
     IDSP = IDSMAT(ISYM,2)
-    call DDAFILE(LUSBT,2,SP,NSP,IDSP)
+    call DDAFILE(LUSBT,2,SP,NBBP,IDSP)
     IDIAG = 0
     do I=1,NASP
       IDIAG = IDIAG+I
@@ -135,16 +125,15 @@ do ISYM=1,NSYM
   end if
 
   NASM = NTGTU(ISYM)
-  NBBM = (NASM*(NASM+1))/2
+  NBBM = nTri_Elem(NASM)
   if (NBBM > 0) then
     call mma_allocate(BBM,NBBM,Label='BBM')
     !GG.Nov03  Load in SDM the diagonal elements of SBM matrix:
-    NSM = (NASM*(NASM+1))/2
     call mma_allocate(SDM,NASM,Label='SDM')
     if (NINDEP(ISYM,3) > 0) then
-      call mma_allocate(SM,NSM,Label='SM')
+      call mma_allocate(SM,NBBM,Label='SM')
       IDSM = IDSMAT(ISYM,3)
-      call DDAFILE(LUSBT,2,SM,NSM,IDSM)
+      call DDAFILE(LUSBT,2,SM,NBBM,IDSM)
       IDIAG = 0
       do I=1,NASM
         IDIAG = IDIAG+I
@@ -167,24 +156,16 @@ do ISYM=1,NSYM
       IYABS = MTGEU(2,IXGEYABS)
       IXY = KTU(IXABS,IYABS)-NTUES(ISYM)
       IYX = KTU(IYABS,IXABS)-NTUES(ISYM)
-      if (ITU >= IXY) then
-        IBADR = (ITU*(ITU-1))/2+IXY
-      else
-        IBADR = (IXY*(IXY-1))/2+ITU
-      end if
+      IBADR = iTri(ITU,IXY)
       BTUXY = BB(IBADR)
-      if (ITU >= IYX) then
-        IBADR = (ITU*(ITU-1))/2+IYX
-      else
-        IBADR = (IYX*(IYX-1))/2+ITU
-      end if
+      IBADR = iTri(ITU,IYX)
       BTUYX = BB(IBADR)
-      IBPADR = (ITGEU*(ITGEU-1))/2+IXGEY
+      IBPADR = iTri(ITGEU,IXGEY)
       BBP(IBPADR) = BTUXY+BTUYX
       !GG.Nov03
       if (ITGEU == IXGEY) then
-        IDT = (ITABS*(ITABS+1))/2
-        IDU = (IUABS*(IUABS+1))/2
+        IDT = nTri_Elem(ITABS)
+        IDU = nTri_Elem(IUABS)
         BBP(IBPADR) = BBP(IBPADR)+ipea_shift*half*(DREF(IDT)+DREF(IDU))*SDP(ITGEU)
       end if
       !GG End
@@ -193,12 +174,12 @@ do ISYM=1,NSYM
       if (IXABS == IYABS) cycle
       ITGTU = KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
       IXGTY = KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
-      IBMADR = (ITGTU*(ITGTU-1))/2+IXGTY
+      IBMADR = iTri(ITGTU,IXGTY)
       BBM(IBMADR) = BTUXY-BTUYX
       !GG.Nov03
       if (ITGEU == IXGEY) then
-        IDT = (ITABS*(ITABS+1))/2
-        IDU = (IUABS*(IUABS+1))/2
+        IDT = nTri_Elem(ITABS)
+        IDU = nTri_Elem(IUABS)
         BBM(IBMADR) = BBM(IBMADR)+ipea_shift*half*(DREF(IDT)+DREF(IDU))*SDM(INSM)
         INSM = INSM+1
       end if

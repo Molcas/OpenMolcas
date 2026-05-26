@@ -13,17 +13,17 @@
 
 pure function IPROW(IROW,NQOT,NREM)
 
-  use Definitions, only: iwp
+use Definitions, only: iwp
 
-  integer(kind=iwp) :: IPROW
-  integer(kind=iwp), intent(in) :: IROW, NQOT, NREM
-  integer(kind=iwp) :: TMP
+integer(kind=iwp) :: IPROW
+integer(kind=iwp), intent(in) :: IROW, NQOT, NREM
+integer(kind=iwp) :: TMP
 
-  TMP = IROW-NREM*(NQOT+1)
-  if (TMP > 0) then
-    IPROW = (TMP-1)/NQOT+NREM+1
-  else
-    IPROW = (IROW-1)/(NQOT+1)+1
-  end if
+TMP = IROW-NREM*(NQOT+1)
+if (TMP > 0) then
+  IPROW = (TMP-1)/NQOT+NREM+1
+else
+  IPROW = (IROW-1)/(NQOT+1)+1
+end if
 
 end function IPROW

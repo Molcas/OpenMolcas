@@ -23,6 +23,7 @@ subroutine SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
 ! where the vectors are represented in transformed basis and
 ! are  stored at positions IVEC and JVEC on the LUSOLV unit.
 
+use Index_Functions, only: nTri_Elem
 use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
 use EQSOLV, only: IFCoup
 use Sigma_data, only: IFTEST, NFDXP, NFMV, NFR1, NFSCA
@@ -128,7 +129,7 @@ do ISYM=1,NSYM
 
     call FBLOCK(FIFA(IFIFA),NO,NI,NA,NS,FIT(ISYM)%A(:),FTI(ISYM)%A(:),FIA(ISYM)%A(:),FAI(ISYM)%A(:),FTA(ISYM)%A(:),FAT(ISYM)%A(:))
 
-    IFIFA = IFIFA+(NO*(NO+1))/2
+    IFIFA = IFIFA+nTri_Elem(NO)
   end if
 
 end do

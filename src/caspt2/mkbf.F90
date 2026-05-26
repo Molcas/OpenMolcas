@@ -19,6 +19,7 @@
 
 subroutine MKBF(DREF,NDREF,PREF,NPREF,FP)
 
+use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: KTGTU, KTU, MTGEU, MTU
 use EQSOLV, only: IDBMAT, IDSMAT
 use caspt2_global, only: ipea_shift, LUSBT
@@ -30,9 +31,9 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NDREF, NPREF
 real(kind=wp), intent(in) :: DREF(NDREF), PREF(NPREF), FP(NPREF)
-integer(kind=iwp) :: I, IBADR, IBMADR, IBPADR, IDIAG, IDISK, IDSM, IDSP, IDT, IDU, INSM, IP, IP1, IP2, ISYM, ITABS, ITGEU, &
-                     ITGEUABS, ITGTU, ITU, ITUABS, ITX, IUABS, IUY, IXABS, IXGEY, IXGEYABS, IXGTY, IXY, IXYABS, IYABS, IYX, NAS, &
-                     NASM, NASP, NBF, NBFM, NBFP, NINP, NSM, NSP
+integer(kind=iwp) :: I, IBADR, IBMADR, IBPADR, IDIAG, IDISK, IDSM, IDSP, IDT, IDU, INSM, IP, ISYM, ITABS, ITGEU, ITGEUABS, ITGTU, &
+                     ITU, ITUABS, ITX, IUABS, IUY, IXABS, IXGEY, IXGEYABS, IXGTY, IXY, IXYABS, IYABS, IYX, NAS, NASM, NASP, NBF, &
+                     NBFM, NBFP, NINP
 real(kind=wp) :: BTUXY, BTUYX
 real(kind=wp), allocatable :: BF(:), BFM(:), BFP(:), SDM(:), SDP(:), SM(:), SP(:)
 
@@ -47,7 +48,7 @@ do ISYM=1,NSYM
   NINP = NINDEP(ISYM,8)
   if (NINP == 0) cycle
   NAS = NTU(ISYM)
-  NBF = (NAS*(NAS+1))/2
+  NBF = nTri_Elem(NAS)
   if (NBF > 0) call mma_allocate(BF,NBF,LABEL='BF')
   do ITU=1,NAS
     ITUABS = ITU+NTUES(ISYM)
@@ -57,25 +58,22 @@ do ISYM=1,NSYM
       IXYABS = IXY+NTUES(ISYM)
       IXABS = MTU(1,IXYABS)
       IYABS = MTU(2,IXYABS)
-      IBADR = (ITU*(ITU-1))/2+IXY
+      IBADR = iTri(ITU,IXY)
       ITX = ITABS+NASHT*(IXABS-1)
       IUY = IUABS+NASHT*(IYABS-1)
-      IP1 = max(ITX,IUY)
-      IP2 = min(ITX,IUY)
-      IP = (IP1*(IP1-1))/2+IP2
+      IP = iTri(ITX,IUY)
       BF(IBADR) = Four*(FP(IP)-EASUM*PREF(IP))
     end do
   end do
   NASP = NTGEU(ISYM)
-  NBFP = (NASP*(NASP+1))/2
+  NBFP = nTri_Elem(NASP)
   if (NBFP > 0) then
     call mma_allocate(BFP,NBFP,Label='BFP')
     !GG.Nov03  Load in SDP the diagonal elements of SFP matrix:
-    NSP = (NASP*(NASP+1))/2
-    call mma_allocate(SP,NSP,Label='SP')
+    call mma_allocate(SP,NBFP,Label='SP')
     call mma_allocate(SDP,NASP,Label='SDP')
     IDSP = IDSMAT(ISYM,8)
-    call DDAFILE(LUSBT,2,SP,NSP,IDSP)
+    call DDAFILE(LUSBT,2,SP,NBFP,IDSP)
     IDIAG = 0
     do I=1,NASP
       IDIAG = IDIAG+I
@@ -85,15 +83,14 @@ do ISYM=1,NSYM
     !GG End
   end if
   NASM = NTGTU(ISYM)
-  NBFM = (NASM*(NASM+1))/2
+  NBFM = nTri_Elem(NASM)
   if (NBFM > 0) then
     call mma_allocate(BFM,NBFM,Label='BFM')
     !GG.Nov03  Load in SDM the diagonal elements of SFM matrix:
-    NSM = (NASM*(NASM+1))/2
-    call mma_allocate(SM,NSM,Label='SM')
+    call mma_allocate(SM,NBFM,Label='SM')
     call mma_allocate(SDM,NASM,Label='SDM')
     IDSM = IDSMAT(ISYM,9)
-    call DDAFILE(LUSBT,2,SM,NSM,IDSM)
+    call DDAFILE(LUSBT,2,SM,NBFM,IDSM)
     IDIAG = 0
     do I=1,NASM
       IDIAG = IDIAG+I
@@ -114,24 +111,16 @@ do ISYM=1,NSYM
       IYABS = MTGEU(2,IXGEYABS)
       IXY = KTU(IXABS,IYABS)-NTUES(ISYM)
       IYX = KTU(IYABS,IXABS)-NTUES(ISYM)
-      if (ITU >= IXY) then
-        IBADR = (ITU*(ITU-1))/2+IXY
-      else
-        IBADR = (IXY*(IXY-1))/2+ITU
-      end if
+      IBADR = iTri(ITU,IXY)
       BTUXY = BF(IBADR)
-      if (ITU >= IYX) then
-        IBADR = (ITU*(ITU-1))/2+IYX
-      else
-        IBADR = (IYX*(IYX-1))/2+ITU
-      end if
+      IBADR = iTri(ITU,IYX)
       BTUYX = BF(IBADR)
-      IBPADR = (ITGEU*(ITGEU-1))/2+IXGEY
+      IBPADR = iTri(ITGEU,IXGEY)
       BFP(IBPADR) = BTUXY+BTUYX
       !GG.Nov03
       if (ITGEU == IXGEY) then
-        IDT = (ITABS*(ITABS+1))/2
-        IDU = (IUABS*(IUABS+1))/2
+        IDT = nTri_Elem(ITABS)
+        IDU = nTri_Elem(IUABS)
         BFP(IBPADR) = BFP(IBPADR)+ipea_shift*Half*(Four-DREF(IDT)-DREF(IDU))*SDP(ITGEU)
       end if
       !GG End
@@ -139,12 +128,12 @@ do ISYM=1,NSYM
       if (IXABS == IYABS) cycle
       ITGTU = KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
       IXGTY = KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
-      IBMADR = (ITGTU*(ITGTU-1))/2+IXGTY
+      IBMADR = iTri(ITGTU,IXGTY)
       BFM(IBMADR) = BTUXY-BTUYX
       !GG.Nov03
       if (ITGEU == IXGEY) then
-        IDT = (ITABS*(ITABS+1))/2
-        IDU = (IUABS*(IUABS+1))/2
+        IDT = nTri_Elem(ITABS)
+        IDU = nTri_Elem(IUABS)
         BFM(IBMADR) = BFM(IBMADR)+ipea_shift*Half*(Four-DREF(IDT)-DREF(IDU))*SDM(INSM)
         INSM = INSM+1
       end if

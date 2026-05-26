@@ -14,6 +14,7 @@ subroutine TRANSFOCK(TORB,NTORB,F,NF,IDIR)
 ! one-electron matrix in storage format as e.g. FIFA and FIMO
 ! transform the matrix to use the new orbital basis.
 
+use Index_Functions, only: nTri_Elem
 use caspt2_module, only: nIsh, nOMx, nRas1, nRas2, nRas3, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -107,7 +108,7 @@ do ISYM=1,NSYM
     F(IJ+1:IJ+I) = FSQ(I:I+NO*(I-1):NO)
     IJ = IJ+I
   end do
-  IJOFF = IJOFF+(NO*(NO+1))/2
+  IJOFF = IJOFF+nTri_Elem(NO)
   ! and repeat, using next symmetry block.
 end do
 call mma_deallocate(FSQ)

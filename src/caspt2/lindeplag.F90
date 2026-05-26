@@ -17,6 +17,7 @@ subroutine LinDepLag(BDer,SDer,nAS,nIN,iSym,iCase)
 ! See J. Chem. Phys. 2023, 158, 174112. for details, in particular,
 ! Section II C 3 "Non-invariance with respect to orthogonal..."
 
+use Index_Functions, only: nTri_Elem
 use EQSOLV, only: idSMAT
 use caspt2_global, only: idBoriMat, LUSBT, LUSTD
 use caspt2_module, only: IFDORTHO, THRSHN, THRSHS
@@ -33,7 +34,7 @@ real(kind=wp), allocatable :: B(:), EIG(:), F(:,:), LAG(:,:), S(:), SCA(:), SCRA
 
 !! Obtain the X matrix
 !! First, read S
-NS = NAS*(NAS+1)/2
+NS = nTri_Elem(NAS)
 call mma_allocate(S,NS,Label='S')
 call mma_allocate(SS,NAS,NAS,Label='SS')
 idS = idSMAT(iSym,iCase)

@@ -35,6 +35,7 @@ contains
 
 subroutine SUPINI()
 
+  use Index_Functions, only: nTri_Elem
   use Symmetry_Info, only: Mul
   use caspt2_module, only: nAes, nAGEB, nAGEBES, nAGTB, nAGTBES, nAsh, nAshT, nAshT, nASUP, nCases, nIAES, nIES, nIGEJ, nIGEJES, &
                            nIGTJ, nIGTJES, nInDep, nIsh, nIshT, nISUP, nSES, nSES, nSsh, nSsh, nSshT, nSym, nTGEU, nTGEUES, nTGTU, &
@@ -86,8 +87,8 @@ subroutine SUPINI()
 
   call MMA_ALLOCATE(KTGEU,NASHT,NASHT,Label='KTGEU')
   call MMA_ALLOCATE(KTGTU,NASHT,NASHT,Label='KTGTU')
-  NMTGEU = (NASHT*(NASHT+1))/2
-  NMTGTU = (NASHT*(NASHT-1))/2
+  NMTGEU = nTri_Elem(NASHT)
+  NMTGTU = nTri_Elem(NASHT-1)
   call MMA_ALLOCATE(MTGEU,2,NMTGEU,Label='MTGEU')
   call MMA_ALLOCATE(MTGTU,2,NMTGTU,Label='MTGTU')
 
@@ -141,12 +142,12 @@ subroutine SUPINI()
   end do
 
   !PAM99 Use allocated workspace instead of MAGEB, MAGTB:
-  NMAGEB = (NSSHT*(NSSHT+1))/2
-  NMAGTB = (NSSHT*(NSSHT-1))/2
+  NMAGEB = nTri_Elem(NSSHT)
+  NMAGTB = nTri_Elem(NSSHT-1)
   call MMA_ALLOCATE(MAGEB,2,NMAGEB,Label='MAGEB')
   call MMA_ALLOCATE(MAGTB,2,NMAGTB,Label='MAGTB')
-  NMIGEJ = (NISHT*(NISHT+1))/2
-  NMIGTJ = (NISHT*(NISHT-1))/2
+  NMIGEJ = nTri_Elem(NISHT)
+  NMIGTJ = nTri_Elem(NISHT-1)
   call MMA_ALLOCATE(MIGEJ,2,NMIGEJ,Label='MIGEJ')
   call MMA_ALLOCATE(MIGTJ,2,NMIGTJ,Label='MIGTJ')
 

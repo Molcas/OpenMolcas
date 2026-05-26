@@ -13,6 +13,7 @@
 
 subroutine CnstFIFAFIMO(MODE)
 
+use Index_Functions, only: nTri_Elem
 use caspt2_global, only: CMOPT2, FIFA, FIFA_all, FIFASA_all, FIMO, FIMO_all, OLag, TraFro
 use caspt2_module, only: IfChol, IFDW, IFRMS, IFXMS, NBAS, NBSQT, NFRO, NFROT, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -89,7 +90,7 @@ if (IfChol) then
     end if
     !end if
     iSQ = iSQ+nBasI*nBasI
-    iTR = iTR+nBasI*(nBasI+1)/2
+    iTR = iTR+nTri_Elem(nBasI)
   end do
   call mma_deallocate(WRK1)
   call mma_deallocate(WRK2)
@@ -105,7 +106,7 @@ else
       call SQUARE(FIFA(1+iTr),FIFA_all(1+iSQ),1,nBasI,nBasI)
       call SQUARE(FIMO(1+iTr),FIMO_all(1+iSQ),1,nBasI,nBasI)
       iSQ = iSQ+nBasI*nBasI
-      iTR = iTR+nBasI*(nBasI+1)/2
+      iTR = iTR+nTri_Elem(nBasI)
     end do
     if (IFXMS .and. (.not. IFDW)) FIFASA_all(1:NBSQT) = FIFA_all(1:NBSQT)
   end if

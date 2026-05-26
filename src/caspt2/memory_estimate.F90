@@ -31,15 +31,15 @@ integer(kind=iwp) :: IB, IB1, IB2, IBGRP, ICASE, ISYI, ISYK, ISYM, ISYP, ISYQ, M
                      NPI, NQ, NQK, nSh(8,3), NV, NVECTOT
 logical(kind=iwp) :: call_from_grad
 integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3, &
-                                ITYPE(4,9) = reshape([Inactive,Active ,Active  ,Active , &
-                                                      Inactive,Active ,Inactive,Active , &
-                                                      Inactive,Virtual,Active  ,Active , &
-                                                      Inactive,Virtual,Inactive,Virtual, &
-                                                      Active  ,Virtual,Active  ,Active , &
-                                                      Active  ,Virtual,Active  ,Virtual, &
-                                                      Active  ,Virtual,Inactive,Active , &
-                                                      Active  ,Virtual,Inactive,Virtual, &
-                                                      Inactive,Virtual,Inactive,Active ],[4,9])
+                                ITYPE(4,9) = reshape([Inactive,  Active,  Active,  Active, &
+                                                      Inactive,  Active,Inactive,  Active, &
+                                                      Inactive, Virtual,  Active,  Active, &
+                                                      Inactive, Virtual,Inactive, Virtual, &
+                                                        Active, Virtual,  Active,  Active, &
+                                                        Active, Virtual,  Active, Virtual, &
+                                                        Active, Virtual,Inactive,  Active, &
+                                                        Active, Virtual,Inactive, Virtual, &
+                                                      Inactive, Virtual,Inactive,  Active],[4,9])
 integer(kind=iwp), external :: iPARDIV
 
 call_from_grad = .false.
@@ -215,8 +215,11 @@ else if (MXAVAIL >= MINGOOD) then
 else if (MXAVAIL >= MINSLOW) then
   NADDBUF = MINBUFF
   NPIQK = MINPIQK
-  NCHOBUF = (MXAVAIL-MXRHS-NPIQK-2*NADDBUF)/2
-  if (call_from_grad) NCHOBUF = (MXAVAIL-2*MXRHS-NPIQK-4*NADDBUF)/2
+  if (call_from_grad) then
+    NCHOBUF = (MXAVAIL-2*MXRHS-NPIQK-4*NADDBUF)/2
+  else
+    NCHOBUF = (MXAVAIL-MXRHS-NPIQK-2*NADDBUF)/2
+  end if
   ! create batch groups that have at most MXCHOVEC cholesky vectors
   MXCHOVEC = max(NCHOBUF/MXNPITOT,1)
   NCHOVEC = 0

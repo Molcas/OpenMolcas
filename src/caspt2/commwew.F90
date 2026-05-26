@@ -25,6 +25,7 @@ subroutine COMMWEW(IVEC,JVEC,DCOM)
 ! Present assumption: The two vectors nr. IVEC and JVEC, stored on LUSOLV,
 ! are both in contravariant representation. Possibly, IVEC equals JVEC.
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTGEU, KTGTU, KTU, KTUV
 use EQSOLV, only: IDSMAT
@@ -55,7 +56,7 @@ do ICASE=1,11
     ! Note carefully, this is not a mistake: vector JVEC into CBLK it is!
     call RDBLKC(ISYM,ICASE,JVEC,CBLK,NCBLK)
     ! Allocate overlap matrix:
-    NS = (NAS*(NAS+1))/2
+    NS = nTri_Elem(NAS)
     call MMA_ALLOCATE(SMAT,NS)
     IDS = IDSMAT(ISYM,ICASE)
     call DDAFILE(LUSBT,2,SMAT,NS,IDS)

@@ -13,6 +13,7 @@
 
 subroutine OLagFro3(NBSQT,FIFA,FIMO,WRK1,WRK2)
 
+use Index_Functions, only: nTri_Elem
 use caspt2_global, only: CMOPT2
 use caspt2_module, only: NBAS, NBTRI, NDEL, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -63,7 +64,7 @@ do iSym=1,nSym
   call OLagTrf(2,iSym,NBSQT,CMOPT2(iCMO),FIMO(iMO),WRK1,WRK2)
 
   iAO = iAO+nBasI*nBasI
-  iAOtr = iAOtr+nBasI*(nBasI+1)/2
+  iAOtr = iAOtr+nTri_Elem(nBasI)
   iCMO = iCMO+nBasI*nOrbI !?
   iMO = iMO+nOrbI*nOrbI
 end do

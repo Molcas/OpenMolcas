@@ -11,6 +11,7 @@
 
 subroutine MODRHS(IVEC,FIMO,NFIMO)
 
+use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: KTU, KTUV
 use caspt2_module, only: NACTEL, NAES, NASH, NASHT, NASUP, NINDEP, NISH, NISUP, NORB, NSSH, NSYM, NTUES, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -49,7 +50,7 @@ do ISYM=1,NSYM
       ITTOT = NIT+IT
       ITABS = NAES(ISYT)+IT
       do IJ=1,NIT
-        Val = FIMO(IFOFF+(ITTOT*(ITTOT-1))/2+IJ)/real(max(1,NACTEL),kind=wp)
+        Val = FIMO(IFOFF+iTri(ITTOT,IJ))/real(max(1,NACTEL),kind=wp)
         do IVABS=1,NASHT
           IW1 = KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
           IW2 = IJ
@@ -66,7 +67,7 @@ do ISYM=1,NSYM
   end if
   ! End of loop over ISYM.
   NO = NORB(ISYM)
-  IFOFF = IFOFF+(NO*(NO+1))/2
+  IFOFF = IFOFF+nTri_Elem(NO)
 end do
 
 !**************************************************************
@@ -93,7 +94,7 @@ do ISYM=1,NSYM
       IXABS = NAES(ISYM)+IX
       do IA=1,NSX
         IATOT = NIX+NAX+IA
-        rSUM = FIMO(IFOFF+(IATOT*(IATOT-1))/2+IXTOT)
+        rSUM = FIMO(IFOFF+iTri(IATOT,IXTOT))
         do IYABS=1,NASHT
           IYYW = KTUV(IYABS,IYABS,IXABS)-NTUVES(ISYM)
           IYYWA = IYYW+NAS*(IA-1)
@@ -116,7 +117,7 @@ do ISYM=1,NSYM
   end if
   ! End of loop over ISYM.
   NO = NORB(ISYM)
-  IFOFF = IFOFF+(NO*(NO+1))/2
+  IFOFF = IFOFF+nTri_Elem(NO)
 end do
 
 !**************************************************************
@@ -145,7 +146,7 @@ if (NINDEP(ISYM,5)*NWD /= 0) then
     do IA=1,NSJ
       IATOT = NIJ+NAJ+IA
       do IJ=1,NIJ
-        ONEADD = FIMO(IFOFF+(IATOT*(IATOT-1))/2+IJ)/real(max(1,NACTEL),kind=wp)
+        ONEADD = FIMO(IFOFF+iTri(IATOT,IJ))/real(max(1,NACTEL),kind=wp)
         IAJ = IAJ+1
         do ISYU=1,NSYM
           do IU=1,NASH(ISYU)
@@ -158,7 +159,7 @@ if (NINDEP(ISYM,5)*NWD /= 0) then
       end do
     end do
     NO = NORB(ISYJ)
-    IFOFF = IFOFF+(NO*(NO+1))/2
+    IFOFF = IFOFF+nTri_Elem(NO)
   end do
   call RHS_PUT(NAS,NIS,lg_D,WD)
 

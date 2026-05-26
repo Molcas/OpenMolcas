@@ -58,6 +58,7 @@
 
 subroutine MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: DEBUG, VERBOSE
@@ -117,8 +118,8 @@ ICNJ(:) = -1
 
 ! Special pair index idx2ij allows true RAS cases to be handled:
 nlev2 = nlev**2
-ntri1 = (nlev2-nlev)/2
-ntri2 = (nlev2+nlev)/2
+ntri1 = nTri_Elem(nlev-1)
+ntri2 = nTri_Elem(nlev)
 idx = 0
 do i=1,nlev-1
   do j=i+1,nlev
@@ -260,10 +261,10 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     ip3mx = ntri2
     if (ip1end <= ntri2) ip3mx = ip1end
     if (ip1sta > ntri2) ip3mx = ntri1
-      !-SVC20100309: Currently -we are going to limit this to the ip3-loop and
-      !-leave the ip2-loop intact.  This was based on the large overhead which
-      !-was observed for a very large number of small tasks.
-      !iOffSet = iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
+    !-SVC20100309: Currently -we are going to limit this to the ip3-loop and
+    !-leave the ip2-loop intact.  This was based on the large overhead which
+    !-was observed for a very large number of small tasks.
+    !iOffSet = iOffSet+ip3mx*ntri2-nTri_Elem(ip3mx-1)
     iOffSet = iOffSet+ip3mx
   end do
   nSubTasks = iOffSet
@@ -396,7 +397,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     !-SVC20100309: PAM's magic formula
     !iCnt = iSubTask-iOffSet
     !ip3 = int(real(ntri2,kind=wp)+OneHalf-sqrt((real(ntri2,kind=wp)+Half)**2-2*iCnt+1.0e-6_wp))
-    !ip2 = iCnt-((ip3-1)*ntri2-((ip3-1)*(ip3-2))/2 )+ip3-1
+    !ip2 = iCnt-((ip3-1)*ntri2-nTri_Elem(ip3-2)+ip3-1
 
     !-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 

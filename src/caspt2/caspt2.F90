@@ -228,17 +228,17 @@ STATELOOP: do IGROUP=1,NGROUP
     ! Skip this state if we only need 1 state and it isn't this "one".
     if ((NLYROOT /= 0) .and. (JSTATE /= NLYROOT)) cycle
 
-      ! STINI (state init?) does the following
+    ! STINI (state init?) does the following
 
-      ! 1. It calls POLY3 to form the 1-, 2-, and 3-particle density
-      !    matrix in the PCO basis. This is based on the CI vector
-      !    expressed in the PCO basis. Using pt2_put the result is
-      !    stored on LUDMAT.
-      ! 2. Using GETDPREF it pulls the one- and two-particle density
-      !    matrices (gamma 1 and gamma 2), using pt2_get, of the
-      !    LUDMAT file and sticks them in to DREF and PREF.
-      ! 3. Sets the EREF value
-      ! 4. Recomputes EASUM.
+    ! 1. It calls POLY3 to form the 1-, 2-, and 3-particle density
+    !    matrix in the PCO basis. This is based on the CI vector
+    !    expressed in the PCO basis. Using pt2_put the result is
+    !    stored on LUDMAT.
+    ! 2. Using GETDPREF it pulls the one- and two-particle density
+    !    matrices (gamma 1 and gamma 2), using pt2_get, of the
+    !    LUDMAT file and sticks them in to DREF and PREF.
+    ! 3. Sets the EREF value
+    ! 4. Recomputes EASUM.
 
     call STINI(JSTATE)
 
@@ -321,7 +321,7 @@ STATELOOP: do IGROUP=1,NGROUP
 
     call Iter_Timing()
 
-  ! End of long loop over states in the group
+    ! End of long loop over states in the group
   end do
 
   if (IPRGLB >= USUAL) then

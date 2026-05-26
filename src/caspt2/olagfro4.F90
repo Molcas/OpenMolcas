@@ -13,6 +13,7 @@
 
 subroutine OLagFro4(NBSQT,iSym0,iSymI,iSymJ,iSymK,iSymL0,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK1)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use Cholesky, only: InfVec, nDimRS, nnBstR
@@ -61,8 +62,8 @@ ISTSQ(1) = 0
 ISTLT(1) = 0
 do jSym=2,nSym
   nB = nBas(jSym-1)
-  nB2 = nB*nB
-  nB3 = (nB2+nB)/2
+  nB2 = nB**2
+  nB3 = nTri_Elem(nB)
   ISTSQ(jSym) = ISTSQ(jSym-1)+nB2
   ISTLT(jSym) = ISTLT(jSym-1)+nB3
 end do
@@ -73,7 +74,7 @@ nBasI = nBas(iSymI)
 nBasJ = nBas(iSymJ)
 iSymIJ = Mul(iSymI,iSymJ)
 nBasIJ = nBasI*nBasJ
-if (iSymI == iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
+if (iSymI == iSymJ) nBasIJ = nTri_Elem(nBasI)
 if (nBasIJ == 0) return
 
 nBasK = nBas(iSymK)
@@ -83,7 +84,7 @@ iSymL = Mul(iSymIJ,iSymK)
 if (iSymL > iSMax) return !! should not
 nBasL = nBas(iSymL0)
 nBasKL = nBasK*nBasL
-if (iSymK == iSymL0) nBasKL = (nBasK*(nBasK+1))/2
+if (iSymK == iSymL0) nBasKL = nTri_Elem(nBasK)
 if (nBasKL == 0) return
 
 call mma_allocate(CHSPC,NCHSPC,Label='CHSPC')
@@ -151,7 +152,7 @@ do JRED=JRED1,JRED2
     do iVec=1,NUMV
       !! (strange) reduced form -> squared AO vector (mu nu|iVec)
       jVref = 1 !! only for iSwap=1
-      !lscr = nBasI*(nBasI+1)/2
+      !lscr = nTri_Elem(nBasI)
       !if (l_NDIMRS < 1) then
       if (size(nDimRS) < 1) then
         lscr = NNBSTR(iSym,3)

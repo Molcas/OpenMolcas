@@ -13,6 +13,7 @@
 
 subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
+use Index_Functions, only: nTri_Elem, nTri3_Elem
 use sguga, only: SGS
 use caspt2_global, only: CLag, CLagFull, CMOPT2, do_csf, do_nac, DPT2_tot, FIFA, FIFA_all, FIFASA_all, if_equalW, iRoot1, iRoot2, &
                          NDREF, nOLag, OLag, TORB, weight
@@ -89,7 +90,7 @@ if (IFXMS .or. IFRMS) then
       DG3(:) = Zero
 
       NTG1 = NASHT**2
-      NTG3 = (NTG1*(NTG1+1)*(NTG1+2))/6
+      NTG3 = nTri3_Elem(NTG1)
       OVL = Zero
       call DERTG3(.false.,STSYM,STSYM,NCONF,NASHT,CI1,CI2,OVL,DG1,DG2,NTG3,DG3,CLag(1,iStat),CLag(1,jStat))
       call mma_deallocate(DG3)
@@ -289,8 +290,8 @@ if (IFXMS .or. IFRMS) then
   TRC = Zero
   !do ISYM=1,NSYM
   do I=1,NISH(1) ! ISYM)
-    !II = IOFF(ISYM)+(I*(I+1))/2
-    TRC = TRC+FIFA(I*(I+1)/2)
+    !II = IOFF(ISYM)+nTri_Elem(I)
+    TRC = TRC+FIFA(nTri_Elem(I))
   end do
   !end do
   ! Contribution from inactive orbitals:

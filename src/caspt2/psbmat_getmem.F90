@@ -15,6 +15,7 @@ subroutine PSBMAT_GETMEM(cNAME,lg_M,nSize)
 ! with integer handle lg_M or if replicate or serial, create
 ! tridiagonal local array at Work(lg_M)
 
+use Index_Functions, only: nTri_Elem
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
@@ -26,7 +27,6 @@ implicit none
 character(len=*), intent(in) :: cNAME
 integer(kind=iwp), intent(out) :: lg_M
 integer(kind=iwp), intent(in) :: nSize
-integer(kind=iwp) :: nTri
 
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
@@ -34,8 +34,7 @@ if (Is_Real_Par()) then
   call GA_ZERO(LG_M)
 else
 #endif
-  nTri = (nSize*(nSize+1))/2
-  lg_M = Allocate_GA_Array(nTri,cName)
+  lg_M = Allocate_GA_Array(nTri_Elem(nSize),cName)
   GA_Arrays(lg_M)%A(:) = Zero
 #ifdef _MOLCAS_MPP_
 end if

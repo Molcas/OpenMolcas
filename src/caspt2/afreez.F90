@@ -197,7 +197,7 @@ do isym=1,nsym
       end if
     end do
   end if
-  ipq0 = ipq0+nbi*(nbi+1)/2
+  ipq0 = ipq0+nTri_Elem(nbi)
   imo0 = imo0+nbi**2
   ib = ib+nbi
 end do
@@ -288,7 +288,7 @@ do isym=1,nsym
       end if
     end do
   end if
-  ipq0 = ipq0+nbi*(nbi+1)/2
+  ipq0 = ipq0+nTri_Elem(nbi)
   imo0 = imo0+nbi**2
   ib = ib+nbi
 end do

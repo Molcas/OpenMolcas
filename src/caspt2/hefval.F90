@@ -18,7 +18,8 @@ subroutine hefval(ist,jst,dvalue)
 ! vector is stored. This depends on the MOs used, but is actually
 ! the same for all the root states.
 
-use printLevel, only: debug
+use Index_Functions, only: nTri3_Elem
+use PrintLevel, only: debug
 use eqsolv, only: iVecC, iVecW
 use caspt2_global, only: idtcex, iPrGlb, luciex
 use caspt2_module, only: iSCF, MxCI, nAshT, nConf, nState, STSym
@@ -40,7 +41,7 @@ real(kind=wp), allocatable :: ci1(:), ci2(:), tg1(:), tg2(:), tg3(:)
 
 ntg1 = nasht**2
 ntg2 = nasht**4
-ntg3 = (ntg1*(ntg1+1)*(ntg1+2))/6
+ntg3 = nTri3_Elem(ntg1)
 ! Note: Need proper allocation even if unused, since allocated
 ! arrays are in subroutine parameter lists of MKTG3, HCOUP.
 ntg1 = max(1,ntg1)

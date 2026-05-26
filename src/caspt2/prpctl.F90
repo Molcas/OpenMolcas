@@ -19,6 +19,7 @@
 
 subroutine PRPCTL(MODE,UEFF,U0,nState)
 
+use Index_Functions, only: nTri_Elem
 use PT2WFN, only: PT2WFN_DENSSTORE
 use OneDat, only: sNoNuc, sNoOri
 use PrintLevel, only: USUAL, VERBOSE
@@ -101,7 +102,7 @@ NDMAT = 0
 NOCC = sum(NBAS(1:NSYM))
 if (MODE == 0) then
   !! Density matrix for each state (single-state)
-  NDMAT = sum((NORB(1:NSYM)**2+NORB(1:NSYM))/2)
+  NDMAT = sum(nTri_Elem(NORB(1:NSYM)))
   call mma_allocate(DMAT,NDMAT,Label='DMAT')
   DMAT(:) = Zero
   call mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
@@ -114,7 +115,7 @@ else
   !! the density computed here is what we call a correct unrelaxed
   !! correlated CASPT2 density
   !! Called after gradient calculations, only, from GrdCls
-  NDMAT = sum((NBAS(1:NSYM)**2+NBAS(1:NSYM))/2)
+  NDMAT = sum(nTri_Elem(NBAS(1:NSYM)))
   call mma_allocate(DMAT,NDMAT,Label='DMAT')
   DMAT(:) = Zero
   !! Copy the unrelaxed density matrix to triangular
@@ -162,7 +163,7 @@ else
       TG1(:,:) = SCAL*TG1(:,:)
       do II=1,NASH(1)
         II2 = II+NFRO(1)+NISH(1)
-        IJ2 = II2*(II2-1)/2+NFRO(1)+NISH(1)
+        IJ2 = nTri_Elem(II2-1)+NFRO(1)+NISH(1)
         DMAT(IJ2+1:IJ2+II) = DMAT(IJ2+1:IJ2+II)+(TG1(II,1:II)+TG1(1:II,II))*Half
       end do
     end do
@@ -310,7 +311,7 @@ if (IPRGLB >= USUAL) then
   write(u6,'(6X,A)') '-----------------------------------------'
 end if
 
-nDens = sum(nBas(1:nSym)*(nBas(1:nSym)+1)/2)
+nDens = sum(nTri_Elem(nBas(1:nSym)))
 call mma_allocate(Scr,NDENS,Label='Scr')
 
 call DOne_Caspt2(CNAT,nCMO,OCC,nOcc,Scr,nDENS)

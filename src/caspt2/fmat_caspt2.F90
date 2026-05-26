@@ -30,6 +30,7 @@ subroutine FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,DREF,NDREF,HONE,nHONE)
 ! FIMO AND FAMO.
 ! CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
 
+use Index_Functions, only: iTri, nTri_Elem
 use caspt2_global, only: LUINTM
 use caspt2_module, only: NAES, NISH, NoMx, NORB, NOSH, NoTri, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -82,17 +83,17 @@ subroutine Do_Loops(icase)
   do ISYR=1,NSYM
     NBR = NORB(ISYR)
     if (NBR == 0) cycle
-    NB3 = (NBR**2+NBR)/2
+    NB3 = nTri_Elem(NBR)
     NBNB = NBR**2
     ISYS = ISYR
-    IS3RS = (ISYR**2+ISYR)/2
+    IS3RS = nTri_Elem(ISYR)
     do ISYP=1,NSYM
       NIP = NISH(ISYP)
       NOP = NOSH(ISYP)
       NAESP = NAES(ISYP)
       if (NOP == 0) cycle
       ISYQ = ISYP
-      IS3PQ = (ISYP*(ISYP+1))/2
+      IS3PQ = nTri_Elem(ISYP)
       ISADDR = IS3RS+NDIM2M*(IS3PQ-1)
       IDISK1 = IAD2M(iCase,ISADDR)
       if (IDISK1 == 0) then
@@ -128,7 +129,7 @@ subroutine Do_Loops(icase)
           else if ((IT > NIP) .and. (IT <= NOP) .and. (IU > NIP) .and. (IU <= NOP)) then
             ITABS = NAESP+(IT-NIP)
             IUABS = NAESP+(IU-NIP)
-            ITU = (ITABS*(ITABS-1))/2+IUABS
+            ITU = iTri(ITABS,IUABS)
             DTU = DREF(ITU)
             if (IT == IU) DTU = half*DTU
             call DDAFILE(LUINTM,2,BUF,nInts,IDISK1)

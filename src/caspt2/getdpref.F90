@@ -14,6 +14,7 @@ subroutine GETDPREF(DREF,NDREF,PREF,NPREF)
 ! GAMMA2, and construct DREF and PREF which are in a tringular
 ! storage.
 
+use Index_Functions, only: iTri, nTri_Elem
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG
 use caspt2_module, only: NASHT, NG1, NG2
@@ -36,7 +37,7 @@ if (NASHT == 0) return
 call mma_allocate(G1,NG1,LABEL='G1')
 call PT2_GET(NG1,'GAMMA1',G1)
 do I=1,NASHT
-  IJ = (I*(I-1))/2
+  IJ = nTri_Elem(I-1)
   DREF(IJ+1:IJ+I) = G1(I:I+NASHT*(I-1):NASHT)
 end do
 call mma_deallocate(G1)
@@ -63,18 +64,10 @@ do I=1,NASHT
 
         P1 = Half*G2(IJ+N2*(KL-1))
         P2 = Half*G2(IJ+N2*(LK-1))
-        if (IJ >= KL) then
-          IJKL = (IJ*(IJ-1))/2+KL
-        else
-          IJKL = (KL*(KL-1))/2+IJ
-        end if
-        if (IJ >= LK) then
-          IJLK = (IJ*(IJ-1))/2+LK
-        else
-          IJLK = (LK*(LK-1))/2+IJ
-        end if
-        JIKL = (JI*(JI-1))/2+KL
-        JILK = (JI*(JI-1))/2+LK
+        IJKL = iTri(IJ,KL)
+        IJLK = iTri(IJ,LK)
+        JIKL = iTri(JI,KL)
+        JILK = iTri(JI,LK)
         PREF(IJKL) = P1
         PREF(IJLK) = P2
         PREF(JIKL) = P2

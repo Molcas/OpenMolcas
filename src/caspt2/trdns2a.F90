@@ -24,6 +24,7 @@ subroutine TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 ! The present solution gives just a reasonable approximation,
 ! with correct trace.
 
+use Index_Functions, only: iTri
 use PrintLevel, only: VERBOSE
 use caspt2_global, only: DREF, iPrGlb
 use caspt2_module, only: nActEl, nAES, nAsh, nAshT, nInDep, nIsh, nISup, nOrb, nSym
@@ -86,7 +87,7 @@ do ISYM=1,NSYM
     do IU=1,IT
       IUQ = NI+IU
       IUABS = NAES(ISYM)+IU
-      DR = DREF((ITABS*(ITABS-1))/2+IUABS)
+      DR = DREF(iTri(ITABS,IUABS))
       D = COEF2*DR
       if (IT == IU) D = D+Two*COEF1
       ITU = ITQ+NO*(IUQ-1)
