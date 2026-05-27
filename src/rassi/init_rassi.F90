@@ -26,7 +26,7 @@ use Cntrl, only: BINA, CIH5, CITHR, DCHO, DCHS, DIPR, Do_Pol, Do_SK, DO_TMOM, Do
                  SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDIPMIN, TDYS, TMGR_Thrs, ToFile, TOLERANCE, TRACK, NCOUP, NMass_set,&
                  NSpin_set, GNuc_set, AutoSelect_GFac, Hypo_Iso, HypF_rms_Req
 use rassi_data, only: WFTYPE
-use hfc_logical, only: MAG_X2C
+use hfc_logical, only: MagX2C_Avail
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -174,7 +174,7 @@ LPRPR = .false.
 LHAMI = .false.
 
 ! Hyperfine Coupling and pNMR (hfcop.F90)
-MAG_X2C = .false.
+MagX2C_Avail = .false.
 DEGEN_ETHR = 1.0E-6_wp
 NCOUP = 0_iwp
 NMass_set = .false.

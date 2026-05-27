@@ -41,6 +41,7 @@ use rasscf_global, only: doDMRG
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use HFC_logical, only: MagX2C_Req
 
 implicit none
 integer(kind=iwp) :: corest, I, IJOB, ISTATE, istatus, J, JSTATE, LINENR, LuIn, nesta, nestb, NFLS
@@ -941,6 +942,15 @@ subroutine gen_hfc_prop_labels()
   !          In that case, property indices (ASD, PSOP) can be fed directly to the HFCOP subroutine.
 
 
+  ! Check RX2C, MXTC to make sure that we don't calculate wrong numbers.
+  call Get_iScalar('RX2C/MXTC_SEWARD', MagX2C_Req)
+  if (MagX2C_Req == -1) call WarningMessage(2, "RX2C is used in SEWARD, but MXTC is not requested. Please use both keywords for relativistic HFC/pNMR calculation.")
+  ! Note: For non-relativsitic calc, this subroutine can change the label to 'ASDO' instead of 'ASD'.
+  !       However, PSOP is not calculated in SEWARD (without RX2C, MXTC), therefore only FC, SD are available.
+  !       Furthermore, users are interested in FC+SD+PSO
+  if (MagX2C_Req == -2) call WarningMessage(2, "For non-relativsitc HFC/pNMR calculations, please use both keywords RX2C, MXTC in &SEWARD and set clight to a large value.")
+  if (MagX2C_Req < 0) call Quit_OnUserError()
+
   call mma_allocate(ASD_idx,NAtoms,6,'LASD')
   call mma_allocate(PSO_idx,NAtoms,3,'LPSO')
 
@@ -977,6 +987,7 @@ subroutine gen_hfc_prop_labels()
       AngMom_idx(iC) = NPROP
     end do
   end if
+
 end subroutine
 
 end subroutine READIN_RASSI

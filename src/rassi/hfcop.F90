@@ -34,7 +34,7 @@ module hyperfine
                          NucMass, NMass_set, NucSpin, NSpin_set, GNuc, GNuc_set, Hypo_Iso, &
                          AutoSelect_GFac, LCSTATES, NCOUP, NTP, TMINP, TMAXP, DEGEN_ETHR
 
-  use HFC_logical, only: MAG_X2C
+  use HFC_logical, only: MagX2C_Req
 
   implicit none
 
@@ -105,12 +105,6 @@ module hyperfine
     real(kind=wp), intent(in)       ::  PROP(NSTATE,NSTATE,NPROP), USOR(:,:), USOI(:,:)
 
     integer(kind=iwp)               :: iAtom
-
-    if (.not. MAG_X2C) then
-      write(u6,*) "The HFCOper, HFCAt, NMRAt options require the RX2C and MXTC keywords in &SEWARD."
-      write(u6,*) "For the non-relativistic limit, set CLIGHT in &SEWARD to a large value."
-      call AbEnd()
-    endif
 
 
 ! Setup reused variables------------------------------
@@ -1125,10 +1119,13 @@ end subroutine assign_abc_signs
     fnorm_off_diag = dnrm2_(9, tmpmat, 1)
 
     if (fnorm_off_diag/fnorm_diag > 0.05_wp) then
-      write(u6,*) ''
-      write(u6,*) ''
-      write(u6,'(3X,A48,F6.4,A5)') 'WARNING: Relative Frobenius diag/off-diag norm: ', 100.0_wp * fnorm_off_diag/fnorm_diag, " > 5%"
+      call WarningMessage(1, "Relative Frobenius diag/off-diag norm > 5%")
     end if
+
+    if (any(EVR(:) < Zero)) then
+      call WarningMessage(2, "Negative eigenvalues found. Cannot take square root.")
+      call AbEnd()
+    endif
 
     ! principal values (sqrt of diagonal elements)
     prin_vals(iACalc,iContr,:) = SQRT(EVR(:))
