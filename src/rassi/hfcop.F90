@@ -34,7 +34,6 @@ module hyperfine
                          NucMass, NMass_set, NucSpin, NSpin_set, GNuc, GNuc_set, Hypo_Iso, &
                          AutoSelect_GFac, LCSTATES, NCOUP, NTP, TMINP, TMAXP, DEGEN_ETHR
 
-  use HFC_logical, only: MagX2C_Req
 
   implicit none
 
