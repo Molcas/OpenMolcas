@@ -30,7 +30,7 @@ use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
-                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth
+                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth,Debug
 use loc_procedures, only: s_gek_localisation
 use filesystem, only: getcwd_, mkdir_
 
@@ -180,12 +180,12 @@ select case(AnalyseLoc)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end select
 
-select case (OptMeth)
+!select case (OptMeth)
 
-case (1,6)
+!case (1,6)
     call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
 
-case (2,3,4,5)
+!case (2,3,4,5)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:)) ! gets the initial gradient
     FuncList(1) = -Functional
     GradList(:,1) = -Gradient(:)
@@ -204,11 +204,11 @@ case (2,3,4,5)
     end BLOCK
 #   endif
 
-case default
-    write(u6,*) "ERROR: for the selected OptMeth, there exists no initialisation"
-    call Abend()
+!case default
+!    write(u6,*) "ERROR: for the selected OptMeth, there exists no initialisation"
+!    call Abend()
 
-end select
+!end select
 
 
 call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
@@ -268,6 +268,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     nIter = nIter+1
 
+    if (Debug) write(u6,*) "nIter = ", nIter
     if (inpOptMeth == 6) then
         if (GradNorm > gekthr_grad .and. .not. switched) then
             !request to start with one Jacobi Sweep, then switch to NR (6) or GEK (7)
@@ -285,10 +286,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         UpMeth = "JS  -"
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
+
+        !call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
+
         ! just for seeing how many positive diagonal elements
         call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
+
+        call RecPrt("Gradient","",Gradient,fsdim,1)
+        call RecPrt("Hdiag","",Hdiagvec,fsdim,1)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! N X N ROTATIONS
