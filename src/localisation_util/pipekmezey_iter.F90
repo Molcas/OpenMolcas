@@ -128,13 +128,13 @@ fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
 call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
 
-select case(InpOptMeth)
+!select case(InpOptMeth)
 
-case (1)
+!case (1)
 
     call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 
-case(2,3,4,5,6)
+!case(2,3,4,5,6)
 
     ! allocating matrices for NxN optimizations
 
@@ -160,11 +160,11 @@ case(2,3,4,5,6)
 
     if (OptMeth == 6) call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol',safe='*')
 
-case default
-     write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
-     call Abend()
+!case default
+!     write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
+!     call Abend()
 
-end select ! allocations
+!end select ! allocations
 
 ! Initialization
 
@@ -503,8 +503,8 @@ call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 ! deallocations
 if (allocated(PACol)) call mma_Deallocate(PACol)
 call mma_Deallocate(Hdiagvec)
-select case(InpOptMeth)
-case(2,3,4,5,6)
+!select case(InpOptMeth)
+!case(2,3,4,5,6)
     call mma_Deallocate(Gradient)
     call mma_Deallocate(kappa)
 
@@ -520,7 +520,7 @@ case(2,3,4,5,6)
     call mma_Deallocate(Disp)
     call mma_Deallocate(SearchDir)
 
-end select
+!end select
 
 call mma_Deallocate(Ovlp_sqrt)
 
