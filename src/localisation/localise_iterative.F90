@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 !#define _DEBUGPRINT_
-!#define _SCR_
+#define _SCR_
 
 subroutine Localise_Iterative(irc,Model,Functional)
 ! Author: T.B. Pedersen
@@ -38,7 +38,7 @@ logical(kind=iwp) :: Converged
 character(len=*), parameter :: SecNam = 'Localise_Iterative'
 
 #ifdef _SCR_
-if (ScrFac == Zero .and. OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 2) ScrFac = 0.5
+ScrFac = 0.5
 #endif
 
 irc = 0
