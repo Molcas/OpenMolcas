@@ -152,7 +152,7 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
             CALL GA_ACCESS (LG_SA,ILO,IHI,JLO,JHI,MA,LDA)
-            CALL MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
+            CALL MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,NAS,LDA,
      &                       NG3,G3,IDXG3)
             MSA=LDA*(jHi-jLo+1)
             CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
@@ -160,7 +160,7 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
      &                   ILO,IHI,JLO,JHI,LDA)
             CALL GA_RELEASE_UPDATE (LG_SA,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
+            CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDA,
      &                       NG3,G3,IDXG3)
           END IF
         ELSE
@@ -374,7 +374,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       END SUBROUTINE MKSA_G3
 
 #ifdef _MOLCAS_MPP_
-      SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,jLo,jHi,LDA,
+      SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,NAS,LDA,
      &                       NG3,G3,idxG3)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, MPIInt, Byte
@@ -387,8 +387,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer(kind=iwp), intent(in):: ISYM,iLo,iHi,jLo,jHi,LDA,NG3
-      real(kind=wp), intent(out):: SA(LDA,(jHi-jLo+1))
+      integer(kind=iwp), intent(in):: ISYM,iLo,iHi,NAS,LDA,NG3
+      real(kind=wp), intent(out):: SA(LDA,NAS)
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
@@ -407,7 +407,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
      &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP
       integer(kind=iwp) NG3MAX,NPROCS,
-     &                  MAXMEM,iscal,MAXBUF,NG3B,NBUF,NAS,NQOT,NREM,
+     &                  MAXMEM,iscal,MAXBUF,NG3B,NBUF,NQOT,NREM,
      &                  NBLOCKS,IBLOCK,IG3STA,IG3END,IROW,IP,
      &                  IOFFSET,I,ICOL,NRECV
       real(kind=wp)     G3VAL
@@ -460,7 +460,6 @@ C  - G(xvzyut) -> SA(yvx,zut)
 
       ! Finally, we need some info on the layout of the global array in
       ! order to compute the process row of the row index.
-      NAS=jHi-jLo+1
       NQOT=NAS/NPROCS
       NREM=NAS-NPROCS*NQOT
 
@@ -813,7 +812,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
         DO I=1,NRECV
           ISUP=RECVIDX(2*I-1)
           JSUP=RECVIDX(2*I)
-          SA(ISUP-ILO+1,JSUP-JLO+1)=RECVVAL(I)
+          SA(ISUP-ILO+1,JSUP)=RECVVAL(I)
         END DO
 
         call MMA_DEALLOCATE(RECVVAL)
@@ -1016,7 +1015,7 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
             CALL GA_ACCESS (LG_SC,ILO,IHI,JLO,JHI,MC,LDC)
-            CALL MKSC_G3_MPP(ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC,
+            CALL MKSC_G3_MPP(ISYM,DBL_MB(MC),ILO,IHI,NAS,LDC,
      &                       NG3,G3,IDXG3)
             MSC=LDC*(jHi-jLo+1)
             CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
@@ -1024,7 +1023,7 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
      &                   ILO,IHI,JLO,JHI,LDC)
             CALL GA_RELEASE_UPDATE (LG_SC,ILO,IHI,JLO,JHI)
           ELSE
-            CALL MKSC_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDC,
+            CALL MKSC_G3_MPP(ISYM,DUMMY,ILO,IHI,NAS,LDC,
      &                       NG3,G3,IDXG3)
           END IF
         ELSE
@@ -1230,8 +1229,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
       END SUBROUTINE MKSC_G3
 
 #ifdef _MOLCAS_MPP_
-      SUBROUTINE MKSC_G3_MPP(ISYM,SC,iLo,iHi,jLo,jHi,LDC,
-     &                       NG3,G3,idxG3)
+      SUBROUTINE MKSC_G3_MPP(ISYM,SC,iLo,iHi,NAS,LDC,NG3,G3,idxG3)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, Byte, MPIInt
       USE MPI
@@ -1243,8 +1241,8 @@ C  - G(xvzyut) -> SC(zvx,yut)
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer(kind=iwp) ISYM,iLo,iHi,jLo,jHi,LDC,NG3
-      real(kind=wp), intent(out):: SC(LDC,jHi-jLo+1)
+      integer(kind=iwp) ISYM,iLo,iHi,NAS,LDC,NG3
+      real(kind=wp), intent(out):: SC(LDC,NAS)
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
@@ -1263,7 +1261,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
       integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
      &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP
       integer(kind=iwp) NG3MAX,NPROCS,MAXMEM,ISCAL,MAXBUF,NG3B,
-     &                  NBUF,NAS,NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,
+     &                  NBUF,NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,
      &                  IROW,IP,IOFFSET,I,ICOL,NRECV
       real(kind=wp) G3VAL
 
@@ -1314,7 +1312,6 @@ C  - G(xvzyut) -> SC(zvx,yut)
 
       ! Finally, we need some info on the layout of the global array in
       ! order to compute the process row of the row index.
-      NAS=jHi-jLo+1
       NQOT=NAS/NPROCS
       NREM=NAS-NPROCS*NQOT
 
@@ -1655,7 +1652,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
         DO I=1,NRECV
           ISUP=RECVIDX(2*I-1)
           JSUP=RECVIDX(2*I)
-          SC(ISUP-ILO+1,JSUP-JLO+1)=RECVVAL(I)
+          SC(ISUP-ILO+1,JSUP)=RECVVAL(I)
         END DO
 
         call MMA_DEALLOCATE(RECVVAL)

@@ -146,6 +146,7 @@ set (sources
      upki4.F90
      upkr8.F90
      veig.F90
+     wigner_util.F90
      wr_motra_info.F90
      wr_rasscf_info.F90
      wrh.F90
@@ -164,6 +165,7 @@ set (modfile_list
      sorting_funcs.F90
      spool.F90
      twodat.F90
+     wigner_util.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

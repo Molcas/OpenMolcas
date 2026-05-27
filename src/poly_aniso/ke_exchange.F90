@@ -14,6 +14,7 @@ subroutine KE_exchange(N1,N2,lant,t,u,OPT,HEXC)
 
 use jcoeff, only: dE, init_Jx, Jx
 use stdalloc, only: mma_allocate, mma_deallocate
+use wigner_util, only: wcg
 use Constants, only: Zero, cOne, auTocm, auToeV
 use Definitions, only: wp, iwp, u6
 
@@ -25,7 +26,6 @@ integer(kind=iwp) :: i1, i2, iJ, iK, ika, iLS, iP, iph, j1, j2, JLn, ms1, ms2, n
 real(kind=wp) :: Jfinal(0:7,-5:5,0:1,-1:1)
 real(kind=wp), allocatable :: HEXC1(:,:,:,:)
 real(kind=wp), parameter :: conv = 1.0e3_wp*auToeV/auTocm ! cm-1 to meV?
-real(kind=wp), external :: WCG ! Clebsch-Gordan Coefficients
 
 call init_Jx()
 call mma_allocate(HEXC1,N1,N1,N2,N2,label='HEXC1')

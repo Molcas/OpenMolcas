@@ -143,13 +143,14 @@ module hyperfine
 
 !======================================================================
   subroutine setup_hfc_calc(JBNUM, USOR, USOI)
+    use wigner_util, only: dclebs
     integer(kind=iwp), intent(in)   :: JBNUM(NSTATE)
     real(kind=wp),intent(in)        :: USOR(:,:), USOI(:,:)
 
     integer(kind=iwp),allocatable   :: MAPSP(:), MAPMS(:)
     integer(kind=iwp)               :: MSPROJ,  MPLET, ISS, JSS, JOB, ISTATE
     real(kind=wp)                   :: S1, S2, SM1, SM2,FACT, MPLET1,MSPROJ1, MPLET2, MSPROJ2,   &
-                                       CGm, CGp, DCLEBS
+                                       CGm, CGp
     real(kind=wp), allocatable      :: rtemp(:)
 
     ! Form transformation matrix USO with complex numbers
@@ -1026,7 +1027,8 @@ end subroutine
 
 !======================================================================
 subroutine assign_abc_signs(a,b,c,is_determined)
-  real(kind=wp), intent(out)    :: a, b, c
+  real(kind=wp), intent(in)     ::  a
+  real(kind=wp), intent(out)    ::  b, c
   logical,intent(out)           :: is_determined
 
   real(kind=wp)                 :: tol, max_left_absval, abs_a,abs_b,abs_c
