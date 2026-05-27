@@ -584,7 +584,7 @@ subroutine StepSizeChecks()
     largest = Disp(maxel)
 
     ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
-    if (large_elements == 0 .and. GradNorm < gekthr_grad) then
+    if (large_elements == 0 .and. GradNorm < gekthr_grad .and. npos==0) then
         GEKRange = .true.
         SORange = .true.
     end if
