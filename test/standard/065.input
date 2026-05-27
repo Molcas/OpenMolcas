@@ -341,6 +341,30 @@ ssss
   OPTMethod=NEWTon
   FileOrb = LOCORB
 
+* Now with S-GEK method
+&LOCALISATION
+  Occupied
+  OPTMethod=GEK
+  FileOrb = SCFORB
+
+&LOCALISATION
+  Virtual
+  OPTMethod=GEK
+  FileOrb = LOCORB
+
+
+* Now with S-GEK method
+&LOCALISATION
+  Occupied
+  OPTMethod=SGEK
+  FileOrb = SCFORB
+
+&LOCALISATION
+  Virtual
+  OPTMethod=SGEK
+  FileOrb = LOCORB
+
+
 * Other localisation methods
 &LOCALISATION
   Boys
