@@ -11,7 +11,7 @@
 
 subroutine SG_CXInit(SGS,CIS,EXS)
 
-use sguga, only: CIStruct, EXStruct, SGStruct, MkSeg, NrCoup, MkCoup
+use sguga, only: CIStruct, EXStruct, MkCoup, MkSeg, NrCoup, SGStruct
 use stdalloc, only: mma_deallocate
 
 implicit none

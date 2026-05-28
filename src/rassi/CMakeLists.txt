@@ -19,7 +19,6 @@ set (sources
      cntrl.F90
      cplot_diag.F90
      cre_rassiwfn.F90
-     dclebs.F90
      dens2file.F90
      dens2hdf5.F90
      desym_sonto.F90
@@ -163,7 +162,6 @@ set (sources
      srtdm2.F90
      syg2sgu.F90
      sygtosd.F90
-     threej.F90
      tmomint.F90
      track_state.F90
      tracr.F90

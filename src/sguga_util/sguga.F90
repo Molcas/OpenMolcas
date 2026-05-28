@@ -14,8 +14,10 @@ module SGUGA
 use Molcas, only: MxLev
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
 
 implicit none
 private
@@ -47,15 +49,10 @@ type(SGStruct), target :: SGS
 type(CIStruct), target :: CIS
 type(EXStruct), target :: EXS
 
-
 integer(kind=iwp) :: iq
 integer(kind=iwp), protected :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
 integer(kind=iwp), protected :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 
-public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
-
-public :: SG_Init, MKSGUGA, MkCOT, MkCList, MkMAW, MkSeg, NrCOUP, MkCoup, MkSgNum, SG_Free
-public :: SG_Init_Simple
 
 ! This lists 26 different types of segments, i=1,...,26
 !  1- 4: segments of the head walk from the loop head to the graph head
@@ -71,12 +68,14 @@ public :: SG_Init_Simple
 ! IBVPT(i):
 !  ISVC(i): the index ISVC(i), tells which formula to use to compute the segment value of the associated segment
 ! ITVPT(i):
-integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0, 1,1,2,2, 1,1,2,1,1, 2,2,1,2,2, 3,3,3,3, 3,3,3,3], &
-                                IC1(26)   = [0,1,2,3, 0,2,0,1, 0,1,1,2,3, 0,1,2,2,3, 1,3,2,3, 0,1,2,3], &
-                                IC2(26)   = [0,1,2,3, 1,3,2,3, 0,1,2,2,3, 0,1,1,2,3, 0,2,0,1, 0,1,2,3], &
-                                ISVC(26)  = [1,1,1,1, 1,6,1,5, 1,2,4,7,2, 1,7,3,2,2, 1,5,1,6, 1,1,1,1], &
-                                ITVPT(26) = [0,0,0,0, 0,0,0,0, 1,1,1,1,1, 2,2,2,2,2, 1,1,2,2, 3,3,3,3]
+integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
+                                IC1(26)   = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
+                                IC2(26)   = [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3], &
+                                ISVC(26)  = [1,1,1,1,1,6,1,5,1,2,4,7,2,1,7,3,2,2,1,5,1,6,1,1,1,1], &
+                                ITVPT(26) = [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3]
 
+public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCList, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
+          SG_Init, SG_Init_Simple, SGS, SGStruct
 
 contains
 
@@ -144,7 +143,6 @@ subroutine MKSGUGA(SGS,CIS)
   call MKMID(SGS)
 
 contains
-
 
   subroutine mknVert0(SGS)
 
@@ -284,6 +282,7 @@ contains
   subroutine mkRAS(SGS)
 
     use UnixInfo, only: ProgName
+
     type(SGStruct), target, intent(inout) :: SGS
 
     if (ProgName(1:5) == 'rassi') then
@@ -507,7 +506,7 @@ contains
 subroutine RMVERT(SGS)
 ! Purpose: Remove vertices from a DRT table.
 
-use RasDef, only: nRas, nRsPrt, nRasEl
+use RasDef, only: nRas, nRasEl, nRsPrt
 
 implicit none
 type(SGStruct), intent(inout) :: SGS
@@ -626,7 +625,6 @@ end subroutine RMVERT
 subroutine RESTR(SGS)
 ! PURPOSE: PUT THE RAS CONSTRAINT TO THE DRT TABLE BY CREATING A MASK
 
-implicit none
 type(SGStruct), intent(inout) :: SGS
 integer(kind=iwp) :: IC, ID, IV, IVD, IVV, LEV, MASK, N
 integer(kind=iwp), parameter :: i_and(0:3,0:3) = reshape([0,0,0,0,0,1,0,1,0,0,2,2,0,1,2,3],[4,4]), &
@@ -702,51 +700,44 @@ end subroutine RESTR
 
 end subroutine MKSGUGA
 
+subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
 
-SUBROUTINE SG_Init_Simple(nSym,nActEl,iSpin,                   &
-                          SGS,CIS,EXS,                         &
-                          nHole1,nEle3,nRs1,nRs2,nRs3,         &
-                          xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
-IMPLICIT None
-Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
-Type(SGStruct), intent(inout):: SGS
-Type(CIStruct), intent(inout):: CIS
-Type(EXStruct),  optional, intent(inout):: EXS
-Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
-Integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
-Integer(kind=iwp), optional, intent(in):: xNLEV, xNSM(MxLev)
-Logical(kind=iwp), optional, intent(in):: Do_MkSGUGA
-
-Integer(kind=iwp) :: nRas1T,nRas2T,nRas3T,IS
-
+  integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
+  type(SGStruct), intent(inout) :: SGS
+  type(CIStruct), intent(inout) :: CIS
+  type(EXStruct), optional, intent(inout) :: EXS
+  integer(kind=iwp), optional, intent(in) :: nHole1, nEle3, nRs1(nSym), nRs2(nSym), nRs3(nSym), xLevel(MxLev), xL2Act(MxLev), &
+                                             xNLEV, xNSM(MxLev)
+  logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
+  integer(kind=iwp) :: IS, nRas1T, nRas2T, nRas3T
 
 ! Make sure that we start from a clean slate.
-If (Present(EXS)) THEN
+  if (present(EXS)) then
    ! Here if the extended parameter list was used.
-   Call SG_Free(SGS,CIS,EXS)
-Else
+    call SG_Free(SGS,CIS,EXS)
+  else
    ! Here if the terse parameter list was used.
-   Call SG_Free(SGS,CIS)
-End If
+    call SG_Free(SGS,CIS)
+  end if
 
-If (nSym<1 .or. nSym>8) Then
-   Write (u6,*) ' SG_Init_Simple: illegal nSym value:', nSym
-   Call Abend()
-End If
-If (iSpin<1) Then
-   Write (u6,*) ' SG_Init_Simple: illegal iSpin value:', iSpin
-   Call Abend()
-End If
-If (nActEl<0) Then
-   Write (u6,*) ' SG_Init_Simple: illegal nActEl value:', nActEl
-   Call Abend()
-End If
+  if (nSym < 1 .or. nSym > 8) then
+    write(u6,*) ' SG_Init_Simple: illegal nSym value:',nSym
+    call Abend()
+  end if
+  if (iSpin < 1) then
+    write(u6,*) ' SG_Init_Simple: illegal iSpin value:',iSpin
+    call Abend()
+  end if
+  if (nActEl < 0) then
+    write(u6,*) ' SG_Init_Simple: illegal nActEl value:',nActEl
+    call Abend()
+  end if
 
 SGS%nSym=nSym
 SGS%iSpin=iSpin
 SGS%nActEl=nActEl
 
-If (Present(EXS)) THEN
+  if (present(EXS)) then
 
    nRAS1T = sum(nRs1(1:nSym))
    nRAS2T = sum(nRs2(1:nSym))
@@ -756,27 +747,27 @@ If (Present(EXS)) THEN
    SGS%LV3RAS=nRAS1T+NRAS2T
    SGS%LM1RAS=2*nRas1T-NHOLE1
    SGS%LM3RAS=NACTEL-NELE3
-   IF ((NRAS1T+NRAS3T)/=0) Then
+    if ((NRAS1T+NRAS3T) /= 0) then
       SGS%IFRAS=1
       do IS=1,NSYM
          if (nRs1(IS)+nRs2(IS)+nRs3(IS) /= 0) SGS%IFRAS = SGS%IFRAS+1
       end do
 
-   Else
+    else
       SGS%IFRAS=0
-   End If
-Else
+    end if
+  else
    SGS%LV1RAS=0
    SGS%LV3RAS=0
    SGS%LM1RAS=0
    SGS%LM3RAS=0
-End IF
+  end if
 
-If (Present(xLevel)) Level(:)=xLevel(:)
-If (Present(xL2Act)) L2Act(:)=xL2Act(:)
+  if (present(xLevel)) Level(:) = xLevel(:)
+  if (present(xL2Act)) L2Act(:) = xL2Act(:)
 ! Initiate if not already set externally.
-If (LEVEL(1)==0) LEVEL(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
-If (L2Act(1)==0) L2Act(1:SGS%nLev)=[(iq,iq=1,SGS%nLev)]
+  if (LEVEL(1) == 0) LEVEL(1:SGS%nLev) = [(iq,iq=1,SGS%nLev)]
+  if (L2Act(1) == 0) L2Act(1:SGS%nLev) = [(iq,iq=1,SGS%nLev)]
 
 ! CREATE THE SYMMETRY INDEX VECTOR
 
@@ -785,68 +776,58 @@ SGS%NLEV = xnLEV
 call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
 SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
-If (Present(Do_MkSGUGA)) Then
-   If (Do_MkSGUGA) Call MkSGUGA(SGS,CIS)
-Else
-   Call MkSGUGA(SGS,CIS)
-End If
+  if (present(Do_MkSGUGA)) then
+    if (Do_MkSGUGA) call MkSGUGA(SGS,CIS)
+  else
+    call MkSGUGA(SGS,CIS)
+  end if
 
-END SUBROUTINE SG_Init_Simple
+end subroutine SG_Init_Simple
 
-SUBROUTINE SG_Init(nSym,nActEl,iSpin,                   &
-                  SGS,CIS,EXS,                          &
-                  nHole1,nEle3,nRs1,nRs2,nRs3,          &
-                  xLevel,xL2Act,xNLEV,xNSM)
-IMPLICIT None
-Integer(kind=iwp), intent(in):: nSym,nActEl,iSpin
-Type(SGStruct), intent(inout):: SGS
-Type(CIStruct), intent(inout):: CIS
-Integer(kind=iwp), optional, intent(in):: nHole1,nEle3,nRs1(nSym),nRs2(nSym),nRs3(nSym)
-Type(EXStruct),  optional, intent(inout):: EXS
-Integer(kind=iwp), optional, intent(in):: xLevel(MxLev), xL2Act(MxLev)
-Integer(kind=iwp), optional, intent(in):: xnLev, xNSM(MxLev)
+subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xNLEV,xNSM)
 
-Call SG_Init_Simple(nSym,nActEl,iSpin,                   &
-                    SGS,CIS,EXS,                         &
-                    nHole1,nEle3,nRs1,nRs2,nRs3,         &
-                    xLevel,xL2Act,xnLev,xNSM)
+  integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
+  type(SGStruct), intent(inout) :: SGS
+  type(CIStruct), intent(inout) :: CIS
+  integer(kind=iwp), optional, intent(in) :: nHole1, nEle3, nRs1(nSym), nRs2(nSym), nRs3(nSym), xLevel(MxLev), xL2Act(MxLev), &
+                                             xnLev, xNSM(MxLev)
+  type(EXStruct), optional, intent(inout) :: EXS
+
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xnLev,xNSM)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
-CALL MKMAW(SGS)
+  call MKMAW(SGS)
 
-If (Present(EXS)) THEN
+  if (present(EXS)) then
 !     FORM VARIOUS OFFSET TABLES:
 !     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
 !           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
-!
-   CALL MKCOT(SGS,CIS)
-!
+
+    call MKCOT(SGS,CIS)
+
 !     CONSTRUCT THE CASE LIST
-!
-   Call MKCLIST(SGS,CIS)
+
+    call MKCLIST(SGS,CIS)
 
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
 
-   CALL MKSEG(SGS,CIS,EXS)
+    call MKSEG(SGS,CIS,EXS)
 
 ! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
 
-   CALL NRCOUP(SGS,CIS,EXS)
+    call NRCOUP(SGS,CIS,EXS)
 
-   CALL MKCOUP(SGS,CIS,EXS)
-End If
+    call MKCOUP(SGS,CIS,EXS)
+  end if
 
-END SUBROUTINE SG_Init
+end subroutine SG_Init
 
 subroutine SG_Free(SGS,CIS,EXS)
 ! PURPOSE: FREE THE SGUGA TABLES
 
-#include "intent.fh"
-
-implicit none
 type(SGStruct), intent(_OUT_) :: SGS
 type(CIStruct), intent(_OUT_) :: CIS
 type(EXStruct), optional, intent(_OUT_) :: EXS
@@ -875,7 +856,7 @@ call mma_deallocate(CIS%VSGM,safe='*')
 call mma_deallocate(CIS%IVR,safe='*')
 call mma_deallocate(CIS%ISGM,safe='*')
 
-If (Present(EXS)) THEN
+  if (present(EXS)) then
    call mma_deallocate(EXS%NOCP,safe='*')
    call mma_deallocate(EXS%IOCP,safe='*')
    call mma_deallocate(EXS%ICoup,safe='*')
@@ -885,9 +866,10 @@ If (Present(EXS)) THEN
    call mma_deallocate(EXS%MVR,safe='*')
    call mma_deallocate(EXS%USGN,safe='*')
    call mma_deallocate(EXS%LSGN,safe='*')
-End If
+  end if
 
 end subroutine SG_Free
+
 subroutine MKCOT(SGS,CIS)
 ! PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
 ! NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
@@ -896,11 +878,13 @@ subroutine MKCOT(SGS,CIS)
 !          SINCE ONLY UPPER AND LOWER WALKS ARE REQUIRED
 !          THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
 
-implicit none
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
 integer(kind=iwp) :: IHALF, ILND, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, MV, NUW
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
+# ifdef _DEBUGPRINT_
+  integer(kind=iwp) :: IS
+# endif
 
 CIS%nIpWlk = 1+(SGS%MidLev-1)/15
 CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/15)
@@ -982,8 +966,6 @@ end do
 call CSFCOUNT(CIS,SGS%nSym,NUW)
 
 #ifdef _DEBUGPRINT_
-Block
-integer(kind=iwp) :: IS
 write(u6,*)
 write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
 write(u6,*) '                    LOWER ',CIS%nWalk-NUW
@@ -1002,7 +984,6 @@ do MV=1,CIS%nMidV
     write(u6,'(A,I2,A,8I6)') ' ISTP=',ISTP,'  CONFIGURATIONS:',(CIS%NOCSF(IS,MV,ISTP),IS=1,SGS%nSym)
   end do
 end do
-End Block
 #endif
 
 end subroutine MKCOT
@@ -1013,7 +994,6 @@ subroutine MKCLIST(SGS,CIS)
 !          IN THE ARRAY ICASE. GROUPS OF 15 CASES ARE PACKED
 !          INTO ONE INTEGER WORD.
 
-implicit none
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
 integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
@@ -1107,7 +1087,6 @@ end subroutine MKCLIST
 
 subroutine MKMAW(SGS)
 
-implicit none
 type(SGStruct), intent(inout) :: SGS
 integer(kind=iwp) :: IC, ID, ISUM, IU, IV
 
@@ -1160,7 +1139,6 @@ subroutine MKSEG(SGS,CIS,EXS)
 !    THE PALDUS TABLE DRT, ELSE IT IS THE BOTTOM LEFT VERTEX
 !    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGM.
 
-implicit none
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
@@ -1239,7 +1217,6 @@ do IVLT=1,SGS%nVert
     IVRT = IVLT
     if ((ITT == 1) .or. (ITT == 2)) IVRT = CIS%IVR(IVLT,ITT)
     if (IVRT == 0) cycle
-
     IVLB = SGS%Down(IVLT,IC1(ISGT))
     if (IVLB == 0) cycle
     IVRB = SGS%Down(IVRT,IC2(ISGT))
@@ -1296,7 +1273,6 @@ end subroutine MKSEG
 
 subroutine NRCOUP(SGS,CIS,EXS)
 
-implicit none
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
@@ -1578,7 +1554,6 @@ call mma_deallocate(NRL)
 
 end subroutine NRCOUP
 
-
 subroutine MKCOUP(SGS,CIS,EXS)
 ! Purpose: Compute and return the table ICOUP(1..3,ICOP).
 ! The number of coupling coeffs is obtained from NOCP, the offset to
@@ -1605,13 +1580,12 @@ subroutine MKCOUP(SGS,CIS,EXS)
 ! ISGPTH(ISEG ,LEV)=Segment type (1..26).
 ! These indices are used to denote the columns of table ISGPTH.
 
-implicit none
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
-integer(kind=iwp) :: i, i1, i2, IAWS, IC, ICL, ICOP, ICR, IHALF, iLnd, IndEO, iP, iPos, iQ, iS, iSg, iSgt, iSym, iT, iTyp, iTypMx, &
-                     iTypT, iVlb, iVlt, iVrt, iVrTop, iVTab, iVTEnd, iVTop, iVTSta, L, Lev, Lev1, Lev2, LftSym, LL, MV, nCheck, &
-                     nVTab_Final
+  integer(kind=iwp) :: i, i1, i2, IAWS, IC, ICL, ICOP, ICR, IHALF, iLnd, IndEO, iP, iPos, iQ, iS, iSg, iSgt, iSym, iT, iTyp, &
+                       iTypMx, iTypT, iVlb, iVlt, iVrt, iVrTop, iVTab, iVTEnd, iVTop, iVTSta, L, Lev, Lev1, Lev2, LftSym, LL, MV, &
+                       nCheck, nVTab_Final
 real(kind=wp) :: C
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I3, ICOP1, ICOP2, ICP1, ICP2, N, NRC, NRCPQ
@@ -2082,10 +2056,8 @@ call mma_deallocate(ISTEPVEC)
 
 end subroutine MKSGNUM
 
-
 subroutine CSFCOUNT(CIS,NSYM,NUW)
 
-implicit none
 type(CIStruct), intent(inout) :: CIS
 integer(kind=iwp), intent(in) :: NSYM
 integer(kind=iwp), intent(out) :: NUW
@@ -2132,7 +2104,5 @@ do ISYTOT=1,NSYM
 end do
 
 end subroutine CSFCOUNT
-
-
 
 end module SGUGA

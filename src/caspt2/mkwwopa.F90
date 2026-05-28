@@ -1,0 +1,199 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
+! Presently symmetry blocking is disregarded, but index pair
+! permutation symmetry is used.
+! NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
+! NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
+
+! Given the coefficients for two excitation operators of the
+! type VJTU = Case A, available in vectors numbered IVEC and
+! JVEC on file, construct the zero-, one-, two-, and three-body
+! expansions of the product (Op in IVEC conjugated)(Op in JVEC)
+! as operating on the CASSCF space.
+! Formula used:
+!  W1(tuv,i)(conj)*W2(xyz,j) = dij * (  -Evuxtyz -dyu Evzxt
+!                     - dyt Evuxz - dxu Evtyz - dxu dyt Evz
+!                     + 2 dtx Evuyz + 2 dtx dyu Evz )
+! ------------------------------------------------------------
+! PAM 2008: Sectioning over non-active superindices added
+! at Krapperup Labour Camp, May 2008. Some comments of changes
+! only at this routine; similar changes in MKWWOPB--MKWWOPH.
+! ------------------------------------------------------------
+
+use Index_Functions, only: iTri, nTri_Elem, nTri3_Elem
+use SUPERINDEX, only: MTUV
+use EQSOLV, only: MODVEC
+use caspt2_module, only: NASHT, NASUP, NINDEP, NISUP, NSYM, NTUVES
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: IVEC, JVEC, NOP2, NOP3
+real(kind=wp), intent(inout) :: OP1(NASHT,NASHT), OP2(NOP2), OP3(NOP3)
+integer(kind=iwp) :: ICASE, IIEND, IISTA, ISCT, ISYM, ITABS, ITUV, ITUVABS, ITUVEND, ITUVSTA, IUABS, IVABS, IVT, IVU, IVZ, IW1, &
+                     IW2, IWPROD, IXABS, IXT, IXYZ, IXYZABS, IXYZEND, IXYZSTA, IXZ, IYABS, IYZ, IZABS, JVTYZ, JVU, JVUXTYZ, JVUXZ, &
+                     JVUYZ, JVZXT, JXT, JYZ, LW1A, LW2A, MDVEC, MWS1, MWS2, NAS, NCOL, NIS, NWPROD, NWSCT
+real(kind=wp) :: W_PROD
+real(kind=wp), allocatable :: W1(:), W2(:), WPROD(:)
+
+ICASE = 1
+! Loop over symmetry ISYM
+do ISYM=1,NSYM
+  ! PAM2008: Added sectioning over non-active superindex
+  ! but this will obviously hardly affect this case.
+  NAS = NASUP(ISYM,ICASE)
+  NIS = NISUP(ISYM,ICASE)
+  !NW = NAS*NIS
+  if (NINDEP(ISYM,ICASE) == 0) cycle
+  ! Allocate space for this block of excitation amplitudes:
+  ! Sectioning sizes instead. Replaced code:
+  !call mma_allocate(W1,NW,Label='W1')
+  !call mma_allocate(W2,NW,Label='W2')
+  ! replace with:
+  ! Allocate space for one section of excitation amplitudes:
+  MDVEC = MODVEC(ISYM,ICASE)
+  call mma_allocate(W1,NAS*MDVEC,LABEL='W1')
+  call mma_allocate(W2,NAS*MDVEC,Label='W2')
+  ! Pick up a symmetry block of W1 and W2
+  !call RDBLKC(ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+  !call RDBLKC(ISYM,ICASE,JVEC,W2,NAS*MDVEC)
+  ! Allocate space for the contraction:
+  NWSCT = min(NAS,1000)
+  NWPROD = NWSCT**2
+  call mma_allocate(WPROD,NWPROD,Label='WPROD')
+  ! Sectioning loop added:
+  ISCT = 0
+  do IISTA=1,NIS,MDVEC
+    ISCT = ISCT+1
+    IIEND = min(IISTA-1+MDVEC,NIS)
+    NCOL = 1+IIEND-IISTA
+    call RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+    call RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
+    ! End of addition
+    ! Loop over sections of WW1 and WW2:
+    do ITUVSTA=1,NAS,NWSCT
+      LW1A = ITUVSTA
+      ITUVEND = min(ITUVSTA-1+NWSCT,NAS)
+      MWS1 = ITUVEND+1-ITUVSTA
+      do IXYZSTA=1,NAS,NWSCT
+        LW2A = IXYZSTA
+        IXYZEND = min(IXYZSTA-1+NWSCT,NAS)
+        MWS2 = IXYZEND+1-IXYZSTA
+        ! Multiply WProd = (W1 sect )*(W2 sect transpose)
+        !call DGEMM_('N','T',MWS1,MWS2,NIS,One,W1(LW1A),NAS,W2(LW2A),NAS,Zero,WPROD,NWSCT)
+        ! Replaced, due to sectioning over inactives:
+        WPROD(:) = Zero
+        call DGEMM_('N','T',MWS1,MWS2,NCOL,One,W1(LW1A),NAS,W2(LW2A),NAS,One,WPROD,NWSCT)
+        ! End of replacement
+
+        ! Loop over (TUV) in its section
+        do ITUV=ITUVSTA,ITUVEND
+          IW1 = ITUV+1-ITUVSTA
+          ITUVABS = ITUV+NTUVES(ISYM)
+          ITABS = MTUV(1,ITUVABS)
+          IUABS = MTUV(2,ITUVABS)
+          IVABS = MTUV(3,ITUVABS)
+          IVU = IVABS+NASHT*(IUABS-1)
+          ! Loop over (XYZ) in its section
+          do IXYZ=IXYZSTA,IXYZEND
+            IW2 = IXYZ+1-IXYZSTA
+            IXYZABS = IXYZ+NTUVES(ISYM)
+            IXABS = MTUV(1,IXYZABS)
+            IYABS = MTUV(2,IXYZABS)
+            IZABS = MTUV(3,IXYZABS)
+            IXT = IXABS+NASHT*(ITABS-1)
+            IYZ = IYABS+NASHT*(IZABS-1)
+            IWPROD = IW1+NWSCT*(IW2-1)
+            W_PROD = WPROD(IWPROD)
+            ! Remember:
+            !  W1(tuv,i)(conj)*W2(xyz,j) = dij * (  -Evuxtyz -dyu Evzxt
+            !                     - dyt Evuxz - dxu Evtyz - dxu dyt Evz
+            !                     + 2 dtx Evuyz + 2 dtx dyu Evz )
+            ! Contrib to 3-particle operator:
+            if (IVU < IXT) then
+              if (IVU >= IYZ) then
+                JVU = IXT
+                JXT = IVU
+                JYZ = IYZ
+              else if (IXT < IYZ) then
+                JVU = IYZ
+                JXT = IXT
+                JYZ = IVU
+              else
+                JVU = IXT
+                JXT = IYZ
+                JYZ = IVU
+              end if
+            else
+              if (IVU < IYZ) then
+                JVU = IYZ
+                JXT = IVU
+                JYZ = IXT
+              else if (IXT >= IYZ) then
+                JVU = IVU
+                JXT = IXT
+                JYZ = IYZ
+              else
+                JVU = IVU
+                JXT = IYZ
+                JYZ = IXT
+              end if
+            end if
+            JVUXTYZ = nTri3_Elem(JVU-1)+nTri_Elem(JXT-1)+JYZ
+            OP3(JVUXTYZ) = OP3(JVUXTYZ)-W_PROD
+            ! Contrib to 2-particle operator, from -dyu Evzxt:
+            if (IYABS == IUABS) then
+              IVZ = IVABS+NASHT*(IZABS-1)
+              IXT = IXABS+NASHT*(ITABS-1)
+              JVZXT = iTri(IVZ,IXT)
+              OP2(JVZXT) = OP2(JVZXT)-W_PROD
+            end if
+            ! Contrib to 2-particle operator, from -dyt Evuxz:
+            if (IYABS == ITABS) then
+              IVU = IVABS+NASHT*(IUABS-1)
+              IXZ = IXABS+NASHT*(IZABS-1)
+              JVUXZ = iTri(IVU,IXZ)
+              OP2(JVUXZ) = OP2(JVUXZ)-W_PROD
+              ! Contrib to 1-particle operator, from -dxu dyt Evz:
+              if (IXABS == IUABS) OP1(IVABS,IZABS) = OP1(IVABS,IZABS)-W_PROD
+            end if
+            ! Contrib to 2-particle operator, from -dxu Evtyz:
+            if (IXABS == IUABS) then
+              IVT = IVABS+NASHT*(ITABS-1)
+              IYZ = IYABS+NASHT*(IZABS-1)
+              JVTYZ = iTri(IVT,IYZ)
+              OP2(JVTYZ) = OP2(JVTYZ)-W_PROD
+            end if
+            ! Contrib to 2-particle operator, from +2 dtx Evuyz:
+            if (ITABS == IXABS) then
+              IVU = IVABS+NASHT*(IUABS-1)
+              IYZ = IYABS+NASHT*(IZABS-1)
+              JVUYZ = iTri(IVU,IYZ)
+              OP2(JVUYZ) = OP2(JVUYZ)+Two*W_PROD
+              ! Contrib to 1-particle operator, from +2 dtx dyu Evz:
+              if (IYABS == IUABS) OP1(IVABS,IZABS) = OP1(IVABS,IZABS)+Two*W_PROD
+            end if
+          end do
+        end do
+      end do
+    end do
+    ! PAM2008, an added sectioning loop
+  end do
+  ! Deallocate temporary space:
+  call mma_deallocate(W1)
+  call mma_deallocate(W2)
+  call mma_deallocate(WPROD)
+end do
+
+end subroutine MKWWOPA

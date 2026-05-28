@@ -121,16 +121,13 @@ real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Is_First_Iter
 character(len=180), external :: Get_LN
 #include "warnings.h"
-
-#ifdef _DMRG_
-Interface
-   subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
-   use Definitions, only: iwp
-   logical(kind=iwp), intent(inout):: DBG,SkipGUGA
-   integer(kind=iwp), allocatable, intent(inout) :: initial_occ(:,:)
-   End subroutine SG_Setup_RASSCF
-End Interface
-#endif
+interface
+  subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+    import :: iwp
+    logical(kind=iwp), intent(inout) :: DBG, SkipGUGA
+    integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
+  end subroutine SG_Setup_RASSCF
+end interface
 
 !...Dongxia note for GAS:
 !   No changing about read in orbital information from INPORB yet.
@@ -806,13 +803,13 @@ else
     do iAlter=1,NAlter
       ReadStatus = ' Failure reading data after ALTER keyword.'
       read(LUInput,*,iostat=istatus) (MAlter(iAlter,i),i=1,3)
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
+      if (istatus < 0) then
+        call Error(2)
+        return
+      else if (istatus > 0) then
+        call Error(3)
+        return
+      end if
       ReadStatus = ' O.K. after reading data after ALTER keyword.'
     end do
     ! (SVC) get absolute orbital values for the alterations so that
@@ -1373,10 +1370,10 @@ else
       Line = Get_Ln(LUInput)
       ReadStatus = ' Failure reading after CIROOTS keyword.'
       read(Line,*,iostat=istatus) (IROOT(I),I=1,NROOTS)
-    if (istatus /= 0) then
-      call Error(3)
-      return
-    end if
+      if (istatus /= 0) then
+        call Error(3)
+        return
+      end if
       ReadStatus = ' O.K.after CIROOTS keyword.'
       WEIGHT(:) = Zero
       if (NROOTS == 1) then
@@ -4052,9 +4049,9 @@ SkipGUGA = DoBlockDMRG
 ! Initiate the SGUGA environment conditional to all flags
 
 #ifdef _DMRG_
-Call SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+call SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
 #else
-Call SG_Setup_RASSCF(DBG,SkipGUGA)
+call SG_Setup_RASSCF(DBG,SkipGUGA)
 #endif
 
 ! ======================================================================

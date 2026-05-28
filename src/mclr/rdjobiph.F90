@@ -31,8 +31,8 @@ use Symmetry_Info, only: Mul
 use MckDat, only: sNew
 use MCLR_Data, only: CMO, FnJob, FnMck, G1t, G2t, IRLXROOT, ISNAC, ISTATE, LuJob, LuMck, nA, NACSTATES, nNA, NSSA, OVERRIDE, SA
 use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iSpin, iTOC, iTocIph, lRoots, McKinley, nActEl, nAsh, &
-                      nBas, nCOnf, nDel, nElec3, nFro, nHole1, nIsh, nOrb, nRoots, nRS1, nRS2, nRS3, nSym, ntAsh, ntASqr, &
-                      ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, State_Sym, TitleJP, Weight
+                      nBas, nCOnf, nDel, nElec3, nFro, nHole1, nIsh, nOrb, nRoots, nRS1, nRS2, nRS3, nSym, ntAsh, ntASqr, ntATri, &
+                      ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, State_Sym, TitleJP, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
@@ -132,7 +132,7 @@ end do
 if (doDMRG) then  ! yma
   imode = -99
   ! generate the Nr. of csfs in each sym
-  Call SG2SymG(rdum,Size(rdum),imode,State_sym)
+  call SG2SymG(rdum,1,imode,State_sym)
 end if
 
 !----------------------------------------------------------------------*
@@ -187,7 +187,7 @@ else if ((irlxroot == 1) .and. (.not. (McKinley .or. PT2 .or. iMCPD))) then
   write(u6,*) 'W A R N I N G !'
   write(u6,*)
   write(u6,*) 'Redundant rlxroot input in RASSCF!'
-  write(u6,*) 'I''ll sign off here without a clean termination!'
+  write(u6,*) "I'll sign off here without a clean termination!"
   write(u6,*) 'However, I have to fix the epilogue file.'
   write(u6,*)
   irc = -1

@@ -36,7 +36,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
-integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym, iMode
+integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iMode, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym
 logical(kind=iwp) :: CI
 character(len=8) :: Label
 real(kind=wp), allocatable :: CIp1(:,:), Kap1(:), Kap2(:), Kap3(:)
@@ -108,14 +108,14 @@ do iSym=1,nSym
     if (btest(kprint,3)) write(u6,*) 'Perturbation ',ipert
 
     if (Timedep .and. CI) then
-      iMode=0
-      Call SG2SymG(CIp1(:,2),SIZE(CIp1,1),iMode,pState_Sym)
+      iMode = 0
+      call SG2SymG(CIp1(:,2),nconf1,iMode,pState_Sym)
       CIp1(:,2) = -CIp1(:,2)
     end if
 
     if (CI) then
-      iMode=0
-      Call SG2SymG(CIp1(:,1),SIZE(CIp1,1),iMode,pState_Sym)
+      iMode = 0
+      call SG2SymG(CIp1(:,1),nconf1,iMode,pState_Sym)
     end if
     if (Timedep) then
       if (CI) then

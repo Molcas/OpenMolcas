@@ -33,11 +33,12 @@ subroutine termCF(ANGMOM,AMFI,ESFS,ldimcf,d,maxes2,iopt,nlanth,iprint)
 !                   iopt = 4   -- maxes is the unity matrix ( original Z
 !                                 is the quantization axis )
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, cZero, cOne, Onei, auTocm
 #ifdef _DISABLED_
+use wigner_util, only: wcg_real
 use Constants, only: One, Two, Half
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, cZero, cOne, Onei, auTocm
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -345,7 +346,7 @@ do ij=1,MJ
     spinM = real(ibasS(iLS),kind=wp)*Half
     orbM = real(ibasL(iLS),kind=wp)*Half
 
-    call Clebsch_Gordan(tL,orbM,tS,spinM,tJ,tJM,coeffCG)
+    coeffCG = wcg_real(tL,orbM,tS,spinM,tJ,tJM)
     Cf(iJ,iLS) = coeffCG
 
     if (abs(coeffCG) > 1.0e-20_wp) write(u6,*) 'ij,iLS,coeffCG',ij,iLS,coeffCG

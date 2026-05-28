@@ -14,7 +14,7 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use sguga, only: CIStruct, EXStruct, SGStruct, SG_Free
+use sguga, only: CIStruct, EXStruct, SG_Free, SGStruct
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG
@@ -70,19 +70,6 @@ real(kind=wp), allocatable, target :: DETTOT1(:,:), DETTOT2(:,:)
 character(len=NASHT+1), allocatable :: detocc(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
-
-Interface
-   subroutine SG_setup_RASSI(nIrrep,NACTEl,MPLETT,SGS,CIS)
-
-   use sguga, only: CIStruct, SGStruct
-   use definitions, only: iwp
-
-   integer(kind=iwp), intent(in):: nIrrep,NACTEL,MPLETT
-   type(SGStruct), intent(inout) :: SGS
-   type(CIStruct), intent(inout) :: CIS
-   End subroutine SG_setup_RASSI
-End Interface
-
 
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_
