@@ -35,31 +35,40 @@ use loc_procedures, only: s_gek_localisation
 use filesystem, only: getcwd_, mkdir_
 
 implicit none
+
+! dummy variables
+! ---------------
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS,npos
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
+
+
+! local variables
+! ---------------
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),Umat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),SearchDir(:)
+
+logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.false., modHess=.true.
+integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS,npos, IterGEK, large_elements, rc, maxel
+
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, dqdq,largest,&
+                 alpha, DD, Thr, P_eta0, P_eta1, P_eta2, best_eta, a, b, eta1, eta2, scalingfac
 real(kind=wp), External :: DDot_
 
-integer(kind=iwp) :: maxel
-real(kind=wp) :: dqdq,largest, alpha
-logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.false., modHess=.true.
-character(len=6):: UpMeth
-integer(kind=iwp) :: IterGEK,large_elements
-real(kind=wp) :: DD,Thr,P_eta0,P_eta1,P_eta2,best_eta,a,b,eta1,eta2, scalingfac
-
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
-integer(kind=iwp) :: rc
 character(len=8) :: fmt
+character(len=6):: UpMeth
 character(len=4) :: x1
 
+
+
+! remember input choice of optimization method
 OptMeth = inpOptMeth
 
+
+! print info for GEK settings
 if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then
     write(u6,*) "doing GEK Opt with:"
     write(u6,*) "GEKThrKappa =",GEKThr_Kappa
@@ -69,6 +78,7 @@ if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then
 end if
 
 
+! if input file specified to create molden files for intermediate orbitals
 if (getIMmldn) then
     ! preparations
     fmt = '(I4.4)'
@@ -86,9 +96,11 @@ if (getIMmldn) then
 end if
 
 
+
 call CWTime(C1,W1)
 
 call OrthoCheck(CMO,nOrb2Loc,nBasis)
+
 
 ! to allow property printing later
 !call Put_cArray('Relax Method','LOCALIS ',8)
@@ -120,7 +132,6 @@ if (ChargeType ==2) then
 
     call mma_deallocate(Ovlp_aux)
 end if
-! ---------------------------------------------------------------------------------------------------
 
 fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
