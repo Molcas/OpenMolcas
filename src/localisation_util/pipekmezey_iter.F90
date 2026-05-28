@@ -28,7 +28,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
-                                GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
+                                GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,Debug,&
                                 BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth,Debug,posel
 use loc_procedures, only: s_gek_localisation
 use filesystem, only: getcwd_, mkdir_
@@ -50,7 +50,7 @@ real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               Disp(:),CMO_Ref(:,:),SearchDir(:)
 
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.false., modHess=.true.,debug_lowd=.false.
-integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS,npos, IterGEK, large_elements, rc, maxel
+integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS,npos, IterGEK, large_elements, rc, maxel, kl
 
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, dqdq,largest,&
                  alpha, DD, Thr, P_eta0, P_eta1, P_eta2, best_eta, a, b, eta1, eta2, scalingfac
@@ -338,8 +338,21 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! NEWTON RAPHSON STEP
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         else
-            if (npos/=0) SearchDir(:) = -Gradient(:)/Hdiagvec(:)
             SearchDir(:) = -Gradient(:)/Hdiagvec(:)
+
+        !call RecPrt('SearchDir',' ',SearchDir,fsdim,1)
+        !call RecPrt('Hdiagvec',' ',Hdiagvec,fsdim,1)
+        !call RecPrt('Gradient',' ',Gradient,fsdim,1)
+            if (npos>0) then
+                do kl=1,fsdim
+                    if (posel(kl) == 1 .and. abs(Gradient(kl)) < 1.0e-2_wp) then
+                        SearchDir(kl) = gradnorm
+                        !write(u6,*) "kl,posel(kl),Gradient(kl),Hessian(kl),SearchDir(kl)",&
+                        !             kl,posel(kl),Gradient(kl),Hdiagvec(kl),SearchDir(kl)
+                    end if
+                end do
+            end if
+        !call RecPrt('SearchDir',' ',SearchDir,fsdim,1)
 
             if (linesearch) then
                 alpha = One
@@ -595,13 +608,14 @@ subroutine StepSizeChecks()
 
     if (GEKRange) then
         if (Gradnorm >= gekthr_grad) then
-            write(u6,"(A,ES18.8)") "Reset GEK in next iteration because Grad >",gekthr_grad
+            if (Debug) write(u6,"(A,ES18.8)") "Reset GEK in next iteration because Grad >",gekthr_grad
             ResetGEK = .true.
             GEKRange = .false.
             SORange = .false.
         end if
         if (large_elements /= 0) then
-            write(u6,"(A,ES18.8)") "Reset GEK in next iteration because largest element of the kappa matrix is above", gekthr_kappa
+            if (Debug) write(u6,"(A,ES18.8)") "Reset GEK in next iteration because largest element of",&
+                                               "the kappa matrix is above", gekthr_kappa
             ResetGEK = .true.
             GEKRange = .false.
             SORange = .false.

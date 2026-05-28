@@ -36,6 +36,12 @@ real(kind=wp) :: maxel
 npos= 0
 posel(:) = 0
 
+# ifdef _DEBUGPRINT_
+write(u6,*) 'In GetHdiag_PM'
+write(u6,*) '--------------'
+write(u6,*) 'Hdiag before modifications'
+# endif
+
 ! set to false, if positive diagonal elements
 SORange = .true.
 
@@ -59,6 +65,9 @@ do k=1,nOrb2Loc-1
           H_diag(kl)=H_diag(kl) + Four*(-(Q_kk-Q_ll)**2 + Four*Q_kl**2)
       end do
 
+# ifdef _DEBUGPRINT_
+      write(u6,"(3X,F22.16)") H_diag(kl)
+# endif
       if (modify) then
           !write(u6,"(A,I5,I5,I5,3X,A,F18.8)") "k,l,kl = ",k,l,kl,"H_diag(kl)",H_diag(kl)
     !     Make sure that element has a negative value -- we are maximizing the target function
