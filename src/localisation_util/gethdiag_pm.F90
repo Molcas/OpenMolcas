@@ -114,7 +114,7 @@ if (Debug) then
     write(u6,*) ' '
     write(u6,*) 'In GetHdiag_PM'
     write(u6,*) '-------------'
-    call RecPrt("Hdiag","",H_diag,nOrb2Loc*(nOrb2Loc-1)/2,1)
+    call RecPrt("Hdiag","",H_diag/16,nOrb2Loc*(nOrb2Loc-1)/2,1)
     write(u6,*) ' '
 end if
 

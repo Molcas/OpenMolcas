@@ -264,13 +264,17 @@ end select
 
 Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
-        call CWTime(C1,W1)
+    call CWTime(C1,W1)
 
     nIter = nIter+1
-
     if (Debug) write(u6,*) "nIter = ", nIter
+
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
+    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
+
     if (inpOptMeth == 6) then
-        if (GradNorm > gekthr_grad .and. .not. switched) then
+        if (npos/=0 .and. .not. switched) then
             !request to start with one Jacobi Sweep, then switch to NR (6) or GEK (7)
             OptMeth = 1
         else
@@ -282,20 +286,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     !choose between optimization methods
     select case (OptMeth)
 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! PAIR ROTATIONS
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     case (1) ! Jacobi Sweeps (2x2 rotations)
         UpMeth = "JS  -"
 
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-
-        !call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
-
-        ! just for seeing how many positive diagonal elements
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
-
-        call RecPrt("Gradient","",Gradient,fsdim,1)
-        call RecPrt("Hdiag","",Hdiagvec,fsdim,1)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! N X N ROTATIONS
@@ -304,11 +301,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! EVALUATE FUNCTIONAL, GRADIENT, HESSIAN DIAGONAL AT CURRENT POINT
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
-        call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
-
         FuncList(nIter) = -Functional ! y_i
         GradList(:,nIter) = -Gradient(:) ! g_i
 

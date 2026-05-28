@@ -67,7 +67,7 @@ if (Debug) then
     write(u6,*) ' '
     write(u6,*) 'In GetGrad_PM'
     write(u6,*) '-------------'
-    call RecPrt('Gradient',' ',Gradient(:), nOrb2Loc*(nOrb2Loc-1)/2,1)
+    call RecPrt('Gradient',' ',Gradient(:)/4, nOrb2Loc*(nOrb2Loc-1)/2,1)
     write(u6,*) "gradnorm =",GradNorm
     write(u6,*) ' '
 end if
