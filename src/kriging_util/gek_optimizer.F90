@@ -333,8 +333,6 @@ end if
 write(u6,*) 'Energy(Iteration_Total+1) :',Energy(Iteration_Total+1)
 #endif
 
-write(u6,*) 'Final Surrogate Energy',Energy(Iteration_Total+1)
-
 write(UpMeth(5:6),'(I2)') Iteration_Micro
 
 ! Compute the displacement in the reduced space relative to the last structure of the full space
