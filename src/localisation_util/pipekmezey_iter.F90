@@ -16,7 +16,6 @@
 !#define _DEBUG2_
 !#define _DEBUG3_
 !#define _DEBUGPRINT_
-!#define _DEBUGLOWD_
 !#define _FORCEGEKRANGE_
 !#define _TESTNUMERICALLY_
 
@@ -50,7 +49,7 @@ real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),Umat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),SearchDir(:)
 
-logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.false., modHess=.true.
+logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.false., modHess=.true.,debug_lowd=.false.
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS,npos, IterGEK, large_elements, rc, maxel
 
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, dqdq,largest,&
@@ -63,6 +62,7 @@ character(len=6):: UpMeth
 character(len=4) :: x1
 
 
+call CWTime(C1,W1)
 
 ! remember input choice of optimization method
 OptMeth = inpOptMeth
@@ -96,9 +96,7 @@ if (getIMmldn) then
 end if
 
 
-
-call CWTime(C1,W1)
-
+! ensure that the initial orbitals are orthonormal
 call OrthoCheck(CMO,nOrb2Loc,nBasis)
 
 
@@ -107,36 +105,36 @@ call OrthoCheck(CMO,nOrb2Loc,nBasis)
 
 
 ! if the Loewdin charge framework is requested instead of Mulliken
-! ---------------------------------------------------------------------------------------------------
 call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
 if (ChargeType ==2) then
     call mma_allocate(Ovlp_aux, nBasis, nBasis,Label = "S^{-1/2}")
     lSCR = 2*nBasis**2+nBasis*(nBasis+1)/2
 
-#   ifdef _DEBUGLOWD_
-        call RecPrt("S before taking the sqrt",' ',Ovlp,nBasis,nBasis)
-#   endif
+    if (debug_lowd) call RecPrt("S before taking the sqrt",' ',Ovlp,nBasis,nBasis)
 
     call mma_allocate(SCR,lSCR, Label = "SCR")
     call SQRTMT(Ovlp,nBasis,1,Ovlp_sqrt,Ovlp_aux,SCR)
     call mma_Deallocate(SCR)
 
-#   ifdef _DEBUGLOWD_
+    if (debug_lowd) then
         call RecPrt("S^{1/2}",' ',Ovlp_sqrt,nBasis, nBasis)
         call RecPrt("S after taking the sqrt",' ',Ovlp,nBasis, nBasis)
         Ovlp_aux(:,:) = Zero ! i want to reuse it
         call dgemm_('N','N',nBasis,nBasis,nBasis,One,Ovlp_sqrt,nBasis,Ovlp_sqrt,nBasis,Zero,&
                     Ovlp_aux,nBasis)
         call RecPrt("S^{1/2}*S^{1/2}",' ',Ovlp_aux,nBasis,nBasis) ! should be same as S
-#   endif
+    end if
 
     call mma_deallocate(Ovlp_aux)
 end if
 
+
+! number of orbital pairs to localise / number of parameters (fullspace dimension)
 fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
-! allocations
 
+! allocations
+! -----------
 call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
 
 !select case(InpOptMeth)
