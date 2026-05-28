@@ -270,8 +270,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     if (Debug) write(u6,*) "nIter = ", nIter
 
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
+    call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
 
     if (inpOptMeth == 6) then
         if (npos/=0 .and. .not. switched) then
