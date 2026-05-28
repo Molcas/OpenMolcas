@@ -226,19 +226,19 @@ Delta = Functional
 largest=Zero
 nDIIS=0
 OldFunctional = Zero
-
 scalingfac = One
 GEKRange = .false.
 ResetGEK = .false.
 switched = .false.
 SORange = .false.
-
 IterGEK = -1
 PctSkp = 0
+Converged = .false.
 
 
 
 ! Print iteration table header.
+! -----------------------------
 call CWTime(C2,W2)
 TimC = C2-C1
 TimW = W2-W1
@@ -266,12 +266,10 @@ select case (InpOptMeth)
 end select
 
 
-!call moldenIM()
 ! ----------------------------------------------------------------------
 !                           Iterations
 ! ----------------------------------------------------------------------
 
-Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
     call CWTime(C1,W1)
 
@@ -384,10 +382,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec,CMO,&
                                         nBasis,PA,nAtoms)
 
-                !write(u6,*)"Angle between GEK and NR step", acos(dot_product(Disp,SearchDir)/(sqrt(dot_product(Disp,Disp))&
-                !                                                *sqrt(dot_product(SearchDir,SearchDir))))/Pi*180.0_wp
-                !write(u6,*) "norm(GEKstep) / norm(NRstep)", sqrt(dot_product(Disp,Disp)/dot_product(SearchDir,SearchDir))
-
             end if ! if in GEKRange
 
         end if ! NR vs GEK
@@ -484,8 +478,7 @@ call OrthoCheck(CMO,nOrb2Loc,nBasis)
 
 
 ! Print convergence message.
-
-
+! --------------------------
 call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
 select case(AnalyseLoc)
     case (0)
@@ -510,6 +503,7 @@ end if
 call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 
 ! deallocations
+! -------------
 if (allocated(PACol)) call mma_Deallocate(PACol)
 call mma_Deallocate(Hdiagvec)
 !select case(InpOptMeth)
