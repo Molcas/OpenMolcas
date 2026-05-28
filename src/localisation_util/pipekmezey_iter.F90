@@ -139,28 +139,26 @@ call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
     ! allocating matrices for NxN optimizations
 
     call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
-    Kappa(:,:)=Zero
-
     call mma_Allocate(Gradient,fsdim,Label='Gradient')
-    Gradient(:) = Zero
     call mma_Allocate(posel,fsdim,Label='posel')
-    posel(:) = 0
-
     call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
-    DispList(:,:)=Zero
     call mma_allocate(Disp,fsdim,Label='Disp')
     call mma_allocate(SearchDir,fsdim,Label='SearchDir')
     call mma_Allocate(GradList,fsdim,nMxIter,Label='GradList')
-    GradList(:,:)=Zero
     call mma_Allocate(FuncList,nMxIter,Label='FuncList')
-    FuncList(:)=Zero
     call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
     call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
     call mma_Allocate(Umat,nOrb2Loc,nOrb2Loc,Label='Umat')
-    Umat(:,:) = Zero
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
 
+    Umat(:,:) = Zero
+    FuncList(:)=Zero
+    Kappa(:,:)=Zero
+    Gradient(:) = Zero
+    GradList(:,:)=Zero
+    DispList(:,:)=Zero
+    posel(:) = 0
     if (OptMeth == 6) call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol',safe='*')
 
 !case default
@@ -214,7 +212,6 @@ end select
 !end select
 
 
-call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
 FirstFunctional = Functional
 Delta = Functional
 largest=Zero
@@ -273,8 +270,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     if (Debug) write(u6,*) "nIter = ", nIter
 
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
     call GetHdiag_PM(nAtoms,nOrb2Loc,PA, Hdiagvec(:),npos,gradnorm,modHess)
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:))
 
     if (inpOptMeth == 6) then
         if (npos/=0 .and. .not. switched) then
@@ -334,6 +331,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! NEWTON RAPHSON STEP
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         else
+            if (npos/=0) SearchDir(:) = -Gradient(:)/Hdiagvec(:)
             SearchDir(:) = -Gradient(:)/Hdiagvec(:)
 
             if (linesearch) then
