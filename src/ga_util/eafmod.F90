@@ -42,7 +42,7 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Para_Info, only: Is_Real_Par
 use Definitions, only: u6, ItoB
 #endif
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 private

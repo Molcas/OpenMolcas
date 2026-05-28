@@ -23,6 +23,7 @@ function getCG(j1,j2,j3,m1,m2,m3)
 !bs                             |                 |
 !bs                             |  m1   m2  -m3   |
 
+use wigner_util, only: w3j_2j
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -31,7 +32,6 @@ real(kind=wp) :: getCG
 integer(kind=iwp), intent(in) :: j1, j2, j3, m1, m2, m3
 integer(kind=iwp) :: idummy
 real(kind=wp) :: fac1, fac2, sgn
-real(kind=wp), external :: regge3j
 
 !bs initialize CG-coefficient
 getCG = Zero
@@ -47,7 +47,7 @@ else
 end if
 !bs check the correct sign    end
 fac1 = sqrt(real(j3+1,kind=wp))
-fac2 = regge3j(j1,j2,j3,m1,m2,-m3)
+fac2 = w3j_2j(j1,j2,j3,m1,m2,-m3)
 getCG = sgn*fac1*fac2
 
 return

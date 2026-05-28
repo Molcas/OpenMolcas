@@ -1,0 +1,58 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine INTCTL2(CMO,nCMO,DREF,nDREF,FIFA,NFIFA,HONE,nHONE,FIMO,nFIMO)
+
+use PrintLevel, only: DEBUG
+use caspt2_global, only: do_grad, FIFA_all, FIMO_all, iPrGlb, nStpGrd
+use caspt2_module, only: nBTri
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nCMO, nDREF, NFIFA, nHONE, nFIMO
+real(kind=wp), intent(in) :: CMO(nCMO), DREF(nDREF), HONE(nHONE)
+real(kind=wp), intent(out) :: FIFA(NFIFA), FIMO(nFIMO)
+real(kind=wp), allocatable :: FFAO(:), FIAO(:), FAAO(:)
+logical(kind=iwp), parameter :: IF_TRNSF = .false.
+
+! Compute using Cholesky vectors.
+! Frozen, inactive and active Fock matrix in AO basis:
+call mma_allocate(FFAO,NBTRI,LABEL='FFAO')
+call mma_allocate(FIAO,NBTRI,LABEL='FIAO')
+call mma_allocate(FAAO,NBTRI,LABEL='FAAO')
+
+! tracho2 makes many allocations but should deallocate everything
+! before its return.
+if (IPRGLB >= DEBUG) write(u6,*) ' INTCTL2 calling TRACHO2...'
+
+call TraCho2(CMO,nCMO,DREF,nDREF,FFAO,FIAO,FAAO,IF_TRNSF)
+
+if (IPRGLB >= DEBUG) write(u6,*) ' INTCTL2 back from TRACHO2.'
+! All extra allocations inside tracho2 should now be gone.
+
+! For gradient calculation, it is good to have FIAO and FAAO
+if (do_grad .or. (nStpGrd == 2)) then
+
+  !! FFAO has one-electron Hamiltonian
+  FIMO_all(1:NBTri) = FFAO(1:NBTri)+FIAO(1:NBTri)
+  FIFA_all(1:NBTri) = FIMO_all(1:NBTri)+FAAO(1:NBTri)
+
+end if
+
+! Transform to MO basis: generating HONE, FIMO and FIFA
+call FMat_Cho(CMO,nCMO,FIAO,FAAO,HONE,nHONE,FIMO,nFIMO,FIFA,nFIFA)
+
+call mma_deallocate(FFAO)
+call mma_deallocate(FIAO)
+call mma_deallocate(FAAO)
+
+end subroutine INTCTL2

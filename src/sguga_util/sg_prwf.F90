@@ -16,7 +16,7 @@ subroutine SG_PrWF(SGS,CIS,LSYM,PRWTHR,iSpin,CI,lCI,KeyPRSD,LUVECDET)
 !          CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 !          REFERS TO THE UPPER PART OF THE WALK.
 
-use sguga, only: CIStruct, SGStruct, MkCList
+use sguga, only: CIStruct, MkCList, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
