@@ -26,31 +26,32 @@ character, intent(in) :: ORI
 integer(kind=iwp), intent(in) :: NROW, NCOL
 character(len=*), intent(in) :: LABEL
 integer(kind=iwp), intent(in) :: LG_M
-integer(kind=iwp) :: I, IOFF, NBASE, NBLOCK1, NBLOCK2, NDIM, NPROCS, NREST
+integer(kind=iwp) :: I, IOFF, NBASE, NBLOCK, NDIM, NPROCS, NREST
 logical(kind=iwp) :: BSTAT
-integer(kind=iwp), allocatable :: MAP1(:), MAP2(:)
+integer(kind=iwp), allocatable :: MAP(:)
 #include "global.fh"
 #include "mafdecls.fh"
 
 NPROCS = GA_NNODES()
 
-NBLOCK1 = 1
-call MMA_ALLOCATE(MAP1,NBLOCK1,Label='MAP1')
-MAP1(1) = 1
-
-NDIM = 0
-if (ORI == 'H') then
-  NDIM = NROW
-else if (ORI == 'V') then
-  NDIM = NCOL
-end if
-NBLOCK2 = min(NDIM,NPROCS)
+select case (ORI)
+  case ('H')
+    NDIM = NROW
+  case ('V')
+    NDIM = NCOL
+  case default
+    write(u6,*) 'GA_CREATE_STRIPED: unknown orientation: ',ORI
+    call AbEnd()
+    NDIM = 0
+    BSTAT = .false.
+end select
+NBLOCK = min(NDIM,NPROCS)
 NBASE = NDIM/NPROCS
 NREST = mod(NDIM,NPROCS)
-call MMA_ALLOCATE(MAP2,NBLOCK2,Label='MAP2')
+call MMA_ALLOCATE(MAP,NBLOCK,Label='MAP')
 IOFF = 1
-do I=1,NBLOCK2
-  MAP2(I) = IOFF
+do I=1,NBLOCK
+  MAP(I) = IOFF
   if (I <= NREST) then
     IOFF = IOFF+NBASE+1
   else
@@ -58,18 +59,17 @@ do I=1,NBLOCK2
   end if
 end do
 
-BSTAT = .false.
-if (ORI == 'H') then
-  BSTAT = GA_CREATE_IRREG(MT_DBL,NROW,NCOL,LABEL,MAP2,NBLOCK2,MAP1,NBLOCK1,LG_M)
-else if (ORI == 'V') then
-  BSTAT = GA_CREATE_IRREG(MT_DBL,NROW,NCOL,LABEL,MAP1,NBLOCK1,MAP2,NBLOCK2,LG_M)
-end if
+select case (ORI)
+  case ('H')
+    BSTAT = GA_CREATE_IRREG(MT_DBL,NROW,NCOL,LABEL,MAP,NBLOCK,[1],1,LG_M)
+  case ('V')
+    BSTAT = GA_CREATE_IRREG(MT_DBL,NROW,NCOL,LABEL,[1],1,MAP,NBLOCK,LG_M)
+end select
 
-call MMA_DEALLOCATE(MAP1)
-call MMA_DEALLOCATE(MAP2)
+call MMA_DEALLOCATE(MAP)
 
 if (.not. bStat) then
-  write(u6,*) 'GA_CREATE_HS: could not create array, abort'
+  write(u6,*) 'GA_CREATE_STRIPED: could not create array, abort'
   call AbEnd()
 end if
 

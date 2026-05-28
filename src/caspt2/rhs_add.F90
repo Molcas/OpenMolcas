@@ -30,13 +30,14 @@ subroutine RHS_ADD(NAS,NIS,lg_W,W)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 use Constants, only: One
+use Definitions, only: u6
 #endif
 use fake_GA, only: GA_Arrays
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
-real(kind=wp), intent(in) :: W(NAS,*)
+real(kind=wp), intent(in) :: W(NAS,NIS)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iHi, iLo, jHi, jLo, LDW, mW, myRank, NW
 #include "global.fh"
@@ -46,10 +47,14 @@ if (Is_Real_Par()) then
   myRank = GA_NodeID()
   call GA_Distribution(lg_W,myRank,iLo,iHi,jLo,jHi)
   if ((iLo /= 0) .and. (jLo /= 0)) then
-    NW = (iHi-iLo+1)*(jHi-jLo+1)
+    if ((iLo /= 1) .or. (iHi /= NAS)) then
+      write(u6,*) 'Not a contiguous vertical stripe'
+      call abend()
+    end if
+    NW = NAS*(jHi-jLo+1)
     call GA_Access(lg_W,iLo,iHi,jLo,jHi,mW,LDW)
-    ! FIXME: Shouldn't this be W(iLo:iHi,jLo:jHi), and therefore not compatible with DAXPY?
-    call DAXPY_(NW,One,W(iLo,jLo),1,DBL_MB(mW),1)
+    ! can't use array statement because DBL_MB is out of bounds!
+    call DAXPY_(NW,One,W(:,jLo:jHi),1,DBL_MB(mW),1)
     call GA_Release_Update(lg_W,iLo,iHi,jLo,jHi)
   end if
 else
