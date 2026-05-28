@@ -30,7 +30,7 @@ use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,&
-                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth,Debug
+                                BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth,Debug,posel
 use loc_procedures, only: s_gek_localisation
 use filesystem, only: getcwd_, mkdir_
 
@@ -142,6 +142,9 @@ call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
     Kappa(:,:)=Zero
 
     call mma_Allocate(Gradient,fsdim,Label='Gradient')
+    Gradient(:) = Zero
+    call mma_Allocate(posel,fsdim,Label='posel')
+    posel(:) = 0
 
     call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
     DispList(:,:)=Zero
@@ -506,6 +509,7 @@ call mma_Deallocate(Hdiagvec)
 !case(2,3,4,5,6)
     call mma_Deallocate(Gradient)
     call mma_Deallocate(kappa)
+    call mma_Deallocate(posel)
 
     call mma_Deallocate(kappa_cnt)
     call mma_Deallocate(xkappa_cnt)

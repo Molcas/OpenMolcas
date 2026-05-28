@@ -16,7 +16,7 @@ subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag,npos,gradnorm,modify)
 
 use Constants, only: Zero, Four
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
+use Localisation_globals, only: Debug,posel
 
 implicit none
 
@@ -34,6 +34,7 @@ real(kind=wp) :: maxel
 #endif
 
 npos= 0
+posel(:) = 0
 
 ! set to false, if positive diagonal elements
 SORange = .true.
@@ -66,6 +67,7 @@ do k=1,nOrb2Loc-1
             npos = npos + 1
             if (prnt2) write(u6,*) "flip sign at",kl,'H_diag(kl)=',H_diag(kl)
             H_diag(kl)=-H_diag(kl)
+            posel(kl)=1
             SORange = .false.
           End If
       end if

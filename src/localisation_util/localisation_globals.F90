@@ -52,7 +52,7 @@ logical(kind=iwp) :: AnaAtom, AnaDomain, Analysis, AnaPAO, AnaPAO_Save, ChoStart
                      Wave,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,Freeze, getIMmldn, Debug = .false., useFH
 character(len=512) :: LC_FileOrb
 character(len=3) :: AnaNrm
-integer(kind=iwp), allocatable :: Ind(:),nBas_per_Atom(:), nBas_Start(:)
+integer(kind=iwp), allocatable :: Ind(:),nBas_per_Atom(:), nBas_Start(:), posel(:)
 character(len=LenIn+8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: NamAct(:)
 real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:), FuncList(:), GradList(:,:), DispList(:,:),UmatList(:,:,:),&
@@ -72,7 +72,7 @@ public :: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, BName, ChoS
           PrintMOs, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave,&
           ScrFac,Debug, OptMeth, ChargeType, LocOrb, Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
           Freeze,Loosen,FuncList,GradList,DispList,UmatList, ThrStep, GEKThr_Kappa, GEKThr_Grad, bias, SOFact, AnalyseLoc,&
-          kappa_cnt, xkappa_cnt, Ovlp, Ovlp_sqrt, nBas_per_Atom, nBas_Start, MoldMod, getIMmldn, useFH, inpOptMeth
+          kappa_cnt, xkappa_cnt, Ovlp, Ovlp_sqrt, nBas_per_Atom, nBas_Start, MoldMod, getIMmldn, useFH, inpOptMeth,posel
 #ifdef _HDF5_
 public :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif
