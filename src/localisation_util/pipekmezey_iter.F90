@@ -346,9 +346,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             if (npos>0) then
                 do kl=1,fsdim
                     if (posel(kl) == 1 .and. abs(Gradient(kl)) < 1.0e-2_wp) then
-                        SearchDir(kl) = gradnorm
-                        !write(u6,*) "kl,posel(kl),Gradient(kl),Hessian(kl),SearchDir(kl)",&
-                        !             kl,posel(kl),Gradient(kl),Hdiagvec(kl),SearchDir(kl)
+                        !SearchDir(kl) = Pi/Hdiagvec(kl)
+                        SearchDir(kl) = Pi
+                        write(u6,*) "kl,posel(kl),Gradient(kl),Hessian(kl),SearchDir(kl)",&
+                                     kl,posel(kl),Gradient(kl),Hdiagvec(kl),SearchDir(kl)
                     end if
                 end do
             end if
