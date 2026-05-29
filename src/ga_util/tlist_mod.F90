@@ -44,7 +44,7 @@ subroutine Init_TList(Triangular,P_Eff)
   logical(kind=iwp), intent(in) :: Triangular
   real(kind=wp), intent(in) :: P_Eff
   integer(kind=iwp) :: iDen_PQ1, iDen_Tsk1, iTsk, kTsk, kTskHi, MxnTsk1, nTaskpP, nTaskpP_seg
-  real(kind=wp) distrib, PQpTsk, TskLw, TskHi, MinPQ1, tskmin, tskmax
+  real(kind=wp) :: distrib, PQpTsk, TskLw, TskHi, MinPQ1, tskmin, tskmax
   integer(kind=iwp), parameter :: iDen_PQ = 2, iDen_Tsk = 4, MinPQ = 4, MxnTsk = 100
 
   if (allocated(TskL)) return
@@ -295,7 +295,7 @@ end subroutine Init_PPList
 subroutine ReInit_PPList(Semi_Direct)
 
   logical(kind=iwp), intent(in) :: Semi_Direct
-  integer(kind=iwp) i, iCount, iE
+  integer(kind=iwp) :: i, iCount, iE
   integer(kind=iwp), pointer :: TskList(:,:)
   logical(kind=iwp), parameter :: Debug = .false.
 
@@ -322,7 +322,7 @@ subroutine ReInit_PPList(Semi_Direct)
       TskList(1:nTasks,1:2) => TskL(1:2*nTasks)
 
       ! Copy first the task indices of tasks that were exectuted
-      call ICopy(mTasks,TskList(:,2),1,TskList(:,1),1)
+      TskList(1:mTasks,1) = TskList(1:mTasks,2)
 
       ! Now copy task indices of tasks which were not executed by this node.
       ! Change the order so that the first task it the largest in the list.

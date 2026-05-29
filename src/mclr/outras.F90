@@ -34,7 +34,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
-integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym, iMode
+integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iMode, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, nConfm, Pstate_sym
 logical(kind=iwp) :: CI
 character(len=8) :: Label
 real(kind=wp), allocatable :: CIp1(:), Kap1(:), Kap2(:), Kap3(:)
@@ -75,8 +75,7 @@ do iSym=1,nSym
 
       iDisk = iKapDisp(iDisp)
       if (iDisk /= -1) then
-        Length = nDensC
-        call dDaFile(LuTemp,2,Kap1,Length,iDisk)
+        call dDaFile(LuTemp,2,Kap1,nDensC,iDisk)
         call Uncompress(Kap1,Kap3,isym)
         if (CI) then
           ilen = nconfM
@@ -86,13 +85,11 @@ do iSym=1,nSym
         call GASync()
       else
         call GASync()
-        Length = nDensC
-        Kap1(1:Length) = Zero
-        call GADGOp(Kap1,Length,'+')
+        Kap1(1:nDensC) = Zero
+        call GADGOp(Kap1,nDensC,'+')
         if (CI) then
-          Length = nconfM
-          CIp1(1:Length) = Zero
-          call GADGOp(CIp1,Length,'+')
+          CIp1(1:nconfM) = Zero
+          call GADGOp(CIp1,nconfM,'+')
         end if
       end if
       call GASync()
@@ -113,8 +110,8 @@ do iSym=1,nSym
 
       if (btest(kprint,3)) write(u6,*) 'Perturbation ',ipert
       if (CI) then
-        iMode=0
-        Call SG2SymG(CIp1,SIZE(CIp1),iMode,pState_Sym)
+        iMode = 0
+        call SG2SymG(CIp1,nconfM,iMode,pState_Sym)
       end if
 
       if ((imethod == 2) .and. (.not. CI) .and. (nconfM == 1)) CIp1(1) = Zero

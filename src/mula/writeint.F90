@@ -77,11 +77,11 @@ call mma_allocate(nMatChar,[0,ndim1+1],label='nMatChar')
 if (nvar < 21) then
   if (nvar > 0) write(frmt,'(a,i2,a)') '(a1,',nvar,'i1,a2)'
   do i=0,mdim1
-    write(CharTemp,fmt=frmt) '(',(mMat(i,j),j=1,nvar),')'
+    write(CharTemp,frmt) '(',(mMat(i,j),j=1,nvar),')'
     mMatChar(i) = CharTemp
   end do
   do i=0,ndim1
-    write(CharTemp,fmt=frmt) '(',(nMat(i,j),j=1,nvar),')'
+    write(CharTemp,frmt) '(',(nMat(i,j),j=1,nvar),')'
     nMatChar(i) = CharTemp
   end do
 else
@@ -99,14 +99,14 @@ else
     write(u6,*)
     write(u6,*)
     write(u6,*) ' The meaning of n and nprime in FC-table below:'
-    write(u6,fmt='(a,40a3,a)') ' =============',('===',i=1,nvar),'='
-    !write(u6,fmt='(40a3)',advance='no') ('===',i=1,nvar)
-    !write(u6,fmt='(   a)',advance='yes') '='
+    write(u6,'(a,40a3,a)') ' =============',('===',i=1,nvar),'='
+    !write(u6,'(40a3)',advance='no') ('===',i=1,nvar)
+    !write(u6,'(   a)',advance='yes') '='
     write(u6,*)
     write(u6,*) '      n                                  Oscillator quanta'
-    write(u6,fmt='(a,40a3,a)') '-------------',('---',i=1,nvar),'-'
-    !write(u6,fmt='(40a3)',advance='no') ('---',i=1,nvar)
-    !write(u6,fmt='(   a)',advance='yes') '-'
+    write(u6,'(a,40a3,a)') '-------------',('---',i=1,nvar),'-'
+    !write(u6,'(40a3)',advance='no') ('---',i=1,nvar)
+    !write(u6,'(   a)',advance='yes') '-'
     if (max_mOrd > max_nOrd) then
       do i=0,max_mOrd
         write(u6,'(4x,i4,5x,40i3)') i,(mMat(i,j),j=1,nvar)
@@ -116,9 +116,9 @@ else
         write(u6,'(4x,i4,5x,40i3)') i,(nMat(i,j),j=1,nvar)
       end do
     end if
-    write(u6,fmt='(a,40a3,a)') ' =============',('===',i=1,nvar),'='
-    !write(u6,fmt='(40a3)',advance='no') ('===',i=1,nvar)
-    !write(u6,fmt='(   a)',advance='yes') '='
+    write(u6,'(a,40a3,a)') ' =============',('===',i=1,nvar),'='
+    !write(u6,'(40a3)',advance='no') ('===',i=1,nvar)
+    !write(u6,'(   a)',advance='yes') '='
   end if
 end if
 

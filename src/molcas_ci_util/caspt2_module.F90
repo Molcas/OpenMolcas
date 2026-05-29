@@ -38,10 +38,12 @@ logical(kind=iwp) :: DMRG, DoCumulant, G1SECIN, IfChol, IFDENS, IFDORTHO, IFDW, 
                      JMS, PRORB, PRSD, RFPERT, RHSDIRECT
 character(len=LenIn+8) :: BNAME(2*MXORB)
 character(len=32) :: HZERO
-character(len=8) :: BMATRIX, BSPECT, BTRANS, CASES(MXCASE), CLAB10(64), FOCKTYPE, ISNAM(MXEXT), ORBIN, ORBNAM(MXORB), OUTFMT, &
-                    SDECOM, SMATRIX
+character(len=8) :: BMATRIX, BSPECT, BTRANS, CLAB10(64), FOCKTYPE, ISNAM(MXEXT), ORBIN, ORBNAM(MXORB), OUTFMT, SDECOM, SMATRIX
 character(len=4) :: TITLE(18,MxTit)
 character(len=2) :: HEADER(72)
+character(len=*), parameter :: CASES(MXCASE) = [character(len=8) :: 'VJTU','VJTIP','VJTIM','ATVX','AIVX','VJAIP','VJAIM', &
+                                                                    'BVATP','BVATM','BJATP','BJATM','BJAIP','BJAIM']
+
 
 public :: BMATRIX, BNAME, BSPECT, BTRANS, CASES, CITHR, CLAB10, CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, &
           CPUOVL, CPUPCG, CPUPRP, CPUPT2, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, DENORM, DMRG, DoCumulant, &
