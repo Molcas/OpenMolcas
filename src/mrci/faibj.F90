@@ -107,7 +107,7 @@ do
             if (IIN /= 0) then
               IPF = IPOF(MYL)+1
               F(1:IIN) = CPL*AIBJ(IPF:IPF+IIN-1)+CPLA*ABIJ(IPF:IPF+IIN-1)
-              if (INDA == INDB) call DCOPY_(NVIR(MYL),[Zero],0,F,NVIR(MYL)+1)
+              if (INDA == INDB) F(1:NVIR(MYL)**2:NVIR(MYL)+1) = Zero
               call DGEMV_('T',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INMY),1,One,S(INNY),1)
               if (INDA /= INDB) then
                 call DGEMV_('N',NVIR(MYL),NVIR(NYL),FACS,F,NVIR(MYL),C(INNY),1,One,S(INMY),1)
