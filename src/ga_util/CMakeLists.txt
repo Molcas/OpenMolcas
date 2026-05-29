@@ -23,6 +23,7 @@ set (sources
      gatskl_zero.F90
      gasync.F90
      gaterminate.F90
+     mpi_wrapper.F90
      nap_time.c
      par_range.F90
      pardiv.F90
@@ -39,6 +40,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      eafmod.F90
+     mpi_wrapper.F90
      scalapack_mod.F90
      task_manager.F90
      tlist_mod.F90

@@ -21,10 +21,7 @@ use linalg_mod, only: verify_
 use rasscf_global, only: nAc, nAcPar, nAcpr2, nroots
 use general_data, only: JobIPH
 #ifdef _MOLCAS_MPP_
-use mpi, only: MPI_COMM_WORLD, MPI_LOGICAL, MPI_REAL8
-#ifndef _NEED_EXPLICIT_MPI_INTERFACE_
-use mpi, only: MPI_Bcast
-#endif
+use MPI_Wrapper, only: MPI_Bcast, MPI_COMM_WORLD, MPI_LOGICAL, MPI_REAL8
 use Para_Info, only: Is_Real_Par
 use Definitions, only: MPIInt
 #endif
@@ -40,7 +37,6 @@ public :: wait_and_read, RDM_to_runfile, rdm_from_runfile, cleanMat, write_RDM
 #include "global.fh"
 integer(kind=MPIInt) :: error
 integer(kind=MPIInt), parameter :: ROOT = 0_MPIInt
-#include "mpi_interfaces.fh"
 #endif
 
 interface

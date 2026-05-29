@@ -604,11 +604,6 @@ if (MPI)
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
-  # MPICH and GCC > 10.0 requires explicit MPI interface
-  if (MPI_IMPLEMENTATION STREQUAL "mpich" OR MPI_IMPLEMENTATION STREQUAL "impi")
-    add_compile_definitions (_NEED_EXPLICIT_MPI_INTERFACE_)
-  endif ()
-
   list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
 endif ()
 

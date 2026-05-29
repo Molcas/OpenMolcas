@@ -14,17 +14,13 @@
 
 module allgather_wrapper
 
-use mpi, only: MPI_COMM_WORLD, MPI_INTEGER
-#ifndef _NEED_EXPLICIT_MPI_INTERFACE_
-use mpi, only: MPI_AllGatherV
-#endif
+use MPI_Wrapper, only: MPI_AllGatherV, MPI_COMM_WORLD, MPI_INTEGER
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, MPIInt
 
 implicit none
 private
 
-#include "mpi_interfaces.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 
@@ -43,7 +39,7 @@ subroutine ALLGATHER_R(SEND,NSEND,RECV,NRECV)
   !            The receiving buffer is allocated by this subroutine.
   !*********************************************************************
 
-  use mpi, only: MPI_REAL8
+  use MPI_Wrapper, only: MPI_REAL8
 
   integer(kind=iwp), intent(in) :: nSend, nRecv
   real(kind=wp), intent(in) :: SEND(nSend)
@@ -117,9 +113,9 @@ subroutine ALLGATHER_I(SEND,NSEND,RECV,NRECV)
   !*********************************************************************
 
 # ifdef _I8_
-  use mpi, only: MPI_INTEGER8
+  use MPI_Wrapper, only: MPI_INTEGER8
 # else
-  use mpi, only: MPI_INTEGER4
+  use MPI_Wrapper, only: MPI_INTEGER4
 # endif
 
   integer(kind=iwp), intent(in) :: nSend, SEND(nSend), nRecv

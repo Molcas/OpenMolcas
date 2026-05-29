@@ -279,7 +279,7 @@ subroutine CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
   !*********************************************************************
 
 # ifdef _MOLCAS_MPP_
-  use MPI, only: MPI_COMM_WORLD, MPI_INTEGER, MPI_REAL8
+  use MPI_Wrapper, only: MPI_COMM_WORLD, MPI_INTEGER, MPI_REAL8
   use Para_Info, only: Is_Real_Par, nProcs
   use caspt2_global, only: LUDRATOT
   use caspt2_module, only: RHSDirect
@@ -373,7 +373,7 @@ subroutine MPI_Allgatherv_(SENDBUF,NSENDBUF,NSEND,MPITYPES,RCVBUF,NRCVBUF,NRCV,N
   ! Wrapper to MPI_Allgatherv dealing with ILP64 incompatibility.
   !*********************************************************************
 
-  use MPI, only: MPI_COMM_WORLD
+  use MPI_Wrapper, only: MPI_COMM_WORLD
   use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: MPIInt
 # ifdef _I8_
