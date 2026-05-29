@@ -18,6 +18,7 @@
 !#define _DEBUGPRINT_
 !#define _FORCEGEKRANGE_
 !#define _TESTNUMERICALLY_
+!#define _JSINSP_
 
 subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 ! Author: T.B. Pedersen
@@ -44,13 +45,13 @@ logical(kind=iwp), intent(out) :: Converged
 
 
 ! local variables
-! ---------------
+!  ---------------
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:),Gradient(:),SCR(:),&
                               kappa(:,:),Umat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Disp(:),CMO_Ref(:,:),SearchDir(:)
 
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK,switched,linesearch=.false., trafoPA=.false., modHess=.true.,debug_lowd=.false.
-integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS,npos, IterGEK, large_elements, rc, maxel, kl
+integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS,npos, IterGEK, large_elements, rc, maxel
 
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, dqdq,largest,&
                  alpha, DD, Thr, P_eta0, P_eta1, P_eta2, best_eta, a, b, eta1, eta2, scalingfac
@@ -60,6 +61,10 @@ character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
 character(len=8) :: fmt
 character(len=6):: UpMeth
 character(len=4) :: x1
+
+#ifdef _JSINSP_
+integer(kind=iwp) :: kl
+#endif
 
 
 call CWTime(C1,W1)
@@ -340,9 +345,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         else
             SearchDir(:) = -Gradient(:)/Hdiagvec(:)
 
+#       ifdef _JSINSP_
         !call RecPrt('SearchDir',' ',SearchDir,fsdim,1)
         !call RecPrt('Hdiagvec',' ',Hdiagvec,fsdim,1)
         !call RecPrt('Gradient',' ',Gradient,fsdim,1)
+
             if (npos>0) then
                 do kl=1,fsdim
                     if (posel(kl) == 1 .and. abs(Gradient(kl)) < 1.0e-2_wp) then
@@ -354,6 +361,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end do
             end if
         !call RecPrt('SearchDir',' ',SearchDir,fsdim,1)
+#       endif
 
             if (linesearch) then
                 alpha = One
