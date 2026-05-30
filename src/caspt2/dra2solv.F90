@@ -45,8 +45,6 @@ integer(kind=iwp) :: IDISK, lg_W
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: IEND, iMax, ISTA, NCOL, NW
 real(kind=wp), allocatable :: TMPW(:)
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 !SVC: Read the global array from disk

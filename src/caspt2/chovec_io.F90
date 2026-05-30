@@ -160,10 +160,6 @@ subroutine CHOVEC_READ(ICASE,CHOBUF,nCHOBUF)
   real(kind=wp), intent(inout) :: CHOBUF(nCHOBUF)
   integer(kind=iwp) :: IB, IBEND, IBOFF, IBSTA, IDISK, IOFF, ISYQ, J, JSYM, NBUF, NPQ, NV, NVTOT
   real(kind=wp), allocatable :: BUF(:)
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
 
   IOFF = 0
   do JSYM=1,NSYM
@@ -300,8 +296,6 @@ subroutine CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
   real(kind=wp) :: SQFP
   real(kind=wp), external :: DDOT_
 # endif
-# include "global.fh"
-# include "mafdecls.fh"
 # endif
 
 # ifdef _MOLCAS_MPP_

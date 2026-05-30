@@ -45,8 +45,6 @@ integer(kind=iwp) :: IDISK, lg_W, NW
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: IEND, iMax, ISTA, NCOL
 real(kind=wp), allocatable :: TMPW(:)
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 call RHS_ALLO(NAS,NIS,lg_W)

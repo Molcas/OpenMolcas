@@ -28,6 +28,7 @@ subroutine HCOUP(IVEC,JVEC,OVL,TG1,TG2,NASHT,TG3,NTG3,HEL)
 use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB
 #endif
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: iPrGlb
@@ -42,10 +43,6 @@ real(kind=wp), intent(out) :: HEL
 integer(kind=iwp) :: IAEND1, IAEND2, IASTA1, IASTA2, IC, ICASE, iHi1, iHi2, IIEND1, IIEND2, IISTA1, IISTA2, iLo1, iLo2, IS, ISYM, &
                      jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, MV1, MV2, NAS, NHECOMP, NIN, NIS, NV1, NV2
 real(kind=wp) :: HEBLK, HECOMP(14,9)
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 

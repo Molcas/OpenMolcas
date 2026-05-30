@@ -28,6 +28,7 @@ function RHS_DDOT(NAS,NIS,lg_V1,lg_V2)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: GA_DDot
 #endif
 use fake_GA, only: GA_Arrays
 use Definitions, only: wp, iwp
@@ -37,8 +38,6 @@ real(kind=wp) :: RHS_DDOT
 integer(kind=iwp), intent(in) :: NAS, NIS, lg_V1, lg_V2
 real(kind=wp), external :: DDot_
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   RHS_DDOT = GA_DDOT(lg_V1,lg_V2)

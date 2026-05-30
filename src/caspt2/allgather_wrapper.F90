@@ -15,14 +15,12 @@
 module allgather_wrapper
 
 use MPI_Wrapper, only: MPI_AllGatherV, MPI_COMM_WORLD, MPI_INTEGER
+use GA_Wrapper, only: GA_NNodes
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, MPIInt
 
 implicit none
 private
-
-#include "global.fh"
-#include "mafdecls.fh"
 
 interface allgather
   module procedure :: allgather_R, allgather_R2, allgather_I, allgather_I2

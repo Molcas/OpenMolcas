@@ -44,6 +44,7 @@ use scalapack_mod, only: GA_PDSYEVX_
 #endif
 use PrintLevel, only: INSANE
 use Para_Info, only: King
+use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use EQSOLV, only: IDBMAT, IDSMAT, IDTMAT
 use caspt2_global, only: do_grad, do_lindep, idBoriMat, iPrGlb, LUSBT, LUSTD, nStpGrd
 use caspt2_module, only: nASup, nISup, Cases, IfDOrtho, ThrShn, ThrShs, nInDep, BMATRIX, BTRANS, BSPECT
@@ -66,8 +67,6 @@ real(kind=wp) :: WGRONK(2)
 real(kind=wp), allocatable :: SCRATCH(:), VEC(:)
 #endif
 real(kind=wp), external :: PSBMAT_FPRINT, DNRM2_
-#include "global.fh"
-#include "mafdecls.fh"
 
 ! Initialize the DRA I/O subsystem with default values.
 

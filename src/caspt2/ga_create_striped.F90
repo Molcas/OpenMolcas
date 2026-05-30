@@ -18,6 +18,7 @@
 
 subroutine GA_CREATE_STRIPED(ORI,NROW,NCOL,LABEL,LG_M)
 
+use GA_Wrapper, only: GA_Create_Irreg, GA_NNodes, MT_DBL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
@@ -29,8 +30,6 @@ integer(kind=iwp), intent(in) :: LG_M
 integer(kind=iwp) :: I, IOFF, NBASE, NBLOCK, NDIM, NPROCS, NREST
 logical(kind=iwp) :: BSTAT
 integer(kind=iwp), allocatable :: MAP(:)
-#include "global.fh"
-#include "mafdecls.fh"
 
 NPROCS = GA_NNODES()
 

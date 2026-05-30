@@ -24,6 +24,7 @@ subroutine GAInit()
 use Para_Info, only: MyRank, nProcs
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_nprocs, mpp_procid, mpp_workshare
+use GA_Wrapper, only: GA_NNodes, GA_NodeId
 #ifdef _GA_
 use Definitions, only: MPIInt
 #endif
@@ -37,7 +38,6 @@ integer(kind=iwp) :: molcas_nprocs, iRC
 integer(kind=MPIInt) :: iRC2
 #endif
 character(len=8) :: molcas_nprocs_env
-#include "global.fh"
 
 ! SVC: bypass MPI initialization if only 1 process, this is needed for a
 ! specific version of GEO (so that the serial tasks which are run by MPI

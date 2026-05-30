@@ -35,8 +35,6 @@ integer(kind=iwp) :: IBLOCK, ICOL, iG3, IG3END, IG3STA, IROW, iscal, iST, iSU, i
 real(kind=wp) :: F3VAL, G3VAL
 integer(kind=iwp), allocatable :: INDI(:), INDJ(:), NELBsav(:), NELSsav(:)
 real(kind=wp), allocatable :: BUFFB(:), BUFFS(:)
-#include "global.fh"
-#include "mafdecls.fh"
 
 ! Since we are stuck with collective calls to MPI_Alltoallv in
 ! order to gather the elements, each process needs to loop over

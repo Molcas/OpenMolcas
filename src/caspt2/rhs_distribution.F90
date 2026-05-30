@@ -27,6 +27,7 @@ subroutine RHS_DISTRIBUTION(NAS,NIS,iLo,iHi,jLo,jHi)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: GA_NNodes, GA_NodeId
 #endif
 use Definitions, only: iwp
 
@@ -35,8 +36,6 @@ integer(kind=iwp), intent(in) :: NAS, NIS
 integer(kind=iwp), intent(out) :: iLo, iHi, jLo, jHi
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: MYRANK, NBASE, NPROCS, NREST
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 iLo = 1

@@ -13,6 +13,7 @@ set (sources
      bctwoham.F90
      eafmod.F90
      ga_replace_ma.c
+     ga_wrapper.F90
      gadgop.F90
      gadgop_scal.F90
      gadupl.F90
@@ -40,6 +41,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      eafmod.F90
+     ga_wrapper.F90
      mpi_wrapper.F90
      scalapack_mod.F90
      task_manager.F90

@@ -38,8 +38,6 @@ integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
 real(kind=wp), intent(out) :: W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: IOFF, MAX_MESG_SIZE, NIS_BATCH, NIS_END, NIS_STA
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   ! SVC: when the _total_ size of a message exceeds 2**31-1 _bytes_,

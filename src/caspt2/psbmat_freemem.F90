@@ -17,6 +17,7 @@ subroutine PSBMAT_FREEMEM(lg_M)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: GA_Destroy
 #endif
 use fake_ga, only: Deallocate_GA_Array
 use Definitions, only: iwp
@@ -25,8 +26,6 @@ implicit none
 integer(kind=iwp), intent(inout) :: lg_M
 #ifdef _MOLCAS_MPP_
 logical(kind=iwp) :: bStat
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   bStat = GA_Destroy(lg_M)

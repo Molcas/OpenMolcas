@@ -29,6 +29,7 @@ subroutine RHS_ADD(NAS,NIS,lg_W,W)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_NodeId
 use Constants, only: One
 use Definitions, only: u6
 #endif
@@ -40,8 +41,6 @@ integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
 real(kind=wp), intent(in) :: W(NAS,NIS)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iHi, iLo, jHi, jLo, LDW, mW, myRank, NW
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   myRank = GA_NodeID()

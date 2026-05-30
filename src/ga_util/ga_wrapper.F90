@@ -7,33 +7,34 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 1995, Martin Schuetz                                   *
-!               1998, Roland Lindh                                     *
-!               2000-2015, Steven Vancoillie                           *
 !***********************************************************************
 
-! double global operation; stub routine to ga_dgop...
-! x:        global scalar
-! op:       global operation '+','*','max','min','absmax','absmin'
-subroutine GADGOP_Scal(x,op)
-
+#include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: Is_Real_Par
-use GA_Wrapper, only: MT_DBL
-#endif
-use Definitions, only: wp
+
+module GA_Wrapper
 
 implicit none
-real(kind=wp), intent(inout) :: x
-character(len=*), intent(in) :: op
+private
 
-#ifdef _MOLCAS_MPP_
-if (Is_Real_Par()) call ga_dgop(MT_DBL,x,1,op)
-#else
+! This module offers a wrapper around the GlobalArrays include files.
+! Other routines should use this module instead of the include files.
+
+#include "global.fh"
+#include "mafdecls.fh"
+
+! External procedures should forgo TKR checks
+external :: GA_Brdcst
+
+public :: DBL_MB, MT_BYTE, MT_DBL, MT_INT
+public :: GA_Brdcst, GA_Create, GA_Create_Irreg, GA_DDot, GA_Destroy, GA_Duplicate, GA_NNodes, GA_NodeId, GA_Read_Inc
+
+end module GA_Wrapper
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
 #include "macros.fh"
-unused_var(x)
-unused_var(_str(op))
-#endif
+dummy_empty_procedure(GA_Wrapper)
 
-end subroutine GADGOP_Scal
+#endif
