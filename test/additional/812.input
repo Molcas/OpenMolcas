@@ -8,7 +8,7 @@
 *           level of theory.
 *-------------------------------------------------------------------------------
 >> export MOLCAS_PRINT=VERBOSE
-> IF ( $MOLCAS_NPROCS != 1)
+> IF ( $MOLCAS_NPROCS != 1 )
 >   EXIT 36
 > ENDIF
 
