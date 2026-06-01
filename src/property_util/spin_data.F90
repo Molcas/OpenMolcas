@@ -158,7 +158,7 @@ module spin_data
 
         if(present(Stability)) then
           if (isotopes(iRec)%Stable) then
-            Stability = '-'
+            Stability = ' '
           else
             Stability = '*'
           endif
@@ -197,7 +197,7 @@ module spin_data
 
         if(present(Stability)) then
           if (isotopes(iRec)%Stable) then
-            Stability = '-'
+            Stability = ' '
           else
             Stability = '*'
           endif
@@ -239,7 +239,7 @@ module spin_data
 
         if(present(Stability)) then
           if (isotopes(iRec)%Stable) then
-            Stability = '-'
+            Stability = ' '
           else
             Stability = '*'
           endif
@@ -282,7 +282,7 @@ module spin_data
 
         if(present(Stability)) then
           if (isotopes(iRec)%Stable) then
-            Stability = '-'
+            Stability = ' '
           else
             Stability = '*'
           endif

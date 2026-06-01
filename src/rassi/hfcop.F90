@@ -236,10 +236,12 @@ module hyperfine
   call mma_deallocate(MAPMS)
 
 ! Process spin data (Nuclear spin + g-Factor)
-  call mma_allocate(LStability, NAtoms, "Stability")
   if (HypF_rms_Req .or. allocated(Atens_Req)) then
+    call mma_allocate(LStability, NAtoms, "Stability")
+    LStability(:) = '?'
     call proc_spin_data()
     call print_isotope_info()
+    call mma_deallocate(LStability)
   endif
 
 ! GET: Coupled states used to calculate A_tensor
@@ -610,7 +612,7 @@ module hyperfine
         if(Atens_Req(iAtom)) write(u6,'(7X,A6,4x,F12.8,2X,A1)') LAtomLbl(iAtom), GNuc(iAtom), LStability(iAtom)
       enddo
       write(u6,'(7X,A27)') repeat('-',27)
-      write(u6,'(7X,A23)') "radioactive *, stable -"
+      write(u6,'(7X,A53)') "[ ] = stable, [*] = radioactive, [?] = no information"
     endif
   end subroutine
 !======================================================================
@@ -1405,7 +1407,6 @@ end subroutine
     call mma_deallocate(CGo_mat)
     call mma_deallocate(LAtNumb)
     call mma_deallocate(LAtomLbl)
-    call mma_deallocate(LStability)
     call mma_deallocate(USO)
     call mma_deallocate(ESO)
     call mma_deallocate(h_FC)
