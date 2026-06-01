@@ -822,14 +822,10 @@ end subroutine
 
     ! NCOUP > COUPL :: NCOUP has higher priority than CPOUP
     if(NCOUP > 0_iwp) then
-      if(allocated(LCSTATES)) then
-        write(u6,'(7X, A86)') "WARNING: Both NCOUP/COUP are set. --> NCOUP will be used and LCSTATES will be ignored."
-        call mma_deallocate(LCSTATES)
+      if(allocated(LCSTATES) .and. NCOUP /= size(LCSTATES)) then
+        write(u6,'(7X, A73)') "WARNING: Both NCOUP/COUP keywords are set. --> COUP will be used instead."
+        NCOUP =  size(LCSTATES)
       end if
-      call mma_allocate(LCSTATES,NCOUP,'LCStates')
-      do ISS = 1, NCOUP
-        LCSTATES(ISS) = ISS
-      enddo
     endif
 
     ! SHIFT ENERGY by NCOUPLED or COUPLEDstates if specified,

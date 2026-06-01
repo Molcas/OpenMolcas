@@ -1444,8 +1444,9 @@ Keywords
   By default, the keyword :kword:`AUNG` will be automatically turned on if all keywords :kword:`NMASs`, :kword:`NSPIn`, :kword:`GNUC` are absent.
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAt" APPEAR="Atoms for Hyperfine Coupling A tensor calculations" KIND="CUSTOM" LEVEL="ADVANCED">
-              %%Keyword: HFCAt <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAt" APPEAR="HFC Atoms" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED">
+              %<ALTERNATE KIND="CHOICE" LIST="all" />
+              %Keyword: HFCAt <advanced>
               <HELP>
               This keyword specifies the atoms to calculate A_tensor in EPR spectra.
               </HELP>
@@ -1455,7 +1456,7 @@ Keywords
   This keyword specifies the nuclear masses of the atoms. The following line contains N integers representing the mass numbers (protons + neutrons) of the
   atoms specified by :kword:`HFCAt` .
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMASs" APPEAR="Nuclear Masses" KIND="INTS_LOOKUP" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMASs" APPEAR="Nuclear Masses" KIND="INTS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED">
               %%Keyword: NMASs <advanced>
               <HELP>
               Specify the nuclear masses of the atoms.
@@ -1467,7 +1468,7 @@ Keywords
   atoms specified by :kword:`HFCAt`. For example, 199Hg has a spin of 1/2, which can be specified as 0.5.
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NSPIn" APPEAR="Nuclear Spins" KIND="REALS_LOOKUP" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NSPIn" APPEAR="Nuclear Spins" KIND="REALS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED">
               %%Keyword: NSPIn <advanced>
               <HELP>
               Specify the nuclear spins of the atoms.
@@ -1480,7 +1481,7 @@ Keywords
   To use a custom g-factor (for a hypothetical isotope or a value from new experiments), use the :kword:`HISO` keyword to bypass database matching.
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="GNUC" APPEAR="Nuclear g-factors" KIND="REALS_LOOKUP" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="GNUC" APPEAR="Nuclear g-factors" KIND="REALS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED">
               %%Keyword: GNUC <advanced>
               <HELP>
               Specify the nuclear g-factor of the atoms.
@@ -1538,7 +1539,7 @@ Keywords
   The input format consists of two lines: the first line is the number of coupling states, followed by the list of states on the second line.
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="COUP" APPEAR="List of Coupling states" KIND="CUSTOM" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="COUP" APPEAR="List of Coupling states" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED">
               %%Keyword: COUP <advanced>
               <HELP>
               A set of states to share the same energy by shifting their energies.
@@ -1550,7 +1551,8 @@ Keywords
   The first line specifies the number of atoms. The second line lists the atoms for which pNMR chemical shifts are to be calculated; the keyword "all" (single line) may be used to include every atom.
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRAt" APPEAR="Atoms for pNMR tensors" KIND="CUSTOM" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRAt" APPEAR="Atoms for pNMR tensors" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED">
+              %<ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: NMRAt <advanced>
               <HELP>
               Specify the atoms for which to calculate the pNMR tensors.
