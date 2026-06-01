@@ -28,7 +28,7 @@ subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
+use Localisation_globals, only: Thrs,ThrGrad, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
                                 GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,Debug,&
                                 BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth,Debug,posel
 use loc_procedures, only: s_gek_localisation
@@ -189,7 +189,7 @@ select case(AnalyseLoc)
     case (0,1)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
     case (2)
-        if (.not. Silent) write(u6,"(/A)") "Orbital extension before localisation:"
+        write(u6,"(/A)") "Orbital extension before localisation:"
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
     case default
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
