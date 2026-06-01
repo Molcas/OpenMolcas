@@ -10,6 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
+#define _DEBUGPRINT_
+
 subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag,npos,gradnorm,modify)
 !
 ! Purpose: compute the Hessian diagonal elements of the Pipek-Mezey functional w.r.t. elements of the kappa matrix
@@ -66,7 +68,7 @@ do k=1,nOrb2Loc-1
       end do
 
 # ifdef _DEBUGPRINT_
-      write(u6,"(3X,F22.16)") H_diag(kl)
+      write(u6,"(I4,I4,3X,F22.16)") k,l, H_diag(kl)
 # endif
       if (modify) then
           !write(u6,"(A,I5,I5,I5,3X,A,F18.8)") "k,l,kl = ",k,l,kl,"H_diag(kl)",H_diag(kl)
