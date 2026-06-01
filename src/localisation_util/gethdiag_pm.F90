@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 
 subroutine GetHdiag_PM(nAtoms,nOrb2Loc,PA,H_diag,npos,gradnorm,modify)
 !
