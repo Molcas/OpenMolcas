@@ -190,7 +190,7 @@ select case(AnalyseLoc)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
     case (2)
         if (.not. Silent) write(u6,"(/A)") "Orbital extension before localisation:"
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
     case default
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end select
