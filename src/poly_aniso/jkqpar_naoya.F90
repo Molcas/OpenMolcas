@@ -11,8 +11,8 @@
 
 subroutine JKQPar_Naoya(N1,N2,HEXCH,Jpar)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use wigner_util, only: wcg
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

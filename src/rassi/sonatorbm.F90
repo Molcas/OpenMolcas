@@ -17,8 +17,8 @@ use rassi_global_arrays, only: JBNUM
 use Cntrl, only: IRREP, LSYM1, LSYM2, LuTDM, MLTPLT, NSTATE
 use Symmetry_Info, only: nSym => nIrrep, MUL
 use rassi_data, only: NBASF, NBTRI, NTDMZZ
-use stdalloc, only: mma_allocate, mma_deallocate
 use wigner_util, only: dclebs
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 

@@ -19,13 +19,13 @@ module rhodyn_utils
 !***********************************************************************
 
 use linalg_mod, only: mult
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 use linalg_mod, only: abort_
 #endif
+use wigner_util, only: w3j
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, cZero
 use Definitions, only: wp, iwp, u6
-use wigner_util, only: w3j
 
 implicit none
 private

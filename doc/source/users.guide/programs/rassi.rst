@@ -1445,7 +1445,7 @@ Keywords
   By default (when :kword:`HFCOper` is absent and users do not specify :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC`), the keyword :kword:`AUNG` will be automatically turned on.
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAt" APPEAR="Hyperfine Coupling Atoms" KIND="INTS_LOOKUP" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAt" APPEAR="Atoms for Hyperfine Coupling A tensor calculations" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: HFCAt <advanced>
               <HELP>
               This keyword specifies the atoms to calculate A_tensor in EPR spectra.
@@ -1550,7 +1550,7 @@ Keywords
   The first line specifies the number of atoms. The second line lists the atoms for which pNMR chemical shifts are to be calculated; the keyword "all" (single line) may be used to include every atom.
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRAt" APPEAR="List of atoms to calculate pNMR tensor" KIND="INTS_LOOKUP" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRAt" APPEAR="Atoms for paramagnetic NMR tensor calculations" KIND="CUSTOM" LEVEL="ADVANCED">
               %%Keyword: NMRAt <advanced>
               <HELP>
               This keyword specifies the atoms for which the pNMR tensors.

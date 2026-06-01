@@ -88,8 +88,8 @@ set (sources
      rd1int.F90
      rd2int_rasscf.F90
      recno.F90
-     reord2.F90
      reord.F90
+     reord2.F90
      save_ci_vec.F90
      save_h_diag.F90
      save_sig_vec.F90
@@ -120,18 +120,13 @@ set (modfile_list
      caspt2_module.F90
      csfbas.F90
      dmrginfo.F90
-     fciqmc_interface.F90
-     gas_data.F90
      general_data.F90
      input_mclr.F90
-     mclr_data.F90
      rasdef.F90
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90
-     reord.F90
      spinfo.F90
-     str_info.F90
      timers.F90
      wadr.F90
 )

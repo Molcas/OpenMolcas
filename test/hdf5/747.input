@@ -137,7 +137,7 @@
 >> COPY save.caspt2.h5 CASPT2_1
 >> COPY $Project.caspt2.h5 CASPT2
 
-&RASSI &END
+&RASSI
   NrOfJobIphs = 2 2 1 ; 1 4 ; 6
   IphNames = CASPT2_1 ; CASPT2
   Heff

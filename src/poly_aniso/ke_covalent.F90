@@ -13,8 +13,8 @@ subroutine KE_Covalent(N,lant,t,u,OPT,HCOV)
 ! this function computes the covalent CF Hamiltonian ofr a given Lanthanide
 
 use jcoeff, only: dE, init_Jx, Jx
-use stdalloc, only: mma_allocate, mma_deallocate
 use wigner_util, only: wcg
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cOne
 use Definitions, only: wp, iwp
 

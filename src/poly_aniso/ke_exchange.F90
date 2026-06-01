@@ -13,8 +13,8 @@ subroutine KE_exchange(N1,N2,lant,t,u,OPT,HEXC)
 ! this function computes the exchange+covalent contributions to Hamiltonian of a given Lanthanide
 
 use jcoeff, only: dE, init_Jx, Jx
-use stdalloc, only: mma_allocate, mma_deallocate
 use wigner_util, only: wcg
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, cOne, auTocm, auToeV
 use Definitions, only: wp, iwp, u6
 

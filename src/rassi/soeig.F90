@@ -26,8 +26,8 @@ use Cntrl, only: IFTDM, IFTRD1, RHODYN
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
 use wigner_util, only: dclebs
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten, Half, Quart, auTocm, auToeV
 use Definitions, only: wp, iwp, u6
 

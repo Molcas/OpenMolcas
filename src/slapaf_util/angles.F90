@@ -26,7 +26,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: mCentr, Max_Center
-character(len=LenIn) Lbls(mCentr)
+character(len=LenIn) :: Lbls(mCentr)
 real(kind=wp) :: xyz(3,mCentr), rtrnc
 integer(kind=iwp) :: ic, jc, kc
 logical(kind=iwp) :: tp

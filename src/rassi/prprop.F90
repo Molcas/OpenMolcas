@@ -26,8 +26,8 @@ use RASSIWfn, only: wfn_sfs_amfi, wfn_sfs_angmom, wfn_sfs_edipmom, wfn_sos_angmo
                     wfn_sos_edipmomi, wfn_sos_edipmomr, wfn_sos_spini, wfn_sos_spinr
 use Cntrl, only: RhoDyn
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
 use wigner_util, only: w3j
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Six, Nine, Ten, Half, Quart, OneHalf, Pi, cZero, auTocm, auToeV, auTofs, auTokJ, &
                      auToT, c_in_au, Debye, deg2rad, gElectron, kBoltzmann, mBohr, rNAVO
 use Definitions, only: wp, iwp, u6

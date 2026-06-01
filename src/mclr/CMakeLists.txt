@@ -278,9 +278,9 @@ set (sources
      sdcmrf_pre.F90
      setlab.F90
      setup_mclr.F90
-     sigmavec.F90
-     sg2symg.F90
      sg_setup_mclr.F90
+     sg2symg.F90
+     sigmavec.F90
      skickj_mclr.F90
      solveforrhs.F90
      solveforzx.F90

@@ -197,8 +197,8 @@ subroutine Stewens_matrixel(N,M,d,ITO_O,ITO_W,IPRINT)
 ! Dip_Stewens(N, L, d, d) -- the matrix elements of the ITO tensor
 !               operators in the basis of effective spin eigenfunctions
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use wigner_util, only: wcg_real
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, cZero, cOne
 use Definitions, only: wp, iwp, u6
 

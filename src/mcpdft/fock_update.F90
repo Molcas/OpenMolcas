@@ -33,7 +33,7 @@ use rasscf_global, only: ISTORD, ISTORP, nacpar, nFint, nTot3, nTot4
 use general_data, only: nash, nbas, nish, norb, nsym, nTot1, nTot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(inout) :: F(nTot4), FP(nTot1)
