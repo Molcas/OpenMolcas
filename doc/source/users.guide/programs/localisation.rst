@@ -299,6 +299,25 @@ Optional general keywords
               </HELP>
               </KEYWORD>
 
+:kword:`PRNT`
+  The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
+  Options: 
+    - before AND after localization = 'BOTH'
+    - only after localization = 'AFTEr'
+    - never (Default) = 'OFF'
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PRNT" APPEAR="Print option for charge-based single orbital delocalization d_i" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: PRNT <basic>
+              <HELP>
+              The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
+              Options: 
+                - before AND after localization = 'BOTH'
+                - only after localization = 'AFTEr'
+                - never (Default) = 'OFF'
+              </HELP>
+              </KEYWORD>
+
+
 :kword:`CHARgeType`
   The next line specifies the type of partial charges used within the Pipek--Mezey localisation.
   Options: 
