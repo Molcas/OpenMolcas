@@ -820,15 +820,15 @@ end subroutine
 
     call get_degen_states(1)
 
-    ! NCOUP > COUPL :: NCOUP has higher priority than CPOUP
-    if(NCOUP > 0_iwp) then
-      if(allocated(LCSTATES) .and. NCOUP /= size(LCSTATES)) then
-        write(u6,'(7X, A73)') "WARNING: Both NCOUP/COUP keywords are set. --> COUP will be used instead."
-        NCOUP =  size(LCSTATES)
-      end if
+    ! User specifies NCOU without COUP ---> First NCOUP lowest-energy states will be coupled
+    if(NCOUP > 0_iwp .and. .not.(allocated(LCSTATES))) then
+      call mma_allocate(LCSTATES, NCOUP)
+      do ISS=1, NCOUP
+        LCSTATES(ISS) = ISS
+      enddo
     endif
 
-    ! SHIFT ENERGY by NCOUPLED or COUPLEDstates if specified,
+    ! SHIFTING ENERGY by NCOUP/COUP-------------------------------------------
     ! then re-determine the coupled states based on energy threshold.
     if(allocated(LCSTATES)) then
       min_energy = ESO(1)
@@ -841,8 +841,9 @@ end subroutine
       ! NCOUP in else block is "before" allocating
       NCOUP = degen_end_idx(1) - degen_start_idx(1) + 1_iwp
     else
+      ! NO SHIFTING ENERGY----------------------------------------------------
       ! If NCOUP or COUP are not specified, coupling states for the A tensor
-      ! are derived from GROUND STATES via get_degen_states, controlled by ETHR.
+      ! are derived from GROUND STATES via get_degen_states(1), controlled by DETH.
 
       ! Get NCOUP from previous call get_degen_states(1)
       NCOUP = degen_end_idx(1) - degen_start_idx(1) + 1_iwp

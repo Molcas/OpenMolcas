@@ -24,7 +24,7 @@ use Cntrl, only: BINA, CIH5, CITHR, DCHO, DCHS, DIPR, Do_Pol, Do_SK, DO_TMOM, Do
                  ONLY_OVERLAPS, OSThr_DipR, OSThr_QIPR, PNAME, PRCI, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, &
                  PRWEIGHT, PRXVE, PRXVR, PRXVS, PTYPE, QIALL, QIPR, REDUCELOOP, RFPert, RSPR, RSThr, SODIAGNSTATE, SONATNSTATE, &
                  SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDIPMIN, TDYS, TMGR_Thrs, ToFile, TOLERANCE, TRACK, NCOUP, NMass_set,&
-                 NSpin_set, GNuc_set, AutoSelect_GFac, Hypo_Iso, HypF_rms_Req
+                 NSpin_set, GNuc_set, AutoSelect_GFac, Hypo_Iso, HypF_rms_Req, NATens_Calc
 use rassi_data, only: WFTYPE
 use hfc_logical, only: MagX2C_Avail
 use Constants, only: Zero, One
@@ -177,6 +177,7 @@ LHAMI = .false.
 MagX2C_Avail = .false.
 DEGEN_ETHR = 1.0E-6_wp
 NCOUP = 0_iwp
+NATens_Calc = 0_iwp
 NMass_set = .false.
 NSpin_set = .false.
 GNuc_set =.false.

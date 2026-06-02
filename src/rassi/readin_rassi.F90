@@ -693,8 +693,10 @@ do
         call LineCheck(istatus)
 
       case('COUP')
-        read(LuIn,*,iostat=istatus) NCOUP
-        call LineCheck(istatus)
+        if (NCOUP == 0) then
+          write(u6,*) 'Keyword NCOUP must be preceded by keyword COUP'
+          call Quit_OnUserError()
+        endif
         call mma_allocate(LCSTATES,NCOUP,Label='LCSTATES')
         read(LuIn,*,iostat=istatus) (LCSTATES(i), i = 1, NCOUP)
         call LineCheck(istatus)
@@ -709,6 +711,10 @@ do
         AutoSelect_GFac = .true.
 
       case('GNUC')
+        if (NATens_Calc == 0) then
+          write(u6,*) 'Keyword HFCAt must be preceded by keyword GNUC'
+          call Quit_OnUserError()
+        endif
         GNuc_set   = .true.
         call mma_allocate(GNuc,NAtoms,Label='gNuc')
         GNuc(:) = -100.0_wp
@@ -726,6 +732,10 @@ do
         call mma_deallocate(rTemp_arr)
 
       case('NMAS')
+        if (NATens_Calc == 0) then
+          write(u6,*) 'Keyword HFCAt must be preceded by keyword NMASs'
+          call Quit_OnUserError()
+        endif
         NMass_set = .true.
         call mma_allocate(NucMass,NAtoms,'NucMass')
         NucMass(:) = -100_iwp
@@ -741,6 +751,10 @@ do
         call mma_deallocate(iTemp_arr)
 
       case('NSPI')
+        if (NATens_Calc == 0) then
+          write(u6,*) 'Keyword HFCAt must be preceded by keyword NSPIn'
+          call Quit_OnUserError()
+        endif
         NSpin_set = .true.
         call mma_allocate(NucSpin,NAtoms,Label='NucSpin')
         NucSpin(:)=-100.0_wp
