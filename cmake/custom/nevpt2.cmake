@@ -35,7 +35,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
 
 set(OPENMOLCAS_TOOLS_DIR ${CMAKE_BINARY_DIR}/Tools/distributed-4rdm)
 if(SINGLE_MOD_DIR)
-  set(mod_dir ${MAIN_MOD_DIR}/_single)
+  set(mod_dir ${MAIN_MOD_DIR})
 else()
   set(mod_dir ${MAIN_MOD_DIR}/nevpt2)
 endif()
