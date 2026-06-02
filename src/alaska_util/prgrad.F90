@@ -31,9 +31,18 @@ implicit none
 character(len=*), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(in) :: Grad(nGrad)
-integer(kind=iwp) :: iCen, iGrad, mGrad
+integer(kind=iwp) :: iCen, iGrad, mGrad, lnadxfl
+integer(kind=iwp), external :: isFreeUnit
 real(kind=wp) :: CGrad(3,MxAtom), Temp, TempX, TempY, TempZ
 character(len=LenIn+5) :: CNames(MxAtom), Namei
+logical :: nadxfl
+
+! For Columbus NAC
+call checknadxfl(label,nadxfl)
+if(nadxfl) then
+   lnadxfl = isFreeUnit(61)
+   call Molcas_Open(lnadxfl, 'nadxfl')
+endif
 
 write(u6,*)
 call Banner(Label,1,len(Label)+30)
@@ -50,8 +59,10 @@ if (.true.) then
     TempZ = CGrad(3,iGrad)
     Namei = CNames(iGrad)
     write(u6,'(2X,A,3X,3ES24.14)') Namei,TempX,TempY,TempZ
+    if(nadxfl) write(lnadxfl,"(3d15.6)") -TempX, -TempY, -TempZ
   end do
   write(u6,'(1x,A)') repeat('-',90)
+  close(lnadxfl)
 else
 
   ! Modified by Luca De Vico november 2005 Teokem
@@ -84,3 +95,13 @@ write(u6,*)
 return
 
 end subroutine PrGrad
+
+
+subroutine checknadxfl(label,nadxfl)
+  implicit none
+  character(len=*) :: label
+  logical :: nadxfl
+  nadxfl=.false.
+  if(label(1:24).eq.'CSF derivative coupling ') nadxfl=.true.
+  return
+end
