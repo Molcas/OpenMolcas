@@ -78,7 +78,7 @@ integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2
 integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
                                 IC1(26)   = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
                                 IC2(26)   = [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3], &
-                                ISVC(26)  = [1,1,1,1,1,6,7,3,1,2,8,9,2,1,2,10,11,2,1,4,5,12,1,1,1,1], &
+                                ISVC(26)  = [1,1,1,1,1,7,8,4,1,2,9,10,2,1,2,11,12,2,1,5,6,3,1,1,1,1], &
                                 ITVPT(26) = [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3]
 #endif
 
@@ -134,7 +134,7 @@ subroutine MKSGUGA(SGS,CIS)
 
   nullify(SGS%DOWNP,SGS%DRTP)
 
-  ! CALCULATE ARC WEIGHT.
+  ! COMPUTE DOWNCHAIN TABLE AND ARC WEIGHT
 
   call MKDAW(SGS)
 
@@ -1260,25 +1260,25 @@ do IVLT=1,SGS%nVert
       case (2)
         V = -One
       case (3)
-        V = (-One)**(IB+1)
-      case (4)
-        V =              sqrt(real(  IB,kind=wp)/real(1+IB,kind=wp))
-      case (5)
-        V = (-One)**IB * sqrt(real(1+IB,kind=wp)/real(2+IB,kind=wp))
-      case (6)
-        V =              sqrt(real(2+IB,kind=wp)/real(1+IB,kind=wp))
-      case (7)
-        V = (-One)**IB * sqrt(real(2+IB,kind=wp)/real(1+IB,kind=wp))
-      case (8)
-        V = (-One)**IB * One/sqrt(real(  IB,kind=wp)*real(1+IB,kind=wp))
-      case (9)
-        V = sqrt(real(  IB,kind=wp)*real(2+IB,kind=wp))/real(1+IB,kind=wp)
-      case (10)
-        V = (-One)**IB * One/sqrt(real(1+IB,kind=wp)*real(2+IB,kind=wp))
-      case (11)
-        V = sqrt(real(1+IB,kind=wp)*real(3+IB,kind=wp))/real(2+IB,kind=wp)
-      case (12)
         V = (-One)**IB
+      case (4)
+        V = (-One)**(IB+1)
+      case (5)
+        V =              sqrt(real(  IB,kind=wp)/real(1+IB,kind=wp))
+      case (6)
+        V = (-One)**IB * sqrt(real(1+IB,kind=wp)/real(2+IB,kind=wp))
+      case (7)
+        V =              sqrt(real(2+IB,kind=wp)/real(1+IB,kind=wp))
+      case (8)
+        V = (-One)**IB * sqrt(real(2+IB,kind=wp)/real(1+IB,kind=wp))
+      case (9)
+        V = (-One)**IB * One/sqrt(real(  IB,kind=wp)*real(1+IB,kind=wp))
+      case (10)
+        V = sqrt(real(  IB,kind=wp)*real(2+IB,kind=wp))/real(1+IB,kind=wp)
+      case (11)
+        V = (-One)**IB * One/sqrt(real(1+IB,kind=wp)*real(2+IB,kind=wp))
+      case (12)
+        V = sqrt(real(1+IB,kind=wp)*real(3+IB,kind=wp))/real(2+IB,kind=wp)
       case default
         V = Zero ! Dummy assignment
         call Abend()
