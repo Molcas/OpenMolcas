@@ -68,11 +68,19 @@ integer(kind=iwp), protected :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 ! IBVPT(i):
 !  ISVC(i): the index ISVC(i), tells which formula to use to compute the segment value of the associated segment
 ! ITVPT(i):
+#ifdef _OLD_
 integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
                                 IC1(26)   = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
                                 IC2(26)   = [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3], &
                                 ISVC(26)  = [1,1,1,1,1,6,1,5,1,2,4,7,2,1,7,3,2,2,1,5,1,6,1,1,1,1], &
                                 ITVPT(26) = [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3]
+#else
+integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
+                                IC1(26)   = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
+                                IC2(26)   = [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3], &
+                                ISVC(26)  = [1,1,1,1,1,6,7,3,1,2,8,9,2,1,2,10,11,2,1,4,5,12,1,1,1,1], &
+                                ITVPT(26) = [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3]
+#endif
 
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCList, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGS, SGStruct
@@ -1225,6 +1233,7 @@ do IVLT=1,SGS%nVert
 
     CIS%ISGM(IVLT,ISGT) = IVLB
     IB = SGS%DRT(IVLT,IBTAB)
+#ifdef _OLD_
     select case (ISVC(ISGT))
       case (1)
         V = One
@@ -1244,6 +1253,37 @@ do IVLT=1,SGS%nVert
         V = Zero ! Dummy assignment
         call Abend()
     end select
+#else
+    select case (ISVC(ISGT))
+      case (1)
+        V = One
+      case (2)
+        V = -One
+      case (3)
+        V = (-One)**(IB+1)
+      case (4)
+        V =              sqrt(real(  IB,kind=wp)/real(1+IB,kind=wp))
+      case (5)
+        V = (-One)**IB * sqrt(real(1+IB,kind=wp)/real(2+IB,kind=wp))
+      case (6)
+        V =              sqrt(real(2+IB,kind=wp)/real(1+IB,kind=wp))
+      case (7)
+        V = (-One)**IB * sqrt(real(2+IB,kind=wp)/real(1+IB,kind=wp))
+      case (8)
+        V = (-One)**IB * One/sqrt(real(  IB,kind=wp)*real(1+IB,kind=wp))
+      case (9)
+        V = sqrt(real(  IB,kind=wp)*real(2+IB,kind=wp))/real(1+IB,kind=wp)
+      case (10)
+        V = (-One)**IB * One/sqrt(real(1+IB,kind=wp)*real(2+IB,kind=wp))
+      case (11)
+        V = sqrt(real(1+IB,kind=wp)*real(3+IB,kind=wp))/real(2+IB,kind=wp)
+      case (12)
+        V = (-One)**IB
+      case default
+        V = Zero ! Dummy assignment
+        call Abend()
+    end select
+#endif
     CIS%VSGM(IVLT,ISGT) = V
   end do
 end do
