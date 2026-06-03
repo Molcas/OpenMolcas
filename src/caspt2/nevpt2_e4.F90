@@ -923,7 +923,7 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
         if (NXY_work /= NLEV .and. (itlev < ixyzsta .or. itlev > ixyzend)) cycle
         ! ----- E*E*X terms
         if (do_xvec) then
-          call Add_MKBNEVAC_Xvec(iv,ix,iy,iz,ivlev,ixlev,isvx,isyz)
+          call Add_MKBNEVAC_Xvec(iv,ix,iy,iz,ivlev,ixlev,isvx,isyz,tmp1)
           if (NXY_work == NLEV) then
             XYtmp(ipxy-ipxysta+1,ip2-ip3+1,1) = XYtmp(ipxy-ipxysta+1,ip2-ip3+1,1) + tmp1
           else
@@ -932,7 +932,7 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
         end if
         ! ----- E*E*Y terms
         if (do_yvec) then
-          call Add_MKBNEVAC_Yvec(iv,ix,iy,iz,ivlev,ixlev,isvx,isyz)
+          call Add_MKBNEVAC_Yvec(iv,ix,iy,iz,ivlev,ixlev,isvx,isyz,tmp2)
           if (NXY_work == NLEV) then
             XYtmp(ipxy-ipxysta+1,ip2-ip3+1,2) = XYtmp(ipxy-ipxysta+1,ip2-ip3+1,2) + tmp2
           else
@@ -951,9 +951,8 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
           iu=L2ACT(iulev)
           if (NXY_work /= NLEV .and. (itlev < ixyzsta .or. itlev > ixyzend)) cycle
           ! ----- E*E*X terms
-          tmp1 = Zero
           if (do_xvec) then
-            call Add_MKBNEVAC_Xvec(iy,iz,iv,ix,iylev,izlev,isyz,isvx)
+            call Add_MKBNEVAC_Xvec(iy,iz,iv,ix,iylev,izlev,isyz,isvx,tmp1)
             if (NXY_work == NLEV) then
               XYtmp(ipxy-ipxysta+1,ip2-ip3+1,1) = XYtmp(ipxy-ipxysta+1,ip2-ip3+1,1) + tmp1
             else
@@ -961,9 +960,8 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
             end if
           end if
           ! ----- E*E*Y terms
-          tmp2 = Zero
           if (do_yvec) then
-            call Add_MKBNEVAC_Yvec(iy,iz,iv,ix,iylev,izlev,isyz,isvx)
+            call Add_MKBNEVAC_Yvec(iy,iz,iv,ix,iylev,izlev,isyz,isvx,tmp2)
             if (NXY_work == NLEV) then
               XYtmp(ipxy-ipxysta+1,ip2-ip3+1,2) = XYtmp(ipxy-ipxysta+1,ip2-ip3+1,2) + tmp2
             else
@@ -1061,11 +1059,12 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
 
 contains
 
-subroutine Add_MKBNEVAC_Xvec(iv_,ix_,iy_,iz_,ivlev_,ixlev_,isvx_,isyz_)
+subroutine Add_MKBNEVAC_Xvec(iv_,ix_,iy_,iz_,ivlev_,ixlev_,isvx_,isyz_,output)
 
   implicit none
 
   integer(kind=iwp), intent(in) :: iv_, ix_, iy_, iz_, ivlev_, ixlev_, isvx_, isyz_
+  real(kind=wp), intent(out) :: output
 
   real(kind=wp) :: val
 
@@ -1090,17 +1089,18 @@ subroutine Add_MKBNEVAC_Xvec(iv_,ix_,iy_,iz_,ivlev_,ixlev_,isvx_,isyz_)
     val = val - BDERA(ISUP,JSUP)
   end if
 
-  tmp1 = val
+  output = val
 
   return
 
 end subroutine Add_MKBNEVAC_Xvec
 
-subroutine Add_MKBNEVAC_Yvec(iv_,ix_,iy_,iz_,ivlev_,ixlev_,isvx_,isyz_)
+subroutine Add_MKBNEVAC_Yvec(iv_,ix_,iy_,iz_,ivlev_,ixlev_,isvx_,isyz_,output)
 
   implicit none
 
   integer(kind=iwp), intent(in) :: iv_, ix_, iy_, iz_, ivlev_, ixlev_, isvx_, isyz_
+  real(kind=wp), intent(out) :: output
 
   real(kind=wp) :: val
 
@@ -1125,7 +1125,7 @@ subroutine Add_MKBNEVAC_Yvec(iv_,ix_,iy_,iz_,ivlev_,ixlev_,isvx_,isyz_)
     val = val + BDERA(ISUP,JSUP)
   end if
 
-  tmp2 = val
+  output = val
 
   return
 
