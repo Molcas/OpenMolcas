@@ -54,7 +54,6 @@ character(len=2) :: PreFix
 real(kind=wp), allocatable :: CMO2(:), CMO3(:), jXarray(:)
 character(len=*), parameter :: SecNam = 'Localisation'
 integer(kind=iwp), external :: isFreeUnit !vv , LocUtil_Models
-real(kind=wp), external :: ddot_
 character(len=180), external :: Get_Ln
 #ifdef _HDF5_
 integer(kind=iwp) :: IndTypeT(8,7)
@@ -330,7 +329,7 @@ if (LocNatOrb .or. LocCanOrb) then
   end if
   lOff = 1
   do iSym=1,nSym
-    xnr0(iSym) = ddot_(nOrb2Loc(iSym),[One],0,jXarray(lOff+nFro(iSym)),1)
+    xnr0(iSym) = sum(jXarray(lOff+nFro(iSym):lOff+nFro(iSym)+nOrb2Loc(iSym)-1))
     lOff = lOff+nBas(iSym)
   end do
 
@@ -351,7 +350,7 @@ if (LocNatOrb .or. LocCanOrb) then
   write(u6,*) ' ------------------------------------------------- '
   lOff = 1
   do iSym=1,nSym
-    xnr1 = ddot_(nOrb2Loc(iSym),[One],0,jXarray(lOff+nFro(iSym)),1)
+    xnr1 = sum(jXarray(lOff+nFro(iSym):lOff+nFro(iSym)+nOrb2Loc(iSym)-1))
     lOff = lOff+nBas(iSym)
     write(u6,'(3X,I4,8X,F11.5,4X,F11.5)') iSym,xnr0(iSym),xnr1
   end do

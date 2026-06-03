@@ -34,7 +34,6 @@ integer(kind=iwp) :: iLoS, ISADR, ISADR2, ITABS, ITUV, ITUVABS, iTWV, IUABS, IVA
 real(kind=wp) :: bsBDER, EU, EY, EYU, FACT, ValB, ValS
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iHiS, irank, jHiS
-#include "global.fh"
 #else
 #include "macros.fh"
 unused_var(lg_S)

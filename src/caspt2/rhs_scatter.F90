@@ -41,8 +41,6 @@ real(kind=wp), intent(in) :: Buff(nBuff)
 integer(kind=iwp) :: I
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp), allocatable :: TMPW1(:), TMPW2(:)
-#include "global.fh"
-#include "mafdecls.fh"
 #else
 #include "macros.fh"
 unused_var(LDW)

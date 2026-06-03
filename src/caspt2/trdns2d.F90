@@ -42,8 +42,6 @@ integer(kind=iwp) :: ICASE, ISYM, jD, lg_v1, lg_v2, NAS, NIN, NIS, nVec
 real(kind=wp), allocatable :: BD(:), ID(:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: VEC1(:), VEC2(:)
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 ! Inact/Inact and Virt/Virt blocks:

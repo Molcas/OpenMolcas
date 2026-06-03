@@ -18,7 +18,9 @@ use Symmetry_Info, only: Mul
 use SUPERINDEX, only: MTREL, MTUV
 use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-#ifndef _MOLCAS_MPP_
+#ifdef _MOLCAS_MPP_
+use GA_Wrapper, only: DBL_MB
+#else
 use fake_GA, only: GA_Arrays
 #endif
 use caspt2_global, only: FIMO, iPrGlb
@@ -34,10 +36,6 @@ integer(kind=iwp) :: IAEND, IASTA, ICASE, IDX, IIEND, IISTA, IJ, IOBRA(8,8), IOF
 real(kind=wp) :: ATVXJ, FTJ, TJVX
 real(kind=wp), allocatable :: BRA(:), KET(:)
 real(kind=wp), external :: DDot_
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
 if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case A'
 

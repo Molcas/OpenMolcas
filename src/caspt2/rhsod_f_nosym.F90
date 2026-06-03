@@ -17,7 +17,9 @@ use Symmetry_Info, only: Mul
 use SUPERINDEX, only: MAGEB, MAGTB, MAREL, MTGEU, MTGTU, MTREL
 use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-#ifndef _MOLCAS_MPP_
+#ifdef _MOLCAS_MPP_
+use GA_Wrapper, only: DBL_MB
+#else
 use fake_GA, only: GA_Arrays
 #endif
 use caspt2_global, only: iPrGlb
@@ -35,10 +37,6 @@ real(kind=wp) :: ATCV, AVCT, FMTVAC, FPTVAC, SCL
 real(kind=wp), allocatable :: CHOBUF(:)
 real(kind=wp), parameter :: SQRTH = sqrt(Half)
 real(kind=wp), external :: DDot_
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
 if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case F'
 

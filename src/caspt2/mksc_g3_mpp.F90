@@ -23,10 +23,8 @@
 subroutine MKSC_G3_MPP(ISYM,SC,iLo,NAS,LDC,NG3,G3,idxG3)
 
 use Symmetry_Info, only: Mul
-use MPI, only: MPI_COMM_WORLD, MPI_INTEGER, MPI_REAL8
-#ifndef _NEED_EXPLICIT_MPI_INTERFACE_
-use MPI, only: MPI_ALLTOALL, MPI_ALLTOALLV
-#endif
+use MPI_Wrapper, only: MPI_AllToAll, MPI_AllToAllV, MPI_COMM_WORLD, MPI_INTEGER, MPI_REAL8
+use GA_Wrapper, only: GA_NNodes
 use SUPERINDEX, only: KTUV
 use caspt2_module, only: IASYM, NASHT, nTUVES
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
@@ -37,7 +35,6 @@ integer(kind=iwp), intent(in) :: ISYM, iLo, NAS, LDC, NG3
 real(kind=wp), intent(out) :: SC(LDC,NAS)
 real(kind=wp), intent(in) :: G3(NG3)
 integer(kind=byte), intent(in) :: idxG3(6,NG3)
-
 integer(kind=iwp) :: I, IBLOCK, ICOL, iG3, IG3END, IG3STA, IOFFSET, IP, IROW, ISCAL, iST, iSU, ISUP, iSV, iSX, iSY, iSZ, iT, iTU, &
                      ituvs, iU, iV, iVX, iX, ixyzs, iY, iYZ, iZ, JSUP, JSYM, MAXBUF, MAXMEM, NBLOCKS, NBUF, NG3B, NG3MAX, NPROCS, &
                      NQOT, NRECV, NREM
@@ -48,9 +45,6 @@ integer(kind=MPIInt), allocatable :: RCOUNTS(:), RCOUNTS2(:), RDISPLS(:), RDISPL
                                      SDISPLS(:), SDISPLS2(:), SENDIDX(:)
 real(kind=wp), allocatable :: RECVVAL(:), SENDVAL(:)
 integer(kind=iwp), external :: IPROW
-#include "global.fh"
-#include "mafdecls.fh"
-#include "mpi_interfaces.fh"
 
 ! Since we are stuck with collective calls to MPI_Alltoallv in
 ! order to gather the elements, each process needs to loop over

@@ -20,6 +20,7 @@ subroutine GADGOP(x,n,op)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: MT_DBL
 #endif
 use Definitions, only: wp, iwp
 
@@ -27,9 +28,8 @@ implicit none
 integer(kind=iwp), intent(in) :: n
 real(kind=wp), intent(inout) :: x(n)
 character(len=*), intent(in) :: op
-#ifdef _MOLCAS_MPP_
-#include "mafdecls.fh"
 
+#ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) call ga_dgop(MT_DBL,x,n,op)
 #else
 #include "macros.fh"

@@ -9,26 +9,32 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SQUARN(A,B,N)
+#include "compiler_features.h"
+#ifdef _MOLCAS_MPP_
 
-use Constants, only: Zero
-use Definitions, only: wp, iwp
+module GA_Wrapper
 
 implicit none
-real(kind=wp), intent(in) :: A(*)
-integer(kind=iwp), intent(in) :: N
-real(kind=wp), intent(out) :: B(N,N)
-integer(kind=iwp) :: I, IIN
+private
 
-B(1,1) = Zero
-IIN = 2
-do I=2,N
-  B(I,1:I-1) = -A(IIN:IIN+I-2)
-  B(1:I-1,I) = A(IIN:IIN+I-2)
-  B(I,I) = Zero
-  IIN = IIN+I
-end do
+! This module offers a wrapper around the GlobalArrays include files.
+! Other routines should use this module instead of the include files.
 
-return
+#include "global.fh"
+#include "mafdecls.fh"
 
-end subroutine SQUARN
+! External procedures should forgo TKR checks
+external :: GA_Brdcst
+
+public :: DBL_MB, MT_BYTE, MT_DBL, MT_INT
+public :: GA_Brdcst, GA_Create, GA_Create_Irreg, GA_DDot, GA_Destroy, GA_Duplicate, GA_NNodes, GA_NodeId, GA_Read_Inc
+
+end module GA_Wrapper
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(GA_Wrapper)
+
+#endif

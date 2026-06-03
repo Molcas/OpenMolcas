@@ -18,6 +18,7 @@ subroutine LinDepLag_MPP(lg_BDER,lg_SDER,nAS,nIN,iSym,iCase)
 ! Parallel LinDepLag
 ! We always use the canonical orthonormalization.
 
+use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 #ifdef _SCALAPACK_
 use scalapack_mod, only: GA_PDSYEVX_
 #endif
@@ -37,8 +38,6 @@ real(kind=wp) :: WGRONK(2)
 integer(kind=iwp) :: info, NSCRATCH
 real(kind=wp), allocatable :: SCRATCH(:), VEC(:)
 #endif
-#include "global.fh"
-#include "mafdecls.fh"
 
 !! Obtain the X matrix
 !! First, read S

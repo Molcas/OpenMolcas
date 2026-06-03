@@ -20,8 +20,12 @@
 
 function RsvTsk(igaTsk,iTskLs,nTsk,mTsk,iStart,iS,iE)
 
-#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
+#ifdef _MOLCAS_MPP_
+#ifdef _GA_
+use GA_Wrapper, only: GA_Read_Inc
+#else
 use stdalloc, only: mma_allocate, mma_deallocate
+#endif
 #endif
 use Definitions, only: iwp
 
@@ -32,9 +36,7 @@ integer(kind=iwp), intent(inout) :: iTskLs(nTsk,2), iStart, iS, iE
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iCnt, iTsk
 logical(kind=iwp) :: Reserved
-#ifdef _GA_
-#include "global.fh"
-#else
+#ifndef _GA_
 integer(kind=iwp), allocatable :: TSKR(:)
 #endif
 

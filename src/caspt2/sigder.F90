@@ -24,6 +24,7 @@ use Fockof, only: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FT
 use EQSOLV, only: IFCOUP
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: GA_Destroy
 #endif
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_global, only: FIFA, idSDMat, LISTS, LUSTD
@@ -45,7 +46,6 @@ real(kind=wp) :: CPU, CPU0, CPU1, FACT, TIO, TIO0, TIO1
 real(kind=wp), allocatable :: D1(:), D2(:), SDER1(:), SDER2(:), SGM1(:), SGM2(:), WRK(:)
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 logical(kind=iwp) :: bStat
-#include "global.fh"
 #endif
 
 ! Work in the MO basis

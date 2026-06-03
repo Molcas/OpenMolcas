@@ -28,6 +28,7 @@ subroutine RHS_DAXPY(NAS,NIS,ALPHA,lg_V1,lg_V2)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_NodeId
 #endif
 use fake_GA, only: GA_Arrays
 use Definitions, only: wp, iwp
@@ -37,8 +38,6 @@ integer(kind=iwp), intent(in) :: NAS, NIS, lg_V1, lg_V2
 real(kind=wp), intent(in) :: ALPHA
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iHiV1, iHiV2, iLoV1, iLoV2, jHiV1, jHiV2, jLoV1, jLoV2, LDV1, LDV2, mV1, mV2, myRank, NV1, NV2
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   myRank = GA_NodeID()

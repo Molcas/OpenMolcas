@@ -35,8 +35,6 @@ integer(kind=iwp) :: IB, IBATCH_TOT, IBEND, IBSTA, ICASE, IDISK, ISYMA, ISYMB, I
 real(kind=wp) :: Dummy(1)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: NJSCT_TOT
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 ! ======================================================================
