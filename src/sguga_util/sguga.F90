@@ -427,24 +427,32 @@ contains
     type(SGStruct), target, intent(inout) :: SGS
     integer(kind=iwp) :: IV, LEV
 
+    !Note that the range is [-1,nLev]! An imaginary level, -1, is added.
     call mma_allocate(SGS%LTV,[-1,SGS%nLev],Label='LTV')
 
-    ! SET UP A LEVEL-TO-VERTEX TABLE, LTV, AND IDENTIFY MIDVERTICES:
+    ! SET UP A LEVEL-TO-VERTEX TABLE, LTV
 
     SGS%LTV(:) = 0
 
+    ! Loop over all vertices
     do IV=1,SGS%nVert
-      LEV = SGS%DRT(IV,LTAB)
-      SGS%LTV(LEV) = SGS%LTV(LEV)+1
+      LEV = SGS%DRT(IV,LTAB) ! Pick up the level index of the vertex
+      SGS%LTV(LEV) = SGS%LTV(LEV)+1 ! Increment the number of vertex for a particular level
     end do
 
+    ! Loop over all levels, from the level corresponding to the head vertex to the level corresponding
+    ! to the root vertex of the graph
     do LEV=SGS%nLev,0,-1
-      SGS%LTV(LEV-1) = SGS%LTV(LEV-1)+SGS%LTV(LEV)
+      SGS%LTV(LEV-1) = SGS%LTV(LEV-1)+SGS%LTV(LEV) ! Update such that  SGS%LEV(Lev) is the number of vertex at level
+                                                   ! Lev and above.
     end do
 
     do LEV=-1,SGS%nLev-1
       SGS%LTV(LEV) = 1+SGS%LTV(LEV+1)
     end do
+
+    ! SGS%LTV(LEV) now tabulates the index of the first vertex at level LEV if the vertices are numbered 1,..,nVert
+    ! starting from the head vertex.
 
   end subroutine MKLTV
 
@@ -464,34 +472,36 @@ contains
     ! Hence MidLev=1 is inappropriate for nLev=0
     ! MIDLEV=1
 
-    if (SGS%nLev == 0) then
-      SGS%MidLev = 0
-    else
-      SGS%MidLev = 1
-    end if
-    MINW = 1000000
-    do IL=1,SGS%nLev-1
+    SGS%MidLev=Min(SGS%nLev,1)
+
+    MINW = 1000000 ! Initiate to a large number
+    do IL=1,SGS%nLev-1 ! Loop from level 1 (one above the root vertex) to the
+                       ! level below the head vertex.
+
+      ! SGS%RAW(IV,4) is the number of possible paths from the root vertex up to vertex IV
+      ! SGS%DAW(IV,4) is the number of possible paths from the head vertex down to vertex IV
       NW = 0
-      do IV=SGS%LTV(IL),SGS%LTV(IL-1)-1
-        NW = NW+SGS%RAW(IV,4)-SGS%DAW(IV,4)
+      do IV=SGS%LTV(IL),SGS%LTV(IL-1)-1  ! Loop over all vertex at this level
+        NW = NW+ABS(SGS%RAW(IV,4)-SGS%DAW(IV,4))
       end do
       NW = abs(NW)
       if (NW >= MINW) cycle
-      SGS%MidLev = IL
-      MINW = NW
+      SGS%MidLev = IL        ! Update level index indicating the midlevel
+      MINW = NW              ! Update MINW
     end do
-    SGS%MVSta = SGS%LTV(SGS%MidLev)
-    SGS%MVEnd = SGS%LTV(SGS%MidLev-1)-1
-    CIS%nMidV = SGS%MVEnd-SGS%MVSta+1
+
+    SGS%MVSta = SGS%LTV(SGS%MidLev)      ! Staring vertex index at level MIDLEV
+    SGS%MVEnd = SGS%LTV(SGS%MidLev-1)-1  ! Ending vertex index at level MIDLEV
+    CIS%nMidV = SGS%MVEnd-SGS%MVSta+1    ! Number of vertices at level MIDLEV
 
     ! NOW FIND THE MAX NUMBERS OF UPPER AND LOWER WALKS. RESPECTIVELY
     ! (DISREGARDING SYMMETRY)
 
     SGS%MxUp = 0
     SGS%MxDwn = 0
-    do MV=SGS%MVSta,SGS%MVEnd
-      if (SGS%MxUp < SGS%RAW(MV,4)) SGS%MxUp = SGS%RAW(MV,4)
-      if (SGS%MxDwn < SGS%DAW(MV,4)) SGS%MxDwn = SGS%DAW(MV,4)
+    do MV=SGS%MVSta,SGS%MVEnd ! Lopp over all vertices of level MIDLEV
+      SGS%MxUp =Max(SGS%MxUp ,SGS%RAW(MV,4))
+      SGS%MxDwn=Max(SGS%MxDwn,SGS%DAW(MV,4))
     end do
 
 #   ifdef _DEBUGPRINT_
