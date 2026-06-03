@@ -422,7 +422,6 @@ contains
   end subroutine MKRAW
 
   subroutine MKLTV(SGS)
-  ! PURPOSE: FIND THE MIDLEVEL
 
     type(SGStruct), target, intent(inout) :: SGS
     integer(kind=iwp) :: IV, LEV
@@ -1157,6 +1156,7 @@ type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp) :: IA, IAL, IB, IBL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB, IVLT, IVRB, IVRT, LEV, MV, MVLL, MVRR
+integer(kind=iwp) :: INL, IN
 real(kind=wp) :: V
 integer(kind=iwp), parameter :: IATAB = 3, IBTAB = 4
 
@@ -1166,25 +1166,51 @@ call mma_allocate(CIS%VSGM,SGS%nVert,26,Label='CIS%VSGM')
 call mma_allocate(EXS%MVL,CIS%nMidV,2,Label='EXS%MVL')
 call mma_allocate(EXS%MVR,CIS%nMidV,2,Label='EXS%MVR')
 
-CIS%IVR(:,:) = 0
-do LEV=1,SGS%nLev
+! CONSTRUCT THE IVR TABLE.
+! Make list of upper right vertices which connects to a left vertex on the same level
+!  case 1: delta(b) = -1 , case 2: delta(b) = + 1
+CIS%IVR(:,:) = 0   ! initiate
+do LEV=1,SGS%nLev    ! Loop over all levels
   IV1 = SGS%LTV(LEV)
   IV2 = SGS%LTV(LEV-1)-1
-  do IVL=IV1,IV2
-    IAL = SGS%DRT(IVL,IATAB)
+  do IVL=IV1,IV2-1          ! loop over all vertices of level LEV, right to left, but the last vertex
+    IAL = SGS%DRT(IVL,IATAB)! Pick up the a- and b-value of the left vertex
     IBL = SGS%DRT(IVL,IBTAB)
-    do IV=IVL+1,IV2
-      IA = SGS%DRT(IV,IATAB)
+    INL = 2*IAL+IBL
+    do IV=IVL+1,IV2         ! loop over all vertices of level LEV, right to left, but the first vertex
+      IA = SGS%DRT(IV,IATAB)! Pick up the a-value of the right vertex
+      IB = SGS%DRT(IV,IBTAB)
+      IN = 2*IA+IB
+!
+!     The number of particles in the node decrease left to right. If the difference between two vertices
+!     is higher than 1 then there is no reason to explore further vertices to the right.
+
+      If (INL-IN>1) cycle
+
+!     Test if right vertex is consistent with a tail or an intermediate segment
+!     Delta(b) = B(left vertex) - B(right vertex)
+!     The intermediate segments are divided into five with delta(b)=-1, and five with delat(b)=+1
+!     The tail segments are divided into two with delta(b)=-1, and two with delta(b)=+1
+!
+!     2a+b=N, where N is the number of electrons in the CSF described by the vertex
+!     b=2S, where S is the total electonic spinf of the CSF described by the vertex
+!
+!     Tabulation of valid cases:
+!     tail (u0,2d): delta(N)=-1, delta(b)=-1 => IA=IAL, and IB=IBL-1
+!     tail (d0,2u): delta(N)=-1, delta(b)=+1 => IA=IAL-1, and IB=IBL-1
+!     intermediate segment(00,uu,ud,dd,22): delta(N)=-1, delta(b)=-1
+!     intermediate segment(00,uu,du,dd,22): delta(N)=-1, delta(b)=+1
+
       if (IA == IAL) then
-        IB = SGS%DRT(IV,IBTAB)
         if (IB == (IBL-1)) CIS%IVR(IVL,1) = IV
       else if (IA == (IAL-1)) then
-        IB = SGS%DRT(IV,IBTAB)
         if (IB == (IBL+1)) CIS%IVR(IVL,2) = IV
       end if
+
     end do
   end do
 end do
+
 ! CONSTRUCT THE MVL AND MVR TABLES:
 do IVL=SGS%MVSta,SGS%MVEnd
   MVLL = IVL-SGS%MVSta+1
