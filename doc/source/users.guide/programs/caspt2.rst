@@ -220,6 +220,24 @@ is controlled by the keyword :kword:`DENSity`. Use this keyword to compute
 properties like dipole moments, etc. The most secure accurate way to do that is,
 however, to use finite field perturbation theory (FFPT).
 
+:math:`N`-electron valence state second-order perturbation theory (NEVPT2)
+:cite:`Angeli_JChemPhys_Introduction_2001,Angeli_ChemPhysLett_Nelectron_2001,Angeli_JChemPhys_nelectron_2002` calculations with a CAS reference wavefunction
+can be activated with :kword:`NEVPt2` in &CASPT2.
+This keyword does not require the QCMaquis interface.
+By default, NEVPT2 energy calculations are performed for both internal contraction schemes:
+partially contracted (PC) and strongly contracted (SC) NEVPT2.
+The former, also known as the fully internally contracted scheme, is equivalent to the contraction scheme used for CASPT2 in |openmolcas|.
+The quasidegenerate NEVPT2 (QD-NEVPT2) :cite:`Angeli_JChemPhys_quasidegenerate_2004` can be performed with the :kword:`MULTistate` keyword.
+Note that users can choose :kword:`XMULtistate`, but QD-NEVPT2 does not rotate model states as in XMS-CASPT2,
+since the model states are by construction eigenvectors of the Dyall Hamiltonian.
+However, results with the :kword:`XMULtistate` and `MULTistate` keywords may differ,
+as the molecular orbitals are obtained by canonicalizing different Fock matrices.
+Property calculations (dipole moments, analytical gradients, and NAC/DC vectors) can be performed
+in a similar manner to CASPT2 using the keyword :kword:`GRDT`.
+The keywords :kword:`SHIFt`, :kword:`IMAGinary`, :kword:`SIG1`, and :kword:`SIG2` are available only for PC-NEVPT2;
+:kword:`IPEAshift` is ignored for both contraction schemes.
+As NEVPT2 is often sensitive to the active space, users need to construct one appropriately.
+
 .. index::
    pair: Dependencies; CASPT2
 
@@ -296,6 +314,7 @@ Keywords
   The special value "``all``" can be used if all the states included in the
   CASSCF calculation (keyword :kword:`CIRoot` in :program:`RASSCF`) are desired.
   This keyword is mutually exclusive with :kword:`XMULtistate` and :kword:`RMULtistate`.
+  :kword:`MULTistate` with NEVPT2 is usually referred to QD-NEVPT2.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="MULTISTATE" APPEAR="Multi-State" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC" EXCLUSIVE="XMULTISTATE,RMULTISTATE">
               <ALTERNATE KIND="CHOICE" LIST="all" />
@@ -1020,6 +1039,31 @@ Keywords
               %%Keyword: PRHS <advanced>
               <HELP>
               Specify the parallelization strategy for the right-hand-side construction in connection with Cholesky or RI
+              </HELP>
+              </KEYWORD>
+
+:kword:`PC-Nevpt2`
+  Perform (CAS-based) PC-NEVPT2 and SC-NEVPT2 energy calculations instead of CASPT2.
+  Property calculations (analytical derivatives) are performed with the PC-NEVPT2 wavefunction.
+  :kword:`NEVPt2` and :kword:`PCNEvpt2` are valid synonyms.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NEVPT2" APPEAR="PC-NEVPT2" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: NEVPT2 <basic>
+              <HELP>
+              Performe PC-NEVPT2 calculations.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SC-Nevpt2`
+  Perform (CAS-based) PC-NEVPT2 and SC-NEVPT2 energy calculations instead of CASPT2.
+  Property calculations (analytical derivatives) are performed with the SC-NEVPT2 wavefunction.
+  :kword:`SC` and :kword:`SCNEvpt2` are valid synonyms.
+  If both `PC-Nevpt2` and `SC-Nevpt2` are present, SC-NEVPT2 properties are computed.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SC-NEVPT2" APPEAR="SC-NEVPT2" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: SC-NEVPT2 <basic>
+              <HELP>
+              Performe SC-NEVPT2 calculations.
               </HELP>
               </KEYWORD>
 
