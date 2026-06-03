@@ -62,25 +62,21 @@ integer(kind=iwp), protected :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 ! 19-22: tails segments
 ! 23-26: segments of the tail walk from the loop tail to the graph tail
 
+! Segment values according to ASTA.
+
 ! Vector descriptions:
 ! IC1(i) and IC2(i): each segment, i, is described by the pair of step vector (IC1(i),IC2(I)), where IC1(i) is the step vector of
 ! the bra CSF and iC2(i) is the step vector of the ket CSF.
 ! IBVPT(i):
 !  ISVC(i): the index ISVC(i), tells which formula to use to compute the segment value of the associated segment
-! ITVPT(i):
-#ifdef _OLD_
-integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
-                                IC1(26)   = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
-                                IC2(26)   = [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3], &
-                                ISVC(26)  = [1,1,1,1,1,6,1,5,1,2,4,7,2,1,7,3,2,2,1,5,1,6,1,1,1,1], &
-                                ITVPT(26) = [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3]
-#else
-integer(kind=iwp), parameter :: IBVPT(26) = [0,0,0,0,1,1,2,2,1,1,2,1,1,2,2,1,2,2,3,3,3,3,3,3,3,3], &
-                                IC1(26)   = [0,1,2,3,0,2,0,1,0,1,1,2,3,0,1,2,2,3,1,3,2,3,0,1,2,3], &
-                                IC2(26)   = [0,1,2,3,1,3,2,3,0,1,2,2,3,0,1,1,2,3,0,2,0,1,0,1,2,3], &
-                                ISVC(26)  = [1,1,1,1,1,7,8,4,1,2,9,10,2,1,2,11,12,2,1,5,6,3,1,1,1,1], &
-                                ITVPT(26) = [0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,2,2,3,3,3,3]
-#endif
+! ITVPT(i): denotes the delta b of the top vertices of the segment. 0: delta(b)=0, 1: delta(b)=-1, 2: delta(b)=+1, delta(b)=0
+!           It is also used to indicate if the segment has an upper right vertex different from the upper left vertex.
+!           0,3: the same vertex, 1:2 a different vertex.
+integer(kind=iwp), parameter :: IBVPT(26) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3], &
+                                IC1(26)   = [ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3], &
+                                IC2(26)   = [ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3], &
+                                ISVC(26)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1], &
+                                ITVPT(26) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3]
 
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCList, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGS, SGStruct
@@ -1153,13 +1149,6 @@ type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp) :: IA, IAL, IB, IBL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB, IVLT, IVRB, IVRT, LEV, MV, MVLL, MVRR
 real(kind=wp) :: V
 integer(kind=iwp), parameter :: IATAB = 3, IBTAB = 4
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ICL, ICR, ID
-character(len=20) :: TEXT
-character(len=*), parameter :: FRML(7) = ['        1.0         ','       -1.0         ','        1/(B+1)     ', &
-                                          '       -1/(B+1)     ','  SQRT(   B /(B+1)) ','  SQRT((B+2)/(B+1)) ', &
-                                          '  SQRT(B(B+2))/(B+1)']
-#endif
 
 call mma_allocate(CIS%IVR,SGS%nVert,2,Label='CIS%IVR')
 call mma_allocate(CIS%ISGM,SGS%nVert,26,Label='CIS%ISGM')
@@ -1219,41 +1208,30 @@ write(u6,1234) (IVL,CIS%IVR(IVL,1),CIS%IVR(IVL,2),IVL=1,SGS%nVert)
 CIS%ISGM(:,:) = 0
 CIS%VSGM(:,:) = Zero
 
-do IVLT=1,SGS%nVert
+! FOR EACH VERTEX LOOP OVER ALL POSSIBLE SEGMENTS IT CAN BE A PART OF
+do IVLT=1,SGS%nVert     ! Upper left vertex
   do ISGT=1,26
-    ITT = ITVPT(ISGT)
-    IVRT = IVLT
-    if ((ITT == 1) .or. (ITT == 2)) IVRT = CIS%IVR(IVLT,ITT)
-    if (IVRT == 0) cycle
+    ITT = ITVPT(ISGT)   ! 0-3
+    SELECT CASE(ITT)
+      Case(0,3)
+        IVRT = IVLT               ! Upper right vertex is the same as the upper left vertex.
+      Case(1,2)
+        IVRT = CIS%IVR(IVLT,ITT)  ! Pick up the associated upper right vertex, depends on delta(b)
+      Case Default
+    End Select
+    if (IVRT == 0) cycle          ! Branch out if there is no vertex that will contruct the top of the segment.
+    ! Pick up the vertex index for the left lower vertex as a function of the case
     IVLB = SGS%Down(IVLT,IC1(ISGT))
-    if (IVLB == 0) cycle
+    if (IVLB == 0) cycle          ! Branch out if there is no such vertex
+    ! Pick up the vertex index for the right lower vertex as a function of the case
     IVRB = SGS%Down(IVRT,IC2(ISGT))
-    if (IVRB == 0) cycle
+    if (IVRB == 0) cycle          ! Branch out if there is no such vertex
     ! SEGMENT IS NOW ACCEPTED AS POSSIBLE.
 
-    CIS%ISGM(IVLT,ISGT) = IVLB
-    IB = SGS%DRT(IVLT,IBTAB)
-#ifdef _OLD_
-    select case (ISVC(ISGT))
-      case (1)
-        V = One
-      case (2)
-        V = -One
-      case (3)
-        V = One/real(1+IB,kind=wp)
-      case (4)
-        V = -One/real(1+IB,kind=wp)
-      case (5)
-        V = sqrt(real(IB,kind=wp)/real(1+IB,kind=wp))
-      case (6)
-        V = sqrt(real(2+IB,kind=wp)/real(1+IB,kind=wp))
-      case (7)
-        V = sqrt(real(IB*(2+IB),kind=wp))/real(1+IB,kind=wp)
-      case default
-        V = Zero ! Dummy assignment
-        call Abend()
-    end select
-#else
+    CIS%ISGM(IVLT,ISGT) = IVLB  ! Mark that the segment is valid by changing the default value, 0,  to the index of
+                                ! lower left vertex being a part of the segment.
+    IB = SGS%DRT(IVLT,IBTAB)    ! Pick up the b-value from the DRT
+!   Note that we use the segment values according to the ASTA method.
     select case (ISVC(ISGT))
       case (1)
         V = One
@@ -1283,31 +1261,9 @@ do IVLT=1,SGS%nVert
         V = Zero ! Dummy assignment
         call Abend()
     end select
-#endif
-    CIS%VSGM(IVLT,ISGT) = V
+    CIS%VSGM(IVLT,ISGT) = V   ! Store away the segment value.
   end do
 end do
-
-#ifdef _DEBUGPRINT_
-write(u6,*) ' SEGMENT TABLE IN MKSEG.'
-write(u6,*) ' VLT SGT ICL ICR VLB       SEGMENT TYPE         FORMULA'
-do IV=1,SGS%nVert
-  do ISGT=1,26
-    ID = CIS%ISGM(IV,ISGT)
-    if (ID == 0) cycle
-    ICL = IC1(ISGT)
-    ICR = IC2(ISGT)
-    if (ISGT <= 4) TEXT = '  WALK SECTION.'
-    if ((ISGT >= 5) .and. (ISGT <= 8)) TEXT = ' TOP SEGMENT.'
-    if ((ISGT >= 9) .and. (ISGT <= 18)) TEXT = ' MID-SEGMENT.'
-    if ((ISGT >= 19) .and. (ISGT <= 22)) TEXT = ' BOTTOM SEGMENT.'
-    if (ISGT > 22) TEXT = ' DOWN-WALK SECTION.'
-    write(u6,2345) IV,ISGT,ICL,ICR,ID,TEXT,FRML(ISVC(ISGT))
-  end do
-end do
-1234 format(3(3(1X,I4),4X))
-2345 format(1X,5I4,5X,A20,5X,A20)
-# endif
 
 end subroutine MKSEG
 
