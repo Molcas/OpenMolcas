@@ -14,7 +14,7 @@
 subroutine CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,VECROT)
 
 use Index_Functions, only: nTri_Elem
-use EQSOLV, only: IDBMAT, IDTMAT, IDSMAT, IRHS, IVECR, IVECW, IVECX
+use EQSOLV, only: IDBMAT, IDSMAT, IRHS, IVECR, IVECW, IVECX
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: imag_shift, ipea_shift, iVecL, LUSBT, LUSOLV, sigma_p_epsilon
 use caspt2_module, only: EASUM, EPSA, HZERO, IFMSCOUP, NAES, NASH, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES
@@ -25,6 +25,7 @@ use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
 use Para_Info, only: Is_Real_Par, King
 use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use Definitions, only: u6
+use EQSOLV, only: IDTMAT
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Four, Half
@@ -36,15 +37,15 @@ real(kind=wp), intent(inout) :: G1(NASHT,NASHT), G2(NASHT,NASHT,NASHT,NASHT), G3
                                 DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3), DF1(NASHT,NASHT), DF2(NASHT,NASHT,NASHT,NASHT), DF3(NG3), &
                                 DEASUM, DEPSA(NASHT,NASHT)
 real(kind=wp), intent(in) :: VECROT(NSTATE)
-integer(kind=iwp) :: iCase, ID, idS, idT, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUabs, iTU2, iTUabs, iUabs, iXabs, iXgeYabs, &
+integer(kind=iwp) :: iCase, ID, idS, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUabs, iTU2, iTUabs, iUabs, iXabs, iXgeYabs, &
                      iXgtYabs, iXY2, iXYabs, iYabs, lg_V1, lg_V2, lg_V3, lg_V4, lg_V5, NAS, NIN, NIS, NS, NSEQ, NVEC
 real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BDERval, bsBDER, ET, EU, EX, EY, ScalB1, ScalB2, ScalS1, ScalS2, SDERval
 real(kind=wp), allocatable :: BDER(:), LBD(:), LID(:), SDER(:), SMat(:)
-logical(kind=iwp) :: bStat
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: IHI, ILO, JHI, JLO, LDV, lg_S, lg_T, mS, MYRANK
+integer(kind=iwp) :: idT, IHI, ILO, JHI, JLO, LDV, lg_S, lg_T, mS, MYRANK
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: VEC1(:), VEC2(:), VEC3(:), VEC4(:), VEC5(:)
+logical(kind=iwp) :: bStat
 #endif
 
 if (HZERO == 'DYALL' .and. SC_prop) then

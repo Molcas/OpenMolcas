@@ -81,7 +81,7 @@ use Para_Info, only: Is_Real_Par
 #endif
 use caspt2_global, only: do_csf, iPrGlb, iStpGrd
 use caspt2_module, only: HZERO, NACTEL, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, &
-                         NIGEJES, NIGTJ, NIGTJES, NINABX, NINDEP, NISH, NISUP, NORBT, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, &
+                         NIGEJES, NIGTJ, NIGTJES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, &
                          NTGTU, NTGTUES, NTU, NTUES, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
