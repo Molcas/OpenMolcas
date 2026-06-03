@@ -65,18 +65,16 @@ if (is_real_par()) call gaigop_scal(ng3tot,'+')
 call mma_allocate(DG1,NG1,Label='DG1')
 call mma_allocate(DG2,NG2,Label='DG2')
 call mma_allocate(DG3,NG3,Label='DG3')
+call mma_allocate(DF1_H,NG1,Label='DF1_H')
+call mma_allocate(DF2_H,NG2,Label='DF2_H')
 if (IFF == 1) then
-  call mma_allocate(DF1_H,NG1,Label='DF1_H')
-  call mma_allocate(DF2_H,NG2,Label='DF2_H')
   call mma_allocate(DF3_H,NG3,Label='DF3_H')
-  DF1 => DF1_H
-  DF2 => DF2_H
-  DF3 => DF3_H
 else
-  DF1 => DG1
-  DF2 => DG2
-  DF3 => DG3
+  call mma_allocate(DF3_H,1,Label='DF3_H')
 end if
+DF1 => DF1_H
+DF2 => DF2_H
+DF3 => DF3_H
 
 call PT2_GET(NG1,' GAMMA1',G1)
 call PT2_GET(NG2,' GAMMA2',G2)
@@ -91,11 +89,9 @@ end if
 DG1(:) = Zero
 DG2(:) = Zero
 DG3(:) = Zero
-if (IFF == 1) then
-  DF1(:) = Zero
-  DF2(:) = Zero
-  DF3(:) = Zero
-end if
+DF1(:) = Zero
+DF2(:) = Zero
+DF3(:) = Zero
 !! DEASUM is the derivative cont. of EASUM
 DEASUM = Zero
 
@@ -159,11 +155,9 @@ end if
 call mma_deallocate(DG1)
 call mma_deallocate(DG2)
 call mma_deallocate(DG3)
-if (IFF == 1) then
-  call mma_deallocate(DF1_H)
-  call mma_deallocate(DF2_H)
-  call mma_deallocate(DF3_H)
-end if
+call mma_deallocate(DF1_H)
+call mma_deallocate(DF2_H)
+call mma_deallocate(DF3_H)
 
 if (HZERO == 'DYALL') then
   if (IPRGLB >= VERBOSE) then

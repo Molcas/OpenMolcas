@@ -204,21 +204,21 @@ subroutine BDNA(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
     iYZ=iY+NASHT*(iZ-1)
 
     ! D(tuvxyz)
-    call Add_MKBNEVA(iT,iU,iV,iX,iY,iZ)
+    call Add_MKBNEVA(iT,iU,iV,iX,iY,iZ,iG3)
 
     if (iTU /= iVX .or. iVX /= iYZ) then
       if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
         ! D(vxtuyz)
-        call Add_MKBNEVA(iV,iX,iT,iU,iY,iZ)
+        call Add_MKBNEVA(iV,iX,iT,iU,iY,iZ,iG3)
         ! D(yzvxtu)
-        call Add_MKBNEVA(iY,iZ,iV,iX,iT,iU)
+        call Add_MKBNEVA(iY,iZ,iV,iX,iT,iU,iG3)
         ! D(tuyzvx)
-        call Add_MKBNEVA(iT,iU,iY,iZ,iV,iX)
+        call Add_MKBNEVA(iT,iU,iY,iZ,iV,iX,iG3)
       end if
       ! D(yztuvx)
-      call Add_MKBNEVA(iY,iZ,iT,iU,iV,iX)
+      call Add_MKBNEVA(iY,iZ,iT,iU,iV,iX,iG3)
       ! D(vxyztu)
-      call Add_MKBNEVA(iV,iX,iY,iZ,iT,iU)
+      call Add_MKBNEVA(iV,iX,iY,iZ,iT,iU,iG3)
     end if
 
     if (iT == iU .and. iV == iX .and. iY == iZ) cycle
@@ -227,38 +227,38 @@ subroutine BDNA(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
     if (iZ == iY .and. iV == iU .and. iX == iT) cycle
 
     ! D(utxvzy)
-    call Add_MKBNEVA(iU,iT,iX,iV,iZ,iY)
+    call Add_MKBNEVA(iU,iT,iX,iV,iZ,iY,iG3)
 
     if (iTU == iVX .and. iVX == iYZ) cycle
     if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
       ! D(xvutzy)
-      call Add_MKBNEVA(iX,iV,iU,iT,iZ,iY)
+      call Add_MKBNEVA(iX,iV,iU,iT,iZ,iY,iG3)
       ! D(zyxvut)
-      call Add_MKBNEVA(iZ,iY,iX,iV,iU,iT)
+      call Add_MKBNEVA(iZ,iY,iX,iV,iU,iT,iG3)
       ! D(utzyxv)
-      call Add_MKBNEVA(iU,iT,iZ,iY,iX,iV)
+      call Add_MKBNEVA(iU,iT,iZ,iY,iX,iV,iG3)
     end if
     ! D(zyutxv)
-    call Add_MKBNEVA(iZ,iY,iU,iT,iX,iV)
+    call Add_MKBNEVA(iZ,iY,iU,iT,iX,iV,iG3)
     ! D(xvzyut)
-    call Add_MKBNEVA(iX,iV,iZ,iY,iU,iT)
+    call Add_MKBNEVA(iX,iV,iZ,iY,iU,iT,iG3)
   end do
 
   call mma_deallocate(idxG3)
 
 contains
 
-  subroutine Add_MKBNEVA(ITABS_,IUABS_,IVABS_,IXABS_,IYABS_,IZABS_)
+  subroutine Add_MKBNEVA(ITABS_,IUABS_,IVABS_,IXABS_,IYABS_,IZABS_,iG3_)
 
   use SUPERINDEX, only: KTUV
   use Symmetry_Info, only: Mul
 
   implicit none
 
-  integer(kind=iwp), intent(in) :: ITABS_, IUABS_, IVABS_, IXABS_, IYABS_, IZABS_
+  integer(kind=iwp), intent(in) :: ITABS_, IUABS_, IVABS_, IXABS_, IYABS_, IZABS_, iG3_
   integer(kind=iwp) :: iaabs, ibabs, isab, ituv_, ixyz_, iwabs
 
-  G3VAL = ex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,G1,G2,G3(iG3))
+  G3VAL = ex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,G1,G2,G3(iG3_))
   DG3VAL = Zero
   DG2VAL = Zero
 
@@ -356,7 +356,7 @@ contains
 
   dg3val = -dg3val
 
-  call derex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,DG1,DG2,DG3(iG3),DG3VAL)
+  call derex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,DG1,DG2,DG3(iG3_),DG3VAL)
   if (ivabs_ == ixabs_) then
     dg2val = -Two*(dg3val - dg2val)
     call derex2(itabs_,iuabs_,iyabs_,izabs_,DG1,DG2,DG2VAL)
@@ -533,41 +533,41 @@ subroutine BDNB(iSym,iCase,NAS,NG3,BDER0,SDER0,G1,G2,G3,DG1,DG2,DG3)
     DG3VAL = Zero
 
     ! F(tuvxyz) -> BC(vut,xyz)
-    if (Mul(iST,iSV) == iSym) call Add_MKBNEVB(iT,iU,iV,iX,iY,iZ)
+    if (Mul(iST,iSV) == iSym) call Add_MKBNEVB(iT,iU,iV,iX,iY,iZ,G3VAL,DG3VAL)
 
     if (iTU /= iVX .or. iVX /= iYZ) then
       if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
         ! F(vxtuyz) -> BC(txv,uyz)
-        if (Mul(iSV,iST) == iSym) call Add_MKBNEVB(iV,iX,iT,iU,iY,iZ)
+        if (Mul(iSV,iST) == iSym) call Add_MKBNEVB(iV,iX,iT,iU,iY,iZ,G3VAL,DG3VAL)
         ! F(yzvxtu) -> BC(vzy,xtu)
-        if (Mul(iSY,iSV) == iSym) call Add_MKBNEVB(iY,iZ,iV,iX,iT,iU)
+        if (Mul(iSY,iSV) == iSym) call Add_MKBNEVB(iY,iZ,iV,iX,iT,iU,G3VAL,DG3VAL)
         ! F(tuyzvx) -> BC(yut,zvx)
-        if (Mul(iST,iSY) == iSym) call Add_MKBNEVB(iT,iU,iY,iZ,iV,iX)
+        if (Mul(iST,iSY) == iSym) call Add_MKBNEVB(iT,iU,iY,iZ,iV,iX,G3VAL,DG3VAL)
       end if
       ! F(yztuvx) -> BC(tzy,uvx)
-      if (Mul(iSY,iST) == iSym) call Add_MKBNEVB(iY,iZ,iT,iU,iV,iX)
+      if (Mul(iSY,iST) == iSym) call Add_MKBNEVB(iY,iZ,iT,iU,iV,iX,G3VAL,DG3VAL)
       ! F(vxyztu) -> BC(yxv,ztu)
-      if (Mul(iSV,iSY) == iSym) call Add_MKBNEVB(iV,iX,iY,iZ,iT,iU)
+      if (Mul(iSV,iSY) == iSym) call Add_MKBNEVB(iV,iX,iY,iZ,iT,iU,G3VAL,DG3VAL)
     end if
 
     if ((iT /= iU .or. iV /= iX .or. iY /= iZ) .and. (iT /= iU .or. iV /= iZ .or. iX /= iY) .and. &
         (iX /= iV .or. iT /= iZ .or. iU /= iY) .and. (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
       ! F(utxvzy) -> BC(xtu,vzy)
-      if (Mul(iSU,iSX) == iSym) call Add_MKBNEVB(iU,iT,iX,iV,iZ,iY)
+      if (Mul(iSU,iSX) == iSym) call Add_MKBNEVB(iU,iT,iX,iV,iZ,iY,G3VAL,DG3VAL)
 
       if (iTU /= iVX .or. iVX /= iYZ) then
         if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
           ! F(xvutzy) -> BC(uvx,tzy)
-          if (Mul(iSX,iSU) == iSym) call Add_MKBNEVB(iX,iV,iU,iT,iZ,iY)
+          if (Mul(iSX,iSU) == iSym) call Add_MKBNEVB(iX,iV,iU,iT,iZ,iY,G3VAL,DG3VAL)
           ! F(zyxvut) -> BC(xyz,vut)
-          if (Mul(iSZ,iSX) == iSym) call Add_MKBNEVB(iZ,iY,iX,iV,iU,iT)
+          if (Mul(iSZ,iSX) == iSym) call Add_MKBNEVB(iZ,iY,iX,iV,iU,iT,G3VAL,DG3VAL)
           ! F(utzyxv) -> BC(ztu,yxv)
-          if (Mul(iSU,iSZ) == iSym) call Add_MKBNEVB(iU,iT,iZ,iY,iX,iV)
+          if (Mul(iSU,iSZ) == iSym) call Add_MKBNEVB(iU,iT,iZ,iY,iX,iV,G3VAL,DG3VAL)
         end if
         ! F(zyutxv) -> BC(uyz,txv)
-        if (Mul(iSZ,iSU) == iSym) call Add_MKBNEVB(iZ,iY,iU,iT,iX,iV)
+        if (Mul(iSZ,iSU) == iSym) call Add_MKBNEVB(iZ,iY,iU,iT,iX,iV,G3VAL,DG3VAL)
         ! F(xvzyut) -> BC(zvx,yut)
-        if (Mul(iSX,iSZ) == iSym) call Add_MKBNEVB(iX,iV,iZ,iY,iU,iT)
+        if (Mul(iSX,iSZ) == iSym) call Add_MKBNEVB(iX,iV,iZ,iY,iU,iT,G3VAL,DG3VAL)
       end if
     end if
 
@@ -582,24 +582,26 @@ subroutine BDNB(iSym,iCase,NAS,NG3,BDER0,SDER0,G1,G2,G3,DG1,DG2,DG3)
 
 contains
 
-  subroutine Add_MKBNEVB(ITABS_,IXABS_,IUABS_,IYABS_,IVABS_,IZABS_)
+  subroutine Add_MKBNEVB(ITABS_,IXABS_,IUABS_,IYABS_,IVABS_,IZABS_,g3val_,dg3val_)
 
   implicit none
 
   integer(kind=iwp), intent(in) :: ITABS_, IVABS_, IYABS_, IUABS_, IXABS_, IZABS_
+  real(kind=wp), intent(in) :: g3val_
+  real(kind=wp), intent(inout) :: dg3val_
   integer(kind=iwp) :: ITU_, IWABS, IXY_
 
   iTU_ = KTU(ITABS_,IUABS_)-NTUES(ISYM)
   do IWABS = 1, nAshT
     if (MUL(IASYM(IWABS),IASYM(IYABS_)) == iSym) then
       iXY_ = KTU(IWABS,IYABS_)-NTUES(ISYM)
-      DG3VAL = DG3VAL - BDER(iTU_,iXY_)*Gact(izabs_,ivabs_,ixabs_,iwabs)
-      Gder(izabs_,ivabs_,ixabs_,iwabs) = Gder(izabs_,ivabs_,ixabs_,iwabs) - BDER(iTU_,iXY_)*G3VAL
+      dg3val_ = dg3val_ - BDER(iTU_,iXY_)*Gact(izabs_,ivabs_,ixabs_,iwabs)
+      Gder(izabs_,ivabs_,ixabs_,iwabs) = Gder(izabs_,ivabs_,ixabs_,iwabs) - BDER(iTU_,iXY_)*g3val_
     end if
     if (MUL(IASYM(IXABS_),IASYM(IWABS)) == iSym) then
       iXY_ = KTU(IXABS_,IWABS)-NTUES(ISYM)
-      DG3VAL = DG3VAL - BDER(iTU_,iXY_)*Gact(izabs_,ivabs_,iyabs_,iwabs)
-      Gder(izabs_,ivabs_,iyabs_,iwabs) = Gder(izabs_,ivabs_,iyabs_,iwabs) - BDER(iTU_,iXY_)*G3VAL
+      dg3val_ = dg3val_ - BDER(iTU_,iXY_)*Gact(izabs_,ivabs_,iyabs_,iwabs)
+      Gder(izabs_,ivabs_,iyabs_,iwabs) = Gder(izabs_,ivabs_,iyabs_,iwabs) - BDER(iTU_,iXY_)*g3val_
     end if
   end do
 
@@ -650,21 +652,21 @@ subroutine BDNC(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
     iYZ=iY+NASHT*(iZ-1)
 
     ! D(tuvxyz)
-    call Add_MKBNEVC(iT,iU,iV,iX,iY,iZ)
+    call Add_MKBNEVC(iT,iU,iV,iX,iY,iZ,iG3)
 
     if (iTU /= iVX .or. iVX /= iYZ) then
       if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
         ! D(vxtuyz)
-        call Add_MKBNEVC(iV,iX,iT,iU,iY,iZ)
+        call Add_MKBNEVC(iV,iX,iT,iU,iY,iZ,iG3)
         ! D(yzvxtu)
-        call Add_MKBNEVC(iY,iZ,iV,iX,iT,iU)
+        call Add_MKBNEVC(iY,iZ,iV,iX,iT,iU,iG3)
         ! D(tuyzvx)
-        call Add_MKBNEVC(iT,iU,iY,iZ,iV,iX)
+        call Add_MKBNEVC(iT,iU,iY,iZ,iV,iX,iG3)
       end if
       ! D(yztuvx)
-      call Add_MKBNEVC(iY,iZ,iT,iU,iV,iX)
+      call Add_MKBNEVC(iY,iZ,iT,iU,iV,iX,iG3)
       ! D(vxyztu)
-      call Add_MKBNEVC(iV,iX,iY,iZ,iT,iU)
+      call Add_MKBNEVC(iV,iX,iY,iZ,iT,iU,iG3)
     end if
 
     if (iT == iU .and. iV == iX .and. iY == iZ) cycle
@@ -673,38 +675,38 @@ subroutine BDNC(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
     if (iZ == iY .and. iV == iU .and. iX == iT) cycle
 
     ! D(utxvzy)
-    call Add_MKBNEVC(iU,iT,iX,iV,iZ,iY)
+    call Add_MKBNEVC(iU,iT,iX,iV,iZ,iY,iG3)
 
     if (iTU == iVX .and. iVX == iYZ) cycle
     if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
       ! D(xvutzy)
-      call Add_MKBNEVC(iX,iV,iU,iT,iZ,iY)
+      call Add_MKBNEVC(iX,iV,iU,iT,iZ,iY,iG3)
       ! D(zyxvut)
-      call Add_MKBNEVC(iZ,iY,iX,iV,iU,iT)
+      call Add_MKBNEVC(iZ,iY,iX,iV,iU,iT,iG3)
       ! D(utzyxv)
-      call Add_MKBNEVC(iU,iT,iZ,iY,iX,iV)
+      call Add_MKBNEVC(iU,iT,iZ,iY,iX,iV,iG3)
     end if
     ! D(zyutxv)
-    call Add_MKBNEVC(iZ,iY,iU,iT,iX,iV)
+    call Add_MKBNEVC(iZ,iY,iU,iT,iX,iV,iG3)
     ! D(xvzyut)
-    call Add_MKBNEVC(iX,iV,iZ,iY,iU,iT)
+    call Add_MKBNEVC(iX,iV,iZ,iY,iU,iT,iG3)
   end do
 
   call mma_deallocate(idxG3)
 
 contains
 
-  subroutine Add_MKBNEVC(ITABS_,IUABS_,IVABS_,IXABS_,IYABS_,IZABS_)
+  subroutine Add_MKBNEVC(ITABS_,IUABS_,IVABS_,IXABS_,IYABS_,IZABS_,iG3_)
 
   use SUPERINDEX, only: KTUV
   use Symmetry_Info, only: Mul
 
   implicit none
 
-  integer(kind=iwp), intent(in) :: ITABS_, IUABS_, IVABS_, IXABS_, IYABS_, IZABS_
+  integer(kind=iwp), intent(in) :: ITABS_, IUABS_, IVABS_, IXABS_, IYABS_, IZABS_, iG3_
   integer(kind=iwp) :: iaabs, ibabs, isab, ituv_, ixyz_, iwabs
 
-  G3VAL = ex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,G1,G2,G3(iG3))
+  G3VAL = ex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,G1,G2,G3(iG3_))
   DG3VAL = Zero
 
   ituv_ = KTUV(ivabs_,iuabs_,itabs_) - NTUVES(iSym)
@@ -766,7 +768,7 @@ contains
     end do
   end if
 
-  call derex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,DG1,DG2,DG3(iG3),DG3VAL)
+  call derex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,DG1,DG2,DG3(iG3_),DG3VAL)
 
   end subroutine Add_MKBNEVC
 
@@ -933,31 +935,31 @@ subroutine BDND(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
 
     ! D(tuvxyz)
     if (Mul(iSU,iST) == iSym .or. Mul(iSU,ISV) == iSym .or. Mul(iSX,iSY) == iSym) then
-      call Add_MKBNEVD(iT,iU,iV,iX,iY,iZ)
+      call Add_MKBNEVD(iT,iU,iV,iX,iY,iZ,iG3)
     end if
 
     if (iTU /= iVX .or. iVX /= iYZ) then
       if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
         ! D(vxtuyz)
         if (Mul(iSX,iSV) == iSym .or. Mul(iSX,iST) == iSym .or. Mul(iSU,iSY) == iSym) then
-          call Add_MKBNEVD(iV,iX,iT,iU,iY,iZ)
+          call Add_MKBNEVD(iV,iX,iT,iU,iY,iZ,iG3)
         end if
         ! D(yzvxtu)
         if (Mul(iSZ,iSY) == iSym .or. Mul(iSZ,iSV) == iSym .or. Mul(iSX,iST) == iSym) then
-          call Add_MKBNEVD(iY,iZ,iV,iX,iT,iU)
+          call Add_MKBNEVD(iY,iZ,iV,iX,iT,iU,iG3)
         end if
         ! D(tuyzvx)
         if (Mul(iSU,iST) == iSym .or. Mul(iSU,iSY) == iSym .or. Mul(iSZ,iSV) == iSym) then
-          call Add_MKBNEVD(iT,iU,iY,iZ,iV,iX)
+          call Add_MKBNEVD(iT,iU,iY,iZ,iV,iX,iG3)
         end if
       end if
       ! D(yztuvx)
       if (Mul(iSZ,iSY) == iSym .or. Mul(iSZ,iST) == iSym .or. Mul(iSU,iSV) == iSym) then
-        call Add_MKBNEVD(iY,iZ,iT,iU,iV,iX)
+        call Add_MKBNEVD(iY,iZ,iT,iU,iV,iX,iG3)
       end if
       ! D(vxyztu)
       if (Mul(iSX,iSV) == iSym .or. Mul(iSX,iSY) == iSym .or. Mul(iSZ,iST) == iSym) then
-        call Add_MKBNEVD(iV,iX,iY,iZ,iT,iU)
+        call Add_MKBNEVD(iV,iX,iY,iZ,iT,iU,iG3)
       end if
     end if
 
@@ -968,31 +970,31 @@ subroutine BDND(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
 
     ! D(utxvzy)
     if (Mul(iST,iSU) == iSym .or. Mul(iST,iSX) == iSym .or. Mul(iSV,iSZ) == iSym) then
-      call Add_MKBNEVD(iU,iT,iX,iV,iZ,iY)
+      call Add_MKBNEVD(iU,iT,iX,iV,iZ,iY,iG3)
     end if
 
     if (iTU == iVX .and. iVX == iYZ) cycle
     if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
       ! D(xvutzy)
       if (Mul(iSV,iSX) == iSym .or. Mul(iSV,iSU) == iSym .or. Mul(iST,iSZ) == iSym) then
-        call Add_MKBNEVD(iX,iV,iU,iT,iZ,iY)
+        call Add_MKBNEVD(iX,iV,iU,iT,iZ,iY,iG3)
       end if
       ! D(zyxvut)
       if (Mul(iSY,iSZ) == iSym .or. Mul(iSY,iSX) == iSym .or. Mul(iSV,iSU) == iSym) then
-        call Add_MKBNEVD(iZ,iY,iX,iV,iU,iT)
+        call Add_MKBNEVD(iZ,iY,iX,iV,iU,iT,iG3)
       end if
       ! D(utzyxv)
       if (Mul(iST,iSU) == iSym .or. Mul(iST,iSZ) == iSym .or. Mul(iSY,iSX) == iSym) then
-        call Add_MKBNEVD(iU,iT,iZ,iY,iX,iV)
+        call Add_MKBNEVD(iU,iT,iZ,iY,iX,iV,iG3)
       end if
     end if
     ! D(zyutxv)
     if (Mul(iSY,iSZ) == iSym .or. Mul(iSY,iSU) == iSym .or. Mul(iST,iSX) == iSym) then
-      call Add_MKBNEVD(iZ,iY,iU,iT,iX,iV)
+      call Add_MKBNEVD(iZ,iY,iU,iT,iX,iV,iG3)
     end if
     ! D(xvzyut)
     if (Mul(iSV,iSX) == iSym .or. Mul(iSV,iSZ) == iSym .or. Mul(iSY,iSU) == iSym) then
-      call Add_MKBNEVD(iX,iV,iZ,iY,iU,iT)
+      call Add_MKBNEVD(iX,iV,iZ,iY,iU,iT,iG3)
     end if
   end do
 
@@ -1005,7 +1007,7 @@ subroutine BDND(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
 
 contains
 
-  subroutine Add_MKBNEVD(ITABS_,IUABS_,IVABS_,IXABS_,IYABS_,IZABS_)
+  subroutine Add_MKBNEVD(ITABS_,IUABS_,IVABS_,IXABS_,IYABS_,IZABS_,iG3_)
 
   use caspt2_module, only: NTUES, IASYM
   use SUPERINDEX, only: KTU
@@ -1013,10 +1015,10 @@ contains
 
   implicit none
 
-  integer(kind=iwp), intent(in) :: ITABS_, IUABS_, IVABS_, IXABS_, IYABS_, IZABS_
+  integer(kind=iwp), intent(in) :: ITABS_, IUABS_, IVABS_, IXABS_, IYABS_, IZABS_, iG3_
   integer(kind=iwp) :: ITU_, IWABS, IXY_
 
-  G3VAL = ex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,G1,G2,G3(iG3))
+  G3VAL = ex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,G1,G2,G3(iG3_))
   DG3VAL = Zero
 
   !! A
@@ -1092,7 +1094,7 @@ contains
     end if
   end do
 
-  call derex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,DG1,DG2,DG3(iG3),DG3VAL)
+  call derex3(itabs_,iuabs_,ivabs_,ixabs_,iyabs_,izabs_,DG1,DG2,DG3(iG3_),DG3VAL)
 
   end subroutine Add_MKBNEVD
 
@@ -1314,41 +1316,41 @@ subroutine BDNF(iSym,iCase,NAS,NG3,BDER0,SDER0,G2,G3,DG2,DG3)
     DG3VAL = Zero
 
     ! F(tuvxyz) -> BC(vut,xyz)
-    if (Mul(iST,iSV) == iSym) call Add_MKBNEVF(iT,iU,iV,iX,iY,iZ)
+    if (Mul(iST,iSV) == iSym) call Add_MKBNEVF(iT,iU,iV,iX,iY,iZ,G3VAL,DG3VAL)
 
     if (iTU /= iVX .or. iVX /= iYZ) then
       if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
         ! F(vxtuyz) -> BC(txv,uyz)
-        if (Mul(iSV,iST) == iSym) call Add_MKBNEVF(iV,iX,iT,iU,iY,iZ)
+        if (Mul(iSV,iST) == iSym) call Add_MKBNEVF(iV,iX,iT,iU,iY,iZ,G3VAL,DG3VAL)
         ! F(yzvxtu) -> BC(vzy,xtu)
-        if (Mul(iSY,iSV) == iSym) call Add_MKBNEVF(iY,iZ,iV,iX,iT,iU)
+        if (Mul(iSY,iSV) == iSym) call Add_MKBNEVF(iY,iZ,iV,iX,iT,iU,G3VAL,DG3VAL)
         ! F(tuyzvx) -> BC(yut,zvx)
-        if (Mul(iST,iSY) == iSym) call Add_MKBNEVF(iT,iU,iY,iZ,iV,iX)
+        if (Mul(iST,iSY) == iSym) call Add_MKBNEVF(iT,iU,iY,iZ,iV,iX,G3VAL,DG3VAL)
       end if
       ! F(yztuvx) -> BC(tzy,uvx)
-      if (Mul(iSY,iST) == iSym) call Add_MKBNEVF(iY,iZ,iT,iU,iV,iX)
+      if (Mul(iSY,iST) == iSym) call Add_MKBNEVF(iY,iZ,iT,iU,iV,iX,G3VAL,DG3VAL)
       ! F(vxyztu) -> BC(yxv,ztu)
-      if (Mul(iSV,iSY) == iSym) call Add_MKBNEVF(iV,iX,iY,iZ,iT,iU)
+      if (Mul(iSV,iSY) == iSym) call Add_MKBNEVF(iV,iX,iY,iZ,iT,iU,G3VAL,DG3VAL)
     end if
 
     if ((iT /= iU .or. iV /= iX .or. iY /= iZ) .and. (iT /= iU .or. iV /= iZ .or. iX /= iY) .and. &
         (iX /= iV .or. iT /= iZ .or. iU /= iY) .and. (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
       ! F(utxvzy) -> BC(xtu,vzy)
-      if (Mul(iSU,iSX) == iSym) call Add_MKBNEVF(iU,iT,iX,iV,iZ,iY)
+      if (Mul(iSU,iSX) == iSym) call Add_MKBNEVF(iU,iT,iX,iV,iZ,iY,G3VAL,DG3VAL)
 
       if (iTU /= iVX .or. iVX /= iYZ) then
         if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
           ! F(xvutzy) -> BC(uvx,tzy)
-          if (Mul(iSX,iSU) == iSym) call Add_MKBNEVF(iX,iV,iU,iT,iZ,iY)
+          if (Mul(iSX,iSU) == iSym) call Add_MKBNEVF(iX,iV,iU,iT,iZ,iY,G3VAL,DG3VAL)
           ! F(zyxvut) -> BC(xyz,vut)
-          if (Mul(iSZ,iSX) == iSym) call Add_MKBNEVF(iZ,iY,iX,iV,iU,iT)
+          if (Mul(iSZ,iSX) == iSym) call Add_MKBNEVF(iZ,iY,iX,iV,iU,iT,G3VAL,DG3VAL)
           ! F(utzyxv) -> BC(ztu,yxv)
-          if (Mul(iSU,iSZ) == iSym) call Add_MKBNEVF(iU,iT,iZ,iY,iX,iV)
+          if (Mul(iSU,iSZ) == iSym) call Add_MKBNEVF(iU,iT,iZ,iY,iX,iV,G3VAL,DG3VAL)
         end if
         ! F(zyutxv) -> BC(uyz,txv)
-        if (Mul(iSZ,iSU) == iSym) call Add_MKBNEVF(iZ,iY,iU,iT,iX,iV)
+        if (Mul(iSZ,iSU) == iSym) call Add_MKBNEVF(iZ,iY,iU,iT,iX,iV,G3VAL,DG3VAL)
         ! F(xvzyut) -> BC(zvx,yut)
-        if (Mul(iSX,iSZ) == iSym) call Add_MKBNEVF(iX,iV,iZ,iY,iU,iT)
+        if (Mul(iSX,iSZ) == iSym) call Add_MKBNEVF(iX,iV,iZ,iY,iU,iT,G3VAL,DG3VAL)
       end if
     end if
 
@@ -1363,7 +1365,7 @@ subroutine BDNF(iSym,iCase,NAS,NG3,BDER0,SDER0,G2,G3,DG2,DG3)
 
 contains
 
-  subroutine Add_MKBNEVF(ITABS_,IXABS_,IUABS_,IYABS_,IVABS_,IZABS_)
+  subroutine Add_MKBNEVF(ITABS_,IXABS_,IUABS_,IYABS_,IVABS_,IZABS_,g3val_,dg3val_)
 
   use caspt2_module, only: NTUES, IASYM
   use SUPERINDEX, only: KTU
@@ -1372,19 +1374,21 @@ contains
   implicit none
 
   integer(kind=iwp), intent(in) :: ITABS_, IVABS_, IYABS_, IUABS_, IXABS_, IZABS_
+  real(kind=wp), intent(in) :: g3val_
+  real(kind=wp), intent(inout) :: dg3val_
   integer(kind=iwp) :: ITU_, IWABS, IXY_
 
   iTU_ = KTU(ITABS_,IUABS_)-NTUES(ISYM)
   do IWABS = 1, nAshT
     if (Mul(IASYM(IWABS),IASYM(IYABS_)) == iSym) then
       iXY_ = KTU(IWABS,IYABS_)-NTUES(ISYM)
-      DG3VAL = DG3VAL - BDER(iTU_,iXY_)*Gact(iwabs,ixabs_,ivabs_,izabs_)
-      Gder(iwabs,ixabs_,ivabs_,izabs_) = Gder(iwabs,ixabs_,ivabs_,izabs_) - BDER(iTU_,iXY_)*G3VAL
+      dg3val_ = dg3val_ - BDER(iTU_,iXY_)*Gact(iwabs,ixabs_,ivabs_,izabs_)
+      Gder(iwabs,ixabs_,ivabs_,izabs_) = Gder(iwabs,ixabs_,ivabs_,izabs_) - BDER(iTU_,iXY_)*g3val_
     end if
     if (Mul(IASYM(IXABS_),IASYM(IWABS)) == iSym) then
       iXY_ = KTU(IXABS_,IWABS)-NTUES(ISYM)
-      DG3VAL = DG3VAL - BDER(iTU_,iXY_)*Gact(iwabs,iyabs_,ivabs_,izabs_)
-      Gder(iwabs,iyabs_,ivabs_,izabs_) = Gder(iwabs,iyabs_,ivabs_,izabs_) - BDER(iTU_,iXY_)*G3VAL
+      dg3val_ = dg3val_ - BDER(iTU_,iXY_)*Gact(iwabs,iyabs_,ivabs_,izabs_)
+      Gder(iwabs,iyabs_,ivabs_,izabs_) = Gder(iwabs,iyabs_,ivabs_,izabs_) - BDER(iTU_,iXY_)*g3val_
     end if
   end do
 
