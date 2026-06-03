@@ -31,6 +31,7 @@ use GA_Wrapper, only: DBL_MB
 #endif
 use fake_GA, only: GA_Arrays
 use caspt2_module, only: NASUP, NINDEP, NISUP, NSYM
+use SC_NEVPT2, only: SC_prop, SC_NEVPT2_amplitude
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -60,12 +61,17 @@ do ICASE=1,13
     NIS = NISUP(ISYM,ICASE)
 
     if (NAS*NIS == 0) cycle
-    if (NIN == 0) cycle
+    if (NIN == 0 .and. .not.SC_prop) cycle
 
     call RHS_ALLO(NAS,NIS,lg_V1)
     call RHS_ALLO(NAS,NIS,lg_V2)
     call RHS_READ(NAS,NIS,lg_V1,ICASE,ISYM,IVEC)
-    call RHS_READ(NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
+    if (SC_prop) then
+      call RHS_READ(NAS,NIS,lg_V2,ICASE,ISYM,IVEC)
+      call SC_NEVPT2_amplitude(NAS,NIS,ICASE,ISYM,lg_V2)
+    else
+      call RHS_READ(NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
+    end if
     call RHS_ACCESS(NAS,NIS,lg_V1,iLo1,iHi1,jLo1,jHi1,MV1)
     call RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
 

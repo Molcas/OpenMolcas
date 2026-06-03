@@ -80,9 +80,9 @@ use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array
 use Para_Info, only: Is_Real_Par
 #endif
 use caspt2_global, only: do_csf, iPrGlb, iStpGrd
-use caspt2_module, only: NACTEL, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, NIGEJES, &
-                         NIGTJ, NIGTJES, NINABX, NINDEP, NISH, NISUP, NORBT, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, NTGTU, &
-                         NTGTUES, NTU, NTUES, NTUV, NTUVES
+use caspt2_module, only: HZERO, NACTEL, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, &
+                         NIGEJES, NIGTJ, NIGTJES, NINABX, NINDEP, NISH, NISUP, NORBT, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, &
+                         NTGTU, NTGTUES, NTU, NTUES, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -190,6 +190,8 @@ do JSYM=1,NSYM
 
     call Get_Cholesky_Vectors(Active,Active,JSYM,KET,size(KET),nKet,IBSTA,IBEND)
     KETD(1:nKet) = Zero
+
+    if (HZERO == 'DYALL') call OLagNS_RI2(Active,Active,Active,Active,'N ',size(KET),size(KET),KET,KET,KETD,KETD)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -471,6 +473,8 @@ subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,iCase,nBra,nKet,Cho_Bra,Cho_Ket,Cho_BraD,C
           call OLagNS_RI_G(ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case ('E ')
           call OLagNS_RI_E(ISYI,ISYK,NP,NI,NQ,NK,PIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
+        case ('N ')
+          call OLagNS_RI_N(ISYI,ISYK,NP,NI,NQ,NK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),Cho_BraD(LBRASM),Cho_KetD(LKETSM),NV)
         case default
           call Abend()
       end select
@@ -495,7 +499,7 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   real(kind=wp), intent(out) :: TJVX(NT,NJ,NV,NX)
   real(kind=wp), intent(in) :: Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
   real(kind=wp), intent(inout) :: Cho_BraD(NT,NJ,NCHO), Cho_KetD(NV,NX,NCHO)
-  integer(kind=iwp) :: IJ, IT, IV, IX
+  integer(kind=iwp) :: IJ, IT, IV, IX, nOrbT_
 
   ISYJ = ISYI
   ISYX = ISYK
@@ -549,7 +553,7 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
 
   TJVX(:,:,:,:) = Zero
 
-  nOrbT = nFro(iSyT)+nIsh(iSyT)+nAsh(iSyT)+nSsh(iSyT)
+  nOrbT_ = nFro(iSyT)+nIsh(iSyT)+nAsh(iSyT)+nSsh(iSyT)
   do IT=1,NT
     ITABS = IT+NAES(ISYT)
     iTtot = iT+nFro(iSyT)+nIsh(iSyT)
@@ -565,8 +569,8 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
           IW2 = IJ
           IW = IW1+NAS*(IW2-1)
 
-          DPT2C(iTtot+nOrbT*(iJtot-1)) = DPT2C(iTtot+nOrbT*(iJtot-1))+Two*GA_Arrays(ipT)%A(IW)
-          if (do_csf) DPT2Canti(iTtot+nOrbT*(iJtot-1)) = DPT2Canti(iTtot+nOrbT*(iJtot-1))+Two*GA_Arrays(ipTanti)%A(IW)
+          DPT2C(iTtot+nOrbT_*(iJtot-1)) = DPT2C(iTtot+nOrbT_*(iJtot-1))+Two*GA_Arrays(ipT)%A(IW)
+          if (do_csf) DPT2Canti(iTtot+nOrbT_*(iJtot-1)) = DPT2Canti(iTtot+nOrbT_*(iJtot-1))+Two*GA_Arrays(ipTanti)%A(IW)
         end if
         do IX=1,NX
           IXABS = IX+NAES(ISYX)
@@ -2035,6 +2039,33 @@ subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,Cho_Bra,Cho_Ket,Cho_BraD
   return
 
 end subroutine OLagNS_RI_H
+
+subroutine OLagNS_RI_N(ISYI,ISYK,NT,NU,NV,NX, &
+                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
+
+use BDerNEV, only: Gder
+use definitions, only: iwp, wp, u6
+
+implicit none
+
+integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NU, NV, NX, NCHO
+real(kind=wp), intent(in) :: Cho_Bra(NT,NU,NCHO), &
+  Cho_Ket(NV,NX,NCHO)
+real(kind=wp), intent(inout) :: Cho_BraD(NT,NU,NCHO), &
+  Cho_KetD(NV,NX,NCHO)
+
+integer(kind=iwp) :: ISYU, ISYX
+
+ISYU = ISYI
+ISYX = ISYK
+if (ISYU < ISYX) return
+
+! here, the contribution is halved, because bra/ket vectors are
+! multiplied by two later
+call DGEMM_('T','N',NV*NX,NCHO,NT*NU,Half,Gder(1,1,1,1),NT*NU,Cho_Bra(1,1,1),NT*NU,One,Cho_KetD(1,1,1),NV*NX)
+call DGEMM_('N','N',NT*NU,NCHO,NV*NX,Half,Gder(1,1,1,1),NT*NU,Cho_Ket(1,1,1),NV*NX,One,Cho_BraD(1,1,1),NT*NU)
+
+end subroutine OLagNS_RI_N
 
 subroutine Cnst_A_PT2(block1,block2)
 

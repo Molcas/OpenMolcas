@@ -23,9 +23,10 @@ subroutine NADIAG()
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: MAGEB, MAGTB, MIGEJ, MIGTJ
 use EQSOLV, only: IDBMAT
-use caspt2_global, only: LUSBT
+use caspt2_global, only: iStpGrd, LUSBT
 use caspt2_module, only: EPSE, EPSI, NAGEB, NAGEBES, NAGEBES, NAGTB, NAGTBES, NASUP, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NINDEP, &
                          NISH, NISUP, NSES, NSSH, NSYM
+use SC_NEVPT2, only: SC_amplitude
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -34,6 +35,8 @@ integer(kind=iwp) :: I2, I2ABS, IA, IAABS, IAB, IABQ, IBABS, ICASE, IDID, II, II
                      ISYMAB, ISYMI, ISYMIJ, NAS, NIN, NIS
 real(kind=wp) :: Dummy(1)
 real(kind=wp), allocatable :: BD(:), ID(:)
+
+if (SC_amplitude .and. iStpGrd == 2) return
 
 do ICASE=1,13
   do ISYM=1,NSYM

@@ -16,7 +16,7 @@ subroutine PCG_RES(ICONV)
 use PrintLevel, only: TERSE, USUAL
 use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecX
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: MaxIt, MxCase, rNorm, ThrConv
+use caspt2_module, only: HZERO, MaxIt, MxCase, rNorm, ThrConv
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -48,10 +48,12 @@ RNORM = Zero
 call PSCAVEC(-One,IRHS,IVECR)
 call PRESDIA(IVECR,IVECX,OVLAPS)
 if (MAXIT == 0) then
-  if (IPRGLB >= TERSE) then
-    write(u6,*)
-    write(u6,'(A)') repeat('-',115)
-    write(u6,*) ' DIAGONAL CASPT2 APPROXIMATION:'
+  if (HZERO /= 'DYALL') then
+    if (IPRGLB >= TERSE) then
+      write(u6,*)
+      write(u6,'(A)') repeat('-',115)
+      write(u6,*) ' DIAGONAL CASPT2 APPROXIMATION:'
+    end if
   end if
   converged = .true.
 else

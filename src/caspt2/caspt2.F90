@@ -64,11 +64,12 @@ use INPUTDATA, only: INPUT
 use PT2WFN, only: PT2WFN_DATA, PT2WFN_ESTORE
 use fciqmc_interface, only: DoFCIQMC
 use caspt2_global, only: do_grad, IDSAVGRD, iPrGlb, iStpGrd, nStpGrd
-use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUPRP, CPUPT2, CPURHS, &
-                         CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, E2ToT, Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, &
-                         IfRMS, IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, nLyGroup, nLyRoot, nState, RefEne, TIOEIG, &
-                         TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, TIONAD, TIOOVL, TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, &
-                         TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC
+use caspt2_module, only: CPT2Method, CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUPRP, &
+                         CPUPT2, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, E2ToT, Energy, HZERO, IfChol, IfDens, &
+                         IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, nLyGroup, nLyRoot, &
+                         nState, PT2Method, RefEne, TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, TIONAD, TIOOVL, &
+                         TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC
+use SC_NEVPT2, only: Do_FIC, Do_SC, ENERGY_SC, HEFF_SC, SC_prop, SC_NEVPT2_initial, SC_NEVPT2_final
 use PrintLevel, only: TERSE, USUAL, VERBOSE
 use EQSOLV, only: iRHS, iVecC, iVecC2, iVecR, iVecW, iVecX
 #ifdef _DMRG_
@@ -187,7 +188,7 @@ STATELOOP: do IGROUP=1,NGROUP
   end if
 
   if (IPRGLB >= USUAL) then
-    write(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
+    write(STLNE2,'(A,1X,I3)') trim(PT2Method)//' computation for group',IGROUP
     call CollapseOutput(1,trim(STLNE2))
     write(u6,*)
   end if
@@ -245,11 +246,11 @@ STATELOOP: do IGROUP=1,NGROUP
     ! Solve CASPT2 equation system and compute corr energies.
     if (IPRGLB >= USUAL) then
       write(u6,'(A)') repeat('*',80)
-      write(u6,*) ' CASPT2 EQUATION SOLUTION'
+      write(u6,'(2X,A)') trim(PT2Method)//' EQUATION SOLUTION'
       write(u6,'(A)') repeat('-',80)
     end if
 
-    write(STLNE2,'(A,I0)') 'Solve CASPT2 eqs. for state ',MSTATE(JSTATE)
+    write(STLNE2,'(A,I0)') 'Solve '//trim(PT2Method)//' eqs. for state ',MSTATE(JSTATE)
 
     call TIMING(CPTF11,CPE,TIOTF11,TIOE)
 
@@ -276,12 +277,14 @@ STATELOOP: do IGROUP=1,NGROUP
     ! for that the serial LUSOLV file is needed, in that case copy
     ! the distributed LURHS() to LUSOLV here.
     if (IFDENS .or. (do_grad .and. (iRlxRoot == MSTATE(JSTATE)))) then
-      call PCOLLVEC(IRHS,0)
-      call PCOLLVEC(IVECX,0)
-      call PCOLLVEC(IVECR,0)
-      call PCOLLVEC(IVECC,1)
-      call PCOLLVEC(IVECC2,1)
-      call PCOLLVEC(IVECW,1)
+      if (do_FIC) then
+        call PCOLLVEC(IRHS,0)
+        call PCOLLVEC(IVECX,0)
+        call PCOLLVEC(IVECR,0)
+        call PCOLLVEC(IVECC,1)
+        call PCOLLVEC(IVECC2,1)
+        call PCOLLVEC(IVECW,1)
+      end if
     end if
 
     if (IFPROP .or. (do_grad .and. (iRlxRoot == MSTATE(JSTATE)))) then
@@ -311,7 +314,7 @@ STATELOOP: do IGROUP=1,NGROUP
         if (IPRGLB >= VERBOSE) then
           write(u6,*)
           write(u6,'(A)') repeat('*',80)
-          write(u6,*) ' CASPT2 MULTI-STATE COUPLINGS SECTION'
+          write(u6,'(2X,A)') trim(PT2Method)//' MULTI-STATE COUPLINGS SECTION'
         end if
         call StatusLine('CASPT2: ','Multi-State couplings')
         call MCCTL(HEFF,NSTATE,JSTATE)
@@ -325,7 +328,7 @@ STATELOOP: do IGROUP=1,NGROUP
   end do
 
   if (IPRGLB >= USUAL) then
-    call CollapseOutput(0,'CASPT2 computation for group ')
+    call CollapseOutput(0,trim(STLNE2))
     write(u6,*)
   end if
 
@@ -354,8 +357,9 @@ subroutine Print_Truff()
   end if
 
   if (IPRGLB >= TERSE) then
-    write(u6,*) ' Total CASPT2 energies:'
-    if (IFXMS .or. IFRMS) then
+    if (HZERO == 'DYALL' .and. SC_prop) ENERGY(1:NSTATE) = ENERGY_SC(1:NSTATE)
+    write(u6,*) ' Total '//trim(CPT2Method)//' energies:'
+    if (IFXMS .or. IFRMS .and. HZERO /= 'DYALL') then
       write(u6,*)
       write(u6,*) ' State-specific CASPT2 energies obtained using'
       write(u6,*) ' rotated states do not have a well-defined physical'
@@ -364,11 +368,11 @@ subroutine Print_Truff()
     else
       do I=1,NSTATE
         if ((NLYROOT /= 0) .and. (I /= NLYROOT)) cycle
-        call PrintResult(u6,'(6x,A,I3,5X,A,F16.8)','CASPT2 Root',MSTATE(I),'Total energy:',ENERGY(I),1)
+        call PrintResult(u6,'(6x,A,I3,5X,A,F16.8)',trim(CPT2Method)//' Root',MSTATE(I),'Total energy:',ENERGY(I),1)
       end do
       if ((IPRGLB >= VERBOSE) .and. (NLYROOT == 0)) then
         write(u6,*)
-        write(u6,*) ' Relative CASPT2 energies:'
+        write(u6,*) ' Relative '//trim(PT2Method)//' energies:'
         write(u6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)') 'Root','(a.u.)','(eV)','(cm^-1)','(kJ/mol)'
         ISTATE = minloc(ENERGY(1:NSTATE),dim=1)
         do I=1,NSTATE
@@ -397,7 +401,15 @@ subroutine Post_Process()
         call MLTCTL(HEFF,UEFF,U0)
 
         if ((IPRGLB >= VERBOSE) .and. (NLYROOT == 0)) then
-          write(u6,*) ' Relative (X)MS-CASPT2 energies:'
+          if (HZERO == 'DYALL') then
+            if (SC_prop) then
+              write(u6,*) ' Relative QD-SC-NEVPT2 energies:'
+            else
+              write(u6,*) ' Relative QD-PC-NEVPT2 energies:'
+            end if
+          else
+            write(u6,*) ' Relative (X)MS-CASPT2 energies:'
+          end if
           write(u6,'(1X,A4,4X,A12,1X,A10,1X,A10,1X,A10)') 'Root','(a.u.)','(eV)','(cm^-1)','(kJ/mol)'
           do I=1,NSTATE
             RELAU = ENERGY(I)-ENERGY(1)
@@ -424,7 +436,7 @@ subroutine Post_Process()
       do_grad = .true.
       Esav(:) = ENERGY(1:nState)
       UeffSav(:,:) = Ueff(:,:)
-      if (IFXMS .or. IFRMS) U0Sav(:,:) = U0(:,:)
+      if (IFXMS .or. IFRMS .or. IFMSCOUP) U0Sav(:,:) = U0(:,:)
 
       !! Somehow H0 is wrong for XDW-CASPT2
       !! Maybe, H0(1,1) is computed with rotated basis with
@@ -484,6 +496,7 @@ subroutine CASPT2_TERM()
   call MMA_DEALLOCATE(U0)
   call MMA_DEALLOCATE(HEFF)
   call MMA_DEALLOCATE(H0)
+  if (HZERO == 'DYALL' .and. Do_SC) call SC_NEVPT2_final()
 
   ! PRINT I/O AND SUBROUTINE CALL STATISTICS
   if (IPRGLB >= USUAL) call FASTIO('STATUS')
@@ -521,8 +534,10 @@ subroutine HEFF_INI()
   !     Heff[1] = PHP
   ! and later on we will add the second-order correction
   ! Heff(2) = PH \Omega_1 P to Heff[1]
+  if (HZERO == 'DYALL' .and. Do_SC) call SC_NEVPT2_initial()
   do I=1,NSTATE
     HEFF(I,I) = REFENE(I)
+    if (HZERO == 'DYALL' .and. Do_SC) HEFF_SC(I,I) = REFENE(I)
   end do
   if (IPRGLB >= VERBOSE) then
     write(u6,*) ' Heff[1] in the original model space basis:'
@@ -532,16 +547,17 @@ subroutine HEFF_INI()
   ! coupling Hamiltonian effective matrix, just copy the energies.
   if (INPUT%JMS) then
     ! in case of XMS, XDW, RMS, we need to rotate the states
-    if (IFXMS .or. IFRMS) call xdwinit(Heff,H0,U0,nState)
+    if (IFXMS .or. IFRMS .and. HZERO /= 'DYALL') call xdwinit(Heff,H0,U0,nState)
     do I=1,NSTATE
       ENERGY(I) = INPUT%HEFF(I,I)
     end do
     HEFF(:,:) = INPUT%HEFF(:,:)
+    if (HZERO == 'DYALL' .and. Do_SC) HEFF_SC(:,:) = INPUT%HEFF(:,:)
   else
 
     ! In case of a XDW-CASPT2 calculation we first rotate the CASSCF
     ! states according to the XMS prescription in xdwinit
-    if ((IFXMS .and. IFDW) .or. IFRMS) call xdwinit(Heff,H0,U0,nState)
+    if (((IFXMS .and. IFDW) .or. IFRMS) .and. HZERO /= 'DYALL') call xdwinit(Heff,H0,U0,nState)
     call wgtinit(Heff,nState)
   end if
 

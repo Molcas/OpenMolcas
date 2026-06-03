@@ -19,7 +19,7 @@
 
 subroutine AddDEPSA(nDPT2,nAshT,DPT2,DEPSA)
 
-use caspt2_module, only: NASH, NBAS, NDEL, NFRO, NISH, NORB, NSYM
+use caspt2_module, only: NAES, NASH, NBAS, NDEL, NFRO, NISH, NORB, NSYM
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nDPT2, nAshT
 real(kind=wp), intent(inout) :: DPT2(nDPT2)
 real(kind=wp), intent(in) :: DEPSA(nAshT,nAshT)
-integer(kind=iwp) :: iMO1, iMO2, iOrb, iOrb0, iOrb2, iSym, jOrb, jOrb0, jOrb2, nOrbI1, nOrbI2
+integer(kind=iwp) :: iMO1, iMO2, iOrb, iOrb0, iOrb2, iSym, itabs, iuabs, jOrb, jOrb0, jOrb2, nOrbI1, nOrbI2
 real(kind=wp) :: Val
 
 iMO1 = 1
@@ -41,10 +41,12 @@ do iSym=1,nSym
     do iOrb0=1,nAsh(iSym)
       ! iOrb1 = nIsh(iSym)+iOrb0
       iOrb2 = nFro(iSym)+nIsh(iSym)+iOrb0
+      itabs = iOrb0 + NAES(iSym)
       do jOrb0=1,nAsh(iSym)
         ! jOrb1 = nIsh(iSym)+jOrb0
         jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
-        DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1)) = DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))+DEPSA(iOrb0,jOrb0)
+        iuabs = jOrb0 + NAES(iSym)
+        DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1)) = DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))+DEPSA(itabs,iuabs)
       end do
     end do
     !! Symmetrize DPT2 (for shift)

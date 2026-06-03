@@ -24,7 +24,7 @@ use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, DMRG, DoCumulant, DWTyp
                          IfDOrtho, IfDW, IfMix, IFMSCoup, IfProp, IfRMS, IfsadRef, IfXMS, iRlxRoot, iRoot, JMS, MaxIt, mState, &
                          nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, nRas1T, nRas3T, nRoots, nRoots, nSsh, &
                          nState, nSym, OrbIn, OutFmt, PrOrb, PRSD, RFPERT, RHSDirect, Root2State, SDECOM, SMatrix, ThrConv, &
-                         ThrEne, ThrOCC, ThrSHN, ThrSHS, Zeta
+                         ThrEne, ThrOCC, ThrSHN, ThrSHS, Zeta, PT2Method, CPT2Method
 #ifdef _DMRG_
 use qcmaquis_info, only: qcm_group_names
 use qcmaquis_interface_cfg, only: dmrg_file, qcmaquis_param
@@ -38,6 +38,7 @@ use OFembed, only: Do_OFemb
 #endif
 use Constants, only: Zero, Quart
 use Definitions, only: wp, iwp, u6, RtoB
+use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_amplitude
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 use Definitions, only: MPIInt
@@ -63,7 +64,7 @@ logical(kind=iwp), external :: RF_On
 ! in the manual. However, eventually we will have to keep only Hzero
 ! and remove Focktype.
 Hzero = input%Hzero
-if ((Hzero /= 'STANDARD') .and. (Hzero /= 'CUSTOM')) then
+if ((Hzero /= 'STANDARD') .and. (Hzero /= 'CUSTOM') .and. (Hzero /= 'DYALL')) then
   call WarningMessage(2,'invalid 0th-order Hamiltonian: '//trim(Hzero))
   call Quit_OnUserError()
 end if
@@ -72,7 +73,7 @@ end if
 Focktype = input%Focktype
 if (Focktype /= 'STANDARD') then
   ! if both Hzero and Focktype are not standard, quit
-  if (Hzero /= 'STANDARD') then
+  if (Hzero /= 'STANDARD' .and. Hzero /= 'DYALL') then
     call WarningMessage(2,'Requested combination of FOCKtype'//' and HZERo not possible.')
     call Quit_OnUserError()
   end if
@@ -81,7 +82,7 @@ if (Focktype /= 'STANDARD') then
     ipea_shift = Zero
     if (IPRGLB >= TERSE) call WarningMessage(1,'IPEA shift reset to zero!')
   end if
-else
+else if (Hzero /= 'DYALL') then
   ! user-specified IPEA shift or not?
   if (input%ipea) then
     ipea_shift = input%ipea_shift
@@ -97,11 +98,11 @@ else
   end if
 end if
 
-! copy over to Hzero the content of Focktype, if Hzero is not CUSTOM
-if (Hzero /= 'CUSTOM') Hzero = Focktype
+! copy over to Hzero the content of Focktype, if Hzero is not CUSTOM or DYALL
+if (Hzero /= 'CUSTOM' .and. Hzero /= 'DYALL') Hzero = Focktype
 
 ! print warnings if deviating from the default
-if (Hzero /= 'STANDARD') call warningmessage(1,'User-modified 0th-order Hamiltonian!')
+if (Hzero /= 'STANDARD' .and. Hzero /= 'DYALL') call warningmessage(1,'User-modified 0th-order Hamiltonian!')
 
 ! real/imaginary shifts
 real_shift = Input%real_shift
@@ -516,6 +517,41 @@ DNMTHR = Input%DNMTHR
 CMPTHR = Input%CMPTHR
 CNTTHR = Input%CNTTHR
 
+PT2Method = 'CASPT2      '
+CPT2Method = 'CASPT2      '
+
+Do_FIC = .true.
+Do_SC = .false.
+SC_prop = .false.
+SC_amplitude = .false.
+if (HZERO == 'DYALL') then
+  MAXIT = 0
+  Do_FIC = input%DOPC
+  Do_SC = input%DOSC
+  SC_prop = input%SCPROP
+  SC_amplitude = SC_prop
+  if (NRAS1T + NRAS3T > 0) then
+    call warningMessage(2,'NEVPT2 calculations with a RAS reference wavefunction are not supported')
+    call quit_onUserError()
+  end if
+  if (ipea_shift /= Zero) then
+    ipea_shift = Zero
+    if (IPRGLB >= TERSE) call warningMessage(1,'IPEA shift is automatically turned off for NEVPT2')
+  end if
+  if (do_real .or. do_imag .or. do_sigp) then
+    if (IPRGLB >= TERSE) call warningMessage(1,'Real or imaginary shift or sigma regularization is being used only for PC-NEVPT2')
+  end if
+  ! The option XMULT forces to use the state-averaged Fock
+  if (IFXMS) input%SADREF = .true.
+  ! However, <Psi^0|Hact|Psi^0> is always diagonal, so skip the diagonalization process of the model states
+  IFXMS = .false.
+  IFRMS = .false.
+
+  PT2Method = 'NEVPT2      '
+  CPT2Method = 'PC-NEVPT2   '
+  if (SC_prop) CPT2Method = 'SC-NEVPT2   '
+end if
+
 !***********************************************************************
 !
 ! Gradients
@@ -675,6 +711,7 @@ if_invar = input%INVAR
 if (ipea_shift /= Zero) if_invar = .false.
 if_invaria = input%IAINVAR
 if (sigma_p_epsilon /= Zero) if_invaria = .false. !! I'm not sure this is necessary, but it is needed for now
+if (SC_prop) if_invaria = .false.
 ConvInvar = input%ThrConvInvar
 
 if ((ipea_shift /= Zero) .and. do_grad .and. (.not. IFDORTHO)) then
@@ -721,6 +758,17 @@ end if
 if ((IFDENS .and. (.not. do_grad)) .and. (NRAS1T+NRAS3T > 0)) then
   call warningMessage(2,'DENS keyword cannot be combined with RAS.')
   call quit_onUserError()
+end if
+
+if (do_grad .and. HZERO == 'DYALL') then
+  if (.not. do_FIC .and. .not. SC_prop) then
+    call warningMessage(2,'PC-NEVPT2 properties cannot be computed without PC-NEVPT2 energy. Remove the NOPC keyword.')
+    call quit_onUserError()
+  end if
+  if (.not. do_SC .and. SC_prop) then
+    call warningMessage(2,'SC-NEVPT2 properties cannot be computed without SC-NEVPT2 energy. Remove the NOSC keyword.')
+    call quit_onUserError()
+  end if
 end if
 
 end subroutine procinp_caspt2

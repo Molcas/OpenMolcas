@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,IISTA,IIEND,V1,V2,OVL,TG1,TG2,TG3,SCAL)
+subroutine MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,IISTA,IIEND,V1,V2,OVL,TG1,TG2,TG3,SCAL,CNT)
 ! Compute a contribution to the coupling Hamiltonian element (HEL)
 ! defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 ! arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -29,6 +29,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NASHT, NTG3, IISTA, IIEND
 real(kind=wp), intent(in) :: V1(nvlen), OVL, SCAL
+character(len=1), intent(in) :: CNT
 real(kind=wp), intent(inout) :: V2(nvlen), TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 integer(kind=iwp) :: IAS, IAS1, IAS2, IASABS, IND1, IND2, IND3, ITABS, ITG3, IUABS, IVABS, IXABS, IYABS, IZABS, JAS, JAS1, JAS2, &
                      JASABS, JND1, JND2, JND3, NAS1, NISBLK
@@ -110,6 +111,7 @@ select case (ICASE)
 
         !HEBLK = HEBLK+SA*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SA*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SA*SCAL,V1(JAS),NAS,V2(IAS),NAS)
         !do i=1,NAS
         !  V2(JAS+i-1) = SA*V1(iAS-1)
         !end do
@@ -181,6 +183,7 @@ select case (ICASE)
 
         !HEBLK = HEBLK+SC*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SC*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SC*SCAL,V1(JAS),NAS,V2(IAS),NAS)
       end do
     end do
     !*******************************************************************
@@ -229,6 +232,7 @@ select case (ICASE)
 
         !HEBLK = HEBLK+SBP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SBP*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SBP*SCAL,V1(JAS),NAS,V2(IAS),NAS)
       end do
     end do
     !*******************************************************************
@@ -277,6 +281,7 @@ select case (ICASE)
 
         !HEBLK = HEBLK+SBM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SBM*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SBM*SCAL,V1(JAS),NAS,V2(IAS),NAS)
       end do
     end do
     !*******************************************************************
@@ -318,6 +323,12 @@ select case (ICASE)
         call DaXpY_(NISBLK,SD12*SCAL,V1(IAS1),NAS,V2(JAS2),NAS)
         call DaXpY_(NISBLK,SD21*SCAL,V1(IAS2),NAS,V2(JAS1),NAS)
         call DaXpY_(NISBLK,SD22*SCAL,V1(IAS2),NAS,V2(JAS2),NAS)
+        if (CNT == 'T') then
+          call DaXpY_(NISBLK,SD11*SCAL,V1(JAS1),NAS,V2(IAS1),NAS)
+          call DaXpY_(NISBLK,SD12*SCAL,V1(JAS1),NAS,V2(IAS2),NAS)
+          call DaXpY_(NISBLK,SD21*SCAL,V1(JAS2),NAS,V2(IAS1),NAS)
+          call DaXpY_(NISBLK,SD22*SCAL,V1(JAS2),NAS,V2(IAS2),NAS)
+        end if
       end do
     end do
     !*******************************************************************
@@ -331,6 +342,7 @@ select case (ICASE)
         if (IXABS == ITABS) SE = SE+Two*OVL
         !HEBLK = HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SE*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SE*SCAL,V1(JAS),NAS,V2(IAS),NAS)
       end do
     end do
     !*******************************************************************
@@ -344,6 +356,7 @@ select case (ICASE)
         if (IXABS == ITABS) SE = SE+Two*OVL
         !HEBLK = HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SE*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SE*SCAL,V1(JAS),NAS,V2(IAS),NAS)
       end do
     end do
     !*******************************************************************
@@ -369,6 +382,7 @@ select case (ICASE)
         SFP = SFtuxy+SFtuyx
         !HEBLK = HEBLK+SFP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SFP*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SFP*SCAL,V1(JAS),NAS,V2(IAS),NAS)
       end do
     end do
     !*******************************************************************
@@ -393,6 +407,7 @@ select case (ICASE)
         SFM = SFtuxy-SFtuyx
         !HEBLK = HEBLK+SFM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SFM*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SFM*SCAL,V1(JAS),NAS,V2(IAS),NAS)
       end do
     end do
     !*******************************************************************
@@ -409,6 +424,7 @@ select case (ICASE)
 
         !HEBLK = HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SG*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SG*SCAL,V1(JAS),NAS,V2(IAS),NAS)
         !do i=1,NISBLK
         !  V2(JAS+NAS*(i-1)) = SG*V1(IAS+NAS*(i-1))
         !end do
@@ -425,6 +441,7 @@ select case (ICASE)
 
         !HEBLK = HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
         call DaXpY_(NISBLK,SG*SCAL,V1(IAS),NAS,V2(JAS),NAS)
+        if (CNT == 'T') call DaXpY_(NISBLK,SG*SCAL,V1(JAS),NAS,V2(IAS),NAS)
         !do i=1,NISBLK
         !  V2(JAS+NAS*(i-1)) = SG*V1(IAS+NAS*(i-1))
         !end do

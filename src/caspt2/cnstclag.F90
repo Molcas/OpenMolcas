@@ -45,12 +45,8 @@ call I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
 call mma_allocate(CI1,NCONF,LABEL='CI')
 if (ISCF == 0) then
-  if (iff == 1) then
-    IDCI = IDTCEX(JSTATE)
-    call DDAFILE(LUCIEX,2,CI1,NCONF,IDCI)
-  else
-    !call LoadCI_XMS('C',1,nConf,nState,CI1,JSTATE,U0)
-  end if
+  IDCI = IDTCEX(JSTATE)
+  call DDAFILE(LUCIEX,2,CI1,NCONF,IDCI)
   if (IPRGLB >= VERBOSE) then
     write(u6,*)
     if (NSTATE > 1) then
@@ -66,7 +62,7 @@ end if
 
 call TIMING(CPTF0,CPE,TIOTF0,TIOE)
 if (ISCF == 0) then
-  call DERFG3(CI1,NCONF,NLEV,NG3,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
+  call DERFG3(IFF,NCONF,NLEV,NG3,CI1,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 else
   call DERSPE(NLEV,NG3,DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
 end if

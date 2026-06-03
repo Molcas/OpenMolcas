@@ -37,7 +37,8 @@ use caspt2_global, only: do_csf, do_grad, do_nac, imag_shift, ipea_shift, iPrGlb
                          sigma_p_exponent
 use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, iSpin, &
                          mState, nActel, nAsh, nAshT, nBas, nConf, nDel, nEle3, nFro, nHole1, nIsh, nIshT, nRoots, nSsh, nSshT, &
-                         nState, nSym, Orbin, RFPert, STSym, Zeta
+                         nState, nSym, Orbin, RFPert, STSym, Zeta, PT2Method
+use SC_NEVPT2, only: SC_prop
 #ifdef _DMRG_
 use caspt2_global, only: compressMPS
 use caspt2_module, only: DMRG
@@ -104,9 +105,9 @@ if (iprglb >= USUAL) then
   write(u6,fmt2//'A,T40,I11)') 'Number of CSFs',NCONF
   write(u6,fmt2//'A,T45,I6)') 'Number of CASSCF root(s) available',NROOTS
   if (do_nac) then
-    write(u6,fmt2//'A,T45,I6,1X,"/",1X,I6)') 'CASPT2 states for NAC',iRoot1,iRoot2
+    write(u6,fmt2//'A,T45,I6,1X,"/",1X,I6)') trim(PT2Method)//' states for NAC',iRoot1,iRoot2
   else
-    write(u6,fmt2//'A,T45,I6)') 'CASPT2 state passed to geometry opt.',iRlxRoot
+    write(u6,fmt2//'A,T45,I6)') trim(PT2Method)//' state passed to geometry opt.',iRlxRoot
   end if
   if (ifmix) write(u6,fmt2//'A,T45,10I3)') 'A file JOBMIX will be created'
   if (nstate > 1) then
@@ -176,7 +177,7 @@ if (iprglb >= TERSE) then
 
   write(u6,*)
   Line = ' '
-  write(Line(left-2:),'(A)') 'CASPT2 specifications:'
+  write(Line(left-2:),'(A,A)') trim(PT2Method),' specifications:'
   call CollapseOutput(1,Line)
   write(u6,fmt1) '----------------------'
   write(u6,*)
@@ -189,6 +190,7 @@ if (iprglb >= TERSE) then
       else
         calctype = 'DW-CASPT2'
       end if
+      if (HZERO == 'DYALL') calctype = 'QD-NEVPT2'
     else if (IFRMS) then
       FockOpType = 'state-specific'
       calctype = 'RMS-CASPT2'
@@ -198,15 +200,36 @@ if (iprglb >= TERSE) then
     else
       FockOpType = 'state-specific'
       if (IFSADREF) FockOpType = 'state-average'
-      calctype = 'MS-CASPT2'
+      if (HZERO /= 'DYALL') then
+        calctype = 'MS-CASPT2'
+      else
+        calctype = 'QD-NEVPT2'
+      end if
     end if
   else
     FockOpType = 'state-specific'
     if (IFSADREF) FockOpType = 'state-average'
-    calctype = 'SS-CASPT2'
+    if (HZERO /= 'DYALL') then
+      calctype = 'SS-CASPT2'
+    else
+      calctype = 'SS-NEVPT2'
+    end if
   end if
 
   write(u6,fmt2//'A,T50,A)') 'Type of calculation',trim(calctype)
+
+  if (Hzero == 'DYALL') then
+    if (do_grad) then
+      if (SC_prop) then
+        write(u6,fmt2//'A,T50,A)') 'Internal contraction for properties','strongly contracted (SC-NEVPT2)'
+      else
+        write(u6,fmt2//'A,T50,A)') 'Internal contraction for properties','partially contracted (PC-NEVPT2)'
+      end if
+    else
+      write(u6,fmt2//'A,T50,A)') 'Internal contraction for energies','partially and strongly contracted'
+      write(u6,fmt2//'A,T50,A)') '','(PC-NEVPT2 and SC-NEVPT2)'
+    end if
+  end if
 
   write(u6,fmt2//'A,T50,A)') 'Fock operator',trim(FockOpType)
   if (IFDW) then
@@ -237,7 +260,7 @@ if (iprglb >= TERSE) then
     write(u6,fmt1) 'The input orbitals will not be transformed to quasi-canonical'
   end if
 
-  if (IFXMS .or. IFRMS) write(u6,fmt1) 'The input states will be rotated to diagonalize the Fock operator'
+  if ((IFXMS .or. IFRMS) .and. HZERO /= 'DYALL') write(u6,fmt1) 'The input states will be rotated to diagonalize the Fock operator'
 
   if (IFDORTHO) write(u6,fmt1) 'Canonical orthornormalization will be used for the IC basis'
 
@@ -253,7 +276,7 @@ if (iprglb >= TERSE) then
     end if
   end if
 
-  call CollapseOutput(0,'CASPT2 specifications:')
+  call CollapseOutput(0,Line)
   write(u6,*)
 end if
 

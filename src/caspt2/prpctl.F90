@@ -30,8 +30,8 @@ use caspt2_global, only: do_grad
 use EQSOLV, only: IVECX, NLSTOT
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_nac, DPT2_tot, DPT2C_tot, iPrGlb, iRoot1, iRoot2, LISTS, LUONEM, NCMO, &
                          SLag, TORB
-use caspt2_module, only: BNAME, Energy, IAD1M, IFMSCOUP, IFPROP, irlxroot, ISCF, JSTATE, MSTATE, MSTATE, NASH, NASHT, NBAS, NBAST, &
-                         NCONF, NDEL, NFRO, NISH, NORB, NRAS1, NRAS2, NRAS3, NSYM, OUTFMT, PRORB, THRENE, THROCC
+use caspt2_module, only: BNAME, CPT2Method, Energy, IAD1M, IFMSCOUP, IFPROP, irlxroot, ISCF, JSTATE, MSTATE, MSTATE, NASH, NASHT, &
+                         NBAS, NBAST, NCONF, NDEL, NFRO, NISH, NORB, NRAS1, NRAS2, NRAS3, NSYM, OUTFMT, PRORB, THRENE, THROCC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Five, Half, Quart
 use Definitions, only: wp, iwp, u6
@@ -52,7 +52,7 @@ integer(kind=iwp), external :: IsFreeUnit
 if (IPRGLB >= USUAL) then
   write(u6,*)
   write(u6,'(A)') repeat('*',80)
-  write(u6,*) ' CASPT2 PROPERTY SECTION'
+  write(u6,'(2X,A)') trim(CPT2Method)//' PROPERTY SECTION'
 end if
 
 #ifdef _MOLCAS_MPP_
