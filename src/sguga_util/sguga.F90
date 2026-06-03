@@ -1212,17 +1212,15 @@ do LEV=1,SGS%nLev    ! Loop over all levels
 end do
 
 ! CONSTRUCT THE MVL AND MVR TABLES:
-do IVL=SGS%MVSta,SGS%MVEnd
-  MVLL = IVL-SGS%MVSta+1
-  MVRR = 0
-  if (CIS%IVR(IVL,1) /= 0) MVRR = CIS%IVR(IVL,1)-SGS%MVSta+1
-  EXS%MVR(MVLL,1) = MVRR
-  MVRR = 0
-  if (CIS%IVR(IVL,2) /= 0) MVRR = CIS%IVR(IVL,2)-SGS%MVSta+1
-  EXS%MVR(MVLL,2) = MVRR
-  EXS%MVL(MVLL,1) = 0
-  EXS%MVL(MVLL,2) = 0
+EXS%MVR(:,:)=0
+do IVL=SGS%MVSta,SGS%MVEnd   ! Loop over vertices of the MIDLEV (absolute index)
+  MVLL = IVL-SGS%MVSta+1     ! Compute relative index
+  if (CIS%IVR(IVL,1) /= 0) EXS%MVR(MVLL,1) = CIS%IVR(IVL,1)-SGS%MVSta+1 ! If there is a valid node for delta(b)=-1, store relative index.
+  if (CIS%IVR(IVL,2) /= 0) EXS%MVR(MVLL,2) = CIS%IVR(IVL,2)-SGS%MVSta+1 ! Dito delta(b)=+1
 end do
+
+! constructe the recipical version MVL
+EXS%MVL(:,:)=0
 do MV=1,CIS%nMidV
   if (EXS%MVR(MV,1) /= 0) EXS%MVL(EXS%MVR(MV,1),1) = MV
   if (EXS%MVR(MV,2) /= 0) EXS%MVL(EXS%MVR(MV,2),2) = MV
