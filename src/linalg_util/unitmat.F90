@@ -16,10 +16,10 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N
-real(kind=wp), intent(out) :: A(N,N)
+real(kind=wp), intent(out) :: A(N**2)
 
-A(:,:) = Zero
-call dCopy_(N,[One],0,A,N+1)
+A(:) = Zero
+A(::N+1) = One
 
 return
 

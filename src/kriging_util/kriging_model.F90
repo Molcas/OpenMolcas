@@ -155,10 +155,10 @@ else
   end do
 
 # ifdef _DEBUGPRINT_
-  write(u6,*) DDot_(m_t,rones,1,B,1),DDot_(nPoints,rones,1,[One],0)
+  write(u6,*) DDot_(m_t,rones,1,B,1),sum(rones(1:nPoints))
 # endif
   ! mu = (f R^{-1} y) /(f R^{-1} f)
-  sbO = DDot_(m_t,rones,1,B,1)/DDot_(nPoints,rones,1,[One],0)
+  sbO = DDot_(m_t,rones,1,B,1)/sum(rones(1:nPoints))
 
   sb(1) = sbO
 end if

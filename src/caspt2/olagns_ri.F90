@@ -75,6 +75,7 @@ use PrintLevel, only: VERBOSE
 use EQSOLV, only: IVECC2
 use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
+use GA_Wrapper, only: DBL_MB, GA_Create_Irreg, GA_Destroy, GA_NNodes, GA_NodeId, MT_DBL
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array
 use Para_Info, only: Is_Real_Par
 #endif
@@ -106,8 +107,6 @@ real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ3 = sqrt(Three), SQ05 = sqrt(Half
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: i, lg_V, lg_V1, myRank, ndim2, NPROCS
 integer(kind=iwp), allocatable :: map2(:)
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 nSh(1:nSym,Inactive) = NISH(1:nSym)

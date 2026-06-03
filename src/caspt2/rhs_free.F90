@@ -28,6 +28,7 @@ subroutine RHS_FREE(lg_W)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: GA_Destroy
 #endif
 use fake_GA, only: Deallocate_GA_Array
 use Definitions, only: iwp
@@ -36,8 +37,6 @@ implicit none
 integer(kind=iwp), intent(inout) :: lg_w
 #ifdef _MOLCAS_MPP_
 logical(kind=iwp) :: bStat
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   !SVC: Destroy the global array

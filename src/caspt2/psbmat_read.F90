@@ -18,6 +18,7 @@ subroutine PSBMAT_READ(cNAME,iCase,iSym,lg_M,nSize)
 use Index_Functions, only: nTri_Elem
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_NodeId
 use caspt2_global, only: LUH0T
 #endif
 use caspt2_global, only: LUSBT
@@ -31,8 +32,6 @@ integer(kind=iwp), intent(in) :: iCASE, iSym, lg_M, nSize
 integer(kind=iwp) :: IDISK, nBlock
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: IEND, iSTA, JEND, JSTA, LDM, LU, mpt_M, myRank
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 select case (CNAME)

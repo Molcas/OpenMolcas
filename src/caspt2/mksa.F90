@@ -26,6 +26,7 @@ use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_NodeId
 #endif
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: iPrGlb
@@ -42,8 +43,6 @@ real(kind=wp), external :: PSBMAT_FPRINT
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: MA, MSA, MYRANK
 real(kind=wp) :: Dummy(1)
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 ICASE = 1

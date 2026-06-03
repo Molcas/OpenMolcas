@@ -31,6 +31,7 @@ use caspt2_global, only: LURHS
 use caspt2_module, only: IOFFRHS
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_NodeId
 use Definitions, only: u6
 #endif
 use Definitions, only: iwp
@@ -39,8 +40,6 @@ implicit none
 integer(kind=iwp), intent(in) :: NIN, NIS, lg_W, iCASE, iSYM, iVEC
 integer(kind=iwp) :: IDISK, NWPROC
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
 integer(kind=iwp) :: IEND, ISTA, JEND, JSTA, LDW, mpt_W, myRank
 
 if (Is_Real_Par()) then

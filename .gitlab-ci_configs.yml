@@ -65,6 +65,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
+    MOLCAS_THREADS: "2"
   tags:
     - saas-linux-small-amd64
 

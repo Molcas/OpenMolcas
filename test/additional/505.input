@@ -4,7 +4,7 @@
 * Features tested: Frenkel exciton energies
 * Responsible person: A. Kaiser
 *-------------------------------------------------------------------------------
-> IF ($MOLCAS_NPROCS != 1)
+> IF ( $MOLCAS_NPROCS != 1 )
 >   EXIT 36
 > ENDIF
 

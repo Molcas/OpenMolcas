@@ -37,7 +37,6 @@ character(len=6) :: fName
 logical(kind=iwp) :: Exists, Text, Bond_OK, Check_Bond, Found
 logical(kind=iwp), parameter :: Use_Two_Centers_For_Atoms = .false.
 real(kind=wp), allocatable :: Scratch_ele(:), Scratch_nuc(:)
-real(kind=wp), external :: DDot_
 
 MxMP = lMax
 if (lMax > MpProp_Level) MxMP = MpProp_Level
@@ -220,12 +219,7 @@ call mma_deallocate(Scratch_nuc)
 if (NoField) then
   write(iUnit,'(3F20.10)') (Zero,iElem=1,6)
 else
-  Polar_M(1) = DDot_(nij,[One],0,Polar(1,1),6)
-  Polar_M(2) = DDot_(nij,[One],0,Polar(2,1),6)
-  Polar_M(3) = DDot_(nij,[One],0,Polar(4,1),6)
-  Polar_M(4) = DDot_(nij,[One],0,Polar(3,1),6)
-  Polar_M(5) = DDot_(nij,[One],0,Polar(5,1),6)
-  Polar_M(6) = DDot_(nij,[One],0,Polar(6,1),6)
+  Polar_M(:) = sum(Polar(:,:),dim=2)
   write(iUnit,'(3F20.10)') (Polar_M(iElem),iElem=1,6)
 end if
 

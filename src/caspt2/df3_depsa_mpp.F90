@@ -32,8 +32,6 @@ integer(kind=iwp) :: iG3, IHI, ILO, iRank, iST, iSU, ISUP1, ISUP2, iSV, iSX, iSY
                      iZ, JHI, JLO, JSUP1, JSUP2, NCOL, NROW, NSEQ
 real(kind=wp) :: F3VAL
 real(kind=wp), allocatable :: WRK(:)
-#include "global.fh"
-#include "mafdecls.fh"
 
 !! do depsa
 isym = 1

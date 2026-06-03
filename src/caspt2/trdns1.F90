@@ -46,8 +46,6 @@ real(kind=wp) :: FACT
 real(kind=wp), allocatable :: WAI(:), WAT(:), WTI(:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: TMP(:)
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 ! Transform to standard representation, covariant form.

@@ -28,6 +28,7 @@ subroutine RHS_SGMDIA(NIN,NIS,lg_W,DIN,DIS)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_NodeId
 #endif
 use fake_GA, only: GA_Arrays
 use Definitions, only: wp, iwp
@@ -37,8 +38,6 @@ integer(kind=iwp), intent(in) :: NIN, NIS, lg_W
 real(kind=wp), intent(in) :: DIN(NIN), DIS(NIS)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iHi, iLo, jHi, jLo, LDW, mW, myRank, NCOL, NROW
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   call GA_Sync()

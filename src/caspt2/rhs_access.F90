@@ -30,6 +30,7 @@ subroutine RHS_ACCESS(NAS,NIS,lg_W,iLo,iHi,jLo,jHi,MW)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: GA_NodeId
 use Definitions, only: u6
 #endif
 use Definitions, only: iwp
@@ -39,8 +40,6 @@ integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
 integer(kind=iwp), intent(out) :: iLo, iHi, jLo, jHi, MW
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: LDW, myRank
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   ! get the superindex ranges of this process's block

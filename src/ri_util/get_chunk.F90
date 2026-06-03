@@ -16,6 +16,7 @@ use RI_glob, only: Chunk
 use RI_glob, only: iMap, ip_Chunk
 use Cholesky, only: InfVec
 use Para_Info, only: MyRank, Is_Real_Par
+use GA_Wrapper, only: DBL_MB
 #endif
 use Definitions, only: iwp
 
@@ -23,7 +24,6 @@ implicit none
 integer(kind=iwp), intent(in) :: LenVec, NumVec_, iSym, iVec_Global
 integer(kind=iwp), intent(inout) :: iChoVec
 #ifdef _MOLCAS_MPP_
-#include "mafdecls.fh"
 integer(kind=iwp) :: Indx, iVec, J_e, J_s, ld, MuNu_e, MuNu_s, nJ
 #endif
 

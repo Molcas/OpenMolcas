@@ -37,8 +37,6 @@ implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS, lg_W
 real(kind=wp), intent(in) :: FACT
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   if (FACT == Zero) then

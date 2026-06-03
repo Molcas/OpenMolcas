@@ -11,6 +11,9 @@
 
 module ADDRHS
 
+#ifdef _MOLCAS_MPP_
+use GA_Wrapper, only: DBL_MB, GA_NodeId
+#endif
 use caspt2_global, only: iParRHS
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
@@ -18,11 +21,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 private
-
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
 public :: ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2, ADDRHSE, ADDRHSF, ADDRHSG, ADDRHSH
 
