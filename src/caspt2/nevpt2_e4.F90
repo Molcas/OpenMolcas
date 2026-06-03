@@ -467,6 +467,7 @@ subroutine NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUF
     nxy = NLEV*nxyzdim
   end if
   NLEV2 = NLEV*NLEV
+  nsgm2 = 0
 
   nTask = nlev2
   call Init_Tsk(ID,nTask)

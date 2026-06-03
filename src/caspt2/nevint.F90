@@ -16,7 +16,7 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
   use CHOVEC_IO, only: NVLOC_CHOBATCH
 ! use ChoCASPT2
   use caspt2_global, only: FIMO
-  use caspt2_module, only: NAES, NASH, NBSQT, NBTCH, NBTCHES, NISH, NORB, NSSH, NORB, NSYM, IfChol
+  use caspt2_module, only: NAES, NASH, NBSQT, NBTCH, NBTCHES, NISH, NORB, NSSH, NSYM, IfChol
   use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: iwp,wp,u6
   use Constants, only: Zero, One, Half
@@ -31,12 +31,13 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
   real(kind=wp), intent(out) :: INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT), Hbar(nAshT,nAshT), Htilde(nAshT,nAshT)
 
   integer(kind=iwp), allocatable :: BGRP(:,:)
-  real(kind=wp), allocatable :: PIQK(:), BRA(:), KET(:), WRK1(:), WRK2(:)
+  real(kind=wp), allocatable :: PIQK(:), KET(:), WRK1(:), WRK2(:) !, BRA(:)
 
   integer(kind=iwp), parameter :: Active=2, Inactive=1, Virtual=3
   integer(kind=iwp) :: nSh(8,3)
 
-  integer(kind=iwp) :: iAshI, IB, IBEND, IBGRP, IBSTA, IBUF, IB1, IB2, iSym, iSymA, iSymB, iSymI, iSymJ, &
+  integer(kind=iwp) :: iAshI, IB, IBEND, IBGRP, IBSTA, IBUF, IB1, IB2, iSym, &
+!                      iSymA, iSymB, iSymI, iSymJ, &
                        iSymT, iSymU, iSymV, iSymVX, iSymX, IT, ITABS, ITTOT, IU, IUABS, IUTOT, IV, IVABS, IVTOT, IX, IXABS, IXTOT, &
                        jAshI, jSym, kAshI, MXBGRP, MXPIQK, NADDBUF, NBGRP, NCHOBUF, &
                        nKet, NFIMOES, NFNXT, nIshI, nOrbI, NV
@@ -80,10 +81,10 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
 !
 ! --- Two-Electron Integral
 !
-  iSymA = 1
-  iSymI = 1
-  iSymB = 1
-  iSymJ = 1
+! iSymA = 1
+! iSymI = 1
+! iSymB = 1
+! iSymJ = 1
   if (IfChol) then
     NTUVX = NASHT**4
     nSh(1:NSYM,Inactive) = NISH(1:NSYM)
@@ -106,7 +107,7 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
 
       call MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,NCHOBUF,MXPIQK,NADDBUF)
       call mma_allocate(PIQK,MXPIQK,Label='PIQK')
-      call mma_allocate(BRA,NCHOBUF,Label='BRA')
+!     call mma_allocate(BRA,NCHOBUF,Label='BRA')
       call mma_allocate(KET,NCHOBUF,Label='KET')
       do IBGRP=1,NBGRP
 
@@ -163,7 +164,7 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
 !                   SCAL,INT2,NASH(JSYM)**2)
       end do
       call mma_deallocate(PIQK)
-      call mma_deallocate(BRA)
+!     call mma_deallocate(BRA)
       call mma_deallocate(KET)
       call mma_deallocate(BGRP)
     end do

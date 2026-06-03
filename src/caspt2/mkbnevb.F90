@@ -33,19 +33,17 @@ subroutine MKBNEVB(nAshT,NG3,Hbar,Gact,G1,G2,G3,idxG3)
                                G1(nAshT,nAshT), G2(nAshT,nAshT,nAshT,nAshT), G3(*)
   integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
-  integer(kind=iwp) :: IBADR, IBMADR, IBPADR, IDISK, ISYM, ITABS, ITGEU, ITGEUABS, IT, ITGTU, ITU, ITUABS, ITX, &
-                       IU, IUABS, IUY, IV, IVABS, IVX, IW, IWABS, IX, IXABS, IXGEY, IXGEYABS, IXGTY, IXY, IXYABS, IY, IYABS, IYX, &
+  integer(kind=iwp) :: IBADR, IBMADR, IBPADR, IDISK, ISYM, ITABS, ITGEU, ITGEUABS, IT, ITGTU, ITU, ITUABS, &
+                       IU, IUABS, IV, IVABS, IVX, IW, IWABS, IX, IXABS, IXGEY, IXGEYABS, IXGTY, IXY, IXYABS, IY, IYABS, IYX, &
                        IZ, IZABS, &
                        NAS, NASM, NASP, NBB, NBBM, NBBP
   integer(kind=iwp) :: iG3, IST, ISU, ISV, ISX, ISY, ISZ, ITUVS, IXYZS, IYZ
   integer(kind=iwp) :: iSymT, iSymU, iSymX, iSymY
   integer(kind=iwp) :: ID
-  real(kind=wp) :: BTUXY, BTUYX, G3VAL, tG2val, tG3val, VALUE
+  real(kind=wp) :: BTUXY, BTUYX, G3VAL, VALUE
 
   real(kind=wp), allocatable :: BB(:), BBP(:), BBM(:)
 
-  tg2val = 0.0_wp
-  tg3val = 0.0_wp
   DO ISYM=1,NSYM
     IF(NINDEP(ISYM,2) == 0) cycle
     NAS=NTU(ISYM)
@@ -71,8 +69,6 @@ subroutine MKBNEVB(nAshT,NG3,Hbar,Gact,G1,G2,G3,idxG3)
         iSymX = IASYM(IXABS)
         iSymY = IASYM(IYABS)
         IBADR=(ITU*(ITU-1))/2+IXY
-        ITX=ITABS+NASHT*(IXABS-1)
-        IUY=IUABS+NASHT*(IYABS-1)
         VALUE = Zero
         ! Hbar term
         DO IV=1,NASHT

@@ -20,6 +20,8 @@ subroutine MKBNEVAC_E3x(ISYM,nAshT,NG3,NBA,NBC,BA,BC,G1,G2,G3,Hact,Htilde,Gact,i
 
   use nevpt2_mod, only: ex2, ex3
 
+  implicit none
+
   integer(kind=iwp), intent(in) :: iSYM, nAshT, NG3, NBA, NBC
   real(kind=wp), intent(inout) :: BA(NBA), BC(NBC)
   real(kind=wp), intent(in) :: Hact(nAshT,nAshT), Htilde(nAshT,nAshT), Gact(nAshT,nAshT,nAshT,nAshT), &
@@ -27,7 +29,8 @@ subroutine MKBNEVAC_E3x(ISYM,nAshT,NG3,NBA,NBC,BA,BC,G1,G2,G3,Hact,Htilde,Gact,i
   integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
   integer(kind=iwp) :: IT, ITU, IU, IV, IVX, IX, IY, IZ, IYZ
-  integer(kind=iwp) :: iG3, IST, ISU, ISV, ISX, ISY, ISZ, ITUVS, IXYZS
+! integer(kind=iwp) :: iG3, IST, ISU, ISV, ISX, ISY, ISZ, ITUVS, IXYZS
+  integer(kind=iwp) :: iG3
   real(kind=wp) :: G3VAL
 
   do IG3 = 1, NG3
@@ -37,14 +40,14 @@ subroutine MKBNEVAC_E3x(ISYM,nAshT,NG3,NBA,NBC,BA,BC,G1,G2,G3,Hact,Htilde,Gact,i
     iX=idxG3(4,iG3)
     iY=idxG3(5,iG3)
     iZ=idxG3(6,iG3)
-    iST=IASYM(iT)
-    iSU=IASYM(iU)
-    iSV=IASYM(iV)
-    iSX=IASYM(iX)
-    iSY=IASYM(iY)
-    iSZ=IASYM(iZ)
-    ituvs=MUL(IST,MUL(ISU,ISV))
-    ixyzs=MUL(ISX,MUL(ISY,ISZ))
+!   iST=IASYM(iT)
+!   iSU=IASYM(iU)
+!   iSV=IASYM(iV)
+!   iSX=IASYM(iX)
+!   iSY=IASYM(iY)
+!   iSZ=IASYM(iZ)
+!   ituvs=MUL(IST,MUL(ISU,ISV))
+!   ixyzs=MUL(ISX,MUL(ISY,ISZ))
 !   if (ituvs /= ixyzs) cycle
     iTU=iT+NASHT*(iU-1)
     iVX=iV+NASHT*(iX-1)

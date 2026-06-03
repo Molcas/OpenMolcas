@@ -22,6 +22,7 @@ subroutine MKBNEVAC_E4(nAshT,NLEV,Gact)
 #ifdef _MOLCAS_MPP_
   USE Para_Info, ONLY: Is_Real_Par
   use GA_Wrapper, only: DBL_MB, GA_NodeId
+  use Definitions, only: u6
 #endif
 
   implicit none
@@ -87,7 +88,7 @@ subroutine MKBNEVAC_E4(nAshT,NLEV,Gact)
 !     CALL PSBMAT_READ('B',iCase1,iSYM,lg_BASQ,NASA)
       CALL GA_DISTRIBUTION (LG_BASQ,MYRANK,ILOA,IHIA,JLOA,JHIA)
       IF (JLOA /= 0 .AND. (JHIA-JLOA+1) /= NASA) THEN
-        WRITE(6,*) 'MKBA: MISMATCH IN RANGE OF THE SUPERINDICES'
+        WRITE(u6,*) 'MKBA: MISMATCH IN RANGE OF THE SUPERINDICES'
         CALL ABEND()
       END IF
       IF (ILOA > 0 .AND. JLOA > 0) THEN
@@ -110,7 +111,7 @@ subroutine MKBNEVAC_E4(nAshT,NLEV,Gact)
 !     CALL PSBMAT_READ('B',iCase4,iSYM,lg_BCSQ,NASC)
       CALL GA_DISTRIBUTION (LG_BCSQ,MYRANK,ILOC,IHIC,JLOC,JHIC)
       IF (JLOC /= 0 .AND. (JHIC-JLOC+1) /= NASC) THEN
-        WRITE(6,*) 'MKBC: MISMATCH IN RANGE OF THE SUPERINDICES'
+        WRITE(u6,*) 'MKBC: MISMATCH IN RANGE OF THE SUPERINDICES'
         CALL ABEND()
       END IF
       IF (ILOC > 0 .AND. JLOC > 0) THEN
