@@ -46,8 +46,6 @@ real(kind=wp) :: X
 !  WERE PREPARED BY GINIT AND ITS SUBROUTINES.
 !***********************************************************************
 
-if (abs(CPQ) < 1.0e-12_wp) return
-
 ! SYMMETRY OF ORBITALS:
 ISYP = SGS%ISm(IP)
 ISYQ = SGS%ISm(IQ)
@@ -355,7 +353,7 @@ subroutine EXC1(CPQ,NUP,A,B,NCP,ICOUP)
   integer(kind=iwp), intent(in) :: NUP, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, A(NUP,*)
   real(kind=wp), intent(inout) :: B(NUP,*)
-  integer(kind=iwp) :: ICP, JLFT, JRGT
+  integer(kind=iwp) :: ICP, JLFT, JRGT, IUP
   real(kind=wp) :: X
 
   ! CASE: ADD EPQ*A TO B, WHERE Q<P<=MIDLEV AND A AND B ARE SINGLE
@@ -375,7 +373,9 @@ subroutine EXC1(CPQ,NUP,A,B,NCP,ICOUP)
       JLFT = ICOUP(1,ICP)
       JRGT = ICOUP(2,ICP)
       X = CPQ*EXS%VTab(ICOUP(3,ICP))
-      B(:,JRGT) = B(:,JRGT)+X*A(:,JLFT)
+      do IUP=1,NUP
+         B(IUP,JRGT) = B(IUP,JRGT)+X*A(IUP,JLFT)
+      end do
     end do
   end if
 
@@ -386,7 +386,7 @@ subroutine EXC2(CPQ,NDWN,NUPA,A,NUPB,B,NCP,ICOUP)
   integer(kind=iwp), intent(in) :: NDWN, NUPA, NUPB, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, A(NUPA,NDWN)
   real(kind=wp), intent(inout) :: B(NUPB,NDWN)
-  integer(kind=iwp) :: ICP, ILFT, IRGT
+  integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN
   real(kind=wp) :: X
 
   ! CASE: ADD EPQ*A TO B, WHERE MIDLEV<Q<P AND A AND B ARE SINGLE
@@ -405,7 +405,9 @@ subroutine EXC2(CPQ,NDWN,NUPA,A,NUPB,B,NCP,ICOUP)
       ILFT = ICOUP(1,ICP)
       IRGT = ICOUP(2,ICP)
       X = CPQ*EXS%VTab(ICOUP(3,ICP))
-      B(IRGT,:) = B(IRGT,:)+X*A(ILFT,:)
+      do IDWN=1,NDWN
+         B(IRGT,IDWN) = B(IRGT,IDWN)+X*A(ILFT,IDWN)
+      end do
     end do
   end if
 
@@ -416,7 +418,7 @@ subroutine DEX1(CPQ,NUP,A,B,NCP,ICOUP)
   integer(kind=iwp), intent(in) :: NUP, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, A(NUP,*)
   real(kind=wp), intent(inout) :: B(NUP,*)
-  integer(kind=iwp) :: ICP, JLFT, JRGT
+  integer(kind=iwp) :: ICP, JLFT, JRGT, IUP
   real(kind=wp) :: X
 
   ! CASE: ADD EPQ*A TO B, WHERE P<Q<=MIDLEV AND A AND B ARE SINGLE
@@ -436,7 +438,9 @@ subroutine DEX1(CPQ,NUP,A,B,NCP,ICOUP)
       JLFT = ICOUP(1,ICP)
       JRGT = ICOUP(2,ICP)
       X = CPQ*EXS%VTab(ICOUP(3,ICP))
-      B(:,JLFT) = B(:,JLFT)+X*A(:,JRGT)
+      do IUP=1,NUP
+         B(IUP,JLFT) = B(IUP,JLFT)+X*A(IUP,JRGT)
+      end do
     end do
   end if
 
@@ -447,7 +451,7 @@ subroutine DEX2(CPQ,NDWN,NUPA,A,NUPB,B,NCP,ICOUP)
   integer(kind=iwp), intent(in) :: NDWN, NUPA, NUPB, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, A(NUPA,NDWN)
   real(kind=wp), intent(inout) :: B(NUPB,NDWN)
-  integer(kind=iwp) :: ICP, ILFT, IRGT
+  integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN
   real(kind=wp) :: X
 
   ! CASE: ADD EPQ*A TO B, WHERE MIDLEV<P<Q AND A AND B ARE SINGLE
@@ -467,7 +471,9 @@ subroutine DEX2(CPQ,NDWN,NUPA,A,NUPB,B,NCP,ICOUP)
       ILFT = ICOUP(1,ICP)
       IRGT = ICOUP(2,ICP)
       X = CPQ*EXS%VTab(ICOUP(3,ICP))
-      B(ILFT,:) = B(ILFT,:)+X*A(IRGT,:)
+      do IDWN=1,NDWN
+         B(ILFT,IDWN) = B(ILFT,IDWN)+X*A(IRGT,IDWN)
+      end do
     end do
   end if
 

@@ -57,6 +57,7 @@ do J=1,NDIM
     LI = LEVEL(IORB)
     SCL = Half*TVEC(I)
     if (I == J) SCL = SCL-Half
+    if (ABS(SCL)<1.0E-12_wp) cycle
     call SG_Epq_Psi(SGS,CIS,EXS,LI,LJ,SCL,STSYM,CI,SGM)
   end do
   do I=1,NDIM
@@ -64,6 +65,7 @@ do J=1,NDIM
     LI = LEVEL(IORB)
     SCL = TVEC(I)
     if (I == J) SCL = SCL-One
+    if (ABS(SCL)<1.0E-12_wp) cycle
     call SG_Epq_Psi(SGS,CIS,EXS,LI,LJ,SCL,STSYM,SGM,CI)
   end do
 

@@ -315,7 +315,7 @@ do IP3STA=1,NASHT**2,NYZBUF
           if ((IP2 >= IP1STA) .and. (IP2 <= IP1END)) then
             ibuf = lsgm1+mxci*(ip2-ip1sta)
             DYZ(1:MXCI,LFROMD) = DYZ(1:MXCI,LFROMD)+DTG2(IV,IX,IY,IZ)*TG3WRK(IBUF:IBUF+MXCI-1)
-          else
+          else If (Abs(DTG2(IV,IX,IY,IZ))<1.0E-12_wp) Then
             call SG_Epq_Psi(SGS,CIS,EXS,JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,DYZ(1,LFROMD))
           end if
           DTG2(IV,IX,IY,IZ) = Zero
