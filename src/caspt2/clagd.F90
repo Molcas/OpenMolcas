@@ -21,6 +21,7 @@ use caspt2_module, only: EASUM, EPSA, IFMSCOUP, NAES, NASH, NASUP, NINDEP, NISUP
 #ifdef _MOLCAS_MPP_
 use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
 use Para_Info, only: Is_Real_Par, King
+use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use Definitions, only: u6
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -41,8 +42,6 @@ real(kind=wp), allocatable :: BDER(:), LBD(:), LID(:), SDER(:), SMat(:)
 integer(kind=iwp) :: IHI, ILO, JHI, JLO, LDV, lg_S, mS, MYRANK
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: VEC1(:), VEC2(:), VEC3(:), VEC4(:), VEC5(:)
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 do iCase=1,11
@@ -876,8 +875,6 @@ subroutine CLagDX_MPP()
   logical(kind=iwp) :: bStat, invar_act
   integer(kind=byte), allocatable :: idxG3(:,:)
   real(kind=wp), allocatable :: EIG(:), WRK(:,:)
-# include "global.fh"
-# include "mafdecls.fh"
 
   ! Construct active density in NAS basis
   ! Although non-GA version is also implemented, I noticed that

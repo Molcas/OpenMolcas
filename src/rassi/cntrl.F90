@@ -130,7 +130,8 @@ private
 ! NucMass                - list[NATens_Calc] of nuclear mass (integer A=Z+N)
 ! NucSpin                - list[NATens_Calc] of spin quantum numbers of nuclei
 ! NucGFac                - list[NATens_Calc] of nuclear g-factor
-! Hypo_Iso               - Hypothetical isotope [to request to ignore whether an isotope exists or not]
+! HISO_set               - Hypothetical isotope [to request to ignore whether an isotope exists or not]
+! HypoIso                - list[NAtoms] of logical values whether g-factor/spin of this atom is hypothetical
 
 !----------------------------------------------------------------------*
 !     Define files ( file names and unit numbers )                     *
@@ -173,8 +174,8 @@ real(kind=wp), allocatable :: HEff(:,:), RefEne(:)
 
 integer(kind=iwp)  :: NATens_Calc,NCOUP, NPNMR_Calc
 INTEGER(kind=iwp), allocatable :: ASD_idx(:,:) , PSO_idx(:,:), AngMom_idx(:) , NucMass(:), LCSTATES(:)
-logical(kind=iwp), allocatable  :: Atens_Req(:), pNMR_req(:)
-logical(kind=iwp)  :: AutoSelect_GFac  , NSpin_set , GNuc_set, NMass_set, HypF_rms_Req , Hypo_Iso
+logical(kind=iwp), allocatable  :: Atens_Req(:), pNMR_req(:), HypoIso(:)
+logical(kind=iwp)  :: AutoSelect_GFac  , NSpin_set , GNuc_set, NMass_set, HypF_rms_Req
 real(kind=wp),  allocatable  :: NucSpin(:), GNuc(:)
 
 public :: ALGO, AlphZ, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5, CITHR, Coor, DCHO, DCHS, DIPR, dmpk, Do_Pol, &
@@ -192,6 +193,6 @@ public :: ALGO, AlphZ, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5
           RSThr, SAVEDENS, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, &
           TDipMin, TDYS, TIncre, TITLE1, TMAXP, TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart ,               &
           NATens_Calc, NCOUP, NPNMR_Calc, ASD_idx, PSO_idx, AngMom_idx, NucMass, LCSTATES, Atens_Req, pNMR_req, AutoSelect_GFac, &
-          GNuc_set, NMass_set, NSpin_set, HypF_rms_Req, Hypo_Iso, NucSpin, GNuc
+          GNuc_set, NMass_set, NSpin_set, HypF_rms_Req, NucSpin, GNuc, HypoIso
 
 End Module Cntrl

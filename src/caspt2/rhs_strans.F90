@@ -33,6 +33,7 @@ use fake_GA, only: GA_Arrays
 use caspt2_global, only: LUSBT
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use Constants, only: One
 use Definitions, only: u6
 #endif
@@ -48,8 +49,6 @@ real(kind=wp), allocatable :: S(:)
 integer(kind=iwp) :: iHiV1, iHiV2, iLoV1, iLoV2, jHiV1, jHiV2, jLoV1, jLoV2, LDV1, LDV2, lg_S, mV1, mV2, myRank, NCOL1, NCOL2, &
                      NROW1, NROW2
 logical(kind=iwp) :: bStat
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   if ((ICASE == 1) .or. (ICASE == 4)) then

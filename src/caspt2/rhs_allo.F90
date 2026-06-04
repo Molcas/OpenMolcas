@@ -35,10 +35,8 @@ implicit none
 integer(kind=iwp), intent(in) :: NAS, NIS
 integer(kind=iwp), intent(out) :: lg_W
 integer(kind=iwp) :: NW
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
 
+#ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
   call GA_CREATE_STRIPED('V',NAS,NIS,'RHS',LG_W)
 else

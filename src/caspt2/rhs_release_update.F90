@@ -34,10 +34,8 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lg_W, iLo, iHi, jLo, jHi
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
 
+#ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
   if ((iLo > 0) .and. (jLo > 0)) call GA_Release_Update(lg_W,iLo,iHi,jLo,jHi)
 end if

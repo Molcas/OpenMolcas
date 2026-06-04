@@ -31,8 +31,9 @@ module hyperfine
                          GNUC_by_nucspin, NUCSPIN_by_gnuc, get_first_nonzero_GNUC
   use Cntrl,       only: NSTATE, NPROP,NAtoms, MLTPLT, ASD_idx, PSO_idx, AngMom_idx,       &
                          NPNMR_Calc, pNMR_req, HypF_rms_Req, NATens_Calc, Atens_Req,       &
-                         NucMass, NMass_set, NucSpin, NSpin_set, GNuc, GNuc_set, Hypo_Iso, &
-                         AutoSelect_GFac, LCSTATES, NCOUP, NTP, TMINP, TMAXP, DEGEN_ETHR
+                         NucMass, NMass_set, NucSpin, NSpin_set, GNuc, GNuc_set,           &
+                         AutoSelect_GFac, LCSTATES, NCOUP, NTP, TMINP, TMAXP, DEGEN_ETHR,  &
+                         HypoIso
 
 
   implicit none
@@ -179,7 +180,7 @@ module hyperfine
     call mma_allocate(rtemp,NAtoms, Label="rtemp_hfcop")
     call mma_allocate(LAtNumb,NAtoms, Label='LAtNumb')
     call Get_dArray('Nuclear charge', rtemp, nAtoms)
-    LAtNumb(:) = int(rtemp(:))
+    LAtNumb(:) = nint(rtemp(:))
     call mma_deallocate(rtemp)
 
 ! GET: Eenergy of SO states (ESO)
@@ -237,19 +238,14 @@ module hyperfine
 
 ! Process spin data (Nuclear spin + g-Factor)
   if (HypF_rms_Req .or. allocated(Atens_Req)) then
-    call mma_allocate(LStability, NAtoms, "Stability")
-    LStability(:) = '?'
     call proc_spin_data()
     call print_isotope_info()
-    call mma_deallocate(LStability)
   endif
 
 ! GET: Coupled states used to calculate A_tensor
     ETHR_in_cm = DEGEN_ETHR * auTocm
     if(allocated(Atens_Req) .or. allocated(pNMR_req)) call proc_coupl_states()
 
-! These variables are not needed
-    if(allocated(NucMass)) call mma_deallocate(NucMass)
   end subroutine
 !======================================================================
 
@@ -350,9 +346,6 @@ module hyperfine
 
     if(do_EPR .or. do_pNMR) then
       write(u6,*) ""
-      write(u6,*) ""
-      write(u6,*) ""
-      write(u6,*) ""
       write(u6,'(3X,A30)') repeat("=",30)
       if (do_EPR .and. do_pNMR)       write(u6,'(3X,A24,A6)') "HFC & pNMR Calc. for :: ", LAtomLbl(iAtom)
       if (do_EPR .and. .not. do_pNMR) write(u6,'(6X,A17,A6)') "HFC Calc. for :: ", LAtomLbl(iAtom)
@@ -440,27 +433,26 @@ module hyperfine
 
 
 !======================================================================
-  subroutine proc_nuc_spin(iAtom,case,seward_mass)
+  subroutine proc_nuc_spin(iAtom,case)
     integer(kind=iwp), intent(in)             :: iAtom, case
-    integer(kind=iwp), intent(in), optional   :: seward_mass
 
     write(u6,'(7X,A18,A6)') 'Process for atom: ', LAtomLbl(iAtom)
     select case (case)
     case(1)
       write(u6,'(11X,A38)') 'USE: Isotopic mass [SEWARD or GATEWAY]'
-      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), seward_mass, GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
+      call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), NucMass(iAtom), GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     case(2)
       write(u6,'(11X,A31,I0)') 'USE: NMASs [RASSI input]   A = ', NucMass(iAtom)
       call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), NucMass(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
     case(3)
       write(u6,'(11X,A31,F6.2)') 'USE: NSPIn [RASSI input]   I = ', NucSpin(iAtom)
-      call GNUC_by_nucspin(LAtNumb(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
+      call GNUC_by_nucspin(LAtNumb(iAtom),NucMass(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
     case(4)
       write(u6,'(11X,A37,F12.8)') 'USE: GNUC [RASSI input]   g-factor = ', GNuc(iAtom)
-      call NUCSPIN_by_gnuc(LAtNumb(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
+      call NUCSPIN_by_gnuc(LAtNumb(iAtom),NucMass(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
     case(5)
       write(u6,'(11X,A28,F12.8)') 'USE: Most abundance non-zero'
-      call get_first_nonzero_GNUC(LAtNumb(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
+      call get_first_nonzero_GNUC(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     end select
 
   end subroutine
@@ -468,10 +460,10 @@ module hyperfine
 
 !======================================================================
   subroutine proc_spin_data()
-    real(kind=wp),allocatable   :: Weights(:)
     integer(kind=iwp)           :: case
-    logical(kind=iwp)           :: use_seward_mass, not_set_by_users
+    logical(kind=iwp)           :: use_seward_mass
     integer(kind=iwp)           :: iAtom
+    real(kind=wp), allocatable  :: Weights(:)
 !PURPOSE: To find g-factor and NucSpin for given atoms in EZSpin database.
 
 ! Case 1: Use SEWARD, GATEWAY mass  --> get g-factor and NucSpin
@@ -484,11 +476,35 @@ module hyperfine
 
     call init_spin_data()
 
-    if (.not. allocated(NucSpin))     call mma_allocate(NucSpin,NAtoms,"NucSpin")
-    if (.not. allocated(GNuc))     call mma_allocate(GNuc,NAtoms,"gNuc")
+    if (.not. allocated(NucSpin)) then
+      call mma_allocate(NucSpin,NAtoms,"NucSpin")
+      NucSpin(:) = -100.0_wp
+    endif
 
-    call mma_allocate(Weights,NAtoms,"weights_hfcop")
+    if (.not. allocated(GNuc))  then
+      call mma_allocate(GNuc,NAtoms,"gNuc")
+      GNuc(:) = -100.0_wp
+    endif
+
+    call mma_allocate(Weights,NAtoms,Label="Weights_hfcop")
     call Get_dArray('Weights', Weights, NAtoms)
+    if(NMass_set) then
+      ! CASE 1: RASSI and SEWARD might be inconsistent because of user-input NMASs
+      do iAtom = 1, nAtoms
+        if(NucMass(iAtom) == -100.0_wp) NucMass(iAtom) = nint(Weights(iAtom), kind=iwp)
+      enddo
+    else
+      ! CASE 2: RASSI and SEWARD mass numbers is consistent at first.
+      !         However, users might define wrong spin for unreal isotope
+      !         --> Mass number might be incosistent later --> Warnings instead of termination
+      call mma_allocate(NucMass,NAtoms,"NucMass_hfcop")
+      NucMass(:) = nint(Weights(:), kind=iwp)
+    endif
+
+    ! Stability will be re-assigned after processing spin data
+    call mma_allocate(LStability, NAtoms, "Stability")
+    LStability(:) = '?'
+
 
 
 ! DEFAULT SETTINGS (if users do NOT specify anything : ISOMass, NucSpin or GNUC in RASSI input)
@@ -509,38 +525,38 @@ module hyperfine
     if (use_seward_mass)  case = 1
     if (NMass_set)        case = 2
     if (NSpin_set)        case = 3
-    if (GNuc_set)        case = 4
+    if (GNuc_set)         case = 4
     if (AutoSelect_GFac)  case = 5
 
-!   If users specify both NucSpin and GNUC, they should use "HISO" keyword
-!   to indicate hypothetical isotopes rather than finding real isotopes in EZSpin data.
-!   Hypo_Iso will be turned on automatically if both NucSpin and GNUC are set by users.
-    if (NSpin_set .and. GNuc_set) Hypo_Iso = .true.
 
+! HYPOTHEICAL ISOTOPE-------------------------------------------------------------
+    if (.not.allocated(HypoIso)) then
+      call mma_allocate(HypoIso, NAtoms, "HypoIso_hfcop")
+      HypoIso(:) = .false.
+    endif
     write(u6,*) ""
-! When HFC_RMS hamiltonian is requested, we need to process the nuclear data for ALL atoms.
     if (HypF_rms_Req) then
       do iAtom = 1, NAtoms
-        not_set_by_users = (NSpin_set  .and. NucSpin(iAtom)  == -100.0_wp)  .or. &
-                            (GNuc_set .and. GNuc(iAtom)  == -100.0_wp)  .or. &
-                            (NMass_set .and. NucMass(iAtom)  == -100_iwp)
-
-        if(not_set_by_users) then
-          call proc_nuc_spin(iAtom, 1, int(Weights(iAtom)))
-        else
-          if(.not. Hypo_Iso) call proc_nuc_spin(iAtom, case, int(Weights(iAtom)))
+        if (.not.HypoIso(iAtom)) call proc_nuc_spin(iAtom, case)
+        if (NucMass(iAtom) /= nint(Weights(iAtom)))   then
+          write(u6,'(11X,A28,I3,A24,I3)') 'Warning: Mass number RASSI= ',NucMass(iAtom),           &
+                                    ' does NOT match SEWARD= ', nint(Weights(iAtom))
+          write(u6,*) ''
         endif
       enddo
-! Only process atoms for which A tensors (EPR parameters) are requested.
     else
       do iAtom = 1, NAtoms
-        if (Atens_Req(iAtom)) then
-          if (.not. Hypo_Iso) call proc_nuc_spin(iAtom, case, int(Weights(iAtom)))
-        end if
+        if (.not.HypoIso(iAtom) .and. Atens_Req(iAtom)) call proc_nuc_spin(iAtom, case)
+        if (NucMass(iAtom) /= nint(Weights(iAtom)))   then
+          write(u6,'(11X,A28,I3,A24,I3)') 'Warning: Mass number RASSI= ',NucMass(iAtom),           &
+                                    ' does NOT match SEWARD= ', nint(Weights(iAtom))
+          write(u6,*) ''
+        endif
       enddo
     endif
 
     call mma_deallocate(Weights)
+
     call free_spin_data()
   end subroutine
 !======================================================================
@@ -593,27 +609,34 @@ module hyperfine
 
     write(u6,*)
     write(u6,*)
+    write(u6,'(7X,A21)') 'Isotope specification'
     if(HypF_rms_Req) then
       ! Print full table (Spin G-factor)
-      write(u6,'(7X,A37)') repeat('-',37)
-      write(u6,'(7X,A37)')'Atom     Spin           g-Factor Note'
-      write(u6,'(7X,A37)') repeat('-',37)
+      write(u6,'(7X,A45)') repeat('-',45)
+      write(u6,'(7X,A45)') 'Atom     A   Spin       g-Factor    Stability'
+      write(u6,'(7X,A45)') repeat('-',45)
       do iAtom=1,NAtoms
-        write(u6,'(7X,A6,1x,F6.2,7x,F12.8,2X,A1)') LAtomLbl(iAtom), NucSpin(iAtom), GNuc(iAtom), LStability(iAtom)
+        write(u6,'(7X,A6,1X,I3,4x,F3.1,3x,F12.8,12X,A1)') LAtomLbl(iAtom),NucMass(iAtom), &
+                                          NucSpin(iAtom), GNuc(iAtom), LStability(iAtom)
       enddo
-      write(u6,'(7X,A37)') repeat('-',37)
+      write(u6,'(7X,A45)') repeat('-',45)
 
     else
     ! Otherwise, only print g-factor. Spin is not needed for EPR calc.
-      write(u6,'(7X,A27)') repeat('-',27)
-      write(u6,'(7X,A27)')'Atom          g-Factor Note'
-      write(u6,'(7X,A27)') repeat('-',27)
+      write(u6,'(7X,A38)') repeat('-',38)
+      write(u6,'(7X,A38)')'Atom     A       g-Factor    Stability'
+      write(u6,'(7X,A38)') repeat('-',38)
       do iAtom=1,NAtoms
-        if(Atens_Req(iAtom)) write(u6,'(7X,A6,4x,F12.8,2X,A1)') LAtomLbl(iAtom), GNuc(iAtom), LStability(iAtom)
+        if(Atens_Req(iAtom)) write(u6,'(7X,A6,1X,I3,3x,F12.8,12X,A1)') LAtomLbl(iAtom), NucMass(iAtom), &
+                                                                        GNuc(iAtom), LStability(iAtom)
       enddo
-      write(u6,'(7X,A27)') repeat('-',27)
-      write(u6,'(7X,A53)') "[ ] = stable, [*] = radioactive, [?] = no information"
+      write(u6,'(7X,A38)') repeat('-',38)
     endif
+    write(u6,'(7X,A53)') "[ ] = stable, [*] = radioactive, [?] = no information"
+    write(u6,*)
+
+    call mma_deallocate(LStability)
+    call mma_deallocate(NucMass)
   end subroutine
 !======================================================================
 
@@ -735,8 +758,8 @@ subroutine print_EPR_summary()
     if (Atens_Req(iAtom)) then
       iACalc = iACalc + 1
       write(u6,*) ""
-      write(u6,'(3X,A10,A6,A17,F3.1,3X,A19,F9.6)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)), &
-              '  Nuclear Spin = ',NucSpin(iAtom), 'Nuclear g-factor = ',GNuc(iAtom)
+      write(u6,'(3X,A10,A6,A19,F12.8)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)), 'Nuclear g-factor = ',GNuc(iAtom)
+      if(.not.HypoIso(iAtom)) write(u6,'(19X,A19,2X,F3.1)') 'Nuclear Spin     = ',NucSpin(iAtom)
       write(u6,*) ""
       write(u6,'(3X,A4,2X,A7,A5,5X,A7,A5,3(2X,A7,A5))') 'Comp',                         &
       ' TOTAL ',unit,'    FC ',unit,'    SD ',unit,'  FCSD ',unit,'   PSO ',unit
@@ -777,8 +800,8 @@ subroutine print_EPR_summary()
   write(u6,'(A65)')  "          without restarting by using the provided formula below:"
   write(u6,*)
 
-  write(u6,'(A52,E12.4)') "                A(MHz) = A(au) * nuclear-g-factor * ", -gElectron * beta_e * beta_n
-  write(string_val,'(F13.6)') con_to_MHz
+  write(u6,'(A52,E12.6)') "                A(MHz) = A(au) * nuclear-g-factor * ", -gElectron * beta_e * beta_n
+  write(string_val,'(F13.4)') con_to_MHz
   write(u6,'(A60,A16)') "             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ", adjustl(string_val)
   write(u6,*)
   write(u6,*)
@@ -1434,6 +1457,8 @@ end subroutine
       call mma_deallocate(C_tens)
       call mma_deallocate(degen_group)
     endif
+
+    if(allocated(HypoIso)) call mma_deallocate(HypoIso)
 
 
     if (allocated(NucSpin))   call mma_deallocate(NucSpin)

@@ -42,14 +42,10 @@ real(kind=wp), intent(inout) :: TInt(lInt)
 real(kind=wp), intent(in) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, ISHLI, ISHLJ, iSO, iSOi, iSOij, &
                      iSOkl, iSOs(4), jSO, jSOj, KIJ, kSO, kSOk, lSO, lSOl, nijkl, NUMI, NUMJ
-#ifdef _DEBUGPRINT_
-real(kind=wp) :: r1, r2
-real(kind=wp), external :: ddot_
 
-r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
-r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
-write(u6,*) ' Sum=',r1
-write(u6,*) ' Dot=',r2
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Sum=',sum(AOInt(:,:,:,:,:))
+write(u6,*) ' Dot=',sum(AOInt(:,:,:,:,:)**2)
 call RecPrt(' In Plf_CD: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 

@@ -25,8 +25,8 @@ use Cntrl, only: ALGO, Nscreen, dmpk, QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRS
                  MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM, EPrThr, LPRPR, lHami, IFGTCALSA, &
                  DYSEXPSF, ISTAT, MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA, SONTO, SONTOSTATES, SONAT, SONATNSTATE, SODIAG, &
                  SODIAGNSTATE, Atens_Req, pNMR_req, HypF_rms_Req, NucMass, NMass_set, NucSpin, NSpin_set, GNuc,  &
-                 GNuc_set, PSO_idx, ASD_idx, Hypo_Iso, LCSTATES, NATens_Calc, NAtoms, NPNMR_Calc, NCOUP, AutoSelect_GFac, &
-                 AngMom_idx
+                 GNuc_set, PSO_idx, ASD_idx, LCSTATES, NATens_Calc, NAtoms, NPNMR_Calc, NCOUP, AutoSelect_GFac, &
+                 AngMom_idx, HypoIso
 
 use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 use frenkel_global_vars, only: DoCoul, doexch, DoExcitonics, excl, iTyp, labB, nestla, nestlb, valst
@@ -44,8 +44,8 @@ use Definitions, only: wp, iwp, u6
 use HFC_logical, only: MagX2C_Req
 
 implicit none
-integer(kind=iwp) :: corest, I, IJOB, ISTATE, istatus, J, JSTATE, LINENR, LuIn, nesta, nestb, NFLS
-real(kind=wp) :: tmp
+integer(kind=iwp) :: corest, I, IJOB, ISTATE, istatus, J, JSTATE, LINENR, LuIn, nesta, nestb, NFLS, iTmp
+real(kind=wp) :: tmp, tmp_spin, tmp_gfac
 logical(kind=iwp) :: lExists
 character(len=80) ::LINE
 character(len=8) :: TRYNAME
@@ -705,7 +705,30 @@ do
         HypF_rms_Req=.TRUE.
 
       case('HISO')
-        Hypo_Iso = .TRUE.
+        call mma_allocate(HypoIso,NAtoms,Label="HypoIso_inp")
+        read(LuIn,*,iostat=istatus) iTmp
+        if (istatus > 1) then
+          HypoIso(:) = .true.
+          backspace(LuIn)
+        else
+          HypoIso(:) = .false.
+          if (.not.allocated(NucSpin)) then
+            call mma_allocate(NucSpin,NAtoms,Label='NucSpin')
+            NucSpin(:) = -100.0_wp
+          endif
+          if (.not.allocated(GNuc)) then
+            call mma_allocate(GNuc,NAtoms,Label='GNuc')
+            GNuc(:) = -100.0_wp
+          endif
+          do i = 1, iTmp
+            read(LuIn,*,iostat=istatus) j, tmp_spin, tmp_gfac
+            call LineCheck(istatus)
+            HypoIso(j) = .true.
+            NucSpin(j) = tmp_spin
+            GNuc(j)    = tmp_gfac
+          enddo
+        endif
+
 
       case('AUNG')
         AutoSelect_GFac = .true.

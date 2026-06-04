@@ -31,6 +31,7 @@ subroutine RHS_SR2C(ITYP,IREV,NAS,NIS,NIN,lg_V1,lg_V2,ICASE,ISYM)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 #endif
 use caspt2_global, only: LUSBT
 use EQSOLV, only: IDSTMAT, IDTMAT
@@ -47,8 +48,6 @@ real(kind=wp), allocatable :: T(:)
 integer(kind=iwp) :: iHiV1, iHiV2, iLoV1, iLoV2, jHiV1, jHiV2, jLoV1, jLoV2, LDV1, LDV2, lg_T, mV1, mV2, myRank, NCOL1, NCOL2, &
                      NROW1, NROW2
 logical(kind=iwp) :: bStat
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   if ((ICASE == 1) .or. (ICASE == 4)) then

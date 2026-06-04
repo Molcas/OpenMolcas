@@ -14,7 +14,7 @@
 subroutine Get_Tr_Dab(nSym,nBas,nFro,nIsh,nSsh,nDel,CMO,EOcc,EVir,TrD)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -25,7 +25,6 @@ real(kind=wp), intent(out) :: TrD(nSym)
 integer(kind=iwp) :: iOff, irc, iSkip, iSym, iV, kfr, kto, lnDel(8), lnFro(8), lnOcc(8), lnOrb(8), lnVir(8), nBB, nOA, nVV
 real(kind=wp) :: Dummy
 real(kind=wp), allocatable :: CMON(:), X(:)
-real(kind=wp), external :: ddot_
 
 nVV = 0
 nBB = 0
@@ -74,9 +73,9 @@ else
 end if
 call mma_deallocate(CMON)
 
-iV = 1
+iV = 0
 do iSym=1,nSym
-  TrD(iSym) = ddot_(lnVir(iSym),X(iV),1+lnVir(iSym),[One],0)
+  TrD(iSym) = sum(X(iV+1:iV+lnVir(iSym)**2:1+lnVir(iSym)))
   iV = iV+lnVir(iSym)**2
 end do
 call mma_deallocate(X)

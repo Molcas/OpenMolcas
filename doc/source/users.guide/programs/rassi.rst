@@ -1426,14 +1426,16 @@ Keywords
 
 :kword:`HFCOper`
   This keyword is used to calculate effective hyperfine hamiltonian with root-mean-square nuclear spin states.
-  By default, when :kword:HFCOper`` is present, the SEWARD module provides the isotopic mass to match nuclear spin, and g-factor for specific isotopes
+
+  By default, when :kword:`HFCOper` is present, the SEWARD module provides the isotopic mass to match nuclear spin, and g-factor for specific isotopes
   in spin database.
+
   The hamiltonian will be saved to RASSI.h5 and h_RMS.txt
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCOper" APPEAR="Hyperfine RMS Hamiltonian" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: HFCOper <advanced>
               <HELP>
-              Calculate effective hyperfine hamiltonian with root-mean-square nuclear spin states.
+              Calculate effective hyperfine hamiltonian.
               </HELP>
               </KEYWORD>
 
@@ -1441,10 +1443,19 @@ Keywords
 :kword:`HFCAt`
   This keyword specifies the atoms for which the hyperfine coupling (HFC) A tensor will be calculated.
 
-  The first line specifies the number of atoms. The second line lists the atoms for which HFCCs are to be calculated.
-  Alternatively, the keyword "all" (single line) may be used to include every atom.
+  The first line specifies the number of atoms. The second line lists them. Here is an example ::
 
-  To convert isotropic values to MHz, the nuclear g-factors of the corresponding atoms must be defined by specifying one of the following keywords: :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC` .
+    HFCAt
+    2
+    1 2
+
+  Alternatively, the keyword "all" (single line) may be used to include every atom ::
+
+    HFCAt
+    all
+
+  To convert isotropic values to MHz, the nuclear g-factors of the corresponding atoms must be defined by specifying one of the following keywords:
+  :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC` and/or :kword:`HISO`.
 
   By default, the keyword :kword:`AUNG` will be automatically turned on if all keywords :kword:`NMASs`, :kword:`NSPIn`, :kword:`GNUC` are absent.
 
@@ -1453,30 +1464,37 @@ Keywords
               %<ALTERNATE KIND="CHOICE" LIST="all" />
               %Keyword: HFCAt <advanced>
               <HELP>
-              This keyword specifies the atoms to calculate A_tensor in EPR spectra.
+              Atoms to calculate A_tensor in EPR spectra.
               </HELP>
               </KEYWORD>
 
 :kword:`NMASs`
   This keyword specifies the mass numbers (integers, protons + neutrons) of N atoms (N defined by :kword:`HFCAt`).
 
+  For example, HgF (199Hg , 19F) can be specified as ::
+
+    NMASs
+    199 19
+
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMASs" APPEAR="Nuclear Masses" KIND="INTS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED">
               %%Keyword: NMASs <advanced>
               <HELP>
-              Specify the nuclear masses of the atoms.
+              Nuclear masses of the HFC atoms.
               </HELP>
               </KEYWORD>
 
 :kword:`NSPIn`
   This keyword specifies the nuclear spins of N atoms (N defined by :kword:`HFCAt`).
 
-  For example, 199Hg has a spin of 1/2, which can be specified as 0.5.
+  For example, both 199Hg and 19F has spins of 1/2, which can be specified as ::
 
+    NSPIn
+    0.5 0.5
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NSPIn" APPEAR="Nuclear Spins" KIND="REALS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED">
               %%Keyword: NSPIn <advanced>
               <HELP>
-              Specify the nuclear spins of the atoms.
+              Nuclear spins of the HFC atoms.
               </HELP>
               </KEYWORD>
 
@@ -1491,7 +1509,7 @@ Keywords
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="GNUC" APPEAR="Nuclear g-factors" KIND="REALS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED">
               %%Keyword: GNUC <advanced>
               <HELP>
-              Specify the nuclear g-factor of the atoms.
+              Nuclear g-factor of the atoms.
               </HELP>
               </KEYWORD>
 
@@ -1507,13 +1525,26 @@ Keywords
               </KEYWORD>
 
 :kword:`HISO`
-  This allows the program to use custom nuclear g-factors (and/or spins) without verifying if they correspond to real isotopes in spin database.
+  This feature allows the program to use custom nuclear g-factors and spins without verifying if they correspond to real isotopes in the spin database.
 
+  Including the single keyword :kword:`HISO` marks all atoms as hypothetical isotopes.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HISO" APPEAR="Enable hypothetical isotopes" KIND="SINGLE" LEVEL="ADVANCED">
+  To mix real and hypothetical isotopes, you can define specific hypothetical ones using the following format ::
+
+    HISO
+    2
+    1      0.5    0.314
+    2      3.5    0.790
+
+    *Atom  NSpin  GNuc
+
+  The first line after HISO specifies the number of hypothetical isotopes. Subsequent lines follow the format: Atom Spin gFactor
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HISO" APPEAR="Hypothetical Isotopes" KIND="SINGLE" LEVEL="ADVANCED">
+              %<ALTERNATE KIND="REALS_COMPUTED" SIZE="3" />
               %%Keyword: HISO <advanced>
               <HELP>
-              Enables hypothetical isotopes.
+              Hypothetical Isotopes.
               </HELP>
               </KEYWORD>
 
@@ -1525,14 +1556,14 @@ Keywords
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DETH" APPEAR="Degenerate Energy Threshold" KIND="REAL" LEVEL="ADVANCED">
               %%Keyword: DETH <advanced>
               <HELP>
-              Set the energy threshold for degenerate states in atomic units.
+              Energy threshold for degenerate states in atomic units.
               </HELP>
               </KEYWORD>
 
 :kword:`NCOU`
   When :kword:`COUP` is absent, this keyword enforces degeneracy among the first NCOUP lowest-energy states by shifting their energies to the ground state level.
 
-  In case :kword:`COUP` is present, a set of arbitrary states will be defined by :kword:`COUP` keyword instead.
+  In case :kword:`COUP` is present, a set of arbitrary states will be listed by :kword:`COUP` keyword.
 
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NCOU" APPEAR="Number of Coupling States" KIND="INT" LEVEL="ADVANCED">
@@ -1557,21 +1588,33 @@ Keywords
   This keyword Specify the atoms for which to calculate the pNMR tensors (Curie and Linear Response terms).
   The :kword:`NMRTemp` keyword is required to define the temperature.
 
-  The first line specifies the number of atoms. The second line lists the atoms for which pNMR tensors are to be calculated.
-  Alternatively, the keyword "all" (single line) may be used to include every atom.
+  The first line specifies the number of atoms. The second line lists them. Here is an example ::
+
+    NMRAt
+    2
+    1 2
+
+  Alternatively, the keyword "all" (single line) may be used to include every atom ::
+
+    NMRAt
+    all
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRAt" APPEAR="Atoms for pNMR tensors" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRAt" APPEAR="pNMR Atoms" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED">
               %<ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: NMRAt <advanced>
               <HELP>
-              Specify the atoms for which to calculate the pNMR tensors.
+              Atoms to calculate pNMR tensors.
               </HELP>
               </KEYWORD>
 
 :kword:`NMRTemp`
-  This keyword defines the temperature grid for pNMR tensors. It requires three values: TMin, TMax, and the number of steps.
+  This keyword defines the temperatures (Kevin) for pNMR tensors. It requires three values: TMin, TMax, and the number of steps. For example: ::
 
+    NMRTemp
+    270.0 330.0 3
+
+  This input will generate 3 temperature values: 270, 300 and 330 K
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRTemp" APPEAR="Temperature grid for pNMR tensors" KIND="REALS_LOOKUP" LEVEL="ADVANCED">
               %%Keyword: NMRTemp <advanced>
@@ -1719,7 +1762,7 @@ The above input will be equipvalent if users want to use :kword:`NSPIn` and or s
   NSPIn
   0.5 0.5
 
-Because symmetry breaking may lift degeneracy, users can enforce degeneracy by setting :kword:`NCOUpling`.
+Because symmetry breaking may lift degeneracy, users can enforce degeneracy by setting :kword:`NCOU`.
 For example, consider a quick calculation for the Er atom (pseudospin = 6; the ground state has 13-fold degeneracy): ::
 
   &RASSI
@@ -1730,7 +1773,7 @@ For example, consider a quick calculation for the Er atom (pseudospin = 6; the g
   HFCAt
   all
   AUNG
-  NCOUP
+  NCOU
   13
 
 A minimal input for pNMR by using :kword:`NMRAt` and :kword:`NMRTemp` :  ::

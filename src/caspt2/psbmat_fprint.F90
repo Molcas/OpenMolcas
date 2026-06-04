@@ -15,6 +15,7 @@ function PSBMAT_FPRINT(lg_M,NM)
 use Index_Functions, only: nTri_Elem
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: GA_DDot
 #endif
 use fake_ga, only: GA_arrays
 use Definitions, only: wp, iwp
@@ -23,10 +24,6 @@ implicit none
 real(kind=wp) :: PSBMAT_FPRINT
 integer(kind=iwp), intent(in) :: lg_M, NM
 real(kind=wp), external :: DNRM2_
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then

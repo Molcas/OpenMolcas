@@ -16,7 +16,9 @@ subroutine RHSOD_H_NOSYM(IVEC)
 use SUPERINDEX, only: MAGEB, MAGTB, MIGEJ, MIGTJ
 use CHOVEC_IO, only: ChoVec_Read, ChoVec_Size, NVTOT_CHOSYM
 use PrintLevel, only: DEBUG
-#ifndef _MOLCAS_MPP_
+#ifdef _MOLCAS_MPP_
+use GA_Wrapper, only: DBL_MB
+#else
 use fake_GA, only: GA_Arrays
 #endif
 use caspt2_global, only: iPrGlb
@@ -33,10 +35,6 @@ real(kind=wp) :: AJCL, ALCJ, HMACJL, HPACJL, SCL
 real(kind=wp), allocatable :: AIBJ(:,:), CHOBUF(:)
 integer(kind=iwp), parameter :: NOSYM = 1
 real(kind=wp), parameter :: SQRT3 = sqrt(Three), SQRTH = sqrt(Half)
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
 if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case H'
 
