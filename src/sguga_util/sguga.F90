@@ -1015,7 +1015,7 @@ do IHALF=1,2
 
       ILND = CIS%NOW(IHALF,IWSYM,MV) + 1
       CIS%NOW(IHALF,IWSYM,MV) = ILND   ! Increment counter for how many walks there are given the
-                                                              ! midvertex index and the total symmetry of the subwalk.
+                                       ! midvertex index and the total symmetry of the subwalk.
       If (INIT==1) Then
         ! CONSEQUENTLY, THE POSITION IMMEDIATELY BEFORE THIS COMPRESSED WALK:
         IPOS = CIS%IOW(IHALF,IWSYM,MV)+(ILND-1)*CIS%nIpWlk
@@ -1040,6 +1040,8 @@ do IHALF=1,2
 end do
 
 If (INIT==0) THEN
+! Generate an off-set array for the CIS%NOW array
+Call Mk_IOW(CIS,SGS)
 call CSFCOUNT(CIS,SGS)
 NUW=CIS%NUW
 
@@ -1295,6 +1297,7 @@ integer(kind=iwp) :: IS, IST, NCP
 
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
 call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW',safe='*')
+
 call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF',safe='*')
 call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF',safe='*')
 call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF',safe='*')
@@ -1304,6 +1307,7 @@ call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
 call mma_allocate(EXS%IOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
 call mma_allocate(NRL,[1,SGS%nSym],[1,SGS%nVert],[0,EXS%MxEO],Label='NRL')
 
+! For upper walks
 NRL(:,1:SGS%MVEnd,:) = 0
 NRL(1,1,0) = 1
 
@@ -1353,7 +1357,7 @@ end do
 
 MXUP = 0
 do MV=1,CIS%nMidV
-  IVLT = MV+SGS%MVSta-1
+  IVLT = MV+SGS%MVSta-1 ! Get the absolute vertex index
   do LFTSYM=1,SGS%nSym
     CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))
@@ -1363,8 +1367,11 @@ do MV=1,CIS%nMidV
   end do
 end do
 
-NRL(:,SGS%MVSta:,:) = 0
+! For lower walks
+
+NRL(:,SGS%MVSta:SGS%nVert,:) = 0
 NRL(1,SGS%nVert,0) = 1
+
 do IVLT=SGS%nVert-1,SGS%MVSta,-1
   LEV = SGS%DRT(IVLT,LTAB)
   do ISGT=1,nSeg
@@ -1433,6 +1440,7 @@ do INDEO=1,EXS%MxEO
   end do
 end do
 
+Call Mk_IOW(CIS,SGS)
 call CSFCOUNT(CIS,SGS)
 NUW=CIS%NUW
 
@@ -2071,7 +2079,6 @@ type(SGStruct), intent(inout) :: SGS
 integer(kind=iwp) :: ISYDWN, ISYM, ISYTOT, ISYUP, MV, N
 
 
-Call Mk_IOW(CIS,SGS)
 
 ! CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
 ! SEPARATED BY MIDVERTICES AND SYMMETRY.
@@ -2105,15 +2112,20 @@ integer(kind=iwp) :: ISYM, MV
 
 ! CONSTRUCT OFFSET TABLES FOR UPPER AND LOWER WALKS
 ! SEPARATED FOR EACH MIDVERTEX AND SYMMETRY
-
-CIS%NUW = 0
+!
+! CIS%IOW(1/2,ISYM,MV) is an off-set vector associated with CIS%NOW(1/2,ISYM,MV)
+! CIS%NOW(1/2,ISYM,MV) is the number of upper/lower walks of symmetry ISYM that ends/starts in mid vertex MV (relative indexation).
+! 1/2 indicate if the off-set is for upper or lower walks.
+!
+CIS%NUW = 0   ! At completion the total number of upper walks.
 do MV=1,CIS%nMidV
   do ISYM=1,SGS%NSYM
     CIS%IOW(1,ISYM,MV) = CIS%NUW*CIS%nIpWlk
     CIS%NUW = CIS%NUW+CIS%NOW(1,ISYM,MV)
   end do
 end do
-CIS%nWalk = CIS%NUW
+CIS%nWalk = CIS%NUW ! At completion the total number pf upper and lower walks
+
 do MV=1,CIS%nMidV
   do ISYM=1,SGS%NSYM
     CIS%IOW(2,ISYM,MV) = CIS%nWalk*CIS%nIpWlk
