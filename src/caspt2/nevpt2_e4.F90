@@ -104,7 +104,7 @@ subroutine NEVPT2_E4_ZVEC(NLEV,idx2ij,ij2idx,Gact,CI,ZVEC,WRK)
   real(kind=wp), intent(out) :: WRK(1:MXCI,1:NZVEC) !! This is XYVEC outside this subroutine
 
   real(kind=wp), allocatable :: Gact_sort(:,:)
-  integer(kind=iwp) :: ID, ip1, ip2, isvx, it, itlev, iu, iulev, iv, ivlev, ix, ixlev, nlev2, nTask
+  integer(kind=iwp) :: ID, ip1, ip2, it, itlev, iu, iulev, iv, ivlev, ix, ixlev, nlev2, nTask
   integer(kind=iwp) :: ibuf, nxy
   real(kind=wp) :: scal
 !
@@ -127,7 +127,7 @@ subroutine NEVPT2_E4_ZVEC(NLEV,idx2ij,ij2idx,Gact,CI,ZVEC,WRK)
   do while (Rsv_Tsk(ID,ip2))
     ivlev=idx2ij(1,ip2)
     ixlev=idx2ij(2,ip2)
-    isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
+!   isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
     iv=L2ACT(ivlev)
     ix=L2ACT(ixlev)
     ibuf = ibuf + 1
