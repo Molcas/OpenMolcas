@@ -1040,7 +1040,8 @@ do IHALF=1,2
 end do
 
 If (INIT==0) THEN
-call CSFCOUNT(CIS,SGS%nSym,NUW)
+call CSFCOUNT(CIS,SGS)
+NUW=CIS%NUW
 
 #ifdef _DEBUGPRINT_
 write(u6,*)
@@ -1432,7 +1433,8 @@ do INDEO=1,EXS%MxEO
   end do
 end do
 
-call CSFCOUNT(CIS,SGS%nSym,NUW)
+call CSFCOUNT(CIS,SGS)
+NUW=CIS%NUW
 
 !AR INSERT FOR US IN SIGMA ROUTINE
 
@@ -2062,25 +2064,23 @@ call mma_deallocate(ISTEPVEC)
 
 end subroutine MKSGNUM
 
-subroutine CSFCOUNT(CIS,NSYM,NUW)
+subroutine CSFCOUNT(CIS,SGS)
 
 type(CIStruct), intent(inout) :: CIS
-integer(kind=iwp), intent(in) :: NSYM
-integer(kind=iwp), intent(out) :: NUW
+type(SGStruct), intent(inout) :: SGS
 integer(kind=iwp) :: ISYDWN, ISYM, ISYTOT, ISYUP, MV, N
 
 
-Call Mk_IOW(CIS,NSYM)
-NUW=CIS%NUW
+Call Mk_IOW(CIS,SGS)
 
 ! CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
 ! SEPARATED BY MIDVERTICES AND SYMMETRY.
 ! FORM ALSO CONTRACTED SUMS OVER MIDVERTICES.
 
 CIS%NCSF(:) = 0   ! Number of CSFs in each irrep
-do ISYTOT=1,NSYM
+do ISYTOT=1,SGS%NSYM
   do MV=1,CIS%nMidV
-    do ISYUP=1,NSYM
+    do ISYUP=1,SGS%NSYM
       ISYDWN = Mul(ISYTOT,ISYUP)
       N = CIS%NOW(1,ISYUP,MV)*CIS%NOW(2,ISYDWN,MV)
       CIS%NOCSF(ISYUP,MV,ISYTOT) = N
@@ -2097,9 +2097,9 @@ end do
 
 end subroutine CSFCOUNT
 
-subroutine Mk_IOW(CIS,NSYM)
+subroutine Mk_IOW(CIS,SGS)
 type(CIStruct), intent(inout) :: CIS
-integer(kind=iwp), intent(in) :: NSYM
+type(SGStruct), intent(inout) :: SGS
 
 integer(kind=iwp) :: ISYM, MV
 
@@ -2108,14 +2108,14 @@ integer(kind=iwp) :: ISYM, MV
 
 CIS%NUW = 0
 do MV=1,CIS%nMidV
-  do ISYM=1,NSYM
+  do ISYM=1,SGS%NSYM
     CIS%IOW(1,ISYM,MV) = CIS%NUW*CIS%nIpWlk
     CIS%NUW = CIS%NUW+CIS%NOW(1,ISYM,MV)
   end do
 end do
 CIS%nWalk = CIS%NUW
 do MV=1,CIS%nMidV
-  do ISYM=1,NSYM
+  do ISYM=1,SGS%NSYM
     CIS%IOW(2,ISYM,MV) = CIS%nWalk*CIS%nIpWlk
     CIS%nWalk = CIS%nWalk+CIS%NOW(2,ISYM,MV)
   end do
