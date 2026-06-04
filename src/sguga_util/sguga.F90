@@ -81,6 +81,7 @@ integer(kind=iwp), parameter :: IBVPT(26) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2,
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCList, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGS, SGStruct
 
+integer(kind=iwp), parameter:: nPack=15
 contains
 
 subroutine MKSGUGA(SGS,CIS)
@@ -899,14 +900,15 @@ integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
   integer(kind=iwp) :: IS
 # endif
 
-CIS%nIpWlk = 1+(SGS%MidLev-1)/15
-CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/15)
+CIS%nIpWlk = 1+(SGS%MidLev-1)/nPack
+CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/nPack)
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
 call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
 call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF')
 call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF')
 call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
-call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')
+
+call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')  ! First index referenced by IVERT, SYM, and ISTEP
 
 ! CLEAR ARRAYS IOW AND NOW
 
@@ -921,6 +923,9 @@ CIS%NOCSF(:,:,:) = 0
 ! START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
 
 do IHALF=1,2
+  ! set the loop ranges:
+  ! IVSTA-IVTEND: the top vertex, or loop over midlevel vertices
+  ! LEV2-LEV1: loop over levels
   if (IHALF == 1) then
     IVTSTA = 1
     IVTEND = 1
@@ -934,43 +939,64 @@ do IHALF=1,2
   end if
 
   ! LOOP OVER VERTICES STARTING AT TOP OF SUBGRAPH
+  ! This is either the top vertex, or one of the midlevel vertices
 
   do IVTOP=IVTSTA,IVTEND
     ! SET CURRENT LEVEL=TOP LEVEL OF SUBGRAPH
     LEV = LEV1
+
+    ! Store away vertex index, and initiate symmetry index, and the step vector index
     SGS%Scr(IVERT,LEV) = IVTOP
-    SGS%Scr(ISYM,LEV) = 1
+    SGS%Scr(ISYM,LEV)  =  1
     SGS%Scr(ISTEP,LEV) = -1
+
     do while (LEV <= LEV1)
+
       ! FIND FIRST POSSIBLE UNTRIED ARC DOWN FROM CURRENT VERTEX
-      IVT = SGS%Scr(IVERT,LEV)
+      IVT = SGS%Scr(IVERT,LEV)  ! Pickup the current vertex index for level LEV
+      ! Continue scanning the step vectors, SCR(ISTEP,LEV) is the index of the next vector to explot
       do ISTP=SGS%Scr(ISTEP,LEV)+1,3
         IVB = SGS%Down(IVT,ISTP)
-        if (IVB /= 0) exit
+        if (IVB /= 0) exit      ! Exits if step vector leads to a valid vertex below.
       end do
-      ! NO SUCH ARC WAS POSSIBLE. GO UP ONE STEP AND TRY AGAIN.
+      ! IF NO SUCH ARC WAS POSSIBLE. GO UP ONE LEVEL AND TRY AGAIN.
       if (ISTP > 3) then
         SGS%Scr(ISTEP,LEV) = -1
         LEV = LEV+1
         cycle
       end if
+
       ! SUCH AN ARC WAS FOUND. WALK DOWN:
-      SGS%Scr(ISTEP,LEV) = ISTP
-      ISML = 1
-      if ((ISTP == 1) .or. (ISTP == 2)) ISML = SGS%ISm(LEV)
-      LEV = LEV-1
+      SGS%Scr(ISTEP,LEV) = ISTP ! Store the current step vector index of level Level
+      ! doubly occupied or empty orbital case are total symmetric. Singly occupied orbitals
+      ! carry the symmetry of the orbital in the level.
+      SELECT CASE(ISTP)
+        CASE(0,3)
+          ISML = 1
+        CASE(1,2)
+          ISML = SGS%ISm(LEV)
+        CASE DEFAULT
+          CALL ABEND()
+      END SELECT
+
+      LEV = LEV-1     ! Walk down one level
+
+      ! Store away the accumulated symmetry, the new vertex, and initiate the step vector counter.
       SGS%Scr(ISYM,LEV) = Mul(ISML,SGS%Scr(ISYM,LEV+1))
       SGS%Scr(IVERT,LEV) = IVB
       SGS%Scr(ISTEP,LEV) = -1
-      if (LEV > LEV2) cycle
-      ! WE HAVE REACHED THE BOTTOM LEVEL. THE WALK IS COMPLETE.
+
+      if (LEV > LEV2) cycle   ! Repeat
+
+      ! WE HAVE NOW REACHED THE BOTTOM LEVEL. THE WALK IS COMPLETE.
       ! FIND MIDVERTEX NUMBER ORDERING NUMBER AND SYMMETRY OF THIS WALK
-      MV = SGS%Scr(IVERT,SGS%MidLev)+1-SGS%MVSta
-      IWSYM = SGS%Scr(ISYM,LEV2)
-      ILND = 1+CIS%NOW(IHALF,IWSYM,MV)
-      ! SAVE THE MAX WALK NUMBER FOR GIVEN SYMMETRY AND MIDVERTEX
-      CIS%NOW(IHALF,IWSYM,MV) = ILND
-      ! BACK UP ONE LEVEL AND TRY AGAIN:
+      MV = SGS%Scr(IVERT,SGS%MidLev)+1-SGS%MVSta ! Pick up the relative index of the midlev vertex
+      IWSYM = SGS%Scr(ISYM,LEV2)                 ! Pick up the symmetry of the walk
+
+      CIS%NOW(IHALF,IWSYM,MV) = CIS%NOW(IHALF,IWSYM,MV) + 1   ! Increment counter for how many walks there are given the
+                                                              ! midvertex index and the total symmetry of the subwalk.
+
+      ! BACK UP ONE LEVEL AND EXPLORE NEW WALKS:
       LEV = LEV+1
     end do
   end do
@@ -1004,7 +1030,7 @@ end subroutine MKCOT
 subroutine MKCLIST(SGS,CIS)
 ! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
 !          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
-!          IN THE ARRAY ICASE. GROUPS OF 15 CASES ARE PACKED
+!          IN THE ARRAY ICASE. GROUPS OF nPack CASES ARE PACKED
 !          INTO ONE INTEGER WORD.
 
 type(SGStruct), intent(inout) :: SGS
@@ -1074,15 +1100,19 @@ do IHALF=1,2
         CIS%NOW(IHALF,IWSYM,MV) = ILND
         ! CONSEQUENTLY, THE POSITION IMMEDIATELY BEFORE THIS COMPRESSED WALK:
         IPOS = CIS%IOW(IHALF,IWSYM,MV)+(ILND-1)*CIS%nIpWlk
-        ! PACK THE STEPS IN GROUPS OF 15 LEVELS PER INTEGER:
-        do LL=LEV2+1,LEV1,15
+
+        ! PACK THE STEPS IN GROUPS OF nPack LEVELS PER INTEGER:
+        do LL=LEV2+1,LEV1,nPack
+
           IC = 0
-          do L=min(LL+14,LEV1),LL,-1
+          do L=min(LL+nPack-1,LEV1),LL,-1
             IC = 4*IC+SGS%Scr(ISTEP,L)
           end do
+
           IPOS = IPOS+1
           CIS%ICase(IPOS) = IC
         end do
+
         ! FINISHED WITH THIS WALK. BACK UP ONE LEVEL AND TRY AGAIN:
         LEV = LEV+1
       else
@@ -1100,19 +1130,24 @@ end subroutine MKCLIST
 
 subroutine MKMAW(SGS)
 
+! CONSTRUCT A MODIFIED DIRECT ARC WEIGHT TABLE
 type(SGStruct), intent(inout) :: SGS
 integer(kind=iwp) :: IC, ID, ISUM, IU, IV
 
 call mma_allocate(SGS%MAW,[1,SGS%nVert],[0,3],Label='SGS%MAW')
+SGS%MAW(:,:) = 0
 
 ! COPY LOWER PART OF DIRECT ARC WEIGHT TABLE INTO MAW:
+! From the first vertex of the MIDLEV to the last vertex copy the
+! Direct Arc Weight table (DAW)
 SGS%MAW(SGS%MVSta:SGS%nVert,0:3) = SGS%DAW(SGS%MVSta:SGS%nVert,0:3)
+
 ! COPY UPPER PART OF REVERSE ARC WEIGHT TABLE INTO MAW. HOWEVER,
 !    NOTE THAT THE MAW TABLE IS ACCESSED BY THE UPPER VERTEX.
-SGS%MAW(1:SGS%MVSta-1,0:3) = 0
-do IU=1,SGS%MVSta-1
-  do IC=0,3
-    ID = SGS%Down(IU,IC)
+do IU=1,SGS%MVSta-1          ! Loop over the vertices before the first vertex of level MIDLEV
+  do IC=0,3                  ! Loop over step vector
+    ID = SGS%Down(IU,IC)     ! Given vertex IU get the vertex index ID from which the step IC originates
+                             ! If non-zero put in the reverse direct arc weight table (RAW) values
     if (ID /= 0) SGS%MAW(IU,IC) = SGS%RAW(ID,IC)
   end do
 end do
@@ -1122,14 +1157,15 @@ do IV=SGS%MVSta,SGS%MVEnd
   do IC=0,3
     IU = SGS%Up(IV,IC)
     if (IU == 0) cycle
-    SGS%MAW(IU,IC) = ISUM+SGS%MAW(IU,IC)
+    SGS%MAW(IU,IC) = SGS%MAW(IU,IC)+ISUM
   end do
   ISUM = ISUM+SGS%RAW(IV,4)
 end do
+
 do IV=SGS%MVSta,SGS%MVEnd
   do IC=0,3
     if (SGS%Down(IV,IC) == 0) cycle
-    SGS%MAW(IV,IC) = ISUM+SGS%MAW(IV,IC)
+    SGS%MAW(IV,IC) = SGS%MAW(IV,IC)+ISUM
   end do
   ISUM = ISUM+SGS%DAW(IV,4)
 end do
@@ -1633,8 +1669,6 @@ call mma_allocate(VTab,nVTab,Label='VTab')
 call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
 call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 
-!CIS%nIpWlk = 1+(SGS%MidLev-1)/15
-!CIS%nIpWlk = max(CIS%nIpWlk,1+(nLev-SGS%MidLev-1)/15)
 ! NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL BE RESTORED FINALLY.
 do IHALF=1,2
   do MV=1,CIS%nMidV
@@ -1728,9 +1762,9 @@ do IHALF=1,2
             ILNDW(IAWS) = ILND
             CIS%NOW(IHALF,LFTSYM,MV) = ILND
             IPOS = CIS%IOW(IHALF,LFTSYM,MV)+(ILND-1)*CIS%nIpWlk
-            do LL=LEV2+1,LEV1,15
+            do LL=LEV2+1,LEV1,nPack
               IC = 0
-              do L=min(LL+14,LEV1),LL,-1
+              do L=min(LL+nPack-1,LEV1),LL,-1
                 IC = 4*IC+ISGPTH(ICS,L)
               end do
               IPOS = IPOS+1
