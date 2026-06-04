@@ -66,7 +66,7 @@ module NEVPT2_E4
 
   integer(kind=iwp) :: NXYVEC = 0
   integer(kind=iwp) :: NZVEC = 0
-  integer(kind=iwp) :: ixy_local = 0
+! integer(kind=iwp) :: ixy_local = 0
   integer(kind=iwp) :: ixyzsta = 0
   integer(kind=iwp) :: ixyzend = 0
   integer(kind=iwp) :: nxyzdim = 0

@@ -27,7 +27,7 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 #endif
   use NEVPT2_E4, only: do_xvec, do_yvec, NEVPT2_E4_contract1, NEVPT2_E4_contract2, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, &
                        NXYVEC, NZVEC
-  use NEVPT2_E4, only: ixyzsta, ixyzend, ixy_local, nxyzdim, NXY_work
+  use NEVPT2_E4, only: ixyzsta, ixyzend, nxyzdim, NXY_work
 
   implicit none
 
@@ -48,7 +48,7 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
   ! translation tables for levels i,j to and from pair indices idx
   integer(kind=iwp), allocatable :: IJ2IDX(:,:), IDX2IJ(:,:)
-  integer(kind=iwp) :: IDCI, iSym, memory_per_xy, memory_per_xy2, memory_per_z
+  integer(kind=iwp) :: IDCI, iSym, memory_per_xy, memory_per_xy2, memory_per_z, ixy_local
 
   ! result buffer, maximum size is the largest possible ip1 range,
   ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
