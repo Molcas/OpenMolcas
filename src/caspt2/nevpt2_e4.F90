@@ -93,7 +93,7 @@ subroutine NEVPT2_E4_ZVEC(NLEV,idx2ij,ij2idx,Gact,CI,ZVEC,WRK)
   use Para_Info, only: Is_Real_Par
 #endif
   use stdalloc, only: mma_allocate, mma_deallocate
-  use Symmetry_Info, only: Mul
+! use Symmetry_Info, only: Mul
   use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
 
   implicit none
