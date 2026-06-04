@@ -1777,6 +1777,7 @@ if (Do_OFemb) then
   end if
 end if
 
+Write (6,*) 'rasscf: call SG_Free'
 if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) call SG_Free(SGS,CIS,EXS)
 
 if (DoFaro) then

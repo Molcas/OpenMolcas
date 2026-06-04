@@ -16,7 +16,7 @@ subroutine SG_PrWF(SGS,CIS,LSYM,PRWTHR,iSpin,CI,lCI,KeyPRSD,LUVECDET)
 !          CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
 !          REFERS TO THE UPPER PART OF THE WALK.
 
-use sguga, only: CIStruct, MkCList, SGStruct
+use sguga, only: CIStruct, SGStruct, nPack
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -33,8 +33,6 @@ character(len=400) :: Line
 integer(kind=iwp), allocatable :: Lex(:)
 
 ! RECONSTRUCT THE CASE LIST
-
-if (.not. allocated(CIS%iCase)) call MKCLIST(SGS,CIS)
 
 ! scratch for determinant expansion
 if (KeyPRSD) call mma_allocate(LEX,SGS%nLev,Label='LEX')
@@ -79,7 +77,7 @@ do MV=1,CIS%nMidV
           NNN = 0
           do LEV=1,SGS%MidLev
             NNN = NNN+1
-            if (NNN == 16) then
+            if (NNN == nPack+1) then
               NNN = 1
               ICDPOS = ICDPOS+1
               ICDWN = CIS%iCase(ICDPOS)
@@ -96,7 +94,7 @@ do MV=1,CIS%nMidV
         NNN = 0
         do LEV=SGS%MidLev+1,SGS%nLev
           NNN = NNN+1
-          if (NNN == 16) then
+          if (NNN == nPack+1) then
             NNN = 1
             ICUPOS = ICUPOS+1
             ICUP = CIS%iCase(ICUPOS)
@@ -145,6 +143,6 @@ do MV=1,CIS%nMidV
 end do
 
 ! free memory for determinant expansion
-if (KeyPRSD) call mma_deallocate(LEX)
+call mma_deallocate(LEX,safe='*')
 
 end subroutine SG_PrWF

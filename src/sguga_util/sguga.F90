@@ -78,11 +78,13 @@ integer(kind=iwp), parameter :: IBVPT(26) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2,
                                 ISVC(26)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1], &
                                 ITVPT(26) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3]
 
-public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCList, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
+public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGS, SGStruct
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 integer(kind=iwp), parameter:: nPack=Storage_size(1_iwp)/2-1
+
+public :: nPack
 contains
 
 subroutine MKSGUGA(SGS,CIS)
@@ -819,11 +821,9 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLe
 !     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
 !           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 
-    call MKCOT(SGS,CIS)
-
 !     CONSTRUCT THE CASE LIST
 
-    call MKCLIST(SGS,CIS)
+    call MKCOT(SGS,CIS)
 
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
@@ -886,6 +886,7 @@ call mma_deallocate(CIS%ISGM,safe='*')
 end subroutine SG_Free
 
 subroutine MKCOT(SGS,CIS)
+! For INIT==0
 ! PURPOSE: SET UP COUNTER AND OFFSET TABLES FOR WALKS AND CSFS
 ! NOTE:    TO GET GET VARIOUS COUNTER AND OFFSET TABLES
 !          THE DOWN-CHAIN TABLE IS SCANNED TO PRODUCE ALL POSSIBLE
@@ -893,14 +894,23 @@ subroutine MKCOT(SGS,CIS)
 !          SINCE ONLY UPPER AND LOWER WALKS ARE REQUIRED
 !          THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
 
+! For INIT==1
+! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
+!          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
+!          IN THE ARRAY ICASE. GROUPS OF nPack CASES ARE PACKED
+!          INTO ONE INTEGER WORD.
+
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
 integer(kind=iwp) :: IHALF, ILND, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, MV, NUW
+integer(kind=iwp) :: INIT, IC, IPOS, L, LL
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: IS
 # endif
 
+Do INIT=0,1
+If (INIT==0) Then
 ! Compute the number of integers needed to store the packed case vectors.
 CIS%nIpWlk = 1+(SGS%MidLev-1)/nPack
 CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/nPack)
@@ -921,6 +931,12 @@ CIS%IOW(:,:,:) = 0
 
 CIS%IOCSF(:,:,:) = 0
 CIS%NOCSF(:,:,:) = 0
+Else
+call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr',safe='*')  ! First index referenced by IVERT, SYM, and ISTEP
+call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
+! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
+CIS%NOW(:,:,:) = 0
+EndIf
 
 ! START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
 
@@ -996,8 +1012,26 @@ do IHALF=1,2
       MV = SGS%Scr(IVERT,SGS%MidLev)+1-SGS%MVSta ! Pick up the relative index of the midlev vertex
       IWSYM = SGS%Scr(ISYM,LEV2)                 ! Pick up the symmetry of the walk
 
-      CIS%NOW(IHALF,IWSYM,MV) = CIS%NOW(IHALF,IWSYM,MV) + 1   ! Increment counter for how many walks there are given the
+      ILND = CIS%NOW(IHALF,IWSYM,MV) + 1
+      CIS%NOW(IHALF,IWSYM,MV) = ILND   ! Increment counter for how many walks there are given the
                                                               ! midvertex index and the total symmetry of the subwalk.
+
+      If (INIT==1) Then
+        ! CONSEQUENTLY, THE POSITION IMMEDIATELY BEFORE THIS COMPRESSED WALK:
+        IPOS = CIS%IOW(IHALF,IWSYM,MV)+(ILND-1)*CIS%nIpWlk
+
+        ! PACK THE STEPS IN GROUPS OF nPack LEVELS PER INTEGER:
+        do LL=LEV2+1,LEV1,nPack
+
+          IC = 0
+          do L=min(LL+nPack-1,LEV1),LL,-1
+            IC = 4*IC+SGS%Scr(ISTEP,L)
+          end do
+
+          IPOS = IPOS+1
+          CIS%ICase(IPOS) = IC
+        end do
+      End If
 
       ! BACK UP ONE LEVEL AND EXPLORE NEW WALKS:
       LEV = LEV+1
@@ -1005,6 +1039,7 @@ do IHALF=1,2
   end do
 end do
 
+If (INIT==0) THEN
 call CSFCOUNT(CIS,SGS%nSym,NUW)
 
 #ifdef _DEBUGPRINT_
@@ -1027,127 +1062,12 @@ do MV=1,CIS%nMidV
   end do
 end do
 #endif
+End If
+
+end do
+call mma_deallocate(SGS%Scr,safe='*')
 
 end subroutine MKCOT
-
-subroutine MKCLIST(SGS,CIS)
-! PURPOSE: CONSTRUCT THE COMPRESSED CASE-LIST, I.E.,
-!          STORE THE STEP VECTOR FOR ALL POSSIBLE WALKS
-!          IN THE ARRAY ICASE. GROUPS OF nPack CASES ARE PACKED
-!          INTO ONE INTEGER WORD.
-
-type(SGStruct), intent(inout) :: SGS
-type(CIStruct), intent(inout) :: CIS
-integer(kind=iwp) :: IC, IHALF, ILND, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
-logical(kind=iwp) :: Found
-integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
-
-call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
-call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr',safe='*')
-
-! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
-
-CIS%NOW(:,:,:) = 0
-
-! START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
-
-do IHALF=1,2
-  if (IHALF == 1) then
-    IVTSTA = 1
-    IVTEND = 1
-    LEV1 = SGS%nLev
-    LEV2 = SGS%MidLev
-  else
-    IVTSTA = SGS%MVSta
-    IVTEND = SGS%MVEnd
-    LEV1 = SGS%MidLev
-    LEV2 = 0
-  end if
-
-  ! LOOP OVER VERTICES STARTING AT TOP OF SUBGRAPH
-
-  do IVTOP=IVTSTA,IVTEND
-    ! SET CURRENT LEVEL=TOP LEVEL OF SUBGRAPH:
-    LEV = LEV1
-
-    SGS%Scr(IVERT,LEV) = IVTOP
-    SGS%Scr(ISYM,LEV) = 1
-    SGS%Scr(ISTEP,LEV) = -1
-
-    do while (LEV <= LEV1)
-      ! FIND FIRST POSSIBLE UNTRIED ARC DOWN FROM CURRENT VERTEX:
-      IVT = SGS%Scr(IVERT,LEV)
-
-      do ISTP=SGS%Scr(ISTEP,LEV)+1,3
-        IVB = SGS%Down(IVT,ISTP)
-        if (IVB /= 0) Exit
-      end do
-
-      if (ISTP > 3) then
-        SGS%Scr(ISTEP,LEV) = -1
-        LEV = LEV+1
-        cycle
-      end if
-
-!     if (Found) then
-        ! ALT A -- SUCH AN ARC WAS FOUND. WALK DOWN:
-        SGS%Scr(ISTEP,LEV) = ISTP
-
-        SELECT CASE(ISTP)
-          CASE(0,3)
-            ISML = 1
-          CASE(1,2)
-            ISML = SGS%ISm(LEV)
-          CASE DEFAULT
-            CALL ABEND()
-        END SELECT
-
-        LEV = LEV-1
-
-        SGS%Scr(ISYM,LEV) = Mul(ISML,SGS%Scr(ISYM,LEV+1))
-        SGS%Scr(IVERT,LEV) = IVB
-        SGS%Scr(ISTEP,LEV) = -1
-
-        if (LEV > LEV2) cycle
-
-        ! WE HAVE REACHED THE LOWER LEVEL. THE WALK IS COMPLETE.
-        ! MIDVERTEX NUMBER:
-        MV = SGS%Scr(IVERT,SGS%MidLev)+1-SGS%MVSta
-        ! SYMMETRY LABEL OF THIS WALK:
-        IWSYM = SGS%Scr(ISYM,LEV2)
-        ! ITS ORDERING NUMBER WITHIN THE SAME BATCH OF (IHALF,IWSYM,MV):
-        ILND = 1+CIS%NOW(IHALF,IWSYM,MV)
-        CIS%NOW(IHALF,IWSYM,MV) = ILND
-        ! CONSEQUENTLY, THE POSITION IMMEDIATELY BEFORE THIS COMPRESSED WALK:
-        IPOS = CIS%IOW(IHALF,IWSYM,MV)+(ILND-1)*CIS%nIpWlk
-
-        ! PACK THE STEPS IN GROUPS OF nPack LEVELS PER INTEGER:
-        do LL=LEV2+1,LEV1,nPack
-
-          IC = 0
-          do L=min(LL+nPack-1,LEV1),LL,-1
-            IC = 4*IC+SGS%Scr(ISTEP,L)
-          end do
-
-          IPOS = IPOS+1
-          CIS%ICase(IPOS) = IC
-        end do
-
-        ! FINISHED WITH THIS WALK. BACK UP ONE LEVEL AND TRY AGAIN:
-        LEV = LEV+1
-!     else
-!       ! ALT B -- NO SUCH ARC WAS POSSIBLE. GO UP ONE STEP AND TRY AGAIN.
-!       SGS%Scr(ISTEP,LEV) = -1
-!       LEV = LEV+1
-!     end if
-
-    end do
-  end do
-end do
-
-call mma_deallocate(SGS%Scr)
-
-end subroutine MKCLIST
 
 subroutine MKMAW(SGS)
 
@@ -2071,7 +1991,7 @@ do MIDV=1,CIS%nMidV
       JPOS = 0
       do LEV=SGS%MidLev+1,SGS%nLev
         JPOS = JPOS+1
-        if (JPOS == 16) then
+        if (JPOS == nPack+1) then
           JPOS = 1
           IPOS = IPOS+1
           ICODE = CIS%iCase(IPOS)
@@ -2100,7 +2020,7 @@ do MIDV=1,CIS%nMidV
       JPOS = 0
       do LEV=1,SGS%MidLev
         JPOS = JPOS+1
-        if (JPOS == 16) then
+        if (JPOS == nPack+1) then
           JPOS = 1
           IPOS = IPOS+1
           ICODE = CIS%iCase(IPOS)
