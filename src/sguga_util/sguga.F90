@@ -33,7 +33,7 @@ end type SGStruct
 
 ! CI Structures, addresses,..
 type CIStruct
-  integer(kind=iwp) :: nMidV, nIpWlk, nWalk
+  integer(kind=iwp) :: nMidV, nIpWlk, nWalk, NUW
   integer(kind=iwp), allocatable :: NOW(:,:,:), IOW(:,:,:), NCSF(:), NOCSF(:,:,:), IOCSF(:,:,:), ICase(:), IVR(:,:), ISGM(:,:)
   real(kind=wp), allocatable :: VSGM(:,:)
 end type CIStruct
@@ -2069,23 +2069,9 @@ integer(kind=iwp), intent(in) :: NSYM
 integer(kind=iwp), intent(out) :: NUW
 integer(kind=iwp) :: ISYDWN, ISYM, ISYTOT, ISYUP, MV, N
 
-! CONSTRUCT OFFSET TABLES FOR UPPER AND LOWER WALKS
-! SEPARATED FOR EACH MIDVERTEX AND SYMMETRY
 
-NUW = 0
-do MV=1,CIS%nMidV
-  do ISYM=1,NSYM
-    CIS%IOW(1,ISYM,MV) = NUW*CIS%nIpWlk
-    NUW = NUW+CIS%NOW(1,ISYM,MV)
-  end do
-end do
-CIS%nWalk = NUW
-do MV=1,CIS%nMidV
-  do ISYM=1,NSYM
-    CIS%IOW(2,ISYM,MV) = CIS%nWalk*CIS%nIpWlk
-    CIS%nWalk = CIS%nWalk+CIS%NOW(2,ISYM,MV)
-  end do
-end do
+Call Mk_IOW(CIS,NSYM)
+NUW=CIS%NUW
 
 ! CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
 ! SEPARATED BY MIDVERTICES AND SYMMETRY.
@@ -2110,5 +2096,30 @@ do ISYTOT=1,NSYM
 end do
 
 end subroutine CSFCOUNT
+
+subroutine Mk_IOW(CIS,NSYM)
+type(CIStruct), intent(inout) :: CIS
+integer(kind=iwp), intent(in) :: NSYM
+
+integer(kind=iwp) :: ISYM, MV
+
+! CONSTRUCT OFFSET TABLES FOR UPPER AND LOWER WALKS
+! SEPARATED FOR EACH MIDVERTEX AND SYMMETRY
+
+CIS%NUW = 0
+do MV=1,CIS%nMidV
+  do ISYM=1,NSYM
+    CIS%IOW(1,ISYM,MV) = CIS%NUW*CIS%nIpWlk
+    CIS%NUW = CIS%NUW+CIS%NOW(1,ISYM,MV)
+  end do
+end do
+CIS%nWalk = CIS%NUW
+do MV=1,CIS%nMidV
+  do ISYM=1,NSYM
+    CIS%IOW(2,ISYM,MV) = CIS%nWalk*CIS%nIpWlk
+    CIS%nWalk = CIS%nWalk+CIS%NOW(2,ISYM,MV)
+  end do
+end do
+end subroutine Mk_IOW
 
 end module SGUGA
