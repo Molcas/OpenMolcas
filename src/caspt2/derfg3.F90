@@ -283,7 +283,7 @@ do issg1=1,nsym
   isp1 = Mul(issg1,STSYM)
   nsgm1 = CIS%ncsf(issg1)
   !!BufD_I = \sum_t <I|E_{tt}|I>*f_{tt}
-  call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,nMidV)
+  if (IFF == 1) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,nMidV)
 
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
   !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
