@@ -16,7 +16,7 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
   use CHOVEC_IO, only: NVLOC_CHOBATCH
 ! use ChoCASPT2
   use caspt2_global, only: FIMO
-  use caspt2_module, only: NAES, NASH, NBSQT, NBTCH, NBTCHES, NISH, NORB, NSSH, NSYM, IfChol
+  use caspt2_module, only: NAES, NASH, NBSQT, NBTCH, NBTCHES, NISH, NORB, NSYM, IfChol
   use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: iwp,wp,u6
   use Constants, only: Zero, One, Half
@@ -34,13 +34,12 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
   real(kind=wp), allocatable :: PIQK(:), KET(:), WRK1(:), WRK2(:) !, BRA(:)
 
   integer(kind=iwp), parameter :: Active=2, Inactive=1, Virtual=3
-  integer(kind=iwp) :: nSh(8,3)
 
   integer(kind=iwp) :: iAshI, IB, IBEND, IBGRP, IBSTA, IBUF, IB1, IB2, iSym, &
 !                      iSymA, iSymB, iSymI, iSymJ, &
                        iSymT, iSymU, iSymV, iSymVX, iSymX, IT, ITABS, ITTOT, IU, IUABS, IUTOT, IV, IVABS, IVTOT, IX, IXABS, IXTOT, &
                        jAshI, jSym, kAshI, MXBGRP, MXPIQK, NADDBUF, NBGRP, NCHOBUF, &
-                       nKet, NFIMOES, NFNXT, nIshI, nOrbI, NV
+                       nKet, NFIMOES, NFNXT, NV
   integer(kind=iwp) :: LBRASM, ISYI, NI, iOffi, ISYP, NP, iOffp, NPI, NBRASM, &
                        LKETSM, ISYK, NK, iOffK, ISYQ, NQ, iOffQ, NQK, NKETSM, &
                        NTUVX, NUMERR
@@ -57,8 +56,6 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
     NFIMOES = NFNXT
     NFNXT = NFNXT + (nOrb(iSym)*(nOrb(iSym)+1))/2
     if (nAsh(iSym) == 0) cycle
-    nIshI = nIsh(iSym)
-    nOrbI = nOrb(iSym)
     do IU = 1, nAsh(iSym)
       IUTOT = nIsh(iSym) + IU
       IUABS = IU + nAes(iSym)
@@ -87,9 +84,6 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
 ! iSymJ = 1
   if (IfChol) then
     NTUVX = NASHT**4
-    nSh(1:NSYM,Inactive) = NISH(1:NSYM)
-    nSh(1:NSYM,Active  ) = NASH(1:NSYM)
-    nSh(1:NSYM,Virtual ) = NSSH(1:NSYM)
     do JSYM=1,NSYM
       IB1=NBTCHES(JSYM)+1
       IB2=NBTCHES(JSYM)+NBTCH(JSYM)

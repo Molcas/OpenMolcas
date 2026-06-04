@@ -173,7 +173,8 @@ subroutine BDNA(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
   real(kind=wp), intent(inout) :: DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT), DG3(NG3)
 
   integer(kind=iwp) :: it, itu, iu
-  integer(kind=iwp) :: iLUID, iG3, IST, ISU, ISV, ISX, ISY, ISZ, IV, IVX, IX, IY, IYZ, IZ
+  integer(kind=iwp) :: iLUID, iG3, IV, IVX, IX, IY, IYZ, IZ
+! integer(kind=iwp) :: IST, ISU, ISV, ISX, ISY, ISZ
   real(kind=wp) :: DG3VAL, G3VAL, DG2VAL
 
   integer(kind=byte), allocatable :: idxG3(:,:)
@@ -192,12 +193,12 @@ subroutine BDNA(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
     iX=idxG3(4,iG3)
     iY=idxG3(5,iG3)
     iZ=idxG3(6,iG3)
-    iST=IASYM(iT)
-    iSU=IASYM(iU)
-    iSV=IASYM(iV)
-    iSX=IASYM(iX)
-    iSY=IASYM(iY)
-    iSZ=IASYM(iZ)
+!   iST=IASYM(iT)
+!   iSU=IASYM(iU)
+!   iSV=IASYM(iV)
+!   iSX=IASYM(iX)
+!   iSY=IASYM(iY)
+!   iSZ=IASYM(iZ)
 !   if (ituvs /= ixyzs) cycle
     iTU=iT+NASHT*(iU-1)
     iVX=iV+NASHT*(iX-1)
@@ -621,7 +622,8 @@ subroutine BDNC(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
   real(kind=wp), intent(inout) :: DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT), DG3(NG3)
 
   integer(kind=iwp) :: it, itu, iu
-  integer(kind=iwp) :: iLUID, iG3, IST, ISU, ISV, ISX, ISY, ISZ, IV, IVX, IX, IY, IYZ, IZ
+  integer(kind=iwp) :: iLUID, iG3, IV, IVX, IX, IY, IYZ, IZ
+! integer(kind=iwp) :: IST, ISU, ISV, ISX, ISY, ISZ
   real(kind=wp) :: DG3VAL, G3VAL
 
   integer(kind=byte), allocatable :: idxG3(:,:)
@@ -640,12 +642,12 @@ subroutine BDNC(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
     iX=idxG3(4,iG3)
     iY=idxG3(5,iG3)
     iZ=idxG3(6,iG3)
-    iST=IASYM(iT)
-    iSU=IASYM(iU)
-    iSV=IASYM(iV)
-    iSX=IASYM(iX)
-    iSY=IASYM(iY)
-    iSZ=IASYM(iZ)
+!   iST=IASYM(iT)
+!   iSU=IASYM(iU)
+!   iSV=IASYM(iV)
+!   iSX=IASYM(iX)
+!   iSY=IASYM(iY)
+!   iSZ=IASYM(iZ)
 !   if (ituvs /= ixyzs) cycle
     iTU=iT+NASHT*(iU-1)
     iVX=iV+NASHT*(iX-1)
@@ -1451,7 +1453,7 @@ subroutine BDN_G3(DG1,DG2,DG3)
 
   real(kind=wp), intent(inout) :: DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT), DG3(*)
 
-  integer(kind=iwp) :: iLUID, iG3, IST, ISU, ISV, ISX, ISY, ISZ, IT, ITU, ITUVS, IU, IV, IVX, IX, IXYZS, IY, IYZ, IZ
+  integer(kind=iwp) :: iLUID, iG3, IST, ISU, ISV, ISX, ISY, ISZ, IT, ITUVS, IU, IV, IX, IXYZS, IY, IZ
   real(kind=wp) :: G3VAL
 
   integer(kind=byte), allocatable :: idxG3(:,:)
@@ -1476,9 +1478,6 @@ subroutine BDN_G3(DG1,DG2,DG3)
     ituvs=Mul(IST,Mul(ISU,ISV))
     ixyzs=Mul(ISX,Mul(ISY,ISZ))
     if (ituvs /= ixyzs) cycle
-    iTU=iT+NASHT*(iU-1)
-    iVX=iV+NASHT*(iX-1)
-    iYZ=iY+NASHT*(iZ-1)
 
     G3VAL = DG3(iG3)
 

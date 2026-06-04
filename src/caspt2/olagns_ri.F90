@@ -2044,7 +2044,7 @@ subroutine OLagNS_RI_N(ISYI,ISYK,NT,NU,NV,NX, &
                        Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
 use BDerNEV, only: Gder
-use definitions, only: iwp, wp, u6
+use definitions, only: iwp, wp
 
 implicit none
 

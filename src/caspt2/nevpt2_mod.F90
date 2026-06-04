@@ -184,7 +184,7 @@ end subroutine dertG2
 
 subroutine dertG3(it,ix,iu,iy,iv,iz,DG1,DG2,DG3,val)
 
-  use Constants, only: Two, Four, Eight
+  use Constants, only: Two, Four
   use Definitions, only: iwp,wp
 
   implicit none

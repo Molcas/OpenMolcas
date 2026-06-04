@@ -32,8 +32,8 @@ subroutine MKBNEVF(nAshT,NG3,Hbar,Gact,G2,G3,idxG3)
                                G2(nAshT,nAshT,nAshT,nAshT), G3(NG3)
   integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
-  integer(kind=iwp) :: IBADR, IBMADR, IBPADR, IDISK, ISYM, ITABS, ITGEU, ITGEUABS, IT, ITGTU, ITU, ITUABS, ITX, &
-                       IU, IUABS, IUY, IV, IVABS, IVX, IW, IWABS, IX, IXABS, IXGEY, IXGEYABS, IXGTY, IXY, IXYABS, IY, IYABS, IYX, &
+  integer(kind=iwp) :: IBADR, IBMADR, IBPADR, IDISK, ISYM, ITABS, ITGEU, ITGEUABS, IT, ITGTU, ITU, ITUABS, &
+                       IU, IUABS, IV, IVABS, IVX, IW, IWABS, IX, IXABS, IXGEY, IXGEYABS, IXGTY, IXY, IXYABS, IY, IYABS, IYX, &
                        IZ, IZABS, &
                        NAS, NASM, NASP, NBF, NBFM, NBFP
   integer(kind=iwp) :: iG3, IST, ISU, ISV, ISX, ISY, ISZ, ITUVS, IXYZS, IYZ
@@ -69,8 +69,8 @@ subroutine MKBNEVF(nAshT,NG3,Hbar,Gact,G2,G3,idxG3)
 !       iSymX = IASYM(IXABS)
 !       iSymY = IASYM(IYABS)
         IBADR=(ITU*(ITU-1))/2+IXY
-        ITX=ITABS+NASHT*(IXABS-1)
-        IUY=IUABS+NASHT*(IYABS-1)
+!       ITX=ITABS+NASHT*(IXABS-1)
+!       IUY=IUABS+NASHT*(IYABS-1)
 !       IP1=MAX(ITX,IUY)
 !       IP2=MIN(ITX,IUY)
 !       IP=(IP1*(IP1-1))/2+IP2
