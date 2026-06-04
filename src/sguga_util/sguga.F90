@@ -82,7 +82,7 @@ public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCList, MkCOT, MkCoup, Mk
           SG_Init, SG_Init_Simple, SGS, SGStruct
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
-integer(kind=iwp), parameter:: nPack=(iwp*8)/2-1
+integer(kind=iwp), parameter:: nPack=Storage_size(1_iwp)/2-1
 contains
 
 subroutine MKSGUGA(SGS,CIS)
@@ -1078,16 +1078,18 @@ do IHALF=1,2
       ! FIND FIRST POSSIBLE UNTRIED ARC DOWN FROM CURRENT VERTEX:
       IVT = SGS%Scr(IVERT,LEV)
 
-      Found = .false.
       do ISTP=SGS%Scr(ISTEP,LEV)+1,3
         IVB = SGS%Down(IVT,ISTP)
-        if (IVB /= 0) then
-          Found = .true.
-          exit
-        end if
+        if (IVB /= 0) Exit
       end do
 
-      if (Found) then
+      if (ISTP > 3) then
+        SGS%Scr(ISTEP,LEV) = -1
+        LEV = LEV+1
+        cycle
+      end if
+
+!     if (Found) then
         ! ALT A -- SUCH AN ARC WAS FOUND. WALK DOWN:
         SGS%Scr(ISTEP,LEV) = ISTP
 
@@ -1133,11 +1135,11 @@ do IHALF=1,2
 
         ! FINISHED WITH THIS WALK. BACK UP ONE LEVEL AND TRY AGAIN:
         LEV = LEV+1
-      else
-        ! ALT B -- NO SUCH ARC WAS POSSIBLE. GO UP ONE STEP AND TRY AGAIN.
-        SGS%Scr(ISTEP,LEV) = -1
-        LEV = LEV+1
-      end if
+!     else
+!       ! ALT B -- NO SUCH ARC WAS POSSIBLE. GO UP ONE STEP AND TRY AGAIN.
+!       SGS%Scr(ISTEP,LEV) = -1
+!       LEV = LEV+1
+!     end if
 
     end do
   end do
