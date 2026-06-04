@@ -26,7 +26,6 @@ private
 type SGStruct
   integer(kind=iwp) :: NSym = 0, nActEl = 0, IFRAS = 0
   integer(kind=iwp) :: IA0, IB0, IC0, iSpin, nLev, nVert, nVert0, MidLev, MVSta, MVEnd, MXUP, MXDWN, LV1RAS, LM1RAS, LV3RAS, LM3RAS
-  integer(kind=iwp) :: NUW
   integer(kind=iwp), allocatable :: ISm(:), DRT(:,:), DRT0(:,:), Down(:,:), Down0(:,:), Up(:,:), Ver(:), MAW(:,:), LTV(:), &
                                     DAW(:,:), RAW(:,:), SCR(:,:)
   integer(kind=iwp), pointer :: DRTP(:,:), DOWNP(:,:)
@@ -905,7 +904,7 @@ subroutine MKCOT(SGS,CIS)
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
 integer(kind=iwp) :: IHALF, ILND, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, MV, NUW
-integer(kind=iwp) :: INIT, IC, IPOS, L, LL, NUW_test
+integer(kind=iwp) :: INIT, IC, IPOS, L, LL
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: IS
@@ -942,7 +941,6 @@ EndIf
 
 ! START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
 
-NUW=0
 do IHALF=1,2
   ! set the loop ranges:
   ! IVSTA-IVTEND: the top vertex, or loop over midlevel vertices
@@ -1018,8 +1016,6 @@ do IHALF=1,2
       ILND = CIS%NOW(IHALF,IWSYM,MV) + 1
       CIS%NOW(IHALF,IWSYM,MV) = ILND   ! Increment counter for how many walks there are given the
                                                               ! midvertex index and the total symmetry of the subwalk.
-      If (IHALF==1) NUW=NUW+1
-
       If (INIT==1) Then
         ! CONSEQUENTLY, THE POSITION IMMEDIATELY BEFORE THIS COMPRESSED WALK:
         IPOS = CIS%IOW(IHALF,IWSYM,MV)+(ILND-1)*CIS%nIpWlk
@@ -1044,14 +1040,7 @@ do IHALF=1,2
 end do
 
 If (INIT==0) THEN
-NUW_test=NUW
 call CSFCOUNT(CIS,SGS%nSym,NUW)
-SGS%NUW=NUW
-If (NUW_test/=NUW) Then
-   Write (6,*) 'NUW_test/=NUW'
-   Write (6,*) NUW_test,NUW
-   Call Abend()
-End If
 
 #ifdef _DEBUGPRINT_
 write(u6,*)
@@ -1075,7 +1064,7 @@ end do
 #endif
 End If
 
-end do
+end do ! IHALF
 call mma_deallocate(SGS%Scr,safe='*')
 
 end subroutine MKCOT
@@ -1296,7 +1285,7 @@ type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
                      MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
-                     NUPS1, NUW, NUW_test, nWalk_Test
+                     NUPS1, NUW
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 integer(kind=iwp), parameter :: LTAB = 1
 #ifdef _DEBUGPRINT_
@@ -1420,25 +1409,16 @@ do IVLT=SGS%nVert-1,SGS%MVSta,-1
 end do
 
 MXDWN = 0
-NUW=0
 do MV=1,CIS%nMidV
   IVLT = MV+SGS%MVSta-1
   do LFTSYM=1,SGS%nSym
     CIS%IOW(1,LFTSYM,MV) = NUW*CIS%nIpWlk
-    NUW = NUW+CIS%NOW(1,LFTSYM,MV)
     CIS%NOW(2,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXDWN = max(MXDWN,CIS%NOW(2,LFTSYM,MV))
     do INDEO=1,EXS%MxEO
       N = NRL(LFTSYM,IVLT,INDEO)
       if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
     end do
-  end do
-end do
-CIS%nWalk = NUW
-do MV=1,CIS%nMidV
-  do LFTSYM=1,SGS%nSym
-    CIS%IOW(2,LFTSYM,MV) = CIS%nWalk*CIS%nIpWlk
-    CIS%nWalk = CIS%nWalk+CIS%NOW(2,LFTSYM,MV)
   end do
 end do
 
@@ -1452,18 +1432,7 @@ do INDEO=1,EXS%MxEO
   end do
 end do
 
-NUW_test=NUW
-nWalk_Test=CIS%nWalk
 call CSFCOUNT(CIS,SGS%nSym,NUW)
-SGS%NUW=NUW
-If (NUW_test/=NUW) Then
-   Write (6,*) "NUW_test,NUW=",NUW_test,NUW
-   Call AbEnd()
-End If
-If (nWalk_test/=CIS%nWalk) Then
-   Write (6,*) "nWalk_test,CIS%nWalk=",nWalk_test,CIS%nWalk
-   Call AbEnd()
-End If
 
 !AR INSERT FOR US IN SIGMA ROUTINE
 
@@ -2122,7 +2091,7 @@ end do
 ! SEPARATED BY MIDVERTICES AND SYMMETRY.
 ! FORM ALSO CONTRACTED SUMS OVER MIDVERTICES.
 
-CIS%NCSF(:) = 0
+CIS%NCSF(:) = 0   ! Number of CSFs in each irrep
 do ISYTOT=1,NSYM
   do MV=1,CIS%nMidV
     do ISYUP=1,NSYM
