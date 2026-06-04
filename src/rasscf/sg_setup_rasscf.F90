@@ -18,7 +18,7 @@ use CC_CI_mod, only: Do_CC_CI
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: DoBlockDMRG, NSM
 use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
-use sguga, only: CIS, EXS, MKCLIST, MKCOT, MKSGNUM, SG_Init_Simple, SGS
+use sguga, only: CIS, EXS, MKCOT, MKSGNUM, SG_Init_Simple, SGS
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
@@ -72,11 +72,9 @@ if (.not.(DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
           ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
           !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 
-          call MKCOT(SGS,CIS)
-
           ! CONSTRUCT THE CASE LIST
 
-          call MKCLIST(SGS,CIS)
+          call MKCOT(SGS,CIS)
 
           ! SET UP ENUMERATION TABLES
 

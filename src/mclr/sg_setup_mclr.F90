@@ -12,7 +12,7 @@
 subroutine SG_Setup_MCLR(pState_Sym)
 
 use molcas, only: MxLev
-use sguga, only: SGS, CIS, EXS, MkCOT, MkCList, MkSGNum, SG_Init_Simple
+use sguga, only: SGS, CIS, EXS, MkCOT, MkSGNum, SG_Init_Simple
 use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
 use Definitions, only: iwp
 
@@ -51,11 +51,8 @@ Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3, 
 ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
 !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 
-call MKCOT(SGS,CIS)
-
 ! CONSTRUCT THE CASE LIST
-
-call MKCLIST(SGS,CIS)
+call MKCOT(SGS,CIS)
 
 ! SET UP ENUMERATION TABLES
 
