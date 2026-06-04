@@ -81,7 +81,7 @@ integer(kind=iwp), parameter :: IBVPT(26) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2,
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCList, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGS, SGStruct
 
-integer(kind=iwp), parameter:: nPack=15
+integer(kind=iwp), parameter:: nPack=(iwp*8)/2-1
 contains
 
 subroutine MKSGUGA(SGS,CIS)
