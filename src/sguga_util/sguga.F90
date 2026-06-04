@@ -81,6 +81,7 @@ integer(kind=iwp), parameter :: IBVPT(26) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2,
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCList, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGS, SGStruct
 
+! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 integer(kind=iwp), parameter:: nPack=(iwp*8)/2-1
 contains
 
@@ -900,6 +901,7 @@ integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
   integer(kind=iwp) :: IS
 # endif
 
+! Compute the number of integers needed to store the packed case vectors.
 CIS%nIpWlk = 1+(SGS%MidLev-1)/nPack
 CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/nPack)
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
@@ -959,6 +961,7 @@ do IHALF=1,2
         IVB = SGS%Down(IVT,ISTP)
         if (IVB /= 0) exit      ! Exits if step vector leads to a valid vertex below.
       end do
+
       ! IF NO SUCH ARC WAS POSSIBLE. GO UP ONE LEVEL AND TRY AGAIN.
       if (ISTP > 3) then
         SGS%Scr(ISTEP,LEV) = -1
@@ -1066,12 +1069,15 @@ do IHALF=1,2
   do IVTOP=IVTSTA,IVTEND
     ! SET CURRENT LEVEL=TOP LEVEL OF SUBGRAPH:
     LEV = LEV1
+
     SGS%Scr(IVERT,LEV) = IVTOP
     SGS%Scr(ISYM,LEV) = 1
     SGS%Scr(ISTEP,LEV) = -1
+
     do while (LEV <= LEV1)
       ! FIND FIRST POSSIBLE UNTRIED ARC DOWN FROM CURRENT VERTEX:
       IVT = SGS%Scr(IVERT,LEV)
+
       Found = .false.
       do ISTP=SGS%Scr(ISTEP,LEV)+1,3
         IVB = SGS%Down(IVT,ISTP)
@@ -1080,16 +1086,28 @@ do IHALF=1,2
           exit
         end if
       end do
+
       if (Found) then
         ! ALT A -- SUCH AN ARC WAS FOUND. WALK DOWN:
         SGS%Scr(ISTEP,LEV) = ISTP
-        ISML = 1
-        if ((ISTP == 1) .or. (ISTP == 2)) ISML = SGS%ISm(LEV)
+
+        SELECT CASE(ISTP)
+          CASE(0,3)
+            ISML = 1
+          CASE(1,2)
+            ISML = SGS%ISm(LEV)
+          CASE DEFAULT
+            CALL ABEND()
+        END SELECT
+
         LEV = LEV-1
+
         SGS%Scr(ISYM,LEV) = Mul(ISML,SGS%Scr(ISYM,LEV+1))
         SGS%Scr(IVERT,LEV) = IVB
         SGS%Scr(ISTEP,LEV) = -1
+
         if (LEV > LEV2) cycle
+
         ! WE HAVE REACHED THE LOWER LEVEL. THE WALK IS COMPLETE.
         ! MIDVERTEX NUMBER:
         MV = SGS%Scr(IVERT,SGS%MidLev)+1-SGS%MVSta
@@ -1120,6 +1138,7 @@ do IHALF=1,2
         SGS%Scr(ISTEP,LEV) = -1
         LEV = LEV+1
       end if
+
     end do
   end do
 end do
