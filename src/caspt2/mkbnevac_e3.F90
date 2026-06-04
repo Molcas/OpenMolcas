@@ -14,8 +14,6 @@
 subroutine MKBNEVAC_E3(nAshT,NG3,Hact,Htilde,Gact,G1,G2,G3,idxG3)
   use caspt2_global, only: LUSBT
   use caspt2_module, only: NINDEP, NSYM, NTUV
-  use Constants, only: Zero
-  use stdalloc, only: mma_allocate, mma_deallocate
   use definitions, only: iwp,wp,byte
   use fake_GA, only: GA_Arrays, Allocate_GA_Array, Deallocate_GA_Array
   use SC_NEVPT2, only: IDBMAT_NEVPT2

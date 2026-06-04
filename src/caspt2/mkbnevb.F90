@@ -38,7 +38,7 @@ subroutine MKBNEVB(nAshT,NG3,Hbar,Gact,G1,G2,G3,idxG3)
                        IZ, IZABS, &
                        NAS, NASM, NASP, NBB, NBBM, NBBP
   integer(kind=iwp) :: iG3, IST, ISU, ISV, ISX, ISY, ISZ, ITUVS, IXYZS, IYZ
-  integer(kind=iwp) :: iSymT, iSymU, iSymX, iSymY
+! integer(kind=iwp) :: iSymT, iSymU, iSymX, iSymY
   integer(kind=iwp) :: ID
   real(kind=wp) :: BTUXY, BTUYX, G3VAL, VALUE
 
@@ -60,14 +60,14 @@ subroutine MKBNEVB(nAshT,NG3,Hbar,Gact,G1,G2,G3,idxG3)
       ITUABS=ITU+NTUES(ISYM)
       ITABS=MTU(1,ITUABS)
       IUABS=MTU(2,ITUABS)
-      iSymT = IASYM(ITABS)
-      iSymU = IASYM(IUABS)
+!     iSymT = IASYM(ITABS)
+!     iSymU = IASYM(IUABS)
       DO IXY=1,ITU
         IXYABS=IXY+NTUES(ISYM)
         IXABS=MTU(1,IXYABS)
         IYABS=MTU(2,IXYABS)
-        iSymX = IASYM(IXABS)
-        iSymY = IASYM(IYABS)
+!       iSymX = IASYM(IXABS)
+!       iSymY = IASYM(IYABS)
         IBADR=(ITU*(ITU-1))/2+IXY
         VALUE = Zero
         ! Hbar term

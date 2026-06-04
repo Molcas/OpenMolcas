@@ -94,7 +94,7 @@ subroutine SC_NEVPT2_Print()
 
   use caspt2_global, only: iPrGlb
   use caspt2_module, only: JSTATE, NSYM, EREF, IfChol, CASES
-  use Constants, only: Zero, One, Two
+  use Constants, only: Zero, One
   use Definitions, only: u6
   use PrintLevel, only: TERSE, USUAL
 
@@ -182,9 +182,9 @@ subroutine SC_NEVPT2_Energy()
   use caspt2_global, only: LUSBT,real_shift, imag_shift, sigma_p_epsilon
   use caspt2_module, only: NSYM, NASUP, NISUP
 ! use ChoCASPT2
-  use Constants, only: Zero, One, Two
+  use Constants, only: Zero, Two
   use EQSOLV, only: IDSMAT, IDBMAT, IVECW
-  use fake_GA, only: GA_Arrays, Allocate_GA_Array, Deallocate_GA_Array
+  use fake_GA, only: GA_Arrays
   use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _MOLCAS_MPP_
   use Definitions, only: u6
@@ -563,7 +563,7 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
 
   use caspt2_global, only: jStLag, LUSBT
   use caspt2_module, only: NASUP, NISUP, NSYM
-  use Constants, only: Zero, Half, One, Two
+  use Constants, only: Zero, One, Two
   use Definitions, only: iwp,wp
   use EQSOLV, only: IDSMAT, IVECC, IVECC2, IVECW
   use fake_GA, only: GA_Arrays
@@ -582,13 +582,14 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
   real(kind=wp), intent(inout) :: DG1(NASHT,NASHT), DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3)
 
   integer(kind=iwp) :: lg_V1, lg_V2, lg_V3, ias, iCase, idisk, iSym, isp, jas, NAS, NIS, NVEC
-  integer(kind=iwp) :: ILO1, IHI1, JLO1, JHI1
+  integer(kind=iwp) :: JLO1, JHI1
   real(kind=wp) :: vale, valh, valn
 
   real(kind=wp), allocatable :: derHNS(:,:), LID(:)
   real(kind=wp), allocatable :: BMAT(:), SMAT(:), BDER(:,:), SDER(:,:)
 
 #ifdef _MOLCAS_MPP_
+  integer(kind=iwp) :: ILO1, IHI1
   integer(kind=iwp) :: ILO2, IHI2, ii, JLO2, JHI2, jj, LDV, LDV1, LDV2, lg_S, MV1, MV2, MV3, myRank
   integer(kind=iwp) :: ILO3, IHI3, JLO3, JHI3
   integer(kind=iwp) :: idx_v1, idx_v2, idx_v3, idx_bs
@@ -668,8 +669,10 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
       call mma_allocate(derHNS,NIS,3,Label='derHNS')
       derHNS(1:NIS,1:3) = Zero
 
+#ifdef _MOLCAS_MPP_
       ILO1 = 1
       IHI1 = NAS
+#endif
       JLO1 = 1
       JHI1 = NIS
 

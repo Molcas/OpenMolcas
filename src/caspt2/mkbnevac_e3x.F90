@@ -15,7 +15,7 @@ subroutine MKBNEVAC_E3x(ISYM,nAshT,NG3,NBA,NBC,BA,BC,G1,G2,G3,Hact,Htilde,Gact,i
   use caspt2_module, only: IASYM, NTUVES
   USE SUPERINDEX, only: KTUV
   use definitions, only: iwp,wp,byte
-  use Constants, only: Zero, Half, Two
+  use Constants, only: Two
   use Symmetry_Info, only: Mul
 
   use nevpt2_mod, only: ex2, ex3

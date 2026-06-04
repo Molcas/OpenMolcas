@@ -104,7 +104,7 @@ subroutine NEVPT2_E4_ZVEC(NLEV,idx2ij,ij2idx,Gact,CI,ZVEC,WRK)
   real(kind=wp), intent(out) :: WRK(1:MXCI,1:NZVEC) !! This is XYVEC outside this subroutine
 
   real(kind=wp), allocatable :: Gact_sort(:,:)
-  integer(kind=iwp) :: ID, ip1, ip2, issg2, isvx, it, itlev, iu, iulev, iv, ivlev, ix, ixlev, nlev2, nsgm2, nTask
+  integer(kind=iwp) :: ID, ip1, ip2, issg2, isvx, it, itlev, iu, iulev, iv, ivlev, ix, ixlev, nlev2, nTask
   integer(kind=iwp) :: ibuf, nxy
   real(kind=wp) :: scal
 !
@@ -129,7 +129,6 @@ subroutine NEVPT2_E4_ZVEC(NLEV,idx2ij,ij2idx,Gact,CI,ZVEC,WRK)
     ixlev=idx2ij(2,ip2)
     isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
     issg2=Mul(isvx,stsym)
-    nsgm2=CIS%ncsf(issg2)
     iv=L2ACT(ivlev)
     ix=L2ACT(ixlev)
     ibuf = ibuf + 1
@@ -200,8 +199,8 @@ subroutine NEVPT2_E4_XYVEC(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,ZVEC,XYV
   integer(kind=iwp), intent(in) :: iSym, NLEV, idx2ij(1:2,1:NLEV**2), ij2idx(NLEV,NLEV), ipxysta, ipxyend
   real(kind=wp), intent(inout) :: BUFT(:), ZVEC(1:MXCI,1:NZVEC), XYVEC(1:MXCI,1:NXYVEC,1:2)
 
-  integer(kind=iwp) :: ID, ip1, ip2, ipxy, issg1, issg2, istu, isvx, it, itlev, iu, iulev, iv, ivlev, ix, ixlev, locx, locy, &
-                       nlev2, nsgm1, nsgm2, nTask
+  integer(kind=iwp) :: ID, ip1, ip2, ipxy, issg1, issg2, istu, isvx, it, itlev, iu, iulev, ivlev, ix, ixlev, locx, locy, &
+                       nlev2, nsgm1, nTask
 !
 ! Construct XVEC and YVEC
 ! X_{a,b}^I = \sum_{def} (ae|df) \sum_J <I|E_{eb}|J><J|E_{df}|Psi>
@@ -228,8 +227,7 @@ subroutine NEVPT2_E4_XYVEC(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,ZVEC,XYV
     ixlev=idx2ij(2,ip2)
     isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
     issg2=Mul(isvx,stsym)
-    nsgm2=CIS%ncsf(issg2)
-    iv=L2ACT(ivlev)
+!   iv=L2ACT(ivlev)
     ix=L2ACT(ixlev)
     if (NXY_work /= NLEV .and. (ivlev < ixyzsta .or. ivlev > ixyzend)) cycle
     do ip1 = 1, nlev2
@@ -756,7 +754,7 @@ end subroutine NEVPT2_E4_contract2
 subroutine NEVPT2_E4_derivative1(iSym0,iSym,NLEV,idx2ij,ipxysta,ipxyend,BDERA,BDERC,XYcont)
 
   use caspt2_module, only: NTUVES, STSYM
-  use sguga, only: CIS, SGS, L2ACT
+  use sguga, only: SGS, L2ACT
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -771,7 +769,7 @@ subroutine NEVPT2_E4_derivative1(iSym0,iSym,NLEV,idx2ij,ipxysta,ipxyend,BDERA,BD
   real(kind=wp), intent(out) :: XYcont(:,:,:)
 
   integer(kind=iwp) :: ID, ISUP, ip1, ipxy, issg1, istu, isvx, it, itlev, iu, iulev, iv, ivlev, &
-                       ix, ixlev, iz, izlev, JSUP, nlev2, nsgm1, nTask, nxy
+                       ix, ixlev, iz, izlev, JSUP, nlev2, nTask, nxy
   real(kind=wp) :: tmp1, tmp2
 
   if (NXY_work == NLEV) then
@@ -790,7 +788,6 @@ subroutine NEVPT2_E4_derivative1(iSym0,iSym,NLEV,idx2ij,ipxysta,ipxyend,BDERA,BD
     istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
     issg1=Mul(istu,stsym)
     if (issg1 /= iSym) cycle
-    nsgm1=CIS%ncsf(issg1)
     it=L2ACT(itlev)
     iu=L2ACT(iulev)
     do ipxy = ipxysta, ipxyend
@@ -874,7 +871,6 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
 
   integer(kind=iwp) :: ID, ISUP, ip1, ip2, ipxy, issg2, issg3, istu, isvx, isyz, it, itlev, iu, iulev, iv, ivlev, &
                        ix, ixlev, iy, iylev, iz, izlev, JSUP, nlev2, nsgm2, nsgm3, nTask, nxy, ibufxy, nbufxy
-  logical(kind=iwp) :: do_dgemm
   real(kind=wp) :: tmp1, tmp2
 
   integer(kind=iwp) :: ip3, ip23
@@ -997,7 +993,6 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
 
     if (NXY_work == NLEV) Zvec(1:MXCI,1:nlev2-ip3+1) = Zero
     if (NXY_work /= NLEV) Zvec(1:MXCI,1:nxy) = Zero
-    do_dgemm = .false.
     nbufxy = 0
     ibufxy = ip3
     do ip2 = ip3, nlev2
@@ -1029,7 +1024,6 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
           Zvec(1:MXCI,1:nxy) = Zero
         end if
       end if
-      do_dgemm = .true.
       !! Compute Xder and Yder and left pre-derivative (something like <I|Evx|J>*Xyz^J)
       ip23 = ip2*(ip2-1)/2 + ip3
       if (do_xvec) XYcontder(1:nxy,1,ip23) = XYcontder(1:nxy,1,ip23) + XYtmp(1:nxy,ip2-ip3+1,1)
@@ -1138,7 +1132,7 @@ end subroutine NEVPT2_E4_derivative2
 subroutine NEVPT2_E4_derivative3(iSym,NLEV,idx2ij,ipxysta,ipxyend,BUFT,CI,XYcont,XYder)
 
   use caspt2_module, only: STSYM
-  use sguga, only: CIS, SGS, L2ACT, EXS
+  use sguga, only: CIS, SGS, EXS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -1153,7 +1147,7 @@ subroutine NEVPT2_E4_derivative3(iSym,NLEV,idx2ij,ipxysta,ipxyend,BUFT,CI,XYcont
   real(kind=wp), intent(in) :: CI(:)
   real(kind=wp), intent(inout) :: XYcont(:,:,:), XYder(:,:,:)
 
-  integer(kind=iwp) :: ID, ip1, ipxy, issg1, istu, it, itlev, iu, iulev, nlev2, nsgm1, nTask, nxy
+  integer(kind=iwp) :: ID, ip1, ipxy, issg1, istu, itlev, iulev, nlev2, nsgm1, nTask, nxy
   integer(kind=iwp) :: nbufxy
 
   if (NXY_work == NLEV) then
@@ -1174,8 +1168,8 @@ subroutine NEVPT2_E4_derivative3(iSym,NLEV,idx2ij,ipxysta,ipxyend,BUFT,CI,XYcont
     nbufxy = nbufxy + 1
     if (issg1 /= iSym) cycle
     nsgm1=CIS%ncsf(issg1)
-    it=L2ACT(itlev)
-    iu=L2ACT(iulev)
+!   it=L2ACT(itlev)
+!   iu=L2ACT(iulev)
     BUFT(1:nsgm1) = Zero
     call SG_Epq_Psi(SGS,CIS,EXS,IULEV,ITLEV,One,STSYM,CI,BUFT(:))
     do ipxy = 1, nxy
@@ -1430,7 +1424,6 @@ subroutine NEVPT2_E4_XYder2(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI, &
                        ix, ixlev, izlev, nlev2, nsgm1, nsgm2, nTask, nxy, nbufxy
 
   integer(kind=iwp) :: ip2_rev, ip3, ip3_rev, ip23, locx, locy, ip1sta, ip1end
-  real(kind=wp), external :: ddot_
 
   locx = 1
   locy = 1
@@ -1480,7 +1473,6 @@ subroutine NEVPT2_E4_XYder2(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI, &
         it=L2ACT(itlev)
         iu=L2ACT(iulev)
 !       Gact_sort(ip1,ibuf) = Gact(it,iu,iv,ix)
-!       Gder(it,iu,iv,ix) = Gder(it,iu,iv,ix) + ddot_(nsgm2,BUFT,1,Zder(:,ip1),1)
         Gder(it,iu,iv,ix) = Gder(it,iu,iv,ix) + Gder_sort(ip1)
 !       CALL SG_Epq_Psi(SGS,CIS,EXS,IvLEV,IxLEV,Gact(itlev,iulev,ivlev,ixlev),STSYM,Zder(:,ip1),CLag(:))
         Gact_sort(ip1) = Gact(itlev,iulev,ivlev,ixlev)

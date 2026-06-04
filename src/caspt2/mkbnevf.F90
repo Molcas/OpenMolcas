@@ -32,12 +32,12 @@ subroutine MKBNEVF(nAshT,NG3,Hbar,Gact,G2,G3,idxG3)
                                G2(nAshT,nAshT,nAshT,nAshT), G3(NG3)
   integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
-  integer(kind=iwp) :: IBADR, IBMADR, IBPADR, IDISK, IP, IP1, IP2, ISYM, ITABS, ITGEU, ITGEUABS, IT, ITGTU, ITU, ITUABS, ITX, &
+  integer(kind=iwp) :: IBADR, IBMADR, IBPADR, IDISK, ISYM, ITABS, ITGEU, ITGEUABS, IT, ITGTU, ITU, ITUABS, ITX, &
                        IU, IUABS, IUY, IV, IVABS, IVX, IW, IWABS, IX, IXABS, IXGEY, IXGEYABS, IXGTY, IXY, IXYABS, IY, IYABS, IYX, &
                        IZ, IZABS, &
                        NAS, NASM, NASP, NBF, NBFM, NBFP
   integer(kind=iwp) :: iG3, IST, ISU, ISV, ISX, ISY, ISZ, ITUVS, IXYZS, IYZ
-  integer(kind=iwp) :: iSymT, iSymU, iSymX, iSymY
+! integer(kind=iwp) :: iSymT, iSymU, iSymX, iSymY
   integer(kind=iwp) :: ID
   real(kind=wp) :: BTUXY, BTUYX, G3VAL, VALUE
 
@@ -60,20 +60,20 @@ subroutine MKBNEVF(nAshT,NG3,Hbar,Gact,G2,G3,idxG3)
       ITUABS=ITU+NTUES(ISYM)
       ITABS=MTU(1,ITUABS)
       IUABS=MTU(2,ITUABS)
-      iSymT = IASYM(ITABS)
-      iSymU = IASYM(IUABS)
+!     iSymT = IASYM(ITABS)
+!     iSymU = IASYM(IUABS)
       DO IXY=1,ITU
         IXYABS=IXY+NTUES(ISYM)
         IXABS=MTU(1,IXYABS)
         IYABS=MTU(2,IXYABS)
-        iSymX = IASYM(IXABS)
-        iSymY = IASYM(IYABS)
+!       iSymX = IASYM(IXABS)
+!       iSymY = IASYM(IYABS)
         IBADR=(ITU*(ITU-1))/2+IXY
         ITX=ITABS+NASHT*(IXABS-1)
         IUY=IUABS+NASHT*(IYABS-1)
-        IP1=MAX(ITX,IUY)
-        IP2=MIN(ITX,IUY)
-        IP=(IP1*(IP1-1))/2+IP2
+!       IP1=MAX(ITX,IUY)
+!       IP2=MIN(ITX,IUY)
+!       IP=(IP1*(IP1-1))/2+IP2
         VALUE = Zero
         ! Hbar term
         DO IV=1,NASHT

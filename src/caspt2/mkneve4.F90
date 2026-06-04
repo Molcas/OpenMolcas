@@ -16,10 +16,11 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
   use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
   use caspt2_module, only: JSTATE, NACTEL, NCONF, NSYM, STSYM, MXCI
   use PrintLevel, only: verbose
-  use sguga, only: CIS, SGS, L2ACT, EXS
+  use sguga, only: CIS, SGS, EXS
+! use sguga, only: L2ACT
   use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
   use Definitions, only: iwp,wp,u6,RtoB
-  use Constants, only: Zero, One, Two
+  use Constants, only: Zero, One
 ! USE SUPERINDEX
   use Symmetry_Info, only: Mul
 #ifdef _MOLCAS_MPP_
@@ -38,10 +39,10 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
   integer(kind=iwp) :: I,J,IDX,JDX
   integer(kind=iwp) :: IPXYSTA,IPXYEND,IP1,IP2,IP3,IP4
   integer(kind=iwp) :: ISTU,ISVX,ISYZ,ISAB
-  integer(kind=iwp) :: IT,IU,IV,IX,IY,IZ
+! integer(kind=iwp) :: IT,IU,IV,IX,IY,IZ
   integer(kind=iwp) :: ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV,IALEV,IBLEV
   integer(kind=iwp) :: ISSG1,ISSG2,ISSG3,ISSG4,NSGM1,NSGM2,NSGM3,NSGM4
-  integer(kind=iwp) :: NTRI1,NTRI2
+  integer(kind=iwp) :: NTRI1
   integer(kind=iwp) :: MEMMAX, MEMMAX_SAFE
   integer(kind=iwp) :: NLEV2
   integer(kind=iwp) :: NCI
@@ -80,7 +81,6 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 ! Special pair index idx2ij allows true RAS cases to be handled:
   nlev2=nlev**2
   ntri1=(nlev2-nlev)/2
-  ntri2=(nlev2+nlev)/2
   idx=0
   do i=1,nlev-1
     do j=i+1,nlev
@@ -170,7 +170,7 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
   if (iPrGlb >= VERBOSE) then
     write(u6,*)
     write(u6,'(2X,A)') 'Constructing E4 terms for NEVPT2'
-    write(u6,'(2X,A,X,I1)') 'Symmetry of B matrix:', iSym0
+    write(u6,'(2X,A,1X,I1)') 'Symmetry of B matrix:', iSym0
     write(u6,'(2X,A,F16.9,A)') ' memory available:   ', (memmax*RtoB)/1.0D9, ' GB'
     i = nconf + mxci + memory_per_xy2*nlev2 + memory_per_z*nlev2
     write(u6,'(2X,A,F16.9,A)') ' memory sufficient:  ', (i*RtoB)/1.0D9, ' GB'
@@ -304,8 +304,8 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
         isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
         issg3=Mul(isyz,issg4)
         nsgm3=CIS%ncsf(issg3)
-        iy=L2ACT(iylev)
-        iz=L2ACT(izlev)
+!       iy=L2ACT(iylev)
+!       iz=L2ACT(izlev)
         BUF2(1:nsgm3,3) = Zero
         call SG_Epq_Psi(SGS,CIS,EXS,IYLEV,IZLEV,One,issg4,BUF2(:,4),BUF2(:,3))
       end do
@@ -315,8 +315,8 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
         isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
         issg2=Mul(isvx,issg3)
         nsgm2=CIS%ncsf(issg2)
-        iv=L2ACT(ivlev)
-        ix=L2ACT(ixlev)
+!       iv=L2ACT(ivlev)
+!       ix=L2ACT(ixlev)
         BUF2(1:nsgm2,2) = Zero
         call SG_Epq_Psi(SGS,CIS,EXS,IVLEV,IXLEV,One,issg3,BUF2(:,3),BUF2(:,2))
         do ip1 = ip2, nlev2
@@ -325,8 +325,8 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
           istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
           issg1=Mul(istu,issg2)
           nsgm1=CIS%ncsf(issg1)
-          it=L2ACT(itlev)
-          iu=L2ACT(iulev)
+!         it=L2ACT(itlev)
+!         iu=L2ACT(iulev)
           BUF2(1:nsgm1,1) = Zero
           call SG_Epq_Psi(SGS,CIS,EXS,ITLEV,IULEV,One,issg2,BUF2(:,2),BUF2(:,1))
         end do
