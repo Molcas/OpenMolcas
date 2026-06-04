@@ -26,6 +26,7 @@ private
 type SGStruct
   integer(kind=iwp) :: NSym = 0, nActEl = 0, IFRAS = 0
   integer(kind=iwp) :: IA0, IB0, IC0, iSpin, nLev, nVert, nVert0, MidLev, MVSta, MVEnd, MXUP, MXDWN, LV1RAS, LM1RAS, LV3RAS, LM3RAS
+  integer(kind=iwp) :: NUW
   integer(kind=iwp), allocatable :: ISm(:), DRT(:,:), DRT0(:,:), Down(:,:), Down0(:,:), Up(:,:), Ver(:), MAW(:,:), LTV(:), &
                                     DAW(:,:), RAW(:,:), SCR(:,:)
   integer(kind=iwp), pointer :: DRTP(:,:), DOWNP(:,:)
@@ -54,7 +55,7 @@ integer(kind=iwp), protected :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
 integer(kind=iwp), protected :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 
 
-! This lists 26 different types of segments, i=1,...,26
+! This lists nSeg different types of segments, i=1,...,nSeg
 !  1- 4: segments of the head walk from the loop head to the graph head
 !  5- 8: head segments
 !  9-13: intermediate segments for the case delta(b)=-1
@@ -72,11 +73,12 @@ integer(kind=iwp), protected :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 ! ITVPT(i): denotes the delta b of the top vertices of the segment. 0: delta(b)=0, 1: delta(b)=-1, 2: delta(b)=+1, delta(b)=0
 !           It is also used to indicate if the segment has an upper right vertex different from the upper left vertex.
 !           0,3: the same vertex, 1:2 a different vertex.
-integer(kind=iwp), parameter :: IBVPT(26) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3], &
-                                IC1(26)   = [ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3], &
-                                IC2(26)   = [ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3], &
-                                ISVC(26)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1], &
-                                ITVPT(26) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3]
+integer(kind=iwp), parameter :: nSeg=26
+integer(kind=iwp), parameter :: IBVPT(nSeg) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3],&
+                                IC1(nSeg)   = [ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3],&
+                                IC2(nSeg)   = [ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3],&
+                                ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1],&
+                                ITVPT(nSeg) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3]
 
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGS, SGStruct
@@ -903,7 +905,7 @@ subroutine MKCOT(SGS,CIS)
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
 integer(kind=iwp) :: IHALF, ILND, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, MV, NUW
-integer(kind=iwp) :: INIT, IC, IPOS, L, LL
+integer(kind=iwp) :: INIT, IC, IPOS, L, LL, NUW_test
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: IS
@@ -940,6 +942,7 @@ EndIf
 
 ! START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
 
+NUW=0
 do IHALF=1,2
   ! set the loop ranges:
   ! IVSTA-IVTEND: the top vertex, or loop over midlevel vertices
@@ -1015,6 +1018,7 @@ do IHALF=1,2
       ILND = CIS%NOW(IHALF,IWSYM,MV) + 1
       CIS%NOW(IHALF,IWSYM,MV) = ILND   ! Increment counter for how many walks there are given the
                                                               ! midvertex index and the total symmetry of the subwalk.
+      If (IHALF==1) NUW=NUW+1
 
       If (INIT==1) Then
         ! CONSEQUENTLY, THE POSITION IMMEDIATELY BEFORE THIS COMPRESSED WALK:
@@ -1040,7 +1044,14 @@ do IHALF=1,2
 end do
 
 If (INIT==0) THEN
+NUW_test=NUW
 call CSFCOUNT(CIS,SGS%nSym,NUW)
+SGS%NUW=NUW
+If (NUW_test/=NUW) Then
+   Write (6,*) 'NUW_test/=NUW'
+   Write (6,*) NUW_test,NUW
+   Call Abend()
+End If
 
 #ifdef _DEBUGPRINT_
 write(u6,*)
@@ -1124,7 +1135,7 @@ end subroutine MKMAW
 subroutine MKSEG(SGS,CIS,EXS)
 ! PURPOSE: CONSTRUCT THE TABLES ISGM AND VSGM.
 ! ISGM(IVLT,ISGT) REFERS TO A SEGMENT OF THE SEGMENT TYPE
-!    ISGT=1,..,26, WHOSE TOP LEFT VERTEX IS IVLT. ISGM GIVES
+!    ISGT=1,..,nSeg, WHOSE TOP LEFT VERTEX IS IVLT. ISGM GIVES
 !    ZERO IF THE SEGMENT IS IMPOSSIBLE IN THE GRAPH DEFINED BY
 !    THE PALDUS TABLE DRT, ELSE IT IS THE BOTTOM LEFT VERTEX
 !    NUMBER OF THE SEGMENT. THE SEGMENT VALUE IS THEN VSGM.
@@ -1138,8 +1149,8 @@ real(kind=wp) :: V
 integer(kind=iwp), parameter :: IATAB = 3, IBTAB = 4
 
 call mma_allocate(CIS%IVR,SGS%nVert,2,Label='CIS%IVR')
-call mma_allocate(CIS%ISGM,SGS%nVert,26,Label='CIS%ISGM')
-call mma_allocate(CIS%VSGM,SGS%nVert,26,Label='CIS%VSGM')
+call mma_allocate(CIS%ISGM,SGS%nVert,nSeg,Label='CIS%ISGM')
+call mma_allocate(CIS%VSGM,SGS%nVert,nSeg,Label='CIS%VSGM')
 call mma_allocate(EXS%MVL,CIS%nMidV,2,Label='EXS%MVL')
 call mma_allocate(EXS%MVR,CIS%nMidV,2,Label='EXS%MVR')
 
@@ -1221,7 +1232,7 @@ CIS%VSGM(:,:) = Zero
 
 ! FOR EACH VERTEX LOOP OVER ALL POSSIBLE SEGMENTS IT CAN BE A PART OF
 do IVLT=1,SGS%nVert     ! Upper left vertex
-  do ISGT=1,26
+  do ISGT=1,nSeg
     ITT = ITVPT(ISGT)   ! 0-3
     SELECT CASE(ITT)
       Case(0,3)
@@ -1280,12 +1291,12 @@ end subroutine MKSEG
 
 subroutine NRCOUP(SGS,CIS,EXS)
 
-type(SGStruct), intent(in) :: SGS
+type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
                      MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
-                     NUPS1, NUW
+                     NUPS1, NUW, NUW_test, nWalk_Test
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 integer(kind=iwp), parameter :: LTAB = 1
 #ifdef _DEBUGPRINT_
@@ -1308,7 +1319,7 @@ NRL(1,1,0) = 1
 
 do IVLT=1,SGS%MVSta-1
   LEV = SGS%DRT(IVLT,LTAB)
-  do ISGT=1,26
+  do ISGT=1,nSeg
     IVLB = CIS%ISGM(IVLT,ISGT)
     if (IVLB == 0) cycle
     ICL = IC1(ISGT)
@@ -1366,7 +1377,7 @@ NRL(:,SGS%MVSta:,:) = 0
 NRL(1,SGS%nVert,0) = 1
 do IVLT=SGS%nVert-1,SGS%MVSta,-1
   LEV = SGS%DRT(IVLT,LTAB)
-  do ISGT=1,26
+  do ISGT=1,nSeg
     IVLB = CIS%ISGM(IVLT,ISGT)
     if (IVLB == 0) cycle
     ICL = IC1(ISGT)
@@ -1409,15 +1420,25 @@ do IVLT=SGS%nVert-1,SGS%MVSta,-1
 end do
 
 MXDWN = 0
+NUW=0
 do MV=1,CIS%nMidV
   IVLT = MV+SGS%MVSta-1
   do LFTSYM=1,SGS%nSym
+    CIS%IOW(1,LFTSYM,MV) = NUW*CIS%nIpWlk
+    NUW = NUW+CIS%NOW(1,LFTSYM,MV)
     CIS%NOW(2,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXDWN = max(MXDWN,CIS%NOW(2,LFTSYM,MV))
     do INDEO=1,EXS%MxEO
       N = NRL(LFTSYM,IVLT,INDEO)
       if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
     end do
+  end do
+end do
+CIS%nWalk = NUW
+do MV=1,CIS%nMidV
+  do LFTSYM=1,SGS%nSym
+    CIS%IOW(2,LFTSYM,MV) = CIS%nWalk*CIS%nIpWlk
+    CIS%nWalk = CIS%nWalk+CIS%NOW(2,LFTSYM,MV)
   end do
 end do
 
@@ -1431,7 +1452,18 @@ do INDEO=1,EXS%MxEO
   end do
 end do
 
+NUW_test=NUW
+nWalk_Test=CIS%nWalk
 call CSFCOUNT(CIS,SGS%nSym,NUW)
+SGS%NUW=NUW
+If (NUW_test/=NUW) Then
+   Write (6,*) "NUW_test,NUW=",NUW_test,NUW
+   Call AbEnd()
+End If
+If (nWalk_test/=CIS%nWalk) Then
+   Write (6,*) "nWalk_test,CIS%nWalk=",nWalk_test,CIS%nWalk
+   Call AbEnd()
+End If
 
 !AR INSERT FOR US IN SIGMA ROUTINE
 
@@ -1572,7 +1604,7 @@ subroutine MKCOUP(SGS,CIS,EXS)
 ! Any loop is regarded as a segment path from top to midlevel, or
 ! from midlevel to bottom.
 ! The segment path is described by the table ISGPTH. It is
-! essentially a list of which one of segments nr 1..26 that are
+! essentially a list of which one of segments nr 1..nSeg that are
 ! used at each level. The segments are of three types:
 ! Type 0: Upwalk segment or top loop segment.
 ! Type 1: Mid segment.
@@ -1584,7 +1616,7 @@ subroutine MKCOUP(SGS,CIS,EXS)
 ! ISGPTH(IAWSR,LEV)=Similar, right.
 ! ISGPTH(ILS  ,LEV)=Left symmetry label (accum from top or bottom).
 ! ISGPTH(ICS  ,LEV)=Left coupling case number (0..3).
-! ISGPTH(ISEG ,LEV)=Segment type (1..26).
+! ISGPTH(ISEG ,LEV)=Segment type (1..nSeg).
 ! These indices are used to denote the columns of table ISGPTH.
 
 type(SGStruct), intent(in) :: SGS
@@ -1664,12 +1696,12 @@ do IHALF=1,2
       do while (LEV <= LEV1)
         ITYPT = ISGPTH(ITYPE,LEV)
         IVLT = ISGPTH(IVLFT,LEV)
-        do ISGT=ISGPTH(ISEG,LEV)+1,26
+        do ISGT=ISGPTH(ISEG,LEV)+1,nSeg
           IVLB = CIS%ISGM(IVLT,ISGT)
           if (IVLB == 0) cycle
           if (ITYPT == ITVPT(ISGT)) exit
         end do
-        if (ISGT > 26) then
+        if (ISGT > nSeg) then
           ISGPTH(ISEG,LEV) = 0
           LEV = LEV+1
         else

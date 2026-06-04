@@ -15,7 +15,7 @@ use sguga, only: CIStruct, EXStruct, MkCoup, MkSeg, NrCoup, SGStruct
 use stdalloc, only: mma_deallocate
 
 implicit none
-type(SGStruct), intent(in) :: SGS
+type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(out) :: CIS
 type(EXStruct), intent(out) :: EXS
 
