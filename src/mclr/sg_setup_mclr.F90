@@ -65,8 +65,8 @@ SGS%IFRAS=IFRAS
 
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
-Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3, &
-                    xLevel=Level, xL2Act=Level,                                 &
+Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS, &
+                    xLevel=Level, xL2Act=Level,    &
                     xNLEV=nLev, xNSM=ISM)
 
 ! PURPOSE: FREE THE GUGA TABLES

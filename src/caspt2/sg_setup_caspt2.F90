@@ -58,7 +58,7 @@ SGS%IFRAS=IFRAS
 if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) then
 
   call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                             &
-               EXS,nHole1,nEle3,nRas1,nRas2,nRas3,                    &
+               EXS,                                                   &
                xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
 
 else

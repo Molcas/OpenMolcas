@@ -632,16 +632,16 @@ end subroutine RMVERT
 
 end subroutine MKSGUGA
 
-subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
+subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
   type(EXStruct), optional, intent(inout) :: EXS
-  integer(kind=iwp), optional, intent(in) :: nHole1, nEle3, nRs1(nSym), nRs2(nSym), nRs3(nSym), xLevel(MxLev), xL2Act(MxLev), &
+  integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xNLEV, xNSM(MxLev)
   logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
-  integer(kind=iwp) :: IS, nRas1T, nRas2T, nRas3T
+  integer(kind=iwp) :: IS
 
 ! Make sure that we start from a clean slate.
   if (present(EXS)) then
@@ -665,35 +665,9 @@ subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,n
     call Abend()
   end if
 
-SGS%nSym=nSym
-SGS%iSpin=iSpin
-SGS%nActEl=nActEl
-
-  if (present(EXS)) then
-
-   nRAS1T = sum(nRs1(1:nSym))
-   nRAS2T = sum(nRs2(1:nSym))
-   nRAS3T = sum(nRs3(1:nSym))
-
-   SGS%LV1RAS=NRAS1T
-   SGS%LV3RAS=nRAS1T+NRAS2T
-   SGS%LM1RAS=2*nRas1T-NHOLE1
-   SGS%LM3RAS=NACTEL-NELE3
-    if ((NRAS1T+NRAS3T) /= 0) then
-!      SGS%IFRAS=1
-!      do IS=1,NSYM
-!         if (nRs1(IS)+nRs2(IS)+nRs3(IS) /= 0) SGS%IFRAS = SGS%IFRAS+1
-!      end do
-
-!   else
-!      SGS%IFRAS=0
-    end if
-  else
-   SGS%LV1RAS=0
-   SGS%LV3RAS=0
-   SGS%LM1RAS=0
-   SGS%LM3RAS=0
-  end if
+  SGS%nSym=nSym
+  SGS%iSpin=iSpin
+  SGS%nActEl=nActEl
 
   if (present(xLevel)) Level(:) = xLevel(:)
   if (present(xL2Act)) L2Act(:) = xL2Act(:)
@@ -716,16 +690,16 @@ SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
 end subroutine SG_Init_Simple
 
-subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xNLEV,xNSM)
+subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,EXS,xLevel,xL2Act,xNLEV,xNSM)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
-  integer(kind=iwp), optional, intent(in) :: nHole1, nEle3, nRs1(nSym), nRs2(nSym), nRs3(nSym), xLevel(MxLev), xL2Act(MxLev), &
+  integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xnLev, xNSM(MxLev)
   type(EXStruct), optional, intent(inout) :: EXS
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xnLev,xNSM)
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,xLevel,xL2Act,xnLev,xNSM)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
