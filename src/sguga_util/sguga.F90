@@ -30,7 +30,7 @@ integer(kind=iwp) :: iq
 ! Split-Graph descriptor, sizes, addresses...
 type SGStruct
   integer(kind=iwp) :: NSym = 0, nActEl = 0, IFRAS = 0
-  integer(kind=iwp) :: IA0, IB0, IC0, iSpin, nLev, nVert, nVert0, MidLev, MVSta, MVEnd, MXUP, MXDWN, LV1RAS, LM1RAS, LV3RAS, LM3RAS
+  integer(kind=iwp) :: IA0, IB0, IC0, iSpin, nLev, nVert, nVert0, MidLev, MVSta, MVEnd, MXUP, MXDWN
   integer(kind=iwp), allocatable :: ISm(:), DRT(:,:), DRT0(:,:), Down(:,:), Down0(:,:), Up(:,:), Ver(:), MAW(:,:), LTV(:), &
                                     DAW(:,:), RAW(:,:), SCR(:,:)
   integer(kind=iwp), pointer :: DRTP(:,:), DOWNP(:,:)
