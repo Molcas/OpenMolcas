@@ -82,7 +82,9 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call SG_Init_Simple'
-      call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,                &
+      call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                    &
+                          nRas,nRasEl,nRsPrt,                           &
+                          EXS,                                          &
                           xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
       if (SGS%NVERT0 == 0) then

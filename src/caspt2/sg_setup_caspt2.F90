@@ -58,12 +58,13 @@ SGS%IFRAS=IFRAS
 if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) then
 
   call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                             &
-               EXS,                                                   &
+               nRas,nRasEl,nRsPrt,EXS,                                &
                xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
 
 else
 
   call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                       &
+                     nRas,nRasEl,nRsPrt,                               &
                      xLevel=Level,xL2Act=L2Act,xnLev=nLev,             &
                      xNSM=ISM,Do_MkSGuga=.false.)
   SGS%iSpin = 0

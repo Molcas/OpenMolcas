@@ -61,7 +61,7 @@ KOCLAB = 10
 KOCSZ = max(K,KOCLAB)
 KPAD1 = (KOCSZ-KOCLAB)/2
 KPAD2 = (KOCSZ-K)/2
-if (SGINFO) write(u6,*) ' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
+if (SGINFO) write(u6,*) '  SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
 LINE(1:7) = '  Conf '
 K = 7
 if (SGINFO) then

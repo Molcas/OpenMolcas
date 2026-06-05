@@ -11,7 +11,7 @@
 
 module SGUGA
 
-use Molcas, only: MxLev
+use Molcas, only: MxLev, MxSym
 use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -632,16 +632,33 @@ end subroutine RMVERT
 
 end subroutine MKSGUGA
 
-subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
+subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
+                          nRas,nRasEl,nRsPrt,                     &
+                          EXS,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
+  integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt)
   type(EXStruct), optional, intent(inout) :: EXS
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xNLEV, xNSM(MxLev)
   logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
-  integer(kind=iwp) :: IS
+  integer(kind=iwp) :: iSym, idum
+
+Select case(nRsPrt)
+Case(1)
+   SGS%IFRAS=0
+Case(3)
+   SGS%IFRAS=1
+End Select
+Do iSym = 1, nSym
+   If (Sum(nRas(iSym,1:nRsPrt))/=0) SGS%IFRAS=SGS%IFRAS+1
+End Do
+idum=nRasEl(1)
+idum=idum+1
+
+!...more to come ...
 
 ! Make sure that we start from a clean slate.
   if (present(EXS)) then
@@ -690,16 +707,21 @@ SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
 end subroutine SG_Init_Simple
 
-subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,EXS,xLevel,xL2Act,xNLEV,xNSM)
+subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
+                   nRas,nRasEl,nRsPrt,                             &
+                   EXS,xLevel,xL2Act,xNLEV,xNSM)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
+  integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt),nRasEl(nRsPrt)
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xnLev, xNSM(MxLev)
   type(EXStruct), optional, intent(inout) :: EXS
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,xLevel,xL2Act,xnLev,xNSM)
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,        &
+                      nRas,nRasEl,nRsPrt,               &
+                      EXS,xLevel,xL2Act,xnLev,xNSM)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 

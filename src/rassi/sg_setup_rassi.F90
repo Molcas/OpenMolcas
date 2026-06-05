@@ -15,7 +15,7 @@ use Molcas, only: MxLev
 use sguga, only: CIStruct, SG_Init, SGStruct
 use rassi_aux, only: Level
 use rassi_data, only: NASH
-use rasdef, only: nRas, nRsPrt, IfRAS
+use rasdef, only: nRas, nRasEl, nRsPrt, IfRAS
 use Definitions, only: iwp
 
 implicit none
@@ -42,6 +42,8 @@ SGS%IFRAS=IFRAS
 
 L2Act(1:MxLev) = [(iq,iq=1,MxLev)]
 
-call SG_Init(nSym,nActEl,iSpin,SGS,CIS,xLevel=Level,xL2Act=L2Act,xNLEV=nLev,xNSM=ISM)
+call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                    &
+             nRas,nRasEl,nRsPrt,                           &
+             xLevel=Level,xL2Act=L2Act,xNLEV=nLev,xNSM=ISM)
 
 end subroutine SG_setup_RASSI

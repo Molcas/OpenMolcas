@@ -65,7 +65,9 @@ SGS%IFRAS=IFRAS
 
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
-Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS, &
+Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,     &
+                    nRas,nRasEl,nRsPrt,            &
+                    EXS,                           &
                     xLevel=Level, xL2Act=Level,    &
                     xNLEV=nLev, xNSM=ISM)
 
