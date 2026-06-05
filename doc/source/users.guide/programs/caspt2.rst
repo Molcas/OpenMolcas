@@ -236,7 +236,11 @@ Property calculations (dipole moments, analytical gradients, and NAC/DC vectors)
 in a similar manner to CASPT2 using the keyword :kword:`GRDT`.
 The keywords :kword:`SHIFt`, :kword:`IMAGinary`, :kword:`SIG1`, and :kword:`SIG2` are available only for PC-NEVPT2;
 :kword:`IPEAshift` is ignored for both contraction schemes.
-As NEVPT2 is often sensitive to the active space, users need to construct one appropriately.
+As NEVPT2 is often sensitive to the active space, users need to construct an appropriate active space.
+This is particularly important for property calculations;
+they may also need to tighten the threshold for the Davidson diagonalization with :kword:`TIGHt` in :program:`RASSCF`, for instance.
+Additionally, the SC-NEVPT2 energy is not invariant to rotations within the inactive and secondary spaces,
+and property calculations with degenerate inactive or secondary orbitals may exhibit numerical instability.
 
 .. index::
    pair: Dependencies; CASPT2
@@ -1047,10 +1051,10 @@ Keywords
   Property calculations (analytical derivatives) are performed with the PC-NEVPT2 wavefunction.
   :kword:`NEVPt2` and :kword:`PCNEvpt2` are valid synonyms.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NEVPT2" APPEAR="PC-NEVPT2" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: NEVPT2 <basic>
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NEVPT2" APPEAR="PC-NEVPT2" KIND="SINGLE" LEVEL="ADVANCED" ALSO="NEVPT2,PCNEVPT2">
+              %%Keyword: NEVPT2 <advanced>
               <HELP>
-              Performe PC-NEVPT2 calculations.
+              Perform PC-NEVPT2 calculations.
               </HELP>
               </KEYWORD>
 
@@ -1060,10 +1064,10 @@ Keywords
   :kword:`SC` and :kword:`SCNEvpt2` are valid synonyms.
   If both `PC-Nevpt2` and `SC-Nevpt2` are present, SC-NEVPT2 properties are computed.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SC-NEVPT2" APPEAR="SC-NEVPT2" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: SC-NEVPT2 <basic>
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SC-NEVPT2" APPEAR="SC-NEVPT2" KIND="SINGLE" LEVEL="ADVANCED" ALSO="SC,SCNEVPT2">
+              %%Keyword: SC-NEVPT2 <advanced>
               <HELP>
-              Performe SC-NEVPT2 calculations.
+              Perform SC-NEVPT2 calculations.
               </HELP>
               </KEYWORD>
 
