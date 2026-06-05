@@ -42,11 +42,11 @@
 !***********************************************************************
 
 !#ifdef _DEBUGPRINT_
-subroutine SG_CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
+subroutine SG_CITRA(WFTP,SGS,CIS,EXS,LSM,NTRA,TRA,NCO,CI,NOSH,NISH,NASH)
 
+use Molcas, only: MxSym
 use sguga, only: CIStruct, SGStruct, EXStruct
 use Symmetry_Info, only: nIrrep
-use rassi_data, only: NTRA, NOSH, NISH, NASH
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp
@@ -59,7 +59,8 @@ character(len=8), intent(in) :: WFTP
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
 type(EXStruct), intent(inout) :: EXS
-integer(kind=iwp), intent(in) :: LSM, NCO
+integer(kind=iwp), intent(in) :: LSM, NCO, NTRA
+integer(kind=iwp), intent(in) :: NOSH(MxSym) ,NISH(MxSym) ,NASH(MxSym)
 real(kind=wp), intent(in) :: TRA(NTRA)
 real(kind=wp), intent(inout) :: CI(NCO)
 integer(kind=iwp) :: I, II, ISTA, ISYM, NA, NI, NO
