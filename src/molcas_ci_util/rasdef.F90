@@ -23,8 +23,7 @@ implicit none
 private
 
 integer(kind=iwp) :: NRAS(8,MxGAS), NRASEL(MxGAS), NRS1(8), NRS1T, NRS2(8), NRS2T, NRS3(8), NRS3T, NRSPRT
-integer(kind=iwp) :: IFRAS=0
 
-public :: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT, IFRAS
+public :: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 
 end module rasdef

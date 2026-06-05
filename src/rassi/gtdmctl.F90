@@ -90,8 +90,6 @@ LSYM2 = IRREP(JOB2)
 NHOL12 = NHOLE1(JOB2)
 NELE32 = NELE3(JOB2)
 WFTP2 = RASTYP(JOB2)
-SGS(1)%IFRAS = 1
-SGS(2)%IFRAS = 1
 if (IPGLOB >= 4) then
   write(u6,*) ' Entered GTDMCTL.'
   write(u6,'(1X,A,I3,A,I3)') '  JOB1:',JOB1,'        JOB2:',JOB2

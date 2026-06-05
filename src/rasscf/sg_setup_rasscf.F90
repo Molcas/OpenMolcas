@@ -25,7 +25,7 @@ use rasscf_global, only: DoDMRG
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate
 #endif
-use rasdef, only: nRas,nRasEl,nRsPrt, IFRAS
+use rasdef, only: nRas,nRasEl,nRsPrt
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -45,7 +45,6 @@ end do
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
 If (nHole1+nElec3/=0) Then
-   IFRAS=1
    nRsPrt=3
    nRas(:,1)=nRs1(:)
    nRas(:,2)=nRs2(:)
@@ -55,15 +54,10 @@ If (nHole1+nElec3/=0) Then
    nRasEl(2)=nActel-nElec3
    nRasEl(3)=nActel
 Else
-   IFRAS=0
    nRsPrt=1
    nRas(:,1)=nRs2(:)
    nRasEl(1)=nActel
 End If
-Do ISYM=1,NSYM
-   IF (SUM(nRAS(ISYM,1:nRsPrt))/=0) IFRAS=IFRAS+1
-END DO
-SGS%IFRAS=IFRAS
 
 ! Construct the Guga tables
 

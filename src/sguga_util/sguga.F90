@@ -11,7 +11,7 @@
 
 module SGUGA
 
-use Molcas, only: MxLev, MxSym
+use Molcas, only: MxLev, MxSym, MxGas
 use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -36,6 +36,7 @@ type SGStruct
   integer(kind=iwp), pointer :: DRTP(:,:), DOWNP(:,:)
   integer(kind=iwp) :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
+  integer(kind=iwp) :: NRAS(MxSym,MxGAS), NRASEL(MxGAS), nRsPrt=0
 end type SGStruct
 
 ! CI Structures, addresses,..
@@ -644,7 +645,7 @@ subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xNLEV, xNSM(MxLev)
   logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
-  integer(kind=iwp) :: iSym, idum
+  integer(kind=iwp) :: iSym
 
 Select case(nRsPrt)
 Case(1)
@@ -655,10 +656,9 @@ End Select
 Do iSym = 1, nSym
    If (Sum(nRas(iSym,1:nRsPrt))/=0) SGS%IFRAS=SGS%IFRAS+1
 End Do
-idum=nRasEl(1)
-idum=idum+1
-
-!...more to come ...
+SGS%nRasEL(:)=nRasEl(:)
+SGS%nRas(:,:)=nRas(:,:)
+SGS%nRsPrt=nRsPrt
 
 ! Make sure that we start from a clean slate.
   if (present(EXS)) then
