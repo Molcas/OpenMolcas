@@ -19,10 +19,12 @@ use RefWfn, only: L2Act, Level
 use sguga, only: CIS, EXS, SG_Init, SG_Init_Simple, SGS
 use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, MxCI, nActEl, nAsh, nEle3, nHole1, nRas1, nRas2, nRas3, nSym, STSym
 use stdalloc, only: mma_allocate
+use rasdef, only: nRas,nRasEl,nRsPrt
+
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ISM(MxLev), ISYM, IT, nLEV
+integer(kind=iwp) :: ISM(MxLev), ISYM, IT, nLEV, nRs1T
 
 nLEV = 0
 do ISYM=1,NSYM
@@ -32,13 +34,34 @@ do ISYM=1,NSYM
   end do
 end do
 
+If (nHole1+nEle3/=0) Then
+   SGS%IFRAS=1
+   nRsPrt=3
+   nRas(:,1)=nRas1(:)
+   nRas(:,2)=nRas2(:)
+   nRas(:,3)=nRas3(:)
+   nRs1T=Sum(nRas1(1:nSym))
+   nRasEl(1)=2*nRs1T-nHole1
+   nRasEl(2)=nActel-nEle3
+   nRasEl(3)=nActel
+Else
+   SGS%IFRAS=0
+   nRsPrt=1
+   nRas(:,1)=nRas2(:)
+   nRasEl(1)=nActel
+End If
+
 if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) then
 
-  call SG_Init(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRas1,nRas2,nRas3,xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
+  call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                             &
+               EXS,nHole1,nEle3,nRas1,nRas2,nRas3,                    &
+               xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM,Do_RMVERT=.TRUE.)
 
 else
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM,Do_MkSGuga=.false.)
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                       &
+                     xLevel=Level,xL2Act=L2Act,xnLev=nLev,             &
+                     xNSM=ISM,Do_MkSGuga=.false.,Do_RMVERT=.TRUE.)
   SGS%iSpin = 0
   SGS%nActEl = 0
 
