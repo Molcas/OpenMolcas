@@ -25,8 +25,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ISTATE, NCI
-type(SGStruct), intent(in) :: SGS
-type(CIStruct), intent(in) :: CIS
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
 real(kind=wp), intent(out) :: CI(NCI)
 integer(kind=iwp) :: I, IAD, IDISK, JOB, LROOT1, LSYM, LUDUM
 #ifdef _HDF5_

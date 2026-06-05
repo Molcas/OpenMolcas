@@ -654,8 +654,8 @@ End Select
 Do iSym = 1, nSym
    If (Sum(nRas(iSym,1:nRsPrt))/=0) SGS%IFRAS=SGS%IFRAS+1
 End Do
-SGS%nRasEL(:)=nRasEl(:)
-SGS%nRas(:,:)=nRas(:,:)
+SGS%nRasEL(1:nRsPrt)=nRasEl(1:nRsPrt)
+SGS%nRas(1:MxSym,1:nRsPrt)=nRas(1:MxSym,1:nRsPrt)
 SGS%nRsPrt=nRsPrt
 
 ! Make sure that we start from a clean slate.
