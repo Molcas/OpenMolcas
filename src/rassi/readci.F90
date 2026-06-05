@@ -94,7 +94,6 @@ if ((IPGLOB > 0) .and. PRCI) then
   write(u6,*) ' Its symmetry  =          ',IRREP(JOB)
   write(u6,*) ' Spin multiplicity=       ',MLTPLT(JOB)
   LSYM = IRREP(JOB)
-  call PRWF(SGS,CIS,LSYM,CITHR,MLTPLT(JOB),CI,NCI,.FALSE.,LUDUM)
   call SG_PRWF(SGS,CIS,LSYM,CITHR,MLTPLT(JOB),CI,NCI,.FALSE.,LUDUM)
 end if
 

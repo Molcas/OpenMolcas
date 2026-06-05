@@ -130,7 +130,6 @@ set (sources
      prsctab.F90
      prsstab.F90
      prwf_biorth.F90
-     prwf.F90
      prwvf.F90
      rassi_aux.F90
      rassi.F90
