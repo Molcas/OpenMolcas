@@ -12,6 +12,7 @@
 set (sources
      sg_citra.F90
      sg_cxinit.F90
+     sg_d1mat.F90
      sg_epq_psi.F90
      sg_mstow.F90
      sg_pkwlk.F90
