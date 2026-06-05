@@ -44,8 +44,6 @@
 &CASPT2
   SC-NEVPT2
   MULT        = all
-  IPEA        = 0.00
-  IMAGinary   = 0.00
   DORT
   RLXRoot     = 1
 

@@ -48,7 +48,6 @@
   NEVPT2
   Mult    = all
   imag    = 0.20
-  ipea    = 0.00
   thresholds  = 1.0d-9 1.0d-07
   rlxRoot = 1
 
