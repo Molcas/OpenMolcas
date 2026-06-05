@@ -515,8 +515,6 @@ contains
 subroutine RMVERT(SGS)
 ! Purpose: Remove vertices from a DRT table.
 
-use RasDef, only: nRas, nRasEl, nRsPrt
-
 implicit none
 type(SGStruct), intent(inout) :: SGS
 integer(kind=iwp) :: IC, ID, iRO, iSy, IV, L, Lev, N, NCHANGES, NLD, NV
@@ -529,11 +527,11 @@ call mma_allocate(Lim,SGS%nLev,Label='Lim')
 Lim(:) = 0
 ! Fill in the occupation limit table:
 Lev = 0
-do iRO=1,nRsPrt
+do iRO=1,SGS%nRsPrt
   do iSy=1,SGS%nSym
-    Lev = Lev+nRas(iSy,iRO)
+    Lev = Lev+SGS%nRas(iSy,iRO)
   end do
-  if (Lev > 0) Lim(Lev) = nRasEl(iRO)
+  if (Lev > 0) Lim(Lev) = SGS%nRasEl(iRO)
 end do
 
 call mma_allocate(SGS%Ver,SGS%nVert0,Label='SGS%Ver')
