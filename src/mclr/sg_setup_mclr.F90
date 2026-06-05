@@ -15,7 +15,7 @@ use molcas, only: MxLev
 use sguga, only: MkCOT, MkSGNum, SG_Init_Simple
 use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
 use input_mclr, only: SGS, CIS, EXS
-use rasdef, only: nRas, nRasEl, nRsPrt
+use rasdef, only: nRas, nRasEl, nRsPrt, IFRAS
 use Definitions, only: iwp
 
 implicit none
@@ -43,7 +43,7 @@ do iSym=1,nSym
 end do
 
 If (nHole1+nElec3/=0) Then
-   SGS%IFRAS=1
+   IFRAS=1
    nRsPrt=3
    nRas(:,1)=nRs1(:)
    nRas(:,2)=nRs2(:)
@@ -53,12 +53,15 @@ If (nHole1+nElec3/=0) Then
    nRasEl(2)=nActel-nElec3
    nRasEl(3)=nActel
 Else
-   SGS%IFRAS=0
+   IFRAS=0
    nRsPrt=1
    nRas(:,1)=nRs2(:)
    nRasEl(1)=nActel
 End If
-
+Do ISYM=1,NSYM
+   IF (SUM(nRAS(ISYM,1:nRsPrt))/=0) IFRAS=IFRAS+1
+END DO
+SGS%IFRAS=IFRAS
 
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
