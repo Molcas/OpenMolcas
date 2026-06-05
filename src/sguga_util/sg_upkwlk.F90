@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
+subroutine SG_UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 
 use Definitions, only: iwp
 
@@ -35,4 +35,4 @@ do I=1,NWALK
   end do
 end do
 
-end subroutine UPKWLK
+end subroutine SG_UPKWLK

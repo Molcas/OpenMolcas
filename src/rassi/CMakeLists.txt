@@ -81,8 +81,6 @@ set (sources
      morssymm.F90
      morswrite.F90
      mspt2_eigenvectors.F90
-     mstow1.F90
-     mstow.F90
      mulmat.F90
      natorb_rassi.F90
      natspin_rassi.F90
@@ -104,7 +102,6 @@ set (sources
      overlap_rassi.F90
      part1.F90
      part.F90
-     pkwlk.F90
      prcevc.F90
      prcham.F90
      prcmat2.F90
@@ -172,7 +169,6 @@ set (sources
      trnsfrm.F90
      tshinit.F90
      tshop.F90
-     upkwlk.F90
      usotrans.F90
      w2sgord.F90
      wfnsizes_rassi.F90

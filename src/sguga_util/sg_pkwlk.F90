@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
+subroutine SG_PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 ! PURPOSE: PACK THE GUGA STEP NUMBERS INTO THE ARRAY IWALK.
 ! EACH OF THE NWALK WALKS HAS N STEP NUMBERS, 2 BITS EACH,
 ! AT MOST 15 TO AN INTEGER ELEMENT OF IWALK, EACH NEW WALK
@@ -42,4 +42,4 @@ do I=1,NWALK
   end do
 end do
 
-end subroutine PKWLK
+end subroutine SG_PKWLK
