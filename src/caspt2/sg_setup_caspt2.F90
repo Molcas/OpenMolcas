@@ -55,13 +55,13 @@ if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQM
 
   call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                             &
                EXS,nHole1,nEle3,nRas1,nRas2,nRas3,                    &
-               xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM,Do_RMVERT=.TRUE.)
+               xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
 
 else
 
   call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                       &
                      xLevel=Level,xL2Act=L2Act,xnLev=nLev,             &
-                     xNSM=ISM,Do_MkSGuga=.false.,Do_RMVERT=.TRUE.)
+                     xNSM=ISM,Do_MkSGuga=.false.)
   SGS%iSpin = 0
   SGS%nActEl = 0
 

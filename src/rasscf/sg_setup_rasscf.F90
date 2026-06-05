@@ -80,7 +80,7 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
       if (DBG) write(u6,*) ' Call SG_Init_Simple'
       call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                                &
                           EXS,nHole1,nElec3,nRs1,nRs2,nRs3,                         &
-                          xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM,Do_RMVERT=.TRUE.)
+                          xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
       if (SGS%NVERT0 == 0) then
          CIS%NCSF(STSYM) = 0
