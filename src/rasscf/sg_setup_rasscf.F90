@@ -18,7 +18,8 @@ use CC_CI_mod, only: Do_CC_CI
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: DoBlockDMRG, NSM
 use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
-use sguga, only: CIS, EXS, MKCOT, MKSGNUM, SG_Init_Simple, SGS
+use general_data, only: CIS, EXS, SGS
+use sguga, only: MKCOT, MKSGNUM, SG_Init_Simple
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
@@ -27,7 +28,7 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp), intent(inout) :: DBG, SkipGUGA
+logical(kind=iwp), intent(inout):: DBG,SkipGUGA
 integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
 integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, NSTA
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
@@ -40,11 +41,11 @@ do IGAS=1,NGAS
     NSM(NSTA:NLEV) = ISYM
   end do
 end do
-Level(1:MxLev) = [(iq,iq=1,MxLev)]
+Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
 ! Construct the Guga tables
 
-if (.not.(DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
+if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
   ! right now skip most part of gugactl for GAS, but only call mkism.
   if (.not. iDoGas) then
     ! DMRG calculation no need the SG_Init_RASSCF subroutine
@@ -62,29 +63,29 @@ if (.not.(DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
       call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3,xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
       if (SGS%NVERT0 == 0) then
-        CIS%NCSF(STSYM) = 0
+         CIS%NCSF(STSYM) = 0
       else
-        if (doBlockDMRG) then
-          CIS%NCSF(STSYM) = 1
+         if (doBlockDMRG) then
+            CIS%NCSF(STSYM) = 1
         else
 
-          ! FORM VARIOUS OFFSET TABLES:
-          ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
-          !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+            ! FORM VARIOUS OFFSET TABLES:
+            ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+            !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 
-          ! CONSTRUCT THE CASE LIST
+            ! CONSTRUCT THE CASE LIST
 
           call MKCOT(SGS,CIS)
 
-          ! SET UP ENUMERATION TABLES
+            ! SET UP ENUMERATION TABLES
 
-          call MKSGNUM(STSYM,SGS,CIS,EXS)
+            call MKSGNUM(STSYM,SGS,CIS,EXS)
 
-          if (NActEl == 0) CIS%NCSF(STSYM) = 1
+            if (NActEl == 0) CIS%NCSF(STSYM) = 1
 
-          ! (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
-          ! IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
-          ! SET UP THE REINDEXING TABLE
+            !     (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
+            !     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
+            !     SET UP THE REINDEXING TABLE
         end if
       end if
       call SETSXCI()

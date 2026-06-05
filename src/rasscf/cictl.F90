@@ -72,7 +72,6 @@ use rctfld_module, only: lRF
 use lucia_data, only: CFTP, DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 use wadr, only: FMO
-use sguga, only: CIS, SGS
 use sxci, only: IDXSX
 use gas_data, only: iDoGAS
 use input_ras, only: Key
@@ -82,6 +81,7 @@ use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, IC
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use general_data, only: CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
+use general_data, only: CIS, SGS
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
