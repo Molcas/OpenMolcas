@@ -12,6 +12,7 @@
 module SGUGA
 
 use Molcas, only: MxLev
+use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -35,6 +36,7 @@ type SGStruct
   integer(kind=iwp), pointer :: DRTP(:,:), DOWNP(:,:)
   integer(kind=iwp) :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
+  logical(kind=iwp) :: Do_RMVERT=.FALSE.
 end type SGStruct
 
 ! CI Structures, addresses,..
@@ -184,8 +186,6 @@ contains
   subroutine mkDRT0(SGS)
   ! PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
 
-    use Index_Functions, only: nTri_Elem1
-
     type(SGStruct), target, intent(inout) :: SGS
     integer(kind=iwp) :: ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, LEV, MXADDR, NACTEL, nTmp, STEP, VDWN, VEND, VSTA, VUP, &
                          VUPS
@@ -294,12 +294,9 @@ contains
   end subroutine mkDRT0
 
   subroutine mkRAS(SGS)
+  type(SGStruct), target, intent(inout) :: SGS
 
-    use UnixInfo, only: ProgName
-
-    type(SGStruct), target, intent(inout) :: SGS
-
-    if (ProgName(1:5) == 'rassi') then
+    if (SGS%Do_RMVERT) then
       call rmvert(SGS)
     else
       call RESTR(SGS)
@@ -723,7 +720,7 @@ end subroutine RESTR
 
 end subroutine MKSGUGA
 
-subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
+subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA,Do_RMVERT)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
@@ -731,8 +728,14 @@ subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,n
   type(EXStruct), optional, intent(inout) :: EXS
   integer(kind=iwp), optional, intent(in) :: nHole1, nEle3, nRs1(nSym), nRs2(nSym), nRs3(nSym), xLevel(MxLev), xL2Act(MxLev), &
                                              xNLEV, xNSM(MxLev)
-  logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
+  logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA, Do_RMVERT
   integer(kind=iwp) :: IS, nRas1T, nRas2T, nRas3T
+
+If (Present(Do_RMVERT)) Then
+    SGS%Do_RMVERT=Do_RMVERT
+Else
+    SGS%Do_RMVERT=.FALSE.
+End If
 
 ! Make sure that we start from a clean slate.
   if (present(EXS)) then
@@ -807,16 +810,17 @@ SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
 end subroutine SG_Init_Simple
 
-subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xNLEV,xNSM)
+subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xNLEV,xNSM,Do_RMVERT)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
   integer(kind=iwp), optional, intent(in) :: nHole1, nEle3, nRs1(nSym), nRs2(nSym), nRs3(nSym), xLevel(MxLev), xL2Act(MxLev), &
                                              xnLev, xNSM(MxLev)
+  logical(kind=iwp), optional, intent(in) :: Do_RMVERT
   type(EXStruct), optional, intent(inout) :: EXS
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xnLev,xNSM)
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nEle3,nRs1,nRs2,nRs3,xLevel,xL2Act,xnLev,xNSM,Do_RMVERT=Do_RMVERT)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
