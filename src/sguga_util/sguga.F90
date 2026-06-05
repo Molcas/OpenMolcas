@@ -22,6 +22,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
+
+integer(kind=iwp) :: iq
+
+
 ! Split-Graph descriptor, sizes, addresses...
 type SGStruct
   integer(kind=iwp) :: NSym = 0, nActEl = 0, IFRAS = 0
@@ -29,6 +33,8 @@ type SGStruct
   integer(kind=iwp), allocatable :: ISm(:), DRT(:,:), DRT0(:,:), Down(:,:), Down0(:,:), Up(:,:), Ver(:), MAW(:,:), LTV(:), &
                                     DAW(:,:), RAW(:,:), SCR(:,:)
   integer(kind=iwp), pointer :: DRTP(:,:), DOWNP(:,:)
+  integer(kind=iwp) :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
+  integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 end type SGStruct
 
 ! CI Structures, addresses,..
@@ -49,10 +55,9 @@ type(SGStruct), target :: SGS
 type(CIStruct), target :: CIS
 type(EXStruct), target :: EXS
 
-integer(kind=iwp) :: iq
+
 integer(kind=iwp), protected :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
 integer(kind=iwp), protected :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
-
 
 ! This lists nSeg different types of segments, i=1,...,nSeg
 !  1- 4: segments of the head walk from the loop head to the graph head
