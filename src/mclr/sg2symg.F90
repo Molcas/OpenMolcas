@@ -11,9 +11,10 @@
 
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
-use sguga, only: CIS, EXS, SGS, SG_Free
+use sguga, only: SG_Free
 use Str_Info, only: CFTP, CNSM
-use input_mclr, only: nConf, nCSF, nSym, State_Sym
+use input_mclr, only: nConf, nCSF, nSym, State_Sym, CIS, EXS, SGS
+
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -32,7 +33,7 @@ real(kind=wp), parameter :: PRWTHR = 0.05_wp
 call SG_Setup_MCLR(pState_Sym)
 
 NCSF(1:nSym) = CIS%NCSF(1:nSym)
-NCONF = CIS%NCSF(pState_Sym)
+NCONF        = CIS%NCSF(pState_Sym)
 
 iss = 1
 if (pState_sym /= state_sym) iss = 2
