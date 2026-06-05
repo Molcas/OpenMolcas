@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PRWF(SGS,CIS,ISYCI,CI,CITHR)
+subroutine PRWF(SGS,CIS,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
 
 use sguga, only: CIStruct, SGStruct
 use Symmetry_Info, only: MUL, nIrrep
@@ -17,17 +17,24 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-type(SGStruct), intent(in) :: SGS
-type(CIStruct), intent(in) :: CIS
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
 integer(kind=iwp), intent(in) :: ISYCI
-real(kind=wp), intent(in) :: CI(*), CITHR
+integer(kind=iwp), intent(in) :: iSpin, LuVecDet, lCI
+logical(kind=iwp), intent(in) :: KeyPRSD
+real(kind=wp), intent(in) :: CI(lCI), CITHR
 integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, ISY, ISYDWN, ISYUP, IUP, IUW0, K, KNXT, KOCLAB, &
                      KOCSZ, KPAD1, KPAD2, LEV, MV, NCI, NDWN, NNN, NUP
 real(kind=wp) :: COEF
 character(len=80) :: LINE
 integer(kind=iwp), allocatable :: ICS(:)
 logical(kind=iwp), parameter :: SGINFO = .true.
+integer(kind=iwp) :: IMS
 character, parameter :: CODE(0:3) = ['0','u','d','2']
+integer(kind=iwp), allocatable :: Lex(:)
+
+! scratch for determinant expansion
+if (KeyPRSD) call mma_allocate(LEX,SGS%nLev,Label='LEX')
 
 ! -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 ! -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
@@ -156,6 +163,14 @@ do MV=1,CIS%nMidV
         K = K+5
         write(LINE(K:K+7),'(F8.5)') COEF**2
         write(u6,*) LINE(1:K+7)
+        if (KeyPRSD) then
+          ! use maximum spin projection value
+          IMS = ISPIN-1
+          write(u6,*)
+          call EXPCSF(ICS,SGS%nLev,IMS,LEX,coef,LuVecDet)
+          write(u6,*)
+        end if
+        Line = ' '
       end do
     end do
   end do
@@ -164,5 +179,8 @@ write(u6,*)
 write(u6,*) repeat('*',80)
 
 call mma_deallocate(ICS)
+
+! free memory for determinant expansion
+if (KeyPRSD) call mma_deallocate(LEX)
 
 end subroutine PRWF
