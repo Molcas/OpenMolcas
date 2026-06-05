@@ -1247,7 +1247,7 @@ if __name__ == '__main__':
     else:
       msg(info)
 
-if opt['generate']:
-  msg('Generation of check files has been completed\n')
-else:
-  msg('Verification has been completed\n')
+  if opt['generate']:
+    msg('Generation of check files has been completed\n')
+  else:
+    msg('Verification has been completed\n')
