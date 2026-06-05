@@ -14,7 +14,6 @@
 
 Subroutine sg_d1mat(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,lD1MAT)
 
-use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use sguga, only: CIStruct, EXStruct, SGStruct
 use constants, only: Zero, One

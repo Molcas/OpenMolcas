@@ -75,8 +75,8 @@ IPRLEV = IPRLOC(3)
 ! LOOP OVER CONFIGURATIONS TYPES
 
 ICSFJP = 0
-ICNBS0 = 0
-IPBAS = 0
+ICNBS0 = 0 ! dummy initialize
+IPBAS = 0 ! dummy initialize
 do ITYP=1,NTYP
   IOPEN = ITYP+MINOP-1
   ICL = (NEL-IOPEN)/2

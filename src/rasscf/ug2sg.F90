@@ -89,35 +89,30 @@ do ITYP=1,NTYP
     do IICSF=1,NCSFTP(ITYP)
       ICSFJP = ICSFJP+1
       ICSBAS = IPBAS+(IICSF-1)*IOPEN
-      !PAM04 The following lines have been replaced....
-      ! COMPUTE STEP VECTOR
-      !call STEPVEC(ICONF(ICNBS),ICONF(ICNBS+ICL),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
-      !PAM04 ... because of new convention for representing SG config, we
-      ! need to arrange orbital indices in form used by RASSCF codes:
-      !. Obtain configuration in standard RASSCF form
+      ! Obtain configuration in standard RASSCF form
       IIBOP = 1
       IIBCL = 1
       JOCC = ICL+IOPEN
       do KOCC=0,JOCC-1
         KORB = ICONF(ICNBS+KOCC)
         if (KORB < 0) then
-          !. Doubly occupied orbitals
+          ! Doubly occupied orbitals
           KCNF(IIBCL) = abs(KORB)
           IIBCL = IIBCL+1
         else
-          !. Singly occupied orbital
+          ! Singly occupied orbital
           KCNF(ICL+IIBOP) = KORB
           IIBOP = IIBOP+1
         end if
       end do
       ! COMPUTE STEP VECTOR
       call STEPVEC(KCNF(1),KCNF(1+ICL),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
-      !PAM04 End of replacement code.
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = ISGNUM(NLEV,NVERT,SGS%MIDLEV,SGS%MVSta,NMIDV,MXUP,MXDWN,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,EXS%USGN,EXS%LSGN,IWALK)
+      ISG = ISGNUM(SGS%NLEV,SGS%NVERT,SGS%MIDLEV,SGS%MVSta,CIS%NMIDV,SGS%MXUP,SGS%MXDWN,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,EXS%USGN, &
+                   EXS%LSGN,IWALK)
 
       ! GET PHASE PHASE FACTOR
-      IP = IPHASE(NLEV,NVERT,SGS%DRT,SGS%UP,IWALK)
+      IP = IPHASE(SGS%NLEV,SGS%NVERT,SGS%DRT,SGS%UP,IWALK)
       ! UPDATE REINDEXING TABLE
       IORD(ICSFJP) = ISG*IP
     end do
@@ -156,7 +151,5 @@ if (IPRINT >= 5) then
   end do
   write(u6,*)
 end if
-
-return
 
 end subroutine UG2SG
