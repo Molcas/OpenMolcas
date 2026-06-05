@@ -698,7 +698,7 @@ subroutine print_EPR_summary()
   real(kind=wp)               :: conv, Aiso_tot
   character(len=5)            :: unit ="(MHz)"
   character(len=12)           :: undef_res
-  character(len=16)           :: string_val
+  character(len=12)           :: string_val
   integer(kind=iwp)           :: iAtom, iContr, iAxis, iCheckVal
   real(kind=wp), allocatable  :: checkfile_vals(:)
 
@@ -800,9 +800,10 @@ subroutine print_EPR_summary()
   write(u6,'(A65)')  "          without restarting by using the provided formula below:"
   write(u6,*)
 
-  write(u6,'(A52,E12.6)') "                A(MHz) = A(au) * nuclear-g-factor * ", -gElectron * beta_e * beta_n
-  write(string_val,'(F13.4)') con_to_MHz
-  write(u6,'(A60,A16)') "             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ", adjustl(string_val)
+  write(string_val,'(F12.4)') -gElectron * beta_e * beta_n * 10.0_wp**(9)
+  write(u6,'(A52,A7,A4)') "                A(MHz) = A(au) * nuclear-g-factor * ", adjustl(string_val(6:12)) ,"E-09"
+  write(string_val,'(F12.4)') con_to_MHz
+  write(u6,'(A60,A7)') "             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ", adjustl(string_val(6:12))
   write(u6,*)
   write(u6,*)
 

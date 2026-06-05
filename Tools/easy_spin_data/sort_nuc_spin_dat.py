@@ -18,12 +18,12 @@ import requests
 
 # EasySpin isotope data stored at:
 # MOLCAS_DIR/Tools/spin_data/isotopedata.txt
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-TOOLS_DIR = "/".join(SCRIPT_DIR.split("/")[:-1])
-MOLCAS_DIR = "/".join(SCRIPT_DIR.split("/")[:-2])
-DATA_DIR = MOLCAS_DIR + "/data"
-MOLCAS_SPIN_DATA_FILE = DATA_DIR + "/spin_data.src"
-EASYSPIN_DAT_FILE = SCRIPT_DIR + "/isotopedata.txt"
+SCRIPT_DIR       = os.path.dirname(os.path.abspath(__file__))
+TOOLS_DIR        = "/".join(SCRIPT_DIR.split("/")[:-1])
+MOLCAS_DIR       = "/".join(SCRIPT_DIR.split("/")[:-2])
+DATA_DIR         = MOLCAS_DIR + "/data"
+MOLCAS_SPIN_DATA = DATA_DIR + "/spin_data.src"
+EASYSPIN_DATA    = SCRIPT_DIR + "/isotopedata.txt"
 
 print("------------")
 print("Tools dir  : ", TOOLS_DIR)
@@ -41,29 +41,28 @@ GITHUB_URL = (
 def ensure_isotopedata():
     """Download/refresh isotopedata.txt from GitHub."""
     # If file does not exist, or you always want the latest, download it
-    if not os.path.exists(EASYSPIN_DAT_FILE):
+    if not os.path.exists(EASYSPIN_DATA):
         print("File not found, downloading...")
         download_file()
     else:
-        print("File already exists, not downloading. ", EASYSPIN_DAT_FILE)
-        print(
-            "If you want to update EasySpin database, simply delete isotopedata.txt file then re-run."
-        )
+        print("File already exists, not downloading. ", EASYSPIN_DATA)
+        print("If you want to update EasySpin database, simply delete isotopedata.txt file then re-run.")
+        print("Please check the data carefully (format, g-factor or magnetic moment, units,...) before generating a new database.")
 
 
 def download_file():
     resp = requests.get(GITHUB_URL, timeout=30)
     resp.raise_for_status()  # raise error if download failed
-    with open(EASYSPIN_DAT_FILE, "wb") as f:
+    with open(EASYSPIN_DATA, "wb") as f:
         f.write(resp.content)
-    print(f"Saved latest file to {EASYSPIN_DAT_FILE}")
+    print(f"Saved latest file to {EASYSPIN_DATA}")
 
 
 ensure_isotopedata()
 
 isotopes = []
 
-with open(EASYSPIN_DAT_FILE, "r") as isotopedatatxt:
+with open(EASYSPIN_DATA, "r") as isotopedatatxt:
     line = isotopedatatxt.readline()
     while line:
         if line.startswith("%"):
@@ -80,7 +79,7 @@ with open(EASYSPIN_DAT_FILE, "r") as isotopedatatxt:
             magnetic_moment = float(columns[6])
             # Note: magnetic_moment = gfactor * spin
             # In case magnetic_moment = 0, spin is also zero
-            # The assignment gfactor = magnetic_moment is made to prevent unbound values
+            # The assignment gfactor = magnetic_moment is made to prevent dividing by zero.
             gfactor = magnetic_moment
             if spin != 0.0:
                 gfactor = gfactor / spin
@@ -134,7 +133,7 @@ print("Number of Elements: ", num_elements)
 print("Number of Isotopes: ", numb_isotopes)
 
 
-with open(MOLCAS_SPIN_DATA_FILE, "w") as spin_dat_file:
+with open(MOLCAS_SPIN_DATA, "w") as spin_dat_file:
     spin_dat_file.write("""!***********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
@@ -151,19 +150,20 @@ with open(MOLCAS_SPIN_DATA_FILE, "w") as spin_dat_file:
 ! Copyright (c) 2026                                                   *
 ! Licensed under the MIT License.                                      *
 ! Please see the file readme_easyspin_license.md in the                *
-! Tools/create_easy_spin_data directory for licence details.           *
+! Tools/spin_data directory for licence details.                       *
 !***********************************************************************
 
 
-! HEADER FORMAT---------------------------------------------
+! HEADER FORMAT---------------------------------------------------------
 !
 !>>> Element ___ Z: ___ Isotope Record: ___ - ___ TOTAL: ___
 !           13-15  20-22               40-42 46-48     57-59
+!
 !Rec   AtNumb   MassNumb      Abundance   NucSpin    Nuc-Gfactor   Stable
 !1-4     8-13      17-24          28-39     43-49          54-64    71-73
 !
 ! Note: stable -, radioactive *
-!----------------------------------------------HEADER FORMAT
+!-----------------------------------------------------------HEADER FORMAT
 \n\n\n
 """)
 
@@ -196,7 +196,7 @@ with open(MOLCAS_SPIN_DATA_FILE, "w") as spin_dat_file:
             )
 
 print("This tool has created the file spin_dat.src at:")
-print(MOLCAS_SPIN_DATA_FILE)
+print(MOLCAS_SPIN_DATA)
 print()
 print()
 print(
