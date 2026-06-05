@@ -612,13 +612,17 @@ class SimpleEval(object):  # pylint: disable=too-few-public-methods
             warnings.simplefilter("ignore")
             # py3.12 deprecated ast.Num, ast.Str, ast.NameConstant
             # https://docs.python.org/3.12/whatsnew/3.12.html#deprecated
-            if Num := getattr(ast, "Num", None):
+            # OpenMolcas: changed "if x := y:" to "x = y ; if x:" for the sake of Python < 3.8
+            Num = getattr(ast, "Num", None)
+            if Num:
                 self.nodes[Num] = self._eval_num
 
-            if Str := getattr(ast, "Str", None):
+            Str = getattr(ast, "Str", None)
+            if Str:
                 self.nodes[Str] = self._eval_str
 
-            if NameConstant := getattr(ast, "NameConstant", None):
+            NameConstant = getattr(ast, "NameConstant", None)
+            if NameConstant:
                 self.nodes[NameConstant] = self._eval_constant
 
         # Defaults:
