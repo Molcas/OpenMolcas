@@ -17,14 +17,14 @@
 ! Note: The hyperfine code is based on the analogous
 ! pre-existing G-tensor functionality
 !
-module hyperfine
+module hfcop
 #ifdef _HDF5_
   use mh5,         only: mh5_put_dset
   use RASSIWfn,    only: wfn_h_hfc_rms
 #endif
   use Molcas,      only: LenIn
   use Definitions, only: iwp, wp, u6
-  use Constants,   only: Zero, Half, One, Two, Three, Twelve,                              &
+  use Constants,   only: Zero, Half, One, Two, Three, Twelve, proton_mass_in_au, &
                          auTocm, c_in_au, gElectron, auToHz, kBoltzmann, auTokJ
   use stdalloc,    only: mma_allocate, mma_deallocate
   use spin_data,   only: init_spin_data, free_spin_data, GNUC_NUCSPIN_by_nucmass,          &
@@ -45,9 +45,8 @@ module hyperfine
   real(kind=wp), allocatable      :: ESO(:)
 
   ! Conversion factors
-  real(kind=wp), parameter :: e_proton_mass_ratio = 1836.152673426_wp,                         & !CODATA 2022
-                              beta_e = One/(Two*c_in_au), TwoThird = Two/Three,                &
-                              beta_n = beta_e/e_proton_mass_ratio,                             &
+  real(kind=wp), parameter :: beta_e = One/(Two*c_in_au), TwoThird = Two/Three,                &
+                              beta_n = beta_e/proton_mass_in_au,                             &
                               con_to_MHz = -gElectron*beta_e*beta_n*auToHz*1.0e-6_wp,          &
                               alpha2 = One/(c_in_au * c_in_au),                                &
                               to_ppm = 1.0e6_wp * auTocm * alpha2,                             &
@@ -93,14 +92,14 @@ module hyperfine
   logical(kind=iwp)                  :: do_calc, do_EPR, do_pNMR
 
 
-  public :: HFCOP
+  public :: Hyperfine_Oper
 
 !----------------------------------------------------------------------
   Contains
 
 
 
-  subroutine HFCOP(PROP,USOR,USOI,JBNUM)
+  subroutine Hyperfine_Oper(PROP,USOR,USOI,JBNUM)
     integer(kind=iwp), intent(in)   ::  JBNUM(NSTATE)
     real(kind=wp), intent(in)       ::  PROP(NSTATE,NSTATE,NPROP), USOR(:,:), USOI(:,:)
 
@@ -131,7 +130,7 @@ module hyperfine
 
     call cleanup_hfcop()
 
-    end subroutine HFCOP
+    end subroutine Hyperfine_Oper
 !======================================================================
 
 
@@ -183,7 +182,7 @@ module hyperfine
     LAtNumb(:) = nint(rtemp(:))
     call mma_deallocate(rtemp)
 
-! GET: Eenergy of SO states (ESO)
+! GET: Energy of SO states (ESO)
     call mma_allocate(ESO,NSS, Label='ESO')
     call get_dArray('ESO_SINGLE',ESO,NSS)
 
@@ -242,7 +241,7 @@ module hyperfine
     call print_isotope_info()
   endif
 
-! GET: Coupled states used to calculate A_tensor
+! GET: Coupled states used to calculate A_tensors and/or pNMR tensors
     ETHR_in_cm = DEGEN_ETHR * auTocm
     if(allocated(Atens_Req) .or. allocated(pNMR_req)) call proc_coupl_states()
 
@@ -255,14 +254,14 @@ module hyperfine
     real(kind=wp), intent(in)   :: PROP(NSTATE,NSTATE,NPROP)
 
     real(kind=wp)               :: dlt_T, Zstat, dlt_E
-    real(kind=wp),parameter     :: pBoltz_cutoff = 10.0_wp **(-100), dltE_cutoff = 10.0_wp ** (-6)
+    real(kind=wp),parameter     :: pBoltz_cutoff = 1.0e-100_wp, dltE_cutoff = 1.0e-6_wp
     integer(kind=iwp)           :: iT, ISS, JSS, lmb
 
 
     call mma_allocate(Curie_ChemShift, NPNMR_Calc, 4, NTP, Label="Curie_ChemShift")
     call mma_allocate(LinRes_ChemShift, NPNMR_Calc, 4, NTP, Label="LinRes_ChemShift")
 
-! Initialized temperature grid
+! Initialize temperature grid
     call mma_allocate(Temp_in_K,NTP, Label="Temp_in_K")
     dlt_T=(TMAXP-TMINP)/(real(NTP-1 ,kind=wp))
     if(TMINP == Zero) then
@@ -276,7 +275,7 @@ module hyperfine
     enddo
     Temp_in_K(NTP)=TMAXP
 
-! Initialized Boltzmann factors
+! Initialize Boltzmann factors
     call mma_allocate(pBoltz,NTP,NSS, Label="p_Boltz")
     do iT=1,NTP
       pBoltz(iT,:) = exp(-ESO(:)/kBoltzman_in_cm/Temp_in_K(iT))
@@ -308,8 +307,10 @@ module hyperfine
     call mma_allocate(Z_HFC_over_dE,3,3 ,NSS,NSS, Label="Z_HFC_over_dE" )
     call mma_allocate(Z_HFC_int_oper,3,3,NSS,NSS, Label="Z_HFC_int_oper")
 
-    ! This is only needed for pNMR calculations to include excited states. For EPR (A_tensor), we only take
-    ! degenerate ground states. Therefore, it does not appear in setup_hfc_calc subroutine
+    ! GROUPING DEGENERETATE STATES--------------------------------------
+    ! This is only needed for pNMR calculations (to include degenereate excited states).
+    ! For EPR (A_tensor), we only take degenerate ground states.
+    ! Therefore, it does not appear in setup_hfc_calc subroutine
     call mma_allocate(degen_group,NSS, Label="degen_group")
     n_uniq_ener = size(degen_start_idx)
     do lmb = 1, n_uniq_ener
@@ -337,7 +338,7 @@ module hyperfine
     call mma_allocate(ASD,6,NSS,NSS,Label="ASD")
     do ISS = 1, NSS
       iState = MAPST(ISS)
-      do JSS = 1,NSS
+      do JSS = ISS,NSS
         jState = MAPST(JSS)
         ASD(:,ISS,JSS) = PROP(iState,jState,idx(:))
         ASD(:,JSS,ISS) = ASD(:,ISS,JSS)
@@ -445,13 +446,13 @@ module hyperfine
       write(u6,'(11X,A31,I0)') 'USE: NMASs [RASSI input]   A = ', NucMass(iAtom)
       call GNUC_NUCSPIN_by_nucmass(LAtNumb(iAtom), NucMass(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
     case(3)
-      write(u6,'(11X,A31,F6.2)') 'USE: NSPIn [RASSI input]   I = ', NucSpin(iAtom)
+      write(u6,'(11X,A31,F3.1)') 'USE: NSPIn [RASSI input]   I = ', NucSpin(iAtom)
       call GNUC_by_nucspin(LAtNumb(iAtom),NucMass(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
     case(4)
       write(u6,'(11X,A37,F12.8)') 'USE: GNUC [RASSI input]   g-factor = ', GNuc(iAtom)
       call NUCSPIN_by_gnuc(LAtNumb(iAtom),NucMass(iAtom), GNuc(iAtom), NucSpin(iAtom),LStability(iAtom))
     case(5)
-      write(u6,'(11X,A28,F12.8)') 'USE: Most abundance non-zero'
+      write(u6,'(11X,A37)') 'USE: Most abundance non-zero g-factor'
       call get_first_nonzero_GNUC(LAtNumb(iAtom),NucMass(iAtom),GNuc(iAtom),NucSpin(iAtom),LStability(iAtom))
     end select
 
@@ -467,9 +468,9 @@ module hyperfine
 !PURPOSE: To find g-factor and NucSpin for given atoms in EZSpin database.
 
 ! Case 1: Use SEWARD, GATEWAY mass  --> get g-factor and NucSpin
-! Case 2: Use ISOMAss [RASSI] --> get g-factor and NucSpin
-! Case 3: Use NucSpin [RASSI] --> get g-factor
-! Case 4: Use GNUC    [RASSI] --> get NucSpin
+! Case 2: Use Nuclear mass     [NMASs, RASSI] --> get g-factor and NucSpin
+! Case 3: Use Nuclear spin     [NSPIn, RASSI] --> get g-factor
+! Case 4: Use Nuclear g-factor [GNUC, RASSI] --> get NucSpin
 ! Case 5: Use Most abundant non-zero g-factor (useful for EPR-HFCC)
 
 ! Note: NucSpin and mass number (integer) has higher priority [IF-ELSE] than g-factor (the last case).
@@ -507,19 +508,19 @@ module hyperfine
 
 
 
-! DEFAULT SETTINGS (if users do NOT specify anything : ISOMass, NucSpin or GNUC in RASSI input)
+! DEFAULT SETTINGS (if users do NOT specify anything : NMASs, NSPIn or GNUC in RASSI input)
 !------------------
-!       1. HFCOperator --> CASE 1 use SEWARD mass to get g-factor and NucSpin
+!       1. HFCOperator --> CASE 1 use SEWARD mass
 !                      REASON: to be consistent with molecular dynamics simulations where mass affects the forces on nuclei.
-!       2. HFCAtoms    --> CASE 5 use most abundant non-zero g-factor to get g-factor and NucSpin
+!       2. HFCAtoms    --> CASE 5 use most abundant non-zero g-factor
 !                      REASON: Users want to compute EPR parameters without looking up the isotopic information.
 !                              This is convienient because the code also print out the conversion factor.
     use_seward_mass = .false.
     ! Setting DEFAULT case based on user input
     if (HypF_rms_Req) then
-      if(.not. (AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
+      if(.not.(AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
     else if (allocated(Atens_Req)) then
-      if(.not. (AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) AutoSelect_GFac   = .true.
+      if(.not.(AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) AutoSelect_GFac = .true.
     endif
 
     if (use_seward_mass)  case = 1
@@ -836,10 +837,10 @@ end subroutine
     real(kind=wp)       :: degen, min_energy
     integer(kind=iwp)   :: ISS
 ! PRIORITY of KEYWORDS
-! NCOUP  >  COUPL  > EPRA
+! NCOU  >  COUPL  > DETH
 
 ! Note (1): Users might run both HFC and NMR. The results should be consistent, therefore,
-! both of calculations should couple states by energy threshold. In the otherhand, NCOUPLED or COUPLEDstates
+! both of calculations should couple states by energy threshold. In the otherhand, NCOUP or COUP
 ! keywords give users the freedom to choose states for EPR calculations.
 
     call get_degen_states(1)
@@ -1325,8 +1326,8 @@ subroutine calc_pNMR_Tensor(iAtom,h_HFC,iContr)
 ! REF: DOI: 10.1021/acs.jctc.6b00462   [eq. 1]
 ! lmb                 : "lambda" is the group of all degenerate states.
 ! lmb_a & lmb_ap      : states between lmb_a - lmb_ap are degenerate
-! Z_HFC_interaction   : <i |h_Zeeman| j> <j |h_HFC| i>
-! Z_HFC_over_dE       : Z_HFC_interaction / delta_E(ij)
+! Z_HFC_int_oper      : <i |h_Zeeman| j> <j |h_HFC| i>
+! Z_HFC_over_dE       : Z_HFC_int_oper / delta_E(ij)
 ! LR_tens             : Linear Response tensor [first term,  eq 1]
 ! C_tens              : Curie tensor           [second term, eq 1]
 ! iContr              : Contribution: FC = 1
