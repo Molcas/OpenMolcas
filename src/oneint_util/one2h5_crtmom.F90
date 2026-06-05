@@ -19,6 +19,7 @@ subroutine one2h5_crtmom(fileid,nSym,nBas)
 ! FP: also include the origins used for the operators
 !
 ! Datasets:
+!   ANGMOM_X, ANGMOM_Y, ANGMOM_Z
 !   MLTPL_X, MLTPL_Y, MLTPL_Z
 !   MLTPL_XX, MLTPL_YY, MLTPL_ZZ, MLTPL_XY, MLTPL_YZ, MLTPL_XZ
 !   MLTPL_ORIG
@@ -36,7 +37,7 @@ integer(kind=iwp) :: dsetid, i, iBas, iCmp, iComp, iOff, iOpt, iRc, iScrOff, iSy
                      nbast
 real(kind=wp) :: mp_orig(3,3)
 character(len=8) :: Label
-real(kind=wp), allocatable :: MLTPL(:,:), Scratch(:)
+real(kind=wp), allocatable :: ANGMOM(:,:), MLTPL(:,:), Scratch(:)
 character(len=*), parameter :: mltpl1_comp(3) = ['X','Y','Z'], mltpl2_comp(6) = ['XX','XY','XZ','YY','YZ','ZZ']
 
 nbast = 0
@@ -103,6 +104,63 @@ do icomp=1,3
   call mh5_close_dset(dsetid)
 end do
 
+call mma_allocate(ANGMOM,NBAST,NBAST)
+
+do icomp=1,3
+  iCmp = iComp
+  ANGMOM = Zero
+  iRc = -1
+  iOpt = ibset(0,sNoNuc)
+  iSyMsk = 0
+  Label = 'AngMom  '
+  call RdOne(iRc,iOpt,Label,iCmp,Scratch,iSyMsk)
+  ! iSyMsk tells us which symmetry combination is valid
+  iScrOff = 0
+  iOff = 0
+  do iSym=1,nSym
+    jOff = 0
+    nB1 = nBas(iSym)
+    do jSym=1,iSym
+      mSym = Mul(iSym,jSym)
+      nB2 = nBas(jSym)
+      if (btest(iSyMsk,mSym-1)) then
+        if (iSym == jSym) then
+          do j=1,nB2
+            jBas = jOff+j
+            do i=1,j
+              iBas = iOff+i
+              ANGMOM(iBas,jBas) = Scratch(1+iScrOff)
+              iScrOff = iScrOff+1
+            end do
+          end do
+        else
+          do j=1,nB2
+            jBas = jOff+j
+            do i=1,nB1
+              iBas = iOff+i
+              ANGMOM(jBas,iBas) = Scratch(1+iScrOff)
+              iScrOff = iScrOff+1
+            end do
+          end do
+        end if
+      end if
+      jOff = jOff+nB2
+    end do
+    iOff = iOff+nB1
+  end do
+  do j=1,nBasT
+    do i=1,j-1
+      ANGMOM(j,i) = ANGMOM(i,j)
+    end do
+  end do
+  ! reuse the rank 1 cartesian multipole components
+  dsetid = mh5_create_dset_real(fileid,'AO_ANGMOM_'//mltpl1_comp(icomp),2,[NBAST,NBAST])
+  call mh5_init_attr(dsetid,'DESCRIPTION', &
+                     'Atomic orbital angular momentum, arranged as matrix of size [NBAST,NBAST]')
+  call mh5_put_dset(dsetid,ANGMOM)
+  call mh5_close_dset(dsetid)
+end do
+
 mp_orig(1:3,2) = Scratch(iScrOff+1:iScrOff+3)
 
 do icomp=1,6
@@ -161,6 +219,7 @@ end do
 
 mp_orig(1:3,3) = Scratch(iScrOff+1:iScrOff+3)
 
+call mma_deallocate(ANGMOM)
 call mma_deallocate(MLTPL)
 call mma_deallocate(Scratch)
 
