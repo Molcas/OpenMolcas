@@ -15,7 +15,7 @@ use Molcas, only: MxLev
 use sguga, only: CIStruct, SG_Init, SGStruct
 use rassi_aux, only: Level
 use rassi_data, only: NASH
-!use rasdef, only: nRas, nRasEl, nRsPrt
+use rasdef, only: nRas, nRsPrt, IfRAS
 use Definitions, only: iwp
 
 implicit none
@@ -32,6 +32,13 @@ do ISYM=1,NSYM
     ISM(ILEV) = ISYM
   end do
 end do
+
+IFRAS=SGS%IFRAS
+Do ISYM=1,NSYM
+   If (Sum(nRAS(ISYM,1:nRsPrt))/=0) IFRAS=IFRAS+1
+End Do
+
+SGS%IFRAS=IFRAS
 
 L2Act(1:MxLev) = [(iq,iq=1,MxLev)]
 
