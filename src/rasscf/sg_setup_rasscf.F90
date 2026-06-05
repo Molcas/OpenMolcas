@@ -25,12 +25,13 @@ use rasscf_global, only: DoDMRG
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate
 #endif
+use rasdef, only: nRas,nRasEl,nRsPrt
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(inout):: DBG,SkipGUGA
 integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
-integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, NSTA
+integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, NSTA, nRs1T
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
 
 NLEV = 0
@@ -42,6 +43,23 @@ do IGAS=1,NGAS
   end do
 end do
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
+
+If (nHole1+nElec3/=0) Then
+   SGS%IFRAS=1
+   nRsPrt=3
+   nRas(:,1)=nRs1(:)
+   nRas(:,2)=nRs2(:)
+   nRas(:,3)=nRs3(:)
+   nRs1T=Sum(nRs1(1:nSym))
+   nRasEl(1)=2*nRs1T-nHole1
+   nRasEl(2)=nActel-nElec3
+   nRasEl(3)=nActel
+Else
+   SGS%IFRAS=0
+   nRsPrt=1
+   nRas(:,1)=nRs2(:)
+   nRasEl(1)=nActel
+End If
 
 ! Construct the Guga tables
 
@@ -60,7 +78,9 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call SG_Init_Simple'
-      call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3,xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
+      call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                                &
+                          EXS,nHole1,nElec3,nRs1,nRs2,nRs3,                         &
+                          xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM,Do_RMVERT=.TRUE.)
 
       if (SGS%NVERT0 == 0) then
          CIS%NCSF(STSYM) = 0
