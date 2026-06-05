@@ -37,15 +37,9 @@ integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ICONF
 integer(kind=iwp), intent(out) :: IORD(NCONF), JCJ(MXROOTS,MxRef)
 real(kind=wp), intent(inout) :: CCI(MXROOTS,MxRef)
 integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ISGNUM, ITYP, &
-                     IWALK(mxAct), JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT, MxDwn, MxUp, nLev, nMidV, nVert
+                     IWALK(mxAct), JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT
 real(kind=wp) :: PHASE
 integer(kind=iwp), external :: IPHASE
-
-nLev = SGS%nLev
-nVert = SGS%nVert
-nMidV = CIS%nMidV
-MxUp = SGS%MxUp
-MxDwn = SGS%MxDwn
 
 ! JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 ! NUMBERS IN THE SYMMETRIC GROUP NUMBERING
