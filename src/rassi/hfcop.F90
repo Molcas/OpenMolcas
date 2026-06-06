@@ -801,7 +801,7 @@ subroutine print_EPR_summary()
   write(u6,'(A65)')  "          without restarting by using the provided formula below:"
   write(u6,*)
 
-  write(string_val,'(F12.4)') -gElectron * beta_e * beta_n * 10.0_wp**(9)
+  write(string_val,'(F12.4)') -gElectron * beta_e * beta_n * 1.0e9_wp
   write(u6,'(A52,A7,A4)') "                A(MHz) = A(au) * nuclear-g-factor * ", adjustl(string_val(6:12)) ,"E-09"
   write(string_val,'(F12.4)') con_to_MHz
   write(u6,'(A60,A7)') "             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ", adjustl(string_val(6:12))
