@@ -86,6 +86,9 @@ integer(kind=iwp), parameter :: IBVPT(nSeg) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 
                                 ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1],&
                                 ITVPT(nSeg) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3]
 
+! index for DRT
+integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
+
 public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGS, SGStruct
 
@@ -103,7 +106,6 @@ subroutine MKSGUGA(SGS,CIS)
 
   type(SGStruct), target, intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
-  integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
   ! COMPUTE TOP ROW OF THE GUGA TABLE
 
   call mknVert0(SGS)
@@ -130,7 +132,7 @@ subroutine MKSGUGA(SGS,CIS)
   ! VERTICES WHICH VIOLATE THE FORMER.
 
   if (SGS%IFRAS /= 0) then
-    call rmVert(SGS)
+    call RmVert(SGS)
 
     ! REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
 
@@ -191,8 +193,8 @@ contains
 
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, LEV, NACTEL, ISTEP, VDWN, VEND, VSTA, VUP, VUPS, VNEW
-    integer(kind=iwp), parameter :: DA(0:3) = [0,0,1,1], DB(0:3) = [0,1,-1,0], DC(0:3) = [1,0,1,0]
+    integer(kind=iwp) :: ADDR, ADWN, AUP, BDWN, BUP, CDWN, CUP, DWN, LEV, NACTEL, ISTEP, VDWN, VEND, VSTA, VUP, VUPS, VNEW
+    integer(kind=iwp), parameter:: Steps(4,0:3)=Reshape([0,0,1,0, 0,1,0,1, 1,-1,1,1, 1,0,0,2],[4,4])
 #   ifdef _DEBUGPRINT_
     integer(kind=iwp) :: VERT
 #   endif
@@ -248,15 +250,14 @@ contains
 STEP:   do ISTEP=0,3    ! loop over the step vectors
 
           ! Check that this node can be reached by this step
-          ADWN = AUP-DA(ISTEP)
+          ADWN = AUP-STEPS(1,ISTEP)
           if (ADWN < 0) cycle
-          BDWN = BUP-DB(ISTEP)
+          BDWN = BUP-STEPS(2,ISTEP)
           if (BDWN < 0) cycle
-          CDWN = CUP-DC(ISTEP)
+          CDWN = CUP-STEPS(3,ISTEP)
           if (CDWN < 0) cycle
-          BC = BDWN+CDWN
 
-          ! Check if this is a new vertex, compare with the new vertices accumulated so far...
+          ! Check if this is a new vertex, compare with the new vertices accumulated so far for the level below ...
           DO VDWN = VEND+1, VEND+VNEW
              IF (ADWN==SGS%DRTP(VDWN,ATAB) .AND. BDWN==SGS%DRTP(VDWN,BTAB) .AND. CDWN==SGS%DRTP(VDWN,CTAB)) THEN
                 SGS%DownP(VUP,ISTEP)=VDWN
@@ -518,7 +519,6 @@ type(SGStruct), intent(inout) :: SGS
 integer(kind=iwp) :: IC, ID, iRO, iSy, IV, L, Lev, N, NCHANGES, NLD, NV
 logical(kind=iwp) :: Test
 integer(kind=iwp), allocatable :: CONN(:), Lim(:)
-integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2
 
 ! Construct a restricted graph.
 call mma_allocate(Lim,SGS%nLev,Label='Lim')
@@ -1196,7 +1196,6 @@ integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS
                      MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
                      NUPS1, NUW
 integer(kind=iwp), allocatable :: NRL(:,:,:)
-integer(kind=iwp), parameter :: LTAB = 1
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IS, IST, NCP
 #endif
