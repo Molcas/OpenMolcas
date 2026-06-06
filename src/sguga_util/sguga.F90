@@ -178,6 +178,9 @@ contains
       write(u6,*) ' diagnosed earlier. Please submit a bug report.'
       call Abend()
     end if
+
+!   See Eqs. (2) of 10.1002/jcc.26080
+
     IAC = min(SGS%IA0,SGS%IC0)
     SGS%nVert0 = ((SGS%IA0+1)*(SGS%IC0+1)*(2*SGS%IB0+IAC+2))/2-(IAC*(IAC+1)*(IAC+2))/6
 
@@ -186,96 +189,94 @@ contains
   subroutine mkDRT0(SGS)
   ! PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
 
+
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, LEV, MXADDR, NACTEL, nTmp, STEP, VDWN, VEND, VSTA, VUP, &
-                         VUPS
-    integer(kind=iwp), allocatable :: TMP(:)
+    integer(kind=iwp) :: ADDR, ADWN, AUP, BC, BDWN, BUP, CDWN, CUP, DWN, LEV, NACTEL, ISTEP, VDWN, VEND, VSTA, VUP, VUPS, VNEW
     integer(kind=iwp), parameter :: DA(0:3) = [0,0,1,1], DB(0:3) = [0,1,-1,0], DC(0:3) = [1,0,1,0]
 #   ifdef _DEBUGPRINT_
     integer(kind=iwp) :: VERT
 #   endif
 
-    NTMP = nTri_Elem1(SGS%nLev+1)
-    call mma_allocate(TMP,NTMP,Label='TMP')
+    SGS%DRTP(:,:)=0
+    SGS%DownP(:,:) = 0  ! Initiate step as void
+    NACTEL = 2*SGS%IA0+SGS%IB0
+    SGS%nLev = SGS%IA0+SGS%IB0+SGS%IC0  ! Number of levels
+
+    ! EACH ROW IN THE DESTINCT ROW TABLE (DRT) CORRESPONDS TO A VERTEX IN THE SHAVITT GRAPH
+    ! Each row corresponds to five pretabulated values, which depend of the final spin of
+    ! the CSFSsi (S), the total number of electrons(N_n), and the total number of levels -- active orbitals -- (n_n)
+
+    ! a_n + b_n + c_n = n_n
+    ! N_n=2a_n + b_n, or a_n = N_n/2 - S
+    ! b_n = 2S
 
     ! SET UP TOP ROW
 
-    NACTEL = 2*SGS%IA0+SGS%IB0
-    SGS%nLev = SGS%IA0+SGS%IB0+SGS%IC0
-    SGS%DRTP(1,LTAB) = SGS%nLev
-    SGS%DRTP(1,NTAB) = NACTEL
-    SGS%DRTP(1,ATAB) = SGS%IA0
-    SGS%DRTP(1,BTAB) = SGS%IB0
-    SGS%DRTP(1,CTAB) = SGS%IC0
-    VSTA = 1
+    SGS%DRTP(1,LTAB) = SGS%nLev   ! Level index, n_n
+    SGS%DRTP(1,NTAB) = NACTEL     ! Number of electrons, N_n
+    SGS%DRTP(1,ATAB) = SGS%IA0    ! a_n
+    SGS%DRTP(1,BTAB) = SGS%IB0    ! b_n
+    SGS%DRTP(1,CTAB) = SGS%IC0    ! c_n
+
+    VSTA = 1   ! On the top level we have only one node.
     VEND = 1
+
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'A0,B0,C0,NVERT=',SGS%IA0,SGS%IB0,SGS%IC0,SGS%nVert
 #   endif
 
-    ! LOOP OVER ALL LEVELS
+    ! LOOP OVER ALL LEVELS, TOP-DOWN
 
-    do LEV=SGS%nLev,1,-1
-      MXADDR = ((LEV+1)*(LEV+2))/2
-      TMP(1:MXADDR) = 0
+    do LEV=SGS%nLev,1,-1               ! Loop over all levels
 
-      ! LOOP OVER VERTICES
+      ! LOOP OVER VERTICES AT LEVEL LEV
 
+      VNEW=0
       do VUP=VSTA,VEND
+        ! Pick up the a, b, and c values of this node
         AUP = SGS%DRTP(VUP,ATAB)
         BUP = SGS%DRTP(VUP,BTAB)
         CUP = SGS%DRTP(VUP,CTAB)
 
-        ! LOOP OVER CASES
+        ! LOOP OVER CASES (STEP VECTORS)
         ! AND STORE ONLY VALID CASE NUMBERS WITH ADDRESSES
 
-        do STEP=0,3
-          SGS%DownP(VUP,STEP) = 0
-          ADWN = AUP-DA(STEP)
+        ! 0 <= a_k <= a_n
+        ! 0 <= c_k <= c_n
+        ! 0 <= b_k <= b_n + Min(a_n-a_k,c_n-c_k)
+
+STEP:   do ISTEP=0,3    ! loop over the step vectors
+
+          ! Check that this node can be reached by this step
+          ADWN = AUP-DA(ISTEP)
           if (ADWN < 0) cycle
-          BDWN = BUP-DB(STEP)
+          BDWN = BUP-DB(ISTEP)
           if (BDWN < 0) cycle
-          CDWN = CUP-DC(STEP)
+          CDWN = CUP-DC(ISTEP)
           if (CDWN < 0) cycle
           BC = BDWN+CDWN
-          ADDR = 1+(BC*(BC+1))/2+CDWN
-          TMP(ADDR) = 4*VUP+STEP
-          SGS%DownP(VUP,STEP) = ADDR
-        end do
+
+          ! Check if this is a new vertex, compare with the new vertices accumulated so far...
+          DO VDWN = VEND+1, VEND+VNEW
+             IF (ADWN==SGS%DRTP(VDWN,ATAB) .AND. BDWN==SGS%DRTP(VDWN,BTAB) .AND. CDWN==SGS%DRTP(VDWN,CTAB)) THEN
+                SGS%DownP(VUP,ISTEP)=VDWN
+                CYCLE STEP
+             END IF
+          END DO
+
+          VNEW=VNEW+1
+          SGS%DownP(VUP,ISTEP)=VEND+VNEW
+          SGS%DRTP(VEND+VNEW,ATAB)=ADWN
+          SGS%DRTP(VEND+VNEW,BTAB)=BDWN
+          SGS%DRTP(VEND+VNEW,CTAB)=CDWN
+        end do STEP
+
       end do
-      VDWN = VEND
+      VSTA=VEND+1
+      VEND=VEND+VNEW
 
-      ! NOW INSERT VALID CASES INTO DRT TABLE
-
-      do ADDR=1,MXADDR
-        VUPS = TMP(ADDR)
-        if (VUPS == 0) cycle
-        VUP = VUPS/4
-        STEP = mod(VUPS,4)
-        VDWN = VDWN+1
-        SGS%DRTP(VDWN,ATAB) = SGS%DRTP(VUP,ATAB)-DA(STEP)
-        SGS%DRTP(VDWN,BTAB) = SGS%DRTP(VUP,BTAB)-DB(STEP)
-        SGS%DRTP(VDWN,CTAB) = SGS%DRTP(VUP,CTAB)-DC(STEP)
-        TMP(ADDR) = VDWN
-      end do
-
-      ! CREATE DOWN CHAIN TABLE
-
-      do VUP=VSTA,VEND
-        do STEP=0,3
-          DWN = SGS%DownP(VUP,STEP)
-          if (DWN /= 0) SGS%DownP(VUP,STEP) = TMP(DWN)
-        end do
-      end do
-      VSTA = VEND+1
-      VEND = VDWN
     end do
     ! End of loop over levels.
-
-    ! ADDING THE ZERO LEVEL TO DRT AND DOWNCHAIN TABLE
-
-    SGS%DRTP(VEND,1:5) = 0
-    SGS%DownP(VEND,0:3) = 0
 
     ! COMPLETE DRT TABLE BY ADDING NO. OF ORBITALS AND ELECTRONS
     ! INTO THE FIRST AND SECOND COLUMN
@@ -289,10 +290,7 @@ contains
     end do
 #   endif
 
-    call mma_deallocate(TMP)
-
   end subroutine mkDRT0
-
   subroutine mkDRT(SGS)
   ! PURPOSE: USING THE UNRESTRICTED DRT TABLE GENERATED BY DRT0 AND
   !          THE MASKING ARRAY PRODUCED BY RESTR COPY ALL VALID
