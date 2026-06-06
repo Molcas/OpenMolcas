@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine DERE4x(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
+subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
 
   use BDerNEV, only: Gact, Gder
   use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
@@ -390,4 +390,4 @@ subroutine DERE4x(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
 
   return
 
-end subroutine DERE4x
+end subroutine DERE4

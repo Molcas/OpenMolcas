@@ -156,7 +156,7 @@ subroutine BDerNEV_E4(NCONF,NLEV,CLag)
     NBA=(NASA*(NASA+1))/2
     NBC=(NASC*(NASC+1))/2
     if (NBA <= 0 .and. NBC <= 0) cycle
-    call DERE4x(NLEV,ISYM,NASA,NASC,NCONF,BDERA_save(1+NTUVES(iSym)),BDERC_save(1+NTUVES(iSym)),CLag)
+    call DERE4(NLEV,ISYM,NASA,NASC,NCONF,BDERA_save(1+NTUVES(iSym)),BDERC_save(1+NTUVES(iSym)),CLag)
   end do
 
 end subroutine BDerNEV_E4
