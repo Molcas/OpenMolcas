@@ -45,7 +45,6 @@ use Definitions, only: u6
 #ifdef _DEBUG2_
 use Definitions, only: u6
 #endif
-use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(in) :: bias, SOFact
