@@ -528,7 +528,7 @@ if (HZERO == 'DYALL') then
   MAXIT = 0
   Do_FIC = input%DOPC
   Do_SC = input%DOSC
-  SC_prop = input%SCPROP
+  SC_prop = input%SCPROP .or. .not.Do_FIC
   SC_amplitude = SC_prop
   if (NRAS1T + NRAS3T > 0) then
     call warningMessage(2,'NEVPT2 calculations with a RAS reference wavefunction are not supported')

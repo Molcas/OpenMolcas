@@ -189,7 +189,7 @@ do ISYM=1,NSYM
     NAS = NASUP(ISYM,ICASE)
     NIS = NISUP(ISYM,ICASE)
     if (IORW == 1) then
-      if (NIN > 0) then
+      if (NAS > 0) then
         !! Active overlap
 #       ifdef _MOLCAS_MPP_
         if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -213,7 +213,7 @@ do ISYM=1,NSYM
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
-        if (NAS > 0) then
+        if (NIN > 0 .and. .not.SC_prop) then
           !! ST matrix
 #         ifdef _MOLCAS_MPP_
           if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -257,19 +257,19 @@ do ISYM=1,NSYM
           end if
 #         endif
         end if
-        !! Eigenvalue
-        ID = IDBMAT(ISYM,ICASE)
-        call DDAFILE(LUSBT,2,WRK1,NIN,ID)
-        call DDAFILE(LUGRAD,1,WRK1,NIN,IDSAVGRD)
-        if (SC_amplitude .and. NIS > 0) then
-          call DDAFILE(LUSBT,2,WRK1,NIS,ID)
-          call DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
-        end if
+      end if
+      !! Eigenvalue
+      ID  = IDBMAT(ISYM,ICASE)
+      if (NAS > 0) then
+        CALL DDAFILE(LUSBT,2,WRK1,NAS,ID)
+        CALL DDAFILE(LUGRAD,1,WRK1,NAS,IDSAVGRD)
       end if
       !! IS
-      !call DDAFILE(LUSBT,2,WRK1,NIS,ID)
-      !call DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
-      if (do_lindep .and. (NAS > 0)) then
+      if (SC_amplitude .and. NIS > 0) then
+        CALL DDAFILE(LUSBT,2,WRK1,NIS,ID)
+        CALL DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
+      end if
+      if (do_lindep .and. NAS > 0) then
         ID = IDBoriMat(ISYM,ICASE)
         call DDAFILE(LUSTD,2,WRK1,nTri_Elem(NAS),ID)
         call DDAFILE(LUGRAD,1,WRK1,nTri_Elem(NAS),IDSAVGRD)
@@ -284,7 +284,7 @@ do ISYM=1,NSYM
         call DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
       end if
     else if (IORW == 2) then
-      if (NIN > 0) then
+      if (NAS > 0) then
         !! Active overlap
 #       ifdef _MOLCAS_MPP_
         if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -308,7 +308,7 @@ do ISYM=1,NSYM
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
-        if (NAS > 0) then
+        if (NIN > 0 .and. .not.SC_prop) then
           !! ST matrix
 #         ifdef _MOLCAS_MPP_
           if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -354,19 +354,19 @@ do ISYM=1,NSYM
           end if
 #         endif
         end if
-        !! Eigenvalue
-        call DDAFILE(LUGRAD,2,WRK1,NIN,IDSAVGRD)
-        ID = IDBMAT(ISYM,ICASE)
-        call DDAFILE(LUSBT,1,WRK1,NIN,ID)
-        if (SC_amplitude .and. NIS > 0) then
-          call DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
-          call DDAFILE(LUSBT,1,WRK1,NIS,ID)
-        end if
+      end if
+      !! Eigenvalue
+      ID  = IDBMAT(ISYM,ICASE)
+      if (NAS > 0) then
+        CALL DDAFILE(LUGRAD,2,WRK1,NAS,IDSAVGRD)
+        CALL DDAFILE(LUSBT,1,WRK1,NAS,ID)
       end if
       !! IS
-      !call DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
-      !call DDAFILE(LUSBT,1,WRK1,NIS,ID)
-      if (do_lindep .and. (NAS > 0)) then
+      if (SC_amplitude .and. NIS > 0) then
+        CALL DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
+        CALL DDAFILE(LUSBT,1,WRK1,NIS,ID)
+      end if
+      if (do_lindep .and. NAS > 0) then
         call DDAFILE(LUGRAD,2,WRK1,nTri_Elem(NAS),IDSAVGRD)
         ID = IDBoriMat(ISYM,ICASE)
         call DDAFILE(LUSTD,1,WRK1,nTri_Elem(NAS),ID)

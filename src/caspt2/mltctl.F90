@@ -67,11 +67,14 @@ end do
 if ((IPRGLB >= TERSE) .and. (DSHIFT /= Zero)) write(u6,*) ' Output diagonal energies have been shifted. Add ',DSHIFT
 
 nloop = 1
-if (HZERO == 'DYALL' .and. Do_SC) nloop = 2
+if (HZERO == 'DYALL') nloop = 2
 
 do iloop = 1, nloop
   PrRes = .true.
-  if (iloop == 1 .and. .not. Do_FIC) PrRes = .false.
+  if (HZERO == 'DYALL') then
+    if (iloop == 1 .and. .not.Do_FIC) PrRes = .false.
+    if (iloop == 2 .and. .not.Do_SC) PrRes = .false.
+  end if
 
   if (((IPRGLB >= VERBOSE) .or. JMS) .and. PrRes) then
     write(u6,*) ' Effective Hamiltonian matrix (Asymmetric):'
@@ -119,7 +122,7 @@ do iloop = 1, nloop
   call mma_deallocate(UMAT)
   call mma_deallocate(HTRI)
 
-  if (IPRGLB >= TERSE) then
+  if (IPRGLB >= TERSE .and. PrRes) then
     if (IFRMS) then
       variant = 'RMS'
     else if (IFXMS .and. IFDW) then

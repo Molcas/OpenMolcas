@@ -26,7 +26,7 @@ use EQSOLV, only: IDBMAT
 use caspt2_global, only: iStpGrd, LUSBT
 use caspt2_module, only: EPSE, EPSI, NAGEB, NAGEBES, NAGEBES, NAGTB, NAGTBES, NASUP, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NINDEP, &
                          NISH, NISUP, NSES, NSSH, NSYM
-use SC_NEVPT2, only: SC_amplitude
+use SC_NEVPT2, only: Do_SC, SC_amplitude
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -42,7 +42,7 @@ do ICASE=1,13
   do ISYM=1,NSYM
 
     NIN = NINDEP(ISYM,ICASE)
-    if (NIN == 0) cycle
+    if (NIN == 0 .and. .not.Do_SC) cycle
     NIS = NISUP(ISYM,ICASE)
     NAS = NASUP(ISYM,ICASE)
     if (ICASE > 11) call mma_allocate(BD,NAS,LABEL='BD')

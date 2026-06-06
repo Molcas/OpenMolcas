@@ -18,6 +18,7 @@ use caspt2_global, only: iParRHS
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
 use Definitions, only: wp, iwp, u6
+use SC_NEVPT2, only: Do_SC
 
 implicit none
 private
@@ -47,8 +48,8 @@ subroutine ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,nBuff,Buff,idxBuf,Cho_Br
   ISYT = Mul(JSYM,ISYJ)
   ISYV = Mul(JSYM,ISYX)
   ISYM = ISYJ
-  if (NINDEP(ISYM,1) == 0) return
   NAS = NTUV(ISYM)
+  if (NINDEP(ISYM,1) == 0 .and. .not.Do_SC) return
   NIS = NISH(ISYM)
   NWA = NAS*NIS
   if (NWA == 0) return
@@ -171,7 +172,7 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
   SQ2 = sqrt(Two)
   ISYM = Mul(ISYJ,ISYL)
 
-  if (NINDEP(ISYM,2) > 0) then
+  if (NINDEP(ISYM,2) > 0 .or. Do_SC) then
     ! The plus combination:
     ICASE = 2
     NASP = NTGEU(ISYM)
@@ -180,7 +181,7 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
   else
     NWBP = 0
   end if
-  if (NINDEP(ISYM,3) > 0) then
+  if (NINDEP(ISYM,3) > 0 .or. Do_SC) then
     ! The minus combination:
     ICASE = 3
     NASM = NTGTU(ISYM)
@@ -209,7 +210,7 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
 # endif
   if (NWBP > 0) then
 
-    if (NINDEP(ISYM,2) > 0) then
+    if (NINDEP(ISYM,2) > 0 .or. Do_SC) then
       ! The plus combination:
       ICASE = 2
       NASP = NTGEU(ISYM)
@@ -303,7 +304,7 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  if (NINDEP(ISYM,3) > 0) then
+  if (NINDEP(ISYM,3) > 0 .or. Do_SC) then
     ! The minus combination:
     ICASE = 3
     NASM = NTGTU(ISYM)
@@ -422,7 +423,7 @@ subroutine ADDRHSC(IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,AUVX,nBuff,Buff,idxBuf,Cho_Br
   ISYA = Mul(JSYM,ISYU)
   ISYV = Mul(JSYM,ISYX)
   ISYM = ISYA
-  if (NINDEP(ISYM,4) == 0) return
+  if (NINDEP(ISYM,4) == 0 .and. .not.Do_SC) return
   NAS = NTUV(ISYM)
   NIS = NSSH(ISYM)
   NWC = NAS*NIS
@@ -542,7 +543,7 @@ subroutine ADDRHSD1(IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,AJVX,nBuff,Buff,idxBuf,Cho_B
   ISYA = Mul(JSYM,ISYJ)
   ISYV = Mul(JSYM,ISYX)
   ISYM = JSYM
-  if (NINDEP(ISYM,5) == 0) return
+  if (NINDEP(ISYM,5) == 0 .and. .not.Do_SC) return
   NAS1 = NTU(ISYM)
   NAS = 2*NAS1
   NIS = NISUP(ISYM,5)
@@ -694,7 +695,7 @@ subroutine ADDRHSD2(IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,AUVL,nBuff,Buff,idxBuf,Cho_B
   ISYA = Mul(JSYM,ISYU)
   ISYV = Mul(JSYM,ISYL)
   ISYM = Mul(ISYU,ISYV)
-  if (NINDEP(ISYM,5) == 0) return
+  if (NINDEP(ISYM,5) == 0 .and. .not.Do_SC) return
   NAS1 = NTU(ISYM)
   NAS = 2*NAS1
   NIS = NISUP(ISYM,5)
@@ -1098,7 +1099,7 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
   ISYC = Mul(JSYM,ISYX)
   ISYM = Mul(ISYU,ISYX)
 
-  if (NINDEP(ISYM,8) > 0) then
+  if (NINDEP(ISYM,8) > 0 .or. Do_SC) then
     ! The plus combination:
     NASP = NTGEU(ISYM)
     NISP = NAGEB(ISYM)
@@ -1106,7 +1107,7 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
   else
     NWFP = 0
   end if
-  if (NINDEP(ISYM,9) > 0) then
+  if (NINDEP(ISYM,9) > 0 .or. Do_SC) then
     ICASE = 9
     ! The minus combination:
     NASM = NTGTU(ISYM)
@@ -1135,7 +1136,7 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
 # endif
 
   if (NWFP > 0) then
-    if (NINDEP(ISYM,8) > 0) then
+    if (NINDEP(ISYM,8) > 0 .or. Do_SC) then
       ! The plus combination:
       ICASE = 8
       NASP = NTGEU(ISYM)
@@ -1231,7 +1232,7 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
   !*********************************************************************
   !                                                                    *
   if (NWFM <= 0) return
-  if (NINDEP(ISYM,9) > 0) then
+  if (NINDEP(ISYM,9) > 0 .or. Do_SC) then
     ICASE = 9
     ! The minus combination:
     NASM = NTGTU(ISYM)
