@@ -38,7 +38,7 @@ use caspt2_global, only: do_csf, do_grad, do_nac, imag_shift, ipea_shift, iPrGlb
 use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, iSpin, &
                          mState, nActel, nAsh, nAshT, nBas, nConf, nDel, nEle3, nFro, nHole1, nIsh, nIshT, nRoots, nSsh, nSshT, &
                          nState, nSym, Orbin, RFPert, STSym, Zeta, PT2Method
-use SC_NEVPT2, only: SC_prop
+use SC_NEVPT2, only: Do_SC, SC_prop, SC_thres
 #ifdef _DMRG_
 use caspt2_global, only: compressMPS
 use caspt2_module, only: DMRG
@@ -229,6 +229,7 @@ if (iprglb >= TERSE) then
       write(u6,fmt2//'A,T50,A)') 'Internal contraction for energies','partially and strongly contracted'
       write(u6,fmt2//'A,T50,A)') '','(PC-NEVPT2 and SC-NEVPT2)'
     end if
+    if (Do_SC) write(u6,fmt2//'A,T49,ES10.3)') 'Denominator threshold for SC-NEVPT2', SC_thres
   end if
 
   write(u6,fmt2//'A,T50,A)') 'Fock operator',trim(FockOpType)

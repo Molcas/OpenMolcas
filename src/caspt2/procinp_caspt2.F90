@@ -38,7 +38,7 @@ use OFembed, only: Do_OFemb
 #endif
 use Constants, only: Zero, Quart
 use Definitions, only: wp, iwp, u6, RtoB
-use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_amplitude
+use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_amplitude, SC_thres
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 use Definitions, only: MPIInt
@@ -530,6 +530,7 @@ if (HZERO == 'DYALL') then
   Do_SC = input%DOSC
   SC_prop = input%SCPROP .or. .not.Do_FIC
   SC_amplitude = SC_prop
+  SC_thres = abs(input%SC_thres)
   if (NRAS1T + NRAS3T > 0) then
     call warningMessage(2,'NEVPT2 calculations with a RAS reference wavefunction are not supported')
     call quit_onUserError()

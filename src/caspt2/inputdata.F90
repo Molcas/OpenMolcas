@@ -209,6 +209,8 @@ type InputTable
   logical(kind=iwp) :: DOPC = .true.
   ! DOSC      Do SC-NEVPT2 energy
   logical(kind=iwp) :: DOSC = .true.
+  ! SC_thres  Threshold for avoiding vanishing denominators
+  real(kind=wp) :: SC_thres = 1.0e-09_wp
 
 end type ! end of type InputTable
 
@@ -744,6 +746,11 @@ subroutine readin_CASPT2(LuIn,nSym)
 
       case ('NOSC')
         Input%DOSC = .false.
+
+      case ('SCTH')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read(Line,*,iostat=iError) Input%SC_thres
+        if (iError /= 0) call IOError(Line)
 
       ! OBSOLETE KEYWORDS
 
