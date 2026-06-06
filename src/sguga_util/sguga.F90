@@ -343,7 +343,7 @@ STEP:   do ISTEP=0,3    ! loop over the step vectors
     ! BEGIN TO CONSTRUCT DOWN CHAIN TABLE
 
     SGS%DAW(:,:) = 0
-    SGS%DAW(:,4) = 1
+    SGS%DAW(SGS%nVert,4) = 1
 
     ! Loop over all vertices
     do IV=SGS%nVert-1,1,-1
