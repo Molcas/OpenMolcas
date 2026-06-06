@@ -1074,7 +1074,6 @@ type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp) :: IA, IAL, IB, IBL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB, IVLT, IVRB, IVRT, LEV, MV, MVLL, MVRR
 integer(kind=iwp) :: INL, IN
 real(kind=wp) :: V
-integer(kind=iwp), parameter :: IATAB = 3, IBTAB = 4
 
 call mma_allocate(CIS%IVR,SGS%nVert,2,Label='CIS%IVR')
 call mma_allocate(CIS%ISGM,SGS%nVert,nSeg,Label='CIS%ISGM')
@@ -1090,12 +1089,12 @@ do LEV=1,SGS%nLev    ! Loop over all levels
   IV1 = SGS%LTV(LEV)
   IV2 = SGS%LTV(LEV-1)-1
   do IVL=IV1,IV2-1          ! loop over all vertices of level LEV, right to left, but the last vertex
-    IAL = SGS%DRT(IVL,IATAB)! Pick up the a- and b-value of the left vertex
-    IBL = SGS%DRT(IVL,IBTAB)
+    IAL = SGS%DRT(IVL,ATAB)! Pick up the a- and b-value of the left vertex
+    IBL = SGS%DRT(IVL,BTAB)
     INL = 2*IAL+IBL
     do IV=IVL+1,IV2         ! loop over all vertices of level LEV, right to left, but the first vertex
-      IA = SGS%DRT(IV,IATAB)! Pick up the a-value of the right vertex
-      IB = SGS%DRT(IV,IBTAB)
+      IA = SGS%DRT(IV,ATAB)! Pick up the a-value of the right vertex
+      IB = SGS%DRT(IV,BTAB)
       IN = 2*IA+IB
 !
 !     The number of particles in the node decrease left to right. If the difference between two vertices
@@ -1180,7 +1179,7 @@ do IVLT=1,SGS%nVert     ! Upper left vertex
 
     CIS%ISGM(IVLT,ISGT) = IVLB  ! Mark that the segment is valid by changing the default value, 0,  to the index of
                                 ! lower left vertex being a part of the segment.
-    IB = SGS%DRT(IVLT,IBTAB)    ! Pick up the b-value from the DRT
+    IB = SGS%DRT(IVLT,BTAB)    ! Pick up the b-value from the DRT
 !   Note that we use the segment values according to the ASTA method.
     select case (ISVC(ISGT))
       case (1)
