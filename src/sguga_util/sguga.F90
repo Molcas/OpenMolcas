@@ -12,7 +12,6 @@
 module SGUGA
 
 use Molcas, only: MxLev, MxSym, MxGas
-use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -193,7 +192,7 @@ contains
 
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ADDR, ADWN, AUP, BDWN, BUP, CDWN, CUP, DWN, LEV, NACTEL, ISTEP, VDWN, VEND, VSTA, VUP, VUPS, VNEW
+    integer(kind=iwp) :: ADWN, AUP, BDWN, BUP, CDWN, CUP, LEV, NACTEL, ISTEP, VDWN, VEND, VSTA, VUP, VNEW
     integer(kind=iwp), parameter:: Steps(4,0:3)=Reshape([0,0,1,0, 0,1,0,1, 1,-1,1,1, 1,0,0,2],[4,4])
 #   ifdef _DEBUGPRINT_
     integer(kind=iwp) :: VERT
@@ -927,12 +926,12 @@ do IHALF=1,2
       ! doubly occupied or empty orbital case are total symmetric. Singly occupied orbitals
       ! carry the symmetry of the orbital in the level.
       SELECT CASE(ISTP)
-        CASE(0,3)
-          ISML = 1
+!       CASE(0,3)
+!         ISML = 1
         CASE(1,2)
           ISML = SGS%ISm(LEV)
         CASE DEFAULT
-          CALL ABEND()
+          ISML = 1
       END SELECT
 
       LEV = LEV-1     ! Walk down one level
@@ -1071,7 +1070,7 @@ subroutine MKSEG(SGS,CIS,EXS)
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
-integer(kind=iwp) :: IA, IAL, IB, IBL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB, IVLT, IVRB, IVRT, LEV, MV, MVLL, MVRR
+integer(kind=iwp) :: IA, IAL, IB, IBL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB, IVLT, IVRB, IVRT, LEV, MV, MVLL
 integer(kind=iwp) :: INL, IN
 real(kind=wp) :: V
 
@@ -1146,6 +1145,7 @@ write(u6,*)
 write(u6,*) ' MIDVERT PAIR TABLES MVL,MVR IN MKSEG:'
 write(u6,*) ' MVL TABLE:'
 write(u6,1234) (MV,EXS%MVL(MV,1),EXS%MVL(MV,2),MV=1,CIS%nMidV)
+1234 format('  MV=',I2,'    UPPER WALKS:',8I6)
 write(u6,*) ' MVR TABLE:'
 write(u6,1234) (MV,EXS%MVR(MV,1),EXS%MVR(MV,2),MV=1,CIS%nMidV)
 write(u6,*)
@@ -1162,11 +1162,12 @@ do IVLT=1,SGS%nVert     ! Upper left vertex
   do ISGT=1,nSeg
     ITT = ITVPT(ISGT)   ! 0-3
     SELECT CASE(ITT)
-      Case(0,3)
-        IVRT = IVLT               ! Upper right vertex is the same as the upper left vertex.
+!     Case(0,3)
+!       IVRT = IVLT               ! Upper right vertex is the same as the upper left vertex.
       Case(1,2)
         IVRT = CIS%IVR(IVLT,ITT)  ! Pick up the associated upper right vertex, depends on delta(b)
       Case Default
+        IVRT = IVLT               ! Upper right vertex is the same as the upper left vertex.
     End Select
     if (IVRT == 0) cycle          ! Branch out if there is no vertex that will contruct the top of the segment.
     ! Pick up the vertex index for the left lower vertex as a function of the case
@@ -1354,7 +1355,6 @@ MXDWN = 0
 do MV=1,CIS%nMidV
   IVLT = MV+SGS%MVSta-1
   do LFTSYM=1,SGS%nSym
-    CIS%IOW(1,LFTSYM,MV) = NUW*CIS%nIpWlk
     CIS%NOW(2,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXDWN = max(MXDWN,CIS%NOW(2,LFTSYM,MV))
     do INDEO=1,EXS%MxEO
@@ -2010,7 +2010,7 @@ subroutine CSFCOUNT(CIS,SGS)
 
 type(CIStruct), intent(inout) :: CIS
 type(SGStruct), intent(inout) :: SGS
-integer(kind=iwp) :: ISYDWN, ISYM, ISYTOT, ISYUP, MV, N
+integer(kind=iwp) :: ISYDWN, ISYTOT, ISYUP, MV, N
 
 
 
