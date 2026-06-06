@@ -67,7 +67,7 @@ end do
 if ((IPRGLB >= TERSE) .and. (DSHIFT /= Zero)) write(u6,*) ' Output diagonal energies have been shifted. Add ',DSHIFT
 
 nloop = 1
-if (HZERO == 'DYALL') nloop = 2
+if (HZERO == 'DYALL' .and. Do_SC) nloop = 2
 
 do iloop = 1, nloop
   PrRes = .true.
