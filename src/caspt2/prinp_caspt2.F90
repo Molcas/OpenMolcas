@@ -229,7 +229,7 @@ if (iprglb >= TERSE) then
       write(u6,fmt2//'A,T50,A)') 'Internal contraction for energies','partially and strongly contracted'
       write(u6,fmt2//'A,T50,A)') '','(PC-NEVPT2 and SC-NEVPT2)'
     end if
-    if (Do_SC) write(u6,fmt2//'A,T49,ES10.3)') 'Denominator threshold for SC-NEVPT2', SC_thres
+    if (Do_SC) write(u6,fmt2//'A,T50,ES8.2)') 'Denominator threshold for SC-NEVPT2', SC_thres
   end if
 
   write(u6,fmt2//'A,T50,A)') 'Fock operator',trim(FockOpType)

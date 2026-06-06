@@ -1073,6 +1073,19 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`SCTHreshold`
+  This keyword specifies the threshold for ignoring vanishing denominators in SC-NEVPT2 (default = 1.0D-09).
+  If a perturbative energy denominator falls below this threshold, the corresponding contribution is simply neglected.
+  Although this threshold can be tightened, excessively tight values will cause the perturbative energy to diverge.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SCTHRESHOLD" APPEAR="SC_threshold" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="1.0D-09" MIN_VALUE="0.0">
+              %%Keyword: SC_threshold <advanced>
+              <HELP>
+              Threshold for vanishing denominators with SC-NEVPT2.
+              Default: 1.0d-09.
+              </HELP>
+              </KEYWORD>
+
 :kword:`NOPC`
   Do not calculate PC-NEVPT2 energies.
 
