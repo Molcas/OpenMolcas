@@ -380,10 +380,6 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
                   if ((IW2 >= JLOV) .and. (IW2 <= JHIV)) &
                     DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV)) = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))-Half*TJVL(IT,IJ,IV,IL)
                 end if
-                if (IBUF == NBUFF) then
-                  call RHS_SCATTER(LDBM,lg_BM,Buff,idxBuf,IBUF)
-                  IBUF = 0
-                end if
               end do
             end do
           end do
