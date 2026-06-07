@@ -45,8 +45,9 @@ if (KeyPRSD) call mma_allocate(LEX,SGS%nLev,Label='LEX')
 call mma_allocate(ICS,SGS%nLev,Label='ICS')
 
 ! Size of occup/spin coupling part of line:
-write(u6,*) ' Occupation of active orbitals, and spin coupling'
-write(u6,*) ' of open shells. (u,d: Spin up or down).'
+write(u6,*)
+write(u6,*) '     Occupation of active orbitals, and spin coupling of open shells. (u,d: Spin up or down).'
+write(u6,*)
 LINE = ''
 K = 0
 ISY = 0
@@ -61,12 +62,12 @@ KOCLAB = 10
 KOCSZ = max(K,KOCLAB)
 KPAD1 = (KOCSZ-KOCLAB)/2
 KPAD2 = (KOCSZ-K)/2
-if (SGINFO) write(u6,*) '  SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
-LINE(1:7) = '  Conf '
-K = 7
+if (SGINFO) write(u6,*) '     SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
+LINE(1:10) = '     Conf '
+K = 10
 if (SGINFO) then
-  LINE(8:22) = '  SGUGA info   '
-  K = 22
+  LINE(K+1:K+15) = '  SGUGA info   '
+  K = K+15
 end if
 LINE(K+KPAD1:K+KPAD1+9) = 'Occupation'
 K = K+KOCSZ
@@ -127,8 +128,8 @@ do MV=1,CIS%nMidV
           ICUP = IC1
         end do
         ! -- PRINT IT!
-        write(LINE(1:7),'(I6,1X)') ICONF
-        K = 7
+        write(LINE(1:8),'(I7,1X)') ICONF
+        K = 8
         if (SGINFO) then
           LINE(K+1:K+1) = '('
           write(LINE(K+2:K+3),'(I2)') MV
@@ -176,7 +177,7 @@ do MV=1,CIS%nMidV
   end do
 end do
 write(u6,*)
-write(u6,*) repeat('*',80)
+write(u6,*) '     ',repeat('*',120)
 
 call mma_deallocate(ICS)
 

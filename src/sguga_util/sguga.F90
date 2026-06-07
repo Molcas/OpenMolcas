@@ -337,7 +337,7 @@ STEP:   do ISTEP=0,3    ! loop over the step vectors
     type(SGStruct), target, intent(inout) :: SGS
     integer(kind=iwp) :: IC, IDWN, IV
 
-    call mma_allocate(SGS%DAW,[1,SGS%nVert],[0,4],Label='SGS%DAW')
+    call mma_allocate(SGS%DAW,[0,SGS%nVert],[0,4],Label='SGS%DAW')
 
     ! Note that this is done without symmetry.
     ! BEGIN TO CONSTRUCT DOWN CHAIN TABLE

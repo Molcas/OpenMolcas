@@ -18,7 +18,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: ISGNUM
 integer(kind=iwp), intent(in) :: NLEV, NVERT, MIDLEV, MVSta, NMIDV, MXUP, MXDWN, IDOWN(NVERT,0:3), IUP(NVERT,0:3), &
-                                 IDAW(NVERT,0:4), IRAW(NVERT,0:4), IUSGNUM(MXUP,NMIDV), ILSGNUM(MXDWN,NMIDV), IWALK(NLEV)
+                                 IDAW(0:NVERT,0:4), IRAW(NVERT,0:4), IUSGNUM(MXUP,NMIDV), ILSGNUM(MXDWN,NMIDV), IWALK(NLEV)
 integer(kind=iwp) :: IC, ICASE, ICONF, IDAWSUM, IRAWSUM, IUW, LEV, LV, MIDV
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
