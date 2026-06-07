@@ -1068,6 +1068,7 @@ else:
         warning_item.append(name)
 
     translate_mltpl1 = False
+    translate_angmom = False
 
     for name in fi:
 
@@ -1104,6 +1105,17 @@ else:
             fo[name][1,:] = fi[name][1,:]
             # We will need to translate the integrals instead
             translate_mltpl1 = do_trans
+
+      # angular momentum integrals follow same logic as MLTPL1
+      elif name == 'ANGMOM_ORIG':
+        copy_dataset(fi, fo, name)
+        if do_rot or do_trans:
+          coor = fi[name]
+          fo[name][:] = coor @ R.T + T
+          if fi[name].shape[0] > 1 and not np.any(fi[name][1,:]):
+            fo[name][1,:] = fi[name][1,:]
+            # We will need to translate the integrals instead
+            translate_angmom = do_trans
 
       # Other center data are reordered only
       elif name in ['CENTER_ATNUMS', 'CENTER_CHARGES', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_CHARGES']:
@@ -1237,6 +1249,24 @@ else:
           fo[name][:] = (V @ mtrx @ V.T).flatten()
         else:
           fo[name][:] = fi[name][:]
+
+      # rank 1 cartesian tensors transform among themselves, see below AO_MLTPL_{X,Y,Z}
+      elif name in ['AO_ANGMOM_X', 'AO_ANGMOM_Y', 'AO_ANGMOM_Z']:
+        comp = ['X', 'Y', 'Z']
+        if name.endswith(('_'+comp[1], '_'+comp[2])):
+          continue
+        ao_angmom = np.empty((len(comp), nb, nb))
+        for i,lab in enumerate(comp):
+          name = 'AO_ANGMOM_'+lab
+          copy_dataset(fi, fo, name)
+          ao_angmom[i,:,:] = fi[name]
+        if do_rot:
+          for i in range(len(comp)):
+            ao_angmom[i,:,:] = V @ ao_angmom[i,:,:] @ V.T
+          ao_angmom = np.tensordot(R, ao_angmom, axes=1)
+          for i,lab in enumerate(comp):
+            name = 'AO_ANGMOM_'+lab
+            fo[name][:] = ao_angmom[i,:,:]
 
       # Multipole AO matrices are further transformed among their components
       elif name in ['AO_MLTPL_X', 'AO_MLTPL_Y', 'AO_MLTPL_Z']:
