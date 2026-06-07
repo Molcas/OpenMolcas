@@ -93,8 +93,16 @@ public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCOT, MkCoup, MkMAW, MkSe
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 integer(kind=iwp), parameter:: nPack=Storage_size(1_iwp)/2-1
+#ifdef SIZE_INITIALIZATION
+integer(kind=iwp), parameter:: nPack=Storage_size(1_iwp)/2-1
+#elif defined (_I8_)
+integer(kind=iwp), parameter:: nPack=32-1
+#else
+integer(kind=iwp), parameter:: nPack=16-1
+#endif
 
 public :: nPack
+
 contains
 
 subroutine MKSGUGA(SGS,CIS)
