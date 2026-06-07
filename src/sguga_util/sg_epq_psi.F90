@@ -373,7 +373,7 @@ subroutine EXC1(CPQ,NUP,A,B,NCP,ICOUP)
       JLFT = ICOUP(1,ICP)
       JRGT = ICOUP(2,ICP)
       X = CPQ*EXS%VTab(ICOUP(3,ICP))
-!$OMP SIMD
+!!$OMP SIMD
       do IUP=1,NUP
          B(IUP,JRGT) = B(IUP,JRGT)+X*A(IUP,JLFT)
       end do
@@ -406,7 +406,7 @@ subroutine EXC2(CPQ,NDWN,NUPA,A,NUPB,B,NCP,ICOUP)
       ILFT = ICOUP(1,ICP)
       IRGT = ICOUP(2,ICP)
       X = CPQ*EXS%VTab(ICOUP(3,ICP))
-!$OMP SIMD
+!!$OMP SIMD
       do IDWN=1,NDWN
          B(IRGT,IDWN) = B(IRGT,IDWN)+X*A(ILFT,IDWN)
       end do
@@ -440,7 +440,7 @@ subroutine DEX1(CPQ,NUP,A,B,NCP,ICOUP)
       JLFT = ICOUP(1,ICP)
       JRGT = ICOUP(2,ICP)
       X = CPQ*EXS%VTab(ICOUP(3,ICP))
-!$OMP SIMD
+!!$OMP SIMD
       do IUP=1,NUP
          B(IUP,JLFT) = B(IUP,JLFT)+X*A(IUP,JRGT)
       end do
@@ -474,7 +474,7 @@ subroutine DEX2(CPQ,NDWN,NUPA,A,NUPB,B,NCP,ICOUP)
       ILFT = ICOUP(1,ICP)
       IRGT = ICOUP(2,ICP)
       X = CPQ*EXS%VTab(ICOUP(3,ICP))
-!$OMP SIMD
+!!$OMP SIMD
       do IDWN=1,NDWN
          B(ILFT,IDWN) = B(ILFT,IDWN)+X*A(IRGT,IDWN)
       end do

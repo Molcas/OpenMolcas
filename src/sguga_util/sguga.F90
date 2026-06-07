@@ -834,11 +834,11 @@ subroutine MKCOT(SGS,CIS)
 
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
-integer(kind=iwp) :: IHALF, ILND, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, MV, NUW
+integer(kind=iwp) :: IHALF, ILND, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, MV
 integer(kind=iwp) :: INIT, IC, IPOS, L, LL
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 # ifdef _DEBUGPRINT_
-  integer(kind=iwp) :: IS
+  integer(kind=iwp) :: IS, NUW
 # endif
 
 Do INIT=0,1
@@ -974,9 +974,9 @@ If (INIT==0) THEN
 ! Generate an off-set array for the CIS%NOW array
 Call Mk_IOW(CIS,SGS)
 call CSFCOUNT(CIS,SGS)
-NUW=CIS%NUW
 
 #ifdef _DEBUGPRINT_
+NUW=CIS%NUW
 write(u6,*)
 write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
 write(u6,*) '                    LOWER ',CIS%nWalk-NUW
@@ -1220,10 +1220,10 @@ type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
                      MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
-                     NUPS1, NUW
+                     NUPS1
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: IS, IST, NCP
+integer(kind=iwp) :: IS, IST, NC, NUW
 #endif
 
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
@@ -1372,7 +1372,6 @@ end do
 
 Call Mk_IOW(CIS,SGS)
 call CSFCOUNT(CIS,SGS)
-NUW=CIS%NUW
 
 !AR INSERT FOR US IN SIGMA ROUTINE
 
@@ -1428,6 +1427,7 @@ call mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
 write(u6,600) MXUP,MXDWN,NSGMX,NSGMX,NSGTMP
 
 !AR END OF INSERT
+NUW=CIS%NUW
 write(u6,*)
 write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
 write(u6,*) '                    LOWER ',CIS%nWalk-NUW
