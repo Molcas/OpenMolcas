@@ -371,7 +371,7 @@ STEP:   do ISTEP=0,3    ! loop over the step vectors
     integer(kind=iwp) :: IC, IDWN, ISUM, IU, IV
 
     call mma_allocate(SGS%UP,[1,SGS%nVert],[0,3],Label='SGS%UP')
-    call mma_allocate(SGS%RAW,[1,SGS%nVert],[0,4],Label='SGS%RAW')
+    call mma_allocate(SGS%RAW,[0,SGS%nVert],[0,4],Label='SGS%RAW')
 
     ! BEGIN BY CONSTRUCTING THE UPCHAIN TABLE IUP:
 
