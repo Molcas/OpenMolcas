@@ -1424,91 +1424,215 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`EPRA`
-  This computes the hyperfine tensor matrix and the principal magnetic axes values for the ground
-  spin--orbit state. The hyperfine and spin--orbit coupling matrix elements are required upon calculation
-  (use keywords :kword:`SPIN` and :kword:`PROP`). For the hyperfine matrix elements, either the spin-dependent (ASD)
-  or the paramagnetic spin orbital (PSOP) part is needed, while in most cases both are recommended for the same atom.
-  See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
+:kword:`HFCOp`
+  This keyword is used to calculate effective hyperfine hamiltonian with root-mean-square nuclear spin states.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" APPEAR="EPR hyperfine Matrix" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN">
-              %%Keyword: EPRa <advanced>
+  By default, when :kword:`HFCOp` is present, the SEWARD module provides the isotopic mass to match nuclear spin, and g-factor for specific isotopes
+  in spin database.
+
+  The hamiltonian will be saved to RASSI.h5 and h_RMS.txt
+
+  Keyword requirements are the same as :kword:`HFCAt` (see below).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCOp" APPEAR="Hyperfine RMS Hamiltonian" KIND="SINGLE" REQUIRE="SPIN" LEVEL="ADVANCED">
+              %%Keyword: HFCOp <advanced>
               <HELP>
-              This computes the hyperfine tensor matrix and the principal magnetic axes values for the ground
-              spin-orbit state. The hyperfine and spin-orbit coupling matrix elements are required upon calculation
-              (use keywords SPIN and PROP). For the hyperfine matrix elements, either the spin-dependent (ASD)
-              or the paramagnetic spin orbital (PSOP) part is needed, while in most cases both are recommended 
-              for the same atom.
+              Calculate effective hyperfine hamiltonian.
               </HELP>
               </KEYWORD>
 
-:kword:`AFCC`
-  This computes the Fermi contact contribution of the total hyperfine coupling matrix.
-  The keyword :kword:`EPRA` is needed. The spin-dependent (ASD) part of the hyperfine matrix elements is needed.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="AFCC" APPEAR="Hyperfine Fermi contact" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
-              %%Keyword: AFCC <advanced>
+:kword:`HFCAt`
+  This keyword specifies the atoms for which the hyperfine coupling constants be calculated.
+
+  The first line specifies the number of atoms. The second line lists them. Here is an example ::
+
+    HFCAt
+    2
+    1 2
+
+  Alternatively, the keyword "all" (single line) may be used to include every atom ::
+
+    HFCAt
+    all
+
+  To convert isotropic values to MHz, the nuclear g-factors of the corresponding atoms could be defined by specifying one of the following keywords:
+  :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC` and/or :kword:`HISO`.
+
+  By default, the keyword :kword:`AUNG` will be automatically turned on if all keywords :kword:`NMASs`, :kword:`NSPIn`, :kword:`GNUC` are absent.
+
+  Keywords :kword:`AMFI`, :kword:`RX2C`, :kword:`MXTC` (in :program:`SEWARD`) and :kword:`SPINorbit` (in :program:`RASSI`) are required.
+  |openmolcas| must be built with option :command:`-DGEN1INT=ON` for the current implementation (SO-X2C) :cite:`Feng_JChemTheoryComput_Electron_2021`.
+
+  To obtain results in the non-relativistic limit, users can set :kword:`clight` in :program:`SEWARD` to a large value (e.g., :math:`10^{6}`).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAt" APPEAR="HFC Atoms" KIND="INTS_COMPUTED" SIZE="1" REQUIRE="SPIN" LEVEL="ADVANCED">
+              %<ALTERNATE KIND="CHOICE" LIST="all" />
+              %Keyword: HFCAt <advanced>
               <HELP>
-              This computes the Fermi contact contribution of the total hyperfine coupling matrix.
-              The keyword EPRA is needed. The spin-dependent (ASD) part of the hyperfine matrix
-              elements is needed.
+              Atoms to calculate A_tensor in EPR spectra.
               </HELP>
               </KEYWORD>
 
-:kword:`ASDC`
-  This computes the spin-dipolar contribution of the total hyperfine coupling matrix.
-  The keyword :kword:`EPRA` is needed. The spin-dependent (ASD) part of the hyperfine matrix elements is needed.
+:kword:`NMASs`
+  This keyword specifies the mass numbers (integers, protons + neutrons) of N atoms (N defined by :kword:`HFCAt`).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ASDC" APPEAR="Hyperfine spin dipole" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
-              %%Keyword: ASDC <advanced>
+  For example, HgF (199Hg , 19F) can be specified as ::
+
+    NMASs
+    199 19
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMASs" APPEAR="Nuclear Masses" KIND="INTS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED" REQUIRE="HFCAt.OR.HFCOp" EXCLUSIVE="NSPIn,GNUC">
+              %%Keyword: NMASs <advanced>
               <HELP>
-              This computes the spin-dipolar contribution of the total hyperfine coupling matrix.
-              The keyword EPRA is needed. The spin-dependent (ASD) part of the hyperfine matrix
-              elements is needed.
+              Nuclear masses of the HFC atoms.
               </HELP>
               </KEYWORD>
 
-:kword:`FCSD`
-  This computes the spin-dependent contribution of the total hyperfine coupling matrix.
-  The keyword :kword:`EPRA` is needed. The spin-dependent (ASD) part of the hyperfine matrix elements is needed.
+:kword:`NSPIn`
+  This keyword specifies the nuclear spins of N atoms (N defined by :kword:`HFCAt`).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="FCSD" APPEAR="Hyperfine spin dependent" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
-              %%Keyword: FCSD <advanced>
+  For example, both 199Hg and 19F have spins of 1/2, which can be specified as ::
+
+    NSPIn
+    0.5 0.5
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NSPIn" APPEAR="Nuclear Spins" KIND="REALS_LOOKUP" SIZE="ANY" REQUIRE="HFCAt.OR.HFCOp" LEVEL="ADVANCED">
+              %%Keyword: NSPIn <advanced>
               <HELP>
-              This computes the spin-dependent contribution of the total hyperfine coupling matrix.
-              The keyword EPRA is needed. The spin-dependent (ASD) part of the hyperfine matrix
-              elements is needed.
+              Nuclear spins of the HFC atoms.
               </HELP>
               </KEYWORD>
 
-:kword:`APSO`
-  This computes the paramagnetic spin orbital contribution of the total hyperfine coupling matrix.
-  The keyword :`EPRA` is needed. The paramagnetic spin orbital (PSOP) part of the hyperfine matrix
-  elements is needed.
+:kword:`GNUC`
+  This keyword specifies the nuclear g-factors of N atoms (N defined by :kword:`HFCAt`).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="APSO" APPEAR="Hyperfine paramagnetic" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
-              %%Keyword: APSO <advanced>
+  Because the g-factor can vary depending on the measurement method, we recommend using :kword:`NMASs` or :kword:`NSPIn` values to define isotopes.
+
+  To use a custom g-factor (for a hypothetical isotope or a value from new experiments), use the :kword:`HISO` keyword to bypass database matching.
+
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="GNUC" APPEAR="Nuclear g-factors" KIND="REALS_LOOKUP" SIZE="ANY" REQUIRE="HFCAt.OR.HFCOp" LEVEL="ADVANCED">
+              %%Keyword: GNUC <advanced>
               <HELP>
-              This computes the paramagnetic spin orbital contribution of the total hyperfine coupling matrix.
-              The keyword EPRA is needed. The paramagnetic spin orbital (PSOP) part of the hyperfine matrix
-              elements is needed.
+              Nuclear g-factor of the atoms.
               </HELP>
               </KEYWORD>
 
-:kword:`ATSA`
-  This keyword activates the pseudospin approach to compute the same hyperfine constants as :kword:`EPRA`.
-  For Kramers pair ground states this keyword is optional, otherwise (non-Kramers pair ground state) it is needed.
-  See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
-  The keyword :kword:`EPRA` is needed.
+:kword:`AUNG`
+  When specified, the program automatically selects the most abundant isotope with a non-zero g-factor (indicating non-zero hyperfine coupling).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="ATSA" APPEAR="Hyperfine A-Tensor" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="EPRA">
-              %%Keyword: ATSA <advanced>
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="AUNG" APPEAR="AutoSelect non-zero g-factors" KIND="SINGLE" REQUIRE="HFCAt.OR.HFCOp" LEVEL="ADVANCED">
+              %%Keyword: AUNG <advanced>
               <HELP>
-              This keyword activates the pseudospin approach to compute the same hyperfine constants as EPRA.
-              For Kramers pair ground states this keyword is optional, otherwise (non-Kramers pair ground state) it is needed.
-              The keyword EPRA is needed.
+              Selects the most abundant isotope with a non-zero g-factor.
               </HELP>
               </KEYWORD>
+
+:kword:`HISO`
+  This feature allows the program to use custom nuclear g-factors and spins without verifying if they correspond to real isotopes in the spin database.
+
+  Including the single keyword :kword:`HISO` marks all atoms as hypothetical isotopes.
+
+  To mix real and hypothetical isotopes, you can define specific hypothetical ones using the following format ::
+
+    HISO
+    2
+    1      0.5    0.314
+    2      3.5    0.790
+
+    *Atom  NSpin  GNuc
+
+  The first line after HISO specifies the number of hypothetical isotopes. Subsequent lines follow the format: Atom Spin gFactor
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HISO" APPEAR="Hypothetical Isotopes" KIND="SINGLE" REQUIRE="HFCAt.OR.HFCOp" LEVEL="ADVANCED">
+              %<ALTERNATE KIND="REALS_COMPUTED" SIZE="3" />
+              %%Keyword: HISO <advanced>
+              <HELP>
+              Hypothetical Isotopes.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DETH`
+  This keyword sets the energy threshold for degenerate states in atomic units.
+  The default value is :math:`10^{-6}`.
+
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DETH" APPEAR="Degenerate Energy Threshold" KIND="REAL" LEVEL="ADVANCED">
+              %%Keyword: DETH <advanced>
+              <HELP>
+              Energy threshold for degenerate states in atomic units.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NCOU`
+  When :kword:`COUP` is absent, this keyword enforces degeneracy among the first NCOUP lowest-energy states by shifting their energies to the ground state level.
+
+  In case :kword:`COUP` is present, a set of arbitrary states will be listed by :kword:`COUP` keyword.
+
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NCOU" APPEAR="Number of Coupling States" KIND="INT" LEVEL="ADVANCED">
+              %%Keyword: NCOU <advanced>
+              <HELP>
+              Treating first NCOUP lowest-energy states as degenerate ground states.
+              </HELP>
+              </KEYWORD>
+
+:kword:`COUP`
+  This keyword defines a set of :kword:`NCOUP` states to share the same energy by shifting their energies to the ground state level.
+
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="COUP" APPEAR="List of Coupling states" KIND="INTS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED">
+              %%Keyword: COUP <advanced>
+              <HELP>
+              A set of NCOUP states to share the same energy by shifting their energies.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NMRAt`
+  This keyword Specify the atoms for which to calculate the pNMR tensors (Curie and Linear Response terms).
+  The :kword:`NMRTemp` keyword is required to define the temperature.
+
+  The first line specifies the number of atoms. The second line lists them. Here is an example ::
+
+    NMRAt
+    2
+    1 2
+
+  Alternatively, the keyword "all" (single line) may be used to include every atom ::
+
+    NMRAt
+    all
+
+  Keywords :kword:`AMFI`, :kword:`RX2C`, :kword:`MXTC` (in :program:`SEWARD`) and :kword:`SPINorbit` (in :program:`RASSI`) are required.
+  |openmolcas| must be built with option :command:`-DGEN1INT=ON` for the current implementation (SO-X2C) :cite:`Feng_JChemTheoryComput_Electron_2021`.
+
+  To obtain results in the non-relativistic limit, users can set :kword:`clight` in :program:`SEWARD` to a large value (e.g., :math:`10^{6}`).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRAt" APPEAR="pNMR Atoms" KIND="INTS_COMPUTED" SIZE="1" REQUIRE="SPIN" LEVEL="ADVANCED">
+              %<ALTERNATE KIND="CHOICE" LIST="all" />
+              %%Keyword: NMRAt <advanced>
+              <HELP>
+              Atoms to calculate pNMR tensors.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NMRTemp`
+  This keyword defines the temperatures (Kevin) for pNMR tensors. It requires three values: TMin, TMax, and the number of steps. For example: ::
+
+    NMRTemp
+    270.0 330.0 3
+
+  This input will generate 3 temperature values: 270, 300 and 330 K
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRTemp" APPEAR="Temperature grid for pNMR tensors" KIND="REALS_LOOKUP" REQUIRE="NMRAt" LEVEL="ADVANCED">
+              %%Keyword: NMRTemp <advanced>
+              <HELP>
+              Temperature grid for pNMR tensors.
+              </HELP>
+              </KEYWORD>
+
 
 :kword:`MONA`
   This keyword indicates that the properties of monomer A were calculated in the respective :program:`RASSI` section of the Frenkel exciton protocol.
@@ -1619,7 +1743,7 @@ An SO-NTO input example from three singlets and two triplets: ::
   *SO state 1 and 3, and SO state 2 and 3.
   *Note that the states are SO coupled states.
 
-An illustrative hyperfine calculation input for a diatomic molecule: ::
+An illustrative hyperfine calculation input for HgF (199Hg, 19F): ::
 
   >>COPY "Jobiph file 1" JOB001
 
@@ -1628,68 +1752,54 @@ An illustrative hyperfine calculation input for a diatomic molecule: ::
   1 4
   1 2 3 4
   SPIN
-  EPRA
-  AFCC
-  ASDC
-  FCSD
-  APSO
-  ATSA
-  PROPerties
-  18
-  'ASD    1' 1
-  'ASD    1' 2
-  'ASD    1' 3
-  'ASD    1' 4
-  'ASD    1' 5
-  'ASD    1' 6
-  'ASD    2' 1
-  'ASD    2' 2
-  'ASD    2' 3
-  'ASD    2' 4
-  'ASD    2' 5
-  'ASD    2' 6
-  'PSOP   1' 1
-  'PSOP   1' 2
-  'PSOP   1' 3
-  'PSOP   2' 1
-  'PSOP   2' 2
-  'PSOP   2' 3
-  * Note that the strings following PROP have to be of sizes of 8, each
-  * followed by an integer number for the property component.
-  * The last digit of the string is the atom number.
-  * Note that there are 6 ASD and 3 PSOP components for each atom, respectively.
-  * One has to include all 6 of ASD components to obtain principle
-  * spin-dependent hyperfine contributions, and one has to include all 3 of PSOP
-  * components to obtain principle paramagnetic spin orbital contributions.
+  HFCAt
+  2
+  1 2
+  NMASs
+  199 19
 
-It is also possible to calculate only the non-relativistic part of the spin--dependent hyperfine contributions: ::
+The above input will be equipvalent if users want to use :kword:`NSPIn` and or simplified:  ::
+
+  >>COPY "Jobiph file 1" JOB001
 
   &RASSI
   Nr of JobIphs
   1 4
   1 2 3 4
   SPIN
-  EPRA
-  AFCC
-  ASDC
-  FCSD
-  APSO
-  ATSA
-  PROPerties
-  12
-  'ASDO   1' 1
-  'ASDO   1' 2
-  'ASDO   1' 3
-  'ASDO   1' 4
-  'ASDO   1' 5
-  'ASDO   1' 6
-  'ASDO   2' 1
-  'ASDO   2' 2
-  'ASDO   2' 3
-  'ASDO   2' 4
-  'ASDO   2' 5
-  'ASDO   2' 6
-  * Note that 'ASD' is now 'ASDO' for the non-relativistic integrals.
+  HFCAt
+  all
+  NSPIn
+  0.5 0.5
+
+Because symmetry breaking may lift degeneracy, users can enforce degeneracy by setting :kword:`NCOU`.
+For example, consider a quick calculation for the Er atom (pseudospin = 6; the ground state has 13-fold degeneracy): ::
+
+  &RASSI
+  NrofJobIphs
+  1 11
+  1 2 3 4 5 6 7 8 9 10 11
+  SPIN
+  HFCAt
+  all
+  AUNG
+  NCOU
+  13
+
+A minimal input for pNMR by using :kword:`NMRAt` and :kword:`NMRTemp` :  ::
+
+  &RASSI &END
+  omega
+  NrofJobIphs
+    1 4
+    1 2 3 4
+  SPIN
+  NMRAt
+  3
+  13 14 15
+  NMRT
+    100.0 300.0 10
+
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SODIAG" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 

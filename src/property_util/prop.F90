@@ -54,7 +54,7 @@ subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
 
-use hfc_logical, only: MAG_X2C
+use hfc_logical, only: MagX2C_Avail
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Angstrom, Debye
 use Definitions, only: wp, iwp, u6
@@ -318,7 +318,7 @@ if (lab4 == 'MLTP') then
   ! Prop is also called in other programs where MAG_X2C could
   ! be uninitialized, if a test is required in such case
   ! please initialize MAG_X2C to false in related programs
-  if (MAG_X2C) StoreInfo = .false.
+  if (MagX2C_Avail) StoreInfo = .false.
 else if (lab4(1:2) == 'EF') then
   !                                                                    *
   !*********************************************************************

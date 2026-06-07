@@ -124,6 +124,7 @@ Stefan Knecht
 Vladislav Kochetov  
 Jesper Wisborg Krogh  
 Teodoro Laino  
+Dong Q. Le  
 Susi Lehtola  
 Giovanni Li Manni  
 Roland Lindh  
