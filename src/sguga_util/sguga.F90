@@ -368,7 +368,7 @@ STEP:   do ISTEP=0,3    ! loop over the step vectors
   ! PURPOSE: CONSTRUCT UPCHAIN INDEX TABLE AND REVERSE ARC WEIGHTS
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: IC, IDWN, ISUM, IU, IV
+    integer(kind=iwp) :: IC, IDWN, IU, IV
 
     call mma_allocate(SGS%UP,[1,SGS%nVert],[0,3],Label='SGS%UP')
     call mma_allocate(SGS%RAW,[0,SGS%nVert],[0,4],Label='SGS%RAW')
@@ -395,17 +395,13 @@ STEP:   do ISTEP=0,3    ! loop over the step vectors
 
     ! USE UPCHAIN TABLE TO CALCULATE THE REVERSE ARC WEIGHT TABLE:
 
-    SGS%RAW(:,0:3) = 0
+    SGS%RAW(:,:) = 0
     SGS%RAW(1,4) = 1
     do IV=2,SGS%nVert
-      ISUM = 0
       do IC=0,3
         IU = SGS%Up(IV,IC)
-        if (IU == 0) cycle
-        SGS%RAW(IV,IC) = ISUM
-        ISUM = ISUM+SGS%RAW(IU,4)
+        SGS%RAW(IV,IC+1) = SGS%RAW(IV,IC) + SGS%RAW(IU,4)
       end do
-      SGS%RAW(IV,4) = ISUM
     end do
 
 #   ifdef _DEBUGPRINT_
