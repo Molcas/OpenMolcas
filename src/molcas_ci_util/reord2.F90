@@ -69,7 +69,7 @@ real(kind=wp), intent(_OUT_) :: CINEW(*)
 integer(kind=iwp), intent(out) :: KCNF(NEL)
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, LPRINT
-integer(kind=iwp), external :: IPHASE, ISGNUM
+integer(kind=iwp), external :: IPHASE, SG_NUM
 
 IPRLEV = IPRLOC(3)
 ! LOOP OVER CONFIGURATIONS TYPES
@@ -121,7 +121,7 @@ do ITYP=1,NTYP
       ! COMPUTE STEP VECTOR
       call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = ISGNUM(SGS%nLev,SGS%nVert,SGS%MidLev,SGS%MVSta,CIS%nMidV,SGS%MxUp,SGS%MxDwn,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,EXS%USGN, &
+      ISG = SG_NUM(SGS%nLev,SGS%nVert,SGS%MidLev,SGS%MVSta,CIS%nMidV,SGS%MxUp,SGS%MxDwn,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,EXS%USGN, &
                    EXS%LSGN,IWALK)
 
       ! GET PHASE PHASE FACTOR

@@ -92,7 +92,6 @@ public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCOT, MkCoup, MkMAW, MkSe
           SG_Init, SG_Init_Simple, SGS, SGStruct
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
-integer(kind=iwp), parameter:: nPack=Storage_size(1_iwp)/2-1
 #ifdef SIZE_INITIALIZATION
 integer(kind=iwp), parameter:: nPack=Storage_size(1_iwp)/2-1
 #elif defined (_I8_)
@@ -1133,7 +1132,8 @@ end do
 EXS%MVR(:,:)=0
 do IVL=SGS%MVSta,SGS%MVEnd   ! Loop over vertices of the MIDLEV (absolute index)
   MVLL = IVL-SGS%MVSta+1     ! Compute relative index
-  if (CIS%IVR(IVL,1) /= 0) EXS%MVR(MVLL,1) = CIS%IVR(IVL,1)-SGS%MVSta+1 ! If there is a valid node for delta(b)=-1, store relative index.
+  ! If there is a valid node for delta(b)=-1, store relative index.
+  if (CIS%IVR(IVL,1) /= 0) EXS%MVR(MVLL,1) = CIS%IVR(IVL,1)-SGS%MVSta+1
   if (CIS%IVR(IVL,2) /= 0) EXS%MVR(MVLL,2) = CIS%IVR(IVL,2)-SGS%MVSta+1 ! Dito delta(b)=+1
 end do
 
@@ -1231,7 +1231,7 @@ integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS
                      NUPS1
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: IS, IST, NC, NUW
+integer(kind=iwp) :: IS, IST, NCP, NUW
 #endif
 
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')

@@ -12,6 +12,7 @@
 subroutine SG_UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 
 use Definitions, only: iwp
+use sguga, only: nPack
 
 implicit none
 integer(kind=iwp), intent(in) :: N, IPWLK, NWALK, IWALK(*)
@@ -24,7 +25,7 @@ do I=1,NWALK
   LEND = 0
   do J=1,IPWLK
     LSTA = LEND+1
-    LEND = min(LSTA+14,N)
+    LEND = min(LSTA+nPack-1,N)
     IPOS = IPOS+1
     IWORD = IWALK(IPOS)
     do L=LSTA,LEND

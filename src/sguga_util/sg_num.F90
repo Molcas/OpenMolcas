@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function ISGNUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,IDOWN,IUP,IDAW,IRAW,IUSGNUM,ILSGNUM,IWALK)
+function SG_NUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,IDOWN,IUP,IDAW,IRAW,IUSGNUM,ILSGNUM,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ISGNUM
+integer(kind=iwp) :: SG_NUM
 integer(kind=iwp), intent(in) :: NLEV, NVERT, MIDLEV, MVSta, NMIDV, MXUP, MXDWN, IDOWN(NVERT,0:3), IUP(NVERT,0:3), &
                                  IDAW(0:NVERT,0:4), IRAW(0:NVERT,0:4), IUSGNUM(MXUP,NMIDV), ILSGNUM(MXDWN,NMIDV), IWALK(NLEV)
 integer(kind=iwp) :: IC, ICASE, ICONF, IDAWSUM, IRAWSUM, IUW, LEV, LV, MIDV
@@ -54,10 +54,6 @@ ICONF = ILSGNUM(IDAWSUM,MIDV)
 
 ! COMPUTE LEXICAL ORDERING NUMBER
 
-ISGNUM = IUW+ICONF
+SG_NUM = IUW+ICONF
 
-! EXIT
-
-return
-
-end function ISGNUM
+end function SG_NUM

@@ -11,7 +11,7 @@
 
 subroutine SG_PRWF(SGS,CIS,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
 
-use sguga, only: CIStruct, SGStruct
+use sguga, only: CIStruct, SGStruct, nPack
 use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -101,7 +101,7 @@ do MV=1,CIS%nMidV
           NNN = 0
           do LEV=1,SGS%MidLev
             NNN = NNN+1
-            if (NNN == 16) then
+            if (NNN == nPack+1) then
               NNN = 1
               ICDPOS = ICDPOS+1
               ICDWN = CIS%ICase(ICDPOS)
@@ -118,7 +118,7 @@ do MV=1,CIS%nMidV
         NNN = 0
         do LEV=SGS%MidLev+1,SGS%nLev
           NNN = NNN+1
-          if (NNN == 16) then
+          if (NNN == nPack+1) then
             NNN = 1
             ICUPOS = ICUPOS+1
             ICUP = CIS%ICase(ICUPOS)
