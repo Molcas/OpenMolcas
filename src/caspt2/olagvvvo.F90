@@ -198,7 +198,7 @@ else
           iRec = iBas+nBasT*(jBas-1)
           if (ifmscoup .and. (jstate /= 1)) then
             read(lugamma,rec=irec) (wrk1(i),i=1,nocc*nocc)
-            t_hbf(:,:,ibas0,jbas0) = t_hbf(:,:,ibas0,jbas0)+reshape(wrk2(1:nocc**2),[nocc,nocc])
+            t_hbf(:,:,ibas0,jbas0) = t_hbf(:,:,ibas0,jbas0)+reshape(wrk1(1:nocc**2),[nocc,nocc])
           end if
           write(LuGamma,rec=iRec) ((T_hbf(i,j,iBas0,jBas0),i=1,nOcc),j=1,nOcc)
         end do

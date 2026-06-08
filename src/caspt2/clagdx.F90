@@ -199,14 +199,6 @@ else
   BDERmat(1:NAS**2) = BDERmat(1:NAS**2)-WRK3(1:NAS**2)
   SDERmat(1:NAS**2) = SDERmat(1:NAS**2)-WRK1(1:NAS**2)
 end if
-!! Now, convert the above contributions to derivatives of RDM,
-!! weighted Fock, etc.
-!! WRK3 is the derivative of B in the MO basis
-!! WRK1 is the derivative of S in the MO basis
-!! See and be consistent with mkbmat and mksmat
-!! Notice that F2 and G2 in mkbmat and mksmat are halved
-!! (see getdpref).
-!! they are moved to CLagDXA, ... CLagDXG
 
 call mma_deallocate(WRK1)
 call mma_deallocate(WRK2)

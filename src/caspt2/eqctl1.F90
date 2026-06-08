@@ -29,7 +29,8 @@ subroutine EQCTL1()
 
 use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX, MxSct, ModVec, IDSMat, IDBMat, IDTMat, IDSTMat
 use caspt2_global, only: do_grad, IDSCT, LUSBT, LUSOLV
-use caspt2_module, only: MxCase, nASup, nCases, nG2, nG3Tot, nInDep, nISup, nSym
+use caspt2_module, only: MxCase, nASup, nCases, nG2, nG3Tot, nInDep, nISup, nSym, HZERO
+use SC_NEVPT2, only: IDBMAT_NEVPT2
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6, ItoB, RtoI
 
@@ -197,6 +198,12 @@ do ICASE=1,NCASES
     IDSTMAT(ISYM,ICASE) = IDS2
     if (NT > 0) call DDAFILE(LUSBT,0,DUMMY,NT,IDS2)
     IDS = max(IDS1,IDS2)
+    if (HZERO == 'DYALL') then
+      IDBMAT_NEVPT2(ISYM,ICASE,1)=IDS
+      if (NT > 0) call DDAFILE(LUSBT,0,DUMMY,NT,IDS)
+      IDBMAT_NEVPT2(ISYM,ICASE,2)=IDS
+      if (NID > 0) call DDAFILE(LUSBT,0,DUMMY,NID,IDS)
+    end if
   end do
 end do
 

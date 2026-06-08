@@ -14,6 +14,7 @@ subroutine H0SPCT()
 ! denominators, i.e. the spectrum of (H0(diag)-E0).
 
 use PrintLevel, only: VERBOSE
+use SC_NEVPT2, only: SC_prop
 #ifdef _MOLCAS_MPP_
 use allgather_wrapper, only: allgather
 use Para_Info, only: Is_Real_Par
@@ -41,6 +42,13 @@ integer(kind=iwp) :: LD, myRank, mRHS, mVEC
 integer(kind=iwp), allocatable, target :: IDX_H(:,:)
 real(kind=wp), allocatable, target :: VAL_H(:,:)
 #endif
+
+! While it is possible to do a similar wf inspection,
+! the denominators etc. are very differently formulated for SC-NEVPT2, so we just skip here.
+if (SC_prop) then
+  write(u6,*) '  (Skip denominator check etc. with SC-NEVPT2 wavefunction)'
+  return
+end if
 
 write(u6,*)
 call CollapseOutput(1,'Denominators, etc.')
