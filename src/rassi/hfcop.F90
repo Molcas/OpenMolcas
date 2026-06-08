@@ -1155,7 +1155,8 @@ end subroutine calc_h_PSO
 
 subroutine save_h_rms()
 
-  integer(kind=iwp) :: ISS, JSTA, LU
+  integer(kind=iwp) :: ISS, istatus, JSTA, LU
+  logical(kind=iwp) :: is_error
   integer(kind=iwp), external :: IsFreeUnit
 
 # ifdef _HDF5_
@@ -1163,7 +1164,8 @@ subroutine save_h_rms()
 # endif
 
   Lu = IsFreeUnit(88)
-  open(Lu,filE='h_RMS.txt',status='REPLACE')
+  istatus = 100
+  call molcas_open_ext2(Lu,'h_RMS.txt','SEQUENTIAL','FORMATTED',istatus,.false.,1,'REPLACE',is_error)
   write(Lu,*) 'NSS= ',NSS
   write(Lu,*) '#NROW NCOL REAL'
   do JSTA=1,NSS

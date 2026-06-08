@@ -20,6 +20,7 @@
 module spin_data
 
 use Constants, only: Zero, Half
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, wp, u6
 
 implicit none
@@ -42,6 +43,17 @@ type(element), allocatable :: elements(:)
 type(isotope), allocatable :: isotopes(:)
 
 public :: free_spin_data, get_first_nonzero_GNUC, GNUC_by_nucspin, GNUC_NUCSPIN_by_nucmass, init_spin_data, NUCSPIN_by_gnuc
+
+! Private extensions to mma interfaces
+
+interface mma_allocate
+  module procedure :: element_mma_allo_1D, element_mma_allo_1D_lim
+  module procedure :: isotope_mma_allo_1D, isotope_mma_allo_1D_lim
+end interface
+interface mma_deallocate
+  module procedure :: element_mma_free_1D
+  module procedure :: isotope_mma_free_1D
+end interface
 
 contains
 
@@ -82,11 +94,11 @@ subroutine init_spin_data()
       if (Err2 > 0) write(u6,*) 'spin_data.F90: Error reading NumbIso'
       if (Err1+Err2 > 0) call AbEnd()
 
-      allocate(elements(NumbElem),stat=Err1)
-      allocate(isotopes(NumbIso),stat=Err2)
-      if (Err1 > 0) write(u6,*) 'spin_data.F90: Error allocating elements(:)'
-      if (Err2 > 0) write(u6,*) 'spin_data.F90: Error allocating isotopes(:)'
-      if (Err1+Err2 > 0) call AbEnd()
+      call mma_allocate(elements,NumbElem,Label='elements')
+      call mma_allocate(isotopes,NumbIso,Label='isotopes')
+#     include "macros.fh"
+      unused_proc(mma_allocate(elements,[0,0]))
+      unused_proc(mma_allocate(isotopes,[0,0]))
     end if
     !----------------------------------------------
     if (Line(1:1) == '>') then
@@ -317,13 +329,34 @@ end subroutine warning_not_found
 
 subroutine free_spin_data()
 
-  integer(kind=iwp) :: istat
-
-  deallocate(isotopes,stat=istat)
-  if (istat > 0) write(u6,*) ' Error in deallocating EasySpin isotopes.'
-  deallocate(elements,stat=istat)
-  if (istat > 0) write(u6,*) ' Error in deallocating EasySpin elements.'
+  call mma_deallocate(isotopes)
+  call mma_deallocate(elements)
 
 end subroutine free_spin_data
+
+! Private extensions to mma_interfaces, using preprocessor templates
+! (see mma_util/stdalloc.F90)
+
+! Define element_mma_allo_1D, element_mma_allo_1D_lim, element_mma_free_1D
+#define _TYPE_ type(element)
+#  define _SUBR_NAME_ element_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'elm_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
+
+! Define isotope_mma_allo_1D, isotope_mma_allo_1D_lim, isotope_mma_free_1D
+#define _TYPE_ type(isotope)
+#  define _SUBR_NAME_ isotope_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'iso_mma'
+#  include "mma_allo_template.fh"
+#  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
 
 end module spin_data

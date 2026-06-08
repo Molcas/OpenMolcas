@@ -202,7 +202,7 @@ subroutine Free_k2data_Internal(k2Data_1D)
 end subroutine Free_k2data_Internal
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define k2d_mma_allo_2D, k2d_mma_allo_2D_lim, k2d_mma_free_2D
 ! (using _NO_GARBLE_ because all members are initialized)
