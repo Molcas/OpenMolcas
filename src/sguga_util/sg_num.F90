@@ -9,24 +9,33 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function SG_NUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,IDOWN,IUP,IDAW,IRAW,IUSGNUM,ILSGNUM,IWALK)
+function SG_NUM(SGS,EXS,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
 
+use sguga, only: SGStruct, CIStruct, EXStruct
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: SG_NUM
-integer(kind=iwp), intent(in) :: NLEV, NVERT, MIDLEV, MVSta, NMIDV, MXUP, MXDWN, IDOWN(NVERT,0:3), IUP(NVERT,0:3), &
-                                 IDAW(0:NVERT,0:4), IRAW(0:NVERT,0:4), IUSGNUM(MXUP,NMIDV), ILSGNUM(MXDWN,NMIDV), IWALK(NLEV)
+type (SGStruct), intent(in) :: SGS
+type (EXStruct), intent(in) :: EXS
+integer(kind=iwp), intent(in) ::  IWALK(SGS%NLEV)
+
+integer(kind=iwp) :: NLEV, NVERT, MIDLEV, MVSta
 integer(kind=iwp) :: IC, ICASE, ICONF, IDAWSUM, IRAWSUM, IUW, LEV, LV, MIDV
+
+NLEV=SGS%nLev
+NVERT=SGS%nVert
+MIDLEV=SGS%MidLev
+MVSta=SGS%MVSta
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
 
 MIDV = 1
 do LEV=NLEV,(MIDLEV+1),-1
   ICASE = IWALK(LEV)
-  MIDV = IDOWN(MIDV,ICASE)
+  MIDV = SGS%DOWN(MIDV,ICASE)
 end do
 MIDV = MIDV-MVSta+1
 
@@ -36,10 +45,10 @@ IRAWSUM = 1
 LV = 1
 do LEV=NLEV,(MIDLEV+1),-1
   IC = IWALK(LEV)
-  LV = IDOWN(LV,IC)
-  IRAWSUM = IRAWSUM+IRAW(LV,IC)
+  LV = SGS%DOWN(LV,IC)
+  IRAWSUM = IRAWSUM+SGS%RAW(LV,IC)
 end do
-IUW = IUSGNUM(IRAWSUM,MIDV)
+IUW = EXS%USGN(IRAWSUM,MIDV)
 
 ! FIND DIRECT ARC WEIGHT FOR THE LOWER WALK
 
@@ -47,10 +56,10 @@ IDAWSUM = 1
 LV = NVERT
 do LEV=1,MIDLEV
   IC = IWALK(LEV)
-  LV = IUP(LV,IC)
-  IDAWSUM = IDAWSUM+IDAW(LV,IC)
+  LV = SGS%UP(LV,IC)
+  IDAWSUM = IDAWSUM+SGS%DAW(LV,IC)
 end do
-ICONF = ILSGNUM(IDAWSUM,MIDV)
+ICONF = EXS%LSGN(IDAWSUM,MIDV)
 
 ! COMPUTE LEXICAL ORDERING NUMBER
 

@@ -53,7 +53,7 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: CIS, EXS, SGS
+use general_data, only: EXS, SGS
 use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use PrintLevel, only: DEBUG
@@ -121,8 +121,7 @@ do ITYP=1,NTYP
       ! COMPUTE STEP VECTOR
       call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = SG_NUM(SGS%nLev,SGS%nVert,SGS%MidLev,SGS%MVSta,CIS%nMidV,SGS%MxUp,SGS%MxDwn,SGS%DOWN,SGS%UP,SGS%DAW,SGS%RAW,EXS%USGN, &
-                   EXS%LSGN,IWALK)
+      ISG = SG_NUM(SGS,EXS,IWALK)
 
       ! GET PHASE PHASE FACTOR
       IP = SG_PHASE(SGS%nLev,SGS%nVert,SGS%DRT,SGS%UP,IWALK)
