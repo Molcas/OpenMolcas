@@ -88,7 +88,7 @@ do ITYP=1,NTYP
       ! FUNCTION SG_NUM
       ISG = SG_NUM(SGS,EXS,IWALK)
       ! GET PHASE PHASE FACTOR
-      IP = SG_PHASE(SGS%nLev,SGS%nVert,SGS%DRT,SGS%Up,IWALK)
+      IP = SG_PHASE(SGS,IWALK)
       ! NOW REORDER THIS ELEMENT OF THE CI-VECTOR
       PHASE = real(IP,kind=wp)
       select case (iMode)

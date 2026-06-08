@@ -9,28 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function SG_PHASE(NLEV,NVERT,IDRT,IUP,IWALK)
+function SG_PHASE(SGS,IWALK)
 ! PURPOSE: THE SYMMETRIC GROUP APPROACH AND THE UNITARY GROUP
 !          APPROACH DIFFER IN THE PHASE CONVENTION. FIND THE
 !          PHASE FACTOR RELATING THE CSFS IN EITHER BASIS.
 
+use sguga, only: SGStruct
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: SG_PHASE
-integer(kind=iwp), intent(in) :: NLEV, NVERT, IDRT(NVERT,5), IUP(NVERT,0:3), IWALK(NLEV)
+type (SGStruct), intent(in):: SGS
+integer(kind=iwp), intent(in) :: IWALK(SGS%NLEV)
 integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
 
 SG_PHASE = 1
-IVERT = NVERT
-do LEV=1,NLEV
+IVERT = SGS%NVERT
+do LEV=1,SGS%NLEV
   ICASE = IWALK(LEV)
-  IVERT = IUP(IVERT,ICASE)
+  IVERT = SGS%UP(IVERT,ICASE)
   Select Case(iCase)
     Case(2,3)
-      ISGN = (-1)**IDRT(IVERT,4)
+      ISGN = (-1)**SGS%DRT(IVERT,4)
     Case Default
       ISGN = 1
   End Select
