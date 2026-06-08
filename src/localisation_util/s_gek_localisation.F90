@@ -183,7 +183,9 @@ else if (OptMeth == 5 .or. OptMeth == 6) then
     ! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
     j = j+1
     !current gradient
-    Aux_1(:) = grads(:,nDIIS+1)
+    Aux_1(:) = grads(:,nDIIS)
+    !call RecPrt("g(:,nDiis+1)",' ',grads(:,nDiis+1),fsdim, 1)
+    !call RecPrt("g(:,nDiis)",' ',grads(:,nDiis),fsdim, 1)
     !normalize
     e_diis(:,j) = Aux_1(:)/sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
 
@@ -231,6 +233,8 @@ end do
 ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
 mDIIS = j
 
+
+write(u6,*) '    mDIIS:',mDIIS
 #ifdef _DEBUGPRINT_
 write(u6,*) '    fsdim:',fsdim
 write(u6,*) 'nExplicit:',nExplicit
