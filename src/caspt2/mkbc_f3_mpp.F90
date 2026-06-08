@@ -22,11 +22,9 @@
 
 subroutine MKBC_F3_MPP(ISYM,BC,iLo,NAS,LDC,NG3,F3,idxG3)
 
+use GA_Wrapper, only: GA_NNodes
 use Symmetry_Info, only: Mul
-use MPI, only: MPI_COMM_WORLD, MPI_INTEGER, MPI_REAL8
-#ifndef _NEED_EXPLICIT_MPI_INTERFACE_
-use MPI, only: MPI_ALLTOALL, MPI_ALLTOALLV
-#endif
+use MPI_Wrapper, only: MPI_AllToAll, MPI_AllToAllV, MPI_COMM_WORLD, MPI_INTEGER, MPI_REAL8
 use SUPERINDEX, only: KTUV
 use caspt2_module, only: IASYM, NASHT, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
@@ -47,9 +45,6 @@ integer(kind=iwp), allocatable :: IBUF(:)
 integer(kind=MPIInt), allocatable :: RCOUNTS(:), RCOUNTS2(:), RDISPLS(:), RDISPLS2(:), RECVIDX(:), SCOUNTS(:), SCOUNTS2(:), &
                                      SDISPLS(:), SDISPLS2(:), SENDIDX(:)
 integer(kind=iwp), external :: IPROW
-#include "global.fh"
-#include "mafdecls.fh"
-#include "mpi_interfaces.fh"
 
 ! Since we are stuck with collective calls to MPI_Alltoallv in
 ! order to gather the elements, each process needs to loop over

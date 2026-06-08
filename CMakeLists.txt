@@ -604,11 +604,6 @@ if (MPI)
   endif ()
   message ("-- MPI_IMPLEMENTATION: ${MPI_IMPLEMENTATION}")
 
-  # MPICH and GCC > 10.0 requires explicit MPI interface
-  if (MPI_IMPLEMENTATION STREQUAL "mpich" OR MPI_IMPLEMENTATION STREQUAL "impi")
-    add_compile_definitions (_NEED_EXPLICIT_MPI_INTERFACE_)
-  endif ()
-
   list (APPEND EXTERNAL_LIBRARIES ${MPI_Fortran_LIBRARIES})
 endif ()
 
@@ -2840,6 +2835,7 @@ configure_file (${OPENMOLCAS_DIR}/data/modalias.src     data/modalias.txt     CO
 configure_file (${OPENMOLCAS_DIR}/data/landing.src      data/landing.txt      COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/isotope_data.src data/isotope_data.txt COPYONLY)
 configure_file (${OPENMOLCAS_DIR}/data/functionals.src  data/functionals.txt  COPYONLY)
+configure_file (${OPENMOLCAS_DIR}/data/spin_data.src    data/spin_data.txt    COPYONLY)
 file (COPY ${OPENMOLCAS_DIR}/data/inputs.tpl DESTINATION ${PROJECT_BINARY_DIR}/data)
 if (DEFINED EXTRA_DIR)
   foreach (f alias.plx auto.prgm landing.txt)

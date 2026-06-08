@@ -84,6 +84,7 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 ! CONST_MOLAR_GAS_               -- Molar gas constant in SI units.
 ! CONST_MUON_MASS_IN_SI_         -- Mass of the muon in SI units.
 ! CONST_PLANCK_                  -- Planck's constant in SI units.
+! CONST_PROTON_MASS_IN_AU_       -- Proton-electron mass ratio (dimensionless).
 !
 ! Conversion factors
 ! ------------------
@@ -122,6 +123,7 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 #  define CONST_DIELECTRIC_IN_SI_         8.8541878188e-12_wp
 #  define CONST_ELECTRON_G_FACTOR_       -2.00231930436092_wp
 #  define CONST_BOHR_MAGNETON_IN_SI_      9.2740100657e-24_wp
+#  define CONST_PROTON_MASS_IN_AU_        1.836152673426e3_wp
 #elif CODATA_SET == 2018
 ! CONST_AVOGADRO_, CONST_BOLTZMANN_, CONST_ELEMENTARY_CHARGE_IN_SI_, CONST_PLANCK_ are now exact
 #  define CONST_AMU_IN_SI_                1.66053906660e-27_wp
@@ -137,6 +139,7 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 #  define CONST_DIELECTRIC_IN_SI_         8.8541878128e-12_wp
 #  define CONST_ELECTRON_G_FACTOR_       -2.00231930436256_wp
 #  define CONST_BOHR_MAGNETON_IN_SI_      9.2740100783e-24_wp
+#  define CONST_PROTON_MASS_IN_AU_        1.83615267343e3_wp
 #elif CODATA_SET == 2014
 #  define CONST_AMU_IN_SI_                1.660539040e-27_wp
 #  define CONST_AU_TIME_IN_SI_            2.418884326509e-17_wp
@@ -151,6 +154,7 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 #  define CONST_DIELECTRIC_IN_SI_         8.854187817e-12_wp
 #  define CONST_ELECTRON_G_FACTOR_       -2.00231930436182_wp
 #  define CONST_BOHR_MAGNETON_IN_SI_      9.274009994e-24_wp
+#  define CONST_PROTON_MASS_IN_AU_        1.83615267389e3_wp
 #elif CODATA_SET == 2010
 #  define CONST_AMU_IN_SI_                1.660538921e-27_wp
 #  define CONST_AU_TIME_IN_SI_            2.418884326502e-17_wp
@@ -248,11 +252,12 @@ real(kind=wp), parameter :: Angstrom = CONST_BOHR_RADIUS_IN_SI_*1.0e10_wp, &
                             rBohr = CONST_BOHR_RADIUS_IN_SI_, &
                             Rgas = CONST_MOLAR_GAS_, &
                             rNAVO = CONST_AVOGADRO_, &
-                            uToau = CONV_AMU_TO_AU_
+                            uToau = CONV_AMU_TO_AU_, &
+                            proton_mass_in_au = CONST_PROTON_MASS_IN_AU_
 
 public :: Angstrom, atmToau, atmToPa, ATokg, auTocm, auToeV, auTofs, auToHz, auTokcalmol, auTokJ, auTokJmol, auTokJmolnm, auToN, &
           auToT, c_in_au, cal_to_J, cLight, cm_s, cOne, cZero, Debye, deg2rad, diel, Eight, elcharge, Eleven, elmass, Five, Four, &
           gElectron, Half, hPlanck, kBoltzmann, mBohr, mu2elmass, Nine, One, OneHalf, Onei, Pi, Quart, rBohr, Rgas, rNAVO, Seven, &
-          Six, Ten, Three, Twelve, Two, TwoP34, TwoP54, uToau, Zero
+          Six, Ten, Three, Twelve, Two, TwoP34, TwoP54, uToau, Zero, proton_mass_in_au
 
 end module Constants

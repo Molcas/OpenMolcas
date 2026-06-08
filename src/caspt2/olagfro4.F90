@@ -36,9 +36,6 @@ integer(kind=iwp) :: i, IBATCH, IBATCH_TOT, ILOC, ipVecL, ipWRK(8), IRC, iSkip(8
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: CHSPC(:), WRK2(:)
 #include "warnings.h"
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#endif
 
 !! It shoudl be zero, but just in case
 FPT2AO(1:NBSQT) = Zero

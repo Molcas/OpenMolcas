@@ -27,6 +27,7 @@ subroutine DerHeffX(IVEC,JVEC,NASHT,NTG3,OVL,DTG1,DTG2,DTG3)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB
 #endif
 use fake_GA, only: GA_Arrays
 use caspt2_module, only: NASUP, NINDEP, NISUP, NSYM
@@ -37,10 +38,6 @@ integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
 real(kind=wp), intent(out) :: OVL
 real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT), DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3)
 integer(kind=iwp) :: ICASE, iHi1, iHi2, iLo1, iLo2, ISYM, jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, MV1, MV2, NAS, NIN, NIS, nvlen
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 

@@ -32,9 +32,6 @@ integer(kind=iwp) :: iT, nLev
 real(kind=wp) :: DEASUM
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, TIOE, TIOTF0, TIOTF10, WALLT
 real(kind=wp), allocatable :: DF1(:), DF2(:), DF3(:), DG1(:), DG2(:), DG3(:), G1(:), G2(:), G3(:)
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#endif
 
 nLev = SGS%nLev
 

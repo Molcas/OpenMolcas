@@ -279,7 +279,7 @@ do iSymL=1,nSym
     call XFlush(u6)
   end if
   !---------------------------------------------------------------------
-  if ((nVec <= 0) .or. (nFVec <= 0)) then
+  if ((NumCho(iSymL) > 0) .and. ((nVec <= 0) .or. (nFVec <= 0))) then
     write(u6,*)
     write(u6,*) ' ************************************'
     write(u6,*) ' *  Insufficient memory for batch ! *'
@@ -288,7 +288,11 @@ do iSymL=1,nSym
     call XFlush(u6)
     call Abend()
   end if
-  nBatch = (NumCho(iSymL)-1)/nVec+1
+  if (NumCho(iSymL) == 0) then
+    nBatch = 1
+  else
+    nBatch = (NumCho(iSymL)-1)/nVec+1
+  end if
 
   ! START LOOP iBatch
   do iBatch=1,nBatch
@@ -310,42 +314,44 @@ do iSymL=1,nSym
     ! Start Transformation of Cholesy Vectors  CHFV -> TCVx
     call Timing(CPU1,CPE,TIO1,TIOE)
 
-    ! Start Loop on CHFV-iSym-jSym
-    do iSym=1,nSym
-      lUCHFV = -1
-      if (nBas(iSym) > 0) then
-        do jSym=1,iSym
-          lUCHFV = -1
-          if ((nBas(jSym) > 0) .and. (Mul(iSym,jSym) == iSymL)) then
-            lUCHFV = 7
-            iStrtVec_AB = nVec*(iBatch-1)+1
-            write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
-            call dAName_MF_WA(lUCHFV,CHName)
-            !-----------------------------------------------------------
-            !if (IfTest) then
-            !  write(u6,*) ' - Open ',CHName,' unit=',lUCHFV,' Vect=',iStrtVec_AB
-            !  call XFlush(u6)
-            !end if
-            !-----------------------------------------------------------
+    if (NumV > 0) then
+      ! Start Loop on CHFV-iSym-jSym
+      do iSym=1,nSym
+        lUCHFV = -1
+        if (nBas(iSym) > 0) then
+          do jSym=1,iSym
+            lUCHFV = -1
+            if ((nBas(jSym) > 0) .and. (Mul(iSym,jSym) == iSymL)) then
+              lUCHFV = 7
+              iStrtVec_AB = nVec*(iBatch-1)+1
+              write(CHName,'(A4,I1,I1)') CHNm,iSym,jSym
+              call dAName_MF_WA(lUCHFV,CHName)
+              !-----------------------------------------------------------
+              !if (IfTest) then
+              !  write(u6,*) ' - Open ',CHName,' unit=',lUCHFV,' Vect=',iStrtVec_AB
+              !  call XFlush(u6)
+              !end if
+              !-----------------------------------------------------------
 
-            if (iSym == jSym) then
-              call Cho_TraS(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
-            else
-              call Cho_TraA(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              if (iSym == jSym) then
+                call Cho_TraS(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              else
+                call Cho_TraA(iSym,jSym,NumV,CMO,NCMO,lUCHFV,iStrtVec_AB,nFVec)
+              end if
+
+              call dAClos(lUCHFV)
+              !-----------------------------------------------------------
+              !if (IfTest) then
+              !  write(u6,*) ' - Closed ',CHName
+              !  call XFlush(u6)
+              !end if
+              !-----------------------------------------------------------
             end if
-
-            call dAClos(lUCHFV)
-            !-----------------------------------------------------------
-            !if (IfTest) then
-            !  write(u6,*) ' - Closed ',CHName
-            !  call XFlush(u6)
-            !end if
-            !-----------------------------------------------------------
-          end if
-        end do
-      end if
-    end do
-    ! End Loop on CHFV-iSym-jSym
+          end do
+        end if
+      end do
+      ! End Loop on CHFV-iSym-jSym
+    end if
 
     call Timing(CPU2,CPE,TIO2,TIOE)
     CPU_Tra = CPU_Tra+CPU2-CPU1

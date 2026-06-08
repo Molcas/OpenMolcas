@@ -17,6 +17,7 @@ use PrintLevel, only: VERBOSE
 #ifdef _MOLCAS_MPP_
 use allgather_wrapper, only: allgather
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_NodeId
 #endif
 use EQSOLV, only: IDBMAT, IRHS, IVECX
 use fake_GA, only: GA_Arrays
@@ -39,8 +40,6 @@ real(kind=wp), pointer :: VAL(:,:)
 integer(kind=iwp) :: LD, myRank, mRHS, mVEC
 integer(kind=iwp), allocatable, target :: IDX_H(:,:)
 real(kind=wp), allocatable, target :: VAL_H(:,:)
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 write(u6,*)

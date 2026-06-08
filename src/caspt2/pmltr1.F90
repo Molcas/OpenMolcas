@@ -13,6 +13,7 @@ subroutine PMLTR1(KOD,IMLTOP,LST1,X,nX,NAS1,NIS1,JXOFF,F,NFI,NFJ,lg_Y,NAS2,NIS2)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_NodeId
 #endif
 use Sigma_data, only: NLST1
 use fake_GA, only: GA_Arrays
@@ -23,8 +24,6 @@ integer(kind=iwp), intent(in) :: KOD, IMLTOP, LST1(4,NLST1), nX, NAS1, NIS1, JXO
 real(kind=wp), intent(inout) :: X(nX), F(NFI,NFJ)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iYHi, iYLo, jYHi, jYLo, LDY, mY, myRank
-#include "global.fh"
-#include "mafdecls.fh"
 
 ! SVC: Determine the index ranges of the local chunks of lg_X and lg_Y.
 ! The boundaries and leading dimension are stored in a common block for

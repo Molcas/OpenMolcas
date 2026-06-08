@@ -28,6 +28,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 #ifdef _MOLCAS_MPP_
 use para_info, only: is_real_par
+use GA_Wrapper, only: DBL_MB, GA_Create_Irreg, GA_Destroy, GA_NNodes, GA_NodeId, MT_DBL
 #endif
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -48,8 +49,6 @@ real(kind=wp), allocatable :: A_ht(:), A_t(:), B_t(:), QVec(:)
 character(len=*), parameter :: SECNAM = 'Mult_with_Q_CASPT2'
 integer(kind=iwp), external :: IsFreeUnit
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
 logical(kind=iwp) :: bStat
 integer(kind=iwp) :: iHi1, iHi2, iLo1, iLo2, jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, mV1, mV2, nDim
 integer(kind=iwp), allocatable :: nList(:)

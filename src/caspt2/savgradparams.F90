@@ -26,6 +26,7 @@ use caspt2_module, only: E2Tot, EASum, ERef, jState, MxCase, nAshT, nASup, nBTri
                          nState, nSym, RefEne, RFPert
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, myRank
+use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use caspt2_global, only: LURHS
 use caspt2_module, only: cLab10, iAdr10, IOFFRHS
 #endif
@@ -42,8 +43,6 @@ real(kind=wp), allocatable :: WRK1(:)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: I, IDISK, IEND, ISTA, JEND, JSTA, LDM, LDW, lg_S, lg_ST, lg_T, mV1, NBLOCK
 logical(kind=iwp) :: bStat
-#include "global.fh"
-#include "mafdecls.fh"
 #endif
 
 !! Shift the address due to SavGradParams2

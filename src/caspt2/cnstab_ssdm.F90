@@ -26,6 +26,7 @@ use caspt2_global, only: LuAPT2, LuGAMMA
 use caspt2_module, only: NBAS, NBAST, NBTCHES, NSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, myRank, nProcs
+use GA_Wrapper, only: DBL_MB, GA_Create_Irreg, GA_Destroy, MT_DBL
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -33,10 +34,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "warnings.h"
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-#include "mafdecls.fh"
-#endif
 integer(kind=iwp), intent(in) :: NBSQT
 real(kind=wp), intent(in) :: DPT2AO(NBSQT), SSDM(NBSQT)
 integer(kind=iwp) :: IBATCH, IBATCH_TOT, id, ILOC, iost, ipV1, ipV2, ipVecL, ipWRK(8), IRC, iSkip(8), iSym, iVec, JBATCH, &

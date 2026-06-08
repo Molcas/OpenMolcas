@@ -16,16 +16,17 @@ use rassi_aux, only: ipglob
 #ifndef _DMRG_
 use rasscf_global, only: doDMRG
 #endif
-use Cntrl, only: BINA, CIH5, CITHR, DCHO, DCHS, DIPR, Do_Pol, Do_SK, DO_TMOM, DoCD, DYSEXPORT, DYSO, EPRAThr, EPRThr, FnEig, &
-                 FnTOM, FORCE_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HOP, IFACAL, IFACALFC, IFACALSD, IFArgU, IFATCALSA, IFCURD, &
+use Cntrl, only: BINA, CIH5, CITHR, DCHO, DCHS, DIPR, Do_Pol, Do_SK, DO_TMOM, DoCD, DYSEXPORT, DYSO, DEGEN_ETHR, EPRThr, FnEig, &
+                 FnTOM, FORCE_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HOP, IFArgU, IFCURD, &
                  IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFMCAL, IFNTO, IFSHFT, IFSO, &
                  IFTDM, IFTRD1, IFTRD2, IFXCAL, JBNAME, L_Eff, LHAMI, LOOPDIVIDE, LOOPMAX, LPRPR, LuEig, LuExc, LuIph, LuMck, &
                  LuOne, LuOrd, LuTOM, MINAME, NATO, NBINA, NJOB, NOHAM, NOSO, NPROP, NrNATO, NSOPR, NSOThr_Prt, NSTATE, OCAN, &
                  ONLY_OVERLAPS, OSThr_DipR, OSThr_QIPR, PNAME, PRCI, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, &
                  PRWEIGHT, PRXVE, PRXVR, PRXVS, PTYPE, QIALL, QIPR, REDUCELOOP, RFPert, RSPR, RSThr, SODIAGNSTATE, SONATNSTATE, &
-                 SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDIPMIN, TDYS, TMGR_Thrs, ToFile, TOLERANCE, TRACK
+                 SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDIPMIN, TDYS, TMGR_Thrs, ToFile, TOLERANCE, TRACK, NCOUP, NMass_set,&
+                 NSpin_set, GNuc_set, AutoSelect_GFac, HypF_rms_Req, NATens_Calc
 use rassi_data, only: WFTYPE
-use hfc_logical, only: MAG_X2C
+use hfc_logical, only: MagX2C_Avail
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -126,7 +127,6 @@ PRMEE = .false.
 PRMES = .false.
 IFGCAL = .false.
 EPRTHR = Zero
-EPRATHR = Zero
 IFXCAL = .false.
 IFMCAL = .false.
 HOP = .false.
@@ -171,20 +171,25 @@ IfDCpl = .false.
 ! tjd- BMII: Print out spin-orbit properties to files
 LPRPR = .false.
 LHAMI = .false.
-! Feng: test control
-MAG_X2C = .false.
+
+! Hyperfine Coupling and pNMR (hfcop.F90)
+MagX2C_Avail = .false.
+DEGEN_ETHR = 1.0E-6_wp
+NCOUP = 0_iwp
+NATens_Calc = 0_iwp
+NMass_set = .false.
+NSpin_set = .false.
+GNuc_set =.false.
+HypF_rms_Req = .false.
+AutoSelect_GFac = .false.
 
 ! K. Sharkas  BEG
-IFATCALSA = .false.
 IFGTCALSA = .false.
 IFGTSHSA = .false.
 ! K. Sharkas  END
 
 ! BP - Hyperfine tensor and SONATORB initialization
 ! RF - SO-NTO initialization
-IFACAL = .false.
-IFACALFC = .true.
-IFACALSD = .true.
 
 NOSO = .false.
 SONATNSTATE = 0

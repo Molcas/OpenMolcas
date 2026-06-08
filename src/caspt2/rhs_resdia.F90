@@ -28,6 +28,7 @@ subroutine RHS_RESDIA(NIN,NIS,lg_W,DIN,DIS,DOVL)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: DBL_MB, GA_NodeId
 use Constants, only: Zero
 #endif
 use fake_GA, only: GA_Arrays
@@ -39,8 +40,6 @@ real(kind=wp), intent(in) :: DIN(NIN), DIS(NIS)
 real(kind=wp), intent(out) :: DOVL
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iHi, iLo, jHi, jLo, LDW, mW, myRank, NCOL, NROW
-#include "global.fh"
-#include "mafdecls.fh"
 
 if (Is_Real_Par()) then
   DOVL = Zero
