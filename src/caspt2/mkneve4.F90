@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
+subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
   use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
   use caspt2_module, only: JSTATE, NACTEL, NCONF, NSYM, STSYM, MXCI
@@ -349,4 +349,4 @@ subroutine MKBNEVAC_E4x(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
   return
 
-end subroutine MKBNEVAC_E4x
+end subroutine MKNEVE4
