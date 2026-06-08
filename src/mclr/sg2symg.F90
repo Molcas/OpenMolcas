@@ -49,7 +49,7 @@ write(u6,103)
 103 format(/,6X,100('-'),/)
 #endif
 
-call REORD(SGS,CIS,EXS,NCONF,iMode,CNSM(iss)%ICONF,CFTP,pState_Sym,CI)
+call REORD(SGS,EXS,NCONF,iMode,CNSM(iss)%ICONF,CFTP,pState_Sym,CI)
 
 #ifdef _DEBUGPRINT_
 call SG_PrWF(SGS,CIS,pState_sym,PRWTHR,SGS%iSpin,CI,nConf,.false.,-99)

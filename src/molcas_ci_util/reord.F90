@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine REORD(SGS,CIS,EXS,NCONF,IMODE,ICONF,ISPIN,kSym,CIOLD)
+subroutine REORD(SGS,EXS,NCONF,IMODE,ICONF,ISPIN,kSym,CIOLD)
 ! AUTHOR:  M.P. FUELSCHER AND J. OLSEN
 !          UNIV. OF LUND, SWEDEN 1990
 !
@@ -31,7 +31,7 @@ subroutine REORD(SGS,CIS,EXS,NCONF,IMODE,ICONF,ISPIN,kSym,CIOLD)
 !          IMODE=1 : FROM SPLIT GRAPH UGA TO SYMMETRIC GROUP ORDER
 
 use MCLR_data, only: minop, NCNATS, NCPCNT, NTYP
-use sguga, only: CIStruct, EXStruct, SGStruct
+use sguga, only: EXStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -40,7 +40,6 @@ use Definitions, only: u6
 
 implicit none
 type(SGStruct), intent(in) :: SGS
-type(CIStruct), intent(in) :: CIS
 type(EXStruct), intent(in) :: EXS
 integer(kind=iwp), intent(in) :: nCONF, IMODE, ICONF(*), ISPIN(*), kSym
 real(kind=wp), intent(inout) :: CIOLD(NCONF)
