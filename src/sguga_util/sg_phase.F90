@@ -27,9 +27,9 @@ SG_PHASE = 1
 IVERT = NVERT
 do LEV=1,NLEV
   ICASE = IWALK(LEV)
+  IVERT = IUP(IVERT,ICASE)
   Select Case(iCase)
     Case(2,3)
-      IVERT = IUP(IVERT,ICASE)
       ISGN = (-1)**IDRT(IVERT,4)
     Case Default
       ISGN = 1
