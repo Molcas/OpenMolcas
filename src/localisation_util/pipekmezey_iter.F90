@@ -17,7 +17,7 @@
 !#define _DEBUGPRINT_
 !#define _FORCEGEKRANGE_
 !#define _TESTNUMERICALLY_
-#define _JSINSP_
+!#define _JSINSP_
 
 subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 ! Author: T.B. Pedersen
