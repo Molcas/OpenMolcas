@@ -12,13 +12,12 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
-!#define _DEBUGLISTS_
 !#define _DEBUG2_
 !#define _DEBUG3_
 !#define _DEBUGPRINT_
 !#define _FORCEGEKRANGE_
 !#define _TESTNUMERICALLY_
-!#define _JSINSP_
+#define _JSINSP_
 
 subroutine PipekMezey_Iter(Functional,CMO,PA,nBasis,nOrb2Loc,Converged)
 ! Author: T.B. Pedersen
@@ -214,7 +213,7 @@ end select
 
         call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
         call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
-        call RecPrt("full analytical Hessian","(6F10.6)",Hessian,fsdim,fsdim)
+        call RecPrt("full analytical Hessian","(21F10.6)",Hessian,fsdim,fsdim)
         call mma_deallocate(Hessian)
     end BLOCK
 #   endif
@@ -345,12 +344,21 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         else
             SearchDir(:) = -Gradient(:)/Hdiagvec(:)
 
-#       ifdef _JSINSP_
+#ifdef _JSINSP_
+    BLOCK
+        real(kind=wp), allocatable :: Hessian(:,:)
+
+        call mma_allocate(Hessian,fsdim,fsdim,Label="Hessian")
+        call GetHess_PM(nAtoms,nOrb2Loc,PA,fsdim,Hessian,CMO,nBasis)
+        !call RecPrt("full analytical Hessian","(6F10.6)",Hessian,fsdim,fsdim)
+        call mma_deallocate(Hessian)
+    end BLOCK
+
         !call RecPrt('SearchDir',' ',SearchDir,fsdim,1)
         !call RecPrt('Hdiagvec',' ',Hdiagvec,fsdim,1)
         !call RecPrt('Gradient',' ',Gradient,fsdim,1)
 
-            if (npos>0) then
+            if (npos>0 .and. gradnorm > 0.01_wp) then
                 do kl=1,fsdim
                     if (posel(kl) == 1 .and. abs(Gradient(kl)) < 1.0e-2_wp) then
                         !SearchDir(kl) = Pi/Hdiagvec(kl)
@@ -382,24 +390,18 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! see if inside region fit for GEK
         if (OptMeth >3) call StepSizeChecks()
 
+#       ifdef _FORCEGEKRANGE_
+        call force_GEKRange()
+#       endif
+
+
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! IF IN GEK RANGE: Build subspace and get back optimized Disp
-        ! else: take the above predicted values as actual values for this iteration
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then ! (S)-GEK
             if (GEKRange) then
 
                 IterGEK = IterGEK + 1
-
-                ! since we transformed PA to the NR step, we have to get the one at C_ref back
-                ! we can simply do that with generating it from the CMO again (that we will only update later)
-                ! reset NR step
-
-                if (trafoPA) then
-                    call transformPA(PA,nOrb2Loc,Umat,.false.)
-                else
-                    call GenerateP(CMO,nBasis,nOrb2Loc,nAtoms,PA)
-                end if
 
                 call S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,Disp,UpMeth,SORange,nOrb2Loc,nDIIS,-hdiagvec,CMO,&
                                         nBasis,PA,nAtoms)
@@ -635,6 +637,7 @@ subroutine StepSizeChecks()
     write(u6,*) "kappa elements > 0.01 =",large_elements
     write(u6,*) "largest element =", Disp(maxel)
 #   endif
+
 end subroutine StepSizeChecks
 
 
