@@ -23,8 +23,10 @@ use EQSOLV, only: iRHS, iVecC, iVecC2, iVecR, iVecW, iVecX
 use caspt2_global, only: do_grad, IDSAVGRD, iPrGlb, iStpGrd
 use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUPRP, CPUPT2, CPURHS, &
                          CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, IfRMS, &
-                         IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, &
-                         TIOLCS, TIONAD, TIOOVL, TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC
+                         IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, PT2Method, TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, &
+                         TIOINT, TIOLCS, TIONAD, TIOOVL, TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOSIN, &
+                         TIOVEC
+use SC_NEVPT2, only: Do_FIC
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -61,7 +63,7 @@ JSTATE_OFF = 0
 stateloop2: do IGROUP=1,NGROUP
 
   if (IPRGLB >= USUAL) then
-    write(STLNE2,'(A,1X,I3)') 'CASPT2 computation for group',IGROUP
+    write(STLNE2,'(A,1X,I3)') trim(PT2Method)//' computation for group',IGROUP
     call CollapseOutput(1,trim(STLNE2))
     write(u6,*)
   end if
@@ -86,11 +88,11 @@ stateloop2: do IGROUP=1,NGROUP
     ! Solve CASPT2 equation system and compute corr energies.
     if (IPRGLB >= USUAL) then
       write(u6,'(A)') repeat('*',80)
-      write(u6,*) ' CASPT2 EQUATION SOLUTION (SECOND RUN)'
-      write(u6,'(A)') repeat('-',80)
+      write(u6,'(2X,A)') trim(PT2Method)//' EQUATION SOLUTION (SECOND RUN)'
+      write(u6,'(A)') repeat('*',80)
     end if
 
-    write(STLNE2,'(A,I0)') 'Solve CASPT2 eqs. for state ',MSTATE(JSTATE)
+    write(STLNE2,'(A,I0)') 'Solve '//trim(PT2Method)//' eqs. for state ',MSTATE(JSTATE)
     call StatusLine('CASPT2: ',STLNE2)
     call EQCTL2(ICONV)
 
@@ -106,12 +108,14 @@ stateloop2: do IGROUP=1,NGROUP
     ! for that the serial LUSOLV file is needed, in that case copy
     ! the distributed LURHS() to LUSOLV here.
     if (IFDENS .or. (do_grad .and. ((iRlxRoot == MSTATE(JSTATE)) .or. IFMSCOUP))) then
-      call PCOLLVEC(IRHS,0)
-      call PCOLLVEC(IVECX,0)
-      call PCOLLVEC(IVECR,0)
-      call PCOLLVEC(IVECC,1)
-      call PCOLLVEC(IVECC2,1)
-      call PCOLLVEC(IVECW,1)
+      if (do_FIC) then
+        call PCOLLVEC(IRHS,0)
+        call PCOLLVEC(IVECX,0)
+        call PCOLLVEC(IVECR,0)
+        call PCOLLVEC(IVECC,1)
+        call PCOLLVEC(IVECC2,1)
+        call PCOLLVEC(IVECW,1)
+      end if
     end if
 
     if (IFPROP .or. (do_grad .and. ((IRLXroot == MSTATE(JSTATE)) .or. IFMSCOUP))) then
@@ -143,7 +147,7 @@ stateloop2: do IGROUP=1,NGROUP
   end do
 
   if (IPRGLB >= USUAL) then
-    call CollapseOutput(0,'CASPT2 computation for group ')
+    call CollapseOutput(0,trim(STLNE2))
     write(u6,*)
   end if
   ! End of long loop over groups

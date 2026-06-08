@@ -22,14 +22,15 @@ use Index_Functions, only: nTri_Elem
 use EQSOLV, only: IDBMAT, IDSMAT, IDSTMAT, IDTMAT, IVECX
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: do_lindep, DREF, IDBoriMat, iTasks_grad, LUGRAD, LUSBT, LUSOLV, LUSTD, NBUF1_GRAD, nTasks_grad, PREF
-use caspt2_module, only: E2Tot, EASum, ERef, jState, MxCase, nAshT, nASup, nBTri, nCases, nG1, nG2, nG3, nG3Tot, nInDep, nISup, &
-                         nState, nSym, RefEne, RFPert
+use caspt2_module, only: E2Tot, EASum, ERef, HZERO, jState, MxCase, nAshT, nASup, nBTri, nCases, nG1, nG2, nG3, nG3Tot, nInDep, &
+                         nISup, nState, nSym, RefEne, RFPert
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, myRank
 use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use caspt2_global, only: LURHS
 use caspt2_module, only: cLab10, iAdr10, IOFFRHS
 #endif
+use SC_NEVPT2, only: IDBMAT_NEVPT2, SC_amplitude, SC_prop
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, byte
 
@@ -128,12 +129,14 @@ if (IORW == 1) then
   call PT2_GET(NG3,' GAMMA3',WRK1)
   call DDAFILE(LUGRAD,IORW,WRK1,NG3,IDSAVGRD)
 
-  call PT2_GET(NG1,' DELTA1',WRK1)
-  call DDAFILE(LUGRAD,IORW,WRK1,NG1,IDSAVGRD)
-  call PT2_GET(NG2,' DELTA2',WRK1)
-  call DDAFILE(LUGRAD,IORW,WRK1,NG2,IDSAVGRD)
-  call PT2_GET(NG3,' DELTA3',WRK1)
-  call DDAFILE(LUGRAD,IORW,WRK1,NG3,IDSAVGRD)
+  if (HZERO /= 'DYALL') then
+    call PT2_GET(NG1,' DELTA1',WRK1)
+    call DDAFILE(LUGRAD,IORW,WRK1,NG1,IDSAVGRD)
+    call PT2_GET(NG2,' DELTA2',WRK1)
+    call DDAFILE(LUGRAD,IORW,WRK1,NG2,IDSAVGRD)
+    call PT2_GET(NG3,' DELTA3',WRK1)
+    call DDAFILE(LUGRAD,IORW,WRK1,NG3,IDSAVGRD)
+  end if
 
   !! EASUM
   WRK1(1) = EASUM
@@ -162,12 +165,14 @@ else if (IORW == 2) then
   call DDAFILE(LUGRAD,IORW,WRK1,NG3,IDSAVGRD)
   call PT2_PUT(NG3,' GAMMA3',WRK1)
 
-  call DDAFILE(LUGRAD,IORW,WRK1,NG1,IDSAVGRD)
-  call PT2_PUT(NG1,' DELTA1',WRK1)
-  call DDAFILE(LUGRAD,IORW,WRK1,NG2,IDSAVGRD)
-  call PT2_PUT(NG2,' DELTA2',WRK1)
-  call DDAFILE(LUGRAD,IORW,WRK1,NG3,IDSAVGRD)
-  call PT2_PUT(NG3,' DELTA3',WRK1)
+  if (HZERO /= 'DYALL') then
+    call DDAFILE(LUGRAD,IORW,WRK1,NG1,IDSAVGRD)
+    call PT2_PUT(NG1,' DELTA1',WRK1)
+    call DDAFILE(LUGRAD,IORW,WRK1,NG2,IDSAVGRD)
+    call PT2_PUT(NG2,' DELTA2',WRK1)
+    call DDAFILE(LUGRAD,IORW,WRK1,NG3,IDSAVGRD)
+    call PT2_PUT(NG3,' DELTA3',WRK1)
+  end if
 
   !! EASUM
   call DDAFILE(LUGRAD,IORW,WRK1,1,IDSAVGRD)
@@ -184,7 +189,7 @@ do ISYM=1,NSYM
     NAS = NASUP(ISYM,ICASE)
     NIS = NISUP(ISYM,ICASE)
     if (IORW == 1) then
-      if (NIN > 0) then
+      if (NAS > 0) then
         !! Active overlap
 #       ifdef _MOLCAS_MPP_
         if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -208,7 +213,7 @@ do ISYM=1,NSYM
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
-        if (NAS > 0) then
+        if (NIN > 0 .and. .not.SC_prop) then
           !! ST matrix
 #         ifdef _MOLCAS_MPP_
           if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -252,21 +257,34 @@ do ISYM=1,NSYM
           end if
 #         endif
         end if
-        !! Eigenvalue
-        ID = IDBMAT(ISYM,ICASE)
-        call DDAFILE(LUSBT,2,WRK1,NIN,ID)
-        call DDAFILE(LUGRAD,1,WRK1,NIN,IDSAVGRD)
+      end if
+      !! Eigenvalue
+      ID  = IDBMAT(ISYM,ICASE)
+      if (NAS > 0) then
+        CALL DDAFILE(LUSBT,2,WRK1,NAS,ID)
+        CALL DDAFILE(LUGRAD,1,WRK1,NAS,IDSAVGRD)
       end if
       !! IS
-      !call DDAFILE(LUSBT,2,WRK1,NIS,ID)
-      !call DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
-      if (do_lindep .and. (NAS > 0)) then
+      if (SC_amplitude .and. NIS > 0) then
+        CALL DDAFILE(LUSBT,2,WRK1,NIS,ID)
+        CALL DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
+      end if
+      if (do_lindep .and. NAS > 0) then
         ID = IDBoriMat(ISYM,ICASE)
         call DDAFILE(LUSTD,2,WRK1,nTri_Elem(NAS),ID)
         call DDAFILE(LUGRAD,1,WRK1,nTri_Elem(NAS),IDSAVGRD)
       end if
+      !! Original B matrix, needed in SC-NEVPT2 gradient
+      if (HZERO == 'DYALL' .and. SC_amplitude) then
+        ID = IDBMAT_NEVPT2(ISYM,ICASE,1)
+        call DDAFILE(LUSBT,2,WRK1,nTri_Elem(NAS),ID)
+        call DDAFILE(LUGRAD,1,WRK1,nTri_Elem(NAS),IDSAVGRD)
+        ID = IDBMAT_NEVPT2(ISYM,ICASE,2)
+        call DDAFILE(LUSBT,2,WRK1,NIS,ID)
+        call DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
+      end if
     else if (IORW == 2) then
-      if (NIN > 0) then
+      if (NAS > 0) then
         !! Active overlap
 #       ifdef _MOLCAS_MPP_
         if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -290,7 +308,7 @@ do ISYM=1,NSYM
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
-        if (NAS > 0) then
+        if (NIN > 0 .and. .not.SC_prop) then
           !! ST matrix
 #         ifdef _MOLCAS_MPP_
           if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -336,22 +354,69 @@ do ISYM=1,NSYM
           end if
 #         endif
         end if
-        !! Eigenvalue
-        call DDAFILE(LUGRAD,2,WRK1,NIN,IDSAVGRD)
-        ID = IDBMAT(ISYM,ICASE)
-        call DDAFILE(LUSBT,1,WRK1,NIN,ID)
+      end if
+      !! Eigenvalue
+      ID  = IDBMAT(ISYM,ICASE)
+      if (NAS > 0) then
+        CALL DDAFILE(LUGRAD,2,WRK1,NAS,IDSAVGRD)
+        CALL DDAFILE(LUSBT,1,WRK1,NAS,ID)
       end if
       !! IS
-      !call DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
-      !call DDAFILE(LUSBT,1,WRK1,NIS,ID)
-      if (do_lindep .and. (NAS > 0)) then
+      if (SC_amplitude .and. NIS > 0) then
+        CALL DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
+        CALL DDAFILE(LUSBT,1,WRK1,NIS,ID)
+      end if
+      if (do_lindep .and. NAS > 0) then
         call DDAFILE(LUGRAD,2,WRK1,nTri_Elem(NAS),IDSAVGRD)
         ID = IDBoriMat(ISYM,ICASE)
         call DDAFILE(LUSTD,1,WRK1,nTri_Elem(NAS),ID)
       end if
+      !! Original B matrix, needed in SC-NEVPT2 gradient
+      if (HZERO == 'DYALL' .and. SC_amplitude) then
+        ID = IDBMAT_NEVPT2(ISYM,ICASE,1)
+        call DDAFILE(LUGRAD,2,WRK1,nTri_Elem(NAS),IDSAVGRD)
+        call DDAFILE(LUSBT,1,WRK1,nTri_Elem(NAS),ID)
+        ID = IDBMAT_NEVPT2(ISYM,ICASE,2)
+        call DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
+        call DDAFILE(LUSBT,1,WRK1,NIS,ID)
+      end if
     end if
   end do
 end do
+
+if (SC_amplitude) then
+  do ISYM=1,NSYM
+    do ICASE=12,13
+      NAS = NASUP(ISYM,ICASE)
+      NIS = NISUP(ISYM,ICASE)
+      if (IORW == 1) then
+        !! Eigenvalue
+        ID = IDBMAT(ISYM,ICASE)
+        if (NAS > 0) then
+          call DDAFILE(LUSBT,2,WRK1,NAS,ID)
+          call DDAFILE(LUGRAD,1,WRK1,NAS,IDSAVGRD)
+        end if
+        !! IS
+        if (NIS > 0) then
+          call DDAFILE(LUSBT,2,WRK1,NIS,ID)
+          call DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
+        end if
+      else if (IORW == 2) then
+        !! Eigenvalue
+        ID = IDBMAT(ISYM,ICASE)
+        if (NAS > 0) then
+          call DDAFILE(LUGRAD,2,WRK1,NAS,IDSAVGRD)
+          call DDAFILE(LUSBT,1,WRK1,NAS,ID)
+        end if
+        !! IS
+        if (NIS > 0) then
+          call DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
+          call DDAFILE(LUSBT,1,WRK1,NIS,ID)
+        end if
+      end if
+    end do
+  end do
+end if
 
 !! 4. E2TOT
 if (IORW == 1) then
@@ -368,7 +433,10 @@ call mma_deallocate(WRK1)
 !call DDAFILE(LUGRAD,IORW,EPSA,NASHT,IDSAVGRD)
 
 !! 5. Save T-amplitude (IRHS = LURHS(1) = 51)
-call SaveReadT1()
+!! SC-NEVPT2 does not use IVECX
+if (HZERO /= 'DYALL' .or. .not. SC_prop) call SaveReadT1()
+!! We at least need to create IVECX for MECI search
+if (HZERO == 'DYALL' .and. SC_prop .and. IORW == 2) call RHS_ZERO(IVECX)
 
 contains
 

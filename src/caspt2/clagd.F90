@@ -17,12 +17,15 @@ use Index_Functions, only: nTri_Elem
 use EQSOLV, only: IDBMAT, IDSMAT, IRHS, IVECR, IVECW, IVECX
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: imag_shift, ipea_shift, iVecL, LUSBT, LUSOLV, sigma_p_epsilon
-use caspt2_module, only: EASUM, EPSA, IFMSCOUP, NAES, NASH, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES
+use caspt2_module, only: EASUM, EPSA, HZERO, IFMSCOUP, NAES, NASH, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES
+use BDerNEV, only: BDNA, BDNB, BDNC, BDND, BDNE, BDNF, BDNG, BDN_G3
+use SC_NEVPT2, only: SC_prop, SC_NEVPT2_CLagD
 #ifdef _MOLCAS_MPP_
 use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
 use Para_Info, only: Is_Real_Par, King
 use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use Definitions, only: u6
+use EQSOLV, only: IDTMAT
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Four, Half
@@ -34,15 +37,21 @@ real(kind=wp), intent(inout) :: G1(NASHT,NASHT), G2(NASHT,NASHT,NASHT,NASHT), G3
                                 DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3), DF1(NASHT,NASHT), DF2(NASHT,NASHT,NASHT,NASHT), DF3(NG3), &
                                 DEASUM, DEPSA(NASHT,NASHT)
 real(kind=wp), intent(in) :: VECROT(NSTATE)
-integer(kind=iwp) :: iCase, ID, idS, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUabs, iTU2, iTUabs, iUabs, iXabs, iXgeYabs, iXgtYabs, &
-                     iXY2, iXYabs, iYabs, lg_V1, lg_V2, lg_V3, lg_V4, lg_V5, NAS, NIN, NIS, NS, NSEQ, NVEC
+integer(kind=iwp) :: iCase, ID, idS, idum, iLUID, iSym, iTabs, iTgeUabs, iTgtUabs, iTU2, iTUabs, iUabs, iXabs, iXgeYabs, &
+                     iXgtYabs, iXY2, iXYabs, iYabs, lg_V1, lg_V2, lg_V3, lg_V4, lg_V5, NAS, NIN, NIS, NS, NSEQ, NVEC
 real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BDERval, bsBDER, ET, EU, EX, EY, ScalB1, ScalB2, ScalS1, ScalS2, SDERval
 real(kind=wp), allocatable :: BDER(:), LBD(:), LID(:), SDER(:), SMat(:)
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: IHI, ILO, JHI, JLO, LDV, lg_S, mS, MYRANK
+integer(kind=iwp) :: idT, IHI, ILO, JHI, JLO, LDV, lg_S, lg_T, mS, MYRANK
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: VEC1(:), VEC2(:), VEC3(:), VEC4(:), VEC5(:)
+logical(kind=iwp) :: bStat
 #endif
+
+if (HZERO == 'DYALL' .and. SC_prop) then
+  call SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
+  return
+end if
 
 do iCase=1,11
   !cycle
@@ -65,11 +74,23 @@ do iCase=1,11
 
 #   ifdef _MOLCAS_MPP_
     if (is_real_par()) then
-      if ((iCase /= 1) .and. (iCase /= 4)) then
+      if ((iCase /= 1 .and. iCase /= 4) .or. HZERO == 'DYALL') then
         call mma_allocate(BDER,NAS**2,Label='BDER')
         call mma_allocate(SDER,NAS**2,Label='SDER')
         BDER(:) = Zero
         SDER(:) = Zero
+      end if
+      if (HZERO == 'DYALL' .and. (iCase == 1 .or. iCase == 4)) then
+        call GA_CREATE_STRIPED('H',NAS,NIN,'TRANS',lg_T)
+        call PSBMAT_READ('T',iCase,iSym,lg_T,NAS*NIN)
+        if (King()) then
+          call mma_allocate(VEC1,NAS*NIN,Label='VEC1')
+          call GA_GET(lg_T,1,NAS,1,NIN,VEC1,NAS)
+          idT = idTMAT(iSym,iCase)
+          call DDAFILE(LUSBT,1,VEC1,NAS*NIN,idT)
+          call mma_deallocate(VEC1)
+        end if
+        bStat = GA_destroy(lg_T)
       end if
     else
 #   endif
@@ -82,7 +103,7 @@ do iCase=1,11
 #   endif
 
 #   if defined(_MOLCAS_MPP_) && defined(_GA_)
-    if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
+    if (is_real_par() .and. ((icase == 1) .or. (icase == 4)) .and. HZERO /= 'DYALL') then
       call CLagDX_MPP()
       cycle
     else
@@ -220,30 +241,55 @@ do iCase=1,11
     end if
 #   endif
 
-    select case (iCase)
-      case (1)
-        call CLagDXA(NAS,BDER,SDER)
-      case (2)
-        call CLagDXB(NAS,BDER,SDER)
-      case (3)
-        call CLagDXB(NAS,BDER,SDER)
-      case (4)
-        call CLagDXC(NAS,BDER,SDER)
-      case (5)
-        call CLagDXD(NAS,BDER,SDER)
-      case (6)
-        call CLagDXE(NAS,BDER,SDER)
-      case (7)
-        call CLagDXE(NAS,BDER,SDER)
-      case (8)
-        call CLagDXF(NAS,BDER,SDER)
-      case (9)
-        call CLagDXF(NAS,BDER,SDER)
-      case (10)
-        call CLagDXG(NAS,BDER,SDER)
-      case (11)
-        call CLagDXG(NAS,BDER,SDER)
-    end select
+    if (HZERO /= 'DYALL') then !! CASPT2
+      select case (iCase)
+        case (1)
+          call CLagDXA(NAS,BDER,SDER)
+        case (2)
+          call CLagDXB(NAS,BDER,SDER)
+        case (3)
+          call CLagDXB(NAS,BDER,SDER)
+        case (4)
+          call CLagDXC(NAS,BDER,SDER)
+        case (5)
+          call CLagDXD(NAS,BDER,SDER)
+        case (6)
+          call CLagDXE(NAS,BDER,SDER)
+        case (7)
+          call CLagDXE(NAS,BDER,SDER)
+        case (8)
+          call CLagDXF(NAS,BDER,SDER)
+        case (9)
+          call CLagDXF(NAS,BDER,SDER)
+        case (10)
+          call CLagDXG(NAS,BDER,SDER)
+        case (11)
+          call CLagDXG(NAS,BDER,SDER)
+      end select
+    else if (HZERO == 'DYALL') then !! NEVPT2
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call GADGOP(BDER,NAS**2,'+')
+        call GADGOP(SDER,NAS**2,'+')
+      end if
+#     endif
+      select case (iCase)
+        case (1)
+          call BDNA(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
+        case (2,3)
+          call BDNB(iSym,iCase,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
+        case (4)
+          call BDNC(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
+        case (5)
+          call BDND(iSym,NAS,NG3,BDER,SDER,G1,G2,G3,DG1,DG2,DG3)
+        case (6,7)
+          call BDNE(iSym,NAS,BDER,SDER,G1,G2,DG1,DG2)
+        case (8,9)
+          call BDNF(iSym,iCase,NAS,NG3,BDER,SDER,G2,G3,DG2,DG3)
+        case (10,11)
+          call BDNG(iSym,NAS,BDER,SDER,G1,G2,DG1,DG2)
+      end select
+    end if
 
     call RHS_FREE(lg_V1)
     call RHS_FREE(lg_V2)
@@ -253,7 +299,7 @@ do iCase=1,11
 
 #   ifdef _MOLCAS_MPP_
     if (is_real_par()) then
-      if ((iCase /= 1) .and. (iCase /= 4)) then
+      if ((iCase /= 1 .and. iCase /= 4) .or. HZERO == 'DYALL') then
         call mma_deallocate(BDER)
         call mma_deallocate(SDER)
       end if
@@ -268,7 +314,7 @@ do iCase=1,11
 end do
 
 #ifdef _MOLCAS_MPP_
-if (is_real_par()) then
+if (is_real_par() .and. HZERO /= 'DYALL') then
   iCase = 4
   MYRANK = GA_NODEID()
   do iSym=1,nSym
@@ -292,6 +338,8 @@ if (is_real_par()) then
   end do
 end if
 #endif
+
+if (HZERO == 'DYALL') call BDN_G3(DG1,DG2,DG3)
 
 return
 

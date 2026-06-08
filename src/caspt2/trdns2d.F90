@@ -29,7 +29,8 @@ use Para_Info, only: Is_Real_Par, King
 use EQSOLV, only: iDBMat
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: do_grad, imag_shift, LISTS, LUSBT, sigma_p_epsilon
-use caspt2_module, only: nASup, nInDep, nISup, nSym
+use caspt2_module, only: MXCASE, nASup, nInDep, nISup, nSym
+use SC_NEVPT2, only: SC_Prop, SC_NEVPT2_Amplitude
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -40,9 +41,23 @@ real(kind=wp), intent(inout) :: DPT2(NDPT2)
 real(kind=wp), intent(in) :: SCAL
 integer(kind=iwp) :: ICASE, ISYM, jD, lg_v1, lg_v2, NAS, NIN, NIS, nVec
 real(kind=wp), allocatable :: BD(:), ID(:)
+integer(kind=iwp), allocatable :: NINDEP_tmp(:,:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: VEC1(:), VEC2(:)
 #endif
+
+!! SC-NEVPT2 does not use linearly-dependence basis,
+!! so replace NINDEP with NASUP
+if (SC_Prop) then
+  !! Ensure that the original NASUP is not used
+  if (sigma_p_epsilon /= Zero) then
+    call warningMessage(2,'sigmar regularization cannot be used for SC-NEVPT2 properties.')
+    call quit_onUserError()
+  end if
+  call mma_allocate(NINDEP_tmp,8,MXCASE,Label='NINDEP_tmp')
+  NINDEP_tmp(1:8,1:MXCASE) = NINDEP(1:8,1:MXCASE)
+  NINDEP(1:8,1:MXCASE) = NASUP(1:8,1:MXCASE)
+end if
 
 ! Inact/Inact and Virt/Virt blocks:
 do ICASE=1,13
@@ -59,28 +74,40 @@ do ICASE=1,13
     !! JVEC = iVecR
     call RHS_ALLO(NIN,NIS,lg_V1)
     call RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
-    if (IVEC == JVEC) then
+    !! lg_V1 is IVECW if SC-NEVPT2
+    if (SC_prop) call SC_NEVPT2_Amplitude(NIN,NIS,iCase,iSym,lg_V1)
+    if (IVEC == JVEC .and. .not. SC_prop) then
       lg_V2 = lg_V1
     else
       call RHS_ALLO(NIN,NIS,lg_V2)
       call RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
-      if (do_grad) then
-        call RHS_SCAL(NIN,NIS,lg_V1,SCAL)
-        if (sigma_p_epsilon /= Zero) then
-          !! derivative of the numerator
-          !! multiply the lambda part (lg_V2) only
-          nAS = nASUP(iSym,iCase)
-          call mma_allocate(BD,nAS,Label='BD')
-          call mma_allocate(ID,nIS,Label='ID')
-          jD = iDBMat(iSym,iCase)
-          call dDaFile(LUSBT,2,BD,nAS,jD)
-          call dDaFile(LUSBT,2,ID,nIS,jD)
-          call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,BD,ID)
-          call mma_deallocate(BD)
-          call mma_deallocate(ID)
+      if (SC_prop) then
+        if (do_grad) then
+          !! lg_V2 = IVECW
+          call SC_NEVPT2_Amplitude(NIN,NIS,iCase,iSym,lg_V2)
+        else
+          call RHS_SCAL(NIN,NIS,lg_V2,Zero)
+          call RHS_STRANS(NIN,NIS,+One,lg_V1,lg_V2,ICASE,ISYM)
         end if
-        call RHS_DAXPY(NIN,NIS,One,lg_V2,lg_V1)
-        call RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
+      else
+        if (do_grad) then
+          call RHS_SCAL(NIN,NIS,lg_V1,SCAL)
+          if (sigma_p_epsilon /= Zero) then
+            !! derivative of the numerator
+            !! multiply the lambda part (lg_V2) only
+            nAS = nASUP(iSym,iCase)
+            call mma_allocate(BD,nAS,Label='BD')
+            call mma_allocate(ID,nIS,Label='ID')
+            jD = iDBMat(iSym,iCase)
+            call dDaFile(LUSBT,2,BD,nAS,jD)
+            call dDaFile(LUSBT,2,ID,nIS,jD)
+            call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,BD,ID)
+            call mma_deallocate(BD)
+            call mma_deallocate(ID)
+          end if
+          call RHS_DAXPY(NIN,NIS,One,lg_V2,lg_V1)
+          call RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
+        end if
       end if
     end if
 
@@ -109,7 +136,7 @@ do ICASE=1,13
 #   ifdef _MOLCAS_MPP_
     end if
 #   endif
-    if (do_grad .and. ((imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero))) then
+    if (do_grad .and. (.not. SC_prop .and. ((imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero)))) then
       !! for sigma-p CASPT2, derivative of the denominator
       nAS = nASUP(iSym,iCase)
       call mma_allocate(BD,nAS,Label='BD')
@@ -153,11 +180,16 @@ do ICASE=1,13
     end if
 
     call RHS_FREE(lg_V1)
-    if (IVEC /= JVEC) call RHS_FREE(lg_V2)
+    if (IVEC /= JVEC .or. SC_prop) call RHS_FREE(lg_V2)
   end do
 end do
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par() .and. do_grad) call gadgop(DPT2,NDPT2,'+')
 #endif
+
+if (SC_Prop) then
+  NINDEP(1:8,1:MXCASE) = NINDEP_tmp(1:8,1:MXCASE)
+  call mma_deallocate(NINDEP_tmp)
+end if
 
 end subroutine TRDNS2D

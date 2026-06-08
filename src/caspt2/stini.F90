@@ -21,7 +21,7 @@ use caspt2_module, only: DMRG
 #endif
 use PrintLevel, only: DEBUG, USUAL
 use caspt2_global, only: DREF, iPrGlb, PREF
-use caspt2_module, only: CLab10, CPUFG3, CPUSIN, EASUM, EPSA, ERef, iAdr10, mState, nAshT, RefEne, TIOFG3, TIOSIN
+use caspt2_module, only: CLab10, CPUFG3, CPUSIN, EASUM, EPSA, ERef, HZERO, iAdr10, mState, nAshT, RefEne, TIOFG3, TIOSIN
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -30,11 +30,14 @@ integer(kind=iwp), intent(in) :: JSTATE
 integer(kind=iwp) :: I, J
 real(kind=wp) :: CPE, CPTF0, CPTF11, CPU, CPU0, CPU1, TIO, TIO0, TIO1, TIOE, TIOTF0, TIOTF11
 character(len=50) :: STLNE2
-logical(kind=iwp), parameter :: IFTEST = .false., mkF = .true.
+logical(kind=iwp), parameter :: IFTEST = .false.
+logical(kind=iwp) :: mkF = .true.
 
 !***********************************************************************
 call TIMING(CPTF0,CPE,TIOTF0,TIOE)
 !***********************************************************************
+
+if (HZERO == 'DYALL') mkF = .false.
 
 write(STLNE2,'(A,I0)') 'Compute H0 matrices for state ',MSTATE(JSTATE)
 call StatusLine('CASPT2: ',STLNE2)

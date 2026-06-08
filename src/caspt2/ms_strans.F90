@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine MS_STRANS(IVEC,JVEC,NASHT,NTG3,OVL,TG1,TG2,TG3,HEL,SCAL)
+subroutine MS_STRANS(IVEC,JVEC,NASHT,NTG3,OVL,TG1,TG2,TG3,HEL,SCAL_)
 ! Compute the coupling Hamiltonian element defined as
 !     HEL = < ROOT1 | H * OMEGA | ROOT2 >
 ! assuming that IVEC contains a contravariant representation of
@@ -33,17 +33,20 @@ use PrintLevel, only: DEBUG
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: CASES, NASUP, NINDEP, NISUP, NSYM
-use Constants, only: Zero
+use SC_NEVPT2, only: SC_prop
+use Constants, only: Half, Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
 real(kind=wp), intent(inout) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 real(kind=wp), intent(out) :: HEL
-real(kind=wp), intent(in) :: SCAL
+real(kind=wp), intent(in) :: SCAL_
 integer(kind=iwp) :: IC, ICASE, iHi1, iHi2, iLo1, iLo2, IS, ISYM, jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, MV1, MV2, NAS, NHECOMP, &
                      NIN, NIS, nvlen
 real(kind=wp) :: HEBLK, HECOMP(14,9)
+character(len=1) :: CNT
+real(kind=wp) :: SCAL
 
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
@@ -58,6 +61,13 @@ real(kind=wp) :: HEBLK, HECOMP(14,9)
 !     End of loop nest
 !     Deallocate VEC1 and VEC2
 !  End of loop.
+
+CNT = 'N'
+SCAL = SCAL_
+if (SC_prop) then
+  CNT = 'T'
+  SCAL = Half*SCAL_
+end if
 
 HEL = Zero
 HECOMP = Zero
@@ -87,10 +97,10 @@ do ICASE=1,13
 
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) then
-        call MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,jLo1,jHi1,DBL_MB(MV1),DBL_MB(MV2),OVL,TG1,TG2,TG3,SCAL)
+        call MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,jLo1,jHi1,DBL_MB(MV1),DBL_MB(MV2),OVL,TG1,TG2,TG3,SCAL,CNT)
       else
 #     endif
-        call MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,jLo1,jHi1,GA_Arrays(MV1)%A,GA_Arrays(MV2)%A,OVL,TG1,TG2,TG3,SCAL)
+        call MS_STRANS_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,jLo1,jHi1,GA_Arrays(MV1)%A,GA_Arrays(MV2)%A,OVL,TG1,TG2,TG3,SCAL,CNT)
 #     ifdef _MOLCAS_MPP_
       end if
 #     endif
