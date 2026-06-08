@@ -64,7 +64,7 @@ subroutine MKBNEVAC_E4(nAshT,NLEV,Gact)
     idisk = IDBMAT_NEVPT2(iSym,iCase4,1)
     CALL DDAFILE(LUSBT,2,GA_Arrays(lg_BC)%A(1),NBC,IDISK)
 
-    CALL MKBNEVAC_E4x(NLEV,ISYM,NBA,NBC,Gact,GA_Arrays(lg_BA)%A(:),GA_Arrays(lg_BC)%A(:))
+    CALL MKNEVE4(NLEV,ISYM,NBA,NBC,Gact,GA_Arrays(lg_BA)%A(:),GA_Arrays(lg_BC)%A(:))
 
 #ifdef _MOLCAS_MPP_
     if (is_real_par()) then

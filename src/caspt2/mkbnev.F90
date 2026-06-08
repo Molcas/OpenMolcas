@@ -123,7 +123,6 @@ subroutine MKBNEV()
 
     nLev = SGS%nLev
     call MKBNEVAC_E4(nAshT,NLEV,Gact)
-!   CALL MKNEVE4(nlev,Hact,Htilde,Gact,G1,G2)
 
     if (IPRGLB >= verbose) then
       call TIMING(CPTF10,CPE,TIOTF10,TIOE)
