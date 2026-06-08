@@ -3107,13 +3107,16 @@ end if
 call mma_deallocate(nIsot,safe='*')
 call mma_deallocate(mIsot,safe='*')
 
-
 !***********************************************************************
 ! Post-processing for RASSI: hfcop.F90 subroutine.
 ! This scalar value instructs RASSI (readin_rassi) to halt input reading before proceeding to calculations.
-if (.not.(IRELAE == 101 .and. lMXTC)) call Put_iScalar('RX2C/MXTC_SEWARD', -2)
-if (IRELAE == 101 .and. .not.lMXTC)   call Put_iScalar('RX2C/MXTC_SEWARD', -1)
-if (IRELAE == 101 .and. lMXTC)        call Put_iScalar('RX2C/MXTC_SEWARD',  2)
+if ((IRELAE == 101) .and. lMXTC) then
+  call Put_iScalar('RX2C/MXTC_SEWARD',2)
+else if ((IRELAE == 101) .and. (.not. lMXTC)) then
+  call Put_iScalar('RX2C/MXTC_SEWARD',-1)
+else
+  call Put_iScalar('RX2C/MXTC_SEWARD',-2)
+end if
 
 !                                                                      *
 !***********************************************************************
