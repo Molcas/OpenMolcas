@@ -309,6 +309,17 @@ def test_standard(lines, kind, size, computed=False, choice=None):
           l = ll
           gv.lookup[size] = n
           n += 1
+    elif (size == 'ANY'):
+      n = 1
+      ll = 0
+      while (ll is not None):
+        ll = test_standard(lines, 'REALS', n)
+        if (ll):
+          l = ll
+          n += 1
+        else:
+          if (n == 1):
+            return None
 
   # choice type
   elif (kind == 'CHOICE'):
