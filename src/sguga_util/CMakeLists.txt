@@ -16,6 +16,7 @@ set (sources
      sg_epq_psi.F90
      sg_mstow.F90
      sg_num.F90
+     sg_phase.F90
      sg_pkwlk.F90
      sg_prwf.F90
      sg_print.F90

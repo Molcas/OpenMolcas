@@ -69,7 +69,7 @@ real(kind=wp), intent(_OUT_) :: CINEW(*)
 integer(kind=iwp), intent(out) :: KCNF(NEL)
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, LPRINT
-integer(kind=iwp), external :: IPHASE, SG_NUM
+integer(kind=iwp), external :: SG_PHASE, SG_NUM
 
 IPRLEV = IPRLOC(3)
 ! LOOP OVER CONFIGURATIONS TYPES
@@ -125,7 +125,7 @@ do ITYP=1,NTYP
                    EXS%LSGN,IWALK)
 
       ! GET PHASE PHASE FACTOR
-      IP = IPHASE(SGS%nLev,SGS%nVert,SGS%DRT,SGS%UP,IWALK)
+      IP = SG_PHASE(SGS%nLev,SGS%nVert,SGS%DRT,SGS%UP,IWALK)
       if (IMODE == 0) then
         if (IP < 0) then
           CINEW(ISG) = -CIOLD(ICSFJP)

@@ -59,7 +59,6 @@ set (sources
      ini_david.F90
      init_lex.F90
      input_mclr.F90
-     iphase.F90
      lex_iter.F90
      load_ci_vec.F90
      load_h_diag.F90
