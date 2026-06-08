@@ -20,6 +20,7 @@ set (sources
      allgather_wrapper.F90
      asind.F90
      backtransform.F90
+     bdernev.F90
      caspt2.F90
      caspt2_grad_invaria1.F90
      caspt2_grad_invaria2.F90
@@ -68,6 +69,7 @@ set (sources
      depsaoffc.F90
      depsaoffo.F90
      depsatrf.F90
+     dere4.F90
      derfg3.F90
      derheff.F90
      derheffx_blk.F90
@@ -148,6 +150,15 @@ set (sources
      mkbg.F90
      mkbh.F90
      mkbmat.F90
+     mkbnev.F90
+     mkbnevac_e3.F90
+     mkbnevac_e3x.F90
+     mkbnevac_e4.F90
+     mkbnevb.F90
+     mkbnevd.F90
+     mkbneve.F90
+     mkbnevf.F90
+     mkbnevg.F90
      mkdref_rpt2.F90
      mkfg3chemps2.F90
      mkfg3cu4.F90
@@ -168,6 +179,7 @@ set (sources
      mkrhsh.F90
      mkrhsh_save.F90
      mkrptorb.F90
+     mkneve4.F90
      mksa_dp.F90
      mksa.F90
      mksa_g3.F90
@@ -213,6 +225,9 @@ set (sources
      ms_strans.F90
      nadiag.F90
      natorb_caspt2.F90
+     nevint.F90
+     nevpt2_e4.F90
+     nevpt2_mod.F90
      newb.F90
      newdia.F90
      newfock.F90
@@ -322,6 +337,7 @@ set (sources
      sbdiag.F90
      sbdiag_mpp.F90
      sbdiag_ser.F90
+     sc_nevpt2.F90
      set_print_level.F90
      setup_cho.F90
      sgmdia.F90

@@ -34,6 +34,7 @@ use caspt2_global, only: do_grad, iPrGlb, iStpGrd, nStpGrd
 use caspt2_module, only: CPUEIG, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUVEC, E2TOT, HZERO, &
                          IfChol, NASUP, NINDEP, NISUP, NSYM, RHSDIRECT, SDECOM, SMATRIX, TIOEIG, TIOLCS, TIONAD, TIOOVL, TIOPCG, &
                          TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOVEC
+use SC_NEVPT2, only: do_FIC, SC_NEVPT2_Print
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -68,7 +69,14 @@ if (iStpGrd == 1) then
     end do
   end do
 
-  if (SMATRIX /= 'NO') call MKSBMAT()
+  if (SMATRIX /= 'NO') then
+    if (HZERO == 'DYALL') then
+      call MKSMAT()
+      call MKBNEV()
+    else
+      call MKSBMAT()
+    end if
+  end if
 
   ! Modify B matrices, if necessary:
   if (HZERO == 'CUSTOM') call NEWB()
@@ -83,7 +91,7 @@ if (iStpGrd == 1) then
   call GASync()
   call TIMING(CPU0,CPU,TIO0,TIO)
 
-  if (SDECOM /= 'NO') call SBDIAG()
+  if (SDECOM /= 'NO' .and. do_FIC) call SBDIAG()
 
   call GASync()
   call TIMING(CPU1,CPU,TIO1,TIO)
@@ -189,27 +197,34 @@ TIOOVL = 0
 TIOSGM = 0
 TIOVEC = 0
 
-! Transform RHS of CASPT2 equations to eigenbasis for H0:
-call PTRTOSR(1,IVECW,IRHS)
+if (do_FIC) then
+  ! Transform RHS of CASPT2 equations to eigenbasis for H0:
+  call PTRTOSR(1,IVECW,IRHS)
 
-if (IPRGLB >= INSANE) then
-  write(u6,'("DEBUG> ")')
-  write(u6,'("DEBUG> ",A)') 'Norms of the RHS blocks (H0 eigenbasis):'
-  call RHS_FPRINT('SR',IRHS)
-end if
+  if (IPRGLB >= INSANE) then
+    write(u6,'("DEBUG> ")')
+    write(u6,'("DEBUG> ",A)') 'Norms of the RHS blocks (H0 eigenbasis):'
+    call RHS_FPRINT('SR',IRHS)
+  end if
 
-if (iStpGrd == 1) call PCG(ICONV)
-if (iStpGrd == 2) then
-  call RHS_ZERO(IVECR)
+  if (iStpGrd == 1) call PCG(ICONV)
+  if (iStpGrd == 2) then
+    call RHS_ZERO(IVECR)
+    ICONV = 0
+    !! Just for verification
+    LAXITY = 8
+    if (IfChol) LAXITY = Cho_X_GetTol(LAXITY)
+    call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
+  end if
+
+  call PTRTOC(0,IVECX,IVECC)
+  call PTRTOC(1,IVECX,IVECC2)
+else
+  ! SC-NEVPT2: it is a direct summation, so we assume the convergence is always achieved
   ICONV = 0
-  !! Just for verification
-  LAXITY = 8
-  if (IfChol) LAXITY = Cho_X_GetTol(LAXITY)
-  call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
 end if
 
-call PTRTOC(0,IVECX,IVECC)
-call PTRTOC(1,IVECX,IVECC2)
+if (HZERO == 'DYALL' .and. iStpGrd == 1) call SC_NEVPT2_Print()
 
 !-SVC: end of PCG routine, compute total time.
 call GASync()

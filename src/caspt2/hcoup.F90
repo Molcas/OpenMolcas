@@ -32,7 +32,8 @@ use GA_Wrapper, only: DBL_MB
 #endif
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: CASES, NASUP, NINDEP, NISUP, NSYM
+use caspt2_module, only: CASES, HZERO, NASUP, NINDEP, NISUP, NSYM
+use SC_NEVPT2, only: Do_FIC, Do_SC, DVALUE_SC, SC_NEVPT2_amplitude
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -42,7 +43,7 @@ real(kind=wp), intent(in) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT)
 real(kind=wp), intent(out) :: HEL
 integer(kind=iwp) :: IAEND1, IAEND2, IASTA1, IASTA2, IC, ICASE, iHi1, iHi2, IIEND1, IIEND2, IISTA1, IISTA2, iLo1, iLo2, IS, ISYM, &
                      jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, MV1, MV2, NAS, NHECOMP, NIN, NIS, NV1, NV2
-real(kind=wp) :: HEBLK, HECOMP(14,9)
+real(kind=wp) :: HEBLK, HEBLK_SC, HECOMP(14,9)
 
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
@@ -61,6 +62,7 @@ real(kind=wp) :: HEBLK, HECOMP(14,9)
 
 HEL = Zero
 HECOMP(:,:) = Zero
+if (HZERO == 'DYALL' .and. Do_SC) DVALUE_SC = Zero
 do ICASE=1,13
   do ISYM=1,NSYM
     NAS = NASUP(ISYM,ICASE)
@@ -73,28 +75,54 @@ do ICASE=1,13
       call RHS_ALLO(NAS,NIS,lg_V1)
       call RHS_ALLO(NAS,NIS,lg_V2)
       call RHS_READ(NAS,NIS,lg_V1,ICASE,ISYM,IVEC)
-      call RHS_READ(NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
       call RHS_ACCESS(NAS,NIS,lg_V1,iLo1,iHi1,jLo1,jHi1,MV1)
       NV1 = (iHi1-iLo1+1)*(jHi1-jLo1+1)
-      call RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
-      NV2 = (iHi2-iLo2+1)*(jHi2-jLo2+1)
 
-      if ((iLo1 /= iLo2) .or. (iHi1 /= iHi2) .or. (jLo1 /= jLo2) .or. (jHi1 /= jHi2)) then
-        write(u6,'(1X,A)') 'HCOUP: Error: block mismatch, abort...'
-        call ABEND()
+      if (Do_FIC) then
+        call RHS_READ(NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
+        call RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
+        NV2 = (iHi2-iLo2+1)*(jHi2-jLo2+1)
+
+        if ((iLo1 /= iLo2) .or. (iHi1 /= iHi2) .or. (jLo1 /= jLo2) .or. (jHi1 /= jHi2)) then
+          write(u6,'(1X,A)') 'HCOUP: Error: block mismatch, abort...'
+          call ABEND()
+        end if
+
+#       ifdef _MOLCAS_MPP_
+        if (Is_Real_Par()) then
+          call HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,DBL_MB(MV1),NV1,DBL_MB(MV2),NV2,OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
+        else
+#       endif
+          call HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,GA_Arrays(MV1)%A,NV1,GA_Arrays(MV2)%A,NV2,OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
+#       ifdef _MOLCAS_MPP_
+        end if
+#       endif
+
+        call RHS_RELEASE(lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
       end if
 
-#     ifdef _MOLCAS_MPP_
-      if (Is_Real_Par()) then
-        call HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,DBL_MB(MV1),NV1,DBL_MB(MV2),NV2,OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
-      else
-#     endif
-        call HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,GA_Arrays(MV1)%A,NV1,GA_Arrays(MV2)%A,NV2,OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
-#     ifdef _MOLCAS_MPP_
+      if (HZERO == 'DYALL' .and. Do_SC) then
+        HEBLK_SC = Zero
+        call RHS_READ(NAS,NIS,lg_V2,ICASE,ISYM,IVEC)
+        call RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
+        NV2 = (iHi2-iLo2+1)*(jHi2-jLo2+1)
+        call SC_NEVPT2_amplitude(NAS,NIS,ICASE,ISYM,lg_V2)
+
+#       ifdef _MOLCAS_MPP_
+        if (Is_Real_Par()) then
+          call HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,DBL_MB(MV1),NV1,DBL_MB(MV2),NV2,OVL,HEBLK_SC,TG1,TG2,NASHT,TG3,NTG3)
+        else
+#       endif
+          call HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,GA_Arrays(MV1)%A,NV1,GA_Arrays(MV2)%A,NV2,OVL,HEBLK_SC,TG1,TG2,NASHT,TG3,NTG3)
+#       ifdef _MOLCAS_MPP_
+        end if
+#       endif
+
+        DVALUE_SC = DVALUE_SC + HEBLK_SC
+        call RHS_RELEASE(lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
       end if
-#     endif
+
       call RHS_RELEASE(lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
-      call RHS_RELEASE(lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
       call RHS_FREE(lg_V1)
       call RHS_FREE(lg_V2)
 
@@ -107,6 +135,7 @@ end do
 
 ! Sum-reduce the per-process contributions
 call GADGOP_SCAL(HEL,'+')
+if (HZERO == 'DYALL' .and. Do_SC) call GADGOP_SCAL(DVALUE_SC,'+')
 NHECOMP = 14*9
 call GADGOP(HECOMP,NHECOMP,'+')
 

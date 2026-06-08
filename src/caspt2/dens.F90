@@ -22,15 +22,17 @@ subroutine DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF,U0)
 use Index_Functions, only: iTri, nTri_Elem
 use CHOVEC_IO, only: nvloc_chobatch
 use PrintLevel, only: DEBUG, VERBOSE
-use EQSOLV, only: IVECC2, IVECR, IVECX
+use EQSOLV, only: IVECC, IVECC2, IVECR, IVECW, IVECX
 use ChoCASPT2, only: iALGO, MaxVec_PT2
 use sguga, only: SGS
 use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, &
                          DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_invar, if_invaria, if_SSDM, &
                          imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, real_shift, sigma_p_epsilon, &
                          SLag, TORB, Weight
-use caspt2_module, only: DENORM, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASH, NASHT, NBAS, &
-                         NBAST, NBSQT, NCONF, NFROT, NISH, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, ZETA
+use caspt2_module, only: DENORM, HZERO, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASH, NASHT, &
+                         NBAS, NBAST, NBSQT, NCONF, NFROT, NISH, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, ZETA
+use BDerNEV, only: BDerNEV_initial, BDerNEV_final1, BDerNEV_final2
+use SC_NEVPT2, only: SC_prop
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
 use caspt2_global, only: nCLag
@@ -43,9 +45,9 @@ implicit none
 integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
 real(kind=wp), intent(inout) :: DMAT(NDMAT)
 real(kind=wp), intent(in) :: UEFF(nState,nState), U0(nState,nState)
-integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, IDM, IDMOFF, IDRF, IDSOFF, IDSUM, II, IP, IQ, iSQ, iState, iStLag, ISYM, IT, &
-                     ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, JJ, liBasSq, liBasTr, lT2AO, NA, nBasI, nch, NDPT, nDPTAO, NI, &
-                     NLEV, NO, nOcc, nOrbI
+integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, IDM, IDMOFF, IDRF, IDSOFF, IDSUM, IFF, II, IP, IQ, iSQ, iState, iStLag, ISYM, &
+                     IT, ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, JJ, liBasSq, liBasTr, lT2AO, NA, nBasI, nch, NDPT, nDPTAO, &
+                     NI, NLEV, NO, nOcc, nOrbI
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, wgt, X
 integer(kind=iwp), allocatable :: ISAV(:)
 real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), DPT2_AO(:), &
@@ -121,7 +123,11 @@ if (do_grad) then
 
   call TIMING(CPTF0,CPE,TIOTF0,TIOE)
   !! Diagonal part
-  call TRDNS2D(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
+  if (SC_prop) then
+    call TRDNS2D(iVecW,iVecC,DPT,NDPT,VECROT(JSTATE))
+  else
+    call TRDNS2D(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
+  end if
   !! Remove the off-diagonal elements in inactive/secondary
   if (.not. if_invaria) call caspt2_grad_invaria1(NDPT,DPT)
   DSUM(:) = DSUM(:)+DPT(:)
@@ -267,11 +273,17 @@ if (do_grad) then
       write(u6,'(a,2f10.2)') ' SIGDER  : CPU/WALL TIME=',cput,wallt
     end if
   end if
-  call CLagX(1,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
+  IFF = 1
+  if (HZero == 'DYALL') then
+    IFF = 0
+    call BDerNEV_initial()
+  end if
+  call CLagX(IFF,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
   !call test3_dens(clag)
 # ifdef _MOLCAS_MPP_
   if (Is_Real_Par()) call GADGOP(DEPSA,nAshT**2,'+')
 # endif
+  if (HZERO == 'DYALL') call BDerNEV_final1(NBSQT,DPT2C)
   !write(u6,*) 'original depsa'
   !call sqprt(depsa,nasht)
   !write(u6,*) 'original depsa (sym)'
@@ -353,16 +365,18 @@ if (do_grad) then
   if ((real_shift /= Zero) .or. (imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero) .or. IFMSCOUP) then
     !! Have to weight the T-amplitude for MS-CASPT2
     if (IFMSCOUP) then
-      !! add lambda
-      call PLCVEC(VECROT(jState),Half,IVECX,IVECR)
-      call PTRTOC(1,IVECR,IVECC2)
-      !! T-amplitude
-      do iStLag=1,nState
-        if (iStLag == jState) cycle
-        Scal = VECROT(iStLag)
-        if (abs(Scal) <= 1.0e-12_wp) cycle
-        call MS_Res(2,jStLag,iStLag,Scal*Half)
-      end do
+      if (.not.SC_prop) then
+        !! add lambda
+        call PLCVEC(VECROT(jState),Half,IVECX,IVECR)
+        call PTRTOC(1,IVECR,IVECC2)
+        !! T-amplitude
+        do iStLag=1,nState
+          if (iStLag == jState) cycle
+          Scal = VECROT(iStLag)
+          if (abs(Scal) <= 1.0e-12_wp) cycle
+          call MS_Res(2,jStLag,iStLag,Scal*Half)
+        end do
+      end if
       if (do_csf) then
         !! Prepare for something <\Phi_K^{(1)}|Ers|L>
         ibk = IVECC2
@@ -497,6 +511,7 @@ if (do_grad) then
   !! Add DPTC to DSUM for the correct unrelaxed density
   !! Also, symmetrize DSUM
   call AddDPTC(NBSQT,NDPT,DPT2C,DSUM)
+  if (HZERO == 'DYALL') call BDerNEV_final2()
 
   !write(u6,*) 'fptao after olagns'
   !call sqprt(fpt2_ao,nbast)

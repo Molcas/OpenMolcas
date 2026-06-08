@@ -217,7 +217,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     ! block diagonal form. i.e. in the pseudo canonical basis.
 
     nsgm1 = CIS%ncsf(issg1)
-    call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,CIS%nMidV)
+    if (mkF) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,CIS%nMidV)
 
   end if
 
@@ -572,8 +572,10 @@ call mma_deallocate(BUFD)
 call GADGOP(G1,NG1,'+')
 call GADGOP(G2,NG2,'+')
 
-call GADGOP(F1,NG1,'+')
-call GADGOP(F2,NG2,'+')
+if (mkF) then
+  call GADGOP(F1,NG1,'+')
+  call GADGOP(F2,NG2,'+')
+end if
 
 if (DoFCIQMC) then
   call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3,nLev)

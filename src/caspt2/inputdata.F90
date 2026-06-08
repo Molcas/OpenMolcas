@@ -203,6 +203,14 @@ type InputTable
   ! IAINVAR  specify the CASPT2 energy is invariant wrt inactive
   !          and secondary orbital rotations. Development purpose
   logical(kind=iwp) :: IAINVAR = .true.
+  ! SCNEVPT2  Do property at SC-NEVPT2
+  logical(kind=iwp) :: SCPROP = .false.
+  ! DOPC      Do PC-NEVPT2 energy
+  logical(kind=iwp) :: DOPC = .true.
+  ! DOSC      Do SC-NEVPT2 energy
+  logical(kind=iwp) :: DOSC = .true.
+  ! SC_thres  Threshold for avoiding vanishing denominators
+  real(kind=wp) :: SC_thres = 1.0e-09_wp
 
 end type ! end of type InputTable
 
@@ -723,6 +731,26 @@ subroutine readin_CASPT2(LuIn,nSym)
       case ('PRHS')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call StdFmt(Line,Input%PRHS)
+
+      ! NEVPT2-related keywords
+
+      case ('NEV ','NEVP','PCNE','PC-N','PC  ')
+        Input%Hzero = 'DYALL'
+
+      case ('SC  ','SCNE','SC-N')
+        Input%Hzero = 'DYALL'
+        Input%SCPROP = .true.
+
+      case ('NOPC')
+        Input%DOPC = .false.
+
+      case ('NOSC')
+        Input%DOSC = .false.
+
+      case ('SCTH')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read(Line,*,iostat=iError) Input%SC_thres
+        if (iError /= 0) call IOError(Line)
 
       ! OBSOLETE KEYWORDS
 

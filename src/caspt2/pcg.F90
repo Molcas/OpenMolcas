@@ -24,7 +24,8 @@ use INPUTDATA, only: INPUT
 use caspt2_global, only: do_grad, EMP2, imag_shift, iPrGlb, LISTS, nStpGrd, real_shift, sigma_p_epsilon
 use PrintLevel, only: TERSE, USUAL
 use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecX, NLSTOT
-use caspt2_module, only: Cases, DeNorm, E2Corr, E2Tot, ERef, IfChol, MaxIt, MxCase, nSym, rNorm, ThrConv
+use caspt2_module, only: Cases, DeNorm, E2Corr, E2Tot, ERef, HZERO, IfChol, MaxIt, MxCase, nSym, rNorm, ThrConv
+use SC_NEVPT2, only: Do_SC, ECORR_SC, OVLAPS_SC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -60,9 +61,11 @@ call PRESDIA(IVECR,IVECX,OVLAPS)
 
 if (MAXIT == 0) then
   if (IPRGLB >= TERSE) then
-    write(u6,*)
-    write(u6,'(A)') repeat('-',115)
-    write(u6,*) ' DIAGONAL CASPT2 APPROXIMATION:'
+    if (HZERO /= 'DYALL') then
+      write(u6,*)
+      write(u6,'(A)') repeat('-',115)
+      write(u6,*) ' DIAGONAL CASPT2 APPROXIMATION:'
+    end if
   end if
 else
 
@@ -148,6 +151,7 @@ EBJAT = ECORR(0,10)+ECORR(0,11)
 EBJAI = ECORR(0,12)+ECORR(0,13)
 E2NONV = ECORR(0,0)
 call POVLVEC(IVECX,IVECX,OVLAPS)
+if (HZERO == 'DYALL' .and. Do_SC) OVLAPS_SC(1:8,12:13) = OVLAPS(1:8,12:13)
 DENORM = One+OVLAPS(0,0)
 REFWGT = One/DENORM
 !PAM Insert: Compute the variational second-order energy.
@@ -181,7 +185,11 @@ if ((nStpGrd == 1) .or. ((nStpGrd == 2) .and. (.not. do_grad))) then
   if (IPRGLB >= TERSE) then
     write(u6,'(A)') repeat('-',125)
     write(u6,*)
-    write(u6,*) ' FINAL CASPT2 RESULT:'
+    if (HZERO /= 'DYALL') then
+      write(u6,*) ' FINAL CASPT2 RESULT:'
+    else if (HZERO == 'DYALL') then
+      write(u6,*) ' FINAL PC-NEVPT2 RESULT:'
+    end if
     write(u6,*)
 
     if (.not. Input%LovCASPT2) then
@@ -224,13 +232,19 @@ call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
 if ((nStpGrd == 1) .or. ((nStpGrd == 2) .and. (.not. do_grad))) then
   if (IPRGLB >= USUAL) then
     write(u6,*)
-    write(u6,'(6x,a)') 'Contributions to the CASPT2 correlation energy'
+    if (HZERO /= 'DYALL') then
+      write(u6,'(6x,a)') 'Contributions to the CASPT2 correlation energy'
+    else if (HZERO == 'DYALL') then
+      write(u6,'(6x,a)') 'Contributions to the PC-NEVPT2 correlation energy'
+    end if
     write(u6,'(6x,a,F18.10)') 'Active & Virtual Only:    ',EATVX+EBVAT
     write(u6,'(6x,a,F18.10)') 'One Inactive Excited:     ',EVJTU+EAIVX+EBJAT
     write(u6,'(6x,a,F18.10)') 'Two Inactive Excited:     ',EVJTI+EVJAI+EBJAI
     write(u6,*)
   end if
 end if
+!! we use the same energy for the H subspace
+if (HZERO == 'DYALL' .and. Do_SC) ECORR_SC(1:8,12:13) = ECORR(1:8,12:13)
 call mma_deallocate(LISTS)
 
 end subroutine PCG

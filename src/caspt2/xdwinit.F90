@@ -17,7 +17,7 @@ subroutine xdwinit(Heff,H0,U0,nState)
 use Index_Functions, only: iTri
 use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, DREF, FIFA, FIMO, iPrGlb, LUONEM, NCMO
-use caspt2_module, only: CIThr, iAd1m, iSCF, mState, nAshT, nConf, NoTri, STSym
+use caspt2_module, only: CIThr, HZERO, iAd1m, iSCF, mState, nAshT, nConf, NoTri, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -100,7 +100,12 @@ do J=1,Nstate
   do I=1,Nstate
     ! Compute matrix element <I|F|J> and store it into H0
     FIJ = Zero
-    call FOPAB(FIFA,size(FIFA),I,J,FIJ)
+    if (HZERO == 'DYALL') then
+      ! The extended approach is not applicable to NEVPT2
+      if (I == J) FIJ = One ! arbitrary value
+    else
+      call FOPAB(FIFA,size(FIFA),I,J,FIJ)
+    end if
     H0(I,J) = FIJ
   end do
 end do

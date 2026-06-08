@@ -14,8 +14,9 @@
 subroutine CASPT2_Res(VECROT,nVECROT)
 
 use caspt2_global, only: imag_shift, iVecL, jStLag, real_shift, sigma_p_epsilon
-use caspt2_module, only: IFMSCOUP, NSTATE
+use caspt2_module, only: HZERO, IFMSCOUP, NSTATE
 use EQSOLV, only: IRHS, IVECC, IVECC2, IVECR, IVECW, IVECX
+use SC_NEVPT2, only: SC_prop, SC_NEVPT2_res
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -26,34 +27,48 @@ integer(kind=iwp) :: ICONV, iRHSbk, iStLag, iVecRbk, iVecXbk
 real(kind=wp) :: SAV, SAVI, savreg, Scal
 integer(kind=iwp), parameter :: iVecG = 8
 
-!! 1) Calculate the derivative of the CASPT2 energy with respect
-!!    to the amplitude.
-!! 2) In the standard CASPT2, solve the CASPT2 equation. In the
-!!    diagonal CASPT2, compute the lambda directly.
-!!
-!! L_S = U_{TS}*H_{TU}*U_{US}
-!!     + U_{SS}*(H_{SS} + <\Psi_S|H0-E0|\Psi_S>)*U_{SS}
-!!     + <lambda|H|\Psi0> + <lambda|H0-E0+Eshift|\Psi_S>
+!! Some subroutines (e.g., PSCAVEC) use NINDEP, so they cannot be
+!! directly used for SC-NEVPT2. It should be easier to write from scratch
+if (SC_prop) then
+  call SC_NEVPT2_res(VECROT)
+  return
+end if
 
-!write(u6,*) 'in CASPT2_res'
-call PSCAVEC(One,IRHS,iVecL)
+if (HZERO == 'DYALL' .and. real_shift == Zero .and. &
+    imag_shift == Zero .and. sigma_p_epsilon == Zero) then
+  !! The correlation energy of the target state for the plane NEVPT2 is stationary
+  !! Note that IVECL for SC-NEVPT2 is in an MO (contravariant) basis
+  call RHS_ZERO(iVecL)
+else
+  !! 1) Calculate the derivative of the CASPT2 energy with respect
+  !!    to the amplitude.
+  !! 2) In the standard CASPT2, solve the CASPT2 equation. In the
+  !!    diagonal CASPT2, compute the lambda directly.
+  !!
+  !! L_S = U_{TS}*H_{TU}*U_{US}
+  !!     + U_{SS}*(H_{SS} + <\Psi_S|H0-E0|\Psi_S>)*U_{SS}
+  !!     + <lambda|H|\Psi0> + <lambda|H0-E0+Eshift|\Psi_S>
 
-!! Construct the partial derivative of the target state
-!! The derivative is constructed in iVecL
-!! The shift parameters are set to zero, because the actual energy
-!! is computed without them. The reference state has to be
-!! multiplied by two, from the above equation for L_S.
-!! For MS-CASPT2, the rotation is mutiplied later.
-SAV = real_shift
-SAVI = imag_shift
-savreg = sigma_p_epsilon
-real_shift = Zero
-imag_shift = Zero
-sigma_p_epsilon = Zero
-call SIGMA_CASPT2(Two,Two,IVECX,iVecL)
-real_shift = SAV
-imag_shift = SAVI
-sigma_p_epsilon = savreg
+  !write(u6,*) 'in CASPT2_res'
+  call PSCAVEC(One,IRHS,iVecL)
+
+  !! Construct the partial derivative of the target state
+  !! The derivative is constructed in iVecL
+  !! The shift parameters are set to zero, because the actual energy
+  !! is computed without them. The reference state has to be
+  !! multiplied by two, from the above equation for L_S.
+  !! For MS-CASPT2, the rotation is mutiplied later.
+  SAV = real_shift
+  SAVI = imag_shift
+  savreg = sigma_p_epsilon
+  real_shift = Zero
+  imag_shift = Zero
+  sigma_p_epsilon = Zero
+  call SIGMA_CASPT2(Two,Two,IVECX,iVecL)
+  real_shift = SAV
+  imag_shift = SAVI
+  sigma_p_epsilon = savreg
+end if
 
 !! Add the partial derivative contribution for MS-CASPT2
 !! (off-diagonal elements). The derivative is taken with IVECW

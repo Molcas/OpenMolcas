@@ -33,8 +33,8 @@ use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ, KTGEU, KTGTU, KTU, KTUV
 use EQSOLV, only: IVECC2
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: OLag
-use caspt2_module, only: NACTEL, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NASUP, NBAS, NBAST, NFRO, NIES, NIGEJES, NIGTJES, &
-                         NISH, NISUP, NSES, NSSH, NSYM, NTGEUES, NTGTUES, NTU, NTUES, NTUVES
+use caspt2_module, only: HZERO, NACTEL, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NASUP, NBAS, NBAST, NFRO, NIES, NIGEJES, &
+                         NIGTJES, NISH, NISUP, NSES, NSSH, NSYM, NTGEUES, NTGTUES, NTU, NTUES, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp
@@ -177,6 +177,7 @@ else if ((iCase == 12) .or. (iCase == 13)) then
   call OLagNS_H(Amp1)
 end if
 
+if (iCase == 1 .and. HZERO == 'DYALL') call OLagNS_AAAA(Amp1)
 call mma_deallocate(WRK1)
 call mma_deallocate(WRK2)
 
@@ -902,5 +903,47 @@ subroutine OLagNS_post3(iIabs,iJabs,TampAO,TampIJ)
   end do
 
 end subroutine OLagNS_post3
+
+subroutine OLagNS_AAAA(AmpL1)
+
+  use BDerNEV, only: Gder
+
+  implicit none
+
+  real(kind=wp), intent(inout) :: AmpL1(nAshA,nAshB)
+
+  integer(kind=iwp) :: iI, iJ, iA, iB
+
+  if (nAshI*nAshJ*nAshA*nAshB == 0) return
+
+  do iI = 1, nAshI
+    iIabs = iI + nIshI + nAes(iSymI)
+    do iJ = 1, nAshJ
+      iJabs = iJ + nIshJ + nAes(iSymJ)
+      Fac = One
+
+      call Exch(iSymA,iSymI,iSymB,iSymJ, &
+                iI+nCorI,iJ+nCorJ, &
+                ERI1,Scr)
+      AmpL1(:,:) = Zero
+
+      do iA = 1, nAshA
+        iAabs = iA + nAes(iSymA)
+        do iB = 1, nAshB
+          iBabs = iB + nAes(iSymB)
+          ValA = Gder(iAabs,iI,iBabs,iJ)
+          AmpL1(iA,iB) = AmpL1(iA,iB) + ValA
+        end do
+      end do
+
+      call DScal_(nAshA*nAshB,Fac,AmpL1,1)
+      AmpL1(:,:) = Fac*AmpL1(:,:)
+      call OLagNS_post1(1,1,ERI1,AmpL1)
+      call OLagNS_post2(nAshA,nAshB,nCorA,nCorB,AmpL1,WRK2)
+      call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
+    end do
+  end do
+
+end subroutine OLagNS_AAAA
 
 end subroutine OLagNS_Hel2

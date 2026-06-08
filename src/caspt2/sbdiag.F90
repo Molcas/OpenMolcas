@@ -24,7 +24,7 @@ use PrintLevel, only: USUAL, VERBOSE
 use Para_Info, only: Is_Real_Par
 #endif
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: Cases, nASup, nInDep, nISup, nSym, ThrShn, ThrShs
+use caspt2_module, only: Cases, nASup, nInDep, nISup, nSym, PT2Method, ThrShn, ThrShs
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -83,7 +83,7 @@ do ICASE=1,13
 end do
 if (IPRGLB >= USUAL) then
   write(u6,*)
-  write(u6,*) ' Total nr of CASPT2 parameters:'
+  write(u6,*) ' Total nr of '//trim(PT2Method)//' parameters:'
   write(u6,'(a,i12)') '   Before reduction:',IPAR0
   write(u6,'(a,i12)') '   After  reduction:',IPAR1
 end if

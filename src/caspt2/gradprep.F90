@@ -15,7 +15,7 @@ subroutine GradPrep(nState,UEFF,VECROT)
 
 use caspt2_global, only: iRoot1, iRoot2, jStLag
 use caspt2_module, only: IFMSCOUP, JSTATE
-use Constants, only: One, Half
+use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
@@ -31,6 +31,7 @@ if (IFMSCOUP) then
   VECROT(:) = Half*(UEFF(:,iRoot1)*UEFF(jState,iRoot2)+UEFF(:,iRoot2)*UEFF(jState,iRoot1))
 else
   !write(u6,*) 'jState in gradprep: ',jstate
+  VECROT(1:nState) = Zero
   VECROT(jState) = One
 end if
 jStLag = jState

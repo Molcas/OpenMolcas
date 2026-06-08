@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-subroutine DERFG3(CI,NCONF,NLEV,NG3,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
+subroutine DERFG3(IFF,NCONF,NLEV,NG3,CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 
 use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
@@ -29,7 +29,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-integer(kind=iwp), intent(in) :: nCONF, NLEV, NG3
+integer(kind=iwp), intent(in) :: IFF, nCONF, NLEV, NG3
 real(kind=wp), intent(in) :: CI(nCONF), DG3(NG3), DF3(NG3), G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
 real(kind=wp), intent(inout) :: CLAG(NCONF), DG1(NLEV,NLEV), DG2(NLEV,NLEV,NLEV,NLEV), DF1(NLEV,NLEV), DF2(NLEV,NLEV,NLEV,NLEV), &
                                 DEPSA(NLEV,NLEV)
@@ -94,74 +94,76 @@ call mma_deallocate(ij2idx)
 ! These corrections are already done in CLagDXA_FG3 and CLagDXC_FG3
 
 ! Correction to F2: Some values not computed follow from symmetry
-do ip1=1,nlev2-1
-  itlev = idx2ij(1,ip1)
-  iulev = idx2ij(2,ip1)
-  it = L2ACT(itlev)
-  iu = L2ACT(iulev)
-  do ip3=ip1+1,nlev2
-    iylev = idx2ij(1,ip3)
-    izlev = idx2ij(2,ip3)
-    iy = L2ACT(iylev)
-    iz = L2ACT(izlev)
-    SCAL = DF2(iy,iz,it,iu)+DF2(it,iu,iy,iz)
-    DF2(it,iu,iy,iz) = Zero
-    DF2(iy,iz,it,iu) = Scal
+if (IFF == 1) then
+  do ip1=1,nlev2-1
+    itlev = idx2ij(1,ip1)
+    iulev = idx2ij(2,ip1)
+    it = L2ACT(itlev)
+    iu = L2ACT(iulev)
+    do ip3=ip1+1,nlev2
+      iylev = idx2ij(1,ip3)
+      izlev = idx2ij(2,ip3)
+      iy = L2ACT(iylev)
+      iz = L2ACT(izlev)
+      SCAL = DF2(iy,iz,it,iu)+DF2(it,iu,iy,iz)
+      DF2(it,iu,iy,iz) = Zero
+      DF2(iy,iz,it,iu) = Scal
+    end do
   end do
-end do
-!-SVC20100310: took some spurious mirroring of F2 values out
-!-of the loops and put them here, after the parallel section has
-!-finished, so that GAdGOP works correctly.
-do ip1=ntri2+1,nlev2
-  itlev = idx2ij(1,ip1)
-  iulev = idx2ij(2,ip1)
-  it = L2ACT(itlev)
-  iu = L2ACT(iulev)
-  do ip3=ntri1+1,ip1
-    iylev = idx2ij(1,ip3)
-    izlev = idx2ij(2,ip3)
-    iy = L2ACT(iylev)
-    iz = L2ACT(izlev)
-    Scal = DF2(iz,iy,iu,it)+DF2(it,iu,iy,iz)
-    DF2(it,iu,iy,iz) = Zero
-    DF2(iz,iy,iu,it) = Scal
+  !-SVC20100310: took some spurious mirroring of F2 values out
+  !-of the loops and put them here, after the parallel section has
+  !-finished, so that GAdGOP works correctly.
+  do ip1=ntri2+1,nlev2
+    itlev = idx2ij(1,ip1)
+    iulev = idx2ij(2,ip1)
+    it = L2ACT(itlev)
+    iu = L2ACT(iulev)
+    do ip3=ntri1+1,ip1
+      iylev = idx2ij(1,ip3)
+      izlev = idx2ij(2,ip3)
+      iy = L2ACT(iylev)
+      iz = L2ACT(izlev)
+      Scal = DF2(iz,iy,iu,it)+DF2(it,iu,iy,iz)
+      DF2(it,iu,iy,iz) = Zero
+      DF2(iz,iy,iu,it) = Scal
+    end do
   end do
-end do
-! Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
-do iz=1,nlev
-  do iy=1,nlev
+  ! Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
+  do iz=1,nlev
+    do iy=1,nlev
+      do iu=1,nlev
+        do it=1,nlev
+          DG2(it,iu,iy,iz) = DG2(it,iu,iy,iz)-DF2(it,iu,iy,iz)*(EPSA(iu)+EPSA(iy))
+          !! DEPSA-related operations in the preparation step
+          !! are done only on the master node
+#         ifdef _MOLCAS_MPP_
+          if (king()) then
+#         endif
+            DEPSA(iu,:) = DEPSA(iu,:)-DF2(it,iu,iy,iz)*G2(it,:,iy,iz)
+            DEPSA(:,iy) = DEPSA(:,iy)-DF2(it,iu,iy,iz)*G2(it,iu,:,iz)
+#         ifdef _MOLCAS_MPP_
+          end if
+#         endif
+        end do
+      end do
+    end do
+  end do
+  do iz=1,nlev
     do iu=1,nlev
       do it=1,nlev
-        DG2(it,iu,iy,iz) = DG2(it,iu,iy,iz)-DF2(it,iu,iy,iz)*(EPSA(iu)+EPSA(iy))
-        !! DEPSA-related operations in the preparation step
-        !! are done only on the master node
+        DG1(it,iz) = DG1(it,iz)-EPSA(iu)*DF2(it,iu,iu,iz)
+        DF1(it,iz) = DF1(it,iz)-DF2(it,iu,iu,iz)
 #       ifdef _MOLCAS_MPP_
         if (king()) then
 #       endif
-          DEPSA(iu,:) = DEPSA(iu,:)-DF2(it,iu,iy,iz)*G2(it,:,iy,iz)
-          DEPSA(:,iy) = DEPSA(:,iy)-DF2(it,iu,iy,iz)*G2(it,iu,:,iz)
+          DEPSA(iu,:) = DEPSA(iu,:)-G1(it,iz)*DF2(it,iu,:,iz)
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
       end do
     end do
   end do
-end do
-do iz=1,nlev
-  do iu=1,nlev
-    do it=1,nlev
-      DG1(it,iz) = DG1(it,iz)-EPSA(iu)*DF2(it,iu,iu,iz)
-      DF1(it,iz) = DF1(it,iz)-DF2(it,iu,iu,iz)
-#     ifdef _MOLCAS_MPP_
-      if (king()) then
-#     endif
-        DEPSA(iu,:) = DEPSA(iu,:)-G1(it,iz)*DF2(it,iu,:,iz)
-#     ifdef _MOLCAS_MPP_
-      end if
-#     endif
-    end do
-  end do
-end do
+end if
 
 ! Correction to G2: Some values not computed follow from symmetry
 do ip1=1,nlev2-1
@@ -201,25 +203,27 @@ end do
 do iu=1,nlev
   DG1(:,:) = DG1(:,:)-DG2(:,iu,iu,:)
 end do
-! Additional correction terms for F1
-do iT=1,NLEV
-  do iU=1,NLEV
-    !! With the improved algorithm, symmetrizing the DF1
-    !! contribution to DF1 here is somehow required
-    DG1(iT,iU) = DG1(iT,iU)-(DF1(iT,iU)+DF1(iU,iT))*EPSA(iU)*Half
-  end do
-end do
-#ifdef _MOLCAS_MPP_
-if (king()) then
-#endif
+if (IFF == 1) then
+  ! Additional correction terms for F1
   do iT=1,NLEV
     do iU=1,NLEV
-      DEPSA(:,:) = DEPSA(:,:)+G2(iT,iU,:,:)*DF1(iT,iU)
+      !! With the improved algorithm, symmetrizing the DF1
+      !! contribution to DF1 here is somehow required
+      DG1(iT,iU) = DG1(iT,iU)-(DF1(iT,iU)+DF1(iU,iT))*EPSA(iU)*Half
     end do
   end do
-#ifdef _MOLCAS_MPP_
+# ifdef _MOLCAS_MPP_
+  if (king()) then
+# endif
+    do iT=1,NLEV
+      do iU=1,NLEV
+        DEPSA(:,:) = DEPSA(:,:)+G2(iT,iU,:,:)*DF1(iT,iU)
+      end do
+    end do
+# ifdef _MOLCAS_MPP_
+  end if
+# endif
 end if
-#endif
 
 call CLagSym(nLev,DG1,DG2,DF1,DF2,2)
 
@@ -279,7 +283,7 @@ do issg1=1,nsym
   isp1 = Mul(issg1,STSYM)
   nsgm1 = CIS%ncsf(issg1)
   !!BufD_I = \sum_t <I|E_{tt}|I>*f_{tt}
-  call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,nMidV)
+  if (IFF == 1) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,nMidV)
 
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
   !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
@@ -431,10 +435,12 @@ do issg1=1,nsym
         SCAL = DG1(iT,iU)+DG1(iT,iU)
         CLag(1:nsgm1) = CLag(1:nsgm1)+SCAL*BUF1(1:nsgm1,ib)
 
-        !! left derivative of DF1
-        DTU(1:nsgm1,ib) = DTU(1:nsgm1,ib)+DF1(it,iu)*BUFD(1:nsgm1)*CI(1:nsgm1)
-        !! right derivative of DF1
-        CLag(1:nsgm1) = CLag(1:nsgm1)+DF1(it,iu)*BUF1(1:nsgm1,ib)*BUFD(1:nsgm1)
+        if (IFF == 1) then
+          !! left derivative of DF1
+          DTU(1:nsgm1,ib) = DTU(1:nsgm1,ib)+DF1(it,iu)*BUFD(1:nsgm1)*CI(1:nsgm1)
+          !! right derivative of DF1
+          CLag(1:nsgm1) = CLag(1:nsgm1)+DF1(it,iu)*BUF1(1:nsgm1,ib)*BUFD(1:nsgm1)
+        end if
         !G1(it,iu) = DDOT_(nsgm1,ci,1,work(lto),1)
         !if (IFF /= 0) then
         !  F1sum = sum(CI(1:nsgm1)*work(lto:lto+nsgm1-1)*bufd(1:nsgm1))
@@ -484,15 +490,23 @@ do issg1=1,nsym
         if ((ScalG == Zero) .and. (ScalF == Zero)) cycle
 
         !! left derivative
-        BUFT(1:nsgm1) = (ScalG+ScalF*BUFD(1:nsgm1))*BUF2(1:nsgm1)
-        DTU(1:nsgm1,ib) = DTU(1:nsgm1,ib)+BUFT(1:nsgm1)
+        if (IFF == 1) then
+          BUFT(1:nsgm1) = (ScalG+ScalF*BUFD(1:nsgm1))*BUF2(1:nsgm1)
+          DTU(1:nsgm1,ib) = DTU(1:nsgm1,ib)+BUFT(1:nsgm1)
+        else
+          DTU(1:nsgm1,ib) = DTU(1:nsgm1,ib)+ScalG*BUF2(1:nsgm1)
+        end if
 
         !! right derivative
-        buft(1:mxci) = buf1(1:mxci,ib)
-        BUF3(1:nsgm1) = BUF3(1:nsgm1)+(ScalG+ScalF*BUFD(1:nsgm1))*BUFT(1:nsgm1)
+        if (IFF == 1) then
+          buft(1:mxci) = buf1(1:mxci,ib)
+          BUF3(1:nsgm1) = BUF3(1:nsgm1)+(ScalG+ScalF*BUFD(1:nsgm1))*BUFT(1:nsgm1)
+        else
+          BUF3(1:nsgm1) = BUF3(1:nsgm1)+ScalG*BUF1(1:nsgm1,ib)
+        end if
 
         !! For DEPSA
-        DAB(1:nsgm1,ib) = DAB(1:nsgm1,ib)+ScalF*BUF2(1:nsgm1)
+        if (IFF == 1) DAB(1:nsgm1,ib) = DAB(1:nsgm1,ib)+ScalF*BUF2(1:nsgm1)
       end do
       !! Save for Eyz
       DYZ(1:nsgm2) = DYZ(1:nsgm2)+BUF3(1:nsgm2)
@@ -545,15 +559,18 @@ do issg1=1,nsym
         ! ----- left derivative
 
         ! BUF3 = (<I|Ett|I>-EPSA(V))*<I|EvxEyz|0> = <I|fEvxEyz|0>
-        buf3(1:nsgm1) = (bufd(1:nsgm1)-epsa(iv))*buft(1:nsgm1)
+        if (IFF == 1) buf3(1:nsgm1) = (bufd(1:nsgm1)-epsa(iv))*buft(1:nsgm1)
         do ib=1,nb
           iG3 = iG3OFF+ib
           idx = ip1_buf(ibmn-1+ib)
 
           !! <I|EvxEyz|0>*Dtuvxyz + <I|fEvxEyz|0>*Ftuvxyz
-          DTU(1:nsgm1,ibmn+ib-1) = DTU(1:nsgm1,ibmn+ib-1)+DG3(iG3)*BUFT(1:nsgm1)+DF3(iG3)*BUF3(1:nsgm1)
-          !! DEPSA of the BUFD term
-          DAB(1:nsgm1,ibmn+ib-1) = DAB(1:nsgm1,ibmn+ib-1)+DF3(iG3)*BUFT(1:nsgm1)
+          DTU(1:nsgm1,ibmn+ib-1) = DTU(1:nsgm1,ibmn+ib-1)+DG3(iG3)*BUFT(1:nsgm1)
+          if (IFF == 1) then
+            DTU(1:nsgm1,ibmn+ib-1) = DTU(1:nsgm1,ibmn+ib-1)+DF3(iG3)*BUF3(1:nsgm1)
+            !! DEPSA of the BUFD term
+            DAB(1:nsgm1,ibmn+ib-1) = DAB(1:nsgm1,ibmn+ib-1)+DF3(iG3)*BUFT(1:nsgm1)
+          end if
         end do
 
         ! ----- right derivative
@@ -570,15 +587,17 @@ do issg1=1,nsym
           !! BUF3 = <0|Etu|I>*Dtuvxyz
           BUF3(1:nsgm1) = BUF3(1:nsgm1)+DG3(iG3)*BUF1(1:nsgm1,ibmn+ib-1)
           !! BUFC = <0|Etu|I>*Ftuvxyz
-          BUF4(1:nsgm1) = BUF4(1:nsgm1)+DF3(iG3)*BUF1(1:nsgm1,ibmn+ib-1)
+          if (IFF == 1) BUF4(1:nsgm1) = BUF4(1:nsgm1)+DF3(iG3)*BUF1(1:nsgm1,ibmn+ib-1)
         end do
 
-        !! DEPSA of the -EPSA(iv) term
-        call DGEMV_('T',nsgm1,NLEV,-One,BUFX,mxci,buf4,1,One,DEPSA(1,IVLEV),1)
+        if (IFF == 1) then
+          !! DEPSA of the -EPSA(iv) term
+          call DGEMV_('T',nsgm1,NLEV,-One,BUFX,mxci,buf4,1,One,DEPSA(1,IVLEV),1)
 
-        !! Scale the DF3 contribution with the diagonal Fock
-        !! and add to the DG3 contribution
-        buf3(1:nsgm1) = buf3(1:nsgm1)+buf4(1:nsgm1)*(bufd(1:nsgm1)-epsa(iv))
+          !! Scale the DF3 contribution with the diagonal Fock
+          !! and add to the DG3 contribution
+          buf3(1:nsgm1) = buf3(1:nsgm1)+buf4(1:nsgm1)*(bufd(1:nsgm1)-epsa(iv))
+        end if
         !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
         call SG_Epq_Psi(SGS,CIS,EXS,IXLEV,IVLEV,One,STSYM,BUF3,DYZ)
 
@@ -662,13 +681,15 @@ subroutine LEFT_DEPSA()
     !! left derivative
     call SG_Epq_Psi(SGS,CIS,EXS,ITLEV,IULEV,One,STSYM,DTU(1,ibloc),CLAG)
     !! the rest is DEPSA contribution
-    do IALEVloc=1,NLEV
-      do IBLEVloc=1,NLEV
-        BUF2(:) = Zero
-        call SG_Epq_Psi(SGS,CIS,EXS,IALEVloc,IBLEVloc,One,STSYM,DAB(1,ibloc),BUF2)
-        DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)+dot_product(BUF1(1:nsgm1,IBloc),BUF2(1:nsgm1))
+    if (IFF == 1) then
+      do IALEVloc=1,NLEV
+        do IBLEVloc=1,NLEV
+          BUF2(:) = Zero
+          call SG_Epq_Psi(SGS,CIS,EXS,IALEVloc,IBLEVloc,One,STSYM,DAB(1,ibloc),BUF2)
+          DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)+dot_product(BUF1(1:nsgm1,IBloc),BUF2(1:nsgm1))
+        end do
       end do
-    end do
+    end if
   end do
 
 end subroutine LEFT_DEPSA

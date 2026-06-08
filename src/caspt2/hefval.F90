@@ -22,7 +22,8 @@ use Index_Functions, only: nTri3_Elem
 use PrintLevel, only: debug
 use eqsolv, only: iVecC, iVecW
 use caspt2_global, only: idtcex, iPrGlb, luciex
-use caspt2_module, only: iSCF, MxCI, nAshT, nConf, nState, STSym
+use caspt2_module, only: HZERO, iSCF, MxCI, nAshT, nConf, nState, STSym
+use SC_NEVPT2, only: Do_SC, DVALUE_SC, HEFF_SC
 #if defined _DMRG_
 use caspt2_module, only: DMRG
 #endif
@@ -88,6 +89,7 @@ end if
 #endif
 
 call hcoup(ivecw,ivecc,ovl,tg1,tg2,nAshT,tg3,ntg3,dvalue)
+if (HZERO == 'DYALL' .and. Do_SC) HEFF_SC(IST,JST) = HEFF_SC(IST,JST) + DVALUE_SC
 
 call mma_deallocate(tg1)
 call mma_deallocate(tg2)
