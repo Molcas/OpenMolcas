@@ -1350,6 +1350,13 @@ else:
         print('         They are probably WRONG!')
         print()
 
+    if translate_angmom:
+      # TODO: L = r x p upon translation changes into L' = (r + ∆r) x p
+      #       One would need the linear momentum matrices as well
+      print('WARNING: Translating the AO_ANGMOM_X, _Y, _Z integrals is currently not supported.')
+      print('         They are probably WRONG!')
+      print()
+
   # In case something unsafe was done
   if warning_item and do_smth:
     print('WARNING: The following attributes and/or datasets are not recognized, and were copied verbatim.')
