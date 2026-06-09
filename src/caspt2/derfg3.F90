@@ -16,7 +16,7 @@ subroutine DERFG3(IFF,NCONF,NLEV,NG3,CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2
 use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, L2ACT, SGS
+use sguga, only: CIS, EXS, SGS
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use caspt2_global, only: iPrGlb, nbuf1_grad
 use caspt2_module, only: EPSA, MxCI, nActEl, nSym, STSym
@@ -98,13 +98,13 @@ if (IFF == 1) then
   do ip1=1,nlev2-1
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = L2ACT(itlev)
-    iu = L2ACT(iulev)
+    it = SGS%L2ACT(itlev)
+    iu = SGS%L2ACT(iulev)
     do ip3=ip1+1,nlev2
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = L2ACT(iylev)
-      iz = L2ACT(izlev)
+      iy = SGS%L2ACT(iylev)
+      iz = SGS%L2ACT(izlev)
       SCAL = DF2(iy,iz,it,iu)+DF2(it,iu,iy,iz)
       DF2(it,iu,iy,iz) = Zero
       DF2(iy,iz,it,iu) = Scal
@@ -116,13 +116,13 @@ if (IFF == 1) then
   do ip1=ntri2+1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = L2ACT(itlev)
-    iu = L2ACT(iulev)
+    it = SGS%L2ACT(itlev)
+    iu = SGS%L2ACT(iulev)
     do ip3=ntri1+1,ip1
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = L2ACT(iylev)
-      iz = L2ACT(izlev)
+      iy = SGS%L2ACT(iylev)
+      iz = SGS%L2ACT(izlev)
       Scal = DF2(iz,iy,iu,it)+DF2(it,iu,iy,iz)
       DF2(it,iu,iy,iz) = Zero
       DF2(iz,iy,iu,it) = Scal
@@ -169,13 +169,13 @@ end if
 do ip1=1,nlev2-1
   itlev = idx2ij(1,ip1)
   iulev = idx2ij(2,ip1)
-  it = L2ACT(itlev)
-  iu = L2ACT(iulev)
+  it = SGS%L2ACT(itlev)
+  iu = SGS%L2ACT(iulev)
   do ip3=ip1+1,nlev2
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    iy = L2ACT(iylev)
-    iz = L2ACT(izlev)
+    iy = SGS%L2ACT(iylev)
+    iz = SGS%L2ACT(izlev)
     SCAL = DG2(iy,iz,it,iu)+DG2(it,iu,iy,iz)
     DG2(it,iu,iy,iz) = Zero
     DG2(iy,iz,it,iu) = Scal
@@ -187,13 +187,13 @@ end do
 do ip1=ntri2+1,nlev2
   itlev = idx2ij(1,ip1)
   iulev = idx2ij(2,ip1)
-  it = L2ACT(itlev)
-  iu = L2ACT(iulev)
+  it = SGS%L2ACT(itlev)
+  iu = SGS%L2ACT(iulev)
   do ip3=ntri1+1,ip1
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    iy = L2ACT(iylev)
-    iz = L2ACT(izlev)
+    iy = SGS%L2ACT(iylev)
+    iz = SGS%L2ACT(izlev)
     Scal = DG2(iz,iy,iu,it)+DG2(it,iu,iy,iz)
     DG2(it,iu,iy,iz) = Zero
     DG2(iz,iy,iu,it) = Scal
@@ -399,8 +399,8 @@ do issg1=1,nsym
         itlev = idx2ij(1,ip1i)
         iulev = idx2ij(2,ip1i)
         istu = Mul(SGS%ism(itlev),SGS%ism(iulev))
-        it = L2ACT(itlev)
-        iu = L2ACT(iulev)
+        it = SGS%L2ACT(itlev)
+        iu = SGS%L2ACT(iulev)
         if (istu == isp1) then
           ibuf1 = ibuf1+1
           ip1_buf(ibuf1) = ip1i
@@ -428,8 +428,8 @@ do issg1=1,nsym
         idx = ip1_buf(ib)
         itlev = idx2ij(1,idx)
         iulev = idx2ij(2,idx)
-        it = L2ACT(itlev)
-        iu = L2ACT(iulev)
+        it = SGS%L2ACT(itlev)
+        iu = SGS%L2ACT(iulev)
         !write(u6,'('itlev,iulev,it,iu = ',4i3)') itlev,iulev,it,iu
         !! DG1 contribution
         SCAL = DG1(iT,iU)+DG1(iT,iU)
@@ -471,8 +471,8 @@ do issg1=1,nsym
     isyz = Mul(SGS%ism(iylev),SGS%ism(izlev))
     issg2 = Mul(isyz,STSYM)
     nsgm2 = CIS%ncsf(issg2)
-    iy = L2ACT(iylev)
-    iz = L2ACT(izlev)
+    iy = SGS%L2ACT(iylev)
+    iz = SGS%L2ACT(izlev)
     buf2(1:nsgm2) = Zero
     call SG_Epq_Psi(SGS,CIS,EXS,IYLEV,IZLEV,One,STSYM,CI,BUF2)
     DYZ(1:nsgm1) = Zero
@@ -482,8 +482,8 @@ do issg1=1,nsym
         idx = ip1_buf(ib)
         itlev = idx2ij(1,idx)
         iulev = idx2ij(2,idx)
-        it = L2ACT(itlev)
-        iu = L2ACT(iulev)
+        it = SGS%L2ACT(itlev)
+        iu = SGS%L2ACT(iulev)
 
         ScalG = DG2(iT,iU,iY,iZ)
         ScalF = DF2(iT,iU,iY,iZ)
@@ -525,7 +525,7 @@ do issg1=1,nsym
         ivlev = idx2ij(1,ip2)
         ixlev = idx2ij(2,ip2)
         isvx = Mul(SGS%ism(ivlev),SGS%ism(ixlev))
-        iv = L2ACT(ivlev)
+        iv = SGS%L2ACT(ivlev)
         if (isvx /= Mul(issg1,issg2)) cycle
         !! <I|EvxEyz|0>
         if (IXLEV == IXLEV0) BUFT(1:nsgm1) = BUFX(1:nsgm1,IVLEV)

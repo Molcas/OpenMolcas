@@ -35,7 +35,7 @@ subroutine DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,C
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, L2ACT, SGS
+use sguga, only: CIS, EXS, SGS
 use caspt2_module, only: IASYM, ISCF, MXCI, NACTEL
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One
@@ -99,22 +99,22 @@ end do
 ! -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
 if (DOG3) then
   do IP1=1,NASHT**2
-    IT = L2ACT(P2LEV(1,IP1))
-    IU = L2ACT(P2LEV(2,IP1))
+    IT = SGS%L2ACT(P2LEV(1,IP1))
+    IU = SGS%L2ACT(P2LEV(2,IP1))
     ITU = IT+NASHT*(IU-1)
     ITS = IASYM(IT)
     IUS = IASYM(IU)
     IS1 = Mul(Mul(ITS,IUS),LSYM1)
     do IP2=1,IP1
-      IV = L2ACT(P2LEV(1,IP2))
-      IX = L2ACT(P2LEV(2,IP2))
+      IV = SGS%L2ACT(P2LEV(1,IP2))
+      IX = SGS%L2ACT(P2LEV(2,IP2))
       IVX = IV+NASHT*(IX-1)
       IVS = IASYM(IV)
       IXS = IASYM(IX)
       IS2 = Mul(Mul(IVS,IXS),IS1)
       do IP3=1,IP2
-        IY = L2ACT(P2LEV(1,IP3))
-        IZ = L2ACT(P2LEV(2,IP3))
+        IY = SGS%L2ACT(P2LEV(1,IP3))
+        IZ = SGS%L2ACT(P2LEV(2,IP3))
         IYS = IASYM(IY)
         IZS = IASYM(IZ)
         IS3 = Mul(Mul(IYS,IZS),IS2)
@@ -166,11 +166,11 @@ end if
 ! Then, the 2-particle density matrix:
 ! <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
 do IP1=1,NASHT**2
-  IT = L2ACT(P2LEV(1,IP1))
-  IU = L2ACT(P2LEV(2,IP1))
+  IT = SGS%L2ACT(P2LEV(1,IP1))
+  IU = SGS%L2ACT(P2LEV(2,IP1))
   do IP2=1,IP1
-    IV = L2ACT(P2LEV(1,IP2))
-    IX = L2ACT(P2LEV(2,IP2))
+    IV = SGS%L2ACT(P2LEV(1,IP2))
+    IX = SGS%L2ACT(P2LEV(2,IP2))
     if (IP1 /= IP2) then
       DTG2(IT,IU,IV,IX) = DTG2(IT,IU,IV,IX)+DTG2(IV,IX,IT,IU)
       DTG2(IV,IX,IT,IU) = Zero
@@ -242,8 +242,8 @@ do IP3STA=1,NASHT**2,NYZBUF
     ! Translate to levels in the SGUGA coupling order:
     IL = P2LEV(1,IP3)
     JL = P2LEV(2,IP3)
-    IY = L2ACT(IL)
-    IZ = L2ACT(JL)
+    IY = SGS%L2ACT(IL)
+    IZ = SGS%L2ACT(JL)
     IYS = IASYM(IY)
     IZS = IASYM(IZ)
     ISSG2 = Mul(Mul(IYS,IZS),LSYM2)
@@ -267,8 +267,8 @@ do IP3STA=1,NASHT**2,NYZBUF
       ! Translate to levels:
       JL = P2LEV(1,IP1)
       IL = P2LEV(2,IP1)
-      IT = L2ACT(IL)
-      IU = L2ACT(JL)
+      IT = SGS%L2ACT(IL)
+      IU = SGS%L2ACT(JL)
       ITS = IASYM(IT)
       IUS = IASYM(IU)
       ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -284,8 +284,8 @@ do IP3STA=1,NASHT**2,NYZBUF
     LFROM = LSGM2
     LFROMD = 1
     do IP3=IP3STA,IP3END
-      IY = L2ACT(P2LEV(1,IP3))
-      IZ = L2ACT(P2LEV(2,IP3))
+      IY = SGS%L2ACT(P2LEV(1,IP3))
+      IZ = SGS%L2ACT(P2LEV(2,IP3))
       ! LFROM will be start element of Sigma2=E(YZ) Psi2
       IYZ = IY+NASHT*(IZ-1)
       IYS = IASYM(IY)
@@ -296,8 +296,8 @@ do IP3STA=1,NASHT**2,NYZBUF
       do IP2=IP3,IP1END
         IL = P2LEV(1,IP2)
         JL = P2LEV(2,IP2)
-        IV = L2ACT(IL)
-        IX = L2ACT(JL)
+        IV = SGS%L2ACT(IL)
+        IX = SGS%L2ACT(JL)
         IVX = IV+NASHT*(IX-1)
         IVS = IASYM(IV)
         IXS = IASYM(IX)
@@ -323,8 +323,8 @@ do IP3STA=1,NASHT**2,NYZBUF
         if (DOG3) then
           BUF1(1:MXCI) = Zero
           do IP1=max(IP2,IP1STA),IP1END
-            IT = L2ACT(P2LEV(1,IP1))
-            IU = L2ACT(P2LEV(2,IP1))
+            IT = SGS%L2ACT(P2LEV(1,IP1))
+            IU = SGS%L2ACT(P2LEV(2,IP1))
             ITS = IASYM(IT)
             IUS = IASYM(IU)
             ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -395,8 +395,8 @@ do IP3STA=1,NASHT**2,NYZBUF
       ! Translate to levels:
       IL = P2LEV(1,IP1)
       JL = P2LEV(2,IP1)
-      IT = L2ACT(IL)
-      IU = L2ACT(JL)
+      IT = SGS%L2ACT(IL)
+      IU = SGS%L2ACT(JL)
       ITS = IASYM(IT)
       IUS = IASYM(IU)
       ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -408,8 +408,8 @@ do IP3STA=1,NASHT**2,NYZBUF
 
   LTO = 1
   do IP3=IP3STA,IP3END
-    IY = L2ACT(P2LEV(1,IP3))
-    IZ = L2ACT(P2LEV(2,IP3))
+    IY = SGS%L2ACT(P2LEV(1,IP3))
+    IZ = SGS%L2ACT(P2LEV(2,IP3))
     ! LFROM will be start element of Sigma2=E(YZ) Psi2
     IYZ = IY+NASHT*(IZ-1)
     IYS = IASYM(IY)

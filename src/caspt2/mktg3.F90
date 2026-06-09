@@ -33,7 +33,7 @@ subroutine MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, L2ACT, SGS
+use sguga, only: CIS, EXS, SGS
 use caspt2_module, only: IASYM, ISCF, NACTEL, NASHT
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs, MyRank
@@ -150,8 +150,8 @@ if (ISCF == 0) then
       ! Translate to levels in the SGUGA coupling order:
       IL = P2LEV(1,IP3)
       JL = P2LEV(2,IP3)
-      IY = L2ACT(IL)
-      IZ = L2ACT(JL)
+      IY = SGS%L2ACT(IL)
+      IZ = SGS%L2ACT(JL)
       IYS = IASYM(IY)
       IZS = IASYM(IZ)
       ISSG2 = Mul(Mul(IYS,IZS),LSYM2)
@@ -170,8 +170,8 @@ if (ISCF == 0) then
         ! Translate to levels:
         JL = P2LEV(1,IP1)
         IL = P2LEV(2,IP1)
-        IT = L2ACT(IL)
-        IU = L2ACT(JL)
+        IT = SGS%L2ACT(IL)
+        IU = SGS%L2ACT(JL)
         ITS = IASYM(IT)
         IUS = IASYM(IU)
         ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -191,8 +191,8 @@ if (ISCF == 0) then
           end if
         end if
 #       endif
-        IY = L2ACT(P2LEV(1,IP3))
-        IZ = L2ACT(P2LEV(2,IP3))
+        IY = SGS%L2ACT(P2LEV(1,IP3))
+        IZ = SGS%L2ACT(P2LEV(2,IP3))
         ! LFROM will be start element of Sigma2=E(YZ) Psi2
         IYS = IASYM(IY)
         IZS = IASYM(IZ)
@@ -200,8 +200,8 @@ if (ISCF == 0) then
         do IP2=IP3,IP1END
           IL = P2LEV(1,IP2)
           JL = P2LEV(2,IP2)
-          IV = L2ACT(IL)
-          IX = L2ACT(JL)
+          IV = SGS%L2ACT(IL)
+          IX = SGS%L2ACT(JL)
           IVS = IASYM(IV)
           IXS = IASYM(IX)
           ISTAU = Mul(Mul(IVS,IXS),ISSG2)
@@ -211,8 +211,8 @@ if (ISCF == 0) then
           call SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           if (ISTAU == LSYM1) TG2(IV,IX,IY,IZ) = DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
           do IP1=max(IP2,IP1STA),IP1END
-            IT = L2ACT(P2LEV(1,IP1))
-            IU = L2ACT(P2LEV(2,IP1))
+            IT = SGS%L2ACT(P2LEV(1,IP1))
+            IU = SGS%L2ACT(P2LEV(2,IP1))
             ITS = IASYM(IT)
             IUS = IASYM(IU)
             ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -254,11 +254,11 @@ if (ISCF == 0) then
   ! First, the 2-particle density matrix:
   ! <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
   do IP1=1,NASHT**2
-    IT = L2ACT(P2LEV(1,IP1))
-    IU = L2ACT(P2LEV(2,IP1))
+    IT = SGS%L2ACT(P2LEV(1,IP1))
+    IU = SGS%L2ACT(P2LEV(2,IP1))
     do IP2=1,IP1
-      IV = L2ACT(P2LEV(1,IP2))
-      IX = L2ACT(P2LEV(2,IP2))
+      IV = SGS%L2ACT(P2LEV(1,IP2))
+      IX = SGS%L2ACT(P2LEV(2,IP2))
       if (IV == IU) TG2(IT,IU,IV,IX) = TG2(IT,IU,IV,IX)-TG1(IT,IX)
       TG2(IV,IX,IT,IU) = TG2(IT,IU,IV,IX)
     end do
@@ -268,20 +268,20 @@ if (ISCF == 0) then
   ! -D(Y,X)*(TG2(T,U,V,Z)+D(V,U)*TG1(T,Z))
   ! -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
   do IP1=1,NASHT**2
-    IT = L2ACT(P2LEV(1,IP1))
-    IU = L2ACT(P2LEV(2,IP1))
+    IT = SGS%L2ACT(P2LEV(1,IP1))
+    IU = SGS%L2ACT(P2LEV(2,IP1))
     ITS = IASYM(IT)
     IUS = IASYM(IU)
     IS1 = Mul(Mul(ITS,IUS),LSYM1)
     do IP2=1,IP1
-      IV = L2ACT(P2LEV(1,IP2))
-      IX = L2ACT(P2LEV(2,IP2))
+      IV = SGS%L2ACT(P2LEV(1,IP2))
+      IX = SGS%L2ACT(P2LEV(2,IP2))
       IVS = IASYM(IV)
       IXS = IASYM(IX)
       IS2 = Mul(Mul(IVS,IXS),IS1)
       do IP3=1,IP2
-        IY = L2ACT(P2LEV(1,IP3))
-        IZ = L2ACT(P2LEV(2,IP3))
+        IY = SGS%L2ACT(P2LEV(1,IP3))
+        IZ = SGS%L2ACT(P2LEV(2,IP3))
         IYS = IASYM(IY)
         IZS = IASYM(IZ)
         IS3 = Mul(Mul(IYS,IZS),IS2)

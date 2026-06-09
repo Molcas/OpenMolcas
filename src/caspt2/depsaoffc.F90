@@ -484,7 +484,7 @@ end subroutine CnstInt
 !! dens2_rpt2
 subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
 
-  use sguga, only: L2ACT
+  use sguga, only: SGS
   use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
   use Constants, only: Two
 
@@ -525,13 +525,13 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
       LT = TASK(iTask,1)
       !tras = lt <= nras1(1)
       IST = SGS%ISM(LT)
-      IT = L2ACT(LT)
+      IT = SGS%L2ACT(LT)
       LU = Task(iTask,2)
       !uras = lu > nras1(1)+nras2(1)
       !if (tras .and. uras) cycle
       !LTU = iTask
       ISU = SGS%ISM(LU)
-      IU = L2ACT(LU)
+      IU = SGS%L2ACT(LU)
       ISTU = Mul(IST,ISU)
       ISSG = Mul(ISTU,STSYM)
       NSGM = CIS%NCSF(ISSG)
@@ -543,7 +543,7 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
       LVX = 0
       do LV=1,NLEV
         ISV = SGS%ISM(LV)
-        IV = L2ACT(LV)
+        IV = SGS%L2ACT(LV)
         !vras = lv <= nras1(1)
         do LX=1,NLEV
           LVX = LVX+1
@@ -552,7 +552,7 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
           !xras = lx > nras1(1)+nras2(1)
           !if (vras .and. xras) cycle
           if (ISVX /= ISTU) cycle
-          IX = L2ACT(LX)
+          IX = SGS%L2ACT(LX)
           call GETSGM2(LX,LV,ISSG,SGM1,NSGM,SGM2,NSGM)
           CIout(1:NSGM,kState) = CIout(1:NSGM,kState)+INT2(IT,IU,IV,IX)*SGM2(1:NSGM)
         end do

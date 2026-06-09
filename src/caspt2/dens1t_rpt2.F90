@@ -15,7 +15,7 @@ subroutine DENS1T_RPT2(CI1,CI2,SGM1,G1,NLEV)
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, L2ACT, SGS
+use sguga, only: CIS, SGS
 use PrintLevel, only: DEBUG
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: iSCF, MxCI, nActEl, nAshT, nG1, STSym
@@ -53,7 +53,7 @@ else
   ! have to take account of orbital order.
   ! We will use level inices LT,LU... in these calls, but produce
   ! the density matrices with usual active orbital indices.
-  ! Translation tables L2ACT and LEVEL, in caspt2_module
+  ! Translation tables L2ACT and LEVEL, in SGS
 
   !-SVC20100311: set up a task table with LT,LU
   nTasks = nLev**2
@@ -77,13 +77,13 @@ else
     !do LT=1,NLEV
     LT = TASK(iTask,1)
     IST = SGS%ISM(LT)
-    IT = L2ACT(LT)
+    IT = SGS%L2ACT(LT)
     !do LU=1,LT
     LU = Task(iTask,2)
     !LTU = LTU+1
     !LTU = iTask
     ISU = SGS%ISM(LU)
-    IU = L2ACT(LU)
+    IU = SGS%L2ACT(LU)
     ISTU = Mul(IST,ISU)
     ISSG = Mul(ISTU,STSYM)
     NSGM = CIS%NCSF(ISSG)

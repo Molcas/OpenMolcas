@@ -19,8 +19,6 @@ subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
   use Constants, only: Zero, One
   use Definitions, only: iwp,wp,u6,RtoB
   use sguga, only: CIS, SGS, EXS
-! use sguga, only: L2ACT
-! use Molcas, only: MXLEV
   use NEVPT2_E4, only: do_xvec, do_yvec, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, NXYVEC, NZVEC
   use NEVPT2_E4, only: NEVPT2_E4_derivative1, NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, NEVPT2_E4_XYder1, NEVPT2_E4_XYder2
   use NEVPT2_E4, only: ixyzsta, ixyzend, nxyzdim, NXY_work
@@ -331,8 +329,8 @@ subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
       isab=Mul(SGS%ism(ialev),SGS%ism(iblev))
       issg4=Mul(isab,stsym)
       nsgm4=CIS%ncsf(issg4)
-!     ia=L2ACT(ialev)
-!     ib=L2ACT(iblev)
+!     ia=SGS%L2ACT(ialev)
+!     ib=SGS%L2ACT(iblev)
       BUF2(1:nsgm4,4) = Zero
       call SG_Epq_Psi(SGS,CIS,EXS,IALEV,IBLEV,One,STSYM,CI,BUF2(:,4))
       do ip3 = ip4, nlev2
@@ -341,8 +339,8 @@ subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
         isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
         issg3=Mul(isyz,issg4)
         nsgm3=CIS%ncsf(issg3)
-!       iy=L2ACT(iylev)
-!       iz=L2ACT(izlev)
+!       iy=SGS%L2ACT(iylev)
+!       iz=SGS%L2ACT(izlev)
         BUF2(1:nsgm3,3) = Zero
         call SG_Epq_Psi(SGS,CIS,EXS,IYLEV,IZLEV,One,issg4,BUF2(:,4),BUF2(:,3))
         write(u6,'(a,2f10.3)')" AC_E4(1): CPU/WALL TIME=", cput,wallt
@@ -353,8 +351,8 @@ subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
         isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
         issg2=Mul(isvx,issg3)
         nsgm2=CIS%ncsf(issg2)
-!       iv=L2ACT(ivlev)
-!       ix=L2ACT(ixlev)
+!       iv=SGS%L2ACT(ivlev)
+!       ix=SGS%L2ACT(ixlev)
         BUF2(1:nsgm2,2) = Zero
         call SG_Epq_Psi(SGS,CIS,EXS,IVLEV,IXLEV,One,issg3,BUF2(:,3),BUF2(:,2))
         do ip1 = ip2, nlev2
@@ -363,8 +361,8 @@ subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
           istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
           issg1=Mul(istu,issg2)
           nsgm1=CIS%ncsf(issg1)
-!         it=L2ACT(itlev)
-!         iu=L2ACT(iulev)
+!         it=SGS%L2ACT(itlev)
+!         iu=SGS%L2ACT(iulev)
           BUF2(1:nsgm1,1) = Zero
           call SG_Epq_Psi(SGS,CIS,EXS,ITLEV,IULEV,One,issg2,BUF2(:,2),BUF2(:,1))
         end do

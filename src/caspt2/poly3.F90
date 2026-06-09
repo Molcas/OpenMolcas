@@ -38,7 +38,7 @@ subroutine POLY3(mkF)
 
 use fciqmc_interface, only: DoFCIQMC
 use PrintLevel, only: VERBOSE
-use sguga, only: CIS, L2ACT, SGS
+use sguga, only: CIS, SGS
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
 use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, nActel, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState, &
                          STSym
@@ -65,7 +65,7 @@ nCI = CIS%NCSF(STSYM)
 if (mkF) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
   do ILEV=1,NLEV
-    ETA(ILEV) = EPSA(L2ACT(ILEV))
+    ETA(ILEV) = EPSA(SGS%L2ACT(ILEV))
   end do
 end if
 

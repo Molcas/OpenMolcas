@@ -18,10 +18,10 @@ subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,RDMEIG,nLev)
 ! have to take account of orbital order.
 ! We will use level inices LT,LU... in these calls, but produce
 ! the density matrices with usual active orbital indices.
-! Translation tables L2ACT and LEVEL, in caspt2_module
+! Translation tables L2ACT and LEVEL, in SGS
 
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, L2ACT, SGS
+use sguga, only: CIS, SGS
 use caspt2_module, only: STSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
@@ -70,10 +70,10 @@ do while (Rsv_Tsk(ID,iTask))
   ! i.e., lowering operations. These are allowed in RAS.
   LT = TASK(iTask,1)
   IST = SGS%ISM(LT)
-  IT = L2ACT(LT)
+  IT = SGS%L2ACT(LT)
   LU = Task(iTask,2)
   ISU = SGS%ISM(LU)
-  IU = L2ACT(LU)
+  IU = SGS%L2ACT(LU)
   ISTU = Mul(IST,ISU)
   ISSG = Mul(ISTU,STSYM)
   NSGM = CIS%NCSF(ISSG)

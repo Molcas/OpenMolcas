@@ -23,7 +23,7 @@ subroutine DERSPE(NLEV,NG3,DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
 ! OR CLOSED-SHELL SCF CASE.
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use sguga, only: LEVEL
+use sguga, only: SGS
 use caspt2_module, only: ISCF, NACTEL
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, byte, u6
@@ -70,16 +70,16 @@ if (NACTEL /= 1) then
 
       IT1 = mod(IND1-1,NLEV)+1
       IU1 = (IND1-IT1)/NLEV+1
-      LU1 = LEVEL(IU1)
+      LU1 = SGS%LEVEL(IU1)
       IT2 = mod(IND2-1,NLEV)+1
       IU2 = (IND2-IT2)/NLEV+1
-      LU2 = LEVEL(IU2)
+      LU2 = SGS%LEVEL(IU2)
 
       do IT3=1,NLEV
         do IU3=1,NLEV
           IND3 = IT3+NLEV*(IU3-1)
           if (IND3 > IND2) cycle
-          LU3 = LEVEL(IU3)
+          LU3 = SGS%LEVEL(IU3)
           !VAL = G1(IT1,IU1)*G1(IT2,IU2)*G1(IT3,IU3)
 
           ! Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
@@ -127,9 +127,9 @@ if (NACTEL /= 1) then
     call Free_Tsk(ID)
   end if
   do IT=1,NLEV
-    LT = LEVEL(IT)
+    LT = SGS%LEVEL(IT)
     do IU=1,NLEV
-      LU = LEVEL(IU)
+      LU = SGS%LEVEL(IU)
       !G2(IT,IT,IU,IU) = G1(IT,IT)*G1(IU,IU)
       !if (IU == IT) then
       ! G2(IT,IT,IU,IU) = G2(IT,IT,IU,IU)-G1(IT,IU)
@@ -141,7 +141,7 @@ if (NACTEL /= 1) then
       DESUM = DESUM+OCC*G2(IT,IT,IU,IU)*DF2(IT,IT,IU,IU)
       DESUM = DESUM+OCC*G2(IT,IU,IU,IT)*DF2(IT,IU,IU,IT)
       do IV=1,NLEV
-        LV = LEVEL(IV)
+        LV = SGS%LEVEL(IV)
         DEPSA(LT,LV) = DEPSA(LT,LV)-OCC*G2(IT,IT,IU,IU)*DF2(IT,IV,IU,IU)
         DEPSA(LU,LV) = DEPSA(LU,LV)-OCC*G2(IT,IT,IU,IU)*DF2(IT,IT,IU,IV)
         DEPSA(LT,LV) = DEPSA(LT,LV)-OCC*G2(IT,IU,IU,IT)*DF2(IT,IU,IU,IV)
@@ -153,11 +153,11 @@ end if
 
 do IT=1,NLEV
   !G1(IT,IT) = OCC
-  LT = LEVEL(IT)
+  LT = SGS%LEVEL(IT)
   !F1(IT,IT) = (ESUM*OCC-ETA(LT))*G1(IT,IT)
   DESUM = DESUM+OCC*G1(IT,IT)*DF1(IT,IT)
   do IU=1,NLEV
-    LU = LEVEL(IU)
+    LU = SGS%LEVEL(IU)
     DEPSA(LT,LU) = DEPSA(LT,LU)-OCC*G1(IT,IT)*DF1(IT,IU)
   end do
 end do

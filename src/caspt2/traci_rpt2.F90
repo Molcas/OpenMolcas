@@ -11,7 +11,7 @@
 
 subroutine TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
 
-use sguga, only: CIS, EXS, LEVEL, SGS
+use sguga, only: CIS, EXS, SGS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, OneHalf
 use Definitions, only: wp, iwp
@@ -50,11 +50,11 @@ do J=1,NDIM
   ! CI:=( 1 + Sum(U(I)E(IJ)) + (1/2)Sum(U(I)U(M)E(IJ,MJ)) ) CI,
   ! where U(I) = T(I)-Kronecker(I,J).
   JORB = ISTART-1+J
-  LJ = LEVEL(JORB)
+  LJ = SGS%LEVEL(JORB)
   SGM(1:NCI) = (OneHalf-Half*TVEC(J))*CI(1:NCI)
   do I=1,NDIM
     IORB = ISTART-1+I
-    LI = LEVEL(IORB)
+    LI = SGS%LEVEL(IORB)
     SCL = Half*TVEC(I)
     if (I == J) SCL = SCL-Half
     if (ABS(SCL)<1.0E-12_wp) cycle
@@ -62,7 +62,7 @@ do J=1,NDIM
   end do
   do I=1,NDIM
     IORB = ISTART-1+I
-    LI = LEVEL(IORB)
+    LI = SGS%LEVEL(IORB)
     SCL = TVEC(I)
     if (I == J) SCL = SCL-One
     if (ABS(SCL)<1.0E-12_wp) cycle

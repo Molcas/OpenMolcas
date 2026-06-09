@@ -26,8 +26,9 @@ private
 integer(kind=iwp) :: iq
 
 
-! Split-Graph descriptor, sizes, addresses...
 type SGStruct
+
+! Split-Graph descriptor, sizes, addresses...
   integer(kind=iwp) :: NSym = 0, nActEl = 0, IFRAS = 0
   integer(kind=iwp) :: IA0, IB0, IC0, iSpin, nLev, nVert, nVert0, MidLev, MVSta, MVEnd, MXUP, MXDWN
   integer(kind=iwp), allocatable :: ISm(:), DRT(:,:), DRT0(:,:), Down(:,:), Down0(:,:), Up(:,:), Ver(:), MAW(:,:), LTV(:), &
@@ -36,6 +37,7 @@ type SGStruct
   integer(kind=iwp) :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: NRAS(MxSym,MxGAS), NRASEL(MxGAS), nRsPrt=0
+
 end type SGStruct
 
 ! CI Structures, addresses,..
@@ -57,8 +59,6 @@ type(CIStruct), target :: CIS
 type(EXStruct), target :: EXS
 
 
-integer(kind=iwp), protected :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
-integer(kind=iwp), protected :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
 
 ! This lists nSeg different types of segments, i=1,...,nSeg
 !  1- 4: segments of the head walk from the loop head to the graph head
@@ -88,7 +88,7 @@ integer(kind=iwp), parameter :: IBVPT(nSeg) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 
 ! index for DRT
 integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
 
-public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
+public :: CIS, CIStruct, EXS, EXStruct, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGS, SGStruct
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
@@ -714,11 +714,11 @@ SGS%nRsPrt=nRsPrt
   SGS%iSpin=iSpin
   SGS%nActEl=nActEl
 
-  if (present(xLevel)) Level(:) = xLevel(:)
-  if (present(xL2Act)) L2Act(:) = xL2Act(:)
+  if (present(xLevel)) SGS%Level(:) = xLevel(:)
+  if (present(xL2Act)) SGS%L2Act(:) = xL2Act(:)
 ! Initiate if not already set externally.
-  if (LEVEL(1) == 0) LEVEL(1:SGS%nLev) = [(iq,iq=1,SGS%nLev)]
-  if (L2Act(1) == 0) L2Act(1:SGS%nLev) = [(iq,iq=1,SGS%nLev)]
+  if (SGS%LEVEL(1) == 0) SGS%LEVEL(1:SGS%nLev) = [(iq,iq=1,SGS%nLev)]
+  if (SGS%L2Act(1) == 0) SGS%L2Act(1:SGS%nLev) = [(iq,iq=1,SGS%nLev)]
 
 ! CREATE THE SYMMETRY INDEX VECTOR
 

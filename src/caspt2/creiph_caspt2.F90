@@ -23,7 +23,7 @@ subroutine CREIPH_CASPT2(Heff,Ueff,U0,nState)
 use fciqmc_interface, only: DoFCIQMC
 use PrintLevel, only: USUAL
 use REFWFN, only: IADR15, REFWFN_FILENAME
-use sguga, only: L2ACT, LEVEL
+use sguga, only: SGS
 use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
@@ -150,10 +150,10 @@ IAD15 = IADR15(18)
 !Copy to local array since L2Act and Level are protected.
 call mma_allocate(xL2Act,MxLev,Label='xL2Act')
 call mma_allocate(xLevel,MxLev,Label='xLevel')
-XL2Act(:) = L2Act(:)
+XL2Act(:) = SGS%L2Act(:)
 call IDAFILE(JOBMIX,1,xL2ACT,mxAct,IAD15)
 !SVC: translates orbital index to levels
-XLevel(:) = Level(:)
+XLevel(:) = SGS%Level(:)
 call IDAFILE(JOBMIX,1,xLEVEL,mxAct,IAD15)
 call mma_deallocate(xL2Act)
 call mma_deallocate(xLevel)

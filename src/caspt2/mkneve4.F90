@@ -17,7 +17,6 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
   use caspt2_module, only: JSTATE, NACTEL, NCONF, NSYM, STSYM, MXCI
   use PrintLevel, only: verbose
   use sguga, only: CIS, SGS, EXS
-! use sguga, only: L2ACT
   use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
   use Definitions, only: iwp,wp,u6,RtoB
   use Constants, only: Zero, One
@@ -294,8 +293,8 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
       isab=Mul(SGS%ism(ialev),SGS%ism(iblev))
       issg4=Mul(isab,stsym)
       nsgm4=CIS%ncsf(issg4)
-!     ia=L2ACT(ialev)
-!     ib=L2ACT(iblev)
+!     ia=SGS%L2ACT(ialev)
+!     ib=SGS%L2ACT(iblev)
       BUF2(1:nsgm4,4) = Zero
       call SG_Epq_Psi(SGS,CIS,EXS,IALEV,IBLEV,One,STSYM,CI,BUF2(:,4))
       do ip3 = ip4, nlev2
@@ -304,8 +303,8 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
         isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
         issg3=Mul(isyz,issg4)
         nsgm3=CIS%ncsf(issg3)
-!       iy=L2ACT(iylev)
-!       iz=L2ACT(izlev)
+!       iy=SGS%L2ACT(iylev)
+!       iz=SGS%L2ACT(izlev)
         BUF2(1:nsgm3,3) = Zero
         call SG_Epq_Psi(SGS,CIS,EXS,IYLEV,IZLEV,One,issg4,BUF2(:,4),BUF2(:,3))
       end do
@@ -315,8 +314,8 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
         isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
         issg2=Mul(isvx,issg3)
         nsgm2=CIS%ncsf(issg2)
-!       iv=L2ACT(ivlev)
-!       ix=L2ACT(ixlev)
+!       iv=SGS%L2ACT(ivlev)
+!       ix=SGS%L2ACT(ixlev)
         BUF2(1:nsgm2,2) = Zero
         call SG_Epq_Psi(SGS,CIS,EXS,IVLEV,IXLEV,One,issg3,BUF2(:,3),BUF2(:,2))
         do ip1 = ip2, nlev2
@@ -325,8 +324,8 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
           istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
           issg1=Mul(istu,issg2)
           nsgm1=CIS%ncsf(issg1)
-!         it=L2ACT(itlev)
-!         iu=L2ACT(iulev)
+!         it=SGS%L2ACT(itlev)
+!         iu=SGS%L2ACT(iulev)
           BUF2(1:nsgm1,1) = Zero
           call SG_Epq_Psi(SGS,CIS,EXS,ITLEV,IULEV,One,issg2,BUF2(:,2),BUF2(:,1))
         end do

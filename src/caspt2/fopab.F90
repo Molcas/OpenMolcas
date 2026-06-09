@@ -12,7 +12,7 @@
 subroutine FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
 
 use Index_Functions, only: iTri, nTri_Elem
-use sguga, only: CIS, EXS, L2ACT, SGS
+use sguga, only: CIS, EXS, SGS
 use caspt2_global, only: IDCIEX, LUCIEX
 use caspt2_module, only: ISCF, NAES, NASH, NCONF, NISH, NORB, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -115,14 +115,14 @@ end if
 ! the ket wave function.
 SGM(:) = Zero
 do LEVU=1,NLEV
-  IUABS = L2ACT(LEVU)
+  IUABS = SGS%L2ACT(LEVU)
   ISU = SGS%ISM(LEVU)
   IU = IUABS-NAES(ISU)
   NI = NISH(ISU)
   IUTOT = NI+IU
   do LEVT=1,LEVU
     if (SGS%ISM(LEVT) /= ISU) cycle
-    ITABS = L2ACT(LEVT)
+    ITABS = SGS%L2ACT(LEVT)
     IST = ISU
     IT = ITABS-NAES(IST)
     ITTOT = NI+IT
@@ -158,14 +158,14 @@ end if
 ! Note that I already have BRA in memory
 SGM(:) = Zero
 do LEVU=2,NLEV
-  IUABS = L2ACT(LEVU)
+  IUABS = SGS%L2ACT(LEVU)
   ISU = SGS%ISM(LEVU)
   IU = IUABS-NAES(ISU)
   NI = NISH(ISU)
   IUTOT = NI+IU
   do LEVT=1,LEVU-1
     if (SGS%ISM(LEVT) /= ISU) cycle
-    ITABS = L2ACT(LEVT)
+    ITABS = SGS%L2ACT(LEVT)
     IST = ISU
     IT = ITABS-NAES(IST)
     ITTOT = NI+IT

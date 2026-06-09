@@ -42,7 +42,7 @@ use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga, only: CIS, L2ACT, SGS
+use sguga, only: CIS, SGS
 use Molcas, only: MxLev
 use caspt2_module, only: MxCI, nActEl, nG1, nG2, nG3, nSym, STSym
 #ifdef _DMRG_
@@ -249,8 +249,8 @@ do issg1=1,nsym
         itlev = idx2ij(1,ip1i)
         iulev = idx2ij(2,ip1i)
         istu = Mul(SGS%ism(itlev),SGS%ism(iulev))
-        it = L2ACT(itlev)
-        iu = L2ACT(iulev)
+        it = SGS%L2ACT(itlev)
+        iu = SGS%L2ACT(iulev)
         if (istu == isp1) then
           ibuf1 = ibuf1+1
           ip1_buf(ibuf1) = ip1i
@@ -272,8 +272,8 @@ do issg1=1,nsym
     !    idx = ip1_buf(ib)
     !    itlev = idx2ij(1,idx)
     !    iulev = idx2ij(2,idx)
-    !    it = L2ACT(itlev)
-    !    iu = L2ACT(iulev)
+    !    it = SGS%L2ACT(itlev)
+    !    iu = SGS%L2ACT(iulev)
     !    G1(it,iu) = DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
     !    if (mkF) then
     !      F1sum = Zero
@@ -309,8 +309,8 @@ do issg1=1,nsym
     isyz = Mul(SGS%ism(iylev),SGS%ism(izlev))
     issg2 = Mul(isyz,stsym)
     !nsgm2 = CIS%ncsf(issg2)
-    iy = L2ACT(iylev)
-    iz = L2ACT(izlev)
+    iy = SGS%L2ACT(iylev)
+    iz = SGS%L2ACT(izlev)
     !BUF2(1:nsgm2) = Zero
     !call SG_Epq_Psi(IYLEV,IZLEV,One,STSYM,CI,BUF2)
     !if (issg2 == issg1) then
@@ -318,8 +318,8 @@ do issg1=1,nsym
     !    idx = ip1_buf(ib)
     !    itlev = idx2ij(1,idx)
     !    iulev = idx2ij(2,idx)
-    !    it = L2ACT(itlev)
-    !    iu = L2ACT(iulev)
+    !    it = SGS%L2ACT(itlev)
+    !    iu = SGS%L2ACT(iulev)
     !    G2(it,iu,iy,iz) = DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
     !    if (mkF) then
     !      F2sum = Zero
@@ -335,8 +335,8 @@ do issg1=1,nsym
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
       isvx = Mul(SGS%ism(ivlev),SGS%ism(ixlev))
-      iv = L2ACT(ivlev)
-      ix = L2ACT(ixlev)
+      iv = SGS%L2ACT(ivlev)
+      ix = SGS%L2ACT(ixlev)
       if (isvx == Mul(issg1,issg2)) then
         !BUFT(1:nsgm1) = Zero
         !call SG_Epq_Psi(IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
@@ -374,8 +374,8 @@ do issg1=1,nsym
             idx = ip1_buf(ibmn-1+ib)
             itlev = idx2ij(1,idx)
             iulev = idx2ij(2,idx)
-            iT = l2act(itlev)
-            iU = l2act(iulev)
+            iT = SGS%l2act(itlev)
+            iU = SGS%l2act(iulev)
             idxG3(1,iG3) = int(iT,kind=byte)
             idxG3(2,iG3) = int(iU,kind=byte)
             idxG3(3,iG3) = int(iV,kind=byte)

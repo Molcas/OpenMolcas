@@ -14,7 +14,7 @@
 subroutine CnstCLag(IFF,nLev,NG3,NCONF,CLag,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2,G3)
 
 use PrintLevel, only: VERBOSE
-use sguga, only: L2ACT
+use sguga, only: SGS
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
 use caspt2_module, only: CITHR, EPSA, ETA, ISCF, JSTATE, MSTATE, NSTATE, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -34,7 +34,7 @@ real(kind=wp), allocatable :: CI1(:)
 if (IFF == 1) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
   do ILEV=1,NLEV
-    ETA(ILEV) = EPSA(L2ACT(ILEV))
+    ETA(ILEV) = EPSA(SGS%L2ACT(ILEV))
   end do
 end if
 

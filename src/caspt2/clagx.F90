@@ -14,7 +14,7 @@
 subroutine CLagX(IFF,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
 
 use PrintLevel, only: VERBOSE
-use sguga, only: L2ACT, SGS
+use sguga, only: SGS
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: EPSA, HZERO, ISCF, JSTATE, NG1, NG2, NG3, NG3TOT
 use BDerNEV, only: BDerNEV_E4
@@ -118,7 +118,7 @@ call CLagSym(nAshT,DG1,DG2,DF1,DF2,0)
 !! EASUM=EASUM+EPSA(IT)*DREF(IT,IT)
 if (IFF == 1) then
   do ILEV=1,nLev
-    DG1(ILEV+nLev*(ILEV-1)) = DG1(ILEV+nLev*(ILEV-1))+DEASUM*EPSA(L2ACT(ILEV))
+    DG1(ILEV+nLev*(ILEV-1)) = DG1(ILEV+nLev*(ILEV-1))+DEASUM*EPSA(SGS%L2ACT(ILEV))
     if (ISCF == 0) then
       do JLEV=1,nAshT
         DEPSA(JLEV,ILEV) = DEPSA(JLEV,ILEV)+DEASUM*G1(JLEV+nLev*(ILEV-1))

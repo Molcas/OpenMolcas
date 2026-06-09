@@ -23,7 +23,7 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use fciqmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
-use sguga, only: CIS, L2ACT, SGS
+use sguga, only: CIS, SGS
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: iSCF, jState, mState, nActEl, nAshT, nG1, STSym
@@ -93,7 +93,7 @@ end if
 ! have to take account of orbital order.
 ! We will use level indices LT,LU... in these calls, but produce
 ! the density matrices with usual active orbital indices.
-! Translation tables L2ACT and LEVEL, in caspt2_module
+! Translation tables L2ACT and LEVEL, in SGS
 
 ! SVC20100311: set up a task table with LT,LU
 ! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -118,10 +118,10 @@ do while (Rsv_Tsk(ID,iTask))
   ! i.e., lowering operations. These are allowed in RAS.
   LT = TASK(iTask,1)
   IST = SGS%ISM(LT)
-  IT = L2ACT(LT)
+  IT = SGS%L2ACT(LT)
   LU = Task(iTask,2)
   ISU = SGS%ISM(LU)
-  IU = L2ACT(LU)
+  IU = SGS%L2ACT(LU)
   ISTU = Mul(IST,ISU)
   if (ISTU /= 1) cycle
   ISSG = Mul(ISTU,STSYM)
