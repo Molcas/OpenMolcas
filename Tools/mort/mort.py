@@ -1068,7 +1068,6 @@ else:
         warning_item.append(name)
 
     translate_mltpl1 = False
-    translate_angmom = False
 
     for name in fi:
 
@@ -1106,16 +1105,18 @@ else:
             # We will need to translate the integrals instead
             translate_mltpl1 = do_trans
 
-      # angular momentum integrals follow same logic as MLTPL1
+      # angular momentum integrals follow similar logic as MLTPL1,
+      # but translation requires the linear momentum integrals, since
+      #     L = r x p upon translation changes into L' = (r + ∆r) x p
       elif name == 'ANGMOM_ORIG':
         copy_dataset(fi, fo, name)
-        if do_rot or do_trans:
+        if do_rot:
           coor = fi[name]
-          fo[name][:] = coor @ R.T + T
-          if fi[name].shape[0] > 1 and not np.any(fi[name][1,:]):
-            fo[name][1,:] = fi[name][1,:]
-            # We will need to translate the integrals instead
-            translate_angmom = do_trans
+          fo[name][:] = coor @ R.T
+        if do_trans:
+          print('WARNING: Translating the AO_ANGMOM_X, _Y, _Z integrals is currently not supported.')
+          print('         They are probably WRONG!')
+          print()
 
       # Other center data are reordered only
       elif name in ['CENTER_ATNUMS', 'CENTER_CHARGES', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_CHARGES']:
@@ -1349,13 +1350,6 @@ else:
         print('WARNING: The AO_MLTPL_X, _Y, _Z integrals need to be translated, but AO_OVERLAP_MATRIX is missing.')
         print('         They are probably WRONG!')
         print()
-
-    if translate_angmom:
-      # TODO: L = r x p upon translation changes into L' = (r + ∆r) x p
-      #       One would need the linear momentum matrices as well
-      print('WARNING: Translating the AO_ANGMOM_X, _Y, _Z integrals is currently not supported.')
-      print('         They are probably WRONG!')
-      print()
 
   # In case something unsafe was done
   if warning_item and do_smth:
