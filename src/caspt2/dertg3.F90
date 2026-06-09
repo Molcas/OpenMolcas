@@ -35,7 +35,7 @@ subroutine DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,C
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, SGS
+use caspt2_global, only: CIS, EXS, SGS
 use caspt2_module, only: IASYM, ISCF, MXCI, NACTEL
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One

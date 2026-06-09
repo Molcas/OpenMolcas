@@ -22,7 +22,7 @@ subroutine H0DIAG_CASPT2(ISYCI,DIAG,nDiag,NOW,IOW,nMidV)
 ! FOR THE SPECIFIED TOTAL SYMMETRY ISYCI
 
 use Symmetry_Info, only: Mul
-use sguga, only: CIS
+use caspt2_global, only: CIS
 use caspt2_module, only: nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp

@@ -19,7 +19,7 @@
 
 subroutine PRWF_CP2(ISYCI,NCO,CI,THR)
 
-use sguga, only: CIS
+use caspt2_global, only: CIS
 use Definitions, only: wp, iwp, u6
 
 implicit none

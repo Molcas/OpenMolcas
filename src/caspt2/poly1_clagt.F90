@@ -16,9 +16,8 @@ subroutine POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
 ! THIS PROGRAM CALCULATES THE 1-EL DENSITY
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
 
-use sguga, only: SGS
-use caspt2_module, only: nConf
-use caspt2_module, only: cLab10, iAdr10, MxCI
+use caspt2_global, only: SGS
+use caspt2_module, only: cLab10, iAdr10, MxCI, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

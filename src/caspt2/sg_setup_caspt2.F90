@@ -16,7 +16,8 @@ subroutine SG_SETUP_CASPT2()
 use Molcas, only: MxLev
 use fciqmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
-use sguga, only: CIS, EXS, SG_Init, SG_Init_Simple, SGS
+use sguga, only: SG_Init, SG_Init_Simple
+use caspt2_global, only: CIS, EXS, SGS
 use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, MxCI, nActEl, nAsh, nEle3, nHole1, nRas1, nRas2, nRas3, nSym, STSym
 use stdalloc, only: mma_allocate
 use rasdef, only: nRas,nRasEl,nRsPrt

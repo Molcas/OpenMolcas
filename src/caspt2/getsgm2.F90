@@ -32,7 +32,7 @@ subroutine GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, SGS
+use caspt2_global, only: CIS, EXS, SGS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

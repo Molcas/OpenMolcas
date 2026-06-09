@@ -13,10 +13,9 @@
 
 subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
-  use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
+  use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX, SGS, CIS, EXS
   use caspt2_module, only: JSTATE, NACTEL, NCONF, NSYM, STSYM, MXCI
   use PrintLevel, only: verbose
-  use sguga, only: CIS, SGS, EXS
   use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
   use Definitions, only: iwp,wp,u6,RtoB
   use Constants, only: Zero, One

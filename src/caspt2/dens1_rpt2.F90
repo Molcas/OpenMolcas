@@ -23,9 +23,8 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use fciqmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
-use sguga, only: CIS, SGS
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use caspt2_global, only: iPrGlb
+use caspt2_global, only: iPrGlb, SGS, CIS
 use caspt2_module, only: iSCF, jState, mState, nActEl, nAshT, nG1, STSym
 #ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_get_1rdm_full

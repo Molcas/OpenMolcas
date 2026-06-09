@@ -88,7 +88,7 @@ contains
 subroutine NEVPT2_E4_ZVEC(NLEV,idx2ij,ij2idx,Gact,CI,ZVEC,WRK)
 
   use caspt2_module, only: STSYM
-  use sguga, only: CIS, SGS, EXS
+  use caspt2_global, only: CIS, SGS, EXS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -186,7 +186,7 @@ end subroutine NEVPT2_E4_ZVEC
 subroutine NEVPT2_E4_XYVEC(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,ZVEC,XYVEC)
 
   use caspt2_module, only: STSYM
-  use sguga, only: CIS, SGS, EXS
+  use caspt2_global, only: CIS, SGS, EXS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -294,7 +294,7 @@ end subroutine NEVPT2_E4_XYVEC
 subroutine NEVPT2_E4_contract1(iSym0,iSym,NLEV,idx2ij,ipxysta,ipxyend,BUFT,CI,XYVEC,BA,BC,XYcont)
 
   use caspt2_module, only: NTUVES, STSYM
-  use sguga, only: CIS, SGS, EXS
+  use caspt2_global, only: CIS, SGS, EXS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -435,7 +435,7 @@ end subroutine NEVPT2_E4_contract1
 subroutine NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYVEC,BA,BC,XYcont,XYtmp,ZVEC)
 
   use caspt2_module, only: NTUVES, STSYM
-  use sguga, only: CIS, SGS, EXS
+  use caspt2_global, only: CIS, SGS, EXS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -753,7 +753,7 @@ end subroutine NEVPT2_E4_contract2
 subroutine NEVPT2_E4_derivative1(iSym0,iSym,NLEV,idx2ij,ipxysta,ipxyend,BDERA,BDERC,XYcont)
 
   use caspt2_module, only: NTUVES, STSYM
-  use sguga, only: SGS
+  use caspt2_global, only: SGS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -853,7 +853,7 @@ subroutine NEVPT2_E4_derivative2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,B
                                   XYcont,XYcontder,XYder,ZVEC,XYtmp)
 
   use caspt2_module, only: NTUVES, STSYM
-  use sguga, only: CIS, SGS, EXS
+  use caspt2_global, only: CIS, SGS, EXS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -1131,7 +1131,7 @@ end subroutine NEVPT2_E4_derivative2
 subroutine NEVPT2_E4_derivative3(iSym,NLEV,idx2ij,ipxysta,ipxyend,BUFT,CI,XYcont,XYder)
 
   use caspt2_module, only: STSYM
-  use sguga, only: CIS, SGS, EXS
+  use caspt2_global, only: CIS, SGS, EXS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -1206,7 +1206,7 @@ end subroutine NEVPT2_E4_derivative3
 subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYder,Gder,Zder)
 
   use caspt2_module, only: STSYM
-  use sguga, only: CIS, SGS, EXS
+  use caspt2_global, only: CIS, SGS, EXS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif
@@ -1402,7 +1402,7 @@ subroutine NEVPT2_E4_XYder2(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI, &
                             Gact,XYvec,XYder,XYcont,XYcontder,ZVEC,Zder,CLag,Gder,XYtmp)
 
   use caspt2_module, only: STSYM
-  use sguga, only: CIS, SGS, EXS
+  use caspt2_global, only: CIS, SGS, EXS
 #ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 #endif

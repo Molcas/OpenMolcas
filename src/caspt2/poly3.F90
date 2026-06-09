@@ -38,8 +38,7 @@ subroutine POLY3(mkF)
 
 use fciqmc_interface, only: DoFCIQMC
 use PrintLevel, only: VERBOSE
-use sguga, only: CIS, SGS
-use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
+use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV, SGS, CIS
 use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, nActel, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState, &
                          STSym
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_

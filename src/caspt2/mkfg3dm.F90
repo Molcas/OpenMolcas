@@ -40,9 +40,8 @@ subroutine MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,NLEV,mG3)
 use Index_Functions, only: nTri_Elem
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
-use caspt2_global, only: iPrGlb
+use caspt2_global, only: iPrGlb, SGS, CIS
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga, only: CIS, SGS
 use Molcas, only: MxLev
 use caspt2_module, only: MxCI, nActEl, nG1, nG2, nG3, nSym, STSym
 #ifdef _DMRG_

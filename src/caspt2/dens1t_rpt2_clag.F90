@@ -22,7 +22,7 @@ subroutine DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,SCAL,nLev)
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
-use sguga, only: SGS, CIS
+use caspt2_global, only: SGS, CIS
 use caspt2_module, only: MxCI, nConf, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6

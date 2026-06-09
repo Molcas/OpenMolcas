@@ -23,7 +23,7 @@ subroutine DERSPE(NLEV,NG3,DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
 ! OR CLOSED-SHELL SCF CASE.
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use sguga, only: SGS
+use caspt2_global, only: SGS
 use caspt2_module, only: ISCF, NACTEL
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, byte, u6

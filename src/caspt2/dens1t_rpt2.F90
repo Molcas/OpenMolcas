@@ -15,9 +15,8 @@ subroutine DENS1T_RPT2(CI1,CI2,SGM1,G1,NLEV)
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, SGS
 use PrintLevel, only: DEBUG
-use caspt2_global, only: iPrGlb
+use caspt2_global, only: iPrGlb, SGS, CIS
 use caspt2_module, only: iSCF, MxCI, nActEl, nAshT, nG1, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

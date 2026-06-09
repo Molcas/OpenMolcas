@@ -17,10 +17,9 @@ subroutine MKBNEV()
   use Constants, only: Zero
   use PrintLevel, only: debug, verbose
   use stdalloc, only: mma_allocate, mma_deallocate
-  use caspt2_global, only: LUSBT, LUSOLV
+  use caspt2_global, only: LUSBT, LUSOLV, SGS
   use EQSOLV, only: IDBMAT, IDSMAT
   use Definitions, only: iwp,wp,byte,u6
-  use sguga, only: SGS
   use SC_NEVPT2, only: Do_SC, ECORR_SC, IDBMAT_NEVPT2, OVLAPS_SC
   use NEVPT2_mod, only: NASHT
 #ifdef _MOLCAS_MPP_

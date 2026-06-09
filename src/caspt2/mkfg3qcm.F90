@@ -22,8 +22,7 @@ use qcmaquis_interface, only: qcmaquis_interface_get_1rdm_full, qcmaquis_interfa
                               qcmaquis_interface_get_3rdm_full, qcmaquis_interface_get_fock_contracted_4rdm_full, &
                               qcmaquis_interface_read_fock_contracted_4rdm
 use printLevel, only: verbose
-use sguga, only: SGS
-use caspt2_global, only: iPrGlb
+use caspt2_global, only: iPrGlb, SGS
 use caspt2_module, only: EPSA, jState
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

@@ -13,8 +13,7 @@
 
 subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 
-use sguga, only: SGS
-use caspt2_global, only: iRoot1, iRoot2, OLagFull
+use caspt2_global, only: iRoot1, iRoot2, OLagFull, SGS
 use caspt2_module, only: ENERGY, NASH, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NORB, NSTATE, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half

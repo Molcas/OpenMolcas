@@ -23,10 +23,9 @@ subroutine CREIPH_CASPT2(Heff,Ueff,U0,nState)
 use fciqmc_interface, only: DoFCIQMC
 use PrintLevel, only: USUAL
 use REFWFN, only: IADR15, REFWFN_FILENAME
-use sguga, only: SGS
 use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
-use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
+use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight, SGS
 use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, ISPIN, &
                          LROOTS, MSTATE, MSTATE, MXCI, NACTEL, NASH, NBAS, NBSQT, NCONF, NDEL, NELE3, NFRO, NHOLE1, NISH, NRAS1, &
                          NRAS2, NRAS3, NROOTS, NSYM, POTNUC, STSYM, TITLE

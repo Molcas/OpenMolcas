@@ -21,7 +21,7 @@ subroutine SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nLev,mG3)
 ! SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 ! OR CLOSED-SHELL SCF CASE.
 
-use sguga, only: SGS
+use caspt2_global, only: SGS
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use caspt2_module, only: ETA, iSCF, NG3
 use Constants, only: Zero, One, Two

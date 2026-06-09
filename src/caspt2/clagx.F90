@@ -14,8 +14,7 @@
 subroutine CLagX(IFF,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
 
 use PrintLevel, only: VERBOSE
-use sguga, only: SGS
-use caspt2_global, only: iPrGlb
+use caspt2_global, only: SGS, iPrGlb
 use caspt2_module, only: EPSA, HZERO, ISCF, JSTATE, NG1, NG2, NG3, NG3TOT
 use BDerNEV, only: BDerNEV_E4
 #ifdef _MOLCAS_MPP_

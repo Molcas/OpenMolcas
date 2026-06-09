@@ -62,8 +62,7 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga, only: CIS, EXS, SGS
-use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
+use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad, SGS, CIS, EXS
 use caspt2_module, only: EPSA, MxCI, nActEl, nAshT, nBasT, nSym, STSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE

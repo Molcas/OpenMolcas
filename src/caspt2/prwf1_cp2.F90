@@ -20,7 +20,7 @@
 subroutine PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
 
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, SGS
+use caspt2_global, only: CIS, SGS
 use caspt2_module, only: ISPIN, NSYM, PRSD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6

@@ -21,7 +21,7 @@ subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,RDMEIG,nLev)
 ! Translation tables L2ACT and LEVEL, in SGS
 
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, SGS
+use caspt2_global, only: CIS, SGS
 use caspt2_module, only: STSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)

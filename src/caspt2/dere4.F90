@@ -14,11 +14,10 @@
 subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
 
   use BDerNEV, only: Gact, Gder
-  use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
+  use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX, SGS, CIS, EXS
   use caspt2_module, only: JSTATE, NACTEL, NSYM, STSYM, MXCI
   use Constants, only: Zero, One
   use Definitions, only: iwp,wp,u6,RtoB
-  use sguga, only: CIS, SGS, EXS
   use NEVPT2_E4, only: do_xvec, do_yvec, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, NXYVEC, NZVEC
   use NEVPT2_E4, only: NEVPT2_E4_derivative1, NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, NEVPT2_E4_XYder1, NEVPT2_E4_XYder2
   use NEVPT2_E4, only: ixyzsta, ixyzend, nxyzdim, NXY_work

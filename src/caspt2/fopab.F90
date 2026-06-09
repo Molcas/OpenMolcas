@@ -12,8 +12,7 @@
 subroutine FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
 
 use Index_Functions, only: iTri, nTri_Elem
-use sguga, only: CIS, EXS, SGS
-use caspt2_global, only: IDCIEX, LUCIEX
+use caspt2_global, only: IDCIEX, LUCIEX, SGS, CIS, EXS
 use caspt2_module, only: ISCF, NAES, NASH, NCONF, NISH, NORB, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

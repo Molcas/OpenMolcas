@@ -23,8 +23,7 @@ use Symmetry_Info, only: Mul
 use qcmaquis_interface, only: qcmaquis_interface_get_trans_1rdm_full, qcmaquis_interface_get_trans_2rdm_full, &
                               qcmaquis_interface_get_trans_3rdm_full, qcmaquis_interface_read_rdm_full
 use printLevel, only: debug
-use sguga, only: SGS
-use caspt2_global, only: iPrGlb
+use caspt2_global, only: iPrGlb, SGS
 use caspt2_module, only: nAshT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

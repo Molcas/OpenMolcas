@@ -33,12 +33,11 @@ subroutine MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, SGS
-use caspt2_module, only: IASYM, ISCF, NACTEL, NASHT
+use caspt2_global, only: CIS, EXS, SGS
+use caspt2_module, only: IASYM, ISCF, NACTEL, NASHT, MxCI
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs, MyRank
 #endif
-use caspt2_module, only: MxCI
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6

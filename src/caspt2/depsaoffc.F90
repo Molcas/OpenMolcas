@@ -15,8 +15,7 @@ subroutine DEPSAOffC(NCONF,NSTATE,NASHT,NBAST,CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 
 use Symmetry_Info, only: Mul
 use PrintLevel, only: VERBOSE
-use sguga, only: CIS, SGS
-use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag
+use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag, SGS, CIS
 use caspt2_module, only: IFRMS, IFXMS, ISCF, NASH, NBAS, NBTCH, NBTCHES, NFRO, NISH, NORB, NROOTS, NSYM, STSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -484,7 +483,7 @@ end subroutine CnstInt
 !! dens2_rpt2
 subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
 
-  use sguga, only: SGS
+  use caspt2_global, only: SGS
   use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
   use Constants, only: Two
 

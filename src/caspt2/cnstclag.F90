@@ -14,8 +14,7 @@
 subroutine CnstCLag(IFF,nLev,NG3,NCONF,CLag,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2,G3)
 
 use PrintLevel, only: VERBOSE
-use sguga, only: SGS
-use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
+use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV, SGS
 use caspt2_module, only: CITHR, EPSA, ETA, ISCF, JSTATE, MSTATE, NSTATE, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One

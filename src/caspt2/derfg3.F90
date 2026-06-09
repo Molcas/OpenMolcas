@@ -16,9 +16,8 @@ subroutine DERFG3(IFF,NCONF,NLEV,NG3,CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2
 use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, SGS
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use caspt2_global, only: iPrGlb, nbuf1_grad
+use caspt2_global, only: iPrGlb, nbuf1_grad, SGS, CIS, EXS
 use caspt2_module, only: EPSA, MxCI, nActEl, nSym, STSym
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
