@@ -18,6 +18,7 @@ subroutine SG_PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 ! number of integers used for each walk (IPWLK) is given as
 ! call parameter.
 
+use sguga, only: nPack
 use Definitions, only: iwp
 
 #include "intent.fh"
@@ -32,7 +33,7 @@ do I=1,NWALK
   LEND = 0
   do J=1,IPWLK
     LSTA = LEND+1
-    LEND = min(LSTA+14,N)
+    LEND = min(LSTA+nPack-1,N)
     IPOS = IPOS+1
     IWORD = 0
     do L=LEND,LSTA,-1
