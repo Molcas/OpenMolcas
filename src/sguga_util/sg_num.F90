@@ -13,7 +13,7 @@ function SG_NUM(SGS,EXS,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
 
-use sguga, only: SGStruct, CIStruct, EXStruct
+use sguga, only: SGStruct, EXStruct
 use Definitions, only: iwp
 
 implicit none
