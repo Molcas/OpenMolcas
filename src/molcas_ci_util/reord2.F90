@@ -12,7 +12,7 @@
 !               1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
+subroutine Reord2(SGS,EXS,NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -53,7 +53,7 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: EXS, SGS
+use sguga, only: EXStruct, SGStruct
 use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use PrintLevel, only: DEBUG
@@ -63,6 +63,8 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
+type(SGStruct), intent(in) :: SGS
+type(EXStruct), intent(in) :: EXS
 integer(kind=iwp), intent(in) :: NORB, NEL, IREFSM, IMODE, ICONF(*), ISPIN(*)
 real(kind=wp), intent(in) :: CIOLD(*)
 real(kind=wp), intent(_OUT_) :: CINEW(*)

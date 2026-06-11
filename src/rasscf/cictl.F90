@@ -82,7 +82,7 @@ use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, IC
                          IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
+use general_data, only: SGS, EXS, CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
 #ifdef _SGUGA_VERIFY_
 use general_data, only: CIS, SGS, EXS
 #else
@@ -301,7 +301,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call mma_allocate(CIV,nConf,Label='CIV')
         call mma_allocate(kcnf,nactel,Label='kCnf')
-        call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
+        call Reord2(SGS,EXS,NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
         call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
         Call mma_deallocate(kCnf)
         Call mma_deallocate(CIV)
@@ -542,7 +542,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call mma_allocate(CIV,nConf,Label='CIV')
         call mma_allocate(kcnf,nactel,Label='kCnf')
-        call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
+        call Reord2(SGS,EXS,NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
         call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC*(NAC+1)/2)
         Call mma_deallocate(kCnf)
         Call mma_deallocate(CIV)
@@ -681,7 +681,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         call mma_allocate(kcnf,nactel,Label='kCnf')
         if (.not. iDoGas) then
-          call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
+          call Reord2(SGS,EXS,NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
           !end if
           !call mma_deallocate(kcnf)
 
