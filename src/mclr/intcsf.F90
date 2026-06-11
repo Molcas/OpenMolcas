@@ -34,7 +34,8 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LCSF,N
 !                      in CNSM(:)%ICTS
 
 use Str_Info, only: CFTP, CNSM, DFTP, DTOC
-use MCLR_Data, only: MAXOP, MINOP, MS2P, MULTSP, MXPCSM, NCNASM, NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM, NTYP
+use spinfo, only: MINOP
+use MCLR_Data, only: MAXOP, MS2P, MULTSP, MXPCSM, NCNASM, NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM, NTYP
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

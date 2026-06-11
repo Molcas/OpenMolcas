@@ -93,7 +93,7 @@ module MCLR_Data
 !  ITOBS   : "Increaser"
 !  ITFSO   : Type array for symmetry ordered orbitals (not activated)
 
-! Stuff from spinfo_mclr.fh
+! Stuff from spinfo_mclr.fh    (todo: nove to spinfo)
 !  MULTSP : Spin multiplicity
 !  MS2P   : 2*MS
 !  MINOP  : Minum open orbitals
@@ -147,7 +147,7 @@ integer(kind=iwp) :: dspvec(mxdccc), i1, I12, IACTI(MXPICI), iAllo, iAnders, IAS
                      IBTSOB(3,MXPOBS), ICISTR, IDC, IDIAG, ipCI, ipCM(8), ipdia, ipMat(8,8), ipmatba(8,8), ipMatLT(8,8), &
                      ipMO(8,8,8), IREFSM, IREOTS(MXPORB), irlxroot, ISMFTO(MXPORB), IST, istate, ITSOB(MXPORB), lconf, lDisp(8), &
                      lldet, luciv, LUCSF2SD, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, &
-                     LUTRI4, LUTRI5, LuTwo, MAXI, MAXK, MAXOP, MINOP, MNR1IC(MXPICI), MNR3IC(MXPICI), MS2, MS2P, MULTSP, &
+                     LUTRI4, LUTRI5, LuTwo, MAXI, MAXK, MAXOP, MNR1IC(MXPICI), MNR3IC(MXPICI), MS2, MS2P, MULTSP, &
                      MXR1IC(MXPICI), MXR3IC(MXPICI), MXSB, MXSOOB, n1Dens, n2Dens, na(8), NACOB, nacpar, nacpr2, NACstates(2), &
                      NAELCI(MXPICI), nb(8), NBELCI(MXPICI), nCMO, NCNASM(MXPCSM), NCNATS(MXPCTP,MXPCSM), nconf1, NCPCNT(MXPCTP), &
                      NCSASM(MXPCSM), nDens, nDensC, NDPCNT(MXPCTP), NDTASM(MXPCSM), NELCI(MXPICI), nexp = 0, nexp_max = 100, &
@@ -171,7 +171,7 @@ public :: ChDisp, CMO, CMO_Inv, Do_Hybrid, dspvec, ERAS, esterr, F0SQMO, FAMO, F
           IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, INT1, INT2, ipCI, ipCM, ipdia, ipMat, ipmatba, ipMatLT, ipMO, IREFSM, IREOTS, &
           irlxroot, isMECIMSPD, ISMFTO, isNAC, IST, istate, ITSOB, KAIN1, KINT2, KINT2A, lconf, lDisp, lldet, luciv, LUCSF2SD, &
           LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, LuTwo, MAXI, MAXK, &
-          MAXOP, MINOP, MNR1IC, MNR3IC, MS2, MS2P, MULTSP, MXINKA, MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, n1Dens, n2Dens, &
+          MAXOP, MNR1IC, MNR3IC, MS2, MS2P, MULTSP, MXINKA, MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, n1Dens, n2Dens, &
           na, NACOB, nacpar, nacpr2, NACstates, NAELCI, nb, NBELCI, nCMO, NCNASM, NCNATS, nconf1, NCPCNT, NCSASM, nDens, nDensC, &
           NDPCNT, NDTASM, NELCI, NewPre, nexp, nexp_max, ngp, nhess, NICISP, nmba, nna, NOBPT, NOBPTS, NOCOB, NOCSF, Nofile, &
           NOPART, NORB1, NORB2, NORB3, nrec, NSSA, NTOOB, NTSOB, NTYP, override, P1, P1INV, PDFT_Ratio, pINT1, pINT2, PSSIGN, &
