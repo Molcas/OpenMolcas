@@ -93,6 +93,7 @@ use qcmaquis_interface, only: dmrg_energy, qcmaquis_interface_deinit, qcmaquis_i
 use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 use lucia_data, only: RF1, RF2
 use rasscf_global, only: DoDelChk, DoMCPDFTDMRG, DoNEVPT2Prep, Twordm_qcm
+use general_data, only: NACTEL
 #endif
 #ifdef _FDE_
 use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, embWriteEsp
@@ -103,7 +104,7 @@ use csfbas, only: CONF
 use lucia_data, only: CFTP, DStmp, Dtmp
 use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
-use general_data, only: NACTEL, STSYM
+use general_data, only: STSYM
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
