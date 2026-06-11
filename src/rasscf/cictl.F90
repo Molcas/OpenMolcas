@@ -297,7 +297,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 ! temporary code
         If (.NOT.iDoGAS) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
-        Check_D1=Sum(ABS(Dtmp))
+        Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call mma_allocate(CIV,nConf,Label='CIV')
         call SG_Reord(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
@@ -305,6 +305,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call mma_deallocate(CIV)
         Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
         If (ABS(Sum(Abs(D_sguga))-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
+           Write (6,*) 'SGUGA error in D1Mat'
            Write (6,*) 'SGUGA error in D1Mat'
            Call Abend()
         End If
