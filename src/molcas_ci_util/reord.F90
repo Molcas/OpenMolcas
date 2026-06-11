@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine REORD(SGS,EXS,IMODE,ICONF,ISPIN,kSym,nConf,CIOLD,CINEW)
+subroutine REORD(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,nConf,CIOLD,CINEW)
 ! AUTHOR:  M.P. FUELSCHER AND J. OLSEN
 !          UNIV. OF LUND, SWEDEN 1990
 !
@@ -41,7 +41,7 @@ use Definitions, only: u6
 implicit none
 type(SGStruct), intent(in) :: SGS
 type(EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) :: nConf, IMODE, ICONF(*), ISPIN(*), kSym
+integer(kind=iwp), intent(in) :: IREFSM, nConf, IMODE, ICONF(*), ISPIN(*)
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
 integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(50)
@@ -63,7 +63,7 @@ do ITYP=1,NTYP
   if (ITYP == 1) then
     ICNBS0 = 1
   else
-    ICNBS0 = ICNBS0+NCNATS(ITYP-1,kSym)*(SGS%nActEl+IOPEN-1)/2
+    ICNBS0 = ICNBS0+NCNATS(ITYP-1,IREFSM)*(SGS%nActEl+IOPEN-1)/2
   end if
   ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
   if (ITYP == 1) then
@@ -75,7 +75,7 @@ do ITYP=1,NTYP
   ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
   ! SPIN COUPLINGS
 
-  do IC=1,NCNATS(ITYP,kSym)
+  do IC=1,NCNATS(ITYP,IREFSM)
     ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
     do IICSF=1,NCPCNT(ITYP)
       ICSFJP = ICSFJP+1

@@ -53,7 +53,7 @@ write(u6,103)
 #endif
 
 Call mma_allocate(CINEW,nConf,Label='CINEW')
-call REORD(SGS,EXS,iMode,CNSM(iss)%ICONF,CFTP,pState_Sym,nConf,CI,CINEW)
+call REORD(SGS,EXS,pState_Sym,iMode,CNSM(iss)%ICONF,CFTP,nConf,CI,CINEW)
 CI(1:nConf)=CINEW(1:nConf)
 Call mma_deallocate(CINEW)
 
