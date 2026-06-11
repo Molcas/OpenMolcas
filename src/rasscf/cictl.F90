@@ -549,9 +549,10 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         End If
         Call mma_deallocate(D_sguga)
 
-        If (SGS%IFRAS==0) Then
+        If (SGS%nRsPrt==1) Then
         call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
-        Check_D1=DDot_(NACPAR*(NACPAR+1)/2,DTmp,1,DTmp,1)
+        Check_D1=DDot_(NACPAR*(NACPAR+1)/2,PTmp,1,PTmp,1)
+        Write (6,*) 'Check_D2=',Check_D1
         Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
         Call mma_allocate(CIV,nConf,Label='CIV')
         call SG_Reord(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
