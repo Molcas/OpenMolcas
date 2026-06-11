@@ -15,7 +15,7 @@ use timers, only: TimeDavid, TimeSigma
 use lucia_data, only: CFTP, DTOC, ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
-use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NACTEL, NCONF, NSEL, STSYM
+use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
 use csfbas, only: CONF, CTS
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
