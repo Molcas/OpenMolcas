@@ -1566,10 +1566,6 @@ integer(kind=iwp), parameter :: IVLFT = 1, ITYPE = 2, IAWSL = 3, IAWSR = 4, ILS 
 call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
 call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 
-Write (6,*) 'SGS%nLev=',SGS%nLev
-Write (6,*) 'SGS%MidLev=',SGS%MidLev
-Write (6,*) 'Exs%nICoup=',Exs%nICoup
-
 !  Special case
 If (SGS%nLev==1) Then
    nVTab_Final=0

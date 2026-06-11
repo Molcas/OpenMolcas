@@ -547,9 +547,11 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
            Write (6,*) 'SGUGA error in D1Mat'
            Call Abend()
         End If
-
-        call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
         Call mma_deallocate(D_sguga)
+
+        If (SGS%IFRAS==0) Then
+        call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
+        Check_D1=DDot_(NACPAR*(NACPAR+1)/2,DTmp,1,DTmp,1)
         Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
         Call mma_allocate(CIV,nConf,Label='CIV')
         call SG_Reord(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
@@ -557,7 +559,12 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call mma_deallocate(CIV)
         D_sguga(:)=Half*D_sguga(:)
         call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)
+        If (ABS(DDot_(NACPAR*(NACPAR+1)/2,D_sguga,1,D_sguga,1)-Check_D1)>1.0e-12_wp) Then
+           Write (6,*) 'SGUGA error in D2Mat'
+           Call Abend()
+        End If
         Call mma_deallocate(D_sguga)
+        END IF
         END IF
 ! end temporary code
 #endif
