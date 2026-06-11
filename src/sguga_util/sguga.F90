@@ -199,7 +199,7 @@ contains
 
 
     type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ADWN, AUP, BDWN, BUP, CDWN, CUP, LEV, NACTEL, ISTEP, VDWN, VEND, VSTA, VUP, VNEW
+    integer(kind=iwp) :: ADWN, AUP, BDWN, BUP, CDWN, CUP, LEV, ISTEP, VDWN, VEND, VSTA, VUP, VNEW
     integer(kind=iwp), parameter:: Steps(4,0:3)=Reshape([0,0,1,0, 0,1,0,1, 1,-1,1,1, 1,0,0,2],[4,4])
 #   ifdef _DEBUGPRINT_
     integer(kind=iwp) :: VERT
@@ -207,7 +207,7 @@ contains
 
     SGS%DRTP(:,:)=0
     SGS%DownP(:,:) = 0  ! Initiate step as void
-    NACTEL = 2*SGS%IA0+SGS%IB0
+    SGS%NACTEL = 2*SGS%IA0+SGS%IB0
     SGS%nLev = SGS%IA0+SGS%IB0+SGS%IC0  ! Number of levels
 
     ! EACH ROW IN THE DESTINCT ROW TABLE (DRT) CORRESPONDS TO A VERTEX IN THE SHAVITT GRAPH
@@ -221,7 +221,7 @@ contains
     ! SET UP TOP ROW
 
     SGS%DRTP(1,LTAB) = SGS%nLev   ! Level index, n_n
-    SGS%DRTP(1,NTAB) = NACTEL     ! Number of electrons, N_n
+    SGS%DRTP(1,NTAB) = SGS%NACTEL ! Number of electrons, N_n
     SGS%DRTP(1,ATAB) = SGS%IA0    ! a_n
     SGS%DRTP(1,BTAB) = SGS%IB0    ! b_n
     SGS%DRTP(1,CTAB) = SGS%IC0    ! c_n
@@ -661,6 +661,50 @@ end subroutine RMVERT
 
 end subroutine MKSGUGA
 
+subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
+                   nRas,nRasEl,nRsPrt,                             &
+                   EXS,xLevel,xL2Act,xNLEV,xNSM)
+
+  integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
+  type(SGStruct), intent(inout) :: SGS
+  type(CIStruct), intent(inout) :: CIS
+  integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt),nRasEl(nRsPrt)
+  integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
+                                             xnLev, xNSM(MxLev)
+  type(EXStruct), optional, intent(inout) :: EXS
+
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,        &
+                      nRas,nRasEl,nRsPrt,               &
+                      EXS,xLevel,xL2Act,xnLev,xNSM)
+
+! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
+
+  call MKMAW(SGS)
+
+  if (present(EXS)) then
+!     FORM VARIOUS OFFSET TABLES:
+!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+
+!     CONSTRUCT THE CASE LIST
+
+    call MKCOT(SGS,CIS)
+
+! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
+
+! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
+
+    call MKSEG(SGS,CIS,EXS)
+
+! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
+
+    call NRCOUP(SGS,CIS,EXS)
+
+    call MKCOUP(SGS,CIS,EXS)
+  end if
+
+end subroutine SG_Init
+
 subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
                           nRas,nRasEl,nRsPrt,                     &
                           EXS,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
@@ -734,50 +778,6 @@ SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
   end if
 
 end subroutine SG_Init_Simple
-
-subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
-                   nRas,nRasEl,nRsPrt,                             &
-                   EXS,xLevel,xL2Act,xNLEV,xNSM)
-
-  integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
-  type(SGStruct), intent(inout) :: SGS
-  type(CIStruct), intent(inout) :: CIS
-  integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt),nRasEl(nRsPrt)
-  integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
-                                             xnLev, xNSM(MxLev)
-  type(EXStruct), optional, intent(inout) :: EXS
-
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,        &
-                      nRas,nRasEl,nRsPrt,               &
-                      EXS,xLevel,xL2Act,xnLev,xNSM)
-
-! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
-
-  call MKMAW(SGS)
-
-  if (present(EXS)) then
-!     FORM VARIOUS OFFSET TABLES:
-!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
-!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
-
-!     CONSTRUCT THE CASE LIST
-
-    call MKCOT(SGS,CIS)
-
-! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
-
-! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
-
-    call MKSEG(SGS,CIS,EXS)
-
-! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
-
-    call NRCOUP(SGS,CIS,EXS)
-
-    call MKCOUP(SGS,CIS,EXS)
-  end if
-
-end subroutine SG_Init
 
 subroutine SG_Free(SGS,CIS,EXS)
 ! PURPOSE: FREE THE SGUGA TABLES
@@ -1539,9 +1539,9 @@ subroutine MKCOUP(SGS,CIS,EXS)
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
-  integer(kind=iwp) :: i, i1, i2, IAWS, IC, ICL, ICOP, ICR, IHALF, iLnd, IndEO, iP, iPos, iQ, iS, iSg, iSgt, iSym, iT, iTyp, &
-                       iTypMx, iTypT, iVlb, iVlt, iVrt, iVrTop, iVTab, iVTEnd, iVTop, iVTSta, L, Lev, Lev1, Lev2, LftSym, LL, MV, &
-                       nCheck, nVTab_Final
+integer(kind=iwp) :: i, i1, i2, IAWS, IC, ICL, ICOP, ICR, IHALF, iLnd, IndEO, iP, iPos, iQ, iS, iSg, iSgt, iSym, iT, iTyp, &
+                     iTypMx, iTypT, iVlb, iVlt, iVrt, iVrTop, iVTab, iVTEnd, iVTop, iVTSta, L, Lev, Lev1, Lev2, LftSym, LL, MV, &
+                     nCheck, nVTab_Final
 real(kind=wp) :: C
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I3, ICOP1, ICOP2, ICP1, ICP2, N, NRC, NRCPQ
@@ -1551,13 +1551,20 @@ integer(kind=iwp), allocatable :: ILNDW(:), ISGPTH(:,:)
 real(kind=wp), allocatable :: val(:), VTab(:)
 integer(kind=iwp), parameter :: IVLFT = 1, ITYPE = 2, IAWSL = 3, IAWSR = 4, ILS = 5, ICS = 6, ISEG = 7, nVTab = 5000
 
-call mma_allocate(ILNDW,CIS%nWalk,Label='ILNDW')
-call mma_allocate(ISGPTH,[1,7],[0,SGS%nLev],Label='ISGPTH')
-call mma_allocate(val,[0,SGS%nLev],Label='val')
-call mma_allocate(VTab,nVTab,Label='VTab')
-
 call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
 call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
+
+Write (6,*) 'SGS%nLev=',SGS%nLev
+Write (6,*) 'SGS%MidLev=',SGS%MidLev
+Write (6,*) 'Exs%nICoup=',Exs%nICoup
+
+!  Special case
+If (SGS%nLev==1) Then
+   nVTab_Final=0
+   call mma_allocate(EXS%VTab,nVTab_Final,Label='EXS%VTab')
+   Write (6,*) 'Bail out'
+   Return
+End If
 
 ! NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL BE RESTORED FINALLY.
 do IHALF=1,2
@@ -1576,9 +1583,14 @@ do INDEO=1,EXS%MxEO
   end do
 end do
 
+call mma_allocate(ILNDW,CIS%nWalk,Label='ILNDW')
+call mma_allocate(ISGPTH,[1,7],[0,SGS%nLev],Label='ISGPTH')
+call mma_allocate(val,[0,SGS%nLev],Label='val')
+call mma_allocate(VTab,nVTab,Label='VTab')
+
 ! COUPLING COEFFICIENT VALUE TABLE:
 NVTAB_FINAL = 2
-VTab(1) = One
+VTab(1) =  One
 VTab(2) = -One
 
 NCHECK = 0
@@ -1597,30 +1609,39 @@ do IHALF=1,2
     LEV2 = 0
     ITYPMX = 2
   end if
-  do IVTOP=IVTSTA,IVTEND
-    do ITYP=0,ITYPMX
+
+  do IVTOP=IVTSTA,IVTEND   ! just the head vertex, or the mid vertices
+    do ITYP=0,ITYPMX       ! loop over all possible segments types:
+                           ! for the top level we have only head segments.
       IVRTOP = IVTOP
       if (ITYP > 0) IVRTOP = CIS%IVR(IVTOP,ITYP)
       if (IVRTOP == 0) cycle
       LEV = LEV1
-      ISGPTH(IVLFT,LEV) = IVTOP
-      ISGPTH(ITYPE,LEV) = ITYP
+
+      ! Initialize the temporary table
+      ISGPTH(IVLFT,LEV) = IVTOP    ! Left vertex index
+      ISGPTH(ITYPE,LEV) = ITYP     ! segment type vertex
       ISGPTH(IAWSL,LEV) = 0
       ISGPTH(IAWSR,LEV) = 0
-      ISGPTH(ILS,LEV) = 1
-      ISGPTH(ISEG,LEV) = 0
-      val(LEV) = One
+      ISGPTH(ILS,  LEV) = 1
+      ISGPTH(ISEG, LEV) = 0
+      Val(LEV)          = One
+
+!     Loop from the head level to the mid level, or from the mid level to the root
       do while (LEV <= LEV1)
         ITYPT = ISGPTH(ITYPE,LEV)
         IVLT = ISGPTH(IVLFT,LEV)
+
+        ! Find the next valid segment of this level and explore it.
         do ISGT=ISGPTH(ISEG,LEV)+1,nSeg
           IVLB = CIS%ISGM(IVLT,ISGT)
           if (IVLB == 0) cycle
           if (ITYPT == ITVPT(ISGT)) exit
         end do
-        if (ISGT > nSeg) then
-          ISGPTH(ISEG,LEV) = 0
-          LEV = LEV+1
+
+        if (ISGT > nSeg) then   ! All possible segments investigated at this level
+          ISGPTH(ISEG,LEV) = 0  ! Reset
+          LEV = LEV+1           ! back up a level
         else
           ISGPTH(ISEG,LEV) = ISGT
           ICL = IC1(ISGT)

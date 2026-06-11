@@ -21,8 +21,8 @@ subroutine SG_Epq_Psi(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,SGM)
 
 use Symmetry_Info, only: Mul
 use sguga, only: CIStruct, EXStruct, SGStruct
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -50,6 +50,22 @@ real(kind=wp) :: X
 ISYP = SGS%ISm(IP)
 ISYQ = SGS%ISm(IQ)
 ISYPQ = Mul(ISYP,ISYQ)
+! SYMMETRY OF SIGMA ARRAY:
+ISYSGM = Mul(ISYPQ,ISYCI)
+Write (6,*) 'ISYCI=',ISYCI
+Write (6,*) 'CIS%NCSF(:)=',CIS%NCSF(:)
+Write (6,*) 'IP,IQ=',IP,IQ
+!If (CIS%NCSF(ISYCI)==1) THEN
+!   If (SGS%nActEl==1) Then
+!      SGM(1)=Two*CI(1)
+!   Else If (SGS%nActEl==2) Then
+!      SGM(1)=CI(1)
+!   Else
+!      Write (u6,*) 'SG_Epq_Psi: nActel=0, really?'
+!      Call Abend()
+!   End If
+!   Return
+!End If
 ! SYMMETRY OF SIGMA ARRAY:
 ISYSGM = Mul(ISYPQ,ISYCI)
 

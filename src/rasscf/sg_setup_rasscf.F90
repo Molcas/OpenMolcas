@@ -19,7 +19,7 @@ use gas_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: DoBlockDMRG, NSM
 use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
 use general_data, only: CIS, EXS, SGS
-use sguga, only: MKCOT, MKSGNUM, SG_Init_Simple
+use sguga, only: MKCOT, MKSGNUM, SG_Init_Simple, SG_init
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
@@ -76,10 +76,16 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call SG_Init_Simple'
+      call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                    &
+                   nRas,nRasEl,nRsPrt,                           &
+                   EXS,                                          &
+                   xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
+If (.FALSE.) Then
       call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                    &
-                          nRas,nRasEl,nRsPrt,                           &
-                          EXS,                                          &
-                          xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
+                   nRas,nRasEl,nRsPrt,                           &
+                   EXS,                                          &
+                   xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
+endif
 
       if (SGS%NVERT0 == 0) then
          CIS%NCSF(STSYM) = 0
@@ -94,7 +100,7 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 
             ! CONSTRUCT THE CASE LIST
 
-          call MKCOT(SGS,CIS)
+!           call MKCOT(SGS,CIS)
 
             ! SET UP ENUMERATION TABLES
 

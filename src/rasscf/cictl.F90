@@ -12,6 +12,7 @@
 !               Per Ake Malmqvist                                      *
 !               1991, Jeppe Olsen                                      *
 !               1991,1996, Markus P. Fuelscher                         *
+!               2026, Roland Lindh                                     *
 !***********************************************************************
 !  CICtl
 !
@@ -41,6 +42,7 @@
 !> @param[in]     IFINAL Calculation status switch
 !***********************************************************************
 
+#define _SGUGA_VERIFY_
 subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
 ! ****************************************************************
 ! history:                                                       *
@@ -81,7 +83,11 @@ use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, IC
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use general_data, only: CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
+#ifdef _SGUGA_VERIFY_
+use general_data, only: CIS, SGS, EXS
+#else
 use general_data, only: CIS, SGS
+#endif
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -110,6 +116,10 @@ logical(kind=iwp), external :: PCM_On
 #endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
+#ifdef _SGUGA_VERIFY_
+real(kind=wp) :: Check_D1
+real(kind=wp), allocatable :: D_Sguga(:)
+#endif
 #include "warnings.h"
 
 ! Local print level (if any)
@@ -133,10 +143,6 @@ if (IPRLEV > DEBUG) then
   write(u6,*)
   write(u6,*) ' iteration count =',ITER
 end if
-
-!do i=1,NTOT2 ! yma
-!  write(u6,*) 'ifinal CMO',ifinal,i,CMO(i)
-!end do
 
 ! SOME DIRTY SETUPS
 
@@ -287,6 +293,27 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
         call mma_deallocate(Pscr)
         call mma_deallocate(PAtmp)
+#ifdef _SGUGA_VERIFY_
+! temporary code
+        If (.NOT.iDoGAS) Then
+        Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
+        Check_D1=DDot_(NAC,DTmp,1,DTmp,1)
+        Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
+        Call mma_allocate(CIV,nConf,Label='CIV')
+        call mma_allocate(kcnf,nactel,Label='kCnf')
+        call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
+        call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
+        Call mma_deallocate(kCnf)
+        Call mma_deallocate(CIV)
+        Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
+        If (ABS(DDot_(NAC,D_sguga,1,D_sguga,1)-Check_D1)>1.0e12_wp) Then
+           Write (6,*) 'SGUGA error in D1Mat'
+           Call Abend()
+        End If
+        Call mma_deallocate(D_sguga)
+        End If
+! end temporary code
+#endif
       end if
     else
       Dtmp(:) = Zero
@@ -487,6 +514,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     !JB End of condition 'Do_Rotate' to initialize rotated states
   end if
   !JB End If for ifinal=2
+
   do jRoot=1,lRoots
     ! load back one CI vector at the time
     !JB If do_rotate=.true., then we read CI vectors from CIVec
@@ -504,6 +532,29 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call TRIPRT('P after lucia',' ',Ptmp,NACPAR)
         call TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
       end if
+#ifdef _SGUGA_VERIFY_
+! temporary code
+        If (.NOT.iDoGAS) Then
+        Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
+        Check_D1=DDot_(NAC,DTmp,1,DTmp,1)
+        Write (6,*) 'Check_D1=',Check_D1
+        Write (6,*) 'nConf=',nConf
+        Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
+        Call mma_allocate(CIV,nConf,Label='CIV')
+        call mma_allocate(kcnf,nactel,Label='kCnf')
+        call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
+        call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC*(NAC+1)/2)
+        Call mma_deallocate(kCnf)
+        Call mma_deallocate(CIV)
+        Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
+        If (ABS(DDot_(NAC,D_sguga,1,D_sguga,1)-Check_D1)>1.0e-12_wp) Then
+           Write (6,*) 'SGUGA error in D1Mat'
+           Call Abend()
+        End If
+        Call mma_deallocate(D_sguga)
+        END IF
+! end temporary code
+#endif
     end if
     if ((.not. doDMRG) .and. ((SGS%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
     ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
