@@ -30,8 +30,8 @@ subroutine REORD(SGS,EXS,NCONF,IMODE,ICONF,ISPIN,kSym,CIOLD)
 !          IMODE=0 : FROM SYMMETRIC GROUP TO SPLIT GRAPH UGA ORDER
 !          IMODE=1 : FROM SPLIT GRAPH UGA TO SYMMETRIC GROUP ORDER
 
-use MCLR_data, only: NCNATS, NCPCNT
-use spinfo, only: minop, NTYP
+use MCLR_data, only: NCPCNT
+use spinfo, only: minop, NTYP, NCNATS=>NCNFTP
 use sguga, only: EXStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

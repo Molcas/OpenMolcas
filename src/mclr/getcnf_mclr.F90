@@ -18,8 +18,7 @@ subroutine GETCNF_MCLR(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 !
 ! Jeppe Olsen, summer of 89
 
-use MCLR_Data, only: NCNATS
-use SpInfo, only: MINOP, NTYP
+use SpInfo, only: MINOP, NTYP, NCNATS=>NCNFTP
 use Definitions, only: iwp
 
 #include "intent.fh"
