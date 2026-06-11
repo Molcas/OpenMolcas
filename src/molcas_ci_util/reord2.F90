@@ -103,6 +103,7 @@ do ITYP=1,NTYP
     do IICSF=1,NCSFTP(ITYP)
       ICSFJP = ICSFJP+1
       ICSBAS = IPBAS+(IICSF-1)*IOPEN
+      KCNF(:)=0
       ! Obtain configuration in standard RASSCF form
       IIBOP = 1
       IIBCL = 1
@@ -121,7 +122,7 @@ do ITYP=1,NTYP
       end do
 
       ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
+      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
 
       ! GET SPLIT GRAPH ORDERING NUMBER
       ISG = SG_NUM(SGS,EXS,IWALK)
