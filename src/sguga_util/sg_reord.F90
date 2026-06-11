@@ -12,7 +12,7 @@
 !               1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine Reord2(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,nConf,CIOLD,CINEW,KCNF)
+subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,nConf,CIOLD,CINEW)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -64,11 +64,11 @@ type(EXStruct), intent(in) :: EXS
 integer(kind=iwp), intent(in) :: IREFSM, IMODE, ICONF(*), ISPIN(*), nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(_OUT_) :: CINEW(nConf)
-integer(kind=iwp), intent(out) :: KCNF(SGS%nActel)
 
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, LPRINT, nOrb, nEl
 integer(kind=iwp), external :: SG_PHASE, SG_NUM
+integer(kind=iwp) :: KCNF(MxAct)
 
 IPRLEV = IPRLOC(3)
 
@@ -155,4 +155,4 @@ if (IPRLEV >= DEBUG) then
   write(u6,*)
 end if
 
-end subroutine Reord2
+end subroutine SG_Reord

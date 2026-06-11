@@ -11,7 +11,6 @@
 
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
-use molcas, only: MxAct
 use sguga, only: SG_Free
 use Str_Info, only: CFTP, CNSM
 use input_mclr, only: nConf, nCSF, nSym, State_Sym, CIS, EXS, SGS
@@ -26,7 +25,7 @@ implicit none
 integer(kind=iwp), intent(in) :: lCI, imode, pState_Sym
 real(kind=wp), intent(inout) :: CI(lCI)
 
-integer(kind=iwp) :: iss, KCNF(MxAct)
+integer(kind=iwp) :: iss
 real(kind=wp), allocatable :: CINEW(:)
 #ifdef _DEBUGPRINT_
 real(kind=wp), parameter :: PRWTHR = 0.05_wp
@@ -55,7 +54,9 @@ write(u6,103)
 
 Call mma_allocate(CINEW,nConf,Label='CINEW')
 CNSM(iss)%ICONF(:)=-CNSM(iss)%ICONF
-call REORD2(SGS,EXS,pState_Sym,iMode,CNSM(iss)%ICONF,CFTP,nConf,CI,CINEW,KCNF)
+
+call SG_REORD(SGS,EXS,pState_Sym,iMode,CNSM(iss)%ICONF,CFTP,nConf,CI,CINEW)
+
 CNSM(iss)%ICONF(:)=-CNSM(iss)%ICONF
 CI(1:nConf)=CINEW(1:nConf)
 Call mma_deallocate(CINEW)

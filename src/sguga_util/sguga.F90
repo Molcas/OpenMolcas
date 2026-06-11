@@ -74,8 +74,8 @@ type(EXStruct), target :: EXS
 ! IC1(i) and IC2(i): each segment, i, is described by the pair of step vector (IC1(i),IC2(I)), where IC1(i) is the step vector of
 ! the bra CSF and iC2(i) is the step vector of the ket CSF.
 !  ISVC(i): the index ISVC(i), tells which formula to use to compute the segment value of the associated segment
-! ITVPT(i): denotes the class of the top two vertices.
-! IBVPT(i): denotes the class of the bottom two vertices.
+! ITVPT(i): denotes the class of the top two vertices, the upper boundary state.
+! IBVPT(i): denotes the class of the bottom two vertices, the lower boundary state.
 !           Classes: for the top vertices
 !           0: a top walk segment, or a head segment
 !           1: an intermediate segment or a tail segment with delta(b)=-1
@@ -88,7 +88,7 @@ type(EXStruct), target :: EXS
 !           3: a tail segment or a tail walk segment
 !
 !           When segments are matched together there tail class, or an upper segments, must match the head class of the
-!           lower segment.
+!           lower segment. Matching upper and lower boundaries must be in the same state.
 integer(kind=iwp), parameter :: nSeg=26
 integer(kind=iwp), parameter ::                                                                                                    &
                                 ITVPT(nSeg) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3],&

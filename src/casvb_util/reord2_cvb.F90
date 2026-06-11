@@ -28,11 +28,8 @@ implicit none
 real(kind=wp), intent(in) :: cfrom(*)
 real(kind=wp), intent(_OUT_) :: cto(*)
 integer(kind=iwp), intent(in) :: imode
-integer(kind=iwp), allocatable :: kcnf(:)
 
-call mma_allocate(kcnf,nactel,label='kcnf')
-call reord2(SGS,EXS,stsym,imode,conf,cftp,CIS%nCSF(stsym),cfrom,cto,kcnf)
-call mma_deallocate(kcnf)
+call sg_reord(SGS,EXS,stsym,imode,conf,cftp,CIS%nCSF(stsym),cfrom,cto)
 
 
 end subroutine reord2_cvb

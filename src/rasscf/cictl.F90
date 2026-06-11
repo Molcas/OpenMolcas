@@ -300,10 +300,8 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Check_D1=DDot_(NAC,DTmp,1,DTmp,1)
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call mma_allocate(CIV,nConf,Label='CIV')
-        call mma_allocate(kcnf,nactel,Label='kCnf')
-        call Reord2(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV,kcnf)
+        call SG_Reord(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
         call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
-        Call mma_deallocate(kCnf)
         Call mma_deallocate(CIV)
         Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
         If (ABS(DDot_(NAC,D_sguga,1,D_sguga,1)-Check_D1)>1.0e12_wp) Then
@@ -541,10 +539,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Write (6,*) 'nConf=',nConf
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call mma_allocate(CIV,nConf,Label='CIV')
-        call mma_allocate(kcnf,nactel,Label='kCnf')
-        call Reord2(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV,kcnf)
+        call SG_Reord(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
         call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC*(NAC+1)/2)
-        Call mma_deallocate(kCnf)
         Call mma_deallocate(CIV)
         Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
         If (ABS(DDot_(NAC,D_sguga,1,D_sguga,1)-Check_D1)>1.0e-12_wp) Then
@@ -679,11 +675,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         ! load back one CI vector at the time
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
-        call mma_allocate(kcnf,nactel,Label='kCnf')
         if (.not. iDoGas) then
-          call Reord2(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV,kcnf)
-          !end if
-          !call mma_deallocate(kcnf)
+          call SG_Reord(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
 
           ! save reorder CI vector on disk
           !if (.not. iDoGas) then
@@ -725,10 +718,11 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
             write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',prwthr,' for root',i
             write(u6,'(6X,A,F15.6)') 'energy=',ener(i,iter)
 
+            call mma_allocate(kcnf,nactel,Label='kCnf')
             call gasprwf(nac,nactel,stsym,conf,cftp,CIVEC,kcnf)
+            call mma_deallocate(kcnf)
           end if
         end if
-        call mma_deallocate(kcnf)
         !end if
       end do
 

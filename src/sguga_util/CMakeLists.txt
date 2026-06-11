@@ -21,6 +21,7 @@ set (sources
      sg_pkwlk.F90
      sg_prwf.F90
      sg_print.F90
+     sg_reord.F90
      sg_upkwlk.F90
      sguga.F90
 )

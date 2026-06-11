@@ -126,7 +126,6 @@ real(kind=wp), allocatable :: CMON(:), Dens(:), EDUM(:), Fock(:), folded_Fock(:)
                               Scr1(:), Scr2(:), SMat(:), Tmp1(:), TmpD1S(:), TmpDMat(:), TmpDS(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: iDX, jDisk, jRoot, kDisk
-integer(kind=iwp), allocatable :: kcnf(:)
 real(kind=wp), allocatable :: Tmp(:), VecL(:), VecR(:)
 #endif
 #ifdef _FDE_
@@ -1571,7 +1570,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       call mma_allocate(Tmp,NConf,Label='Tmp')
       call mma_allocate(VecL,NConf,Label='VecL')
       call mma_allocate(VecR,NConf,Label='VecR')
-      call mma_allocate(kcnf,NACTEL,Label='kcnf')
       call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
       call mma_allocate(DStmp,NAC*NAC,Label='DStmp')
       jDisk = IADR15(4)
@@ -1579,12 +1577,12 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       do jRoot=2,lRoots
         ! Read and reorder the left CI vector
         call DDafile(JOBIPH,2,Tmp,nConf,jDisk)
-        call Reord2(SGS,EXS,STSYM,1,CONF,CFTP,CIS%nCSF(STSYM),Tmp,VecL,kcnf)
+        call SG_Reord(SGS,EXS,STSYM,1,CONF,CFTP,CIS%nCSF(STSYM),Tmp,VecL)
         kDisk = IADR15(4)
         do kRoot=1,jRoot-1
           ! Read and reorder the right CI vector
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-          call Reord2(SGS,EXS,STSYM,1,CONF,CFTP,CIS%nCSF(STSYM),Tmp,VecR,kcnf)
+          call SG_Reord(SGS,EXS,STSYM,1,CONF,CFTP,CIS%nCSF(STSYM),Tmp,VecR)
           ! Compute TDM and store in h5 file
           call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
           idx = (jRoot-2)*(jRoot-1)/2+kRoot
@@ -1595,7 +1593,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       call mma_deallocate(TMP)
       call mma_deallocate(VecL)
       call mma_deallocate(VecR)
-      call mma_deallocate(kcnf)
       call mma_deallocate(Dtmp)
       call mma_deallocate(DStmp)
 #     else

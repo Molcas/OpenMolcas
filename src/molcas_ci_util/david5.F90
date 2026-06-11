@@ -39,7 +39,6 @@ integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, 
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
                  Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
-integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
                               sigtemp(:), sgm(:,:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:)
@@ -88,7 +87,6 @@ if (DoFaro) then
   ! determinants. This is because for Lucia, CSFs have been
   ! converted to SYG format somewhere up in cistart.
   call mma_allocate(VECSVC,nconf,label='VECSVC')
-  call mma_allocate(vkcnf,nactel,label='kcnf')
 end if
 
 call Timing(Time1(1),dum1,dum2,dum3)
@@ -157,7 +155,7 @@ do it_ci=1,mxItr
       call mma_allocate(psi,ndeta,ndetb,label='psi')
 
       VECSVC(:) = Zero
-      call REORD2(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),VEC1,VECSVC,VKCNF)
+      call SG_REORD(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),VEC1,VECSVC)
       call CITRANS_SORT('C',VECSVC,VEC2)
       PSI = Zero
       call CITRANS_CSF2SD(VEC2,PSI)
@@ -165,7 +163,7 @@ do it_ci=1,mxItr
       call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
       call CITRANS_SD2CSF(SGM,VEC2)
       call CITRANS_SORT('O',VEC2,VECSVC)
-      call Reord2(SGS,EXS,1,1,CONF,CFTP,CIS%nCSF(1),VECSVC,VEC2,VKCNF)
+      call SG_Reord(SGS,EXS,1,1,CONF,CFTP,CIS%nCSF(1),VECSVC,VEC2)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)
@@ -546,7 +544,6 @@ if (DoFaro) then
   call mma_deallocate(htu)
   call mma_deallocate(gtuvx)
   call mma_deallocate(VECSVC)
-  call mma_deallocate(vkcnf)
 else
   call mma_deallocate(ctemp)
   call mma_deallocate(sigtemp)
