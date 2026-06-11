@@ -157,7 +157,7 @@ do it_ci=1,mxItr
       call mma_allocate(psi,ndeta,ndetb,label='psi')
 
       VECSVC(:) = Zero
-      call REORD2(SGS,EXS,MY_NORB,NACTEL,1,0,CONF,CFTP,VEC1,VECSVC,VKCNF)
+      call REORD2(SGS,EXS,1,0,CONF,CFTP,VEC1,VECSVC,VKCNF)
       call CITRANS_SORT('C',VECSVC,VEC2)
       PSI = Zero
       call CITRANS_CSF2SD(VEC2,PSI)
@@ -165,7 +165,7 @@ do it_ci=1,mxItr
       call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
       call CITRANS_SD2CSF(SGM,VEC2)
       call CITRANS_SORT('O',VEC2,VECSVC)
-      call Reord2(SGS,EXS,my_norb,NACTEL,1,1,CONF,CFTP,VECSVC,VEC2,VKCNF)
+      call Reord2(SGS,EXS,1,1,CONF,CFTP,VECSVC,VEC2,VKCNF)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)

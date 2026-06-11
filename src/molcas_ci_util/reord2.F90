@@ -12,7 +12,7 @@
 !               1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine Reord2(SGS,EXS,NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
+subroutine Reord2(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -20,10 +20,6 @@ subroutine Reord2(SGS,EXS,NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 !     iMode=1 --> from split graph GUGA to SGA order                   *
 !                                                                      *
 !     calling arguments:                                               *
-!     nOrb    : integer                                                *
-!               total number of active orbitals                        *
-!     nEl     : integer                                                *
-!               total number of active electrons                       *
 !     iRefSm  : integer                                                *
 !               state symmetry                                         *
 !     iMode   : integer                                                *
@@ -65,20 +61,24 @@ use Definitions, only: wp, iwp, u6
 implicit none
 type(SGStruct), intent(in) :: SGS
 type(EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) :: NORB, NEL, IREFSM, IMODE, ICONF(*), ISPIN(*)
+integer(kind=iwp), intent(in) :: IREFSM, IMODE, ICONF(*), ISPIN(*)
 real(kind=wp), intent(in) :: CIOLD(*)
 real(kind=wp), intent(_OUT_) :: CINEW(*)
-integer(kind=iwp), intent(out) :: KCNF(NEL)
+integer(kind=iwp), intent(out) :: KCNF(SGS%nActel)
+
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
-                     IWALK(mxAct), JOCC, KOCC, KORB, LPRINT
+                     IWALK(mxAct), JOCC, KOCC, KORB, LPRINT, nOrb, nEl
 integer(kind=iwp), external :: SG_PHASE, SG_NUM
 
 IPRLEV = IPRLOC(3)
-! LOOP OVER CONFIGURATIONS TYPES
+
+nOrb=SGS%nLev
+nEl=SGS%nActEl
 
 ICSFJP = 0
 ICNBS0 = 0 ! dummy initialize
 IPBAS = 0 ! dummy initialize
+! LOOP OVER CONFIGURATIONS TYPES
 do ITYP=1,NTYP
   IOPEN = ITYP+MINOP-1
   ICL = (NEL-IOPEN)/2

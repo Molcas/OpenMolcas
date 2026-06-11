@@ -132,7 +132,7 @@ if (Start_Vectors) then
         do i=1,lRoots
           call mh5_fetch_dset(mh5id,'CI_VECTORS',Tmp1,[nconf,1],[0,i-1])
           if (.not. iDoGas) then
-            call Reord2(SGS,EXS,NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
+            call Reord2(SGS,EXS,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
           else
             C(1:nConf) = Tmp1(1:nConf)
           end if
@@ -175,7 +175,7 @@ if (Start_Vectors) then
       do i=1,lRoots
         call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
         if (.not. iDoGas) then
-          call Reord2(SGS,EXS,NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
+          call Reord2(SGS,EXS,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
         else
           C(1:nConf) = Tmp1(1:nConf)
         end if
