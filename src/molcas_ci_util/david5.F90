@@ -15,7 +15,7 @@ use timers, only: TimeDavid, TimeSigma
 use lucia_data, only: CFTP, DTOC, ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
-use general_data, only: SGS, EXS, ITERFILE, LUDAVID, NACTEL, NCONF, NSEL, STSYM
+use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NACTEL, NCONF, NSEL, STSYM
 use csfbas, only: CONF, CTS
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
@@ -157,7 +157,7 @@ do it_ci=1,mxItr
       call mma_allocate(psi,ndeta,ndetb,label='psi')
 
       VECSVC(:) = Zero
-      call REORD2(SGS,EXS,1,0,CONF,CFTP,VEC1,VECSVC,VKCNF)
+      call REORD2(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),VEC1,VECSVC,VKCNF)
       call CITRANS_SORT('C',VECSVC,VEC2)
       PSI = Zero
       call CITRANS_CSF2SD(VEC2,PSI)
@@ -165,7 +165,7 @@ do it_ci=1,mxItr
       call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
       call CITRANS_SD2CSF(SGM,VEC2)
       call CITRANS_SORT('O',VEC2,VECSVC)
-      call Reord2(SGS,EXS,1,1,CONF,CFTP,VECSVC,VEC2,VKCNF)
+      call Reord2(SGS,EXS,1,1,CONF,CFTP,CIS%nCSF(1),VECSVC,VEC2,VKCNF)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)

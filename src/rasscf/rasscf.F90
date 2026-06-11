@@ -1579,12 +1579,12 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       do jRoot=2,lRoots
         ! Read and reorder the left CI vector
         call DDafile(JOBIPH,2,Tmp,nConf,jDisk)
-        call Reord2(SGS,EXS,STSYM,1,CONF,CFTP,Tmp,VecL,kcnf)
+        call Reord2(SGS,EXS,STSYM,1,CONF,CFTP,CIS%nCSF(STSYM),Tmp,VecL,kcnf)
         kDisk = IADR15(4)
         do kRoot=1,jRoot-1
           ! Read and reorder the right CI vector
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-          call Reord2(SGS,EXS,STSYM,1,CONF,CFTP,Tmp,VecR,kcnf)
+          call Reord2(SGS,EXS,STSYM,1,CONF,CFTP,CIS%nCSF(STSYM),Tmp,VecR,kcnf)
           ! Compute TDM and store in h5 file
           call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
           idx = (jRoot-2)*(jRoot-1)/2+kRoot

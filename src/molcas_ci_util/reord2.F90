@@ -12,7 +12,7 @@
 !               1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine Reord2(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
+subroutine Reord2(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,nConf,CIOLD,CINEW,KCNF)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -61,9 +61,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 type(SGStruct), intent(in) :: SGS
 type(EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) :: IREFSM, IMODE, ICONF(*), ISPIN(*)
-real(kind=wp), intent(in) :: CIOLD(*)
-real(kind=wp), intent(_OUT_) :: CINEW(*)
+integer(kind=iwp), intent(in) :: IREFSM, IMODE, ICONF(*), ISPIN(*), nConf
+real(kind=wp), intent(in) :: CIOLD(nConf)
+real(kind=wp), intent(_OUT_) :: CINEW(nConf)
 integer(kind=iwp), intent(out) :: KCNF(SGS%nActel)
 
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
