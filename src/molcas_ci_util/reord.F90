@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine REORD(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,nConf,CIOLD,CINEW)
+subroutine REORD(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,nConf,CIOLD,CINEW,KCNF)
 ! AUTHOR:  M.P. FUELSCHER AND J. OLSEN
 !          UNIV. OF LUND, SWEDEN 1990
 !
@@ -44,6 +44,7 @@ type(EXStruct), intent(in) :: EXS
 integer(kind=iwp), intent(in) :: IREFSM, nConf, IMODE, ICONF(*), ISPIN(*)
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
+integer(kind=iwp), intent(out) :: KCNF(SGS%nLev)
 integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(50)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I
@@ -52,6 +53,8 @@ real(kind=wp) :: PHASE
 integer(kind=iwp), external :: SG_PHASE, SG_NUM
 
 ! LOOP OVER CONFIGURATIONS TYPES
+
+KCNF(:)=0
 
 ICSFJP = 0
 ICNBS0 = 0 ! dummy initialize
