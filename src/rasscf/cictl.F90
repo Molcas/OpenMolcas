@@ -297,14 +297,14 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 ! temporary code
         If (.NOT.iDoGAS) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
-        Check_D1=DDot_(NAC*(NAC+1)/2,DTmp,1,DTmp,1)
+        Check_D1=Sum(ABS(Dtmp))
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call mma_allocate(CIV,nConf,Label='CIV')
         call SG_Reord(SGS,EXS,STSYM,0,CONF,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
         call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
         Call mma_deallocate(CIV)
         Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
-        If (ABS(DDot_(NAC*(NAC+1)/2,D_sguga,1,D_sguga,1)-Check_D1)>1.0e12_wp) Then
+        If (ABS(Sum(Abs(D_sguga))-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
            Write (6,*) 'SGUGA error in D1Mat'
            Call Abend()
         End If
@@ -534,7 +534,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 ! temporary code
         If (.NOT.iDoGAS) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
-        Check_D1=DDot_(NAC*(NAC+1)/2,DTmp,1,DTmp,1)
+        Check_D1=Sum(Abs(Dtmp(1:NAC*(NAC+1)/2)))
         Write (6,*) 'Check_D1=',Check_D1
         Write (6,*) 'nConf=',nConf
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
@@ -543,7 +543,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC*(NAC+1)/2)
         Call mma_deallocate(CIV)
         Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
-        If (ABS(DDot_(NAC*(NAC+1)/2,D_sguga,1,D_sguga,1)-Check_D1)>1.0e-12_wp) Then
+        If (ABS(Sum(Abs(D_sguga))-Check_D1)/SIZE(D_sguga)>1.0e-12_wp) Then
+           Write (6,*) 'Check_D1=',Sum(Abs(D_sguga))
            Write (6,*) 'SGUGA error in D1Mat'
            Call Abend()
         End If
@@ -551,7 +552,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 
         If (SGS%nRsPrt==1) Then
         call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
-        Check_D1=DDot_(NACPAR*(NACPAR+1)/2,PTmp,1,PTmp,1)
+        Check_D1=Sum(Abs(Ptmp))
         Write (6,*) 'Check_D2=',Check_D1
         Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
         Call mma_allocate(CIV,nConf,Label='CIV')
@@ -560,7 +561,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call mma_deallocate(CIV)
         D_sguga(:)=Half*D_sguga(:)
         call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)
-        If (ABS(DDot_(NACPAR*(NACPAR+1)/2,D_sguga,1,D_sguga,1)-Check_D1)>1.0e-12_wp) Then
+        If (ABS(Sum(Abs(d_sguga))-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
            Write (6,*) 'SGUGA error in D2Mat'
            Call Abend()
         End If
