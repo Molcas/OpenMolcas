@@ -73,17 +73,29 @@ type(EXStruct), target :: EXS
 ! Vector descriptions:
 ! IC1(i) and IC2(i): each segment, i, is described by the pair of step vector (IC1(i),IC2(I)), where IC1(i) is the step vector of
 ! the bra CSF and iC2(i) is the step vector of the ket CSF.
-! IBVPT(i):
 !  ISVC(i): the index ISVC(i), tells which formula to use to compute the segment value of the associated segment
-! ITVPT(i): denotes the delta b of the top vertices of the segment. 0: delta(b)=0, 1: delta(b)=-1, 2: delta(b)=+1, delta(b)=0
-!           It is also used to indicate if the segment has an upper right vertex different from the upper left vertex.
-!           0,3: the same vertex, 1:2 a different vertex.
+! ITVPT(i): denotes the class of the top two vertices.
+! IBVPT(i): denotes the class of the bottom two vertices.
+!           Classes: for the top vertices
+!           0: a top walk segment, or a head segment
+!           1: an intermediate segment or a tail segment with delta(b)=-1
+!           2: an intermediate segment or a tail segment with delta(b)=+1
+!           3: a tail walk segment
+!           Classes: for the bottom vertices
+!           0: a top walk segment
+!           1: an intermediate segment or a head segment with delta(b)=-1
+!           2: an intermediate segment or a head segment with delta(b)=+1
+!           3: a tail segment or a tail walk segment
+!
+!           When segments are matched together there tail class, or an upper segments, must match the head class of the
+!           lower segment.
 integer(kind=iwp), parameter :: nSeg=26
-integer(kind=iwp), parameter :: IBVPT(nSeg) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3],&
+integer(kind=iwp), parameter ::                                                                                                    &
+                                ITVPT(nSeg) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3],&
+                                IBVPT(nSeg) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3],&
                                 IC1(nSeg)   = [ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3],&
                                 IC2(nSeg)   = [ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3],&
-                                ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1],&
-                                ITVPT(nSeg) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3]
+                                ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1]
 
 ! index for DRT
 integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5

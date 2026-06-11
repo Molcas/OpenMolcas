@@ -14,6 +14,7 @@ subroutine sg2symg(CI,lCI,imode,pState_Sym)
 use sguga, only: SG_Free
 use Str_Info, only: CFTP, CNSM
 use input_mclr, only: nConf, nCSF, nSym, State_Sym, CIS, EXS, SGS
+use stdalloc, only: mma_allocate, mma_deallocate
 
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -23,7 +24,9 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: lCI, imode, pState_Sym
 real(kind=wp), intent(inout) :: CI(lCI)
+
 integer(kind=iwp) :: iss
+real(kind=wp), allocatable :: CINEW(:)
 #ifdef _DEBUGPRINT_
 real(kind=wp), parameter :: PRWTHR = 0.05_wp
 #endif
@@ -49,7 +52,10 @@ write(u6,103)
 103 format(/,6X,100('-'),/)
 #endif
 
-call REORD(SGS,EXS,NCONF,iMode,CNSM(iss)%ICONF,CFTP,pState_Sym,CI)
+Call mma_allocate(CINEW,nConf,Label='CINEW')
+call REORD(SGS,EXS,iMode,CNSM(iss)%ICONF,CFTP,pState_Sym,nConf,CI,CINEW)
+CI(1:nConf)=CINEW(1:nConf)
+Call mma_deallocate(CINEW)
 
 #ifdef _DEBUGPRINT_
 call SG_PrWF(SGS,CIS,pState_sym,PRWTHR,SGS%iSpin,CI,nConf,.false.,-99)

@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine REORD(SGS,EXS,NCONF,IMODE,ICONF,ISPIN,kSym,CIOLD)
+subroutine REORD(SGS,EXS,IMODE,ICONF,ISPIN,kSym,nConf,CIOLD,CINEW)
 ! AUTHOR:  M.P. FUELSCHER AND J. OLSEN
 !          UNIV. OF LUND, SWEDEN 1990
 !
@@ -41,17 +41,15 @@ use Definitions, only: u6
 implicit none
 type(SGStruct), intent(in) :: SGS
 type(EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) :: nCONF, IMODE, ICONF(*), ISPIN(*), kSym
-real(kind=wp), intent(inout) :: CIOLD(NCONF)
+integer(kind=iwp), intent(in) :: nConf, IMODE, ICONF(*), ISPIN(*), kSym
+real(kind=wp), intent(in) :: CIOLD(nConf)
+real(kind=wp), intent(out) :: CINEW(nConf)
 integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(50)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I
 #endif
 real(kind=wp) :: PHASE
-real(kind=wp), allocatable :: CINEW(:)
 integer(kind=iwp), external :: SG_PHASE, SG_NUM
-
-call mma_allocate(CINEW,NCONF,Label='CINEW')
 
 ! LOOP OVER CONFIGURATIONS TYPES
 
@@ -109,8 +107,5 @@ write(u6,*) ' NEW CI-VECTORS IN SUBROUTINE REORD'
 write(u6,'(10F12.8)') (CINEW(I),I=1,NCONF)
 write(u6,*)
 #endif
-
-CIOLD(:) = CINEW(:)
-call mma_deallocate(CINEW)
 
 end subroutine REORD
