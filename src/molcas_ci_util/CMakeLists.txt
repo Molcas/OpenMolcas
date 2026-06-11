@@ -86,7 +86,6 @@ set (sources
      rd1int.F90
      rd2int_rasscf.F90
      recno.F90
-     reord.F90
      reord2.F90
      save_ci_vec.F90
      save_h_diag.F90
