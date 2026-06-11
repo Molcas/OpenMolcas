@@ -151,7 +151,7 @@ EBJAT = ECORR(0,10)+ECORR(0,11)
 EBJAI = ECORR(0,12)+ECORR(0,13)
 E2NONV = ECORR(0,0)
 call POVLVEC(IVECX,IVECX,OVLAPS)
-if (HZERO == 'DYALL' .and. Do_SC) OVLAPS_SC(1:8,12:13) = OVLAPS(1:8,12:13)
+if ((HZERO == 'DYALL') .and. Do_SC) OVLAPS_SC(1:8,12:13) = OVLAPS(1:8,12:13)
 DENORM = One+OVLAPS(0,0)
 REFWGT = One/DENORM
 !PAM Insert: Compute the variational second-order energy.
@@ -187,7 +187,7 @@ if ((nStpGrd == 1) .or. ((nStpGrd == 2) .and. (.not. do_grad))) then
     write(u6,*)
     if (HZERO /= 'DYALL') then
       write(u6,*) ' FINAL CASPT2 RESULT:'
-    else if (HZERO == 'DYALL') then
+    else
       write(u6,*) ' FINAL PC-NEVPT2 RESULT:'
     end if
     write(u6,*)
@@ -234,7 +234,7 @@ if ((nStpGrd == 1) .or. ((nStpGrd == 2) .and. (.not. do_grad))) then
     write(u6,*)
     if (HZERO /= 'DYALL') then
       write(u6,'(6x,a)') 'Contributions to the CASPT2 correlation energy'
-    else if (HZERO == 'DYALL') then
+    else
       write(u6,'(6x,a)') 'Contributions to the PC-NEVPT2 correlation energy'
     end if
     write(u6,'(6x,a,F18.10)') 'Active & Virtual Only:    ',EATVX+EBVAT
@@ -244,7 +244,7 @@ if ((nStpGrd == 1) .or. ((nStpGrd == 2) .and. (.not. do_grad))) then
   end if
 end if
 !! we use the same energy for the H subspace
-if (HZERO == 'DYALL' .and. Do_SC) ECORR_SC(1:8,12:13) = ECORR(1:8,12:13)
+if ((HZERO == 'DYALL') .and. Do_SC) ECORR_SC(1:8,12:13) = ECORR(1:8,12:13)
 call mma_deallocate(LISTS)
 
 end subroutine PCG

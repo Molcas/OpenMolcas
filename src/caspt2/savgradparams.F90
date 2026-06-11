@@ -213,7 +213,7 @@ do ISYM=1,NSYM
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
-        if (NIN > 0 .and. .not.SC_prop) then
+        if ((NIN > 0) .and. (.not. SC_prop)) then
           !! ST matrix
 #         ifdef _MOLCAS_MPP_
           if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -259,23 +259,23 @@ do ISYM=1,NSYM
         end if
       end if
       !! Eigenvalue
-      ID  = IDBMAT(ISYM,ICASE)
+      ID = IDBMAT(ISYM,ICASE)
       if (NAS > 0) then
-        CALL DDAFILE(LUSBT,2,WRK1,NAS,ID)
-        CALL DDAFILE(LUGRAD,1,WRK1,NAS,IDSAVGRD)
+        call DDAFILE(LUSBT,2,WRK1,NAS,ID)
+        call DDAFILE(LUGRAD,1,WRK1,NAS,IDSAVGRD)
       end if
       !! IS
-      if (SC_amplitude .and. NIS > 0) then
-        CALL DDAFILE(LUSBT,2,WRK1,NIS,ID)
-        CALL DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
+      if (SC_amplitude .and. (NIS > 0)) then
+        call DDAFILE(LUSBT,2,WRK1,NIS,ID)
+        call DDAFILE(LUGRAD,1,WRK1,NIS,IDSAVGRD)
       end if
-      if (do_lindep .and. NAS > 0) then
+      if (do_lindep .and. (NAS > 0)) then
         ID = IDBoriMat(ISYM,ICASE)
         call DDAFILE(LUSTD,2,WRK1,nTri_Elem(NAS),ID)
         call DDAFILE(LUGRAD,1,WRK1,nTri_Elem(NAS),IDSAVGRD)
       end if
       !! Original B matrix, needed in SC-NEVPT2 gradient
-      if (HZERO == 'DYALL' .and. SC_amplitude) then
+      if ((HZERO == 'DYALL') .and. SC_amplitude) then
         ID = IDBMAT_NEVPT2(ISYM,ICASE,1)
         call DDAFILE(LUSBT,2,WRK1,nTri_Elem(NAS),ID)
         call DDAFILE(LUGRAD,1,WRK1,nTri_Elem(NAS),IDSAVGRD)
@@ -308,7 +308,7 @@ do ISYM=1,NSYM
 #       ifdef _MOLCAS_MPP_
         end if
 #       endif
-        if (NIN > 0 .and. .not.SC_prop) then
+        if ((NIN > 0) .and. (.not. SC_prop)) then
           !! ST matrix
 #         ifdef _MOLCAS_MPP_
           if (is_real_par() .and. ((icase == 1) .or. (icase == 4))) then
@@ -356,23 +356,23 @@ do ISYM=1,NSYM
         end if
       end if
       !! Eigenvalue
-      ID  = IDBMAT(ISYM,ICASE)
+      ID = IDBMAT(ISYM,ICASE)
       if (NAS > 0) then
-        CALL DDAFILE(LUGRAD,2,WRK1,NAS,IDSAVGRD)
-        CALL DDAFILE(LUSBT,1,WRK1,NAS,ID)
+        call DDAFILE(LUGRAD,2,WRK1,NAS,IDSAVGRD)
+        call DDAFILE(LUSBT,1,WRK1,NAS,ID)
       end if
       !! IS
-      if (SC_amplitude .and. NIS > 0) then
-        CALL DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
-        CALL DDAFILE(LUSBT,1,WRK1,NIS,ID)
+      if (SC_amplitude .and. (NIS > 0)) then
+        call DDAFILE(LUGRAD,2,WRK1,NIS,IDSAVGRD)
+        call DDAFILE(LUSBT,1,WRK1,NIS,ID)
       end if
-      if (do_lindep .and. NAS > 0) then
+      if (do_lindep .and. (NAS > 0)) then
         call DDAFILE(LUGRAD,2,WRK1,nTri_Elem(NAS),IDSAVGRD)
         ID = IDBoriMat(ISYM,ICASE)
         call DDAFILE(LUSTD,1,WRK1,nTri_Elem(NAS),ID)
       end if
       !! Original B matrix, needed in SC-NEVPT2 gradient
-      if (HZERO == 'DYALL' .and. SC_amplitude) then
+      if ((HZERO == 'DYALL') .and. SC_amplitude) then
         ID = IDBMAT_NEVPT2(ISYM,ICASE,1)
         call DDAFILE(LUGRAD,2,WRK1,nTri_Elem(NAS),IDSAVGRD)
         call DDAFILE(LUSBT,1,WRK1,nTri_Elem(NAS),ID)
@@ -434,9 +434,9 @@ call mma_deallocate(WRK1)
 
 !! 5. Save T-amplitude (IRHS = LURHS(1) = 51)
 !! SC-NEVPT2 does not use IVECX
-if (HZERO /= 'DYALL' .or. .not. SC_prop) call SaveReadT1()
+if ((HZERO /= 'DYALL') .or. (.not. SC_prop)) call SaveReadT1()
 !! We at least need to create IVECX for MECI search
-if (HZERO == 'DYALL' .and. SC_prop .and. IORW == 2) call RHS_ZERO(IVECX)
+if ((HZERO == 'DYALL') .and. SC_prop .and. (IORW == 2)) call RHS_ZERO(IVECX)
 
 contains
 

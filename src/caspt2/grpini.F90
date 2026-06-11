@@ -28,8 +28,8 @@ use qcmaquis_interface, only: qcmaquis_interface_set_param
 #endif
 use PrintLevel, only: DEBUG, USUAL, VERBOSE
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, DMIX, DREF, FIFA, FIMO, iPrGlb, LUONEM, NCMO, TORB, Weight
-use caspt2_module, only: CIThr, CPUFMB, CPUGIN, CPUINT, DMRG, DoCumulant, iAd1m, IEOF1M, IfChol, IfDW, IfsadRef, IfXMS, jState, &
-                         mState, nConf, NoTri, HZERO, STSym, TIOFMB, TIOGIN, TIOINT
+use caspt2_module, only: CIThr, CPUFMB, CPUGIN, CPUINT, DMRG, DoCumulant, HZERO, iAd1m, IEOF1M, IfChol, IfDW, IfsadRef, IfXMS, &
+                         jState, mState, nConf, NoTri, STSym, TIOFMB, TIOGIN, TIOINT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -171,7 +171,7 @@ TIOFMB = TIO1-TIO0
 ! Note that this is only done for XMS here. For XDW and RMS it is
 ! done in the xdwinit subroutine. This code duplication is silly,
 ! but we will get rid of it once we drop the groups of states
-if ((Ngrp > 1) .and. IFXMS .and. (.not. IFDW) .and. HZERO /= 'DYALL') then
+if ((Ngrp > 1) .and. IFXMS .and. (.not. IFDW) .and. (HZERO /= 'DYALL')) then
 
   ! In case of XMS-CASPT2, printout H0 in original basis
   if (IPRGLB >= USUAL) then

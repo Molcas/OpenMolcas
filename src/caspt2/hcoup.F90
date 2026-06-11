@@ -62,7 +62,7 @@ real(kind=wp) :: HEBLK, HEBLK_SC, HECOMP(14,9)
 
 HEL = Zero
 HECOMP(:,:) = Zero
-if (HZERO == 'DYALL' .and. Do_SC) DVALUE_SC = Zero
+if ((HZERO == 'DYALL') .and. Do_SC) DVALUE_SC = Zero
 do ICASE=1,13
   do ISYM=1,NSYM
     NAS = NASUP(ISYM,ICASE)
@@ -101,7 +101,7 @@ do ICASE=1,13
         call RHS_RELEASE(lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
       end if
 
-      if (HZERO == 'DYALL' .and. Do_SC) then
+      if ((HZERO == 'DYALL') .and. Do_SC) then
         HEBLK_SC = Zero
         call RHS_READ(NAS,NIS,lg_V2,ICASE,ISYM,IVEC)
         call RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
@@ -118,7 +118,7 @@ do ICASE=1,13
         end if
 #       endif
 
-        DVALUE_SC = DVALUE_SC + HEBLK_SC
+        DVALUE_SC = DVALUE_SC+HEBLK_SC
         call RHS_RELEASE(lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
       end if
 
@@ -135,7 +135,7 @@ end do
 
 ! Sum-reduce the per-process contributions
 call GADGOP_SCAL(HEL,'+')
-if (HZERO == 'DYALL' .and. Do_SC) call GADGOP_SCAL(DVALUE_SC,'+')
+if ((HZERO == 'DYALL') .and. Do_SC) call GADGOP_SCAL(DVALUE_SC,'+')
 NHECOMP = 14*9
 call GADGOP(HECOMP,NHECOMP,'+')
 

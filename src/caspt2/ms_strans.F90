@@ -34,7 +34,7 @@ use fake_GA, only: GA_Arrays
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: CASES, NASUP, NINDEP, NISUP, NSYM
 use SC_NEVPT2, only: SC_prop
-use Constants, only: Half, Zero
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -44,9 +44,8 @@ real(kind=wp), intent(out) :: HEL
 real(kind=wp), intent(in) :: SCAL_
 integer(kind=iwp) :: IC, ICASE, iHi1, iHi2, iLo1, iLo2, IS, ISYM, jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, MV1, MV2, NAS, NHECOMP, &
                      NIN, NIS, nvlen
-real(kind=wp) :: HEBLK, HECOMP(14,9)
-character(len=1) :: CNT
-real(kind=wp) :: SCAL
+real(kind=wp) :: HEBLK, HECOMP(14,9), SCAL
+character :: CNT
 
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
@@ -62,11 +61,12 @@ real(kind=wp) :: SCAL
 !     Deallocate VEC1 and VEC2
 !  End of loop.
 
-CNT = 'N'
-SCAL = SCAL_
 if (SC_prop) then
   CNT = 'T'
   SCAL = Half*SCAL_
+else
+  CNT = 'N'
+  SCAL = SCAL_
 end if
 
 HEL = Zero
