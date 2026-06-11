@@ -15,8 +15,8 @@ subroutine CIDIA_MCLR(iSym,ralp)
 
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
-use MCLR_Data, only: ICISTR, ipCI, ipDia, NCPCNT, NCSASM, NDPCNT, nexp, nexp_max, nGP, NOCSF, XISPSM
-use spinfo, only: NTYP, NCNATS=>NCNFTP
+use MCLR_Data, only: ICISTR, ipCI, ipDia, NCSASM, NDPCNT, nexp, nexp_max, nGP, NOCSF, XISPSM
+use spinfo, only: NTYP, NCNATS=>NCNFTP, NCPCNT=>NCSFTP
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, State_Sym, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

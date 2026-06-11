@@ -87,8 +87,7 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,N
 ! =========================================
 
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: NCPCNT
-use spinfo, only: NTYP, NCNATS=>NCNFTP
+use spinfo, only: NTYP, NCNATS=>NCNFTP, NCPCNT=>NCSFTP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp

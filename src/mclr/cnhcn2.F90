@@ -18,8 +18,8 @@ subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,IPRODT,DTO
 !
 ! Modified for LUCIA, September 1993
 
-use MCLR_Data, only: IASTFI, IBSTFI, NCPCNT, NDPCNT
-use spinfo, only: MINOP
+use MCLR_Data, only: IASTFI, IBSTFI, NDPCNT
+use spinfo, only: MINOP, NCPCNT=>NCSFTP
 use Str_Info, only: Str
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_deallocate
