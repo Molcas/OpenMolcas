@@ -17,8 +17,8 @@ subroutine CSDTMT(IDFTP,ICFTP,DTOC,PSSIGN)
 ! Construct matrix expanding prototype CSF's in terms of
 ! prototype combinations in DTOC
 
-use MCLR_Data, only: MS2P, MULTSP, NCPCNT, NDPCNT, NTYP
-use spinfo, only: MINOP
+use MCLR_Data, only: MS2P, MULTSP, NCPCNT, NDPCNT
+use spinfo, only: MINOP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp

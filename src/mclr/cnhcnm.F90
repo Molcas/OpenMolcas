@@ -23,7 +23,8 @@ subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,SCR,ICONF,NEL,IREFSM,N
 ! ================
 
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: NCPCNT, NTYP
+use MCLR_Data, only: NCPCNT
+use spinfo, only: NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

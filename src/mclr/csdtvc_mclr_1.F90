@@ -16,7 +16,8 @@ subroutine CSDTVC_MCLR_1(CSFVEC,DETVEC,DTOCMT,ICTSDT,IREFSM,ICOPY)
 !              so input becomes output while
 !              output remains output
 
-use MCLR_Data, only: NCNATS, NCPCNT, NDPCNT, NDTASM, NTYP
+use MCLR_Data, only: NCNATS, NCPCNT, NDPCNT, NDTASM
+use spinfo, only: NTYP
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

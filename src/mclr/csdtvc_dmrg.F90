@@ -19,7 +19,8 @@ subroutine CSDTVC_dmrg(CSFVEC,DETVEC,DTOCMT,ICTSDT,IREFSM,ICOPY)
 !              output remains output
 ! Modified version for DMRG only -- yma
 
-use MCLR_Data, only: NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM, NTYP
+use MCLR_Data, only: NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM
+use spinfo, only: NTYP
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
