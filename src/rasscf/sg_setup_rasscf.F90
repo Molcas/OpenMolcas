@@ -19,7 +19,7 @@ use gas_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: DoBlockDMRG, NSM
 use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
 use general_data, only: CIS, EXS, SGS
-use sguga, only: MKCOT, MKSGNUM, SG_Init_Simple, SG_init
+use sguga, only: MKSGNUM, SG_init
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
@@ -80,12 +80,6 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
                    nRas,nRasEl,nRsPrt,                           &
                    EXS,                                          &
                    xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
-If (.FALSE.) Then
-      call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                    &
-                   nRas,nRasEl,nRsPrt,                           &
-                   EXS,                                          &
-                   xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
-endif
 
       if (SGS%NVERT0 == 0) then
          CIS%NCSF(STSYM) = 0
@@ -97,10 +91,6 @@ endif
             ! FORM VARIOUS OFFSET TABLES:
             ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
             !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
-
-            ! CONSTRUCT THE CASE LIST
-
-!           call MKCOT(SGS,CIS)
 
             ! SET UP ENUMERATION TABLES
 
