@@ -12,93 +12,88 @@
 !***********************************************************************
 
 subroutine MKBNEVG(nAshT,Hact,Gact,G1,G2)
-  use caspt2_global, only: LUSBT
-  use caspt2_module, only: NAES, NASH, NINDEP, NSYM
-  use EQSOLV, only: IDBMAT
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use definitions, only: iwp,wp
-  use Constants, only: Zero
-  use Symmetry_Info, only: Mul
 
-  implicit none
+use Index_Functions, only: iTri, nTri_Elem
+use caspt2_global, only: LUSBT
+use caspt2_module, only: NAES, NASH, NINDEP, NSYM
+use EQSOLV, only: IDBMAT
+use Symmetry_Info, only: Mul
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-  integer(kind=iwp), intent(in) :: nAshT
-  real(kind=wp), intent(in) :: Hact(nAshT,nAshT), Gact(nAshT,nAshT,nAshT,nAshT), &
-                               G1(nAshT,nAshT), G2(nAshT,nAshT,nAshT,nAshT)
+implicit none
+integer(kind=iwp), intent(in) :: nAshT
+real(kind=wp), intent(in) :: Hact(nAshT,nAshT), Gact(nAshT,nAshT,nAshT,nAshT), G1(nAshT,nAshT), G2(nAshT,nAshT,nAshT,nAshT)
+integer(kind=iwp) :: IBG, IDISK, ISYM, iSymU, iSymUV, iSymV, iSymY, IT, ITABS, IU, IUABS, IV, IVABS, IX, IXABS, IY, IYABS, NAS, &
+                     NBG, NINM
+real(kind=wp) :: Val
+real(kind=wp), allocatable :: BG(:)
 
-  integer(kind=iwp) :: IBG, IDISK, ISYM, IT, ITABS, IU, IUABS, IV, IVABS, IX, IXABS, IY, IYABS, &
-                       NAS, NBG, NINM
-  integer(kind=iwp) :: iSymU, iSymUV, iSymV, iSymY
-  real(kind=wp) :: VALUE
+do ISYM=1,NSYM
+  if (NINDEP(ISYM,10) == 0) cycle
+  NINM = NINDEP(ISYM,11)
+  NAS = NASH(ISYM)
+  NBG = nTri_Elem(NAS)
+  if (NBG > 0) call mma_Allocate(BG,NBG,LABEL='BG')
 
-  real(kind=wp), allocatable :: BG(:)
-
-  DO ISYM=1,NSYM
-    IF(NINDEP(ISYM,10) == 0) cycle
-    NINM=NINDEP(ISYM,11)
-    NAS=NASH(ISYM)
-    NBG=(NAS*(NAS+1))/2
-    if (NBG > 0) then
-      CALL mma_Allocate(BG,NBG,LABEL='BG')
-    end if
-
-    ! Eq.(27): K(t,x) = - h(x,u)*R(t,u) - (uy|xv)*D(tu,vy)
-    DO IT=1,NAS
-      ITABS=IT+NAES(ISYM)
-      DO IX=1,IT
-        IXABS=IX+NAES(ISYM)
-        VALUE=Zero
-!       DO IU=1,NAS
-!         IUABS=IU+NAES(ISYM)
-!         VALUE = VALUE + Hact(IXABS,IUABS)*G1(ITABS,IUABS)
-!         DO IV=1,NAS
-!           IVABS=IV+NAES(ISYM)
-!           DO IY=1,NAS
-!             IYABS=IY+NAES(ISYM)
-!             VALUE = VALUE + Gact(IUABS,IYABS,IXABS,IVABS)*G2(ITABS,IVABS,IUABS,IYABS)
-!           END DO
-!         END DO
-!       END DO
-        do IU = 1, NAS
-          IUABS = IU + NAES(iSym)
-          VALUE = VALUE + Hact(IXABS,IUABS)*G1(ITABS,IUABS)
-        end do
-        do iSymU = 1, nSym
-          do iSymV = 1, nSym
-            iSymUV = MUL(iSymU,iSymV)
-            do iSymY = 1, nSym
-              if (iSym == MUL(iSymY,iSymUV)) then
-                do IU = 1, NASH(iSymU)
-                  IUABS = IU + NAES(iSymU)
-                  do IV = 1, NASH(iSymV)
-                    IVABS = IV + NAES(iSymV)
-                    do IY = 1, NASH(iSymY)
-                      IYABS = IY + NAES(iSymY)
-                      VALUE = VALUE + Gact(IUABS,IYABS,IXABS,IVABS)*G2(ITABS,IVABS,IUABS,IYABS)
-                    end do
+  ! Eq.(27): K(t,x) = - h(x,u)*R(t,u) - (uy|xv)*D(tu,vy)
+  do IT=1,NAS
+    ITABS = IT+NAES(ISYM)
+    do IX=1,IT
+      IXABS = IX+NAES(ISYM)
+      Val = Zero
+      !do IU=1,NAS
+      !  IUABS = IU+NAES(ISYM)
+      !  Val = Val+Hact(IXABS,IUABS)*G1(ITABS,IUABS)
+      !  do IV=1,NAS
+      !    IVABS = IV+NAES(ISYM)
+      !    do IY=1,NAS
+      !      IYABS = IY+NAES(ISYM)
+      !      Val = Val+Gact(IUABS,IYABS,IXABS,IVABS)*G2(ITABS,IVABS,IUABS,IYABS)
+      !    end do
+      !  end do
+      !end do
+      do IU=1,NAS
+        IUABS = IU+NAES(iSym)
+        Val = Val+Hact(IXABS,IUABS)*G1(ITABS,IUABS)
+      end do
+      do iSymU=1,nSym
+        do iSymV=1,nSym
+          iSymUV = MUL(iSymU,iSymV)
+          do iSymY=1,nSym
+            if (iSym == MUL(iSymY,iSymUV)) then
+              do IU=1,NASH(iSymU)
+                IUABS = IU+NAES(iSymU)
+                do IV=1,NASH(iSymV)
+                  IVABS = IV+NAES(iSymV)
+                  do IY=1,NASH(iSymY)
+                    IYABS = IY+NAES(iSymY)
+                    Val = Val+Gact(IUABS,IYABS,IXABS,IVABS)*G2(ITABS,IVABS,IUABS,IYABS)
                   end do
                 end do
-              end if
-            end do
+              end do
+            end if
           end do
         end do
-        IBG=(IT*(IT-1))/2+IX
-        BG(IBG)=-VALUE
-!       write (6,'("BG",2i3,f20.10)') it,ix,bg(ibg)
-      END DO
-    END DO
-
-    if (NBG > 0) then
-      IF(NINDEP(ISYM,10) > 0) THEN
-       IDISK=IDBMAT(ISYM,10)
-       CALL DDAFILE(LUSBT,1,BG,NBG,IDISK)
-      END IF
-      IF(NINM > 0 .and. NINDEP(ISYM,11) > 0) THEN
-        IDISK=IDBMAT(ISYM,11)
-        CALL DDAFILE(LUSBT,1,BG,NBG,IDISK)
-      END IF
-      CALL mma_deallocate(BG)
-    end if
+      end do
+      IBG = iTri(IT,IX)
+      BG(IBG) = -Val
+      !write(u6,'("BG",2i3,f20.10)') it,ix,bg(ibg)
+    end do
   end do
+
+  if (NBG > 0) then
+    if (NINDEP(ISYM,10) > 0) then
+      IDISK = IDBMAT(ISYM,10)
+      call DDAFILE(LUSBT,1,BG,NBG,IDISK)
+    end if
+    if ((NINM > 0) .and. (NINDEP(ISYM,11) > 0)) then
+      IDISK = IDBMAT(ISYM,11)
+      call DDAFILE(LUSBT,1,BG,NBG,IDISK)
+    end if
+    call mma_deallocate(BG)
+  end if
+end do
 
 end subroutine MKBNEVG

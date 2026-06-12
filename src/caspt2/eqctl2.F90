@@ -91,7 +91,7 @@ if (iStpGrd == 1) then
   call GASync()
   call TIMING(CPU0,CPU,TIO0,TIO)
 
-  if (SDECOM /= 'NO' .and. do_FIC) call SBDIAG()
+  if ((SDECOM /= 'NO') .and. do_FIC) call SBDIAG()
 
   call GASync()
   call TIMING(CPU1,CPU,TIO1,TIO)
@@ -224,7 +224,7 @@ else
   ICONV = 0
 end if
 
-if (HZERO == 'DYALL' .and. iStpGrd == 1) call SC_NEVPT2_Print()
+if ((HZERO == 'DYALL') .and. (iStpGrd == 1)) call SC_NEVPT2_Print()
 
 !-SVC: end of PCG routine, compute total time.
 call GASync()

@@ -61,7 +61,7 @@ do ICASE=1,13
     NIS = NISUP(ISYM,ICASE)
 
     if (NAS*NIS == 0) cycle
-    if (NIN == 0 .and. .not.SC_prop) cycle
+    if ((NIN == 0) .and. (.not. SC_prop)) cycle
 
     call RHS_ALLO(NAS,NIS,lg_V1)
     call RHS_ALLO(NAS,NIS,lg_V2)

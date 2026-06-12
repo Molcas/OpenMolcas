@@ -416,7 +416,7 @@ subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 end subroutine LRs_init
 
 ! Extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define ex1_mma_allo_2D, ex1_mma_allo_2D_lim, ex1_mma_free_2D
 #define _TYPE_ type(ex1_struct)

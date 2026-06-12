@@ -46,8 +46,8 @@ integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
 real(kind=wp), intent(inout) :: DMAT(NDMAT)
 real(kind=wp), intent(in) :: UEFF(nState,nState), U0(nState,nState)
 integer(kind=iwp) :: I, iBasI, iBasSq, iBasTr, ibk, IDM, IDMOFF, IDRF, IDSOFF, IDSUM, IFF, II, IP, IQ, iSQ, iState, iStLag, ISYM, &
-                     IT, ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, JJ, liBasSq, liBasTr, lT2AO, NA, nBasI, nch, NDPT, nDPTAO, &
-                     NI, NLEV, NO, nOcc, nOrbI
+                     IT, ITABS, iTR, ITTOT, IU, IUABS, IUTOT, J, jBasI, liBasSq, liBasTr, lT2AO, NA, nBasI, nch, NDPT, nDPTAO, NI, &
+                     NLEV, NO, nOcc, nOrbI
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, Scal, TIOE, TIOTF0, TIOTF10, val, WALLT, wgt, X
 integer(kind=iwp), allocatable :: ISAV(:)
 real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_diag(:), DI(:), DIA(:), DPT(:), DPT2(:), DPT2_AO(:), &
@@ -303,18 +303,10 @@ if (do_grad) then
     ! write(u6,*) 'removing DEPSA of off-diagonal blocks'
     ! write(u6,*) 'before'
     ! call sqprt(depsa,nasht)
-    do II=1,nRAS1T
-      do JJ=nRAS1T+1,nAshT
-        DEPSA(II,JJ) = Zero
-        DEPSA(JJ,II) = Zero
-      end do
-    end do
-    do II=nRAS1T+1,nRAS1T+nRAS2T
-      do JJ=nRAS1T+nRAS2T+1,nAshT
-        DEPSA(II,JJ) = Zero
-        DEPSA(JJ,II) = Zero
-      end do
-    end do
+    DEPSA(1:nRAS1T,nRAS1T+1:) = Zero
+    DEPSA(nRAS1T+1:,1:nRAS1T) = Zero
+    DEPSA(nRAS1T+1:nRAS1T+nRAS2T,nRAS1T+nRAS2T+1:) = Zero
+    DEPSA(nRAS1T+nRAS2T+1:,nRAS1T+1:nRAS1T+nRAS2T) = Zero
     !write(u6,*) 'after'
     !call sqprt(depsa,nasht)
     if (IPRGLB >= DEBUG) write(u6,*) 'depsa (sym) after removing off-diagonal blocks'
@@ -365,7 +357,7 @@ if (do_grad) then
   if ((real_shift /= Zero) .or. (imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero) .or. IFMSCOUP) then
     !! Have to weight the T-amplitude for MS-CASPT2
     if (IFMSCOUP) then
-      if (.not.SC_prop) then
+      if (.not. SC_prop) then
         !! add lambda
         call PLCVEC(VECROT(jState),Half,IVECX,IVECR)
         call PTRTOC(1,IVECR,IVECC2)
@@ -686,18 +678,10 @@ if (do_grad) then
     end if
     if (NRAS1T+NRAS3T /= 0) then
       !! Remove the off-diagonal blocks for RASPT2
-      do II=1,nRAS1T
-        do JJ=nRAS1T+1,nAshT
-          DEPSA(II,JJ) = Zero
-          DEPSA(JJ,II) = Zero
-        end do
-      end do
-      do II=nRAS1T+1,nRAS1T+nRAS2T
-        do JJ=nRAS1T+nRAS2T+1,nAshT
-          DEPSA(II,JJ) = Zero
-          DEPSA(JJ,II) = Zero
-        end do
-      end do
+      DEPSA(1:nRAS1T,nRAS1T+1:) = Zero
+      DEPSA(nRAS1T+1:,1:nRAS1T) = Zero
+      DEPSA(nRAS1T+1:nRAS1T+nRAS2T,nRAS1T+nRAS2T+1:) = Zero
+      DEPSA(nRAS1T+nRAS2T+1:,nRAS1T+1:nRAS1T+nRAS2T) = Zero
     end if
     !depsa(:,:) = Zero
 

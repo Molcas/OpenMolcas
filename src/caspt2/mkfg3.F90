@@ -190,8 +190,8 @@ call mma_allocate(TaskList,mxTask,4,LABEL='TaskList')
 if (iPrGlb >= VERBOSE) then
   write(u6,*)
   write(u6,'(2X,A)') 'Constructing G3/F3'
-  write(u6,'(2X,A,F16.9,A)') ' memory avail: ',(memmax*RtoB)*1.0e-9_wp,' GB'
-  write(u6,'(2X,A,F16.9,A)') ' memory used:  ',(((nbuf1+3)*MXCI)*RtoB)*1.0e-9_wp,' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory avail: ',real(memmax*RtoB,kind=wp)*1.0e-9_wp,' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory used:  ',real(((nbuf1+3)*MXCI)*RtoB,kind=wp)*1.0e-9_wp,' GB'
 end if
 
 call mma_allocate(ip1_buf,nlev2,Label='ip1_buf')
@@ -582,11 +582,7 @@ if (DoFCIQMC) then
 else
   ! Correction to G2: It is now = <0| E_tu E_yz |0>
   do iu=1,nlev
-    do iz=1,nlev
-      do it=1,nlev
-        G2(it,iu,iu,iz) = G2(it,iu,iu,iz)-G1(it,iz)
-      end do
-    end do
+    G2(:,iu,iu,:) = G2(:,iu,iu,:)-G1(:,:)
   end do
   ! SVC20100310: took some spurious mirroring of G2 values out
   ! of the loops and put them here, after the parallel section has
@@ -620,21 +616,13 @@ else
   end do
   if (mkF) then
     ! Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
-    do iz=1,nlev
-      do iy=1,nlev
-        do iu=1,nlev
-          do it=1,nlev
-            F2(it,iu,iy,iz) = F2(it,iu,iy,iz)-(EPSA(iu)+EPSA(iy))*G2(it,iu,iy,iz)
-          end do
-        end do
+    do iy=1,nlev
+      do iu=1,nlev
+        F2(:,iu,iy,:) = F2(:,iu,iy,:)-(EPSA(iu)+EPSA(iy))*G2(:,iu,iy,:)
       end do
     end do
-    do iz=1,nlev
-      do iu=1,nlev
-        do it=1,nlev
-          F2(it,iu,iu,iz) = F2(it,iu,iu,iz)-(F1(it,iz)+EPSA(iu)*G1(it,iz))
-        end do
-      end do
+    do iu=1,nlev
+      F2(:,iu,iu,:) = F2(:,iu,iu,:)-(F1(:,:)+EPSA(iu)*G1(:,:))
     end do
     ! SVC20100310: took some spurious mirroring of F2 values out
     ! of the loops and put them here, after the parallel section has

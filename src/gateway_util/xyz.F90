@@ -768,7 +768,7 @@ subroutine TransformGeom(G,M)
 end subroutine TransformGeom
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define xyz_mma_allo_1D, xyz_mma_allo_1D_lim, xyz_mma_free_1D
 #define _TYPE_ type(XYZAtom)

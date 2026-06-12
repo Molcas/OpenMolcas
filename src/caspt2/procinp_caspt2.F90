@@ -20,11 +20,12 @@ use Molcas, only: MxRoot, MxSym
 use caspt2_global, only: cmpThr, cntThr, CompressMPS, ConvInvar, dnmThr, do_csf, do_grad, do_lindep, do_nac, if_equalW, if_invar, &
                          if_invaria, if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, MAXBUF, real_shift, &
                          sigma_p_epsilon, sigma_p_exponent, Weight
-use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, DMRG, DoCumulant, DWType, FockType, G1SECIN, HZero, IfChol, IfDens, &
-                         IfDOrtho, IfDW, IfMix, IFMSCoup, IfProp, IfRMS, IfsadRef, IfXMS, iRlxRoot, iRoot, JMS, MaxIt, mState, &
-                         nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, nRas1T, nRas3T, nRoots, nRoots, nSsh, &
-                         nState, nSym, OrbIn, OutFmt, PrOrb, PRSD, RFPERT, RHSDirect, Root2State, SDECOM, SMatrix, ThrConv, &
-                         ThrEne, ThrOCC, ThrSHN, ThrSHS, Zeta, PT2Method, CPT2Method
+use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, CPT2Method, DMRG, DoCumulant, DWType, FockType, G1SECIN, HZero, IfChol, &
+                         IfDens, IfDOrtho, IfDW, IfMix, IFMSCoup, IfProp, IfRMS, IfsadRef, IfXMS, iRlxRoot, iRoot, JMS, MaxIt, &
+                         mState, nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, nRas1T, nRas3T, nRoots, nRoots, &
+                         nSsh, nState, nSym, OrbIn, OutFmt, PrOrb, PRSD, PT2Method, RFPERT, RHSDirect, Root2State, SDECOM, &
+                         SMatrix, ThrConv, ThrEne, ThrOCC, ThrSHN, ThrSHS, Zeta
+use SC_NEVPT2, only: Do_FIC, Do_SC, SC_amplitude, SC_prop, SC_thres
 #ifdef _DMRG_
 use qcmaquis_info, only: qcm_group_names
 use qcmaquis_interface_cfg, only: dmrg_file, qcmaquis_param
@@ -38,7 +39,6 @@ use OFembed, only: Do_OFemb
 #endif
 use Constants, only: Zero, Quart
 use Definitions, only: wp, iwp, u6, RtoB
-use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_amplitude, SC_thres
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 use Definitions, only: MPIInt
@@ -73,7 +73,7 @@ end if
 Focktype = input%Focktype
 if (Focktype /= 'STANDARD') then
   ! if both Hzero and Focktype are not standard, quit
-  if (Hzero /= 'STANDARD' .and. Hzero /= 'DYALL') then
+  if ((Hzero /= 'STANDARD') .and. (Hzero /= 'DYALL')) then
     call WarningMessage(2,'Requested combination of FOCKtype'//' and HZERo not possible.')
     call Quit_OnUserError()
   end if
@@ -99,10 +99,10 @@ else if (Hzero /= 'DYALL') then
 end if
 
 ! copy over to Hzero the content of Focktype, if Hzero is not CUSTOM or DYALL
-if (Hzero /= 'CUSTOM' .and. Hzero /= 'DYALL') Hzero = Focktype
+if ((Hzero /= 'CUSTOM') .and. (Hzero /= 'DYALL')) Hzero = Focktype
 
 ! print warnings if deviating from the default
-if (Hzero /= 'STANDARD' .and. Hzero /= 'DYALL') call warningmessage(1,'User-modified 0th-order Hamiltonian!')
+if ((Hzero /= 'STANDARD') .and. (Hzero /= 'DYALL')) call warningmessage(1,'User-modified 0th-order Hamiltonian!')
 
 ! real/imaginary shifts
 real_shift = Input%real_shift
@@ -517,8 +517,8 @@ DNMTHR = Input%DNMTHR
 CMPTHR = Input%CMPTHR
 CNTTHR = Input%CNTTHR
 
-PT2Method = 'CASPT2      '
-CPT2Method = 'CASPT2      '
+PT2Method = 'CASPT2'
+CPT2Method = 'CASPT2'
 
 Do_FIC = .true.
 Do_SC = .false.
@@ -531,7 +531,7 @@ if (HZERO == 'DYALL') then
   SC_prop = input%SCPROP .or. (.not. Do_FIC)
   SC_amplitude = SC_prop
   SC_thres = abs(input%SC_thres)
-  if (NRAS1T + NRAS3T > 0) then
+  if (NRAS1T+NRAS3T > 0) then
     call warningMessage(2,'NEVPT2 calculations with a RAS reference wavefunction are not supported')
     call quit_onUserError()
   end if
@@ -552,9 +552,9 @@ if (HZERO == 'DYALL') then
   IFXMS = .false.
   IFRMS = .false.
 
-  PT2Method = 'NEVPT2      '
-  CPT2Method = 'PC-NEVPT2   '
-  if (SC_prop) CPT2Method = 'SC-NEVPT2   '
+  PT2Method = 'NEVPT2'
+  CPT2Method = 'PC-NEVPT2'
+  if (SC_prop) CPT2Method = 'SC-NEVPT2'
 end if
 
 !***********************************************************************
@@ -765,7 +765,7 @@ if ((IFDENS .and. (.not. do_grad)) .and. (NRAS1T+NRAS3T > 0)) then
   call quit_onUserError()
 end if
 
-if (do_grad .and. HZERO == 'DYALL') then
+if (do_grad .and. (HZERO == 'DYALL')) then
   if ((.not. Do_FIC) .and. (.not. SC_prop)) then
     call warningMessage(2,'PC-NEVPT2 properties cannot be computed without PC-NEVPT2 energy. Remove the NOPC keyword.')
     call quit_onUserError()

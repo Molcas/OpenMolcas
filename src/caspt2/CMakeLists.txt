@@ -167,6 +167,7 @@ set (sources
      mkfg3qcm.F90
      mkfock.F90
      mklist.F90
+     mkneve4.F90
      mkpref_rpt2.F90
      mkrhsa.F90
      mkrhsb.F90
@@ -179,7 +180,6 @@ set (sources
      mkrhsh.F90
      mkrhsh_save.F90
      mkrptorb.F90
-     mkneve4.F90
      mksa_dp.F90
      mksa.F90
      mksa_g3.F90

@@ -211,8 +211,8 @@ if (lab4 == 'MLTP') then
       call Put_DArray('Dipole moment',PrTot,3)
       call xml_dDump('dipole','Dipole moment','debye',1,PrTot,3,1)
       if (abs(Molecular_Charge) > 0.9_wp) then
-        Call Get_dArray('Center of Mass',CoM,3)
-        PrTot(:)=PrTot(:)+CoM(:)/Molecular_Charge
+        call Get_dArray('Center of Mass',CoM,3)
+        PrTot(:) = PrTot(:)+CoM(:)/Molecular_Charge
         write(u6,'(6X,A)') 'Center of Charge (angstrom)'
         X_Coor = Angstrom*(PrTot(1)/Molecular_Charge)
         Y_Coor = Angstrom*(PrTot(2)/Molecular_Charge)
@@ -313,7 +313,7 @@ if (lab4 == 'MLTP') then
       PrTot(:) = PrNu(1:MaxLab)-PrEl(1,1:MaxLab)
     end if
   !--------------------------------------------------------------------*
- end if ! iPL
+  end if ! iPL
   !--------------------------------------------------------------------*
   ! Prop is also called in other programs where MAG_X2C could
   ! be uninitialized, if a test is required in such case
