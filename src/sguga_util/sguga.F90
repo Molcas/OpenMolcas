@@ -29,23 +29,52 @@ integer(kind=iwp) :: iq
 type SGStruct
 
 ! Split-Graph descriptor, sizes, addresses...
+!
+! Ism(:): Symmetry label of each graph level.
+! DRT: Final compact distinct-row table with columns LTAB,NTAB,ATAB,BTAB,CTAB.
+! DRT0: Unrestricted DRT before pruning.
+! Down: Final downchar arc table; child vetrex reached by each of the four step types
+! Down0: unrestricted Down table
+! Up: Reverse connectivity; for a lower vertex and a step typ, gives the matching upper vertex
+! Ver: temporary mask and old->new renumbering map used during pruning
+! MAW: modified split-graph are weights used in split-graph numbering. A hybrid of the DAW and the RAW tables.
+! LTV: level-to-first-vertex pointer table
+! DAW: Direct arc weights; cumulative numbering of downward continuation
+! RAW: reverse direct arc weights; cumulative numbering of upward continuation
+! L2ACT: map from graph level to active orbital index
+! LEVEL: external ordering of graphs levels
+! nRas: number of orbitals in each symmetry and RAS/GAS partionining
+! nRasEl: Electron limit for each RAS/GAS partioning
   integer(kind=iwp) :: NSym = 0, nActEl = 0, IFRAS = 0
   integer(kind=iwp) :: IA0, IB0, IC0, iSpin, nLev, nVert, nVert0, MidLev, MVSta, MVEnd, MXUP, MXDWN
   integer(kind=iwp), allocatable :: ISm(:), DRT(:,:), DRT0(:,:), Down(:,:), Down0(:,:), Up(:,:), Ver(:), MAW(:,:), LTV(:), &
-                                    DAW(:,:), RAW(:,:), SCR(:,:)
+                                    DAW(:,:), RAW(:,:)
   integer(kind=iwp), pointer :: DRTP(:,:), DOWNP(:,:)
   integer(kind=iwp) :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: NRAS(MxSym,MxGAS), NRASEL(MxGAS), nRsPrt=0
-
 end type SGStruct
 
+! index for DRT
+integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
+
 ! CI Structures, addresses,..
+!
+! NOW(:,:,:): number of upper (1) and lower (2) half-walks by symmetry and midvertex
+! IOW(:,:,:): offsets of the NOW blocks in packed walk storage
+! NCSF(:): Total number of CSFs per total symmetry
+! NOCSF(:,:,:): number of CSFs for a given upper symmetry, midvertex, and total symmetry.
+! IOCSF(:,:,:): Offsets corresponding to NOCSF blocks
+! ICASE(:): packed step vectors for all upper and lower half-walks
+! IVR(:,:): partner index one the same level for delta(b)=-1/+1 segments tops.
+! ISGM(:,:): segment connectivity: lower-left destination vertex for each valid segment, zero otherwise.
+! VSGM(:,): numerical value of each valid segment-
 type CIStruct
   integer(kind=iwp) :: nMidV, nIpWlk, nWalk, NUW
   integer(kind=iwp), allocatable :: NOW(:,:,:), IOW(:,:,:), NCSF(:), NOCSF(:,:,:), IOCSF(:,:,:), ICase(:), IVR(:,:), ISGM(:,:)
   real(kind=wp), allocatable :: VSGM(:,:)
 end type CIStruct
+
 
 ! Excitation operators, coupling coefficients,...
 type EXStruct
@@ -53,12 +82,6 @@ type EXStruct
   integer(kind=iwp), allocatable :: NOCP(:,:,:), IOCP(:,:,:), ICoup(:,:), MVL(:,:), MVR(:,:), USGN(:,:), LSGN(:,:)
   real(kind=wp), allocatable :: VTab(:), SGTMP(:)
 end type EXStruct
-
-type(SGStruct), target :: SGS
-type(CIStruct), target :: CIS
-type(EXStruct), target :: EXS
-
-
 
 ! This lists nSeg different types of segments, i=1,...,nSeg
 !  1- 4: segments of the head walk from the loop head to the graph head
@@ -97,11 +120,9 @@ integer(kind=iwp), parameter ::                                                 
                                 IC2(nSeg)   = [ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3],&
                                 ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1]
 
-! index for DRT
-integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
 
-public :: CIS, CIStruct, EXS, EXStruct, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
-          SG_Init, SG_Init_Simple, SGS, SGStruct
+public :: CIStruct, EXStruct, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
+          SG_Init, SG_Init_Simple, SGStruct
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
@@ -808,7 +829,6 @@ call mma_deallocate(SGS%MAW,safe='*')
 call mma_deallocate(SGS%LTV,safe='*')
 call mma_deallocate(SGS%DAW,safe='*')
 call mma_deallocate(SGS%RAW,safe='*')
-call mma_deallocate(SGS%SCR,safe='*')
 call mma_deallocate(SGS%Ver,safe='*')
 nullify(SGS%DRTP,SGS%DOWNP)
 
@@ -856,6 +876,7 @@ type(CIStruct), intent(inout) :: CIS
 integer(kind=iwp) :: IHALF, ILND, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, MV
 integer(kind=iwp) :: INIT, IC, IPOS, L, LL
 integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
+integer(kind=iwp), allocatable :: SCR(:,:)
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: IS, NUW
 # endif
@@ -871,7 +892,7 @@ call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF')
 call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF')
 call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
 
-call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr')  ! First index referenced by IVERT, SYM, and ISTEP
+call mma_allocate(Scr,[1,3],[0,SGS%nLev],Label='Scr')  ! First index referenced by IVERT, SYM, and ISTEP
 
 ! CLEAR ARRAYS IOW AND NOW
 
@@ -883,7 +904,7 @@ CIS%IOW(:,:,:) = 0
 CIS%IOCSF(:,:,:) = 0
 CIS%NOCSF(:,:,:) = 0
 Else
-call mma_allocate(SGS%Scr,[1,3],[0,SGS%nLev],Label='SGS%Scr',safe='*')  ! First index referenced by IVERT, SYM, and ISTEP
+call mma_allocate(Scr,[1,3],[0,SGS%nLev],Label='Scr',safe='*')  ! First index referenced by IVERT, SYM, and ISTEP
 call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 CIS%NOW(:,:,:) = 0
@@ -915,29 +936,29 @@ do IHALF=1,2
     LEV = LEV1
 
     ! Store away vertex index, and initiate symmetry index, and the step vector index
-    SGS%Scr(IVERT,LEV) = IVTOP
-    SGS%Scr(ISYM,LEV)  =  1
-    SGS%Scr(ISTEP,LEV) = -1
+    Scr(IVERT,LEV) = IVTOP
+    Scr(ISYM,LEV)  =  1
+    Scr(ISTEP,LEV) = -1
 
     do while (LEV <= LEV1)
 
       ! FIND FIRST POSSIBLE UNTRIED ARC DOWN FROM CURRENT VERTEX
-      IVT = SGS%Scr(IVERT,LEV)  ! Pickup the current vertex index for level LEV
+      IVT = Scr(IVERT,LEV)  ! Pickup the current vertex index for level LEV
       ! Continue scanning the step vectors, SCR(ISTEP,LEV) is the index of the next vector to explot
-      do ISTP=SGS%Scr(ISTEP,LEV)+1,3
+      do ISTP=Scr(ISTEP,LEV)+1,3
         IVB = SGS%Down(IVT,ISTP)
         if (IVB /= 0) exit      ! Exits if step vector leads to a valid vertex below.
       end do
 
       ! IF NO SUCH ARC WAS POSSIBLE. GO UP ONE LEVEL AND TRY AGAIN.
       if (ISTP > 3) then
-        SGS%Scr(ISTEP,LEV) = -1
+        Scr(ISTEP,LEV) = -1
         LEV = LEV+1
         cycle
       end if
 
       ! SUCH AN ARC WAS FOUND. WALK DOWN:
-      SGS%Scr(ISTEP,LEV) = ISTP ! Store the current step vector index of level Level
+      Scr(ISTEP,LEV) = ISTP ! Store the current step vector index of level Level
       ! doubly occupied or empty orbital case are total symmetric. Singly occupied orbitals
       ! carry the symmetry of the orbital in the level.
       SELECT CASE(ISTP)
@@ -952,16 +973,16 @@ do IHALF=1,2
       LEV = LEV-1     ! Walk down one level
 
       ! Store away the accumulated symmetry, the new vertex, and initiate the step vector counter.
-      SGS%Scr(ISYM,LEV) = Mul(ISML,SGS%Scr(ISYM,LEV+1))
-      SGS%Scr(IVERT,LEV) = IVB
-      SGS%Scr(ISTEP,LEV) = -1
+      Scr(ISYM,LEV) = Mul(ISML,Scr(ISYM,LEV+1))
+      Scr(IVERT,LEV) = IVB
+      Scr(ISTEP,LEV) = -1
 
       if (LEV > LEV2) cycle   ! Repeat
 
       ! WE HAVE NOW REACHED THE BOTTOM LEVEL. THE WALK IS COMPLETE.
       ! FIND MIDVERTEX NUMBER ORDERING NUMBER AND SYMMETRY OF THIS WALK
-      MV = SGS%Scr(IVERT,SGS%MidLev)+1-SGS%MVSta ! Pick up the relative index of the midlev vertex
-      IWSYM = SGS%Scr(ISYM,LEV2)                 ! Pick up the symmetry of the walk
+      MV = Scr(IVERT,SGS%MidLev)+1-SGS%MVSta ! Pick up the relative index of the midlev vertex
+      IWSYM = Scr(ISYM,LEV2)                 ! Pick up the symmetry of the walk
 
       ILND = CIS%NOW(IHALF,IWSYM,MV) + 1
       CIS%NOW(IHALF,IWSYM,MV) = ILND   ! Increment counter for how many walks there are given the
@@ -975,7 +996,7 @@ do IHALF=1,2
 
           IC = 0
           do L=min(LL+nPack-1,LEV1),LL,-1
-            IC = 4*IC+SGS%Scr(ISTEP,L)
+            IC = 4*IC+Scr(ISTEP,L)
           end do
 
           IPOS = IPOS+1
@@ -1018,7 +1039,8 @@ end do
 End If
 
 end do ! IHALF
-call mma_deallocate(SGS%Scr,safe='*')
+
+call mma_deallocate(Scr,safe='*')
 
 end subroutine MKCOT
 
@@ -1245,7 +1267,7 @@ integer(kind=iwp), allocatable :: NRL(:,:,:)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IS, IST, NCP, NUW
 #endif
-
+! Number of upper (1) and lower half-walks by symmetry and midvertex
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
 call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW',safe='*')
 
