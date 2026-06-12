@@ -857,6 +857,7 @@ call mma_deallocate(CIS%ISGM,safe='*')
    call mma_deallocate(EXS%IOCP,safe='*')
    call mma_deallocate(EXS%ICoup,safe='*')
    call mma_deallocate(EXS%VTab,safe='*')
+   call mma_deallocate(EXS%SGTMP,safe='*')
    call mma_deallocate(EXS%MVL,safe='*')
    call mma_deallocate(EXS%MVR,safe='*')
    call mma_deallocate(EXS%USGN,safe='*')
@@ -1271,12 +1272,11 @@ type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
                      MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
-                     NUPS1
+                     NUPS1, INDEO0
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IS, IST, NCP, NUW
 #endif
-! Number of upper (1) and lower half-walks by symmetry and midvertex
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
 call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW',safe='*')
 
@@ -1284,34 +1284,47 @@ call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF',safe='*')
 call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF',safe='*')
 call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF',safe='*')
 
-EXS%MxEO = (SGS%nLev*(SGS%nLev+5))/2
+EXS%MxEO = SGS%nLev + SGS%nLev + (SGS%nLev*(SGS%nLev+1))/2
+
 call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
 call mma_allocate(EXS%IOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
+
+! NRL(sym,vertex,indeo): number of valid segment paths of a given symmetry and operators class arriving at a given vertex
 call mma_allocate(NRL,[1,SGS%nSym],[1,SGS%nVert],[0,EXS%MxEO],Label='NRL')
+! indeo=0 denotes a ordinary half-walk with no open- or closed-loop attached
+INDEO0=0
 
 ! For upper walks
 NRL(:,1:SGS%MVEnd,:) = 0
-NRL(1,1,0) = 1
+NRL(1,1,0) = 1     ! Initiate that for symmetry=1, the root vertex and indeo=0 that the number of valid setment paths are 1
 
-do IVLT=1,SGS%MVSta-1
-  LEV = SGS%DRT(IVLT,LTAB)
-  do ISGT=1,nSeg
-    IVLB = CIS%ISGM(IVLT,ISGT)
-    if (IVLB == 0) cycle
-    ICL = IC1(ISGT)
-    ISYM = 1
-    if ((ICL == 1) .or. (ICL == 2)) ISYM = SGS%ISm(LEV)
-    do ITSYM=1,SGS%nSym
-      IBSYM = Mul(ITSYM,ISYM)
+do IVLT=1,SGS%MVSta-1                     ! Loop from head vertex to last vertex before the midvertices, IVLT
+  LEV = SGS%DRT(IVLT,LTAB)                ! Pick up the level of the vertex, LEV
+  do ISGT=1,nSeg                          ! loop over all segments, ISGT
+    IVLB = CIS%ISGM(IVLT,ISGT)            ! Pick up the lower-left destination vertex, IVLB
+    if (IVLB == 0) cycle                  ! Cycle if not a valid vertex
+    ICL = IC1(ISGT)                       ! Pick up the bra case
 
+    Select case (ICL)                     ! Pick up the symmetry label of the segment
+      CASE(1,2)
+        ISYM = SGS%ISm(LEV)
+      CASE DEFAULT
+        ISYM = 1
+    End Select
+
+    do ITSYM=1,SGS%nSym                   ! Loop over all symmetries
+      IBSYM = Mul(ITSYM,ISYM)             ! If the walk was of symmetry ITSYM at the level above this segment will render it now
+                                          ! to be of symmetry IBSYM
+
+      ! Accumulate contributions to vertices below
       select case (ISGT)
-        case (:4)
+        case (1:4)
           ! THIS IS AN UPPER WALK.
-          NRL(IBSYM,IVLB,0) = NRL(IBSYM,IVLB,0)+NRL(ITSYM,IVLT,0)
+          NRL(IBSYM,IVLB,INDEO0) = NRL(IBSYM,IVLB,INDEO0)+NRL(ITSYM,IVLT,INDEO0)
         case (5:8)
           ! THIS IS AN TOP SEGMENT.
-          INDEO = LEV+(IBVPT(ISGT)-1)*SGS%nLev
-          NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO)+NRL(ITSYM,IVLT,0)
+          INDEOB= LEV+(IBVPT(ISGT)-1)*SGS%nLev
+          NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB)+NRL(ITSYM,IVLT,INDEO0)
         case (9:18)
           ! THIS IS A MID-SEGMENT.
           do IP=LEV+1,SGS%nLev
@@ -1472,6 +1485,8 @@ do MV3=1,CIS%nMidV
   end do
 end do
 
+call mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
+
 #ifdef _DEBUGPRINT_
 write(u6,600) MXUP,MXDWN,NSGMX,NSGMX,NSGTMP
 
@@ -1599,26 +1614,13 @@ call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 If (SGS%nLev==1) Then
    nVTab_Final=0
    call mma_allocate(EXS%VTab,nVTab_Final,Label='EXS%VTab')
-   Write (6,*) 'Bail out'
    Return
 End If
 
 ! NOW IS ZEROED AND WILL BE USED AS AN ARRAY OF COUNTERS, BUT WILL BE RESTORED FINALLY.
-do IHALF=1,2
-  do MV=1,CIS%nMidV
-    do IS=1,SGS%nSym
-      CIS%NOW(IHALF,IS,MV) = 0
-    end do
-  end do
-end do
+CIS%NOW(:,:,:) = 0
 ! SIMILAR FOR THE COUPLING COEFFICIENT TABLE:
-do INDEO=1,EXS%MxEO
-  do MV=1,CIS%nMidV
-    do IS=1,SGS%nSym
-      EXS%NOCP(INDEO,IS,MV) = 0
-    end do
-  end do
-end do
+EXS%NOCP(:,:,:) = 0
 
 call mma_allocate(ILNDW,CIS%nWalk,Label='ILNDW')
 call mma_allocate(ISGPTH,[1,7],[0,SGS%nLev],Label='ISGPTH')
