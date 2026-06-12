@@ -533,7 +533,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
       end if
 #ifdef _SGUGA_VERIFY_
 ! temporary code
-        If (.NOT.iDoGAS) Then
+        If (.NOT.iDoGAS .and. .NOT. DoDMRG) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(Abs(Dtmp(1:NAC*(NAC+1)/2)))
         Write (6,*) 'Check_D1=',Check_D1
