@@ -60,6 +60,7 @@ integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
 
 ! CI Structures, addresses,..
 !
+! nIpWlk: number of integer per walk to store the packed stepvector of a half walk
 ! NOW(:,:,:): number of upper (1) and lower (2) half-walks by symmetry and midvertex
 ! IOW(:,:,:): offsets of the NOW blocks in packed walk storage
 ! NCSF(:): Total number of CSFs per total symmetry
@@ -77,11 +78,21 @@ end type CIStruct
 
 
 ! Excitation operators, coupling coefficients,...
+!
+! NOCP(:,:,:): number of compressed coupling coefficients in each operator/symmetry/midvertex block
+! IOCP(:,:,:): offset of each NOCP block in ICoup
+! ICoup(:,:): Compressed coupling tuples: left half-walk label, righ half-walk label. value-pool index
+! MVL(:,:) : Left partner midvertex for delta(b)=-1/+1
+! MVL(:,:) : Right partner midvertex for delta(b)=-1/+1
+! USGN(:,:): map from upper reverese-direct-arc-weight sums to upper walk numbers
+! LSGN(:,:): map from lower direct-arc-weight sums to lower walk numbers
+! VTAB(:): pool of distinct numerical coupling values.
 type EXStruct
   integer(kind=iwp) :: MxEO, nICoup
   integer(kind=iwp), allocatable :: NOCP(:,:,:), IOCP(:,:,:), ICoup(:,:), MVL(:,:), MVR(:,:), USGN(:,:), LSGN(:,:)
   real(kind=wp), allocatable :: VTab(:), SGTMP(:)
 end type EXStruct
+
 
 ! This lists nSeg different types of segments, i=1,...,nSeg
 !  1- 4: segments of the head walk from the loop head to the graph head
@@ -716,8 +727,6 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
 
   if (present(EXS)) then
 !     FORM VARIOUS OFFSET TABLES:
-!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
-!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 
 !     CONSTRUCT THE CASE LIST
 
@@ -729,10 +738,11 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
 
     call MKSEG(SGS,CIS,EXS)
 
-! NIPWLK: NR OF INTEGERS USED TO PACK EACH UP- OR DOWNWALK.
-
+    ! Count coupling coefficients in compressed blocks indexed by excitation/operator type, symmetry and midvertex.
     call NRCOUP(SGS,CIS,EXS)
 
+    ! Explicitly generates the compressed coupling tuples '(left walk, right walk, value index)' and compacts repeated
+    ! numerical values into 'VTab'.
     call MKCOUP(SGS,CIS,EXS)
   end if
 
@@ -847,7 +857,6 @@ call mma_deallocate(CIS%ISGM,safe='*')
    call mma_deallocate(EXS%IOCP,safe='*')
    call mma_deallocate(EXS%ICoup,safe='*')
    call mma_deallocate(EXS%VTab,safe='*')
-   call mma_deallocate(EXS%SGTMP,safe='*')
    call mma_deallocate(EXS%MVL,safe='*')
    call mma_deallocate(EXS%MVR,safe='*')
    call mma_deallocate(EXS%USGN,safe='*')
@@ -1462,8 +1471,6 @@ do MV3=1,CIS%nMidV
     end do
   end do
 end do
-
-call mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
 
 #ifdef _DEBUGPRINT_
 write(u6,600) MXUP,MXDWN,NSGMX,NSGMX,NSGTMP
