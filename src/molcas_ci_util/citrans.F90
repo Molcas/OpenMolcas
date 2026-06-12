@@ -674,7 +674,7 @@ subroutine mkwtab(mxn1,mxn2,wtab)
 end subroutine mkwtab
 
 ! Extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define spt_mma_allo_1D, spt_mma_allo_1D_lim, spt_mma_free_1D
 #define _TYPE_ type(spintable)

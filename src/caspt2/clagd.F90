@@ -43,12 +43,12 @@ real(kind=wp) :: ATUX, ATUXY, ATUY, ATYU, ATYX, BDERval, bsBDER, ET, EU, EX, EY,
 real(kind=wp), allocatable :: BDER(:), LBD(:), LID(:), SDER(:), SMat(:)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: idT, IHI, ILO, JHI, JLO, LDV, lg_S, lg_T, mS, MYRANK
+logical(kind=iwp) :: bStat
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: VEC1(:), VEC2(:), VEC3(:), VEC4(:), VEC5(:)
-logical(kind=iwp) :: bStat
 #endif
 
-if (HZERO == 'DYALL' .and. SC_prop) then
+if ((HZERO == 'DYALL') .and. SC_prop) then
   call SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
   return
 end if
@@ -74,13 +74,13 @@ do iCase=1,11
 
 #   ifdef _MOLCAS_MPP_
     if (is_real_par()) then
-      if ((iCase /= 1 .and. iCase /= 4) .or. HZERO == 'DYALL') then
+      if (((iCase /= 1) .and. (iCase /= 4)) .or. (HZERO == 'DYALL')) then
         call mma_allocate(BDER,NAS**2,Label='BDER')
         call mma_allocate(SDER,NAS**2,Label='SDER')
         BDER(:) = Zero
         SDER(:) = Zero
       end if
-      if (HZERO == 'DYALL' .and. (iCase == 1 .or. iCase == 4)) then
+      if ((HZERO == 'DYALL') .and. ((iCase == 1) .or. (iCase == 4))) then
         call GA_CREATE_STRIPED('H',NAS,NIN,'TRANS',lg_T)
         call PSBMAT_READ('T',iCase,iSym,lg_T,NAS*NIN)
         if (King()) then
@@ -103,7 +103,7 @@ do iCase=1,11
 #   endif
 
 #   if defined(_MOLCAS_MPP_) && defined(_GA_)
-    if (is_real_par() .and. ((icase == 1) .or. (icase == 4)) .and. HZERO /= 'DYALL') then
+    if (is_real_par() .and. ((icase == 1) .or. (icase == 4)) .and. (HZERO /= 'DYALL')) then
       call CLagDX_MPP()
       cycle
     else
@@ -266,7 +266,7 @@ do iCase=1,11
         case (11)
           call CLagDXG(NAS,BDER,SDER)
       end select
-    else if (HZERO == 'DYALL') then !! NEVPT2
+    else !! NEVPT2
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) then
         call GADGOP(BDER,NAS**2,'+')
@@ -299,7 +299,7 @@ do iCase=1,11
 
 #   ifdef _MOLCAS_MPP_
     if (is_real_par()) then
-      if ((iCase /= 1 .and. iCase /= 4) .or. HZERO == 'DYALL') then
+      if (((iCase /= 1) .and. (iCase /= 4)) .or. (HZERO == 'DYALL')) then
         call mma_deallocate(BDER)
         call mma_deallocate(SDER)
       end if
@@ -314,7 +314,7 @@ do iCase=1,11
 end do
 
 #ifdef _MOLCAS_MPP_
-if (is_real_par() .and. HZERO /= 'DYALL') then
+if (is_real_par() .and. (HZERO /= 'DYALL')) then
   iCase = 4
   MYRANK = GA_NODEID()
   do iSym=1,nSym

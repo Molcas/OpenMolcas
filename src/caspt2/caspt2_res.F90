@@ -34,8 +34,7 @@ if (SC_prop) then
   return
 end if
 
-if (HZERO == 'DYALL' .and. real_shift == Zero .and. &
-    imag_shift == Zero .and. sigma_p_epsilon == Zero) then
+if ((HZERO == 'DYALL') .and. (real_shift == Zero) .and. (imag_shift == Zero) .and. (sigma_p_epsilon == Zero)) then
   !! The correlation energy of the target state for the plane NEVPT2 is stationary
   !! Note that IVECL for SC-NEVPT2 is in an MO (contravariant) basis
   call RHS_ZERO(iVecL)

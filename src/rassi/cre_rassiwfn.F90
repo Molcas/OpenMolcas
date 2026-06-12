@@ -17,11 +17,11 @@ subroutine cre_rassiwfn()
 use Index_Functions, only: nTri_Elem
 use kVectors, only: nk_Vector
 use rassi_global_arrays, only: JBNUM, LROOT
-use RASSIWfn, only: wfn_cmo, wfn_cmo_or, wfn_detcoeff, wfn_detcoeff_or, wfn_detocc, wfn_detocc_or, wfn_overlap, wfn_sfs_amfi, &
-                    wfn_sfs_angmom, wfn_sfs_coef, wfn_sfs_edipmom, wfn_sfs_energy, wfn_sfs_tdm, wfn_sfs_tm, wfn_sfs_tsdm, &
-                    wfn_sfs_wetdm, wfn_sos_angmomi, wfn_sos_angmomr, wfn_sos_coefi, wfn_sos_coefr, wfn_sos_dys, wfn_sos_edipmomi, &
-                    wfn_sos_edipmomr, wfn_sos_energy, wfn_sos_hsoi, wfn_sos_hsor, wfn_sos_spini, wfn_sos_spinr, wfn_sos_tm, &
-                    wfn_sos_vsoi, wfn_sos_vsor, wfn_h_hfc_rms
+use RASSIWfn, only: wfn_cmo, wfn_cmo_or, wfn_detcoeff, wfn_detcoeff_or, wfn_detocc, wfn_detocc_or, wfn_h_hfc_rms, wfn_overlap, &
+                    wfn_sfs_amfi, wfn_sfs_angmom, wfn_sfs_coef, wfn_sfs_edipmom, wfn_sfs_energy, wfn_sfs_tdm, wfn_sfs_tm, &
+                    wfn_sfs_tsdm, wfn_sfs_wetdm, wfn_sos_angmomi, wfn_sos_angmomr, wfn_sos_coefi, wfn_sos_coefr, wfn_sos_dys, &
+                    wfn_sos_edipmomi, wfn_sos_edipmomr, wfn_sos_energy, wfn_sos_hsoi, wfn_sos_hsor, wfn_sos_spini, wfn_sos_spinr, &
+                    wfn_sos_tm, wfn_sos_vsoi, wfn_sos_vsor
 use mh5, only: mh5_create_dset_real, mh5_create_dset_str, mh5_create_file, mh5_init_attr
 use Cntrl, only: CIH5, DO_TMOM, DYSO, IFSO, IFSO, IRREP, MLTPLT, NDET, NJOB, NQUAD, NSTATE, RhoDyn
 use Symmetry_Info, only: nIrrep
@@ -125,8 +125,8 @@ call mh5_init_attr(wfn_sfs_tsdm,'DESCRIPTION', &
                    'where NBAST is the sum of NBAS(I)**2 for I=1,NSYM. Only contributing symmetry blocks are stored')
 
 ! Hamiltonian HFC RMS
-wfn_h_hfc_rms= mh5_create_dset_real(wfn_fileid,'HFC_RMS', 2, [NSS,NSS])
-call mh5_init_attr(wfn_h_hfc_rms, 'DESCRIPTION','Hamiltonian HFC Root-mean-square [NSS,NSS]')
+wfn_h_hfc_rms = mh5_create_dset_real(wfn_fileid,'HFC_RMS',2,[NSS,NSS])
+call mh5_init_attr(wfn_h_hfc_rms,'DESCRIPTION','Hamiltonian HFC Root-mean-square [NSS,NSS]')
 
 if (CIH5) then
 

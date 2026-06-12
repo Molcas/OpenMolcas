@@ -23,7 +23,7 @@ subroutine MCCTL(HEFF,NSTATE,JSTATE)
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: VERBOSE
 use caspt2_module, only: E2Corr, HZERO, mState, NLYRoot
-use SC_NEVPT2, only: Do_SC, HEFF_SC, ECORR_SC
+use SC_NEVPT2, only: Do_SC, ECORR_SC, HEFF_SC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -56,7 +56,7 @@ do ISTATE=1,NSTATE
 
   if (ISTATE == JSTATE) then
     HEFF(ISTATE,JSTATE) = HEFF(ISTATE,JSTATE)+E2CORR
-    if (HZERO == 'DYALL' .and. Do_SC) HEFF_SC(ISTATE,JSTATE)=HEFF_SC(ISTATE,JSTATE)+ECORR_SC(0,0)
+    if ((HZERO == 'DYALL') .and. Do_SC) HEFF_SC(ISTATE,JSTATE) = HEFF_SC(ISTATE,JSTATE)+ECORR_SC(0,0)
   else
     ! Compute the effective Hamiltonian:
     call HEFVAL(ISTATE,JSTATE,DVALUE)

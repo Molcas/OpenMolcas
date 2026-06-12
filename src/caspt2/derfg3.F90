@@ -204,12 +204,10 @@ do iu=1,nlev
 end do
 if (IFF == 1) then
   ! Additional correction terms for F1
-  do iT=1,NLEV
-    do iU=1,NLEV
-      !! With the improved algorithm, symmetrizing the DF1
-      !! contribution to DF1 here is somehow required
-      DG1(iT,iU) = DG1(iT,iU)-(DF1(iT,iU)+DF1(iU,iT))*EPSA(iU)*Half
-    end do
+  do iU=1,NLEV
+    !! With the improved algorithm, symmetrizing the DF1
+    !! contribution to DF1 here is somehow required
+    DG1(:,iU) = DG1(:,iU)-(DF1(:,iU)+DF1(iU,:))*EPSA(iU)*Half
   end do
 # ifdef _MOLCAS_MPP_
   if (king()) then
@@ -262,8 +260,8 @@ call mma_allocate(TaskList,mxTask,4,LABEL='TaskList')
 if (iPrGlb >= VERBOSE) then
   write(u6,*)
   write(u6,'(2X,A)') 'Constructing derivatives of G3/F3'
-  write(u6,'(2X,A,F16.9,A)') ' memory avail: ',(memmax*RtoB)*1.0e-9_wp,' GB'
-  write(u6,'(2X,A,F16.9,A)') ' memory used:  ',(((3*nbuf1+6+nlev)*MXCI)*RtoB)*1.0e-9_wp,' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory avail: ',real(memmax*RtoB,kind=wp)*1.0e-9_wp,' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory used:  ',real(((3*nbuf1+6+nlev)*MXCI)*RtoB,kind=wp)*1.0e-9_wp,' GB'
   call xFlush(u6)
 end if
 !call TIMING(CPTF10,CPE,TIOTF10,TIOE)

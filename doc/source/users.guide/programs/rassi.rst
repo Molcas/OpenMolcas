@@ -1427,14 +1427,13 @@ Keywords
 :kword:`HFCOp`
   This keyword is used to calculate effective hyperfine hamiltonian with root-mean-square nuclear spin states.
 
-  By default, when :kword:`HFCOp` is present, the SEWARD module provides the isotopic mass to match nuclear spin, and g-factor for specific isotopes
-  in spin database.
+  By default, when :kword:`HFCOp` is present, the :program:`SEWARD` module provides the isotopic mass to match nuclear spin, and g-factor for specific isotopes in spin database.
 
-  The hamiltonian will be saved to RASSI.h5 and h_RMS.txt
+  The hamiltonian will be saved to :file:`RASSI.h5` and :file:`lh_RMS.txt`
 
   Keyword requirements are the same as :kword:`HFCAt` (see below).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCOp" APPEAR="Hyperfine RMS Hamiltonian" KIND="SINGLE" REQUIRE="SPIN" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCOP" APPEAR="Hyperfine RMS Hamiltonian" KIND="SINGLE" REQUIRE="SPIN" LEVEL="ADVANCED">
               %%Keyword: HFCOp <advanced>
               <HELP>
               Calculate effective hyperfine hamiltonian.
@@ -1456,17 +1455,15 @@ Keywords
     HFCAt
     all
 
-  To convert isotropic values to MHz, the nuclear g-factors of the corresponding atoms could be defined by specifying one of the following keywords:
-  :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC` and/or :kword:`HISO`.
+  To convert isotropic values to MHz, the nuclear g-factors of the corresponding atoms could be defined by specifying one of the following keywords: :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC` and/or :kword:`HISO`.
 
   By default, the keyword :kword:`AUNG` will be automatically turned on if all keywords :kword:`NMASs`, :kword:`NSPIn`, :kword:`GNUC` are absent.
 
-  Keywords :kword:`AMFI`, :kword:`RX2C`, :kword:`MXTC` (in :program:`SEWARD`) and :kword:`SPINorbit` (in :program:`RASSI`) are required.
-  |openmolcas| must be built with option :command:`-DGEN1INT=ON` for the current implementation (SO-X2C) :cite:`Feng_JChemTheoryComput_Electron_2021`.
+  Keywords :kword:`AMFI`, :kword:`RX2C`, :kword:`MXTC` (in :program:`SEWARD`) and :kword:`SPINorbit` (in :program:`RASSI`) are required. |openmolcas| must be built with option :command:`-D GEN1INT=ON` for the current implementation (SO-X2C) :cite:`Feng_JChemTheoryComput_Electron_2021`.
 
-  To obtain results in the non-relativistic limit, users can set :kword:`clight` in :program:`SEWARD` to a large value (e.g., :math:`10^{6}`).
+  To obtain results in the non-relativistic limit, users can set :kword:`CLIGht` in :program:`SEWARD` to a large value (e.g., :math:`10^{6}`).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAt" APPEAR="HFC Atoms" KIND="INTS_COMPUTED" SIZE="1" REQUIRE="SPIN" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HFCAT" APPEAR="HFC Atoms" KIND="INTS_COMPUTED" SIZE="1" REQUIRE="SPIN" LEVEL="ADVANCED">
               %<ALTERNATE KIND="CHOICE" LIST="all" />
               %Keyword: HFCAt <advanced>
               <HELP>
@@ -1475,14 +1472,14 @@ Keywords
               </KEYWORD>
 
 :kword:`NMASs`
-  This keyword specifies the mass numbers (integers, protons + neutrons) of N atoms (N defined by :kword:`HFCAt`).
+  This keyword specifies the mass numbers (integers, protons + neutrons) of :math:`N` atoms (:math:`N` defined by :kword:`HFCAt`).
 
-  For example, HgF (199Hg , 19F) can be specified as ::
+  For example, :math:`\ce{HgF}` (:math:`\ce{^{199}Hg}`, :math:`\ce{^{19}F}`) can be specified as ::
 
     NMASs
     199 19
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMASs" APPEAR="Nuclear Masses" KIND="INTS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED" REQUIRE="HFCAt.OR.HFCOp" EXCLUSIVE="NSPIn,GNUC">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMASS" APPEAR="Nuclear Masses" KIND="INTS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED" REQUIRE="HFCAT.OR.HFCOP" EXCLUSIVE="NSPIN,GNUC">
               %%Keyword: NMASs <advanced>
               <HELP>
               Nuclear masses of the HFC atoms.
@@ -1490,14 +1487,14 @@ Keywords
               </KEYWORD>
 
 :kword:`NSPIn`
-  This keyword specifies the nuclear spins of N atoms (N defined by :kword:`HFCAt`).
+  This keyword specifies the nuclear spins of :math:`N` atoms (:math:`N` defined by :kword:`HFCAt`).
 
-  For example, both 199Hg and 19F have spins of 1/2, which can be specified as ::
+  For example, both :math:`\ce{^{199}Hg}` and :math:`\ce{^{19}F}` have spins of :math:`1/2`, which can be specified as ::
 
     NSPIn
     0.5 0.5
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NSPIn" APPEAR="Nuclear Spins" KIND="REALS_LOOKUP" SIZE="ANY" REQUIRE="HFCAt.OR.HFCOp" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NSPIN" APPEAR="Nuclear Spins" KIND="REALS_LOOKUP" SIZE="ANY" REQUIRE="HFCAT.OR.HFCOP" LEVEL="ADVANCED">
               %%Keyword: NSPIn <advanced>
               <HELP>
               Nuclear spins of the HFC atoms.
@@ -1505,14 +1502,14 @@ Keywords
               </KEYWORD>
 
 :kword:`GNUC`
-  This keyword specifies the nuclear g-factors of N atoms (N defined by :kword:`HFCAt`).
+  This keyword specifies the nuclear g-factors of :math:`N` atoms (:math:`N` defined by :kword:`HFCAt`).
 
   Because the g-factor can vary depending on the measurement method, we recommend using :kword:`NMASs` or :kword:`NSPIn` values to define isotopes.
 
   To use a custom g-factor (for a hypothetical isotope or a value from new experiments), use the :kword:`HISO` keyword to bypass database matching.
 
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="GNUC" APPEAR="Nuclear g-factors" KIND="REALS_LOOKUP" SIZE="ANY" REQUIRE="HFCAt.OR.HFCOp" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="GNUC" APPEAR="Nuclear g-factors" KIND="REALS_LOOKUP" SIZE="ANY" REQUIRE="HFCAT.OR.HFCOP" LEVEL="ADVANCED">
               %%Keyword: GNUC <advanced>
               <HELP>
               Nuclear g-factor of the atoms.
@@ -1522,8 +1519,7 @@ Keywords
 :kword:`AUNG`
   When specified, the program automatically selects the most abundant isotope with a non-zero g-factor (indicating non-zero hyperfine coupling).
 
-
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="AUNG" APPEAR="AutoSelect non-zero g-factors" KIND="SINGLE" REQUIRE="HFCAt.OR.HFCOp" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="AUNG" APPEAR="AutoSelect non-zero g-factors" KIND="SINGLE" REQUIRE="HFCAT.OR.HFCOP" LEVEL="ADVANCED">
               %%Keyword: AUNG <advanced>
               <HELP>
               Selects the most abundant isotope with a non-zero g-factor.
@@ -1546,11 +1542,11 @@ Keywords
 
   The first line after HISO specifies the number of hypothetical isotopes. Subsequent lines follow the format: Atom Spin gFactor
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HISO" APPEAR="Hypothetical Isotopes" KIND="SINGLE" REQUIRE="HFCAt.OR.HFCOp" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HISO" APPEAR="Hypothetical Isotopes" KIND="SINGLE" REQUIRE="HFCAT.OR.HFCOP" LEVEL="ADVANCED">
               %<ALTERNATE KIND="REALS_COMPUTED" SIZE="3" />
               %%Keyword: HISO <advanced>
               <HELP>
-              Hypothetical Isotopes.
+              Hypothetical isotopes.
               </HELP>
               </KEYWORD>
 
@@ -1567,7 +1563,7 @@ Keywords
               </KEYWORD>
 
 :kword:`NCOU`
-  When :kword:`COUP` is absent, this keyword enforces degeneracy among the first NCOUP lowest-energy states by shifting their energies to the ground state level.
+  When :kword:`COUP` is absent, this keyword enforces degeneracy among the first ``NCOUP`` lowest-energy states by shifting their energies to the ground state level.
 
   In case :kword:`COUP` is present, a set of arbitrary states will be listed by :kword:`COUP` keyword.
 
@@ -1580,10 +1576,9 @@ Keywords
               </KEYWORD>
 
 :kword:`COUP`
-  This keyword defines a set of :kword:`NCOUP` states to share the same energy by shifting their energies to the ground state level.
+  This keyword defines a set of ``NCOUP`` states to share the same energy by shifting their energies to the ground state level.
 
-
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="COUP" APPEAR="List of Coupling states" KIND="INTS_LOOKUP" SIZE="ANY" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="COUP" APPEAR="List of Coupling States" KIND="INTS_LOOKUP" SIZE="NCOU" LEVEL="ADVANCED">
               %%Keyword: COUP <advanced>
               <HELP>
               A set of NCOUP states to share the same energy by shifting their energies.
@@ -1606,11 +1601,11 @@ Keywords
     all
 
   Keywords :kword:`AMFI`, :kword:`RX2C`, :kword:`MXTC` (in :program:`SEWARD`) and :kword:`SPINorbit` (in :program:`RASSI`) are required.
-  |openmolcas| must be built with option :command:`-DGEN1INT=ON` for the current implementation (SO-X2C) :cite:`Feng_JChemTheoryComput_Electron_2021`.
+  |openmolcas| must be built with option :command:`-D GEN1INT=ON` for the current implementation (SO-X2C) :cite:`Feng_JChemTheoryComput_Electron_2021`.
 
-  To obtain results in the non-relativistic limit, users can set :kword:`clight` in :program:`SEWARD` to a large value (e.g., :math:`10^{6}`).
+  To obtain results in the non-relativistic limit, users can set :kword:`CLIGht` in :program:`SEWARD` to a large value (e.g., :math:`10^{6}`).
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRAt" APPEAR="pNMR Atoms" KIND="INTS_COMPUTED" SIZE="1" REQUIRE="SPIN" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRAT" APPEAR="pNMR Atoms" KIND="INTS_COMPUTED" SIZE="1" REQUIRE="SPIN" LEVEL="ADVANCED">
               %<ALTERNATE KIND="CHOICE" LIST="all" />
               %%Keyword: NMRAt <advanced>
               <HELP>
@@ -1619,14 +1614,14 @@ Keywords
               </KEYWORD>
 
 :kword:`NMRTemp`
-  This keyword defines the temperatures (Kevin) for pNMR tensors. It requires three values: TMin, TMax, and the number of steps. For example: ::
+  This keyword defines the temperatures (kelvin) for pNMR tensors. It requires three values: ``TMin``, ``TMax``, and the number of steps. For example: ::
 
     NMRTemp
     270.0 330.0 3
 
   This input will generate 3 temperature values: 270, 300 and 330 K
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRTemp" APPEAR="Temperature grid for pNMR tensors" KIND="REALS_LOOKUP" REQUIRE="NMRAt" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NMRTEMP" APPEAR="Temperature grid for pNMR tensors" KIND="REALS_LOOKUP" REQUIRE="NMRAT" LEVEL="ADVANCED">
               %%Keyword: NMRTemp <advanced>
               <HELP>
               Temperature grid for pNMR tensors.
@@ -1743,7 +1738,7 @@ An SO-NTO input example from three singlets and two triplets: ::
   *SO state 1 and 3, and SO state 2 and 3.
   *Note that the states are SO coupled states.
 
-An illustrative hyperfine calculation input for HgF (199Hg, 19F): ::
+An illustrative hyperfine calculation input for :math:`\ce{HgF}` (:math:`\ce{^{199}Hg}`, :math:`\ce{^{19}F}`): ::
 
   >>COPY "Jobiph file 1" JOB001
 
@@ -1758,7 +1753,7 @@ An illustrative hyperfine calculation input for HgF (199Hg, 19F): ::
   NMASs
   199 19
 
-The above input will be equipvalent if users want to use :kword:`NSPIn` and or simplified:  ::
+The above input will be equivalent if users want to use :kword:`NSPIn` and or simplified::
 
   >>COPY "Jobiph file 1" JOB001
 
@@ -1773,7 +1768,7 @@ The above input will be equipvalent if users want to use :kword:`NSPIn` and or s
   0.5 0.5
 
 Because symmetry breaking may lift degeneracy, users can enforce degeneracy by setting :kword:`NCOU`.
-For example, consider a quick calculation for the Er atom (pseudospin = 6; the ground state has 13-fold degeneracy): ::
+For example, consider a quick calculation for the :math:`\ce{Er}` atom (pseudospin = 6; the ground state has 13-fold degeneracy)::
 
   &RASSI
   NrofJobIphs
@@ -1786,7 +1781,7 @@ For example, consider a quick calculation for the Er atom (pseudospin = 6; the g
   NCOU
   13
 
-A minimal input for pNMR by using :kword:`NMRAt` and :kword:`NMRTemp` :  ::
+A minimal input for pNMR by using :kword:`NMRAt` and :kword:`NMRTemp`::
 
   &RASSI &END
   omega
@@ -1799,7 +1794,6 @@ A minimal input for pNMR by using :kword:`NMRAt` and :kword:`NMRTemp` :  ::
   13 14 15
   NMRT
     100.0 300.0 10
-
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SODIAG" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 

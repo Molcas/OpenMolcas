@@ -12,32 +12,29 @@
 !***********************************************************************
 
 subroutine MKBNEV()
-  use caspt2_global, only: iPrGlb
-  use caspt2_module, only: MXCASE, NASHT_=>NASHT, NASUP, NINDEP, NSYM, NG1, NG2, NG3
-  use Constants, only: Zero
+
+use Index_Functions, only: nTri_Elem
+use caspt2_global, only: iPrGlb, LUSBT, LUSOLV
+use caspt2_module, only: NASHT_ => NASHT, NASUP, NG1, NG2, NG3, NINDEP, NSYM
   use PrintLevel, only: debug, verbose
   use stdalloc, only: mma_allocate, mma_deallocate
   use caspt2_global, only: LUSBT, LUSOLV, SGS
   use EQSOLV, only: IDBMAT, IDSMAT
-  use Definitions, only: iwp,wp,byte,u6
   use SC_NEVPT2, only: Do_SC, ECORR_SC, IDBMAT_NEVPT2, OVLAPS_SC
   use NEVPT2_mod, only: NASHT
 #ifdef _MOLCAS_MPP_
   use NEVPT2_E4, only: MAXBUF
   use caspt2_module, only: MXCI
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6, byte
 
   implicit none
-
-  real(kind=wp) ::  DUM(1)
+integer(kind=iwp) :: ICASE, IDISK, iLUID, ISYM, NLEV, NTRI
+real(kind=wp) :: cpe, cptf0, cptf10, cput, DUM(1), tioe, tiotf0, tiotf10, wallt
   integer(kind=byte), allocatable :: idxG3(:,:)
-! real(kind=wp), ALLOCATABLE:: F1(:), F2(:), F3(:), FD(:), FP(:)
-  integer(kind=iwp) :: ICASE, IDISK, iLUID, ISYM, NLEV
-
-  real(kind=wp), allocatable :: Hact(:,:), Gact(:,:,:,:), G1(:,:), G2(:,:,:,:), G3(:), Hbar(:,:), Htilde(:,:), WRK(:)
-
-  real(kind=wp) :: cput, cptf10, cptf0, wallt, tiotf10, tiotf0, cpe, tioe
-! logical(kind=iwp) :: check_eigen = .false.
+real(kind=wp), allocatable :: G1(:,:), G2(:,:,:,:), G3(:), Gact(:,:,:,:), Hact(:,:), Hbar(:,:), Htilde(:,:), WRK(:)
 
   if (IPRGLB >= VERBOSE) then
     write(u6,*)
@@ -95,7 +92,7 @@ subroutine MKBNEV()
       call TIMING(CPTF10,CPE,TIOTF10,TIOE)
       CPUT =CPTF10-CPTF0
       WALLT=TIOTF10-TIOTF0
-      write(u6,'(a,2f10.3)')" MKBNEV1 : CPU/WALL TIME=", cput,wallt
+    write(u6,'(a,2f10.3)') ' MKBNEV1 : CPU/WALL TIME=',cput,wallt
       call TIMING(CPTF0,CPE,TIOTF0,TIOE)
     end if
 
@@ -108,7 +105,7 @@ subroutine MKBNEV()
       call TIMING(CPTF10,CPE,TIOTF10,TIOE)
       CPUT =CPTF10-CPTF0
       WALLT=TIOTF10-TIOTF0
-      write(u6,'(a,2f10.3)')" MKBNEV2 : CPU/WALL TIME=", cput,wallt
+    write(u6,'(a,2f10.3)') ' MKBNEV2 : CPU/WALL TIME=',cput,wallt
       call TIMING(CPTF0,CPE,TIOTF0,TIOE)
     end if
 
@@ -127,7 +124,7 @@ subroutine MKBNEV()
       call TIMING(CPTF10,CPE,TIOTF10,TIOE)
       CPUT =CPTF10-CPTF0
       WALLT=TIOTF10-TIOTF0
-      write(u6,'(a,2f10.3)')" MKBNEV3 : CPU/WALL TIME=", cput,wallt
+    write(u6,'(a,2f10.3)') ' MKBNEV3 : CPU/WALL TIME=',cput,wallt
     end if
 
     call mma_deallocate(Gact)
@@ -150,17 +147,18 @@ subroutine MKBNEV()
 
   ! Copy the original B matrix
   if (Do_SC) then
-    ECORR_SC(0:8,0:MXCASE) = Zero
-    OVLAPS_SC(0:8,0:MXCASE) = Zero
+  ECORR_SC(:,:) = Zero
+  OVLAPS_SC(:,:) = Zero
     do iSym = 1, nSym
       do iCase = 1, 11
-        if (iCase == 1 .or. iCase == 4) cycle ! done in MKBNEVA_E3 and E4
+      if ((iCase == 1) .or. (iCase == 4)) cycle ! done in MKBNEVA_E3 and E4
         if (NINDEP(iSym,iCase) > 0) then
-          call mma_allocate(WRK,NASUP(iSym,iCase)*(NASUP(iSym,iCase)+1)/2,Label='WRK')
+        NTRI = nTri_Elem(NASUP(iSym,iCase))
+        call mma_allocate(WRK,NTRI,Label='WRK')
           idisk = IDBMAT(iSym,iCase)
-          call DDAFILE(LUSBT,2,WRK,NASUP(iSym,iCase)*(NASUP(iSym,iCase)+1)/2,IDISK)
+        call DDAFILE(LUSBT,2,WRK,NTRI,IDISK)
           idisk = IDBMAT_NEVPT2(iSym,iCase,1)
-          call DDAFILE(LUSBT,1,WRK,NASUP(iSym,iCase)*(NASUP(iSym,iCase)+1)/2,IDISK)
+        call DDAFILE(LUSBT,1,WRK,NTRI,IDISK)
           call mma_deallocate(WRK)
         end if
       end do

@@ -30,7 +30,7 @@ use EQSOLV, only: iDBMat
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: do_grad, imag_shift, LISTS, LUSBT, sigma_p_epsilon
 use caspt2_module, only: MXCASE, nASup, nInDep, nISup, nSym
-use SC_NEVPT2, only: SC_Prop, SC_NEVPT2_Amplitude
+use SC_NEVPT2, only: SC_NEVPT2_Amplitude, SC_Prop
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -40,8 +40,8 @@ integer(kind=iwp), intent(in) :: IVEC, JVEC, NDPT2
 real(kind=wp), intent(inout) :: DPT2(NDPT2)
 real(kind=wp), intent(in) :: SCAL
 integer(kind=iwp) :: ICASE, ISYM, jD, lg_v1, lg_v2, NAS, NIN, NIS, nVec
-real(kind=wp), allocatable :: BD(:), ID(:)
 integer(kind=iwp), allocatable :: NINDEP_tmp(:,:)
+real(kind=wp), allocatable :: BD(:), ID(:)
 #ifdef _MOLCAS_MPP_
 real(kind=wp), allocatable :: VEC1(:), VEC2(:)
 #endif
@@ -51,12 +51,12 @@ real(kind=wp), allocatable :: VEC1(:), VEC2(:)
 if (SC_Prop) then
   !! Ensure that the original NASUP is not used
   if (sigma_p_epsilon /= Zero) then
-    call warningMessage(2,'sigmar regularization cannot be used for SC-NEVPT2 properties.')
+    call warningMessage(2,'sigma regularization cannot be used for SC-NEVPT2 properties.')
     call quit_onUserError()
   end if
   call mma_allocate(NINDEP_tmp,8,MXCASE,Label='NINDEP_tmp')
-  NINDEP_tmp(1:8,1:MXCASE) = NINDEP(1:8,1:MXCASE)
-  NINDEP(1:8,1:MXCASE) = NASUP(1:8,1:MXCASE)
+  NINDEP_tmp(:,:) = NINDEP(:,:)
+  NINDEP(:,:) = NASUP(:,:)
 end if
 
 ! Inact/Inact and Virt/Virt blocks:
@@ -76,7 +76,7 @@ do ICASE=1,13
     call RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
     !! lg_V1 is IVECW if SC-NEVPT2
     if (SC_prop) call SC_NEVPT2_Amplitude(NIN,NIS,iCase,iSym,lg_V1)
-    if (IVEC == JVEC .and. .not. SC_prop) then
+    if ((IVEC == JVEC) .and. (.not. SC_prop)) then
       lg_V2 = lg_V1
     else
       call RHS_ALLO(NIN,NIS,lg_V2)
@@ -136,7 +136,7 @@ do ICASE=1,13
 #   ifdef _MOLCAS_MPP_
     end if
 #   endif
-    if (do_grad .and. (.not. SC_prop .and. ((imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero)))) then
+    if (do_grad .and. ((.not. SC_prop) .and. ((imag_shift /= Zero) .or. (sigma_p_epsilon /= Zero)))) then
       !! for sigma-p CASPT2, derivative of the denominator
       nAS = nASUP(iSym,iCase)
       call mma_allocate(BD,nAS,Label='BD')
@@ -180,7 +180,7 @@ do ICASE=1,13
     end if
 
     call RHS_FREE(lg_V1)
-    if (IVEC /= JVEC .or. SC_prop) call RHS_FREE(lg_V2)
+    if ((IVEC /= JVEC) .or. SC_prop) call RHS_FREE(lg_V2)
   end do
 end do
 #ifdef _MOLCAS_MPP_
@@ -188,7 +188,7 @@ if (Is_Real_Par() .and. do_grad) call gadgop(DPT2,NDPT2,'+')
 #endif
 
 if (SC_Prop) then
-  NINDEP(1:8,1:MXCASE) = NINDEP_tmp(1:8,1:MXCASE)
+  NINDEP(:,:) = NINDEP_tmp(:,:)
   call mma_deallocate(NINDEP_tmp)
 end if
 

@@ -1595,7 +1595,7 @@ subroutine MKCOUP(SGS,CIS,EXS)
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
-integer(kind=iwp) :: i, i1, i2, IAWS, IC, ICL, ICOP, ICR, IHALF, iLnd, IndEO, iP, iPos, iQ, iS, iSg, iSgt, iSym, iT, iTyp, &
+integer(kind=iwp) :: i, i1, i2, IAWS, IC, ICL, ICOP, ICR, IHALF, iLnd, IndEO, iP, iPos, iQ, iSg, iSgt, iSym, iT, iTyp, &
                      iTypMx, iTypT, iVlb, iVlt, iVrt, iVrTop, iVTab, iVTEnd, iVTop, iVTSta, L, Lev, Lev1, Lev2, LftSym, LL, MV, &
                      nCheck, nVTab_Final
 real(kind=wp) :: C

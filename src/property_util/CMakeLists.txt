@@ -28,7 +28,6 @@ set (sources
      getdens.F90
      gfprnt_i.F90
      hfc_logical.F90
-     spin_data.F90
      imostabundantisotope.F90
      inporbfmt.F90
      interf.F90
@@ -55,6 +54,7 @@ set (sources
      rdvec_hdf5.F90
      s2calc.F90
      seek_n_destroy.F90
+     spin_data.F90
      spinav.F90
      temperatures.F90
      tpidx2orb.F90

@@ -13,49 +13,39 @@
 
 subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
-  use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX, SGS, CIS, EXS
-  use caspt2_module, only: JSTATE, NACTEL, NCONF, NSYM, STSYM, MXCI
-  use PrintLevel, only: verbose
-  use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-  use Definitions, only: iwp,wp,u6,RtoB
-  use Constants, only: Zero, One
-! USE SUPERINDEX
-  use Symmetry_Info, only: Mul
+use Index_Functions, only: nTri_Elem
+use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, SGS, CIS, EXS
+use caspt2_module, only: JSTATE, MXCI, NACTEL, NCONF, NSYM, STSYM
+use PrintLevel, only: verbose
+use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+use Definitions, only: iwp,wp,u6,RtoB
+use Constants, only: Zero, One
+use Symmetry_Info, only: Mul
 #ifdef _MOLCAS_MPP_
-  use Para_Info, only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-  use NEVPT2_E4, only: do_xvec, do_yvec, NEVPT2_E4_contract1, NEVPT2_E4_contract2, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, &
-                       NXYVEC, NZVEC
-  use NEVPT2_E4, only: ixyzsta, ixyzend, nxyzdim, NXY_work
+use NEVPT2_E4, only: do_xvec, do_yvec, ixyzend, ixyzsta, NEVPT2_E4_contract1, NEVPT2_E4_contract2, NEVPT2_E4_XYVEC, &
+                     NEVPT2_E4_ZVEC, NXY_work, NXYVEC, nxyzdim, NZVEC
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6, RtoB
 
   implicit none
 
   integer(kind=iwp), intent(in) :: NLEV, iSym0, NBA, NBC
   real(kind=wp), intent(in) :: Gact(NLEV,NLEV,NLEV,NLEV)
-  real(kind=wp), intent(inout) :: BA(1:NBA), BC(1:NBC)
+real(kind=wp), intent(inout) :: BA(NBA), BC(NBC)
+integer(kind=iwp) :: I, IALEV, IBLEV, IDCI, IDX, IP1, IP2, IP3, IP4, IPXYEND, IPXYSTA, ISAB, ISSG1, ISSG2, ISSG3, ISSG4, ISTU, &
+                     ISVX, iSym, ISYZ, ITLEV, IULEV, IVLEV, IXLEV, ixy_local, IYLEV, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, &
+                     memory_per_xy, memory_per_xy2, memory_per_z, NCI, NLEV2, NSGM1, NSGM2, NSGM3, NSGM4, NTRI1
+real(kind=wp) :: cpe, cptf0, cptf10, cput, tioe, tiotf0, tiotf10, wallt
+integer(kind=iwp), allocatable :: IDX2IJ(:,:), IJ2IDX(:,:)
+real(kind=wp), allocatable :: BUF2(:,:), BUFT(:), CI(:), XYcont(:,:,:), XYtmp(:,:,:), XYVEC(:,:,:), ZVEC(:,:)
 
-  integer(kind=iwp) :: I,J,IDX,JDX
-  integer(kind=iwp) :: IPXYSTA,IPXYEND,IP1,IP2,IP3,IP4
-  integer(kind=iwp) :: ISTU,ISVX,ISYZ,ISAB
-! integer(kind=iwp) :: IT,IU,IV,IX,IY,IZ
-  integer(kind=iwp) :: ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV,IALEV,IBLEV
-  integer(kind=iwp) :: ISSG1,ISSG2,ISSG3,ISSG4,NSGM1,NSGM2,NSGM3,NSGM4
-  integer(kind=iwp) :: NTRI1
-  integer(kind=iwp) :: MEMMAX, MEMMAX_SAFE
-  integer(kind=iwp) :: NLEV2
-  integer(kind=iwp) :: NCI
-
-  ! translation tables for levels i,j to and from pair indices idx
-  integer(kind=iwp), allocatable :: IJ2IDX(:,:), IDX2IJ(:,:)
-  integer(kind=iwp) :: IDCI, iSym, memory_per_xy, memory_per_xy2, memory_per_z, ixy_local
+! translation tables for levels i,j to and from pair indices idx: IJ2IDX, IDX2IJ
 
   ! result buffer, maximum size is the largest possible ip1 range,
   ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
-  real(kind=wp), allocatable:: CI(:), BUFT(:), XYVEC(:,:,:), XYtmp(:,:,:)
-  real(kind=wp), allocatable :: XYcont(:,:,:), ZVEC(:,:)
-  real(kind=wp), allocatable :: BUF2(:,:)
-
-  real(kind=wp) :: cput, cptf10, cptf0, wallt, tiotf10, tiotf0, cpe, tioe
 
 ! Note
 ! If RAS, computing E_tu|Psi> for t > u is wrong?
@@ -71,14 +61,14 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
 ! Here, for regular CAS or RAS cases.
 
-  call mma_allocate(IJ2IDX,nLev,nLev,Label='IJ2IDX')
-  call mma_allocate(IDX2IJ,2,nLev**2,Label='IDX2IJ')
+nlev2 = nlev**2
+call mma_allocate(IJ2IDX,nLev,nLev,Label='IJ2IDX')
+call mma_allocate(IDX2IJ,2,nLev2,Label='IDX2IJ')
   IJ2IDX(:,:)=-1
   IDX2IJ(:,:)=-1
 
 ! Special pair index idx2ij allows true RAS cases to be handled:
-  nlev2=nlev**2
-  ntri1=(nlev2-nlev)/2
+ntri1 = nTri_Elem(nlev-1)
   idx=0
   do i=1,nlev-1
     do j=i+1,nlev
@@ -112,7 +102,7 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 ! Dummy values necessary for fooling syntax checkers:
   call mma_MaxDBLE(memmax)
 ! Use *almost* all remaining memory:
-  memmax_safe=int(dble(memmax)*0.95D0)
+memmax_safe = int(real(memmax,kind=wp)*0.95_wp)
 
   memory_per_z   = mxci   +   nlev2
   memory_per_xy  = mxci   + 2*nlev2 + 2
@@ -151,7 +141,7 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
     write(u6,'(" allocatable memory: ", i12," words")') memmax_safe
     i = i - memmax_safe
     write(u6,'(" Need an additional memory of ",i12," words")') i
-    i = int((i*RtoB)/1.0e+6_wp,kind=iwp) + 1
+  i = int(real(i*RtoB,kind=wp)/1.0e6_wp,kind=iwp)+1
     write(u6,'(" Please increase MOLCAS_MEM by roughly ",i6," (MB)")') i
     call ABEND()
   end if
@@ -160,7 +150,7 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
   call mma_allocate(XYtmp,NXYVEC,NLEV2,2,LABEL='XYtmp')
   if (do_xvec .and. do_yvec) then
     call mma_allocate(XYVEC,MXCI,NXYVEC,2,LABEL='XYVEC')
-  else if (do_xvec .and. .not.do_yvec) then
+else if (do_xvec .and. (.not. do_yvec)) then
     call mma_allocate(XYVEC,MXCI,NXYVEC,1,LABEL='XYVEC')
   end if
   call mma_allocate(XYcont,nxyvec,2,nlev2,LABEL='XYcont')
@@ -169,20 +159,20 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
     write(u6,*)
     write(u6,'(2X,A)') 'Constructing E4 terms for NEVPT2'
     write(u6,'(2X,A,1X,I1)') 'Symmetry of B matrix:', iSym0
-    write(u6,'(2X,A,F16.9,A)') ' memory available:   ', (memmax*RtoB)/1.0D9, ' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory available:   ',real(memmax*RtoB,kind=wp)*1.0e-9_wp,' GB'
     i = nconf + mxci + memory_per_xy2*nlev2 + memory_per_z*nlev2
-    write(u6,'(2X,A,F16.9,A)') ' memory sufficient:  ', (i*RtoB)/1.0D9, ' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory sufficient:  ',real(i*RtoB,kind=wp)*1.0e-9_wp,' GB'
     i = nconf + mxci + memory_per_xy*nlev2 + memory_per_z*nlev2
-    write(u6,'(2X,A,F16.9,A)') ' memory reasonable:  ', (i*RtoB)/1.0D9, ' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory reasonable:  ',real(i*RtoB,kind=wp)*1.0e-9_wp,' GB'
     i = nconf + mxci + memory_per_xy*nlev + memory_per_z*nlev
-    write(u6,'(2X,A,F16.9,A)') ' memory insufficient:', (i*RtoB)/1.0D9, ' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory insufficient:',real(i*RtoB,kind=wp)*1.0e-9_wp,' GB'
     write(u6,*)
     if (NXYVEC == 0) then
       write (u6,'(" (0) special case")')
     else if (do_xvec .and. do_yvec) then
       write (u6,'(" (1) memory sufficient strat")')
     else if (do_xvec) then
-      if (nxyvec == nlev2 .and. nzvec == nlev2) then
+    if ((nxyvec == nlev2) .and. (nzvec == nlev2)) then
         write (u6,'(" (2) memory reasonable strat")')
       else
         write (u6,'(" (3) memory insufficient strat")')
@@ -190,12 +180,12 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
     end if
     if (do_xvec .and. do_yvec) then
       i = nconf + mxci + memory_per_xy2*nxyvec + memory_per_z*nzvec
-    else if (do_xvec .and. .not.do_yvec) then
+  else if (do_xvec .and. (.not. do_yvec)) then
       i = nconf + mxci + memory_per_xy*nxyvec + memory_per_z*nzvec
     end if
-    write(u6,'(2X,A,F16.9,A)') ' memory allocated:   ', (i*RtoB)/1.0D9, ' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory allocated:   ',real(i*RtoB,kind=wp)*1.0e-9_wp,' GB'
     call mma_MaxDBLE(memmax)
-    write(u6,'(2X,A,F16.9,A)') ' memory left     :   ', (memmax*RtoB)/1.0D9, ' GB'
+  write(u6,'(2X,A,F16.9,A)') ' memory left     :   ',real(memmax*RtoB,kind=wp)*1.0e-9_wp,' GB'
     write(u6,'(2X," allocated/total Zvecs. : ",i3,"/",i3)') nzvec, nlev2
     write(u6,'(2X," allocated/total XYvecs.: ",i3,"/",i3)') nxyvec, nlev2
     call xflush(u6)
@@ -205,30 +195,26 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
   if (NXYVEC > 0) then
     SymmetryLoop: do iSym = 1, nSym !! Symmetry of CSF (I) for RI
-      if (iPrGlb >= VERBOSE) then
-        write (u6,*) "Symmetry of CSF:", iSym
-      end if
+    if (iPrGlb >= VERBOSE) write(u6,*) 'Symmetry of CSF:',iSym
       !! Stride loop of Z_{t,u}^I
       !! Construct Z_{t,u}^I for ixyzsta <= t <= ixyzend and 1 <= u <= NLEV
       XYvecLoop: do ixy_local = 1, NLEV, NXY_work
         ipxysta = 1
         ipxyend = NLEV2
         ixyzsta = ixy_local
-        ixyzend = MIN(NLEV,ixyzsta-1+NXY_work)
+      ixyzend = min(NLEV,ixyzsta-1+NXY_work)
         nxyzdim = ixyzend - ixyzsta + 1
 
-        if (iPrGlb >= VERBOSE) then
-          call TIMING(CPTF0,CPE,TIOTF0,TIOE)
-        end if
+      if (iPrGlb >= VERBOSE) call TIMING(CPTF0,CPE,TIOTF0,TIOE)
         !! Construct ZVEC
-        call NEVPT2_E4_ZVEC(NLEV,idx2ij,ij2idx,Gact,CI,ZVEC,XYVEC)
+      call NEVPT2_E4_ZVEC(NLEV,idx2ij,Gact,CI,ZVEC,XYVEC)
         !! Construct XVEC and YVEC
         call NEVPT2_E4_XYVEC(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,ZVEC,XYVEC)
         if (iPrGlb >= VERBOSE) then
           call TIMING(CPTF10,CPE,TIOTF10,TIOE)
           CPUT =CPTF10-CPTF0
           WALLT=TIOTF10-TIOTF0
-          write(u6,'(a,2f10.3)')" AC_E4(1): CPU/WALL TIME=", cput,wallt
+        write(u6,'(a,2f10.3)') ' AC_E4(1): CPU/WALL TIME=',cput,wallt
           call TIMING(CPTF0,CPE,TIOTF0,TIOE)
         end if
         !! Contract X_{y,z}^I (and Y_{y,z}^I) with <Psi|E_{tu}|I>
@@ -237,33 +223,31 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
           call TIMING(CPTF10,CPE,TIOTF10,TIOE)
           CPUT =CPTF10-CPTF0
           WALLT=TIOTF10-TIOTF0
-          write(u6,'(a,2f10.3)')" AC_E4(2): CPU/WALL TIME=", cput,wallt
+        write(u6,'(a,2f10.3)') ' AC_E4(2): CPU/WALL TIME=',cput,wallt
           call TIMING(CPTF0,CPE,TIOTF0,TIOE)
         end if
         !! Contract X_{t,u}^I (and Y_{t,u}^I) with <I|E_{vx}E_{y,z}|Psi>
-        call NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYVEC, &
-                                 BA,BC,XYcont,XYtmp,ZVEC)
+      call NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYVEC,BA,BC,XYcont,XYtmp,ZVEC)
         if (iPrGlb >= VERBOSE) then
           call TIMING(CPTF10,CPE,TIOTF10,TIOE)
           CPUT =CPTF10-CPTF0
           WALLT=TIOTF10-TIOTF0
-          write(u6,'(a,2f10.3)')" AC_E4(3): CPU/WALL TIME=", cput,wallt
+        write(u6,'(a,2f10.3)') ' AC_E4(3): CPU/WALL TIME=',cput,wallt
         end if
         !! If sufficient memory was not available, do again with YVEC
-        if (do_xvec .and. .not.do_yvec) then
+      if (do_xvec .and. (.not. do_yvec)) then
           call TIMING(CPTF0,CPE,TIOTF0,TIOE)
           do_xvec = .false.
           do_yvec = .true.
-          call NEVPT2_E4_ZVEC(NLEV,idx2ij,ij2idx,Gact,CI,ZVEC,XYVEC)
+        call NEVPT2_E4_ZVEC(NLEV,idx2ij,Gact,CI,ZVEC,XYVEC)
           call NEVPT2_E4_XYVEC(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,ZVEC,XYVEC)
           call NEVPT2_E4_contract1(iSym0,iSym,NLEV,idx2ij,ipxysta,ipxyend,BUFT,CI,XYVEC,BA,BC,XYcont)
-          call NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYVEC, &
-                                   BA,BC,XYcont,XYtmp,ZVEC)
+        call NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYVEC,BA,BC,XYcont,XYtmp,ZVEC)
           if (iPrGlb >= VERBOSE) then
             call TIMING(CPTF10,CPE,TIOTF10,TIOE)
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
-            write(u6,'(a,2f10.3)')" AC_E4(4): CPU/WALL TIME=", cput,wallt
+          write(u6,'(a,2f10.3)') ' AC_E4(4): CPU/WALL TIME=',cput,wallt
           end if
           do_xvec = .true.
           do_yvec = .false.
@@ -271,14 +255,14 @@ subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
       end do XYvecLoop
     end do SymmetryLoop
   else
-    write (u6,*) "notyet"
+  write(u6,*) 'notyet'
     call abend()
     !! least memory strategy: directly compute E*E*E*E
     call mma_deallocate(BUFT)
     call mma_allocate(BUFT,1,LABEL='BUFT')
 
     call mma_MaxDBLE(memmax)
-    memmax_safe=int(dble(memmax)*0.95D0)
+  memmax_safe = int(real(memmax,kind=wp)*0.95_wp)
     if (memmax_safe/mxci <= 4) then
       write(u6,*)' Too little memory left for MKBNEVAC_E4.'
       write(u6,*)' Need at least 4 vector of length MXCI=',MXCI

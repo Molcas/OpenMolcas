@@ -16,8 +16,8 @@ use Definitions, only: iwp
 implicit none
 private
 
-logical(kind=iwp) :: MagX2C_Avail, UHF_HFC
 integer(kind=iwp) :: MagX2C_Req
+logical(kind=iwp) :: MagX2C_Avail, UHF_HFC
 
 ! VARIABLE DESCRIPTION
 !
@@ -36,6 +36,6 @@ integer(kind=iwp) :: MagX2C_Req
 !
 ! NOTE: MagX2C_Req is used for handling input instead of calling iRdOne.
 
-public :: MagX2C_Avail, UHF_HFC, MagX2C_Req
+public :: MagX2C_Avail, MagX2C_Req, UHF_HFC
 
 end module HFC_logical

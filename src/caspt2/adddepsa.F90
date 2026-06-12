@@ -41,11 +41,11 @@ do iSym=1,nSym
     do iOrb0=1,nAsh(iSym)
       ! iOrb1 = nIsh(iSym)+iOrb0
       iOrb2 = nFro(iSym)+nIsh(iSym)+iOrb0
-      itabs = iOrb0 + NAES(iSym)
+      itabs = iOrb0+NAES(iSym)
       do jOrb0=1,nAsh(iSym)
         ! jOrb1 = nIsh(iSym)+jOrb0
         jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
-        iuabs = jOrb0 + NAES(iSym)
+        iuabs = jOrb0+NAES(iSym)
         DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1)) = DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))+DEPSA(itabs,iuabs)
       end do
     end do

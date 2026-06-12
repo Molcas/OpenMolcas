@@ -1053,7 +1053,7 @@ Keywords
   Property calculations (analytical derivatives) are performed with the PC-NEVPT2 wavefunction.
   :kword:`NEVPt2` and :kword:`PCNEvpt2` are valid synonyms.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NEVPT2" APPEAR="PC-NEVPT2" KIND="SINGLE" LEVEL="ADVANCED" ALSO="NEVPT2,PCNEVPT2">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="PC-NEVPT2" APPEAR="PC-NEVPT2" KIND="SINGLE" LEVEL="ADVANCED" ALSO="NEVPT2,PCNEVPT2">
               %%Keyword: NEVPT2 <advanced>
               <HELP>
               Perform PC-NEVPT2 calculations.
@@ -1074,11 +1074,11 @@ Keywords
               </KEYWORD>
 
 :kword:`SCTHreshold`
-  This keyword specifies the threshold for ignoring vanishing denominators in SC-NEVPT2 (default = 1.0D-09).
+  This keyword specifies the threshold for ignoring vanishing denominators in SC-NEVPT2 (default = 1.0d-09).
   If a perturbative energy denominator falls below this threshold, the corresponding contribution is simply neglected.
   Although this threshold can be tightened, excessively tight values will cause the perturbative energy to diverge.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SCTHRESHOLD" APPEAR="SC_threshold" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="1.0D-09" MIN_VALUE="0.0">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SCTHRESHOLD" APPEAR="SC_threshold" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="1.0d-09" MIN_VALUE="0.0">
               %%Keyword: SC_threshold <advanced>
               <HELP>
               Threshold for vanishing denominators with SC-NEVPT2.

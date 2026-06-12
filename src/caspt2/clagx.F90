@@ -28,15 +28,12 @@ implicit none
 integer(kind=iwp), intent(in) :: IFF, nConf, nRoots, nState, nAshT
 real(kind=wp), intent(inout) :: CLag(nConf,nRoots), DEPSA(nAshT,nAshT)
 real(kind=wp), intent(in) :: VECROT(nState)
-integer(kind=iwp) :: ILEV, JLEV, nLev
+integer(kind=iwp) :: ILEV, nLev
 real(kind=wp) :: DEASUM
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, TIOE, TIOTF0, TIOTF10, WALLT
 real(kind=wp), allocatable :: G3(:)
-real(kind=wp), allocatable, target :: G1(:), G2(:), DG1(:), DG2(:), DG3(:)
-real(kind=wp), allocatable, target :: F1_H(:), F2_H(:)
-real(kind=wp), pointer :: F1(:), F2(:)
-real(kind=wp), allocatable, target :: DF1_H(:), DF2_H(:), DF3_H(:)
-real(kind=wp), pointer :: DF1(:), DF2(:), DF3(:)
+real(kind=wp), allocatable, target :: DF1_H(:), DF2_H(:), DF3_H(:), DG1(:), DG2(:), DG3(:), F1_H(:), F2_H(:), G1(:), G2(:)
+real(kind=wp), pointer :: DF1(:), DF2(:), DF3(:), F1(:), F2(:)
 
 nLev = SGS%nLev
 
@@ -119,9 +116,7 @@ if (IFF == 1) then
   do ILEV=1,nLev
     DG1(ILEV+nLev*(ILEV-1)) = DG1(ILEV+nLev*(ILEV-1))+DEASUM*EPSA(SGS%L2ACT(ILEV))
     if (ISCF == 0) then
-      do JLEV=1,nAshT
-        DEPSA(JLEV,ILEV) = DEPSA(JLEV,ILEV)+DEASUM*G1(JLEV+nLev*(ILEV-1))
-      end do
+      DEPSA(:,ILEV) = DEPSA(:,ILEV)+DEASUM*G1(nLev*(ILEV-1)+1:nLev*ILEV)
     else
       !! ?
     end if
@@ -159,9 +154,7 @@ call mma_deallocate(DF2_H)
 call mma_deallocate(DF3_H)
 
 if (HZERO == 'DYALL') then
-  if (IPRGLB >= VERBOSE) then
-    call TIMING(CPTF0,CPE,TIOTF0,TIOE)
-  end if
+  if (IPRGLB >= VERBOSE) call TIMING(CPTF0,CPE,TIOTF0,TIOE)
   call BDerNEV_E4(nConf,nLev,CLag(1,jState))
   if (IPRGLB >= VERBOSE) then
     call TIMING(CPTF10,CPE,TIOTF10,TIOE)
