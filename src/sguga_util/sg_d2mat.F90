@@ -15,38 +15,17 @@
 Subroutine sg_d2mat(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,nD2MAT)
 
 use Index_functions, only: iTri
-use sguga, only: CIStruct, EXStruct, SGStruct
-use definitions, only: iwp, wp
-
-implicit none
-type(SGStruct), intent(in) :: SGS
-type(CIStruct), intent(in) :: CIS
-type(EXStruct), intent(inout) :: EXS
-integer(kind=iwp), intent(in) :: PsiSym, nCSFs, nD2MAT
-real(kind=wp), intent(in) :: Psi(nCSFs)
-real(kind=wp), intent(out) :: D2MAT(nD2MAT)
-
-!If (lRas==0) Then
-   Call Mk_D2MAT_CASSCF(SGS,CIS,EXS,D2MAT,nD2MAT,Psi,nCSFs,PsiSym)
-!Else
-!   Call Mk_D2MAT_RASSCF(SGS,CIS,EXS,D2MAT,nD2MAT,Psi,nCSFs,PsiSym)
-!End If
-
-Contains
-
-Subroutine Mk_D2MAT_CASSCF(SGS,CIS,EXS,D2MAT,nD2MAT,Psi,nCSFs,PsiSym)
-
 use stdalloc, only: mma_allocate, mma_deallocate
 use sguga, only: CIStruct, EXStruct, SGStruct
 use Constants, only: Zero, One
 use Definitions, only: iwp, wp
 
 Implicit none
-type(SGStruct), intent(in) :: SGS
-type(CIStruct), intent(in) :: CIS
+type(SGStruct), intent(in)    :: SGS
+type(CIStruct), intent(in)    :: CIS
 type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp), intent(in) :: PsiSym, nCSFs, nD2MAT
-real(kind=wp), intent(in) :: Psi(nCSFs)
+real(kind=wp), intent(in)     :: Psi(nCSFs)
 real(kind=wp), intent(inout) :: D2MAT(nD2MAT)
 
 real(kind=wp), Allocatable, Target :: Eij_Psi_X(:), Elk_Psi_X(:)
@@ -96,6 +75,7 @@ Do jOrb =1, iOrb
    Elk_Psi(1:mCSFs)=>Elk_Psi_X
 
 !  Operate with E_ij on |Psi> and produce E_ij|Psi>
+!  Note, iOrb>=jOrb
 !
 !  Compute Dij to be distributed below
 !
@@ -105,8 +85,14 @@ Do jOrb =1, iOrb
       D_ij=Dot_Product(Psi,Eij_Psi)
    Else
       If (iSym==jSym) D_ij=Dot_Product(Psi,Eij_Psi)
+      ! now add E_ji|Psi> to E_ij|Psi>
       Call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eij_Psi)
    End If
+!
+!  Note, in the case of a RASSCF the resulting sigma vector is incomplete. For the case of E_ij
+!  the complete expansion of E_ij|Psi> would require CSFs that are outside the set of CSFs defining the
+!  RAS expansion. However, if we cap this sigma vector with vectors that have zero coefficient for these
+!  external CSFs we experience no errors.
 
    Do kOrb=1,iOrb
       kSym=SGS%ISM(kOrb)
@@ -122,6 +108,7 @@ Do jOrb =1, iOrb
       D2MAT(ikljOrb)=D2MAT(ikljOrb) - D_ij
    End Do
 
+   ! kOrb>=lOrb
    Do kOrb=iOrb,SGS%nLev
       kSym=SGS%ISM(kOrb)
       lOrb_Min=1
@@ -132,7 +119,8 @@ Do jOrb =1, iOrb
       klSym=iEOR(kSym-1,lSym-1)+1
       If (ijSym/=klSym) Cycle
 
-!     Operate with E_lk on |Psi> and produce E_lk|Psi>
+!     Operate with E_lk on |Psi> and produce E_lk|Psi>. Note, since k>=l E_lk|Psi>
+!     is completely definded by the CSFs of the RASSCF space.
 
       Elk_Psi(1:mCSFs)=Zero
      ! <Psi|E_kl is computed as E_lk|Psi>
@@ -153,7 +141,5 @@ End Do
 
 Call mma_deallocate(Elk_Psi_X)
 Call mma_deallocate(Eij_Psi_X)
-
-End Subroutine Mk_D2MAT_CASSCF
 
 End Subroutine sg_d2mat

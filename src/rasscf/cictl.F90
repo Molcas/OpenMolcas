@@ -551,7 +551,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         End If
         Call mma_deallocate(D_sguga)
 
-        If (SGS%nRsPrt==1) Then
+        If (SGS%nRsPrt==1 .or. SGS%nRsPrt==3) Then
         call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
         Check_D1=Sum(Abs(Ptmp))
         Write (6,*) 'Check_D2=',Check_D1
