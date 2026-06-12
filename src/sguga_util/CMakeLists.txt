@@ -15,6 +15,7 @@ set (sources
      sg_d1mat.F90
      sg_d2mat.F90
      sg_epq_psi.F90
+     sg_h_psi.F90
      sg_mstow.F90
      sg_num.F90
      sg_phase.F90
