@@ -75,7 +75,7 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
     unused_opt(initial_occ)
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
-      if (DBG) write(u6,*) ' Call SG_Init_Simple'
+      if (DBG) write(u6,*) ' Call SG_Init'
       call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                    &
                    nRas,nRasEl,nRsPrt,                           &
                    EXS,                                          &

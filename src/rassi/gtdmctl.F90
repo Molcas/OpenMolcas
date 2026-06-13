@@ -393,12 +393,11 @@ if (WFTP1 == 'GENERAL') then
   NRASEL(3) = NACTE1
 
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
+    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1),EXS(1))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
       call SG_Print(SGS(1))
     end if
-    call SG_CXInit(SGS(1),CIS(1),EXS(1))
     ! CI sizes, as function of symmetry, are now known.
     NCONF1 = CIS(1)%NCSF(LSYM1)
   else
@@ -517,12 +516,11 @@ if (WFTP2 == 'GENERAL') then
   NRASEL(3) = NACTE2
 
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),EXS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
     end if
-    call SG_CXInit(SGS(2),CIS(2),EXS(2))
     ! CI sizes, as function of symmetry, are now known.
     NCONF2 = CIS(2)%NCSF(LSYM2)
   else

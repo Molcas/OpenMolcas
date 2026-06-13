@@ -79,12 +79,11 @@ if (WFTYP1 == 'GENERAL') then
   NRASEL(1) = 2*NRS1T-NHOL11
   NRASEL(2) = NACTE1-NELE31
   NRASEL(3) = NACTE1
-  call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
+  call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1),EXS(1))
   if (IPGLOB > 4) then
     write(u6,*) 'Split-graph structure for JOB1=',JOB1
     call SG_Print(SGS(1))
   end if
-  call SG_CXInit(SGS(1),CIS(1),EXS(1))
   ! CI sizes, as function of symmetry, are now known.
   NCI1 = CIS(1)%NCSF(LSYM1)
 else
@@ -145,12 +144,11 @@ if (LOWROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),EXS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
     end if
-    call SG_CXInit(SGS(2),CIS(2),EXS(2))
     ! CI sizes, as function of symmetry, are now known.
     NCI2 = CIS(2)%NCSF(LSYM2)
   else
@@ -212,12 +210,11 @@ if (UPROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),EXS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
     end if
-    call SG_CXInit(SGS(2),CIS(2),EXS(2))
     ! CI sizes, as function of symmetry, are now known.
     NCI2 = CIS(2)%NCSF(LSYM2)
   else

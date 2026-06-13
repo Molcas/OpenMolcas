@@ -132,8 +132,7 @@ integer(kind=iwp), parameter ::                                                 
                                 ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1]
 
 
-public :: CIStruct, EXStruct, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, MkNrCOUP, SG_Free, &
-          SG_Init, SG_Init_Simple, SGStruct
+public :: SGStruct, CIStruct, EXStruct, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, MkNrCOUP, SG_Free, SG_Init, SG_Init_Simple
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
