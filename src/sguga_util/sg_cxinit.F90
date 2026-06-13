@@ -11,7 +11,7 @@
 
 subroutine SG_CXInit(SGS,CIS,EXS)
 
-use sguga, only: CIStruct, EXStruct, MkCoup, MkSeg, NrCoup, SGStruct
+use sguga, only: SGStruct, CIStruct, EXStruct, MkCoup, MkSeg, MkNrCoup
 use stdalloc, only: mma_deallocate
 
 implicit none
@@ -23,15 +23,11 @@ CIS%nMidV = SGS%MVEnd-SGS%MVSta+1
 CIS%nIpWlk = 1+(SGS%MidLev-1)/15
 CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/15)
 
-! Calculate segment values, and MVL and MVR tables:
+! Calculate segment values
 
 call MkSeg(SGS,CIS,EXS)
 
-! Various offset tables:
-
-call NrCoup(SGS,CIS,EXS)
-
-! Computed in NrCoup:
+call MkNrCoup(SGS,CIS,EXS)
 
 call MkCoup(SGS,CIS,EXS)
 

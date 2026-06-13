@@ -132,7 +132,7 @@ integer(kind=iwp), parameter ::                                                 
                                 ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1]
 
 
-public :: CIStruct, EXStruct, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, NrCOUP, SG_Free, &
+public :: CIStruct, EXStruct, MkCOT, MkCoup, MkMAW, MkSeg, MkSgNum, MKSGUGA, MkNrCOUP, SG_Free, &
           SG_Init, SG_Init_Simple, SGStruct
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
@@ -739,7 +739,7 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
     call MKSEG(SGS,CIS,EXS)
 
     ! Count coupling coefficients in compressed blocks indexed by excitation/operator type, symmetry and midvertex.
-    call NRCOUP(SGS,CIS,EXS)
+    call MkNRCOUP(SGS,CIS,EXS)
 
     ! Explicitly generates the compressed coupling tuples '(left walk, right walk, value index)' and compacts repeated
     ! numerical values into 'VTab'.
@@ -1036,7 +1036,7 @@ write(u6,*) ' NR OF CONFIGURATIONS/SYMM:'
 write(u6,'(8(1X,I8))') (CIS%NCSF(IS),IS=1,SGS%nSym)
 write(u6,*)
 write(u6,*)
-write(u6,*) ' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
+write(u6,*) ' NR OF WALKS AND CONFIGURATIONS IN MkNRCOUP'
 write(u6,*) ' BY MIDVERTEX AND SYMMETRY.'
 do MV=1,CIS%nMidV
   write(u6,'(A,I2,A,8I6)') '  MV=',MV,'    UPPER WALKS:',(CIS%NOW(1,IS,MV),IS=1,SGS%nSym)
@@ -1265,7 +1265,7 @@ end do
 
 end subroutine MKSEG
 
-subroutine NRCOUP(SGS,CIS,EXS)
+subroutine MkNRCOUP(SGS,CIS,EXS)
 
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
@@ -1337,7 +1337,7 @@ do IVLT=1,SGS%MVSta-1                     ! Loop from head vertex to last vertex
           do IP=LEV+1,SGS%nLev
             INDEOT = IP+(ITVPT(ISGT)-1)*SGS%nLev
             IPQ = (IP*(IP-1))/2+LEV
-            INDEOB = IPQ+2*SGS%nLev
+            INDEOB = 2*SGS%nLev + IPQ
             NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB)+NRL(ITSYM,IVLT,INDEOT)
           end do
         case default
@@ -1350,10 +1350,11 @@ do IVLT=1,SGS%MVSta-1                     ! Loop from head vertex to last vertex
   end do
 end do
 
+! store the accumulated number of upper walks
 MXUP = 0
-do MV=1,CIS%nMidV
-  IVLT = MV+SGS%MVSta-1 ! Get the absolute vertex index
-  do LFTSYM=1,SGS%nSym
+do MV=1,CIS%nMidV                  ! loop over midverticies
+  IVLT = MV+SGS%MVSta-1            ! Get the absolute vertex index
+  do LFTSYM=1,SGS%nSym             ! Loop over symmetries
     CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))
     do INDEO=1,EXS%MxEO
@@ -1363,7 +1364,6 @@ do MV=1,CIS%nMidV
 end do
 
 ! For lower walks
-
 NRL(:,SGS%MVSta:SGS%nVert,:) = 0
 NRL(1,SGS%nVert,0) = 1
 
@@ -1429,7 +1429,7 @@ do INDEO=1,EXS%MxEO
   do MV=1,CIS%nMidV
     do LFTSYM=1,SGS%nSym
       EXS%IOCP(INDEO,LFTSYM,MV) = EXS%nICOup
-      EXS%nICOup = EXS%nICOup+EXS%NOCP(INDEO,LFTSYM,MV)
+      EXS%nICOup = EXS%nICOup +  EXS%NOCP(INDEO,LFTSYM,MV)
     end do
   end do
 end do
@@ -1505,7 +1505,7 @@ write(u6,'(8(1X,I8))') (CIS%NCSF(IS),IS=1,SGS%nSym)
 write(u6,*)
 
 write(u6,*)
-write(u6,*) ' NR OF WALKS AND CONFIGURATIONS IN NRCOUP'
+write(u6,*) ' NR OF WALKS AND CONFIGURATIONS IN MkNRCOUP'
 write(u6,*) ' BY MIDVERTEX AND SYMMETRY.'
 do MV=1,CIS%nMidV
   write(u6,*)
@@ -1564,7 +1564,7 @@ end do
 
 call mma_deallocate(NRL)
 
-end subroutine NRCOUP
+end subroutine MkNRCOUP
 
 subroutine MKCOUP(SGS,CIS,EXS)
 ! Purpose: Compute and return the table ICOUP(1..3,ICOP).
