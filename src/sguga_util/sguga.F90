@@ -2418,10 +2418,160 @@ subroutine MKTRANS(SGS,CIS,TRS)
 
 !#ifdef _VERIFY_
 
-  call DumpAndCheckAllTransitionBuckets(SGS,CIS,TRS)
+  If (.FALSE.) Then
+    call DumpAndCheckAllTransitionBuckets(SGS,CIS,TRS)
+  Else
+    call DumpAndCheckAllTransitionBuckets_Basic(SGS,CIS,TRS)
+  End If
 
 contains
 
+subroutine DumpAndCheckAllTransitionBuckets_Basic(SGS,CIS,TRS)
+  implicit none
+
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(TRStruct), intent(in) :: TRS
+
+  integer(kind=iwp) :: IVLT, ICLASS, ISGT
+  integer(kind=iwp) :: NDIR, NTRB, IT0, ITR, K
+  integer(kind=iwp) :: IVLB, ITOP, IBOT
+  logical           :: mismatch
+
+  ! Directly reconstructed bucket contents from old logic
+  integer(kind=iwp), allocatable :: D_ISGT(:), D_IVLB(:)
+  integer(kind=iwp), allocatable :: D_ITOP(:), D_IBOT(:)
+
+  ! At most nSeg entries can appear in one bucket
+  allocate(D_ISGT(nSeg), D_IVLB(nSeg))
+  allocate(D_ITOP(nSeg), D_IBOT(nSeg))
+
+  write(u6,*) ' '
+  write(u6,*) '==========================================================='
+  write(u6,*) 'MKTRANS: reduced bucket comparison against old logic'
+  write(u6,*) 'Checks only ISGT, IVLB, ITOP, IBOT'
+  write(u6,*) '==========================================================='
+  write(u6,*) ' '
+
+  do ICLASS = 0, TRS%nClass-1
+
+    write(u6,'(A,I4)') '--- INPUT CLASS = ', ICLASS
+
+    do IVLT = 1, SGS%nVert
+
+      ! ---------------------------------------------------------
+      ! Reconstruct direct bucket contents from old logic
+      ! ---------------------------------------------------------
+      NDIR = 0
+
+      do ISGT = 1, nSeg
+
+        IVLB = CIS%ISGM(IVLT,ISGT)
+        if (IVLB == 0) cycle
+
+        ITOP = ITVPT(ISGT)
+        if (ITOP /= ICLASS) cycle
+
+        IBOT = IBVPT(ISGT)
+
+        NDIR = NDIR + 1
+
+        D_ISGT(NDIR) = ISGT
+        D_IVLB(NDIR) = IVLB
+        D_ITOP(NDIR) = ITOP
+        D_IBOT(NDIR) = IBOT
+
+      end do
+
+      ! ---------------------------------------------------------
+      ! Read the transition bucket from TRS
+      ! ---------------------------------------------------------
+      NTRB = TRS%NTR(IVLT,ICLASS)
+      IT0  = TRS%ITR0(IVLT,ICLASS)
+
+      write(u6,'(A,I6,A,I4,A,I4)') 'IVLT=',IVLT, ' direct=',NDIR, ' trs=',NTRB
+
+      if (NDIR == 0 .and. NTRB == 0) cycle
+
+      write(u6,*) '  Direct reconstruction:'
+      if (NDIR == 0) then
+        write(u6,*) '    [empty]'
+      else
+        do K = 1, NDIR
+          write(u6,*) '    k=',K, &
+                      ' ISGT=',D_ISGT(K), &
+                      ' IVLB=',D_IVLB(K), &
+                      ' ITOP=',D_ITOP(K), &
+                      ' IBOT=',D_IBOT(K)
+        end do
+      end if
+
+      write(u6,*) '  TRS bucket:'
+      if (NTRB == 0) then
+        write(u6,*) '    [empty]'
+      else
+        do K = 1, NTRB
+          ITR = IT0 + K
+          write(u6,*) '    k=',K, &
+                      ' ISGT=',TRS%ISGT(ITR), &
+                      ' IVLB=',TRS%IVLB(ITR), &
+                      ' ITOP=',TRS%ITOP(ITR), &
+                      ' IBOT=',TRS%IBOT(ITR)
+        end do
+      end if
+
+      ! ---------------------------------------------------------
+      ! Compare bucket sizes
+      ! ---------------------------------------------------------
+      mismatch = .false.
+
+      if (NDIR /= NTRB) then
+        write(u6,*) '  >>> MISMATCH: bucket size differs.'
+        mismatch = .true.
+      end if
+
+      ! ---------------------------------------------------------
+      ! Compare entry by entry
+      ! ---------------------------------------------------------
+      if (.not. mismatch) then
+        do K = 1, NDIR
+          ITR = IT0 + K
+
+          if (TRS%ISGT(ITR) /= D_ISGT(K)) mismatch = .true.
+          if (TRS%IVLB(ITR) /= D_IVLB(K)) mismatch = .true.
+          if (TRS%ITOP(ITR) /= D_ITOP(K)) mismatch = .true.
+          if (TRS%IBOT(ITR) /= D_IBOT(K)) mismatch = .true.
+
+          if (mismatch) then
+            write(u6,*) '  >>> MISMATCH at entry k =', K
+            write(u6,*) '      Direct: ', D_ISGT(K), D_IVLB(K), D_ITOP(K), D_IBOT(K)
+            write(u6,*) '      TRS   : ', TRS%ISGT(ITR), TRS%IVLB(ITR), TRS%ITOP(ITR), TRS%IBOT(ITR)
+            exit
+          end if
+        end do
+      end if
+
+      if (mismatch) then
+        write(u6,*) 'MKTRANS ERROR: reduced bucket check failed.'
+        write(u6,*) '  Failing vertex =', IVLT
+        write(u6,*) '  Failing class  =', ICLASS
+        call Abend()
+      else
+        write(u6,*) '  bucket OK'
+      end if
+
+    end do
+
+    write(u6,*) ' '
+  end do
+
+  write(u6,*) 'MKTRANS: all reduced bucket checks passed.'
+  write(u6,*) ' '
+
+  deallocate(D_ISGT, D_IVLB)
+  deallocate(D_ITOP, D_IBOT)
+
+end subroutine DumpAndCheckAllTransitionBuckets_Basic
 
 subroutine DumpAndCheckAllTransitionBuckets(SGS,CIS,TRS)
   implicit none
