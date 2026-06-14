@@ -27,8 +27,8 @@ use Molcas, only: LenIn
 use spin_data, only: free_spin_data, get_first_nonzero_GNUC, GNUC_by_nucspin, GNUC_NUCSPIN_by_nucmass, init_spin_data, &
                      NUCSPIN_by_gnuc
 use Cntrl, only: AngMom_idx, ASD_idx, Atens_Req, AutoSelect_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, &
-                 MLTPLT, NATens_Calc, NAtoms, NCOUP, NMass_set, NPNMR_Calc, NPROP, NSpin_set, NSTATE, NTP, NucMass, NucSpin, &
-                 pNMR_req, PSO_idx, TMAXP, TMINP
+                 LPRPR, MLTPLT, NATens_Calc, NAtoms, NCOUP, NMass_set, NPNMR_Calc, NPROP, NSpin_set, NSTATE, NTP, NucMass,     &
+                 NucSpin, pNMR_req, PSO_idx, TMAXP, TMINP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Twelve, Half, cZero, auTocm, auToHz, auTokJ, c_in_au, gElectron, kBoltzmann, &
                      proton_mass_in_au
@@ -66,8 +66,8 @@ integer(kind=iwp) :: iACalc, ipNMR_Calc, n_uniq_ener, NSS
 real(kind=wp) :: Atens_fac, e_spin, ETHR_in_cm
 logical(kind=iwp) :: do_calc, do_EPR, do_pNMR
 integer(kind=iwp), allocatable :: degen_end_idx(:), degen_group(:), degen_start_idx(:), LAtNumb(:), MAPST(:)
-real(kind=wp), allocatable :: C_tens(:,:,:), CGo_mat(:,:), CGx_mat(:,:), CGy_mat(:,:), Curie_ChemShift(:,:,:), dE_inv(:,:), &
-                              ESO(:), h_hfc_rms(:,:), h_rms_nuc(:,:), LinRes_ChemShift(:,:,:), LR_tens(:,:,:), pBoltz(:,:), &
+real(kind=wp), allocatable :: C_tens(:,:,:), CGo_mat(:,:), CGx_mat(:,:), CGy_mat(:,:), C_shifts(:,:,:), dE_inv(:,:), &
+                              ESO(:), h_hfc_rms(:,:), h_rms_nuc(:,:), LR_shifts(:,:,:), LR_tens(:,:,:), pBoltz(:,:), &
                               prin_vals(:,:,:), Temp_in_K(:), Z_HFC_int_oper(:,:,:,:), Z_HFC_over_dE(:,:,:,:)
 complex(kind=wp), allocatable :: h_FC(:,:,:), h_FCSD(:,:,:), h_PSO(:,:,:), h_SD(:,:,:), h_TOT(:,:,:), h_Zeeman(:,:,:), USO(:,:)
 logical(kind=iwp), allocatable :: signs_resolved(:)
@@ -78,7 +78,7 @@ character, allocatable :: LStability(:)
 real(kind=wp), parameter :: alpha2 = One/(c_in_au*c_in_au), au2J = auTokJ*1.0e3_wp, beta_e = One/(Two*c_in_au), &
                             beta_n = beta_e/proton_mass_in_au, con_to_MHz = -gElectron*beta_e*beta_n*auToHz*1.0e-6_wp, &
                             kBoltzman_in_cm = kBoltzmann*auTocm/au2J, to_ppm = 1.0e6_wp*auTocm*alpha2, TwoThird = Two/Three
-character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: '[TOTAL]','[FC]', '[SD]','[FCSD]','[PSO]']
+character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: 'FC', 'SD','FCSD','PSO','TOTAL']
 character, parameter :: xyz(3) = ['x','y','z']
 
 public :: Hyperfine_Oper
@@ -235,8 +235,8 @@ subroutine setup_pNMR_calc(PROP)
   real(kind=wp) :: dlt_E, dlt_T, Zstat
   real(kind=wp), parameter :: dltE_cutoff = 1.0e-6_wp, pBoltz_cutoff = 1.0e-100_wp
 
-  call mma_allocate(Curie_ChemShift,NPNMR_Calc,4,NTP,Label='Curie_ChemShift')
-  call mma_allocate(LinRes_ChemShift,NPNMR_Calc,4,NTP,Label='LinRes_ChemShift')
+  call mma_allocate(C_shifts,NPNMR_Calc,4,NTP,Label='Curie_ChemShift')
+  call mma_allocate(LR_shifts,NPNMR_Calc,4,NTP,Label='LinRes_ChemShift')
 
   ! Initialize temperature grid
   call mma_allocate(Temp_in_K,NTP,Label='Temp_in_K')
@@ -311,57 +311,77 @@ subroutine calc_h_HFC(iAtom,PROP)
     end do
   end do
 
-  if (do_EPR .or. do_pNMR) then
-    write(u6,*)
-    write(u6,'(3X,A30)') repeat('=',30)
-    if (do_EPR .and. do_pNMR) write(u6,'(3X,A24,A6)') 'HFC & pNMR Calc. for :: ',LAtomLbl(iAtom)
-    if (do_EPR .and. .not. do_pNMR) write(u6,'(6X,A17,A6)') 'HFC Calc. for :: ',LAtomLbl(iAtom)
-    if (.not. do_EPR .and. do_pNMR) write(u6,'(6X,A18,A6)') 'pNMR Calc. for :: ',LAtomLbl(iAtom)
-    write(u6,'(3X,A30)') repeat('=',30)
-  end if
+  if(do_EPR .or. do_pNMR) then
+    write(u6,*) ""
+    write(u6,'(3X,A30)') repeat("=",30)
+    if (do_EPR .and. do_pNMR)       write(u6,'(3X,A24,A6)') "HFC & pNMR Calc. for :: ", LAtomLbl(iAtom)
+    if (do_EPR .and. .not. do_pNMR) write(u6,'(6X,A17,A6)') "HFC Calc. for :: ", LAtomLbl(iAtom)
+    if (.not. do_EPR .and. do_pNMR) write(u6,'(6X,A18,A6)') "pNMR Calc. for :: ", LAtomLbl(iAtom)
+    write(u6,'(3X,A30)') repeat("=",30)
+    write(u6,*) ""
+    write(u6,*) ""
+  endif
 
-  ! NOTE: While it is possible to make the code concise by enclosing if(do_EPR) or do_pNMR
-  !    for different contributions FC, SD,... it has been made by design that
-  !    the code always prints partial output A_tensor or principal values
-  !    in case of abnormal termination. Most users need A_tens and prinval more
-  !    than hamiltonian.
-  !-----------------------------------
+
+! CALCULATE HAMILTONIAN
   call calc_h_FC(ASD(6,:,:))
-  if (do_EPR) then
-    call calc_A_tens(A_tens,h_FC)
-    call calc_prin_val(iAtom,A_tens,1)
-  end if
-  if (do_pNMR) call calc_pNMR_Tensor(iAtom,h_FC,1)
-  !-----------------------------------
   call calc_h_SD(ASD)
-  if (do_EPR) then
-    call calc_A_tens(A_tens,h_SD)
-    call calc_prin_val(iAtom,A_tens,2)
-  end if
-  if (do_pNMR) call calc_pNMR_Tensor(iAtom,h_SD,2)
-  !-----------------------------------
-  h_FCSD(:,:,:) = h_FC(:,:,:)+h_SD(:,:,:)
-  if (do_EPR) then
-    call calc_A_tens(A_tens,h_FCSD)
-    call calc_prin_val(iAtom,A_tens,3)
-  end if
-  ! Skip do_pNMR for FCSD (just a sum)
-  !-----------------------------------
-  call calc_h_PSO(iAtom,PROP)
-  if (do_EPR) then
-    call calc_A_tens(A_tens,h_PSO)
-    call calc_prin_val(iAtom,A_tens,4)
-  end if
-  if (do_pNMR) call calc_pNMR_Tensor(iAtom,h_PSO,3)
-  !-----------------------------------
-  h_TOT(:,:,:) = h_FCSD(:,:,:)+h_PSO(:,:,:)
-  if (do_EPR) then
+  call mma_deallocate(ASD)
+  h_FCSD(:,:,:) = h_FC(:,:,:) + h_SD(:,:,:)
+  call calc_h_PSO(iAtom, PROP)
+  h_TOT(:,:,:) = h_FCSD(:,:,:) + h_PSO(:,:,:)
+
+
+! TRANSFORM TO SPIN-ORIBT BASIS HAMILTONIAN
+  call to_cmpl_SO_states(h_FC)
+  call to_cmpl_SO_states(h_SD)
+  call to_cmpl_SO_states(h_FCSD)
+  call to_cmpl_SO_states(h_PSO)
+  call to_cmpl_SO_states(h_TOT)
+
+
+! PRINT SPIN-ORIBT BASIS HAMILTONIAN
+  if(LPRPR) then
+    call save_h_hfc(h_FC,   iAtom,  1)
+    call save_h_hfc(h_SD,   iAtom,  2)
+    call save_h_hfc(h_FCSD, iAtom,  3)
+    call save_h_hfc(h_PSO,  iAtom,  4)
+    call save_h_hfc(h_TOT,  iAtom,  5)
+  endif
+
+
+! CALCULATE A_TENSOR (EPR)
+  if(do_EPR) then
+    ! 1. Total first
     call calc_A_tens(A_tens,h_TOT)
     call calc_prin_val(iAtom,A_tens,5)
-  end if
-  if (do_pNMR) call calc_pNMR_Tensor(iAtom,h_TOT,4)
 
-  call mma_deallocate(ASD)
+    ! 2. Contributions decomposition
+    call calc_A_tens(A_tens,h_FC)
+    call calc_prin_val(iAtom,A_tens,1)
+
+    call calc_A_tens(A_tens,h_SD)
+    call calc_prin_val(iAtom,A_tens,2)
+
+    call calc_A_tens(A_tens,h_FCSD)
+    call calc_prin_val(iAtom,A_tens,3)
+
+    call calc_A_tens(A_tens,h_PSO)
+    call calc_prin_val(iAtom,A_tens,4)
+  endif
+
+
+! CALCULATE PNMR_TENSOR
+  if(do_pNMR) then
+    ! Total
+    call calc_pNMR_Tensor(iAtom,h_TOT,5)
+
+    ! Contributions decomposition
+    call calc_pNMR_Tensor(iAtom,h_FC,1)
+    call calc_pNMR_Tensor(iAtom,h_SD,2)
+    ! Skip do_pNMR for FCSD (just a sum)
+    call calc_pNMR_Tensor(iAtom,h_PSO,4)
+  endif
 
 end subroutine calc_h_HFC
 
@@ -373,8 +393,6 @@ subroutine calc_h_FC(ASD_zz)
   h_FC(2,:,:) = cmplx(Zero,CGy_mat(:,:)*ASD_zz(:,:),kind=wp)
   h_FC(3,:,:) = cmplx(CGo_mat(:,:)*ASD_zz(:,:),Zero,kind=wp)
   h_FC(:,:,:) = TwoThird*h_FC(:,:,:)
-
-  call to_cmpl_SO_states(h_FC)
 
 end subroutine calc_h_FC
 
@@ -388,8 +406,6 @@ subroutine calc_h_SD(ASD)
   h_SD(1,:,:) = cmplx(CGx_mat(:,:)*ASD(1,:,:)+CGo_mat(:,:)*ASD(3,:,:),CGy_mat(:,:)*ASD(2,:,:),kind=wp)
   h_SD(2,:,:) = cmplx(CGx_mat(:,:)*ASD(2,:,:)+CGo_mat(:,:)*ASD(5,:,:),CGy_mat(:,:)*ASD(4,:,:),kind=wp)
   h_SD(3,:,:) = cmplx(CGx_mat(:,:)*ASD(3,:,:)+CGo_mat(:,:)*ASD(6,:,:),CGy_mat(:,:)*ASD(5,:,:),kind=wp)
-
-  call to_cmpl_SO_states(h_SD)
 
 end subroutine calc_h_SD
 
@@ -594,6 +610,7 @@ end subroutine print_isotope_info
 subroutine print_pNMR_summary()
 
   integer(kind=iwp) :: iAtom, iT, iContr
+  real(kind=wp) :: total_shifts(4)
 
   write(u6,*)
   write(u6,*)
@@ -608,34 +625,36 @@ subroutine print_pNMR_summary()
   do iAtom=1,nAtoms
 
     if (pNMR_req(iAtom)) then
-      ipNMR_Calc = ipNMR_Calc+1
-      write(u6,*)
-      write(u6,'(3X,A10,A6)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom))
-      write(u6,*)
+      ipNMR_Calc = ipNMR_Calc + 1
+      write(u6,*) ""
+      write(u6,'(3X,A10,A6)') '>>> ATOM: ', adjustl(LAtomLbl(iAtom))
+      write(u6,*) ""
 
-      write(u6,'(3X,A66)') repeat('-',66)
-      write(u6,'(3X,A10,A6,A20)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)),'CURIE CHEMICAL SHIFT'
-      write(u6,'(3X,A66)') repeat('-',66)
-      write(u6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') 'Temp(K)',' Curie (ppm)','        [FC]','        [SD]','       [PSO]'
-      write(u6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') repeat('-',7),(repeat('-',12),iContr=1,4)
-      do iT=1,NTP
-        write(u6,'(3X,F7.1,2x,F12.2,5x,F12.2,2(2x,F12.2))') Temp_in_K(iT),Curie_ChemShift(ipNMR_Calc,4,iT), &
-                                                            (Curie_ChemShift(ipNMR_Calc,iContr,iT),iContr=1,3)
-      end do
+      do iT = 1, NTP
 
-      write(u6,'(3X,A66)') repeat('-',66)
-      write(u6,'(3X,A10,A6,A30)') '>>> ATOM: ',adjustl(LAtomLbl(iAtom)),'LINEAR RESPONSE CHEMICAL SHIFT'
-      write(u6,'(3X,A66)') repeat('-',66)
-      write(u6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') 'Temp(K)','LinRes (ppm)','        [FC]','        [SD]','       [PSO]'
-      write(u6,'(3X,A7,2X,A12,5X,A12,2(2X,A12))') repeat('-',7),(repeat('-',12),iContr=1,4)
+        total_shifts(:) = LR_shifts(ipNMR_Calc,:,iT) + C_shifts(ipNMR_Calc,:,iT)
 
-      do iT=1,NTP
-        write(u6,'(3X,F7.1,2x,F12.2,5x,F12.2,2(2x,F12.2))') Temp_in_K(iT),LinRes_ChemShift(ipNMR_Calc,4,iT), &
-                                                            (LinRes_ChemShift(ipNMR_Calc,iContr,iT),iContr=1,3)
-      end do
-    end if
-  end do
+        write(u6,'(12X,A17,F6.1)')   'Temperature (K): ', Temp_in_K(iT)
+        write(u6,'(12X,A75)') repeat('=',75)
 
+
+        write(u6,'(30X,A12,5X,A12,2(2X,A12))')                                   &
+        '   FC+SD+PSO', "          FC", "          SD", "         PSO"
+        write(u6,'(30X,A12,5X,A12,2(2X,A12))') (repeat('-',12), iContr=1,4)
+        ! Linear Response
+        write(u6,'(12x,A17,1x,F12.2,5x,F12.2,2(2x,F12.2))') "LinRes (ppm)     ", LR_shifts(ipNMR_Calc,4,iT), &
+                                (LR_shifts(ipNMR_Calc,iContr,iT), iContr=1,3)
+        ! Curie
+        write(u6,'(12x,A17,1x,F12.2,5x,F12.2,2(2x,F12.2))') "Curie (ppm)      ", C_shifts(ipNMR_Calc,4,iT),  &
+                                    (C_shifts(ipNMR_Calc,iContr,iT), iContr=1,3)
+        ! Total
+        write(u6,'(12x,A17,1x,F12.2,5x,F12.2,2(2x,F12.2))') "Total pNMR shifts", total_shifts(4), &
+                                    (total_shifts(iContr), iContr=1,3)
+        write(u6,*) ""
+        write(u6,*) ""
+      enddo
+    endif
+  enddo
 end subroutine print_pNMR_summary
 
 subroutine print_EPR_summary()
@@ -1076,8 +1095,6 @@ subroutine calc_prin_val(iAtom,A_tens,iContr)
   prin_vals(iACalc,iContr,:) = sqrt(EVR(:))
 
   ! Print A-tensor, the principal axes and eigenvalues
-  write(u6,*) ''
-  write(u6,*) ''
   write(u6,'(3X,A96)') repeat('-',96)
   write(u6,'(3X,A10,A6,A22,A7)') '>>> ATOM: ',LAtomLbl(iAtom),'HYPERFINE COUPLING :: ',contrib_lab(iContr)
   write(u6,'(3X,A96)') repeat('-',96)
@@ -1097,6 +1114,8 @@ subroutine calc_prin_val(iAtom,A_tens,iContr)
     prvl = prin_vals(iACalc,iContr,iAxis)
     write(u6,'(12X,A2,A1,A1,3X,E13.6,3x,E13.6,3x,E13.6)') 'A_',xyz(iAxis),xyz(iAxis),prvl,prvl*to_au,prvl*con_to_MHz*GNuc(iAtom)
   end do
+  write(u6,*) ''
+  write(u6,*) ''
 
 end subroutine calc_prin_val
 
@@ -1149,9 +1168,33 @@ subroutine calc_h_PSO(iAtom,PROP)
   h_PSO(:,:,:) = cmplx(0.0_wp,Im_h_PSO(:,:,:),kind=wp)
   call mma_deallocate(Im_h_PSO)
 
-  call to_cmpl_SO_states(h_PSO)
-
 end subroutine calc_h_PSO
+
+subroutine save_h_hfc(h_HFC,iAtom, iContr)
+
+  complex(kind=wp), intent(in) :: h_HFC(3,NSS,NSS)
+  integer(kind=iwp), intent(in) :: iAtom, iContr
+  integer(kind=iwp) :: LU, JSS, ISS, u, istatus
+  integer(kind=iwp), External:: IsFreeUnit
+  character(len=35) :: file_name
+  logical(kind=iwp) :: is_error
+
+
+  do u = 1, 3
+    file_name = 'h_' // trim(contrib_lab(iContr)) // '_' // trim(LAtomLbl(iAtom)) // '_' // xyz(u) // '.txt'
+    Lu = IsFreeUnit(88)
+    istatus = 100
+    call molcas_open_ext2(Lu,file_name,'SEQUENTIAL','FORMATTED',istatus,.false.,1,'REPLACE',is_error)
+    write(Lu,*) "NSS = ",NSS
+    write(Lu,*) "#NROW NCOL REAL IMAG"
+    do JSS=1,NSS
+      do ISS=1,NSS
+      write(Lu,'(I6,1X,I6,1X,ES25.16,1X,ES25.16)') ISS,JSS, real(h_HFC(u,ISS,JSS)), aimag(h_HFC(u,ISS,JSS))
+      end do
+    end do
+  CLOSE(Lu)
+  enddo
+end subroutine
 
 subroutine save_h_rms()
 
@@ -1223,7 +1266,7 @@ subroutine calc_pNMR_Tensor(iAtom,h_HFC,iContr)
   integer(kind=iwp), intent(in) :: iAtom, iContr
   complex(kind=wp), intent(in) :: h_HFC(3,NSS,NSS)
 
-  integer(kind=iwp) :: ISS, iT, lmb, lmb_a, lmb_ap, u, w
+  integer(kind=iwp) :: ISS, iT, lmb, lmb_a, lmb_ap, u, w, ipNMR_contr
   real(kind=wp) :: fac
 
   ! VARIABLES DESCRIPTION
@@ -1234,10 +1277,16 @@ subroutine calc_pNMR_Tensor(iAtom,h_HFC,iContr)
   ! Z_HFC_over_dE       : Z_HFC_int_oper / delta_E(ij)
   ! LR_tens             : Linear Response tensor [first term,  eq 1]
   ! C_tens              : Curie tensor           [second term, eq 1]
-  ! iContr              : Contribution: FC = 1
-  !                                     SD = 2
-  !                                    PSO = 3
-  !                                  Total = 4
+  !               iContr (HFC)   ipNMR_Contr
+  !            FC    1              1
+  !            SD    2              2
+  !            FCSD  3              Skip!
+  !            PSO   4              3
+  !            TOTAL 5              4
+  !
+  ! We skip FCSD, therefore ipNMR_Contr needs to be updated (to prevent out of bounds)
+  ipNMR_contr = iContr
+  if (iContr >= 4) ipNMR_contr = ipNMR_contr - 1
 
   ! Calculate temperature-indepedent terms (numerator) in ! REF: DOI: 10.1021/acs.jctc.6b00462 Eq. 1
   do u=1,3
@@ -1276,45 +1325,39 @@ subroutine calc_pNMR_Tensor(iAtom,h_HFC,iContr)
   fac = to_ppm*Two
   LR_tens(:,:,:) = fac*LR_tens(:,:,:)
 
+  write(u6,'(3X,A91)') repeat('-',91)
+  write(u6,'(3X,A10,A6,A9,A7)') '>>> ATOM: ', LAtomLbl(iAtom), ' pNMR :: ', contrib_lab(iContr)
+  write(u6,'(3X,A91)') repeat('-',91)
+  do iT=1,NTP
+    call print_pNMR_tens(Temp_in_K(iT),LR_tens(iT,:,:), C_tens(iT,:,:))
+  end do
+
   ! Calculate chemical shift by average diagonal elements
   ! Store chemical shift to print summary later
-  Curie_ChemShift(ipNMR_Calc,iContr,:) = -(C_tens(:,1,1)+C_tens(:,2,2)+C_tens(:,3,3))/Three
-  LinRes_ChemShift(ipNMR_Calc,iContr,:) = -(LR_tens(:,1,1)+LR_tens(:,2,2)+LR_tens(:,3,3))/Three
-
-  ! Print output
-  write(u6,*) ''
-  write(u6,'(3X,A66)') repeat('-',66)
-  write(u6,'(3X,A10,A6,A19,A7)') '>>> ATOM: ',LAtomLbl(iAtom),'LINEAR RESPONSE :: ',contrib_lab(iContr)
-  write(u6,'(3X,A66)') repeat('-',66)
-  write(u6,'(3X,A8,16X,A7,18X,A17)') 'Temp (K)','Tensor','Chem. Shift (ppm)'
-  do iT=1,NTP
-    call print_pNMR_tens(Temp_in_K(iT),LR_tens(iT,:,:))
-  end do
-  write(u6,'(3X,A66)') repeat('-',66)
-  write(u6,'(3X,A10,A6,A9,A7)') '>>> ATOM: ',LAtomLbl(iAtom),'CURIE :: ',contrib_lab(iContr)
-  write(u6,'(3X,A66)') repeat('-',66)
-  write(u6,'(3X,A8,16X,A7,18X,A17)') 'Temp (K)','Tensor','Chem. Shift (ppm)'
-  do iT=1,NTP
-    call print_pNMR_tens(Temp_in_K(iT),C_tens(iT,:,:))
-  end do
-  write(u6,*) ''
-  write(u6,*) ''
-  write(u6,*) ''
+  ! Ref: 10.1016/bs.arcc.2015.09.006
+  C_shifts(ipNMR_Calc,ipNMR_contr,:)  = (C_tens(:,1,1)+C_tens(:,2,2)+C_tens(:,3,3))/Three
+  LR_shifts(ipNMR_Calc,ipNMR_contr,:) = (LR_tens(:,1,1)+LR_tens(:,2,2)+LR_tens(:,3,3))/Three
 
 end subroutine calc_pNMR_Tensor
 
-subroutine print_pNMR_tens(temp,tensor)
+subroutine print_pNMR_tens(temp, LinRes,Curie)
 
-  real(kind=wp), intent(in) :: temp, tensor(3,3)
+  real(kind=wp), intent(in) :: temp, LinRes(3,3), Curie(3,3)
+  real(kind=wp) :: lr_shift, curie_shift
   integer(kind=iwp) :: u
-  real(kind=wp) :: shift
 
-  shift = -(tensor(1,1)+tensor(2,2)+tensor(3,3))/Three
-  write(u6,'(2X,F6.1,3(2x,ES12.3),4X,F15.3)') temp,tensor(1,1:3),shift
-  do u=2,3
-    write(u6,'(8X,3(2x,ES12.3))') tensor(u,1:3)
+  lr_shift = (LinRes(1,1) + LinRes(2,2) + LinRes(3,3))/Three
+  curie_shift = (Curie(1,1) + Curie(2,2) + Curie(3,3))/Three
+
+  write(u6,'(3X,A8,13X,A15,34X,A5)') 'Temp (K)', 'Linear Response', 'Curie'
+  write(u6,'(2X,F6.1,3(2x,ES12.3),2X,3(2x,ES12.3))') temp, LinRes(1,1:3), Curie(1,1:3)
+  do u = 2, 3
+    write(u6,'(8X,3(2x,ES12.3),2X,3(2x,ES12.3))') LinRes(u,1:3), Curie(u,1:3)
   end do
-  write(u6,*)
+  write(u6,*) ''
+  write(u6,'(12X,A15,ES12.3,17X,A15,ES12.3)') 'LinRes Shift : ', lr_shift, 'Curie Shift : ', curie_shift
+  write(u6,*) ''
+  write(u6,*) ''
 
 end subroutine print_pNMR_tens
 
@@ -1340,8 +1383,8 @@ subroutine cleanup_hfcop()
   end if
 
   if (allocated(pNMR_req)) then
-    call mma_deallocate(Curie_ChemShift)
-    call mma_deallocate(LinRes_ChemShift)
+    call mma_deallocate(C_shifts)
+    call mma_deallocate(LR_shifts)
     call mma_deallocate(pNMR_req)
     call mma_deallocate(pBoltz)
     call mma_deallocate(Temp_in_K)
