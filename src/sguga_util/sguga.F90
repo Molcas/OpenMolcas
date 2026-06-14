@@ -184,6 +184,8 @@ integer(kind=iwp), parameter :: TR_MID   = 4
 integer(kind=iwp), parameter :: TR_CLOSE = 8
 integer(kind=iwp), parameter :: TR_TAIL  = 16
 
+type (TRStruct) TRS
+
 public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct
 !public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct, MkTrans, Trans_Free
 
@@ -915,6 +917,8 @@ call mma_deallocate(CIS%ISGM,safe='*')
    call mma_deallocate(EXS%USGN,safe='*')
    call mma_deallocate(EXS%LSGN,safe='*')
   end if
+
+call Trans_Free(TRS)
 
 end subroutine SG_Free
 
@@ -2218,5 +2222,32 @@ pure integer(kind=iwp) function OpenBand(ICLASS)
     OpenBand = 2
   end select
 end function OpenBand
+
+subroutine TRANS_Free(TRS)
+  type(TRStruct), intent(out) :: TRS
+
+  call mma_deallocate(TRS%NTR,    safe='*')
+  call mma_deallocate(TRS%ITR0,   safe='*')
+
+  call mma_deallocate(TRS%ISGT,   safe='*')
+  call mma_deallocate(TRS%IVLT,   safe='*')
+  call mma_deallocate(TRS%IVLB,   safe='*')
+
+  call mma_deallocate(TRS%ITOP,   safe='*')
+  call mma_deallocate(TRS%IBOT,   safe='*')
+
+  call mma_deallocate(TRS%ICL,    safe='*')
+  call mma_deallocate(TRS%ICR,    safe='*')
+
+  call mma_deallocate(TRS%IPRT,   safe='*')
+  call mma_deallocate(TRS%ISYM,   safe='*')
+  call mma_deallocate(TRS%IOBAND, safe='*')
+  call mma_deallocate(TRS%IFLAG,  safe='*')
+
+  call mma_deallocate(TRS%MAWL,   safe='*')
+  call mma_deallocate(TRS%MAWR,   safe='*')
+
+  call mma_deallocate(TRS%VSEG,   safe='*')
+end subroutine TRANS_Free
 
 end module SGUGA
