@@ -93,6 +93,52 @@ type EXStruct
   real(kind=wp), allocatable :: VTab(:), SGTMP(:)
 end type EXStruct
 
+type TRStruct
+  ! Metadata
+  integer(kind=iwp) :: nClass    = 0   ! number of topological classes
+  integer(kind=iwp) :: nOpenBand = 0   ! number of open-family bands
+  integer(kind=iwp) :: nTrans    = 0   ! total number of transitions
+
+  ! Bucket structure:
+  !   NTR(IVLT,ICLASS) = number of transitions from source vertex IVLT
+  !                      given input class ICLASS
+  !   ITR0(IVLT,ICLASS) = offset into flat transition arrays
+  integer(kind=iwp), allocatable :: NTR(:,:)   ! (nVert,0:nClass-1)
+  integer(kind=iwp), allocatable :: ITR0(:,:)  ! (nVert,0:nClass-1)
+
+  ! Flat transition arrays, indexed by ITR = 1..nTrans
+  integer(kind=iwp), allocatable :: ISGT(:)    ! segment type
+  integer(kind=iwp), allocatable :: IVLT(:)    ! source left-upper vertex
+  integer(kind=iwp), allocatable :: IVLB(:)    ! destination left-lower vertex
+
+  integer(kind=iwp), allocatable :: ITOP(:)    ! required input class
+  integer(kind=iwp), allocatable :: IBOT(:)    ! resulting output class
+
+  integer(kind=iwp), allocatable :: ICL(:)     ! left step code
+  integer(kind=iwp), allocatable :: ICR(:)     ! right step code
+
+  ! Right-partner handling:
+  ! IPRT = compact partner-slot index, 0 if no distinct right partner needed
+  integer(kind=iwp), allocatable :: IPRT(:)
+
+  ! Symmetry handling:
+  ! ISYM can store the local symmetry factor label (often 1 or SGS%ISm(LEV))
+  integer(kind=iwp), allocatable :: ISYM(:)
+
+  ! Open-band index for coupling-family numbering:
+  ! 0 if not an open-family transition
+  integer(kind=iwp), allocatable :: IOBAND(:)
+
+  ! Optional flags for transition type
+  integer(kind=iwp), allocatable :: IFLAG(:)
+
+  ! Optional precomputed MAW increments
+  integer(kind=iwp), allocatable :: MAWL(:)
+  integer(kind=iwp), allocatable :: MAWR(:)
+
+  ! Segment value
+  real(kind=wp), allocatable :: VSEG(:)
+end type TRStruct
 
 ! This lists nSeg different types of segments, i=1,...,nSeg
 !  1- 4: segments of the head walk from the loop head to the graph head
@@ -132,7 +178,8 @@ integer(kind=iwp), parameter ::                                                 
                                 ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1]
 
 
-public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple
+public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct
+!public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct, MkTrans, Trans_Free
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
