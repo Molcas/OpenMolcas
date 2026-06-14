@@ -62,7 +62,7 @@ module caspt2_global
 ! number of CI vectors per batch in mkfg3.f and derfg3.f
 ! nbuf1_grad
 
-use sguga, only: SGStruct, CIStruct, EXStruct, TRStruct
+use sguga, only: SGStruct, CIStruct, EXStruct
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -102,7 +102,6 @@ public :: CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, ConvInvar, 
 type(SGStruct), target :: SGS
 type(CIStruct), target :: CIS
 type(EXStruct), target :: EXS
-type(TRStruct), target :: TRS
 
-public :: SGS, CIS, EXS, TRS
+public :: SGS, CIS, EXS
 end module caspt2_global

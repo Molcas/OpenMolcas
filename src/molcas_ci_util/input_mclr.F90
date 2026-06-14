@@ -74,7 +74,7 @@ module Input_MCLR
 ! Bit 5 McKinley(1) Seward(0)
 
 use Molcas, only: LenIn, MxAtom, MxRoot, MxSym
-use sguga, only: SGStruct, CIStruct, EXStruct, TRStruct
+use sguga, only: SGStruct, CIStruct, EXStruct
 use RASDim, only: MxTit
 use Definitions, only: wp, iwp
 
@@ -101,7 +101,6 @@ character(len=3) :: chirr(8)
 type(SGStruct), target :: SGS
 type(CIStruct), target :: CIS
 type(EXStruct), target :: EXS
-type(TRStruct), target :: TRS
 
 
 public :: AtLbl, CASINT, chirr, Coor, debug, double, Eps, ERASSCF, ESCF, fail, Header1I, HeaderJP, iaddressQDAT, iBreak, iMCPD, &
@@ -110,6 +109,6 @@ public :: AtLbl, CASINT, chirr, Coor, debug, double, Eps, ERASSCF, ESCF, fail, H
           nOrb, nRoots, nRs1, nRs2, nRs3, nSkip, nsRot, nSym, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, ntIsqr, ntItri, &
           nTPert, nUserPT, Omega, page, Perturbation, PotNuc, PT2, RASSI, rin_ene, lSave, SPINPOL, State_Sym, StepType, Timedep, &
           TitleIN, TitleJp, TwoStep, UserP, UserT, Weight
-public :: SGS, CIS, EXS, TRS
+public :: SGS, CIS, EXS
 
 end module Input_MCLR

@@ -17,7 +17,7 @@ use Molcas, only: MxLev
 use fciqmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
 use sguga, only: SG_Init, SG_Init_Simple
-use caspt2_global, only: CIS, EXS, SGS, TRS
+use caspt2_global, only: CIS, EXS, SGS
 use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, MxCI, nActEl, nAsh, nEle3, nHole1, nRas1, nRas2, nRas3, nSym, STSym
 use stdalloc, only: mma_allocate
 use rasdef, only: nRas,nRasEl,nRsPrt
@@ -52,13 +52,13 @@ End If
 
 if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) then
 
-  call SG_Init(nSym,nActEl,iSpin,SGS,CIS,TRS,                         &
+  call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                             &
                nRas,nRasEl,nRsPrt,EXS,                                &
                xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
 
 else
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,TRS,                   &
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                       &
                      nRas,nRasEl,nRsPrt,                               &
                      xLevel=Level,xL2Act=L2Act,xnLev=nLev,             &
                      xNSM=ISM,Do_MkSGuga=.false.)

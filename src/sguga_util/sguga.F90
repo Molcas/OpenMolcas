@@ -14,7 +14,7 @@ module SGUGA
 use Molcas, only: MxLev, MxSym, MxGas
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -169,14 +169,18 @@ end type TRStruct
 !
 !           When segments are matched together there tail class, or an upper segments, must match the head class of the
 !           lower segment. Matching upper and lower boundaries must be in the same state.
-integer(kind=iwp), parameter :: nSeg=26
+integer(kind=iwp), parameter :: mSeg=26+8, nSeg=26
 integer(kind=iwp), parameter ::                                                                                                    &
-                                ITVPT(nSeg) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3],&
-                                IBVPT(nSeg) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3],&
-                                IC1(nSeg)   = [ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3],&
-                                IC2(nSeg)   = [ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3],&
-                                ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1]
-
+                                ITVPT(mSeg) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3, &
+                                                0, 0, 0, 0,  3, 3, 3, 3],&
+                                IBVPT(mSeg) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3, &
+                                                0, 0, 0, 0,  3, 3, 3, 3],&
+                                IC1(mSeg)   = [ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3, &
+                                                0, 1, 2, 3,  0, 1, 2, 3],&
+                                IC2(mSeg)   = [ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3, &
+                                                0, 1, 2, 3,  0, 1, 2, 3],&
+                                ISVC(mSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1, &
+                                                0, 1, 1,13,  0, 1, 1,13]
 
 integer(kind=iwp), parameter :: TR_WALK  = 1
 integer(kind=iwp), parameter :: TR_OPEN  = 2
@@ -184,8 +188,7 @@ integer(kind=iwp), parameter :: TR_MID   = 4
 integer(kind=iwp), parameter :: TR_CLOSE = 8
 integer(kind=iwp), parameter :: TR_TAIL  = 16
 
-public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct
-!public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct, MkTrans, Trans_Free
+public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
@@ -757,20 +760,21 @@ end subroutine RMVERT
 
 end subroutine MKSGUGA
 
-subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,TRS,                  &
+subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
                    nRas,nRasEl,nRsPrt,                             &
                    EXS,xLevel,xL2Act,xNLEV,xNSM)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
-  type(TRStruct), intent(inout) :: TRS
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt),nRasEl(nRsPrt)
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xnLev, xNSM(MxLev)
   type(EXStruct), optional, intent(inout) :: EXS
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,TRS,    &
+  type(TRStruct) :: TRS
+
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,        &
                       nRas,nRasEl,nRsPrt,               &
                       EXS,xLevel,xL2Act,xnLev,xNSM)
 
@@ -800,18 +804,19 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,TRS,                  &
     ! Explicitly generates the compressed coupling tuples '(left walk, right walk, value index)' and compacts repeated
     ! numerical values into 'VTab'.
     call MKCOUP(SGS,CIS,EXS,TRS)
+
+    Call Trans_Free(TRS)
   end if
 
 end subroutine SG_Init
 
-subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,TRS,          &
+subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
                           nRas,nRasEl,nRsPrt,                     &
                           EXS,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
-  type(TRStruct), intent(inout) :: TRS
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt)
   type(EXStruct), optional, intent(inout) :: EXS
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
@@ -835,10 +840,10 @@ SGS%nRsPrt=nRsPrt
 ! Make sure that we start from a clean slate.
   if (present(EXS)) then
    ! Here if the extended parameter list was used.
-    call SG_Free(SGS,CIS,TRS,EXS)
+    call SG_Free(SGS,CIS,EXS)
   else
    ! Here if the terse parameter list was used.
-    call SG_Free(SGS,CIS,TRS)
+    call SG_Free(SGS,CIS)
   end if
 
   if (nSym < 1 .or. nSym > 8) then
@@ -879,12 +884,11 @@ SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
 end subroutine SG_Init_Simple
 
-subroutine SG_Free(SGS,CIS,TRS,EXS)
+subroutine SG_Free(SGS,CIS,EXS)
 ! PURPOSE: FREE THE SGUGA TABLES
 
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
-type(TRStruct), intent(inout) :: TRS
 type(EXStruct), optional, intent(inout) :: EXS
 
 call mma_deallocate(SGS%ISM,safe='*')
@@ -909,8 +913,6 @@ call mma_deallocate(CIS%ICase,safe='*')
 call mma_deallocate(CIS%VSGM,safe='*')
 call mma_deallocate(CIS%IVR,safe='*')
 call mma_deallocate(CIS%ISGM,safe='*')
-
-call Trans_Free(TRS)
 
 if (present(EXS)) then
  call mma_deallocate(EXS%NOCP,safe='*')
@@ -1291,6 +1293,8 @@ do IVLT=1,SGS%nVert     ! Upper left vertex
     IB = SGS%DRT(IVLT,BTAB)    ! Pick up the b-value from the DRT
 !   Note that we use the segment values according to the ASTA method.
     select case (ISVC(ISGT))
+      case (0)
+        V = Zero
       case (1)
         V = One
       case (2)
@@ -1315,6 +1319,8 @@ do IVLT=1,SGS%nVert     ! Upper left vertex
         V = (-One)**IB * One/sqrt(real(1+IB,kind=wp)*real(2+IB,kind=wp))
       case (12)
         V = sqrt(real(1+IB,kind=wp)*real(3+IB,kind=wp))/real(2+IB,kind=wp)
+      case (13)
+        V = Two
       case default
         V = Zero ! Dummy assignment
         call Abend()
@@ -1348,7 +1354,7 @@ call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF',safe='*')
 call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF',safe='*')
 call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF',safe='*')
 
-EXS%MxEO = SGS%nLev + SGS%nLev + (SGS%nLev*(SGS%nLev+1))/2
+EXS%MxEO = SGS%nLev + SGS%nLev + (SGS%nLev*(SGS%nLev-1))/2
 
 call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
 call mma_allocate(EXS%IOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
