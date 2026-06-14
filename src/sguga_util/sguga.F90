@@ -2417,7 +2417,203 @@ subroutine MKTRANS(SGS,CIS,TRS)
   call mma_deallocate(IPOS)
 
 !#ifdef _VERIFY_
+
+  call DumpAndCheckAllTransitionBuckets(SGS,CIS,TRS)
+
 contains
+
+
+subroutine DumpAndCheckAllTransitionBuckets(SGS,CIS,TRS)
+  implicit none
+
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(TRStruct), intent(in) :: TRS
+
+  integer(kind=iwp) :: IVLT, ICLASS, ISGT, LEV
+  integer(kind=iwp) :: NDIR, NTRB, IT0, ITR, K
+  integer(kind=iwp) :: IVLB, ITOP, IBOT, ICL, ICR
+  integer(kind=iwp) :: IPRT, ISYM, IOBAND
+  real(kind=wp)     :: VSEG
+  logical           :: mismatch
+  real(kind=wp), parameter :: TOL = 1.0e-12_wp
+
+  ! Directly reconstructed bucket contents from old logic
+  integer(kind=iwp), allocatable :: D_ISGT(:), D_IVLB(:)
+  integer(kind=iwp), allocatable :: D_ITOP(:), D_IBOT(:)
+  integer(kind=iwp), allocatable :: D_ICL(:), D_ICR(:)
+  integer(kind=iwp), allocatable :: D_IPRT(:), D_ISYM(:), D_IOBAND(:)
+  real(kind=wp),    allocatable :: D_VSEG(:)
+
+  ! Allocate enough room for the worst case:
+  ! at most nSeg entries in one bucket
+  allocate(D_ISGT(nSeg), D_IVLB(nSeg))
+  allocate(D_ITOP(nSeg), D_IBOT(nSeg))
+  allocate(D_ICL(nSeg),  D_ICR(nSeg))
+  allocate(D_IPRT(nSeg), D_ISYM(nSeg), D_IOBAND(nSeg))
+  allocate(D_VSEG(nSeg))
+
+  write(u6,*) ' '
+  write(u6,*) '==========================================================='
+  write(u6,*) 'MKTRANS: dump and full bucket comparison against old logic'
+  write(u6,*) '==========================================================='
+  write(u6,*) ' '
+
+  do ICLASS = 0, TRS%nClass-1
+
+    write(u6,'(A,I4)') '--- INPUT CLASS = ', ICLASS
+
+    do IVLT = 1, SGS%nVert
+
+      LEV = SGS%DRT(IVLT,LTAB)
+
+      ! Reconstruct the old/direct bucket contents for (IVLT,ICLASS)
+      NDIR = 0
+
+      do ISGT = 1, nSeg
+
+        IVLB = CIS%ISGM(IVLT,ISGT)
+        if (IVLB == 0) cycle
+
+        ITOP = ITVPT(ISGT)
+        if (ITOP /= ICLASS) cycle
+
+        IBOT = IBVPT(ISGT)
+        ICL  = IC1(ISGT)
+        ICR  = IC2(ISGT)
+
+        ISYM = 1
+        if ((ICL == 1) .or. (ICL == 2)) ISYM = SGS%ISm(LEV)
+
+        IPRT   = PartnerSlot(ITOP)
+        IOBAND = OpenBand(ITOP)
+        VSEG   = CIS%VSGM(IVLT,ISGT)
+
+        NDIR = NDIR + 1
+
+        D_ISGT(NDIR)   = ISGT
+        D_IVLB(NDIR)   = IVLB
+        D_ITOP(NDIR)   = ITOP
+        D_IBOT(NDIR)   = IBOT
+        D_ICL(NDIR)    = ICL
+        D_ICR(NDIR)    = ICR
+        D_IPRT(NDIR)   = IPRT
+        D_ISYM(NDIR)   = ISYM
+        D_IOBAND(NDIR) = IOBAND
+        D_VSEG(NDIR)   = VSEG
+
+      end do
+
+      ! Pull the new bucket from TRS
+      NTRB = TRS%NTR(IVLT,ICLASS)
+      IT0  = TRS%ITR0(IVLT,ICLASS)
+
+      ! Dump the bucket contents
+      write(u6,'(A,I6,A,I4,A,I4)') 'IVLT=',IVLT, ' direct=',NDIR, ' trs=',NTRB
+
+      if (NDIR == 0 .and. NTRB == 0) cycle
+
+      write(u6,*) '  Direct reconstruction:'
+      if (NDIR == 0) then
+        write(u6,*) '    [empty]'
+      else
+        do K = 1, NDIR
+          write(u6,*) '    k=',K, &
+                      ' ISGT=',D_ISGT(K), &
+                      ' IVLB=',D_IVLB(K), &
+                      ' ITOP=',D_ITOP(K), &
+                      ' IBOT=',D_IBOT(K), &
+                      ' ICL=', D_ICL(K), &
+                      ' ICR=', D_ICR(K), &
+                      ' IPRT=',D_IPRT(K), &
+                      ' ISYM=',D_ISYM(K), &
+                      ' IOB=', D_IOBAND(K), &
+                      ' VSEG=',D_VSEG(K)
+        end do
+      end if
+
+      write(u6,*) '  TRS bucket:'
+      if (NTRB == 0) then
+        write(u6,*) '    [empty]'
+      else
+        do K = 1, NTRB
+          ITR = IT0 + K
+          write(u6,*) '    k=',K, &
+                      ' ISGT=',TRS%ISGT(ITR), &
+                      ' IVLB=',TRS%IVLB(ITR), &
+                      ' ITOP=',TRS%ITOP(ITR), &
+                      ' IBOT=',TRS%IBOT(ITR), &
+                      ' ICL=', TRS%ICL(ITR), &
+                      ' ICR=', TRS%ICR(ITR), &
+                      ' IPRT=',TRS%IPRT(ITR), &
+                      ' ISYM=',TRS%ISYM(ITR), &
+                      ' IOB=', TRS%IOBAND(ITR), &
+                      ' VSEG=',TRS%VSEG(ITR)
+        end do
+      end if
+
+      ! Compare bucket sizes
+      mismatch = .false.
+
+      if (NDIR /= NTRB) then
+        write(u6,*) '  >>> MISMATCH: bucket size differs.'
+        mismatch = .true.
+      end if
+
+      ! Compare entry by entry in order
+      if (.not. mismatch) then
+        do K = 1, NDIR
+          ITR = IT0 + K
+
+          if (TRS%ISGT(ITR)   /= D_ISGT(K))   mismatch = .true.
+          if (TRS%IVLB(ITR)   /= D_IVLB(K))   mismatch = .true.
+          if (TRS%ITOP(ITR)   /= D_ITOP(K))   mismatch = .true.
+          if (TRS%IBOT(ITR)   /= D_IBOT(K))   mismatch = .true.
+          if (TRS%ICL(ITR)    /= D_ICL(K))    mismatch = .true.
+          if (TRS%ICR(ITR)    /= D_ICR(K))    mismatch = .true.
+          if (TRS%IPRT(ITR)   /= D_IPRT(K))   mismatch = .true.
+          if (TRS%ISYM(ITR)   /= D_ISYM(K))   mismatch = .true.
+          if (TRS%IOBAND(ITR) /= D_IOBAND(K)) mismatch = .true.
+          if (abs(TRS%VSEG(ITR) - D_VSEG(K)) > TOL) mismatch = .true.
+
+          if (mismatch) then
+            write(u6,*) '  >>> MISMATCH at entry k =', K
+            write(u6,*) '      Direct: ', D_ISGT(K), D_IVLB(K), D_ITOP(K), D_IBOT(K), &
+                         D_ICL(K), D_ICR(K), D_IPRT(K), D_ISYM(K), D_IOBAND(K), D_VSEG(K)
+            write(u6,*) '      TRS   : ', TRS%ISGT(ITR), TRS%IVLB(ITR), TRS%ITOP(ITR), TRS%IBOT(ITR), &
+                         TRS%ICL(ITR), TRS%ICR(ITR), TRS%IPRT(ITR), TRS%ISYM(ITR), &
+                         TRS%IOBAND(ITR), TRS%VSEG(ITR)
+            exit
+          end if
+
+        end do
+      end if
+
+      if (mismatch) then
+        write(u6,*) 'MKTRANS ERROR: bucket dump/check failed.'
+        write(u6,*) '  Failing vertex =', IVLT
+        write(u6,*) '  Failing class  =', ICLASS
+        call Abend()
+      else
+        write(u6,*) '  bucket OK'
+      end if
+
+    end do
+
+    write(u6,*) ' '
+  end do
+
+  write(u6,*) 'MKTRANS: all buckets matched old logic.'
+  write(u6,*) ' '
+
+  deallocate(D_ISGT, D_IVLB)
+  deallocate(D_ITOP, D_IBOT)
+  deallocate(D_ICL, D_ICR)
+  deallocate(D_IPRT, D_ISYM, D_IOBAND)
+  deallocate(D_VSEG)
+
+end subroutine DumpAndCheckAllTransitionBuckets
+
 
 subroutine CheckTransitionBucketCounts(SGS,CIS,TRS)
   type(SGStruct), intent(in) :: SGS
