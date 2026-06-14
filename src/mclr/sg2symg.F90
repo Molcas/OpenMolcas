@@ -13,7 +13,7 @@ subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
 use sguga, only: SG_Free
 use Str_Info, only: CFTP, CNSM
-use input_mclr, only: nConf, nCSF, nSym, State_Sym, CIS, EXS, SGS
+use input_mclr, only: nConf, nCSF, nSym, State_Sym, CIS, EXS, SGS, TRS
 use stdalloc, only: mma_allocate, mma_deallocate
 
 use Definitions, only: wp, iwp
@@ -65,6 +65,6 @@ Call mma_deallocate(CINEW)
 call SG_PrWF(SGS,CIS,pState_sym,PRWTHR,SGS%iSpin,CI,nConf,.false.,-99)
 #endif
 
-call SG_Free(SGS,CIS,EXS)
+call SG_Free(SGS,CIS,TRS,EXS)
 
 end subroutine sg2symg

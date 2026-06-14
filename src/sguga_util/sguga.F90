@@ -184,8 +184,6 @@ integer(kind=iwp), parameter :: TR_MID   = 4
 integer(kind=iwp), parameter :: TR_CLOSE = 8
 integer(kind=iwp), parameter :: TR_TAIL  = 16
 
-type (TRStruct) TRS
-
 public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct
 !public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct, MkTrans, Trans_Free
 
@@ -759,19 +757,20 @@ end subroutine RMVERT
 
 end subroutine MKSGUGA
 
-subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
+subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,TRS,                  &
                    nRas,nRasEl,nRsPrt,                             &
                    EXS,xLevel,xL2Act,xNLEV,xNSM)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
+  type(TRStruct), intent(inout) :: TRS
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt),nRasEl(nRsPrt)
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xnLev, xNSM(MxLev)
   type(EXStruct), optional, intent(inout) :: EXS
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,        &
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,TRS,    &
                       nRas,nRasEl,nRsPrt,               &
                       EXS,xLevel,xL2Act,xnLev,xNSM)
 
@@ -792,6 +791,10 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
 
     call MKSEG(SGS,CIS,EXS)
 
+    !Create the transition infrastructure.
+!   Call MkTrans(SGS,CIS,EXS,TRS)
+    Call MkTrans(SGS,CIS,TRS)
+
     ! Count coupling coefficients in compressed blocks indexed by excitation/operator type, symmetry and midvertex.
     call MkNRCOUP(SGS,CIS,EXS)
 
@@ -802,13 +805,14 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
 
 end subroutine SG_Init
 
-subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
+subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,TRS,          &
                           nRas,nRasEl,nRsPrt,                     &
                           EXS,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
 
   integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
+  type(TRStruct), intent(inout) :: TRS
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt)
   type(EXStruct), optional, intent(inout) :: EXS
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
@@ -832,10 +836,10 @@ SGS%nRsPrt=nRsPrt
 ! Make sure that we start from a clean slate.
   if (present(EXS)) then
    ! Here if the extended parameter list was used.
-    call SG_Free(SGS,CIS,EXS)
+    call SG_Free(SGS,CIS,TRS,EXS)
   else
    ! Here if the terse parameter list was used.
-    call SG_Free(SGS,CIS)
+    call SG_Free(SGS,CIS,TRS)
   end if
 
   if (nSym < 1 .or. nSym > 8) then
@@ -876,12 +880,13 @@ SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
 end subroutine SG_Init_Simple
 
-subroutine SG_Free(SGS,CIS,EXS)
+subroutine SG_Free(SGS,CIS,TRS,EXS)
 ! PURPOSE: FREE THE SGUGA TABLES
 
-type(SGStruct), intent(_OUT_) :: SGS
-type(CIStruct), intent(_OUT_) :: CIS
-type(EXStruct), optional, intent(_OUT_) :: EXS
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
+type(TRStruct), intent(inout) :: TRS
+type(EXStruct), optional, intent(inout) :: EXS
 
 call mma_deallocate(SGS%ISM,safe='*')
 call mma_deallocate(SGS%DRT0,safe='*')
@@ -906,19 +911,19 @@ call mma_deallocate(CIS%VSGM,safe='*')
 call mma_deallocate(CIS%IVR,safe='*')
 call mma_deallocate(CIS%ISGM,safe='*')
 
-  if (present(EXS)) then
-   call mma_deallocate(EXS%NOCP,safe='*')
-   call mma_deallocate(EXS%IOCP,safe='*')
-   call mma_deallocate(EXS%ICoup,safe='*')
-   call mma_deallocate(EXS%VTab,safe='*')
-   call mma_deallocate(EXS%SGTMP,safe='*')
-   call mma_deallocate(EXS%MVL,safe='*')
-   call mma_deallocate(EXS%MVR,safe='*')
-   call mma_deallocate(EXS%USGN,safe='*')
-   call mma_deallocate(EXS%LSGN,safe='*')
-  end if
-
 call Trans_Free(TRS)
+
+if (present(EXS)) then
+ call mma_deallocate(EXS%NOCP,safe='*')
+ call mma_deallocate(EXS%IOCP,safe='*')
+ call mma_deallocate(EXS%ICoup,safe='*')
+ call mma_deallocate(EXS%VTab,safe='*')
+ call mma_deallocate(EXS%SGTMP,safe='*')
+ call mma_deallocate(EXS%MVL,safe='*')
+ call mma_deallocate(EXS%MVR,safe='*')
+ call mma_deallocate(EXS%USGN,safe='*')
+ call mma_deallocate(EXS%LSGN,safe='*')
+end if
 
 end subroutine SG_Free
 
@@ -2224,7 +2229,7 @@ pure integer(kind=iwp) function OpenBand(ICLASS)
 end function OpenBand
 
 subroutine TRANS_Free(TRS)
-  type(TRStruct), intent(out) :: TRS
+  type(TRStruct), intent(inout) :: TRS
 
   call mma_deallocate(TRS%NTR,    safe='*')
   call mma_deallocate(TRS%ITR0,   safe='*')
@@ -2250,10 +2255,11 @@ subroutine TRANS_Free(TRS)
   call mma_deallocate(TRS%VSEG,   safe='*')
 end subroutine TRANS_Free
 
-subroutine MKTRANS(SGS,CIS,EXS,TRS)
+!subroutine MKTRANS(SGS,CIS,EXS,TRS)
+subroutine MKTRANS(SGS,CIS,TRS)
   type(SGStruct), intent(in)    :: SGS
   type(CIStruct), intent(in)    :: CIS
-  type(EXStruct), intent(in)    :: EXS
+! type(EXStruct), intent(in)    :: EXS
   type(TRStruct), intent(inout) :: TRS
 
   integer(kind=iwp) :: IVLT, ISGT, ICLASS
@@ -2265,12 +2271,15 @@ subroutine MKTRANS(SGS,CIS,EXS,TRS)
   real(kind=wp) :: VSEG
 
   ! Initialize metadata
-  call TRANS_Free(TRS)
+! call TRANS_Free(TRS) this should go out.
 
   TRS%nClass    = 4
   TRS%nOpenBand = 2
 
   ! Allocate bucket tables
+  call mma_deallocate(TRS%NTR,safe='*')
+  call mma_deallocate(TRS%ITR0,safe='*')
+  Write (6,*) 'Allocate TRS%NTR'
   call mma_allocate(TRS%NTR,[1,SGS%nVert],[0,TRS%nClass-1],Label='TRS%NTR')
   call mma_allocate(TRS%ITR0,[1,SGS%nVert],[0,TRS%nClass-1],Label='TRS%ITR0')
 
@@ -2299,6 +2308,22 @@ subroutine MKTRANS(SGS,CIS,EXS,TRS)
 
   TRS%nTrans = N
   ! Now the bucket layout is fixed.
+
+!#ifdef _VERIFY_
+  write(u6,*) 'MKTRANS: total transitions = ', TRS%nTrans
+  write(u6,*) 'MKTRANS: sum NTR           = ', sum(TRS%NTR)
+  ! Validation of the transition table
+  If (TRS%nTrans/=sum(TRS%NTR)) Then
+     Write (u6,*) 'TRS%nTrans/=sum(TRS%NTR)'
+     Call Abend()
+  End If
+  call CheckTransitionBucketCounts(SGS,CIS,TRS)
+
+  if (sum(TRS%NTR) /= CountAllTransitions(SGS,CIS,TRS%nClass)) then
+    write(u6,*) 'MKTRANS ERROR: total transition count mismatch.'
+    call Abend()
+  end if
+!#endif
 
   ! Allocate the flat transition arrays.
 
@@ -2390,7 +2415,79 @@ subroutine MKTRANS(SGS,CIS,EXS,TRS)
   end do
 
   call mma_deallocate(IPOS)
-end subroutine MKTRANS
 
+!#ifdef _VERIFY_
+contains
+
+subroutine CheckTransitionBucketCounts(SGS,CIS,TRS)
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  type(TRStruct), intent(in) :: TRS
+
+  integer(kind=iwp) :: ICLASS, IVLT, ISGT
+  integer(kind=iwp) :: CountBuckets, CountDirect
+
+  write(u6,*) ' '
+  write(u6,*) 'MKTRANS: checking transition bucket counts by class'
+
+  do ICLASS = 0, TRS%nClass-1
+
+    ! Count transitions from the bucket table
+    CountBuckets = 0
+    do IVLT = 1, SGS%nVert
+      CountBuckets = CountBuckets + TRS%NTR(IVLT,ICLASS)
+    end do
+
+    ! Count transitions directly from ISGM / ITVPT
+    CountDirect = 0
+    do IVLT = 1, SGS%nVert
+      do ISGT = 1, nSeg
+        if (CIS%ISGM(IVLT,ISGT) == 0) cycle
+        if (ITVPT(ISGT) /= ICLASS) cycle
+        CountDirect = CountDirect + 1
+      end do
+    end do
+
+    write(u6,'(A,I3,A,I8,A,I8)') '  class=',ICLASS, &
+         '  bucket sum=',CountBuckets, '  direct count=',CountDirect
+
+    if (CountBuckets /= CountDirect) then
+      write(u6,*) 'MKTRANS ERROR: transition bucket mismatch.'
+      write(u6,*) '  class       =', ICLASS
+      write(u6,*) '  bucket sum  =', CountBuckets
+      write(u6,*) '  direct count=', CountDirect
+      call Abend()
+    end if
+
+  end do
+
+  write(u6,*) 'MKTRANS: bucket-count check passed.'
+  write(u6,*) ' '
+
+end subroutine CheckTransitionBucketCounts
+
+
+integer(kind=iwp) function CountAllTransitions(SGS,CIS,nClass)
+  type(SGStruct), intent(in) :: SGS
+  type(CIStruct), intent(in) :: CIS
+  integer(kind=iwp), intent(in) :: nClass
+
+  integer(kind=iwp) :: IVLT, ISGT
+
+  CountAllTransitions = 0
+  do IVLT = 1, SGS%nVert
+    do ISGT = 1, nSeg
+      if (CIS%ISGM(IVLT,ISGT) /= 0) then
+        if (ITVPT(ISGT) >= 0 .and. ITVPT(ISGT) < nClass) then
+          CountAllTransitions = CountAllTransitions + 1
+        end if
+      end if
+    end do
+  end do
+end function CountAllTransitions
+
+!#endif
+
+end subroutine MKTRANS
 
 end module SGUGA

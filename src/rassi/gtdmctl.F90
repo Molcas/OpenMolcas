@@ -14,7 +14,7 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use sguga, only: CIStruct, EXStruct, SG_Free, SGStruct
+use sguga, only: CIStruct, EXStruct, SG_Free, SGStruct, TRStruct
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG
@@ -60,6 +60,7 @@ character(len=8) :: WFTP1, WFTP2
 type(CIStruct) :: CIS(2)
 type(EXStruct) :: EXS(2)
 type(SGStruct) :: SGS(2)
+type(TRStruct) :: TRS(2)
 integer, allocatable :: OMAP(:)
 real(kind=wp), allocatable :: CI1(:), CI2(:), CI2_o(:), CMO1(:), CMO2(:), DCHSM(:), detcoeff1(:), detcoeff2(:), DYSAB(:), &
                               DYSCOF(:), DYSZZ(:), FMO(:), mixed_1p_overlap(:,:), mixed_1p_rtdm(:,:,:), mixed_1p_stdm(:,:,:), &
@@ -393,7 +394,7 @@ if (WFTP1 == 'GENERAL') then
   NRASEL(3) = NACTE1
 
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1),EXS(1))
+    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1),EXS(1),TRS(1))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
       call SG_Print(SGS(1))
@@ -516,7 +517,7 @@ if (WFTP2 == 'GENERAL') then
   NRASEL(3) = NACTE2
 
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),EXS(2))
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),EXS(2),TRS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SG_Print(SGS(2))
@@ -1172,10 +1173,10 @@ if (mstate_dens) then
 end if
 
 if (WFTP1 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(SGS(1),CIS(1),EXS(1))
+  if (.not. doDMRG) call SG_Free(SGS(1),CIS(1),TRS(1),EXS(1))
 end if
 if (WFTP2 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(SGS(2),CIS(2),EXS(2))
+  if (.not. doDMRG) call SG_Free(SGS(2),CIS(2),TRS(2),EXS(2))
 end if
 
 if (JOB1 /= JOB2) then

@@ -18,7 +18,7 @@ use CC_CI_mod, only: Do_CC_CI
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: DoBlockDMRG, NSM
 use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
-use general_data, only: CIS, EXS, SGS
+use general_data, only: CIS, EXS, SGS, TRS
 use sguga, only: MKSGNUM, SG_init
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
@@ -76,7 +76,7 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call SG_Init'
-      call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                    &
+      call SG_Init(nSym,nActEl,iSpin,SGS,CIS,TRS,                &
                    nRas,nRasEl,nRsPrt,                           &
                    EXS,                                          &
                    xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
