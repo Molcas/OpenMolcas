@@ -1742,51 +1742,73 @@ do MV=1,CIS%nMidV                  ! loop over midverticies
   end do
 end do
 
+
 ! For lower walks
 NRL(:,SGS%MVSta:SGS%nVert,:) = 0
 NRL(1,SGS%nVert,0) = 1
 
-do IVLT=SGS%nVert-1,SGS%MVSta,-1
+do IVLT = SGS%nVert-1, SGS%MVSta, -1
   LEV = SGS%DRT(IVLT,LTAB)
-  do ISGT=1,nSeg
-    IVLB = CIS%ISGM(IVLT,ISGT)
-    if (IVLB == 0) cycle
-    ICL = IC1(ISGT)
-    ISYM = 1
-    if ((ICL == 1) .or. (ICL == 2)) ISYM = SGS%ISm(LEV)
-    do ITSYM=1,SGS%nSym
-      IBSYM = Mul(ITSYM,ISYM)
-      select case (ISGT)
-        case (23:)
-          ! THIS IS A LOWER WALK.
-          NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0)+NRL(IBSYM,IVLB,0)
+
+  do ICLASS = 0, TRS%nClass-1
+
+    IT0 = TRS%ITR0(IVLT,ICLASS)
+    NT  = TRS%NTR(IVLT,ICLASS)
+
+    if (NT == 0) cycle
+
+    do K = 1, NT
+      ITR  = IT0 + K
+      ISGT = TRS%ISGT(ITR)
+      IVLB = TRS%IVLB(ITR)
+      ITOP = TRS%ITOP(ITR)
+      IBOT = TRS%IBOT(ITR)
+      ICL  = TRS%ICL(ITR)
+      ISYM = TRS%ISYM(ITR)
+
+      do ITSYM = 1, SGS%nSym
+        IBSYM = Mul(ITSYM,ISYM)
+
+        select case (ISGT)
+
+        case (23:26)
+          ! ordinary lower walk
+          NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0) + NRL(IBSYM,IVLB,0)
+
         case (19:22)
-          ! THIS IS AN BOTTOM SEGMENT.
-          INDEO = LEV+(ITVPT(ISGT)-1)*SGS%nLev
-          NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO)+NRL(IBSYM,IVLB,0)
+          ! create open-loop class from below
+          INDEO = LEV + (OpenBand(ITOP)-1)*SGS%nLev
+          NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,0)
+
         case (9:18)
-          ! THIS IS A MID-SEGMENT.
-          do IQ=1,LEV-1
-            INDEOT = IQ+(ITVPT(ISGT)-1)*SGS%nLev
-            INDEOB = IQ+(IBVPT(ISGT)-1)*SGS%nLev
-            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT)+NRL(IBSYM,IVLB,INDEOB)
+          ! propagate open-loop class upward
+          do IQ = 1, LEV-1
+            INDEOT = IQ + (OpenBand(ITOP)-1)*SGS%nLev
+            INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
+            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
           end do
+
         case (5:8)
-          ! THIS IS AN TOP SEGMENT.
-          do IQ=1,LEV-1
-            INDEOB = IQ+(IBVPT(ISGT)-1)*SGS%nLev
-            IPQ = (LEV*(LEV-1))/2+IQ
-            INDEOT = IPQ+2*SGS%nLev
-            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT)+NRL(IBSYM,IVLB,INDEOB)
+          ! close open loop into closed-loop class
+          do IQ = 1, LEV-1
+            INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
+            IPQ    = (LEV*(LEV-1))/2 + IQ
+            INDEOT = 2*SGS%nLev + IPQ
+            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
           end do
+
         case default
-          ! THIS IS AN UPPER WALK.
-          do IPQ=1,(LEV*(LEV-1))/2
-            INDEO = 2*SGS%nLev+IPQ
-            NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO)+NRL(IBSYM,IVLB,INDEO)
+          ! propagate closed loops upward
+          do IPQ = 1, (LEV*(LEV-1))/2
+            INDEO = 2*SGS%nLev + IPQ
+            NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
           end do
-      end select
+
+        end select
+
+      end do
     end do
+
   end do
 end do
 
