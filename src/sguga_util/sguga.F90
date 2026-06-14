@@ -2153,6 +2153,22 @@ do IHALF=1,2
               call ABEND()
             end if
 
+! ============================================================
+! M5 BEGIN
+! Keep all of the following logic identical to the original
+! MKCOUP until the transition-based path traversal is fully
+! validated:
+!   - VTab lookup / insertion
+!   - ICoup write
+!   - ILNDW-based Lund renumbering
+!   - final EXS%VTab materialization
+! ============================================================
+
+! ------------------------------------------------------------
+! M5: keep VTab logic identical to the original MKCOUP
+! Do not optimize or refactor this yet.
+! ------------------------------------------------------------
+
             C = val(LEV2)
             do I=1,NVTAB_FINAL
               IVTAB = I
@@ -2174,6 +2190,11 @@ do IHALF=1,2
               VTab(NVTAB_FINAL) = C
               IVTAB = NVTAB_FINAL
             end if
+
+! ------------------------------------------------------------
+! M5: keep ICoup write logic identical to the original MKCOUP
+! ------------------------------------------------------------
+
             EXS%ICoup(1,ICOP) = ISGPTH(IAWSL,LEV2)
             EXS%ICoup(2,ICOP) = ISGPTH(IAWSR,LEV2)
             EXS%ICoup(3,ICOP) = IVTAB
@@ -2190,6 +2211,10 @@ do IHALF=1,2
     end do
   end do
 end do
+
+! ------------------------------------------------------------
+! M5: keep Lund renumbering identical to the original MKCOUP
+! ------------------------------------------------------------
 ! RENUMBER THE COUPLING COEFFICIENT INDICES BY LUND SCHEME:
 do ICOP=1,EXS%nICoup
   I1 = EXS%ICoup(1,ICOP)
@@ -2197,6 +2222,10 @@ do ICOP=1,EXS%nICoup
   EXS%ICoup(1,ICOP) = ILNDW(I1)
   EXS%ICoup(2,ICOP) = ILNDW(I2)
 end do
+
+! ============================================================
+! M5 END
+! ============================================================
 
 call mma_deallocate(val)
 call mma_deallocate(ISGPTH)
