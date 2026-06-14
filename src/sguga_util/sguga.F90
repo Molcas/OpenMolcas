@@ -801,7 +801,8 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,TRS,                  &
 
     ! Explicitly generates the compressed coupling tuples '(left walk, right walk, value index)' and compacts repeated
     ! numerical values into 'VTab'.
-    call MKCOUP(SGS,CIS,EXS)
+!   call MKCOUP(SGS,CIS,EXS)
+    call MKCOUP_TR(SGS,CIS,EXS,TRS)
   end if
 
 end subroutine SG_Init
@@ -1967,6 +1968,7 @@ call mma_deallocate(NRL)
 
 end subroutine MkNRCOUP_TR
 
+
 subroutine MKCOUP(SGS,CIS,EXS)
 ! Purpose: Compute and return the table ICOUP(1..3,ICOP).
 ! The number of coupling coeffs is obtained from NOCP, the offset to
@@ -2356,6 +2358,338 @@ call mma_deallocate(VTab)
 
 end subroutine MKCOUP
 
+
+subroutine MKCOUP_TR(SGS,CIS,EXS,TRS)
+
+! Purpose:
+!   Transition-table version of MKCOUP.
+!
+! Scope of this first version:
+!   - current class system only (0,1,2,3)
+!   - uses TRS bucket traversal instead of scanning ISGT=1..nSeg
+!   - keeps the old path/state logic as intact as possible
+!   - keeps old MAW lookups
+!   - keeps old VTab logic
+!
+! Important:
+!   ISGPTH(ISEG,LEV) is now a bucket cursor K
+!   ISGPTH(IRSEG,LEV) stores the raw segment number ISGT
+
+  implicit none
+
+  type(SGStruct), intent(in)    :: SGS
+  type(CIStruct), intent(inout) :: CIS
+  type(EXStruct), intent(inout) :: EXS
+  type(TRStruct), intent(in)    :: TRS
+
+  integer(kind=iwp) :: i, i1, i2
+  integer(kind=iwp) :: IAWS, IC, ICL, ICOP, ICR
+  integer(kind=iwp) :: IHALF, ILND, INDEO, IP, IPOS, IQ
+  integer(kind=iwp) :: IS, ISG, ISGT, ISYM, IT, ITYP, ITYPT
+  integer(kind=iwp) :: IVLB, IVLT, IVRT, IVRTOP, IVTAB
+  integer(kind=iwp) :: IVTOP, IVTSTA, IVTEND
+  integer(kind=iwp) :: K, ITR, IT0, NT
+  integer(kind=iwp) :: LEV, LEV1, LEV2, LL, L
+  integer(kind=iwp) :: LFTSYM, MV, NCHECK, NVTAB_FINAL
+  integer(kind=iwp) :: ITYPMX
+
+#ifdef _DEBUGPRINT_
+  integer(kind=iwp) :: I3, ICOP1, ICOP2, ICP1, ICP2, N, NRC, NRCPQ
+  real(kind=wp)     :: CP
+#endif
+
+  real(kind=wp) :: C
+
+  integer(kind=iwp), allocatable :: ILNDW(:), ISGPTH(:,:)
+  real(kind=wp),    allocatable :: val(:), VTab(:)
+
+  ! Rows of ISGPTH
+  integer(kind=iwp), parameter :: IVLFT = 1
+  integer(kind=iwp), parameter :: ITYPE = 2
+  integer(kind=iwp), parameter :: IAWSL = 3
+  integer(kind=iwp), parameter :: IAWSR = 4
+  integer(kind=iwp), parameter :: ILS   = 5
+  integer(kind=iwp), parameter :: ICS   = 6
+
+  ! NOTE:
+  ! ISEG  = bucket cursor (position K in current transition bucket)
+  ! IRSEG = raw segment number ISGT
+  integer(kind=iwp), parameter :: ISEG  = 7
+  integer(kind=iwp), parameter :: IRSEG = 8
+
+  integer(kind=iwp), parameter :: nVTab = 5000
+
+  call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
+  call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
+
+  ! Special case
+  if (SGS%nLev == 1) then
+    NVTAB_FINAL = 0
+    call mma_allocate(EXS%VTab,NVTAB_FINAL,Label='EXS%VTab')
+    return
+  end if
+
+  ! NOW is reused as a counter array and restored later by higher-level logic
+  do IHALF = 1, 2
+    do MV = 1, CIS%nMidV
+      do IS = 1, SGS%nSym
+        CIS%NOW(IHALF,IS,MV) = 0
+      end do
+    end do
+  end do
+
+  ! Same idea for NOCP
+  do INDEO = 1, EXS%MxEO
+    do MV = 1, CIS%nMidV
+      do IS = 1, SGS%nSym
+        EXS%NOCP(INDEO,IS,MV) = 0
+      end do
+    end do
+  end do
+
+  call mma_allocate(ILNDW,CIS%nWalk,Label='ILNDW')
+  call mma_allocate(ISGPTH,[1,8],[0,SGS%nLev],Label='ISGPTH')
+  call mma_allocate(val,[0,SGS%nLev],Label='val')
+  call mma_allocate(VTab,nVTab,Label='VTab')
+
+  ! Coupling coefficient value table
+  NVTAB_FINAL = 2
+  VTab(1) =  One
+  VTab(2) = -One
+
+  NCHECK = 0
+
+  do IHALF = 1, 2
+
+    if (IHALF == 1) then
+      IVTSTA = 1
+      IVTEND = 1
+      LEV1   = SGS%nLev
+      LEV2   = SGS%MidLev
+      ITYPMX = 0
+    else
+      IVTSTA = SGS%MVSta
+      IVTEND = SGS%MVEnd
+      LEV1   = SGS%MidLev
+      LEV2   = 0
+      ITYPMX = 2
+    end if
+
+    do IVTOP = IVTSTA, IVTEND
+
+      do ITYP = 0, ITYPMX
+
+        IVRTOP = IVTOP
+        if (ITYP > 0) IVRTOP = CIS%IVR(IVTOP,ITYP)
+        if (IVRTOP == 0) cycle
+
+        LEV = LEV1
+
+        ! Initialize path table at starting level
+        ISGPTH(IVLFT,LEV) = IVTOP
+        ISGPTH(ITYPE,LEV) = ITYP
+        ISGPTH(IAWSL,LEV) = 0
+        ISGPTH(IAWSR,LEV) = 0
+        ISGPTH(ILS,  LEV) = 1
+        ISGPTH(ICS,  LEV) = 0
+        ISGPTH(ISEG, LEV) = 0   ! bucket cursor
+        ISGPTH(IRSEG,LEV) = 0   ! raw segment number
+
+        val(LEV) = One
+
+        ! Walk from top to midlevel, or from midlevel to root
+        do while (LEV <= LEV1)
+
+          ITYPT = ISGPTH(ITYPE,LEV)
+          IVLT  = ISGPTH(IVLFT,LEV)
+
+          ! ------------------------------------------------------
+          ! M3 STEP: use transition bucket instead of scanning ISGT
+          ! ------------------------------------------------------
+          IT0 = TRS%ITR0(IVLT,ITYPT)
+          NT  = TRS%NTR(IVLT,ITYPT)
+
+          K = ISGPTH(ISEG,LEV) + 1
+
+          if (K > NT) then
+            ! No more transitions left in this bucket: reset and backtrack
+            ISGPTH(ISEG,LEV)  = 0
+            ISGPTH(IRSEG,LEV) = 0
+            LEV = LEV + 1
+            cycle
+          end if
+
+          ITR  = IT0 + K
+          ISGT = TRS%ISGT(ITR)
+          IVLB = TRS%IVLB(ITR)
+
+          ICL  = TRS%ICL(ITR)
+          ICR  = TRS%ICR(ITR)
+          ISYM = TRS%ISYM(ITR)
+
+          ! Right upper vertex
+          IVRT = IVLT
+          if (TRS%IPRT(ITR) /= 0) then
+            IVRT = CIS%IVR(IVLT,TRS%IPRT(ITR))
+          end if
+
+          ! Store current bucket cursor and raw segment number
+          ISGPTH(ISEG,LEV)  = K
+          ISGPTH(IRSEG,LEV) = ISGT
+          ISGPTH(ICS,LEV)   = ICL
+
+          ! Descend one level
+          LEV = LEV - 1
+
+          ! Keep old MAW lookups in this first transition-based version
+          ISGPTH(IAWSL,LEV) = ISGPTH(IAWSL,LEV+1) + SGS%MAW(IVLT,ICL)
+          ISGPTH(IAWSR,LEV) = ISGPTH(IAWSR,LEV+1) + SGS%MAW(IVRT,ICR)
+
+          val(LEV) = val(LEV+1) * TRS%VSEG(ITR)
+
+          ISGPTH(ILS,LEV)   = Mul(ISYM,ISGPTH(ILS,LEV+1))
+          ISGPTH(IVLFT,LEV) = IVLB
+          ISGPTH(ITYPE,LEV) = TRS%IBOT(ITR)
+          ISGPTH(ISEG,LEV)  = 0
+          ISGPTH(IRSEG,LEV) = 0
+          ISGPTH(ICS,LEV)   = 0
+
+          if (LEV > LEV2) cycle
+
+          ! ------------------------------------------------------
+          ! Bottom of current half-path reached
+          ! ------------------------------------------------------
+          MV = ISGPTH(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
+          LFTSYM = ISGPTH(ILS,LEV2)
+
+          IT = ISGPTH(ITYPE,SGS%MidLev)
+          if (IT == 0) IT = 3
+          if (ISGPTH(ITYPE,LEV2) == 0) IT = 0
+
+          if (IT == 0) then
+
+            ! Ordinary walk
+            ILND = 1 + CIS%NOW(IHALF,LFTSYM,MV)
+            IAWS = ISGPTH(IAWSL,LEV2)
+            ILNDW(IAWS) = ILND
+            CIS%NOW(IHALF,LFTSYM,MV) = ILND
+
+            IPOS = CIS%IOW(IHALF,LFTSYM,MV) + (ILND-1)*CIS%nIpWlk
+
+            do LL = LEV2+1, LEV1, nPack
+              IC = 0
+              do L = min(LL+nPack-1,LEV1), LL, -1
+                IC = 4*IC + ISGPTH(ICS,L)
+              end do
+              IPOS = IPOS + 1
+              CIS%ICase(IPOS) = IC
+            end do
+
+          else
+
+            ! Open or closed loop
+            IP = 0
+            IQ = 0
+
+            do L = LEV2+1, LEV1
+              ISG = ISGPTH(IRSEG,L)
+
+              if ((ISG >= 5) .and. (ISG <= 8))  IP = L
+              if ((ISG >= 19) .and. (ISG <= 22)) IQ = L
+            end do
+
+            if (IP == 0) IP = IQ
+
+            INDEO = SGS%nLev*(IT-1) + IP
+            if (IT == 3) INDEO = 2*SGS%nLev + (IP*(IP-1))/2 + IQ
+
+            ICOP = 1 + EXS%NOCP(INDEO,LFTSYM,MV)
+            EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
+            ICOP = EXS%IOCP(INDEO,LFTSYM,MV) + ICOP
+
+            NCHECK = NCHECK + 1
+
+            if (ICOP > EXS%nICoup) then
+              write(u6,*) 'ERROR in MKCOUP_TR: ICOP > EXS%nICoup'
+              write(u6,*) ' ICOP      = ', ICOP
+              write(u6,*) ' nICoup    = ', EXS%nICoup
+              write(u6,*) ' INDEO     = ', INDEO
+              write(u6,*) ' MV        = ', MV
+              write(u6,*) ' LFTSYM    = ', LFTSYM
+              call Abend()
+            end if
+
+            C = val(LEV2)
+
+            do i = 1, NVTAB_FINAL
+              IVTAB = i
+              if (abs(C - VTab(i)) < 1.0e-10_wp) exit
+            end do
+
+            if (i > NVTAB_FINAL) then
+              NVTAB_FINAL = NVTAB_FINAL + 1
+              if (NVTAB_FINAL > nVTab) then
+                write(u6,*) 'MKCOUP_TR: NVTAB_FINAL exceeded nVTab'
+                call Abend()
+              end if
+              VTab(NVTAB_FINAL) = C
+              IVTAB = NVTAB_FINAL
+            end if
+
+            EXS%ICoup(1,ICOP) = ISGPTH(IAWSL,LEV2)
+            EXS%ICoup(2,ICOP) = ISGPTH(IAWSR,LEV2)
+            EXS%ICoup(3,ICOP) = IVTAB
+
+            if (ICOP > EXS%nICoup) then
+              write(u6,*) 'MKCOUP_TR: ICOP > EXS%nICoup after write'
+              call Abend()
+            end if
+
+          end if
+
+          ! Back up one level and continue exploring
+          LEV = LEV + 1
+
+        end do
+      end do
+    end do
+  end do
+
+  ! ------------------------------------------------------------
+  ! Renumber coupling coefficient indices by Lund scheme
+  ! ------------------------------------------------------------
+  do ICOP = 1, EXS%nICoup
+    i1 = EXS%ICoup(1,ICOP)
+    i2 = EXS%ICoup(2,ICOP)
+    EXS%ICoup(1,ICOP) = ILNDW(i1)
+    EXS%ICoup(2,ICOP) = ILNDW(i2)
+  end do
+
+  call mma_deallocate(val)
+  call mma_deallocate(ISGPTH)
+  call mma_deallocate(ILNDW)
+
+#ifdef _DEBUGPRINT_
+  ICOP1 = 0
+  ICOP2 = 0
+
+  write(u6,*) 'NR OF DIFFERENT COUPLING VALUES: ', NVTAB_FINAL
+
+  do ICOP = 1, EXS%nICoup
+    i1 = EXS%ICoup(3,ICOP)
+    if (i1 == 1) ICOP1 = ICOP1 + 1
+    if (i1 == 2) ICOP2 = ICOP2 + 1
+  end do
+
+  write(u6,*) 'NR OF COUPS WITH VALUE  1.0: ', ICOP1
+  write(u6,*) 'NR OF COUPS WITH VALUE -1.0: ', ICOP2
+#endif
+
+  call mma_allocate(EXS%VTab,NVTAB_FINAL,Label='EXS%VTab')
+  EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
+  call mma_deallocate(VTab)
+
+end subroutine MKCOUP_TR
 subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
 ! PURPOSE: FOR ALL UPPER AND LOWER WALKS
 !          COMPUTE THE DIRECT ARC WEIGHT SUM AND THE
