@@ -2250,4 +2250,147 @@ subroutine TRANS_Free(TRS)
   call mma_deallocate(TRS%VSEG,   safe='*')
 end subroutine TRANS_Free
 
+subroutine MKTRANS(SGS,CIS,EXS,TRS)
+  type(SGStruct), intent(in)    :: SGS
+  type(CIStruct), intent(in)    :: CIS
+  type(EXStruct), intent(in)    :: EXS
+  type(TRStruct), intent(inout) :: TRS
+
+  integer(kind=iwp) :: IVLT, ISGT, ICLASS
+  integer(kind=iwp) :: LEV, IVLB
+  integer(kind=iwp) :: ICL, ICR, ITOP, IBOT
+  integer(kind=iwp) :: IPRT, ISYM, IOBAND, IFLAG
+  integer(kind=iwp) :: ITR, N
+  integer(kind=iwp), allocatable :: IPOS(:,:)
+  real(kind=wp) :: VSEG
+
+  ! Initialize metadata
+  call TRANS_Free(TRS)
+
+  TRS%nClass    = 4
+  TRS%nOpenBand = 2
+
+  ! Allocate bucket tables
+  call mma_allocate(TRS%NTR,[1,SGS%nVert],[0,TRS%nClass-1],Label='TRS%NTR')
+  call mma_allocate(TRS%ITR0,[1,SGS%nVert],[0,TRS%nClass-1],Label='TRS%ITR0')
+
+  TRS%NTR(:,:)  = 0
+  TRS%ITR0(:,:) = 0
+
+  ! First pass: couny transitions per bucket
+  ! For every source vertex IVLT, count how many valid segments require each top class ITOP
+  do IVLT = 1, SGS%nVert
+     do ISGT = 1, nSeg
+      IVLB = CIS%ISGM(IVLT,ISGT)
+      if (IVLB == 0) cycle
+      ITOP = ITVPT(ISGT)
+      TRS%NTR(IVLT,ITOP) = TRS%NTR(IVLT,ITOP) + 1
+    end do
+  end do
+
+  ! Build offsets
+  N = 0
+  do ICLASS = 0, TRS%nClass-1
+    do IVLT = 1, SGS%nVert
+      TRS%ITR0(IVLT,ICLASS) = N
+      N = N + TRS%NTR(IVLT,ICLASS)
+    end do
+  end do
+
+  TRS%nTrans = N
+  ! Now the bucket layout is fixed.
+
+  ! Allocate the flat transition arrays.
+
+  call mma_allocate(TRS%ISGT,   TRS%nTrans, Label='TRS%ISGT')
+  call mma_allocate(TRS%IVLT,   TRS%nTrans, Label='TRS%IVLT')
+  call mma_allocate(TRS%IVLB,   TRS%nTrans, Label='TRS%IVLB')
+
+  call mma_allocate(TRS%ITOP,   TRS%nTrans, Label='TRS%ITOP')
+  call mma_allocate(TRS%IBOT,   TRS%nTrans, Label='TRS%IBOT')
+
+  call mma_allocate(TRS%ICL,    TRS%nTrans, Label='TRS%ICL')
+  call mma_allocate(TRS%ICR,    TRS%nTrans, Label='TRS%ICR')
+
+  call mma_allocate(TRS%IPRT,   TRS%nTrans, Label='TRS%IPRT')
+  call mma_allocate(TRS%ISYM,   TRS%nTrans, Label='TRS%ISYM')
+  call mma_allocate(TRS%IOBAND, TRS%nTrans, Label='TRS%IOBAND')
+  call mma_allocate(TRS%IFLAG,  TRS%nTrans, Label='TRS%IFLAG')
+
+  call mma_allocate(TRS%MAWL,   TRS%nTrans, Label='TRS%MAWL')
+  call mma_allocate(TRS%MAWR,   TRS%nTrans, Label='TRS%MAWR')
+
+  call mma_allocate(TRS%VSEG,   TRS%nTrans, Label='TRS%VSEG')
+
+  ! Allocate a fill-position array
+  call mma_allocate(IPOS,[1,SGS%nVert],[0,TRS%nClass-1],Label='IPOS')
+  IPOS(:,:) = TRS%ITR0(:,:)   ! IPOS is a write pointer per bucket.
+
+  ! Second pass: fill transition arrays
+
+  do IVLT = 1, SGS%nVert
+    LEV = SGS%DRT(IVLT,LTAB)
+
+    do ISGT = 1, nSeg
+
+      IVLB = CIS%ISGM(IVLT,ISGT)
+      if (IVLB == 0) cycle
+
+      ITOP = ITVPT(ISGT)
+      IBOT = IBVPT(ISGT)
+
+      ICL = IC1(ISGT)
+      ICR = IC2(ISGT)
+
+      ISYM = 1
+      if ((ICL == 1) .or. (ICL == 2)) ISYM = SGS%ISm(LEV)
+
+      IPRT   = PartnerSlot(ITOP)
+      IOBAND = OpenBand(ITOP)
+      VSEG   = CIS%VSGM(IVLT,ISGT)
+
+      select case (ISGT)
+      case (1:4)
+        IFLAG = TR_WALK
+      case (5:8)
+        IFLAG = TR_OPEN
+      case (9:18)
+        IFLAG = TR_MID
+      case (19:22)
+        IFLAG = TR_CLOSE
+      case default
+        IFLAG = TR_TAIL
+      end select
+
+      IPOS(IVLT,ITOP) = IPOS(IVLT,ITOP) + 1
+      ITR = IPOS(IVLT,ITOP)
+
+      TRS%ISGT(ITR) = ISGT
+      TRS%IVLT(ITR) = IVLT
+      TRS%IVLB(ITR) = IVLB
+
+      TRS%ITOP(ITR) = ITOP
+      TRS%IBOT(ITR) = IBOT
+
+      TRS%ICL(ITR)  = ICL
+      TRS%ICR(ITR)  = ICR
+
+      TRS%IPRT(ITR)   = IPRT
+      TRS%ISYM(ITR)   = ISYM
+      TRS%IOBAND(ITR) = IOBAND
+      TRS%IFLAG(ITR)  = IFLAG
+
+      TRS%VSEG(ITR) = VSEG
+
+      ! Leave these as placeholders in the first version
+      TRS%MAWL(ITR) = 0
+      TRS%MAWR(ITR) = 0
+
+    end do
+  end do
+
+  call mma_deallocate(IPOS)
+end subroutine MKTRANS
+
+
 end module SGUGA
