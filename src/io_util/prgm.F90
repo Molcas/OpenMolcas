@@ -415,7 +415,7 @@ subroutine PrgmCache()
 end subroutine PrgmCache
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define fe_mma_allo_1D, fe_mma_allo_1D_lim, fe_mma_free_1D
 #define _TYPE_ type(FileEntry)

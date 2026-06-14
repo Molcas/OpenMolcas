@@ -23,7 +23,7 @@ use Index_Functions, only: nTri_Elem
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: TERSE, USUAL, VERBOSE
 use caspt2_module, only: ENERGY, HZERO, IfChol, IFDW, IFRMS, IFXMS, JMS, MSTATE, NSTATE, PT2Method
-use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, ENERGY_SC, HEFF_SC, UEFF_SC
+use SC_NEVPT2, only: Do_FIC, Do_SC, ENERGY_SC, HEFF_SC, SC_prop, UEFF_SC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -31,12 +31,12 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(inout) :: HEFF(NSTATE,NSTATE), EIGVEC(NSTATE,NSTATE)
 real(kind=wp), intent(in) :: U0(Nstate,Nstate)
-integer(kind=iwp) :: I, IEND, II0, IJ, ISTA, J, LAXITY, NHTRI, NUMAT, iloop, nloop
+integer(kind=iwp) :: I, IEND, II0, IJ, iloop, ISTA, J, LAXITY, NHTRI, nloop, NUMAT
 real(kind=wp) :: DSHIFT, tmp
+logical(kind=iwp) :: PrRes
 character(len=8) :: INLAB
 character(len=5) :: variant
 real(kind=wp), allocatable :: HTRI(:), UMAT(:,:), Utmp(:,:)
-logical(kind=iwp) :: PrRes
 integer(kind=iwp), external :: Cho_X_GetTol
 
 if (IPRGLB >= TERSE) then
@@ -51,7 +51,7 @@ end if
 
 ! Write out the effective Hamiltonian, for use in e.g. RASSI:
 INLAB = 'HEFF'
-if (HZERO /= 'DYALL' .or. .not. SC_prop) then
+if ((HZERO /= 'DYALL') .or. (.not. SC_prop)) then
   call put_darray(INLAB,HEFF,NSTATE**2)
 else
   call put_darray(INLAB,HEFF_SC,NSTATE**2)
@@ -67,13 +67,13 @@ end do
 if ((IPRGLB >= TERSE) .and. (DSHIFT /= Zero)) write(u6,*) ' Output diagonal energies have been shifted. Add ',DSHIFT
 
 nloop = 1
-if (HZERO == 'DYALL' .and. Do_SC) nloop = 2
+if ((HZERO == 'DYALL') .and. Do_SC) nloop = 2
 
-do iloop = 1, nloop
+do iloop=1,nloop
   PrRes = .true.
   if (HZERO == 'DYALL') then
-    if (iloop == 1 .and. .not.Do_FIC) PrRes = .false.
-    if (iloop == 2 .and. .not.Do_SC) PrRes = .false.
+    if ((iloop == 1) .and. (.not. Do_FIC)) PrRes = .false.
+    if ((iloop == 2) .and. (.not. Do_SC)) PrRes = .false.
   end if
 
   if (((IPRGLB >= VERBOSE) .or. JMS) .and. PrRes) then
@@ -91,7 +91,7 @@ do iloop = 1, nloop
   ! Diagonalize:
   ! Use a symmetrized matrix, in triangular storage:
   NUMAT = NSTATE**2
-  NHTRI = (NUMAT+NSTATE)/2
+  NHTRI = nTri_Elem(NUMAT)
   call mma_allocate(UMAT,NSTATE,NSTATE,LABEL='UMAT')
   call mma_allocate(HTRI,NHTRI,LABEL='HTRI')
   IJ = 0
@@ -99,7 +99,7 @@ do iloop = 1, nloop
     HTRI(IJ+1:IJ+I) = Half*(HEFF(I,1:I)+HEFF(1:I,I))
     IJ = IJ+I
   end do
-  if (IPRGLB >= USUAL .and. PrRes) then
+  if ((IPRGLB >= USUAL) .and. PrRes) then
     write(u6,*)
     write(u6,*) ' Effective Hamiltonian matrix (Symmetric):'
     do ISTA=1,NSTATE,5
@@ -122,7 +122,7 @@ do iloop = 1, nloop
   call mma_deallocate(UMAT)
   call mma_deallocate(HTRI)
 
-  if (IPRGLB >= TERSE .and. PrRes) then
+  if ((IPRGLB >= TERSE) .and. PrRes) then
     if (IFRMS) then
       variant = 'RMS'
     else if (IFXMS .and. IFDW) then
@@ -140,7 +140,7 @@ do iloop = 1, nloop
       do I=1,NSTATE
         call PrintResult(u6,'(6x,A,I3,5X,A,F16.8)',trim(variant)//'-CASPT2 Root',I,'Total energy:',ENERGY(I),1)
       end do
-    else if (HZERO == 'DYALL') then !! NEVPT2
+    else !! NEVPT2
       if (iloop == 1) variant = 'QD-PC'
       if (iloop == 2) variant = 'QD-SC'
       write(u6,*)
@@ -151,7 +151,7 @@ do iloop = 1, nloop
     end if
   end if
 
-  if (IPRGLB >= USUAL .and. PrRes) then
+  if ((IPRGLB >= USUAL) .and. PrRes) then
     write(u6,*)
     write(u6,'(6X,A)') ' Eigenvectors:'
     do ISTA=1,NSTATE,5
@@ -185,8 +185,8 @@ do iloop = 1, nloop
   end do
 
   if (nloop == 2) then
-    do i = 1, nstate
-      do j = 1, nstate
+    do i=1,nstate
+      do j=1,nstate
         tmp = HEFF(j,i)
         HEFF(j,i) = HEFF_SC(j,i)
         HEFF_SC(j,i) = tmp
@@ -208,14 +208,14 @@ end do
 ! in case of Cholesky calculation.
 LAXITY = 8
 if (IfChol) LAXITY = Cho_X_GetTol(LAXITY)
-if (HZERO /= 'DYALL' .or. .not. SC_prop) then
+if ((HZERO /= 'DYALL') .or. (.not. SC_prop)) then
   call Add_Info('E_MSPT2',ENERGY,nState,LAXITY)
 else
   call Add_Info('E_MSPT2',ENERGY_SC,nState,LAXITY)
-  ENERGY(1:NSTATE) = ENERGY_SC(1:NSTATE)
+  ENERGY(1:NSTATE) = ENERGY_SC(:)
   !! Replace the effective H and eigenvec with those for SC
-  HEFF(1:NSTATE,1:NSTATE) = HEFF_SC(1:NSTATE,1:NSTATE)
-  EIGVEC(1:NSTATE,1:NSTATE) = UEFF_SC(1:NSTATE,1:NSTATE)
+  HEFF(:,:) = HEFF_SC(:,:)
+  EIGVEC(:,:) = UEFF_SC(:,:)
 end if
 
 end subroutine MLTCTL

@@ -63,8 +63,11 @@ real(kind=wp), allocatable :: WRK1(:), WRK2(:)
 !! IC = SR (why?), contravariant = C
 !write(u6,*) 'icase = ',icase
 
-PM = .false.
-if ((iCase == 2) .or. (iCase == 6) .or. (iCase == 8) .or. (iCase == 10) .or. (iCase == 12)) PM = .true.
+if ((iCase == 2) .or. (iCase == 6) .or. (iCase == 8) .or. (iCase == 10) .or. (iCase == 12)) then
+  PM = .true.
+else
+  PM = .false.
+end if
 if ((iCase == 3) .or. (iCase == 7) .or. (iCase == 9) .or. (iCase == 11) .or. (iCase == 13)) return
 
 SQ2 = sqrt(Two)
@@ -177,7 +180,7 @@ else if ((iCase == 12) .or. (iCase == 13)) then
   call OLagNS_H(Amp1)
 end if
 
-if (iCase == 1 .and. HZERO == 'DYALL') call OLagNS_AAAA(Amp1)
+if ((iCase == 1) .and. (HZERO == 'DYALL')) call OLagNS_AAAA(Amp1)
 call mma_deallocate(WRK1)
 call mma_deallocate(WRK2)
 
@@ -908,36 +911,30 @@ subroutine OLagNS_AAAA(AmpL1)
 
   use BDerNEV, only: Gder
 
-  implicit none
-
   real(kind=wp), intent(inout) :: AmpL1(nAshA,nAshB)
-
-  integer(kind=iwp) :: iI, iJ, iA, iB
+  integer(kind=iwp) :: iA, iB, iI, iJ
 
   if (nAshI*nAshJ*nAshA*nAshB == 0) return
 
-  do iI = 1, nAshI
-    iIabs = iI + nIshI + nAes(iSymI)
-    do iJ = 1, nAshJ
-      iJabs = iJ + nIshJ + nAes(iSymJ)
-      Fac = One
+  do iI=1,nAshI
+    iIabs = iI+nIshI+nAes(iSymI)
+    do iJ=1,nAshJ
+      iJabs = iJ+nIshJ+nAes(iSymJ)
+      !Fac = One
 
-      call Exch(iSymA,iSymI,iSymB,iSymJ, &
-                iI+nCorI,iJ+nCorJ, &
-                ERI1,Scr)
+      call Exch(iSymA,iSymI,iSymB,iSymJ,iI+nCorI,iJ+nCorJ,ERI1,Scr)
       AmpL1(:,:) = Zero
 
-      do iA = 1, nAshA
-        iAabs = iA + nAes(iSymA)
-        do iB = 1, nAshB
-          iBabs = iB + nAes(iSymB)
+      do iA=1,nAshA
+        iAabs = iA+nAes(iSymA)
+        do iB=1,nAshB
+          iBabs = iB+nAes(iSymB)
           ValA = Gder(iAabs,iI,iBabs,iJ)
-          AmpL1(iA,iB) = AmpL1(iA,iB) + ValA
+          AmpL1(iA,iB) = AmpL1(iA,iB)+ValA
         end do
       end do
 
-      call DScal_(nAshA*nAshB,Fac,AmpL1,1)
-      AmpL1(:,:) = Fac*AmpL1(:,:)
+      !AmpL1(:,:) = Fac*AmpL1(:,:)
       call OLagNS_post1(1,1,ERI1,AmpL1)
       call OLagNS_post2(nAshA,nAshB,nCorA,nCorB,AmpL1,WRK2)
       call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)

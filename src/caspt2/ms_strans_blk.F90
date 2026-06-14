@@ -29,7 +29,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NASHT, NTG3, IISTA, IIEND
 real(kind=wp), intent(in) :: V1(nvlen), OVL, SCAL
-character(len=1), intent(in) :: CNT
+character, intent(in) :: CNT
 real(kind=wp), intent(inout) :: V2(nvlen), TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 integer(kind=iwp) :: IAS, IAS1, IAS2, IASABS, IND1, IND2, IND3, ITABS, ITG3, IUABS, IVABS, IXABS, IYABS, IZABS, JAS, JAS1, JAS2, &
                      JASABS, JND1, JND2, JND3, NAS1, NISBLK

@@ -357,9 +357,9 @@ subroutine Print_Truff()
   end if
 
   if (IPRGLB >= TERSE) then
-    if (HZERO == 'DYALL' .and. SC_prop) ENERGY(1:NSTATE) = ENERGY_SC(1:NSTATE)
+    if ((HZERO == 'DYALL') .and. SC_prop) ENERGY(1:NSTATE) = ENERGY_SC(1:NSTATE)
     write(u6,*) ' Total '//trim(CPT2Method)//' energies:'
-    if (IFXMS .or. IFRMS .and. HZERO /= 'DYALL') then
+    if (IFXMS .or. IFRMS .and. (HZERO /= 'DYALL')) then
       write(u6,*)
       write(u6,*) ' State-specific CASPT2 energies obtained using'
       write(u6,*) ' rotated states do not have a well-defined physical'
@@ -384,7 +384,7 @@ subroutine Print_Truff()
         end do
       end if
     end if
-    write(6,*)
+    write(u6,*)
   end if
 
 end subroutine Print_Truff
@@ -496,7 +496,7 @@ subroutine CASPT2_TERM()
   call MMA_DEALLOCATE(U0)
   call MMA_DEALLOCATE(HEFF)
   call MMA_DEALLOCATE(H0)
-  if (HZERO == 'DYALL' .and. Do_SC) call SC_NEVPT2_final()
+  if ((HZERO == 'DYALL') .and. Do_SC) call SC_NEVPT2_final()
 
   ! PRINT I/O AND SUBROUTINE CALL STATISTICS
   if (IPRGLB >= USUAL) call FASTIO('STATUS')
@@ -534,10 +534,10 @@ subroutine HEFF_INI()
   !     Heff[1] = PHP
   ! and later on we will add the second-order correction
   ! Heff(2) = PH \Omega_1 P to Heff[1]
-  if (HZERO == 'DYALL' .and. Do_SC) call SC_NEVPT2_initial()
+  if ((HZERO == 'DYALL') .and. Do_SC) call SC_NEVPT2_initial()
   do I=1,NSTATE
     HEFF(I,I) = REFENE(I)
-    if (HZERO == 'DYALL' .and. Do_SC) HEFF_SC(I,I) = REFENE(I)
+    if ((HZERO == 'DYALL') .and. Do_SC) HEFF_SC(I,I) = REFENE(I)
   end do
   if (IPRGLB >= VERBOSE) then
     write(u6,*) ' Heff[1] in the original model space basis:'
@@ -547,17 +547,17 @@ subroutine HEFF_INI()
   ! coupling Hamiltonian effective matrix, just copy the energies.
   if (INPUT%JMS) then
     ! in case of XMS, XDW, RMS, we need to rotate the states
-    if (IFXMS .or. IFRMS .and. HZERO /= 'DYALL') call xdwinit(Heff,H0,U0,nState)
+    if (IFXMS .or. IFRMS .and. (HZERO /= 'DYALL')) call xdwinit(Heff,H0,U0,nState)
     do I=1,NSTATE
       ENERGY(I) = INPUT%HEFF(I,I)
     end do
     HEFF(:,:) = INPUT%HEFF(:,:)
-    if (HZERO == 'DYALL' .and. Do_SC) HEFF_SC(:,:) = INPUT%HEFF(:,:)
+    if ((HZERO == 'DYALL') .and. Do_SC) HEFF_SC(:,:) = INPUT%HEFF(:,:)
   else
 
     ! In case of a XDW-CASPT2 calculation we first rotate the CASSCF
     ! states according to the XMS prescription in xdwinit
-    if (((IFXMS .and. IFDW) .or. IFRMS) .and. HZERO /= 'DYALL') call xdwinit(Heff,H0,U0,nState)
+    if (((IFXMS .and. IFDW) .or. IFRMS) .and. (HZERO /= 'DYALL')) call xdwinit(Heff,H0,U0,nState)
     call wgtinit(Heff,nState)
   end if
 

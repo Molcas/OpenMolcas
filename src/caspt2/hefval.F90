@@ -89,7 +89,7 @@ end if
 #endif
 
 call hcoup(ivecw,ivecc,ovl,tg1,tg2,nAshT,tg3,ntg3,dvalue)
-if (HZERO == 'DYALL' .and. Do_SC) HEFF_SC(IST,JST) = HEFF_SC(IST,JST) + DVALUE_SC
+if ((HZERO == 'DYALL') .and. Do_SC) HEFF_SC(IST,JST) = HEFF_SC(IST,JST)+DVALUE_SC
 
 call mma_deallocate(tg1)
 call mma_deallocate(tg2)

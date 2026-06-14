@@ -81,8 +81,8 @@ use Para_Info, only: Is_Real_Par
 #endif
 use caspt2_global, only: do_csf, iPrGlb, iStpGrd
 use caspt2_module, only: HZERO, NACTEL, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, &
-                         NIGEJES, NIGTJ, NIGTJES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, &
-                         NTGTU, NTGTUES, NTU, NTUES, NTUV, NTUVES
+                         NIGEJES, NIGTJ, NIGTJES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, NTGTU, &
+                         NTGTUES, NTU, NTUES, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -2040,30 +2040,23 @@ subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,Cho_Bra,Cho_Ket,Cho_BraD
 
 end subroutine OLagNS_RI_H
 
-subroutine OLagNS_RI_N(ISYI,ISYK,NT,NU,NV,NX, &
-                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
+subroutine OLagNS_RI_N(ISYI,ISYK,NT,NU,NV,NX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
-use BDerNEV, only: Gder
-use definitions, only: iwp, wp
+  use BDerNEV, only: Gder
 
-implicit none
+  integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NU, NV, NX, NCHO
+  real(kind=wp), intent(in) :: Cho_Bra(NT,NU,NCHO), Cho_Ket(NV,NX,NCHO)
+  real(kind=wp), intent(inout) :: Cho_BraD(NT,NU,NCHO), Cho_KetD(NV,NX,NCHO)
+  integer(kind=iwp) :: ISYU, ISYX
 
-integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NU, NV, NX, NCHO
-real(kind=wp), intent(in) :: Cho_Bra(NT,NU,NCHO), &
-  Cho_Ket(NV,NX,NCHO)
-real(kind=wp), intent(inout) :: Cho_BraD(NT,NU,NCHO), &
-  Cho_KetD(NV,NX,NCHO)
+  ISYU = ISYI
+  ISYX = ISYK
+  if (ISYU < ISYX) return
 
-integer(kind=iwp) :: ISYU, ISYX
-
-ISYU = ISYI
-ISYX = ISYK
-if (ISYU < ISYX) return
-
-! here, the contribution is halved, because bra/ket vectors are
-! multiplied by two later
-call DGEMM_('T','N',NV*NX,NCHO,NT*NU,Half,Gder(1,1,1,1),NT*NU,Cho_Bra(1,1,1),NT*NU,One,Cho_KetD(1,1,1),NV*NX)
-call DGEMM_('N','N',NT*NU,NCHO,NV*NX,Half,Gder(1,1,1,1),NT*NU,Cho_Ket(1,1,1),NV*NX,One,Cho_BraD(1,1,1),NT*NU)
+  ! here, the contribution is halved, because bra/ket vectors are
+  ! multiplied by two later
+  call DGEMM_('T','N',NV*NX,NCHO,NT*NU,Half,Gder(:,:,:,:),NT*NU,Cho_Bra(:,:,:),NT*NU,One,Cho_KetD(:,:,:),NV*NX)
+  call DGEMM_('N','N',NT*NU,NCHO,NV*NX,Half,Gder(:,:,:,:),NT*NU,Cho_Ket(:,:,:),NV*NX,One,Cho_BraD(:,:,:),NT*NU)
 
 end subroutine OLagNS_RI_N
 
