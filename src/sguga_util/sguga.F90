@@ -178,6 +178,12 @@ integer(kind=iwp), parameter ::                                                 
                                 ISVC(nSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1]
 
 
+integer(kind=iwp), parameter :: TR_WALK  = 1
+integer(kind=iwp), parameter :: TR_OPEN  = 2
+integer(kind=iwp), parameter :: TR_MID   = 4
+integer(kind=iwp), parameter :: TR_CLOSE = 8
+integer(kind=iwp), parameter :: TR_TAIL  = 16
+
 public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct
 !public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, TRStruct, MkTrans, Trans_Free
 
@@ -2177,5 +2183,40 @@ do MV=1,CIS%nMidV
   end do
 end do
 end subroutine Mk_IOW
+
+pure logical(kind=iwp) function NeedsRightPartner(ICLASS)
+  integer(kind=iwp), intent(in) :: ICLASS
+
+  select case (ICLASS)
+  case (1,2)
+    NeedsRightPartner = .true.
+  case default
+    NeedsRightPartner = .false.
+  end select
+end function NeedsRightPartner
+
+pure integer(kind=iwp) function PartnerSlot(ICLASS)
+  integer(kind=iwp), intent(in) :: ICLASS
+
+  PartnerSlot = 0
+  select case (ICLASS)
+  case (1)
+    PartnerSlot = 1
+  case (2)
+    PartnerSlot = 2
+  end select
+end function PartnerSlot
+
+pure integer(kind=iwp) function OpenBand(ICLASS)
+  integer(kind=iwp), intent(in) :: ICLASS
+
+  OpenBand = 0
+  select case (ICLASS)
+  case (1)
+    OpenBand = 1
+  case (2)
+    OpenBand = 2
+  end select
+end function OpenBand
 
 end module SGUGA
