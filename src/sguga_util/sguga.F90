@@ -1437,7 +1437,6 @@ do IVLT = 1, SGS%MVSta-1
         case (5:8)
           ! loop opening
           INDEO = LEV + (OpenBand(IBOT)-1)*SGS%nLev
-          Write (6,*) 'INDEO=',INDEO
           NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,0)
 
         case (9:18)
@@ -1445,8 +1444,6 @@ do IVLT = 1, SGS%MVSta-1
           do IP = LEV+1, SGS%nLev
             INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
             INDEOB = IP + (OpenBand(IBOT)-1)*SGS%nLev
-            Write (6,*) 'INDEOT=',INDEOT
-            Write (6,*) 'INDEOB=',INDEOB
             NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
           end do
 
@@ -1456,14 +1453,12 @@ do IVLT = 1, SGS%MVSta-1
             INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
             IPQ = (IP*(IP-1))/2 + LEV
             INDEOB = NRL_OpenBlock + IPQ
-            Write (6,*) 'INDEOB=',INDEOB
             NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
           end do
 
         case default
           ! tail/downwalk propagation of closed loops
           do INDEO = NRL_OpenBlock+1, EXS%MxEO
-            Write (6,*) 'INDEO(t/d)=',INDEO-NRL_OpenBlock
             NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
           end do
 
