@@ -140,13 +140,17 @@ type TRStruct
   real(kind=wp), allocatable :: VSEG(:)
 end type TRStruct
 
-! This lists nSeg different types of segments, i=1,...,nSeg
+! This lists nSegTot different types of segments, i=1,...,nSegTot
+!  For the operator E_ij
 !  1- 4: segments of the head walk from the loop head to the graph head
 !  5- 8: head segments
 !  9-13: intermediate segments for the case delta(b)=-1
 ! 14-18: intermediate segments for the case delta(b)=+1
 ! 19-22: tails segments
 ! 23-26: segments of the tail walk from the loop tail to the graph tail
+! For the operator E_ii
+! 27-30: upper walk diagonal operator
+! 31-34: lower walk diagonal operator
 
 ! Segment values according to ASTA.
 
@@ -169,24 +173,37 @@ end type TRStruct
 !
 !           When segments are matched together there tail class, or an upper segments, must match the head class of the
 !           lower segment. Matching upper and lower boundaries must be in the same state.
-integer(kind=iwp), parameter :: mSeg=26+8, nSeg=26
+integer(kind=iwp), parameter :: nSegBase   = 26
+integer(kind=iwp), parameter :: nSegWeight = 8
+integer(kind=iwp), parameter :: nSegTot    = nSegBase + nSegWeight
+integer(kind=iwp), parameter :: nSeg  = nSegBase
+
+! Offsets for diagonal segments  (27:30) and (31:34)
+integer(kind=iwp), parameter :: iSegWUpBeg = nSegBase + 1
+integer(kind=iwp), parameter :: iSegWUpEnd = nSegBase + 4
+integer(kind=iwp), parameter :: iSegWLoBeg = nSegBase + 5
+integer(kind=iwp), parameter :: iSegWLoEnd = nSegBase + 8
+
+
+
 integer(kind=iwp), parameter ::                                                                                                    &
-                                ITVPT(mSeg) = [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3, &
-                                                0, 0, 0, 0,  3, 3, 3, 3],&
-                                IBVPT(mSeg) = [ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3, &
-                                                0, 0, 0, 0,  3, 3, 3, 3],&
-                                IC1(mSeg)   = [ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3, &
-                                                0, 1, 2, 3,  0, 1, 2, 3],&
-                                IC2(mSeg)   = [ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3, &
-                                                0, 1, 2, 3,  0, 1, 2, 3],&
-                                ISVC(mSeg)  = [ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1, &
-                                                0, 1, 1,13,  0, 1, 1,13]
+                                ITVPT(nSegTot) =  &
+[ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3,  0, 0, 0, 0,  3, 3, 3, 3],&
+                                IBVPT(nSegTot) =  &
+[ 0, 0, 0, 0,  1, 1, 2, 2,  1, 1, 2, 1, 1,  2, 2, 1, 2, 2,  3, 3, 3, 3,  3, 3, 3, 3,  0, 0, 0, 0,  3, 3, 3, 3],&
+                                IC1(nSegTot)   =  &
+[ 0, 1, 2, 3,  0, 2, 0, 1,  0, 1, 1, 2, 3,  0, 1, 2, 2, 3,  1, 3, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3],&
+                                IC2(nSegTot)   =  &
+[ 0, 1, 2, 3,  1, 3, 2, 3,  0, 1, 2, 2, 3,  0, 1, 1, 2, 3,  0, 2, 0, 1,  0, 1, 2, 3,  0, 1, 2, 3,  0, 1, 2, 3],&
+                                ISVC(nSegTot)  =  &
+[ 1, 1, 1, 1,  1, 7, 8, 4,  1, 2, 9,10, 2,  1, 2,11,12, 2,  1, 5, 6, 3,  1, 1, 1, 1,  0, 1, 1,13,  0, 1, 1,13]
 
 integer(kind=iwp), parameter :: TR_WALK  = 1
 integer(kind=iwp), parameter :: TR_OPEN  = 2
 integer(kind=iwp), parameter :: TR_MID   = 4
 integer(kind=iwp), parameter :: TR_CLOSE = 8
 integer(kind=iwp), parameter :: TR_TAIL  = 16
+integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple
 
