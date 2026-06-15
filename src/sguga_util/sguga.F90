@@ -1343,6 +1343,16 @@ integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 integer(kind=iwp) :: ICLASS, IT0, NT, K, ITR
 integer(kind=iwp) :: ITOP, IBOT
+integer(kind=iwp), parameter :: nOpenBands = 4
+integer(kind=iwp) :: NRL_OpenBlock
+integer(kind=iwp) :: EXS_OpenBlock
+logical :: ActiveBand(nOpenBands)
+integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS
+
+ActiveBand = .false.
+ActiveBand(1) = .true.
+ActiveBand(2) = .true.
+
 
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IS, IST, NCP, NUW
@@ -1354,10 +1364,21 @@ call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF',safe='*')
 call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF',safe='*')
 call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF',safe='*')
 
-EXS%MxEO = SGS%nLev + SGS%nLev + (SGS%nLev*(SGS%nLev+1))/2
+NRL_OpenBlock = nOpenBands * SGS%nLev
+EXS_OpenBlock=0
+Do band=1,nOpenBands
+   If (ActiveBand(band)) EXS_OpenBlock=EXS_OpenBlock+SGS%nLev
+End Do
 
-call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
-call mma_allocate(EXS%IOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
+EXS%MxEO = NRL_OpenBlock + (SGS%nLev*(SGS%nLev+1))/2
+Memory= EXS_OpenBlock + (SGS%nLev*(SGS%nLev+1))/2
+
+call mma_allocate(EXS%NOCP,Memory,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
+call mma_allocate(EXS%IOCP,Memory,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
+!call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
+!call mma_allocate(EXS%IOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
+EXS%NOCP(:,:,:)=0
+EXS%IOCP(:,:,:)=0
 
 ! NRL(sym,vertex,indeo): number of valid segment paths of a given symmetry and operators class arriving at a given vertex
 call mma_allocate(NRL,[1,SGS%nSym],[1,SGS%nVert],[0,EXS%MxEO],Label='NRL')
@@ -1399,6 +1420,7 @@ do IVLT = 1, SGS%MVSta-1
         case (5:8)
           ! loop opening
           INDEO = LEV + (OpenBand(IBOT)-1)*SGS%nLev
+          Write (6,*) 'INDEO=',INDEO
           NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,0)
 
         case (9:18)
@@ -1406,6 +1428,8 @@ do IVLT = 1, SGS%MVSta-1
           do IP = LEV+1, SGS%nLev
             INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
             INDEOB = IP + (OpenBand(IBOT)-1)*SGS%nLev
+            Write (6,*) 'INDEOT=',INDEOT
+            Write (6,*) 'INDEOB=',INDEOB
             NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
           end do
 
@@ -1414,13 +1438,15 @@ do IVLT = 1, SGS%MVSta-1
           do IP = LEV+1, SGS%nLev
             INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
             IPQ = (IP*(IP-1))/2 + LEV
-            INDEOB = 2*SGS%nLev + IPQ
+            INDEOB = NRL_OpenBlock + IPQ
+            Write (6,*) 'INDEOB=',INDEOB
             NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
           end do
 
         case default
           ! tail/downwalk propagation of closed loops
-          do INDEO = 2*SGS%nLev+1, EXS%MxEO
+          do INDEO = NRL_OpenBlock+1, EXS%MxEO
+            Write (6,*) 'INDEO(t/d)=',INDEO-NRL_OpenBlock
             NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
           end do
 
@@ -1439,9 +1465,29 @@ do MV=1,CIS%nMidV                  ! loop over midverticies
   do LFTSYM=1,SGS%nSym             ! Loop over symmetries
     CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))
-    do INDEO=1,EXS%MxEO
-      EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
-    end do
+
+
+! ---- open loops ----
+do band = 1, nOpenBands
+  if (.not. ActiveBand(band)) cycle
+
+  do lev = 1, SGS%nLev
+    INDEO = lev + (band-1)*SGS%nLev
+    EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
+  end do
+
+end do
+
+! ---- closed loops ----
+do INDEO = 1, SGS%nLev*(SGS%nLev+1)/2
+  INDEO_EXS = INDEO + EXS_OpenBlock
+  INDEO_NRL = INDEO + NRL_OpenBlock
+  EXS%NOCP(INDEO_EXS,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO_NRL)
+end do
+
+!   do INDEO=1,EXS%MxEO
+!     EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
+!   end do
   end do
 end do
 
@@ -1496,14 +1542,14 @@ do IVLT = SGS%nVert-1, SGS%MVSta, -1
           do IQ = 1, LEV-1
             INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
             IPQ    = (LEV*(LEV-1))/2 + IQ
-            INDEOT = 2*SGS%nLev + IPQ
+            INDEOT = NRL_OpenBlock + IPQ
             NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
           end do
 
         case default
           ! propagate closed loops upward
           do IPQ = 1, (LEV*(LEV-1))/2
-            INDEO = 2*SGS%nLev + IPQ
+            INDEO = NRL_OpenBlock + IPQ
             NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
           end do
 
@@ -1521,15 +1567,37 @@ do MV=1,CIS%nMidV
   do LFTSYM=1,SGS%nSym
     CIS%NOW(2,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXDWN = max(MXDWN,CIS%NOW(2,LFTSYM,MV))
-    do INDEO=1,EXS%MxEO
-      N = NRL(LFTSYM,IVLT,INDEO)
-      if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
-    end do
+
+! ---- open loops ----
+do band = 1, nOpenBands
+  if (.not. ActiveBand(band)) cycle
+
+  do lev = 1, SGS%nLev
+    INDEO = lev + (band-1)*SGS%nLev
+    N = NRL(LFTSYM,IVLT,INDEO)
+    if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
+  end do
+
+end do
+
+! ---- closed loops ----
+do INDEO = 1, SGS%nLev*(SGS%nLev+1)/2
+  INDEO_EXS = INDEO + EXS_OpenBlock
+  INDEO_NRL = INDEO + NRL_OpenBlock
+  N = NRL(LFTSYM,IVLT,INDEO_NRL)
+  if (N /= 0) EXS%NOCP(INDEO_EXS,LFTSYM,MV) = N
+end do
+
+!   do INDEO=1,EXS%MxEO
+!     N = NRL(LFTSYM,IVLT,INDEO)
+!     if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
+!   end do
   end do
 end do
 
+
 EXS%nICOup = 0
-do INDEO=1,EXS%MxEO
+do INDEO=1,SIZE(EXS%IOCP,1)
   do MV=1,CIS%nMidV
     do LFTSYM=1,SGS%nSym
       EXS%IOCP(INDEO,LFTSYM,MV) = EXS%nICOup
@@ -1601,7 +1669,7 @@ write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
 write(u6,*) '                    LOWER ',CIS%nWalk-NUW
 write(u6,*) '                     SUM  ',CIS%nWalk
 write(u6,*) ' TOTAL NR OF COUPL COEFFS ',EXS%nICOup
-INDEO = 2*SGS%nLev+1
+INDEO = EXS_Block+1
 write(u6,*) '         OF TYPE 1&2 ONLY:',EXS%IOCP(INDEO,1,1)
 write(u6,*)
 write(u6,*) ' NR OF CONFIGURATIONS/SYMM:'
@@ -1644,7 +1712,7 @@ write(u6,*)
 write(u6,*) ' 3. CLOSED LOOPS:'
 do IP=2,SGS%nLev
   do IQ=1,IP-1
-    INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
+    INDEO = EXS_Block+(IP*(IP-1))/2+IQ
     do MV=1,CIS%nMidV
       do IS=1,SGS%nSym
         NCP = EXS%NOCP(INDEO,IS,MV)
@@ -1721,18 +1789,18 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp), parameter :: IAWSR = 4
   integer(kind=iwp), parameter :: ILS   = 5
   integer(kind=iwp), parameter :: ICS   = 6
-
-  ! NOTE:
-  ! ISEG  = bucket cursor (position K in current transition bucket)
-  ! IRSEG = raw segment number ISGT
   integer(kind=iwp), parameter :: ISEG  = 7
   integer(kind=iwp), parameter :: IRSEG = 8
+
+  integer(kind=iwp), parameter :: nOpenBands = 2
+  integer(kind=iwp) :: MxEO_Block
 
   integer(kind=iwp), parameter :: nVTab = 5000
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 
+  MxEO_Block = nOpenBands * SGS%nLev
   ! Special case
   if (SGS%nLev == 1) then
     NVTAB_FINAL = 0
@@ -1750,7 +1818,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   end do
 
   ! Same idea for NOCP
-  do INDEO = 1, EXS%MxEO
+  do INDEO = 1, SIZE(EXS%NOCP,1)
     do MV = 1, CIS%nMidV
       do IS = 1, SGS%nSym
         EXS%NOCP(INDEO,IS,MV) = 0
@@ -1909,7 +1977,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
             if (IP == 0) IP = IQ
 
             INDEO = SGS%nLev*(IT-1) + IP
-            if (IT == 3) INDEO = 2*SGS%nLev + (IP*(IP-1))/2 + IQ
+            if (IT == 3) INDEO = MxEO_Block + (IP*(IP-1))/2 + IQ
 
             ICOP = 1 + EXS%NOCP(INDEO,LFTSYM,MV)
             EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
@@ -2233,6 +2301,10 @@ pure integer(kind=iwp) function OpenBand(ICLASS)
     OpenBand = 1
   case (2)
     OpenBand = 2
+  case (3)
+    OpenBand = 3
+  case (4)
+    OpenBand = 4
   end select
 end function OpenBand
 
@@ -2285,7 +2357,6 @@ subroutine MKTRANS(SGS,CIS,TRS)
   ! Allocate bucket tables
   call mma_deallocate(TRS%NTR,safe='*')
   call mma_deallocate(TRS%ITR0,safe='*')
-  Write (6,*) 'Allocate TRS%NTR'
   call mma_allocate(TRS%NTR,[1,SGS%nVert],[0,TRS%nClass-1],Label='TRS%NTR')
   call mma_allocate(TRS%ITR0,[1,SGS%nVert],[0,TRS%nClass-1],Label='TRS%ITR0')
 
