@@ -1354,7 +1354,7 @@ call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF',safe='*')
 call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF',safe='*')
 call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF',safe='*')
 
-EXS%MxEO = SGS%nLev + SGS%nLev + (SGS%nLev*(SGS%nLev-1))/2
+EXS%MxEO = SGS%nLev + SGS%nLev + (SGS%nLev*(SGS%nLev+1))/2
 
 call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
 call mma_allocate(EXS%IOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
