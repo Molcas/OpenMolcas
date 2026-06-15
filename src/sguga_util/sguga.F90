@@ -1201,8 +1201,8 @@ integer(kind=iwp) :: INL, IN
 real(kind=wp) :: V
 
 call mma_allocate(CIS%IVR,SGS%nVert,2,Label='CIS%IVR')
-call mma_allocate(CIS%ISGM,SGS%nVert,nSegTot,Label='CIS%ISGM')
-call mma_allocate(CIS%VSGM,SGS%nVert,nSegTot,Label='CIS%VSGM')
+call mma_allocate(CIS%ISGM,SGS%nVert,nSeg,Label='CIS%ISGM')
+call mma_allocate(CIS%VSGM,SGS%nVert,nSeg,Label='CIS%VSGM')
 call mma_allocate(EXS%MVL,CIS%nMidV,2,Label='EXS%MVL')
 call mma_allocate(EXS%MVR,CIS%nMidV,2,Label='EXS%MVR')
 
@@ -1286,7 +1286,7 @@ CIS%VSGM(:,:) = Zero
 
 ! FOR EACH VERTEX LOOP OVER ALL POSSIBLE SEGMENTS IT CAN BE A PART OF
 do IVLT=1,SGS%nVert     ! Upper left vertex
-  do ISGT=1,nSegTot
+  do ISGT=1,nSeg
     ITT = ITVPT(ISGT)   ! 0-3
     SELECT CASE(ITT)
 !     Case(0,3)
@@ -1360,12 +1360,20 @@ integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 integer(kind=iwp) :: ICLASS, IT0, NT, K, ITR
 integer(kind=iwp) :: ITOP, IBOT
-integer(kind=iwp) :: IEO_Open1, IEO_Open2, IEO_WUp, IEO_WLo, IEO_Cl
+integer(kind=iwp), parameter :: nOpenBands = 4
+integer(kind=iwp) :: NRL_OpenBlock
+integer(kind=iwp) :: EXS_OpenBlock
+logical :: ActiveBand(nOpenBands)
+integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS
+
+ActiveBand = .false.
+ActiveBand(1) = .true.
+ActiveBand(2) = .true.
+
 
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IS, IST, NCP, NUW
 #endif
-
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
 call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW',safe='*')
 
@@ -1373,17 +1381,21 @@ call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF',safe='*')
 call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF',safe='*')
 call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF',safe='*')
 
-!EXS%MxEO = 4*SGS%nLev + (SGS%nLev*(SGS%nLev+1))/2
-EXS%MxEO = 2*SGS%nLev + (SGS%nLev*(SGS%nLev+1))/2
-IEO_Open1 = 0
-IEO_Open2 = SGS%nLev
-IEO_WLo   = 3*SGS%nLev
-IEO_WUp   = 2*SGS%nLev
-!IEO_Cl    = 4*SGS%nLev
-IEO_Cl    = 2*SGS%nLev
+NRL_OpenBlock = nOpenBands * SGS%nLev
+EXS_OpenBlock=0
+Do band=1,nOpenBands
+   If (ActiveBand(band)) EXS_OpenBlock=EXS_OpenBlock+SGS%nLev
+End Do
 
-call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
-call mma_allocate(EXS%IOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
+EXS%MxEO = NRL_OpenBlock + (SGS%nLev*(SGS%nLev+1))/2
+Memory= EXS_OpenBlock + (SGS%nLev*(SGS%nLev+1))/2
+
+call mma_allocate(EXS%NOCP,Memory,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
+call mma_allocate(EXS%IOCP,Memory,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
+!call mma_allocate(EXS%NOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
+!call mma_allocate(EXS%IOCP,EXS%MxEO,SGS%nSym,CIS%nMidV,Label='EXS%IOCP')
+EXS%NOCP(:,:,:)=0
+EXS%IOCP(:,:,:)=0
 
 ! NRL(sym,vertex,indeo): number of valid segment paths of a given symmetry and operators class arriving at a given vertex
 call mma_allocate(NRL,[1,SGS%nSym],[1,SGS%nVert],[0,EXS%MxEO],Label='NRL')
@@ -1416,24 +1428,18 @@ do IVLT = 1, SGS%MVSta-1
       do ITSYM = 1, SGS%nSym
         IBSYM = Mul(ITSYM,ISYM)
 
-        select case (TRS%IFLAG(ITR))
+        select case (ISGT)
 
-        case (TR_WALK)
+        case (1:4)
           ! ordinary upper walk
           NRL(IBSYM,IVLB,0) = NRL(IBSYM,IVLB,0) + NRL(ITSYM,IVLT,0)
 
-!         ! propagate existing upper-weight states downward unchanged
-!         do IP = LEV+1, SGS%nLev
-!           INDEOT = IEO_WUp + IP
-!           NRL(IBSYM,IVLB,INDEOT) = NRL(IBSYM,IVLB,INDEOT) + NRL(ITSYM,IVLT,INDEOT)
-!         end do
-
-        case (TR_OPEN)
+        case (5:8)
           ! loop opening
           INDEO = LEV + (OpenBand(IBOT)-1)*SGS%nLev
           NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,0)
 
-        case (TR_MID)
+        case (9:18)
           ! intermediate open-loop propagation
           do IP = LEV+1, SGS%nLev
             INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
@@ -1441,45 +1447,20 @@ do IVLT = 1, SGS%MVSta-1
             NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
           end do
 
-        case (TR_CLOSE)
+        case (19:22)
           ! loop closing
           do IP = LEV+1, SGS%nLev
             INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
             IPQ = (IP*(IP-1))/2 + LEV
-            INDEOB = IEO_Cl + IPQ
+            INDEOB = NRL_OpenBlock + IPQ
             NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
           end do
 
-        case (TR_TAIL)
-          ! propagate closed-loop states downward unchanged
-          NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0) + NRL(IBSYM,IVLB,0)
-!         do INDEO = IEO_Cl + 1, EXS%MxEO
-!           NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
-!         end do
-
-
-        case (TR_WEIGHT)
-          cycle
-          ! Only upper-weight segments may be inserted in the upper recursion.
-          ! Lower-weight segments are ignored here.
-          if (ISGT >= iSegWUpBeg .and. ISGT <= iSegWUpEnd) then
-            if (TRS%VSEG(ITR) /= Zero) then
-              INDEO = IEO_WUp + LEV
-              NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,0)
-            end if
-          else if (ISGT >= iSegWLoBeg .and. ISGT <= iSegWLoEnd) then
-            cycle
-          else
-            write(u6,*) 'MkNRCOUP(upper): invalid weight case'
-            write(u6,*) '  ISGT = ', ISGT
-            call Abend()
-          end if
-
         case default
-          write(u6,*) 'MkNRCOUP(upper): invalid transition flag'
-          write(u6,*) '  IFLAG = ', TRS%IFLAG(ITR)
-          write(u6,*) '  ISGT  = ', ISGT
-          call Abend()
+          ! tail/downwalk propagation of closed loops
+          do INDEO = NRL_OpenBlock+1, EXS%MxEO
+            NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
+          end do
 
         end select
 
@@ -1496,9 +1477,29 @@ do MV=1,CIS%nMidV                  ! loop over midverticies
   do LFTSYM=1,SGS%nSym             ! Loop over symmetries
     CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))
-    do INDEO=1,EXS%MxEO
-      EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
-    end do
+
+
+! ---- open loops ----
+do band = 1, nOpenBands
+  if (.not. ActiveBand(band)) cycle
+
+  do lev = 1, SGS%nLev
+    INDEO = lev + (band-1)*SGS%nLev
+    EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
+  end do
+
+end do
+
+! ---- closed loops ----
+do INDEO = 1, SGS%nLev*(SGS%nLev+1)/2
+  INDEO_EXS = INDEO + EXS_OpenBlock
+  INDEO_NRL = INDEO + NRL_OpenBlock
+  EXS%NOCP(INDEO_EXS,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO_NRL)
+end do
+
+!   do INDEO=1,EXS%MxEO
+!     EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
+!   end do
   end do
 end do
 
@@ -1529,73 +1530,42 @@ do IVLT = SGS%nVert-1, SGS%MVSta, -1
       do ITSYM = 1, SGS%nSym
         IBSYM = Mul(ITSYM,ISYM)
 
-        select case (TRS%IFLAG(ITR))
+        select case (ISGT)
 
-          case (TR_TAIL)
-            ! ordinary lower walk
-            NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0) + NRL(IBSYM,IVLB,0)
+        case (23:26)
+          ! ordinary lower walk
+          NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0) + NRL(IBSYM,IVLB,0)
 
-            ! propagate existing lower-weight states upward unchanged
-!           do IQ = 1, LEV-1
-!             INDEOT = IEO_WLo + IQ
-!             NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOT)
-!           end do
+        case (19:22)
+          ! create open-loop class from below
+          INDEO = LEV + (OpenBand(ITOP)-1)*SGS%nLev
+          NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,0)
 
-          case (TR_CLOSE)
-            ! create open-loop class from below
-            INDEO = LEV + (OpenBand(ITOP)-1)*SGS%nLev
-            NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,0)
+        case (9:18)
+          ! propagate open-loop class upward
+          do IQ = 1, LEV-1
+            INDEOT = IQ + (OpenBand(ITOP)-1)*SGS%nLev
+            INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
+            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
+          end do
 
-          case (TR_MID)
-            ! propagate open-loop class upward
-            do IQ = 1, LEV-1
-              INDEOT = IQ + (OpenBand(ITOP)-1)*SGS%nLev
-              INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
-              NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
-            end do
+        case (5:8)
+          ! close open loop into closed-loop class
+          do IQ = 1, LEV-1
+            INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
+            IPQ    = (LEV*(LEV-1))/2 + IQ
+            INDEOT = NRL_OpenBlock + IPQ
+            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
+          end do
 
-          case (TR_OPEN)
-            ! close open loop into closed-loop class
-            do IQ = 1, LEV-1
-              INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
-              IPQ    = (LEV*(LEV-1))/2 + IQ
-              INDEOT = IEO_Cl + IPQ
-              NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
-            end do
+        case default
+          ! propagate closed loops upward
+          do IPQ = 1, (LEV*(LEV-1))/2
+            INDEO = NRL_OpenBlock + IPQ
+            NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
+          end do
 
-          case (TR_WALK)
-            ! propagate closed loops upward unchanged
-            NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0) + NRL(IBSYM,IVLB,0)
-!           do IPQ = 1, (LEV*(LEV-1))/2
-!             INDEO = IEO_Cl + IPQ
-!             NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
-!           end do
-
-
-          case (TR_WEIGHT)
-            cycle
-            ! Only lower-weight segments may be inserted in the lower recursion.
-            ! Upper-weight segments are ignored here.
-            if (ISGT >= iSegWLoBeg .and. ISGT <= iSegWLoEnd) then
-              if (TRS%VSEG(ITR) /= Zero) then
-                INDEO = IEO_WLo + LEV
-                NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,0)
-              end if
-            else if (ISGT >= iSegWUpBeg .and. ISGT <= iSegWUpEnd) then
-              cycle
-            else
-              write(u6,*) 'MkNRCOUP(lower): invalid weight case'
-              write(u6,*) '  ISGT = ', ISGT
-              call Abend()
-            end if
-
-          case default
-            write(u6,*) 'MkNRCOUP(lower): invalid transition flag'
-            write(u6,*) '  IFLAG = ', TRS%IFLAG(ITR)
-            write(u6,*) '  ISGT  = ', ISGT
-            call Abend()
-
-          end select
+        end select
 
       end do
     end do
@@ -1609,15 +1579,37 @@ do MV=1,CIS%nMidV
   do LFTSYM=1,SGS%nSym
     CIS%NOW(2,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXDWN = max(MXDWN,CIS%NOW(2,LFTSYM,MV))
-    do INDEO=1,EXS%MxEO
-      N = NRL(LFTSYM,IVLT,INDEO)
-      if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
-    end do
+
+! ---- open loops ----
+do band = 1, nOpenBands
+  if (.not. ActiveBand(band)) cycle
+
+  do lev = 1, SGS%nLev
+    INDEO = lev + (band-1)*SGS%nLev
+    N = NRL(LFTSYM,IVLT,INDEO)
+    if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
+  end do
+
+end do
+
+! ---- closed loops ----
+do INDEO = 1, SGS%nLev*(SGS%nLev+1)/2
+  INDEO_EXS = INDEO + EXS_OpenBlock
+  INDEO_NRL = INDEO + NRL_OpenBlock
+  N = NRL(LFTSYM,IVLT,INDEO_NRL)
+  if (N /= 0) EXS%NOCP(INDEO_EXS,LFTSYM,MV) = N
+end do
+
+!   do INDEO=1,EXS%MxEO
+!     N = NRL(LFTSYM,IVLT,INDEO)
+!     if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
+!   end do
   end do
 end do
 
+
 EXS%nICOup = 0
-do INDEO=1,EXS%MxEO
+do INDEO=1,SIZE(EXS%IOCP,1)
   do MV=1,CIS%nMidV
     do LFTSYM=1,SGS%nSym
       EXS%IOCP(INDEO,LFTSYM,MV) = EXS%nICOup
@@ -1689,7 +1681,7 @@ write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
 write(u6,*) '                    LOWER ',CIS%nWalk-NUW
 write(u6,*) '                     SUM  ',CIS%nWalk
 write(u6,*) ' TOTAL NR OF COUPL COEFFS ',EXS%nICOup
-INDEO = IEO_Cl+1
+INDEO = EXS_Block+1
 write(u6,*) '         OF TYPE 1&2 ONLY:',EXS%IOCP(INDEO,1,1)
 write(u6,*)
 write(u6,*) ' NR OF CONFIGURATIONS/SYMM:'
@@ -1732,7 +1724,7 @@ write(u6,*)
 write(u6,*) ' 3. CLOSED LOOPS:'
 do IP=2,SGS%nLev
   do IQ=1,IP-1
-    INDEO = IEO_Cl+(IP*(IP-1))/2+IQ
+    INDEO = EXS_Block+(IP*(IP-1))/2+IQ
     do MV=1,CIS%nMidV
       do IS=1,SGS%nSym
         NCP = EXS%NOCP(INDEO,IS,MV)
@@ -1812,11 +1804,15 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp), parameter :: ISEG  = 7
   integer(kind=iwp), parameter :: IRSEG = 8
 
+  integer(kind=iwp), parameter :: nOpenBands = 2
+  integer(kind=iwp) :: MxEO_Block
+
   integer(kind=iwp), parameter :: nVTab = 5000
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 
+  MxEO_Block = nOpenBands * SGS%nLev
   ! Special case
   if (SGS%nLev == 1) then
     NVTAB_FINAL = 0
@@ -1834,7 +1830,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   end do
 
   ! Same idea for NOCP
-  do INDEO = 1, EXS%MxEO
+  do INDEO = 1, SIZE(EXS%NOCP,1)
     do MV = 1, CIS%nMidV
       do IS = 1, SGS%nSym
         EXS%NOCP(INDEO,IS,MV) = 0
@@ -1913,16 +1909,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
           ITR  = IT0 + K
           ISGT = TRS%ISGT(ITR)
-
-if (TRS%IFLAG(ITR) == TR_WEIGHT) then
-  ! Weight segments are not yet handled by MKCOUP.
-  ! Skip them here so that the old diagonal path in SG_Epq_Psi
-  ! continues to see only clean walk data.
-  ISGPTH(ISEG,LEV)  = K
-  ISGPTH(IRSEG,LEV) = 0
-  cycle
-end if
-
           IVLB = TRS%IVLB(ITR)
 
           ICL  = TRS%ICL(ITR)
@@ -2003,7 +1989,7 @@ end if
             if (IP == 0) IP = IQ
 
             INDEO = SGS%nLev*(IT-1) + IP
-            if (IT == 3) INDEO = 2*SGS%nLev + (IP*(IP-1))/2 + IQ
+            if (IT == 3) INDEO = MxEO_Block + (IP*(IP-1))/2 + IQ
 
             ICOP = 1 + EXS%NOCP(INDEO,LFTSYM,MV)
             EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
@@ -2327,6 +2313,10 @@ pure integer(kind=iwp) function OpenBand(ICLASS)
     OpenBand = 1
   case (2)
     OpenBand = 2
+  case (3)
+    OpenBand = 3
+  case (4)
+    OpenBand = 4
   end select
 end function OpenBand
 
@@ -2377,6 +2367,8 @@ subroutine MKTRANS(SGS,CIS,TRS)
   TRS%nOpenBand = 2
 
   ! Allocate bucket tables
+  call mma_deallocate(TRS%NTR,safe='*')
+  call mma_deallocate(TRS%ITR0,safe='*')
   call mma_allocate(TRS%NTR,[1,SGS%nVert],[0,TRS%nClass-1],Label='TRS%NTR')
   call mma_allocate(TRS%ITR0,[1,SGS%nVert],[0,TRS%nClass-1],Label='TRS%ITR0')
 
@@ -2386,7 +2378,7 @@ subroutine MKTRANS(SGS,CIS,TRS)
   ! First pass: couny transitions per bucket
   ! For every source vertex IVLT, count how many valid segments require each top class ITOP
   do IVLT = 1, SGS%nVert
-     do ISGT = 1, nSegTot
+     do ISGT = 1, nSeg
       IVLB = CIS%ISGM(IVLT,ISGT)
       if (IVLB == 0) cycle
       ITOP = ITVPT(ISGT)
@@ -2437,7 +2429,7 @@ subroutine MKTRANS(SGS,CIS,TRS)
   do IVLT = 1, SGS%nVert
     LEV = SGS%DRT(IVLT,LTAB)
 
-    do ISGT = 1, nSegTot
+    do ISGT = 1, nSeg
 
       IVLB = CIS%ISGM(IVLT,ISGT)
       if (IVLB == 0) cycle
@@ -2449,9 +2441,7 @@ subroutine MKTRANS(SGS,CIS,TRS)
       ICR = IC2(ISGT)
 
       ISYM = 1
-      if (ISGT < iSegWUpBeg .or. ISGT > iSegWLoEnd) then
-        if ((ICL == 1) .or. (ICL == 2)) ISYM = SGS%ISm(LEV)
-      end if
+      if ((ICL == 1) .or. (ICL == 2)) ISYM = SGS%ISm(LEV)
 
       IPRT   = PartnerSlot(ITOP)
       IOBAND = OpenBand(ITOP)
@@ -2466,16 +2456,8 @@ subroutine MKTRANS(SGS,CIS,TRS)
         IFLAG = TR_MID
       case (19:22)
         IFLAG = TR_CLOSE
-      case (23:26)
-        IFLAG = TR_TAIL
-      case (iSegWUpBeg:iSegWUpEnd)
-        IFLAG = TR_WEIGHT
-      case (iSegWLoBeg:iSegWLoEnd)
-        IFLAG = TR_WEIGHT
       case default
-        write(u6,*) 'MKTRANS ERROR: unclassified segment type'
-        write(u6,*) '  ISGT = ', ISGT
-        call Abend()
+        IFLAG = TR_TAIL
       end select
 
       IPOS(IVLT,ITOP) = IPOS(IVLT,ITOP) + 1
