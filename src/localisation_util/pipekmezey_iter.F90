@@ -188,7 +188,7 @@ select case(AnalyseLoc)
     case (0,1)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
     case (2)
-        write(u6,"(/A)") "Orbital extension before localisation:"
+        write(u6,"(/A)") "Orbital extension d_i before localisation:"
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
     case default
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
@@ -518,7 +518,7 @@ select case(AnalyseLoc)
     case (0)
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
     case (1,2)
-    write(u6,"(/A)") "Orbital extension after localisation:"
+    write(u6,"(/A)") "Orbital extension d_i after localisation:"
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
 end select
 
