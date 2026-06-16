@@ -467,6 +467,7 @@ do
 
     case ('HOP ')
       HOP = .true.
+      NOHAM = .true.
 
     case ('TRAC')
       TRACK = .true.
@@ -823,6 +824,10 @@ do
 
 end do
 
+if (HOP .and. TRACK) then
+  call WarningMessage(1,'HOP and TRACK keywords are incompatible.')
+  call ABEND()
+end if
 !nf
 if (IfDCpl .and. (.not. IfHam)) then
   call WarningMessage(1,'Input request was ignored.')
