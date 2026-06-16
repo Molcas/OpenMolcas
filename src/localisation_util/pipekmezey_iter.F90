@@ -71,7 +71,6 @@ call CWTime(C1,W1)
 ! remember input choice of optimization method
 OptMeth = inpOptMeth
 
-
 ! print info for GEK settings
 if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then
     write(u6,*) ""
@@ -244,27 +243,36 @@ Converged = .false.
 
 ! Print iteration table header.
 ! -----------------------------
+
+write(u6,*) ""
+write(u6,*) "npos = number of positive Hessian diagonal elements"
+
 call CWTime(C2,W2)
 TimC = C2-C1
 TimW = W2-W1
 nIter = 0
 ! initial information (Iteration = 0)
 select case (InpOptMeth)
-    case (1,6)
+    case (1)
         UpMeth="JS  - "
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
-        'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  %Screen'
+        'nIter       Functional P        Delta     Gradient    Method     (sec)     (sec)  npos  %Screen'
+    case (6)
+        UpMeth="JS  - "
+        write(u6,'(//,1X,A,/,1X,A)') &
+        '                                                                 CPU       Wall', &
+        'nIter       Functional P        Delta     Gradient    Method     (sec)     (sec)  npos  %Screen/dispnorm'
     case (3)
         UpMeth="GA  - "
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
-        'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)  npos  dispnorm'
+        'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  dispnorm'
     case (2,4,5)
         UpMeth="NR   0"
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
-        'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)   npos  dispnorm'
+        'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)   npos  dispnorm'
     case default
         write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
         call Abend()
