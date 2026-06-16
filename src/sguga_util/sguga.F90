@@ -1432,6 +1432,18 @@ do IVLT = 1, SGS%MVSta-1
       IBOT = StateTopo(TRS%IBOT(ITR))
       ICL  = TRS%ICL(ITR)
       ISYM = TRS%ISYM(ITR)
+      if ((TRS%IFLAG(ITR) == TR_DIAG) .and. (.not. StateHasDiag(TRS%IBOT(ITR)))) then
+        write(u6,*) 'MkNRCOUP: expected packed diagonal marker on TR_DIAG transition'
+        write(u6,*) '  ITR  = ', ITR
+        write(u6,*) '  ISGT = ', ISGT
+        call Abend()
+      end if
+      if ((TRS%IFLAG(ITR) /= TR_DIAG) .and. StateHasDiag(TRS%IBOT(ITR))) then
+        write(u6,*) 'MkNRCOUP: unexpected packed diagonal marker on non-TR_DIAG transition'
+        write(u6,*) '  ITR  = ', ITR
+        write(u6,*) '  ISGT = ', ISGT
+        call Abend()
+      end if
 
       do ITSYM = 1, SGS%nSym
         IBSYM = Mul(ITSYM,ISYM)
@@ -1548,6 +1560,18 @@ do IVLT = SGS%nVert-1, SGS%MVSta, -1
       IBOT = StateTopo(TRS%IBOT(ITR))
       ICL  = TRS%ICL(ITR)
       ISYM = TRS%ISYM(ITR)
+      if ((TRS%IFLAG(ITR) == TR_DIAG) .and. (.not. StateHasDiag(TRS%IBOT(ITR)))) then
+        write(u6,*) 'MkNRCOUP: expected packed diagonal marker on TR_DIAG transition'
+        write(u6,*) '  ITR  = ', ITR
+        write(u6,*) '  ISGT = ', ISGT
+        call Abend()
+      end if
+      if ((TRS%IFLAG(ITR) /= TR_DIAG) .and. StateHasDiag(TRS%IBOT(ITR))) then
+        write(u6,*) 'MkNRCOUP: unexpected packed diagonal marker on non-TR_DIAG transition'
+        write(u6,*) '  ITR  = ', ITR
+        write(u6,*) '  ISGT = ', ISGT
+        call Abend()
+      end if
 
       do ITSYM = 1, SGS%nSym
         IBSYM = Mul(ITSYM,ISYM)
@@ -2021,10 +2045,9 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           end do
           if (HasDiag) then
             NDiagPath = NDiagPath + 1
-            ! Scaffold stage: MkNRCOUP still counts only ordinary (non-diagonal)
-            ! paths, so keep MKCOUP consistent by ignoring any path that contains
-            ! a diagonal segment. This preserves the current working baseline while
-            ! the packed-state representation is being verified.
+            ! Scaffold baseline: ignore any path that contains a diagonal segment.
+            ! Note: the current transition ITR need not itself be diagonal; HasDiag
+            ! is a whole-path property, so we do not require StateHasDiag(TRS%IBOT(ITR)) here.
             LEV = LEV + 1
             cycle
           end if
@@ -2416,9 +2439,6 @@ end function OpenBand
 ! low bits  : ordinary topology class (current working code uses 0..3)
 ! bit 3     : diagonal-marker present
 ! bits 4..  : diagonal level
-!
-! In this scaffold stage, the working code still uses only diag_level=0,
-! so PackState(Topo,0) == Topo and the current behaviour is unchanged.
 ! ------------------------------------------------------------------
 
 pure integer(kind=iwp) function PackState(Topo,DiagLev)
@@ -2607,6 +2627,11 @@ subroutine MKTRANS(SGS,CIS,TRS)
       case (27:34)
         IFLAG = TR_DIAG
       end select
+
+      ! First packed-state activation step:
+      ! keep topology unchanged, but mark diagonal transitions in the packed
+      ! output state with the current level. Consumers still decode topology only.
+      if (IFLAG == TR_DIAG) IBOT = PackState(IBVPT(ISGT),LEV)
 
       IPOS(IVLT,ITOP) = IPOS(IVLT,ITOP) + 1
       ITR = IPOS(IVLT,ITOP)
