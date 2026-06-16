@@ -258,12 +258,7 @@ select case (InpOptMeth)
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
         'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)   npos  %Screen'
-    case (6)
-        UpMeth="JS  - "
-        write(u6,'(//,1X,A,/,1X,A)') &
-        '                                                                 CPU       Wall', &
-        'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  %Screen/dispnorm'
-    case (3)
+   case (3)
         UpMeth="GA  - "
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
@@ -273,6 +268,11 @@ select case (InpOptMeth)
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
         'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)   npos  dispnorm'
+    case (6)
+        UpMeth="JS  - "
+        write(u6,'(//,1X,A,/,1X,A)') &
+        '                                                                 CPU       Wall', &
+        'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  %Screen/dispnorm'
     case default
         write(u6,*) "ERROR: The chosen opt method is not implemented for localisation"
         call Abend()
