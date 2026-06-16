@@ -1428,41 +1428,49 @@ do IVLT = 1, SGS%MVSta-1
       do ITSYM = 1, SGS%nSym
         IBSYM = Mul(ITSYM,ISYM)
 
-        select case (ISGT)
 
-        case (1:4)
-          ! ordinary upper walk
-          NRL(IBSYM,IVLB,0) = NRL(IBSYM,IVLB,0) + NRL(ITSYM,IVLT,0)
 
-        case (5:8)
-          ! loop opening
-          INDEO = LEV + (OpenBand(IBOT)-1)*SGS%nLev
-          NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,0)
+select case (TRS%IFLAG(ITR))
 
-        case (9:18)
-          ! intermediate open-loop propagation
-          do IP = LEV+1, SGS%nLev
-            INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
-            INDEOB = IP + (OpenBand(IBOT)-1)*SGS%nLev
-            NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
-          end do
+case (TR_WALK)
+  ! ordinary upper walk
+  NRL(IBSYM,IVLB,0) = NRL(IBSYM,IVLB,0) + NRL(ITSYM,IVLT,0)
 
-        case (19:22)
-          ! loop closing
-          do IP = LEV+1, SGS%nLev
-            INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
-            IPQ = (IP*(IP-1))/2 + LEV
-            INDEOB = NRL_OpenBlock + IPQ
-            NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
-          end do
+case (TR_OPEN)
+  ! loop opening
+  INDEO = LEV + (OpenBand(IBOT)-1)*SGS%nLev
+  NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,0)
 
-        case default
-          ! tail/downwalk propagation of closed loops
-          do INDEO = NRL_OpenBlock+1, EXS%MxEO
-            NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
-          end do
+case (TR_MID)
+  ! intermediate open-loop propagation
+  do IP = LEV+1, SGS%nLev
+    INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
+    INDEOB = IP + (OpenBand(IBOT)-1)*SGS%nLev
+    NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
+  end do
 
-        end select
+case (TR_CLOSE)
+  ! loop closing
+  do IP = LEV+1, SGS%nLev
+    INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
+    IPQ = (IP*(IP-1))/2 + LEV
+    INDEOB = NRL_OpenBlock + IPQ
+    NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
+  end do
+
+case (TR_TAIL)
+  ! tail/downwalk propagation of closed loops
+  do INDEO = NRL_OpenBlock+1, EXS%MxEO
+    NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
+  end do
+
+case default
+  write(u6,*) 'MkNRCOUP(upper): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
+  write(u6,*) '  ITR  = ', ITR
+  write(u6,*) '  ISGT = ', ISGT
+  call Abend()
+
+end select
 
       end do
     end do
@@ -1530,42 +1538,48 @@ do IVLT = SGS%nVert-1, SGS%MVSta, -1
       do ITSYM = 1, SGS%nSym
         IBSYM = Mul(ITSYM,ISYM)
 
-        select case (ISGT)
+select case (TRS%IFLAG(ITR))
 
-        case (23:26)
-          ! ordinary lower walk
-          NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0) + NRL(IBSYM,IVLB,0)
+case (TR_TAIL)
+  ! ordinary lower walk
+  NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0) + NRL(IBSYM,IVLB,0)
 
-        case (19:22)
-          ! create open-loop class from below
-          INDEO = LEV + (OpenBand(ITOP)-1)*SGS%nLev
-          NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,0)
+case (TR_CLOSE)
+  ! create open-loop class from below
+  INDEO = LEV + (OpenBand(ITOP)-1)*SGS%nLev
+  NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,0)
 
-        case (9:18)
-          ! propagate open-loop class upward
-          do IQ = 1, LEV-1
-            INDEOT = IQ + (OpenBand(ITOP)-1)*SGS%nLev
-            INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
-            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
-          end do
+case (TR_MID)
+  ! propagate open-loop class upward
+  do IQ = 1, LEV-1
+    INDEOT = IQ + (OpenBand(ITOP)-1)*SGS%nLev
+    INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
+    NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
+  end do
 
-        case (5:8)
-          ! close open loop into closed-loop class
-          do IQ = 1, LEV-1
-            INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
-            IPQ    = (LEV*(LEV-1))/2 + IQ
-            INDEOT = NRL_OpenBlock + IPQ
-            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
-          end do
+case (TR_OPEN)
+  ! close open loop into closed-loop class
+  do IQ = 1, LEV-1
+    INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
+    IPQ    = (LEV*(LEV-1))/2 + IQ
+    INDEOT = NRL_OpenBlock + IPQ
+    NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
+  end do
 
-        case default
-          ! propagate closed loops upward
-          do IPQ = 1, (LEV*(LEV-1))/2
-            INDEO = NRL_OpenBlock + IPQ
-            NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
-          end do
+case (TR_WALK)
+  ! propagate closed loops upward
+  do IPQ = 1, (LEV*(LEV-1))/2
+    INDEO = NRL_OpenBlock + IPQ
+    NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
+  end do
 
-        end select
+case default
+  write(u6,*) 'MkNRCOUP(lower): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
+  write(u6,*) '  ITR  = ', ITR
+  write(u6,*) '  ISGT = ', ISGT
+  call Abend()
+
+end select
 
       end do
     end do
