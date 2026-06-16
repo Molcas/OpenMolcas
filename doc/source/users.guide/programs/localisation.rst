@@ -301,19 +301,19 @@ Optional general keywords
 
 :kword:`PRNT`
   The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
-  Options: 
-    - before AND after localization = 'BOTH'
-    - only after localization = 'AFTEr'
-    - never (Default) = 'OFF'
+  Options:
+    - 'AFTE' = only after localization
+    - 'BOTH' = before AND after localization
+    - 'OFF'  = never (Default)
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PRNT" APPEAR="Print option for charge-based single orbital delocalization d_i" KIND="STRING" LEVEL="BASIC">
               %%Keyword: PRNT <basic>
               <HELP>
               The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
               Options:
-                - before AND after localization = 'BOTH'
-                - only after localization = 'AFTEr'
-                - never (Default) = 'OFF'
+                - 'AFTE' = only after localization
+                - 'BOTH' = before AND after localization
+                - 'OFF'  = never (Default)
               </HELP>
               </KEYWORD>
 
@@ -321,16 +321,16 @@ Optional general keywords
 :kword:`CHARgeType`
   The next line specifies the type of partial charges used within the Pipek--Mezey localisation.
   Options: 
-    - Mulliken charges (Default) = 'MULL'
-    - Loewdin charges = 'LOWD' or 'LOEW'
+    - 'MULL' = Mulliken charges (Default)
+    - 'LOWD' = Loewdin charges
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHAR" APPEAR="Type of partial charges used for PM localisation" KIND="STRING" LEVEL="BASIC">
               %%Keyword: CHAR <basic>
               <HELP>
               The next line specifies the type of partial charges used within the Pipek-Mezey localisation.
               Options: 
-                - Mulliken charges (Default) = 'MULL'
-                - Loewdin charges = 'LOWD' or 'LOEW'
+                - 'MULL' = Mulliken charges (Default)
+                - 'LOWD' = Loewdin charges
               </HELP>
               </KEYWORD>
 
