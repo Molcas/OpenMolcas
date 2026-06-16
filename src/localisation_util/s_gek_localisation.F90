@@ -234,7 +234,6 @@ end do
 mDIIS = j
 
 
-write(u6,*) '    mDIIS:',mDIIS
 #ifdef _DEBUGPRINT_
 write(u6,*) '    fsdim:',fsdim
 write(u6,*) 'nExplicit:',nExplicit
