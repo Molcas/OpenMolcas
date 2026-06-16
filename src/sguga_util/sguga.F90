@@ -2506,16 +2506,16 @@ pure integer(kind=iwp) function StateDiagLev(IState)
   StateDiagLev = ishft(IState,-State_DiagShift)
 end function StateDiagLev
 
+pure integer(kind=iwp) function StateWithDiag(IState,DiagLev)
+  integer(kind=iwp), intent(in) :: IState, DiagLev
+  StateWithDiag = PackState(StateTopo(IState),DiagLev)
+end function StateWithDiag
 
 pure integer(kind=iwp) function NRL_idx(INDEO_BASE,IDIAG,TopoBlock)
   integer(kind=iwp), intent(in) :: INDEO_BASE, IDIAG, TopoBlock
   NRL_idx = INDEO_BASE + IDIAG*TopoBlock
 end function NRL_idx
 
-pure integer(kind=iwp) function OpenBase(LEV,BAND,NLEV)
-  integer(kind=iwp), intent(in) :: LEV, BAND, NLEV
-  OpenBase = LEV + (BAND-1)*NLEV
-end function OpenBase
 
 pure integer(kind=iwp) function ClosedBase(IP,IQ,OpenBlock)
   integer(kind=iwp), intent(in) :: IP, IQ, OpenBlock
