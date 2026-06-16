@@ -28,7 +28,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Thrs,ThrGrad, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
-                                GEKThr_Kappa, GEKThr_Grad, SOFact, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,Debug,&
+                                GEKThr_Kappa, GEKThr_Grad, bias, AnalyseLoc, kappa_cnt, xkappa_cnt,Debug,&
                                 BName,Ovlp,Ovlp_sqrt,nBas_per_Atom,nBas_Start,nAtoms,MoldMod,getIMmldn, inpOptMeth,Debug,posel
 use loc_procedures, only: s_gek_localisation
 use filesystem, only: getcwd_, mkdir_
@@ -74,11 +74,11 @@ OptMeth = inpOptMeth
 
 ! print info for GEK settings
 if (OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 6) then
-    write(u6,*) "doing GEK Opt with:"
-    write(u6,*) "GEKThrKappa =",GEKThr_Kappa
-    write(u6,*) "GEKThrGrad  =",GEKThr_Grad
-    write(u6,*) "SOFact      =",SOFact
-    write(u6,*) "bias        =",bias
+    write(u6,*) ""
+    write(u6,*) "Settings for (S)-GEK optimization"
+    write(u6,"(1X,A,ES12.4)") "GEKThrKappa          :",GEKThr_Kappa
+    write(u6,"(1X,A,ES12.4)") "GEKThrGrad           :",GEKThr_Grad
+    write(u6,"(1X,A,ES12.4)") "bias                 :",bias
 end if
 
 
