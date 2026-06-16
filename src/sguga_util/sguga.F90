@@ -111,8 +111,8 @@ type TRStruct
   integer(kind=iwp), allocatable :: IVLT(:)    ! source left-upper vertex
   integer(kind=iwp), allocatable :: IVLB(:)    ! destination left-lower vertex
 
-  integer(kind=iwp), allocatable :: ITOP(:)    ! required input class
-  integer(kind=iwp), allocatable :: IBOT(:)    ! resulting output class
+  integer(kind=iwp), allocatable :: ITOP(:)    ! required input packed state (topology in low bits)
+  integer(kind=iwp), allocatable :: IBOT(:)    ! resulting output packed state (topology in low bits)
 
   integer(kind=iwp), allocatable :: ICL(:)     ! left step code
   integer(kind=iwp), allocatable :: ICR(:)     ! right step code
@@ -219,6 +219,9 @@ integer(kind=iwp), parameter:: nPack=16-1
 
 public :: nPack
 
+integer(kind=iwp), parameter :: State_TopoMask  = 7_iwp
+integer(kind=iwp), parameter :: State_DiagBit   = 8_iwp
+integer(kind=iwp), parameter :: State_DiagShift = 4_iwp
 contains
 
 subroutine MKSGUGA(SGS,CIS)
@@ -1365,7 +1368,7 @@ integer(kind=iwp), parameter :: nOpenBands = 4
 integer(kind=iwp) :: NRL_OpenBlock
 integer(kind=iwp) :: EXS_OpenBlock
 logical :: ActiveBand(nOpenBands)
-integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS
+integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS, TopoBlock, NRL_MaxEO, IDIAG, IDIAG_NEW
 
 ActiveBand = .false.
 ActiveBand(1) = .true.
@@ -1389,6 +1392,10 @@ Do band=1,nOpenBands
 End Do
 
 EXS%MxEO = NRL_OpenBlock + (SGS%nLev*(SGS%nLev+1))/2
+! Option 1 scaffold: one internal transport block (including INDEO=0)
+! is replicated for IDIAG = 0..SGS%nLev. The compact EXS space stays unchanged.
+TopoBlock = EXS%MxEO + 1
+NRL_MaxEO = (SGS%nLev + 1)*TopoBlock - 1
 Memory= EXS_OpenBlock + (SGS%nLev*(SGS%nLev+1))/2
 
 call mma_allocate(EXS%NOCP,Memory,SGS%nSym,CIS%nMidV,Label='EXS%NOCP')
@@ -1399,13 +1406,13 @@ EXS%NOCP(:,:,:)=0
 EXS%IOCP(:,:,:)=0
 
 ! NRL(sym,vertex,indeo): number of valid segment paths of a given symmetry and operators class arriving at a given vertex
-call mma_allocate(NRL,[1,SGS%nSym],[1,SGS%nVert],[0,EXS%MxEO],Label='NRL')
+call mma_allocate(NRL,[1,SGS%nSym],[1,SGS%nVert],[0,NRL_MaxEO],Label='NRL')
 ! indeo=0 denotes a ordinary half-walk with no open- or closed-loop attached
 INDEO0=0
 
 ! For upper walks
 NRL(:,1:SGS%MVEnd,:) = 0
-NRL(1,1,0) = 1
+NRL(1,1,NRL_idx(0,0,TopoBlock)) = 1
 
 do IVLT = 1, SGS%MVSta-1
   LEV = SGS%DRT(IVLT,LTAB)
@@ -1421,8 +1428,8 @@ do IVLT = 1, SGS%MVSta-1
       ITR  = IT0 + K
       ISGT = TRS%ISGT(ITR)
       IVLB = TRS%IVLB(ITR)
-      ITOP = TRS%ITOP(ITR)
-      IBOT = TRS%IBOT(ITR)
+      ITOP = StateTopo(TRS%ITOP(ITR))
+      IBOT = StateTopo(TRS%IBOT(ITR))
       ICL  = TRS%ICL(ITR)
       ISYM = TRS%ISYM(ITR)
 
@@ -1466,6 +1473,10 @@ case (TR_TAIL)
 
 case (TR_DIAG)
   cycle
+  ! Direct insertion of E_ii into diagonal of closed triangular block
+  IPQ   = (LEV*(LEV-1))/2 + LEV
+  INDEO = NRL_OpenBlock + IPQ
+  NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,0)
 
 case default
   write(u6,*) 'MkNRCOUP(upper): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
@@ -1517,7 +1528,7 @@ end do
 
 ! For lower walks
 NRL(:,SGS%MVSta:SGS%nVert,:) = 0
-NRL(1,SGS%nVert,0) = 1
+NRL(1,SGS%nVert,NRL_idx(0,0,TopoBlock)) = 1
 
 do IVLT = SGS%nVert-1, SGS%MVSta, -1
   LEV = SGS%DRT(IVLT,LTAB)
@@ -1533,8 +1544,8 @@ do IVLT = SGS%nVert-1, SGS%MVSta, -1
       ITR  = IT0 + K
       ISGT = TRS%ISGT(ITR)
       IVLB = TRS%IVLB(ITR)
-      ITOP = TRS%ITOP(ITR)
-      IBOT = TRS%IBOT(ITR)
+      ITOP = StateTopo(TRS%ITOP(ITR))
+      IBOT = StateTopo(TRS%IBOT(ITR))
       ICL  = TRS%ICL(ITR)
       ISYM = TRS%ISYM(ITR)
 
@@ -1578,6 +1589,11 @@ case (TR_WALK)
 
 case (TR_DIAG)
   cycle
+  ! Direct insertion of E_ii into diagonal of closed triangular block
+  IPQ   = (LEV*(LEV-1))/2 + LEV
+  INDEO = NRL_OpenBlock + IPQ
+  NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,0)
+
 
 case default
   write(u6,*) 'MkNRCOUP(lower): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
@@ -1701,7 +1717,7 @@ write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
 write(u6,*) '                    LOWER ',CIS%nWalk-NUW
 write(u6,*) '                     SUM  ',CIS%nWalk
 write(u6,*) ' TOTAL NR OF COUPL COEFFS ',EXS%nICOup
-INDEO = EXS_Block+1
+INDEO = EXS_OpenBlock+1
 write(u6,*) '         OF TYPE 1&2 ONLY:',EXS%IOCP(INDEO,1,1)
 write(u6,*)
 write(u6,*) ' NR OF CONFIGURATIONS/SYMM:'
@@ -1744,7 +1760,7 @@ write(u6,*)
 write(u6,*) ' 3. CLOSED LOOPS:'
 do IP=2,SGS%nLev
   do IQ=1,IP-1
-    INDEO = EXS_Block+(IP*(IP-1))/2+IQ
+    INDEO = EXS_OpenBlock+(IP*(IP-1))/2+IQ
     do MV=1,CIS%nMidV
       do IS=1,SGS%nSym
         NCP = EXS%NOCP(INDEO,IS,MV)
@@ -1831,6 +1847,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
   logical(kind=iwp) :: HasDiag
   integer(kind=iwp) :: DiagLev, NDiagPath
+  logical(kind=iwp) :: HasOpen, HasClose
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -1961,13 +1978,12 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
           ISGPTH(ILS,LEV)   = Mul(ISYM,ISGPTH(ILS,LEV+1))
           ISGPTH(IVLFT,LEV) = IVLB
-          ISGPTH(ITYPE,LEV) = TRS%IBOT(ITR)
+          ISGPTH(ITYPE,LEV) = StateTopo(TRS%IBOT(ITR))
           ISGPTH(ISEG,LEV)  = 0
           ISGPTH(IRSEG,LEV) = 0
           ISGPTH(ICS,LEV)   = 0
 
           if (LEV > LEV2) cycle
-
 
           ! ------------------------------------------------------
           ! Bottom of current half-path reached
@@ -1976,30 +1992,43 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           LFTSYM = ISGPTH(ILS,LEV2)
 
           ! ------------------------------------------------------
-          ! Step 3A: detect diagonal paths EARLY
+          ! Detect path content in detail: diagonal vs ordinary
           ! ------------------------------------------------------
-          HasDiag = .false.
-          DiagLev = 0
+          HasDiag  = .false.
+          DiagLev  = 0
+          IP       = 0
+          IQ       = 0
+          HasOpen  = .false.
+          HasClose = .false.
 
           do L = LEV2+1, LEV1
             ISG = ISGPTH(IRSEG,L)
+
             if ((ISG >= 27) .and. (ISG <= 34)) then
               HasDiag = .true.
               DiagLev = L
-              exit
+            end if
+
+            if ((ISG >= 5) .and. (ISG <= 8)) then
+              HasOpen = .true.
+              IP = L
+            end if
+
+            if ((ISG >= 19) .and. (ISG <= 22)) then
+              HasClose = .true.
+              IQ = L
             end if
           end do
-
           if (HasDiag) then
             NDiagPath = NDiagPath + 1
-            ! Step 3A is inert: do not generate couplings yet
+            ! Scaffold stage: MkNRCOUP still counts only ordinary (non-diagonal)
+            ! paths, so keep MKCOUP consistent by ignoring any path that contains
+            ! a diagonal segment. This preserves the current working baseline while
+            ! the packed-state representation is being verified.
             LEV = LEV + 1
             cycle
           end if
 
-          ! ------------------------------------------------------
-          ! Non-diagonal paths: keep old logic
-          ! ------------------------------------------------------
           IT = ISGPTH(ITYPE,SGS%MidLev)
           if (IT == 0) IT = 3
           if (ISGPTH(ITYPE,LEV2) == 0) IT = 0
@@ -2007,7 +2036,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           if (IT == 0) then
 
             ! Ordinary walk
-
             ILND = 1 + CIS%NOW(IHALF,LFTSYM,MV)
             IAWS = ISGPTH(IAWSL,LEV2)
 
@@ -2021,8 +2049,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               write(u6,*) '  LEV    = ', LEV
               write(u6,*) '  ISGT   = ', ISGT
               write(u6,*) '  ITR    = ', ITR
-              write(u6,*) '  HasDiag = ', HasDiag
-              write(u6,*) '  DiagLev = ', DiagLev
               call Abend()
             end if
 
@@ -2037,9 +2063,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               do L = min(LL+nPack-1,LEV1), LL, -1
                 IC = 4*IC + ISGPTH(ICS,L)
               end do
-
               IPOS = IPOS + 1
-
               if (IPOS < 1 .or. IPOS > size(CIS%ICase)) then
                 write(u6,*) 'MKCOUP: IPOS out of range at write'
                 write(u6,*) '  IPOS   = ', IPOS
@@ -2052,68 +2076,72 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
                 write(u6,*) '  ITR    = ', ITR
                 call Abend()
               end if
-
               CIS%ICase(IPOS) = IC
             end do
 
+            ! Back up one level and continue exploring
+            LEV = LEV + 1
+            cycle
+
           else
 
-            ! Open or closed loop (non-diagonal only)
+            ! Ordinary non-diagonal open/closed path
             IP = 0
             IQ = 0
-
             do L = LEV2+1, LEV1
               ISG = ISGPTH(IRSEG,L)
               if ((ISG >= 5)  .and. (ISG <= 8 )) IP = L
               if ((ISG >= 19) .and. (ISG <= 22)) IQ = L
             end do
-
             if (IP == 0) IP = IQ
 
-            INDEO = SGS%nLev*(IT-1) + IP
-            if (IT == 3) INDEO = MxEO_Block + (IP*(IP-1))/2 + IQ
+          end if
+          ! ------------------------------------------------------
+          ! Closed/open contribution write (shared by:
+          !   - diagonal paths  (HasDiag=.true., IP=IQ=DiagLev)
+          !   - ordinary non-diagonal open/closed paths
+          ! ------------------------------------------------------
+          INDEO = SGS%nLev*(IT-1) + IP
+          if (IT == 3) INDEO = MxEO_Block + (IP*(IP-1))/2 + IQ
 
-            ICOP = 1 + EXS%NOCP(INDEO,LFTSYM,MV)
-            EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
-            ICOP = EXS%IOCP(INDEO,LFTSYM,MV) + ICOP
-            NCHECK = NCHECK + 1
+          ICOP = 1 + EXS%NOCP(INDEO,LFTSYM,MV)
+          EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
+          ICOP = EXS%IOCP(INDEO,LFTSYM,MV) + ICOP
+          NCHECK = NCHECK + 1
 
-            if (ICOP > EXS%nICoup) then
-              write(u6,*) 'ERROR in MKCOUP: ICOP > EXS%nICoup'
-              write(u6,*) ' ICOP      = ', ICOP
-              write(u6,*) ' nICoup    = ', EXS%nICoup
-              write(u6,*) ' INDEO     = ', INDEO
-              write(u6,*) ' MV        = ', MV
-              write(u6,*) ' LFTSYM    = ', LFTSYM
+          if (ICOP > EXS%nICoup) then
+            write(u6,*) 'ERROR in MKCOUP: ICOP > EXS%nICoup'
+            write(u6,*) ' ICOP      = ', ICOP
+            write(u6,*) ' nICoup    = ', EXS%nICoup
+            write(u6,*) ' INDEO     = ', INDEO
+            write(u6,*) ' MV        = ', MV
+            write(u6,*) ' LFTSYM    = ', LFTSYM
+            call Abend()
+          end if
+
+          C = val(LEV2)
+          do i = 1, NVTAB_FINAL
+            IVTAB = i
+            if (abs(C - VTab(i)) < 1.0e-10_wp) exit
+          end do
+
+          if (i > NVTAB_FINAL) then
+            NVTAB_FINAL = NVTAB_FINAL + 1
+            if (NVTAB_FINAL > nVTab) then
+              write(u6,*) 'MKCOUP: NVTAB_FINAL exceeded nVTab'
               call Abend()
             end if
+            VTab(NVTAB_FINAL) = C
+            IVTAB = NVTAB_FINAL
+          end if
 
-            ! Keep original VTab / ICoup logic unchanged
-            C = val(LEV2)
-            do i = 1, NVTAB_FINAL
-              IVTAB = i
-              if (abs(C - VTab(i)) < 1.0e-10_wp) exit
-            end do
+          EXS%ICoup(1,ICOP) = ISGPTH(IAWSL,LEV2)
+          EXS%ICoup(2,ICOP) = ISGPTH(IAWSR,LEV2)
+          EXS%ICoup(3,ICOP) = IVTAB
 
-            if (i > NVTAB_FINAL) then
-              NVTAB_FINAL = NVTAB_FINAL + 1
-              if (NVTAB_FINAL > nVTab) then
-                write(u6,*) 'MKCOUP: NVTAB_FINAL exceeded nVTab'
-                call Abend()
-              end if
-              VTab(NVTAB_FINAL) = C
-              IVTAB = NVTAB_FINAL
-            end if
-
-            EXS%ICoup(1,ICOP) = ISGPTH(IAWSL,LEV2)
-            EXS%ICoup(2,ICOP) = ISGPTH(IAWSR,LEV2)
-            EXS%ICoup(3,ICOP) = IVTAB
-
-            if (ICOP > EXS%nICoup) then
-              write(u6,*) 'MKCOUP: ICOP > EXS%nICoup after write'
-              call Abend()
-            end if
-
+          if (ICOP > EXS%nICoup) then
+            write(u6,*) 'MKCOUP: ICOP > EXS%nICoup after write'
+            call Abend()
           end if
 
           ! Back up one level and continue exploring
@@ -2382,6 +2410,61 @@ pure integer(kind=iwp) function OpenBand(ICLASS)
     OpenBand = 4
   end select
 end function OpenBand
+! ------------------------------------------------------------------
+! Packed transport-state helpers (scaffold stage)
+!
+! low bits  : ordinary topology class (current working code uses 0..3)
+! bit 3     : diagonal-marker present
+! bits 4..  : diagonal level
+!
+! In this scaffold stage, the working code still uses only diag_level=0,
+! so PackState(Topo,0) == Topo and the current behaviour is unchanged.
+! ------------------------------------------------------------------
+
+pure integer(kind=iwp) function PackState(Topo,DiagLev)
+  integer(kind=iwp), intent(in) :: Topo, DiagLev
+  PackState = iand(Topo,State_TopoMask)
+  if (DiagLev > 0) then
+    PackState = ior(PackState,State_DiagBit)
+    PackState = PackState + ishft(DiagLev,State_DiagShift)
+  end if
+end function PackState
+
+pure integer(kind=iwp) function StateTopo(IState)
+  integer(kind=iwp), intent(in) :: IState
+  StateTopo = iand(IState,State_TopoMask)
+end function StateTopo
+
+pure logical(kind=iwp) function StateHasDiag(IState)
+  integer(kind=iwp), intent(in) :: IState
+  StateHasDiag = iand(IState,State_DiagBit) /= 0
+end function StateHasDiag
+
+pure integer(kind=iwp) function StateDiagLev(IState)
+  integer(kind=iwp), intent(in) :: IState
+  StateDiagLev = ishft(IState,-State_DiagShift)
+end function StateDiagLev
+
+pure integer(kind=iwp) function StateWithDiag(IState,DiagLev)
+  integer(kind=iwp), intent(in) :: IState, DiagLev
+  StateWithDiag = PackState(StateTopo(IState),DiagLev)
+end function StateWithDiag
+
+pure integer(kind=iwp) function NRL_idx(INDEO_BASE,IDIAG,TopoBlock)
+  integer(kind=iwp), intent(in) :: INDEO_BASE, IDIAG, TopoBlock
+  NRL_idx = INDEO_BASE + IDIAG*TopoBlock
+end function NRL_idx
+
+pure integer(kind=iwp) function OpenBase(LEV,BAND,NLEV)
+  integer(kind=iwp), intent(in) :: LEV, BAND, NLEV
+  OpenBase = LEV + (BAND-1)*NLEV
+end function OpenBase
+
+pure integer(kind=iwp) function ClosedBase(IP,IQ,OpenBlock)
+  integer(kind=iwp), intent(in) :: IP, IQ, OpenBlock
+  ClosedBase = OpenBlock + (IP*(IP-1))/2 + IQ
+end function ClosedBase
+
 
 subroutine TRANS_Free(TRS)
   type(TRStruct), intent(inout) :: TRS
@@ -2497,8 +2580,8 @@ subroutine MKTRANS(SGS,CIS,TRS)
       IVLB = CIS%ISGM(IVLT,ISGT)
       if (IVLB == 0) cycle
 
-      ITOP = ITVPT(ISGT)
-      IBOT = IBVPT(ISGT)
+      ITOP = PackState(ITVPT(ISGT),0_iwp)
+      IBOT = PackState(IBVPT(ISGT),0_iwp)
 
       ICL = IC1(ISGT)
       ICR = IC2(ISGT)
@@ -2555,5 +2638,4 @@ subroutine MKTRANS(SGS,CIS,TRS)
   call mma_deallocate(IPOS)
 
 end subroutine MKTRANS
-
 end module SGUGA
