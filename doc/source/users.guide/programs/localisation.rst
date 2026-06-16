@@ -280,22 +280,22 @@ Optional general keywords
 :kword:`OPTMethod`
   The next line specifies the optimization method used to maximize the Pipek--Mezey functional.
   Options: 
-    - Jacobi Sweeps (Default) = 'JACO'
-    - Gradient Ascent = 'GRAD'
-    - Newton Raphson method = 'NEWT'
-    - GEK method = 'GEK'
-    - SGEK method = 'SGEK'
+    - 'JACO' = Jacobi Sweeps (Default)
+    - 'NEWT' = Newton Raphson method
+    - 'GEK'  = GEK method
+    - 'SGEK' = SGEK method (faster than GEK due to subspace construction)
+    - 'HYBR' = hybrid method (starts with JACO until no pos. Hessian diagonal elements then switches to SGEK)
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="STRING" LEVEL="BASIC">
               %%Keyword: OPTM <basic>
               <HELP>
               The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
               Options: 
-                - Jacobi Sweeps (Default) = 'JACO'
-                - Gradient Ascent = 'GRAD'
-                - Newton Raphson method = 'NEWT'
-                - GEK method = 'GEK'
-                - SGEK method = 'SGEK'
+                - 'JACO' = Jacobi Sweeps (Default)
+                - 'NEWT' = Newton Raphson method
+                - 'GEK'  = GEK method
+                - 'SGEK' = SGEK method (faster than GEK due to subspace construction)
+                - 'HYBR' = hybrid method (starts with JACO until no pos. Hessian diagonal elements then switches to SGEK)
               </HELP>
               </KEYWORD>
 
@@ -310,7 +310,7 @@ Optional general keywords
               %%Keyword: PRNT <basic>
               <HELP>
               The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
-              Options: 
+              Options:
                 - before AND after localization = 'BOTH'
                 - only after localization = 'AFTEr'
                 - never (Default) = 'OFF'
