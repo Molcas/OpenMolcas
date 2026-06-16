@@ -105,6 +105,7 @@ call OrthoCheck(CMO,nOrb2Loc,nBasis)
 
 
 ! to allow property printing later
+! aim: compute the locality of the MOs using second and fourth moment orbital spread (not completed)
 !call Put_cArray('Relax Method','LOCALIS ',8)
 
 
@@ -345,6 +346,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             SearchDir(:) = -Gradient(:)/Hdiagvec(:)
 
 #ifdef _JSINSP_
+    ! experimental code aiming to escape stationary points while the hessian still has positive eigenvalues
     BLOCK
         real(kind=wp), allocatable :: Hessian(:,:)
 
