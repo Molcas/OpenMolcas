@@ -204,6 +204,7 @@ integer(kind=iwp), parameter :: TR_MID   = 4
 integer(kind=iwp), parameter :: TR_CLOSE = 8
 integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
+integer(kind=iwp), parameter :: TR_DIAG = 64
 
 public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple
 
@@ -1286,7 +1287,7 @@ CIS%VSGM(:,:) = Zero
 
 ! FOR EACH VERTEX LOOP OVER ALL POSSIBLE SEGMENTS IT CAN BE A PART OF
 do IVLT=1,SGS%nVert     ! Upper left vertex
-  do ISGT=1,nSeg
+  do ISGT=1,nSegTot
     ITT = ITVPT(ISGT)   ! 0-3
     SELECT CASE(ITT)
 !     Case(0,3)
@@ -1464,6 +1465,9 @@ case (TR_TAIL)
     NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
   end do
 
+case (TR_DIAG)
+  cycle
+
 case default
   write(u6,*) 'MkNRCOUP(upper): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
   write(u6,*) '  ITR  = ', ITR
@@ -1572,6 +1576,9 @@ case (TR_WALK)
     INDEO = NRL_OpenBlock + IPQ
     NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
   end do
+
+case (TR_DIAG)
+  cycle
 
 case default
   write(u6,*) 'MkNRCOUP(lower): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
@@ -2392,7 +2399,7 @@ subroutine MKTRANS(SGS,CIS,TRS)
   ! First pass: couny transitions per bucket
   ! For every source vertex IVLT, count how many valid segments require each top class ITOP
   do IVLT = 1, SGS%nVert
-     do ISGT = 1, nSeg
+     do ISGT = 1, nSegTot
       IVLB = CIS%ISGM(IVLT,ISGT)
       if (IVLB == 0) cycle
       ITOP = ITVPT(ISGT)
@@ -2470,8 +2477,10 @@ subroutine MKTRANS(SGS,CIS,TRS)
         IFLAG = TR_MID
       case (19:22)
         IFLAG = TR_CLOSE
-      case default
+      case (23:26)
         IFLAG = TR_TAIL
+      case (27:34)
+        IFLAG = TR_DIAG
       end select
 
       IPOS(IVLT,ITOP) = IPOS(IVLT,ITOP) + 1
