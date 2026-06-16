@@ -261,7 +261,7 @@ select case (InpOptMeth)
         '                                                                 CPU       Wall', &
         'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)  npos  dispnorm'
     case (2,4,5)
-        UpMeth="NR  0 "
+        UpMeth="NR   0"
         write(u6,'(//,1X,A,/,1X,A)') &
         '                                                                 CPU       Wall', &
         'nIter       Functional P        Delta     Gradient  Method     (sec)     (sec)   npos  dispnorm'
@@ -379,7 +379,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 UpMeth = "NR +LS"
             else
                 best_eta = One
-                UpMeth = "NR  0"
+                UpMeth = "NR   0"
             end if
 
             Disp(:) = best_eta * SearchDir(:)
@@ -596,6 +596,14 @@ end subroutine force_GEKRange
 #endif
 
 subroutine StepSizeChecks()
+    ! this subroutine checks if the Range is reached, in which data points can be collected for the GEK
+    ! based on a) GEKThr_Kappa, avoiding that single elements of the displacement vector kappa are too large
+    ! which is required because the coordinate mapping assumes linear coordinate behavior; and
+    ! b) GEKThr_Grad, which is an additional criterion (should be the preferred one as soon as the coordinate
+    ! mapping is done exactly and not via linear approximation);
+    ! both criteria have to be fulfilled for the GEK to start/continue sampling
+    ! if one of them is not fulfilled, the GEK will be resetted and switched back to NR
+
     integer(kind=iwp) :: i
     ! if previous step suggestion was out of GEKRange
     if (ResetGEK .and. nDIIS/=0) then
