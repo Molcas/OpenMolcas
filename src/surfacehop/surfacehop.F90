@@ -32,6 +32,7 @@ logical(kind=iwp) :: Exists
 character(len=180) :: Line
 character(len=128) :: FileName
 character(len=16) :: StdIn
+character(len=8) :: JOB1, JOB2, Method
 real(kind=wp), allocatable :: CIBigArray(:)
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -40,8 +41,15 @@ integer(kind=iwp), external :: IsFreeUnit
 call initial_surfacehop()
 call rdinp_surfacehop()
 
+call Get_cArray('Relax Method',Method,8)
+if ((Method == 'CASPT2') .or. (Method == 'RASPT2')) then
+  JOB1 = 'JOBMIX'
+else
+  JOB1 = 'JOBIPH'
+end if
+
 LUIPH = 20
-call DANAME(LUIPH,'JOBIPH')
+call DANAME(LUIPH,JOB1)
 IAD = 0
 call IDAFILE(LUIPH,2,ITOC15,15,IAD)
 call getIphInfo(LUIPH,NCI,NSTATE,ITOC15)
@@ -76,16 +84,23 @@ end if
 
 ! Else if tully has set Run_rassi as True, continue to run RASSI
 
-! If first step, cannot do overlap - just save JobIph as JobOld and return
+JOB2 = 'JOBAUTO'
+
+! If first step, cannot do overlap - just save JobIph/JobMix as JOBAUTO and return
+
+call StdIn_Name(StdIn)
+LuInput = IsFreeUnit(11)
+call Molcas_Open(LuInput,StdIn)
 
 if (firststep) then
   write(u6,*) 'First Step'
-  LuInput = 11
-  LuInput = IsFreeUnit(LuInput)
-  write(u6,*) 'Saving old JobIPH'
-  call StdIn_Name(StdIn)
-  call Molcas_Open(LuInput,StdIn)
-  write(LuInput,'(A)') ' >copy $Project.JobIph $Project.JobIph.Old'
+  if (JOB1 == 'JOBMIX') then
+    write(u6,*) 'Saving old JobMix'
+    write(LuInput,'(A)') '> copy $Project.JobMix '//trim(JOB2)
+  else
+    write(u6,*) 'Saving old JobIph'
+    write(LuInput,'(A)') '> copy $Project.JobIph '//trim(JOB2)
+  end if
   close(LuInput)
   call mma_deallocate(CIBigArray)
   rc = _RC_INVOKED_OTHER_MODULE_
@@ -94,31 +109,35 @@ end if
 
 ! Otherwise, Call RASSI then rerun SURFACEHOP with same input options (check
 ! within tully.f90 if RASSI run yet or not)
-! Call RASSI between .JobIph and .JobOld
+! Call RASSI between JOB1 and JOB2
 
-LuInput = 11
-LuInput = IsFreeUnit(LuInput)
 !write(u6,*) 'Calling RASSI then re-entering SURFACEHOP'
 
-call StdIn_Name(StdIn)
-call Molcas_Open(LuInput,StdIn)
-
-write(LuInput,'(A)') '>copy $Project.JobIph.Old JOB001'
-write(LuInput,'(A)') '>copy $Project.JobIph JOB002'
-
-write(LuInput,'(A)') '&RASSI &End'
-write(LuInput,'(A)') 'Nr of JobIPhs'
-write(LuInput,'(A)') '2 all'
-write(LuInput,'(A)') 'STOV'
+write(LuInput,'(A)') '>ECHO OFF'
+write(LuInput,'(A)') '> export SH_OLD_TRAP=$MOLCAS_TRAP'
+write(LuInput,'(A)') '> export MOLCAS_TRAP=ON'
+write(LuInput,'(A)') '&RASSI'
+write(LuInput,'(A)') 'StOverlaps'
+write(LuInput,'(A)') 'NrOfJobIphs'
+write(LuInput,'(A)') '  2 all'
+write(LuInput,'(A)') 'IphNames'
+! Note the order order of the files is opposite to e.g. SLAPAF
+write(LuInput,'(A)') '  '//trim(JOB2)
+write(LuInput,'(A)') '  '//trim(JOB1)
 write(LuInput,'(A)') 'End of Input'
-write(LuInput,'(A)') '> copy $Project.JobIph $Project.JobIph.Old'
+if (JOB1 == 'JOBMIX') then
+  write(LuInput,'(A)') '> copy $Project.JobMix '//trim(JOB2)
+else
+  write(LuInput,'(A)') '> copy $Project.JobIph '//trim(JOB2)
+end if
+write(LuInput,'(A)') '> export MOLCAS_TRAP=$DYN_OLD_TRAP'
+write(LuInput,'(A)') '>ECHO ON'
 
 FileName = 'SURFAINP'
 call f_inquire(FileName,Exists)
 
 if (Exists) then
-  LuSpool = 77
-  LuSpool = IsFreeUnit(LuSpool)
+  LuSpool = IsFreeUnit(77)
   call Molcas_Open(LuSpool,FileName)
 
   do
@@ -135,7 +154,7 @@ else
   return
 end if
 
-write(LuInput,'(A)') ''
+write(LuInput,'(A)')
 close(LuInput)
 
 call mma_deallocate(CIBigArray)
