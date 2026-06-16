@@ -555,7 +555,12 @@ call mma_Deallocate(Ovlp_sqrt)
 contains
 
 subroutine rescale_disp(Disp)
+
+    ! the current exp(-kappa) routine cannot handle large displacements,
+    ! so we rescale the norm of kappa down to 0.99 Pi
+
     real(kind=wp),intent(inout) :: Disp(fsdim)
+
     DD=Sqrt(dot_product(Disp(:),Disp(:)))
     Thr= 0.99_wp * Pi
     If (DD>=Thr)Then
