@@ -1370,7 +1370,6 @@ integer(kind=iwp) :: NRL_OpenBlock
 integer(kind=iwp) :: EXS_OpenBlock
 logical :: ActiveBand(nOpenBands)
 integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS, TopoBlock, NRL_MaxEO
-integer(kind=iwp), allocatable :: NDiagNRLProbe_Upper(:), NDiagNRLProbe_Lower(:)
 
 ActiveBand = .false.
 ActiveBand(1) = .true.
@@ -1409,10 +1408,6 @@ EXS%IOCP(:,:,:)=0
 
 ! NRL(sym,vertex,indeo): number of valid segment paths of a given symmetry and operators class arriving at a given vertex
 call mma_allocate(NRL,[1,SGS%nSym],[1,SGS%nVert],[0,NRL_MaxEO],Label='NRL')
-call mma_allocate(NDiagNRLProbe_Upper,SGS%nLev,Label='NDiagNRLProbe_Upper')
-call mma_allocate(NDiagNRLProbe_Lower,SGS%nLev,Label='NDiagNRLProbe_Lower')
-NDiagNRLProbe_Upper(:)=0
-NDiagNRLProbe_Lower(:)=0
 
 ! For upper walks
 NRL(:,1:SGS%MVEnd,:) = 0
@@ -1496,8 +1491,6 @@ case (TR_TAIL)
   end do
 
 case (TR_DIAG)
-  NDiagNRLProbe_Upper(LEV) = NDiagNRLProbe_Upper(LEV) + 1
-  cycle
   ! Direct insertion of E_ii into diagonal of closed triangular block
   IPQ   = (LEV*(LEV-1))/2 + LEV
   INDEO = NRL_OpenBlock + IPQ
@@ -1633,8 +1626,6 @@ case (TR_WALK)
   end do
 
 case (TR_DIAG)
-  NDiagNRLProbe_Lower(LEV) = NDiagNRLProbe_Lower(LEV) + 1
-  cycle
   ! Direct insertion of E_ii into diagonal of closed triangular block
   IPQ   = (LEV*(LEV-1))/2 + LEV
   INDEO = NRL_OpenBlock + IPQ
@@ -1828,12 +1819,6 @@ end do
 2346 format(' P=',I2,'  Q=',I2,'  MV=',I2,' SYMM ',I1,' NOCP=',I4)
 #endif
 
-write(u6,*) 'MkNRCOUP probe A2: TR_DIAG upper opportunities by level:'
-write(u6,'(20I8)') NDiagNRLProbe_Upper(1:SGS%nLev)
-write(u6,*) 'MkNRCOUP probe A2: TR_DIAG lower opportunities by level:'
-write(u6,'(20I8)') NDiagNRLProbe_Lower(1:SGS%nLev)
-call mma_deallocate(NDiagNRLProbe_Upper)
-call mma_deallocate(NDiagNRLProbe_Lower)
 call mma_deallocate(NRL)
 
 end subroutine MkNRCOUP
@@ -1899,10 +1884,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp), parameter :: nVTab = 5000
 
   logical(kind=iwp) :: HasDiag
-  integer(kind=iwp) :: NDiagPath, NMixedDiagPath, NMixedDiagOpenOnlyPath, NMixedDiagWithClosePath
-  integer(kind=iwp) :: NPureDiagCandidate
-  integer(kind=iwp), allocatable :: NPureDiagCandByLev(:), NPureDiagCandByHalf(:,:)
-  integer(kind=iwp) :: DiagOnlyLev
+  integer(kind=iwp) :: NDiagPath, NMixedDiagPath, NMixedDiagOpenOnlyPath, NMixedDiagWithClosePath, NPureDiagPath
+  integer(kind=iwp), allocatable :: NPureDiagByLev(:), NPureDiagByHalf(:,:)
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -1948,11 +1931,11 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   NMixedDiagPath = 0
   NMixedDiagOpenOnlyPath = 0
   NMixedDiagWithClosePath = 0
-  NPureDiagCandidate = 0
-  call mma_allocate(NPureDiagCandByLev,SGS%nLev,Label='NPureDiagCandByLev')
-  call mma_allocate(NPureDiagCandByHalf,2,SGS%nLev,Label='NPureDiagCandByHalf')
-  NPureDiagCandByLev(:)=0
-  NPureDiagCandByHalf(:,:)=0
+  NPureDiagPath = 0
+  call mma_allocate(NPureDiagByLev,SGS%nLev,Label='NPureDiagByLev')
+  call mma_allocate(NPureDiagByHalf,2,SGS%nLev,Label='NPureDiagByHalf')
+  NPureDiagByLev(:)=0
+  NPureDiagByHalf(:,:)=0
 
   do IHALF = 1, 2
 
@@ -2100,39 +2083,39 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               else
                 NMixedDiagOpenOnlyPath = NMixedDiagOpenOnlyPath + 1
               end if
-            else
-              DiagOnlyLev = StateDiagLev(ISGPTH(ISTATE,LEV2))
-              if (DiagOnlyLev <= 0) then
-                write(u6,*) 'MKCOUP: pure diagonal candidate has invalid packed level'
-                write(u6,*) '  IHALF  = ', IHALF
-                write(u6,*) '  MV     = ', MV
-                write(u6,*) '  LFTSYM = ', LFTSYM
-                write(u6,*) '  ITR    = ', ITR
-                write(u6,*) '  ISGT   = ', ISGT
-                call Abend()
-              end if
-              NPureDiagCandidate = NPureDiagCandidate + 1
-              NPureDiagCandByLev(DiagOnlyLev) = NPureDiagCandByLev(DiagOnlyLev) + 1
-              NPureDiagCandByHalf(IHALF,DiagOnlyLev) = NPureDiagCandByHalf(IHALF,DiagOnlyLev) + 1
+              ! Still scaffold-only for mixed diagonal-bearing paths.
+              LEV = LEV + 1
+              cycle
             end if
-            ! Safe rollback/explore baseline: still ignore any path that contains a diagonal segment.
-            LEV = LEV + 1
-            cycle
+            IP = StateDiagLev(ISGPTH(ISTATE,LEV2))
+            IQ = IP
+            if (IP <= 0) then
+              write(u6,*) 'MKCOUP: pure diagonal path has invalid packed diagonal level'
+              write(u6,*) '  IHALF  = ', IHALF
+              write(u6,*) '  MV     = ', MV
+              write(u6,*) '  LFTSYM = ', LFTSYM
+              write(u6,*) '  ITR    = ', ITR
+              write(u6,*) '  ISGT   = ', ISGT
+              call Abend()
+            end if
+            IT = 3
+            NPureDiagPath = NPureDiagPath + 1
+            NPureDiagByLev(IP) = NPureDiagByLev(IP) + 1
+            NPureDiagByHalf(IHALF,IP) = NPureDiagByHalf(IHALF,IP) + 1
+          else
+            if (StateHasDiag(ISGPTH(ISTATE,LEV2))) then
+              write(u6,*) 'MKCOUP: accumulated ISTATE has unexpected diagonal marker'
+              write(u6,*) '  IHALF  = ', IHALF
+              write(u6,*) '  MV     = ', MV
+              write(u6,*) '  LFTSYM = ', LFTSYM
+              write(u6,*) '  ITR    = ', ITR
+              write(u6,*) '  ISGT   = ', ISGT
+              call Abend()
+            end if
+            IT = ISGPTH(ITYPE,SGS%MidLev)
+            if (IT == 0) IT = 3
+            if (ISGPTH(ITYPE,LEV2) == 0) IT = 0
           end if
-
-          if (StateHasDiag(ISGPTH(ISTATE,LEV2))) then
-            write(u6,*) 'MKCOUP: accumulated ISTATE has unexpected diagonal marker'
-            write(u6,*) '  IHALF  = ', IHALF
-            write(u6,*) '  MV     = ', MV
-            write(u6,*) '  LFTSYM = ', LFTSYM
-            write(u6,*) '  ITR    = ', ITR
-            write(u6,*) '  ISGT   = ', ISGT
-            call Abend()
-          end if
-
-          IT = ISGPTH(ITYPE,SGS%MidLev)
-          if (IT == 0) IT = 3
-          if (ISGPTH(ITYPE,LEV2) == 0) IT = 0
 
           if (IT == 0) then
 
@@ -2277,15 +2260,15 @@ write(u6,*) 'MKCOUP: diagonal paths seen = ', NDiagPath
 write(u6,*) 'MKCOUP: mixed diagonal/open-close paths seen = ', NMixedDiagPath
 write(u6,*) 'MKCOUP: mixed diagonal/open-only paths seen = ', NMixedDiagOpenOnlyPath
 write(u6,*) 'MKCOUP: mixed diagonal/with-close paths seen = ', NMixedDiagWithClosePath
-write(u6,*) 'MKCOUP: pure diagonal-only candidates (not admitted) = ', NPureDiagCandidate
-write(u6,*) 'MKCOUP: pure diagonal-only candidates by level:'
-write(u6,'(20I8)') NPureDiagCandByLev(1:SGS%nLev)
-write(u6,*) 'MKCOUP: pure diagonal-only upper-half candidates by level:'
-write(u6,'(20I8)') NPureDiagCandByHalf(1,1:SGS%nLev)
-write(u6,*) 'MKCOUP: pure diagonal-only lower-half candidates by level:'
-write(u6,'(20I8)') NPureDiagCandByHalf(2,1:SGS%nLev)
-call mma_deallocate(NPureDiagCandByLev)
-call mma_deallocate(NPureDiagCandByHalf)
+write(u6,*) 'MKCOUP: pure diagonal-only paths admitted = ', NPureDiagPath
+write(u6,*) 'MKCOUP: pure diagonal-only paths by level:'
+write(u6,'(20I8)') NPureDiagByLev(1:SGS%nLev)
+write(u6,*) 'MKCOUP: pure diagonal-only upper-half paths by level:'
+write(u6,'(20I8)') NPureDiagByHalf(1,1:SGS%nLev)
+write(u6,*) 'MKCOUP: pure diagonal-only lower-half paths by level:'
+write(u6,'(20I8)') NPureDiagByHalf(2,1:SGS%nLev)
+call mma_deallocate(NPureDiagByLev)
+call mma_deallocate(NPureDiagByHalf)
 #ifdef _DEBUGPRINT_
   ICOP1 = 0
   ICOP2 = 0

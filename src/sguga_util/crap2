@@ -1370,7 +1370,6 @@ integer(kind=iwp) :: NRL_OpenBlock
 integer(kind=iwp) :: EXS_OpenBlock
 logical :: ActiveBand(nOpenBands)
 integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS, TopoBlock, NRL_MaxEO
-integer(kind=iwp), allocatable :: NDiagNRLProbe_Upper(:), NDiagNRLProbe_Lower(:)
 
 ActiveBand = .false.
 ActiveBand(1) = .true.
@@ -1409,10 +1408,6 @@ EXS%IOCP(:,:,:)=0
 
 ! NRL(sym,vertex,indeo): number of valid segment paths of a given symmetry and operators class arriving at a given vertex
 call mma_allocate(NRL,[1,SGS%nSym],[1,SGS%nVert],[0,NRL_MaxEO],Label='NRL')
-call mma_allocate(NDiagNRLProbe_Upper,SGS%nLev,Label='NDiagNRLProbe_Upper')
-call mma_allocate(NDiagNRLProbe_Lower,SGS%nLev,Label='NDiagNRLProbe_Lower')
-NDiagNRLProbe_Upper(:)=0
-NDiagNRLProbe_Lower(:)=0
 
 ! For upper walks
 NRL(:,1:SGS%MVEnd,:) = 0
@@ -1496,7 +1491,6 @@ case (TR_TAIL)
   end do
 
 case (TR_DIAG)
-  NDiagNRLProbe_Upper(LEV) = NDiagNRLProbe_Upper(LEV) + 1
   cycle
   ! Direct insertion of E_ii into diagonal of closed triangular block
   IPQ   = (LEV*(LEV-1))/2 + LEV
@@ -1633,7 +1627,6 @@ case (TR_WALK)
   end do
 
 case (TR_DIAG)
-  NDiagNRLProbe_Lower(LEV) = NDiagNRLProbe_Lower(LEV) + 1
   cycle
   ! Direct insertion of E_ii into diagonal of closed triangular block
   IPQ   = (LEV*(LEV-1))/2 + LEV
@@ -1828,12 +1821,6 @@ end do
 2346 format(' P=',I2,'  Q=',I2,'  MV=',I2,' SYMM ',I1,' NOCP=',I4)
 #endif
 
-write(u6,*) 'MkNRCOUP probe A2: TR_DIAG upper opportunities by level:'
-write(u6,'(20I8)') NDiagNRLProbe_Upper(1:SGS%nLev)
-write(u6,*) 'MkNRCOUP probe A2: TR_DIAG lower opportunities by level:'
-write(u6,'(20I8)') NDiagNRLProbe_Lower(1:SGS%nLev)
-call mma_deallocate(NDiagNRLProbe_Upper)
-call mma_deallocate(NDiagNRLProbe_Lower)
 call mma_deallocate(NRL)
 
 end subroutine MkNRCOUP
@@ -1902,7 +1889,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp) :: NDiagPath, NMixedDiagPath, NMixedDiagOpenOnlyPath, NMixedDiagWithClosePath
   integer(kind=iwp) :: NPureDiagCandidate
   integer(kind=iwp), allocatable :: NPureDiagCandByLev(:), NPureDiagCandByHalf(:,:)
-  integer(kind=iwp) :: DiagOnlyLev
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -2080,6 +2066,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
             end if
           end do
           if (HasDiag) then
+            integer(kind=iwp) :: DiagOnlyLev
             ! Step 3 verification:
             ! the accumulated packed state at LEV2 must retain the diagonal marker if
             ! the raw segment scan says the path contains a diagonal segment.
