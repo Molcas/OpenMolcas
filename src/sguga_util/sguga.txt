@@ -1372,7 +1372,6 @@ logical :: ActiveBand(nOpenBands)
 integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS, TopoBlock, NRL_MaxEO
 integer(kind=iwp), allocatable :: NDiagNRLProbe_Upper(:), NDiagNRLProbe_Lower(:)
 integer(kind=iwp) :: DiagCompactBase_Probe
-integer(kind=iwp), allocatable :: NDiagShadowUpperAtMid(:), NDiagShadowLowerAtMid(:)
 
 ActiveBand = .false.
 ActiveBand(1) = .true.
@@ -1418,10 +1417,6 @@ call mma_allocate(NDiagNRLProbe_Upper,SGS%nLev,Label='NDiagNRLProbe_Upper')
 call mma_allocate(NDiagNRLProbe_Lower,SGS%nLev,Label='NDiagNRLProbe_Lower')
 NDiagNRLProbe_Upper(:)=0
 NDiagNRLProbe_Lower(:)=0
-call mma_allocate(NDiagShadowUpperAtMid,SGS%nLev,Label='NDiagShadowUpperAtMid')
-call mma_allocate(NDiagShadowLowerAtMid,SGS%nLev,Label='NDiagShadowLowerAtMid')
-NDiagShadowUpperAtMid(:)=0
-NDiagShadowLowerAtMid(:)=0
 
 ! For upper walks
 NRL(:,1:SGS%MVEnd,:) = 0
@@ -1474,12 +1469,7 @@ select case (TRS%IFLAG(ITR))
 
 case (TR_WALK)
   ! ordinary upper walk
-  NRL(IBSYM,IVLB,NRL_idx(0,0,TopoBlock)) = NRL(IBSYM,IVLB,NRL_idx(0,0,TopoBlock)) + NRL(ITSYM,IVLT,NRL_idx(0,0,TopoBlock))
-  ! Shadow checkpoint-6 bridge: pure diagonal walk states stay in replicated walk blocks.
-  do IP = 1, SGS%nLev
-    NRL(IBSYM,IVLB,NRL_idx(0,IP,TopoBlock)) = NRL(IBSYM,IVLB,NRL_idx(0,IP,TopoBlock)) + &
- &                                           NRL(ITSYM,IVLT,NRL_idx(0,IP,TopoBlock))
-  end do
+  NRL(IBSYM,IVLB,0) = NRL(IBSYM,IVLB,0) + NRL(ITSYM,IVLT,0)
 
 case (TR_OPEN)
   ! loop opening
@@ -1511,9 +1501,6 @@ case (TR_TAIL)
 
 case (TR_DIAG)
   NDiagNRLProbe_Upper(LEV) = NDiagNRLProbe_Upper(LEV) + 1
-  ! Shadow checkpoint-6 bridge: tag a replicated pure diagonal walk state by level.
-  NRL(IBSYM,IVLB,NRL_idx(0,LEV,TopoBlock)) = NRL(IBSYM,IVLB,NRL_idx(0,LEV,TopoBlock)) + &
- &                                           NRL(ITSYM,IVLT,NRL_idx(0,0,TopoBlock))
   cycle
   ! Direct insertion of E_ii into diagonal of closed triangular block
   IPQ   = (LEV*(LEV-1))/2 + LEV
@@ -1541,9 +1528,6 @@ do MV=1,CIS%nMidV                  ! loop over midverticies
   do LFTSYM=1,SGS%nSym             ! Loop over symmetries
     CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))
-    do LEV = 1, SGS%nLev
-      NDiagShadowUpperAtMid(LEV) = NDiagShadowUpperAtMid(LEV) + NRL(LFTSYM,IVLT,NRL_idx(0,LEV,TopoBlock))
-    end do
 
 
 ! ---- open loops ----
@@ -1621,12 +1605,7 @@ select case (TRS%IFLAG(ITR))
 
 case (TR_TAIL)
   ! ordinary lower walk
-  NRL(ITSYM,IVLT,NRL_idx(0,0,TopoBlock)) = NRL(ITSYM,IVLT,NRL_idx(0,0,TopoBlock)) + NRL(IBSYM,IVLB,NRL_idx(0,0,TopoBlock))
-  ! Shadow checkpoint-6 bridge: pure diagonal walk states stay in replicated walk blocks.
-  do IQ = 1, SGS%nLev
-    NRL(ITSYM,IVLT,NRL_idx(0,IQ,TopoBlock)) = NRL(ITSYM,IVLT,NRL_idx(0,IQ,TopoBlock)) + &
- &                                           NRL(IBSYM,IVLB,NRL_idx(0,IQ,TopoBlock))
-  end do
+  NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0) + NRL(IBSYM,IVLB,0)
 
 case (TR_CLOSE)
   ! create open-loop class from below
@@ -1659,9 +1638,6 @@ case (TR_WALK)
 
 case (TR_DIAG)
   NDiagNRLProbe_Lower(LEV) = NDiagNRLProbe_Lower(LEV) + 1
-  ! Shadow checkpoint-6 bridge: tag a replicated pure diagonal walk state by level.
-  NRL(ITSYM,IVLT,NRL_idx(0,LEV,TopoBlock)) = NRL(ITSYM,IVLT,NRL_idx(0,LEV,TopoBlock)) + &
- &                                           NRL(IBSYM,IVLB,NRL_idx(0,0,TopoBlock))
   cycle
   ! Direct insertion of E_ii into diagonal of closed triangular block
   IPQ   = (LEV*(LEV-1))/2 + LEV
@@ -1689,9 +1665,6 @@ do MV=1,CIS%nMidV
   do LFTSYM=1,SGS%nSym
     CIS%NOW(2,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
     MXDWN = max(MXDWN,CIS%NOW(2,LFTSYM,MV))
-    do LEV = 1, SGS%nLev
-      NDiagShadowLowerAtMid(LEV) = NDiagShadowLowerAtMid(LEV) + NRL(LFTSYM,IVLT,NRL_idx(0,LEV,TopoBlock))
-    end do
 
 ! ---- open loops ----
 do band = 1, nOpenBands
@@ -1863,15 +1836,9 @@ write(u6,*) 'MkNRCOUP probe A2: TR_DIAG upper opportunities by level:'
 write(u6,'(20I8)') NDiagNRLProbe_Upper(1:SGS%nLev)
 write(u6,*) 'MkNRCOUP probe A2: TR_DIAG lower opportunities by level:'
 write(u6,'(20I8)') NDiagNRLProbe_Lower(1:SGS%nLev)
-write(u6,*) 'MkNRCOUP shadow C6: pure diagonal walk states reaching midlevel from upper by level:'
-write(u6,'(20I8)') NDiagShadowUpperAtMid(1:SGS%nLev)
-write(u6,*) 'MkNRCOUP shadow C6: pure diagonal walk states reaching midlevel from lower by level:'
-write(u6,'(20I8)') NDiagShadowLowerAtMid(1:SGS%nLev)
 write(u6,*) 'MkNRCOUP scaffold: future dedicated diagonal compact block base = ', DiagCompactBase_Probe + 1
 call mma_deallocate(NDiagNRLProbe_Upper)
 call mma_deallocate(NDiagNRLProbe_Lower)
-call mma_deallocate(NDiagShadowUpperAtMid)
-call mma_deallocate(NDiagShadowLowerAtMid)
 call mma_deallocate(NRL)
 
 end subroutine MkNRCOUP
