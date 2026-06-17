@@ -1886,7 +1886,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp), parameter :: nVTab = 5000
 
   logical(kind=iwp) :: HasDiag
-  integer(kind=iwp) :: DiagLev, NDiagPath
+  integer(kind=iwp) :: NDiagPath
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -2037,7 +2037,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           ! Detect path content in detail: diagonal vs ordinary
           ! ------------------------------------------------------
           HasDiag  = .false.
-          DiagLev  = 0
           IP       = 0
           IQ       = 0
 
@@ -2046,7 +2045,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
             if ((ISG >= 27) .and. (ISG <= 34)) then
               HasDiag = .true.
-              DiagLev = L
             end if
 
             if ((ISG >= 5) .and. (ISG <= 8)) then
@@ -2155,7 +2153,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           end if
           ! ------------------------------------------------------
           ! Closed/open contribution write (shared by:
-          !   - diagonal paths  (HasDiag=.true., IP=IQ=DiagLev)
+          !   - diagonal paths  (HasDiag=.true., IP=IQ)
           !   - ordinary non-diagonal open/closed paths
           ! ------------------------------------------------------
           INDEO = SGS%nLev*(IT-1) + IP
