@@ -1373,6 +1373,7 @@ integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS, TopoBlock, NRL_MaxEO
 integer(kind=iwp), allocatable :: NDiagNRLProbe_Upper(:), NDiagNRLProbe_Lower(:)
 integer(kind=iwp) :: DiagCompactBase_Probe
 integer(kind=iwp), allocatable :: NDiagShadowUpperAtMid(:), NDiagShadowLowerAtMid(:)
+integer(kind=iwp), allocatable :: NDiagShadowUpperCanonAtMid(:), NDiagShadowLowerCanonAtMid(:)
 
 ActiveBand = .false.
 ActiveBand(1) = .true.
@@ -1422,6 +1423,10 @@ call mma_allocate(NDiagShadowUpperAtMid,SGS%nLev,Label='NDiagShadowUpperAtMid')
 call mma_allocate(NDiagShadowLowerAtMid,SGS%nLev,Label='NDiagShadowLowerAtMid')
 NDiagShadowUpperAtMid(:)=0
 NDiagShadowLowerAtMid(:)=0
+call mma_allocate(NDiagShadowUpperCanonAtMid,SGS%nLev,Label='NDiagShadowUpperCanonAtMid')
+call mma_allocate(NDiagShadowLowerCanonAtMid,SGS%nLev,Label='NDiagShadowLowerCanonAtMid')
+NDiagShadowUpperCanonAtMid(:)=0
+NDiagShadowLowerCanonAtMid(:)=0
 
 ! For upper walks
 NRL(:,1:SGS%MVEnd,:) = 0
@@ -1543,6 +1548,8 @@ do MV=1,CIS%nMidV                  ! loop over midverticies
     MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))
     do LEV = 1, SGS%nLev
       NDiagShadowUpperAtMid(LEV) = NDiagShadowUpperAtMid(LEV) + NRL(LFTSYM,IVLT,NRL_idx(0,LEV,TopoBlock))
+      IQ = CanonDiagLev(1,LEV,SGS%nLev)
+      NDiagShadowUpperCanonAtMid(IQ) = NDiagShadowUpperCanonAtMid(IQ) + NRL(LFTSYM,IVLT,NRL_idx(0,LEV,TopoBlock))
     end do
 
 
@@ -1691,6 +1698,8 @@ do MV=1,CIS%nMidV
     MXDWN = max(MXDWN,CIS%NOW(2,LFTSYM,MV))
     do LEV = 1, SGS%nLev
       NDiagShadowLowerAtMid(LEV) = NDiagShadowLowerAtMid(LEV) + NRL(LFTSYM,IVLT,NRL_idx(0,LEV,TopoBlock))
+      IQ = CanonDiagLev(2,LEV,SGS%nLev)
+      NDiagShadowLowerCanonAtMid(IQ) = NDiagShadowLowerCanonAtMid(IQ) + NRL(LFTSYM,IVLT,NRL_idx(0,LEV,TopoBlock))
     end do
 
 ! ---- open loops ----
@@ -1867,11 +1876,17 @@ write(u6,*) 'MkNRCOUP shadow C6: pure diagonal walk states reaching midlevel fro
 write(u6,'(20I8)') NDiagShadowUpperAtMid(1:SGS%nLev)
 write(u6,*) 'MkNRCOUP shadow C6: pure diagonal walk states reaching midlevel from lower by level:'
 write(u6,'(20I8)') NDiagShadowLowerAtMid(1:SGS%nLev)
+write(u6,*) 'MkNRCOUP scaffold C6b: canonical pure diagonal walk states reaching midlevel from upper by level:'
+write(u6,'(20I8)') NDiagShadowUpperCanonAtMid(1:SGS%nLev)
+write(u6,*) 'MkNRCOUP scaffold C6b: canonical pure diagonal walk states reaching midlevel from lower by level:'
+write(u6,'(20I8)') NDiagShadowLowerCanonAtMid(1:SGS%nLev)
 write(u6,*) 'MkNRCOUP scaffold: future dedicated diagonal compact block base = ', DiagCompactBase_Probe + 1
 call mma_deallocate(NDiagNRLProbe_Upper)
 call mma_deallocate(NDiagNRLProbe_Lower)
 call mma_deallocate(NDiagShadowUpperAtMid)
 call mma_deallocate(NDiagShadowLowerAtMid)
+call mma_deallocate(NDiagShadowUpperCanonAtMid)
+call mma_deallocate(NDiagShadowLowerCanonAtMid)
 call mma_deallocate(NRL)
 
 end subroutine MkNRCOUP
@@ -1940,9 +1955,10 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp) :: NDiagPath, NMixedDiagPath, NMixedDiagOpenOnlyPath, NMixedDiagWithClosePath
   integer(kind=iwp) :: NPureDiagCandidate
   integer(kind=iwp), allocatable :: NPureDiagCandByLev(:), NPureDiagCandByHalf(:,:)
-  integer(kind=iwp) :: DiagCompactBase, IDiagEO
+  integer(kind=iwp) :: DiagCompactBase, IDiagEO, DiagCanonLev
   integer(kind=iwp), allocatable :: NDiagFutureSlotByLev(:), NDiagFutureSlotByHalf(:,:)
   integer(kind=iwp) :: DiagOnlyLev
+  integer(kind=iwp), allocatable :: NPureDiagCanonByLev(:), NPureDiagCanonByHalf(:,:)
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -1998,8 +2014,12 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   DiagCompactBase = DiagEOBase(MxEO_Block,SGS%nLev)
   call mma_allocate(NDiagFutureSlotByLev,SGS%nLev,Label='NDiagFutureSlotByLev')
   call mma_allocate(NDiagFutureSlotByHalf,2,SGS%nLev,Label='NDiagFutureSlotByHalf')
+  call mma_allocate(NPureDiagCanonByLev,SGS%nLev,Label='NPureDiagCanonByLev')
+  call mma_allocate(NPureDiagCanonByHalf,2,SGS%nLev,Label='NPureDiagCanonByHalf')
   NDiagFutureSlotByLev(:)=0
   NDiagFutureSlotByHalf(:,:)=0
+  NPureDiagCanonByLev(:)=0
+  NPureDiagCanonByHalf(:,:)=0
 
   do IHALF = 1, 2
 
@@ -2156,15 +2176,19 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               NPureDiagCandidate = NPureDiagCandidate + 1
               NPureDiagCandByLev(DiagOnlyLev) = NPureDiagCandByLev(DiagOnlyLev) + 1
               NPureDiagCandByHalf(IHALF,DiagOnlyLev) = NPureDiagCandByHalf(IHALF,DiagOnlyLev) + 1
-              IDiagEO = DiagEOIdx(MxEO_Block,SGS%nLev,DiagOnlyLev)
+              DiagCanonLev = CanonDiagLev(IHALF,DiagOnlyLev,SGS%nLev)
+              NPureDiagCanonByLev(DiagCanonLev) = NPureDiagCanonByLev(DiagCanonLev) + 1
+              NPureDiagCanonByHalf(IHALF,DiagCanonLev) = NPureDiagCanonByHalf(IHALF,DiagCanonLev) + 1
+              IDiagEO = DiagEOIdx(MxEO_Block,SGS%nLev,DiagCanonLev)
               if (IDiagEO <= DiagCompactBase) then
                 write(u6,*) 'MKCOUP scaffold: invalid future dedicated diagonal slot index'
                 write(u6,*) '  DiagLev = ', DiagOnlyLev
+                write(u6,*) '  CanonLev = ', DiagCanonLev
                 write(u6,*) '  IDiagEO = ', IDiagEO
                 call Abend()
               end if
-              NDiagFutureSlotByLev(DiagOnlyLev) = NDiagFutureSlotByLev(DiagOnlyLev) + 1
-              NDiagFutureSlotByHalf(IHALF,DiagOnlyLev) = NDiagFutureSlotByHalf(IHALF,DiagOnlyLev) + 1
+              NDiagFutureSlotByLev(DiagCanonLev) = NDiagFutureSlotByLev(DiagCanonLev) + 1
+              NDiagFutureSlotByHalf(IHALF,DiagCanonLev) = NDiagFutureSlotByHalf(IHALF,DiagCanonLev) + 1
             end if
             ! Safe rollback/explore baseline: still ignore any path that contains a diagonal segment.
             LEV = LEV + 1
@@ -2335,6 +2359,12 @@ write(u6,*) 'MKCOUP: pure diagonal-only upper-half candidates by level:'
 write(u6,'(20I8)') NPureDiagCandByHalf(1,1:SGS%nLev)
 write(u6,*) 'MKCOUP: pure diagonal-only lower-half candidates by level:'
 write(u6,'(20I8)') NPureDiagCandByHalf(2,1:SGS%nLev)
+write(u6,*) 'MKCOUP scaffold C6b: pure diagonal-only canonical candidates by level:'
+write(u6,'(20I8)') NPureDiagCanonByLev(1:SGS%nLev)
+write(u6,*) 'MKCOUP scaffold C6b: pure diagonal-only canonical upper-half candidates by level:'
+write(u6,'(20I8)') NPureDiagCanonByHalf(1,1:SGS%nLev)
+write(u6,*) 'MKCOUP scaffold C6b: pure diagonal-only canonical lower-half candidates by level:'
+write(u6,'(20I8)') NPureDiagCanonByHalf(2,1:SGS%nLev)
 write(u6,*) 'MKCOUP scaffold: future dedicated diagonal compact block base = ', DiagCompactBase + 1
 write(u6,*) 'MKCOUP scaffold: pure diagonal-only future dedicated slots by level:'
 write(u6,'(20I8)') NDiagFutureSlotByLev(1:SGS%nLev)
@@ -2344,6 +2374,8 @@ write(u6,*) 'MKCOUP scaffold: pure diagonal-only future dedicated lower-half slo
 write(u6,'(20I8)') NDiagFutureSlotByHalf(2,1:SGS%nLev)
 call mma_deallocate(NPureDiagCandByLev)
 call mma_deallocate(NPureDiagCandByHalf)
+call mma_deallocate(NPureDiagCanonByLev)
+call mma_deallocate(NPureDiagCanonByHalf)
 call mma_deallocate(NDiagFutureSlotByLev)
 call mma_deallocate(NDiagFutureSlotByHalf)
 #ifdef _DEBUGPRINT_
@@ -2620,6 +2652,12 @@ pure integer(kind=iwp) function DiagEOIdx(OpenBlock,nLev,DiagLev)
   integer(kind=iwp), intent(in) :: OpenBlock, nLev, DiagLev
   DiagEOIdx = DiagEOBase(OpenBlock,nLev) + DiagLev
 end function DiagEOIdx
+
+pure integer(kind=iwp) function CanonDiagLev(IHalf,DiagLev,nLev)
+  integer(kind=iwp), intent(in) :: IHalf, DiagLev, nLev
+  CanonDiagLev = DiagLev
+  if (IHalf == 1) CanonDiagLev = nLev + 1 - DiagLev
+end function CanonDiagLev
 
 
 

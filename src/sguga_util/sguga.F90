@@ -1959,8 +1959,12 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp), allocatable :: NDiagFutureSlotByLev(:), NDiagFutureSlotByHalf(:,:)
   integer(kind=iwp) :: DiagOnlyLev
   integer(kind=iwp), allocatable :: NPureDiagCanonByLev(:), NPureDiagCanonByHalf(:,:)
+  integer(kind=iwp) :: ICOP_Total
+  integer(kind=iwp), allocatable :: NOCP_Base(:,:,:), NOCP_ExtraDiag(:,:,:)
+  integer(kind=iwp), allocatable :: NDiagCompatPreByLev(:), NDiagCompatPreByHalf(:,:)
+  integer(kind=iwp), allocatable :: NDiagCompatWriteByLev(:), NDiagCompatWriteByHalf(:,:)
 
-  call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
+  call mma_deallocate(EXS%ICoup,safe='*')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 
   MxEO_Block = nOpenBands * SGS%nLev
@@ -1970,6 +1974,11 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
     call mma_allocate(EXS%VTab,NVTAB_FINAL,Label='EXS%VTab')
     return
   end if
+
+  call mma_allocate(NOCP_Base,SIZE(EXS%NOCP,1),SGS%nSym,CIS%nMidV,Label='NOCP_Base')
+  call mma_allocate(NOCP_ExtraDiag,SIZE(EXS%NOCP,1),SGS%nSym,CIS%nMidV,Label='NOCP_ExtraDiag')
+  NOCP_Base(:,:,:) = EXS%NOCP(:,:,:)
+  NOCP_ExtraDiag(:,:,:) = 0
 
   ! NOW is reused as a counter array and restored later by higher-level logic
   do IHALF = 1, 2
@@ -2016,10 +2025,150 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   call mma_allocate(NDiagFutureSlotByHalf,2,SGS%nLev,Label='NDiagFutureSlotByHalf')
   call mma_allocate(NPureDiagCanonByLev,SGS%nLev,Label='NPureDiagCanonByLev')
   call mma_allocate(NPureDiagCanonByHalf,2,SGS%nLev,Label='NPureDiagCanonByHalf')
+  call mma_allocate(NDiagCompatPreByLev,SGS%nLev,Label='NDiagCompatPreByLev')
+  call mma_allocate(NDiagCompatPreByHalf,2,SGS%nLev,Label='NDiagCompatPreByHalf')
+  call mma_allocate(NDiagCompatWriteByLev,SGS%nLev,Label='NDiagCompatWriteByLev')
+  call mma_allocate(NDiagCompatWriteByHalf,2,SGS%nLev,Label='NDiagCompatWriteByHalf')
   NDiagFutureSlotByLev(:)=0
   NDiagFutureSlotByHalf(:,:)=0
   NPureDiagCanonByLev(:)=0
   NPureDiagCanonByHalf(:,:)=0
+  NDiagCompatPreByLev(:)=0
+  NDiagCompatPreByHalf(:,:)=0
+  NDiagCompatWriteByLev(:)=0
+  NDiagCompatWriteByHalf(:,:)=0
+
+  ! ------------------------------------------------------------
+  ! C7-fixed prepass:
+  ! count pure diagonal-only compatibility admissions by target block,
+  ! then rebuild IOCP/nICoup before the real write pass.
+  ! ------------------------------------------------------------
+  do IHALF = 1, 2
+    if (IHALF == 1) then
+      IVTSTA = 1
+      IVTEND = 1
+      LEV1   = SGS%nLev
+      LEV2   = SGS%MidLev
+      ITYPMX = 0
+    else
+      IVTSTA = SGS%MVSta
+      IVTEND = SGS%MVEnd
+      LEV1   = SGS%MidLev
+      LEV2   = 0
+      ITYPMX = 2
+    end if
+    do IVTOP = IVTSTA, IVTEND
+      do ITYP = 0, ITYPMX
+        IVRTOP = IVTOP
+        if (ITYP > 0) IVRTOP = CIS%IVR(IVTOP,ITYP)
+        if (IVRTOP == 0) cycle
+        LEV = LEV1
+        ISGPTH(IVLFT,LEV) = IVTOP
+        ISGPTH(ITYPE,LEV) = ITYP
+        ISGPTH(ISTATE,LEV) = PackState(ITYP,0_iwp)
+        ISGPTH(IAWSL,LEV) = 0
+        ISGPTH(IAWSR,LEV) = 0
+        ISGPTH(ILS,  LEV) = 1
+        ISGPTH(ICS,  LEV) = 0
+        ISGPTH(ISEG, LEV) = 0
+        ISGPTH(IRSEG,LEV) = 0
+        val(LEV) = One
+        do while (LEV <= LEV1)
+          ITYPT = ISGPTH(ITYPE,LEV)
+          IVLT  = ISGPTH(IVLFT,LEV)
+          IT0 = TRS%ITR0(IVLT,ITYPT)
+          NT  = TRS%NTR(IVLT,ITYPT)
+          K = ISGPTH(ISEG,LEV) + 1
+          if (K > NT) then
+            ISGPTH(ISEG,LEV)  = 0
+            ISGPTH(IRSEG,LEV) = 0
+            LEV = LEV + 1
+            cycle
+          end if
+          ITR  = IT0 + K
+          ISGT = TRS%ISGT(ITR)
+          IVLB = TRS%IVLB(ITR)
+          ICL  = TRS%ICL(ITR)
+          ICR  = TRS%ICR(ITR)
+          ISYM = TRS%ISYM(ITR)
+          IVRT = IVLT
+          if (TRS%IPRT(ITR) /= 0) IVRT = CIS%IVR(IVLT,TRS%IPRT(ITR))
+          ISGPTH(ISEG,LEV)  = K
+          ISGPTH(IRSEG,LEV) = ISGT
+          ISGPTH(ICS,LEV)   = ICL
+          LEV = LEV - 1
+          ISGPTH(IAWSL,LEV) = ISGPTH(IAWSL,LEV+1) + SGS%MAW(IVLT,ICL)
+          ISGPTH(IAWSR,LEV) = ISGPTH(IAWSR,LEV+1) + SGS%MAW(IVRT,ICR)
+          val(LEV) = val(LEV+1) * TRS%VSEG(ITR)
+          ISGPTH(ILS,LEV)   = Mul(ISYM,ISGPTH(ILS,LEV+1))
+          ISGPTH(IVLFT,LEV) = IVLB
+          ISGPTH(ITYPE,LEV) = StateTopo(TRS%IBOT(ITR))
+          ISGPTH(ISTATE,LEV) = PackState(StateTopo(TRS%IBOT(ITR)), &
+     &      max(StateDiagLev(ISGPTH(ISTATE,LEV+1)),StateDiagLev(TRS%IBOT(ITR))))
+          ISGPTH(ISEG,LEV)  = 0
+          ISGPTH(IRSEG,LEV) = 0
+          ISGPTH(ICS,LEV)   = 0
+          if (LEV > LEV2) cycle
+          MV = ISGPTH(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
+          LFTSYM = ISGPTH(ILS,LEV2)
+          HasDiag = .false.
+          IP = 0
+          IQ = 0
+          do L = LEV2+1, LEV1
+            ISG = ISGPTH(IRSEG,L)
+            if ((ISG >= 27) .and. (ISG <= 34)) HasDiag = .true.
+            if ((ISG >= 5) .and. (ISG <= 8))  IP = L
+            if ((ISG >= 19) .and. (ISG <= 22)) IQ = L
+          end do
+          if (HasDiag) then
+            if ((IP == 0) .and. (IQ == 0)) then
+              DiagOnlyLev = StateDiagLev(ISGPTH(ISTATE,LEV2))
+              if (DiagOnlyLev <= 0) then
+                write(u6,*) 'MKCOUP C7-fixed prepass: pure diagonal candidate has invalid packed level'
+                call Abend()
+              end if
+              DiagCanonLev = CanonDiagLev(IHALF,DiagOnlyLev,SGS%nLev)
+              INDEO = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
+              NOCP_ExtraDiag(INDEO,LFTSYM,MV) = NOCP_ExtraDiag(INDEO,LFTSYM,MV) + 1
+              NDiagCompatPreByLev(DiagCanonLev) = NDiagCompatPreByLev(DiagCanonLev) + 1
+              NDiagCompatPreByHalf(IHALF,DiagCanonLev) = NDiagCompatPreByHalf(IHALF,DiagCanonLev) + 1
+            end if
+            LEV = LEV + 1
+            cycle
+          end if
+          LEV = LEV + 1
+        end do
+      end do
+    end do
+  end do
+
+  EXS%nICoup = 0
+  do INDEO = 1, SIZE(EXS%IOCP,1)
+    do MV = 1, CIS%nMidV
+      do IS = 1, SGS%nSym
+        EXS%IOCP(INDEO,IS,MV) = EXS%nICoup
+        ICOP_Total = NOCP_Base(INDEO,IS,MV) + NOCP_ExtraDiag(INDEO,IS,MV)
+        EXS%nICoup = EXS%nICoup + ICOP_Total
+      end do
+    end do
+  end do
+  call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
+
+  ! Reset NOW/NOCP for the real write pass.
+  do IHALF = 1, 2
+    do MV = 1, CIS%nMidV
+      do IS = 1, SGS%nSym
+        CIS%NOW(IHALF,IS,MV) = 0
+      end do
+    end do
+  end do
+  do INDEO = 1, SIZE(EXS%NOCP,1)
+    do MV = 1, CIS%nMidV
+      do IS = 1, SGS%nSym
+        EXS%NOCP(INDEO,IS,MV) = 0
+      end do
+    end do
+  end do
 
   do IHALF = 1, 2
 
@@ -2189,8 +2338,43 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               end if
               NDiagFutureSlotByLev(DiagCanonLev) = NDiagFutureSlotByLev(DiagCanonLev) + 1
               NDiagFutureSlotByHalf(IHALF,DiagCanonLev) = NDiagFutureSlotByHalf(IHALF,DiagCanonLev) + 1
+              ! C7-fixed: compatibility admission goes ONLY to the canonical diagonal closed-loop slot.
+              INDEO = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
+              ICOP = 1 + EXS%NOCP(INDEO,LFTSYM,MV)
+              EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
+              ICOP = EXS%IOCP(INDEO,LFTSYM,MV) + ICOP
+              NCHECK = NCHECK + 1
+              if (ICOP > EXS%nICoup) then
+                write(u6,*) 'ERROR in MKCOUP C7-fixed compatibility admission: ICOP > EXS%nICoup'
+                write(u6,*) ' ICOP      = ', ICOP
+                write(u6,*) ' nICoup    = ', EXS%nICoup
+                write(u6,*) ' INDEO     = ', INDEO
+                write(u6,*) ' MV        = ', MV
+                write(u6,*) ' LFTSYM    = ', LFTSYM
+                write(u6,*) ' CanonLev  = ', DiagCanonLev
+                call Abend()
+              end if
+              C = val(LEV2)
+              do i = 1, NVTAB_FINAL
+                IVTAB = i
+                if (abs(C - VTab(i)) < 1.0e-10_wp) exit
+              end do
+              if (i > NVTAB_FINAL) then
+                NVTAB_FINAL = NVTAB_FINAL + 1
+                if (NVTAB_FINAL > nVTab) then
+                  write(u6,*) 'MKCOUP: NVTAB_FINAL exceeded nVTab'
+                  call Abend()
+                end if
+                VTab(NVTAB_FINAL) = C
+                IVTAB = NVTAB_FINAL
+              end if
+              EXS%ICoup(1,ICOP) = ISGPTH(IAWSL,LEV2)
+              EXS%ICoup(2,ICOP) = ISGPTH(IAWSR,LEV2)
+              EXS%ICoup(3,ICOP) = IVTAB
+              NDiagCompatWriteByLev(DiagCanonLev) = NDiagCompatWriteByLev(DiagCanonLev) + 1
+              NDiagCompatWriteByHalf(IHALF,DiagCanonLev) = NDiagCompatWriteByHalf(IHALF,DiagCanonLev) + 1
             end if
-            ! Safe rollback/explore baseline: still ignore any path that contains a diagonal segment.
+            ! Mixed diagonal-bearing paths are still skipped in C7-fixed.
             LEV = LEV + 1
             cycle
           end if
@@ -2372,12 +2556,30 @@ write(u6,*) 'MKCOUP scaffold: pure diagonal-only future dedicated upper-half slo
 write(u6,'(20I8)') NDiagFutureSlotByHalf(1,1:SGS%nLev)
 write(u6,*) 'MKCOUP scaffold: pure diagonal-only future dedicated lower-half slots by level:'
 write(u6,'(20I8)') NDiagFutureSlotByHalf(2,1:SGS%nLev)
+write(u6,*) 'MKCOUP C7-fixed: prepass compatibility admissions by canonical level:'
+write(u6,'(20I8)') NDiagCompatPreByLev(1:SGS%nLev)
+write(u6,*) 'MKCOUP C7-fixed: prepass compatibility upper-half admissions by canonical level:'
+write(u6,'(20I8)') NDiagCompatPreByHalf(1,1:SGS%nLev)
+write(u6,*) 'MKCOUP C7-fixed: prepass compatibility lower-half admissions by canonical level:'
+write(u6,'(20I8)') NDiagCompatPreByHalf(2,1:SGS%nLev)
+write(u6,*) 'MKCOUP C7-fixed: written compatibility admissions by canonical level:'
+write(u6,'(20I8)') NDiagCompatWriteByLev(1:SGS%nLev)
+write(u6,*) 'MKCOUP C7-fixed: written compatibility upper-half admissions by canonical level:'
+write(u6,'(20I8)') NDiagCompatWriteByHalf(1,1:SGS%nLev)
+write(u6,*) 'MKCOUP C7-fixed: written compatibility lower-half admissions by canonical level:'
+write(u6,'(20I8)') NDiagCompatWriteByHalf(2,1:SGS%nLev)
 call mma_deallocate(NPureDiagCandByLev)
 call mma_deallocate(NPureDiagCandByHalf)
 call mma_deallocate(NPureDiagCanonByLev)
 call mma_deallocate(NPureDiagCanonByHalf)
 call mma_deallocate(NDiagFutureSlotByLev)
 call mma_deallocate(NDiagFutureSlotByHalf)
+call mma_deallocate(NDiagCompatPreByLev)
+call mma_deallocate(NDiagCompatPreByHalf)
+call mma_deallocate(NDiagCompatWriteByLev)
+call mma_deallocate(NDiagCompatWriteByHalf)
+call mma_deallocate(NOCP_Base)
+call mma_deallocate(NOCP_ExtraDiag)
 #ifdef _DEBUGPRINT_
   ICOP1 = 0
   ICOP2 = 0
