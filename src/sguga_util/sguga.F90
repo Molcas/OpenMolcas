@@ -1963,6 +1963,10 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp), allocatable :: NOCP_Base(:,:,:), NOCP_ExtraDiag(:,:,:)
   integer(kind=iwp), allocatable :: NDiagCompatPreByLev(:), NDiagCompatPreByHalf(:,:)
   integer(kind=iwp), allocatable :: NDiagCompatWriteByLev(:), NDiagCompatWriteByHalf(:,:)
+  integer(kind=iwp) :: NDiagCompatSeen, NDiagCompatDupPre, NDiagCompatDupWrite
+  integer(kind=iwp), allocatable :: DiagCompatSeenInDeo(:), DiagCompatSeenSym(:), DiagCompatSeenMV(:)
+  integer(kind=iwp), allocatable :: DiagCompatSeenIAWSL(:), DiagCompatSeenIAWSR(:)
+  real(kind=wp), allocatable    :: DiagCompatSeenC(:)
 
   call mma_deallocate(EXS%ICoup,safe='*')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -2037,6 +2041,9 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   NDiagCompatPreByHalf(:,:)=0
   NDiagCompatWriteByLev(:)=0
   NDiagCompatWriteByHalf(:,:)=0
+  NDiagCompatSeen = 0
+  NDiagCompatDupPre = 0
+  NDiagCompatDupWrite = 0
 
   ! ------------------------------------------------------------
   ! C7-fixed prepass:
@@ -2129,6 +2136,14 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               end if
               DiagCanonLev = CanonDiagLev(IHALF,DiagOnlyLev,SGS%nLev)
               INDEO = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
+              C = val(LEV2)
+              if (DiagCompatSeenOrAdd(NDiagCompatSeen,DiagCompatSeenInDeo,DiagCompatSeenSym,DiagCompatSeenMV, &
+     &                                 DiagCompatSeenIAWSL,DiagCompatSeenIAWSR,DiagCompatSeenC, &
+     &                                 INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2),ISGPTH(IAWSR,LEV2),C)) then
+                NDiagCompatDupPre = NDiagCompatDupPre + 1
+                LEV = LEV + 1
+                cycle
+              end if
               NOCP_ExtraDiag(INDEO,LFTSYM,MV) = NOCP_ExtraDiag(INDEO,LFTSYM,MV) + 1
               NDiagCompatPreByLev(DiagCanonLev) = NDiagCompatPreByLev(DiagCanonLev) + 1
               NDiagCompatPreByHalf(IHALF,DiagCanonLev) = NDiagCompatPreByHalf(IHALF,DiagCanonLev) + 1
@@ -2153,6 +2168,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
     end do
   end do
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
+  NDiagCompatSeen = 0
 
   ! Reset NOW/NOCP for the real write pass.
   do IHALF = 1, 2
@@ -2338,14 +2354,23 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               end if
               NDiagFutureSlotByLev(DiagCanonLev) = NDiagFutureSlotByLev(DiagCanonLev) + 1
               NDiagFutureSlotByHalf(IHALF,DiagCanonLev) = NDiagFutureSlotByHalf(IHALF,DiagCanonLev) + 1
-              ! C7-fixed: compatibility admission goes ONLY to the canonical diagonal closed-loop slot.
+              ! C8: compatibility admission is deduplicated by exact public tuple key
+              ! (block, symmetry, midvertex, left walk, right walk, numerical value).
               INDEO = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
+              C = val(LEV2)
+              if (DiagCompatSeenOrAdd(NDiagCompatSeen,DiagCompatSeenInDeo,DiagCompatSeenSym,DiagCompatSeenMV, &
+     &                                 DiagCompatSeenIAWSL,DiagCompatSeenIAWSR,DiagCompatSeenC, &
+     &                                 INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2),ISGPTH(IAWSR,LEV2),C)) then
+                NDiagCompatDupWrite = NDiagCompatDupWrite + 1
+                LEV = LEV + 1
+                cycle
+              end if
               ICOP = 1 + EXS%NOCP(INDEO,LFTSYM,MV)
               EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
               ICOP = EXS%IOCP(INDEO,LFTSYM,MV) + ICOP
               NCHECK = NCHECK + 1
               if (ICOP > EXS%nICoup) then
-                write(u6,*) 'ERROR in MKCOUP C7-fixed compatibility admission: ICOP > EXS%nICoup'
+                write(u6,*) 'ERROR in MKCOUP C8 deduplicated compatibility admission: ICOP > EXS%nICoup'
                 write(u6,*) ' ICOP      = ', ICOP
                 write(u6,*) ' nICoup    = ', EXS%nICoup
                 write(u6,*) ' INDEO     = ', INDEO
@@ -2354,7 +2379,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
                 write(u6,*) ' CanonLev  = ', DiagCanonLev
                 call Abend()
               end if
-              C = val(LEV2)
               do i = 1, NVTAB_FINAL
                 IVTAB = i
                 if (abs(C - VTab(i)) < 1.0e-10_wp) exit
@@ -2568,6 +2592,8 @@ write(u6,*) 'MKCOUP C7-fixed: written compatibility upper-half admissions by can
 write(u6,'(20I8)') NDiagCompatWriteByHalf(1,1:SGS%nLev)
 write(u6,*) 'MKCOUP C7-fixed: written compatibility lower-half admissions by canonical level:'
 write(u6,'(20I8)') NDiagCompatWriteByHalf(2,1:SGS%nLev)
+write(u6,*) 'MKCOUP C8: duplicate pure diagonal compatibility paths skipped in prepass = ', NDiagCompatDupPre
+write(u6,*) 'MKCOUP C8: duplicate pure diagonal compatibility paths skipped in write pass = ', NDiagCompatDupWrite
 call mma_deallocate(NPureDiagCandByLev)
 call mma_deallocate(NPureDiagCandByHalf)
 call mma_deallocate(NPureDiagCanonByLev)
@@ -2580,6 +2606,12 @@ call mma_deallocate(NDiagCompatWriteByLev)
 call mma_deallocate(NDiagCompatWriteByHalf)
 call mma_deallocate(NOCP_Base)
 call mma_deallocate(NOCP_ExtraDiag)
+if (allocated(DiagCompatSeenInDeo)) deallocate(DiagCompatSeenInDeo)
+if (allocated(DiagCompatSeenSym))   deallocate(DiagCompatSeenSym)
+if (allocated(DiagCompatSeenMV))    deallocate(DiagCompatSeenMV)
+if (allocated(DiagCompatSeenIAWSL)) deallocate(DiagCompatSeenIAWSL)
+if (allocated(DiagCompatSeenIAWSR)) deallocate(DiagCompatSeenIAWSR)
+if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
 #ifdef _DEBUGPRINT_
   ICOP1 = 0
   ICOP2 = 0
@@ -2863,6 +2895,74 @@ end function CanonDiagLev
 
 
 
+
+
+subroutine EnsureDiagCompatCapacity(NNeed,SeenInDeo,SeenSym,SeenMV,SeenIAWSL,SeenIAWSR,SeenC)
+  integer(kind=iwp), intent(in) :: NNeed
+  integer(kind=iwp), allocatable, intent(inout) :: SeenInDeo(:), SeenSym(:), SeenMV(:), SeenIAWSL(:), SeenIAWSR(:)
+  real(kind=wp), allocatable, intent(inout) :: SeenC(:)
+  integer(kind=iwp) :: OldN, NewN
+  integer(kind=iwp), allocatable :: ITmp(:)
+  real(kind=wp), allocatable :: RTmp(:)
+
+  if (.not. allocated(SeenInDeo)) then
+    NewN = max(64_iwp,NNeed)
+    allocate(SeenInDeo(NewN),SeenSym(NewN),SeenMV(NewN),SeenIAWSL(NewN),SeenIAWSR(NewN),SeenC(NewN))
+    SeenInDeo(:) = 0
+    SeenSym(:)   = 0
+    SeenMV(:)    = 0
+    SeenIAWSL(:) = 0
+    SeenIAWSR(:) = 0
+    SeenC(:)     = Zero
+    return
+  end if
+  if (size(SeenInDeo) >= NNeed) return
+  OldN = size(SeenInDeo)
+  NewN = max(NNeed,2_iwp*OldN)
+
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenInDeo(1:OldN)
+  deallocate(SeenInDeo); allocate(SeenInDeo(NewN)); SeenInDeo(:)=ITmp(:); deallocate(ITmp)
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenSym(1:OldN)
+  deallocate(SeenSym); allocate(SeenSym(NewN)); SeenSym(:)=ITmp(:); deallocate(ITmp)
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenMV(1:OldN)
+  deallocate(SeenMV); allocate(SeenMV(NewN)); SeenMV(:)=ITmp(:); deallocate(ITmp)
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenIAWSL(1:OldN)
+  deallocate(SeenIAWSL); allocate(SeenIAWSL(NewN)); SeenIAWSL(:)=ITmp(:); deallocate(ITmp)
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenIAWSR(1:OldN)
+  deallocate(SeenIAWSR); allocate(SeenIAWSR(NewN)); SeenIAWSR(:)=ITmp(:); deallocate(ITmp)
+  allocate(RTmp(NewN)); RTmp(:)=Zero; RTmp(1:OldN)=SeenC(1:OldN)
+  deallocate(SeenC); allocate(SeenC(NewN)); SeenC(:)=RTmp(:); deallocate(RTmp)
+end subroutine EnsureDiagCompatCapacity
+
+logical(kind=iwp) function DiagCompatSeenOrAdd(NSeen,SeenInDeo,SeenSym,SeenMV,SeenIAWSL,SeenIAWSR,SeenC, &
+ &                                             INDEO,LFTSYM,MV,IAWSL,IAWSR,C)
+  integer(kind=iwp), intent(inout) :: NSeen
+  integer(kind=iwp), allocatable, intent(inout) :: SeenInDeo(:), SeenSym(:), SeenMV(:), SeenIAWSL(:), SeenIAWSR(:)
+  real(kind=wp), allocatable, intent(inout) :: SeenC(:)
+  integer(kind=iwp), intent(in) :: INDEO, LFTSYM, MV, IAWSL, IAWSR
+  real(kind=wp), intent(in) :: C
+  integer(kind=iwp) :: I
+  DiagCompatSeenOrAdd = .false.
+  do I = 1, NSeen
+    if (SeenInDeo(I) /= INDEO) cycle
+    if (SeenSym(I)   /= LFTSYM) cycle
+    if (SeenMV(I)    /= MV) cycle
+    if (SeenIAWSL(I) /= IAWSL) cycle
+    if (SeenIAWSR(I) /= IAWSR) cycle
+    if (abs(SeenC(I) - C) < 1.0e-10_wp) then
+      DiagCompatSeenOrAdd = .true.
+      return
+    end if
+  end do
+  call EnsureDiagCompatCapacity(NSeen+1,SeenInDeo,SeenSym,SeenMV,SeenIAWSL,SeenIAWSR,SeenC)
+  NSeen = NSeen + 1
+  SeenInDeo(NSeen) = INDEO
+  SeenSym(NSeen)   = LFTSYM
+  SeenMV(NSeen)    = MV
+  SeenIAWSL(NSeen) = IAWSL
+  SeenIAWSR(NSeen) = IAWSR
+  SeenC(NSeen)     = C
+end function DiagCompatSeenOrAdd
 
 subroutine TRANS_Free(TRS)
   type(TRStruct), intent(inout) :: TRS
