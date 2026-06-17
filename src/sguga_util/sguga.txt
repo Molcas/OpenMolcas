@@ -2641,7 +2641,16 @@ subroutine MKTRANS(SGS,CIS,TRS)
       ! Step 1 activation:
       ! keep topology unchanged, but mark diagonal transitions in the packed
       ! output state with the current level. Consumers still decode topology only.
-      if (IFLAG == TR_DIAG) IBOT = PackState(IBVPT(ISGT),LEV)
+      if (IFLAG == TR_DIAG) then
+        IBOT = PackState(IBVPT(ISGT),LEV)
+        if (IBVPT(ISGT) /= ITVPT(ISGT)) then
+          write(u6,*) 'MKTRANS: diagonal transition changed topology unexpectedly'
+          write(u6,*) '  ISGT = ', ISGT
+          write(u6,*) '  ITOP = ', ITVPT(ISGT)
+          write(u6,*) '  IBOT = ', IBVPT(ISGT)
+          call Abend()
+        end if
+      end if
 
       IPOS(IVLT,ITOP) = IPOS(IVLT,ITOP) + 1
       ITR = IPOS(IVLT,ITOP)
