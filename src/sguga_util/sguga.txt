@@ -1369,7 +1369,7 @@ integer(kind=iwp), parameter :: nOpenBands = 4
 integer(kind=iwp) :: NRL_OpenBlock
 integer(kind=iwp) :: EXS_OpenBlock
 logical :: ActiveBand(nOpenBands)
-integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS, TopoBlock, NRL_MaxEO, IDIAG, IDIAG_NEW
+integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS, TopoBlock, NRL_MaxEO, IDIAG
 
 ActiveBand = .false.
 ActiveBand(1) = .true.

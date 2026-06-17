@@ -2434,16 +2434,6 @@ do MV=1,CIS%nMidV
 end do
 end subroutine Mk_IOW
 
-pure logical(kind=iwp) function NeedsRightPartner(ICLASS)
-  integer(kind=iwp), intent(in) :: ICLASS
-
-  select case (ICLASS)
-  case (1,2)
-    NeedsRightPartner = .true.
-  case default
-    NeedsRightPartner = .false.
-  end select
-end function NeedsRightPartner
 
 pure integer(kind=iwp) function PartnerSlot(ICLASS)
   integer(kind=iwp), intent(in) :: ICLASS
