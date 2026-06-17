@@ -1887,7 +1887,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
   logical(kind=iwp) :: HasDiag
   integer(kind=iwp) :: DiagLev, NDiagPath
-  logical(kind=iwp) :: HasOpen, HasClose
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -2041,8 +2040,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           DiagLev  = 0
           IP       = 0
           IQ       = 0
-          HasOpen  = .false.
-          HasClose = .false.
 
           do L = LEV2+1, LEV1
             ISG = ISGPTH(IRSEG,L)
@@ -2053,12 +2050,10 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
             end if
 
             if ((ISG >= 5) .and. (ISG <= 8)) then
-              HasOpen = .true.
               IP = L
             end if
 
             if ((ISG >= 19) .and. (ISG <= 22)) then
-              HasClose = .true.
               IQ = L
             end if
           end do
