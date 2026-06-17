@@ -1361,7 +1361,7 @@ type(EXStruct), intent(inout) :: EXS
 type(TRStruct), intent(in)    :: TRS
 integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
                      MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
-                     NUPS1, INDEO0
+                     NUPS1
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 integer(kind=iwp) :: ICLASS, IT0, NT, K, ITR
 integer(kind=iwp) :: ITOP, IBOT
@@ -1408,8 +1408,6 @@ EXS%IOCP(:,:,:)=0
 
 ! NRL(sym,vertex,indeo): number of valid segment paths of a given symmetry and operators class arriving at a given vertex
 call mma_allocate(NRL,[1,SGS%nSym],[1,SGS%nVert],[0,NRL_MaxEO],Label='NRL')
-! indeo=0 denotes a ordinary half-walk with no open- or closed-loop attached
-INDEO0=0
 
 ! For upper walks
 NRL(:,1:SGS%MVEnd,:) = 0
@@ -2506,25 +2504,13 @@ pure integer(kind=iwp) function StateDiagLev(IState)
   StateDiagLev = ishft(IState,-State_DiagShift)
 end function StateDiagLev
 
-pure integer(kind=iwp) function StateWithDiag(IState,DiagLev)
-  integer(kind=iwp), intent(in) :: IState, DiagLev
-  StateWithDiag = PackState(StateTopo(IState),DiagLev)
-end function StateWithDiag
 
 pure integer(kind=iwp) function NRL_idx(INDEO_BASE,IDIAG,TopoBlock)
   integer(kind=iwp), intent(in) :: INDEO_BASE, IDIAG, TopoBlock
   NRL_idx = INDEO_BASE + IDIAG*TopoBlock
 end function NRL_idx
 
-pure integer(kind=iwp) function OpenBase(LEV,BAND,NLEV)
-  integer(kind=iwp), intent(in) :: LEV, BAND, NLEV
-  OpenBase = LEV + (BAND-1)*NLEV
-end function OpenBase
 
-pure integer(kind=iwp) function ClosedBase(IP,IQ,OpenBlock)
-  integer(kind=iwp), intent(in) :: IP, IQ, OpenBlock
-  ClosedBase = OpenBlock + (IP*(IP-1))/2 + IQ
-end function ClosedBase
 
 
 subroutine TRANS_Free(TRS)
