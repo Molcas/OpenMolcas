@@ -1886,7 +1886,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp), parameter :: nVTab = 5000
 
   logical(kind=iwp) :: HasDiag
-  integer(kind=iwp) :: NDiagPath, NMixedDiagPath
+  integer(kind=iwp) :: NDiagPath, NMixedDiagPath, NMixedDiagOpenOnlyPath, NMixedDiagWithClosePath
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -1930,6 +1930,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   NCHECK = 0
   NDiagPath = 0
   NMixedDiagPath = 0
+  NMixedDiagOpenOnlyPath = 0
+  NMixedDiagWithClosePath = 0
 
   do IHALF = 1, 2
 
@@ -2070,7 +2072,14 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               write(u6,*) '  ISGT   = ', ISGT
               call Abend()
             end if
-            if ((IP /= 0) .or. (IQ /= 0)) NMixedDiagPath = NMixedDiagPath + 1
+            if ((IP /= 0) .or. (IQ /= 0)) then
+              NMixedDiagPath = NMixedDiagPath + 1
+              if (IQ /= 0) then
+                NMixedDiagWithClosePath = NMixedDiagWithClosePath + 1
+              else
+                NMixedDiagOpenOnlyPath = NMixedDiagOpenOnlyPath + 1
+              end if
+            end if
             ! Scaffold baseline: ignore any path that contains a diagonal segment.
             LEV = LEV + 1
             cycle
@@ -2231,6 +2240,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
 write(u6,*) 'MKCOUP: diagonal paths seen = ', NDiagPath
 write(u6,*) 'MKCOUP: mixed diagonal/open-close paths seen = ', NMixedDiagPath
+write(u6,*) 'MKCOUP: mixed diagonal/open-only paths seen = ', NMixedDiagOpenOnlyPath
+write(u6,*) 'MKCOUP: mixed diagonal/with-close paths seen = ', NMixedDiagWithClosePath
 #ifdef _DEBUGPRINT_
   ICOP1 = 0
   ICOP2 = 0
