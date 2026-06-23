@@ -2075,16 +2075,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
         if (ITYP > 0) IVRTOP = CIS%IVR(IVTOP,ITYP)
         if (IVRTOP == 0) cycle
         LEV = LEV1
-        ISGPTH(IVLFT,LEV) = IVTOP
-        ISGPTH(ITYPE,LEV) = ITYP
-        ISGPTH(ISTATE,LEV) = PackState(ITYP,0_iwp)
-        ISGPTH(IAWSL,LEV) = 0
-        ISGPTH(IAWSR,LEV) = 0
-        ISGPTH(ILS,  LEV) = 1
-        ISGPTH(ICS,  LEV) = 0
-        ISGPTH(ISEG, LEV) = 0
-        ISGPTH(IRSEG,LEV) = 0
-        val(LEV) = One
+        call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
           ITYPT = ISGPTH(ITYPE,LEV)
           IVLT  = ISGPTH(IVLFT,LEV)
@@ -2215,14 +2206,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
         ISGPTH(ISTATE,LEV) = PackState(ITYP,0_iwp)
         ISGPTH(IAWSL,LEV) = 0
         ISGPTH(IAWSR,LEV) = 0
-        ISGPTH(ILS,  LEV) = 1
-        ISGPTH(ICS,  LEV) = 0
-        ISGPTH(ISEG, LEV) = 0   ! bucket cursor
-        ISGPTH(IRSEG,LEV) = 0   ! raw segment number
-
-        val(LEV) = One
-
-        ! Walk from top to midlevel, or from midlevel to root
+        LEV = LEV1
+        call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
 
           ITYPT = ISGPTH(ITYPE,LEV)
@@ -2689,6 +2674,23 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine InitializeHalfPathTop(Path,Val,LEVTop,IVTop,ITYPTop)
+    integer(kind=iwp), intent(in) :: LEVTop, IVTop, ITYPTop
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    real(kind=wp), intent(inout) :: Val(0:)
+
+    Path(IVLFT,LEVTop) = IVTop
+    Path(ITYPE,LEVTop) = ITYPTop
+    Path(ISTATE,LEVTop) = PackState(ITYPTop,0_iwp)
+    Path(IAWSL,LEVTop) = 0
+    Path(IAWSR,LEVTop) = 0
+    Path(ILS,  LEVTop) = 1
+    Path(ICS,  LEVTop) = 0
+    Path(ISEG, LEVTop) = 0
+    Path(IRSEG,LEVTop) = 0
+    Val(LEVTop) = One
+  end subroutine InitializeHalfPathTop
+
   subroutine ScanBottomPathSignature(Path,LEVTop,LEVBot,HasDiag,IP,IQ)
     integer(kind=iwp), intent(in) :: LEVTop, LEVBot
     integer(kind=iwp), intent(in) :: Path(:,0:)
