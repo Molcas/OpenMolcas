@@ -102,6 +102,6 @@ subroutine checknadxfl(label,nadxfl)
   character(len=*) :: label
   logical :: nadxfl
   nadxfl=.false.
-  if(label(1:24).eq.'CSF derivative coupling ') nadxfl=.true.
+  if(label(1:14).eq.'CSF derivative') nadxfl=.true.
   return
 end
