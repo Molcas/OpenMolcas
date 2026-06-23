@@ -62,7 +62,7 @@ if (.true.) then
     if(nadxfl) write(lnadxfl,"(3d15.6)") -TempX, -TempY, -TempZ
   end do
   write(u6,'(1x,A)') repeat('-',90)
-  close(lnadxfl)
+  if(nadxfl) close(lnadxfl)
 else
 
   ! Modified by Luca De Vico november 2005 Teokem
