@@ -1952,7 +1952,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
   integer(kind=iwp), parameter :: nVTab = 5000
 
-  logical(kind=iwp) :: HasDiag, HasTransition
+  logical(kind=iwp) :: HasDiag, HasTransition, ReachedBottom
   integer(kind=iwp) :: NDiagPath, NMixedDiagPath, NMixedDiagOpenOnlyPath, NMixedDiagWithClosePath
   integer(kind=iwp) :: NPureDiagCandidate
   integer(kind=iwp), allocatable :: NPureDiagCandByLev(:), NPureDiagCandByHalf(:,:)
@@ -2070,10 +2070,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           call LoadCurrentTransition(ISGPTH,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
           call StoreTransitionCursor(ISGPTH,LEV,K,ISGT,ICL)
           call DescendWithTransition(ISGPTH,val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
-          if (LEV > LEV2) cycle
-          MV = ISGPTH(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
-          LFTSYM = ISGPTH(ILS,LEV2)
-          call ScanBottomPathSignature(ISGPTH,LEV1,LEV2,HasDiag,IP,IQ)
+          call PrepareBottomPathContext(ISGPTH,LEV,LEV1,LEV2,MV,LFTSYM,HasDiag,IP,IQ,ReachedBottom)
+          if (.not. ReachedBottom) cycle
           if (HasDiag) then
             if ((IP == 0) .and. (IQ == 0)) then
               DiagOnlyLev = StateDiagLev(ISGPTH(ISTATE,LEV2))
@@ -2157,18 +2155,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           ! Descend one level
           call DescendWithTransition(ISGPTH,val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
 
-          if (LEV > LEV2) cycle
-
-          ! ------------------------------------------------------
-          ! Bottom of current half-path reached
-          ! ------------------------------------------------------
-          MV = ISGPTH(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
-          LFTSYM = ISGPTH(ILS,LEV2)
-
-          ! ------------------------------------------------------
-          ! Detect path content in detail: diagonal vs ordinary
-          ! ------------------------------------------------------
-          call ScanBottomPathSignature(ISGPTH,LEV1,LEV2,HasDiag,IP,IQ)
+          call PrepareBottomPathContext(ISGPTH,LEV,LEV1,LEV2,MV,LFTSYM,HasDiag,IP,IQ,ReachedBottom)
+          if (.not. ReachedBottom) cycle
           if (HasDiag) then
             ! Step 3 verification:
             ! the accumulated packed state at LEV2 must retain the diagonal marker if
@@ -2568,6 +2556,20 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine PrepareBottomPathContext(Path,LevCur,LevTop,LevBottom,MV,LftSym,HasDiag,IP,IQ,ReachedBottom)
+    integer(kind=iwp), intent(in) :: LevCur, LevTop, LevBottom
+    integer(kind=iwp), intent(in) :: Path(:,0:)
+    integer(kind=iwp), intent(out) :: MV, LftSym, IP, IQ
+    logical(kind=iwp), intent(out) :: HasDiag, ReachedBottom
+
+    ReachedBottom = (LevCur <= LevBottom)
+    if (.not. ReachedBottom) return
+
+    MV = Path(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
+    LftSym = Path(ILS,LevBottom)
+    call ScanBottomPathSignature(Path,LevTop,LevBottom,HasDiag,IP,IQ)
+  end subroutine PrepareBottomPathContext
+
   subroutine ConfigureHalfTraversal(IHalf,IVTopStart,IVTopEnd,LevTop,LevBottom,ITypMax)
     integer(kind=iwp), intent(in) :: IHalf
     integer(kind=iwp), intent(out) :: IVTopStart, IVTopEnd, LevTop, LevBottom, ITypMax
