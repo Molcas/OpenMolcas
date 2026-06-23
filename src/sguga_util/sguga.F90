@@ -2123,15 +2123,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           if (LEV > LEV2) cycle
           MV = ISGPTH(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
           LFTSYM = ISGPTH(ILS,LEV2)
-          HasDiag = .false.
-          IP = 0
-          IQ = 0
-          do L = LEV2+1, LEV1
-            ISG = ISGPTH(IRSEG,L)
-            if ((ISG >= 27) .and. (ISG <= 34)) HasDiag = .true.
-            if ((ISG >= 5) .and. (ISG <= 8))  IP = L
-            if ((ISG >= 19) .and. (ISG <= 22)) IQ = L
-          end do
+          call ScanBottomPathSignature(ISGPTH,LEV1,LEV2,HasDiag,IP,IQ)
           if (HasDiag) then
             if ((IP == 0) .and. (IQ == 0)) then
               DiagOnlyLev = StateDiagLev(ISGPTH(ISTATE,LEV2))
@@ -2297,25 +2289,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           ! ------------------------------------------------------
           ! Detect path content in detail: diagonal vs ordinary
           ! ------------------------------------------------------
-          HasDiag  = .false.
-          IP       = 0
-          IQ       = 0
-
-          do L = LEV2+1, LEV1
-            ISG = ISGPTH(IRSEG,L)
-
-            if ((ISG >= 27) .and. (ISG <= 34)) then
-              HasDiag = .true.
-            end if
-
-            if ((ISG >= 5) .and. (ISG <= 8)) then
-              IP = L
-            end if
-
-            if ((ISG >= 19) .and. (ISG <= 22)) then
-              IQ = L
-            end if
-          end do
+          call ScanBottomPathSignature(ISGPTH,LEV1,LEV2,HasDiag,IP,IQ)
           if (HasDiag) then
             ! Step 3 verification:
             ! the accumulated packed state at LEV2 must retain the diagonal marker if
@@ -2714,7 +2688,24 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   call mma_allocate(EXS%VTab,NVTAB_FINAL,Label='EXS%VTab')
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
+contains
+  subroutine ScanBottomPathSignature(Path,LEVTop,LEVBot,HasDiag,IP,IQ)
+    integer(kind=iwp), intent(in) :: LEVTop, LEVBot
+    integer(kind=iwp), intent(in) :: Path(:,0:)
+    logical(kind=iwp), intent(out) :: HasDiag
+    integer(kind=iwp), intent(out) :: IP, IQ
+    integer(kind=iwp) :: L, ISG_LOCAL
 
+    HasDiag = .false.
+    IP = 0
+    IQ = 0
+    do L = LEVBot+1, LEVTop
+      ISG_LOCAL = Path(IRSEG,L)
+      if ((ISG_LOCAL >= iSegWUpBeg) .and. (ISG_LOCAL <= iSegWLoEnd)) HasDiag = .true.
+      if ((ISG_LOCAL >= 5) .and. (ISG_LOCAL <= 8))  IP = L
+      if ((ISG_LOCAL >= 19) .and. (ISG_LOCAL <= 22)) IQ = L
+    end do
+  end subroutine ScanBottomPathSignature
 end subroutine MKCOUP
 
 subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
