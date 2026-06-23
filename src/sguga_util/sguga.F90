@@ -2092,18 +2092,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           ISGPTH(ISEG,LEV)  = K
           ISGPTH(IRSEG,LEV) = ISGT
           ISGPTH(ICS,LEV)   = ICL
-          LEV = LEV - 1
-          ISGPTH(IAWSL,LEV) = ISGPTH(IAWSL,LEV+1) + SGS%MAW(IVLT,ICL)
-          ISGPTH(IAWSR,LEV) = ISGPTH(IAWSR,LEV+1) + SGS%MAW(IVRT,ICR)
-          val(LEV) = val(LEV+1) * TRS%VSEG(ITR)
-          ISGPTH(ILS,LEV)   = Mul(ISYM,ISGPTH(ILS,LEV+1))
-          ISGPTH(IVLFT,LEV) = IVLB
-          ISGPTH(ITYPE,LEV) = StateTopo(TRS%IBOT(ITR))
-          ISGPTH(ISTATE,LEV) = PackState(StateTopo(TRS%IBOT(ITR)), &
-     &      max(StateDiagLev(ISGPTH(ISTATE,LEV+1)),StateDiagLev(TRS%IBOT(ITR))))
-          ISGPTH(ISEG,LEV)  = 0
-          ISGPTH(IRSEG,LEV) = 0
-          ISGPTH(ICS,LEV)   = 0
+          call DescendWithTransition(ISGPTH,val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
           if (LEV > LEV2) cycle
           MV = ISGPTH(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
           LFTSYM = ISGPTH(ILS,LEV2)
@@ -2226,22 +2215,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           ISGPTH(ICS,LEV)   = ICL
 
           ! Descend one level
-          LEV = LEV - 1
-
-          ! Keep old MAW lookups in this first transition-based version
-          ISGPTH(IAWSL,LEV) = ISGPTH(IAWSL,LEV+1) + SGS%MAW(IVLT,ICL)
-          ISGPTH(IAWSR,LEV) = ISGPTH(IAWSR,LEV+1) + SGS%MAW(IVRT,ICR)
-
-          val(LEV) = val(LEV+1) * TRS%VSEG(ITR)
-
-          ISGPTH(ILS,LEV)   = Mul(ISYM,ISGPTH(ILS,LEV+1))
-          ISGPTH(IVLFT,LEV) = IVLB
-          ISGPTH(ITYPE,LEV) = StateTopo(TRS%IBOT(ITR))
-          ISGPTH(ISTATE,LEV) = PackState(StateTopo(TRS%IBOT(ITR)), &
-     &      max(StateDiagLev(ISGPTH(ISTATE,LEV+1)),StateDiagLev(TRS%IBOT(ITR))))
-          ISGPTH(ISEG,LEV)  = 0
-          ISGPTH(IRSEG,LEV) = 0
-          ISGPTH(ICS,LEV)   = 0
+          call DescendWithTransition(ISGPTH,val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
 
           if (LEV > LEV2) cycle
 
@@ -2654,6 +2628,27 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine DescendWithTransition(Path,Val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,IBOT,VSEG)
+    integer(kind=iwp), intent(inout) :: LEV
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    real(kind=wp), intent(inout) :: Val(0:)
+    integer(kind=iwp), intent(in) :: IVLT, IVRT, ICL, ICR, ISYM, IVLB, IBOT
+    real(kind=wp), intent(in) :: VSEG
+
+    LEV = LEV - 1
+    Path(IAWSL,LEV) = Path(IAWSL,LEV+1) + SGS%MAW(IVLT,ICL)
+    Path(IAWSR,LEV) = Path(IAWSR,LEV+1) + SGS%MAW(IVRT,ICR)
+    Val(LEV) = Val(LEV+1) * VSEG
+    Path(ILS,LEV)   = Mul(ISYM,Path(ILS,LEV+1))
+    Path(IVLFT,LEV) = IVLB
+    Path(ITYPE,LEV) = StateTopo(IBOT)
+    Path(ISTATE,LEV) = PackState(StateTopo(IBOT), &
+     &      max(StateDiagLev(Path(ISTATE,LEV+1)),StateDiagLev(IBOT)))
+    Path(ISEG,LEV)  = 0
+    Path(IRSEG,LEV) = 0
+    Path(ICS,LEV)   = 0
+  end subroutine DescendWithTransition
+
   subroutine LoadCurrentTransition(Path,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
     integer(kind=iwp), intent(in) :: LEV, K
     integer(kind=iwp), intent(in) :: Path(:,0:)
