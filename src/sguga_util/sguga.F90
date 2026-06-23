@@ -2170,14 +2170,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
         if (IVRTOP == 0) cycle
 
         LEV = LEV1
-
-        ! Initialize path table at starting level
-        ISGPTH(IVLFT,LEV) = IVTOP
-        ISGPTH(ITYPE,LEV) = ITYP
-        ISGPTH(ISTATE,LEV) = PackState(ITYP,0_iwp)
-        ISGPTH(IAWSL,LEV) = 0
-        ISGPTH(IAWSR,LEV) = 0
-        LEV = LEV1
         call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
 
