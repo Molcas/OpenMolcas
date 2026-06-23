@@ -1368,21 +1368,22 @@ integer(kind=iwp) :: ITOP, IBOT
 integer(kind=iwp), parameter :: nOpenBands = 4
 integer(kind=iwp) :: NRL_OpenBlock
 integer(kind=iwp) :: EXS_OpenBlock
-logical :: ActiveBand(nOpenBands)
+logical(kind=iwp) :: ActiveBand(nOpenBands)
 integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS, TopoBlock, NRL_MaxEO
 integer(kind=iwp), allocatable :: NDiagNRLProbe_Upper(:), NDiagNRLProbe_Lower(:)
 integer(kind=iwp) :: DiagCompactBase_Probe
 integer(kind=iwp), allocatable :: NDiagShadowUpperAtMid(:), NDiagShadowLowerAtMid(:)
 integer(kind=iwp), allocatable :: NDiagShadowUpperCanonAtMid(:), NDiagShadowLowerCanonAtMid(:)
 
-ActiveBand = .false.
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IS, IST, NCP, NUW
+#endif
+
+ActiveBand(:) = .false.
 ActiveBand(1) = .true.
 ActiveBand(2) = .true.
 
 
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: IS, IST, NCP, NUW
-#endif
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
 call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW',safe='*')
 
@@ -1598,7 +1599,7 @@ do IVLT = SGS%nVert-1, SGS%MVSta, -1
       IVLB = TRS%IVLB(ITR)
       ITOP = StateTopo(TRS%ITOP(ITR))
       IBOT = StateTopo(TRS%IBOT(ITR))
-      ICL  = TRS%ICL(ITR)
+!     ICL  = TRS%ICL(ITR)
       ISYM = TRS%ISYM(ITR)
       if ((TRS%IFLAG(ITR) == TR_DIAG) .and. (.not. StateHasDiag(TRS%IBOT(ITR)))) then
         write(u6,*) 'MkNRCOUP: expected packed diagonal marker on TR_DIAG transition'
