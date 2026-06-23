@@ -6,10 +6,6 @@
 * Responsible person: Y. Nishimoto
 * Comments: XMS-CASPT2 analytic gradients with RICD and imaginary and IPEA shift
 *-------------------------------------------------------------------------------
-* analytic gradients do not work in parallel for the time being
-> IF ( $MOLCAS_NPROCS != 1)
->   EXIT 36
-> ENDIF
 
 > EXPORT MOLCAS_NOCHECK=POTNUC
 

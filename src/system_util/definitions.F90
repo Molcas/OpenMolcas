@@ -20,7 +20,7 @@ use, intrinsic :: iso_c_binding, only: c_double, c_int, c_size_t
 use, intrinsic :: iso_c_binding, only: c_long
 #endif
 #ifdef _MOLCAS_MPP_
-use MPI, only: MPI_ADDRESS_KIND
+use MPI_Wrapper, only: MPI_ADDRESS_KIND
 #endif
 
 implicit none

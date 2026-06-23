@@ -15,7 +15,7 @@ module MpmC
 ! individual origin stored in this arrary.
 ! Note that the array (0:n) is mapped onto (1,n+1)
 
-use definitions, only: wp
+use Definitions, only: wp
 
 implicit none
 private

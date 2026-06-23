@@ -17,6 +17,7 @@ use rassi_global_arrays, only: JBNUM
 use Cntrl, only: IRREP, LSYM1, LSYM2, LuTDM, MLTPLT, NSTATE
 use Symmetry_Info, only: nSym => nIrrep, MUL
 use rassi_data, only: NBASF, NBTRI, NTDMZZ
+use wigner_util, only: dclebs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -29,7 +30,7 @@ integer(kind=iwp), intent(inout) :: iOpt
 real(kind=wp), intent(out) :: DENSOUT(6,NBTRI)
 integer(kind=iwp) :: I, IDIR, IDISK, IEMPTY, IGO, IJ, IOF, IOFF(8), ISF, ISS, ISY, ISY1, ISY12, ISY2, ITD, ITYPE, J, JOB, JOB1, &
                      JOB2, KSF, KSS, LSF, LSS, MPLET, MPLETK, MPLETL, MSPROJ, MSPROJK, MSPROJL, NB, NB1, NB2
-real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, DCLEBS, Dummy(1), FACT, S1, S2, SM1, SM2, TDM, UIL, UIR, URL, URR
+real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, Dummy(1), FACT, S1, S2, SM1, SM2, TDM, UIL, UIR, URL, URR
 integer(kind=iwp), allocatable :: MAPST(:), MAPSP(:), MAPMS(:)
 real(kind=wp), allocatable :: SCR(:), SDMXYZI(:,:), SDMXYZI2(:,:), SDMXYZR(:,:), SDMXYZR2(:,:), TDMZZ(:), TMPI(:), TMPR(:)
 

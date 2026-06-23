@@ -24,7 +24,6 @@ real(kind=wp), intent(out) :: Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lM
 integer(kind=iwp) :: iAtom, iElem, iEnd, ij, iOff, iStrt, jAtom, k, kDim, m
 real(kind=wp) :: Error, Estimated, Original, Percent, rms, rSum
 character(len=80) :: Banner_Line
-real(kind=wp), external :: DDot_
 
 iEnd = nTri3_Elem1(lMax)
 iStrt = nTri3_Elem1(l)+1
@@ -63,11 +62,11 @@ do k=l+1,lMax
   call DGEMM_('N','N',nij,2*k+1,kDim,One,xrMP(1,iElem),nij,RSph(ipSph(k)),kDim,Zero,Scratch_New,nij)
   call DGEMM_('N','N',nij,2*k+1,kDim,One,rMP(1,iElem),nij,RSph(ipSph(k)),kDim,Zero,Scratch_Org,nij)
 
-  iOff = 1
+  iOff = 0
   rms = Zero
   do m=-k,k
-    Original = DDot_(nij,[One],0,Scratch_Org(iOff),1)
-    Estimated = DDot_(nij,[One],0,Scratch_New(iOff),1)
+    Original = sum(Scratch_Org(iOff+1:iOff+nij))
+    Estimated = sum(Scratch_New(iOff+1:iOff+nij))
     Error = Original-Estimated
 
     rSum = rSum+Error*Error

@@ -4,7 +4,7 @@
 * Features tested: Frenkel exciton energies with hdf5 files
 * Responsible person: I. Fdez. Galván, Luca De Vico
 *-------------------------------------------------------------------------------
-> IF ($MOLCAS_NPROCS != 1)
+> IF ( $MOLCAS_NPROCS != 1 )
 >   EXIT 36
 > ENDIF
 

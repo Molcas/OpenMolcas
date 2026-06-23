@@ -20,15 +20,15 @@ subroutine GAIGOP_Scal(k,op)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: MT_INT
 #endif
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(inout) :: k
 character(len=*), intent(in) :: op
-#ifdef _MOLCAS_MPP_
-#include "mafdecls.fh"
 
+#ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) call ga_igop(MT_INT,k,1,op)
 #else
 #include "macros.fh"

@@ -91,7 +91,7 @@ function correlation_func(orb_range_p,orb_range_q,dmat,psmat,pamat) result(corr)
 
   use Constants, only: Half
 
-  real(kind=wp) corr
+  real(kind=wp) :: corr
   integer(kind=iwp), intent(in) :: orb_range_p(:), orb_range_q(:)
   real(kind=wp), intent(in) :: dmat(nacpar), psmat(nacpr2), pamat(nacpr2)
   integer(kind=iwp) :: p, pp, pppp, ppqq, pqqp, q, rp, rq

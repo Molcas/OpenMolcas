@@ -14,38 +14,41 @@
 subroutine READIN_RASSI()
 
 use Cholesky, only: timings
-use Cntrl, only: ALGO, Nscreen, dmpk, QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRSXY, PRORB, PRTRA, PRCI, BINA, NATO, NBINA, NRNATO, &
-                 RFPERT, IFTRD1, NSOPR, NPROP, PRDIPVEC, TDIPMIN, NJOB, CIH5, CIThr, IFHAM, IFSO, IFNTO, SOThr_Prt, nSOThr_Prt, &
-                 nState, IfHEXT, IfHEff, IfHCOM, IFEJOB, IfHDia, IfShft, ToFile, IfJ2, IfJZ, IFGCAL, EPraThr, IFACALSD, IFACALFC, &
-                 IFACALSDON, IFACALPSO, IFATCALSA, IFGTSHSA, MULTIP, IFVANVLECK, TMINS, TMAXS, NTS, IFSONCINI, TMINP, TMAXP, NTP, &
-                 NOSO, IFCURD, IFARGU, IFXCAL, NBSTEP, BSTART, BINCRE, BANGRES, NTSTEP, TSTART, TINCRE, IFMCAL, PRXVR, PRXVE, &
-                 PRXVS, PRMER, PRMEE, PRMES, HOP, TRACK, NOHAM, ONLY_OVERLAPS, IFDCPL, IFTRD2, IFTDM, DQVD, ALPHZ, BETAE, DIPR, &
-                 OSTHR_DIPR, QIPR, OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO, DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, DCHO, &
-                 DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE, REDUCELOOP, LOOPDIVIDE, LOOPMAX, l_Eff, Do_SK, Do_Pol, RHODYN, &
-                 MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM, EPrThr, LPRPR, lHami, IfACAL, IFACALFCON, IFACALFCSDON, IFGTCALSA, &
-                 DYSEXPSF, ISTAT, MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA, SONTO, SONTOSTATES, SONAT, SONATNSTATE, SODIAG, &
-                 SODIAGNSTATE
+use Cntrl, only: ALGO, ALPHZ, AngMom_idx, ASD_idx, Atens_Req, AutoSelect_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, &
+                 DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DOCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, &
+                 DYSO, EPrThr, GNuc, GNuc_set, HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IFARGU, IFCURD, IFDCPL, IFEJOB, IFGCAL, &
+                 IFGTCALSA, IFGTSHSA, IFHAM, IfHCOM, IfHDia, IfHEff, IfHEXT, IfJ2, IfJZ, IFMCAL, IFNTO, IfShft, IFSO, IFTDM, &
+                 IFTRD1, IFTRD2, IFVANVLECK, IFXCAL, ISOCMP, ISTAT, JBNAME, l_Eff, LCSTATES, lHami, LOOPDIVIDE, LOOPMAX, LPRPR, &
+                 MULTIP, MXJOB, MXPROP, NATens_Calc, NATO, NAtoms, NBINA, NBSTEP, NCOUP, NJOB, NMass_set, NOHAM, NOSO, NPNMR_Calc, &
+                 NPROP, NRNATO, Nscreen, NSOPR, nSOThr_Prt, NSpin_set, NSTAT, nState, NTP, NTS, NTSTEP, NucMass, NucSpin, OCAA, &
+                 OCAN, ONLY_OVERLAPS, OSTHR_DIPR, OSTHR_QIPR, PNAME, pNMR_req, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, &
+                 PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, PSO_idx, QDPT2EV, QDPT2SC, QIALL, QIPR, REDUCELOOP, &
+                 RFPERT, RHODYN, RSPR, RSThr, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, &
+                 SOThr_Prt, TDIPMIN, TDYS, TINCRE, TMAXP, TMAXS, TMGR_Thrs, TMINP, TMINS, ToFile, TOLERANCE, TRACK, TSTART
 use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 use frenkel_global_vars, only: DoCoul, doexch, DoExcitonics, excl, iTyp, labB, nestla, nestlb, valst
 use kVectors, only: e_Vector, k_Vector, nk_Vector
 use Lebedev_quadrature, only: available_table, rule_max
+use HFC_logical, only: MagX2C_Req
 use rassi_data, only: CHFRACMEM
 use rassi_global_arrays, only: ESHFT, HAM, HDIAG, JBNUM, LROOT
 use spool, only: Close_LuSpool, Spoolinp
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
 #endif
-use stdalloc, only: mma_allocate
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: corest, I, IJOB, ISTATE, istatus, J, JSTATE, LINENR, LuIn, nesta, nestb, NFLS
-real(kind=wp) :: tmp
+integer(kind=iwp) :: corest, I, IJOB, ISTATE, istatus, iTmp, J, JSTATE, LINENR, LuIn, nesta, nestb, NFLS
+real(kind=wp) :: tmp, tmp_gfac, tmp_spin
 logical(kind=iwp) :: lExists
-character(len=80) ::LINE
+character(len=80) :: LINE
 character(len=8) :: TRYNAME
 character(len=7) :: input_id
+integer(kind=iwp), allocatable :: iTemp_arr(:)
+real(kind=wp), allocatable :: rTemp_arr(:)
 
 call SpoolInp(LuIn)
 
@@ -384,40 +387,8 @@ do
       write(u6,*) 'Identity Hamiltonian turned on'
       LHAMI = .true.
 
-    case ('EPRA')
-      ! BP - Hyperfine calculations
-      !write(u6,*)"EPRA read"
-      IFACAL = .true.
-      read(LuIn,*,iostat=istatus) EPRATHR
-      call LineCheck(istatus)
-      if (EPRATHR < Zero) EPRATHR = Zero
-
-    case ('AFCO')
-      !write(u6,*) 'AFCO read'
-      IFACALSD = .false.
-
-    case ('ASDO')
-      !write(u6,*) 'ASDO read'
-      IFACALFC = .false.
-
-    case ('AFCC')
-      ! Kamal Sharkas beg - PSO Hyperfine calculations
-      IFACALFCON = .true.
-
-    case ('ASDC')
-      IFACALSDON = .true.
-
-    case ('FCSD')
-      IFACALFCSDON = .true.
-
-    case ('APSO')
-      IFACALPSO = .true.
-
     case ('GTSA')
       IFGTCALSA = .true.
-
-    case ('ATSA')
-      IFATCALSA = .true.
 
     case ('SHMP')
       IFGTSHSA = .true.
@@ -430,7 +401,6 @@ do
       call LineCheck(istatus)
 
     case ('NMRT')
-      IFSONCINI = .true.
       read(LuIn,*,iostat=istatus) TMINP,TMAXP,NTP
       call LineCheck(istatus)
       ! Kamal Sharkas end - PSO Hyperfine calculations
@@ -624,7 +594,7 @@ do
       read(LuIn,*,iostat=istatus) LOOPMAX
       call LineCheck(istatus)
 
-     case ('IIOR')
+    case ('IIOR')
       ! Set the order of the Lebedev polynomials used for the numerical
       ! isotropic integration. Current default 5.
       read(LuIn,*,iostat=istatus) L_Eff
@@ -667,6 +637,156 @@ do
     case ('RHOD')
       ! VKochetov 2021 enable saving more data to hdf5
       rhodyn = .true.
+
+    case ('HFCA')
+      call mma_allocate(Atens_req,NAtoms,Label='Atens_req')
+      Atens_req(:) = .false.
+      read(LuIn,*,iostat=istatus) Line
+      call LineCheck(istatus)
+      call UpCase(Line)
+      if (Line == 'ALL') then
+        NATens_Calc = NAtoms
+        Atens_req(:) = .true.
+      else
+        read(line,*) NATens_Calc
+        call mma_allocate(iTemp_arr,NATens_Calc,Label='iTemp_arr')
+        read(LuIn,*,iostat=istatus) (iTemp_arr(i),i=1,NATens_Calc)
+        call LineCheck(istatus)
+        do I=1,NATens_Calc
+          Atens_req(iTemp_arr(I)) = .true.
+        end do
+        call mma_deallocate(iTemp_arr)
+      end if
+
+    case ('NMRA')
+      call mma_allocate(pNMR_req,NAtoms,Label='pNMR_req')
+      pNMR_req(:) = .false.
+      read(LuIn,*,iostat=istatus) LINE
+      call LineCheck(istatus)
+      call UpCase(LINE)
+      if (line == 'ALL') then
+        NPNMR_Calc = NAtoms
+        pNMR_req(:) = .true.
+      else
+        read(line,*) NPNMR_Calc
+        call mma_allocate(iTemp_arr,NPNMR_Calc,Label='iTemp_arr')
+        Linenr = Linenr+1
+        read(LuIn,*,iostat=istatus) (iTemp_arr(i),i=1,NPNMR_Calc)
+        call LineCheck(istatus)
+        do I=1,NPNMR_Calc
+          pNMR_req(iTemp_arr(I)) = .true.
+        end do
+        call mma_deallocate(iTemp_arr)
+      end if
+      Linenr = Linenr+1
+
+    case ('DETH')
+      read(LuIn,*,iostat=istatus) DEGEN_ETHR
+      call LineCheck(istatus)
+      if (DEGEN_ETHR < Zero) DEGEN_ETHR = Zero
+
+    case ('NCOU')
+      read(LuIn,*,iostat=istatus) NCOUP
+      call LineCheck(istatus)
+
+    case ('COUP')
+      if (NCOUP == 0) then
+        write(u6,*) 'Keyword NCOUP must be preceded by keyword COUP'
+        call Quit_OnUserError()
+      end if
+      call mma_allocate(LCSTATES,NCOUP,Label='LCSTATES')
+      read(LuIn,*,iostat=istatus) (LCSTATES(i),i=1,NCOUP)
+      call LineCheck(istatus)
+
+    case ('HFCO')
+      HypF_rms_Req = .true.
+
+    case ('HISO')
+      call mma_allocate(HypoIso,NAtoms,Label='HypoIso_inp')
+      read(LuIn,*,iostat=istatus) iTmp
+      if (istatus > 1) then
+        HypoIso(:) = .true.
+        backspace(LuIn)
+      else
+        HypoIso(:) = .false.
+        if (.not. allocated(NucSpin)) then
+          call mma_allocate(NucSpin,NAtoms,Label='NucSpin')
+          NucSpin(:) = -100.0_wp
+        end if
+        if (.not. allocated(GNuc)) then
+          call mma_allocate(GNuc,NAtoms,Label='GNuc')
+          GNuc(:) = -100.0_wp
+        end if
+        do i=1,iTmp
+          read(LuIn,*,iostat=istatus) j,tmp_spin,tmp_gfac
+          call LineCheck(istatus)
+          HypoIso(j) = .true.
+          NucSpin(j) = tmp_spin
+          GNuc(j) = tmp_gfac
+        end do
+      end if
+
+    case ('AUNG')
+      AutoSelect_GFac = .true.
+
+    case ('GNUC')
+      if (NATens_Calc == 0) then
+        write(u6,*) 'Keyword HFCAt must be preceded by keyword GNUC'
+        call Quit_OnUserError()
+      end if
+      GNuc_set = .true.
+      call mma_allocate(GNuc,NAtoms,Label='gNuc')
+      GNuc(:) = -100.0_wp
+      call mma_allocate(rTemp_arr,NATens_Calc,Label='rTemp_arr')
+      read(LuIn,*,iostat=istatus) (rTemp_arr(i),i=1,NATens_Calc)
+      call LineCheck(istatus)
+      read(LINE,*)
+      j = 1
+      do i=1,NAtoms
+        if (Atens_req(I)) then
+          GNuc(i) = rTemp_arr(j)
+          j = j+1
+        end if
+      end do
+      call mma_deallocate(rTemp_arr)
+
+    case ('NMAS')
+      if (NATens_Calc == 0) then
+        write(u6,*) 'Keyword HFCAt must be preceded by keyword NMASs'
+        call Quit_OnUserError()
+      end if
+      NMass_set = .true.
+      call mma_allocate(NucMass,NAtoms,'NucMass')
+      NucMass(:) = -100_iwp
+      call mma_allocate(iTemp_arr,NATens_Calc,Label='iTemp_arr')
+      read(LuIn,*,iostat=istatus) (iTemp_arr(i),i=1,NATens_Calc)
+      j = 1
+      do i=1,NAtoms
+        if (Atens_req(I)) then
+          NucMass(i) = iTemp_arr(j)
+          j = j+1
+        end if
+      end do
+      call mma_deallocate(iTemp_arr)
+
+    case ('NSPI')
+      if (NATens_Calc == 0) then
+        write(u6,*) 'Keyword HFCAt must be preceded by keyword NSPIn'
+        call Quit_OnUserError()
+      end if
+      NSpin_set = .true.
+      call mma_allocate(NucSpin,NAtoms,Label='NucSpin')
+      NucSpin(:) = -100.0_wp
+      call mma_allocate(rTemp_arr,NATens_Calc,Label='rTemp_arr')
+      read(LuIn,*,iostat=istatus) (rTemp_arr(i),i=1,NATens_Calc)
+      j = 1
+      do i=1,NAtoms
+        if (Atens_req(I)) then
+          NucSpin(i) = rTemp_arr(j)
+          j = j+1
+        end if
+      end do
+      call mma_deallocate(rTemp_arr)
 
 #   ifdef _DMRG_
     case ('QDSC')
@@ -799,6 +919,8 @@ if (JBNAME(1) == 'UNDEFINE') then
   end if
 end if
 
+if (HypF_rms_Req .or. allocated(Atens_Req) .or. allocated(pNMR_req)) call gen_hfc_prop_labels()
+
 call XFLUSH(u6)
 
 call Close_LuSpool(LuIn)
@@ -823,5 +945,82 @@ subroutine LineCheck(code)
   end select
 
 end subroutine LineCheck
+
+subroutine gen_proplab(prop_lab,iAtom,nComp,idx)
+  !PURPOSE: Generate a specific property for iAtom with nComp
+
+  character(len=4), intent(in) :: prop_lab
+  integer(kind=iwp), intent(in) :: iAtom, nComp
+  integer(kind=iwp), intent(out) :: idx(:,:)
+  integer(kind=iwp) :: iC
+  character(len=4) :: temp_lab
+
+  do iC=1,nComp
+    write(temp_lab,'(I4)') iAtom
+    PNAME(NPROP+1) = prop_lab//temp_lab
+    ICOMP(NPROP+1) = iC
+    NPROP = NPROP+1
+    idx(iAtom,iC) = NPROP
+  end do
+
+end subroutine gen_proplab
+
+subroutine gen_hfc_prop_labels()
+  ! PURPOSE: Generate PROP property labels for HFC and pNMR calculations.
+  ! NOTE   : This subroutine may be deprecated if OpenMolcas stops using the PNAME label.
+  !          In that case, property indices (ASD, PSOP) can be fed directly to the HFCOP subroutine.
+
+  integer(kind=iwp) :: iAtom, iC
+  logical(kind=iwp) :: do_calc, do_EPR, do_pNMR
+
+  ! Check RX2C, MXTC to make sure that we don't calculate wrong numbers.
+  call Get_iScalar('RX2C/MXTC_SEWARD',MagX2C_Req)
+  if (MagX2C_Req == -1) call WarningMessage(2,'RX2C is used in SEWARD, but MXTC is not requested. '// &
+                                            'Please use both keywords for relativistic HFC/pNMR calculation.')
+  ! Note: For non-relativsitic calc, this subroutine can change the label to 'ASDO' instead of 'ASD'.
+  !       However, PSOP is not calculated in SEWARD (without RX2C, MXTC), therefore only FC, SD are available.
+  !       Furthermore, users are interested in FC+SD+PSO
+  if (MagX2C_Req == -2) call WarningMessage(2,'For non-relativsitc HFC/pNMR calculations,'// &
+                                            ' please use both keywords RX2C, MXTC in &SEWARD and set clight to a large value.')
+  if (MagX2C_Req < 0) call Quit_OnUserError()
+
+  call mma_allocate(ASD_idx,NAtoms,6,'LASD')
+  call mma_allocate(PSO_idx,NAtoms,3,'LPSO')
+
+  ASD_idx(:,:) = -1
+  PSO_idx(:,:) = -1
+
+  !NOTE  : This logic follows the same branching structure as route_calc in hfcop.F90, but skips iterator updates.
+  do iAtom=1,NAtoms
+    do_calc = .false.
+    do_EPR = .false.
+    do_pNMR = .false.
+
+    if (allocated(Atens_Req)) do_EPR = Atens_Req(iAtom)
+    if (allocated(pNMR_req)) do_pNMR = pNMR_req(iAtom)
+
+    if (HypF_rms_Req) then
+      do_calc = .true.
+    else
+      do_calc = do_EPR .or. do_pNMR
+    end if
+
+    if (do_calc) then
+      call gen_proplab('ASD ',iAtom,6,ASD_idx)
+      call gen_proplab('PSOP',iAtom,3,PSO_idx)
+    end if
+  end do
+
+  if (allocated(pNMR_req)) then
+    call mma_allocate(AngMom_idx,3,'AngMom_idx')
+    do iC=1,3
+      PNAME(NPROP+1) = 'AngMom'
+      ICOMP(NPROP+1) = iC
+      NPROP = NPROP+1
+      AngMom_idx(iC) = NPROP
+    end do
+  end if
+
+end subroutine gen_hfc_prop_labels
 
 end subroutine READIN_RASSI

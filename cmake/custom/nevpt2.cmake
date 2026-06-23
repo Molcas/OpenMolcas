@@ -35,7 +35,7 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/custom)
 
 set(OPENMOLCAS_TOOLS_DIR ${CMAKE_BINARY_DIR}/Tools/distributed-4rdm)
 if(SINGLE_MOD_DIR)
-  set(mod_dir ${MAIN_MOD_DIR}/_single)
+  set(mod_dir ${MAIN_MOD_DIR})
 else()
   set(mod_dir ${MAIN_MOD_DIR}/nevpt2)
 endif()
@@ -96,7 +96,7 @@ endif()
 # git references for NEVPT2          #
 ######################################
 set(reference_git_repo https://github.com/qcscine/nevpt2.git)
-set(reference_git_commit e2049c0)
+set(reference_git_commit 65a36d7)
 
 
 set(EP_PROJECT nevpt2_ext)

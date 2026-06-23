@@ -24,7 +24,8 @@ use rhodyn_data, only: d, densityt, dgl, dipole_basis, errorthreshold, finaltime
                        list_sf_spin, lu_pls, lu_sf, method, midk1, midk2, midk3, midk4, mirr, n, nconftot, Nstate, Nstep, &
                        Ntime_tmp_dm, Npop, out3_fmt, out_fdmr, out_tfdm, q_max, q_proj, threshold, time_fdm, timestep, tout, v_so, &
                        v_so_red, Y1, Y2
-use rhodyn_utils, only: check_hermicity, compare_matrices, dashes, print_c_matrix, werdm, werdm_back, werso, werso_back, W3J, W6J
+use rhodyn_utils, only: check_hermicity, compare_matrices, dashes, print_c_matrix, werdm, werdm_back, werso, werso_back
+use wigner_util, only: w3j, w6j
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, cZero, auToFs

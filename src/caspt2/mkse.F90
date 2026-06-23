@@ -1,0 +1,72 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Per Ake Malmqvist                                *
+!***********************************************************************
+!--------------------------------------------*
+! 1998  PER-AAKE MALMQUIST                   *
+! DEPARTMENT OF THEORETICAL CHEMISTRY        *
+! UNIVERSITY OF LUND                         *
+! SWEDEN                                     *
+!--------------------------------------------*
+
+subroutine MKSE(DREF,NDREF)
+! Set up the matrix SE(t,x)
+! Formula used:
+!    SE(t,x)=2*dtx - Dtx
+
+use Index_Functions, only: iTri, nTri_Elem
+use EQSOLV, only: IDSMAT
+use caspt2_global, only: LUSBT
+use caspt2_module, only: NAES, NASH, NINDEP, NSYM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: NDREF
+real(kind=wp), intent(in) :: DREF(NDREF)
+integer(kind=iwp) :: ID, IDISK, ISE, ISYM, IT, ITABS, IX, IXABS, NAS, NINM, NINP, NSE
+real(kind=wp), allocatable :: SE(:)
+
+do ISYM=1,NSYM
+  NINP = NINDEP(ISYM,6)
+  if (NINP == 0) cycle
+  NINM = NINDEP(ISYM,7)
+  NAS = NASH(ISYM)
+  NSE = nTri_Elem(NAS)
+  if (NSE > 0) call mma_allocate(SE,NSE,Label='SE')
+  do IT=1,NAS
+    ITABS = IT+NAES(ISYM)
+    do IX=1,IT
+      IXABS = IX+NAES(ISYM)
+      ISE = iTri(IT,IX)
+      ID = iTri(ITABS,IXABS)
+      if (ITABS == IXABS) then
+        SE(ISE) = Two-DREF(ID)
+      else
+        SE(ISE) = -DREF(ID)
+      end if
+    end do
+  end do
+
+  ! Write to disk
+  if ((NSE > 0) .and. (NINDEP(ISYM,6) > 0)) then
+    IDISK = IDSMAT(ISYM,6)
+    call DDAFILE(LUSBT,1,SE,NSE,IDISK)
+    if ((NINM > 0) .and. (NINDEP(ISYM,7) > 0)) then
+      IDISK = IDSMAT(ISYM,7)
+      call DDAFILE(LUSBT,1,SE,NSE,IDISK)
+    end if
+    call mma_deallocate(SE)
+  end if
+end do
+
+end subroutine MKSE

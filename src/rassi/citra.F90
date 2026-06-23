@@ -44,7 +44,7 @@
 !ifdef _DEBUGPRINT_
 subroutine CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
 
-use sguga, only: SGStruct, CIStruct, EXStruct
+use sguga, only: CIStruct, SGStruct, EXStruct
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NTRA, NOSH, NISH, NASH
 use stdalloc, only: mma_allocate, mma_deallocate
