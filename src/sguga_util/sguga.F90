@@ -1952,7 +1952,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
   integer(kind=iwp), parameter :: nVTab = 5000
 
-  logical(kind=iwp) :: HasDiag
+  logical(kind=iwp) :: HasDiag, HasTransition
   integer(kind=iwp) :: NDiagPath, NMixedDiagPath, NMixedDiagOpenOnlyPath, NMixedDiagWithClosePath
   integer(kind=iwp) :: NPureDiagCandidate
   integer(kind=iwp), allocatable :: NPureDiagCandByLev(:), NPureDiagCandByHalf(:,:)
@@ -2077,17 +2077,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
         LEV = LEV1
         call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
-          ITYPT = ISGPTH(ITYPE,LEV)
-          IVLT  = ISGPTH(IVLFT,LEV)
-          IT0 = TRS%ITR0(IVLT,ITYPT)
-          NT  = TRS%NTR(IVLT,ITYPT)
-          K = ISGPTH(ISEG,LEV) + 1
-          if (K > NT) then
-            ISGPTH(ISEG,LEV)  = 0
-            ISGPTH(IRSEG,LEV) = 0
-            LEV = LEV + 1
-            cycle
-          end if
+          call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
+          if (.not. HasTransition) cycle
           call LoadCurrentTransition(ISGPTH,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
           ISGPTH(ISEG,LEV)  = K
           ISGPTH(IRSEG,LEV) = ISGT
@@ -2192,22 +2183,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
         call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
 
-          ITYPT = ISGPTH(ITYPE,LEV)
-          IVLT  = ISGPTH(IVLFT,LEV)
-
-          IT0 = TRS%ITR0(IVLT,ITYPT)
-          NT  = TRS%NTR(IVLT,ITYPT)
-
-          K = ISGPTH(ISEG,LEV) + 1
-
-          if (K > NT) then
-            ! No more transitions left in this bucket: reset and backtrack
-            ISGPTH(ISEG,LEV)  = 0
-            ISGPTH(IRSEG,LEV) = 0
-            LEV = LEV + 1
-            cycle
-          end if
-
+          call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
+          if (.not. HasTransition) cycle
           call LoadCurrentTransition(ISGPTH,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
           ! Store current bucket cursor and raw segment number
           ISGPTH(ISEG,LEV)  = K
@@ -2628,6 +2605,25 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine PrepareLevelAdvance(Path,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
+    integer(kind=iwp), intent(inout) :: LEV
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    integer(kind=iwp), intent(out) :: ITYPT, IVLT, IT0, NT, K
+    logical(kind=iwp), intent(out) :: HasTransition
+
+    ITYPT = Path(ITYPE,LEV)
+    IVLT  = Path(IVLFT,LEV)
+    IT0 = TRS%ITR0(IVLT,ITYPT)
+    NT  = TRS%NTR(IVLT,ITYPT)
+    K = Path(ISEG,LEV) + 1
+    HasTransition = (K <= NT)
+    if (.not. HasTransition) then
+      Path(ISEG,LEV)  = 0
+      Path(IRSEG,LEV) = 0
+      LEV = LEV + 1
+    end if
+  end subroutine PrepareLevelAdvance
+
   subroutine DescendWithTransition(Path,Val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,IBOT,VSEG)
     integer(kind=iwp), intent(inout) :: LEV
     integer(kind=iwp), intent(inout) :: Path(:,0:)
