@@ -2080,9 +2080,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
           if (.not. HasTransition) cycle
           call LoadCurrentTransition(ISGPTH,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
-          ISGPTH(ISEG,LEV)  = K
-          ISGPTH(IRSEG,LEV) = ISGT
-          ISGPTH(ICS,LEV)   = ICL
+          call StoreTransitionCursor(ISGPTH,LEV,K,ISGT,ICL)
           call DescendWithTransition(ISGPTH,val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
           if (LEV > LEV2) cycle
           MV = ISGPTH(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
@@ -2186,10 +2184,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
           if (.not. HasTransition) cycle
           call LoadCurrentTransition(ISGPTH,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
-          ! Store current bucket cursor and raw segment number
-          ISGPTH(ISEG,LEV)  = K
-          ISGPTH(IRSEG,LEV) = ISGT
-          ISGPTH(ICS,LEV)   = ICL
+          call StoreTransitionCursor(ISGPTH,LEV,K,ISGT,ICL)
 
           ! Descend one level
           call DescendWithTransition(ISGPTH,val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
@@ -2605,6 +2600,15 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine StoreTransitionCursor(Path,LEV,K,ISGT,ICL)
+    integer(kind=iwp), intent(in) :: LEV, K, ISGT, ICL
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+
+    Path(ISEG,LEV)  = K
+    Path(IRSEG,LEV) = ISGT
+    Path(ICS,LEV)   = ICL
+  end subroutine StoreTransitionCursor
+
   subroutine PrepareLevelAdvance(Path,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
     integer(kind=iwp), intent(inout) :: LEV
     integer(kind=iwp), intent(inout) :: Path(:,0:)
