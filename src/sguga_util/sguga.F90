@@ -2088,14 +2088,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
             LEV = LEV + 1
             cycle
           end if
-          ITR  = IT0 + K
-          ISGT = TRS%ISGT(ITR)
-          IVLB = TRS%IVLB(ITR)
-          ICL  = TRS%ICL(ITR)
-          ICR  = TRS%ICR(ITR)
-          ISYM = TRS%ISYM(ITR)
-          IVRT = IVLT
-          if (TRS%IPRT(ITR) /= 0) IVRT = CIS%IVR(IVLT,TRS%IPRT(ITR))
+          call LoadCurrentTransition(ISGPTH,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
           ISGPTH(ISEG,LEV)  = K
           ISGPTH(IRSEG,LEV) = ISGT
           ISGPTH(ICS,LEV)   = ICL
@@ -2226,20 +2219,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
             cycle
           end if
 
-          ITR  = IT0 + K
-          ISGT = TRS%ISGT(ITR)
-          IVLB = TRS%IVLB(ITR)
-
-          ICL  = TRS%ICL(ITR)
-          ICR  = TRS%ICR(ITR)
-          ISYM = TRS%ISYM(ITR)
-
-          ! Right upper vertex
-          IVRT = IVLT
-          if (TRS%IPRT(ITR) /= 0) then
-            IVRT = CIS%IVR(IVLT,TRS%IPRT(ITR))
-          end if
-
+          call LoadCurrentTransition(ISGPTH,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
           ! Store current bucket cursor and raw segment number
           ISGPTH(ISEG,LEV)  = K
           ISGPTH(IRSEG,LEV) = ISGT
@@ -2674,6 +2654,24 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine LoadCurrentTransition(Path,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
+    integer(kind=iwp), intent(in) :: LEV, K
+    integer(kind=iwp), intent(in) :: Path(:,0:)
+    integer(kind=iwp), intent(out) :: ITR, ISGT, IVLB, ICL, ICR, ISYM, IVRT
+    integer(kind=iwp) :: ITYPT_LOCAL, IVLT_LOCAL
+
+    ITYPT_LOCAL = Path(ITYPE,LEV)
+    IVLT_LOCAL  = Path(IVLFT,LEV)
+    ITR  = TRS%ITR0(IVLT_LOCAL,ITYPT_LOCAL) + K
+    ISGT = TRS%ISGT(ITR)
+    IVLB = TRS%IVLB(ITR)
+    ICL  = TRS%ICL(ITR)
+    ICR  = TRS%ICR(ITR)
+    ISYM = TRS%ISYM(ITR)
+    IVRT = IVLT_LOCAL
+    if (TRS%IPRT(ITR) /= 0) IVRT = CIS%IVR(IVLT_LOCAL,TRS%IPRT(ITR))
+  end subroutine LoadCurrentTransition
+
   subroutine InitializeHalfPathTop(Path,Val,LEVTop,IVTop,ITYPTop)
     integer(kind=iwp), intent(in) :: LEVTop, IVTop, ITYPTop
     integer(kind=iwp), intent(inout) :: Path(:,0:)
