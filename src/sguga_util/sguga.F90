@@ -2056,19 +2056,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   ! then rebuild IOCP/nICoup before the real write pass.
   ! ------------------------------------------------------------
   do IHALF = 1, 2
-    if (IHALF == 1) then
-      IVTSTA = 1
-      IVTEND = 1
-      LEV1   = SGS%nLev
-      LEV2   = SGS%MidLev
-      ITYPMX = 0
-    else
-      IVTSTA = SGS%MVSta
-      IVTEND = SGS%MVEnd
-      LEV1   = SGS%MidLev
-      LEV2   = 0
-      ITYPMX = 2
-    end if
+    call ConfigureHalfTraversal(IHALF,IVTSTA,IVTEND,LEV1,LEV2,ITYPMX)
     do IVTOP = IVTSTA, IVTEND
       do ITYP = 0, ITYPMX
         IVRTOP = IVTOP
@@ -2147,19 +2135,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
   do IHALF = 1, 2
 
-    if (IHALF == 1) then
-      IVTSTA = 1
-      IVTEND = 1
-      LEV1   = SGS%nLev
-      LEV2   = SGS%MidLev
-      ITYPMX = 0
-    else
-      IVTSTA = SGS%MVSta
-      IVTEND = SGS%MVEnd
-      LEV1   = SGS%MidLev
-      LEV2   = 0
-      ITYPMX = 2
-    end if
+    call ConfigureHalfTraversal(IHALF,IVTSTA,IVTEND,LEV1,LEV2,ITYPMX)
 
     do IVTOP = IVTSTA, IVTEND
 
@@ -2592,6 +2568,25 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine ConfigureHalfTraversal(IHalf,IVTopStart,IVTopEnd,LevTop,LevBottom,ITypMax)
+    integer(kind=iwp), intent(in) :: IHalf
+    integer(kind=iwp), intent(out) :: IVTopStart, IVTopEnd, LevTop, LevBottom, ITypMax
+
+    if (IHalf == 1) then
+      IVTopStart = 1
+      IVTopEnd   = 1
+      LevTop     = SGS%nLev
+      LevBottom  = SGS%MidLev
+      ITypMax    = 0
+    else
+      IVTopStart = SGS%MVSta
+      IVTopEnd   = SGS%MVEnd
+      LevTop     = SGS%MidLev
+      LevBottom  = 0
+      ITypMax    = 2
+    end if
+  end subroutine ConfigureHalfTraversal
+
   subroutine StoreTransitionCursor(Path,LEV,K,ISGT,ICL)
     integer(kind=iwp), intent(in) :: LEV, K, ISGT, ICL
     integer(kind=iwp), intent(inout) :: Path(:,0:)
