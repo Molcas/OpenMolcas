@@ -2056,7 +2056,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   ! then rebuild IOCP/nICoup before the real write pass.
   ! ------------------------------------------------------------
   do IHALF = 1, 2
-    call ConfigureHalfTraversal(IHALF,IVTSTA,IVTEND,LEV1,LEV2,ITYPMX)
+    call PrepareHalfTraversalBounds(IHALF,IVTSTA,IVTEND,LEV1,LEV2,ITYPMX)
     do IVTOP = IVTSTA, IVTEND
       do ITYP = 0, ITYPMX
         call ResolveTopRightVertex(IVTOP,ITYP,IVRTOP,HasTopRoot)
@@ -2126,7 +2126,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
   do IHALF = 1, 2
 
-    call ConfigureHalfTraversal(IHALF,IVTSTA,IVTEND,LEV1,LEV2,ITYPMX)
+    call PrepareHalfTraversalBounds(IHALF,IVTSTA,IVTEND,LEV1,LEV2,ITYPMX)
 
     do IVTOP = IVTSTA, IVTEND
 
@@ -2540,6 +2540,13 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine PrepareHalfTraversalBounds(IHalf,IVTSta,IVTEnd,LevTop,LevBottom,ITypMx)
+    integer(kind=iwp), intent(in) :: IHalf
+    integer(kind=iwp), intent(inout) :: IVTSta, IVTEnd, LevTop, LevBottom, ITypMx
+
+    call ConfigureHalfTraversal(IHalf,IVTSta,IVTEnd,LevTop,LevBottom,ITypMx)
+  end subroutine PrepareHalfTraversalBounds
+
   subroutine RequireValidPackedDiagLevel(PackedState,DiagLev,ErrMsg)
     integer(kind=iwp), intent(in) :: PackedState
     integer(kind=iwp), intent(out) :: DiagLev
