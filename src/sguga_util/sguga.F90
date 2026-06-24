@@ -2157,22 +2157,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
             else
               call RequireValidPackedDiagLevel(ISGPTH(ISTATE,LEV2),DiagOnlyLev, &
      &                                       'MKCOUP: pure diagonal candidate has invalid packed level')
-              NPureDiagCandidate = NPureDiagCandidate + 1
-              NPureDiagCandByLev(DiagOnlyLev) = NPureDiagCandByLev(DiagOnlyLev) + 1
-              NPureDiagCandByHalf(IHALF,DiagOnlyLev) = NPureDiagCandByHalf(IHALF,DiagOnlyLev) + 1
               call PreparePureDiagTargetInfo(IHALF,DiagOnlyLev,val(LEV2),DiagCanonLev,INDEO,C)
-              NPureDiagCanonByLev(DiagCanonLev) = NPureDiagCanonByLev(DiagCanonLev) + 1
-              NPureDiagCanonByHalf(IHALF,DiagCanonLev) = NPureDiagCanonByHalf(IHALF,DiagCanonLev) + 1
-              IDiagEO = DiagEOIdx(MxEO_Block,SGS%nLev,DiagCanonLev)
-              if (IDiagEO <= DiagCompactBase) then
-                write(u6,*) 'MKCOUP scaffold: invalid future dedicated diagonal slot index'
-                write(u6,*) '  DiagLev = ', DiagOnlyLev
-                write(u6,*) '  CanonLev = ', DiagCanonLev
-                write(u6,*) '  IDiagEO = ', IDiagEO
-                call Abend()
-              end if
-              NDiagFutureSlotByLev(DiagCanonLev) = NDiagFutureSlotByLev(DiagCanonLev) + 1
-              NDiagFutureSlotByHalf(IHALF,DiagCanonLev) = NDiagFutureSlotByHalf(IHALF,DiagCanonLev) + 1
+              call RecordPureDiagWriteCandidate(IHALF,DiagOnlyLev,DiagCanonLev)
               ! C8: compatibility admission is deduplicated by exact public tuple key
               ! (block, symmetry, midvertex, left walk, right walk, numerical value).
               if (DiagCompatAlreadySeen(INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2), &
@@ -2523,6 +2509,27 @@ contains
     NDiagCompatPreByLev(DiagCanonLev) = NDiagCompatPreByLev(DiagCanonLev) + 1
     NDiagCompatPreByHalf(IHalf,DiagCanonLev) = NDiagCompatPreByHalf(IHalf,DiagCanonLev) + 1
   end subroutine ReservePureDiagCompatibility
+
+  subroutine RecordPureDiagWriteCandidate(IHalf,DiagOnlyLev,DiagCanonLev)
+    integer(kind=iwp), intent(in) :: IHalf, DiagOnlyLev, DiagCanonLev
+    integer(kind=iwp) :: IDiagEOLocal
+
+    NPureDiagCandidate = NPureDiagCandidate + 1
+    NPureDiagCandByLev(DiagOnlyLev) = NPureDiagCandByLev(DiagOnlyLev) + 1
+    NPureDiagCandByHalf(IHalf,DiagOnlyLev) = NPureDiagCandByHalf(IHalf,DiagOnlyLev) + 1
+    NPureDiagCanonByLev(DiagCanonLev) = NPureDiagCanonByLev(DiagCanonLev) + 1
+    NPureDiagCanonByHalf(IHalf,DiagCanonLev) = NPureDiagCanonByHalf(IHalf,DiagCanonLev) + 1
+    IDiagEOLocal = DiagEOIdx(MxEO_Block,SGS%nLev,DiagCanonLev)
+    if (IDiagEOLocal <= DiagCompactBase) then
+      write(u6,*) 'MKCOUP scaffold: invalid future dedicated diagonal slot index'
+      write(u6,*) '  DiagLev = ', DiagOnlyLev
+      write(u6,*) '  CanonLev = ', DiagCanonLev
+      write(u6,*) '  IDiagEO = ', IDiagEOLocal
+      call Abend()
+    end if
+    NDiagFutureSlotByLev(DiagCanonLev) = NDiagFutureSlotByLev(DiagCanonLev) + 1
+    NDiagFutureSlotByHalf(IHalf,DiagCanonLev) = NDiagFutureSlotByHalf(IHalf,DiagCanonLev) + 1
+  end subroutine RecordPureDiagWriteCandidate
 
   subroutine AdmitPureDiagCompatibility(IHalf,DiagCanonLev,InDeo,LftSymCur,MVCur,Coeff,IAWSLState,IAWSRState)
     integer(kind=iwp), intent(in) :: IHalf, DiagCanonLev, InDeo, LftSymCur, MVCur, IAWSLState, IAWSRState
