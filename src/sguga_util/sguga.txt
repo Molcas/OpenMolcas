@@ -1368,21 +1368,22 @@ integer(kind=iwp) :: ITOP, IBOT
 integer(kind=iwp), parameter :: nOpenBands = 4
 integer(kind=iwp) :: NRL_OpenBlock
 integer(kind=iwp) :: EXS_OpenBlock
-logical :: ActiveBand(nOpenBands)
+logical(kind=iwp) :: ActiveBand(nOpenBands)
 integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS, TopoBlock, NRL_MaxEO
 integer(kind=iwp), allocatable :: NDiagNRLProbe_Upper(:), NDiagNRLProbe_Lower(:)
 integer(kind=iwp) :: DiagCompactBase_Probe
 integer(kind=iwp), allocatable :: NDiagShadowUpperAtMid(:), NDiagShadowLowerAtMid(:)
 integer(kind=iwp), allocatable :: NDiagShadowUpperCanonAtMid(:), NDiagShadowLowerCanonAtMid(:)
 
-ActiveBand = .false.
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IS, IST, NCP, NUW
+#endif
+
+ActiveBand(:) = .false.
 ActiveBand(1) = .true.
 ActiveBand(2) = .true.
 
 
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: IS, IST, NCP, NUW
-#endif
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
 call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW',safe='*')
 
@@ -1598,7 +1599,7 @@ do IVLT = SGS%nVert-1, SGS%MVSta, -1
       IVLB = TRS%IVLB(ITR)
       ITOP = StateTopo(TRS%ITOP(ITR))
       IBOT = StateTopo(TRS%IBOT(ITR))
-      ICL  = TRS%ICL(ITR)
+!     ICL  = TRS%ICL(ITR)
       ISYM = TRS%ISYM(ITR)
       if ((TRS%IFLAG(ITR) == TR_DIAG) .and. (.not. StateHasDiag(TRS%IBOT(ITR)))) then
         write(u6,*) 'MkNRCOUP: expected packed diagonal marker on TR_DIAG transition'
@@ -1951,7 +1952,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
   integer(kind=iwp), parameter :: nVTab = 5000
 
-  logical(kind=iwp) :: HasDiag
+  logical(kind=iwp) :: HasDiag, HasTransition, ReachedBottom, HasTopRoot
   integer(kind=iwp) :: NDiagPath, NMixedDiagPath, NMixedDiagOpenOnlyPath, NMixedDiagWithClosePath
   integer(kind=iwp) :: NPureDiagCandidate
   integer(kind=iwp), allocatable :: NPureDiagCandByLev(:), NPureDiagCandByHalf(:,:)
@@ -1959,10 +1960,18 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp), allocatable :: NDiagFutureSlotByLev(:), NDiagFutureSlotByHalf(:,:)
   integer(kind=iwp) :: DiagOnlyLev
   integer(kind=iwp), allocatable :: NPureDiagCanonByLev(:), NPureDiagCanonByHalf(:,:)
+
   integer(kind=iwp) :: ICOP_Total
+  integer(kind=iwp) :: NDiagCompatSumPre, NDiagCompatSumWrite
+  integer(kind=iwp) :: NExpectedTotal, NActualTotal, NExpectedBlock, NActualBlock
   integer(kind=iwp), allocatable :: NOCP_Base(:,:,:), NOCP_ExtraDiag(:,:,:)
   integer(kind=iwp), allocatable :: NDiagCompatPreByLev(:), NDiagCompatPreByHalf(:,:)
   integer(kind=iwp), allocatable :: NDiagCompatWriteByLev(:), NDiagCompatWriteByHalf(:,:)
+  integer(kind=iwp) :: NDiagCompatSeen, NDiagCompatDupPre, NDiagCompatDupWrite
+
+  integer(kind=iwp), allocatable :: DiagCompatSeenInDeo(:), DiagCompatSeenSym(:), DiagCompatSeenMV(:)
+  integer(kind=iwp), allocatable :: DiagCompatSeenIAWSL(:), DiagCompatSeenIAWSR(:)
+  real(kind=wp), allocatable    :: DiagCompatSeenC(:)
 
   call mma_deallocate(EXS%ICoup,safe='*')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -2037,6 +2046,9 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   NDiagCompatPreByHalf(:,:)=0
   NDiagCompatWriteByLev(:)=0
   NDiagCompatWriteByHalf(:,:)=0
+  NDiagCompatSeen = 0
+  NDiagCompatDupPre = 0
+  NDiagCompatDupWrite = 0
 
   ! ------------------------------------------------------------
   ! C7-fixed prepass:
@@ -2044,82 +2056,19 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   ! then rebuild IOCP/nICoup before the real write pass.
   ! ------------------------------------------------------------
   do IHALF = 1, 2
-    if (IHALF == 1) then
-      IVTSTA = 1
-      IVTEND = 1
-      LEV1   = SGS%nLev
-      LEV2   = SGS%MidLev
-      ITYPMX = 0
-    else
-      IVTSTA = SGS%MVSta
-      IVTEND = SGS%MVEnd
-      LEV1   = SGS%MidLev
-      LEV2   = 0
-      ITYPMX = 2
-    end if
+    call ConfigureHalfTraversal(IHALF,IVTSTA,IVTEND,LEV1,LEV2,ITYPMX)
     do IVTOP = IVTSTA, IVTEND
       do ITYP = 0, ITYPMX
-        IVRTOP = IVTOP
-        if (ITYP > 0) IVRTOP = CIS%IVR(IVTOP,ITYP)
-        if (IVRTOP == 0) cycle
+        call ResolveTopRightVertex(IVTOP,ITYP,IVRTOP,HasTopRoot)
+        if (.not. HasTopRoot) cycle
         LEV = LEV1
-        ISGPTH(IVLFT,LEV) = IVTOP
-        ISGPTH(ITYPE,LEV) = ITYP
-        ISGPTH(ISTATE,LEV) = PackState(ITYP,0_iwp)
-        ISGPTH(IAWSL,LEV) = 0
-        ISGPTH(IAWSR,LEV) = 0
-        ISGPTH(ILS,  LEV) = 1
-        ISGPTH(ICS,  LEV) = 0
-        ISGPTH(ISEG, LEV) = 0
-        ISGPTH(IRSEG,LEV) = 0
-        val(LEV) = One
+        call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
-          ITYPT = ISGPTH(ITYPE,LEV)
-          IVLT  = ISGPTH(IVLFT,LEV)
-          IT0 = TRS%ITR0(IVLT,ITYPT)
-          NT  = TRS%NTR(IVLT,ITYPT)
-          K = ISGPTH(ISEG,LEV) + 1
-          if (K > NT) then
-            ISGPTH(ISEG,LEV)  = 0
-            ISGPTH(IRSEG,LEV) = 0
-            LEV = LEV + 1
-            cycle
-          end if
-          ITR  = IT0 + K
-          ISGT = TRS%ISGT(ITR)
-          IVLB = TRS%IVLB(ITR)
-          ICL  = TRS%ICL(ITR)
-          ICR  = TRS%ICR(ITR)
-          ISYM = TRS%ISYM(ITR)
-          IVRT = IVLT
-          if (TRS%IPRT(ITR) /= 0) IVRT = CIS%IVR(IVLT,TRS%IPRT(ITR))
-          ISGPTH(ISEG,LEV)  = K
-          ISGPTH(IRSEG,LEV) = ISGT
-          ISGPTH(ICS,LEV)   = ICL
-          LEV = LEV - 1
-          ISGPTH(IAWSL,LEV) = ISGPTH(IAWSL,LEV+1) + SGS%MAW(IVLT,ICL)
-          ISGPTH(IAWSR,LEV) = ISGPTH(IAWSR,LEV+1) + SGS%MAW(IVRT,ICR)
-          val(LEV) = val(LEV+1) * TRS%VSEG(ITR)
-          ISGPTH(ILS,LEV)   = Mul(ISYM,ISGPTH(ILS,LEV+1))
-          ISGPTH(IVLFT,LEV) = IVLB
-          ISGPTH(ITYPE,LEV) = StateTopo(TRS%IBOT(ITR))
-          ISGPTH(ISTATE,LEV) = PackState(StateTopo(TRS%IBOT(ITR)), &
-     &      max(StateDiagLev(ISGPTH(ISTATE,LEV+1)),StateDiagLev(TRS%IBOT(ITR))))
-          ISGPTH(ISEG,LEV)  = 0
-          ISGPTH(IRSEG,LEV) = 0
-          ISGPTH(ICS,LEV)   = 0
-          if (LEV > LEV2) cycle
-          MV = ISGPTH(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
-          LFTSYM = ISGPTH(ILS,LEV2)
-          HasDiag = .false.
-          IP = 0
-          IQ = 0
-          do L = LEV2+1, LEV1
-            ISG = ISGPTH(IRSEG,L)
-            if ((ISG >= 27) .and. (ISG <= 34)) HasDiag = .true.
-            if ((ISG >= 5) .and. (ISG <= 8))  IP = L
-            if ((ISG >= 19) .and. (ISG <= 22)) IQ = L
-          end do
+          call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
+          if (.not. HasTransition) cycle
+          call ProcessCurrentTransition(ISGPTH,val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
+          call PrepareBottomPathContext(ISGPTH,LEV,LEV1,LEV2,MV,LFTSYM,HasDiag,IP,IQ,ReachedBottom)
+          if (.not. ReachedBottom) cycle
           if (HasDiag) then
             if ((IP == 0) .and. (IQ == 0)) then
               DiagOnlyLev = StateDiagLev(ISGPTH(ISTATE,LEV2))
@@ -2129,6 +2078,14 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               end if
               DiagCanonLev = CanonDiagLev(IHALF,DiagOnlyLev,SGS%nLev)
               INDEO = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
+              C = val(LEV2)
+              if (DiagCompatSeenOrAdd(NDiagCompatSeen,DiagCompatSeenInDeo,DiagCompatSeenSym,DiagCompatSeenMV, &
+     &                                 DiagCompatSeenIAWSL,DiagCompatSeenIAWSR,DiagCompatSeenC, &
+     &                                 INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2),ISGPTH(IAWSR,LEV2),C)) then
+                NDiagCompatDupPre = NDiagCompatDupPre + 1
+                LEV = LEV + 1
+                cycle
+              end if
               NOCP_ExtraDiag(INDEO,LFTSYM,MV) = NOCP_ExtraDiag(INDEO,LFTSYM,MV) + 1
               NDiagCompatPreByLev(DiagCanonLev) = NDiagCompatPreByLev(DiagCanonLev) + 1
               NDiagCompatPreByHalf(IHALF,DiagCanonLev) = NDiagCompatPreByHalf(IHALF,DiagCanonLev) + 1
@@ -2153,6 +2110,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
     end do
   end do
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
+  NDiagCompatSeen = 0
 
   ! Reset NOW/NOCP for the real write pass.
   do IHALF = 1, 2
@@ -2172,129 +2130,25 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
   do IHALF = 1, 2
 
-    if (IHALF == 1) then
-      IVTSTA = 1
-      IVTEND = 1
-      LEV1   = SGS%nLev
-      LEV2   = SGS%MidLev
-      ITYPMX = 0
-    else
-      IVTSTA = SGS%MVSta
-      IVTEND = SGS%MVEnd
-      LEV1   = SGS%MidLev
-      LEV2   = 0
-      ITYPMX = 2
-    end if
+    call ConfigureHalfTraversal(IHALF,IVTSTA,IVTEND,LEV1,LEV2,ITYPMX)
 
     do IVTOP = IVTSTA, IVTEND
 
       do ITYP = 0, ITYPMX
 
-        IVRTOP = IVTOP
-        if (ITYP > 0) IVRTOP = CIS%IVR(IVTOP,ITYP)
-        if (IVRTOP == 0) cycle
+        call ResolveTopRightVertex(IVTOP,ITYP,IVRTOP,HasTopRoot)
+        if (.not. HasTopRoot) cycle
 
         LEV = LEV1
-
-        ! Initialize path table at starting level
-        ISGPTH(IVLFT,LEV) = IVTOP
-        ISGPTH(ITYPE,LEV) = ITYP
-        ISGPTH(ISTATE,LEV) = PackState(ITYP,0_iwp)
-        ISGPTH(IAWSL,LEV) = 0
-        ISGPTH(IAWSR,LEV) = 0
-        ISGPTH(ILS,  LEV) = 1
-        ISGPTH(ICS,  LEV) = 0
-        ISGPTH(ISEG, LEV) = 0   ! bucket cursor
-        ISGPTH(IRSEG,LEV) = 0   ! raw segment number
-
-        val(LEV) = One
-
-        ! Walk from top to midlevel, or from midlevel to root
+        call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
 
-          ITYPT = ISGPTH(ITYPE,LEV)
-          IVLT  = ISGPTH(IVLFT,LEV)
+          call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
+          if (.not. HasTransition) cycle
+          call ProcessCurrentTransition(ISGPTH,val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
 
-          IT0 = TRS%ITR0(IVLT,ITYPT)
-          NT  = TRS%NTR(IVLT,ITYPT)
-
-          K = ISGPTH(ISEG,LEV) + 1
-
-          if (K > NT) then
-            ! No more transitions left in this bucket: reset and backtrack
-            ISGPTH(ISEG,LEV)  = 0
-            ISGPTH(IRSEG,LEV) = 0
-            LEV = LEV + 1
-            cycle
-          end if
-
-          ITR  = IT0 + K
-          ISGT = TRS%ISGT(ITR)
-          IVLB = TRS%IVLB(ITR)
-
-          ICL  = TRS%ICL(ITR)
-          ICR  = TRS%ICR(ITR)
-          ISYM = TRS%ISYM(ITR)
-
-          ! Right upper vertex
-          IVRT = IVLT
-          if (TRS%IPRT(ITR) /= 0) then
-            IVRT = CIS%IVR(IVLT,TRS%IPRT(ITR))
-          end if
-
-          ! Store current bucket cursor and raw segment number
-          ISGPTH(ISEG,LEV)  = K
-          ISGPTH(IRSEG,LEV) = ISGT
-          ISGPTH(ICS,LEV)   = ICL
-
-          ! Descend one level
-          LEV = LEV - 1
-
-          ! Keep old MAW lookups in this first transition-based version
-          ISGPTH(IAWSL,LEV) = ISGPTH(IAWSL,LEV+1) + SGS%MAW(IVLT,ICL)
-          ISGPTH(IAWSR,LEV) = ISGPTH(IAWSR,LEV+1) + SGS%MAW(IVRT,ICR)
-
-          val(LEV) = val(LEV+1) * TRS%VSEG(ITR)
-
-          ISGPTH(ILS,LEV)   = Mul(ISYM,ISGPTH(ILS,LEV+1))
-          ISGPTH(IVLFT,LEV) = IVLB
-          ISGPTH(ITYPE,LEV) = StateTopo(TRS%IBOT(ITR))
-          ISGPTH(ISTATE,LEV) = PackState(StateTopo(TRS%IBOT(ITR)), &
-     &      max(StateDiagLev(ISGPTH(ISTATE,LEV+1)),StateDiagLev(TRS%IBOT(ITR))))
-          ISGPTH(ISEG,LEV)  = 0
-          ISGPTH(IRSEG,LEV) = 0
-          ISGPTH(ICS,LEV)   = 0
-
-          if (LEV > LEV2) cycle
-
-          ! ------------------------------------------------------
-          ! Bottom of current half-path reached
-          ! ------------------------------------------------------
-          MV = ISGPTH(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
-          LFTSYM = ISGPTH(ILS,LEV2)
-
-          ! ------------------------------------------------------
-          ! Detect path content in detail: diagonal vs ordinary
-          ! ------------------------------------------------------
-          HasDiag  = .false.
-          IP       = 0
-          IQ       = 0
-
-          do L = LEV2+1, LEV1
-            ISG = ISGPTH(IRSEG,L)
-
-            if ((ISG >= 27) .and. (ISG <= 34)) then
-              HasDiag = .true.
-            end if
-
-            if ((ISG >= 5) .and. (ISG <= 8)) then
-              IP = L
-            end if
-
-            if ((ISG >= 19) .and. (ISG <= 22)) then
-              IQ = L
-            end if
-          end do
+          call PrepareBottomPathContext(ISGPTH,LEV,LEV1,LEV2,MV,LFTSYM,HasDiag,IP,IQ,ReachedBottom)
+          if (.not. ReachedBottom) cycle
           if (HasDiag) then
             ! Step 3 verification:
             ! the accumulated packed state at LEV2 must retain the diagonal marker if
@@ -2338,14 +2192,23 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               end if
               NDiagFutureSlotByLev(DiagCanonLev) = NDiagFutureSlotByLev(DiagCanonLev) + 1
               NDiagFutureSlotByHalf(IHALF,DiagCanonLev) = NDiagFutureSlotByHalf(IHALF,DiagCanonLev) + 1
-              ! C7-fixed: compatibility admission goes ONLY to the canonical diagonal closed-loop slot.
+              ! C8: compatibility admission is deduplicated by exact public tuple key
+              ! (block, symmetry, midvertex, left walk, right walk, numerical value).
               INDEO = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
+              C = val(LEV2)
+              if (DiagCompatSeenOrAdd(NDiagCompatSeen,DiagCompatSeenInDeo,DiagCompatSeenSym,DiagCompatSeenMV, &
+     &                                 DiagCompatSeenIAWSL,DiagCompatSeenIAWSR,DiagCompatSeenC, &
+     &                                 INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2),ISGPTH(IAWSR,LEV2),C)) then
+                NDiagCompatDupWrite = NDiagCompatDupWrite + 1
+                LEV = LEV + 1
+                cycle
+              end if
               ICOP = 1 + EXS%NOCP(INDEO,LFTSYM,MV)
               EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
               ICOP = EXS%IOCP(INDEO,LFTSYM,MV) + ICOP
               NCHECK = NCHECK + 1
               if (ICOP > EXS%nICoup) then
-                write(u6,*) 'ERROR in MKCOUP C7-fixed compatibility admission: ICOP > EXS%nICoup'
+                write(u6,*) 'ERROR in MKCOUP C8 deduplicated compatibility admission: ICOP > EXS%nICoup'
                 write(u6,*) ' ICOP      = ', ICOP
                 write(u6,*) ' nICoup    = ', EXS%nICoup
                 write(u6,*) ' INDEO     = ', INDEO
@@ -2354,7 +2217,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
                 write(u6,*) ' CanonLev  = ', DiagCanonLev
                 call Abend()
               end if
-              C = val(LEV2)
               do i = 1, NVTAB_FINAL
                 IVTAB = i
                 if (abs(C - VTab(i)) < 1.0e-10_wp) exit
@@ -2511,6 +2373,84 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
       end do
     end do
   end do
+ ! ------------------------------------------------------------
+  ! C8b sanity guards: fail fast on internal accounting drift.
+  ! ------------------------------------------------------------
+  NDiagCompatSumPre = 0
+  NDiagCompatSumWrite = 0
+  do LEV = 1, SGS%nLev
+    NDiagCompatSumPre = NDiagCompatSumPre + NDiagCompatPreByLev(LEV)
+    NDiagCompatSumWrite = NDiagCompatSumWrite + NDiagCompatWriteByLev(LEV)
+    if (NDiagCompatPreByLev(LEV) /= NDiagCompatWriteByLev(LEV)) then
+      write(u6,*) 'MKCOUP C8b sanity: prepass/write compatibility mismatch by canonical level'
+      write(u6,*) '  LEV      = ', LEV
+      write(u6,*) '  PREPASS  = ', NDiagCompatPreByLev(LEV)
+      write(u6,*) '  WRITE    = ', NDiagCompatWriteByLev(LEV)
+      call Abend()
+    end if
+    do IHALF = 1, 2
+      if (NDiagCompatPreByHalf(IHALF,LEV) /= NDiagCompatWriteByHalf(IHALF,LEV)) then
+        write(u6,*) 'MKCOUP C8b sanity: prepass/write half-resolved compatibility mismatch'
+        write(u6,*) '  IHALF    = ', IHALF
+        write(u6,*) '  LEV      = ', LEV
+        write(u6,*) '  PREPASS  = ', NDiagCompatPreByHalf(IHALF,LEV)
+        write(u6,*) '  WRITE    = ', NDiagCompatWriteByHalf(IHALF,LEV)
+        call Abend()
+      end if
+    end do
+  end do
+
+  if (NDiagCompatSumPre + NDiagCompatDupPre /= NPureDiagCandidate) then
+    write(u6,*) 'MKCOUP C8b sanity: prepass duplicate accounting mismatch'
+    write(u6,*) '  UNIQUE   = ', NDiagCompatSumPre
+    write(u6,*) '  DUP      = ', NDiagCompatDupPre
+    write(u6,*) '  RAW      = ', NPureDiagCandidate
+    call Abend()
+  end if
+ if (NDiagCompatSumWrite + NDiagCompatDupWrite /= NPureDiagCandidate) then
+    write(u6,*) 'MKCOUP C8b sanity: write-pass duplicate accounting mismatch'
+    write(u6,*) '  UNIQUE   = ', NDiagCompatSumWrite
+    write(u6,*) '  DUP      = ', NDiagCompatDupWrite
+    write(u6,*) '  RAW      = ', NPureDiagCandidate
+    call Abend()
+  end if
+
+  NExpectedTotal = 0
+  NActualTotal = 0
+  do INDEO = 1, SIZE(EXS%NOCP,1)
+    do MV = 1, CIS%nMidV
+      do IS = 1, SGS%nSym
+        NExpectedBlock = NOCP_Base(INDEO,IS,MV) + NOCP_ExtraDiag(INDEO,IS,MV)
+        NActualBlock = EXS%NOCP(INDEO,IS,MV)
+        if (NActualBlock /= NExpectedBlock) then
+          write(u6,*) 'MKCOUP C8b sanity: NOCP block mismatch after write pass'
+          write(u6,*) '  INDEO    = ', INDEO
+          write(u6,*) '  ISYM     = ', IS
+          write(u6,*) '  MV       = ', MV
+          write(u6,*) '  EXPECTED = ', NExpectedBlock
+          write(u6,*) '  ACTUAL   = ', NActualBlock
+          write(u6,*) '  BASE     = ', NOCP_Base(INDEO,IS,MV)
+          write(u6,*) '  EXTRA    = ', NOCP_ExtraDiag(INDEO,IS,MV)
+          call Abend()
+        end if
+        NExpectedTotal = NExpectedTotal + NExpectedBlock
+        NActualTotal = NActualTotal + NActualBlock
+      end do
+    end do
+  end do
+if (NExpectedTotal /= EXS%nICoup) then
+    write(u6,*) 'MKCOUP C8b sanity: expected total block count differs from EXS%nICoup'
+    write(u6,*) '  EXPECTED TOTAL = ', NExpectedTotal
+    write(u6,*) '  nICoup         = ', EXS%nICoup
+    call Abend()
+  end if
+
+  if (NActualTotal /= EXS%nICoup) then
+    write(u6,*) 'MKCOUP C8b sanity: actual written block count differs from EXS%nICoup'
+    write(u6,*) '  ACTUAL TOTAL = ', NActualTotal
+    write(u6,*) '  nICoup       = ', EXS%nICoup
+    call Abend()
+  end if
 
 ! ------------------------------------------------------------
 ! M5: keep Lund renumbering identical to the original MKCOUP
@@ -2568,6 +2508,8 @@ write(u6,*) 'MKCOUP C7-fixed: written compatibility upper-half admissions by can
 write(u6,'(20I8)') NDiagCompatWriteByHalf(1,1:SGS%nLev)
 write(u6,*) 'MKCOUP C7-fixed: written compatibility lower-half admissions by canonical level:'
 write(u6,'(20I8)') NDiagCompatWriteByHalf(2,1:SGS%nLev)
+write(u6,*) 'MKCOUP C8: duplicate pure diagonal compatibility paths skipped in prepass = ', NDiagCompatDupPre
+write(u6,*) 'MKCOUP C8: duplicate pure diagonal compatibility paths skipped in write pass = ', NDiagCompatDupWrite
 call mma_deallocate(NPureDiagCandByLev)
 call mma_deallocate(NPureDiagCandByHalf)
 call mma_deallocate(NPureDiagCanonByLev)
@@ -2580,6 +2522,12 @@ call mma_deallocate(NDiagCompatWriteByLev)
 call mma_deallocate(NDiagCompatWriteByHalf)
 call mma_deallocate(NOCP_Base)
 call mma_deallocate(NOCP_ExtraDiag)
+if (allocated(DiagCompatSeenInDeo)) deallocate(DiagCompatSeenInDeo)
+if (allocated(DiagCompatSeenSym))   deallocate(DiagCompatSeenSym)
+if (allocated(DiagCompatSeenMV))    deallocate(DiagCompatSeenMV)
+if (allocated(DiagCompatSeenIAWSL)) deallocate(DiagCompatSeenIAWSL)
+if (allocated(DiagCompatSeenIAWSR)) deallocate(DiagCompatSeenIAWSR)
+if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
 #ifdef _DEBUGPRINT_
   ICOP1 = 0
   ICOP2 = 0
@@ -2599,7 +2547,165 @@ call mma_deallocate(NOCP_ExtraDiag)
   call mma_allocate(EXS%VTab,NVTAB_FINAL,Label='EXS%VTab')
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
+contains
+  subroutine ResolveTopRightVertex(IVTop,ITyp,IVRTop,HasTopRoot)
+    integer(kind=iwp), intent(in) :: IVTop, ITyp
+    integer(kind=iwp), intent(out) :: IVRTop
+    logical(kind=iwp), intent(out) :: HasTopRoot
 
+    IVRTop = IVTop
+    if (ITyp > 0) IVRTop = CIS%IVR(IVTop,ITyp)
+    HasTopRoot = (IVRTop /= 0)
+  end subroutine ResolveTopRightVertex
+
+  subroutine ProcessCurrentTransition(Path,Val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
+    integer(kind=iwp), intent(inout) :: LEV
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    real(kind=wp), intent(inout) :: Val(0:)
+    integer(kind=iwp), intent(in) :: K
+    integer(kind=iwp), intent(out) :: ITR, ISGT, IVLB, ICL, ICR, ISYM, IVRT
+    integer(kind=iwp) :: IVLT
+
+    IVLT = Path(IVLFT,LEV)
+    call LoadCurrentTransition(Path,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
+    call StoreTransitionCursor(Path,LEV,K,ISGT,ICL)
+    call DescendWithTransition(Path,Val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
+  end subroutine ProcessCurrentTransition
+
+  subroutine PrepareBottomPathContext(Path,LevCur,LevTop,LevBottom,MV,LftSym,HasDiag,IP,IQ,ReachedBottom)
+    integer(kind=iwp), intent(in) :: LevCur, LevTop, LevBottom
+    integer(kind=iwp), intent(in) :: Path(:,0:)
+    integer(kind=iwp), intent(out) :: MV, LftSym, IP, IQ
+    logical(kind=iwp), intent(out) :: HasDiag, ReachedBottom
+
+    ReachedBottom = (LevCur <= LevBottom)
+    if (.not. ReachedBottom) return
+
+    MV = Path(IVLFT,SGS%MidLev) + 1 - SGS%MVSta
+    LftSym = Path(ILS,LevBottom)
+    call ScanBottomPathSignature(Path,LevTop,LevBottom,HasDiag,IP,IQ)
+  end subroutine PrepareBottomPathContext
+
+  subroutine ConfigureHalfTraversal(IHalf,IVTopStart,IVTopEnd,LevTop,LevBottom,ITypMax)
+    integer(kind=iwp), intent(in) :: IHalf
+    integer(kind=iwp), intent(out) :: IVTopStart, IVTopEnd, LevTop, LevBottom, ITypMax
+
+    if (IHalf == 1) then
+      IVTopStart = 1
+      IVTopEnd   = 1
+      LevTop     = SGS%nLev
+      LevBottom  = SGS%MidLev
+      ITypMax    = 0
+    else
+      IVTopStart = SGS%MVSta
+      IVTopEnd   = SGS%MVEnd
+      LevTop     = SGS%MidLev
+      LevBottom  = 0
+      ITypMax    = 2
+    end if
+  end subroutine ConfigureHalfTraversal
+
+  subroutine StoreTransitionCursor(Path,LEV,K,ISGT,ICL)
+    integer(kind=iwp), intent(in) :: LEV, K, ISGT, ICL
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+
+    Path(ISEG,LEV)  = K
+    Path(IRSEG,LEV) = ISGT
+    Path(ICS,LEV)   = ICL
+  end subroutine StoreTransitionCursor
+
+  subroutine PrepareLevelAdvance(Path,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
+    integer(kind=iwp), intent(inout) :: LEV
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    integer(kind=iwp), intent(out) :: ITYPT, IVLT, IT0, NT, K
+    logical(kind=iwp), intent(out) :: HasTransition
+
+    ITYPT = Path(ITYPE,LEV)
+    IVLT  = Path(IVLFT,LEV)
+    IT0 = TRS%ITR0(IVLT,ITYPT)
+    NT  = TRS%NTR(IVLT,ITYPT)
+    K = Path(ISEG,LEV) + 1
+    HasTransition = (K <= NT)
+    if (.not. HasTransition) then
+      Path(ISEG,LEV)  = 0
+      Path(IRSEG,LEV) = 0
+      LEV = LEV + 1
+    end if
+  end subroutine PrepareLevelAdvance
+
+  subroutine DescendWithTransition(Path,Val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,IBOT,VSEG)
+    integer(kind=iwp), intent(inout) :: LEV
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    real(kind=wp), intent(inout) :: Val(0:)
+    integer(kind=iwp), intent(in) :: IVLT, IVRT, ICL, ICR, ISYM, IVLB, IBOT
+    real(kind=wp), intent(in) :: VSEG
+
+    LEV = LEV - 1
+    Path(IAWSL,LEV) = Path(IAWSL,LEV+1) + SGS%MAW(IVLT,ICL)
+    Path(IAWSR,LEV) = Path(IAWSR,LEV+1) + SGS%MAW(IVRT,ICR)
+    Val(LEV) = Val(LEV+1) * VSEG
+    Path(ILS,LEV)   = Mul(ISYM,Path(ILS,LEV+1))
+    Path(IVLFT,LEV) = IVLB
+    Path(ITYPE,LEV) = StateTopo(IBOT)
+    Path(ISTATE,LEV) = PackState(StateTopo(IBOT), &
+     &      max(StateDiagLev(Path(ISTATE,LEV+1)),StateDiagLev(IBOT)))
+    Path(ISEG,LEV)  = 0
+    Path(IRSEG,LEV) = 0
+    Path(ICS,LEV)   = 0
+  end subroutine DescendWithTransition
+
+  subroutine LoadCurrentTransition(Path,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
+    integer(kind=iwp), intent(in) :: LEV, K
+    integer(kind=iwp), intent(in) :: Path(:,0:)
+    integer(kind=iwp), intent(out) :: ITR, ISGT, IVLB, ICL, ICR, ISYM, IVRT
+    integer(kind=iwp) :: ITYPT_LOCAL, IVLT_LOCAL
+
+    ITYPT_LOCAL = Path(ITYPE,LEV)
+    IVLT_LOCAL  = Path(IVLFT,LEV)
+    ITR  = TRS%ITR0(IVLT_LOCAL,ITYPT_LOCAL) + K
+    ISGT = TRS%ISGT(ITR)
+    IVLB = TRS%IVLB(ITR)
+    ICL  = TRS%ICL(ITR)
+    ICR  = TRS%ICR(ITR)
+    ISYM = TRS%ISYM(ITR)
+    IVRT = IVLT_LOCAL
+    if (TRS%IPRT(ITR) /= 0) IVRT = CIS%IVR(IVLT_LOCAL,TRS%IPRT(ITR))
+  end subroutine LoadCurrentTransition
+
+  subroutine InitializeHalfPathTop(Path,Val,LEVTop,IVTop,ITYPTop)
+    integer(kind=iwp), intent(in) :: LEVTop, IVTop, ITYPTop
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    real(kind=wp), intent(inout) :: Val(0:)
+
+    Path(IVLFT,LEVTop) = IVTop
+    Path(ITYPE,LEVTop) = ITYPTop
+    Path(ISTATE,LEVTop) = PackState(ITYPTop,0_iwp)
+    Path(IAWSL,LEVTop) = 0
+    Path(IAWSR,LEVTop) = 0
+    Path(ILS,  LEVTop) = 1
+    Path(ICS,  LEVTop) = 0
+    Path(ISEG, LEVTop) = 0
+    Path(IRSEG,LEVTop) = 0
+    Val(LEVTop) = One
+  end subroutine InitializeHalfPathTop
+
+  subroutine ScanBottomPathSignature(Path,LEVTop,LEVBot,HasDiag,IP,IQ)
+    integer(kind=iwp), intent(in) :: LEVTop, LEVBot
+    integer(kind=iwp), intent(in) :: Path(:,0:)
+    logical(kind=iwp), intent(out) :: HasDiag
+    integer(kind=iwp), intent(out) :: IP, IQ
+    integer(kind=iwp) :: L, ISG_LOCAL
+
+    HasDiag = .false.
+    IP = 0
+    IQ = 0
+    do L = LEVBot+1, LEVTop
+      ISG_LOCAL = Path(IRSEG,L)
+      if ((ISG_LOCAL >= iSegWUpBeg) .and. (ISG_LOCAL <= iSegWLoEnd)) HasDiag = .true.
+      if ((ISG_LOCAL >= 5) .and. (ISG_LOCAL <= 8))  IP = L
+      if ((ISG_LOCAL >= 19) .and. (ISG_LOCAL <= 22)) IQ = L
+    end do
+  end subroutine ScanBottomPathSignature
 end subroutine MKCOUP
 
 subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
@@ -2863,6 +2969,74 @@ end function CanonDiagLev
 
 
 
+
+
+subroutine EnsureDiagCompatCapacity(NNeed,SeenInDeo,SeenSym,SeenMV,SeenIAWSL,SeenIAWSR,SeenC)
+  integer(kind=iwp), intent(in) :: NNeed
+  integer(kind=iwp), allocatable, intent(inout) :: SeenInDeo(:), SeenSym(:), SeenMV(:), SeenIAWSL(:), SeenIAWSR(:)
+  real(kind=wp), allocatable, intent(inout) :: SeenC(:)
+  integer(kind=iwp) :: OldN, NewN
+  integer(kind=iwp), allocatable :: ITmp(:)
+  real(kind=wp), allocatable :: RTmp(:)
+
+  if (.not. allocated(SeenInDeo)) then
+    NewN = max(64_iwp,NNeed)
+    allocate(SeenInDeo(NewN),SeenSym(NewN),SeenMV(NewN),SeenIAWSL(NewN),SeenIAWSR(NewN),SeenC(NewN))
+    SeenInDeo(:) = 0
+    SeenSym(:)   = 0
+    SeenMV(:)    = 0
+    SeenIAWSL(:) = 0
+    SeenIAWSR(:) = 0
+    SeenC(:)     = Zero
+    return
+  end if
+  if (size(SeenInDeo) >= NNeed) return
+  OldN = size(SeenInDeo)
+  NewN = max(NNeed,2_iwp*OldN)
+
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenInDeo(1:OldN)
+  deallocate(SeenInDeo); allocate(SeenInDeo(NewN)); SeenInDeo(:)=ITmp(:); deallocate(ITmp)
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenSym(1:OldN)
+  deallocate(SeenSym); allocate(SeenSym(NewN)); SeenSym(:)=ITmp(:); deallocate(ITmp)
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenMV(1:OldN)
+  deallocate(SeenMV); allocate(SeenMV(NewN)); SeenMV(:)=ITmp(:); deallocate(ITmp)
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenIAWSL(1:OldN)
+  deallocate(SeenIAWSL); allocate(SeenIAWSL(NewN)); SeenIAWSL(:)=ITmp(:); deallocate(ITmp)
+  allocate(ITmp(NewN)); ITmp(:)=0; ITmp(1:OldN)=SeenIAWSR(1:OldN)
+  deallocate(SeenIAWSR); allocate(SeenIAWSR(NewN)); SeenIAWSR(:)=ITmp(:); deallocate(ITmp)
+  allocate(RTmp(NewN)); RTmp(:)=Zero; RTmp(1:OldN)=SeenC(1:OldN)
+  deallocate(SeenC); allocate(SeenC(NewN)); SeenC(:)=RTmp(:); deallocate(RTmp)
+end subroutine EnsureDiagCompatCapacity
+
+logical(kind=iwp) function DiagCompatSeenOrAdd(NSeen,SeenInDeo,SeenSym,SeenMV,SeenIAWSL,SeenIAWSR,SeenC, &
+ &                                             INDEO,LFTSYM,MV,IAWSL,IAWSR,C)
+  integer(kind=iwp), intent(inout) :: NSeen
+  integer(kind=iwp), allocatable, intent(inout) :: SeenInDeo(:), SeenSym(:), SeenMV(:), SeenIAWSL(:), SeenIAWSR(:)
+  real(kind=wp), allocatable, intent(inout) :: SeenC(:)
+  integer(kind=iwp), intent(in) :: INDEO, LFTSYM, MV, IAWSL, IAWSR
+  real(kind=wp), intent(in) :: C
+  integer(kind=iwp) :: I
+  DiagCompatSeenOrAdd = .false.
+  do I = 1, NSeen
+    if (SeenInDeo(I) /= INDEO) cycle
+    if (SeenSym(I)   /= LFTSYM) cycle
+    if (SeenMV(I)    /= MV) cycle
+    if (SeenIAWSL(I) /= IAWSL) cycle
+    if (SeenIAWSR(I) /= IAWSR) cycle
+    if (abs(SeenC(I) - C) < 1.0e-10_wp) then
+      DiagCompatSeenOrAdd = .true.
+      return
+    end if
+  end do
+  call EnsureDiagCompatCapacity(NSeen+1,SeenInDeo,SeenSym,SeenMV,SeenIAWSL,SeenIAWSR,SeenC)
+  NSeen = NSeen + 1
+  SeenInDeo(NSeen) = INDEO
+  SeenSym(NSeen)   = LFTSYM
+  SeenMV(NSeen)    = MV
+  SeenIAWSL(NSeen) = IAWSL
+  SeenIAWSR(NSeen) = IAWSR
+  SeenC(NSeen)     = C
+end function DiagCompatSeenOrAdd
 
 subroutine TRANS_Free(TRS)
   type(TRStruct), intent(inout) :: TRS
