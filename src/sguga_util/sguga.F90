@@ -1952,7 +1952,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
   integer(kind=iwp), parameter :: nVTab = 5000
 
-  logical(kind=iwp) :: HasDiag, HasTransition, ReachedBottom
+  logical(kind=iwp) :: HasDiag, HasTransition, ReachedBottom, HasTopRoot
   integer(kind=iwp) :: NDiagPath, NMixedDiagPath, NMixedDiagOpenOnlyPath, NMixedDiagWithClosePath
   integer(kind=iwp) :: NPureDiagCandidate
   integer(kind=iwp), allocatable :: NPureDiagCandByLev(:), NPureDiagCandByHalf(:,:)
@@ -2059,9 +2059,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
     call ConfigureHalfTraversal(IHALF,IVTSTA,IVTEND,LEV1,LEV2,ITYPMX)
     do IVTOP = IVTSTA, IVTEND
       do ITYP = 0, ITYPMX
-        IVRTOP = IVTOP
-        if (ITYP > 0) IVRTOP = CIS%IVR(IVTOP,ITYP)
-        if (IVRTOP == 0) cycle
+        call ResolveTopRightVertex(IVTOP,ITYP,IVRTOP,HasTopRoot)
+        if (.not. HasTopRoot) cycle
         LEV = LEV1
         call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
@@ -2137,9 +2136,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
       do ITYP = 0, ITYPMX
 
-        IVRTOP = IVTOP
-        if (ITYP > 0) IVRTOP = CIS%IVR(IVTOP,ITYP)
-        if (IVRTOP == 0) cycle
+        call ResolveTopRightVertex(IVTOP,ITYP,IVRTOP,HasTopRoot)
+        if (.not. HasTopRoot) cycle
 
         LEV = LEV1
         call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
@@ -2550,6 +2548,16 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine ResolveTopRightVertex(IVTop,ITyp,IVRTop,HasTopRoot)
+    integer(kind=iwp), intent(in) :: IVTop, ITyp
+    integer(kind=iwp), intent(out) :: IVRTop
+    logical(kind=iwp), intent(out) :: HasTopRoot
+
+    IVRTop = IVTop
+    if (ITyp > 0) IVRTop = CIS%IVR(IVTop,ITyp)
+    HasTopRoot = (IVRTop /= 0)
+  end subroutine ResolveTopRightVertex
+
   subroutine ProcessCurrentTransition(Path,Val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
     integer(kind=iwp), intent(inout) :: LEV
     integer(kind=iwp), intent(inout) :: Path(:,0:)
