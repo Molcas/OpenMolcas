@@ -2183,38 +2183,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
                 LEV = LEV + 1
                 cycle
               end if
-              ICOP = 1 + EXS%NOCP(INDEO,LFTSYM,MV)
-              EXS%NOCP(INDEO,LFTSYM,MV) = ICOP
-              ICOP = EXS%IOCP(INDEO,LFTSYM,MV) + ICOP
-              NCHECK = NCHECK + 1
-              if (ICOP > EXS%nICoup) then
-                write(u6,*) 'ERROR in MKCOUP C8 deduplicated compatibility admission: ICOP > EXS%nICoup'
-                write(u6,*) ' ICOP      = ', ICOP
-                write(u6,*) ' nICoup    = ', EXS%nICoup
-                write(u6,*) ' INDEO     = ', INDEO
-                write(u6,*) ' MV        = ', MV
-                write(u6,*) ' LFTSYM    = ', LFTSYM
-                write(u6,*) ' CanonLev  = ', DiagCanonLev
-                call Abend()
-              end if
-              do i = 1, NVTAB_FINAL
-                IVTAB = i
-                if (abs(C - VTab(i)) < 1.0e-10_wp) exit
-              end do
-              if (i > NVTAB_FINAL) then
-                NVTAB_FINAL = NVTAB_FINAL + 1
-                if (NVTAB_FINAL > nVTab) then
-                  write(u6,*) 'MKCOUP: NVTAB_FINAL exceeded nVTab'
-                  call Abend()
-                end if
-                VTab(NVTAB_FINAL) = C
-                IVTAB = NVTAB_FINAL
-              end if
-              EXS%ICoup(1,ICOP) = ISGPTH(IAWSL,LEV2)
-              EXS%ICoup(2,ICOP) = ISGPTH(IAWSR,LEV2)
-              EXS%ICoup(3,ICOP) = IVTAB
-              NDiagCompatWriteByLev(DiagCanonLev) = NDiagCompatWriteByLev(DiagCanonLev) + 1
-              NDiagCompatWriteByHalf(IHALF,DiagCanonLev) = NDiagCompatWriteByHalf(IHALF,DiagCanonLev) + 1
+              call AdmitPureDiagCompatibility(IHALF,DiagCanonLev,INDEO,LFTSYM,MV,C, &
+     &                                      ISGPTH(IAWSL,LEV2),ISGPTH(IAWSR,LEV2))
             end if
             ! Mixed diagonal-bearing paths are still skipped in C7-fixed.
             LEV = LEV + 1
@@ -2547,6 +2517,45 @@ contains
      &                                         DiagCompatSeenMV,DiagCompatSeenIAWSL,DiagCompatSeenIAWSR, &
      &                                         DiagCompatSeenC,InDeo,LftSymCur,MVCur,IAWSLState,IAWSRState,Coeff)
   end function DiagCompatAlreadySeen
+
+  subroutine AdmitPureDiagCompatibility(IHalf,DiagCanonLev,InDeo,LftSymCur,MVCur,Coeff,IAWSLState,IAWSRState)
+    integer(kind=iwp), intent(in) :: IHalf, DiagCanonLev, InDeo, LftSymCur, MVCur, IAWSLState, IAWSRState
+    real(kind=wp), intent(in) :: Coeff
+    integer(kind=iwp) :: ICOPLocal, IVTABLocal, iV
+
+    ICOPLocal = 1 + EXS%NOCP(InDeo,LftSymCur,MVCur)
+    EXS%NOCP(InDeo,LftSymCur,MVCur) = ICOPLocal
+    ICOPLocal = EXS%IOCP(InDeo,LftSymCur,MVCur) + ICOPLocal
+    NCHECK = NCHECK + 1
+    if (ICOPLocal > EXS%nICoup) then
+      write(u6,*) 'ERROR in MKCOUP C8 deduplicated compatibility admission: ICOP > EXS%nICoup'
+      write(u6,*) ' ICOP      = ', ICOPLocal
+      write(u6,*) ' nICoup    = ', EXS%nICoup
+      write(u6,*) ' INDEO     = ', InDeo
+      write(u6,*) ' MV        = ', MVCur
+      write(u6,*) ' LFTSYM    = ', LftSymCur
+      write(u6,*) ' CanonLev  = ', DiagCanonLev
+      call Abend()
+    end if
+    do iV = 1, NVTAB_FINAL
+      IVTABLocal = iV
+      if (abs(Coeff - VTab(iV)) < 1.0e-10_wp) exit
+    end do
+    if (iV > NVTAB_FINAL) then
+      NVTAB_FINAL = NVTAB_FINAL + 1
+      if (NVTAB_FINAL > nVTab) then
+        write(u6,*) 'MKCOUP: NVTAB_FINAL exceeded nVTab'
+        call Abend()
+      end if
+      VTab(NVTAB_FINAL) = Coeff
+      IVTABLocal = NVTAB_FINAL
+    end if
+    EXS%ICoup(1,ICOPLocal) = IAWSLState
+    EXS%ICoup(2,ICOPLocal) = IAWSRState
+    EXS%ICoup(3,ICOPLocal) = IVTABLocal
+    NDiagCompatWriteByLev(DiagCanonLev) = NDiagCompatWriteByLev(DiagCanonLev) + 1
+    NDiagCompatWriteByHalf(IHalf,DiagCanonLev) = NDiagCompatWriteByHalf(IHalf,DiagCanonLev) + 1
+  end subroutine AdmitPureDiagCompatibility
 
   subroutine AdvanceToBottomContext(Path,Val,LEV,LevTop,LevBottom,MV,LftSym, &
      &                                     K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT,HasDiag,IP,IQ,ReachedBottom)
