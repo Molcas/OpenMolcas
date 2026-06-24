@@ -1119,7 +1119,6 @@ write(u6,*)
 write(u6,*) ' NR OF CONFIGURATIONS/SYMM:'
 write(u6,'(8(1X,I8))') (CIS%NCSF(IS),IS=1,SGS%nSym)
 write(u6,*)
-write(u6,*)
 write(u6,*) ' NR OF WALKS AND CONFIGURATIONS IN MkNRCOUP'
 write(u6,*) ' BY MIDVERTEX AND SYMMETRY.'
 do MV=1,CIS%nMidV
@@ -2070,9 +2069,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
             if ((IP == 0) .and. (IQ == 0)) then
               call RequireValidPackedDiagLevel(ISGPTH(ISTATE,LEV2),DiagOnlyLev, &
      &                                       'MKCOUP C7-fixed prepass: pure diagonal candidate has invalid packed level')
-              DiagCanonLev = CanonDiagLev(IHALF,DiagOnlyLev,SGS%nLev)
-              INDEO = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
-              C = val(LEV2)
+              call PreparePureDiagTargetInfo(IHALF,DiagOnlyLev,val(LEV2),DiagCanonLev,INDEO,C)
               if (DiagCompatSeenOrAdd(NDiagCompatSeen,DiagCompatSeenInDeo,DiagCompatSeenSym,DiagCompatSeenMV, &
      &                                 DiagCompatSeenIAWSL,DiagCompatSeenIAWSR,DiagCompatSeenC, &
      &                                 INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2),ISGPTH(IAWSR,LEV2),C)) then
@@ -2166,7 +2163,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               NPureDiagCandidate = NPureDiagCandidate + 1
               NPureDiagCandByLev(DiagOnlyLev) = NPureDiagCandByLev(DiagOnlyLev) + 1
               NPureDiagCandByHalf(IHALF,DiagOnlyLev) = NPureDiagCandByHalf(IHALF,DiagOnlyLev) + 1
-              DiagCanonLev = CanonDiagLev(IHALF,DiagOnlyLev,SGS%nLev)
+              call PreparePureDiagTargetInfo(IHALF,DiagOnlyLev,val(LEV2),DiagCanonLev,INDEO,C)
               NPureDiagCanonByLev(DiagCanonLev) = NPureDiagCanonByLev(DiagCanonLev) + 1
               NPureDiagCanonByHalf(IHALF,DiagCanonLev) = NPureDiagCanonByHalf(IHALF,DiagCanonLev) + 1
               IDiagEO = DiagEOIdx(MxEO_Block,SGS%nLev,DiagCanonLev)
@@ -2181,8 +2178,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               NDiagFutureSlotByHalf(IHALF,DiagCanonLev) = NDiagFutureSlotByHalf(IHALF,DiagCanonLev) + 1
               ! C8: compatibility admission is deduplicated by exact public tuple key
               ! (block, symmetry, midvertex, left walk, right walk, numerical value).
-              INDEO = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
-              C = val(LEV2)
               if (DiagCompatSeenOrAdd(NDiagCompatSeen,DiagCompatSeenInDeo,DiagCompatSeenSym,DiagCompatSeenMV, &
      &                                 DiagCompatSeenIAWSL,DiagCompatSeenIAWSR,DiagCompatSeenC, &
      &                                 INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2),ISGPTH(IAWSR,LEV2),C)) then
@@ -2535,6 +2530,17 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine PreparePureDiagTargetInfo(IHalf,DiagLev,BottomCoef,DiagCanonLev,InDeo,C)
+    integer(kind=iwp), intent(in) :: IHalf, DiagLev
+    real(kind=wp), intent(in) :: BottomCoef
+    integer(kind=iwp), intent(out) :: DiagCanonLev, InDeo
+    real(kind=wp), intent(out) :: C
+
+    DiagCanonLev = CanonDiagLev(IHalf,DiagLev,SGS%nLev)
+    InDeo = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
+    C = BottomCoef
+  end subroutine PreparePureDiagTargetInfo
+
   subroutine AdvanceToBottomContext(Path,Val,LEV,LevTop,LevBottom,MV,LftSym, &
      &                                     K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT,HasDiag,IP,IQ,ReachedBottom)
     integer(kind=iwp), intent(inout) :: LEV
