@@ -2070,9 +2070,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               call RequireValidPackedDiagLevel(ISGPTH(ISTATE,LEV2),DiagOnlyLev, &
      &                                       'MKCOUP C7-fixed prepass: pure diagonal candidate has invalid packed level')
               call PreparePureDiagTargetInfo(IHALF,DiagOnlyLev,val(LEV2),DiagCanonLev,INDEO,C)
-              if (DiagCompatSeenOrAdd(NDiagCompatSeen,DiagCompatSeenInDeo,DiagCompatSeenSym,DiagCompatSeenMV, &
-     &                                 DiagCompatSeenIAWSL,DiagCompatSeenIAWSR,DiagCompatSeenC, &
-     &                                 INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2),ISGPTH(IAWSR,LEV2),C)) then
+              if (DiagCompatAlreadySeen(INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2), &
+     &                                ISGPTH(IAWSR,LEV2),C)) then
                 NDiagCompatDupPre = NDiagCompatDupPre + 1
                 LEV = LEV + 1
                 cycle
@@ -2178,9 +2177,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               NDiagFutureSlotByHalf(IHALF,DiagCanonLev) = NDiagFutureSlotByHalf(IHALF,DiagCanonLev) + 1
               ! C8: compatibility admission is deduplicated by exact public tuple key
               ! (block, symmetry, midvertex, left walk, right walk, numerical value).
-              if (DiagCompatSeenOrAdd(NDiagCompatSeen,DiagCompatSeenInDeo,DiagCompatSeenSym,DiagCompatSeenMV, &
-     &                                 DiagCompatSeenIAWSL,DiagCompatSeenIAWSR,DiagCompatSeenC, &
-     &                                 INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2),ISGPTH(IAWSR,LEV2),C)) then
+              if (DiagCompatAlreadySeen(INDEO,LFTSYM,MV,ISGPTH(IAWSL,LEV2), &
+     &                                ISGPTH(IAWSR,LEV2),C)) then
                 NDiagCompatDupWrite = NDiagCompatDupWrite + 1
                 LEV = LEV + 1
                 cycle
@@ -2540,6 +2538,15 @@ contains
     InDeo = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
     C = BottomCoef
   end subroutine PreparePureDiagTargetInfo
+
+  logical(kind=iwp) function DiagCompatAlreadySeen(InDeo,LftSymCur,MVCur,IAWSLState,IAWSRState,Coeff)
+    integer(kind=iwp), intent(in) :: InDeo, LftSymCur, MVCur, IAWSLState, IAWSRState
+    real(kind=wp), intent(in) :: Coeff
+
+    DiagCompatAlreadySeen = DiagCompatSeenOrAdd(NDiagCompatSeen,DiagCompatSeenInDeo,DiagCompatSeenSym, &
+     &                                         DiagCompatSeenMV,DiagCompatSeenIAWSL,DiagCompatSeenIAWSR, &
+     &                                         DiagCompatSeenC,InDeo,LftSymCur,MVCur,IAWSLState,IAWSRState,Coeff)
+  end function DiagCompatAlreadySeen
 
   subroutine AdvanceToBottomContext(Path,Val,LEV,LevTop,LevBottom,MV,LftSym, &
      &                                     K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT,HasDiag,IP,IQ,ReachedBottom)
