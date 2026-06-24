@@ -2070,11 +2070,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
           if (.not. ReachedBottom) cycle
           if (HasDiag) then
             if ((IP == 0) .and. (IQ == 0)) then
-              DiagOnlyLev = StateDiagLev(ISGPTH(ISTATE,LEV2))
-              if (DiagOnlyLev <= 0) then
-                write(u6,*) 'MKCOUP C7-fixed prepass: pure diagonal candidate has invalid packed level'
-                call Abend()
-              end if
+              call RequireValidPackedDiagLevel(ISGPTH(ISTATE,LEV2),DiagOnlyLev, &
+     &                                       'MKCOUP C7-fixed prepass: pure diagonal candidate has invalid packed level')
               DiagCanonLev = CanonDiagLev(IHALF,DiagOnlyLev,SGS%nLev)
               INDEO = MxEO_Block + (DiagCanonLev*(DiagCanonLev-1))/2 + DiagCanonLev
               C = val(LEV2)
@@ -2169,11 +2166,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
                 NMixedDiagOpenOnlyPath = NMixedDiagOpenOnlyPath + 1
               end if
             else
-              DiagOnlyLev = StateDiagLev(ISGPTH(ISTATE,LEV2))
-              if (DiagOnlyLev <= 0) then
-                write(u6,*) 'MKCOUP: pure diagonal candidate has invalid packed level'
-                call Abend()
-              end if
+              call RequireValidPackedDiagLevel(ISGPTH(ISTATE,LEV2),DiagOnlyLev, &
+     &                                       'MKCOUP: pure diagonal candidate has invalid packed level')
               NPureDiagCandidate = NPureDiagCandidate + 1
               NPureDiagCandByLev(DiagOnlyLev) = NPureDiagCandByLev(DiagOnlyLev) + 1
               NPureDiagCandByHalf(IHALF,DiagOnlyLev) = NPureDiagCandByHalf(IHALF,DiagOnlyLev) + 1
@@ -2546,6 +2540,18 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine RequireValidPackedDiagLevel(PackedState,DiagLev,ErrMsg)
+    integer(kind=iwp), intent(in) :: PackedState
+    integer(kind=iwp), intent(out) :: DiagLev
+    character(len=*), intent(in) :: ErrMsg
+
+    DiagLev = StateDiagLev(PackedState)
+    if (DiagLev <= 0) then
+      write(u6,*) trim(ErrMsg)
+      call Abend()
+    end if
+  end subroutine RequireValidPackedDiagLevel
+
   subroutine BeginHalfPathTraversal(Path,Val,LevTop,LEV,IVTop,ITyp)
     integer(kind=iwp), intent(in) :: LevTop, IVTop, ITyp
     integer(kind=iwp), intent(inout) :: LEV

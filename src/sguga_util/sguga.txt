@@ -2061,8 +2061,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
       do ITYP = 0, ITYPMX
         call ResolveTopRightVertex(IVTOP,ITYP,IVRTOP,HasTopRoot)
         if (.not. HasTopRoot) cycle
-        LEV = LEV1
-        call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
+        call BeginHalfPathTraversal(ISGPTH,val,LEV1,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
           call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
           if (.not. HasTransition) cycle
@@ -2139,8 +2138,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
         call ResolveTopRightVertex(IVTOP,ITYP,IVRTOP,HasTopRoot)
         if (.not. HasTopRoot) cycle
 
-        LEV = LEV1
-        call InitializeHalfPathTop(ISGPTH,val,LEV,IVTOP,ITYP)
+        call BeginHalfPathTraversal(ISGPTH,val,LEV1,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
 
           call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
@@ -2548,6 +2546,16 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine BeginHalfPathTraversal(Path,Val,LevTop,LEV,IVTop,ITyp)
+    integer(kind=iwp), intent(in) :: LevTop, IVTop, ITyp
+    integer(kind=iwp), intent(inout) :: LEV
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    real(kind=wp), intent(inout) :: Val(0:)
+
+    LEV = LevTop
+    call InitializeHalfPathTop(Path,Val,LEV,IVTop,ITyp)
+  end subroutine BeginHalfPathTraversal
+
   subroutine ResolveTopRightVertex(IVTop,ITyp,IVRTop,HasTopRoot)
     integer(kind=iwp), intent(in) :: IVTop, ITyp
     integer(kind=iwp), intent(out) :: IVRTop
