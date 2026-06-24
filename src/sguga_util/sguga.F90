@@ -2067,9 +2067,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
         do while (LEV <= LEV1)
           call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
           if (.not. HasTransition) cycle
-          call LoadCurrentTransition(ISGPTH,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
-          call StoreTransitionCursor(ISGPTH,LEV,K,ISGT,ICL)
-          call DescendWithTransition(ISGPTH,val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
+          call ProcessCurrentTransition(ISGPTH,val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
           call PrepareBottomPathContext(ISGPTH,LEV,LEV1,LEV2,MV,LFTSYM,HasDiag,IP,IQ,ReachedBottom)
           if (.not. ReachedBottom) cycle
           if (HasDiag) then
@@ -2149,11 +2147,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
           call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
           if (.not. HasTransition) cycle
-          call LoadCurrentTransition(ISGPTH,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
-          call StoreTransitionCursor(ISGPTH,LEV,K,ISGT,ICL)
-
-          ! Descend one level
-          call DescendWithTransition(ISGPTH,val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
+          call ProcessCurrentTransition(ISGPTH,val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
 
           call PrepareBottomPathContext(ISGPTH,LEV,LEV1,LEV2,MV,LFTSYM,HasDiag,IP,IQ,ReachedBottom)
           if (.not. ReachedBottom) cycle
@@ -2556,6 +2550,20 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine ProcessCurrentTransition(Path,Val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
+    integer(kind=iwp), intent(inout) :: LEV
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    real(kind=wp), intent(inout) :: Val(0:)
+    integer(kind=iwp), intent(in) :: K
+    integer(kind=iwp), intent(out) :: ITR, ISGT, IVLB, ICL, ICR, ISYM, IVRT
+    integer(kind=iwp) :: IVLT
+
+    IVLT = Path(IVLFT,LEV)
+    call LoadCurrentTransition(Path,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
+    call StoreTransitionCursor(Path,LEV,K,ISGT,ICL)
+    call DescendWithTransition(Path,Val,LEV,IVLT,IVRT,ICL,ICR,ISYM,IVLB,TRS%IBOT(ITR),TRS%VSEG(ITR))
+  end subroutine ProcessCurrentTransition
+
   subroutine PrepareBottomPathContext(Path,LevCur,LevTop,LevBottom,MV,LftSym,HasDiag,IP,IQ,ReachedBottom)
     integer(kind=iwp), intent(in) :: LevCur, LevTop, LevBottom
     integer(kind=iwp), intent(in) :: Path(:,0:)
