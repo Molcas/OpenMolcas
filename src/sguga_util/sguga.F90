@@ -2076,9 +2076,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
                 LEV = LEV + 1
                 cycle
               end if
-              NOCP_ExtraDiag(INDEO,LFTSYM,MV) = NOCP_ExtraDiag(INDEO,LFTSYM,MV) + 1
-              NDiagCompatPreByLev(DiagCanonLev) = NDiagCompatPreByLev(DiagCanonLev) + 1
-              NDiagCompatPreByHalf(IHALF,DiagCanonLev) = NDiagCompatPreByHalf(IHALF,DiagCanonLev) + 1
+              call ReservePureDiagCompatibility(IHALF,DiagCanonLev,INDEO,LFTSYM,MV)
             end if
             LEV = LEV + 1
             cycle
@@ -2517,6 +2515,14 @@ contains
      &                                         DiagCompatSeenMV,DiagCompatSeenIAWSL,DiagCompatSeenIAWSR, &
      &                                         DiagCompatSeenC,InDeo,LftSymCur,MVCur,IAWSLState,IAWSRState,Coeff)
   end function DiagCompatAlreadySeen
+
+  subroutine ReservePureDiagCompatibility(IHalf,DiagCanonLev,InDeo,LftSymCur,MVCur)
+    integer(kind=iwp), intent(in) :: IHalf, DiagCanonLev, InDeo, LftSymCur, MVCur
+
+    NOCP_ExtraDiag(InDeo,LftSymCur,MVCur) = NOCP_ExtraDiag(InDeo,LftSymCur,MVCur) + 1
+    NDiagCompatPreByLev(DiagCanonLev) = NDiagCompatPreByLev(DiagCanonLev) + 1
+    NDiagCompatPreByHalf(IHalf,DiagCanonLev) = NDiagCompatPreByHalf(IHalf,DiagCanonLev) + 1
+  end subroutine ReservePureDiagCompatibility
 
   subroutine AdmitPureDiagCompatibility(IHalf,DiagCanonLev,InDeo,LftSymCur,MVCur,Coeff,IAWSLState,IAWSRState)
     integer(kind=iwp), intent(in) :: IHalf, DiagCanonLev, InDeo, LftSymCur, MVCur, IAWSLState, IAWSRState
