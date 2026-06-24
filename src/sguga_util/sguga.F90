@@ -2063,10 +2063,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
         if (.not. HasTopRoot) cycle
         call BeginHalfPathTraversal(ISGPTH,val,LEV1,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
-          call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
-          if (.not. HasTransition) cycle
-          call ProcessCurrentTransition(ISGPTH,val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
-          call PrepareBottomPathContext(ISGPTH,LEV,LEV1,LEV2,MV,LFTSYM,HasDiag,IP,IQ,ReachedBottom)
+          call AdvanceToBottomContext(ISGPTH,val,LEV,LEV1,LEV2,MV,LFTSYM, &
+     &                               K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT,HasDiag,IP,IQ,ReachedBottom)
           if (.not. ReachedBottom) cycle
           if (HasDiag) then
             if ((IP == 0) .and. (IQ == 0)) then
@@ -2138,11 +2136,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
         call BeginHalfPathTraversal(ISGPTH,val,LEV1,LEV,IVTOP,ITYP)
         do while (LEV <= LEV1)
 
-          call PrepareLevelAdvance(ISGPTH,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
-          if (.not. HasTransition) cycle
-          call ProcessCurrentTransition(ISGPTH,val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
-
-          call PrepareBottomPathContext(ISGPTH,LEV,LEV1,LEV2,MV,LFTSYM,HasDiag,IP,IQ,ReachedBottom)
+          call AdvanceToBottomContext(ISGPTH,val,LEV,LEV1,LEV2,MV,LFTSYM, &
+     &                               K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT,HasDiag,IP,IQ,ReachedBottom)
           if (.not. ReachedBottom) cycle
           if (HasDiag) then
             ! Step 3 verification:
@@ -2540,6 +2535,28 @@ if (allocated(DiagCompatSeenC))     deallocate(DiagCompatSeenC)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 contains
+  subroutine AdvanceToBottomContext(Path,Val,LEV,LevTop,LevBottom,MV,LftSym, &
+     &                                     K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT,HasDiag,IP,IQ,ReachedBottom)
+    integer(kind=iwp), intent(inout) :: LEV
+    integer(kind=iwp), intent(inout) :: Path(:,0:)
+    real(kind=wp), intent(inout) :: Val(0:)
+    integer(kind=iwp), intent(in) :: LevTop, LevBottom
+    integer(kind=iwp), intent(out) :: MV, LftSym
+    integer(kind=iwp), intent(out) :: K, ITR, ISGT, IVLB, ICL, ICR, ISYM, IVRT, IP, IQ
+    logical(kind=iwp), intent(out) :: HasDiag, ReachedBottom
+    integer(kind=iwp) :: ITYPT, IVLT, IT0, NT
+    logical(kind=iwp) :: HasTransition
+
+    ReachedBottom = .false.
+    HasDiag = .false.
+    IP = 0
+    IQ = 0
+    call PrepareLevelAdvance(Path,LEV,ITYPT,IVLT,IT0,NT,K,HasTransition)
+    if (.not. HasTransition) return
+    call ProcessCurrentTransition(Path,Val,LEV,K,ITR,ISGT,IVLB,ICL,ICR,ISYM,IVRT)
+    call PrepareBottomPathContext(Path,LEV,LevTop,LevBottom,MV,LftSym,HasDiag,IP,IQ,ReachedBottom)
+  end subroutine AdvanceToBottomContext
+
   subroutine PrepareHalfTraversalBounds(IHalf,IVTSta,IVTEnd,LevTop,LevBottom,ITypMx)
     integer(kind=iwp), intent(in) :: IHalf
     integer(kind=iwp), intent(inout) :: IVTSta, IVTEnd, LevTop, LevBottom, ITypMx
