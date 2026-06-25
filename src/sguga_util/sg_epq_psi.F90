@@ -135,10 +135,10 @@ if (IQ < IP) then
                 LICP = EXS%IOCP(INDEO,ISYUC,MV2)
                 IOC = CIS%IOCSF(ISYUC,MV2,ISYCI)
                 ! CASE IS: UPPER HALF, EXCITE:
-                call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
                 INDEO = IQ
                 NCP2 = EXS%NOCP(INDEO,ISYDC,MV2)
                 if (NCP2 /= 0) then
+                  call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
                   LICP = EXS%IOCP(INDEO,ISYDC,MV2)
                   ! CASE IS: LOWER HALF, EXCITE:
                   call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
@@ -161,10 +161,10 @@ if (IQ < IP) then
         LICP = EXS%IOCP(INDEO,ISYUC,MV1)
         IOC = CIS%IOCSF(ISYUC,MV1,ISYCI)
         ! CASE IS: UPPER HALF, EXCITE:
-        call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
         INDEO = SGS%nLev+IQ
         NCP2 = EXS%NOCP(INDEO,ISYDC,MV1)
         if (NCP2 == 0) cycle
+        call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
         LICP = EXS%IOCP(INDEO,ISYDC,MV1)
         ! CASE IS: LOWER HALF, EXCITE:
         call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
@@ -251,10 +251,10 @@ else if (IP < IQ) then
                 LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
                 IOC = CIS%IOCSF(ISYUC,MV4,ISYCI)
                 ! CASE IS: UPPER HALF, DEEXCITE:
-                call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
                 INDEO = IP
                 NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM)
                 if (NCP2 /= 0) then
+                  call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
                   LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
                   ! CASE IS: LOWER HALF, DEEXCITE:
                   call DEX1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
@@ -277,10 +277,10 @@ else if (IP < IQ) then
         LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MV5,ISYCI)
         ! CASE IS: UPPER HALF, DEEXCITE:
-        call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
         INDEO = SGS%nLev+IP
         NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM)
         if (NCP2 == 0) cycle
+        call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
         LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
         call DEX1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
