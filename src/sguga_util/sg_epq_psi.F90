@@ -109,8 +109,8 @@ if (IQ < IP) then
     end do
 
   else
-#define _NEW_
-#ifdef _NEW_
+
+    ! EXCITING CASE, IQ<=MIDLEV<IP
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
         MVX = EXS%MVL(MVSGM,MV)
@@ -156,69 +156,6 @@ if (IQ < IP) then
         end do
       end do
     end do
-#else
-    ! EXCITING CASE, IQ<=MIDLEV<IP
-    do MVSGM=1,CIS%nMidV
-      MV1 = EXS%MVL(MVSGM,2)
-      MV2 = EXS%MVL(MVSGM,1)
-      if ((MV1 == 0) .and. (MV2 == 0)) cycle
-      do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
-        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-        NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-        ISYDSG = Mul(ISYUSG,ISYSGM)
-        ISYUC = Mul(ISYP,ISYUSG)
-        ISYDC = Mul(ISYQ,ISYDSG)
-        if (MV2 /= 0) then
-          NUPC = CIS%NOW(1,ISYUC,MV2)
-          if (NUPC /= 0) then
-            NDWNC = CIS%NOW(2,ISYDC,MV2)
-            if (NDWNC /= 0) then
-              INDEO = IP
-              NCP1 = EXS%NOCP(INDEO,ISYUC,MV2)
-              if (NCP1 /= 0) then
-                NTMP = NUPSG*NDWNC
-                EXS%SGTMP(1:NTMP) = Zero
-                LICP = EXS%IOCP(INDEO,ISYUC,MV2)
-                IOC = CIS%IOCSF(ISYUC,MV2,ISYCI)
-                ! CASE IS: UPPER HALF, EXCITE:
-                INDEO = IQ
-                NCP2 = EXS%NOCP(INDEO,ISYDC,MV2)
-                if (NCP2 /= 0) then
-                  call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
-                  LICP = EXS%IOCP(INDEO,ISYDC,MV2)
-                  ! CASE IS: LOWER HALF, EXCITE:
-                  call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
-                end if
-              end if
-            end if
-          end if
-        end if
-
-        if (MV1 == 0) cycle
-        NUPC = CIS%NOW(1,ISYUC,MV1)
-        if (NUPC == 0) cycle
-        NDWNC = CIS%NOW(2,ISYDC,MV1)
-        if (NDWNC == 0) cycle
-        INDEO = SGS%nLev+IP
-        NCP1 = EXS%NOCP(INDEO,ISYUC,MV1)
-        if (NCP1 == 0) cycle
-        NTMP = NUPSG*NDWNC
-        EXS%SGTMP(1:NTMP) = Zero
-        LICP = EXS%IOCP(INDEO,ISYUC,MV1)
-        IOC = CIS%IOCSF(ISYUC,MV1,ISYCI)
-        ! CASE IS: UPPER HALF, EXCITE:
-        INDEO = SGS%nLev+IQ
-        NCP2 = EXS%NOCP(INDEO,ISYDC,MV1)
-        if (NCP2 == 0) cycle
-        call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
-        LICP = EXS%IOCP(INDEO,ISYDC,MV1)
-        ! CASE IS: LOWER HALF, EXCITE:
-        call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
-      end do
-    end do
-#endif
 
   end if
 else if (IP < IQ) then
@@ -274,65 +211,50 @@ else if (IP < IQ) then
 
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
     do MVSGM=1,CIS%nMidV
-      MV4 = EXS%MVR(MVSGM,1)
-      MV5 = EXS%MVR(MVSGM,2)
-      if ((MV4 == 0) .and. (MV5 == 0)) cycle
+      do MV = 1, 2
+         MVX = EXS%MVR(MVSGM,MV)
+         if (MVX == 0) cycle
 
-      do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
-        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-        NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-        ISYDSG = Mul(ISYUSG,ISYSGM)
-        ISYUC = Mul(ISYQ,ISYUSG)
-        ISYDC = Mul(ISYP,ISYDSG)
+         do ISYUSG=1,SGS%nSym
+           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+           if (NS1 == 0) cycle
+           ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+           NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
+           ISYDSG = Mul(ISYUSG,ISYSGM)
+           ISYUC = Mul(ISYQ,ISYUSG)
+           ISYDC = Mul(ISYP,ISYDSG)
 
-        if (MV4 /= 0) then
-          NUPC = CIS%NOW(1,ISYUC,MV4)
-          if (NUPC /= 0) then
-            NDWNC = CIS%NOW(2,ISYDC,MV4)
-            if (NDWNC /= 0) then
-              INDEO = IQ
-              NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)
-              if (NCP1 /= 0) then
-                NTMP = NUPSG*NDWNC
-                EXS%SGTMP(1:NTMP) = Zero
-                LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
-                IOC = CIS%IOCSF(ISYUC,MV4,ISYCI)
-                ! CASE IS: UPPER HALF, DEEXCITE:
-                INDEO = IP
-                NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM)
-                if (NCP2 /= 0) then
-                  call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
-                  LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
-                  ! CASE IS: LOWER HALF, DEEXCITE:
-                  call DEX1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
-                end if
-              end if
-            end if
-          end if
-        end if
+           NUPC = CIS%NOW(1,ISYUC,MVX)
+           if (NUPC == 0) cycle
+           NDWNC = CIS%NOW(2,ISYDC,MVX)
+           if (NDWNC == 0) cycle
 
-        if (MV5 == 0) cycle
-        NUPC = CIS%NOW(1,ISYUC,MV5)
-        if (NUPC == 0) cycle
-        NDWNC = CIS%NOW(2,ISYDC,MV5)
-        if (NDWNC == 0) cycle
-        INDEO = SGS%nLev+IQ
-        NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)
-        if (NCP1 == 0) cycle
-        NTMP = NUPSG*NDWNC
-        EXS%SGTMP(1:NTMP) = Zero
-        LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
-        IOC = CIS%IOCSF(ISYUC,MV5,ISYCI)
-        ! CASE IS: UPPER HALF, DEEXCITE:
-        INDEO = SGS%nLev+IP
-        NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM)
-        if (NCP2 == 0) cycle
-        call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
-        LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
-        ! CASE IS: LOWER HALF, DEEXCITE:
-        call DEX1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
+           if (MV==1) then
+             INDEO = IQ
+           else
+             INDEO = SGS%nLev+IQ
+           endif
+           NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)
+           if (NCP1 == 0) cycle
+           NTMP = NUPSG*NDWNC
+           EXS%SGTMP(1:NTMP) = Zero
+           LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
+           IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
+           if (MV==1) then
+             INDEO = IP
+           else
+             INDEO = SGS%nLev+IP
+           endif
+           NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM)
+           if (NCP2 == 0) cycle
+           ! CASE IS: UPPER HALF, DEEXCITE:
+           call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
+           LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
+           ! CASE IS: LOWER HALF, DEEXCITE:
+           call DEX1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
+
+        end do
+
       end do
     end do
 
