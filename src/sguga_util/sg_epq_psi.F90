@@ -146,30 +146,26 @@ if (IQ < IP) then
           end if
         end if
 
-        if (MV1 /= 0) then
-          NUPC = CIS%NOW(1,ISYUC,MV1)
-          if (NUPC /= 0) then
-            NDWNC = CIS%NOW(2,ISYDC,MV1)
-            if (NDWNC /= 0) then
-              INDEO = SGS%nLev+IP
-              NCP = EXS%NOCP(INDEO,ISYUC,MV1)
-              if (NCP /= 0) then
-                NTMP = NUPSG*NDWNC
-                EXS%SGTMP(1:NTMP) = Zero
-                LICP = 1+EXS%IOCP(INDEO,ISYUC,MV1)
-                IOC = CIS%IOCSF(ISYUC,MV1,ISYCI)
-                ! CASE IS: UPPER HALF, EXCITE:
-                call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP))
-                INDEO = SGS%nLev+IQ
-                NCP = EXS%NOCP(INDEO,ISYDC,MV1)
-                if (NCP == 0) cycle
-                LICP = 1+EXS%IOCP(INDEO,ISYDC,MV1)
-                ! CASE IS: LOWER HALF, EXCITE:
-                call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
-              end if
-            end if
-          end if
-        end if
+        if (MV1 == 0) cycle
+        NUPC = CIS%NOW(1,ISYUC,MV1)
+        if (NUPC == 0) cycle
+        NDWNC = CIS%NOW(2,ISYDC,MV1)
+        if (NDWNC == 0) cycle
+        INDEO = SGS%nLev+IP
+        NCP = EXS%NOCP(INDEO,ISYUC,MV1)
+        if (NCP == 0) cycle
+        NTMP = NUPSG*NDWNC
+        EXS%SGTMP(1:NTMP) = Zero
+        LICP = 1+EXS%IOCP(INDEO,ISYUC,MV1)
+        IOC = CIS%IOCSF(ISYUC,MV1,ISYCI)
+        ! CASE IS: UPPER HALF, EXCITE:
+        call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP))
+        INDEO = SGS%nLev+IQ
+        NCP = EXS%NOCP(INDEO,ISYDC,MV1)
+        if (NCP == 0) cycle
+        LICP = 1+EXS%IOCP(INDEO,ISYDC,MV1)
+        ! CASE IS: LOWER HALF, EXCITE:
+        call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
       end do
     end do
 
@@ -229,6 +225,8 @@ else if (IP < IQ) then
     do MVSGM=1,CIS%nMidV
       MV4 = EXS%MVR(MVSGM,1)
       MV5 = EXS%MVR(MVSGM,2)
+      if ((MV4 == 0) .and. (MV5 == 0)) cycle
+
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
         if (NS1 == 0) cycle
@@ -237,6 +235,7 @@ else if (IP < IQ) then
         ISYDSG = Mul(ISYUSG,ISYSGM)
         ISYUC = Mul(ISYQ,ISYUSG)
         ISYDC = Mul(ISYP,ISYDSG)
+
         if (MV4 /= 0) then
           NUPC = CIS%NOW(1,ISYUC,MV4)
           if (NUPC /= 0) then
