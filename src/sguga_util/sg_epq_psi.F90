@@ -63,21 +63,17 @@ if (IQ < IP) then
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
 
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)  ! Number of  CSFs for a given upper symmetry, midvertex, and total symmetry
-        if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
         ISYDSG = Mul(ISYUSG,ISYSGM)           ! compute the lower symmetry
         ISYDC = Mul(ISYPQ,ISYDSG)             ! compute the symmetry of the sigma vector
-        NDWNC = CIS%NOW(2,ISYDC,MVSGM)        ! number of lower half-walks by symmetry and midvertex.
-        if (NDWNC == 0) cycle
+        NDWNC = CIS%NOW(2,ISYDC,MVSGM)       ; if (NDWNC == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM) ! get the off-set to the sigma vector block
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)           ! number of upper half-walks by symmetry and midvertex.
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)       ! get the off-set to the CI vector block
-        NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)         ! get the number of compressed coupling coefficients in the block
-        if (NCP > 0) then
-          LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
-          ! CASE IS: LOWER HALF, EXCITE:
-          call Apply_col(CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
-        end if
+        NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)    ; if (NCP == 0) cycle
+        LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
+        ! CASE IS: LOWER HALF, EXCITE:
+        call Apply_col(CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
 
       end do
     end do
@@ -88,18 +84,15 @@ if (IQ < IP) then
     INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)  ; if (NS1 == 0) cycle
         ISYUC = Mul(ISYPQ,ISYUSG)
-        NUPC = CIS%NOW(1,ISYUC,MVSGM)
-        if (NUPC == 0) cycle
+        NUPC = CIS%NOW(1,ISYUC,MVSGM)         ; if (NUPC == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYUC,MVSGM)
-        if (NCP == 0) cycle
+        NCP = EXS%NOCP(INDEO,ISYUC,MVSGM)     ; if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUC,MVSGM)
         ! CASE IS: UPPER HALF, EXCITE:
         call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
@@ -111,40 +104,29 @@ if (IQ < IP) then
     ! EXCITING CASE, IQ<=MIDLEV<IP
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
-        MVX = EXS%MVL(MVSGM,MV)
-        if (MVX == 0) cycle
+        MVX = EXS%MVL(MVSGM,MV) ; if (MVX == 0) cycle
         do ISYUSG=1,SGS%nSym
-          NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-          if (NS1 == 0) cycle
+          NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
           ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
           ISYDSG = Mul(ISYUSG,ISYSGM)
           ISYUC = Mul(ISYP,ISYUSG)
           ISYDC = Mul(ISYQ,ISYDSG)
 
-          NUPC = CIS%NOW(1,ISYUC,MVX)
-          if (NUPC == 0) cycle
-          NDWNC = CIS%NOW(2,ISYDC,MVX)
-          if (NDWNC == 0) cycle
+          NUPC = CIS%NOW(1,ISYUC,MVX)         ; if (NUPC == 0) cycle
+          NDWNC = CIS%NOW(2,ISYDC,MVX)        ; if (NDWNC == 0) cycle
 
-          if (MV==1) then
-            INDEO = IP
-          else
-            INDEO = SGS%nLev+IP
-          end if
-          NCP1 = EXS%NOCP(INDEO,ISYUC,MVX)
-          if (NCP1 == 0) cycle
+          INDEO = merge(IP, SGS%nLev+IP, MV==1)
+
+          NCP1 = EXS%NOCP(INDEO,ISYUC,MVX)  ; if (NCP1 == 0) cycle
           NTMP = NUPSG*NDWNC
           EXS%SGTMP(1:NTMP) = Zero
           LICP = EXS%IOCP(INDEO,ISYUC,MVX)
           IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
-          if (MV==1) then
-            INDEO = IQ
-          else
-            INDEO = SGS%nLev+IQ
-          end if
-          NCP2 = EXS%NOCP(INDEO,ISYDC,MVX)
-          if (NCP2 == 0) cycle
+
+          INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
+
+          NCP2 = EXS%NOCP(INDEO,ISYDC,MVX) ; if (NCP2 == 0) cycle
           ! CASE IS: UPPER HALF, EXCITE:
           call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
           LICP = EXS%IOCP(INDEO,ISYDC,MVX)
@@ -164,17 +146,14 @@ else if (IP < IQ) then
     INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
         ISYDSG = Mul(ISYUSG,ISYSGM)
         ISYDC = Mul(ISYPQ,ISYDSG)
-        NDWNC = CIS%NOW(2,ISYDC,MVSGM)
-        if (NDWNC == 0) cycle
+        NDWNC = CIS%NOW(2,ISYDC,MVSGM)       ; if (NDWNC == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)
-        if (NCP == 0) cycle
+        NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)   ; if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
         call Apply_col(CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.True.)
@@ -187,18 +166,15 @@ else if (IP < IQ) then
     INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)  ; if (NS1 == 0) cycle
         ISYUC = Mul(ISYPQ,ISYUSG)
-        NUPC = CIS%NOW(1,ISYUC,MVSGM)
-        if (NUPC == 0) cycle
+        NUPC = CIS%NOW(1,ISYUC,MVSGM)         ; if (NUPC == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYUSG,MVSGM)
-        if (NCP == 0) cycle
+        NCP = EXS%NOCP(INDEO,ISYUSG,MVSGM)    ; if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
         ! CASE IS: UPPER HALF, DEEXCITE:
         call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
@@ -210,41 +186,30 @@ else if (IP < IQ) then
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
-         MVX = EXS%MVR(MVSGM,MV)
-         if (MVX == 0) cycle
+         MVX = EXS%MVR(MVSGM,MV) ; if (MVX == 0) cycle
 
          do ISYUSG=1,SGS%nSym
-           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-           if (NS1 == 0) cycle
+           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
            ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
            NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
            ISYDSG = Mul(ISYUSG,ISYSGM)
            ISYUC = Mul(ISYQ,ISYUSG)
            ISYDC = Mul(ISYP,ISYDSG)
 
-           NUPC = CIS%NOW(1,ISYUC,MVX)
-           if (NUPC == 0) cycle
-           NDWNC = CIS%NOW(2,ISYDC,MVX)
-           if (NDWNC == 0) cycle
+           NUPC = CIS%NOW(1,ISYUC,MVX)          ; if (NUPC == 0) cycle
+           NDWNC = CIS%NOW(2,ISYDC,MVX)         ; if (NDWNC == 0) cycle
 
-           if (MV==1) then
-             INDEO = IQ
-           else
-             INDEO = SGS%nLev+IQ
-           endif
-           NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)
-           if (NCP1 == 0) cycle
+           INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
+
+           NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)  ; if (NCP1 == 0) cycle
            NTMP = NUPSG*NDWNC
            EXS%SGTMP(1:NTMP) = Zero
            LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
            IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
-           if (MV==1) then
-             INDEO = IP
-           else
-             INDEO = SGS%nLev+IP
-           endif
-           NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM)
-           if (NCP2 == 0) cycle
+
+           INDEO = merge(IP, SGS%nLev+IP, MV==1)
+
+           NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM) ; if (NCP2 == 0) cycle
            ! CASE IS: UPPER HALF, DEEXCITE:
            call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
            LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
@@ -265,8 +230,7 @@ else
     ! IP=IQ>MIDLEV
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
@@ -278,8 +242,7 @@ else
         IPPOW = 2**IPSHFT
         do I=1,NUPSG
           IC = CIS%ICase(LUW+I*CIS%nIpWlk)
-          ICS = mod(IC/IPPOW,4)
-          if (ICS == 0) cycle
+          ICS = mod(IC/IPPOW,4) ; if (ICS == 0) cycle
           X = CPQ*real((1+ICS)/2,kind=wp)
           ISTA = ISGSTA+I
           call DAXPY_(NDWNSG,X,CI(ISTA),NUPSG,SGM(ISTA),NUPSG)
@@ -293,8 +256,7 @@ else
     ! IP=IQ < MIDLEV.
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
@@ -306,8 +268,7 @@ else
         IPPOW = 2**IPSHFT
         do J=1,NDWNSG
           JC = CIS%ICase(LLW+J*CIS%nIpWlk)
-          ICS = mod(JC/IPPOW,4)
-          if (ICS == 0) cycle
+          ICS = mod(JC/IPPOW,4) ; if (ICS == 0) cycle
           X = CPQ*real((1+ICS)/2,kind=wp)
           JSTA = ISGSTA + NUPSG*(J-1) + 1
           SGM(JSTA:JSTA+NUPSG-1) = SGM(JSTA:JSTA+NUPSG-1)+X*CI(JSTA:JSTA+NUPSG-1)
@@ -329,23 +290,6 @@ subroutine apply_col(CPQ, NUP, A, B, NCP, ICOUP, swap)
   integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1, I2
   real(kind=wp) :: X
 
-  if (NUP > 20) then
-    do ICP=1,NCP
-      JLFT = ICOUP(1,ICP)
-      JRGT = ICOUP(2,ICP)
-
-      if (.not. swap) then
-        ! EXC1: A(:,JLFT) -> B(:,JRGT)
-        I1 = JLFT; I2 = JRGT
-      else
-        ! DEX1: A(:,JRGT) -> B(:,JLFT)
-        I1 = JRGT; I2 = JLFT
-      end if
-
-      X = CPQ * EXS%VTab(ICOUP(3,ICP))
-      call DAXPY_(NUP, X, A(1,I1), 1, B(1,I2), 1)
-    end do
-  else
     do ICP=1,NCP
       JLFT = ICOUP(1,ICP)
       JRGT = ICOUP(2,ICP)
@@ -362,9 +306,7 @@ subroutine apply_col(CPQ, NUP, A, B, NCP, ICOUP, swap)
         B(IUP,I2) = B(IUP,I2) + X*A(IUP,I1)
       end do
     end do
-  end if
 end subroutine apply_col
-
 
 subroutine apply_row(CPQ, NDWN, NUPA, A, NUPB, B, NCP, ICOUP, swap)
   integer(kind=iwp), intent(in) :: NDWN, NUPA, NUPB, NCP, ICOUP(3,NCP)
@@ -375,23 +317,6 @@ subroutine apply_row(CPQ, NDWN, NUPA, A, NUPB, B, NCP, ICOUP, swap)
   integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN, I1, I2
   real(kind=wp) :: X
 
-  if (NDWN > 20) then
-    do ICP=1,NCP
-      ILFT = ICOUP(1,ICP)
-      IRGT = ICOUP(2,ICP)
-
-      if (.not. swap) then
-        ! EXC2: A(ILFT,:) -> B(IRGT,:)
-        I1 = ILFT; I2 = IRGT
-      else
-        ! DEX2: A(IRGT,:) -> B(ILFT,:)
-        I1 = IRGT; I2 = ILFT
-      end if
-
-      X = CPQ * EXS%VTab(ICOUP(3,ICP))
-      call DAXPY_(NDWN, X, A(I1,1), NUPA, B(I2,1), NUPB)
-    end do
-  else
     do ICP=1,NCP
       ILFT = ICOUP(1,ICP)
       IRGT = ICOUP(2,ICP)
@@ -408,7 +333,6 @@ subroutine apply_row(CPQ, NDWN, NUPA, A, NUPB, B, NCP, ICOUP, swap)
         B(I2,IDWN) = B(I2,IDWN) + X*A(I1,IDWN)
       end do
     end do
-  end if
 end subroutine apply_row
 
 end subroutine SG_Epq_Psi
