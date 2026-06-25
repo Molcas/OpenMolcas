@@ -60,30 +60,33 @@ if (IQ < IP) then
   if (IP <= SGS%MidLev) then
 
     ! EXCITING CASE, IQ<IP<=MIDLEV.
+    INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)  ! Number of  CSFs for a given upper symmetry, midvertex, and total symmetry
         if (NS1 == 0) cycle
-        ISYDSG = Mul(ISYUSG,ISYSGM)
-        ISYDC = Mul(ISYPQ,ISYDSG)
-        NDWNC = CIS%NOW(2,ISYDC,MVSGM)
+        ISYDSG = Mul(ISYUSG,ISYSGM)           ! compute the lower symmetry
+        ISYDC = Mul(ISYPQ,ISYDSG)             ! compute the symmetry of the sigma vector
+        NDWNC = CIS%NOW(2,ISYDC,MVSGM)        ! number of lower half-walks by symmetry and midvertex.
         if (NDWNC == 0) cycle
-        ISGSTA = 1+CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-        NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-        IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)
-        INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
-        NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)
+        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM) ! get the off-set to the sigma vector block
+        NUPSG = CIS%NOW(1,ISYUSG,MVSGM)           ! number of upper half-walks by symmetry and midvertex.
+        IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)       ! get the off-set to the CI vector block
+        NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)         ! get the number of compressed coupling coefficients in the block
         if (NCP > 0) then
-          LICP = 1+EXS%IOCP(INDEO,ISYDC,MVSGM)
+          LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
           ! CASE IS: LOWER HALF, EXCITE:
-          call EXC1(CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
+          call EXC1(CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1))
         end if
+
       end do
     end do
 
   else if (SGS%MidLev < IQ) then
 
     ! EXCITING CASE, MIDLEV<IQ<IP
+    INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
@@ -91,17 +94,16 @@ if (IQ < IP) then
         ISYUC = Mul(ISYPQ,ISYUSG)
         NUPC = CIS%NOW(1,ISYUC,MVSGM)
         if (NUPC == 0) cycle
-        ISGSTA = 1+CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
         NCP = EXS%NOCP(INDEO,ISYUC,MVSGM)
         if (NCP == 0) cycle
-        LICP = 1+EXS%IOCP(INDEO,ISYUC,MVSGM)
+        LICP = EXS%IOCP(INDEO,ISYUC,MVSGM)
         ! CASE IS: UPPER HALF, EXCITE:
-        call EXC2(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
+        call EXC2(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1))
       end do
     end do
 
@@ -115,7 +117,7 @@ if (IQ < IP) then
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
         if (NS1 == 0) cycle
-        ISGSTA = 1+CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         ISYUC = Mul(ISYP,ISYUSG)
@@ -130,16 +132,16 @@ if (IQ < IP) then
               if (NCP /= 0) then
                 NTMP = NUPSG*NDWNC
                 EXS%SGTMP(1:NTMP) = Zero
-                LICP = 1+EXS%IOCP(INDEO,ISYUC,MV2)
+                LICP = EXS%IOCP(INDEO,ISYUC,MV2)
                 IOC = CIS%IOCSF(ISYUC,MV2,ISYCI)
                 ! CASE IS: UPPER HALF, EXCITE:
-                call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP))
+                call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP+1))
                 INDEO = IQ
                 NCP = EXS%NOCP(INDEO,ISYDC,MV2)
                 if (NCP /= 0) then
-                  LICP = 1+EXS%IOCP(INDEO,ISYDC,MV2)
+                  LICP = EXS%IOCP(INDEO,ISYDC,MV2)
                   ! CASE IS: LOWER HALF, EXCITE:
-                  call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
+                  call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1))
                 end if
               end if
             end if
@@ -156,16 +158,16 @@ if (IQ < IP) then
         if (NCP == 0) cycle
         NTMP = NUPSG*NDWNC
         EXS%SGTMP(1:NTMP) = Zero
-        LICP = 1+EXS%IOCP(INDEO,ISYUC,MV1)
+        LICP = EXS%IOCP(INDEO,ISYUC,MV1)
         IOC = CIS%IOCSF(ISYUC,MV1,ISYCI)
         ! CASE IS: UPPER HALF, EXCITE:
-        call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP))
+        call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP+1))
         INDEO = SGS%nLev+IQ
         NCP = EXS%NOCP(INDEO,ISYDC,MV1)
         if (NCP == 0) cycle
-        LICP = 1+EXS%IOCP(INDEO,ISYDC,MV1)
+        LICP = EXS%IOCP(INDEO,ISYDC,MV1)
         ! CASE IS: LOWER HALF, EXCITE:
-        call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
+        call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1))
       end do
     end do
 
@@ -175,6 +177,7 @@ else if (IP < IQ) then
   if (IQ <= SGS%MidLev) then
 
     ! DEEXCITING OPERATOR, IP<IQ<=MIDLEV.
+    INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
@@ -183,21 +186,21 @@ else if (IP < IQ) then
         ISYDC = Mul(ISYPQ,ISYDSG)
         NDWNC = CIS%NOW(2,ISYDC,MVSGM)
         if (NDWNC == 0) cycle
-        ISGSTA = 1+CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)
-        INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
         NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)
         if (NCP == 0) cycle
-        LICP = 1+EXS%IOCP(INDEO,ISYDSG,MVSGM)
+        LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
-        call DEX1(CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
+        call DEX1(CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1))
       end do
     end do
 
   else if (SGS%MidLev < IP) then
 
     ! DEEXCITING OPERATOR, MIDLEV<IP<IQ
+    INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
@@ -205,17 +208,16 @@ else if (IP < IQ) then
         ISYUC = Mul(ISYPQ,ISYUSG)
         NUPC = CIS%NOW(1,ISYUC,MVSGM)
         if (NUPC == 0) cycle
-        ISGSTA = 1+CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
         NCP = EXS%NOCP(INDEO,ISYUSG,MVSGM)
         if (NCP == 0) cycle
-        LICP = 1+EXS%IOCP(INDEO,ISYUSG,MVSGM)
+        LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
         ! CASE IS: UPPER HALF, DEEXCITE:
-        call DEX2(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
+        call DEX2(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1))
       end do
     end do
 
@@ -230,7 +232,7 @@ else if (IP < IQ) then
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
         if (NS1 == 0) cycle
-        ISGSTA = 1+CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         ISYUC = Mul(ISYQ,ISYUSG)
@@ -246,16 +248,16 @@ else if (IP < IQ) then
               if (NCP /= 0) then
                 NTMP = NUPSG*NDWNC
                 EXS%SGTMP(1:NTMP) = Zero
-                LICP = 1+EXS%IOCP(INDEO,ISYUSG,MVSGM)
+                LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
                 IOC = CIS%IOCSF(ISYUC,MV4,ISYCI)
                 ! CASE IS: UPPER HALF, DEEXCITE:
-                call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP))
+                call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP+1))
                 INDEO = IP
                 NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)
                 if (NCP /= 0) then
-                  LICP = 1+EXS%IOCP(INDEO,ISYDSG,MVSGM)
+                  LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
                   ! CASE IS: LOWER HALF, DEEXCITE:
-                  call DEX1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
+                  call DEX1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1))
                 end if
               end if
             end if
@@ -272,16 +274,16 @@ else if (IP < IQ) then
         if (NCP == 0) cycle
         NTMP = NUPSG*NDWNC
         EXS%SGTMP(1:NTMP) = Zero
-        LICP = 1+EXS%IOCP(INDEO,ISYUSG,MVSGM)
+        LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MV5,ISYCI)
         ! CASE IS: UPPER HALF, DEEXCITE:
-        call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP))
+        call DEX2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP,EXS%ICOUP(1,LICP+1))
         INDEO = SGS%nLev+IP
         NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)
         if (NCP == 0) cycle
-        LICP = 1+EXS%IOCP(INDEO,ISYDSG,MVSGM)
+        LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
-        call DEX1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA),NCP,EXS%ICOUP(1,LICP))
+        call DEX1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1))
       end do
     end do
 
@@ -296,7 +298,7 @@ else
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
         if (NS1 == 0) cycle
-        ISGSTA = 1+CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
@@ -310,7 +312,7 @@ else
           ICS = mod(IC/IPPOW,4)
           if (ICS == 0) cycle
           X = CPQ*real((1+ICS)/2,kind=wp)
-          ISTA = ISGSTA-1+I
+          ISTA = ISGSTA+I
           call DAXPY_(NDWNSG,X,CI(ISTA),NUPSG,SGM(ISTA),NUPSG)
         end do
       end do
@@ -324,7 +326,7 @@ else
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
         if (NS1 == 0) cycle
-        ISGSTA = 1+CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
@@ -338,7 +340,7 @@ else
           ICS = mod(JC/IPPOW,4)
           if (ICS == 0) cycle
           X = CPQ*real((1+ICS)/2,kind=wp)
-          JSTA = ISGSTA+NUPSG*(J-1)
+          JSTA = ISGSTA + NUPSG*(J-1) + 1
           SGM(JSTA:JSTA+NUPSG-1) = SGM(JSTA:JSTA+NUPSG-1)+X*CI(JSTA:JSTA+NUPSG-1)
         end do
       end do
