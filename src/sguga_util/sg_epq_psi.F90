@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1994, Per Ake Malmqvist                                *
+!               2026, Roland Lindh                                     *
 !***********************************************************************
 
 !--------------------------------------------*
@@ -35,7 +36,7 @@ real(kind=wp), intent(in) :: CPQ, CI(*)
 real(kind=wp), intent(_OUT_) :: SGM(*)
 integer(kind=iwp) :: I, IC, ICS, INDEO, IOC, IOLW, IOUW, IPPOW, IPSHFT, ISGSTA, ISTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
                      ISYUC, ISYUSG, J, JC, JSTA, LICP, LLW, LUW, MV1, MV2, MV4, MV5, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
-                     NUPSG, NCP1, NCP2
+                     NUPSG, NCP1, NCP2, MV, MVX
 real(kind=wp) :: X
 
 !***********************************************************************
@@ -108,7 +109,54 @@ if (IQ < IP) then
     end do
 
   else
+#define _NEW_
+#ifdef _NEW_
+    do MVSGM=1,CIS%nMidV
+      do MV = 1, 2
+        MVX = EXS%MVL(MVSGM,MV)
+        if (MVX == 0) cycle
+        do ISYUSG=1,SGS%nSym
+          NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+          if (NS1 == 0) cycle
+          ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+          NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
+          ISYDSG = Mul(ISYUSG,ISYSGM)
+          ISYUC = Mul(ISYP,ISYUSG)
+          ISYDC = Mul(ISYQ,ISYDSG)
 
+          NUPC = CIS%NOW(1,ISYUC,MVX)
+          if (NUPC == 0) cycle
+          NDWNC = CIS%NOW(2,ISYDC,MVX)
+          if (NDWNC == 0) cycle
+
+          if (MV==1) then
+            INDEO = IP
+          else
+            INDEO = SGS%nLev+IP
+          end if
+          NCP1 = EXS%NOCP(INDEO,ISYUC,MVX)
+          if (NCP1 == 0) cycle
+          NTMP = NUPSG*NDWNC
+          EXS%SGTMP(1:NTMP) = Zero
+          LICP = EXS%IOCP(INDEO,ISYUC,MVX)
+          IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
+          if (MV==1) then
+            INDEO = IQ
+          else
+            INDEO = SGS%nLev+IQ
+          end if
+          NCP2 = EXS%NOCP(INDEO,ISYDC,MVX)
+          if (NCP2 == 0) cycle
+          ! CASE IS: UPPER HALF, EXCITE:
+          call EXC2(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1))
+          LICP = EXS%IOCP(INDEO,ISYDC,MVX)
+          ! CASE IS: LOWER HALF, EXCITE:
+          call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
+
+        end do
+      end do
+    end do
+#else
     ! EXCITING CASE, IQ<=MIDLEV<IP
     do MVSGM=1,CIS%nMidV
       MV1 = EXS%MVL(MVSGM,2)
@@ -170,6 +218,7 @@ if (IQ < IP) then
         call EXC1(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1))
       end do
     end do
+#endif
 
   end if
 else if (IP < IQ) then
