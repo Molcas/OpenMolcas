@@ -289,43 +289,73 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUP,NDWNC)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
-  logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC1), =.true. (DEX1)
+  logical(kind=iwp), intent(in) :: swap
 
-  integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1, I2, idx
-  real(kind=wp) :: X
+  integer(kind=iwp) :: ICP, k, IUP, I1, I2, idx, start, finish
+  real(kind=wp) :: acc
   real(kind=wp), pointer :: VTAB(:)
 
-vTab => EXS%VTab
-if (swap) Then
-    do ICP=1,NCP
-      JLFT = ICOUP(1,ICP)
-      JRGT = ICOUP(2,ICP)
+  VTAB => EXS%VTab
 
-     I1 = JRGT; I2 = JLFT
+  if (swap) then
 
-      idx=ICOUP(3,ICP)
-      X = CPQ * VTab(idx)
-      !$OMP SIMD
-      do IUP=1,NUP
-        SIGMA(IUP,I2) = SIGMA(IUP,I2) + X*CI(IUP,I1)
+    ICP = 1
+    do while (ICP <= NCP)
+
+      I2 = ICOUP(1,ICP)
+
+      start = ICP
+      finish = ICP
+      do while (finish <= NCP .and. ICOUP(1,finish) == I2)
+        finish = finish + 1
       end do
-    end do
-else
-    do ICP=1,NCP
-      JLFT = ICOUP(1,ICP)
-      JRGT = ICOUP(2,ICP)
 
-      I1 = JLFT; I2 = JRGT
-
-      idx=ICOUP(3,ICP)
-      X = CPQ * VTab(idx)
-      !$OMP SIMD
-      do IUP=1,NUP
-        SIGMA(IUP,I2) = SIGMA(IUP,I2) + X*CI(IUP,I1)
+      do IUP = 1, NUP
+        acc = 0.0_wp
+!$OMP SIMD reduction(+:acc)
+        do k = start, finish-1
+          I1 = ICOUP(2,k)
+          idx = ICOUP(3,k)
+          acc = acc + (CPQ * VTAB(idx)) * CI(IUP,I1)
+        end do
+        SIGMA(IUP,I2) = SIGMA(IUP,I2) + acc
       end do
+
+      ICP = finish
+
     end do
-end if
-vTab => Null()
+
+  else
+
+    ICP = 1
+    do while (ICP <= NCP)
+
+      I2 = ICOUP(2,ICP)
+
+      start = ICP
+      finish = ICP
+      do while (finish <= NCP .and. ICOUP(2,finish) == I2)
+        finish = finish + 1
+      end do
+
+      do IUP = 1, NUP
+        acc = 0.0_wp
+!$OMP SIMD reduction(+:acc)
+        do k = start, finish-1
+          I1 = ICOUP(1,k)
+          idx = ICOUP(3,k)
+          acc = acc + (CPQ * VTAB(idx)) * CI(IUP,I1)
+        end do
+        SIGMA(IUP,I2) = SIGMA(IUP,I2) + acc
+      end do
+
+      ICP = finish
+
+    end do
+
+  end if
+
+  VTAB => null()
 end subroutine apply_col
 
 subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
