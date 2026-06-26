@@ -291,68 +291,68 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap
 
-  integer(kind=iwp) :: ICP, k, IUP, I1, I2, idx, start, finish
+  integer(kind=iwp) :: ICP, k, IUP, I2, start, finish, nk
+  real(kind=wp), pointer :: VTAB(:), XLIST(:)
+  integer(kind=iwp), pointer ::  I1LIST(:)
   real(kind=wp) :: acc
-  real(kind=wp), pointer :: VTAB(:)
 
   VTAB => EXS%VTab
+  XLIST => EXS%XLIST
+  I1LIST => EXS%I1LIST
 
+  ICP = 1
   if (swap) then
-
-    ICP = 1
     do while (ICP <= NCP)
-
       I2 = ICOUP(1,ICP)
-
       start = ICP
       finish = ICP
       do while (finish <= NCP .and. ICOUP(1,finish) == I2)
         finish = finish + 1
       end do
 
-      do IUP = 1, NUP
+      nk = finish-start
+      do k=1,nk
+        I1list(k) = ICOUP(2,start+k-1)
+        Xlist(k)  = CPQ * VTAB(ICOUP(3,start+k-1))
+      end do
+
+      do IUP=1,NUP
         acc = 0.0_wp
 !$OMP SIMD reduction(+:acc)
-        do k = start, finish-1
-          I1 = ICOUP(2,k)
-          idx = ICOUP(3,k)
-          acc = acc + (CPQ * VTAB(idx)) * CI(IUP,I1)
+        do k=1,nk
+          acc = acc + Xlist(k)*CI(IUP,I1list(k))
         end do
         SIGMA(IUP,I2) = SIGMA(IUP,I2) + acc
       end do
 
       ICP = finish
-
     end do
-
   else
-
-    ICP = 1
     do while (ICP <= NCP)
-
       I2 = ICOUP(2,ICP)
-
       start = ICP
       finish = ICP
       do while (finish <= NCP .and. ICOUP(2,finish) == I2)
         finish = finish + 1
       end do
 
-      do IUP = 1, NUP
+      nk = finish-start
+      do k=1,nk
+        I1list(k) = ICOUP(1,start+k-1)
+        Xlist(k)  = CPQ * VTAB(ICOUP(3,start+k-1))
+      end do
+
+      do IUP=1,NUP
         acc = 0.0_wp
 !$OMP SIMD reduction(+:acc)
-        do k = start, finish-1
-          I1 = ICOUP(1,k)
-          idx = ICOUP(3,k)
-          acc = acc + (CPQ * VTAB(idx)) * CI(IUP,I1)
+        do k=1,nk
+          acc = acc + Xlist(k)*CI(IUP,I1list(k))
         end do
         SIGMA(IUP,I2) = SIGMA(IUP,I2) + acc
       end do
 
       ICP = finish
-
     end do
-
   end if
 
   VTAB => null()
@@ -362,44 +362,39 @@ subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
   integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUPC,NDWN)
   real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
-  logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC2), =.true. (DEX2)
+  logical(kind=iwp), intent(in) :: swap
 
-  integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN, I1, I2, idx
-  real(kind=wp) :: X
-  real(kind=wp), pointer :: VTAB(:)
+  integer(kind=iwp) :: ICP, IDWN
+  real(kind=wp), pointer :: VTAB(:), XLIST(:)
+  integer(kind=iwp), pointer ::  I1LIST(:), I2LIST(:)
 
-vTab => EXS%VTab
+  VTAB => EXS%VTab
+  XLIST => EXS%XLIST
+  I1LIST => EXS%I1LIST
+  I2LIST => EXS%I2LIST
 
-if (swap) then
+  if (swap) then
     do ICP=1,NCP
-      ILFT = ICOUP(1,ICP)
-      IRGT = ICOUP(2,ICP)
-
-      I1 = IRGT; I2 = ILFT
-
-      idx=ICOUP(3,ICP)
-      X = CPQ * VTab(idx)
-      !$OMP SIMD
-      do IDWN=1,NDWN
-        SIGMA(I2,IDWN) = SIGMA(I2,IDWN) + X*CI(I1,IDWN)
-      end do
+      I1list(ICP)=ICOUP(2,ICP)
+      I2list(ICP)=ICOUP(1,ICP)
+      Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
     end do
-else
+  else
     do ICP=1,NCP
-      ILFT = ICOUP(1,ICP)
-      IRGT = ICOUP(2,ICP)
-
-      I1 = ILFT; I2 = IRGT
-
-      idx=ICOUP(3,ICP)
-      X = CPQ * VTab(idx)
-      !$OMP SIMD
-      do IDWN=1,NDWN
-        SIGMA(I2,IDWN) = SIGMA(I2,IDWN) + X*CI(I1,IDWN)
-      end do
+      I1list(ICP)=ICOUP(1,ICP)
+      I2list(ICP)=ICOUP(2,ICP)
+      Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
     end do
-end if
-vTab => Null()
+  end if
+
+  do ICP=1,NCP
+!$OMP SIMD
+    do IDWN=1,NDWN
+      SIGMA(I2list(ICP),IDWN)=SIGMA(I2list(ICP),IDWN)+Xlist(ICP)*CI(I1list(ICP),IDWN)
+    end do
+  end do
+
+  VTAB => null()
 end subroutine apply_row
 
 end subroutine SG_Epq_Psi

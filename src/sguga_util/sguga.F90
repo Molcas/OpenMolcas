@@ -91,6 +91,8 @@ type EXStruct
   integer(kind=iwp) :: MxEO, nICoup
   integer(kind=iwp), allocatable :: NOCP(:,:,:), IOCP(:,:,:), ICoup(:,:), MVL(:,:), MVR(:,:), USGN(:,:), LSGN(:,:)
   real(kind=wp), allocatable :: VTab(:), SGTMP(:)
+  integer(kind=iwp), allocatable:: I1list(:), I2list(:)
+  real(kind=wp), allocatable:: XList(:)
 end type EXStruct
 
 type TRStruct
@@ -184,8 +186,6 @@ integer(kind=iwp), parameter :: iSegWUpEnd = nSegBase + 4
 integer(kind=iwp), parameter :: iSegWLoBeg = nSegBase + 5
 integer(kind=iwp), parameter :: iSegWLoEnd = nSegBase + 8
 
-
-
 integer(kind=iwp), parameter ::                                                                                                    &
                                 ITVPT(nSegTot) =  &
 [ 0, 0, 0, 0,  0, 0, 0, 0,  1, 1, 1, 1, 1,  2, 2, 2, 2, 2,  1, 1, 2, 2,  3, 3, 3, 3,  0, 0, 0, 0,  3, 3, 3, 3],&
@@ -217,6 +217,8 @@ integer(kind=iwp), parameter:: nPack=16-1
 #endif
 
 public :: nPack
+
+integer(kind=iwp) :: NCP_Max
 
 contains
 
@@ -941,6 +943,9 @@ if (present(EXS)) then
  call mma_deallocate(EXS%MVR,safe='*')
  call mma_deallocate(EXS%USGN,safe='*')
  call mma_deallocate(EXS%LSGN,safe='*')
+ call mma_deallocate(EXS%I1list,safe='*')
+ call mma_deallocate(EXS%I2list,safe='*')
+ call mma_deallocate(EXS%Xlist,safe='*')
 end if
 
 end subroutine SG_Free
@@ -1505,9 +1510,6 @@ do INDEO = 1, SGS%nLev*(SGS%nLev+1)/2
   EXS%NOCP(INDEO_EXS,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO_NRL)
 end do
 
-!   do INDEO=1,EXS%MxEO
-!     EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
-!   end do
   end do
 end do
 
@@ -1614,10 +1616,6 @@ do INDEO = 1, SGS%nLev*(SGS%nLev+1)/2
   if (N /= 0) EXS%NOCP(INDEO_EXS,LFTSYM,MV) = N
 end do
 
-!   do INDEO=1,EXS%MxEO
-!     N = NRL(LFTSYM,IVLT,INDEO)
-!     if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
-!   end do
   end do
 end do
 
@@ -2116,6 +2114,12 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 
+  NCP_Max=Max(1,MaxVal(EXS%NOCP(:,:,:)))
+  Write (u6,*) 'NCP_MAX=',NCP_MAX
+  Write (u6,*) 'SIZE(EXS%NOCP)=',SIZE(EXS%NOCP)
+  Call mma_allocate(EXS%I1List,NCP_Max,Label='I1List')
+  Call mma_allocate(EXS%I2List,NCP_Max,Label='I2List')
+  Call mma_allocate(EXS%XList,NCP_Max,Label='XList')
 end subroutine MKCOUP
 
 subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
