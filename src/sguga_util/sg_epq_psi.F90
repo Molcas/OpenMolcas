@@ -291,68 +291,89 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap
 
-  integer(kind=iwp) :: ICP, k, IUP, I2, start, finish, nk
-  real(kind=wp), pointer :: VTAB(:), XLIST(:)
-  integer(kind=iwp), pointer ::  I1LIST(:)
-  real(kind=wp) :: acc
+  integer(kind=iwp) :: ICP, start, finish, k, I1, I2, nk
+  integer(kind=iwp), parameter :: KBLOCK = 16
 
+  integer(kind=iwp) :: ISET(KBLOCK), JSET(KBLOCK)
+  real(kind=wp) :: XMAT(KBLOCK,KBLOCK)
+  real(kind=wp) :: ABLOCK(NUP,KBLOCK)
+
+  real(kind=wp), pointer :: VTAB(:)
   VTAB => EXS%VTab
-  XLIST => EXS%XLIST
-  I1LIST => EXS%I1LIST
 
   ICP = 1
+
   if (swap) then
+
     do while (ICP <= NCP)
+
       I2 = ICOUP(1,ICP)
       start = ICP
       finish = ICP
+
       do while (finish <= NCP .and. ICOUP(1,finish) == I2)
         finish = finish + 1
       end do
 
-      nk = finish-start
-      do k=1,nk
-        I1list(k) = ICOUP(2,start+k-1)
-        Xlist(k)  = CPQ * VTAB(ICOUP(3,start+k-1))
-      end do
+      do k = start, finish-1, KBLOCK
+        nk = min(KBLOCK, finish-k)
 
-      do IUP=1,NUP
-        acc = 0.0_wp
-!$OMP SIMD reduction(+:acc)
-        do k=1,nk
-          acc = acc + Xlist(k)*CI(IUP,I1list(k))
+        ! Build index and coefficient lists
+        do I1 = 1, nk
+          ISET(I1) = ICOUP(2, k+I1-1)
+          XMAT(I1,1) = CPQ * VTAB(ICOUP(3,k+I1-1))
         end do
-        SIGMA(IUP,I2) = SIGMA(IUP,I2) + acc
+
+        ! Pack CI block
+        do I1 = 1, nk
+          ABLOCK(:,I1) = CI(:, ISET(I1))
+        end do
+
+        ! GEMM-like update: SIGMA(:,I2) += ABLOCK * X
+        do I1 = 1, NUP
+          SIGMA(I1,I2) = SIGMA(I1,I2) + sum( ABLOCK(I1,1:nk) * XMAT(1:nk,1) )
+        end do
+
       end do
 
       ICP = finish
+
     end do
+
   else
+
     do while (ICP <= NCP)
+
       I2 = ICOUP(2,ICP)
       start = ICP
       finish = ICP
+
       do while (finish <= NCP .and. ICOUP(2,finish) == I2)
         finish = finish + 1
       end do
 
-      nk = finish-start
-      do k=1,nk
-        I1list(k) = ICOUP(1,start+k-1)
-        Xlist(k)  = CPQ * VTAB(ICOUP(3,start+k-1))
-      end do
+      do k = start, finish-1, KBLOCK
+        nk = min(KBLOCK, finish-k)
 
-      do IUP=1,NUP
-        acc = 0.0_wp
-!$OMP SIMD reduction(+:acc)
-        do k=1,nk
-          acc = acc + Xlist(k)*CI(IUP,I1list(k))
+        do I1 = 1, nk
+          ISET(I1) = ICOUP(1, k+I1-1)
+          XMAT(I1,1) = CPQ * VTAB(ICOUP(3,k+I1-1))
         end do
-        SIGMA(IUP,I2) = SIGMA(IUP,I2) + acc
+
+        do I1 = 1, nk
+          ABLOCK(:,I1) = CI(:, ISET(I1))
+        end do
+
+        do I1 = 1, NUP
+          SIGMA(I1,I2) = SIGMA(I1,I2) + sum( ABLOCK(I1,1:nk) * XMAT(1:nk,1) )
+        end do
+
       end do
 
       ICP = finish
+
     end do
+
   end if
 
   VTAB => null()
