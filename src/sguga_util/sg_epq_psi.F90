@@ -30,12 +30,12 @@ use Definitions, only: wp, iwp
 implicit none
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
-type(EXStruct), intent(inout) :: EXS
+type(EXStruct), intent(inout), target :: EXS
 integer(kind=iwp), intent(in) :: IP, IQ, ISYCI
 real(kind=wp), intent(in) :: CPQ, CI(*)
 real(kind=wp), intent(_OUT_) :: SGM(*)
 integer(kind=iwp) :: I, IC, ICS, INDEO, IOC, IOLW, IOUW, IPPOW, IPSHFT, ISGSTA, ISTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
-                     ISYUC, ISYUSG, J, JC, JSTA, LICP, LLW, LUW, MV1, MV2, MV4, MV5, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
+                     ISYUC, ISYUSG, J, JC, JSTA, LICP, LLW, LUW, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
                      NUPSG, NCP1, NCP2, MV, MVX
 real(kind=wp) :: X
 
@@ -287,25 +287,41 @@ subroutine apply_col(CPQ, NUP, A, B, NCP, ICOUP, swap)
   real(kind=wp), intent(inout) :: B(NUP,*)
   logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC1), =.true. (DEX1)
 
-  integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1, I2
+  integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1, I2, idx
   real(kind=wp) :: X
+  real(kind=wp), pointer :: VTAB(:)
 
+vTab => EXS%VTab
+if (swap) Then
     do ICP=1,NCP
       JLFT = ICOUP(1,ICP)
       JRGT = ICOUP(2,ICP)
 
-      if (.not. swap) then
-        I1 = JLFT; I2 = JRGT
-      else
-        I1 = JRGT; I2 = JLFT
-      end if
+     I1 = JRGT; I2 = JLFT
 
-      X = CPQ * EXS%VTab(ICOUP(3,ICP))
+      idx=ICOUP(3,ICP)
+      X = CPQ * VTab(idx)
       !$OMP SIMD
       do IUP=1,NUP
         B(IUP,I2) = B(IUP,I2) + X*A(IUP,I1)
       end do
     end do
+else
+    do ICP=1,NCP
+      JLFT = ICOUP(1,ICP)
+      JRGT = ICOUP(2,ICP)
+
+      I1 = JLFT; I2 = JRGT
+
+      idx=ICOUP(3,ICP)
+      X = CPQ * VTab(idx)
+      !$OMP SIMD
+      do IUP=1,NUP
+        B(IUP,I2) = B(IUP,I2) + X*A(IUP,I1)
+      end do
+    end do
+end if
+vTab => Null()
 end subroutine apply_col
 
 subroutine apply_row(CPQ, NDWN, NUPA, A, NUPB, B, NCP, ICOUP, swap)
@@ -314,25 +330,42 @@ subroutine apply_row(CPQ, NDWN, NUPA, A, NUPB, B, NCP, ICOUP, swap)
   real(kind=wp), intent(inout) :: B(NUPB,NDWN)
   logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC2), =.true. (DEX2)
 
-  integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN, I1, I2
+  integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN, I1, I2, idx
   real(kind=wp) :: X
+  real(kind=wp), pointer :: VTAB(:)
 
+vTab => EXS%VTab
+
+if (swap) then
     do ICP=1,NCP
       ILFT = ICOUP(1,ICP)
       IRGT = ICOUP(2,ICP)
 
-      if (.not. swap) then
-        I1 = ILFT; I2 = IRGT
-      else
-        I1 = IRGT; I2 = ILFT
-      end if
+      I1 = IRGT; I2 = ILFT
 
-      X = CPQ * EXS%VTab(ICOUP(3,ICP))
+      idx=ICOUP(3,ICP)
+      X = CPQ * VTab(idx)
       !$OMP SIMD
       do IDWN=1,NDWN
         B(I2,IDWN) = B(I2,IDWN) + X*A(I1,IDWN)
       end do
     end do
+else
+    do ICP=1,NCP
+      ILFT = ICOUP(1,ICP)
+      IRGT = ICOUP(2,ICP)
+
+      I1 = ILFT; I2 = IRGT
+
+      idx=ICOUP(3,ICP)
+      X = CPQ * VTab(idx)
+      !$OMP SIMD
+      do IDWN=1,NDWN
+        B(I2,IDWN) = B(I2,IDWN) + X*A(I1,IDWN)
+      end do
+    end do
+end if
+vTab => Null()
 end subroutine apply_row
 
 end subroutine SG_Epq_Psi
