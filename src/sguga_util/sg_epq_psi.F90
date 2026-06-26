@@ -71,9 +71,10 @@ if (IQ < IP) then
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)           ! number of upper half-walks by symmetry and midvertex.
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)       ! get the off-set to the CI vector block
         NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)    ; if (NCP == 0) cycle
+        NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
         ! CASE IS: LOWER HALF, EXCITE:
-        call Apply_col(CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
+        call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
 
       end do
     end do
@@ -129,9 +130,10 @@ if (IQ < IP) then
           NCP2 = EXS%NOCP(INDEO,ISYDC,MVX) ; if (NCP2 == 0) cycle
           ! CASE IS: UPPER HALF, EXCITE:
           call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+          NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           LICP = EXS%IOCP(INDEO,ISYDC,MVX)
           ! CASE IS: LOWER HALF, EXCITE:
-          call Apply_col(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
+          call Apply_col(One,NUPSG,NDWNC,EXS%SGTMP,NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
 
         end do
       end do
@@ -154,9 +156,10 @@ else if (IP < IQ) then
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)
         NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)   ; if (NCP == 0) cycle
+        NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
-        call Apply_col(CPQ,NUPSG,CI(IOC+1),SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.True.)
+        call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.True.)
       end do
     end do
 
@@ -212,9 +215,10 @@ else if (IP < IQ) then
            NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM) ; if (NCP2 == 0) cycle
            ! CASE IS: UPPER HALF, DEEXCITE:
            call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
            LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
            ! CASE IS: LOWER HALF, DEEXCITE:
-           call Apply_col(One,NUPSG,EXS%SGTMP,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
+           call Apply_col(One,NUPSG,NDWNC,EXS%SGTMP,NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
 
         end do
 
@@ -281,10 +285,10 @@ end if
 
 contains
 
-subroutine apply_col(CPQ, NUP, A, B, NCP, ICOUP, swap)
-  integer(kind=iwp), intent(in) :: NUP, NCP, ICOUP(3,NCP)
-  real(kind=wp), intent(in) :: CPQ, A(NUP,*)
-  real(kind=wp), intent(inout) :: B(NUP,*)
+subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
+  integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP, ICOUP(3,NCP)
+  real(kind=wp), intent(in) :: CPQ, CI(NUP,NDWNC)
+  real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC1), =.true. (DEX1)
 
   integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1, I2, idx
@@ -303,7 +307,7 @@ if (swap) Then
       X = CPQ * VTab(idx)
       !$OMP SIMD
       do IUP=1,NUP
-        B(IUP,I2) = B(IUP,I2) + X*A(IUP,I1)
+        SIGMA(IUP,I2) = SIGMA(IUP,I2) + X*CI(IUP,I1)
       end do
     end do
 else
@@ -317,17 +321,17 @@ else
       X = CPQ * VTab(idx)
       !$OMP SIMD
       do IUP=1,NUP
-        B(IUP,I2) = B(IUP,I2) + X*A(IUP,I1)
+        SIGMA(IUP,I2) = SIGMA(IUP,I2) + X*CI(IUP,I1)
       end do
     end do
 end if
 vTab => Null()
 end subroutine apply_col
 
-subroutine apply_row(CPQ, NDWN, NUPA, A, NUPB, B, NCP, ICOUP, swap)
-  integer(kind=iwp), intent(in) :: NDWN, NUPA, NUPB, NCP, ICOUP(3,NCP)
-  real(kind=wp), intent(in) :: CPQ, A(NUPA,NDWN)
-  real(kind=wp), intent(inout) :: B(NUPB,NDWN)
+subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
+  integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
+  real(kind=wp), intent(in) :: CPQ, CI(NUPC,NDWN)
+  real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
   logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC2), =.true. (DEX2)
 
   integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN, I1, I2, idx
@@ -347,7 +351,7 @@ if (swap) then
       X = CPQ * VTab(idx)
       !$OMP SIMD
       do IDWN=1,NDWN
-        B(I2,IDWN) = B(I2,IDWN) + X*A(I1,IDWN)
+        SIGMA(I2,IDWN) = SIGMA(I2,IDWN) + X*CI(I1,IDWN)
       end do
     end do
 else
@@ -361,7 +365,7 @@ else
       X = CPQ * VTab(idx)
       !$OMP SIMD
       do IDWN=1,NDWN
-        B(I2,IDWN) = B(I2,IDWN) + X*A(I1,IDWN)
+        SIGMA(I2,IDWN) = SIGMA(I2,IDWN) + X*CI(I1,IDWN)
       end do
     end do
 end if
