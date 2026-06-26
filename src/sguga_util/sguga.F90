@@ -1359,7 +1359,7 @@ type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
 type(TRStruct), intent(in)    :: TRS
-integer(kind=iwp) :: IBSYM, ICL, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
+integer(kind=iwp) :: IBSYM, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
                      MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
                      NUPS1, INDEO0
 integer(kind=iwp), allocatable :: NRL(:,:,:)
@@ -1427,7 +1427,6 @@ do IVLT = 1, SGS%MVSta-1
       IVLB = TRS%IVLB(ITR)
       ITOP = TRS%ITOP(ITR)
       IBOT = TRS%IBOT(ITR)
-      ICL  = TRS%ICL(ITR)
       ISYM = TRS%ISYM(ITR)
 
       do ITSYM = 1, SGS%nSym
@@ -1439,12 +1438,12 @@ select case (TRS%IFLAG(ITR))
 
 case (TR_WALK)
   ! ordinary upper walk
-  NRL(IBSYM,IVLB,0) = NRL(IBSYM,IVLB,0) + NRL(ITSYM,IVLT,0)
+  NRL(IBSYM,IVLB,INDEO0) = NRL(IBSYM,IVLB,INDEO0) + NRL(ITSYM,IVLT,INDEO0)
 
 case (TR_OPEN)
   ! loop opening
   INDEO = LEV + (OpenBand(IBOT)-1)*SGS%nLev
-  NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,0)
+  NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO0)
 
 case (TR_MID)
   ! intermediate open-loop propagation
@@ -1488,7 +1487,7 @@ MXUP = 0
 do MV=1,CIS%nMidV                  ! loop over midverticies
   IVLT = MV+SGS%MVSta-1            ! Get the absolute vertex index
   do LFTSYM=1,SGS%nSym             ! Loop over symmetries
-    CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
+    CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO0)
     MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))
 
 
@@ -1534,7 +1533,6 @@ do IVLT = SGS%nVert-1, SGS%MVSta, -1
       IVLB = TRS%IVLB(ITR)
       ITOP = TRS%ITOP(ITR)
       IBOT = TRS%IBOT(ITR)
-      ICL  = TRS%ICL(ITR)
       ISYM = TRS%ISYM(ITR)
 
       do ITSYM = 1, SGS%nSym
@@ -1544,12 +1542,12 @@ select case (TRS%IFLAG(ITR))
 
 case (TR_TAIL)
   ! ordinary lower walk
-  NRL(ITSYM,IVLT,0) = NRL(ITSYM,IVLT,0) + NRL(IBSYM,IVLB,0)
+  NRL(ITSYM,IVLT,INDEO0) = NRL(ITSYM,IVLT,INDEO0) + NRL(IBSYM,IVLB,INDEO0)
 
 case (TR_CLOSE)
   ! create open-loop class from below
   INDEO = LEV + (OpenBand(ITOP)-1)*SGS%nLev
-  NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,0)
+  NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO0)
 
 case (TR_MID)
   ! propagate open-loop class upward
@@ -1593,7 +1591,7 @@ MXDWN = 0
 do MV=1,CIS%nMidV
   IVLT = MV+SGS%MVSta-1
   do LFTSYM=1,SGS%nSym
-    CIS%NOW(2,LFTSYM,MV) = NRL(LFTSYM,IVLT,0)
+    CIS%NOW(2,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO0)
     MXDWN = max(MXDWN,CIS%NOW(2,LFTSYM,MV))
 
 ! ---- open loops ----
@@ -1637,12 +1635,15 @@ call CSFCOUNT(CIS,SGS)
 
 NSGMX = 1
 NDWNS1 = 0  ! Dummy initialization
-NSGTMP = max(MXUP,MXDWN)
+NSGTMP = max(MXUP,MXDWN)   ! Max size of intermediate sigma block
+
 do MV3=1,CIS%nMidV
   MV1 = EXS%MVL(MV3,2)
   MV2 = EXS%MVL(MV3,1)
+
   MV4 = EXS%MVR(MV3,1)
   MV5 = EXS%MVR(MV3,2)
+
   do ISYUS1=1,SGS%nSym
     NUPS1 = CIS%NOW(1,ISYUS1,MV3)
     do ISYDS1=1,SGS%nSym

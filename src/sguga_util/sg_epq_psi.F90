@@ -285,26 +285,32 @@ end if
 
 contains
 
+
 subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
+  use Definitions, only: wp, iwp
+  implicit none
+
   integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUP,NDWNC)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap
 
-  integer(kind=iwp) :: ICP, start, finish, k, I1, I2, nk
-  integer(kind=iwp), parameter :: KBLOCK = 16
+  integer(kind=iwp) :: ICP, start, finish, k, nk, i
+  integer(kind=iwp) :: I2
 
-  integer(kind=iwp) :: ISET(KBLOCK), JSET(KBLOCK)
-  real(kind=wp) :: XMAT(KBLOCK,KBLOCK)
+  integer(kind=iwp), parameter :: KBLOCK=16
+
+  integer(kind=iwp) :: I1list(KBLOCK)
+  real(kind=wp) :: Xlist(KBLOCK)
   real(kind=wp) :: ABLOCK(NUP,KBLOCK)
+  real(kind=wp) :: TEMP(NUP,1)
 
   real(kind=wp), pointer :: VTAB(:)
+
   VTAB => EXS%VTab
 
-  ICP = 1
-
   if (swap) then
-
+    ICP = 1
     do while (ICP <= NCP)
 
       I2 = ICOUP(1,ICP)
@@ -316,23 +322,21 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
       end do
 
       do k = start, finish-1, KBLOCK
+
         nk = min(KBLOCK, finish-k)
 
-        ! Build index and coefficient lists
-        do I1 = 1, nk
-          ISET(I1) = ICOUP(2, k+I1-1)
-          XMAT(I1,1) = CPQ * VTAB(ICOUP(3,k+I1-1))
+        do i = 1, nk
+          I1list(i) = ICOUP(2, k+i-1)
+          Xlist(i)  = CPQ * VTAB(ICOUP(3, k+i-1))
         end do
 
-        ! Pack CI block
-        do I1 = 1, nk
-          ABLOCK(:,I1) = CI(:, ISET(I1))
+        do i = 1, nk
+          ABLOCK(:,i) = CI(:, I1list(i))
         end do
 
-        ! GEMM-like update: SIGMA(:,I2) += ABLOCK * X
-        do I1 = 1, NUP
-          SIGMA(I1,I2) = SIGMA(I1,I2) + sum( ABLOCK(I1,1:nk) * XMAT(1:nk,1) )
-        end do
+        call DGEMM_('N','N', NUP, 1, nk, 1.0_wp, ABLOCK, NUP, Xlist, nk, 0.0_wp, TEMP, NUP)
+
+        SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
 
       end do
 
@@ -342,6 +346,7 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
   else
 
+    ICP = 1
     do while (ICP <= NCP)
 
       I2 = ICOUP(2,ICP)
@@ -353,20 +358,21 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
       end do
 
       do k = start, finish-1, KBLOCK
+
         nk = min(KBLOCK, finish-k)
 
-        do I1 = 1, nk
-          ISET(I1) = ICOUP(1, k+I1-1)
-          XMAT(I1,1) = CPQ * VTAB(ICOUP(3,k+I1-1))
+        do i = 1, nk
+          I1list(i) = ICOUP(1, k+i-1)
+          Xlist(i)  = CPQ * VTAB(ICOUP(3, k+i-1))
         end do
 
-        do I1 = 1, nk
-          ABLOCK(:,I1) = CI(:, ISET(I1))
+        do i = 1, nk
+          ABLOCK(:,i) = CI(:, I1list(i))
         end do
 
-        do I1 = 1, NUP
-          SIGMA(I1,I2) = SIGMA(I1,I2) + sum( ABLOCK(I1,1:nk) * XMAT(1:nk,1) )
-        end do
+        call DGEMM_('N','N', NUP, 1, nk, 1.0_wp, ABLOCK, NUP, Xlist, nk, 0.0_wp, TEMP, NUP)
+
+        SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
 
       end do
 
