@@ -74,6 +74,7 @@ if (IQ < IP) then
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
         ! CASE IS: LOWER HALF, EXCITE:
+        call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,.false.)
         call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
 
       end do
@@ -159,6 +160,7 @@ else if (IP < IQ) then
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
+        call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,.true.)
         call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.True.)
       end do
     end do
@@ -286,6 +288,32 @@ end if
 contains
 
 
+
+subroutine sort_icoup_block(ICOUP, NCP, swap)
+  use Definitions, only: iwp
+  implicit none
+  integer(kind=iwp), intent(inout) :: ICOUP(3,NCP)
+  integer(kind=iwp), intent(in) :: NCP
+  logical(kind=iwp), intent(in) :: swap
+  integer(kind=iwp) :: i, j
+  integer(kind=iwp) :: temp(3)
+
+  do i = 2, NCP
+     temp = ICOUP(:,i)
+     j = i-1
+     do while (j >= 1)
+        if (swap) then
+           if (ICOUP(1,j) <= temp(1)) exit
+        else
+           if (ICOUP(2,j) <= temp(2)) exit
+        end if
+        ICOUP(:,j+1) = ICOUP(:,j)
+        j = j - 1
+     end do
+     ICOUP(:,j+1) = temp
+  end do
+end subroutine sort_icoup_block
+
 subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   use Definitions, only: wp, iwp
   implicit none
@@ -297,6 +325,7 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
   integer(kind=iwp) :: ICP, start, finish, k, nk, i, I2, ICP2
   integer(kind=iwp) :: I1
+  ! Tune these parameters, KBLOCK=15,32,..., THR_GEMV=6,8,12,
   integer(kind=iwp), parameter :: KBLOCK=16, THR_GEMV=8
 
   integer(kind=iwp) :: I1list(KBLOCK)
