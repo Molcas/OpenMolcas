@@ -295,10 +295,9 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap
 
-  integer(kind=iwp) :: ICP, start, finish, k, nk, i
-  integer(kind=iwp) :: I2
-
-  integer(kind=iwp), parameter :: KBLOCK=16
+  integer(kind=iwp) :: ICP, start, finish, k, nk, i, I2, ICP2
+  integer(kind=iwp) :: I1
+  integer(kind=iwp), parameter :: KBLOCK=16, THR_GEMV=8
 
   integer(kind=iwp) :: I1list(KBLOCK)
   real(kind=wp) :: Xlist(KBLOCK)
@@ -306,6 +305,7 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   real(kind=wp) :: TEMP(NUP,1)
 
   real(kind=wp), pointer :: VTAB(:)
+  real(kind=wp) :: X
 
   VTAB => EXS%VTab
 
@@ -325,27 +325,37 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
         nk = min(KBLOCK, finish-k)
 
-        do i = 1, nk
-          I1list(i) = ICOUP(2, k+i-1)
-          Xlist(i)  = CPQ * VTAB(ICOUP(3, k+i-1))
-        end do
+        if (nk < THR_GEMV) then
+           ! fallback scalar kernel
+           do i=1,nk
+             I1 = ICOUP(2,k+i-1)
+             X = CPQ * VTAB(ICOUP(3,k+i-1))
+!$OMP SIMD
+             do ICP2=1,NUP
+               SIGMA(ICP2,I2)=SIGMA(ICP2,I2)+X*CI(ICP2,I1)
+             end do
+           end do
+        else
+           do i = 1, nk
+             I1list(i) = ICOUP(2, k+i-1)
+             Xlist(i)  = CPQ * VTAB(ICOUP(3, k+i-1))
+           end do
 
-        do i = 1, nk
-          ABLOCK(:,i) = CI(:, I1list(i))
-        end do
+           do i = 1, nk
+             ABLOCK(:,i) = CI(:, I1list(i))
+           end do
 
-        call DGEMM_('N','N', NUP, 1, nk, 1.0_wp, ABLOCK, NUP, Xlist, nk, 0.0_wp, TEMP, NUP)
+           call DGEMM_('N','N', NUP, 1, nk, 1.0_wp, ABLOCK, NUP, Xlist, nk, 0.0_wp, TEMP, NUP)
 
-        SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
+           SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
+        end if
 
       end do
 
       ICP = finish
-
     end do
 
   else
-
     ICP = 1
     do while (ICP <= NCP)
 
@@ -361,23 +371,33 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
         nk = min(KBLOCK, finish-k)
 
-        do i = 1, nk
-          I1list(i) = ICOUP(1, k+i-1)
-          Xlist(i)  = CPQ * VTAB(ICOUP(3, k+i-1))
-        end do
+        if (nk < THR_GEMV) then
+           do i=1,nk
+             I1 = ICOUP(1,k+i-1)
+             X = CPQ * VTAB(ICOUP(3,k+i-1))
+!$OMP SIMD
+             do ICP2=1,NUP
+               SIGMA(ICP2,I2)=SIGMA(ICP2,I2)+X*CI(ICP2,I1)
+             end do
+           end do
+        else
+           do i = 1, nk
+             I1list(i) = ICOUP(1, k+i-1)
+             Xlist(i)  = CPQ * VTAB(ICOUP(3, k+i-1))
+           end do
 
-        do i = 1, nk
-          ABLOCK(:,i) = CI(:, I1list(i))
-        end do
+           do i = 1, nk
+             ABLOCK(:,i) = CI(:, I1list(i))
+           end do
 
-        call DGEMM_('N','N', NUP, 1, nk, 1.0_wp, ABLOCK, NUP, Xlist, nk, 0.0_wp, TEMP, NUP)
+           call DGEMM_('N','N', NUP, 1, nk, 1.0_wp, ABLOCK, NUP, Xlist, nk, 0.0_wp, TEMP, NUP)
 
-        SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
+           SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
+        end if
 
       end do
 
       ICP = finish
-
     end do
 
   end if
