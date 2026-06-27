@@ -317,122 +317,168 @@ end subroutine sort_icoup_block
 subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   use Definitions, only: wp, iwp
   implicit none
-
   integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUP,NDWNC)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap
 
-  integer(kind=iwp) :: ICP, start, finish, k, nk, i, I2, ICP2
-  integer(kind=iwp) :: I1
-  ! Tune these parameters, KBLOCK=15,32,..., THR_GEMV=6,8,12,
-  integer(kind=iwp), parameter :: KBLOCK=16, THR_GEMV=8
+  integer(kind=iwp) :: ICP, start, finish, start2, finish2
+  integer(kind=iwp) :: nk, nk2, i, I2, I2b, offset, block
 
-  integer(kind=iwp) :: I1list(KBLOCK)
-  real(kind=wp) :: Xlist(KBLOCK)
+  integer(kind=iwp), parameter :: KBLOCK = 16
+
+  integer(kind=iwp) :: I1a(KBLOCK), I1b(KBLOCK)
+  real(kind=wp) :: Xa(KBLOCK), Xb(KBLOCK)
   real(kind=wp) :: ABLOCK(NUP,KBLOCK)
-  real(kind=wp) :: TEMP(NUP,1)
+  real(kind=wp) :: W(KBLOCK,2)
+  real(kind=wp) :: TEMP(NUP,2)
 
   real(kind=wp), pointer :: VTAB(:)
-  real(kind=wp) :: X
-
   VTAB => EXS%VTab
 
+  ICP = 1
+
   if (swap) then
-    ICP = 1
-    do while (ICP <= NCP)
 
-      I2 = ICOUP(1,ICP)
-      start = ICP
-      finish = ICP
+  do while (ICP <= NCP)
 
-      do while (finish <= NCP .and. ICOUP(1,finish) == I2)
-        finish = finish + 1
-      end do
-
-      do k = start, finish-1, KBLOCK
-
-        nk = min(KBLOCK, finish-k)
-
-        if (nk < THR_GEMV) then
-           ! fallback scalar kernel
-           do i=1,nk
-             I1 = ICOUP(2,k+i-1)
-             X = CPQ * VTAB(ICOUP(3,k+i-1))
-!$OMP SIMD
-             do ICP2=1,NUP
-               SIGMA(ICP2,I2)=SIGMA(ICP2,I2)+X*CI(ICP2,I1)
-             end do
-           end do
-        else
-           do i = 1, nk
-             I1list(i) = ICOUP(2, k+i-1)
-             Xlist(i)  = CPQ * VTAB(ICOUP(3, k+i-1))
-           end do
-
-           do i = 1, nk
-             ABLOCK(:,i) = CI(:, I1list(i))
-           end do
-
-           call DGEMM_('N','N', NUP, 1, nk, 1.0_wp, ABLOCK, NUP, Xlist, nk, 0.0_wp, TEMP, NUP)
-
-           SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
-        end if
-
-      end do
-
-      ICP = finish
+    I2 = ICOUP(1,ICP)
+    start = ICP
+    finish = ICP
+    do while (finish <= NCP .and. ICOUP(1,finish)==I2)
+      finish = finish + 1
     end do
+
+    nk = finish-start
+
+    if (finish <= NCP) then
+      I2b = ICOUP(1,finish)
+      start2 = finish
+      finish2 = start2
+      do while (finish2 <= NCP .and. ICOUP(1,finish2)==I2b)
+        finish2 = finish2 + 1
+      end do
+      nk2 = finish2-start2
+    else
+      nk2 = -1
+    end if
+
+    ! structural GEMM only if perfectly safe AND fits buffers
+    if (nk == nk2 .and. nk > 0 .and. nk <= KBLOCK) then
+      do i=1,nk
+        I1a(i)=ICOUP(2,start+i-1)
+        I1b(i)=ICOUP(2,start2+i-1)
+      end do
+      if (all(I1a(1:nk)==I1b(1:nk))) then
+        do i=1,nk
+          Xa(i)=CPQ*VTAB(ICOUP(3,start+i-1))
+          Xb(i)=CPQ*VTAB(ICOUP(3,start2+i-1))
+          ABLOCK(:,i)=CI(:,I1a(i))
+          W(i,1)=Xa(i)
+          W(i,2)=Xb(i)
+        end do
+
+        call DGEMM_('N','N', NUP, 2, nk, 1.0_wp, ABLOCK, NUP, W, KBLOCK, 0.0_wp, TEMP, NUP)
+
+        SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
+        SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
+
+        ICP = finish2
+        cycle
+      end if
+    end if
+
+    ! fallback blocked GEMV
+    do offset = 1, nk, KBLOCK
+      block = min(KBLOCK, nk-offset+1)
+
+      do i=1,block
+        I1a(i)=ICOUP(2,start+offset+i-2)
+        Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
+        ABLOCK(:,i)=CI(:,I1a(i))
+      end do
+
+      call DGEMM_('N','N', NUP, 1, block, 1.0_wp, ABLOCK, NUP, Xa, KBLOCK, 0.0_wp, TEMP, NUP)
+
+      SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
+    end do
+
+    ICP = finish
+
+  end do
 
   else
-    ICP = 1
-    do while (ICP <= NCP)
 
-      I2 = ICOUP(2,ICP)
-      start = ICP
-      finish = ICP
+  do while (ICP <= NCP)
 
-      do while (finish <= NCP .and. ICOUP(2,finish) == I2)
-        finish = finish + 1
-      end do
-
-      do k = start, finish-1, KBLOCK
-
-        nk = min(KBLOCK, finish-k)
-
-        if (nk < THR_GEMV) then
-           do i=1,nk
-             I1 = ICOUP(1,k+i-1)
-             X = CPQ * VTAB(ICOUP(3,k+i-1))
-!$OMP SIMD
-             do ICP2=1,NUP
-               SIGMA(ICP2,I2)=SIGMA(ICP2,I2)+X*CI(ICP2,I1)
-             end do
-           end do
-        else
-           do i = 1, nk
-             I1list(i) = ICOUP(1, k+i-1)
-             Xlist(i)  = CPQ * VTAB(ICOUP(3, k+i-1))
-           end do
-
-           do i = 1, nk
-             ABLOCK(:,i) = CI(:, I1list(i))
-           end do
-
-           call DGEMM_('N','N', NUP, 1, nk, 1.0_wp, ABLOCK, NUP, Xlist, nk, 0.0_wp, TEMP, NUP)
-
-           SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
-        end if
-
-      end do
-
-      ICP = finish
+    I2 = ICOUP(2,ICP)
+    start = ICP
+    finish = ICP
+    do while (finish <= NCP .and. ICOUP(2,finish)==I2)
+      finish = finish + 1
     end do
+
+    nk = finish-start
+
+    if (finish <= NCP) then
+      I2b = ICOUP(2,finish)
+      start2 = finish
+      finish2 = start2
+      do while (finish2 <= NCP .and. ICOUP(2,finish2)==I2b)
+        finish2 = finish2 + 1
+      end do
+      nk2 = finish2-start2
+    else
+      nk2 = -1
+    end if
+
+    if (nk == nk2 .and. nk > 0 .and. nk <= KBLOCK) then
+      do i=1,nk
+        I1a(i)=ICOUP(1,start+i-1)
+        I1b(i)=ICOUP(1,start2+i-1)
+      end do
+      if (all(I1a(1:nk)==I1b(1:nk))) then
+        do i=1,nk
+          Xa(i)=CPQ*VTAB(ICOUP(3,start+i-1))
+          Xb(i)=CPQ*VTAB(ICOUP(3,start2+i-1))
+          ABLOCK(:,i)=CI(:,I1a(i))
+          W(i,1)=Xa(i)
+          W(i,2)=Xb(i)
+        end do
+
+        call DGEMM_('N','N', NUP, 2, nk, 1.0_wp, ABLOCK, NUP, W, KBLOCK, 0.0_wp, TEMP, NUP)
+
+        SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
+        SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
+
+        ICP = finish2
+        cycle
+      end if
+    end if
+
+    do offset = 1, nk, KBLOCK
+      block = min(KBLOCK, nk-offset+1)
+
+      do i=1,block
+        I1a(i)=ICOUP(1,start+offset+i-2)
+        Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
+        ABLOCK(:,i)=CI(:,I1a(i))
+      end do
+
+      call DGEMM_('N','N', NUP, 1, block, 1.0_wp, ABLOCK, NUP, Xa, KBLOCK, 0.0_wp, TEMP, NUP)
+
+      SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
+    end do
+
+    ICP = finish
+
+  end do
 
   end if
 
   VTAB => null()
 end subroutine apply_col
+
 
 subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
   integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
