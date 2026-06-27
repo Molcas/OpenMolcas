@@ -486,37 +486,95 @@ subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
   real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
   logical(kind=iwp), intent(in) :: swap
 
-  integer(kind=iwp) :: ICP, IDWN
+  integer(kind=iwp), parameter :: KBLOCK=16
+  logical, parameter :: USE_OPT=.true.
+
+  integer(kind=iwp) :: ICP, IDWN, i, j, blk, nblk
+
   real(kind=wp), pointer :: VTAB(:), XLIST(:)
-  integer(kind=iwp), pointer ::  I1LIST(:), I2LIST(:)
+  integer(kind=iwp), pointer :: I1LIST(:), I2LIST(:)
+
+  real(kind=wp) :: X
+
+  ! small tiles
+  real(kind=wp) :: CI_blk(KBLOCK,KBLOCK)
 
   VTAB => EXS%VTab
   XLIST => EXS%XLIST
   I1LIST => EXS%I1LIST
   I2LIST => EXS%I2LIST
 
-  if (swap) then
+  if (.not. USE_OPT) then
+
+    if (swap) then
+      do ICP=1,NCP
+        I1list(ICP)=ICOUP(2,ICP)
+        I2list(ICP)=ICOUP(1,ICP)
+        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
+      end do
+    else
+      do ICP=1,NCP
+        I1list(ICP)=ICOUP(1,ICP)
+        I2list(ICP)=ICOUP(2,ICP)
+        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
+      end do
+    end if
+
     do ICP=1,NCP
-      I1list(ICP)=ICOUP(2,ICP)
-      I2list(ICP)=ICOUP(1,ICP)
-      Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
+!$OMP SIMD
+      do IDWN=1,NDWN
+        SIGMA(I2list(ICP),IDWN)=SIGMA(I2list(ICP),IDWN)+Xlist(ICP)*CI(I1list(ICP),IDWN)
+      end do
     end do
+
   else
-    do ICP=1,NCP
-      I1list(ICP)=ICOUP(1,ICP)
-      I2list(ICP)=ICOUP(2,ICP)
-      Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
+
+    ! sorted input improves locality (optional external sort)
+    if (swap) then
+      do ICP=1,NCP
+        I1list(ICP)=ICOUP(2,ICP)
+        I2list(ICP)=ICOUP(1,ICP)
+        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
+      end do
+    else
+      do ICP=1,NCP
+        I1list(ICP)=ICOUP(1,ICP)
+        I2list(ICP)=ICOUP(2,ICP)
+        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
+      end do
+    end if
+
+    ! tiled processing
+    do j=1,NDWN,KBLOCK
+      nblk = min(KBLOCK, NDWN-j+1)
+
+      do i=1,NCP,KBLOCK
+        blk = min(KBLOCK, NCP-i+1)
+
+        ! pack tile (transpose-like)
+        do ICP=1,blk
+          do IDWN=1,nblk
+            CI_blk(IDWN,ICP)=CI(I1list(i+ICP-1), j+IDWN-1)
+          end do
+        end do
+
+        ! compute
+        do ICP=1,blk
+          X = Xlist(i+ICP-1)
+!$OMP SIMD
+          do IDWN=1,nblk
+            SIGMA(I2list(i+ICP-1), j+IDWN-1) =               SIGMA(I2list(i+ICP-1), j+IDWN-1) + X*CI_blk(IDWN,ICP)
+          end do
+        end do
+
+      end do
     end do
+
   end if
 
-  do ICP=1,NCP
-!$OMP SIMD
-    do IDWN=1,NDWN
-      SIGMA(I2list(ICP),IDWN)=SIGMA(I2list(ICP),IDWN)+Xlist(ICP)*CI(I1list(ICP),IDWN)
-    end do
-  end do
-
   VTAB => null()
+
 end subroutine apply_row
+
 
 end subroutine SG_Epq_Psi
