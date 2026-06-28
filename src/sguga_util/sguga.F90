@@ -1774,6 +1774,9 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 !   ISGPTH(IRSEG,LEV) stores the raw segment number ISGT
 
   implicit none
+  integer(kind=iwp), allocatable :: VHashKey(:), VHashVal(:)
+  integer(kind=iwp) :: hsize, h, key_int, iprobe, hloc
+  logical :: found
 
   type(SGStruct), intent(in)    :: SGS
   type(CIStruct), intent(inout) :: CIS
@@ -1849,6 +1852,11 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   call mma_allocate(ISGPTH,[1,8],[0,SGS%nLev],Label='ISGPTH')
   call mma_allocate(val,[0,SGS%nLev],Label='val')
   call mma_allocate(VTab,nVTab,Label='VTab')
+  hsize = 2*nVTab + 1
+  call mma_allocate(VHashKey,[0,hsize-1],Label='VHashKey')
+  call mma_allocate(VHashVal,[0,hsize-1],Label='VHashVal')
+  VHashKey(:) = -huge(1_iwp)
+  VHashVal(:) = 0
 
   ! Coupling coefficient value table
   NVTAB_FINAL = 2
@@ -2115,6 +2123,8 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   Call mma_allocate(EXS%I1List,NCP_Max,Label='I1List')
   Call mma_allocate(EXS%I2List,NCP_Max,Label='I2List')
   Call mma_allocate(EXS%XList,NCP_Max,Label='XList')
+  call mma_deallocate(VHashKey)
+  call mma_deallocate(VHashVal)
 end subroutine MKCOUP
 
 subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
