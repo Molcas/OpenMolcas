@@ -312,110 +312,120 @@ contains
 
   end subroutine mknVert0
 
-  subroutine mkDRT0(SGS)
-  ! PURPOSE: CONSTRUCT THE UNRESTRICTED GUGA TABLE
+subroutine mkDRT0(SGS)
+  type(SGStruct), target, intent(inout) :: SGS
 
+  integer(kind=iwp) :: ADWN, BDWN, CDWN
+  integer(kind=iwp) :: AUP, BUP, CUP
+  integer(kind=iwp) :: LEV, ISTEP
+  integer(kind=iwp) :: VUP, VSTA, VEND, VNEW, VDWN
+  integer(kind=iwp) :: key, maxKey
 
-    type(SGStruct), target, intent(inout) :: SGS
-    integer(kind=iwp) :: ADWN, AUP, BDWN, BUP, CDWN, CUP, LEV, ISTEP, VDWN, VEND, VSTA, VUP, VNEW
-    integer(kind=iwp), parameter:: Steps(4,0:3)=Reshape([0,0,1,0, 0,1,0,1, 1,-1,1,1, 1,0,0,2],[4,4])
-#   ifdef _DEBUGPRINT_
-    integer(kind=iwp) :: VERT
-#   endif
+  integer(kind=iwp), parameter :: Steps(4,0:3)=reshape( &
+       [0,0,1,0, 0,1,0,1, 1,-1,1,1, 1,0,0,2],[4,4])
 
-    SGS%DRTP(:,:)=0
-    SGS%DownP(:,:) = 0  ! Initiate step as void
-    SGS%NACTEL = 2*SGS%IA0+SGS%IB0
-    SGS%nLev = SGS%IA0+SGS%IB0+SGS%IC0  ! Number of levels
+  ! --- bounds for encoding ---
+  integer(kind=iwp) :: Amax, Bmax, Cmax
+  integer(kind=iwp), allocatable :: vmap(:)
 
-    ! EACH ROW IN THE DESTINCT ROW TABLE (DRT) CORRESPONDS TO A VERTEX IN THE SHAVITT GRAPH
-    ! Each row corresponds to five pretabulated values, which depend of the final spin of
-    ! the CSFSsi (S), the total number of electrons(N_n), and the total number of levels -- active orbitals -- (n_n)
+  SGS%DRTP(:,:) = 0
+  SGS%DownP(:,:) = 0
 
-    ! a_n + b_n + c_n = n_n
-    ! N_n=2a_n + b_n, or a_n = N_n/2 - S
-    ! b_n = 2S
+  SGS%NACTEL = 2*SGS%IA0 + SGS%IB0
+  SGS%nLev   = SGS%IA0 + SGS%IB0 + SGS%IC0
 
-    ! SET UP TOP ROW
+  ! maximum ranges (safe upper bounds)
+  Amax = SGS%IA0
+  Bmax = SGS%IB0 + SGS%IA0   ! loose but safe
+  Cmax = SGS%IC0
 
-    SGS%DRTP(1,LTAB) = SGS%nLev   ! Level index, n_n
-    SGS%DRTP(1,NTAB) = SGS%NACTEL ! Number of electrons, N_n
-    SGS%DRTP(1,ATAB) = SGS%IA0    ! a_n
-    SGS%DRTP(1,BTAB) = SGS%IB0    ! b_n
-    SGS%DRTP(1,CTAB) = SGS%IC0    ! c_n
+  maxKey = (Amax+1)*(Bmax+1)*(Cmax+1)
 
-    VSTA = 1   ! On the top level we have only one node.
-    VEND = 1
+  allocate(vmap(0:maxKey-1))
+  vmap(:) = 0
 
-#   ifdef _DEBUGPRINT_
-    write(u6,*) 'A0,B0,C0,NVERT=',SGS%IA0,SGS%IB0,SGS%IC0,SGS%nVert
-#   endif
+  ! ------------------------------------------
+  ! helper: inline key encoding
+  ! ------------------------------------------
+#define KEY(A,B,C) ((A)*(Bmax+1)*(Cmax+1) + (B)*(Cmax+1) + (C))
 
-    ! LOOP OVER ALL LEVELS, TOP-DOWN
+  ! TOP vertex
+  SGS%DRTP(1,LTAB) = SGS%nLev
+  SGS%DRTP(1,NTAB) = SGS%NACTEL
+  SGS%DRTP(1,ATAB) = SGS%IA0
+  SGS%DRTP(1,BTAB) = SGS%IB0
+  SGS%DRTP(1,CTAB) = SGS%IC0
 
-    do LEV=SGS%nLev,1,-1               ! Loop over all levels
+  key = KEY(SGS%IA0,SGS%IB0,SGS%IC0)
+  vmap(key) = 1
 
-      ! LOOP OVER VERTICES AT LEVEL LEV
+  VSTA = 1
+  VEND = 1
 
-      VNEW=0
-      do VUP=VSTA,VEND
-        ! Pick up the a, b, and c values of this node
-        AUP = SGS%DRTP(VUP,ATAB)
-        BUP = SGS%DRTP(VUP,BTAB)
-        CUP = SGS%DRTP(VUP,CTAB)
+  ! ------------------------------------------
+  ! main loop
+  ! ------------------------------------------
+  do LEV = SGS%nLev, 1, -1
+    VNEW = 0
 
-        ! LOOP OVER CASES (STEP VECTORS)
-        ! AND STORE ONLY VALID CASE NUMBERS WITH ADDRESSES
+    do VUP = VSTA, VEND
+      AUP = SGS%DRTP(VUP,ATAB)
+      BUP = SGS%DRTP(VUP,BTAB)
+      CUP = SGS%DRTP(VUP,CTAB)
 
-        ! 0 <= a_k <= a_n
-        ! 0 <= c_k <= c_n
-        ! 0 <= b_k <= b_n + Min(a_n-a_k,c_n-c_k)
+      do ISTEP = 0, 3
 
-STEP:   do ISTEP=0,3    ! loop over the step vectors
+        ADWN = AUP - Steps(1,ISTEP)
+        if (ADWN < 0) cycle
 
-          ! Check that this node can be reached by this step
-          ADWN = AUP-STEPS(1,ISTEP)
-          if (ADWN < 0) cycle
-          BDWN = BUP-STEPS(2,ISTEP)
-          if (BDWN < 0) cycle
-          CDWN = CUP-STEPS(3,ISTEP)
-          if (CDWN < 0) cycle
+        BDWN = BUP - Steps(2,ISTEP)
+        if (BDWN < 0) cycle
 
-          ! Check if this is a new vertex, compare with the new vertices accumulated so far for the level below ...
-          DO VDWN = VEND+1, VEND+VNEW
-             IF (ADWN==SGS%DRTP(VDWN,ATAB) .AND. BDWN==SGS%DRTP(VDWN,BTAB) .AND. CDWN==SGS%DRTP(VDWN,CTAB)) THEN
-                SGS%DownP(VUP,ISTEP)=VDWN
-                CYCLE STEP
-             END IF
-          END DO
+        CDWN = CUP - Steps(3,ISTEP)
+        if (CDWN < 0) cycle
 
-          VNEW=VNEW+1
-          SGS%DownP(VUP,ISTEP)=VEND+VNEW
-          SGS%DRTP(VEND+VNEW,ATAB)=ADWN
-          SGS%DRTP(VEND+VNEW,BTAB)=BDWN
-          SGS%DRTP(VEND+VNEW,CTAB)=CDWN
-        end do STEP
+        key = KEY(ADWN,BDWN,CDWN)
+
+        VDWN = vmap(key)
+
+        if (VDWN /= 0) then
+          SGS%DownP(VUP,ISTEP) = VDWN
+        else
+          VNEW = VNEW + 1
+          VDWN = VEND + VNEW
+
+          SGS%DownP(VUP,ISTEP) = VDWN
+
+          SGS%DRTP(VDWN,ATAB) = ADWN
+          SGS%DRTP(VDWN,BTAB) = BDWN
+          SGS%DRTP(VDWN,CTAB) = CDWN
+
+          vmap(key) = VDWN
+        end if
 
       end do
-      VSTA=VEND+1
-      VEND=VEND+VNEW
-
     end do
-    ! End of loop over levels.
 
-    ! COMPLETE DRT TABLE BY ADDING NO. OF ORBITALS AND ELECTRONS
-    ! INTO THE FIRST AND SECOND COLUMN
+    VSTA = VEND + 1
+    VEND = VEND + VNEW
 
-    SGS%DRTP(1:VEND,LTAB) = SGS%DRTP(1:VEND,ATAB)+SGS%DRTP(1:VEND,BTAB)+SGS%DRTP(1:VEND,CTAB)
-    SGS%DRTP(1:VEND,NTAB) = 2*SGS%DRTP(1:VEND,ATAB)+SGS%DRTP(1:VEND,BTAB)
-#   ifdef _DEBUGPRINT_
-    do VERT=1,VEND
-      write(u6,*) 'DRT0(:,LTAB)=',SGS%DRTP(VERT,LTAB)
-      write(u6,*) 'DRT0(:,NTAB)=',SGS%DRTP(VERT,NTAB)
-    end do
-#   endif
+  end do
 
-  end subroutine mkDRT0
+  ! ------------------------------------------
+  ! finalize LTAB / NTAB
+  ! ------------------------------------------
+  SGS%DRTP(1:VEND,LTAB) = SGS%DRTP(1:VEND,ATAB) + &
+                         SGS%DRTP(1:VEND,BTAB) + &
+                         SGS%DRTP(1:VEND,CTAB)
+
+  SGS%DRTP(1:VEND,NTAB) = 2*SGS%DRTP(1:VEND,ATAB) + &
+                         SGS%DRTP(1:VEND,BTAB)
+
+  deallocate(vmap)
+
+#undef KEY
+
+end subroutine mkDRT0
 
   subroutine mkDRT(SGS)
   ! PURPOSE: USING THE UNRESTRICTED DRT TABLE GENERATED BY DRT0 AND
