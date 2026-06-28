@@ -843,20 +843,16 @@ subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
   logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
   integer(kind=iwp) :: iSym
 
-Select case(nRsPrt)
-Case(1)
-   SGS%IFRAS=0
-Case(3)
-   SGS%IFRAS=1
-End Select
-Do iSym = 1, nSym
-   If (Sum(nRas(iSym,1:nRsPrt))/=0) SGS%IFRAS=SGS%IFRAS+1
-End Do
-SGS%nRasEL(1:nRsPrt)=nRasEl(1:nRsPrt)
-SGS%nRas(1:MxSym,1:nRsPrt)=nRas(1:MxSym,1:nRsPrt)
-SGS%nRsPrt=nRsPrt
+  SGS%IFRAS=0
+  If (nRsPrt==3) SGS%IFRAS=1
+  Do iSym = 1, nSym
+     If (Sum(nRas(iSym,1:nRsPrt))/=0) SGS%IFRAS=SGS%IFRAS+1
+  End Do
+  SGS%nRasEL(1:nRsPrt)=nRasEl(1:nRsPrt)
+  SGS%nRas(1:MxSym,1:nRsPrt)=nRas(1:MxSym,1:nRsPrt)
+  SGS%nRsPrt=nRsPrt
 
-! Make sure that we start from a clean slate.
+  ! Make sure that we start from a clean slate.
   if (present(EXS)) then
    ! Here if the extended parameter list was used.
     call SG_Free(SGS,CIS,EXS)
@@ -1055,14 +1051,8 @@ do IHALF=1,2
       Scr(ISTEP,LEV) = ISTP ! Store the current step vector index of level Level
       ! doubly occupied or empty orbital case are total symmetric. Singly occupied orbitals
       ! carry the symmetry of the orbital in the level.
-      SELECT CASE(ISTP)
-!       CASE(0,3)
-!         ISML = 1
-        CASE(1,2)
-          ISML = SGS%ISm(LEV)
-        CASE DEFAULT
-          ISML = 1
-      END SELECT
+      ISML = 1
+      IF (ISTP==1 .or. ISTP==2) ISML = SGS%ISm(LEV)
 
       LEV = LEV-1     ! Walk down one level
 
