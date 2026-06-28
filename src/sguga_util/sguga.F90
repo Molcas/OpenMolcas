@@ -1283,14 +1283,8 @@ CIS%VSGM(:,:) = Zero
 do IVLT=1,SGS%nVert     ! Upper left vertex
   do ISGT=1,nSeg
     ITT = ITVPT(ISGT)   ! 0-3
-    SELECT CASE(ITT)
-!     Case(0,3)
-!       IVRT = IVLT               ! Upper right vertex is the same as the upper left vertex.
-      Case(1,2)
-        IVRT = CIS%IVR(IVLT,ITT)  ! Pick up the associated upper right vertex, depends on delta(b)
-      Case Default
-        IVRT = IVLT               ! Upper right vertex is the same as the upper left vertex.
-    End Select
+    IVRT = IVLT               ! Upper right vertex is the same as the upper left vertex.
+    If (ITT==1 .or. ITT==2)IVRT = CIS%IVR(IVLT,ITT)  ! Pick up the associated upper right vertex, depends on delta(b)
     if (IVRT == 0) cycle          ! Branch out if there is no vertex that will contruct the top of the segment.
     ! Pick up the vertex index for the left lower vertex as a function of the case
     IVLB = SGS%Down(IVLT,IC1(ISGT))
@@ -2293,12 +2287,8 @@ end subroutine Mk_IOW
 pure logical(kind=iwp) function NeedsRightPartner(ICLASS)
   integer(kind=iwp), intent(in) :: ICLASS
 
-  select case (ICLASS)
-  case (1,2)
-    NeedsRightPartner = .true.
-  case default
-    NeedsRightPartner = .false.
-  end select
+  NeedsRightPartner = .false.
+  If (ICLASS==1 .or. ICLASS==2) NeedsRightPartner = .true.
 end function NeedsRightPartner
 
 pure integer(kind=iwp) function PartnerSlot(ICLASS)
