@@ -998,7 +998,7 @@ CIS%IOW(:,:,:) = 0
 CIS%IOCSF(:,:,:) = 0
 CIS%NOCSF(:,:,:) = 0
 Else
-call mma_allocate(Scr,[1,3],[0,SGS%nLev],Label='Scr',safe='*')  ! First index referenced by IVERT, SYM, and ISTEP
+!call mma_allocate(Scr,[1,3],[0,SGS%nLev],Label='Scr',safe='*')  ! First index referenced by IVERT, SYM, and ISTEP
 call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
 ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
 CIS%NOW(:,:,:) = 0
@@ -1132,7 +1132,7 @@ end do
 #endif
 End If
 
-end do ! IHALF
+end do ! INIT
 
 call mma_deallocate(Scr,safe='*')
 
