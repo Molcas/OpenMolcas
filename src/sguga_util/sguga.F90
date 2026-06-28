@@ -646,144 +646,135 @@ end subroutine mkDRT0
   end subroutine MKMID
 
 subroutine RMVERT(SGS)
-! Purpose: Remove vertices from a DRT table.
+  implicit none
+  type(SGStruct), intent(inout) :: SGS
 
-implicit none
-type(SGStruct), intent(inout) :: SGS
-integer(kind=iwp) :: IC, ID, iRO, iSy, IV, L, Lev, N, NCHANGES, NLD, NV
-logical(kind=iwp) :: Test
-integer(kind=iwp), allocatable :: CONN(:), Lim(:)
+  integer(kind=iwp) :: IV, IC, ID
+  integer(kind=iwp) :: L, N
+  integer(kind=iwp) :: NCHANGES, NV, iRO, iSy, Lev
+  integer(kind=iwp), allocatable :: CONN(:), Lim(:)
 
-! Construct a restricted graph.
-call mma_allocate(Lim,SGS%nLev,Label='Lim')
-Lim(:) = 0
-! Fill in the occupation limit table:
-! This tells us what is the minimum of particles that has to be found at the levels when we move from on
-! partioning, RASx, to another. Note that we assume that the levels of the RASx spaces are consecutive
-! and that these levels are ordered in the sequence RAS1, RAS2, and RAS3 levels.
+  !-----------------------------------------
+  ! Build occupation limits
+  !-----------------------------------------
+  call mma_allocate(Lim,SGS%nLev,Label='Lim')
+  Lim(:) = 0
 
-Lev = 0
-do iRO=1,SGS%nRsPrt   ! Loop over the partitionings, RAS1, RAS2, RAS3
-  do iSy=1,SGS%nSym   ! Loop over the irreps and accumulate the number of levels associated with the RASx space.
-    Lev = Lev+SGS%nRas(iSy,iRO)
+  Lev = 0
+  do iRO = 1, SGS%nRsPrt
+    do iSy = 1, SGS%nSym
+      Lev = Lev + SGS%nRas(iSy,iRO)
+    end do
+    if (Lev > 0) Lim(Lev) = SGS%nRasEl(iRO)
   end do
-  ! If the number of levels are non-zero set the limit at the level which marks the end of a RASx space to be
-  ! equivalent to the number of electrons in that subspace
-  if (Lev > 0) Lim(Lev) = SGS%nRasEl(iRO)
-end do
 
-call mma_allocate(SGS%Ver,SGS%nVert0,Label='SGS%Ver')
-SGS%Ver(:)=1 ! Default to that all vertices are included.
-call mma_allocate(CONN,SGS%nVert,Label='CONN')
+  !-----------------------------------------
+  ! Initialize vertex mask
+  !-----------------------------------------
+  call mma_allocate(SGS%Ver,SGS%nVert0,Label='SGS%Ver')
+  SGS%Ver(:) = 1
 
-! KILL VERTICES THAT DO NOT OBEY RESTRICTIONS.
-do IV=1,SGS%nVert-1  ! loop over all vertices but the tail vertex
-  L = SGS%DRT0(IV,LTAB)       ! Pick up the level index
-  N = SGS%DRT0(IV,NTAB)       ! pick up the number of particles expressed by the vertex
-  ! Test if the number of partciles is too fe
-  if (N < Lim(L)) SGS%Ver(IV) = 0
-end do
+  call mma_allocate(CONN,SGS%nVert,Label='CONN')
 
-NCHANGES = 1 ! Initiate first loop
-do while (NCHANGES > 0)
-  ! REMOVE ARCS HAVING A DEAD UPPER OR LOWER VERTEX.
-  ! COUNT THE NUMBER OF ARCS REMOVED OR VERTICES KILLED.
-  NCHANGES = 0
-  ! Loop over all vertices but the tail/root vertex.
-  do IV=1,SGS%nVert-1
-    if (SGS%Ver(IV) == 0) then
-      ! Vertex IV is eliminated
-      ! Loop over the step vectors
-      do IC=0,3
-        ID = SGS%Down0(IV,IC)  ! Pick up the index of the lower level vertex which it connects to with this step
-        ! If it is a viable node/vertex disable the arc
-        ! If ID > 0 that means that vertices (IV,ID) are connected by an arc described by the step vector IC
-         if (ID > 0) then
-          SGS%Down0(IV,IC) = 0
-          NCHANGES = NCHANGES+1
-        end if
-      end do
-    else
-      !Vertex IV is NOT eliminated
-      NLD = 0
-      ! Loop over all step vectors
-      do IC=0,3
-        ID = SGS%Down0(IV,IC)  ! Pick up the node it is connected to
-        ! If vertex IV is connected to vertex ID through the step IC then do
-        if (ID > 0) then
-          ! Check if vertex ID has been removed
-          if (SGS%Ver(ID) == 0) then
-            ! If ID has been removed change the arc to be void
-            SGS%Down0(IV,IC) = 0
-            NCHANGES = NCHANGES+1
-          else
-            NLD = NLD+1
-          end if
-        end if
-      end do
-      ! If NLD==0 that means that vertex IV is not connected to any vertex below.
-      if (NLD == 0) then
-        SGS%Ver(IV) = 0   ! Remove vertex IV
-        NCHANGES = NCHANGES+1
+  !-----------------------------------------
+  ! Initial pruning based on occupation
+  !-----------------------------------------
+  do IV = 1, SGS%nVert-1
+    L = SGS%DRT0(IV,LTAB)
+    N = SGS%DRT0(IV,NTAB)
+
+    if (N < Lim(L)) SGS%Ver(IV) = 0
+  end do
+
+  !-----------------------------------------
+  ! Iterative pruning
+  !-----------------------------------------
+  do
+    NCHANGES = 0
+
+    !-------------------------------------
+    ! Step 1: remove invalid downward arcs
+    !-------------------------------------
+    do IV = 1, SGS%nVert-1
+      if (SGS%Ver(IV) == 0) then
+        SGS%Down0(IV,0:3) = 0
+        cycle
       end if
-    end if
-  end do
-  ! ALSO CHECK ON CONNECTIONS FROM ABOVE:
-  CONN(:) = 0
-  CONN(1) = SGS%Ver(1)
-  ! Loop over all vertex but the last one -- the tail/root vertex
-  do IV=1,SGS%nVert-1
-    ! Process if the vertex is viable
-    if (SGS%Ver(IV) == 1) then
-      ! Loop over all step vectors
-      do IC=0,3
-        ID = SGS%Down0(IV,IC) ! Pick up the lower level vertex this step vector connects to
-        Test = ID > 0     ! Test=.TRUE. if the arc is viable
-        ! If the arc is viable check that the vertex is not removed
-        if (Test) Test = SGS%Ver(ID) == 1
-        ! if the arc is viable and the vertex is not removed mark vertex ID up as a vertex that is
-        ! connected to an vertex at the level above.
-        if (Test) CONN(ID) = 1
+
+      do IC = 0,3
+        ID = SGS%Down0(IV,IC)
+
+        if (ID > 0 .and. SGS%Ver(ID) == 0) then
+          SGS%Down0(IV,IC) = 0
+          NCHANGES = NCHANGES + 1
+        end if
       end do
-    end if
+    end do
+
+    !-------------------------------------
+    ! Step 2: remove vertices with no children
+    !-------------------------------------
+    do IV = 1, SGS%nVert-1
+      if (SGS%Ver(IV) == 0) cycle
+
+      if (all(SGS%Down0(IV,0:3) == 0)) then
+        SGS%Ver(IV) = 0
+        NCHANGES = NCHANGES + 1
+      end if
+    end do
+
+    !-------------------------------------
+    ! Step 3: rebuild upward connectivity
+    !-------------------------------------
+    CONN(:) = 0
+    CONN(1) = SGS%Ver(1)
+
+    do IV = 1, SGS%nVert-1
+      if (SGS%Ver(IV) == 0) cycle
+
+      do IC = 0,3
+        ID = SGS%Down0(IV,IC)
+        if (ID > 0 .and. SGS%Ver(ID) == 1) then
+          CONN(ID) = 1
+        end if
+      end do
+    end do
+
+    ! remove vertices not connected from above
+    do IV = 1, SGS%nVert
+      if (SGS%Ver(IV) == 1 .and. CONN(IV) == 0) then
+        SGS%Ver(IV) = 0
+        NCHANGES = NCHANGES + 1
+      end if
+    end do
+
+    if (NCHANGES == 0) exit
+
   end do
-  ! Loop over all vertice
-  do IV=1,SGS%nVert
-    ! Remove any vertex that is kept but doesn't connect with any vertex above.
-    if ((SGS%Ver(IV) == 1) .and. (CONN(IV) == 0)) then
-      SGS%Ver(IV) = 0
-      NCHANGES = NCHANGES+1
-    end if
-  end do
 
-end do
-
-! IF NO CHANGES, THE REMAINING GRAPH IS VALID.
-! EVERY VERTEX OBEYS THE RESTRICTIONS. EVERY VERTEX IS
-! CONNECTED ABOVE AND BELOW (EXCEPTING THE TOP AND BOTTOM)
-! TO OTHER CONFORMING VERTICES.
-! THE PROCEDURE IS GUARANTEED TO FIND A STABLE SOLUTIONS,
-! SINCE EACH ITERATION REMOVES ARCS AND/OR VERTICES FROM THE
-! FINITE NUMBER WE STARTED WITH.
-
-if (SGS%Ver(1) == 0) then
-  write(u6,*) 'RASSI/RMVERT: Too severe restrictions.'
-  write(u6,*) 'Not one single configuration is left.'
-  call ABEND()
-end if
-
-! Now get the new indexation of the remaining vertices.
-NV = 0
-do IV=1,SGS%nVert
-  if (SGS%Ver(IV) == 1) then
-    NV = NV+1
-    SGS%Ver(IV) = NV
+  !-----------------------------------------
+  ! Safety check
+  !-----------------------------------------
+  if (SGS%Ver(1) == 0) then
+    write(u6,*) 'RASSI/RMVERT: Too severe restrictions.'
+    call Abend()
   end if
-end do
-SGS%nVert = NV  ! Update nVert
 
-call mma_deallocate(CONN)
-call mma_deallocate(Lim)
+  !-----------------------------------------
+  ! Renumber vertices
+  !-----------------------------------------
+  NV = 0
+  do IV = 1, SGS%nVert
+    if (SGS%Ver(IV) == 1) then
+      NV = NV + 1
+      SGS%Ver(IV) = NV
+    end if
+  end do
+
+  SGS%nVert = NV
+
+  call mma_deallocate(CONN)
+  call mma_deallocate(Lim)
 
 end subroutine RMVERT
 
