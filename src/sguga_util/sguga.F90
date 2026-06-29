@@ -1489,23 +1489,23 @@ do MV=1,CIS%nMidV                  ! loop over midverticies
     MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))           ! The max upper walks to any midvertex
 
 
-! ---- open loops ----
-do band = 1, nOpenBands
-  if (.not. ActiveBand(band)) cycle
+    ! ---- open loops ----
+    do band = 1, nOpenBands
+      if (.not. ActiveBand(band)) cycle
 
-  do IP = 1, SGS%nLev
-    INDEO = IP + (band-1)*SGS%nLev
-    EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
-  end do
+      do IP = 1, SGS%nLev
+        INDEO = IP + (band-1)*SGS%nLev
+        EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
+      end do
 
-end do
+    end do
 
-! ---- closed loops ----
-do IPQ = 1, SGS%nLev*(SGS%nLev+1)/2
-  INDEO_EXS = IPQ + EXS_OpenBlock
-  INDEO_NRL = IPQ + NRL_OpenBlock
-  EXS%NOCP(INDEO_EXS,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO_NRL)
-end do
+    ! ---- closed loops ----
+    do IPQ = 1, SGS%nLev*(SGS%nLev+1)/2
+      INDEO_EXS = IPQ + EXS_OpenBlock
+      INDEO_NRL = IPQ + NRL_OpenBlock
+      EXS%NOCP(INDEO_EXS,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO_NRL)
+    end do
 
   end do
 end do
@@ -1535,50 +1535,50 @@ do IVLT = SGS%nVert-1, SGS%MVSta, -1
       do ITSYM = 1, SGS%nSym
         IBSYM = Mul(ITSYM,ISYM)
 
-select case (TRS%IFLAG(ITR))
+        select case (TRS%IFLAG(ITR))
 
-case (TR_TAIL)
-  ! ordinary lower walk
-  NRL(ITSYM,IVLT,INDEO0) = NRL(ITSYM,IVLT,INDEO0) + NRL(IBSYM,IVLB,INDEO0)
+        case (TR_TAIL)
+          ! ordinary lower walk
+          NRL(ITSYM,IVLT,INDEO0) = NRL(ITSYM,IVLT,INDEO0) + NRL(IBSYM,IVLB,INDEO0)
 
-case (TR_CLOSE)
-  ! create open-loop class from below
-  IQ = LEV
-  INDEO = IQ + (OpenBand(ITOP)-1)*SGS%nLev
-  NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO0)
+        case (TR_CLOSE)
+          ! create open-loop class from below
+          IQ = LEV
+          INDEO = IQ + (OpenBand(ITOP)-1)*SGS%nLev
+          NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO0)
 
-case (TR_MID)
-  ! propagate open-loop class upward
-  do IQ = 1, LEV-1
-    INDEOT = IQ + (OpenBand(ITOP)-1)*SGS%nLev
-    INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
-    NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
-  end do
+        case (TR_MID)
+          ! propagate open-loop class upward
+          do IQ = 1, LEV-1
+            INDEOT = IQ + (OpenBand(ITOP)-1)*SGS%nLev
+            INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
+            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
+          end do
 
-case (TR_OPEN)
-  ! close open loop into closed-loop class
-  IP = LEV
-  do IQ = 1, LEV-1
-    INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
-    IPQ    = (IP*(IP-1))/2 + IQ
-    INDEOT = NRL_OpenBlock + IPQ
-    NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
-  end do
+        case (TR_OPEN)
+          ! close open loop into closed-loop class
+          IP = LEV
+          do IQ = 1, LEV-1
+            INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
+            IPQ    = (IP*(IP-1))/2 + IQ
+            INDEOT = NRL_OpenBlock + IPQ
+            NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
+          end do
 
-case (TR_WALK)
-  ! propagate closed loops upward
-  do IPQ = 1, (LEV*(LEV-1))/2
-    INDEO = NRL_OpenBlock + IPQ
-    NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
-  end do
+        case (TR_WALK)
+          ! propagate closed loops upward
+          do IPQ = 1, (LEV*(LEV-1))/2
+            INDEO = NRL_OpenBlock + IPQ
+            NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO)
+          end do
 
-case default
-  write(u6,*) 'MkNRCOUP(lower): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
-  write(u6,*) '  ITR  = ', ITR
-  write(u6,*) '  ISGT = ', ISGT
-  call Abend()
+        case default
+          write(u6,*) 'MkNRCOUP(lower): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
+          write(u6,*) '  ITR  = ', ITR
+          write(u6,*) '  ISGT = ', ISGT
+          call Abend()
 
-end select
+        end select
 
       end do
     end do
@@ -1593,25 +1593,25 @@ do MV=1,CIS%nMidV
     CIS%NOW(2,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO0)
     MXDWN = max(MXDWN,CIS%NOW(2,LFTSYM,MV))
 
-! ---- open loops ----
-do band = 1, nOpenBands
-  if (.not. ActiveBand(band)) cycle
+    ! ---- open loops ----
+    do band = 1, nOpenBands
+      if (.not. ActiveBand(band)) cycle
 
-  do lev = 1, SGS%nLev
-    INDEO = lev + (band-1)*SGS%nLev
-    N = NRL(LFTSYM,IVLT,INDEO)
-    if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
-  end do
+      do IQ = 1, SGS%nLev
+        INDEO = IQ + (band-1)*SGS%nLev
+        N = NRL(LFTSYM,IVLT,INDEO)
+        if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
+      end do
 
-end do
+    end do
 
-! ---- closed loops ----
-do INDEO = 1, SGS%nLev*(SGS%nLev+1)/2
-  INDEO_EXS = INDEO + EXS_OpenBlock
-  INDEO_NRL = INDEO + NRL_OpenBlock
-  N = NRL(LFTSYM,IVLT,INDEO_NRL)
-  if (N /= 0) EXS%NOCP(INDEO_EXS,LFTSYM,MV) = N
-end do
+    ! ---- closed loops ----
+    do IPQ = 1, SGS%nLev*(SGS%nLev+1)/2
+      INDEO_EXS = IPQ + EXS_OpenBlock
+      INDEO_NRL = IPQ + NRL_OpenBlock
+      N = NRL(LFTSYM,IVLT,INDEO_NRL)
+      if (N /= 0) EXS%NOCP(INDEO_EXS,LFTSYM,MV) = N
+    end do
 
   end do
 end do
@@ -1628,11 +1628,12 @@ do INDEO=1,SIZE(EXS%IOCP,1)
 end do
 
 Call Mk_IOW(CIS,SGS)
+
 call CSFCOUNT(CIS,SGS)
 
 !AR INSERT FOR USE IN SIGMA ROUTINE
 
-NSGMX = 1
+NSGMX  = 1
 NDWNS1 = 0  ! Dummy initialization
 NSGTMP = max(MXUP,MXDWN)   ! Max size of intermediate sigma block
 
