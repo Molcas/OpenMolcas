@@ -1499,10 +1499,13 @@ do MV=1,CIS%nMidV                  ! loop over midverticies
     end do
 
     ! ---- closed loops ----
-    do IPQ = 1, SGS%nLev*(SGS%nLev+1)/2
+    do IP = 1, SGS%nLev
+    do IQ = 1, IP
+      IPQ = IP*(IP-1)/2 + IQ
       INDEO_EXS = IPQ + EXS_OpenBlock
       INDEO_NRL = IPQ + NRL_OpenBlock
       EXS%NOCP(INDEO_EXS,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO_NRL)
+    end do
     end do
 
   end do
@@ -1603,10 +1606,13 @@ do MV=1,CIS%nMidV
     end do
 
     ! ---- closed loops ----
-    do IPQ = 1, SGS%nLev*(SGS%nLev+1)/2
+    do IP = 1, SGS%nLev
+    do IQ = 1, IP
+      IPQ = IP*(IP-1)/2 + IQ
       INDEO_EXS = IPQ + EXS_OpenBlock
       INDEO_NRL = IPQ + NRL_OpenBlock
       EXS%NOCP(INDEO_EXS,LFTSYM,MV) = MAX(EXS%NOCP(INDEO_EXS,LFTSYM,MV),NRL(LFTSYM,IVLT,INDEO_NRL))
+    end do
     end do
 
   end do
@@ -1627,7 +1633,7 @@ Call Mk_IOW(CIS,SGS)
 
 call CSFCOUNT(CIS,SGS)
 
-!AR INSERT FOR USE IN SIGMA ROUTINE
+! INSERT FOR USE IN SIGMA ROUTINE
 
 NSGMX  = 1
 NDWNS1 = 0  ! Dummy initialization
@@ -1683,7 +1689,6 @@ call mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
 #ifdef _DEBUGPRINT_
 write(u6,600) MXUP,MXDWN,NSGMX,NSGMX,NSGTMP
 
-!AR END OF INSERT
 NUW=CIS%NUW
 write(u6,*)
 write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
