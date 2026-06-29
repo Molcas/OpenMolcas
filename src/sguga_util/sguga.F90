@@ -1407,6 +1407,7 @@ do IVLT = 1, SGS%MVSta-1    ! This formally denotes the upper left node of an se
   LEV = SGS%DRT(IVLT,LTAB)
 
   ! loop over all possible transition classes: upper walk, delta(b)=-1/+1, or lower walk
+  ! A segment is classified by its top and bottom transition class
   do ICLASS = 0, TRS%nClass-1
 
     IT0 = TRS%ITR0(IVLT,ICLASS)   ! Offset to list of valid segments
@@ -1418,55 +1419,60 @@ do IVLT = 1, SGS%MVSta-1    ! This formally denotes the upper left node of an se
       ITR  = IT0 + K              ! counter
       ISGT = TRS%ISGT(ITR)        ! segment index
       IVLB = TRS%IVLB(ITR)        ! vertex index of lower left node of the segments
-      ITOP = TRS%ITOP(ITR)        ! index of top connection type (delta(b)=+1 or -1)
+      ITOP = TRS%ITOP(ITR)        ! index of top connection type (delta(b)=+1 or -1), ITOP=ICLASS
       IBOT = TRS%IBOT(ITR)        ! dito lower connection type
       ISYM = TRS%ISYM(ITR)        ! the symmetry index of the segment
 
       do ITSYM = 1, SGS%nSym      ! loop over the symmetry index of the source vertex
         IBSYM = Mul(ITSYM,ISYM)   ! get the symmetry index of target vertex given the symmetry index of the segment
 
+        select case (TRS%IFLAG(ITR))
 
-select case (TRS%IFLAG(ITR))
+        case (TR_WALK)
+          ! ordinary upper walk
+          NRL(IBSYM,IVLB,INDEO0) = NRL(IBSYM,IVLB,INDEO0) + NRL(ITSYM,IVLT,INDEO0)
 
-case (TR_WALK)
-  ! ordinary upper walk
-  NRL(IBSYM,IVLB,INDEO0) = NRL(IBSYM,IVLB,INDEO0) + NRL(ITSYM,IVLT,INDEO0)
+        case (TR_OPEN)
+          ! loop opening
+          IP = LEV
+          INDEO = IP + (OpenBand(IBOT)-1)*SGS%nLev
+          NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO0)
 
-case (TR_OPEN)
-  ! loop opening
-  INDEO = LEV + (OpenBand(IBOT)-1)*SGS%nLev
-  NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO0)
+        case (TR_MID)
+          ! intermediate open-loop propagation
 
-case (TR_MID)
-  ! intermediate open-loop propagation
-  do IP = LEV+1, SGS%nLev  !?
-    INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
-    INDEOB = IP + (OpenBand(IBOT)-1)*SGS%nLev
-    NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
-  end do
+          ! Include propagations from all active open loops IP>LEV
+          do IP = LEV+1, SGS%nLev
+            INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
+            INDEOB = IP + (OpenBand(IBOT)-1)*SGS%nLev
+            NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
+          end do
 
-case (TR_CLOSE)
-  ! loop closing
-  do IP = LEV+1, SGS%nLev
-    INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
-    IPQ = (IP*(IP-1))/2 + LEV
-    INDEOB = NRL_OpenBlock + IPQ
-    NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
-  end do
+        case (TR_CLOSE)
+          ! loop closing
+          IQ = LEV
+          ! Include propagations from all active loops IP>LEV
+          do IP = LEV+1, SGS%nLev
+            INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
+            IPQ = (IP*(IP-1))/2 + IQ
+            INDEOB = NRL_OpenBlock + IPQ
+            NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
+          end do
 
-case (TR_TAIL)
-  ! tail/downwalk propagation of closed loops
-  do INDEO = NRL_OpenBlock+1, EXS%MxEO
-    NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
-  end do
+        case (TR_TAIL)
+          ! tail/downwalk propagation of closed loops
+          do IPQ = 1, SGS%nLEV*(SGS%nLev+1)/2
+            INDEO = NRL_OpenBlock + IPQ
+            NRL(IBSYM,IVLB,INDEO) = NRL(IBSYM,IVLB,INDEO) + NRL(ITSYM,IVLT,INDEO)
+          end do
 
-case default
-  write(u6,*) 'MkNRCOUP(upper): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
-  write(u6,*) '  ITR  = ', ITR
-  write(u6,*) '  ISGT = ', ISGT
-  call Abend()
+        case default
+          write(u6,*) 'MkNRCOUP(upper): unexpected TRS%IFLAG = ', TRS%IFLAG(ITR)
+          write(u6,*) '  ITR  = ', ITR
+          write(u6,*) '  ISGT = ', ISGT
+          call Abend()
 
-end select
+        end select
 
       end do
     end do
@@ -1479,25 +1485,25 @@ MXUP = 0
 do MV=1,CIS%nMidV                  ! loop over midverticies
   IVLT = MV+SGS%MVSta-1            ! Get the absolute vertex index
   do LFTSYM=1,SGS%nSym             ! Loop over symmetries
-    CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO0)
-    MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))
+    CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO0)  ! Store away the number of walks to this mid vertex.
+    MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))           ! The max upper walks to any midvertex
 
 
 ! ---- open loops ----
 do band = 1, nOpenBands
   if (.not. ActiveBand(band)) cycle
 
-  do lev = 1, SGS%nLev
-    INDEO = lev + (band-1)*SGS%nLev
+  do IP = 1, SGS%nLev
+    INDEO = IP + (band-1)*SGS%nLev
     EXS%NOCP(INDEO,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO)
   end do
 
 end do
 
 ! ---- closed loops ----
-do INDEO = 1, SGS%nLev*(SGS%nLev+1)/2
-  INDEO_EXS = INDEO + EXS_OpenBlock
-  INDEO_NRL = INDEO + NRL_OpenBlock
+do IPQ = 1, SGS%nLev*(SGS%nLev+1)/2
+  INDEO_EXS = IPQ + EXS_OpenBlock
+  INDEO_NRL = IPQ + NRL_OpenBlock
   EXS%NOCP(INDEO_EXS,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO_NRL)
 end do
 
@@ -1537,7 +1543,8 @@ case (TR_TAIL)
 
 case (TR_CLOSE)
   ! create open-loop class from below
-  INDEO = LEV + (OpenBand(ITOP)-1)*SGS%nLev
+  IQ = LEV
+  INDEO = IQ + (OpenBand(ITOP)-1)*SGS%nLev
   NRL(ITSYM,IVLT,INDEO) = NRL(ITSYM,IVLT,INDEO) + NRL(IBSYM,IVLB,INDEO0)
 
 case (TR_MID)
@@ -1550,9 +1557,10 @@ case (TR_MID)
 
 case (TR_OPEN)
   ! close open loop into closed-loop class
+  IP = LEV
   do IQ = 1, LEV-1
     INDEOB = IQ + (OpenBand(IBOT)-1)*SGS%nLev
-    IPQ    = (LEV*(LEV-1))/2 + IQ
+    IPQ    = (IP*(IP-1))/2 + IQ
     INDEOT = NRL_OpenBlock + IPQ
     NRL(ITSYM,IVLT,INDEOT) = NRL(ITSYM,IVLT,INDEOT) + NRL(IBSYM,IVLB,INDEOB)
   end do
@@ -2115,8 +2123,9 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   call mma_deallocate(VTab)
 
   NCP_Max=Max(1,MaxVal(EXS%NOCP(:,:,:)))
-  Write (u6,*) 'NCP_MAX=',NCP_MAX
-  Write (u6,*) 'SIZE(EXS%NOCP)=',SIZE(EXS%NOCP)
+! Write (u6,*) 'NCP_MAX=',NCP_MAX
+! Write (u6,*) 'SIZE(EXS%NOCP)=',SIZE(EXS%NOCP)
+! Write (u6,*) 'EXS%NOCP=',EXS%NOCP
   Call mma_allocate(EXS%I1List,NCP_Max,Label='I1List')
   Call mma_allocate(EXS%I2List,NCP_Max,Label='I2List')
   Call mma_allocate(EXS%XList,NCP_Max,Label='XList')
