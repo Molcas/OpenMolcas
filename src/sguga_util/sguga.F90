@@ -22,9 +22,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-
 integer(kind=iwp) :: iq
-
 
 type SGStruct
 
@@ -1599,8 +1597,7 @@ do MV=1,CIS%nMidV
 
       do IQ = 1, SGS%nLev
         INDEO = IQ + (band-1)*SGS%nLev
-        N = NRL(LFTSYM,IVLT,INDEO)
-        if (N /= 0) EXS%NOCP(INDEO,LFTSYM,MV) = N
+        EXS%NOCP(INDEO,LFTSYM,MV) = Max(EXS%NOCP(INDEO,LFTSYM,MV),NRL(LFTSYM,IVLT,INDEO))
       end do
 
     end do
@@ -1609,8 +1606,7 @@ do MV=1,CIS%nMidV
     do IPQ = 1, SGS%nLev*(SGS%nLev+1)/2
       INDEO_EXS = IPQ + EXS_OpenBlock
       INDEO_NRL = IPQ + NRL_OpenBlock
-      N = NRL(LFTSYM,IVLT,INDEO_NRL)
-      if (N /= 0) EXS%NOCP(INDEO_EXS,LFTSYM,MV) = N
+      EXS%NOCP(INDEO_EXS,LFTSYM,MV) = MAX(EXS%NOCP(INDEO_EXS,LFTSYM,MV),NRL(LFTSYM,IVLT,INDEO_NRL))
     end do
 
   end do
