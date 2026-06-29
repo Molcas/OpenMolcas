@@ -1394,29 +1394,36 @@ INDEO0=0
 
 ! For upper walks
 NRL(:,1:SGS%MVEnd,:) = 0
-NRL(1,1,0) = 1
+NRL(1,1,INDEO0) = 1           ! Initiate the head vertex for the INDEO0 to 1
 
-do IVLT = 1, SGS%MVSta-1
+! The NRLs are updated according to graph theory and network analysis.
+! Segment originates from a vertex and targets another vertex. In doing so, the
+! number of segment walks that access a particular vertex is the sum of all possible walks to
+! the vertices of at the preceeding level. In the split graph approach we do this count, for
+! the upper walks from the head vertex to the vertices before the mid level vertices, while for the
+! lower walks we start at the tail vertex and strive upwards to all the mid vertices.
+
+do IVLT = 1, SGS%MVSta-1    ! This formally denotes the upper left node of an segment
   LEV = SGS%DRT(IVLT,LTAB)
 
+  ! loop over all possible transition classes: upper walk, delta(b)=-1/+1, or lower walk
   do ICLASS = 0, TRS%nClass-1
 
-    IT0 = TRS%ITR0(IVLT,ICLASS)
-    NT  = TRS%NTR(IVLT,ICLASS)
+    IT0 = TRS%ITR0(IVLT,ICLASS)   ! Offset to list of valid segments
+    NT  = TRS%NTR(IVLT,ICLASS)    ! # of valid segments for this vertex
 
     if (NT == 0) cycle
 
-    do K = 1, NT
-      ITR  = IT0 + K
-      ISGT = TRS%ISGT(ITR)
-      IVLB = TRS%IVLB(ITR)
-      ITOP = TRS%ITOP(ITR)
-      IBOT = TRS%IBOT(ITR)
-      ISYM = TRS%ISYM(ITR)
+    do K = 1, NT                  ! loop over all segment
+      ITR  = IT0 + K              ! counter
+      ISGT = TRS%ISGT(ITR)        ! segment index
+      IVLB = TRS%IVLB(ITR)        ! vertex index of lower left node of the segments
+      ITOP = TRS%ITOP(ITR)        ! index of top connection type (delta(b)=+1 or -1)
+      IBOT = TRS%IBOT(ITR)        ! dito lower connection type
+      ISYM = TRS%ISYM(ITR)        ! the symmetry index of the segment
 
-      do ITSYM = 1, SGS%nSym
-        IBSYM = Mul(ITSYM,ISYM)
-
+      do ITSYM = 1, SGS%nSym      ! loop over the symmetry index of the source vertex
+        IBSYM = Mul(ITSYM,ISYM)   ! get the symmetry index of target vertex given the symmetry index of the segment
 
 
 select case (TRS%IFLAG(ITR))
@@ -1432,7 +1439,7 @@ case (TR_OPEN)
 
 case (TR_MID)
   ! intermediate open-loop propagation
-  do IP = LEV+1, SGS%nLev
+  do IP = LEV+1, SGS%nLev  !?
     INDEOT = IP + (OpenBand(ITOP)-1)*SGS%nLev
     INDEOB = IP + (OpenBand(IBOT)-1)*SGS%nLev
     NRL(IBSYM,IVLB,INDEOB) = NRL(IBSYM,IVLB,INDEOB) + NRL(ITSYM,IVLT,INDEOT)
@@ -1496,7 +1503,6 @@ end do
 
   end do
 end do
-
 
 ! For lower walks
 NRL(:,SGS%MVSta:SGS%nVert,:) = 0
@@ -2444,12 +2450,13 @@ subroutine MKTRANS(SGS,CIS,TRS)
       IVLB = CIS%ISGM(IVLT,ISGT)
       if (IVLB == 0) cycle
 
-      ITOP = ITVPT(ISGT)
-      IBOT = IBVPT(ISGT)
+      ITOP = ITVPT(ISGT)   ! top connection class
+      IBOT = IBVPT(ISGT)   ! bottom connection class
 
-      ICL = IC1(ISGT)
-      ICR = IC2(ISGT)
+      ICL = IC1(ISGT)      ! left case
+      ICR = IC2(ISGT)      ! right cas
 
+      ! symmetry index of the segment
       ISYM = 1
       if ((ICL == 1) .or. (ICL == 2)) ISYM = SGS%ISm(LEV)
 
@@ -2457,6 +2464,7 @@ subroutine MKTRANS(SGS,CIS,TRS)
       IOBAND = OpenBand(ITOP)
       VSEG   = CIS%VSGM(IVLT,ISGT)
 
+      ! Generate the flag unique for the segment
       select case (ISGT)
       case (1:4)
         IFLAG = TR_WALK
