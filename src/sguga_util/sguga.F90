@@ -1640,7 +1640,6 @@ call CSFCOUNT(CIS,SGS)
 NSGMX  = 1
 NDWNS1 = 0  ! Dummy initialization
 NSGTMP = MXUP*MXDWN   ! Max size of intermediate sigma block
-Write (6,*) 'NSGTMP=',NSGTMP
 
 do MV3=1,CIS%nMidV
   MV1 = EXS%MVL(MV3,2)
@@ -1682,7 +1681,8 @@ do MV3=1,CIS%nMidV
     end do
   end do
 end do
-Write (6,*) 'NSGTMP=',NSGTMP
+
+! Set up the code to wheater or not intermediate sigma vectors are to be reused.
 Call mma_maxDBLE(NT1TMP)
 if (NSGTMP*2*SGS%nSym*SGS%MidLev < NT1TMP/4) then
    call mma_allocate(EXS%SGTMP,NSGTMP*2*SGS%nSym*SGS%MidLev,Label='EXS%SGTMP')
