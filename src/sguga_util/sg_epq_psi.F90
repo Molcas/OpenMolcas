@@ -43,7 +43,7 @@ real(kind=wp) :: X
 integer(kind=iwp), save:: i_save_p=0, i_save_q=0
 integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
 logical(kind=iwp) :: Reuse_Sigma
-real(kind=wp) :: Stamp=Zero
+real(kind=wp) :: CI_ID=Zero, Test
 integer(kind=iwp) ::  iOff, jOff
 real(kind=wp), external ::  DDot_
 
@@ -55,9 +55,14 @@ real(kind=wp), external ::  DDot_
 !  WERE PREPARED BY GINIT AND ITS SUBROUTINES.
 !***********************************************************************
 
+!Write (6,*)
+!Write (6,*) 'Enter'
+!Write (6,*) 'CPQ=',CPQ
+!Write (6,*) 'i_save_p,i_save_q=',i_save_p,i_save_q
+!Write (6,*) 'i_save_p_sym,i_save_q_sym=',i_save_p_sym,i_save_q_sym
+!Write (6,*) 'CI_ID=',CI_ID
 nCSFs=CIS%NCSF(ISYCI)
 !Call RecPrt('CI',' ',CI,1,nCSFs)
-!Write (6,*) 'IP,IQ,SGS%MidLev=',IP,IQ,SGS%MidLev
 ! SYMMETRY OF ORBITALS:
 ISYP = SGS%ISm(IP)
 ISYQ = SGS%ISm(IQ)
@@ -119,11 +124,13 @@ if (IQ < IP) then
     iOff=1
     Reuse_Sigma=.False.
     If (EXS%Reuse_SGTMP .and. i_save_p==IP .and. i_save_q_sym==ISYQ) Then
-       Reuse_Sigma = Stamp==Sum(CI(1:nCSFs))
-       i_save_q=0
-       i_save_p_sym=-1
+       Reuse_Sigma = CI_ID==Sum(CI(1:nCSFs))+DBLE(nCSFs)
     End If
+!   Reuse_Sigma=.False.
 
+!   Write (6,*) 'IP,IQ=',IP,IQ
+!   Write (6,*) 'ISYP,ISYQ=',ISYP,ISYQ
+!   Write (6,*) 'Reuse_Sigma=',Reuse_Sigma
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
         MVX = EXS%MVL(MVSGM,MV) ; if (MVX == 0) cycle
@@ -149,7 +156,7 @@ if (IQ < IP) then
           If (EXS%Reuse_SGTMP .and. .NOT.Reuse_Sigma) Then
              NTMP = NUPSG*NDWNC
              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-             call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
           End If
 
           jOff=iOff
@@ -160,21 +167,25 @@ if (IQ < IP) then
 
           If (.NOT.EXS%Reuse_SGTMP) Then
              NTMP = NUPSG*NDWNC
-             EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-             call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+             EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
+             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
           End If
 
           ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           LICP = EXS%IOCP(INDEO,ISYDC,MVX)
-          call Apply_col(One,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
+          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
 
         end do
       end do
     end do
     i_save_p=IP
     i_save_q_sym=ISYQ
-    If (EXS%Reuse_SGTMP .and. .Not.Reuse_Sigma) Stamp=Sum(CI(1:nCSFs))
+    i_save_q=0
+    i_save_p_sym=-1
+    If (EXS%Reuse_SGTMP .and. .Not.Reuse_Sigma) CI_ID=Sum(CI(1:nCSFs))+DBLE(nCSFs)
+!Write (6,*) 'i_save_p,i_save_q=',i_save_p,i_save_q
+!Write (6,*) 'i_save_p_sym,i_save_q_sym=',i_save_p_sym,i_save_q_sym
 
   end if
 else if (IP < IQ) then
@@ -226,6 +237,15 @@ else if (IP < IQ) then
 
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
     iOff=1
+    Reuse_Sigma=.False.
+    If (EXS%Reuse_SGTMP .and. i_save_q==IQ .and. i_save_p_sym==ISYP) Then
+       Reuse_Sigma = CI_ID==Sum(CI(1:nCSFs))+DBLE(nCSFs)
+    End If
+!   Reuse_Sigma=.False.
+
+!    Write (6,*) 'IP,IQ=',IP,IQ
+!    Write (6,*) 'ISYP,ISYQ=',ISYP,ISYQ
+!    Write (6,*) 'Reuse_Sigma=',Reuse_Sigma
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
          MVX = EXS%MVR(MVSGM,MV) ; if (MVX == 0) cycle
@@ -242,41 +262,65 @@ else if (IP < IQ) then
            NDWNC = CIS%NOW(2,ISYDC,MVX)         ; if (NDWNC == 0) cycle
 
            INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
-
            NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)  ; if (NCP1 == 0) cycle
-           NTMP = NUPSG*NDWNC
-           EXS%SGTMP(1:NTMP) = Zero
+
+           ! CASE IS: UPPER HALF, DEEXCITE:
            LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
            IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
 
-           INDEO = merge(IP, SGS%nLev+IP, MV==1)
-
-           NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM) ; if (NCP2 == 0) cycle
-           ! CASE IS: UPPER HALF, DEEXCITE:
-           If (i_save_q==IQ) Then
-             Write (6,*) 'Potential reuse, IQ, MV, ISYUSG=', IQ, MV, ISYUSG
-             Write (6,*) 'Needed size of the sigma block:', NUPSG*NDWNC
-             Write (6,*) 'NUPSG,NDWNC:', NUPSG,NDWNC
-             Write (6,*) 'Size of SGTMP=',SIZE(EXS%SGTMP)
-             Write (6,*) 'iOff=',iOff
-             Write (6,*) 'Accumulated memory=',iOff-1+NUPSG*NDWNC
+           ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
+           If (EXS%Reuse_SGTMP .and. .NOT.Reuse_Sigma) Then
+              NTMP = NUPSG*NDWNC
+              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
+              call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+!               Write (6,*) 'MVSGM,MV,ISYUSG=',MVSGM,MV,ISYUSG
+!               Call RecPrt('SGTMP(generated)',' ',EXS%SGTMP(iOff),NUPSG,NDWNC)
+!               Call RecPrt('CI',' ',CI(IOC+1),NUPC,NDWNC)
            Else
-             Write (6,*)
+!               Write (6,*) 'MVSGM,MV,ISYUSG=',MVSGM,MV,ISYUSG
+!               Call RecPrt('SGTMP(reused)',' ',EXS%SGTMP(iOff),NUPSG,NDWNC)
+              NTMP = NUPSG*NDWNC
+              Test=Sum(EXS%SGTMP(iOff:iOff+NTMP-1))
+              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
+              call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+!               Call RecPrt('SGTMP(generated)',' ',EXS%SGTMP(iOff),NUPSG,NDWNC)
+!               Call RecPrt('CI',' ',CI(IOC+1),NUPC,NDWNC)
+              If (Test/=Sum(EXS%SGTMP(iOff:iOff+NTMP-1))) Then
+                 Write (6,*) Test,Sum(EXS%SGTMP(iOff:iOff+NTMP-1))
+                 Call Abend()
+              End If
            End If
-           iOff = iOff + NUPSG*NDWNC
-           call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+
+           jOff=iOff
+           If (EXS%Reuse_SGTMP) iOff = iOff + NUPSG*NDWNC
+
+           INDEO = merge(IP, SGS%nLev+IP, MV==1)
+           NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM) ; if (NCP2 == 0) cycle
+
+           ! CASE IS: UPPER HALF, DEEXCITE:
+           If (.NOT.EXS%Reuse_SGTMP) Then
+              NTMP = NUPSG*NDWNC
+              EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
+              call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+           End If
+
+           ! CASE IS: LOWER HALF, DEEXCITE:
            NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
            LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
-           ! CASE IS: LOWER HALF, DEEXCITE:
-           call Apply_col(One,NUPSG,NDWNC,EXS%SGTMP,NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
+           call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
 
         end do
 
       end do
     end do
     i_save_q=IQ
+    i_save_p_sym=ISYP
     i_save_p=0
-    If (EXS%Reuse_SGTMP) Stamp=DDot_(nCSFs,CI,1,CI,1)
+    i_save_q_sym=-1
+    If (EXS%Reuse_SGTMP .and. .Not.Reuse_Sigma) CI_ID=Sum(CI(1:nCSFs))+DBLE(nCSFs)
+! Write (6,*) 'i_save_p,i_save_q=',i_save_p,i_save_q
+! Write (6,*) 'i_save_p_sym,i_save_q_sym=',i_save_p_sym,i_save_q_sym
+! Write (6,*) 'CI_ID=',CI_ID
 
   end if
 else
@@ -334,6 +378,11 @@ else
     end do
 
   end if
+  i_save_q=0
+  i_save_p_sym=-1
+  i_save_p=0
+  i_save_q_sym=-1
+  CI_ID=Zero
 end if
 
 contains
@@ -343,8 +392,8 @@ contains
 subroutine sort_icoup_block(ICOUP, NCP, swap)
   use Definitions, only: iwp
   implicit none
-  integer(kind=iwp), intent(inout) :: ICOUP(3,NCP)
   integer(kind=iwp), intent(in) :: NCP
+  integer(kind=iwp), intent(inout) :: ICOUP(3,NCP)
   logical(kind=iwp), intent(in) :: swap
   integer(kind=iwp) :: i, j
   integer(kind=iwp) :: temp(3)
@@ -368,7 +417,8 @@ end subroutine sort_icoup_block
 subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   use Definitions, only: wp, iwp
   implicit none
-  integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP, ICOUP(3,NCP)
+  integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP
+  integer(kind=iwp), intent(in) :: ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUP,NDWNC)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap
@@ -532,7 +582,8 @@ end subroutine apply_col
 
 
 subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
-  integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
+  integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP
+  integer(kind=iwp), intent(in) :: ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUPC,NDWN)
   real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
   logical(kind=iwp), intent(in) :: swap
