@@ -1345,7 +1345,7 @@ type(EXStruct), intent(inout) :: EXS
 type(TRStruct), intent(in)    :: TRS
 
 integer(kind=iwp) :: IBSYM, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
-                     MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
+                     MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
                      NUPS1, INDEO0
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 integer(kind=iwp) :: ICLASS, IT0, NT, K, ITR
@@ -1788,15 +1788,13 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 !   ISGPTH(IRSEG,LEV) stores the raw segment number ISGT
 
   implicit none
-  integer(kind=iwp), allocatable :: VHashKey(:), VHashVal(:)
-  integer(kind=iwp) :: hsize, h, key_int, iprobe, hloc
-  logical :: found
-
   type(SGStruct), intent(in)    :: SGS
   type(CIStruct), intent(inout) :: CIS
   type(EXStruct), intent(inout) :: EXS
   type(TRStruct), intent(in)    :: TRS
 
+  integer(kind=iwp), allocatable :: VHashKey(:), VHashVal(:)
+  integer(kind=iwp) :: hsize
   integer(kind=iwp) :: i, i1, i2
   integer(kind=iwp) :: IAWS, IC, ICL, ICOP, ICR
   integer(kind=iwp) :: IHALF, ILND, INDEO, IP, IPOS, IQ

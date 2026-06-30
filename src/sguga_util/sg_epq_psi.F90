@@ -43,7 +43,7 @@ real(kind=wp) :: X
 integer(kind=iwp), save:: i_save_p=0, i_save_q=0
 integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
 logical(kind=iwp) :: Reuse_Sigma
-real(kind=wp) :: CI_ID=Zero, Test
+real(kind=wp) :: CI_ID=Zero
 integer(kind=iwp) ::  iOff, jOff
 real(kind=wp), external ::  DDot_
 
