@@ -40,6 +40,7 @@ Do iOrb =1, SGS%nLev
       jSym = SGS%ISM(jOrb)
       If (jSym/=iSym) Cycle
 
+      Write (6,*) 'iOrb,jOrb=',iOrb,jOrb
       SGM(:)=Zero
       Call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,ISYCI,CI,SGM)
 

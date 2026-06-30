@@ -13,7 +13,7 @@ module SGUGA
 
 use Molcas, only: MxLev, MxSym, MxGas
 use Symmetry_Info, only: Mul
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
@@ -89,6 +89,7 @@ type EXStruct
   integer(kind=iwp) :: MxEO, nICoup
   integer(kind=iwp), allocatable :: NOCP(:,:,:), IOCP(:,:,:), ICoup(:,:), MVL(:,:), MVR(:,:), USGN(:,:), LSGN(:,:)
   real(kind=wp), allocatable :: VTab(:), SGTMP(:)
+  logical(kind=iwp) :: Reuse_SGTMP
   integer(kind=iwp), allocatable:: I1list(:), I2list(:)
   real(kind=wp), allocatable:: XList(:)
 end type EXStruct
@@ -1342,6 +1343,7 @@ type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
 type(TRStruct), intent(in)    :: TRS
+
 integer(kind=iwp) :: IBSYM, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
                      MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, N, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
                      NUPS1, INDEO0
@@ -1351,7 +1353,7 @@ integer(kind=iwp) :: ITOP, IBOT
 integer(kind=iwp), parameter :: nOpenBands = 4
 integer(kind=iwp) :: NRL_OpenBlock
 integer(kind=iwp) :: EXS_OpenBlock
-logical :: ActiveBand(nOpenBands)
+logical(kind=iwp) :: ActiveBand(nOpenBands)
 integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS
 
 ActiveBand = .false.
@@ -1637,7 +1639,8 @@ call CSFCOUNT(CIS,SGS)
 
 NSGMX  = 1
 NDWNS1 = 0  ! Dummy initialization
-NSGTMP = max(MXUP,MXDWN)   ! Max size of intermediate sigma block
+NSGTMP = MXUP*MXDWN   ! Max size of intermediate sigma block
+Write (6,*) 'NSGTMP=',NSGTMP
 
 do MV3=1,CIS%nMidV
   MV1 = EXS%MVL(MV3,2)
@@ -1647,44 +1650,49 @@ do MV3=1,CIS%nMidV
   MV5 = EXS%MVR(MV3,2)
 
   do ISYUS1=1,SGS%nSym
-    NUPS1 = CIS%NOW(1,ISYUS1,MV3)
+    NUPS1 =    CIS%NOW(1,ISYUS1,MV3)
     do ISYDS1=1,SGS%nSym
       NDWNS1 = CIS%NOW(2,ISYDS1,MV3)
       NSGMX = max(NSGMX,CIS%NOCSF(ISYUS1,MV3,ISYDS1))
 
       if (MV1 /= 0) then
         NT4TMP = NUPS1*CIS%NOW(2,ISYDS1,MV1)
-        NSGTMP = max(NSGTMP,NT4TMP)
         NT5TMP = NDWNS1*CIS%NOW(1,ISYUS1,MV1)
-        NSGTMP = max(NSGTMP,NT5TMP)
+        NSGTMP = max(NSGTMP,NT4TMP,NT5TMP)
       end if
 
       if (MV2 /= 0) then
         NT3TMP = NUPS1*CIS%NOW(2,ISYDS1,MV2)
-        NSGTMP = max(NSGTMP,NT3TMP)
         NT5TMP = NDWNS1*CIS%NOW(1,ISYUS1,MV2)
-        NSGTMP = max(NSGTMP,NT5TMP)
+        NSGTMP = max(NSGTMP,NT3TMP,NT5TMP)
       end if
 
       if (MV4 /= 0) then
         NT1TMP = NUPS1*CIS%NOW(2,ISYDS1,MV4)
-        NSGTMP = max(NSGTMP,NT1TMP)
         NT5TMP = NDWNS1*CIS%NOW(1,ISYUS1,MV4)
-        NSGTMP = max(NSGTMP,NT5TMP)
+        NSGTMP = max(NSGTMP,NT1TMP,NT5TMP)
       end if
 
       if (MV5 /= 0) then
         NT2TMP = NUPS1*CIS%NOW(2,ISYDS1,MV5)
-        NSGTMP = max(NSGTMP,NT2TMP)
         NT5TMP = NDWNS1*CIS%NOW(1,ISYUS1,MV5)
-        NSGTMP = max(NSGTMP,NT5TMP)
+        NSGTMP = max(NSGTMP,NT2TMP,NT5TMP)
       end if
 
     end do
   end do
 end do
-
-call mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
+Write (6,*) 'NSGTMP=',NSGTMP
+Call mma_maxDBLE(NT1TMP)
+if (NSGTMP*2*SGS%nSym*SGS%MidLev < NT1TMP/4) then
+   call mma_allocate(EXS%SGTMP,NSGTMP*2*SGS%nSym*SGS%MidLev,Label='EXS%SGTMP')
+   EXS%Reuse_SGTMP=.true.
+!  EXS%Reuse_SGTMP=.false.
+else
+   call mma_allocate(EXS%SGTMP,NSGTMP,Label='EXS%SGTMP')
+   EXS%Reuse_SGTMP=.false.
+endif
+EXS%SGTMP(:)=Zero
 
 #ifdef _DEBUGPRINT_
 write(u6,600) MXUP,MXDWN,NSGMX,NSGMX,NSGTMP

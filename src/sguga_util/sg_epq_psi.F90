@@ -36,8 +36,16 @@ real(kind=wp), intent(in) :: CPQ, CI(*)
 real(kind=wp), intent(_OUT_) :: SGM(*)
 integer(kind=iwp) :: I, IC, ICS, INDEO, IOC, IOLW, IOUW, IPPOW, IPSHFT, ISGSTA, ISTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
                      ISYUC, ISYUSG, J, JC, JSTA, LICP, LLW, LUW, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
-                     NUPSG, NCP1, NCP2, MV, MVX
+                     NUPSG, NCP1, NCP2, MV, MVX, nCSFs
 real(kind=wp) :: X
+
+! declarations to facilitate the reuse of sigma vectors if possible
+integer(kind=iwp), save:: i_save_p=0, i_save_q=0
+integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
+logical(kind=iwp) :: Reuse_Sigma
+real(kind=wp) :: Stamp=Zero
+integer(kind=iwp) ::  iOff, jOff
+real(kind=wp), external ::  DDot_
 
 !***********************************************************************
 !  GIVEN ACTIVE LEVEL INDICES IP AND IQ, AND INPUT CI ARRAYS
@@ -47,6 +55,9 @@ real(kind=wp) :: X
 !  WERE PREPARED BY GINIT AND ITS SUBROUTINES.
 !***********************************************************************
 
+nCSFs=CIS%NCSF(ISYCI)
+!Call RecPrt('CI',' ',CI,1,nCSFs)
+!Write (6,*) 'IP,IQ,SGS%MidLev=',IP,IQ,SGS%MidLev
 ! SYMMETRY OF ORBITALS:
 ISYP = SGS%ISm(IP)
 ISYQ = SGS%ISm(IQ)
@@ -103,12 +114,32 @@ if (IQ < IP) then
 
   else
 
+    Write (6,*)
+    Write (6,*)
+    Write (6,*) 'EXCITING CASE, IQ<=MIDLEV<IP'
     ! EXCITING CASE, IQ<=MIDLEV<IP
+
+    iOff=1
+    Reuse_Sigma=.False.
+    If (EXS%Reuse_SGTMP .and. i_save_p==IP .and. i_save_q_sym==ISYQ) Then
+       Write (6,*) 'Stamp=',Stamp
+       Reuse_Sigma = Stamp==Sum(CI(1:nCSFs))
+       i_save_q=0
+       i_save_p_sym=-1
+    End If
+    If (Reuse_Sigma) Then
+       Call RecPrt('SGTMP @ entry',' ',EXS%SGTMP,1,20)
+    End If
+
+    Write (6,*) 'ISYSGM=',ISYSGM
     do MVSGM=1,CIS%nMidV
+      Write (6,*) 'MVSGM, EXS%MVL(MVSGM,:)=',MVSGM, EXS%MVL(MVSGM,:)
       do MV = 1, 2
         MVX = EXS%MVL(MVSGM,MV) ; if (MVX == 0) cycle
+        Write (6,*) 'MV=',MV
         do ISYUSG=1,SGS%nSym
           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
+          Write (6,*) 'Pass NS1'
           ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
           ISYDSG = Mul(ISYUSG,ISYSGM)
@@ -116,29 +147,64 @@ if (IQ < IP) then
           ISYDC = Mul(ISYQ,ISYDSG)
 
           NUPC = CIS%NOW(1,ISYUC,MVX)         ; if (NUPC == 0) cycle
+          Write (6,*) 'Pass NUPC'
           NDWNC = CIS%NOW(2,ISYDC,MVX)        ; if (NDWNC == 0) cycle
+          Write (6,*) 'Pass NDWNC'
 
           INDEO = merge(IP, SGS%nLev+IP, MV==1)
-
           NCP1 = EXS%NOCP(INDEO,ISYUC,MVX)  ; if (NCP1 == 0) cycle
-          NTMP = NUPSG*NDWNC
-          EXS%SGTMP(1:NTMP) = Zero
+          Write (6,*) 'Pass NCP1'
+
+          ! CASE IS: UPPER HALF, EXCITE:
           LICP = EXS%IOCP(INDEO,ISYUC,MVX)
           IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
+          If (Reuse_Sigma) Then
+             Write (6,*)
+             Write (6,*) 'Potential reuse, IP, IQ, MVSGM, MV, ISYUSG=', IP, IQ, MVSGM, MV, ISYUSG
+             Write (6,*) 'Needed size of the sigma block:', NUPSG*NDWNC
+             Write (6,*) 'NUPSG,NDWNC:', NUPSG,NDWNC
+             Write (6,*) 'Size of SGTMP=',SIZE(EXS%SGTMP)
+             Write (6,*) 'iOff=',iOff
+             Write (6,*) 'Accumulated memory=',iOff-1+NUPSG*NDWNC
+             Call RecPrt('SGTMP(reused)',' ',EXS%SGTMP(iOff),NUPSG,NDWNC)
+             Write (6,*)
+!            NTMP = NUPSG*NDWNC
+!            EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
+!            call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+!            Call RecPrt('SGTMP(actual)',' ',EXS%SGTMP(iOff),NUPSG,NDWNC)
+          Else
+             Write (6,*)
+             Write (6,*) 'Generate, IP, IQ, MVSGM, MV, ISYUSG=', IP, IQ, MVSGM, MV, ISYUSG
+             Write (6,*) 'Generating SGTMP block @ ',iOff
+             Write (6,*) 'SGTMP block size=',NTMP
+             NTMP = NUPSG*NDWNC
+             EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
+             call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+             Call RecPrt('SGTMP(generated)',' ',EXS%SGTMP(iOff),NUPSG,NDWNC)
+             Write (6,*)
+          End If
+          jOff=iOff
+          If (EXS%Reuse_SGTMP) iOff = iOff + NUPSG*NDWNC
 
           INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
-
           NCP2 = EXS%NOCP(INDEO,ISYDC,MVX) ; if (NCP2 == 0) cycle
-          ! CASE IS: UPPER HALF, EXCITE:
-          call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+          Write (6,*) 'Pass NCP2'
+
+          ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           LICP = EXS%IOCP(INDEO,ISYDC,MVX)
-          ! CASE IS: LOWER HALF, EXCITE:
-          call Apply_col(One,NUPSG,NDWNC,EXS%SGTMP,NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
+          call Apply_col(One,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
 
         end do
       end do
     end do
+    i_save_p=IP
+    i_save_q_sym=ISYQ
+    If (EXS%Reuse_SGTMP .and. .Not.Reuse_Sigma) Then
+       Stamp=Sum(CI(1:nCSFs))
+       Write (6,*) 'Stamp set to:',Stamp
+    End If
+!   Call RecPrt('SGTMP @ exit',' ',EXS%SGTMP,1,20)
 
   end if
 else if (IP < IQ) then
@@ -188,7 +254,9 @@ else if (IP < IQ) then
 
   else
 
+    Write (6,*) ' DEEXCITING CASE, IP<=MIDLEV<IQ.'
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
+    iOff=1
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
          MVX = EXS%MVR(MVSGM,MV) ; if (MVX == 0) cycle
@@ -216,6 +284,17 @@ else if (IP < IQ) then
 
            NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM) ; if (NCP2 == 0) cycle
            ! CASE IS: UPPER HALF, DEEXCITE:
+           If (i_save_q==IQ) Then
+             Write (6,*) 'Potential reuse, IQ, MV, ISYUSG=', IQ, MV, ISYUSG
+             Write (6,*) 'Needed size of the sigma block:', NUPSG*NDWNC
+             Write (6,*) 'NUPSG,NDWNC:', NUPSG,NDWNC
+             Write (6,*) 'Size of SGTMP=',SIZE(EXS%SGTMP)
+             Write (6,*) 'iOff=',iOff
+             Write (6,*) 'Accumulated memory=',iOff-1+NUPSG*NDWNC
+           Else
+             Write (6,*)
+           End If
+           iOff = iOff + NUPSG*NDWNC
            call Apply_row(CPQ,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP,NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
            NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
            LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
@@ -226,6 +305,9 @@ else if (IP < IQ) then
 
       end do
     end do
+    i_save_q=IQ
+    i_save_p=0
+    If (EXS%Reuse_SGTMP) Stamp=DDot_(nCSFs,CI,1,CI,1)
 
   end if
 else
