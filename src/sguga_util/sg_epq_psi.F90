@@ -55,14 +55,7 @@ real(kind=wp), external ::  DDot_
 !  WERE PREPARED BY GINIT AND ITS SUBROUTINES.
 !***********************************************************************
 
-!Write (6,*)
-!Write (6,*) 'Enter'
-!Write (6,*) 'CPQ=',CPQ
-!Write (6,*) 'i_save_p,i_save_q=',i_save_p,i_save_q
-!Write (6,*) 'i_save_p_sym,i_save_q_sym=',i_save_p_sym,i_save_q_sym
-!Write (6,*) 'CI_ID=',CI_ID
 nCSFs=CIS%NCSF(ISYCI)
-!Call RecPrt('CI',' ',CI,1,nCSFs)
 ! SYMMETRY OF ORBITALS:
 ISYP = SGS%ISm(IP)
 ISYQ = SGS%ISm(IQ)
@@ -126,11 +119,7 @@ if (IQ < IP) then
     If (EXS%Reuse_SGTMP .and. i_save_p==IP .and. i_save_q_sym==ISYQ) Then
        Reuse_Sigma = CI_ID==Sum(CI(1:nCSFs))+DBLE(nCSFs)
     End If
-!   Reuse_Sigma=.False.
 
-!   Write (6,*) 'IP,IQ=',IP,IQ
-!   Write (6,*) 'ISYP,ISYQ=',ISYP,ISYQ
-!   Write (6,*) 'Reuse_Sigma=',Reuse_Sigma
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
         MVX = EXS%MVL(MVSGM,MV) ; if (MVX == 0) cycle
@@ -184,8 +173,6 @@ if (IQ < IP) then
     i_save_q=0
     i_save_p_sym=-1
     If (EXS%Reuse_SGTMP .and. .Not.Reuse_Sigma) CI_ID=Sum(CI(1:nCSFs))+DBLE(nCSFs)
-!Write (6,*) 'i_save_p,i_save_q=',i_save_p,i_save_q
-!Write (6,*) 'i_save_p_sym,i_save_q_sym=',i_save_p_sym,i_save_q_sym
 
   end if
 else if (IP < IQ) then
@@ -241,11 +228,7 @@ else if (IP < IQ) then
     If (EXS%Reuse_SGTMP .and. i_save_q==IQ .and. i_save_p_sym==ISYP) Then
        Reuse_Sigma = CI_ID==Sum(CI(1:nCSFs))+DBLE(nCSFs)
     End If
-!   Reuse_Sigma=.False.
 
-!    Write (6,*) 'IP,IQ=',IP,IQ
-!    Write (6,*) 'ISYP,ISYQ=',ISYP,ISYQ
-!    Write (6,*) 'Reuse_Sigma=',Reuse_Sigma
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
          MVX = EXS%MVR(MVSGM,MV) ; if (MVX == 0) cycle
@@ -273,22 +256,6 @@ else if (IP < IQ) then
               NTMP = NUPSG*NDWNC
               EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
               call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
-!               Write (6,*) 'MVSGM,MV,ISYUSG=',MVSGM,MV,ISYUSG
-!               Call RecPrt('SGTMP(generated)',' ',EXS%SGTMP(iOff),NUPSG,NDWNC)
-!               Call RecPrt('CI',' ',CI(IOC+1),NUPC,NDWNC)
-           Else
-!               Write (6,*) 'MVSGM,MV,ISYUSG=',MVSGM,MV,ISYUSG
-!               Call RecPrt('SGTMP(reused)',' ',EXS%SGTMP(iOff),NUPSG,NDWNC)
-              NTMP = NUPSG*NDWNC
-              Test=Sum(EXS%SGTMP(iOff:iOff+NTMP-1))
-              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-              call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
-!               Call RecPrt('SGTMP(generated)',' ',EXS%SGTMP(iOff),NUPSG,NDWNC)
-!               Call RecPrt('CI',' ',CI(IOC+1),NUPC,NDWNC)
-              If (Test/=Sum(EXS%SGTMP(iOff:iOff+NTMP-1))) Then
-                 Write (6,*) Test,Sum(EXS%SGTMP(iOff:iOff+NTMP-1))
-                 Call Abend()
-              End If
            End If
 
            jOff=iOff
@@ -318,9 +285,6 @@ else if (IP < IQ) then
     i_save_p=0
     i_save_q_sym=-1
     If (EXS%Reuse_SGTMP .and. .Not.Reuse_Sigma) CI_ID=Sum(CI(1:nCSFs))+DBLE(nCSFs)
-! Write (6,*) 'i_save_p,i_save_q=',i_save_p,i_save_q
-! Write (6,*) 'i_save_p_sym,i_save_q_sym=',i_save_p_sym,i_save_q_sym
-! Write (6,*) 'CI_ID=',CI_ID
 
   end if
 else
