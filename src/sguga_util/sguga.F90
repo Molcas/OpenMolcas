@@ -1355,15 +1355,15 @@ integer(kind=iwp) :: NRL_OpenBlock
 integer(kind=iwp) :: EXS_OpenBlock
 logical(kind=iwp) :: ActiveBand(nOpenBands)
 integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IS, IST, NCP, NUW
+#endif
 
 ActiveBand = .false.
 ActiveBand(1) = .true.
 ActiveBand(2) = .true.
 
 
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: IS, IST, NCP, NUW
-#endif
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
 call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW',safe='*')
 
@@ -1620,7 +1620,6 @@ do MV=1,CIS%nMidV
   end do
 end do
 
-
 EXS%nICOup = 0
 do INDEO=1,SIZE(EXS%IOCP,1)
   do MV=1,CIS%nMidV
@@ -1703,7 +1702,7 @@ write(u6,*) ' TOTAL NR OF WALKS: UPPER ',NUW
 write(u6,*) '                    LOWER ',CIS%nWalk-NUW
 write(u6,*) '                     SUM  ',CIS%nWalk
 write(u6,*) ' TOTAL NR OF COUPL COEFFS ',EXS%nICOup
-INDEO = EXS_Block+1
+INDEO = EXS_OpenBlock+1
 write(u6,*) '         OF TYPE 1&2 ONLY:',EXS%IOCP(INDEO,1,1)
 write(u6,*)
 write(u6,*) ' NR OF CONFIGURATIONS/SYMM:'
@@ -1746,7 +1745,7 @@ write(u6,*)
 write(u6,*) ' 3. CLOSED LOOPS:'
 do IP=2,SGS%nLev
   do IQ=1,IP-1
-    INDEO = EXS_Block+(IP*(IP-1))/2+IQ
+    INDEO = EXS_OpenBlock+(IP*(IP-1))/2+IQ
     do MV=1,CIS%nMidV
       do IS=1,SGS%nSym
         NCP = EXS%NOCP(INDEO,IS,MV)
