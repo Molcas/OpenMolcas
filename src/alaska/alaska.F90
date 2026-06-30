@@ -63,7 +63,7 @@ integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j, DaoLen
 real(kind=wp), allocatable :: Cgrad(:,:)
 character(len=LenIn+5), allocatable :: CNames(:)
 character(len=80) :: Lab
-logical :: FoundDao
+logical(kind=iwp) :: FoundDao
 
 !                                                                      *
 !***********************************************************************
@@ -393,14 +393,14 @@ if (Columbus == 1) then
   end do
   close(lcartgrd)
 
-! CSF part
-  Call Qpg_dArray('D1ao-',FoundDao,DaoLen)
-  If (FoundDao .and. Daolen.gt.0) Then
+  ! CSF part
+  call Qpg_dArray('D1ao-',FoundDao,DaoLen)
+  if (FoundDao .and. (Daolen > 0)) then
     call mma_Allocate(CSFG,lDisp(0),Label='CSFG')
-    Call CSFGrad(CSFG,lDisp(0))
-    Call PrGrad('CSF derivative coupling ', CSFG, lDisp(0))
+    call CSFGrad(CSFG,lDisp(0))
+    call PrGrad('CSF derivative coupling ',CSFG,lDisp(0))
     call mma_deallocate(CSFG)
-  End If
+  end if
 
   call mma_deallocate(CGrad)
   call mma_deallocate(CNames)
