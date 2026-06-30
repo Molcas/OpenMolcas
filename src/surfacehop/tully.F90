@@ -41,12 +41,13 @@ real(kind=wp) :: tempVector2(NSTATE), VenergyInter(NSTATE)
 real(kind=wp) :: V(NSTATE,NSTATE), Bmatrix(NSTATE,NSTATE)
 real(kind=wp) :: Gprobab(NSTATE), Popul(NSTATE)
 real(kind=wp) :: VenergyP(NSTATE), Venergy(NSTATE), temp, root_ovlp
-real(kind=wp) :: SumProb, scalarprod, prod, populOS
-integer(kind=iwp) :: k, l, j, i, ii, jjj, t, tt, o, root_ovlp_el
+real(kind=wp) :: SumProb, scalarprod, prod, populOS, hstep, tloc
+integer(kind=iwp) :: k, j, i, ii, jjj, t, tt, o, root_ovlp_el
 integer(kind=iwp) :: rightOrder(NSTATE), decVec(NSTATE), stateORDER(NSTATE)
 integer(kind=iwp) :: nstatesq, nciquery, stateRi, temproot, nsatom
-integer(kind=iwp) :: ISTATE2, iseed, irlxroot
-complex(kind=wp) :: Amatrix(NSTATE,NSTATE), AmatrixDT(NSTATE,NSTATE), ArelaxPrev
+integer(kind=iwp) :: ISTATE2, iseed, irlxroot, cayley_info
+complex(kind=wp) :: Amatrix(NSTATE,NSTATE), ArelaxPrev
+complex(kind=wp) :: Gmatrix(NSTATE,NSTATE), Mminus(NSTATE,NSTATE), Uprop(NSTATE,NSTATE)
 real(kind=wp), external :: Random_Molcas
 
 #include "warnings.h"
@@ -599,32 +600,58 @@ substeps: do ii=1,NSUBSTEPS
     end if
   end if
 
+  hstep = DT/real(NSUBSTEPS,kind=wp)
+  tloc = (real(ii,kind=wp)-Half)*hstep
   do i=1,NSTATE
     do j=1,NSTATE
-      Dmatrix(i,j) = ExtrInter(i,j)+ExtrSlope(i,j)*(((ii-1)*DT/NSUBSTEPS)-DT*Half)
+      Dmatrix(i,j) = ExtrInter(i,j)+ExtrSlope(i,j)*(tloc-DT*Half)
       if (i /= j) then
         V(i,j) = Zero
       else
-        V(i,j) = VenergyInter(i)+VenergySlope(i)*(ii-1)*DT/NSUBSTEPS
+        V(i,j) = VenergyInter(i)+VenergySlope(i)*tloc
       end if
     end do
   end do
 
+  ! Enforce strict antisymmetry of the time-derivative coupling matrix.
   do i=1,NSTATE
-    do j=1,NSTATE
-      AmatrixDT(i,j) = cZero
-      do l=1,NSTATE
-        AmatrixDT(i,j) = AmatrixDT(i,j)+Amatrix(i,l)*Dmatrix(l,j)-Amatrix(l,j)*Dmatrix(i,l)
-        AmatrixDT(i,j) = AmatrixDT(i,j)+Onei*(Amatrix(i,l)*V(l,j)-Amatrix(l,j)*V(i,l))
-      end do
+    Dmatrix(i,i) = Zero
+    do j=i+1,NSTATE
+      temp = Half*(Dmatrix(i,j)-Dmatrix(j,i))
+      Dmatrix(i,j) = temp
+      Dmatrix(j,i) = -temp
     end do
   end do
 
+  ! Unitary Cayley propagation of the electronic density matrix.
+  ! The generator G = D + iV gives dA/dt = A G - G A.
+  ! The diagonal energies are shifted by the current active-state energy
+  ! before building G: a constant shift only adds a global phase to the
+  ! propagator, which cancels exactly in U^dagger*A*U, but it is essential
+  ! for the accuracy of the Cayley approach, which requires
+  ! |h*G/2| << 1.
+
+  Gmatrix(:,:) = cmplx(Dmatrix(:,:),V(:,:),kind=wp)
   do i=1,NSTATE
-    do j=1,NSTATE
-      Amatrix(i,j) = Amatrix(i,j)+AmatrixDT(i,j)*DT/NSUBSTEPS
-    end do
+    Gmatrix(i,i) = Gmatrix(i,i)-V(temproot,temproot)*Onei
   end do
+  Uprop(:,:) = Half*hstep*Gmatrix(:,:)
+  Mminus(:,:) = -Uprop(:,:)
+  do i=1,NSTATE
+    Uprop(i,i) = Uprop(i,i)+cOne
+    Mminus(i,i) = Mminus(i,i)+cOne
+  end do
+
+  ! Uprop is overwritten by U = inv(I - hG/2) * (I + hG/2).
+  call solve_cayley_system()
+  if (cayley_info /= 0) then
+    write(u6,*) 'Cayley propagation failed in Tully. Singular pivot = ',cayley_info
+    call Abend()
+  end if
+
+  ! Mminus used for scratch
+  call zgemm_('N','N',NSTATE,NSTATE,NSTATE,cOne,Amatrix,NSTATE,Uprop,NSTATE,cZero,Mminus,NSTATE)
+  call zgemm_('C','N',NSTATE,NSTATE,NSTATE,cOne,Uprop,NSTATE,Mminus,NSTATE,cZero,Amatrix,NSTATE)
 
   do i=1,NSTATE
     do j=1,NSTATE
@@ -850,5 +877,58 @@ end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 return
+
+contains
+
+subroutine solve_cayley_system()
+
+  integer(kind=iwp) :: i, k, piv
+  real(kind=wp) :: piv_abs, test_abs
+  complex(kind=wp) :: factor
+  complex(kind=wp) :: tmp(NSTATE)
+
+  cayley_info = 0
+
+  do k=1,NSTATE
+    piv = k
+    piv_abs = abs(Mminus(k,k))
+    do i=k+1,NSTATE
+      test_abs = abs(Mminus(i,k))
+      if (test_abs > piv_abs) then
+        piv = i
+        piv_abs = test_abs
+      end if
+    end do
+
+    if (piv_abs <= Zero) exit
+
+    if (piv /= k) then
+      tmp(:) = Mminus(k,:)
+      Mminus(k,:) = Mminus(piv,:)
+      Mminus(piv,:) = tmp(:)
+      tmp(:) = Uprop(k,:)
+      Uprop(k,:) = Uprop(piv,:)
+      Uprop(piv,:) = tmp(:)
+    end if
+
+    factor = One/Mminus(k,k)
+    if (abs(factor) > Zero) then
+      Mminus(k,:) = factor*Mminus(k,:)
+      Uprop(k,:) = factor*Uprop(k,:)
+    end if
+
+    do i=1,NSTATE
+      if (i == k) cycle
+      factor = Mminus(i,k)
+      if (abs(factor) > Zero) then
+        Mminus(i,:) = Mminus(i,:)-factor*Mminus(k,:)
+        Uprop(i,:) = Uprop(i,:)-factor*Uprop(k,:)
+      end if
+    end do
+  end do
+
+  if (k <= NSTATE) cayley_info = k
+
+end subroutine solve_cayley_system
 
 end subroutine Tully
