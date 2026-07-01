@@ -704,13 +704,11 @@ subroutine RMVERT(SGS)
       end if
 
       do IC = 0,3
-        ID = SGS%Down0(IV,IC)
+        ID = SGS%Down0(IV,IC) ; If (ID<1) Cycle
 
-        if (ID > 0) then
-          if (SGS%Ver(ID) == 0) then
-            SGS%Down0(IV,IC) = 0
-            NCHANGES = NCHANGES + 1
-          end if
+        if (SGS%Ver(ID) == 0) then
+           SGS%Down0(IV,IC) = 0
+           NCHANGES = NCHANGES + 1
         end if
       end do
     end do
@@ -737,10 +735,8 @@ subroutine RMVERT(SGS)
       if (SGS%Ver(IV) == 0) cycle
 
       do IC = 0,3
-        ID = SGS%Down0(IV,IC)
-        if (ID > 0 .and. SGS%Ver(ID) == 1) then
-          CONN(ID) = 1
-        end if
+        ID = SGS%Down0(IV,IC) ; If (ID<1) Cycle
+        If (SGS%Ver(ID) == 1) CONN(ID) = 1
       end do
     end do
 
@@ -1350,7 +1346,7 @@ type(EXStruct), intent(inout) :: EXS
 type(TRStruct), intent(in)    :: TRS
 
 integer(kind=iwp) :: IBSYM, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
-                     MV, MV1, MV2, MV3, MV4, MV5, MXDWN, MXUP, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
+                     MV, MV1, MV2, MVSGM, MV4, MV5, MXDWN, MXUP, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
                      NUPS1, INDEO0
 integer(kind=iwp), allocatable :: NRL(:,:,:)
 integer(kind=iwp) :: ICLASS, IT0, NT, K, ITR
@@ -1645,40 +1641,41 @@ NSGMX  = 1
 NDWNS1 = 0  ! Dummy initialization
 NSGTMP = MXUP*MXDWN   ! Max size of intermediate sigma block
 
-do MV3=1,CIS%nMidV
-  MV1 = EXS%MVL(MV3,2)
-  MV2 = EXS%MVL(MV3,1)
+do MVSGM=1,CIS%nMidV
+  MV1 = EXS%MVL(MVSGM,2)
+  MV2 = EXS%MVL(MVSGM,1)
 
-  MV4 = EXS%MVR(MV3,1)
-  MV5 = EXS%MVR(MV3,2)
+  MV4 = EXS%MVR(MVSGM,1)
+  MV5 = EXS%MVR(MVSGM,2)
 
   do ISYUS1=1,SGS%nSym
-    NUPS1 =    CIS%NOW(1,ISYUS1,MV3)
+    NUPS1 =    CIS%NOW(1,ISYUS1,MVSGM)
     do ISYDS1=1,SGS%nSym
-      NDWNS1 = CIS%NOW(2,ISYDS1,MV3)
-      NSGMX = max(NSGMX,CIS%NOCSF(ISYUS1,MV3,ISYDS1))
+      NDWNS1 = CIS%NOW(2,ISYDS1,MVSGM)
+
+      NSGMX = max(NSGMX,CIS%NOCSF(ISYUS1,MVSGM,ISYDS1))
 
       if (MV1 /= 0) then
-        NT4TMP = NUPS1*CIS%NOW(2,ISYDS1,MV1)
-        NT5TMP = NDWNS1*CIS%NOW(1,ISYUS1,MV1)
+        NT4TMP = NUPS1 * CIS%NOW(2,ISYDS1,MV1)
+        NT5TMP = CIS%NOW(1,ISYUS1,MV1)* NDWNS1
         NSGTMP = max(NSGTMP,NT4TMP,NT5TMP)
       end if
 
       if (MV2 /= 0) then
-        NT3TMP = NUPS1*CIS%NOW(2,ISYDS1,MV2)
-        NT5TMP = NDWNS1*CIS%NOW(1,ISYUS1,MV2)
+        NT3TMP = NUPS1 * CIS%NOW(2,ISYDS1,MV2)
+        NT5TMP = CIS%NOW(1,ISYUS1,MV2) * NDWNS1
         NSGTMP = max(NSGTMP,NT3TMP,NT5TMP)
       end if
 
       if (MV4 /= 0) then
-        NT1TMP = NUPS1*CIS%NOW(2,ISYDS1,MV4)
-        NT5TMP = NDWNS1*CIS%NOW(1,ISYUS1,MV4)
+        NT1TMP = NUPS1 * CIS%NOW(2,ISYDS1,MV4)
+        NT5TMP = CIS%NOW(1,ISYUS1,MV4) * NDWNS1
         NSGTMP = max(NSGTMP,NT1TMP,NT5TMP)
       end if
 
       if (MV5 /= 0) then
-        NT2TMP = NUPS1*CIS%NOW(2,ISYDS1,MV5)
-        NT5TMP = NDWNS1*CIS%NOW(1,ISYUS1,MV5)
+        NT2TMP = NUPS1 * CIS%NOW(2,ISYDS1,MV5)
+        NT5TMP = CIS%NOW(1,ISYUS1,MV5) * NDWNS1
         NSGTMP = max(NSGTMP,NT2TMP,NT5TMP)
       end if
 
@@ -2657,7 +2654,14 @@ if (IQ < IP) then
           End If
 
           jOff=iOff
-          If (EXS%Reuse_SGTMP) iOff = iOff + NUPSG*NDWNC
+          If (EXS%Reuse_SGTMP) Then
+              iOff = iOff + NUPSG*NDWNC
+              If (iOff-1>SIZE(EXS%SGTMP)) Then
+                 Write(6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 1'
+                 Write(6,*) iOff-1,SIZE(EXS%SGTMP)
+                 Call Abend()
+              End If
+          End If
 
           INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
           NCP2 = EXS%NOCP(INDEO,ISYDC,MVX) ; if (NCP2 == 0) cycle
@@ -2767,7 +2771,14 @@ else if (IP < IQ) then
            End If
 
            jOff=iOff
-           If (EXS%Reuse_SGTMP) iOff = iOff + NUPSG*NDWNC
+           If (EXS%Reuse_SGTMP) Then
+             iOff = iOff + NUPSG*NDWNC
+             If (iOff-1>SIZE(EXS%SGTMP)) Then
+               Write(6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 2'
+               Write(6,*) iOff-1,SIZE(EXS%SGTMP)
+               Call Abend()
+             End If
+           End If
 
            INDEO = merge(IP, SGS%nLev+IP, MV==1)
            NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM) ; if (NCP2 == 0) cycle
