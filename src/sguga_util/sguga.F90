@@ -3001,7 +3001,9 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
     I2 = ICOUP(2,ICP)
     start = ICP
     finish = ICP
-    do while (finish <= NCP .and. ICOUP(2,finish)==I2)
+    do
+      if (finish > NCP) exit
+      if (ICOUP(2,finish)/=I2) exit
       finish = finish + 1
     end do
 
@@ -3011,7 +3013,9 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
       I2b = ICOUP(2,finish)
       start2 = finish
       finish2 = start2
-      do while (finish2 <= NCP .and. ICOUP(2,finish2)==I2b)
+      do
+        if (finish2 > NCP) exit
+        if (ICOUP(2,finish2)/=I2b) exit
         finish2 = finish2 + 1
       end do
       nk2 = finish2-start2
