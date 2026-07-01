@@ -45,7 +45,6 @@ integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
 logical(kind=iwp) :: Reuse_Sigma
 real(kind=wp) :: CI_ID=Zero
 integer(kind=iwp) ::  iOff, jOff
-real(kind=wp), external ::  DDot_
 
 !***********************************************************************
 !  GIVEN ACTIVE LEVEL INDICES IP AND IQ, AND INPUT CI ARRAYS
@@ -402,6 +401,8 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   VTAB => EXS%VTab
 
   ICP = 1
+  start2=0
+  i2b=0
 
   if (swap) then
 
@@ -587,7 +588,7 @@ subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
     end if
 
     do ICP=1,NCP
-!$OMP SIMD
+!!$OMP SIMD
       do IDWN=1,NDWN
         SIGMA(I2list(ICP),IDWN)=SIGMA(I2list(ICP),IDWN)+Xlist(ICP)*CI(I1list(ICP),IDWN)
       end do
@@ -627,7 +628,7 @@ subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
         ! compute
         do ICP=1,blk
           X = Xlist(i+ICP-1)
-!$OMP SIMD
+!!$OMP SIMD
           do IDWN=1,nblk
             SIGMA(I2list(i+ICP-1), j+IDWN-1) =               SIGMA(I2list(i+ICP-1), j+IDWN-1) + X*CI_blk(IDWN,ICP)
           end do

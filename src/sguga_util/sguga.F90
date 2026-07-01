@@ -1806,11 +1806,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp) :: LFTSYM, MV, NCHECK, NVTAB_FINAL
   integer(kind=iwp) :: ITYPMX
 
-#ifdef _DEBUGPRINT_
-  integer(kind=iwp) :: I3, ICOP1, ICOP2, ICP1, ICP2, N, NRC, NRCPQ
-  real(kind=wp)     :: CP
-#endif
-
   real(kind=wp) :: C
 
   integer(kind=iwp), allocatable :: ILNDW(:), ISGPTH(:,:)
