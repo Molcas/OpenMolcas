@@ -17,6 +17,7 @@ subroutine Domain_Localisation(irc)
 ! Purpose: set up orbital domains and pair domains. Find number of
 !          strong, weak, distant, and very distant pairs.
 
+use Index_Functions, only: nTri_Elem
 use Localisation_globals, only: AnaDomain, BName, CMO, nAtoms, nBas, nFro, nOrb2Loc, nSym, ThrDomain, ThrPairDomain
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -48,7 +49,7 @@ end if
 
 nBasT = nBas(1)
 nOcc = nOrb2Loc(1)
-nnOcc = nOcc*(nOcc+1)/2
+nnOcc = nTri_Elem(nOcc)
 nAtom = nAtoms
 
 ! There must be at least 2 atoms and 2 orbitals.

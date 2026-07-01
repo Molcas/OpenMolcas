@@ -14,9 +14,9 @@
 subroutine Rot_st(cMO_s,cMO_t,nBasis,Gamma_rot)
 ! Author: Y. Carissan.
 
+use Localisation_globals, only: Debug
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nBasis

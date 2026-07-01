@@ -10,35 +10,33 @@
 !                                                                      *
 ! Copyright (C) Yannick Carissan                                       *
 !               Thomas Bondo Pedersen                                  *
-!               2026, Lila Zapp (split subroutine for initialisation)  *
+!               2026, Lila Zapp                                        *
 !***********************************************************************
 
 subroutine localisation_init()
-use Localisation_globals, only: nSym, nOrb2Loc, nFro, nConstr, Skip, LocOrb, Thrs_UsrDef, nOrb2Loc_UsrDef, nFro_UsrDef, Freeze,&
-                                Maximisation, ChoStart, LocModel, OptMeth, ChargeType, LocModel_UsrDef,Test_Localisation, &
-                                NMxIter, Thrs, ThrRot, ThrGrad, Analysis, AnaAtom, AnaNrm, PrintMOs, Timing, EvalER, Order,&
-                                LocPAO, AnaPAO, AnaPAO_Save, DoDomain, AnaDomain, ThrDomain, ThrPairDomain, LocNatOrb, &
-                                LocCanOrb, Wave, iWave, DoCNOs, Loosen, ThrStep, AnalyseLoc, MoldMod, getIMmldn, useFH,&
-                                inpOptMeth
-use Definitions, only: iwp, wp
-use Constants, only: Ten,Five,Half,One,Deg2Rad
+
+use Localisation_globals, only: AnaAtom, AnaDomain, AnalyseLoc, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChargeType, ChoStart, &
+                                DoCNOs, DoDomain, EvalER, Freeze, getIMmldn, inpOptMeth, iWave, LocCanOrb, LocModel, &
+                                LocModel_UsrDef, LocNatOrb, LocOrb, LocPAO, Loosen, Maximisation, MoldMod, nConstr, nFro, &
+                                nFro_UsrDef, NMxIter, nOrb2Loc, nOrb2Loc_UsrDef, nSym, OptMeth, Order, PrintMOs, Skip, &
+                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, Thrs_UsrDef, ThrStep, Timing, &
+                                useFH, Wave
+use Definitions, only: wp, iwp
+use Constants, only: One, Five, Ten, Half, Deg2Rad
 
 implicit none
-integer(kind=iwp) :: iSym
 integer(kind=iwp), parameter :: Occupied = 0
-real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, & !functional change
-                            ThrRotDef=1.0e-10_wp, & !rotation angle in jacobi sweeps
-                            ThrGradDef=1.0e-5_wp,& !gradient norm
-                            ThrStepDef=1.0e-2_wp !kappa norm
+real(kind=wp), parameter :: ThrsDef = 1.0e-6_wp, & !functional change
+                            ThrRotDef = 1.0e-10_wp, & !rotation angle in jacobi sweeps
+                            ThrGradDef = 1.0e-5_wp, & !gradient norm
+                            ThrStepDef = 1.0e-2_wp !kappa norm
 
-useFH=.false. !use full Pipek-Mezey Hessian in the SGEK
+useFH = .false. !use full Pipek-Mezey Hessian in the SGEK
 getIMmldn = .false.
-MoldMod=-1 !at every MoldMod-th iteration, generate a molden file
-do iSym=1,nSym
-  nOrb2Loc(iSym) = 0
-  nFro(iSym) = 0
-  nConstr(iSym) = 0
-end do
+MoldMod = -1 !at every MoldMod-th iteration, generate a molden file
+nOrb2Loc(1:nSym) = 0
+nFro(1:nSym) = 0
+nConstr(1:nSym) = 0
 Skip = .false.
 LocOrb = Occupied
 Thrs_UsrDef = .false.
@@ -47,7 +45,7 @@ nFro_UsrDef = .false.
 Freeze = .false.
 Maximisation = .true.
 ChoStart = .false.
-LocModel = 1  ! Pipek-Mezey localisation
+LocModel = 1 ! Pipek-Mezey localisation
 OptMeth = 1 ! PM localisation done with Jacobi Sweeps
 inpOptMeth = 1 ! PM localisation done with Jacobi Sweeps
 ChargeType = 1 ! PM localisation done within the Mulliken population framework
@@ -90,4 +88,3 @@ Loosen%Step = Half*(One+sqrt(Five))
 Loosen%Factor = One
 
 end subroutine localisation_init
-

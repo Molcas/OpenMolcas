@@ -11,8 +11,8 @@
 
 subroutine Tri2Rec(OvlTri,OvlRec,nBas)
 
-use Definitions, only: wp, iwp
 use Localisation_globals, only: Debug
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas

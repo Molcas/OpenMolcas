@@ -11,9 +11,9 @@
 
 module Localisation_globals
 
+use Molcas, only: MxSym, LenIn
 use Definitions, only: wp, iwp
 use Constants, only: Zero
-use Molcas, only: MxSym, LenIn
 
 implicit none
 private
@@ -33,46 +33,39 @@ private
 !
 ! LC_FileOrb: orbital file for Seward to read
 
-
 ! Variables for undershot avoidance
 type Loosen_Type
   real(kind=wp) :: Thrs, Thrs2, Step, Factor
 end type Loosen_Type
 
-
-integer(kind=iwp) :: fileorb_id, iWave, LocModel, LuSpool, MxConstr, nActa, nAtoms, nBas(MxSym), nCMO, nConstr(MxSym), &
-                     nFro(MxSym), nMxIter, nOccInp(MxSym), nOrb(MxSym), nOrb2Loc(MxSym), nSym, nVirInp(MxSym), OptMeth, &
-                     ChargeType, LocOrb, AnalyseLoc, MoldMod, inpOptMeth
+integer(kind=iwp) :: AnalyseLoc, ChargeType, fileorb_id, inpOptMeth, iWave, LocModel, LocOrb, LuSpool, MoldMod, MxConstr, nActa, &
+                     nAtoms, nBas(MxSym), nCMO, nConstr(MxSym), nFro(MxSym), nMxIter, nOccInp(MxSym), nOrb(MxSym), &
+                     nOrb2Loc(MxSym), nSym, nVirInp(MxSym), OptMeth
 #ifdef _HDF5_
 integer(kind=iwp) :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif
-real(kind=wp) :: Thrs, ThrRot, ThrGrad, ThrDomain(2), ThrPairDomain(3), ThrSel, ThrStep
-logical(kind=iwp) :: AnaAtom, AnaDomain, Analysis, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, isHDF5 = .false., &
-                     LocCanOrb, LocNatOrb, LocPAO, Maximisation, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing,&
-                     Wave,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,Freeze, getIMmldn, Debug = .false., useFH
+real(kind=wp) :: bias = 10.0_wp, GEKThr_Grad = 0.1_wp, GEKThr_Kappa = 0.1_wp, ScrFac = Zero, SOFact = 1.0e4_wp, ThrDomain(2), &
+                 ThrGrad, ThrPairDomain(3), ThrRot, Thrs, ThrSel, ThrStep
+logical(kind=iwp) :: AnaAtom, AnaDomain, Analysis, AnaPAO, AnaPAO_Save, ChoStart, Debug = .false., DoCNOs, DoDomain, EvalER, &
+                     Freeze, getIMmldn, isHDF5 = .false., LocCanOrb, LocModel_UsrDef, LocNatOrb, LocPAO, Maximisation, &
+                     nFro_UsrDef, nOrb2Loc_UsrDef, Order, PrintMOs, Silent, Skip, Test_Localisation, Thrs_UsrDef, Timing, useFH, &
+                     Wave
 character(len=512) :: LC_FileOrb
 character(len=3) :: AnaNrm
-integer(kind=iwp), allocatable :: Ind(:),nBas_per_Atom(:), nBas_Start(:), posel(:)
+type(Loosen_Type) :: Loosen
+integer(kind=iwp), allocatable :: Ind(:), nBas_per_Atom(:), nBas_Start(:), posel(:)
+real(kind=wp), allocatable :: CMO(:), DispList(:,:), EOrb(:), FuncList(:), GradList(:,:), kappa_cnt(:,:), MOrig(:), Occ(:), &
+                              Ovlp(:,:), Ovlp_sqrt(:,:), UmatList(:,:,:), xkappa_cnt(:,:)
 character(len=LenIn+8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: NamAct(:)
-real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:), FuncList(:), GradList(:,:), DispList(:,:),UmatList(:,:,:),&
-                              kappa_cnt(:,:), xkappa_cnt(:,:), Ovlp(:,:), Ovlp_sqrt(:,:)
 
-real(kind=wp):: GEKThr_Kappa = 1.0e-1_wp,&
-                GEKThr_Grad = 1.0e-1_wp,&
-                bias = 10.0_wp,&
-                SOFact = 1.0e4_wp
-
-real(kind=wp) :: ScrFac=Zero
-type(Loosen_Type) :: Loosen
-
-public :: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, BName, ChoStart, CMO, DoCNOs, DoDomain, EOrb, EvalER, &
-          fileorb_id, Ind, isHDF5, iWave, LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MOrig, &
-          MxConstr, nActa, NamAct, nAtoms, nBas, nCMO, nConstr, nFro, nMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Occ, Order, &
-          PrintMOs, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave,&
-          ScrFac,Debug, OptMeth, ChargeType, LocOrb, Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
-          Freeze,Loosen,FuncList,GradList,DispList,UmatList, ThrStep, GEKThr_Kappa, GEKThr_Grad, bias, SOFact, AnalyseLoc,&
-          kappa_cnt, xkappa_cnt, Ovlp, Ovlp_sqrt, nBas_per_Atom, nBas_Start, MoldMod, getIMmldn, useFH, inpOptMeth,posel
+public :: AnaAtom, AnaDomain, AnalyseLoc, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, bias, BName, ChargeType, ChoStart, CMO, Debug, &
+          DispList, DoCNOs, DoDomain, EOrb, EvalER, fileorb_id, Freeze, FuncList, GEKThr_Grad, GEKThr_Kappa, getIMmldn, GradList, &
+          Ind, inpOptMeth, isHDF5, iWave, kappa_cnt, LC_FileOrb, LocCanOrb, LocModel, LocModel_UsrDef, LocNatOrb, LocOrb, LocPAO, &
+          Loosen, LuSpool, Maximisation, MoldMod, MOrig, MxConstr, nActa, NamAct, nAtoms, nBas, nBas_per_Atom, nBas_Start, nCMO, &
+          nConstr, nFro, nFro_UsrDef, nMxIter, nOccInp, nOrb, nOrb2Loc, nOrb2Loc_UsrDef, nSym, nVirInp, Occ, OptMeth, Order, Ovlp, &
+          Ovlp_sqrt, posel, PrintMOs, ScrFac, Silent, Skip, SOFact, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, &
+          Thrs, Thrs_UsrDef, ThrSel, ThrStep, Timing, UmatList, useFH, Wave, xkappa_cnt
 #ifdef _HDF5_
 public :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif

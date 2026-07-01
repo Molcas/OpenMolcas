@@ -280,40 +280,44 @@ Optional general keywords
 :kword:`OPTMethod`
   The next line specifies the optimization method used to maximize the Pipek--Mezey functional.
   Options: 
-    - 'JACO' = Jacobi Sweeps (Default)
-    - 'NEWT' = Newton Raphson method
-    - 'GEK'  = GEK method
-    - 'SGEK' = SGEK method (faster than GEK due to subspace construction)
-    - 'HYBR' = hybrid method (starts with JACO until no pos. Hessian diagonal elements then switches to SGEK)
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="STRING" LEVEL="BASIC">
+    - :kword:`JACObi` --- Jacobi Sweeps (Default)
+    - :kword:`NEWTon` --- Newton--Raphson method
+    - :kword:`GEK` --- GEK method
+    - :kword:`SGEK` --- SGEK method (faster than :kword:`GEK` due to subspace construction)
+    - :kword:`HYBRid` --- hybrid method (starts with :kword:`JACObi` until no pos. Hessian diagonal elements then switches to :kword:`SGEK`)
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="CHOICE" LIST="Jacobi,Newton,GEK,SGEK,Hybrid" DEFAULT_VALUE="Jacobi" LEVEL="BASIC">
               %%Keyword: OPTM <basic>
               <HELP>
               The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
               Options: 
-                - 'JACO' = Jacobi Sweeps (Default)
-                - 'NEWT' = Newton Raphson method
-                - 'GEK'  = GEK method
-                - 'SGEK' = SGEK method (faster than GEK due to subspace construction)
-                - 'HYBR' = hybrid method (starts with JACO until no pos. Hessian diagonal elements then switches to SGEK)
+
+              JACObi -- Jacobi Sweeps (Default)
+              NEWTon -- Newton Raphson method
+              GEK  -- GEK method
+              SGEK -- SGEK method (faster than GEK due to subspace construction)
+              HYBRid -- hybrid method (starts with JACObi until no pos. Hessian diagonal elements then switches to SGEK)
               </HELP>
               </KEYWORD>
 
 :kword:`PRNT`
-  The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
+  The next line specifies when Pipek--Mezey's single orbital delocalization measure :math:`d_i` shall be printed.
   Options:
-    - 'AFTE' = only after localization
-    - 'BOTH' = before AND after localization
-    - 'OFF'  = never (Default)
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PRNT" APPEAR="Print option for charge-based single orbital delocalization d_i" KIND="STRING" LEVEL="BASIC">
+    - :kword:`AFTEr` --- only after localization
+    - :kword:`BOTH` --- before *and* after localization
+    - :kword:`OFF`  --- never (Default)
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PRNT" APPEAR="Print option for charge-based single orbital delocalization" KIND="CHOICE" LIST="After,Both,Off" DEFAULT_VALUE="Off" LEVEL="BASIC">
               %%Keyword: PRNT <basic>
               <HELP>
               The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
               Options:
-                - 'AFTE' = only after localization
-                - 'BOTH' = before AND after localization
-                - 'OFF'  = never (Default)
+
+              AFTEr -- only after localization
+              BOTH -- before AND after localization
+              OFF  -- never (Default)
               </HELP>
               </KEYWORD>
 
@@ -321,16 +325,18 @@ Optional general keywords
 :kword:`CHARgeType`
   The next line specifies the type of partial charges used within the Pipek--Mezey localisation.
   Options: 
-    - 'MULL' = Mulliken charges (Default)
-    - 'LOWD' = Loewdin charges
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHAR" APPEAR="Type of partial charges used for PM localisation" KIND="STRING" LEVEL="BASIC">
+    - :kword:`MULLiken` --- Mulliken charges (Default)
+    - :kword:`LOWDin` --- Löwdin charges
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHAR" APPEAR="Type of partial charges used for PM localisation" KIND="CHOICE" LIST="Mulliken,Lowdin" DEFAULT_VALUE="Mulliken" LEVEL="BASIC">
               %%Keyword: CHAR <basic>
               <HELP>
               The next line specifies the type of partial charges used within the Pipek-Mezey localisation.
               Options: 
-                - 'MULL' = Mulliken charges (Default)
-                - 'LOWD' = Loewdin charges
+
+              MULLiken -- Mulliken charges (Default)
+              LOWDin -- Lowdin charges
               </HELP>
               </KEYWORD>
 
@@ -437,7 +443,7 @@ Optional general keywords
 
 :kword:`THRGradient`
   The following line specifies the convergence threshold used for
-  the gradient of the localisation functional. The default is 1.0d-4.
+  the gradient of the localisation functional. The default is 1.0d-5.
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="THRG" APPEAR="Gradient threshold" LEVEL="ADVANCED" KIND="REAL">
               <HELP>
@@ -465,16 +471,14 @@ Optional general keywords
 
 :kword:`SCRAmble`
   The following line specifies a factor used in the scrambling of the start orbitals to break 
-  any symmetry if present. The default is 0.0d0.
+  any symmetry if present. The default is 0.0.
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="SCRA" APPEAR="Scrambling factor" LEVEL="ADVANCED" KIND="REAL">
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="SCRA" APPEAR="Scrambling factor" KIND="REAL" DEFAULT_VALUE="0.0" LEVEL="ADVANCED">
+              %%Keyword: SCRA <advanced>
               <HELP>
               The following line specifies a factor used in the scrambling of the start orbitals to break 
-              any symmetry if present. The default is 0.0d0.
+              any symmetry if present. The default is 0.0.
               </HELP>
-              %%Keyword: THRR <advanced>
-              The following line specifies a factor used in the scrambling of the start orbitals to break 
-              any symmetry if present. The default is 0.0d0.
               </KEYWORD>
 
 :kword:`CHOStart`

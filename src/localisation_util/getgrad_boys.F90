@@ -16,9 +16,9 @@ subroutine GetGrad_Boys(nOrb2Loc,Lbl,nComp,Rmat,GradNorm)
 !
 ! Purpose: compute R-matrix and gradient norm for Boys functional.
 
+use Localisation_globals, only: Debug
 use Constants, only: Zero, Four
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nOrb2Loc, nComp

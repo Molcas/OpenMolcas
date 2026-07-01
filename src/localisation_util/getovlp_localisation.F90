@@ -17,6 +17,7 @@ subroutine GetOvlp_Localisation(S,Storage,nBas,nSym)
 ! Purpose: read the overlap matrix and return in S in lower triangular
 ! storage if Storage="Tri" else in full square storage.
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -33,9 +34,9 @@ character(len=3) :: myStorage
 real(kind=wp), allocatable :: Scr(:)
 character(len=*), parameter :: SecNam = 'GetOvlp_Localisation'
 
-l_Tri = nBas(1)*(nBas(1)+1)/2
+l_Tri = nTri_Elem(nBas(1))
 do iSym=2,nSym
-  l_Tri = l_Tri+nBas(iSym)*(nBas(iSym)+1)/2
+  l_Tri = l_Tri+nTri_Elem(nBas(iSym))
 end do
 call mma_allocate(Scr,l_Tri+4,label='OvlpScr')
 
@@ -60,7 +61,7 @@ else
   kSq = 1
   do iSym=1,nSym
     call Tri2Rec(Scr(kTri),S(kSq),nBas(iSym))
-    kTri = kTri+nBas(iSym)*(nBas(iSym)+1)/2
+    kTri = kTri+nTri_Elem(nBas(iSym))
     kSq = kSq+nBas(iSym)**2
   end do
 end if

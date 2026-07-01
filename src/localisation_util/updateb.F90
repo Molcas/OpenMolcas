@@ -18,9 +18,9 @@ subroutine UpdateB(Col,nOrb2Loc,Lbl,nComp,Gamma_rot,iMO_s,iMO_t)
 ! Purpose: update MO dipole matrices for Boys localisation.
 !          (Almost exact copy of UpdateP by Y. Carissan.)
 
+use Localisation_globals, only: Debug
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nOrb2Loc, nComp, iMO_s, iMO_t

@@ -26,10 +26,10 @@ subroutine EdmistonRuedenberg_Iter(Functional,CMO,nBasis,nOrb2Loc,Converged)
 ! Note that two-electron integrals (Cholesky decomposed) must be
 ! available and appropriately set up when calling this routine.
 
+use Localisation_globals, only: Debug, Maximisation, nMxIter, Silent, ThrGrad, ThrRot, Thrs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug, Thrs,ThrRot,ThrGrad, Maximisation, Silent, nMxIter
 
 implicit none
 real(kind=wp), intent(out) :: Functional
@@ -52,7 +52,7 @@ end if
 
 if (.not. Silent) then
   write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
-                               'nIter      Functional ER        Delta     Gradient     (sec)     (sec)'
+    'nIter      Functional ER        Delta     Gradient     (sec)     (sec)'
 end if
 
 ! Initialization.

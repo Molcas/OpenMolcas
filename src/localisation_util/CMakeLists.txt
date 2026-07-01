@@ -55,8 +55,8 @@ set (sources
      getgradnorm_pm.F90
      gethdiag_pm.F90
      gethess_pm.F90
-     getnumhess_pm.F90
      getnumgrad_pm.F90
+     getnumhess_pm.F90
      getovlp_localisation.F90
      getrawpaos.F90
      getsh_localisation.F90
@@ -64,7 +64,6 @@ set (sources
      getumat_localisation.F90
      inv_fwt_haar.F90
      irnge.F90
-     loc_procedures.F90
      localisation_globals.F90
      log2.F90
      makedomaincomplete.F90
@@ -79,9 +78,9 @@ set (sources
      rotateorb.F90
      rotateorb_er.F90
      rotateorbb.F90
+     s_gek_localisation.F90
      sort_localisation.F90
      sort_localisation_1.F90
-     scram.F90
      sq2tri.F90
      sqrtmt.F90
      transformpa.F90
@@ -96,9 +95,6 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list
-     localisation_globals.F90
-)
-
+set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

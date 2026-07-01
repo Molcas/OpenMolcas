@@ -57,13 +57,11 @@ call Get_iScalar('nSym',nIrrep)
 
 call Get_iArray('nBas',nBas,nIrrep)
 
-
 if (Method == 'LOCALIS') then
   short = .false.
   ifallorb = .true.
-  write(u6,*) "calculating properties after the localisation"
+  !write(u6,*) 'calculating properties after the localisation'
 end if
-
 
 nDim = 0
 nTriDim = 0
@@ -103,18 +101,17 @@ else
   lbl = 'CO'
 end if
 
-Lu = 10
-Lu = IsFreeUnit(Lu)
+Lu = IsFreeUnit(10)
 if ((Method == 'RHF-SCF ') .or. &
     (Method == 'IVO-SCF ') .or. &
     (Method == 'LOCALIS ') .or. &
     (Method == 'KS-DFT  ') .or. &
     (Method == 'UHF-SCF ')) then
-  write(u6,*) "calculating properties after the localisation"
+  !write(u6,*) 'calculating properties after the localisation'
   if (iUHF /= 1) then
     call RdVec('SCFORB',Lu,Lbl,nIrrep,nBas,nBas,Vec(:,1),Occ(:,1),Dummy,iDummy,note,0,iError)
   else if (Method == 'LOCALIS') then
-    write(u6,*) "reading from locorb file"
+    !write(u6,*) 'reading from locorb file'
     call RdVec('LOCORB',Lu,Lbl,nIrrep,nBas,nBas,Vec(:,1),Occ(:,1),Dummy,iDummy,note,0,iError)
   else
     call RdVec_('UHFORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Vec(:,1),Vec(:,2),Occ(:,1),Occ(:,2),Dummy,Dummy,iDummy,note,1,iError,iWFtype)

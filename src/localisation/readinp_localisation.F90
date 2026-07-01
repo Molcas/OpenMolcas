@@ -15,12 +15,12 @@
 subroutine Readinp_localisation()
 ! Author: Y. Carissan [heavily modified by T.B. Pedersen].
 
-use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, ChoStart, DoCNOs, DoDomain, EvalER, &
-                                iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
-                                nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
-                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
-                                ScrFac, ChargeType, LocOrb,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
-                                Freeze,AnalyseLoc, MoldMod, getIMmldn, inpOptMeth, OptMeth, useFH
+use Localisation_globals, only: AnaAtom, AnaDomain, AnalyseLoc, Analysis, AnaNrm, AnaPAO, ChargeType, ChoStart, DoCNOs, DoDomain, &
+                                EvalER, Freeze, getIMmldn, inpOptMeth, iWave, LocCanOrb, LocModel, LocModel_UsrDef, LocNatOrb, &
+                                LocOrb, LocPAO, LuSpool, Maximisation, MoldMod, MxConstr, nActa, NamAct, nConstr, nFro, &
+                                nFro_UsrDef, NMxIter, nOccInp, nOrb, nOrb2Loc, nOrb2Loc_UsrDef, nSym, nVirInp, OptMeth, Order, &
+                                PrintMOs, ScrFac, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, &
+                                Thrs, Thrs_UsrDef, ThrSel, Timing, useFH, Wave
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -36,8 +36,7 @@ character(len=*), parameter :: SecNam = 'Readinp_localisation'
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 character(len=180), external :: Get_Ln
 
-LuSpool = 17
-LuSpool = isFreeUnit(LuSpool)
+LuSpool = isFreeUnit(17)
 call SpoolInp(LuSpool)
 
 ! Locate "start of input"
@@ -153,48 +152,48 @@ do
       LocModel_UsrDef = .true.
 
     case ('OPTM')
-        Line = Get_Ln(LuSpool)
-        Key(:) = ""
-        call Get_s(1,Key(1:4),1)
+      Line = Get_Ln(LuSpool)
+      Key = ''
+      call Get_s(1,Key(1:4),1)
+      call Upcase(Key)
 
-        select case (Key(1:4))
-            ! Jacobi Sweeps for PM localisation
-            case('JACO')
-            inpOptMeth = 1
+      select case (Key(1:4))
+        case ('JACO')
+          ! Jacobi Sweeps for PM localisation
+          inpOptMeth = 1
 
-             case ('NEWT')
-            ! Newton Raphson for PM localisation
-            inpOptMeth = 2
+        case ('NEWT')
+          ! Newton-Raphson for PM localisation
+          inpOptMeth = 2
 
-            case ('GRAD')
-            ! Gradient Ascent for PM localisation
-            inpOptMeth = 3
+        case ('GRAD')
+          ! Gradient Ascent for PM localisation
+          inpOptMeth = 3
 
-            case ('GEK')
-            ! GEK (fullspace) for PM localisation
-            inpOptMeth = 4
+        case ('GEK')
+          ! GEK (fullspace) for PM localisation
+          inpOptMeth = 4
 
-            case ('SGEK','S-GEK')
-            ! S-GEK for PM localisation
-            inpOptMeth = 5
+        case ('SGEK','S-GEK')
+          ! S-GEK for PM localisation
+          inpOptMeth = 5
 
-            case ('HYBR') !hybrid
-            ! start with JACO below gekthr_grad, then switch to SGEK
-            inpOptMeth = 6
+        case ('HYBR') !hybrid
+          ! start with JACO below gekthr_grad, then switch to SGEK
+          inpOptMeth = 6
 
+        case default
+          write(u6,*) 'WARNING!!!'
+          write(u6,*) 'The specified optimization method for PM localisation does not exist'
+          write(u6,*) 'using the default instead'
+          call FindErrorLine()
+      end select
 
-            case default
-                write(u6,*) 'WARNING!!!'
-                write(u6,*) 'The specified optimization method for PM localisation does not exist'
-                write(u6,*) 'using the default instead'
-                call FindErrorLine()
-        end select
+      OptMeth = inpOptMeth
 
-        OptMeth = inpOptMeth
-
-    case('FHES')
-        ! use full hessian in SGEK
-        useFH = .true.
+    case ('FHES')
+      ! use full hessian in SGEK
+      useFH = .true.
 
     case ('MOLD')
       ! generate intermediate molden files
@@ -202,55 +201,54 @@ do
       Line = Get_Ln(LuSpool)
       call Get_I1(1,MoldMod)
 
-
     case ('CHAR')
-        ! choosing between Mulliken and Loewdin charge framework for PM localisation
-        Line = Get_Ln(LuSpool)
-        Key(:) = ""
-        call Get_s(1,Key(1:4),1)
+      ! choosing between Mulliken and Lowdin charge framework for PM localisation
+      Line = Get_Ln(LuSpool)
+      Key = ''
+      call Get_s(1,Key(1:4),1)
+      call Upcase(Key)
 
-        select case (Key(1:4))
-            ! Mulliken
-            case('MULL')
-            ChargeType = 1
+      select case (Key(1:4))
+        case ('MULL')
+          ! Mulliken
+          ChargeType = 1
 
-            case ('LOWD','LOEW')
-            ! Loewdin
-            ChargeType = 2
+        case ('LOWD','LOEW')
+          ! Lowdin
+          ChargeType = 2
 
-            case default
-                write(u6,*) 'WARNING!!!'
-                write(u6,*) 'The specified framework for PM localisation does not exist'
-                write(u6,*) 'using the default instead'
-                call FindErrorLine()
-        end select
-
-    case ('PRNT')
-        Line = Get_Ln(LuSpool)
-        Key(:) = ""
-        call Get_s(1,Key(1:4),1)
-
-        select case (Key(1:4))
-            ! PM localisation: print MO extension before, after or both times
-
-            case('OFF')
-            AnalyseLoc = 0
-
-            case('AFTE')
-            AnalyseLoc = 1
-
-            case('BOTH')
-            AnalyseLoc = 2
-
-            case default
-                write(u6,*) 'WARNING!!!'
-                write(u6,*) 'The specified print stage for PM localisation does not exist'
-                write(u6,*) 'using the default instead'
-                call FindErrorLine()
+        case default
+          write(u6,*) 'WARNING!!!'
+          write(u6,*) 'The specified framework for PM localisation does not exist'
+          write(u6,*) 'using the default instead'
+          call FindErrorLine()
       end select
 
+    case ('PRNT')
+      ! PM localisation: print MO extension before, after or both times
+      Line = Get_Ln(LuSpool)
+      Key = ''
+      call Get_s(1,Key(1:4),1)
+      call Upcase(Key)
 
-      case ('BOYS')
+      select case (Key(1:4))
+        case ('OFF')
+          AnalyseLoc = 0
+
+        case ('AFTE')
+          AnalyseLoc = 1
+
+        case ('BOTH')
+          AnalyseLoc = 2
+
+        case default
+          write(u6,*) 'WARNING!!!'
+          write(u6,*) 'The specified print stage for PM localisation does not exist'
+          write(u6,*) 'using the default instead'
+          call FindErrorLine()
+      end select
+
+    case ('BOYS')
       ! BOYS
 
       LocModel = 2
@@ -565,8 +563,8 @@ else
         nOrb2Loc(iSym) = nVirInp(iSym)
       end do
     end if
-  !else ! occupied localisation
   else if (LocOrb == Occupied) then ! occupied localisation
+    !else ! occupied localisation
     if (nFro_UsrDef .or. Freeze) then
       do iSym=1,nSym
         nOrb2Loc(iSym) = nOccInp(iSym)-nFro(iSym)
@@ -628,5 +626,5 @@ subroutine Error()
   write(u6,*) ' atoms in keyword LOCN'
   call Abend()
 end subroutine Error
-end subroutine Readinp_localisation
 
+end subroutine Readinp_localisation

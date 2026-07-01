@@ -19,10 +19,10 @@ subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Reduce operation count and use BLAS.
 
+use Localisation_globals, only: Debug
+use Molcas, only: LenIn
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_Start(nAtoms), nOrb2Loc, iMO_s, iMO_t

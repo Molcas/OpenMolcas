@@ -26,7 +26,7 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 use InfSCF, only: Energy, HDiag, iter, IterGEK, Loosen, TimFld
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero,Ten,One
+use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -106,7 +106,7 @@ call RecPrt('dq(:)',' ',dq,mOV,1)
 ! Select the subspace
 
 #ifdef _FULL_SPACE_
-write(u6,*) "FULL SPACE GEK FOR SCF"
+write(u6,*) 'FULL SPACE GEK FOR SCF'
 ! Set up the full space
 nExplicit = mOV
 call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
@@ -179,7 +179,6 @@ end do
 ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
 mDIIS = j
 
-
 #ifdef _DEBUGPRINT_
 write(u6,*) '      mOV:',mOV
 write(u6,*) 'nExplicit:',nExplicit
@@ -219,10 +218,10 @@ do i=1,nDIIS
   end do
 end do
 
-!#ifdef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
 call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
-!#endif
+#endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Project the approximate Hessian to the subspace !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -264,13 +263,12 @@ end if
 !end do
 #ifdef _DEBUGPRINT_
 call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
-    write(u6,*) "H_diis diagonal elements:"
-    do i=1,mDiis
-        write(u6,'(F26.16)') H_diis(i,i)
-    end do
-    write(u6,*) ''
+write(u6,*) 'H_diis diagonal elements:'
+do i=1,mDiis
+  write(u6,'(F26.16)') H_diis(i,i)
+end do
+write(u6,*)
 #endif
-
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! define dq as null vector in the subspace !
@@ -279,11 +277,9 @@ call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 dq_diis(:) = Zero
 
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Perform the optimization !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 
 if (SORange) then
   SOFact = One
@@ -292,7 +288,7 @@ else
 end if
 
 !=======================================================================
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SOFact,Ten)
+call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SOFact,Ten)
 !=======================================================================
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

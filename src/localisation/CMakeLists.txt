@@ -35,9 +35,4 @@ set (sources
      testloc.F90
 )
 
-# Source files defining modules that should be available to other *_util directories
-set (modfile_list
-)
-
-
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

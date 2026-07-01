@@ -18,10 +18,10 @@ subroutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc)
 !          CMO -> CMO * U
 !          U = R*[R^T*R]^(-1/2)
 
+use Localisation_globals, only: Debug
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc

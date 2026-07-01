@@ -13,20 +13,20 @@
 !***********************************************************************
 
 !#define _SCR_DEFAULT_
-
 subroutine PipekMezey(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
 ! Author: Y. Carissan [modified by T.B. Pedersen].
 !
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
 
+use Index_Functions, only: nTri_Elem
+use Localisation_globals, only: BName, Debug, nAtoms, nBas_per_Atom, nBas_Start, Ovlp, ScrFac
 use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, Ovlp,nBas_Start,nBas_per_Atom
-
 #ifdef _SCR_DEFAULT_
 use Localisation_globals, only: OptMeth
+use Constants, only: Half
 #endif
 
 implicit none
@@ -56,10 +56,9 @@ nOrb2LocT = nOrb2Loc(1)
 nFroT = nFro(1)
 kOffC = nBasT*nFroT+1
 
-
-if (ScrFac/=Zero) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],ScrFac)
-# ifdef _SCR_DEFAULT_
-if (OptMeth == 2 .or. OptMeth == 4 .or. OptMeth == 5) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],0.5_wp)
+if (ScrFac /= Zero) call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],ScrFac)
+#ifdef _SCR_DEFAULT_
+if ((OptMeth == 2) .or. (OptMeth == 4) .or. (OptMeth == 5)) call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],Half)
 #endif
 
 Converged = .false.
@@ -67,7 +66,7 @@ Converged = .false.
 ! Read overlap matrix.
 ! --------------------
 
-lOaux = nBasT*(nBasT+1)/2+4
+lOaux = nTri_Elem(nBasT)+4
 call mma_allocate(Ovlp,nBasT,nBasT,label='Ovlp')
 call mma_allocate(Oaux,lOaux,label='AuxOvlp')
 
@@ -98,7 +97,7 @@ call mma_deallocate(Oaux)
 
 call mma_allocate(nBas_per_Atom,nAtoms,label='nB_per_Atom')
 call mma_allocate(nBas_Start,nAtoms,label='nB_Start')
-call BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBasT,nAtoms, Debug)
+call BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBasT,nAtoms,Debug)
 
 ! Allocate PA array.
 ! ------------------
@@ -109,9 +108,9 @@ PA(:,:,:) = Zero
 ! ------------------
 
 ! this offset to get to the part of CMO which should be localized.
-if (debug) then; call RecPrt('cMO before localization',' ',cMO,nBasT,norb2locT); end if
+if (debug) call RecPrt('cMO before localization',' ',cMO,nBasT,norb2locT)
 call PipekMezey_Iter(Functional,CMO(kOffC),PA,nBasT,nOrb2LocT,Converged)
-if (debug) then; call RecPrt('cMO after localization',' ',cMO,nBasT,norb2locT); end if
+if (debug) call RecPrt('cMO after localization',' ',cMO,nBasT,norb2locT)
 ! De-allocations.
 ! ---------------
 

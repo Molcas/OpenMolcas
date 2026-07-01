@@ -17,10 +17,10 @@ subroutine GenerateB(CMO,nBas,nOrb2Loc,Lbl_AO,Lbl,nComp)
 ! Purpose: generate the dipole matrices for Boys localisation, i.e.
 !          transform from AO to MO basis.
 
+use Localisation_globals, only: Debug
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas, nOrb2Loc, nComp

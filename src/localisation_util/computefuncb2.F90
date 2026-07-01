@@ -16,9 +16,9 @@ subroutine ComputeFuncB2(nOrb2Loc,Lbl,nComp,Functional)
 !
 ! Purpose: compute Boys localisation functional B2.
 
+use Localisation_globals, only: Debug
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nOrb2Loc, nComp

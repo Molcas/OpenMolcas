@@ -177,7 +177,7 @@ Luis Serrano-Andrés
 Grigory A. Shamov  
 Kamal Sharkas  
 Prachi Sharma  
-Roger B. Sidje
+Roger B. Sidje  
 Per E. M. Siegbahn  
 Pär Söderhjelm  
 Lasse Kragh Sørensen  

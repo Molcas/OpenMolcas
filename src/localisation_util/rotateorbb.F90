@@ -16,9 +16,9 @@ subroutine RotateOrbB(CMO,Col,Lbl,nComp,nBas,nOrb2Loc,PctSkp)
 !
 ! Purpose: rotate orbitals (Jacobi Sweeps) for Boys localisation.
 
+use Localisation_globals, only: Debug, Maximisation, Thrrot
 use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug, ThrRot, Maximisation
 
 implicit none
 integer(kind=iwp), intent(in) :: nComp, nBas, nOrb2Loc

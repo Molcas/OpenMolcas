@@ -16,13 +16,13 @@ subroutine Boys_Iter(Functional,CMO,Lbl_AO,Lbl,nBas,nOrb2Loc,nComp,Converged)
 !
 ! Purpose: Boys localisation of orbitals.
 
+use Localisation_globals, only: nMxIter, Silent, ThrGrad, Thrs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter
 
 implicit none
-integer(kind=iwp), intent(in) :: nComp, nBas, nOrb2Loc
+integer(kind=iwp), intent(in) :: nBas, nOrb2Loc, nComp
 real(kind=wp), intent(out) :: Functional, Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(inout) :: CMO(nBas,*)
 real(kind=wp), intent(in) :: Lbl_AO(nBas,nBas,nComp)
@@ -36,7 +36,7 @@ real(kind=wp), allocatable :: Col(:,:), Rmat(:,:)
 
 if (.not. Silent) then
   write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
-                               'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
+    'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
 end if
 
 ! Initialization (iter 0).

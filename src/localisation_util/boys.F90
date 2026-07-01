@@ -16,9 +16,10 @@ subroutine Boys(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
 !
 ! Purpose: Boys localisation of occupied orbitals.
 
+use Index_Functions, only: nTri_Elem
+use Localisation_globals, only: Debug
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 real(kind=wp), intent(out) :: Functional
@@ -55,7 +56,7 @@ Converged = .false.
 
 call mma_allocate(Lbl_AO,nBasT,nBasT,nComp,label='Dipole')
 
-lAux = nBasT*(nBasT+1)/2+4
+lAux = nTri_Elem(nBasT)+4
 
 call mma_allocate(SMat,lAux,label='SMat')
 Label = 'Mltpl  0'
@@ -64,7 +65,7 @@ irc = -1
 iOpt = 0
 iSym = 1
 call RdOne(irc,iOpt,Label,iCmp,SMat,iSym)
-Call Get_dArray('Center of Mass',CoM,3)
+call Get_dArray('Center of Mass',CoM,3)
 
 call mma_allocate(Aux,lAux,label='DipAux')
 Label = 'Mltpl  1'
@@ -86,7 +87,7 @@ do iComp=1,nComp
     write(u6,*) ' Component: ',iComp
     call TriPrt(' ',' ',Aux,nBasT)
   end if
-  Aux(:)=Aux(:) + CoM(iComp)*SMat(:)
+  Aux(:) = Aux(:)+CoM(iComp)*SMat(:)
   call Tri2Rec(Aux,Lbl_AO(:,:,iComp),nBasT)
 end do
 call mma_deallocate(SMat)

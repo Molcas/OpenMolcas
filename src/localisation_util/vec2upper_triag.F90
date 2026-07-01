@@ -12,48 +12,45 @@
 !***********************************************************************
 
 subroutine vec2upper_triag(squaremat,matdim,vec,vecdim,antisymmetric)
-use Definitions, only: u6,wp,iwp
-use Constants, only: Zero,One
+
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp),intent(in) :: matdim,vecdim
-real(kind=wp),intent(out) :: squaremat(matdim,matdim) !antisymmetric or symmetric
-real(kind=wp),intent(in) :: vec(vecdim)
-integer(kind=iwp) :: i,j,listindex
-logical, intent(in) :: antisymmetric
+integer(kind=iwp), intent(in) :: matdim, vecdim
+real(kind=wp), intent(out) :: squaremat(matdim,matdim) !antisymmetric or symmetric
+real(kind=wp), intent(in) :: vec(vecdim)
+logical(kind=iwp), intent(in) :: antisymmetric
+integer(kind=iwp) :: i, j, listindex
 
 ! putting data stored as vector back into anti/symmetric matrix format
 ! note that diagonal elements are produced here, because the input vector does not contain them
 !  -> they will be zero for antisymmetric matrices an one for symmetric matrices (needed to do grad(:,:)/hessian(:,:))
 
 if (antisymmetric) then
-    squaremat(:,:) = Zero
+  squaremat(:,:) = Zero
 else
-    squaremat(:,:) = One
+  squaremat(:,:) = One
 end if
 
-listindex=0
+listindex = 0
 do i=1,matdim-1
-    do j=i+1,matdim
-        listindex=listindex+1
-        if (.false.) then
-            write(u6,"(A,I5,A,I5,A,I5,A,F8.3)") "i=",i ,"j= ",j,"listindex=",listindex,"mat(i,j)=",squaremat(i,j)
-        end if
+  do j=i+1,matdim
+    listindex = listindex+1
+    !write(u6,'(A,I5,A,I5,A,I5,A,F8.3)') 'i=',i,'j= ',j,'listindex=',listindex,'mat(i,j)=',squaremat(i,j)
 
-        squaremat(i,j)=vec(listindex)
+    squaremat(i,j) = vec(listindex)
 
-        if (antisymmetric) then
-            squaremat(j,i)=-vec(listindex)
-        else
-            squaremat(j,i)=vec(listindex)
-        end if
-    end do
+    if (antisymmetric) then
+      squaremat(j,i) = -vec(listindex)
+    else
+      squaremat(j,i) = vec(listindex)
+    end if
+  end do
 end do
 
-if (.false.) then
-    write(u6,*) "In vec2upper_triag:  antisymmetric = ",antisymmetric
-    call RecPrt("matrix as vector of upper triagonal values:",' ',vec,listindex,1)
-    call RecPrt("NxN Matrix",' ',squaremat,matdim,matdim)
-end if
+!write(u6,*) 'In vec2upper_triag:  antisymmetric = ',antisymmetric
+!call RecPrt('matrix as vector of upper triagonal values:',' ',vec,listindex,1)
+!call RecPrt('NxN Matrix',' ',squaremat,matdim,matdim)
 
 end subroutine vec2upper_triag

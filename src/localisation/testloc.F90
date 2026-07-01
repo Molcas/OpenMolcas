@@ -24,6 +24,7 @@ subroutine TestLoc(irc)
 !
 !          Return codes: irc=0 (all OK), irc=1 (failure).
 
+use Index_Functions, only: nTri_Elem
 use Localisation_globals, only: CMO, LocPAO, MOrig, nBas, nFro, nOrb2Loc, nSym
 use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -61,10 +62,10 @@ end if
 ! --------------------------
 
 lOvlp = nBas(1)**2
-lOaux = 4+nBas(1)*(nBas(1)+1)/2
+lOaux = 4+nTri_Elem(nBas(1))
 do iSym=2,nSym
   lOvlp = lOvlp+nBas(iSym)**2
-  lOaux = lOaux+nBas(iSym)*(nBas(iSym)+1)/2
+  lOaux = lOaux+nTri_Elem(nBas(iSym))
 end do
 call mma_allocate(Ovlp,lOvlp,label='TstOvlp')
 call mma_allocate(Oaux,lOaux,label='TstOaux')
@@ -82,7 +83,7 @@ kTri = 1
 kSqr = 1
 do iSym=1,nSym
   call Tri2Rec(Oaux(kTri),Ovlp(kSqr),nBas(iSym))
-  kTri = kTri+nBas(iSym)*(nBas(iSym)+1)/2
+  kTri = kTri+nTri_Elem(nBas(iSym))
   kSqr = kSqr+nBas(iSym)**2
 end do
 call mma_deallocate(Oaux)

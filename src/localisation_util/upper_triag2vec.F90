@@ -12,30 +12,27 @@
 !***********************************************************************
 
 subroutine upper_triag2vec(squaremat,matdim,vec,vecdim)
-use Definitions, only: u6,wp,iwp
+
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp),intent(in) :: matdim,vecdim
-real(kind=wp),intent(in) :: squaremat(matdim,matdim)
-real(kind=wp),intent(out) :: vec(vecdim)
-integer(kind=iwp) :: i,j,listindex
+integer(kind=iwp), intent(in) :: matdim, vecdim
+real(kind=wp), intent(in) :: squaremat(matdim,matdim)
+real(kind=wp), intent(out) :: vec(vecdim)
+integer(kind=iwp) :: i, j, listindex
 
 ! putting the upper triagonal elements & diagonal elements into a list
-listindex=0
+listindex = 0
 do i=1,matdim-1
-    do j=i+1,matdim
-        listindex=listindex+1
-        if (.false.) then
-            write(u6,"(A,I5,A,I5,A,I5,A,F8.3)") "i=",i ,"j= ",j,"listindex=",listindex,"mat(i,j)=",squaremat(i,j)
-        end if
-        vec(listindex)=squaremat(i,j)
-    end do
+  do j=i+1,matdim
+    listindex = listindex+1
+    !write(u6,'(A,I5,A,I5,A,I5,A,F8.3)') 'i=',i,'j= ',j,'listindex=',listindex,'mat(i,j)=',squaremat(i,j)
+    vec(listindex) = squaremat(i,j)
+  end do
 end do
 
-if (.false.) then
-    write(u6,*) "In upper_triag2vec:"
-    call RecPrt("NxN Matrix",' ',squaremat,matdim,matdim)
-    call RecPrt("matrix as vector of upper triagonal values:",' ',vec,listindex,1)
-end if
+!write(u6,*) 'In upper_triag2vec:'
+!call RecPrt('NxN Matrix',' ',squaremat,matdim,matdim)
+!call RecPrt('matrix as vector of upper triagonal values:',' ',vec,listindex,1)
 
 end subroutine upper_triag2vec

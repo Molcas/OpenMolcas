@@ -45,7 +45,7 @@ do iSym=1,nSym
   do iOrb=1,nOrb(iSym)-1
     jOrb = iOrb+1
     q = ScrFac*(Two*Random_Molcas(iSeed)-One)
-    !write(u6,*)'Random_Molcas(iSeed)', Random_Molcas(iSeed)
+    !write(u6,*) 'Random_Molcas(iSeed)',Random_Molcas(iSeed)
     p = sqrt(One-q*q)
     !write(u6,*) 'q=',q
     !write(u6,*) 'p=',p
