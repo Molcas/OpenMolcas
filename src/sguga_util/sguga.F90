@@ -706,9 +706,11 @@ subroutine RMVERT(SGS)
       do IC = 0,3
         ID = SGS%Down0(IV,IC)
 
-        if (ID > 0 .and. SGS%Ver(ID) == 0) then
-          SGS%Down0(IV,IC) = 0
-          NCHANGES = NCHANGES + 1
+        if (ID > 0) then
+          if (SGS%Ver(ID) == 0) then
+            SGS%Down0(IV,IC) = 0
+            NCHANGES = NCHANGES + 1
+          end if
         end if
       end do
     end do
