@@ -13,6 +13,7 @@
 
 subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
+use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, SGS, CIS, EXS
 use caspt2_module, only: JSTATE, MXCI, NACTEL, NCONF, NSYM, STSYM

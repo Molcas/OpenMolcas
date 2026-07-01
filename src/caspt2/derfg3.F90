@@ -13,6 +13,7 @@
 
 subroutine DERFG3(IFF,NCONF,NLEV,NG3,CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 
+use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul

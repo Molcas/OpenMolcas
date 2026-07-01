@@ -31,6 +31,7 @@ subroutine GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
 ! GETSGM2(ILEV,JLEV,CI,SGM)!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+use sguga, only: sg_epq_psi
 use Symmetry_Info, only: Mul
 use caspt2_global, only: CIS, EXS, SGS
 use Constants, only: Zero, One

@@ -60,6 +60,7 @@ module NEVPT2_E4
 ! Consider distributed memory strategy
 ! ... at the moment, no
 
+use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri_Elem
 use caspt2_module, only: MXCI, NTUVES, STSYM
 use caspt2_global, only: CIS, EXS, SGS

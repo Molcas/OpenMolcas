@@ -58,6 +58,7 @@
 
 subroutine MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
 
+use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc

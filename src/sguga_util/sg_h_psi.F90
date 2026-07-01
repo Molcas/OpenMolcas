@@ -15,7 +15,7 @@ Subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma)
 
 use Index_functions, only: iTri
 use symmetry_info, only: MUL
-use sguga, only: SGStruct, CIStruct, EXStruct
+use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi
 use wadr, only: TUVX_Tri=>TUVX, TU_Tri=>FMO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half

@@ -15,7 +15,7 @@
 Subroutine sg_d1mat(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,lD1MAT)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use sguga, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct, sg_epq_psi
 use constants, only: Zero, One
 use definitions, only: iwp, wp
 

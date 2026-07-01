@@ -45,7 +45,7 @@
 subroutine SG_CITRA(WFTP,SGS,CIS,EXS,LSM,NTRA,TRA,NCO,CI,NOSH,NISH,NASH)
 
 use Molcas, only: MxSym
-use sguga, only: CIStruct, SGStruct, EXStruct
+use sguga, only: CIStruct, SGStruct, EXStruct, sg_epq_psi
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half

@@ -31,6 +31,7 @@ subroutine MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 ! the usual active orbital number, when they are enumerated across
 ! all the symmetries (The "absolute" active index).
 
+use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use caspt2_global, only: CIS, EXS, SGS

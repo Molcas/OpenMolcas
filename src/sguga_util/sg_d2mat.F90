@@ -16,7 +16,7 @@ Subroutine sg_d2mat(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,nD2MAT)
 
 use Index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
-use sguga, only: CIStruct, EXStruct, SGStruct
+use sguga, only: CIStruct, EXStruct, SGStruct, sg_epq_psi
 use Constants, only: Zero, One
 use Definitions, only: iwp, wp
 
