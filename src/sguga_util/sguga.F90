@@ -1828,6 +1828,9 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp) :: MxEO_Block
 
   integer(kind=iwp), parameter :: nVTab = 5000
+#ifdef _DEBUGPRINT_
+  integer(kind=iwp) ICOP1, ICOP2
+#endif
 
   call mma_allocate(EXS%ICoup,3,EXS%nICoup,Label='EXS%ICoup')
   call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
@@ -2907,6 +2910,7 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
   ICP = 1
   start2=0
   i2b=0
+  finish2=0
 
   if (swap) then
 
