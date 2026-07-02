@@ -29,7 +29,6 @@ set (sources
      definedomain.F90
      definepairdomain.F90
      delete_ghosts.F90
-     dgpadm.F90
      diag_localisation.F90
      domain_histogram.F90
      edmistonruedenberg.F90
