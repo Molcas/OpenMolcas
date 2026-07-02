@@ -17,7 +17,7 @@
 !#define _DEBUGPRINT_
 subroutine S_GEK_localisation(nIter,IterGEK,fsdim,dqdq,dq,UpMeth,nOrb2Loc,nDIIS,HDiag,CMO,nBasis,PA,nAtoms)
 
-use Localisation_globals, only: bias, DispList, FuncList, GradList, inpOptMeth, OptMeth, SOFact, useFH
+use Localisation_globals, only: bias, DispList, FuncList, GradList, inpOptMeth, OptMeth, useFH
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -41,6 +41,7 @@ character :: Step_Trunc
 real(kind=wp), allocatable :: Aux_1(:), Aux_2(:), coords(:,:), dq_diis(:), dq_NR(:), dq_NR_diis(:), e_diis(:,:), FHrow_k(:), &
                               g_diis(:,:), grads(:,:), H_diis(:,:), q_diis(:,:)
 integer(kind=iwp), parameter :: Max_IterGEK = 50, minDP = 2, nWindow = 20
+real(kind=wp), parameter :: SOFact = 1.0e-4_wp
 real(kind=wp), external :: DDot_
 
 if (nOrb2Loc == 0) call abend() ! Dummy statement
@@ -427,7 +428,6 @@ end subroutine sizecontrol
 
 subroutine getUtot()
 
-  use Localisation_globals, only: UmatList
   use Constants, only: One
 
   integer(kind=iwp) :: I

@@ -16,20 +16,16 @@
 subroutine localisation_init()
 
 use Localisation_globals, only: AnaAtom, AnaDomain, AnalyseLoc, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChargeType, ChoStart, &
-                                DoCNOs, DoDomain, EvalER, Freeze, getIMmldn, inpOptMeth, iWave, LocCanOrb, LocModel, &
-                                LocModel_UsrDef, LocNatOrb, LocOrb, LocPAO, Loosen, Maximisation, MoldMod, nConstr, nFro, &
-                                nFro_UsrDef, NMxIter, nOrb2Loc, nOrb2Loc_UsrDef, nSym, OptMeth, Order, PrintMOs, Skip, &
-                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, Thrs_UsrDef, ThrStep, Timing, &
-                                useFH, Wave
-use Definitions, only: wp, iwp
-use Constants, only: One, Five, Ten, Half, Deg2Rad
+                                DoCNOs, DoDomain, EvalER, getIMmldn, inpOptMeth, iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, &
+                                Maximisation, MoldMod, nConstr, nFro, NMxIter, nOrb2Loc, nSym, OptMeth, Order, PrintMOs, Skip, &
+                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, Timing, useFH, Wave
+use Definitions, only: wp
+use Constants, only: Ten
 
 implicit none
-integer(kind=iwp), parameter :: Occupied = 0
 real(kind=wp), parameter :: ThrsDef = 1.0e-6_wp, & !functional change
                             ThrRotDef = 1.0e-10_wp, & !rotation angle in jacobi sweeps
-                            ThrGradDef = 1.0e-5_wp, & !gradient norm
-                            ThrStepDef = 1.0e-2_wp !kappa norm
+                            ThrGradDef = 1.0e-5_wp
 
 useFH = .false. !use full Pipek-Mezey Hessian in the SGEK
 getIMmldn = .false.
@@ -38,11 +34,6 @@ nOrb2Loc(1:nSym) = 0
 nFro(1:nSym) = 0
 nConstr(1:nSym) = 0
 Skip = .false.
-LocOrb = Occupied
-Thrs_UsrDef = .false.
-nOrb2Loc_UsrDef = .false.
-nFro_UsrDef = .false.
-Freeze = .false.
 Maximisation = .true.
 ChoStart = .false.
 LocModel = 1 ! Pipek-Mezey localisation
@@ -51,13 +42,11 @@ inpOptMeth = 1 ! PM localisation done with Jacobi Sweeps
 ChargeType = 1 ! PM localisation done within the Mulliken population framework
 AnalyseLoc = 0
 if (nSym > 1) LocModel = 3  ! Cholesky localisation
-LocModel_UsrDef = .false.
 Test_Localisation = .false.
 NMxIter = 100
 Thrs = ThrsDef
 ThrRot = ThrRotDef
 ThrGrad = ThrGradDef
-ThrStep = ThrStepDef
 Analysis = .false.
 AnaAtom = nSym == 1
 AnaNrm = 'Fro'
@@ -80,11 +69,5 @@ LocCanOrb = .false.
 Wave = .false.
 iWave = 0
 DoCNOs = .false.
-
-! Default undershoot avoidance settings (for GEK)
-Loosen%Thrs = cos(Five*Deg2Rad)
-Loosen%Thrs2 = cos(20.0_wp*Deg2Rad)
-Loosen%Step = Half*(One+sqrt(Five))
-Loosen%Factor = One
 
 end subroutine localisation_init

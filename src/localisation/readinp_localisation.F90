@@ -16,11 +16,10 @@ subroutine Readinp_localisation()
 ! Author: Y. Carissan [heavily modified by T.B. Pedersen].
 
 use Localisation_globals, only: AnaAtom, AnaDomain, AnalyseLoc, Analysis, AnaNrm, AnaPAO, ChargeType, ChoStart, DoCNOs, DoDomain, &
-                                EvalER, Freeze, getIMmldn, inpOptMeth, iWave, LocCanOrb, LocModel, LocModel_UsrDef, LocNatOrb, &
-                                LocOrb, LocPAO, LuSpool, Maximisation, MoldMod, MxConstr, nActa, NamAct, nConstr, nFro, &
-                                nFro_UsrDef, NMxIter, nOccInp, nOrb, nOrb2Loc, nOrb2Loc_UsrDef, nSym, nVirInp, OptMeth, Order, &
-                                PrintMOs, ScrFac, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, &
-                                Thrs, Thrs_UsrDef, ThrSel, Timing, useFH, Wave
+                                EvalER, getIMmldn, inpOptMeth, iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, Maximisation, &
+                                MoldMod, MxConstr, nActa, NamAct, nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, &
+                                OptMeth, Order, PrintMOs, ScrFac, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, &
+                                ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, useFH, Wave
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -29,7 +28,8 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iPL, istatus, iSym, j
+integer(kind=iwp) :: i, iPL, istatus, iSym, j, LocOrb, LuSpool
+logical(kind=iwp) :: Freeze, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef, Thrs_UsrDef
 character(len=180) :: Key, Line
 integer(kind=iwp), parameter :: Occupied = 0, Virtual = 1, AllOrb = 2
 character(len=*), parameter :: SecNam = 'Readinp_localisation'
@@ -54,6 +54,12 @@ end if
 
 ! set default parameters
 call localisation_init()
+Freeze = .false.
+LocOrb = Occupied
+LocModel_UsrDef = .false.
+nFro_UsrDef = .false.
+nOrb2Loc_UsrDef = .false.
+Thrs_UsrDef = .false.
 
 do
   Key = Get_Ln(LuSpool)
