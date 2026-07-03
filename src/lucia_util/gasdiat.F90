@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO)
+subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO,nTUVX,TUVX)
 ! CI diagonal in SD basis for state with symmetry ISM in internal
 ! space ISPC
 !
@@ -21,7 +21,6 @@ subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO)
 use lucia_data, only: I_AM_OUT, IDISK, IREOST, MXNSTR, N_ELIMINATED_BATCHES, NACOB, NELEC, NIRREP, NOCTYP, NSTSO, NTOOB, PSSIGN
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use wadr, only: TUVX
 #ifdef _DEBUGPRINT_
 use lucia_data, only: IBSPGPFTP
 use Definitions, only: u6
@@ -33,6 +32,8 @@ implicit none
 real(kind=wp), intent(_OUT_) :: DIAG(*)
 integer(kind=iwp), intent(in) :: LUDIA, ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK)
 real(kind=wp), intent(in) :: ECORE
+integer(kind=iwp), intent(in):: nTUVX
+real(kind=wp), intent(in):: TUVX(nTUVX)
 integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB
@@ -77,7 +78,7 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 ! Diagonal of one-body integrals and coulomb and exchange integrals
 
 call GT1DIA(LH1D)
-call GTJK(LJ,LK,NTOOB,IREOST,Size(TUVX),TUVX)
+call GTJK(LJ,LK,NTOOB,IREOST,nTUVX,TUVX)
 if (LUDIA > 0) IDISK(LUDIA) = 0
 call GASDIAS(NAEL,LASTR,NBEL,LBSTR,NACOB,DIAG,NIRREP,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,LUDIA,ECORE,PSSIGN,NTOOB,ICISTR, &
              LRJKA,I12,IBLTP,NBLOCK,IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)

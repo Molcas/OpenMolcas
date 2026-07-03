@@ -367,7 +367,7 @@ else if (IDIAG == 1) then
     C2(1:NJA*NJB) = CB(1:NJA*NJB)
     ! Input is in det basis
     IIDC = 1
-    call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,I12,IIDC)
+    call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,I12,IIDC,Size(TUVX),TUVX)
   else
     C2(1:NIA*NIB) = Zero
   end if

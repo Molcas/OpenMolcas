@@ -17,6 +17,7 @@ subroutine GASCI(ISM,ISPC)
 ! Jeppe Olsen, Winter of 1995
 
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
+use wadr, only: TUVX
 use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI_VEC, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, ECORE, ECORE_ORIG, &
                       I12, I_ELIMINATE_GAS, I_RES_AB, IADVICE, IBSPGPFTP, ICISTR, IDC, IDIAG, IDISK, IGSOCC, IH1FORM, IPHGAS, &
                       IPRCIX, IREFSM, IRESTR, kvec3_length, LCSBLK, LUDIA, LUSC1, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, &
@@ -246,7 +247,7 @@ if (.not. ((IDIAG == 2) .and. (IRESTR == 1))) then
   I12 = 2
   SHIFT = ECORE_ORIG-ECORE
    ! Note that CI_VEC is used as a scratch array here and below.
-  call GASDIAT(CI_VEC,LUDIA,SHIFT,ICISTR,I12,CBLTP,NBLOCK,CIBT)
+  call GASDIAT(CI_VEC,LUDIA,SHIFT,ICISTR,I12,CBLTP,NBLOCK,CIBT,Size(TUVX),TUVX)
 
   if ((NOCSF == 1) .and. (ICISTR == 1)) then
     IDISK(LUDIA) = 0
