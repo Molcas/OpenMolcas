@@ -293,11 +293,11 @@ Optional general keywords
               The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
               Options: 
 
-              JACObi -- Jacobi Sweeps (Default)
-              NEWTon -- Newton Raphson method
-              GEK  -- GEK method
-              SGEK -- SGEK method (faster than GEK due to subspace construction)
-              HYBRid -- hybrid method (starts with JACObi until no pos. Hessian diagonal elements then switches to SGEK)
+              * JACObi -- Jacobi Sweeps (Default)
+              * NEWTon -- Newton Raphson method
+              * GEK  -- GEK method
+              * SGEK -- SGEK method (faster than GEK due to subspace construction)
+              * HYBRid -- hybrid method (starts with JACObi until no pos. Hessian diagonal elements then switches to SGEK)
               </HELP>
               </KEYWORD>
 
@@ -315,9 +315,9 @@ Optional general keywords
               The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
               Options:
 
-              AFTEr -- only after localization
-              BOTH -- before AND after localization
-              OFF  -- never (Default)
+              * AFTEr -- only after localization
+              * BOTH -- before AND after localization
+              * OFF  -- never (Default)
               </HELP>
               </KEYWORD>
 
@@ -335,8 +335,8 @@ Optional general keywords
               The next line specifies the type of partial charges used within the Pipek-Mezey localisation.
               Options: 
 
-              MULLiken -- Mulliken charges (Default)
-              LOWDin -- Lowdin charges
+              * MULLiken -- Mulliken charges (Default)
+              * LOWDin -- Lowdin charges
               </HELP>
               </KEYWORD>
 
