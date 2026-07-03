@@ -277,69 +277,6 @@ Optional general keywords
               This is the default.
               </KEYWORD>
 
-:kword:`OPTMethod`
-  The next line specifies the optimization method used to maximize the Pipek--Mezey functional.
-  Options: 
-
-    - :kword:`JACObi` --- Jacobi Sweeps (Default)
-    - :kword:`NEWTon` --- Newton--Raphson method
-    - :kword:`GEK` --- GEK method
-    - :kword:`SGEK` --- SGEK method (faster than :kword:`GEK` due to subspace construction)
-    - :kword:`HYBRid` --- hybrid method (starts with :kword:`JACObi` until no pos. Hessian diagonal elements then switches to :kword:`SGEK`)
-
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="CHOICE" LIST="Jacobi,Newton,GEK,SGEK,Hybrid" DEFAULT_VALUE="Jacobi" LEVEL="BASIC">
-              %%Keyword: OPTM <basic>
-              <HELP>
-              The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
-              Options: 
-
-              * JACObi -- Jacobi Sweeps (Default)
-              * NEWTon -- Newton Raphson method
-              * GEK  -- GEK method
-              * SGEK -- SGEK method (faster than GEK due to subspace construction)
-              * HYBRid -- hybrid method (starts with JACObi until no pos. Hessian diagonal elements then switches to SGEK)
-              </HELP>
-              </KEYWORD>
-
-:kword:`PRNT`
-  The next line specifies when Pipek--Mezey's single orbital delocalization measure :math:`d_i` shall be printed.
-  Options:
-
-    - :kword:`AFTEr` --- only after localization
-    - :kword:`BOTH` --- before *and* after localization
-    - :kword:`OFF`  --- never (Default)
-
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PRNT" APPEAR="Print option for charge-based single orbital delocalization" KIND="CHOICE" LIST="After,Both,Off" DEFAULT_VALUE="Off" LEVEL="BASIC">
-              %%Keyword: PRNT <basic>
-              <HELP>
-              The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
-              Options:
-
-              * AFTEr -- only after localization
-              * BOTH -- before AND after localization
-              * OFF  -- never (Default)
-              </HELP>
-              </KEYWORD>
-
-
-:kword:`CHARgeType`
-  The next line specifies the type of partial charges used within the Pipek--Mezey localisation.
-  Options: 
-
-    - :kword:`MULLiken` --- Mulliken charges (Default)
-    - :kword:`LOWDin` --- Löwdin charges
-
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHAR" APPEAR="Type of partial charges used for PM localisation" KIND="CHOICE" LIST="Mulliken,Lowdin" DEFAULT_VALUE="Mulliken" LEVEL="BASIC">
-              %%Keyword: CHAR <basic>
-              <HELP>
-              The next line specifies the type of partial charges used within the Pipek-Mezey localisation.
-              Options: 
-
-              * MULLiken -- Mulliken charges (Default)
-              * LOWDin -- Lowdin charges
-              </HELP>
-              </KEYWORD>
-
 :kword:`BOYS`
   Requests Boys localisation. The default is Pipek--Mezey.
 
@@ -388,7 +325,7 @@ Optional general keywords
   The decomposition threshold is by default 1.0d-8 but may be changed
   through the :kword:`THREshold` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PAO" APPEAR="PAO" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="PIPE,BOYS,EDMI,CHOL,SKIP">
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PAO" APPEAR="Projected atomic orbitals" LEVEL="ADVANCED" KIND="SINGLE" EXCLUSIVE="PIPE,BOYS,EDMI,CHOL,SKIP">
               %%Keyword: PAO <advanced>
               <HELP>
               Requests PAO localisation.
@@ -467,6 +404,78 @@ Optional general keywords
               %%Keyword: THRR <advanced>
               The following line specifies the screening threshold used in
               the Jacobi sweep optimisation algorithm. The default is 1.0d-10.
+              </KEYWORD>
+
+:kword:`OPTMethod`
+  The next line specifies the optimization method used to maximize the Pipek--Mezey functional.
+  Options: 
+
+    - :kword:`JACObi` --- Jacobi Sweeps (Default)
+    - :kword:`NEWTon` --- Newton--Raphson method
+    - :kword:`GEK` --- GEK method
+    - :kword:`SGEK` --- SGEK method (faster than :kword:`GEK` due to subspace construction)
+    - :kword:`HYBRid` --- hybrid method (starts with :kword:`JACObi` until no pos. Hessian diagonal elements then switches to :kword:`SGEK`)
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="CHOICE" LIST="Jacobi,Newton,GEK,SGEK,Hybrid" DEFAULT_VALUE="Jacobi" LEVEL="BASIC">
+              %%Keyword: OPTM <basic>
+              <HELP>
+              The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
+              Options: 
+
+              * JACObi -- Jacobi Sweeps (Default)
+              * NEWTon -- Newton Raphson method
+              * GEK  -- GEK method
+              * SGEK -- SGEK method (faster than GEK due to subspace construction)
+              * HYBRid -- hybrid method (starts with JACObi until no pos. Hessian diagonal elements then switches to SGEK)
+              </HELP>
+              </KEYWORD>
+
+:kword:`PRNT`
+  The next line specifies when Pipek--Mezey's single orbital delocalization measure :math:`d_i` shall be printed.
+  Options:
+
+    - :kword:`AFTEr` --- only after localization
+    - :kword:`BOTH` --- before *and* after localization
+    - :kword:`OFF`  --- never (Default)
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="PRNT" APPEAR="Print option for charge-based single orbital delocalization" KIND="CHOICE" LIST="After,Both,Off" DEFAULT_VALUE="Off" LEVEL="BASIC">
+              %%Keyword: PRNT <basic>
+              <HELP>
+              The next line specifies when Pipek-Mezey's single orbital delocalization measure d_i shall be printed.
+              Options:
+
+              * AFTEr -- only after localization
+              * BOTH -- before AND after localization
+              * OFF  -- never (Default)
+              </HELP>
+              </KEYWORD>
+
+:kword:`MOLDen`
+  Save the intermediate orbitals as a Molden file every :math:`n` iterations during the Pipek--Mezey localisation, where :math:`n` is the number specified after this keyword.
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="MOLD" APPEAR="Save intermediate orbitals every n iterations" KIND="INT" LEVEL="ADVANCED">
+              %%Keyword: MOLD <advanced>
+              <HELP>
+              Save intermediate orbitals as a Molden file every n iterations.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CHARgeType`
+  The next line specifies the type of partial charges used within the Pipek--Mezey localisation.
+  Options: 
+
+    - :kword:`MULLiken` --- Mulliken charges (Default)
+    - :kword:`LOWDin` --- Löwdin charges
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHAR" APPEAR="Type of partial charges used for PM localisation" KIND="CHOICE" LIST="Mulliken,Lowdin" DEFAULT_VALUE="Mulliken" LEVEL="BASIC">
+              %%Keyword: CHAR <basic>
+              <HELP>
+              The next line specifies the type of partial charges used within the Pipek-Mezey localisation.
+              Options: 
+
+              * MULLiken -- Mulliken charges (Default)
+              * LOWDin -- Lowdin charges
+              </HELP>
               </KEYWORD>
 
 :kword:`SCRAmble`

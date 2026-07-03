@@ -10,10 +10,9 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+subroutine get_intermediate_molden(CMO,nBasis,nOrb2Loc,nIter)
 ! call this subroutine to view intermediately localized orbitals at one (!) iteration of interest
 
-! creates an additional LOCORB (LOCOIM) file, with extension .LocOrbIM
 ! creates an additional MD_LOC (MD_LOIM) file, with extension .imlocal.molden
 
 ! the code is mostly copied from localisation.F90
@@ -22,19 +21,17 @@ use Localisation_globals, only: EOrb, Ind, nBas, nOrb, nSym, Occ, Silent
 use Definitions, only: iwp, wp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nIter
 real(kind=wp), intent(in) :: CMO(nBasis,norb2Loc)
 integer(kind=iwp) :: IndT(7,8), iSym, iUHF, j, k, kIndT, LU_
 character(len=80) :: Title
-character(len=20) :: NameFile
 character(len=9) :: Filename
 integer(kind=iwp), external :: isFreeUnit
 
-! Write LOCORB file.
+! Write TMPORB file.
 ! ------------------
 
-write(Namefile,'(A)') 'LOCOIM'
-write(Title,'(80X)')
+Title = ''
 write(Title,'(A)') 'Intermediate Orbitals'
 LU_ = isFreeUnit(12)
 j = 0
@@ -52,18 +49,18 @@ do iSym=1,nSym
   end do
   j = j+nBas(iSym)
 end do
-call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,CMO,Occ,EOrb,IndT,Title)
+call WrVec_Localisation('TMPORB',LU_,'COEI',nSym,nBas,nBas,CMO,Occ,EOrb,IndT,Title)
 if (.not. Silent) then
-  write(u6,'(1X,A)') 'The LOCOIM file has been written.'
-  write(u6,'(5(A),I5)') 'Namefile = ',trim(Namefile),' Title=',trim(Title),' LU_=',LU_
+  write(u6,'(1X,A)') 'The TMPORB file has been written.'
+  write(u6,'(3(A),I5)') ' Title=',trim(Title),' LU_=',LU_
 end if
 
 ! Write MOLDEN file.
 ! ------------------
 
 iUHF = 0
-Filename = 'MD_LOIM'
-call Molden_Interface(iUHF,Namefile,Filename)
+write(Filename,'(A,I0)') 'MD_LOC.',nIter
+call Molden_Interface(iUHF,'TMPORB',Filename)
 if (.not. Silent) write(u6,'(1X,A)') 'The MOLDEN file has been written.'
 
 end subroutine get_intermediate_molden

@@ -105,11 +105,13 @@
   Occupied
   OPTMethod = SGEK
   FileOrb = $Project.scf.h5
+  Molden = 2
 
 &LOCALISATION
   Virtual
   OPTMethod = SGEK
   FileOrb = $Project.local.h5
+  Molden = 2
 
 * Other localisation methods
 &LOCALISATION

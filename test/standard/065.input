@@ -96,11 +96,13 @@
   Occupied
   OPTMethod = SGEK
   FileOrb = SCFORB
+  Molden = 2
 
 &LOCALISATION
   Virtual
   OPTMethod = SGEK
   FileOrb = LOCORB
+  Molden = 2
 
 * Other localisation methods
 &LOCALISATION

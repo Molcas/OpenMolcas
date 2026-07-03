@@ -26,7 +26,6 @@ use Index_Functions, only: nTri_Elem
 use Localisation_globals, only: AnalyseLoc, bias, BName, ChargeType, Debug, Debug, DispList, FuncList, GEKThr_Grad, GEKThr_Kappa, &
                                 getIMmldn, GradList, inpOptMeth, kappa_cnt, MoldMod, nAtoms, nBas_per_Atom, nBas_Start, nMxIter, &
                                 OptMeth, Ovlp, Ovlp_sqrt, posel, ThrGrad, Thrs, xkappa_cnt
-use filesystem, only: getcwd_, mkdir_
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Pi
 use Definitions, only: wp, iwp, u6
@@ -36,17 +35,14 @@ integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: fsdim, IterGEK, large_elements, lSCR, maxel, nDIIS, nIter, npos, rc
+integer(kind=iwp) :: fsdim, IterGEK, large_elements, lSCR, maxel, nDIIS, nIter, npos
 #ifdef _JSINSP_
 integer(kind=iwp) :: kl
 #endif
 real(kind=wp) :: a, alpha, b, best_eta, C1, C2, DD, Delta, dqdq, eta1, eta2, FirstFunctional, GradNorm, largest, OldFunctional, &
                  P_eta0, P_eta1, P_eta2, PctSkp, scalingfac, StepNorm, Thr, TimC, TimW, W1, W2
 logical(kind=iwp) :: GEKRange, linesearch, ResetGEK, switched
-character(len=1024) :: imfile, NewDir, Sub, SubmitDir, WorkDir
-character(len=8) :: frmt
 character(len=6) :: UpMeth
-character(len=4) :: x1
 logical(kind=iwp), parameter :: debug_lowd = .false., modHess = .true., trafoPA = .false.
 real(kind=wp), allocatable :: CMO_Ref(:,:), Disp(:), Gradient(:), hdiagvec(:), kappa(:,:), Ovlp_aux(:,:), PACol(:,:), &
                               rotated_CMO(:,:), SCR(:), SearchDir(:), Umat(:,:)
@@ -69,23 +65,6 @@ if ((OptMeth == 4) .or. (OptMeth == 5) .or. (OptMeth == 6)) then
   write(u6,'(1X,A,ES12.4)') 'GEKThrKappa          :',GEKThr_Kappa
   write(u6,'(1X,A,ES12.4)') 'GEKThrGrad           :',GEKThr_Grad
   write(u6,'(1X,A,ES12.4)') 'bias                 :',bias
-end if
-
-! if input file specified to create molden files for intermediate orbitals
-if (getIMmldn) then
-  ! preparations
-  frmt = '(I4.4)'
-
-  ! locate scratch directory
-  call getcwd_(WorkDir)
-  !write(u6,*) 'WorkDir = ',trim(WorkDir)
-
-  ! Create intermediate_molden directory that contains molden files of every iteration
-  Sub = 'intermediate_molden'
-  call getenvf('MOLCAS_SUBMIT_DIR',SubmitDir)
-  NewDir = trim(SubmitDir)//'/'//Sub
-  call mkdir_(NewDir)
-
 end if
 
 ! ensure that the initial orbitals are orthonormal
@@ -428,7 +407,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
       Stepnorm = sqrt(dot_product(Disp,Disp))
   end select ! 2x2 or NxN rotations
 
-  if (getIMmldn .and. (mod(nIter,MoldMod) == 0)) call moldenIM()
+  if (getIMmldn .and. (mod(nIter,MoldMod) == 0)) call get_intermediate_molden(CMO,nBasis,nOrb2Loc,nIter)
 
   !check if converged
   Delta = Functional-OldFunctional
@@ -614,21 +593,6 @@ subroutine StepSizeChecks()
 # endif
 
 end subroutine StepSizeChecks
-
-subroutine moldenIM()
-
-  ! choose the iteration of interest, this creates a $project.imlocal.molden file
-  write(x1,frmt) nIter ! converting integer to string using an 'internal file'
-  imfile = trim(NewDir)//'/imloc.'//x1//'.molden'
-
-  ! creating files in scratch directory
-  call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
-
-  ! move files from scratch dir to project dir
-  call systemf('mv '//trim(WorkDir)//'/imloc '//trim(imfile),rc)
-  !call systemf('mv '//trim(WorkDir)//'/LocOrbIM '//trim(NewDir)//'/LocOrbIM.'//x1,rc)
-
-end subroutine moldenIM
 
 subroutine P_of_eta(Disp,Functional)
 
