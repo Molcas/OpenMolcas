@@ -11,12 +11,11 @@
 ! Copyright (C) 2025, Roland Lindh                                     *
 !***********************************************************************
 
-Subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma)
+Subroutine sg_h_psi(SGS,CIS,EXS,Psi,nCSFs,PsiSym,Sigma,TUVX_Tri,nTUVX_Tri,TU_Tri,nTU_Tri)
 
 use Index_functions, only: iTri
 use symmetry_info, only: MUL
 use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi
-use wadr, only: TUVX_Tri=>TUVX, TU_Tri=>FMO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: iwp, wp
@@ -25,9 +24,10 @@ Implicit none
 type (SGStruct), intent(in)    :: SGS
 type (CIStruct), intent(in)    :: CIS
 type (EXStruct), intent(inout) :: EXS
-integer(kind=iwp), intent(in) ::nCSFs, PsiSym
+integer(kind=iwp), intent(in) ::nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
 real(kind=wp), intent(in) :: Psi(nCSFs)
 real(kind=wp), intent(out) :: Sigma(nCSFs)
+real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
 
 real(kind=wp), Allocatable, Target :: Eij_Psi_X(:), Ekl_Eij_Psi(:,:)
 real(kind=wp), Pointer :: Eij_Psi(:)=>Null()
@@ -40,8 +40,8 @@ integer(kind=iwp) :: lOrb_Max
 integer(kind=iwp) :: SigmaSym
 
 integer(kind=iwp), Parameter:: nBuff=10
-integer(kind=iwp) :: iBuff=0, i
 real(kind=wp) :: TUVX(nBUff)
+integer(kind=iwp) :: iBuff=0, i
 real(kind=wp), parameter :: Alpha=One, Beta=One
 integer(kind=iwp), parameter :: incx=1, incy=1
 real(kind=wp) :: CPQ
