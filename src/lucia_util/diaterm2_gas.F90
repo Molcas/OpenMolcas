@@ -23,6 +23,7 @@ subroutine DIATERM2_GAS(FACTOR,ITASK,VEC,NBLOCK,IBLOCK,IOFF,J12,JDC)
 ! Jeppe Olsen, August 1995
 
 use lucia_data, only: ECORE, ECORE_ORIG, IREOST, MXNSTR, NACOB, NELEC, NIRREP, NOCTYP, NSTSO, NTOOB
+use wadr, only: TUVX
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -95,7 +96,7 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 ! Diagonal of one-body integrals and coulomb and exchange integrals
 ! Integrals assumed in place so :
 call GT1DIA(LH1D)
-if (J12 == 2) call GTJK(LJ,LK,NTOOB,IREOST)
+if (J12 == 2) call GTJK(LJ,LK,NTOOB,IREOST,Size(TUVX),TUVX)
 ! Core energy not included
 ECOREP = Zero
 SHIFT = ECORE_ORIG-ECORE

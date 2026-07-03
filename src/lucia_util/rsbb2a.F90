@@ -56,6 +56,7 @@ subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,NOBPTS,
 !
 ! Jeppe Olsen, Winter of 1991
 
+use wadr, only: TUVX
 use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
@@ -444,7 +445,7 @@ if (IDXSM /= 0) then
                       IXCHNG = 1
                       ! fetch integrals
                       ! Full conjugation symmetry, do do not worry
-                      call GETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
+                      call GETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,Size(TUVX),TUVX)
                       ! End if similarity transformed Hamiltonian is used
                       do JL=1,NJL
                         XINT(IKOFF+(JLOFF-1+JL-1)*NIKT:IKOFF+(JLOFF-1+JL-1)*NIKT+NIK-1) = SCR((JL-1)*NIK+1:JL*NIK)
@@ -693,9 +694,9 @@ if (IDXSM /= 0) then
                     ! we want the operator in the form a+i ak a+l aj ((ij!lk)-(ik!lj))
                     if (ICOUL == 2) then
                       ! Obtain X2(ik,lj) = (ij!lk)
-                      call GETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,KTYP,KSM,IXCHNG,IKSM,JLSM,ICOUL)
+                      call GETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,KTYP,KSM,IXCHNG,IKSM,JLSM,ICOUL,Size(TUVX),TUVX)
                     else if (ICOUL == 1) then
-                      call GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
+                      call GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,Size(TUVX),TUVX)
                     end if
 
                   end if

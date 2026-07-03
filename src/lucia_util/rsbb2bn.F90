@@ -71,6 +71,7 @@ subroutine RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP
 ! Last change : Aug 2000
 
 use Symmetry_Info, only: Mul
+use wadr, only: TUVX
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPNGAS, TSIGMA
 use Constants, only: Zero, One
@@ -296,7 +297,8 @@ do IJTYP=1,NIJTYP
           IXCHNG = 0
           ICOUL = 1
           ! Normal integrals with conjugation symmetry
-          call GETINT(XINT,IJ_TYP(2),IJ_SYM(2),IJ_TYP(1),IJ_SYM(1),KL_TYP(1),KL_SYM(1),KL_TYP(2),KL_SYM(2),IXCHNG,0,0,ICOUL)
+          call GETINT(XINT,IJ_TYP(2),IJ_SYM(2),IJ_TYP(1),IJ_SYM(1),KL_TYP(1),KL_SYM(1),KL_TYP(2),KL_SYM(2),IXCHNG,0,0,ICOUL, &
+                      Size(TUVX),TUVX)
 
           ! S(Ka,i,Ib) = sum(j,k,l,Jb)<Ib!a+kba lb!Jb>C(Ka,j,Jb)*(ji!kl)
 

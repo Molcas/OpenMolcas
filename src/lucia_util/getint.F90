@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
+subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
 ! Obtain integrals
 !
 !     ICOUL = 0 :
@@ -33,7 +33,6 @@ subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
 
 use Index_Functions, only: iTri
 use lucia_data, only: IBSO, NOBPTS, NTOOBS
-use wadr, only: TUVX
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Index_Functions, only: nTri_Elem
@@ -45,6 +44,9 @@ use Definitions, only: u6
 implicit none
 real(kind=wp), intent(_OUT_) :: XINT(*)
 integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
 integer(kind=iwp) :: I, IINT, IJKL, ILKJ, IMIN, IOFF, IORB, J, JMIN, JOFF, JORB, K, KOFF, KORB, L, LOFF, LORB
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: NI, NIK, NJ, NJL, NK, NL
