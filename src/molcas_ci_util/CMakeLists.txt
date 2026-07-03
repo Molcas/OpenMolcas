@@ -40,9 +40,6 @@ set (sources
      dmrginfo.F90
      expcsf.F90
      explh2.F90
-     faroald.F90
-     faroald_free.F90
-     faroald_init.F90
      fciqmc_interface.F90
      fndmnx.F90
      fockoc.F90
@@ -123,6 +120,7 @@ set (modfile_list
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90
+     second_quantization.F90
      spinfo.F90
      timers.F90
      wadr.F90
