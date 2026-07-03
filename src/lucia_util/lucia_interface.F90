@@ -64,14 +64,21 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
   ! Call the appropriate routines according to ModLab
 
   if (Module_(1:4) == 'DIAG') then
+
     call Diag_Master()
+
   else if (Module_(1:9) == 'SIGMA_CVB') then
+
     ! iSym_LI is the symmetry to be used.
     call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym)
+
   else if (Module_(1:5) == 'SIGMA') then
+
     !write(u6,*) 'blubbbbbbhc'
     call Sigma_Master(CI_VECTOR,SIGMA_VECTOR)
+
   else if (Module_(1:5) == 'TRACI') then
+
     !write(u6,*) 'blubbbbbbtraci'
     ! iDisk is the initial disk address (for read/write of JOBIPH)
     ! Lu is the file unit for JOBIPH
@@ -79,25 +86,34 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
     call mma_allocate(lVec,MXNTTS,Label='lVec')
     call Traci_Master(iDisk,LU,Array,lVec)
     call mma_deallocate(lVec)
+
   else if (Module_(1:5) == 'DENSI') then
+
     if (present(RVEC)) then
       call Densi_Master(CI_VECTOR,RVEC=RVEC(:))
     else
       call Densi_Master(CI_VECTOR)
     end if
+
   else if (Module_(1:3) == 'INI') then
+
     call Lucia_Ini()
     call DetCtl_Gas()
+
   else if (Module_(1:5) == 'CLOSE') then
+
     call CSFDIM_FREE(IREFSM)
     call LUCIA2MOLCAS_FREE()
     call Lucia_Close()
+
   else
+
     write(u6,*) 'Unknown module requested in Lucia_Util.'
     write(u6,*) 'Module = ',ModLab
     write(u6,*) 'Known modules are:'
     write(u6,*) 'Diag, Sigma, Sigma_CVB, Densi, DetCtl, Ini'
     call Abend()
+
   end if
 
 # ifdef _DEBUGPRINT_

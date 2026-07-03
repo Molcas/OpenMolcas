@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END)
+subroutine SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END,nTUVX,TUVX)
 ! Generate a set of sigma blocks,
 ! The NBLOCK specified in IBLOCK starting from IBOFF,
 ! be more specific.
@@ -27,7 +27,6 @@ subroutine SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK,ICBAT_RES,ICBA
 ! Cbatches ICBAT_INI to ICBAT_END are stored on  LUC
 
 use CandS, only: ICSM, ICSPC, ISSPC
-use wadr, only: TUVX
 use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, I12, I_RES_AB, IADVICE, &
                       IBSPGPFTP, ICJKAIB, IDC, IDISK, IH0INSPC, IH0SPC, IPART, IPHGAS, ISPGPFTP, MAX_STR_OC_BLK, MAX_STR_SPGP, &
                       MNHL, MOCAA, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXTSOB, NELEC, NELFGP, NELFSPGP, NGAS, NHLFSPGP, &
@@ -42,6 +41,9 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,*), IBOFF, LUC, IRESTRICT, LUCBLK, ICBAT_RES, ICBAT_INI, ICBAT_END
 real(kind=wp), intent(inout) :: CB(*), HCB(*)
+integer(kind=iwp), intent(in):: nTUVX
+real(kind=wp), intent(in):: TUVX(nTUVX)
+
 integer(kind=iwp) :: DUM(1), I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, IDOH2, INTSCR, IOCTPA, IOCTPB, K12, LSCR2, LSCR3, &
                      LZ, LZSCR, MAXA, MAXA0, MAXA1, MAXB, MAXB0, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, MXADKBLK, MXADKBLK_AS, &
                      MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBEL, NOCTPA, NOCTPB, NTTS

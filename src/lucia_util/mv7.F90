@@ -14,7 +14,7 @@ subroutine MV7(C,HC,LUC,LUHC)
 ! GAS version !!!!
 !
 ! Written in terms of RASG3/SBLOCK, May 1997
-
+use wadr, only: TUVX
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, NIRREP, NOCTYP, NSTSO, &
                       PSSIGN, XISPSM
@@ -87,7 +87,7 @@ else
   LLUHC = LUHC
 end if
 
-call RASSG3(C,HC,NBATCH,CLBT,CI1BT,CIBT,LLUC,LLUHC,I_AM_OUT,N_ELIMINATED_BATCHES)
+call RASSG3(C,HC,NBATCH,CLBT,CI1BT,CIBT,LLUC,LLUHC,I_AM_OUT,N_ELIMINATED_BATCHES,Size(TUVX),TUVX)
 !write(u6,*) ' LSCMAX_MX = ',LSCMAX_MX
 ! Eliminate local memory
 call mma_deallocate(CLBT)
