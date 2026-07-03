@@ -39,8 +39,8 @@ integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, 
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
                  Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
-real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
-                              sigtemp(:), sgm(:,:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
+real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
+                              sigtemp(:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 real(kind=wp), external :: dDot_, dnrm2_
@@ -149,53 +149,8 @@ do it_ci=1,mxItr
     end if
 
     call Timing(Time2(1),dum1,dum2,dum3)
-    if (DOFARO) then
-      ! determinant wavefunctions
-      call mma_allocate(sgm,ndeta,ndetb,label='sgm')
-      call mma_allocate(psi,ndeta,ndetb,label='psi')
 
-      VECSVC(:) = Zero
-      call SG_REORD(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),VEC1,VECSVC)
-      call CITRANS_SORT('C',VECSVC,VEC2)
-      PSI = Zero
-      call CITRANS_CSF2SD(VEC2,PSI)
-      SGM = Zero
-      call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
-      call CITRANS_SD2CSF(SGM,VEC2)
-      call CITRANS_SORT('O',VEC2,VECSVC)
-      call SG_Reord(SGS,EXS,1,1,CONF,CFTP,CIS%nCSF(1),VECSVC,VEC2)
-
-      if (iprlev >= DEBUG) then
-        FP = DNRM2_(NCONF,VEC2,1)
-        write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(faroald): ',FP
-      end if
-
-      ! free the arrays
-      call mma_deallocate(sgm)
-      call mma_deallocate(psi)
-    else
-
-      ! Convert the CI-vector from CSF to Det. basis
-      ! sigtemp is scratch, converted vector is stored in ctemp
-
-      ctemp(1:nConf) = Vec1(:)
-      sigtemp(:) = Zero
-      call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
-
-      ! Calling Lucia to determine the sigma vector
-      call Lucia_Util('Sigma', &
-                      CI_Vector=ctemp(:), &
-                      Sigma_Vector=sigtemp(:))
-
-      ! Set mark so densi_master knows that the Sigma-vector exists on disk.
-      Sigma_on_disk = .true.
-      call CSDTVC(VEC2,sigtemp,2,dtoc,cts,stSym,1)
-
-      if (iprlev >= DEBUG) then
-        FP = DNRM2_(NCONF,VEC2,1)
-        write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(lucia):   ',FP
-      end if
-    end if
+    Call Mk_H_Psi()
 
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
     Vec1(:) = Vec1(:)+ECORE_HEX*Vec2(:)
@@ -540,6 +495,7 @@ call mma_deallocate(Cs)
 call mma_deallocate(Scr1)
 call mma_deallocate(Scr2)
 call mma_deallocate(Scr3)
+
 if (DoFaro) then
   call mma_deallocate(htu)
   call mma_deallocate(gtuvx)
@@ -551,5 +507,66 @@ end if
 
 call Timing(Time1(2),dum1,dum2,dum3)
 TimeDavid = TimeDavid+Time1(2)-Time1(1)
+
+contains
+Subroutine Mk_H_Psi()
+use definitions, only: wp
+use stdalloc, only: mma_allocate, mma_deallocate
+Implicit None
+
+real(kind=wp), allocatable:: Sgm(:,:), Psi(:,:)
+
+    if (DOFARO) then
+
+      ! determinant wavefunctions
+      call mma_allocate(sgm,ndeta,ndetb,label='sgm')
+      call mma_allocate(psi,ndeta,ndetb,label='psi')
+
+      VECSVC(:) = Zero
+      call SG_REORD(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),VEC1,VECSVC)
+      call CITRANS_SORT('C',VECSVC,VEC2)
+      PSI = Zero
+      call CITRANS_CSF2SD(VEC2,PSI)
+      SGM = Zero
+      call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
+      call CITRANS_SD2CSF(SGM,VEC2)
+      call CITRANS_SORT('O',VEC2,VECSVC)
+      call SG_Reord(SGS,EXS,1,1,CONF,CFTP,CIS%nCSF(1),VECSVC,VEC2)
+
+      if (iprlev >= DEBUG) then
+        FP = DNRM2_(NCONF,VEC2,1)
+        write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(faroald): ',FP
+      end if
+
+      ! free the arrays
+      call mma_deallocate(sgm)
+      call mma_deallocate(psi)
+
+    else
+
+      ! Convert the CI-vector from CSF to Det. basis
+      ! sigtemp is scratch, converted vector is stored in ctemp
+
+      ctemp(1:nConf) = Vec1(:)
+      sigtemp(:) = Zero
+      call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
+
+      ! Calling Lucia to determine the sigma vector
+      call Lucia_Util('Sigma', &
+                      CI_Vector=ctemp(:), &
+                      Sigma_Vector=sigtemp(:))
+
+      ! Set mark so densi_master knows that the Sigma-vector exists on disk.
+      Sigma_on_disk = .true.
+      call CSDTVC(VEC2,sigtemp,2,dtoc,cts,stSym,1)
+
+      if (iprlev >= DEBUG) then
+        FP = DNRM2_(NCONF,VEC2,1)
+        write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(lucia):   ',FP
+      end if
+
+    end if
+
+End Subroutine Mk_H_Psi
 
 end subroutine David5
