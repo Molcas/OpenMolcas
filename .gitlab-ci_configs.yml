@@ -188,6 +188,8 @@
     pre_make_script: |
       mkdir -p ${install_path}
       $${make} 2>&1 | tee nag.log
+      # Remove warning that OpenMP is not active
+      sed -E '/Comment begins with the OpenMP sentinel/d' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove CMake lines
       sed -E '/^Scanning dependencies of target [^ ]*/d ; /^\[ *[0-9]+*%\].*/d' nag.log > nag2.log ; mv nag2.log nag.log
       # Wrap lines that start with a space
