@@ -19,11 +19,12 @@ subroutine diag_master()
 ! Set up the diagonal for the CI calculation
 
 use lucia_data, only: INT1, INT1O
+use wadr, only: TUVX
 use CandS, only: ISSM
 
 implicit none
 
 INT1(:) = INT1O(:)
-call GASCI(ISSM,1)
+call GASCI(ISSM,1,Size(TUVX),TUVX)
 
 end subroutine diag_master

@@ -14,7 +14,7 @@
 !#define _DEBUGPRINT_
 subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,JBOC,NAEL,NBEL,IJAGRP,IJBGRP,SB,CB,JDOH2,NOBPTS, &
                    MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NJA,NJB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA, &
-                   SCLFAC,IPHGAS,I_RES_AB)
+                   SCLFAC,IPHGAS,I_RES_AB,nTUVX,TUVX)
 ! SUBROUTINE RSSBCB2 --> 82
 !
 ! Contributions to sigma block (iasm iatp, ibsm ibtp) from
@@ -77,7 +77,6 @@ subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,J
 use lucia_data, only: TSIGMA
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
-use wadr, only: TUVX
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -92,6 +91,8 @@ real(kind=wp), intent(inout) :: SB(NIA*NIB), CB(NJA*NJB), XI1S(*), XI2S(*), XI3S
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), C2(*), XINT(*), CJRES(*), SIRES(*)
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: SCLFAC
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
 integer(kind=iwp) :: I12, IBLOCK(8), IDIAG, IDOH2, IIDC, IIITRNS, ITASK, IUSEAB, JJJTRNS, LADVICE
 real(kind=wp) :: CPU, CPU0, CPU1, FACTOR, WALL, WALL0, WALL1
 

@@ -64,6 +64,7 @@ subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSM,NSSOA,NSSOB,NAEL,IAGRP,N
 ! sigma(iblk) = summa(jblk <= iblk) (2-delta(iblk,jblk))/2
 !                                                 * <Iblk!H!Jblk>C(Jblk)
 
+use wadr, only: TUVX
 use lucia_data, only: IDISK
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -305,7 +306,7 @@ do JCBATCH=JCBAT_INI,JCBAT_END
             call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(:,IATP+IOCTPA-1),NELFSPGP(:,IBTP+IOCTPB-1), &
                          NELFSPGP(:,LLATP+IOCTPA-1),NELFSPGP(:,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
                          NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA,NLLB,IDC,CJRES,SIRES,I3,XI3S, &
-                         I4,XI4S,MOCAA,XFAC,IPHGAS,I_RES_AB)
+                         I4,XI4S,MOCAA,XFAC,IPHGAS,I_RES_AB,Size(TUVX),TUVX)
           ! CALL RSSBCB2 --> 82
         end do
         ! End of loop over sigma blocks
