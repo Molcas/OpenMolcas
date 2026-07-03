@@ -18,7 +18,7 @@ subroutine get_intermediate_molden(nIter)
 ! the code is mostly copied from localisation.F90
 
 use Localisation_globals, only: CMO, EOrb, Ind, nBas, nOrb, nSym, Occ, Silent
-use Definitions, only: iwp, wp, u6
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nIter
