@@ -10,19 +10,18 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine get_intermediate_molden(CMO,nBasis,nOrb2Loc,nIter)
+subroutine get_intermediate_molden(nIter)
 ! call this subroutine to view intermediately localized orbitals at one (!) iteration of interest
 
 ! creates an additional MD_LOC (MD_LOIM) file, with extension .imlocal.molden
 
 ! the code is mostly copied from localisation.F90
 
-use Localisation_globals, only: EOrb, Ind, nBas, nOrb, nSym, Occ, Silent
+use Localisation_globals, only: CMO, EOrb, Ind, nBas, nOrb, nSym, Occ, Silent
 use Definitions, only: iwp, wp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nIter
-real(kind=wp), intent(in) :: CMO(nBasis,norb2Loc)
+integer(kind=iwp), intent(in) :: nIter
 integer(kind=iwp) :: IndT(7,8), iSym, iUHF, j, k, kIndT, LU_
 character(len=80) :: Title
 character(len=9) :: Filename

@@ -407,7 +407,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
       Stepnorm = sqrt(dot_product(Disp,Disp))
   end select ! 2x2 or NxN rotations
 
-  if (getIMmldn .and. (mod(nIter,MoldMod) == 0)) call get_intermediate_molden(CMO,nBasis,nOrb2Loc,nIter)
+  if (getIMmldn .and. (mod(nIter,MoldMod) == 0)) call get_intermediate_molden(nIter)
 
   !check if converged
   Delta = Functional-OldFunctional
