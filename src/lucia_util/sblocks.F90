@@ -14,7 +14,7 @@
 subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSM,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB, &
                    NOBPTS,MXPNGAS,MAXK,MAXI,XINT,CSCR,SSCR,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,IDOH2,ISTRFL,PS,LUC,ICJKAIB,CJRES, &
                    SIRES,I3,XI3S,I4,XI4S,MOCAA,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,IRESTRICT,ICONSPA,ICONSPB,SCLFAC,IH0SPC, &
-                   ICBAT_RES,ICBAT_INI,ICBAT_END,IPHGAS,I_RES_AB)
+                   ICBAT_RES,ICBAT_INI,ICBAT_END,IPHGAS,I_RES_AB,nTUVX,TUVX)
 ! SUBROUTINE SBLOCKS --> 91
 !
 ! Direct RAS routine employing combined MOC/n-1 resolution method
@@ -64,7 +64,6 @@ subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSM,NSSOA,NSSOB,NAEL,IAGRP,N
 ! sigma(iblk) = summa(jblk <= iblk) (2-delta(iblk,jblk))/2
 !                                                 * <Iblk!H!Jblk>C(Jblk)
 
-use wadr, only: TUVX
 use lucia_data, only: IDISK
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -82,6 +81,9 @@ real(kind=wp), intent(_OUT_) :: C2(*), XINT(*), CSCR(*), SSCR(*), CJRES(*), SIRE
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: PS
 integer(kind=iwp), intent(_OUT_) :: LCBLOCK(*), LECBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*)
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
 integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1), INTERACT, IOFF, IPERM, IPTSPC, ISBLK, ISCALE, &
                      ISOFF, JASM, JATP, JBLOCK, JBSM, JBTP, JCBAT_END, JCBAT_INI, JCBATCH, JJCBLOCK, JOFF, JPTSPC, JSBLOCK, &
                      LASM(4), LATP(4), LBL, LBSM(4), LBTP(4), LLASM, LLATP, LLBSM, LLBTP, LSGN(5), LTRP(5), MXEXC, NASTR, NBSTR, &
