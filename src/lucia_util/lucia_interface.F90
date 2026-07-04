@@ -71,12 +71,11 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
   else if (Module_(1:9) == 'SIGMA_CVB') then
 
     ! iSym_LI is the symmetry to be used.
-    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym)
+    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym,Size(TUVX),TUVX)
 
   else if (Module_(1:5) == 'SIGMA') then
 
-    !write(u6,*) 'blubbbbbbhc'
-    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR)
+    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,Size(TUVX),TUVX)
 
   else if (Module_(1:5) == 'TRACI') then
 
@@ -85,7 +84,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
     ! Lu is the file unit for JOBIPH
     ! Array is the transformation matrix (not sorted as LUCIA needs it).
     call mma_allocate(lVec,MXNTTS,Label='lVec')
-    call Traci_Master(iDisk,LU,Array,lVec)
+    call Traci_Master(iDisk,LU,Array,lVec,Size(TUVX),TUVX)
     call mma_deallocate(lVec)
 
   else if (Module_(1:5) == 'DENSI') then
@@ -249,17 +248,19 @@ subroutine densi_master(CIVec,RVec)
 
 end subroutine densi_master
 
-subroutine sigma_master(CIVEC,SIGMAVEC)
+subroutine sigma_master(CIVEC,SIGMAVEC,nTUVX,TUVX)
   ! Controls the calculation of the sigma vector, when Lucia is called
   ! from Molcas Rasscf.
 
   use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
                         SIGMA_VEC, VEC3
-  use wadr, only: TUVX
 
   implicit none
   real(kind=wp), intent(_IN_) :: CIVEC(:)
   real(kind=wp), intent(out) :: SIGMAVEC(:)
+  integer(kind=iwp), intent(in) :: nTUVX
+  real(kind=wp), intent(in) :: TUVX(nTUVX)
+
   integer(kind=iwp) :: nSD
   integer(kind=iwp), allocatable :: lVec(:)
 
@@ -298,17 +299,19 @@ subroutine sigma_master(CIVEC,SIGMAVEC)
 
 end subroutine SIGMA_MASTER
 
-subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
+subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB,nTUVX,TUVX)
 
   use CandS, only: ICSM, ISSM
   use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
                         SIGMA_ON_DISK, VEC3
-  use wadr, only: TUVX
 
   implicit none
   integer(kind=iwp), intent(in) :: IREFSM_CASVB
   real(kind=wp), intent(_IN_) :: CIVEC(:)
   real(kind=wp), intent(out) :: SIGMAVEC(:)
+  integer(kind=iwp), intent(in) :: nTUVX
+  real(kind=wp), intent(in) :: TUVX(nTUVX)
+
   integer(kind=iwp) :: nSD
   integer(kind=iwp), allocatable :: lVec(:)
 

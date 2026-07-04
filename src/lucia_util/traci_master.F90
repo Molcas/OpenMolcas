@@ -10,9 +10,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
+subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec,nTUVX,TUVX)
 
-use wadr, only: TUVX
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: Deallocate_Local_Arrays, DTOC, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, &
                       MXSOOB, NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, SDREO, VEC3, XISPSM
@@ -28,6 +27,9 @@ integer(kind=iwp), intent(inout) :: JOBDISK
 integer(kind=iwp), intent(in) :: JOBIPH
 real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp), intent(out) :: LREC(MXNTTS)
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, NCONF, &
                      NDIM, NREC
 #ifdef _DEBUGPRINT_
