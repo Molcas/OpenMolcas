@@ -43,7 +43,7 @@
 !***********************************************************************
 
 #define _SGUGA_VERIFY_
-subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
+subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,nTUVX,TUVX,IFINAL)
 ! ****************************************************************
 ! history:                                                       *
 ! updated to use determinant based CI-procedures                 *
@@ -94,8 +94,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: nTUVX
 real(kind=wp), intent(in) :: CMO(*), FA(*), D1I(*)
-real(kind=wp), intent(inout) :: D(NACPAR), DS(NACPAR), P(NACPR2), PA(NACPR2), FI(*), D1A(*), TUVX(*)
+real(kind=wp), intent(inout) :: D(NACPAR), DS(NACPAR), P(NACPR2), PA(NACPR2), FI(*), D1A(*), TUVX(nTUVX)
 integer(kind=iwp), intent(in) :: iFinal
 integer(kind=iwp) :: i, iDisk, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVecDet, mconf
 real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
@@ -458,7 +459,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 #   endif
   else
     ! Normal Davidson algorithm
-    call DavCtl(FMO,TUVX,IFINAL)
+    call DavCtl(FMO,nTUVX,TUVX,IFINAL)
   end if
 
   ! CALCULATE DENSITY MATRICES

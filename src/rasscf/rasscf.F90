@@ -723,7 +723,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         call DMRGCTL(CMO,DMAT,DSPN,PMAT,PA,FI,D1I,D1A,TUVX,IFINAL,0)
 #     endif
       else
-        call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
+        call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,Size(TUVX),TUVX,IFINAL)
 
         if (dofcidump) then
           write(u6,*) ' FCIDUMP file generated. This is the end...'
@@ -983,7 +983,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         call DMRGCTL(CMO,DMAT,DSPN,PMAT,PA,FI,D1I,D1A,TUVX,IFINAL,1)
 #     endif
       else
-        call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
+        call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,Size(TUVX),TUVX,IFINAL)
       end if
 
       ! call triprt('twxy',' ',TUVX,nTri_Elem(nAc))
@@ -1513,7 +1513,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       !continue
 #   endif
     else
-      call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
+      call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,Size(TUVX),TUVX,IFINAL)
     end if
     if (lRF .and. ((iPCMRoot <= 0) .or. (DWSolv%DWZeta /= Zero))) then
       IAD15 = IADR15(6)

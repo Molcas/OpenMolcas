@@ -15,7 +15,7 @@
 !               2000, Thorstein Thorsteinsson                          *
 !***********************************************************************
 
-subroutine DavCtl(FMO,TUVX,IFINAL)
+subroutine DavCtl(FMO,nTUVX,TUVX,IFINAL)
 !***********************************************************************
 !                                                                      *
 !     CI control section                                               *
@@ -57,7 +57,8 @@ use Constants, only: Quart
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: FMO(*), TUVX(*)
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: FMO(*), TUVX(nTUVX)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: iDisk, ItLimit, jRoot, m_Sel, mSel, nMaxSel
 real(kind=wp) :: ESize, Threshold, ThrRule
@@ -143,7 +144,7 @@ else
     !call David5(nAc,stSym,nDet,MAXJT,ITERCI,
     !call David5(nAc,stSym,nDet,ItLimit,ITERCI,CI_conv,Threshold,FMO,TUVX,iSel,ExplE,ExplV)
 
-    call David5(nDet,ItLimit,IterCI,CI_conv,Threshold,iSel,ExplE,ExplV,FMO,TUVX)
+    call David5(nDet,ItLimit,IterCI,CI_conv,Threshold,iSel,ExplE,ExplV,FMO,nTUVX,TUVX)
 
     do jRoot=1,lRoots-hRoots
       ENER(jRoot,ITER) = CI_conv(1,jRoot,ITERCI)

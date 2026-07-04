@@ -9,9 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTRI)
+subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,nTUVX,TUVX)
 
-use wadr, only: TUVX
 use timers, only: TimeDavid, TimeSigma
 use lucia_data, only: CFTP, DTOC, ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
@@ -34,7 +33,8 @@ integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
-real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), TUVX(nTUVX)
 integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, kRoot, l1, &
                      l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
@@ -70,15 +70,15 @@ if (DoFaro) then
         if (it == iv) ixmax = iu
         do ix=1,ixmax
           ituvx = ituvx+1
-          !write(u6,'(1x,5I4,F21.14)') it,iu,iv,ix,ituvx,gtuvxtri(ituvx)
-          GTUVX(IT,IU,IV,IX) = GTUVXTRI(ITUVX)
-          GTUVX(IU,IT,IV,IX) = GTUVXTRI(ITUVX)
-          GTUVX(IT,IU,IX,IV) = GTUVXTRI(ITUVX)
-          GTUVX(IU,IT,IX,IV) = GTUVXTRI(ITUVX)
-          GTUVX(IV,IX,IT,IU) = GTUVXTRI(ITUVX)
-          GTUVX(IX,IV,IT,IU) = GTUVXTRI(ITUVX)
-          GTUVX(IV,IX,IU,IT) = GTUVXTRI(ITUVX)
-          GTUVX(IX,IV,IU,IT) = GTUVXTRI(ITUVX)
+          !write(u6,'(1x,5I4,F21.14)') it,iu,iv,ix,ituvx,TUVX(ituvx)
+          GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
+          GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
+          GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
+          GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
+          GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
+          GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
+          GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
+          GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
         end do
       end do
     end do
