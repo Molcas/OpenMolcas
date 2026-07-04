@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
+subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2,nTUVX,TUVX)
 ! Transform CI vector on LUCIN with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
@@ -24,7 +24,6 @@ subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
 !
 ! each transformation is
 
-use wadr, only: TUVX
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1, NTOOB
 use Constants, only: One, Half
@@ -39,6 +38,9 @@ implicit none
 real(kind=wp), intent(in) :: T(*)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
 integer(kind=iwp) :: K, LBLK
 real(kind=wp) :: TKK
 #ifdef _DEBUGPRINT_

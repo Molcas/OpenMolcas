@@ -34,6 +34,7 @@ subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 ! as a matrix over NTOOB orbitals.
 
 use Index_Functions, only: nTri_Elem
+use wadr, only: TUVX
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use lucia_data, only: LUSC1, LUSC2, LUSC3, NSMOB, NTOOB, NTOOBS
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -81,7 +82,7 @@ ICSM = ICSM
 ISSPC = IXSPC
 ISSM = IXSM
 
-call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
+call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2,Size(TUVX),TUVX)
 
 call mma_deallocate(SCR)
 call mma_deallocate(LT)

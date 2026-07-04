@@ -39,6 +39,7 @@ contains
 subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
 
   use lucia_data, only: IREFSM, MXNTTS
+  use wadr, only: TUVX
 
   implicit none
   character(len=*), intent(in) :: ModLab
@@ -65,7 +66,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
 
   if (Module_(1:4) == 'DIAG') then
 
-    call Diag_Master()
+    call Diag_Master(Size(TUVX),TUVX)
 
   else if (Module_(1:9) == 'SIGMA_CVB') then
 
@@ -338,7 +339,7 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
 
   ! Calculate the sigma vector:
 
-  call DIAG_MASTER()
+  call DIAG_MASTER(SIZE(TUVX),TUVX)
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
   ! Note that CI_VEC is used as a scratch array!
   call MV7(CI_VEC,SIGMAVec,LUC,LUSC34,Size(TUVX),TUVX)

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine diag_master()
+subroutine diag_master(nTUVX,TUVX)
 ! To do in this subroutine:
 !
 ! - Make sure all calling parameters are accounted for
@@ -19,12 +19,14 @@ subroutine diag_master()
 ! Set up the diagonal for the CI calculation
 
 use lucia_data, only: INT1, INT1O
-use wadr, only: TUVX
 use CandS, only: ISSM
+use definitions, only: iwp, wp
 
 implicit none
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
 
 INT1(:) = INT1O(:)
-call GASCI(ISSM,1,Size(TUVX),TUVX)
+call GASCI(ISSM,1,nTUVX,TUVX)
 
 end subroutine diag_master
