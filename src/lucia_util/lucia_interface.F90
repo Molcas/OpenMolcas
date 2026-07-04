@@ -254,6 +254,7 @@ subroutine sigma_master(CIVEC,SIGMAVEC)
 
   use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
                         SIGMA_VEC, VEC3
+  use wadr, only: TUVX
 
   implicit none
   real(kind=wp), intent(_IN_) :: CIVEC(:)
@@ -285,7 +286,7 @@ subroutine sigma_master(CIVEC,SIGMAVEC)
 
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
   ! Note that CI_VEC is used as a scratch array!
-  call MV7(CI_VEC,SIGMA_VEC,LUC,LUSC34)
+  call MV7(CI_VEC,SIGMA_VEC,LUC,LUSC34,Size(TUVX),TUVX)
   call mma_deallocate(VEC3)
 
   ! Export lusc34 to RASSCF
@@ -301,6 +302,7 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
   use CandS, only: ICSM, ISSM
   use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
                         SIGMA_ON_DISK, VEC3
+  use wadr, only: TUVX
 
   implicit none
   integer(kind=iwp), intent(in) :: IREFSM_CASVB
@@ -339,7 +341,7 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
   call DIAG_MASTER()
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
   ! Note that CI_VEC is used as a scratch array!
-  call MV7(CI_VEC,SIGMAVec,LUC,LUSC34)
+  call MV7(CI_VEC,SIGMAVec,LUC,LUSC34,Size(TUVX),TUVX)
   call mma_deallocate(VEC3)
 
   ! Export lusc34 to RASSCF

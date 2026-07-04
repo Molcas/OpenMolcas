@@ -9,12 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MV7(C,HC,LUC,LUHC)
+subroutine MV7(C,HC,LUC,LUHC,nTUVX,TUVX)
 ! Outer routine for sigma vector generation
 ! GAS version !!!!
 !
 ! Written in terms of RASG3/SBLOCK, May 1997
-use wadr, only: TUVX
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, NIRREP, NOCTYP, NSTSO, &
                       PSSIGN, XISPSM
@@ -28,6 +27,9 @@ implicit none
 real(kind=wp), intent(inout) :: C(*)
 real(kind=wp), intent(_OUT_) :: HC(*)
 integer(kind=iwp), intent(in) :: LUC, LUHC
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
 integer(kind=iwp) :: IATP, IBTP, LBLOCK, LLUC, LLUHC, NBATCH, NOCTPA, NOCTPB, NTTS
 integer(kind=iwp), allocatable :: CBLTP(:), CI1BT(:), CIBT(:), CLBT(:), CLEBT(:), SIOIO(:), SVST(:)
 
@@ -87,9 +89,9 @@ else
   LLUHC = LUHC
 end if
 
-call RASSG3(C,HC,NBATCH,CLBT,CI1BT,CIBT,LLUC,LLUHC,I_AM_OUT,N_ELIMINATED_BATCHES,Size(TUVX),TUVX)
-!write(u6,*) ' LSCMAX_MX = ',LSCMAX_MX
-! Eliminate local memory
+call RASSG3(C,HC,NBATCH,CLBT,CI1BT,CIBT,LLUC,LLUHC,I_AM_OUT,N_ELIMINATED_BATCHES,nTUVX,TUVX)
+
+! deallocate local memory
 call mma_deallocate(CLBT)
 call mma_deallocate(CLEBT)
 call mma_deallocate(CI1BT)

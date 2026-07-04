@@ -509,6 +509,7 @@ call Timing(Time1(2),dum1,dum2,dum3)
 TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
 contains
+
 Subroutine Mk_H_Psi()
 use definitions, only: wp
 use stdalloc, only: mma_allocate, mma_deallocate

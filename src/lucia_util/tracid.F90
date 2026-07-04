@@ -24,6 +24,7 @@ subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
 !
 ! each transformation is
 
+use wadr, only: TUVX
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1, NTOOB
 use Constants, only: One, Half
@@ -70,7 +71,7 @@ do K=1,NTOOB
 # endif
   ! For each orbital calculate (1+T+1/2 T^2)|0>
   ! + T
-  call MV7(VEC1,VEC2,LUSC1,LUSC2)
+  call MV7(VEC1,VEC2,LUSC1,LUSC2,Size(TUVX),TUVX)
 # ifdef _DEBUGPRINT_
   write(u6,*) ' Correction vector'
   call WRTVCD(VEC1,LUSC2,1,LBLK)
@@ -82,7 +83,7 @@ do K=1,NTOOB
   call WRTVCD(VEC1,LUSC1,1,LBLK)
 # endif
   ! + 1/2 T^2
-  call MV7(VEC1,VEC2,LUSC2,LUSC3)
+  call MV7(VEC1,VEC2,LUSC2,LUSC3,Size(TUVX),TUVX)
 # ifdef _DEBUGPRINT_
   write(u6,*) ' Correction vector'
   call WRTVCD(VEC1,LUSC3,1,LBLK)
