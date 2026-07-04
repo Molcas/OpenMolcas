@@ -36,10 +36,9 @@ contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
+subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTUVX,TUVX)
 
   use lucia_data, only: IREFSM, MXNTTS
-  use wadr, only: TUVX
 
   implicit none
   character(len=*), intent(in) :: ModLab
@@ -48,6 +47,9 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
   real(kind=wp), intent(in), optional :: Array(:), RVEC(:)
   real(kind=wp), intent(_IN_), optional :: CI_Vector(:)
   real(kind=wp), intent(out), optional :: SIGMA_Vector(:)
+  integer(kind=iwp), intent(in), optional :: nTUVX
+  real(kind=wp), intent(in), optional :: TUVX(:)
+
   character(len=72) :: Module_
   integer(kind=iwp), allocatable :: lVec(:)
 # ifdef _DEBUGPRINT_
@@ -66,16 +68,16 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
 
   if (Module_(1:4) == 'DIAG') then
 
-    call Diag_Master(Size(TUVX),TUVX)
+    call Diag_Master(nTUVX,TUVX)
 
   else if (Module_(1:9) == 'SIGMA_CVB') then
 
     ! iSym_LI is the symmetry to be used.
-    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym,Size(TUVX),TUVX)
+    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym,nTUVX,TUVX)
 
   else if (Module_(1:5) == 'SIGMA') then
 
-    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,Size(TUVX),TUVX)
+    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,nTUVX,TUVX)
 
   else if (Module_(1:5) == 'TRACI') then
 
@@ -84,7 +86,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
     ! Lu is the file unit for JOBIPH
     ! Array is the transformation matrix (not sorted as LUCIA needs it).
     call mma_allocate(lVec,MXNTTS,Label='lVec')
-    call Traci_Master(iDisk,LU,Array,lVec,Size(TUVX),TUVX)
+    call Traci_Master(iDisk,LU,Array,lVec,nTUVX,TUVX)
     call mma_deallocate(lVec)
 
   else if (Module_(1:5) == 'DENSI') then
@@ -288,7 +290,7 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTUVX,TUVX)
 
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
   ! Note that CI_VEC is used as a scratch array!
-  call MV7(CI_VEC,SIGMA_VEC,LUC,LUSC34,Size(TUVX),TUVX)
+  call MV7(CI_VEC,SIGMA_VEC,LUC,LUSC34,nTUVX,TUVX)
   call mma_deallocate(VEC3)
 
   ! Export lusc34 to RASSCF
@@ -342,10 +344,10 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB,nTUVX,TUVX)
 
   ! Calculate the sigma vector:
 
-  call DIAG_MASTER(SIZE(TUVX),TUVX)
+  call DIAG_MASTER(nTUVX,TUVX)
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
   ! Note that CI_VEC is used as a scratch array!
-  call MV7(CI_VEC,SIGMAVec,LUC,LUSC34,Size(TUVX),TUVX)
+  call MV7(CI_VEC,SIGMAVec,LUC,LUSC34,nTUVX,TUVX)
   call mma_deallocate(VEC3)
 
   ! Export lusc34 to RASSCF

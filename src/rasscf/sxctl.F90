@@ -60,7 +60,7 @@ use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
 use Lucia_Interface, only: Lucia_Util
-use wadr, only: BM, DIA, F1, F2, NLX, SXG, SXH, SXN
+use wadr, only: BM, DIA, F1, F2, NLX, SXG, SXH, SXN, TUVX
 use input_ras, only: Key
 use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &
                          l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NSXS, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
@@ -351,7 +351,8 @@ if (IFINAL == 1) then
       else if (doBlockDMRG .or. DoNECI) then
       else !CI
         iDisk = IADR15(4)
-        call LUCIA_UTIL('TRACI',iDisk=iDisk,Lu=JOBIPH,Array=SMAT(:))
+        call LUCIA_UTIL('TRACI',iDisk=iDisk,Lu=JOBIPH,Array=SMAT(:), &
+                        nTUVX=Size(TUVX),TUVX=TUVX)
       end if
       call mma_deallocate(SMAT)
     else

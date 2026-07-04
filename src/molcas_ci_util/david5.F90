@@ -11,6 +11,7 @@
 
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTRI)
 
+use wadr, only: TUVX
 use timers, only: TimeDavid, TimeSigma
 use lucia_data, only: CFTP, DTOC, ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
@@ -555,7 +556,8 @@ real(kind=wp), allocatable:: Sgm(:,:), Psi(:,:)
       ! Calling Lucia to determine the sigma vector
       call Lucia_Util('Sigma', &
                       CI_Vector=ctemp(:), &
-                      Sigma_Vector=sigtemp(:))
+                      Sigma_Vector=sigtemp(:), &
+                      nTUVX=Size(TUVX),TUVX=TUVX)
 
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       Sigma_on_disk = .true.
