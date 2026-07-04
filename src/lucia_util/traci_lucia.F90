@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
+subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2,nTUVX,TUVX)
 ! A rotation matrix X is defining expansion from
 ! old to new orbitals
 !        PHI(NEW) = PHI(OLD) * X
@@ -34,7 +34,6 @@ subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 ! as a matrix over NTOOB orbitals.
 
 use Index_Functions, only: nTri_Elem
-use wadr, only: TUVX
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use lucia_data, only: LUSC1, LUSC2, LUSC3, NSMOB, NTOOB, NTOOBS
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -49,6 +48,9 @@ implicit none
 real(kind=wp), intent(in) :: X(*)
 integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
 real(kind=wp), allocatable :: SCR(:), LT(:)
 integer(kind=iwp) :: IOFF, ISM
 

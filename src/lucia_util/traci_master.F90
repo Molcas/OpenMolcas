@@ -12,6 +12,7 @@
 !#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
 
+use wadr, only: TUVX
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: Deallocate_Local_Arrays, DTOC, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, &
                       MXSOOB, NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, SDREO, VEC3, XISPSM
@@ -118,7 +119,7 @@ do JROOT=1,NROOT
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
   call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)
 
-  call TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2)
+  call TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2,Size(TUVX),TUVX)
 end do
 ! End of loop over roots
 IDISK(LUDIA) = 0
