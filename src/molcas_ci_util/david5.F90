@@ -516,22 +516,22 @@ use definitions, only: wp
 use stdalloc, only: mma_allocate, mma_deallocate
 Implicit None
 
-real(kind=wp), allocatable:: Sgm(:,:), Psi(:,:)
+real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
 
     if (DOFARO) then
 
       ! determinant wavefunctions
-      call mma_allocate(sgm,ndeta,ndetb,label='sgm')
-      call mma_allocate(psi,ndeta,ndetb,label='psi')
+      call mma_allocate(Faroald_sgm,ndeta,ndetb,label='sgm')
+      call mma_allocate(Faroald_psi,ndeta,ndetb,label='psi')
 
       VECSVC(:) = Zero
       call SG_REORD(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),VEC1,VECSVC)
       call CITRANS_SORT('C',VECSVC,VEC2)
-      PSI = Zero
-      call CITRANS_CSF2SD(VEC2,PSI)
-      SGM = Zero
-      call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
-      call CITRANS_SD2CSF(SGM,VEC2)
+      Faroald_PSI = Zero
+      call CITRANS_CSF2SD(VEC2,Faroald_PSI)
+      Faroald_SGM = Zero
+      call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
+      call CITRANS_SD2CSF(Faroald_SGM,VEC2)
       call CITRANS_SORT('O',VEC2,VECSVC)
       call SG_Reord(SGS,EXS,1,1,CONF,CFTP,CIS%nCSF(1),VECSVC,VEC2)
 
@@ -541,8 +541,8 @@ real(kind=wp), allocatable:: Sgm(:,:), Psi(:,:)
       end if
 
       ! free the arrays
-      call mma_deallocate(sgm)
-      call mma_deallocate(psi)
+      call mma_deallocate(Faroald_sgm)
+      call mma_deallocate(Faroald_psi)
 
     else
 
