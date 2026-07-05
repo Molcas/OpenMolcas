@@ -151,7 +151,7 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    Call Mk_H_Psi()
+    Call Mk_H_Psi(nConf,Vec1,Vec2)
 
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
     Vec1(:) = Vec1(:)+ECORE_HEX*Vec2(:)
@@ -511,10 +511,14 @@ TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
 contains
 
-Subroutine Mk_H_Psi()
+Subroutine Mk_H_Psi(nCSF,CI_Vec,Sigma_Vec)
 use definitions, only: wp
 use stdalloc, only: mma_allocate, mma_deallocate
 Implicit None
+
+integer(kind=iwp), intent(in):: nCSF
+real(kind=wp), intent(in) :: CI_Vec(nCSF)
+real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 
 real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
 
@@ -525,20 +529,15 @@ real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
       call mma_allocate(Faroald_psi,ndeta,ndetb,label='psi')
 
       VECSVC(:) = Zero
-      call SG_REORD(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),VEC1,VECSVC)
-      call CITRANS_SORT('C',VECSVC,VEC2)
-      Faroald_PSI = Zero
-      call CITRANS_CSF2SD(VEC2,Faroald_PSI)
-      Faroald_SGM = Zero
+      call SG_REORD(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),CI_Vec,VECSVC)
+      call CITRANS_SORT('C',VECSVC,Sigma_Vec)
+      Faroald_PSI(:,:) = Zero
+      call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
+      Faroald_SGM(:,:) = Zero
       call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
-      call CITRANS_SD2CSF(Faroald_SGM,VEC2)
-      call CITRANS_SORT('O',VEC2,VECSVC)
-      call SG_Reord(SGS,EXS,1,1,CONF,CFTP,CIS%nCSF(1),VECSVC,VEC2)
-
-      if (iprlev >= DEBUG) then
-        FP = DNRM2_(NCONF,VEC2,1)
-        write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(faroald): ',FP
-      end if
+      call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
+      call CITRANS_SORT('O',Sigma_Vec,VECSVC)
+      call SG_Reord(SGS,EXS,1,1,CONF,CFTP,CIS%nCSF(1),VECSVC,Sigma_Vec)
 
       ! free the arrays
       call mma_deallocate(Faroald_sgm)
@@ -549,7 +548,7 @@ real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
       ! Convert the CI-vector from CSF to Det. basis
       ! sigtemp is scratch, converted vector is stored in ctemp
 
-      ctemp(1:nConf) = Vec1(:)
+      ctemp(1:nConf) = CI_Vec(:)
       sigtemp(:) = Zero
       call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
 
@@ -561,13 +560,13 @@ real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
 
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       Sigma_on_disk = .true.
-      call CSDTVC(VEC2,sigtemp,2,dtoc,cts,stSym,1)
+      call CSDTVC(Sigma_Vec,sigtemp,2,dtoc,cts,stSym,1)
 
-      if (iprlev >= DEBUG) then
-        FP = DNRM2_(NCONF,VEC2,1)
-        write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(lucia):   ',FP
-      end if
+    end if
 
+    if (iprlev >= DEBUG) then
+      FP = DNRM2_(nCSF,Sigma_Vec,1)
+      write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(lucia):   ',FP
     end if
 
 End Subroutine Mk_H_Psi
