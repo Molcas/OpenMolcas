@@ -4124,6 +4124,22 @@ if (.not. SkipGUGA) then
   end if
   ! ====================================================================
 
+  ! Turn on the Faroald SD CI code in case of
+  ! 1) no symmetry
+  ! 2) not GASSCF
+  ! 3) not using the expert, the HEXS or the DEXS key word
+  ! 4) not running the CASVB module.
+  If (                      &
+      nSym==1 .and.         &
+      .Not.iDoGas .and.     &
+      .Not.Key('HEXS') .and.  &
+      .Not.Key('DEXS') .and.  &
+      .Not.Key('EXPE') .and.  &
+      IFVB==0               &
+     ) Then
+     DoFaro=.True.
+  End If
+
   ! faroald initializations
   if (DOFARO) then
     if (NSYM > 1) then
@@ -4143,8 +4159,6 @@ end if
 
 !---  Normal exit -----------------------------------------------------*
 if (DBG) write(u6,*) ' Normal exit from PROC_INP.'
-
-return
 
 contains
 
