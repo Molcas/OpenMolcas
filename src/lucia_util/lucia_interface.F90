@@ -105,7 +105,6 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
   else if (Module_(1:5) == 'CLOSE') then
 
     call CSFDIM_FREE(IREFSM)
-    call LUCIA2MOLCAS_FREE()
     call Lucia_Close()
 
   else

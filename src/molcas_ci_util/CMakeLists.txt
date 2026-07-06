@@ -63,7 +63,6 @@ set (sources
      load_tmp_ci_vec.F90
      load_tmp_sig_vec.F90
      lucia2molcas.F90
-     lucia2molcas_free.F90
      matml4.F90
      mclr_data.F90
      motrac.F90
