@@ -100,7 +100,7 @@ use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, emb
 #endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_attr, mh5_put_dset
-use lucia_data, only: CFTP, DStmp, Dtmp
+use lucia_data, only: DStmp, Dtmp
 use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
 use general_data, only: STSYM
@@ -1577,12 +1577,12 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       do jRoot=2,lRoots
         ! Read and reorder the left CI vector
         call DDafile(JOBIPH,2,Tmp,nConf,jDisk)
-        call SG_Reord(SGS,EXS,STSYM,1,CFTP,CIS%nCSF(STSYM),Tmp,VecL)
+        call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),Tmp,VecL)
         kDisk = IADR15(4)
         do kRoot=1,jRoot-1
           ! Read and reorder the right CI vector
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-          call SG_Reord(SGS,EXS,STSYM,1,CFTP,CIS%nCSF(STSYM),Tmp,VecR)
+          call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),Tmp,VecR)
           ! Compute TDM and store in h5 file
           call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
           idx = (jRoot-2)*(jRoot-1)/2+kRoot

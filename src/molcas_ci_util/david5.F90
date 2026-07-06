@@ -12,7 +12,7 @@
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,nTUVX,TUVX)
 
 use timers, only: TimeDavid, TimeSigma
-use lucia_data, only: CFTP, ECORE_HEX, Sigma_on_disk
+use lucia_data, only: ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
@@ -527,7 +527,7 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 
     if (DOFARO) then
 
-      call SG_REORD(SGS,EXS,1,0,CFTP,CIS%nCSF(1),CI_Vec,VECSVC)
+      call SG_REORD(SGS,EXS,1,0,CIS%nCSF(1),CI_Vec,VECSVC)
       call CITRANS_SORT('C',VECSVC,Sigma_Vec)
       Faroald_PSI(:,:) = Zero
       call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
@@ -535,7 +535,7 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
       call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
       call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
       call CITRANS_SORT('O',Sigma_Vec,VECSVC)
-      call SG_Reord(SGS,EXS,1,1,CFTP,CIS%nCSF(1),VECSVC,Sigma_Vec)
+      call SG_Reord(SGS,EXS,1,1,CIS%nCSF(1),VECSVC,Sigma_Vec)
 
     else
 

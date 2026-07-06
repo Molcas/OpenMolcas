@@ -12,7 +12,7 @@
 !               1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,ISPIN,nConf,CIOLD,CINEW)
+subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -24,8 +24,6 @@ subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,ISPIN,nConf,CIOLD,CINEW)
 !               state symmetry                                         *
 !     iMode   : integer                                                *
 !               switch selecting reordering mode (see above)           *
-!     iSpin   : array of integer                                       *
-!               spin coupling information                              *
 !     nSm     : array of integer                                       *
 !               symmetry per active orbital                            *
 !     CIold   : array of real                                          *
@@ -51,7 +49,7 @@ use sguga, only: EXStruct, SGStruct
 use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use PrintLevel, only: DEBUG
-use Lucia_data, only: CONF_Occ
+use Lucia_data, only: CONF_Occ, CFTP
 use Molcas, only: MxAct
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -61,7 +59,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 type(SGStruct), intent(in) :: SGS
 type(EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) :: IREFSM, IMODE, ISPIN(*), nConf
+integer(kind=iwp), intent(in) :: IREFSM, IMODE, nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
 
@@ -123,7 +121,7 @@ do ITYP=1,NTYP
       end do
 
       ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
+      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
 
       ! GET SPLIT GRAPH ORDERING NUMBER
       ISG = SG_NUM(SGS,EXS,IWALK)

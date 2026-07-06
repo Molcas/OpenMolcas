@@ -70,7 +70,7 @@ use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
 use casvb_global, only: ifvb
 use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
-use lucia_data, only: CFTP, DStmp, Dtmp, PAtmp, Pscr, PTmp
+use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 use wadr, only: FMO
 use sxci, only: IDXSX
@@ -300,7 +300,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call mma_allocate(CIV,nConf,Label='CIV')
-        call SG_Reord(SGS,EXS,STSYM,0,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
+        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
         call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
         Call mma_deallocate(CIV)
         Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
@@ -540,7 +540,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Write (6,*) 'nConf=',nConf
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call mma_allocate(CIV,nConf,Label='CIV')
-        call SG_Reord(SGS,EXS,STSYM,0,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
+        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
         call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC*(NAC+1)/2)
         Call mma_deallocate(CIV)
         Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
@@ -557,7 +557,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Write (6,*) 'Check_D2=',Check_D1
         Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
         Call mma_allocate(CIV,nConf,Label='CIV')
-        call SG_Reord(SGS,EXS,STSYM,0,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
+        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
         Call sg_d2mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
         Call mma_deallocate(CIV)
         D_sguga(:)=Half*D_sguga(:)
@@ -696,7 +696,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         if (.not. iDoGas) then
-          call SG_Reord(SGS,EXS,STSYM,0,CFTP,CIS%nCSF(STSYM),CIVEC,CIV)
+          call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
 
           ! save reorder CI vector on disk
           !if (.not. iDoGas) then
@@ -739,7 +739,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
             write(u6,'(6X,A,F15.6)') 'energy=',ener(i,iter)
 
             call mma_allocate(kcnf,nactel,Label='kCnf')
-            call gasprwf(nac,nactel,stsym,cftp,CIVEC,kcnf)
+            call gasprwf(nac,nactel,stsym,CIVEC,kcnf)
             call mma_deallocate(kcnf)
           end if
         end if
