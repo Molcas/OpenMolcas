@@ -129,7 +129,7 @@ subroutine densi_master(CIVec,RVec)
   ! from Molcas Rasscf.
 
   use lucia_data, only: DSTmp, Dtmp, IDISK, IREFSM, LCSBLK, kvec3_length, LUC, LUHC, LUSC1, LUSC34, MXNTTS, MXSOOB, &
-                        NCSF_PER_SYM, NSD_PER_SYM, NTOOB, PAtmp, PSSIGN, Ptmp, RHO1, SDREO, Sigma_on_Disk, SRHO1, VEC3, XISPSM
+                        NCSF_PER_SYM, NSD_PER_SYM, NTOOB, PAtmp, PSSIGN, Ptmp, RHO1, Sigma_on_Disk, SRHO1, VEC3, XISPSM
   use Constants, only: Zero
 
   implicit none
@@ -161,12 +161,12 @@ subroutine densi_master(CIVec,RVec)
     call mma_allocate(SCR4,NSD,Label='SCR4')
 
     SCR3(1:NCSF) = rvec(1:NCSF)
-    call CSDTVC(SCR3,SCR4,1,SDREO,IREFSM,1)
+    call CSDTVC(SCR3,SCR4,1,IREFSM,1)
     call CPCIVC1(SCR3,NSD,LUHC,MXNTTS,IREFSM,lVec)
     call mma_deallocate(SCR3)
     call mma_deallocate(SCR4)
   end if
-  call CSDTVC(SCR1,SCR2,1,SDREO,IREFSM,1)
+  call CSDTVC(SCR1,SCR2,1,IREFSM,1)
   call CPCIVC1(SCR1,NSD,LUC,MXNTTS,IREFSM,lVec)
   call mma_deallocate(lVec)
 
@@ -240,7 +240,7 @@ subroutine densi_master(CIVec,RVec)
     call TriPak(srho1,DStmp,ntoob,ntoob)
   end if
 
-  call CSDTVC(scr1,scr2,2,SDREO,iRefSm,1)
+  call CSDTVC(scr1,scr2,2,iRefSm,1)
 
   call mma_deallocate(SCR1)
   call mma_deallocate(SCR2)

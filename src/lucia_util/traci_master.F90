@@ -14,7 +14,7 @@ subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec,nTUVX,TUVX)
 
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: Deallocate_Local_Arrays, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, &
-                      MXSOOB, NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, SDREO, VEC3, XISPSM
+                      MXSOOB, NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, VEC3, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
@@ -57,7 +57,7 @@ IDISK(LUC) = 0
 JDISK = JOBDISK
 do JROOT=1,NROOT
   call DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
-  call CSDTVC(VEC4,VEC1,1,SDREO,ISSM,0)
+  call CSDTVC(VEC4,VEC1,1,ISSM,0)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'CI-vector written to disk for root = ',JROOT
   call WRTMAT(VEC1,1,20,1,20)
@@ -135,7 +135,7 @@ do JROOT=1,NROOT
   write(u6,*) 'CI-Vector read from disk for root = ',JROOT
   call WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
 # endif
-  call CSDTVC(VEC2,VEC1,2,SDREO,ISSM,0)
+  call CSDTVC(VEC2,VEC1,2,ISSM,0)
   call DDAFILE(JOBIPH,1,VEC2,NCONF,JOBDISK)
   call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
 end do
