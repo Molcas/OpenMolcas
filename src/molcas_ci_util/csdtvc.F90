@@ -9,11 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CSDTVC(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,IREFSM,ICOPY)
+subroutine CSDTVC(CSFVEC,DETVEC,IWAY,ICTSDT,IREFSM,ICOPY)
 ! PURPOSE: TRANSFORM FROM DETERMINANT TO CSF BASIS AND VICE VERSA
 !          IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
 !          IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 
+use lucia_data, only:  DTOCMT=>DTOC
 use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -24,7 +25,6 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY
 real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
-real(kind=wp), intent(in) :: DTOCMT(*)
 integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF
 
 ! To avoid compiler complaints
