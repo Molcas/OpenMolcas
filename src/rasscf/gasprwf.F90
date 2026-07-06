@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine gasprwf(NORB,NEL,IREFSM,ISPIN,CICOEF,kcnf)
+subroutine gasprwf(NORB,NEL,IREFSM,CICOEF,kcnf)
 !***********************************************************************
 !                                                                      *
 !     PURPOSE: PRINT THE WAVEFUNCTION FOR GAS                          *
@@ -25,8 +25,6 @@ subroutine gasprwf(NORB,NEL,IREFSM,ISPIN,CICOEF,kcnf)
 !               total number of active electrons                       *
 !     iRefSm  : integer                                                *
 !               state symmetry                                         *
-!     iSpin   : array of integer                                       *
-!               spin coupling information                              *
 !     nSm     : array of integer                                       *
 !               symmetry per active orbital                            *
 !     CiCoef  : array of real*8                                        *
@@ -42,12 +40,12 @@ subroutine gasprwf(NORB,NEL,IREFSM,ISPIN,CICOEF,kcnf)
 
 use rasscf_global, only: nSm, PrwThr
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
-use lucia_data, only: Conf_Occ
+use lucia_data, only: Conf_Occ, CFTP
 use Molcas, only: MxAct
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nOrb, nEl, iRefSM, ISPIN(*)
+integer(kind=iwp), intent(in) :: nOrb, nEl, iRefSM
 real(kind=wp), intent(in) :: CICOEF(*)
 integer(kind=iwp), intent(out) :: KCNF(NEL)
 integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, iCSBAS, ICSFJP, IIBCL, IIBOP, IICSF, iOff, iOpen, iOrb, ipBas, iSym, iTyp, &
@@ -117,7 +115,7 @@ do ITYP=1,NTYP
       end do
 
       ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
+      call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
       ! SKIP IT OR PRINT IT?
       COEF = CICOEF(ICSFJP)
       if (abs(COEF) < PRWTHR) cycle
