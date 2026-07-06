@@ -12,11 +12,11 @@
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,nTUVX,TUVX)
 
 use timers, only: TimeDavid, TimeSigma
-use lucia_data, only: CFTP, ECORE_HEX, Sigma_on_disk
+use lucia_data, only: CFTP, ECORE_HEX, Sigma_on_disk, SDREO
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
-use csfbas, only: CONF, CTS
+use csfbas, only: CONF
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use Lucia_Interface, only: Lucia_Util
@@ -546,7 +546,7 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 
       ctemp(1:nCSF) = CI_Vec(1:nCSF)
       sigtemp(:) = Zero
-      call csdtvc(ctemp,sigtemp,1,cts,stSym,1)
+      call csdtvc(ctemp,sigtemp,1,SDREO,stSym,1)
 
       ! Calling Lucia to determine the sigma vector
       call Lucia_Util('Sigma', &
@@ -558,7 +558,7 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
       Sigma_on_disk = .true.
       ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
       ! stored in Sigma_vec.
-      call CSDTVC(Sigma_Vec,sigtemp,2,cts,stSym,1)
+      call CSDTVC(Sigma_Vec,sigtemp,2,SDREO,stSym,1)
 
     end if
 
