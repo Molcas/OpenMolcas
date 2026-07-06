@@ -12,7 +12,7 @@
 subroutine DETCTL_GAS()
 
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
-use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, CONF_OCC, Deallocate_Local_Arrays, IADVICE, &
+use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, IADVICE, &
                       IBSPGPFTP, IDC, IGSOCC, IPHGAS, IPRCIX, IREFSM, kvec3_length, LCSBLK, MAX_STR_OC_BLK, MAX_STR_SPGP, &
                       Memory_Needed_Lucia, MNHL, MXINKA, MXNSTR, MXNTTS, MXPCSM, MXPNGAS, MXPNSMST, MXPORB, MXSOOB, MXTSOB, &
                       NCONF_PER_OPEN, NCONF_PER_SYM, NCSF_HEXS, NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, NIRREP, &
@@ -188,8 +188,7 @@ MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA+NOCTPA**2+NOCTPB**2+2*NIRREP**2+2*INTS
 MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA+4*MAX_STR_SPGP
 !end iF
 
-call LUCIA2MOLCAS(CONF_OCC(jsym)%A,ndet,ncsf_per_sym,nsd_per_sym,nconf_per_sym,mxpcsm,mxporb,nconf_per_open, &
-                  npdtcnf,npcscnf,nCSF_HEXS)
+call LUCIA2MOLCAS(ndet,ncsf_per_sym,nsd_per_sym,nconf_per_sym,mxpcsm,mxporb,nconf_per_open,npdtcnf,npcscnf,nCSF_HEXS)
 
 call mma_deallocate(KLOCCLS)
 

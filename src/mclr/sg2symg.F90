@@ -57,7 +57,7 @@ Call mma_allocate(CINEW,nConf,Label='CINEW')
 Call mma_allocate(Conf_Occ(pState_Sym)%A,SIZE(CNSM(iss)%ICONF),Label='CINEW')
 Conf_Occ(pState_Sym)%A(:)=-CNSM(iss)%ICONF
 
-call SG_REORD(SGS,EXS,pState_Sym,iMode,Conf_Occ(pState_Sym)%A,CFTP,nConf,CI,CINEW)
+call SG_REORD(SGS,EXS,pState_Sym,iMode,CFTP,nConf,CI,CINEW)
 CI(1:nConf)=CINEW(1:nConf)
 
 Call mma_deallocate(Conf_Occ(pState_Sym)%A)

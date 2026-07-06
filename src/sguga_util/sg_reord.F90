@@ -12,7 +12,7 @@
 !               1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,nConf,CIOLD,CINEW)
+subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,ISPIN,nConf,CIOLD,CINEW)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -24,8 +24,6 @@ subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,ICONF,ISPIN,nConf,CIOLD,CINEW)
 !               state symmetry                                         *
 !     iMode   : integer                                                *
 !               switch selecting reordering mode (see above)           *
-!     iConf   : array of integer                                       *
-!               string information                                     *
 !     iSpin   : array of integer                                       *
 !               spin coupling information                              *
 !     nSm     : array of integer                                       *
@@ -63,7 +61,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 type(SGStruct), intent(in) :: SGS
 type(EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) :: IREFSM, IMODE, ICONF(*), ISPIN(*), nConf
+integer(kind=iwp), intent(in) :: IREFSM, IMODE, ISPIN(*), nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
 

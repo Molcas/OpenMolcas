@@ -44,7 +44,6 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 !                                                                      *
 !***********************************************************************
 
-use csfbas, only: CONF
 use lucia_data, only: CFTP
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use general_data, only: SGS, EXS, CIS, JOBIPH, JOBOLD, LUDAVID, NCONF, NSEL, STSYM
@@ -130,7 +129,7 @@ if (Start_Vectors) then
         do i=1,lRoots
           call mh5_fetch_dset(mh5id,'CI_VECTORS',Tmp1,[nconf,1],[0,i-1])
           if (.not. iDoGas) then
-            call SG_Reord(SGS,EXS,STSYM,1,CONF,CFTP,CIS%nCSF(STSYM),Tmp1,C)
+            call SG_Reord(SGS,EXS,STSYM,1,CFTP,CIS%nCSF(STSYM),Tmp1,C)
           else
             C(1:nConf) = Tmp1(1:nConf)
           end if
@@ -171,7 +170,7 @@ if (Start_Vectors) then
       do i=1,lRoots
         call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
         if (.not. iDoGas) then
-          call SG_Reord(SGS,EXS,STSYM,1,CONF,CFTP,CIS%nCSF(STSYM),Tmp1,C)
+          call SG_Reord(SGS,EXS,STSYM,1,CFTP,CIS%nCSF(STSYM),Tmp1,C)
         else
           C(1:nConf) = Tmp1(1:nConf)
         end if

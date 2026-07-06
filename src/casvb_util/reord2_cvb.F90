@@ -16,7 +16,6 @@ subroutine reord2_cvb(cfrom,cto,imode)
 ! Front-end routine for molcas reord2, transforms
 ! from SGA CSFs to split-graph-GUGA CSFs.
 
-use csfbas, only: conf
 use lucia_data, only: cftp
 use general_data, only: STSYM, SGS, EXS, CIS
 use Definitions, only: wp, iwp
@@ -28,7 +27,7 @@ real(kind=wp), intent(in) :: cfrom(*)
 real(kind=wp), intent(_OUT_) :: cto(*)
 integer(kind=iwp), intent(in) :: imode
 
-call sg_reord(SGS,EXS,stsym,imode,conf,cftp,CIS%nCSF(stsym),cfrom,cto)
+call sg_reord(SGS,EXS,stsym,imode,cftp,CIS%nCSF(stsym),cfrom,cto)
 
 
 end subroutine reord2_cvb

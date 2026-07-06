@@ -17,8 +17,7 @@ implicit none
 private
 
 integer(kind=iwp) :: MAXOP_LUCIA, NAEL, NBEL
-integer(kind=iwp), allocatable :: CONF(:)
 
-public :: CONF, MAXOP_LUCIA, NAEL, NBEL
+public :: MAXOP_LUCIA, NAEL, NBEL
 
 end module csfbas

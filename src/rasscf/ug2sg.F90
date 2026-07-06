@@ -12,7 +12,7 @@
 !               1990, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ICONF,ISPIN,IORD,ICI,JCJ,CCI,MXROOTS)
+subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ISPIN,IORD,ICI,JCJ,CCI,MXROOTS)
 ! AUTHOR:  J. OLSEN AND M.P. FUELSCHER
 !          UNIV. OF LUND, SWEDEN 1990
 !
@@ -26,6 +26,7 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ICONF,ISPIN,IORD,ICI,JCJ,CC
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
 use general_data, only: EXS, SGS
+use Lucia_data, only: Conf_Occ
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
@@ -33,7 +34,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ICONF(*), ISPIN(*), MXROOTS, ICI(MXROOTS,MxRef)
+integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ISPIN(*), MXROOTS, ICI(MXROOTS,MxRef)
 integer(kind=iwp), intent(out) :: IORD(NCONF), JCJ(MXROOTS,MxRef)
 real(kind=wp), intent(inout) :: CCI(MXROOTS,MxRef)
 integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
@@ -88,7 +89,7 @@ do ITYP=1,NTYP
       IIBCL = 1
       JOCC = ICL+IOPEN
       do KOCC=0,JOCC-1
-        KORB = ICONF(ICNBS+KOCC)
+        KORB = CONF_Occ(IREFSM)%A(ICNBS+KOCC)
         if (KORB < 0) then
           ! Doubly occupied orbitals
           KCNF(IIBCL) = abs(KORB)

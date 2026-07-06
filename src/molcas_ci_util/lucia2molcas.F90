@@ -9,11 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine LUCIA2MOLCAS(KICONF_OCC_LUCIA,NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN, &
+subroutine LUCIA2MOLCAS(NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN, &
                         NPDTCNF,NPCSCNF,nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
 
-use csfbas, only: CONF, maxop_lucia, NAEL, NBEL
+use csfbas, only: maxop_lucia, NAEL, NBEL
 use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, STSYM
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, MINOP, MS2, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use Molcas, only: MxSym
@@ -21,7 +21,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), &
+integer(kind=iwp), intent(in) :: NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), &
                                  NCNASM_LUCIA(MXPCSM), MXPORB, NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), &
                                  NPCSCNF(MXPORB+1), nCSF_HEXS_LUCIA
 integer(kind=iwp) :: ICL, IOPEN, ISYM, ITYP, LCONF, LDET, LLCONF, NEL2MN, NEL2MX, NORB1, NORB2
@@ -69,10 +69,6 @@ do ISYM=1,NSYM
   LCONF = max(LCONF,LLCONF)
   LDET = max(LDET,NDTASM(ISYM))
 end do
-
-call mma_allocate(CONF,LCONF,label='CONF')
-
-CONF(:) = KICONF_OCC_LUCIA(1:LCONF)
 
 NDET = NDET_LUCIA
 
