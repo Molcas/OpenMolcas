@@ -519,36 +519,35 @@ subroutine OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   ICASE = 1
   nIN = nINDEP(iSym,iCase)
   nAS = nASup(iSym,iCase)
-  if (nIN /= 0) then
-    nIS = nISup(iSym,iCase)
-    nVec = nAS*nIS
-    if (nVec /= 0) then
-#     ifdef _MOLCAS_MPP_
-      if (Is_Real_Par()) then
-        ! copy global array to local buffer
-        call RHS_ALLO(nAS,nIS,lg_V)
-        call RHS_READ(nAS,nIS,lg_V,iCase,iSym,iVecC2)
-        ipT = Allocate_GA_Array(nAS*nIS,'ipT')
-        call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A,nAS)
-        if (do_csf) then
-          call RHS_READ(nAS,nIS,lg_V,iCase,iSym,7)
-          ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
-          call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A,nAS)
-        end if
-        call RHS_FREE(lg_V)
-        call GASYNC()
-      else
-#     endif
-        call RHS_ALLO(nAS,nIS,ipT)
-        call RHS_READ(nAS,nIS,ipT,iCase,iSym,iVecC2)
-        if (do_csf) then
-          call RHS_ALLO(nAS,nIS,ipTanti)
-          call RHS_READ(nAS,nIS,ipTanti,iCase,iSym,7)
-        end if
-#     ifdef _MOLCAS_MPP_
+  if (nIN == 0) return
+  nIS = nISup(iSym,iCase)
+  nVec = nAS*nIS
+  if (nVec /= 0) then
+#   ifdef _MOLCAS_MPP_
+    if (Is_Real_Par()) then
+      ! copy global array to local buffer
+      call RHS_ALLO(nAS,nIS,lg_V)
+      call RHS_READ(nAS,nIS,lg_V,iCase,iSym,iVecC2)
+      ipT = Allocate_GA_Array(nAS*nIS,'ipT')
+      call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A,nAS)
+      if (do_csf) then
+        call RHS_READ(nAS,nIS,lg_V,iCase,iSym,7)
+        ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
+        call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A,nAS)
       end if
-#     endif
+      call RHS_FREE(lg_V)
+      call GASYNC()
+    else
+#   endif
+      call RHS_ALLO(nAS,nIS,ipT)
+      call RHS_READ(nAS,nIS,ipT,iCase,iSym,iVecC2)
+      if (do_csf) then
+        call RHS_ALLO(nAS,nIS,ipTanti)
+        call RHS_READ(nAS,nIS,ipTanti,iCase,iSym,7)
+      end if
+#   ifdef _MOLCAS_MPP_
     end if
+#   endif
   end if
 
   TJVX(:,:,:,:) = Zero
@@ -621,7 +620,9 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   if (ISYT < ISYV) return
   ISYM = Mul(ISYJ,ISYL) !!
 
-  if (NINDEP(ISYM,2) > 0) then
+  nINP = nINDEP(iSym,2)
+  nINM = nINDEP(iSym,3)
+  if (nINP > 0) then
     ! The plus combination:
     ICASE = 2
     NASP = NTGEU(ISYM)
@@ -630,7 +631,7 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   else
     NWBP = 0
   end if
-  if (NINDEP(ISYM,3) > 0) then
+  if (nINM > 0) then
     ! The minus combination:
     ICASE = 3
     NASM = NTGTU(ISYM)
@@ -646,7 +647,6 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   if ((NWBP > 0) .and. (NINDEP(ISYM,2) > 0)) then
     !! Read the T-amplitude
     ICASE = 2
-    nINP = nINDEP(iSym,iCase)
     nASP = nASup(iSym,iCase)
     if (nINP /= 0) then
       nISP = nISup(iSym,iCase)
@@ -669,50 +669,49 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
         end if
 #       endif
       end if
-    end if
 
-    do IT=1,NT
-      ITABS = IT+NAES(ISYT)
-      IVMAX = NV
-      if (ISYV == ISYT) IVMAX = IT
-      do IV=1,IVMAX
-        IVABS = IV+NAES(ISYV)
-        SCL1 = Half
-        IW1 = KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
-        if (ITABS == IVABS) SCL1 = Quart
-        do IJ=1,NJ
-          IJABS = IJ+NIES(ISYJ)
-          do IL=1,NL
-            ILABS = IL+NIES(ISYL)
-            SCL = SCL1
-            if (IJABS >= ILABS) then
-              IW2 = KIGEJ(IJABS,ILABS)-NIGEJES(ISYM)
-              if (IJABS == ILABS) SCL = SQ2*SCL1
-            else
-              IW2 = KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
-            end if
-            IW = IW1+NASP*(IW2-1)
-            TJVL(IT,IJ,IV,IL) = SCL*GA_Arrays(ipTP)%A(IW)
+      do IT=1,NT
+        ITABS = IT+NAES(ISYT)
+        IVMAX = NV
+        if (ISYV == ISYT) IVMAX = IT
+        do IV=1,IVMAX
+          IVABS = IV+NAES(ISYV)
+          SCL1 = Half
+          IW1 = KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
+          if (ITABS == IVABS) SCL1 = Quart
+          do IJ=1,NJ
+            IJABS = IJ+NIES(ISYJ)
+            do IL=1,NL
+              ILABS = IL+NIES(ISYL)
+              SCL = SCL1
+              if (IJABS >= ILABS) then
+                IW2 = KIGEJ(IJABS,ILABS)-NIGEJES(ISYM)
+                if (IJABS == ILABS) SCL = SQ2*SCL1
+              else
+                IW2 = KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
+              end if
+              IW = IW1+NASP*(IW2-1)
+              TJVL(IT,IJ,IV,IL) = SCL*GA_Arrays(ipTP)%A(IW)
+            end do
           end do
         end do
       end do
-    end do
 
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      call deallocate_GA_array(ipTP)
-    else
-#   endif
-      call RHS_FREE(ipTP)
-#   ifdef _MOLCAS_MPP_
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call deallocate_GA_array(ipTP)
+      else
+#     endif
+        call RHS_FREE(ipTP)
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
     end if
-#   endif
   end if
 
   if (NINDEP(ISYM,3) > 0) then
     !! Read the T-amplitude
     ICASE = 3
-    nINM = nINDEP(iSym,iCase)
     nASM = nASup(iSym,iCase)
     if (nINM /= 0) then
       nISM = nISup(iSym,iCase)
@@ -735,48 +734,50 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
         end if
 #       endif
       end if
-    end if
 
-    do IT=1,NT
-      ITABS = IT+NAES(ISYT)
-      IVMAX = NV
-      if (ISYV == ISYT) IVMAX = IT-1
-      do IV=1,IVMAX
-        IVABS = IV+NAES(ISYV)
-        IW1 = KTGTU(ITABS,IVABS)-NTGTUES(ISYM)
-        do IJ=1,NJ
-          IJABS = IJ+NIES(ISYJ)
-          do IL=1,NL
-            ILABS = IL+NIES(ISYL)
-            if (IJABS > ILABS) then
-              IW2 = KIGTJ(IJABS,ILABS)-NIGTJES(ISYM)
-              SCL = Half
-            else if (IJABS < ILABS) then
-              IW2 = KIGTJ(ILABS,IJABS)-NIGTJES(ISYM)
-              SCL = -Half
-            else
-              cycle
-            end if
-            IW = IW1+NASM*(IW2-1)
-            TJVL(IT,IJ,IV,IL) = TJVL(IT,IJ,IV,IL)+SCL*GA_Arrays(ipTM)%A(IW)
+      do IT=1,NT
+        ITABS = IT+NAES(ISYT)
+        IVMAX = NV
+        if (ISYV == ISYT) IVMAX = IT-1
+        do IV=1,IVMAX
+          IVABS = IV+NAES(ISYV)
+          IW1 = KTGTU(ITABS,IVABS)-NTGTUES(ISYM)
+          do IJ=1,NJ
+            IJABS = IJ+NIES(ISYJ)
+            do IL=1,NL
+              ILABS = IL+NIES(ISYL)
+              if (IJABS > ILABS) then
+                IW2 = KIGTJ(IJABS,ILABS)-NIGTJES(ISYM)
+                SCL = Half
+              else if (IJABS < ILABS) then
+                IW2 = KIGTJ(ILABS,IJABS)-NIGTJES(ISYM)
+                SCL = -Half
+              else
+                cycle
+              end if
+              IW = IW1+NASM*(IW2-1)
+              TJVL(IT,IJ,IV,IL) = TJVL(IT,IJ,IV,IL)+SCL*GA_Arrays(ipTM)%A(IW)
+            end do
           end do
         end do
       end do
-    end do
 
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      call deallocate_GA_array(ipTM)
-    else
-#   endif
-      call RHS_FREE(ipTM)
-#   ifdef _MOLCAS_MPP_
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call deallocate_GA_array(ipTM)
+      else
+#     endif
+        call RHS_FREE(ipTM)
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
     end if
-#   endif
   end if
 
-  call DGEMM_('T','N',NV*NL,NCHO,NT*NJ,One,TJVL,NT*NJ,Cho_Bra,NT*NJ,One,Cho_KetD,NV*NL)
-  call DGEMM_('N','N',NT*NJ,NCHO,NV*NL,One,TJVL,NT*NJ,Cho_Ket,NV*NL,One,Cho_BraD,NT*NJ)
+  if (nINP > 0 .or. nINM > 0) then
+    call DGEMM_('T','N',NV*NL,NCHO,NT*NJ,One,TJVL,NT*NJ,Cho_Bra,NT*NJ,One,Cho_KetD,NV*NL)
+    call DGEMM_('N','N',NT*NJ,NCHO,NV*NL,One,TJVL,NT*NJ,Cho_Ket,NV*NL,One,Cho_BraD,NT*NJ)
+  end if
 
   return
 
@@ -812,35 +813,34 @@ subroutine OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   ICASE = 4
   nIN = nINDEP(iSym,iCase)
   nAS = nASup(iSym,iCase)
-  if (nIN /= 0) then
-    nIS = nISup(iSym,iCase)
-    nVec = nIN*nIS
-    if (nVec /= 0) then
-#     ifdef _MOLCAS_MPP_
-      if (Is_Real_Par()) then
-        call RHS_ALLO(nAS,nIS,lg_V)
-        call RHS_READ(nAS,nIS,lg_V,iCase,iSym,iVecC2)
-        ipT = Allocate_GA_Array(nAS*nIS,'ipT')
-        call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A,nAS)
-        if (do_csf) then
-          call RHS_READ(nAS,nIS,lg_V,iCase,iSym,7)
-          ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
-          call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A,nAS)
-        end if
-        call RHS_FREE(lg_V)
-        call GASYNC()
-      else
-#     endif
-        call RHS_ALLO(nAS,nIS,ipT)
-        call RHS_READ(nAS,nIS,ipT,iCase,iSym,iVecC2)
-        if (do_csf) then
-          call RHS_ALLO(nAS,nIS,ipTanti)
-          call RHS_READ(nAS,nIS,ipTanti,iCase,iSym,7)
-        end if
-#     ifdef _MOLCAS_MPP_
+  if (nIN == 0) return
+  nIS = nISup(iSym,iCase)
+  nVec = nIN*nIS
+  if (nVec /= 0) then
+#   ifdef _MOLCAS_MPP_
+    if (Is_Real_Par()) then
+      call RHS_ALLO(nAS,nIS,lg_V)
+      call RHS_READ(nAS,nIS,lg_V,iCase,iSym,iVecC2)
+      ipT = Allocate_GA_Array(nAS*nIS,'ipT')
+      call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A,nAS)
+      if (do_csf) then
+        call RHS_READ(nAS,nIS,lg_V,iCase,iSym,7)
+        ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
+        call GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A,nAS)
       end if
-#     endif
+      call RHS_FREE(lg_V)
+      call GASYNC()
+    else
+#   endif
+      call RHS_ALLO(nAS,nIS,ipT)
+      call RHS_READ(nAS,nIS,ipT,iCase,iSym,iVecC2)
+      if (do_csf) then
+        call RHS_ALLO(nAS,nIS,ipTanti)
+        call RHS_READ(nAS,nIS,ipTanti,iCase,iSym,7)
+      end if
+#   ifdef _MOLCAS_MPP_
     end if
+#   endif
   end if
 
   AUVX(:,:,:,:) = Zero
@@ -1202,64 +1202,64 @@ subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
         end if
 #       endif
       end if
-    end if
 
-    NBXSZA = NSECBX
-    NBXSZJ = NINABX
+      NBXSZA = NSECBX
+      NBXSZJ = NINABX
 
-    do IASTA=1,NA,NBXSZA
-      IAEND = min(IASTA-1+NBXSZA,NA)
-      NASZ = IAEND-IASTA+1
-      do IJSTA=1,NJ,NBXSZJ
-        IJEND = min(IJSTA-1+NBXSZJ,NJ)
-        NJSZ = IJEND-IJSTA+1
+      do IASTA=1,NA,NBXSZA
+        IAEND = min(IASTA-1+NBXSZA,NA)
+        NASZ = IAEND-IASTA+1
+        do IJSTA=1,NJ,NBXSZJ
+          IJEND = min(IJSTA-1+NBXSZJ,NJ)
+          NJSZ = IJEND-IJSTA+1
 
-        IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-        AJVL(:,:,:) = Zero
+          IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
+          AJVL(:,:,:) = Zero
 
-        IAJ = 0
-        do IJ=IJSTA,IJEND
-          IJABS = IJ+NIES(ISYJ)
-          do IA=IASTA,IAEND
-            !IAABS = IA+NSES(ISYA)
-            IAJ = IAJ+1
+          IAJ = 0
+          do IJ=IJSTA,IJEND
+            IJABS = IJ+NIES(ISYJ)
+            do IA=IASTA,IAEND
+              !IAABS = IA+NSES(ISYA)
+              IAJ = IAJ+1
 
-            do IV=1,NV
-              !IVABS = IV+NAES(ISYV)
-              do IL=1,NL
-                ILABS = IL+NIES(ISYL)
-                SCL = SQ05
-                if (IJABS >= ILABS) then
-                  JGEL = KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
-                  if (IJABS == ILABS) SCL = One
-                else
-                  JGEL = KIGEJ(ILABS,IJABS)-NIGEJES(ISYJL)
-                end if
-                IW1 = IV
-                IW2 = IA+NA*(JGEL-1)+IOFF1(ISYA)
-                IW = IW1+NAS*(IW2-1)
+              do IV=1,NV
+                !IVABS = IV+NAES(ISYV)
+                do IL=1,NL
+                  ILABS = IL+NIES(ISYL)
+                  SCL = SQ05
+                  if (IJABS >= ILABS) then
+                    JGEL = KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
+                    if (IJABS == ILABS) SCL = One
+                  else
+                    JGEL = KIGEJ(ILABS,IJABS)-NIGEJES(ISYJL)
+                  end if
+                  IW1 = IV
+                  IW2 = IA+NA*(JGEL-1)+IOFF1(ISYA)
+                  IW = IW1+NAS*(IW2-1)
 
-                AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTP)%A(IW)
+                  AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTP)%A(IW)
+                end do
               end do
             end do
           end do
+
+          call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NL,One,AJVL,NV*NL,Cho_Ket,NV*NL,One,Cho_BraD(IAJSTA,1,1),NA*NJ)
+          call DGEMM_('N','N',NV*NL,NCHO,NASZ*NJSZ,One,AJVL,NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,One,Cho_KetD,NV*NL)
+
         end do
-
-        call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NL,One,AJVL,NV*NL,Cho_Ket,NV*NL,One,Cho_BraD(IAJSTA,1,1),NA*NJ)
-        call DGEMM_('N','N',NV*NL,NCHO,NASZ*NJSZ,One,AJVL,NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,One,Cho_KetD,NV*NL)
-
       end do
-    end do
 
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      call deallocate_GA_array(ipTP)
-    else
-#   endif
-      call RHS_FREE(ipTP)
-#   ifdef _MOLCAS_MPP_
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call deallocate_GA_array(ipTP)
+      else
+#     endif
+        call RHS_FREE(ipTP)
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
     end if
-#   endif
   end if
 
   ! ---- EM
@@ -1290,66 +1290,66 @@ subroutine OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
         end if
 #       endif
       end if
-    end if
 
-    NBXSZA = NSECBX
-    NBXSZJ = NINABX
+      NBXSZA = NSECBX
+      NBXSZJ = NINABX
 
-    do IASTA=1,NA,NBXSZA
-      IAEND = min(IASTA-1+NBXSZA,NA)
-      NASZ = IAEND-IASTA+1
-      do IJSTA=1,NJ,NBXSZJ
-        IJEND = min(IJSTA-1+NBXSZJ,NJ)
-        NJSZ = IJEND-IJSTA+1
+      do IASTA=1,NA,NBXSZA
+        IAEND = min(IASTA-1+NBXSZA,NA)
+        NASZ = IAEND-IASTA+1
+        do IJSTA=1,NJ,NBXSZJ
+          IJEND = min(IJSTA-1+NBXSZJ,NJ)
+          NJSZ = IJEND-IJSTA+1
 
-        IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-        AJVL(:,:,:) = Zero
+          IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
+          AJVL(:,:,:) = Zero
 
-        IAJ = 0
-        do IJ=IJSTA,IJEND
-          IJABS = IJ+NIES(ISYJ)
-          do IA=IASTA,IAEND
-            !IAABS = IA+NSES(ISYA)
-            IAJ = IAJ+1
+          IAJ = 0
+          do IJ=IJSTA,IJEND
+            IJABS = IJ+NIES(ISYJ)
+            do IA=IASTA,IAEND
+              !IAABS = IA+NSES(ISYA)
+              IAJ = IAJ+1
 
-            do IV=1,NV
-              !IVABS = IV+NAES(ISYV)
-              do IL=1,NL
-                ILABS = IL+NIES(ISYL)
-                if (IJABS /= ILABS) then
-                  if (IJABS > ILABS) then
-                    SCL = SQ32
-                    JGTL = KIGTJ(IJABS,ILABS)-NIGTJES(ISYJL)
-                  else
-                    SCL = -SQ32
-                    JGTL = KIGTJ(ILABS,IJABS)-NIGTJES(ISYJL)
+              do IV=1,NV
+                !IVABS = IV+NAES(ISYV)
+                do IL=1,NL
+                  ILABS = IL+NIES(ISYL)
+                  if (IJABS /= ILABS) then
+                    if (IJABS > ILABS) then
+                      SCL = SQ32
+                      JGTL = KIGTJ(IJABS,ILABS)-NIGTJES(ISYJL)
+                    else
+                      SCL = -SQ32
+                      JGTL = KIGTJ(ILABS,IJABS)-NIGTJES(ISYJL)
+                    end if
+                    IW1 = IV
+                    IW2 = IA+NA*(JGTL-1)+IOFF2(ISYA)
+                    IW = IW1+NAS*(IW2-1)
+
+                    AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTM)%A(IW)
                   end if
-                  IW1 = IV
-                  IW2 = IA+NA*(JGTL-1)+IOFF2(ISYA)
-                  IW = IW1+NAS*(IW2-1)
-
-                  AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTM)%A(IW)
-                end if
+                end do
               end do
             end do
           end do
+
+          call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NL,One,AJVL,NV*NL,Cho_Ket,NV*NL,One,Cho_BraD(IAJSTA,1,1),NA*NJ)
+          call DGEMM_('N','N',NV*NL,NCHO,NASZ*NJSZ,One,AJVL,NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,One,Cho_KetD,NV*NL)
+
         end do
-
-        call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NL,One,AJVL,NV*NL,Cho_Ket,NV*NL,One,Cho_BraD(IAJSTA,1,1),NA*NJ)
-        call DGEMM_('N','N',NV*NL,NCHO,NASZ*NJSZ,One,AJVL,NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,One,Cho_KetD,NV*NL)
-
       end do
-    end do
 
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      call deallocate_GA_array(ipTM)
-    else
-#   endif
-      call RHS_FREE(ipTM)
-#   ifdef _MOLCAS_MPP_
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call deallocate_GA_array(ipTM)
+      else
+#     endif
+        call RHS_FREE(ipTM)
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
     end if
-#   endif
   end if
 
   return
@@ -1375,7 +1375,9 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   ISYC = Mul(JSYM,ISYX)
   ISYM = Mul(ISYU,ISYX) !!
 
-  if (NINDEP(ISYM,8) > 0) then
+  nINP = NINDEP(ISYM,8)
+  nINM = NINDEP(ISYM,9)
+  if (nINP > 0) then
     ! The plus combination:
     NASP = NTGEU(ISYM)
     NISP = NAGEB(ISYM)
@@ -1383,7 +1385,7 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   else
     NWFP = 0
   end if
-  if (NINDEP(ISYM,9) > 0) then
+  if (nINM > 0) then
     ICASE = 9
     ! The minus combination:
     NASM = NTGTU(ISYM)
@@ -1401,7 +1403,6 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   if ((NWFP > 0) .and. (NINDEP(ISYM,8) > 0)) then
     !! Read the T-amplitude
     ICASE = 8
-    nINP = nINDEP(iSym,iCase)
     nASP = nASup(iSym,iCase)
     if (nINP /= 0) then
       nISP = nISup(iSym,iCase)
@@ -1424,44 +1425,44 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
         end if
 #       endif
       end if
-    end if
 
-    do IU=1,NU
-      IUABS = IU+NAES(ISYU)
-      IXMAX = NX
-      if (ISYU == ISYX) IXMAX = IU
-      do IX=1,IXMAX
-        IXABS = IX+NAES(ISYX)
-        SCL1 = Half
-        if (IUABS == IXABS) SCL1 = Quart
-        IW1 = KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
-        do IA=1,NA
-          IAABS = IA+NSES(ISYA)
-          do IC=1,NC
-            ICABS = IC+NSES(ISYC)
-            SCL = SCL1
-            if (IAABS >= ICABS) then
-              IW2 = KAGEB(IAABS,ICABS)-NAGEBES(ISYM)
-              if (IAABS == ICABS) SCL = SQ2*SCL1
-            else
-              IW2 = KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
-            end if
-            IW = IW1+NASP*(IW2-1)
-            AUCX(IA,IU,IC,IX) = SCL*GA_Arrays(ipTP)%A(IW)
+      do IU=1,NU
+        IUABS = IU+NAES(ISYU)
+        IXMAX = NX
+        if (ISYU == ISYX) IXMAX = IU
+        do IX=1,IXMAX
+          IXABS = IX+NAES(ISYX)
+          SCL1 = Half
+          if (IUABS == IXABS) SCL1 = Quart
+          IW1 = KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
+          do IA=1,NA
+            IAABS = IA+NSES(ISYA)
+            do IC=1,NC
+              ICABS = IC+NSES(ISYC)
+              SCL = SCL1
+              if (IAABS >= ICABS) then
+                IW2 = KAGEB(IAABS,ICABS)-NAGEBES(ISYM)
+                if (IAABS == ICABS) SCL = SQ2*SCL1
+              else
+                IW2 = KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
+              end if
+              IW = IW1+NASP*(IW2-1)
+              AUCX(IA,IU,IC,IX) = SCL*GA_Arrays(ipTP)%A(IW)
+            end do
           end do
         end do
       end do
-    end do
 
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      call deallocate_GA_array(ipTP)
-    else
-#   endif
-      call RHS_FREE(ipTP)
-#   ifdef _MOLCAS_MPP_
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call deallocate_GA_array(ipTP)
+      else
+#     endif
+        call RHS_FREE(ipTP)
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
     end if
-#   endif
   end if
 
   ! ---- FM
@@ -1469,7 +1470,6 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
   if ((NWFM > 0) .and. (NINDEP(ISYM,9) > 0)) then
     !! Read the T-amplitude
     ICASE = 9
-    nINM = nINDEP(iSym,iCase)
     nASM = nASup(iSym,iCase)
     if (nINM /= 0) then
       nISM = nISup(iSym,iCase)
@@ -1492,48 +1492,50 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
         end if
 #       endif
       end if
-    end if
 
-    do IU=1,NU
-      IUABS = IU+NAES(ISYU)
-      IXMAX = NX
-      if (ISYU == ISYX) IXMAX = IU-1
-      do IX=1,IXMAX
-        IXABS = IX+NAES(ISYX)
-        IW1 = KTGTU(IUABS,IXABS)-NTGTUES(ISYM)
-        do IA=1,NA
-          IAABS = IA+NSES(ISYA)
-          do IC=1,NC
-            ICABS = IC+NSES(ISYC)
-            if (IAABS > ICABS) then
-              IW2 = KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
-              SCL = -Half
-            else if (IAABS < ICABS) then
-              IW2 = KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
-              SCL = Half
-            else
-              cycle
-            end if
-            IW = IW1+NASM*(IW2-1)
-            AUCX(IA,IU,IC,IX) = AUCX(IA,IU,IC,IX)+SCL*GA_Arrays(ipTM)%A(IW)
+      do IU=1,NU
+        IUABS = IU+NAES(ISYU)
+        IXMAX = NX
+        if (ISYU == ISYX) IXMAX = IU-1
+        do IX=1,IXMAX
+          IXABS = IX+NAES(ISYX)
+          IW1 = KTGTU(IUABS,IXABS)-NTGTUES(ISYM)
+          do IA=1,NA
+            IAABS = IA+NSES(ISYA)
+            do IC=1,NC
+              ICABS = IC+NSES(ISYC)
+              if (IAABS > ICABS) then
+                IW2 = KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
+                SCL = -Half
+              else if (IAABS < ICABS) then
+                IW2 = KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
+                SCL = Half
+              else
+                cycle
+              end if
+              IW = IW1+NASM*(IW2-1)
+              AUCX(IA,IU,IC,IX) = AUCX(IA,IU,IC,IX)+SCL*GA_Arrays(ipTM)%A(IW)
+            end do
           end do
         end do
       end do
-    end do
 
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      call deallocate_GA_array(ipTM)
-    else
-#   endif
-      call RHS_FREE(ipTM)
-#   ifdef _MOLCAS_MPP_
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call deallocate_GA_array(ipTM)
+      else
+#     endif
+        call RHS_FREE(ipTM)
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
     end if
-#   endif
   end if
 
-  call DGEMM_('T','N',NC*NX,NCHO,NA*NU,One,AUCX,NA*NU,Cho_Bra,NA*NU,One,Cho_KetD,NC*NX)
-  call DGEMM_('N','N',NA*NU,NCHO,NC*NX,One,AUCX,NA*NU,Cho_Ket,NC*NX,One,Cho_BraD,NA*NU)
+  if (nINP > 0 .or. nINM > 0) then
+    call DGEMM_('T','N',NC*NX,NCHO,NA*NU,One,AUCX,NA*NU,Cho_Bra,NA*NU,One,Cho_KetD,NC*NX)
+    call DGEMM_('N','N',NA*NU,NCHO,NC*NX,One,AUCX,NA*NU,Cho_Ket,NC*NX,One,Cho_BraD,NA*NU)
+  end if
 
   return
 
@@ -1607,70 +1609,70 @@ subroutine OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,Cho_Bra,Cho_Ket,Cho_BraD
         end if
 #       endif
       end if
-    end if
 
-    NBXSZC = NSECBX
-    KCL = NAUCL/(NA*NU)
-    NBXSZL = KCL/NC
-    if (NBXSZL <= 0) then
-      write(u6,*) 'Not enough memory in ADDRHSG, I give up'
-      call Abend()
-    end if
+      NBXSZC = NSECBX
+      KCL = NAUCL/(NA*NU)
+      NBXSZL = KCL/NC
+      if (NBXSZL <= 0) then
+        write(u6,*) 'Not enough memory in ADDRHSG, I give up'
+        call Abend()
+      end if
 
-    do ICSTA=1,NC,NBXSZC
-      ICEND = min(ICSTA-1+NBXSZC,NC)
-      NCSZ = ICEND-ICSTA+1
-      do ILSTA=1,NL,NBXSZL
-        ILEND = min(ILSTA-1+NBXSZL,NL)
-        !NLSZ = ILEND-ILSTA+1
+      do ICSTA=1,NC,NBXSZC
+        ICEND = min(ICSTA-1+NBXSZC,NC)
+        NCSZ = ICEND-ICSTA+1
+        do ILSTA=1,NL,NBXSZL
+          ILEND = min(ILSTA-1+NBXSZL,NL)
+          !NLSZ = ILEND-ILSTA+1
 
-        ICLSTA = 1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-        AUCL(:,:,:) = Zero
+          ICLSTA = 1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
+          AUCL(:,:,:) = Zero
 
-        ICL = 0
-        !IBUF = 0
-        do IL=ILSTA,ILEND
-          !ILABS = IL+NIES(ISYL)
-          do IC=ICSTA,ICEND
-            ICABS = IC+NSES(ISYC)
-            ICL = ICL+1
+          ICL = 0
+          !IBUF = 0
+          do IL=ILSTA,ILEND
+            !ILABS = IL+NIES(ISYL)
+            do IC=ICSTA,ICEND
+              ICABS = IC+NSES(ISYC)
+              ICL = ICL+1
 
-            do IA=1,NA
-              IAABS = IA+NSES(ISYA)
-              SCL = SQ05
-              if (IAABS >= ICABS) then
-                IAGEC = KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-                if (IAABS == ICABS) SCL = One
-              else
-                IAGEC = KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
-              end if
-              do IU=1,NU
-                !IUABS = IU+NAES(ISYU)
-                IW1 = IU
-                IW2 = IL+NL*(IAGEC-1)+IOFF1(ISYL)
-                IW = IW1+NAS*(IW2-1)
+              do IA=1,NA
+                IAABS = IA+NSES(ISYA)
+                SCL = SQ05
+                if (IAABS >= ICABS) then
+                  IAGEC = KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
+                  if (IAABS == ICABS) SCL = One
+                else
+                  IAGEC = KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
+                end if
+                do IU=1,NU
+                  !IUABS = IU+NAES(ISYU)
+                  IW1 = IU
+                  IW2 = IL+NL*(IAGEC-1)+IOFF1(ISYL)
+                  IW = IW1+NAS*(IW2-1)
 
-                AUCL(IA,IU,ICL) = SCL*GA_Arrays(ipTP)%A(IW)
+                  AUCL(IA,IU,ICL) = SCL*GA_Arrays(ipTP)%A(IW)
+                end do
               end do
             end do
           end do
+
+          call DGEMM_('N','N',NA*NU,NCHO,ICL,One,AUCL,NA*NU,Cho_Ket(ICLSTA,1,1),NC*NL,One,Cho_BraD,NA*NU)
+          call DGEMM_('T','N',ICL,NCHO,NA*NU,One,AUCL,NA*NU,Cho_Bra,NA*NU,One,Cho_KetD(ICLSTA,1,1),NC*NL)
+
         end do
-
-        call DGEMM_('N','N',NA*NU,NCHO,ICL,One,AUCL,NA*NU,Cho_Ket(ICLSTA,1,1),NC*NL,One,Cho_BraD,NA*NU)
-        call DGEMM_('T','N',ICL,NCHO,NA*NU,One,AUCL,NA*NU,Cho_Bra,NA*NU,One,Cho_KetD(ICLSTA,1,1),NC*NL)
-
       end do
-    end do
 
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      call deallocate_GA_array(ipTP)
-    else
-#   endif
-      call RHS_FREE(ipTP)
-#   ifdef _MOLCAS_MPP_
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call deallocate_GA_array(ipTP)
+      else
+#     endif
+        call RHS_FREE(ipTP)
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
     end if
-#   endif
   end if
 
   ! ---- GM
@@ -1701,72 +1703,72 @@ subroutine OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,Cho_Bra,Cho_Ket,Cho_BraD
         end if
 #       endif
       end if
-    end if
 
-    NBXSZC = NSECBX
-    KCL = NAUCL/(NA*NU)
-    NBXSZL = KCL/NC
-    if (NBXSZL <= 0) then
-      write(u6,*) 'Not enough memory in ADDRHSG, I give up'
-      call Abend()
-    end if
+      NBXSZC = NSECBX
+      KCL = NAUCL/(NA*NU)
+      NBXSZL = KCL/NC
+      if (NBXSZL <= 0) then
+        write(u6,*) 'Not enough memory in ADDRHSG, I give up'
+        call Abend()
+      end if
 
-    do ICSTA=1,NC,NBXSZC
-      ICEND = min(ICSTA-1+NBXSZC,NC)
-      NCSZ = ICEND-ICSTA+1
-      do ILSTA=1,NL,NBXSZL
-        ILEND = min(ILSTA-1+NBXSZL,NL)
-        !NLSZ = ILEND-ILSTA+1
+      do ICSTA=1,NC,NBXSZC
+        ICEND = min(ICSTA-1+NBXSZC,NC)
+        NCSZ = ICEND-ICSTA+1
+        do ILSTA=1,NL,NBXSZL
+          ILEND = min(ILSTA-1+NBXSZL,NL)
+          !NLSZ = ILEND-ILSTA+1
 
-        ICLSTA = 1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-        AUCL(:,:,:) = Zero
+          ICLSTA = 1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
+          AUCL(:,:,:) = Zero
 
-        ICL = 0
-        !IBUF = 0
-        do IL=ILSTA,ILEND
-          !ILABS = IL+NIES(ISYL)
-          do IC=ICSTA,ICEND
-            ICABS = IC+NSES(ISYC)
-            ICL = ICL+1
+          ICL = 0
+          !IBUF = 0
+          do IL=ILSTA,ILEND
+            !ILABS = IL+NIES(ISYL)
+            do IC=ICSTA,ICEND
+              ICABS = IC+NSES(ISYC)
+              ICL = ICL+1
 
-            do IA=1,NA
-              IAABS = IA+NSES(ISYA)
-              if (IAABS > ICABS) then
-                IAGTC = KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
-                SCL = SQ32
-              else if (IAABS < ICABS) then
-                IAGTC = KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
-                SCL = -SQ32
-              else
-                cycle
-              end if
-              do IU=1,NU
-                !IUABS = IU+NAES(ISYU)
-                IW1 = IU
-                IW2 = IL+NL*(IAGTC-1)+IOFF2(ISYL)
-                IW = IW1+NAS*(IW2-1)
+              do IA=1,NA
+                IAABS = IA+NSES(ISYA)
+                if (IAABS > ICABS) then
+                  IAGTC = KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
+                  SCL = SQ32
+                else if (IAABS < ICABS) then
+                  IAGTC = KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
+                  SCL = -SQ32
+                else
+                  cycle
+                end if
+                do IU=1,NU
+                  !IUABS = IU+NAES(ISYU)
+                  IW1 = IU
+                  IW2 = IL+NL*(IAGTC-1)+IOFF2(ISYL)
+                  IW = IW1+NAS*(IW2-1)
 
-                AUCL(IA,IU,ICL) = SCL*GA_Arrays(ipTM)%A(IW)
+                  AUCL(IA,IU,ICL) = SCL*GA_Arrays(ipTM)%A(IW)
+                end do
               end do
             end do
           end do
+
+          call DGEMM_('N','N',NA*NU,NCHO,ICL,One,AUCL,NA*NU,Cho_Ket(ICLSTA,1,1),NC*NL,One,Cho_BraD,NA*NU)
+          call DGEMM_('T','N',ICL,NCHO,NA*NU,One,AUCL,NA*NU,Cho_Bra,NA*NU,One,Cho_KetD(ICLSTA,1,1),NC*NL)
+
         end do
-
-        call DGEMM_('N','N',NA*NU,NCHO,ICL,One,AUCL,NA*NU,Cho_Ket(ICLSTA,1,1),NC*NL,One,Cho_BraD,NA*NU)
-        call DGEMM_('T','N',ICL,NCHO,NA*NU,One,AUCL,NA*NU,Cho_Bra,NA*NU,One,Cho_KetD(ICLSTA,1,1),NC*NL)
-
       end do
-    end do
 
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      call deallocate_GA_array(ipTM)
-    else
-#   endif
-      call RHS_FREE(ipTM)
-#   ifdef _MOLCAS_MPP_
+#     ifdef _MOLCAS_MPP_
+      if (Is_Real_Par()) then
+        call deallocate_GA_array(ipTM)
+      else
+#     endif
+        call RHS_FREE(ipTM)
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
     end if
-#   endif
   end if
 
   return
