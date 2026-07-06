@@ -94,8 +94,12 @@ call mma_MaxDBLE(memmax)
 memmax_safe = int(real(memmax,kind=wp)*0.95_wp)
 
 call mma_allocate(CI,NCONF,Label='CI')
-IDCI = IDTCEX(JSTATE)
-call DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
+if (NCONF > 1) then
+  IDCI = IDTCEX(JSTATE)
+  call DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
+else
+  CI(1) = One
+end if
 
 call mma_allocate(BUFT,MXCI,LABEL='BUFT')
 memmax_safe = memmax_safe-MXCI

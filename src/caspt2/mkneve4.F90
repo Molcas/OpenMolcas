@@ -92,8 +92,12 @@ do idx=1,nlev2
 end do
 
 call mma_allocate(CI,NCONF,Label='CI')
-IDCI = IDTCEX(JSTATE)
-call DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
+if (NCONF > 1) then
+  IDCI = IDTCEX(JSTATE)
+  call DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
+else
+  CI(1) = One
+end if
 call mma_allocate(BUFT,MXCI,LABEL='BUFT')
 
 ! Dummy values necessary for fooling syntax checkers:
