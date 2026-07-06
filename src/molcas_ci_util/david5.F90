@@ -45,6 +45,7 @@ real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), Scr
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 real(kind=wp), external :: dDot_, dnrm2_
+real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
 
 !-----------------------------------------------------------------------
 ! MGD dec 2017 : When optimizing many states, the lowest ones tend to
@@ -52,6 +53,9 @@ real(kind=wp), external :: dDot_, dnrm2_
 ! are not optimize further, saving potentially a lot of time.
 
 if (DoFaro) then
+  ! determinant wavefunctions
+  call mma_allocate(Faroald_sgm,ndeta,ndetb,label='sgm')
+  call mma_allocate(Faroald_psi,ndeta,ndetb,label='psi')
   ! fill in the integrals from their triangular storage
   call mma_allocate(htu,my_norb,my_norb,label='htu')
   call mma_allocate(gtuvx,my_norb,my_norb,my_norb,my_norb,label='gtuvx')
@@ -88,6 +92,9 @@ if (DoFaro) then
   ! determinants. This is because for Lucia, CSFs have been
   ! converted to SYG format somewhere up in cistart.
   call mma_allocate(VECSVC,nconf,label='VECSVC')
+else
+  call mma_allocate(ctemp,ndet,label='CTEMP')
+  call mma_allocate(sigtemp,ndet,label='SIGTEM')
 end if
 
 call Timing(Time1(1),dum1,dum2,dum3)
@@ -110,10 +117,6 @@ call mma_allocate(Cs,l2,label='Csmall')
 call mma_allocate(Scr1,nSel,lRoots,label='Scr1')
 call mma_allocate(Scr2,nSel,lRoots,label='Scr2')
 call mma_allocate(Scr3,nSel,lRoots,label='Scr3')
-if (.not. DoFaro) then
-  call mma_allocate(ctemp,ndet,label='CTEMP')
-  call mma_allocate(sigtemp,ndet,label='SIGTEM')
-end if
 !-----------------------------------------------------------------------
 
 ! Print convergence thresholds in ITERFILE
@@ -501,6 +504,8 @@ if (DoFaro) then
   call mma_deallocate(htu)
   call mma_deallocate(gtuvx)
   call mma_deallocate(VECSVC)
+  call mma_deallocate(Faroald_sgm)
+  call mma_deallocate(Faroald_psi)
 else
   call mma_deallocate(ctemp)
   call mma_deallocate(sigtemp)
@@ -520,13 +525,9 @@ integer(kind=iwp), intent(in):: nCSF
 real(kind=wp), intent(in) :: CI_Vec(nCSF)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 
-real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
 
     if (DOFARO) then
 
-      ! determinant wavefunctions
-      call mma_allocate(Faroald_sgm,ndeta,ndetb,label='sgm')
-      call mma_allocate(Faroald_psi,ndeta,ndetb,label='psi')
 
       VECSVC(:) = Zero
       call SG_REORD(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),CI_Vec,VECSVC)
@@ -538,10 +539,6 @@ real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
       call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
       call CITRANS_SORT('O',Sigma_Vec,VECSVC)
       call SG_Reord(SGS,EXS,1,1,CONF,CFTP,CIS%nCSF(1),VECSVC,Sigma_Vec)
-
-      ! free the arrays
-      call mma_deallocate(Faroald_sgm)
-      call mma_deallocate(Faroald_psi)
 
     else
 
