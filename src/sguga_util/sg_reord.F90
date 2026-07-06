@@ -53,6 +53,7 @@ use sguga, only: EXStruct, SGStruct
 use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use PrintLevel, only: DEBUG
+use Lucia_data, only: CONF_Occ
 use Molcas, only: MxAct
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -111,7 +112,7 @@ do ITYP=1,NTYP
       IIBCL = 1
       JOCC = ICL+IOPEN
       do KOCC=0,JOCC-1
-        KORB = ICONF(ICNBS+KOCC)
+        KORB = Conf_Occ(IREFSM)%A(ICNBS+KOCC)
         if (KORB < 0) then
           ! Doubly occupied orbital
           KCNF(IIBCL) = abs(KORB)
