@@ -58,7 +58,7 @@ if (IWAY == 1) then
   call WRTMAT(CSFVEC,1,NCSF,1,NCSF)
   write(u6,*)
 # endif
-  DETVEC(:) = Zero
+  DETVEC(1:NDET) = Zero
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
     ICSF = NCSFTP(ITYP)
@@ -75,7 +75,7 @@ if (IWAY == 1) then
     if ((IDET*ICNF*ICSF) > 0) call MATML4(DETVEC(IOFFDT),DTOCMT(IOFFCD),CSFVEC(IOFFCS),IDET,ICNF,IDET,ICSF,ICSF,ICNF,0)
   end do
   call Sort_Cdet(nDet,ICTSDT,DetVec)
-  if (ICOPY /= 0) CSFVEC(:) = DETVEC(:)
+  if (ICOPY /= 0) CSFVEC(1:NDET) = DETVEC(1:NDET)
 # ifdef _DEBUGPRINT_
   write(u6,*) '   OUTPUT DET VECTOR:'
   call WRTMAT(DETVEC,1,NDET,1,NDET)
@@ -96,7 +96,7 @@ else
   write(u6,*) ' ICTSDT reorder array'
   call IWRTMA(ICTSDT,1,100,1,100)
 # endif
-  DETVEC(:) = CSFVEC(:)
+  DETVEC(1:NDET) = CSFVEC(1:NDET)
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
     ICSF = NCSFTP(ITYP)
