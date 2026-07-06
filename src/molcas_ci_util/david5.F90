@@ -528,8 +528,6 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 
     if (DOFARO) then
 
-
-      VECSVC(:) = Zero
       call SG_REORD(SGS,EXS,1,0,CONF,CFTP,CIS%nCSF(1),CI_Vec,VECSVC)
       call CITRANS_SORT('C',VECSVC,Sigma_Vec)
       Faroald_PSI(:,:) = Zero

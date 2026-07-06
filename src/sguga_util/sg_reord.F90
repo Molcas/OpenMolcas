@@ -54,6 +54,7 @@ use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use PrintLevel, only: DEBUG
 use Molcas, only: MxAct
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -63,12 +64,13 @@ type(SGStruct), intent(in) :: SGS
 type(EXStruct), intent(in) :: EXS
 integer(kind=iwp), intent(in) :: IREFSM, IMODE, ICONF(*), ISPIN(*), nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
-real(kind=wp), intent(_OUT_) :: CINEW(nConf)
+real(kind=wp), intent(out) :: CINEW(nConf)
 
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, LPRINT, nOrb, nEl
 integer(kind=iwp), external :: SG_PHASE, SG_NUM
 integer(kind=iwp) :: KCNF(MxAct)
+real(kind=wp) :: Fact
 
 IPRLEV = IPRLOC(3)
 
@@ -128,18 +130,11 @@ do ITYP=1,NTYP
       ISG = SG_NUM(SGS,EXS,IWALK)
       ! GET PHASE PHASE FACTOR
       IP = SG_PHASE(SGS,IWALK)
+      Fact = Merge(-One,One,IP < 0)
       if (IMODE == 0) then
-        if (IP < 0) then
-          CINEW(ISG) = -CIOLD(ICSFJP)
-        else
-          CINEW(ISG) = CIOLD(ICSFJP)
-        end if
+        CINEW(ISG) = Fact * CIOLD(ICSFJP)
       else
-        if (IP < 0) then
-          CINEW(ICSFJP) = -CIOLD(ISG)
-        else
-          CINEW(ICSFJP) = CIOLD(ISG)
-        end if
+        CINEW(ICSFJP) = Fact * CIOLD(ISG)
       end if
     end do
   end do
