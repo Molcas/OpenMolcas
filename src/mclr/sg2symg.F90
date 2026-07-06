@@ -13,6 +13,7 @@ subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
 use sguga, only: SG_Free
 use Str_Info, only: CFTP, CNSM
+use lucia_data, only: CONF_OCC
 use input_mclr, only: nConf, nCSF, nSym, State_Sym, CIS, EXS, SGS
 use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -53,12 +54,13 @@ write(u6,103)
 #endif
 
 Call mma_allocate(CINEW,nConf,Label='CINEW')
-CNSM(iss)%ICONF(:)=-CNSM(iss)%ICONF
+Call mma_allocate(Conf_Occ(pState_Sym)%A,SIZE(CNSM(iss)%ICONF),Label='CINEW')
+Conf_Occ(pState_Sym)%A(:)=-CNSM(iss)%ICONF
 
-call SG_REORD(SGS,EXS,pState_Sym,iMode,CNSM(iss)%ICONF,CFTP,nConf,CI,CINEW)
-
-CNSM(iss)%ICONF(:)=-CNSM(iss)%ICONF
+call SG_REORD(SGS,EXS,pState_Sym,iMode,Conf_Occ(pState_Sym)%A,CFTP,nConf,CI,CINEW)
 CI(1:nConf)=CINEW(1:nConf)
+
+Call mma_deallocate(Conf_Occ(pState_Sym)%A)
 Call mma_deallocate(CINEW)
 
 #ifdef _DEBUGPRINT_
