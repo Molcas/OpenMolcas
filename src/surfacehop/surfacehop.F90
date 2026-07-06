@@ -20,20 +20,20 @@
 
 subroutine surfacehop(rc)
 
-use Tully_variables, only: rassi_ovlp, firststep, Run_rassi
+use Surfacehop_globals, only: firststep, Run_rassi
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-integer(kind=iwp) :: NSTATE, LUIPH, IAD, ITOC15(15), NCI, IDISK, I, LuInput, LuSpool, istatus
+integer(kind=iwp) :: I, IAD, IDISK, istatus, ITOC15(15), LuInput, LUIPH, LuSpool, NCI, NSTATE
 logical(kind=iwp) :: Exists
 character(len=180) :: Line
 character(len=128) :: FileName
 character(len=16) :: StdIn
 character(len=8) :: JOB1, JOB2, Method
-real(kind=wp), allocatable :: CIBigArray(:)
+real(kind=wp), allocatable :: CIBigArray(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 
 #include "warnings.h"
@@ -53,30 +53,24 @@ call DANAME(LUIPH,JOB1)
 IAD = 0
 call IDAFILE(LUIPH,2,ITOC15,15,IAD)
 call getIphInfo(LUIPH,NCI,NSTATE,ITOC15)
-call mma_allocate(CIBigArray,NCI*NSTATE)
-CIBigArray(:) = Zero
+call mma_allocate(CIBigArray,NCI,NSTATE,Label='CIBigArray')
+CIBigArray(:,:) = Zero
 
 IDISK = ITOC15(4)
 do I=1,NSTATE
-  call DDAFILE(LUIPH,2,CIBigArray(NCI*(I-1)+1),NCI,IDISK)
+  call DDAFILE(LUIPH,2,CIBigArray(:,I),NCI,IDISK)
 end do
 call DACLOS(LUIPH)
 
 !call recprt('CI coefficients','',CIBigArray,NCI,NSTATE)
 
-! If using CI vector product, only run tully once and quit
-if (.not. rassi_ovlp) then
-  call tully(CIBigArray,NSTATE,NCI)
-  call mma_deallocate(CIBigArray)
-  rc = _RC_ALL_IS_WELL_
-  return
-end if
-
-! Otherwise using RASSI for WF overlap
-
 call tully(CIBigArray,NSTATE,NCI)
 
-if (.not. Run_rassi) then ! RASSI Already Run
+! If using CI vector product, only run tully once and quit
+! Otherwise using RASSI for WF overlap
+! Run_rassi is .false. if RASSI has already been run
+
+if (.not. Run_rassi) then
   call mma_deallocate(CIBigArray)
   rc = _RC_ALL_IS_WELL_
   return
@@ -160,7 +154,5 @@ close(LuInput)
 call mma_deallocate(CIBigArray)
 
 rc = _RC_INVOKED_OTHER_MODULE_
-
-return
 
 end subroutine surfacehop
