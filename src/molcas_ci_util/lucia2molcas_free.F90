@@ -11,12 +11,11 @@
 
 subroutine LUCIA2MOLCAS_FREE()
 
-use csfbas, only: CONF, CTS
+use csfbas, only: CONF
 use stdalloc, only: mma_deallocate
 
 implicit none
 
 call mma_deallocate(CONF)
-call mma_deallocate(CTS)
 
 end subroutine LUCIA2MOLCAS_FREE

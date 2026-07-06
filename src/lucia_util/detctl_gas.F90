@@ -188,7 +188,7 @@ MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA+NOCTPA**2+NOCTPB**2+2*NIRREP**2+2*INTS
 MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA+4*MAX_STR_SPGP
 !end iF
 
-call LUCIA2MOLCAS(CONF_OCC(jsym)%A,SDREO_I(jsym)%A,ndet,ncsf_per_sym,nsd_per_sym,nconf_per_sym,mxpcsm,mxporb,nconf_per_open, &
+call LUCIA2MOLCAS(CONF_OCC(jsym)%A,ndet,ncsf_per_sym,nsd_per_sym,nconf_per_sym,mxpcsm,mxporb,nconf_per_open, &
                   npdtcnf,npcscnf,nCSF_HEXS)
 
 call mma_deallocate(KLOCCLS)

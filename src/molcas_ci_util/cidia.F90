@@ -21,8 +21,7 @@ subroutine CIDIA(NCONF,IREFSM,CSFDIA,LUDAVID)
 
 use wadr, only: TUVX
 use timers, only: TimeHDiag
-use lucia_data, only: ECORE_HEX
-use csfbas, only: CTS
+use lucia_data, only: ECORE_HEX, SDREO
 use Lucia_Interface, only: Lucia_Util
 use output_ras, only: IPRLOC
 use PrintLevel, only: DEBUG, INSANE
@@ -51,7 +50,7 @@ call get_diag(DDIA,ndet)
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
-call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,CTS,NDTFTP,NCSFTP,IPRINT)
+call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 CSFDIA(:) = CSFDIA(:)+ECORE_HEX
 
 ! DEALLOCATE LOCAL MEMORY
