@@ -546,9 +546,9 @@ real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
     else
 
       ! Convert the CI-vector from CSF to Det. basis
-      ! sigtemp is scratch, converted vector is stored in ctemp
+      ! sigtemp is scratch, converted vector is stored in ctemp.
 
-      ctemp(1:nConf) = CI_Vec(:)
+      ctemp(1:nCSF) = CI_Vec(:)
       sigtemp(:) = Zero
       call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
 
@@ -560,6 +560,8 @@ real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
 
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       Sigma_on_disk = .true.
+      ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
+      ! stored in Sigma_vec.
       call CSDTVC(Sigma_Vec,sigtemp,2,dtoc,cts,stSym,1)
 
     end if
