@@ -24,7 +24,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iCase, idSD, idSD_, idSDer, iost, iSym, LENGTH, lRealName, MaxLen, nAS, NS
+integer(kind=iwp) :: iCase, idSD, idSD_, idSDer, iost, iSym, LENGTH, lRealName, MaxLen, nAS, NS, ntri1, ntri2
 logical(kind=iwp) :: Exists, is_error
 character(len=4096) :: RealName
 character(len=128) :: FileName
@@ -169,7 +169,10 @@ end if
 call mma_deallocate(WRK)
 
 if (nFroT /= 0) call mma_allocate(TraFro,nFroT**2,Label='TraFro')
-call mma_allocate(iTasks_grad,nAshT**2,Label='Tasks_grad')
+!call mma_allocate(iTasks_grad,nAshT**2,Label='Tasks_grad')
+ntri1 = NASHT*(NASHT-1)/2
+ntri2 = NASHT*(NASHT+1)/2
+call mma_allocate(iTasks_grad,nTri_Elem(ntri2)+ntri1**2,Label='Tasks_grad')
 iTasks_grad(:) = 0
 
 return

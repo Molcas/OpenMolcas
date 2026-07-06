@@ -94,7 +94,7 @@ else if (IORW == 2) then
   iTasks_grad(:) = 0
 end if
 call mma_deallocate(IWRK1)
-call IDAFILE(LUGRAD,IORW,iTasks_grad,NASHT**2,IDSAVGRD)
+call IDAFILE(LUGRAD,IORW,iTasks_grad,nTasks_grad,IDSAVGRD)
 
 NMAX = NG3
 
