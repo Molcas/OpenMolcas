@@ -547,8 +547,9 @@ real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
 
       ! Convert the CI-vector from CSF to Det. basis
       ! sigtemp is scratch, converted vector is stored in ctemp.
+      ! Note that ctemp is of the size of the nDet. basis
 
-      ctemp(1:nCSF) = CI_Vec(:)
+      ctemp(1:nCSF) = CI_Vec(1:nCSF)
       sigtemp(:) = Zero
       call csdtvc(ctemp,sigtemp,1,dtoc,cts,stSym,1)
 
