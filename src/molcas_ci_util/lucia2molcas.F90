@@ -17,7 +17,6 @@ use csfbas, only: maxop_lucia, NAEL, NBEL
 use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, STSYM
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, MINOP, MS2, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use Molcas, only: MxSym
-use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none

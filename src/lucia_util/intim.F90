@@ -19,7 +19,7 @@ subroutine INTIM()
 !
 ! Version : Fall 97
 
-use lucia_data, only: ECORE, ECORE_HEX, ECORE_ORIG, INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NOINT, NSMOB, NTOOB, NTOOBS, &
+use lucia_data, only: ECORE, ECORE_ORIG, INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NOINT, NSMOB, NTOOB, NTOOBS, &
                       PINT1, PINT2
 use Constants, only: Zero
 
@@ -34,9 +34,7 @@ call ORBINH1(KINH1,KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 ! Change one-electron integrals to inactive fock matrix
 if (NOINT == 0) then
   INT1O(:) = INT1(:)
-  ECORE_HEX = Zero
 end if
 ECORE_ORIG = ECORE
-ECORE = ECORE+ECORE_HEX
 
 end subroutine INTIM

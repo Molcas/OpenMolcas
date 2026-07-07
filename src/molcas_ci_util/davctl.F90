@@ -164,6 +164,4 @@ iDisk = IADR15(4)
 call Term_David(ICICH,ITERCI,lRoots,nConf,CIVEC,JOBIPH,LuDavid,iDisk)
 call mma_deallocate(CIVEC)
 
-return
-
 end subroutine DavCtl

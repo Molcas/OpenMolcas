@@ -12,7 +12,7 @@
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,TUVX)
 
 use timers, only: TimeDavid, TimeSigma
-use lucia_data, only: ECORE_HEX, Sigma_on_disk
+use lucia_data, only: Sigma_on_disk
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
 use faroald, only: my_norb, ndeta, ndetb
@@ -152,8 +152,6 @@ do it_ci=1,mxItr
 
     Call Mk_H_Psi(SGS,EXS,CIS,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb)
 
-    ! Add ECORE_HEX (different from zero when particle-hole formalism used)
-    Vec1(:) = Vec1(:)+ECORE_HEX*Vec2(:)
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)
     TimeSigma = TimeSigma+Time2(2)-Time2(1)
@@ -515,7 +513,6 @@ use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use sguga, only: SGStruct, EXStruct, CIStruct
 use rasscf_global, only: DoFaro
 use faroald, only: sigma_update
-use stdalloc, only: mma_allocate, mma_deallocate
 use definitions, only: wp
 Implicit None
 

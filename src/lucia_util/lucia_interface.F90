@@ -273,10 +273,6 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTUVX,TUVX)
   INI_H0 = 0
   INT1(:) = INT1O(:)
   ECORE_ORIG = ECORE
-  !if (IUSE_PH == 1) then
-  !  call FI(INT1,ECORE_HEX,1)
-  !  ECORE = ECORE+ECORE_HEX
-  !end if
   call mma_allocate(lVec,MXNTTS,Label='lVec')
   call CPCIVC1(CIVEC,nSD,LUC,MXNTTS,IREFSM,lVec)
   call mma_deallocate(lVec)
@@ -330,10 +326,6 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB,nTUVX,TUVX)
   INI_H0 = 0
   INT1(:) = INT1O(:)
   ECORE_ORIG = ECORE
-  !if (IUSE_PH == 1) then
-  !  call FI(INT1,ECORE_HEX,1)
-  !  ECORE = ECORE+ECORE_HEX
-  !end if
 
   ! Write CI-vector to disc
 
