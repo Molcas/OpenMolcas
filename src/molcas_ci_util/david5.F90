@@ -150,7 +150,7 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    Call Mk_H_Psi(SGS,EXS,CIS,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb)
+    Call Mk_H_Psi(SGS,EXS,CIS,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb)
 
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)
@@ -507,11 +507,12 @@ TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
 contains
 
-Subroutine Mk_H_Psi(SGS, EXS, CIS, nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+Subroutine Mk_H_Psi(SGS, EXS, CIS,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
 use Lucia_Interface, only: Lucia_Util
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use sguga, only: SGStruct, EXStruct, CIStruct
 use rasscf_global, only: DoFaro
+use Constants, only: Zero
 use faroald, only: sigma_update
 use definitions, only: wp
 Implicit None
@@ -519,7 +520,7 @@ Implicit None
 type(SGStruct), intent(in) :: SGS
 type(EXStruct), intent(in) :: EXS
 type(CIStruct), intent(in) :: CIS
-integer(kind=iwp), intent(in):: nCSF
+integer(kind=iwp), intent(in):: STSYM, nCSF
 real(kind=wp), intent(in) :: CI_Vec(nCSF)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 integer(kind=iwp), intent(in) :: ntemp,ndeta,ndetb
@@ -542,8 +543,8 @@ real(kind=wp), external :: dnrm2_
       Faroald_SGM(:,:) = Zero
       call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
       call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
-      call CITRANS_SORT('O',Sigma_Vec,VECSVC)
-      call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),VECSVC,Sigma_Vec)
+      call CITRANS_SORT('O',Sigma_Vec,ctemp)
+      call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),ctemp,Sigma_Vec)
 
       Faroald_Psi => Null()
       Faroald_SGM => Null()
