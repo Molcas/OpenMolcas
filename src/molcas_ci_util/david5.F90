@@ -13,12 +13,10 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,nTUVX,T
 
 use timers, only: TimeDavid, TimeSigma
 use lucia_data, only: ECORE_HEX, Sigma_on_disk
-use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
 use faroald, only: my_norb, ndeta, ndetb
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
-use Lucia_Interface, only: Lucia_Util
 use output_ras, only: IPRLOC, RC_CI
 use PrintLevel, only: DEBUG, USUAL
 use Molcas, only: MxRoot
@@ -516,7 +514,10 @@ TimeDavid = TimeDavid+Time1(2)-Time1(1)
 contains
 
 Subroutine Mk_H_Psi(SGS, EXS, CIS, nCSF,CI_Vec,Sigma_Vec)
+use Lucia_Interface, only: Lucia_Util
+use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use sguga, only: SGStruct, EXStruct, CIStruct
+use rasscf_global, only: DoFaro
 use faroald, only: sigma_update
 use stdalloc, only: mma_allocate, mma_deallocate
 use definitions, only: wp
