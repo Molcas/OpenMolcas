@@ -527,7 +527,7 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 
     if (DOFARO) then
 
-      call SG_REORD(SGS,EXS,1,0,CIS%nCSF(1),CI_Vec,VECSVC)
+      call SG_REORD(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CI_Vec,VECSVC)
       call CITRANS_SORT('C',VECSVC,Sigma_Vec)
       Faroald_PSI(:,:) = Zero
       call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
@@ -535,7 +535,7 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
       call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
       call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
       call CITRANS_SORT('O',Sigma_Vec,VECSVC)
-      call SG_Reord(SGS,EXS,1,1,CIS%nCSF(1),VECSVC,Sigma_Vec)
+      call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),VECSVC,Sigma_Vec)
 
     else
 
@@ -545,7 +545,7 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 
       ctemp(1:nCSF) = CI_Vec(1:nCSF)
       sigtemp(:) = Zero
-      call csdtvc(ctemp,sigtemp,1,stSym,1)
+      call csdtvc(ctemp,sigtemp,1,STSym,1)
 
       ! Calling Lucia to determine the sigma vector
       call Lucia_Util('Sigma', &
