@@ -51,10 +51,6 @@ store_multipole = .true.
 call getenvf('MOLCAS_ONEINT_H5', h5_data)
 call upcase(h5_data)
 call split(h5_data, ',', splitted)
-! making Gfortran happy
-#if (__GNUC__) && defined(_WARNING_WORKAROUND_)
-        allocate(splitted(0))
-#endif
 do i = 1, size(splitted)
   if (trim(str(splitted(i)%str)) == "ANGMOM") store_angmom = .true.
   if (trim(str(splitted(i)%str)) == "MLTPL")  store_multipole = .true.
