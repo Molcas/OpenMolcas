@@ -141,8 +141,6 @@ else
       ITLIMIT = MAXJT
     end if
     ! PAM Feb 2009: New code in david5.
-    !call David5(nAc,stSym,nDet,MAXJT,ITERCI,
-    !call David5(nAc,stSym,nDet,ItLimit,ITERCI,CI_conv,Threshold,FMO,TUVX,iSel,ExplE,ExplV)
 
     call David5(nDet,ItLimit,IterCI,CI_conv,Threshold,iSel,ExplE,ExplV,nFMO,FMO,nTUVX,TUVX)
 
