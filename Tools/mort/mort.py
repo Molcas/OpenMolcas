@@ -1115,8 +1115,7 @@ else:
           fo[name][:] = coor @ R.T
         if do_trans:
           print('WARNING: Translating the AO_ANGMOM_X, _Y, _Z integrals is currently not supported.')
-          print()
-          warning_item.append(name)
+          warning_item.extend([name, 'AO_ANGMOM_X', 'AO_ANGMOM_Y', 'AO_ANGMOM_Z'])
 
       # Other center data are reordered only
       elif name in ['CENTER_ATNUMS', 'CENTER_CHARGES', 'DESYM_CENTER_ATNUMS', 'DESYM_CENTER_CHARGES']:
