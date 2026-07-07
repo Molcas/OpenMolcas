@@ -10,14 +10,20 @@
 #***********************************************************************
 
 set (sources
+     citrans.F90
+     citrans_free.F90
+     citrans_init.F90
      faroald.F90
      faroald_free.F90
      faroald_init.F90
+     second_quantization.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     citrans.F90
      faroald.F90
+     second_quantization.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

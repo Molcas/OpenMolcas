@@ -19,9 +19,6 @@ set (sources
      ciovlp.F90
      ciselect.F90
      cisx.F90
-     citrans.F90
-     citrans_free.F90
-     citrans_init.F90
      cndet.F90
      cnfstr.F90
      cnhcn.F90
@@ -89,7 +86,6 @@ set (sources
      save_tmp_sig_vec.F90
      scavcs.F90
      schmidt.F90
-     second_quantization.F90
      setsxci.F90
      sigmadet_cvb.F90
      simplify.F90
@@ -119,7 +115,6 @@ set (modfile_list
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90
-     second_quantization.F90
      spinfo.F90
      timers.F90
      wadr.F90

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,nTUVX,TUVX)
+subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,TUVX)
 
 use timers, only: TimeDavid, TimeSigma
 use lucia_data, only: ECORE_HEX, Sigma_on_disk
@@ -30,8 +30,8 @@ integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), TUVX(nTUVX)
+integer(kind=iwp), intent(in) :: nTU, nTUVX
+real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), TU(nTU), TUVX(nTUVX)
 integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, kRoot, l1, &
                      l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
@@ -42,11 +42,6 @@ real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), Scr
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:), sigtemp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 real(kind=wp), external :: dDot_, dnrm2_
-
-!-----------------------------------------------------------------------
-! MGD dec 2017 : When optimizing many states, the lowest ones tend to
-! converge much faster than the rest. Changed the code so that the converged states
-! are not optimize further, saving potentially a lot of time.
 
 if (DoFaro) then
   ! determinant wavefunctions
@@ -62,9 +57,9 @@ if (DoFaro) then
   do it=1,my_norb
     do iu=1,it
       itu = itu+1
-      !write(u6,'(1x,3I4,F21.14)') it,iu,itu,htutri(itu)
-      htu(iu,it) = htutri(itu)
-      htu(it,iu) = htutri(itu)
+      !write(u6,'(1x,3I4,F21.14)') it,iu,itu,TU(itu)
+      htu(iu,it) = TU(itu)
+      htu(it,iu) = TU(itu)
       do iv=1,it
         ixmax = iv
         if (it == iv) ixmax = iu
@@ -84,7 +79,7 @@ if (DoFaro) then
     end do
   end do
   ! Euhm, stuff needed for awkward conversions from a
-  ! non-specified SYG to GUGA format befor converting to
+  ! non-specified SYG to GUGA format before converting to
   ! determinants. This is because for Lucia, CSFs have been
   ! converted to SYG format somewhere up in cistart.
   call mma_allocate(VECSVC,nconf,label='VECSVC')
@@ -92,6 +87,11 @@ else
   call mma_allocate(ctemp,ndet,label='CTEMP')
   call mma_allocate(sigtemp,ndet,label='SIGTEM')
 end if
+
+!-----------------------------------------------------------------------
+! MGD dec 2017 : When optimizing many states, the lowest ones tend to
+! converge much faster than the rest. Changed the code so that the converged states
+! are not optimize further, saving potentially a lot of time.
 
 call Timing(Time1(1),dum1,dum2,dum3)
 Rc_CI = 0

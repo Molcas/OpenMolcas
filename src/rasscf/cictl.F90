@@ -458,7 +458,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 #   endif
   else
     ! Normal Davidson algorithm
-    call DavCtl(FMO,nTUVX,TUVX,IFINAL)
+    call DavCtl(Size(FMO),FMO,nTUVX,TUVX,IFINAL)
   end if
 
   ! CALCULATE DENSITY MATRICES
