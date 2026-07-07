@@ -8,60 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) Per Ake Malmqvist                                      *
-!               Steven Vancoillie                                      *
 !***********************************************************************
-!> @brief
-!>  Procedure for computing 1-body, 2-body, and 3-body
-!>  density elements with active indices only,
-!>  and related matrices obtained from contractions with
-!>  the diagonal one-electron Hamiltonian.
-!> @author Per &Aring;ke Malmqvist
-!> @modified_by Steven Vancoillie
-!>
-!> @details
-!> Computation of the 1-, 2-, and 3-body density matrices defined as
-!> \f{align}{
-!> G1(t,u)         &= \langle 0 \lvert E_{tu} \rvert 0 \rangle \\
-!> G2(t,u,v,x)     &= \langle 0 \lvert E_{tuvx} \rvert 0 \rangle \\
-!> G3(t,u,v,x,y,z) &= \langle 0 \lvert E_{tuvxyz} \rvert 0 \rangle \\
-!> \f}
-!> and the contractions with the diagonal 1-el Hamiltonian
-!> \f{align}{
-!> F1(t,u)         &= \sum_w \langle 0 \lvert E_{tuww} \rvert 0 \rangle e_w \\
-!> F2(t,u,v,x)     &= \sum_w \langle 0 \lvert E_{tuvxww} \rvert 0 \rangle e_w \\
-!> F3(t,u,v,x,y,z) &= \sum_w \langle 0 \lvert E_{tuvxyzww} \rvert 0 \rangle e_w \\
-!> \f}
-!> Storage: \p G1 and \p G2 are simple two- and four-index arrays, and
-!> includes also such zeroes that are implied by symmetry.
-!> But \p G3 is quite large, and while it is stored with zeroes, it
-!> is made more compact by calculating only the minimum amount of
-!> unique values and storing the active indices in the array \p idxG3.
-!> Later, the full matrix can be restored on the fly by using the
-!> full permutational symmetry (see ::mksmat and ::mkbmat). The
-!> same storage applies to the \f$ F \f$ matrices.
-!>
-!> @param[in]  mkF   switch to activate computation of \f$ F \f$ matrices
-!> @param[in]  CI    wave function CI coefficients, with symmetry \c STSYM
-!> @param[in]  nCI   number of CI coefficients, with symmetry \c STSYM
-!> @param[out] G1    1-body active density matrix
-!> @param[out] G2    2-body active density matrix
-!> @param[out] G3    process-local part of 3-body active density matrix
-!> @param[out] F1    1-body active density matrix contracted with
-!>                   diagonal 1-el Hamiltonian
-!> @param[out] F2    2-body active density matrix contracted with
-!>                   diagonal 1-el Hamiltonian
-!> @param[out] F3    process-local part of 3-body active density matrix
-!>                   contracted with diagonal 1-el Hamiltonian
-!> @param[out] idxG3 table to translate from process-local array index
-!>                   to active indices
 
-subroutine MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
+! there are multiple versions of the MKFG3 function with different purposes:
+!       MKFG3     assumes exact diagonalisation CAS/RAS vectors
+!       MKFG3DM   is used for the DMRG-CASPT2 interfaces and calls one of
+!                 the three subroutines:
+!                   mkfg3chemps2.F90 (CheMPS2),
+!                   mkfg3cu4.F90 (Block),
+!                   mkfg3qcm.F90 (QCMaquis)
+!       MKFG3MC   "MC" for Monte Carlo, calls the FCIQMC interface with PT2
+!                 intermediates computed in M7.
+
+subroutine MKFG3MC(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
+use fciqmc_interface, only: mkfg3fciqmc
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga, only: CIS, EXS, L2ACT, SGS
+use sguga, only: L2ACT, SGS
 use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
 use caspt2_module, only: EPSA, MxCI, nActEl, nAshT, nBasT, nSym, STSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
@@ -79,7 +44,7 @@ integer(kind=byte), intent(out) :: idxG3(6,nG3)
 integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, IP1STA, IP2, &
                      IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, &
                      IXLEV, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, NLEV2, &
-                     NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
+                     NSUBTASKS, NTASKS, NTRI1, NTRI2
 real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3
 integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFR(:), BUFT(:)
@@ -88,6 +53,9 @@ real(kind=wp), external :: DDOT_, DNRM2_
 ! IJ2IDX, IDX2IJ, ICNJ, IP1_BUF: translation tables for levels i,j to and from pair indices idx
 ! BUFR: result buffer, maximum size is the largest possible ip1 range,
 ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
+
+! unused variable warning
+G1(1,1) = CI(1)
 
 ! Put in zeroes. Recognize special cases:
 if (nlev == 0) return
@@ -208,14 +176,6 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
 
   isp1 = Mul(issg1,stsym)       ! Symmetry index of E_ut
 
-  ! form: H0_I = \sum_t e_{t}  |I><I|E_{tt}|I><I|
-
-  ! Note: this only works if the Fock matrix is presented in the
-  ! block diagonal form. i.e. in the pseudo canonical basis.
-
-  nsgm1 = CIS%ncsf(issg1)
-  if (mkF) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,CIS%nMidV)
-
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
   !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
 
@@ -314,55 +274,18 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
       do ip1i=ip1sta,ip1end
         itlev = idx2ij(1,ip1i)
         iulev = idx2ij(2,ip1i)
-
         istu = Mul(SGS%ism(itlev),SGS%ism(iulev))
-
         it = L2ACT(itlev)
         iu = L2ACT(iulev)
-
         if (istu == isp1) then
           ibuf1 = ibuf1+1
           ip1_buf(ibuf1) = ip1i
-          ! form E_ut |0>
-          BUF1(1:nSgm1,iBuf1) = Zero
-          call SG_Epq_Psi(SGS,CIS,EXS,IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
         end if
       end do
 
       myBuffer = iTask
     else
       ibuf1 = TaskList(iTask,3)
-    end if
-
-    !-SVC20100301: necessary batch of sigma vectors is now in the buffer
-    ! The ip1 buffer could be the same on different processes
-    ! so only compute the G1 contribution when ip3 is 1, as
-    ! this will only be one task per buffer.
-
-    ! form <0| *  E_ut|0> = G_tu and
-    !      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
-
-    if ((issg1 == stsym) .and. (ip3 == 1)) then
-      if (mkF) then
-        do ib=1,ibuf1
-          idx = ip1_buf(ib)
-          itlev = idx2ij(1,idx)
-          iulev = idx2ij(2,idx)
-          it = L2ACT(itlev)
-          iu = L2ACT(iulev)
-          G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
-          F1(it,iu) = sum(CI(1:nsgm1)*BUF1(1:nsgm1,ib)*bufd(1:nsgm1))-EPSA(iu)*G1(it,iu)
-        end do
-      else
-        do ib=1,ibuf1
-          idx = ip1_buf(ib)
-          itlev = idx2ij(1,idx)
-          iulev = idx2ij(2,idx)
-          it = L2ACT(itlev)
-          iu = L2ACT(iulev)
-          G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
-        end do
-      end if
     end if
 
     !ip3mx = ntri2
@@ -386,37 +309,6 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     issg2 = Mul(isyz,stsym)
     iy = L2ACT(iylev)
     iz = L2ACT(izlev)
-    nsgm2 = CIS%ncsf(issg2)
-    BUF2(1:nSgm2) = Zero
-    ! form <0| E_zy|
-    call SG_Epq_Psi(SGS,CIS,EXS,IYLEV,IZLEV,One,STSYM,CI,BUF2)
-
-    if (issg2 == issg1) then
-
-      if (mkF) then
-        do ib=1,ibuf1
-          idx = ip1_buf(ib)
-          itlev = idx2ij(1,idx)
-          iulev = idx2ij(2,idx)
-          it = L2ACT(itlev)
-          iu = L2ACT(iulev)
-          ! form <0| E_zy E_ut |0> = G_tu,yz
-          !      <0| E_zy * H0 * E_ut |0> = F_tu,yz
-          G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
-          F2(it,iu,iy,iz) = sum(BUF2(1:nsgm1)*bufd(1:nsgm1)*buf1(1:nsgm1,ib))
-        end do
-      else
-        do ib=1,ibuf1
-          idx = ip1_buf(ib)
-          itlev = idx2ij(1,idx)
-          iulev = idx2ij(2,idx)
-          it = L2ACT(itlev)
-          iu = L2ACT(iulev)
-          G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
-        end do
-      end if
-
-    end if
 
     nbtot = 0
     do ip2=ip3,ntri2
@@ -426,9 +318,6 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
       iv = L2ACT(ivlev)
       ix = L2ACT(ixlev)
       if (isvx == Mul(issg1,issg2)) then
-        BUFT(1:nSgm1) = Zero
-        ! form <0| E_zy E_xv
-        call SG_Epq_Psi(SGS,CIS,EXS,IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
         !-----------
         ! Max and min values of index p1:
         ip1mx = ntri2
@@ -454,11 +343,6 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
 
           !-----------
           ! Contract the Sgm1 wave functions with the Tau wave function.
-          ! form <0| E_zy E_xv * E_ut|0>
-          call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,buft,1,Zero,bufr,1)
-          ! and distribute this result into G3:
-          G3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
-          ! and copy the active indices into idxG3:
           do ib=1,nb
             iG3 = iG3OFF+ib
             idx = ip1_buf(ibmn-1+ib)
@@ -473,20 +357,6 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             idxG3(5,iG3) = int(iY,kind=byte)
             idxG3(6,iG3) = int(iZ,kind=byte)
           end do
-
-          if (mkF) then
-            ! Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
-            ! form <0| E_zy E_xv (H0 -e_v)
-            BufT(1:nSgm1) = (BufD(1:nSgm1)-EpsA(iV))*BufT(1:nSgm1)
-            !do icsf=1,nsgm1
-            !  buft(icsf) = (bufd(icsf)-epsa(iv))*buft(icsf)
-            !end do
-            ! so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-
-            ! form <0| E_zy E_xv (H0 -e_v) E_ut|0> = F3(iuv,xyz)
-            call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,buft,1,Zero,bufr,1)
-            F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
-          end if
 
           iG3OFF = iG3OFF+nb
           nbtot = nbtot+nb
@@ -545,6 +415,7 @@ if (mkF) then
   call GADGOP(F2,NG2,'+')
 end if
 
+call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3,nLev)
 ! Correction to G2: It is now = <0| E_tu E_yz |0>
 do iu=1,nlev
   G2(:,iu,iu,:) = G2(:,iu,iu,:)-G1(:,:)
@@ -694,4 +565,4 @@ if (iPrGlb >= DEBUG) then
   write(u6,'("DEBUG> ",A,1X,ES21.14)') 'F3:',dF3
 end if
 
-end subroutine MKFG3
+end subroutine MKFG3MC

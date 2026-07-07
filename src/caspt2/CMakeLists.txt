@@ -164,6 +164,7 @@ set (sources
      mkfg3cu4.F90
      mkfg3dm.F90
      mkfg3.F90
+     mkfg3mc.F90
      mkfg3qcm.F90
      mkfock.F90
      mklist.F90
