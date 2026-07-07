@@ -59,10 +59,11 @@ integer(kind=iwp), external :: isFreeUnit
 real(kind=wp), external :: dnrm2_
 logical(kind=iwp), external :: RF_On
 !*********** columbus interface ****************************************
-integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j
+integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j, DaoLen
 real(kind=wp), allocatable :: Cgrad(:,:)
 character(len=LenIn+5), allocatable :: CNames(:)
 character(len=80) :: Lab
+logical(kind=iwp) :: FoundDao
 
 !                                                                      *
 !***********************************************************************
@@ -382,9 +383,6 @@ call mma_deallocate(Rlx)
 ! print full cartesian gradient in Columbus format
 
 if (Columbus == 1) then
-  ! real(kind=wp) :: Cgrad(3,mxatom)
-  ! character(len=9) :: CNames(MxAtom)
-  ! integer(kind=iwp) :: lcartgrd,iatom,icen,j
   call mma_allocate(CGrad,3,MxAtom,label='CGrad')
   call mma_allocate(CNames,MxAtom,label='CNames')
   call TrGrd_Alaska(CGrad,CNames,Grad,lDisp(0),iCen)
@@ -394,6 +392,16 @@ if (Columbus == 1) then
     write(lcartgrd,1010) (CGrad(j,iatom),j=1,3)
   end do
   close(lcartgrd)
+
+  ! CSF part
+  call Qpg_dArray('D1ao-',FoundDao,DaoLen)
+  if (FoundDao .and. (Daolen > 0)) then
+    call mma_Allocate(CSFG,lDisp(0),Label='CSFG')
+    call CSFGrad(CSFG,lDisp(0))
+    call PrGrad('CSF derivative coupling ',CSFG,lDisp(0))
+    call mma_deallocate(CSFG)
+  end if
+
   call mma_deallocate(CGrad)
   call mma_deallocate(CNames)
 end if

@@ -18,7 +18,7 @@ private
 
 ! Common numbers
 
-real(kind=wp), parameter :: Zero = 0.0_wp, One = 1.0_wp, Two = 2.0_wp, Three  = 3.0_wp, Four = 4.0_wp, Five = 5.0_wp, &
+real(kind=wp), parameter :: Zero = 0.0_wp, One = 1.0_wp, Two = 2.0_wp, Three = 3.0_wp, Four = 4.0_wp, Five = 5.0_wp, &
                             Six = 6.0_wp, Seven = 7.0_wp, Eight = 8.0_wp, Nine = 9.0_wp, Ten = 10.0_wp, Eleven = 11.0_wp, &
                             Twelve = 12.0_wp, Half = 0.5_wp, Quart = 0.25_wp, OneHalf = 1.5_wp
 
@@ -169,6 +169,7 @@ real(kind=wp), parameter :: Pi = Four*atan2(One,One), TwoP34 = One/(Two*Pi)**(Th
 #  define CONST_DIELECTRIC_IN_SI_         8.85418782e-12_wp
 #  define CONST_ELECTRON_G_FACTOR_       -2.00231930436153_wp
 #  define CONST_BOHR_MAGNETON_IN_SI_      9.27400968e-24_wp
+#  define CONST_PROTON_MASS_IN_AU_        1.83615267245e3_wp
 #endif
 #define CONST_C_IN_SI_                    2.99792458e8_wp
 #define CONST_ATM_IN_SI_                  101325.0_wp
@@ -249,15 +250,15 @@ real(kind=wp), parameter :: Angstrom = CONST_BOHR_RADIUS_IN_SI_*1.0e10_wp, &
                             kBoltzmann = CONST_BOLTZMANN_, &
                             mBohr = CONST_BOHR_MAGNETON_IN_SI_, &
                             mu2elmass = CONST_MUON_MASS_IN_SI_/CONST_ELECTRON_MASS_IN_SI_, &
+                            proton_mass_in_au = CONST_PROTON_MASS_IN_AU_, &
                             rBohr = CONST_BOHR_RADIUS_IN_SI_, &
                             Rgas = CONST_MOLAR_GAS_, &
                             rNAVO = CONST_AVOGADRO_, &
-                            uToau = CONV_AMU_TO_AU_, &
-                            proton_mass_in_au = CONST_PROTON_MASS_IN_AU_
+                            uToau = CONV_AMU_TO_AU_
 
 public :: Angstrom, atmToau, atmToPa, ATokg, auTocm, auToeV, auTofs, auToHz, auTokcalmol, auTokJ, auTokJmol, auTokJmolnm, auToN, &
           auToT, c_in_au, cal_to_J, cLight, cm_s, cOne, cZero, Debye, deg2rad, diel, Eight, elcharge, Eleven, elmass, Five, Four, &
-          gElectron, Half, hPlanck, kBoltzmann, mBohr, mu2elmass, Nine, One, OneHalf, Onei, Pi, Quart, rBohr, Rgas, rNAVO, Seven, &
-          Six, Ten, Three, Twelve, Two, TwoP34, TwoP54, uToau, Zero, proton_mass_in_au
+          gElectron, Half, hPlanck, kBoltzmann, mBohr, mu2elmass, Nine, One, OneHalf, Onei, Pi, proton_mass_in_au, Quart, rBohr, &
+          Rgas, rNAVO, Seven, Six, Ten, Three, Twelve, Two, TwoP34, TwoP54, uToau, Zero
 
 end module Constants

@@ -14,11 +14,11 @@ subroutine PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,EigVec)
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: SODYSAMPS
 use kVectors, only: k_Vector, nk_Vector
-use Cntrl, only: BAngRes, BIncre, BStart, DIPR, Do_SK, Do_TMom, DoCD, DYSO, EPrThr, iComp, IfGCAL, IfGTCALSA, IfGTSHSA, &
-                 IfMCal, IFSO, IfvanVleck, IfXCal, IPUSED, ISOCMP, LoopDivide, LoopMax, LPRPR, MLTPLT, MULTIP, NBSTep, NPROP, &
-                 NSOPR, NSTATE, NTS, nTStep, OSThr_DIPR, OSthr_QIPR, PNAME, PNUC, PORIG, PRDIPCOM, PRMEE, PRMES, PRXVE, PTYPE, &
-                 QIALL, QIPR, ReduceLoop, RSPR, RSThr, SOPRNM, SOPRTP, TIncre, TMaxs, TMins, Tolerance, TStart, &
-                 HypF_rms_Req, Atens_Req, pNMR_req
+use Cntrl, only: Atens_Req, BAngRes, BIncre, BStart, DIPR, Do_SK, Do_TMom, DoCD, DYSO, EPrThr, HypF_rms_Req, iComp, IfGCAL, &
+                 IfGTCALSA, IfGTSHSA, IfMCal, IFSO, IfvanVleck, IfXCal, IPUSED, ISOCMP, LoopDivide, LoopMax, LPRPR, MLTPLT, &
+                 MULTIP, NBSTep, NPROP, NSOPR, NSTATE, NTS, nTStep, OSThr_DIPR, OSthr_QIPR, PNAME, pNMR_req, PNUC, PORIG, &
+                 PRDIPCOM, PRMEE, PRMES, PRXVE, PTYPE, QIALL, QIPR, ReduceLoop, RSPR, RSThr, SOPRNM, SOPRTP, TIncre, TMaxs, TMins, &
+                 Tolerance, TStart
 use hfcop, only: Hyperfine_Oper
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
@@ -2257,9 +2257,7 @@ end if
 !*****************************************************
 
 ! Skip if not a hyperfine calculation
-  if(HypF_rms_Req .or. allocated(Atens_Req) .or. allocated(pNMR_req)) then
-    call Hyperfine_Oper(PROP,USOR,USOI,JBNUM)
-  endif
+if (HypF_rms_Req .or. allocated(Atens_Req) .or. allocated(pNMR_req)) call Hyperfine_Oper(PROP,USOR,USOI,JBNUM)
 
 !*****************************************************
 !* Experimental hyperfine tensor stuff ends here

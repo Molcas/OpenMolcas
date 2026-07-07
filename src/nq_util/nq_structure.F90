@@ -101,7 +101,7 @@ subroutine Close_NQ_Data()
 end subroutine Close_NQ_Data
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim, nqdata_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)

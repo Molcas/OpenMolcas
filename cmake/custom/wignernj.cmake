@@ -40,14 +40,22 @@ endif ()
 # library should not be held to OpenMolcas's zero-warning policy) and
 # -fsyntax-only (set by the syntax-check CI, under which no object files
 # are produced). This mirrors how the bundled Libxc is built.
+set (WIGNERNJ_C_FLAGS ${CMAKE_C_FLAGS_DEFAULT})
+if (CMAKE_C_COMPILER_ARG1)
+  set (WIGNERNJ_C_FLAGS "${CMAKE_C_COMPILER_ARG1} ${WIGNERNJ_C_FLAGS}")
+endif ()
+set (WIGNERNJ_Fortran_FLAGS ${CMAKE_Fortran_FLAGS_DEFAULT})
+if (CMAKE_Fortran_COMPILER_ARG1)
+  set (WIGNERNJ_Fortran_FLAGS "${CMAKE_Fortran_COMPILER_ARG1} ${WIGNERNJ_Fortran_FLAGS}")
+endif ()
 list (APPEND WIGNERNJCMakeArgs
       -DCMAKE_BUILD_TYPE=${WIGNERNJ_BUILD_TYPE}
       -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
       -DCMAKE_INSTALL_LIBDIR=lib
       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
       -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
-      -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS_DEFAULT}
-      -DCMAKE_Fortran_FLAGS=${CMAKE_Fortran_FLAGS_DEFAULT}
+      -DCMAKE_C_FLAGS=${WIGNERNJ_C_FLAGS}
+      -DCMAKE_Fortran_FLAGS=${WIGNERNJ_Fortran_FLAGS}
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON
       -DBUILD_SHARED_LIBS=OFF
       -DBUILD_FORTRAN=ON

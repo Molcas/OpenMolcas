@@ -36,13 +36,13 @@ integer(kind=iwp) :: I2, I2ABS, IA, IAABS, IAB, IABQ, IBABS, ICASE, IDID, II, II
 real(kind=wp) :: Dummy(1)
 real(kind=wp), allocatable :: BD(:), ID(:)
 
-if (SC_amplitude .and. iStpGrd == 2) return
+if (SC_amplitude .and. (iStpGrd == 2)) return
 
 do ICASE=1,13
   do ISYM=1,NSYM
 
     NIN = NINDEP(ISYM,ICASE)
-    if (NIN == 0 .and. .not.Do_SC) cycle
+    if ((NIN == 0) .and. (.not. Do_SC)) cycle
     NIS = NISUP(ISYM,ICASE)
     NAS = NASUP(ISYM,ICASE)
     if (ICASE > 11) call mma_allocate(BD,NAS,LABEL='BD')

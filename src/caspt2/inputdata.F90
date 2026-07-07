@@ -197,7 +197,7 @@ type InputTable
   !        purpose
   logical(kind=iwp) :: INVAR = .true.
   ! CVIN  Convergence threshold for non-invariant CASPT2 equation
-  real(kind=wp) :: ThrConvInvar = 1.0e-07_wp
+  real(kind=wp) :: ThrConvInvar = 1.0e-7_wp
   ! CSF  compute CSF contributions in derivative coupling
   logical(kind=iwp) :: CSF = .true.
   ! IAINVAR  specify the CASPT2 energy is invariant wrt inactive
@@ -210,7 +210,7 @@ type InputTable
   ! DOSC      Do SC-NEVPT2 energy
   logical(kind=iwp) :: DOSC = .true.
   ! SC_thres  Threshold for avoiding vanishing denominators
-  real(kind=wp) :: SC_thres = 1.0e-09_wp
+  real(kind=wp) :: SC_thres = 1.0e-9_wp
 
 end type ! end of type InputTable
 
