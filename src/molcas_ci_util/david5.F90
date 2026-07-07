@@ -16,7 +16,7 @@ use lucia_data, only: ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
-use faroald, only: my_norb, ndeta, ndetb, sigma_update
+use faroald, only: my_norb, ndeta, ndetb
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use Lucia_Interface, only: Lucia_Util
 use output_ras, only: IPRLOC, RC_CI
@@ -153,7 +153,7 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    Call Mk_H_Psi(nConf,Vec1,Vec2)
+    Call Mk_H_Psi(SGS,EXS,CIS,nConf,Vec1,Vec2)
 
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
     Vec1(:) = Vec1(:)+ECORE_HEX*Vec2(:)
@@ -515,11 +515,16 @@ TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
 contains
 
-Subroutine Mk_H_Psi(nCSF,CI_Vec,Sigma_Vec)
-use definitions, only: wp
+Subroutine Mk_H_Psi(SGS, EXS, CIS, nCSF,CI_Vec,Sigma_Vec)
+use sguga, only: SGStruct, EXStruct, CIStruct
+use faroald, only: sigma_update
 use stdalloc, only: mma_allocate, mma_deallocate
+use definitions, only: wp
 Implicit None
 
+type(SGStruct), intent(in) :: SGS
+type(EXStruct), intent(in) :: EXS
+type(CIStruct), intent(in) :: CIS
 integer(kind=iwp), intent(in):: nCSF
 real(kind=wp), intent(in) :: CI_Vec(nCSF)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
