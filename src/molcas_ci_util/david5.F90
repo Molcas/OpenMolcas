@@ -37,12 +37,11 @@ integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, 
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
                  Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
-real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
-                              sigtemp(:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
-real(kind=wp), allocatable, target :: ctemp(:), Tmp(:)
+real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), &
+                              Vec1(:), Vec3(:), VECSVC(:)
+real(kind=wp), allocatable, target :: ctemp(:), Tmp(:), sigtemp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 real(kind=wp), external :: dDot_, dnrm2_
-real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
 
 !-----------------------------------------------------------------------
 ! MGD dec 2017 : When optimizing many states, the lowest ones tend to
@@ -51,8 +50,8 @@ real(kind=wp), allocatable:: Faroald_Sgm(:,:), Faroald_Psi(:,:)
 
 if (DoFaro) then
   ! determinant wavefunctions
-  call mma_allocate(Faroald_sgm,ndeta,ndetb,label='sgm')
-  call mma_allocate(Faroald_psi,ndeta,ndetb,label='psi')
+  call mma_allocate(sigtemp,ndeta*ndetb,label='sgm')
+  call mma_allocate(ctemp,ndeta*ndetb,label='psi')
   ! fill in the integrals from their triangular storage
   call mma_allocate(htu,my_norb,my_norb,label='htu')
   call mma_allocate(gtuvx,my_norb,my_norb,my_norb,my_norb,label='gtuvx')
@@ -151,7 +150,7 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    Call Mk_H_Psi(SGS,EXS,CIS,nConf,Vec1,Vec2)
+    Call Mk_H_Psi(SGS,EXS,CIS,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb)
 
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
     Vec1(:) = Vec1(:)+ECORE_HEX*Vec2(:)
@@ -501,19 +500,16 @@ if (DoFaro) then
   call mma_deallocate(htu)
   call mma_deallocate(gtuvx)
   call mma_deallocate(VECSVC)
-  call mma_deallocate(Faroald_sgm)
-  call mma_deallocate(Faroald_psi)
-else
-  call mma_deallocate(ctemp)
-  call mma_deallocate(sigtemp)
 end if
+call mma_deallocate(ctemp)
+call mma_deallocate(sigtemp)
 
 call Timing(Time1(2),dum1,dum2,dum3)
 TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
 contains
 
-Subroutine Mk_H_Psi(SGS, EXS, CIS, nCSF,CI_Vec,Sigma_Vec)
+Subroutine Mk_H_Psi(SGS, EXS, CIS, nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
 use Lucia_Interface, only: Lucia_Util
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use sguga, only: SGStruct, EXStruct, CIStruct
@@ -529,9 +525,18 @@ type(CIStruct), intent(in) :: CIS
 integer(kind=iwp), intent(in):: nCSF
 real(kind=wp), intent(in) :: CI_Vec(nCSF)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
+integer(kind=iwp), intent(in) :: ntemp,ndeta,ndetb
+real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
+
+real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
+
+real(kind=wp), external :: dnrm2_
 
 
     if (DOFARO) then
+
+      Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
+      Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
 
       call SG_REORD(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CI_Vec,VECSVC)
       call CITRANS_SORT('C',VECSVC,Sigma_Vec)
@@ -542,6 +547,9 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
       call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
       call CITRANS_SORT('O',Sigma_Vec,VECSVC)
       call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),VECSVC,Sigma_Vec)
+
+      Faroald_Psi => Null()
+      Faroald_SGM => Null()
 
     else
 
