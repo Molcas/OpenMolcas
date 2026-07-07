@@ -12,7 +12,6 @@
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,TUVX)
 
 use timers, only: TimeDavid, TimeSigma
-use lucia_data, only: Sigma_on_disk
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
 use faroald, only: my_norb, ndeta, ndetb
@@ -38,7 +37,7 @@ real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP,
                  Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
 real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), &
-                              Vec1(:), Vec3(:), VECSVC(:)
+                              Vec1(:), Vec3(:)
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:), sigtemp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 real(kind=wp), external :: dDot_, dnrm2_
@@ -57,7 +56,6 @@ if (DoFaro) then
   do it=1,my_norb
     do iu=1,it
       itu = itu+1
-      !write(u6,'(1x,3I4,F21.14)') it,iu,itu,TU(itu)
       htu(iu,it) = TU(itu)
       htu(it,iu) = TU(itu)
       do iv=1,it
@@ -78,11 +76,6 @@ if (DoFaro) then
       end do
     end do
   end do
-  ! Euhm, stuff needed for awkward conversions from a
-  ! non-specified SYG to GUGA format before converting to
-  ! determinants. This is because for Lucia, CSFs have been
-  ! converted to SYG format somewhere up in cistart.
-  call mma_allocate(VECSVC,nconf,label='VECSVC')
 else
   call mma_allocate(ctemp,ndet,label='CTEMP')
   call mma_allocate(sigtemp,ndet,label='SIGTEM')
@@ -497,7 +490,6 @@ call mma_deallocate(Scr3)
 if (DoFaro) then
   call mma_deallocate(htu)
   call mma_deallocate(gtuvx)
-  call mma_deallocate(VECSVC)
 end if
 call mma_deallocate(ctemp)
 call mma_deallocate(sigtemp)
@@ -509,6 +501,7 @@ contains
 
 Subroutine Mk_H_Psi(SGS, EXS, CIS,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
 use Lucia_Interface, only: Lucia_Util
+use lucia_data, only: Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use sguga, only: SGStruct, EXStruct, CIStruct
 use rasscf_global, only: DoFaro
@@ -536,8 +529,8 @@ real(kind=wp), external :: dnrm2_
       Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
       Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
 
-      call SG_REORD(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CI_Vec,VECSVC)
-      call CITRANS_SORT('C',VECSVC,Sigma_Vec)
+      call SG_REORD(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CI_Vec,ctemp)
+      call CITRANS_SORT('C',ctemp,Sigma_Vec)
       Faroald_PSI(:,:) = Zero
       call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
       Faroald_SGM(:,:) = Zero

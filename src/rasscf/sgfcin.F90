@@ -411,6 +411,7 @@ end if
 call MOTRAC(CMO,X1,X2,X3)
 call mma_deallocate(X3)
 call mma_deallocate(X2)
+
 F(:) = Zero
 NTU = 0
 ITU = 0

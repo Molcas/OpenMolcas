@@ -273,6 +273,7 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTUVX,TUVX)
   INI_H0 = 0
   INT1(:) = INT1O(:)
   ECORE_ORIG = ECORE
+
   call mma_allocate(lVec,MXNTTS,Label='lVec')
   call CPCIVC1(CIVEC,nSD,LUC,MXNTTS,IREFSM,lVec)
   call mma_deallocate(lVec)

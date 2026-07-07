@@ -32,9 +32,7 @@ call INTPNT(PINT1,LSM1,PINT2,LSM2)
 call ORBINH1(KINH1,KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 
 ! Change one-electron integrals to inactive fock matrix
-if (NOINT == 0) then
-  INT1O(:) = INT1(:)
-end if
+if (NOINT == 0) INT1O(:) = INT1(:)
 ECORE_ORIG = ECORE
 
 end subroutine INTIM
