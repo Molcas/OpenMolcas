@@ -254,15 +254,16 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
   ! from Molcas Rasscf.
 
   use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
-                        SIGMA_VEC, VEC3
+                        SIGMA_VEC, VEC3, NGAS, NGSSH, NIRREP
 
+  use constants, only: Zero
   implicit none
   real(kind=wp), intent(_IN_) :: CIVEC(:)
   real(kind=wp), intent(out) :: SIGMAVEC(:)
   integer(kind=iwp), intent(in) :: nTU, nTUVX
   real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
 
-  integer(kind=iwp) :: nSD, i
+  integer(kind=iwp) :: nSD, iSym, MTU, ITU, IADD, NAT, NT, NU
   integer(kind=iwp), allocatable :: lVec(:)
 
   nSD = NSD_PER_SYM(IREFSM)
@@ -271,16 +272,28 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
 
   if (INI_H0 == 0) ECORE = ECORE_ORIG
   INI_H0 = 0
-  INT1(:) = INT1O(:)
-  Do i = 1, nTU
-     If (Abs(TU(i)-INT1(i))>1.0E-12_wp) Then
-!       Call RecPrt('TU',' ',TU,1,nTU)
-!       Call RecPrt('INT1',' ',INT1,1,nTU)
-!       Call Abend()
-     End If
-  End Do
-
   ECORE_ORIG = ECORE
+
+  ! Move over the one-electron integrals + Potnuc (embedded) to where Lucia
+  ! stores them.
+  INT1(:) = Zero
+  MTU = 0
+  ITU = 0
+  IADD = 0
+  Do iSym=1,nIrrep
+     NAT=Sum(NGSSH(iSym,1:nGAS))
+     If (NAT==0) cycle
+     Do NT=1,NAT
+        MTU = MTU+IADD
+        Do NU=1,NT
+           MTU = MTU + 1
+           ITU = ITU + 1
+           INT1(ITU) = TU(MTU)
+        End Do
+     End Do
+     IADD=IADD+NAT
+  end do
+
 
   call mma_allocate(lVec,MXNTTS,Label='lVec')
   call CPCIVC1(CIVEC,nSD,LUC,MXNTTS,IREFSM,lVec)
