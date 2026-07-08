@@ -16,7 +16,7 @@ subroutine faroald_init(nactel,nasht,ispin)
 ! in preparation for the sigma_update routine.
 
 use faroald, only: ex1_a, ex1_b, ex1_init, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, my_nel, my_norb, ndeta, &
-                   ndetb, nela, nelb, nhoa, nhob
+                   ndetb, nela, nelb, nhoa, nhob, htu, gtuvx
 use faroald, only: mma_allocate ! with extensions for ex1_struct
 use second_quantization, only: binom_coef, rank_init
 use Definitions, only: iwp
@@ -68,5 +68,8 @@ end if
 ! by a subroutine that takes L, R, and sgn arrays. The maximum size of
 ! these arrays is when p=q, at which point the number of couples is:
 max_LRs = binom_coef(nela-1,my_norb-1)
+
+call mma_allocate(htu,my_norb,my_norb,label='htu')
+call mma_allocate(gtuvx,my_norb,my_norb,my_norb,my_norb,label='gtuvx')
 
 end subroutine faroald_init

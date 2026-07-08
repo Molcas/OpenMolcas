@@ -14,7 +14,7 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,T
 use timers, only: TimeDavid, TimeSigma
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
-use faroald, only: my_norb, ndeta, ndetb
+use faroald, only: my_norb, ndeta, ndetb, htu, gtuvx
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use output_ras, only: IPRLOC, RC_CI
 use PrintLevel, only: DEBUG, USUAL
@@ -36,7 +36,7 @@ integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, 
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
                  Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
-real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), &
+real(kind=wp), allocatable :: Cs(:), Es(:), Hs(:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), &
                               Vec1(:), Vec3(:)
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:), sigtemp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
@@ -46,9 +46,6 @@ if (DoFaro) then
   ! determinant wavefunctions
   call mma_allocate(sigtemp,ndeta*ndetb,label='sgm')
   call mma_allocate(ctemp,ndeta*ndetb,label='psi')
-  ! fill in the integrals from their triangular storage
-  call mma_allocate(htu,my_norb,my_norb,label='htu')
-  call mma_allocate(gtuvx,my_norb,my_norb,my_norb,my_norb,label='gtuvx')
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
   itu = 0
@@ -63,7 +60,6 @@ if (DoFaro) then
         if (it == iv) ixmax = iu
         do ix=1,ixmax
           ituvx = ituvx+1
-          !write(u6,'(1x,5I4,F21.14)') it,iu,iv,ix,ituvx,TUVX(ituvx)
           GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
           GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
           GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
@@ -487,10 +483,6 @@ call mma_deallocate(Scr1)
 call mma_deallocate(Scr2)
 call mma_deallocate(Scr3)
 
-if (DoFaro) then
-  call mma_deallocate(htu)
-  call mma_deallocate(gtuvx)
-end if
 call mma_deallocate(ctemp)
 call mma_deallocate(sigtemp)
 

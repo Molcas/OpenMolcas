@@ -43,12 +43,14 @@ end type
 type(ex1_struct), allocatable :: ex1_a(:,:), ex1_b(:,:)
 integer(kind=iwp) :: max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs
 
+! integral storage in Faroald format
+real(kind=wp), allocatable:: gtuvx(:,:,:,:), htu(:,:)
 #ifdef _PROF_
 integer(kind=int64) :: nflop
 #endif
 
 public :: ex1_a, ex1_b, ex1_init, max_LRs, max_ex1a, max_ex1b, max_ex2a, max_ex2b, mult, my_ndet, my_nel, my_norb, ndeta, ndetb, &
-          nela, nelb, nhoa, nhob, sigma_update
+          nela, nelb, nhoa, nhob, sigma_update, gtuvx, htu
 
 ! Extensions to mma interfaces
 
