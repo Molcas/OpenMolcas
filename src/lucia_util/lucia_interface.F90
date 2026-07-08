@@ -68,7 +68,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
 
   if (Module_(1:4) == 'DIAG') then
 
-    call Diag_Master(nTUVX,TUVX)
+    call Diag_Master(nTU,TU,nTUVX,TUVX)
 
   else if (Module_(1:9) == 'SIGMA_CVB') then
 
@@ -375,7 +375,7 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB,nTU,TU,nTUVX,TUVX)
 
   ! Calculate the sigma vector:
 
-  call DIAG_MASTER(nTUVX,TUVX)
+  call DIAG_MASTER(nTU,TU,nTUVX,TUVX)
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
   ! Note that CI_VEC is used as a scratch array!
   call MV7(CI_VEC,SIGMAVec,LUC,LUSC34,nTUVX,TUVX)

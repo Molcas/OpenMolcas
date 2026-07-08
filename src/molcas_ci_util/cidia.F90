@@ -19,7 +19,7 @@ subroutine CIDIA(NCONF,IREFSM,CSFDIA,LUDAVID)
 ! IREFSM:  REFERENCE SYMMETRY
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
-use wadr, only: TUVX
+use wadr, only: FMO, TUVX
 use timers, only: TimeHDiag
 use lucia_data, only: SDREO
 use Lucia_Interface, only: Lucia_Util
@@ -41,7 +41,7 @@ IPRLEV = IPRLOC(3)
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
-call Lucia_Util('Diag',nTUVX=Size(TUVX),TUVX=TUVX)
+call Lucia_Util('Diag',nTU=Size(FMO),TU=FMO,nTUVX=Size(TUVX),TUVX=TUVX)
 
 call mma_allocate(DDIA,NDET,label='DETDIA')
 call get_diag(DDIA,ndet)
