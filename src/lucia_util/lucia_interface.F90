@@ -36,7 +36,7 @@ contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTUVX,TUVX)
+subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
 
   use lucia_data, only: IREFSM, MXNTTS
 
@@ -47,8 +47,8 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
   real(kind=wp), intent(in), optional :: Array(:), RVEC(:)
   real(kind=wp), intent(_IN_), optional :: CI_Vector(:)
   real(kind=wp), intent(out), optional :: SIGMA_Vector(:)
-  integer(kind=iwp), intent(in), optional :: nTUVX
-  real(kind=wp), intent(in), optional :: TUVX(:)
+  integer(kind=iwp), intent(in), optional :: nTU, nTUVX
+  real(kind=wp), intent(in), optional :: TU(:), TUVX(:)
 
   character(len=72) :: Module_
   integer(kind=iwp), allocatable :: lVec(:)
@@ -77,7 +77,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
 
   else if (Module_(1:5) == 'SIGMA') then
 
-    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,nTUVX,TUVX)
+    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
 
   else if (Module_(1:5) == 'TRACI') then
 
@@ -249,7 +249,7 @@ subroutine densi_master(CIVec,RVec)
 
 end subroutine densi_master
 
-subroutine sigma_master(CIVEC,SIGMAVEC,nTUVX,TUVX)
+subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
   ! Controls the calculation of the sigma vector, when Lucia is called
   ! from Molcas Rasscf.
 
@@ -259,10 +259,10 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTUVX,TUVX)
   implicit none
   real(kind=wp), intent(_IN_) :: CIVEC(:)
   real(kind=wp), intent(out) :: SIGMAVEC(:)
-  integer(kind=iwp), intent(in) :: nTUVX
-  real(kind=wp), intent(in) :: TUVX(nTUVX)
+  integer(kind=iwp), intent(in) :: nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
 
-  integer(kind=iwp) :: nSD
+  integer(kind=iwp) :: nSD, i
   integer(kind=iwp), allocatable :: lVec(:)
 
   nSD = NSD_PER_SYM(IREFSM)
@@ -272,6 +272,14 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTUVX,TUVX)
   if (INI_H0 == 0) ECORE = ECORE_ORIG
   INI_H0 = 0
   INT1(:) = INT1O(:)
+  Do i = 1, nTU
+     If (Abs(TU(i)-INT1(i))>1.0E-12_wp) Then
+        Call RecPrt('TU',' ',TU,1,nTU)
+        Call RecPrt('INT1',' ',INT1,1,nTU)
+        Call Abend()
+     End If
+  End Do
+
   ECORE_ORIG = ECORE
 
   call mma_allocate(lVec,MXNTTS,Label='lVec')

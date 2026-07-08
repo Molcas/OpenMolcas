@@ -21,7 +21,6 @@ subroutine INTIM()
 
 use lucia_data, only: ECORE, ECORE_ORIG, INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NOINT, NSMOB, NTOOB, NTOOBS, &
                       PINT1, PINT2
-use Constants, only: Zero
 
 implicit none
 

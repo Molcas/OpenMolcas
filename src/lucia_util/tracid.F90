@@ -50,7 +50,6 @@ real(kind=wp), external :: INPRDD
 
 LBLK = -1
 ! Transfer vector on LUCIN to LUSC1
-!    COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
 call COPVCD(LUCIN,LUSC1,VEC1,1,LBLK)
 ! A bit of info for the sigma routine
 I_RES_AB = 0
@@ -98,15 +97,12 @@ do K=1,NTOOB
   call WRTVCD(VEC1,LUSC1,1,LBLK)
 # endif
 end do
-! And transfer to LUCOUT
 #ifdef _DEBUGPRINT_
 CNORM = INPRDD(VEC1,VEC2,LUSC1,LUSC1,1,LBLK)
 write(u6,*) ' Norm of transformed vector',CNORM
 #endif
-!write(u6,*) ' Transformed vector'
-!call WRTVCD(VEC1,LUSC1,1,LBLK)
+! And transfer to LUCOUT
 IDISK(LUSC1) = 0
-!write(u6,*) ' LUCOUT LUSC1 = ',LUCOUT,LUSC1
 call COPVCD(LUSC1,LUCOUT,VEC1,0,LBLK)
 
 end subroutine TRACID

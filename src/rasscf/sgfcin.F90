@@ -460,6 +460,4 @@ if (IPRLEV >= DEBUG) then
   call TriPrt(' ',' ',F,NAC)
 end if
 
-return
-
 end subroutine SGFCIN

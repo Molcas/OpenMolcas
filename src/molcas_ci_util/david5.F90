@@ -553,9 +553,10 @@ real(kind=wp), external :: dnrm2_
       call csdtvc(ctemp,sigtemp,1,STSym,1)
 
       ! Calling Lucia to determine the sigma vector
-      call Lucia_Util('Sigma', &
-                      CI_Vector=ctemp(:), &
-                      Sigma_Vector=sigtemp(:), &
+      call Lucia_Util('Sigma',                   &
+                      CI_Vector=ctemp(:),        &
+                      Sigma_Vector=sigtemp(:),   &
+                      nTU=Size(TU),TU=TU,        &
                       nTUVX=Size(TUVX),TUVX=TUVX)
 
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
