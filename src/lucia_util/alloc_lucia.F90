@@ -34,7 +34,7 @@ subroutine ALLOC_LUCIA()
 !           Fall 97 (PGINT1 added)
 !           Spring 99
 
-use lucia_data, only: INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NBINT1, NBINT2, NSMOB, NTOOB, PGINT1, PGINT1A, PINT1, PINT2, &
+use lucia_data, only: INT1, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NBINT1, NBINT2, NSMOB, NTOOB, PGINT1, PGINT1A, PINT1, PINT2, &
                       RHO1, SRHO1
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
@@ -46,11 +46,9 @@ integer(kind=iwp) :: ISM
 ! 1 : One electron integrals (Complete matrix allocated)
 call mma_allocate(INT1,NTOOB**2,Label='INT1')
 ! A copy of the original UNMODIFIED 1-elecs ints
-call mma_allocate(INT1O,NTOOB**2,Label='Int1O')
 ! Zero to avoid problems with elements that will not
 ! be initialized
 INT1(:) = Zero
-INT1O(:) = Zero
 ! 2 : Two electron integrals
 ! Pointers to symmetry block of integrals
 call mma_allocate(PINT1,NBINT1,Label='PINT1')

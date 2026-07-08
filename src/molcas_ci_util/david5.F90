@@ -499,7 +499,7 @@ TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
 contains
 
-Subroutine Mk_H_Psi(SGS, EXS, CIS,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+Subroutine Mk_H_Psi(SGS,EXS,CIS,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
 use Lucia_Interface, only: Lucia_Util
 use lucia_data, only: Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort

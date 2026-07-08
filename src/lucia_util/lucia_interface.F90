@@ -320,7 +320,7 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB,nTU,TU,nTUVX,TUVX)
 
   use constants, only: Zero
   use CandS, only: ICSM, ISSM
-  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
+  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
                         SIGMA_ON_DISK, VEC3, NGAS, NGSSH, NIRREP
 
   implicit none

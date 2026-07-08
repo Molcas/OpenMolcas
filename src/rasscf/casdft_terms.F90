@@ -33,7 +33,7 @@ use output_ras, only: IPRLOC
 use general_data, only: ISPIN, NACTEL, NASH, NBAS, NFRO, NISH, NSYM, NTOT1
 use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp, NAC, NACPAR, NONEQ, PotNuc, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
 #ifdef _DMRG_
-use lucia_data, only: INT1, INT1O
+use lucia_data, only: INT1
 use rasscf_global, only: DoDMRG
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -361,14 +361,6 @@ do NST=1,NSYM
     IADD = IADD+NAT
   end if
 end do
-#ifdef _DMRG_
-if (.not. doDMRG) then
-  INT1(1:ITU) = X0(1:ITU)
-  INT1(ITU+1:) = Zero
-  INT1O(1:ITU) = X0(1:ITU)
-  INT1O(ITU+1:) = Zero
-end if
-#endif
 call mma_deallocate(X1)
 call mma_deallocate(X0)
 

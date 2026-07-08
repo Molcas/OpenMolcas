@@ -51,7 +51,7 @@ use fcidump, only: DumpOnly
 use fciqmc, only: DoNECI
 use CC_CI_mod, only: Do_CC_CI
 use timers, only: TimeDens
-use lucia_data, only: INT1, INT1O
+use lucia_data, only: INT1
 use rasscf_global, only: dftfock, doBlockDMRG, doDMRG, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, &
                          tot_el_charge, tot_nuc_charge
 use OneDat, only: sNoNuc, sNoOri
@@ -438,16 +438,6 @@ do NST=1,NSYM
   end do
   IADD = IADD+NAT
 end do
-
-!Quan: Fix bug, skip Lucia stuff with DMRG
-! and other external CI solvers.
-if (.not. any([DoNECI,Do_CC_CI,DumpOnly,doDMRG,doBlockDMRG])) then
-! INT1(1:ITU) = X0(1:ITU)
-! INT1(ITU+1:) = Zero
-  INT1(:) = Zero
-  INT1O(1:ITU) = X0(1:ITU)
-  INT1O(ITU+1:) = Zero
-end if
 
 call mma_deallocate(X1)
 call mma_deallocate(X0)

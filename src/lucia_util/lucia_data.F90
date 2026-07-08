@@ -68,7 +68,7 @@ integer(kind=iwp), allocatable :: CFTP(:), CI1BT(:), CIBT(:), CLBT(:), CLEBT(:),
                                   NSTSGP(:), OCSTR(:,:), PINT1(:), PINT2(:), REO(:,:), SPGPAN(:), SPGPCR(:), Z(:,:), ZSCR(:)
 integer(kind=iwp), allocatable, target :: CBLTP(:)
 integer(kind=iwp), pointer :: SDREO(:)
-real(kind=wp), allocatable :: DStmp(:), Dtmp(:), DTOC(:), INT1(:), INT1O(:), PAtmp(:), Pscr(:), Ptmp(:), RF1(:), RF2(:), RHO1(:), &
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), DTOC(:), INT1(:), PAtmp(:), Pscr(:), Ptmp(:), RF1(:), RF2(:), RHO1(:), &
                               SIGMA_VEC(:), SRHO1(:), VEC3(:)
 real(kind=wp), allocatable, target :: CI_VEC(:)
 
@@ -76,7 +76,7 @@ public :: Allocate_Local_Arrays, CBLTP, CFTP, CI1BT, CI_VEC, CIBT, CLBT, CLEBT, 
           DStmp, Dtmp, DTOC, ECORE, ECORE_ORIG, ENVIRO, I12, I1234S, I12S, I2ELIMINATED_IN_GAS, I34S, I_AM_OUT, &
           I_ELIMINATE_GAS, I_RES_AB, IADVICE, IB_CONF_OCC, IB_CONF_REO, IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, IBGPSTR, IBSO, &
           IBSPGPFTP, ICISTR, ICJKAIB, ICMBSPC, IDC, IDIAG, IDISK, IELIMINATED_IN_GAS, IGSFGP, IGSOCC, IGSOCCX, IH0INSPC, IH0SPC, &
-          IH1FORM, INGRP_VAL, ini_h0, INT1, INT1O, IOBPTS, IOCLS, IPART, IPHGAS, IPRCIX, IPRDEN, IREFSM, IREOST, IREOTS, IRESTR, &
+          IH1FORM, INGRP_VAL, ini_h0, INT1, IOBPTS, IOCLS, IPART, IPHGAS, IPRCIX, IPRDEN, IREFSM, IREOST, IREOTS, IRESTR, &
           ISIMSYM, ISMDFGP, ISMFSO, ISMFTO, ISMSCR, ISPGPFTP, ISTAC, ISTSGP, ISTSO, ITOOBS, KINH1, KINH1_NOCCSYM, kvec3_length, &
           LCMBSPC, LCSBLK, LOFFI, LSM1, LSM2, LUC, LUDIA, LUHC, LUMOUT, LUSC1, LUSC2, LUSC3, LUSC34, LUSC35, LUSC36, LUSC37, &
           LUSC38, LUSC39, LUSC40, MAX_STR_OC_BLK, MAX_STR_SPGP, MAXOP, Memory_Needed_Lucia, MINMAX_SM_GP, MINOP, MNGSOC, MNHL, &

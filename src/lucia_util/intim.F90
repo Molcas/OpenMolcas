@@ -19,7 +19,7 @@ subroutine INTIM()
 !
 ! Version : Fall 97
 
-use lucia_data, only: ECORE, ECORE_ORIG, INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NOINT, NSMOB, NTOOB, NTOOBS, &
+use lucia_data, only: ECORE, ECORE_ORIG, INT1, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NOINT, NSMOB, NTOOB, NTOOBS, &
                       PINT1, PINT2
 
 implicit none
@@ -30,8 +30,6 @@ call INTPNT(PINT1,LSM1,PINT2,LSM2)
 ! Pointer for orbital indices for symmetry blocked matrices
 call ORBINH1(KINH1,KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 
-! Change one-electron integrals to inactive fock matrix
-if (NOINT == 0) INT1O(:) = INT1(:)
 ECORE_ORIG = ECORE
 
 end subroutine INTIM
