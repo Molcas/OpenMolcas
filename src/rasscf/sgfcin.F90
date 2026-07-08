@@ -422,28 +422,29 @@ if (NACTEL /= 0) then
 else
   EMYN = Zero
 end if
+
 do NST=1,NSYM
   NAT = NASH(NST)
-  if (NAT /= 0) then
-    do NT=1,NAT
-      NTU = NTU+IADD
-      do NU=1,NT
-        NTU = NTU+1
-        ITU = ITU+1
-        F(NTU) = X1(ITU)
-        if (NT == NU) F(NTU) = F(NTU)+EMYN
-        X0(ITU) = F(NTU)
-      end do
+  if (NAT == 0) cycle
+  do NT=1,NAT
+    NTU = NTU+IADD
+    do NU=1,NT
+      NTU = NTU+1
+      ITU = ITU+1
+      F(NTU) = X1(ITU)
+      if (NT == NU) F(NTU) = F(NTU)+EMYN
+      X0(ITU) = F(NTU)
     end do
-    IADD = IADD+NAT
-  end if
+  end do
+  IADD = IADD+NAT
 end do
 
 !Quan: Fix bug, skip Lucia stuff with DMRG
 ! and other external CI solvers.
 if (.not. any([DoNECI,Do_CC_CI,DumpOnly,doDMRG,doBlockDMRG])) then
-  INT1(1:ITU) = X0(1:ITU)
-  INT1(ITU+1:) = Zero
+! INT1(1:ITU) = X0(1:ITU)
+! INT1(ITU+1:) = Zero
+  INT1(:) = Zero
   INT1O(1:ITU) = X0(1:ITU)
   INT1O(ITU+1:) = Zero
 end if

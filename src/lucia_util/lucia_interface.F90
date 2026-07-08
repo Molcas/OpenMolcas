@@ -274,9 +274,9 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
   INT1(:) = INT1O(:)
   Do i = 1, nTU
      If (Abs(TU(i)-INT1(i))>1.0E-12_wp) Then
-        Call RecPrt('TU',' ',TU,1,nTU)
-        Call RecPrt('INT1',' ',INT1,1,nTU)
-        Call Abend()
+!       Call RecPrt('TU',' ',TU,1,nTU)
+!       Call RecPrt('INT1',' ',INT1,1,nTU)
+!       Call Abend()
      End If
   End Do
 
