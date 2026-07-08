@@ -47,12 +47,8 @@ subroutine SGFCIN(CMO,F,FI,D1I,D1A,D1S)
 
 use Index_Functions, only: nTri_Elem
 use RunFile_procedures, only: Get_dExcdRa
-use fcidump, only: DumpOnly
-use fciqmc, only: DoNECI
-use CC_CI_mod, only: Do_CC_CI
 use timers, only: TimeDens
-use lucia_data, only: INT1
-use rasscf_global, only: dftfock, doBlockDMRG, doDMRG, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, &
+use rasscf_global, only: dftfock, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, &
                          tot_el_charge, tot_nuc_charge
 use OneDat, only: sNoNuc, sNoOri
 use general_data, only: iSpin, nActEl, nAsh, nBas, nFro, nIsh, nSym, nTot1

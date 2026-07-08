@@ -19,7 +19,7 @@ subroutine INTIM()
 !
 ! Version : Fall 97
 
-use lucia_data, only: ECORE, ECORE_ORIG, INT1, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NOINT, NSMOB, NTOOB, NTOOBS, &
+use lucia_data, only: ECORE, ECORE_ORIG, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NSMOB, NTOOB, NTOOBS, &
                       PINT1, PINT2
 
 implicit none
