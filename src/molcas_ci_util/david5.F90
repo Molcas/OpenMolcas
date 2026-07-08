@@ -14,7 +14,7 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,T
 use timers, only: TimeDavid, TimeSigma
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
-use faroald, only: my_norb, ndeta, ndetb, htu, gtuvx
+use faroald, only: ndeta, ndetb
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use output_ras, only: IPRLOC, RC_CI
 use PrintLevel, only: DEBUG, USUAL
@@ -31,48 +31,22 @@ integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
 integer(kind=iwp), intent(in) :: nTU, nTUVX
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), TU(nTU), TUVX(nTUVX)
-integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, kRoot, l1, &
+integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it_ci, jRoot, kRoot, l1, &
                      l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
                  Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
-real(kind=wp), allocatable :: Cs(:), Es(:), Hs(:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), &
-                              Vec1(:), Vec3(:)
+real(kind=wp), allocatable :: Cs(:), Es(:), Hs(:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), Vec1(:), Vec3(:)
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:), sigtemp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 real(kind=wp), external :: dDot_, dnrm2_
 
 if (DoFaro) then
-  ! determinant wavefunctions
+  ! determinant wavefunctions Faroald
   call mma_allocate(sigtemp,ndeta*ndetb,label='sgm')
   call mma_allocate(ctemp,ndeta*ndetb,label='psi')
-  htu(:,:) = Zero
-  gtuvx(:,:,:,:) = Zero
-  itu = 0
-  ituvx = 0
-  do it=1,my_norb
-    do iu=1,it
-      itu = itu+1
-      htu(iu,it) = TU(itu)
-      htu(it,iu) = TU(itu)
-      do iv=1,it
-        ixmax = iv
-        if (it == iv) ixmax = iu
-        do ix=1,ixmax
-          ituvx = ituvx+1
-          GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
-          GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
-          GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
-          GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
-          GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
-          GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
-          GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
-          GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
-        end do
-      end do
-    end do
-  end do
 else
+  ! determinant wavefunctions Lucia
   call mma_allocate(ctemp,ndet,label='CTEMP')
   call mma_allocate(sigtemp,ndet,label='SIGTEM')
 end if
@@ -498,7 +472,7 @@ use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use sguga, only: SGStruct, EXStruct, CIStruct
 use rasscf_global, only: DoFaro
 use Constants, only: Zero
-use faroald, only: sigma_update
+use faroald, only: my_norb, sigma_update, htu, gtuvx
 use definitions, only: wp
 Implicit None
 
@@ -511,58 +485,85 @@ real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 integer(kind=iwp), intent(in) :: ntemp,ndeta,ndetb
 real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
 
+integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
-
 real(kind=wp), external :: dnrm2_
 
 
-    if (DOFARO) then
+if (DOFARO) then
 
-      Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
-      Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
+  htu(:,:) = Zero
+  gtuvx(:,:,:,:) = Zero
+  itu = 0
+  ituvx = 0
+  do it=1,my_norb
+    do iu=1,it
+      itu = itu+1
+      htu(iu,it) = TU(itu)
+      htu(it,iu) = TU(itu)
+      do iv=1,it
+        ixmax = iv
+        if (it == iv) ixmax = iu
+        do ix=1,ixmax
+          ituvx = ituvx+1
+          GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
+          GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
+          GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
+          GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
+          GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
+          GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
+          GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
+          GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
+        end do
+      end do
+    end do
+  end do
 
-      call SG_REORD(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CI_Vec,ctemp)
-      call CITRANS_SORT('C',ctemp,Sigma_Vec)
-      Faroald_PSI(:,:) = Zero
-      call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
-      Faroald_SGM(:,:) = Zero
-      call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
-      call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
-      call CITRANS_SORT('O',Sigma_Vec,ctemp)
-      call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),ctemp,Sigma_Vec)
+  Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
+  Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
 
-      Faroald_Psi => Null()
-      Faroald_SGM => Null()
+  call SG_REORD(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CI_Vec,ctemp)
+  call CITRANS_SORT('C',ctemp,Sigma_Vec)
+  Faroald_PSI(:,:) = Zero
+  call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
+  Faroald_SGM(:,:) = Zero
+  call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
+  call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
+  call CITRANS_SORT('O',Sigma_Vec,ctemp)
+  call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),ctemp,Sigma_Vec)
 
-    else
+  Faroald_Psi => Null()
+  Faroald_SGM => Null()
 
-      ! Convert the CI-vector from CSF to Det. basis
-      ! sigtemp is scratch, converted vector is stored in ctemp.
-      ! Note that ctemp is of the size of the nDet. basis
+else
 
-      ctemp(1:nCSF) = CI_Vec(1:nCSF)
-      sigtemp(:) = Zero
-      call csdtvc(ctemp,sigtemp,1,STSym,1)
+  ! Convert the CI-vector from CSF to Det. basis
+  ! sigtemp is scratch, converted vector is stored in ctemp.
+  ! Note that ctemp is of the size of the nDet. basis
 
-      ! Calling Lucia to determine the sigma vector
-      call Lucia_Util('Sigma',                   &
-                      CI_Vector=ctemp(:),        &
-                      Sigma_Vector=sigtemp(:),   &
-                      nTU=Size(TU),TU=TU,        &
-                      nTUVX=Size(TUVX),TUVX=TUVX)
+  ctemp(1:nCSF) = CI_Vec(1:nCSF)
+  sigtemp(:) = Zero
+  call csdtvc(ctemp,sigtemp,1,STSym,1)
 
-      ! Set mark so densi_master knows that the Sigma-vector exists on disk.
-      Sigma_on_disk = .true.
-      ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
-      ! stored in Sigma_vec.
-      call CSDTVC(Sigma_Vec,sigtemp,2,stSym,1)
+  ! Calling Lucia to determine the sigma vector
+  call Lucia_Util('Sigma',                   &
+                  CI_Vector=ctemp(:),        &
+                  Sigma_Vector=sigtemp(:),   &
+                  nTU=Size(TU),TU=TU,        &
+                  nTUVX=Size(TUVX),TUVX=TUVX)
 
-    end if
+  ! Set mark so densi_master knows that the Sigma-vector exists on disk.
+  Sigma_on_disk = .true.
+  ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
+  ! stored in Sigma_vec.
+  call CSDTVC(Sigma_Vec,sigtemp,2,stSym,1)
 
-    if (iprlev >= DEBUG) then
-      FP = DNRM2_(nCSF,Sigma_Vec,1)
-      write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(lucia):   ',FP
-    end if
+end if
+
+if (iprlev >= DEBUG) then
+  FP = DNRM2_(nCSF,Sigma_Vec,1)
+  write(u6,'(1X,A,F21.14)') 'sigma dnrm2_(lucia):   ',FP
+end if
 
 End Subroutine Mk_H_Psi
 
