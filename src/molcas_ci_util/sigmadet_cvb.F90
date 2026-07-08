@@ -11,7 +11,7 @@
 
 subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
 
-use wadr, only: TUVX
+use wadr, only: FMO, TUVX
 use Lucia_Interface, only: Lucia_Util
 use Definitions, only: wp, iwp
 
@@ -29,6 +29,7 @@ call LUCIA_UTIL('SIGMA_CVB', &
                 CI_Vector=C, &
                 SIGMA_Vector=HC, &
                 iSym=iREFSM, &
+                nTU=SIZE(FMO),TU=FMO, &
                 nTUVX=Size(TUVX),TUVX=TUVX)
 
 end subroutine SIGMADET_CVB

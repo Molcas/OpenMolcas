@@ -73,7 +73,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU
   else if (Module_(1:9) == 'SIGMA_CVB') then
 
     ! iSym_LI is the symmetry to be used.
-    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym,nTUVX,TUVX)
+    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym,nTU,TU,nTUVX,TUVX)
 
   else if (Module_(1:5) == 'SIGMA') then
 
@@ -253,10 +253,9 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
   ! Controls the calculation of the sigma vector, when Lucia is called
   ! from Molcas Rasscf.
 
-  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
-                        SIGMA_VEC, VEC3, NGAS, NGSSH, NIRREP
-
   use constants, only: Zero
+  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
+                        SIGMA_VEC, VEC3, NGAS, NGSSH, NIRREP
   implicit none
   real(kind=wp), intent(_IN_) :: CIVEC(:)
   real(kind=wp), intent(out) :: SIGMAVEC(:)
@@ -294,7 +293,6 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
      IADD=IADD+NAT
   end do
 
-
   call mma_allocate(lVec,MXNTTS,Label='lVec')
   call CPCIVC1(CIVEC,nSD,LUC,MXNTTS,IREFSM,lVec)
   call mma_deallocate(lVec)
@@ -318,20 +316,21 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
 
 end subroutine SIGMA_MASTER
 
-subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB,nTUVX,TUVX)
+subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB,nTU,TU,nTUVX,TUVX)
 
+  use constants, only: Zero
   use CandS, only: ICSM, ISSM
   use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
-                        SIGMA_ON_DISK, VEC3
+                        SIGMA_ON_DISK, VEC3, NGAS, NGSSH, NIRREP
 
   implicit none
   integer(kind=iwp), intent(in) :: IREFSM_CASVB
   real(kind=wp), intent(_IN_) :: CIVEC(:)
   real(kind=wp), intent(out) :: SIGMAVEC(:)
-  integer(kind=iwp), intent(in) :: nTUVX
-  real(kind=wp), intent(in) :: TUVX(nTUVX)
+  integer(kind=iwp), intent(in) :: nTU, nTUVX
+  real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
 
-  integer(kind=iwp) :: nSD
+  integer(kind=iwp) :: nSD, iSym, MTU, ITU, IADD, NAT, NT, NU
   integer(kind=iwp), allocatable :: lVec(:)
 
   ! Set ICSM and ISSM (from module CandS to the correct symmetry for this call
@@ -346,8 +345,27 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB,nTUVX,TUVX)
 
   if (INI_H0 == 0) ECORE = ECORE_ORIG
   INI_H0 = 0
-  INT1(:) = INT1O(:)
   ECORE_ORIG = ECORE
+
+  ! Move over the one-electron integrals + Potnuc (embedded) to where Lucia
+  ! stores them.
+  INT1(:) = Zero
+  MTU = 0
+  ITU = 0
+  IADD = 0
+  Do iSym=1,nIrrep
+     NAT=Sum(NGSSH(iSym,1:nGAS))
+     If (NAT==0) cycle
+     Do NT=1,NAT
+        MTU = MTU+IADD
+        Do NU=1,NT
+           MTU = MTU + 1
+           ITU = ITU + 1
+           INT1(ITU) = TU(MTU)
+        End Do
+     End Do
+     IADD=IADD+NAT
+  end do
 
   ! Write CI-vector to disc
 
