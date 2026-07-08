@@ -33,7 +33,7 @@ integer(kind=iwp), intent(in) :: nTU, nTUVX
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), TU(nTU), TUVX(nTUVX)
 integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it_ci, jRoot, kRoot, l1, &
                      l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
-real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
+real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
                  Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
 real(kind=wp), allocatable :: Cs(:), Es(:), Hs(:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), Vec1(:), Vec3(:)
@@ -464,7 +464,7 @@ call mma_deallocate(sigtemp)
 call Timing(Time1(2),dum1,dum2,dum3)
 TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
-contains
+Contains
 
 Subroutine Mk_H_Psi(SGS,EXS,CIS,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb, &
                     nTU,TU,nTUVX,TUVX)
@@ -473,9 +473,11 @@ use lucia_data, only: Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use sguga, only: SGStruct, EXStruct, CIStruct
 use rasscf_global, only: DoFaro
+use PrintLevel, only: DEBUG
+use output_ras, only: IPRLOC
 use Constants, only: Zero
 use faroald, only: my_norb, sigma_update, htu, gtuvx
-use definitions, only: wp
+use definitions, only: wp, iwp, u6
 Implicit None
 
 type(SGStruct), intent(in) :: SGS
@@ -489,10 +491,12 @@ real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
 integer(kind=iwp), intent(in):: nTU, nTUVX
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
-integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
+integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix, iprlev
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
+real(kind=wp) :: FP
 real(kind=wp), external :: dnrm2_
 
+IPRLEV = IPRLOC(3)
 
 if (DOFARO) then
 
