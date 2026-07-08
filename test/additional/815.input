@@ -8,6 +8,7 @@
 *-------------------------------------------------------------------------------
 
 >> export MOLCAS_MAXITER=5
+>> copy init.xyz .
 
 * Simple HOP keyword
 
