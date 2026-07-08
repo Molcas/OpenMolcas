@@ -113,7 +113,8 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    Call Mk_H_Psi(SGS,EXS,CIS,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb)
+    Call Mk_H_Psi(SGS,EXS,CIS,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb, &
+                  nTU,TU,nTUVX,TUVX)
 
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)
@@ -465,7 +466,8 @@ TimeDavid = TimeDavid+Time1(2)-Time1(1)
 
 contains
 
-Subroutine Mk_H_Psi(SGS,EXS,CIS,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb)
+Subroutine Mk_H_Psi(SGS,EXS,CIS,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb, &
+                    nTU,TU,nTUVX,TUVX)
 use Lucia_Interface, only: Lucia_Util
 use lucia_data, only: Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
@@ -484,6 +486,8 @@ real(kind=wp), intent(in) :: CI_Vec(nCSF)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 integer(kind=iwp), intent(in) :: ntemp,ndeta,ndetb
 real(kind=wp), intent(inout), target :: ctemp(ntemp), sigtemp(ntemp)
+integer(kind=iwp), intent(in):: nTU, nTUVX
+real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
