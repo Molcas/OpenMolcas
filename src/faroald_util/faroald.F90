@@ -50,7 +50,7 @@ integer(kind=int64) :: nflop
 #endif
 
 public :: ex1_a, ex1_b, ex1_init, max_LRs, max_ex1a, max_ex1b, max_ex2a, max_ex2b, mult, my_ndet, my_nel, my_norb, ndeta, ndetb, &
-          nela, nelb, nhoa, nhob, sigma_update, gtuvx, htu
+          nela, nelb, nhoa, nhob, sigma_update, gtuvx, htu, one_pdm, transition_one_pdm
 
 ! Extensions to mma interfaces
 
@@ -351,6 +351,156 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
   call mma_deallocate(f)
 
 end subroutine sigma3
+
+subroutine one_pdm(psi, d, sd, da, db)
+! Compute the spin-summed one-particle density matrix and spin-density
+! matrix for a CI vector in determinant product representation.
+!
+!   da(p,q) = <Psi| a^+_{p,alpha} a_{q,alpha} |Psi>
+!   db(p,q) = <Psi| a^+_{p,beta } a_{q,beta } |Psi>
+!
+!   d (p,q) = da(p,q) + db(p,q)
+!   sd(p,q) = da(p,q) - db(p,q)
+!
+! If the CI vector is not normalized, the densities are scaled by
+! <Psi|Psi>.
+
+  real(kind=wp), intent(in)  :: psi(:,:)
+  real(kind=wp), intent(out) :: d(my_norb,my_norb)
+  real(kind=wp), intent(out) :: sd(my_norb,my_norb)
+  real(kind=wp), intent(out), optional :: da(my_norb,my_norb)
+  real(kind=wp), intent(out), optional :: db(my_norb,my_norb)
+
+  call transition_one_pdm(psi,psi,d,sd,da,db)
+
+end subroutine one_pdm
+
+
+subroutine transition_one_pdm(bra, ket, d, sd, da, db)
+! Compute the spin-resolved transition one-particle density matrices
+! between two CI vectors:
+!
+!   da(p,q) = <bra| a^+_{p,alpha} a_{q,alpha} |ket>
+!   db(p,q) = <bra| a^+_{p,beta } a_{q,beta } |ket>
+!
+! and return
+!
+!   d (p,q) = da(p,q) + db(p,q)
+!   sd(p,q) = da(p,q) - db(p,q)
+!
+! For an ordinary density matrix, call this routine with bra == ket.
+!
+! The determinant excitation information is taken from ex1_a and ex1_b.
+! Each table entry represents
+!
+!   |I> = E_pq |J>
+!
+! with determinant rank I and fermionic sign sgn.
+
+  real(kind=wp), intent(in)  :: bra(:,:)
+  real(kind=wp), intent(in)  :: ket(:,:)
+  real(kind=wp), intent(out) :: d(my_norb,my_norb)
+  real(kind=wp), intent(out) :: sd(my_norb,my_norb)
+  real(kind=wp), intent(out), optional :: da(my_norb,my_norb)
+  real(kind=wp), intent(out), optional :: db(my_norb,my_norb)
+
+  real(kind=wp), allocatable :: da_loc(:,:), db_loc(:,:)
+
+  call mma_allocate(da_loc,my_norb,my_norb,label='da_loc')
+  call mma_allocate(db_loc,my_norb,my_norb,label='db_loc')
+
+  call alpha_transition_one_pdm(bra,ket,da_loc)
+  call beta_transition_one_pdm (bra,ket,db_loc)
+
+  d  = da_loc + db_loc
+  sd = da_loc - db_loc
+
+  if (present(da)) da = da_loc
+  if (present(db)) db = db_loc
+
+  call mma_deallocate(da_loc)
+  call mma_deallocate(db_loc)
+
+end subroutine transition_one_pdm
+
+subroutine alpha_transition_one_pdm(bra, ket, da)
+! Alpha-spin contribution to the transition one-particle density matrix:
+!
+!   da(p,q) = sum_ia,ja,ib bra(ia,ib)
+!             <ia|E_pq|ja> ket(ja,ib)
+
+  real(kind=wp), intent(in)  :: bra(:,:)
+  real(kind=wp), intent(in)  :: ket(:,:)
+  real(kind=wp), intent(out) :: da(my_norb,my_norb)
+
+  integer(kind=iwp) :: ja, ia, jasta, jaend
+  integer(kind=iwp) :: pq, p, q, sgn
+  real(kind=wp) :: contribution
+
+  da = Zero
+
+  call par_range(ndeta,jasta,jaend)
+
+  do ja = jasta, jaend
+    do pq = 1, max_ex1a
+
+      p   = ex1_a(pq,ja)%p
+      q   = ex1_a(pq,ja)%q
+      sgn = ex1_a(pq,ja)%sgn
+      ia  = ex1_a(pq,ja)%rank
+
+      contribution = dot_product(bra(ia,1:ndetb),ket(ja,1:ndetb))
+
+      da(p,q) = da(p,q) + real(sgn,kind=wp)*contribution
+
+    end do
+  end do
+
+  call gadgop(da,my_norb*my_norb,'+')
+
+end subroutine alpha_transition_one_pdm
+
+subroutine beta_transition_one_pdm(bra, ket, db)
+! Beta-spin contribution to the transition one-particle density matrix:
+!
+!   db(p,q) = sum_ib,jb,ia bra(ia,ib)
+!             <ib|E_pq|jb> ket(ia,jb)
+!
+! The excitation table ex1_b stores, for each source determinant jb,
+! the destination determinant ib, orbital pair p,q, and phase.
+
+  real(kind=wp), intent(in)  :: bra(:,:)
+  real(kind=wp), intent(in)  :: ket(:,:)
+  real(kind=wp), intent(out) :: db(my_norb,my_norb)
+
+  integer(kind=iwp) :: jb, ib, jbsta, jbend
+  integer(kind=iwp) :: pq, p, q, sgn
+  real(kind=wp) :: contribution
+
+  db = Zero
+
+  ! In analogy with sigma_update, distribute the determinant work if
+  ! running under the existing parallel environment.
+  call par_range(ndetb,jbsta,jbend)
+
+  do jb = jbsta, jbend
+    do pq = 1, max_ex1b
+
+      p   = ex1_b(pq,jb)%p
+      q   = ex1_b(pq,jb)%q
+      sgn = ex1_b(pq,jb)%sgn
+      ib  = ex1_b(pq,jb)%rank
+
+      contribution = dot_product(bra(1:ndeta,ib),ket(1:ndeta,jb))
+
+      db(p,q) = db(p,q) + real(sgn,kind=wp)*contribution
+
+    end do
+  end do
+
+  call gadgop(db,my_norb*my_norb,'+')
+
+end subroutine beta_transition_one_pdm
 
 subroutine ex1_init(k,n,ex1_table)
 
