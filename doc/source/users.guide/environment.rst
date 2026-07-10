@@ -527,7 +527,7 @@ The complete list of |molcas|-related environment variables:
   integrals, use MOLCAS_ONEINT_H5=MLTPL,ANGMOM or just MOLCAS_ONEINT_H5=ANGMOM
   More variables may be added in the future.
 
-  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_ONEINT_H5" APPEAR="Output Directory" KIND="CHOICE" LIST="MLTPL,ANGMOM" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_ONEINT_H5" APPEAR="1el-integral HDF5 storage" KIND="STRING" LEVEL="BASIC">
               %%Keyword: MOLCAS_ONEINT_H5 <basic>
               <HELP>
               This variable takes a comma-separated string to denote which
