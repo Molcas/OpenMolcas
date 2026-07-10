@@ -43,6 +43,7 @@
 !***********************************************************************
 
 #define _SGUGA_VERIFY_
+#define _FAROALD_VERIFY_
 subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,nTUVX,TUVX,IFINAL)
 ! ****************************************************************
 ! history:                                                       *
@@ -70,8 +71,16 @@ use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
 use casvb_global, only: ifvb
 use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
+
+use faroald, only: my_norb, ndeta, ndetb
+use citrans, only: citrans_csf2sd, citrans_sort
+use faroald, only: one_pdm
+#ifdef _FAROALD_VERIFY_
+use rasscf_global, only: DoFaro
+#endif
 use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
+
 use wadr, only: FMO
 use sxci, only: IDXSX
 use gas_data, only: iDoGAS
@@ -119,6 +128,11 @@ real(kind=wp), external :: DDot_
 #ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_D1
 real(kind=wp), allocatable :: D_Sguga(:)
+#endif
+#ifdef _FAROALD_VERIFY_
+real(kind=wp), allocatable :: D_FAROALD(:,:)
+real(kind=wp), allocatable :: SD_FAROALD(:,:)
+real(kind=wp), allocatable :: Faroald_Psi(:,:)
 #endif
 #include "warnings.h"
 
@@ -293,8 +307,8 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
         call mma_deallocate(Pscr)
         call mma_deallocate(PAtmp)
-#ifdef _SGUGA_VERIFY_
 ! temporary code
+#ifdef _SGUGA_VERIFY_
         If (.NOT.iDoGAS) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
@@ -306,13 +320,44 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
         If (ABS(Sum(Abs(D_sguga))-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
            Write (6,*) 'SGUGA error in D1Mat'
-           Write (6,*) 'SGUGA error in D1Mat'
            Call Abend()
         End If
         Call mma_deallocate(D_sguga)
         End If
-! end temporary code
 #endif
+#ifdef _FAROALD_VERIFY_
+        If (.NOT.iDoGAS .and. DoFaro) Then
+        Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
+        Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
+        Call mma_allocate(D_Faroald,NAC,NAC)
+        Call mma_allocate(SD_Faroald,NAC,NAC)
+
+        Call mma_allocate(CIV,nConf,Label='CIV')
+        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+        Call mma_allocate(temp,nDetA*nDetB,Label='temp')
+        call CITRANS_SORT('C',CIV,temp)
+        Call mma_deallocate(CIV)
+        Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
+        Faroald_Psi(:,:)=Zero
+        call CITRANS_CSF2SD(temp,Faroald_PSI)
+        Call mma_deallocate(temp)
+
+        Call One_pdm(Faroald_Psi,D_Faroald,SD_Faroald)
+        Call mma_deallocate(Faroald_Psi)
+
+        Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
+        Call Fold2(1,[NAC],D_faroald,D_sguga)
+        Call TriPrt('DTmp(FAROALD)',' ',D_sguga,NAC)
+        If (ABS(Sum(Abs(D_sguga)-Check_D1)/SIZE(D_sguga))>1.0e12_wp) Then
+           Write (6,*) 'FAROALD error in D1Mat'
+           Call Abend()
+        End If
+        Call mma_deallocate(D_Sguga)
+        Call mma_deallocate(D_faroald)
+        Call mma_deallocate(SD_faroald)
+        End If
+#endif
+! end temporary code
       end if
     else
       Dtmp(:) = Zero

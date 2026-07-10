@@ -58,10 +58,10 @@ call ex1_init(nelb,my_norb,ex1_b)
 ! For sigma2, we use an excitation table for the alpha strings, unless
 ! Ms = 0 (mult = 1), as for singlet spins sigma2 is not computed and
 ! just taken as the transpose of SG_Epq_Psi.
-if (mult /= 1) then
+!if (mult /= 1) then
   call mma_allocate(ex1_a,max_ex1a,ndeta,label='ex1_a')
   call ex1_init(nela,my_norb,ex1_a)
-end if
+!end if
 
 ! For sigma3, we need to construct a list of determinant couples L(i)
 ! = E_pq R(i) for a given p and q for the alpha strings. This is done
