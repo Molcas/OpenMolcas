@@ -22,8 +22,8 @@ module faroald
 ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half
-use Definitions, only: wp, iwp
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 #ifdef _PROF_
 use, intrinsic :: iso_fortran_env, only: int64
 use Definitions, only: u6
@@ -50,7 +50,7 @@ integer(kind=int64) :: nflop
 #endif
 
 public :: ex1_a, ex1_b, ex1_init, max_LRs, max_ex1a, max_ex1b, max_ex2a, max_ex2b, mult, my_ndet, my_nel, my_norb, ndeta, ndetb, &
-          nela, nelb, nhoa, nhob, sigma_update, gtuvx, htu, one_pdm, transition_one_pdm, two_pdm, transition_two_pdm
+          nela, nelb, nhoa, nhob, sigma_update, gtuvx, htu, one_pdm, transition_one_pdm, two_pdm, transition_two_pdm, fold_two_pdm
 
 ! Extensions to mma interfaces
 
@@ -801,6 +801,154 @@ subroutine beta_alpha_two_pdm_product(bra, ket, pprod)
   end do
 
 end subroutine beta_alpha_two_pdm_product
+
+subroutine fold_two_pdm(p2, p2_fold, average)
+! Fold a full four-index spin-free two-particle density matrix
+!
+!   p2(t,u,v,x)
+!
+! into packed pair-pair triangular storage:
+!
+!   p2_fold(ij)
+!
+! where
+!
+!   tu = pair_index(t,u),  t >= u
+!   vx = pair_index(v,x),  v >= x
+!   ij = pair_index(tu,vx), tu >= vx
+!
+! Thus p2_fold has length
+!
+!   npair2 = npair*(npair+1)/2
+!   npair  = my_norb*(my_norb+1)/2
+!
+! By default, this routine performs a direct canonical fold:
+!
+!   p2_fold((tu,vx)) = p2(t,u,v,x)
+!
+! using only canonical representatives t>=u, v>=x, tu>=vx.
+!
+! If average=.true., all tensor elements mapping to the same packed
+! position are averaged. This is useful as a diagnostic if the full
+! tensor has small numerical deviations from the expected packed
+! symmetries.
+
+  real(kind=wp), intent(in)  :: p2(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(out) :: p2_fold(:)
+  logical, intent(in), optional :: average
+
+  integer(kind=iwp) :: t, u, v, x
+  integer(kind=iwp) :: tu, vx, tuvx
+  integer(kind=iwp) :: npair, npair2
+  logical :: do_average
+  real(kind=wp), allocatable :: weight(:)
+
+  npair  = my_norb*(my_norb+1)/2
+  npair2 = npair*(npair+1)/2
+
+  if (size(p2_fold) < npair2) then
+    Write (u6,*) 'fold_two_pdm: p2_fold too small'
+    Call Abend()
+  end if
+
+  do_average = .false.
+  if (present(average)) do_average = average
+
+  p2_fold(:) = Zero
+
+  if (.not. do_average) then
+
+    ! Canonical Fold2-like packing.
+    !
+    ! Only canonical orbital-pair representatives are used:
+    !
+    !   t >= u
+    !   v >= x
+    !   pair(t,u) >= pair(v,x)
+
+    do t = 1, my_norb
+      do u = 1, t
+
+        tu = faroald_pair_index(t,u)
+
+        do v = 1, my_norb
+          do x = 1, v
+
+            vx = faroald_pair_index(v,x)
+
+            if (tu < vx) cycle
+
+            tuvx = faroald_pair_index(tu,vx)
+
+            p2_fold(tuvx) = p2(t,u,v,x)
+
+          end do
+        end do
+
+      end do
+    end do
+
+  else
+
+    ! Symmetry-averaged packing.
+    !
+    ! Every full tensor element is mapped to the same packed pair-pair
+    ! address as its symmetry-equivalent partners. The stored value is
+    ! the arithmetic average over all entries mapped to that address.
+
+    call mma_allocate(weight,npair2,label='fold_two_pdm_weight')
+    weight(:) = Zero
+
+    do t = 1, my_norb
+      do u = 1, my_norb
+
+        tu = faroald_pair_index(t,u)
+
+        do v = 1, my_norb
+          do x = 1, my_norb
+
+            vx = faroald_pair_index(v,x)
+            tuvx = faroald_pair_index(tu,vx)
+
+            p2_fold(tuvx) = p2_fold(tuvx) + p2(t,u,v,x)
+            weight(tuvx)  = weight(tuvx)  + One
+
+          end do
+        end do
+
+      end do
+    end do
+
+    do tuvx = 1, npair2
+      if (weight(tuvx) /= Zero) p2_fold(tuvx) = p2_fold(tuvx)/weight(tuvx)
+    end do
+
+    call mma_deallocate(weight)
+
+  end if
+
+end subroutine fold_two_pdm
+
+
+integer(kind=iwp) function faroald_pair_index(i, j) result(ij)
+! Return the packed lower-triangular index for an unordered pair (i,j).
+!
+! If i >= j:
+!
+!   ij = i*(i-1)/2 + j
+!
+! Otherwise the pair is swapped.
+
+  integer(kind=iwp), intent(in) :: i, j
+
+  if (i >= j) then
+    ij = i*(i-1)/2 + j
+  else
+    ij = j*(j-1)/2 + i
+  end if
+
+end function faroald_pair_index
+
 subroutine ex1_init(k,n,ex1_table)
 
   use second_quantization, only: binom_coef, ex1, fase, lex_init, lex_next, lexrank

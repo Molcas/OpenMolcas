@@ -74,7 +74,7 @@ use rctfld_module, only: lRF
 
 use faroald, only: ndeta, ndetb
 use citrans, only: citrans_csf2sd, citrans_sort
-use faroald, only: one_pdm, two_pdm
+use faroald, only: one_pdm, two_pdm, fold_two_pdm
 #ifdef _FAROALD_VERIFY_
 use rasscf_global, only: DoFaro
 #endif
@@ -131,11 +131,12 @@ real(kind=wp), allocatable :: D_Sguga(:)
 #endif
 #ifdef _FAROALD_VERIFY_
 real(kind=wp) :: Check_SD1, Trace2
-integer(kind=iwp) :: t, v
+integer(kind=iwp) :: t, v, nFold
 real(kind=wp), allocatable :: D_FAROALD(:,:)
 real(kind=wp), allocatable :: SD_FAROALD(:,:)
 real(kind=wp), allocatable :: Faroald_Psi(:,:)
 real(kind=wp), allocatable :: P_Faroald(:,:,:,:)
+real(kind=wp), allocatable :: P_Folded(:)
 #endif
 #include "warnings.h"
 
@@ -337,6 +338,9 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call mma_allocate(D_Faroald,NAC,NAC)
         Call mma_allocate(SD_Faroald,NAC,NAC)
         Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
+        nFold=NAC*(NAC+1)/2
+        nFold=nFold*(nFold+1)/2
+        Call mma_allocate(P_Folded,nFold,Label='P_Folded')
 
         Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
         Call mma_allocate(temp,nDetA*nDetB,Label='temp')
@@ -356,6 +360,8 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call two_pdm(Faroald_psi,P_Faroald)
 
         Call mma_deallocate(Faroald_Psi)
+
+        Call Fold_Two_pdm(P_Faroald,P_Folded,Average=.True.)
 
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call Fold2(1,[NAC],D_faroald,D_sguga)
@@ -387,6 +393,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call mma_deallocate(D_Sguga)
         Call mma_deallocate(D_faroald)
         Call mma_deallocate(SD_faroald)
+        Call mma_deallocate(P_Folded)
         Call mma_deallocate(P_faroald)
         End If
 #endif
@@ -659,6 +666,9 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call mma_allocate(D_Faroald,NAC,NAC)
         Call mma_allocate(SD_Faroald,NAC,NAC)
         Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
+        nFold=NAC*(NAC+1)/2
+        nFold=nFold*(nFold+1)/2
+        Call mma_allocate(P_Folded,nFold,Label='P_Folded')
 
         Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
         Call mma_allocate(temp,nDetA*nDetB,Label='temp')
@@ -678,6 +688,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call two_pdm(Faroald_psi,P_Faroald)
 
         Call mma_deallocate(Faroald_Psi)
+
+        Call Fold_Two_pdm(P_Faroald,P_Folded,Average=.True.)
 
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call Fold2(1,[NAC],D_faroald,D_sguga)
@@ -709,6 +721,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call mma_deallocate(D_Sguga)
         Call mma_deallocate(D_faroald)
         Call mma_deallocate(SD_faroald)
+        Call mma_deallocate(P_Folded)
         Call mma_deallocate(P_faroald)
         End If
 #endif
