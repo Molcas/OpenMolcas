@@ -130,6 +130,7 @@ real(kind=wp) :: Check_D1
 real(kind=wp), allocatable :: D_Sguga(:)
 #endif
 #ifdef _FAROALD_VERIFY_
+real(kind=wp) :: Check_SD1
 real(kind=wp), allocatable :: D_FAROALD(:,:)
 real(kind=wp), allocatable :: SD_FAROALD(:,:)
 real(kind=wp), allocatable :: Faroald_Psi(:,:)
@@ -328,7 +329,9 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 #ifdef _FAROALD_VERIFY_
         If (.NOT.iDoGAS .and. DoFaro) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
+        Call TriPrt('DSTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
+        Check_SD1=Sum(ABS(DStmp(1:NAC*(NAC+1)/2)))
         Call mma_allocate(D_Faroald,NAC,NAC)
         Call mma_allocate(SD_Faroald,NAC,NAC)
 
@@ -350,9 +353,17 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call Fold2(1,[NAC],D_faroald,D_sguga)
         Call TriPrt('DTmp(FAROALD)',' ',D_sguga,NAC)
         If (ABS(Sum(Abs(D_sguga)-Check_D1)/SIZE(D_sguga))>1.0e12_wp) Then
-           Write (6,*) 'FAROALD error in D1Mat'
+           Write (6,*) 'FAROALD error in one_pdm'
            Call Abend()
         End If
+
+        Call Fold2(1,[NAC],SD_faroald,D_sguga)
+        Call TriPrt('DSTmp(FAROALD)',' ',D_sguga,NAC)
+        If (ABS(Sum(Abs(D_sguga)-Check_SD1)/SIZE(D_sguga))>1.0e12_wp) Then
+           Write (6,*) 'FAROALD error in one_pdm'
+           Call Abend()
+        End If
+
         Call mma_deallocate(D_Sguga)
         Call mma_deallocate(D_faroald)
         Call mma_deallocate(SD_faroald)
@@ -621,6 +632,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         If (.NOT.iDoGAS .and. DoFaro) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
+        Call TriPrt('DSTmp(Lucia)',' ',DStmp,NAC)
+        Check_SD1=Sum(ABS(DStmp(1:NAC*(NAC+1)/2)))
 
         Call mma_allocate(D_Faroald,NAC,NAC)
         Call mma_allocate(SD_Faroald,NAC,NAC)
@@ -646,6 +659,14 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
            Write (6,*) 'FAROALD error in D1Mat'
            Call Abend()
         End If
+
+        Call Fold2(1,[NAC],DS_faroald,D_sguga)
+        Call TriPrt('DSTmp(FAROALD)',' ',D_sguga,NAC)
+        If (ABS(Sum(Abs(D_sguga)-Check_SD1)/SIZE(D_sguga))>1.0e12_wp) Then
+           Write (6,*) 'FAROALD error in one_pdm'
+           Call Abend()
+        End If
+
         Call mma_deallocate(D_Sguga)
         Call mma_deallocate(D_faroald)
         Call mma_deallocate(SD_faroald)
