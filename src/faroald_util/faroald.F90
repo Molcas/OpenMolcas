@@ -50,7 +50,7 @@ integer(kind=int64) :: nflop
 #endif
 
 public :: ex1_a, ex1_b, ex1_init, max_LRs, max_ex1a, max_ex1b, max_ex2a, max_ex2b, mult, my_ndet, my_nel, my_norb, ndeta, ndetb, &
-          nela, nelb, nhoa, nhob, sigma_update, gtuvx, htu, one_pdm, transition_one_pdm
+          nela, nelb, nhoa, nhob, sigma_update, gtuvx, htu, one_pdm, transition_one_pdm, two_pdm, transition_two_pdm
 
 ! Extensions to mma interfaces
 
@@ -502,6 +502,305 @@ subroutine beta_transition_one_pdm(bra, ket, db)
 
 end subroutine beta_transition_one_pdm
 
+subroutine two_pdm(psi, p2, p2prod)
+! Compute the spin-free two-particle density matrix for one CI vector.
+!
+! The returned p2 is the normal-ordered spin-free two-particle density
+!
+!   p2(t,u,v,x) = <Psi| E_tu E_vx - delta(u,v) E_tx |Psi>
+!
+! where
+!
+!   E_tu = sum_sigma a^+_{t sigma} a_{u sigma}.
+!
+! If p2prod is present, it receives the unnormal-ordered product density
+!
+!   p2prod(t,u,v,x) = <Psi| E_tu E_vx |Psi>.
+!
+! If psi is not normalized, the density matrices are scaled by <Psi|Psi>.
+
+  real(kind=wp), intent(in)  :: psi(:,:)
+  real(kind=wp), intent(out) :: p2(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(out), optional :: p2prod(my_norb,my_norb,my_norb,my_norb)
+
+  call transition_two_pdm(psi,psi,p2,p2prod)
+
+end subroutine two_pdm
+
+
+subroutine transition_two_pdm(bra, ket, p2, p2prod)
+! Compute the spin-free transition two-particle density matrix.
+!
+! The returned p2 is
+!
+!   p2(t,u,v,x) = <bra| E_tu E_vx - delta(u,v) E_tx |ket>.
+!
+! If p2prod is present, it receives
+!
+!   p2prod(t,u,v,x) = <bra| E_tu E_vx |ket>.
+!
+! The construction first forms the product density <E_tu E_vx> by
+! applying two one-particle excitation operators through the existing
+! alpha and beta excitation tables. Then the contraction
+!
+!   delta(u,v) <E_tx>
+!
+! is subtracted using transition_one_pdm.
+
+  real(kind=wp), intent(in)  :: bra(:,:)
+  real(kind=wp), intent(in)  :: ket(:,:)
+  real(kind=wp), intent(out) :: p2(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(out), optional :: p2prod(my_norb,my_norb,my_norb,my_norb)
+
+  real(kind=wp), allocatable :: pprod(:,:,:,:)
+  real(kind=wp), allocatable :: d1(:,:), sd1(:,:)
+  integer(kind=iwp) :: t, u, v, x
+
+  call mma_allocate(pprod,my_norb,my_norb,my_norb,my_norb,label='pprod')
+  call mma_allocate(d1,my_norb,my_norb,label='d1')
+  call mma_allocate(sd1,my_norb,my_norb,label='sd1')
+
+  call transition_two_pdm_product(bra,ket,pprod)
+
+  ! One-particle transition density needed for the contraction term.
+  call transition_one_pdm(bra,ket,d1,sd1)
+
+  p2 = pprod
+
+  do x = 1, my_norb
+    do v = 1, my_norb
+      do u = 1, my_norb
+        do t = 1, my_norb
+          if (u == v) p2(t,u,v,x) = p2(t,u,v,x) - d1(t,x)
+        end do
+      end do
+    end do
+  end do
+
+  if (present(p2prod)) p2prod = pprod
+
+  call mma_deallocate(sd1)
+  call mma_deallocate(d1)
+  call mma_deallocate(pprod)
+
+end subroutine transition_two_pdm
+
+
+subroutine transition_two_pdm_product(bra, ket, pprod)
+! Compute the spin-free product density
+!
+!   pprod(t,u,v,x) = <bra| E_tu E_vx |ket>
+!
+! without subtracting the contraction delta(u,v) <E_tx>.
+!
+! The spin-free product is built from four spin blocks:
+!
+!   alpha-alpha : E_tu(alpha) E_vx(alpha)
+!   beta-beta   : E_tu(beta ) E_vx(beta )
+!   alpha-beta  : E_tu(alpha) E_vx(beta )
+!   beta-alpha  : E_tu(beta ) E_vx(alpha)
+!
+! The rightmost operator E_vx acts first.
+
+  real(kind=wp), intent(in)  :: bra(:,:)
+  real(kind=wp), intent(in)  :: ket(:,:)
+  real(kind=wp), intent(out) :: pprod(my_norb,my_norb,my_norb,my_norb)
+
+  pprod = Zero
+
+  call alpha_alpha_two_pdm_product(bra,ket,pprod)
+  call beta_beta_two_pdm_product  (bra,ket,pprod)
+  call alpha_beta_two_pdm_product (bra,ket,pprod)
+  call beta_alpha_two_pdm_product (bra,ket,pprod)
+
+end subroutine transition_two_pdm_product
+
+
+subroutine alpha_alpha_two_pdm_product(bra, ket, pprod)
+! Add the alpha-alpha contribution
+!
+!   <bra| E_tu(alpha) E_vx(alpha) |ket>
+!
+! to pprod(t,u,v,x). The rightmost operator E_vx(alpha) acts first:
+!
+!   ja --E_vx--> ka --E_tu--> ia
+
+  real(kind=wp), intent(in)    :: bra(:,:)
+  real(kind=wp), intent(in)    :: ket(:,:)
+  real(kind=wp), intent(inout) :: pprod(my_norb,my_norb,my_norb,my_norb)
+
+  integer(kind=iwp) :: ja, ka, ia
+  integer(kind=iwp) :: tu, vx
+  integer(kind=iwp) :: t, u, v, x
+  integer(kind=iwp) :: sgn_tu, sgn_vx
+  real(kind=wp) :: contribution
+
+  do ja = 1, ndeta
+    do vx = 1, max_ex1a
+
+      v      = ex1_a(vx,ja)%p
+      x      = ex1_a(vx,ja)%q
+      sgn_vx = ex1_a(vx,ja)%sgn
+      ka     = ex1_a(vx,ja)%rank
+
+      do tu = 1, max_ex1a
+
+        t      = ex1_a(tu,ka)%p
+        u      = ex1_a(tu,ka)%q
+        sgn_tu = ex1_a(tu,ka)%sgn
+        ia     = ex1_a(tu,ka)%rank
+
+        contribution = dot_product(bra(ia,1:ndetb),ket(ja,1:ndetb))
+
+        pprod(t,u,v,x) = pprod(t,u,v,x)                                 &
+             + real(sgn_tu*sgn_vx,kind=wp)*contribution
+
+      end do
+    end do
+  end do
+
+end subroutine alpha_alpha_two_pdm_product
+
+
+subroutine beta_beta_two_pdm_product(bra, ket, pprod)
+! Add the beta-beta contribution
+!
+!   <bra| E_tu(beta) E_vx(beta) |ket>
+!
+! to pprod(t,u,v,x). The rightmost operator E_vx(beta) acts first:
+!
+!   jb --E_vx--> kb --E_tu--> ib
+
+  real(kind=wp), intent(in)    :: bra(:,:)
+  real(kind=wp), intent(in)    :: ket(:,:)
+  real(kind=wp), intent(inout) :: pprod(my_norb,my_norb,my_norb,my_norb)
+
+  integer(kind=iwp) :: jb, kb, ib
+  integer(kind=iwp) :: tu, vx
+  integer(kind=iwp) :: t, u, v, x
+  integer(kind=iwp) :: sgn_tu, sgn_vx
+  real(kind=wp) :: contribution
+
+  do jb = 1, ndetb
+    do vx = 1, max_ex1b
+
+      v      = ex1_b(vx,jb)%p
+      x      = ex1_b(vx,jb)%q
+      sgn_vx = ex1_b(vx,jb)%sgn
+      kb     = ex1_b(vx,jb)%rank
+
+      do tu = 1, max_ex1b
+
+        t      = ex1_b(tu,kb)%p
+        u      = ex1_b(tu,kb)%q
+        sgn_tu = ex1_b(tu,kb)%sgn
+        ib     = ex1_b(tu,kb)%rank
+
+        contribution = dot_product(bra(1:ndeta,ib),ket(1:ndeta,jb))
+
+        pprod(t,u,v,x) = pprod(t,u,v,x)                                 &
+             + real(sgn_tu*sgn_vx,kind=wp)*contribution
+
+      end do
+    end do
+  end do
+
+end subroutine beta_beta_two_pdm_product
+
+
+subroutine alpha_beta_two_pdm_product(bra, ket, pprod)
+! Add the alpha-beta contribution
+!
+!   <bra| E_tu(alpha) E_vx(beta) |ket>
+!
+! to pprod(t,u,v,x). Since alpha and beta strings are stored separately,
+! the excitation signs factor into the alpha and beta signs:
+!
+!   ja --E_tu(alpha)--> ia
+!   jb --E_vx(beta )--> ib
+
+  real(kind=wp), intent(in)    :: bra(:,:)
+  real(kind=wp), intent(in)    :: ket(:,:)
+  real(kind=wp), intent(inout) :: pprod(my_norb,my_norb,my_norb,my_norb)
+
+  integer(kind=iwp) :: ja, ia, jb, ib
+  integer(kind=iwp) :: tu, vx
+  integer(kind=iwp) :: t, u, v, x
+  integer(kind=iwp) :: sgn_tu, sgn_vx
+
+  do ja = 1, ndeta
+    do tu = 1, max_ex1a
+
+      t      = ex1_a(tu,ja)%p
+      u      = ex1_a(tu,ja)%q
+      sgn_tu = ex1_a(tu,ja)%sgn
+      ia     = ex1_a(tu,ja)%rank
+
+      do jb = 1, ndetb
+        do vx = 1, max_ex1b
+
+          v      = ex1_b(vx,jb)%p
+          x      = ex1_b(vx,jb)%q
+          sgn_vx = ex1_b(vx,jb)%sgn
+          ib     = ex1_b(vx,jb)%rank
+
+          pprod(t,u,v,x) = pprod(t,u,v,x)                               &
+               + real(sgn_tu*sgn_vx,kind=wp)*bra(ia,ib)*ket(ja,jb)
+
+        end do
+      end do
+
+    end do
+  end do
+
+end subroutine alpha_beta_two_pdm_product
+
+
+subroutine beta_alpha_two_pdm_product(bra, ket, pprod)
+! Add the beta-alpha contribution
+!
+!   <bra| E_tu(beta) E_vx(alpha) |ket>
+!
+! to pprod(t,u,v,x):
+!
+!   jb --E_tu(beta )--> ib
+!   ja --E_vx(alpha)--> ia
+
+  real(kind=wp), intent(in)    :: bra(:,:)
+  real(kind=wp), intent(in)    :: ket(:,:)
+  real(kind=wp), intent(inout) :: pprod(my_norb,my_norb,my_norb,my_norb)
+
+  integer(kind=iwp) :: ja, ia, jb, ib
+  integer(kind=iwp) :: tu, vx
+  integer(kind=iwp) :: t, u, v, x
+  integer(kind=iwp) :: sgn_tu, sgn_vx
+
+  do jb = 1, ndetb
+    do tu = 1, max_ex1b
+
+      t      = ex1_b(tu,jb)%p
+      u      = ex1_b(tu,jb)%q
+      sgn_tu = ex1_b(tu,jb)%sgn
+      ib     = ex1_b(tu,jb)%rank
+
+      do ja = 1, ndeta
+        do vx = 1, max_ex1a
+
+          v      = ex1_a(vx,ja)%p
+          x      = ex1_a(vx,ja)%q
+          sgn_vx = ex1_a(vx,ja)%sgn
+          ia     = ex1_a(vx,ja)%rank
+
+          pprod(t,u,v,x) = pprod(t,u,v,x)                               &
+               + real(sgn_tu*sgn_vx,kind=wp)*bra(ia,ib)*ket(ja,jb)
+
+        end do
+      end do
+
+    end do
+  end do
+
+end subroutine beta_alpha_two_pdm_product
 subroutine ex1_init(k,n,ex1_table)
 
   use second_quantization, only: binom_coef, ex1, fase, lex_init, lex_next, lexrank
