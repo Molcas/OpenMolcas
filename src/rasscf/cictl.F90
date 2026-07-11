@@ -130,7 +130,7 @@ real(kind=wp) :: Check_D1
 real(kind=wp), allocatable :: D_Sguga(:)
 #endif
 #ifdef _FAROALD_VERIFY_
-real(kind=wp) :: Check_SD1, Trace2
+real(kind=wp) :: Check_SD1, Trace2, Check_P2
 integer(kind=iwp) :: t, v, nFold
 real(kind=wp), allocatable :: D_FAROALD(:,:)
 real(kind=wp), allocatable :: SD_FAROALD(:,:)
@@ -333,6 +333,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         If (.NOT.iDoGAS .and. DoFaro) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Call TriPrt('DSTmp(Lucia)',' ',DStmp,NAC)
+        Call TriPrt('PTmp(Lucia)',' ',PTmp,NAC*(NAC+1)/2)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Check_SD1=Sum(ABS(DStmp(1:NAC*(NAC+1)/2)))
         Call mma_allocate(D_Faroald,NAC,NAC)
@@ -341,6 +342,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         nFold=NAC*(NAC+1)/2
         nFold=nFold*(nFold+1)/2
         Call mma_allocate(P_Folded,nFold,Label='P_Folded')
+        Check_P2=Sum(ABS(Ptmp(1:nFold)))
 
         Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
         Call mma_allocate(temp,nDetA*nDetB,Label='temp')
@@ -360,8 +362,6 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call two_pdm(Faroald_psi,P_Faroald)
 
         Call mma_deallocate(Faroald_Psi)
-
-        Call Fold_Two_pdm(P_Faroald,P_Folded,Average=.True.)
 
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
         Call Fold2(1,[NAC],D_faroald,D_sguga)
@@ -387,6 +387,13 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 
         If (Abs(Trace2-real(nActEl*(nActEl-1),kind=wp))/Size(P_Faroald)>1.0E-12_wp) Then
            Write (6,*) 'Trace2/=nActEl*(nActEl-1):',Trace2,nActEl*(nActEl-1)
+           Call Abend()
+        End If
+
+        Call Fold_Two_pdm(P_Faroald,P_Folded,Average=.True.)
+        Call TriPrt('PTmp(FAROALD)',' ',P_Folded,NAC*(NAC+1)/2)
+        If (ABS(Sum(Abs(P_Folded)-Check_P2)/SIZE(P_Folded))>1.0e12_wp) Then
+           Write (6,*) 'FAROALD error in Two_pdm'
            Call Abend()
         End If
 
