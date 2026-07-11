@@ -652,25 +652,31 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 #ifdef _XFAROALD_VERIFY_
         If (.NOT.iDoGAS .and. DoFaro) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
-        Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Call TriPrt('DSTmp(Lucia)',' ',DStmp,NAC)
+        Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Check_SD1=Sum(ABS(DStmp(1:NAC*(NAC+1)/2)))
 
         Call mma_allocate(D_Faroald,NAC,NAC)
         Call mma_allocate(SD_Faroald,NAC,NAC)
+        Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
 
         Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
-        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
         Call mma_allocate(temp,nDetA*nDetB,Label='temp')
+        Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
+
+        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
         temp(:)=Zero
         call CITRANS_SORT('C',CIV,temp)
-        Call mma_deallocate(CIV)
-        Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
         Faroald_Psi(:,:)=Zero
         call CITRANS_CSF2SD(temp,Faroald_PSI)
+
+        Call mma_deallocate(CIV)
         Call mma_deallocate(temp)
 
         Call One_pdm(Faroald_Psi,D_Faroald,SD_Faroald)
+
+        Call two_pdm(Faroald_psi,P_Faroald)
+
         Call mma_deallocate(Faroald_Psi)
 
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
@@ -688,9 +694,22 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
            Call Abend()
         End If
 
+        trace2=Zero
+        Do t = 1, NAC
+          Do v = 1, NAC
+             trace2 = trace2 + P_Faroald(t,t,v,v)
+          End Do
+        End Do
+
+        If (Abs(Trace2-real(nActEl*(nActEl-1),kind=wp))/Size(P_Faroald)>1.0E-12_wp) Then
+           Write (6,*) 'Trace2/=nActEl*(nActEl-1):',Trace2,nActEl*(nActEl-1)
+           Call Abend()
+        End If
+
         Call mma_deallocate(D_Sguga)
         Call mma_deallocate(D_faroald)
         Call mma_deallocate(SD_faroald)
+        Call mma_deallocate(P_faroald)
         End If
 #endif
 ! end temporary code
