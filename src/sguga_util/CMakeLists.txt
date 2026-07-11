@@ -23,6 +23,7 @@ set (sources
      sg_reord.F90
      sg_upkwlk.F90
      sguga.F90
+     stepvector_next.F90
 )
 
 # Source files defining modules that should be available to other *_util directories

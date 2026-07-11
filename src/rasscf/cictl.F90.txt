@@ -332,10 +332,9 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call mma_allocate(D_Faroald,NAC,NAC)
         Call mma_allocate(SD_Faroald,NAC,NAC)
 
-        Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
+        Call mma_allocate(CIV,nConf,Label='CIV')
         call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
         Call mma_allocate(temp,nDetA*nDetB,Label='temp')
-        Temp(:)=Zero
         call CITRANS_SORT('C',CIV,temp)
         Call mma_deallocate(CIV)
         Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
@@ -617,7 +616,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         END IF
         END IF
 #endif
-#ifdef _XFAROALD_VERIFY_
+#ifdef _FAROALD_VERIFY_
         If (.NOT.iDoGAS .and. DoFaro) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
@@ -625,10 +624,9 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call mma_allocate(D_Faroald,NAC,NAC)
         Call mma_allocate(SD_Faroald,NAC,NAC)
 
-        Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
+        Call mma_allocate(CIV,nConf,Label='CIV')
         call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
         Call mma_allocate(temp,nDetA*nDetB,Label='temp')
-        temp(:)=Zero
         call CITRANS_SORT('C',CIV,temp)
         Call mma_deallocate(CIV)
         Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')

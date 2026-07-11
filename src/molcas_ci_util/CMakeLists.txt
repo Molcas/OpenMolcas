@@ -92,7 +92,6 @@ set (sources
      sort_cdet.F90
      spinfo.F90
      stepvec.F90
-     stepvector_next.F90
      str_info.F90
      sxci.F90
      term_david.F90
