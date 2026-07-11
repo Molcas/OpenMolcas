@@ -72,7 +72,7 @@ use casvb_global, only: ifvb
 use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
 
-use faroald, only: my_norb, ndeta, ndetb
+use faroald, only: ndeta, ndetb
 use citrans, only: citrans_csf2sd, citrans_sort
 use faroald, only: one_pdm
 #ifdef _FAROALD_VERIFY_
