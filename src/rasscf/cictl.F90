@@ -1055,7 +1055,7 @@ contains
 
  Subroutine Mk_pdms(D,SD,P,nD,nP)
  use Lucia_Interface, only: Lucia_Util
-use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
+use lucia_data, only: PAtmp, Pscr
  use sxci, only: IDXSX
  use stdalloc, only: mma_allocate, mma_deallocate
  use rasscf_global, only: DoFaro
