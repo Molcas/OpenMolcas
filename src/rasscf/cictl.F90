@@ -1055,7 +1055,7 @@ contains
 
  Subroutine Mk_pdms(D,SD,P,nD,nP)
  use Lucia_Interface, only: Lucia_Util
-use lucia_data, only: PAtmp, Pscr
+ use lucia_data, only: PAtmp
  use sxci, only: IDXSX
  use stdalloc, only: mma_allocate, mma_deallocate
  use rasscf_global, only: DoFaro
@@ -1066,6 +1066,7 @@ use lucia_data, only: PAtmp, Pscr
 
 !real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:), PScr(:)
  real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:)
+ real(kind=wp), allocatable :: PScr(:)
 
  call mma_allocate(D_loc,nD,Label='D_loc')
  call mma_allocate(SD_loc,nD,Label='SD_loc')
@@ -1083,10 +1084,12 @@ use lucia_data, only: PAtmp, Pscr
    !If (Present(P)) P(1:nP)=P_loc(1:nP)
  Else
     call mma_allocate(PAtmp,nP,Label='PAtmp')
-    call mma_allocate(PScr,nP,Label='PScr')
     call Lucia_Util('Densi',CI_Vector=CIVEC)
+
+    call mma_allocate(PScr,nP,Label='PScr')
     if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,D,DS,P,PAtmp,Pscr)
     call mma_deallocate(PScr)
+
     call mma_deallocate(PAtmp)
  End If
 

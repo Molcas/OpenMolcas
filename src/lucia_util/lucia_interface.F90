@@ -127,8 +127,9 @@ subroutine densi_master(CIVec,RVec)
   ! Controls the calculation of the densities, when Lucia is called
   ! from Molcas Rasscf.
 
-  use lucia_data, only: DSTmp, Dtmp, IDISK, IREFSM, LCSBLK, kvec3_length, LUC, LUHC, LUSC1, LUSC34, MXNTTS, MXSOOB, &
-                        NCSF_PER_SYM, NSD_PER_SYM, NTOOB, PAtmp, PSSIGN, Ptmp, RHO1, Sigma_on_Disk, SRHO1, VEC3, XISPSM
+  use lucia_data, only: DSTmp, Dtmp, PAtmp, Ptmp
+  use lucia_data, only: IDISK, IREFSM, LCSBLK, kvec3_length, LUC, LUHC, LUSC1, LUSC34, MXNTTS, MXSOOB, &
+                        NCSF_PER_SYM, NSD_PER_SYM, NTOOB, PSSIGN, RHO1, Sigma_on_Disk, SRHO1, VEC3, XISPSM
   use Constants, only: Zero
 
   implicit none
