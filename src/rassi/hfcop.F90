@@ -297,7 +297,7 @@ subroutine calc_h_HFC(iAtom,PROP)
   integer(kind=iwp), intent(in) :: iAtom
   real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
   integer(kind=iwp) :: idx(6), ISS, iState, JSS, jState
-  real(kind=wp) :: A_tens(3,3)
+  real(kind=wp) :: A_tens(5,3,3)
   real(kind=wp), allocatable :: ASD(:,:,:)
 
   idx(:) = ASD_idx(iAtom,:)
@@ -353,21 +353,15 @@ subroutine calc_h_HFC(iAtom,PROP)
 ! CALCULATE A_TENSOR (EPR)
   if(do_EPR) then
     ! 1. Total first
-    call calc_A_tens(A_tens,h_TOT)
-    call calc_prin_val(iAtom,A_tens,5)
+    call calc_A_tens(A_tens(5,:,:),h_TOT)
 
     ! 2. Contributions decomposition
-    call calc_A_tens(A_tens,h_FC)
-    call calc_prin_val(iAtom,A_tens,1)
+    call calc_A_tens(A_tens(1,:,:),h_FC)
+    call calc_A_tens(A_tens(2,:,:),h_SD)
+    call calc_A_tens(A_tens(3,:,:),h_FCSD)
+    call calc_A_tens(A_tens(4,:,:),h_PSO)
 
-    call calc_A_tens(A_tens,h_SD)
-    call calc_prin_val(iAtom,A_tens,2)
-
-    call calc_A_tens(A_tens,h_FCSD)
-    call calc_prin_val(iAtom,A_tens,3)
-
-    call calc_A_tens(A_tens,h_PSO)
-    call calc_prin_val(iAtom,A_tens,4)
+    call calc_prin_val(iAtom,A_tens)
   endif
 
 
@@ -1051,11 +1045,27 @@ subroutine assign_abc_signs(a,b,c,is_determined)
 
 end subroutine assign_abc_signs
 
-subroutine calc_prin_val(iAtom,A_tens,iContr)
+subroutine transf_prin_axes(A, X, a_sm)
 
-  integer(kind=iwp), intent(in) :: iAtom, iContr
-  real(kind=wp), intent(in) :: A_tens(3,3)
-  integer(kind=iwp) :: iAxis, IERR
+  real(kind=wp), intent(in) :: A(5,3,3), X(3,3)
+  real(kind=wp),intent(out) :: a_sm(5,3,3)
+  integer(kind=iwp) :: iContr
+  real(kind=wp) :: tmpmat(3,3)
+
+  do iContr=1,5
+    tmpmat(:,:) = Zero
+    call dgemm_('n','n',3,3,3,1.0_wp,A(iContr,:,:),3,X,3,0.0_wp,tmpmat,3)
+    call dgemm_('t','n',3,3,3,1.0_wp,X,3,tmpmat,3,0.0_wp,a_sm(iContr,:,:),3)
+  enddo
+
+end subroutine transf_prin_axes
+
+subroutine calc_prin_val(iAtom,A_tens)
+
+  integer(kind=iwp), intent(in) :: iAtom
+  real(kind=wp), intent(in) :: A_tens(5,3,3)
+  real(kind=wp) :: a_small(5,3,3)
+  integer(kind=iwp) :: iAxis, IERR, iContr
   real(kind=wp) :: EVI(3), EVR(3), fnorm_diag, fnorm_off_diag, prvl, tmpmat(3,3), X(3,3)
   real(kind=wp), parameter :: to_au = -gElectron*beta_e*beta_n
   real(kind=wp), external :: dnrm2_
@@ -1068,54 +1078,72 @@ subroutine calc_prin_val(iAtom,A_tens,iContr)
   !                                   FCSD = 3
   !                                    PSO = 4
   !                                  Total = 5
-  tmpmat(:,:) = A_tens(:,:)
+  tmpmat(:,:) = A_tens(5,:,:)
   X(:,:) = Zero
   EVR(:) = Zero
   EVI(:) = Zero
   call XEIGEN(1,3,3,tmpmat,EVR,EVI,X,IERR)
 
-  ! Calculate diagonal elements norm
-  fnorm_diag = sqrt(tmpmat(1,1)**2+tmpmat(2,2)**2+tmpmat(3,3)**2)
-  ! Calculate off-diagonal elements norm
-  tmpmat(1,1) = Zero
-  tmpmat(2,2) = Zero
-  tmpmat(3,3) = Zero
-  fnorm_off_diag = dnrm2_(9,tmpmat,1)
+  call transf_prin_axes(A_tens, X, a_small)
 
-  if (fnorm_off_diag/fnorm_diag > 0.05_wp) then
-    call WarningMessage(1,'Relative Frobenius diag/off-diag norm > 5%')
-  end if
+  write(u6,'(4X,A14)') "PRINCIPAL AXES"
+  write(u6,'(4X,A38)') repeat('-',38)
+  write(u6,'(12x,3(A1,12x))') xyz(1:3)
+  do iAxis=1,3
+    write(u6,'(4X,3(ES12.3,1X))') X(iAxis,1:3)
+  end do
+  write(u6,*)
 
-  if (any(EVR(:) < Zero)) then
-    call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
-    call AbEnd()
-  end if
-
-  ! principal values (sqrt of diagonal elements)
-  prin_vals(iACalc,iContr,:) = sqrt(EVR(:))
 
   ! Print A-tensor, the principal axes and eigenvalues
-  write(u6,'(3X,A96)') repeat('-',96)
-  write(u6,'(3X,A10,A6,A22,A7)') '>>> ATOM: ',LAtomLbl(iAtom),'HYPERFINE COUPLING :: ',contrib_lab(iContr)
-  write(u6,'(3X,A96)') repeat('-',96)
-  write(u6,'(14X,A17,29X,A14,14X,A11)') 'A-tensor (A=aa^T)','principal axes','eigenvalues'
-  write(u6,'(12x,3(A1,12x),3x,3(A1,12x))') xyz(1:3),xyz(1:3)
-  do iAxis=1,3
-    write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3),2x,ES12.3)') xyz(iAxis),A_tens(iAxis,1:3),X(iAxis,1:3),EVR(iAxis)
-  end do
+  do iContr=1,5
+    tmpmat(:,:) = a_small(iContr,:,:)
+    ! Calculate diagonal elements norm
+    fnorm_diag = sqrt(tmpmat(1,1)**2+tmpmat(2,2)**2+tmpmat(3,3)**2)
+    ! Calculate off-diagonal elements norm
+    tmpmat(1,1) = Zero
+    tmpmat(2,2) = Zero
+    tmpmat(3,3) = Zero
+    fnorm_off_diag = dnrm2_(9,tmpmat,1)
 
-  ! Print absolute principal values without signs
-  write(u6,*) ''
-  write(u6,'(20X,A31,A7)') 'ABS. PRINCIPAL VALUES [+/-] :: ',contrib_lab(iContr)
-  write(u6,'(12X,A52)') repeat('.',52)
-  write(u6,'(20X,A12,12X,A4,11X,A5)') 'sqrt(eigval)','(au)','(MHz)'
-  write(u6,'(12X,A52)') repeat('.',52)
-  do iAxis=1,3
-    prvl = prin_vals(iACalc,iContr,iAxis)
-    write(u6,'(12X,A2,A1,A1,3X,E13.6,3x,E13.6,3x,E13.6)') 'A_',xyz(iAxis),xyz(iAxis),prvl,prvl*to_au,prvl*con_to_MHz*GNuc(iAtom)
+    if (fnorm_off_diag/fnorm_diag > 0.05_wp) then
+      call WarningMessage(1,'Relative Frobenius diag/off-diag norm > 5%')
+    end if
+
+    write(u6,'(3X,A82)') repeat('-',82)
+    write(u6,'(3X,A10,A6,A22,A7)') '>>> ATOM: ',LAtomLbl(iAtom),'HYPERFINE COUPLING :: ',contrib_lab(iContr)
+    write(u6,'(3X,A82)') repeat('-',82)
+    write(u6,'(14X,A17,32X,A8)') 'A-tensor (A=aa^T)','a-matrix'
+    write(u6,'(12x,3(A1,12x),3x,3(A1,12x))') xyz(1:3),xyz(1:3)
+    do iAxis=1,3
+      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3))') xyz(iAxis),A_tens(iContr,iAxis,1:3),a_small(iContr,iAxis,1:3)
+    end do
+
+    do iAxis=1,3
+      EVR(iAxis) = a_small(iContr,iAxis,iAxis)
+    end do
+
+    if (any(EVR(:) < Zero)) then
+      call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
+      call AbEnd()
+    end if
+
+    ! principal values (sqrt of diagonal elements)
+    prin_vals(iACalc,iContr,:) = sqrt(EVR)
+
+    ! Print absolute principal values without signs
+    write(u6,*) ''
+    write(u6,'(20X,A31,A7)') 'ABS. PRINCIPAL VALUES [+/-] :: ',contrib_lab(iContr)
+    write(u6,'(12X,A52)') repeat('.',52)
+    write(u6,'(22X,A10,12X,A4,11X,A5)') 'sqrt(a_ii)','(au)','(MHz)'
+    write(u6,'(12X,A52)') repeat('.',52)
+    do iAxis=1,3
+      prvl = prin_vals(iACalc,iContr,iAxis)
+      write(u6,'(12X,A1,A1,5X,E13.6,3x,E13.6,3x,E13.6)') xyz(iAxis),xyz(iAxis),prvl,prvl*to_au,prvl*con_to_MHz*GNuc(iAtom)
+    end do
+    write(u6,*) ''
+    write(u6,*) ''
   end do
-  write(u6,*) ''
-  write(u6,*) ''
 
 end subroutine calc_prin_val
 
