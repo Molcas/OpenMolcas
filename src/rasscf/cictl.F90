@@ -306,12 +306,6 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 #       endif
       else
 
-!   call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-!   call mma_allocate(PScr,NACPR2,Label='PScr')
-!   call Lucia_Util('Densi',CI_Vector=CIVEC)
-!   if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-!   call mma_deallocate(PScr)
-!   call mma_deallocate(PAtmp)
         Call Mk_pdms(D=Dtmp,SD=DStmp,P=Ptmp,nD=NAC**2,nP=NACPR2)
 
 ! temporary code
@@ -1081,21 +1075,21 @@ use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
     call mma_allocate(PAtmp,nP,Label='PAtmp')
     call mma_allocate(PScr,nP,Label='PScr')
     call Lucia_Util('Densi',CI_Vector=CIVEC)
-    if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+    if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,D,DS,P,PAtmp,Pscr)
     call mma_deallocate(PScr)
     call mma_deallocate(PAtmp)
+   !If (Present(D)) D(1:nD)=D_loc(1:nD)
+   !If (Present(SD)) SD(1:nD)=SD_loc(1:nD)
+   !If (Present(P)) P(1:nP)=P_loc(1:nP)
  Else
     call mma_allocate(PAtmp,nP,Label='PAtmp')
     call mma_allocate(PScr,nP,Label='PScr')
     call Lucia_Util('Densi',CI_Vector=CIVEC)
-    if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+    if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,D,DS,P,PAtmp,Pscr)
     call mma_deallocate(PScr)
     call mma_deallocate(PAtmp)
  End If
 
-!If (Present(D)) D(1:nD)=D_loc(1:nD)
-!If (Present(SD)) SD(1:nD)=SD_loc(1:nD)
-!If (Present(P)) P(1:nP)=P_loc(1:nP)
 
  call mma_deallocate(D_loc)
  call mma_deallocate(SD_loc)
