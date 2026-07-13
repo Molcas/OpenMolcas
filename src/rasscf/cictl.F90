@@ -1068,21 +1068,51 @@ contains
 
  real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:)
  real(kind=wp), allocatable :: PScr(:)
+ real(kind=wp), allocatable :: D_FAROALD(:,:)
+ real(kind=wp), allocatable :: SD_FAROALD(:,:)
+ real(kind=wp), allocatable :: Faroald_Psi(:,:)
+ real(kind=wp), allocatable :: P_Faroald(:,:,:,:)
+ real(kind=wp), allocatable :: P_Folded(:)
+ real(kind=wp), allocatable :: CIV(:), temp(:)
+
 
  call mma_allocate(D_loc,nD,Label='D_loc')
  call mma_allocate(SD_loc,nD,Label='SD_loc')
  call mma_allocate(P_loc,nP,Label='P_loc')
 
  If (DoFaro) Then
-    call mma_allocate(PAtmp,nP,Label='PAtmp')
-    call mma_allocate(PScr,nP,Label='PScr')
-    call Lucia_Util('Densi',CI_Vector=CIVEC)
-    if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,D,DS,P,PAtmp,Pscr)
-    call mma_deallocate(PScr)
-    call mma_deallocate(PAtmp)
-   !If (Present(D)) D(1:nD)=D_loc(1:nD)
-   !If (Present(SD)) SD(1:nD)=SD_loc(1:nD)
-   !If (Present(P)) P(1:nP)=P_loc(1:nP)
+
+   Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
+   Call mma_allocate(temp,nDetA*nDetB,Label='temp')
+   Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
+
+   call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+   Temp(:)=Zero
+   call CITRANS_SORT('C',CIV,temp)
+   Faroald_Psi(:,:)=Zero
+   call CITRANS_CSF2SD(temp,Faroald_PSI)
+
+   Call mma_deallocate(CIV)
+   Call mma_deallocate(temp)
+
+   Call mma_allocate(D_Faroald,NAC,NAC)
+   Call mma_allocate(SD_Faroald,NAC,NAC)
+   Call One_pdm(Faroald_Psi,D_Faroald,SD_Faroald)
+   Call Fold2(1,[NAC],D_faroald,D_loc)
+   Call Fold2(1,[NAC],SD_faroald,SD_loc)
+
+   Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
+   Call two_pdm(Faroald_psi,P_Faroald)
+   Call Fold_Two_pdm(P_Faroald,P_loc,Average=.True.)
+
+   Call mma_deallocate(Faroald_Psi)
+   Call mma_deallocate(P_faroald)
+   Call mma_deallocate(D_faroald)
+   Call mma_deallocate(SD_faroald)
+
+   If (Present(D)) D(1:nD)=D_loc(1:nD)
+   If (Present(SD)) SD(1:nD)=SD_loc(1:nD)
+   If (Present(P)) P(1:nP)=P_loc(1:nP)
  Else
     call mma_allocate(PAtmp,nP,Label='PAtmp')
     call Lucia_Util('Densi',CI_Vector=CIVEC)
