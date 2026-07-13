@@ -306,7 +306,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 #       endif
       else
 
-        Call Mk_pdms(D=Dtmp,SD=DStmp,P=Ptmp,nD=NAC**2,nP=NACPR2)
+        Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,nD=NAC**2,nP=NACPR2)
 
 ! temporary code
 #ifdef _SGUGA_VERIFY_
@@ -1053,18 +1053,19 @@ end if
 
 contains
 
- Subroutine Mk_pdms(D,SD,P,nD,nP)
+ Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,nD,nP)
  use Lucia_Interface, only: Lucia_Util
- use lucia_data, only: PAtmp
+ use lucia_data, only: PAtmp  !   Temporary
  use sxci, only: IDXSX
  use stdalloc, only: mma_allocate, mma_deallocate
  use rasscf_global, only: DoFaro
  use definitions, only: iwp, wp
  implicit none
+ integer(kind=iwp), intent(in) :: nCIVEC
+ real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
  real(kind=wp), intent(out), optional :: D(:), SD(:), P(:)
  integer(kind=iwp), intent(in) :: nD, nP
 
-!real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:), PScr(:)
  real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:)
  real(kind=wp), allocatable :: PScr(:)
 
