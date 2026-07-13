@@ -15,16 +15,16 @@ subroutine GrdIni()
 
 use Index_Functions, only: nTri_Elem
 use caspt2_global, only: CLag, CLagFull, do_lindep, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, &
-                         FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, iStpGrd, iTasks_grad, LuAPT2, LuCMOPT2, LuGAMMA, &
+                         FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, iStpGrd, LuAPT2, LuCMOPT2, LuGAMMA, &
                          LUGRAD, LuPT2, LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, OMGDER, SLag, TraFro, WLag
-use caspt2_module, only: IfChol, IFDW, IFRMS, IFXMS, MAXIT, NASH, NASHT, NASUP, NBAS, NBSQT, NBTRI, NCONF, NFROT, NISH, NSTATE, &
+use caspt2_module, only: IfChol, IFDW, IFRMS, IFXMS, MAXIT, NASH, NASUP, NBAS, NBSQT, NBTRI, NCONF, NFROT, NISH, NSTATE, &
                          NSYM, ZETA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iCase, idSD, idSD_, idSDer, iost, iSym, LENGTH, lRealName, MaxLen, nAS, NS, ntri1, ntri2
+integer(kind=iwp) :: iCase, idSD, idSD_, idSDer, iost, iSym, LENGTH, lRealName, MaxLen, nAS, NS
 logical(kind=iwp) :: Exists, is_error
 character(len=4096) :: RealName
 character(len=128) :: FileName
@@ -169,11 +169,10 @@ end if
 call mma_deallocate(WRK)
 
 if (nFroT /= 0) call mma_allocate(TraFro,nFroT**2,Label='TraFro')
-!call mma_allocate(iTasks_grad,nAshT**2,Label='Tasks_grad')
-ntri1 = NASHT*(NASHT-1)/2
-ntri2 = NASHT*(NASHT+1)/2
-call mma_allocate(iTasks_grad,nTri_Elem(ntri2)+ntri1**2,Label='Tasks_grad')
-iTasks_grad(:) = 0
+!! iTasks_grad is allocated in MKFG3 where its exact size is determined
+!! and in SavGradParams (mode=2) when it is restored from disk.
+!call mma_allocate(iTasks_grad,nTri_Elem(ntri2)+ntri1**2,Label='Tasks_grad')
+!iTasks_grad(:) = 0
 
 return
 

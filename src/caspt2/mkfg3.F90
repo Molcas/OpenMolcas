@@ -79,8 +79,8 @@ real(kind=wp), intent(out) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NL
 integer(kind=byte), intent(out) :: idxG3(6,nG3)
 integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, IP1STA, IP2, &
                      IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, &
-                     IXLEV, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, NLEV2, &
-                     NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
+                     IXLEV, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, &
+                     NLEV2, NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
 real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3
 integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFR(:), BUFT(:)
@@ -175,8 +175,6 @@ if (do_grad .or. (nStpGrd == 2)) then
   memmax_safe = memmax_safe-2*(NG1+NG2+NG3)
   nbuf1 = max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
   nbuf1_grad = nbuf1
-  nTasks_grad = 0
-  iTasks_grad(:) = 0
 end if
 call mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')
 call mma_allocate(BUF2,MXCI,LABEL='BUF2')
@@ -196,6 +194,20 @@ end if
 
 call mma_allocate(ip1_buf,nlev2,Label='ip1_buf')
 call mma_allocate(bufr,nlev2,Label='bufr')
+
+!! For gradients, iTasks_grad has the sequence of subtasks executed below so that derfg3 processes exactly the same batching
+if (do_grad .or. (nStpGrd == 2)) then
+  nTasks_grad = 0
+  !! This nTasks_grad is the largest number of tasks; the actual number is smaller if parallel
+  do issg1 = 1, nsym
+    call build_TaskList(issg1,nTasks,nSubTasks)
+    nTasks_grad = nTasks_grad + nSubTasks
+  end do
+  if (allocated(iTasks_grad)) call mma_deallocate(iTasks_grad)
+  call mma_allocate(iTasks_grad,max(1,nTasks_grad),Label='Tasks_grad')
+  iTasks_grad(:) = 0
+  nTasks_grad = 0
+end if
 
 !***********************************************************************
 !                                                                      *
@@ -221,53 +233,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
 
   end if
 
-  !-SVC20100301: calculate number of larger tasks for this symmetry, this
-  !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
-
-  iTask = 1
-  ibuf1 = 0
-  do ip1=1,nlev2
-    itlev = idx2ij(1,ip1)
-    iulev = idx2ij(2,ip1)
-    istu = Mul(SGS%ism(itlev),SGS%ism(iulev)) ! Symmetry of E_tu
-
-    if (istu == isp1) then
-      ! Add pair index to ip1_buf
-      ibuf1 = ibuf1+1
-      ip1_buf(ibuf1) = ip1
-      ! Add pair index to Tasklist(iTask,1) if it is the first entry in ip1_buf
-      if (ibuf1 == 1) TaskList(iTask,1) = ip1  ! Start ip1 index
-    end if
-
-    ! Terminate if buffer is full, or, if
-    if ((ibuf1 == nbuf1) .or. ((ibuf1 > 0) .and. ((ip1 == ntri2) .or. (ip1 == nlev2)))) then
-      TaskList(iTask,2) = ip1_buf(ibuf1)  ! End ip1 index
-      TaskList(iTask,3) = ibuf1           ! End ibuf value
-      iTask = iTask+1
-      ibuf1 = 0
-    end if
-
-  end do
-
-  nTasks = iTask
-  if (ibuf1 == 0) nTasks = nTasks-1
-
-  !-SVC20100309: calculate number of inner loop iteration tasks.
-  iOffSet = 0
-  do iTask=1,nTasks
-    TaskList(iTask,4) = iOffSet
-    ip1sta = TaskList(iTask,1)
-    ip1end = TaskList(iTask,2)
-    ip3mx = ntri2
-    if (ip1end <= ntri2) ip3mx = ip1end
-    if (ip1sta > ntri2) ip3mx = ntri1
-    !-SVC20100309: Currently -we are going to limit this to the ip3-loop and
-    !-leave the ip2-loop intact.  This was based on the large overhead which
-    !-was observed for a very large number of small tasks.
-    !iOffSet = iOffSet+ip3mx*ntri2-nTri_Elem(ip3mx-1)
-    iOffSet = iOffSet+ip3mx
-  end do
-  nSubTasks = iOffSet
+  ! build the task list for this symmetry (TaskList and ip1_buf) and count the number of larger tasks/inner-loop subtasks.
+  call build_TaskList(issg1,nTasks,nSubTasks)
 
   if (iPrGlb >= VERBOSE) write(u6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
 
@@ -729,5 +696,66 @@ if (iPrGlb >= DEBUG) then
   write(u6,'("DEBUG> ",A,1X,ES21.14)') 'F2:',dF2
   write(u6,'("DEBUG> ",A,1X,ES21.14)') 'F3:',dF3
 end if
+
+contains
+
+! Build the task list for symmetry issg
+subroutine build_TaskList(issg,nTasks_,nSubTasks_)
+
+  integer(kind=iwp), intent(in) :: issg
+  integer(kind=iwp), intent(out) :: nTasks_, nSubTasks_
+  integer(kind=iwp) :: isp1, ibuf1, iTask, ip1, itlev, iulev, istu, iOffSet, ip1sta, ip1end, ip3mx
+
+  isp1 = Mul(issg,stsym)  ! Symmetry index of E_ut
+
+  !-SVC20100301: calculate number of larger tasks for this symmetry, this
+  !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
+
+  iTask = 1
+  ibuf1 = 0
+  do ip1=1,nlev2
+    itlev = idx2ij(1,ip1)
+    iulev = idx2ij(2,ip1)
+    istu = Mul(SGS%ism(itlev),SGS%ism(iulev)) ! Symmetry of E_tu
+
+    if (istu == isp1) then
+      ! Add pair index to ip1_buf
+      ibuf1 = ibuf1+1
+      ip1_buf(ibuf1) = ip1
+      ! Add pair index to Tasklist(iTask,1) if it is the first entry in ip1_buf
+      if (ibuf1 == 1) TaskList(iTask,1) = ip1  ! Start ip1 index
+    end if
+
+    ! Terminate if buffer is full, or, if
+    if ((ibuf1 == nbuf1) .or. ((ibuf1 > 0) .and. ((ip1 == ntri2) .or. (ip1 == nlev2)))) then
+      TaskList(iTask,2) = ip1_buf(ibuf1)  ! End ip1 index
+      TaskList(iTask,3) = ibuf1           ! End ibuf value
+      iTask = iTask+1
+      ibuf1 = 0
+    end if
+
+  end do
+
+  nTasks_ = iTask
+  if (ibuf1 == 0) nTasks_ = nTasks_-1
+
+  !-SVC20100309: calculate number of inner loop iteration tasks.
+  iOffSet = 0
+  do iTask=1,nTasks_
+    TaskList(iTask,4) = iOffSet
+    ip1sta = TaskList(iTask,1)
+    ip1end = TaskList(iTask,2)
+    ip3mx = ntri2
+    if (ip1end <= ntri2) ip3mx = ip1end
+    if (ip1sta > ntri2) ip3mx = ntri1
+    !-SVC20100309: Currently -we are going to limit this to the ip3-loop and
+    !-leave the ip2-loop intact.  This was based on the large overhead which
+    !-was observed for a very large number of small tasks.
+    !iOffSet = iOffSet+ip3mx*ntri2-nTri_Elem(ip3mx-1)
+    iOffSet = iOffSet+ip3mx
+  end do
+  nSubTasks_ = iOffSet
+
+end subroutine build_tasklist
 
 end subroutine MKFG3

@@ -91,10 +91,14 @@ else if (IORW == 2) then
   NG3TOT = IWRK1(4)
   NBUF1_GRAD = IWRK1(5)
   nTasks_grad = IWRK1(6)
+  !! Allocate iTasks_grad to the exact size just read from disk
+  if (allocated(iTasks_grad)) call mma_deallocate(iTasks_grad)
+  !! One additional element is used as the signal of termination (only for parallel)
+  call mma_allocate(iTasks_grad,max(1,nTasks_grad+1),Label='Tasks_grad')
   iTasks_grad(:) = 0
 end if
 call mma_deallocate(IWRK1)
-call IDAFILE(LUGRAD,IORW,iTasks_grad,nTasks_grad,IDSAVGRD)
+call IDAFILE(LUGRAD,IORW,iTasks_grad,max(1,nTasks_grad),IDSAVGRD)
 
 NMAX = NG3
 
