@@ -162,7 +162,7 @@ RSTHR = Zero
 RSPR = .false.
 ! Force that TDMs are not stored in the AO basis.
 Force_NON_AO_TDM = .false.
-call GETENVF('MOLCAS_FORCE_NON_AO_TDM',STRING)
+call get_environment_variable('MOLCAS_FORCE_NON_AO_TDM',STRING)
 if (STRING == 'ON') Force_NON_AO_TDM = .true.
 !nf
 IfDCpl = .false.

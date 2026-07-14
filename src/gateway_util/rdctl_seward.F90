@@ -301,8 +301,8 @@ do
     case (KeyW(19)) ! COOR
       nFragment = nFragment+1
     case (KeyW(162),KeyW(170)) ! HYPE, GEO
-      call getenvf('Project',Project)
-      call getenvf('GeoDir',GeoDir)
+      call get_environment_variable('Project',Project)
+      call get_environment_variable('GeoDir',GeoDir)
       temp1 = Project(1:index(Project,' ')-1)//'.Gateway.Input'
       temp2 = GeoDir(1:index(GeoDir,' ')-1)//'/'//Project(1:index(Project,' ')-1)//'.gwcopy.input'
       call fCopy(temp1,temp2,ierr)
@@ -1806,7 +1806,7 @@ do
               call f_inquire(KWord(1:ifile-1),Exists)
               Key = KWord
             else
-              call getenvf('MOLCAS_SUBMIT_DIR',Directory)
+              call get_environment_variable('MOLCAS_SUBMIT_DIR',Directory)
               if (Directory(1:1) /= ' ') then
                 i = index(Directory,' ')
                 Key = Directory(1:i-1)//'/'//KWord(1:ifile-1)
@@ -2364,12 +2364,12 @@ do
           write(ITkQMMM,'(A)') 'Molcas -1 0'
           close(ITkQMMM)
 
-          call Getenvf('TINKER ',Key)
+          call get_environment_variable('TINKER ',Key)
           if (Key == '') then
-            call Getenvf('MOLCAS',Key)
+            call get_environment_variable('MOLCAS',Key)
             Key = trim(Key)//'/tinker/bin'
           end if
-          call Getenvf('Project',Project)
+          call get_environment_variable('Project',Project)
           Project = Project(1:index(Project,' ')-1)
           Key = trim(Key)//'/tkr2qm_s '//trim(Project)//'.xyz>'//trim(Project)//'.Tinker.log'
           write(u6,*) 'TINKER keyword found, run ',trim(Key)

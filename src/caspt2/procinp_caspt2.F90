@@ -88,7 +88,7 @@ else if (Hzero /= 'DYALL') then
     ipea_shift = input%ipea_shift
   else
     ! Set default IPEA to 0.25 Eh or 0.0
-    call getenvf('MOLCAS_NEW_DEFAULTS',Env)
+    call get_environment_variable('MOLCAS_NEW_DEFAULTS',Env)
     call upcase(Env)
     if (Env == 'YES') then
       ipea_shift = Zero

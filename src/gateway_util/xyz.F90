@@ -117,7 +117,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
     read(Line,'(A)') FName
     Found = .false.
     if (index(Line,'/') == 0) then
-      call GetEnvF('CurrDir',CurrDir)
+      call get_environment_variable('CurrDir',CurrDir)
       CurrDir = trim(CurrDir)//'/'//FName
       call F_Inquire(CurrDir,Found)
       if (Found) FName = CurrDir
