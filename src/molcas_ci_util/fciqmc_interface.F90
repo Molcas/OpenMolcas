@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp, byte
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_close_group, mh5_fetch_dset, mh5_get_dset_dims, mh5_open_dset, mh5_open_file_r, mh5_open_group
 use Para_Info, only: MyRank
-use caspt2_module, only: jstate, mstate, nActel, nG3
+use caspt2_module, only: jstate, mstate, nActel
 use linalg_mod, only: verify_
 use fortran_strings, only: str
 use filesystem, only: getcwd_
@@ -132,20 +132,27 @@ end subroutine load_fciqmc_g1
 !> @param[out]  f2     dense contraction of Fockian with 3RDM
 !> @param[out]  f3     sparse contraction of Fockian with 4RDM
 !> @param[in]   idxG3  Table containing the active space indices
-subroutine mkfg3fciqmc(g1,g2,g3,f1,f2,f3,idxG3,nLev)
+subroutine mkfg3fciqmc(mkF,g1,f1,g2,f2,g3,f3,idxG3,nLev,nG3)
 
+  logical(kind=iwp), intent(in) :: mkF
   integer(kind=iwp), intent(in) :: nLev
-  real(kind=wp), intent(inout) :: g1(nLev,nLev), g2(nLev,nLev,nLev,nLev), g3(*), f1(nLev,nLev), f2(nLev,nLev,nLev,nLev), f3(*)
-  integer(kind=byte), intent(in) :: idxG3(6,*)
+  integer(kind=iwp), intent(inout) :: nG3  ! enters as NG3MAX, needs to be adjusted
+  real(kind=wp), intent(inout) :: g1(nLev,nLev), f1(nLev,nLev), g2(nLev,nLev,nLev,nLev), f2(nLev,nLev,nLev,nLev), g3(*), f3(*)
+  integer(kind=byte), intent(out) :: idxG3(6,*)  ! also needs to be set here
+
+  ! be compatible with interface
+  if (mkF) then
+    f1(:,:) = 0.0_wp
+    f2(:,:,:,:) = 0.0_wp
+    f3(1:nG3) = 0.0_wp
+  end if
+  g1(:,:) = 0.0_wp
+  g2(:,:,:,:) = 0.0_wp
+  g3(1:nG3) = 0.0_wp
 
 # ifndef _HDF5_
-  unused_var(g1)
-  unused_var(g2)
-  unused_var(g3(1))
-  unused_var(f1)
-  unused_var(f2)
-  unused_var(f3(1))
   unused_var(idxG3(1,1))
+  unused_var(nLev)
 # else
   call load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,mstate(jState),nLev)
 # endif
@@ -167,10 +174,10 @@ end subroutine mkfg3fciqmc
 !> @param[in]  f1     contracted Fock matrix with 2RDM
 !> @param[in]  iroot  MCSCF root number.
 #ifdef _HDF5_
-subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev)
+subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev,nG3)
 
   integer(kind=iwp), intent(in) :: iroot, nLev
-  integer(kind=byte), intent(in) :: idxG3(6,nG3)
+  integer(kind=byte), intent(inout) :: idxG3(6,nG3), nG3
   real(kind=wp), intent(inout) :: g3(*), g2(nLev,nLev,nLev,nLev), g1(nLev,nLev), f3(*), f2(nLev,nLev,nLev,nLev), f1(nLev,nLev)
   integer(kind=iwp) :: i, t, u, v, x, y, z
   real(kind=wp), allocatable :: f3_temp(:,:,:,:,:,:), g3_temp(:,:,:,:,:,:)
@@ -197,7 +204,9 @@ subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev)
   call calc_f2_and_g2(f3_temp,g3_temp,f2,g2)
   call calc_f1_and_g1(f2,g2,f1,g1)
 
-  ! convert into flattened arrays
+  ! first compute index mapping
+  call compute_index_map(idxG3, nG3, nLev)
+  ! then convert dense into flattened arrays
   do i=1,nG3
     t = idxG3(1,i)
     u = idxG3(2,i)
@@ -212,6 +221,12 @@ subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev)
   call mma_deallocate(g3_temp)
 
 contains
+
+  subroutine compute_index_map(idxG3, nG3, nLev)
+    integer(kind=byte), intent(inout) :: idxG3(6,nG3), nG3
+    integer(kind=iwp), intent(in) :: nLev
+
+  end subroutine compute_index_map
 
   subroutine transform_f4rdm_normal_order(f3,g3)
     ! The transformation should be

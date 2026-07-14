@@ -36,7 +36,7 @@ subroutine POLY3(mkF)
 ! THE RDSTAT AND THE GUGA ROUTINES USED IN THIS
 ! PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
-use fciqmc_interface, only: DoFCIQMC
+use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: VERBOSE
 use sguga, only: CIS, L2ACT, SGS
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
