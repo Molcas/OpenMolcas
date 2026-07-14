@@ -283,12 +283,15 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
     call mma_allocate(DStmp,NAC**2,Label='DStmp')
     call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
+    call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+
     if (NAC >= 1) then
 
       if (NACTEL == 0) then
         Dtmp(:) = Zero
         DStmp(:) = Zero
         Ptmp(:) = Zero
+        PAtmp(:) = Zero
       else if (doDMRG) then
 #       ifdef _DMRG_
         ! copy the DMs from d1rf/d2rf for ipcmroot
@@ -306,12 +309,11 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 #       endif
       else
 
-        Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,nD=NAC**2,nP=NACPR2)
+        Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
 
 ! temporary code
 #ifdef _SGUGA_VERIFY_
         If (.NOT.iDoGAS) Then
-        Write (6,*) 'Place 1'
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
@@ -328,7 +330,6 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         End If
 #endif
 #ifdef _FAROALD_VERIFY_
-        Write (6,*) 'Place 3'
         If (.NOT.iDoGAS .and. DoFaro) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Call TriPrt('DSTmp(Lucia)',' ',DStmp,NAC)
@@ -402,7 +403,6 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call mma_deallocate(P_Folded)
         Call mma_deallocate(P_faroald)
         End If
-        Write (6,*) 'Place 4'
 #endif
 ! end temporary code
       end if
@@ -410,20 +410,18 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
       Dtmp(:) = Zero
       DStmp(:) = Zero
       Ptmp(:) = Zero
+      PAtmp(:) = Zero
     end if
-        Write (6,*) 'Place 4'
-    ! Modify the symmetric 2-particle density if only partial
-    ! "exact exchange" is included.
-    !n_Det = 2
-    !n_unpaired_elec = iSpin-1
-    !n_paired_elec = nActEl-n_unpaired_elec
-    !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
-    !write(u6,*) 'n_Det =',n_Det
+
+    call mma_allocate(PScr,NACPR2,Label='PScr')
+    if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+    call mma_deallocate(PScr)
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
 
     call mma_deallocate(Ptmp)
+    call mma_deallocate(PAtmp)
 
     call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
     if (NASH(1) /= NAC) call DBLOCK(Dtmp)
@@ -627,7 +625,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 ! temporary code
 #ifdef _SGUGA_VERIFY_
         If (.NOT.iDoGAS .and. .NOT. DoDMRG) Then
-        Write (6,*) 'Place 2'
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(Abs(Dtmp(1:NAC*(NAC+1)/2)))
         Write (6,*) 'Check_D1=',Check_D1
@@ -1044,9 +1041,8 @@ end if
 
 contains
 
- Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,nD,nP)
+ Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
  use Lucia_Interface, only: Lucia_Util
- use lucia_data, only: PAtmp  !   Temporary
  use sxci, only: IDXSX
  use stdalloc, only: mma_allocate, mma_deallocate
  use rasscf_global, only: DoFaro
@@ -1054,7 +1050,7 @@ contains
  implicit none
  integer(kind=iwp), intent(in) :: nCIVEC
  real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
- real(kind=wp), intent(out), optional :: D(:), SD(:), P(:)
+ real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
  integer(kind=iwp), intent(in) :: nD, nP
 
  real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:)
@@ -1066,12 +1062,10 @@ contains
  real(kind=wp), allocatable :: P_Folded(:)
  real(kind=wp), allocatable :: CIV(:), temp(:)
 
-
- call mma_allocate(D_loc,nD,Label='D_loc')
- call mma_allocate(SD_loc,nD,Label='SD_loc')
- call mma_allocate(P_loc,nP,Label='P_loc')
-
  If (DoFaro) Then
+   call mma_allocate(D_loc,nD,Label='D_loc')
+   call mma_allocate(SD_loc,nD,Label='SD_loc')
+   call mma_allocate(P_loc,nP,Label='P_loc')
 
    Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
    Call mma_allocate(temp,nDetA*nDetB,Label='temp')
@@ -1101,24 +1095,17 @@ contains
    Call mma_deallocate(D_faroald)
    Call mma_deallocate(SD_faroald)
 
-!...more to come...
    If (Present(D)) D(1:nD)=D_loc(1:nD)
    If (Present(SD)) SD(1:nD)=SD_loc(1:nD)
    If (Present(P)) P(1:nP)=P_loc(1:nP)
+
+   call mma_deallocate(D_loc)
+   call mma_deallocate(SD_loc)
+   call mma_deallocate(P_loc)
  Else
-    call mma_allocate(PAtmp,nP,Label='PAtmp')
-    call Lucia_Util('Densi',CI_Vector=CIVEC)
-
-    call mma_allocate(PScr,nP,Label='PScr')
-    if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,D,DS,P,PAtmp,Pscr)
-    call mma_deallocate(PScr)
-
-    call mma_deallocate(PAtmp)
+   call Lucia_Util('Densi',CI_Vector=CIVEC)
  End If
 
- call mma_deallocate(D_loc)
- call mma_deallocate(SD_loc)
- call mma_deallocate(P_loc)
  End Subroutine Mk_pdms
 
 end subroutine CICtl
