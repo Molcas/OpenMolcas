@@ -19,16 +19,16 @@ subroutine extf(ireturn)
 
 use spool, only: Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
+use Symmetry_Info, only: Symmetry_Info_Dmp, Symmetry_Info_Free, Symmetry_Info_Get, VarR
 use Constants, only: Zero, One, Pi, Angstrom, auToN, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: atomNumberx3, cnt, efatom1, efatom2, efatom3, efatom4, i, iwmax, k, l, LuSpool, nCent, nRoots, nsAtom, nSym, &
-ntr
-real(kind=wp) :: Bt(3,4), com(3), dBt(3,4,3,4), dperp, dperpmax, Dum, efmodul, efmodulAU, fourAtoms(3,4), ftot, ftotAU, gau_sigma, &
-                 gau_t0, mdtime, nhat(3), norm, ovlp, proj, rmaxAng, rnorm, time_scaling, totmass, vdwtab(118), vnorm, wf_phi, &
-                 wf_press, wf_theta, wproj
+integer(kind=iwp) :: atomNumberx3, cnt, efatom1, efatom2, efatom3, efatom4, i, istatus, iwmax, k, l, LuSpool, nCent, nRoots, &
+                     nsAtom, nSym, ntr
+real(kind=wp) :: Bt(3,4), com(3), dBt(3,4,3,4), dperp, dperpmax, Dum, efmodul, fourAtoms(3,4), ftot, gau_sigma, gau_t0, mdtime, &
+                 nhat(3), norm, ovlp, proj, rmaxAng, rnorm, time_scaling, totmass, vdwtab(118), vnorm, wf_phi, wf_theta, wproj
 logical(kind=iwp) :: bending, Found, gaussian_force, keep_rot, ldB, linear, lWarn, lWrite, torsional, wall, wall_vdw
 character(len=180) :: Key, Line
 character(len=8) :: Label
@@ -66,7 +66,7 @@ wall_vdw = .false.
 keep_rot = .false.
 wf_theta = Zero
 wf_phi = Zero
-wf_press = Zero
+nhat(:) = Zero
 
 rewind(LuSpool)
 call RdNLst(LuSpool,'extf')
@@ -79,7 +79,6 @@ do
   else if (Line(1:4) == 'MODU') then
     Line = Get_Ln(LuSpool)
     call Get_F1(1,efmodul)
-    write(u6,*) 'Force:',efmodul,' nN'
   else if (Line(1:4) == 'LINE') then
     !>>> LINEAR FORCE <<<
     linear = .true.
@@ -118,14 +117,22 @@ do
     wall = .true.
     write(u6,*) 'Wall-type (ball-milling) compression forces selected'
     Line = Get_Ln(LuSpool)
-    call Get_F1(1,wf_theta)
-    call Get_F1(2,wf_phi)
-    call Get_F1(3,wf_press)
-    write(u6,*) 'theta (deg):',wf_theta
-    write(u6,*) 'phi (deg):',wf_phi
-    write(u6,*) 'pressure (GPa):',wf_press
-    wf_theta = wf_theta*deg2rad
-    wf_phi = wf_phi*deg2rad
+    call UpCase(Line)
+    read(Line,*,iostat=istatus) nhat(1),nhat(2),nhat(3)
+    if (istatus == 0) then
+      write(u6,*) 'n:',nhat(:)
+    else
+      read(Line,*) wf_theta,wf_phi
+      if (index(Line,'DEGREE') > 0) then
+        write(u6,*) 'theta (deg):',wf_theta
+        write(u6,*) 'phi (deg):',wf_phi
+        wf_theta = wf_theta*deg2rad
+        wf_phi = wf_phi*deg2rad
+      else
+        write(u6,*) 'theta (rad):',wf_theta
+        write(u6,*) 'phi (rad):',wf_phi
+      end if
+    end if
   else if (Line(1:4) == 'VDWR') then
     ! >>> NEED TO ADD VAN DER WAALS RADII TO CALCULATE EFFECTIVE RADIUS <<<
     wall_vdw = .true.
@@ -160,6 +167,12 @@ else if (cnt > 1) then
   call Quit_OnUserError()
 end if
 
+if (wall) then
+  write(u6,*) 'Pressure:',efmodul,' GPa'
+else
+  write(u6,*) 'Force:',efmodul,' nN'
+end if
+
 write(u6,*) 'Coordinates Found:'
 do i=1,nsAtom
   write(u6,*) i,coord(:,i)
@@ -173,7 +186,7 @@ end do
 write(u6,*)
 
 ! from nN to atomic units
-efmodulAU = efmodul/nnewt
+efmodul = efmodul/nnewt
 
 ! initializations
 ExtGrad(:,:) = Zero
@@ -209,8 +222,8 @@ if (linear) then
   write(u6,*) 'Bt norm before normalization:',norm
   Bt(:,1:nCent) = Bt(:,1:nCent)/norm
 
-  ExtGrad(:,efatom1) = Bt(:,1)*efmodulAU
-  ExtGrad(:,efatom2) = Bt(:,2)*efmodulAU
+  ExtGrad(:,efatom1) = Bt(:,1)*efmodul
+  ExtGrad(:,efatom2) = Bt(:,2)*efmodul
 
 end if
 !>>>>>>>>>>>>>>>>>>>>> end of linear code <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -241,9 +254,9 @@ if (bending) then
   write(u6,*) 'Bt norm before normalization:',norm
   Bt(:,1:nCent) = Bt(:,1:nCent)/norm
 
-  ExtGrad(:,efatom1) = Bt(:,1)*efmodulAU
-  ExtGrad(:,efatom2) = Bt(:,2)*efmodulAU
-  ExtGrad(:,efatom3) = Bt(:,3)*efmodulAU
+  ExtGrad(:,efatom1) = Bt(:,1)*efmodul
+  ExtGrad(:,efatom2) = Bt(:,2)*efmodul
+  ExtGrad(:,efatom3) = Bt(:,3)*efmodul
 
 end if
 !>>>>>>>>>>>>>>>>>>>>> end of bending code <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -275,10 +288,10 @@ if (torsional) then
   write(u6,*) 'Bt norm before normalization:',norm
   Bt(:,1:nCent) = Bt(:,1:nCent)/norm
 
-  ExtGrad(:,efatom1) = Bt(:,1)*efmodulAU
-  ExtGrad(:,efatom2) = Bt(:,2)*efmodulAU
-  ExtGrad(:,efatom3) = Bt(:,3)*efmodulAU
-  ExtGrad(:,efatom4) = Bt(:,4)*efmodulAU
+  ExtGrad(:,efatom1) = Bt(:,1)*efmodul
+  ExtGrad(:,efatom2) = Bt(:,2)*efmodul
+  ExtGrad(:,efatom3) = Bt(:,3)*efmodul
+  ExtGrad(:,efatom4) = Bt(:,4)*efmodul
 
 end if
 !>>>>>>>>>>>>>>>>>>>>> end of torsional code <<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -401,9 +414,14 @@ if (wall) then
   write(u6,*) 'Centre of mass (bohr):',com(:)
 
   ! direction of the compression, n(theta,phi)
-  nhat(1) = sin(wf_theta)*cos(wf_phi)
-  nhat(2) = sin(wf_theta)*sin(wf_phi)
-  nhat(3) = cos(wf_theta)
+  rnorm = sqrt(sum(nhat(:)**2))
+  if (rnorm > Zero) then
+    nhat(:) = nhat(:)/rnorm
+  else
+    nhat(1) = sin(wf_theta)*cos(wf_phi)
+    nhat(2) = sin(wf_theta)*sin(wf_phi)
+    nhat(3) = cos(wf_theta)
+  end if
   write(u6,*) 'Compression direction:',nhat(:)
 
   ! effective radius: largest atomic distance to the compression axis
@@ -420,13 +438,12 @@ if (wall) then
   end do
   rmaxAng = dperpmax*Angstrom
   if (wall_vdw) rmaxAng = rmaxAng+vdwtab(nint(charge(iwmax)))
-  write(u6,*) 'Effective radius:',rmaxAng,' Angstrom'
+  write(u6,*) 'Effective radius:',rmaxAng,' angstrom'
 
   ! total compression force: F = P*pi*R(theta,phi)^2
   ! (1 GPa * 1 Angstrom^2 = 0.01 nN)
-  ftot = wf_press*0.01_wp*Pi*rmaxAng**2
-  ftotAU = ftot/nnewt
-  write(u6,*) 'Total wall force:',ftot,' nN'
+  ftot = efmodul*0.01_wp*Pi*rmaxAng**2
+  write(u6,*) 'Total wall force:',ftot*nnewt,' nN'
 
   ! distribute the force among the atoms: an atom in the "forward"
   ! hemisphere (r.n > 0) is pushed along -n, and an atom in the
@@ -438,7 +455,7 @@ if (wall) then
     else
       wproj = Zero
     end if
-    ExtGrad(:,i) = wproj*(ftotAU/real(nsAtom,kind=wp))*nhat(:)
+    ExtGrad(:,i) = wproj*(ftot/real(nsAtom,kind=wp))*nhat(:)
   end do
 
   ! Remove the net force (always) and the net torque (unless ROTA is given)
@@ -447,7 +464,13 @@ if (wall) then
   ! or an overall rotation during a dynamics. This is done by projecting
   ! ExtGrad out of the space spanned by translations and rotations
   ntr = 3
-  if (.not. keep_rot) ntr = 6
+  if (.not. keep_rot) then
+    ntr = 6
+    call Symmetry_Info_Get()
+    VarR = .true.
+    call Symmetry_Info_Dmp()
+    call Symmetry_Info_Free()
+  end if
   call mma_allocate(trvec,3,nsAtom,ntr,label='trvec')
   trvec(:,:,:) = Zero
   trvec(1,:,1) = One
