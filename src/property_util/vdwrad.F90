@@ -10,9 +10,9 @@
 !***********************************************************************
 
 function vdWRad(iAtmNr)
-! A function that returns the van der Waals radie of an element, when
-! such a radie is available. The user should exercise some care and
-! check if the radie is zero, in which case the radie has not been
+! A function that returns the van der Waals radius of an element, when
+! such a radius is available. The user should exercise some care and
+! check if the radius is zero, in which case the radius has not been
 ! reported. Reference: Bondi, J.Phys.Chem. 68 (1964) 441.
 
 use Constants, only: Angstrom
