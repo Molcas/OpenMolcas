@@ -28,9 +28,6 @@ if (Found) then
   if (Iter_S == 0) then
     Is_First_Iter = .true.
     return
-  else
-    Is_First_Iter = .false.
-    return
   end if
 end if
 
