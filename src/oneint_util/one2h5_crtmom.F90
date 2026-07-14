@@ -35,7 +35,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: fileid, nSym, nBas(nSym)
 integer(kind=iwp) :: dsetid, i, iBas, iCmp, iComp, iOff, iOpt, iRc, iScrOff, iSym, iSyMsk, j, jBas, jOff, jsym, msym, nB1, nB2, &
-                     nbast
+                     nbast, var_status
 real(kind=wp) :: mp_orig(3,3), angmom_orig(3,1)
 character(len=8) :: Label
 logical(kind=iwp) :: store_angmom, store_multipole
@@ -45,16 +45,22 @@ character(len=*), parameter :: mltpl1_comp(3) = ['X','Y','Z'], mltpl2_comp(6) = 
 type(StringWrapper_t), allocatable :: splitted(:)
 
 store_angmom = .false.
-store_multipole = .true.
+store_multipole = .false.
 
-! comma-separated list of components one would like to print
-call getenvf('MOLCAS_ONEINT_H5', h5_data)
-call upcase(h5_data)
-call split(h5_data, ',', splitted)
-do i = 1, size(splitted)
-  if (trim(str(splitted(i)%str)) == "ANGMOM") store_angmom = .true.
-  if (trim(str(splitted(i)%str)) == "MLTPL")  store_multipole = .true.
-end do
+call get_environment_variable("MOLCAS_ONEINT_H5", h5_data, status=var_status)
+
+! if variable was not set, assume the default
+if (var_status == 1) then
+    store_multipole = .true.
+else
+! otherwise we check each option
+    call upcase(h5_data)
+    call split(h5_data, ',', splitted)
+    do i = 1, size(splitted)
+      if (trim(str(splitted(i)%str)) == "ANGMOM") store_angmom = .true.
+      if (trim(str(splitted(i)%str)) == "MLTPL")  store_multipole = .true.
+    end do
+end if
 
 nbast = 0
 do iSym=1,nSym
