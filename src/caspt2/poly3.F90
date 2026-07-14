@@ -137,8 +137,7 @@ else if (ISCF == 0) then
     if (.not. DoFCIQMC) then
        call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
     else
-       call mma_allocate(CI,1,LABEL='CI')
-       call MKFG3MC(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
+       call mkfg3fciqmc(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
     end if
 # if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
   else
