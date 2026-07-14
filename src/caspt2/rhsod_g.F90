@@ -26,7 +26,7 @@ use caspt2_global, only: iPrGlb
 use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NISH, NISUP, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half, OneHalf
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
@@ -40,7 +40,7 @@ real(kind=wp), parameter :: SQRTA = sqrt(OneHalf), SQRTH = sqrt(Half)
 real(kind=wp), external :: DDot_
 !logical Incore
 
-if (iPrGlb >= DEBUG) write(6,*) 'RHS on demand: case G'
+if (iPrGlb >= DEBUG) write(u6,*) 'RHS on demand: case G'
 
 !***********************************************************************
 ! Case G (10,11):

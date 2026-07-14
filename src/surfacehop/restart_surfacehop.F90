@@ -9,23 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Restart_SurfaceHop
+subroutine Restart_SurfaceHop()
 
 #ifdef _HDF5_
-use Tully_variables, only: NSUBSTEPS
+use Surfacehop_globals, only: File_H5Res, NSUBSTEPS
+use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
-use mh5, only: mh5_open_file_r, mh5_fetch_attr, mh5_exists_attr, mh5_exists_dset, mh5_fetch_dset, mh5_close_file
-use surfacehop_globals, only: File_H5Res
 use Constants, only: auTofs
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, nstates, nconfs, restart_fileid
+integer(kind=iwp) :: i, nconfs, nstates, restart_fileid
+real(kind=wp) :: dt
+logical(kind=iwp) :: Exists
 character(len=256) :: tmp
 character(len=128) :: sFile
-logical(kind=iwp) :: Exists
-real(kind=wp) :: dt
-real(kind=wp), allocatable :: ener(:), ciarray(:), real_amatrix(:), imag_amatrix(:), overlap_save(:), oldphase(:)
+real(kind=wp), allocatable :: ciarray(:), ener(:), imag_amatrix(:), oldphase(:), overlap_save(:), real_amatrix(:)
 complex(kind=wp), allocatable :: amatrix(:)
 
 write(u6,'(A)') 'Restarting surfacehop from h5 file',file_h5res
@@ -122,7 +121,5 @@ call mma_deallocate(imag_amatrix)
 
 call mh5_close_file(restart_fileid)
 #endif
-
-return
 
 end subroutine Restart_SurfaceHop
