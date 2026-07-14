@@ -311,6 +311,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 ! temporary code
 #ifdef _SGUGA_VERIFY_
         If (.NOT.iDoGAS) Then
+        Write (6,*) 'Place 1'
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
@@ -327,6 +328,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         End If
 #endif
 #ifdef _FAROALD_VERIFY_
+        Write (6,*) 'Place 3'
         If (.NOT.iDoGAS .and. DoFaro) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Call TriPrt('DSTmp(Lucia)',' ',DStmp,NAC)
@@ -400,6 +402,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         Call mma_deallocate(P_Folded)
         Call mma_deallocate(P_faroald)
         End If
+        Write (6,*) 'Place 4'
 #endif
 ! end temporary code
       end if
@@ -408,6 +411,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
       DStmp(:) = Zero
       Ptmp(:) = Zero
     end if
+        Write (6,*) 'Place 4'
     ! Modify the symmetric 2-particle density if only partial
     ! "exact exchange" is included.
     !n_Det = 2
@@ -623,6 +627,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 ! temporary code
 #ifdef _SGUGA_VERIFY_
         If (.NOT.iDoGAS .and. .NOT. DoDMRG) Then
+        Write (6,*) 'Place 2'
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(Abs(Dtmp(1:NAC*(NAC+1)/2)))
         Write (6,*) 'Check_D1=',Check_D1
@@ -702,7 +707,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
            Call Abend()
         End If
 
-        Call Fold2(1,[NAC],DS_faroald,D_sguga)
+        Call Fold2(1,[NAC],SD_faroald,D_sguga)
         Call TriPrt('DSTmp(FAROALD)',' ',D_sguga,NAC)
         If (ABS(Sum(Abs(D_sguga)-Check_SD1)/SIZE(D_sguga))>1.0e12_wp) Then
            Write (6,*) 'FAROALD error in one_pdm'
@@ -765,20 +770,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
       end if
 #   endif
     end if
-    ! Modify the symmetric 2-particle density if only partial "exact exchange" is included.
-    !n_Det = 2
-    !n_unpaired_elec = iSpin-1
-    !n_paired_elec = nActEl-n_unpaired_elec
-    !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
-    !  write(u6,*) ' iSpin=',iSpin
-    !  write(u6,*) ' n_unpaired_elec',n_unpaired_elec
-    !  write(u6,*) ' n_paired_elec', n_paired_elec
-    !  write(u6,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
-    !  write(u6,*) ' n_Det=',n_Det
-    !end if
-
-    !write(u6,*) 'second call to Mod_P2'
-
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     ! update average density matrices
@@ -1110,6 +1101,7 @@ contains
    Call mma_deallocate(D_faroald)
    Call mma_deallocate(SD_faroald)
 
+!...more to come...
    If (Present(D)) D(1:nD)=D_loc(1:nD)
    If (Present(SD)) SD(1:nD)=SD_loc(1:nD)
    If (Present(P)) P(1:nP)=P_loc(1:nP)
@@ -1123,7 +1115,6 @@ contains
 
     call mma_deallocate(PAtmp)
  End If
-
 
  call mma_deallocate(D_loc)
  call mma_deallocate(SD_loc)
