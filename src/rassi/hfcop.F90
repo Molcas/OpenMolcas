@@ -1095,8 +1095,20 @@ subroutine calc_prin_val(iAtom,A_tens)
   write(u6,*)
 
 
-  ! Print A-tensor, the principal axes and eigenvalues
+  ! Print A-tensor, a-matrix, and principal values for each contribution
   do iContr=1,5
+
+    write(u6,'(3X,A82)') repeat('-',82)
+    write(u6,'(3X,A10,A6,A22,A7)') '>>> ATOM: ',LAtomLbl(iAtom),'HYPERFINE COUPLING :: ',contrib_lab(iContr)
+    write(u6,'(3X,A82)') repeat('-',82)
+    write(u6,'(14X,A17,32X,A8)') 'A-tensor (A=aa^T)','a-matrix'
+    write(u6,'(12x,3(A1,12x),3x,3(A1,12x))') xyz(1:3),xyz(1:3)
+    do iAxis=1,3
+      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3))') xyz(iAxis),A_tens(iContr,iAxis,1:3),a_small(iContr,iAxis,1:3)
+    end do
+
+    ! CHECK DIAG/OFF-DIAG NORMS OF a-matrix
+    ! After transformation, the a-matrix should be diagonal. If not, it indicates numerical instability.
     tmpmat(:,:) = a_small(iContr,:,:)
     ! Calculate diagonal elements norm
     fnorm_diag = sqrt(tmpmat(1,1)**2+tmpmat(2,2)**2+tmpmat(3,3)**2)
@@ -1109,15 +1121,6 @@ subroutine calc_prin_val(iAtom,A_tens)
     if (fnorm_off_diag/fnorm_diag > 0.05_wp) then
       call WarningMessage(1,'Relative Frobenius diag/off-diag norm > 5%')
     end if
-
-    write(u6,'(3X,A82)') repeat('-',82)
-    write(u6,'(3X,A10,A6,A22,A7)') '>>> ATOM: ',LAtomLbl(iAtom),'HYPERFINE COUPLING :: ',contrib_lab(iContr)
-    write(u6,'(3X,A82)') repeat('-',82)
-    write(u6,'(14X,A17,32X,A8)') 'A-tensor (A=aa^T)','a-matrix'
-    write(u6,'(12x,3(A1,12x),3x,3(A1,12x))') xyz(1:3),xyz(1:3)
-    do iAxis=1,3
-      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3))') xyz(iAxis),A_tens(iContr,iAxis,1:3),a_small(iContr,iAxis,1:3)
-    end do
 
     do iAxis=1,3
       EVR(iAxis) = a_small(iContr,iAxis,iAxis)
