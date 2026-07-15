@@ -28,13 +28,14 @@ integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: atomNumberx3, cnt, efatom1, efatom2, efatom3, efatom4, i, istatus, iwmax, k, l, LuSpool, nCent, nRoots, &
                      nsAtom, nSym, ntr
 real(kind=wp) :: Bt(3,4), com(3), dBt(3,4,3,4), dperp, dperpmax, Dum, efmodul, fourAtoms(3,4), ftot, gau_sigma, gau_t0, mdtime, &
-                 nhat(3), norm, ovlp, proj, rmaxAng, rnorm, time_scaling, totmass, vdwtab(118), vnorm, wf_phi, wf_theta, wproj
+                 nhat(3), norm, ovlp, proj, rmaxAng, rnorm, time_scaling, totmass, vnorm, wf_phi, wf_theta, wproj
 logical(kind=iwp) :: bending, Found, gaussian_force, keep_rot, ldB, linear, lWarn, lWrite, torsional, wall, wall_vdw
 character(len=180) :: Key, Line
 character(len=8) :: Label
 real(kind=wp), allocatable :: charge(:), coord(:,:), ExtGrad(:,:), gradient(:,:), mass(:), modgrad(:,:), trvec(:,:,:)
 real(kind=wp), parameter :: nnewt = auToN*1.0e9_wp
 integer(kind=iwp), external :: isfreeunit, Read_Grad
+real(kind=wp), external :: vdwRad
 character(len=180), external :: Get_Ln
 
 ! get initial values
@@ -322,81 +323,9 @@ if (wall) then
   call Get_Mass(mass,nsAtom)
   call Get_dArray('Nuclear charge',charge,nsAtom)
 
-  ! van der Waals radii in Angstrom (zero means not available). Data taken from (except transition metals:
-  !     "Consistent van der Waals Radii for the Whole Main Group"
-  !     M. Mantina, A. C. Chamberlin, R. Valero, C. J. Cramer, D. G. Truhlar
-  !     J. Phys. Chem. A 2009, 113, 19, 5806-5812
-  !
-  ! van der Waals radii in Angstrom for transition metals:
-  !     "A cartography of the van der Waals territories"
-  !     S. Alvarez
-  !     Dalton Trans., 2013, 42, 8617-8636
-
-  vdwtab(:) = Zero
-
-  vdwtab(1) = 1.10_wp  ! H
-  vdwtab(2) = 1.40_wp  ! He
-
-  vdwtab(3) = 1.81_wp  ! Li
-  vdwtab(4) = 1.53_wp  ! Be
-  vdwtab(5) = 1.92_wp  ! B
-  vdwtab(6) = 1.70_wp  ! C
-  vdwtab(7) = 1.55_wp  ! N
-  vdwtab(8) = 1.52_wp  ! O
-  vdwtab(9) = 1.47_wp  ! F
-  vdwtab(10) = 1.54_wp  ! Ne
-
-  vdwtab(11) = 2.27_wp  ! Na
-  vdwtab(12) = 1.73_wp  ! Mg
-  vdwtab(13) = 1.84_wp  ! Al
-  vdwtab(14) = 2.10_wp  ! Si
-  vdwtab(15) = 1.80_wp ! P
-  vdwtab(16) = 1.80_wp ! S
-  vdwtab(17) = 1.75_wp ! Cl
-  vdwtab(18) = 1.88_wp ! Ar
-
-  vdwtab(19) = 2.75_wp ! K
-  vdwtab(20) = 2.31_wp ! Ca
-      vdwtab(21) = 2.58_wp ! Sc
-      vdwtab(22) = 2.46_wp ! Ti
-      vdwtab(23) = 2.42_wp ! V
-      vdwtab(24) = 2.45_wp ! Cr
-      vdwtab(25) = 2.45_wp ! Mn
-      vdwtab(26) = 2.44_wp ! Fe
-      vdwtab(27) = 2.40_wp ! Co
-      vdwtab(28) = 2.40_wp ! Ni
-      vdwtab(29) = 2.38_wp ! Cu
-      vdwtab(30) = 2.39_wp ! Zn
-  vdwtab(31) = 1.87_wp ! Ga
-  vdwtab(32) = 2.11_wp ! Ge
-  vdwtab(33) = 1.85_wp ! As
-  vdwtab(34) = 1.90_wp ! Se
-  vdwtab(35) = 1.83_wp ! Br
-  vdwtab(36) = 2.02_wp ! Kr
-
-
-  vdwtab(37) = 3.03_wp ! Rb
-  vdwtab(38) = 2.49_wp ! Sr
-      vdwtab(39) = 2.75_wp ! Y
-      vdwtab(40) = 2.52_wp ! Zr
-      vdwtab(41) = 2.56_wp ! Nb
-      vdwtab(42) = 2.45_wp ! Mo
-      vdwtab(43) = 2.44_wp ! Tc
-      vdwtab(44) = 2.46_wp ! Ru
-      vdwtab(45) = 2.44_wp ! Rh
-      vdwtab(46) = 2.15_wp ! Pd
-      vdwtab(47) = 2.53_wp ! Ag
-      vdwtab(48) = 2.49_wp ! Cd
-  vdwtab(49) = 1.93_wp ! In
-  vdwtab(50) = 2.17_wp ! Sn
-  vdwtab(51) = 2.06_wp ! Sb
-  vdwtab(52) = 2.06_wp ! Te
-  vdwtab(53) = 1.98_wp ! I
-  vdwtab(54) = 2.16_wp ! Xe
-
   if (wall_vdw) then
     do i=1,nsAtom
-      if (vdwtab(nint(charge(i))) <= Zero) then
+      if (vdwRad(nint(charge(i))) <= Zero) then
         call WarningMessage(2,'Error in EXTF: van der Waals radius not available for some atom')
         call Quit_OnUserError()
       end if
@@ -437,13 +366,16 @@ if (wall) then
     end if
   end do
   rmaxAng = dperpmax*Angstrom
-  if (wall_vdw) rmaxAng = rmaxAng+vdwtab(nint(charge(iwmax)))
+  if (wall_vdw) rmaxAng = rmaxAng+vdwRad(nint(charge(iwmax)))
   write(u6,*) 'Effective radius:',rmaxAng,' angstrom'
 
   ! total compression force: F = P*pi*R(theta,phi)^2
   ! (1 GPa * 1 Angstrom^2 = 0.01 nN)
   ftot = efmodul*0.01_wp*Pi*rmaxAng**2
   write(u6,*) 'Total wall force:',ftot*nnewt,' nN'
+
+  call mma_deallocate(mass)
+  call mma_deallocate(charge)
 
   ! distribute the force among the atoms: an atom in the "forward"
   ! hemisphere (r.n > 0) is pushed along -n, and an atom in the
@@ -503,9 +435,6 @@ if (wall) then
     ExtGrad(:,:) = ExtGrad(:,:)-ovlp*trvec(:,:,k)
   end do
   call mma_deallocate(trvec)
-
-  call mma_deallocate(mass)
-  call mma_deallocate(charge)
 
 end if
 !>>>>>>>>>>>>>>>>>>>>> end of wall forces code <<<<<<<<<<<<<<<<<<<<<<<<<
