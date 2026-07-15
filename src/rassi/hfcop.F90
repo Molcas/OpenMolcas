@@ -297,7 +297,7 @@ subroutine calc_h_HFC(iAtom,PROP)
   integer(kind=iwp), intent(in) :: iAtom
   real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
   integer(kind=iwp) :: idx(6), ISS, iState, JSS, jState
-  real(kind=wp) :: A_tens(5,3,3)
+  real(kind=wp) :: A_tens(3,3,5)
   real(kind=wp), allocatable :: ASD(:,:,:)
 
   idx(:) = ASD_idx(iAtom,:)
@@ -353,13 +353,13 @@ subroutine calc_h_HFC(iAtom,PROP)
 ! CALCULATE A_TENSOR (EPR)
   if(do_EPR) then
     ! 1. Total first
-    call calc_A_tens(A_tens(5,:,:),h_TOT)
+    call calc_A_tens(A_tens(:,:,5),h_TOT)
 
     ! 2. Contributions decomposition
-    call calc_A_tens(A_tens(1,:,:),h_FC)
-    call calc_A_tens(A_tens(2,:,:),h_SD)
-    call calc_A_tens(A_tens(3,:,:),h_FCSD)
-    call calc_A_tens(A_tens(4,:,:),h_PSO)
+    call calc_A_tens(A_tens(:,:,1),h_FC)
+    call calc_A_tens(A_tens(:,:,2),h_SD)
+    call calc_A_tens(A_tens(:,:,3),h_FCSD)
+    call calc_A_tens(A_tens(:,:,4),h_PSO)
 
     call calc_prin_val(iAtom,A_tens)
   endif
@@ -1047,15 +1047,15 @@ end subroutine assign_abc_signs
 
 subroutine transf_prin_axes(A, X, a_sm)
 
-  real(kind=wp), intent(in) :: A(5,3,3), X(3,3)
-  real(kind=wp),intent(out) :: a_sm(5,3,3)
+  real(kind=wp), intent(in) :: A(3,3,5), X(3,3)
+  real(kind=wp),intent(out) :: a_sm(3,3,5)
   integer(kind=iwp) :: iContr
   real(kind=wp) :: tmpmat(3,3)
 
   do iContr=1,5
     tmpmat(:,:) = Zero
-    call dgemm_('n','n',3,3,3,1.0_wp,A(iContr,:,:),3,X,3,0.0_wp,tmpmat,3)
-    call dgemm_('t','n',3,3,3,1.0_wp,X,3,tmpmat,3,0.0_wp,a_sm(iContr,:,:),3)
+    call dgemm_('n','n',3,3,3,1.0_wp,A(:,:,iContr),3,X,3,0.0_wp,tmpmat,3)
+    call dgemm_('t','n',3,3,3,1.0_wp,X,3,tmpmat,3,0.0_wp,a_sm(:,:,iContr),3)
   enddo
 
 end subroutine transf_prin_axes
@@ -1063,8 +1063,8 @@ end subroutine transf_prin_axes
 subroutine calc_prin_val(iAtom,A_tens)
 
   integer(kind=iwp), intent(in) :: iAtom
-  real(kind=wp), intent(in) :: A_tens(5,3,3)
-  real(kind=wp) :: a_small(5,3,3)
+  real(kind=wp), intent(in) :: A_tens(3,3,5)
+  real(kind=wp) :: a_small(3,3,5)
   integer(kind=iwp) :: iAxis, IERR, iContr
   real(kind=wp) :: EVI(3), EVR(3), fnorm_diag, fnorm_off_diag, prvl, tmpmat(3,3), X(3,3)
   real(kind=wp), parameter :: to_au = -gElectron*beta_e*beta_n
@@ -1078,7 +1078,7 @@ subroutine calc_prin_val(iAtom,A_tens)
   !                                   FCSD = 3
   !                                    PSO = 4
   !                                  Total = 5
-  tmpmat(:,:) = A_tens(5,:,:)
+  tmpmat(:,:) = A_tens(:,:,5)
   X(:,:) = Zero
   EVR(:) = Zero
   EVI(:) = Zero
@@ -1104,12 +1104,12 @@ subroutine calc_prin_val(iAtom,A_tens)
     write(u6,'(14X,A17,32X,A8)') 'A-tensor (A=aa^T)','a-matrix'
     write(u6,'(12x,3(A1,12x),3x,3(A1,12x))') xyz(1:3),xyz(1:3)
     do iAxis=1,3
-      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3))') xyz(iAxis),A_tens(iContr,iAxis,1:3),a_small(iContr,iAxis,1:3)
+      write(u6,'(3X,A1,3(1x,ES12.3),3x,3(1x,ES12.3))') xyz(iAxis),A_tens(iAxis,1:3,iContr),a_small(iAxis,1:3,iContr)
     end do
 
     ! CHECK DIAG/OFF-DIAG NORMS OF a-matrix
     ! After transformation, the a-matrix should be diagonal. If not, it indicates numerical instability.
-    tmpmat(:,:) = a_small(iContr,:,:)
+    tmpmat(:,:) = a_small(:,:,iContr)
     ! Calculate diagonal elements norm
     fnorm_diag = sqrt(tmpmat(1,1)**2+tmpmat(2,2)**2+tmpmat(3,3)**2)
     ! Calculate off-diagonal elements norm
@@ -1123,7 +1123,7 @@ subroutine calc_prin_val(iAtom,A_tens)
     end if
 
     do iAxis=1,3
-      EVR(iAxis) = a_small(iContr,iAxis,iAxis)
+      EVR(iAxis) = a_small(iAxis,iAxis,iContr)
     end do
 
     if (any(EVR(:) < Zero)) then
