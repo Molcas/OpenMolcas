@@ -312,14 +312,14 @@ subroutine calc_h_HFC(iAtom,PROP)
   end do
 
   if(do_EPR .or. do_pNMR) then
-    write(u6,*) ""
-    write(u6,'(3X,A30)') repeat("=",30)
-    if (do_EPR .and. do_pNMR)       write(u6,'(3X,A24,A6)') "HFC & pNMR Calc. for :: ", LAtomLbl(iAtom)
-    if (do_EPR .and. .not. do_pNMR) write(u6,'(6X,A17,A6)') "HFC Calc. for :: ", LAtomLbl(iAtom)
-    if (.not. do_EPR .and. do_pNMR) write(u6,'(6X,A18,A6)') "pNMR Calc. for :: ", LAtomLbl(iAtom)
-    write(u6,'(3X,A30)') repeat("=",30)
-    write(u6,*) ""
-    write(u6,*) ""
+    write(u6,*)
+    write(u6,'(3X,A30)') repeat('=',30)
+    if (do_EPR .and. do_pNMR)       write(u6,'(3X,A24,A6)') 'HFC & pNMR Calc. for :: ', LAtomLbl(iAtom)
+    if (do_EPR .and. .not. do_pNMR) write(u6,'(6X,A17,A6)') 'HFC Calc. for :: ', LAtomLbl(iAtom)
+    if (.not. do_EPR .and. do_pNMR) write(u6,'(6X,A18,A6)') 'pNMR Calc. for :: ', LAtomLbl(iAtom)
+    write(u6,'(3X,A30)') repeat('=',30)
+    write(u6,*)
+    write(u6,*)
   endif
 
 
@@ -620,9 +620,9 @@ subroutine print_pNMR_summary()
 
     if (pNMR_req(iAtom)) then
       ipNMR_Calc = ipNMR_Calc + 1
-      write(u6,*) ""
+      write(u6,*)
       write(u6,'(3X,A10,A6)') '>>> ATOM: ', adjustl(LAtomLbl(iAtom))
-      write(u6,*) ""
+      write(u6,*)
 
       do iT = 1, NTP
 
@@ -633,19 +633,19 @@ subroutine print_pNMR_summary()
 
 
         write(u6,'(30X,A12,5X,A12,2(2X,A12))')                                   &
-        '   FC+SD+PSO', "          FC", "          SD", "         PSO"
+        '   FC+SD+PSO', '          FC', '          SD', '         PSO'
         write(u6,'(30X,A12,5X,A12,2(2X,A12))') (repeat('-',12), iContr=1,4)
         ! Linear Response
-        write(u6,'(12x,A17,1x,F12.2,5x,F12.2,2(2x,F12.2))') "LinRes (ppm)     ", LR_shifts(ipNMR_Calc,4,iT), &
+        write(u6,'(12x,A17,1x,F12.2,5x,F12.2,2(2x,F12.2))') 'LinRes (ppm)     ', LR_shifts(ipNMR_Calc,4,iT), &
                                 (LR_shifts(ipNMR_Calc,iContr,iT), iContr=1,3)
         ! Curie
-        write(u6,'(12x,A17,1x,F12.2,5x,F12.2,2(2x,F12.2))') "Curie (ppm)      ", C_shifts(ipNMR_Calc,4,iT),  &
+        write(u6,'(12x,A17,1x,F12.2,5x,F12.2,2(2x,F12.2))') 'Curie (ppm)      ', C_shifts(ipNMR_Calc,4,iT),  &
                                     (C_shifts(ipNMR_Calc,iContr,iT), iContr=1,3)
         ! Total
-        write(u6,'(12x,A17,1x,F12.2,5x,F12.2,2(2x,F12.2))') "Total pNMR shifts", total_shifts(4), &
+        write(u6,'(12x,A17,1x,F12.2,5x,F12.2,2(2x,F12.2))') 'Total pNMR shifts', total_shifts(4), &
                                     (total_shifts(iContr), iContr=1,3)
-        write(u6,*) ""
-        write(u6,*) ""
+        write(u6,*)
+        write(u6,*)
       enddo
     endif
   enddo
@@ -1086,7 +1086,7 @@ subroutine calc_prin_val(iAtom,A_tens)
 
   call transf_prin_axes(A_tens, X, a_small)
 
-  write(u6,'(4X,A14)') "PRINCIPAL AXES"
+  write(u6,'(4X,A14)') 'PRINCIPAL AXES'
   write(u6,'(4X,A38)') repeat('-',38)
   write(u6,'(12x,3(A1,12x))') xyz(1:3)
   do iAxis=1,3
@@ -1216,8 +1216,8 @@ subroutine save_h_hfc(h_HFC,iAtom, iContr)
     Lu = IsFreeUnit(88)
     istatus = 100
     call molcas_open_ext2(Lu,file_name,'SEQUENTIAL','FORMATTED',istatus,.false.,1,'REPLACE',is_error)
-    write(Lu,*) "NSS = ",NSS
-    write(Lu,*) "#NROW NCOL REAL IMAG"
+    write(Lu,*) 'NSS = ',NSS
+    write(Lu,*) '#NROW NCOL REAL IMAG'
     do JSS=1,NSS
       do ISS=1,NSS
       write(Lu,'(I6,1X,I6,1X,ES25.16,1X,ES25.16)') ISS,JSS, real(h_HFC(u,ISS,JSS)), aimag(h_HFC(u,ISS,JSS))
