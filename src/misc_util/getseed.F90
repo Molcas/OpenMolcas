@@ -20,18 +20,18 @@ integer(kind=iwp) :: days, hours, i, minutes, seconds
 character(len=72) :: Line
 
 ! Externally defined seed
-call getenvf('MOLCAS_RANDOM_SEED',Line)
+call get_environment_variable('MOLCAS_RANDOM_SEED',Line)
 if (Line /= ' ') then
   read(Line,*) iseed
   return
 end if
 
 ! Somewhat reproducible if inside verification
-call getenvf('MOLCAS_TEST',Line)
+call get_environment_variable('MOLCAS_TEST',Line)
 if (Line /= ' ') then
-  call getenvf('MOLCAS_ITER',Line)
+  call get_environment_variable('MOLCAS_ITER',Line)
   read(Line,*) iseed
-  call getenvf('MOLCAS_PRINT',Line)
+  call get_environment_variable('MOLCAS_PRINT',Line)
   do i=1,len_trim(Line)
     iseed = iseed+ichar(Line(i:i))
   end do
@@ -46,7 +46,7 @@ end if
 call datimx(Line)
 read(Line,'(8x,i2,1x,i2,1x,i2,1x,i2)') days,hours,minutes,seconds
 iseed = int(((days*24+hours)*60+minutes)*60+seconds,kind(iseed))
-call getenvf('Project',Line)
+call get_environment_variable('Project',Line)
 do i=1,len_trim(Line)
   iseed = iseed+ichar(Line(i:i))
 end do

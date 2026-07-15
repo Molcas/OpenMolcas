@@ -58,7 +58,7 @@ character, allocatable :: typestring(:)
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
 iReturncode = 0
-call getenvf('MOLCAS_TEST',Line)
+call get_environment_variable('MOLCAS_TEST',Line)
 !----------------------------------------------------------------------*
 ! Do some counting                                                     *
 !----------------------------------------------------------------------*

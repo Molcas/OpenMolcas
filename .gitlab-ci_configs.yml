@@ -32,7 +32,7 @@
     cache_file: |
       set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
       set (BUILD_SHARED_LIBS "ON" CACHE BOOL "use shared libmolcas")
-      set (BUILD_STATIC_LIB "ON" CACHE BOOL "build static libmolcas too")
+      set (BUILD_STATIC_LIBS "ON" CACHE BOOL "build static libmolcas too")
       set (BIGOT "ON" CACHE BOOL "do not allow any warning")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
       set (IPO "ON" CACHE BOOL "enable interprocedural optimization")

@@ -557,10 +557,10 @@ else
     if (index(Line,'COMP') /= 0) OutFmt2 = 'COMPACT'
     if (index(Line,'FULL') /= 0) OutFmt2 = 'FULL'
     if ((OutFmt1 == 'DEFAULT') .and. (OutFmt2 == 'DEFAULT')) then
-      call WarningMessage(1,'Error in ''OUTP'' command?')
+      call WarningMessage(1,'Error in "OUTP" command?')
       write(u6,*) ' Input line is:'
       write(u6,*) Line
-      write(u6,*) ' Did not understand ''OUTP'' input. Ignored.'
+      write(u6,*) ' Did not understand "OUTP" input. Ignored.'
     end if
   end if
   !---  Process PROR (Print levels for orbitals) command
@@ -610,10 +610,10 @@ else
     if (index(Line,'NOCO') /= 0) OutFmt1 = 'NOCORE  '
     if (index(Line,'ALL') /= 0) OutFmt1 = 'ALL     '
     if (OutFmt1 == 'DEFAULT ') then
-      call WarningMessage(1,'Error in ''ORBL'' command?')
+      call WarningMessage(1,'Error in "ORBL" command?')
       write(u6,*) ' Input line is:'
       write(u6,*) Line
-      write(u6,*) ' Did not understand ''OUTL'' input. Ignored.'
+      write(u6,*) ' Did not understand "OUTL" input. Ignored.'
     end if
   end if
   !---  Process ORBA keyword: Orbital Appearance
@@ -638,10 +638,10 @@ else
     if (index(Line,'COMP') /= 0) OutFmt2 = 'COMPACT '
     if (index(Line,'FULL') /= 0) OutFmt2 = 'FULL    '
     if (OutFmt2 == 'DEFAULT ') then
-      call WarningMessage(1,'Error in ''OUTA'' command?')
+      call WarningMessage(1,'Error in "OUTA" command?')
       write(u6,*) ' Input line is:'
       write(u6,*) Line
-      write(u6,*) ' Did not understand ''OUTA'' input. Ignored.'
+      write(u6,*) ' Did not understand "OUTA" input. Ignored.'
     end if
   end if
   !---  Process MAXO keyword: Max nr of state-specific orbital files produced
@@ -696,7 +696,7 @@ else
     if (index(Line,'NATU') /= 0) iOrbTyp = 3
     if (index(Line,'SPIN') /= 0) iOrbTyp = 4
     if (iOrbTyp == 0) then
-      write(u6,*) ' The line after keyword ''OUTORBITALS'' is'
+      write(u6,*) ' The line after keyword "OUTORBITALS" is'
       write(u6,*) ' not understood. That line begins:'
       write(u6,'(1x,a60)') line(1:60)
       write(u6,*) ' This input is IGNORED.'
@@ -813,7 +813,7 @@ else
     end do
     ! (SVC) get absolute orbital values for the alterations so that
     ! iMAlter is symmetry independent
-    if (DBG) write(u6,*) ' ''Absolute'' iMAlter indices:'
+    if (DBG) write(u6,*) ' "Absolute" iMAlter indices:'
     do iAlter=1,NAlter
       iEnd = 0
       iStart = 1
@@ -1486,7 +1486,7 @@ else
   if (Key('CISE')) then
     if (DBG) then
       write(u6,*) ' CISELECT keyword was given.'
-      write(u6,*) ' This input is awkward. Let''s find up'
+      write(u6,*) " This input is awkward. Let's find up"
       write(u6,*) ' a better way to do things.'
     end if
     ICICH = 1
@@ -1508,7 +1508,7 @@ else
       ReadStatus = ' O.K. reading after CISELECT keyword.'
       if (kRef > mxRef) then
         call WarningMessage(1,'CISElect input is wrong.')
-        write(u6,*) 'Number of CSF''s in CiSelect is out of bounds'
+        write(u6,*) "Number of CSF's in CiSelect is out of bounds"
         write(u6,'(a,i3,a,i3)') 'Specified:',kRef,', Max is',mxRef
         write(u6,'(a,i3)') 'Standard fixup, value set to',mxRef
         kRef = mxRef
@@ -1611,8 +1611,8 @@ else
     if (INVEC == 0) then
       if (IPRLEV >= TERSE) then
         call WarningMessage(2,'JOBIPH input is wrong.')
-        write(u6,*) ' Keyword JOBIPH was used, but the ''JOBOLD'' file'
-        write(u6,*) ' does not exist. The ''JOBIPH'' file named'
+        write(u6,*) ' Keyword JOBIPH was used, but the "JOBOLD" file'
+        write(u6,*) ' does not exist. The "JOBIPH" file named'
         write(u6,*) IPHNAME
         write(u6,*) 'also does not exist. This is a fatal error.'
         call Error(4)
@@ -3945,14 +3945,14 @@ if (Key('CIRE')) then
   iJOB = -1
   call f_Inquire('JOBOLD',lExists)
   if (lExists) then
-    if (DBG) write(u6,*) ' ''JOBOLD'' exists.'
+    if (DBG) write(u6,*) ' "JOBOLD" exists.'
     iJOB = 1
   else
     call f_Inquire(IPHNAME,lExists)
     if (lExists) then
       iJOB = 0
       if (DBG) then
-        write(u6,*) ' No ''JOBOLD'', but JOBIPH exists.'
+        write(u6,*) ' No "JOBOLD", but JOBIPH exists.'
         write(u6,*) ' It is named ',IPHNAME
       end if
     end if
@@ -4003,8 +4003,8 @@ twordm_qcm = domcpdftDMRG .or. (.not. Key('CION'))
 ! Setup part for DMRG calculations
 #ifdef _DMRG_
 if (Key('DMRG') .or. doDMRG) then
-  call getenvf('Project',ProjectName)
-  call getenvf('WorkDir',WorkDir)
+  call get_environment_variable('Project',ProjectName)
+  call get_environment_variable('WorkDir',WorkDir)
   ! Initialize the new interface
 
   ! in QCMaquis spins start with 0

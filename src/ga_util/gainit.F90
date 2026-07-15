@@ -44,7 +44,7 @@ character(len=8) :: molcas_nprocs_env
 ! do not try to re-initialize MPI). This has the consequence that for any
 ! calculation where the number of processes is 1, calls to MPI/GA will fail
 ! at runtime (even though it will compile when inside _MOLCAS_MPP_!)
-call getenvf('MOLCAS_NPROCS',molcas_nprocs_env)
+call get_environment_variable('MOLCAS_NPROCS',molcas_nprocs_env)
 if (molcas_nprocs_env(1:1) == ' ') then
   molcas_nprocs = -1
 else
