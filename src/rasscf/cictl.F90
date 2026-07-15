@@ -43,7 +43,6 @@
 !***********************************************************************
 
 #define _SGUGA_VERIFY_
-#define _FAROALD_VERIFY_
 subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,nTUVX,TUVX,IFINAL)
 ! ****************************************************************
 ! history:                                                       *
@@ -75,9 +74,6 @@ use rctfld_module, only: lRF
 use faroald, only: ndeta, ndetb
 use citrans, only: citrans_csf2sd, citrans_sort
 use faroald, only: one_pdm, two_pdm, fold_two_pdm
-#ifdef _FAROALD_VERIFY_
-use rasscf_global, only: DoFaro
-#endif
 use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 
@@ -128,15 +124,6 @@ real(kind=wp), external :: DDot_
 #ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_D1
 real(kind=wp), allocatable :: D_Sguga(:)
-#endif
-#ifdef _FAROALD_VERIFY_
-real(kind=wp) :: Check_SD1, Trace2, Check_P2
-integer(kind=iwp) :: t, v, nFold
-real(kind=wp), allocatable :: D_FAROALD(:,:)
-real(kind=wp), allocatable :: SD_FAROALD(:,:)
-real(kind=wp), allocatable :: Faroald_Psi(:,:)
-real(kind=wp), allocatable :: P_Faroald(:,:,:,:)
-real(kind=wp), allocatable :: P_Folded(:)
 #endif
 #include "warnings.h"
 
@@ -326,82 +313,6 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
            Call Abend()
         End If
         Call mma_deallocate(D_sguga)
-        End If
-#endif
-#ifdef _FAROALD_VERIFY_
-        Write (6,*) 'Wreck1'
-        If (.NOT.iDoGAS .and. DoFaro) Then
-        Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
-        Call TriPrt('DSTmp(Lucia)',' ',DStmp,NAC)
-        Call TriPrt('PTmp(Lucia)',' ',PTmp,NAC*(NAC+1)/2)
-        Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
-        Check_SD1=Sum(ABS(DStmp(1:NAC*(NAC+1)/2)))
-        Call mma_allocate(D_Faroald,NAC,NAC)
-        Call mma_allocate(SD_Faroald,NAC,NAC)
-        Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
-        nFold=NAC*(NAC+1)/2
-        nFold=nFold*(nFold+1)/2
-        Call mma_allocate(P_Folded,nFold,Label='P_Folded')
-        Check_P2=Sum(ABS(Ptmp(1:nFold)))
-
-        Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
-        Call mma_allocate(temp,nDetA*nDetB,Label='temp')
-        Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
-
-        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
-        Temp(:)=Zero
-        call CITRANS_SORT('C',CIV,temp)
-        Faroald_Psi(:,:)=Zero
-        call CITRANS_CSF2SD(temp,Faroald_PSI)
-
-        Call mma_deallocate(CIV)
-        Call mma_deallocate(temp)
-
-        Call One_pdm(Faroald_Psi,D_Faroald,SD_Faroald)
-
-        Call two_pdm(Faroald_psi,P_Faroald)
-
-        Call mma_deallocate(Faroald_Psi)
-
-        Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
-        Call Fold2(1,[NAC],D_faroald,D_sguga)
-        Call TriPrt('DTmp(FAROALD)',' ',D_sguga,NAC)
-        If (ABS(Sum(Abs(D_sguga)-Check_D1)/SIZE(D_sguga))>1.0e12_wp) Then
-           Write (6,*) 'FAROALD error in one_pdm'
-           Call Abend()
-        End If
-
-        Call Fold2(1,[NAC],SD_faroald,D_sguga)
-        Call TriPrt('DSTmp(FAROALD)',' ',D_sguga,NAC)
-        If (ABS(Sum(Abs(D_sguga)-Check_SD1)/SIZE(D_sguga))>1.0e12_wp) Then
-           Write (6,*) 'FAROALD error in one_pdm'
-           Call Abend()
-        End If
-
-        trace2=Zero
-        Do t = 1, NAC
-          Do v = 1, NAC
-             trace2 = trace2 + P_Faroald(t,t,v,v)
-          End Do
-        End Do
-
-        If (Abs(Trace2-real(nActEl*(nActEl-1),kind=wp))/Size(P_Faroald)>1.0E-12_wp) Then
-           Write (6,*) 'Trace2/=nActEl*(nActEl-1):',Trace2,nActEl*(nActEl-1)
-           Call Abend()
-        End If
-
-        Call Fold_Two_pdm(P_Faroald,P_Folded,Average=.True.)
-        Call TriPrt('PTmp(FAROALD)',' ',P_Folded,NAC*(NAC+1)/2)
-        If (ABS(Sum(Abs(P_Folded)-Check_P2)/SIZE(P_Folded))>1.0e12_wp) Then
-           Write (6,*) 'FAROALD error in Two_pdm'
-           Call Abend()
-        End If
-
-        Call mma_deallocate(D_Sguga)
-        Call mma_deallocate(D_faroald)
-        Call mma_deallocate(SD_faroald)
-        Call mma_deallocate(P_Folded)
-        Call mma_deallocate(P_faroald)
         End If
 #endif
 ! end temporary code
@@ -652,82 +563,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call mma_deallocate(D_sguga)
         END IF
         END IF
-#endif
-#ifdef _FAROALD_VERIFY_
-        Write (6,*) 'Wreck'
-        If (.NOT.iDoGAS .and. DoFaro) Then
-        Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
-        Call TriPrt('DSTmp(Lucia)',' ',DStmp,NAC)
-        Call TriPrt('PTmp(Lucia)',' ',PTmp,NAC*(NAC+1)/2)
-        Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
-        Check_SD1=Sum(ABS(DStmp(1:NAC*(NAC+1)/2)))
-        Call mma_allocate(D_Faroald,NAC,NAC)
-        Call mma_allocate(SD_Faroald,NAC,NAC)
-        Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
-        nFold=NAC*(NAC+1)/2
-        nFold=nFold*(nFold+1)/2
-        Call mma_allocate(P_Folded,nFold,Label='P_Folded')
-        Check_P2=Sum(ABS(Ptmp(1:nFold)))
-
-        Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
-        Call mma_allocate(temp,nDetA*nDetB,Label='temp')
-        Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
-
-        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
-        Temp(:)=Zero
-        call CITRANS_SORT('C',CIV,temp)
-        Faroald_Psi(:,:)=Zero
-        call CITRANS_CSF2SD(temp,Faroald_PSI)
-
-        Call mma_deallocate(CIV)
-        Call mma_deallocate(temp)
-
-        Call One_pdm(Faroald_Psi,D_Faroald,SD_Faroald)
-
-        Call two_pdm(Faroald_psi,P_Faroald)
-
-        Call mma_deallocate(Faroald_Psi)
-
-        Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
-        Call Fold2(1,[NAC],D_faroald,D_sguga)
-        Call TriPrt('DTmp(FAROALD)',' ',D_sguga,NAC)
-        If (ABS(Sum(Abs(D_sguga)-Check_D1)/SIZE(D_sguga))>1.0e12_wp) Then
-           Write (6,*) 'FAROALD error in one_pdm'
-           Call Abend()
-        End If
-
-        Call Fold2(1,[NAC],SD_faroald,D_sguga)
-        Call TriPrt('DSTmp(FAROALD)',' ',D_sguga,NAC)
-        If (ABS(Sum(Abs(D_sguga)-Check_SD1)/SIZE(D_sguga))>1.0e12_wp) Then
-           Write (6,*) 'FAROALD error in one_pdm'
-           Call Abend()
-        End If
-
-        trace2=Zero
-        Do t = 1, NAC
-          Do v = 1, NAC
-             trace2 = trace2 + P_Faroald(t,t,v,v)
-          End Do
-        End Do
-
-        If (Abs(Trace2-real(nActEl*(nActEl-1),kind=wp))/Size(P_Faroald)>1.0E-12_wp) Then
-           Write (6,*) 'Trace2/=nActEl*(nActEl-1):',Trace2,nActEl*(nActEl-1)
-           Call Abend()
-        End If
-
-        Call Fold_Two_pdm(P_Faroald,P_Folded,Average=.True.)
-        Call TriPrt('PTmp(FAROALD)',' ',P_Folded,NAC*(NAC+1)/2)
-        If (ABS(Sum(Abs(P_Folded)-Check_P2)/SIZE(P_Folded))>1.0e12_wp) Then
-           Write (6,*) 'FAROALD error in Two_pdm'
-           Call Abend()
-        End If
-
-        Call mma_deallocate(D_Sguga)
-        Call mma_deallocate(D_faroald)
-        Call mma_deallocate(SD_faroald)
-        Call mma_deallocate(P_Folded)
-        Call mma_deallocate(P_faroald)
-        End If
 #endif
 ! end temporary code
     end if
