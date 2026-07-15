@@ -244,13 +244,14 @@ if (store_angmom) then
     end do
     do j=1,nBasT
       do i=1,j-1
-        ANGMOM(j,i) = ANGMOM(i,j)
+        ! angmom matrices must be skew-symmetric
+        ANGMOM(j,i) = -1 * ANGMOM(i,j)
       end do
     end do
     ! reuse the rank 1 cartesian multipole components
     dsetid = mh5_create_dset_real(fileid,'AO_ANGMOM_'//mltpl1_comp(icomp),2,[NBAST,NBAST])
     call mh5_init_attr(dsetid,'DESCRIPTION', &
-                       'Atomic orbital angular momentum, arranged as matrix of size [NBAST,NBAST]')
+                       'Real part of atomic orbital angular momentum, arranged as matrix of size [NBAST,NBAST]')
     call mh5_put_dset(dsetid,ANGMOM)
     call mh5_close_dset(dsetid)
   end do
