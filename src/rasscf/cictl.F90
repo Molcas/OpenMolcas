@@ -284,15 +284,14 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     call mma_allocate(DStmp,NAC**2,Label='DStmp')
     call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
     call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+    Dtmp(:) = Zero
+    DStmp(:) = Zero
+    Ptmp(:) = Zero
+    PAtmp(:) = Zero
 
     if (NAC >= 1) then
 
-      if (NACTEL == 0) then
-        Dtmp(:) = Zero
-        DStmp(:) = Zero
-        Ptmp(:) = Zero
-        PAtmp(:) = Zero
-      else if (doDMRG) then
+      if (doDMRG) then
 #       ifdef _DMRG_
         ! copy the DMs from d1rf/d2rf for ipcmroot
         Dtmp(1:NACPAR) = rf1(1:NACPAR)
@@ -407,11 +406,6 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 #endif
 ! end temporary code
       end if
-    else
-      Dtmp(:) = Zero
-      DStmp(:) = Zero
-      Ptmp(:) = Zero
-      PAtmp(:) = Zero
     end if
 
     call mma_allocate(PScr,NACPR2,Label='PScr')
@@ -577,10 +571,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
   call mma_allocate(density_square,nac,nac)
 # endif
 
-  !if (DWSCF%do_DW) call DWSol_wgt(1,ENER(:,ITER),weight)
   iDisk = IADR15(4)
   jDisk = IADR15(3)
-  !JB Instead of RASSCF/RASCI energy, print out energy for rotated states
   do_rotate = .false.
   if (ifinal == 2) then
     if (IXMSP == 1) call XMSRot(CMO,FI,FA)
@@ -602,9 +594,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     else
       if (IRotPsi == 1) write(u6,'(6X,A)') 'Do_Rotate.txt is not found. MCSCF states will not be rotated'
     end if
-    !JB End of condition 'Do_Rotate' to initialize rotated states
   end if
-  !JB End If for ifinal=2
 
   do jRoot=1,lRoots
     ! load back one CI vector at the time
@@ -741,6 +731,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 #endif
 ! end temporary code
     end if
+
     if ((.not. doDMRG) .and. ((SGS%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
     ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
     if (doDMRG) then
@@ -779,11 +770,11 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         exit
       end if
     end do
+
     D(:) = D(:)+Scal*Dtmp(1:NACPAR)
     DS(:) = DS(:)+Scal*DStmp(1:NACPAR)
     P(:) = P(:)+Scal*Ptmp(1:NACPR2)
     PA(:) = PA(:)+Scal*PAtmp(1:NACPR2)
-    !GLM Put the D1MO and the P2MO values in RUNFILE
 
     call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
