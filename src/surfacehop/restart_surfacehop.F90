@@ -32,8 +32,8 @@ write(u6,'(A)') 'Restarting surfacehop from h5 file',file_h5res
 ! Check the file exists
 call f_inquire(sFile,Exists)
 if (.not. Exists) then
-  call getenvf('MOLCAS_SUBMIT_DIR',tmp)
-  if (tmp /= '') then
+  call get_environment_variable('MOLCAS_SUBMIT_DIR',tmp)
+  if (tmp /= ' ') then
     i = index(tmp,' ')
     if (i > 0) then
       sFile = tmp(1:i-1)//'/'//File_H5Res

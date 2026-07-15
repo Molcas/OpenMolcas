@@ -24,10 +24,11 @@ use RASWFn, only: wfn_dens, wfn_spindens
 #endif
 use fortran_strings, only: str
 use para_info, only: myRank
-use rasscf_global, only: iAdr15, NAc, NRoots
-use general_data, only: ispin, nActEl
+use rasscf_global, only: iAdr15, NAc, NRoots, NACPAR, NACPR2
+use general_data, only: ispin, nActEl, NASH, NSYM
 use output_ras, only: IPRLOC
 use PrintLevel, only: DEBUG
+use Index_Functions, only: iTri, nTri_Elem
 use index_symmetry, only: one_el_idx_flatten, two_el_idx_flatten
 use CI_solver_util, only: CleanMat, RDM_to_runfile
 use linalg_mod, only: abort_, verify_
@@ -530,37 +531,78 @@ subroutine dump_fciqmc_mats(dmat,dspn,psmat,pamat)
 
   real(kind=wp), intent(in) :: dmat(:), dspn(:), psmat(:), pamat(:)
   integer(kind=iwp) :: i, funit
+  real(kind=wp), allocatable :: dmat_wr(:), dspn_wr(:)
   integer(kind=iwp), external :: isfreeunit
+
+  call mma_allocate(dmat_wr,NACPAR,Label='dmat_wr')
+  call mma_allocate(dspn_wr,NACPAR,Label='dspn_wr')
+  ! if there is more than one symmetry, the DMAT and DSPN matrices
+  ! were compacted before entering this routine using DBLOCK()
+  ! They have to be decompressed again
+  if (NASH(1) == NAC) then
+    dmat_wr(:) = dmat(:)
+    dspn_wr(:) = dspn(:)
+  else
+    call unblock_1rdm(dmat,dmat_wr)
+    call unblock_1rdm(dspn,dspn_wr)
+  end if
 
   funit = IsFreeUnit(11)
   call molcas_open(funit,'DMAT.1')
-  do i=1,size(dmat)
-    if (abs(dmat(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,dmat(i)
+  do i=1,NACPAR
+    if (abs(dmat_wr(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,dmat_wr(i)
   end do
   close(funit)
 
   funit = IsFreeUnit(11)
   call molcas_open(funit,'DSPN.1')
-  do i=1,size(dspn)
-    if (abs(dspn(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,dspn(i)
+  do i=1,NACPAR
+    if (abs(dspn_wr(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,dspn_wr(i)
   end do
   close(funit)
 
+  call mma_deallocate(dspn_wr)
+  call mma_deallocate(dmat_wr)
+
   funit = IsFreeUnit(11)
   call molcas_open(funit,'PSMAT.1')
-  do i=1,size(psmat)
+  do i=1,NACPR2
     if (abs(psmat(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,psmat(i)
   end do
   close(funit)
 
   funit = IsFreeUnit(11)
   call molcas_open(funit,'PAMAT.1')
-  do i=1,size(pamat)
+  do i=1,NACPR2
     if (abs(pamat(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,pamat(i)
   end do
   close(funit)
 
 end subroutine dump_fciqmc_mats
+
+subroutine unblock_1rdm(d_block,d_full)
+
+  real(kind=wp), intent(in) :: d_block(:)
+  real(kind=wp), intent(out) :: d_full(:)
+  integer(kind=iwp) :: isym, off_blk, off_orb, p, pglob, q, qglob
+
+  d_full(:) = Zero
+  off_orb = 0
+  off_blk = 0
+
+  do isym=1,NSYM
+    do p=1,NASH(isym)
+      do q=1,p
+        pglob = off_orb+p
+        qglob = off_orb+q
+        d_full(iTri(pglob,qglob)) = d_block(off_blk+iTri(p,q))
+      end do
+    end do
+    off_orb = off_orb+NASH(isym)
+    off_blk = off_blk+nTri_Elem(NASH(isym))
+  end do
+
+end subroutine unblock_1rdm
 
 function dspn_from_2rdm(psmat,pamat,dmat) result(dspn)
 ! Implementation following the Columbus paper:

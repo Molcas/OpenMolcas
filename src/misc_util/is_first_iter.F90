@@ -42,7 +42,7 @@ if (Found) then
 end if
 
 ! If MOLCAS_ITER <= 1
-call Getenvf('MOLCAS_ITER',EnvStr)
+call get_environment_variable('MOLCAS_ITER',EnvStr)
 read(EnvStr,*) Iter
 if (Iter <= 1) then
   Is_First_Iter = .true.

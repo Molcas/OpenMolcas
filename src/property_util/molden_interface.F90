@@ -88,7 +88,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call GetEnvf('MOLCAS_MOLDEN',Env)
+call get_environment_variable('MOLCAS_MOLDEN',Env)
 !if ((Env == ' ') .or. (Env == 'OFF')) then
 if (Env == 'OFF') then
   if (jPL >= 2) then

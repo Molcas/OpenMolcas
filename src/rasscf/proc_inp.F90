@@ -4004,8 +4004,8 @@ twordm_qcm = domcpdftDMRG .or. (.not. Key('CION'))
 ! Setup part for DMRG calculations
 #ifdef _DMRG_
 if (Key('DMRG') .or. doDMRG) then
-  call getenvf('Project',ProjectName)
-  call getenvf('WorkDir',WorkDir)
+  call get_environment_variable('Project',ProjectName)
+  call get_environment_variable('WorkDir',WorkDir)
   ! Initialize the new interface
 
   ! in QCMaquis spins start with 0

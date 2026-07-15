@@ -50,7 +50,7 @@ integer(kind=iwp), parameter :: IA1 = 8121, IA2 = 4561, IA3 = 7141, IC1 = 28411,
                                 IM2 = 243000, IM3 = 259200
 real(kind=real64), parameter :: a = 1220703125.0_real64, x0 = 314159265.0_real64
 
-call GetEnvf('MOLCAS_RANDOM',rand_info)
+call get_environment_variable('MOLCAS_RANDOM',rand_info)
 call UpCase(rand_info)
 if (rand_info(1:3) == 'OLD') then
   IX0 = iSeed

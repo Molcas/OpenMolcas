@@ -19,6 +19,7 @@ subroutine one2h5_crtmom(fileid,nSym,nBas)
 ! FP: also include the origins used for the operators
 !
 ! Datasets:
+!   ANGMOM_X, ANGMOM_Y, ANGMOM_Z, ANGMOM_ORIG
 !   MLTPL_X, MLTPL_Y, MLTPL_Z
 !   MLTPL_XX, MLTPL_YY, MLTPL_ZZ, MLTPL_XY, MLTPL_YZ, MLTPL_XZ
 !   MLTPL_ORIG
@@ -28,16 +29,38 @@ use OneDat, only: sNoNuc
 use mh5, only: mh5_close_dset, mh5_create_dset_real, mh5_init_attr, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use fortran_strings, only: StringWrapper_t, split, str
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: fileid, nSym, nBas(nSym)
 integer(kind=iwp) :: dsetid, i, iBas, iCmp, iComp, iOff, iOpt, iRc, iScrOff, iSym, iSyMsk, j, jBas, jOff, jsym, msym, nB1, nB2, &
-                     nbast
-real(kind=wp) :: mp_orig(3,3)
+                     nbast, var_status
+real(kind=wp) :: mp_orig(3,3), angmom_orig(3,1)
 character(len=8) :: Label
-real(kind=wp), allocatable :: MLTPL(:,:), Scratch(:)
+logical(kind=iwp) :: store_angmom, store_multipole
+character(len=256) :: h5_data
+real(kind=wp), allocatable :: ANGMOM(:,:), MLTPL(:,:), Scratch(:)
 character(len=*), parameter :: mltpl1_comp(3) = ['X','Y','Z'], mltpl2_comp(6) = ['XX','XY','XZ','YY','YZ','ZZ']
+type(StringWrapper_t), allocatable :: splitted(:)
+
+store_angmom = .false.
+store_multipole = .false.
+
+call get_environment_variable("MOLCAS_ONEINT_H5", h5_data, status=var_status)
+
+! if variable was not set, assume the default
+if (var_status == 1) then
+    store_multipole = .true.
+else
+! otherwise we check each option
+    call upcase(h5_data)
+    call split(h5_data, ',', splitted)
+    do i = 1, size(splitted)
+      if (trim(str(splitted(i)%str)) == "ANGMOM") store_angmom = .true.
+      if (trim(str(splitted(i)%str)) == "MLTPL")  store_multipole = .true.
+    end do
+end if
 
 nbast = 0
 do iSym=1,nSym
@@ -45,130 +68,204 @@ do iSym=1,nSym
 end do
 
 mp_orig(:,:) = 0.
+angmom_orig(:,:) = 0.
 
-call mma_allocate(MLTPL,NBAST,NBAST)
-call mma_allocate(Scratch,NBAST**2+3)
+if (store_multipole) then
+  call mma_allocate(MLTPL,NBAST,NBAST)
+  call mma_allocate(Scratch,NBAST**2+3)
 
-do icomp=1,3
-  iCmp = iComp
-  MLTPL = Zero
-  iRc = -1
-  iOpt = ibset(0,sNoNuc)
-  iSyMsk = 0
-  Label = 'Mltpl  1'
-  call RdOne(iRc,iOpt,Label,iCmp,Scratch,iSyMsk)
-  ! iSyMsk tells us which symmetry combination is valid
-  iScrOff = 0
-  iOff = 0
-  do iSym=1,nSym
-    jOff = 0
-    nB1 = nBas(iSym)
-    do jSym=1,iSym
-      mSym = Mul(iSym,jSym)
-      nB2 = nBas(jSym)
-      if (btest(iSyMsk,mSym-1)) then
-        if (iSym == jSym) then
-          do j=1,nB2
-            jBas = jOff+j
-            do i=1,j
-              iBas = iOff+i
-              MLTPL(iBas,jBas) = Scratch(1+iScrOff)
-              iScrOff = iScrOff+1
+  do icomp=1,3
+    iCmp = iComp
+    MLTPL = Zero
+    iRc = -1
+    iOpt = ibset(0,sNoNuc)
+    iSyMsk = 0
+    Label = 'Mltpl  1'
+    call RdOne(iRc,iOpt,Label,iCmp,Scratch,iSyMsk)
+    ! iSyMsk tells us which symmetry combination is valid
+    iScrOff = 0
+    iOff = 0
+    do iSym=1,nSym
+      jOff = 0
+      nB1 = nBas(iSym)
+      do jSym=1,iSym
+        mSym = Mul(iSym,jSym)
+        nB2 = nBas(jSym)
+        if (btest(iSyMsk,mSym-1)) then
+          if (iSym == jSym) then
+            do j=1,nB2
+              jBas = jOff+j
+              do i=1,j
+                iBas = iOff+i
+                MLTPL(iBas,jBas) = Scratch(1+iScrOff)
+                iScrOff = iScrOff+1
+              end do
             end do
-          end do
-        else
-          do j=1,nB2
-            jBas = jOff+j
-            do i=1,nB1
-              iBas = iOff+i
-              MLTPL(jBas,iBas) = Scratch(1+iScrOff)
-              iScrOff = iScrOff+1
+          else
+            do j=1,nB2
+              jBas = jOff+j
+              do i=1,nB1
+                iBas = iOff+i
+                MLTPL(jBas,iBas) = Scratch(1+iScrOff)
+                iScrOff = iScrOff+1
+              end do
             end do
-          end do
+          end if
         end if
-      end if
-      jOff = jOff+nB2
+        jOff = jOff+nB2
+      end do
+      iOff = iOff+nB1
     end do
-    iOff = iOff+nB1
-  end do
-  do j=1,nBasT
-    do i=1,j-1
-      MLTPL(j,i) = MLTPL(i,j)
+    do j=1,nBasT
+      do i=1,j-1
+        MLTPL(j,i) = MLTPL(i,j)
+      end do
     end do
+    dsetid = mh5_create_dset_real(fileid,'AO_MLTPL_'//mltpl1_comp(icomp),2,[NBAST,NBAST])
+    call mh5_init_attr(dsetid,'DESCRIPTION', &
+                       '1st-order multipole matrix of the atomic orbitals, arranged as matrix of size [NBAST,NBAST]')
+    call mh5_put_dset(dsetid,MLTPL)
+    call mh5_close_dset(dsetid)
   end do
-  dsetid = mh5_create_dset_real(fileid,'AO_MLTPL_'//mltpl1_comp(icomp),2,[NBAST,NBAST])
-  call mh5_init_attr(dsetid,'DESCRIPTION', &
-                     '1st-order multipole matrix of the atomic orbitals, arranged as matrix of size [NBAST,NBAST]')
-  call mh5_put_dset(dsetid,MLTPL)
-  call mh5_close_dset(dsetid)
-end do
 
-mp_orig(1:3,2) = Scratch(iScrOff+1:iScrOff+3)
+  mp_orig(1:3,2) = Scratch(iScrOff+1:iScrOff+3)
 
-do icomp=1,6
-  iCmp = iComp
-  MLTPL = Zero
-  iRc = -1
-  iOpt = ibset(0,sNoNuc)
-  iSyMsk = 0
-  Label = 'Mltpl  2'
-  call RdOne(iRc,iOpt,Label,iCmp,Scratch,iSyMsk)
-  ! iSyMsk tells us which symmetry combination is valid
-  iScrOff = 0
-  iOff = 0
-  do iSym=1,nSym
-    jOff = 0
-    nB1 = nBas(iSym)
-    do jSym=1,iSym
-      mSym = Mul(iSym,jSym)
-      nB2 = nBas(jSym)
-      if (btest(iSyMsk,mSym-1)) then
-        if (iSym == jSym) then
-          do j=1,nB2
-            jBas = jOff+j
-            do i=1,j
-              iBas = iOff+i
-              MLTPL(iBas,jBas) = Scratch(1+iScrOff)
-              iScrOff = iScrOff+1
+  do icomp=1,6
+    iCmp = iComp
+    MLTPL = Zero
+    iRc = -1
+    iOpt = ibset(0,sNoNuc)
+    iSyMsk = 0
+    Label = 'Mltpl  2'
+    call RdOne(iRc,iOpt,Label,iCmp,Scratch,iSyMsk)
+    ! iSyMsk tells us which symmetry combination is valid
+    iScrOff = 0
+    iOff = 0
+    do iSym=1,nSym
+      jOff = 0
+      nB1 = nBas(iSym)
+      do jSym=1,iSym
+        mSym = Mul(iSym,jSym)
+        nB2 = nBas(jSym)
+        if (btest(iSyMsk,mSym-1)) then
+          if (iSym == jSym) then
+            do j=1,nB2
+              jBas = jOff+j
+              do i=1,j
+                iBas = iOff+i
+                MLTPL(iBas,jBas) = Scratch(1+iScrOff)
+                iScrOff = iScrOff+1
+              end do
             end do
-          end do
-        else
-          do j=1,nB2
-            jBas = jOff+j
-            do i=1,nB1
-              iBas = iOff+i
-              MLTPL(jBas,iBas) = Scratch(1+iScrOff)
-              iScrOff = iScrOff+1
+          else
+            do j=1,nB2
+              jBas = jOff+j
+              do i=1,nB1
+                iBas = iOff+i
+                MLTPL(jBas,iBas) = Scratch(1+iScrOff)
+                iScrOff = iScrOff+1
+              end do
             end do
-          end do
+          end if
         end if
-      end if
-      jOff = jOff+nB2
+        jOff = jOff+nB2
+      end do
+      iOff = iOff+nB1
     end do
-    iOff = iOff+nB1
-  end do
-  do j=1,nBasT
-    do i=1,j-1
-      MLTPL(j,i) = MLTPL(i,j)
+    do j=1,nBasT
+      do i=1,j-1
+        MLTPL(j,i) = MLTPL(i,j)
+      end do
     end do
+    dsetid = mh5_create_dset_real(fileid,'AO_MLTPL_'//mltpl2_comp(icomp),2,[NBAST,NBAST])
+    call mh5_init_attr(dsetid,'DESCRIPTION', &
+                       '2nd-order multipole matrix of the atomic orbitals, arranged as matrix of size [NBAST,NBAST]')
+    call mh5_put_dset(dsetid,MLTPL)
+    call mh5_close_dset(dsetid)
+
   end do
-  dsetid = mh5_create_dset_real(fileid,'AO_MLTPL_'//mltpl2_comp(icomp),2,[NBAST,NBAST])
+
+  mp_orig(1:3,3) = Scratch(iScrOff+1:iScrOff+3)
+
+  dsetid = mh5_create_dset_real(fileid,'MLTPL_ORIG',2,[3,3])
   call mh5_init_attr(dsetid,'DESCRIPTION', &
-                     '2nd-order multipole matrix of the atomic orbitals, arranged as matrix of size [NBAST,NBAST]')
-  call mh5_put_dset(dsetid,MLTPL)
+                     'Origin used for the multipole moment operators (in Ang): arranged as overlap, dipole, quadrupole')
+  call mh5_put_dset(dsetid,mp_orig,[3,3],[0,0])
   call mh5_close_dset(dsetid)
-end do
 
-mp_orig(1:3,3) = Scratch(iScrOff+1:iScrOff+3)
+  call mma_deallocate(MLTPL)
+  call mma_deallocate(Scratch)
+end if
 
-call mma_deallocate(MLTPL)
-call mma_deallocate(Scratch)
+if (store_angmom) then
+  call mma_allocate(ANGMOM,NBAST,NBAST)
+  call mma_allocate(Scratch,NBAST**2+3)
+  do icomp=1,3
+    iCmp = iComp
+    ANGMOM = Zero
+    iRc = -1
+    iOpt = ibset(0,sNoNuc)
+    iSyMsk = 0
+    Label = 'AngMom  '
+    call RdOne(iRc,iOpt,Label,iCmp,Scratch,iSyMsk)
+    ! iSyMsk tells us which symmetry combination is valid
+    iScrOff = 0
+    iOff = 0
+    do iSym=1,nSym
+      jOff = 0
+      nB1 = nBas(iSym)
+      do jSym=1,iSym
+        mSym = Mul(iSym,jSym)
+        nB2 = nBas(jSym)
+        if (btest(iSyMsk,mSym-1)) then
+          if (iSym == jSym) then
+            do j=1,nB2
+              jBas = jOff+j
+              do i=1,j
+                iBas = iOff+i
+                ANGMOM(iBas,jBas) = Scratch(1+iScrOff)
+                iScrOff = iScrOff+1
+              end do
+            end do
+          else
+            do j=1,nB2
+              jBas = jOff+j
+              do i=1,nB1
+                iBas = iOff+i
+                ANGMOM(jBas,iBas) = Scratch(1+iScrOff)
+                iScrOff = iScrOff+1
+              end do
+            end do
+          end if
+        end if
+        jOff = jOff+nB2
+      end do
+      iOff = iOff+nB1
+    end do
+    do j=1,nBasT
+      do i=1,j-1
+        ! angmom matrices must be skew-symmetric
+        ANGMOM(j,i) = -1 * ANGMOM(i,j)
+      end do
+    end do
+    ! reuse the rank 1 cartesian multipole components
+    dsetid = mh5_create_dset_real(fileid,'AO_ANGMOM_'//mltpl1_comp(icomp),2,[NBAST,NBAST])
+    call mh5_init_attr(dsetid,'DESCRIPTION', &
+                       'Real part of atomic orbital angular momentum, arranged as matrix of size [NBAST,NBAST]')
+    call mh5_put_dset(dsetid,ANGMOM)
+    call mh5_close_dset(dsetid)
+  end do
+  angmom_orig(1:3,1) = Scratch(iScrOff+1:iScrOff+3)
+  call mma_deallocate(ANGMOM)
+  call mma_deallocate(Scratch)
 
-dsetid = mh5_create_dset_real(fileid,'MLTPL_ORIG',2,[3,3])
-call mh5_init_attr(dsetid,'DESCRIPTION', &
-                   'Origin used for the multipole moment operators (in Ang): arranged as overlap, dipole, quadrupole')
-call mh5_put_dset(dsetid,mp_orig,[3,3],[0,0])
-call mh5_close_dset(dsetid)
+  dsetid = mh5_create_dset_real(fileid,'ANGMOM_ORIG',2,[3,1])
+  call mh5_init_attr(dsetid,'DESCRIPTION', &
+                     'Origin used for the angular momentum operators (in Ang)')
+  call mh5_put_dset(dsetid,angmom_orig,[3,1],[0,0])
+  call mh5_close_dset(dsetid)
+end if
+
 
 end subroutine one2h5_crtmom
 

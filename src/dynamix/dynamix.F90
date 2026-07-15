@@ -347,12 +347,12 @@ call mh5_close_file(dyn_fileid)
 
 if ((IsStructure() == 1) .and. (irc == 0)) then
   MxItr = 0
-  call GetEnvf('MOLCAS_MAXITER',ENV)
+  call get_environment_variable('MOLCAS_MAXITER',ENV)
   if (ENV /= ' ') then
     read(ENV,*) MxItr
   end if
   Itr = 1
-  call GetEnvf('MOLCAS_ITER',ENV)
+  call get_environment_variable('MOLCAS_ITER',ENV)
   if (ENV /= ' ') then
     read(ENV,*) Itr
   end if
