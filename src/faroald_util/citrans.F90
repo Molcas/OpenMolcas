@@ -168,6 +168,10 @@ subroutine citrans_sort(mode,ciold,cinew)
   idwn = 1
   iup = 1
   do icsf=1,ncsf
+    if (mv==0) Then
+       ncsf=icsf-1
+       exit
+    end if
     ! obtain the stepvector
     call stepvector_next(mv,idwn,iup,stepvector,SGS%nLev)
 

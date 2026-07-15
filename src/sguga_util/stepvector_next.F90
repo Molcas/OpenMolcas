@@ -22,6 +22,8 @@ integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
 ! stop when MV is zero
 if (MV == 0) Then
    write(u6,'(1X,A)') 'stepvector_next has been depleted'
+   write(u6,'(1X,A)') 'IDWN,IUP=',IDWN,IUP
+   write(u6,'(1X,A)') 'nLev=',nLev
    Call abend()
 end if
 

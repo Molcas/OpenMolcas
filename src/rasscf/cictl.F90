@@ -330,6 +330,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         End If
 #endif
 #ifdef _FAROALD_VERIFY_
+        Write (6,*) 'Wreck1'
         If (.NOT.iDoGAS .and. DoFaro) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Call TriPrt('DSTmp(Lucia)',' ',DStmp,NAC)
@@ -662,13 +663,14 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         END IF
         END IF
 #endif
-#ifdef _XFAROALD_VERIFY_
+#ifdef _FAROALD_VERIFY_
+        Write (6,*) 'Wreck'
         If (.NOT.iDoGAS .and. DoFaro) Then
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Call TriPrt('DSTmp(Lucia)',' ',DStmp,NAC)
+        Call TriPrt('PTmp(Lucia)',' ',PTmp,NAC*(NAC+1)/2)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Check_SD1=Sum(ABS(DStmp(1:NAC*(NAC+1)/2)))
-
         Call mma_allocate(D_Faroald,NAC,NAC)
         Call mma_allocate(SD_Faroald,NAC,NAC)
         Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
@@ -682,7 +684,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
 
         call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
-        temp(:)=Zero
+        Temp(:)=Zero
         call CITRANS_SORT('C',CIV,temp)
         Faroald_Psi(:,:)=Zero
         call CITRANS_CSF2SD(temp,Faroald_PSI)
@@ -700,7 +702,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         Call Fold2(1,[NAC],D_faroald,D_sguga)
         Call TriPrt('DTmp(FAROALD)',' ',D_sguga,NAC)
         If (ABS(Sum(Abs(D_sguga)-Check_D1)/SIZE(D_sguga))>1.0e12_wp) Then
-           Write (6,*) 'FAROALD error in D1Mat'
+           Write (6,*) 'FAROALD error in one_pdm'
            Call Abend()
         End If
 
