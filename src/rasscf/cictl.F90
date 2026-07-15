@@ -871,7 +871,6 @@ contains
 
  Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
  use Lucia_Interface, only: Lucia_Util
- use sxci, only: IDXSX
  use stdalloc, only: mma_allocate, mma_deallocate
  use rasscf_global, only: DoFaro
  use definitions, only: iwp, wp
@@ -882,14 +881,13 @@ contains
  integer(kind=iwp), intent(in) :: nD, nP
 
  real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:)
- real(kind=wp), allocatable :: PScr(:)
  real(kind=wp), allocatable :: D_FAROALD(:,:)
  real(kind=wp), allocatable :: SD_FAROALD(:,:)
  real(kind=wp), allocatable :: Faroald_Psi(:,:)
  real(kind=wp), allocatable :: P_Faroald(:,:,:,:)
- real(kind=wp), allocatable :: P_Folded(:)
  real(kind=wp), allocatable :: CIV(:), temp(:)
 
+ PA(1:nP) = Zero
  If (DoFaro) Then
    call mma_allocate(D_loc,nD,Label='D_loc')
    call mma_allocate(SD_loc,nD,Label='SD_loc')
