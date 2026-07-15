@@ -167,8 +167,6 @@ set (sources
      trd_print.F90
      trint.F90
      trnsfrm.F90
-     tshinit.F90
-     tshop.F90
      usotrans.F90
      w2sgord.F90
      wfnsizes_rassi.F90
