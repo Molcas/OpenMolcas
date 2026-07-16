@@ -11,7 +11,7 @@
 ! Copyright (C) 2022-2024, Arta Safari                                 *
 !***********************************************************************
 
-module fciqmc_interface
+module caspt2_qmc_interface
 
 #ifdef _MOLCAS_MPP_
 use MPI_Wrapper, only: MPI_COMM_WORLD, MPI_LOGICAL
@@ -573,4 +573,4 @@ subroutine load_fockmat(fock_matrix,fock_eigenvectors,nLev)
 end subroutine load_fockmat
 #endif
 
-end module fciqmc_interface
+end module caspt2_qmc_interface

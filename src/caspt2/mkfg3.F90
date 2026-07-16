@@ -33,7 +33,7 @@
 !> F3(t,u,v,x,y,z) &= \sum_w \langle 0 \lvert E_{tuvxyzww} \rvert 0 \rangle e_w \\
 !> \f}
 !> Storage: \p G1 and \p G2 are simple two- and four-index arrays, and
-!> includes also such zeroes that are implied by symmetry.
+!> include also such zeroes that are implied by symmetry.
 !> But \p G3 is quite large, and while it is stored with zeroes, it
 !> is made more compact by calculating only the minimum amount of
 !> unique values and storing the active indices in the array \p idxG3.

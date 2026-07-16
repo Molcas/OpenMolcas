@@ -22,7 +22,7 @@ subroutine ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA,FIMO,nFIMO)
 ! that have standard Fock matrix FIFA diagonal within inactive,
 ! active, and secondary subblocks.
 
-use fciqmc_interface, only: DoFCIQMC
+use caspt2_qmc_interface, only: DoFCIQMC
 use Printlevel, only: DEBUG, VERBOSE
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: bName, EPS, nBas, nBasT, nDel, nFro, nOrb, nSym, OutFmt, PrOrb, ThrEne, ThrOcc
