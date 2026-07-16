@@ -222,7 +222,7 @@ if (mh5_is_hdf5(jbname(job))) then
   call mma_deallocate(root2state)
 
 # ifdef _DMRG_
-  call getenvf('WorkDir',WorkDir)
+  call get_environment_variable('WorkDir',WorkDir)
   ! Leon 5/12/2016: Fetch QCMaquis checkpoint names if requested
   if (doDMRG) then
     if (mh5_exists_dset(refwfn_id,'QCMAQUIS_CHECKPOINT')) then

@@ -71,7 +71,7 @@ do iiUHF=0,merge(1,0,isUHF)
     end if
   end if
   Env = 'WorkDir '
-  call getenvf(Env,FullName)
+  call get_environment_variable(Env,FullName)
   if ((TheName /= ' ') .and. (iiUHF == 0)) then
     LuExtra = isFreeUnit(88)
     call molcas_open(LuExtra,'extra.prgm')
@@ -99,7 +99,7 @@ do iiUHF=0,merge(1,0,isUHF)
       !ii = i+l
       l = l+i+1
     end do
-    call getenvf('Project',Project)
+    call get_environment_variable('Project',Project)
     !Project = FullName(ii:)
     if ((TheName == 'NEW') .or. (TheName == 'new') .or. (TheName == 'New')) then
       do i=1,99

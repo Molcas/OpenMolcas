@@ -45,7 +45,7 @@ call DCR_Init()
 ! Set the default value of iterations from MOLCAS_MAXITER if it
 ! has been defined.
 
-call GetEnvf('MOLCAS_MAXITER',CMAX)
+call get_environment_variable('MOLCAS_MAXITER',CMAX)
 !write(u6,'(3A)') 'CMAX="',CMAX,'"'
 if (CMAX /= ' ') then
   read(CMAX,'(I8)') iMAX

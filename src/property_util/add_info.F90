@@ -157,7 +157,7 @@ if (MyRank == 0) then
 
   ! If this label should not be checked, then just return immediately:
   STRING = ' '
-  call GETENVF('MOLCAS_NOCHECK',STRING)
+  call get_environment_variable('MOLCAS_NOCHECK',STRING)
   call upcase(STRING)
   STMP = STRING
   isfound = 0
