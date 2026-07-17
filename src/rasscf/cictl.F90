@@ -200,6 +200,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
   call mma_allocate(RCT_F,NTOT2,Label='RCT_F')
   call mma_allocate(RCT_FS,NTOT2,Label='RCT_FS')
 
+  Write (6,*) 'iFinal=',iFinal
   if ((IPCMROOT > 0) .and. (DWSolv%DWZeta /= Zero)) then
     call DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
     call SGFCIN(CMO,FMO,FI,D1I,D1A,RCT_FS)
@@ -300,6 +301,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 ! temporary code
 #ifdef _SGUGA_VERIFY_
         If (.NOT.iDoGAS) Then
+        Write (6,*) 'Here we do Faroald'
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
@@ -314,6 +316,28 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         End If
         Call mma_deallocate(D_sguga)
         End If
+
+        If (SGS%nRsPrt==1 .or. SGS%nRsPrt==3) Then
+        call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
+        Check_D1=Sum(Abs(Ptmp))
+        Write (6,*) 'Check_D2=',Check_D1
+        Call mma_allocate(CIV,nConf,Label='CIV')
+        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+
+        Call mma_allocate(D_sguga,NAC**4)
+        Call sg_d2mat_full(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC)
+        Call mma_deallocate(D_sguga)
+        Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
+        Call sg_d2mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
+        Call mma_deallocate(CIV)
+        D_sguga(:)=Half*D_sguga(:)
+        call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)
+        If (ABS(Sum(Abs(d_sguga))-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
+           Write (6,*) 'SGUGA error in D2Mat'
+           Call Abend()
+        End If
+        Call mma_deallocate(D_sguga)
+        END IF
 #endif
 ! end temporary code
       end if
@@ -516,6 +540,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     ! compute density matrices
 
     if (NAC >= 1) then
+      Write (6,*) 'Normal'
       if (.not. doDMRG) call Lucia_Util('Densi',CI_Vector=CIVEC)
       if (IPRLEV >= INSANE) then
         write(u6,*) 'At root number =',jroot
@@ -549,9 +574,14 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
         Check_D1=Sum(Abs(Ptmp))
         Write (6,*) 'Check_D2=',Check_D1
-        Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
         Call mma_allocate(CIV,nConf,Label='CIV')
         call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+
+        Call mma_allocate(D_sguga,NAC**4)
+        Call sg_d2mat_full(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC)
+        Call mma_deallocate(D_sguga)
+
+        Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
         Call sg_d2mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
         Call mma_deallocate(CIV)
         D_sguga(:)=Half*D_sguga(:)
@@ -914,7 +944,8 @@ contains
 
    Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
    Call two_pdm(Faroald_psi,P_Faroald)
-   Call Fold_Two_pdm(P_Faroald,P_loc,Average=.True.)
+   Call Fold_Two_pdm(P_Faroald,P_loc,Average=.False.)
+!  Call Fold_Two_pdm(P_Faroald,P_loc,Average=.True.)
 
    Call mma_deallocate(Faroald_Psi)
    Call mma_deallocate(P_faroald)

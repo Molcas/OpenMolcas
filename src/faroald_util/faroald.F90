@@ -833,16 +833,20 @@ subroutine fold_two_pdm(p2, p2_fold, average)
 ! tensor has small numerical deviations from the expected packed
 ! symmetries.
 
-  real(kind=wp), intent(in)  :: p2(my_norb,my_norb,my_norb,my_norb)
+! real(kind=wp), intent(in)  :: p2(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp)              :: p2(my_norb,my_norb,my_norb,my_norb)
   real(kind=wp), intent(out) :: p2_fold(:)
   logical, intent(in), optional :: average
 
-  integer(kind=iwp) :: t, u, v, x
+  integer(kind=iwp) :: t, u, v, x, x_max
   integer(kind=iwp) :: tu, vx, tuvx
   integer(kind=iwp) :: npair, npair2
   logical :: do_average
   real(kind=wp), allocatable :: weight(:)
 
+! p2 = 0.5_wp * p2
+! Call RecPrt('p2',' ',p2, my_norb**2, my_norb**2)
+! p2 = 2.0_wp * p2
   npair  = my_norb*(my_norb+1)/2
   npair2 = npair*(npair+1)/2
 
@@ -871,22 +875,27 @@ subroutine fold_two_pdm(p2, p2_fold, average)
 
         tu = faroald_pair_index(t,u)
 
-        do v = 1, my_norb
-          do x = 1, v
+        do v = 1, t
+          x_max=v
+          If (v==t) x_max=u
+          do x = 1, x_max
 
             vx = faroald_pair_index(v,x)
 
-            if (tu < vx) cycle
-
             tuvx = faroald_pair_index(tu,vx)
 
-            p2_fold(tuvx) = p2(t,u,v,x)
+            If (v==x) Then
+               p2_fold(tuvx) = p2(t,u,v,x)
+            Else
+               p2_fold(tuvx) = p2(t,u,v,x) + p2(t,u,x,v)
+            End If
 
           end do
         end do
 
       end do
     end do
+    p2_fold = 0.5_wp * p2_fold
 
   else
 

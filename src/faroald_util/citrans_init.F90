@@ -40,7 +40,6 @@ call mma_allocate(ncsf_group,[ndo_min,ndo_max],label='ncsf_group')
 
 call spintabs_allocate()
 ! loop over configurations
-Write (6,*) 'ndo_min,ndo_max=',ndo_min,ndo_max
 do ido=ndo_min,ndo_max
   iso = nel-2*ido
   ! compute different block sizes
@@ -48,11 +47,6 @@ do ido=ndo_min,ndo_max
   nsoc_group(ido) = binom_coef(iso,norb-ido)
   ndet_group(ido) = binom_coef(nela-ido,iso)
   ncsf_group(ido) = ndet_group(ido)-binom_coef(nela-ido+1,iso)
-  Write (6,*) 'ido=',ido
-  Write (6,*) 'ndoc_group(ido)=',ndoc_group(ido)
-  Write (6,*) 'nsoc_group(ido)=',nsoc_group(ido)
-  Write (6,*) 'ndet_group(ido)=',ndet_group(ido)
-  Write (6,*) 'ncsf_group(ido)=',ncsf_group(ido)
   ! compute+store spin table for this configuration
   spintabs(ido)%ndet = ndet_group(ido)
   spintabs(ido)%ncsf = ncsf_group(ido)

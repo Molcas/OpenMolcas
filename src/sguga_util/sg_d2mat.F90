@@ -11,7 +11,6 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-
 Subroutine sg_d2mat(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,nD2MAT)
 
 use Index_functions, only: iTri
@@ -143,3 +142,112 @@ Call mma_deallocate(Elk_Psi_X)
 Call mma_deallocate(Eij_Psi_X)
 
 End Subroutine sg_d2mat
+
+Subroutine sg_d2mat_full(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,NLEV)
+
+use Index_functions, only: iTri
+use stdalloc, only: mma_allocate, mma_deallocate
+use sguga, only: CIStruct, EXStruct, SGStruct, sg_epq_psi
+use Constants, only: Zero, One
+use Definitions, only: iwp, wp
+
+Implicit none
+type(SGStruct), intent(in)    :: SGS
+type(CIStruct), intent(in)    :: CIS
+type(EXStruct), intent(inout) :: EXS
+integer(kind=iwp), intent(in) :: PsiSym, nCSFs, nLev
+real(kind=wp), intent(in)     :: Psi(nCSFs)
+real(kind=wp), intent(inout) :: D2MAT(nLev,nLev,nLev,nLev)
+
+real(kind=wp), Allocatable, Target :: Eij_Psi_X(:), Elk_Psi_X(:)
+real(kind=wp), Pointer :: Eij_Psi(:)=>Null(), Elk_Psi(:)=>Null()
+real(kind=wp), parameter :: CPQ=One
+integer(kind=iwp) :: iOrb, jOrb, kOrb, lOrb
+
+integer(kind=iwp) :: ijOrb, klOrb, klijOrb
+integer(kind=iwp) :: ikOrb, ljOrb, ikljOrb, MaxDim, mCSFs
+integer(kind=iwp) :: iSym, jSym, kSym, lSym, ijSym, klSym,lOrb_Min
+real(kind=wp) :: D_ij=Zero, P_klij=Zero
+
+MaxDim=MaxVal(CIS%nCSF(:))
+Call mma_allocate(Eij_Psi_X,MaxDim,Label='Eij_Psi_X')
+Call mma_allocate(Elk_Psi_X,MaxDim,Label='Elk_Psi_X')
+
+D2MAT(:,:,:,:)=Zero
+
+
+Do iOrb =1, nLev
+   iSym=SGS%ISM(iOrb)
+Do jOrb =1, nLev
+   ijOrb=iTri(iOrb,jOrb)
+   jSym=SGS%ISM(jOrb)
+   ijSym=iEOR(iSym-1,jSym-1)+1
+   mCSFs = CIS%nCSF(iEOR(PsiSym-1,ijSym-1)+1)
+
+   Eij_Psi(1:mCSFs)=>Eij_Psi_X
+   Elk_Psi(1:mCSFs)=>Elk_Psi_X
+
+!  Operate with E_ij on |Psi> and produce E_ij|Psi>
+!  Note, iOrb>=jOrb
+!
+!  Compute Dij to be distributed below
+!
+   Eij_Psi(:)=Zero
+   Call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi)
+   If (iOrb==jOrb) Then
+      D_ij=Dot_Product(Psi,Eij_Psi)
+   Else
+      If (iSym==jSym) D_ij=Dot_Product(Psi,Eij_Psi)
+   End If
+!
+!  Note, in the case of a RASSCF the resulting sigma vector is incomplete. For the case of E_ij
+!  the complete expansion of E_ij|Psi> would require CSFs that are outside the set of CSFs defining the
+!  RAS expansion. However, if we cap this sigma vector with vectors that have zero coefficient for these
+!  external CSFs we experience no errors.
+
+   Do kOrb=1,nLev
+      kSym=SGS%ISM(kOrb)
+      lOrb=kOrb
+      lSym=SGS%ISM(lOrb)
+      klSym=iEOR(kSym-1,lSym-1)+1
+      If (ijSym/=klSym) Cycle
+
+!     Add the -d_il E_jk term, here in the form of a -d_kl E_ij term of Piklj
+      D2MAT(iOrb,kOrb,lOrb,jOrb)=D2MAT(iOrb,kOrb,lOrb,jOrb) - D_ij
+   End Do
+
+   ! kOrb>=lOrb
+   Do kOrb=1,nLev
+      kSym=SGS%ISM(kOrb)
+   Do lOrb=1,nLev
+      lSym=SGS%ISM(lOrb)
+      klSym=iEOR(kSym-1,lSym-1)+1
+      If (ijSym/=klSym) Cycle
+
+!     Operate with E_lk on |Psi> and produce E_lk|Psi>. Note, since k>=l E_lk|Psi>
+!     is completely definded by the CSFs of the RASSCF space.
+
+      Elk_Psi(1:mCSFs)=Zero
+     ! <Psi|E_kl is computed as E_lk|Psi>
+      Call SG_Epq_Psi(SGS,CIS,EXS,lOrb,kOrb,CPQ,PsiSym,Psi,Elk_Psi)
+!     cap with <Psi|E_kl on E_ij|Psi>, contribution to Pklij
+      P_klij = Dot_Product(Elk_Psi,Eij_Psi)
+
+      klijOrb=iTri(klOrb,ijOrb)
+      D2MAT(kOrb,lOrb,iOrb,jOrb)=D2MAT(kOrb,lOrb,iOrb,jOrb) + P_klij
+
+   End Do
+   End Do
+   Eij_Psi=>Null()
+   Elk_Psi=>Null()
+
+End Do
+End Do
+
+Call mma_deallocate(Elk_Psi_X)
+Call mma_deallocate(Eij_Psi_X)
+
+D2MAT = 0.5_wp * D2MAT
+Call RecPrt('SGUGA P2',' ',D2MAT,nLev**2,nLev**2)
+
+End Subroutine sg_d2mat_full
