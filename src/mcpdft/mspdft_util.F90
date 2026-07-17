@@ -191,4 +191,76 @@ subroutine replace_diag(mat,diag,ndim)
 
 end subroutine replace_diag
 
+  subroutine load_hrot(nroots, hrot, mspdftmethod)
+    ! Loads the rotated Hamiltonian stored in ROT_HAM.
+    ! Also determines the method by which the rotated
+    ! Hamiltonian was generated.
+    !
+    ! Args:
+    !   nroots: integer
+    !     number of roots (or length) of rotated Hamiltonian
+    !
+    ! Returns:
+    !   hrot: ndarray(nroots**2)
+    !     rotated matrix stored in ROT_HAM
+    !
+    !   mspdftmethod: string(8)
+    !     method by which hrot was generated
+    integer, intent(in) :: nroots
+    real(kind=wp), dimension(nroots**2), intent(out) :: hrot
+    character(len=8), intent(out) :: mspdftmethod
+
+    integer, external :: IsFreeUnit
+
+    integer :: i, root, luHROT=12
+    character(len=18) :: MatInfo
+
+    write(lf,'(6X,80A)') ('=',i=1,80)
+    write(lf,*)
+    write(lf,'(6X,A,A)')'keyword "MSPD" is used and file recording rotated hamiltonian is found. '
+    write(lf,*)
+    write(lf,'(6X,A,A)') 'Switching calculation to Multi-State Pair-Density Functional Theory (MS-PDFT) '
+    write(lf,'(6X,A)')'calculation.'
+    write(lf,*)
+
+    luHROT=isfreeunit(luHROT)
+    call molcas_open(luHROT, 'ROT_HAM')
+    do root=1,nRoots
+      read(luHROT,*) (hrot(root+(i-1)*nroots),i=1, nroots)
+    end do
+
+    read(luHROT,'(A18)') matinfo
+    if(trim(adjustl(matinfo)) == 'an unknown method') then
+      write(lf,'(6X,A,A)') 'The MS-PDFT calculation is based on a user-supplied rotation matrix.'
+    else
+      write(lf,'(6X,A,A,A)') ' The MS-PDFT method is ', trim(adjustl(matinfo)), '.'
+      select case (trim(adjustl(matinfo)))
+        case ("XMS-PDFT")
+          MSPDFTMethod="XMS-PDFT"
+        case ("CMS-PDFT")
+          MSPDFTMethod="CMS-PDFT"
+        case ("VMS-PDFT")
+          MSPDFTMethod="VMS-PDFT"
+        case ("FMS-PDFT")
+          MSPDFTMethod="FMS-PDFT"
+      end select
+    end if
+    write(lf,*)
+    write(lf,'(6X,80A)') ('=',i=1,80)
+    write(lf,*)
+    close(luHROT)
+  end subroutine load_hrot
+
+  subroutine get_mspdft_ref_energy(nRoots, hrot, ref_energy)
+    integer, intent(in) :: nroots
+    real(kind=wp), dimension(nroots**2), intent(in) :: hrot
+    real(kind=wp), dimension(nroots), intent(out) :: ref_energy
+
+    integer :: i
+    do i=1,nroots
+      ref_energy(i) = hrot(nroots*(i-1)+i)
+    end do
+
+  end subroutine get_mspdft_ref_energy
+
 end module mspdft_util
