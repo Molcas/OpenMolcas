@@ -77,6 +77,7 @@ set (sources
      ivogen_rasscf.F90
      linpur.F90
      loadgtuvx.F90
+     lpdft_tdm.F90
      make_close_rvb.F90
      mkcrvec.F90
      mkproj.F90
