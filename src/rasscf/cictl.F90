@@ -872,40 +872,37 @@ real(kind=wp), allocatable :: D_Sguga(:)
 #ifdef _SGUGA_VERIFY_
         If (.NOT.iDoGAS) Then
 
+          Call mma_allocate(CIV,nConf,Label='CIV')
+          call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+
 !         Test the one-particle density matrix
           Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
           Check_D1=CheckSum(Dtmp,NACPAR)
+          Write (6,*) 'Check_D1=',Check_D1
           Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
-          Call mma_allocate(CIV,nConf,Label='CIV')
-          call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+
           call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
-          Call mma_deallocate(CIV)
-          Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
           If (ABS(CheckSum(D_sguga,NACPAR)-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
+             Write (6,*) 'Check_D1=',Check_D1
              Check_D1=CheckSum(D_sguga,NACPAR)
              Write (6,*) 'SGUGA error in D1Mat'
              Call Abend()
           End If
           Call mma_deallocate(D_sguga)
-        End If
 
-!       Test the one-particle spin-density matrix
-!       This option is not yet developed for the SGUGA code. To come...
+!         Test the one-particle spin-density matrix
+!         This option is not yet developed for the SGUGA code. To come...
 
-        If (SGS%nRsPrt==1 .or. SGS%nRsPrt==3) Then
 
-!         Test the symmetrized two-particle density matrix
+!         Test the symmetric two-particle density matrix.
           call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
           Check_D1=CheckSum(Ptmp,NACPR2)
           Write (6,*) 'Check_D2=',Check_D1
-          Call mma_allocate(CIV,nConf,Label='CIV')
-          call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
-
           Call mma_allocate(D_sguga,NACPR2,Label='D2MAT')
+
           Call sg_d2mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
           D_sguga(:)=Half*D_sguga(:)
 
-          Call mma_deallocate(CIV)
           call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)
           If (ABS(CheckSum(d_sguga,NACPR2)-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
              Check_D1=CheckSum(d_sguga,NACPR2)
@@ -913,13 +910,15 @@ real(kind=wp), allocatable :: D_Sguga(:)
              Call Abend()
           End If
           Call mma_deallocate(D_sguga)
+          Call mma_deallocate(CIV)
+
         END IF
 #endif
 ! end temporary code
 
  End Subroutine Mk_pdms
 
-Function Checksum(A,nA)
+ Function Checksum(A,nA)
  real(kind=wp) :: Checksum
  integer(kind=iwp), intent(in):: nA
  real(kind=wp), intent(in):: A(nA)
