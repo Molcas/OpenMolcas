@@ -174,7 +174,7 @@ subroutine verify_input()
 
   logical(kind=iwp) :: file_exists
 
-  if (mcpdft_options%mspdft) then ! .and. (.not. mcpdft_options%mspdft) then
+  if (mcpdft_options%mspdft .and. (.not. mcpdft_options%lpdft)) then
     call f_inquire('ROT_HAM',file_exists)
     if (.not. file_exists) then
       call WarningMessage(2,'No H0_Rotate.txt found')
@@ -184,6 +184,14 @@ subroutine verify_input()
       write(u6,*) ' **********************************'
       call Quit_OnUserError()
     end if
+  end if
+
+  if (mcpdft_options%lpdft .and. (.not. mcpdft_options%mspdft)) then
+    call WarningMessage(2,'LPDF keyword requires MSPDFT.')
+    write(u6,*) ' ************* ERROR **************'
+    write(u6,*) ' LPDF requires the MSPD keyword    '
+    write(u6,*) ' **********************************'
+    call Quit_OnUserError()
   end if
 
   if (mcpdft_options%rlxroot < 1) then
