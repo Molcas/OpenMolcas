@@ -1602,6 +1602,10 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
 #     endif
     end if
 
+    if (Key('LPDF')) then
+      call LPDFT_TDM()
+    end if
+
     if (Key('SSCR')) then
       call spin_correlation_driver(orb_range_p,orb_range_q,iroot)
       call mma_deallocate(orb_range_p)
