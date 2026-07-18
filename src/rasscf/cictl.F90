@@ -42,7 +42,6 @@
 !> @param[in]     IFINAL Calculation status switch
 !***********************************************************************
 
-#define _SGUGA_VERIFY_
 subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,nTUVX,TUVX,IFINAL)
 ! ****************************************************************
 ! history:                                                       *
@@ -86,12 +85,7 @@ use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, IC
                          IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: SGS, EXS, CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
-#ifdef _SGUGA_VERIFY_
-use general_data, only: CIS, SGS, EXS
-#else
-use general_data, only: CIS, SGS
-#endif
+use general_data, only: CIS, SGS, EXS, CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -121,10 +115,6 @@ logical(kind=iwp), external :: PCM_On
 #endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
-#ifdef _SGUGA_VERIFY_
-real(kind=wp) :: Check_D1
-real(kind=wp), allocatable :: D_Sguga(:)
-#endif
 #include "warnings.h"
 
 ! Local print level (if any)
@@ -298,47 +288,6 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 
         Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
 
-! temporary code
-#ifdef _SGUGA_VERIFY_
-        If (.NOT.iDoGAS) Then
-        Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
-        Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
-        Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
-        Call mma_allocate(CIV,nConf,Label='CIV')
-        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
-        call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
-        Call mma_deallocate(CIV)
-        Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
-        If (ABS(Sum(Abs(D_sguga))-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
-           Write (6,*) 'SGUGA error in D1Mat'
-           Call Abend()
-        End If
-        Call mma_deallocate(D_sguga)
-        End If
-
-        If (SGS%nRsPrt==1 .or. SGS%nRsPrt==3) Then
-        call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
-        Check_D1=Sum(Abs(Ptmp))
-        Write (6,*) 'Check_D2=',Check_D1
-        Call mma_allocate(CIV,nConf,Label='CIV')
-        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
-
-        Call mma_allocate(D_sguga,NAC**4)
-        Call sg_d2mat_full(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC)
-        Call mma_deallocate(D_sguga)
-        Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
-        Call sg_d2mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
-        Call mma_deallocate(CIV)
-        D_sguga(:)=Half*D_sguga(:)
-        call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)
-        If (ABS(Sum(Abs(d_sguga))-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
-           Write (6,*) 'SGUGA error in D2Mat'
-           Call Abend()
-        End If
-        Call mma_deallocate(D_sguga)
-        END IF
-#endif
-! end temporary code
       end if
     end if
 
@@ -541,72 +490,10 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     if (NAC >= 1) then
       Write (6,*) 'Normal'
       if (.not. doDMRG) Then
-         call Lucia_Util('Densi',CI_Vector=CIVEC)
-         Call TriPrt('DStmp(Lucia)',' ',DStmp,NAC)
-         Check_D1=Sum(Abs(DStmp(1:NACPAR)))
-         Write (6,*) 'Check_DS1=',Check_D1
 
          Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
 
-         Call TriPrt('DStmp(Lucia/Faroald)',' ',DStmp,NAC)
-         If (ABS(Sum(Abs(DStmp(1:NACPAR)))-Check_D1)/REAL(NACPAR,kind=wp)>1.0e-12_wp) Then
-            Check_D1=Sum(Abs(DStmp(1:NACPAR)))
-            Write (6,*) 'Check_DS1=',Check_D1
-         End If
       End If
-      if (IPRLEV >= INSANE) then
-        write(u6,*) 'At root number =',jroot
-        call TRIPRT('D after lucia  ',' ',Dtmp,NAC)
-        call TRIPRT('DS after lucia  ',' ',DStmp,NAC)
-        call TRIPRT('P after lucia',' ',Ptmp,NACPAR)
-        call TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
-      end if
-! temporary code
-#ifdef _SGUGA_VERIFY_
-        If (.NOT.iDoGAS .and. .NOT. DoDMRG) Then
-        Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
-        Check_D1=Sum(Abs(Dtmp(1:NAC*(NAC+1)/2)))
-        Write (6,*) 'Check_D1=',Check_D1
-        Write (6,*) 'nConf=',nConf
-        Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
-        Call mma_allocate(CIV,nConf,Label='CIV')
-        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
-        call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC*(NAC+1)/2)
-        Call mma_deallocate(CIV)
-        Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
-        If (ABS(Sum(Abs(D_sguga))-Check_D1)/SIZE(D_sguga)>1.0e-12_wp) Then
-           Write (6,*) 'Check_D1=',Sum(Abs(D_sguga))
-           Write (6,*) 'SGUGA error in D1Mat'
-           Call Abend()
-        End If
-        Call mma_deallocate(D_sguga)
-
-
-        If (SGS%nRsPrt==1 .or. SGS%nRsPrt==3) Then
-        call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
-        Check_D1=Sum(Abs(Ptmp))
-        Write (6,*) 'Check_D2=',Check_D1
-        Call mma_allocate(CIV,nConf,Label='CIV')
-        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
-
-        Call mma_allocate(D_sguga,NAC**4)
-        Call sg_d2mat_full(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC)
-        Call mma_deallocate(D_sguga)
-
-        Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
-        Call sg_d2mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
-        Call mma_deallocate(CIV)
-        D_sguga(:)=Half*D_sguga(:)
-        call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)
-        If (ABS(Sum(Abs(d_sguga))-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
-           Write (6,*) 'SGUGA error in D2Mat'
-           Call Abend()
-        End If
-        Call mma_deallocate(D_sguga)
-        END IF
-        END IF
-#endif
-! end temporary code
     end if
 
     if ((.not. doDMRG) .and. ((SGS%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
@@ -911,6 +798,7 @@ end if
 
 contains
 
+#define _SGUGA_VERIFY_
  Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
  use Lucia_Interface, only: Lucia_Util
  use stdalloc, only: mma_allocate, mma_deallocate
@@ -928,6 +816,11 @@ contains
  real(kind=wp), allocatable :: Faroald_Psi(:,:)
  real(kind=wp), allocatable :: P_Faroald(:,:,:,:)
  real(kind=wp), allocatable :: CIV(:), temp(:)
+
+#ifdef _SGUGA_VERIFY_
+real(kind=wp) :: Check_D1
+real(kind=wp), allocatable :: D_Sguga(:)
+#endif
 
  If (DoFaro) Then
 !If (.False.) Then
@@ -976,6 +869,47 @@ contains
  Else
    call Lucia_Util('Densi',CI_Vector=CIVEC)
  End If
+! temporary code
+#ifdef _SGUGA_VERIFY_
+        If (.NOT.iDoGAS) Then
+        Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
+        Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
+        Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
+        Call mma_allocate(CIV,nConf,Label='CIV')
+        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+        call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
+        Call mma_deallocate(CIV)
+        Call TriPrt('DTmp(SGUGA)',' ',D_sguga,NAC)
+        If (ABS(Sum(Abs(D_sguga))-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
+           Write (6,*) 'SGUGA error in D1Mat'
+           Call Abend()
+        End If
+        Call mma_deallocate(D_sguga)
+        End If
+
+        If (SGS%nRsPrt==1 .or. SGS%nRsPrt==3) Then
+        call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
+        Check_D1=Sum(Abs(Ptmp))
+        Write (6,*) 'Check_D2=',Check_D1
+        Call mma_allocate(CIV,nConf,Label='CIV')
+        call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+
+        Call mma_allocate(D_sguga,NAC**4)
+        Call sg_d2mat_full(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NAC)
+        Call mma_deallocate(D_sguga)
+        Call mma_allocate(D_sguga,NACPAR*(NACPAR+1)/2,Label='D2MAT')
+        Call sg_d2mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
+        Call mma_deallocate(CIV)
+        D_sguga(:)=Half*D_sguga(:)
+        call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)
+        If (ABS(Sum(Abs(d_sguga))-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
+           Write (6,*) 'SGUGA error in D2Mat'
+           Call Abend()
+        End If
+        Call mma_deallocate(D_sguga)
+        END IF
+#endif
+! end temporary code
 
  End Subroutine Mk_pdms
 
