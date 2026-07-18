@@ -62,7 +62,11 @@ else
   fileName = trim(project)//'_tdm_4_lpdft.h5'
 end if
 
-write(u6,'(6X,A)') 'LPDF: compute and store active 1-TDM and 2-TDM matrices in '//trim(fileName)
+write(u6,*)
+write(u6,'(6X,A)') '-----------------------------------------'
+write(u6,'(6X,A)') '     Multi-State PDFT Intermediate       '
+write(u6,'(6X,A)') '-----------------------------------------'
+write(u6,'(6X,A)') 'Computing and storing active 1-TDM and 2-TDM matrices in '//trim(fileName)
 
 call mma_allocate(Tmp,NConf,Label='Tmp')
 call mma_allocate(VecL,NConf,Label='VecL')
@@ -109,7 +113,7 @@ call mh5_close_dset(twoTdmAId)
 call mh5_close_dset(rootPairsId)
 call mh5_close_file(fileId)
 
-write(u6,'(6X,A,I6,A)') 'LPDF: stored transition density matrices in HDF5 for ',iPair,' root pairs.'
+write(u6,'(6X,A,I6,A)') 'Stored transition density matrices in HDF5 for ',iPair,' root pairs.'
 
 call mma_deallocate(Tmp)
 call mma_deallocate(VecL)

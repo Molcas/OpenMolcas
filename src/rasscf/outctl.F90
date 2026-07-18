@@ -454,12 +454,14 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
       call PrintResult(u6,Fmt2//'A,I3,A,F16.8)','RASSCF root number',I,' Total energy:',EneTmp(i),1)
     end do
   end if
-else if ((IPRLEV >= TERSE) .and. (.not. lOPTO)) then
-  do i=1,lRoots
-    call PrintResult(u6,Fmt2//'A,I3,A,F16.8)','RASSCF root number',I,' Total energy:',EneTmp(i),1)
-  end do
-  ! End of long if-block C over IPRLEV
-end if
+  else if ((IPRLEV >= TERSE) .and. (.not. lOPTO)) then
+    do i=1,lRoots
+      call PrintResult(u6,Fmt2//'A,I3,A,F16.8)','RASSCF root number',I,' Total energy:',EneTmp(i),1)
+    end do
+    ! End of long if-block C over IPRLEV
+  end if
+
+  if (Key('LPDF')) call LPDFT_TDM()
 
 call Store_Energies(lRoots,EneTmp,irlxroot)
 call Put_iScalar('NumGradRoot',irlxroot)
