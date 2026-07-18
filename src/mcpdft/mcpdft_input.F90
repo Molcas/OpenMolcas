@@ -22,6 +22,7 @@ private
 type :: McpdftInputOptions_t
   logical(kind=iwp) :: wjob = .false.
   logical(kind=iwp) :: mspdft = .false.
+  logical(kind=iwp) :: lpdft = .false.
   logical(kind=iwp) :: grad = .false.
   logical(kind=iwp) :: meci = .false.
   logical(kind=iwp) :: nac = .false.
@@ -112,6 +113,9 @@ subroutine parse_input()
       case ('MSPD')
         mcpdft_options%mspdft = .true.
 
+      case ('LPDF')
+        mcpdft_options%lpdft = .true.
+
       case ('WJOB')
         mcpdft_options%wjob = .true.
 
@@ -170,7 +174,7 @@ subroutine verify_input()
 
   logical(kind=iwp) :: file_exists
 
-  if (mcpdft_options%mspdft) then
+  if (mcpdft_options%mspdft) then ! .and. (.not. mcpdft_options%mspdft) then
     call f_inquire('ROT_HAM',file_exists)
     if (.not. file_exists) then
       call WarningMessage(2,'No H0_Rotate.txt found')
