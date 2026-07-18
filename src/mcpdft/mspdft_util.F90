@@ -190,3 +190,5 @@ subroutine replace_diag(mat,diag,ndim)
   end do
 
 end subroutine replace_diag
+
+end module mspdft_util
