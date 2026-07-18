@@ -95,8 +95,6 @@ IPRLEV = IPRLOC(1)
 
 if (mcpdft_options%mspdft) call mspdft_init()
 
-if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) call construct_lpdft_ham_from_tdm()
-
 call InpPri_m()
 
 ! Get start orbitals
@@ -106,6 +104,8 @@ call ReadVc_m(CMO)
 ! Allocate core space for dynamic storage of data
 ! Really just determine size of 2-e integrals
 call ALLOC()
+
+if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) call construct_lpdft_ham_from_tdm(CMO)
 
 call Timing(dum1,dum2,time1(1),dum3)
 TimeInput = time1(1)
