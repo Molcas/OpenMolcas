@@ -36,13 +36,19 @@ subroutine mspdft_init()
   use rasscf_global, only: lroots
   use mcpdft_input, only: mcpdft_options
   use mspdftgrad, only: mspdftgrad_init
+  use Constants, only: Zero
 
   character(len=18) :: matrix_info
 
   call mma_allocate(heff,lroots,lroots,label='heff')
 
-  call readmat2('ROT_HAM',matrix_info,heff,size(heff,1),size(heff,2),7,len(matrix_info),'T')
-  call determine_method(matrix_info)
+  if (mcpdft_options%lpdft) then
+    heff(:,:) = Zero
+    mspdftmethod = 'LPDFT'
+  else
+    call readmat2('ROT_HAM',matrix_info,heff,size(heff,1),size(heff,2),7,len(matrix_info),'T')
+    call determine_method(matrix_info)
+  end if
 
   if (mcpdft_options%grad) call mspdftgrad_init()
 
