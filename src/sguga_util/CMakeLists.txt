@@ -11,11 +11,11 @@
 
 set (sources
      sg_citra.F90
-     sg_d1mat.F90
-     sg_d2mat.F90
+     sg_two_pdm.F90
      sg_h_psi.F90
      sg_mstow.F90
      sg_num.F90
+     sg_one_pdm.F90
      sg_phase.F90
      sg_pkwlk.F90
      sg_prwf.F90

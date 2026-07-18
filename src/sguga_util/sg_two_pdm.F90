@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-Subroutine sg_d2mat(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,nD2MAT)
+Subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,nD2MAT)
 
 use Index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -141,9 +141,9 @@ End Do
 Call mma_deallocate(Elk_Psi_X)
 Call mma_deallocate(Eij_Psi_X)
 
-End Subroutine sg_d2mat
+End Subroutine sg_two_pdm
 
-Subroutine sg_d2mat_full(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,NLEV)
+Subroutine sg_two_pdm_full(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,NLEV)
 
 use Index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -250,4 +250,4 @@ Call mma_deallocate(Eij_Psi_X)
 D2MAT = 0.5_wp * D2MAT
 Call RecPrt('SGUGA P2',' ',D2MAT,nLev**2,nLev**2)
 
-End Subroutine sg_d2mat_full
+End Subroutine sg_two_pdm_full

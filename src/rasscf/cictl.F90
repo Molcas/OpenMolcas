@@ -881,7 +881,7 @@ real(kind=wp), allocatable :: D_Sguga(:)
           Write (6,*) 'Check_D1=',Check_D1
           Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
 
-          call sg_d1mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
+          call sg_one_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
           If (ABS(CheckSum(D_sguga,NACPAR)-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
              Write (6,*) 'Check_D1=',Check_D1
              Check_D1=CheckSum(D_sguga,NACPAR)
@@ -900,7 +900,7 @@ real(kind=wp), allocatable :: D_Sguga(:)
           Write (6,*) 'Check_D2=',Check_D1
           Call mma_allocate(D_sguga,NACPR2,Label='D2MAT')
 
-          Call sg_d2mat(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
+          Call sg_two_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
           D_sguga(:)=Half*D_sguga(:)
 
           call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)

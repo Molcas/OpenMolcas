@@ -12,7 +12,7 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-Subroutine sg_d1mat(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,lD1MAT)
+Subroutine sg_one_pdm(SGS,CIS,EXS,CI,lCI,ISYCI,D1MAT,lD1MAT)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use sguga, only: CIStruct, EXStruct, SGStruct, sg_epq_psi
@@ -50,4 +50,4 @@ End Do
 
 Call mma_deallocate(SGM)
 
-End Subroutine sg_d1mat
+End Subroutine sg_one_pdm
