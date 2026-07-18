@@ -25,6 +25,7 @@ use write_pdft_job, only: writejob
 use PrintLevel, only: DEBUG, INSANE, TERSE
 use mcpdft_output, only: iPrLoc
 use mcpdft_input, only: mcpdft_options, parse_input
+use construct_lpdft_ham, only: construct_lpdft_ham_from_tdm
 use mspdft_util, only: replace_diag
 use mspdft, only: heff, mspdft_init, mspdft_finalize
 use wadr, only: FockOcc
@@ -93,6 +94,8 @@ end if
 IPRLEV = IPRLOC(1)
 
 if (mcpdft_options%mspdft) call mspdft_init()
+
+if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) call construct_lpdft_ham_from_tdm()
 
 call InpPri_m()
 
