@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-Subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,nD2MAT)
+Subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,nP)
 
 use Index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -23,9 +23,9 @@ Implicit none
 type(SGStruct), intent(in)    :: SGS
 type(CIStruct), intent(in)    :: CIS
 type(EXStruct), intent(inout) :: EXS
-integer(kind=iwp), intent(in) :: PsiSym, nCSFs, nD2MAT
+integer(kind=iwp), intent(in) :: PsiSym, nCSFs, nP
 real(kind=wp), intent(in)     :: Psi(nCSFs)
-real(kind=wp), intent(inout) :: D2MAT(nD2MAT)
+real(kind=wp), intent(inout) :: P(nP)
 
 real(kind=wp), Allocatable, Target :: Eij_Psi_X(:), Elk_Psi_X(:)
 real(kind=wp), Pointer :: Eij_Psi(:)=>Null(), Elk_Psi(:)=>Null()
@@ -41,7 +41,7 @@ MaxDim=MaxVal(CIS%nCSF(:))
 Call mma_allocate(Eij_Psi_X,MaxDim,Label='Eij_Psi_X')
 Call mma_allocate(Elk_Psi_X,MaxDim,Label='Elk_Psi_X')
 
-D2MAT(:)=Zero
+P(:)=Zero
 
 !
 !   Compute P_lk,ij = <Psi|e_lkij|Psi> + <Psi|e_lkji|Psi>
@@ -104,7 +104,7 @@ Do jOrb =1, iOrb
       ikOrb=iTri(iOrb,kOrb)
       ljOrb=iTri(lOrb,jOrb)
       ikljOrb=iTri(ikOrb,ljOrb)
-      D2MAT(ikljOrb)=D2MAT(ikljOrb) - D_ij
+      P(ikljOrb)=P(ikljOrb) - D_ij
    End Do
 
    ! kOrb>=lOrb
@@ -128,7 +128,7 @@ Do jOrb =1, iOrb
       P_klij = Dot_Product(Elk_Psi,Eij_Psi)
 
       klijOrb=iTri(klOrb,ijOrb)
-      D2MAT(klijOrb)=D2MAT(klijOrb) + P_klij
+      P(klijOrb)=P(klijOrb) + P_klij
 
    End Do
    End Do
@@ -141,9 +141,11 @@ End Do
 Call mma_deallocate(Elk_Psi_X)
 Call mma_deallocate(Eij_Psi_X)
 
+P = 0.5_wp * P
+
 End Subroutine sg_two_pdm
 
-Subroutine sg_two_pdm_full(SGS,CIS,EXS,Psi,nCSFs,PsiSym,D2MAT,NLEV)
+Subroutine sg_two_pdm_full(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,NLEV)
 
 use Index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -157,7 +159,7 @@ type(CIStruct), intent(in)    :: CIS
 type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp), intent(in) :: PsiSym, nCSFs, nLev
 real(kind=wp), intent(in)     :: Psi(nCSFs)
-real(kind=wp), intent(inout) :: D2MAT(nLev,nLev,nLev,nLev)
+real(kind=wp), intent(inout) :: P(nLev,nLev,nLev,nLev)
 
 real(kind=wp), Allocatable, Target :: Eij_Psi_X(:), Elk_Psi_X(:)
 real(kind=wp), Pointer :: Eij_Psi(:)=>Null(), Elk_Psi(:)=>Null()
@@ -173,8 +175,7 @@ MaxDim=MaxVal(CIS%nCSF(:))
 Call mma_allocate(Eij_Psi_X,MaxDim,Label='Eij_Psi_X')
 Call mma_allocate(Elk_Psi_X,MaxDim,Label='Elk_Psi_X')
 
-D2MAT(:,:,:,:)=Zero
-
+P(:,:,:,:)=Zero
 
 Do iOrb =1, nLev
    iSym=SGS%ISM(iOrb)
@@ -213,7 +214,7 @@ Do jOrb =1, nLev
       If (ijSym/=klSym) Cycle
 
 !     Add the -d_il E_jk term, here in the form of a -d_kl E_ij term of Piklj
-      D2MAT(iOrb,kOrb,lOrb,jOrb)=D2MAT(iOrb,kOrb,lOrb,jOrb) - D_ij
+      P(iOrb,kOrb,lOrb,jOrb)=P(iOrb,kOrb,lOrb,jOrb) - D_ij
    End Do
 
    ! kOrb>=lOrb
@@ -234,7 +235,7 @@ Do jOrb =1, nLev
       P_klij = Dot_Product(Elk_Psi,Eij_Psi)
 
       klijOrb=iTri(klOrb,ijOrb)
-      D2MAT(kOrb,lOrb,iOrb,jOrb)=D2MAT(kOrb,lOrb,iOrb,jOrb) + P_klij
+      P(kOrb,lOrb,iOrb,jOrb)=P(kOrb,lOrb,iOrb,jOrb) + P_klij
 
    End Do
    End Do
@@ -247,7 +248,6 @@ End Do
 Call mma_deallocate(Elk_Psi_X)
 Call mma_deallocate(Eij_Psi_X)
 
-D2MAT = 0.5_wp * D2MAT
-Call RecPrt('SGUGA P2',' ',D2MAT,nLev**2,nLev**2)
+P = 0.5_wp * P
 
 End Subroutine sg_two_pdm_full

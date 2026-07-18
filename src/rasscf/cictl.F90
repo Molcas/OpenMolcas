@@ -901,7 +901,6 @@ real(kind=wp), allocatable :: D_Sguga(:)
           Call mma_allocate(D_sguga,NACPR2,Label='D2MAT')
 
           Call sg_two_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
-          D_sguga(:)=Half*D_sguga(:)
 
           call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)
           If (ABS(CheckSum(d_sguga,NACPR2)-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
