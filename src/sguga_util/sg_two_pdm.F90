@@ -11,12 +11,12 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-Subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,nP)
+Subroutine sg_two_pdm(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,PA,nP)
 
 use Index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use sguga, only: CIStruct, EXStruct, SGStruct, sg_epq_psi
-use Constants, only: Zero, One
+use Constants, only: Zero, Half, One
 use Definitions, only: iwp, wp
 
 Implicit none
@@ -25,10 +25,10 @@ type(CIStruct), intent(in)    :: CIS
 type(EXStruct), intent(inout) :: EXS
 integer(kind=iwp), intent(in) :: PsiSym, nCSFs, nP
 real(kind=wp), intent(in)     :: Psi(nCSFs)
-real(kind=wp), intent(inout) :: P(nP)
+real(kind=wp), intent(inout) :: P(nP), PA(nP)
 
-real(kind=wp), Allocatable, Target :: Eij_Psi_X(:), Elk_Psi_X(:)
-real(kind=wp), Pointer :: Eij_Psi(:)=>Null(), Elk_Psi(:)=>Null()
+real(kind=wp), Allocatable, Target :: Eij_Psi_X(:), Elk_Psi_X(:), Eji_Psi_X(:)
+real(kind=wp), Pointer :: Eij_Psi(:)=>Null(), Elk_Psi(:)=>Null(), Eji_Psi(:)=>Null()
 real(kind=wp), parameter :: CPQ=One
 integer(kind=iwp) :: iOrb, jOrb, kOrb, lOrb
 
@@ -39,9 +39,11 @@ real(kind=wp) :: D_ij=Zero, P_klij=Zero
 
 MaxDim=MaxVal(CIS%nCSF(:))
 Call mma_allocate(Eij_Psi_X,MaxDim,Label='Eij_Psi_X')
+Call mma_allocate(Eji_Psi_X,MaxDim,Label='Eji_Psi_X')
 Call mma_allocate(Elk_Psi_X,MaxDim,Label='Elk_Psi_X')
 
 P(:)=Zero
+PA(:)=Zero
 
 !
 !   Compute P_lk,ij = <Psi|e_lkij|Psi> + <Psi|e_lkji|Psi>
@@ -71,6 +73,7 @@ Do jOrb =1, iOrb
    mCSFs = CIS%nCSF(iEOR(PsiSym-1,ijSym-1)+1)
 
    Eij_Psi(1:mCSFs)=>Eij_Psi_X
+   Eji_Psi(1:mCSFs)=>Eji_Psi_X
    Elk_Psi(1:mCSFs)=>Elk_Psi_X
 
 !  Operate with E_ij on |Psi> and produce E_ij|Psi>
@@ -79,13 +82,13 @@ Do jOrb =1, iOrb
 !  Compute Dij to be distributed below
 !
    Eij_Psi(:)=Zero
+   Eji_Psi(:)=Zero
    Call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi)
    If (iOrb==jOrb) Then
       D_ij=Dot_Product(Psi,Eij_Psi)
    Else
       If (iSym==jSym) D_ij=Dot_Product(Psi,Eij_Psi)
-      ! now add E_ji|Psi> to E_ij|Psi>
-      Call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eij_Psi)
+      Call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eji_Psi)
    End If
 !
 !  Note, in the case of a RASSCF the resulting sigma vector is incomplete. For the case of E_ij
@@ -129,10 +132,18 @@ Do jOrb =1, iOrb
 
       klijOrb=iTri(klOrb,ijOrb)
       P(klijOrb)=P(klijOrb) + P_klij
+      PA(klijOrb)=PA(klijOrb) + P_klij
+
+      If (iOrb/=jOrb) Then
+         P_klij = Dot_Product(Elk_Psi,Eji_Psi)
+         P(klijOrb)=P(klijOrb) + P_klij
+         PA(klijOrb)=PA(klijOrb) - P_klij
+      End If
 
    End Do
    End Do
    Eij_Psi=>Null()
+   Eji_Psi=>Null()
    Elk_Psi=>Null()
 
 End Do
@@ -140,8 +151,10 @@ End Do
 
 Call mma_deallocate(Elk_Psi_X)
 Call mma_deallocate(Eij_Psi_X)
+Call mma_deallocate(Eji_Psi_X)
 
-P = 0.5_wp * P
+P  = Half * P
+PA = Half * PA
 
 End Subroutine sg_two_pdm
 

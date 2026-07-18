@@ -819,6 +819,7 @@ contains
 #ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_D1
 real(kind=wp), allocatable :: D_Sguga(:)
+real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 #endif
 
  If (DoFaro) Then
@@ -898,17 +899,19 @@ real(kind=wp), allocatable :: D_Sguga(:)
           call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
           Check_D1=CheckSum(Ptmp,NACPR2)
           Write (6,*) 'Check_D2=',Check_D1
-          Call mma_allocate(D_sguga,NACPR2,Label='D2MAT')
+          Call mma_allocate(P_sguga,NACPR2,Label='P')
+          Call mma_allocate(PA_sguga,NACPR2,Label='PA')
 
-          Call sg_two_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,NACPAR*(NACPAR+1)/2)
+          Call sg_two_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
 
-          call TRIPRT('P(SGUGA)',' ',d_sguga,NACPAR)
-          If (ABS(CheckSum(d_sguga,NACPR2)-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
-             Check_D1=CheckSum(d_sguga,NACPR2)
+          call TRIPRT('P(SGUGA)',' ',P_sguga,NACPAR)
+          If (ABS(CheckSum(P_sguga,NACPR2)-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
+             Check_D1=CheckSum(P_sguga,NACPR2)
              Write (6,*) 'SGUGA error in D2Mat'
              Call Abend()
           End If
-          Call mma_deallocate(D_sguga)
+          Call mma_deallocate(PA_sguga)
+          Call mma_deallocate(P_sguga)
           Call mma_deallocate(CIV)
 
         END IF
