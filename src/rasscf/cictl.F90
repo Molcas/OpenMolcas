@@ -301,7 +301,6 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 ! temporary code
 #ifdef _SGUGA_VERIFY_
         If (.NOT.iDoGAS) Then
-        Write (6,*) 'Here we do Faroald'
         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
         Check_D1=Sum(ABS(Dtmp(1:NAC*(NAC+1)/2)))
         Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
@@ -541,7 +540,20 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 
     if (NAC >= 1) then
       Write (6,*) 'Normal'
-      if (.not. doDMRG) call Lucia_Util('Densi',CI_Vector=CIVEC)
+      if (.not. doDMRG) Then
+         call Lucia_Util('Densi',CI_Vector=CIVEC)
+         Call TriPrt('DStmp(Lucia)',' ',DStmp,NAC)
+         Check_D1=Sum(Abs(DStmp(1:NACPAR)))
+         Write (6,*) 'Check_DS1=',Check_D1
+
+         Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+
+         Call TriPrt('DStmp(Lucia/Faroald)',' ',DStmp,NAC)
+         If (ABS(Sum(Abs(DStmp(1:NACPAR)))-Check_D1)/REAL(NACPAR,kind=wp)>1.0e-12_wp) Then
+            Check_D1=Sum(Abs(DStmp(1:NACPAR)))
+            Write (6,*) 'Check_DS1=',Check_D1
+         End If
+      End If
       if (IPRLEV >= INSANE) then
         write(u6,*) 'At root number =',jroot
         call TRIPRT('D after lucia  ',' ',Dtmp,NAC)
@@ -910,18 +922,19 @@ contains
  real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
  integer(kind=iwp), intent(in) :: nD, nP
 
- real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:)
+ real(kind=wp), allocatable :: D_loc(:), SD_loc(:), P_loc(:), PA_loc(:)
  real(kind=wp), allocatable :: D_FAROALD(:,:)
  real(kind=wp), allocatable :: SD_FAROALD(:,:)
  real(kind=wp), allocatable :: Faroald_Psi(:,:)
  real(kind=wp), allocatable :: P_Faroald(:,:,:,:)
  real(kind=wp), allocatable :: CIV(:), temp(:)
 
- PA(1:nP) = Zero
  If (DoFaro) Then
+!If (.False.) Then
    call mma_allocate(D_loc,nD,Label='D_loc')
    call mma_allocate(SD_loc,nD,Label='SD_loc')
    call mma_allocate(P_loc,nP,Label='P_loc')
+   call mma_allocate(PA_loc,nP,Label='PA_loc')
 
    Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
    Call mma_allocate(temp,nDetA*nDetB,Label='temp')
@@ -944,8 +957,7 @@ contains
 
    Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
    Call two_pdm(Faroald_psi,P_Faroald)
-   Call Fold_Two_pdm(P_Faroald,P_loc,Average=.False.)
-!  Call Fold_Two_pdm(P_Faroald,P_loc,Average=.True.)
+   Call Fold_Two_pdm(P_Faroald,P_loc,PA_loc)
 
    Call mma_deallocate(Faroald_Psi)
    Call mma_deallocate(P_faroald)
@@ -955,10 +967,12 @@ contains
    If (Present(D)) D(1:nD)=D_loc(1:nD)
    If (Present(SD)) SD(1:nD)=SD_loc(1:nD)
    If (Present(P)) P(1:nP)=P_loc(1:nP)
+   If (Present(PA)) PA(1:nP)=PA_loc(1:nP)
 
    call mma_deallocate(D_loc)
    call mma_deallocate(SD_loc)
    call mma_deallocate(P_loc)
+   call mma_deallocate(PA_loc)
  Else
    call Lucia_Util('Densi',CI_Vector=CIVEC)
  End If

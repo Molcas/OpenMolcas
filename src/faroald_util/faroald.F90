@@ -802,7 +802,7 @@ subroutine beta_alpha_two_pdm_product(bra, ket, pprod)
 
 end subroutine beta_alpha_two_pdm_product
 
-subroutine fold_two_pdm(p2, p2_fold, average)
+subroutine fold_two_pdm(p2, p2_fold, p2a_fold)
 ! Fold a full four-index spin-free two-particle density matrix
 !
 !   p2(t,u,v,x)
@@ -833,10 +833,8 @@ subroutine fold_two_pdm(p2, p2_fold, average)
 ! tensor has small numerical deviations from the expected packed
 ! symmetries.
 
-! real(kind=wp), intent(in)  :: p2(my_norb,my_norb,my_norb,my_norb)
-  real(kind=wp)              :: p2(my_norb,my_norb,my_norb,my_norb)
-  real(kind=wp), intent(out) :: p2_fold(:)
-  logical, intent(in), optional :: average
+  real(kind=wp), intent(in)  :: p2(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(out) :: p2_fold(:), p2a_fold(:)
 
   integer(kind=iwp) :: t, u, v, x, x_max
   integer(kind=iwp) :: tu, vx, tuvx
@@ -844,9 +842,6 @@ subroutine fold_two_pdm(p2, p2_fold, average)
   logical :: do_average
   real(kind=wp), allocatable :: weight(:)
 
-! p2 = 0.5_wp * p2
-! Call RecPrt('p2',' ',p2, my_norb**2, my_norb**2)
-! p2 = 2.0_wp * p2
   npair  = my_norb*(my_norb+1)/2
   npair2 = npair*(npair+1)/2
 
@@ -855,12 +850,9 @@ subroutine fold_two_pdm(p2, p2_fold, average)
     Call Abend()
   end if
 
-  do_average = .false.
-  if (present(average)) do_average = average
-
   p2_fold(:) = Zero
+  p2a_fold(:) = Zero
 
-  if (.not. do_average) then
 
     ! Canonical Fold2-like packing.
     !
@@ -890,51 +882,15 @@ subroutine fold_two_pdm(p2, p2_fold, average)
                p2_fold(tuvx) = p2(t,u,v,x) + p2(t,u,x,v)
             End If
 
+            If (t/=u .and. (v/=x)) p2a_fold(tuvx) = p2(t,u,v,x) - p2(t,u,x,v)
+
           end do
         end do
 
       end do
     end do
     p2_fold = 0.5_wp * p2_fold
-
-  else
-
-    ! Symmetry-averaged packing.
-    !
-    ! Every full tensor element is mapped to the same packed pair-pair
-    ! address as its symmetry-equivalent partners. The stored value is
-    ! the arithmetic average over all entries mapped to that address.
-
-    call mma_allocate(weight,npair2,label='fold_two_pdm_weight')
-    weight(:) = Zero
-
-    do t = 1, my_norb
-      do u = 1, my_norb
-
-        tu = faroald_pair_index(t,u)
-
-        do v = 1, my_norb
-          do x = 1, my_norb
-
-            vx = faroald_pair_index(v,x)
-            tuvx = faroald_pair_index(tu,vx)
-
-            p2_fold(tuvx) = p2_fold(tuvx) + p2(t,u,v,x)
-            weight(tuvx)  = weight(tuvx)  + One
-
-          end do
-        end do
-
-      end do
-    end do
-
-    do tuvx = 1, npair2
-      if (weight(tuvx) /= Zero) p2_fold(tuvx) = p2_fold(tuvx)/weight(tuvx)
-    end do
-
-    call mma_deallocate(weight)
-
-  end if
+    p2a_fold = 0.5_wp * p2a_fold
 
 end subroutine fold_two_pdm
 
