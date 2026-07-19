@@ -74,7 +74,6 @@ use faroald, only: ndeta, ndetb
 use citrans, only: citrans_csf2sd, citrans_sort
 use faroald, only: one_pdm, two_pdm, fold_two_pdm
 use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
-use Lucia_Interface, only: Lucia_Util
 
 use wadr, only: FMO
 use sxci, only: IDXSX

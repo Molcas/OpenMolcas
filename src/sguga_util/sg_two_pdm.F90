@@ -182,9 +182,8 @@ real(kind=wp), Pointer :: Eij_Psi(:)=>Null(), Elk_Psi(:)=>Null()
 real(kind=wp), parameter :: CPQ=One
 integer(kind=iwp) :: iOrb, jOrb, kOrb, lOrb
 
-integer(kind=iwp) :: ijOrb, klOrb, klijOrb
-integer(kind=iwp) :: ikOrb, ljOrb, ikljOrb, MaxDim, mCSFs
-integer(kind=iwp) :: iSym, jSym, kSym, lSym, ijSym, klSym,lOrb_Min
+integer(kind=iwp) :: MaxDim, mCSFs
+integer(kind=iwp) :: iSym, jSym, kSym, lSym, ijSym, klSym
 real(kind=wp) :: D_ij=Zero, P_klij=Zero
 
 MaxDim=MaxVal(CIS%nCSF(:))
@@ -196,7 +195,6 @@ P(:,:,:,:)=Zero
 Do iOrb =1, nLev
    iSym=SGS%ISM(iOrb)
 Do jOrb =1, nLev
-   ijOrb=iTri(iOrb,jOrb)
    jSym=SGS%ISM(jOrb)
    ijSym=iEOR(iSym-1,jSym-1)+1
    mCSFs = CIS%nCSF(iEOR(PsiSym-1,ijSym-1)+1)
@@ -211,11 +209,7 @@ Do jOrb =1, nLev
 !
    Eij_Psi(:)=Zero
    Call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi)
-   If (iOrb==jOrb) Then
-      D_ij=Dot_Product(Psi,Eij_Psi)
-   Else
-      If (iSym==jSym) D_ij=Dot_Product(Psi,Eij_Psi)
-   End If
+   If (iSym==jSym) D_ij=Dot_Product(Psi,Eij_Psi)
 !
 !  Note, in the case of a RASSCF the resulting sigma vector is incomplete. For the case of E_ij
 !  the complete expansion of E_ij|Psi> would require CSFs that are outside the set of CSFs defining the
@@ -250,7 +244,6 @@ Do jOrb =1, nLev
 !     cap with <Psi|E_kl on E_ij|Psi>, contribution to Pklij
       P_klij = Dot_Product(Elk_Psi,Eij_Psi)
 
-      klijOrb=iTri(klOrb,ijOrb)
       P(kOrb,lOrb,iOrb,jOrb)=P(kOrb,lOrb,iOrb,jOrb) + P_klij
 
    End Do

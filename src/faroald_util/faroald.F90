@@ -22,7 +22,7 @@ module faroald
 ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 #ifdef _PROF_
 use, intrinsic :: iso_fortran_env, only: int64
@@ -839,8 +839,6 @@ subroutine fold_two_pdm(p2, p2_fold, p2a_fold)
   integer(kind=iwp) :: t, u, v, x, x_max
   integer(kind=iwp) :: tu, vx, tuvx
   integer(kind=iwp) :: npair, npair2
-  logical :: do_average
-  real(kind=wp), allocatable :: weight(:)
 
   npair  = my_norb*(my_norb+1)/2
   npair2 = npair*(npair+1)/2
