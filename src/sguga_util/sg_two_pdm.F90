@@ -45,11 +45,8 @@ Call mma_allocate(Elk_Psi_X,MaxDim,Label='Elk_Psi_X')
 P(:)=Zero
 PA(:)=Zero
 
-!
 !   Compute P_lk,ij = <Psi|e_lkij|Psi> + <Psi|e_lkji|Psi>
-!
 !   Where e_lkij = E_lk E_ij - delta_ki E_lj
-!
 !   Hence,
 !
 !   P_lk,ij = sum_m <Psi|E_lk|m>(<m|Eij|Psi>+<m|E_ji|Psi>) - delta_ki D_lj -delta_kj D_li
@@ -60,7 +57,6 @@ PA(:)=Zero
 !
 !   Let say that |m> belongs to the set of CSFs that are included in |Psi>, while |m'> doesn't. Then
 !   there is no symmetrization to be achieved. We need to keep track on this in Mk_Eij_Psi.
-!
 !
 ! The size of the outer loop is nOrb*(nOrb+1)/2, i.e. nOrb=10 => 55 tasks to parallelize over.
 
@@ -76,21 +72,13 @@ Do jOrb =1, iOrb
    Eji_Psi(1:mCSFs)=>Eji_Psi_X
    Elk_Psi(1:mCSFs)=>Elk_Psi_X
 
-!  Operate with E_ij on |Psi> and produce E_ij|Psi>
-!  Note, iOrb>=jOrb
-!
-!  Compute Dij to be distributed below
-!
    Eij_Psi(:)=Zero
    Eji_Psi(:)=Zero
+!  Operate with E_ij on |Psi> and produce E_ij|Psi>
    Call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi)
-! TODO: simplify
-   If (iOrb==jOrb) Then
-      D_ij=Dot_Product(Psi,Eij_Psi)
-   Else
-      If (iSym==jSym) D_ij=Dot_Product(Psi,Eij_Psi)
-      Call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eji_Psi)
-   End If
+!  Compute Dij to be distributed below
+   If (iSym==jSym) D_ij=Dot_Product(Psi,Eij_Psi)
+   If (iOrb/=jOrb) Call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eji_Psi)
 !
 !  Note, in the case of a RASSCF the resulting sigma vector is incomplete. For the case of E_ij
 !  the complete expansion of E_ij|Psi> would require CSFs that are outside the set of CSFs defining the
