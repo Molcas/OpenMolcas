@@ -27,6 +27,7 @@ module lpdft
   real(kind=wp), allocatable, dimension(:) :: inactD1
   real(kind=wp), allocatable, dimension(:) :: casd1_0, casd1s_0, casd2_0
   real(kind=wp), allocatable, dimension(:) :: veff1, veff2
+  real(kind=wp), allocatable, dimension(:) :: h1e_lpdft_ao, h1e_lpdft_mo, h2e_lpdft_mo
 
   public :: do_lpdft
   public :: lpdft_kernel

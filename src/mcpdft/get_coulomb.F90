@@ -69,3 +69,75 @@ call mma_deallocate(focki)
 call mma_deallocate(focka)
 
 end subroutine get_coulomb
+
+!***********************************************************************
+!  get_exchange
+!
+!> @brief get exchange integrals in AO basis
+!>
+!> @details
+!>   Exchange integrals are extracted by differencing TRACTL2 Fock
+!>   matrices generated with ExFac=0 and ExFac=1.  The Fock builder adds
+!>   the exchange part as -0.5*K for the spin-summed RASSCF densities, so
+!>   this routine returns the positive K matrix.
+!>
+!> @param[in]  cmo      MO coefficients
+!> @param[in]  dm1_core core density in AO basis
+!> @param[in]  dm1_cas  active space density in AO basis
+!> @param[out] exch     exchange integrals in AO basis
+!***********************************************************************
+
+subroutine get_exchange(cmo,dm1_core,dm1_cas,exch)
+
+use PrintLevel, only: DEBUG, INSANE
+use rasscf_global, only: lsquare, NACPR2, nfint
+use general_data, only: ntot1, ntot2
+use mcpdft_output, only: iprglb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Two, Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(in) :: cmo(ntot2), dm1_core(ntot2), dm1_cas(ntot2)
+real(kind=wp), intent(out) :: exch(ntot1)
+integer(kind=iwp) :: print_level
+real(kind=wp), allocatable :: focka_coul(:), focka_full(:), focki_coul(:), focki_full(:), puvx(:), tuvx(:)
+
+select case (iPrGlb)
+  case (DEBUG)
+    print_level = 5
+  case (INSANE)
+    print_level = 10
+  case default
+    print_level = 0
+end select
+
+call mma_allocate(puvx,nfint,label='puvx')
+call mma_allocate(tuvx,nacpr2,label='tuvx')
+call mma_allocate(focki_coul,ntot1,label='focki_coul')
+call mma_allocate(focka_coul,ntot1,label='focka_coul')
+call mma_allocate(focki_full,ntot1,label='focki_full')
+call mma_allocate(focka_full,ntot1,label='focka_full')
+
+puvx(:) = Zero
+tuvx(:) = Zero
+focki_coul(:) = Zero
+focka_coul(:) = Zero
+call tractl2(cmo,puvx,tuvx,dm1_core,focki_coul,dm1_cas,focka_coul,print_level,lsquare,Zero)
+
+puvx(:) = Zero
+tuvx(:) = Zero
+focki_full(:) = Zero
+focka_full(:) = Zero
+call tractl2(cmo,puvx,tuvx,dm1_core,focki_full,dm1_cas,focka_full,print_level,lsquare,One)
+
+exch(:ntot1) = Two*((focki_coul(:)+focka_coul(:))-(focki_full(:)+focka_full(:)))
+
+call mma_deallocate(focka_full)
+call mma_deallocate(focki_full)
+call mma_deallocate(focka_coul)
+call mma_deallocate(focki_coul)
+call mma_deallocate(tuvx)
+call mma_deallocate(puvx)
+
+end subroutine get_exchange
