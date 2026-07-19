@@ -105,8 +105,13 @@ call ReadVc_m(CMO)
 ! Really just determine size of 2-e integrals
 call ALLOC()
 
+! - Read in the CASSCF Energy from JOBIPH file.
+call mma_allocate(e_mcscf,lroots,Label='e_mcscf')
+e_mcscf(:) = Zero
+call ref_energy(e_mcscf,lroots)
+
 if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) then
-  call lpdft_kernel(CMO)
+  call lpdft_kernel(CMO,e_mcscf)
 end if
 
 call Timing(dum1,dum2,time1(1),dum3)
@@ -114,11 +119,6 @@ TimeInput = time1(1)
 
 ! This needs to be put somehwere else...
 call mma_allocate(FockOcc,nTot1,Label='FockOcc')
-
-! - Read in the CASSCF Energy from JOBIPH file.
-call mma_allocate(e_mcscf,lroots,Label='e_mcscf')
-e_mcscf(:) = Zero
-call ref_energy(e_mcscf,lroots)
 
 ! Transform two-electron integrals and compute at the same time
 ! the Fock matrices FI and FA
