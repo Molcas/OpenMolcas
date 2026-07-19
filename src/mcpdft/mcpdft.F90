@@ -25,7 +25,6 @@ use write_pdft_job, only: writejob
 use PrintLevel, only: DEBUG, INSANE, TERSE
 use mcpdft_output, only: iPrLoc
 use mcpdft_input, only: mcpdft_options, parse_input
-use construct_lpdft_ham, only: construct_lpdft_ham_from_tdm
 use lpdft, only: lpdft_kernel
 use mspdft_util, only: replace_diag
 use mspdft, only: heff, mspdft_init, mspdft_finalize
@@ -108,7 +107,6 @@ call ALLOC()
 
 if (mcpdft_options%mspdft .and. mcpdft_options%lpdft) then
   call lpdft_kernel(CMO)
-  call construct_lpdft_ham_from_tdm(CMO)
 end if
 
 call Timing(dum1,dum2,time1(1),dum3)
