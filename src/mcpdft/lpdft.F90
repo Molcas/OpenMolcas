@@ -24,7 +24,8 @@ module lpdft
   logical :: do_lpdft=.false.
 
   real(kind=wp) :: hconst = 0.0D0
-  real(kind=wp), allocatable, dimension(:) :: inactD1
+  real(kind=wp) :: e_ot_lpdft = 0.0D0
+  real(kind=wp), allocatable, dimension(:) :: dm1_core
   real(kind=wp), allocatable, dimension(:) :: casd1_0, casd1s_0, casd2_0
   real(kind=wp), allocatable, dimension(:) :: veff1, veff2
   real(kind=wp), allocatable, dimension(:) :: h1e_lpdft_ao, h1e_lpdft_mo, h2e_lpdft_mo
@@ -46,8 +47,12 @@ module lpdft
     ! Want to first get the zero-order densities
     call get_zero_order_densities(casd1_0, casd1s_0, casd2_0)
     call compute_Eot_and_potentials(CMO)
-    call compute_hconst()
+    call compute_hconst(CMO)
+    call compute_h1e_lpdft()
+    call compute_h2e_lpdft()
 
+    ! Using hconst, h1e, and h2e now we can compute the effective Hamiltonian and then diagonalize
+    ! it to get the state-interaction vectors
     call release_vars()
   end subroutine lpdft_kernel
 
@@ -96,7 +101,7 @@ module lpdft
       call Get_D1A_RASSCF(CMO, casd1_0, casd1AO_0)
       call Get_D1A_RASSCF(CMO, casd1s_0, casd1sAO_0)
 
-      call Fold(nSym, nBas, inactD1, d1ao_0)
+      call Fold(nSym, nBas, dm1_core, d1ao_0)
       call Fold(nSym, nBas, casD1AO_0, casD1AO_folded_0)
       call Fold(nSym, nBas, casd1sAO_0, d1sao_0)
       ! Create full 1RDM (inactive/frozen + active) and store in d1ao_0
@@ -131,31 +136,120 @@ module lpdft
       call get_dArray("ONTOPO", veff1, ntot1)
       call get_dArray("ONTOPT", veff2, nfint)
 
+      ! Read the on-top energy
+      call get_dScalar('CASDFT energy', e_ot_lpdft)
     end subroutine compute_Eot_and_potentials
 
-  subroutine compute_hconst()
-    real(kind=wp) :: hnuc
-    integer(kind=iwp) :: i
+  subroutine compute_hconst(CMO)
+    use Index_Functions, only: iTri, nTri_Elem
+    use general_data, only: norb
+    real(kind=wp), dimension(ntot2), intent(in) :: CMO
+    real(kind=wp) :: e1LPDFT, e2LPDFT, eCoulLPDFT, eExchangeLPDFT, hnuc
+    real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, veff2_act
+    real(kind=wp), allocatable, dimension(:) :: vj, vj_act, vj_mo, vk, vk_act, vk_mo
+    real(kind=wp), external :: dDot_
+    integer(kind=iwp) :: iAct, iFull, iOffAct, iOffMO, iSym, jAct, jFull, nAct
 
+    ! Focusing only on the non-hybrid for the time-being.
+
+    ! hconst = hnuc + E_OT -0.5 * g_pqrs D_pq D_rs - V_pq D_pq -1/2 * V_pqrs D_pqrs
+
+    hnuc = 0.0D0
+    e1LPDFT = 0.0D0
+    e2LPDFT = 0.0D0
+    eCoulLPDFT = 0.0D0
+    eExchangeLPDFT = 0.0D0
+
+    ! Get the nuclear repulsion energy
     Call Get_dScalar('PotNuc',hnuc)
 
-    ! write(u6, *) "1E On Top Pot"
-    ! do i=1, ntot1
-    !   write(u6,*) veff1(i)
-    ! end do
-    ! write(u6, *) "2E On Top Pot"
-    ! do i=1, nfint
-    !   write(u6, *) veff2(i)
-    ! end do
+    call mma_allocate(casd1AO_0, ntot2, "CASD1AO_0")
+    call mma_allocate(casD1AO_folded_0, ntot1, "CASD1AO_FOLDED_0")
+    call mma_allocate(d1ao_0, ntot1, "D1AO_0")
+    call mma_allocate(vj, ntot1, "VJ_LPDFT")
+    call mma_allocate(vj_mo, ntot1, "VJ_MO_LPDFT")
+    call mma_allocate(vj_act, nacpar, "VJ_ACT_LPDFT")
+    call mma_allocate(vk, ntot1, "VK_LPDFT")
+    call mma_allocate(vk_mo, ntot1, "VK_MO_LPDFT")
+    call mma_allocate(vk_act, nacpar, "VK_ACT_LPDFT")
+    call mma_allocate(veff2_act, nacpr2, "VEFF2_ACT")
 
-    hconst = hnuc
+    ! Compute the 1e contribution
+    call Get_D1A_RASSCF(CMO, casd1_0, casd1AO_0)
+    call Fold(nSym, nBas, dm1_core, d1ao_0)
+    call Fold(nSym, nBas, casd1AO_0, casD1AO_folded_0)
+    call daxpy_(ntot1, 1.0D0, casD1AO_folded_0, 1, d1ao_0, 1)
+
+    call get_coulomb(CMO, dm1_core, casd1AO_0, vj)
+    call get_exchange(CMO, dm1_core, casd1AO_0, vk)
+
+    eCoulLPDFT = 0.5D0*dDot_(ntot1, vj, 1, d1ao_0, 1)
+    e1LPDFT = dDot_(ntot1, veff1, 1, d1ao_0, 1)
+
+    vj_mo(:) = 0.0D0
+    vk_mo(:) = 0.0D0
+    vj_act(:) = 0.0D0
+    vk_act(:) = 0.0D0
+    call ao2mo_1e(CMO, vj, vj_mo, nSym, nBas, nOrb, nFro)
+    call ao2mo_1e(CMO, vk, vk_mo, nSym, nBas, nOrb, nFro)
+
+    iOffMO = 1
+    iOffAct = 0
+    do iSym=1,nSym
+      nAct = nAsh(iSym)
+      do iAct=1,nAct
+        iFull = nIsh(iSym)+iAct
+        do jAct=1,iAct
+          jFull = nIsh(iSym)+jAct
+          iOffAct = iOffAct+1
+          vj_act(iOffAct) = vj_mo(iOffMO+iTri(iFull,jFull)-1)
+          vk_act(iOffAct) = vk_mo(iOffMO+iTri(iFull,jFull)-1)
+        end do
+      end do
+      iOffMO = iOffMO+nTri_Elem(nOrb(iSym))
+    end do
+
+    eExchangeLPDFT = 2.0D0*dDot_(nacpar, vj_act, 1, casd1_0, 1) &
+                    -dDot_(nacpar, vk_act, 1, casd1s_0, 1)
+    e1LPDFT = e1LPDFT+eExchangeLPDFT
+
+    veff2_act(:) = 0.0D0
+    call Get_TUVX(veff2, veff2_act)
+
+    e2LPDFT = 0.5D0*dDot_(nacpr2, veff2_act, 1, casd2_0, 1)
+
+    hconst = hnuc + e_ot_lpdft - eCoulLPDFT - e1LPDFT - e2LPDFT
+
+    write(u6,'(6X,A,ES20.10)') 'LPDFT nuclear repulsion energy: ', hnuc
+    write(u6,'(6X,A,ES20.10)') 'LPDFT on-top energy:           ', e_ot_lpdft
+    write(u6,'(6X,A,ES20.10)') 'LPDFT Coulomb double count:    ', eCoulLPDFT
+    write(u6,'(6X,A,ES20.10)') 'LPDFT exchange double count:   ', eExchangeLPDFT
+    write(u6,'(6X,A,ES20.10)') 'LPDFT one-body OT double count:', e1LPDFT
+    write(u6,'(6X,A,ES20.10)') 'LPDFT two-body OT double count:', e2LPDFT
+    write(u6,'(6X,A,ES20.10)') 'LPDFT scalar Hamiltonian term: ', hconst
+
+    call mma_deallocate(veff2_act)
+    call mma_deallocate(vk_act)
+    call mma_deallocate(vk_mo)
+    call mma_deallocate(vk)
+    call mma_deallocate(vj_act)
+    call mma_deallocate(vj_mo)
+    call mma_deallocate(vj)
+    call mma_deallocate(d1ao_0)
+    call mma_deallocate(casD1AO_folded_0)
+    call mma_deallocate(casd1AO_0)
   end subroutine compute_hconst
 
   subroutine compute_h1e_lpdft()
-    real(kind=wp), dimension(ntot1) :: h1e_lpdft_ao
-    integer(kind=iwp) :: i
-
+    ! Compute the hcore:
+    ! Add the vot potentials to the hcore:
+    ! Transform the hcore to the MO basis:
   end subroutine compute_h1e_lpdft
+
+  subroutine compute_h2e_lpdft()
+    ! Compute the h2e:
+    ! Transform the h2e to the MO basis:
+  end subroutine compute_h2e_lpdft
 
   subroutine set_iadr15()
     ! Set the iAdr15 variable in rasscf.fh so I don't have to do any
@@ -187,7 +281,7 @@ module lpdft
     call mma_allocate(casd1_0, nacpar, "CASD1_0")
     call mma_allocate(casd1s_0, nacpar, "CASD1s_0")
     call mma_allocate(casd2_0, nacpr2, "CASD2_0")
-    call mma_allocate(inactD1, ntot2, "inactD1")
+    call mma_allocate(dm1_core, ntot2, "dm1_core")
     call mma_allocate(veff1, ntot1, "1E-OnTopPot")
     call mma_allocate(veff2, nfint, "2E-OnTopPot")
     call mma_allocate(h1e_lpdft_ao, ntot1, "H1E_LPDFT_AO")
@@ -199,12 +293,12 @@ module lpdft
     write(u6,*) "size(casdm1_0) =", size(casd1_0)
     write(u6,*) "size(casdm1s_0) =", size(casd1s_0)
     write(u6,*) "size(casdm2) =", size(casd2_0)
-    write(u6,*) "size(inactD1) =", size(inactD1)
+    write(u6,*) "size(dm1_core) =", size(dm1_core)
     write(u6,*) "size(h1e_lpdft_ao) =", size(h1e_lpdft_ao)
     write(u6,*) "size(h1e_lpdft_mo) =", size(h1e_lpdft_mo)
     write(u6,*) "size(h2e_lpdft_mo) =", size(h2e_lpdft_mo)
 
-    call Get_D1I_RASSCF(CMO, inactD1)
+    call Get_D1I_RASSCF(CMO, dm1_core)
 
   end subroutine init_vars
 
@@ -215,7 +309,7 @@ module lpdft
     call mma_deallocate(h1e_lpdft_ao)
     call mma_deallocate(h1e_lpdft_mo)
     call mma_deallocate(h2e_lpdft_mo)
-    call mma_deallocate(inactD1)
+    call mma_deallocate(dm1_core)
     call mma_deallocate(veff1)
     call mma_deallocate(veff2)
   end subroutine release_vars
