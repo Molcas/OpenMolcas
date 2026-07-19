@@ -68,3 +68,69 @@ do iSym=1,nSym
 end do
 
 end subroutine ao2mo_1e
+
+!***********************************************************************
+!  ao2moact_1e
+!
+!> @brief transforms one-electron integrals from AO to active MO space
+!>
+!> @param[in] cmo  MO coefficients
+!> @param[in] d_ao unscaled, folded 1 particle integral matrix in AO basis
+!> @param[in] nSym number of symmetry groups
+!> @param[in] nBas number of basis functions per symmetry group
+!> @param[in] nAsh number of active orbitals per symmetry group
+!> @param[in] nFro number of frozen orbitals per symmetry group
+!> @param[in] nIsh number of inactive orbitals per symmetry group
+!>
+!> @param[out] d_act unscaled, folded one-electron integral matrix in active MO basis
+!***********************************************************************
+
+subroutine ao2moact_1e(cmo,d_ao,d_act,nSym,nBas,nAsh,nFro,nIsh)
+
+use Index_Functions, only: nTri_Elem
+use general_data, only: ntot1, ntot2
+use rasscf_global, only: nacpar
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Zero
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp), intent(in) :: cmo(ntot2), d_ao(ntot1)
+real(kind=wp), intent(out) :: d_act(nacpar)
+integer(kind=iwp), intent(in) :: nsym, nbas(nsym), nash(nsym), nfro(nsym), nish(nsym)
+integer(kind=iwp) :: iash, ibas, ioff1, ioff2, ioff3, isym, nskip
+real(kind=wp), allocatable :: tmp1(:), tmp2(:)
+
+d_act(:) = Zero
+iOff1 = 1
+iOff2 = 1
+iOff3 = 1
+do iSym=1,nSym
+  iBas = nBas(iSym)
+  iAsh = nAsh(iSym)
+  if ((iBas == 0) .or. (iAsh == 0)) then
+    iOff1 = iOff1+nTri_Elem(iBas)
+    iOff2 = iOff2+iBas**2
+    cycle
+  end if
+
+  nSkip = nFro(iSym)+nIsh(iSym)
+  call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
+  call mma_allocate(Tmp2,iAsh*iBas,Label='Tmp2')
+  call Square(d_ao(iOff1),Tmp1,1,iBas,iBas)
+  call DGEMM_('N','N',iBas,iAsh,iBas, &
+              One,Tmp1,iBas, &
+              CMO(iOff2+(nSkip*iBas)),iBas, &
+              Zero,Tmp2,iBas)
+  call DGEMM_Tri('T','N',iAsh,iAsh,iBas, &
+                 One,Tmp2,iBas, &
+                 CMO(iOff2+(nSkip*iBas)),iBas, &
+                 Zero,d_act(iOff3),iAsh)
+  call mma_deallocate(Tmp2)
+  call mma_deallocate(Tmp1)
+  iOff1 = iOff1+nTri_Elem(iBas)
+  iOff2 = iOff2+iBas**2
+  iOff3 = iOff3+nTri_Elem(iAsh)
+end do
+
+end subroutine ao2moact_1e
