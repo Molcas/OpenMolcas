@@ -173,8 +173,6 @@ set (sources
      trd_print.F90
      trint.F90
      trnsfrm.F90
-     tshinit.F90
-     tshop.F90
      upkwlk.F90
      usotrans.F90
      w2sgord.F90

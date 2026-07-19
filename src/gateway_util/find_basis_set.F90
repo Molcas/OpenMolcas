@@ -34,7 +34,7 @@ if (ExtBasDir /= ' ') then
   if (ExtBasDir(1:1) /= '/') then
     iAbsName = 1
     CurrDir = ' '
-    call getenvf('CurrDir',CurrDir)
+    call get_environment_variable('CurrDir',CurrDir)
   end if
   if (iAbsName == 0) then
     tmp = ExtBasDir(1:i-1)//'/'//bType
@@ -58,9 +58,9 @@ end if
 if (DirName(1:13) /= 'basis_library') return
 
 Molcas = ' '
-call getenvf('MOLCAS_BASIS',Molcas)
+call get_environment_variable('MOLCAS_BASIS',Molcas)
 if (Molcas == ' ') then
-  call getenvf('MOLCAS',Molcas)
+  call get_environment_variable('MOLCAS',Molcas)
   i = index(Molcas,' ')
   DirName = Molcas(1:i-1)//'/basis_library'
 else

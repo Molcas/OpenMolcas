@@ -1166,7 +1166,7 @@ Keywords
   is invoked by changing the root for the gradient computation.
   The current implementation is working only with SA-CASSCF.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HOP" APPEAR="Trajectory surface hopping algorithm" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HOP" APPEAR="Trajectory surface hopping algorithm" KIND="SINGLE" EXCLUDE="TRACK" LEVEL="ADVANCED">
               %%Keyword: Hop <advanced>
               <HELP>
               Allows transitions between electronic states during molecular
@@ -1196,7 +1196,7 @@ Keywords
   No other calculations are done by :program:`RASSI` when :kword:`Track`
   is specified.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRACK" APPEAR="Track root" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TRACK" APPEAR="Track root" KIND="SINGLE" EXCLUDE="HOP" LEVEL="ADVANCED">
               %%Keyword: Track <advanced>
               <HELP>
               Tries to follow a particular root during an optimization.

@@ -36,7 +36,7 @@ character(len=2) :: lbl
 real(kind=wp), allocatable :: Occ(:,:), Vec(:,:)
 integer(kind=iwp), external :: isFreeUnit
 
-call GetEnvf('MOLCAS_PROPERTIES',PrpLst)
+call get_environment_variable('MOLCAS_PROPERTIES',PrpLst)
 call UpCase(PrpLst)
 
 if (PrPlst(1:3) == 'LON') then

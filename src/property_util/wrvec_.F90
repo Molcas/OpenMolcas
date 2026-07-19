@@ -97,7 +97,7 @@ end if
 ! Get version
 iDefault = iVer22
 if (iVer == 0) then
-  call getenvf('MOLCAS_INPORB_VERSION',InpOrbVer)
+  call get_environment_variable('MOLCAS_INPORB_VERSION',InpOrbVer)
   if (InpOrbVer == '') then
     iVer = iDefault
   else
@@ -262,7 +262,7 @@ if (iEne == 1) then
     end do
   end if  ! UHF
 end if  ! iEne
-call getenvf('MOLCAS_SAGIT',str)
+call get_environment_variable('MOLCAS_SAGIT',str)
 if ((str(1:1) == 'y') .or. (str(1:1) == 'Y')) then
   iKoor = iCMO
   iBasis = iCMO

@@ -28,14 +28,14 @@ if (SuperName == 'last_energy') return
 
 ! Reduce printing if iter > 1
 
-call GetEnvF('MOLCAS_ITER',Word)
+call get_environment_variable('MOLCAS_ITER',Word)
 read(Word,*) i
 if (i > 1) Reduce_Prt = .true.
 
 ! ... but not if MOLCAS_REDUCE_PRT = NO
 
 if (Reduce_Prt) then
-  call GetEnvF('MOLCAS_REDUCE_PRT',Word)
+  call get_environment_variable('MOLCAS_REDUCE_PRT',Word)
   if (Word(1:1) == 'N') Reduce_Prt = .false.
 end if
 
@@ -48,7 +48,7 @@ end if
 ! ... or if first iteration of a saddle branch (SADDLE_FIRST = 1)
 
 if (Reduce_Prt) then
-  call GetEnvF('SADDLE_FIRST',Word)
+  call get_environment_variable('SADDLE_FIRST',Word)
   i = 0
   read(Word,*,IOSTAT=Err) i
   if (i == 1) Reduce_Prt = .false.
@@ -59,7 +59,7 @@ end if
 
 if (.not. Reduce_Prt) then
   if ((SuperName == 'numerical_gradient') .and. (ProgName /= 'numerical_gradient')) then
-    call GetEnvF('MOLCAS_REDUCE_NG_PRT',Word)
+    call get_environment_variable('MOLCAS_REDUCE_NG_PRT',Word)
     if (Word(1:1) /= 'N') Reduce_Prt = .true.
   end if
 end if

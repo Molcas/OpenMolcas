@@ -182,7 +182,7 @@ subroutine ReadPrgmFile(ModName)
 
   ! If other locations are enabled, pymolcas should be changed too
   ! Or this should be revamped so that pymolcas writes a pre-parsed file
-  call GetEnvF('MOLCAS',Dir)
+  call get_environment_variable('MOLCAS',Dir)
   Dir = trim(Dir)//'/data'
   FileName = trim(Dir)//'/'//trim(ModName)//'.prgm'
   inquire(file=FileName,exist=Found)
@@ -372,7 +372,7 @@ function ExpandVars(String,WD)
         case ('WorkDir')
           Val = WD
         case default
-          call GetEnvF(Var,Val)
+          call get_environment_variable(Var,Val)
           if (trim(Val) == '') then
             if (Var /= 'SubProject') Val = 'UNK_VAR'
           end if
@@ -406,9 +406,9 @@ end function ReplaceSubstr
 ! Save some often used variables as module variables, for faster access
 subroutine PrgmCache()
   use Para_Info, only: mpp_id
-  call GetEnvF('WorkDir',WorkDir)
-  call GetEnvF('FastDir',FastDir)
-  call GetEnvF('Project',Project)
+  call get_environment_variable('WorkDir',WorkDir)
+  call get_environment_variable('FastDir',FastDir)
+  call get_environment_variable('Project',Project)
   if (trim(Project) == '') Project = 'Noname'
   if (mpp_id() > 0) write(SlaveDir,'(A,I0)') '/tmp_',mpp_id()
   return

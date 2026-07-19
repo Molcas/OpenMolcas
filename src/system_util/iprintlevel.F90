@@ -55,7 +55,7 @@ if (Level >= 0) then
   return
 end if
 if (isFirst == 0) then
-  call getenvf('MOLCAS_PRINT',Val)
+  call get_environment_variable('MOLCAS_PRINT',Val)
   call UpCase(Val)
   select case (Val)
     case ('SILENT')

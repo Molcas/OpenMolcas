@@ -18,7 +18,7 @@ character(len=32) :: Str
 
 Str = ' '
 Colorize = .true.
-call getenvf('MOLCAS_COLOR',Str)
+call get_environment_variable('MOLCAS_COLOR',Str)
 if ((Str(1:1) == 'N') .or. (Str(1:1) == 'n')) Colorize = .false.
 
 end subroutine ColorizeInit

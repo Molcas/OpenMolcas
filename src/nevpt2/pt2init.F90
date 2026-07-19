@@ -41,8 +41,8 @@ integer(kind=iwp), allocatable :: nCore_local(:)
 real(kind=wp), allocatable :: readbuf(:,:)
 
 ! Save current directory into the CurrDir string
-call GetEnvF('WorkDir',curr_dir)
-call GetEnvF('Project',molcas_project)
+call get_environment_variable('WorkDir',curr_dir)
+call get_environment_variable('Project',molcas_project)
 
 ! call the Molcas routine to check whether we're using Cholesky
 call DecideOnCholesky(do_cholesky)
