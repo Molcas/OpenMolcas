@@ -14,7 +14,6 @@ set (sources
      ao2mo_1e.F90
      clsfls_mcpdft.F90
      compute_mcpdft_energy.F90
-     construct_lpdft_ham.F90
      energy_mcwfn.F90
      fock_update.F90
      get_charge.F90
