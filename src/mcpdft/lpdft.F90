@@ -151,11 +151,14 @@ module lpdft
     end subroutine compute_Eot_and_potentials
 
   subroutine compute_hconst(CMO)
+    use Index_Functions, only: iTri, nTri_Elem
+
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
-    real(kind=wp) :: e1_lpdft, e2_lpdft, e_coul_lpdft, e_vhf_c, hnuc
+    real(kind=wp) :: e1_lpdft, e2_lpdft, e_coul_lpdft, e_vhf_c, e_vhf_c_core, hnuc
     real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0
     real(kind=wp), allocatable, dimension(:) :: veff2_act, vjk_act
     real(kind=wp), external :: dDot_
+    integer(kind=iwp) :: iCore, iMOff, iOrb, iSym
 
     ! Focusing only on the non-hybrid for the time-being.
 
@@ -164,6 +167,7 @@ module lpdft
     e2_lpdft = 0.0D0
     e_coul_lpdft = 0.0D0
     e_vhf_c = 0.0D0
+    e_vhf_c_core = 0.0D0
 
     ! Term-1: Get the nuclear repulsion energy
     Call Get_dScalar('PotNuc',hnuc)
@@ -194,10 +198,20 @@ module lpdft
     call Get_TUVX(veff2, veff2_act)
     e2_lpdft = 0.5D0*dDot_(nacpr2, veff2_act, 1, casd2_0, 1)
 
-    ! Term-3.2: Compute the core vhf_c contribution
+    ! Term-3.2: Compute the vhf_c contribution from active and core densities
     call mo2act_1e(vjk, vjk_act, nSym, nOrb, nAsh, nIsh)
     e_vhf_c = dDot_(nacpar, vjk_act, 1, casd1_0, 1)
-    e2_lpdft = e2_lpdft + e_vhf_c
+
+    iMOff = 1
+    do iSym=1,nSym
+      iOrb = nOrb(iSym)
+      do iCore=1,nIsh(iSym)
+        e_vhf_c_core = e_vhf_c_core + vjk(iMOff+iTri(iCore,iCore)-1)
+      end do
+      iMOff = iMOff+nTri_Elem(iOrb)
+    end do
+
+    e2_lpdft = e2_lpdft + e_vhf_c + e_vhf_c_core
 
     ! Term-4: Finally, compute the hconst term
     hconst = hnuc + e_ot_lpdft - e_coul_lpdft - e1_lpdft - e2_lpdft
@@ -206,6 +220,7 @@ module lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT on-top energy:           ', e_ot_lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT Coulomb double count:    ', e_coul_lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT effective potential term:', e_vhf_c
+    write(u6,'(6X,A,ES20.10)') 'LPDFT core vhf_c term:         ', e_vhf_c_core
     write(u6,'(6X,A,ES20.10)') 'LPDFT one-body OT double count:', e1_lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT two-body OT double count:', e2_lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT scalar Hamiltonian term: ', hconst
