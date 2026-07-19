@@ -84,6 +84,7 @@ Do jOrb =1, iOrb
    Eij_Psi(:)=Zero
    Eji_Psi(:)=Zero
    Call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi)
+! TODO: simplify
    If (iOrb==jOrb) Then
       D_ij=Dot_Product(Psi,Eij_Psi)
    Else
@@ -108,6 +109,8 @@ Do jOrb =1, iOrb
       ljOrb=iTri(lOrb,jOrb)
       ikljOrb=iTri(ikOrb,ljOrb)
       P(ikljOrb)=P(ikljOrb) - D_ij
+      If (iOrb/=kOrb .and. lOrb>jOrb) PA(ikljOrb)=PA(ikljOrb) - D_ij
+      If (iOrb/=kOrb .and. lOrb<jOrb) PA(ikljOrb)=PA(ikljOrb) + D_ij
    End Do
 
    ! kOrb>=lOrb
@@ -132,12 +135,12 @@ Do jOrb =1, iOrb
 
       klijOrb=iTri(klOrb,ijOrb)
       P(klijOrb)=P(klijOrb) + P_klij
-      PA(klijOrb)=PA(klijOrb) + P_klij
+      If (iOrb/=jOrb .and. kOrb/=lOrb) PA(klijOrb)=PA(klijOrb) + P_klij
 
       If (iOrb/=jOrb) Then
          P_klij = Dot_Product(Elk_Psi,Eji_Psi)
          P(klijOrb)=P(klijOrb) + P_klij
-         PA(klijOrb)=PA(klijOrb) - P_klij
+         If (kOrb/=lOrb) PA(klijOrb)=PA(klijOrb) - P_klij
       End If
 
    End Do
@@ -163,7 +166,7 @@ Subroutine sg_two_pdm_full(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,NLEV)
 use Index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use sguga, only: CIStruct, EXStruct, SGStruct, sg_epq_psi
-use Constants, only: Zero, One
+use Constants, only: Zero, Half, One
 use Definitions, only: iwp, wp
 
 Implicit none
@@ -261,6 +264,7 @@ End Do
 Call mma_deallocate(Elk_Psi_X)
 Call mma_deallocate(Eij_Psi_X)
 
-P = 0.5_wp * P
+P = Half * P
+Call RecPrt('P full',' ',P,nLev**2,nLev**2)
 
 End Subroutine sg_two_pdm_full

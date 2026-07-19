@@ -817,7 +817,7 @@ contains
  real(kind=wp), allocatable :: CIV(:), temp(:)
 
 #ifdef _SGUGA_VERIFY_
-real(kind=wp) :: Check_D1
+real(kind=wp) :: Check_D1, Check_P, Check_PA
 real(kind=wp), allocatable :: D_Sguga(:)
 real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 #endif
@@ -877,14 +877,14 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
           call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
 
 !         Test the one-particle density matrix
-          Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
+!         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
           Check_D1=CheckSum(Dtmp,NACPAR)
-          Write (6,*) 'Check_D1=',Check_D1
+!         Write (6,*) 'Check_D1=',Check_D1
           Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
 
           call sg_one_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
           If (ABS(CheckSum(D_sguga,NACPAR)-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
-             Write (6,*) 'Check_D1=',Check_D1
+!            Write (6,*) 'Check_D1=',Check_D1
              Check_D1=CheckSum(D_sguga,NACPAR)
              Write (6,*) 'SGUGA error in D1Mat'
              Call Abend()
@@ -896,20 +896,38 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
 
 !         Test the symmetric two-particle density matrix.
-          call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
-          Check_D1=CheckSum(Ptmp,NACPR2)
-          Write (6,*) 'Check_D2=',Check_D1
+!         call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
+          Check_P=CheckSum(Ptmp,NACPR2)
+!         Write (6,*) 'Check_P=',Check_P
+!         call TRIPRT('PA(Lucia)',' ',PAtmp,NACPAR)
+          Check_PA=CheckSum(PAtmp,NACPR2)
+!         Write (6,*) 'Check_PA=',Check_PA
+
+!         Call mma_allocate(P_sguga,NAC**4,Label='P')
+!         Call sg_two_pdm_full(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,P_sguga,NAC)
+!         Call mma_deallocate(P_sguga)
+
           Call mma_allocate(P_sguga,NACPR2,Label='P')
           Call mma_allocate(PA_sguga,NACPR2,Label='PA')
 
           Call sg_two_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
 
-          call TRIPRT('P(SGUGA)',' ',P_sguga,NACPAR)
-          If (ABS(CheckSum(P_sguga,NACPR2)-Check_D1)/SIZE(d_sguga)>1.0e-12_wp) Then
-             Check_D1=CheckSum(P_sguga,NACPR2)
-             Write (6,*) 'SGUGA error in D2Mat'
+!         call TRIPRT('P(SGUGA)',' ',P_sguga,NACPAR)
+          If (ABS(CheckSum(P_sguga,NACPR2)-Check_P)/SIZE(d_sguga)>1.0e-12_wp) Then
+             Check_P=CheckSum(P_sguga,NACPR2)
+!            Write (6,*) 'Check_P=',Check_P
+             Write (6,*) 'SGUGA error in P'
              Call Abend()
           End If
+
+!         call TRIPRT('PA(SGUGA)',' ',PA_sguga,NACPAR)
+          If (ABS(CheckSum(PA_sguga,NACPR2)-Check_PA)/SIZE(d_sguga)>1.0e-12_wp) Then
+             Check_PA=CheckSum(PA_sguga,NACPR2)
+!            Write (6,*) 'Check_PA=',Check_PA
+             Write (6,*) 'SGUGA error in PA'
+             Call Abend()
+          End If
+
           Call mma_deallocate(PA_sguga)
           Call mma_deallocate(P_sguga)
           Call mma_deallocate(CIV)
