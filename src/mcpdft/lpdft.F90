@@ -15,9 +15,9 @@
 module lpdft
   use stdalloc, only: mma_allocate, mma_deallocate
   use definitions, only: wp, iwp, u6
-  use general_data, only: ispin, jobiph, jobold, nash, nbas, nfro, nish, nsym, ntot1, ntot2
+  use general_data, only: ispin, jobiph, jobold, nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
   use mcpdft_input, only: mcpdft_options
-  use rasscf_global, only: DFTFOCK, ExFac, IADR15, NACPAR, NACPR2, NFINT, NonEq, PotNuc, NROOTS, WEIGHT
+  use rasscf_global, only: DFTFOCK, ExFac, IADR15, LROOTS, NAC, NACPAR, NACPR2, NFINT, NonEq, PotNuc, NROOTS, WEIGHT
   use rctfld_module, only: lRF
   implicit none
   private
@@ -28,7 +28,7 @@ module lpdft
   real(kind=wp), allocatable, dimension(:) :: dm1_core
   real(kind=wp), allocatable, dimension(:) :: casd1_0, casd1s_0, casd2_0
   real(kind=wp), allocatable, dimension(:) :: veff1, veff2
-  real(kind=wp), allocatable, dimension(:) :: h1e_lpdft_ao, h1e_lpdft_mo, h2e_lpdft_mo
+  real(kind=wp), allocatable, dimension(:) :: h1e_lpdft_ao, h1e_lpdft_act, h2e_lpdft_act
 
   public :: do_lpdft
   public :: lpdft_kernel
@@ -48,8 +48,9 @@ module lpdft
     call get_zero_order_densities(casd1_0, casd1s_0, casd2_0)
     call compute_Eot_and_potentials(CMO)
     call compute_hconst(CMO)
-    call compute_h1e_lpdft()
+    call compute_h1e_lpdft(CMO)
     call compute_h2e_lpdft()
+    call construct_lpdft_ham()
 
     ! Using hconst, h1e, and h2e now we can compute the effective Hamiltonian and then diagonalize
     ! it to get the state-interaction vectors
@@ -104,6 +105,7 @@ module lpdft
       call Fold(nSym, nBas, dm1_core, d1ao_0)
       call Fold(nSym, nBas, casD1AO_0, casD1AO_folded_0)
       call Fold(nSym, nBas, casd1sAO_0, d1sao_0)
+
       ! Create full 1RDM (inactive/frozen + active) and store in d1ao_0
       call daxpy_(nTot1, 1.0D0, casD1AO_folded_0, 1, d1ao_0, 1)
 
@@ -132,7 +134,7 @@ module lpdft
       call DrvXV(htmp, gtmp, d1ao_0, potnuc, nTot1, First, Dff, NonEq, &
                  lRF, mcpdft_options%otfnal%otxc, ExFac, charge, ispin, DFTFOCK, Do_DFT)
 
-      ! Load in the on-top potentials
+      ! Load in the on-top potentials (These are in MO basis.)
       call get_dArray("ONTOPO", veff1, ntot1)
       call get_dArray("ONTOPT", veff2, nfint)
 
@@ -142,20 +144,18 @@ module lpdft
 
   subroutine compute_hconst(CMO)
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
-    real(kind=wp) :: e1_lpdft, e2_lpdft, eCoulLPDFT, eVeffLPDFT, hnuc
-    real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, veff2_act
+    real(kind=wp) :: e1_lpdft, e2_lpdft, e_coul_lpdft, e_vhf_c, hnuc
+    real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, veff1_act, veff2_act
     real(kind=wp), allocatable, dimension(:) :: veff_poten, veff_poten_act, vj
     real(kind=wp), external :: dDot_
 
     ! Focusing only on the non-hybrid for the time-being.
 
-    ! hconst = hnuc + E_OT -0.5 * g_pqrs D_pq D_rs - V_pq D_pq -1/2 * V_pqrs D_pqrs
-
     hnuc = 0.0D0
     e1_lpdft = 0.0D0
     e2_lpdft = 0.0D0
-    eCoulLPDFT = 0.0D0
-    eVeffLPDFT = 0.0D0
+    e_coul_lpdft = 0.0D0
+    e_vhf_c = 0.0D0
 
     ! Get the nuclear repulsion energy
     Call Get_dScalar('PotNuc',hnuc)
@@ -164,6 +164,7 @@ module lpdft
     call mma_allocate(casD1AO_folded_0, ntot1, "CASD1AO_FOLDED_0")
     call mma_allocate(d1ao_0, ntot1, "D1AO_0")
     call mma_allocate(vj, ntot1, "VJ_LPDFT")
+    call mma_allocate(veff1_act, nacpar, "VEFF1_ACT")
     call mma_allocate(veff_poten, ntot1, "VEFF_POTEN_LPDFT")
     call mma_allocate(veff_poten_act, nacpar, "VEFF_POTEN_ACT_LPDFT")
     call mma_allocate(veff2_act, nacpr2, "VEFF2_ACT")
@@ -177,25 +178,27 @@ module lpdft
     call get_coulomb(CMO, dm1_core, casd1AO_0, vj)
     call get_veff_poten(CMO, dm1_core, casd1AO_0, veff_poten)
 
-    eCoulLPDFT = 0.5D0*dDot_(ntot1, vj, 1, d1ao_0, 1)
-    e1_lpdft = dDot_(ntot1, veff1, 1, d1ao_0, 1)
+    e_coul_lpdft = 0.5D0*dDot_(ntot1, vj, 1, d1ao_0, 1)
+    call mo2act_1e(veff1, veff1_act, nSym, nOrb, nAsh, nIsh)
+    e1_lpdft = dDot_(nacpar, veff1_act, 1, casd1_0, 1)
 
     call ao2moact_1e(CMO, veff_poten, veff_poten_act, nSym, nBas, nAsh, nFro, nIsh)
 
-    eVeffLPDFT = 2.0D0*dDot_(nacpar, veff_poten_act, 1, casd1_0, 1)
-    e1_lpdft = e1_lpdft+eVeffLPDFT
+    e_vhf_c = 2.0D0*dDot_(nacpar, veff_poten_act, 1, casd1_0, 1)
+    e1_lpdft = e1_lpdft + e_vhf_c
 
+    ! Compute the 2e contribution
     veff2_act(:) = 0.0D0
     call Get_TUVX(veff2, veff2_act)
-
     e2_lpdft = 0.5D0*dDot_(nacpr2, veff2_act, 1, casd2_0, 1)
 
-    hconst = hnuc + e_ot_lpdft - eCoulLPDFT - e1_lpdft - e2_lpdft
+    ! Finally, compute the hconst term
+    hconst = hnuc + e_ot_lpdft - e_coul_lpdft - e1_lpdft - e2_lpdft
 
     write(u6,'(6X,A,ES20.10)') 'LPDFT nuclear repulsion energy: ', hnuc
     write(u6,'(6X,A,ES20.10)') 'LPDFT on-top energy:           ', e_ot_lpdft
-    write(u6,'(6X,A,ES20.10)') 'LPDFT Coulomb double count:    ', eCoulLPDFT
-    write(u6,'(6X,A,ES20.10)') 'LPDFT effective potential term:', eVeffLPDFT
+    write(u6,'(6X,A,ES20.10)') 'LPDFT Coulomb double count:    ', e_coul_lpdft
+    write(u6,'(6X,A,ES20.10)') 'LPDFT effective potential term:', e_vhf_c
     write(u6,'(6X,A,ES20.10)') 'LPDFT one-body OT double count:', e1_lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT two-body OT double count:', e2_lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT scalar Hamiltonian term: ', hconst
@@ -203,22 +206,204 @@ module lpdft
     call mma_deallocate(veff2_act)
     call mma_deallocate(veff_poten_act)
     call mma_deallocate(veff_poten)
+    call mma_deallocate(veff1_act)
     call mma_deallocate(vj)
     call mma_deallocate(d1ao_0)
     call mma_deallocate(casD1AO_folded_0)
     call mma_deallocate(casd1AO_0)
   end subroutine compute_hconst
 
-  subroutine compute_h1e_lpdft()
-    ! Compute the hcore:
-    ! Add the vot potentials to the hcore:
-    ! Transform the hcore to the MO basis:
+  !***********************************************************************
+  !  compute_h1e_lpdft
+  !
+  !> @brief Get the 1e L-PDFT Hamiltonian in the active space in MO basis.
+  !>
+  !> @details
+  !> @param[out] h1e_lpdft_act: 1e L-PDFT Hamiltonian in the active space in MO basis.
+  !***********************************************************************
+  subroutine compute_h1e_lpdft(CMO)
+    real(kind=wp), dimension(ntot2), intent(in) :: CMO
+    real(kind=wp), allocatable, dimension(:) :: casd1AO_0
+    real(kind=wp), allocatable, dimension(:) :: veff1_act, veff_poten, veff_poten_act
+
+    call mma_allocate(casd1AO_0, ntot2, "CASD1AO_0")
+    call mma_allocate(veff1_act, nacpar, "VEFF1_ACT")
+    call mma_allocate(veff_poten, ntot1, "VEFF_POTEN_LPDFT")
+    call mma_allocate(veff_poten_act, nacpar, "VEFF_POTEN_ACT_LPDFT")
+
+    call get_hcore(h1e_lpdft_ao)
+    call ao2moact_1e(CMO, h1e_lpdft_ao, h1e_lpdft_act, nSym, nBas, nAsh, nFro, nIsh)
+
+    call Get_D1A_RASSCF(CMO, casd1_0, casd1AO_0)
+    call get_veff_poten(CMO, dm1_core, casd1AO_0, veff_poten)
+    call ao2moact_1e(CMO, veff_poten, veff_poten_act, nSym, nBas, nAsh, nFro, nIsh)
+    call mo2act_1e(veff1, veff1_act, nSym, nOrb, nAsh, nIsh)
+
+    call daxpy_(nacpar, 1.0D0, veff_poten_act, 1, h1e_lpdft_act, 1)
+    call daxpy_(nacpar, 1.0D0, veff1_act, 1, h1e_lpdft_act, 1)
+
+    write(u6,*) "size(h1e_lpdft_act active) =", size(h1e_lpdft_act)
+
+    call mma_deallocate(veff_poten_act)
+    call mma_deallocate(veff_poten)
+    call mma_deallocate(veff1_act)
+    call mma_deallocate(casd1AO_0)
   end subroutine compute_h1e_lpdft
 
+  !***********************************************************************
+  !  compute_h2e_lpdft
+  !
+  !> @brief Get the 2e L-PDFT Hamiltonian in the active space in MO basis.
+  !> Note, this would have 24-fold symmetry, in comparison to the 8-fold symmetry
+  !> of the 2e integrals in MO basis. Still, we would just use the 8-fold symmetry.
+  !>
+  !> @details
+  !> @param[out] h2e_lpdft_act: 2e L-PDFT Hamiltonian in the active space in MO basis.
+  !***********************************************************************
   subroutine compute_h2e_lpdft()
-    ! Compute the h2e:
-    ! Transform the h2e to the MO basis:
+    !> The veff2 is 2e OT potential in MO basis. This is in paaa shape. However, last two indices
+    !> are packed in triangular form. Anyways, I will using TUVX function to get the final Hamiltonian in
+    !> which is of shape: ncas*(ncas+1)/2 * (ncas*(ncas+1)/2 + 1)/2.
+    !> This is the same shape as the 2e integrals in MO basis.
+    h2e_lpdft_act(:) = 0.0D0
+    call Get_TUVX(veff2, h2e_lpdft_act)
   end subroutine compute_h2e_lpdft
+
+  subroutine construct_lpdft_ham()
+
+    use Constants, only: Zero
+    use mspdft, only: heff
+#ifdef _HDF5_
+    use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
+#endif
+
+    implicit none
+#include "warnings.h"
+    integer(kind=iwp) :: iPair, iRoot, jRoot, nPairs
+    real(kind=wp), allocatable :: tdm1(:,:,:), tdm2(:,:)
+#ifdef _HDF5_
+    character(len=1024) :: currDir, fileName, project
+    integer(kind=iwp) :: mh5id
+    integer(kind=iwp), allocatable :: rootPairs(:,:)
+#endif
+
+    if (lRoots <= 1) then
+      call WarningMessage(1,'LPDF MS-PDFT requested, but only one root is available; no transition densities will be read.')
+      return
+    end if
+
+    nPairs = (lRoots*(lRoots-1))/2
+
+#ifndef _HDF5_
+    call WarningMessage(2,'LPDF MS-PDFT requested, but HDF5 support is disabled.')
+    call Quit_OnUserError()
+#else
+    call get_environment_variable('Project',project)
+    if (len_trim(project) == 0) project = 'Noname'
+    call get_environment_variable('CurrDir',currDir)
+    if (len_trim(currDir) > 0) then
+      fileName = trim(currDir)//'/'//trim(project)//'_tdm_4_lpdft.h5'
+    else
+      fileName = trim(project)//'_tdm_4_lpdft.h5'
+    end if
+
+    if (.not. mh5_is_hdf5(trim(fileName))) then
+      call WarningMessage(2,'LPDF transition density HDF5 file not found: '//trim(fileName))
+      call Quit_OnUserError()
+    end if
+
+    mh5id = mh5_open_file_r(trim(fileName))
+    if (.not. mh5_exists_dset(mh5id,'ACTIVE_1TDM')) then
+      call WarningMessage(2,'LPDF transition density HDF5 file does not contain ACTIVE_1TDM.')
+      call Quit_OnUserError()
+    end if
+    if (.not. mh5_exists_dset(mh5id,'ACTIVE_2TDM')) then
+      call WarningMessage(2,'LPDF transition density HDF5 file does not contain ACTIVE_2TDM.')
+      call Quit_OnUserError()
+    end if
+
+    call mma_allocate(tdm1,nac,nac,nPairs,Label='LPDFT_TDM1')
+    call mma_allocate(tdm2,nacpr2,nPairs,Label='LPDFT_TDM2')
+    call mma_allocate(rootPairs,2,nPairs,Label='LPDFT_ROOT_PAIRS')
+
+    tdm1(:,:,:) = Zero
+    tdm2(:,:) = Zero
+    call mh5_fetch_dset(mh5id,'ACTIVE_1TDM',tdm1)
+    call mh5_fetch_dset(mh5id,'ACTIVE_2TDM',tdm2)
+
+    if (mh5_exists_dset(mh5id,'ROOT_PAIRS')) then
+      call mh5_fetch_dset(mh5id,'ROOT_PAIRS',rootPairs)
+    else
+      call default_root_pairs(rootPairs,nPairs)
+    end if
+
+    call mh5_close_file(mh5id)
+
+    do iPair=1,nPairs
+      iRoot = rootPairs(1,iPair)
+      jRoot = rootPairs(2,iPair)
+      if ((iRoot < 1) .or. (iRoot > lRoots) .or. (jRoot < 1) .or. (jRoot > lRoots)) then
+        call WarningMessage(2,'LPDF transition density HDF5 file contains an invalid ROOT_PAIRS entry.')
+        call Quit_OnUserError()
+      end if
+      heff(iRoot,jRoot) = contract_lpdft_tdms(tdm1(:,:,iPair),tdm2(:,iPair))
+      heff(jRoot,iRoot) = heff(iRoot,jRoot)
+    end do
+
+    write(u6,'(6X,A)') 'LPDF: read transition density matrices from '//trim(fileName)
+    write(u6,'(6X,A,I6,A)') 'LPDF: constructed effective Hamiltonian from ',nPairs,' root pairs.'
+
+    call mma_deallocate(rootPairs)
+    call mma_deallocate(tdm2)
+    call mma_deallocate(tdm1)
+#endif
+
+  end subroutine construct_lpdft_ham
+
+  function contract_lpdft_tdms(tdm1,tdm2) result(value)
+
+    use Constants, only: Half, Zero
+
+    implicit none
+    real(kind=wp), intent(in) :: tdm1(nac,nac), tdm2(nacpr2)
+    real(kind=wp) :: value
+    real(kind=wp), external :: dDot_
+    integer(kind=iwp) :: iAct, iPacked, jAct
+
+    value = Zero
+    iPacked = 0
+    do iAct=1,nac
+      do jAct=1,iAct
+        iPacked = iPacked+1
+        if (iAct == jAct) then
+          value = value+h1e_lpdft_act(iPacked)*tdm1(iAct,jAct)
+        else
+          value = value+h1e_lpdft_act(iPacked)*(tdm1(iAct,jAct)+tdm1(jAct,iAct))
+        end if
+      end do
+    end do
+
+    value = value+Half*dDot_(nacpr2,h2e_lpdft_act,1,tdm2,1)
+
+  end function contract_lpdft_tdms
+
+  subroutine default_root_pairs(rootPairs,nPairs)
+
+    implicit none
+    integer(kind=iwp), intent(in) :: nPairs
+    integer(kind=iwp), intent(out) :: rootPairs(2,nPairs)
+    integer(kind=iwp) :: iPair, iRoot, jRoot
+
+    iPair = 0
+    do iRoot=1,lRoots-1
+      do jRoot=iRoot+1,lRoots
+        iPair = iPair+1
+        rootPairs(1,iPair) = iRoot
+        rootPairs(2,iPair) = jRoot
+      end do
+    end do
+
+  end subroutine default_root_pairs
 
   subroutine set_iadr15()
     ! Set the iAdr15 variable in rasscf.fh so I don't have to do any
@@ -254,8 +439,8 @@ module lpdft
     call mma_allocate(veff1, ntot1, "1E-OnTopPot")
     call mma_allocate(veff2, nfint, "2E-OnTopPot")
     call mma_allocate(h1e_lpdft_ao, ntot1, "H1E_LPDFT_AO")
-    call mma_allocate(h1e_lpdft_mo, nacpar, "H1E_LPDFT_MO")
-    call mma_allocate(h2e_lpdft_mo, nacpr2, "H2E_LPDFT_MO")
+    call mma_allocate(h1e_lpdft_act, nacpar, "H1E_LPDFT_ACT")
+    call mma_allocate(h2e_lpdft_act, nacpr2, "H2E_LPDFT_ACT")
 
     write(u6,*) "size(veff1) =", size(veff1)
     write(u6,*) "size(veff2) =", size(veff2)
@@ -264,8 +449,8 @@ module lpdft
     write(u6,*) "size(casdm2) =", size(casd2_0)
     write(u6,*) "size(dm1_core) =", size(dm1_core)
     write(u6,*) "size(h1e_lpdft_ao) =", size(h1e_lpdft_ao)
-    write(u6,*) "size(h1e_lpdft_mo) =", size(h1e_lpdft_mo)
-    write(u6,*) "size(h2e_lpdft_mo) =", size(h2e_lpdft_mo)
+    write(u6,*) "size(h1e_lpdft_act) =", size(h1e_lpdft_act)
+    write(u6,*) "size(h2e_lpdft_act) =", size(h2e_lpdft_act)
 
     call Get_D1I_RASSCF(CMO, dm1_core)
 
@@ -276,8 +461,8 @@ module lpdft
     call mma_deallocate(casd1s_0)
     call mma_deallocate(casd2_0)
     call mma_deallocate(h1e_lpdft_ao)
-    call mma_deallocate(h1e_lpdft_mo)
-    call mma_deallocate(h2e_lpdft_mo)
+    call mma_deallocate(h1e_lpdft_act)
+    call mma_deallocate(h2e_lpdft_act)
     call mma_deallocate(dm1_core)
     call mma_deallocate(veff1)
     call mma_deallocate(veff2)
