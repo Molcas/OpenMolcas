@@ -141,24 +141,21 @@ module lpdft
     end subroutine compute_Eot_and_potentials
 
   subroutine compute_hconst(CMO)
-    use Index_Functions, only: iTri, nTri_Elem
-    use general_data, only: norb
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
-    real(kind=wp) :: e1LPDFT, e2LPDFT, eCoulLPDFT, eExchangeLPDFT, hnuc
+    real(kind=wp) :: e1_lpdft, e2_lpdft, eCoulLPDFT, eVeffLPDFT, hnuc
     real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, veff2_act
-    real(kind=wp), allocatable, dimension(:) :: vj, vj_act, vj_mo, vk, vk_act, vk_mo
+    real(kind=wp), allocatable, dimension(:) :: veff_poten, veff_poten_act, vj
     real(kind=wp), external :: dDot_
-    integer(kind=iwp) :: iAct, iFull, iOffAct, iOffMO, iSym, jAct, jFull, nAct
 
     ! Focusing only on the non-hybrid for the time-being.
 
     ! hconst = hnuc + E_OT -0.5 * g_pqrs D_pq D_rs - V_pq D_pq -1/2 * V_pqrs D_pqrs
 
     hnuc = 0.0D0
-    e1LPDFT = 0.0D0
-    e2LPDFT = 0.0D0
+    e1_lpdft = 0.0D0
+    e2_lpdft = 0.0D0
     eCoulLPDFT = 0.0D0
-    eExchangeLPDFT = 0.0D0
+    eVeffLPDFT = 0.0D0
 
     ! Get the nuclear repulsion energy
     Call Get_dScalar('PotNuc',hnuc)
@@ -167,11 +164,8 @@ module lpdft
     call mma_allocate(casD1AO_folded_0, ntot1, "CASD1AO_FOLDED_0")
     call mma_allocate(d1ao_0, ntot1, "D1AO_0")
     call mma_allocate(vj, ntot1, "VJ_LPDFT")
-    call mma_allocate(vj_mo, ntot1, "VJ_MO_LPDFT")
-    call mma_allocate(vj_act, nacpar, "VJ_ACT_LPDFT")
-    call mma_allocate(vk, ntot1, "VK_LPDFT")
-    call mma_allocate(vk_mo, ntot1, "VK_MO_LPDFT")
-    call mma_allocate(vk_act, nacpar, "VK_ACT_LPDFT")
+    call mma_allocate(veff_poten, ntot1, "VEFF_POTEN_LPDFT")
+    call mma_allocate(veff_poten_act, nacpar, "VEFF_POTEN_ACT_LPDFT")
     call mma_allocate(veff2_act, nacpr2, "VEFF2_ACT")
 
     ! Compute the 1e contribution
@@ -181,59 +175,34 @@ module lpdft
     call daxpy_(ntot1, 1.0D0, casD1AO_folded_0, 1, d1ao_0, 1)
 
     call get_coulomb(CMO, dm1_core, casd1AO_0, vj)
-    call get_exchange(CMO, dm1_core, casd1AO_0, vk)
+    call get_veff_poten(CMO, dm1_core, casd1AO_0, veff_poten)
 
     eCoulLPDFT = 0.5D0*dDot_(ntot1, vj, 1, d1ao_0, 1)
-    e1LPDFT = dDot_(ntot1, veff1, 1, d1ao_0, 1)
+    e1_lpdft = dDot_(ntot1, veff1, 1, d1ao_0, 1)
 
-    vj_mo(:) = 0.0D0
-    vk_mo(:) = 0.0D0
-    vj_act(:) = 0.0D0
-    vk_act(:) = 0.0D0
-    call ao2mo_1e(CMO, vj, vj_mo, nSym, nBas, nOrb, nFro)
-    call ao2mo_1e(CMO, vk, vk_mo, nSym, nBas, nOrb, nFro)
+    call ao2moact_1e(CMO, veff_poten, veff_poten_act, nSym, nBas, nAsh, nFro, nIsh)
 
-    iOffMO = 1
-    iOffAct = 0
-    do iSym=1,nSym
-      nAct = nAsh(iSym)
-      do iAct=1,nAct
-        iFull = nIsh(iSym)+iAct
-        do jAct=1,iAct
-          jFull = nIsh(iSym)+jAct
-          iOffAct = iOffAct+1
-          vj_act(iOffAct) = vj_mo(iOffMO+iTri(iFull,jFull)-1)
-          vk_act(iOffAct) = vk_mo(iOffMO+iTri(iFull,jFull)-1)
-        end do
-      end do
-      iOffMO = iOffMO+nTri_Elem(nOrb(iSym))
-    end do
-
-    eExchangeLPDFT = 2.0D0*dDot_(nacpar, vj_act, 1, casd1_0, 1) &
-                    -dDot_(nacpar, vk_act, 1, casd1s_0, 1)
-    e1LPDFT = e1LPDFT+eExchangeLPDFT
+    eVeffLPDFT = 2.0D0*dDot_(nacpar, veff_poten_act, 1, casd1_0, 1)
+    e1_lpdft = e1_lpdft+eVeffLPDFT
 
     veff2_act(:) = 0.0D0
     call Get_TUVX(veff2, veff2_act)
 
-    e2LPDFT = 0.5D0*dDot_(nacpr2, veff2_act, 1, casd2_0, 1)
+    e2_lpdft = 0.5D0*dDot_(nacpr2, veff2_act, 1, casd2_0, 1)
 
-    hconst = hnuc + e_ot_lpdft - eCoulLPDFT - e1LPDFT - e2LPDFT
+    hconst = hnuc + e_ot_lpdft - eCoulLPDFT - e1_lpdft - e2_lpdft
 
     write(u6,'(6X,A,ES20.10)') 'LPDFT nuclear repulsion energy: ', hnuc
     write(u6,'(6X,A,ES20.10)') 'LPDFT on-top energy:           ', e_ot_lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT Coulomb double count:    ', eCoulLPDFT
-    write(u6,'(6X,A,ES20.10)') 'LPDFT exchange double count:   ', eExchangeLPDFT
-    write(u6,'(6X,A,ES20.10)') 'LPDFT one-body OT double count:', e1LPDFT
-    write(u6,'(6X,A,ES20.10)') 'LPDFT two-body OT double count:', e2LPDFT
+    write(u6,'(6X,A,ES20.10)') 'LPDFT effective potential term:', eVeffLPDFT
+    write(u6,'(6X,A,ES20.10)') 'LPDFT one-body OT double count:', e1_lpdft
+    write(u6,'(6X,A,ES20.10)') 'LPDFT two-body OT double count:', e2_lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT scalar Hamiltonian term: ', hconst
 
     call mma_deallocate(veff2_act)
-    call mma_deallocate(vk_act)
-    call mma_deallocate(vk_mo)
-    call mma_deallocate(vk)
-    call mma_deallocate(vj_act)
-    call mma_deallocate(vj_mo)
+    call mma_deallocate(veff_poten_act)
+    call mma_deallocate(veff_poten)
     call mma_deallocate(vj)
     call mma_deallocate(d1ao_0)
     call mma_deallocate(casD1AO_folded_0)
