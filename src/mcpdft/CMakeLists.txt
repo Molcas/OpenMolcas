@@ -21,6 +21,7 @@ set (sources
      get_coulomb.F90
      get_hcore.F90
      inppri.F90
+     lpdft.F90
      mcpdft.F90
      mcpdft_init.F90
      mcpdft_input.F90
