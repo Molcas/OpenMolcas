@@ -19,7 +19,7 @@ use csfbas, only: CONF
 use lucia_data, only: CFTP, DStmp, Dtmp, PAtmp, Ptmp
 use Lucia_Interface, only: Lucia_Util
 use input_ras, only: Key
-use rasscf_global, only: IADR15, lRoots, NAC, NACPR2
+use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
 use general_data, only: JOBIPH, NACTEL, NCONF, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -28,7 +28,7 @@ use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_d
 #endif
 
 implicit none
-integer(kind=iwp) :: iDisk, iPair, jRoot, kDisk, kRoot, nPairs
+integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs
 integer(kind=iwp), allocatable :: kCnf(:)
 real(kind=wp), allocatable :: Tmp(:), VecL(:), VecR(:)
 #ifdef _HDF5_
@@ -40,17 +40,12 @@ integer(kind=iwp), allocatable :: rootPairs(:,:)
 ! Just the sanity check:
 if (.not. Key('LPDF')) return
 
-if (lRoots <= 1) then
-  call WarningMessage(1,'LPDF requested, but only one RASSCF root is available; transition densities will not be stored.')
-  return
-end if
-
 #ifndef _HDF5_
 call WarningMessage(1,'LPDF requested, but HDF5 support is disabled; transition densities will not be stored.')
 return
 #else
 
-nPairs = (lRoots*(lRoots-1))/2
+nPairs = (lRoots*(lRoots+1))/2
 
 call get_environment_variable('Project',project)
 
@@ -86,8 +81,8 @@ rootPairsId = mh5_create_dset_int(fileId,'ROOT_PAIRS',2,[2,nPairs])
 
 iPair = 0
 iDisk = IADR15(4)
-call DDafile(JOBIPH,2,Tmp,nConf,iDisk)
-do jRoot=2,lRoots
+dDisk = IADR15(3)
+do jRoot=1,lRoots
   call DDafile(JOBIPH,2,Tmp,nConf,iDisk)
   call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp,VecL,kCnf)
   kDisk = IADR15(4)
@@ -104,6 +99,20 @@ do jRoot=2,lRoots
     rootPairs(1,iPair) = jRoot
     rootPairs(2,iPair) = kRoot
   end do
+
+  call DDafile(JOBIPH,2,Dtmp,NACPAR,dDisk)
+  call DDafile(JOBIPH,2,DStmp,NACPAR,dDisk)
+  call DDafile(JOBIPH,2,Ptmp,NACPR2,dDisk)
+  call DDafile(JOBIPH,2,PAtmp,NACPR2,dDisk)
+
+  call Square(Dtmp,DStmp,1,NAC,NAC)
+  call mh5_put_dset(oneTdmId,DStmp(1:NAC*NAC),[NAC,NAC,1],[0,0,iPair])
+  call mh5_put_dset(twoTdmId,Ptmp(1:NACPR2),[NACPR2,1],[0,iPair])
+  call mh5_put_dset(twoTdmAId,PAtmp(1:NACPR2),[NACPR2,1],[0,iPair])
+
+  iPair = iPair+1
+  rootPairs(1,iPair) = jRoot
+  rootPairs(2,iPair) = jRoot
 end do
 
 call mh5_put_dset(rootPairsId,rootPairs)
