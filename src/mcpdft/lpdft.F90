@@ -17,8 +17,9 @@ module lpdft
   use definitions, only: wp, iwp, u6
   use general_data, only: ispin, jobiph, jobold, nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
   use mcpdft_input, only: mcpdft_options
-  use rasscf_global, only: DFTFOCK, ExFac, IADR15, LROOTS, NAC, NACPAR, NACPR2, NFINT, NonEq, PotNuc, NROOTS, WEIGHT
+  use rasscf_global, only: dftfock, exfac, iadr15, lroots, nac, nacpar, nacpr2, nfint, noneq, potnuc, nroots, weight
   use rctfld_module, only: lRF
+
   implicit none
   private
   logical :: do_lpdft=.false.
@@ -29,15 +30,19 @@ module lpdft
   real(kind=wp), allocatable, dimension(:) :: casd1_0, casd1s_0, casd2_0
   real(kind=wp), allocatable, dimension(:) :: veff1, veff2
   real(kind=wp), allocatable, dimension(:) :: h1e_lpdft_ao, h1e_lpdft_act, h2e_lpdft_act
+  real(kind=wp), allocatable, dimension(:) :: vj, vjk
 
   public :: do_lpdft
   public :: lpdft_kernel
   contains
 
-  ! LPDFT Kernel Function.
-  ! Basically, compute the L-PDFT Hamiltonian, and then contract it with transition density
-  ! matrices to compute the effective Hamiltonian, whose eigen vectors are state-interaction vectors
-  ! and will be used to roate the SA-RAS CI vectors.
+  !***********************************************************************
+  !> LPDFT Kernel Function.
+  !> Basically, compute the L-PDFT Hamiltonian, and then contract it with transition density
+  !> matrices to compute the effective Hamiltonian, whose eigen vectors are state-interaction vectors
+  !> and will be used to roate the SA-RAS CI vectors.
+  !>
+  !***********************************************************************
 
   subroutine lpdft_kernel(CMO)
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
@@ -119,8 +124,10 @@ module lpdft
 
       veff1 = 0.0D0
       veff2 = 0.0D0
+      vjk = 0.0D0
       call put_dArray('ONTOPO', veff1, ntot1)
       call put_dArray('ONTOPT', veff2, nfint)
+      call put_dArray('FI_V', vjk, ntot1)
       call put_dArray('D1ao', d1ao_0, ntot1)
       call put_dArray('D1Sao', d1sao_0, ntot1)
       call put_dArray('D1mo', casd1_0, nacpar)
@@ -132,11 +139,12 @@ module lpdft
       htmp = 0.0D0
       gtmp = 0.0D0
       call DrvXV(htmp, gtmp, d1ao_0, potnuc, nTot1, First, Dff, NonEq, &
-                 lRF, mcpdft_options%otfnal%otxc, ExFac, charge, ispin, DFTFOCK, Do_DFT)
+                 lRF, mcpdft_options%otfnal%otxc, ExFac, charge, ispin, dftfock, Do_DFT)
 
-      ! Load in the on-top potentials (These are in MO basis.)
+      ! Load in the on-top potentials.
       call get_dArray("ONTOPO", veff1, ntot1)
       call get_dArray("ONTOPT", veff2, nfint)
+      call get_dArray("FI_V", vjk, ntot1)
 
       ! Read the on-top energy
       call get_dScalar('CASDFT energy', e_ot_lpdft)
@@ -145,8 +153,8 @@ module lpdft
   subroutine compute_hconst(CMO)
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
     real(kind=wp) :: e1_lpdft, e2_lpdft, e_coul_lpdft, e_vhf_c, hnuc
-    real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, veff1_act, veff2_act
-    real(kind=wp), allocatable, dimension(:) :: veff_poten, veff_poten_act, vj
+    real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0
+    real(kind=wp), allocatable, dimension(:) :: veff2_act, vjk_act
     real(kind=wp), external :: dDot_
 
     ! Focusing only on the non-hybrid for the time-being.
@@ -157,42 +165,41 @@ module lpdft
     e_coul_lpdft = 0.0D0
     e_vhf_c = 0.0D0
 
-    ! Get the nuclear repulsion energy
+    ! Term-1: Get the nuclear repulsion energy
     Call Get_dScalar('PotNuc',hnuc)
 
     call mma_allocate(casd1AO_0, ntot2, "CASD1AO_0")
     call mma_allocate(casD1AO_folded_0, ntot1, "CASD1AO_FOLDED_0")
     call mma_allocate(d1ao_0, ntot1, "D1AO_0")
-    call mma_allocate(vj, ntot1, "VJ_LPDFT")
-    call mma_allocate(veff1_act, nacpar, "VEFF1_ACT")
-    call mma_allocate(veff_poten, ntot1, "VEFF_POTEN_LPDFT")
-    call mma_allocate(veff_poten_act, nacpar, "VEFF_POTEN_ACT_LPDFT")
+    call mma_allocate(vjk_act, nacpar, "VJK_ACT_LPDFT")
     call mma_allocate(veff2_act, nacpr2, "VEFF2_ACT")
 
-    ! Compute the 1e contribution
+    ! Core density matrix in AO basis
     call Get_D1A_RASSCF(CMO, casd1_0, casd1AO_0)
     call Fold(nSym, nBas, dm1_core, d1ao_0)
+    ! Just the active space density matrix in AO basis
     call Fold(nSym, nBas, casd1AO_0, casD1AO_folded_0)
+    ! Complete 1e density matrix in AO basis
     call daxpy_(ntot1, 1.0D0, casD1AO_folded_0, 1, d1ao_0, 1)
 
+    ! Term-2.1: Compute the classical Coulomb energy
     call get_coulomb(CMO, dm1_core, casd1AO_0, vj)
-    call get_veff_poten(CMO, dm1_core, casd1AO_0, veff_poten)
-
     e_coul_lpdft = 0.5D0*dDot_(ntot1, vj, 1, d1ao_0, 1)
-    call mo2act_1e(veff1, veff1_act, nSym, nOrb, nAsh, nIsh)
-    e1_lpdft = dDot_(nacpar, veff1_act, 1, casd1_0, 1)
 
-    call ao2moact_1e(CMO, veff_poten, veff_poten_act, nSym, nBas, nAsh, nFro, nIsh)
+    ! Term-2.2: Compute the veff1 (1e on-top potential) contribution
+    e1_lpdft = dDot_(ntot1, veff1, 1, d1ao_0, 1)
 
-    e_vhf_c = 2.0D0*dDot_(nacpar, veff_poten_act, 1, casd1_0, 1)
-    e1_lpdft = e1_lpdft + e_vhf_c
-
-    ! Compute the 2e contribution
+    ! Term-3.1: Compute the 2e contribution
     veff2_act(:) = 0.0D0
     call Get_TUVX(veff2, veff2_act)
     e2_lpdft = 0.5D0*dDot_(nacpr2, veff2_act, 1, casd2_0, 1)
 
-    ! Finally, compute the hconst term
+    ! Term-3.2: Compute the core vhf_c contribution
+    call mo2act_1e(vjk, vjk_act, nSym, nOrb, nAsh, nIsh)
+    e_vhf_c = dDot_(nacpar, vjk_act, 1, casd1_0, 1)
+    e2_lpdft = e2_lpdft + e_vhf_c
+
+    ! Term-4: Finally, compute the hconst term
     hconst = hnuc + e_ot_lpdft - e_coul_lpdft - e1_lpdft - e2_lpdft
 
     write(u6,'(6X,A,ES20.10)') 'LPDFT nuclear repulsion energy: ', hnuc
@@ -204,10 +211,7 @@ module lpdft
     write(u6,'(6X,A,ES20.10)') 'LPDFT scalar Hamiltonian term: ', hconst
 
     call mma_deallocate(veff2_act)
-    call mma_deallocate(veff_poten_act)
-    call mma_deallocate(veff_poten)
-    call mma_deallocate(veff1_act)
-    call mma_deallocate(vj)
+    call mma_deallocate(vjk_act)
     call mma_deallocate(d1ao_0)
     call mma_deallocate(casD1AO_folded_0)
     call mma_deallocate(casd1AO_0)
@@ -217,37 +221,39 @@ module lpdft
   !  compute_h1e_lpdft
   !
   !> @brief Get the 1e L-PDFT Hamiltonian in the active space in MO basis.
-  !>
+  !> h1e = hpq + veff1 + vj + vdft_c
   !> @details
   !> @param[out] h1e_lpdft_act: 1e L-PDFT Hamiltonian in the active space in MO basis.
   !***********************************************************************
   subroutine compute_h1e_lpdft(CMO)
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
-    real(kind=wp), allocatable, dimension(:) :: casd1AO_0
-    real(kind=wp), allocatable, dimension(:) :: veff1_act, veff_poten, veff_poten_act
+    real(kind=wp), allocatable, dimension(:) :: veff1_act, vj_act, vjk_act
 
-    call mma_allocate(casd1AO_0, ntot2, "CASD1AO_0")
     call mma_allocate(veff1_act, nacpar, "VEFF1_ACT")
-    call mma_allocate(veff_poten, ntot1, "VEFF_POTEN_LPDFT")
-    call mma_allocate(veff_poten_act, nacpar, "VEFF_POTEN_ACT_LPDFT")
+    call mma_allocate(vj_act, nacpar, "VJ_ACT_LPDFT")
+    call mma_allocate(vjk_act, nacpar, "VJK_ACT_LPDFT")
 
+    ! Compute the hcore term and transform it to the active space in MO basis
     call get_hcore(h1e_lpdft_ao)
     call ao2moact_1e(CMO, h1e_lpdft_ao, h1e_lpdft_act, nSym, nBas, nAsh, nFro, nIsh)
 
-    call Get_D1A_RASSCF(CMO, casd1_0, casd1AO_0)
-    call get_veff_poten(CMO, dm1_core, casd1AO_0, veff_poten)
-    call ao2moact_1e(CMO, veff_poten, veff_poten_act, nSym, nBas, nAsh, nFro, nIsh)
-    call mo2act_1e(veff1, veff1_act, nSym, nOrb, nAsh, nIsh)
+    ! Add the classical Coulomb and veff2 core-response terms.
+    ! Term-2: Add the classical Coulomb term
+    call ao2moact_1e(CMO, vj, vj_act, nSym, nBas, nAsh, nFro, nIsh)
+    call daxpy_(nacpar, 1.0D0, vj_act, 1, h1e_lpdft_act, 1)
 
-    call daxpy_(nacpar, 1.0D0, veff_poten_act, 1, h1e_lpdft_act, 1)
+    ! Term-4: Add the FI_V/vhf_c term, already stored in the MO basis.
+    call mo2act_1e(vjk, vjk_act, nSym, nOrb, nAsh, nIsh)
+    call daxpy_(nacpar, 1.0D0, vjk_act, 1, h1e_lpdft_act, 1)
+
+    ! Compute the 1e on-top potential term and transform it to the active space
+    ! in MO basis
+    call mo2act_1e(veff1, veff1_act, nSym, nOrb, nAsh, nIsh)
     call daxpy_(nacpar, 1.0D0, veff1_act, 1, h1e_lpdft_act, 1)
 
-    write(u6,*) "size(h1e_lpdft_act active) =", size(h1e_lpdft_act)
-
-    call mma_deallocate(veff_poten_act)
-    call mma_deallocate(veff_poten)
+    call mma_deallocate(vjk_act)
+    call mma_deallocate(vj_act)
     call mma_deallocate(veff1_act)
-    call mma_deallocate(casd1AO_0)
   end subroutine compute_h1e_lpdft
 
   !***********************************************************************
@@ -441,6 +447,8 @@ module lpdft
     call mma_allocate(h1e_lpdft_ao, ntot1, "H1E_LPDFT_AO")
     call mma_allocate(h1e_lpdft_act, nacpar, "H1E_LPDFT_ACT")
     call mma_allocate(h2e_lpdft_act, nacpr2, "H2E_LPDFT_ACT")
+    call mma_allocate(vj, ntot1, "VJ_LPDFT")
+    call mma_allocate(vjk, ntot1, "VJK_LPDFT")
 
     write(u6,*) "size(veff1) =", size(veff1)
     write(u6,*) "size(veff2) =", size(veff2)
@@ -466,6 +474,8 @@ module lpdft
     call mma_deallocate(dm1_core)
     call mma_deallocate(veff1)
     call mma_deallocate(veff2)
+    call mma_deallocate(vj)
+    call mma_deallocate(vjk)
   end subroutine release_vars
 
 end module lpdft
