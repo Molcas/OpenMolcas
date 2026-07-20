@@ -238,13 +238,7 @@ subroutine SC_NEVPT2_Energy()
                 write(u6,'(1x,A)') 'Something is wrong in SC_NEVPT2_Energy'
                 call abend()
               end if
-              do isp=JLO1,JHI1
-                valn = Zero
-                do ias=1,NAS
-                  etmp = etmp-DBL_MB(MV+ias-1+NAS*(isp-JLO1))*DBL_MB(MV+ias-1+NAS*(isp-JLO1))/(lid(isp)+lbd(ias))
-                  otmp = otmp+DBL_MB(MV+ias-1+NAS*(isp-JLO1))*DBL_MB(MV+ias-1+NAS*(isp-JLO1))/(lid(isp)+lbd(ias))**2
-                end do
-              end do
+              call SC_NEVPT2_Energy_H_MPP(DBL_MB(MV),LDV,JLO1,JHI1,NAS,LBD,LID,etmp,otmp)
               call GA_RELEASE(lg_V,ILO1,IHI1,JLO1,JHI1)
             end if
           else
@@ -324,28 +318,10 @@ subroutine SC_NEVPT2_Energy()
             write(u6,'(1x,A)') 'Something is wrong in SC_NEVPT2_Energy'
             call abend()
           end if
-          do isp=JLO1,JHI1
-            valh = Zero
-            valn = Zero
-            do ias=1,NAS
-              do jas=1,ias-1 ! ias+1, NAS
-                valh = valh+Two*DBL_MB(MV+ias-1+NAS*(isp-JLO1))*DBL_MB(MV+jas-1+NAS*(isp-JLO1))*BMAT(iTri(ias,jas))
-                valn = valn+Two*DBL_MB(MV+ias-1+NAS*(isp-JLO1))*DBL_MB(MV+jas-1+NAS*(isp-JLO1))*SMAT(iTri(ias,jas))
-              end do
-              valh = valh+DBL_MB(MV+ias-1+NAS*(isp-JLO1))*DBL_MB(MV+ias-1+NAS*(isp-JLO1))*BMAT(nTri_Elem(ias))
-              valn = valn+DBL_MB(MV+ias-1+NAS*(isp-JLO1))*DBL_MB(MV+ias-1+NAS*(isp-JLO1))*SMAT(nTri_Elem(ias))
-            end do
-            if (abs(valn) <= SC_thres) then
-              vale = Zero
-            else
-              vale = valh/valn
-            end if
-            if (abs(lid(isp)+vale) > SC_thres) then
-              etmp = etmp-valn/(lid(isp)+vale)
-              otmp = otmp+valn/(lid(isp)+vale)**2
-            end if
-            E_value(isp) = vale
-          end do
+          !! The local patch is passed by argument association on purpose:
+          !! DBL_MB is declared with size 2 (mafdecls.fh), so indexing it directly in loops is out-of-bounds and formally undefined;
+          !! aggressive loop optimizers may derive wrong trip counts from it (e.g., GCC13)
+          call SC_NEVPT2_Energy_MPP(DBL_MB(MV),LDV,JLO1,JHI1,NAS,BMAT,SMAT,LID,SC_thres,E_value,etmp,otmp)
           call GA_RELEASE(lg_V,ILO1,IHI1,JLO1,JHI1)
         end if
         call GADGOP(E_value,NIS,'+')
@@ -416,6 +392,62 @@ end subroutine SC_NEVPT2_Energy
 
 !-----------------------------------------------------------------------
 
+# ifdef _MOLCAS_MPP_
+subroutine SC_NEVPT2_Energy_H_MPP(V,LDV,JLO,JHI,NAS,LBD,LID,etmp,otmp)
+
+  integer(kind=iwp), intent(in) :: LDV, JLO, JHI, NAS
+  real(kind=wp), intent(in) :: V(LDV,*), LBD(*), LID(*)
+  real(kind=wp), intent(inout) :: etmp, otmp
+  integer(kind=iwp) :: ias, isp
+
+  do isp=JLO,JHI
+    do ias=1,NAS
+      etmp = etmp-V(ias,isp-JLO+1)*V(ias,isp-JLO+1)/(LID(isp)+LBD(ias))
+      otmp = otmp+V(ias,isp-JLO+1)*V(ias,isp-JLO+1)/(LID(isp)+LBD(ias))**2
+    end do
+  end do
+
+end subroutine SC_NEVPT2_Energy_H_MPP
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_Energy_MPP(V,LDV,JLO,JHI,NAS,BMAT,SMAT,LID,thres,E_value,etmp,otmp)
+
+  integer(kind=iwp), intent(in) :: LDV, JLO, JHI, NAS
+  real(kind=wp), intent(in) :: V(LDV,*), BMAT(*), SMAT(*), LID(*), thres
+  real(kind=wp), intent(inout) :: E_value(*), etmp, otmp
+  integer(kind=iwp) :: ias, isp, jas
+  real(kind=wp) :: vale, valh, valn
+
+  do isp=JLO,JHI
+    valh = Zero !! <Psi|V[H,V]|Psi> (Eq. (A2), (A6), ...)
+    valn = Zero !! N: norm (Eq. (11)--(18))
+    do ias=1,NAS
+      do jas=1,ias-1
+        valh = valh+Two*V(ias,isp-JLO+1)*V(jas,isp-JLO+1)*BMAT(iTri(ias,jas))
+        valn = valn+Two*V(ias,isp-JLO+1)*V(jas,isp-JLO+1)*SMAT(iTri(ias,jas))
+      end do
+      valh = valh+V(ias,isp-JLO+1)*V(ias,isp-JLO+1)*BMAT(nTri_Elem(ias))
+      valn = valn+V(ias,isp-JLO+1)*V(ias,isp-JLO+1)*SMAT(nTri_Elem(ias))
+    end do
+    !! compute epsilon (the equation after Eq. (28))
+    if (abs(valn) <= thres) then
+      vale = Zero
+    else
+      vale = valh/valn
+    end if
+    if (abs(LID(isp)+vale) > thres) then
+      etmp = etmp-valn/(LID(isp)+vale)
+      otmp = otmp+valn/(LID(isp)+vale)**2
+    end if
+    E_value(isp) = vale
+  end do
+
+end subroutine SC_NEVPT2_Energy_MPP
+#endif
+
+!-----------------------------------------------------------------------
+
 subroutine SC_NEVPT2_Amplitude(NAS,NIS,iCase,iSym,lg_V)
 
   integer(kind=iwp), intent(in) :: NAS, NIS, iCase, iSym, lg_V
@@ -455,28 +487,11 @@ subroutine SC_NEVPT2_Amplitude(NAS,NIS,iCase,iSym,lg_V)
     call GA_DISTRIBUTION(lg_V,myRank,ILO,IHI,JLO,JHI)
     if ((ILO > 0) .and. (JLO > 0)) then
       call GA_Access(lg_V,ILO,IHI,JLO,JHI,MV,LDV)
+      !! The local patch is passed by argument association on purpose
       if (iCase <= 11) then
-        do isp=JLO,JHI
-          if (abs(LID(isp)) <= SC_thres) then
-            scal = Zero
-          else
-            scal = -One/LID(isp)
-          end if
-          do ias=ILO,IHI
-            DBL_MB(MV+ias-ILO+LDV*(isp-JLO)) = DBL_MB(MV+ias-ILO+LDV*(isp-JLO))*scal
-          end do
-        end do
+        call SC_NEVPT2_Amplitude_MPP(DBL_MB(MV),LDV,ILO,IHI,JLO,JHI,LBD,LID,.false.)
       else if ((iCase == 12) .or. (iCase == 13)) then
-        do isp=JLO,JHI
-          do ias=ILO,IHI
-            if (abs(LBD(ias)+LID(isp)) <= SC_thres) then
-              scal = Zero
-            else
-              scal = -One/(LBD(ias)+LID(isp))
-            end if
-            DBL_MB(MV+ias-ILO+LDV*(isp-JLO)) = DBL_MB(MV+ias-ILO+LDV*(isp-JLO))*scal
-          end do
-        end do
+        call SC_NEVPT2_Amplitude_MPP(DBL_MB(MV),LDV,ILO,IHI,JLO,JHI,LBD,LID,.true.)
       end if
       call GA_Release_Update(lg_V,ILO,IHI,JLO,JHI)
     end if
@@ -515,6 +530,45 @@ end subroutine SC_NEVPT2_Amplitude
 
 !-----------------------------------------------------------------------
 
+# ifdef _MOLCAS_MPP_
+subroutine SC_NEVPT2_Amplitude_MPP(V,LDV,ILO,IHI,JLO,JHI,LBD,LID,use_bd)
+
+  integer(kind=iwp), intent(in) :: LDV, ILO, IHI, JLO, JHI
+  real(kind=wp), intent(inout) :: V(LDV,*)
+  real(kind=wp), intent(in) :: LBD(*), LID(*)
+  logical(kind=iwp), intent(in) :: use_bd
+  integer(kind=iwp) :: ias, isp
+  real(kind=wp) :: scal
+
+  ! Scale the local patch by the (negative inverse) denominators:
+  ! T = -RHS/denominator. With use_bd, the denominator is LBD+LID
+  ! (cases 12 and 13); otherwise it is LID alone (cases 1 to 11).
+
+  do isp=JLO,JHI
+    if (use_bd) then
+      do ias=ILO,IHI
+        if (abs(LBD(ias)+LID(isp)) <= SC_thres) then
+          scal = Zero
+        else
+          scal = -One/(LBD(ias)+LID(isp))
+        end if
+        V(ias-ILO+1,isp-JLO+1) = V(ias-ILO+1,isp-JLO+1)*scal
+      end do
+    else
+      if (abs(LID(isp)) <= SC_thres) then
+        scal = Zero
+      else
+        scal = -One/LID(isp)
+      end if
+      V(1:IHI-ILO+1,isp-JLO+1) = V(1:IHI-ILO+1,isp-JLO+1)*scal
+    end if
+  end do
+
+end subroutine SC_NEVPT2_Amplitude_MPP
+#endif
+
+!-----------------------------------------------------------------------
+
 subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
 
   use BDerNEV, only: BDN_G3, BDNA, BDNB, BDNC, BDND, BDNE, BDNF, BDNG
@@ -526,9 +580,8 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
   real(kind=wp) :: vale, valh, valn
   real(kind=wp), allocatable :: BDER(:,:), BMAT(:), derHNS(:,:), LID(:), SDER(:,:), SMAT(:)
 # ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: idx_bs, idx_v1, idx_v2, idx_v3, IHI1, IHI2, IHI3, ii, ILO1, ILO2, ILO3, JHI2, JHI3, jj, JLO2, JLO3, LDV, &
-                       LDV1, LDV2, lg_S, MV1, MV2, MV3, myRank
-  real(kind=wp) :: tmph, tmpn
+  integer(kind=iwp) :: IHI1, IHI2, IHI3, ii, ILO1, ILO2, ILO3, JHI2, JHI3, jj, JLO2, JLO3, LDV, LDV1, LDV2, lg_S, MV1, MV2, MV3, &
+                       myRank
 
   if (Is_Real_Par()) call RHS_ZERO(iVecC2)
 # endif
@@ -623,45 +676,9 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
             write(u6,'(1x,A)') 'Something is wrong in SC_NEVPT2_CLagD'
             call abend()
           end if
-          do isp=JLO1,JHI1
-            vale = Zero
-            valh = Zero
-            valn = Zero
-            idx_v1 = MV1-1+NAS*(isp-JLO1)
-            idx_v2 = MV2-1+NAS*(isp-JLO2)
-            vale = vale+sum(DBL_MB(idx_v1+1:idx_v1+NAS)*DBL_MB(idx_v2+1:idx_v2+NAS))
-            do ias=1,NAS
-              idx_bs = nTri_Elem(ias-1)
-              tmph = Zero
-              tmpn = Zero
-              if (ias >= 2) then
-                tmph = sum(DBL_MB(idx_v1+1:idx_v1+ias-1)*BMAT(idx_bs+1:idx_bs+ias-1))
-                tmpn = sum(DBL_MB(idx_v1+1:idx_v1+ias-1)*SMAT(idx_bs+1:idx_bs+ias-1))
-              end if
-              valh = valh+DBL_MB(idx_v1+ias)*(Two*tmph+DBL_MB(idx_v1+ias)*BMAT(idx_bs+ias))
-              valn = valn+DBL_MB(idx_v1+ias)*(Two*tmpn+DBL_MB(idx_v1+ias)*SMAT(idx_bs+ias))
-            end do
-            !do ias=1,NAS
-            !  vale = vale+DBL_MB(MV1+ias-1+NAS*(isp-JLO1))*DBL_MB(MV2+ias-1+NAS*(isp-JLO2))
-            !  do jas=1,ias-1
-            !    valh = valh+Two*DBL_MB(MV1+ias-1+NAS*(isp-JLO1))*DBL_MB(MV1+jas-1+NAS*(isp-JLO1))*BMAT(iTri(ias,jas))
-            !    valn = valn+Two*DBL_MB(MV1+ias-1+NAS*(isp-JLO1))*DBL_MB(MV1+jas-1+NAS*(isp-JLO1))*SMAT(iTri(ias,jas))
-            !  end do
-            !  valh = valh+DBL_MB(MV1+ias-1+NAS*(isp-JLO1))*DBL_MB(MV1+ias-1+NAS*(isp-JLO1))*BMAT(nTri_Elem(ias))
-            !  valn = valn+DBL_MB(MV1+ias-1+NAS*(isp-JLO1))*DBL_MB(MV1+ias-1+NAS*(isp-JLO1))*SMAT(nTri_Elem(ias))
-            !end do
-            if (abs(valn) <= SC_thres) then
-              derHNS(isp,1) = Zero
-              derHNS(isp,2) = Zero
-              derHNS(isp,3) = Zero
-            else
-              derHNS(isp,1) = vale/valn
-              derHNS(isp,2) = -vale*valh/(valn*valn)
-              derHNS(isp,3) = -One*lid(isp)
-            end if
-          end do
-          call GA_RELEASE(lg_V1,ILO1,IHI1,JLO1,JHI1)
-          call GA_RELEASE(lg_V2,ILO2,IHI2,JLO2,JHI2)
+          !! The local patches are passed by argument association on purpose
+          !! The access is kept until BDER/SDER below have been built.
+          call SC_NEVPT2_CLagD1_MPP(DBL_MB(MV1),LDV1,DBL_MB(MV2),LDV2,JLO1,JHI1,NAS,NIS,BMAT,SMAT,LID,derHNS)
         end if
         call GADGOP(derHNS,NIS*3,'+')
       else
@@ -698,27 +715,28 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
       SDER(:,:) = Zero
 
       !! Construct BDER and SDER
-      do isp=JLO1,JHI1
-        do ias=1,NAS
-          do jas=1,NAS
-#           ifdef _MOLCAS_MPP_
-            if (is_real_par()) then
-              BDER(ias,jas) = BDER(ias,jas)+derHNS(isp,1)*DBL_MB(MV1+ias-ILO1+NAS*(isp-JLO1))*DBL_MB(MV1+jas-ILO1+NAS*(isp-JLO1))
-              SDER(ias,jas) = SDER(ias,jas)+derHNS(isp,2)*DBL_MB(MV1+ias-ILO1+NAS*(isp-JLO1))*DBL_MB(MV1+jas-ILO1+NAS*(isp-JLO1))
-              SDER(ias,jas) = SDER(ias,jas)+ &
-                              VECROT(jStLag)*derHNS(isp,3)*DBL_MB(MV1+ias-ILO1+NAS*(isp-JLO1))*DBL_MB(MV1+jas-ILO1+NAS*(isp-JLO2))
-            else
-#           endif
+#     ifdef _MOLCAS_MPP_
+      if (is_real_par()) then
+        if ((ILO1 > 0) .and. (JLO1 > 0)) then
+          call SC_NEVPT2_CLagD2_MPP(DBL_MB(MV1),LDV1,JLO1,JHI1,NAS,NIS,derHNS,VECROT(jStLag),BDER,SDER)
+          call GA_RELEASE(lg_V1,ILO1,IHI1,JLO1,JHI1)
+          call GA_RELEASE(lg_V2,ILO2,IHI2,JLO2,JHI2)
+        end if
+      else
+#     endif
+        do isp=JLO1,JHI1
+          do ias=1,NAS
+            do jas=1,NAS
               BDER(ias,jas) = BDER(ias,jas)+derHNS(isp,1)*GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V1)%A(jas+NAS*(isp-1))
               SDER(ias,jas) = SDER(ias,jas)+derHNS(isp,2)*GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V1)%A(jas+NAS*(isp-1))
               SDER(ias,jas) = SDER(ias,jas)+ &
                               VECROT(jStLag)*derHNS(isp,3)*GA_Arrays(lg_V1)%A(ias+NAS*(isp-1))*GA_Arrays(lg_V1)%A(jas+NAS*(isp-1))
-#           ifdef _MOLCAS_MPP_
-            end if
-#           endif
+            end do
           end do
         end do
-      end do
+#     ifdef _MOLCAS_MPP_
+      end if
+#     endif
 
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par()) then
@@ -750,44 +768,11 @@ subroutine SC_NEVPT2_CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,VECROT)
         call GA_DISTRIBUTION(lg_V2,myRank,ILO2,IHI2,JLO2,JHI2)
         call GA_DISTRIBUTION(lg_V3,myRank,ILO3,IHI3,JLO3,JHI3)
         if ((ILO1 > 0) .and. (JLO1 > 0)) then
-          call GA_Access(lg_V1,ILO1,IHI1,JLO1,JHI1,MV1,LDV)
-          call GA_Access(lg_V2,ILO2,IHI2,JLO2,JHI2,MV2,LDV)
+          call GA_Access(lg_V1,ILO1,IHI1,JLO1,JHI1,MV1,LDV1)
+          call GA_Access(lg_V2,ILO2,IHI2,JLO2,JHI2,MV2,LDV2)
           call GA_Access(lg_V3,ILO3,IHI3,JLO3,JHI3,MV3,LDV)
-          do isp=JLO1,JHI1
-            DBL_MB(MV3+NAS*(isp-JLO1):MV3+NAS+NAS*(isp-JLO1)) = Zero
-            if (abs(LID(isp)) <= SC_thres) cycle
-            derHNS(isp,1) = -derHNS(isp,1)/LID(isp)
-            derHNS(isp,2) = -derHNS(isp,2)/LID(isp)
-            derHNS(isp,3) = One
-            idx_v1 = MV1-1+NAS*(isp-JLO1)
-            idx_v2 = MV2-1+NAS*(isp-JLO1)
-            idx_v3 = MV3-1+NAS*(isp-JLO1)
-            do ias=1,NAS
-              do jas=1,ias-1
-                ! <lambda|H0-E0|Psi1> terms
-                DBL_MB(idx_v3+jas) = DBL_MB(idx_v3+jas)+derHNS(isp,1)*DBL_MB(idx_v1+ias)*BMAT(iTri(ias,jas))
-                DBL_MB(idx_v3+jas) = DBL_MB(idx_v3+jas)+derHNS(isp,2)*DBL_MB(idx_v1+ias)*SMAT(iTri(ias,jas))
-                DBL_MB(idx_v3+ias) = DBL_MB(idx_v3+ias)+derHNS(isp,1)*DBL_MB(idx_v1+jas)*BMAT(iTri(ias,jas))
-                DBL_MB(idx_v3+ias) = DBL_MB(idx_v3+ias)+derHNS(isp,2)*DBL_MB(idx_v1+jas)*SMAT(iTri(ias,jas))
-              end do
-              DBL_MB(idx_v3+ias) = DBL_MB(idx_v3+ias)+derHNS(isp,1)*DBL_MB(idx_v1+ias)*BMAT(nTri_Elem(ias))
-              DBL_MB(idx_v3+ias) = DBL_MB(idx_v3+ias)+derHNS(isp,2)*DBL_MB(idx_v1+ias)*SMAT(nTri_Elem(ias))
-              ! <lambda|H|Psi0> term(s)
-              DBL_MB(idx_v3+ias) = DBL_MB(idx_v3+ias)+DBL_MB(idx_v2+ias)
-            end do
-            !do ias=1,NAS
-            !  do jas=1,NAS
-            !    ! <lambda|H0-E0|Psi1> terms
-            !    DBL_MB(MV3+ias-ILO1+LDV*(isp-JLO1)) = DBL_MB(MV3+ias-ILO1+LDV*(isp-JLO1))+ &
-            !                                          derHNS(isp,1)*DBL_MB(MV1+jas-ILO1+LDV*(isp-JLO1))*BMAT(iTri(ias,jas))
-            !    DBL_MB(MV3+ias-ILO1+LDV*(isp-JLO1)) = DBL_MB(MV3+ias-ILO1+LDV*(isp-JLO1))+ &
-            !                                          derHNS(isp,2)*DBL_MB(MV1+jas-ILO1+LDV*(isp-JLO1))*SMAT(iTri(ias,jas))
-            !  end do
-            !  ! <lambda|H|Psi0> term(s)
-            !  DBL_MB(MV3+ias-ILO1+LDV*(isp-JLO1)) = DBL_MB(MV3+ias-ILO1+LDV*(isp-JLO1))+ &
-            !                                        derHNS(isp,3)*DBL_MB(MV2+ias-ILO1+LDV*(isp-JLO1))
-            !end do
-          end do
+          !! The local patches are passed by argument association on purpose
+          call SC_NEVPT2_CLagD3_MPP(DBL_MB(MV1),LDV1,DBL_MB(MV2),LDV2,DBL_MB(MV3),LDV,JLO1,JHI1,NAS,NIS,BMAT,SMAT,LID,derHNS)
           call GA_Release(lg_V1,ILO1,IHI1,JLO1,JHI1)
           call GA_Release(lg_V2,ILO2,IHI2,JLO2,JHI2)
           call GA_Release_Update(lg_V3,ILO3,IHI3,JLO3,JHI3)
@@ -892,5 +877,110 @@ subroutine SC_NEVPT2_res(VECROT)
   end do
 
 end subroutine SC_NEVPT2_res
+
+# ifdef _MOLCAS_MPP_
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_CLagD1_MPP(V1,LDV1,V2,LDV2,JLO,JHI,NAS,NIS,BMAT,SMAT,LID,derHNS)
+
+  integer(kind=iwp), intent(in) :: LDV1, LDV2, JLO, JHI, NAS, NIS
+  real(kind=wp), intent(in) :: V1(LDV1,*), V2(LDV2,*), BMAT(*), SMAT(*), LID(*)
+  real(kind=wp), intent(inout) :: derHNS(NIS,3)
+  integer(kind=iwp) :: ias, icol, idx_bs, isp, jas
+  real(kind=wp) :: tmph, tmpn, vale, valh, valn
+
+  ! Compute the derivative of H and N (derHNS) for the local columns
+
+  do isp=JLO,JHI
+    icol = isp-JLO+1
+    vale = Zero
+    valh = Zero
+    valn = Zero
+    do ias=1,NAS
+      vale = vale+V1(ias,icol)*V2(ias,icol)
+    end do
+    do ias=1,NAS
+      idx_bs = nTri_Elem(ias-1)
+      tmph = Zero
+      tmpn = Zero
+      do jas=1,ias-1
+        tmph = tmph+V1(jas,icol)*BMAT(idx_bs+jas)
+        tmpn = tmpn+V1(jas,icol)*SMAT(idx_bs+jas)
+      end do
+      valh = valh+V1(ias,icol)*(Two*tmph+V1(ias,icol)*BMAT(idx_bs+ias))
+      valn = valn+V1(ias,icol)*(Two*tmpn+V1(ias,icol)*SMAT(idx_bs+ias))
+    end do
+    if (abs(valn) <= SC_thres) then
+      derHNS(isp,1) = Zero
+      derHNS(isp,2) = Zero
+      derHNS(isp,3) = Zero
+    else
+      derHNS(isp,1) = vale/valn
+      derHNS(isp,2) = -vale*valh/(valn*valn)
+      derHNS(isp,3) = -One*LID(isp)
+    end if
+  end do
+
+end subroutine SC_NEVPT2_CLagD1_MPP
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_CLagD2_MPP(V1,LDV1,JLO,JHI,NAS,NIS,derHNS,scal,BDER,SDER)
+
+  integer(kind=iwp), intent(in) :: LDV1, JLO, JHI, NAS, NIS
+  real(kind=wp), intent(in) :: V1(LDV1,*), derHNS(NIS,3), scal
+  real(kind=wp), intent(inout) :: BDER(NAS,NAS), SDER(NAS,NAS)
+  integer(kind=iwp) :: ias, icol, isp, jas
+
+  ! Accumulate the local-column contributions to BDER and SDER
+
+  do isp=JLO,JHI
+    icol = isp-JLO+1
+    do jas=1,NAS
+      do ias=1,NAS
+        BDER(ias,jas) = BDER(ias,jas)+derHNS(isp,1)*V1(ias,icol)*V1(jas,icol)
+        SDER(ias,jas) = SDER(ias,jas)+derHNS(isp,2)*V1(ias,icol)*V1(jas,icol)
+        SDER(ias,jas) = SDER(ias,jas)+scal*derHNS(isp,3)*V1(ias,icol)*V1(jas,icol)
+      end do
+    end do
+  end do
+
+end subroutine SC_NEVPT2_CLagD2_MPP
+
+!-----------------------------------------------------------------------
+
+subroutine SC_NEVPT2_CLagD3_MPP(V1,LDV1,V2,LDV2,V3,LDV3,JLO,JHI,NAS,NIS,BMAT,SMAT,LID,derHNS)
+
+  integer(kind=iwp), intent(in) :: LDV1, LDV2, LDV3, JLO, JHI, NAS, NIS
+  real(kind=wp), intent(in) :: V1(LDV1,*), V2(LDV2,*), BMAT(*), SMAT(*), LID(*)
+  real(kind=wp), intent(inout) :: V3(LDV3,*), derHNS(NIS,3)
+  integer(kind=iwp) :: ias, icol, isp, jas
+
+  ! Construct the integral derivative vector V3 from V1, V2, and derHNS
+
+  do isp=JLO,JHI
+    icol = isp-JLO+1
+    V3(1:NAS,icol) = Zero
+    if (abs(LID(isp)) <= SC_thres) cycle
+    derHNS(isp,1) = -derHNS(isp,1)/LID(isp)
+    derHNS(isp,2) = -derHNS(isp,2)/LID(isp)
+    derHNS(isp,3) = One
+    do ias=1,NAS
+      do jas=1,ias-1
+        ! <lambda|H0-E0|Psi1> terms
+        V3(jas,icol) = V3(jas,icol)+derHNS(isp,1)*V1(ias,icol)*BMAT(iTri(ias,jas))
+        V3(jas,icol) = V3(jas,icol)+derHNS(isp,2)*V1(ias,icol)*SMAT(iTri(ias,jas))
+        V3(ias,icol) = V3(ias,icol)+derHNS(isp,1)*V1(jas,icol)*BMAT(iTri(ias,jas))
+        V3(ias,icol) = V3(ias,icol)+derHNS(isp,2)*V1(jas,icol)*SMAT(iTri(ias,jas))
+      end do
+      V3(ias,icol) = V3(ias,icol)+derHNS(isp,1)*V1(ias,icol)*BMAT(nTri_Elem(ias))
+      V3(ias,icol) = V3(ias,icol)+derHNS(isp,2)*V1(ias,icol)*SMAT(nTri_Elem(ias))
+      ! <lambda|H|Psi0> term(s)
+      V3(ias,icol) = V3(ias,icol)+V2(ias,icol)
+    end do
+  end do
+
+end subroutine SC_NEVPT2_CLagD3_MPP
+#endif
 
 end module SC_NEVPT2
