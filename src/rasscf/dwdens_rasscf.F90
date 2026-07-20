@@ -39,6 +39,18 @@ integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, jDisk
 real(kind=wp) :: rdum(1), wgt
 real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DX(:)
 
+Interface
+ Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
+ use definitions, only: iwp, wp
+ implicit none
+ integer(kind=iwp), intent(in) :: nCIVEC
+ real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
+ real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
+ integer(kind=iwp), intent(in) :: nD, nP
+ ENd Subroutine Mk_pdms
+End Interface
+
+
 call mma_allocate(DA_ave,NACPAR,Label='DA_ave')
 call mma_allocate(DS_ave,NACPAR,Label='DS_ave')
 call mma_allocate(DX,NACPAR,Label='DX')
@@ -63,8 +75,8 @@ if ((iFinal == 0) .or. (iFinal == 1)) then
   end do
 else if (iFinal == 2) then
   call mma_allocate(CIVEC,NCONF,Label='CIVEC')
-  call mma_allocate(Dtmp,NACPAR,Label='Dtmp')
-  call mma_allocate(DStmp,NACPAR,Label='DStmp')
+  call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+  call mma_allocate(DStmp,NAC**2,Label='DStmp')
   call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
 
   iDisk = IADR15(4)
@@ -96,8 +108,9 @@ else if (iFinal == 2) then
 #       endif
       else
         call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-        call mma_allocate(Pscr,NACPR2,Label='Pscr')
+        Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
         call Lucia_Util('Densi',CI_Vector=CIVEC(:))
+        call mma_allocate(Pscr,NACPR2,Label='Pscr')
         if ((SGS%IFRAS > 2) .or. (iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
         call mma_deallocate(Pscr)
         call mma_deallocate(PAtmp)
@@ -129,7 +142,5 @@ call Get_D1A_RASSCF(CMO,DX,D1A)
 call mma_deallocate(DA_ave)
 call mma_deallocate(DS_ave)
 call mma_deallocate(DX)
-
-return
 
 end subroutine DWDens_RASSCF
