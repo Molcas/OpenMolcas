@@ -13,6 +13,7 @@ subroutine Funi_Print()
 
 use nq_Grid, only: nGridMax
 use nq_Info, only: Angular_Pruning, Crowding, Fade, iOpt_Angular, L_Quad, NQ_Direct, nR, On, Quadrature, T_Y, Threshold
+use Grid_On_Disk, only: WriteGrid
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -72,6 +73,9 @@ if ((.not. Reduce_Prt()) .and. (iPrint >= 2)) then
     write(u6,'(6X,A)') 'AO values are recomputed each iteration'
   else
     write(u6,'(6X,A)') 'AO values are stored on disk'
+  end if
+  if (WriteGrid) then
+    write(u6,'(6X,A)') 'Numerical quadrature grid is written to GRIDFILE'
   end if
 end if
 !                                                                      *

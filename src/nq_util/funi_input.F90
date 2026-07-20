@@ -14,6 +14,7 @@ subroutine Funi_Input(LuRd)
 use nq_Grid, only: nGridMax
 use nq_Info, only: Angular_Pruning, Crowding, Fade, Fixed_Grid, Grid_Type, iOpt_Angular, L_Quad, MBC, Moving_Grid, NQ_Direct, nR, &
                    Off, On, Quadrature, Rotational_Invariance, T_Y, Threshold
+use Grid_On_Disk, only: WriteGrid
 use Constants, only: Zero, One, Three, Five, Six, Ten
 use Definitions, only: wp, iwp, u6
 
@@ -253,6 +254,22 @@ do
       ! Recompute the AO values
 
       NQ_Direct = On
+
+    case ('WRIT')
+      !                                                                *
+      !***** WRIT ******************************************************
+      !                                                                *
+      ! Write the final numerical quadrature grid to GRIDFILE.
+
+      WriteGrid = .true.
+
+    case ('NOWR')
+      !                                                                *
+      !***** NOWR ******************************************************
+      !                                                                *
+      ! Do not write the final numerical quadrature grid to GRIDFILE.
+      ! By default, the grid is not written to GRIDFILE.
+      WriteGrid = .false.
 
     case ('FADE')
       !                                                                *

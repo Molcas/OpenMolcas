@@ -12,6 +12,7 @@
 module nq_Info
 
 use Definitions, only: wp, iwp
+use Grid_On_Disk, only: WriteGrid
 
 implicit none
 private
@@ -57,7 +58,7 @@ subroutine NQ_Info_Dmp()
   integer(kind=iwp), allocatable :: iDmp(:)
   real(kind=wp), allocatable :: rDmp(:)
   character, allocatable :: cDmp(:)
-  integer(kind=iwp), parameter :: liDmp = 25+5*8, lrDmp = 20
+  integer(kind=iwp), parameter :: liDmp = 26+5*8, lrDmp = 20
 
   ! Real Stuff
 
@@ -168,6 +169,9 @@ subroutine NQ_Info_Dmp()
   i = i+1
   iDmp(i) = Packing
   i = i+1
+  iDmp(i) = 0
+  if (WriteGrid) iDmp(i) = 1
+  i = i+1
   iDmp(i:i+7) = OffPUVX
   i = i+8
   call Put_iArray('Quad_i',iDmp,liDmp)
@@ -192,11 +196,12 @@ subroutine NQ_Info_Get()
   use fortran_strings, only: str
   use stdalloc, only: mma_allocate, mma_deallocate
 
-  integer(kind=iwp) :: i, lcDmp
+  integer(kind=iwp) :: i, lcDmp, liDmp_Run
+  logical(kind=iwp) :: Found
   integer(kind=iwp), allocatable :: iDmp(:)
   real(kind=wp), allocatable :: rDmp(:)
   character, allocatable :: cDmp(:)
-  integer(kind=iwp), parameter :: liDmp = 25+5*8, lrDmp = 20
+  integer(kind=iwp), parameter :: liDmp = 26+5*8, liDmp_Old = 25+5*8, lrDmp = 20
 
   ! Real Stuff
 
@@ -247,8 +252,10 @@ subroutine NQ_Info_Get()
 
   ! Integer Stuff
 
-  call mma_allocate(iDmp,liDmp,Label='iDmp')
-  call Get_iArray('Quad_i',iDmp,liDmp)
+  call Qpg_iArray('Quad_i',Found,liDmp_Run)
+  if (.not. Found) liDmp_Run = liDmp
+  call mma_allocate(iDmp,liDmp_Run,Label='iDmp')
+  call Get_iArray('Quad_i',iDmp,liDmp_Run)
   i = 1
   NASHT = iDmp(i)
   i = i+1
@@ -308,6 +315,14 @@ subroutine NQ_Info_Get()
   i = i+1
   Packing = iDmp(i)
   i = i+1
+  if (liDmp_Run >= liDmp) then
+    WriteGrid = iDmp(i) /= 0
+    i = i+1
+  else if (liDmp_Run == liDmp_Old) then
+    WriteGrid = .false.
+  else
+    call SysAbendMsg('NQ_Info_Get','Unexpected Quad_i length',' ')
+  end if
   OffPUVX = iDmp(i:i+7)
   i = i+8
   call mma_deallocate(iDmp)
