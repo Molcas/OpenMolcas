@@ -139,7 +139,7 @@ subroutine mkfg3fciqmc(mkF,g1,f1,g2,f2,g3,f3,idxG3,nLev,nG3)
   integer(kind=iwp), intent(in) :: nLev
   integer(kind=iwp), intent(inout) :: nG3  ! enters as NG3MAX, needs to be adjusted
   real(kind=wp), intent(inout) :: g1(nLev,nLev), f1(nLev,nLev), g2(nLev,nLev,nLev,nLev), f2(nLev,nLev,nLev,nLev), g3(*), f3(*)
-  integer(kind=byte), intent(out) :: idxG3(6,*)  ! also needs to be set here
+  integer(kind=byte), intent(inout) :: idxG3(6,*)  ! also needs to be set here
 
   ! be compatible with interface
   if (mkF) then
