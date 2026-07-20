@@ -124,7 +124,7 @@ subroutine citrans_sort(mode,ciold,cinew)
   integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
   real(kind=wp) :: wtab(0:maxorb,maxdown)
   integer(kind=iwp), allocatable :: csf_offset(:), downvector(:), stepvector(:)
-  integer(kind=iwp), parameter :: istate=1
+  integer(kind=iwp), parameter :: istate = 1
 
   ! Compute offsets for addressing into the reordering and coefficient arrays.
   call mma_allocate(csf_offset,[ndo_min,ndo_max],label='csf_offset')
@@ -171,9 +171,9 @@ subroutine citrans_sort(mode,ciold,cinew)
   idwn = 1
   iup = 1
   do icsf=1,ncsf
-    if (mv==0) Then
-       ncsf=icsf-1
-       exit
+    if (mv == 0) then
+      ncsf = icsf-1
+      exit
     end if
     ! obtain the stepvector
     call stepvector_next(mv,idwn,iup,stepvector,SGS(istate)%nLev)
@@ -383,39 +383,39 @@ subroutine spintabs_allocate()
 # ifdef _GARBLE_
   interface
     subroutine c_null_alloc(A) _BIND_C_
-      import :: wp
-      real(kind=wp), allocatable :: A(:,:)
+    import :: wp
+    real(kind=wp), allocatable :: A(:,:)
     end subroutine c_null_alloc
-  end interface
-  integer(kind=iwp) :: i
+    end interface
+    integer(kind=iwp) :: i
 # endif
 
-  call mma_allocate(spintabs,[ndo_min,ndo_max],label='spintabs')
+    call mma_allocate(spintabs,[ndo_min,ndo_max],label='spintabs')
 
 # ifdef _GARBLE_
-  ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
-  do i=ndo_min,ndo_max
-    call c_null_alloc(spintabs(i)%coef)
-  end do
+    ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
+    do i=ndo_min,ndo_max
+      call c_null_alloc(spintabs(i)%coef)
+    end do
 # endif
 
 # include "macros.fh"
-  unused_proc(mma_allocate(spintabs,0))
+    unused_proc(mma_allocate(spintabs,0))
 
-end subroutine spintabs_allocate
+    end subroutine spintabs_allocate
 
-subroutine spintabs_free()
+    subroutine spintabs_free()
 
-  integer(kind=iwp) :: i
+      integer(kind=iwp) :: i
 
-  do i=lbound(spintabs,1),ubound(spintabs,1)
-    call mma_deallocate(spintabs(i)%coef)
-  end do
-  call mma_deallocate(spintabs)
+      do i=lbound(spintabs,1),ubound(spintabs,1)
+        call mma_deallocate(spintabs(i)%coef)
+      end do
+      call mma_deallocate(spintabs)
 
-end subroutine spintabs_free
+    end subroutine spintabs_free
 
-subroutine spintable_create(nso,ndown,spintab)
+    subroutine spintable_create(nso,ndown,spintab)
 ! given a number of singly occupied orbitals and down couplings,
 ! construct the table of CSFs and determinant transformation matrices.
 !
@@ -427,41 +427,41 @@ subroutine spintable_create(nso,ndown,spintab)
 ! for now, just print the matrix for testing, later put it in some
 ! memory location to be used by the conversion routine
 
-  integer(kind=iwp), intent(in) :: nso, ndown
-  type(spintable), intent(inout) :: spintab
-  integer(kind=iwp) :: idown, icsf, ncsf, ndet
-  integer(kind=iwp), allocatable :: down_orb(:), udvec(:)
+      integer(kind=iwp), intent(in) :: nso, ndown
+      type(spintable), intent(inout) :: spintab
+      integer(kind=iwp) :: idown, icsf, ncsf, ndet
+      integer(kind=iwp), allocatable :: down_orb(:), udvec(:)
 
-  ndet = spintab%ndet
-  ncsf = spintab%ncsf
+      ndet = spintab%ndet
+      ncsf = spintab%ncsf
 
-  call mma_allocate(down_orb,ndown+1,label='down_orb')
-  call mma_allocate(udvec,nso,label='udvec')
+      call mma_allocate(down_orb,ndown+1,label='down_orb')
+      call mma_allocate(udvec,nso,label='udvec')
 
-  call mma_allocate(spintab%coef,ndet,ncsf,label='spintab%coef')
+      call mma_allocate(spintab%coef,ndet,ncsf,label='spintab%coef')
 
-  ! The CSFs here are generated in order of ascending rank that matches
-  ! wtab, the ranking table used to sort the CSFs. The most alternating
-  ! udud...ud string comes first, and the u..ud...d string last.
+      ! The CSFs here are generated in order of ascending rank that matches
+      ! wtab, the ranking table used to sort the CSFs. The most alternating
+      ! udud...ud string comes first, and the u..ud...d string last.
 
-  call csf_init(nso,ndown,down_orb)
-  do icsf=1,ncsf
-    ! create udvec of singly occupied orbitals
-    udvec = 1
-    do idown=1,ndown
-      udvec(down_orb(idown)) = 2
-    end do
-    ! expand into determinants, store coefficients
-    call ud2det(udvec,spintab%coef(:,icsf))
-    call csf_next(ndown,down_orb)
-  end do
+      call csf_init(nso,ndown,down_orb)
+      do icsf=1,ncsf
+        ! create udvec of singly occupied orbitals
+        udvec = 1
+        do idown=1,ndown
+          udvec(down_orb(idown)) = 2
+        end do
+        ! expand into determinants, store coefficients
+        call ud2det(udvec,spintab%coef(:,icsf))
+        call csf_next(ndown,down_orb)
+      end do
 
-  call mma_deallocate(down_orb)
-  call mma_deallocate(udvec)
+      call mma_deallocate(down_orb)
+      call mma_deallocate(udvec)
 
-end subroutine spintable_create
+    end subroutine spintable_create
 
-subroutine ud2det(udvec,coef)
+    subroutine ud2det(udvec,coef)
 ! A stepvector in this case is represented by a series of integers 1,2
 ! for each singly-occupied orbital and corresponds to the steps u, d.
 ! As such it is actually a limited stepvector, since doubly occupied
@@ -472,87 +472,87 @@ subroutine ud2det(udvec,coef)
 ! The determinants are traversed in lexicographic order, with all alpha
 ! orbitals the lowest orbitals.
 
-  use second_quantization, only: binom_coef, lex_init, lex_next
+      use second_quantization, only: binom_coef, lex_init, lex_next
 
-  integer(kind=iwp), intent(in) :: udvec(:)
-  real(kind=wp), intent(out) :: coef(:)
-  ! the coupling coefficient
-  integer(kind=iwp) :: phase, & ! phase factor
-                       iso, nso, nsoa, nsob, ialfa, ibeta, ia, ib, idet, ndet, deta, ilev, nlev
-  real(kind=wp) :: nom, den ! fraction holding the coefficient
-  ! lex keeps track of alpha orbitals
-  integer(kind=iwp), parameter :: maxorb = 64
+      integer(kind=iwp), intent(in) :: udvec(:)
+      real(kind=wp), intent(out) :: coef(:)
+      ! the coupling coefficient
+      integer(kind=iwp) :: phase, & ! phase factor
+                           iso, nso, nsoa, nsob, ialfa, ibeta, ia, ib, idet, ndet, deta, ilev, nlev
+      real(kind=wp) :: nom, den ! fraction holding the coefficient
+      ! lex keeps track of alpha orbitals
+      integer(kind=iwp), parameter :: maxorb = 64
 
-  ! find number of singly occupied orbitals
-  nsoa = 0
-  nsob = 0
-  nlev = size(udvec)
-  do ilev=1,nlev
-    select case (udvec(ilev))
-      case (1)
-        nsoa = nsoa+1
-      case (2)
-        nsob = nsob+1
-    end select
-  end do
-  nso = nsoa+nsob
+      ! find number of singly occupied orbitals
+      nsoa = 0
+      nsob = 0
+      nlev = size(udvec)
+      do ilev=1,nlev
+        select case (udvec(ilev))
+          case (1)
+            nsoa = nsoa+1
+          case (2)
+            nsob = nsob+1
+        end select
+      end do
+      nso = nsoa+nsob
 
-  ndet = binom_coef(nsoa,nso)
-  ! loop over possible determinants
-  deta = lex_init(nsoa,nso)
-  do idet=1,ndet
-    nom = One
-    den = One
-    phase = 1
-    ialfa = 0
-    ibeta = 0
-    iso = 0
-    ia = 0
-    ib = 0
-    do ilev=1,nlev
-      select case (udvec(ilev))
-        case (1)
-          ib = ib+1
-          if (btest(deta,iso)) then
-            nom = nom*(ia+ib-ibeta)
-            ialfa = ialfa+1
-          else
-            nom = nom*(ia+ib-ialfa)
-            ibeta = ibeta+1
-          end if
-          iso = iso+1
-          den = den*ib
-        case (2)
-          ia = ia+1
-          ib = ib-1
-          if (btest(deta,iso)) then
-            nom = nom*(ibeta-ia+1)
-            if (mod(ib,2) == 0) phase = -phase
-            ialfa = ialfa+1
-          else
-            nom = nom*(ialfa-ia+1)
-            if (mod(ib,2) /= 0) phase = -phase
-            ibeta = ibeta+1
-          end if
-          iso = iso+1
-          den = den*(ib+2)
-        case default
-          write(u6,'(1x,a)') 'ud2det: udvec element /= 1 or 2, fatal...'
-          call AbEnd()
-      end select
-    end do
+      ndet = binom_coef(nsoa,nso)
+      ! loop over possible determinants
+      deta = lex_init(nsoa,nso)
+      do idet=1,ndet
+        nom = One
+        den = One
+        phase = 1
+        ialfa = 0
+        ibeta = 0
+        iso = 0
+        ia = 0
+        ib = 0
+        do ilev=1,nlev
+          select case (udvec(ilev))
+            case (1)
+              ib = ib+1
+              if (btest(deta,iso)) then
+                nom = nom*(ia+ib-ibeta)
+                ialfa = ialfa+1
+              else
+                nom = nom*(ia+ib-ialfa)
+                ibeta = ibeta+1
+              end if
+              iso = iso+1
+              den = den*ib
+            case (2)
+              ia = ia+1
+              ib = ib-1
+              if (btest(deta,iso)) then
+                nom = nom*(ibeta-ia+1)
+                if (mod(ib,2) == 0) phase = -phase
+                ialfa = ialfa+1
+              else
+                nom = nom*(ialfa-ia+1)
+                if (mod(ib,2) /= 0) phase = -phase
+                ibeta = ibeta+1
+              end if
+              iso = iso+1
+              den = den*(ib+2)
+            case default
+              write(u6,'(1x,a)') 'ud2det: udvec element /= 1 or 2, fatal...'
+              call AbEnd()
+          end select
+        end do
 
-    ! Compute the determinant coefficient and position and add the value
-    ! into the determinant array for this configuration. Not that the
-    ! determinant coefficients are stored in lexicographic bit-order.
-    coef(idet) = phase*sqrt(nom/den)
+        ! Compute the determinant coefficient and position and add the value
+        ! into the determinant array for this configuration. Not that the
+        ! determinant coefficients are stored in lexicographic bit-order.
+        coef(idet) = phase*sqrt(nom/den)
 
-    deta = lex_next(deta)
-  end do
+        deta = lex_next(deta)
+      end do
 
-end subroutine ud2det
+    end subroutine ud2det
 
-function ds2ab(doub,sing,alfa,beta,deta,detb) result(phase)
+    function ds2ab(doub,sing,alfa,beta,deta,detb) result(phase)
 ! convert a determinant characterized by a doubly occupied, singly
 ! occupied, and alpha/beta substrings to an alpha and beta string.
 !
@@ -567,127 +567,127 @@ function ds2ab(doub,sing,alfa,beta,deta,detb) result(phase)
 ! 000101, 1101, 101 (dsa) and as 100111, 010101 (ab)
 ! as usual counting orbitals from the right with bits (lower-most bit)
 
-  use faroald, only: my_norb
+      use faroald, only: my_norb
 
-  integer(kind=iwp) :: phase
-  integer(kind=iwp), intent(in) :: doub, sing, alfa, beta
-  integer(kind=iwp), intent(out) :: deta, detb
-  integer(kind=iwp) :: mask, not_doub, pos
-  logical(kind=iwp) :: switch
+      integer(kind=iwp) :: phase
+      integer(kind=iwp), intent(in) :: doub, sing, alfa, beta
+      integer(kind=iwp), intent(out) :: deta, detb
+      integer(kind=iwp) :: mask, not_doub, pos
+      logical(kind=iwp) :: switch
 
-  ! First, we have to get the a/b singly occupied orbitals. This can be
-  ! easily done using successive bit scattering operations on the alpha
-  ! and beta substrings, which apparently are present in e.g. Intel's
-  ! Haswell architecture, called pext/pdep. Here, I implemented the bit
-  ! scattering operation as a function pdep: res = pdep(val,mask), which
-  ! scatters the bits of 'val' according to 'mask' into 'res'.
+      ! First, we have to get the a/b singly occupied orbitals. This can be
+      ! easily done using successive bit scattering operations on the alpha
+      ! and beta substrings, which apparently are present in e.g. Intel's
+      ! Haswell architecture, called pext/pdep. Here, I implemented the bit
+      ! scattering operation as a function pdep: res = pdep(val,mask), which
+      ! scatters the bits of 'val' according to 'mask' into 'res'.
 
-  not_doub = ibits(not(doub),0,my_norb)
-  deta = pdep(pdep(alfa,sing),not_doub)
-  detb = pdep(pdep(beta,sing),not_doub)
+      not_doub = ibits(not(doub),0,my_norb)
+      deta = pdep(pdep(alfa,sing),not_doub)
+      detb = pdep(pdep(beta,sing),not_doub)
 
-  ! Add together with the doubly occupied orbitals.
-  deta = ior(deta,doub)
-  detb = ior(detb,doub)
+      ! Add together with the doubly occupied orbitals.
+      deta = ior(deta,doub)
+      detb = ior(detb,doub)
 
-  ! Finally, determine the phase of the determinant. The coupling
-  ! coefficients were constructed for an orbital ordering where alpha
-  ! and beta alternate, e.g. 2a20ab -> 11'233'56'. However, we order alpha
-  ! first then beta, so we have 1235|1'3'6'. In order to account for the
-  ! change in phase, we should build our determinant by creating the
-  ! electrons of the alternating-order determinant in reverse, i.e., 6'
-  ! first, then 5, then 3', and so on. If we do this for the split-order
-  ! determinant, each time we add a beta electron we should count the
-  ! alpha electrons already added and change the phase if that number is
-  ! odd.
+      ! Finally, determine the phase of the determinant. The coupling
+      ! coefficients were constructed for an orbital ordering where alpha
+      ! and beta alternate, e.g. 2a20ab -> 11'233'56'. However, we order alpha
+      ! first then beta, so we have 1235|1'3'6'. In order to account for the
+      ! change in phase, we should build our determinant by creating the
+      ! electrons of the alternating-order determinant in reverse, i.e., 6'
+      ! first, then 5, then 3', and so on. If we do this for the split-order
+      ! determinant, each time we add a beta electron we should count the
+      ! alpha electrons already added and change the phase if that number is
+      ! odd.
 
-  mask = 0
-  switch = .false.
-  pos = 0
-  do while (ishft(deta,-pos) /= 0)
-    if (switch) mask = ibset(mask,pos)
-    if (iand(ishft(detb,-pos),1) == 1) switch = .not. switch
-    pos = pos+1
-  end do
-  phase = 1-2*poppar(iand(deta,mask))
+      mask = 0
+      switch = .false.
+      pos = 0
+      do while (ishft(deta,-pos) /= 0)
+        if (switch) mask = ibset(mask,pos)
+        if (iand(ishft(detb,-pos),1) == 1) switch = .not. switch
+        pos = pos+1
+      end do
+      phase = 1-2*poppar(iand(deta,mask))
 
-end function ds2ab
+    end function ds2ab
 
-function pdep(val,mask) result(res)
+    function pdep(val,mask) result(res)
 
-  integer(kind=iwp) :: res
-  integer(kind=iwp), intent(in) :: val, mask
-  integer(kind=iwp) :: mask_bit, pos, tmp_mask, tmp_val, val_bit
+      integer(kind=iwp) :: res
+      integer(kind=iwp), intent(in) :: val, mask
+      integer(kind=iwp) :: mask_bit, pos, tmp_mask, tmp_val, val_bit
 
-  tmp_val = val
-  tmp_mask = mask
+      tmp_val = val
+      tmp_mask = mask
 
-  ! nothing set by default
-  res = 0
+      ! nothing set by default
+      res = 0
 
-  pos = 0
-  do while (tmp_mask /= 0)
-    mask_bit = iand(tmp_mask,1)
-    if (mask_bit == 1) then
-      val_bit = iand(tmp_val,1)
-      res = ior(res,ishft(val_bit,pos))
-      tmp_val = ishft(tmp_val,-1)
-    end if
-    tmp_mask = ishft(tmp_mask,-1)
-    pos = pos+1
-  end do
+      pos = 0
+      do while (tmp_mask /= 0)
+        mask_bit = iand(tmp_mask,1)
+        if (mask_bit == 1) then
+          val_bit = iand(tmp_val,1)
+          res = ior(res,ishft(val_bit,pos))
+          tmp_val = ishft(tmp_val,-1)
+        end if
+        tmp_mask = ishft(tmp_mask,-1)
+        pos = pos+1
+      end do
 
-end function pdep
+    end function pdep
 
 ! a CSF is a CSF consisting of singly occupied orbitals and is given
 ! by its down_orb string, that is the orbitals which are down coupled.
 
-subroutine csf_init(nso,ndown,down_orb)
+    subroutine csf_init(nso,ndown,down_orb)
 
-  integer(kind=iwp), intent(in) :: nso, ndown
-  integer(kind=iwp), intent(out) :: down_orb(ndown+1)
-  integer(kind=iwp) :: i
+      integer(kind=iwp), intent(in) :: nso, ndown
+      integer(kind=iwp), intent(out) :: down_orb(ndown+1)
+      integer(kind=iwp) :: i
 
-  do i=1,ndown
-    down_orb(i) = 2*i
-  end do
-  down_orb(ndown+1) = nso+1
-
-end subroutine csf_init
-
-subroutine csf_next(ndown,down_orb)
-
-  integer(kind=iwp), intent(in) :: ndown
-  integer(kind=iwp), intent(inout) :: down_orb(ndown+1)
-  integer(kind=iwp) :: i, j
-
-  do i=1,ndown
-    if (down_orb(i) < down_orb(i+1)-1) then
-      down_orb(i) = down_orb(i)+1
-      do j=1,i-1
-        down_orb(j) = 2*j
+      do i=1,ndown
+        down_orb(i) = 2*i
       end do
-      return
-    end if
-  end do
+      down_orb(ndown+1) = nso+1
 
-end subroutine csf_next
+    end subroutine csf_init
 
-subroutine mkwtab(mxn1,mxn2,wtab)
+    subroutine csf_next(ndown,down_orb)
 
-  use second_quantization, only: binom_coef
+      integer(kind=iwp), intent(in) :: ndown
+      integer(kind=iwp), intent(inout) :: down_orb(ndown+1)
+      integer(kind=iwp) :: i, j
 
-  integer(kind=iwp), intent(in) :: mxn1, mxn2
-  real(kind=wp), intent(out) :: wtab(0:mxn1,mxn2)
-  integer(kind=iwp) :: n1, n2
+      do i=1,ndown
+        if (down_orb(i) < down_orb(i+1)-1) then
+          down_orb(i) = down_orb(i)+1
+          do j=1,i-1
+            down_orb(j) = 2*j
+          end do
+          return
+        end if
+      end do
 
-  do n1=0,mxn1
-    do n2=1,mxn2
-      wtab(n1,n2) = real(binom_coef(n1+n2,n1+2*n2),kind=wp)*real(n1,kind=wp)/real(n1+2*n2,kind=wp)
-    end do
-  end do
+    end subroutine csf_next
 
-end subroutine mkwtab
+    subroutine mkwtab(mxn1,mxn2,wtab)
+
+      use second_quantization, only: binom_coef
+
+      integer(kind=iwp), intent(in) :: mxn1, mxn2
+      real(kind=wp), intent(out) :: wtab(0:mxn1,mxn2)
+      integer(kind=iwp) :: n1, n2
+
+      do n1=0,mxn1
+        do n2=1,mxn2
+          wtab(n1,n2) = real(binom_coef(n1+n2,n1+2*n2),kind=wp)*real(n1,kind=wp)/real(n1+2*n2,kind=wp)
+        end do
+      end do
+
+    end subroutine mkwtab
 
 ! Extensions to mma_interfaces, using preprocessor templates
 ! (see mma_util/stdalloc.F90)
@@ -703,4 +703,4 @@ end subroutine mkwtab
 #  undef _DEF_LABEL_
 #undef _TYPE_
 
-end module citrans
+  end module citrans

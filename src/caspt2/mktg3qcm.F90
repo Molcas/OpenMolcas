@@ -23,7 +23,7 @@ use Symmetry_Info, only: Mul
 use qcmaquis_interface, only: qcmaquis_interface_get_trans_1rdm_full, qcmaquis_interface_get_trans_2rdm_full, &
                               qcmaquis_interface_get_trans_3rdm_full, qcmaquis_interface_read_rdm_full
 use printLevel, only: debug
-use sguga_states, only:  SGS
+use sguga_states, only: SGS
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: nAshT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -35,7 +35,7 @@ integer(kind=iwp), intent(in) :: lsym1, lsym2, state1, state2, ntg3
 real(kind=wp), intent(out) :: ovl, tg1(nasht,nasht), tg2(nasht,nasht,nasht,nasht), tg3(ntg3)
 integer(kind=iwp) :: ituvxyz, sym_sig1, sym_sig2, sym_tau, t, u, v, x, y, z
 real(kind=wp), allocatable :: tg1_tmp(:,:), tg3_tmp(:,:,:,:,:,:)
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 if (iPrGlb >= debug) then
   write(u6,*) '=== QCM: Building TRANSITION-RDM ==='

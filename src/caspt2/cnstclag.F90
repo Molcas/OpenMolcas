@@ -31,7 +31,7 @@ integer(kind=iwp) :: IDCI, ILEV, ILUID
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, TIOE, TIOTF0, TIOTF10, WALLT
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: CI1(:)
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 if (IFF == 1) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:

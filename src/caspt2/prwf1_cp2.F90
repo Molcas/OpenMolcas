@@ -36,7 +36,7 @@ real(kind=wp) :: COEF
 character(len=256) :: LINE
 integer(kind=iwp), allocatable :: ICS(:), LEX(:)
 character, parameter :: CODE(0:3) = ['0','u','d','2']
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 nIpWlk = CIS(istate)%nIpWlk
 

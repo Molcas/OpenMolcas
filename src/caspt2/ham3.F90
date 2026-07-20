@@ -23,9 +23,9 @@ subroutine HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
 ! NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 ! NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
 
-use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri3_Elem
 use Symmetry_Info, only: Mul
+use sguga, only: sg_epq_psi
 use sguga_states, only: CIS, EXS, SGS
 use Molcas, only: MxLev
 use general_data, only: NACTEL, nLev
@@ -42,7 +42,7 @@ integer(kind=iwp) :: I, IATOG(MXLEV), ISTU, ISVX, ISVXYZ, ISYM, ISYM1, ISYM2, IS
                      IVX, IVXYZ, IX, IY, IYZ, IZ, LEVT, LEVU, LEVV, LEVX, LEVY, LEVZ, NSGM1, NSGM2
 real(kind=wp) :: OCCNO, X
 real(kind=wp), allocatable :: SGM1(:), SGM2(:)
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 if (NCONF == 0) return
 if (abs(OP0) > 1.0e-15_wp) SGM(1:NCONF) = SGM(1:NCONF)+OP0*CI(1:NCONF)

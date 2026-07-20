@@ -16,7 +16,7 @@ subroutine DENS1T_RPT2(CI1,CI2,SGM1,G1,NLEV)
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
-use sguga_states, only: SGS, CIS
+use sguga_states, only: CIS, SGS
 use caspt2_global, only: iPrGlb
 use general_data, only: nActEl, STSym
 use caspt2_module, only: iSCF, MxCI, nAshT, nG1
@@ -31,8 +31,8 @@ real(kind=wp), intent(out) :: SGM1(MXCI), G1(NLEV,NLEV)
 integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTASKS
 real(kind=wp) :: GTU
 integer(kind=iwp), allocatable :: TASK(:,:)
+integer(kind=iwp), parameter :: istate = 1
 real(kind=wp), external :: ddot_, dnrm2_
-integer(kind=iwp), parameter :: istate=1
 
 ! Purpose: Compute the 1- and 2-electron density matrix
 ! arrays G1 and G2.

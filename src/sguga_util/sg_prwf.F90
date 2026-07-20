@@ -11,7 +11,7 @@
 
 subroutine SG_PRWF(SGS,CIS,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
 
-use sguga, only: CIStruct, SGStruct, nPack
+use sguga, only: CIStruct, nPack, SGStruct
 use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -19,19 +19,16 @@ use Definitions, only: wp, iwp, u6
 implicit none
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
-integer(kind=iwp), intent(in) :: ISYCI
-integer(kind=iwp), intent(in) :: iSpin, LuVecDet, lCI
+integer(kind=iwp), intent(in) :: ISYCI, iSpin, lCI, LuVecDet
 logical(kind=iwp), intent(in) :: KeyPRSD
-real(kind=wp), intent(in) :: CI(lCI), CITHR
-integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, ISY, ISYDWN, ISYUP, IUP, IUW0, K, KNXT, KOCLAB, &
-                     KOCSZ, KPAD1, KPAD2, LEV, MV, NCI, NDWN, NNN, NUP
+real(kind=wp), intent(in) :: CITHR, CI(lCI)
+integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP, IUW0, K, KNXT, &
+                     KOCLAB, KOCSZ, KPAD1, KPAD2, LEV, MV, NCI, NDWN, NNN, NUP
 real(kind=wp) :: COEF
 character(len=80) :: LINE
-integer(kind=iwp), allocatable :: ICS(:)
+integer(kind=iwp), allocatable :: ICS(:), Lex(:)
 logical(kind=iwp), parameter :: SGINFO = .true.
-integer(kind=iwp) :: IMS
 character, parameter :: CODE(0:3) = ['0','u','d','2']
-integer(kind=iwp), allocatable :: Lex(:)
 
 ! scratch for determinant expansion
 if (KeyPRSD) call mma_allocate(LEX,SGS%nLev,Label='LEX')

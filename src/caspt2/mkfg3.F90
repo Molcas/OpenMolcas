@@ -58,11 +58,11 @@
 
 subroutine MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
 
-use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga_states, only: SGS, CIS, EXS
+use sguga, only: sg_epq_psi
+use sguga_states, only: CIS, EXS, SGS
 use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
 use general_data, only: nActEl, STSym
 use caspt2_module, only: EPSA, MxCI, nAshT, nBasT, nSym
@@ -79,14 +79,14 @@ integer(kind=iwp), intent(inout) :: nG3
 real(kind=wp), intent(out) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV), G3(nG3), F3(nG3)
 integer(kind=byte), intent(out) :: idxG3(6,nG3)
 integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, IP1STA, IP2, &
-                     IP3, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, &
-                     IXLEV, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, &
-                     NLEV2, NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
+                     IP3, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, IXLEV, &
+                     IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, NLEV2, NSGM1, &
+                     NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
 real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3
 integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFR(:), BUFT(:)
+integer(kind=iwp), parameter :: istate = 1
 real(kind=wp), external :: DDOT_, DNRM2_
-integer(kind=iwp), parameter :: istate=1
 
 ! IJ2IDX, IDX2IJ, ICNJ, IP1_BUF: translation tables for levels i,j to and from pair indices idx
 ! BUFR: result buffer, maximum size is the largest possible ip1 range,
@@ -201,11 +201,11 @@ call mma_allocate(bufr,nlev2,Label='bufr')
 if (do_grad .or. (nStpGrd == 2)) then
   nTasks_grad = 0
   !! This nTasks_grad is the largest number of tasks; the actual number is smaller if parallel
-  do issg1 = 1, nsym
+  do issg1=1,nsym
     call build_TaskList(issg1,nTasks,nSubTasks)
-    nTasks_grad = nTasks_grad + nSubTasks
+    nTasks_grad = nTasks_grad+nSubTasks
   end do
-  if (allocated(iTasks_grad)) call mma_deallocate(iTasks_grad)
+  call mma_deallocate(iTasks_grad,safe='*')
   call mma_allocate(iTasks_grad,max(1,nTasks_grad),Label='Tasks_grad')
   iTasks_grad(:) = 0
   nTasks_grad = 0
@@ -671,7 +671,7 @@ subroutine build_TaskList(issg,nTasks_,nSubTasks_)
 
   integer(kind=iwp), intent(in) :: issg
   integer(kind=iwp), intent(out) :: nTasks_, nSubTasks_
-  integer(kind=iwp) :: isp1, ibuf1, iTask, ip1, itlev, iulev, istu, iOffSet, ip1sta, ip1end, ip3mx
+  integer(kind=iwp) :: ibuf1, iOffSet, ip1, ip1end, ip1sta, ip3mx, isp1, istu, iTask, itlev, iulev
 
   isp1 = Mul(issg,stsym)  ! Symmetry index of E_ut
 

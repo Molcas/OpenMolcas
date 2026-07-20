@@ -14,6 +14,7 @@ subroutine MV7(C,HC,LUC,LUHC,nTUVX,TUVX)
 ! GAS version !!!!
 !
 ! Written in terms of RASG3/SBLOCK, May 1997
+
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, NIRREP, NOCTYP, NSTSO, &
                       PSSIGN, XISPSM
@@ -26,10 +27,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(inout) :: C(*)
 real(kind=wp), intent(_OUT_) :: HC(*)
-integer(kind=iwp), intent(in) :: LUC, LUHC
-integer(kind=iwp), intent(in) :: nTUVX
+integer(kind=iwp), intent(in) :: LUC, LUHC, nTUVX
 real(kind=wp), intent(in) :: TUVX(nTUVX)
-
 integer(kind=iwp) :: IATP, IBTP, LBLOCK, LLUC, LLUHC, NBATCH, NOCTPA, NOCTPB, NTTS
 integer(kind=iwp), allocatable :: CBLTP(:), CI1BT(:), CIBT(:), CLBT(:), CLEBT(:), SIOIO(:), SVST(:)
 

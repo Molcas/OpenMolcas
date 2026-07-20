@@ -37,7 +37,7 @@ real(kind=wp), intent(inout) :: DEPSA(NLEV,NLEV)
 integer(kind=iwp) :: ID, iG3, IND1, IND2, IND3, IT, IT1, IT2, IT3, iTask, IU, IU1, IU2, IU3, IV, LT, LU, LU1, LU2, LU3, LV, NLEV2, &
                      NLEV4, nTask
 real(kind=wp) :: DESUM, OCC
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 !ESUM = sum(ETA(1:NLEV))
 DESUM = Zero

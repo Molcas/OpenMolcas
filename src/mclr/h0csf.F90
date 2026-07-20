@@ -87,7 +87,7 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,N
 ! =========================================
 
 use Index_Functions, only: nTri_Elem
-use spinfo, only: NTYP, NCNATS=>NCNFTP, NCPCNT=>NCSFTP
+use spinfo, only: NTYP, NCNFTP, NCSFTP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -132,8 +132,8 @@ if (IPWAY == 1) then
 
   ICNF = 0
   outer: do ITYP=1,NTYP
-    NJCNF = NCNATS(ITYP,IREFSM)
-    NIRREP = NCPCNT(ITYP)
+    NJCNF = NCNFTP(ITYP,IREFSM)
+    NIRREP = NCSFTP(ITYP)
     do IICNF=1,NJCNF
       ICNF = ICNF+1
       if (NP1CSF+NIRREP <= MXP1DM) then
@@ -175,8 +175,8 @@ else if (IPWAY == 2) then
   KLCONF = MXPQDM+1
 
   do ITYP=1,NTYP
-    NJCNF = NCNATS(ITYP,IREFSM)
-    NIRREP = NCPCNT(ITYP)
+    NJCNF = NCNFTP(ITYP,IREFSM)
+    NIRREP = NCSFTP(ITYP)
     do ICNF=1,NJCNF
       DIAGCN(IICNF) = DIAG(IICSF)
       IICNF = IICNF+1
@@ -196,8 +196,8 @@ else if (IPWAY == 2) then
     IICNF = 1
     ICSFOF = 1
     do ITYP=1,NTYP
-      NIRREP = NCPCNT(ITYP)
-      do ICNF=1,NCNATS(ITYP,IREFSM)
+      NIRREP = NCSFTP(ITYP)
+      do ICNF=1,NCNFTP(ITYP,IREFSM)
         if (DIAGCN(IICNF) < XMIN) then
           XMIN = DIAGCN(IICNF)
           IMIN = IICNF
@@ -233,7 +233,7 @@ else if (IPWAY == 2) then
         if (abs(DIAVAL-XMIN) > 1.0e-10_wp) exit
         NPQCNF = NPQCNF-1
         call GETCNF_MCLR(ISCR(KLCONF),ITYP,IPQCNF(IICNF),ICONF,IREFSM,NEL)
-        NPQCSF = NPQCSF-NCPCNT(ITYP)
+        NPQCSF = NPQCSF-NCSFTP(ITYP)
       end do
     end if
     if ((IFINIT /= 0) .or. (NPQCNF >= NCONF)) exit
@@ -254,7 +254,7 @@ else if (IPWAY == 2) then
     do IDGCNF=1,IDGVL
       ICNF = ICNF+1
       call GETCNF_MCLR(ISCR(KLCONF),ITYP,IPQCNF(ICNF),ICONF,IREFSM,NEL)
-      IDGCSF = IDGCSF+NCPCNT(ITYP)
+      IDGCSF = IDGCSF+NCSFTP(ITYP)
     end do
     if ((NP1CSF+IDGCSF <= MXP1DM) .and. (NP2CSF+NQCSF == 0)) then
       ! Add to P1

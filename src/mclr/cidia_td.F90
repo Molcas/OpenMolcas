@@ -16,7 +16,7 @@ subroutine CIDIA_TD(iSym)
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use MCLR_Data, only: ICISTR, ipDia, NCSASM, NDPCNT, nexp, nexp_max, NOCSF, XISPSM
-use spinfo, only: NTYP, NCNATS=>NCNFTP, NCPCNT=>NCSFTP
+use spinfo, only: NCNFTP, NCSFTP, NTYP
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, State_Sym, TimeDep
 use Definitions, only: iwp
 
@@ -60,7 +60,7 @@ end if
 
 call ipin(ipDSDi)
 call IntDia(W(ipDSDi)%A,NSPC,ISPC,ISM,IAMCMP,rin_ene+potnuc)
-if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%A,W(ipDSDi)%A,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT)
+if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%A,W(ipDSDi)%A,NCNFTP(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCSFTP)
 
 if (nocsf == 0) call ipClose(ipDSDi)
 ! Calculate explicit part of hamiltonian

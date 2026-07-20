@@ -13,37 +13,30 @@ function SG_NUM(SGS,EXS,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
 !          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
 
-use sguga, only: SGStruct, EXStruct
+use sguga, only: EXStruct, SGStruct
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: SG_NUM
-type (SGStruct), intent(in) :: SGS
-type (EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) ::  IWALK(SGS%NLEV)
-
-integer(kind=iwp) :: NLEV, NVERT, MIDLEV, MVSta
+type(SGStruct), intent(in) :: SGS
+type(EXStruct), intent(in) :: EXS
+integer(kind=iwp), intent(in) :: IWALK(SGS%nLev)
 integer(kind=iwp) :: IC, ICASE, ICONF, IDAWSUM, IRAWSUM, IUW, LEV, LV, MIDV
-
-NLEV=SGS%nLev
-NVERT=SGS%nVert
-MIDLEV=SGS%MidLev
-MVSta=SGS%MVSta
 
 ! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
 
 MIDV = 1
-do LEV=NLEV,(MIDLEV+1),-1
+do LEV=SGS%nLev,(SGS%MidLev+1),-1
   ICASE = IWALK(LEV)
   MIDV = SGS%DOWN(MIDV,ICASE)
 end do
-MIDV = MIDV-MVSta+1
+MIDV = MIDV-SGS%MVSta+1
 
 ! FIND REVERSE ARC WEIGHT FOR THE UPPER WALK
 
 IRAWSUM = 1
 LV = 1
-do LEV=NLEV,(MIDLEV+1),-1
+do LEV=SGS%nLev,(SGS%MidLev+1),-1
   IC = IWALK(LEV)
   LV = SGS%DOWN(LV,IC)
   IRAWSUM = IRAWSUM+SGS%RAW(LV,IC)
@@ -53,8 +46,8 @@ IUW = EXS%USGN(IRAWSUM,MIDV)
 ! FIND DIRECT ARC WEIGHT FOR THE LOWER WALK
 
 IDAWSUM = 1
-LV = NVERT
-do LEV=1,MIDLEV
+LV = SGS%nVert
+do LEV=1,SGS%MidLev
   IC = IWALK(LEV)
   LV = SGS%UP(LV,IC)
   IDAWSUM = IDAWSUM+SGS%DAW(LV,IC)

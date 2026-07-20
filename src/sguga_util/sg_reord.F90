@@ -49,7 +49,7 @@ use sguga, only: EXStruct, SGStruct
 use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use PrintLevel, only: DEBUG
-use Lucia_data, only: CONF_Occ, CFTP
+use Lucia_data, only: CFTP, CONF_Occ
 use Molcas, only: MxAct
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -62,17 +62,12 @@ type(EXStruct), intent(in) :: EXS
 integer(kind=iwp), intent(in) :: IREFSM, IMODE, nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
-
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
-                     IWALK(mxAct), JOCC, KOCC, KORB, LPRINT, nOrb, nEl
-integer(kind=iwp), external :: SG_PHASE, SG_NUM
-integer(kind=iwp) :: KCNF(MxAct)
+                     IWALK(mxAct), JOCC, KCNF(MxAct), KOCC, KORB, LPRINT
 real(kind=wp) :: Fact
+integer(kind=iwp), external :: SG_NUM, SG_PHASE
 
 IPRLEV = IPRLOC(3)
-
-nOrb=SGS%nLev
-nEl=SGS%nActEl
 
 ICSFJP = 0
 ICNBS0 = 0 ! dummy initialize
@@ -80,12 +75,12 @@ IPBAS = 0 ! dummy initialize
 ! LOOP OVER CONFIGURATIONS TYPES
 do ITYP=1,NTYP
   IOPEN = ITYP+MINOP-1
-  ICL = (NEL-IOPEN)/2
+  ICL = (SGS%nActEl-IOPEN)/2
   ! BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
   if (ITYP == 1) then
     ICNBS0 = 1
   else
-    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(NEL+IOPEN-1)/2
+    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(SGS%nActEl+IOPEN-1)/2
   end if
   ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
   if (ITYP == 1) then
@@ -102,7 +97,7 @@ do ITYP=1,NTYP
     do IICSF=1,NCSFTP(ITYP)
       ICSFJP = ICSFJP+1
       ICSBAS = IPBAS+(IICSF-1)*IOPEN
-      KCNF(:)=0
+      KCNF(:) = 0
       ! Obtain configuration in standard RASSCF form
       IIBOP = 1
       IIBCL = 1
@@ -121,17 +116,17 @@ do ITYP=1,NTYP
       end do
 
       ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
+      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),SGS%nLev,IWALK)
 
       ! GET SPLIT GRAPH ORDERING NUMBER
       ISG = SG_NUM(SGS,EXS,IWALK)
       ! GET PHASE PHASE FACTOR
       IP = SG_PHASE(SGS,IWALK)
-      Fact = Merge(-One,One,IP < 0)
+      Fact = merge(-One,One,IP < 0)
       if (IMODE == 0) then
-        CINEW(ISG) = Fact * CIOLD(ICSFJP)
+        CINEW(ISG) = Fact*CIOLD(ICSFJP)
       else
-        CINEW(ICSFJP) = Fact * CIOLD(ISG)
+        CINEW(ICSFJP) = Fact*CIOLD(ISG)
       end if
     end do
   end do

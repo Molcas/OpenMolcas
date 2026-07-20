@@ -24,7 +24,7 @@ use Symmetry_Info, only: Mul
 use caspt2_qmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use sguga_states, only: SGS, CIS
+use sguga_states, only: CIS, SGS
 use caspt2_global, only: iPrGlb
 use general_data, only: nActEl, STSym
 use caspt2_module, only: iSCF, jState, mState, nAshT, nG1
@@ -49,8 +49,8 @@ real(kind=wp) :: GTU
 real(kind=wp) :: G2(NLEV,NLEV,NLEV,NLEV)
 #endif
 integer(kind=iwp), allocatable :: TASK(:,:)
+integer(kind=iwp), parameter :: istate = 1
 real(kind=wp), external :: DDOT_, DNRM2_
-integer(kind=iwp), parameter :: istate=1
 
 ! Purpose: Compute the 1-electron density matrix array G1.
 

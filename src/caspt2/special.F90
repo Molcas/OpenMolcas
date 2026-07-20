@@ -34,7 +34,7 @@ integer(kind=byte), intent(out) :: idxG3(6,mG3)
 integer(kind=iwp) :: ID, IG3, IND1, IND2, IND3, IT, IT1, IT2, IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1, LU2, LU3, NLEV2, NLEV4, &
                      NTASK
 real(kind=wp) :: ESUM, Occ, Val
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 G1(:,:) = Zero
 G2(:,:,:,:) = Zero

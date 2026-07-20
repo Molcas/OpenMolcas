@@ -25,8 +25,7 @@ implicit none
 real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), RDMEIG(*), Scal
 real(kind=wp), intent(inout) :: CLag1(*), CLag2(*)
 real(kind=wp), allocatable :: SGM1(:)
-integer(kind=iwp), parameter :: iState=1
-
+integer(kind=iwp), parameter :: iState = 1
 
 if (NLEV > 0) then
   call mma_allocate(SGM1,MXCI,Label='SGM1')

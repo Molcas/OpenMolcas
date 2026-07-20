@@ -20,7 +20,7 @@
 subroutine CnstTrf(nTrf,Trf0,Trf)
 
 use caspt2_global, only: TraFro
-use general_data, only:  NASH
+use general_data, only: NASH
 use caspt2_module, only: IfChol, NBAS, NDEL, NFRO, NISH, NRAS1, NRAS2, NRAS3, NSSH, NSYM
 use Constants, only: One
 use Definitions, only: wp, iwp

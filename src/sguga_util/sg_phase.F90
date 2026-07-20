@@ -19,7 +19,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: SG_PHASE
-type (SGStruct), intent(in):: SGS
+type(SGStruct), intent(in) :: SGS
 integer(kind=iwp), intent(in) :: IWALK(SGS%NLEV)
 integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
 
@@ -30,12 +30,12 @@ IVERT = SGS%NVERT
 do LEV=1,SGS%NLEV
   ICASE = IWALK(LEV)
   IVERT = SGS%UP(IVERT,ICASE)
-  Select Case(iCase)
-    Case(2,3)
+  select case (iCase)
+    case (2,3)
       ISGN = (-1)**SGS%DRT(IVERT,4)
-    Case Default
+    case default
       ISGN = 1
-  End Select
+  end select
   SG_PHASE = SG_PHASE*ISGN
 end do
 

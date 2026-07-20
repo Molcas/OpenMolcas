@@ -23,7 +23,7 @@ real(kind=wp), intent(inout) :: XMAT(NDIM,NDIM), CI(NCI)
 integer(kind=iwp) :: I, IORB, J, JORB, LI, LJ, M
 real(kind=wp) :: Fact, SCL, XJM
 real(kind=wp), allocatable :: SGM(:), TVEC(:), XSAV(:,:)
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 if (NDIM <= 0) return
 
@@ -59,7 +59,7 @@ do J=1,NDIM
     LI = SGS(istate)%LEVEL(IORB)
     SCL = Half*TVEC(I)
     if (I == J) SCL = SCL-Half
-    if (ABS(SCL)<1.0E-12_wp) cycle
+    if (abs(SCL) < 1.0e-12_wp) cycle
     call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,CI,SGM)
   end do
   do I=1,NDIM
@@ -67,7 +67,7 @@ do J=1,NDIM
     LI = SGS(istate)%LEVEL(IORB)
     SCL = TVEC(I)
     if (I == J) SCL = SCL-One
-    if (ABS(SCL)<1.0E-12_wp) cycle
+    if (abs(SCL) < 1.0e-12_wp) cycle
     call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,SGM,CI)
   end do
 

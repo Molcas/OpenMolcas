@@ -24,7 +24,7 @@ subroutine DENS2T_RPT2(NLEV,NCONF,MXCI,CI1,CI2,SGM1,SGM2,G1,G2)
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
-use sguga_states, only: SGS, CIS
+use sguga_states, only: CIS, SGS
 use caspt2_global, only: iPrGlb
 use general_data, only: nActEl, STSym
 use caspt2_module, only: iSCF, nAshT, nG1, nG2
@@ -40,8 +40,8 @@ integer(kind=iwp) :: ID, ISSG1, ISSG2, IST, ISTU, ISU, ISV, ISVX, ISX, IT, ITASK
                      NSGM1, NSGM2, NTASKS
 real(kind=wp) :: GTU, GTUVX
 integer(kind=iwp), allocatable :: Task(:,:)
+integer(kind=iwp), parameter :: istate = 1
 real(kind=wp), external :: DDOT_, DNRM2_
-integer(kind=iwp), parameter :: istate=1
 
 G1(:,:) = Zero
 G2(:,:,:,:) = Zero
