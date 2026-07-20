@@ -10,27 +10,12 @@
 #***********************************************************************
 
 set (sources
-     sg_citra.F90
-     sg_two_pdm.F90
-     sg_h_psi.F90
-     sg_mstow.F90
-     sg_num.F90
-     sg_one_pdm.F90
-     sg_phase.F90
-     sg_pkwlk.F90
-     sg_prwf.F90
-     sg_print.F90
-     sg_reord.F90
-     sg_upkwlk.F90
-     sguga.F90
-     sguga_states.F90
-     stepvector_next.F90
+     ci_interfaces.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     sguga.F90
-     sguga_states.F90
+     ci_interfaces.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
