@@ -70,9 +70,6 @@ use casvb_global, only: ifvb
 use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
 
-use faroald, only: ndeta, ndetb
-use citrans, only: citrans_csf2sd, citrans_sort
-use faroald, only: one_pdm, two_pdm, fold_two_pdm
 use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
 
 use wadr, only: FMO
@@ -114,6 +111,17 @@ logical(kind=iwp), external :: PCM_On
 #endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
+
+Interface
+ Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
+ use definitions, only: iwp, wp
+ implicit none
+ integer(kind=iwp), intent(in) :: nCIVEC
+ real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
+ real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
+ integer(kind=iwp), intent(in) :: nD, nP
+ ENd Subroutine Mk_pdms
+End Interface
 #include "warnings.h"
 
 ! Local print level (if any)
@@ -794,14 +802,20 @@ else if (lRF .and. (IPCMROOT > 0)) then
   call mma_deallocate(RF)
 end if
 
-contains
+end subroutine CICtl
 
 #define _SGUGA_VERIFY_
  Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
  use Lucia_Interface, only: Lucia_Util
  use stdalloc, only: mma_allocate, mma_deallocate
- use rasscf_global, only: DoFaro
+ use rasscf_global, only: DoFaro, NAC, NACPAR, NACPR2
+ use general_data, only: CIS, SGS, EXS, STSYM, NCONF
+ use faroald, only: ndeta, ndetb ,one_pdm, two_pdm, fold_two_pdm
+ use citrans, only: citrans_csf2sd, citrans_sort
+ use gas_data, only: iDoGAS
+ use constants, only: Zero
  use definitions, only: iwp, wp
+
  implicit none
  integer(kind=iwp), intent(in) :: nCIVEC
  real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
@@ -876,8 +890,8 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
           call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
 
 !         Test the one-particle density matrix
-!         Call TriPrt('DTmp(Lucia)',' ',Dtmp,NAC)
-          Check_D1=CheckSum(Dtmp,NACPAR)
+!         Call TriPrt('D(Lucia)',' ',D,NAC)
+          Check_D1=CheckSum(D,NACPAR)
 !         Write (6,*) 'Check_D1=',Check_D1
           Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
 
@@ -895,11 +909,11 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
 
 !         Test the symmetric two-particle density matrix.
-!         call TRIPRT('P(Lucia)',' ',Ptmp,NACPAR)
-          Check_P=CheckSum(Ptmp,NACPR2)
+!         call TRIPRT('P(Lucia)',' ',P,NACPAR)
+          Check_P=CheckSum(P,NACPR2)
 !         Write (6,*) 'Check_P=',Check_P
-!         call TRIPRT('PA(Lucia)',' ',PAtmp,NACPAR)
-          Check_PA=CheckSum(PAtmp,NACPR2)
+!         call TRIPRT('PA(Lucia)',' ',PA,NACPAR)
+          Check_PA=CheckSum(PA,NACPR2)
 !         Write (6,*) 'Check_PA=',Check_PA
 
 !         Call mma_allocate(P_sguga,NAC**4,Label='P')
@@ -935,7 +949,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 #endif
 ! end temporary code
 
- End Subroutine Mk_pdms
+ contains
 
  Function Checksum(A,nA)
  real(kind=wp) :: Checksum
@@ -948,4 +962,4 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
  End Do
  End Function Checksum
 
-end subroutine CICtl
+ End Subroutine Mk_pdms
