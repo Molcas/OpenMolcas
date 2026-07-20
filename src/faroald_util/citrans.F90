@@ -261,13 +261,14 @@ subroutine citrans_csf2sd(ci,det)
     ioff_csf2 = ioff_csf1+ncsf*nconf-1
 
     call mma_allocate(tmp,ndet,nconf,label='tmp')
+    tmp = Zero
 
     ! Compute the determinant coefficients from the CSF coefficients.
     Write (6,*) 'nDet,nConf,ncsf=i',nDet,nConf,ncsf
     Call RecPrt('spintabs(ido)%coef',' ',spintabs(ido)%coef,nDet,nCSF)
     Call RecPrt('ci(ioff_csf1:ioff_csf2)',' ',ci(ioff_csf1:ioff_csf2),nCSF,nConf)
-    Call RecPrt('tmp',' ',tmp,nDet,nconf)
     call dgemm_('N','N',ndet,nconf,ncsf,One,spintabs(ido)%coef,ndet,ci(ioff_csf1:ioff_csf2),ncsf,Zero,tmp,ndet)
+    Call RecPrt('tmp',' ',tmp,nDet,nconf)
 
     ! Store the determinant coefficients with the right phase factor in
     ! the correct place in the determinant matrix. The loops runs over
