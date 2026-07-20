@@ -32,10 +32,6 @@ use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: ISPIN, NACTEL, NASH, NBAS, NFRO, NISH, NSYM, NTOT1
 use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp, NAC, NACPAR, NONEQ, PotNuc, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
-#ifdef _DMRG_
-use lucia_data, only: INT1
-use rasscf_global, only: DoDMRG
-#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6

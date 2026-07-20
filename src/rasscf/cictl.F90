@@ -912,7 +912,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
           Call sg_two_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
 
 !         call TRIPRT('P(SGUGA)',' ',P_sguga,NACPAR)
-          If (ABS(CheckSum(P_sguga,NACPR2)-Check_P)/SIZE(d_sguga)>1.0e-12_wp) Then
+          If (ABS(CheckSum(P_sguga,NACPR2)-Check_P)/SIZE(p_sguga)>1.0e-12_wp) Then
              Check_P=CheckSum(P_sguga,NACPR2)
 !            Write (6,*) 'Check_P=',Check_P
              Write (6,*) 'SGUGA error in P'
@@ -920,7 +920,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
           End If
 
 !         call TRIPRT('PA(SGUGA)',' ',PA_sguga,NACPAR)
-          If (ABS(CheckSum(PA_sguga,NACPR2)-Check_PA)/SIZE(d_sguga)>1.0e-12_wp) Then
+          If (ABS(CheckSum(PA_sguga,NACPR2)-Check_PA)/SIZE(p_sguga)>1.0e-12_wp) Then
              Check_PA=CheckSum(PA_sguga,NACPR2)
 !            Write (6,*) 'Check_PA=',Check_PA
              Write (6,*) 'SGUGA error in PA'

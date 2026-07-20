@@ -151,7 +151,6 @@ End Subroutine sg_two_pdm
 
 Subroutine sg_two_pdm_full(SGS,CIS,EXS,Psi,nCSFs,PsiSym,P,NLEV)
 
-use Index_functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use sguga, only: CIStruct, EXStruct, SGStruct, sg_epq_psi
 use Constants, only: Zero, Half, One
