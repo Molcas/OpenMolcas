@@ -164,6 +164,7 @@ subroutine NEVPT2_E4_ZVEC(NLEV,idx2ij,Gact,CI,ZVEC,WRK)
   ! avoid the 2 GB (?) barrier
 # ifdef _MOLCAS_MPP_
   if (is_real_par()) then
+    if ((ibuf == 0) .and. (Scal == Zero)) ZVEC(:,:) = Zero
     do ip1=1,NZVEC,MAXBUF
       call GADGOP(ZVEC(:,ip1:),MXCI*min(NZVEC-ip1+1,MAXBUF),'+')
     end do
