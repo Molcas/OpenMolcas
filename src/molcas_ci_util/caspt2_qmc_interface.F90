@@ -24,7 +24,6 @@ use mh5, only: mh5_close_file, mh5_close_group, mh5_fetch_dset, mh5_get_dset_dim
 use Para_Info, only: MyRank
 use caspt2_module, only: jstate, mstate, nActel
 use linalg_mod, only: verify_
-use Index_Functions, only: nTri_Elem
 use fortran_strings, only: str
 use filesystem, only: getcwd_
 use Constants, only: Zero, One
