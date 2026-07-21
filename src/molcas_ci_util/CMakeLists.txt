@@ -107,6 +107,7 @@ set (modfile_list
      caspt2_module.F90
      csfbas.F90
      dmrginfo.F90
+     gas_data.F90
      general_data.F90
      input_mclr.F90
      output_ras.F90

@@ -129,6 +129,7 @@ subroutine citrans_sort(mode,ciold,cinew)
   call mma_allocate(csf_offset,[ndo_min,ndo_max],label='csf_offset')
 
 # ifdef _DEBUGPRINT_
+  write(u6,*) 'citrans_Sort'
   write(u6,'(5(1x,a4))') 'ido','ndoc','nsoc','ndet','ncsf'
 # endif
 
@@ -163,6 +164,7 @@ subroutine citrans_sort(mode,ciold,cinew)
 
   call mma_allocate(stepvector,my_norb,label='stepvector')
   call mma_allocate(downvector,my_norb,label='downvector')
+
   ! initialize variables that track the stepvector
   mv = 1
   idwn = 1
@@ -251,8 +253,16 @@ subroutine citrans_csf2sd(ci,det)
 
   call mma_allocate(stepvector,my_norb,label='stepvector')
 
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'citrans_csf2sd'
+  write(u6,'(5(1x,a4))') 'ido','ndoc','nsoc','ndet','ncsf'
+# endif
+
   ioff_csf1 = 1
   do ido=ndo_min,ndo_max
+#   ifdef _DEBUGPRINT_
+    write(u6,'(5(1x,i4))') ido,ndoc_group(ido),nsoc_group(ido),ndet_group(ido),ncsf_group(ido)
+#   endif
     ndoc = ndoc_group(ido)
     nsoc = nsoc_group(ido)
     nconf = ndoc*nsoc
@@ -264,11 +274,7 @@ subroutine citrans_csf2sd(ci,det)
     tmp = Zero
 
     ! Compute the determinant coefficients from the CSF coefficients.
-    Write (6,*) 'nDet,nConf,ncsf=i',nDet,nConf,ncsf
-    Call RecPrt('spintabs(ido)%coef',' ',spintabs(ido)%coef,nDet,nCSF)
-    Call RecPrt('ci(ioff_csf1:ioff_csf2)',' ',ci(ioff_csf1:ioff_csf2),nCSF,nConf)
     call dgemm_('N','N',ndet,nconf,ncsf,One,spintabs(ido)%coef,ndet,ci(ioff_csf1:ioff_csf2),ncsf,Zero,tmp,ndet)
-    Call RecPrt('tmp',' ',tmp,nDet,nconf)
 
     ! Store the determinant coefficients with the right phase factor in
     ! the correct place in the determinant matrix. The loops runs over

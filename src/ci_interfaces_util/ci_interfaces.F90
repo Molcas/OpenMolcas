@@ -155,6 +155,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    call mma_allocate(PA_loc,nP,Label='PA_loc')
 
    Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
+   CIV(:)=Zero
    Call mma_allocate(temp,nDetA*nDetB,Label='temp')
    Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
 

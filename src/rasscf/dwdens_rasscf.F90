@@ -15,6 +15,7 @@
 
 subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
 
+use ci_interfaces, only: Mk_pdms
 use rasscf_global, only: DoDMRG, Ener, IADR15, ITER, NAC, NACPAR, NACPR2, nRoots
 use DWSol, only: DWSol_wgt, W_SOLV
 use gas_data, only: iDoGAS
@@ -38,18 +39,6 @@ integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, jDisk
 real(kind=wp) :: rdum(1), wgt
 real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DX(:)
-
-Interface
- Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
- use definitions, only: iwp, wp
- implicit none
- integer(kind=iwp), intent(in) :: nCIVEC
- real(kind=wp), intent(inout) :: CIVEC(nCIVEC)
- real(kind=wp), intent(out), optional :: D(:), SD(:), P(:), PA(:)
- integer(kind=iwp), intent(in) :: nD, nP
- ENd Subroutine Mk_pdms
-End Interface
-
 
 call mma_allocate(DA_ave,NACPAR,Label='DA_ave')
 call mma_allocate(DS_ave,NACPAR,Label='DS_ave')
