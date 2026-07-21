@@ -16,7 +16,8 @@ subroutine LPDFT_TDM()
 !> and store them in ${Project}_tdm_4_lpdft.h5.
 
 use csfbas, only: CONF
-use lucia_data, only: CFTP, DStmp, Dtmp, PAtmp, Ptmp
+use Index_Functions, only: nTri_Elem
+use lucia_data, only: CFTP, DStmp, Dtmp, Ptmp
 use Lucia_Interface, only: Lucia_Util
 use input_ras, only: Key
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
@@ -28,12 +29,12 @@ use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_d
 #endif
 
 implicit none
-integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs
+integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs, nSpinTdm2
 integer(kind=iwp), allocatable :: kCnf(:)
-real(kind=wp), allocatable :: Tmp(:), VecL(:), VecR(:)
+real(kind=wp), allocatable :: SpinTdm2(:), Tmp(:), VecL(:), VecR(:)
 #ifdef _HDF5_
 character(len=1024) :: currDir, fileName, project
-integer(kind=iwp) :: fileId, oneTdmId, twoTdmId, twoTdmAId, rootPairsId
+integer(kind=iwp) :: fileId, oneTdmId, twoTdmId, twoTdmSpinId, rootPairsId
 integer(kind=iwp), allocatable :: rootPairs(:,:)
 #endif
 
@@ -46,6 +47,7 @@ return
 #else
 
 nPairs = (lRoots*(lRoots+1))/2
+nSpinTdm2 = nTri_Elem(NAC*NAC)
 
 call get_environment_variable('Project',project)
 
@@ -70,13 +72,13 @@ call mma_allocate(kCnf,NACTEL,Label='kCnf')
 call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
 call mma_allocate(DStmp,NAC*NAC,Label='DStmp')
 call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
-call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+call mma_allocate(SpinTdm2,nSpinTdm2,Label='SpinTdm2')
 call mma_allocate(rootPairs,2,nPairs,Label='rootPairs')
 
 fileId = mh5_create_file(trim(fileName))
 oneTdmId = mh5_create_dset_real(fileId,'ACTIVE_1TDM',3,[NAC,NAC,nPairs])
 twoTdmId = mh5_create_dset_real(fileId,'ACTIVE_2TDM',2,[NACPR2,nPairs])
-twoTdmAId = mh5_create_dset_real(fileId,'ACTIVE_2TDM_ANTISYM',2,[NACPR2,nPairs])
+twoTdmSpinId = mh5_create_dset_real(fileId,'ACTIVE_2TDM_SPINSUM',2,[nSpinTdm2,nPairs])
 rootPairsId = mh5_create_dset_int(fileId,'ROOT_PAIRS',2,[2,nPairs])
 
 iPair = 0
@@ -89,11 +91,14 @@ do jRoot=1,lRoots
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
     call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp,VecR,kCnf)
-    call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:),TwoBodyTDM=.true.)
+    SpinTdm2(:) = 0.0_wp
+    call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:),TwoBodyTDM=.true.,Raw2TDM=SpinTdm2(:))
+    call scale_spin_tdm2_for_hamiltonian(SpinTdm2,nac)
 
     call mh5_put_dset(oneTdmId,Dtmp(1:NAC*NAC),[NAC,NAC,1],[0,0,iPair])
+    Ptmp(:) = 0.0_wp
     call mh5_put_dset(twoTdmId,Ptmp(1:NACPR2),[NACPR2,1],[0,iPair])
-    call mh5_put_dset(twoTdmAId,PAtmp(1:NACPR2),[NACPR2,1],[0,iPair])
+    call mh5_put_dset(twoTdmSpinId,SpinTdm2(1:nSpinTdm2),[nSpinTdm2,1],[0,iPair])
 
     iPair = iPair+1
     rootPairs(1,iPair) = jRoot
@@ -103,12 +108,13 @@ do jRoot=1,lRoots
   call DDafile(JOBIPH,2,Dtmp,NACPAR,dDisk)
   call DDafile(JOBIPH,2,DStmp,NACPAR,dDisk)
   call DDafile(JOBIPH,2,Ptmp,NACPR2,dDisk)
-  call DDafile(JOBIPH,2,PAtmp,NACPR2,dDisk)
+  call DDafile(JOBIPH,0,Ptmp,NACPR2,dDisk)
 
   call Square(Dtmp,DStmp,1,NAC,NAC)
   call mh5_put_dset(oneTdmId,DStmp(1:NAC*NAC),[NAC,NAC,1],[0,0,iPair])
   call mh5_put_dset(twoTdmId,Ptmp(1:NACPR2),[NACPR2,1],[0,iPair])
-  call mh5_put_dset(twoTdmAId,PAtmp(1:NACPR2),[NACPR2,1],[0,iPair])
+  SpinTdm2(:) = 0.0_wp
+  call mh5_put_dset(twoTdmSpinId,SpinTdm2(1:nSpinTdm2),[nSpinTdm2,1],[0,iPair])
 
   iPair = iPair+1
   rootPairs(1,iPair) = jRoot
@@ -118,7 +124,7 @@ end do
 call mh5_put_dset(rootPairsId,rootPairs)
 call mh5_close_dset(oneTdmId)
 call mh5_close_dset(twoTdmId)
-call mh5_close_dset(twoTdmAId)
+call mh5_close_dset(twoTdmSpinId)
 call mh5_close_dset(rootPairsId)
 call mh5_close_file(fileId)
 
@@ -131,8 +137,23 @@ call mma_deallocate(kCnf)
 call mma_deallocate(Dtmp)
 call mma_deallocate(DStmp)
 call mma_deallocate(Ptmp)
-call mma_deallocate(PAtmp)
+call mma_deallocate(SpinTdm2)
 call mma_deallocate(rootPairs)
 #endif
+
+contains
+
+  subroutine scale_spin_tdm2_for_hamiltonian(tdm2,nAct)
+    real(kind=wp), intent(inout) :: tdm2(:)
+    integer(kind=iwp), intent(in) :: nAct
+    integer(kind=iwp) :: ij, ijij, nPairs
+
+    nPairs = nAct*nAct
+    ijij = 0
+    do ij=1,nPairs
+      ijij = ijij+ij
+      tdm2(ijij) = 0.5_wp*tdm2(ijij)
+    end do
+  end subroutine scale_spin_tdm2_for_hamiltonian
 
 end subroutine LPDFT_TDM
