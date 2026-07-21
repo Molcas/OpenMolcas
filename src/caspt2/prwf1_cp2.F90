@@ -20,7 +20,7 @@
 subroutine PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
 
 use Symmetry_Info, only: Mul
-use caspt2_global, only: CIS, SGS
+use sguga_states, only: CIS, SGS
 use caspt2_module, only: ISPIN, NSYM, PRSD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -35,9 +35,10 @@ real(kind=wp) :: COEF
 character(len=256) :: LINE
 integer(kind=iwp), allocatable :: ICS(:), LEX(:)
 character, parameter :: CODE(0:3) = ['0','u','d','2']
+integer(kind=iwp), parameter :: istate=1
 
-nLev = SGS%nLev
-nIpWlk = CIS%nIpWlk
+nLev = SGS(istate)%nLev
+nIpWlk = CIS(istate)%nIpWlk
 
 ! NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 ! ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
@@ -50,8 +51,8 @@ LINE = ' '
 LENCSF = 0
 ISY = 0
 do LEV=1,NLEV
-  if (ISY /= SGS%ISM(LEV)) then
-    ISY = SGS%ISM(LEV)
+  if (ISY /= SGS(istate)%ISM(LEV)) then
+    ISY = SGS(istate)%ISM(LEV)
     LENCSF = LENCSF+1
   end if
   LENCSF = LENCSF+1
@@ -93,15 +94,15 @@ do MV=1,NMIDV
         if (abs(COEF) < THR) cycle
         if (IDWNSV /= IDWN) then
           ICDPOS = IDW0+IDWN*NIPWLK
-          ICDWN = CIS%ICASE(ICDPOS)
+          ICDWN = CIS(istate)%ICASE(ICDPOS)
           ! UNPACK LOWER WALK.
           NNN = 0
-          do LEV=1,SGS%MIDLEV
+          do LEV=1,SGS(istate)%MIDLEV
             NNN = NNN+1
             if (NNN == 16) then
               NNN = 1
               ICDPOS = ICDPOS+1
-              ICDWN = CIS%ICASE(ICDPOS)
+              ICDWN = CIS(istate)%ICASE(ICDPOS)
             end if
             IC1 = ICDWN/4
             ICS(LEV) = ICDWN-4*IC1
@@ -110,15 +111,15 @@ do MV=1,NMIDV
           IDWNSV = IDWN
         end if
         ICUPOS = IUW0+NIPWLK*IUP
-        ICUP = CIS%ICASE(ICUPOS)
+        ICUP = CIS(istate)%ICASE(ICUPOS)
         ! UNPACK UPPER WALK:
         NNN = 0
-        do LEV=SGS%MIDLEV+1,NLEV
+        do LEV=SGS(istate)%MIDLEV+1,NLEV
           NNN = NNN+1
           if (NNN == 16) then
             NNN = 1
             ICUPOS = ICUPOS+1
-            ICUP = CIS%ICASE(ICUPOS)
+            ICUP = CIS(istate)%ICASE(ICUPOS)
           end if
           IC1 = ICUP/4
           ICS(LEV) = ICUP-4*IC1
@@ -128,8 +129,8 @@ do MV=1,NMIDV
         K = 0
         ISY = 0
         do LEV=1,NLEV
-          if (ISY /= SGS%ISM(LEV)) then
-            ISY = SGS%ISM(LEV)
+          if (ISY /= SGS(istate)%ISM(LEV)) then
+            ISY = SGS(istate)%ISM(LEV)
             K = K+1
             LINE(K:K) = ' '
           end if

@@ -63,7 +63,8 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: DEBUG, VERBOSE
-use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad, SGS, CIS, EXS
+use sguga_states, only: SGS, CIS, EXS
+use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
 use caspt2_module, only: EPSA, MxCI, nActEl, nAshT, nBasT, nSym, STSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
@@ -85,6 +86,7 @@ real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3
 integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFR(:), BUFT(:)
 real(kind=wp), external :: DDOT_, DNRM2_
+integer(kind=iwp), parameter :: istate=1
 
 ! IJ2IDX, IDX2IJ, ICNJ, IP1_BUF: translation tables for levels i,j to and from pair indices idx
 ! BUFR: result buffer, maximum size is the largest possible ip1 range,
@@ -216,8 +218,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     ! Note: this only works if the Fock matrix is presented in the
     ! block diagonal form. i.e. in the pseudo canonical basis.
 
-    nsgm1 = CIS%ncsf(issg1)
-    if (mkF) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,CIS%nMidV)
+    nsgm1 = CIS(istate)%ncsf(issg1)
+    if (mkF) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS(istate)%NOW,CIS(istate)%IOW,CIS(istate)%nMidV)
 
   end if
 
@@ -229,7 +231,7 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
   do ip1=1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    istu = Mul(SGS%ism(itlev),SGS%ism(iulev)) ! Symmetry of E_tu
+    istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev)) ! Symmetry of E_tu
 
     if (istu == isp1) then
       ! Add pair index to ip1_buf
@@ -321,17 +323,17 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
           itlev = idx2ij(1,ip1i)
           iulev = idx2ij(2,ip1i)
 
-          istu = Mul(SGS%ism(itlev),SGS%ism(iulev))
+          istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
 
-          it = SGS%L2ACT(itlev)
-          iu = SGS%L2ACT(iulev)
+          it = SGS(istate)%L2ACT(itlev)
+          iu = SGS(istate)%L2ACT(iulev)
 
           if (istu == isp1) then
             ibuf1 = ibuf1+1
             ip1_buf(ibuf1) = ip1i
             ! form E_ut |0>
             BUF1(1:nSgm1,iBuf1) = Zero
-            call SG_Epq_Psi(SGS,CIS,EXS,IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
+            call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
           end if
         end do
 
@@ -340,9 +342,9 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
         do ip1i=ip1sta,ip1end
           itlev = idx2ij(1,ip1i)
           iulev = idx2ij(2,ip1i)
-          istu = Mul(SGS%ism(itlev),SGS%ism(iulev))
-          it = SGS%L2ACT(itlev)
-          iu = SGS%L2ACT(iulev)
+          istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
+          it = SGS(istate)%L2ACT(itlev)
+          iu = SGS(istate)%L2ACT(iulev)
           if (istu == isp1) then
             ibuf1 = ibuf1+1
             ip1_buf(ibuf1) = ip1i
@@ -370,8 +372,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             idx = ip1_buf(ib)
             itlev = idx2ij(1,idx)
             iulev = idx2ij(2,idx)
-            it = SGS%L2ACT(itlev)
-            iu = SGS%L2ACT(iulev)
+            it = SGS(istate)%L2ACT(itlev)
+            iu = SGS(istate)%L2ACT(iulev)
             G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
             F1(it,iu) = sum(CI(1:nsgm1)*BUF1(1:nsgm1,ib)*bufd(1:nsgm1))-EPSA(iu)*G1(it,iu)
           end do
@@ -380,8 +382,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             idx = ip1_buf(ib)
             itlev = idx2ij(1,idx)
             iulev = idx2ij(2,idx)
-            it = SGS%L2ACT(itlev)
-            iu = SGS%L2ACT(iulev)
+            it = SGS(istate)%L2ACT(itlev)
+            iu = SGS(istate)%L2ACT(iulev)
             G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
           end do
         end if
@@ -405,15 +407,15 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     ! The indices corresponding to pair index p3:
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    isyz = Mul(SGS%ism(iylev),SGS%ism(izlev))
+    isyz = Mul(SGS(istate)%ism(iylev),SGS(istate)%ism(izlev))
     issg2 = Mul(isyz,stsym)
-    iy = SGS%L2ACT(iylev)
-    iz = SGS%L2ACT(izlev)
+    iy = SGS(istate)%L2ACT(iylev)
+    iz = SGS(istate)%L2ACT(izlev)
     if (.not. DoFCIQMC) then
-      nsgm2 = CIS%ncsf(issg2)
+      nsgm2 = CIS(istate)%ncsf(issg2)
       BUF2(1:nSgm2) = Zero
       ! form <0| E_zy|
-      call SG_Epq_Psi(SGS,CIS,EXS,IYLEV,IZLEV,One,STSYM,CI,BUF2)
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IYLEV,IZLEV,One,STSYM,CI,BUF2)
 
       if (issg2 == issg1) then
 
@@ -422,8 +424,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             idx = ip1_buf(ib)
             itlev = idx2ij(1,idx)
             iulev = idx2ij(2,idx)
-            it = SGS%L2ACT(itlev)
-            iu = SGS%L2ACT(iulev)
+            it = SGS(istate)%L2ACT(itlev)
+            iu = SGS(istate)%L2ACT(iulev)
             ! form <0| E_zy E_ut |0> = G_tu,yz
             !      <0| E_zy * H0 * E_ut |0> = F_tu,yz
             G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
@@ -434,8 +436,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             idx = ip1_buf(ib)
             itlev = idx2ij(1,idx)
             iulev = idx2ij(2,idx)
-            it = SGS%L2ACT(itlev)
-            iu = SGS%L2ACT(iulev)
+            it = SGS(istate)%L2ACT(itlev)
+            iu = SGS(istate)%L2ACT(iulev)
             G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
           end do
         end if
@@ -448,14 +450,14 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     do ip2=ip3,ntri2
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
-      isvx = Mul(SGS%ism(ivlev),SGS%ism(ixlev))
-      iv = SGS%L2ACT(ivlev)
-      ix = SGS%L2ACT(ixlev)
+      isvx = Mul(SGS(istate)%ism(ivlev),SGS(istate)%ism(ixlev))
+      iv = SGS(istate)%L2ACT(ivlev)
+      ix = SGS(istate)%L2ACT(ixlev)
       if (isvx == Mul(issg1,issg2)) then
         if (.not. DoFCIQMC) then
           BUFT(1:nSgm1) = Zero
           ! form <0| E_zy E_xv
-          call SG_Epq_Psi(SGS,CIS,EXS,IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
+          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
         end if
         !-----------
         ! Max and min values of index p1:
@@ -494,8 +496,8 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             idx = ip1_buf(ibmn-1+ib)
             itlev = idx2ij(1,idx)
             iulev = idx2ij(2,idx)
-            iT = SGS%l2act(itlev)
-            iU = SGS%l2act(iulev)
+            iT = SGS(istate)%l2act(itlev)
+            iU = SGS(istate)%l2act(iulev)
             idxG3(1,iG3) = int(iT,kind=byte)
             idxG3(2,iG3) = int(iU,kind=byte)
             idxG3(3,iG3) = int(iV,kind=byte)
@@ -590,13 +592,13 @@ else
   do ip1=ntri2+1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = SGS%L2ACT(itlev)
-    iu = SGS%L2ACT(iulev)
+    it = SGS(istate)%L2ACT(itlev)
+    iu = SGS(istate)%L2ACT(iulev)
     do ip3=ntri1+1,ip1
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = SGS%L2ACT(iylev)
-      iz = SGS%L2ACT(izlev)
+      iy = SGS(istate)%L2ACT(iylev)
+      iz = SGS(istate)%L2ACT(izlev)
       G2(it,iu,iy,iz) = G2(iz,iy,iu,it)
     end do
   end do
@@ -604,13 +606,13 @@ else
   do ip1=1,nlev2-1
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = SGS%L2ACT(itlev)
-    iu = SGS%L2ACT(iulev)
+    it = SGS(istate)%L2ACT(itlev)
+    iu = SGS(istate)%L2ACT(iulev)
     do ip3=ip1+1,nlev2
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = SGS%L2ACT(iylev)
-      iz = SGS%L2ACT(izlev)
+      iy = SGS(istate)%L2ACT(iylev)
+      iz = SGS(istate)%L2ACT(izlev)
       G2(it,iu,iy,iz) = G2(iy,iz,it,iu)
     end do
   end do
@@ -630,13 +632,13 @@ else
     do ip1=ntri2+1,nlev2
       itlev = idx2ij(1,ip1)
       iulev = idx2ij(2,ip1)
-      it = SGS%L2ACT(itlev)
-      iu = SGS%L2ACT(iulev)
+      it = SGS(istate)%L2ACT(itlev)
+      iu = SGS(istate)%L2ACT(iulev)
       do ip3=ntri1+1,ip1
         iylev = idx2ij(1,ip3)
         izlev = idx2ij(2,ip3)
-        iy = SGS%L2ACT(iylev)
-        iz = SGS%L2ACT(izlev)
+        iy = SGS(istate)%L2ACT(iylev)
+        iz = SGS(istate)%L2ACT(izlev)
         F2(it,iu,iy,iz) = F2(iz,iy,iu,it)
       end do
     end do
@@ -644,13 +646,13 @@ else
     do ip1=1,nlev2-1
       itlev = idx2ij(1,ip1)
       iulev = idx2ij(2,ip1)
-      it = SGS%L2ACT(itlev)
-      iu = SGS%L2ACT(iulev)
+      it = SGS(istate)%L2ACT(itlev)
+      iu = SGS(istate)%L2ACT(iulev)
       do ip3=ip1+1,nlev2
         iylev = idx2ij(1,ip3)
         izlev = idx2ij(2,ip3)
-        iy = SGS%L2ACT(iylev)
-        iz = SGS%L2ACT(izlev)
+        iy = SGS(istate)%L2ACT(iylev)
+        iz = SGS(istate)%L2ACT(izlev)
         F2(it,iu,iy,iz) = F2(iy,iz,it,iu)
       end do
     end do

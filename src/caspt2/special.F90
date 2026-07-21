@@ -21,7 +21,7 @@ subroutine SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nLev,mG3)
 ! SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 ! OR CLOSED-SHELL SCF CASE.
 
-use caspt2_global, only: SGS
+use sguga_states, only: SGS
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use caspt2_module, only: ETA, iSCF, NG3
 use Constants, only: Zero, One, Two
@@ -34,6 +34,7 @@ integer(kind=byte), intent(out) :: idxG3(6,mG3)
 integer(kind=iwp) :: ID, IG3, IND1, IND2, IND3, IT, IT1, IT2, IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1, LU2, LU3, NLEV2, NLEV4, &
                      NTASK
 real(kind=wp) :: ESUM, Occ, Val
+integer(kind=iwp), parameter :: istate=1
 
 G1(:,:) = Zero
 G2(:,:,:,:) = Zero
@@ -48,7 +49,7 @@ OCC = Two
 if (ISCF == 2) OCC = One
 do IT=1,nLev
   G1(IT,IT) = OCC
-  LT = SGS%LEVEL(IT)
+  LT = SGS(istate)%LEVEL(IT)
   F1(IT,IT) = (ESUM*OCC-ETA(LT))*G1(IT,IT)
 end do
 
@@ -62,9 +63,9 @@ end do
 !end if
 
 do IT=1,nLev
-  LT = SGS%LEVEL(IT)
+  LT = SGS(istate)%LEVEL(IT)
   do IU=1,nLev
-    LU = SGS%LEVEL(IU)
+    LU = SGS(istate)%LEVEL(IU)
     G2(IT,IT,IU,IU) = G1(IT,IT)*G1(IU,IU)
     if (IU == IT) then
       G2(IT,IT,IU,IU) = G2(IT,IT,IU,IU)-G1(IT,IU)
@@ -103,16 +104,16 @@ Outer: do
 
   IT1 = mod(IND1-1,nLev)+1
   IU1 = (IND1-IT1)/nLev+1
-  LU1 = SGS%LEVEL(IU1)
+  LU1 = SGS(istate)%LEVEL(IU1)
   IT2 = mod(IND2-1,nLev)+1
   IU2 = (IND2-IT2)/nLev+1
-  LU2 = SGS%LEVEL(IU2)
+  LU2 = SGS(istate)%LEVEL(IU2)
 
   do IT3=1,NLEV
     do IU3=1,NLEV
       IND3 = IT3+nLev*(IU3-1)
       if (IND3 > IND2) cycle
-      LU3 = SGS%LEVEL(IU3)
+      LU3 = SGS(istate)%LEVEL(IU3)
       VAL = G1(IT1,IU1)*G1(IT2,IU2)*G1(IT3,IU3)
 
       ! Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>

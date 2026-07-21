@@ -13,7 +13,8 @@
 
 subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 
-use caspt2_global, only: iRoot1, iRoot2, OLagFull, SGS
+use sguga_states, only: SGS
+use caspt2_global, only: iRoot1, iRoot2, OLagFull
 use caspt2_module, only: ENERGY, NASH, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NORB, NSTATE, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
@@ -25,8 +26,9 @@ real(kind=wp), intent(in) :: UEFF(nState,nState), U0(*)
 integer(kind=iwp) :: i, iMO1, iMO2, iOrb0, iOrb2, iStat, iSym, j, jOrb0, jOrb2, jStat, nLev, nOrbI1, nOrbI2
 real(kind=wp) :: Scal
 real(kind=wp), allocatable :: CI1(:), CI2(:), G1(:,:), SGM1(:), SGM2(:), TG1(:,:), WRK1(:), WRK2(:)
+integer(kind=iwp), parameter:: istate=1
 
-nLev = SGS%nLev
+nLev = SGS(istate)%nLev
 
 call mma_allocate(CI1,nConf,Label='CI1')
 call mma_allocate(CI2,nConf,Label='CI2')

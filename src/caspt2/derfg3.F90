@@ -18,7 +18,8 @@ use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use caspt2_global, only: iPrGlb, nbuf1_grad, SGS, CIS, EXS
+use sguga_states, only: SGS, CIS, EXS
+use caspt2_global, only: iPrGlb, nbuf1_grad
 use caspt2_module, only: EPSA, MxCI, nActEl, nSym, STSym
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, King
@@ -41,10 +42,11 @@ real(kind=wp) :: SCAL, ScalF, ScalG
 logical(kind=iwp) :: first
 integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUF3(:), BUF4(:), BUFD(:), BUFT(:), BUFX(:,:), DAB(:,:), DTU(:,:), DYZ(:)
+integer(kind=iwp), parameter :: iState=1
 
 ! IJ2IDX, IDX2IJ: translation tables for levels i,j to and from pair indices idx
 
-nMidV = CIS%nMidV
+nMidV = CIS(istate)%nMidV
 
 ! Put in zeroes. Recognize special cases:
 if (nlev == 0) return
@@ -98,13 +100,13 @@ if (IFF == 1) then
   do ip1=1,nlev2-1
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = SGS%L2ACT(itlev)
-    iu = SGS%L2ACT(iulev)
+    it = SGS(istate)%L2ACT(itlev)
+    iu = SGS(istate)%L2ACT(iulev)
     do ip3=ip1+1,nlev2
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = SGS%L2ACT(iylev)
-      iz = SGS%L2ACT(izlev)
+      iy = SGS(istate)%L2ACT(iylev)
+      iz = SGS(istate)%L2ACT(izlev)
       SCAL = DF2(iy,iz,it,iu)+DF2(it,iu,iy,iz)
       DF2(it,iu,iy,iz) = Zero
       DF2(iy,iz,it,iu) = Scal
@@ -116,13 +118,13 @@ if (IFF == 1) then
   do ip1=ntri2+1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    it = SGS%L2ACT(itlev)
-    iu = SGS%L2ACT(iulev)
+    it = SGS(istate)%L2ACT(itlev)
+    iu = SGS(istate)%L2ACT(iulev)
     do ip3=ntri1+1,ip1
       iylev = idx2ij(1,ip3)
       izlev = idx2ij(2,ip3)
-      iy = SGS%L2ACT(iylev)
-      iz = SGS%L2ACT(izlev)
+      iy = SGS(istate)%L2ACT(iylev)
+      iz = SGS(istate)%L2ACT(izlev)
       Scal = DF2(iz,iy,iu,it)+DF2(it,iu,iy,iz)
       DF2(it,iu,iy,iz) = Zero
       DF2(iz,iy,iu,it) = Scal
@@ -169,13 +171,13 @@ end if
 do ip1=1,nlev2-1
   itlev = idx2ij(1,ip1)
   iulev = idx2ij(2,ip1)
-  it = SGS%L2ACT(itlev)
-  iu = SGS%L2ACT(iulev)
+  it = SGS(istate)%L2ACT(itlev)
+  iu = SGS(istate)%L2ACT(iulev)
   do ip3=ip1+1,nlev2
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    iy = SGS%L2ACT(iylev)
-    iz = SGS%L2ACT(izlev)
+    iy = SGS(istate)%L2ACT(iylev)
+    iz = SGS(istate)%L2ACT(izlev)
     SCAL = DG2(iy,iz,it,iu)+DG2(it,iu,iy,iz)
     DG2(it,iu,iy,iz) = Zero
     DG2(iy,iz,it,iu) = Scal
@@ -187,13 +189,13 @@ end do
 do ip1=ntri2+1,nlev2
   itlev = idx2ij(1,ip1)
   iulev = idx2ij(2,ip1)
-  it = SGS%L2ACT(itlev)
-  iu = SGS%L2ACT(iulev)
+  it = SGS(istate)%L2ACT(itlev)
+  iu = SGS(istate)%L2ACT(iulev)
   do ip3=ntri1+1,ip1
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    iy = SGS%L2ACT(iylev)
-    iz = SGS%L2ACT(izlev)
+    iy = SGS(istate)%L2ACT(iylev)
+    iz = SGS(istate)%L2ACT(izlev)
     Scal = DG2(iz,iy,iu,it)+DG2(it,iu,iy,iz)
     DG2(it,iu,iy,iz) = Zero
     DG2(iz,iy,iu,it) = Scal
@@ -279,9 +281,9 @@ first = .true.
 ! This also allows precomputing the Hamiltonian (H0) diagonal elements.
 do issg1=1,nsym
   isp1 = Mul(issg1,STSYM)
-  nsgm1 = CIS%ncsf(issg1)
+  nsgm1 = CIS(istate)%ncsf(issg1)
   !!BufD_I = \sum_t <I|E_{tt}|I>*f_{tt}
-  if (IFF == 1) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,nMidV)
+  if (IFF == 1) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS(istate)%NOW,CIS(istate)%IOW,nMidV)
 
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
   !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
@@ -290,7 +292,7 @@ do issg1=1,nsym
   do ip1=1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    istu = Mul(SGS%ism(itlev),SGS%ism(iulev))
+    istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
     if (istu == isp1) then
       ibuf1 = ibuf1+1
       ip1_buf(ibuf1) = ip1
@@ -396,14 +398,14 @@ do issg1=1,nsym
       do ip1i=ip1sta,ip1end
         itlev = idx2ij(1,ip1i)
         iulev = idx2ij(2,ip1i)
-        istu = Mul(SGS%ism(itlev),SGS%ism(iulev))
-        it = SGS%L2ACT(itlev)
-        iu = SGS%L2ACT(iulev)
+        istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
+        it = SGS(istate)%L2ACT(itlev)
+        iu = SGS(istate)%L2ACT(iulev)
         if (istu == isp1) then
           ibuf1 = ibuf1+1
           ip1_buf(ibuf1) = ip1i
           BUF1(1:nsgm1,ibuf1) = Zero
-          call SG_Epq_Psi(SGS,CIS,EXS,IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
+          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
         end if
       end do
       myBuffer = iTask
@@ -426,8 +428,8 @@ do issg1=1,nsym
         idx = ip1_buf(ib)
         itlev = idx2ij(1,idx)
         iulev = idx2ij(2,idx)
-        it = SGS%L2ACT(itlev)
-        iu = SGS%L2ACT(iulev)
+        it = SGS(istate)%L2ACT(itlev)
+        iu = SGS(istate)%L2ACT(iulev)
         !write(u6,'('itlev,iulev,it,iu = ',4i3)') itlev,iulev,it,iu
         !! DG1 contribution
         SCAL = DG1(iT,iU)+DG1(iT,iU)
@@ -466,13 +468,13 @@ do issg1=1,nsym
     ! The indices corresponding to pair index p3:
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    isyz = Mul(SGS%ism(iylev),SGS%ism(izlev))
+    isyz = Mul(SGS(istate)%ism(iylev),SGS(istate)%ism(izlev))
     issg2 = Mul(isyz,STSYM)
-    nsgm2 = CIS%ncsf(issg2)
-    iy = SGS%L2ACT(iylev)
-    iz = SGS%L2ACT(izlev)
+    nsgm2 = CIS(istate)%ncsf(issg2)
+    iy = SGS(istate)%L2ACT(iylev)
+    iz = SGS(istate)%L2ACT(izlev)
     buf2(1:nsgm2) = Zero
-    call SG_Epq_Psi(SGS,CIS,EXS,IYLEV,IZLEV,One,STSYM,CI,BUF2)
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IYLEV,IZLEV,One,STSYM,CI,BUF2)
     DYZ(1:nsgm1) = Zero
     if (issg2 == issg1) then
       buf3(1:nsgm2) = Zero
@@ -480,8 +482,8 @@ do issg1=1,nsym
         idx = ip1_buf(ib)
         itlev = idx2ij(1,idx)
         iulev = idx2ij(2,idx)
-        it = SGS%L2ACT(itlev)
-        iu = SGS%L2ACT(iulev)
+        it = SGS(istate)%L2ACT(itlev)
+        iu = SGS(istate)%L2ACT(iulev)
 
         ScalG = DG2(iT,iU,iY,iZ)
         ScalF = DF2(iT,iU,iY,iZ)
@@ -516,14 +518,14 @@ do issg1=1,nsym
     do ixlev0=1,nlev
       BUFX(1:nsgm1,1:nlev) = Zero
       do ivlev=1,nlev
-        call SG_Epq_Psi(SGS,CIS,EXS,IVLEV,IXLEV0,One,STSYM,BUF2,BUFX(:,ivlev))
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IVLEV,IXLEV0,One,STSYM,BUF2,BUFX(:,ivlev))
       end do
       iG3OFF = iG3bk
       do ip2=ip3,ntri2
         ivlev = idx2ij(1,ip2)
         ixlev = idx2ij(2,ip2)
-        isvx = Mul(SGS%ism(ivlev),SGS%ism(ixlev))
-        iv = SGS%L2ACT(ivlev)
+        isvx = Mul(SGS(istate)%ism(ivlev),SGS(istate)%ism(ixlev))
+        iv = SGS(istate)%L2ACT(ivlev)
         if (isvx /= Mul(issg1,issg2)) cycle
         !! <I|EvxEyz|0>
         if (IXLEV == IXLEV0) BUFT(1:nsgm1) = BUFX(1:nsgm1,IVLEV)
@@ -597,7 +599,7 @@ do issg1=1,nsym
           buf3(1:nsgm1) = buf3(1:nsgm1)+buf4(1:nsgm1)*(bufd(1:nsgm1)-epsa(iv))
         end if
         !! right derivative (2): <0|EtuEvx|I>*Dtuvxyz
-        call SG_Epq_Psi(SGS,CIS,EXS,IXLEV,IVLEV,One,STSYM,BUF3,DYZ)
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IXLEV,IVLEV,One,STSYM,BUF3,DYZ)
 
         iG3OFF = iG3OFF+nb
         nbtot = nbtot+nb
@@ -606,7 +608,7 @@ do issg1=1,nsym
 
     !! Complete the right derivative contribution:
     !! <0|EtuEyz|I> and <0|EtuEvxEyz|I>
-    call SG_Epq_Psi(SGS,CIS,EXS,IZLEV,IYLEV,One,STSYM,DYZ,CLAG)
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IZLEV,IYLEV,One,STSYM,DYZ,CLAG)
 
     if (iPrGlb >= DEBUG) then
       write(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)') iSubTask,ip1sta,ip1end,ip3,nbtot
@@ -677,13 +679,13 @@ subroutine LEFT_DEPSA()
     itlev = idx2ij(1,idx)
     iulev = idx2ij(2,idx)
     !! left derivative
-    call SG_Epq_Psi(SGS,CIS,EXS,ITLEV,IULEV,One,STSYM,DTU(1,ibloc),CLAG)
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),ITLEV,IULEV,One,STSYM,DTU(1,ibloc),CLAG)
     !! the rest is DEPSA contribution
     if (IFF == 1) then
       do IALEVloc=1,NLEV
         do IBLEVloc=1,NLEV
           BUF2(:) = Zero
-          call SG_Epq_Psi(SGS,CIS,EXS,IALEVloc,IBLEVloc,One,STSYM,DAB(1,ibloc),BUF2)
+          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IALEVloc,IBLEVloc,One,STSYM,DAB(1,ibloc),BUF2)
           DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)+dot_product(BUF1(1:nsgm1,IBloc),BUF2(1:nsgm1))
         end do
       end do

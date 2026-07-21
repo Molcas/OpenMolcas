@@ -14,8 +14,9 @@
 subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
+use sguga_states, only: SGS
 use caspt2_global, only: CLag, CLagFull, CMOPT2, do_csf, do_nac, DPT2_tot, FIFA, FIFA_all, FIFASA_all, if_equalW, iRoot1, iRoot2, &
-                         NDREF, nOLag, OLag, TORB, weight, SGS
+                         NDREF, nOLag, OLag, TORB, weight
 use caspt2_module, only: ENERGY, IFDW, IFRMS, IFXMS, MXCI, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NROOTS, NSTATE, &
                          ORBIN, STSYM, ZETA
 #ifdef _MOLCAS_MPP_
@@ -33,8 +34,9 @@ real(kind=wp) :: EDIFF, EEI, EEJ, EINACT, fact, OVL, Scal, TRC, Wgt
 real(kind=wp), allocatable :: CI1(:), CI2(:), DG1(:), DG2(:), DG3(:), DPT2(:), DPT2_AO(:), G1(:,:), RDMEIG(:,:), RDMSA(:,:), &
                               SGM1(:), SGM2(:), SLag(:,:), TG1(:,:), TG2(:), Trf(:), WRK1(:), WRK2(:)
 real(kind=wp), external :: ddot_
+integer(kind=iwp), parameter:: jstate=1
 
-nLev = SGS%nLev
+nLev = SGS(jstate)%nLev
 
 call mma_allocate(SLag,nState,nState,Label='SLag')
 

@@ -26,13 +26,15 @@ use caspt2_module, only: DMRG
 use OFembed, only: FMaux
 #endif
 use ChoCASPT2, only: NASplit, NISplit, NumCho_PT2
-use caspt2_global, only: CMOPT2, DMIX, DREF, DWGT, FIFA, FIMO, IDCIEX, IDSCT, IDTCEX, PREF, TAT, TORB, Weight, SGS, CIS, EXS
+use sguga_states, only: SGS, CIS, EXS
+use caspt2_global, only: CMOPT2, DMIX, DREF, DWGT, FIFA, FIMO, IDCIEX, IDSCT, IDTCEX, PREF, TAT, TORB, Weight
 use caspt2_module, only: IfChol, nAsh, nIsh, nSsh, nSym
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc, iSym
+integer(kind=iwp), parameter :: istate=1
 
 if (IfChol) then
   ! Finalize Cholesky information
@@ -57,7 +59,7 @@ if (IfChol) then
 end if
 
 ! Deallocate SGUGA tables:
-call SG_Free(SGS,CIS,EXS)
+call SG_Free(SGS(istate),CIS(istate),EXS(istate))
 
 ! dealloacte DMRG stuff
 #ifdef _DMRG_

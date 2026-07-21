@@ -24,10 +24,11 @@ use CHOVEC_IO, only: nvloc_chobatch
 use PrintLevel, only: DEBUG, VERBOSE
 use EQSOLV, only: IVECC, IVECC2, IVECR, IVECW, IVECX
 use ChoCASPT2, only: iALGO, MaxVec_PT2
+use sguga_states, only: SGS
 use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, &
                          DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_invar, if_invaria, if_SSDM, &
                          imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, real_shift, sigma_p_epsilon, &
-                         SLag, TORB, Weight, SGS
+                         SLag, TORB, Weight
 use caspt2_module, only: DENORM, HZERO, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASH, NASHT, &
                          NBAS, NBAST, NBSQT, NCONF, NFROT, NISH, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, ZETA
 use BDerNEV, only: BDerNEV_initial, BDerNEV_final1, BDerNEV_final2
@@ -54,6 +55,7 @@ real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_di
                               RDMSA(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
 real(kind=wp), allocatable, target :: DPT2Canti_(:), DPT2C(:)
 real(kind=wp), pointer :: DPT2Canti(:)
+integer(kind=iwp), parameter :: kstate=1
 
 if (do_grad) then
   !! Set indices for densities and partial derivatives
@@ -177,9 +179,9 @@ if (do_grad) then
   call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
   !! Derivative of state-averaged density
   call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
-  NLEV = SGS%NLEV
-  if (nAshT /= SGS%NLEV) then
-    write(u6,*) 'Analytical gradients for nAshT /= SGS%NLEV (GASPT2?) does not work'
+  NLEV = SGS(kstate)%NLEV
+  if (nAshT /= SGS(kstate)%NLEV) then
+    write(u6,*) 'Analytical gradients for nAshT /= SGS(kstate)%NLEV (GASPT2?) does not work'
     call abend()
   end if
   !write(u6,*) 'olag before'

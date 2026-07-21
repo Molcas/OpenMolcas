@@ -23,7 +23,8 @@ use Symmetry_Info, only: Mul
 use qcmaquis_interface, only: qcmaquis_interface_get_trans_1rdm_full, qcmaquis_interface_get_trans_2rdm_full, &
                               qcmaquis_interface_get_trans_3rdm_full, qcmaquis_interface_read_rdm_full
 use printLevel, only: debug
-use caspt2_global, only: iPrGlb, SGS
+use sguga_states, only:  SGS
+use caspt2_global, only: iPrGlb
 use caspt2_module, only: nAshT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -34,6 +35,7 @@ integer(kind=iwp), intent(in) :: lsym1, lsym2, state1, state2, ntg3
 real(kind=wp), intent(out) :: ovl, tg1(nasht,nasht), tg2(nasht,nasht,nasht,nasht), tg3(ntg3)
 integer(kind=iwp) :: ituvxyz, sym_sig1, sym_sig2, sym_tau, t, u, v, x, y, z
 real(kind=wp), allocatable :: tg1_tmp(:,:), tg3_tmp(:,:,:,:,:,:)
+integer(kind=iwp), parameter :: istate=1
 
 if (iPrGlb >= debug) then
   write(u6,*) '=== QCM: Building TRANSITION-RDM ==='
@@ -91,21 +93,21 @@ ovl = Zero
 do z=1,nasht
   do y=1,nasht
     ! symmetry of sigma2 = E_yz|Psi2>
-    sym_sig2 = Mul(Mul(SGS%ism(y),SGS%ism(z)),lsym2)
+    sym_sig2 = Mul(Mul(SGS(istate)%ism(y),SGS(istate)%ism(z)),lsym2)
     do x=1,nasht
       do v=1,nasht
         ! if (y + (z - 1) * nasht  < v + (x - 1) * nasht) then
         !   cycle
         ! end if
         ! symmetry of tau = E_vx|sigma2>
-        sym_tau = Mul(Mul(SGS%ism(x),SGS%ism(v)),sym_sig2)
+        sym_tau = Mul(Mul(SGS(istate)%ism(x),SGS(istate)%ism(v)),sym_sig2)
         do u=1,nasht
           do t=1,nasht
             ! if (v + (x - 1) * nasht  < t + (u - 1) * nasht) then
             !   cycle
             ! end if
             ! symmetry of SG_Epq_Psi = <Psi1|E_tu
-            sym_sig1 = Mul(Mul(SGS%ism(t),SGS%ism(u)),lsym1)
+            sym_sig1 = Mul(Mul(SGS(istate)%ism(t),SGS(istate)%ism(u)),lsym1)
             ! only for for matching symmetries we have an element different from 0
             if (sym_sig1 == sym_tau) then
               ! generate the flat index

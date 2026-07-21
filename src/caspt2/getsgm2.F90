@@ -33,7 +33,7 @@ subroutine GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
 
 use sguga, only: sg_epq_psi
 use Symmetry_Info, only: Mul
-use caspt2_global, only: CIS, EXS, SGS
+use sguga_states, only: CIS, EXS, SGS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -42,19 +42,20 @@ integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI, nCI, MSGM
 real(kind=wp), intent(in) :: CI(nCI)
 real(kind=wp), intent(inout) :: SGM(MSGM)
 integer(kind=iwp) :: IJS, IS, ISSG, JS, NSGM
+integer(kind=iwp), parameter :: istate=1
 
 SGM(1:MSGM) = Zero
-IS = SGS%ISM(ILEV)
-JS = SGS%ISM(JLEV)
+IS = SGS(istate)%ISM(ILEV)
+JS = SGS(istate)%ISM(JLEV)
 IJS = Mul(IS,JS)
 ISSG = Mul(IJS,ISYCI)
-NSGM = CIS%NCSF(ISSG)
+NSGM = CIS(istate)%NCSF(ISSG)
 if (NSGM > MSGM) then
   write(u6,*) 'GETSGM2: NSGM>MSGM'
   call Abend()
 end if
 if (NSGM == 0) return
 
-call SG_Epq_Psi(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
+call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),ILEV,JLEV,One,ISYCI,CI,SGM)
 
 end subroutine GETSGM2

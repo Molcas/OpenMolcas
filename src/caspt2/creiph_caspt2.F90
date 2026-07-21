@@ -25,7 +25,8 @@ use PrintLevel, only: USUAL
 use REFWFN, only: IADR15, REFWFN_FILENAME
 use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
-use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight, SGS
+use sguga_states, only: SGS
+use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
 use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, ISPIN, &
                          LROOTS, MSTATE, MSTATE, MXCI, NACTEL, NASH, NBAS, NBSQT, NCONF, NDEL, NELE3, NFRO, NHOLE1, NISH, NRAS1, &
                          NRAS2, NRAS3, NROOTS, NSYM, POTNUC, STSYM, TITLE
@@ -39,6 +40,7 @@ real(kind=wp), intent(in) :: Heff(Nstate,Nstate), Ueff(Nstate,Nstate), U0(Nstate
 integer(kind=iwp) :: I, IAD15, ID, IDISK, IDR, IDW, IISTATE, ISNUM, ISTATE, J, JOBIPH, JOBMIX, JSNUM, MROOTS, NIDIST, NOLDE
 integer(kind=iwp), allocatable :: IDIST(:), JROOT(:), xL2Act(:), xLevel(:)
 real(kind=wp), allocatable :: CI1(:), CI2(:), EFFCP(:), OLDE(:), Weight_(:)
+integer(kind=iwp), parameter :: jstate=1
 
 ! Not called, if .not. IFMIX, then only the new CI coefficients are
 ! printed, no JOBMIX file is created.
@@ -149,10 +151,10 @@ IAD15 = IADR15(18)
 !Copy to local array since L2Act and Level are protected.
 call mma_allocate(xL2Act,MxLev,Label='xL2Act')
 call mma_allocate(xLevel,MxLev,Label='xLevel')
-XL2Act(:) = SGS%L2Act(:)
+XL2Act(:) = SGS(jstate)%L2Act(:)
 call IDAFILE(JOBMIX,1,xL2ACT,mxAct,IAD15)
 !SVC: translates orbital index to levels
-XLevel(:) = SGS%Level(:)
+XLevel(:) = SGS(jstate)%Level(:)
 call IDAFILE(JOBMIX,1,xLEVEL,mxAct,IAD15)
 call mma_deallocate(xL2Act)
 call mma_deallocate(xLevel)

@@ -13,7 +13,8 @@ subroutine FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
 
 use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri_Elem
-use caspt2_global, only: IDCIEX, LUCIEX, SGS, CIS, EXS
+use sguga_states, only: SGS, CIS, EXS
+use caspt2_global, only: IDCIEX, LUCIEX
 use caspt2_module, only: ISCF, NAES, NASH, NCONF, NISH, NORB, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -28,8 +29,9 @@ integer(kind=iwp) :: I, ID, IFTEST, II, IJ, IOFF(8), ISCR, IST, ISU, ISYM, IT, I
 real(kind=wp) :: EINACT, ESUM, FTU, OCC, TRC
 real(kind=wp), allocatable :: BRA(:), KET(:), SGM(:)
 real(kind=wp), external :: DDot_
+integer(kind=iwp), parameter :: istate=1
 
-nLev = SGS%nLev
+nLev = SGS(istate)%nLev
 
 ! Procedure for computing one matrix element of the Fock matrix in the
 ! basis of the CASSCF states: <BRA|FOP|KET>
@@ -115,21 +117,21 @@ end if
 ! the ket wave function.
 SGM(:) = Zero
 do LEVU=1,NLEV
-  IUABS = SGS%L2ACT(LEVU)
-  ISU = SGS%ISM(LEVU)
+  IUABS = SGS(istate)%L2ACT(LEVU)
+  ISU = SGS(istate)%ISM(LEVU)
   IU = IUABS-NAES(ISU)
   NI = NISH(ISU)
   IUTOT = NI+IU
   do LEVT=1,LEVU
-    if (SGS%ISM(LEVT) /= ISU) cycle
-    ITABS = SGS%L2ACT(LEVT)
+    if (SGS(istate)%ISM(LEVT) /= ISU) cycle
+    ITABS = SGS(istate)%L2ACT(LEVT)
     IST = ISU
     IT = ITABS-NAES(IST)
     ITTOT = NI+IT
     ITUTOT = iTri(IUTOT,ITTOT)
     FTU = FIFA(IOFF(ISU)+ITUTOT)
     if (abs(FTU) < 1.0e-16_wp) cycle
-    call SG_Epq_Psi(SGS,CIS,EXS,LEVT,LEVU,FTU,STSYM,KET,SGM)
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVT,LEVU,FTU,STSYM,KET,SGM)
   end do
 end do
 ! Add contribution from inactive part:
@@ -158,21 +160,21 @@ end if
 ! Note that I already have BRA in memory
 SGM(:) = Zero
 do LEVU=2,NLEV
-  IUABS = SGS%L2ACT(LEVU)
-  ISU = SGS%ISM(LEVU)
+  IUABS = SGS(istate)%L2ACT(LEVU)
+  ISU = SGS(istate)%ISM(LEVU)
   IU = IUABS-NAES(ISU)
   NI = NISH(ISU)
   IUTOT = NI+IU
   do LEVT=1,LEVU-1
-    if (SGS%ISM(LEVT) /= ISU) cycle
-    ITABS = SGS%L2ACT(LEVT)
+    if (SGS(istate)%ISM(LEVT) /= ISU) cycle
+    ITABS = SGS(istate)%L2ACT(LEVT)
     IST = ISU
     IT = ITABS-NAES(IST)
     ITTOT = NI+IT
     ITUTOT = iTri(IUTOT,ITTOT)
     FTU = FIFA(IOFF(ISU)+ITUTOT)
     if (abs(FTU) < 1.0e-16_wp) cycle
-    call SG_Epq_Psi(SGS,CIS,EXS,LEVT,LEVU,FTU,STSYM,BRA,SGM)
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVT,LEVU,FTU,STSYM,BRA,SGM)
   end do
 end do
 

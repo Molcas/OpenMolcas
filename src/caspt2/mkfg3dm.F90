@@ -40,7 +40,8 @@ subroutine MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,NLEV,mG3)
 use Index_Functions, only: nTri_Elem
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
-use caspt2_global, only: iPrGlb, SGS, CIS
+use sguga_states, only: SGS, CIS
+use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
 use Molcas, only: MxLev
 use caspt2_module, only: MxCI, nActEl, nG1, nG2, nG3, nSym, STSym
@@ -68,6 +69,7 @@ real(kind=wp), allocatable :: G3Tmp(:)
 integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TaskList(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFT(:)
 real(kind=wp), external :: DDOT_, DNRM2_
+integer(kind=iwp), parameter :: istate=1
 
 ! IJ2IDX, IDX2IJ, ICNJ, IP1_BUF: translation tables for levels i,j to and from pair indices idx
 
@@ -85,7 +87,7 @@ end if
 
 if (NACTEL == 0) return
 
-NCI = CIS%NCSF(STSYM)
+NCI = CIS(istate)%NCSF(STSYM)
 ! This should not happen, but...
 if (NCI == 0) return
 
@@ -156,7 +158,7 @@ iG3OFF = 0
 
 do issg1=1,nsym
   isp1 = Mul(issg1,stsym)
-  !nsgm1 = CIS%ncsf(issg1)
+  !nsgm1 = CIS(istate)%ncsf(issg1)
   !call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,NOW1,IOW1,NMIDV)
 
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
@@ -166,7 +168,7 @@ do issg1=1,nsym
   do ip1=1,nlev2
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
-    istu = Mul(SGS%ism(itlev),SGS%ism(iulev))
+    istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
     if (istu == isp1) then
       ibuf1 = ibuf1+1
       ip1_buf(ibuf1) = ip1
@@ -247,9 +249,9 @@ do issg1=1,nsym
       do ip1i=ip1sta,ip1end
         itlev = idx2ij(1,ip1i)
         iulev = idx2ij(2,ip1i)
-        istu = Mul(SGS%ism(itlev),SGS%ism(iulev))
-        it = SGS%L2ACT(itlev)
-        iu = SGS%L2ACT(iulev)
+        istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
+        it = SGS(istate)%L2ACT(itlev)
+        iu = SGS(istate)%L2ACT(iulev)
         if (istu == isp1) then
           ibuf1 = ibuf1+1
           ip1_buf(ibuf1) = ip1i
@@ -271,8 +273,8 @@ do issg1=1,nsym
     !    idx = ip1_buf(ib)
     !    itlev = idx2ij(1,idx)
     !    iulev = idx2ij(2,idx)
-    !    it = SGS%L2ACT(itlev)
-    !    iu = SGS%L2ACT(iulev)
+    !    it = SGS(istate)%L2ACT(itlev)
+    !    iu = SGS(istate)%L2ACT(iulev)
     !    G1(it,iu) = DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
     !    if (mkF) then
     !      F1sum = Zero
@@ -305,11 +307,11 @@ do issg1=1,nsym
     ! The indices corresponding to pair index p3:
     iylev = idx2ij(1,ip3)
     izlev = idx2ij(2,ip3)
-    isyz = Mul(SGS%ism(iylev),SGS%ism(izlev))
+    isyz = Mul(SGS(istate)%ism(iylev),SGS(istate)%ism(izlev))
     issg2 = Mul(isyz,stsym)
-    !nsgm2 = CIS%ncsf(issg2)
-    iy = SGS%L2ACT(iylev)
-    iz = SGS%L2ACT(izlev)
+    !nsgm2 = CIS(istate)%ncsf(issg2)
+    iy = SGS(istate)%L2ACT(iylev)
+    iz = SGS(istate)%L2ACT(izlev)
     !BUF2(1:nsgm2) = Zero
     !call SG_Epq_Psi(IYLEV,IZLEV,One,STSYM,CI,BUF2)
     !if (issg2 == issg1) then
@@ -317,8 +319,8 @@ do issg1=1,nsym
     !    idx = ip1_buf(ib)
     !    itlev = idx2ij(1,idx)
     !    iulev = idx2ij(2,idx)
-    !    it = SGS%L2ACT(itlev)
-    !    iu = SGS%L2ACT(iulev)
+    !    it = SGS(istate)%L2ACT(itlev)
+    !    iu = SGS(istate)%L2ACT(iulev)
     !    G2(it,iu,iy,iz) = DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
     !    if (mkF) then
     !      F2sum = Zero
@@ -333,9 +335,9 @@ do issg1=1,nsym
     do ip2=ip3,ntri2
       ivlev = idx2ij(1,ip2)
       ixlev = idx2ij(2,ip2)
-      isvx = Mul(SGS%ism(ivlev),SGS%ism(ixlev))
-      iv = SGS%L2ACT(ivlev)
-      ix = SGS%L2ACT(ixlev)
+      isvx = Mul(SGS(istate)%ism(ivlev),SGS(istate)%ism(ixlev))
+      iv = SGS(istate)%L2ACT(ivlev)
+      ix = SGS(istate)%L2ACT(ixlev)
       if (isvx == Mul(issg1,issg2)) then
         !BUFT(1:nsgm1) = Zero
         !call SG_Epq_Psi(IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
@@ -373,8 +375,8 @@ do issg1=1,nsym
             idx = ip1_buf(ibmn-1+ib)
             itlev = idx2ij(1,idx)
             iulev = idx2ij(2,idx)
-            iT = SGS%l2act(itlev)
-            iU = SGS%l2act(iulev)
+            iT = SGS(istate)%l2act(itlev)
+            iU = SGS(istate)%l2act(iulev)
             idxG3(1,iG3) = int(iT,kind=byte)
             idxG3(2,iG3) = int(iU,kind=byte)
             idxG3(3,iG3) = int(iV,kind=byte)

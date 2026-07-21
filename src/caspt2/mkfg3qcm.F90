@@ -22,7 +22,8 @@ use qcmaquis_interface, only: qcmaquis_interface_get_1rdm_full, qcmaquis_interfa
                               qcmaquis_interface_get_3rdm_full, qcmaquis_interface_get_fock_contracted_4rdm_full, &
                               qcmaquis_interface_read_fock_contracted_4rdm
 use printLevel, only: verbose
-use caspt2_global, only: iPrGlb, SGS
+use sguga_states, only: SGS
+use caspt2_global, only: iPrGlb
 use caspt2_module, only: EPSA, jState
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -35,6 +36,7 @@ real(kind=wp), intent(out) :: G1(nLev,nLev), F1(nLev,nLev), G2(nLev,nLev,nLev,nL
 integer(kind=byte), intent(in) :: idxG3(6,nG3)
 integer(kind=iwp) :: i, t, u, v, w, x, y, z
 real(kind=wp), allocatable :: G3tmp(:,:,:,:,:,:), TG3tmp(:,:,:,:,:,:)
+integer(kind=iwp), parameter:: istate=1
 
 ! This might be memory hungry
 call mma_allocate(G3tmp,nLev,nLev,nLev,nLev,nLev,nLev,Label='G3Tmp')
@@ -68,7 +70,7 @@ call qcmaquis_interface_read_fock_contracted_4rdm(TG3tmp,logical(.false.,c_bool)
 if (mkF) then
   do t=1,nLev
     do u=1,t
-      if (Mul(SGS%ism(t),SGS%ism(u)) == 1) then
+      if (Mul(SGS(istate)%ism(t),SGS(istate)%ism(u)) == 1) then
         do w=1,nLev
           F1(t,u) = F1(t,u)+G2(t,u,w,w)*epsa(w)
         end do
@@ -83,7 +85,7 @@ if (mkF) then
     do u=1,nLev
       do v=1,nLev
         do x=1,nLev
-          if (Mul(SGS%ism(x),Mul(SGS%ism(v),Mul(SGS%ism(u),SGS%ism(t)))) == 1) then
+          if (Mul(SGS(istate)%ism(x),Mul(SGS(istate)%ism(v),Mul(SGS(istate)%ism(u),SGS(istate)%ism(t)))) == 1) then
             do w=1,nLev
               F2(t,u,v,x) = F2(t,u,v,x)+G3tmp(t,v,w,u,x,w)*epsa(w)
             end do

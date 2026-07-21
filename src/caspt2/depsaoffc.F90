@@ -15,7 +15,8 @@ subroutine DEPSAOffC(NCONF,NSTATE,NASHT,NBAST,CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 
 use Symmetry_Info, only: Mul
 use PrintLevel, only: VERBOSE
-use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag, SGS, CIS
+use sguga_states, only: SGS, CIS
+use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag
 use caspt2_module, only: IFRMS, IFXMS, ISCF, NASH, NBAS, NBTCH, NBTCHES, NFRO, NISH, NORB, NROOTS, NSYM, STSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -34,9 +35,10 @@ real(kind=wp) :: Alpha, AlphaC, Beta, CPE, CPTF0, CPTF1, CPTF2, CPUT, Delta, Del
 real(kind=wp), allocatable :: Eact(:), G2(:), INT1(:), INT2(:), VecCID(:,:), VecCIT(:,:), VecFancy(:), VecPre(:), VecS1(:,:), &
                               VecS2(:,:), VecST(:,:)
 real(kind=wp), external :: DDot_
+integer(kind=iwp), parameter:: jState=1
 
-nLev = SGS%nLev
-nMidV = CIS%nMidV
+nLev = SGS(jstate)%nLev
+nMidV = CIS(jstate)%nMidV
 
 Thres = ConvInvar !! 1.0e-7_wp
 
@@ -483,7 +485,6 @@ end subroutine CnstInt
 !! dens2_rpt2
 subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
 
-  use caspt2_global, only: SGS
   use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
   use Constants, only: Two
 
@@ -496,7 +497,7 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
   real(kind=wp), allocatable :: SGM1(:), SGM2(:)
   integer(kind=iwp), allocatable :: TASK(:,:)
 
-  nLev = SGS%nLev
+  nLev = SGS(jstate)%nLev
 
   !  --- H_{IJ}*P_J
   ! <CI1|EtuEvx|CI2>=<CI1|Evx
@@ -523,17 +524,17 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
     do while (Rsv_Tsk(ID,iTask))
       LT = TASK(iTask,1)
       !tras = lt <= nras1(1)
-      IST = SGS%ISM(LT)
-      IT = SGS%L2ACT(LT)
+      IST = SGS(jstate)%ISM(LT)
+      IT = SGS(jstate)%L2ACT(LT)
       LU = Task(iTask,2)
       !uras = lu > nras1(1)+nras2(1)
       !if (tras .and. uras) cycle
       !LTU = iTask
-      ISU = SGS%ISM(LU)
-      IU = SGS%L2ACT(LU)
+      ISU = SGS(jstate)%ISM(LU)
+      IU = SGS(jstate)%L2ACT(LU)
       ISTU = Mul(IST,ISU)
       ISSG = Mul(ISTU,STSYM)
-      NSGM = CIS%NCSF(ISSG)
+      NSGM = CIS(jstate)%NCSF(ISSG)
       if (NSGM == 0) cycle
       !! <CIin|Etu
       call GETSGM2(LU,LT,STSYM,CIin(1,kState),nConf,SGM1,NSGM)
@@ -541,17 +542,17 @@ subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
       if (ISTU == 1) CIout(1:NSGM,kState) = CIout(1:NSGM,kState)+INT1(IT,IU)*SGM1(1:NSGM)
       LVX = 0
       do LV=1,NLEV
-        ISV = SGS%ISM(LV)
-        IV = SGS%L2ACT(LV)
+        ISV = SGS(jstate)%ISM(LV)
+        IV = SGS(jstate)%L2ACT(LV)
         !vras = lv <= nras1(1)
         do LX=1,NLEV
           LVX = LVX+1
-          ISX = SGS%ISM(LX)
+          ISX = SGS(jstate)%ISM(LX)
           ISVX = Mul(ISV,ISX)
           !xras = lx > nras1(1)+nras2(1)
           !if (vras .and. xras) cycle
           if (ISVX /= ISTU) cycle
-          IX = SGS%L2ACT(LX)
+          IX = SGS(jstate)%L2ACT(LX)
           call GETSGM2(LX,LV,ISSG,SGM1,NSGM,SGM2,NSGM)
           CIout(1:NSGM,kState) = CIout(1:NSGM,kState)+INT2(IT,IU,IV,IX)*SGM2(1:NSGM)
         end do
@@ -607,7 +608,7 @@ subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
   real(kind=wp) :: EigI, EigJ, OLagIJ, rd, Tmp, vSLag, Wgt
   real(kind=wp), allocatable :: Fock(:), FockOut(:), G1T(:), G2T(:), SGM1(:), SGM2(:)
 
-  nLev = SGS%nLev
+  nLev = SGS(jState)%nLev
 
   ! This subroutine computes the second term in Eq. (70) or the RHS of
   ! Eq. (72) in the CASPT2-IPEA gradient paper
@@ -762,7 +763,7 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
                        kSt, LENCSF, LEV, LEV2, MV, NCI, NDWN, nIpWlk, NNN, NUP
   real(kind=wp) :: dnum, Ene, ICS(MXLEV), val, val2
 
-  nIpWlk = CIS%nIpWlk
+  nIpWlk = CIS(jstate)%nIpWlk
 
   ! Construct (approximate?) preconditioner for the active linear
   ! equation that should be solved for non-invariant CASPT2 methods
@@ -777,8 +778,8 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
   LENCSF = 0
   ISY = 0
   do LEV=1,NLEV
-    if (ISY /= SGS%ISM(LEV)) then
-      ISY = SGS%ISM(LEV)
+    if (ISY /= SGS(jstate)%ISM(LEV)) then
+      ISY = SGS(jstate)%ISM(LEV)
       LENCSF = LENCSF+1
     end if
     LENCSF = LENCSF+1
@@ -792,14 +793,14 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
   !    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
   do MV=1,NMIDV
     do ISYUP=1,NSYM
-      NCI = CIS%NOCSF(ISYUP,MV,ISYCI)
+      NCI = CIS(jstate)%NOCSF(ISYUP,MV,ISYCI)
       if (NCI == 0) cycle
-      NUP = CIS%NOW(1,ISYUP,MV)
+      NUP = CIS(jstate)%NOW(1,ISYUP,MV)
       ISYDWN = Mul(ISYUP,ISYCI)
-      NDWN = CIS%NOW(2,ISYDWN,MV)
-      ICONF = CIS%IOCSF(ISYUP,MV,ISYCI)
-      IUW0 = 1-NIPWLK+CIS%IOW(1,ISYUP,MV)
-      IDW0 = 1-NIPWLK+CIS%IOW(2,ISYDWN,MV)
+      NDWN = CIS(jstate)%NOW(2,ISYDWN,MV)
+      ICONF = CIS(jstate)%IOCSF(ISYUP,MV,ISYCI)
+      IUW0 = 1-NIPWLK+CIS(jstate)%IOW(1,ISYUP,MV)
+      IDW0 = 1-NIPWLK+CIS(jstate)%IOW(2,ISYDWN,MV)
       IDWNSV = 0
       do IDWN=1,NDWN
         do IUP=1,NUP
@@ -809,15 +810,15 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
           !if (abs(COEF) < THR) cycle
           if (IDWNSV /= IDWN) then
             ICDPOS = IDW0+IDWN*NIPWLK
-            ICDWN = CIS%ICASE(ICDPOS)
+            ICDWN = CIS(jstate)%ICASE(ICDPOS)
             ! -- UNPACK LOWER WALK.
             NNN = 0
-            do LEV=1,SGS%MIDLEV
+            do LEV=1,SGS(jstate)%MIDLEV
               NNN = NNN+1
               if (NNN == 16) then
                 NNN = 1
                 ICDPOS = ICDPOS+1
-                ICDWN = CIS%ICASE(ICDPOS)
+                ICDWN = CIS(jstate)%ICASE(ICDPOS)
               end if
               IC1 = ICDWN/4
               ICS(LEV) = ICDWN-4*IC1
@@ -826,15 +827,15 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
             IDWNSV = IDWN
           end if
           ICUPOS = IUW0+NIPWLK*IUP
-          ICUP = CIS%ICASE(ICUPOS)
+          ICUP = CIS(jstate)%ICASE(ICUPOS)
           ! -- UNPACK UPPER WALK:
           NNN = 0
-          do LEV=SGS%MIDLEV+1,NLEV
+          do LEV=SGS(jstate)%MIDLEV+1,NLEV
             NNN = NNN+1
             if (NNN == 16) then
               NNN = 1
               ICUPOS = ICUPOS+1
-              ICUP = CIS%ICASE(ICUPOS)
+              ICUP = CIS(jstate)%ICASE(ICUPOS)
             end if
             IC1 = ICUP/4
             ICS(LEV) = ICUP-4*IC1
@@ -845,8 +846,8 @@ subroutine CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,INT2,Fancy)
           ISY = 0
           PRE(ICONF) = Zero
           do LEV=1,NLEV
-            if (ISY /= SGS%ISM(LEV)) then
-              ISY = SGS%ISM(LEV)
+            if (ISY /= SGS(jstate)%ISM(LEV)) then
+              ISY = SGS(jstate)%ISM(LEV)
               K = K+1
               !LINE(K:K) = ' '
             end if

@@ -19,15 +19,16 @@
 
 subroutine PRWF_CP2(ISYCI,NCO,CI,THR)
 
-use caspt2_global, only: CIS
+use sguga_states, only: CIS
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ISYCI, NCO
 real(kind=wp), intent(in) :: CI(NCO), THR
+integer(kind=iwp), parameter :: istate=1
 
 write(u6,'(A)') repeat('-',80)
 write(u6,'(a,es9.2)') ' CI COEFFICIENTS LARGER THAN ',THR
-call PRWF1_CP2(CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,nCO,THR,CIS%nMidV)
+call PRWF1_CP2(CIS(istate)%NOCSF,CIS(istate)%IOCSF,CIS(istate)%NOW,CIS(istate)%IOW,ISYCI,CI,nCO,THR,CIS(istate)%nMidV)
 
 end subroutine PRWF_CP2

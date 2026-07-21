@@ -24,7 +24,8 @@ use Symmetry_Info, only: Mul
 use fciqmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use caspt2_global, only: iPrGlb, SGS, CIS
+use sguga_states, only: SGS, CIS
+use caspt2_global, only: iPrGlb
 use caspt2_module, only: iSCF, jState, mState, nActEl, nAshT, nG1, STSym
 #ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_get_1rdm_full
@@ -48,6 +49,7 @@ real(kind=wp) :: G2(NLEV,NLEV,NLEV,NLEV)
 #endif
 integer(kind=iwp), allocatable :: TASK(:,:)
 real(kind=wp), external :: DDOT_, DNRM2_
+integer(kind=iwp), parameter :: istate=1
 
 ! Purpose: Compute the 1-electron density matrix array G1.
 
@@ -116,15 +118,15 @@ do while (Rsv_Tsk(ID,iTask))
   ! Compute SGM1 = E_UT acting on CI, with T >= U,
   ! i.e., lowering operations. These are allowed in RAS.
   LT = TASK(iTask,1)
-  IST = SGS%ISM(LT)
-  IT = SGS%L2ACT(LT)
+  IST = SGS(istate)%ISM(LT)
+  IT = SGS(istate)%L2ACT(LT)
   LU = Task(iTask,2)
-  ISU = SGS%ISM(LU)
-  IU = SGS%L2ACT(LU)
+  ISU = SGS(istate)%ISM(LU)
+  IU = SGS(istate)%L2ACT(LU)
   ISTU = Mul(IST,ISU)
   if (ISTU /= 1) cycle
   ISSG = Mul(ISTU,STSYM)
-  NSGM = CIS%NCSF(ISSG)
+  NSGM = CIS(istate)%NCSF(ISSG)
   if (NSGM == 0) cycle
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
   call GETSGM2(LU,LT,STSYM,CI,nCI,SGM1,NSGM)

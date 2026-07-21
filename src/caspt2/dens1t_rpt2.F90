@@ -16,7 +16,8 @@ subroutine DENS1T_RPT2(CI1,CI2,SGM1,G1,NLEV)
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
-use caspt2_global, only: iPrGlb, SGS, CIS
+use sguga_states, only: SGS, CIS
+use caspt2_global, only: iPrGlb
 use caspt2_module, only: iSCF, MxCI, nActEl, nAshT, nG1, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -30,6 +31,7 @@ integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTAS
 real(kind=wp) :: GTU
 integer(kind=iwp), allocatable :: TASK(:,:)
 real(kind=wp), external :: ddot_, dnrm2_
+integer(kind=iwp), parameter :: istate=1
 
 ! Purpose: Compute the 1- and 2-electron density matrix
 ! arrays G1 and G2.
@@ -75,17 +77,17 @@ else
     !LTU = 0
     !do LT=1,NLEV
     LT = TASK(iTask,1)
-    IST = SGS%ISM(LT)
-    IT = SGS%L2ACT(LT)
+    IST = SGS(istate)%ISM(LT)
+    IT = SGS(istate)%L2ACT(LT)
     !do LU=1,LT
     LU = Task(iTask,2)
     !LTU = LTU+1
     !LTU = iTask
-    ISU = SGS%ISM(LU)
-    IU = SGS%L2ACT(LU)
+    ISU = SGS(istate)%ISM(LU)
+    IU = SGS(istate)%L2ACT(LU)
     ISTU = Mul(IST,ISU)
     ISSG = Mul(ISTU,STSYM)
-    NSGM = CIS%NCSF(ISSG)
+    NSGM = CIS(istate)%NCSF(ISSG)
     if (NSGM == 0) cycle
     call GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
     if (ISTU == 1) then

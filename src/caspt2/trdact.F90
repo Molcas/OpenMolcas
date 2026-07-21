@@ -26,7 +26,8 @@ subroutine TRDACT(IVEC,JVEC,DTU)
 ! in the notation of the comments.
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
-use caspt2_global, only: IDTCEX, LUCIEX, SGS
+use sguga_states, only: SGS
+use caspt2_global, only: IDTCEX, LUCIEX
 use caspt2_module, only: iASym, iSCF, jState, MxCI, nAes, nAsh, nAshT, nAshT, nConf, nSym, STSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -40,8 +41,9 @@ real(kind=wp) :: OCCNUM, OP0, SCP
 integer(kind=iwp), allocatable :: IATOG(:)
 real(kind=wp), allocatable :: TRDCI(:), TRDOP1(:), TRDOP2(:), TRDOP3(:), TRDSGM(:), TRDTMP(:)
 real(kind=wp), external :: DDOT_
+integer(kind=iwp), parameter :: istate=1
 
-nLev = SGS%nLev
+nLev = SGS(istate)%nLev
 
 ! (1): Compute a representation of the operator PCAS*W1T*W2
 NOP1 = NASHT**2
@@ -79,7 +81,7 @@ if (ISCF == 0) then
   ITABS = 0
   do ISYM=1,NSYM
     do I=1,NLEV
-      if (SGS%ISM(I) == ISYM) then
+      if (SGS(istate)%ISM(I) == ISYM) then
         ITABS = ITABS+1
         IATOG(ITABS) = I
       end if

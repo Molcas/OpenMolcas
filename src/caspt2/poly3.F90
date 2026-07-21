@@ -38,7 +38,8 @@ subroutine POLY3(mkF)
 
 use fciqmc_interface, only: DoFCIQMC
 use PrintLevel, only: VERBOSE
-use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV, SGS, CIS
+use sguga_states, only: SGS, CIS
+use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
 use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, nActel, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState, &
                          STSym
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
@@ -55,16 +56,17 @@ integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: CI(:)
 real(kind=wp), allocatable, target :: F1_H(:), F2_H(:), F3_H(:), G1(:), G2(:), G3(:)
 real(kind=wp), pointer :: F1(:), F2(:), F3(:)
+integer(kind=iwp), parameter :: istate=1
 
-nLev = SGS%nLev
+nLev = SGS(istate)%nLev
 
 ! Note that in case of FCIQMC nConf is set to 0.
-nCI = CIS%NCSF(STSYM)
+nCI = CIS(istate)%NCSF(STSYM)
 
 if (mkF) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
   do ILEV=1,NLEV
-    ETA(ILEV) = EPSA(SGS%L2ACT(ILEV))
+    ETA(ILEV) = EPSA(SGS(istate)%L2ACT(ILEV))
   end do
 end if
 

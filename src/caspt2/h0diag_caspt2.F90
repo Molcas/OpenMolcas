@@ -22,7 +22,7 @@ subroutine H0DIAG_CASPT2(ISYCI,DIAG,nDiag,NOW,IOW,nMidV)
 ! FOR THE SPECIFIED TOTAL SYMMETRY ISYCI
 
 use Symmetry_Info, only: Mul
-use caspt2_global, only: CIS
+use sguga_states, only: CIS
 use caspt2_module, only: nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -31,6 +31,7 @@ implicit none
 integer(kind=iwp), intent(in) :: ISYCI, nDiag, nMidV, NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
 real(kind=wp), intent(out) :: DIAG(nDiag)
 integer(kind=iwp) :: ICS, IEMU, ISYDWN, ISYUP, JCS, MV, NC, NDWN, NUP
+integer(kind=iwp), parameter :: istate=1
 
 DIAG(:) = Zero
 IEMU = 1
@@ -44,7 +45,8 @@ do MV=1,NMIDV
     ICS = 1+IOW(1,ISYUP,MV)
     JCS = 1+IOW(2,ISYDWN,MV)
     NC = NUP*NDWN
-    call DIELMV(CIS%ICASE(ICS:),size(CIS%ICASE(ICS:)),CIS%ICASE(JCS:),size(CIS%ICASE(JCS:)),NUP,NDWN,DIAG(IEMU))
+    call DIELMV(CIS(istate)%ICASE(ICS:),size(CIS(istate)%ICASE(ICS:)), &
+                CIS(istate)%ICASE(JCS:),size(CIS(istate)%ICASE(JCS:)),NUP,NDWN,DIAG(IEMU))
     IEMU = IEMU+NC
   end do
 end do
