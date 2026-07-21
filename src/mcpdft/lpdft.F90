@@ -17,7 +17,8 @@ module lpdft
   use definitions, only: wp, iwp, u6
   use general_data, only: ispin, jobiph, jobold, nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
   use mcpdft_input, only: mcpdft_options
-  use rasscf_global, only: dftfock, exfac, iadr15, lroots, nac, nacpar, nacpr2, nfint, noneq, potnuc, nroots, weight
+  use rasscf_global, only: dftfock, exfac, iadr15, istord, istorp, lroots, nac, nacpar, nacpr2, nfint, noneq, potnuc, nroots, &
+                           weight
   use rctfld_module, only: lRF
 
   implicit none
@@ -49,20 +50,24 @@ module lpdft
   subroutine lpdft_kernel(CMO,e_mcscf)
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
     real(kind=wp), intent(in) :: e_mcscf(:)
+
     call init_vars(CMO)
 
     call set_iadr15()
-    ! Want to first get the zero-order densities
+
     call get_zero_order_densities(casd1_0, casd1s_0, casd2_0)
     call compute_Eot_and_potentials(CMO)
+
     call compute_hconst(CMO)
     call compute_h1e_lpdft(CMO)
     call compute_h2e_lpdft()
-    call construct_lpdft_ham()
-    call print_lpdft_finalize(e_nuc_lpdft,e_wfn_lpdft,e_ot_lpdft,e_mcscf)
 
     ! Using hconst, h1e, and h2e now we can compute the effective Hamiltonian and then diagonalize
     ! it to get the state-interaction vectors
+    call construct_lpdft_ham()
+
+    call print_lpdft_finalize(e_nuc_lpdft,e_wfn_lpdft,e_ot_lpdft,e_mcscf,size(e_mcscf))
+
     call release_vars()
   end subroutine lpdft_kernel
 
@@ -293,7 +298,7 @@ module lpdft
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
     real(kind=wp) :: e1_lpdft, e2_lpdft, e_core_lpdft, e_coul_lpdft, e_vhf_c, e_vhf_c_core, hnuc
     real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, d1mo_0
-    real(kind=wp), allocatable, dimension(:) :: veff2_act, vjk_act
+    real(kind=wp), allocatable, dimension(:) :: vjk_act
     real(kind=wp), external :: dDot_
 
     ! Focusing only on the non-hybrid for the time-being.
@@ -314,7 +319,6 @@ module lpdft
     call mma_allocate(d1ao_0, ntot1, "D1AO_0")
     call mma_allocate(d1mo_0, ntot1, "D1MO_0")
     call mma_allocate(vjk_act, nacpar, "VJK_ACT_LPDFT")
-    call mma_allocate(veff2_act, nacpr2, "VEFF2_ACT")
 
     ! First compute the hconst energy then compute the core energy from the
     ! L-PDFT Hamiltonian, and finally adding these would be used as the constant
@@ -342,10 +346,7 @@ module lpdft
     e1_lpdft = e1_lpdft + e_coul_lpdft
 
     ! Compute the 2e contribution
-    veff2_act(:) = 0.0D0
-    call Get_TUVX(veff2, veff2_act)
-    e2_lpdft = 0.5D0*dDot_(nacpr2, veff2_act, 1, casd2_0, 1)
-
+    e2_lpdft = contract_puvx_2rdm(veff2, casd2_0)
 
     ! Compute the vhf_c contribution from active and core densities
     call mo2act_1e(vjk, vjk_act, nSym, nOrb, nAsh, nIsh)
@@ -364,7 +365,6 @@ module lpdft
     e_nuc_lpdft = hnuc
     e_wfn_lpdft = hnuc + e_core_lpdft
 
-    call mma_deallocate(veff2_act)
     call mma_deallocate(vjk_act)
     call mma_deallocate(d1mo_0)
     call mma_deallocate(d1ao_0)
@@ -372,7 +372,36 @@ module lpdft
     call mma_deallocate(casd1AO_0)
   end subroutine compute_hconst
 
+  function contract_puvx_2rdm(puvx, p2) result(energy)
+    real(kind=wp), intent(in) :: puvx(nfint), p2(nacpr2)
+    real(kind=wp) :: energy
+    real(kind=wp), allocatable :: p2_reordered(:)
+    integer(kind=iwp) :: isym, lrow, nao, nat, nio, no, nuvx, p_idx, puvx_idx
 
+    energy = 0.0D0
+    if (istorp(nsym+1) <= 0) return
+
+    call mma_allocate(p2_reordered, istorp(nsym+1), label='p2_reordered_lpdft')
+    call pmat_rasscf(p2, p2_reordered)
+
+    do isym=1,nsym
+      nao = nash(isym)
+      if (nao == 0) cycle
+      nio = nish(isym)
+      no = norb(isym)
+      nuvx = (istorp(isym+1)-istorp(isym))/nao
+      do nat=1,nao
+        do lrow=1,nuvx
+          puvx_idx = istord(isym)+no*(lrow-1)+nio+nat
+          p_idx = istorp(isym)+lrow+nuvx*(nat-1)
+          energy = energy+puvx(puvx_idx)*p2_reordered(p_idx)
+        end do
+      end do
+    end do
+
+    energy = 0.5D0*energy
+    call mma_deallocate(p2_reordered)
+  end function contract_puvx_2rdm
 
   !***********************************************************************
   !  compute_h1e_lpdft
@@ -419,25 +448,22 @@ module lpdft
     call mma_deallocate(veff1_act)
   end subroutine compute_h1e_lpdft
 
-  !***********************************************************************
-  !  compute_h2e_lpdft
-  !
-  !> @brief Get the 2e L-PDFT Hamiltonian in the active space in MO basis.
-  !> Note, this would have 24-fold symmetry, in comparison to the 8-fold symmetry
-  !> of the 2e integrals in MO basis. Still, we would just use the 8-fold symmetry.
-  !>
-  !> @details
-  !> @param[out] h2e_lpdft_act: 2e L-PDFT Hamiltonian in the active space in MO basis.
-  !***********************************************************************
   subroutine compute_h2e_lpdft()
-    !> The veff2 is 2e OT potential in MO basis. This is in paaa shape. However, last two indices
-    !> are packed in triangular form. Anyways, I will using TUVX function to get the final Hamiltonian in
-    !> which is of shape: ncas*(ncas+1)/2 * (ncas*(ncas+1)/2 + 1)/2.
-    !> This is the same shape as the 2e integrals in MO basis.
     h2e_lpdft_act(:) = 0.0D0
-    call Get_TUVX(veff2, h2e_lpdft_act)
+    call get_tuvx(veff2, h2e_lpdft_act)
   end subroutine compute_h2e_lpdft
 
+  !***********************************************************************
+  !> construct_lpdft_ham
+  !> Construct the L-PDFT Hamiltonian in the active space in MO basis.
+  !> The L-PDFT Hamiltonian is given by:
+  !> H_LPDFT = hconst + h1e + h2e
+  !> @details
+  !> For diagonal elements (iRoot == jRoot), we are using the 1e and 2e RDM.
+  !> For off-diagonal elements (iRoot /= jRoot), we are using the 1e and 2e
+  !> transition density matrices.
+  !> @param[out] heff: L-PDFT Hamiltonian in the active space in MO basis.
+  !***********************************************************************
   subroutine construct_lpdft_ham()
 
     use Constants, only: Zero
@@ -448,8 +474,8 @@ module lpdft
 
     implicit none
 #include "warnings.h"
-    integer(kind=iwp) :: iPair, iRoot, jRoot, nPairs
-    real(kind=wp), allocatable :: tdm1(:,:,:), tdm2(:,:)
+    integer(kind=iwp) :: iPair, iRoot, jRoot, nPairs, nSpinTdm2
+    real(kind=wp), allocatable :: tdm1(:,:,:), tdm2(:,:), tdm2Spin(:,:)
 #ifdef _HDF5_
     character(len=1024) :: currDir, fileName, project
     integer(kind=iwp) :: mh5id
@@ -461,9 +487,10 @@ module lpdft
     end do
 
     nPairs = (lRoots*(lRoots+1))/2
+    nSpinTdm2 = (nac*nac*(nac*nac+1))/2
 
 #ifndef _HDF5_
-    call WarningMessage(2,'LPDF MS-PDFT requested, but HDF5 support is disabled.')
+    call WarningMessage(2,'LPDFT MS-PDFT requested, but HDF5 support is disabled.')
     call Quit_OnUserError()
 #else
     call get_environment_variable('Project',project)
@@ -476,28 +503,35 @@ module lpdft
     end if
 
     if (.not. mh5_is_hdf5(trim(fileName))) then
-      call WarningMessage(2,'LPDF transition density HDF5 file not found: '//trim(fileName))
+      call WarningMessage(2,'LPDFT transition density HDF5 file not found: '//trim(fileName))
       call Quit_OnUserError()
     end if
 
     mh5id = mh5_open_file_r(trim(fileName))
     if (.not. mh5_exists_dset(mh5id,'ACTIVE_1TDM')) then
-      call WarningMessage(2,'LPDF transition density HDF5 file does not contain ACTIVE_1TDM.')
+      call WarningMessage(2,'LPDFT transition density HDF5 file does not contain ACTIVE_1TDM.')
       call Quit_OnUserError()
     end if
     if (.not. mh5_exists_dset(mh5id,'ACTIVE_2TDM')) then
-      call WarningMessage(2,'LPDF transition density HDF5 file does not contain ACTIVE_2TDM.')
+      call WarningMessage(2,'LPDFT transition density HDF5 file does not contain ACTIVE_2TDM.')
+      call Quit_OnUserError()
+    end if
+    if (.not. mh5_exists_dset(mh5id,'ACTIVE_2TDM_SPINSUM')) then
+      call WarningMessage(2,'LPDFT transition density HDF5 file does not contain ACTIVE_2TDM_SPINSUM.')
       call Quit_OnUserError()
     end if
 
     call mma_allocate(tdm1,nac,nac,nPairs,Label='LPDFT_TDM1')
     call mma_allocate(tdm2,nacpr2,nPairs,Label='LPDFT_TDM2')
+    call mma_allocate(tdm2Spin,nSpinTdm2,nPairs,Label='LPDFT_TDM2_SPINSUM')
     call mma_allocate(rootPairs,2,nPairs,Label='LPDFT_ROOT_PAIRS')
 
     tdm1(:,:,:) = Zero
     tdm2(:,:) = Zero
+    tdm2Spin(:,:) = Zero
     call mh5_fetch_dset(mh5id,'ACTIVE_1TDM',tdm1)
     call mh5_fetch_dset(mh5id,'ACTIVE_2TDM',tdm2)
+    call mh5_fetch_dset(mh5id,'ACTIVE_2TDM_SPINSUM',tdm2Spin)
 
     if (mh5_exists_dset(mh5id,'ROOT_PAIRS')) then
       call mh5_fetch_dset(mh5id,'ROOT_PAIRS',rootPairs)
@@ -514,13 +548,18 @@ module lpdft
         call WarningMessage(2,'LPDF transition density HDF5 file contains an invalid ROOT_PAIRS entry.')
         call Quit_OnUserError()
       end if
-      heff(iRoot,jRoot) = heff(iRoot,jRoot)+contract_lpdft_tdms(tdm1(:,:,iPair),tdm2(:,iPair))
+      if (iRoot == jRoot) then
+        heff(iRoot,jRoot) = heff(iRoot,jRoot)+contract_lpdft_rdms(tdm1(:,:,iPair),tdm2(:,iPair))
+      else
+        heff(iRoot,jRoot) = heff(iRoot,jRoot)+contract_lpdft_tdms(tdm1(:,:,iPair),tdm2Spin(:,iPair))
+      end if
       if (iRoot /= jRoot) heff(jRoot,iRoot) = heff(iRoot,jRoot)
     end do
 
     call print_lpdft_initial_info(fileName,nPairs)
 
     call mma_deallocate(rootPairs)
+    call mma_deallocate(tdm2Spin)
     call mma_deallocate(tdm2)
     call mma_deallocate(tdm1)
 #endif
@@ -552,138 +591,118 @@ module lpdft
 
   end subroutine print_lpdft_initial_info
 
-  subroutine print_lpdft_finalize(e_nuc,e_lpdft_ref,e_ot,e_mcscf)
+  function contract_lpdft_rdms(rdm1,rdm2) result(ediagval)
 
-    use Constants, only: One, Zero
-    use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
-    use mcpdft_input, only: mcpdft_options
-    use mcpdft_output, only: iprglb
-    use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Tau_a1, Tau_a2, Tau_b1, Tau_b2
-    use PrintLevel, only: USUAL
+    use Constants, only: Zero
 
     implicit none
-    real(kind=wp), intent(in) :: e_nuc, e_lpdft_ref, e_ot, e_mcscf(:)
-    real(kind=wp) :: e_lpdft, e_lpdft_1, e_ot_1, Funcaa1, Funcbb1, Funccc1
-    integer(kind=iwp) :: iState
-    character(len=120) :: Line
-    character(len=6) :: Fmt2
-
-    e_lpdft = e_lpdft_ref+e_ot
-
-    if (iprglb >= USUAL) then
-      write(Fmt2,'(A,I3.3,A)') '(6X,'
-      Line = ''
-      write(Line(4:),'(A)') 'LPDFT INTERMEDIATE RESULTS'
-      write(u6,*)
-      call CollapseOutput(1,Line)
-      write(u6,Fmt2//'A)') repeat('-',len_trim(Line)-3)
-      write(u6,*)
-
-      if (size(e_mcscf) == 1) then
-        write(u6,'(6X,A,40X,F18.8)') 'MCSCF reference energy',e_mcscf(1)
-      else
-        write(u6,'(6X,A)') 'MCSCF reference energies'
-        do iState=1,size(e_mcscf)
-          write(u6,'(6X,A,I4,T50,F18.8)') 'State',iState,e_mcscf(iState)
-        end do
-      end if
-      write(u6,*)
-      write(u6,'(6X,A,45X,F10.3)') 'Integrated total density:',Dens_I
-      write(u6,'(6X,A,12X,F10.3)') 'Integrated alpha density before functional transformation:',Dens_a1
-      write(u6,'(6X,A,12X,F10.3)') 'Integrated  beta density before functional transformation:',Dens_b1
-      write(u6,'(6X,A,12X,F10.3)') 'Integrated alpha density  after functional transformation:',Dens_a2
-      write(u6,'(6X,A,12X,F10.3)') 'Integrated  beta density  after functional transformation:',Dens_b2
-      write(u6,'(6X,A,4X,F18.3)') 'Integrated alpha tau     before functional transformation:',Tau_a1
-      write(u6,'(6X,A,4X,F18.3)') 'Integrated  beta tau     before functional transformation:',Tau_b1
-      write(u6,'(6X,A,4X,F18.3)') 'Integrated alpha tau      after functional transformation:',Tau_a2
-      write(u6,'(6X,A,4X,F18.3)') 'Integrated  beta tau      after functional transformation:',Tau_b2
-      write(u6,'(6X,A)') 'NOTE:'
-      write(u6,'(6X,2A)') 'Densities after transformation are ','intermediate quantities'
-      write(u6,'(6X,2A)') 'and should not be interpreted as ','real spin densities'
-      write(u6,*)
-      write(u6,'(6X,A,32X,F18.6)') 'Exchange energy scaling factor',CoefX
-      write(u6,'(6X,A,29X,F18.6)') 'Correlation energy scaling factor',CoefR
-      write(u6,*)
-      write(u6,'(6X,A,30X,F18.6)') 'Integrated alpha exchange energy',Funcaa
-      write(u6,'(6X,A,30X,F18.6)') 'Integrated beta  exchange energy',Funcbb
-      write(u6,'(6X,A,30X,F18.6)') 'Integrated  correlation   energy',Funccc
-      write(u6,*)
-
-      write(u6,'(6X,A,38X,F18.8)') 'Nuclear Repulsion energy',e_nuc
-      write(u6,'(6X,A,34X,F18.8)') 'LPDFT reference contribution energy',e_lpdft_ref
-      write(u6,'(6X,A,49X,F18.8)') 'On-top energy',e_ot
-      write(u6,*)
-      if (mcpdft_options%otfnal%is_hybrid()) then
-        write(u6,'(6X,A)') 'Information for hybrid PDFT:'
-        write(u6,'(6X,A,37X,F6.2)') 'Wave function percentage (Lambda*100)', &
-                                    mcpdft_options%otfnal%lambda*1.0e2_wp
-        do iState=1,size(e_mcscf)
-          write(u6,'(6X,A,I4,T50,F18.8)') 'Wave function energy, state',iState, &
-                                          mcpdft_options%otfnal%lambda*e_mcscf(iState)
-        end do
-        write(u6,'(6X,A,51X,F18.8)') 'PDFT energy',(One-mcpdft_options%otfnal%lambda)*e_lpdft
-        write(u6,*)
-      end if
-
-      if ((CoefX*CoefR /= Zero) .and. (CoefX /= One .or. CoefR /= One)) then
-        Funcaa1 = Funcaa/CoefX
-        Funcbb1 = Funcbb/CoefX
-        Funccc1 = Funccc/CoefR
-        e_ot_1 = e_ot-Funcaa-Funcbb-Funccc+Funcaa1+Funcbb1+Funccc1
-        e_lpdft_1 = e_lpdft-e_ot+e_ot_1
-        write(u6,*)
-        write(u6,*)
-        write(u6,'(6X,A,19X,F18.6)') 'Integrated alpha exchange energy (unscaled)',Funcaa1
-        write(u6,'(6X,A,19X,F18.6)') 'Integrated beta  exchange energy (unscaled)',Funcbb1
-        write(u6,'(6X,A,19X,F18.6)') 'Integrated  correlation   energy (unscaled)',Funccc1
-        write(u6,'(6X,A,38X,F18.8)') 'On-top energy (unscaled)',e_ot_1
-        write(u6,'(6X,A,34X,F18.8)') 'Total LPDFT energy (unscaled)',e_lpdft_1
-      end if
-
-      write(u6,'(6X,A,42X,F18.8)') 'Total LPDFT energy',e_lpdft
-
-      call CollapseOutput(0,Line)
-      write(u6,*)
-    end if
-
-    call Add_Info('dens_tt',[Dens_I],1,6)
-    call Add_Info('dens_a1',[Dens_a1],1,6)
-    call Add_Info('dens_b1',[Dens_b1],1,6)
-    call Add_Info('dens_a2',[Dens_a2],1,6)
-    call Add_Info('dens_b2',[Dens_b2],1,6)
-    call Add_Info('exch_f',[CoefX],1,6)
-    call Add_Info('corr_f',[CoefR],1,6)
-    call Add_Info('excha_a',[Funcaa],1,6)
-    call Add_Info('excha_b',[Funcbb],1,6)
-    call Add_Info('corr_e',[Funccc],1,6)
-    call Add_Info('LPDFTE',[e_lpdft],1,8)
-
-  end subroutine print_lpdft_finalize
-
-  function contract_lpdft_tdms(tdm1,tdm2) result(value)
-
-    use Constants, only: Half, Zero
-
-    implicit none
-    real(kind=wp), intent(in) :: tdm1(nac,nac), tdm2(nacpr2)
-    real(kind=wp) :: value
-    real(kind=wp), external :: dDot_
+    real(kind=wp), intent(in) :: rdm1(nac,nac), rdm2(nacpr2)
+    real(kind=wp) :: ediagval
     integer(kind=iwp) :: iAct, iPacked, jAct
 
-    value = Zero
+    ediagval = Zero
     iPacked = 0
     do iAct=1,nac
       do jAct=1,iAct
         iPacked = iPacked+1
         if (iAct == jAct) then
-          value = value+h1e_lpdft_act(iPacked)*tdm1(iAct,jAct)
+          ediagval = ediagval+h1e_lpdft_act(iPacked)*rdm1(iAct,jAct)
         else
-          value = value+h1e_lpdft_act(iPacked)*(tdm1(iAct,jAct)+tdm1(jAct,iAct))
+          ediagval = ediagval+h1e_lpdft_act(iPacked)*(rdm1(iAct,jAct)+rdm1(jAct,iAct))
         end if
       end do
     end do
 
-    value = value+Half*dDot_(nacpr2,h2e_lpdft_act,1,tdm2,1)
+    ediagval = ediagval + contract_puvx_2rdm(veff2,rdm2)
+
+  end function contract_lpdft_rdms
+
+  function contract_spin_sum_2tdm(h2,tdm2) result(energy)
+
+    implicit none
+    real(kind=wp), intent(in) :: h2(nacpr2), tdm2(:)
+    real(kind=wp) :: energy
+    integer(kind=iwp) :: h2Index, iAct, ij, ijPair, ijkl, jAct, kAct, kl, klPair, lAct
+
+    energy = 0.0_wp
+    do jAct=1,nac
+      do iAct=1,nac
+        ij = iAct+nac*(jAct-1)
+        ijPair = orbital_pair_index(iAct,jAct)
+        do lAct=1,nac
+          do kAct=1,nac
+            kl = kAct+nac*(lAct-1)
+            if (kl > ij) cycle
+            klPair = orbital_pair_index(kAct,lAct)
+            ijkl = pair_pair_index(ij,kl)
+            h2Index = pair_pair_index(ijPair,klPair)
+            energy = energy+h2(h2Index)*tdm2(ijkl)
+          end do
+        end do
+      end do
+    end do
+  end function contract_spin_sum_2tdm
+
+  function orbital_pair_index(iAct,jAct) result(idx)
+    implicit none
+    integer(kind=iwp), intent(in) :: iAct, jAct
+    integer(kind=iwp) :: idx
+
+    if (iAct >= jAct) then
+      idx = (iAct*(iAct-1))/2+jAct
+    else
+      idx = (jAct*(jAct-1))/2+iAct
+    end if
+  end function orbital_pair_index
+
+  function pair_pair_index(ijPair,klPair) result(idx)
+    implicit none
+    integer(kind=iwp), intent(in) :: ijPair, klPair
+    integer(kind=iwp) :: idx
+
+    if (ijPair >= klPair) then
+      idx = (ijPair*(ijPair-1))/2+klPair
+    else
+      idx = (klPair*(klPair-1))/2+ijPair
+    end if
+  end function pair_pair_index
+
+  !***********************************************************************
+  !> contract_lpdft_tdms
+  !> @brief Contract the 1e and 2e L-PDFT Hamilton
+  !> with the transition density matrices to get the off-diagonal elements
+  !> of the effective Hamiltonian.
+  !> Note, the 2e TDM is spin-summed, and the diagonal elements are scaled by 1/2.
+  !> @details
+  !> @param[in] tdm1: 1e transition density matrix in the active space in MO basis.
+  !> @param[in] tdm2: 2e transition density matrix in the active space in MO basis.
+  !> @return eoffdiagval: The off-diagonal element of the effective Hamiltonian.
+  !***********************************************************************
+  function contract_lpdft_tdms(tdm1,tdm2) result(eoffdiagval)
+
+    use Constants, only: Zero
+
+    implicit none
+    real(kind=wp), intent(in) :: tdm1(nac,nac), tdm2(:)
+    real(kind=wp) :: eoffdiagval, value_1e, value_2e
+    integer(kind=iwp) :: iAct, iPacked, jAct
+
+    eoffdiagval = Zero
+    value_1e = Zero
+    iPacked = 0
+    do iAct=1,nac
+      do jAct=1,iAct
+        iPacked = iPacked+1
+        if (iAct == jAct) then
+          value_1e = value_1e+h1e_lpdft_act(iPacked)*tdm1(iAct,jAct)
+        else
+          value_1e = value_1e+h1e_lpdft_act(iPacked)*(tdm1(iAct,jAct)+tdm1(jAct,iAct))
+        end if
+      end do
+    end do
+
+    value_2e = contract_spin_sum_2tdm(h2e_lpdft_act,tdm2)
+    eoffdiagval = -(value_1e+value_2e)
 
   end function contract_lpdft_tdms
 
