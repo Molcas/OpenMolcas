@@ -14,7 +14,8 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use sguga, only: CIStruct, EXStruct, SG_Free, SGStruct
+use sguga_states, only: SGS, CIS, EXS
+use sguga, only: SG_Free
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG
@@ -57,9 +58,6 @@ real(kind=wp), pointer :: DET1(:), DET2(:)
 logical(kind=iwp) :: DoNTO, IF00, IF01, IF02, IF10, IF11, IF12, IF20, IF21, IF22, IFTWO, mstate_dens, TRORB
 character(len=48) :: STLNE2
 character(len=8) :: WFTP1, WFTP2
-type(CIStruct) :: CIS(2)
-type(EXStruct) :: EXS(2)
-type(SGStruct) :: SGS(2)
 integer, allocatable :: OMAP(:)
 real(kind=wp), allocatable :: CI1(:), CI2(:), CI2_o(:), CMO1(:), CMO2(:), DCHSM(:), detcoeff1(:), detcoeff2(:), DYSAB(:), &
                               DYSCOF(:), DYSZZ(:), FMO(:), mixed_1p_overlap(:,:), mixed_1p_rtdm(:,:,:), mixed_1p_stdm(:,:,:), &

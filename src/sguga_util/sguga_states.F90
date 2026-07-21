@@ -14,9 +14,9 @@ module SGUGA_States
 use sguga, only: SGStruct, EXStruct, CIStruct
 use definitions, only: iwp
 
-Type (SGStruct) :: SGS(2)
-Type (CIStruct) :: CIS(2)
-Type (EXStruct) :: EXS(2)
+Type (SGStruct) :: SGS(3)
+Type (CIStruct) :: CIS(3)
+Type (EXStruct) :: EXS(3)
 Logical(kind=iwp) :: State_is_used(2)=[.False.,.False.]
 
 Public:: SGS, CIS, EXS, State_is_used
