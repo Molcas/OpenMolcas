@@ -14,7 +14,8 @@ subroutine sg2symg(CI,lCI,imode,pState_Sym)
 use sguga, only: SG_Free
 use Str_Info, only: CNSM, CFTP_MCLR=>CFTP
 use lucia_data, only: CONF_OCC, CFTP
-use input_mclr, only: nConf, nCSF, nSym, State_Sym, CIS, EXS, SGS
+use input_mclr, only: nConf, nCSF, nSym, State_Sym
+use sguga_states, only: CIS, EXS, SGS
 use stdalloc, only: mma_allocate, mma_deallocate
 
 use Definitions, only: wp, iwp
@@ -28,6 +29,7 @@ real(kind=wp), intent(inout) :: CI(lCI)
 
 integer(kind=iwp) :: iss
 real(kind=wp), allocatable :: CINEW(:)
+integer(kind=iwp), Parameter:: istate=1
 #ifdef _DEBUGPRINT_
 real(kind=wp), parameter :: PRWTHR = 0.05_wp
 #endif
@@ -36,8 +38,8 @@ real(kind=wp), parameter :: PRWTHR = 0.05_wp
 
 call SG_Setup_MCLR(pState_Sym)
 
-NCSF(1:nSym) = CIS%NCSF(1:nSym)
-NCONF        = CIS%NCSF(pState_Sym)
+NCSF(1:nSym) = CIS(istate)%NCSF(1:nSym)
+NCONF        = CIS(istate)%NCSF(pState_Sym)
 
 iss = 1
 if (pState_sym /= state_sym) iss = 2
@@ -45,7 +47,7 @@ if (pState_sym /= state_sym) iss = 2
 #ifdef _DEBUGPRINT_
 write(u6,101)
 write(u6,102) PRWTHR
-call SG_PrWF(SGS,CIS,pState_sym,PRWTHR,SGS%iSpin,CI,nConf,.false.,-99)
+call SG_PrWF(SGS(istate),CIS(istate),pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)
 write(u6,103)
 101 format(/,6X,100('-'),/,6X,29X,'Wave function printout: Split Graph format',/,6X,8X, &
            'in parenthesis: midvertex, upper-walk symmetry upper- and lower-walk serial numbers',/,6X,100('-'),/)
@@ -59,7 +61,7 @@ Conf_Occ(pState_Sym)%A(:)=-CNSM(iss)%ICONF
 Call mma_allocate(CFTP,SIZE(CFTP_MCLR),Label='CFTP')
 CFTP(:)=CFTP_MCLR(:)
 
-call SG_REORD(SGS,EXS,pState_Sym,iMode,nConf,CI,CINEW)
+call SG_REORD(SGS(istate),EXS(istate),pState_Sym,iMode,nConf,CI,CINEW)
 CI(1:nConf)=CINEW(1:nConf)
 
 Call mma_deallocate(CFTP)
@@ -67,9 +69,9 @@ Call mma_deallocate(Conf_Occ(pState_Sym)%A)
 Call mma_deallocate(CINEW)
 
 #ifdef _DEBUGPRINT_
-call SG_PrWF(SGS,CIS,pState_sym,PRWTHR,SGS%iSpin,CI,nConf,.false.,-99)
+call SG_PrWF(SGS(istate),CIS(istate),pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)
 #endif
 
-call SG_Free(SGS,CIS,EXS)
+call SG_Free(SGS(istate),CIS(istate),EXS(istate))
 
 end subroutine sg2symg

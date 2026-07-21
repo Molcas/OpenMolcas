@@ -14,13 +14,14 @@ subroutine SG_Setup_MCLR(pState_Sym)
 use molcas, only: MxLev
 use sguga, only: MkCOT, MkSGNum, SG_Init_Simple
 use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
-use input_mclr, only: SGS, CIS, EXS
+use sguga_states, only: SGS, CIS, EXS
 use rasdef, only: nRas, nRasEl, nRsPrt
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in):: pState_Sym
 integer(kind=iwp) :: iBas, nLev, iSym, ISM(1:MxLev), Level(MxLev), iq, nRs1T
+integer(kind=iwp), parameter :: iState=1
 
 nLev = 0
 do iSym=1,nSym
@@ -59,9 +60,9 @@ End If
 
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
-Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,     &
+Call SG_Init_Simple(nSym,nActEl,iSpin,SGS(istate),CIS(istate),     &
                     nRas,nRasEl,nRsPrt,            &
-                    EXS,                           &
+                    EXS(istate),                           &
                     xLevel=Level, xL2Act=Level,    &
                     xNLEV=nLev, xNSM=ISM)
 
@@ -71,10 +72,10 @@ Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,     &
 !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 
 ! CONSTRUCT THE CASE LIST
-call MKCOT(SGS,CIS)
+call MKCOT(SGS(istate),CIS(istate))
 
 ! SET UP ENUMERATION TABLES
 
-call MKSGNUM(pState_Sym,SGS,CIS,EXS)
+call MKSGNUM(pState_Sym,SGS(istate),CIS(istate),EXS(istate))
 
 end subroutine SG_Setup_MCLR
