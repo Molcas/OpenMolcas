@@ -11,7 +11,8 @@
 ! Copyright (C) Giovanni Li Manni                                      *
 !***********************************************************************
 ! History:                                                             *
-!   2018 S Dong - added print outs related to scaling                  *
+!   2018 S Dong - added print outs related to
+!   2026 Bhavnesh Jangid - Added print outs for LPDFT quadrature results*
 !***********************************************************************
 
 subroutine print_MCPDFT_2(e_nuc,e_cas,e_ot,state,e_mcscf)
@@ -142,7 +143,7 @@ e_lpdft = e_lpdft_ref+e_ot
 if (iprglb >= USUAL) then
   write(Fmt2,'(A,I3.3,A)') '(6X,'
   Line = ''
-  write(Line(4:),'(A)') 'LPDFT INTERMEDIATE RESULTS'
+  write(Line(4:),'(A)') 'LPDFT Quandrature RESULTS'
   write(u6,*)
   call CollapseOutput(1,Line)
   write(u6,Fmt2//'A)') repeat('-',len_trim(Line)-3)
@@ -179,8 +180,8 @@ if (iprglb >= USUAL) then
   write(u6,*)
 
   write(u6,'(6X,A,38X,F18.8)') 'Nuclear Repulsion energy',e_nuc
-  write(u6,'(6X,A,34X,F18.8)') 'LPDFT reference contribution energy',e_lpdft_ref
-  write(u6,'(6X,A,49X,F18.8)') 'On-top energy',e_ot
+  write(u6,'(6X,A,34X,F18.8)') 'LPDFT h0 term',e_lpdft_ref
+  write(u6,'(6X,A,49X,F18.8)') 'LPDFT On-top energy',e_ot
   write(u6,*)
   if (mcpdft_options%otfnal%is_hybrid()) then
     write(u6,'(6X,A)') 'Information for hybrid PDFT:'
