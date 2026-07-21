@@ -107,6 +107,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     grid_on_disk.F90
      lebedev_quadrature.F90
      libxc.F90
      nq_grid.F90
