@@ -58,11 +58,11 @@ use qcmaquis_interface, only: qcmaquis_interface_get_overlap, qcmaquis_interface
                               qcmaquis_interface_set_param, qcmaquis_interface_update_integrals
 use qcmaquis_interface_cfg, only: dmrg_energy, dmrg_file, dmrg_orbital_space, dmrg_warmup, qcmaquis_param
 use qcmaquis_interface_utility_routines, only: fiedlerorder_length, file_name_generator, qcmaquis_interface_fcidump
-use ci_interfaces, only: Mk_pdms
 use lucia_data, only: RF1, RF2
 use RASWfn, only: wfn_dmrg_checkpoint
 use rasscf_global, only: DOFCIDump, Emy, TwoRDM_qcm
 #endif
+use ci_interfaces, only: Mk_pdms
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
