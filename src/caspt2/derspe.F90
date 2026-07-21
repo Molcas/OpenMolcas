@@ -24,7 +24,8 @@ subroutine DERSPE(NLEV,NG3,DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use sguga_states, only: SGS
-use caspt2_module, only: ISCF, NACTEL
+use general_data, only: NACTEL
+use caspt2_module, only: ISCF
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, byte, u6
 

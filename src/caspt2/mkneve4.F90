@@ -17,7 +17,8 @@ use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use sguga_states, only: SGS, CIS, EXS
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX
-use caspt2_module, only: JSTATE, MXCI, NACTEL, NCONF, NSYM, STSYM
+use general_data, only: NACTEL, STSYM
+use caspt2_module, only: JSTATE, MXCI, NCONF, NSYM
 use PrintLevel, only: verbose
 use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
 use Definitions, only: iwp,wp,u6,RtoB

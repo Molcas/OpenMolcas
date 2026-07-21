@@ -37,7 +37,8 @@ use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use sguga_states, only: CIS, EXS, SGS
-use caspt2_module, only: IASYM, ISCF, MXCI, NACTEL
+use general_data, only: NACTEL
+use caspt2_module, only: IASYM, ISCF, MXCI
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

@@ -17,7 +17,8 @@ subroutine xdwinit(Heff,H0,U0,nState)
 use Index_Functions, only: iTri
 use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, do_grad, DREF, FIFA, FIMO, iPrGlb, LUONEM, NCMO
-use caspt2_module, only: CIThr, HZERO, iAd1m, iSCF, mState, nAshT, nConf, NoTri, STSym
+use general_data, only: STSym
+use caspt2_module, only: CIThr, HZERO, iAd1m, iSCF, mState, nAshT, nConf, NoTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

@@ -88,7 +88,8 @@ function NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
   !*********************************************************************
 
   use Symmetry_Info, only: Mul
-  use caspt2_module, only: nAsh, nIsh, nSSh
+  use general_data, only: nAsh
+  use caspt2_module, only: nIsh, nSSh
 
   integer(kind=iwp) :: NPQ_CHOTYPE
   integer(kind=iwp), intent(in) :: ICASE, ISYQ, JSYM

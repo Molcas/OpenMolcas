@@ -24,7 +24,8 @@ subroutine W1TW2(IVEC,JVEC,CI,SGM,nCI)
 !   | SGM > := | SGM > + (W1 conj)*(W2)*| CI >
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
-use caspt2_module, only: nAshT, STSym
+use general_data, only: STSym
+use caspt2_module, only: nAshT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

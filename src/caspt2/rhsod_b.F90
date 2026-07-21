@@ -23,7 +23,8 @@ use GA_Wrapper, only: DBL_MB
 use fake_GA, only: GA_Arrays
 #endif
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: NASH, NASH, NASUP, NIGEJES, NIGTJES, NISUP, NSYM, NTGEUES, NTGTUES
+use general_data, only: nActel, nAsh
+use caspt2_module, only: NASUP, NIGEJES, NIGTJES, NISUP, NSYM, NTGEUES, NTGTUES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6

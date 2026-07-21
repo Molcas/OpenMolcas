@@ -20,7 +20,8 @@
 subroutine TRAFRO(MODE)
 
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
-use caspt2_module, only: IfChol, NASH, NFRO, NISH, NORB, NOSH, NSSH, NSYM
+use general_data, only: nAsh
+use caspt2_module, only: IfChol, NFRO, NISH, NORB, NOSH, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

@@ -16,7 +16,8 @@ subroutine caspt2_grad_invaria1(NDPT2,DPT2)
 ! Therefore, remove the off-diagonal elements. They are computed in caspt2_grad_invaria2 using orbital derivatives.
 ! The diagonal elements are correct.
 
-use caspt2_module, only: nAsh, nIsh, nOrb, nSsh, nSym
+use general_data, only: nAsh
+use caspt2_module, only: nIsh, nOrb, nSsh, nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

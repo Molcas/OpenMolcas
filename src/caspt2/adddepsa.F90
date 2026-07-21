@@ -19,7 +19,8 @@
 
 subroutine AddDEPSA(nDPT2,nAshT,DPT2,DEPSA)
 
-use caspt2_module, only: NAES, NASH, NBAS, NDEL, NFRO, NISH, NORB, NSYM
+use general_data, only: NASH
+use caspt2_module, only: NAES, NBAS, NDEL, NFRO, NISH, NORB, NSYM
 use Constants, only: Half
 use Definitions, only: wp, iwp
 

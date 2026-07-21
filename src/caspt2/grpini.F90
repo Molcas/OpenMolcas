@@ -28,8 +28,9 @@ use qcmaquis_interface, only: qcmaquis_interface_set_param
 #endif
 use PrintLevel, only: DEBUG, USUAL, VERBOSE
 use caspt2_global, only: CMO, CMO_Internal, CMOPT2, DMIX, DREF, FIFA, FIMO, iPrGlb, LUONEM, NCMO, TORB, Weight
+use general_data, only: STSym
 use caspt2_module, only: CIThr, CPUFMB, CPUGIN, CPUINT, DMRG, DoCumulant, HZERO, iAd1m, IEOF1M, IfChol, IfDW, IfsadRef, IfXMS, &
-                         jState, mState, nConf, NoTri, STSym, TIOFMB, TIOGIN, TIOINT
+                         jState, mState, nConf, NoTri, TIOFMB, TIOGIN, TIOINT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

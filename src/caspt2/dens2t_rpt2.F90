@@ -26,7 +26,8 @@ use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
 use sguga_states, only: SGS, CIS
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: iSCF, nActEl, nAshT, nG1, nG2, STSym
+use general_data, only: nActEl, STSym
+use caspt2_module, only: iSCF, nAshT, nG1, nG2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6

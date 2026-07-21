@@ -16,7 +16,8 @@ subroutine nevint(nAshT,INT1,INT2,Hbar,Htilde)
 use Index_Functions, only: iTri, nTri_Elem
 use CHOVEC_IO, only: NVLOC_CHOBATCH
 use caspt2_global, only: FIMO
-use caspt2_module, only: IfChol, NAES, NASH, NBSQT, NBTCH, NBTCHES, NISH, NORB, NSYM
+use general_data, only: NASH
+use caspt2_module, only: IfChol, NAES, NBSQT, NBTCH, NBTCHES, NISH, NORB, NSYM
 use Symmetry_Info, only: Mul
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par

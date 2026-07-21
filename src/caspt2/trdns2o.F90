@@ -30,7 +30,8 @@ use Para_Info, only: Is_Real_Par
 use EQSOLV, only: IfCoup
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: LISTS
-use caspt2_module, only: FockType, G1SecIn, nActEl, nAsh, nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
+use general_data, only: nActel, nAsh
+use caspt2_module, only: FockType, G1SecIn, nASup, nInDep, nIsh, nISup, nOrb, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

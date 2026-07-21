@@ -16,7 +16,8 @@ subroutine DerHEff(nConf,nRoots,nState,CLag,VECROT)
 use Index_Functions, only: nTri3_Elem
 use caspt2_global, only: IDTCEX, LUCIEX
 use EQSOLV, only: IVECC, IVECW
-use caspt2_module, only: ISCF, JSTATE, MXCI, NASHT, STSYM
+use general_data, only: STSYM
+use caspt2_module, only: ISCF, JSTATE, MXCI, NASHT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

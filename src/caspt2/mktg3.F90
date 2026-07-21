@@ -35,7 +35,8 @@ use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use sguga_states, only: CIS, EXS, SGS
-use caspt2_module, only: IASYM, ISCF, NACTEL, NASHT, MxCI
+use general_data, only: NACTEL
+use caspt2_module, only: IASYM, ISCF, NASHT, MxCI
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs, MyRank
 #endif

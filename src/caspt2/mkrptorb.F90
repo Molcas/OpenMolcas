@@ -28,8 +28,9 @@ subroutine MKRPTORB(FIFA,NFIFA,TORB,NTORB,CMO,NCMO)
 use Index_Functions, only: nTri_Elem
 use fciqmc_interface, only: DoFCIQMC, NonDiagonal
 use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX
+use general_data, only: STSym
 use caspt2_module, only: EPS, EPSA, EPSE, EPSI, iSCF, nBas, nConf, nDel, nFro, nIsh, nOMx, nOrb, nRas1, nRas2, nRas3, nSsh, &
-                         nState, nSym, STSym
+                         nState, nSym
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
 use caspt2_module, only: DoCumulant
 #endif

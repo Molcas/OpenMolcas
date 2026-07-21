@@ -15,7 +15,8 @@ use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri_Elem
 use sguga_states, only: SGS, CIS, EXS
 use caspt2_global, only: IDCIEX, LUCIEX
-use caspt2_module, only: ISCF, NAES, NASH, NCONF, NISH, NORB, NSYM, STSYM
+use general_data, only: NASH, STSYM
+use caspt2_module, only: ISCF, NAES, NCONF, NISH, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6

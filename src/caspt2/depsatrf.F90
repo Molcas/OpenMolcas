@@ -20,7 +20,8 @@
 subroutine DEPSATrf(NBSQT,nAshT,DEPSA,FPT2,WRK1,WRK2)
 
 use caspt2_global, only: CMOPT2
-use caspt2_module, only: IfChol, NASH, NBAS, NBAST, NFRO, NISH, NSYM
+use general_data, only: NASH
+use caspt2_module, only: IfChol, NBAS, NBAST, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp

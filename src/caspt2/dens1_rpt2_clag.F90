@@ -22,7 +22,7 @@ subroutine DENS1_RPT2_CLag(CI,NCI,SGM1,NSGM1,CLag,nConf,RDMEIG,nLev)
 
 use Symmetry_Info, only: Mul
 use sguga_states, only: CIS, SGS
-use caspt2_module, only: STSym
+use general_data, only: STSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 use Para_Info, only: Is_Real_Par, King, nProcs

@@ -29,7 +29,8 @@ use caspt2_global, only: LUONEM, NCMO
 use info_state_energy, only: e, init_energies                                                     ! energies
 use info_orbital_space, only: datadim, file_id, ijklname, inforb_molcas, initialize_inforb_molcas ! orbital specifications read from JobIph
 use nevpt2wfn, only: nevpt2wfn_init, nevpt2wfn_data
-use caspt2_module, only: iSpin, nActEl, nAsh, nBas, nBasT, nBSqT, nFro, nIsh, nSsh, nState, nSym, RefEne
+use general_data, only: iSpin, nActel, nAsh
+use caspt2_module, only: nBas, nBasT, nBSqT, nFro, nIsh, nSsh, nState, nSym, RefEne
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

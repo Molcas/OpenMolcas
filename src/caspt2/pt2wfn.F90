@@ -42,10 +42,10 @@ subroutine pt2wfn_init()
   use refwfn, only: refwfn_is_h5
   use mh5, only: mh5_close_dset, mh5_create_dset_real, mh5_create_dset_str, mh5_create_file, mh5_init_attr, mh5_put_dset
   use sguga_states, only: SGS
+  use general_data, only: iSpin, nActEl, nEle3=>nElec3, nHole1, STSym
   use caspt2_global, only: do_grad
-  use caspt2_module, only: DMRG, IfMix, IfMSCOUP, IfProp, iSpin, lRoots, mState, nActEl, nBas, nBasT, nBSqT, nConf, nDel, nDet, &
-                           nEle3, nFro, nHole1, nIsh, nOrb, nRas1, nRas1T, nRas2, nRas3, nRas3T, nSsh, nState, nSym, Root2State, &
-                           STSym
+  use caspt2_module, only: DMRG, IfMix, IfMSCOUP, IfProp, lRoots, mState, nBas, nBasT, nBSqT, nConf, nDel, nDet, &
+                           nFro, nIsh, nOrb, nRas1, nRas1T, nRas2, nRas3, nRas3T, nSsh, nState, nSym, Root2State
   use stdalloc, only: mma_allocate, mma_deallocate
 # endif
 

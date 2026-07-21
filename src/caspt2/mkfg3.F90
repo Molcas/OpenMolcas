@@ -65,7 +65,8 @@ use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: DEBUG, VERBOSE
 use sguga_states, only: SGS, CIS, EXS
 use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
-use caspt2_module, only: EPSA, MxCI, nActEl, nAshT, nBasT, nSym, STSym
+use general_data, only: nActEl, STSym
+use caspt2_module, only: EPSA, MxCI, nAshT, nBasT, nSym
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One

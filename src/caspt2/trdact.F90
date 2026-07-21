@@ -28,7 +28,8 @@ subroutine TRDACT(IVEC,JVEC,DTU)
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use sguga_states, only: SGS
 use caspt2_global, only: IDTCEX, LUCIEX
-use caspt2_module, only: iASym, iSCF, jState, MxCI, nAes, nAsh, nAshT, nAshT, nConf, nSym, STSym
+use general_data, only: nAsh, STSym
+use caspt2_module, only: iASym, iSCF, jState, MxCI, nAes, nAshT, nAshT, nConf, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp

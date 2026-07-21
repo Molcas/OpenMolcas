@@ -40,7 +40,7 @@ integer(kind=iwp), parameter :: MAXALTER = 16
 integer(kind=iwp) :: INVEC, ISPIN, ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, LUStartOrb, &
                      MALTER(MAXALTER,3), NACTEL, NALTER, NASH(mxSym), NBAS(mxSym), NCONF, NCRVEC, NDEL(mxSym), NDELT, NELEC3, &
                      NFRO(mxSym), NFROT, NHOLE1, NISH(mxSym), NORB(mxSym), NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T, NRS3(mxSym), &
-                     NRS3T, NSEL, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM
+                     NRS3T, NSEL, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, NLEV
 real(kind=wp) :: SXDAMP
 character(len=256) :: StartOrbFile
 logical(kind=iwp) :: Lowdin_ON
@@ -49,6 +49,7 @@ real(kind=wp), allocatable :: CRPROJ(:), CRVEC(:)
 
 public :: CleanMask, CRPROJ, CRVEC, INVEC, ISPIN, ITERFILE, JOBIPH, JOBOLD, Lowdin_ON, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, &
           LUStartOrb, MALTER, MAXALTER, NACTEL, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, &
-          NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, StartOrbFile, STSYM, SXDAMP
+          NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, StartOrbFile, STSYM, SXDAMP, &
+          NLEV
 
 end module general_data

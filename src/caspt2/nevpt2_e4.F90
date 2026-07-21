@@ -62,7 +62,8 @@ module NEVPT2_E4
 
 use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri_Elem
-use caspt2_module, only: MXCI, NTUVES, STSYM
+use general_data, only: STSYM
+use caspt2_module, only: MXCI, NTUVES
 use sguga_states, only: CIS, EXS, SGS
 use SUPERINDEX, only: KTUV
 use Symmetry_Info, only: Mul

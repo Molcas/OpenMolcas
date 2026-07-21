@@ -18,7 +18,8 @@ subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
   use BDerNEV, only: Gact, Gder
   use sguga_states, only: SGS, CIS, EXS
   use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
-  use caspt2_module, only: JSTATE, NACTEL, NSYM, STSYM, MXCI
+  use general_data, only: NACTEL, STSYM
+  use caspt2_module, only: JSTATE, NSYM, MXCI
   use Constants, only: Zero, One
   use Definitions, only: iwp,wp,u6,RtoB
   use NEVPT2_E4, only: do_xvec, do_yvec, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, NXYVEC, NZVEC

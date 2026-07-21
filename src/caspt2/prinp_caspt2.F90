@@ -35,9 +35,10 @@ subroutine prinp_caspt2()
 use PrintLevel, only: TERSE, USUAL, VERBOSE
 use caspt2_global, only: do_csf, do_grad, do_nac, imag_shift, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, sigma_p_epsilon, &
                          sigma_p_exponent
-use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, iSpin, &
-                         mState, nActel, nAsh, nAshT, nBas, nConf, nDel, nEle3, nFro, nHole1, nIsh, nIshT, nRoots, nSsh, nSshT, &
-                         nState, nSym, Orbin, PT2Method, RFPert, STSym, Zeta
+use general_data, only: ISPIN, NACTEL, NASH, nEle3=>nElec3, nHole1, STSym
+use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, &
+                         mState, nAshT, nBas, nConf, nDel, nFro, nIsh, nIshT, nRoots, nSsh, nSshT, &
+                         nState, nSym, Orbin, PT2Method, RFPert, Zeta
 use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_thres
 #ifdef _DMRG_
 use caspt2_global, only: compressMPS

@@ -23,7 +23,8 @@ subroutine SPEC1A(IFC,FACT,ISYM,X,nX,Y,nY)
 ! the conjugate expression (summing into Y, values from X).
 
 use SUPERINDEX, only: KTUV
-use caspt2_module, only: nAES, nAsh, nAshT, nIsh, nTUV, nTUVES
+use general_data, only: nAsh
+use caspt2_module, only: nAES, nAshT, nIsh, nTUV, nTUVES
 use Definitions, only: wp, iwp
 
 implicit none

@@ -15,10 +15,11 @@ subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use sguga_states, only: SGS
+use general_data, only: STSym
 use caspt2_global, only: CLag, CLagFull, CMOPT2, do_csf, do_nac, DPT2_tot, FIFA, FIFA_all, FIFASA_all, if_equalW, iRoot1, iRoot2, &
                          NDREF, nOLag, OLag, TORB, weight
 use caspt2_module, only: ENERGY, IFDW, IFRMS, IFXMS, MXCI, NASHT, NBAS, NBAST, NBSQT, NCONF, NDEL, NFRO, NISH, NROOTS, NSTATE, &
-                         ORBIN, STSYM, ZETA
+                         ORBIN, ZETA
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif

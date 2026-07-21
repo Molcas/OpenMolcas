@@ -18,7 +18,8 @@ use fciqmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
 use sguga, only: SG_Init, SG_Init_Simple
 use sguga_states, only: CIS, EXS, SGS
-use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, MxCI, nActEl, nAsh, nEle3, nHole1, nRas1, nRas2, nRas3, nSym, STSym
+use general_data, only: iSpin, nActel, nAsh, nEle3=>nElec3, nHole1, STSym
+use caspt2_module, only: DMRG, DoCumulant, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
 use stdalloc, only: mma_allocate
 use rasdef, only: nRas,nRasEl,nRsPrt
 

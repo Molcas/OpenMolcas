@@ -18,7 +18,7 @@
 subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
 
 use Symmetry_Info, only: Mul
-use caspt2_global, only: SGS
+use sguga_states, only: SGS
 use caspt2_module, only: EPSA, jState, mState, nActel
 use Constants, only: Zero
 use Definitions, only: wp, iwp, byte, u6
@@ -29,6 +29,7 @@ integer(kind=iwp), intent(in) :: NLEV, NG3
 real(kind=wp), intent(out) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV), G3(NG3), F3(nG3)
 integer(kind=byte), intent(in) :: idxG3(6,nG3)
 integer(kind=iwp) :: IW, IXYSYM, IY, IYSYM, IZ, NAC4
+integer(kind=iwp), parameter :: istate=1
 
 if (NACTEL > 1) then
   NAC4 = NLEV*NLEV*NLEV*NLEV
@@ -40,9 +41,9 @@ end if
 
 ! Double checked with CheMPS2::CASPT2::create_f_dots()
 do iz=1,nlev
-  iySym = SGS%ism(iz)
+  iySym = SGS(istate)%ism(iz)
   do iy=1,nlev
-    ixySym = Mul(SGS%ism(iy),iySym)
+    ixySym = Mul(SGS(istate)%ism(iy),iySym)
     if (mkF .and. (ixySym == 1)) then
       F1(iy,iz) = Zero
       do iw=1,nlev

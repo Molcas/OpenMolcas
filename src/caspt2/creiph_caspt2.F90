@@ -27,9 +27,10 @@ use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
 use sguga_states, only: SGS
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
-use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, ISPIN, &
-                         LROOTS, MSTATE, MSTATE, MXCI, NACTEL, NASH, NBAS, NBSQT, NCONF, NDEL, NELE3, NFRO, NHOLE1, NISH, NRAS1, &
-                         NRAS2, NRAS3, NROOTS, NSYM, POTNUC, STSYM, TITLE
+use general_data, only: ISPIN, NACTEL, NASH,  NELE3=>nElec3, NHOLE1, STSYM
+use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, &
+                         LROOTS, MSTATE, MSTATE, MXCI, NBAS, NBSQT, NCONF, NDEL, NFRO, NISH, NRAS1, &
+                         NRAS2, NRAS3, NROOTS, NSYM, POTNUC, TITLE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

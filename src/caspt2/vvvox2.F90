@@ -19,7 +19,8 @@ use ChoVec_io, only: NVLOC_CHOBATCH
 use Cholesky, only: InfVec
 use caspt2_global, only: LuGAMMA
 use ChoCASPT2, only: MXNVC, NCHSPC, numcho_pt2
-use caspt2_module, only: IFMSCOUP, iRlxRoot, JSTATE, NASH, NBAS, NBTCHES, NFROT, NISH, NSSH, NSYM
+use general_data, only: nAsh
+use caspt2_module, only: IFMSCOUP, iRlxRoot, JSTATE, NBAS, NBTCHES, NFROT, NISH, NSSH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6

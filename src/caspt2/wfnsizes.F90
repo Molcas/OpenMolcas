@@ -19,7 +19,8 @@ subroutine wfnsizes()
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Molcas, only: MxAct, MxIna, MxOrb
 use caspt2_global, only: NDREF, NPREF, NTAT, NTORB
-use caspt2_module, only: iaSym, iExtIS, IINAIS, iiSym, iSCF, ISNAM, iSpin, MxExt, nActEl, nAes, nAmx, nAsh, nAshT, nBas, nBasT, &
+use general_data, only: iSpin, nActel, nAsh
+use caspt2_module, only: iaSym, iExtIS, IINAIS, iiSym, iSCF, ISNAM, MxExt, nAes, nAmx, nAshT, nBas, nBasT, &
                          nBMx, nBSqT, nBTri, nDel, nFro, nFroT, nIes, nIMx, nInaBx, nIsh, nIshT, nOMx, nOrb, nOrbT, nOsh, nOSqT, &
                          nOTri, nRas1, nRas1T, nRas2, nRas2T, nRas3, nRas3T, nSecBx, nSes, nSMx, nSsh, nSshT, nSym, OrbNam
 use caspt2_module, only: nG1, nG2, nG3Tot

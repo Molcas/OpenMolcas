@@ -27,8 +27,9 @@ use OFembed, only: FMaux
 #endif
 use ChoCASPT2, only: NASplit, NISplit, NumCho_PT2
 use sguga_states, only: SGS, CIS, EXS
+use general_data, only: NASH
 use caspt2_global, only: CMOPT2, DMIX, DREF, DWGT, FIFA, FIMO, IDCIEX, IDSCT, IDTCEX, PREF, TAT, TORB, Weight
-use caspt2_module, only: IfChol, nAsh, nIsh, nSsh, nSym
+use caspt2_module, only: IfChol, nIsh, nSsh, nSym
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp, u6
 

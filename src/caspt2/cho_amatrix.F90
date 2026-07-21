@@ -19,7 +19,8 @@ use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use CHOVEC_IO, only: NVLOC_CHOBATCH
-use caspt2_module, only: nAsh, nBtch, nBtches, nIsh, nOrb, nOSqT, nSsh, nSym
+use general_data, only: nAsh
+use caspt2_module, only: nBtch, nBtches, nIsh, nOrb, nOSqT, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp

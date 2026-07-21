@@ -25,7 +25,8 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTUV
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
-use caspt2_module, only: NACTEL, NAES, NASH, NINDEP, NISH, NISH, NORB, NSYM, NTUV, NTUVES
+use general_data, only: NACTEL, NASH
+use caspt2_module, only: NAES, NINDEP, NISH, NISH, NORB, NSYM, NTUV, NTUVES
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

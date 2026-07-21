@@ -22,7 +22,8 @@ use Index_Functions, only: nTri3_Elem
 use PrintLevel, only: debug
 use eqsolv, only: iVecC, iVecW
 use caspt2_global, only: idtcex, iPrGlb, luciex
-use caspt2_module, only: HZERO, iSCF, MxCI, nAshT, nConf, nState, STSym
+use general_data, only: STSym
+use caspt2_module, only: HZERO, iSCF, MxCI, nAshT, nConf, nState
 use SC_NEVPT2, only: Do_SC, DVALUE_SC, HEFF_SC
 #if defined _DMRG_
 use caspt2_module, only: DMRG

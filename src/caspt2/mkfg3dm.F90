@@ -44,7 +44,8 @@ use sguga_states, only: SGS, CIS
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
 use Molcas, only: MxLev
-use caspt2_module, only: MxCI, nActEl, nG1, nG2, nG3, nSym, STSym
+use general_data, only: nActEl, STSym
+use caspt2_module, only: MxCI, nG1, nG2, nG3, nSym
 #ifdef _DMRG_
 use caspt2_module, only: DMRG
 #endif

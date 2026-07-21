@@ -13,7 +13,8 @@
 
 subroutine DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA)
 
-use caspt2_module, only: NASH, NBAS, NDEL, NFRO, NISH, NSYM
+use general_data, only: NASH
+use caspt2_module, only: NBAS, NDEL, NFRO, NISH, NSYM
 use Constants, only: Half
 use Definitions, only: wp, iwp
 

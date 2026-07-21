@@ -17,7 +17,8 @@
 subroutine SetUp_CASPT2_Tra(nSym_,nBas_,nOrb_,nIsh_,nAsh_,nFro_,nDel_,CMO_,lthCMO,LuIntM_,LuHlf1_,LuHlf2_,LuHlf3_)
 
 use caspt2_global, only: CMO, LUHLF1, LUHLF2, LUHLF3, LUINTM, NCMO
-use caspt2_module, only: nAsh, nBas, nDel, nFro, nIsh, nOrb, nOsh, nSym
+use general_data, only: nAsh
+use caspt2_module, only: nBas, nDel, nFro, nIsh, nOrb, nOsh, nSym
 use Definitions, only: wp, iwp
 
 implicit none

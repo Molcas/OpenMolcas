@@ -19,7 +19,8 @@ subroutine correlating_orbitals()
 use Index_Functions, only: nTri_Elem
 use InputData, only: Input
 use caspt2_global, only: EMP2, LUONEM, NCMO
-use caspt2_module, only: BNAME, iAd1m, IfChol, IfQCAN, nAsh, nBas, nBSqT, nDel, nFro, nIsh, nSsh, nSym
+use general_data, only: nAsh
+use caspt2_module, only: BNAME, iAd1m, IfChol, IfQCAN, nBas, nBSqT, nDel, nFro, nIsh, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

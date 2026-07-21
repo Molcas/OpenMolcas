@@ -17,7 +17,8 @@ use Index_Functions, only: nTri_Elem
 use EQSOLV, only: IDBMAT, IDSMAT, IRHS, IVECR, IVECW, IVECX
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: imag_shift, ipea_shift, iVecL, LUSBT, LUSOLV, sigma_p_epsilon
-use caspt2_module, only: EASUM, EPSA, HZERO, IFMSCOUP, NAES, NASH, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES
+use general_data, only: NASH
+use caspt2_module, only: EASUM, EPSA, HZERO, IFMSCOUP, NAES, NASUP, NINDEP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES
 use BDerNEV, only: BDNA, BDNB, BDNC, BDND, BDNE, BDNF, BDNG, BDN_G3
 use SC_NEVPT2, only: SC_prop, SC_NEVPT2_CLagD
 #ifdef _MOLCAS_MPP_

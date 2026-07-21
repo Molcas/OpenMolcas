@@ -15,7 +15,8 @@ subroutine OLagFroD(NBSQT,NASHT,DIA,DI,RDMSA,Trf)
 
 use Index_Functions, only: nTri_Elem
 use caspt2_global, only: CMOPT2
-use caspt2_module, only: NASH, NBAS, NFRO, NISH, NSYM
+use general_data, only: NASH
+use caspt2_module, only: NBAS, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp

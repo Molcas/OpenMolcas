@@ -30,7 +30,8 @@ use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KTGEU, KTGTU, KTU, KTUV
 use EQSOLV, only: IDSMAT
 use caspt2_global, only: LUSBT
-use caspt2_module, only: IASYM, NAES, NASH, NASHT, NASUP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES, NTUVES
+use general_data, only: NASH
+use caspt2_module, only: IASYM, NAES, NASHT, NASUP, NISUP, NSYM, NTGEUES, NTGTUES, NTUES, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp

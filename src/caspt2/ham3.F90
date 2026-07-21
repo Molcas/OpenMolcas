@@ -28,7 +28,8 @@ use Index_Functions, only: iTri, nTri3_Elem
 use Symmetry_Info, only: Mul
 use sguga_states, only: CIS, EXS, SGS
 use Molcas, only: MxLev
-use caspt2_module, only: IASYM, ISCF, MxCI, NACTEL, NASHT, NCONF, NSYM
+use general_data, only: NACTEL
+use caspt2_module, only: IASYM, ISCF, MxCI, NASHT, NCONF, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
