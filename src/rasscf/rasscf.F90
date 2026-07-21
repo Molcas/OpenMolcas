@@ -83,7 +83,7 @@ use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, ITERFILE, JOBIPH, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
                         NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
-use general_data, only: CIS, EXS, SGS
+use sguga_states, only: CIS, EXS, SGS
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
@@ -140,6 +140,7 @@ logical(kind=iwp), external :: PCM_On
 #endif
 integer(kind=iwp), external :: IsFreeUnit, isStructure
 real(kind=wp), external :: Get_ExFac
+integer(kind=iwp), parameter :: iState=1
 #include "warnings.h"
 
 ! Set status line for monitor:
@@ -1577,12 +1578,12 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       do jRoot=2,lRoots
         ! Read and reorder the left CI vector
         call DDafile(JOBIPH,2,Tmp,nConf,jDisk)
-        call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),Tmp,VecL)
+        call SG_Reord(SGS(istate),EXS(istate),STSYM,1,CIS(istate)%nCSF(STSYM),Tmp,VecL)
         kDisk = IADR15(4)
         do kRoot=1,jRoot-1
           ! Read and reorder the right CI vector
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-          call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),Tmp,VecR)
+          call SG_Reord(SGS(istate),EXS(istate),STSYM,1,CIS(istate)%nCSF(STSYM),Tmp,VecR)
           ! Compute TDM and store in h5 file
           call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
           idx = (jRoot-2)*(jRoot-1)/2+kRoot
@@ -1775,7 +1776,8 @@ if (Do_OFemb) then
   end if
 end if
 
-if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) call SG_Free(SGS,CIS,EXS)
+if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) call SG_Free(SGS(istate),CIS(istate), &
+                                                                                                      EXS(istate))
 
 if (DoFaro) then
   call faroald_free()

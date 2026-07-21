@@ -14,8 +14,8 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,T
 use timers, only: TimeDavid, TimeSigma
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use ci_interfaces, only: Mk_H_Psi
-use ci_interfaces, only: Mk_H_Psi
-use general_data, only: SGS, EXS, CIS, ITERFILE, LUDAVID, NCONF, NSEL, STSYM
+use sguga_states, only: SGS, EXS, CIS
+use general_data, only: ITERFILE, LUDAVID, NCONF, NSEL, STSYM
 use faroald, only: ndeta, ndetb
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use output_ras, only: IPRLOC, RC_CI
@@ -42,6 +42,7 @@ real(kind=wp), allocatable :: Cs(:), Es(:), Hs(:), Scr1(:,:), Scr2(:,:), Scr3(:,
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:), sigtemp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 real(kind=wp), external :: dDot_, dnrm2_
+integer(kind=iwp), parameter:: iState=1
 
 if (DoFaro) then
   ! determinant wavefunctions Faroald
@@ -115,7 +116,7 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    Call Mk_H_Psi(SGS,EXS,CIS,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb, &
+    Call Mk_H_Psi(SGS(istate),EXS(istate),CIS(istate),STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb, &
                   nTU,TU,nTUVX,TUVX)
 
     ! Timings on generation of the sigma vector

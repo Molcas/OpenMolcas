@@ -82,7 +82,8 @@ use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, IC
                          IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: CIS, SGS, EXS, CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
+use general_data, only: CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
+use sguga_states, only: CIS, SGS, EXS
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -112,6 +113,7 @@ logical(kind=iwp), external :: PCM_On
 #endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
+integer(kind=iwp), parameter :: istate=1
 
 #include "warnings.h"
 
@@ -128,7 +130,7 @@ if (IfCRPR) call MKPROJ(CRVEC,CMO,TUVX)
 ! IFRAS = 0: This is a CAS calculation
 ! IFRAS = 1: This is a RAS calculation
 
-if (iDoGas .or. (SGS%IFRAS > 2)) call setsxci()
+if (iDoGas .or. (SGS(istate)%IFRAS > 2)) call setsxci()
 if (IPRLEV > DEBUG) then
   write(u6,*)
   write(u6,*) ' Enter CI section, CICTL routine'
@@ -290,7 +292,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     end if
 
     call mma_allocate(PScr,NACPR2,Label='PScr')
-    if ((SGS%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+    if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
     call mma_deallocate(PScr)
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
@@ -493,7 +495,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
       End If
     end if
 
-    if ((.not. doDMRG) .and. ((SGS%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+    if ((.not. doDMRG) .and. ((SGS(istate)%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
     ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
     if (doDMRG) then
 #     ifdef _DMRG_
@@ -603,7 +605,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         if (.not. iDoGas) then
-          call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+          call SG_Reord(SGS(istate),EXS(istate),STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
 
           ! save reorder CI vector on disk
           !if (.not. iDoGas) then
@@ -627,7 +629,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
               call Molcas_open(LuVecDet,filename)
               write(LuVecDet,'(8i4)') nish
             end if
-            call SG_PrWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+            call SG_PrWF(SGS(istate),CIS(istate),STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
             ! Close GronOR vecdet file (tps/cdg 20210430)
             if (Key('PRSD')) close(LuVecDet)
           end if

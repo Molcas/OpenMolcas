@@ -67,7 +67,7 @@ module citrans
 ! nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
-use general_data, only: SGS
+use sguga_states, only: SGS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -124,6 +124,7 @@ subroutine citrans_sort(mode,ciold,cinew)
   integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
   real(kind=wp) :: wtab(0:maxorb,maxdown)
   integer(kind=iwp), allocatable :: csf_offset(:), downvector(:), stepvector(:)
+  integer(kind=iwp), parameter :: istate=1
 
   ! Compute offsets for addressing into the reordering and coefficient arrays.
   call mma_allocate(csf_offset,[ndo_min,ndo_max],label='csf_offset')
@@ -175,7 +176,7 @@ subroutine citrans_sort(mode,ciold,cinew)
        exit
     end if
     ! obtain the stepvector
-    call stepvector_next(mv,idwn,iup,stepvector,SGS%nLev)
+    call stepvector_next(mv,idwn,iup,stepvector,SGS(istate)%nLev)
 
     ! determine configuration group and rank
     doub = 0

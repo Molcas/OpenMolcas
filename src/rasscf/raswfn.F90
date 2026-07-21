@@ -43,7 +43,7 @@ subroutine cre_raswfn()
   use input_ras, only: Key
   use general_data, only: ISPIN, NACTEL, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, NTOT, &
                           NTOT2, STSYM
-  use general_data, only: SGS
+  use sguga_states, only: SGS
   use spinfo, only: NDET
   use Molcas, only: MxAct, MxSym
   use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT
@@ -55,6 +55,7 @@ subroutine cre_raswfn()
   implicit none
   integer(kind=iwp) :: dsetid, NTMP1(mxsym), NTMP2(mxsym), NTMP3(mxsym)
   character, allocatable :: typestring(:)
+  integer(kind=iwp), parameter:: istate=1
 
   ! create a new wavefunction file!
   wfn_fileid = mh5_create_file('RASWFN')
@@ -71,7 +72,7 @@ subroutine cre_raswfn()
   ! set wavefunction type
   if (iDoGAS) then
     call mh5_init_attr(wfn_fileid,'CI_TYPE','GAS')
-  else if (SGS%IFRAS == 0) then
+  else if (SGS(istate)%IFRAS == 0) then
     call mh5_init_attr(wfn_fileid,'CI_TYPE','CAS')
   else
     call mh5_init_attr(wfn_fileid,'CI_TYPE','RAS')

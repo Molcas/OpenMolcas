@@ -31,7 +31,6 @@ module general_data
 !              (binary, temporary)
 
 use Molcas, only: MxSym
-use sguga, only: SGStruct, CIStruct, EXStruct
 use Definitions, only: wp, iwp
 
 implicit none
@@ -48,13 +47,8 @@ logical(kind=iwp) :: Lowdin_ON
 integer(kind=iwp), allocatable :: CleanMask(:)
 real(kind=wp), allocatable :: CRPROJ(:), CRVEC(:)
 
-type(SGStruct), target :: SGS
-type(CIStruct), target :: CIS
-type(EXStruct), target :: EXS
-
 public :: CleanMask, CRPROJ, CRVEC, INVEC, ISPIN, ITERFILE, JOBIPH, JOBOLD, Lowdin_ON, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, &
           LUStartOrb, MALTER, MAXALTER, NACTEL, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, &
           NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, StartOrbFile, STSYM, SXDAMP
-public :: SGS, CIS, EXS
 
 end module general_data

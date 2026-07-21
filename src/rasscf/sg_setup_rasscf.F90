@@ -18,7 +18,7 @@ use CC_CI_mod, only: Do_CC_CI
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: DoBlockDMRG, NSM
 use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
-use general_data, only: CIS, EXS, SGS
+use sguga_states, only: CIS, EXS, SGS
 use sguga, only: MKSGNUM, SG_init
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
@@ -33,6 +33,7 @@ logical(kind=iwp), intent(inout):: DBG,SkipGUGA
 integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
 integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, NSTA, nRs1T
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
+integer(kind=iwp), parameter :: istate=1
 
 NLEV = 0
 do IGAS=1,NGAS
@@ -76,16 +77,16 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call SG_Init'
-      call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                    &
+      call SG_Init(nSym,nActEl,iSpin,SGS(istate),CIS(istate),                    &
                    nRas,nRasEl,nRsPrt,                           &
-                   EXS,                                          &
+                   EXS(istate),                                          &
                    xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
-      if (SGS%NVERT0 == 0) then
-         CIS%NCSF(STSYM) = 0
+      if (SGS(istate)%NVERT0 == 0) then
+         CIS(istate)%NCSF(STSYM) = 0
       else
          if (doBlockDMRG) then
-            CIS%NCSF(STSYM) = 1
+            CIS(istate)%NCSF(STSYM) = 1
         else
 
             ! FORM VARIOUS OFFSET TABLES:
@@ -94,17 +95,17 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 
             ! SET UP ENUMERATION TABLES
 
-            call MKSGNUM(STSYM,SGS,CIS,EXS)
+            call MKSGNUM(STSYM,SGS(istate),CIS(istate),EXS(istate))
 
-            if (NActEl == 0) CIS%NCSF(STSYM) = 1
+            if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
 
-            !     (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
+            !     (SGS(istate)%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
             !     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
             !     SET UP THE REINDEXING TABLE
         end if
       end if
       call SETSXCI()
-      NCONF = CIS%NCSF(STSYM)
+      NCONF = CIS(istate)%NCSF(STSYM)
 
       call Timing(Eterna_2,dum1,dum2,dum3)
 #   ifdef _DMRG_

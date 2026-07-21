@@ -11,13 +11,15 @@
 
 subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR,nLev)
 
-use general_data, only: CIS
+use sguga_states, only: CIS
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(in) :: nLev
 integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
+
+integer(kind=iwp), parameter :: iState=1
 
 ! stop when MV is zero
 if (MV == 0) Then
@@ -27,6 +29,6 @@ if (MV == 0) Then
    Call abend()
 end if
 
-call GETSTEPVECTOR(CIS%NOW,CIS%IOW,MV,IDWN,IUP,STEPVECTOR,nLev,CIS%nMidV)
+call GETSTEPVECTOR(CIS(istate)%NOW,CIS(istate)%IOW,MV,IDWN,IUP,STEPVECTOR,nLev,CIS(istate)%nMidV)
 
 end subroutine STEPVECTOR_NEXT

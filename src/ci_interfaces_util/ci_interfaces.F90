@@ -123,7 +123,8 @@ End Subroutine Mk_H_Psi
  use Lucia_Interface, only: Lucia_Util
  use stdalloc, only: mma_allocate, mma_deallocate
  use rasscf_global, only: DoFaro, NAC, NACPAR, NACPR2
- use general_data, only: CIS, SGS, EXS, STSYM, NCONF
+ use sguga_states, only: CIS, SGS, EXS
+ use general_data, only: STSYM, NCONF
  use faroald, only: ndeta, ndetb ,one_pdm, two_pdm, fold_two_pdm
  use citrans, only: citrans_csf2sd, citrans_sort
  use gas_data, only: iDoGAS
@@ -141,6 +142,7 @@ End Subroutine Mk_H_Psi
  real(kind=wp), allocatable :: Faroald_Psi(:,:)
  real(kind=wp), allocatable :: P_Faroald(:,:,:,:)
  real(kind=wp), allocatable :: CIV(:), temp(:)
+ integer(kind=iwp), parameter :: iState=1
 
 #ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_D1, Check_P, Check_PA
@@ -159,7 +161,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    Call mma_allocate(temp,nDetA*nDetB,Label='temp')
    Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
 
-   call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+   call SG_Reord(SGS(istate),EXS(istate),STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
    Temp(:)=Zero
    call CITRANS_SORT('C',CIV,temp)
    Faroald_Psi(:,:)=Zero
@@ -201,7 +203,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
         If (.NOT.iDoGAS) Then
 
           Call mma_allocate(CIV,nConf,Label='CIV')
-          call SG_Reord(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CIVEC,CIV)
+          call SG_Reord(SGS(istate),EXS(istate),STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
 
 !         Test the one-particle density matrix
 !         Call TriPrt('D(Lucia)',' ',D,NAC)
@@ -209,7 +211,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 !         Write (6,*) 'Check_D1=',Check_D1
           Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
 
-          call sg_one_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
+          call sg_one_pdm(SGS(istate),CIS(istate),EXS(istate),CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
           If (ABS(CheckSum(D_sguga,NACPAR)-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
 !            Write (6,*) 'Check_D1=',Check_D1
              Check_D1=CheckSum(D_sguga,NACPAR)
@@ -231,13 +233,13 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 !         Write (6,*) 'Check_PA=',Check_PA
 
 !         Call mma_allocate(P_sguga,NAC**4,Label='P')
-!         Call sg_two_pdm_full(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,P_sguga,NAC)
+!         Call sg_two_pdm_full(SGS(istate),CIS(istate),EX(istate)S,CIV,SIZE(CIV),STSYM,P_sguga,NAC)
 !         Call mma_deallocate(P_sguga)
 
           Call mma_allocate(P_sguga,NACPR2,Label='P')
           Call mma_allocate(PA_sguga,NACPR2,Label='PA')
 
-          Call sg_two_pdm(SGS,CIS,EXS,CIV,SIZE(CIV),STSYM,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
+          Call sg_two_pdm(SGS(istate),CIS(istate),EXS(istate),CIV,SIZE(CIV),STSYM,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
 
 !         call TRIPRT('P(SGUGA)',' ',P_sguga,NACPAR)
           If (ABS(CheckSum(P_sguga,NACPR2)-Check_P)/SIZE(p_sguga)>1.0e-12_wp) Then

@@ -25,7 +25,7 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ISPIN,IORD,ICI,JCJ,CCI,MXRO
 !          INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
-use general_data, only: EXS, SGS
+use sguga_states, only: EXS, SGS
 use Lucia_data, only: Conf_Occ
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
@@ -41,6 +41,7 @@ integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, II
                      IWALK(mxAct), JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT
 real(kind=wp) :: PHASE
 integer(kind=iwp), external :: SG_PHASE, SG_NUM
+integer(kind=iwp), parameter :: istate=1
 
 ! JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 ! NUMBERS IN THE SYMMETRIC GROUP NUMBERING
@@ -103,10 +104,10 @@ do ITYP=1,NTYP
       ! COMPUTE STEP VECTOR
       call STEPVEC(KCNF(1),KCNF(1+ICL),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = SG_NUM(SGS,EXS,IWALK)
+      ISG = SG_NUM(SGS(istate),EXS(istate),IWALK)
 
       ! GET PHASE PHASE FACTOR
-      IP = SG_PHASE(SGS,IWALK)
+      IP = SG_PHASE(SGS(istate),IWALK)
       ! UPDATE REINDEXING TABLE
       IORD(ICSFJP) = ISG*IP
     end do
