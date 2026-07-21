@@ -516,22 +516,24 @@ module lpdft
       call WarningMessage(2,'LPDFT transition density HDF5 file does not contain ACTIVE_2TDM.')
       call Quit_OnUserError()
     end if
-    if (.not. mh5_exists_dset(mh5id,'ACTIVE_2TDM_SPINSUM')) then
+    if ((lRoots > 1) .and. (.not. mh5_exists_dset(mh5id,'ACTIVE_2TDM_SPINSUM'))) then
       call WarningMessage(2,'LPDFT transition density HDF5 file does not contain ACTIVE_2TDM_SPINSUM.')
       call Quit_OnUserError()
     end if
 
     call mma_allocate(tdm1,nac,nac,nPairs,Label='LPDFT_TDM1')
     call mma_allocate(tdm2,nacpr2,nPairs,Label='LPDFT_TDM2')
-    call mma_allocate(tdm2Spin,nSpinTdm2,nPairs,Label='LPDFT_TDM2_SPINSUM')
+    if (lRoots > 1) call mma_allocate(tdm2Spin,nSpinTdm2,nPairs,Label='LPDFT_TDM2_SPINSUM')
     call mma_allocate(rootPairs,2,nPairs,Label='LPDFT_ROOT_PAIRS')
 
     tdm1(:,:,:) = Zero
     tdm2(:,:) = Zero
-    tdm2Spin(:,:) = Zero
     call mh5_fetch_dset(mh5id,'ACTIVE_1TDM',tdm1)
     call mh5_fetch_dset(mh5id,'ACTIVE_2TDM',tdm2)
-    call mh5_fetch_dset(mh5id,'ACTIVE_2TDM_SPINSUM',tdm2Spin)
+    if (lRoots > 1) then
+      tdm2Spin(:,:) = Zero
+      call mh5_fetch_dset(mh5id,'ACTIVE_2TDM_SPINSUM',tdm2Spin)
+    end if
 
     if (mh5_exists_dset(mh5id,'ROOT_PAIRS')) then
       call mh5_fetch_dset(mh5id,'ROOT_PAIRS',rootPairs)
@@ -559,7 +561,7 @@ module lpdft
     call print_lpdft_initial_info(fileName,nPairs)
 
     call mma_deallocate(rootPairs)
-    call mma_deallocate(tdm2Spin)
+    if (lRoots > 1) call mma_deallocate(tdm2Spin)
     call mma_deallocate(tdm2)
     call mma_deallocate(tdm1)
 #endif
