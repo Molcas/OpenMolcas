@@ -35,7 +35,7 @@ use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use sguga_states, only: CIS, EXS, SGS
-use general_data, only: NACTEL
+use general_data, only: NACTEL, nLev
 use caspt2_module, only: IASYM, ISCF, NASHT, MxCI
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs, MyRank
@@ -50,7 +50,7 @@ real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI)
 real(kind=wp), intent(out) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
 integer(kind=iwp) :: IL, IND1, IND2, IND3, IP, IP1, IP1END, IP1STA, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, ISSG2, ISTAU, &
                      IT, IT1, IT2, IT3, ITG3, ITS, IU, IU1, IU2, IU3, IUS, IV, IVS, IX, IXS, IY, IYS, IZ, IZS, JL, jtuvxyz, L, &
-                     LFROM, LSGM1, LSGM2, LTAU, LTO, NCI1, nLev, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
+                     LFROM, LSGM1, LSGM2, LTAU, LTO, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
 real(kind=wp) :: OCC, VAL
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iTask
@@ -60,8 +60,6 @@ integer(kind=iwp), allocatable :: P2LEV(:,:)
 real(kind=wp), allocatable :: TG3WRK(:)
 real(kind=wp), external :: DDot_
 integer(kind=iwp), parameter :: istate=1
-
-nLev = SGS(istate)%nLev
 
 ! Put in zeroes. Recognize special cases:
 OVL = One

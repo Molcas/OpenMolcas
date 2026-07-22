@@ -18,7 +18,7 @@ use fciqmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
 use sguga, only: SG_Init, SG_Init_Simple
 use sguga_states, only: CIS, EXS, SGS
-use general_data, only: iSpin, nActel, nAsh, nEle3=>nElec3, nHole1, STSym
+use general_data, only: iSpin, nActel, nAsh, nEle3=>nElec3, nHole1, STSym, nLev
 use caspt2_module, only: DMRG, DoCumulant, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
 use stdalloc, only: mma_allocate
 use rasdef, only: nRas,nRasEl,nRsPrt
@@ -26,7 +26,7 @@ use rasdef, only: nRas,nRasEl,nRsPrt
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ISM(MxLev), ISYM, IT, nLEV, nRs1T
+integer(kind=iwp) :: ISM(MxLev), ISYM, IT, nRs1T
 integer(kind=iwp), parameter :: istate=1
 
 nLEV = 0

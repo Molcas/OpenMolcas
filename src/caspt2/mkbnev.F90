@@ -18,11 +18,11 @@ use caspt2_global, only: iPrGlb, LUSBT, LUSOLV
 use caspt2_module, only: NASHT_ => NASHT, NASUP, NG1, NG2, NG3, NINDEP, NSYM
 use PrintLevel, only: debug, verbose
 use stdalloc, only: mma_allocate, mma_deallocate
-use sguga_states, only: SGS
 use caspt2_global, only: LUSBT, LUSOLV
 use EQSOLV, only: IDBMAT, IDSMAT
 use SC_NEVPT2, only: Do_SC, ECORR_SC, IDBMAT_NEVPT2, OVLAPS_SC
 use NEVPT2_mod, only: NASHT
+use general_data, only: nLev
 #ifdef _MOLCAS_MPP_
 use NEVPT2_E4, only: MAXBUF
 use caspt2_module, only: MXCI
@@ -32,7 +32,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, byte
 
   implicit none
-integer(kind=iwp) :: ICASE, IDISK, iLUID, ISYM, NLEV, NTRI
+integer(kind=iwp) :: ICASE, IDISK, iLUID, ISYM, NTRI
 real(kind=wp) :: cpe, cptf0, cptf10, cput, DUM(1), tioe, tiotf0, tiotf10, wallt
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: G1(:,:), G2(:,:,:,:), G3(:), Gact(:,:,:,:), Hact(:,:), Hbar(:,:), Htilde(:,:), WRK(:)
@@ -119,7 +119,6 @@ integer(kind=iwp), parameter :: istate=1
     call mma_deallocate(G3)
     call mma_deallocate(idxG3)
 
-    nLev = SGS(istate)%nLev
     call MKBNEVAC_E4(nAshT,NLEV,Gact)
 
     if (IPRGLB >= verbose) then

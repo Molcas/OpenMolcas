@@ -16,7 +16,7 @@ subroutine POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
 ! THIS PROGRAM CALCULATES THE 1-EL DENSITY
 ! MATRIX FOR A CASSCF WAVE FUNCTION.
 
-use sguga_states, only: SGS
+use general_data, only: nLev
 use caspt2_module, only: cLab10, iAdr10, MxCI, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -24,11 +24,9 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), RDMEIG(*), Scal
 real(kind=wp), intent(inout) :: CLag1(*), CLag2(*)
-integer(kind=iwp) :: nLev
 real(kind=wp), allocatable :: SGM1(:)
 integer(kind=iwp), parameter :: iState=1
 
-nLev = SGS(istate)%nLev
 
 if (NLEV > 0) then
   call mma_allocate(SGM1,MXCI,Label='SGM1')
@@ -45,7 +43,5 @@ IADR10(1,1) = 0
 ! HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
 ! ARRAY ON LUDMAT AND UPDATE THE TOC.
 if (NLEV > 0) call mma_deallocate(SGM1)
-
-return
 
 end subroutine POLY1_CLagT

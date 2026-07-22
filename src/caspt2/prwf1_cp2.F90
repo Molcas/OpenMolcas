@@ -21,7 +21,7 @@ subroutine PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
 
 use Symmetry_Info, only: Mul
 use sguga_states, only: CIS, SGS
-use general_data, only: ISPIN
+use general_data, only: ISPIN, nLev
 use caspt2_module, only: NSYM, PRSD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -31,14 +31,13 @@ integer(kind=iwp), intent(in) :: nMidV, NOCSF(NSYM,NMIDV,NSYM), IOCSF(NSYM,NMIDV
                                  ISYCI, mCI
 real(kind=wp), intent(in) :: CI(mCI), THR
 integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP, IUW0, K, LENCSF, &
-                     LEV, MV, NCI, NDWN, nIpWlk, nLev, NNN, NUP
+                     LEV, MV, NCI, NDWN, nIpWlk, NNN, NUP
 real(kind=wp) :: COEF
 character(len=256) :: LINE
 integer(kind=iwp), allocatable :: ICS(:), LEX(:)
 character, parameter :: CODE(0:3) = ['0','u','d','2']
 integer(kind=iwp), parameter :: istate=1
 
-nLev = SGS(istate)%nLev
 nIpWlk = CIS(istate)%nIpWlk
 
 ! NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS

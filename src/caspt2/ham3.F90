@@ -28,7 +28,7 @@ use Index_Functions, only: iTri, nTri3_Elem
 use Symmetry_Info, only: Mul
 use sguga_states, only: CIS, EXS, SGS
 use Molcas, only: MxLev
-use general_data, only: NACTEL
+use general_data, only: NACTEL, nLev
 use caspt2_module, only: IASYM, ISCF, MxCI, NASHT, NCONF, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -39,12 +39,10 @@ integer(kind=iwp), intent(in) :: NOP2, NOP3, ISYCI, NCI
 real(kind=wp), intent(in) :: OP0, OP1(NASHT,NASHT), OP2(NOP2), OP3(NOP3), CI(NCI)
 real(kind=wp), intent(inout) :: SGM(NCI)
 integer(kind=iwp) :: I, IATOG(MXLEV), ISTU, ISVX, ISVXYZ, ISYM, ISYM1, ISYM2, ISYZ, IT, ITABS, ITMIN, ITU, ITUVXYZ, IU, IV, IVMIN, &
-                     IVX, IVXYZ, IX, IY, IYZ, IZ, LEVT, LEVU, LEVV, LEVX, LEVY, LEVZ, nLev, NSGM1, NSGM2
+                     IVX, IVXYZ, IX, IY, IYZ, IZ, LEVT, LEVU, LEVV, LEVX, LEVY, LEVZ, NSGM1, NSGM2
 real(kind=wp) :: OCCNO, X
 real(kind=wp), allocatable :: SGM1(:), SGM2(:)
 integer(kind=iwp), parameter :: istate=1
-
-nLev = SGS(istate)%nLev
 
 if (NCONF == 0) return
 if (abs(OP0) > 1.0e-15_wp) SGM(1:NCONF) = SGM(1:NCONF)+OP0*CI(1:NCONF)

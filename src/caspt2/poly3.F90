@@ -40,7 +40,7 @@ use fciqmc_interface, only: DoFCIQMC
 use PrintLevel, only: VERBOSE
 use sguga_states, only: SGS, CIS
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
-use general_data, only: NACTEL, STSym
+use general_data, only: NACTEL, STSym, nLev
 use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
 use caspt2_module, only: DMRG
@@ -51,13 +51,13 @@ use Definitions, only: wp, iwp, u6, byte
 
 implicit none
 logical(kind=iwp), intent(in) :: mkF
-integer(kind=iwp) :: IDCI, ILEV, ILUID, IPARDIV, nCI, NG3MAX, nLev
+
+integer(kind=iwp) :: IDCI, ILEV, ILUID, IPARDIV, nCI, NG3MAX
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: CI(:)
 real(kind=wp), allocatable, target :: F1_H(:), F2_H(:), F3_H(:), G1(:), G2(:), G3(:)
 real(kind=wp), pointer :: F1(:), F2(:), F3(:)
 integer(kind=iwp), parameter :: istate=1
-
 nLev = SGS(istate)%nLev
 
 ! Note that in case of FCIQMC nConf is set to 0.

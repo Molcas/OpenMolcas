@@ -15,6 +15,7 @@ subroutine CLagX(IFF,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
 
 use PrintLevel, only: VERBOSE
 use sguga_states, only: SGS
+use general_data, only: nLev
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: EPSA, HZERO, ISCF, JSTATE, NG1, NG2, NG3, NG3TOT
 use BDerNEV, only: BDerNEV_E4
@@ -29,15 +30,13 @@ implicit none
 integer(kind=iwp), intent(in) :: IFF, nConf, nRoots, nState, nAshT
 real(kind=wp), intent(inout) :: CLag(nConf,nRoots), DEPSA(nAshT,nAshT)
 real(kind=wp), intent(in) :: VECROT(nState)
-integer(kind=iwp) :: ILEV, nLev
+integer(kind=iwp) :: ILEV
 real(kind=wp) :: DEASUM
 real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, TIOE, TIOTF0, TIOTF10, WALLT
 real(kind=wp), allocatable :: G3(:)
 real(kind=wp), allocatable, target :: DF1_H(:), DF2_H(:), DF3_H(:), DG1(:), DG2(:), DG3(:), F1_H(:), F2_H(:), G1(:), G2(:)
 real(kind=wp), pointer :: DF1(:), DF2(:), DF3(:), F1(:), F2(:)
 integer(kind=iwp), parameter:: istate=1
-
-nLev = SGS(istate)%nLev
 
 !! reduced density matrix and fock-weighted RDM
 call mma_allocate(G1,NG1,Label='G1')

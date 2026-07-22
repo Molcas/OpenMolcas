@@ -15,7 +15,7 @@ use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri_Elem
 use sguga_states, only: SGS, CIS, EXS
 use caspt2_global, only: IDCIEX, LUCIEX
-use general_data, only: NASH, STSYM
+use general_data, only: NASH, STSYM, nLEV
 use caspt2_module, only: ISCF, NAES, NCONF, NISH, NORB, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -26,13 +26,11 @@ integer(kind=iwp), intent(in) :: NFIFA, IBRA, IKET
 real(kind=wp), intent(in) :: FIFA(NFIFA)
 real(kind=wp), intent(out) :: FOPEL
 integer(kind=iwp) :: I, ID, IFTEST, II, IJ, IOFF(8), ISCR, IST, ISU, ISYM, IT, ITABS, ITTOT, ITUTOT, IU, IUABS, IUTOT, J, LEVT, &
-                     LEVU, NI, nLev
+                     LEVU, NI
 real(kind=wp) :: EINACT, ESUM, FTU, OCC, TRC
 real(kind=wp), allocatable :: BRA(:), KET(:), SGM(:)
 real(kind=wp), external :: DDot_
 integer(kind=iwp), parameter :: istate=1
-
-nLev = SGS(istate)%nLev
 
 ! Procedure for computing one matrix element of the Fock matrix in the
 ! basis of the CASSCF states: <BRA|FOP|KET>

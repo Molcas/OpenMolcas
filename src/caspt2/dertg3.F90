@@ -37,7 +37,7 @@ use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
 use sguga_states, only: CIS, EXS, SGS
-use general_data, only: NACTEL
+use general_data, only: NACTEL, NLEV
 use caspt2_module, only: IASYM, ISCF, MXCI
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One
@@ -50,13 +50,11 @@ real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), OVL
 real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT), DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3), CLAG1(NCONF), CLAG2(NCONF)
 integer(kind=iwp) :: ibuf, IL, IM, IP, IP1, IP1END, IP1STA, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, ISSG2, ISTAU, IT, ITS, &
                      ITU, IU, IUS, IV, IVS, IVX, IX, IXS, IY, IYS, IYZ, IZ, IZS, JL, JM, JTU, JTUVXYZ, JVX, JYZ, LFROM, LFROMD, &
-                     LSGM1, LSGM2, LTAU, LTO, NCI1, nLev, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
+                     LSGM1, LSGM2, LTAU, LTO, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
 real(kind=wp) :: VAL
 integer(kind=iwp), allocatable :: P2LEV(:,:)
 real(kind=wp), allocatable :: BUF1(:), DTU(:,:), DYZ(:,:), TG3WRK(:)
 integer(kind=iwp), parameter :: istate=1
-
-nLev = SGS(istate)%nLev
 
 ! Put in zeroes. Recognize special cases:
 !OVL = One

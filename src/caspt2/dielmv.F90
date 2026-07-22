@@ -20,6 +20,7 @@
 subroutine DIELMV(ICASE,nICASE,JCASE,nJCASE,NUP,NDWN,EMU)
 
 use sguga_states, only: CIS, SGS
+use general_data, only: nLev
 use caspt2_module, only: ETA
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -27,11 +28,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nICASE, ICASE(nICASE), nJCASE, JCASE(nJCASE), NUP, NDWN
 real(kind=wp), intent(inout) :: EMU(NUP,NDWN)
-integer(kind=iwp) :: I, IC, IC1, II, IOC, ISTEP, LEV, LV1, nIpWlk, nLev
+integer(kind=iwp) :: I, IC, IC1, II, IOC, ISTEP, LEV, LV1, nIpWlk
 real(kind=wp) :: rSUM
 integer(kind=iwp), parameter :: istate=1
 
-nLev = SGS(istate)%nLev
 nIpWlk = CIS(istate)%nIpWlk
 
 do I=1,NUP
