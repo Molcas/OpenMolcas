@@ -12,66 +12,107 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
+subroutine GenerateP(cMO,nBasis,nOrb2Loc,nAtoms,PA)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Reduce operation count and use BLAS.
 
+use Localisation_globals, only: BName, ChargeType, nBas_per_Atom, nBas_Start, Ovlp, Ovlp_sqrt
 use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBas_Start(*)
-real(kind=wp), intent(in) :: Ovlp(nBasis,nBasis), cMO(nBasis,*)
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nAtoms
+real(kind=wp), intent(in) :: cMO(nBasis,*)
 real(kind=wp), intent(out) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
-character(len=LenIn+8), intent(in) :: BName(*)
-logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAt, iMO_s, iMO_t
 real(kind=wp) :: PAst, PAts
 character(len=LenIn+8) :: PALbl
-real(kind=wp), allocatable :: SBar(:,:)
+real(kind=wp), allocatable :: SBar(:,:), lowdin_prod(:,:)
+logical(kind=iwp), parameter :: Debug_generatep = .false.
 
-call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')
+select case (ChargeType)
+  case (1) ! Mulliken framework
+    call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')
 
-! Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)
+    ! Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)
 
-call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,One,Ovlp,nBasis,cMO,nBasis,Zero,Sbar,nBasis)
+    !call RecPrt('Ovlp','(5F20.10)',Ovlp,nBasis,nBasis)
+    !call RecPrt('CMO','(5F20.10)',CMO,nBasis,nOrb2Loc)
+    call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis, &
+                One,Ovlp,nBasis, &
+                    cMO,nBasis, &
+                Zero,Sbar,nBasis)
+    !call RecPrt('SBar','(5F20.10)',Sbar,nBasis,nOrb2Loc)
 
-do iAt=1,nAtoms
+    do iAt=1,nAtoms
 
-  ! Compute MA(s,t) = sum_{mu_in_A} cMO(mu,s) * Sbar(mu,t)
+      ! Compute MA(s,t) = sum_{mu_in_A} cMO(mu,s) * Sbar(mu,t)
 
-  call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,cMO(nBas_Start(iAt),1),nBasis,Sbar(nBas_Start(iAt),1),nBasis,Zero, &
-              PA(1,1,iAt),nOrb2Loc)
+      call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt), &
+                  One,cMO(nBas_Start(iAt),1),nBasis, &
+                      Sbar(nBas_Start(iAt),1),nBasis, &
+                  Zero,PA(:,:,iAt),nOrb2Loc)
+      !call Recprt('PA(:,:,iAt)','(5F20.10)',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
 
-  ! Compute <s|PA|t> by symmetrization of MA.
+      ! Compute <s|PA|t> by symmetrization of MA.
 
-  do iMO_s=1,nOrb2Loc
-    do iMO_t=iMO_s+1,nOrb2Loc
-      PAst = PA(iMO_s,iMO_t,iAt)
-      PAts = PA(iMO_t,iMO_s,iAt)
-      PA(iMO_s,iMO_t,iAt) = Half*(PAst+PAts)
-      PA(iMO_t,iMO_s,iAt) = PA(iMO_s,iMO_t,iAt)
-    end do !iMO_t
-  end do !iMO_s
+      do iMO_s=1,nOrb2Loc-1
+        do iMO_t=iMO_s+1,nOrb2Loc
+          PAst = PA(iMO_s,iMO_t,iAt)
+          PAts = PA(iMO_t,iMO_s,iAt)
+          PA(iMO_s,iMO_t,iAt) = Half*(PAst+PAts)
+          PA(iMO_t,iMO_s,iAt) = PA(iMO_s,iMO_t,iAt)
+        end do !iMO_t
+      end do !iMO_s
+      !call Recprt('PA(:,:,iAt)','(5F20.10)',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
 
-end do !iAt
+    end do !iAt
 
-if (Debug) then
-  write(u6,*) 'In GenerateP'
-  write(u6,*) '------------'
-  do iAt=1,nAtoms
-    PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
-    call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
-  end do
-end if
+    if (Debug_generatep) then
+      write(u6,*) 'In GenerateP'
+      write(u6,*) '------------'
+      do iAt=1,nAtoms
+        PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
+        call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
+      end do
+    end if
 
-call mma_deallocate(SBar)
+    call mma_deallocate(SBar)
 
-return
+  case (2) ! Lowdin framework
+    call mma_Allocate(lowdin_prod,nBasis,nOrb2Loc,Label='lowdin_prod')
+
+    ! compute (lowdin_prod)_{mu,s} = sum_{nu} (S^{1/2})_{mu,nu} (C)_{nu,s}
+    call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis, &
+                One,Ovlp_sqrt,nBasis, &
+                    cMO,nBasis, &
+                Zero,lowdin_prod,nBasis)
+
+    do iAt=1,nAtoms
+      call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt), &
+                  One,lowdin_prod(nBas_Start(iAt),1),nBasis, &
+                      lowdin_prod(nBas_Start(iAt),1),nBasis, &
+                  Zero,PA(:,:,iAt),nOrb2Loc)
+    end do
+
+    if (Debug_generatep) then
+      write(u6,*) 'In GenerateP'
+      write(u6,*) '------------'
+
+      call RecPrt('lowdin_prod',' ',lowdin_prod,nBasis,nOrb2Loc)
+
+      do iAt=1,nAtoms
+        PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
+        call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
+      end do
+    end if
+    call mma_deallocate(lowdin_prod)
+
+end select
 
 end subroutine GenerateP

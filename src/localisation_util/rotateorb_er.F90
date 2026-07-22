@@ -11,13 +11,14 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc,Debug)
+subroutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc)
 ! Thomas Bondo Pedersen, November 2005.
 !
 ! Purpose: rotate ER orbitals,
 !          CMO -> CMO * U
 !          U = R*[R^T*R]^(-1/2)
 
+use Localisation_globals, only: Debug
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -26,7 +27,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(in) :: R(nOrb2Loc,nOrb2Loc)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
-logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: irc
 real(kind=wp) :: ThrU
 real(kind=wp), allocatable :: CMOscr(:,:), U(:,:)
@@ -51,9 +51,7 @@ if (Debug) then
   ThrU = 1.0e-10_wp
   irc = -1
   call Chk_Unitary(irc,U,nOrb2Loc,ThrU)
-  if (irc /= 0) then
-    call SysAbendMsg(SecNam,'U matrix is not unitary!',' ')
-  end if
+  if (irc /= 0) call SysAbendMsg(SecNam,'U matrix is not unitary!',' ')
 end if
 
 ! Update C.

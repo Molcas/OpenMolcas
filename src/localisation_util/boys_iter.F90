@@ -11,21 +11,21 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine Boys_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,Lbl_AO,Lbl,nBas,nOrb2Loc,nComp,nMxIter,Maximisation,Converged,Debug,Silent)
+subroutine Boys_Iter(Functional,CMO,Lbl_AO,Lbl,nBas,nOrb2Loc,nComp,Converged)
 ! Author: T.B. Pedersen
 !
 ! Purpose: Boys localisation of orbitals.
 
+use Localisation_globals, only: nMxIter, Silent, ThrGrad, Thrs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nComp, nBas, nOrb2Loc, nMxIter
+integer(kind=iwp), intent(in) :: nBas, nOrb2Loc, nComp
 real(kind=wp), intent(out) :: Functional, Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(inout) :: CMO(nBas,*)
-real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad, Lbl_AO(nBas,nBas,nComp)
-logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
+real(kind=wp), intent(in) :: Lbl_AO(nBas,nBas,nComp)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
@@ -34,10 +34,9 @@ real(kind=wp), allocatable :: Col(:,:), Rmat(:,:)
 ! Print iteration table header.
 ! -----------------------------
 
-if (.not. Silent) then
+if (.not. Silent) &
   write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
                                'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
-end if
 
 ! Initialization (iter 0).
 ! ------------------------
@@ -46,9 +45,9 @@ if (.not. Silent) call CWTime(C1,W1)
 nIter = 0
 Converged = .false.
 call mma_allocate(Rmat,nOrb2Loc,nOrb2Loc,label='Rmat')
-call GenerateB(CMO,nBas,nOrb2Loc,Lbl_AO,Lbl,nComp,Debug)
-call ComputeFuncB2(nOrb2Loc,Lbl,nComp,Functional,Debug)
-call GetGrad_Boys(nOrb2Loc,Lbl,nComp,Rmat,GradNorm,Debug)
+call GenerateB(CMO,nBas,nOrb2Loc,Lbl_AO,Lbl,nComp)
+call ComputeFuncB2(nOrb2Loc,Lbl,nComp,Functional)
+call GetGrad_Boys(nOrb2Loc,Lbl,nComp,Rmat,GradNorm)
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
@@ -65,9 +64,9 @@ end if
 call mma_allocate(Col,nOrb2Loc,2,label='Col')
 do while ((nIter < nMxIter) .and. (.not. Converged))
   if (.not. Silent) call CWTime(C1,W1)
-  call RotateOrbB(CMO,Col,Lbl,nComp,nBas,nOrb2Loc,Maximisation,ThrRot,PctSkp,Debug)
-  call ComputeFuncB2(nOrb2Loc,Lbl,nComp,Functional,Debug)
-  call GetGrad_Boys(nOrb2Loc,Lbl,nComp,Rmat,GradNorm,Debug)
+  call RotateOrbB(CMO,Col,Lbl,nComp,nBas,nOrb2Loc,PctSkp)
+  call ComputeFuncB2(nOrb2Loc,Lbl,nComp,Functional)
+  call GetGrad_Boys(nOrb2Loc,Lbl,nComp,Rmat,GradNorm)
   nIter = nIter+1
   Delta = Functional-OldFunctional
   OldFunctional = Functional

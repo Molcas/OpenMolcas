@@ -1,0 +1,56 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2026, Lila Zapp                                        *
+!***********************************************************************
+
+subroutine vec2upper_triag(squaremat,matdim,vec,vecdim,antisymmetric)
+
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: matdim, vecdim
+real(kind=wp), intent(out) :: squaremat(matdim,matdim) !antisymmetric or symmetric
+real(kind=wp), intent(in) :: vec(vecdim)
+logical(kind=iwp), intent(in) :: antisymmetric
+integer(kind=iwp) :: i, j, listindex
+
+! putting data stored as vector back into anti/symmetric matrix format
+! note that diagonal elements are produced here, because the input vector does not contain them
+!  -> they will be zero for antisymmetric matrices an one for symmetric matrices (needed to do grad(:,:)/hessian(:,:))
+
+if (antisymmetric) then
+  squaremat(:,:) = Zero
+else
+  squaremat(:,:) = One
+end if
+
+listindex = 0
+do i=1,matdim-1
+  do j=i+1,matdim
+    listindex = listindex+1
+    !write(u6,'(A,I5,A,I5,A,I5,A,F8.3)') 'i=',i,'j= ',j,'listindex=',listindex,'mat(i,j)=',squaremat(i,j)
+
+    squaremat(i,j) = vec(listindex)
+
+    if (antisymmetric) then
+      squaremat(j,i) = -vec(listindex)
+    else
+      squaremat(j,i) = vec(listindex)
+    end if
+  end do
+end do
+
+!write(u6,*) 'In vec2upper_triag:  antisymmetric = ',antisymmetric
+!call RecPrt('matrix as vector of upper triagonal values:',' ',vec,listindex,1)
+!call RecPrt('NxN Matrix',' ',squaremat,matdim,matdim)
+
+end subroutine vec2upper_triag

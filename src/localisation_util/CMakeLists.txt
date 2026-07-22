@@ -34,21 +34,28 @@ set (sources
      edmistonruedenberg.F90
      edmistonruedenberg_iter.F90
      erchk_localisation.F90
-     erloc.F90
      evalerfun.F90
+     expkap_localisation.F90
      fwt_haar.F90
      genbmp.F90
      genbmp_loc.F90
      generateb.F90
      generatep.F90
      get_can_lorb.F90
+     get_intermediate_molden.F90
      get_orb_select.F90
      get_vir_select.F90
      getat_localisation.F90
      getdens_localisation.F90
+     getfhrow_pm.F90
      getgrad_boys.F90
      getgrad_er.F90
      getgrad_pm.F90
+     getgradnorm_pm.F90
+     gethdiag_pm.F90
+     gethess_pm.F90
+     getnumgrad_pm.F90
+     getnumhess_pm.F90
      getovlp_localisation.F90
      getrawpaos.F90
      getsh_localisation.F90
@@ -56,26 +63,33 @@ set (sources
      getumat_localisation.F90
      inv_fwt_haar.F90
      irnge.F90
+     localisation_globals.F90
      log2.F90
      makedomaincomplete.F90
      ortho_orb.F90
+     orthocheck.F90
      orthopao_localisation.F90
      paoloc.F90
      pipekmezey.F90
      pipekmezey_iter.F90
-     pmloc.F90
      rot_st.F90
+     rotatenxn.F90
      rotateorb.F90
      rotateorb_er.F90
      rotateorbb.F90
+     s_gek_localisation.F90
      sort_localisation.F90
      sort_localisation_1.F90
      sq2tri.F90
      sqrtmt.F90
+     transformpa.F90
      tri2rec.F90
      updateb.F90
      updatep.F90
+     upper_triag2vec.F90
+     vec2upper_triag.F90
      wavelet_transform.F90
+     wrvec_localisation.F90
      xdiaxt.F90
 )
 
