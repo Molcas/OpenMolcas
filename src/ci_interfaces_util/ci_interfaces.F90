@@ -118,7 +118,7 @@ end if
 End Subroutine Mk_H_Psi
 
 
-#define _SGUGA_VERIFY_
+!#define _SGUGA_VERIFY_
  Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
  use Lucia_Interface, only: Lucia_Util
  use stdalloc, only: mma_allocate, mma_deallocate

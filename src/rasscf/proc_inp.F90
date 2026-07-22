@@ -4123,6 +4123,7 @@ if (.not. SkipGUGA) then
   end if
   ! ====================================================================
 
+#ifdef _NOT_NOW_
   ! Turn on the Faroald SD CI code in case of
   ! 1) no symmetry
   ! 2) not RASSCF or GASSCF
@@ -4139,6 +4140,7 @@ if (.not. SkipGUGA) then
      ) Then
      DoFaro=.True.
   End If
+#endif
 
   ! faroald initializations
   if (DOFARO) then
