@@ -210,7 +210,9 @@ subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev,nG3)
   ! In the regular code, idxG3 is distributed over ranks.
   ! To prevent copying the task logic in mkfg3.F90 verbatim,
   ! run this section in serial
+#ifdef _MOLCAS_MPP_
   if (King()) then
+#endif
     call compute_index_map(idxG3, nG3, nLev)
     do i=1,nG3
       t = idxG3(1,i)
@@ -222,7 +224,9 @@ subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev,nG3)
       g3(i) = g3_temp(t,u,v,x,y,z)
       f3(i) = f3_temp(t,u,v,x,y,z)
     end do
+#ifdef _MOLCAS_MPP_
   end if
+#endif
   call mma_deallocate(f3_temp)
   call mma_deallocate(g3_temp)
 
