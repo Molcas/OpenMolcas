@@ -110,8 +110,8 @@ else if (iFinal == 2) then
       DStmp(:) = Zero
       Ptmp(:) = Zero
     end if
-    DA_ave(:) = DA_ave(:)+wgt*Dtmp(:)
-    DS_ave(:) = DS_ave(:)+wgt*DStmp(:)
+    DA_ave(1:NACPAR) = DA_ave(1:NACPAR)+wgt*Dtmp(1:NACPAR)
+    DS_ave(1:NACPAR) = DS_ave(1:NACPAR)+wgt*DStmp(1:NACPAR)
   end do
   call mma_deallocate(DStmp)
   call mma_deallocate(Dtmp)
