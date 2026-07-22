@@ -122,7 +122,7 @@ End Subroutine Mk_H_Psi
  Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
  use Lucia_Interface, only: Lucia_Util
  use stdalloc, only: mma_allocate, mma_deallocate
- use rasscf_global, only: DoFaro, NAC, NACPAR, NACPR2
+ use rasscf_global, only: DoFaro, NAC
  use sguga_states, only: CIS, SGS, EXS
  use general_data, only: STSYM
  use faroald, only: ndeta, ndetb ,one_pdm, two_pdm, fold_two_pdm
