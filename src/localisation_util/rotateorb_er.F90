@@ -51,9 +51,7 @@ if (Debug) then
   ThrU = 1.0e-10_wp
   irc = -1
   call Chk_Unitary(irc,U,nOrb2Loc,ThrU)
-  if (irc /= 0) then
-    call SysAbendMsg(SecNam,'U matrix is not unitary!',' ')
-  end if
+  if (irc /= 0) call SysAbendMsg(SecNam,'U matrix is not unitary!',' ')
 end if
 
 ! Update C.

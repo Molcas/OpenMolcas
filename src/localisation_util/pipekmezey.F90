@@ -42,9 +42,7 @@ character(len=*), parameter :: SecNam = 'PipekMezey'
 ! Symmetry is NOT allowed!!
 ! -------------------------
 
-if (nSym /= 1) then
-  call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
-end if
+if (nSym /= 1) call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
 
 ! Initializations.
 ! ----------------

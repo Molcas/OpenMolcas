@@ -180,17 +180,13 @@ do iSym=1,nSym
   do j=1,nOrb2Loc(iSym)
     kOff = ip0+nOrb2Loc(iSym)*(j-1)
     Tst = abs(Umat(kOff+j)-One)
-    if (Tst > Tol) then
-      mErr = mErr+1
-    end if
+    if (Tst > Tol) mErr = mErr+1
     do i=j+1,nOrb2Loc(iSym)
       Tst = abs(Umat(kOff+i))
       xErr = max(xErr,Tst)
     end do
   end do
-  if (xErr > Tol) then
-    mErr = mErr+1
-  end if
+  if (xErr > Tol) mErr = mErr+1
   if (mErr == 0) then
     call GetUmat_Localisation(Umat(kU),CMO(kC1),Ovlp(kC),CMO(kC1),Scr,nBas(iSym),nOrb2Loc(iSym))
     xErr = -huge(xErr)
@@ -198,9 +194,7 @@ do iSym=1,nSym
     do j=1,nOrb2Loc(iSym)
       kOff = ip0+nOrb2Loc(iSym)*(j-1)
       Tst = abs(Umat(kOff+j)-One)
-      if (Tst > Tol) then
-        mErr = mErr+1
-      end if
+      if (Tst > Tol) mErr = mErr+1
       do i=j+1,nOrb2Loc(iSym)
         Tst = abs(Umat(kOff+i))
         xErr = max(xErr,Tst)

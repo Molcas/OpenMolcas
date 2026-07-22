@@ -134,9 +134,7 @@ do iMO1=1,nOrb2Loc-1
       xDone = xDone+One
     end if
 
-    if (Debug) then
-      call RecPrt('MO after rotation',' ',cMO,nBasis,nOrb2Loc)
-    end if
+    if (Debug) call RecPrt('MO after rotation',' ',cMO,nBasis,nOrb2Loc)
 
   end do !iMO2
 end do !iMO1

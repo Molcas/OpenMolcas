@@ -108,7 +108,7 @@ call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
 
 !  case (1)
 
-call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
+!call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 
 !  case (2,3,4,5,6)
 
@@ -135,7 +135,7 @@ Gradient(:) = Zero
 GradList(:,:) = Zero
 DispList(:,:) = Zero
 posel(:) = 0
-if (OptMeth == 6) call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
+if ((OptMeth == 1) .or. (OptMeth == 6)) call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 
 !  case default
 !    write(u6,*) 'ERROR: The chosen opt method is not implemented for localisation'
@@ -211,24 +211,21 @@ nIter = 0
 select case (InpOptMeth)
   case (1)
     UpMeth = 'JS  - '
-    write(u6,'(//,1X,A,/,1X,A)') &
-      '                                                                 CPU       Wall', &
-      'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)   npos  %Screen'
+    write(u6,'(//,1X,A,/,1X,A)') '                                                                 CPU       Wall', &
+                                 'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)   npos  %Screen'
   case (2,4,5)
     UpMeth = 'NR   0'
-    write(u6,'(//,1X,A,/,1X,A)') &
-      '                                                                 CPU       Wall', &
-      'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)   npos  dispnorm'
+    write(u6,'(//,1X,A,/,1X,A)') '                                                                 CPU       Wall', &
+                                 'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)   npos  dispnorm'
   case (3)
     UpMeth = 'GA  - '
-    write(u6,'(//,1X,A,/,1X,A)') &
-      '                                                                 CPU       Wall', &
-      'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  dispnorm'
+    write(u6,'(//,1X,A,/,1X,A)') '                                                                 CPU       Wall', &
+                                 'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  dispnorm'
   case (6)
     UpMeth = 'JS  - '
-    write(u6,'(//,1X,A,/,1X,A)') &
-      '                                                                 CPU       Wall', &
-      'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  %Screen/dispnorm'
+    write(u6,'(//,1X,A,/,1X,A)') '                                                                 CPU       Wall', &
+                                 'nIter       Functional P        Delta     Gradient   Method     (sec)     (sec)  npos  '// &
+                                 '%Screen/dispnorm'
   case default
     write(u6,*) 'ERROR: The chosen opt method is not implemented for localisation'
     call Abend()
@@ -472,7 +469,7 @@ call Add_Info('LOC_ITER',[real(nIter,kind=wp)],1,8)
 
 ! deallocations
 ! -------------
-if (allocated(PACol)) call mma_Deallocate(PACol)
+call mma_Deallocate(PACol,safe='*')
 call mma_Deallocate(Hdiagvec)
 !select case (InpOptMeth)
 !  case (2,3,4,5,6)

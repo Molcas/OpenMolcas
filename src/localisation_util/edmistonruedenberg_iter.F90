@@ -50,10 +50,9 @@ end if
 ! Print iteration table header.
 ! -----------------------------
 
-if (.not. Silent) then
+if (.not. Silent) &
   write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
-    'nIter      Functional ER        Delta     Gradient     (sec)     (sec)'
-end if
+                               'nIter      Functional ER        Delta     Gradient     (sec)     (sec)'
 
 ! Initialization.
 ! ---------------

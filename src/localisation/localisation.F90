@@ -252,7 +252,7 @@ if (EvalER) then
   ERFun(2) = Zero
   call ComputeFuncER(ERFun(2),CMO,nBas,nOrb2Loc,nFro,nSym,Timing)
   write(u6,'(/,1X,A,ES15.8,/,1X,A,ES15.8,/)') 'ER functional for initial orbitals: ',ERFun(1), &
-    'ER functional for local   orbitals: ',ERFun(2)
+                                              'ER functional for local   orbitals: ',ERFun(2)
 end if
 
 ! Test section.
@@ -495,9 +495,7 @@ call cls_locwfn()
 iUHF = 0
 Filename = 'MD_LOC'
 call Molden_Interface(iUHF,Namefile,Filename)
-if (.not. Silent) then
-  write(u6,'(1X,A)') 'The MOLDEN file has been written.'
-end if
+if (.not. Silent) write(u6,'(1X,A)') 'The MOLDEN file has been written.'
 
 ! Set return code.
 ! ----------------

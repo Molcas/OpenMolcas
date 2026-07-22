@@ -34,10 +34,9 @@ real(kind=wp), allocatable :: Col(:,:), Rmat(:,:)
 ! Print iteration table header.
 ! -----------------------------
 
-if (.not. Silent) then
+if (.not. Silent) &
   write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
-    'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
-end if
+                               'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
 
 ! Initialization (iter 0).
 ! ------------------------

@@ -606,9 +606,7 @@ write(u6,'(A,8I9,/)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
 ! If Cholesky, reset default threshold (unless user defined).
 ! -----------------------------------------------------------
 
-if ((LocModel == 3) .and. (.not. Thrs_UsrDef)) then
-  Thrs = 1.0e-8_wp
-end if
+if ((LocModel == 3) .and. (.not. Thrs_UsrDef)) Thrs = 1.0e-8_wp
 
 ! No need to order Cholesky MOs.
 ! ------------------------------
