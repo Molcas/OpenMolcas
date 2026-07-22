@@ -12,7 +12,7 @@
 subroutine caspt2_grad_invaria1(NDPT2,DPT2)
 ! Put zero to wrong (incomplete) density matrix elements
 ! If the MRPT2 energy is non-invariant with respect to rotations among the inactive and secondary orbital spaces,
-! we cannot determine the off-diagonal elements (in the iagonal block) as in TRDNS2D.
+! we cannot determine the off-diagonal elements (in the diagonal block) as in TRDNS2D.
 ! Therefore, remove the off-diagonal elements. They are computed in caspt2_grad_invaria2 using orbital derivatives.
 ! The diagonal elements are correct.
 

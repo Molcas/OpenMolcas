@@ -38,15 +38,12 @@ Write_EOr = index(Label,'E') /= 0
 Write_Ind = index(Label,'I') /= 0
 
 if (Write_CMO) then
-  l_CMO = nBas(1)*nOrb(1)
-  do iSym=2,nSym
-    l_CMO = l_CMO+nBas(iSym)*nOrb(iSym)
-  end do
+  l_CMO = sum(nBas(1:nSym)*nOrb(1:nSym))
   call mma_allocate(CMO_,l_CMO,label='CMO')
-  k1 = 1
-  k2 = 1
+  k1 = 0
+  k2 = 0
   do iSym=1,nSym
-    call dCopy_(nBas(iSym)*nOrb(iSym),CMO(k1),1,CMO_(k2),1)
+    CMO_(k2+1:k2+nBas(iSym)*nOrb(iSym)) = CMO(k1+1:k1+nBas(iSym)*nOrb(iSym))
     k1 = k1+nBas(iSym)*nBas(iSym)
     k2 = k2+nBas(iSym)*nOrb(iSym)
   end do

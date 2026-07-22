@@ -12,13 +12,30 @@
 !               2025, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SORange)
+!#define _DEBUGPRINT_
+subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! mDiis        subspace dimensionality (<=2*ndiis); number of linear independent e_diis column vectors
+! nDiis        number of iterations used to span the subspace; nDIIS = min(IterGEK,nWindow)
+! Max_Iter     maximal number of iterations to consider for the GEK surrogate model; usually Max_Iter = 50
+! q_diis       projected coordinate vectors
+! g_diis       projected gradient vectors
+! dq_diis      output displacement, suggested by the optimization in the subspace; still in subspace representation
+!              get fullspace representation by doing: dq(:) = dq(:)+dq_diis(i)*e_diis(:,i) for i=1,mdiis
+! Energy       y vector
+! H_diis       projected Hessian diagonal
+! H_surr       surrogate Hessian
+! dqdq         output: (real) norm of displacement
+! Step_Trunc   output: (character) denotes step truncation
+! UpMeth       output: (string), giving "RVO  x" with x = number of microiterations
+! SOFact       input: scales the tolerance used in the RVO step. Usually set to one, when quadratic region is reached
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 use Index_Functions, only: iTri, nTri_Elem
 use Kriging_mod, only: blavAI
 use Kriging_procedures, only: Setup_Kriging
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Four, Six, Ten, Half
+use Constants, only: Zero, One, Two, Four, Six, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -31,26 +48,29 @@ real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter), g_diis(mDiis,nDiis
 real(kind=wp), intent(out) :: dq_diis(mDiis), dqdq
 character, intent(out) :: Step_Trunc
 character(len=6), intent(out) :: UpMeth
-logical(kind=iwp), intent(in) :: SORange
-integer(kind=iwp) :: i, ii, Iteration, Iteration_Micro, Iteration_Total, j, k
-real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, SOFact, StepMax, Variance(1)
+real(kind=wp), intent(in) :: SOFact, bias
+integer(kind=iwp) :: cnt, i, ii, Iteration, Iteration_Micro, Iteration_Total, j, k
+real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1)
 logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
-real(kind=wp), allocatable :: Val(:), Vec(:,:)
-integer(kind=iwp), parameter :: nWindow = 20
+real(kind=wp), allocatable :: H_surr(:,:), Val(:), Vec(:,:)
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
 real(kind=wp), external :: DDot_
 
+!write(u6,*) 'previous energies',Energy(1:nDiis)
+Energy(nDiis+1:Max_Iter) = Zero
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Enter GEK_Optimizer'
+#endif
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! We need to set the bias
-
-blavAI = Ten
+blavAI = bias
 call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy,Hessian_HMF=H_diis)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Here starts the code doing the actual optimization
 
@@ -59,16 +79,12 @@ Terminate = .false.
 Step_Trunc = 'N'
 Converged = .false.
 
-if (SORange) then
-  SOFact = One
-else
-  SOFact = 10000.0_wp
-end if
 Beta_Disp = Beta_Disp_Seed*SOFact
 Iteration = nDiis-1
 Iteration_Micro = 0
 Iteration_Total = nDIIS-1
 if (nDIIS > 1) Beta_Disp = min(Beta_Disp_Seed*SOFact,max(Beta_Disp_Min,abs(Energy(nDIIS)-Energy(nDIIS-1))))
+
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Energy(nDIIS)-Energy(nDIIS-1)=',Energy(nDIIS)-Energy(nDIIS-1)
 write(u6,*) 'nDIIS=',nDIIS
@@ -77,6 +93,10 @@ write(u6,*) 'Beta_Disp_Min=',Beta_Disp_Min
 write(u6,*) 'Beta_Disp=',Beta_Disp
 #endif
 
+call mma_allocate(H_surr,mDiis,mDiis,Label='H_surr')
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111111111
+! MICRO ITERATIONS
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111111111
 do while (.not. Converged) ! Micro iterate on the surrogate model
 
   Iteration_Micro = Iteration_Micro+1
@@ -102,16 +122,21 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 # endif
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Fact = One
   StepMax = StepMax_Seed*SOFact*real(Iteration_Micro,kind=wp)
   ! Loop to enforce restricted variance. Note, if the step restriction kicks in no problem since we will still microiterate.
   ! Normally a full step will be allowed -- no step restriction -- and the loop will be exited after the first iteration.
-  do
+  cnt = 0
+
+  do ! Restricted variance step
+    cnt = cnt+1
 
     ! Compute the surrogate Hessian
-    call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
-    !call Hessian_Kriging(q_diis(:,Iteration),H_diis,mDiis)
+    call Hessian_Kriging_Layer(q_diis(:,Iteration),H_surr,mDiis)
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'inside RVO step loop, iter = ',cnt
+    call RecPrt('H_surr(from HKL)',' ',H_surr,mDIIS,mDIIS)
+#   endif
 
     call mma_allocate(Val,nTri_Elem(mDIIS),Label='Val')
     call mma_allocate(Vec,mDIIS,mDIIS,Label='Vec')
@@ -119,7 +144,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     call unitmat(Vec,mDIIS)
     do i=1,mDIIS
       do j=1,i
-        Val(iTri(i,j)) = H_diis(i,j)
+        Val(iTri(i,j)) = H_surr(i,j)
       end do
     end do
 
@@ -129,14 +154,16 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     ! If negative eigenvalues then correct and signal that the micro iterations should be terminanted.
     do i=1,mDIIS
       ii = nTri_Elem(i)
+
 #     ifdef _DEBUGPRINT_
-      write(u6,*) 'Eigenvalue:',Val(ii)
+      write(u6,'(A,F26.16)') 'Eigenvalue:',Val(ii)
 #     endif
+
       if (Val(ii) < Zero) then
         Terminate = .true.
         do j=1,mDIIS
           do k=1,mDIIS
-            H_Diis(j,k) = H_Diis(j,k)+Two*abs(Val(ii))*Vec(j,i)*Vec(k,i)
+            H_surr(j,k) = H_surr(j,k)+Two*abs(Val(ii))*Vec(j,i)*Vec(k,i)
           end do
         end do
       end if
@@ -147,15 +174,17 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 
 #   ifdef _DEBUGPRINT_
     call RecPrt('q_diis(:,Iteration)',' ',q_diis(:,Iteration),mDIIS,1)
-    call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
+    if (Terminate) call RecPrt('H_surr(updated)',' ',H_surr,mDIIS,mDIIS)
     write(u6,*) 'Step_Trunc:',Step_Trunc
 #   endif
 
     Step_Trunc_ = Step_Trunc
     dqHdq = Zero
-    call RS_RFO(H_diis,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth_,dqHdq,StepMax,Step_Trunc_,Thr_RS)
+    call RS_RFO(H_surr,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth_,dqHdq,StepMax,Step_Trunc_,Thr_RS)
+
     dq_diis(:) = -dq_diis(:)
     q_diis(:,Iteration+1) = q_diis(:,Iteration)+dq_diis(:)
+
     dqdq = sqrt(DDot_(size(dq_diis),dq_diis(:),1,dq_diis(:),1))
 
 #   ifdef _DEBUGPRINT_
@@ -165,6 +194,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
     call RecPrt('q_diis(:,Iteration+1)',' ',q_diis(:,Iteration+1),mDIIS,1)
 #   endif
+
     if (Step_Trunc == 'N') Step_Trunc = ' '   ! set to blank if not touched
     if (Step_Trunc//Step_Trunc_ == ' *') Step_Trunc = '.' ! Mark that we have had a step Reduction
 
@@ -182,8 +212,31 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     write(u6,*) 'Fact      =',Fact
     write(u6,*) 'StepMax   =',StepMax
 #   endif
-    if ((Fact < 1.0e-5_wp) .or. (Variance(1) < Beta_Disp)) exit
-    if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) exit
+
+    if (Fact < 1.0e-5_wp) then
+#     ifdef _DEBUGPRINT_
+      write(u6,'(/A,/A,I2)') 'Fact < 1.0e-5_wp','Exiting sub-iterations after ',cnt
+#     endif
+      exit
+    end if
+
+    if (Variance(1) < Beta_Disp) then
+#     ifdef _DEBUGPRINT_
+      write(u6,'(/A,/A,I2)') 'Var < Beta_Disp','Exiting sub-iterations after ',cnt
+#     endif
+      exit
+    end if
+
+    if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) then
+#     ifdef _DEBUGPRINT_
+      write(u6,'(/A,/A,I2)') 'One-Variance(1)/Beta_Disp > 1.0e-3_wp','Exiting sub-iterations after ',cnt
+#     endif
+      exit
+    end if
+
+    !if ((Fact < 1.0e-5_wp) .or. (Variance(1) < Beta_Disp)) exit
+    !if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) exit
+
     Fact = Half*Fact
     StepMax = Half*StepMax
     Step_Trunc = '*' ! This will only happen if the variance restriction kicks in
@@ -225,6 +278,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   do i=1,mDIIS
     RMSMx = max(RMSMx,abs(dq_diis(i)))
   end do
+
 # ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*) 'FAbs=',FAbs
@@ -232,13 +286,16 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   write(u6,*) 'RMSMx=',RMSMx
   write(u6,*)
 # endif
+
   if (Step_Trunc == '.') Step_Trunc = ' '
   Converged = ((FAbs < ThrGrd) .and. (RMS < Four*ThrGrd) .and. (RMSMx < ThrGrd*Six) .and. &
                ((Step_Trunc == ' ') .or. (Step_Trunc == '#')))
+
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Step_Trunc:',Step_Trunc
   write(u6,*) 'Converged:',Converged
 # endif
+
   if (Step_Trunc == '*') Converged = .true.
   if ((.not. Converged) .and. (Iteration_Micro == Max_Iter)) Terminate = .true.
   if (Terminate) then
@@ -249,23 +306,28 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end do  ! While not converged
+call mma_deallocate(H_surr)
 
 #ifdef _DEBUGPRINT_
 if (Converged) then
-  write(u6,*) 'Converged'
+  write(u6,'(A,I4,A)') 'Converged in ',Iteration_Micro,' micro iterations'
 else
   write(u6,*) 'Not converged!'
 end if
-write(u6,*) 'Energy(Iteration_Total+1):',Energy(Iteration_Total+1)
+write(u6,*) 'Energy(Iteration_Total+1): ',Energy(Iteration_Total+1)
 #endif
+
 write(UpMeth(5:6),'(I2)') Iteration_Micro
 
 ! Compute the displacement in the reduced space relative to the last structure of the full space
 dq_diis(:) = q_diis(:,Iteration+1)-q_diis(:,nDIIS)
 
 #ifdef _DEBUGPRINT_
-call RecPrt('dq_diis',' ',dq_diis(:),size(dq_diis),1)
-call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),size(g_diis,1),1)
+call RecPrt('q_diis(:,:Iteration+1)',' ',q_diis(:,:Iteration+1),mDIIS,Iteration+1)
+call RecPrt('g_diis(:,:Iteration+1)',' ',g_diis(:,:Iteration+1),mDIIS,Iteration+1)
+call RecPrt('dq_diis',' ',dq_diis(:),mDIIS,1)
 #endif
+
+call Finish_Kriging()
 
 end subroutine GEK_Optimizer

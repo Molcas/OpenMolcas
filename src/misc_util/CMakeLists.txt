@@ -118,6 +118,7 @@ set (sources
      rmass.F90
      rmassx.F90
      rotation.F90
+     scram.F90
      sortdiag.F90
      sorteig.F90
      sorting.F90
