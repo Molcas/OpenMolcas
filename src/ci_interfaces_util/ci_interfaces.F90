@@ -124,10 +124,14 @@ End Subroutine Mk_H_Psi
  use stdalloc, only: mma_allocate, mma_deallocate
  use rasscf_global, only: DoFaro, NAC, NACPAR, NACPR2
  use sguga_states, only: CIS, SGS, EXS
- use general_data, only: STSYM, NCONF
+ use general_data, only: STSYM
  use faroald, only: ndeta, ndetb ,one_pdm, two_pdm, fold_two_pdm
  use citrans, only: citrans_csf2sd, citrans_sort
+#ifdef _SGUGA_VERIFY_
  use gas_data, only: iDoGAS
+ use rasscf_global, only: NACPAR, NACPR2
+ use general_data, only: NCONF
+#endif
  use constants, only: Zero
 
  implicit none
