@@ -15,7 +15,7 @@ module caspt2_qmc_interface
 
 #ifdef _MOLCAS_MPP_
 use MPI_Wrapper, only: MPI_COMM_WORLD, MPI_LOGICAL
-use Para_Info, only: Is_Real_Par
+use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
 use Definitions, only: wp, iwp, byte
@@ -207,17 +207,22 @@ subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev,nG3)
 
   ! since this routine is called from poly3.F90, precomputed idxG3 and nG3
   ! are no longer available and must be constructed here
-  call compute_index_map(idxG3, nG3, nLev)
-  do i=1,nG3
-    t = idxG3(1,i)
-    u = idxG3(2,i)
-    v = idxG3(3,i)
-    x = idxG3(4,i)
-    y = idxG3(5,i)
-    z = idxG3(6,i)
-    g3(i) = g3_temp(t,u,v,x,y,z)
-    f3(i) = f3_temp(t,u,v,x,y,z)
-  end do
+  ! In the regular code, idxG3 is distributed over ranks.
+  ! To prevent copying the task logic in mkfg3.F90 verbatim,
+  ! run this section in serial
+  if (King()) then
+    call compute_index_map(idxG3, nG3, nLev)
+    do i=1,nG3
+      t = idxG3(1,i)
+      u = idxG3(2,i)
+      v = idxG3(3,i)
+      x = idxG3(4,i)
+      y = idxG3(5,i)
+      z = idxG3(6,i)
+      g3(i) = g3_temp(t,u,v,x,y,z)
+      f3(i) = f3_temp(t,u,v,x,y,z)
+    end do
+  end if
   call mma_deallocate(f3_temp)
   call mma_deallocate(g3_temp)
 
