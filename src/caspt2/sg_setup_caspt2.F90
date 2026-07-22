@@ -14,7 +14,7 @@
 subroutine SG_SETUP_CASPT2()
 
 use Molcas, only: MxLev
-use fciqmc_interface, only: DoFCIQMC
+use caspt2_qmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
 use sguga, only: SG_Init, SG_Init_Simple
 use sguga_states, only: CIS, EXS, SGS

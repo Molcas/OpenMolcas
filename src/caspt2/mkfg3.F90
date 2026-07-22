@@ -33,7 +33,7 @@
 !> F3(t,u,v,x,y,z) &= \sum_w \langle 0 \lvert E_{tuvxyzww} \rvert 0 \rangle e_w \\
 !> \f}
 !> Storage: \p G1 and \p G2 are simple two- and four-index arrays, and
-!> includes also such zeroes that are implied by symmetry.
+!> include also such zeroes that are implied by symmetry.
 !> But \p G3 is quite large, and while it is stored with zeroes, it
 !> is made more compact by calculating only the minimum amount of
 !> unique values and storing the active indices in the array \p idxG3.
@@ -61,7 +61,7 @@ subroutine MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
 use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
+use caspt2_qmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: DEBUG, VERBOSE
 use sguga_states, only: SGS, CIS, EXS
 use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
@@ -212,17 +212,14 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
 
   isp1 = Mul(issg1,stsym)       ! Symmetry index of E_ut
 
-  if (.not. DoFCIQMC) then
+  ! form: H0_I = \sum_t e_{t}  |I><I|E_{tt}|I><I|
 
-    ! form: H0_I = \sum_t e_{t}  |I><I|E_{tt}|I><I|
+  ! Note: this only works if the Fock matrix is presented in the
+  ! block diagonal form. i.e. in the pseudo canonical basis.
 
-    ! Note: this only works if the Fock matrix is presented in the
-    ! block diagonal form. i.e. in the pseudo canonical basis.
+  nsgm1 = CIS(istate)%ncsf(issg1)
+  if (mkF) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS(istate)%NOW,CIS(istate)%IOW,CIS(istate)%nMidV)
 
-    nsgm1 = CIS(istate)%ncsf(issg1)
-    if (mkF) call H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS(istate)%NOW,CIS(istate)%IOW,CIS(istate)%nMidV)
-
-  end if
 
   !-SVC20100301: calculate number of larger tasks for this symmetry, this
   !-is basically the number of buffers we fill with SG_Epq_Psi vectors.
@@ -319,39 +316,23 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     if (myBuffer /= iTask) then
       ibuf1 = 0
 
-      if (.not. DoFCIQMC) then
-        do ip1i=ip1sta,ip1end
-          itlev = idx2ij(1,ip1i)
-          iulev = idx2ij(2,ip1i)
+      do ip1i=ip1sta,ip1end
+        itlev = idx2ij(1,ip1i)
+        iulev = idx2ij(2,ip1i)
 
-          istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
+        istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
 
-          it = SGS(istate)%L2ACT(itlev)
-          iu = SGS(istate)%L2ACT(iulev)
+        it = SGS(istate)%L2ACT(itlev)
+        iu = SGS(istate)%L2ACT(iulev)
 
-          if (istu == isp1) then
-            ibuf1 = ibuf1+1
-            ip1_buf(ibuf1) = ip1i
-            ! form E_ut |0>
-            BUF1(1:nSgm1,iBuf1) = Zero
-            call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
-          end if
-        end do
-
-      else
-
-        do ip1i=ip1sta,ip1end
-          itlev = idx2ij(1,ip1i)
-          iulev = idx2ij(2,ip1i)
-          istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
-          it = SGS(istate)%L2ACT(itlev)
-          iu = SGS(istate)%L2ACT(iulev)
-          if (istu == isp1) then
-            ibuf1 = ibuf1+1
-            ip1_buf(ibuf1) = ip1i
-          end if
-        end do
-      end if
+        if (istu == isp1) then
+          ibuf1 = ibuf1+1
+          ip1_buf(ibuf1) = ip1i
+          ! form E_ut |0>
+          BUF1(1:nSgm1,iBuf1) = Zero
+          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
+        end if
+      end do
 
       myBuffer = iTask
     else
@@ -359,35 +340,33 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     end if
 
     !-SVC20100301: necessary batch of sigma vectors is now in the buffer
-    if (.not. DoFCIQMC) then
-      ! The ip1 buffer could be the same on different processes
-      ! so only compute the G1 contribution when ip3 is 1, as
-      ! this will only be one task per buffer.
+    ! The ip1 buffer could be the same on different processes
+    ! so only compute the G1 contribution when ip3 is 1, as
+    ! this will only be one task per buffer.
 
-      ! form <0| *  E_ut|0> = G_tu and
-      !      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
+    ! form <0| *  E_ut|0> = G_tu and
+    !      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
 
-      if ((issg1 == stsym) .and. (ip3 == 1)) then
-        if (mkF) then
-          do ib=1,ibuf1
-            idx = ip1_buf(ib)
-            itlev = idx2ij(1,idx)
-            iulev = idx2ij(2,idx)
-            it = SGS(istate)%L2ACT(itlev)
-            iu = SGS(istate)%L2ACT(iulev)
-            G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
-            F1(it,iu) = sum(CI(1:nsgm1)*BUF1(1:nsgm1,ib)*bufd(1:nsgm1))-EPSA(iu)*G1(it,iu)
-          end do
-        else
-          do ib=1,ibuf1
-            idx = ip1_buf(ib)
-            itlev = idx2ij(1,idx)
-            iulev = idx2ij(2,idx)
-            it = SGS(istate)%L2ACT(itlev)
-            iu = SGS(istate)%L2ACT(iulev)
-            G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
-          end do
-        end if
+    if ((issg1 == stsym) .and. (ip3 == 1)) then
+      if (mkF) then
+        do ib=1,ibuf1
+          idx = ip1_buf(ib)
+          itlev = idx2ij(1,idx)
+          iulev = idx2ij(2,idx)
+          it = SGS(istate)%L2ACT(itlev)
+          iu = SGS(istate)%L2ACT(iulev)
+          G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
+          F1(it,iu) = sum(CI(1:nsgm1)*BUF1(1:nsgm1,ib)*bufd(1:nsgm1))-EPSA(iu)*G1(it,iu)
+        end do
+      else
+        do ib=1,ibuf1
+          idx = ip1_buf(ib)
+          itlev = idx2ij(1,idx)
+          iulev = idx2ij(2,idx)
+          it = SGS(istate)%L2ACT(itlev)
+          iu = SGS(istate)%L2ACT(iulev)
+          G1(it,iu) = dot_product(CI(1:nsgm1),BUF1(1:nsgm1,ib))
+        end do
       end if
     end if
 
@@ -412,37 +391,34 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
     issg2 = Mul(isyz,stsym)
     iy = SGS(istate)%L2ACT(iylev)
     iz = SGS(istate)%L2ACT(izlev)
-    if (.not. DoFCIQMC) then
-      nsgm2 = CIS(istate)%ncsf(issg2)
-      BUF2(1:nSgm2) = Zero
-      ! form <0| E_zy|
-      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IYLEV,IZLEV,One,STSYM,CI,BUF2)
+    nsgm2 = CIS(istate)%ncsf(issg2)
+    BUF2(1:nSgm2) = Zero
+    ! form <0| E_zy|
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IYLEV,IZLEV,One,STSYM,CI,BUF2)
 
-      if (issg2 == issg1) then
+    if (issg2 == issg1) then
 
-        if (mkF) then
-          do ib=1,ibuf1
-            idx = ip1_buf(ib)
-            itlev = idx2ij(1,idx)
-            iulev = idx2ij(2,idx)
-            it = SGS(istate)%L2ACT(itlev)
-            iu = SGS(istate)%L2ACT(iulev)
-            ! form <0| E_zy E_ut |0> = G_tu,yz
-            !      <0| E_zy * H0 * E_ut |0> = F_tu,yz
-            G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
-            F2(it,iu,iy,iz) = sum(BUF2(1:nsgm1)*bufd(1:nsgm1)*buf1(1:nsgm1,ib))
-          end do
-        else
-          do ib=1,ibuf1
-            idx = ip1_buf(ib)
-            itlev = idx2ij(1,idx)
-            iulev = idx2ij(2,idx)
-            it = SGS(istate)%L2ACT(itlev)
-            iu = SGS(istate)%L2ACT(iulev)
-            G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
-          end do
-        end if
-
+      if (mkF) then
+        do ib=1,ibuf1
+          idx = ip1_buf(ib)
+          itlev = idx2ij(1,idx)
+          iulev = idx2ij(2,idx)
+          it = SGS(istate)%L2ACT(itlev)
+          iu = SGS(istate)%L2ACT(iulev)
+          ! form <0| E_zy E_ut |0> = G_tu,yz
+          !      <0| E_zy * H0 * E_ut |0> = F_tu,yz
+          G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
+          F2(it,iu,iy,iz) = sum(BUF2(1:nsgm1)*bufd(1:nsgm1)*buf1(1:nsgm1,ib))
+        end do
+      else
+        do ib=1,ibuf1
+          idx = ip1_buf(ib)
+          itlev = idx2ij(1,idx)
+          iulev = idx2ij(2,idx)
+          it = SGS(istate)%L2ACT(itlev)
+          iu = SGS(istate)%L2ACT(iulev)
+          G2(it,iu,iy,iz) = dot_product(BUF2(1:nsgm1),BUF1(1:nsgm1,ib))
+        end do
       end if
 
     end if
@@ -455,11 +431,9 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
       iv = SGS(istate)%L2ACT(ivlev)
       ix = SGS(istate)%L2ACT(ixlev)
       if (isvx == Mul(issg1,issg2)) then
-        if (.not. DoFCIQMC) then
-          BUFT(1:nSgm1) = Zero
-          ! form <0| E_zy E_xv
-          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
-        end if
+        BUFT(1:nSgm1) = Zero
+        ! form <0| E_zy E_xv
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
         !-----------
         ! Max and min values of index p1:
         ip1mx = ntri2
@@ -485,13 +459,11 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
 
           !-----------
           ! Contract the Sgm1 wave functions with the Tau wave function.
-          if (.not. DoFCIQMC) then
-            ! form <0| E_zy E_xv * E_ut|0>
-            call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,buft,1,Zero,bufr,1)
-            ! and distribute this result into G3:
-            G3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
-            ! and copy the active indices into idxG3:
-          end if
+          ! form <0| E_zy E_xv * E_ut|0>
+          call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,buft,1,Zero,bufr,1)
+          ! and distribute this result into G3:
+          G3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
+          ! and copy the active indices into idxG3:
           do ib=1,nb
             iG3 = iG3OFF+ib
             idx = ip1_buf(ibmn-1+ib)
@@ -507,20 +479,18 @@ Symmetry_Loop: do issg1=1,nsym   ! Symmetry index of E_ut/0>
             idxG3(6,iG3) = int(iZ,kind=byte)
           end do
 
-          if (.not. DoFCIQMC) then
-            if (mkF) then
-              ! Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
-              ! form <0| E_zy E_xv (H0 -e_v)
-              BufT(1:nSgm1) = (BufD(1:nSgm1)-EpsA(iV))*BufT(1:nSgm1)
-              !do icsf=1,nsgm1
-              !  buft(icsf) = (bufd(icsf)-epsa(iv))*buft(icsf)
-              !end do
-              ! so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
+          if (mkF) then
+            ! Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
+            ! form <0| E_zy E_xv (H0 -e_v)
+            BufT(1:nSgm1) = (BufD(1:nSgm1)-EpsA(iV))*BufT(1:nSgm1)
+            !do icsf=1,nsgm1
+            !  buft(icsf) = (bufd(icsf)-epsa(iv))*buft(icsf)
+            !end do
+            ! so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
 
-              ! form <0| E_zy E_xv (H0 -e_v) E_ut|0> = F3(iuv,xyz)
-              call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,buft,1,Zero,bufr,1)
-              F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
-            end if
+            ! form <0| E_zy E_xv (H0 -e_v) E_ut|0> = F3(iuv,xyz)
+            call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,buft,1,Zero,bufr,1)
+            F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
           end if
 
           iG3OFF = iG3OFF+nb
@@ -580,14 +550,51 @@ if (mkF) then
   call GADGOP(F2,NG2,'+')
 end if
 
-if (DoFCIQMC) then
-  call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3,nLev)
-else
-  ! Correction to G2: It is now = <0| E_tu E_yz |0>
-  do iu=1,nlev
-    G2(:,iu,iu,:) = G2(:,iu,iu,:)-G1(:,:)
+! Correction to G2: It is now = <0| E_tu E_yz |0>
+do iu=1,nlev
+  G2(:,iu,iu,:) = G2(:,iu,iu,:)-G1(:,:)
+end do
+! SVC20100310: took some spurious mirroring of G2 values out
+! of the loops and put them here, after the parallel section has
+! finished, so that GAdGOP works correctly.
+do ip1=ntri2+1,nlev2
+  itlev = idx2ij(1,ip1)
+  iulev = idx2ij(2,ip1)
+  it = SGS(istate)%L2ACT(itlev)
+  iu = SGS(istate)%L2ACT(iulev)
+  do ip3=ntri1+1,ip1
+    iylev = idx2ij(1,ip3)
+    izlev = idx2ij(2,ip3)
+    iy = SGS(istate)%L2ACT(iylev)
+    iz = SGS(istate)%L2ACT(izlev)
+    G2(it,iu,iy,iz) = G2(iz,iy,iu,it)
   end do
-  ! SVC20100310: took some spurious mirroring of G2 values out
+end do
+! Correction to G2: Some values not computed follow from symmetry
+do ip1=1,nlev2-1
+  itlev = idx2ij(1,ip1)
+  iulev = idx2ij(2,ip1)
+  it = SGS(istate)%L2ACT(itlev)
+  iu = SGS(istate)%L2ACT(iulev)
+  do ip3=ip1+1,nlev2
+    iylev = idx2ij(1,ip3)
+    izlev = idx2ij(2,ip3)
+    iy = SGS(istate)%L2ACT(iylev)
+    iz = SGS(istate)%L2ACT(izlev)
+    G2(it,iu,iy,iz) = G2(iy,iz,it,iu)
+  end do
+end do
+if (mkF) then
+  ! Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
+  do iy=1,nlev
+    do iu=1,nlev
+      F2(:,iu,iy,:) = F2(:,iu,iy,:)-(EPSA(iu)+EPSA(iy))*G2(:,iu,iy,:)
+    end do
+  end do
+  do iu=1,nlev
+    F2(:,iu,iu,:) = F2(:,iu,iu,:)-(F1(:,:)+EPSA(iu)*G1(:,:))
+  end do
+  ! SVC20100310: took some spurious mirroring of F2 values out
   ! of the loops and put them here, after the parallel section has
   ! finished, so that GAdGOP works correctly.
   do ip1=ntri2+1,nlev2
@@ -600,10 +607,10 @@ else
       izlev = idx2ij(2,ip3)
       iy = SGS(istate)%L2ACT(iylev)
       iz = SGS(istate)%L2ACT(izlev)
-      G2(it,iu,iy,iz) = G2(iz,iy,iu,it)
+      F2(it,iu,iy,iz) = F2(iz,iy,iu,it)
     end do
   end do
-  ! Correction to G2: Some values not computed follow from symmetry
+  ! Correction to F2: Some values not computed follow from symmetry
   do ip1=1,nlev2-1
     itlev = idx2ij(1,ip1)
     iulev = idx2ij(2,ip1)
@@ -614,97 +621,56 @@ else
       izlev = idx2ij(2,ip3)
       iy = SGS(istate)%L2ACT(iylev)
       iz = SGS(istate)%L2ACT(izlev)
-      G2(it,iu,iy,iz) = G2(iy,iz,it,iu)
+      F2(it,iu,iy,iz) = F2(iy,iz,it,iu)
     end do
   end do
-  if (mkF) then
-    ! Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
-    do iy=1,nlev
-      do iu=1,nlev
-        F2(:,iu,iy,:) = F2(:,iu,iy,:)-(EPSA(iu)+EPSA(iy))*G2(:,iu,iy,:)
-      end do
-    end do
-    do iu=1,nlev
-      F2(:,iu,iu,:) = F2(:,iu,iu,:)-(F1(:,:)+EPSA(iu)*G1(:,:))
-    end do
-    ! SVC20100310: took some spurious mirroring of F2 values out
-    ! of the loops and put them here, after the parallel section has
-    ! finished, so that GAdGOP works correctly.
-    do ip1=ntri2+1,nlev2
-      itlev = idx2ij(1,ip1)
-      iulev = idx2ij(2,ip1)
-      it = SGS(istate)%L2ACT(itlev)
-      iu = SGS(istate)%L2ACT(iulev)
-      do ip3=ntri1+1,ip1
-        iylev = idx2ij(1,ip3)
-        izlev = idx2ij(2,ip3)
-        iy = SGS(istate)%L2ACT(iylev)
-        iz = SGS(istate)%L2ACT(izlev)
-        F2(it,iu,iy,iz) = F2(iz,iy,iu,it)
-      end do
-    end do
-    ! Correction to F2: Some values not computed follow from symmetry
-    do ip1=1,nlev2-1
-      itlev = idx2ij(1,ip1)
-      iulev = idx2ij(2,ip1)
-      it = SGS(istate)%L2ACT(itlev)
-      iu = SGS(istate)%L2ACT(iulev)
-      do ip3=ip1+1,nlev2
-        iylev = idx2ij(1,ip3)
-        izlev = idx2ij(2,ip3)
-        iy = SGS(istate)%L2ACT(iylev)
-        iz = SGS(istate)%L2ACT(izlev)
-        F2(it,iu,iy,iz) = F2(iy,iz,it,iu)
-      end do
-    end do
-  end if
+end if
 
-  ! Correction to G3: It is now <0| E_tu E_vx E_yz |0>
-  ! Similar for F3 values.
-  if (mkF) then
-    do iG3=1,NG3
-      iT = idxG3(1,iG3)
-      iU = idxG3(2,iG3)
-      iV = idxG3(3,iG3)
-      iX = idxG3(4,iG3)
-      iY = idxG3(5,iG3)
-      iZ = idxG3(6,iG3)
-      ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
-      if (iY == iX) then
-        G3(iG3) = G3(iG3)-G2(iT,iU,iV,iZ)
-        F3(iG3) = F3(iG3)-(F2(iT,iU,iV,iZ)+EPSA(iu)*G2(iT,iU,iV,iZ))
-        if (iv == iu) then
-          G3(iG3) = G3(iG3)-G1(iT,iZ)
-          F3(iG3) = F3(iG3)-F1(iT,iZ)
-        end if
+! Correction to G3: It is now <0| E_tu E_vx E_yz |0>
+! Similar for F3 values.
+if (mkF) then
+  do iG3=1,NG3
+    iT = idxG3(1,iG3)
+    iU = idxG3(2,iG3)
+    iV = idxG3(3,iG3)
+    iX = idxG3(4,iG3)
+    iY = idxG3(5,iG3)
+    iZ = idxG3(6,iG3)
+    ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
+    if (iY == iX) then
+      G3(iG3) = G3(iG3)-G2(iT,iU,iV,iZ)
+      F3(iG3) = F3(iG3)-(F2(iT,iU,iV,iZ)+EPSA(iu)*G2(iT,iU,iV,iZ))
+      if (iv == iu) then
+        G3(iG3) = G3(iG3)-G1(iT,iZ)
+        F3(iG3) = F3(iG3)-F1(iT,iZ)
       end if
-      if (iV == iU) then
-        G3(iG3) = G3(iG3)-G2(iT,iX,iY,iZ)
-        F3(iG3) = F3(iG3)-(F2(iT,iX,iY,iZ)+EPSA(iY)*G2(iT,iX,iY,iZ))
-      end if
-      if (iY == iU) then
-        G3(iG3) = G3(iG3)-G2(iV,iX,iT,iZ)
-        F3(iG3) = F3(iG3)-(F2(iV,iX,iT,iZ)+EPSA(iU)*G2(iV,iX,iT,iZ))
-      end if
-      F3(iG3) = F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
-    end do
-  else
-    do iG3=1,NG3
-      iT = idxG3(1,iG3)
-      iU = idxG3(2,iG3)
-      iV = idxG3(3,iG3)
-      iX = idxG3(4,iG3)
-      iY = idxG3(5,iG3)
-      iZ = idxG3(6,iG3)
-      ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
-      if (iY == iX) then
-        G3(iG3) = G3(iG3)-G2(iT,iU,iV,iZ)
-        if (iv == iu) G3(iG3) = G3(iG3)-G1(iT,iZ)
-      end if
-      if (iV == iU) G3(iG3) = G3(iG3)-G2(iT,iX,iY,iZ)
-      if (iY == iU) G3(iG3) = G3(iG3)-G2(iV,iX,iT,iZ)
-    end do
-  end if
+    end if
+    if (iV == iU) then
+      G3(iG3) = G3(iG3)-G2(iT,iX,iY,iZ)
+      F3(iG3) = F3(iG3)-(F2(iT,iX,iY,iZ)+EPSA(iY)*G2(iT,iX,iY,iZ))
+    end if
+    if (iY == iU) then
+      G3(iG3) = G3(iG3)-G2(iV,iX,iT,iZ)
+      F3(iG3) = F3(iG3)-(F2(iV,iX,iT,iZ)+EPSA(iU)*G2(iV,iX,iT,iZ))
+    end if
+    F3(iG3) = F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
+  end do
+else
+  do iG3=1,NG3
+    iT = idxG3(1,iG3)
+    iU = idxG3(2,iG3)
+    iV = idxG3(3,iG3)
+    iX = idxG3(4,iG3)
+    iY = idxG3(5,iG3)
+    iZ = idxG3(6,iG3)
+    ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
+    if (iY == iX) then
+      G3(iG3) = G3(iG3)-G2(iT,iU,iV,iZ)
+      if (iv == iu) G3(iG3) = G3(iG3)-G1(iT,iZ)
+    end if
+    if (iV == iU) G3(iG3) = G3(iG3)-G2(iT,iX,iY,iZ)
+    if (iY == iU) G3(iG3) = G3(iG3)-G2(iV,iX,iT,iZ)
+  end do
 end if
 
 call mma_deallocate(idx2ij)

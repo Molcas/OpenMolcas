@@ -11,11 +11,11 @@
 ! Copyright (C) 2022-2024, Arta Safari                                 *
 !***********************************************************************
 
-module fciqmc_interface
+module caspt2_qmc_interface
 
 #ifdef _MOLCAS_MPP_
 use MPI_Wrapper, only: MPI_COMM_WORLD, MPI_LOGICAL
-use Para_Info, only: Is_Real_Par
+use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
 use Definitions, only: wp, iwp, byte
@@ -133,22 +133,29 @@ end subroutine load_fciqmc_g1
 !> @param[out]  f2     dense contraction of Fockian with 3RDM
 !> @param[out]  f3     sparse contraction of Fockian with 4RDM
 !> @param[in]   idxG3  Table containing the active space indices
-subroutine mkfg3fciqmc(g1,g2,g3,f1,f2,f3,idxG3,nLev)
+subroutine mkfg3fciqmc(mkF,g1,f1,g2,f2,g3,f3,idxG3,nLev,nG3)
 
+  logical(kind=iwp), intent(in) :: mkF
   integer(kind=iwp), intent(in) :: nLev
-  real(kind=wp), intent(inout) :: g1(nLev,nLev), g2(nLev,nLev,nLev,nLev), g3(*), f1(nLev,nLev), f2(nLev,nLev,nLev,nLev), f3(*)
-  integer(kind=byte), intent(in) :: idxG3(6,*)
+  integer(kind=iwp), intent(inout) :: nG3  ! enters as NG3MAX, needs to be adjusted
+  real(kind=wp), intent(inout) :: g1(nLev,nLev), f1(nLev,nLev), g2(nLev,nLev,nLev,nLev), f2(nLev,nLev,nLev,nLev), g3(*), f3(*)
+  integer(kind=byte), intent(inout) :: idxG3(6,*)  ! also needs to be set here
+
+  ! be compatible with interface
+  if (mkF) then
+    f1(:,:) = 0.0_wp
+    f2(:,:,:,:) = 0.0_wp
+    f3(1:nG3) = 0.0_wp
+  end if
+  g1(:,:) = 0.0_wp
+  g2(:,:,:,:) = 0.0_wp
+  g3(1:nG3) = 0.0_wp
 
 # ifndef _HDF5_
-  unused_var(g1)
-  unused_var(g2)
-  unused_var(g3(1))
-  unused_var(f1)
-  unused_var(f2)
-  unused_var(f3(1))
   unused_var(idxG3(1,1))
+  unused_var(nLev)
 # else
-  call load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,mstate(jState),nLev)
+  call load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,mstate(jState),nLev,nG3)
 # endif
 
 end subroutine mkfg3fciqmc
@@ -168,10 +175,11 @@ end subroutine mkfg3fciqmc
 !> @param[in]  f1     contracted Fock matrix with 2RDM
 !> @param[in]  iroot  MCSCF root number.
 #ifdef _HDF5_
-subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev)
+subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev,nG3)
 
   integer(kind=iwp), intent(in) :: iroot, nLev
-  integer(kind=byte), intent(in) :: idxG3(6,nG3)
+  integer(kind=iwp), intent(inout) :: nG3
+  integer(kind=byte), intent(inout) :: idxG3(6,nG3)
   real(kind=wp), intent(inout) :: g3(*), g2(nLev,nLev,nLev,nLev), g1(nLev,nLev), f3(*), f2(nLev,nLev,nLev,nLev), f1(nLev,nLev)
   integer(kind=iwp) :: i, t, u, v, x, y, z
   real(kind=wp), allocatable :: f3_temp(:,:,:,:,:,:), g3_temp(:,:,:,:,:,:)
@@ -198,7 +206,15 @@ subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev)
   call calc_f2_and_g2(f3_temp,g3_temp,f2,g2)
   call calc_f1_and_g1(f2,g2,f1,g1)
 
-  ! convert into flattened arrays
+  ! since this routine is called from poly3.F90, precomputed idxG3 and nG3
+  ! are no longer available and must be constructed here
+  ! In the regular code, idxG3 is distributed over ranks.
+  ! To prevent copying the task logic in mkfg3.F90 verbatim,
+  ! run this section in serial
+#ifdef _MOLCAS_MPP_
+  if (King()) then
+#endif
+    call compute_index_map(idxG3, nG3, nLev)
   do i=1,nG3
     t = idxG3(1,i)
     u = idxG3(2,i)
@@ -209,10 +225,105 @@ subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev)
     g3(i) = g3_temp(t,u,v,x,y,z)
     f3(i) = f3_temp(t,u,v,x,y,z)
   end do
+#ifdef _MOLCAS_MPP_
+  end if
+#endif
   call mma_deallocate(f3_temp)
   call mma_deallocate(g3_temp)
 
 contains
+
+  subroutine compute_index_map(idxG3, nG3, nLev)
+    use Index_Functions, only: nTri_Elem
+    implicit none
+    integer, intent(in) :: nLev
+    integer, intent(inout) :: nG3
+    integer(1), intent(inout) :: idxG3(6,*)
+
+    integer :: nLev2, ntri1, ntri2
+    integer :: i, j, idx, jdx
+    integer, allocatable :: ij2idx(:,:), idx2ij(:,:), icnj(:)
+    integer :: ip1, ip2, ip3, ip1mx
+    integer :: it, iu, iv, ix, iy, iz
+    integer :: counter
+
+    nLev2 = nLev**2
+    ntri1 = nTri_Elem(nLev-1)
+    ntri2 = nTri_Elem(nLev)
+
+    allocate(ij2idx(nLev,nLev))
+    allocate(idx2ij(2,nLev2))
+    allocate(icnj(nLev2))
+
+    ij2idx(:,:) = -1
+    idx2ij(:,:) = -1
+    icnj(:) = -1
+
+    ! upper triangle i < j
+    idx = 0
+    do i = 1, nLev-1
+      do j = i+1, nLev
+        idx = idx + 1
+        ij2idx(i,j) = idx
+        idx2ij(1,idx) = i
+        idx2ij(2,idx) = j
+        jdx = nLev2 + 1 - idx
+        ij2idx(j,i) = jdx
+        idx2ij(1,jdx) = j
+        idx2ij(2,jdx) = i
+      end do
+    end do
+
+    ! diagonal
+    do i = 1, nLev
+      idx = ntri1 + i
+      ij2idx(i,i) = idx
+      idx2ij(1,idx) = i
+      idx2ij(2,idx) = i
+    end do
+
+    ! conjugate table
+    do idx = 1, nLev2
+      i = idx2ij(1,idx)
+      j = idx2ij(2,idx)
+      icnj(idx) = ij2idx(j,i)
+    end do
+
+    counter = 0
+    do ip3 = 1, ntri2
+      iy = idx2ij(1,ip3)
+      iz = idx2ij(2,ip3)
+
+      do ip2 = ip3, ntri2
+        iv = idx2ij(1,ip2)
+        ix = idx2ij(2,ip2)
+
+        ip1mx = ntri2
+        if (ip3 <= ntri1) then
+          ip1mx = nLev2
+          if (ip2 > ntri1) ip1mx = icnj(ip3)
+        end if
+
+        do ip1 = ip2, ip1mx
+          it = idx2ij(1,ip1)
+          iu = idx2ij(2,ip1)
+
+          counter = counter + 1
+          idxG3(1,counter) = int(it, kind=1)
+          idxG3(2,counter) = int(iu, kind=1)
+          idxG3(3,counter) = int(iv, kind=1)
+          idxG3(4,counter) = int(ix, kind=1)
+          idxG3(5,counter) = int(iy, kind=1)
+          idxG3(6,counter) = int(iz, kind=1)
+        end do
+      end do
+    end do
+
+    nG3 = counter
+
+    deallocate(ij2idx, idx2ij, icnj)
+
+  end subroutine compute_index_map
 
   subroutine transform_f4rdm_normal_order(f3,g3)
     ! The transformation should be
@@ -559,4 +670,4 @@ subroutine load_fockmat(fock_matrix,fock_eigenvectors,nLev)
 end subroutine load_fockmat
 #endif
 
-end module fciqmc_interface
+end module caspt2_qmc_interface

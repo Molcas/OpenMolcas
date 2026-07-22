@@ -22,7 +22,7 @@ subroutine GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0,nState)
 ! The states in the group can be obtained from the ordered MSTATE array,
 ! for which a group offset JSTATE_OFF is passed in.
 
-use fciqmc_interface, only: DoFCIQMC
+use caspt2_qmc_interface, only: DoFCIQMC
 #ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_set_param
 #endif

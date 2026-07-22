@@ -21,7 +21,7 @@ subroutine DENS1_RPT2(CI,nCI,SGM1,nSGM1,G1,nLev)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use fciqmc_interface, only: DoFCIQMC, load_fciqmc_g1
+use caspt2_qmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use sguga_states, only: SGS, CIS
