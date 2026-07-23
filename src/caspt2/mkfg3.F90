@@ -61,7 +61,6 @@ subroutine MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
 use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use caspt2_qmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: DEBUG, VERBOSE
 use sguga_states, only: SGS, CIS, EXS
 use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
