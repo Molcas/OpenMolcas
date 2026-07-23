@@ -63,7 +63,7 @@ nLev = SGS(istate)%nLev
 ! Note that in case of FCIQMC nConf is set to 0.
 nCI = CIS(istate)%NCSF(STSYM)
 
-if (mkF) then
+if (mkF .or. ((ISCF /= 0) .and. (NACTEL /= 0))) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
   do ILEV=1,NLEV
     ETA(ILEV) = EPSA(SGS(istate)%L2ACT(ILEV))
@@ -87,7 +87,7 @@ G2(1) = Zero
 G3(1) = Zero
 
 ! ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
-if (mkF) then
+if (mkF .or. ((ISCF /= 0) .and. (NACTEL /= 0))) then
   call mma_allocate(F1_H,NG1,LABEL='F1_H')
   call mma_allocate(F2_H,NG2,LABEL='F2_H')
   call mma_allocate(F3_H,NG3MAX,LABEL='F3_H')
@@ -155,7 +155,7 @@ if (NLEV > 0) then
   call PT2_PUT(NG3,' GAMMA3',G3)
   iLUID = 0
   call I1DAFILE(LUSOLV,1,idxG3,6*NG3,iLUID)
-  if (mkF) then
+  if (mkF .or. ((ISCF /= 0) .and. (NACTEL /= 0))) then
     call PT2_PUT(NG1,' DELTA1',F1)
     call PT2_PUT(NG2,' DELTA2',F2)
     call PT2_PUT(NG3,' DELTA3',F3)
@@ -167,7 +167,7 @@ if (NLEV > 0) then
   call mma_deallocate(G2)
   call mma_deallocate(G3)
   call mma_deallocate(idxG3)
-  if (mkF) then
+  if (mkF .or. ((ISCF /= 0) .and. (NACTEL /= 0))) then
     call mma_deallocate(F1_H)
     call mma_deallocate(F2_H)
     call mma_deallocate(F3_H)

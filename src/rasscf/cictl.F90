@@ -190,7 +190,6 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
   call mma_allocate(RCT_F,NTOT2,Label='RCT_F')
   call mma_allocate(RCT_FS,NTOT2,Label='RCT_FS')
 
-  Write (6,*) 'iFinal=',iFinal
   if ((IPCMROOT > 0) .and. (DWSolv%DWZeta /= Zero)) then
     call DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
     call SGFCIN(CMO,FMO,FI,D1I,D1A,RCT_FS)

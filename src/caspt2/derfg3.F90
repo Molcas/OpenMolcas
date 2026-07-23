@@ -263,7 +263,7 @@ call mma_allocate(TaskList,mxTask,4,LABEL='TaskList')
 
 if (iPrGlb >= VERBOSE) then
   write(u6,*)
-  write(u6,'(2X,A)') 'Constructing derivatives of G3/F3'
+  write(u6,'(2X,A)') 'Constructing CI derivatives of G3/F3'
   write(u6,'(2X,A,F16.9,A)') ' memory avail: ',real(memmax*RtoB,kind=wp)*1.0e-9_wp,' GB'
   write(u6,'(2X,A,F16.9,A)') ' memory used:  ',real(((3*nbuf1+6+nlev)*MXCI)*RtoB,kind=wp)*1.0e-9_wp,' GB'
   call xFlush(u6)
