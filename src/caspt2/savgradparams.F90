@@ -22,7 +22,7 @@ use Index_Functions, only: nTri_Elem
 use EQSOLV, only: IDBMAT, IDSMAT, IDSTMAT, IDTMAT, IVECX
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: do_lindep, DREF, IDBoriMat, iTasks_grad, LUGRAD, LUSBT, LUSOLV, LUSTD, NBUF1_GRAD, nTasks_grad, PREF
-use caspt2_module, only: E2Tot, EASum, ERef, HZERO, jState, MxCase, nAshT, nASup, nBTri, nCases, nG1, nG2, nG3, nG3Tot, nInDep, &
+use caspt2_module, only: E2Tot, EASum, ERef, HZERO, jState, MxCase, nASup, nBTri, nCases, nG1, nG2, nG3, nG3Tot, nInDep, &
                          nISup, nState, nSym, RefEne, RFPert
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, myRank

@@ -77,7 +77,7 @@ integer(kind=iwp), intent(inout) :: nG3
 real(kind=wp), intent(out) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV), G3(nG3), F3(nG3)
 integer(kind=byte), intent(out) :: idxG3(6,nG3)
 integer(kind=iwp) :: I, IB, IBMN, IBMX, IBUF, IBUF1, ID, IDX, IG3, IG3OFF, IOFFSET, IP1, IP1END, IP1I, IP1MN, IP1MX, IP1STA, IP2, &
-                     IP3, IP3MX, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, &
+                     IP3, IQ1, ISP1, ISSG1, ISSG2, ISTU, ISUBTASK, ISVX, ISYZ, IT, ITASK, ITLEV, IU, IULEV, IV, IVLEV, IX, &
                      IXLEV, IY, IYLEV, IZ, IZLEV, J, JDX, MEMMAX, MEMMAX_SAFE, MXTASK, MYBUFFER, MYTASK, NB, NBTOT, NBUF1, &
                      NLEV2, NSGM1, NSGM2, NSUBTASKS, NTASKS, NTRI1, NTRI2
 real(kind=wp) :: DF1, DF2, DF3, DG1, DG2, DG3
