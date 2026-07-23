@@ -18,7 +18,7 @@ use general_data, only: NASH
 use caspt2_global, only: CLag, CLagFull, do_lindep, do_nac, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, &
                          FIFA_all, FIFASA_all, FIMO_all, idBoriMat, idSDMat, iStpGrd, LuAPT2, LuCMOPT2, LuGAMMA, &
                          LUGRAD, LuPT2, LUSTD, nCLag, nOLag, nWLag, OLag, OLagFull, OMGDER, SLag, TraFro, WLag
-use caspt2_module, only: IfChol, IFDW, IFRMS, IFXMS, MAXIT, NASHT, NASUP, NBAS, NBSQT, NBTRI, NCONF, NFROT, NISH, NSTATE, &
+use caspt2_module, only: IfChol, IFDW, IFRMS, IFXMS, MAXIT, NASUP, NBAS, NBSQT, NBTRI, NCONF, NFROT, NISH, NSTATE, &
                          NSYM, ZETA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
