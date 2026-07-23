@@ -13,18 +13,16 @@
 
 subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
 
-  use sguga, only: sg_epq_psi
+use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use BDerNEV, only: Gact, Gder
-  use sguga_states, only: SGS, CIS, EXS
-  use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
-  use general_data, only: NACTEL, STSYM
-  use caspt2_module, only: JSTATE, NSYM, MXCI
-  use Constants, only: Zero, One
-  use Definitions, only: iwp,wp,u6,RtoB
-  use NEVPT2_E4, only: do_xvec, do_yvec, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, NXYVEC, NZVEC
-  use NEVPT2_E4, only: NEVPT2_E4_derivative1, NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, NEVPT2_E4_XYder1, NEVPT2_E4_XYder2
-  use NEVPT2_E4, only: ixyzsta, ixyzend, nxyzdim, NXY_work
+use sguga_states, only: SGS, CIS, EXS
+use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
+use general_data, only: NACTEL, STSYM
+use caspt2_module, only: JSTATE, NSYM, MXCI
+use NEVPT2_E4, only: do_xvec, do_yvec, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, NXYVEC, NZVEC
+use NEVPT2_E4, only: NEVPT2_E4_derivative1, NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, NEVPT2_E4_XYder1, NEVPT2_E4_XYder2
+use NEVPT2_E4, only: ixyzsta, ixyzend, nxyzdim, NXY_work
 use PrintLevel, only: verbose
 use Symmetry_Info, only: Mul
 #ifdef _MOLCAS_MPP_
@@ -101,8 +99,8 @@ memmax_safe = int(real(memmax,kind=wp)*0.95_wp)
 
 call mma_allocate(CI,NCONF,Label='CI')
 if (NCONF > 1) then
-IDCI = IDTCEX(JSTATE)
-call DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
+  IDCI = IDTCEX(JSTATE)
+  call DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
 else
   CI(1) = One
 end if
