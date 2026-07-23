@@ -15,30 +15,28 @@
 subroutine Readinp_localisation()
 ! Author: Y. Carissan [heavily modified by T.B. Pedersen].
 
-use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, &
-                                iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
-                                nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
-                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
+use Localisation_globals, only: AnaAtom, AnaDomain, AnalyseLoc, Analysis, AnaNrm, AnaPAO, ChargeType, ChoStart, DoCNOs, DoDomain, &
+                                EvalER, getIMmldn, inpOptMeth, iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, Maximisation, &
+                                MoldMod, MxConstr, nActa, NamAct, nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, &
+                                OptMeth, Order, PrintMOs, ScrFac, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, &
+                                ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, useFH, Wave
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
 use spool, only: Spoolinp
 use stdalloc, only: mma_allocate
-use Constants, only: Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iPL, istatus, iSym, j, LocOrb
+integer(kind=iwp) :: i, iPL, istatus, iSym, j, LocOrb, LuSpool
+logical(kind=iwp) :: Freeze, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef, Thrs_UsrDef
 character(len=180) :: Key, Line
-logical(kind=iwp) :: Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef, Freeze
 integer(kind=iwp), parameter :: Occupied = 0, Virtual = 1, AllOrb = 2
-real(kind=wp), parameter :: ThrsDef = 1.0e-6_wp, ThrRotDef = 1.0e-10_wp, ThrGradDef = 1.0e-2_wp
 character(len=*), parameter :: SecNam = 'Readinp_localisation'
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 character(len=180), external :: Get_Ln
 
-LuSpool = 17
-LuSpool = isFreeUnit(LuSpool)
+LuSpool = isFreeUnit(17)
 call SpoolInp(LuSpool)
 
 ! Locate "start of input"
@@ -48,60 +46,20 @@ call RdNLst(LuSpool,'LOCALISATION')
 ! Get print level
 
 iPL = iPrintLevel(-1)
-
-! Default Parameters
-
-do iSym=1,nSym
-  nOrb2Loc(iSym) = 0
-  nFro(iSym) = 0
-  nConstr(iSym) = 0
-end do
-Skip = .false.
-LocOrb = Occupied
-!LocVir = .false.
-Thrs_UsrDef = .false.
-nOrb2Loc_UsrDef = .false.
-nFro_UsrDef = .false.
-Freeze = .false.
-Maximisation = .true.
-ChoStart = .false.
 if (iPL < 3) then
   Silent = .true.
 else
   Silent = .false.
 end if
-LocModel = 1  ! Pipek-Mezey localisation
-if (nSym > 1) LocModel = 3  ! Cholesky localisation
-LocModel_UsrDef = .false.
-Test_Localisation = .false.
-NMxIter = 300
-Thrs = ThrsDef
-ThrRot = ThrRotDef
-ThrGrad = ThrGradDef
-Analysis = .false.
-AnaAtom = nSym == 1
-AnaNrm = 'Fro'
-PrintMOs = .true.
-Timing = .true.
-EvalER = .false.
-Order = .false.
-LocPAO = .false.
-AnaPAO = .false.
-AnaPAO_Save = AnaPAO
-DoDomain = .false.
-AnaDomain = .false.
-ThrDomain(1) = 0.9_wp
-ThrDomain(2) = 2.0e-2_wp
-ThrPairDomain(1) = 1.0e-10_wp
-ThrPairDomain(2) = Ten
-ThrPairDomain(3) = 15.0_wp
-LocNatOrb = .false.
-LocCanOrb = .false.
-Wave = .false.
-iWave = 0
-DoCNOs = .false.
 
-! End Default Parameters
+! set default parameters
+call localisation_init()
+Freeze = .false.
+LocOrb = Occupied
+LocModel_UsrDef = .false.
+nFro_UsrDef = .false.
+nOrb2Loc_UsrDef = .false.
+Thrs_UsrDef = .false.
 
 do
   Key = Get_Ln(LuSpool)
@@ -187,11 +145,114 @@ do
       Line = Get_Ln(LuSpool)
       call Get_F1(1,ThrRot)
 
+    case ('SCRA')
+      ! SCRAmble
+
+      Line = Get_Ln(LuSpool)
+      call Get_F1(1,ScrFac)
+
     case ('PIPE','PM  ')
       ! PIPEk-Mezey or PM
 
       LocModel = 1
       LocModel_UsrDef = .true.
+
+    case ('OPTM')
+      Line = Get_Ln(LuSpool)
+      Key = ''
+      call Get_s(1,Key(1:4),1)
+      call Upcase(Key)
+
+      select case (Key(1:4))
+        case ('JACO')
+          ! Jacobi Sweeps for PM localisation
+          inpOptMeth = 1
+
+        case ('NEWT')
+          ! Newton-Raphson for PM localisation
+          inpOptMeth = 2
+
+        case ('GRAD')
+          ! Gradient Ascent for PM localisation
+          inpOptMeth = 3
+
+        case ('GEK')
+          ! GEK (fullspace) for PM localisation
+          inpOptMeth = 4
+
+        case ('SGEK','S-GEK')
+          ! S-GEK for PM localisation
+          inpOptMeth = 5
+
+        case ('HYBR') !hybrid
+          ! start with JACO below gekthr_grad, then switch to SGEK
+          inpOptMeth = 6
+
+        case default
+          write(u6,*) 'WARNING!!!'
+          write(u6,*) 'The specified optimization method for PM localisation does not exist'
+          write(u6,*) 'using the default instead'
+          call FindErrorLine()
+      end select
+
+      OptMeth = inpOptMeth
+
+    case ('FHES')
+      ! use full hessian in SGEK
+      useFH = .true.
+
+    case ('MOLD')
+      ! generate intermediate molden files
+      getIMmldn = .true.
+      Line = Get_Ln(LuSpool)
+      call Get_I1(1,MoldMod)
+
+    case ('CHAR')
+      ! choosing between Mulliken and Lowdin charge framework for PM localisation
+      Line = Get_Ln(LuSpool)
+      Key = ''
+      call Get_s(1,Key(1:4),1)
+      call Upcase(Key)
+
+      select case (Key(1:4))
+        case ('MULL')
+          ! Mulliken
+          ChargeType = 1
+
+        case ('LOWD','LOEW')
+          ! Lowdin
+          ChargeType = 2
+
+        case default
+          write(u6,*) 'WARNING!!!'
+          write(u6,*) 'The specified framework for PM localisation does not exist'
+          write(u6,*) 'using the default instead'
+          call FindErrorLine()
+      end select
+
+    case ('PRNT')
+      ! PM localisation: print MO extension before, after or both times
+      Line = Get_Ln(LuSpool)
+      Key = ''
+      call Get_s(1,Key(1:4),1)
+      call Upcase(Key)
+
+      select case (Key(1:4))
+        case ('OFF')
+          AnalyseLoc = 0
+
+        case ('AFTE')
+          AnalyseLoc = 1
+
+        case ('BOTH')
+          AnalyseLoc = 2
+
+        case default
+          write(u6,*) 'WARNING!!!'
+          write(u6,*) 'The specified print stage for PM localisation does not exist'
+          write(u6,*) 'using the default instead'
+          call FindErrorLine()
+      end select
 
     case ('BOYS')
       ! BOYS
@@ -508,8 +569,8 @@ else
         nOrb2Loc(iSym) = nVirInp(iSym)
       end do
     end if
-  !else ! occupied localisation
   else if (LocOrb == Occupied) then ! occupied localisation
+    !else ! occupied localisation
     if (nFro_UsrDef .or. Freeze) then
       do iSym=1,nSym
         nOrb2Loc(iSym) = nOccInp(iSym)-nFro(iSym)
@@ -545,9 +606,7 @@ write(u6,'(A,8I9,/)') 'nOrb2Loc: ',(nOrb2Loc(iSym),iSym=1,nSym)
 ! If Cholesky, reset default threshold (unless user defined).
 ! -----------------------------------------------------------
 
-if ((LocModel == 3) .and. (.not. Thrs_UsrDef)) then
-  Thrs = 1.0e-8_wp
-end if
+if ((LocModel == 3) .and. (.not. Thrs_UsrDef)) Thrs = 1.0e-8_wp
 
 ! No need to order Cholesky MOs.
 ! ------------------------------

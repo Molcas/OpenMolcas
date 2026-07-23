@@ -36,8 +36,9 @@ character(len=2) :: lbl
 real(kind=wp), allocatable :: Occ(:,:), Vec(:,:)
 integer(kind=iwp), external :: isFreeUnit
 
-call GetEnvf('MOLCAS_PROPERTIES',PrpLst)
+call get_environment_variable('MOLCAS_PROPERTIES',PrpLst)
 call UpCase(PrpLst)
+
 if (PrPlst(1:3) == 'LON') then
   Short = .false.
   !ifallorb = .True.
@@ -56,6 +57,12 @@ call Get_iScalar('nSym',nIrrep)
 
 call Get_iArray('nBas',nBas,nIrrep)
 
+if (Method == 'LOCALIS') then
+  short = .false.
+  ifallorb = .true.
+  !write(u6,*) 'calculating properties after the localisation'
+end if
+
 nDim = 0
 nTriDim = 0
 n2Tot = 0
@@ -68,6 +75,7 @@ end do
 if ((Method == 'RHF-SCF ') .or. &
     (Method == 'IVO-SCF ') .or. &
     (Method == 'KS-DFT  ') .or. &
+    (Method == 'LOCALIS ') .or. &
     (Method == 'UHF-SCF ')) then
   call Get_iScalar('SCF mode',iUHF)
 else
@@ -79,6 +87,7 @@ if ((iUHF == 1) .or. (Method == 'RASSCFSA')) then
 else
   call mma_allocate(Occ,nDim,1,label='Occ')
 end if
+
 if (Short) then
   call mma_allocate(Vec,0,2,label='Vec')
   lbl = 'O '
@@ -92,14 +101,18 @@ else
   lbl = 'CO'
 end if
 
-Lu = 10
-Lu = IsFreeUnit(Lu)
+Lu = IsFreeUnit(10)
 if ((Method == 'RHF-SCF ') .or. &
     (Method == 'IVO-SCF ') .or. &
+    (Method == 'LOCALIS ') .or. &
     (Method == 'KS-DFT  ') .or. &
     (Method == 'UHF-SCF ')) then
+  !write(u6,*) 'calculating properties after the localisation'
   if (iUHF /= 1) then
     call RdVec('SCFORB',Lu,Lbl,nIrrep,nBas,nBas,Vec(:,1),Occ(:,1),Dummy,iDummy,note,0,iError)
+  else if (Method == 'LOCALIS') then
+    !write(u6,*) 'reading from locorb file'
+    call RdVec('LOCORB',Lu,Lbl,nIrrep,nBas,nBas,Vec(:,1),Occ(:,1),Dummy,iDummy,note,0,iError)
   else
     call RdVec_('UHFORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Vec(:,1),Vec(:,2),Occ(:,1),Occ(:,2),Dummy,Dummy,iDummy,note,1,iError,iWFtype)
     if (Short) then

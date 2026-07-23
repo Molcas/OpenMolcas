@@ -2324,6 +2324,7 @@ if (HDF5 AND HDF5_FOUND)
     aniso_util
     gateway_util
     hyper_util
+    localisation_util
     molcas_ci_util
     msym_util
     oneint_util

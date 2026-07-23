@@ -43,7 +43,7 @@ set (sources
      faroald.F90
      faroald_free.F90
      faroald_init.F90
-     fciqmc_interface.F90
+     caspt2_qmc_interface.F90
      fndmnx.F90
      fockoc.F90
      gas_data.F90

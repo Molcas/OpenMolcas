@@ -20,7 +20,7 @@ subroutine CREIPH_CASPT2(Heff,Ueff,U0,nState)
 ! Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 ! energies.
 
-use fciqmc_interface, only: DoFCIQMC
+use caspt2_qmc_interface, only: DoFCIQMC
 use PrintLevel, only: USUAL
 use REFWFN, only: IADR15, REFWFN_FILENAME
 use sguga, only: L2ACT, LEVEL

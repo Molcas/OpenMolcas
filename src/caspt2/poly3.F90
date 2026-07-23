@@ -36,7 +36,7 @@ subroutine POLY3(mkF)
 ! THE RDSTAT AND THE GUGA ROUTINES USED IN THIS
 ! PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
-use fciqmc_interface, only: DoFCIQMC
+use caspt2_qmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: VERBOSE
 use sguga, only: CIS, L2ACT, SGS
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
@@ -134,8 +134,11 @@ else if (ISCF == 0) then
 # if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
   if ((.not. DoCumulant) .and. (.not. DMRG)) then
 # endif
-    if (.not. allocated(CI)) call mma_allocate(CI,1,LABEL='CI')
-    call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
+    if (.not. DoFCIQMC) then
+       call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
+    else
+       call mkfg3fciqmc(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
+    end if
 # if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
   else
     call MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
