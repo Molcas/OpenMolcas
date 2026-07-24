@@ -68,6 +68,7 @@ real(kind=wp), allocatable, target :: DETTOT1(:,:), DETTOT2(:,:)
 character(len=NASHT+1), allocatable :: detocc(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
+integer(kind=iwp), parameter:: iState1=1, iState2=2
 
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_
@@ -376,11 +377,7 @@ end do
 
 !---------------    JOB1 wave functions: ---------------------
 ! Initialize SGUGA tables for JOB1 functions.
-! These are structures stored in user defined types:
-! SGS(1),CIS(1) and EXS(1).
 
-! Set variables in /RASDEF/, used by SGUGA codes, which define
-! the SGUGA space of JOB1. General RAS:
 if (WFTP1 == 'GENERAL') then
   NRSPRT = 3
   NRAS(:,1) = NRS1(:)
@@ -391,10 +388,10 @@ if (WFTP1 == 'GENERAL') then
   NRASEL(3) = NACTE1
 
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1),EXS(1))
+    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,iState1)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
-      call SG_Print(SGS(1))
+      call SG_Print(iState1)
     end if
     ! CI sizes, as function of symmetry, are now known.
     NCONF1 = CIS(1)%NCSF(LSYM1)
@@ -499,11 +496,7 @@ else
 end if
 !---------------    JOB2 wave functions: ---------------------
 ! Initialize SGUGA tables for JOB2 functions.
-! These are structures stored in arrays:
-! SGS(2),CIS(2) and EXS(2).
 
-! Set variables in /RASDEF/, used by SGUGA codes, which define
-! the SGUGA space of JOB1. General RAS:
 if (WFTP2 == 'GENERAL') then
   NRSPRT = 3
   NRAS(:,1) = NRS1(:)
@@ -514,10 +507,10 @@ if (WFTP2 == 'GENERAL') then
   NRASEL(3) = NACTE2
 
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),EXS(2))
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,iState2)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
-      call SG_Print(SGS(2))
+      call SG_Print(iState2)
     end if
     ! CI sizes, as function of symmetry, are now known.
     NCONF2 = CIS(2)%NCSF(LSYM2)
@@ -623,7 +616,7 @@ do IST=1,NSTAT(JOB1)
   if (.not. doDMRG) then
     ! Read ISTATE wave function
     if (WFTP1 == 'GENERAL') then
-      call READCI(ISTATE,SGS(1),CIS(1),NCONF1,CI1)
+      call READCI(ISTATE,istate1,NCONF1,CI1)
     else
       CI1(1) = One
     end if
@@ -673,7 +666,7 @@ do JST=1,NSTAT(JOB2)
   if (.not. doDMRG) then
     ! Read JSTATE wave function
     if (WFTP2 == 'GENERAL') then
-      call READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
+      call READCI(JSTATE,istate2,NCONF2,CI2)
     else
       CI2(1) = One
     end if
@@ -1064,7 +1057,7 @@ if (DoGSOR) then
     call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
     do JST=2,NSTAT(JOB2)
       JSTATE = ISTAT(JOB2)-1+JST
-      call READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
+      call READCI(JSTATE,iState2,NCONF2,CI2)
       CI2_o(:) = CI2(:)
       DET2(:) = Zero
       if (TrOrb) call SG_CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,NTRA,TRA2,NCONF2,CI2,NOSH,NISH,NASH)
@@ -1170,10 +1163,10 @@ if (mstate_dens) then
 end if
 
 if (WFTP1 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(SGS(1),CIS(1),EXS(1))
+  if (.not. doDMRG) call SG_Free(SGS(iState1),CIS(iState1),EXS(iState1))
 end if
 if (WFTP2 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(SGS(2),CIS(2),EXS(2))
+  if (.not. doDMRG) call SG_Free(SGS(iState2),CIS(iState2),EXS(iState2))
 end if
 
 if (JOB1 /= JOB2) then
