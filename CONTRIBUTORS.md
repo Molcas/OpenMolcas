@@ -159,8 +159,8 @@ Ben Pritchard
 Juraj Raab  
 Gerardo Raggi  
 Markus Reiher  
+Alistair Rendell  
 H. Rieger  
-Alistair Rendell
 Thies Romig  
 Björn O. Roos  
 Ulf Ryde  
