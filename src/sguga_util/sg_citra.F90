@@ -42,10 +42,10 @@
 !***********************************************************************
 
 !#ifdef _DEBUGPRINT_
-subroutine SG_CITRA(WFTP,SGS,CIS,EXS,LSM,NTRA,TRA,NCO,CI,NOSH,NISH,NASH)
+subroutine SG_CITRA(WFTP,iState,LSM,NTRA,TRA,NCO,CI,NOSH,NISH,NASH)
 
 use Molcas, only: MxSym
-use sguga, only: CIStruct, SGStruct, EXStruct, sg_epq_psi
+use sguga, only: sg_epq_psi
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
@@ -56,10 +56,7 @@ use Definitions, only: u6
 
 implicit none
 character(len=8), intent(in) :: WFTP
-type(SGStruct), intent(in) :: SGS
-type(CIStruct), intent(in) :: CIS
-type(EXStruct), intent(inout) :: EXS
-integer(kind=iwp), intent(in) :: LSM, NCO, NTRA
+integer(kind=iwp), intent(in) :: iState, LSM, NCO, NTRA
 integer(kind=iwp), intent(in) :: NOSH(MxSym) ,NISH(MxSym) ,NASH(MxSym)
 real(kind=wp), intent(in) :: TRA(NTRA)
 real(kind=wp), intent(inout) :: CI(NCO)
@@ -113,7 +110,7 @@ if (WFTP /= 'EMPTY') then
     do ISYM=1,nIrrep
       NA = NASH(ISYM)
       NO = NOSH(ISYM)
-      if (NA /= 0) call SG_SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA(ISTA),NCO,CI,TMP)
+      if (NA /= 0) call SG_SSOTRA(iState,ISYM,LSM,NA,NO,TRA(ISTA),NCO,CI,TMP)
       ISTA = ISTA+NO**2
     end do
     call mma_deallocate(TMP)
@@ -127,14 +124,11 @@ end if
 Contains
 
 ! Performs the single-orbital transformations
-subroutine SG_SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
+subroutine SG_SSOTRA(iState,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
 
-
+use sguga_states, only: SGS, CIS, EXS
 implicit none
-type(SGSTruct), intent(in) :: SGS
-type(CISTruct), intent(in) :: CIS
-type(EXSTruct), intent(inout) :: ExS
-integer(kind=iwp), intent(in) :: ISYM, LSM, NA, NO, NCO
+integer(kind=iwp), intent(in) :: iState, ISYM, LSM, NA, NO, NCO
 real(kind=wp), intent(in) :: TRA(NO,NO)
 real(kind=wp), intent(inout) :: CI(NCO)
 real(kind=wp), intent(out) :: TMP(NCO)
@@ -152,7 +146,7 @@ IL = 0
 do IP=1,NA
   do
     IL = IL+1
-    if (SGS%ISM(IL) == ISYM) exit
+    if (SGS(istate)%ISM(IL) == ISYM) exit
   end do
   ILEV(IP) = IL
 end do
@@ -167,7 +161,7 @@ do IK=1,NA
     if (IP == IK) CPK = CPK-One
     X = Half*CPK
     if (abs(X) < 1.0e-14_wp) cycle
-    call SG_Epq_Psi(SGS,CIS,EXS,IPLEV,IKLEV,X,LSM,CI,TMP)
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,X,LSM,CI,TMP)
   end do
 
   CKK = TRA(NI+IK,NI+IK)
@@ -179,7 +173,7 @@ do IK=1,NA
     CPK = TRA(NI+IP,NI+IK)
     if (IP == IK) CPK = CPK-One
     if (abs(CPK) < 1.0e-14_wp) cycle
-    call SG_Epq_Psi(SGS,CIS,EXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IPLEV,IKLEV,CPK,LSM,TMP,CI)
   end do
 
 end do
