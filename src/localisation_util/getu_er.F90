@@ -18,6 +18,7 @@ subroutine GetU_ER(U,R,n)
 !
 ! (used by ER orbital localisation - hence the _ER)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -34,7 +35,7 @@ if (n < 1) return
 ! Allocations.
 ! ------------
 
-nn = n*(n+1)/2
+nn = nTri_Elem(n)
 n2 = n**2
 lScr = 2*n2+nn
 call mma_allocate(RTR,n,n,label='RTR')

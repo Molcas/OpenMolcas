@@ -18,19 +18,22 @@ use CC_CI_mod, only: Do_CC_CI
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: DoBlockDMRG, NSM
 use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
-use sguga, only: CIS, EXS, MKCLIST, MKCOT, MKSGNUM, SG_Init_Simple, SGS
+use sguga_states, only: CIS, EXS, SGS
+use sguga, only: MKSGNUM, SG_init
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate
 #endif
+use rasdef, only: nRas,nRasEl,nRsPrt
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp), intent(inout) :: DBG, SkipGUGA
+logical(kind=iwp), intent(inout):: DBG,SkipGUGA
 integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
-integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, NSTA
+integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, NSTA, nRs1T
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
+integer(kind=iwp), parameter :: istate=1
 
 NLEV = 0
 do IGAS=1,NGAS
@@ -40,11 +43,26 @@ do IGAS=1,NGAS
     NSM(NSTA:NLEV) = ISYM
   end do
 end do
-Level(1:MxLev) = [(iq,iq=1,MxLev)]
+Level(1:MxLev)=[(iq,iq=1,MxLev)]
+
+If (nHole1+nElec3/=0) Then
+   nRsPrt=3
+   nRas(:,1)=nRs1(:)
+   nRas(:,2)=nRs2(:)
+   nRas(:,3)=nRs3(:)
+   nRs1T=Sum(nRs1(1:nSym))
+   nRasEl(1)=2*nRs1T-nHole1
+   nRasEl(2)=nActel-nElec3
+   nRasEl(3)=nActel
+Else
+   nRsPrt=1
+   nRas(:,1)=nRs2(:)
+   nRasEl(1)=nActel
+End If
 
 ! Construct the Guga tables
 
-if (.not.(DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
+if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
   ! right now skip most part of gugactl for GAS, but only call mkism.
   if (.not. iDoGas) then
     ! DMRG calculation no need the SG_Init_RASSCF subroutine
@@ -58,39 +76,36 @@ if (.not.(DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
     unused_opt(initial_occ)
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
-      if (DBG) write(u6,*) ' Call SG_Init_Simple'
-      call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3,xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
+      if (DBG) write(u6,*) ' Call SG_Init'
+      call SG_Init(nSym,nActEl,iSpin,SGS(istate),CIS(istate),                    &
+                   nRas,nRasEl,nRsPrt,                           &
+                   EXS(istate),                                          &
+                   xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
-      if (SGS%NVERT0 == 0) then
-        CIS%NCSF(STSYM) = 0
+      if (SGS(istate)%NVERT0 == 0) then
+         CIS(istate)%NCSF(STSYM) = 0
       else
-        if (doBlockDMRG) then
-          CIS%NCSF(STSYM) = 1
+         if (doBlockDMRG) then
+            CIS(istate)%NCSF(STSYM) = 1
         else
 
-          ! FORM VARIOUS OFFSET TABLES:
-          ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
-          !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+            ! FORM VARIOUS OFFSET TABLES:
+            ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+            !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 
-          call MKCOT(SGS,CIS)
+            ! SET UP ENUMERATION TABLES
 
-          ! CONSTRUCT THE CASE LIST
+            call MKSGNUM(STSYM,SGS(istate),CIS(istate),EXS(istate))
 
-          call MKCLIST(SGS,CIS)
+            if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
 
-          ! SET UP ENUMERATION TABLES
-
-          call MKSGNUM(STSYM,SGS,CIS,EXS)
-
-          if (NActEl == 0) CIS%NCSF(STSYM) = 1
-
-          ! (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
-          ! IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
-          ! SET UP THE REINDEXING TABLE
+            !     (SGS(istate)%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
+            !     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
+            !     SET UP THE REINDEXING TABLE
         end if
       end if
       call SETSXCI()
-      NCONF = CIS%NCSF(STSYM)
+      NCONF = CIS(istate)%NCSF(STSYM)
 
       call Timing(Eterna_2,dum1,dum2,dum3)
 #   ifdef _DMRG_

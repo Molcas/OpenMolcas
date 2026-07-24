@@ -18,6 +18,7 @@ subroutine SQRTMT(A,NDIM,ITASK,ASQRT,AMSQRT,SCR)
 ! In case of singularities in A A -1/2 is defined to have the same
 ! singularity
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -35,7 +36,7 @@ KLFREE = 1
 
 KLASYM = KLFREE
 KLAVAL = KLASYM
-KLFREE = KLASYM+NDIM*(NDIM+1)/2
+KLFREE = KLASYM+nTri_ELem(NDIM)
 
 KLAVEC = KLFREE
 KLFREE = KLFREE+NDIM**2
@@ -48,7 +49,7 @@ call unitmat(SCR(KLAVEC),NDIM)
 call NIDiag(SCR(KLASYM),SCR(KLAVEC),NDIM,NDIM)
 call JACORD(SCR(KLASYM),SCR(KLAVEC),NDIM,NDIM)
 do I=2,NDIM
-  SCR(KLAVAL-1+I) = SCR(KLASYM-1+I*(I+1)/2)
+  SCR(KLAVAL-1+I) = SCR(KLASYM-1+nTri_Elem(I))
 end do
 if (NTEST >= 1) then
   write(u6,*) ' Eigenvalues of matrix : '

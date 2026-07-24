@@ -19,7 +19,8 @@ use ChoCASPT2, only: MaxVec_PT2, NASPlit, NISplit, NumCho_PT2
 use spool, only: Close_LuSpool, SpoolInp
 use Molcas, only: LenIn
 use caspt2_global, only: CMOPT2, DMIX, do_grad, DREF, DWGT, FIFA, FIMO, iStpGrd, NCMO, NDREF, NPREF, NTAT, NTORB, PREF, TAT, TORB
-use caspt2_module, only: bName, Header, ifChol, jState, nAsh, nBas, nBasT, nBSqT, nIsh, nOTri, nSsh, nState, nSym
+use general_data, only: NASH
+use caspt2_module, only: bName, Header, ifChol, jState, nBas, nBasT, nBSqT, nIsh, nOTri, nSsh, nState, nSym
 #ifdef _DMRG_
 use qcmaquis_interface_cfg, only: qcmaquis_param
 use PrintLevel, only: DEBUG

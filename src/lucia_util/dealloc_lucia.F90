@@ -12,7 +12,7 @@
 subroutine DEALLOC_LUCIA()
 ! Deallocate memory allocated during alloc_lucia
 
-use lucia_data, only: CI_VEC, INT1, INT1O, IREFSM, KINH1, KINH1_NOCCSYM, LCSBLK, LSM1, LSM2, MXSOOB, NSMOB, PGINT1, PGINT1A, &
+use lucia_data, only: CI_VEC, INT1, IREFSM, KINH1, KINH1_NOCCSYM, LCSBLK, LSM1, LSM2, MXSOOB, NSMOB, PGINT1, PGINT1A, &
                       PINT1, PINT2, PSSIGN, RHO1, SIGMA_VEC, SRHO1, XISPSM
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero, Two
@@ -23,8 +23,6 @@ integer(kind=iwp) :: ISM, LBLOCK
 
 ! 1 : One electron integrals (Complete matrix allocated)
 call mma_deallocate(INT1)
-! A copy of the original UNMODIFIED 1-elecs ints
-call mma_deallocate(INT1O)
 ! 2 : Two electron integrals
 !  Pointers to symmetry block of integrals
 call mma_deallocate(PINT1)

@@ -22,7 +22,7 @@ integer(kind=iwp), intent(in) :: nAtoms, nBas
 integer(kind=iwp), intent(out) :: nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
 character(len=LenIn+8), intent(in) :: BName(nBas)
 logical(kind=iwp), intent(in) :: DoPrint
-integer(kind=iwp) :: iAt, iAt1, iBas, iCount, nBasAt
+integer(kind=iwp) :: iAt, iBas, iCount, nBasAt
 character(len=LenIn) :: Lbl, LblOld
 character(len=80) :: Txt, Formt
 character(len=*), parameter :: SecNam = 'BasFun_Atom'
@@ -45,12 +45,8 @@ do iBas=2,nBas
 end do
 nBas_per_Atom(iAt) = nBasAt
 
-if (iAt /= nAtoms) then ! centers without basis functions
-  iAt1 = iAt+1
-  do iAt=iAt1,nAtoms
-    nBas_per_Atom(iAt) = 0
-  end do
-end if
+! centers without basis functions
+if (iAt /= nAtoms) nBas_per_Atom(iAt+1:nAtoms) = 0
 
 ! Offsets.
 ! --------

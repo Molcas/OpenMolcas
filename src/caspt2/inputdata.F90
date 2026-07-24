@@ -15,7 +15,7 @@ module InputData
 !SVC: this module contains a data structure to keep all input variables.
 
 use Data_Structures, only: Alloc1DiArray_Type
-use fciqmc_interface, only: DoFCIQMC, NonDiagonal, TransformToNormalOrder
+use caspt2_qmc_interface, only: DoFCIQMC, NonDiagonal, TransformToNormalOrder
 use fortran_strings, only: str
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

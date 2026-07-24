@@ -13,7 +13,8 @@ subroutine MODRHS(IVEC,FIMO,NFIMO)
 
 use Index_Functions, only: iTri, nTri_Elem
 use SUPERINDEX, only: KTU, KTUV
-use caspt2_module, only: NACTEL, NAES, NASH, NASHT, NASUP, NINDEP, NISH, NISUP, NORB, NSSH, NSYM, NTUES, NTUV, NTUVES
+use general_data, only: NACTEL, NASH
+use caspt2_module, only: NAES, NASHT, NASUP, NINDEP, NISH, NISUP, NORB, NSSH, NSYM, NTUES, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

@@ -20,16 +20,17 @@ subroutine CREIPH_CASPT2(Heff,Ueff,U0,nState)
 ! Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 ! energies.
 
-use fciqmc_interface, only: DoFCIQMC
+use caspt2_qmc_interface, only: DoFCIQMC
 use PrintLevel, only: USUAL
 use REFWFN, only: IADR15, REFWFN_FILENAME
-use sguga, only: L2ACT, LEVEL
 use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
+use sguga_states, only: SGS
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
-use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, ISPIN, &
-                         LROOTS, MSTATE, MSTATE, MXCI, NACTEL, NASH, NBAS, NBSQT, NCONF, NDEL, NELE3, NFRO, NHOLE1, NISH, NRAS1, &
-                         NRAS2, NRAS3, NROOTS, NSYM, POTNUC, STSYM, TITLE
+use general_data, only: ISPIN, NACTEL, NASH,  NELE3=>nElec3, NHOLE1, STSYM
+use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, &
+                         LROOTS, MSTATE, MSTATE, MXCI, NBAS, NBSQT, NCONF, NDEL, NFRO, NISH, NRAS1, &
+                         NRAS2, NRAS3, NROOTS, NSYM, POTNUC, TITLE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -40,6 +41,7 @@ real(kind=wp), intent(in) :: Heff(Nstate,Nstate), Ueff(Nstate,Nstate), U0(Nstate
 integer(kind=iwp) :: I, IAD15, ID, IDISK, IDR, IDW, IISTATE, ISNUM, ISTATE, J, JOBIPH, JOBMIX, JSNUM, MROOTS, NIDIST, NOLDE
 integer(kind=iwp), allocatable :: IDIST(:), JROOT(:), xL2Act(:), xLevel(:)
 real(kind=wp), allocatable :: CI1(:), CI2(:), EFFCP(:), OLDE(:), Weight_(:)
+integer(kind=iwp), parameter :: jstate=1
 
 ! Not called, if .not. IFMIX, then only the new CI coefficients are
 ! printed, no JOBMIX file is created.
@@ -150,10 +152,10 @@ IAD15 = IADR15(18)
 !Copy to local array since L2Act and Level are protected.
 call mma_allocate(xL2Act,MxLev,Label='xL2Act')
 call mma_allocate(xLevel,MxLev,Label='xLevel')
-XL2Act(:) = L2Act(:)
+XL2Act(:) = SGS(jstate)%L2Act(:)
 call IDAFILE(JOBMIX,1,xL2ACT,mxAct,IAD15)
 !SVC: translates orbital index to levels
-XLevel(:) = Level(:)
+XLevel(:) = SGS(jstate)%Level(:)
 call IDAFILE(JOBMIX,1,xLEVEL,mxAct,IAD15)
 call mma_deallocate(xL2Act)
 call mma_deallocate(xLevel)

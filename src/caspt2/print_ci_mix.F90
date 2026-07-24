@@ -15,7 +15,8 @@
 subroutine Print_CI_Mix(EigVec)
 
 use RefWfn, only: iadr15, refwfn_active, refwfn_close, refwfn_filename, refwfn_id, refwfn_is_h5
-use caspt2_module, only: CIThr, nConf, nState, STSym
+use general_data, only: STSym
+use caspt2_module, only: CIThr, nConf, nState
 #ifdef _HDF5_
 use mh5, only: mh5_fetch_dset, mh5_open_file_r
 use caspt2_module, only: mState

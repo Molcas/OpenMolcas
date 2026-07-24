@@ -14,7 +14,8 @@
 subroutine CLagX_TrfCI(NCONF,CI)
 
 use caspt2_global, only: TAT, TORB
-use caspt2_module, only: NISH, NRAS1, NRAS2, NRAS3, NSSH, NSYM, STSYM
+use general_data, only: STSYM
+use caspt2_module, only: NISH, NRAS1, NRAS2, NRAS3, NSSH, NSYM
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

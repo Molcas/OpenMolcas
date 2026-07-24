@@ -24,9 +24,10 @@ subroutine DENS2T_RPT2(NLEV,NCONF,MXCI,CI1,CI2,SGM1,SGM2,G1,G2)
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
-use sguga, only: CIS, L2ACT, SGS
+use sguga_states, only: SGS, CIS
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: iSCF, nActEl, nAshT, nG1, nG2, STSym
+use general_data, only: nActEl, STSym
+use caspt2_module, only: iSCF, nAshT, nG1, nG2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
@@ -40,6 +41,7 @@ integer(kind=iwp) :: ID, ISSG1, ISSG2, IST, ISTU, ISU, ISV, ISVX, ISX, IT, ITASK
 real(kind=wp) :: GTU, GTUVX
 integer(kind=iwp), allocatable :: Task(:,:)
 real(kind=wp), external :: DDOT_, DNRM2_
+integer(kind=iwp), parameter :: istate=1
 
 G1(:,:) = Zero
 G2(:,:,:,:) = Zero
@@ -77,7 +79,7 @@ end if
 ! have to take account of orbital order.
 ! We will use level inices LT,LU... in these calls, but produce
 ! the density matrices with usual active orbital indices.
-! Translation tables L2ACT and LEVEL, in caspt2_module
+! Translation tables L2ACT and LEVEL, in SGS
 
 !-SVC20100311: set up a task table with LT,LU
 nTasks = nLev**2
@@ -100,14 +102,14 @@ do while (Rsv_Tsk(ID,iTask))
   ! Compute SGM1 = E_UT acting on CI, with T >= U,
   ! i.e., lowering operations. These are allowed in RAS.
   LT = Task(iTask,1)
-  IST = SGS%ISM(LT)
-  IT = L2ACT(LT)
+  IST = SGS(istate)%ISM(LT)
+  IT = SGS(istate)%L2ACT(LT)
   LU = Task(iTask,2)
-  ISU = SGS%ISM(LU)
-  IU = L2ACT(LU)
+  ISU = SGS(istate)%ISM(LU)
+  IU = SGS(istate)%L2ACT(LU)
   ISTU = Mul(IST,ISU)
   ISSG1 = Mul(ISTU,STSYM)
-  NSGM1 = CIS%NCSF(ISSG1)
+  NSGM1 = CIS(istate)%NCSF(ISSG1)
   if (NSGM1 == 0) cycle
   call GETSGM2(LU,LT,STSYM,CI1,NCONF,SGM1,NSGM1)
   if (ISTU == STSYM) then
@@ -117,16 +119,16 @@ do while (Rsv_Tsk(ID,iTask))
   end if
   LVX = 0
   do LV=1,NLEV!LT
-    ISV = SGS%ISM(LV)
-    IV = L2ACT(LV)
+    ISV = SGS(istate)%ISM(LV)
+    IV = SGS(istate)%L2ACT(LV)
     do LX=1,NLEV!LV
       LVX = LVX+1
-      ISX = SGS%ISM(LX)
+      ISX = SGS(istate)%ISM(LX)
       ISVX = Mul(ISV,ISX)
       !if (ISVX /= ISTU) cycle
-      IX = L2ACT(LX)
+      IX = SGS(istate)%L2ACT(LX)
       ISSG2 = Mul(ISVX,ISSG1)
-      NSGM2 = CIS%NCSF(ISSG2)
+      NSGM2 = CIS(istate)%NCSF(ISSG2)
       if (NSGM2 == 0) cycle
       if (ISSG2 == STSYM) then
         !if (LX == LT) then
@@ -161,17 +163,17 @@ do while (Rsv_Tsk(ID,iTask))
   end if
   LVX = 0
   do LV=1,NLEV
-    ISV = SGS%ISM(LV)
-    IV = L2ACT(LV)
+    ISV = SGS(istate)%ISM(LV)
+    IV = SGS(istate)%L2ACT(LV)
     do LX=1,NLEV
       LVX = LVX+1
       !if (LVX > LTU) cycle
-      ISX = SGS%ISM(LX)
-      IX = L2ACT(LX)
+      ISX = SGS(istate)%ISM(LX)
+      IX = SGS(istate)%L2ACT(LX)
       ISVX = Mul(ISV,ISX)
       !if (ISVX /= ISTU) cycle
       ISSG2 = Mul(ISVX,ISSG1)
-      NSGM2 = CIS%NCSF(ISSG2)
+      NSGM2 = CIS(istate)%NCSF(ISSG2)
       if (NSGM2 == 0) cycle
       if (ISSG2 == STSYM) then
         call GETSGM2(LX,LV,ISSG1,SGM1,NCONF,SGM2,NSGM2)
@@ -198,11 +200,11 @@ call GAdGOP(G2,NG2,'+')
 !write(u6,*) 'before'
 !call sqprt(g2,nlev**2)
 do LT=1,NLEV
-  IT = L2ACT(LT)
+  IT = SGS(istate)%L2ACT(LT)
   do LU=1,NLEV
-    IU = L2ACT(LU)
+    IU = SGS(istate)%L2ACT(LU)
     do LV=1,NLEV
-      IV = L2ACT(LV)
+      IV = SGS(istate)%L2ACT(LV)
       G2(IT,IV,IV,IU) = G2(IT,IV,IV,IU)-G1(IT,IU)
     end do
   end do
@@ -220,37 +222,37 @@ do it=1,nlev
 end do
 !-SVC20100311: serial part: add corrections to G2
 !do LT=1,NLEV
-!  IT = L2ACT(LT)
+!  IT = SGS(istate)%L2ACT(LT)
 !  do LX=1,LT
-!    IX = L2ACT(LX)
+!    IX = SGS(istate)%L2ACT(LX)
 !    do LU=LX,LT
-!      IU = L2ACT(LU)
+!      IU = SGS(istate)%L2ACT(LU)
 !      G2(IT,IU,IU,IX) = G2(IT,IU,IU,IX)-G1(IT,IX)
 !    end do
 !  end do
 !end do
 !do LT=2,NLEV
-!  IT = L2ACT(LT)
+!  IT = SGS(istate)%L2ACT(LT)
 !  do LX=2,LT
-!    IX = L2ACT(LX)
+!    IX = SGS(istate)%L2ACT(LX)
 !    do LU=1,LX-1
-!      IU = L2ACT(LU)
+!      IU = SGS(istate)%L2ACT(LU)
 !      G2(IT,IU,IU,IX) = G2(IT,IU,IU,IX)-G1(IT,IX)
 !    end do
 !  end do
 !end do
 !LTU = 0
 !do LT=1,NLEV
-!  IT = L2ACT(LT)
+!  IT = SGS(istate)%L2ACT(LT)
 !  do LU=1,LT
 !    LTU = LTU+1
-!    IU = L2ACT(LU)
+!    IU = SGS(istate)%L2ACT(LU)
 !    LVX = 0
 !    outer: do LV=1,LT
-!      IV = L2ACT(LV)
+!      IV = SGS(istate)%L2ACT(LV)
 !      do LX=1,LV
 !        LVX = LVX+1
-!        IX = L2ACT(LX)
+!        IX = SGS(istate)%L2ACT(LX)
 !        if (LVX > LTU) exit outer
 !        GTUVX = G2(IT,IU,IV,IX)
 !        G2(IU,IT,IX,IV) = GTUVX

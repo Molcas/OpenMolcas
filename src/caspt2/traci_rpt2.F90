@@ -11,7 +11,8 @@
 
 subroutine TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
 
-use sguga, only: CIS, EXS, LEVEL, SGS
+use sguga, only: sg_epq_psi
+use sguga_states, only: CIS, EXS, SGS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, OneHalf
 use Definitions, only: wp, iwp
@@ -22,6 +23,7 @@ real(kind=wp), intent(inout) :: XMAT(NDIM,NDIM), CI(NCI)
 integer(kind=iwp) :: I, IORB, J, JORB, LI, LJ, M
 real(kind=wp) :: Fact, SCL, XJM
 real(kind=wp), allocatable :: SGM(:), TVEC(:), XSAV(:,:)
+integer(kind=iwp), parameter :: istate=1
 
 if (NDIM <= 0) return
 
@@ -50,21 +52,23 @@ do J=1,NDIM
   ! CI:=( 1 + Sum(U(I)E(IJ)) + (1/2)Sum(U(I)U(M)E(IJ,MJ)) ) CI,
   ! where U(I) = T(I)-Kronecker(I,J).
   JORB = ISTART-1+J
-  LJ = LEVEL(JORB)
+  LJ = SGS(istate)%LEVEL(JORB)
   SGM(1:NCI) = (OneHalf-Half*TVEC(J))*CI(1:NCI)
   do I=1,NDIM
     IORB = ISTART-1+I
-    LI = LEVEL(IORB)
+    LI = SGS(istate)%LEVEL(IORB)
     SCL = Half*TVEC(I)
     if (I == J) SCL = SCL-Half
-    call SG_Epq_Psi(SGS,CIS,EXS,LI,LJ,SCL,STSYM,CI,SGM)
+    if (ABS(SCL)<1.0E-12_wp) cycle
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,CI,SGM)
   end do
   do I=1,NDIM
     IORB = ISTART-1+I
-    LI = LEVEL(IORB)
+    LI = SGS(istate)%LEVEL(IORB)
     SCL = TVEC(I)
     if (I == J) SCL = SCL-One
-    call SG_Epq_Psi(SGS,CIS,EXS,LI,LJ,SCL,STSYM,SGM,CI)
+    if (ABS(SCL)<1.0E-12_wp) cycle
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,SGM,CI)
   end do
 
 end do

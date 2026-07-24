@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
+subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2,nTUVX,TUVX)
 ! A rotation matrix X is defining expansion from
 ! old to new orbitals
 !        PHI(NEW) = PHI(OLD) * X
@@ -48,6 +48,9 @@ implicit none
 real(kind=wp), intent(in) :: X(*)
 integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
 real(kind=wp), allocatable :: SCR(:), LT(:)
 integer(kind=iwp) :: IOFF, ISM
 
@@ -81,7 +84,7 @@ ICSM = ICSM
 ISSPC = IXSPC
 ISSM = IXSM
 
-call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
+call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2,Size(TUVX),TUVX)
 
 call mma_deallocate(SCR)
 call mma_deallocate(LT)

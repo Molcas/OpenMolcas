@@ -25,7 +25,8 @@ subroutine MKSG(DREF,NDREF)
 use Index_Functions, only: iTri, nTri_Elem
 use EQSOLV, only: IDSMAT
 use caspt2_global, only: LUSBT
-use caspt2_module, only: NAES, NASH, NINDEP, NSYM
+use general_data, only: NASH
+use caspt2_module, only: NAES, NINDEP, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

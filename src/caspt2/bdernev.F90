@@ -74,7 +74,7 @@ end subroutine BDerNEV_initial
 
 subroutine BDerNEV_final1(NDPT2C,DPT2C)
 
-  use caspt2_module, only: NACTEL
+  use General_data, only: NACTEL
 # ifdef _MOLCAS_MPP_
   use Para_Info, only: Is_Real_Par
 # endif

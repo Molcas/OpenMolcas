@@ -33,10 +33,12 @@ subroutine DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,C
 ! the usual active orbital number, when they are enumerated across
 ! all the symmetries (The ''absolute'' active index).
 
+use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, L2ACT, SGS
-use caspt2_module, only: IASYM, ISCF, MXCI, NACTEL
+use sguga_states, only: CIS, EXS, SGS
+use general_data, only: NACTEL, NLEV
+use caspt2_module, only: IASYM, ISCF, MXCI
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -48,12 +50,11 @@ real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), OVL
 real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT), DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3), CLAG1(NCONF), CLAG2(NCONF)
 integer(kind=iwp) :: ibuf, IL, IM, IP, IP1, IP1END, IP1STA, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, ISSG2, ISTAU, IT, ITS, &
                      ITU, IU, IUS, IV, IVS, IVX, IX, IXS, IY, IYS, IYZ, IZ, IZS, JL, JM, JTU, JTUVXYZ, JVX, JYZ, LFROM, LFROMD, &
-                     LSGM1, LSGM2, LTAU, LTO, NCI1, nLev, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
+                     LSGM1, LSGM2, LTAU, LTO, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
 real(kind=wp) :: VAL
 integer(kind=iwp), allocatable :: P2LEV(:,:)
 real(kind=wp), allocatable :: BUF1(:), DTU(:,:), DYZ(:,:), TG3WRK(:)
-
-nLev = SGS%nLev
+integer(kind=iwp), parameter :: istate=1
 
 ! Put in zeroes. Recognize special cases:
 !OVL = One
@@ -99,22 +100,22 @@ end do
 ! -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
 if (DOG3) then
   do IP1=1,NASHT**2
-    IT = L2ACT(P2LEV(1,IP1))
-    IU = L2ACT(P2LEV(2,IP1))
+    IT = SGS(istate)%L2ACT(P2LEV(1,IP1))
+    IU = SGS(istate)%L2ACT(P2LEV(2,IP1))
     ITU = IT+NASHT*(IU-1)
     ITS = IASYM(IT)
     IUS = IASYM(IU)
     IS1 = Mul(Mul(ITS,IUS),LSYM1)
     do IP2=1,IP1
-      IV = L2ACT(P2LEV(1,IP2))
-      IX = L2ACT(P2LEV(2,IP2))
+      IV = SGS(istate)%L2ACT(P2LEV(1,IP2))
+      IX = SGS(istate)%L2ACT(P2LEV(2,IP2))
       IVX = IV+NASHT*(IX-1)
       IVS = IASYM(IV)
       IXS = IASYM(IX)
       IS2 = Mul(Mul(IVS,IXS),IS1)
       do IP3=1,IP2
-        IY = L2ACT(P2LEV(1,IP3))
-        IZ = L2ACT(P2LEV(2,IP3))
+        IY = SGS(istate)%L2ACT(P2LEV(1,IP3))
+        IZ = SGS(istate)%L2ACT(P2LEV(2,IP3))
         IYS = IASYM(IY)
         IZS = IASYM(IZ)
         IS3 = Mul(Mul(IYS,IZS),IS2)
@@ -166,11 +167,11 @@ end if
 ! Then, the 2-particle density matrix:
 ! <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
 do IP1=1,NASHT**2
-  IT = L2ACT(P2LEV(1,IP1))
-  IU = L2ACT(P2LEV(2,IP1))
+  IT = SGS(istate)%L2ACT(P2LEV(1,IP1))
+  IU = SGS(istate)%L2ACT(P2LEV(2,IP1))
   do IP2=1,IP1
-    IV = L2ACT(P2LEV(1,IP2))
-    IX = L2ACT(P2LEV(2,IP2))
+    IV = SGS(istate)%L2ACT(P2LEV(1,IP2))
+    IX = SGS(istate)%L2ACT(P2LEV(2,IP2))
     if (IP1 /= IP2) then
       DTG2(IT,IU,IV,IX) = DTG2(IT,IU,IV,IX)+DTG2(IV,IX,IT,IU)
       DTG2(IV,IX,IT,IU) = Zero
@@ -186,7 +187,7 @@ end do
 ! But we also need the 'usual' pair index in order to use the
 ! packed addressing.
 
-NCI1 = CIS%NCSF(LSYM1)
+NCI1 = CIS(istate)%NCSF(LSYM1)
 ! Overlap:
 !if (LSYM1 == LSYM2) OVL = DDOT_(NCI1,CI1,1,CI2,1)
 if (LSYM1 == LSYM2) then
@@ -242,14 +243,14 @@ do IP3STA=1,NASHT**2,NYZBUF
     ! Translate to levels in the SGUGA coupling order:
     IL = P2LEV(1,IP3)
     JL = P2LEV(2,IP3)
-    IY = L2ACT(IL)
-    IZ = L2ACT(JL)
+    IY = SGS(istate)%L2ACT(IL)
+    IZ = SGS(istate)%L2ACT(JL)
     IYS = IASYM(IY)
     IZS = IASYM(IZ)
     ISSG2 = Mul(Mul(IYS,IZS),LSYM2)
     TG3WRK(LTO:LTO+MXCI-1) = Zero
     ! LTO is first element of Sigma2 = E(YZ) Psi2
-    call SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
     !! It is possible to calculate the contribution using
     !! DGEMV, but DAXPY seems to be faster than DGEMV
     if ((ISSG2 == LSYM1) .and. (DTG1(IY,IZ) /= Zero)) CLAG1(1:NCI1) = CLAG1(1:NCI1)+DTG1(IY,IZ)*TG3WRK(LTO:LTO+NCI1-1)
@@ -267,13 +268,13 @@ do IP3STA=1,NASHT**2,NYZBUF
       ! Translate to levels:
       JL = P2LEV(1,IP1)
       IL = P2LEV(2,IP1)
-      IT = L2ACT(IL)
-      IU = L2ACT(JL)
+      IT = SGS(istate)%L2ACT(IL)
+      IU = SGS(istate)%L2ACT(JL)
       ITS = IASYM(IT)
       IUS = IASYM(IU)
       ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
       TG3WRK(LTO:LTO+MXCI-1) = Zero
-      call SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
       if ((ISSG1 == LSYM1) .and. (DTG1(IU,IT) /= Zero) .and. (IP3STA == 1)) &
         CLAG2(1:NCI1) = CLAG2(1:NCI1)+DTG1(IU,IT)*TG3WRK(LTO:LTO+NCI1-1)
       LTO = LTO+MXCI
@@ -284,8 +285,8 @@ do IP3STA=1,NASHT**2,NYZBUF
     LFROM = LSGM2
     LFROMD = 1
     do IP3=IP3STA,IP3END
-      IY = L2ACT(P2LEV(1,IP3))
-      IZ = L2ACT(P2LEV(2,IP3))
+      IY = SGS(istate)%L2ACT(P2LEV(1,IP3))
+      IZ = SGS(istate)%L2ACT(P2LEV(2,IP3))
       ! LFROM will be start element of Sigma2=E(YZ) Psi2
       IYZ = IY+NASHT*(IZ-1)
       IYS = IASYM(IY)
@@ -296,17 +297,17 @@ do IP3STA=1,NASHT**2,NYZBUF
       do IP2=IP3,IP1END
         IL = P2LEV(1,IP2)
         JL = P2LEV(2,IP2)
-        IV = L2ACT(IL)
-        IX = L2ACT(JL)
+        IV = SGS(istate)%L2ACT(IL)
+        IX = SGS(istate)%L2ACT(JL)
         IVX = IV+NASHT*(IX-1)
         IVS = IASYM(IV)
         IXS = IASYM(IX)
         ISTAU = Mul(Mul(IVS,IXS),ISSG2)
-        NTAU = CIS%NCSF(ISTAU)
+        NTAU = CIS(istate)%NCSF(ISTAU)
         TG3WRK(LTAU:LTAU+MXCI-1) = Zero
         ! LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
         !! LTAU = EvxEyz|Psi2>
-        call SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
+        call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
         if ((ISTAU == LSYM1) .and. (DTG2(IV,IX,IY,IZ) /= Zero)) then
           !DTG2(IV,IX,IY,IZ) = DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
           !! For left derivative: <I|Evx Eyz|Psi2>
@@ -315,16 +316,16 @@ do IP3STA=1,NASHT**2,NYZBUF
           if ((IP2 >= IP1STA) .and. (IP2 <= IP1END)) then
             ibuf = lsgm1+mxci*(ip2-ip1sta)
             DYZ(1:MXCI,LFROMD) = DYZ(1:MXCI,LFROMD)+DTG2(IV,IX,IY,IZ)*TG3WRK(IBUF:IBUF+MXCI-1)
-          else
-            call SG_Epq_Psi(SGS,CIS,EXS,JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,DYZ(1,LFROMD))
+          else If (Abs(DTG2(IV,IX,IY,IZ))<1.0E-12_wp) Then
+            call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,DYZ(1,LFROMD))
           end if
           DTG2(IV,IX,IY,IZ) = Zero
         end if
         if (DOG3) then
           BUF1(1:MXCI) = Zero
           do IP1=max(IP2,IP1STA),IP1END
-            IT = L2ACT(P2LEV(1,IP1))
-            IU = L2ACT(P2LEV(2,IP1))
+            IT = SGS(istate)%L2ACT(P2LEV(1,IP1))
+            IU = SGS(istate)%L2ACT(P2LEV(2,IP1))
             ITS = IASYM(IT)
             IUS = IASYM(IU)
             ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
@@ -380,7 +381,7 @@ do IP3STA=1,NASHT**2,NYZBUF
           end do
           !! Second operator for the right derivative:
           !! <Psi1|Etu Evx|I> * Dtuvxyz
-          call SG_Epq_Psi(SGS,CIS,EXS,JL,IL,One,ISTAU,BUF1,DYZ(1,LFROMD))
+          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),JL,IL,One,ISTAU,BUF1,DYZ(1,LFROMD))
         end if !! End of DOG3 clause
         ! End of IP2 loop.
       end do
@@ -395,12 +396,12 @@ do IP3STA=1,NASHT**2,NYZBUF
       ! Translate to levels:
       IL = P2LEV(1,IP1)
       JL = P2LEV(2,IP1)
-      IT = L2ACT(IL)
-      IU = L2ACT(JL)
+      IT = SGS(istate)%L2ACT(IL)
+      IU = SGS(istate)%L2ACT(JL)
       ITS = IASYM(IT)
       IUS = IASYM(IU)
       ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
-      call SG_Epq_Psi(SGS,CIS,EXS,IL,JL,One,LSYM1,DTU(1,LTO),CLAG1)
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IL,JL,One,LSYM1,DTU(1,LTO),CLAG1)
       LTO = LTO+1
     end do
     ! End of IP1STA sectioning loop
@@ -408,8 +409,8 @@ do IP3STA=1,NASHT**2,NYZBUF
 
   LTO = 1
   do IP3=IP3STA,IP3END
-    IY = L2ACT(P2LEV(1,IP3))
-    IZ = L2ACT(P2LEV(2,IP3))
+    IY = SGS(istate)%L2ACT(P2LEV(1,IP3))
+    IZ = SGS(istate)%L2ACT(P2LEV(2,IP3))
     ! LFROM will be start element of Sigma2=E(YZ) Psi2
     IYZ = IY+NASHT*(IZ-1)
     IYS = IASYM(IY)
@@ -418,7 +419,7 @@ do IP3STA=1,NASHT**2,NYZBUF
     IM = P2LEV(1,IP3)
     JM = P2LEV(2,IP3)
     ! LTO is first element of Sigma2 = E(YZ) Psi2
-    call SG_Epq_Psi(SGS,CIS,EXS,JM,IM,One,LSYM2,DYZ(1,LTO),CLAG2)
+    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),JM,IM,One,LSYM2,DYZ(1,LTO),CLAG2)
     LTO = LTO+1
   end do
   ! End of IP3STA sectioning loop

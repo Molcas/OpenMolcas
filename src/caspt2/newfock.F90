@@ -42,7 +42,8 @@ subroutine NEWFOCK(FIFA,NFIFA,CMO,NCMO,DREF,nDREF)
 use Index_Functions, only: iTri, nTri_Elem
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: USUAL
-use caspt2_module, only: FockType, IfChol, nAES, nAMx, nAsh, nAshT, nIMx, nIsh, nOMx, nOrb, nOSqT, nSMx, nSsh, nSym
+use general_data, only: NASH
+use caspt2_module, only: FockType, IfChol, nAES, nAMx, nAshT, nIMx, nIsh, nOMx, nOrb, nOSqT, nSMx, nSsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6

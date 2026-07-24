@@ -45,7 +45,7 @@ NCONF = CIS%NCSF(LSYM)
 NWALK = CIS%nWalk
 call mma_allocate(MWS2W,NWALK,Label='MWS2W')
 NSYM = ICNFTAB(7)
-call MSTOW(SGS,CIS,MWS2W,NSYM)
+call SG_MSTOW(SGS,CIS,MWS2W,NSYM)
 ! MWS2W is a table which gives the upper or lower walk
 ! index as function of the MAW sum.
 
@@ -148,7 +148,7 @@ do NOPEN=MINOP,MAXOP
           PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
         end do
         ! Pack the walk and add it to the list.
-        call PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
+        call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
         IWLKPOS = IWLKPOS+MIPWLK
         NWLKLST = NWLKLST+1
         PHASE(NWLKLST) = PHS
@@ -224,7 +224,7 @@ do NOPEN=MINOP,MAXOP
           PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
         end do
         ! Pack the walk and add it to the list.
-        call PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
+        call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
         IWLKPOS = IWLKPOS+MIPWLK
         NWLKLST = NWLKLST+1
         PHASE(NWLKLST) = PHS
@@ -296,7 +296,7 @@ do NOPEN=MINOP,MAXOP
           PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
         end do
         ! Pack the walk and add it to the list.
-        call PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
+        call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
         IWLKPOS = IWLKPOS+MIPWLK
         NWLKLST = NWLKLST+1
         PHASE(NWLKLST) = PHS
@@ -376,7 +376,7 @@ do NOPEN=MINOP,MAXOP
           PHS = real((3+NODD*I*(I-1)*(2*I-7))/3,kind=wp)*PHS
         end do
         ! Pack the walk and add it to the list.
-        call PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
+        call SG_PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
         IWLKPOS = IWLKPOS+MIPWLK
         NWLKLST = NWLKLST+1
         PHASE(NWLKLST) = PHS

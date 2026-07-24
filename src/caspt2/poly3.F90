@@ -36,12 +36,12 @@ subroutine POLY3(mkF)
 ! THE RDSTAT AND THE GUGA ROUTINES USED IN THIS
 ! PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
-use fciqmc_interface, only: DoFCIQMC
+use caspt2_qmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: VERBOSE
-use sguga, only: CIS, L2ACT, SGS
+use sguga_states, only: SGS, CIS
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
-use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, nActel, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState, &
-                         STSym
+use general_data, only: NACTEL, STSym, nLev
+use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
 use caspt2_module, only: DMRG
 #endif
@@ -51,21 +51,22 @@ use Definitions, only: wp, iwp, u6, byte
 
 implicit none
 logical(kind=iwp), intent(in) :: mkF
-integer(kind=iwp) :: IDCI, ILEV, ILUID, IPARDIV, nCI, NG3MAX, nLev
+
+integer(kind=iwp) :: IDCI, ILEV, ILUID, IPARDIV, nCI, NG3MAX
 integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: CI(:)
 real(kind=wp), allocatable, target :: F1_H(:), F2_H(:), F3_H(:), G1(:), G2(:), G3(:)
 real(kind=wp), pointer :: F1(:), F2(:), F3(:)
-
-nLev = SGS%nLev
+integer(kind=iwp), parameter :: istate=1
+nLev = SGS(istate)%nLev
 
 ! Note that in case of FCIQMC nConf is set to 0.
-nCI = CIS%NCSF(STSYM)
+nCI = CIS(istate)%NCSF(STSYM)
 
-if (mkF) then
+if (mkF .or. ((ISCF /= 0) .and. (NACTEL /= 0))) then
   ! ORBITAL ENERGIES IN CI-COUPLING ORDER:
   do ILEV=1,NLEV
-    ETA(ILEV) = EPSA(L2ACT(ILEV))
+    ETA(ILEV) = EPSA(SGS(istate)%L2ACT(ILEV))
   end do
 end if
 
@@ -86,7 +87,7 @@ G2(1) = Zero
 G3(1) = Zero
 
 ! ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
-if (mkF) then
+if (mkF .or. ((ISCF /= 0) .and. (NACTEL /= 0))) then
   call mma_allocate(F1_H,NG1,LABEL='F1_H')
   call mma_allocate(F2_H,NG2,LABEL='F2_H')
   call mma_allocate(F3_H,NG3MAX,LABEL='F3_H')
@@ -134,8 +135,11 @@ else if (ISCF == 0) then
 # if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
   if ((.not. DoCumulant) .and. (.not. DMRG)) then
 # endif
-    if (.not. allocated(CI)) call mma_allocate(CI,1,LABEL='CI')
-    call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
+    if (.not. DoFCIQMC) then
+       call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
+    else
+       call mkfg3fciqmc(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
+    end if
 # if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
   else
     call MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
@@ -151,7 +155,7 @@ if (NLEV > 0) then
   call PT2_PUT(NG3,' GAMMA3',G3)
   iLUID = 0
   call I1DAFILE(LUSOLV,1,idxG3,6*NG3,iLUID)
-  if (mkF) then
+  if (mkF .or. ((ISCF /= 0) .and. (NACTEL /= 0))) then
     call PT2_PUT(NG1,' DELTA1',F1)
     call PT2_PUT(NG2,' DELTA2',F2)
     call PT2_PUT(NG3,' DELTA3',F3)
@@ -163,7 +167,7 @@ if (NLEV > 0) then
   call mma_deallocate(G2)
   call mma_deallocate(G3)
   call mma_deallocate(idxG3)
-  if (mkF) then
+  if (mkF .or. ((ISCF /= 0) .and. (NACTEL /= 0))) then
     call mma_deallocate(F1_H)
     call mma_deallocate(F2_H)
     call mma_deallocate(F3_H)

@@ -24,7 +24,8 @@ subroutine MKLIST(LIST,mList)
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ, KTGEU, KTGTU, KTU, KTUV, MTGEU, MTGTU, MTU
 use EQSOLV, only: llist, nlist
-use caspt2_module, only: nAES, NAGEBES, NAGEBES, NAGTBES, nAsh, nAshT, NIES, NIGEJES, NIGEJES, NIGTJES, NIGTJES, nIsh, NSES, nSsh, &
+use general_data, only: NASH
+use caspt2_module, only: nAES, NAGEBES, NAGEBES, NAGTBES, nAshT, NIES, NIGEJES, NIGEJES, NIGTJES, NIGTJES, nIsh, NSES, nSsh, &
                          nSym, NTGEU, NTGEUES, NTGEUES, NTGTU, NTGTUES, NTGTUES, NTU, NTUES, NTUVES
 use Definitions, only: iwp
 

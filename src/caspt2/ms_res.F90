@@ -17,7 +17,8 @@ subroutine MS_Res(MODE,IST,JST,Scal)
 use Index_Functions, only: nTri3_Elem
 use EQSOLV, only: IVECC, IVECC2, IVECW
 use caspt2_global, only: IDTCEX, LUCIEX
-use caspt2_module, only: ISCF, MXCI, NASHT, NCONF, NSTATE, STSYM
+use general_data, only: STSYM
+use caspt2_module, only: ISCF, MXCI, NASHT, NCONF, NSTATE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

@@ -24,7 +24,8 @@ subroutine MKRHSH(IVEC,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
 use Symmetry_Info, only: Mul
 use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
-use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NASH, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NISH, NORB, NSES, NSSH, NSYM
+use general_data, only: NASH
+use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NISH, NORB, NSES, NSSH, NSYM
 use Constants, only: Three, Half
 use Definitions, only: wp, iwp
 

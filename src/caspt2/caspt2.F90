@@ -62,7 +62,7 @@ subroutine CASPT2(IRETURN)
 
 use INPUTDATA, only: INPUT
 use PT2WFN, only: PT2WFN_DATA, PT2WFN_ESTORE
-use fciqmc_interface, only: DoFCIQMC
+use caspt2_qmc_interface, only: DoFCIQMC
 use caspt2_global, only: do_grad, IDSAVGRD, iPrGlb, iStpGrd, nStpGrd
 use caspt2_module, only: CPT2Method, CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUPRP, &
                          CPUPT2, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, E2ToT, Energy, HZERO, IfChol, IfDens, &

@@ -23,11 +23,13 @@ subroutine HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
 ! NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 ! NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
 
+use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, SGS
+use sguga_states, only: CIS, EXS, SGS
 use Molcas, only: MxLev
-use caspt2_module, only: IASYM, ISCF, MxCI, NACTEL, NASHT, NCONF, NSYM
+use general_data, only: NACTEL, nLev
+use caspt2_module, only: IASYM, ISCF, MxCI, NASHT, NCONF, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
@@ -37,11 +39,10 @@ integer(kind=iwp), intent(in) :: NOP2, NOP3, ISYCI, NCI
 real(kind=wp), intent(in) :: OP0, OP1(NASHT,NASHT), OP2(NOP2), OP3(NOP3), CI(NCI)
 real(kind=wp), intent(inout) :: SGM(NCI)
 integer(kind=iwp) :: I, IATOG(MXLEV), ISTU, ISVX, ISVXYZ, ISYM, ISYM1, ISYM2, ISYZ, IT, ITABS, ITMIN, ITU, ITUVXYZ, IU, IV, IVMIN, &
-                     IVX, IVXYZ, IX, IY, IYZ, IZ, LEVT, LEVU, LEVV, LEVX, LEVY, LEVZ, nLev, NSGM1, NSGM2
+                     IVX, IVXYZ, IX, IY, IYZ, IZ, LEVT, LEVU, LEVV, LEVX, LEVY, LEVZ, NSGM1, NSGM2
 real(kind=wp) :: OCCNO, X
 real(kind=wp), allocatable :: SGM1(:), SGM2(:)
-
-nLev = SGS%nLev
+integer(kind=iwp), parameter :: istate=1
 
 if (NCONF == 0) return
 if (abs(OP0) > 1.0e-15_wp) SGM(1:NCONF) = SGM(1:NCONF)+OP0*CI(1:NCONF)
@@ -63,7 +64,7 @@ if (ISCF == 2) OCCNO = One
 ITABS = 0
 do ISYM=1,NSYM
   do I=1,NLEV
-    if (SGS%ISM(I) == ISYM) then
+    if (SGS(istate)%ISM(I) == ISYM) then
       ITABS = ITABS+1
       IATOG(ITABS) = I
     end if
@@ -75,7 +76,7 @@ do IZ=1,NASHT
     IYZ = IY+(IZ-1)*NASHT
     ISYZ = Mul(IASYM(IY),IASYM(IZ))
     ISYM1 = Mul(ISYZ,ISYCI)
-    NSGM1 = CIS%NCSF(ISYM1)
+    NSGM1 = CIS(istate)%NCSF(ISYM1)
     if (NSGM1 == 0) cycle
     if (ISCF == 0) then
       ! The general case:
@@ -83,7 +84,7 @@ do IZ=1,NASHT
       SGM1(1:nSGM1) = Zero
       LEVY = IATOG(IY)
       LEVZ = IATOG(IZ)
-      call SG_Epq_Psi(SGS,CIS,EXS,LEVY,LEVZ,One,ISYCI,CI,SGM1)
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVY,LEVZ,One,ISYCI,CI,SGM1)
       ! Add non-zero 1-el contribution to SGM:
       if (ISYZ == 1) then
         X = OP1(IY,IZ)
@@ -105,7 +106,7 @@ do IZ=1,NASHT
         ISVXYZ = Mul(ISVX,ISYZ)
         IVXYZ = iTri(IVX,IYZ)
         ISYM2 = Mul(ISVX,ISYM1)
-        NSGM2 = CIS%NCSF(ISYM2)
+        NSGM2 = CIS(istate)%NCSF(ISYM2)
         if (NSGM2 == 0) cycle
         if (ISCF == 0) then
           ! The general case:
@@ -113,7 +114,7 @@ do IZ=1,NASHT
           SGM2(1:nSGM2) = Zero
           LEVV = IATOG(IV)
           LEVX = IATOG(IX)
-          call SG_Epq_Psi(SGS,CIS,EXS,LEVV,LEVX,One,ISYM1,SGM1,SGM2)
+          call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVV,LEVX,One,ISYM1,SGM1,SGM2)
           ! Add non-zero 2-el contribution to SGM:
           if (ISVXYZ == 1) then
             X = OP2(IVXYZ)
@@ -141,7 +142,7 @@ do IZ=1,NASHT
             if (ISCF == 0) then
               LEVT = IATOG(IT)
               LEVU = IATOG(IU)
-              call SG_Epq_Psi(SGS,CIS,EXS,LEVT,LEVU,X,ISYM2,SGM2,SGM)
+              call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LEVT,LEVU,X,ISYM2,SGM2,SGM)
             else
               ! Closed-shell or hi-spin case:
               if (IT /= IU) cycle

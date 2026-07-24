@@ -12,7 +12,7 @@
 !               1989, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine PHPCSF(PHP,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,NACTOB,SCR,NCONF,NEL,NAEL,NBEL,NPCSF,NPCNF,DIAG, &
+subroutine PHPCSF(PHP,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,IREFSM,ONEBOD,ECORE,NACTOB,SCR,NCONF,NEL,NAEL,NBEL,NPCSF,NPCNF,DIAG, &
                   TUVX,NTEST,ExFac,IREOTS)
 ! Obtain primary subspace and obtain
 ! explicit representation of hamilton matrix in subspace
@@ -25,7 +25,6 @@ subroutine PHPCSF(PHP,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,N
 ! MXPDIM : Largest allowed dimension of subspace (input)
 ! DTOC   : Transformation matrix between CSF's and DET's (input)
 ! IPRODT : Prototype determinants (input)
-! ICONF  : List of configurations  (input)
 ! IREFSM : symmetry of considered CI space (input)
 ! Onebod : one body hamilton matrix in rectangular form (input)
 ! ECORE  : Core energy (input)
@@ -43,6 +42,7 @@ subroutine PHPCSF(PHP,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,ICONF,IREFSM,ONEBOD,ECORE,N
 ! adapted to DETRAS by M.P. Fuelscher, October 1989
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Lucia_data, only: Conf_Occ
 use Index_Functions, only: nTri_Elem
 use spinfo, only: NCNFTP, NCSFTP, NTYP
 use Constants, only: One
@@ -51,7 +51,7 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(NACTOB)
+integer(kind=iwp), intent(in) :: MXPDIM, IPRODT(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(NACTOB)
 real(kind=wp), intent(out) :: PHP(nTri_Elem(MXPDIM))
 integer(kind=iwp), intent(out) :: IPCSF(MXPDIM), IPCNF(NCONF)
 real(kind=wp), intent(in) :: DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, DIAG(*), TUVX(*), ExFac
@@ -134,7 +134,7 @@ subroutine PHPCSF_INTERNAL(SCR)
       !  DIAVAL = SCR(IPCNF(IICNF))
       !  if (abs(DIAVAL-XMIN) > 1.0e-10_wp) exit
       !  NPCNF = NPCNF-1
-      !  call GETCNF(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
+      !  call GETCNF(SCR(NCONF+1),ITYP,IPCNF(IICNF),Conf_Occ(IREFSM)%A,IREFSM,NEL)
       !  NPCSF = NPCSF-NCSFTP(ITYP)
       !end do
     end if
@@ -183,13 +183,13 @@ subroutine PHPCSF_INTERNAL(SCR)
   IILB = 1
   do ICNL=1,NPCNF
     call c_f_pointer(c_loc(SCR(KLCONF)),iSCRl,[1])
-    call GETCNF(iSCRl,ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
+    call GETCNF(iSCRl,ILTYP,IPCNF(ICNL),Conf_Occ(IREFSM)%A,IREFSM,NEL)
     nullify(iSCRl)
     NCSFL = NCSFTP(ILTYP)
     IIRB = 1
     do ICNR=1,ICNL
       call c_f_pointer(c_loc(SCR(KRCONF)),iSCRr,[1])
-      call GETCNF(iSCRr,IRTYP,IPCNF(ICNR),ICONF,IREFSM,NEL)
+      call GETCNF(iSCRr,IRTYP,IPCNF(ICNR),Conf_Occ(IREFSM)%A,IREFSM,NEL)
       nullify(iSCRr)
       NCSFR = NCSFTP(IRTYP)
       call c_f_pointer(c_loc(SCR(KLCONF)),iSCRl,[1])

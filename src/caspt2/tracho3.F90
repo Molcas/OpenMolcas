@@ -17,7 +17,8 @@ use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: ChoVec_Coll, ChoVec_load, ChoVec_Save, npq_ChoType, NVLOC_ChoBatch
 use Cholesky, only: InfVec
 use ChoCASPT2, only: MxNVc, nChSpc, nFtSpc, nHtSpc, NumCho_PT2
-use caspt2_module, only: nAsh, nBas, nBtch, nBtches, nFro, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
+use general_data, only: nAsh
+use caspt2_module, only: nBas, nBtch, nBtches, nFro, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

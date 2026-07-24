@@ -15,7 +15,6 @@ subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
-use csfbas, only: CONF
 use lucia_data, only: CFTP
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
@@ -4119,10 +4118,29 @@ if (.not. SkipGUGA) then
   ! ====================================================================
   if (ICICH == 1) then
     call mma_allocate(UG2SG_X,NCONF,Label='UG2SG_X')
-    call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,CONF,CFTP,UG2SG_X,ICI,JCJ,CCI,MXROOT)
+    call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,CFTP,UG2SG_X,ICI,JCJ,CCI,MXROOT)
     call mma_deallocate(UG2SG_X)
   end if
   ! ====================================================================
+
+#ifdef _NOT_NOW_
+  ! Turn on the Faroald SD CI code in case of
+  ! 1) no symmetry
+  ! 2) not RASSCF or GASSCF
+  ! 3) not using the expert, the HEXS or the DEXS key word
+  ! 4) not running the CASVB module.
+  If (                                  &
+      nSym==1 .and.                     &
+      (nHole1==0 .and. nElec3==0) .and. &
+      .Not.iDoGas .and.                 &
+      .Not.Key('HEXS') .and.            &
+      .Not.Key('DEXS') .and.            &
+      .Not.Key('EXPE') .and.            &
+      IFVB==0                           &
+     ) Then
+     DoFaro=.True.
+  End If
+#endif
 
   ! faroald initializations
   if (DOFARO) then
@@ -4143,8 +4161,6 @@ end if
 
 !---  Normal exit -----------------------------------------------------*
 if (DBG) write(u6,*) ' Normal exit from PROC_INP.'
-
-return
 
 contains
 

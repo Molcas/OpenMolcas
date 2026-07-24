@@ -21,12 +21,13 @@ subroutine DENS1_RPT2(CI,nCI,SGM1,nSGM1,G1,nLev)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use fciqmc_interface, only: DoFCIQMC, load_fciqmc_g1
+use caspt2_qmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
-use sguga, only: CIS, L2ACT, SGS
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
+use sguga_states, only: SGS, CIS
 use caspt2_global, only: iPrGlb
-use caspt2_module, only: iSCF, jState, mState, nActEl, nAshT, nG1, STSym
+use general_data, only: nActEl, STSym
+use caspt2_module, only: iSCF, jState, mState, nAshT, nG1
 #ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_get_1rdm_full
 use caspt2_module, only: DMRG
@@ -49,6 +50,7 @@ real(kind=wp) :: G2(NLEV,NLEV,NLEV,NLEV)
 #endif
 integer(kind=iwp), allocatable :: TASK(:,:)
 real(kind=wp), external :: DDOT_, DNRM2_
+integer(kind=iwp), parameter :: istate=1
 
 ! Purpose: Compute the 1-electron density matrix array G1.
 
@@ -93,7 +95,7 @@ end if
 ! have to take account of orbital order.
 ! We will use level indices LT,LU... in these calls, but produce
 ! the density matrices with usual active orbital indices.
-! Translation tables L2ACT and LEVEL, in caspt2_module
+! Translation tables L2ACT and LEVEL, in SGS
 
 ! SVC20100311: set up a task table with LT,LU
 ! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -117,15 +119,15 @@ do while (Rsv_Tsk(ID,iTask))
   ! Compute SGM1 = E_UT acting on CI, with T >= U,
   ! i.e., lowering operations. These are allowed in RAS.
   LT = TASK(iTask,1)
-  IST = SGS%ISM(LT)
-  IT = L2ACT(LT)
+  IST = SGS(istate)%ISM(LT)
+  IT = SGS(istate)%L2ACT(LT)
   LU = Task(iTask,2)
-  ISU = SGS%ISM(LU)
-  IU = L2ACT(LU)
+  ISU = SGS(istate)%ISM(LU)
+  IU = SGS(istate)%L2ACT(LU)
   ISTU = Mul(IST,ISU)
   if (ISTU /= 1) cycle
   ISSG = Mul(ISTU,STSYM)
-  NSGM = CIS%NCSF(ISSG)
+  NSGM = CIS(istate)%NCSF(ISSG)
   if (NSGM == 0) cycle
   ! GETSGM2 computes E_UT acting on CI and saves it on SGM1
   call GETSGM2(LU,LT,STSYM,CI,nCI,SGM1,NSGM)

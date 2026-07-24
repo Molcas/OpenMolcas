@@ -16,7 +16,8 @@ subroutine MODOP(OP1,NOP2,OP2,NOP3,OP3)
 ! operators rather than normal-ordered products.
 
 use Index_Functions, only: iTri, nTri_Elem, nTri3_Elem
-use caspt2_module, only: NACTEL, NASHT
+use general_data, only: NACTEL
+use caspt2_module, only: NASHT
 use Definitions, only: wp, iwp
 
 implicit none

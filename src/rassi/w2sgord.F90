@@ -31,6 +31,7 @@ type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
 integer(kind=iwp), intent(in) :: MWS2W(*), NLIST, KWALK(*)
 integer(kind=iwp), intent(out) :: ICNUM(NLIST)
+
 integer(kind=iwp) :: IC, ICONF, IDV, IDW, IOFF, ISYCI, ISYDWN, ISYUP, IUV, IUW, LDIM, LEV, MAWSD, MAWSU, MIPWLK, MV
 integer(kind=iwp), allocatable :: ICS(:)
 integer(kind=iwp), parameter :: MXCPI = 15
@@ -42,7 +43,7 @@ call mma_allocate(ICS,SGS%nLev,Label='ICS')
 
 do ICONF=1,NLIST
   ! Unpack total walk to ICS()
-  call UPKWLK(SGS%nLev,MIPWLK,1,KWALK((ICONF-1)*MIPWLK+1),ICS)
+  call SG_UPKWLK(SGS%nLev,MIPWLK,1,KWALK((ICONF-1)*MIPWLK+1),ICS)
 
   ! Follow upper walk down to SGS%MidLev:
   MAWSU = 0

@@ -41,10 +41,7 @@ end if
 ! -------------------------------
 
 call Get_iArray('nBas',nBas,nSym)
-nBasT = nBas(1)
-do iSym=2,nSym
-  nBasT = nBasT+nBas(iSym)
-end do
+nBasT = sum(nBas(1:nSym))
 if ((nBasT < 1) .or. (nBasT > MxBas)) then
   write(Txt,'(A,I9)') 'nBasT =',nBasT
   call SysAbendMsg(SecNam,'Basis set limits exceeded!',Txt)
@@ -54,10 +51,7 @@ end if
 ! -------------------------------------
 
 nOrb(:) = nBas(:)
-nOrbT = nOrb(1)
-do iSym=2,nSym
-  nOrbT = nOrbT+nOrb(iSym)
-end do
+nOrbT = sum(nOrb(1:nSym))
 if ((nOrbT < 1) .or. (nOrbT > MxBas)) then
   write(Txt,'(A,I9)') 'nOrbT =',nOrbT
   call SysAbendMsg(SecNam,'Orbital limits exceeded!',Txt)
@@ -73,10 +67,7 @@ end do
 ! from INPORB.
 ! ---------------------------------------------------------------
 
-n2Bas = nBas(1)**2
-do iSym=2,nSym
-  n2Bas = n2Bas+nBas(iSym)**2
-end do
+n2Bas = sum(nBas(1:nSym)**2)
 
 nCMO = n2Bas
 call mma_allocate(CMO,nCMO,label='CMO')

@@ -16,7 +16,8 @@ subroutine OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,T2
 use iSD_data, only: iSD
 use caspt2_global, only: LuAPT2, LuCMOPT2, LuGAMMA, OLag
 use caspt2_global, only: CMOPT2
-use caspt2_module, only: IFDW, IFMSCOUP, IFRMS, IFSADREF, IFXMS, iRlxRoot, JSTATE, NASH, NBAS, NBAST, NBMX, NFRO, NISH, NSSH, &
+use general_data, only: NASH
+use caspt2_module, only: IFDW, IFMSCOUP, IFRMS, IFSADREF, IFXMS, iRlxRoot, JSTATE, NBAS, NBAST, NBMX, NFRO, NISH, NSSH, &
                          NSTATE, NSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par

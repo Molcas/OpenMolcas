@@ -22,7 +22,8 @@ subroutine MKBG(DREF,NDREF,FD)
 use Index_Functions, only: iTri, nTri_Elem
 use EQSOLV, only: IDBMAT, IDSMAT
 use caspt2_global, only: ipea_shift, LUSBT
-use caspt2_module, only: EASUM, NAES, NASH, NINDEP, NSYM
+use general_data, only: NASH
+use caspt2_module, only: EASUM, NAES, NINDEP, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Half
 use Definitions, only: wp, iwp

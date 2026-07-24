@@ -24,7 +24,8 @@ use rasscf_global, only: Emy
 use qcmaquis_interface, only: qcmaquis_interface_optimize, qcmaquis_interface_remove_param, qcmaquis_interface_set_state, &
                               qcmaquis_interface_update_integrals_C
 use caspt2_global, only: FIMO, iPrGlb
-use caspt2_module, only: nAsh, nAshT, nFro, nIsh, nOrb, nOsh, nState, nSym
+use general_data, only: NASH
+use caspt2_module, only: nAshT, nFro, nIsh, nOrb, nOsh, nState, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

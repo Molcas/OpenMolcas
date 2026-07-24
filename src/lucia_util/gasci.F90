@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GASCI(ISM,ISPC)
+subroutine GASCI(ISM,ISPC,nTUVX,TUVX)
 ! CI optimization in GAS space number ISPC for symmetry ISM
 !
 ! Jeppe Olsen, Winter of 1995
@@ -31,6 +31,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ISM, ISPC
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
 integer(kind=iwp) :: IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, IOCCLS_ARR(1), IOCTPA, IOCTPB, LBLOCK, LSCR12, LSCR2, MAXA, &
                      MAXA1, MAXB, MAXB1, MAXK, MX_NSPII, MXADKBLK, MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, &
                      MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCH, NBEL, NBLOCK, NDET, NEL, NOCCLS, NOCTPA, NOCTPB, NTTS, NVAR, ZERO_ARR(1)
@@ -246,7 +249,7 @@ if (.not. ((IDIAG == 2) .and. (IRESTR == 1))) then
   I12 = 2
   SHIFT = ECORE_ORIG-ECORE
    ! Note that CI_VEC is used as a scratch array here and below.
-  call GASDIAT(CI_VEC,LUDIA,SHIFT,ICISTR,I12,CBLTP,NBLOCK,CIBT)
+  call GASDIAT(CI_VEC,LUDIA,SHIFT,ICISTR,I12,CBLTP,NBLOCK,CIBT,nTUVX,TUVX)
 
   if ((NOCSF == 1) .and. (ICISTR == 1)) then
     IDISK(LUDIA) = 0

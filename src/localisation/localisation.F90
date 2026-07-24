@@ -26,8 +26,8 @@ subroutine Localisation(iReturn)
 !      HDF5 support
 
 use Localisation_globals, only: AnaAtom, Analysis, AnaPAO, AnaPAO_Save, BName, CMO, DoCNOs, DoDomain, EOrb, EvalER, Ind, iWave, &
-                                LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, MOrig, NamAct, nBas, nCMO, nFro, &
-                                nOrb, nOrb2Loc, nSym, Occ, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
+                                LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, MOrig, NamAct, nBas, nCMO, nFro,  nOrb, &
+                                nOrb2Loc, nSym, Occ, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
 #ifdef _HDF5_
 use Localisation_globals, only: fileorb_id, isHDF5, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_put_dset
@@ -40,7 +40,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: ibo, iCheck, icHour, icMin, IndT(7,8), iOff, iPRway, irc, iSym, iTol, iUHF, iwHour, iwMin, j, jbo, jInd, &
-                     jPrt, jTyp, k, kCMO, kEor, kIndT, kOcc, lMOrig, lOff, LU_, nbo
+                     jPrt, jTyp, k, kCMO, kEor, kIndT, kOcc, lMOrig, lOff, LU_, LuSpool, nbo
 real(kind=wp) :: AddInfoVal, C1, C1_Loc, C2, C2_Loc, CPUtot, cSec, ERFun(2), Functional, W1, W1_Loc, W2, W2_Loc, WLLtot, wSec, &
                  xnr0(8), xnr1, xNrm
 character(len=180) :: Line
@@ -74,8 +74,7 @@ call CWTime(C1,W1)
 ! ----------------------------------------
 
 ! Quick and dirty read of the FileOrb name before INPORB is opened
-LuSpool = 17
-LuSpool = isFreeUnit(LuSpool)
+LuSpool = isFreeUnit(17)
 call SpoolInp(LuSpool)
 rewind(LuSpool)
 call RdNLst(LuSpool,'LOCALISATION')
@@ -169,12 +168,15 @@ else
     if (LocModel == 1) then
       Model = 'Pipe'
       AddInfoString = 'PIPEKFUNCTIONAL'
+      iTol = 6
     else if (LocModel == 2) then
       Model = 'Boys'
       AddInfoString = 'BOYSFUNCTIONAL '
+      iTol = 4
     else if (LocModel == 4) then
       Model = 'Edmi'
       AddInfoString = 'ERFUNCTIONAL   '
+      iTol = 4
     end if
     irc = 0
     call Localise_Iterative(irc,Model,Functional)
@@ -183,7 +185,6 @@ else
       call SysAbendMsg(SecNam,'Localisation failed!',Txt)
     end if
     AddInfoVal = Functional
-    iTol = 4
   else if (LocModel == 3) then
     if (LocPAO) then
       Model = 'PAO '
@@ -468,6 +469,7 @@ end do
 call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,CMO,Occ,EOrb,IndT,Title)
 if (.not. Silent) then
   write(u6,'(1X,A)') 'The LOCORB file has been written.'
+  write(u6,*) 'Namefile = ',Namefile,'Title=',Title,'LU_=',LU_
 end if
 
 ! Write local.h5 file.
@@ -493,9 +495,7 @@ call cls_locwfn()
 iUHF = 0
 Filename = 'MD_LOC'
 call Molden_Interface(iUHF,Namefile,Filename)
-if (.not. Silent) then
-  write(u6,'(1X,A)') 'The MOLDEN file has been written.'
-end if
+if (.not. Silent) write(u6,'(1X,A)') 'The MOLDEN file has been written.'
 
 ! Set return code.
 ! ----------------
@@ -533,10 +533,10 @@ subroutine Error(code)
     WLLtot = W2-W1
     call Cho_CnvTim(CPUtot,icHour,icMin,cSec)
     call Cho_CnvTim(WLLtot,iwHour,iwMin,wSec)
-    write(u6,'(/,1X,A,I8,A,I2,A,F6.2,A)') '*** Total localisation time (CPU) : ',icHour,' hours ',icMin,' minutes ',cSec, &
-                                          ' seconds ***'
-    write(u6,'(1X,A,I8,A,I2,A,F6.2,A,/)') '*** Total localisation time (Wall): ',iwHour,' hours ',iwMin,' minutes ',wSec, &
-                                          ' seconds ***'
+    write(u6,'(/,1X,A,I8,A,I2,A,F6.2,A)') &
+      '*** Total localisation time (CPU) : ',icHour,' hours ',icMin,' minutes ',cSec,' seconds ***'
+    write(u6,'(1X,A,I8,A,I2,A,F6.2,A,/)') &
+      '*** Total localisation time (Wall): ',iwHour,' hours ',iwMin,' minutes ',wSec,' seconds ***'
   end if
 end subroutine Error
 

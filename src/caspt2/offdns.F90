@@ -26,7 +26,8 @@ subroutine OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,nX1,X2,nX2,DPT2,nDPT2,Y,nY,LIST,M
 use Symmetry_Info, only: Mul
 use EQSOLV, only: IFCOUP, LLIST, NLIST
 use Sigma_data, only: IFTEST, INCF1, INCF2, INCX1, INCX2, INCX3, INCY1, INCY2, INCY3, LEN1, LEN2, NLST1, NLST2, VAL1, VAL2
-use caspt2_module, only: NAGEB, NAGTB, NASH, NASUP, NIGEJ, NIGTJ, NISH, NISUP, NORB, NSSH, NSYM, NTGEU, NTGTU, NTUV
+use general_data, only: NASH
+use caspt2_module, only: NAGEB, NAGTB, NASUP, NIGEJ, NIGTJ, NISH, NISUP, NORB, NSSH, NSYM, NTGEU, NTGTU, NTUV
 use Constants, only: One, Two, Three, Six, Half, OneHalf
 use Definitions, only: wp, iwp, u6
 

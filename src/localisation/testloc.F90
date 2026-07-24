@@ -24,6 +24,7 @@ subroutine TestLoc(irc)
 !
 !          Return codes: irc=0 (all OK), irc=1 (failure).
 
+use Index_Functions, only: nTri_Elem
 use Localisation_globals, only: CMO, LocPAO, MOrig, nBas, nFro, nOrb2Loc, nSym
 use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -37,12 +38,9 @@ integer(kind=iwp) :: i, iComp, iOpt, ip0, iSyLbl, iSym, j, jrc, kC, kC1, kD, kOf
 real(kind=wp) :: Tol, Tst, xErr, xNrm
 character(len=80) :: Txt
 character(len=8) :: Label
-logical(kind=iwp) :: Prnt
 real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:), Umat(:)
 character(len=*), parameter :: SecNam = 'TestLoc'
-integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: ddot_
-logical(kind=iwp), parameter :: debug = .false.
 
 call Untested('TestLoc')
 
@@ -64,10 +62,10 @@ end if
 ! --------------------------
 
 lOvlp = nBas(1)**2
-lOaux = 4+nBas(1)*(nBas(1)+1)/2
+lOaux = 4+nTri_Elem(nBas(1))
 do iSym=2,nSym
   lOvlp = lOvlp+nBas(iSym)**2
-  lOaux = lOaux+nBas(iSym)*(nBas(iSym)+1)/2
+  lOaux = lOaux+nTri_Elem(nBas(iSym))
 end do
 call mma_allocate(Ovlp,lOvlp,label='TstOvlp')
 call mma_allocate(Oaux,lOaux,label='TstOaux')
@@ -81,12 +79,11 @@ if (jrc /= 0) then
   write(Txt,'(A,I4)') 'RdOne returned',jrc
   call SysAbendMsg(SecNam,'I/O error!',Txt)
 end if
-Prnt = Debug .and. (iPrintLevel(-1) >= 5)
 kTri = 1
 kSqr = 1
 do iSym=1,nSym
-  call Tri2Rec(Oaux(kTri),Ovlp(kSqr),nBas(iSym),Prnt)
-  kTri = kTri+nBas(iSym)*(nBas(iSym)+1)/2
+  call Tri2Rec(Oaux(kTri),Ovlp(kSqr),nBas(iSym))
+  kTri = kTri+nTri_Elem(nBas(iSym))
   kSqr = kSqr+nBas(iSym)**2
 end do
 call mma_deallocate(Oaux)
@@ -183,17 +180,13 @@ do iSym=1,nSym
   do j=1,nOrb2Loc(iSym)
     kOff = ip0+nOrb2Loc(iSym)*(j-1)
     Tst = abs(Umat(kOff+j)-One)
-    if (Tst > Tol) then
-      mErr = mErr+1
-    end if
+    if (Tst > Tol) mErr = mErr+1
     do i=j+1,nOrb2Loc(iSym)
       Tst = abs(Umat(kOff+i))
       xErr = max(xErr,Tst)
     end do
   end do
-  if (xErr > Tol) then
-    mErr = mErr+1
-  end if
+  if (xErr > Tol) mErr = mErr+1
   if (mErr == 0) then
     call GetUmat_Localisation(Umat(kU),CMO(kC1),Ovlp(kC),CMO(kC1),Scr,nBas(iSym),nOrb2Loc(iSym))
     xErr = -huge(xErr)
@@ -201,9 +194,7 @@ do iSym=1,nSym
     do j=1,nOrb2Loc(iSym)
       kOff = ip0+nOrb2Loc(iSym)*(j-1)
       Tst = abs(Umat(kOff+j)-One)
-      if (Tst > Tol) then
-        mErr = mErr+1
-      end if
+      if (Tst > Tol) mErr = mErr+1
       do i=j+1,nOrb2Loc(iSym)
         Tst = abs(Umat(kOff+i))
         xErr = max(xErr,Tst)

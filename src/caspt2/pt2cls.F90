@@ -14,7 +14,7 @@ subroutine PT2CLS()
 use INPUTDATA, only: CLEANUP_INPUT
 use SUPERINDEX, only: SUPFREE
 use PT2WFN, only: PT2WFN_CLOSE
-use sguga, only: CIS, EXS, SG_Free, SGS
+use sguga, only: SG_Free
 #ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_deinit
 use qcmaquis_interface_cfg, only: dmrg_file
@@ -26,13 +26,16 @@ use caspt2_module, only: DMRG
 use OFembed, only: FMaux
 #endif
 use ChoCASPT2, only: NASplit, NISplit, NumCho_PT2
+use sguga_states, only: SGS, CIS, EXS
+use general_data, only: NASH
 use caspt2_global, only: CMOPT2, DMIX, DREF, DWGT, FIFA, FIMO, IDCIEX, IDSCT, IDTCEX, PREF, TAT, TORB, Weight
-use caspt2_module, only: IfChol, nAsh, nIsh, nSsh, nSym
+use caspt2_module, only: IfChol, nIsh, nSsh, nSym
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc, iSym
+integer(kind=iwp), parameter :: istate=1
 
 if (IfChol) then
   ! Finalize Cholesky information
@@ -57,7 +60,7 @@ if (IfChol) then
 end if
 
 ! Deallocate SGUGA tables:
-call SG_Free(SGS,CIS,EXS)
+call SG_Free(SGS(istate),CIS(istate),EXS(istate))
 
 ! dealloacte DMRG stuff
 #ifdef _DMRG_

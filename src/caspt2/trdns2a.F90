@@ -27,7 +27,8 @@ subroutine TRDNS2A(IVEC,JVEC,DPT2,NDPT2)
 use Index_Functions, only: iTri
 use PrintLevel, only: VERBOSE
 use caspt2_global, only: DREF, iPrGlb
-use caspt2_module, only: nActEl, nAES, nAsh, nAshT, nInDep, nIsh, nISup, nOrb, nSym
+use general_data, only: nActel, nAsh
+use caspt2_module, only: nAES, nAshT, nInDep, nIsh, nISup, nOrb, nSym
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 

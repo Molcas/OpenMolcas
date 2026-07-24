@@ -18,7 +18,8 @@ use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: chovec_coll, chovec_load, chovec_save, NPQ_CHOTYPE, NVLOC_CHOBATCH
 use Cholesky, only: InfVec, nDimRS
 use ChoCASPT2, only: MXCHARR, MXNVC, NCHSPC, NFTSPC, NHTSPC, NUMCHO_PT2
-use caspt2_module, only: nAsh, nBas, nBasT, nBSqT, nBtch, nBtches, nBTri, nFro, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
+use general_data, only: nAsh
+use caspt2_module, only: nBas, nBasT, nBSqT, nBtch, nBtches, nBTri, nFro, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: PotNuc
 use Definitions, only: u6

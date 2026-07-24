@@ -15,13 +15,13 @@ subroutine LPDFT_TDM()
 !> Compute active-space transition 1- and 2-density matrices for LPDFT
 !> and store them in ${Project}_tdm_4_lpdft.h5.
 
-use csfbas, only: CONF
 use Index_Functions, only: nTri_Elem
 use lucia_data, only: CFTP, DStmp, Dtmp, Ptmp
 use Lucia_Interface, only: Lucia_Util
 use input_ras, only: Key
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
 use general_data, only: JOBIPH, NACTEL, NCONF, STSYM
+use sguga_states, only: SGS, EXS, CIS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 #ifdef _HDF5_
@@ -30,7 +30,6 @@ use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_d
 
 implicit none
 integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs, nSpinTdm2
-integer(kind=iwp), allocatable :: kCnf(:)
 real(kind=wp), allocatable :: SpinTdm2(:), Tmp(:), VecL(:), VecR(:)
 #ifdef _HDF5_
 character(len=1024) :: currDir, fileName, project
@@ -68,7 +67,6 @@ write(u6,'(6X,A)') 'Computing and storing active 1-TDM and 2-TDM matrices in '//
 call mma_allocate(Tmp,NConf,Label='Tmp')
 call mma_allocate(VecL,NConf,Label='VecL')
 call mma_allocate(VecR,NConf,Label='VecR')
-call mma_allocate(kCnf,NACTEL,Label='kCnf')
 call mma_allocate(Dtmp,NAC*NAC,Label='Dtmp')
 call mma_allocate(DStmp,NAC*NAC,Label='DStmp')
 call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
@@ -86,11 +84,11 @@ iDisk = IADR15(4)
 dDisk = IADR15(3)
 do jRoot=1,lRoots
   call DDafile(JOBIPH,2,Tmp,nConf,iDisk)
-  call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp,VecL,kCnf)
+  call SG_ReOrd(SGS(1),EXS(1),STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecL)
   kDisk = IADR15(4)
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-    call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp,VecR,kCnf)
+    call SG_ReOrd(SGS(1),EXS(1),STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecR)
     SpinTdm2(:) = 0.0_wp
     call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:),TwoBodyTDM=.true.,Raw2TDM=SpinTdm2(:))
     call scale_spin_tdm2_for_hamiltonian(SpinTdm2,nac)
@@ -133,7 +131,6 @@ write(u6,'(6X,A,I6,A)') 'Stored transition density matrices in HDF5 for ',iPair,
 call mma_deallocate(Tmp)
 call mma_deallocate(VecL)
 call mma_deallocate(VecR)
-call mma_deallocate(kCnf)
 call mma_deallocate(Dtmp)
 call mma_deallocate(DStmp)
 call mma_deallocate(Ptmp)
