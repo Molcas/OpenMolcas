@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PREPSD(WFTP,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,NCONF,CI,DET,detocc,detcoeff,SPTRA)
+subroutine PREPSD(WFTP,iState,LSYM,ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,NCONF,CI,DET,detocc,detcoeff,SPTRA)
 ! Purpose: Given a RASSCF wave function in Split-GUGA format
 ! and an orbital transformation matrix for the purpose of
 ! getting biorthonormal orbitals, prepare a wave function
 ! in the general SD format, using transformed orbitals.
 
-use sguga, only: CIStruct, SGStruct
+use sguga_states, only: SGS, CIS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -23,8 +23,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 character(len=8), intent(in) :: WFTP
-type(SGStruct), intent(in) :: SGS
-type(CIStruct), intent(in) :: CIS
+integer(kind=iwp), intent(in) :: iState
 integer(kind=iwp), intent(in) :: LSYM, ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*), NCONF
 real(kind=wp), intent(in) :: CI(*), SPTRA(*)
 real(kind=wp), intent(_OUT_) :: DET(*)
@@ -37,7 +36,7 @@ if (WFTP == 'GENERAL') then
   ! Transform SGUGA to SymmG:
   call mma_allocate(CTMP,NCONF,Label='CTMP')
   IMODE = 1
-  call SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CI,CTMP)
+  call SYG2SGU(IMODE,SGS(istate),CIS(istate),LSYM,ICNFTAB,ISPNTAB,CI,CTMP)
   ! Transform SymmG to Slater Dets:
   call SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CTMP,DET,detocc,detcoeff,SPTRA)
   call mma_deallocate(CTMP)
