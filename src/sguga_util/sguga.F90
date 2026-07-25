@@ -893,7 +893,18 @@ call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
 SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
   if (present(Do_MkSGUGA)) then
-    if (Do_MkSGUGA) call MkSGUGA(SGS,CIS)
+    if (Do_MkSGUGA) Then
+       call MkSGUGA(SGS,CIS)
+    else
+       SGS%iSpin = 0
+       SGS%nActEl = 0
+
+       ! INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
+       call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
+       CIS%NCSF(:) = 0
+       call mma_allocate(EXS%ICoup,[1,3],[1,1],Label='EXS%ICoup')
+       call mma_allocate(EXS%VTab,[1,1],Label='EXS%VTab')
+    endif
   else
     call MkSGUGA(SGS,CIS)
   end if

@@ -54,25 +54,17 @@ End If
 
 if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) then
 
-  call SG_Init(nSym,nActEl,iSpin,SGS(istate),CIS(istate),                             &
-               nRas,nRasEl,nRsPrt,EXS(istate),                                &
+  call SG_Init(nSym,nActEl,iSpin,SGS(istate),CIS(istate),              &
+               nRas,nRasEl,nRsPrt,EXS(istate),                         &
                xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
 
 else
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS(istate),CIS(istate),                       &
-                     nRas,nRasEl,nRsPrt,                               &
+  call SG_Init_Simple(nSym,nActEl,iSpin,SGS(istate),CIS(istate),       &
+                     nRas,nRasEl,nRsPrt,EXS(istate),                   &
                      xLevel=Level,xL2Act=L2Act,xnLev=nLev,             &
                      xNSM=ISM,Do_MkSGuga=.false.)
-  SGS(istate)%iSpin = 0
-  SGS(istate)%nActEl = 0
-
-  ! INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
-  call mma_allocate(CIS(istate)%NCSF,SGS(istate)%nSym,Label='CIS%NCSF')
-  CIS(istate)%NCSF(:) = 0
   CIS(istate)%NCSF(STSYM) = 1
-  call mma_allocate(EXS(istate)%ICoup,[1,3],[1,1],Label='EXS%ICoup')
-  call mma_allocate(EXS(istate)%VTab,[1,1],Label='EXS%VTab')
 end if
 
 MXCI = maxval(CIS(istate)%NCSF(1:NSYM))
