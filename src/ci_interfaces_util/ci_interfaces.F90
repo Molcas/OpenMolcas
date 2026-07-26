@@ -20,8 +20,8 @@ Public :: Mk_H_Psi, Mk_pdms
 
 contains
 
-Subroutine Mk_H_Psi(SGS,EXS,CIS,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb, &
-                    nTU,TU,nTUVX,TUVX)
+Subroutine Mk_H_Psi(iState, STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
+use sguga, only: SGS, EXS, CIS
 use Lucia_Interface, only: Lucia_Util
 use lucia_data, only: Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
@@ -31,10 +31,7 @@ use Constants, only: Zero
 use faroald, only: my_norb, sigma_update, htu, gtuvx
 Implicit None
 
-type(SGStruct), intent(in) :: SGS
-type(EXStruct), intent(in) :: EXS
-type(CIStruct), intent(in) :: CIS
-integer(kind=iwp), intent(in):: STSYM, nCSF
+integer(kind=iwp), intent(in):: iState, STSYM, nCSF
 real(kind=wp), intent(in) :: CI_Vec(nCSF)
 real(kind=wp), intent(out) :: Sigma_Vec(nCSF)
 integer(kind=iwp), intent(in) :: ntemp,ndeta,ndetb
@@ -44,6 +41,8 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
+
+Associate (SGS=>SGS(iState),CIS=>CIS(iState),EXS=>EXS(iState))
 
 if (DOFARO) then
 
@@ -114,6 +113,8 @@ else
   call CSDTVC(Sigma_Vec,sigtemp,2,stSym,1)
 
 end if
+
+End Associate
 
 End Subroutine Mk_H_Psi
 

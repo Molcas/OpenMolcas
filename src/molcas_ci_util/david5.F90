@@ -14,7 +14,6 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,T
 use timers, only: TimeDavid, TimeSigma
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use ci_interfaces, only: Mk_H_Psi
-use sguga, only: SGS, EXS, CIS
 use general_data, only: ITERFILE, LUDAVID, NCONF, NSEL, STSYM
 use faroald, only: ndeta, ndetb
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
@@ -116,8 +115,7 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    Call Mk_H_Psi(SGS(istate),EXS(istate),CIS(istate),STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb, &
-                  nTU,TU,nTUVX,TUVX)
+    Call Mk_H_Psi(iState,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb,nTU,TU,nTUVX,TUVX)
 
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)
