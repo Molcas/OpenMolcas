@@ -82,8 +82,9 @@ use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, IC
                          IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
-use sguga, only: CIS, SGS, EXS
+use rasscf_files, only: JOBIPH
+use general_data, only: CRVec, ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
+use sguga, only: CIS, SGS
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half

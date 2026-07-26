@@ -49,7 +49,8 @@ use rasscf_global, only: ChemPS2_blb, ChemPS2_lrestart, ChemPS2_Noise, ChemPS2_r
 #endif
 use PrintLevel, only: DEBUG, TERSE, USUAL, VERBOSE
 use output_ras, only: IPRLOC
-use general_data, only: CleanMask, ISPIN, JOBIPH, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, &
+use rasscf_files, only: JOBIPH
+use general_data, only: CleanMask, ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, &
                         NSSH, NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM
 use spinfo, only: NCSASM, NDTASM
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV

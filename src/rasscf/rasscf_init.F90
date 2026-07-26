@@ -38,8 +38,9 @@ use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoo
                          KSDFT, kTight, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NewFock, NonEq, NQUNE, NROOTS, &
                          OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXSel, ThFact, Thre, ThrEn, &
                          ThrSX, ThrTE, Title, TMin, Weight
+use rasscf_files, only: STARTORBFILE
 use general_data, only: ISPIN, LOWDIN_ON, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, &
-                        NSEL, NSSH, STARTORBFILE, STSYM, SXDAMP
+                        NSEL, NSSH, STSYM, SXDAMP
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, ISPEED
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half

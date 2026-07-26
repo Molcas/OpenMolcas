@@ -25,7 +25,8 @@ subroutine ReadVC_m(CMO)
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use mcpdft_output, only: iPrGlb, iPrLoc
 use mcpdft_input, only: mcpdft_options
-use general_data, only: invec, jobiph, jobold, ntot2
+use rasscf_files, only: jobiph, jobold
+use general_data, only: invec, ntot2
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_fetch_dset, mh5_open_file_r
 #endif

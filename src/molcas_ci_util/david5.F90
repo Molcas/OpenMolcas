@@ -14,7 +14,8 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,T
 use timers, only: TimeDavid, TimeSigma
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use ci_interfaces, only: Mk_H_Psi
-use general_data, only: ITERFILE, LUDAVID, NCONF, NSEL, STSYM
+use rasscf_files, only: ITERFILE, LUDAVID
+use general_data, only: NCONF, NSEL, STSYM
 use faroald, only: ndeta, ndetb
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use output_ras, only: IPRLOC, RC_CI

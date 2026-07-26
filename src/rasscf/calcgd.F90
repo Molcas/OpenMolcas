@@ -23,7 +23,8 @@ subroutine CalcGD(GD,nGD)
 use lucia_data, only: Dtmp, DStmp
 use Lucia_Interface, only: Lucia_Util
 use rasscf_global, only: iADR15, lRoots, NAC
-use general_data, only: JOBIPH, NCONF
+use rasscf_files, only: JOBIPH
+use general_data, only: NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

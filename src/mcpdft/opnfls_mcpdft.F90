@@ -15,7 +15,7 @@
 subroutine open_files_mcpdft(DSCF)
 
 use Fock_util_global, only: docholesky
-use general_data, only: jobiph, jobold, luinta, luintm, luonel
+use rasscf_files, only: jobiph, jobold, luinta, luintm, luonel
 use Definitions, only: iwp, u6
 
 implicit none

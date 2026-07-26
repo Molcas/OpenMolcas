@@ -15,7 +15,7 @@ use sguga, only: SG_Free
 use Str_Info, only: CNSM, CFTP_MCLR=>CFTP
 use lucia_data, only: CONF_OCC, CFTP
 use input_mclr, only: nConf, nCSF, nSym, State_Sym
-use sguga, only: CIS, EXS, SGS
+use sguga, only: CIS, SGS
 use stdalloc, only: mma_allocate, mma_deallocate
 
 use Definitions, only: wp, iwp

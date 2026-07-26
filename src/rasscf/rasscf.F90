@@ -81,7 +81,8 @@ use rasscf_global, only: CBLBM, CMAX, Conv, DE, DOBLOCKDMRG, DoDMRG, DoFaro, DoF
                          ThrSX, THRTE, TMin, Tot_Charge, VIA_DFT, Weight
 use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
-use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, ITERFILE, JOBIPH, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
+use rasscf_files, only: ITERFILE, JOBIPH
+use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
                         NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
 use sguga, only: CIS
 use DWSol, only: DWSol_final, DWSol_init, DWSolv

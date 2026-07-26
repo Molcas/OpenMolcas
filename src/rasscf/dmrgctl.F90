@@ -51,7 +51,8 @@ use rasscf_global, only: DFTFOCK, ExFac, iAdr15, iPCMRoot, iRoot, ITER, KSDFT, l
                          S, Weight
 use PrintLevel, only: DEBUG, INSANE
 use output_ras, only: IPRLOC
-use general_data, only: ISPIN, jobiph, nactel, nash, ntot2
+use rasscf_files, only: jobiph
+use general_data, only: ISPIN, nactel, nash, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
