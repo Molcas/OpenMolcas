@@ -21,7 +21,7 @@ use sguga, only: CIS
 use general_data, only: iSpin, nActel, nAsh, nEle3=>nElec3, nHole1, STSym, nLev
 use caspt2_module, only: DMRG, DoCumulant, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
 use stdalloc, only: mma_allocate
-use rasdef, only: nRas,nRasEl,nRsPrt
+use general_data, only: nRas,nRasEl,nRsPrt
 
 use Definitions, only: iwp
 

@@ -17,7 +17,7 @@ use frenkel_global_vars, only: DoCoul
 use sguga, only: CIS
 use sguga, only: SG_Free
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
-use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
+use general_data, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG
 use rassi_aux, only: AO_Mode, iDisk_TDM, ipglob, jDisk_TDM
 use rassi_data, only: ENUC, NASH, NASHT, NCMO, NDEL, NFRO, NISH, NISHT, NOSH, NSSH, NTDMAB, NTDMZZ, NTRA

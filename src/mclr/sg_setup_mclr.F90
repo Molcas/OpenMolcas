@@ -15,7 +15,7 @@ use molcas, only: MxLev
 use sguga, only: MkCOT, MkSGNum, SG_Init_Simple
 use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
 use sguga, only: SGS, CIS, EXS
-use rasdef, only: nRas, nRasEl, nRsPrt
+use general_data, only: nRas, nRasEl, nRsPrt
 use Definitions, only: iwp
 
 implicit none

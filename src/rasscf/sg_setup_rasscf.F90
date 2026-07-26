@@ -25,7 +25,7 @@ use rasscf_global, only: DoDMRG
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate
 #endif
-use rasdef, only: nRas,nRasEl,nRsPrt
+use general_data, only: nRas,nRasEl,nRsPrt
 use Definitions, only: wp, iwp, u6
 
 implicit none

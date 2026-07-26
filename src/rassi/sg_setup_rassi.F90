@@ -15,7 +15,7 @@ use Molcas, only: MxLev
 use sguga, only: SG_Init
 use rassi_aux, only: Level
 use rassi_data, only: NASH
-use rasdef, only: nRas, nRasEl, nRsPrt
+use general_data, only: nRas, nRasEl, nRsPrt
 use Definitions, only: iwp
 
 implicit none

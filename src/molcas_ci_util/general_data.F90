@@ -30,7 +30,7 @@ module general_data
 ! LUDAVID    : Intermediate results of the diagonalization
 !              (binary, temporary)
 
-use Molcas, only: MxSym
+use Molcas, only: MxSym, MxGas
 use Definitions, only: wp, iwp
 
 implicit none
@@ -41,6 +41,7 @@ integer(kind=iwp) :: INVEC, ISPIN, ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LU
                      MALTER(MAXALTER,3), NACTEL, NALTER, NASH(mxSym), NBAS(mxSym), NCONF, NCRVEC, NDEL(mxSym), NDELT, NELEC3, &
                      NFRO(mxSym), NFROT, NHOLE1, NISH(mxSym), NORB(mxSym), NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T, NRS3(mxSym), &
                      NRS3T, NSEL, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, NLEV
+integer(kind=iwp) :: nRas(MxSym,MxGAS), nRasEl(MxGAS), nRsPrt
 real(kind=wp) :: SXDAMP
 character(len=256) :: StartOrbFile
 logical(kind=iwp) :: Lowdin_ON
@@ -52,4 +53,5 @@ public :: CleanMask, CRPROJ, CRVEC, INVEC, ISPIN, ITERFILE, JOBIPH, JOBOLD, Lowd
           NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, StartOrbFile, STSYM, SXDAMP, &
           NLEV
 
+public :: nRas, nRasEl, nRsPrt
 end module general_data
