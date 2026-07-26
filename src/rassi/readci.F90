@@ -13,7 +13,7 @@ subroutine READCI(ISTATE,iStateX,NCI,CI)
 
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: JBNUM, LROOT
-use sguga_States, only: CIS, SGS
+use sguga, only: CIS, SGS
 use Cntrl, only: CITHR, IRREP, iTOC15, JBNAME, LuIph, MLTPLT, NSTATE, PRCI
 use Molcas, only: MxRoot
 #ifdef _HDF5_

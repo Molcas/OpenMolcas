@@ -23,14 +23,12 @@ set (sources
      sg_reord.F90
      sg_upkwlk.F90
      sguga.F90
-     sguga_states.F90
      stepvector_next.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      sguga.F90
-     sguga_states.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

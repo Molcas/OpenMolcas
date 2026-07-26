@@ -45,7 +45,7 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 !***********************************************************************
 
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
-use sguga_states, only: SGS, EXS, CIS
+use sguga, only: SGS, EXS, CIS
 use general_data, only: JOBIPH, JOBOLD, LUDAVID, NCONF, NSEL, STSYM
 use gas_data, only: iDoGas
 #ifdef _HDF5_

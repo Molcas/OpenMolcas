@@ -16,7 +16,7 @@ subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
 use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use BDerNEV, only: Gact, Gder
-use sguga_states, only: SGS, CIS, EXS
+use sguga, only: SGS, CIS, EXS
 use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
 use general_data, only: NACTEL, STSYM
 use caspt2_module, only: JSTATE, NSYM, MXCI

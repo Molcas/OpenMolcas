@@ -18,7 +18,7 @@ use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use sguga_states, only: SGS, CIS, EXS
+use sguga, only: SGS, CIS, EXS
 use caspt2_global, only: iPrGlb, nbuf1_grad
 use general_data, only: nActEl, STSym
 use caspt2_module, only: EPSA, MxCI, nSym

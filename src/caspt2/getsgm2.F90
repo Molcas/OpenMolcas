@@ -33,7 +33,7 @@ subroutine GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
 
 use sguga, only: sg_epq_psi
 use Symmetry_Info, only: Mul
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

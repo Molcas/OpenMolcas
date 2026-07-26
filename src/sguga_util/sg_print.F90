@@ -12,7 +12,7 @@
 subroutine SG_Print(iState)
 
 use Definitions, only: iwp, u6
-use sguga_states, only: SGS
+use sguga, only: SGS
 
 implicit none
 integer(kind=iwp), intent(in) :: iState

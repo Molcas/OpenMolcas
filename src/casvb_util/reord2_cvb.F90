@@ -17,7 +17,7 @@ subroutine reord2_cvb(cfrom,cto,imode)
 ! from SGA CSFs to split-graph-GUGA CSFs.
 
 use general_data, only: STSYM
-use sguga_states, only: SGS, EXS, CIS
+use sguga, only: SGS, EXS, CIS
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

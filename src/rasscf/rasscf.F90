@@ -83,7 +83,7 @@ use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, ITERFILE, JOBIPH, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
                         NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
 use Molcas, only: MxRoot
 use RASDim, only: MxIter

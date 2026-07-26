@@ -13,7 +13,7 @@ subroutine SG_setup_RASSI(nSym,nActEl,iSpin,iState)
 
 use Molcas, only: MxLev
 use sguga, only: SG_Init
-use sguga_states, only: SGS, CIS, EXS
+use sguga, only: SGS, CIS, EXS
 use rassi_aux, only: Level
 use rassi_data, only: NASH
 use rasdef, only: nRas, nRasEl, nRsPrt

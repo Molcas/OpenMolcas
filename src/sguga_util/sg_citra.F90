@@ -126,7 +126,7 @@ Contains
 ! Performs the single-orbital transformations
 subroutine SG_SSOTRA(iState,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
 
-use sguga_states, only: SGS, CIS, EXS
+use sguga, only: SGS, CIS, EXS
 implicit none
 integer(kind=iwp), intent(in) :: iState, ISYM, LSM, NA, NO, NCO
 real(kind=wp), intent(in) :: TRA(NO,NO)

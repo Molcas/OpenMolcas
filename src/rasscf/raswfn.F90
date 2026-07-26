@@ -43,7 +43,7 @@ subroutine cre_raswfn()
   use input_ras, only: Key
   use general_data, only: ISPIN, NACTEL, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, NTOT, &
                           NTOT2, STSYM
-  use sguga_states, only: SGS
+  use sguga, only: SGS
   use spinfo, only: NDET
   use Molcas, only: MxAct, MxSym
   use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT

@@ -64,7 +64,7 @@ use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri_Elem
 use general_data, only: STSYM
 use caspt2_module, only: MXCI, NTUVES
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS
 use SUPERINDEX, only: KTUV
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk

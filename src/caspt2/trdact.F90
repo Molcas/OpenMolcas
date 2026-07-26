@@ -26,7 +26,7 @@ subroutine TRDACT(IVEC,JVEC,DTU)
 ! in the notation of the comments.
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
-use sguga_states, only: SGS
+use sguga, only: SGS
 use caspt2_global, only: IDTCEX, LUCIEX
 use general_data, only: nAsh, STSym, nLev
 use caspt2_module, only: iASym, iSCF, jState, MxCI, nAes, nAshT, nAshT, nConf, nSym

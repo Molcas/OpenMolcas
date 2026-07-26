@@ -12,7 +12,7 @@
 subroutine TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
 
 use sguga, only: sg_epq_psi
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, SGS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, OneHalf
 use Definitions, only: wp, iwp
