@@ -13,7 +13,6 @@ subroutine SG_setup_RASSI(nSym,nActEl,iSpin,iState)
 
 use Molcas, only: MxLev
 use sguga, only: SG_Init
-use sguga, only: SGS, CIS, EXS
 use rassi_aux, only: Level
 use rassi_data, only: NASH
 use rasdef, only: nRas, nRasEl, nRsPrt
@@ -35,9 +34,8 @@ end do
 
 L2Act(1:MxLev) = [(iq,iq=1,MxLev)]
 
-call SG_Init(nSym,nActEl,iSpin,SGS(iState),CIS(iState),    &
+call SG_Init(iState,nSym,nActEl,iSpin,    &
              nRas,nRasEl,nRsPrt,                           &
-             EXS(iState),                                  &
              xLevel=Level,xL2Act=L2Act,xNLEV=nLev,xNSM=ISM)
 
 end subroutine SG_setup_RASSI

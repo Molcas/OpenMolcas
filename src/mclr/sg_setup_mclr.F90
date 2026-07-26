@@ -60,9 +60,8 @@ End If
 
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
-Call SG_Init_Simple(nSym,nActEl,iSpin,SGS(istate),CIS(istate),     &
+Call SG_Init_Simple(istate,nSym,nActEl,iSpin,     &
                     nRas,nRasEl,nRsPrt,            &
-                    EXS(istate),                           &
                     xLevel=Level, xL2Act=Level,    &
                     xNLEV=nLev, xNSM=ISM)
 

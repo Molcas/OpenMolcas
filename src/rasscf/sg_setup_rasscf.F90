@@ -77,9 +77,8 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call SG_Init'
-      call SG_Init(nSym,nActEl,iSpin,SGS(istate),CIS(istate),                    &
+      call SG_Init(iState,nSym,nActEl,iSpin,                    &
                    nRas,nRasEl,nRsPrt,                           &
-                   EXS(istate),                                          &
                    xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
       if (SGS(istate)%NVERT0 == 0) then

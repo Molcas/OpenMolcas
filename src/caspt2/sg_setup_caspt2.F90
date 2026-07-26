@@ -17,7 +17,7 @@ use Molcas, only: MxLev
 use caspt2_qmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
 use sguga, only: SG_Init, SG_Init_Simple
-use sguga, only: CIS, EXS, SGS
+use sguga, only: CIS
 use general_data, only: iSpin, nActel, nAsh, nEle3=>nElec3, nHole1, STSym, nLev
 use caspt2_module, only: DMRG, DoCumulant, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
 use stdalloc, only: mma_allocate
@@ -27,7 +27,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ISM(MxLev), ISYM, IT, nRs1T
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: iState=1
 
 nLEV = 0
 do ISYM=1,NSYM
@@ -54,20 +54,20 @@ End If
 
 if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) then
 
-  call SG_Init(nSym,nActEl,iSpin,SGS(istate),CIS(istate),              &
-               nRas,nRasEl,nRsPrt,EXS(istate),                         &
+  call SG_Init(iState,nSym,nActEl,iSpin,             &
+               nRas,nRasEl,nRsPrt,                         &
                xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
 
 else
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS(istate),CIS(istate),       &
-                     nRas,nRasEl,nRsPrt,EXS(istate),                   &
+  call SG_Init_Simple(iState,nSym,nActEl,iSpin,       &
+                     nRas,nRasEl,nRsPrt,                   &
                      xLevel=Level,xL2Act=L2Act,xnLev=nLev,             &
                      xNSM=ISM,Do_MkSGuga=.false.)
-  CIS(istate)%NCSF(STSYM) = 1
+  CIS(iState)%NCSF(STSYM) = 1
 end if
 
-MXCI = maxval(CIS(istate)%NCSF(1:NSYM))
+MXCI = maxval(CIS(iState)%NCSF(1:NSYM))
 
 ! NOTE: AT THIS POINT, WE HAVE ALLOCATED MEMORY SPACE FOR SGUGA USE:
 ! MVL,MVR,NOW,IOW,NOCP,IOCP,NOCSF,IOCSF,ICASE,ICOUP,VTAB,TMP.

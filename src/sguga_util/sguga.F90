@@ -788,79 +788,72 @@ end subroutine RMVERT
 
 end subroutine MKSGUGA
 
-subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
+subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
                    nRas,nRasEl,nRsPrt,                             &
-                   EXS,xLevel,xL2Act,xNLEV,xNSM)
+                   xLevel,xL2Act,xNLEV,xNSM)
 
-  integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
-  type(SGStruct), intent(inout) :: SGS
-  type(CIStruct), intent(inout) :: CIS
+  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt),nRasEl(nRsPrt)
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xnLev, xNSM(MxLev)
-  type(EXStruct), intent(inout) :: EXS
-
   type(TRStruct) :: TRS
 
-  call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,        &
+  call SG_Init_Simple(iState,nSym,nActEl,iSpin,        &
                       nRas,nRasEl,nRsPrt,               &
-                      EXS,xLevel,xL2Act,xnLev,xNSM)
+                      xLevel,xL2Act,xnLev,xNSM)
 
 ! DECIDE MIDLEV AND CALCULATE MODIFIED ARC WEIGHT TABLE.
 
-  call MKMAW(SGS)
+  call MKMAW(SGS(iState))
 
 !     FORM VARIOUS OFFSET TABLES:
 
 !     CONSTRUCT THE CASE LIST
 
-  call MKCOT(SGS,CIS)
+  call MKCOT(SGS(iState),CIS(iState))
 
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
 
-  call MKSEG(SGS,CIS,EXS)
+  call MKSEG(SGS(iState),CIS(iState),EXS(iState))
 
   !Create the transition infrastructure.
-  Call MkTrans(SGS,CIS,TRS)
+  Call MkTrans(SGS(iState),CIS(iState),TRS)
 
   ! Count coupling coefficients in compressed blocks indexed by excitation/operator type, symmetry and midvertex.
-  call MkNRCOUP(SGS,CIS,EXS,TRS)
+  call MkNRCOUP(SGS(iState),CIS(iState),EXS(iState),TRS)
 
   ! Explicitly generates the compressed coupling tuples '(left walk, right walk, value index)' and compacts repeated
   ! numerical values into 'VTab'.
-  call MKCOUP(SGS,CIS,EXS,TRS)
+  call MKCOUP(SGS(iState),CIS(iState),EXS(iState),TRS)
 
   Call Trans_Free(TRS)
 
 end subroutine SG_Init
 
-subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
+subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
                           nRas,nRasEl,nRsPrt,                     &
-                          EXS,xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
+                          xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
 
-  integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
-  type(SGStruct), intent(inout) :: SGS
-  type(CIStruct), intent(inout) :: CIS
+  integer(kind=iwp), intent(in) :: iState, nSym, nActEl, iSpin
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt)
-  type(EXStruct), intent(inout) :: EXS
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xNLEV, xNSM(MxLev)
   logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
   integer(kind=iwp) :: iSym
 
-  SGS%IFRAS=0
-  If (nRsPrt==3) SGS%IFRAS=1
+  SGS(istate)%IFRAS=0
+  If (nRsPrt==3) SGS(istate)%IFRAS=1
   Do iSym = 1, nSym
-     If (Sum(nRas(iSym,1:nRsPrt))/=0) SGS%IFRAS=SGS%IFRAS+1
+     If (Sum(nRas(iSym,1:nRsPrt))/=0) SGS(istate)%IFRAS=SGS(istate)%IFRAS+1
   End Do
-  SGS%nRasEL(1:nRsPrt)=nRasEl(1:nRsPrt)
-  SGS%nRas(1:MxSym,1:nRsPrt)=nRas(1:MxSym,1:nRsPrt)
-  SGS%nRsPrt=nRsPrt
+  SGS(istate)%nRasEL(1:nRsPrt)=nRasEl(1:nRsPrt)
+  SGS(istate)%nRas(1:MxSym,1:nRsPrt)=nRas(1:MxSym,1:nRsPrt)
+  SGS(istate)%nRsPrt=nRsPrt
 
   ! Make sure that we start from a clean slate.
-  call SG_Free(SGS,CIS,EXS)
+  call SG_Free(SGS(istate),CIS(istate),EXS(istate))
 
   if (nSym < 1 .or. nSym > 8) then
     write(u6,*) ' SG_Init_Simple: illegal nSym value:',nSym
@@ -875,38 +868,38 @@ subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
     call Abend()
   end if
 
-  SGS%nSym=nSym
-  SGS%iSpin=iSpin
-  SGS%nActEl=nActEl
+  SGS(istate)%nSym=nSym
+  SGS(istate)%iSpin=iSpin
+  SGS(istate)%nActEl=nActEl
 
-  if (present(xLevel)) SGS%Level(:) = xLevel(:)
-  if (present(xL2Act)) SGS%L2Act(:) = xL2Act(:)
+  if (present(xLevel)) SGS(istate)%Level(:) = xLevel(:)
+  if (present(xL2Act)) SGS(istate)%L2Act(:) = xL2Act(:)
 ! Initiate if not already set externally.
-  if (SGS%LEVEL(1) == 0) SGS%LEVEL(1:SGS%nLev) = [(iq,iq=1,SGS%nLev)]
-  if (SGS%L2Act(1) == 0) SGS%L2Act(1:SGS%nLev) = [(iq,iq=1,SGS%nLev)]
+  if (SGS(istate)%LEVEL(1) == 0) SGS(istate)%LEVEL(1:SGS(istate)%nLev) = [(iq,iq=1,SGS(istate)%nLev)]
+  if (SGS(istate)%L2Act(1) == 0) SGS(istate)%L2Act(1:SGS(istate)%nLev) = [(iq,iq=1,SGS(istate)%nLev)]
 
 ! CREATE THE SYMMETRY INDEX VECTOR
 
-  SGS%NLEV = xnLEV
+  SGS(istate)%NLEV = xnLEV
 ! Allocate Level to Symmetry table ISm:
-  call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
-  SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
+  call mma_allocate(SGS(istate)%ISM,SGS(istate)%nLev,Label='SGS%ISM')
+  SGS(istate)%ISM(1:SGS(istate)%nLev) = xNSM(1:SGS(istate)%nLev)
 
   if (present(Do_MkSGUGA)) then
     if (Do_MkSGUGA) Then
-       call MkSGUGA(SGS,CIS)
+       call MkSGUGA(SGS(istate),CIS(istate))
     else
-       SGS%iSpin = 0
-       SGS%nActEl = 0
+       SGS(istate)%iSpin = 0
+       SGS(istate)%nActEl = 0
 
        ! INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
-       call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
-       CIS%NCSF(:) = 0
-       call mma_allocate(EXS%ICoup,[1,3],[1,1],Label='EXS%ICoup')
-       call mma_allocate(EXS%VTab,[1,1],Label='EXS%VTab')
+       call mma_allocate(CIS(istate)%NCSF,SGS(istate)%nSym,Label='CIS%NCSF')
+       CIS(istate)%NCSF(:) = 0
+       call mma_allocate(EXS(istate)%ICoup,[1,3],[1,1],Label='EXS%ICoup')
+       call mma_allocate(EXS(istate)%VTab,[1,1],Label='EXS%VTab')
     endif
   else
-    call MkSGUGA(SGS,CIS)
+    call MkSGUGA(SGS(istate),CIS(istate))
   end if
 
 end subroutine SG_Init_Simple
