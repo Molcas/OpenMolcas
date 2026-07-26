@@ -853,7 +853,7 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
   SGS(istate)%nRsPrt=nRsPrt
 
   ! Make sure that we start from a clean slate.
-  call SG_Free(SGS(istate),CIS(istate),EXS(istate))
+  call SG_Free(istate)
 
   if (nSym < 1 .or. nSym > 8) then
     write(u6,*) ' SG_Init_Simple: illegal nSym value:',nSym
@@ -904,12 +904,12 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
 
 end subroutine SG_Init_Simple
 
-subroutine SG_Free(SGS,CIS,EXS)
+subroutine SG_Free(iState)
 ! PURPOSE: FREE THE SGUGA TABLES
 
-type(SGStruct), intent(inout) :: SGS
-type(CIStruct), intent(inout) :: CIS
-type(EXStruct), optional, intent(inout) :: EXS
+integer(kind=iwp), intent(in):: iState
+
+Associate (SGS=>SGS(iState),CIS=>CIS(iState),EXS=>EXS(iState))
 
 call mma_deallocate(SGS%ISM,safe='*')
 call mma_deallocate(SGS%DRT0,safe='*')
@@ -934,20 +934,20 @@ call mma_deallocate(CIS%VSGM,safe='*')
 call mma_deallocate(CIS%IVR,safe='*')
 call mma_deallocate(CIS%ISGM,safe='*')
 
-if (present(EXS)) then
- call mma_deallocate(EXS%NOCP,safe='*')
- call mma_deallocate(EXS%IOCP,safe='*')
- call mma_deallocate(EXS%ICoup,safe='*')
- call mma_deallocate(EXS%VTab,safe='*')
- call mma_deallocate(EXS%SGTMP,safe='*')
- call mma_deallocate(EXS%MVL,safe='*')
- call mma_deallocate(EXS%MVR,safe='*')
- call mma_deallocate(EXS%USGN,safe='*')
- call mma_deallocate(EXS%LSGN,safe='*')
- call mma_deallocate(EXS%I1list,safe='*')
- call mma_deallocate(EXS%I2list,safe='*')
- call mma_deallocate(EXS%Xlist,safe='*')
-end if
+call mma_deallocate(EXS%NOCP,safe='*')
+call mma_deallocate(EXS%IOCP,safe='*')
+call mma_deallocate(EXS%ICoup,safe='*')
+call mma_deallocate(EXS%VTab,safe='*')
+call mma_deallocate(EXS%SGTMP,safe='*')
+call mma_deallocate(EXS%MVL,safe='*')
+call mma_deallocate(EXS%MVR,safe='*')
+call mma_deallocate(EXS%USGN,safe='*')
+call mma_deallocate(EXS%LSGN,safe='*')
+call mma_deallocate(EXS%I1list,safe='*')
+call mma_deallocate(EXS%I2list,safe='*')
+call mma_deallocate(EXS%Xlist,safe='*')
+
+End Associate
 
 end subroutine SG_Free
 

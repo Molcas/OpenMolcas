@@ -14,7 +14,7 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use sguga, only: SGS, CIS, EXS
+use sguga, only: CIS
 use sguga, only: SG_Free
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
@@ -1163,10 +1163,10 @@ if (mstate_dens) then
 end if
 
 if (WFTP1 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(SGS(iState1),CIS(iState1),EXS(iState1))
+  if (.not. doDMRG) call SG_Free(iState1)
 end if
 if (WFTP2 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(SGS(iState2),CIS(iState2),EXS(iState2))
+  if (.not. doDMRG) call SG_Free(iState2)
 end if
 
 if (JOB1 /= JOB2) then

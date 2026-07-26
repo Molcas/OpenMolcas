@@ -72,6 +72,6 @@ Call mma_deallocate(CINEW)
 call SG_PrWF(SGS(istate),CIS(istate),pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)
 #endif
 
-call SG_Free(SGS(istate),CIS(istate),EXS(istate))
+call SG_Free(iState)
 
 end subroutine sg2symg

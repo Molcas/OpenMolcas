@@ -1776,8 +1776,7 @@ if (Do_OFemb) then
   end if
 end if
 
-if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) call SG_Free(SGS(istate),CIS(istate), &
-                                                                                                      EXS(istate))
+if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) call SG_Free(iState)
 
 if (DoFaro) then
   call faroald_free()
