@@ -225,7 +225,7 @@ integer(kind=iwp) :: NCP_Max
 Type (SGStruct) :: SGS(3)
 Type (CIStruct) :: CIS(3)
 Type (EXStruct) :: EXS(3)
-Logical(kind=iwp) :: State_is_used(2)=[.False.,.False.]
+Logical(kind=iwp) :: State_is_used(3)=[.False.,.False.,.False.]
 
 Public:: SGS, CIS, EXS, State_is_used
 
@@ -843,6 +843,12 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
   logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
   integer(kind=iwp) :: iSym
 
+  If (State_is_used(iState)) Then
+     Write (u6,*) 'SG_Init_Simple: State is already initiated'
+     Write (u6,*) 'iState: ',iState
+     Call abend()
+  End If
+
   SGS(istate)%IFRAS=0
   If (nRsPrt==3) SGS(istate)%IFRAS=1
   Do iSym = 1, nSym
@@ -854,6 +860,8 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
 
   ! Make sure that we start from a clean slate.
   call SG_Free(istate)
+  State_is_used(iState)=.True.
+  Write (6,*) 'SG_init_Simple: State_is_used(istate)=', State_is_used(istate)
 
   if (nSym < 1 .or. nSym > 8) then
     write(u6,*) ' SG_Init_Simple: illegal nSym value:',nSym
@@ -909,6 +917,8 @@ subroutine SG_Free(iState)
 
 integer(kind=iwp), intent(in):: iState
 
+If (.Not.State_is_used(iState)) Return
+
 Associate (SGS=>SGS(iState),CIS=>CIS(iState),EXS=>EXS(iState))
 
 call mma_deallocate(SGS%ISM,safe='*')
@@ -948,6 +958,8 @@ call mma_deallocate(EXS%I2list,safe='*')
 call mma_deallocate(EXS%Xlist,safe='*')
 
 End Associate
+
+State_is_used(iState)=.False.
 
 end subroutine SG_Free
 
