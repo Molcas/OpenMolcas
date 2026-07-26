@@ -13,7 +13,6 @@ subroutine READCI(ISTATE,iStateX,NCI,CI)
 
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: JBNUM, LROOT
-use sguga, only: CIS, SGS
 use Cntrl, only: CITHR, IRREP, iTOC15, JBNAME, LuIph, MLTPLT, NSTATE, PRCI
 use Molcas, only: MxRoot
 #ifdef _HDF5_
@@ -92,7 +91,7 @@ if ((IPGLOB > 0) .and. PRCI) then
   write(u6,*) ' Its symmetry  =          ',IRREP(JOB)
   write(u6,*) ' Spin multiplicity=       ',MLTPLT(JOB)
   LSYM = IRREP(JOB)
-  call SG_PRWF(SGS(iStatex),CIS(iStatex),LSYM,CITHR,MLTPLT(JOB),CI,NCI,.FALSE.,LUDUM)
+  call SG_PRWF(iStatex,LSYM,CITHR,MLTPLT(JOB),CI,NCI,.FALSE.,LUDUM)
 end if
 
 end subroutine READCI

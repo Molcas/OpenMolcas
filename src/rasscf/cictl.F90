@@ -293,6 +293,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     call mma_allocate(PScr,NACPR2,Label='PScr')
     if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
     call mma_deallocate(PScr)
+
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
@@ -628,7 +629,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
               call Molcas_open(LuVecDet,filename)
               write(LuVecDet,'(8i4)') nish
             end if
-            call SG_PrWF(SGS(istate),CIS(istate),STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+            call SG_PrWF(iState,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
             ! Close GronOR vecdet file (tps/cdg 20210430)
             if (Key('PRSD')) close(LuVecDet)
           end if

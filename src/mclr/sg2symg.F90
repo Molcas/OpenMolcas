@@ -47,7 +47,7 @@ if (pState_sym /= state_sym) iss = 2
 #ifdef _DEBUGPRINT_
 write(u6,101)
 write(u6,102) PRWTHR
-call SG_PrWF(SGS(istate),CIS(istate),pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)
+call SG_PrWF(istate,pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)
 write(u6,103)
 101 format(/,6X,100('-'),/,6X,29X,'Wave function printout: Split Graph format',/,6X,8X, &
            'in parenthesis: midvertex, upper-walk symmetry upper- and lower-walk serial numbers',/,6X,100('-'),/)
@@ -69,7 +69,7 @@ Call mma_deallocate(Conf_Occ(pState_Sym)%A)
 Call mma_deallocate(CINEW)
 
 #ifdef _DEBUGPRINT_
-call SG_PrWF(SGS(istate),CIS(istate),pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)
+call SG_PrWF(iState,pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)
 #endif
 
 call SG_Free(iState)

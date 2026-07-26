@@ -9,17 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SG_PRWF(SGS,CIS,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
+subroutine SG_PRWF(iState,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
 
-use sguga, only: CIStruct, SGStruct, nPack
+use sguga, only: CIS, SGS, nPack
 use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-type(SGStruct), intent(inout) :: SGS
-type(CIStruct), intent(inout) :: CIS
-integer(kind=iwp), intent(in) :: ISYCI
+integer(kind=iwp), intent(in) :: iState, ISYCI
 integer(kind=iwp), intent(in) :: iSpin, LuVecDet, lCI
 logical(kind=iwp), intent(in) :: KeyPRSD
 real(kind=wp), intent(in) :: CI(lCI), CITHR
@@ -32,6 +30,8 @@ logical(kind=iwp), parameter :: SGINFO = .true.
 integer(kind=iwp) :: IMS
 character, parameter :: CODE(0:3) = ['0','u','d','2']
 integer(kind=iwp), allocatable :: Lex(:)
+
+Associate(SGS=>SGS(iState),CIS=>CIS(iState))
 
 ! scratch for determinant expansion
 if (KeyPRSD) call mma_allocate(LEX,SGS%nLev,Label='LEX')
@@ -183,5 +183,7 @@ call mma_deallocate(ICS)
 
 ! free memory for determinant expansion
 if (KeyPRSD) call mma_deallocate(LEX)
+
+End Associate
 
 end subroutine SG_PRWF
