@@ -70,7 +70,7 @@ use rctfld_module, only: lRF
 use Lucia_Interface, only: Lucia_Util
 use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FockOcc, OccN, PA, PMAT, TUVX
 use sguga, only: SG_Free
-use gas_data, only: iDOGAS
+use general_data, only: iDOGAS
 use input_ras, only: Key, LuInput
 use raswfn, only: cre_raswfn, Wfn_FileID
 use timers, only: TimeCIOpt, TimeInput, TimeOrb, TimeOutput, TimeRelax, TimeTotal, TimeTrans, TimeWfn

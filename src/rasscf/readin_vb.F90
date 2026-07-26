@@ -29,7 +29,7 @@ subroutine Readin_vb()
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use gas_data, only: IGSOCCX, NGAS, NGSSH
+use general_data, only: IGSOCCX, NGAS, NGSSH
 use rasscf_global, only: iRlxRoot, iROOT, iZROT, NAC, NACPAR, NACPR2, NIN, NO2M, NORBT, NROOTS, NSEC, NTIT, NTOT3, NTOT4, Title
 use jobiph_j, only: ispin_j, lsym_j, nactel_j, ndel_j, nelec3_j, nfro_j, nhole1_j, nish_j, nrs1_j, nrs2_j, nrs3_j, title_j
 use general_data, only: INVEC, ISPIN, NACTEL, NASH, NBAS, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, NRS2, &

@@ -46,7 +46,7 @@ use rctfld_module, only: lRF
 use casvb_global, only: ifvb
 use timers, only: TimeDens
 use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, Ptmp
-use gas_data, only: iDoGAS
+use general_data, only: iDoGAS
 use rasscf_global, only: DFTFOCK, ExFac, iAdr15, iPCMRoot, iRoot, ITER, KSDFT, lRoots, n_Det, NAC, NACPAR, NACPR2, nFint, nRoots, &
                          S, Weight
 use PrintLevel, only: DEBUG, INSANE

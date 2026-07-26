@@ -54,4 +54,10 @@ public :: CleanMask, CRPROJ, CRVEC, INVEC, ISPIN, ITERFILE, JOBIPH, JOBOLD, Lowd
           NLEV
 
 public :: nRas, nRasEl, nRsPrt
+
+integer(kind=iwp) :: IGSOCCX(mxGAS,2) = 0, NGAS = 0, NGSSH(mxGAS,mxSym) = 0
+logical(kind=iwp) :: iDoGas = .false.
+
+public :: iDoGas, IGSOCCX, NGAS, NGSSH
+
 end module general_data

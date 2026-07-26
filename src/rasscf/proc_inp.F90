@@ -34,7 +34,7 @@ use OFembed, only: dFMD, Do_OFemb, KEonly, OFE_KSDFT, ThrFThaw, Xsigma
 use CMS, only: CMSGiveOpt, CMSGuessFile, iCMSOpt
 use UnixInfo, only: SuperName
 use Lucia_Interface, only: Lucia_Util
-use gas_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
+use general_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use Symmetry_info, only: Mul
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC

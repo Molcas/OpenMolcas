@@ -75,7 +75,7 @@ use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
 
 use wadr, only: FMO
 use sxci, only: IDXSX
-use gas_data, only: iDoGAS
+use general_data, only: iDoGAS
 use input_ras, only: Key
 use timers, only: TimeDens
 use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, ICMSP, IFCRPR, iPCMRoot, iRoot, iRotPsi, ITER, &

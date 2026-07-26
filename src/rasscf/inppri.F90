@@ -36,7 +36,7 @@ use Fock_util_global, only: DoLocK
 use Functionals, only: Init_Funcs, Print_Info
 use KSDFT_Info, only: CoefR, CoefX
 use rctfld_module, only: lRF
-use gas_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
+use general_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use rasscf_global, only: cCI, DoBlockDMRG, DoDMRG, Header, iCI, ICICH, ICIRST, iPCMRoot, iRLXRoot, iRoot, iSupSM, ITMAX, ixSym, &
                          KSDFT, l_casdft, lRoots, lSquare, LvShft, MAXIT, n_Det, NAC, NFR, NIN, NONEQ, NQUNE, NROOTS, NSEC, nTit, &
                          RFPert, ThrE, ThrSX, ThrTE, Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, Weight

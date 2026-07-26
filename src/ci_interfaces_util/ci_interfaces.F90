@@ -129,7 +129,7 @@ End Subroutine Mk_H_Psi
  use faroald, only: ndeta, ndetb ,one_pdm, two_pdm, fold_two_pdm
  use citrans, only: citrans_csf2sd, citrans_sort
 #ifdef _SGUGA_VERIFY_
- use gas_data, only: iDoGAS
+ use general_data, only: iDoGAS
  use rasscf_global, only: NACPAR, NACPR2
  use general_data, only: NCONF
 #endif

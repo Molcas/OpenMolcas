@@ -29,7 +29,7 @@ subroutine ChkInp()
 !***********************************************************************
 
 use linalg_mod, only: abort_
-use gas_data, only: iDoGAS, iGSOCCX, nGAS, nGSSH
+use general_data, only: iDoGAS, iGSOCCX, nGAS, nGSSH
 use rasscf_global, only: iRoot, ITMAX, lRoots, MAXIT, MAXJT, NAC, NIN, nRoots, OutFmt1, OutFmt2, PreThr, ProThr, ThFact, ThrE, &
                          ThrEn, ThrSX, ThrTE
 use general_data, only: INVEC, ISPIN, MALTER, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NORB, NRS1, NRS1T, &

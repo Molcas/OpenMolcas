@@ -48,7 +48,7 @@ subroutine NEWORB_RASSCF(CMOO,CMON,FP,FTR,VEC,WO,SQ,CMOX,D,OCCN)
 !           MO occupation numbers
 
 use Index_Functions, only: iTri, nTri_Elem
-use gas_data, only: NGAS, NGSSH
+use general_data, only: NGAS, NGSSH
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NSSH, NSYM, NTOT, NTOT2

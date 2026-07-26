@@ -28,7 +28,7 @@ use casvb_global, only: ifvb
 use Cholesky, only: ChFracMem, timings
 use CMS, only: CMSGiveOpt, iCMSOpt
 use UnixInfo, only: SuperName
-use gas_data, only: IGSOCCX, NGAS, NGSSH
+use general_data, only: IGSOCCX, NGAS, NGSSH
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
 use lucia_data, only: TDENSI, TSIGMA

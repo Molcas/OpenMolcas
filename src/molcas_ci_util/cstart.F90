@@ -47,7 +47,7 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use sguga, only: SGS, EXS, CIS
 use general_data, only: JOBIPH, JOBOLD, LUDAVID, NCONF, NSEL, STSYM
-use gas_data, only: iDoGas
+use general_data, only: iDoGas
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 use general_data, only: STARTORBFILE

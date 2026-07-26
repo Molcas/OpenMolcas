@@ -15,7 +15,7 @@ use Molcas, only: MxLev
 use fciqmc, only: DoNECI
 use fcidump, only: DumpOnly
 use CC_CI_mod, only: Do_CC_CI
-use gas_data, only: iDoGAS, NGAS, NGSSH
+use general_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: DoBlockDMRG, NSM
 use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
 use sguga, only: CIS, EXS, SGS

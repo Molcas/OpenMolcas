@@ -31,7 +31,7 @@ subroutine OutCtl(CMO,OCCN,SMAT,lOPTO)
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
-use gas_data, only: iDoGAS, NGAS, NGSSH
+use general_data, only: iDoGAS, NGAS, NGSSH
 use input_ras, only: Key
 use rasscf_global, only: BName, CBLBM, cCI, CMAX, DE, DoDMRG, ECAS, Ener, ESX, FDIAG, HalfQ, iADR15, IBLBM, iCI, ICICH, iPCMRoot, &
                          iPT2, iRLXRoot, iRoot, iSPDen, iSupSM, iSymBB, ITER, ixSym, JBLBM, kIVO, KSDFT, lRoots, MaxOrbOut, NAC, &
