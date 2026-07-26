@@ -790,7 +790,7 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt),nRasEl(nRsPrt)
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xnLev, xNSM(MxLev)
-  type(EXStruct), optional, intent(inout) :: EXS
+  type(EXStruct), intent(inout) :: EXS
 
   type(TRStruct) :: TRS
 
@@ -802,31 +802,29 @@ subroutine SG_Init(nSym,nActEl,iSpin,SGS,CIS,                      &
 
   call MKMAW(SGS)
 
-  if (present(EXS)) then
 !     FORM VARIOUS OFFSET TABLES:
 
 !     CONSTRUCT THE CASE LIST
 
-    call MKCOT(SGS,CIS)
+  call MKCOT(SGS,CIS)
 
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
 
-    call MKSEG(SGS,CIS,EXS)
+  call MKSEG(SGS,CIS,EXS)
 
-    !Create the transition infrastructure.
-    Call MkTrans(SGS,CIS,TRS)
+  !Create the transition infrastructure.
+  Call MkTrans(SGS,CIS,TRS)
 
-    ! Count coupling coefficients in compressed blocks indexed by excitation/operator type, symmetry and midvertex.
-    call MkNRCOUP(SGS,CIS,EXS,TRS)
+  ! Count coupling coefficients in compressed blocks indexed by excitation/operator type, symmetry and midvertex.
+  call MkNRCOUP(SGS,CIS,EXS,TRS)
 
-    ! Explicitly generates the compressed coupling tuples '(left walk, right walk, value index)' and compacts repeated
-    ! numerical values into 'VTab'.
-    call MKCOUP(SGS,CIS,EXS,TRS)
+  ! Explicitly generates the compressed coupling tuples '(left walk, right walk, value index)' and compacts repeated
+  ! numerical values into 'VTab'.
+  call MKCOUP(SGS,CIS,EXS,TRS)
 
-    Call Trans_Free(TRS)
-  end if
+  Call Trans_Free(TRS)
 
 end subroutine SG_Init
 
@@ -838,7 +836,7 @@ subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
   type(SGStruct), intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt), nRasEl(nRsPrt)
-  type(EXStruct), optional, intent(inout) :: EXS
+  type(EXStruct), intent(inout) :: EXS
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xNLEV, xNSM(MxLev)
   logical(kind=iwp), optional, intent(in) :: Do_MkSGUGA
@@ -854,13 +852,7 @@ subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
   SGS%nRsPrt=nRsPrt
 
   ! Make sure that we start from a clean slate.
-  if (present(EXS)) then
-   ! Here if the extended parameter list was used.
-    call SG_Free(SGS,CIS,EXS)
-  else
-   ! Here if the terse parameter list was used.
-    call SG_Free(SGS,CIS)
-  end if
+  call SG_Free(SGS,CIS,EXS)
 
   if (nSym < 1 .or. nSym > 8) then
     write(u6,*) ' SG_Init_Simple: illegal nSym value:',nSym
@@ -887,10 +879,10 @@ subroutine SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,              &
 
 ! CREATE THE SYMMETRY INDEX VECTOR
 
-SGS%NLEV = xnLEV
+  SGS%NLEV = xnLEV
 ! Allocate Level to Symmetry table ISm:
-call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
-SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
+  call mma_allocate(SGS%ISM,SGS%nLev,Label='SGS%ISM')
+  SGS%ISM(1:SGS%nLev) = xNSM(1:SGS%nLev)
 
   if (present(Do_MkSGUGA)) then
     if (Do_MkSGUGA) Then
