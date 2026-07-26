@@ -11,8 +11,8 @@
 ! Copyright (C) 1990,1996, Markus P. Fuelscher                         *
 !               1990, Jeppe Olsen                                      *
 !***********************************************************************
-
-subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,nConf,CIOLD,CINEW)
+!define _DEBUGPRINT_
+subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -45,10 +45,9 @@ subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !                                                                      *
 !***********************************************************************
 
-use sguga, only: EXStruct, SGStruct
+use sguga, only: EXS, SGS
 use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
-use PrintLevel, only: DEBUG
 use Lucia_data, only: CONF_Occ, CFTP
 use Molcas, only: MxAct
 use Constants, only: One
@@ -57,19 +56,17 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-type(SGStruct), intent(in) :: SGS
-type(EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) :: IREFSM, IMODE, nConf
+integer(kind=iwp), intent(in) :: iState, IREFSM, IMODE, nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
 
-integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
-                     IWALK(mxAct), JOCC, KOCC, KORB, LPRINT, nOrb, nEl
+integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
+                     IWALK(mxAct), JOCC, KOCC, KORB, nOrb, nEl
 integer(kind=iwp), external :: SG_PHASE, SG_NUM
 integer(kind=iwp) :: KCNF(MxAct)
 real(kind=wp) :: Fact
 
-IPRLEV = IPRLOC(3)
+Associate(SGS=>SGS(istate),EXS=>EXS(iState))
 
 nOrb=SGS%nLev
 nEl=SGS%nActEl
@@ -137,14 +134,14 @@ do ITYP=1,NTYP
   end do
 end do
 
-if (IPRLEV >= DEBUG) then
-  LPRINT = min(200,ICSFJP)
-  write(u6,*)
-  write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
-  write(u6,'(10F12.8)') (CIOLD(I),I=1,LPRINT)
-  write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
-  write(u6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
-  write(u6,*)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+write(u6,'(10F12.8)') (CIOLD(I),I=1,min(200,ICSFJP))
+write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
+write(u6,*)
+#endif
 
+end Associate
 end subroutine SG_Reord

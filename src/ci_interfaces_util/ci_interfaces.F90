@@ -76,7 +76,7 @@ if (DOFARO) then
   Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
   Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
 
-  call SG_REORD(SGS,EXS,STSYM,0,CIS%nCSF(STSYM),CI_Vec,ctemp)
+  call SG_REORD(iState,STSYM,0,CIS%nCSF(STSYM),CI_Vec,ctemp)
   call CITRANS_SORT('C',ctemp,Sigma_Vec)
   Faroald_PSI(:,:) = Zero
   call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
@@ -84,7 +84,7 @@ if (DOFARO) then
   call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
   call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
   call CITRANS_SORT('O',Sigma_Vec,ctemp)
-  call SG_Reord(SGS,EXS,STSYM,1,CIS%nCSF(STSYM),ctemp,Sigma_Vec)
+  call SG_Reord(iState,STSYM,1,CIS%nCSF(STSYM),ctemp,Sigma_Vec)
 
   Faroald_Psi => Null()
   Faroald_SGM => Null()
@@ -166,7 +166,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    Call mma_allocate(temp,nDetA*nDetB,Label='temp')
    Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
 
-   call SG_Reord(SGS(istate),EXS(istate),STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
+   call SG_Reord(istate,STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
    Temp(:)=Zero
    call CITRANS_SORT('C',CIV,temp)
    Faroald_Psi(:,:)=Zero
@@ -208,7 +208,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
         If (.NOT.iDoGAS) Then
 
           Call mma_allocate(CIV,nConf,Label='CIV')
-          call SG_Reord(SGS(istate),EXS(istate),STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
+          call SG_Reord(iState,STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
 
 !         Test the one-particle density matrix
 !         Call TriPrt('D(Lucia)',' ',D,NAC)

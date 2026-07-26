@@ -604,7 +604,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         if (.not. iDoGas) then
-          call SG_Reord(SGS(istate),EXS(istate),STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
+          call SG_Reord(iState,STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
 
           ! save reorder CI vector on disk
           !if (.not. iDoGas) then

@@ -61,7 +61,7 @@ Conf_Occ(pState_Sym)%A(:)=-CNSM(iss)%ICONF
 Call mma_allocate(CFTP,SIZE(CFTP_MCLR),Label='CFTP')
 CFTP(:)=CFTP_MCLR(:)
 
-call SG_REORD(SGS(istate),EXS(istate),pState_Sym,iMode,nConf,CI,CINEW)
+call SG_REORD(istate,pState_Sym,iMode,nConf,CI,CINEW)
 CI(1:nConf)=CINEW(1:nConf)
 
 Call mma_deallocate(CFTP)
