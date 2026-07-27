@@ -696,7 +696,7 @@ Interface to MRCC
 
    This will only work if you have MRCC installed
 
-Since the :`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in MRCC's :file:`fort.55` format for interfacing to MRCC. For the :file:`fort.55` file, we re-order the active orbitals from the Molcas irrep-grouped ordering into ascending-energy ordering before the integrals are written. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. Because :file:`fort.55` is registered in the module file registry, the wrapper automatically copies it from :file:`$WorkDir/` back to the user's output directory after the calculation.
+Since the :`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in MRCC's :file:`fort.55` format for interfacing to MRCC. Before writing the :file:`fort.55` file, we use :kword:`OutOrbitals` = ``CANOnical`` to re-order the active orbitals from an irrep-grouped ordering into ascending-energy ordering. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. Because :file:`fort.55` is registered in the module file registry, the wrapper automatically copies it from :file:`$WorkDir/` back to the user's output directory after the calculation.
 
 Generating an MRCC :file:`fort.55` file
 .......................................
