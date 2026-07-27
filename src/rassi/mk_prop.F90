@@ -78,7 +78,10 @@ PORIG(2,IPROP) = BUFF(NSIZ+2)
 PORIG(3,IPROP) = BUFF(NSIZ+3)
 ! PICK UP THE NUCLEAR CONTRIBUTION FROM INTEGRAL BUFFER
 if ((PNAME(IPROP)(1:3) == 'ASD') .or. (PNAME(IPROP)(1:3) == 'PSO')) then
+<<<<<<< HEAD
   write(u6,*) 'Removing nuclear contrib from ASD and PSO:'
+=======
+>>>>>>> upstream-openmolcas/master
   PNUC(IPROP) = Zero
 else if ((ITYPE == 2) .or. (ITYPE == 4)) then
   PNUC(IPROP) = Zero

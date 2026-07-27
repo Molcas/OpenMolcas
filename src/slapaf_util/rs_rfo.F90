@@ -196,6 +196,10 @@ do
 
   dqdq = sqrt(DDot_(nInter,dq,1,dq,1))
 # ifdef _DEBUGPRINT_
+<<<<<<< HEAD
+=======
+  write(u6,*) 'norm(dq)=',dqdq
+>>>>>>> upstream-openmolcas/master
   write(u6,'(I5,5(ES12.5,1x))') Iter,A_RFO,dqdq,StepMax,EigVal
   !write(u6,*) 'StepMax-dqdq=',StepMax-dqdq
   !write(u6,*) 'Thr_RS=',Thr_RS

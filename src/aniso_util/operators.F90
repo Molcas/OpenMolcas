@@ -30,6 +30,10 @@ subroutine ITO(N,k,q,C0,Cp,Cm)
 ! Cm = O- operator (output), complex
 ! C0 = CG0  (output), real number, positive
 
+<<<<<<< HEAD
+=======
+use wigner_util, only: wcg_real
+>>>>>>> upstream-openmolcas/master
 use Constants, only: Half, cOne
 use Definitions, only: wp, iwp
 
@@ -50,8 +54,13 @@ do m1=1,n
   do m2=1,n
     rm1 = rS-real(m1-1,kind=wp)
     rm2 = rS-real(m2-1,kind=wp)
+<<<<<<< HEAD
     call Clebsch_Gordan(rS,rm2,rK,rQ,rS,rm1,CGp)
     call Clebsch_Gordan(rS,rm2,rK,-rQ,rS,rm1,CGm)
+=======
+    CGp = wcg_real(rS,rm2,rK,rQ,rS,rm1)
+    CGm = wcg_real(rS,rm2,rK,-rQ,rS,rm1)
+>>>>>>> upstream-openmolcas/master
     Cp(m1,m2) = CGp/C0*cOne
     Cm(m1,m2) = CGm/C0*cOne
   end do
@@ -196,6 +205,10 @@ subroutine Stewens_matrixel(N,M,d,ITO_O,ITO_W,IPRINT)
 ! Dip_Stewens(N, L, d, d) -- the matrix elements of the ITO tensor
 !               operators in the basis of effective spin eigenfunctions
 
+<<<<<<< HEAD
+=======
+use wigner_util, only: wcg_real
+>>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, cZero, cOne
 use Definitions, only: wp, iwp, u6
@@ -248,7 +261,11 @@ do ms1=-(d-NPAR)/2,(d-NPAR)/2
     end if
     coeffCG = Zero
 
+<<<<<<< HEAD
     call Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
+=======
+    coeffCG = wcg_real(a,al,b,bt,c,gm)
+>>>>>>> upstream-openmolcas/master
 
     ITO_PLUS(ms1,ms2) = coeffCG*COEFF_REDUS*cOne
 
@@ -286,7 +303,11 @@ do ms1=-(d-NPAR)/2,(d-NPAR)/2
     end if
     coeffCG = Zero
 
+<<<<<<< HEAD
     call Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
+=======
+    coeffCG = wcg_real(a,al,b,bt,c,gm)
+>>>>>>> upstream-openmolcas/master
 
     ITO_MINUS(ms1,ms2) = coeffCG*COEFF_REDUS*cOne
 
@@ -435,6 +456,7 @@ return
 
 end subroutine COEFF_REDUS_SUB
 
+<<<<<<< HEAD
 subroutine Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
 
 use Constants, only: Zero, Two
@@ -685,6 +707,8 @@ return
 
 end function WCG
 
+=======
+>>>>>>> upstream-openmolcas/master
 function dlt(a,b,c)
 ! calculates the delta(a,b,c) function using the formula 8.2.1. from:
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
@@ -828,6 +852,10 @@ function RedME(La,Sa,LaP,SaP,L,S)
 !
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 
+<<<<<<< HEAD
+=======
+use wigner_util, only: wcg
+>>>>>>> upstream-openmolcas/master
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -836,7 +864,10 @@ real(kind=wp) :: RedME
 integer(kind=iwp), intent(in) :: La, Sa, LaP, SaP, L, S
 integer(kind=iwp) :: JaP, jm, js, l_orb, s_orb
 real(kind=wp) :: factor, temp
+<<<<<<< HEAD
 real(kind=wp), external :: WCG
+=======
+>>>>>>> upstream-openmolcas/master
 
 RedME = Zero
 l_orb = 6  ! double of true value l_orb = 3
@@ -873,6 +904,10 @@ function jot1(t,L,ML,S,MS,La,Sa,LaP,SaP)
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 !    Substitutions:
 
+<<<<<<< HEAD
+=======
+use wigner_util, only: w9j, wcg
+>>>>>>> upstream-openmolcas/master
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
@@ -882,7 +917,11 @@ real(kind=wp), intent(in) :: t
 integer(kind=iwp), intent(in) :: L, ML, S, MS, La, Sa, LaP, SaP
 integer(kind=iwp) :: Ja, l_orb
 real(kind=wp) :: txt
+<<<<<<< HEAD
 real(kind=wp), external :: RedME, W9J, WCG
+=======
+real(kind=wp), external :: RedME
+>>>>>>> upstream-openmolcas/master
 
 jot1 = Zero
 l_orb = 6  ! double of true value l_orb = 3
@@ -913,6 +952,10 @@ function jot0(t,L,ML,La,Sa,LaP,SaP)
 ! the formula is valid for Tb, Dy, Ho, Er, Tm and Yb only
 !    Substitutions:
 
+<<<<<<< HEAD
+=======
+use wigner_util, only: w6j, wcg
+>>>>>>> upstream-openmolcas/master
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
@@ -922,7 +965,11 @@ real(kind=wp), intent(in) :: t
 integer(kind=iwp), intent(in) :: L, ML, La, Sa, LaP, SaP
 integer(kind=iwp) :: Ja, l_orb
 real(kind=wp) :: txt, W9Jl
+<<<<<<< HEAD
 real(kind=wp), external :: RedME, W6J, WCG
+=======
+real(kind=wp), external :: RedME
+>>>>>>> upstream-openmolcas/master
 
 jot0 = Zero
 l_orb = 6  ! double of true value l_orb = 3
@@ -948,6 +995,10 @@ end function jot0
 
 subroutine verify_CG(N)
 
+<<<<<<< HEAD
+=======
+use wigner_util, only: wcg_real
+>>>>>>> upstream-openmolcas/master
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
@@ -973,6 +1024,7 @@ do k=1,n-1
 
         mf = (-1)**nint(rK)
         ! (a , alpha, b, beta,    c,  gamma)
+<<<<<<< HEAD
         call Clebsch_Gordan(rJ,rM2,rK,rQ,rJ,rM1,CG_A)
         call Clebsch_Gordan(rK,rQ,rJ,rM2,rJ,rM1,CG_B)
         call Clebsch_Gordan(rJ,-rM2,rK,-rQ,rJ,-rM1,CG_C)
@@ -985,6 +1037,20 @@ do k=1,n-1
         rfG = (-1)**(rK+rQ)
         call Clebsch_Gordan(rJ,-rM1,rK,rQ,rJ,-rM2,CG_G)
         call Clebsch_Gordan(rK,-rQ,rJ,rM1,rJ,rM2,CG_H)
+=======
+        CG_A = wcg_real(rJ,rM2,rK,rQ,rJ,rM1)
+        CG_B = wcg_real(rK,rQ,rJ,rM2,rJ,rM1)
+        CG_C = wcg_real(rJ,-rM2,rK,-rQ,rJ,-rM1)
+        CG_D = wcg_real(rK,-rQ,rJ,-rM2,rJ,-rM1)
+
+        rfE = ((-1)**(rJ-rM2))*(sqrt(real(n,kind=wp)/(Two*rK+One)))
+        CG_E = wcg_real(rJ,rM2,rJ,-rM1,rK,-rQ)
+        CG_F = wcg_real(rJ,rM1,rJ,-rM2,rK,rQ)
+
+        rfG = (-1)**(rK+rQ)
+        CG_G = wcg_real(rJ,-rM1,rK,rQ,rJ,-rM2)
+        CG_H = wcg_real(rK,-rQ,rJ,rM1,rJ,rM2)
+>>>>>>> upstream-openmolcas/master
 
         prn = (CG_A /= Zero) .or. (CG_B /= Zero) .or. (CG_C /= Zero) .or. (CG_D /= Zero) .or. (CG_E /= Zero) .or. &
               (CG_F /= Zero) .or. (CG_G /= Zero) .or. (CG_H /= Zero)

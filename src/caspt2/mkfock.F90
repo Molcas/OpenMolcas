@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 !***********************************************************************
+<<<<<<< HEAD
 SUBROUTINE MkFock(CMO,nCMO,FIMO,NFIMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE,INITIATE)
 use caspt2_module, only: IfChol
 use definitions, only: iwp, wp
@@ -20,11 +21,27 @@ real(kind=wp), intent(inout):: HONE(nHONE)
 logical(kind=iwp), intent(inout):: INITIATE
 
 If (INITIATE) Call TraOne(CMO,nCMO,HONE,nHONE)
+=======
+
+subroutine MkFock(CMO,nCMO,FIMO,NFIMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE,INITIATE)
+
+use caspt2_module, only: IfChol
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: nCMO, nFIMO, nFIFA, nDREF, nHONE
+real(kind=wp), intent(in) :: CMO(nCMO), DREF(nDREF)
+real(kind=wp), intent(inout) :: FIMO(nFIMO), FIFA(nFIFA), HONE(nHONE)
+logical(kind=iwp), intent(inout) :: INITIATE
+
+if (INITIATE) call TraOne(CMO,nCMO,HONE,nHONE)
+>>>>>>> upstream-openmolcas/master
 
 ! Compute the Fock matrix in MO basis for state Jstate
 ! Fock matrix in MO basis: FIMO, FIFA
 
 if (IfChol) then
+<<<<<<< HEAD
 !  INTCTL2 uses TraCho2 to generate the fock matrix in AO basis. Subsequently, FMatCho
 !  transform to the MO basis.
    call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA,HONE,nHONE,FIMO,nFIMO)
@@ -40,3 +57,20 @@ INITIATE=.FALSE.
 CALL NEWFOCK(FIFA,nFIFA,CMO,NCMO,DREF,nDREF)
 
 END SUBROUTINE MkFock
+=======
+  ! INTCTL2 uses TraCho2 to generate the fock matrix in AO basis. Subsequently, FMatCho
+  ! transform to the MO basis.
+  call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA,HONE,nHONE,FIMO,nFIMO)
+else
+  ! Matrix elements generated directly from one-ham and two-electron integrals in th MO basis.
+  if (Initiate) call TraCtl(nCMO,CMO,0)
+  call FMAT_CASPT2(FIFA,nFIFA,FIMO,nFIMO,DREF,nDREF,HONE,nHONE)
+end if
+INITIATE = .false.
+
+! Modify the Fock matrix if needed (G Family of modifications).
+! You don't have to be beautiful to turn me on
+call NEWFOCK(FIFA,nFIFA,CMO,NCMO,DREF,nDREF)
+
+end subroutine MkFock
+>>>>>>> upstream-openmolcas/master

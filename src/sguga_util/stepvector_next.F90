@@ -1,0 +1,44 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine STEPVECTOR_NEXT(MV,IDWN,IUP,STEPVECTOR,nLev)
+
+<<<<<<< HEAD:src/molcas_ci_util/stepvector_next.F90
+use sguga, only: CIS
+=======
+use sguga_states, only: CIS
+>>>>>>> upstream-openmolcas/master:src/sguga_util/stepvector_next.F90
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
+integer(kind=iwp), intent(in) :: nLev
+integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
+
+integer(kind=iwp), parameter :: iState=1
+
+! stop when MV is zero
+<<<<<<< HEAD:src/molcas_ci_util/stepvector_next.F90
+if (MV == 0) write(u6,'(1X,A)') 'stepvector_next has been depleted'
+
+call GETSTEPVECTOR(CIS%NOW,CIS%IOW,MV,IDWN,IUP,STEPVECTOR,nLev,CIS%nMidV)
+=======
+if (MV == 0) Then
+   write(u6,'(1X,A)') 'stepvector_next has been depleted'
+   write(u6,'(1X,A)') 'IDWN,IUP=',IDWN,IUP
+   write(u6,'(1X,A)') 'nLev=',nLev
+   Call abend()
+end if
+
+call GETSTEPVECTOR(CIS(istate)%NOW,CIS(istate)%IOW,MV,IDWN,IUP,STEPVECTOR,nLev,CIS(istate)%nMidV)
+>>>>>>> upstream-openmolcas/master:src/sguga_util/stepvector_next.F90
+
+end subroutine STEPVECTOR_NEXT

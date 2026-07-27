@@ -14,8 +14,14 @@
 subroutine CsfInf(lSym,iSpin,iSPC,nsym)
 
 use Str_Info, only: CFTP, CNSM, DFTP, DTOC, NELEC, NOCTYP, STR
+<<<<<<< HEAD
 use MCLR_Data, only: i1, iAnders, IASTFI, IBSTFI, iDC, iRefSM, lConf, llDET, LuCSF2SD, MAXOP, MINOP, MNR1IC, MS2, MXR3IC, NACOB, &
                      NCNATS, NELCI, NORB1, NORB2, NORB3, PSSIGN
+=======
+use MCLR_Data, only: i1, iAnders, IASTFI, IBSTFI, iDC, iRefSM, lConf, llDET, LuCSF2SD, MAXOP, MNR1IC, MS2, MXR3IC, NACOB, &
+                     NELCI, NORB1, NORB2, NORB3, PSSIGN
+use spinfo, only: MINOP, NCNATS=>NCNFTP
+>>>>>>> upstream-openmolcas/master
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate

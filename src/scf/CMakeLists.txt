@@ -115,7 +115,10 @@ set (sources
      scf_mcontrol.F90
      scffiles.F90
      scfwfn.F90
+<<<<<<< HEAD
      scram.F90
+=======
+>>>>>>> upstream-openmolcas/master
      setup_scf.F90
      soinih.F90
      sorb.F90

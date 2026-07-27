@@ -15,13 +15,17 @@
 !               2000, Thorstein Thorsteinsson                          *
 !***********************************************************************
 
-subroutine DavCtl(LW1,TUVX,IFINAL)
+subroutine DavCtl(nFMO,FMO,nTUVX,TUVX,IFINAL)
 !***********************************************************************
 !                                                                      *
 !     CI control section                                               *
 !                                                                      *
 !     calling arguments:                                               *
+<<<<<<< HEAD
 !     LW1     : active Fock matrix                                     *
+=======
+!     FMO     : active Fock matrix                                     *
+>>>>>>> upstream-openmolcas/master
 !               array of real                                          *
 !     TUVX    : array of real                                          *
 !               two-electron integrals (tu|vx)                         *
@@ -57,7 +61,8 @@ use Constants, only: Quart
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(in) :: LW1(*), TUVX(*)
+integer(kind=iwp), intent(in) :: nFMO, nTUVX
+real(kind=wp), intent(in) :: FMO(nFMO), TUVX(nTUVX)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: iDisk, ItLimit, jRoot, m_Sel, mSel, nMaxSel
 real(kind=wp) :: ESize, Threshold, ThrRule
@@ -93,7 +98,11 @@ call mma_allocate(ExplV,m_Sel,mSel,label='ExplV')
 nMaxSel = nConf
 if (N_ELIMINATED_GAS_MOLCAS > 0) nmaxSel = nCSF_HEXS
 
+<<<<<<< HEAD
 call CStart(CIVEC,LW1,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
+=======
+call CStart(CIVEC,FMO,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
+>>>>>>> upstream-openmolcas/master
 
 !-----------------------------------------------------------------------
 ! DIAGONALIZATION SECTION
@@ -140,10 +149,8 @@ else
       ITLIMIT = MAXJT
     end if
     ! PAM Feb 2009: New code in david5.
-    !call David5(nAc,stSym,nDet,MAXJT,ITERCI,
-    !call David5(nAc,stSym,nDet,ItLimit,ITERCI,CI_conv,Threshold,LW1,TUVX,iSel,ExplE,ExplV)
 
-    call David5(nDet,ItLimit,IterCI,CI_conv,Threshold,iSel,ExplE,ExplV,LW1,TUVX)
+    call David5(nDet,ItLimit,IterCI,CI_conv,Threshold,iSel,ExplE,ExplV,nFMO,FMO,nTUVX,TUVX)
 
     do jRoot=1,lRoots-hRoots
       ENER(jRoot,ITER) = CI_conv(1,jRoot,ITERCI)
@@ -164,7 +171,5 @@ lRoots = lRoots-hroots
 iDisk = IADR15(4)
 call Term_David(ICICH,ITERCI,lRoots,nConf,CIVEC,JOBIPH,LuDavid,iDisk)
 call mma_deallocate(CIVEC)
-
-return
 
 end subroutine DavCtl

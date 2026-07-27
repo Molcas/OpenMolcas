@@ -520,6 +520,25 @@ The complete list of |molcas|-related environment variables:
               </HELP>
               </KEYWORD>
 
+:variable:`MOLCAS_ONEINT_H5`
+  This variable takes a comma-separated string to denote which one-electron
+  integrals are written to HDF5 files. Currently the default value is
+  MOLCAS_ONEINT_H5=MLTPL. To also write the orbital angular momentum
+  integrals, use MOLCAS_ONEINT_H5=MLTPL,ANGMOM or just MOLCAS_ONEINT_H5=ANGMOM
+  More variables may be added in the future.
+
+  .. xmldoc:: <KEYWORD MODULE="ENVIRONMENT" NAME="MOLCAS_ONEINT_H5" APPEAR="1el-integral HDF5 storage" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: MOLCAS_ONEINT_H5 <basic>
+              <HELP>
+              This variable takes a comma-separated string to denote which
+              one-electron integrals are written to HDF5 files. Currently the
+              default value is MOLCAS_ONEINT_H5=MLTPL. To also write the
+              orbital angular momentum integrals, use
+              MOLCAS_ONEINT_H5=MLTPL,ANGMOM or just MOLCAS_ONEINT_H5=ANGMOM
+              More variables may be added in the future.
+              </HELP>
+              </KEYWORD>
+
 :variable:`MOLCAS_OUTPUT`
   This variable can alter the default directory for extra output files,
   such as orbitals files, molden files, etc.

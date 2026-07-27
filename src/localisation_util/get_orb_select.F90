@@ -107,7 +107,6 @@ do iSym=1,nSym
   mOx = max(1,mOrb(iSym))
 
   if (.not. ortho) then
-
     call Ortho_orb(X2,S%SB(iSym)%A2,nBas(iSym),n_OK(iSym),2,.false.)
     call Ortho_orb(Z,S%SB(iSym)%A2,nBas(iSym),n_KO,2,.false.)
   end if

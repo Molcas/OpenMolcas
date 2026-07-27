@@ -64,6 +64,10 @@ else if (ALGO == 1) then
     call GADgop(FI,nTot1,'+')
     call GADgop(FA,nTot1,'+')
     ! Synchronize PUVX if running parallel:
+<<<<<<< HEAD
+=======
+    call GAIgop_scal(nPWXY,'max')
+>>>>>>> upstream-openmolcas/master
     call GADgop(PUVX,nPWXY,'+')
   end if
 # endif

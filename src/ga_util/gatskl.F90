@@ -20,6 +20,10 @@ subroutine GATskL(create,nTsk,igaTsk)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+<<<<<<< HEAD
+=======
+use GA_Wrapper, only: GA_Create, GA_Destroy, GA_NNodes, MT_INT
+>>>>>>> upstream-openmolcas/master
 use Definitions, only: u6
 #endif
 use Definitions, only: iwp
@@ -31,8 +35,11 @@ integer(kind=iwp), intent(in) :: nTsk
 integer(kind=iwp), intent(out) :: igaTsk
 integer(kind=iwp) :: Chk, nProcs
 logical(kind=iwp) :: ok
+<<<<<<< HEAD
 #include "global.fh"
 #include "mafdecls.fh"
+=======
+>>>>>>> upstream-openmolcas/master
 
 if (.not. Is_Real_Par()) return
 if (create) then

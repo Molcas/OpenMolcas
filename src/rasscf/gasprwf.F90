@@ -11,7 +11,11 @@
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
 
+<<<<<<< HEAD
 subroutine gasprwf(NORB,NEL,IREFSM,ICONF,ISPIN,CICOEF,kcnf)
+=======
+subroutine gasprwf(NORB,NEL,IREFSM,CICOEF,kcnf)
+>>>>>>> upstream-openmolcas/master
 !***********************************************************************
 !                                                                      *
 !     PURPOSE: PRINT THE WAVEFUNCTION FOR GAS                          *
@@ -25,10 +29,13 @@ subroutine gasprwf(NORB,NEL,IREFSM,ICONF,ISPIN,CICOEF,kcnf)
 !               total number of active electrons                       *
 !     iRefSm  : integer                                                *
 !               state symmetry                                         *
+<<<<<<< HEAD
 !     iConf   : array of integer                                       *
 !               string information                                     *
 !     iSpin   : array of integer                                       *
 !               spin coupling information                              *
+=======
+>>>>>>> upstream-openmolcas/master
 !     nSm     : array of integer                                       *
 !               symmetry per active orbital                            *
 !     CiCoef  : array of real*8                                        *
@@ -44,11 +51,19 @@ subroutine gasprwf(NORB,NEL,IREFSM,ICONF,ISPIN,CICOEF,kcnf)
 
 use rasscf_global, only: nSm, PrwThr
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+<<<<<<< HEAD
+=======
+use lucia_data, only: Conf_Occ, CFTP
+>>>>>>> upstream-openmolcas/master
 use Molcas, only: MxAct
 use Definitions, only: wp, iwp, u6
 
 implicit none
+<<<<<<< HEAD
 integer(kind=iwp), intent(in) :: nOrb, nEl, iRefSM, ICONF(*), ISPIN(*)
+=======
+integer(kind=iwp), intent(in) :: nOrb, nEl, iRefSM
+>>>>>>> upstream-openmolcas/master
 real(kind=wp), intent(in) :: CICOEF(*)
 integer(kind=iwp), intent(out) :: KCNF(NEL)
 integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, iCSBAS, ICSFJP, IIBCL, IIBOP, IICSF, iOff, iOpen, iOrb, ipBas, iSym, iTyp, &
@@ -105,7 +120,11 @@ do ITYP=1,NTYP
       IIBCL = 1
       JOCC = ICL+IOPEN
       do KOCC=0,JOCC-1
+<<<<<<< HEAD
         KORB = ICONF(ICNBS+KOCC)
+=======
+        KORB = CONF_OCC(IREFSM)%A(ICNBS+KOCC)
+>>>>>>> upstream-openmolcas/master
         if (KORB < 0) then
           ! Doubly occupied orbitals
           KCNF(IIBCL) = abs(KORB)
@@ -118,7 +137,11 @@ do ITYP=1,NTYP
       end do
 
       ! COMPUTE STEP VECTOR
+<<<<<<< HEAD
       call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
+=======
+      call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
+>>>>>>> upstream-openmolcas/master
       ! SKIP IT OR PRINT IT?
       COEF = CICOEF(ICSFJP)
       if (abs(COEF) < PRWTHR) cycle

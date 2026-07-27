@@ -17,8 +17,13 @@ implicit none
 private
 
 integer(kind=iwp) :: MAXOP_LUCIA, NAEL, NBEL
+<<<<<<< HEAD
 integer(kind=iwp), allocatable :: CONF(:), CTS(:)
 
 public :: CONF, CTS, MAXOP_LUCIA, NAEL, NBEL
+=======
+
+public :: MAXOP_LUCIA, NAEL, NBEL
+>>>>>>> upstream-openmolcas/master
 
 end module csfbas

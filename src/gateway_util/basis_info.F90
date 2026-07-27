@@ -972,7 +972,7 @@ end subroutine Basis_Info_Free
 !***********************************************************************
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim, dbsc_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)

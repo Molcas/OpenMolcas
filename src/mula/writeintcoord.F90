@@ -40,7 +40,7 @@ do j=1,NumInt
     ! Bond Stretching.
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
-    write(Line,fmt='(A2,A,A,A,A)') ' ','Bond    ',AtomLbl(i1),'- ',AtomLbl(i2)
+    write(Line,'(A2,A,A,A,A)') ' ','Bond    ',AtomLbl(i1),'- ',AtomLbl(i2)
     k = k+3
   end if
   if (IntType == 2) then
@@ -48,7 +48,7 @@ do j=1,NumInt
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    write(Line,fmt='(A2,A,A,A,A,A,A)') ' ','Angle   ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3)
+    write(Line,'(A2,A,A,A,A,A,A)') ' ','Angle   ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3)
     k = k+4
   end if
   if (IntType == 3) then
@@ -56,7 +56,7 @@ do j=1,NumInt
     i1 = InterVec(k+1)
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
-    write(Line,fmt='(A2,A,A,A,A,A,A)') ' ','LinAng  ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3)
+    write(Line,'(A2,A,A,A,A,A,A)') ' ','LinAng  ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3)
     k = k+4
   end if
   if (IntType == 4) then
@@ -65,7 +65,7 @@ do j=1,NumInt
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
     i4 = InterVec(k+4)
-    write(Line,fmt='(A2,A,A,A,A,A,A,A,A)') ' ','Torsion ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3),'- ',AtomLbl(i4)
+    write(Line,'(A2,A,A,A,A,A,A,A,A)') ' ','Torsion ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3),'- ',AtomLbl(i4)
     k = k+5
   end if
   if (IntType == 5) then
@@ -74,7 +74,7 @@ do j=1,NumInt
     i2 = InterVec(k+2)
     i3 = InterVec(k+3)
     i4 = InterVec(k+4)
-    write(Line,fmt='(A2,A,A,A,A,A,A,A,A)') ' ','OutOfPl ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3),'- ',AtomLbl(i4)
+    write(Line,'(A2,A,A,A,A,A,A,A,A)') ' ','OutOfPl ',AtomLbl(i1),'- ',AtomLbl(i2),'- ',AtomLbl(i3),'- ',AtomLbl(i4)
     k = k+5
   end if
   if (intType == 1) then

@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2019, Stefano Battaglia                                *
 !***********************************************************************
+<<<<<<< HEAD
 subroutine wgtinit(H,nState)
 
   use caspt2_global,only:iPrGlb
@@ -18,15 +19,42 @@ subroutine wgtinit(H,nState)
   use caspt2_module, only: DWType, IfDW, IfXMS, Zeta
   use constants, only: One
   use definitions,only:wp,iwp,u6
+=======
 
-  implicit none
+subroutine wgtinit(H,nState)
+>>>>>>> upstream-openmolcas/master
 
+use PrintLevel, only: DEBUG, VERBOSE
+use caspt2_global, only: DWGT, iPrGlb
+use caspt2_module, only: DWType, IfDW, IfXMS, Zeta
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+<<<<<<< HEAD
   Integer(kind=iwp),intent(in) :: nState
   Real(kind=wp),intent(in) :: H(nState,nState)
+=======
+implicit none
+integer(kind=iwp), intent(in) :: nState
+real(kind=wp), intent(in) :: H(nState,nState)
+integer(kind=iwp) :: I, J, K
+real(kind=wp) :: Dab, Dag, Ealpha, Ebeta, Egamma, Hab, Hag, Wtot, xi_ab, xi_ag
 
-  Real(kind=wp) :: Ealpha,Ebeta,Egamma,Dab,Dag,xi_ag,xi_ab,Wtot
-  Real(kind=wp) :: Hab,Hag
+if (IPRGLB >= DEBUG) write(u6,*) ' Entered wgtinit.'
+>>>>>>> upstream-openmolcas/master
 
+if (IFDW .and. (zeta >= Zero)) then
+  ! If it is an XDW-CASPT2 calculation, the weights are computed
+  do I=1,nState
+    Ebeta = H(I,I)
+    ! Compute normalization factor Wtot, i.e. the sum of all weights
+    do J=1,nState
+      Ealpha = H(J,J)
+      Wtot = Zero
+      do K=1,nState
+        Egamma = H(K,K)
+
+<<<<<<< HEAD
   Integer(kind=iwp) :: I,J,K
 
   if (IPRGLB >= DEBUG) then
@@ -70,22 +98,26 @@ subroutine wgtinit(H,nState)
         end do
 
         ! original XDW-CASPT2, xi = Dab^2
+=======
+>>>>>>> upstream-openmolcas/master
         if (DWType == 1) then
-          xi_ab = (Ealpha - Ebeta)**2
-          ! new XDW-CASPT2, xi = (Haa/Hab)^2
+          ! original XDW-CASPT2, xi = Dab^2
+          xi_ag = (Ealpha-Egamma)**2
         else if (DWType == 2) then
-          xi_ab = (Ealpha/H(J,I))**2
-          ! new XDW-CASPT2, xi = Dab/sqrt(Hab), which is DWType == 3
+          ! new XDW-CASPT2, xi = (Haa/Hab)^2
+          xi_ag = (Ealpha/H(J,K))**2
         else
+          ! new XDW-CASPT2, xi = Dab/sqrt(Hab), which is DWType == 3
           ! add a small positive constant to numerator to avoid 0/0
-          Dab = abs(Ealpha - Ebeta) + 1.0e-9_wp
-          Hab = abs(H(J,I))
+          Dag = abs(Ealpha-Egamma)+1.0e-9_wp
+          Hag = abs(H(J,K))
           ! add the smallest value of the same type as Hag to the
           ! denominator to avoid division by 0 which can lead to
           ! segfault with certain compilers
-          xi_ab = Dab/(sqrt(Hab)+tiny(Hab))
+          xi_ag = Dag/(sqrt(Hag)+tiny(Hag))
         end if
 
+<<<<<<< HEAD
         DWGT(I,J) = exp(-zeta*xi_ab)/Wtot
 
       end do
@@ -100,14 +132,57 @@ subroutine wgtinit(H,nState)
     else
       DWGT(I,I) = One
     end if
+=======
+        Wtot = Wtot+exp(-zeta*xi_ag)
+      end do
 
-    ! End of loop over states
+      if (DWType == 1) then
+        ! original XDW-CASPT2, xi = Dab^2
+        xi_ab = (Ealpha-Ebeta)**2
+      else if (DWType == 2) then
+        ! new XDW-CASPT2, xi = (Haa/Hab)^2
+        xi_ab = (Ealpha/H(J,I))**2
+      else
+        ! new XDW-CASPT2, xi = Dab/sqrt(Hab), which is DWType == 3
+        ! add a small positive constant to numerator to avoid 0/0
+        Dab = abs(Ealpha-Ebeta)+1.0e-9_wp
+        Hab = abs(H(J,I))
+        ! add the smallest value of the same type as Hag to the
+        ! denominator to avoid division by 0 which can lead to
+        ! segfault with certain compilers
+        xi_ab = Dab/(sqrt(Hab)+tiny(Hab))
+      end if
+
+      DWGT(I,J) = exp(-zeta*xi_ab)/Wtot
+>>>>>>> upstream-openmolcas/master
+
+    end do
   end do
 
+<<<<<<< HEAD
   ! In case it is a XDW calculation, print out the weights
   if (IFDW .and. (IPRGLB >= VERBOSE)) then
     write (u6,*) ' Weights calculated with <I|H|I>:'
     call prettyprint(DWGT,nState,nState)
   end if
 
+=======
+else if (IFXMS .and. (.not. IFDW)) then
+  ! If it is an XMS-CASPT2 calculation, all the weights are equal,
+  ! i.e. they all are 1/nState
+  DWGT(:,:) = One/real(nState,kind=wp)
+
+else
+  ! If it is a normal MS-CASPT2, RMS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity
+  ! the weight vectors are the standard unit vectors e_1, e_2, ...
+  call unitmat(DWGT,nState)
+end if
+
+! In case it is a XDW calculation, print out the weights
+if (IFDW .and. (IPRGLB >= VERBOSE)) then
+  write(u6,*) ' Weights calculated with <I|H|I>:'
+  call prettyprint(DWGT,nState,nState)
+end if
+
+>>>>>>> upstream-openmolcas/master
 end subroutine wgtinit

@@ -509,7 +509,11 @@ end if
 ! Reserve task on global task list and get task range in return.
 ! Function will be false if no more tasks to execute.
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
+<<<<<<< HEAD
 call getenvf('MOLCAS_SSTMNGR',SSTMNGR)
+=======
+call get_environment_variable('MOLCAS_SSTMNGR',SSTMNGR)
+>>>>>>> upstream-openmolcas/master
 if (SSTMNGR(1:1) == 'Y') then
   SSTMODE = 1
 else

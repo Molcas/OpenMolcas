@@ -27,14 +27,14 @@ implicit none
 character(len=*), intent(out) :: Molcas
 
 Molcas = ' '
-call getenvf('MOLCAS_STAMP',Molcas)
+call get_environment_variable('MOLCAS_STAMP',Molcas)
 if (Molcas(1:1) /= 'A') then
   Molcas = ' '
   return
 end if
 
 Molcas = ' '
-call getenvf('MOLCAS',Molcas)
+call get_environment_variable('MOLCAS',Molcas)
 
 return
 

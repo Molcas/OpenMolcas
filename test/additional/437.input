@@ -10,7 +10,11 @@
 *-------------------------------------------------------------------------------
 * analytic gradients do not work in parallel for the time being
 * Parallel does not work without particular reasons
+<<<<<<< HEAD
 > IF ( $MOLCAS_NPROCS != 1)
+=======
+> IF ( $MOLCAS_NPROCS != 1 )
+>>>>>>> upstream-openmolcas/master
 >   EXIT 36
 > ENDIF
 

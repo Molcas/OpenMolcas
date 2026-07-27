@@ -19,18 +19,31 @@ module rhodyn_utils
 !***********************************************************************
 
 use linalg_mod, only: mult
+<<<<<<< HEAD
 use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 use linalg_mod, only: abort_
 #endif
 use Constants, only: Zero, One, Two, Three, cZero
+=======
+#ifdef _ADDITIONAL_RUNTIME_CHECK_
+use linalg_mod, only: abort_
+#endif
+use wigner_util, only: w3j
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, cZero
+>>>>>>> upstream-openmolcas/master
 use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
 public :: check_hermicity, compare_matrices, dashes, get_kq_order, print_c_matrix, removeColumn, removeLineAndColumn, sortci, &
+<<<<<<< HEAD
           transform, W3J, W6J, WERDM, WERDM_back, WERSO, WERSO_back
+=======
+          transform, WERDM, WERDM_back, WERSO, WERSO_back
+>>>>>>> upstream-openmolcas/master
 
 interface removeLineAndColumn
   module procedure :: removeLineAndColumnR, removeLineAndColumnZ
@@ -342,6 +355,7 @@ subroutine compare_matrices(A,B,n,header,thrs)
 
 end subroutine compare_matrices
 
+<<<<<<< HEAD
 function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
   ! DCLEBS: real Clebsch-Gordan coefficients
   ! From a modification of Racah''s formula. Coded: Malmqvist 1998
@@ -423,6 +437,8 @@ function W3J(j1,j2,j3,m1,m2,m3)
 
 end function W3J
 
+=======
+>>>>>>> upstream-openmolcas/master
 subroutine ITO(n,k,q,spins,projs,T)
   ! calculates the matrix <SM|T^K_Q|S'M'> of irreducible tensor operator
 
@@ -630,6 +646,7 @@ function get_kq_order(k_prime,q_prime)
 
 end function get_kq_order
 
+<<<<<<< HEAD
 function fct(n)
   ! this function provides correct answer till n=169 only
 
@@ -742,4 +759,6 @@ function check_triangle(a,b,c)
 
 end function check_triangle
 
+=======
+>>>>>>> upstream-openmolcas/master
 end module rhodyn_utils

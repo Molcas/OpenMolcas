@@ -19,6 +19,10 @@ subroutine PFGet_ASCII(FName)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_rootid, King
+<<<<<<< HEAD
+=======
+use GA_Wrapper, only: GA_Brdcst, MT_BYTE, MT_INT
+>>>>>>> upstream-openmolcas/master
 use Definitions, only: iwp, u6, ItoB
 #endif
 
@@ -30,6 +34,7 @@ integer(kind=iwp) :: Err, FLen, LU, Num, Pos
 logical(kind=iwp) :: Failed, Found
 character(len=LBuf) :: Buf
 integer(kind=iwp), external :: IsFreeUnit
+<<<<<<< HEAD
 #include "mafdecls.fh"
 interface
   subroutine GA_Brdcst(tp,buf,lenbuf,root)
@@ -38,6 +43,8 @@ interface
     type(*) :: buf
   end subroutine GA_Brdcst
 end interface
+=======
+>>>>>>> upstream-openmolcas/master
 
 ! Note that each process opens only one file, so there is a single
 ! unit number LU

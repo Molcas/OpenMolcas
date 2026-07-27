@@ -15,7 +15,12 @@ subroutine CIDIA_TD(iSym)
 
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
+<<<<<<< HEAD
 use MCLR_Data, only: ICISTR, ipDia, NCNATS, NCPCNT, NCSASM, NDPCNT, nexp, nexp_max, NOCSF, NTYP, XISPSM
+=======
+use MCLR_Data, only: ICISTR, ipDia, NCSASM, NDPCNT, nexp, nexp_max, NOCSF, XISPSM
+use spinfo, only: NTYP, NCNATS=>NCNFTP, NCPCNT=>NCSFTP
+>>>>>>> upstream-openmolcas/master
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, State_Sym, TimeDep
 use Definitions, only: iwp
 

@@ -30,7 +30,11 @@ subroutine mspdftgrad_init()
   use rasscf_global, only: nacpr2, nroots, nTot4
   use mcpdft_input, only: mcpdft_options
   use general_data, only: ispin, ntot1
+<<<<<<< HEAD
   use constants, only: Zero
+=======
+  use Constants, only: Zero
+>>>>>>> upstream-openmolcas/master
 
   call mma_allocate(F1MS,nTot1,nRoots,label='F1MS')
   call mma_allocate(F2MS,NacPR2,nRoots,label='F2MS')

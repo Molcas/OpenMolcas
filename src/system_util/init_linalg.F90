@@ -24,8 +24,8 @@ character(len=1024) :: linalg_lib
 character(len=8) :: linalg_info
 
 linalg_lib = 'Internal'
-call GetEnvf('MOLCAS_LINALG',linalg_lib)
-call GetEnvf('MOLCAS_LINALG_INFO',linalg_info)
+call get_environment_variable('MOLCAS_LINALG',linalg_lib)
+call get_environment_variable('MOLCAS_LINALG_INFO',linalg_info)
 iPr = 0
 call UpCase(linalg_info)
 linalg_info = adjustl(linalg_info)

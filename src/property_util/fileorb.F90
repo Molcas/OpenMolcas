@@ -24,7 +24,7 @@ if (index(filein,'/') /= 0) then
 else
   Exists = .false.
   tmp = ' '
-  call getenvf('MOLCAS_SUBMIT_DIR',tmp)
+  call get_environment_variable('MOLCAS_SUBMIT_DIR',tmp)
   if (tmp /= ' ') then
     fileout = trim(tmp)//'/'//filein
     !write(u6,*) 'vv',fileout

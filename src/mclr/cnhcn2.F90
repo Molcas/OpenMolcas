@@ -18,7 +18,12 @@ subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,IPRODT,DTO
 !
 ! Modified for LUCIA, September 1993
 
+<<<<<<< HEAD
 use MCLR_Data, only: IASTFI, IBSTFI, MINOP, NCPCNT, NDPCNT
+=======
+use MCLR_Data, only: IASTFI, IBSTFI, NDPCNT
+use spinfo, only: MINOP, NCPCNT=>NCSFTP
+>>>>>>> upstream-openmolcas/master
 use Str_Info, only: Str
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_deallocate

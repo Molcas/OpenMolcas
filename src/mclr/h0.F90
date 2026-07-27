@@ -15,8 +15,13 @@ subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
 ! frontend to Jeppe's explicit routines
 
 use Index_Functions, only: nTri_Elem
+<<<<<<< HEAD
 use MCLR_Data, only: FIMO, H0F, H0S, IDC, Int2, iRefSM, NACOB, NAELCI, NBELCI, NCPCNT, NDPCNT, nGP, NOCOB, NTYP, PSSIGN, SBIDT, &
                      XISPSM
+=======
+use MCLR_Data, only: FIMO, H0F, H0S, IDC, Int2, iRefSM, NACOB, NAELCI, NBELCI, NDPCNT, nGP, NOCOB, PSSIGN, SBIDT,  XISPSM
+use spinfo, only: NTYP, NCPCNT=>NCSFTP
+>>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

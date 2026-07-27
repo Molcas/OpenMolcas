@@ -36,7 +36,7 @@ end if
 !write(u6,*) 'nName=',nName
 
 Name = 'Stdin.  '
-call GetEnvf('EMIL_RC2',Line)
+call get_environment_variable('EMIL_RC2',Line)
 read(Line,'(I132.132)') Iter
 !write(u6,*) 'Line=',Line
 !write(u6,*) 'Iter=',Iter
@@ -52,7 +52,7 @@ else
   call Abend()
 end if
 Line = ' '
-call GetEnvf('EMIL_InLoop',Line)
+call get_environment_variable('EMIL_InLoop',Line)
 ib = -1
 ie = -1
 do i=1,len(Line)

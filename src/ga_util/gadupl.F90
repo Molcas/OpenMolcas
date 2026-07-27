@@ -19,6 +19,10 @@ subroutine GADupl(iGA1,iGA2)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+<<<<<<< HEAD
+=======
+use GA_Wrapper, only: GA_Duplicate
+>>>>>>> upstream-openmolcas/master
 use Definitions, only: u6
 #endif
 use Definitions, only: iwp
@@ -30,7 +34,10 @@ integer(kind=iwp), intent(out) :: iGA2
 logical(kind=iwp) :: ok
 character(len=6) :: gaLbl2
 character(len=5) :: gaLbl
+<<<<<<< HEAD
 #include "global.fh"
+=======
+>>>>>>> upstream-openmolcas/master
 
 if (.not. Is_Real_Par()) return
 if (iGA1 >= 0) return

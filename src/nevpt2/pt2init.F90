@@ -29,7 +29,12 @@ use caspt2_global, only: LUONEM, NCMO
 use info_state_energy, only: e, init_energies                                                     ! energies
 use info_orbital_space, only: datadim, file_id, ijklname, inforb_molcas, initialize_inforb_molcas ! orbital specifications read from JobIph
 use nevpt2wfn, only: nevpt2wfn_init, nevpt2wfn_data
+<<<<<<< HEAD
 use caspt2_module, only: iSpin, nActEl, nAsh, nBas, nBasT, nBSqT, nFro, nIsh, nSsh, nState, nSym, RefEne
+=======
+use general_data, only: iSpin, nActel, nAsh
+use caspt2_module, only: nBas, nBasT, nBSqT, nFro, nIsh, nSsh, nState, nSym, RefEne
+>>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -41,8 +46,13 @@ integer(kind=iwp), allocatable :: nCore_local(:)
 real(kind=wp), allocatable :: readbuf(:,:)
 
 ! Save current directory into the CurrDir string
+<<<<<<< HEAD
 call GetEnvF('WorkDir',curr_dir)
 call GetEnvF('Project',molcas_project)
+=======
+call get_environment_variable('WorkDir',curr_dir)
+call get_environment_variable('Project',molcas_project)
+>>>>>>> upstream-openmolcas/master
 
 ! call the Molcas routine to check whether we're using Cholesky
 call DecideOnCholesky(do_cholesky)

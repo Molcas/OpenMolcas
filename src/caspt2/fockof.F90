@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
+<<<<<<< HEAD
 Module Fockof
 use definitions, only: iwp, wp
 Private
@@ -40,3 +41,21 @@ Real(kind=wp), Allocatable, Target:: FAT_Full(:)
 
 Integer(kind=iwp):: IOFFIT(8),IOFFIA(8),IOFFTA(8)
 End Module Fockof
+=======
+
+module Fockof
+
+use Data_Structures, only: V1
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: IOFFIT(8), IOFFIA(8), IOFFTA(8)
+type(V1) :: FAI(8), FAT(8), FIA(8), FIT(8), FTA(8), FTI(8)
+real(kind=wp), allocatable, target :: FAI_Full(:), FAT_Full(:), FIA_Full(:), FIT_Full(:), FTA_Full(:), FTI_Full(:)
+
+public :: FAI, FAI_Full, FAT, FAT_Full, FIA, FIA_Full, FIT, FIT_Full, FTA, FTA_Full, FTI, FTI_Full, IOFFIA, IOFFIT, IOFFTA
+
+end module Fockof
+>>>>>>> upstream-openmolcas/master

@@ -42,9 +42,7 @@ ThrAO = Zero
 DoF = .false.
 DoG = .false.
 call Setup_Ints(nShell,Indexation,ThrAO,DoF,DoG)
-if (nShell < 1) then
-  call SysAbendMsg(SecNam,'Setup_Ints failed!','nShell < 1')
-end if
+if (nShell < 1) call SysAbendMsg(SecNam,'Setup_Ints failed!','nShell < 1')
 
 ! Allocate max. sym. block of density matrix
 ! and shell based density and CMO matrices.
