@@ -19,9 +19,15 @@ subroutine CIDIA(NCONF,IREFSM,CSFDIA,LUDAVID)
 ! IREFSM:  REFERENCE SYMMETRY
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
+<<<<<<< HEAD
 use timers, only: TimeHDiag
 use lucia_data, only: ECORE_HEX
 use csfbas, only: CTS
+=======
+use wadr, only: FMO, TUVX
+use timers, only: TimeHDiag
+use lucia_data, only: SDREO
+>>>>>>> upstream-openmolcas/master
 use Lucia_Interface, only: Lucia_Util
 use output_ras, only: IPRLOC
 use PrintLevel, only: DEBUG, INSANE
@@ -41,7 +47,11 @@ IPRLEV = IPRLOC(3)
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
+<<<<<<< HEAD
 call Lucia_Util('Diag')
+=======
+call Lucia_Util('Diag',nTU=Size(FMO),TU=FMO,nTUVX=Size(TUVX),TUVX=TUVX)
+>>>>>>> upstream-openmolcas/master
 
 call mma_allocate(DDIA,NDET,label='DETDIA')
 call get_diag(DDIA,ndet)
@@ -50,8 +60,12 @@ call get_diag(DDIA,ndet)
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
+<<<<<<< HEAD
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,CTS,NDTFTP,NCSFTP,IPRINT)
 CSFDIA(:) = CSFDIA(:)+ECORE_HEX
+=======
+call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
+>>>>>>> upstream-openmolcas/master
 
 ! DEALLOCATE LOCAL MEMORY
 

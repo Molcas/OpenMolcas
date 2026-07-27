@@ -45,6 +45,10 @@ contains
 
 subroutine ga_pdsyevx_(g_a,g_b,eval,nb8)
 
+<<<<<<< HEAD
+=======
+  use GA_Wrapper, only: GA_Brdcst, GA_NodeId, MT_DBL
+>>>>>>> upstream-openmolcas/master
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
 
@@ -59,8 +63,11 @@ subroutine ga_pdsyevx_(g_a,g_b,eval,nb8)
   integer(kind=iwp), allocatable :: adrclustr(:), adrfail(:), adriwork(:)
   real(kind=wp), allocatable :: adrA(:), adrB(:), adrcwork(:), adrgaps(:)
   real(kind=wp), external :: pdlamch
+<<<<<<< HEAD
 # include "global.fh"
 # include "mafdecls.fh"
+=======
+>>>>>>> upstream-openmolcas/master
 
   ! oactive     : true iff this process participates
   ! mpA,nqA     : rows/cols of A held by the processor

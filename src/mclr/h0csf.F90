@@ -87,7 +87,11 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,N
 ! =========================================
 
 use Index_Functions, only: nTri_Elem
+<<<<<<< HEAD
 use MCLR_Data, only: NCNATS, NCPCNT, NTYP
+=======
+use spinfo, only: NTYP, NCNATS=>NCNFTP, NCPCNT=>NCSFTP
+>>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp

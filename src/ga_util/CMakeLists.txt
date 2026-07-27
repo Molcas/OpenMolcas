@@ -13,6 +13,10 @@ set (sources
      bctwoham.F90
      eafmod.F90
      ga_replace_ma.c
+<<<<<<< HEAD
+=======
+     ga_wrapper.F90
+>>>>>>> upstream-openmolcas/master
      gadgop.F90
      gadgop_scal.F90
      gadupl.F90
@@ -23,6 +27,10 @@ set (sources
      gatskl_zero.F90
      gasync.F90
      gaterminate.F90
+<<<<<<< HEAD
+=======
+     mpi_wrapper.F90
+>>>>>>> upstream-openmolcas/master
      nap_time.c
      par_range.F90
      pardiv.F90
@@ -39,6 +47,11 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      eafmod.F90
+<<<<<<< HEAD
+=======
+     ga_wrapper.F90
+     mpi_wrapper.F90
+>>>>>>> upstream-openmolcas/master
      scalapack_mod.F90
      task_manager.F90
      tlist_mod.F90

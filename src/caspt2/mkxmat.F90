@@ -16,9 +16,16 @@ subroutine MKXMAT(TORB,XMAT)
 ! for each symmetry.
 ! Written by N. Nakatani, Oct. 2014
 
+<<<<<<< HEAD
 use Definitions, only: wp, iwp
 use caspt2_global, only: NTORB
 use caspt2_module, only: nAshT, nSym, nIsh, nAsh, nRas1, nRas2, nRas3, nSsh, nAES
+=======
+use caspt2_global, only: NTORB
+use general_data, only: NASH
+use caspt2_module, only: nAES, nAshT, nIsh, nRas1, nRas2, nRas3, nSsh, nSym
+use Definitions, only: wp, iwp
+>>>>>>> upstream-openmolcas/master
 
 implicit none
 real(kind=wp), intent(in) :: TORB(NTORB)

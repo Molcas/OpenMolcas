@@ -26,6 +26,10 @@ use Cntrl, only: IFTDM, IFTRD1, RHODYN
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
 #endif
+<<<<<<< HEAD
+=======
+use wigner_util, only: dclebs
+>>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten, Half, Quart, auTocm, auToeV
 use Definitions, only: wp, iwp, u6
@@ -48,7 +52,10 @@ real(kind=wp), allocatable :: rwork(:)
 complex(kind=wp), allocatable :: ccwork(:), hso_tmp(:,:)
 #endif
 integer(kind=iwp), external :: cho_x_gettol
+<<<<<<< HEAD
 real(kind=wp), external :: DCLEBS
+=======
+>>>>>>> upstream-openmolcas/master
 
 ! Identify AMFI and ANGMOM matrix elements:
 IAMFIX = 0

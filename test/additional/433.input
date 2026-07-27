@@ -7,7 +7,11 @@
 * Comments: Use SA-RASSCF ref. wf, SADref and conventional eri
 *-------------------------------------------------------------------------------
 * analytic gradients do not work in parallel without RI/CD
+<<<<<<< HEAD
 > IF ( $MOLCAS_NPROCS != 1)
+=======
+> IF ( $MOLCAS_NPROCS != 1 )
+>>>>>>> upstream-openmolcas/master
 >   EXIT 36
 > ENDIF
 

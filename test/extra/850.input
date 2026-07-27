@@ -16,7 +16,11 @@
 >>   EXIT 36
 >> ENDIF
 * The test will fail in parallel
+<<<<<<< HEAD
 > IF ( $MOLCAS_NPROCS != 1)
+=======
+> IF ( $MOLCAS_NPROCS != 1 )
+>>>>>>> upstream-openmolcas/master
 >   EXIT 36
 > ENDIF
 

@@ -319,7 +319,7 @@ div.document ol {
 
 pre, .pre {
   font-family: {{ theme_codefont }};
-  line-height: normal;
+  line-height: 1.2;
 }
 
 div.document div.math p {

@@ -31,11 +31,9 @@
 char *getenvc(const char *);
 
 #ifdef _CAPITALS_
-# define getenvf2c GETENVF2C
 # define getenvinit GETENVINIT
 #else
 # ifndef ADD_
-#   define getenvf2c getenvf2c_
 #   define getenvinit getenvinit_
 # endif
 #endif
@@ -48,6 +46,7 @@ char *getenvc(const char *);
 #define MAXENV 4096
 static char MOLCAS_ENV[MAXENV];
 
+<<<<<<< HEAD
 void getenvf2c(char *name, INT *ilen, char *value, INT *maxlen, INT *irl) {
   char *envvar;
   INT len = 0;
@@ -75,6 +74,8 @@ void getenvf2c(char *name, INT *ilen, char *value, INT *maxlen, INT *irl) {
   free(name0);
   return;
 }
+=======
+>>>>>>> upstream-openmolcas/master
 char *getenvc(const char *name) {
 
   char Name[MAXSTR];
@@ -91,11 +92,6 @@ char *getenvc(const char *name) {
   }
   strcat(Name, name);
   strcat(Name, "=");
-  /* debug
-  puts("env=");
-  puts(MOLCAS_ENV);
-
-  */
   ptr = strstr(MOLCAS_ENV, Name);
 
   if (ptr == NULL) {

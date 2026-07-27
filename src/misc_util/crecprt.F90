@@ -32,7 +32,11 @@
 
 subroutine CRecPrt(Title,FmtIn,A,nRow,nCol,tp)
 
+<<<<<<< HEAD
 use Spool, Only: LuWr
+=======
+use Spool, only: LuWr
+>>>>>>> upstream-openmolcas/master
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

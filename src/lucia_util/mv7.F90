@@ -9,12 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+<<<<<<< HEAD
 subroutine MV7(C,HC,LUC,LUHC)
+=======
+subroutine MV7(C,HC,LUC,LUHC,nTUVX,TUVX)
+>>>>>>> upstream-openmolcas/master
 ! Outer routine for sigma vector generation
 ! GAS version !!!!
 !
 ! Written in terms of RASG3/SBLOCK, May 1997
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream-openmolcas/master
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, NIRREP, NOCTYP, NSTSO, &
                       PSSIGN, XISPSM
@@ -28,6 +35,12 @@ implicit none
 real(kind=wp), intent(inout) :: C(*)
 real(kind=wp), intent(_OUT_) :: HC(*)
 integer(kind=iwp), intent(in) :: LUC, LUHC
+<<<<<<< HEAD
+=======
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
+>>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: IATP, IBTP, LBLOCK, LLUC, LLUHC, NBATCH, NOCTPA, NOCTPB, NTTS
 integer(kind=iwp), allocatable :: CBLTP(:), CI1BT(:), CIBT(:), CLBT(:), CLEBT(:), SIOIO(:), SVST(:)
 
@@ -87,9 +100,15 @@ else
   LLUHC = LUHC
 end if
 
+<<<<<<< HEAD
 call RASSG3(C,HC,NBATCH,CLBT,CI1BT,CIBT,LLUC,LLUHC,I_AM_OUT,N_ELIMINATED_BATCHES)
 !write(u6,*) ' LSCMAX_MX = ',LSCMAX_MX
 ! Eliminate local memory
+=======
+call RASSG3(C,HC,NBATCH,CLBT,CI1BT,CIBT,LLUC,LLUHC,I_AM_OUT,N_ELIMINATED_BATCHES,nTUVX,TUVX)
+
+! deallocate local memory
+>>>>>>> upstream-openmolcas/master
 call mma_deallocate(CLBT)
 call mma_deallocate(CLEBT)
 call mma_deallocate(CI1BT)

@@ -13,7 +13,11 @@
 
 !#define _DEBUGPRINT_
 subroutine RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,NOBPTS,MAXK, &
+<<<<<<< HEAD
                    I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
+=======
+                   I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS,nTUVX,TUVX)
+>>>>>>> upstream-openmolcas/master
 ! SUBROUTINE RSBB2BN --> 52
 !
 ! Combined alpha-beta double excitation
@@ -88,6 +92,11 @@ real(kind=wp), intent(inout) :: SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
 real(kind=wp), intent(in) :: CB(*), SCLFAC
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(_OUT_) :: XINT(*), CJRES(*), SIRES(*)
+<<<<<<< HEAD
+=======
+integer(kind=iwp), intent(in):: nTUVX
+real(kind=wp), intent(in):: TUVX(nTUVX)
+>>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: IASPGP(20), IBSPGP(20), ICOUL, IDOCOMP, II, IJ_DIM(2), IJ_REO(2), IJ_SYM(2), IJ_TYP(2), IJAC, IJSM, IJTYP, &
                      IKABTC, IKORD, IROUTE, ISM, ITP(20), ITYP, IXCHNG, JASPGP(20), JBSPGP(20), JJ, JSM, JTP(20), JTYP, KABOT, &
                      KACT, KATOP, KL_DIM(2), KL_REO(2), KL_SYM(2), KL_TYP(2), KLAC, KLSM, KLTYP, KSM, KTP(20), KTYP, LKABTC, LSM, &
@@ -296,7 +305,12 @@ do IJTYP=1,NIJTYP
           IXCHNG = 0
           ICOUL = 1
           ! Normal integrals with conjugation symmetry
+<<<<<<< HEAD
           call GETINT(XINT,IJ_TYP(2),IJ_SYM(2),IJ_TYP(1),IJ_SYM(1),KL_TYP(1),KL_SYM(1),KL_TYP(2),KL_SYM(2),IXCHNG,0,0,ICOUL)
+=======
+          call GETINT(XINT,IJ_TYP(2),IJ_SYM(2),IJ_TYP(1),IJ_SYM(1),KL_TYP(1),KL_SYM(1),KL_TYP(2),KL_SYM(2),IXCHNG,0,0,ICOUL, &
+                      nTUVX,TUVX)
+>>>>>>> upstream-openmolcas/master
 
           ! S(Ka,i,Ib) = sum(j,k,l,Jb)<Ib!a+kba lb!Jb>C(Ka,j,Jb)*(ji!kl)
 

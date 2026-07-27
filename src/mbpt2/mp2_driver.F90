@@ -348,7 +348,11 @@ if (Ready) then
   Wref = One/(One+Wref)   ! Note: this is Cref**2
 
   if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. LovMP2) .and. (.not. FNOMP2)) then
+<<<<<<< HEAD
     if (iPL >= 2) write(u6,'(3(/6X,A,F26.16,A)//6X,A,F26.16,A//6X,A,F15.5)') &
+=======
+    if (iPL >= 2) write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
+>>>>>>> upstream-openmolcas/master
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &
       ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &

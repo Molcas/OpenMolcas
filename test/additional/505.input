@@ -4,7 +4,11 @@
 * Features tested: Frenkel exciton energies
 * Responsible person: A. Kaiser
 *-------------------------------------------------------------------------------
+<<<<<<< HEAD
 > IF ($MOLCAS_NPROCS != 1)
+=======
+> IF ( $MOLCAS_NPROCS != 1 )
+>>>>>>> upstream-openmolcas/master
 >   EXIT 36
 > ENDIF
 

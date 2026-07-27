@@ -19,3 +19,4 @@
  (file) status      "$CurrDir/$Project."status         rw
  (file) ISODATA     "$MOLCAS"/data/isotope_data.txt    ro
  (file) FUNCDATA    "$MOLCAS"/data/functionals.txt     ro
+ (file) SPINDATA    "$MOLCAS"/data/spin_data.txt       ro

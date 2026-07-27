@@ -137,7 +137,11 @@
 >> COPY save.caspt2.h5 CASPT2_1
 >> COPY $Project.caspt2.h5 CASPT2
 
+<<<<<<< HEAD
 &RASSI &END
+=======
+&RASSI
+>>>>>>> upstream-openmolcas/master
   NrOfJobIphs = 2 2 1 ; 1 4 ; 6
   IphNames = CASPT2_1 ; CASPT2
   Heff

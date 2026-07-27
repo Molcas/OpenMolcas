@@ -12,13 +12,17 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO_t,Debug)
+subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO_t)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Reduce operation count and use BLAS.
 
+<<<<<<< HEAD
+=======
+use Localisation_globals, only: Debug
+>>>>>>> upstream-openmolcas/master
 use Molcas, only: LenIn
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
@@ -29,7 +33,6 @@ real(kind=wp), intent(out) :: PACol(nOrb2Loc,2)
 character(len=LenIn+8), intent(in) :: BName(*)
 real(kind=wp), intent(inout) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(in) :: gamma_rot
-logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAt
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: PA_ts, Tst
@@ -39,6 +42,7 @@ character(len=LenIn+8) :: PALbl
 
 cosg = cos(gamma_rot)
 sing = sin(gamma_rot)
+
 cos2g = cosg*cosg
 sin2g = sing*sing
 cosing = cosg*sing
@@ -97,7 +101,5 @@ if (Debug) then
     call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
   end do
 end if
-
-return
 
 end subroutine UpdateP

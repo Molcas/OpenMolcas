@@ -9,8 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2019, Oskar Weser                                      *
+<<<<<<< HEAD
 !               2026, Nike Dattani                                     *
 !               2026, Jaafar Mehrez                                    *
+=======
+>>>>>>> upstream-openmolcas/master
 !***********************************************************************
 
 !> @brief
@@ -23,7 +26,11 @@ use fcidump_tables, only: fill_2ElInt, fill_fock, fill_orbitals, FockTable, mma_
                           TwoElIntTable
 use fcidump_transformations, only: fold_Fock, get_orbital_E
 use fcidump_reorder, only: reorder
+<<<<<<< HEAD
 use fcidump_dump, only: dump_ascii, dump_fort55, dump_hdf5
+=======
+use fcidump_dump, only: dump_ascii, dump_hdf5
+>>>>>>> upstream-openmolcas/master
 use Definitions, only: wp, iwp
 
 implicit none
@@ -35,16 +42,24 @@ public :: cleanup, DumpOnly, make_fcidumps, transform
 
 contains
 
+<<<<<<< HEAD
 subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,core_energy,permutation,fort55_path)
+=======
+subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,core_energy,permutation)
+>>>>>>> upstream-openmolcas/master
 
   use general_data, only: nSym, nAsh
 
   character(len=*), intent(in) :: ascii_path, h5_path
   real(kind=wp), intent(in) :: orbital_energies(:), folded_Fock(:), TUVX(:), core_energy
   integer(kind=iwp), intent(in), optional :: permutation(:)
+<<<<<<< HEAD
   character(len=*), intent(in), optional :: fort55_path
   integer(kind=iwp) :: i, j, n
   integer(kind=iwp), allocatable :: energy_perm(:), inv_perm(:)
+=======
+  integer(kind=iwp) :: j, n
+>>>>>>> upstream-openmolcas/master
   type(OrbitalTable) :: orbital_table
   type(FockTable) :: fock_table
   type(TwoElIntTable) :: two_el_table
@@ -67,6 +82,7 @@ subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,co
 
   if (present(permutation)) call reorder(orbital_table,fock_table,two_el_table,orbsym,permutation)
 
+<<<<<<< HEAD
   if (present(fort55_path)) then
     allocate(energy_perm(sum(nAsh(:nSym))))
     allocate(inv_perm(sum(nAsh(:nSym))))
@@ -81,6 +97,8 @@ subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,co
     deallocate(inv_perm)
   end if
 
+=======
+>>>>>>> upstream-openmolcas/master
   call dump_ascii(ascii_path,core_energy,orbital_table,fock_table,two_el_table,orbsym)
   call dump_hdf5(h5_path,core_energy,orbital_table,fock_table,two_el_table,orbsym)
 
@@ -91,6 +109,7 @@ subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,co
 
 end subroutine make_fcidumps
 
+<<<<<<< HEAD
 !> @brief
 !>  Compute a permutation that sorts active orbitals by energy.
 !>
@@ -150,6 +169,8 @@ subroutine energy_sort_permutation(orbital_energies,permutation)
 
 end subroutine energy_sort_permutation
 
+=======
+>>>>>>> upstream-openmolcas/master
 subroutine transform(actual_iter,CMO,DIAF,D1I_AO,D1A_AO,D1S_MO,F_IN,orbital_E,folded_Fock)
 
   integer(kind=iwp), intent(in) :: actual_iter

@@ -365,14 +365,22 @@ do iD=1,nD
 
       ! Store the original CMOs for root following.
 
+<<<<<<< HEAD
       FckS(1:nBas(iSym)**2) = CMO(iCMO:iCMO+nBas(iSym)**2-1,iD)
+=======
+      FckS(1:nOrbmF*nBas(iSym)) = CMO(iCMO:iCMO+nOrbmF*nBas(iSym)-1,iD)
+>>>>>>> upstream-openmolcas/master
 
       call Diag_Driver('V','A','L',nOrbmF,TraF,TraF,nOrbmF,Dummy,Dummy,iDum,iDum,EOrb(jEOr,iD),CMO(iCMO,iD),nBas(iSym),0,-1,'J', &
                        nFound,iErr)
 
       ! Fix standard phase of the orbitals
 
+<<<<<<< HEAD
       do i=1,nBas(iSym)
+=======
+      do i=1,nOrbmF
+>>>>>>> upstream-openmolcas/master
         call VecPhase(CMO(iCMO+(i-1)*nBas(iSym),iD),nBas(iSym))
       end do
 #     ifdef _DEBUGPRINT_
@@ -400,7 +408,11 @@ do iD=1,nD
           ! Loop over the new orbitals and test if it is of the
           ! same type. i.e. fermionic or electronic.
 
+<<<<<<< HEAD
           do jOrb=iOrb,nOrb(iSym)
+=======
+          do jOrb=iOrb,nOrbmF
+>>>>>>> upstream-openmolcas/master
             tmp = sum(real(iFerm(jEOr:jEOr+nBas(iSym)-1),kind=wp)*abs(CMO(iCMO+(jOrb-1)*nBas(iSym):iCMO+(jOrb)*nBas(iSym)-1,iD)))
 
             Muon_j = 0                  ! electronic

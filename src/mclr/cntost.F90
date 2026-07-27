@@ -24,7 +24,12 @@ subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISG
 ! April   1991  : LUCIA version
 ! September 1993 > Sign and address stored together
 
+<<<<<<< HEAD
 use MCLR_Data, only: MINOP, NCNATS, NDPCNT, NTYP
+=======
+use MCLR_Data, only: NDPCNT
+use spinfo, only: MINOP, NTYP, NCNATS=>NCNFTP
+>>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

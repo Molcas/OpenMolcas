@@ -15,7 +15,10 @@ subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
+<<<<<<< HEAD
 use csfbas, only: CONF
+=======
+>>>>>>> upstream-openmolcas/master
 use lucia_data, only: CFTP
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
@@ -121,6 +124,7 @@ real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Is_First_Iter
 character(len=180), external :: Get_LN
 #include "warnings.h"
+<<<<<<< HEAD
 
 #ifdef _DMRG_
 Interface
@@ -131,6 +135,15 @@ Interface
    End subroutine SG_Setup_RASSCF
 End Interface
 #endif
+=======
+interface
+  subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+    import :: iwp
+    logical(kind=iwp), intent(inout) :: DBG, SkipGUGA
+    integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
+  end subroutine SG_Setup_RASSCF
+end interface
+>>>>>>> upstream-openmolcas/master
 
 !...Dongxia note for GAS:
 !   No changing about read in orbital information from INPORB yet.
@@ -561,10 +574,17 @@ else
     if (index(Line,'COMP') /= 0) OutFmt2 = 'COMPACT'
     if (index(Line,'FULL') /= 0) OutFmt2 = 'FULL'
     if ((OutFmt1 == 'DEFAULT') .and. (OutFmt2 == 'DEFAULT')) then
+<<<<<<< HEAD
       call WarningMessage(1,'Error in ''OUTP'' command?')
       write(u6,*) ' Input line is:'
       write(u6,*) Line
       write(u6,*) ' Did not understand ''OUTP'' input. Ignored.'
+=======
+      call WarningMessage(1,'Error in "OUTP" command?')
+      write(u6,*) ' Input line is:'
+      write(u6,*) Line
+      write(u6,*) ' Did not understand "OUTP" input. Ignored.'
+>>>>>>> upstream-openmolcas/master
     end if
   end if
   !---  Process PROR (Print levels for orbitals) command
@@ -614,10 +634,17 @@ else
     if (index(Line,'NOCO') /= 0) OutFmt1 = 'NOCORE  '
     if (index(Line,'ALL') /= 0) OutFmt1 = 'ALL     '
     if (OutFmt1 == 'DEFAULT ') then
+<<<<<<< HEAD
       call WarningMessage(1,'Error in ''ORBL'' command?')
       write(u6,*) ' Input line is:'
       write(u6,*) Line
       write(u6,*) ' Did not understand ''OUTL'' input. Ignored.'
+=======
+      call WarningMessage(1,'Error in "ORBL" command?')
+      write(u6,*) ' Input line is:'
+      write(u6,*) Line
+      write(u6,*) ' Did not understand "OUTL" input. Ignored.'
+>>>>>>> upstream-openmolcas/master
     end if
   end if
   !---  Process ORBA keyword: Orbital Appearance
@@ -642,10 +669,17 @@ else
     if (index(Line,'COMP') /= 0) OutFmt2 = 'COMPACT '
     if (index(Line,'FULL') /= 0) OutFmt2 = 'FULL    '
     if (OutFmt2 == 'DEFAULT ') then
+<<<<<<< HEAD
       call WarningMessage(1,'Error in ''OUTA'' command?')
       write(u6,*) ' Input line is:'
       write(u6,*) Line
       write(u6,*) ' Did not understand ''OUTA'' input. Ignored.'
+=======
+      call WarningMessage(1,'Error in "OUTA" command?')
+      write(u6,*) ' Input line is:'
+      write(u6,*) Line
+      write(u6,*) ' Did not understand "OUTA" input. Ignored.'
+>>>>>>> upstream-openmolcas/master
     end if
   end if
   !---  Process MAXO keyword: Max nr of state-specific orbital files produced
@@ -700,7 +734,11 @@ else
     if (index(Line,'NATU') /= 0) iOrbTyp = 3
     if (index(Line,'SPIN') /= 0) iOrbTyp = 4
     if (iOrbTyp == 0) then
+<<<<<<< HEAD
       write(u6,*) ' The line after keyword ''OUTORBITALS'' is'
+=======
+      write(u6,*) ' The line after keyword "OUTORBITALS" is'
+>>>>>>> upstream-openmolcas/master
       write(u6,*) ' not understood. That line begins:'
       write(u6,'(1x,a60)') line(1:60)
       write(u6,*) ' This input is IGNORED.'
@@ -806,6 +844,7 @@ else
     do iAlter=1,NAlter
       ReadStatus = ' Failure reading data after ALTER keyword.'
       read(LUInput,*,iostat=istatus) (MAlter(iAlter,i),i=1,3)
+<<<<<<< HEAD
     if (istatus < 0) then
       call Error(2)
       return
@@ -813,11 +852,24 @@ else
       call Error(3)
       return
     end if
+=======
+      if (istatus < 0) then
+        call Error(2)
+        return
+      else if (istatus > 0) then
+        call Error(3)
+        return
+      end if
+>>>>>>> upstream-openmolcas/master
       ReadStatus = ' O.K. after reading data after ALTER keyword.'
     end do
     ! (SVC) get absolute orbital values for the alterations so that
     ! iMAlter is symmetry independent
+<<<<<<< HEAD
     if (DBG) write(u6,*) ' ''Absolute'' iMAlter indices:'
+=======
+    if (DBG) write(u6,*) ' "Absolute" iMAlter indices:'
+>>>>>>> upstream-openmolcas/master
     do iAlter=1,NAlter
       iEnd = 0
       iStart = 1
@@ -1373,10 +1425,17 @@ else
       Line = Get_Ln(LUInput)
       ReadStatus = ' Failure reading after CIROOTS keyword.'
       read(Line,*,iostat=istatus) (IROOT(I),I=1,NROOTS)
+<<<<<<< HEAD
     if (istatus /= 0) then
       call Error(3)
       return
     end if
+=======
+      if (istatus /= 0) then
+        call Error(3)
+        return
+      end if
+>>>>>>> upstream-openmolcas/master
       ReadStatus = ' O.K.after CIROOTS keyword.'
       WEIGHT(:) = Zero
       if (NROOTS == 1) then
@@ -1490,7 +1549,11 @@ else
   if (Key('CISE')) then
     if (DBG) then
       write(u6,*) ' CISELECT keyword was given.'
+<<<<<<< HEAD
       write(u6,*) ' This input is awkward. Let''s find up'
+=======
+      write(u6,*) " This input is awkward. Let's find up"
+>>>>>>> upstream-openmolcas/master
       write(u6,*) ' a better way to do things.'
     end if
     ICICH = 1
@@ -1512,7 +1575,11 @@ else
       ReadStatus = ' O.K. reading after CISELECT keyword.'
       if (kRef > mxRef) then
         call WarningMessage(1,'CISElect input is wrong.')
+<<<<<<< HEAD
         write(u6,*) 'Number of CSF''s in CiSelect is out of bounds'
+=======
+        write(u6,*) "Number of CSF's in CiSelect is out of bounds"
+>>>>>>> upstream-openmolcas/master
         write(u6,'(a,i3,a,i3)') 'Specified:',kRef,', Max is',mxRef
         write(u6,'(a,i3)') 'Standard fixup, value set to',mxRef
         kRef = mxRef
@@ -1615,8 +1682,13 @@ else
     if (INVEC == 0) then
       if (IPRLEV >= TERSE) then
         call WarningMessage(2,'JOBIPH input is wrong.')
+<<<<<<< HEAD
         write(u6,*) ' Keyword JOBIPH was used, but the ''JOBOLD'' file'
         write(u6,*) ' does not exist. The ''JOBIPH'' file named'
+=======
+        write(u6,*) ' Keyword JOBIPH was used, but the "JOBOLD" file'
+        write(u6,*) ' does not exist. The "JOBIPH" file named'
+>>>>>>> upstream-openmolcas/master
         write(u6,*) IPHNAME
         write(u6,*) 'also does not exist. This is a fatal error.'
         call Error(4)
@@ -3949,14 +4021,22 @@ if (Key('CIRE')) then
   iJOB = -1
   call f_Inquire('JOBOLD',lExists)
   if (lExists) then
+<<<<<<< HEAD
     if (DBG) write(u6,*) ' ''JOBOLD'' exists.'
+=======
+    if (DBG) write(u6,*) ' "JOBOLD" exists.'
+>>>>>>> upstream-openmolcas/master
     iJOB = 1
   else
     call f_Inquire(IPHNAME,lExists)
     if (lExists) then
       iJOB = 0
       if (DBG) then
+<<<<<<< HEAD
         write(u6,*) ' No ''JOBOLD'', but JOBIPH exists.'
+=======
+        write(u6,*) ' No "JOBOLD", but JOBIPH exists.'
+>>>>>>> upstream-openmolcas/master
         write(u6,*) ' It is named ',IPHNAME
       end if
     end if
@@ -4007,8 +4087,13 @@ twordm_qcm = domcpdftDMRG .or. (.not. Key('CION'))
 ! Setup part for DMRG calculations
 #ifdef _DMRG_
 if (Key('DMRG') .or. doDMRG) then
+<<<<<<< HEAD
   call getenvf('Project',ProjectName)
   call getenvf('WorkDir',WorkDir)
+=======
+  call get_environment_variable('Project',ProjectName)
+  call get_environment_variable('WorkDir',WorkDir)
+>>>>>>> upstream-openmolcas/master
   ! Initialize the new interface
 
   ! in QCMaquis spins start with 0
@@ -4052,9 +4137,15 @@ SkipGUGA = DoBlockDMRG
 ! Initiate the SGUGA environment conditional to all flags
 
 #ifdef _DMRG_
+<<<<<<< HEAD
 Call SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
 #else
 Call SG_Setup_RASSCF(DBG,SkipGUGA)
+=======
+call SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+#else
+call SG_Setup_RASSCF(DBG,SkipGUGA)
+>>>>>>> upstream-openmolcas/master
 #endif
 
 ! ======================================================================
@@ -4122,11 +4213,37 @@ if (.not. SkipGUGA) then
   ! ====================================================================
   if (ICICH == 1) then
     call mma_allocate(UG2SG_X,NCONF,Label='UG2SG_X')
+<<<<<<< HEAD
     call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,CONF,CFTP,UG2SG_X,ICI,JCJ,CCI,MXROOT)
+=======
+    call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,CFTP,UG2SG_X,ICI,JCJ,CCI,MXROOT)
+>>>>>>> upstream-openmolcas/master
     call mma_deallocate(UG2SG_X)
   end if
   ! ====================================================================
 
+<<<<<<< HEAD
+=======
+#ifdef _NOT_NOW_
+  ! Turn on the Faroald SD CI code in case of
+  ! 1) no symmetry
+  ! 2) not RASSCF or GASSCF
+  ! 3) not using the expert, the HEXS or the DEXS key word
+  ! 4) not running the CASVB module.
+  If (                                  &
+      nSym==1 .and.                     &
+      (nHole1==0 .and. nElec3==0) .and. &
+      .Not.iDoGas .and.                 &
+      .Not.Key('HEXS') .and.            &
+      .Not.Key('DEXS') .and.            &
+      .Not.Key('EXPE') .and.            &
+      IFVB==0                           &
+     ) Then
+     DoFaro=.True.
+  End If
+#endif
+
+>>>>>>> upstream-openmolcas/master
   ! faroald initializations
   if (DOFARO) then
     if (NSYM > 1) then
@@ -4147,8 +4264,11 @@ end if
 !---  Normal exit -----------------------------------------------------*
 if (DBG) write(u6,*) ' Normal exit from PROC_INP.'
 
+<<<<<<< HEAD
 return
 
+=======
+>>>>>>> upstream-openmolcas/master
 contains
 
 subroutine Error(code)

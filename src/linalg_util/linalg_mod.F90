@@ -17,14 +17,23 @@ module linalg_mod
 #include "macros.fh"
 #include "intent.fh"
 
+<<<<<<< HEAD
 use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero, One, cZero, cOne
 use definitions, only: wp, iwp
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 use definitions, only: BLASR8
 #endif
+=======
+>>>>>>> upstream-openmolcas/master
 use sorting, only: sort, argsort
 use sorting_funcs, only: leq_i, leq_r, geq_r
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, cZero, cOne
+use Definitions, only: wp, iwp
+#ifdef _ADDITIONAL_RUNTIME_CHECK_
+use Definitions, only: BLASR8
+#endif
 
 implicit none
 private

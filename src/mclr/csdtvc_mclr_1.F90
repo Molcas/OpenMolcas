@@ -16,7 +16,12 @@ subroutine CSDTVC_MCLR_1(CSFVEC,DETVEC,DTOCMT,ICTSDT,IREFSM,ICOPY)
 !              so input becomes output while
 !              output remains output
 
+<<<<<<< HEAD
 use MCLR_Data, only: NCNATS, NCPCNT, NDPCNT, NDTASM, NTYP
+=======
+use MCLR_Data, only: NDPCNT, NDTASM
+use spinfo, only: NTYP, NCNATS=>NCNFTP, NCPCNT=>NCSFTP
+>>>>>>> upstream-openmolcas/master
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

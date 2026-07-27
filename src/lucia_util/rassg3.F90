@@ -12,7 +12,11 @@
 !               2015, Lasse Kragh Soerensen                            *
 !***********************************************************************
 
+<<<<<<< HEAD
 subroutine RASSG3(CB,SB,NBATS,LBATS,I1BATS,IBATS,LUC,LUHC,I_AM_OUT,N_ELIMINATED_BATCHES)
+=======
+subroutine RASSG3(CB,SB,NBATS,LBATS,I1BATS,IBATS,LUC,LUHC,I_AM_OUT,N_ELIMINATED_BATCHES,nTUVX,TUVX)
+>>>>>>> upstream-openmolcas/master
 ! Direct RAS routine employing combined MOC/n-1 resolution method
 !
 ! Jeppe Olsen   Winter of 1991
@@ -36,6 +40,12 @@ implicit none
 real(kind=wp), intent(inout) :: CB(*)
 real(kind=wp), intent(_OUT_) :: SB(*)
 integer(kind=iwp), intent(in) :: NBATS, LBATS(*), I1BATS(*), IBATS(8,*), LUC, LUHC, I_AM_OUT(*), N_ELIMINATED_BATCHES
+<<<<<<< HEAD
+=======
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: TUVX(nTUVX)
+
+>>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: DUM(1), I, I_AM_NOT_WANTED, IEND, ILEN, IOFF, ISBLK, ISBOFF, ISTA, JBATS, NSB
 integer(kind=iwp), allocatable :: SBOFF(:), SBSIZ(:)
 
@@ -99,7 +109,11 @@ do JBATS=1,NBATS
 
   ISBOFF = SBOFF(JBATS)
   ! Obtain sigma for batch of blocks
+<<<<<<< HEAD
   call SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,CB,SB(ISBOFF),LUC,0,0,0,0,0)
+=======
+  call SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,CB,SB(ISBOFF),LUC,0,0,0,0,0,nTUVX,TUVX)
+>>>>>>> upstream-openmolcas/master
 
 end do
 

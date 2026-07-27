@@ -12,6 +12,10 @@
 !               Per Ake Malmqvist                                      *
 !               1991, Jeppe Olsen                                      *
 !               1991,1996, Markus P. Fuelscher                         *
+<<<<<<< HEAD
+=======
+!               2026, Roland Lindh                                     *
+>>>>>>> upstream-openmolcas/master
 !***********************************************************************
 !  CICtl
 !
@@ -41,7 +45,11 @@
 !> @param[in]     IFINAL Calculation status switch
 !***********************************************************************
 
+<<<<<<< HEAD
 subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
+=======
+subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,nTUVX,TUVX,IFINAL)
+>>>>>>> upstream-openmolcas/master
 ! ****************************************************************
 ! history:                                                       *
 ! updated to use determinant based CI-procedures                 *
@@ -61,10 +69,15 @@ use lucia_data, only: RF1, RF2
 use RASWfn, only: wfn_dmrg_checkpoint
 use rasscf_global, only: DOFCIDump, Emy, TwoRDM_qcm
 #endif
+<<<<<<< HEAD
+=======
+use ci_interfaces, only: Mk_pdms
+>>>>>>> upstream-openmolcas/master
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
 #endif
+<<<<<<< HEAD
 use csfbas, only: CONF
 use casvb_global, only: ifvb
 use CMS, only: CMSGiveOpt, iCMSOpt
@@ -73,6 +86,15 @@ use lucia_data, only: CFTP, DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 use wadr, only: FMO
 use sguga, only: CIS, SGS
+=======
+use casvb_global, only: ifvb
+use CMS, only: CMSGiveOpt, iCMSOpt
+use rctfld_module, only: lRF
+
+use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
+
+use wadr, only: FMO
+>>>>>>> upstream-openmolcas/master
 use sxci, only: IDXSX
 use gas_data, only: iDoGAS
 use input_ras, only: Key
@@ -82,14 +104,24 @@ use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, IC
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use general_data, only: CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
+<<<<<<< HEAD
+=======
+use sguga_states, only: CIS, SGS, EXS
+>>>>>>> upstream-openmolcas/master
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
+<<<<<<< HEAD
 real(kind=wp), intent(in) :: CMO(*), FA(*), D1I(*)
 real(kind=wp), intent(inout) :: D(NACPAR), DS(NACPAR), P(NACPR2), PA(NACPR2), FI(*), D1A(*), TUVX(*)
+=======
+integer(kind=iwp), intent(in) :: nTUVX
+real(kind=wp), intent(in) :: CMO(*), FA(*), D1I(*)
+real(kind=wp), intent(inout) :: D(NACPAR), DS(NACPAR), P(NACPR2), PA(NACPR2), FI(*), D1A(*), TUVX(nTUVX)
+>>>>>>> upstream-openmolcas/master
 integer(kind=iwp), intent(in) :: iFinal
 integer(kind=iwp) :: i, iDisk, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVecDet, mconf
 real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
@@ -110,6 +142,11 @@ logical(kind=iwp), external :: PCM_On
 #endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
+<<<<<<< HEAD
+=======
+integer(kind=iwp), parameter :: istate=1
+
+>>>>>>> upstream-openmolcas/master
 #include "warnings.h"
 
 ! Local print level (if any)
@@ -125,7 +162,11 @@ if (IfCRPR) call MKPROJ(CRVEC,CMO,TUVX)
 ! IFRAS = 0: This is a CAS calculation
 ! IFRAS = 1: This is a RAS calculation
 
+<<<<<<< HEAD
 if (iDoGas .or. (SGS%IFRAS > 2)) call setsxci()
+=======
+if (iDoGas .or. (SGS(istate)%IFRAS > 2)) call setsxci()
+>>>>>>> upstream-openmolcas/master
 if (IPRLEV > DEBUG) then
   write(u6,*)
   write(u6,*) ' Enter CI section, CICTL routine'
@@ -134,10 +175,13 @@ if (IPRLEV > DEBUG) then
   write(u6,*) ' iteration count =',ITER
 end if
 
+<<<<<<< HEAD
 !do i=1,NTOT2 ! yma
 !  write(u6,*) 'ifinal CMO',ifinal,i,CMO(i)
 !end do
 
+=======
+>>>>>>> upstream-openmolcas/master
 ! SOME DIRTY SETUPS
 
 S = Half*real(ISPIN-1,kind=wp)
@@ -259,6 +303,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
     call mma_allocate(DStmp,NAC**2,Label='DStmp')
     call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
+<<<<<<< HEAD
     if (NAC >= 1) then
 
       if (NACTEL == 0) then
@@ -266,6 +311,17 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         DStmp(:) = Zero
         Ptmp(:) = Zero
       else if (doDMRG) then
+=======
+    call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+    Dtmp(:) = Zero
+    DStmp(:) = Zero
+    Ptmp(:) = Zero
+    PAtmp(:) = Zero
+
+    if (NAC >= 1) then
+
+      if (doDMRG) then
+>>>>>>> upstream-openmolcas/master
 #       ifdef _DMRG_
         ! copy the DMs from d1rf/d2rf for ipcmroot
         Dtmp(1:NACPAR) = rf1(1:NACPAR)
@@ -281,6 +337,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         DStmp(:) = Zero
 #       endif
       else
+<<<<<<< HEAD
         call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
         call mma_allocate(Pscr,NACPR2,Label='Pscr')
         call Lucia_Util('Densi',CI_Vector=CIVEC)
@@ -300,11 +357,26 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     !n_paired_elec = nActEl-n_unpaired_elec
     !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
     !write(u6,*) 'n_Det =',n_Det
+=======
+
+        Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+
+      end if
+    end if
+
+    call mma_allocate(PScr,NACPR2,Label='PScr')
+    if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+    call mma_deallocate(PScr)
+>>>>>>> upstream-openmolcas/master
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
 
     call mma_deallocate(Ptmp)
+<<<<<<< HEAD
+=======
+    call mma_deallocate(PAtmp)
+>>>>>>> upstream-openmolcas/master
 
     call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
     if (NASH(1) /= NAC) call DBLOCK(Dtmp)
@@ -432,7 +504,11 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 #   endif
   else
     ! Normal Davidson algorithm
+<<<<<<< HEAD
     call DavCtl(FMO,TUVX,IFINAL)
+=======
+    call DavCtl(Size(FMO),FMO,nTUVX,TUVX,IFINAL)
+>>>>>>> upstream-openmolcas/master
   end if
 
   ! CALCULATE DENSITY MATRICES
@@ -459,10 +535,15 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
   call mma_allocate(density_square,nac,nac)
 # endif
 
+<<<<<<< HEAD
   !if (DWSCF%do_DW) call DWSol_wgt(1,ENER(:,ITER),weight)
   iDisk = IADR15(4)
   jDisk = IADR15(3)
   !JB Instead of RASSCF/RASCI energy, print out energy for rotated states
+=======
+  iDisk = IADR15(4)
+  jDisk = IADR15(3)
+>>>>>>> upstream-openmolcas/master
   do_rotate = .false.
   if (ifinal == 2) then
     if (IXMSP == 1) call XMSRot(CMO,FI,FA)
@@ -484,9 +565,14 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     else
       if (IRotPsi == 1) write(u6,'(6X,A)') 'Do_Rotate.txt is not found. MCSCF states will not be rotated'
     end if
+<<<<<<< HEAD
     !JB End of condition 'Do_Rotate' to initialize rotated states
   end if
   !JB End If for ifinal=2
+=======
+  end if
+
+>>>>>>> upstream-openmolcas/master
   do jRoot=1,lRoots
     ! load back one CI vector at the time
     !JB If do_rotate=.true., then we read CI vectors from CIVec
@@ -496,6 +582,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     ! compute density matrices
 
     if (NAC >= 1) then
+<<<<<<< HEAD
       if (.not. doDMRG) call Lucia_Util('Densi',CI_Vector=CIVEC)
       if (IPRLEV >= INSANE) then
         write(u6,*) 'At root number =',jroot
@@ -506,6 +593,16 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
       end if
     end if
     if ((.not. doDMRG) .and. ((SGS%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+=======
+      if (.not. doDMRG) Then
+
+         Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+
+      End If
+    end if
+
+    if ((.not. doDMRG) .and. ((SGS(istate)%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+>>>>>>> upstream-openmolcas/master
     ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
     if (doDMRG) then
 #     ifdef _DMRG_
@@ -533,6 +630,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
       end if
 #   endif
     end if
+<<<<<<< HEAD
     ! Modify the symmetric 2-particle density if only partial "exact exchange" is included.
     !n_Det = 2
     !n_unpaired_elec = iSpin-1
@@ -547,6 +645,8 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 
     !write(u6,*) 'second call to Mod_P2'
 
+=======
+>>>>>>> upstream-openmolcas/master
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     ! update average density matrices
@@ -557,11 +657,18 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         exit
       end if
     end do
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream-openmolcas/master
     D(:) = D(:)+Scal*Dtmp(1:NACPAR)
     DS(:) = DS(:)+Scal*DStmp(1:NACPAR)
     P(:) = P(:)+Scal*Ptmp(1:NACPR2)
     PA(:) = PA(:)+Scal*PAtmp(1:NACPR2)
+<<<<<<< HEAD
     !GLM Put the D1MO and the P2MO values in RUNFILE
+=======
+>>>>>>> upstream-openmolcas/master
 
     call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
@@ -628,11 +735,16 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         ! load back one CI vector at the time
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
+<<<<<<< HEAD
         call mma_allocate(kcnf,nactel,Label='kCnf')
         if (.not. iDoGas) then
           call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
           !end if
           !call mma_deallocate(kcnf)
+=======
+        if (.not. iDoGas) then
+          call SG_Reord(SGS(istate),EXS(istate),STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
+>>>>>>> upstream-openmolcas/master
 
           ! save reorder CI vector on disk
           !if (.not. iDoGas) then
@@ -656,7 +768,11 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
               call Molcas_open(LuVecDet,filename)
               write(LuVecDet,'(8i4)') nish
             end if
+<<<<<<< HEAD
             call SG_PrWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+=======
+            call SG_PrWF(SGS(istate),CIS(istate),STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+>>>>>>> upstream-openmolcas/master
             ! Close GronOR vecdet file (tps/cdg 20210430)
             if (Key('PRSD')) close(LuVecDet)
           end if
@@ -674,10 +790,18 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
             write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',prwthr,' for root',i
             write(u6,'(6X,A,F15.6)') 'energy=',ener(i,iter)
 
+<<<<<<< HEAD
             call gasprwf(nac,nactel,stsym,conf,cftp,CIVEC,kcnf)
           end if
         end if
         call mma_deallocate(kcnf)
+=======
+            call mma_allocate(kcnf,nactel,Label='kCnf')
+            call gasprwf(nac,nactel,stsym,CIVEC,kcnf)
+            call mma_deallocate(kcnf)
+          end if
+        end if
+>>>>>>> upstream-openmolcas/master
         !end if
       end do
 

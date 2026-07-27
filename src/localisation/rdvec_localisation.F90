@@ -92,6 +92,10 @@ else
   write(u6,*)
   write(u6,'(A)') trim(VTitle)
 end if
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream-openmolcas/master
 write(u6,*)
 
 k1 = 0

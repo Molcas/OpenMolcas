@@ -59,9 +59,15 @@ if (iterprlv > 0) then
   end select
 
   write(u6,*)
+<<<<<<< HEAD
   write(u6,'(a,f23.16)') 'Total energy          ',EneV
   write(u6,'(a,f23.16)') 'One electron energy   ',E1V
   write(u6,'(a,f23.16)') 'Two electron energy   ',E2V
+=======
+  write(u6,'(a,f16.8)') 'Total energy          ',EneV
+  write(u6,'(a,f16.8)') 'One electron energy   ',E1V
+  write(u6,'(a,f16.8)') 'Two electron energy   ',E2V
+>>>>>>> upstream-openmolcas/master
 
   if ((abs(Ediff) > Ethr) .or. (iter <= 1)) then
     write(u6,'(a,f16.8)') 'Energy difference     ',Ediff
@@ -113,12 +119,20 @@ else if (jPrint >= 2) then
   if (QNR) then
     cDltNrm = ' '
     if (DltNrm > DltNth) cDltNrm = '*'
+<<<<<<< HEAD
     write(u6,'(1X,i3,3f23.16,1x,3(es12.4,a1,1x),2es11.2,3x,A,f6.0)') &
+=======
+    write(u6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)') &
+>>>>>>> upstream-openmolcas/master
       Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DltNrm,cDltNrm,FMOMax,cFMOMax,sqrt(DNorm),sqrt(TNorm),AccCon,CpuItr
   else
     cDMOMax = ' '
     if (abs(DMOMax) > Dthr) cDMOMax = '*'
+<<<<<<< HEAD
     write(u6,'(1X,i3,3f23.16,1x,3(es12.4,a1,1x),2es11.2,3x,A,f6.0)') &
+=======
+    write(u6,'(1X,i3,3f16.9,1x,3(es10.2,a1,1x),2es11.2,3x,A,f6.0)') &
+>>>>>>> upstream-openmolcas/master
       Iter,EneV+Shift,E1V+Shift,E2V,EDiff,cEDiff,DMOMax,cDMOMax,FMOMax,cFMOMax,sqrt(DNorm),sqrt(TNorm),AccCon,CpuItr
 
   end if

@@ -12,7 +12,11 @@
 !***********************************************************************
 
 subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST, &
+<<<<<<< HEAD
                   SCLFAC,IPHGAS)
+=======
+                  SCLFAC,IPHGAS,nTUVX,TUVX)
+>>>>>>> upstream-openmolcas/master
 ! SUBROUTINE RSBB2A --> 46
 !
 ! two electron excitations on column strings
@@ -76,6 +80,11 @@ real(kind=wp), intent(inout) :: SB(*)
 real(kind=wp), intent(in) :: CB(*), SCLFAC
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), XINT(*)
 integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*)
+<<<<<<< HEAD
+=======
+integer(kind=iwp), intent(in):: nTUVX
+real(kind=wp), intent(in):: TUVX(nTUVX)
+>>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: I, I1JL, I4_AC(4), I4_REO(4), I4_TP(4), IAC, IBOT, ICOUL, IDXSM, IDXTYP, IFIRST, IFRST, II12, IIPART, IJKL, &
                      IJL, IK, IKBOFF, IKBT(3,8), IKBTC, IKOBSM, IKOFF, IKPAIR, IKSM, IKSMBT(2,8), IOBSM, ISBOFF, ISCR(4), ISM, &
                      ISM_ORIG, ITOP, ITP(256), ITPSM_ORIG, ITYP, ITYP_ORIG, IXCHNG, J, JAC, JFRST, JL, JLBOFF, JLBT(3,8), JLBTC, &
@@ -444,7 +453,11 @@ if (IDXSM /= 0) then
                       IXCHNG = 1
                       ! fetch integrals
                       ! Full conjugation symmetry, do do not worry
+<<<<<<< HEAD
                       call GETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
+=======
+                      call GETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
+>>>>>>> upstream-openmolcas/master
                       ! End if similarity transformed Hamiltonian is used
                       do JL=1,NJL
                         XINT(IKOFF+(JLOFF-1+JL-1)*NIKT:IKOFF+(JLOFF-1+JL-1)*NIKT+NIK-1) = SCR((JL-1)*NIK+1:JL*NIK)
@@ -693,9 +706,15 @@ if (IDXSM /= 0) then
                     ! we want the operator in the form a+i ak a+l aj ((ij!lk)-(ik!lj))
                     if (ICOUL == 2) then
                       ! Obtain X2(ik,lj) = (ij!lk)
+<<<<<<< HEAD
                       call GETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,KTYP,KSM,IXCHNG,IKSM,JLSM,ICOUL)
                     else if (ICOUL == 1) then
                       call GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
+=======
+                      call GETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,KTYP,KSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
+                    else if (ICOUL == 1) then
+                      call GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
+>>>>>>> upstream-openmolcas/master
                     end if
 
                   end if

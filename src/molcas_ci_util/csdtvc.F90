@@ -9,11 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CSDTVC(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,IREFSM,ICOPY)
+subroutine CSDTVC(CSFVEC,DETVEC,IWAY,IREFSM,ICOPY)
 ! PURPOSE: TRANSFORM FROM DETERMINANT TO CSF BASIS AND VICE VERSA
 !          IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
 !          IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 
+<<<<<<< HEAD
+=======
+use lucia_data, only:  DTOCMT=>DTOC, ICTSDT=>SDREO
+>>>>>>> upstream-openmolcas/master
 use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -22,9 +26,14 @@ use Definitions, only: u6
 #endif
 
 implicit none
+<<<<<<< HEAD
 integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY
 real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
 real(kind=wp), intent(in) :: DTOCMT(*)
+=======
+integer(kind=iwp), intent(in) :: IWAY, IREFSM, ICOPY
+real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
+>>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF
 
 ! To avoid compiler complaints
@@ -58,7 +67,11 @@ if (IWAY == 1) then
   call WRTMAT(CSFVEC,1,NCSF,1,NCSF)
   write(u6,*)
 # endif
+<<<<<<< HEAD
   DETVEC(:) = Zero
+=======
+  DETVEC(1:NDET) = Zero
+>>>>>>> upstream-openmolcas/master
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
     ICSF = NCSFTP(ITYP)
@@ -75,7 +88,11 @@ if (IWAY == 1) then
     if ((IDET*ICNF*ICSF) > 0) call MATML4(DETVEC(IOFFDT),DTOCMT(IOFFCD),CSFVEC(IOFFCS),IDET,ICNF,IDET,ICSF,ICSF,ICNF,0)
   end do
   call Sort_Cdet(nDet,ICTSDT,DetVec)
+<<<<<<< HEAD
   if (ICOPY /= 0) CSFVEC(:) = DETVEC(:)
+=======
+  if (ICOPY /= 0) CSFVEC(1:NDET) = DETVEC(1:NDET)
+>>>>>>> upstream-openmolcas/master
 # ifdef _DEBUGPRINT_
   write(u6,*) '   OUTPUT DET VECTOR:'
   call WRTMAT(DETVEC,1,NDET,1,NDET)
@@ -96,7 +113,11 @@ else
   write(u6,*) ' ICTSDT reorder array'
   call IWRTMA(ICTSDT,1,100,1,100)
 # endif
+<<<<<<< HEAD
   DETVEC(:) = CSFVEC(:)
+=======
+  DETVEC(1:NDET) = CSFVEC(1:NDET)
+>>>>>>> upstream-openmolcas/master
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
     ICSF = NCSFTP(ITYP)

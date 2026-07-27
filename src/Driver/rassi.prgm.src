@@ -11,5 +11,3 @@
  (prgm) "$MOLCAS"/bin/rassi.exe             executable
  (file)  RASSIINP "$WorkDir/$Project."Rassi.Input     rwi
 #include "state_interaction.inc"
- (file)  CIVECTOR "$WorkDir/$Project".CIVector    rw
- (file)  CIVECTUP "$WorkDir/$Project".CIVectup    rw
