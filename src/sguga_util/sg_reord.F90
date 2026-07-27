@@ -46,12 +46,14 @@ subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !***********************************************************************
 
 use sguga, only: EXS, SGS
-use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Lucia_data, only: CONF_Occ, CFTP
 use Molcas, only: MxAct
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -60,11 +62,14 @@ integer(kind=iwp), intent(in) :: iState, IREFSM, IMODE, nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
 
-integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, nOrb, nEl
 integer(kind=iwp), external :: SG_PHASE, SG_NUM
 integer(kind=iwp) :: KCNF(MxAct)
 real(kind=wp) :: Fact
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 
 Associate(SGS=>SGS(istate),EXS=>EXS(iState))
 
