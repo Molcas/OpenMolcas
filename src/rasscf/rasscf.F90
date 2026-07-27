@@ -84,7 +84,9 @@ use output_ras, only: IPRLOC, RC_CI, RC_SX
 use rasscf_files, only: ITERFILE, JOBIPH
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
                         NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
+#ifdef _HDF5_
 use sguga, only: CIS
+#endif
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
