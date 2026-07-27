@@ -299,5 +299,3 @@ can be used by the program :program:`LUSCUS` to produce spin densities.
 :kword:`LUMORB`/:kword:`FILEORB`
   use definition of active space from Orbital file
 
-.. _TUT\:sec\:rasscf_mrcc:
-

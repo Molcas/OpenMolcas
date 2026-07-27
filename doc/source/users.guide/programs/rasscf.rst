@@ -530,59 +530,6 @@ A minimal input example for using state-averaged Stochastic-CASSCF jointly with 
         SYMMETRY = 1
   >>enddo
 
-.. _UG\:sec\:mrcc:
-
-MRCC interface
---------------
-
-.. warning::
-
-   This interface generates files for an external program. It does not run MRCC.
-
-The :program:`RASSCF` program can dump active-space integrals in the
-:file:`fort.55` format used by the external :program:`MRCC` program.
-This is triggered by the :kword:`DMPO` keyword.
-
-When :kword:`DMPO` is given, the program writes three integral files
-in the working directory:
-
-.. class:: filelist
-
-:file:`FCIDUMP`
-  Standard ASCII FCIDUMP with symmetry-blocked orbital ordering.
-
-:file:`H5FCIDUMP`
-  HDF5 version of the FCIDUMP.
-
-:file:`fort.55`
-  MRCC-compatible ASCII file. The active orbitals are reordered from the
-  Molcas irrep-grouped ordering into ascending-energy ordering before
-  the integrals are written. Two-electron integrals are written in
-  4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are
-  written from the Fock matrix, followed by the core energy.
-
-Because :file:`fort.55` is registered in the module file registry,
-the wrapper automatically copies it from :file:`$WorkDir/` back to the
-user's output directory after the calculation.
-
-Supported point groups for the symmetry mapping are:
-:math:`C_1`, :math:`C_i`, :math:`C_s`, :math:`C_2`, :math:`C_{2v}`,
-:math:`C_{2h}`, :math:`D_2`, and :math:`D_{2h}`.
-
-.. _UG\:sec\:mrcc_inputexample:
-
-Input Example
-...............
-
-A minimal input to generate a :file:`fort.55` file for a subsequent
-MRCC calculation is shown below: ::
-
-  &RASSCF
-    OutOrbitals = CANOnical
-    nActEl = 10 0 0
-    Ras2 = 3 2 2 0 2 0 0 0
-    DMPO
-
 .. _UG\:sec\:gasscf:
 
 GASSCF method
@@ -749,7 +696,7 @@ Interface to MRCC
 
    This will only work if you have MRCC installed
 
-Since the :`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in MRCC's :file:`fort.55` format for interfacing to MRCC. 
+Since the :`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in MRCC's :file:`fort.55` format for interfacing to MRCC. Before writing the :file:`fort.55` file, we use :kword:`OutOrbitals` = ``CANOnical`` to re-order the active orbitals from an irrep-grouped ordering into ascending-energy ordering. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. Because :file:`fort.55` is registered in the module file registry, the wrapper automatically copies it from :file:`$WorkDir/` back to the user's output directory after the calculation.
 
 Generating an MRCC :file:`fort.55` file
 .......................................
@@ -779,7 +726,7 @@ MRCC. ::
 After a successful run, the output directory will contain files named :file:`FCIDUMP`,
 :file:`H5FCIDUMP`, and :file:`fort.55`. The first three lines of
 :file:`fort.55` contain the number of active orbitals and electrons, the
-symmetry labels of each orbital (in MRCC numbering), and a status flag
+symmetry labels of each orbital (with MRCC's numbering convention for point groups), and a status flag
 (``150000``). The body contains the two-electron integrals in 4-fold
 format, followed by the one-electron Fock matrix elements and the core energy.
 A representative excerpt is shown below::
@@ -804,15 +751,14 @@ A complete workflow that runs |openmolcas| to generate the integral
 files and then calls the external :program:`MRCC` program can be
 submitted with the following SLURM script.  The working directory must
 contain the |openmolcas| input file (e.g. ``in.input``) and the
-:program:`MRCC` input file ``MINP``.  An example for a Ne atom in
-:math:`D_{2h}` symmetry with the 6-31G basis set is given below. ::
+:program:`MRCC` input file ``MINP``.  Using the |openmolcas| input file for the above Ne example, and naming the file ``in.input`` a minimal working SLURM script is::
 
   #!/bin/sh
 
   pymolcas in.input
   dmrcc
 
-The corresponding |openmolcas| input file ``in.input`` was provided above, and the :program:`MRCC` input file ``MINP`` reads::
+with a minimal working :program:`MRCC` input file ``MINP`` as follows::
 
   iface=cfour
   calc=CCSDTQ
