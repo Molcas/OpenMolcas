@@ -25,10 +25,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: atomNumberx3, cnt, efatom1, efatom2, efatom3, efatom4, i, istatus, iwmax, k, l, LuSpool, nCent, nRoots, &
+integer(kind=iwp) :: atomNumberx3, cnt, efatom1, efatom2, efatom3, efatom4, i, istatus, k, l, LuSpool, nback, nCent, nfor, nRoots, &
                      nsAtom, nSym, ntr
 real(kind=wp) :: Bt(3,4), com(3), dBt(3,4,3,4), dperp, dperpmax, Dum, efmodul, fourAtoms(3,4), ftot, gau_sigma, gau_t0, mdtime, &
-                 nhat(3), norm, ovlp, proj, rmaxAng, rnorm, time_scaling, totmass, vnorm, wf_phi, wf_theta, wproj
+                 nhat(3), norm, ovlp, proj, rmaxAng, rnorm, time_scaling, totmass, vnorm, wf_phi, wf_theta
 logical(kind=iwp) :: bending, Found, gaussian_force, keep_rot, ldB, linear, lWarn, lWrite, torsional, wall, wall_vdw
 character(len=180) :: Key, Line
 character(len=8) :: Label
@@ -303,11 +303,11 @@ end if
 ! Two virtual walls perpendicular to the direction n(theta,phi) compress
 ! the molecule. The total force is F = P*pi*R(theta,phi)^2, with R the
 ! effective radius of the molecular cross section perpendicular to n,
-! and it is distributed among all the atoms. The geometry is shifted to its
-! centre of mass and the molecule is divided in two halves by the plane
-! perpendicular to n and passing through the centre of mass:
-! each atom is pushed in the direction of that dividing plane,
-! weighted by the projection of its position unit vector on n.
+! and each wall exerts it on the atoms of its hemisphere. The geometry is
+! shifted to its centre of mass and the molecule is divided in two halves
+! by the plane perpendicular to n and passing through the centre of mass:
+! every atom of a hemisphere is pushed towards that dividing plane with
+! the same force, ftot divided by the number of atoms of its hemisphere.
 if (wall) then
 
   ! WALL forces act on all atoms (centre of mass, effective radius, force distribution),
@@ -353,20 +353,18 @@ if (wall) then
   end if
   write(u6,*) 'Compression direction:',nhat(:)
 
-  ! effective radius: largest atomic distance to the compression axis
-  ! (plus the van der Waals radius of that atom, if requested)
+  ! effective radius: largest distance from the compression axis to the
+  ! atomic surfaces. If requested, the van der Waals radius is added to
+  ! every atom before taking the maximum (the outter atom is not
+  ! necessarily the one further located from the axis)
   dperpmax = Zero
-  iwmax = 1
   do i=1,nsAtom
     proj = sum(coord(:,i)*nhat(:))
     dperp = sqrt(sum((coord(:,i)-proj*nhat(:))**2))
-    if (dperp > dperpmax) then
-      dperpmax = dperp
-      iwmax = i
-    end if
+    if (wall_vdw) dperp = dperp+vdwRad(nint(charge(i)))/Angstrom
+    if (dperp > dperpmax) dperpmax = dperp
   end do
   rmaxAng = dperpmax*Angstrom
-  if (wall_vdw) rmaxAng = rmaxAng+vdwRad(nint(charge(iwmax)))
   write(u6,*) 'Effective radius:',rmaxAng,' angstrom'
 
   ! total compression force: F = P*pi*R(theta,phi)^2
@@ -377,17 +375,34 @@ if (wall) then
   call mma_deallocate(mass)
   call mma_deallocate(charge)
 
-  ! distribute the force among the atoms: an atom in the "forward"
-  ! hemisphere (r.n > 0) is pushed along -n, and an atom in the
-  ! "backward" hemisphere (r.n < 0) is pushed along +n
+  ! distribute the force among the atoms: each wall exerts the total
+  ! force ftot on the atoms of its hemisphere, shared equally among them.
+  ! An atom in the "forward" hemisphere (r.n > 0) is pushed along -n
+  ! with |F| = ftot/nfor, and an atom in the "backward" hemisphere
+  ! (r.n < 0) is pushed along +n with |F| = ftot/nback, so that the
+  ! moduli of the forces of each hemisphere sum up the wall force
+  ! and the net force is zero.
+  nfor = 0
+  nback = 0
   do i=1,nsAtom
-    rnorm = sqrt(sum(coord(:,i)**2))
-    if (rnorm > Zero) then
-      wproj = sum(coord(:,i)*nhat(:))/rnorm
-    else
-      wproj = Zero
+    proj = sum(coord(:,i)*nhat(:))
+    if (proj > Zero) then
+      nfor = nfor+1
+    else if (proj < Zero) then
+      nback = nback+1
     end if
-    ExtGrad(:,i) = wproj*(ftot/real(nsAtom,kind=wp))*nhat(:)
+  end do
+  if ((nfor == 0) .or. (nback == 0)) then
+    call WarningMessage(2,'Error in EXTF: all atoms lie on one side of the dividing plane, WALL forces are undefined')
+    call Quit_OnUserError()
+  end if
+  do i=1,nsAtom
+    proj = sum(coord(:,i)*nhat(:))
+    if (proj > Zero) then
+      ExtGrad(:,i) = (ftot/real(nfor,kind=wp))*nhat(:)
+    else if (proj < Zero) then
+      ExtGrad(:,i) = -(ftot/real(nback,kind=wp))*nhat(:)
+    end if
   end do
 
   ! Remove the net force (always) and the net torque (unless ROTA is given)

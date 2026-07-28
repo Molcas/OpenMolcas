@@ -15,8 +15,8 @@ function vdWRad(iAtmNr)
 ! check if the radius is zero, in which case the radius has not been
 ! reported.
 ! References:
-! Main group elements: J. Phys. Chem. A 113 (2009) 5806-5812
-! Transition metals: Dalton Trans. 42 (2013) 8617-8636
+! Main group elements: J. Phys. Chem. A 113 (2009) 5806-5812 doi:10.1021/jp8111556
+! Transition metals: Dalton Trans. 42 (2013) 8617-8636 doi:10.1039/c3dt50599e
 
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
