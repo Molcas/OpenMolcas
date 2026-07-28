@@ -1,5 +1,5 @@
 This directory contains some sample scripts that can be used together
-with the module FALSE of openmolcas. A possible application is, for
+with the module FALSE of OpenMolcas. A possible application is, for
 example, performing a geometry optimization with a method not currently
 available in OpenMolcas:
 
