@@ -24,9 +24,10 @@ subroutine PrInp_MCLR(iPL)
 !***********************************************************************
 
 use MCLR_Data, only: ChDisp, DspVec, IRLXROOT, ISNAC, ISTATE, lDisp, NACSTATES, nexp_max, NSSA, SA, SwLbl, XISPSM
-use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, iMethod, iPT2, iRoot, iSpin, mTit, nActEl, nAsh, &
-                      nAtoms, nBas, nCSF, nDel, nDisp, nElec3, NewCho, nFro, nHole1, nIsh, nIter, nOrb, nRoots, nRS1, nRS2, nRS3, &
-                      nSkip, nSym, ntAsh, ntBas, ntIsh, nTPert, Perturbation, PotNuc, PT2, SpinPol, State_Sym, State_Sym, &
+use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, State_Sym=>STSym
+use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, iMethod, iPT2, iRoot, mTit, &
+                      nAtoms, nBas, nCSF, nDel, nDisp, NewCho, nFro, nIter, nOrb, nRoots, &
+                      nSkip, ntAsh, ntBas, ntIsh, nTPert, Perturbation, PotNuc, PT2, SpinPol, &
                       StepType, TitleIn, TwoStep, Weight
 use PCM_grad, only: RFPERT
 use Constants, only: Half

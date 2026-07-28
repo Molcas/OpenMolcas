@@ -24,7 +24,8 @@ use Str_Info, only: DTOC
 use ipPage, only: ipget, ipin, ipout, ipopen, W
 use MCLR_Data, only: ipCI, ISTATE, LuPT2, nGP, SA
 use MCLR_procedures, only: RdJobIph, RdJobIph_td
-use input_mclr, only: iMCPD, iMethod, iRoot, nConf, nDisp, nRoots, Page, PT2, State_Sym, TimeDep
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: iMCPD, iMethod, iRoot, nConf, nDisp, nRoots, Page, PT2, TimeDep
 use dmrginfo, only: DoDMRG, DoMCLR, nDets_RGLR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

@@ -20,7 +20,8 @@ subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
 use ipPage, only: ipget, W
 use MCLR_Data, only: ipCI, ipMat, nAcPr2, nConf1, nDens, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: nBas, nRoots, nSym, State_Sym
+use general_data, only: nSym, State_Sym=>STSym
+use input_mclr, only: nBas, nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

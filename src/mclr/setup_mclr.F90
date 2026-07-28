@@ -10,12 +10,13 @@
 !***********************************************************************
 
 subroutine SetUp_MCLR(DSYM)
-! Setup pointers and size of matrices (includes in Pointers.fh)
+! Setup pointers and size of matrices
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipCM, ipMat, ipMatBA, ipMatLT, ipMO, n1Dens, n2Dens, nA, nB, nCMO, nDens, nDensC, nMBA, nNA, pInt1, pInt2
-use input_mclr, only: iMethod, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, nRs3, nSym, PT2, TimeDep
+use general_data, only: nAsh, nIsh, nRS1, nRS2, nRs3, nSym
+use input_mclr, only: iMethod, nBas, nDel, nFro, nOrb, PT2, TimeDep
 use caspt2_module, only: nBMx
 use Definitions, only: iwp
 

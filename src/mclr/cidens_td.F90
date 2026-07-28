@@ -15,7 +15,8 @@ subroutine CIDens_TD(iCI,iS,rP,rD)
 use ipPage, only: ipin, ipnout, W
 use MCLR_Data, only: ipCI, n1Dens, n2Dens, nConf1, NOCSF, XISPSM
 use CandS, only: ICSM, ISSM
-use input_mclr, only: nCSF, State_Sym
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

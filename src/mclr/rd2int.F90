@@ -30,7 +30,8 @@ subroutine Rd2Int(iPL)
 !                                                                      *
 !***********************************************************************
 
-use input_mclr, only: CasInt, nBas, nSkip, nSym, TimeDep
+use general_data, only: nSym
+use input_mclr, only: CasInt, nBas, nSkip, TimeDep
 use Molcas, only: MxSym
 use Definitions, only: iwp, u6
 

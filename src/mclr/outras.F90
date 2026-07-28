@@ -27,7 +27,8 @@ subroutine OutRAS(iKapDisp,iCiDisp)
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use MCLR_Data, only: DspVec, lDisp, LuTEMP, nConf1, nDens, nDensC
-use input_mclr, only: iMethod, kPrint, nCSF, nDisp, nSym, nTPert, State_Sym
+use general_data, only: nSym, State_Sym=>STSym
+use input_mclr, only: iMethod, kPrint, nCSF, nDisp, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

@@ -212,7 +212,8 @@ end subroutine ISR_final2
 
 subroutine ISR_RHS(CI,CIDER)
 
-  use input_mclr, only: ERASSCF, ncsf, nRoots, State_Sym
+  use general_data, only: State_Sym=>STSym
+  use input_mclr, only: ERASSCF, ncsf, nRoots
 
   real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots), CIDER(ncsf(State_Sym),nRoots)
   integer(kind=iwp) :: i, j
@@ -243,7 +244,8 @@ end subroutine ISR_RHS
 
 subroutine ISR_projection(CI,CIDER)
 
-  use input_mclr, only: ncsf, nRoots, State_Sym
+  use general_data, only: State_Sym=>STSym
+  use input_mclr, only: ncsf, nRoots
 
   real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots)
   real(kind=wp), intent(inout) :: CIDER(ncsf(State_Sym),nRoots)
@@ -266,7 +268,8 @@ end subroutine ISR_projection
 
 subroutine ISR_TimesE2(MODE,CI,CIDER)
 
-  use input_mclr, only: ERASSCF, ncsf, nRoots, State_Sym, Weight
+  use general_data, only: State_Sym=>STSym
+  use input_mclr, only: ERASSCF, ncsf, nRoots, Weight
   !use DWSol, only: DWSCF, DWSol_Der
 
   integer(kind=iwp), intent(in) :: MODE

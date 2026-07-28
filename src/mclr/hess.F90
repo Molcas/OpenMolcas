@@ -18,7 +18,8 @@ subroutine Hess(FockC,FockX,rCon,Temp1,Temp2,Temp3,Temp4,idsym,jdisp,idisp)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, DspVec, F0SQMO, Hss, ipCM, ipMat, lDisp, nDens
-use input_mclr, only: nBas, nOrb, nSym, nTPert
+use general_data, only: nSym
+use input_mclr, only: nBas, nOrb, nTPert
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 

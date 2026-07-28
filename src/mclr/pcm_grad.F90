@@ -244,7 +244,8 @@ end subroutine PCM_grad_final
 subroutine PrepPCM()
 
   use MCLR_Data, only: ipCM, isNAC
-  use input_mclr, only: iSpin, nBas, nSym, ntBsqr, ntBtri
+  use general_data, only: iSpin, nSym
+  use input_mclr, only: nBas, ntBsqr, ntBtri
 
   integer(kind=iwp) :: ip1, iSym, leng
   real(kind=wp) :: ExFac, PotNuc
@@ -336,7 +337,8 @@ end subroutine PrepPCM
 
 subroutine PrepPCM2(mode,DMO,DAO,PCMAO,PCMMO)
 
-  use input_mclr, only: iSpin, nBas, nSym, ntAsh, ntBsqr, ntBtri
+  use general_data, only: iSpin, nSym
+  use input_mclr, only: nBas, ntAsh, ntBsqr, ntBtri
 
   integer(kind=iwp), intent(in) :: mode
   real(kind=wp), intent(in) :: DMO(ntAsh**2)
@@ -400,7 +402,8 @@ subroutine PCM_grad_dens(mode)
 
   use ipPage, only: W
   use MCLR_Data, only: ipCI, iRlxRoot, isNAC, NSSA, xispsm
-  use input_mclr, only: nConf, ncsf, nRoots, ntAsh, State_Sym
+  use general_data, only: State_Sym=>STSym
+  use input_mclr, only: nConf, ncsf, nRoots, ntAsh
 
   integer(kind=iwp), intent(in) :: mode
   integer(kind=iwp) :: i, j, jR, kR, nConf1, nConfL, nConfR, ng1, ng2
@@ -479,7 +482,8 @@ end subroutine PCM_grad_dens
 
 subroutine PCM_grad_dens2(mode,DMO,DAO)
 
-  use input_mclr, only: nAsh, nFro, nIsh, nOrb, nSym, ntAsh, ntBsqr
+  use general_data, only: nAsh, nIsh, nSym
+  use input_mclr, only: nFro, nOrb, ntAsh, ntBsqr
   use MCLR_Data, only: ipMat, nA
 
   integer(kind=iwp), intent(in) :: mode
@@ -526,7 +530,8 @@ end subroutine PCM_grad_dens2
 
 subroutine PCM_grad_D2V(dens,vintMO,vintAO,first_,Dff_,NonEq_,Do_DFT_)
 
-  use input_mclr, only: iSpin, nBas, nSym, ntBsqr, ntBtri
+  use general_data, only: iSpin, nSym
+  use input_mclr, only: nBas, ntBsqr, ntBtri
   use MCLR_Data, only: ipCM
 
   real(kind=wp), intent(in) :: dens(ntBsqr)
@@ -587,7 +592,8 @@ end subroutine PCM_grad_D2V
 
 subroutine PCM_grad_TimesE2(idSym,rKappa,FockOut,ipCIOut)
 
-  use input_mclr, only: nAsh, nBas, nIsh, nOrb, nRoots, nSym, ntBsqr, State_Sym, weight
+  use general_data, only: nAsh, nIsh, nSym, State_Sym=>STSym
+  use input_mclr, only: nBas, nOrb, nRoots, ntBsqr, weight
   use ISRotation, only: ISR
   use MCLR_Data, only: ipCI, ipCM, ipMat, nA
   use MCLR_procedures, only: CISigma_sa
@@ -723,7 +729,8 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
 
   use MCLR_Data, only: ipMat, isNAC, nDens
   use MCLR_procedures, only: CISigma_sa
-  use input_mclr, only: nAsh, nBas, ncsf, nIsh, nRoots, nSym, State_Sym, weight
+  use general_data, only: nAsh, nIsh, nSym, State_Sym=>STSym
+  use input_mclr, only: nBas, ncsf, nRoots, weight
   use ipPage, only: W
   use ISRotation, only: ISR
 
@@ -794,7 +801,8 @@ end subroutine PCM_grad_CLag
 
 subroutine PCM_mod_ERASSCF(ERASSCF_)
 
-  use input_mclr, only: nAsh, nIsh, nOrb, nRoots, nSym
+  use general_data, only: nAsh, nIsh, nSym
+  use input_mclr, only: nOrb, nRoots
   use MCLR_Data, only: ipMat, nA
 
   real(kind=wp), intent(inout) :: ERASSCF_(nRoots)
@@ -846,7 +854,8 @@ end subroutine PCM_mod_ERASSCF
 
 subroutine PCM_grad_PT2()
 
-  use input_mclr, only: nBas, nSym, ntBsqr, ntBtri
+  use general_data, only: nSym
+  use input_mclr, only: nBas, ntBsqr, ntBtri
 
   integer(kind=iwp) :: mData
   logical(kind=iwp) :: Found

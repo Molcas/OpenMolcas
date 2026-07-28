@@ -861,7 +861,6 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
   ! Make sure that we start from a clean slate.
   call SG_Free(istate)
   State_is_used(iState)=.True.
-  Write (6,*) 'SG_init_Simple: State_is_used(istate)=', State_is_used(istate)
 
   if (nSym < 1 .or. nSym > 8) then
     write(u6,*) ' SG_Init_Simple: illegal nSym value:',nSym

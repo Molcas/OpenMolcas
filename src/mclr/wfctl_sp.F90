@@ -21,7 +21,8 @@ subroutine WfCtl_sp(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP)
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: FIMO, G1m, G2mp, Int2, ipCI, ipDia, LuTemp, MS2P, n1Dens, nConf1, nDens, nDensC, nNA, RMS, SFock, XISPSM
 use MCLR_procedures, only: CISigma
-use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, nCSF, nDisp, nIter, PotNuc, rIn_Ene, State_Sym
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, nCSF, nDisp, nIter, PotNuc, rIn_Ene
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u5, u6

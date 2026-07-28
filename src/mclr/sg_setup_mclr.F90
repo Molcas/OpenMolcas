@@ -13,9 +13,10 @@ subroutine SG_Setup_MCLR(pState_Sym)
 
 use molcas, only: MxLev
 use sguga, only: MkCOT, MkSGNum, SG_Init_Simple
-use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
-use sguga, only: SGS, CIS, EXS
+use general_data, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
 use general_data, only: nRas, nRasEl, nRsPrt
+use sguga, only: SGS, CIS, EXS
+use input_mclr, only: nConf, nCSF
 use Definitions, only: iwp
 
 implicit none
@@ -76,5 +77,8 @@ call MKCOT(SGS(istate),CIS(istate))
 ! SET UP ENUMERATION TABLES
 
 call MKSGNUM(pState_Sym,SGS(istate),CIS(istate),EXS(istate))
+
+NCSF(1:nSym) = CIS(istate)%NCSF(1:nSym)
+NCONF        = CIS(istate)%NCSF(pState_Sym)
 
 end subroutine SG_Setup_MCLR
