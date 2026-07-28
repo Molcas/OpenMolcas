@@ -131,7 +131,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 # ifdef _HDF5_
   integer(kind=iwp) :: dset_id, file_id
   character :: lIrrep(24)
-  integer(kind=iwp), parameter:: istate=1
+  integer(kind=iwp), parameter :: istate = 1
 
   file_id = mh5_create_file(path)
 

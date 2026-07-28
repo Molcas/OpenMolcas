@@ -37,11 +37,11 @@ implicit none
 integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ISPIN(*), MXROOTS, ICI(MXROOTS,MxRef)
 integer(kind=iwp), intent(out) :: IORD(NCONF), JCJ(MXROOTS,MxRef)
 real(kind=wp), intent(inout) :: CCI(MXROOTS,MxRef)
-integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
-                     IWALK(mxAct), JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT
+integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(mxAct), &
+                     JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT
 real(kind=wp) :: PHASE
-integer(kind=iwp), external :: SG_PHASE, SG_NUM
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
+integer(kind=iwp), external :: SG_NUM, SG_PHASE
 
 ! JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 ! NUMBERS IN THE SYMMETRIC GROUP NUMBERING

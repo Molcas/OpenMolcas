@@ -34,7 +34,7 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LCSF,N
 !                      in CNSM(:)%ICTS
 
 use Str_Info, only: CFTP, CNSM, DFTP, DTOC
-use spinfo, only: MINOP, NTYP, NCNATS=>NCNFTP, NCPCNT=>NCSFTP
+use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use MCLR_Data, only: MAXOP, MS2P, MULTSP, MXPCSM, NCNASM, NCSASM, NDPCNT, NDTASM
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
@@ -83,7 +83,7 @@ end do
 !write(u6,*) ' MAXOP with RAS constraints :',MAXOP
 NTYP = MAXOP-MINOP+1
 
-MXPCTP = size(NCPCNT)
+MXPCTP = size(NCSFTP)
 if (NTYP > MXPCTP) then
   write(u6,*) '  NUMBER OF CONFIGURATION TYPES TO LARGE'
   write(u6,*) '  CHANGE PARAMETER MXPCTP TO AT LEAST ',NTYP
@@ -106,13 +106,13 @@ do ITP=1,NTYP
     NDPCNT(ITP) = IBINOM(IOPEN,IAEL)
     if ((IMSCMB /= 0) .and. (IOPEN /= 0)) NDPCNT(ITP) = NDPCNT(ITP)/2
     if (IOPEN >= MULTS-1) then
-      NCPCNT(ITP) = IWEYLF(IOPEN,MULTS)
+      NCSFTP(ITP) = IWEYLF(IOPEN,MULTS)
     else
-      NCPCNT(ITP) = 0
+      NCSFTP(ITP) = 0
     end if
   else
     NDPCNT(ITP) = 0
-    NCPCNT(ITP) = 0
+    NCSFTP(ITP) = 0
   end if
 end do
 #ifdef _DEBUGPRINT_
@@ -127,13 +127,13 @@ end if
 write(u6,'(/A)') '  Open orbitals   Combinations    CSFs'
 do IOPEN=MINOP,MAXOP,2
   ITYPE = IOPEN-MINOP+1
-  write(u6,'(5X,I3,10X,I6,7X,I6)') IOPEN,NDPCNT(ITYPE),NCPCNT(ITYPE)
+  write(u6,'(5X,I3,10X,I6,7X,I6)') IOPEN,NDPCNT(ITYPE),NCSFTP(ITYPE)
 end do
 #endif
 ! ==============================================
 ! Number of Combinations and CSF's per  symmetry
 ! ==============================================
-call CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCTP,MXPCSM,NCNATS,NCNASM,NDTASM,NCSASM,NDPCNT,NCPCNT)
+call CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCTP,MXPCSM,NCNFTP,NCNASM,NDTASM,NCSASM,NDPCNT,NCSFTP)
 
 ! ===========================================
 ! Permanent and local memory for csf routines
@@ -146,13 +146,13 @@ call CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCTP,MXPCSM,NCN
 
 LIDT = 0
 LICS = 0
-LDTOC = sum(NCPCNT(1:NTYP)*NDPCNT(1:NTYP))
+LDTOC = sum(NCSFTP(1:NTYP)*NDPCNT(1:NTYP))
 MXPTBL = 0
 MXDT = max(0,maxval(NDPCNT(1:NTYP)))
 do ITP=1,NTYP
   IOPEN = MINOP+ITP-1
   LIDT = LIDT+NDPCNT(ITP)*IOPEN
-  LICS = LICS+NCPCNT(ITP)*IOPEN
+  LICS = LICS+NCSFTP(ITP)*IOPEN
   MXPTBL = max(NDPCNT(ITP)*IOPEN,MXPTBL)
 end do
 ! local memory for CSFDET_MCLR
@@ -172,8 +172,8 @@ do ISYM=1,MXPCSM
   do ITYP=1,NTYP
     IOPEN = ITYP+MINOP-1
     ICL = (NEL-IOPEN)/2
-    LLCONF = LLCONF+NCNATS(ITYP,ISYM)*(IOPEN+ICL)
-    ILLCNF = ILLCNF+NCNATS(ITYP,ISYM)
+    LLCONF = LLCONF+NCNFTP(ITYP,ISYM)*(IOPEN+ICL)
+    ILLCNF = ILLCNF+NCNFTP(ITYP,ISYM)
   end do
   !write(u6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
   LCONF = max(LCONF,LLCONF)

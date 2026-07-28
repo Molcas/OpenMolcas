@@ -332,7 +332,7 @@ if (IfChol) call DaClos(LUAPT2)
 call DaClos(LUGRAD)
 
 if (nFroT /= 0) call mma_deallocate(TraFro)
-if (allocated(iTasks_grad)) call mma_deallocate(iTasks_grad)
+call mma_deallocate(iTasks_grad,safe='*')
 
 return
 

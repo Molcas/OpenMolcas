@@ -4123,24 +4123,21 @@ if (.not. SkipGUGA) then
   end if
   ! ====================================================================
 
-#ifdef _NOT_NOW_
+# ifdef _NOT_NOW_
   ! Turn on the Faroald SD CI code in case of
   ! 1) no symmetry
   ! 2) not RASSCF or GASSCF
   ! 3) not using the expert, the HEXS or the DEXS key word
   ! 4) not running the CASVB module.
-  If (                                  &
-      nSym==1 .and.                     &
-      (nHole1==0 .and. nElec3==0) .and. &
-      .Not.iDoGas .and.                 &
-      .Not.Key('HEXS') .and.            &
-      .Not.Key('DEXS') .and.            &
-      .Not.Key('EXPE') .and.            &
-      IFVB==0                           &
-     ) Then
-     DoFaro=.True.
-  End If
-#endif
+  if ((nSym == 1) .and. &
+      ((nHole1 == 0) .and. (nElec3 == 0)) .and. &
+      (.not. iDoGas) .and. &
+      (.not. Key('HEXS')) .and. &
+      (.not. Key('DEXS')) .and. &
+      (.not. Key('EXPE')) .and. &
+      (IFVB == 0)) &
+    DoFaro = .true.
+# endif
 
   ! faroald initializations
   if (DOFARO) then

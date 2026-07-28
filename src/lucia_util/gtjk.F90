@@ -23,9 +23,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NTOOB, IREOST(NTOOB)
+integer(kind=iwp), intent(in) :: NTOOB, IREOST(NTOOB), nTUVX
 real(kind=wp), intent(inout) :: RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-integer(kind=iwp), intent(in) :: nTUVX
 real(kind=wp), intent(in) :: TUVX(nTUVX)
 integer(kind=iwp) :: NT, NT_REO, NTT, NTUJ, NTUK, NTUT, NU, NU_REO
 

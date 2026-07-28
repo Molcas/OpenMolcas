@@ -75,15 +75,12 @@ integer(kind=iwp), intent(in) :: NSBLOCK, ISBLOCK(8,*), NOCTPA, NOCTPB, ICOCOC(N
                                  NSSOB(NSMST,*), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,*), &
                                  MAXK, MAXI, NGAS, NELFSPGP(MXPNGAS,*), IDC, IDOH2, ISTRFL(*), LUC, ICJKAIB, MOCAA, IRESTRICT, &
                                  ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB), IH0SPC(NOCTPA,NOCTPB), ICBAT_RES, ICBAT_INI, &
-                                 ICBAT_END, IPHGAS(*), I_RES_AB
+                                 ICBAT_END, IPHGAS(*), I_RES_AB, nTUVX
 real(kind=wp), intent(inout) :: CB(*), SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
 real(kind=wp), intent(_OUT_) :: C2(*), XINT(*), CSCR(*), SSCR(*), CJRES(*), SIRES(*), SCLFAC(*)
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
-real(kind=wp), intent(in) :: PS
+real(kind=wp), intent(in) :: PS, TUVX(nTUVX)
 integer(kind=iwp), intent(_OUT_) :: LCBLOCK(*), LECBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*)
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in) :: TUVX(nTUVX)
-
 integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1), INTERACT, IOFF, IPERM, IPTSPC, ISBLK, ISCALE, &
                      ISOFF, JASM, JATP, JBLOCK, JBSM, JBTP, JCBAT_END, JCBAT_INI, JCBATCH, JJCBLOCK, JOFF, JPTSPC, JSBLOCK, &
                      LASM(4), LATP(4), LBL, LBSM(4), LBTP(4), LLASM, LLATP, LLBSM, LLBTP, LSGN(5), LTRP(5), MXEXC, NASTR, NBSTR, &
@@ -305,10 +302,10 @@ do JCBATCH=JCBAT_INI,JCBAT_END
           JPTSPC = IH0SPC(JATP,JBTP)
 
           if (IPTSPC /= JPTSPC) cycle
-            call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(:,IATP+IOCTPA-1),NELFSPGP(:,IBTP+IOCTPB-1), &
-                         NELFSPGP(:,LLATP+IOCTPA-1),NELFSPGP(:,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
-                         NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA,NLLB,IDC,CJRES,SIRES,I3,XI3S, &
-                         I4,XI4S,MOCAA,XFAC,IPHGAS,I_RES_AB,Size(TUVX),TUVX)
+          call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(:,IATP+IOCTPA-1),NELFSPGP(:,IBTP+IOCTPB-1), &
+                       NELFSPGP(:,LLATP+IOCTPA-1),NELFSPGP(:,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
+                       NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA,NLLB,IDC,CJRES,SIRES,I3,XI3S, &
+                       I4,XI4S,MOCAA,XFAC,IPHGAS,I_RES_AB,size(TUVX),TUVX)
           ! CALL RSSBCB2 --> 82
         end do
         ! End of loop over sigma blocks

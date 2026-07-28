@@ -41,19 +41,18 @@ subroutine nevpt2wfn_init(create_h5)
   use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_str, mh5_create_dset_real, mh5_put_dset, mh5_close_dset
   use general_data, only: STSym
   use caspt2_module, only: nBas, nBasT, nBSqT, nDel, nFro, nIsh, nRas1, nRas2, nRas3, nSsh, nSym, Root2State
-  use Molcas, only: MxLev
 # endif
+  use stdalloc, only: mma_allocate, mma_deallocate
 
   logical(kind=iwp), intent(in) :: create_h5
   integer(kind=iwp) :: iq
-  integer(kind=iwp) :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
-  integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
-# ifndef _HDF5_
-# include "macros.fh"
-  unused_var(create_h5)
-# else
+  integer(kind=iwp), allocatable :: LTMP(:)
+# ifdef _HDF5_
   integer(kind=iwp) :: dsetid, i
   character, allocatable :: typestring(:)
+# else
+# include "macros.fh"
+  unused_var(create_h5)
 # endif
 
   if (refwfn_active) then
@@ -90,8 +89,11 @@ subroutine nevpt2wfn_init(create_h5)
     call mh5_init_attr(pt2wfn_id,'NSTATES',nr_states)
 
     !> keep it for compatibility
-    call mh5_init_attr(pt2wfn_id,'L2ACT',1,[MXLEV],L2ACT)
-    call mh5_init_attr(pt2wfn_id,'A2LEV',1,[MXLEV],LEVEL)
+    call mma_allocate(LTMP,MXLEV,Label='LTMP')
+    LTMP(:) = [(iq,iq=1,MXLEV)]
+    call mh5_init_attr(pt2wfn_id,'L2ACT',1,[MXLEV],LTMP)
+    call mh5_init_attr(pt2wfn_id,'A2LEV',1,[MXLEV],LTMP)
+    call mma_deallocate(LTMP)
 
     !> molecular orbital type index
     call mma_allocate(typestring,nbast)

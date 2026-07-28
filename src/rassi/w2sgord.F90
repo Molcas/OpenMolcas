@@ -31,7 +31,6 @@ type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
 integer(kind=iwp), intent(in) :: MWS2W(*), NLIST, KWALK(*)
 integer(kind=iwp), intent(out) :: ICNUM(NLIST)
-
 integer(kind=iwp) :: IC, ICONF, IDV, IDW, IOFF, ISYCI, ISYDWN, ISYUP, IUV, IUW, LDIM, LEV, MAWSD, MAWSU, MIPWLK, MV
 integer(kind=iwp), allocatable :: ICS(:)
 integer(kind=iwp), parameter :: MXCPI = 15

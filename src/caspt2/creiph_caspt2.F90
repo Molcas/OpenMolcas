@@ -27,10 +27,10 @@ use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
 use sguga_states, only: SGS
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
-use general_data, only: ISPIN, NACTEL, NASH,  NELE3=>nElec3, NHOLE1, STSYM
-use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, &
-                         LROOTS, MSTATE, MSTATE, MXCI, NBAS, NBSQT, NCONF, NDEL, NFRO, NISH, NRAS1, &
-                         NRAS2, NRAS3, NROOTS, NSYM, POTNUC, TITLE
+use general_data, only: ISPIN, NACTEL, NASH, nElec3, NHOLE1, STSYM
+use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, LROOTS, &
+                         MSTATE, MSTATE, MXCI, NBAS, NBSQT, NCONF, NDEL, NFRO, NISH, NRAS1, NRAS2, NRAS3, NROOTS, NSYM, POTNUC, &
+                         TITLE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -41,7 +41,7 @@ real(kind=wp), intent(in) :: Heff(Nstate,Nstate), Ueff(Nstate,Nstate), U0(Nstate
 integer(kind=iwp) :: I, IAD15, ID, IDISK, IDR, IDW, IISTATE, ISNUM, ISTATE, J, JOBIPH, JOBMIX, JSNUM, MROOTS, NIDIST, NOLDE
 integer(kind=iwp), allocatable :: IDIST(:), JROOT(:), xL2Act(:), xLevel(:)
 real(kind=wp), allocatable :: CI1(:), CI2(:), EFFCP(:), OLDE(:), Weight_(:)
-integer(kind=iwp), parameter :: jstate=1
+integer(kind=iwp), parameter :: jstate = 1
 
 ! Not called, if .not. IFMIX, then only the new CI coefficients are
 ! printed, no JOBMIX file is created.
@@ -106,7 +106,7 @@ call mma_allocate(Weight_,MxRoot,Label='Weight_')
 WEIGHT_(1:NROOTS) = WEIGHT(1:NROOTS)
 WEIGHT_(NROOTS+1:) = Zero
 call WR_RASSCF_INFO(JOBMIX,1,iAd15,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,8,BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144, &
-                    TITLE,4*18*MXTIT,POTNUC,LROOTS,MROOTS,JROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,Weight_)
+                    TITLE,4*18*MXTIT,POTNUC,LROOTS,MROOTS,JROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,nElec3,IFQCAN,Weight_)
 call mma_deallocate(Weight_)
 call mma_deallocate(JROOT)
 ! Copy MO coefficients from JOBIPH to JOBMIX

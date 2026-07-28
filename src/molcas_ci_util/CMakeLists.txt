@@ -14,6 +14,7 @@ set (sources
      cands.F90
      caspt2_global.F90
      caspt2_module.F90
+     caspt2_qmc_interface.F90
      check_invec.F90
      cidia.F90
      ciovlp.F90
@@ -37,7 +38,6 @@ set (sources
      dmrginfo.F90
      expcsf.F90
      explh2.F90
-     caspt2_qmc_interface.F90
      fndmnx.F90
      fockoc.F90
      gas_data.F90

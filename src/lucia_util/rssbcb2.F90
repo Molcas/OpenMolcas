@@ -86,13 +86,11 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(NGAS), IBOC(NGAS), JAOC(NGAS), &
                                  JBOC(NGAS), NAEL, NBEL, IJAGRP, IJBGRP, JDOH2, NOBPTS(*), MAXI, MAXK, NSMOB, NSMST, NIA, NIB, &
-                                 NJA, NJB, IDC, MOCAA, IPHGAS(*), I_RES_AB
+                                 NJA, NJB, IDC, MOCAA, IPHGAS(*), I_RES_AB, nTUVX
 real(kind=wp), intent(inout) :: SB(NIA*NIB), CB(NJA*NJB), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), C2(*), XINT(*), CJRES(*), SIRES(*)
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
-real(kind=wp), intent(in) :: SCLFAC
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in) :: TUVX(nTUVX)
+real(kind=wp), intent(in) :: SCLFAC, TUVX(nTUVX)
 integer(kind=iwp) :: I12, IBLOCK(8), IDIAG, IDOH2, IIDC, IIITRNS, ITASK, IUSEAB, JJJTRNS, LADVICE
 real(kind=wp) :: CPU, CPU0, CPU1, FACTOR, WALL, WALL0, WALL1
 
@@ -193,7 +191,7 @@ if (IDIAG == 0) then
 #     endif
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2A(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST,SCLFAC, &
-                  IPHGAS,Size(TUVX),TUVX)
+                  IPHGAS,size(TUVX),TUVX)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(2) = TSIGMA(2)+(WALL1-WALL0)
 
@@ -238,7 +236,7 @@ if (IDIAG == 0) then
       !if (IUSE_PA == 0) then
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,NOBPTS, &
-                   MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS,Size(TUVX),TUVX)
+                   MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS,size(TUVX),TUVX)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(3) = TSIGMA(3)+(WALL1-WALL0)
 
@@ -263,7 +261,7 @@ if (IDIAG == 0) then
       ! No division into active/passive
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2BN(IBSM,IBTP,IASM,IATP,NIB,NIA,JBSM,JBTP,JASM,JATP,NJB,NJA,IJBGRP,IJAGRP,NGAS,IBOC,IAOC,JBOC,JAOC,SB,CB,NOBPTS, &
-                   MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS,Size(TUVX),TUVX)
+                   MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS,size(TUVX),TUVX)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(3) = TSIGMA(3)+(WALL1-WALL0)
 
@@ -324,7 +322,7 @@ if (IDIAG == 0) then
 #     endif
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2A(IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST,SCLFAC, &
-                  IPHGAS,Size(TUVX),TUVX)
+                  IPHGAS,size(TUVX),TUVX)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(2) = TSIGMA(2)+(WALL1-WALL0)
 
@@ -368,7 +366,7 @@ else if (IDIAG == 1) then
     C2(1:NJA*NJB) = CB(1:NJA*NJB)
     ! Input is in det basis
     IIDC = 1
-    call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,I12,IIDC,Size(TUVX),TUVX)
+    call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,I12,IIDC,size(TUVX),TUVX)
   else
     C2(1:NIA*NIB) = Zero
   end if
