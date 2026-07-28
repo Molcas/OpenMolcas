@@ -1,8 +1,8 @@
 *-------------------------------------------------------------------------------
-* Molecule: LiH
+* Molecule: LiH 
 * Basis: STO-3G
 * Symmetry: C1 (None)
-* Features tested: single-root L-PDFT, LPDFT transition-density HDF5
+* Features tested: single-root L-PDFT, LPDFT Intermediates, HDF5
 * Responsible person: Bhavnesh Jangid, University of Chicago, 2026
 * Comments: Edge test for the one-root path, where no off-diagonal
 *           spin-summed two-particle transition density is consumed.
