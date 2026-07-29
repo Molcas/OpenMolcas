@@ -81,9 +81,9 @@ use Para_Info, only: Is_Real_Par
 #endif
 use caspt2_global, only: do_csf, iPrGlb, iStpGrd
 use general_data, only: NACTEL, NASH
-use caspt2_module, only: HZERO, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, &
-                         NIGEJES, NIGTJ, NIGTJES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, NTGTU, &
-                         NTGTUES, NTU, NTUES, NTUV, NTUVES
+use caspt2_module, only: HZERO, NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NASUP, NBTCH, NBTCHES, NFRO, NIES, NIGEJ, NIGEJES, NIGTJ, &
+                         NIGTJES, NINABX, NINDEP, NISH, NISUP, NSECBX, NSES, NSSH, NSYM, NTGEU, NTGEUES, NTGTU, NTGTUES, NTU, &
+                         NTUES, NTUV, NTUVES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, Quart, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -775,7 +775,7 @@ subroutine OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
     end if
   end if
 
-  if (nINP > 0 .or. nINM > 0) then
+  if ((nINP > 0) .or. (nINM > 0)) then
     call DGEMM_('T','N',NV*NL,NCHO,NT*NJ,One,TJVL,NT*NJ,Cho_Bra,NT*NJ,One,Cho_KetD,NV*NL)
     call DGEMM_('N','N',NT*NJ,NCHO,NV*NL,One,TJVL,NT*NJ,Cho_Ket,NV*NL,One,Cho_BraD,NT*NJ)
   end if
@@ -1533,7 +1533,7 @@ subroutine OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,Cho_Bra,Cho_Ket,Cho_BraD,Cho_K
     end if
   end if
 
-  if (nINP > 0 .or. nINM > 0) then
+  if ((nINP > 0) .or. (nINM > 0)) then
     call DGEMM_('T','N',NC*NX,NCHO,NA*NU,One,AUCX,NA*NU,Cho_Bra,NA*NU,One,Cho_KetD,NC*NX)
     call DGEMM_('N','N',NA*NU,NCHO,NC*NX,One,AUCX,NA*NU,Cho_Ket,NC*NX,One,Cho_BraD,NA*NU)
   end if

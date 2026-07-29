@@ -14,14 +14,14 @@ subroutine SG_Setup_MCLR(pState_Sym)
 use molcas, only: MxLev
 use sguga, only: MkCOT, MkSGNum, SG_Init_Simple
 use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
-use sguga_states, only: SGS, CIS, EXS
+use sguga_states, only: CIS, EXS, SGS
 use rasdef, only: nRas, nRasEl, nRsPrt
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in):: pState_Sym
-integer(kind=iwp) :: iBas, nLev, iSym, ISM(1:MxLev), Level(MxLev), iq, nRs1T
-integer(kind=iwp), parameter :: iState=1
+integer(kind=iwp), intent(in) :: pState_Sym
+integer(kind=iwp) :: iBas, iq, ISM(1:MxLev), iSym, Level(MxLev), nLev, nRs1T
+integer(kind=iwp), parameter :: iState = 1
 
 nLev = 0
 do iSym=1,nSym
@@ -43,28 +43,28 @@ do iSym=1,nSym
   end do
 end do
 
-If (nHole1+nElec3/=0) Then
-   nRsPrt=3
-   nRas(:,1)=nRs1(:)
-   nRas(:,2)=nRs2(:)
-   nRas(:,3)=nRs3(:)
-   nRs1T=Sum(nRs1(1:nSym))
-   nRasEl(1)=2*nRs1T-nHole1
-   nRasEl(2)=nActel-nElec3
-   nRasEl(3)=nActel
-Else
-   nRsPrt=1
-   nRas(:,1)=nRs2(:)
-   nRasEl(1)=nActel
-End If
+if (nHole1+nElec3 /= 0) then
+  nRsPrt = 3
+  nRas(:,1) = nRs1(:)
+  nRas(:,2) = nRs2(:)
+  nRas(:,3) = nRs3(:)
+  nRs1T = sum(nRs1(1:nSym))
+  nRasEl(1) = 2*nRs1T-nHole1
+  nRasEl(2) = nActel-nElec3
+  nRasEl(3) = nActel
+else
+  nRsPrt = 1
+  nRas(:,1) = nRs2(:)
+  nRasEl(1) = nActel
+end if
 
-Level(1:MxLev)=[(iq,iq=1,MxLev)]
+Level(1:MxLev) = [(iq,iq=1,MxLev)]
 
-Call SG_Init_Simple(nSym,nActEl,iSpin,SGS(istate),CIS(istate),     &
-                    nRas,nRasEl,nRsPrt,            &
-                    EXS(istate),                           &
-                    xLevel=Level, xL2Act=Level,    &
-                    xNLEV=nLev, xNSM=ISM)
+call SG_Init_Simple(nSym,nActEl,iSpin,SGS(istate),CIS(istate), &
+                    nRas,nRasEl,nRsPrt, &
+                    EXS(istate), &
+                    xLevel=Level,xL2Act=Level, &
+                    xNLEV=nLev,xNSM=ISM)
 
 ! PURPOSE: FREE THE GUGA TABLES
 ! FORM VARIOUS OFFSET TABLES:

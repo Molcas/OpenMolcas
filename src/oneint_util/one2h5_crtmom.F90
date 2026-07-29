@@ -27,45 +27,42 @@ subroutine one2h5_crtmom(fileid,nSym,nBas)
 use Symmetry_Info, only: Mul
 use OneDat, only: sNoNuc
 use mh5, only: mh5_close_dset, mh5_create_dset_real, mh5_init_attr, mh5_put_dset
+use fortran_strings, only: split, str, StringWrapper_t
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use fortran_strings, only: StringWrapper_t, split, str
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: fileid, nSym, nBas(nSym)
 integer(kind=iwp) :: dsetid, i, iBas, iCmp, iComp, iOff, iOpt, iRc, iScrOff, iSym, iSyMsk, j, jBas, jOff, jsym, msym, nB1, nB2, &
                      nbast, var_status
-real(kind=wp) :: mp_orig(3,3), angmom_orig(3,1)
-character(len=8) :: Label
+real(kind=wp) :: angmom_orig(3,1), mp_orig(3,3)
 logical(kind=iwp) :: store_angmom, store_multipole
 character(len=256) :: h5_data
+character(len=8) :: Label
 real(kind=wp), allocatable :: ANGMOM(:,:), MLTPL(:,:), Scratch(:)
-character(len=*), parameter :: mltpl1_comp(3) = ['X','Y','Z'], mltpl2_comp(6) = ['XX','XY','XZ','YY','YZ','ZZ']
 type(StringWrapper_t), allocatable :: splitted(:)
+character(len=*), parameter :: mltpl1_comp(3) = ['X','Y','Z'], mltpl2_comp(6) = ['XX','XY','XZ','YY','YZ','ZZ']
 
 store_angmom = .false.
 store_multipole = .false.
 
-call get_environment_variable("MOLCAS_ONEINT_H5", h5_data, status=var_status)
+call get_environment_variable('MOLCAS_ONEINT_H5',h5_data,status=var_status)
 
-! if variable was not set, assume the default
 if (var_status == 1) then
-    store_multipole = .true.
+  ! if variable was not set, assume the default
+  store_multipole = .true.
 else
-! otherwise we check each option
-    call upcase(h5_data)
-    call split(h5_data, ',', splitted)
-    do i = 1, size(splitted)
-      if (trim(str(splitted(i)%str)) == "ANGMOM") store_angmom = .true.
-      if (trim(str(splitted(i)%str)) == "MLTPL")  store_multipole = .true.
-    end do
+  ! otherwise we check each option
+  call upcase(h5_data)
+  call split(h5_data,',',splitted)
+  do i=1,size(splitted)
+    if (str(splitted(i)%str) == 'ANGMOM') store_angmom = .true.
+    if (str(splitted(i)%str) == 'MLTPL') store_multipole = .true.
+  end do
 end if
 
-nbast = 0
-do iSym=1,nSym
-  nbast = nbast+nBas(iSym)
-end do
+nbast = sum(nBas(1:nSym))
 
 mp_orig(:,:) = 0.
 angmom_orig(:,:) = 0.
@@ -206,7 +203,7 @@ if (store_angmom) then
     iRc = -1
     iOpt = ibset(0,sNoNuc)
     iSyMsk = 0
-    Label = 'AngMom  '
+    Label = 'AngMom'
     call RdOne(iRc,iOpt,Label,iCmp,Scratch,iSyMsk)
     ! iSyMsk tells us which symmetry combination is valid
     iScrOff = 0
@@ -245,7 +242,7 @@ if (store_angmom) then
     do j=1,nBasT
       do i=1,j-1
         ! angmom matrices must be skew-symmetric
-        ANGMOM(j,i) = -1 * ANGMOM(i,j)
+        ANGMOM(j,i) = -ANGMOM(i,j)
       end do
     end do
     ! reuse the rank 1 cartesian multipole components
@@ -260,12 +257,10 @@ if (store_angmom) then
   call mma_deallocate(Scratch)
 
   dsetid = mh5_create_dset_real(fileid,'ANGMOM_ORIG',2,[3,1])
-  call mh5_init_attr(dsetid,'DESCRIPTION', &
-                     'Origin used for the angular momentum operators (in Ang)')
+  call mh5_init_attr(dsetid,'DESCRIPTION','Origin used for the angular momentum operators (in Ang)')
   call mh5_put_dset(dsetid,angmom_orig,[3,1],[0,0])
   call mh5_close_dset(dsetid)
 end if
-
 
 end subroutine one2h5_crtmom
 

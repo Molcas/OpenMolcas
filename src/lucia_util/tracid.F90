@@ -35,12 +35,9 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(in) :: T(*)
+integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3, nTUVX
+real(kind=wp), intent(in) :: T(*), TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
-integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in) :: TUVX(nTUVX)
-
 integer(kind=iwp) :: K, LBLK
 real(kind=wp) :: TKK
 #ifdef _DEBUGPRINT_
@@ -72,7 +69,7 @@ do K=1,NTOOB
 # endif
   ! For each orbital calculate (1+T+1/2 T^2)|0>
   ! + T
-  call MV7(VEC1,VEC2,LUSC1,LUSC2,Size(TUVX),TUVX)
+  call MV7(VEC1,VEC2,LUSC1,LUSC2,size(TUVX),TUVX)
 # ifdef _DEBUGPRINT_
   write(u6,*) ' Correction vector'
   call WRTVCD(VEC1,LUSC2,1,LBLK)
@@ -84,7 +81,7 @@ do K=1,NTOOB
   call WRTVCD(VEC1,LUSC1,1,LBLK)
 # endif
   ! + 1/2 T^2
-  call MV7(VEC1,VEC2,LUSC2,LUSC3,Size(TUVX),TUVX)
+  call MV7(VEC1,VEC2,LUSC2,LUSC3,size(TUVX),TUVX)
 # ifdef _DEBUGPRINT_
   write(u6,*) ' Correction vector'
   call WRTVCD(VEC1,LUSC3,1,LBLK)

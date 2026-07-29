@@ -39,7 +39,7 @@ integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, jDisk
 real(kind=wp) :: rdum(1), wgt
 real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DX(:)
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 call mma_allocate(DA_ave,NACPAR,Label='DA_ave')
 call mma_allocate(DS_ave,NACPAR,Label='DS_ave')
@@ -98,11 +98,13 @@ else if (iFinal == 2) then
 #       endif
       else
         call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-        Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+        call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
         call Lucia_Util('Densi',CI_Vector=CIVEC(:))
-        call mma_allocate(Pscr,NACPR2,Label='Pscr')
-        if ((SGS(istate)%IFRAS > 2) .or. (iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-        call mma_deallocate(Pscr)
+        if ((SGS(istate)%IFRAS > 2) .or. (iDoGAS)) then
+          call mma_allocate(Pscr,NACPR2,Label='Pscr')
+          call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+          call mma_deallocate(Pscr)
+        end if
         call mma_deallocate(PAtmp)
       end if ! doDMRG/doBLOK or CI
     else

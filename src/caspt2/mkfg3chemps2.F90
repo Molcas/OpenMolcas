@@ -30,7 +30,7 @@ integer(kind=iwp), intent(in) :: NLEV, NG3
 real(kind=wp), intent(out) :: G1(NLEV,NLEV), F1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV), F2(NLEV,NLEV,NLEV,NLEV), G3(NG3), F3(nG3)
 integer(kind=byte), intent(in) :: idxG3(6,nG3)
 integer(kind=iwp) :: IW, IXYSYM, IY, IYSYM, IZ, NAC4
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 if (NACTEL > 1) then
   NAC4 = NLEV*NLEV*NLEV*NLEV

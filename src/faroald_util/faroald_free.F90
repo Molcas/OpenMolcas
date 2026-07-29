@@ -13,7 +13,7 @@ subroutine faroald_free()
 ! The finalization subroutine lives outside of the
 ! faroald module so that it can be called separately.
 
-use faroald, only: ex1_a, ex1_b, htu, gtuvx, mma_deallocate
+use faroald, only: ex1_a, ex1_b, gtuvx, htu, mma_deallocate
 
 implicit none
 

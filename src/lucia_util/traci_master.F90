@@ -13,8 +13,8 @@
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec,nTUVX,TUVX)
 
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: Deallocate_Local_Arrays, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, &
-                      MXSOOB, NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, VEC3, XISPSM
+use lucia_data, only: Deallocate_Local_Arrays, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
+                      NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, VEC3, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
@@ -24,12 +24,9 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: JOBDISK
-integer(kind=iwp), intent(in) :: JOBIPH
-real(kind=wp), intent(in) :: CMOMO(*)
+integer(kind=iwp), intent(in) :: JOBIPH, nTUVX
+real(kind=wp), intent(in) :: CMOMO(*), TUVX(nTUVX)
 integer(kind=iwp), intent(out) :: LREC(MXNTTS)
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in) :: TUVX(nTUVX)
-
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, NCONF, &
                      NDIM, NREC
 #ifdef _DEBUGPRINT_
@@ -121,7 +118,7 @@ do JROOT=1,NROOT
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
   call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)
 
-  call TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2,Size(TUVX),TUVX)
+  call TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2,size(TUVX),TUVX)
 end do
 ! End of loop over roots
 IDISK(LUDIA) = 0

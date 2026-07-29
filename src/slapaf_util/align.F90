@@ -81,7 +81,7 @@ end do
 call Fix_Symmetry(Coor_All,nAtom,iStab)
 call mma_deallocate(iStab)
 
-Coord(:) = reshape(Coor_All(:,1:nAtom),[3*nAtom])
+Coord(:) = pack(Coor_All(:,1:nAtom),.true.)
 
 !call RecPrt('Coord after align',' ',Coor_All,3,mAtom)
 

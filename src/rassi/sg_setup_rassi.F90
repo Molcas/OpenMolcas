@@ -36,9 +36,9 @@ end do
 
 L2Act(1:MxLev) = [(iq,iq=1,MxLev)]
 
-call SG_Init(nSym,nActEl,iSpin,SGS,CIS,                    &
-             nRas,nRasEl,nRsPrt,                           &
-             EXS,                                          &
+call SG_Init(nSym,nActEl,iSpin,SGS,CIS, &
+             nRas,nRasEl,nRsPrt, &
+             EXS, &
              xLevel=Level,xL2Act=L2Act,xNLEV=nLev,xNSM=ISM)
 
 end subroutine SG_setup_RASSI

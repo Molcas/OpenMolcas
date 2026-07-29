@@ -155,4 +155,6 @@ Example: ::
   4.46416708565692e-07 0.0 -6.528137430585775e-07
   -4.46416708565692e-07 0.0 -6.528137430585775e-07
 
+In the :file:`Tools/false_scripts` directory some sample scripts can be found.
+
 .. xmldoc:: </MODULE>

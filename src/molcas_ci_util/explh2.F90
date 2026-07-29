@@ -47,6 +47,7 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use csfbas, only: NAEL, NBEL
 use timers, only: TimeHSel
 use lucia_data, only: DFTP, DTOC, IREOTS
@@ -75,7 +76,7 @@ IPRLEV = IPRLOC(3)
 
 ECORE = Zero
 MXXSEL = NSEL
-NHEX = NSEL*(NSEL+1)/2
+NHEX = nTri_Elem(NSEL)
 
 ! ALLOCATE LOCAL MEMORY
 

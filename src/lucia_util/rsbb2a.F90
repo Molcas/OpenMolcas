@@ -71,13 +71,11 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), NSMST, NOBPTS(MXPNGAS,*), &
-                                 MAXI, MAXK, NSMOB, IPHGAS(NGAS)
+                                 MAXI, MAXK, NSMOB, IPHGAS(NGAS), nTUVX
 real(kind=wp), intent(inout) :: SB(*)
-real(kind=wp), intent(in) :: CB(*), SCLFAC
+real(kind=wp), intent(in) :: CB(*), SCLFAC, TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), XINT(*)
 integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*)
-integer(kind=iwp), intent(in):: nTUVX
-real(kind=wp), intent(in):: TUVX(nTUVX)
 integer(kind=iwp) :: I, I1JL, I4_AC(4), I4_REO(4), I4_TP(4), IAC, IBOT, ICOUL, IDXSM, IDXTYP, IFIRST, IFRST, II12, IIPART, IJKL, &
                      IJL, IK, IKBOFF, IKBT(3,8), IKBTC, IKOBSM, IKOFF, IKPAIR, IKSM, IKSMBT(2,8), IOBSM, ISBOFF, ISCR(4), ISM, &
                      ISM_ORIG, ITOP, ITP(256), ITPSM_ORIG, ITYP, ITYP_ORIG, IXCHNG, J, JAC, JFRST, JL, JLBOFF, JLBT(3,8), JLBTC, &
@@ -382,7 +380,7 @@ if (IDXSM /= 0) then
                   JFRST = 0
                   KFRST = 0
 
-                  if  (NKBTC == 0) exit outer
+                  if (NKBTC == 0) exit outer
                   ! Loop over jl in TS classes
                   J = 0
                   L = 1
@@ -742,7 +740,7 @@ if (IDXSM /= 0) then
 
                   !KFRST = 1
                   call ADAADAST_GAS(1,ISM,ITYP,NI,IAC,1,KSM,KTYP,NK,KAC,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST, &
-                                  KFRST,II12,K12,One)
+                                    KFRST,II12,K12,One)
 
                   IFRST = 0
                   KFRST = 0

@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: ISYCI, NCO
 real(kind=wp), intent(in) :: CI(NCO), THR
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 write(u6,'(A)') repeat('-',80)
 write(u6,'(a,es9.2)') ' CI COEFFICIENTS LARGER THAN ',THR

@@ -257,7 +257,7 @@ The :kword:`FUNC` is the only required keyword.
   Example of running tPBE0::
 
      FUNC = T:PBE
-     LAMB  = 0.25
+     LAMB = 0.25
 
   .. compound::
 
@@ -268,7 +268,7 @@ The :kword:`FUNC` is the only required keyword.
     or::
 
        FUNC = T:PBE0
-       LAMB  = 0.25
+       LAMB = 0.25
 
     because hybrid functional names (e.g. PBE0 or B3LYP) should not be used
     after ``FUNC=T:`` in this module.

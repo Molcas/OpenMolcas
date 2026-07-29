@@ -30,7 +30,7 @@ integer(kind=iwp), intent(in) :: nICASE, ICASE(nICASE), nJCASE, JCASE(nJCASE), N
 real(kind=wp), intent(inout) :: EMU(NUP,NDWN)
 integer(kind=iwp) :: I, IC, IC1, II, IOC, ISTEP, LEV, LV1, nIpWlk
 real(kind=wp) :: rSUM
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 nIpWlk = CIS(istate)%nIpWlk
 

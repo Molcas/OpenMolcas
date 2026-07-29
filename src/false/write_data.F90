@@ -53,6 +53,7 @@ do
       else
         call Put_iScalar('Number of roots',nRoots)
         call Put_iScalar('Relax CASSCF root',nRelax)
+        call Put_iScalar('NumGradRoot',nRelax)
       end if
       call mma_Allocate(not_grad,nRoots)
       call mma_Allocate(not_nac,nRoots,nRoots)

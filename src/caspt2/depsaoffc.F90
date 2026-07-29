@@ -15,9 +15,9 @@ subroutine DEPSAOffC(NCONF,NSTATE,NASHT,NBAST,CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 
 use Symmetry_Info, only: Mul
 use PrintLevel, only: VERBOSE
-use sguga_states, only: SGS, CIS
+use sguga_states, only: CIS, SGS
 use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag
-use general_data, only: NASH,  STSYM
+use general_data, only: NASH, STSYM
 use caspt2_module, only: IFRMS, IFXMS, ISCF, NBAS, NBTCH, NBTCHES, NFRO, NISH, NORB, NROOTS, NSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
@@ -35,8 +35,8 @@ real(kind=wp) :: Alpha, AlphaC, Beta, CPE, CPTF0, CPTF1, CPTF2, CPUT, Delta, Del
                  TIOTF1, TIOTF2, WALLT
 real(kind=wp), allocatable :: Eact(:), G2(:), INT1(:), INT2(:), VecCID(:,:), VecCIT(:,:), VecFancy(:), VecPre(:), VecS1(:,:), &
                               VecS2(:,:), VecST(:,:)
+integer(kind=iwp), parameter :: jState = 1
 real(kind=wp), external :: DDot_
-integer(kind=iwp), parameter:: jState=1
 
 nLev = SGS(jstate)%nLev
 nMidV = CIS(jstate)%nMidV

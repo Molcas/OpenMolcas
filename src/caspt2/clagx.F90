@@ -36,7 +36,7 @@ real(kind=wp) :: CPE, CPTF0, CPTF10, CPUT, TIOE, TIOTF0, TIOTF10, WALLT
 real(kind=wp), allocatable :: G3(:)
 real(kind=wp), allocatable, target :: DF1_H(:), DF2_H(:), DF3_H(:), DG1(:), DG2(:), DG3(:), F1_H(:), F2_H(:), G1(:), G2(:)
 real(kind=wp), pointer :: DF1(:), DF2(:), DF3(:), F1(:), F2(:)
-integer(kind=iwp), parameter:: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 !! reduced density matrix and fock-weighted RDM
 call mma_allocate(G1,NG1,Label='G1')

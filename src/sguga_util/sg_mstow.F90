@@ -10,6 +10,9 @@
 !***********************************************************************
 
 subroutine SG_MSTOW(SGS,CIS,MWS2W,nSym)
+! Purpose: From the list of packed up- and downwalks, construct
+! the table MWS2W, such that MAW sums can be translated to the
+! corresponding walks of the Split-GUGA.
 
 use sguga, only: CIStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,72 +25,47 @@ type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
 integer(kind=iwp), intent(_OUT_) :: MWS2W(*)
 integer(kind=iwp), intent(in) :: nSym
-integer(kind=iwp) :: MIDLEV, NIPWLK, NLEV, NMIDV, NVERT, NWALK
+integer(kind=iwp) :: IC, IDOFF, IDV, IDW, IDWTOT, ISYDWN, ISYUP, IUOFF, IUV, IUW, IUWTOT, LEV, MS, MV, NDWN, NUP
 integer(kind=iwp), allocatable :: ICS(:)
 
-NLEV = SGS%nLev
-NVERT = SGS%nVert
-MIDLEV = SGS%MidLev
+call mma_allocate(ICS,SGS%nLev,Label='ICS')
 
-NMIDV = CIS%nMidV
-NIPWLK = CIS%nIpWlk
-NWALK = CIS%nWalk
-
-call mma_allocate(ICS,NLEV,Label='ICS')
-
-call MSTOW1(NSYM,NLEV,NVERT,NMIDV,NIPWLK,NWALK,MIDLEV,ICS,CIS%NOW,CIS%IOW,CIS%ICase,SGS%UP,SGS%DOWN,SGS%MAW,MWS2W)
-
-call mma_deallocate(ICS)
-
-contains
-
-subroutine MSTOW1(NSYM,NLEV,NVERT,NMIDV,NIPWLK,NWALK,MIDLEV,ICS,NOW,IOW,IWALK,IUP,IDOWN,MAW,MWS2W)
-! Purpose: From the list of packed up- and downwalks, construct
-! the table MWS2W, such that MAW sums can be translated to the
-! corresponding walks of the Split-GUGA.
-
-implicit none
-integer(kind=iwp), intent(in) :: NSYM, NLEV, NVERT, NMIDV, NIPWLK, NWALK, MIDLEV, NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), &
-                                 IWALK(NIPWLK*NWALK), IUP(NVERT,0:3), IDOWN(NVERT,0:3), MAW(NVERT,0:3)
-integer(kind=iwp), intent(out) :: ICS(NLEV), MWS2W(NWALK)
-integer(kind=iwp) :: IC, IDOFF, IDV, IDW, IDWTOT, ISYDWN, ISYUP, IUOFF, IUV, IUW, IUWTOT, LEV, MS, MV, NDWN, NUP
-
-do MV=1,NMIDV
+do MV=1,CIS%nMidV
   do ISYUP=1,NSYM
-    NUP = NOW(1,ISYUP,MV)
+    NUP = CIS%NOW(1,ISYUP,MV)
     if (NUP == 0) cycle
-    IUOFF = IOW(1,ISYUP,MV)/NIPWLK
+    IUOFF = CIS%IOW(1,ISYUP,MV)/CIS%nIpWlk
     do IUW=1,NUP
       IUWTOT = IUOFF+IUW
       ! Unpack upper walk to ICS()
-      call SG_UPKWLK(NLEV-MIDLEV,NIPWLK,1,IWALK(1+NIPWLK*(IUWTOT-1)),ICS(MIDLEV+1))
+      call SG_UPKWLK(SGS%nLev-SGS%MidLev,CIS%nIpWlk,1,CIS%ICase(1+CIS%nIpWlk*(IUWTOT-1)),ICS(SGS%MidLev+1))
       MS = 0
       IUV = 1
-      do LEV=NLEV,MIDLEV+1,-1
+      do LEV=SGS%nLev,SGS%MidLev+1,-1
         IC = ICS(LEV)
-        MS = MS+MAW(IUV,IC)
-        IUV = IDOWN(IUV,IC)
+        MS = MS+SGS%MAW(IUV,IC)
+        IUV = SGS%DOWN(IUV,IC)
       end do
       MWS2W(MS) = IUWTOT
     end do
   end do
 end do
 
-do MV=1,NMIDV
+do MV=1,CIS%nMidV
   do ISYDWN=1,NSYM
-    NDWN = NOW(2,ISYDWN,MV)
+    NDWN = CIS%NOW(2,ISYDWN,MV)
     if (NDWN == 0) cycle
-    IDOFF = IOW(2,ISYDWN,MV)/NIPWLK
+    IDOFF = CIS%IOW(2,ISYDWN,MV)/CIS%nIpWlk
     do IDW=1,NDWN
       IDWTOT = IDOFF+IDW
       ! Unpack lower walk to ICS()
-      call SG_UPKWLK(MIDLEV,NIPWLK,1,IWALK(1+NIPWLK*(IDWTOT-1)),ICS)
+      call SG_UPKWLK(SGS%MidLev,CIS%nIpWlk,1,CIS%ICase(1+CIS%nIpWlk*(IDWTOT-1)),ICS)
       MS = 0
-      IDV = NVERT
-      do LEV=1,MIDLEV
+      IDV = SGS%nVert
+      do LEV=1,SGS%MidLev
         IC = ICS(LEV)
-        IUV = IUP(IDV,IC)
-        MS = MS+MAW(IUV,IC)
+        IUV = SGS%UP(IDV,IC)
+        MS = MS+SGS%MAW(IUV,IC)
         IDV = IUV
       end do
       MWS2W(MS) = IDWTOT
@@ -95,6 +73,6 @@ do MV=1,NMIDV
   end do
 end do
 
-end subroutine MSTOW1
+call mma_deallocate(ICS)
 
 end subroutine SG_MSTOW

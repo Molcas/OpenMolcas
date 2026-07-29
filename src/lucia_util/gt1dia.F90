@@ -11,7 +11,6 @@
 
 subroutine GT1DIA(H1DIA)
 ! Obtain diagonal of one electron matrix over active orbitals
-!
 
 use lucia_data, only: IBSO, INT1, IREOTS, ISMFTO, NACOB, PINT1
 use Definitions, only: wp

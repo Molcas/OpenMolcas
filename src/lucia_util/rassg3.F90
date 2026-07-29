@@ -35,10 +35,8 @@ use Definitions, only: u6
 implicit none
 real(kind=wp), intent(inout) :: CB(*)
 real(kind=wp), intent(_OUT_) :: SB(*)
-integer(kind=iwp), intent(in) :: NBATS, LBATS(*), I1BATS(*), IBATS(8,*), LUC, LUHC, I_AM_OUT(*), N_ELIMINATED_BATCHES
-integer(kind=iwp), intent(in) :: nTUVX
+integer(kind=iwp), intent(in) :: NBATS, LBATS(*), I1BATS(*), IBATS(8,*), LUC, LUHC, I_AM_OUT(*), N_ELIMINATED_BATCHES, nTUVX
 real(kind=wp), intent(in) :: TUVX(nTUVX)
-
 integer(kind=iwp) :: DUM(1), I, I_AM_NOT_WANTED, IEND, ILEN, IOFF, ISBLK, ISBOFF, ISTA, JBATS, NSB
 integer(kind=iwp), allocatable :: SBOFF(:), SBSIZ(:)
 
@@ -98,7 +96,6 @@ do JBATS=1,NBATS
   if (I_AM_NOT_WANTED == 1) cycle
 
   ! Lasse addition end
-
 
   ISBOFF = SBOFF(JBATS)
   ! Obtain sigma for batch of blocks

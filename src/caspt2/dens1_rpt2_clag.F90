@@ -36,7 +36,7 @@ real(kind=wp), intent(in) :: CI(NCI), RDMEIG(NLEV,NLEV)
 real(kind=wp), intent(inout) :: SGM1(NSGM1), CLag(nConf)
 integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTASKS
 integer(kind=iwp), allocatable :: TASK(:,:)
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 ! SVC20100311: set up a task table with LT,LU
 ! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM

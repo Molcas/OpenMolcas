@@ -36,7 +36,7 @@ real(kind=wp), intent(out) :: G1(nLev,nLev), F1(nLev,nLev), G2(nLev,nLev,nLev,nL
 integer(kind=byte), intent(in) :: idxG3(6,nG3)
 integer(kind=iwp) :: i, t, u, v, w, x, y, z
 real(kind=wp), allocatable :: G3tmp(:,:,:,:,:,:), TG3tmp(:,:,:,:,:,:)
-integer(kind=iwp), parameter:: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 ! This might be memory hungry
 call mma_allocate(G3tmp,nLev,nLev,nLev,nLev,nLev,nLev,Label='G3Tmp')
@@ -58,7 +58,7 @@ call qcmaquis_interface_get_3rdm_full(G3tmp)
 ! TODO: This should be removed in the future
 TG3tmp = Zero  ! Initialize TG3tmp to zero
 call qcmaquis_interface_get_fock_contracted_4rdm_full(EPSA,0)
-call qcmaquis_interface_read_fock_contracted_4rdm(TG3tmp,logical(.false.,c_bool))
+call qcmaquis_interface_read_fock_contracted_4rdm(TG3tmp,.false._c_bool)
 
 ! call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp, epsa, CompressMPS)
 

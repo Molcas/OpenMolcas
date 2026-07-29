@@ -117,9 +117,9 @@ subroutine refwfn_info()
   use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
   use RASDim, only: MxTit
   use caspt2_global, only: Weight
-  use general_data, only: iSpin,  nActel, nAsh, nEle3=>nElec3, nHole1, STSym
-  use caspt2_module, only: bName, header, IFQCAN, iRoot, lRoots, nBas, nConf, nDel, nFro, &
-                           nIsh, nRas1, nRas2, nRas3, nRoots, nSsh, nSym, PotNuc, Title
+  use general_data, only: iSpin,  nActel, nAsh, nElec3, nHole1, STSym
+  use caspt2_module, only: bName, header, IFQCAN, iRoot, lRoots, nBas, nConf, nDel, nFro, nIsh, nRas1, nRas2, nRas3, nRoots, nSsh, &
+                           nSym, PotNuc, Title
 # ifdef _DMRG_
   use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names
 # endif
@@ -151,7 +151,7 @@ subroutine refwfn_info()
 
     call mh5_fetch_attr(refwfn_id,'NACTEL',nActEl)
     call mh5_fetch_attr(refwfn_id,'NHOLE1',nHole1)
-    call mh5_fetch_attr(refwfn_id,'NELEC3',nEle3)
+    call mh5_fetch_attr(refwfn_id,'NELEC3',nElec3)
     call mh5_fetch_attr(refwfn_id,'NCONF',nConf)
     call mh5_fetch_attr(refwfn_id,'NSTATES',nRoots)
     call mh5_fetch_attr(refwfn_id,'NROOTS',lRoots)
@@ -199,7 +199,8 @@ subroutine refwfn_info()
     ! TITLE2. That one is printed out in PRINP_CASPT2.
     IAD15 = IADR15(1)
     call WR_RASSCF_Info(refwfn_id,2,iAd15,NACTEL,ISPIN,REF_NSYM,STSYM,NFRO,NISH,NASH,NDEL,REF_NBAS,8,BNAME,(LenIn+8)*MXORB,NCONF, &
-                        HEADER,144,TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,lWeight)
+                        HEADER,144,TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,nElec3,IFQCAN, &
+                        lWeight)
     nssh = ref_nbas-nfro-nish-nash-ndel
 # ifdef _HDF5_
   end if

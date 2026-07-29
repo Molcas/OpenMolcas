@@ -15,8 +15,8 @@ subroutine faroald_init(nactel,nasht,ispin)
 ! It fills in the necessary global data in the module,
 ! in preparation for the sigma_update routine.
 
-use faroald, only: ex1_a, ex1_b, ex1_init, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, my_nel, my_norb, ndeta, &
-                   ndetb, nela, nelb, nhoa, nhob, htu, gtuvx
+use faroald, only: ex1_a, ex1_b, ex1_init, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, my_nel, &
+                   my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob
 use faroald, only: mma_allocate ! with extensions for ex1_struct
 use second_quantization, only: binom_coef, rank_init
 use Definitions, only: iwp
@@ -59,8 +59,8 @@ call ex1_init(nelb,my_norb,ex1_b)
 ! Ms = 0 (mult = 1), as for singlet spins sigma2 is not computed and
 ! just taken as the transpose of SG_Epq_Psi.
 !if (mult /= 1) then
-  call mma_allocate(ex1_a,max_ex1a,ndeta,label='ex1_a')
-  call ex1_init(nela,my_norb,ex1_a)
+call mma_allocate(ex1_a,max_ex1a,ndeta,label='ex1_a')
+call ex1_init(nela,my_norb,ex1_a)
 !end if
 
 ! For sigma3, we need to construct a list of determinant couples L(i)

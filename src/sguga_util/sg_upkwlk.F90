@@ -11,8 +11,8 @@
 
 subroutine SG_UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 
-use Definitions, only: iwp
 use sguga, only: nPack
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N, IPWLK, NWALK, IWALK(*)

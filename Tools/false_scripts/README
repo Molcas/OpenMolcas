@@ -1,0 +1,38 @@
+This directory contains some sample scripts that can be used together
+with the module FALSE of OpenMolcas. A possible application is, for
+example, performing a geometry optimization with a method not currently
+available in OpenMolcas:
+
+  * At least one basis function is still needed
+  &GATEWAY
+    Coord = caffeine.xyz
+    Basis = ANO-S...0s,O.ANO-S...1s
+    Group = NoSym
+
+  > do while
+
+  * Two-electron integrals can be omitted
+  &SEWARD
+    OneInt
+
+  &FALSE
+    Run = $CurrDir/run_mopac.py
+
+  &SLAPAF
+    Kriging
+
+  > end do
+
+Sample scripts are available for the following programs:
+
+* ORCA (https://www.faccts.de/orca)
+
+* Gaussian (https://gaussian.com)
+
+* MOPAC (https://openmopac.net)
+
+* xTB (https://xtb-docs.readthedocs.io)
+
+These scripts are intended as a starting point. You should review, test, and
+adapt them to the specifics of your installation and the type of calculation
+you wish to perform.

@@ -45,12 +45,9 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(in) :: X(*)
-integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM
+integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM, nTUVX
+real(kind=wp), intent(in) :: X(*), TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in) :: TUVX(nTUVX)
-
 real(kind=wp), allocatable :: SCR(:), LT(:)
 integer(kind=iwp) :: IOFF, ISM
 
@@ -84,7 +81,7 @@ ICSM = ICSM
 ISSPC = IXSPC
 ISSM = IXSM
 
-call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2,Size(TUVX),TUVX)
+call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2,size(TUVX),TUVX)
 
 call mma_deallocate(SCR)
 call mma_deallocate(LT)

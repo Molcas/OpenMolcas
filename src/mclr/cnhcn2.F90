@@ -19,7 +19,7 @@ subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,IPRODT,DTO
 ! Modified for LUCIA, September 1993
 
 use MCLR_Data, only: IASTFI, IBSTFI, NDPCNT
-use spinfo, only: MINOP, NCPCNT=>NCSFTP
+use spinfo, only: MINOP, NCSFTP
 use Str_Info, only: Str
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -55,8 +55,8 @@ ICLR = (NEL-IOPR)/2
 NDETL = NDPCNT(ITPL)
 NDETR = NDPCNT(ITPR)
 
-NCSFL = NCPCNT(ITPL)
-NCSFR = NCPCNT(ITPR)
+NCSFL = NCSFTP(ITPL)
+NCSFR = NCSFTP(ITPR)
 
 KLFREE = 1
 ! 2* Ndet for holding string numbers and signs
@@ -101,11 +101,11 @@ if (NDIFF <= 2) then
   ! sign changes
   call DGMM2(SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
   call DGMM2(SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
-  IPL = 1+sum(NCPCNT(1:ITPL-1)*NDPCNT(1:ITPL-1))
+  IPL = 1+sum(NCSFTP(1:ITPL-1)*NDPCNT(1:ITPL-1))
   if (ITPR == ITPL) then
     IPR = IPL
   else
-    IPR = 1+sum(NCPCNT(1:ITPR-1)*NDPCNT(1:ITPR-1))
+    IPR = 1+sum(NCSFTP(1:ITPR-1)*NDPCNT(1:ITPR-1))
   end if
 
   call MATML4(SCR(KLCHD),DTOC(IPL),SCR(KLDHD),NCSFL,NDETR,NDETL,NCSFL,NDETL,NDETR,1)

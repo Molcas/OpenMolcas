@@ -22,7 +22,7 @@ subroutine DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,SCAL,nLev)
 
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
-use sguga_states, only: SGS, CIS
+use sguga_states, only: CIS, SGS
 use general_data, only: STSym
 use caspt2_module, only: MxCI, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -34,7 +34,7 @@ real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI), RDMEIG(NLEV,NLEV), SCAL
 real(kind=wp), intent(inout) :: SGM1(MXCI), CLag1(nConf), CLag2(nConf)
 integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTASKS
 integer(kind=iwp), allocatable :: TASK(:,:)
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 ! SVC20100311: set up a task table with LT,LU
 ! SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM

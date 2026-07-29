@@ -22,8 +22,8 @@ use Index_Functions, only: nTri_Elem
 use EQSOLV, only: IDBMAT, IDSMAT, IDSTMAT, IDTMAT, IVECX
 use fake_GA, only: GA_Arrays
 use caspt2_global, only: do_lindep, DREF, IDBoriMat, iTasks_grad, LUGRAD, LUSBT, LUSOLV, LUSTD, NBUF1_GRAD, nTasks_grad, PREF
-use caspt2_module, only: E2Tot, EASum, ERef, HZERO, jState, MxCase, nASup, nBTri, nCases, nG1, nG2, nG3, nG3Tot, nInDep, &
-                         nISup, nState, nSym, RefEne, RFPert
+use caspt2_module, only: E2Tot, EASum, ERef, HZERO, jState, MxCase, nASup, nBTri, nCases, nG1, nG2, nG3, nG3Tot, nInDep, nISup, &
+                         nState, nSym, RefEne, RFPert
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, myRank
 use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
@@ -92,7 +92,7 @@ else if (IORW == 2) then
   NBUF1_GRAD = IWRK1(5)
   nTasks_grad = IWRK1(6)
   !! Allocate iTasks_grad to the exact size just read from disk
-  if (allocated(iTasks_grad)) call mma_deallocate(iTasks_grad)
+  call mma_deallocate(iTasks_grad,safe='*')
   !! One additional element is used as the signal of termination (only for parallel)
   call mma_allocate(iTasks_grad,max(1,nTasks_grad+1),Label='Tasks_grad')
   iTasks_grad(:) = 0

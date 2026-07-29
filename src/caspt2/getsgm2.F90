@@ -31,8 +31,8 @@ subroutine GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
 ! GETSGM2(ILEV,JLEV,CI,SGM)!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-use sguga, only: sg_epq_psi
 use Symmetry_Info, only: Mul
+use sguga, only: sg_epq_psi
 use sguga_states, only: CIS, EXS, SGS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -42,7 +42,7 @@ integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI, nCI, MSGM
 real(kind=wp), intent(in) :: CI(nCI)
 real(kind=wp), intent(inout) :: SGM(MSGM)
 integer(kind=iwp) :: IJS, IS, ISSG, JS, NSGM
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 SGM(1:MSGM) = Zero
 IS = SGS(istate)%ISM(ILEV)

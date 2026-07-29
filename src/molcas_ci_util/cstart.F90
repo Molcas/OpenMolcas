@@ -45,7 +45,7 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 !***********************************************************************
 
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
-use sguga_states, only: SGS, EXS, CIS
+use sguga_states, only: CIS, EXS, SGS
 use general_data, only: JOBIPH, JOBOLD, LUDAVID, NCONF, NSEL, STSYM
 use gas_data, only: iDoGas
 #ifdef _HDF5_
@@ -72,8 +72,7 @@ integer(kind=iwp) :: mh5id
 logical(kind=iwp) :: Exists
 character(len=80) :: String
 real(kind=wp), allocatable :: Tmp1(:)
-integer(kind=iwp), parameter:: iState=1
-
+integer(kind=iwp), parameter :: iState = 1
 
 IPRLEV = IPRLOC(3)
 

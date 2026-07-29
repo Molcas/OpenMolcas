@@ -31,7 +31,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NCI
 real(kind=wp), intent(in) :: CI(NCI)
 real(kind=wp), allocatable :: G1TMP(:), SGM1(:)
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 if (NLEV > 0) then
   call mma_allocate(SGM1,NCI,LABEL='SGM1')

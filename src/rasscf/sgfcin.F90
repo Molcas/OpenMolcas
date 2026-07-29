@@ -34,7 +34,8 @@
 !>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu})\f]
 !>    In output FI contains also the core energy added to
 !>    the diagonal elements.
-!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu}) + \frac{E^{(0)}}{n_{el}} \delta_{\mu\nu} \f]
+!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu}) +
+!>       \frac{E^{(0)}}{n_{el}} \delta_{\mu\nu} \f]
 !>  @param[in] D1I The inactive one-body density matrix in AO-space
 !>    \f[D^{\text{AO}, I} = 2 C (C^I)^\dagger \f]
 !>    See ::get_D1I_rasscf.
@@ -48,8 +49,7 @@ subroutine SGFCIN(CMO,F,FI,D1I,D1A,D1S)
 use Index_Functions, only: nTri_Elem
 use RunFile_procedures, only: Get_dExcdRa
 use timers, only: TimeDens
-use rasscf_global, only: dftfock, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, &
-                         tot_el_charge, tot_nuc_charge
+use rasscf_global, only: dftfock, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, tot_el_charge, tot_nuc_charge
 use OneDat, only: sNoNuc, sNoOri
 use general_data, only: iSpin, nActEl, nAsh, nBas, nFro, nIsh, nSym, nTot1
 use OFEmbed, only: Do_OFemb, FMaux, OFE_first, Rep_EN

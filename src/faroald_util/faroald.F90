@@ -44,13 +44,14 @@ type(ex1_struct), allocatable :: ex1_a(:,:), ex1_b(:,:)
 integer(kind=iwp) :: max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs
 
 ! integral storage in Faroald format
-real(kind=wp), allocatable:: gtuvx(:,:,:,:), htu(:,:)
+real(kind=wp), allocatable :: gtuvx(:,:,:,:), htu(:,:)
 #ifdef _PROF_
 integer(kind=int64) :: nflop
 #endif
 
-public :: ex1_a, ex1_b, ex1_init, max_LRs, max_ex1a, max_ex1b, max_ex2a, max_ex2b, mult, my_ndet, my_nel, my_norb, ndeta, ndetb, &
-          nela, nelb, nhoa, nhob, sigma_update, gtuvx, htu, one_pdm, transition_one_pdm, two_pdm, transition_two_pdm, fold_two_pdm
+public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
+          my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, transition_two_pdm, &
+          two_pdm
 
 ! Extensions to mma interfaces
 
@@ -352,7 +353,7 @@ subroutine sigma3(g,sgm,psi,ibsta,ibend)
 
 end subroutine sigma3
 
-subroutine one_pdm(psi, d, sd, da, db)
+subroutine one_pdm(psi,d,sd,da,db)
 ! Compute the spin-summed one-particle density matrix and spin-density
 ! matrix for a CI vector in determinant product representation.
 !
@@ -365,18 +366,15 @@ subroutine one_pdm(psi, d, sd, da, db)
 ! If the CI vector is not normalized, the densities are scaled by
 ! <Psi|Psi>.
 
-  real(kind=wp), intent(in)  :: psi(:,:)
-  real(kind=wp), intent(out) :: d(my_norb,my_norb)
-  real(kind=wp), intent(out) :: sd(my_norb,my_norb)
-  real(kind=wp), intent(out), optional :: da(my_norb,my_norb)
-  real(kind=wp), intent(out), optional :: db(my_norb,my_norb)
+  real(kind=wp), intent(in) :: psi(:,:)
+  real(kind=wp), intent(out) :: d(my_norb,my_norb), sd(my_norb,my_norb)
+  real(kind=wp), intent(out), optional :: da(my_norb,my_norb), db(my_norb,my_norb)
 
   call transition_one_pdm(psi,psi,d,sd,da,db)
 
 end subroutine one_pdm
 
-
-subroutine transition_one_pdm(bra, ket, d, sd, da, db)
+subroutine transition_one_pdm(bra,ket,d,sd,da,db)
 ! Compute the spin-resolved transition one-particle density matrices
 ! between two CI vectors:
 !
@@ -397,61 +395,54 @@ subroutine transition_one_pdm(bra, ket, d, sd, da, db)
 !
 ! with determinant rank I and fermionic sign sgn.
 
-  real(kind=wp), intent(in)  :: bra(:,:)
-  real(kind=wp), intent(in)  :: ket(:,:)
-  real(kind=wp), intent(out) :: d(my_norb,my_norb)
-  real(kind=wp), intent(out) :: sd(my_norb,my_norb)
-  real(kind=wp), intent(out), optional :: da(my_norb,my_norb)
-  real(kind=wp), intent(out), optional :: db(my_norb,my_norb)
-
+  real(kind=wp), intent(in) :: bra(:,:), ket(:,:)
+  real(kind=wp), intent(out) :: d(my_norb,my_norb), sd(my_norb,my_norb)
+  real(kind=wp), intent(out), optional :: da(my_norb,my_norb), db(my_norb,my_norb)
   real(kind=wp), allocatable :: da_loc(:,:), db_loc(:,:)
 
   call mma_allocate(da_loc,my_norb,my_norb,label='da_loc')
   call mma_allocate(db_loc,my_norb,my_norb,label='db_loc')
 
   call alpha_transition_one_pdm(bra,ket,da_loc)
-  call beta_transition_one_pdm (bra,ket,db_loc)
+  call beta_transition_one_pdm(bra,ket,db_loc)
 
-  d  = da_loc + db_loc
-  sd = da_loc - db_loc
+  d(:,:) = da_loc(:,:)+db_loc(:,:)
+  sd(:,:) = da_loc(:,:)-db_loc(:,:)
 
-  if (present(da)) da = da_loc
-  if (present(db)) db = db_loc
+  if (present(da)) da(:,:) = da_loc(:,:)
+  if (present(db)) db(:,:) = db_loc(:,:)
 
   call mma_deallocate(da_loc)
   call mma_deallocate(db_loc)
 
 end subroutine transition_one_pdm
 
-subroutine alpha_transition_one_pdm(bra, ket, da)
+subroutine alpha_transition_one_pdm(bra,ket,da)
 ! Alpha-spin contribution to the transition one-particle density matrix:
 !
 !   da(p,q) = sum_ia,ja,ib bra(ia,ib)
 !             <ia|E_pq|ja> ket(ja,ib)
 
-  real(kind=wp), intent(in)  :: bra(:,:)
-  real(kind=wp), intent(in)  :: ket(:,:)
+  real(kind=wp), intent(in) :: bra(:,:), ket(:,:)
   real(kind=wp), intent(out) :: da(my_norb,my_norb)
-
-  integer(kind=iwp) :: ja, ia, jasta, jaend
-  integer(kind=iwp) :: pq, p, q, sgn
+  integer(kind=iwp) :: ia, ja, jaend, jasta, p, pq, q, sgn
   real(kind=wp) :: contribution
 
   da = Zero
 
   call par_range(ndeta,jasta,jaend)
 
-  do ja = jasta, jaend
-    do pq = 1, max_ex1a
+  do ja=jasta,jaend
+    do pq=1,max_ex1a
 
-      p   = ex1_a(pq,ja)%p
-      q   = ex1_a(pq,ja)%q
+      p = ex1_a(pq,ja)%p
+      q = ex1_a(pq,ja)%q
       sgn = ex1_a(pq,ja)%sgn
-      ia  = ex1_a(pq,ja)%rank
+      ia = ex1_a(pq,ja)%rank
 
       contribution = dot_product(bra(ia,1:ndetb),ket(ja,1:ndetb))
 
-      da(p,q) = da(p,q) + real(sgn,kind=wp)*contribution
+      da(p,q) = da(p,q)+real(sgn,kind=wp)*contribution
 
     end do
   end do
@@ -460,7 +451,7 @@ subroutine alpha_transition_one_pdm(bra, ket, da)
 
 end subroutine alpha_transition_one_pdm
 
-subroutine beta_transition_one_pdm(bra, ket, db)
+subroutine beta_transition_one_pdm(bra,ket,db)
 ! Beta-spin contribution to the transition one-particle density matrix:
 !
 !   db(p,q) = sum_ib,jb,ia bra(ia,ib)
@@ -469,12 +460,9 @@ subroutine beta_transition_one_pdm(bra, ket, db)
 ! The excitation table ex1_b stores, for each source determinant jb,
 ! the destination determinant ib, orbital pair p,q, and phase.
 
-  real(kind=wp), intent(in)  :: bra(:,:)
-  real(kind=wp), intent(in)  :: ket(:,:)
+  real(kind=wp), intent(in) :: bra(:,:), ket(:,:)
   real(kind=wp), intent(out) :: db(my_norb,my_norb)
-
-  integer(kind=iwp) :: jb, ib, jbsta, jbend
-  integer(kind=iwp) :: pq, p, q, sgn
+  integer(kind=iwp) :: ib, jb, jbend, jbsta, p, pq, q, sgn
   real(kind=wp) :: contribution
 
   db = Zero
@@ -483,17 +471,17 @@ subroutine beta_transition_one_pdm(bra, ket, db)
   ! running under the existing parallel environment.
   call par_range(ndetb,jbsta,jbend)
 
-  do jb = jbsta, jbend
-    do pq = 1, max_ex1b
+  do jb=jbsta,jbend
+    do pq=1,max_ex1b
 
-      p   = ex1_b(pq,jb)%p
-      q   = ex1_b(pq,jb)%q
+      p = ex1_b(pq,jb)%p
+      q = ex1_b(pq,jb)%q
       sgn = ex1_b(pq,jb)%sgn
-      ib  = ex1_b(pq,jb)%rank
+      ib = ex1_b(pq,jb)%rank
 
       contribution = dot_product(bra(1:ndeta,ib),ket(1:ndeta,jb))
 
-      db(p,q) = db(p,q) + real(sgn,kind=wp)*contribution
+      db(p,q) = db(p,q)+real(sgn,kind=wp)*contribution
 
     end do
   end do
@@ -502,7 +490,7 @@ subroutine beta_transition_one_pdm(bra, ket, db)
 
 end subroutine beta_transition_one_pdm
 
-subroutine two_pdm(psi, p2, p2prod)
+subroutine two_pdm(psi,p2,p2prod)
 ! Compute the spin-free two-particle density matrix for one CI vector.
 !
 ! The returned p2 is the normal-ordered spin-free two-particle density
@@ -519,7 +507,7 @@ subroutine two_pdm(psi, p2, p2prod)
 !
 ! If psi is not normalized, the density matrices are scaled by <Psi|Psi>.
 
-  real(kind=wp), intent(in)  :: psi(:,:)
+  real(kind=wp), intent(in) :: psi(:,:)
   real(kind=wp), intent(out) :: p2(my_norb,my_norb,my_norb,my_norb)
   real(kind=wp), intent(out), optional :: p2prod(my_norb,my_norb,my_norb,my_norb)
 
@@ -527,8 +515,7 @@ subroutine two_pdm(psi, p2, p2prod)
 
 end subroutine two_pdm
 
-
-subroutine transition_two_pdm(bra, ket, p2, p2prod)
+subroutine transition_two_pdm(bra,ket,p2,p2prod)
 ! Compute the spin-free transition two-particle density matrix.
 !
 ! The returned p2 is
@@ -547,14 +534,11 @@ subroutine transition_two_pdm(bra, ket, p2, p2prod)
 !
 ! is subtracted using transition_one_pdm.
 
-  real(kind=wp), intent(in)  :: bra(:,:)
-  real(kind=wp), intent(in)  :: ket(:,:)
+  real(kind=wp), intent(in) :: bra(:,:), ket(:,:)
   real(kind=wp), intent(out) :: p2(my_norb,my_norb,my_norb,my_norb)
   real(kind=wp), intent(out), optional :: p2prod(my_norb,my_norb,my_norb,my_norb)
-
-  real(kind=wp), allocatable :: pprod(:,:,:,:)
-  real(kind=wp), allocatable :: d1(:,:), sd1(:,:)
-  integer(kind=iwp) :: t, u, v, x
+  real(kind=wp), allocatable :: d1(:,:), pprod(:,:,:,:), sd1(:,:)
+  integer(kind=iwp) :: u
 
   call mma_allocate(pprod,my_norb,my_norb,my_norb,my_norb,label='pprod')
   call mma_allocate(d1,my_norb,my_norb,label='d1')
@@ -565,19 +549,13 @@ subroutine transition_two_pdm(bra, ket, p2, p2prod)
   ! One-particle transition density needed for the contraction term.
   call transition_one_pdm(bra,ket,d1,sd1)
 
-  p2 = pprod
+  p2(:,:,:,:) = pprod(:,:,:,:)
 
-  do x = 1, my_norb
-    do v = 1, my_norb
-      do u = 1, my_norb
-        do t = 1, my_norb
-          if (u == v) p2(t,u,v,x) = p2(t,u,v,x) - d1(t,x)
-        end do
-      end do
-    end do
+  do u=1,my_norb
+    p2(:,u,u,:) = p2(:,u,u,:)-d1(:,:)
   end do
 
-  if (present(p2prod)) p2prod = pprod
+  if (present(p2prod)) p2prod(:,:,:,:) = pprod(:,:,:,:)
 
   call mma_deallocate(sd1)
   call mma_deallocate(d1)
@@ -585,8 +563,7 @@ subroutine transition_two_pdm(bra, ket, p2, p2prod)
 
 end subroutine transition_two_pdm
 
-
-subroutine transition_two_pdm_product(bra, ket, pprod)
+subroutine transition_two_pdm_product(bra,ket,pprod)
 ! Compute the spin-free product density
 !
 !   pprod(t,u,v,x) = <bra| E_tu E_vx |ket>
@@ -602,21 +579,19 @@ subroutine transition_two_pdm_product(bra, ket, pprod)
 !
 ! The rightmost operator E_vx acts first.
 
-  real(kind=wp), intent(in)  :: bra(:,:)
-  real(kind=wp), intent(in)  :: ket(:,:)
+  real(kind=wp), intent(in) :: bra(:,:), ket(:,:)
   real(kind=wp), intent(out) :: pprod(my_norb,my_norb,my_norb,my_norb)
 
-  pprod = Zero
+  pprod(:,:,:,:) = Zero
 
   call alpha_alpha_two_pdm_product(bra,ket,pprod)
-  call beta_beta_two_pdm_product  (bra,ket,pprod)
-  call alpha_beta_two_pdm_product (bra,ket,pprod)
-  call beta_alpha_two_pdm_product (bra,ket,pprod)
+  call beta_beta_two_pdm_product(bra,ket,pprod)
+  call alpha_beta_two_pdm_product(bra,ket,pprod)
+  call beta_alpha_two_pdm_product(bra,ket,pprod)
 
 end subroutine transition_two_pdm_product
 
-
-subroutine alpha_alpha_two_pdm_product(bra, ket, pprod)
+subroutine alpha_alpha_two_pdm_product(bra,ket,pprod)
 ! Add the alpha-alpha contribution
 !
 !   <bra| E_tu(alpha) E_vx(alpha) |ket>
@@ -625,35 +600,29 @@ subroutine alpha_alpha_two_pdm_product(bra, ket, pprod)
 !
 !   ja --E_vx--> ka --E_tu--> ia
 
-  real(kind=wp), intent(in)    :: bra(:,:)
-  real(kind=wp), intent(in)    :: ket(:,:)
+  real(kind=wp), intent(in) :: bra(:,:), ket(:,:)
   real(kind=wp), intent(inout) :: pprod(my_norb,my_norb,my_norb,my_norb)
-
-  integer(kind=iwp) :: ja, ka, ia
-  integer(kind=iwp) :: tu, vx
-  integer(kind=iwp) :: t, u, v, x
-  integer(kind=iwp) :: sgn_tu, sgn_vx
+  integer(kind=iwp) :: ia, ja, ka, sgn_tu, sgn_vx, t, tu, u, v, vx, x
   real(kind=wp) :: contribution
 
-  do ja = 1, ndeta
-    do vx = 1, max_ex1a
+  do ja=1,ndeta
+    do vx=1,max_ex1a
 
-      v      = ex1_a(vx,ja)%p
-      x      = ex1_a(vx,ja)%q
+      v = ex1_a(vx,ja)%p
+      x = ex1_a(vx,ja)%q
       sgn_vx = ex1_a(vx,ja)%sgn
-      ka     = ex1_a(vx,ja)%rank
+      ka = ex1_a(vx,ja)%rank
 
-      do tu = 1, max_ex1a
+      do tu=1,max_ex1a
 
-        t      = ex1_a(tu,ka)%p
-        u      = ex1_a(tu,ka)%q
+        t = ex1_a(tu,ka)%p
+        u = ex1_a(tu,ka)%q
         sgn_tu = ex1_a(tu,ka)%sgn
-        ia     = ex1_a(tu,ka)%rank
+        ia = ex1_a(tu,ka)%rank
 
         contribution = dot_product(bra(ia,1:ndetb),ket(ja,1:ndetb))
 
-        pprod(t,u,v,x) = pprod(t,u,v,x)                                 &
-             + real(sgn_tu*sgn_vx,kind=wp)*contribution
+        pprod(t,u,v,x) = pprod(t,u,v,x)+real(sgn_tu*sgn_vx,kind=wp)*contribution
 
       end do
     end do
@@ -661,8 +630,7 @@ subroutine alpha_alpha_two_pdm_product(bra, ket, pprod)
 
 end subroutine alpha_alpha_two_pdm_product
 
-
-subroutine beta_beta_two_pdm_product(bra, ket, pprod)
+subroutine beta_beta_two_pdm_product(bra,ket,pprod)
 ! Add the beta-beta contribution
 !
 !   <bra| E_tu(beta) E_vx(beta) |ket>
@@ -671,35 +639,29 @@ subroutine beta_beta_two_pdm_product(bra, ket, pprod)
 !
 !   jb --E_vx--> kb --E_tu--> ib
 
-  real(kind=wp), intent(in)    :: bra(:,:)
-  real(kind=wp), intent(in)    :: ket(:,:)
+  real(kind=wp), intent(in) :: bra(:,:), ket(:,:)
   real(kind=wp), intent(inout) :: pprod(my_norb,my_norb,my_norb,my_norb)
-
-  integer(kind=iwp) :: jb, kb, ib
-  integer(kind=iwp) :: tu, vx
-  integer(kind=iwp) :: t, u, v, x
-  integer(kind=iwp) :: sgn_tu, sgn_vx
+  integer(kind=iwp) :: ib, jb, kb, sgn_tu, sgn_vx, t, tu, u, v, vx, x
   real(kind=wp) :: contribution
 
-  do jb = 1, ndetb
-    do vx = 1, max_ex1b
+  do jb=1,ndetb
+    do vx=1,max_ex1b
 
-      v      = ex1_b(vx,jb)%p
-      x      = ex1_b(vx,jb)%q
+      v = ex1_b(vx,jb)%p
+      x = ex1_b(vx,jb)%q
       sgn_vx = ex1_b(vx,jb)%sgn
-      kb     = ex1_b(vx,jb)%rank
+      kb = ex1_b(vx,jb)%rank
 
-      do tu = 1, max_ex1b
+      do tu=1,max_ex1b
 
-        t      = ex1_b(tu,kb)%p
-        u      = ex1_b(tu,kb)%q
+        t = ex1_b(tu,kb)%p
+        u = ex1_b(tu,kb)%q
         sgn_tu = ex1_b(tu,kb)%sgn
-        ib     = ex1_b(tu,kb)%rank
+        ib = ex1_b(tu,kb)%rank
 
         contribution = dot_product(bra(1:ndeta,ib),ket(1:ndeta,jb))
 
-        pprod(t,u,v,x) = pprod(t,u,v,x)                                 &
-             + real(sgn_tu*sgn_vx,kind=wp)*contribution
+        pprod(t,u,v,x) = pprod(t,u,v,x)+real(sgn_tu*sgn_vx,kind=wp)*contribution
 
       end do
     end do
@@ -707,8 +669,7 @@ subroutine beta_beta_two_pdm_product(bra, ket, pprod)
 
 end subroutine beta_beta_two_pdm_product
 
-
-subroutine alpha_beta_two_pdm_product(bra, ket, pprod)
+subroutine alpha_beta_two_pdm_product(bra,ket,pprod)
 ! Add the alpha-beta contribution
 !
 !   <bra| E_tu(alpha) E_vx(beta) |ket>
@@ -719,33 +680,27 @@ subroutine alpha_beta_two_pdm_product(bra, ket, pprod)
 !   ja --E_tu(alpha)--> ia
 !   jb --E_vx(beta )--> ib
 
-  real(kind=wp), intent(in)    :: bra(:,:)
-  real(kind=wp), intent(in)    :: ket(:,:)
+  real(kind=wp), intent(in) :: bra(:,:), ket(:,:)
   real(kind=wp), intent(inout) :: pprod(my_norb,my_norb,my_norb,my_norb)
+  integer(kind=iwp) :: ia, ib, ja, jb, sgn_tu, sgn_vx, t, tu, u, v, vx, x
 
-  integer(kind=iwp) :: ja, ia, jb, ib
-  integer(kind=iwp) :: tu, vx
-  integer(kind=iwp) :: t, u, v, x
-  integer(kind=iwp) :: sgn_tu, sgn_vx
+  do ja=1,ndeta
+    do tu=1,max_ex1a
 
-  do ja = 1, ndeta
-    do tu = 1, max_ex1a
-
-      t      = ex1_a(tu,ja)%p
-      u      = ex1_a(tu,ja)%q
+      t = ex1_a(tu,ja)%p
+      u = ex1_a(tu,ja)%q
       sgn_tu = ex1_a(tu,ja)%sgn
-      ia     = ex1_a(tu,ja)%rank
+      ia = ex1_a(tu,ja)%rank
 
-      do jb = 1, ndetb
-        do vx = 1, max_ex1b
+      do jb=1,ndetb
+        do vx=1,max_ex1b
 
-          v      = ex1_b(vx,jb)%p
-          x      = ex1_b(vx,jb)%q
+          v = ex1_b(vx,jb)%p
+          x = ex1_b(vx,jb)%q
           sgn_vx = ex1_b(vx,jb)%sgn
-          ib     = ex1_b(vx,jb)%rank
+          ib = ex1_b(vx,jb)%rank
 
-          pprod(t,u,v,x) = pprod(t,u,v,x)                               &
-               + real(sgn_tu*sgn_vx,kind=wp)*bra(ia,ib)*ket(ja,jb)
+          pprod(t,u,v,x) = pprod(t,u,v,x)+real(sgn_tu*sgn_vx,kind=wp)*bra(ia,ib)*ket(ja,jb)
 
         end do
       end do
@@ -755,8 +710,7 @@ subroutine alpha_beta_two_pdm_product(bra, ket, pprod)
 
 end subroutine alpha_beta_two_pdm_product
 
-
-subroutine beta_alpha_two_pdm_product(bra, ket, pprod)
+subroutine beta_alpha_two_pdm_product(bra,ket,pprod)
 ! Add the beta-alpha contribution
 !
 !   <bra| E_tu(beta) E_vx(alpha) |ket>
@@ -766,33 +720,27 @@ subroutine beta_alpha_two_pdm_product(bra, ket, pprod)
 !   jb --E_tu(beta )--> ib
 !   ja --E_vx(alpha)--> ia
 
-  real(kind=wp), intent(in)    :: bra(:,:)
-  real(kind=wp), intent(in)    :: ket(:,:)
+  real(kind=wp), intent(in) :: bra(:,:), ket(:,:)
   real(kind=wp), intent(inout) :: pprod(my_norb,my_norb,my_norb,my_norb)
+  integer(kind=iwp) :: ia, ib, ja, jb, sgn_tu, sgn_vx, t, tu, u, v, vx, x
 
-  integer(kind=iwp) :: ja, ia, jb, ib
-  integer(kind=iwp) :: tu, vx
-  integer(kind=iwp) :: t, u, v, x
-  integer(kind=iwp) :: sgn_tu, sgn_vx
+  do jb=1,ndetb
+    do tu=1,max_ex1b
 
-  do jb = 1, ndetb
-    do tu = 1, max_ex1b
-
-      t      = ex1_b(tu,jb)%p
-      u      = ex1_b(tu,jb)%q
+      t = ex1_b(tu,jb)%p
+      u = ex1_b(tu,jb)%q
       sgn_tu = ex1_b(tu,jb)%sgn
-      ib     = ex1_b(tu,jb)%rank
+      ib = ex1_b(tu,jb)%rank
 
-      do ja = 1, ndeta
-        do vx = 1, max_ex1a
+      do ja=1,ndeta
+        do vx=1,max_ex1a
 
-          v      = ex1_a(vx,ja)%p
-          x      = ex1_a(vx,ja)%q
+          v = ex1_a(vx,ja)%p
+          x = ex1_a(vx,ja)%q
           sgn_vx = ex1_a(vx,ja)%sgn
-          ia     = ex1_a(vx,ja)%rank
+          ia = ex1_a(vx,ja)%rank
 
-          pprod(t,u,v,x) = pprod(t,u,v,x)                               &
-               + real(sgn_tu*sgn_vx,kind=wp)*bra(ia,ib)*ket(ja,jb)
+          pprod(t,u,v,x) = pprod(t,u,v,x)+real(sgn_tu*sgn_vx,kind=wp)*bra(ia,ib)*ket(ja,jb)
 
         end do
       end do
@@ -802,7 +750,7 @@ subroutine beta_alpha_two_pdm_product(bra, ket, pprod)
 
 end subroutine beta_alpha_two_pdm_product
 
-subroutine fold_two_pdm(p2, p2_fold, p2a_fold)
+subroutine fold_two_pdm(p2,p2_fold,p2a_fold)
 ! Fold a full four-index spin-free two-particle density matrix
 !
 !   p2(t,u,v,x)
@@ -833,84 +781,63 @@ subroutine fold_two_pdm(p2, p2_fold, p2a_fold)
 ! tensor has small numerical deviations from the expected packed
 ! symmetries.
 
-  real(kind=wp), intent(in)  :: p2(my_norb,my_norb,my_norb,my_norb)
+  use Index_Functions, only: iTri, nTri_Elem
+  use Constants, only: Half
+
+  real(kind=wp), intent(in) :: p2(my_norb,my_norb,my_norb,my_norb)
   real(kind=wp), intent(out) :: p2_fold(:), p2a_fold(:)
+  integer(kind=iwp) :: npair, npair2, t, tu, tuvx, u, v, vx, x, x_max
 
-  integer(kind=iwp) :: t, u, v, x, x_max
-  integer(kind=iwp) :: tu, vx, tuvx
-  integer(kind=iwp) :: npair, npair2
-
-  npair  = my_norb*(my_norb+1)/2
-  npair2 = npair*(npair+1)/2
+  npair = nTri_Elem(my_norb)
+  npair2 = nTri_Elem(npair)
 
   if (size(p2_fold) < npair2) then
-    Write (u6,*) 'fold_two_pdm: p2_fold too small'
-    Call Abend()
+    write(u6,*) 'fold_two_pdm: p2_fold too small'
+    call Abend()
   end if
 
   p2_fold(:) = Zero
   p2a_fold(:) = Zero
 
+  ! Canonical Fold2-like packing.
+  !
+  ! Only canonical orbital-pair representatives are used:
+  !
+  !   t >= u
+  !   v >= x
+  !   pair(t,u) >= pair(v,x)
 
-    ! Canonical Fold2-like packing.
-    !
-    ! Only canonical orbital-pair representatives are used:
-    !
-    !   t >= u
-    !   v >= x
-    !   pair(t,u) >= pair(v,x)
+  do t=1,my_norb
+    do u=1,t
 
-    do t = 1, my_norb
-      do u = 1, t
+      tu = iTri(t,u)
 
-        tu = faroald_pair_index(t,u)
+      do v=1,t
+        x_max = v
+        if (v == t) x_max = u
+        do x=1,x_max
 
-        do v = 1, t
-          x_max=v
-          If (v==t) x_max=u
-          do x = 1, x_max
+          vx = iTri(v,x)
 
-            vx = faroald_pair_index(v,x)
+          tuvx = iTri(tu,vx)
 
-            tuvx = faroald_pair_index(tu,vx)
+          if (v == x) then
+            p2_fold(tuvx) = p2(t,u,v,x)
+          else
+            p2_fold(tuvx) = p2(t,u,v,x)+p2(t,u,x,v)
+          end if
 
-            If (v==x) Then
-               p2_fold(tuvx) = p2(t,u,v,x)
-            Else
-               p2_fold(tuvx) = p2(t,u,v,x) + p2(t,u,x,v)
-            End If
+          if ((t /= u) .and. (v /= x)) p2a_fold(tuvx) = p2(t,u,v,x)-p2(t,u,x,v)
 
-            If (t/=u .and. (v/=x)) p2a_fold(tuvx) = p2(t,u,v,x) - p2(t,u,x,v)
-
-          end do
         end do
-
       end do
+
     end do
-    p2_fold = 0.5_wp * p2_fold
-    p2a_fold = 0.5_wp * p2a_fold
+  end do
+  p2_fold = Half*p2_fold
+  p2a_fold = Half*p2a_fold
 
 end subroutine fold_two_pdm
-
-
-integer(kind=iwp) function faroald_pair_index(i, j) result(ij)
-! Return the packed lower-triangular index for an unordered pair (i,j).
-!
-! If i >= j:
-!
-!   ij = i*(i-1)/2 + j
-!
-! Otherwise the pair is swapped.
-
-  integer(kind=iwp), intent(in) :: i, j
-
-  if (i >= j) then
-    ij = i*(i-1)/2 + j
-  else
-    ij = j*(j-1)/2 + i
-  end if
-
-end function faroald_pair_index
 
 subroutine ex1_init(k,n,ex1_table)
 
@@ -918,7 +845,7 @@ subroutine ex1_init(k,n,ex1_table)
 
   integer(kind=iwp), intent(in) :: k, n
   type(ex1_struct), intent(out) :: ex1_table(:,:)
-  integer(kind=iwp) :: my_ndet, idet, det, tmp, p, q, pq, counter
+  integer(kind=iwp) :: counter, det, idet, my_ndet, p, pq, q, tmp
 
   !write(u6,'(1x,a)') 'excitation table'
   !write(u6,'(1x,a)') 'p   q   I   J'
@@ -959,7 +886,7 @@ subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 
   integer(kind=iwp), intent(in) :: p, q, my_nel, my_norb
   integer(kind=iwp), intent(out) :: L(:), R(:), sgn(:), counter
-  integer(kind=iwp) :: my_ndet, idet, det, tmp
+  integer(kind=iwp) :: det, idet, my_ndet, tmp
 
   my_ndet = binom_coef(my_nel,my_norb)
   det = lex_init(my_nel,my_norb)

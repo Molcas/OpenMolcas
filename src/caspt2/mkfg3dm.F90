@@ -40,9 +40,9 @@ subroutine MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,NLEV,mG3)
 use Index_Functions, only: nTri_Elem
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
-use sguga_states, only: SGS, CIS
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
+use sguga_states, only: CIS, SGS
 use Molcas, only: MxLev
 use general_data, only: nActEl, STSym
 use caspt2_module, only: MxCI, nG1, nG2, nG3, nSym
@@ -69,8 +69,8 @@ real(kind=wp), allocatable :: G3Tmp(:)
 #endif
 integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TaskList(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUFD(:), BUFT(:)
+integer(kind=iwp), parameter :: istate = 1
 real(kind=wp), external :: DDOT_, DNRM2_
-integer(kind=iwp), parameter :: istate=1
 
 ! IJ2IDX, IDX2IJ, ICNJ, IP1_BUF: translation tables for levels i,j to and from pair indices idx
 
