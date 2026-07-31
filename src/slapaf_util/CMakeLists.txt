@@ -24,6 +24,7 @@ set (sources
      bmtrx_user_defined.F90
      bond_list.F90
      bond_tester.F90
+     bp_molden.F90
      bput.F90
      branching_plane_update.F90
      chklbl.F90

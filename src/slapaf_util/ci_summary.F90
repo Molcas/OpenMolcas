@@ -21,8 +21,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: Lu
-integer(kind=iwp) :: i, n
-real(kind=wp) :: aux, beta_ang, bif, deltagh, dgh, gg, gh, hh, norm_g, norm_h, peaked, sg, sh, shead, srel, st
+integer(kind=iwp) :: hdir, i, n
+real(kind=wp) :: aux, beta_ang, bif, deltagh, dgh, gg, gh, hh, norm_g, norm_h, peaked, sg, sh, shead, srel, st, theta
 character(len=40) :: Description
 character(len=2) :: LabA
 real(kind=wp), allocatable :: g(:), h(:), tmp(:,:)
@@ -40,8 +40,8 @@ gg = dDot_(n,Gx0(:,:,iter),1,Gx0(:,:,iter),1)*Quart
 hh = dDot_(n,NAC(:,:,iter),1,NAC(:,:,iter),1)
 gh = -dDot_(n,Gx0(:,:,iter),1,NAC(:,:,iter),1) !Factor 2 included
 beta_ang = atan2(gh,gg-hh)*Half
-g(:) = -cos(beta_ang)*Half*reshape(Gx0(:,:,iter),[n])+sin(beta_ang)*reshape(NAC(:,:,iter),[n])
-h(:) = cos(beta_ang)*reshape(NAC(:,:,iter),[n])+sin(beta_ang)*Half*reshape(Gx0(:,:,iter),[n])
+g(:) = -cos(beta_ang)*Half*pack(Gx0(:,:,iter),.true.)+sin(beta_ang)*pack(NAC(:,:,iter),.true.)
+h(:) = cos(beta_ang)*pack(NAC(:,:,iter),.true.)+sin(beta_ang)*Half*pack(Gx0(:,:,iter),.true.)
 gg = dDot_(n,g,1,g,1)
 hh = dDot_(n,h,1,h,1)
 norm_g = sqrt(gg)
@@ -58,6 +58,8 @@ else
 end if
 ! Ensure that the asymmetry will be positive
 ! this fixes which vector is x and which is y
+! But it should never be needed, because the use of atan2 effectively guarantees that gg >= hh
+! (that wouldn't be the case with atan instead of atan2)
 if (hh > gg) then
   call dSwap_(n,g,1,h,1)
   aux = gg
@@ -66,18 +68,22 @@ if (hh > gg) then
   aux = norm_g
   norm_g = norm_h
   norm_h = aux
+  hdir = -hdir
 end if
-sg = -dDot_(n,Gx(1,1,iter),1,g,1)
-sh = -dDot_(n,Gx(1,1,iter),1,h,1)
+sg = -dDot_(n,Gx(:,:,iter),1,g,1)
+sh = -dDot_(n,Gx(:,:,iter),1,h,1)
+hdir = 1
 ! Ensure that the tilt heading will be in the first quadrant
 ! this fixes the signs of the x and y vectors
 if (sg < Zero) then
   sg = abs(sg)
   g(:) = -g(:)
+  hdir = -hdir
 end if
 if (sh < Zero) then
   sh = abs(sh)
   h(:) = -h(:)
+  hdir = -hdir
 end if
 st = sqrt(sg**2+sh**2)
 dgh = sqrt((gg+hh)/Two)
@@ -94,24 +100,27 @@ else
   srel = Zero
 end if
 shead = atan2(sh,sg)
+if (hdir > 0) then
+  theta = atan2(-dDot_(n,NAC(:,:,iter),1,g,1),dDot_(n,NAC(:,:,iter),1,h,1))
+else
+  theta = atan2(dDot_(n,NAC(:,:,iter),1,g,1),-dDot_(n,NAC(:,:,iter),1,h,1))
+end if
 
 ! peaked/sloped, bifurcating/single-path parameters
 
 peaked = srel**2/(One-deltagh**2)*(One-deltagh*cos(Two*shead))
-bif = ((One+deltagh)*cos(shead)**2)**(One/Three)
-bif = bif+((One-deltagh)*sin(shead)**2)**(One/Three)
-bif = (srel/(Two*deltagh))**(Two/Three)*bif
+bif = (srel/(Two*deltagh))**(Two/Three)*(((One+deltagh)*cos(shead)**2)**(One/Three)+((One-deltagh)*sin(shead)**2)**(One/Three))
 Description = ''
-if (peaked < 1) then
+if (peaked < One) then
   Description = trim(Description)//'peaked (P<1)'
-else if (peaked > 1) then
+else if (peaked > One) then
   Description = trim(Description)//'sloped (P>1)'
 else
   Description = trim(Description)//'* (P=1)'
 end if
-if (bif < 1) then
+if (bif < One) then
   Description = trim(Description)//' bifurcating (B<1)'
-else if (bif > 1) then
+else if (bif > One) then
   Description = trim(Description)//' single-path (B>1)'
 else
   Description = trim(Description)//' * (B=1)'
@@ -129,9 +138,9 @@ write(Lu,*) 'See: J. Chem. Theory Comput. 12 (2016) 3636-3653'
 write(Lu,*)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-call RecPrt('Gradient difference','',Gx0(1,1,iter),n,1)
-call RecPrt('Coupling vector','',NAC(1,1,iter),n,1)
-call RecPrt('Average gradient','',Gx(1,1,iter),n,1)
+call RecPrt('Gradient difference','',-Gx0(:,:,iter),n,1)
+call RecPrt('Coupling vector','',NAC(:,:,iter),n,1)
+call RecPrt('Average gradient','',-Gx(:,:,iter),n,1)
 write(Lu,100) 'Beta angle:',beta_ang
 write(Lu,*)
 #endif
@@ -146,6 +155,10 @@ write(Lu,*)
 write(Lu,101) 'P:',peaked
 write(Lu,101) 'B:',bif
 write(Lu,101) 'Type: '//trim(Description)
+write(Lu,*)
+write(Lu,*) 'Arbitrary values for this specific solution'
+write(Lu,101) 'Theta angle: ',theta
+write(Lu,101) 'Direction of h: '//merge('+','-',hdir > 0)
 write(Lu,*)
 write(Lu,*) 'Local linear representation:'
 n = size(Gx,2)
@@ -164,13 +177,15 @@ write(Lu,120) Two*dgh,deltagh
 call mma_Deallocate(tmp)
 call CollapseOutput(0,'Conical Intersection Characterization')
 
+call bp_molden(n,g,h,deltagh)
+
 call mma_Deallocate(g)
 call mma_Deallocate(h)
 
 return
 
 100 format(5X,A,T40,ES12.5,A)
-101 format(5X,A,T11,ES12.5)
+101 format(5X,A,T21,ES12.5)
 110 format(5X,'Average energy: ',F15.8,' + ',F12.8,'*x + ',F12.8,'*y')
 120 format(5X,'Energy difference: ',F12.8,'*sqrt(r^2 + ',F12.8,'*t)',/,10X,'r^2 = x^2 + y^2',/,10X,'t = x^2 - y^2')
 
