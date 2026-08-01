@@ -66,6 +66,9 @@ module lpdft
     ! it to get the state-interaction vectors
     call construct_lpdft_ham()
 
+    ! Adding the hybrid component, if needed.
+    call hybridize_lpdft_ham(e_mcscf)
+
     call print_lpdft_finalize(e_nuc_lpdft,e_wfn_lpdft,e_ot_lpdft,e_mcscf,size(e_mcscf))
 
     call release_vars()
@@ -412,7 +415,11 @@ module lpdft
   !> @param[out] h1e_lpdft_act: 1e L-PDFT Hamiltonian in the active space in MO basis.
   !***********************************************************************
   subroutine compute_h1e_lpdft(CMO)
+    use Constants, only: One
+
+    implicit none
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
+    real(kind=wp) :: lpdft_comp
     real(kind=wp), allocatable, dimension(:) :: veff1_act, vj_act, vjk_act
 
     call mma_allocate(veff1_act, nacpar, "VEFF1_ACT")
@@ -442,6 +449,13 @@ module lpdft
     ! in MO basis
     call mo2act_1e(veff1, veff1_act, nSym, nOrb, nAsh, nIsh)
     call daxpy_(nacpar, 1.0D0, veff1_act, 1, h1e_lpdft_act, 1)
+
+    ! Adding the hybrid component, if needed.
+    ! For hybrid L-PDFT, the 1e Hamiltonian is scaled by (1-lambda)
+    lpdft_comp = One
+    if (mcpdft_options%otfnal%is_hybrid()) &
+      lpdft_comp = One-mcpdft_options%otfnal%lambda
+    call dscal_(nacpar, lpdft_comp, h1e_lpdft_act, 1)
 
     call mma_deallocate(vjk_act)
     call mma_deallocate(vj_act)
@@ -567,6 +581,34 @@ module lpdft
 #endif
 
   end subroutine construct_lpdft_ham
+
+  !***********************************************************************
+  !> Add the hybrid component to the L-PDFT Hamiltonian.
+  !> Construct the hybrid L-PDFT Hamiltonian from the pure L-PDFT
+  !> Hamiltonian and the diagonal MCSCF reference energies:
+  !>
+  !> H_hybrid = (1-lambda) H_LPDFT + lambda diag(E_MCSCF)
+  !***********************************************************************
+  subroutine hybridize_lpdft_ham(e_mcscf)
+
+    use Constants, only: One
+    use mspdft, only: heff
+
+    implicit none
+    real(kind=wp), intent(in) :: e_mcscf(:)
+    integer(kind=iwp) :: iRoot
+    real(kind=wp) :: lambda
+
+    ! In case, if it is not hybrid, then return without doing anything.
+    if (.not. mcpdft_options%otfnal%is_hybrid()) return
+
+    lambda = mcpdft_options%otfnal%lambda
+    heff(:,:) = (One-lambda)*heff(:,:)
+    do iRoot=1,size(e_mcscf)
+      heff(iRoot,iRoot) = heff(iRoot,iRoot)+lambda*e_mcscf(iRoot)
+    end do
+
+  end subroutine hybridize_lpdft_ham
 
   subroutine print_lpdft_initial_info(fileName,nPairs)
 
