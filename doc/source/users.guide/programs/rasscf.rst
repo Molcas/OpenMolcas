@@ -1776,6 +1776,19 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`LPDF`
+  This keyword requests the active-space one- and two-particle transition
+  density matrices needed by a subsequent L-PDFT calculation. The matrices
+  are stored in an HDF5 file, so HDF5 support is required.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="LPDF" APPEAR="L-PDFT transition densities" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: LPDF <advanced>
+              <HELP>
+              Compute and store the active-space transition density matrices
+              needed by a subsequent L-PDFT calculation. Requires HDF5 support.
+              </HELP>
+              </KEYWORD>
+
 :kword:`CHOInput`
   This marks the start of an input section for modifying
   the default settings of the Cholesky RASSCF.
