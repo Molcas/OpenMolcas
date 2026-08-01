@@ -13,8 +13,7 @@ subroutine Funi_Input(LuRd)
 
 use nq_Grid, only: nGridMax
 use nq_Info, only: Angular_Pruning, Crowding, Fade, Fixed_Grid, Grid_Type, iOpt_Angular, L_Quad, MBC, Moving_Grid, NQ_Direct, nR, &
-                   Off, On, Quadrature, Rotational_Invariance, T_Y, Threshold
-use Grid_On_Disk, only: WriteGrid
+                   Off, On, Quadrature, Rotational_Invariance, T_Y, Threshold, WriteGrid
 use Constants, only: Zero, One, Three, Five, Six, Ten
 use Definitions, only: wp, iwp, u6
 

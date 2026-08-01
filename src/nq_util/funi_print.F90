@@ -12,8 +12,7 @@
 subroutine Funi_Print()
 
 use nq_Grid, only: nGridMax
-use nq_Info, only: Angular_Pruning, Crowding, Fade, iOpt_Angular, L_Quad, NQ_Direct, nR, On, Quadrature, T_Y, Threshold
-use Grid_On_Disk, only: WriteGrid
+use nq_Info, only: Angular_Pruning, Crowding, Fade, iOpt_Angular, L_Quad, NQ_Direct, nR, On, Quadrature, T_Y, Threshold, WriteGrid
 use Definitions, only: wp, iwp, u6
 
 implicit none
