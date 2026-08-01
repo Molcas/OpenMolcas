@@ -606,14 +606,23 @@ module lpdft
 
   !***********************************************************************
   !> Add the hybrid component to the L-PDFT Hamiltonian.
-  !> Construct the hybrid L-PDFT Hamiltonian from the pure L-PDFT
-  !> Hamiltonian and the diagonal MCSCF reference energies:
+  !> At this point, hconst, h1e_lpdft_act, and h2e_lpdft_act already
+  !> contain the (1-lambda)-weighted L-PDFT contribution. Complete the
+  !> hybrid Hamiltonian by adding the MCSCF contribution:
   !>
   !> H_hybrid = (1-lambda) H_LPDFT + lambda diag(E_MCSCF)
+  !>
+  !> The reference CI states are MCSCF Hamiltonian eigenstates. Therefore,
+  !> in this basis,
+  !>
+  !> <Psi_I|H_MCSCF|Psi_J> = E_MCSCF(I) delta_IJ.
+  !>
+  !> Thus, for example, LAMB=0.25 does include 0.25*H_MCSCF; constructing
+  !> a separate MCSCF Hamiltonian matrix is unnecessary because its
+  !> off-diagonal elements vanish in the reference-state basis.
   !***********************************************************************
   subroutine hybridize_lpdft_ham(e_mcscf)
 
-    use Constants, only: One
     use mspdft, only: heff
 
     implicit none
@@ -625,7 +634,6 @@ module lpdft
     if (.not. mcpdft_options%otfnal%is_hybrid()) return
 
     lambda = mcpdft_options%otfnal%lambda
-    heff(:,:) = (One-lambda)*heff(:,:)
     do iRoot=1,size(e_mcscf)
       heff(iRoot,iRoot) = heff(iRoot,iRoot)+lambda*e_mcscf(iRoot)
     end do
