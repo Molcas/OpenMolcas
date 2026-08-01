@@ -12,7 +12,6 @@
 module nq_Info
 
 use Definitions, only: wp, iwp
-use Grid_On_Disk, only: WriteGrid
 
 implicit none
 private
@@ -38,6 +37,7 @@ real(kind=wp) :: Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_
                  Threshold_save, x_min, y_min, z_min
 character(len=10) :: Quadrature
 character(len=8) :: MBC
+logical(kind=iwp) :: WriteGrid = .false.
 
 public :: Angular_Pruning, Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, &
           Fade, Fixed_Grid, Functional_Type, GGA_Type, Grad_I, Grid_Type, IOff_Ash, IOff_Bas, IOff_BasAct, iOpt_Angular, L_Quad, &
@@ -45,7 +45,8 @@ public :: Angular_Pruning, Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens
           Moving_Grid, mRad, nAngularGrids, nAsh, NASHT, nAtoms, ndc, nFro, nISh, nOrbt, nPot1, nPot2, NQ_Direct, NQ_Info_Dmp, &
           NQ_Info_Get, nR, nR_Save, nTotGP, number_of_subblocks, nUVX, nUVXt, nVX, nVXt, nx, ny, nz, Off, OffBas, OffBas2, &
           OffBasFro, OffOrb, OffOrb2, OffOrbTri, OffPUVX, OffUVX, OffVX, On, Other_Type, Packing, Quadrature, &
-          Rotational_Invariance, T_Y, Tau_a1, Tau_a2, Tau_b1, Tau_b2, Tau_I, ThrC, Threshold, Threshold_save, x_min, y_min, z_min
+          Rotational_Invariance, T_Y, Tau_a1, Tau_a2, Tau_b1, Tau_b2, Tau_I, ThrC, Threshold, Threshold_save, WriteGrid, x_min, &
+          y_min, z_min
 
 contains
 
