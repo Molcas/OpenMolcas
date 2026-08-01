@@ -8,30 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2024, Bhavnesh Jangid                                  *
+! Copyright (C) 2026, Bhavnesh Jangid (University of Chicago)          *
 !***********************************************************************
 
 subroutine LPDFT_TDM()
 !> Compute active-space transition 1- and 2-density matrices for LPDFT
 !> and store them in ${Project}_tdm_4_lpdft.h5.
 
-use Index_Functions, only: nTri_Elem
-use lucia_data, only: CFTP, DStmp, Dtmp, Ptmp
-use Lucia_Interface, only: Lucia_Util
 use input_ras, only: Key
+use Definitions, only: u6
+#ifdef _HDF5_
+use Index_Functions, only: nTri_Elem
+use lucia_data, only: DStmp, Dtmp, Ptmp
+use Lucia_Interface, only: Lucia_Util
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
-use general_data, only: JOBIPH, NACTEL, NCONF, STSYM
+use general_data, only: JOBIPH, NCONF, STSYM
 use sguga_states, only: SGS, EXS, CIS
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6
-#ifdef _HDF5_
+use Definitions, only: wp, iwp
 use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_dset_real, mh5_create_file, mh5_put_dset
 #endif
 
 implicit none
+#ifdef _HDF5_
 integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs, nSpinTdm2
 real(kind=wp), allocatable :: SpinTdm2(:), Tmp(:), VecL(:), VecR(:)
-#ifdef _HDF5_
 character(len=1024) :: currDir, fileName, project
 integer(kind=iwp) :: fileId, oneTdmId, twoTdmId, twoTdmSpinId, rootPairsId
 integer(kind=iwp), allocatable :: rootPairs(:,:)
@@ -136,7 +137,6 @@ call mma_deallocate(DStmp)
 call mma_deallocate(Ptmp)
 call mma_deallocate(SpinTdm2)
 call mma_deallocate(rootPairs)
-#endif
 
 contains
 
@@ -152,5 +152,6 @@ contains
       tdm2(ijij) = 0.5_wp*tdm2(ijij)
     end do
   end subroutine scale_spin_tdm2_for_hamiltonian
+#endif
 
 end subroutine LPDFT_TDM
