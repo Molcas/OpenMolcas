@@ -298,13 +298,14 @@ module lpdft
   !> hconst = E_nuc + E_core + E_ot - E_1 - E_2
   !>***********************************************************************
   subroutine compute_hconst(CMO)
+    use Constants, only: One
+
+    implicit none
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
-    real(kind=wp) :: e1_lpdft, e2_lpdft, e_core_lpdft, e_coul_lpdft, e_vhf_c, e_vhf_c_core, hnuc
+    real(kind=wp) :: e1_lpdft, e2_lpdft, e_core_lpdft, e_coul_lpdft, e_vhf_c, e_vhf_c_core, hnuc, lpdft_comp
     real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, d1mo_0
     real(kind=wp), allocatable, dimension(:) :: vjk_act
     real(kind=wp), external :: dDot_
-
-    ! Focusing only on the non-hybrid for the time-being.
 
     hnuc = 0.0D0
     e1_lpdft = 0.0D0
@@ -365,6 +366,15 @@ module lpdft
 
     ! Finally, compute the hconst term
     hconst = hnuc + e_ot_lpdft - e1_lpdft - e2_lpdft + e_core_lpdft
+
+    ! Adding the hybrid component, if needed.
+    ! For hybrid L-PDFT, the constant Hamiltonian term is scaled by
+    ! (1-lambda). Keep the quantities used for reporting below unscaled.
+    lpdft_comp = One
+    if (mcpdft_options%otfnal%is_hybrid()) &
+      lpdft_comp = One - mcpdft_options%otfnal%lambda
+    hconst = lpdft_comp*hconst
+
     e_nuc_lpdft = hnuc
     e_wfn_lpdft = hnuc + e_core_lpdft
 
@@ -463,8 +473,20 @@ module lpdft
   end subroutine compute_h1e_lpdft
 
   subroutine compute_h2e_lpdft()
+    use Constants, only: One
+
+    implicit none
+    real(kind=wp) :: lpdft_comp
+
     h2e_lpdft_act(:) = 0.0D0
     call get_tuvx(veff2, h2e_lpdft_act)
+
+    ! Adding the hybrid component, if needed.
+    ! For hybrid L-PDFT, the 2e Hamiltonian is scaled by (1-lambda).
+    lpdft_comp = One
+    if (mcpdft_options%otfnal%is_hybrid()) &
+      lpdft_comp = One-mcpdft_options%otfnal%lambda
+    call dscal_(nacpr2, lpdft_comp, h2e_lpdft_act, 1)
   end subroutine compute_h2e_lpdft
 
   !***********************************************************************
