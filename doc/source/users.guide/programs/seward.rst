@@ -1277,6 +1277,30 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
+:kword:`WRITEGrid`
+  Write the final numerical quadrature grid to :file:`GRIDFILE`. Each line
+  contains the three Cartesian coordinates of a grid point followed by its
+  quadrature weight. By default, the grid is not written.
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="WRITEGRID" APPEAR="Write numerical grid" KIND="SINGLE" EXCLUSIVE="NOWRITEGRID" LEVEL="ADVANCED">
+              %%Keyword: WriteGrid (NQ) <advanced>
+              <HELP>
+              Write the final numerical quadrature grid to GRIDFILE. Each line
+              contains three Cartesian coordinates and the quadrature weight.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NOWRiteGrid`
+  Do not write the numerical quadrature grid. This is the default and can be
+  used to override an earlier :kword:`WRITEGrid` specification.
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NOWRITEGRID" APPEAR="Do not write numerical grid" KIND="SINGLE" EXCLUSIVE="WRITEGRID" LEVEL="ADVANCED">
+              %%Keyword: NoWriteGrid (NQ) <advanced>
+              <HELP>
+              Do not write the numerical quadrature grid. This is the default.
+              </HELP>
+              </KEYWORD>
+
   .. :kword:`WHOLe`
        It activates the use of routines which scan the whole atomic grid for
        each sub block. Default is to only scan the relevant part.
