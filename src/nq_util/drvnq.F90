@@ -100,7 +100,6 @@ end if
 NQNACPAR = (NQNAC**2+NQNAC)/2
 NQNACPR2 = (NQNACPAR**2+NQNACPAR)/2
 
-WriteGrid = .false.
 if (WriteGrid) then
   LuGridFile = IsFreeUnit(31)
   call Molcas_Open(LuGridFile,'GRIDFILE')
