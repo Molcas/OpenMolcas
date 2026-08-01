@@ -21,7 +21,6 @@
 #include "orbitals.inc"
 #include "wfnfiles.inc"
  (file)  NQGRID   "$WorkDir/$Project."NqGrid    rw
- (file)  GRIDFILE "$WorkDir/$Project."GridFile  rwst
 #include "moldenfiles.inc"
  (file)  GV.off   "$WorkDir/$Project$SubProject."GV.off    rw
  (file)  GV1.off   "$WorkDir/$Project$SubProject."GV1.off    rw
