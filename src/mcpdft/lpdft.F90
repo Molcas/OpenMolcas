@@ -671,11 +671,11 @@ module lpdft
 
   function contract_lpdft_rdms(rdm1,rdm2) result(ediagval)
 
-    use Constants, only: Zero
+    use Constants, only: One, Zero
 
     implicit none
     real(kind=wp), intent(in) :: rdm1(nac,nac), rdm2(nacpr2)
-    real(kind=wp) :: ediagval
+    real(kind=wp) :: ediagval, lpdft_comp
     integer(kind=iwp) :: iAct, iPacked, jAct
 
     ediagval = Zero
@@ -691,7 +691,11 @@ module lpdft
       end do
     end do
 
-    ediagval = ediagval + contract_puvx_2rdm(veff2,rdm2)
+    ! For hybrid L-PDFT, the 2e Hamiltonian is scaled by (1-lambda).
+    lpdft_comp = One
+    if (mcpdft_options%otfnal%is_hybrid()) &
+      lpdft_comp = One-mcpdft_options%otfnal%lambda
+    ediagval = ediagval+lpdft_comp*contract_puvx_2rdm(veff2,rdm2)
 
   end function contract_lpdft_rdms
 
