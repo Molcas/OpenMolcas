@@ -300,13 +300,12 @@ module lpdft
   !> hconst = E_nuc + E_core + E_ot - E_1 - E_2
   !>***********************************************************************
   subroutine compute_hconst(CMO)
-    use Constants, only: One
+    use Constants, only: One, Two
 
     implicit none
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
     real(kind=wp) :: e1_lpdft, e2_lpdft, e_core_lpdft, e_coul_lpdft, e_vhf_c, e_vhf_c_core, hnuc, lpdft_comp
     real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, d1mo_0
-    real(kind=wp), allocatable, dimension(:) :: vjk_act
     real(kind=wp), external :: dDot_, energy_mcwfn
 
     hnuc = 0.0D0
@@ -324,7 +323,6 @@ module lpdft
     call mma_allocate(casD1AO_folded_0, ntot1, "CASD1AO_FOLDED_0")
     call mma_allocate(d1ao_0, ntot1, "D1AO_0")
     call mma_allocate(d1mo_0, ntot1, "D1MO_0")
-    call mma_allocate(vjk_act, nacpar, "VJK_ACT_LPDFT")
 
     ! First compute the hconst energy then compute the core energy from the
     ! L-PDFT Hamiltonian, and finally adding these would be used as the constant
@@ -355,9 +353,12 @@ module lpdft
     e2_lpdft = contract_puvx_2rdm(veff2, casd2_0)
 
     ! Compute the vhf_c contribution from active and core densities
-    call mo2act_1e(vjk, vjk_act, nSym, nOrb, nAsh, nIsh)
-    e_vhf_c = dDot_(nacpar, vjk_act, 1, casd1_0, 1)
     e_vhf_c_core = get_e_vhf_core(vjk)
+
+    ! Note: the d1mo_0 have the core contribution, that's why
+    ! I am substracting the core energy from it to just get the active
+    ! contribution.
+    e_vhf_c = dDot_(ntot1,vjk,1,d1mo_0,1)-Two*e_vhf_c_core
 
     e2_lpdft = e2_lpdft + e_vhf_c + e_vhf_c_core
 
@@ -382,7 +383,6 @@ module lpdft
     ! root, adding e_ot_lpdft to this quantity must reproduce MC-PDFT.
     e_wfn_lpdft = energy_mcwfn(d1ao_0,h1e_lpdft_ao,vj,hnuc,ntot1)
 
-    call mma_deallocate(vjk_act)
     call mma_deallocate(d1mo_0)
     call mma_deallocate(d1ao_0)
     call mma_deallocate(casD1AO_folded_0)
@@ -605,10 +605,6 @@ module lpdft
     call mma_deallocate(tdm2)
     call mma_deallocate(tdm1)
 #endif
-
-    ! With one reference state and lambda=0, L-PDFT is exactly MC-PDFT.
-    if ((lRoots == 1) .and. (.not. mcpdft_options%otfnal%is_hybrid())) &
-      heff(1,1) = e_wfn_lpdft+e_ot_lpdft
 
   end subroutine construct_lpdft_ham
 
