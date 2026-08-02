@@ -194,6 +194,24 @@ subroutine verify_input()
     call Quit_OnUserError()
   end if
 
+  if (mcpdft_options%lpdft) then
+    if (mcpdft_options%grad) then
+      call WarningMessage(2,'L-PDFT gradients are not implemented')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' L-PDFT analytical nuclear gradients are not implemented'
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+    if (Get_Func_Type(get_base(mcpdft_options%otfnal%otxc)) == meta_GGA_Type1) then
+      call WarningMessage(2,'L-PDFT with meta-GGA functionals is not implemented')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' L-PDFT is not implemented with    '
+      write(u6,*) ' meta-GGA functionals              '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+  end if
+
   if (mcpdft_options%rlxroot < 1) then
     call WarningMessage(2,'Invalid RLXRoot specified')
     write(u6,*) ' ************* ERROR **************'
