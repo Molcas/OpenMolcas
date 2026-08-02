@@ -115,6 +115,7 @@ José Manuel Hermida-Ramón
 Bernd Artur Heß  
 Asbjørn Holt  
 Chad E. Hoyer  
+Bhavnesh Jangid  
 Denis Jelovina  
 Marcus Johansson  
 Andy Kaiser  
@@ -213,4 +214,3 @@ Alexander Zech
 Yan Zhao  
 Chen Zhou  
 J. Patrick Zobel  
-Bhavnesh Jangid
