@@ -41,7 +41,7 @@ if (iPrGlb >= USUAL) then
   write(Fmt2,'(A,I3.3,A)') '(6X,'
   Line = ''
   if (mcpdft_options%mspdft) then
-    write(Line(4:),'(2A,1X,I4.4)') MSpdftMethod,' INTERMEDIATE STATE',state
+    write(Line(4:),'(2A,1X,I4.4)') trim(MSpdftMethod),' INTERMEDIATE STATE',state
   else
     write(Line(4:),'(A,1X,I4.4)') 'MC-PDFT RESULTS, STATE',state
   end if
@@ -133,7 +133,7 @@ use PrintLevel, only: USUAL
 implicit none
 integer(kind=iwp), intent(in) :: nStates
 real(kind=wp), intent(in) :: e_nuc, e_lpdft_ref, e_ot, e_mcscf(nStates)
-real(kind=wp) :: e_lpdft, e_lpdft_1, e_ot_1, Funcaa1, Funcbb1, Funccc1
+real(kind=wp) :: e_lpdft, e_ot_1, Funcaa1, Funcbb1, Funccc1
 integer(kind=iwp) :: iState
 character(len=120) :: Line
 character(len=6) :: Fmt2
@@ -143,7 +143,7 @@ e_lpdft = e_lpdft_ref+e_ot
 if (iprglb >= USUAL) then
   write(Fmt2,'(A,I3.3,A)') '(6X,'
   Line = ''
-  write(Line(4:),'(A)') 'LPDFT Quandrature RESULTS'
+  write(Line(4:),'(A)') 'LPDFT QUADRATURE RESULTS'
   write(u6,*)
   call CollapseOutput(1,Line)
   write(u6,Fmt2//'A)') repeat('-',len_trim(Line)-3)
@@ -179,19 +179,17 @@ if (iprglb >= USUAL) then
   write(u6,'(6X,A,30X,F18.6)') 'Integrated  correlation   energy',Funccc
   write(u6,*)
 
-  write(u6,'(6X,A,38X,F18.8)') 'Nuclear Repulsion energy',e_nuc
-  write(u6,'(6X,A,34X,F18.8)') 'LPDFT h0 term',e_lpdft_ref
-  write(u6,'(6X,A,49X,F18.8)') 'LPDFT On-top energy',e_ot
+  write(u6,'(6X,A,T70,F18.8)') 'Nuclear Repulsion energy',e_nuc
+  write(u6,'(6X,A,T70,F18.8)') 'On-top energy (zeroth-order densities)',e_ot
   write(u6,*)
   if (mcpdft_options%otfnal%is_hybrid()) then
     write(u6,'(6X,A)') 'Information for hybrid PDFT:'
-    write(u6,'(6X,A,37X,F6.2)') 'Wave function percentage (Lambda*100)', &
+    write(u6,'(6X,A,T70,F6.2)') 'Wave function percentage (Lambda*100)', &
                                 mcpdft_options%otfnal%lambda*1.0e2_wp
     do iState=1,nStates
-      write(u6,'(6X,A,I4,T50,F18.8)') 'Wave function energy, state',iState, &
+      write(u6,'(6X,A,I4,T70,F18.8)') 'Wave function energy, state',iState, &
                                       mcpdft_options%otfnal%lambda*e_mcscf(iState)
     end do
-    write(u6,'(6X,A,51X,F18.8)') 'PDFT energy',(One-mcpdft_options%otfnal%lambda)*e_lpdft
     write(u6,*)
   end if
 
@@ -200,17 +198,13 @@ if (iprglb >= USUAL) then
     Funcbb1 = Funcbb/CoefX
     Funccc1 = Funccc/CoefR
     e_ot_1 = e_ot-Funcaa-Funcbb-Funccc+Funcaa1+Funcbb1+Funccc1
-    e_lpdft_1 = e_lpdft-e_ot+e_ot_1
     write(u6,*)
     write(u6,*)
     write(u6,'(6X,A,19X,F18.6)') 'Integrated alpha exchange energy (unscaled)',Funcaa1
     write(u6,'(6X,A,19X,F18.6)') 'Integrated beta  exchange energy (unscaled)',Funcbb1
     write(u6,'(6X,A,19X,F18.6)') 'Integrated  correlation   energy (unscaled)',Funccc1
-    write(u6,'(6X,A,38X,F18.8)') 'On-top energy (unscaled)',e_ot_1
-    write(u6,'(6X,A,34X,F18.8)') 'Total LPDFT energy (unscaled)',e_lpdft_1
+    write(u6,'(6X,A,T70,F18.8)') 'On-top energy (zeroth-order densities, unscaled)',e_ot_1
   end if
-
-  write(u6,'(6X,A,42X,F18.8)') 'Total LPDFT energy',e_lpdft
 
   call CollapseOutput(0,Line)
   write(u6,*)
