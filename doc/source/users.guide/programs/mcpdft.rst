@@ -41,8 +41,8 @@ available. As multiconfigurational wave functions are used as input quantities,
 spin and space symmetry are correctly conserved.
 
 The module also implements linearized pair-density functional theory
-(L-PDFT), a multi-state extension of MC-PDFT. L-PDFT linearizes the MC-PDFT
-energy around the state-averaged reference density and on-top pair density.
+(L-PDFT), a multi-state extension of MC-PDFT :cite:`Hennefarth2023`. L-PDFT
+linearizes the MC-PDFT energy around the state-averaged reference density and on-top pair density.
 The resulting effective one- and two-electron operators are contracted with
 the reduced density and transition density matrices of the reference states
 to form an effective Hamiltonian. Diagonalizing this Hamiltonian yields the
@@ -287,11 +287,16 @@ The :kword:`FUNC` is the only required keyword.
 :kword:`WJOB`
   This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into :file:`JOBIPH` (or :file:`wavefunction.h5`). For MC-PDFT, only the energy of each state is written into :file:`JOBIPH` (or :file:`wavefunction.h5`), since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI...); for MS-PDFT, including L-PDFT, both the energy and the CI coefficients of the eigenstates are written into :file:`JOBIPH`, because an MS calculation changes the wave functions. The latter option is not yet available for DMRG-SCF reference wave functions.
 
+  For L-PDFT, :kword:`WJOB` makes the L-PDFT states available as the spin-free
+  basis for a subsequent :program:`RASSI` spin--orbit calculation. This
+  workflow performs SO-L-PDFT :cite:`Jangid2026`.
+
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="WJOB" APPEAR="Write into JOBIPH" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: WJOB <basic>
               <HELP>
               Enable one to write the energies and eigenstates of MC-PDFT or MS-PDFT into the JOBIPH file.
+              For L-PDFT, this enables a subsequent RASSI spin-orbit calculation (SO-L-PDFT).
               </HELP>
               </KEYWORD>
 
