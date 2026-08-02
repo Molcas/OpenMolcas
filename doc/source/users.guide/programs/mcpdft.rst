@@ -129,13 +129,14 @@ The :kword:`FUNC` is the only required keyword.
   The functional choice follows. For LSDA and GGA exchange-correlation
   functionals, one may specify a translated or fully translated on-top
   functional by prefixing ``T:`` or ``FT:`` to the standard DFT functionals.
-  For meta-GGAs, one may specify a translated on-top functional by the prefix
-  ``T:``, but one cannot use ``FT:`` Hybrid functional names (e.g. PBE0 or
+  For type-1 meta-GGAs that depend on the kinetic-energy density but not the
+  density Laplacian, one may specify a translated on-top functional with the
+  prefix ``T:``, but one cannot use ``FT:``. Hybrid functional names (e.g. PBE0 or
   B3LYP) should not be used after ``FUNC=T:`` or ``FUNC=FT:`` in this module.
   See keyword :kword:`LAMBda` for a description on how to run hybrid MC-PDFT
   and hybrid L-PDFT calculations. L-PDFT currently supports pure and hybrid
-  variants of translated and fully translated LSDA and GGA functionals;
-  meta-GGA functionals are not implemented for L-PDFT. Also note that the
+  variants of translated and fully translated LSDA and GGA functionals and
+  translated type-1 meta-GGA functionals. Also note that the
   format of a number :math:`N` followed by
   :math:`N` lines, each of them containing a weight factor and a Libxc
   functional name, is not supported in this module. Examples of this keyword
@@ -239,7 +240,9 @@ The :kword:`FUNC` is the only required keyword.
   to those used to generate :file:`$Project.tdm_4_lpdft.h5`.
 
   Pure and hybrid L-PDFT calculations with translated and fully translated
-  LSDA and GGA functionals are supported. Meta-GGA functionals and analytical
+  LSDA and GGA functionals and translated type-1 meta-GGA functionals are
+  supported. Fully translated meta-GGAs and meta-GGAs that require the density
+  Laplacian are not supported. Analytical
   gradients are not implemented for L-PDFT. Hybrid L-PDFT is requested with
   :kword:`LAMBda`; hybrid functional names such as ``T:PBE0`` must not be
   supplied directly.
