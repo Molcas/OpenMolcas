@@ -26,14 +26,10 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 use InfSCF, only: Energy, HDiag, iter, IterGEK, Loosen, TimFld
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use stdalloc, only: mma_allocate, mma_deallocate
-<<<<<<< HEAD
 use Constants, only: Zero
 #ifndef _FULL_SPACE_
 use Constants, only: One
 #endif
-=======
-use Constants, only: Zero, One, Ten
->>>>>>> upstream-openmolcas/master
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -44,11 +40,7 @@ character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
 logical(kind=iwp), intent(in) :: SOrange
 integer(kind=iwp) :: i, iFirst, ipg, ipq, j, k, l, mDIIS, nDIIS, nExplicit
-<<<<<<< HEAD
 real(kind=wp) :: Cpu1, Cpu2, gg, Tim1, Tim2, Tim3
-=======
-real(kind=wp) :: Cpu1, Cpu2, gg, Tim1, Tim2, Tim3, SOFact
->>>>>>> upstream-openmolcas/master
 real(kind=wp), allocatable :: D(:,:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), q(:,:), q_diis(:,:), w(:,:)
 integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 20
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
@@ -72,23 +64,16 @@ end if
 ! the last nDIIS iterations, of which the first is iFirst
 nDIIS = min(IterGEK,nWindow)
 iFirst = Iter-nDIIS+1
-<<<<<<< HEAD
 !if (nDIIS == 1) then
 !# ifdef _DEBUGPRINT_
 !  write(u6,*) 'Exit S-GEK Optimizer'
 !# endif
 !  return
 !end if
-=======
->>>>>>> upstream-openmolcas/master
 
 call mma_allocate(q,mOV,nDIIS,Label='q')
 call mma_allocate(g,mOV,nDIIS,Label='g')
 
-<<<<<<< HEAD
-=======
-#ifndef _FULL_SPACE_
->>>>>>> upstream-openmolcas/master
 if (nDIIS == 1) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Exit S-GEK Optimizer'
@@ -97,10 +82,6 @@ if (nDIIS == 1) then
   call mma_deallocate(q)
   return
 end if
-<<<<<<< HEAD
-=======
-#endif
->>>>>>> upstream-openmolcas/master
 
 ! Pick up coordinates and gradients in full space
 j = 0
@@ -125,21 +106,13 @@ write(u6,*) 'IterGEK=',IterGEK
 call RecPrt('q',' ',q,mOV,nDIIS)
 call RecPrt('g',' ',g,mOV,nDIIS)
 call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
-<<<<<<< HEAD
-=======
-call RecPrt('dq(:)',' ',dq,mOV,1)
->>>>>>> upstream-openmolcas/master
 #endif
 
 !=======================================================================
 ! Select the subspace
 
 #ifdef _FULL_SPACE_
-<<<<<<< HEAD
 
-=======
-write(u6,*) 'FULL SPACE GEK FOR SCF'
->>>>>>> upstream-openmolcas/master
 ! Set up the full space
 nExplicit = mOV
 call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
@@ -184,10 +157,6 @@ call mma_deallocate(Aux_a)
 #endif
 
 ! Now orthogonalize all unit vectors
-<<<<<<< HEAD
-=======
-! ----------------------------------
->>>>>>> upstream-openmolcas/master
 #ifdef _DEBUGPRINT_
 if (allocated(e_diis)) call RecPrt('e_diis(unnorm)',' ',e_diis,mOV,nExplicit)
 #endif
@@ -299,29 +268,15 @@ end if
 !end do
 #ifdef _DEBUGPRINT_
 call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
-<<<<<<< HEAD
 #endif
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-=======
-write(u6,*) 'H_diis diagonal elements:'
-do i=1,mDiis
-  write(u6,'(F26.16)') H_diis(i,i)
-end do
-write(u6,*)
-#endif
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! define dq as null vector in the subspace !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
->>>>>>> upstream-openmolcas/master
 
 call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 dq_diis(:) = Zero
 
-<<<<<<< HEAD
 !=======================================================================
 ! Start the optimization
 
@@ -330,25 +285,6 @@ Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_
 !=======================================================================
 
 ! Compute the displacement in the full space.
-=======
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Perform the optimization !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-if (SORange) then
-  SOFact = One
-else
-  SOFact = 10000.0_wp
-end if
-
-!=======================================================================
-call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SOFact,Ten)
-!=======================================================================
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Compute the displacement in the full space.!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
->>>>>>> upstream-openmolcas/master
 dq(:) = Zero
 do i=1,mDIIS
   dq(:) = dq(:)+dq_diis(i)*e_diis(:,i)
@@ -360,10 +296,7 @@ write(u6,*) '||dq||=',sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 call RecPrt('dq',' ',dq(:),size(dq),1)
 #endif
 
-<<<<<<< HEAD
 call Finish_Kriging()
-=======
->>>>>>> upstream-openmolcas/master
 call mma_deallocate(dq_diis)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

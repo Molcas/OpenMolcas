@@ -19,12 +19,9 @@ set (sources
      ciovlp.F90
      ciselect.F90
      cisx.F90
-<<<<<<< HEAD
      citrans.F90
      citrans_free.F90
      citrans_init.F90
-=======
->>>>>>> upstream-openmolcas/master
      cndet.F90
      cnfstr.F90
      cnhcn.F90
@@ -43,14 +40,10 @@ set (sources
      dmrginfo.F90
      expcsf.F90
      explh2.F90
-<<<<<<< HEAD
      faroald.F90
      faroald_free.F90
      faroald_init.F90
      fciqmc_interface.F90
-=======
-     caspt2_qmc_interface.F90
->>>>>>> upstream-openmolcas/master
      fndmnx.F90
      fockoc.F90
      gas_data.F90
@@ -66,11 +59,8 @@ set (sources
      ini_david.F90
      init_lex.F90
      input_mclr.F90
-<<<<<<< HEAD
      iphase.F90
      isgnum.F90
-=======
->>>>>>> upstream-openmolcas/master
      lex_iter.F90
      load_ci_vec.F90
      load_h_diag.F90
@@ -78,6 +68,7 @@ set (sources
      load_tmp_ci_vec.F90
      load_tmp_sig_vec.F90
      lucia2molcas.F90
+     lucia2molcas_free.F90
      matml4.F90
      mclr_data.F90
      motrac.F90
@@ -97,11 +88,8 @@ set (sources
      rd1int.F90
      rd2int_rasscf.F90
      recno.F90
-<<<<<<< HEAD
      reord2.F90
      reord.F90
-=======
->>>>>>> upstream-openmolcas/master
      save_ci_vec.F90
      save_h_diag.F90
      save_sig_vec.F90
@@ -109,20 +97,14 @@ set (sources
      save_tmp_sig_vec.F90
      scavcs.F90
      schmidt.F90
-<<<<<<< HEAD
      second_quantization.F90
-=======
->>>>>>> upstream-openmolcas/master
      setsxci.F90
      sigmadet_cvb.F90
      simplify.F90
      sort_cdet.F90
      spinfo.F90
      stepvec.F90
-<<<<<<< HEAD
      stepvector_next.F90
-=======
->>>>>>> upstream-openmolcas/master
      str_info.F90
      sxci.F90
      term_david.F90
@@ -138,29 +120,18 @@ set (modfile_list
      caspt2_module.F90
      csfbas.F90
      dmrginfo.F90
-<<<<<<< HEAD
      fciqmc_interface.F90
      gas_data.F90
      general_data.F90
      input_mclr.F90
      mclr_data.F90
-=======
-     gas_data.F90
-     general_data.F90
-     input_mclr.F90
-     output_ras.F90
->>>>>>> upstream-openmolcas/master
      rasdef.F90
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90
-<<<<<<< HEAD
      reord.F90
      spinfo.F90
      str_info.F90
-=======
-     spinfo.F90
->>>>>>> upstream-openmolcas/master
      timers.F90
      wadr.F90
 )

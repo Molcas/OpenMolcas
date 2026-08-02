@@ -10,21 +10,14 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-<<<<<<< HEAD
 subroutine GTJK(RJ,RK,NTOOB,IREOST)
-=======
-subroutine GTJK(RJ,RK,NTOOB,IREOST,nTUVX,TUVX)
->>>>>>> upstream-openmolcas/master
 ! Interface routine for obtaining Coulomb (RJ) and
 ! Exchange integrals (RK)
 !
 ! Ordering of integrals is in the internal order
 
 use Index_Functions, only: nTri_Elem
-<<<<<<< HEAD
 use wadr, only: TUVX
-=======
->>>>>>> upstream-openmolcas/master
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -33,11 +26,6 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: NTOOB, IREOST(NTOOB)
 real(kind=wp), intent(inout) :: RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-<<<<<<< HEAD
-=======
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in) :: TUVX(nTUVX)
->>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: NT, NT_REO, NTT, NTUJ, NTUK, NTUT, NU, NU_REO
 
 NTUT = 0

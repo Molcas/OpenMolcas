@@ -46,11 +46,7 @@ subroutine Chkpnt_open()
 
   Iter_all = Iter
   create = .true.
-<<<<<<< HEAD
   call GetEnvF('EMIL_InLoop',level)
-=======
-  call get_environment_variable('EMIL_InLoop',level)
->>>>>>> upstream-openmolcas/master
   if ((level == '0') .or. (level == '1')) level = ''
   filename = basename//trim(level)
 

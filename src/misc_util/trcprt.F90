@@ -50,6 +50,7 @@ integer(kind=iwp) :: i, iPmax, iPmin, j, lFmt, lItem, lLeft, lLine, lNumbr, lTit
 real(kind=wp) :: Amax, Amin, Pmax, Pmin, Scal
 character(len=lPaper) :: Line
 character(len=20) :: FRMT
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 ! print the title                                                      *
@@ -127,17 +128,13 @@ end if
 !----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
 write(LuWr,*)
-<<<<<<< HEAD
 write(LuWr,'(ES24.17)') DDot_(nCol*nRow,A,1,A,1),DDot_(nCol*nRow,A,1,[One],0)
-=======
-write(LuWr,'(ES24.17)') sum(A(:,:)**2),sum(A(:,:))
->>>>>>> upstream-openmolcas/master
 #else
 write(LuWr,*)
 write(LuWr,'(2X,A)') 'row norms'
-write(LuWr,FRMT) (sum(A(i,:)**2),i=1,nCol)
+write(LuWr,FRMT) (DDot_(nCol,A(i,1),nRow,A(i,1),nRow),i=1,nRow)
 write(LuWr,'(2X,A)') 'column norms'
-write(LuWr,FRMT) (sum(A(:,i)**2),i=1,nCol)
+write(LuWr,FRMT) (DDot_(nRow,A(1,i),1,A(1,i),1),i=1,nCol)
 #endif
 
 !----------------------------------------------------------------------*

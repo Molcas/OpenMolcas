@@ -49,11 +49,7 @@ Seward_Activated = .false.
 
 ! LInfo
 
-<<<<<<< HEAD
 call GetEnvF('MOLCAS_NEW_DEFAULTS',Env)
-=======
-call get_environment_variable('MOLCAS_NEW_DEFAULTS',Env)
->>>>>>> upstream-openmolcas/master
 call UpCase(Env)
 if (Env == 'YES') then
   Do_RI = .true.

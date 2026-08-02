@@ -53,8 +53,10 @@ real(kind=wp), external :: ddot_
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(u6,*) ' Sum=',sum(AOInt(:,:,:,:,:))
-write(u6,*) ' Dot=',sum(AOInt(:,:,:,:,:)**2)
+r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
+r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
+write(u6,*) ' Sum=',r1
+write(u6,*) ' Dot=',r2
 call RecPrt(' In PLF_RICD: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 

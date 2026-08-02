@@ -60,6 +60,7 @@ set (sources
      mkanglmin.F90
      prefac.F90
      readbas.F90
+     regge3j.F90
      symtrafo.F90
      tkinet.F90
      tosigx.F90

@@ -46,7 +46,6 @@ integer(kind=iwp) :: A, AB, ABCD, B, C, CD, CDAB, D, i1, i12, i2, i3, i34, i4, I
                      jSym(0:7), k12, k34, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, lSym(0:7), memSO2, nijkl, NTELM, NUMA, NUMB, &
                      NUMC, NUMD
 logical(kind=iwp) :: qij, qijij, qkl, Shij, Shkl
-<<<<<<< HEAD
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: r1, r2, tr1 = Zero, tr2 = Zero
 real(kind=wp), external :: ddot_
@@ -57,12 +56,6 @@ tr1 = tr1+r1
 tr2 = tr2+r2
 write(u6,*) ' Sum=',r1,tr1
 write(u6,*) ' Dot=',r2,tr2
-=======
-
-#ifdef _DEBUGPRINT_
-write(u6,*) ' Sum=',sum(SOInt(:,:))
-write(u6,*) ' Dot=',sum(SOInt(:,:)**2)
->>>>>>> upstream-openmolcas/master
 call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
 #endif
 

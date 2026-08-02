@@ -24,10 +24,6 @@ subroutine GAInit()
 use Para_Info, only: MyRank, nProcs
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_nprocs, mpp_procid, mpp_workshare
-<<<<<<< HEAD
-=======
-use GA_Wrapper, only: GA_NNodes, GA_NodeId
->>>>>>> upstream-openmolcas/master
 #ifdef _GA_
 use Definitions, only: MPIInt
 #endif
@@ -41,21 +37,14 @@ integer(kind=iwp) :: molcas_nprocs, iRC
 integer(kind=MPIInt) :: iRC2
 #endif
 character(len=8) :: molcas_nprocs_env
-<<<<<<< HEAD
 #include "global.fh"
-=======
->>>>>>> upstream-openmolcas/master
 
 ! SVC: bypass MPI initialization if only 1 process, this is needed for a
 ! specific version of GEO (so that the serial tasks which are run by MPI
 ! do not try to re-initialize MPI). This has the consequence that for any
 ! calculation where the number of processes is 1, calls to MPI/GA will fail
 ! at runtime (even though it will compile when inside _MOLCAS_MPP_!)
-<<<<<<< HEAD
 call getenvf('MOLCAS_NPROCS',molcas_nprocs_env)
-=======
-call get_environment_variable('MOLCAS_NPROCS',molcas_nprocs_env)
->>>>>>> upstream-openmolcas/master
 if (molcas_nprocs_env(1:1) == ' ') then
   molcas_nprocs = -1
 else

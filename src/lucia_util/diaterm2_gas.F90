@@ -12,11 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-<<<<<<< HEAD
 subroutine DIATERM2_GAS(FACTOR,ITASK,VEC,NBLOCK,IBLOCK,IOFF,J12,JDC)
-=======
-subroutine DIATERM2_GAS(FACTOR,ITASK,VEC,NBLOCK,IBLOCK,IOFF,J12,JDC,nTUVX,TUVX)
->>>>>>> upstream-openmolcas/master
 ! = DIATERM_GAS, just J12 added !
 !
 ! Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -41,12 +37,6 @@ implicit none
 real(kind=wp), intent(in) :: FACTOR
 real(kind=wp), intent(_OUT_) :: VEC(*)
 integer(kind=iwp), intent(in) :: ITASK, NBLOCK, IBLOCK(8,*), IOFF, J12, JDC
-<<<<<<< HEAD
-=======
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in):: TUVX(nTUVX)
-
->>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB
@@ -105,11 +95,7 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 ! Diagonal of one-body integrals and coulomb and exchange integrals
 ! Integrals assumed in place so :
 call GT1DIA(LH1D)
-<<<<<<< HEAD
 if (J12 == 2) call GTJK(LJ,LK,NTOOB,IREOST)
-=======
-if (J12 == 2) call GTJK(LJ,LK,NTOOB,IREOST,nTUVX,TUVX)
->>>>>>> upstream-openmolcas/master
 ! Core energy not included
 ECOREP = Zero
 SHIFT = ECORE_ORIG-ECORE

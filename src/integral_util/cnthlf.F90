@@ -77,16 +77,9 @@ do iiVec=1,nVec,IncVec
       C1 = Coeff1(iPrm1,iCntr1)
       if (abs(C1) > Zero) then
         if (idone(iprm2) > 0) then
-<<<<<<< HEAD
           A2(1:mVec,iPrm2) = A2(1:mVec,iPrm2)+C1*A1(iZeta,iiVec:iiVec+mVec-1)
         else
           A2(1:mVec,iPrm2) = C1*A1(iZeta,iiVec:iiVec+mVec-1)
-=======
-          call dAxpY_(mVec,C1,A1(iZeta,iiVec),lZeta,A2(1,iPrm2),1)
-        else
-          call dCopy_(mVec,A1(iZeta,iiVec),lZeta,A2(1,iPrm2),1)
-          call dScal_(mVec,C1,A2(1,iPrm2),1)
->>>>>>> upstream-openmolcas/master
           idone(iprm2) = 1
         end if
       end if
@@ -117,12 +110,7 @@ do iiVec=1,nVec,IncVec
         else
           iprm2 = ifirst(icntr2)
           c2 = coeff2(iprm2,icntr2)
-<<<<<<< HEAD
           A3(iiVec:iiVec+mVec-1,iCntr1,iCntr2) = C2*A2(1:mVec,iPrm2)
-=======
-          call dCopy_(mVec,A2(1,iPrm2),1,A3(iiVec,iCntr1,iCntr2),1)
-          call dScal_(mVec,C2,A3(iiVec,iCntr1,iCntr2),1)
->>>>>>> upstream-openmolcas/master
 
           iPrm2 = ifirst(icntr2)+1
           mPrm2 = last(iCntr2)-iPrm2+1

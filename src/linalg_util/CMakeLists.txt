@@ -19,26 +19,17 @@ set (sources
      dnaxpy.F90
      dndot.F90
      dtrans.F90
-<<<<<<< HEAD
      dyax.F90
-=======
->>>>>>> upstream-openmolcas/master
      eigen_molcas.F90
      exp_eig.F90
      exp_schur.F90
      full_svd.F90
-<<<<<<< HEAD
      fzero.F90
      idmin.F90
      ilasrt.F90
      isunit.F90
      iunitmat.F90
      izero.F90
-=======
-     idmin.F90
-     ilasrt.F90
-     isunit.F90
->>>>>>> upstream-openmolcas/master
      large_svd.F90
      linalg_mod.F90
      matinvert.F90

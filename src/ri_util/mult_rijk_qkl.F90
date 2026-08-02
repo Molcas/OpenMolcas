@@ -97,7 +97,7 @@ do jSym=1,nIrrep
     write(u6,*) 'Too little memory in:',SECNAM
     call Abend()
   end if
-  nJvec1 = max(min(nJvec1,NumCho(jSym)),1)
+  nJvec1 = min(nJvec1,NumCho(jSym))
   nJbat = NumCho(jSym)/nJvec1
   iRest = mod(NumCho(jSym),nJvec1)
   if (iRest /= 0) then

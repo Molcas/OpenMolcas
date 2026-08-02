@@ -39,11 +39,7 @@ contains
 subroutine PCM_alaska_lSA()
 
   integer(kind=iwp) :: iGo
-<<<<<<< HEAD
   character(len=8) Method
-=======
-  character(len=8) :: Method
->>>>>>> upstream-openmolcas/master
 
   call Get_cArray('Relax Method',Method,8)
   lSA = .false.

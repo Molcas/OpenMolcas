@@ -45,7 +45,6 @@ real(kind=wp), intent(in) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOSti, iAOStj, iAOStk, iAOStl, iBin, ijklCmp, iSO, iSOi, iSOij, &
                      iSOkl, iSOs(4), jSO, jSOj, kSO, kSOk, lSO, lSOl, mij, nij, nijkl, nUt
 real(kind=wp) :: A_Int
-<<<<<<< HEAD
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: r1, r2
 real(kind=wp), external :: DDot_
@@ -54,12 +53,6 @@ r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
 r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
 write(u6,*) ' Sum=',r1
 write(u6,*) ' Dot=',r2
-=======
-
-#ifdef _DEBUGPRINT_
-write(u6,*) ' Sum=',sum(AOInt(:,:,:,:,:))
-write(u6,*) ' Dot=',sum(AOInt(:,:,:,:,:)**2)
->>>>>>> upstream-openmolcas/master
 call RecPrt(' In Plf2: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
 #endif
 

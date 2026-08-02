@@ -62,7 +62,7 @@ if (irc /= 0) then
 end if
 
 do iSym=1,nSym
-  call Tri2Rec(Oaux%SB(iSym)%A1,Ovlp%SB(iSym)%A2,nBas(iSym))
+  call Tri2Rec(Oaux%SB(iSym)%A1,Ovlp%SB(iSym)%A2,nBas(iSym),.false.)
 end do
 call Deallocate_DT(Oaux)
 

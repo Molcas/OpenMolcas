@@ -58,15 +58,6 @@ write(u6,*) ' Dot=',r2,tr2
 call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
 #endif
 
-<<<<<<< HEAD
-=======
-#ifdef _DEBUGPRINT_
-write(u6,*) ' Sum=',sum(SOInt(:,:))
-write(u6,*) ' Dot=',sum(SOInt(:,:)**2)
-call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
-#endif
-
->>>>>>> upstream-openmolcas/master
 k12 = 0
 k34 = 0
 memSO2 = 0

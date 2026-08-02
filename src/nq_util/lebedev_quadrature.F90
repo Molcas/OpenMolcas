@@ -102,11 +102,7 @@ function available_table(rule)
   !    *  0, there is such a rule, but it is not available in this library.
   !    *  1, the rule is available in this library.
 
-<<<<<<< HEAD
   integer(kind=iwp) available_table
-=======
-  integer(kind=iwp) :: available_table
->>>>>>> upstream-openmolcas/master
   integer(kind=iwp), intent(in) :: rule
 
   if (rule < 1) then

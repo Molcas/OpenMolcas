@@ -32,6 +32,7 @@ real(kind=wp) :: A(3), Charge_center, CRN, CRX, CRY, CRZ, CX(3), Dip_Tot, DR, LA
 character(len=80) :: Banner_Line(2)
 logical(kind=iwp) :: Center_OK, Check_Bond, get_BasisType
 real(kind=wp), allocatable :: Scratch_New(:), Scratch_Org(:)
+real(kind=wp), external :: DDot_
 
 Sites = Zero
 LI_TOT = Zero
@@ -73,7 +74,7 @@ call Set_Binom()
 !                                                                      *
 ! Set up array for nuclear contributions.
 !
-xnrMP(:,:) = Zero
+call dCopy_(nij*nElem,[Zero],0,xnrMP,1)
 ij = 0
 do iAtom=1,nAtoms
   do jAtom=1,iAtom
@@ -294,7 +295,7 @@ do l=0,lMax
     do iy=l-ix,0,-1
       iz = l-ix-iy
       iElem = iElem+1
-      rMP_Tot_Electronic = sum(rMP(:,iElem))
+      rMP_Tot_Electronic = DDot_(nij,[One],0,rMP(1,iElem),1)
       rMP_Tot_Nuclear = rMPq(iElem)
       rMP_Tot = rMP_Tot_Nuclear+rMP_Tot_Electronic
       write(u6,'(3I1,3F16.8)') ix,iy,iz,rMP_Tot_Nuclear,rMP_Tot_Electronic,rMP_Tot
@@ -302,7 +303,9 @@ do l=0,lMax
   end do
 end do
 if (.not. NoField) then
-  Polar_M(:) = sum(Polar(:,:),dim=2)
+  do iPol=1,6
+    Polar_M(iPol) = DDot_(nij,[One],0,Polar(iPol,1),6)
+  end do
   call TriPrt('Molecular Polarizability Tensor',' ',Polar_M,3)
   !debug
   !call mma_allocate(EVec,9,label='EVec')

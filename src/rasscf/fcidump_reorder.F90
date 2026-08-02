@@ -10,11 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
-<<<<<<< HEAD
 !               2026, Nike Dattani                                     *
 !               2026, Jaafar Mehrez                                    *
-=======
->>>>>>> upstream-openmolcas/master
 !***********************************************************************
 
 module fcidump_reorder
@@ -78,14 +75,6 @@ subroutine TwoElIntTable_reorder(two_el_table,P)
       two_el_table%idx(i,j) = P(two_el_table%idx(i,j))
     end do
   end do
-<<<<<<< HEAD
-=======
-  do j=1,length(two_el_table)
-    do i=1,4
-      two_el_table%idx(i,j) = P(two_el_table%idx(i,j))
-    end do
-  end do
->>>>>>> upstream-openmolcas/master
 
 end subroutine TwoElIntTable_reorder
 
@@ -133,25 +122,18 @@ subroutine ALL_reorder(orbitals,fock,two_el_table,orbsym,P)
   type(TwoElIntTable), intent(inout) :: two_el_table
   integer(kind=iwp), intent(inout) :: orbsym(:)
   integer(kind=iwp), intent(in) :: P(:)
-<<<<<<< HEAD
   integer(kind=iwp), allocatable :: temp_orbsym(:)
   integer(kind=iwp) :: i
-=======
->>>>>>> upstream-openmolcas/master
 
   call reorder(orbitals,P)
   call reorder(fock,P)
   call reorder(two_el_table,P)
-<<<<<<< HEAD
   allocate(temp_orbsym(size(orbsym)))
   temp_orbsym = orbsym
   do i=1,size(P)
     orbsym(P(i)) = temp_orbsym(i)
   end do
   deallocate(temp_orbsym)
-=======
-  orbsym(:) = orbsym(P)
->>>>>>> upstream-openmolcas/master
 
 end subroutine ALL_reorder
 

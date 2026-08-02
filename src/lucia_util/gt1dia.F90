@@ -12,14 +12,9 @@
 subroutine GT1DIA(H1DIA)
 ! Obtain diagonal of one electron matrix over active orbitals
 !
-<<<<<<< HEAD
 ! Dec 97 : obtained from INT1O
 
 use lucia_data, only: IBSO, INT1O, IREOTS, ISMFTO, NACOB, PINT1
-=======
-
-use lucia_data, only: IBSO, INT1, IREOTS, ISMFTO, NACOB, PINT1
->>>>>>> upstream-openmolcas/master
 use Definitions, only: wp
 
 #include "intent.fh"
@@ -27,13 +22,9 @@ use Definitions, only: wp
 implicit none
 real(kind=wp), intent(_OUT_) :: H1DIA(*)
 
-<<<<<<< HEAD
 ! Global pointers
 
 !INA call GT1DIS(H1DIA,IREOTS(1+NINOB),PINT1,INT1,ISMFTO,IBSO,NACOB)
 call GT1DIS(H1DIA,IREOTS,PINT1,INT1O,ISMFTO,IBSO,NACOB)
-=======
-call GT1DIS(H1DIA,IREOTS,PINT1,INT1,ISMFTO,IBSO,NACOB)
->>>>>>> upstream-openmolcas/master
 
 end subroutine GT1DIA

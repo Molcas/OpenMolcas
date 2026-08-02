@@ -17,7 +17,6 @@ subroutine Get_CNOs(irc,nIF,nRASO,xNrm)
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: iTri, nTri_Elem
 use Localisation_globals, only: CMO, MxConstr, nBas, nConstr, nSym, Occ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
@@ -27,7 +26,7 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: nIF(nSym), nRasO(nSym)
 real(kind=wp), intent(out) :: xNrm
-integer(kind=iwp) :: i, ic1, ic2, iCount, iDab, iOcc, iOff, iOffS(0:8), indxC(16,2,8), ipDab, iSym, j, jc, jCount, jOcc, jOff, &
+integer(kind=iwp) :: i, ic1, ic2, iCount, iDab, iOcc, iOff, iOffS(0:8), indxC(16,2,8), ipDab, iSym, j, jc, jCount, ji, jOcc, jOff, &
                      jSym, k, kbit, kc, kc1, kc2, kOff, l, lc, lc1, lc2, lConstr, lCount, lOcc_, mAdCMOO, MaxBas, nBB, nBLT, nBT, &
                      nSconf
 real(kind=wp) :: Etwo, xnorm, xOkk, yOkk
@@ -67,7 +66,7 @@ do iSym=1,nSym
   lConstr = lConstr+nConstr(iSym)
   nBB = nBB+nBas(iSym)**2
   nBT = nBT+nBas(iSym)
-  nBLT = nBLT+nTri_Elem(nBas(iSym))
+  nBLT = nBLT+nBas(iSym)*(nBas(iSym)+1)/2
   MaxBas = max(MaxBas,nBas(iSym))
 end do
 write(u6,'(A,I6)') ' Total number of spin configurations: ',nSconf
@@ -199,13 +198,14 @@ do iCount=0,nSconf-1
                    Db(ipDab),nBas(iSym))
     do j=1,nBas(iSym)
       do i=1,j-1
-        iDab = ipDab-1+iTri(i,j)
+        ji = j*(j-1)/2+i
+        iDab = ipDab-1+ji
         Da(iDab) = Two*Da(iDab)
         Db(iDab) = Two*Db(iDab)
       end do
     end do
     iOff = iOff+nBas(iSym)**2
-    kOff = kOff+nTri_Elem(nBas(iSym))
+    kOff = kOff+nBas(iSym)*(nBas(iSym)+1)/2
   end do
 
   call Get_Etwo_act(Da,Db,nBLT,nBas,nSym,Etwo)

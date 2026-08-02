@@ -14,11 +14,7 @@
 !#define _DEBUGPRINT_
 subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,JBOC,NAEL,NBEL,IJAGRP,IJBGRP,SB,CB,JDOH2,NOBPTS, &
                    MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NJA,NJB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA, &
-<<<<<<< HEAD
                    SCLFAC,IPHGAS,I_RES_AB)
-=======
-                   SCLFAC,IPHGAS,I_RES_AB,nTUVX,TUVX)
->>>>>>> upstream-openmolcas/master
 ! SUBROUTINE RSSBCB2 --> 82
 !
 ! Contributions to sigma block (iasm iatp, ibsm ibtp) from
@@ -95,11 +91,6 @@ real(kind=wp), intent(inout) :: SB(NIA*NIB), CB(NJA*NJB), XI1S(*), XI2S(*), XI3S
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), C2(*), XINT(*), CJRES(*), SIRES(*)
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: SCLFAC
-<<<<<<< HEAD
-=======
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in) :: TUVX(nTUVX)
->>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: I12, IBLOCK(8), IDIAG, IDOH2, IIDC, IIITRNS, ITASK, IUSEAB, JJJTRNS, LADVICE
 real(kind=wp) :: CPU, CPU0, CPU1, FACTOR, WALL, WALL0, WALL1
 
@@ -200,11 +191,7 @@ if (IDIAG == 0) then
 #     endif
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2A(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST,SCLFAC, &
-<<<<<<< HEAD
                   IPHGAS)
-=======
-                  IPHGAS,Size(TUVX),TUVX)
->>>>>>> upstream-openmolcas/master
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(2) = TSIGMA(2)+(WALL1-WALL0)
 
@@ -249,11 +236,7 @@ if (IDIAG == 0) then
       !if (IUSE_PA == 0) then
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,NOBPTS, &
-<<<<<<< HEAD
                    MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
-=======
-                   MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS,Size(TUVX),TUVX)
->>>>>>> upstream-openmolcas/master
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(3) = TSIGMA(3)+(WALL1-WALL0)
 
@@ -278,11 +261,7 @@ if (IDIAG == 0) then
       ! No division into active/passive
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2BN(IBSM,IBTP,IASM,IATP,NIB,NIA,JBSM,JBTP,JASM,JATP,NJB,NJA,IJBGRP,IJAGRP,NGAS,IBOC,IAOC,JBOC,JAOC,SB,CB,NOBPTS, &
-<<<<<<< HEAD
                    MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
-=======
-                   MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS,Size(TUVX),TUVX)
->>>>>>> upstream-openmolcas/master
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(3) = TSIGMA(3)+(WALL1-WALL0)
 
@@ -343,11 +322,7 @@ if (IDIAG == 0) then
 #     endif
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2A(IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST,SCLFAC, &
-<<<<<<< HEAD
                   IPHGAS)
-=======
-                  IPHGAS,Size(TUVX),TUVX)
->>>>>>> upstream-openmolcas/master
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(2) = TSIGMA(2)+(WALL1-WALL0)
 
@@ -391,11 +366,7 @@ else if (IDIAG == 1) then
     C2(1:NJA*NJB) = CB(1:NJA*NJB)
     ! Input is in det basis
     IIDC = 1
-<<<<<<< HEAD
     call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,I12,IIDC)
-=======
-    call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,I12,IIDC,Size(TUVX),TUVX)
->>>>>>> upstream-openmolcas/master
   else
     C2(1:NIA*NIB) = Zero
   end if

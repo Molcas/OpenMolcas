@@ -9,10 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,nTU,TU,nTUVX,TUVX)
+subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTRI)
 
 use timers, only: TimeDavid, TimeSigma
-<<<<<<< HEAD
 use lucia_data, only: CFTP, DTOC, ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
@@ -21,14 +20,6 @@ use csfbas, only: CONF, CTS
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use Lucia_Interface, only: Lucia_Util
-=======
-use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
-use ci_interfaces, only: Mk_H_Psi
-use sguga_states, only: SGS, EXS, CIS
-use general_data, only: ITERFILE, LUDAVID, NCONF, NSEL, STSYM
-use faroald, only: ndeta, ndetb
-use davctl_mod, only: istart, n_Roots, nkeep, nvec
->>>>>>> upstream-openmolcas/master
 use output_ras, only: IPRLOC, RC_CI
 use PrintLevel, only: DEBUG, USUAL
 use Molcas, only: MxRoot
@@ -42,7 +33,6 @@ integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
-<<<<<<< HEAD
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
 integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, kRoot, l1, &
                      l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
@@ -55,37 +45,12 @@ real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 real(kind=wp), external :: dDot_, dnrm2_
-=======
-integer(kind=iwp), intent(in) :: nTU, nTUVX
-real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), TU(nTU), TUVX(nTUVX)
-integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it_ci, jRoot, kRoot, l1, &
-                     l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
-real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
-                 Time2(2), updsiz, Z
-logical(kind=iwp) :: Skip
-real(kind=wp), allocatable :: Cs(:), Es(:), Hs(:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), Vec1(:), Vec3(:)
-real(kind=wp), allocatable, target :: ctemp(:), Tmp(:), sigtemp(:)
-real(kind=wp), pointer, contiguous :: Vec2(:)
-real(kind=wp), external :: dDot_, dnrm2_
-integer(kind=iwp), parameter:: iState=1
-
-if (DoFaro) then
-  ! determinant wavefunctions Faroald
-  call mma_allocate(sigtemp,ndeta*ndetb,label='sgm')
-  call mma_allocate(ctemp,ndeta*ndetb,label='psi')
-else
-  ! determinant wavefunctions Lucia
-  call mma_allocate(ctemp,ndet,label='CTEMP')
-  call mma_allocate(sigtemp,ndet,label='SIGTEM')
-end if
->>>>>>> upstream-openmolcas/master
 
 !-----------------------------------------------------------------------
 ! MGD dec 2017 : When optimizing many states, the lowest ones tend to
 ! converge much faster than the rest. Changed the code so that the converged states
 ! are not optimize further, saving potentially a lot of time.
 
-<<<<<<< HEAD
 if (DoFaro) then
   ! fill in the integrals from their triangular storage
   call mma_allocate(htu,my_norb,my_norb,label='htu')
@@ -126,8 +91,6 @@ if (DoFaro) then
   call mma_allocate(vkcnf,nactel,label='kcnf')
 end if
 
-=======
->>>>>>> upstream-openmolcas/master
 call Timing(Time1(1),dum1,dum2,dum3)
 Rc_CI = 0
 IPRLEV = IPRLOC(3)
@@ -148,6 +111,10 @@ call mma_allocate(Cs,l2,label='Csmall')
 call mma_allocate(Scr1,nSel,lRoots,label='Scr1')
 call mma_allocate(Scr2,nSel,lRoots,label='Scr2')
 call mma_allocate(Scr3,nSel,lRoots,label='Scr3')
+if (.not. DoFaro) then
+  call mma_allocate(ctemp,ndet,label='CTEMP')
+  call mma_allocate(sigtemp,ndet,label='SIGTEM')
+end if
 !-----------------------------------------------------------------------
 
 ! Print convergence thresholds in ITERFILE
@@ -184,7 +151,6 @@ do it_ci=1,mxItr
     end if
 
     call Timing(Time2(1),dum1,dum2,dum3)
-<<<<<<< HEAD
     if (DOFARO) then
       ! determinant wavefunctions
       call mma_allocate(sgm,ndeta,ndetb,label='sgm')
@@ -235,12 +201,6 @@ do it_ci=1,mxItr
 
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
     Vec1(:) = Vec1(:)+ECORE_HEX*Vec2(:)
-=======
-
-    Call Mk_H_Psi(SGS(istate),EXS(istate),CIS(istate),STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb, &
-                  nTU,TU,nTUVX,TUVX)
-
->>>>>>> upstream-openmolcas/master
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)
     TimeSigma = TimeSigma+Time2(2)-Time2(1)
@@ -582,13 +542,16 @@ call mma_deallocate(Cs)
 call mma_deallocate(Scr1)
 call mma_deallocate(Scr2)
 call mma_deallocate(Scr3)
+if (DoFaro) then
+  call mma_deallocate(htu)
+  call mma_deallocate(gtuvx)
+  call mma_deallocate(VECSVC)
+  call mma_deallocate(vkcnf)
+else
+  call mma_deallocate(ctemp)
+  call mma_deallocate(sigtemp)
+end if
 
-<<<<<<< HEAD
-=======
-call mma_deallocate(ctemp)
-call mma_deallocate(sigtemp)
-
->>>>>>> upstream-openmolcas/master
 call Timing(Time1(2),dum1,dum2,dum3)
 TimeDavid = TimeDavid+Time1(2)-Time1(1)
 

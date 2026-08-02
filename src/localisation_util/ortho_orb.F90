@@ -19,7 +19,6 @@ subroutine Ortho_Orb(Xmo,Smat,nBas,nOrb2Loc,nPass,Test)
 !          The orthonormalization is carried out nPass times.
 !          After this routine, X will satisfy X^T*S*X=1.
 
-use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -44,7 +43,7 @@ if (nPass < 1) return
 ! Allocations.
 ! ------------
 
-l_Scr = 2*(nBas**2)+nTri_Elem(nBas) ! needed in SqrtMt
+l_Scr = 2*(nBas**2)+nBas*(nBas+1)/2 ! needed in SqrtMt
 call mma_allocate(V,nOrb2Loc,nOrb2Loc,label='V')
 call mma_allocate(VSqrt,nOrb2Loc,nOrb2Loc,label='VSqrt')
 call mma_allocate(VISqrt,nOrb2Loc,nOrb2Loc,label='VISqrt')

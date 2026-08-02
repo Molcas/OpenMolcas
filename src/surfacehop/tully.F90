@@ -11,71 +11,62 @@
 
 subroutine Tully(CIBigArray,NSTATE,NCI)
 
-use Surfacehop_globals, only: decoherence, tullySubVerb, fixedrandL, iseedL, DECO, Ethreshold, RandThreshold, FixedRand, &
-                              NSUBSTEPS, InitSeed, rassi_ovlp, Run_rassi, firststep
+use Tully_variables, only: decoherence, tullySubVerb, fixedrandL, iseedL, DECO, Ethreshold, RandThreshold, FixedRand, NSUBSTEPS, &
+                           InitSeed, rassi_ovlp, Run_rassi, firststep
 #ifdef _HDF5_
 use Surfacehop_globals, only: lH5Restart
 #endif
-<<<<<<< HEAD
-=======
-use stdalloc, only: mma_allocate, mma_deallocate
->>>>>>> upstream-openmolcas/master
 use Constants, only: Zero, One, Two, Half, cZero, cOne, Onei
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSTATE, NCI
-<<<<<<< HEAD
 real(kind=wp), intent(inout) :: CIBigArray(NCI*NSTATE)
 integer(kind=iwp) :: values(8)
 character(len=8) :: date
-=======
-real(kind=wp), intent(inout) :: CIBigArray(NCI,NSTATE)
-integer(kind=iwp) :: cayley_info, i, ii, irlxroot, iseed, ISTATE2, j, jjj, k, maxhop, nciquery, nhop, nsatom, nstatesq, &
-                     RASSI_time_run, root_ovlp_el, stateRi, temproot, values(8)
-real(kind=wp) :: DT, ediffcheck, EKIN, Etot, hstep, LO, populOS, prod, root_ovlp, SumProb, temp, tloc
-complex(kind=wp) :: ArelaxPrev
-logical(kind=iwp) :: found, HOPPED, lmaxHop, lnhop, normalTully
->>>>>>> upstream-openmolcas/master
 character(len=10) :: time
-character(len=8) :: date
 character(len=5) :: zone
-integer(kind=iwp), allocatable :: decVec(:), stateORDER(:)
-real(kind=wp), allocatable :: Bmatrix(:,:), CIBigArrayP(:,:), CIBigArrayPP(:,:), currOVLP(:,:), currOVLP_ras(:,:), currPHASE(:), &
-                              D12matrix(:,:), D32matrix(:,:), Dmatrix(:,:), ExtrInter(:,:), ExtrSlope(:,:), Gprobab(:), Popul(:), &
-                              prevOVLP(:,:), prevPHASE(:), readOVLP(:,:), saveOVLP(:,:), saveOVLP_bk(:,:), sp(:,:), TAU(:), &
-                              tempVector(:), tempVector2(:), V(:), Venergy(:), VenergyInter(:), VenergyP(:), VenergySlope(:)
-complex(kind=wp), allocatable :: Amatrix(:,:), Mminus(:,:), Uprop(:,:)
+logical(kind=iwp) :: HOPPED, normalTully, found, lmaxHop, lnhop
+integer(kind=iwp) :: maxhop, nhop, RASSI_time_run
+real(kind=wp) :: DT, LO, EKIN, TAU(NSTATE)
+real(kind=wp) :: CIBigArrayP(NCI*NSTATE), readOVLP(NSTATE*2*NSTATE*2)
+real(kind=wp) :: CIBigArrayPP(NCI*NSTATE), Etot, ediffcheck, currOVLP_ras(NSTATE,NSTATE)
+real(kind=wp) :: currOVLP(NSTATE,NSTATE), prevOVLP(NSTATE,NSTATE), saveOVLP(NSTATE,NSTATE), saveOVLP_bk(NSTATE,NSTATE)
+real(kind=wp) :: currPHASE(NSTATE), prevPHASE(NSTATE)
+real(kind=wp) :: Dmatrix(NSTATE,NSTATE), sp(NSTATE,NSTATE)
+real(kind=wp) :: D32matrix(NSTATE,NSTATE), D12matrix(NSTATE,NSTATE)
+real(kind=wp) :: ExtrSlope(NSTATE,NSTATE), ExtrInter(NSTATE,NSTATE)
+real(kind=wp) :: VenergySlope(NSTATE), tempVector(NSTATE)
+real(kind=wp) :: tempVector2(NSTATE), VenergyInter(NSTATE)
+real(kind=wp) :: V(NSTATE,NSTATE), Bmatrix(NSTATE,NSTATE)
+real(kind=wp) :: Gprobab(NSTATE), Popul(NSTATE)
+real(kind=wp) :: VenergyP(NSTATE), Venergy(NSTATE), temp, root_ovlp
+real(kind=wp) :: SumProb, scalarprod, prod, populOS
+integer(kind=iwp) :: k, l, j, i, ii, jjj, t, tt, o, root_ovlp_el
+integer(kind=iwp) :: rightOrder(NSTATE), decVec(NSTATE), stateORDER(NSTATE)
+integer(kind=iwp) :: nstatesq, nciquery, stateRi, temproot, nsatom
+integer(kind=iwp) :: ISTATE2, iseed, irlxroot
+complex(kind=wp) :: Amatrix(NSTATE,NSTATE), AmatrixDT(NSTATE,NSTATE), ArelaxPrev
 real(kind=wp), external :: Random_Molcas
 
 #include "warnings.h"
 
-<<<<<<< HEAD
 CIBigArrayP(:) = Zero
 CIBigArrayPP(:) = Zero
 V(:,:) = Zero
 TAU(:) = Zero
 write(u6,*) ''
-=======
-call mma_allocate(CIBigArrayP,NCI,NSTATE,Label='CIBIgArrayP')
-call mma_allocate(CIBigArrayPP,NCI,NSTATE,Label='CIBIgArrayPP')
-CIBigArrayP(:,:) = Zero
-CIBigArrayPP(:,:) = Zero
-call mma_allocate(Venergy,NSTATE,Label='Venergy')
-
-write(u6,*)
->>>>>>> upstream-openmolcas/master
 write(u6,*) '------------------------------------------'
 write(u6,*) '            TULLY ALGORITHM'
 write(u6,*) '------------------------------------------'
-write(u6,*)
+write(u6,*) ''
 
 if (rassi_ovlp) then
   write(u6,*) 'Using RASSI for WF overlap'
-  write(u6,*)
+  write(u6,*) ''
 else
   write(u6,*) 'Using CI vector product for WF overlap'
-  write(u6,*)
+  write(u6,*) ''
 end if
 
 call get_darray('Last energies',Venergy,NSTATE)
@@ -100,22 +91,20 @@ if (.not. Found .and. lH5Restart) then
 end if
 #endif
 
-if (Found) call Get_dScalar('Timestep',DT)
+if (Found) then
+  call Get_dScalar('Timestep',DT)
+end if
 
-call mma_allocate(Amatrix,NSTATE,NSTATE,Label='Amatrix')
 call Qpg_zArray('AmatrixV',Found,nStateSq)
 write(u6,*) 'Did the density matrix exists? ',Found
 if (.not. Found) then
   Amatrix(:,:) = cZero
   Amatrix(iRlxRoot,iRlxRoot) = cOne
 
-  call Put_zArray('AmatrixV',Amatrix,NSTATE**2)
+  call Put_zArray('AmatrixV',Amatrix,NSTATE*NSTATE)
 else
-  call get_zarray('AmatrixV',Amatrix,NSTATE**2)
+  call get_zarray('AmatrixV',Amatrix,NSTATE*NSTATE)
 end if
-
-call mma_allocate(Popul,NSTATE,Label='Popul')
-call mma_allocate(VenergyP,NSTATE,Label='VenergyP')
 
 call Qpg_dArray('AllCIP',Found,nCiQuery)
 write(u6,*) 'Did the Pre-coefficients array exists? ',Found
@@ -125,10 +114,9 @@ if (.not. Found) then
   do i=1,NSTATE
     Popul(i) = real(Amatrix(i,i))
   end do
-  write(u6,*) 'Gnuplot:',Popul(:),Venergy(:),Venergy(iRlxRoot)
+  write(u6,*) 'Gnuplot:',(Popul(j),j=1,NSTATE,1),(Venergy(j),j=1,NSTATE,1),Venergy(iRlxRoot)
   write(u6,*) 'Cannot do deltas at first step, see you later! '
   firststep = .true.
-  call cleanup()
   return
 else
   firststep = .false.
@@ -162,28 +150,26 @@ if (rassi_ovlp) then
     write(u6,*) 'Calling RASSI...'
     RASSI_time_run = 1
     call put_iscalar('SH RASSI run',RASSI_time_run)
-    call cleanup()
     return
   else
     write(u6,*) 'RASSI already called, continuing...'
     RASSI_time_run = 0 ! Reset for next iteration
     call put_iscalar('SH RASSI run',RASSI_time_run)
-    write(u6,*)
-    call mma_allocate(readOVLP,2*NSTATE,2*NSTATE,Label='readOVPL')
-    call get_dArray('State Overlaps',readOVLP,4*NSTATE**2)
-    !do i=1,2*NSTATE
-    !  write(u6,*) readOVLP(i,:)
+    write(u6,*) ''
+    call get_dArray('State Overlaps',readOVLP,NSTATE*2*NSTATE*2)
+    !do i=1,NSTATE**4
+    !  write(u6,*) readOVLP(i)
     !end do
-    call mma_allocate(currOVLP_ras,NSTATE,NSTATE,Label='currOVLP_ras')
-    currOVLP_ras(:,:) = readOVLP(1:NSTATE,NSTATE+1:2*NSTATE)  ! Transpose to match RASSI printed version
-    call mma_deallocate(readOVLP)
+    do t=1,NSTATE
+      do tt=1,NSTATE
+        o = ((2*t-1)*NSTATE)+tt
+        currOVLP_ras(tt,t) = readOVLP(o)  ! Transpose to match RASSI printed version
+      end do
+    end do
   end if
 end if
 
 ! now check for the CI coefficients at Pre-Pre-Step (PP)
-
-call mma_allocate(prevOVLP,NSTATE,NSTATE,Label='prevOVLP')
-call mma_allocate(prevPHASE,NSTATE,Label='prevPHASE')
 
 call Qpg_dArray('AllCIPP',Found,nCiQuery)
 write(u6,*) 'Did the Pre-Pre-coefficients array exists? ',Found
@@ -198,14 +184,14 @@ else
   call Get_dArray('AllCIPP',CIBigArrayPP,NCI*NSTATE)
   if (rassi_ovlp) then
     write(u6,*) 'Grabbing previous overlap <t-2dt|t-dt>'
-    call Get_dArray('SH_Ovlp_save',prevOVLP,NSTATE**2)
+    call Get_dArray('SH_Ovlp_save',prevOVLP,NSTATE*NSTATE)
     call Get_dArray('Old_Phase',prevPHASE,NSTATE)
-    write(u6,*)
+    write(u6,*) ''
     write(u6,*) '<t-2dt|t-dt> RASSI Overlap'
     do i=1,NSTATE
-      write(u6,*) prevOVLP(i,:)
+      write(u6,*) (prevOVLP(i,j),j=1,NSTATE,1)
     end do
-    write(u6,*)
+    write(u6,*) ''
   end if
 end if
 
@@ -214,48 +200,45 @@ call Get_iScalar('Unique atoms',nsAtom)
 
 write(u6,*) 'Density Matrix elements (i=1..#states):'
 do i=1,NSTATE
-  write(u6,*) Amatrix(i,:)
+  write(u6,*) (Amatrix(i,j),j=1,NSTATE,1)
 end do
 
 ! Timestep:                      DT
 ! Total Energy                   Etot
-! Coefficients:                  CIBigArray(i,j)    length = NCI,NSTATE
-! Prev step coefficients:        CIBigArrayP(i,j)   length = NCI,NSTATE
-! Prev-Prev coefficients:        CIBigArrayPP(i,j)  length = NCI,NSTATE
+! Coefficients:                  CIBigArray(i)      length = NCI*NSTATE
+! Prev step coefficients:        CIBigArrayP(i)     length = NCI*NSTATE
+! Prev-Prev coefficients:        CIBigArrayPP(i)    length = NCI*NSTATE
 ! V energy:                      Venergy(i)         length = NSTATE
 ! V Prev step energy:            VenergyP(i)        length = NSTATE
-! MatriX A:                      Amatrix(i,j)       length = NSTATE,NSTATE
+! MatriX A:                      Amatrix(i,j)       length = NSTATE*NSTATE
 ! IF RASSI
-! Overlap <t-dt|t> uncorrected   currOVLP_ras       length = NSTATE,NSTATE
-! Overlap <t-dt|t> corrected     currOVLP           length = NSTATE,NSTATE
-! Overlap <t-dt|t> corr to save  saveOVLP           length = NSTATE,NSTATE
-! Overlap <t-2dt|t-dt>           prevOVLP           length = NSTATE,NSTATE
+! Overlap <t-dt|t> uncorrected   currOVLP_ras       length = NSTATE*NSTATE
+! Overlap <t-dt|t> corrected     currOVLP           length = NSTATE*NSTATE
+! Overlap <t-dt|t> corr to save  saveOVLP           length = NSTATE*NSTATE
+! Overlap <t-2dt|t-dt>           prevOVLP           length = NSTATE*NSTATE
 ! Last timestep phase diff       prevPHASE          length = NSTATE
 ! Curr timestep phase diff       currPHASE          length = NSTATE
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                      !
-!                       Sign Corrector                                 !
-!                                                                      !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                                                                        !
+!                         Sign Corrector                                 !
+!                                                                        !
 
-call mma_allocate(stateORDER,NSTATE,Label='stateORDER')
+! so first of all I create 2 temp vectors that store the absolute value
+! of the energy difference
 
 if (.not. rassi_ovlp) then
-  ! so first of all I create 2 temp vectors that store the absolute value
-  ! of the energy difference
-
-  call mma_allocate(tempVector,NSTATE,Label='tempVector')
-  call mma_allocate(tempVector2,NSTATE,Label='tempVector')
-
   ! Original sign corrector/root reordering using CI vector product
   write(u6,*) 'Using CI vector products for sign correction/root ordering'
-  tempVector(:) = abs(Venergy(:)-Venergy(irlxRoot))
-  tempVector2(:) = tempVector(:)
+  do i=1,NSTATE
+    tempVector(i) = abs(Venergy(i)-Venergy(irlxRoot))
+    tempVector2(i) = abs(Venergy(i)-Venergy(irlxRoot))
+  end do
 
   ! then I sort one of them, (relaxroot becomes first, it's zero)
 
-  do j=1,NSTATE-1
-    do k=j+1,NSTATE
+  do j=1,(NSTATE-1)
+    do k=(j+1),NSTATE
       if (tempVector(j) > tempVector(k)) then
         temp = tempVector(j)
         tempVector(j) = tempVector(k)
@@ -266,24 +249,27 @@ if (.not. rassi_ovlp) then
 
   ! I get the right order I need to process roots
 
-  call mma_allocate(decVec,NSTATE,Label='decVec')
-  call mma_allocate(sp,NSTATE,NSTATE,Label='sp')
-
   do i=1,NSTATE
     do j=1,NSTATE
-      if (tempVector(i) == tempVector2(j)) stateORDER(i) = j
+      if (tempVector(i) == tempVector2(j)) then
+        rightOrder(i) = j
+      end if
     end do
   end do
   ! ii counter on CURRENT STEP
   do ii=1,NSTATE
     do i=1,NSTATE
-      sp(ii,i) = sum(CIBigArray(:,ii)*CIBigArrayP(:,i))
+      scalarprod = Zero
+      do j=1,NCI
+        scalarprod = scalarprod+CIBigArray(NCI*(ii-1)+j)*CIBigArrayP(NCI*(i-1)+j)
+      end do
+      sp(ii,i) = scalarprod
     end do
+    decVec(ii) = 1
   end do
-  decVec(:) = 1
 
   do ii=1,NSTATE
-    stateRi = stateORDER(ii)
+    stateRi = rightOrder(ii)
     prod = Zero
     jjj = 0
     do i=1,NSTATE
@@ -295,31 +281,19 @@ if (.not. rassi_ovlp) then
       end if
     end do
     decVec(jjj) = 0
-<<<<<<< HEAD
     if (prod < Zero) then
       do k=1,NCI
         CIBigArray(NCI*(stateRi-1)+k) = -CIBigArray(NCI*(stateRi-1)+k)
       end do
     end if
-=======
-    if (prod < Zero) CIBigArray(:,stateRi) = -CIBigArray(:,stateRi)
->>>>>>> upstream-openmolcas/master
   end do
 
-  call mma_deallocate(decVec)
-  call mma_deallocate(sp)
-  call mma_deallocate(tempVector)
-  call mma_deallocate(tempVector2)
-
 else
-
-  call mma_allocate(currOVLP,NSTATE,NSTATE,Label='currOVLP')
-  call mma_allocate(saveOVLP,NSTATE,NSTATE,Label='saveOVLP')
 
   ! Sign correction and root reordering using RASSI overlap matrix <t-dt|t>
   ! Product of all prev phase diff. applied to columns (t-dt)
   ! Product of all prev phase diff. including current step applied to rows (t)
-  write(u6,*)
+  write(u6,*) ''
   write(u6,*) 'Using RASSI overlap matrix for sign correction/root ordering'
 
   ! Root flipping
@@ -334,188 +308,153 @@ else
         root_ovlp = abs(currOVLP_ras(j,i))
       end if
     end do
-<<<<<<< HEAD
     if (root_ovlp < 0.4_wp) then
       write(u6,*) 'WARNING: No overlap greater than 0.4 for root:',i
     end if
-=======
-    if (root_ovlp < 0.4_wp) write(u6,*) 'WARNING: No overlap greater than 0.4 for root:',i
->>>>>>> upstream-openmolcas/master
     if (root_ovlp_el /= i) then
-      write(u6,*) 'Root rotation detected, swapping roots ',i,root_ovlp_el
-      stateORDER(i) = root_ovlp_el
-      currOVLP(i,:) = currOVLP_ras(root_ovlp_el,:)
-      currOVLP_ras(root_ovlp_el,:) = currOVLP_ras(i,:)
-      currOVLP_ras(i,:) = currOVLP(i,:)
+      write(u6,*) 'Root rotation detected, swapping roots ', i, root_ovlp_el
+      do ii=1,NSTATE
+        stateORDER(i) = root_ovlp_el
+        currOVLP(i,ii) = currOVLP_ras(root_ovlp_el,ii)
+        currOVLP_ras(root_ovlp_el,ii) = currOVLP_ras(i,ii)
+        currOVLP_ras(i,ii) = currOVLP(i,ii)
+      end do
     else
-      currOVLP(i,:) = currOVLP_ras(i,:)
+      do ii=1,NSTATE
+        currOVLP(i,ii) = currOVLP_ras(i,ii)
+      end do
     end if
   end do
 
-  call mma_deallocate(currOVLP_ras)
-
   write(u6,*) '<t-dt|t> RASSI Overlap Uncorrected'
   do i=1,NSTATE
-    write(u6,*) currOVLP(i,:)
+    write(u6,*) (currOVLP(i,j),j=1,NSTATE,1)
   end do
 
-  write(u6,*) 'State ordering',stateORDER(:)
-
-  call mma_allocate(currPHASE,NSTATE,Label='currPHASE')
+  write(u6,*) 'State ordering', (stateORDER(i),i=1,NSTATE,1)
 
   ! Sign correction
   ! Get current phase - phase read from RASSI * previous phase array
   do i=1,NSTATE
-<<<<<<< HEAD
     currPHASE(i) = prevPHASE(i)
     if (currOVLP(i,i) < Zero) currPHASE(i) = -prevPHASE(i)
-=======
-    if (currOVLP(i,i) < Zero) then
-      currPHASE(i) = -prevPHASE(i)
-    else
-      currPHASE(i) = prevPHASE(i)
-    end if
->>>>>>> upstream-openmolcas/master
   end do
 
   write(u6,*) 'Current Phase'
-  write(u6,*) currPHASE(:)
+  write(u6,*) (currPHASE(i),i=1,NSTATE,1)
   write(u6,*) 'Previous Phase'
-  write(u6,*) prevPHASE(:)
+  write(u6,*) (prevPHASE(i),i=1,NSTATE,1)
 
   ! Correct columns of current RASSI using prevPHASE
 
   do i=1,NSTATE
-<<<<<<< HEAD
     do ii=1, NSTATE
       currOVLP(ii,i) = currOVLP(ii,i)*prevPHASE(i)
     end do
-=======
-    currOVLP(:,i) = currOVLP(:,i)*prevPHASE(i)
->>>>>>> upstream-openmolcas/master
   end do
 
   if (tullySubVerb) then
     write(u6,*) '<t-dt|t> RASSI Overlap Columns Corrected'
     do i=1,NSTATE
-      write(u6,*) currOVLP(i,:)
+      write(u6,*) (currOVLP(i,j),j=1,NSTATE,1)
     end do
   end if
 
   ! Correct rows of current RASSI using currPHASE
 
   do i=1,NSTATE
-<<<<<<< HEAD
     do ii=1, NSTATE
       currOVLP(i,ii) = currOVLP(i,ii)*currPHASE(i)
     end do
-=======
-    currOVLP(i,:) = currOVLP(i,:)*currPHASE(i)
->>>>>>> upstream-openmolcas/master
   end do
 
   write(u6,*) '<t-dt|t> RASSI Overlap phase Corrected'
   do i=1,NSTATE
-    write(u6,*) currOVLP(i,:)
+    write(u6,*) (currOVLP(i,j),j=1,NSTATE,1)
   end do
-
-  call mma_allocate(saveOVLP_bk,NSTATE,NSTATE,Label='saveOVLP_bk')
 
   ! Swap back rows if root flipping occured
 
   do i=1,NSTATE
-<<<<<<< HEAD
     do ii=1,NSTATE
       saveOVLP_bk(i,ii) = currOVLP(stateorder(i),ii)
     end do
-=======
-    saveOVLP_bk(i,:) = currOVLP(stateORDER(i),:)
->>>>>>> upstream-openmolcas/master
   end do
 
   ! Swap columns if root flipping occured to give final 'to save' RASSI
 
   do i=1,NSTATE
-<<<<<<< HEAD
     do ii=1,NSTATE
       saveOVLP(ii,i) = saveOVLP_bk(ii,stateorder(i))
     end do
   end do
-=======
-    saveOVLP(:,i) = saveOVLP_bk(:,stateORDER(i))
-  end do
-
-  call mma_deallocate(saveOVLP_bk)
->>>>>>> upstream-openmolcas/master
 
   write(u6,*) '<t-dt|t> RASSI Overlap to save (flipping incl.)'
   do i=1,NSTATE
-    write(u6,*) currOVLP(i,:)
+    write(u6,*) (currOVLP(i,j),j=1,NSTATE,1)
   end do
 end if
+!                                                                       !
+!                         end of sign corrector                         !
+!                                                                       !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-call mma_deallocate(prevPHASE)
-call mma_deallocate(stateORDER)
-
-!                                                                      !
-!                        end of sign corrector                         !
-!                                                                      !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-call mma_allocate(Dmatrix,NSTATE,NSTATE,Label='Dmatrix')
-call mma_allocate(ExtrInter,NSTATE,NSTATE,Label='ExtrInter')
-call mma_allocate(ExtrSlope,NSTATE,NSTATE,Label='ExtrSlope')
-call mma_allocate(VenergyInter,NSTATE,Label='VenergyInter')
-call mma_allocate(VenergySlope,NSTATE,Label='VenergySlope')
+! create D matrix normal tully
 
 if_normaltully: if (normalTully) then
 
-  ! create D matrix normal tully
-
-  write(u6,*)
+  write(u6,*) ''
   write(u6,*) 'Executing Normal Tully !!'
-  write(u6,*)
+  write(u6,*) ''
 
   if (.not. rassi_ovlp) then
     write(u6,*) 'Using CI vector product to calculate D matrix'
     do i=1,NSTATE
       do j=1,NSTATE
-        if (i == j) then
-          Dmatrix(i,i) = Zero
+        if (i /= j) then
+          Dmatrix(i,j) = Zero
+          do ii=1,NCI
+            Dmatrix(i,j) = Dmatrix(i,j)+CIBigArray(NCI*(i-1)+ii)*CIBigArrayP(NCI*(j-1)+ii)
+          end do
+          Dmatrix(i,j) = -Dmatrix(i,j)/DT
         else
-          Dmatrix(i,j) = -sum(CIBigArray(:,i)*CIBigArrayP(:,j))/DT
+          Dmatrix(i,i) = Zero
         end if
       end do
     end do
   else
     write(u6,*) 'Using RASSI overlap to calculate D matrix'
-    Dmatrix(:,:) = currOVLP(:,:)/DT
     do i=1,NSTATE
-      Dmatrix(i,i) = Zero
+      do j=1,NSTATE
+        if (i /= j) then
+          Dmatrix(i,j) = currOVLP(i,j)/DT
+        else
+          Dmatrix(i,i) = Zero
+        end if
+      end do
     end do
   end if
 
   normalTully = .false.
 
-  ExtrInter(:,:) = Dmatrix(:,:)
-  ExtrSlope(:,:) = Zero
-  VenergyInter(:) = VenergyP(:)
-  VenergySlope(:) = (Venergy(:)-VenergyP(:))/DT
+  do i=1,NSTATE
+    do j=1,NSTATE
+      ExtrInter(i,j) = Dmatrix(i,j)
+      ExtrSlope(i,j) = Zero
+    end do
+    VenergyInter(i) = VenergyP(i)
+    VenergySlope(i) = (Venergy(i)-VenergyP(i))/DT
+  end do
 
 else if_normaltully
 
-  call mma_allocate(D12matrix,NSTATE,NSTATE,Label='D12matrix')
-  call mma_allocate(D32matrix,NSTATE,NSTATE,Label='D32matrix')
-
   ! Create D matrix according to Hammes-Schiffer-Tully (interpolating extrapolating)
 
+  ! D32matrix
   if (.not. rassi_ovlp) then
     write(u6,*) 'Using CI vector product to calculate D Matrix'
-
-    ! D32matrix
     do i=1,NSTATE
       do j=1,NSTATE
-<<<<<<< HEAD
         if (i /= j) then
           D32matrix(i,j) = Zero
           do ii=1,NCI
@@ -524,20 +463,15 @@ else if_normaltully
           end do
           D32matrix(i,j) = D32matrix(i,j)/(Two*DT)
         else
-=======
-        if (i == j) then
->>>>>>> upstream-openmolcas/master
           D32matrix(i,i) = Zero
-        else
-          D32matrix(i,j) = sum(CIBigArrayPP(:,i)*CIBigArrayP(:,j)-CIBigArrayP(:,i)*CIBigArrayPP(:,j))/(Two*DT)
         end if
       end do
     end do
 
     ! D12matrix
+
     do i=1,NSTATE
       do j=1,NSTATE
-<<<<<<< HEAD
         if (i /= j) then
           D12matrix(i,j) = Zero
           do ii=1,NCI
@@ -546,12 +480,7 @@ else if_normaltully
           end do
           D12matrix(i,j) = D12matrix(i,j)/(Two*DT)
         else
-=======
-        if (i == j) then
->>>>>>> upstream-openmolcas/master
           D12matrix(i,i) = Zero
-        else
-          D12matrix(i,j) = sum(CIBigArrayP(:,i)*CIBigArray(:,j)-CIBigArray(:,i)*CIBigArrayP(:,j))/(Two*DT)
         end if
       end do
     end do
@@ -563,16 +492,10 @@ else if_normaltully
     ! D32matrix
     do i=1,NSTATE
       do j=1,NSTATE
-<<<<<<< HEAD
         if (i /= j) then
           D32matrix(i,j) = (prevOVLP(i,j)-prevOVLP(j,i))/(Two*DT)
         else
-=======
-        if (i == j) then
->>>>>>> upstream-openmolcas/master
           D32matrix(i,j) = Zero
-        else
-          D32matrix(i,j) = (prevOVLP(i,j)-prevOVLP(j,i))/(Two*DT)
         end if
       end do
     end do
@@ -580,16 +503,10 @@ else if_normaltully
     ! D12matrix
     do i=1,NSTATE
       do j=1,NSTATE
-<<<<<<< HEAD
         if (i /= j) then
           D12matrix(i,j) = (currOVLP(i,j)-currOVLP(j,i))/(Two*DT)
         else
-=======
-        if (i == j) then
->>>>>>> upstream-openmolcas/master
           D12matrix(i,j) = Zero
-        else
-          D12matrix(i,j) = (currOVLP(i,j)-currOVLP(j,i))/(Two*DT)
         end if
       end do
     end do
@@ -598,35 +515,30 @@ else if_normaltully
 
   ! definition of Y intercept (ExtrInter) and slope (ExtrSlope) for EXTRapolation line
 
-  ExtrSlope(:,:) = (D12matrix(:,:)-D32matrix(:,:))/DT
-  ExtrInter(:,:) = D12matrix(:,:)
-  VenergyInter(:) = VenergyP(:)
-  VenergySlope(:) = (Venergy(:)-VenergyP(:))/DT
-
-  call mma_deallocate(D12matrix)
-  call mma_deallocate(D32matrix)
+  do i=1,NSTATE
+    do j=1,NSTATE
+      ExtrSlope(i,j) = (D12matrix(i,j)-D32matrix(i,j))/DT
+      ExtrInter(i,j) = D12matrix(i,j)
+    end do
+    VenergyInter(i) = VenergyP(i)
+    VenergySlope(i) = (Venergy(i)-VenergyP(i))/DT
+  end do
 
 end if if_normaltully
-
-call mma_deallocate(prevOVLP)
-
-if (rassi_ovlp) call mma_deallocate(currOVLP)
 
 ! UNCOMMENT to print coefficients !!!
 ! Just a few coefficients
 ! write(u6,*) 'WaveFunctionsCoefficients are: ',NCI,'*',NSTATE
 ! write(u6,*) '       This step        Previous step:        PP:'
 
-! write(u6,*) CIBigArray(1,1),CIBigArrayP(1,1),CIBigArrayPP(1,1)
-! write(u6,*) CIBigArray(2,1),CIBigArrayP(2,1),CIBigArrayPP(2,1)
-! write(u6,*) CIBigArray(3,1),CIBigArrayP(3,1),CIBigArrayPP(3,1)
-! write(u6,*) CIBigArray(4,1),CIBigArrayP(4,1),CIBigArrayPP(4,1)
+! write(u6,*) CIBigArray(1),CIBigArrayP(1),CIBigArrayPP(1)
+! write(u6,*) CIBigArray(2),CIBigArrayP(2),CIBigArrayPP(2)
+! write(u6,*) CIBigArray(3),CIBigArrayP(3),CIBigArrayPP(3)
+! write(u6,*) CIBigArray(4),CIBigArrayP(4),CIBigArrayPP(4)
 
 ! All coefficients
-!do i=1,NSTATE
-!  do j=1,NCI
-!    write(u6,*) CIBigArray(j,i),CIBigArrayP(j,i),CIBigArrayPP(j,i)
-!  end do
+!do i=1,NCI*NSTATE
+!  write(u6,*) CIBigArray(i),CIBigArrayP(i),CIBigArrayPP(i)
 !end do
 ! UNCOMMENT to print coefficients !!!
 
@@ -656,8 +568,11 @@ else
     ! Just milliseconds multiplied by seconds
     iseed = ((values(7)+1)*values(8)+1)
   end if
-  LO = max(RandThreshold,Random_Molcas(iseed))
+  LO = Random_Molcas(iseed)
   call put_iscalar('Seed',iseed)
+  if (LO < RandThreshold) then
+    LO = RandThreshold
+  end if
 end if
 !                                                                      !
 !                                                                      !
@@ -675,27 +590,16 @@ write(u6,*) 'Substeps are: ',NSUBSTEPS
 
 temproot = iRlxRoot
 
-call mma_allocate(Bmatrix,NSTATE,NSTATE,Label='Bmatrix')
-call mma_allocate(Gprobab,NSTATE,Label='Gprobab')
-call mma_allocate(Mminus,NSTATE,NSTATE,Label='Mminus')
-call mma_allocate(TAU,NSTATE,Label='TAU')
-call mma_allocate(Uprop,NSTATE,NSTATE,Label='Uprop')
-call mma_allocate(V,NSTATE,Label='V')
-
 substeps: do ii=1,NSUBSTEPS
   if (.not. fixedrandL) then
-    LO = max(RandThreshold,Random_Molcas(iseed))
+    LO = Random_Molcas(iseed)
     call put_iscalar('Seed',iseed)
+    if (LO < RandThreshold) then
+      LO = RandThreshold
+    end if
   end if
 
-  hstep = DT/real(NSUBSTEPS,kind=wp)
-  tloc = (real(ii,kind=wp)-Half)*hstep
-  Dmatrix(:,:) = ExtrInter(:,:)+ExtrSlope(:,:)*(tloc-DT*Half)
-  V(:) = VenergyInter(:)+VenergySlope(:)*tloc
-
-  ! Enforce strict antisymmetry of the time-derivative coupling matrix.
   do i=1,NSTATE
-<<<<<<< HEAD
     do j=1,NSTATE
       Dmatrix(i,j) = ExtrInter(i,j)+ExtrSlope(i,j)*(((ii-1)*DT/NSUBSTEPS)-DT*Half)
       if (i /= j) then
@@ -703,27 +607,10 @@ substeps: do ii=1,NSUBSTEPS
       else
         V(i,j) = VenergyInter(i)+VenergySlope(i)*(ii-1)*DT/NSUBSTEPS
       end if
-=======
-    Dmatrix(i,i) = Zero
-    do j=i+1,NSTATE
-      temp = Half*(Dmatrix(i,j)-Dmatrix(j,i))
-      Dmatrix(i,j) = temp
-      Dmatrix(j,i) = -temp
->>>>>>> upstream-openmolcas/master
     end do
   end do
 
-  ! Unitary Cayley propagation of the electronic density matrix.
-  ! The generator G = D + iV gives dA/dt = A G - G A.
-  ! The diagonal energies are shifted by the current active-state energy
-  ! before building G: a constant shift only adds a global phase to the
-  ! propagator, which cancels exactly in U^dagger*A*U, but it is essential
-  ! for the accuracy of the Cayley approach, which requires
-  ! |h*G/2| << 1.
-
-  Uprop(:,:) = cmplx(Dmatrix(:,:),kind=wp)
   do i=1,NSTATE
-<<<<<<< HEAD
     do j=1,NSTATE
       AmatrixDT(i,j) = cZero
       do l=1,NSTATE
@@ -757,60 +644,29 @@ substeps: do ii=1,NSUBSTEPS
         Gprobab(i) = Zero
       end if
     else
-=======
-    Uprop(i,i) = Uprop(i,i)+(V(i)-V(temproot))*Onei
-  end do
-  Uprop(:,:) = Half*hstep*Uprop(:,:)
-  Mminus(:,:) = -Uprop(:,:)
-  do i=1,NSTATE
-    Uprop(i,i) = Uprop(i,i)+cOne
-    Mminus(i,i) = Mminus(i,i)+cOne
-  end do
-
-  ! Uprop is overwritten by U = inv(I - hG/2) * (I + hG/2).
-  call solve_cayley_system()
-  if (cayley_info /= 0) then
-    write(u6,*) 'Cayley propagation failed in Tully. Singular pivot = ',cayley_info
-    call Abend()
-  end if
-
-  ! Mminus used for scratch
-  call zgemm_('N','N',NSTATE,NSTATE,NSTATE,cOne,Amatrix,NSTATE,Uprop,NSTATE,cZero,Mminus,NSTATE)
-  call zgemm_('C','N',NSTATE,NSTATE,NSTATE,cOne,Uprop,NSTATE,Mminus,NSTATE,cZero,Amatrix,NSTATE)
-
-  Bmatrix(:,:) = -Two*real(conjg(Amatrix(:,:))*Dmatrix(:,:))
-  do i=1,NSTATE
-    !B(i,i) not used
-    Bmatrix(i,i) = Two*aimag(conjg(Amatrix(i,i))*V(i))
-  end do
-
-  do i=1,NSTATE
-    if (i == temproot) then
->>>>>>> upstream-openmolcas/master
       Gprobab(i) = Zero
-    else
-      Gprobab(i) = max(Zero,Bmatrix(i,temproot)*DT/(real(Amatrix(temproot,temproot))*NSUBSTEPS))
     end if
   end do
 
   SumProb = Zero
   do i=1,NSTATE
-    if (i == temproot) cycle
-    SumProb = SumProb+Gprobab(i)
-    if (LO <= SumProb) then
-      write(u6,*) 'Following Tully, should hop from',temproot,'to',i
-      if (V(i) < Etot) then
-        write(u6,*) 'this root has an energy lower than the total',Etot,' (thus, permitted)'
-        Ediffcheck = V(i)-V(temproot)
-        write(u6,*) 'Ediffcheck is:',Ediffcheck
-        Ediffcheck = abs(Ediffcheck)
-        if (Ediffcheck < Ethreshold) then
-          write(u6,*) 'lower than the threshold:',Ethreshold
-          write(u6,*) 'temproot set to:',i
-          temproot = i
+    if (i /= temproot) then
+      SumProb = SumProb+Gprobab(i)
+      if (LO <= SumProb) then
+        write(u6,*) 'Following Tully, should hop from',temproot,'to',i
+        if (V(i,i) < Etot) then
+          write(u6,*) 'this root has an energy lower than the total',Etot,' (thus, permitted)'
+          Ediffcheck = (V(i,i)-V(temproot,temproot))
+          write(u6,*) 'Ediffcheck is:',Ediffcheck
+          Ediffcheck = abs(Ediffcheck)
+          if (Ediffcheck < Ethreshold) then
+            write(u6,*) 'lower than the threshold:',Ethreshold
+            write(u6,*) 'temproot set to:',i
+            temproot = i
+          end if
         end if
+        exit
       end if
-      exit
     end if
   end do
 
@@ -820,32 +676,31 @@ substeps: do ii=1,NSUBSTEPS
   ! (it should correct population instead of amplitudes)
 
   pg: if (decoherence) then
-    EKIN = Etot-V(temproot)
+    EKIN = Etot-V(temproot,temproot)
     if (EKIN <= Zero) then
       write(u6,*) 'WARNING! Negative Kinetic Energy. Ekin= ',EKIN,' a.u.'
       write(u6,*) 'Kinetic energy rescaled to 10 e-5.'
       EKIN = 0.00001_wp
     end if
     do i=1,NSTATE
-      if (i /= temproot) TAU(i) = abs(One/(V(temproot)-V(i)))*(One+DECO/EKIN)
+      if (i /= temproot) then
+        TAU(i) = abs(One/(V(temproot,temproot)-V(i,i)))*(One+DECO/EKIN)
+      end if
     end do
 
     do i=1,NSTATE
-      if (i == temproot) cycle
       do j=1,NSTATE
-<<<<<<< HEAD
         if (i /= temproot .and. j /= temproot) then
           Amatrix(i,j) = Amatrix(i,j)*exp(-Half*(DT/NSUBSTEPS)/TAU(i))*exp(-Half*(DT/NSUBSTEPS)/TAU(j))
         end if
-=======
-        if (j /= temproot) Amatrix(i,j) = Amatrix(i,j)*exp(-Half*(DT/NSUBSTEPS)/TAU(i))*exp(-Half*(DT/NSUBSTEPS)/TAU(j))
->>>>>>> upstream-openmolcas/master
       end do
     end do
 
     populOS = Zero
     do i=1,NSTATE
-      if (i /= temproot) populOS = populOS+real(Amatrix(i,i))
+      if (i /= temproot) then
+        populOS = populOS+real(Amatrix(i,i))
+      end if
     end do
 
     ArelaxPrev = Amatrix(temproot,temproot)
@@ -871,44 +726,32 @@ substeps: do ii=1,NSUBSTEPS
     write(u6,*) 'Temproot:',temproot
     write(u6,*) 'MATRIX D:'
     do i=1,NSTATE
-      write(u6,*) Dmatrix(i,:)
+      write(u6,*) (Dmatrix(i,j),j=1,NSTATE,1)
     end do
     write(u6,*) 'Density Matrix elements (i=1..#states):'
     do i=1,NSTATE
-      write(u6,*) Amatrix(i,:)
+      write(u6,*) (Amatrix(i,j),j=1,NSTATE,1)
     end do
     write(u6,*) 'B Matrix:'
     do i=1,NSTATE
-      write(u6,*) Bmatrix(i,:)
+      write(u6,*) (Bmatrix(i,j),j=1,NSTATE,1)
     end do
     write(u6,*) 'Probabilities:'
-    write(u6,*) Gprobab(:)
+    write(u6,*) (Gprobab(j),j=1,NSTATE,1)
     write(u6,*) 'Random Number is: ',LO
-    write(u6,*) 'Populations Energies:',Popul(:),V(:),V(temproot)
-    write(u6,*)
+    write(u6,*) 'Populations Energies:',(Popul(j),j=1,NSTATE,1),(V(j,j),j=1,NSTATE,1),V(temproot,temproot)
+    write(u6,*) ''
   end if
 
 end do substeps
-
-call mma_deallocate(Bmatrix)
-call mma_deallocate(Dmatrix)
-call mma_deallocate(ExtrInter)
-call mma_deallocate(ExtrSlope)
-call mma_deallocate(Gprobab)
-call mma_deallocate(Mminus)
-call mma_deallocate(TAU)
-call mma_deallocate(Uprop)
-call mma_deallocate(V)
-call mma_deallocate(VenergyInter)
-call mma_deallocate(VenergySlope)
 
 !                                                                      !
 !                        END OF INTEGRATOR                             !
 !                                                                      !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-write(u6,*) 'Gnuplot:',Popul(:),Venergy(:),Venergy(temproot)
-!write(u6,*) 'Gnuplot:',Popul(:),V(:),V(temproot)
+write(u6,*) 'Gnuplot:',(Popul(j),j=1,NSTATE,1),(Venergy(j),j=1,NSTATE,1),Venergy(temproot)
+!write(u6,*) 'Gnuplot:',(Popul(j),j=1,NSTATE,1),(V(j,j),j=1,NSTATE,1),V(temproot,temproot)
 
 call Add_Info('Pop',Popul,NSTATE,5)
 
@@ -974,10 +817,14 @@ end if
 !EKIN_target = Etot-Venergy(temproot)
 !scalfac = sqrt(Ekin_target/Ekin)
 !write(u6,*) Etot,Venergy(iRlxRoot),Venergy(temproot),EKIN,EKIN_target,scalfac
-!vel(:,:) = scalfac*vel(:,:)
+!do i=1,nsAtom
+!  do j=1,3
+!    vel(3*(i-1)+j) = scalfac*vel(3*(i-1)+j)
+!  end do
+!end do
 !write(u6,*) 'Velocities after Hop:'
 !do i=1,nsAtom
-!  write(u6,*) vel(:,i)
+!  write(u6,*) vel(i*3-2),vel(i*3-1),vel(i*3)
 !end do
 !
 !call put_dArray('Velocities',vel,nsAtom*3)
@@ -991,83 +838,17 @@ call put_lscalar('hopped',HOPPED)
 call Put_dArray('VenergyP',Venergy,NSTATE)
 call Put_dArray('AllCIPP',CIBigArrayP,NCI*NSTATE)
 call Put_dArray('AllCIP',CIBigArray,NCI*NSTATE)
-call put_zarray('AmatrixV',Amatrix,NSTATE**2)
+call put_zarray('AmatrixV',Amatrix,NSTATE*NSTATE)
 
 if (rassi_ovlp) then
-  call Put_dArray('SH_Ovlp_Save',saveOVLP,NSTATE**2)
+  call Put_dArray('SH_Ovlp_Save',saveOVLP,NSTATE*NSTATE)
   call Put_dArray('Old_Phase',currPHASE,NSTATE)
-  call mma_deallocate(currPHASE)
-  call mma_deallocate(saveOVLP)
 end if
 !                                                                      !
 !                           END SAVING                                 !
 !                                                                      !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-call cleanup()
-
-contains
-
-subroutine solve_cayley_system()
-
-  integer(kind=iwp) :: i, k, piv
-  real(kind=wp) :: piv_abs, test_abs
-  complex(kind=wp) :: factor
-  complex(kind=wp) :: tmp(NSTATE)
-
-  cayley_info = 0
-
-  do k=1,NSTATE
-    piv = k
-    piv_abs = abs(Mminus(k,k))
-    do i=k+1,NSTATE
-      test_abs = abs(Mminus(i,k))
-      if (test_abs > piv_abs) then
-        piv = i
-        piv_abs = test_abs
-      end if
-    end do
-
-    if (piv_abs <= Zero) exit
-
-    if (piv /= k) then
-      tmp(:) = Mminus(k,:)
-      Mminus(k,:) = Mminus(piv,:)
-      Mminus(piv,:) = tmp(:)
-      tmp(:) = Uprop(k,:)
-      Uprop(k,:) = Uprop(piv,:)
-      Uprop(piv,:) = tmp(:)
-    end if
-
-    factor = One/Mminus(k,k)
-    if (abs(factor) > Zero) then
-      Mminus(k,:) = factor*Mminus(k,:)
-      Uprop(k,:) = factor*Uprop(k,:)
-    end if
-
-    do i=1,NSTATE
-      if (i == k) cycle
-      factor = Mminus(i,k)
-      if (abs(factor) > Zero) then
-        Mminus(i,:) = Mminus(i,:)-factor*Mminus(k,:)
-        Uprop(i,:) = Uprop(i,:)-factor*Uprop(k,:)
-      end if
-    end do
-  end do
-
-  if (k <= NSTATE) cayley_info = k
-
-end subroutine solve_cayley_system
-
-subroutine cleanup()
-
-  call mma_deallocate(Amatrix)
-  call mma_deallocate(CIBigArrayP)
-  call mma_deallocate(CIBigArrayPP)
-  call mma_deallocate(Popul)
-  call mma_deallocate(Venergy)
-  call mma_deallocate(VenergyP,safe='*')
-
-end subroutine cleanup
+return
 
 end subroutine Tully

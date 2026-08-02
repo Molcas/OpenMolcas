@@ -72,11 +72,7 @@ call get_iArray('NSTAT_SINGLE',nroot,mxjob)
 
 !-----------------------------------------------------------------------
 ! Get the MOLCAS version: index table
-<<<<<<< HEAD
 call getenvf('MOLCAS ',cmolcas)
-=======
-call get_environment_variable('MOLCAS ',cmolcas)
->>>>>>> upstream-openmolcas/master
 write(fname,'(A)') trim(cmolcas)//'/.molcasversion'
 Lutmp = IsFreeUnit(89)
 call molcas_open(Lutmp,fname)

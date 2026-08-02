@@ -10,11 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
-<<<<<<< HEAD
 !               2026, Nike Dattani                                     *
 !               2026, Jaafar Mehrez                                    *
-=======
->>>>>>> upstream-openmolcas/master
 !***********************************************************************
 
 #include "macros.fh"
@@ -27,11 +24,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-<<<<<<< HEAD
 public :: dump_ascii, dump_fort55, dump_hdf5
-=======
-public :: dump_ascii, dump_hdf5
->>>>>>> upstream-openmolcas/master
 
 contains
 
@@ -74,7 +67,6 @@ subroutine dump_ascii(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   write(LuFCI,'(A)') ' &END'
 
   do j=1,length(two_el_table)
-<<<<<<< HEAD
     write(LuFCI,'(1X,E27.20,4I5)') two_el_table%values(j),(two_el_table%idx(i,j),i=1,4)
   end do
 
@@ -87,20 +79,6 @@ subroutine dump_ascii(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   end do
 
   write(LuFCI,'(1X,E27.20,4I5)') EMY,0,0,0,0
-=======
-    write(LuFCI,'(1X,G20.11,4I5)') two_el_table%values(j),(two_el_table%idx(i,j),i=1,4)
-  end do
-
-  do j=1,length(fock_table)
-    write(LuFCI,'(1X,G20.11,4I5)') fock_table%values(j),(fock_table%idx(i,j),i=1,2),0,0
-  end do
-
-  do j=1,length(orbital_table)
-    write(LuFCI,'(1X,G20.11,4I5)') orbital_table%values(j),orbital_table%idx(j),0,0,0
-  end do
-
-  write(LuFCI,'(1X,G20.11,4I5)') EMY,0,0,0,0
->>>>>>> upstream-openmolcas/master
 
   close(LuFCI)
 
@@ -140,13 +118,8 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
 # ifdef _HDF5_
   use general_data, only: nSym, nActEl, multiplicity => iSpin, stSym, nAsh
-<<<<<<< HEAD
   use gas_data, only: iDoGAS
   use sguga, only: SGS
-=======
-  use sguga_states, only: SGS
-  use gas_data, only: iDoGAS
->>>>>>> upstream-openmolcas/master
   use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_file, mh5_create_dset_int, mh5_create_dset_real, mh5_init_attr, &
                  mh5_put_dset
 # endif
@@ -160,10 +133,6 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 # ifdef _HDF5_
   integer(kind=iwp) :: dset_id, file_id
   character :: lIrrep(24)
-<<<<<<< HEAD
-=======
-  integer(kind=iwp), parameter:: istate=1
->>>>>>> upstream-openmolcas/master
 
   file_id = mh5_create_file(path)
 
@@ -176,11 +145,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   ! Set wavefunction type
   if (iDoGAS) then
     call mh5_init_attr(file_id,'CI_TYPE','GAS')
-<<<<<<< HEAD
   else if (SGS%IFRAS == 0) then
-=======
-  else if (SGS(istate)%IFRAS == 0) then
->>>>>>> upstream-openmolcas/master
     call mh5_init_attr(file_id,'CI_TYPE','CAS')
   else
     call mh5_init_attr(file_id,'CI_TYPE','RAS')
@@ -238,7 +203,6 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
 end subroutine dump_hdf5
 
-<<<<<<< HEAD
 !>  @brief
 !>    Create fort.55 file in MRCC format
 !>
@@ -454,6 +418,4 @@ subroutine to_lower(s)
 
 end subroutine to_lower
 
-=======
->>>>>>> upstream-openmolcas/master
 end module fcidump_dump

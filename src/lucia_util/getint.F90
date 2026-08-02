@@ -10,11 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-<<<<<<< HEAD
 subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
-=======
-subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
->>>>>>> upstream-openmolcas/master
 ! Obtain integrals
 !
 !     ICOUL = 0 :
@@ -37,10 +33,7 @@ subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL,nT
 
 use Index_Functions, only: iTri
 use lucia_data, only: IBSO, NOBPTS, NTOOBS
-<<<<<<< HEAD
 use wadr, only: TUVX
-=======
->>>>>>> upstream-openmolcas/master
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Index_Functions, only: nTri_Elem
@@ -52,12 +45,6 @@ use Definitions, only: u6
 implicit none
 real(kind=wp), intent(_OUT_) :: XINT(*)
 integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
-<<<<<<< HEAD
-=======
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in) :: TUVX(nTUVX)
-
->>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: I, IINT, IJKL, ILKJ, IMIN, IOFF, IORB, J, JMIN, JOFF, JORB, K, KOFF, KORB, L, LOFF, LORB
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: NI, NIK, NJ, NJL, NK, NL

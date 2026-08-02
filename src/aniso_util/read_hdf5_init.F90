@@ -39,11 +39,7 @@ call f_inquire(trim(file_h5),Exists)
 if (Exists) write(u6,*) 'file ',trim(file_h5),' exists!!!'
 ! if not present, look for it in the submit directory:
 if (.not. Exists) then
-<<<<<<< HEAD
   call getenvf('MOLCAS_SUBMIT_DIR',tmp)
-=======
-  call get_environment_variable('MOLCAS_SUBMIT_DIR',tmp)
->>>>>>> upstream-openmolcas/master
   if (tmp /= ' ') then
     i = index(tmp,' ')
     if (i > 0) then

@@ -28,11 +28,7 @@ use index_symmetry, only: one_el_idx, two_el_idx_flatten
 use rctfld_module, only: lRF
 use CI_solver_util, only: CleanMat, RDM_to_runfile, wait_and_read, write_RDM
 #ifdef _MOLCAS_MPP_
-<<<<<<< HEAD
 use mpi, only: MPI_COMM_WORLD, MPI_REAL8
-=======
-use MPI_Wrapper, only: MPI_Bcast, MPI_COMM_WORLD, MPI_REAL8
->>>>>>> upstream-openmolcas/master
 use Para_Info, only: Is_Real_Par
 use Definitions, only: MPIInt
 #endif
@@ -235,10 +231,7 @@ subroutine read_CC_RDM(DMAT,D1S_MO,PSMAT,PAMAT)
   real(kind=wp), intent(out) :: DMAT(nAcpar), D1S_MO(nAcPar), PSMAT(nAcpr2), PAMAT(nAcpr2)
 # ifdef _MOLCAS_MPP_
   integer(kind=MPIInt) :: error
-<<<<<<< HEAD
 # include "mpi_interfaces.fh"
-=======
->>>>>>> upstream-openmolcas/master
 # endif
 
   if (myrank == 0) then

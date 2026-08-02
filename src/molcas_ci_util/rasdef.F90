@@ -16,21 +16,13 @@ module rasdef
 ! NRAS(ISYM,IP)=Nr of orbitals with symmetry ISYM in each part.
 ! NRASEL(IP)=Min nr of accumulated electrons
 
-<<<<<<< HEAD
-=======
-use Molcas, only: MxGAS
->>>>>>> upstream-openmolcas/master
 use Definitions, only: iwp
 
 implicit none
 private
 
-<<<<<<< HEAD
 integer(kind=iwp), parameter :: MXRSPRT = 3
 integer(kind=iwp) :: NRAS(8,MXRSPRT), NRASEL(MXRSPRT), NRS1(8), NRS1T, NRS2(8), NRS2T, NRS3(8), NRS3T, NRSPRT
-=======
-integer(kind=iwp) :: NRAS(8,MxGAS), NRASEL(MxGAS), NRS1(8), NRS1T, NRS2(8), NRS2T, NRS3(8), NRS3T, NRSPRT
->>>>>>> upstream-openmolcas/master
 
 public :: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 

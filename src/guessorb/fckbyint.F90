@@ -58,11 +58,7 @@ character, allocatable :: typestring(:)
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
 iReturncode = 0
-<<<<<<< HEAD
 call getenvf('MOLCAS_TEST',Line)
-=======
-call get_environment_variable('MOLCAS_TEST',Line)
->>>>>>> upstream-openmolcas/master
 !----------------------------------------------------------------------*
 ! Do some counting                                                     *
 !----------------------------------------------------------------------*

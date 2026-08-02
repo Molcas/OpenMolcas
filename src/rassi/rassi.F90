@@ -44,10 +44,7 @@ integer(kind=iwp) :: IDISK, IOPT, IRC, ISTATE, ISY, J, JOB, JOB1, JOB2, MPLET, n
 logical(kind=iwp) :: aux2, CLOSEONE
 real(kind=wp), allocatable :: DMAT(:), DYSAMPS(:,:), ENERGY(:), OCC(:), OVLP(:,:), PROP(:,:,:), SOENE(:), TDMZZ(:), USOI(:,:), &
                               USOR(:,:), VNAT(:)
-<<<<<<< HEAD
 
-=======
->>>>>>> upstream-openmolcas/master
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -138,12 +135,8 @@ call mh5_put_dset(wfn_overlap,OVLP,[NSTATE,NSTATE],[0,0])
 #endif
 call Put_dArray('State Overlaps',OVLP,NSTATE*NSTATE)
 
-<<<<<<< HEAD
 if (TRACK) call TRACK_STATE(OVLP)
 if (TRACK .or. ONLY_OVERLAPS) then
-=======
-if (TRACK .or. HOP .or. ONLY_OVERLAPS) then
->>>>>>> upstream-openmolcas/master
 
   ! Print the overlap matrix here, since MECTL is skipped
   if (IPGLOB >= 2) then
@@ -154,11 +147,6 @@ if (TRACK .or. HOP .or. ONLY_OVERLAPS) then
       write(u6,'(5(1X,F15.8))') (Ovlp(j,iState),j=1,istate)
     end do
   end if
-<<<<<<< HEAD
-=======
-
-  if (TRACK .or. HOP) call TRACK_STATE(OVLP)
->>>>>>> upstream-openmolcas/master
 else
 
   ! Property matrix elements:
@@ -292,7 +280,6 @@ else
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-<<<<<<< HEAD
     ! Trajectory Surface Hopping
 
     ! Turns on the procedure if the Keyword HOP was specified.
@@ -304,8 +291,6 @@ else
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-=======
->>>>>>> upstream-openmolcas/master
     ! CEH April 2015 DQV diabatization scheme
     ! This passes the PROP matrix into the DQV diabatization subroutine
     ! The subroutine will compute a transformation matrix, which is used

@@ -40,7 +40,9 @@ iUpLim = 999999
 ! ------------
 
 irc = 0
-if ((n < 1) .or. (m < 1)) return
+if ((n < 1) .or. (m < 1)) then
+  return
+end if
 if ((n > iUpLim) .or. (m > iUpLim)) then
   irc = 1
   return
@@ -62,7 +64,9 @@ else
 end if
 myColor = Color
 call UpCase(myColor)
-if ((myColor /= 'R') .and. (myColor /= 'G') .and. (myColor /= 'B')) myColor = Color_Def
+if ((myColor /= 'R') .and. (myColor /= 'G') .and. (myColor /= 'B')) then
+  myColor = Color_Def
+end if
 
 ! Set up bins.
 ! ------------

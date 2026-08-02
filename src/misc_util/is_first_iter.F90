@@ -28,6 +28,9 @@ if (Found) then
   if (Iter_S == 0) then
     Is_First_Iter = .true.
     return
+  else
+    Is_First_Iter = .false.
+    return
   end if
 end if
 
@@ -42,7 +45,7 @@ if (Found) then
 end if
 
 ! If MOLCAS_ITER <= 1
-call get_environment_variable('MOLCAS_ITER',EnvStr)
+call Getenvf('MOLCAS_ITER',EnvStr)
 read(EnvStr,*) Iter
 if (Iter <= 1) then
   Is_First_Iter = .true.

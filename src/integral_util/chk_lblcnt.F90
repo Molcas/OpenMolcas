@@ -22,11 +22,7 @@ character(len=72) :: Warning
 
 do iList=1,nList
   if (Lbl == dc(iList)%LblCnt) then
-<<<<<<< HEAD
     write(Warning,'(A,A)') 'ChkLbl: Duplicate label; Lbl=',Lbl
-=======
-    write(Warning,'(A,A)') 'Chk_LblCnt: Duplicate label; Lbl=',Lbl
->>>>>>> upstream-openmolcas/master
     call WarningMessage(2,Warning)
     call Quit_OnUserError()
   end if

@@ -29,10 +29,6 @@ use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use Para_Info, only: myRank, nProcs
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-<<<<<<< HEAD
-=======
-use GA_Wrapper, only: GA_Create, MT_DBL
->>>>>>> upstream-openmolcas/master
 #endif
 use Spool, only: LuWr
 use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC, XISPSM
@@ -60,11 +56,8 @@ character(len=132) :: Line
 character(len=72) :: SLine
 character(len=8) :: Fmt2
 #ifdef _MOLCAS_MPP_
-<<<<<<< HEAD
 #include "global.fh"
 #include "mafdecls.fh"
-=======
->>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: iglfail
 real(kind=wp) :: dfail
 #endif

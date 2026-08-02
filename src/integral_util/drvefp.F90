@@ -70,11 +70,7 @@ if (First) then
 
       iLast = index(FRAG_TYPE(i),'_l')
       FragName = FRAG_TYPE(i)(1:iLast-1)
-<<<<<<< HEAD
       call GetEnvf('MOLCAS',MolDir)
-=======
-      call get_environment_variable('MOLCAS',MolDir)
->>>>>>> upstream-openmolcas/master
       iLast = index(MolDir,' ')
       if (MolDir(iLast-1:iLast-1) /= '/') then
         MolDir(iLast:iLast) = '/'
@@ -87,11 +83,7 @@ if (First) then
 
       iLast = index(FRAG_TYPE(i),' ')
       FragName = FRAG_TYPE(i)(1:iLast-1)
-<<<<<<< HEAD
       call GetEnvf('CurrDir',CurrDir)
-=======
-      call get_environment_variable('CurrDir',CurrDir)
->>>>>>> upstream-openmolcas/master
       iLast = index(CurrDir,' ')
       Path = CurrDir(1:iLast-1)//'/'
     end if

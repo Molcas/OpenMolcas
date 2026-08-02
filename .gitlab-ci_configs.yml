@@ -32,11 +32,7 @@
     cache_file: |
       set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
       set (BUILD_SHARED_LIBS "ON" CACHE BOOL "use shared libmolcas")
-<<<<<<< HEAD
       set (BUILD_STATIC_LIB "ON" CACHE BOOL "build static libmolcas too")
-=======
-      set (BUILD_STATIC_LIBS "ON" CACHE BOOL "build static libmolcas too")
->>>>>>> upstream-openmolcas/master
       set (BIGOT "ON" CACHE BOOL "do not allow any warning")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
       set (IPO "ON" CACHE BOOL "enable interprocedural optimization")
@@ -69,10 +65,6 @@
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
-<<<<<<< HEAD
-=======
-    MOLCAS_THREADS: "2"
->>>>>>> upstream-openmolcas/master
   tags:
     - saas-linux-small-amd64
 
@@ -195,8 +187,6 @@
     pre_make_script: |
       mkdir -p ${install_path}
       $${make} 2>&1 | tee nag.log
-      # Remove warning that OpenMP is not active
-      sed -E '/Comment begins with the OpenMP sentinel/d' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove CMake lines
       sed -E '/^Scanning dependencies of target [^ ]*/d ; /^\[ *[0-9]+*%\].*/d' nag.log > nag2.log ; mv nag2.log nag.log
       # Wrap lines that start with a space

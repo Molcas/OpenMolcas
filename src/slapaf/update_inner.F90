@@ -31,11 +31,7 @@ subroutine Update_inner(kIter,Beta,Beta_Disp,Step_Trunc,nWndw,mIter,Kriging_Hess
 
 use Slapaf_Info, only: BMx, Curvilinear, Degen, dqInt, Energy, FindTS, GNrm, GNrm_Threshold, GrdMax, HrmFrq_Show, iInt, iNeg, &
                        iOptC, iOptH, iRow_c, Lambda, Lbl, Mode, nBVec, nDimBC, nFix, nLambda, nStab, qInt, Shift, Smmtrc, StpMax, &
-<<<<<<< HEAD
                        TSConstraints
-=======
-                       TSConstraints, UpMeth
->>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Five, Ten, Half
 use Definitions, only: wp, iwp
@@ -161,16 +157,8 @@ if (HrmFrq_Show) call GF_on_the_fly(iDo_DipM)
 ! If TS constraints were not given, remove global constraints when in
 ! TS regime.
 
-<<<<<<< HEAD
 call qpg_darray('TanVec',Found,nRP)
 if (FindTS .and. First_MicroIteration) then
-=======
-! Do not merge the constraints *again* when doing a fallback step
-! after Kriging microiterations failed to converge
-
-call qpg_darray('TanVec',Found,nRP)
-if (FindTS .and. First_MicroIteration .and. UpMeth(1:3) /= 'RVO') then
->>>>>>> upstream-openmolcas/master
   File1 = 'UDC'
   File2 = 'TSC'
   if (.not. TSConstraints) File2 = ''

@@ -29,7 +29,9 @@ Debug = .false.
 ! Symmetry is not allowed!
 ! ------------------------
 
-if (nSym /= 1) call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
+if (nSym /= 1) then
+  call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
+end if
 
 ! Allocate max. sym. block of density matrix
 ! and atom based density and CMO matrices.

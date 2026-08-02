@@ -12,13 +12,12 @@
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine UpdateB(Col,nOrb2Loc,Lbl,nComp,Gamma_rot,iMO_s,iMO_t)
+subroutine UpdateB(Col,nOrb2Loc,Lbl,nComp,Gamma_rot,iMO_s,iMO_t,Debug)
 ! Author: T.B. Pedersen
 !
 ! Purpose: update MO dipole matrices for Boys localisation.
 !          (Almost exact copy of UpdateP by Y. Carissan.)
 
-use Localisation_globals, only: Debug
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
@@ -27,6 +26,7 @@ integer(kind=iwp), intent(in) :: nOrb2Loc, nComp, iMO_s, iMO_t
 real(kind=wp), intent(out) :: Col(nOrb2Loc,2)
 real(kind=wp), intent(inout) :: Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(in) :: Gamma_rot
+logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iComp
 real(kind=wp) :: cos2g, cosg, cosing, Dss, Dst, Dtt, sin2g, sing
 character(len=18) :: Label

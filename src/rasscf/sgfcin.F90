@@ -47,17 +47,12 @@ subroutine SGFCIN(CMO,F,FI,D1I,D1A,D1S)
 
 use Index_Functions, only: nTri_Elem
 use RunFile_procedures, only: Get_dExcdRa
-<<<<<<< HEAD
 use fcidump, only: DumpOnly
 use fciqmc, only: DoNECI
 use CC_CI_mod, only: Do_CC_CI
 use timers, only: TimeDens
 use lucia_data, only: INT1, INT1O
 use rasscf_global, only: dftfock, doBlockDMRG, doDMRG, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, &
-=======
-use timers, only: TimeDens
-use rasscf_global, only: dftfock, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, &
->>>>>>> upstream-openmolcas/master
                          tot_el_charge, tot_nuc_charge
 use OneDat, only: sNoNuc, sNoOri
 use general_data, only: iSpin, nActEl, nAsh, nBas, nFro, nIsh, nSym, nTot1
@@ -416,10 +411,6 @@ end if
 call MOTRAC(CMO,X1,X2,X3)
 call mma_deallocate(X3)
 call mma_deallocate(X2)
-<<<<<<< HEAD
-=======
-
->>>>>>> upstream-openmolcas/master
 F(:) = Zero
 NTU = 0
 ITU = 0
@@ -430,7 +421,6 @@ if (NACTEL /= 0) then
 else
   EMYN = Zero
 end if
-<<<<<<< HEAD
 do NST=1,NSYM
   NAT = NASH(NST)
   if (NAT /= 0) then
@@ -457,25 +447,6 @@ if (.not. any([DoNECI,Do_CC_CI,DumpOnly,doDMRG,doBlockDMRG])) then
   INT1O(ITU+1:) = Zero
 end if
 
-=======
-
-do NST=1,NSYM
-  NAT = NASH(NST)
-  if (NAT == 0) cycle
-  do NT=1,NAT
-    NTU = NTU+IADD
-    do NU=1,NT
-      NTU = NTU+1
-      ITU = ITU+1
-      F(NTU) = X1(ITU)
-      if (NT == NU) F(NTU) = F(NTU)+EMYN
-      X0(ITU) = F(NTU)
-    end do
-  end do
-  IADD = IADD+NAT
-end do
-
->>>>>>> upstream-openmolcas/master
 call mma_deallocate(X1)
 call mma_deallocate(X0)
 
@@ -488,9 +459,6 @@ if (IPRLEV >= DEBUG) then
   call TriPrt(' ',' ',F,NAC)
 end if
 
-<<<<<<< HEAD
 return
 
-=======
->>>>>>> upstream-openmolcas/master
 end subroutine SGFCIN

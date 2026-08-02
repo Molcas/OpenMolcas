@@ -18,11 +18,7 @@ character(len=32) :: Str
 
 Str = ' '
 Colorize = .true.
-<<<<<<< HEAD
 call getenvf('MOLCAS_COLOR',Str)
-=======
-call get_environment_variable('MOLCAS_COLOR',Str)
->>>>>>> upstream-openmolcas/master
 if ((Str(1:1) == 'N') .or. (Str(1:1) == 'n')) Colorize = .false.
 
 end subroutine ColorizeInit

@@ -29,10 +29,7 @@ set (sources
      fortran_strings.F90
      get_genome.c
      getenvc.c
-<<<<<<< HEAD
      getenvf.F90
-=======
->>>>>>> upstream-openmolcas/master
      init_linalg.F90
      iprintlevel.F90
      isstructure.F90

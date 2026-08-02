@@ -46,10 +46,7 @@ character(len=8) :: Label
 integer(kind=iwp), allocatable :: iD_vir(:)
 real(kind=wp), allocatable :: EOrb(:,:), LCMO(:,:), S(:), Saa(:), SQ(:), X(:)
 character(len=LenIn+8), allocatable :: UBName(:)
-<<<<<<< HEAD
 real(kind=wp), external :: ddot_
-=======
->>>>>>> upstream-openmolcas/master
 
 irc = 0
 EMP2 = Zero
@@ -308,9 +305,9 @@ if (min(iDo,jDo) /= 0) then
         write(u6,'(A,F20.10,A)') ' (Opposite-Spin contrib.   = ',-EOSF,' )'
         write(u6,*)
       end if
-      iV = 0
+      iV = 1
       do iSym=1,nSym
-        TrF(iSym) = sum(X(iV+1:iV+lnVir(iSym)**2:1+lnVir(iSym)))
+        TrF(iSym) = ddot_(lnVir(iSym),X(iV),1+lnVir(iSym),[One],0)
         iV = iV+lnVir(iSym)**2
       end do
       call mma_deallocate(X)
@@ -405,9 +402,9 @@ if (iSkip > 0) then
     write(u6,*) 'LovMP2 failed'
     call Abend()
   end if
-  iV = 0
+  iV = 1
   do iSym=1,nSym
-    TrA(iSym) = sum(X(iV+1:iV+nExt(iSym)**2:1+nExt(iSym)))
+    TrA(iSym) = ddot_(nExt(iSym),X(iV),1+nExt(iSym),[One],0)
     iV = iV+nExt(iSym)**2
   end do
   call mma_deallocate(X)

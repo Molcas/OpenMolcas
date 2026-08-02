@@ -259,7 +259,7 @@ end subroutine Center_Info_Free
 !***********************************************************************
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see mma_util/stdalloc.F90)
+! (see src/mma_util/stdalloc.f)
 
 ! Define dc_mma_allo_1D, dc_mma_allo_1D_lim, dc_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)

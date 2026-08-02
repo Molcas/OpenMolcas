@@ -11,17 +11,4 @@
 # Copyright (C) 2025, Maru Song                                        *
 #***********************************************************************
 
-<<<<<<<< HEAD:Tools/GA4GUGA/src/GA_mod/__init__.py
 # GA4GUGA
-========
-set (sources
-     ci_interfaces.F90
-)
-
-# Source files defining modules that should be available to other *_util directories
-set (modfile_list
-     ci_interfaces.F90
-)
-
-include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
->>>>>>>> upstream-openmolcas/master:src/ci_interfaces_util/CMakeLists.txt

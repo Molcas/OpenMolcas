@@ -370,7 +370,7 @@ function NuclideMass(Z,A)
 end function NuclideMass
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see mma_util/stdalloc.F90)
+! (see src/mma_util/stdalloc.f)
 
 ! Define element_mma_allo_1D, element_mma_allo_1D_lim, element_mma_free_1D
 #define _TYPE_ type(element_t)

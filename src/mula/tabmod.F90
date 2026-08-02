@@ -81,11 +81,8 @@ mTemp(:,:) = 0
 num = 1
 istart_row = 0
 irow = istart_row+1
-call mma_allocate(unitm,nOsc,nOsc,label='unitm')
-unitm(:,:) = 0
-do i=1,nOsc
-  unitm(i,i) = 1
-end do
+call mma_allocate(unitm,nOsc,nOsc,label='unit')
+call iunitmat(unitm,nOsc)
 
 ! Create table mMat.
 mMat_row = 1

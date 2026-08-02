@@ -41,12 +41,7 @@ subroutine TRACTL(NCMO,CMO,iPart)
 
 use Symmetry_Info, only: Mul
 use caspt2_global, only: LUINTM
-<<<<<<< HEAD
 use caspt2_module, only: nAsh, nBas, nBMx, nFro, nOrb, nOsh, nSym, OutFmt
-=======
-use general_data, only: nAsh
-use caspt2_module, only: nBas, nBMx, nFro, nOrb, nOsh, nSym, OutFmt
->>>>>>> upstream-openmolcas/master
 use Intgrl, only: IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ
 use trafo, only: IAD13, ISP, ISQ, ISR, ISS, ITP, ITQ, ITR, ITS, LMOP, LMOP2, LMOQ, LMOQ2, LMOR, LMOR2, LMOS, LMOS2, LRUPQ, LTUPQ, &
                  LURPQ, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS

@@ -57,10 +57,7 @@ set (sources
      ci_kap.F90
      ci_reconstruct.F90
      cisize.F90
-<<<<<<< HEAD
      clebsch_gordan_mclr.F90
-=======
->>>>>>> upstream-openmolcas/master
      clsfls_mclr.F90
      cmp2cn.F90
      cmsrdmat.F90
@@ -282,15 +279,9 @@ set (sources
      sdcmrf_pre.F90
      setlab.F90
      setup_mclr.F90
-<<<<<<< HEAD
      sigmavec.F90
      sg2symg.F90
      sg_setup_mclr.F90
-=======
-     sg_setup_mclr.F90
-     sg2symg.F90
-     sigmavec.F90
->>>>>>> upstream-openmolcas/master
      skickj_mclr.F90
      solveforrhs.F90
      solveforzx.F90

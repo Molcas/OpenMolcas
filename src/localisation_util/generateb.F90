@@ -11,13 +11,12 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine GenerateB(CMO,nBas,nOrb2Loc,Lbl_AO,Lbl,nComp)
+subroutine GenerateB(CMO,nBas,nOrb2Loc,Lbl_AO,Lbl,nComp,Debug)
 ! Author: T.B. Pedersen
 !
 ! Purpose: generate the dipole matrices for Boys localisation, i.e.
 !          transform from AO to MO basis.
 
-use Localisation_globals, only: Debug
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -26,6 +25,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nBas, nOrb2Loc, nComp
 real(kind=wp), intent(in) :: CMO(*), Lbl_AO(nBas,nBas,nComp)
 real(kind=wp), intent(out) :: Lbl(nOrb2Loc,nOrb2Loc,nComp)
+logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: i, iComp, iMO, j
 real(kind=wp) :: Cmp, Tst
 real(kind=wp), allocatable :: Dbar(:,:)

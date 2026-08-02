@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-<<<<<<< HEAD
 subroutine LUCIA2MOLCAS(KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN, &
                         NPDTCNF,NPCSCNF,nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
@@ -23,20 +22,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), &
-=======
-subroutine LUCIA2MOLCAS(NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,NCNASM_LUCIA,MXPCSM,MXPORB,NCONF_PER_OPEN, &
-                        NPDTCNF,NPCSCNF,nCSF_HEXS_LUCIA)
-! Transfer arguments to the common blocks used by MOLCAS.
-
-use csfbas, only: maxop_lucia, NAEL, NBEL
-use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, STSYM
-use spinfo, only: I_ELIMINATE_GAS_MOLCAS, MINOP, MS2, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
-use Molcas, only: MxSym
-use Definitions, only: iwp
-
-implicit none
-integer(kind=iwp), intent(in) :: NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), &
->>>>>>> upstream-openmolcas/master
                                  NCNASM_LUCIA(MXPCSM), MXPORB, NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), &
                                  NPCSCNF(MXPORB+1), nCSF_HEXS_LUCIA
 integer(kind=iwp) :: ICL, IOPEN, ISYM, ITYP, LCONF, LDET, LLCONF, NEL2MN, NEL2MX, NORB1, NORB2
@@ -85,7 +70,6 @@ do ISYM=1,NSYM
   LDET = max(LDET,NDTASM(ISYM))
 end do
 
-<<<<<<< HEAD
 call mma_allocate(CONF,LCONF,label='CONF')
 call mma_allocate(CTS,LDET,label='CTS')
 
@@ -93,8 +77,6 @@ CONF(:) = KICONF_OCC_LUCIA(1:LCONF)
 
 CTS(:) = KSDREO_I(1:LDET)
 
-=======
->>>>>>> upstream-openmolcas/master
 NDET = NDET_LUCIA
 
 end subroutine LUCIA2MOLCAS

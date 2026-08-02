@@ -99,11 +99,7 @@ class MolcasException(Exception):
 
 class Molcas_wrapper(object):
 
-<<<<<<< HEAD
   version = 'py2.30'
-=======
-  version = 'py2.32'
->>>>>>> upstream-openmolcas/master
   rc = 0
 
   def __init__(self, **kwargs):

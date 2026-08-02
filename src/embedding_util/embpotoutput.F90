@@ -57,8 +57,7 @@ call Get_dArray('Nuclear charge',chargesEmb,nAtoms)
 if (embWriteEsp) then
   call mma_allocate(espGrid,nEmbGridPoints,label='ESP')
   !write(u6,*) 'espGrid(1:3)=',espGrid(1:3)
-  i = 0
-  call inisewm('mltpl',i)
+  call inisewm('mltpl',0)
   !write(u6,*) 'inisewm done!'
   nordop = 0
   call Drv1_Pot(dens,embGridCoord,espGrid,nEmbGridPoints,1,nordop)

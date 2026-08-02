@@ -11,10 +11,6 @@
 
 subroutine JKQPar_Naoya(N1,N2,HEXCH,Jpar)
 
-<<<<<<< HEAD
-=======
-use wigner_util, only: wcg
->>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero
 use Definitions, only: wp, iwp
@@ -30,10 +26,7 @@ integer(kind=iwp) :: is1, is2, j1, j2, js1, js2, k1, k2, ms1, ms2, ns1, ns2, q1,
 real(kind=wp) :: FACT, OPER
 complex(kind=wp) :: trace
 complex(kind=wp), allocatable :: QMAT(:,:,:,:)
-<<<<<<< HEAD
 real(kind=wp), external :: WCG
-=======
->>>>>>> upstream-openmolcas/master
 
 call mma_allocate(QMAT,N1,N1,N2,N2,label='QMAT')
 

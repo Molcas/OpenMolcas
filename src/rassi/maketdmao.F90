@@ -25,10 +25,6 @@ use rassi_global_arrays, only: JBNUM
 use rassi_data, only: NBASF, NBST, NTDMZZ
 use Cntrl, only: IRREP, LSYM1, LSYM2, LuTDM, MLTPLT, NSTATE
 use Symmetry_Info, only: MUL, nIrrep
-<<<<<<< HEAD
-=======
-use wigner_util, only: dclebs
->>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -45,10 +41,7 @@ integer(kind=iwp) :: I, IDIR, IDISK, IEMPTY, IGO, IJ, IOFF(8), ISF, ISS, ISY1, I
 real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, Dummy(1), FACT, S1, S2, SM1, SM2, TDM, UIL, UIR, URL, URR
 integer, allocatable :: MAPST(:), MAPSP(:), MAPMS(:)
 real(kind=wp), allocatable :: SDMXYZR(:,:), SDMXYZI(:,:), SDMXYZR2(:,:), SDMXYZI2(:,:), TMPR(:), TMPI(:), SCR(:), TDMZZ(:)
-<<<<<<< HEAD
 real(kind=wp), external :: DCLEBS
-=======
->>>>>>> upstream-openmolcas/master
 
 nbsts = nbst**2
 

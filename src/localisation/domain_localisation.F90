@@ -17,7 +17,6 @@ subroutine Domain_Localisation(irc)
 ! Purpose: set up orbital domains and pair domains. Find number of
 !          strong, weak, distant, and very distant pairs.
 
-use Index_Functions, only: nTri_Elem
 use Localisation_globals, only: AnaDomain, BName, CMO, nAtoms, nBas, nFro, nOrb2Loc, nSym, ThrDomain, ThrPairDomain
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -49,7 +48,7 @@ end if
 
 nBasT = nBas(1)
 nOcc = nOrb2Loc(1)
-nnOcc = nTri_Elem(nOcc)
+nnOcc = nOcc*(nOcc+1)/2
 nAtom = nAtoms
 
 ! There must be at least 2 atoms and 2 orbitals.
@@ -106,7 +105,9 @@ i = 0
 do while ((i < 2) .and. (iChange == 0))
   i = i+1
   Tst = ThrPairDomain(i)-ThrPD(i)
-  if (abs(Tst) > 1.0e-15_wp) iChange = 1
+  if (abs(Tst) > 1.0e-15_wp) then
+    iChange = 1
+  end if
 end do
 
 call mma_allocate(iPairDomain,(nAtom+1)*nnOcc,label='iPairDomain')
@@ -165,7 +166,9 @@ write(u6,'(A,I9,3X,F7.2,A,/)') 'Number of very distant pairs: ',iCount(3),Fac*iC
 ! Analysis of individual domains (if requested).
 ! ----------------------------------------------
 
-if (AnaDomain) call Analysis_Domain(iDomain,QD,f,Coord,BName,nBas_Start,nAtom,nBasT,nOcc)
+if (AnaDomain) then
+  call Analysis_Domain(iDomain,QD,f,Coord,BName,nBas_Start,nAtom,nBasT,nOcc)
+end if
 
 ! Deallocations.
 ! --------------

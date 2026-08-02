@@ -67,7 +67,9 @@ end if
 
 if (LocModel == 4) then
   call DecideOnCholesky(doCholesky)
-  if (.not. doCholesky) call SysAbendMsg(SecNam,'Edmiston-Ruedenberg localisation not possible:','Cholesky integrals required!')
+  if (.not. doCholesky) then
+    call SysAbendMsg(SecNam,'Edmiston-Ruedenberg localisation not possible:','Cholesky integrals required!')
+  end if
 end if
 
 if (EvalER) then
@@ -79,6 +81,8 @@ if (EvalER) then
   end if
 end if
 
-if (Analysis .and. (.not. Test_Localisation)) Test_Localisation = .true.
+if (Analysis .and. (.not. Test_Localisation)) then
+  Test_Localisation = .true.
+end if
 
 end subroutine Chk_Input

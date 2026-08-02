@@ -16,12 +16,7 @@ subroutine make_close_cvb(it)
 
 use casvb_global, only: variat
 use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FMO, FockOcc, OccN, PA, PMAT, TUVX
-<<<<<<< HEAD
 use sguga, only: CIS, EXS, SGS, SG_Free
-=======
-use sguga, only: SG_Free
-use sguga_states, only: CIS, EXS, SGS
->>>>>>> upstream-openmolcas/master
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
@@ -30,10 +25,6 @@ integer(kind=iwp), intent(in) :: it
 integer(kind=iwp) :: i, il, n
 character(len=8) :: vec(11)
 integer(kind=iwp), external :: find_lu
-<<<<<<< HEAD
-=======
-integer(kind=iwp), parameter:: istate=1
->>>>>>> upstream-openmolcas/master
 
 vec(1) = 'TMP01'
 vec(2) = 'TMP02'
@@ -55,11 +46,7 @@ do i=1,il
   if (n > 0) call daclos(n)
 end do
 if (.not. variat) then
-<<<<<<< HEAD
   call SG_Free(SGS,CIS,EXS)
-=======
-  call SG_Free(SGS(istate),CIS(istate),EXS(istate))
->>>>>>> upstream-openmolcas/master
   call mma_deallocate(FMO)
   call mma_deallocate(TUVX)
   call mma_deallocate(DMAT)

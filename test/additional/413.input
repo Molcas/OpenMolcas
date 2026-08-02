@@ -7,11 +7,7 @@
 * Comments: Test of different Cholesky options in the SCF code.
 *-------------------------------------------------------------------------------
 * the reordering option doesn't work in parallel
-<<<<<<< HEAD
 > IF ( $MOLCAS_NPROCS != 1)
-=======
-> IF ( $MOLCAS_NPROCS != 1 )
->>>>>>> upstream-openmolcas/master
 >   EXIT 36
 > ENDIF
 

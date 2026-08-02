@@ -19,14 +19,9 @@ subroutine INTIM()
 !
 ! Version : Fall 97
 
-<<<<<<< HEAD
 use lucia_data, only: ECORE, ECORE_HEX, ECORE_ORIG, INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NOINT, NSMOB, NTOOB, NTOOBS, &
                       PINT1, PINT2
 use Constants, only: Zero
-=======
-use lucia_data, only: ECORE, ECORE_ORIG, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NSMOB, NTOOB, NTOOBS, &
-                      PINT1, PINT2
->>>>>>> upstream-openmolcas/master
 
 implicit none
 
@@ -36,7 +31,6 @@ call INTPNT(PINT1,LSM1,PINT2,LSM2)
 ! Pointer for orbital indices for symmetry blocked matrices
 call ORBINH1(KINH1,KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 
-<<<<<<< HEAD
 ! Change one-electron integrals to inactive fock matrix
 if (NOINT == 0) then
   INT1O(:) = INT1(:)
@@ -44,8 +38,5 @@ if (NOINT == 0) then
 end if
 ECORE_ORIG = ECORE
 ECORE = ECORE+ECORE_HEX
-=======
-ECORE_ORIG = ECORE
->>>>>>> upstream-openmolcas/master
 
 end subroutine INTIM

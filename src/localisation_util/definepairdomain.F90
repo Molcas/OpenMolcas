@@ -61,7 +61,6 @@
 
 subroutine DefinePairDomain(irc,iPairDomain,iClass,Rmin,iDomain,RThr,Coord,nAtom,nOcc,nRThr)
 
-use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -87,7 +86,7 @@ if (nOcc < 2) return
 ! Set pair domains as union of individual domains: [ij]=[i]U[j] for i>=j.
 ! -----------------------------------------------------------------------
 
-nnOcc = nTri_Elem(nOcc)
+nnOcc = nOcc*(nOcc+1)/2
 iPairDomain(:,1:nnOcc) = 0
 
 call mma_allocate(Union,nAtom,nOcc,label='Union')

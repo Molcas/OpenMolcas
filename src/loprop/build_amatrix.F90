@@ -12,7 +12,7 @@
 subroutine Build_AMatrix(nAtoms,iANr,AMatrix,AInvMatrix,EC,nij,Alpha)
 !***********************************************************************
 
-use Constants, only: Zero, Two
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
@@ -66,7 +66,7 @@ do i=1,nAtoms
 end do
 Shift = Two*Shift
 !write(u6,*) 'Shift=',Shift
-AMatrix(:,:) = AMatrix(:,:)+Shift
+call DaXpY_(nAtoms**2,Shift,[One],0,AMatrix,1)
 !call RecPrt('A-matrix(Shifted)','(5G12.5)',AMatrix,nAtoms, nAtoms)
 !                                                                      *
 !***********************************************************************

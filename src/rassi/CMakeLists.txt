@@ -15,18 +15,12 @@ set (sources
      atens_rassi.F90
      binat.F90
      cho_rassi_rdinp.F90
-<<<<<<< HEAD
      citra.F90
-=======
->>>>>>> upstream-openmolcas/master
      cnf2txt.F90
      cntrl.F90
      cplot_diag.F90
      cre_rassiwfn.F90
-<<<<<<< HEAD
      dclebs.F90
-=======
->>>>>>> upstream-openmolcas/master
      dens2file.F90
      dens2hdf5.F90
      desym_sonto.F90
@@ -51,11 +45,7 @@ set (sources
      getprintlevel.F90
      gtdmctl.F90
      hfcsd.F90
-<<<<<<< HEAD
      hfcts.F90
-=======
-     hfcop.F90
->>>>>>> upstream-openmolcas/master
      hrmchk.F90
      hshget.F90
      hshini.F90
@@ -93,11 +83,8 @@ set (sources
      morssymm.F90
      morswrite.F90
      mspt2_eigenvectors.F90
-<<<<<<< HEAD
      mstow1.F90
      mstow.F90
-=======
->>>>>>> upstream-openmolcas/master
      mulmat.F90
      natorb_rassi.F90
      natspin_rassi.F90
@@ -119,10 +106,7 @@ set (sources
      overlap_rassi.F90
      part1.F90
      part.F90
-<<<<<<< HEAD
      pkwlk.F90
-=======
->>>>>>> upstream-openmolcas/master
      prcevc.F90
      prcham.F90
      prcmat2.F90
@@ -148,10 +132,7 @@ set (sources
      prsctab.F90
      prsstab.F90
      prwf_biorth.F90
-<<<<<<< HEAD
      prwf.F90
-=======
->>>>>>> upstream-openmolcas/master
      prwvf.F90
      rassi_aux.F90
      rassi.F90
@@ -181,15 +162,10 @@ set (sources
      spind.F90
      spin_phase_rassi.F90
      srtdm2.F90
-<<<<<<< HEAD
      ssotra.F90
      syg2sgu.F90
      sygtosd.F90
      threej.F90
-=======
-     syg2sgu.F90
-     sygtosd.F90
->>>>>>> upstream-openmolcas/master
      tmomint.F90
      track_state.F90
      tracr.F90
@@ -199,12 +175,9 @@ set (sources
      trd_print.F90
      trint.F90
      trnsfrm.F90
-<<<<<<< HEAD
      tshinit.F90
      tshop.F90
      upkwlk.F90
-=======
->>>>>>> upstream-openmolcas/master
      usotrans.F90
      w2sgord.F90
      wfnsizes_rassi.F90

@@ -12,10 +12,6 @@
 subroutine SMMAT_MASKED(PROP,PRMAT,NSS,ISONUM,ISPINCMP,ISS_INDEX,IST,INUM,JST,JNUM)
 
 use Cntrl, only: ICOMP, ISOCMP, NPROP, NSTATE, PNAME, PTYPE, SOPRNM, SOPRTP
-<<<<<<< HEAD
-=======
-use wigner_util, only: dclebs
->>>>>>> upstream-openmolcas/master
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
@@ -25,10 +21,7 @@ integer(kind=iwp), intent(in) :: NSS, ISONUM, ISPINCMP, ISS_INDEX(NSTATE+1), INU
 real(kind=wp), intent(inout) :: PRMAT(NSS,NSS)
 integer(kind=iwp) :: I, IFSPIN, IPRCMP, IPRNUM, IPROP, ISS, ISTATE, J, JSS, JSTATE, MPLET1, MPLET2, MSPROJ1, MSPROJ2
 real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, EXPKR, FACT, S1, S2, SM1, SM2, SMINUS, SPLUS, SXMER, SYMEI, SZMER
-<<<<<<< HEAD
 real(kind=wp), external :: DCLEBS
-=======
->>>>>>> upstream-openmolcas/master
 
 IPRNUM = -1
 IPRCMP = 0

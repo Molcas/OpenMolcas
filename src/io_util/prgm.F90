@@ -182,7 +182,7 @@ subroutine ReadPrgmFile(ModName)
 
   ! If other locations are enabled, pymolcas should be changed too
   ! Or this should be revamped so that pymolcas writes a pre-parsed file
-  call get_environment_variable('MOLCAS',Dir)
+  call GetEnvF('MOLCAS',Dir)
   Dir = trim(Dir)//'/data'
   FileName = trim(Dir)//'/'//trim(ModName)//'.prgm'
   inquire(file=FileName,exist=Found)
@@ -372,11 +372,7 @@ function ExpandVars(String,WD)
         case ('WorkDir')
           Val = WD
         case default
-<<<<<<< HEAD
           call GetEnvF(Var,Val)
-=======
-          call get_environment_variable(Var,Val)
->>>>>>> upstream-openmolcas/master
           if (trim(Val) == '') then
             if (Var /= 'SubProject') Val = 'UNK_VAR'
           end if
@@ -410,16 +406,16 @@ end function ReplaceSubstr
 ! Save some often used variables as module variables, for faster access
 subroutine PrgmCache()
   use Para_Info, only: mpp_id
-  call get_environment_variable('WorkDir',WorkDir)
-  call get_environment_variable('FastDir',FastDir)
-  call get_environment_variable('Project',Project)
+  call GetEnvF('WorkDir',WorkDir)
+  call GetEnvF('FastDir',FastDir)
+  call GetEnvF('Project',Project)
   if (trim(Project) == '') Project = 'Noname'
   if (mpp_id() > 0) write(SlaveDir,'(A,I0)') '/tmp_',mpp_id()
   return
 end subroutine PrgmCache
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see mma_util/stdalloc.F90)
+! (see src/mma_util/stdalloc.f)
 
 ! Define fe_mma_allo_1D, fe_mma_allo_1D_lim, fe_mma_free_1D
 #define _TYPE_ type(FileEntry)

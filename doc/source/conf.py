@@ -73,11 +73,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Molcas'
-<<<<<<< HEAD
 copyright = u'2017–2025, MOLCAS Team'
-=======
-copyright = u'2017–2026, MOLCAS Team'
->>>>>>> upstream-openmolcas/master
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

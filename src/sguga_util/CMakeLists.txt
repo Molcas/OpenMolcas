@@ -10,38 +10,16 @@
 #***********************************************************************
 
 set (sources
-<<<<<<< HEAD
      sg_cxinit.F90
      sg_epq_psi.F90
      sg_prwf.F90
      sg_print.F90
      sguga.F90
-=======
-     sg_citra.F90
-     sg_two_pdm.F90
-     sg_h_psi.F90
-     sg_mstow.F90
-     sg_num.F90
-     sg_one_pdm.F90
-     sg_phase.F90
-     sg_pkwlk.F90
-     sg_prwf.F90
-     sg_print.F90
-     sg_reord.F90
-     sg_upkwlk.F90
-     sguga.F90
-     sguga_states.F90
-     stepvector_next.F90
->>>>>>> upstream-openmolcas/master
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      sguga.F90
-<<<<<<< HEAD
-=======
-     sguga_states.F90
->>>>>>> upstream-openmolcas/master
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

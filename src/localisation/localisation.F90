@@ -26,13 +26,8 @@ subroutine Localisation(iReturn)
 !      HDF5 support
 
 use Localisation_globals, only: AnaAtom, Analysis, AnaPAO, AnaPAO_Save, BName, CMO, DoCNOs, DoDomain, EOrb, EvalER, Ind, iWave, &
-<<<<<<< HEAD
                                 LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, MOrig, NamAct, nBas, nCMO, nFro, &
                                 nOrb, nOrb2Loc, nSym, Occ, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
-=======
-                                LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, MOrig, NamAct, nBas, nCMO, nFro,  nOrb, &
-                                nOrb2Loc, nSym, Occ, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
->>>>>>> upstream-openmolcas/master
 #ifdef _HDF5_
 use Localisation_globals, only: fileorb_id, isHDF5, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_put_dset
@@ -45,7 +40,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp) :: ibo, iCheck, icHour, icMin, IndT(7,8), iOff, iPRway, irc, iSym, iTol, iUHF, iwHour, iwMin, j, jbo, jInd, &
-                     jPrt, jTyp, k, kCMO, kEor, kIndT, kOcc, lMOrig, lOff, LU_, LuSpool, nbo
+                     jPrt, jTyp, k, kCMO, kEor, kIndT, kOcc, lMOrig, lOff, LU_, nbo
 real(kind=wp) :: AddInfoVal, C1, C1_Loc, C2, C2_Loc, CPUtot, cSec, ERFun(2), Functional, W1, W1_Loc, W2, W2_Loc, WLLtot, wSec, &
                  xnr0(8), xnr1, xNrm
 character(len=180) :: Line
@@ -59,6 +54,7 @@ character(len=2) :: PreFix
 real(kind=wp), allocatable :: CMO2(:), CMO3(:), jXarray(:)
 character(len=*), parameter :: SecNam = 'Localisation'
 integer(kind=iwp), external :: isFreeUnit !vv , LocUtil_Models
+real(kind=wp), external :: ddot_
 character(len=180), external :: Get_Ln
 #ifdef _HDF5_
 integer(kind=iwp) :: IndTypeT(8,7)
@@ -79,7 +75,8 @@ call CWTime(C1,W1)
 ! ----------------------------------------
 
 ! Quick and dirty read of the FileOrb name before INPORB is opened
-LuSpool = isFreeUnit(17)
+LuSpool = 17
+LuSpool = isFreeUnit(LuSpool)
 call SpoolInp(LuSpool)
 rewind(LuSpool)
 call RdNLst(LuSpool,'LOCALISATION')
@@ -173,15 +170,12 @@ else
     if (LocModel == 1) then
       Model = 'Pipe'
       AddInfoString = 'PIPEKFUNCTIONAL'
-      iTol = 6
     else if (LocModel == 2) then
       Model = 'Boys'
       AddInfoString = 'BOYSFUNCTIONAL '
-      iTol = 4
     else if (LocModel == 4) then
       Model = 'Edmi'
       AddInfoString = 'ERFUNCTIONAL   '
-      iTol = 4
     end if
     irc = 0
     call Localise_Iterative(irc,Model,Functional)
@@ -190,6 +184,7 @@ else
       call SysAbendMsg(SecNam,'Localisation failed!',Txt)
     end if
     AddInfoVal = Functional
+    iTol = 4
   else if (LocModel == 3) then
     if (LocPAO) then
       Model = 'PAO '
@@ -335,7 +330,7 @@ if (LocNatOrb .or. LocCanOrb) then
   end if
   lOff = 1
   do iSym=1,nSym
-    xnr0(iSym) = sum(jXarray(lOff+nFro(iSym):lOff+nFro(iSym)+nOrb2Loc(iSym)-1))
+    xnr0(iSym) = ddot_(nOrb2Loc(iSym),[One],0,jXarray(lOff+nFro(iSym)),1)
     lOff = lOff+nBas(iSym)
   end do
 
@@ -356,7 +351,7 @@ if (LocNatOrb .or. LocCanOrb) then
   write(u6,*) ' ------------------------------------------------- '
   lOff = 1
   do iSym=1,nSym
-    xnr1 = sum(jXarray(lOff+nFro(iSym):lOff+nFro(iSym)+nOrb2Loc(iSym)-1))
+    xnr1 = ddot_(nOrb2Loc(iSym),[One],0,jXarray(lOff+nFro(iSym)),1)
     lOff = lOff+nBas(iSym)
     write(u6,'(3X,I4,8X,F11.5,4X,F11.5)') iSym,xnr0(iSym),xnr1
   end do
@@ -474,7 +469,6 @@ end do
 call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,CMO,Occ,EOrb,IndT,Title)
 if (.not. Silent) then
   write(u6,'(1X,A)') 'The LOCORB file has been written.'
-  write(u6,*) 'Namefile = ',Namefile,'Title=',Title,'LU_=',LU_
 end if
 
 ! Write local.h5 file.
@@ -500,7 +494,9 @@ call cls_locwfn()
 iUHF = 0
 Filename = 'MD_LOC'
 call Molden_Interface(iUHF,Namefile,Filename)
-if (.not. Silent) write(u6,'(1X,A)') 'The MOLDEN file has been written.'
+if (.not. Silent) then
+  write(u6,'(1X,A)') 'The MOLDEN file has been written.'
+end if
 
 ! Set return code.
 ! ----------------
@@ -538,10 +534,10 @@ subroutine Error(code)
     WLLtot = W2-W1
     call Cho_CnvTim(CPUtot,icHour,icMin,cSec)
     call Cho_CnvTim(WLLtot,iwHour,iwMin,wSec)
-    write(u6,'(/,1X,A,I8,A,I2,A,F6.2,A)') &
-      '*** Total localisation time (CPU) : ',icHour,' hours ',icMin,' minutes ',cSec,' seconds ***'
-    write(u6,'(1X,A,I8,A,I2,A,F6.2,A,/)') &
-      '*** Total localisation time (Wall): ',iwHour,' hours ',iwMin,' minutes ',wSec,' seconds ***'
+    write(u6,'(/,1X,A,I8,A,I2,A,F6.2,A)') '*** Total localisation time (CPU) : ',icHour,' hours ',icMin,' minutes ',cSec, &
+                                          ' seconds ***'
+    write(u6,'(1X,A,I8,A,I2,A,F6.2,A,/)') '*** Total localisation time (Wall): ',iwHour,' hours ',iwMin,' minutes ',wSec, &
+                                          ' seconds ***'
   end if
 end subroutine Error
 

@@ -126,7 +126,7 @@ if (Diag) then
       call Abend()
     end if
     if (iComp == 1) then
-      RR(1:nInts) = Zero
+      call dcopy_(nInts,[Zero],0,RR,1)
       RR(nInts+4) = Zero
     end if
     Alpha = -Half

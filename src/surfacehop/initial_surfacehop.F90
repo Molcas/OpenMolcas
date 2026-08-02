@@ -11,8 +11,9 @@
 
 subroutine initial_surfacehop()
 
-use Surfacehop_globals, only: DECO, decoherence, Ethreshold, FixedRand, fixedrandL, lH5Restart, NSUBSTEPS, RandThreshold, &
-                              rassi_ovlp, Run_rassi, tullyL, tullySubVerb
+use Tully_variables, only: tullyL, decoherence, DECO, Ethreshold, RandThreshold, tullySubVerb, fixedrandL, FixedRand, NSUBSTEPS, &
+                           rassi_ovlp, Run_rassi
+use Surfacehop_globals, only: lH5Restart
 use Constants, only: Zero, One, auTofs
 use Definitions, only: wp, iwp
 
@@ -39,5 +40,7 @@ if (Found) then
 else
   NSUBSTEPS = 0
 end if
+
+return
 
 end subroutine initial_surfacehop

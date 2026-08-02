@@ -40,11 +40,7 @@ type :: OrbitalTable
   integer(kind=iwp), allocatable :: idx(:) ! i
 end type OrbitalTable
 
-<<<<<<< HEAD
 real(kind=wp), parameter :: cutoff_default = 1.0e-18_wp
-=======
-real(kind=wp), parameter :: cutoff_default = 1.0e-11_wp
->>>>>>> upstream-openmolcas/master
 
 interface mma_allocate
   module procedure :: FockTable_allocate, TwoElIntTable_allocate, OrbitalTable_allocate

@@ -12,25 +12,13 @@
 subroutine SG_Setup_MCLR(pState_Sym)
 
 use molcas, only: MxLev
-<<<<<<< HEAD
 use sguga, only: SGS, CIS, EXS, MkCOT, MkCList, MkSGNum, SG_Init_Simple
 use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
-=======
-use sguga, only: MkCOT, MkSGNum, SG_Init_Simple
-use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
-use sguga_states, only: SGS, CIS, EXS
-use rasdef, only: nRas, nRasEl, nRsPrt
->>>>>>> upstream-openmolcas/master
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in):: pState_Sym
-<<<<<<< HEAD
 integer(kind=iwp) :: iBas, nLev, iSym, ISM(1:MxLev), Level(MxLev), iq
-=======
-integer(kind=iwp) :: iBas, nLev, iSym, ISM(1:MxLev), Level(MxLev), iq, nRs1T
-integer(kind=iwp), parameter :: iState=1
->>>>>>> upstream-openmolcas/master
 
 nLev = 0
 do iSym=1,nSym
@@ -52,34 +40,10 @@ do iSym=1,nSym
   end do
 end do
 
-<<<<<<< HEAD
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
 Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,EXS,nHole1,nElec3,nRs1,nRs2,nRs3, &
                     xLevel=Level, xL2Act=Level,                                 &
-=======
-If (nHole1+nElec3/=0) Then
-   nRsPrt=3
-   nRas(:,1)=nRs1(:)
-   nRas(:,2)=nRs2(:)
-   nRas(:,3)=nRs3(:)
-   nRs1T=Sum(nRs1(1:nSym))
-   nRasEl(1)=2*nRs1T-nHole1
-   nRasEl(2)=nActel-nElec3
-   nRasEl(3)=nActel
-Else
-   nRsPrt=1
-   nRas(:,1)=nRs2(:)
-   nRasEl(1)=nActel
-End If
-
-Level(1:MxLev)=[(iq,iq=1,MxLev)]
-
-Call SG_Init_Simple(nSym,nActEl,iSpin,SGS(istate),CIS(istate),     &
-                    nRas,nRasEl,nRsPrt,            &
-                    EXS(istate),                           &
-                    xLevel=Level, xL2Act=Level,    &
->>>>>>> upstream-openmolcas/master
                     xNLEV=nLev, xNSM=ISM)
 
 ! PURPOSE: FREE THE GUGA TABLES
@@ -87,7 +51,6 @@ Call SG_Init_Simple(nSym,nActEl,iSpin,SGS(istate),CIS(istate),     &
 ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
 !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 
-<<<<<<< HEAD
 call MKCOT(SGS,CIS)
 
 ! CONSTRUCT THE CASE LIST
@@ -97,13 +60,5 @@ call MKCLIST(SGS,CIS)
 ! SET UP ENUMERATION TABLES
 
 call MKSGNUM(pState_Sym,SGS,CIS,EXS)
-=======
-! CONSTRUCT THE CASE LIST
-call MKCOT(SGS(istate),CIS(istate))
-
-! SET UP ENUMERATION TABLES
-
-call MKSGNUM(pState_Sym,SGS(istate),CIS(istate),EXS(istate))
->>>>>>> upstream-openmolcas/master
 
 end subroutine SG_Setup_MCLR

@@ -10,11 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-<<<<<<< HEAD
 subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO)
-=======
-subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO,nTUVX,TUVX)
->>>>>>> upstream-openmolcas/master
 ! CI diagonal in SD basis for state with symmetry ISM in internal
 ! space ISPC
 !
@@ -36,11 +32,6 @@ implicit none
 real(kind=wp), intent(_OUT_) :: DIAG(*)
 integer(kind=iwp), intent(in) :: LUDIA, ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK)
 real(kind=wp), intent(in) :: ECORE
-<<<<<<< HEAD
-=======
-integer(kind=iwp), intent(in):: nTUVX
-real(kind=wp), intent(in):: TUVX(nTUVX)
->>>>>>> upstream-openmolcas/master
 integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB
@@ -85,11 +76,7 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 ! Diagonal of one-body integrals and coulomb and exchange integrals
 
 call GT1DIA(LH1D)
-<<<<<<< HEAD
 call GTJK(LJ,LK,NTOOB,IREOST)
-=======
-call GTJK(LJ,LK,NTOOB,IREOST,nTUVX,TUVX)
->>>>>>> upstream-openmolcas/master
 if (LUDIA > 0) IDISK(LUDIA) = 0
 call GASDIAS(NAEL,LASTR,NBEL,LBSTR,NACOB,DIAG,NIRREP,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,LUDIA,ECORE,PSSIGN,NTOOB,ICISTR, &
              LRJKA,I12,IBLTP,NBLOCK,IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)

@@ -12,13 +12,13 @@
 subroutine not_DGeEV(iOpt,a,lda,w,z,ldz,n)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iOpt, lda, ldz, n
 real(kind=wp), intent(inout) :: a(lda,n)
-real(kind=wp), intent(out) :: w(2*n), z(2*ldz*n)
+real(kind=wp), intent(out) :: w(2,n), z(2*ldz*n)
 integer(kind=iwp) :: i, iErr, iOff
 real(kind=wp), allocatable :: aux(:,:), w1(:)
 
@@ -49,31 +49,34 @@ end if
 !-----Order eigenvalues to ESSL standard
 
 call mma_allocate(aux,n,2,label='aux')
-aux(:,1) = w(1:n)
-w(1:2*n:2) = aux(:,1) ! Real
-w(2:2*n:2) = w1(:)    ! Imaginary
+call dcopy_(n,w,1,aux(:,1),1)
+do i=1,n
+  w(1,i) = aux(i,1)  ! Real
+  w(2,i) = w1(i)     ! Imaginary
+end do
 call mma_deallocate(w1)
 
 !-----Order eigenvector to ESSL standard
 
 i = N
 do while (i >= 1)
-  if (w(2*i) /= Zero) then
+  if (w(2,i) /= Zero) then
     i = i-1
     iOff = (i-1)*n
-    Aux(:,:) = reshape(Z(iOff+1:iOff+2*N),[N,2])
+    call dcopy_(2*N,Z(iOff+1),1,Aux,1)
     iOff = (i-1)*2*n
-    Z(iOff+1:iOff+2*N:2) = Aux(:,1)
-    Z(iOff+2:iOff+2*N:2) = Aux(:,2)
+    call dcopy_(N,Aux(:,1),1,Z(iOff+1),2)
+    call dcopy_(N,Aux(:,2),1,Z(iOff+2),2)
     iOff = i*2*n
-    Z(iOff+1:iOff+2*N:2) = Aux(:,1)
-    Z(iOff+2:iOff+2*N:2) = -Aux(:,2)
+    call dcopy_(N,Aux(:,1),1,Z(iOff+1),2)
+    call dcopy_(N,Aux(:,2),1,Z(iOff+2),2)
+    call DScal_(N,-One,Z(iOff+2),2)
   else
     iOff = (i-1)*n
-    Aux(:,1) = Z(iOff+1:iOff+N)
+    call dcopy_(N,Z(iOff+1),1,Aux,1)
     iOff = (i-1)*2*n
-    Z(iOff+1:iOff+2*N:2) = Aux(:,1)
-    Z(iOff+2:iOff+2*N:2) = Zero
+    call dcopy_(N,Aux(:,1),1,Z(iOff+1),2)
+    call dcopy_(N,[Zero],0,Z(iOff+2),2)
   end if
   i = i-1
 end do

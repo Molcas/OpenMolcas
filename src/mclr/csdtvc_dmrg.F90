@@ -19,12 +19,7 @@ subroutine CSDTVC_dmrg(CSFVEC,DETVEC,DTOCMT,ICTSDT,IREFSM,ICOPY)
 !              output remains output
 ! Modified version for DMRG only -- yma
 
-<<<<<<< HEAD
 use MCLR_Data, only: NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM, NTYP
-=======
-use MCLR_Data, only: NCSASM, NDPCNT, NDTASM
-use spinfo, only: NTYP, NCNATS=>NCNFTP, NCPCNT=>NCSFTP
->>>>>>> upstream-openmolcas/master
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

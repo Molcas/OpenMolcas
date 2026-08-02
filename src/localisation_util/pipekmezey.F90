@@ -12,45 +12,38 @@
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-!#define _SCR_DEFAULT_
-subroutine PipekMezey(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
+subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,BName,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
+                      Debug,Silent)
 ! Author: Y. Carissan [modified by T.B. Pedersen].
 !
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
 
-use Index_Functions, only: nTri_Elem
-use Localisation_globals, only: BName, Debug, nAtoms, nBas_per_Atom, nBas_Start, Ovlp, ScrFac
 use OneDat, only: sNoOri
 use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-#ifdef _SCR_DEFAULT_
-use Localisation_globals, only: OptMeth
-use Constants, only: Half
-#endif
 
 implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
-<<<<<<< HEAD
 real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
 character(len=LenIn+8), intent(in) :: BName(*) ! dimension should be tot. #bf
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nAtoms, nMxIter
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
-=======
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
->>>>>>> upstream-openmolcas/master
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, kOffC, lOaux, nBasT, nFroT, nOrb2LocT
-real(kind=wp), allocatable :: Oaux(:), PA(:,:,:)
+integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
+real(kind=wp), allocatable :: Oaux(:), Ovlp(:,:), PA(:,:,:)
 character(len=8) :: Label
 character(len=*), parameter :: SecNam = 'PipekMezey'
 
 ! Symmetry is NOT allowed!!
 ! -------------------------
 
-if (nSym /= 1) call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
+if (nSym /= 1) then
+  call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
+end if
 
 ! Initializations.
 ! ----------------
@@ -60,19 +53,13 @@ Functional = -huge(Functional)
 nBasT = nBas(1)
 nOrb2LocT = nOrb2Loc(1)
 nFroT = nFro(1)
-kOffC = nBasT*nFroT+1
-
-if (ScrFac /= Zero) call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],ScrFac)
-#ifdef _SCR_DEFAULT_
-if ((OptMeth == 2) .or. (OptMeth == 4) .or. (OptMeth == 5)) call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],Half)
-#endif
 
 Converged = .false.
 
 ! Read overlap matrix.
 ! --------------------
 
-lOaux = nTri_Elem(nBasT)+4
+lOaux = nBasT*(nBasT+1)/2+4
 call mma_allocate(Ovlp,nBasT,nBasT,label='Ovlp')
 call mma_allocate(Oaux,lOaux,label='AuxOvlp')
 
@@ -95,7 +82,7 @@ if (Debug) then
   call TriPrt('Overlap',' ',Oaux,nBasT)
 end if
 
-call Tri2Rec(Oaux,Ovlp,nBasT)
+call Tri2Rec(Oaux,Ovlp,nBasT,Debug)
 call mma_deallocate(Oaux)
 
 ! Allocate and get index arrays for basis functions per atom.
@@ -113,10 +100,10 @@ PA(:,:,:) = Zero
 ! Localise orbitals.
 ! ------------------
 
-! this offset to get to the part of CMO which should be localized.
-if (debug) call RecPrt('cMO before localization',' ',cMO,nBasT,norb2locT)
-call PipekMezey_Iter(Functional,CMO(kOffC),PA,nBasT,nOrb2LocT,Converged)
-if (debug) call RecPrt('cMO after localization',' ',cMO,nBasT,norb2locT)
+kOffC = nBasT*nFroT+1
+call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_Atom,nBas_Start,BName,nBasT,nOrb2LocT,nAtoms, &
+                     nMxIter,Maximisation,Converged,Debug,Silent)
+
 ! De-allocations.
 ! ---------------
 
