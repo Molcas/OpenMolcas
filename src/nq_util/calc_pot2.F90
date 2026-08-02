@@ -17,9 +17,10 @@
 ! ****************************************************************
 subroutine Calc_Pot2(Pot2,mGrid,Pi,nPi)
 
-use nq_Grid, only: Weights
+use nq_Grid, only: vTau, Weights
 use nq_pdft, only: d2RdRhodPi, d2ZdR2, dEdPi, dEdPiMO, dEdPix, dEdPiy, dEdPiz, dF_dRhoamb, dF_dRhoxamb, dF_dRhoyamb, dF_dRhozamb, &
-                   dRdPi, dZdR, GdEdPiMO, GradRdFdRho, GradRhodFdRho, lft, lGGA, MOas, MOax, MOay, MOaz, Pass1, Pass2, Pass3, RhoAB
+                   dRdPi, dZdR, GdEdPiMO, GradRdFdRho, GradRhodFdRho, lft, lGGA, lmGGA1, MOas, MOax, MOay, MOaz, Pass1, Pass2, &
+                   Pass3, RhoAB, TauAB
 use nq_Info, only: nPot2
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
@@ -29,7 +30,7 @@ real(kind=wp), intent(inout) :: Pot2(nPot2)
 integer(kind=iwp), intent(in) :: mGrid, nPi
 real(kind=wp), intent(in) :: Pi(nPi,mGrid)
 integer(kind=iwp) :: iGrid
-real(kind=wp) :: ftggaterm, ggaterm, predEdPip
+real(kind=wp) :: ftggaterm, ggaterm, mggaterm, predEdPip
 real(kind=wp), parameter :: ThrsPi = 1.0e-30_wp
 
 if (lGGA .and. lft) then
@@ -58,7 +59,12 @@ do iGrid=1,mGrid
         ggaterm = Zero
         ftggaterm = Zero
       end if
-      dEdPi(iGrid) = Weights(iGrid)*(dZdR(iGrid)*dRdPi(iGrid)*(RhoAB(iGrid)*dF_dRhoamb(iGrid)+ggaterm)+ftggaterm)
+      if (lmGGA1) then
+        mggaterm = TauAB(iGrid)*(vTau(1,iGrid)-vTau(2,iGrid))
+      else
+        mggaterm = Zero
+      end if
+      dEdPi(iGrid) = Weights(iGrid)*(dZdR(iGrid)*dRdPi(iGrid)*(RhoAB(iGrid)*dF_dRhoamb(iGrid)+ggaterm+mggaterm)+ftggaterm)
     else
       dEdPi(iGrid) = Zero
     end if
