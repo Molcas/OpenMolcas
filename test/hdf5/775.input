@@ -2,10 +2,10 @@
 * Molecule: LiH
 * Basis: STO-3G
 * Symmetry: C1 (None)
-* Features tested: L-PDFT with translated LDA (T:LSDA) and GGA (T:PBE)
+* Features tested: L-PDFT with translated LDA, GGA, and hybrid functionals
 * Responsible person: Bhavnesh Jangid, University of Chicago, 2026
-* Comments: Runs two different translated on-top functionals from the same
-*           state-averaged reference and checks both sets of L-PDFT energies.
+* Comments: Runs translated on-top functionals from the same state-averaged
+*           reference and checks pure and hybrid L-PDFT energies.
 *-------------------------------------------------------------------------------
 >> EXPORT MOLCAS_NOCHECK=MLTPL
 >> RM -FORCE TEST_HDF5
@@ -51,6 +51,20 @@
 
 &MCPDFT
   Functional = T:PBE
+  LPDF
+  MSPD
+
+* tPBE0: 25% MCSCF wave-function energy and 75% tPBE energy.
+&MCPDFT
+  Functional = T:PBE
+  LAMB = 0.25
+  LPDF
+  MSPD
+
+* Strongly hybrid tPBE: 75% MCSCF and 25% tPBE.
+&MCPDFT
+  Functional = T:PBE
+  LAMB = 0.75
   LPDF
   MSPD
 
@@ -124,7 +138,7 @@
 #> EXCHA_A="-1.032487292421"/6
 #> EXCHA_B="-0.863761746849"/6
 #> CORR_E="-0.286541406395"/6
-#> LPDFTE="-3.992725985654"/8
+#> LPDFTE="-7.573170688927"/8
 #> MSPDFTE[0]="-7.640342985903"/8
 #> MSPDFTE[1]="-7.505998391952"/8
 #>>   5
@@ -138,7 +152,35 @@
 #> EXCHA_A="-1.170833909276"/6
 #> EXCHA_B="-0.982950334421"/6
 #> CORR_E="-0.082071456776"/6
-#> LPDFTE="-4.090553695960"/8
+#> LPDFTE="-7.626235943736"/8
 #> MSPDFTE[0]="-7.694630544603"/8
 #> MSPDFTE[1]="-7.557841342869"/8
+#>>   6
+#> DENS_TT="4.003414380470"/6
+#> DENS_A1="2.001707190235"/6
+#> DENS_B1="2.001707190235"/6
+#> DENS_A2="2.361862494487"/6
+#> DENS_B2="1.641551885982"/6
+#> EXCH_F="1"/6
+#> CORR_F="1"/6
+#> EXCHA_A="-1.170833909276"/6
+#> EXCHA_B="-0.982950334421"/6
+#> CORR_E="-0.082071456776"/6
+#> LPDFTE="-7.626235943736"/8
+#> MSPDFTE[0]="-7.673105658238"/8
+#> MSPDFTE[1]="-7.542694673144"/8
+#>>   7
+#> DENS_TT="4.003414380470"/6
+#> DENS_A1="2.001707190235"/6
+#> DENS_B1="2.001707190235"/6
+#> DENS_A2="2.361862494487"/6
+#> DENS_B2="1.641551885982"/6
+#> EXCH_F="1"/6
+#> CORR_F="1"/6
+#> EXCHA_A="-1.170833909276"/6
+#> EXCHA_B="-0.982950334421"/6
+#> CORR_E="-0.082071456776"/6
+#> LPDFTE="-7.626235943736"/8
+#> MSPDFTE[0]="-7.630711991958"/8
+#> MSPDFTE[1]="-7.511745227242"/8
 >>EOF
