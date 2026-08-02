@@ -14,27 +14,28 @@
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 22, 2021, created this file.               *
+! Bhavnesh Jangid, on Aug 2nd, 2026, added the vot for mGGA fun. *
 ! ****************************************************************
 subroutine Calc_Pot1(Pot1,TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,MOs)
 
-use nq_Grid, only: GradRho, vRho, vSigma, Weights
+use nq_Grid, only: GradRho, vRho, vSigma, vTau, Weights
 use nq_pdft, only: d2RdRho2, d2RdRhodPi, d2ZdR2, dEdRho, dEdRhox, dEdRhoy, dEdRhoz, dF_dRhoapb, dF_dRhoamb, dF_dRhoxamb, &
                    dF_dRhoxapb, dF_dRhoyamb, dF_dRhoyapb, dF_dRhozamb, dF_dRhozapb, dRdPi, dRdRho, dRhodx, dRhody, dRhodz, dZdR, &
-                   dZdRho, fta, ftb, ftc, GradPidFdRho, GradRdFdRho, GradRhodFdRho, lft, lGGA, Pass1, Pass2, Pass3, RatioA, RhoAB, &
-                   ThrsNT, ZetaA
+                   dZdRho, fta, ftb, ftc, GradPidFdRho, GradRdFdRho, GradRhodFdRho, lft, lGGA, lmGGA1, Pass1, Pass2, Pass3, &
+                   RatioA, RhoAB, TauAB, ThrsNT, ZetaA
 use nq_Info, only: mIrrep, mOrb, nOrbt, nPot1, OffBasFro, OffOrb, OffOrb2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Four, Six, Twelve, Half
+use Constants, only: Zero, One, Two, Four, Six, Twelve, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: Pot1(nPot1)
 integer(kind=iwp), intent(in) :: mAO, mGrid, nMOs, nP2_ontop
 real(kind=wp), intent(in) :: TabMO(mAO,mGrid,nMOs), MOs(mGrid,nOrbt), P2_ontop(nP2_ontop,mGrid)
-integer(kind=iwp) :: iGrid, iIrrep, iMO, iOff1, IOff2, iOrb
+integer(kind=iwp) :: iComp, iGrid, iIrrep, iMO, iOff1, IOff2, iOrb
 real(kind=wp) :: dEdRhop2, dF_dRhoax, dF_dRhoay, dF_dRhoaz, dF_dRhobx, dF_dRhoby, dF_dRhobz, Diff1, dRdx, dRdy, dRdz
 ! PreMO is MO multiplied with things needed for potential calculation
-real(kind=wp), allocatable :: PreMO(:,:)
+real(kind=wp), allocatable :: dEdTau(:), GradMO(:,:), PreMO(:,:)
 
 call mma_allocate(PreMO,mGrid,nOrbt)
 PreMO(:,:) = MOs
@@ -47,6 +48,7 @@ do iGrid=1,mGrid
     dRdRho(iGrid) = RatioA(iGrid)*(-Two/RhoAB(iGrid))
     dZdRho(iGrid) = dZdR(iGrid)*dRdRho(iGrid)
     dEdRho(iGrid) = dF_dRhoapb(iGrid)+dF_dRhoamb(iGrid)*(ZetaA(iGrid)+RhoAB(iGrid)*dZdRho(iGrid))
+    if (lmGGA1) dEdRho(iGrid) = dEdRho(iGrid)+TauAB(iGrid)*(vTau(1,iGrid)-vTau(2,iGrid))*dZdRho(iGrid)
     dRdPi(iGrid) = Four/RhoAB(iGrid)**2
   else
     dRdPi(iGrid) = Zero
@@ -165,6 +167,47 @@ do iIrrep=0,mIrrep-1
   IOff2 = OffOrb2(iIrrep)+1
   call DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,One,PreMO(:,IOff1:),mGrid,MOs(:,IOff1:),mGrid,One,Pot1(iOff2:),mOrb(iIrrep))
 end do
+
+! Direct meta-GGA contribution from the total kinetic-energy density.
+! Tau is defined with a factor of one half in Mk_Rho, hence the factor
+! of one quarter after translating the alpha and beta kinetic energies.
+if (lmGGA1) then
+  call mma_allocate(dEdTau,mGrid)
+  call mma_allocate(GradMO,mGrid,nOrbt)
+
+  do iGrid=1,mGrid
+    if (Pass1(iGrid)) then
+      dEdTau(iGrid) = Quart*(vTau(1,iGrid)+vTau(2,iGrid)+ZetaA(iGrid)*(vTau(1,iGrid)-vTau(2,iGrid)))
+    else
+      dEdTau(iGrid) = Zero
+    end if
+  end do
+
+  do iComp=2,4
+    GradMO(:,:) = Zero
+    do iIrrep=0,mIrrep-1
+      do iOrb=1,mOrb(iIrrep)
+        IOff1 = iOrb+OffOrb(iIrrep)
+        iMO = iOrb+OffBasFro(iIrrep)
+        GradMO(:,IOff1) = TabMO(iComp,:,iMO)
+      end do
+    end do
+
+    do iGrid=1,mGrid
+      PreMO(iGrid,:) = GradMO(iGrid,:)*dEdTau(iGrid)*Weights(iGrid)
+    end do
+
+    do iIrrep=0,mIrrep-1
+      IOff1 = OffOrb(iIrrep)+1
+      IOff2 = OffOrb2(iIrrep)+1
+      call DGEMM_('T','N',mOrb(iIrrep),mOrb(iIrrep),mGrid,One,PreMO(:,IOff1:),mGrid,GradMO(:,IOff1:),mGrid,One,Pot1(iOff2:), &
+                  mOrb(iIrrep))
+    end do
+  end do
+
+  call mma_deallocate(GradMO)
+  call mma_deallocate(dEdTau)
+end if
 
 call mma_deallocate(PreMO)
 
