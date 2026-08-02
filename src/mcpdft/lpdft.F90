@@ -220,6 +220,8 @@ module lpdft
         do jAct=1,iAct
           jMO = nIsh(iSym)+jAct
           d1mo(iMOff+iTri(iMO,jMO)-1) = casd1_0(iActOff)
+          if (iAct /= jAct) &
+            d1mo(iMOff+iTri(iMO,jMO)-1) = 2.0_wp*casd1_0(iActOff)
           iActOff = iActOff+1
         end do
       end do
@@ -305,7 +307,7 @@ module lpdft
     real(kind=wp) :: e1_lpdft, e2_lpdft, e_core_lpdft, e_coul_lpdft, e_vhf_c, e_vhf_c_core, hnuc, lpdft_comp
     real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, d1mo_0
     real(kind=wp), allocatable, dimension(:) :: vjk_act
-    real(kind=wp), external :: dDot_
+    real(kind=wp), external :: dDot_, energy_mcwfn
 
     hnuc = 0.0D0
     e1_lpdft = 0.0D0
@@ -376,7 +378,9 @@ module lpdft
     hconst = lpdft_comp*hconst
 
     e_nuc_lpdft = hnuc
-    e_wfn_lpdft = hnuc + e_core_lpdft
+    ! Report the complete MC-PDFT wave-function contribution.  For one
+    ! root, adding e_ot_lpdft to this quantity must reproduce MC-PDFT.
+    e_wfn_lpdft = energy_mcwfn(d1ao_0,h1e_lpdft_ao,vj,hnuc,ntot1)
 
     call mma_deallocate(vjk_act)
     call mma_deallocate(d1mo_0)
@@ -601,6 +605,10 @@ module lpdft
     call mma_deallocate(tdm2)
     call mma_deallocate(tdm1)
 #endif
+
+    ! With one reference state and lambda=0, L-PDFT is exactly MC-PDFT.
+    if ((lRoots == 1) .and. (.not. mcpdft_options%otfnal%is_hybrid())) &
+      heff(1,1) = e_wfn_lpdft+e_ot_lpdft
 
   end subroutine construct_lpdft_ham
 
