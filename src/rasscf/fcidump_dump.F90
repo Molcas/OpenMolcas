@@ -216,7 +216,7 @@ end subroutine dump_hdf5
 !>    - Line 3:  150000
 !>  One-electron integrals are written from the Fock table only;
 !>  orbital energies are omitted.
-subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
+subroutine dump_fort55(path,EMY,fock_table,two_el_table,orbsym)
 
   use general_data, only: nActEl, nAsh, nSym
   use Symmetry_Info, only: SymLab, lIrrep, Symmetry_Info_Get
@@ -227,7 +227,7 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
   character(len=*), intent(in) :: path
   real(kind=wp), intent(in) :: EMY
-  type(OrbitalTable), intent(in) :: orbital_table
+  type(OrbitalTable)
   type(FockTable), intent(in) :: fock_table
   type(TwoElIntTable), intent(in) :: two_el_table
   integer(kind=iwp), intent(in) :: orbsym(:)
