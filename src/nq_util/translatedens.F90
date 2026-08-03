@@ -14,6 +14,8 @@
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Dec. 18, 2021, created this file.               *
+! Bhavnesh Jangid, on Aug. 2nd, 2026,                            *
+!            Added the boundary conditions for the on-top ratio. *
 ! ****************************************************************
 subroutine TranslateDens(Pi,dRho_dr,dPi,Weights,l_tanhr,mGrid,nPi,ndRho_dr,nEGrad,DoGrad)
 
@@ -86,11 +88,18 @@ do iGrid=1,mGrid
   Pass3(iGrid) = .false.
 end do
 
+! Note: the very small value of the on-top Ration is causing the
+!       numerical instability in the calculation of the
+!       on-top potential. That's why we have the set the
+!       threshold for the on-top ratio to be 1.0e-14, which is
+!       below this threshold, the on-top ratio is set to zero.
+
 if (.not. lft) then
   do iGrid=1,mGrid
     if (RhoAB(iGrid) >= ThrsRho) then
       Pass1(iGrid) = .true.
       RRatio = Four*Pi(1,iGrid)/(RhoAB(iGrid)**2)
+      if (abs(RRatio) < 1.0e-14_wp) RRatio = Zero
       RatioA(iGrid) = Rratio
       if (l_tanhr) RRatio = tanh(RRatio)
       if ((One-Rratio) > ThrsOMR) then
@@ -105,6 +114,7 @@ else
     if (RhoAB(iGrid) >= ThrsRho) then
       Pass1(iGrid) = .true.
       RRatio = Four*Pi(1,iGrid)/(RhoAB(iGrid)**2)
+      if (abs(RRatio) < 1.0e-14_wp) RRatio = Zero
       RatioA(iGrid) = Rratio
       if (RRatio < ThrsFT) then ! do t-translation
         ZetaA(iGrid) = sqrt(One-Rratio)
