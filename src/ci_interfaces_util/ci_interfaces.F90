@@ -34,7 +34,7 @@ use rasscf_global, only: DoFaro
 use Constants, only: Zero
 use faroald, only: my_norb, sigma_update, htu, gtuvx
 #ifdef _SGUGA_VERIFY_
-use general_data, only: iDoGAS
+use general_data, only: iDoGAS, nRsPrt
 #endif
 Implicit None
 
@@ -126,7 +126,7 @@ else
 end if
 
 #ifdef _SGUGA_VERIFY_
-If (.NOT.iDoGAS) Then
+If (.NOT.iDoGAS .and. nRsPrt==1) Then
    Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
    call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
    Check_Href=Dot_Product(CI_Vec,Sigma_Vec)
