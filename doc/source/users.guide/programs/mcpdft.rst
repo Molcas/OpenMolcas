@@ -291,12 +291,19 @@ The :kword:`FUNC` is the only required keyword.
   basis for a subsequent :program:`RASSI` spin--orbit calculation. This
   workflow performs SO-L-PDFT :cite:`Jangid2026`.
 
+  Both :kword:`WJOB` in :program:`MCPDFT` and :kword:`EJOB` in
+  :program:`RASSI` are required for SO-L-PDFT. :kword:`WJOB` writes the
+  L-PDFT energies and rotated CI vectors to :file:`JOBIPH`. The updated
+  :file:`JOBIPH` must then be supplied to :program:`RASSI`, where
+  :kword:`EJOB` selects the stored L-PDFT energies for the diagonal of the
+  spin-free Hamiltonian. A complete input example is given below.
+
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="WJOB" APPEAR="Write into JOBIPH" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: WJOB <basic>
               <HELP>
               Enable one to write the energies and eigenstates of MC-PDFT or MS-PDFT into the JOBIPH file.
-              For L-PDFT, this enables a subsequent RASSI spin-orbit calculation (SO-L-PDFT).
+              For SO-L-PDFT, WJOB is required together with EJOB in RASSI.
               </HELP>
               </KEYWORD>
 
@@ -487,6 +494,55 @@ effective Hamiltonian. ::
 To run the same calculation with the tPBE0 hybrid, add
 ``LAMB=0.25`` to the :program:`MCPDFT` input. The functional remains
 ``FUNC=T:PBE``.
+
+The following complete input performs a hybrid SO-L-PDFT calculation for the
+three doublet states of the boron atom. The :kword:`LPDF` keyword in
+:program:`RASSCF` generates the transition density matrices. In
+:program:`MCPDFT`, :kword:`WJOB` writes the hybrid L-PDFT energies and rotated
+CI vectors to :file:`JOBIPH`. The copy to :file:`JOB001` must occur after the
+:program:`MCPDFT` calculation. Finally, :kword:`EJOB` tells :program:`RASSI` to
+use the stored L-PDFT energies while :kword:`SPINorbit` computes the
+spin--orbit coupling matrix elements using the stored L-PDFT states. ::
+
+   &GATEWAY
+   Coord
+   1
+   Angstrom
+   B 0.0 0.0 0.0
+   Basis=ANO-RCC-VDZP
+   Group=NoSym
+   RX2C
+   AMFI
+
+   &SEWARD
+
+   &RASSCF
+   Charge=0
+   Spin=2
+   THRS=1.0e-10 1.0e-06 1.0e-06
+   Nactel
+   3 0 0
+   Ras2
+   4
+   CIRoot
+   3 3 1
+   LPDF
+
+   &MCPDFT
+   Functional=T:PBE
+   LPDF
+   Lambda=0.25
+   MSPDft
+   WJOB
+
+   >>COPY $Project.JobIph JOB001
+
+   &RASSI
+   NrOfJobIphs=1 3
+   1 2 3
+   SPINorbit
+   EJOB
+
 
 The following example shows a part of the input to run CMS-PDFT geometry optimization. The additional keywords are :kword:`RLXR` and :kword:`GRAD` in :program:`MCPDFT`. The additional modules include :program:`MCLR`, :program:`ALASKA` and :program:`SLAPAF`. ::
 
