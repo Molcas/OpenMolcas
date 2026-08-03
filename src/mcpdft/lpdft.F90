@@ -784,7 +784,7 @@ module lpdft
     end do
 
     value_2e = contract_spin_sum_2tdm(h2e_lpdft_act,tdm2)
-    eoffdiagval = -(value_1e+value_2e)
+    eoffdiagval = value_1e+value_2e
 
   end function contract_lpdft_tdms
 
