@@ -82,7 +82,7 @@ Do jOrb =1, iOrb
       Call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eij_Psi)
    End If
 
-   If (ijSym==0) Then
+   If (ijSym==1) Then
 !     ijSym==0, do the E_ij part of the sigma vector
       TwoInt=Zero
       Do kOrb=1, nOrb
@@ -117,10 +117,10 @@ Do jOrb =1, iOrb
       iBuff=iBuff+1
       Ekl_Eij_Psi(1:nCSFs,iBuff)=Zero
 
-      Call SG_Epq_Psi(SGS,CIS,EXS,kOrb,lOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi)
+      Call SG_Epq_Psi(SGS,CIS,EXS,kOrb,lOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi(1:nCSFs,iBuff))
 
       If (kOrb/=lOrb) Then
-         Call SG_Epq_Psi(SGS,CIS,EXS,lOrb,kOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi)
+         Call SG_Epq_Psi(SGS,CIS,EXS,lOrb,kOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi(1:nCSFs,iBuff))
       End If
 
       klijOrb=iTri(klOrb,ijOrb)

@@ -11,8 +11,12 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
+#define _SGUGA_VERIFY_
 module CI_Interfaces
 use definitions, only: wp, iwp
+#ifdef _SGUGA_VERIFY_
+use definitions, only: u6
+#endif
 
 Private
 
@@ -22,13 +26,16 @@ contains
 
 Subroutine Mk_H_Psi(iState, STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
 use sguga, only: SGS, EXS, CIS
+ use stdalloc, only: mma_allocate, mma_deallocate
 use Lucia_Interface, only: Lucia_Util
 use lucia_data, only: Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
-use sguga, only: SGStruct, EXStruct, CIStruct
 use rasscf_global, only: DoFaro
 use Constants, only: Zero
 use faroald, only: my_norb, sigma_update, htu, gtuvx
+#ifdef _SGUGA_VERIFY_
+use general_data, only: iDoGAS
+#endif
 Implicit None
 
 integer(kind=iwp), intent(in):: iState, STSYM, nCSF
@@ -41,6 +48,10 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
+#ifdef _SGUGA_VERIFY_
+real(kind=wp) :: Check_Href, Check_H
+real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:)
+#endif
 
 Associate (SGS=>SGS(iState),CIS=>CIS(iState),EXS=>EXS(iState))
 
@@ -114,12 +125,34 @@ else
 
 end if
 
+#ifdef _SGUGA_VERIFY_
+If (.NOT.iDoGAS) Then
+   Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
+   call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
+   Check_Href=Dot_Product(CI_Vec,Sigma_Vec)
+   Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
+   Call sg_h_psi(SGS,CIS,EXS,SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
+   Check_H   =Dot_Product(SG_PSI,SG_SGM)
+   call SG_Reord(iState,STSYM,1,nCSF,SG_SGM,SG_PSI)
+   If (Abs(Check_HRef-Check_H)/nCSF>1.0E-12_wp) Then
+      Write (u6,*) 'SGUGA error in H|Psi>'
+      Write (u6,*) 'Check_HRef=',Check_HRef
+      Write (u6,*) 'Check_H   =',Check_H
+      Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nCSF)
+      Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
+      Call Abend()
+   End If
+!  Sigma_Vec(1:nCSF) = SG_PSI(1:nCSF)
+   Call mma_deallocate(SG_SGM)
+   Call mma_deallocate(SG_PSI)
+End if
+#endif
+
 End Associate
 
 End Subroutine Mk_H_Psi
 
 
-#define _SGUGA_VERIFY_
  Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
  use Lucia_Interface, only: Lucia_Util
  use stdalloc, only: mma_allocate, mma_deallocate
@@ -211,16 +244,13 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
           call SG_Reord(iState,STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
 
 !         Test the one-particle density matrix
-!         Call TriPrt('D(Lucia)',' ',D,NAC)
           Check_D1=CheckSum(D,NACPAR)
-!         Write (6,*) 'Check_D1=',Check_D1
           Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
 
           call sg_one_pdm(SGS(istate),CIS(istate),EXS(istate),CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
-          If (ABS(CheckSum(D_sguga,NACPAR)-Check_D1)/SIZE(D_sguga)>1.0e12_wp) Then
-!            Write (6,*) 'Check_D1=',Check_D1
+          If (ABS(CheckSum(D_sguga,NACPAR)-Check_D1)/SIZE(D_sguga)>1.0e-12_wp) Then
              Check_D1=CheckSum(D_sguga,NACPAR)
-             Write (6,*) 'SGUGA error in D1Mat'
+             Write (u6,*) 'SGUGA error in D1Mat'
              Call Abend()
           End If
           Call mma_deallocate(D_sguga)
@@ -230,12 +260,8 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
 
 !         Test the symmetric two-particle density matrix.
-!         call TRIPRT('P(Lucia)',' ',P,NACPAR)
           Check_P=CheckSum(P,NACPR2)
-!         Write (6,*) 'Check_P=',Check_P
-!         call TRIPRT('PA(Lucia)',' ',PA,NACPAR)
           Check_PA=CheckSum(PA,NACPR2)
-!         Write (6,*) 'Check_PA=',Check_PA
 
 !         Call mma_allocate(P_sguga,NAC**4,Label='P')
 !         Call sg_two_pdm_full(SGS(istate),CIS(istate),EX(istate)S,CIV,SIZE(CIV),STSYM,P_sguga,NAC)
@@ -246,18 +272,14 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
           Call sg_two_pdm(SGS(istate),CIS(istate),EXS(istate),CIV,SIZE(CIV),STSYM,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
 
-!         call TRIPRT('P(SGUGA)',' ',P_sguga,NACPAR)
           If (ABS(CheckSum(P_sguga,NACPR2)-Check_P)/SIZE(p_sguga)>1.0e-12_wp) Then
              Check_P=CheckSum(P_sguga,NACPR2)
-!            Write (6,*) 'Check_P=',Check_P
-             Write (6,*) 'SGUGA error in P'
+             Write (u6,*) 'SGUGA error in P'
              Call Abend()
           End If
 
-!         call TRIPRT('PA(SGUGA)',' ',PA_sguga,NACPAR)
           If (ABS(CheckSum(PA_sguga,NACPR2)-Check_PA)/SIZE(p_sguga)>1.0e-12_wp) Then
              Check_PA=CheckSum(PA_sguga,NACPR2)
-!            Write (6,*) 'Check_PA=',Check_PA
              Write (6,*) 'SGUGA error in PA'
              Call Abend()
           End If
