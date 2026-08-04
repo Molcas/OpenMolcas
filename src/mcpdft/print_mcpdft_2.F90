@@ -18,7 +18,6 @@
 subroutine print_MCPDFT_2(e_nuc,e_cas,e_ot,state,e_mcscf)
 
 use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
-use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Tau_a1, Tau_a2, Tau_b1, Tau_b2
 use mspdft, only: mspdftmethod
 use PrintLevel, only: USUAL
 use mcpdft_output, only: iPrGlb
@@ -52,26 +51,7 @@ if (iPrGlb >= USUAL) then
 
   write(u6,'(6X,A,40X,F18.8)') 'MCSCF reference energy',e_mcscf
   write(u6,*)
-  write(u6,'(6X,A,45X,F10.3)') 'Integrated total density:',Dens_I
-  write(u6,'(6X,A,12X,F10.3)') 'Integrated alpha density before functional transformation:',Dens_a1
-  write(u6,'(6X,A,12X,F10.3)') 'Integrated  beta density before functional transformation:',Dens_b1
-  write(u6,'(6X,A,12X,F10.3)') 'Integrated alpha density  after functional transformation:',Dens_a2
-  write(u6,'(6X,A,12X,F10.3)') 'Integrated  beta density  after functional transformation:',Dens_b2
-  write(u6,'(6X,A,4X,F18.3)') 'Integrated alpha tau     before functional transformation:',Tau_a1
-  write(u6,'(6X,A,4X,F18.3)') 'Integrated  beta tau     before functional transformation:',Tau_b1
-  write(u6,'(6X,A,4X,F18.3)') 'Integrated alpha tau      after functional transformation:',Tau_a2
-  write(u6,'(6X,A,4X,F18.3)') 'Integrated  beta tau      after functional transformation:',Tau_b2
-  write(u6,'(6X,A)') 'NOTE:'
-  write(u6,'(6X,2A)') 'Densities after transformation are ','intermediate quantities'
-  write(u6,'(6X,2A)') 'and should not be interpreted as ','real spin densities'
-  write(u6,*)
-  write(u6,'(6X,A,32X,F18.6)') 'Exchange energy scaling factor',CoefX
-  write(u6,'(6X,A,29X,F18.6)') 'Correlation energy scaling factor',CoefR
-  write(u6,*)
-  write(u6,'(6X,A,30X,F18.6)') 'Integrated alpha exchange energy',Funcaa
-  write(u6,'(6X,A,30X,F18.6)') 'Integrated beta  exchange energy',Funcbb
-  write(u6,'(6X,A,30X,F18.6)') 'Integrated  correlation   energy',Funccc
-  write(u6,*)
+  call print_pdft_quadrature_info()
 
   write(u6,'(6X,A,38X,F18.8)') 'Nuclear Repulsion energy',E_nuc
   write(u6,'(6X,A,36X,F18.8)') 'CASSCF contribution energy',E_cas
@@ -106,16 +86,7 @@ if (iPrGlb >= USUAL) then
   write(u6,*)
 end if
 
-call Add_Info('dens_tt',[Dens_I],1,6)
-call Add_Info('dens_a1',[Dens_a1],1,6)
-call Add_Info('dens_b1',[Dens_b1],1,6)
-call Add_Info('dens_a2',[Dens_a2],1,6)
-call Add_Info('dens_b2',[Dens_b2],1,6)
-call Add_Info('exch_f',[CoefX],1,6)
-call Add_Info('corr_f',[CoefR],1,6)
-call Add_Info('excha_a',[Funcaa],1,6)
-call Add_Info('excha_b',[Funcbb],1,6)
-call Add_Info('corr_e',[Funccc],1,6)
+call add_pdft_quadrature_info()
 call Add_Info('CASDFTE',[e_state],1,8)
 
 end subroutine print_MCPDFT_2
@@ -127,7 +98,6 @@ use Definitions, only: wp, iwp, u6
 use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
 use mcpdft_input, only: mcpdft_options
 use mcpdft_output, only: iprglb
-use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Tau_a1, Tau_a2, Tau_b1, Tau_b2
 use PrintLevel, only: USUAL
 
 implicit none
@@ -158,26 +128,7 @@ if (iprglb >= USUAL) then
     end do
   end if
   write(u6,*)
-  write(u6,'(6X,A,45X,F10.3)') 'Integrated total density:',Dens_I
-  write(u6,'(6X,A,12X,F10.3)') 'Integrated alpha density before functional transformation:',Dens_a1
-  write(u6,'(6X,A,12X,F10.3)') 'Integrated  beta density before functional transformation:',Dens_b1
-  write(u6,'(6X,A,12X,F10.3)') 'Integrated alpha density  after functional transformation:',Dens_a2
-  write(u6,'(6X,A,12X,F10.3)') 'Integrated  beta density  after functional transformation:',Dens_b2
-  write(u6,'(6X,A,4X,F18.3)') 'Integrated alpha tau     before functional transformation:',Tau_a1
-  write(u6,'(6X,A,4X,F18.3)') 'Integrated  beta tau     before functional transformation:',Tau_b1
-  write(u6,'(6X,A,4X,F18.3)') 'Integrated alpha tau      after functional transformation:',Tau_a2
-  write(u6,'(6X,A,4X,F18.3)') 'Integrated  beta tau      after functional transformation:',Tau_b2
-  write(u6,'(6X,A)') 'NOTE:'
-  write(u6,'(6X,2A)') 'Densities after transformation are ','intermediate quantities'
-  write(u6,'(6X,2A)') 'and should not be interpreted as ','real spin densities'
-  write(u6,*)
-  write(u6,'(6X,A,32X,F18.6)') 'Exchange energy scaling factor',CoefX
-  write(u6,'(6X,A,29X,F18.6)') 'Correlation energy scaling factor',CoefR
-  write(u6,*)
-  write(u6,'(6X,A,30X,F18.6)') 'Integrated alpha exchange energy',Funcaa
-  write(u6,'(6X,A,30X,F18.6)') 'Integrated beta  exchange energy',Funcbb
-  write(u6,'(6X,A,30X,F18.6)') 'Integrated  correlation   energy',Funccc
-  write(u6,*)
+  call print_pdft_quadrature_info()
 
   write(u6,'(6X,A,T70,F18.8)') 'Nuclear Repulsion energy',e_nuc
   write(u6,'(6X,A,T70,F18.8)') 'On-top energy (zeroth-order densities)',e_ot
@@ -210,6 +161,49 @@ if (iprglb >= USUAL) then
   write(u6,*)
 end if
 
+call add_pdft_quadrature_info()
+call Add_Info('LPDFTREF',[e_lpdft],1,8)
+
+end subroutine print_lpdft_finalize
+
+subroutine print_pdft_quadrature_info()
+
+use Definitions, only: u6
+use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
+use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Tau_a1, Tau_a2, Tau_b1, Tau_b2
+
+implicit none
+
+write(u6,'(6X,A,45X,F10.3)') 'Integrated total density:',Dens_I
+write(u6,'(6X,A,12X,F10.3)') 'Integrated alpha density before functional transformation:',Dens_a1
+write(u6,'(6X,A,12X,F10.3)') 'Integrated  beta density before functional transformation:',Dens_b1
+write(u6,'(6X,A,12X,F10.3)') 'Integrated alpha density  after functional transformation:',Dens_a2
+write(u6,'(6X,A,12X,F10.3)') 'Integrated  beta density  after functional transformation:',Dens_b2
+write(u6,'(6X,A,4X,F18.3)') 'Integrated alpha tau     before functional transformation:',Tau_a1
+write(u6,'(6X,A,4X,F18.3)') 'Integrated  beta tau     before functional transformation:',Tau_b1
+write(u6,'(6X,A,4X,F18.3)') 'Integrated alpha tau      after functional transformation:',Tau_a2
+write(u6,'(6X,A,4X,F18.3)') 'Integrated  beta tau      after functional transformation:',Tau_b2
+write(u6,'(6X,A)') 'NOTE:'
+write(u6,'(6X,2A)') 'Densities after transformation are ','intermediate quantities'
+write(u6,'(6X,2A)') 'and should not be interpreted as ','real spin densities'
+write(u6,*)
+write(u6,'(6X,A,32X,F18.6)') 'Exchange energy scaling factor',CoefX
+write(u6,'(6X,A,29X,F18.6)') 'Correlation energy scaling factor',CoefR
+write(u6,*)
+write(u6,'(6X,A,30X,F18.6)') 'Integrated alpha exchange energy',Funcaa
+write(u6,'(6X,A,30X,F18.6)') 'Integrated beta  exchange energy',Funcbb
+write(u6,'(6X,A,30X,F18.6)') 'Integrated  correlation   energy',Funccc
+write(u6,*)
+
+end subroutine print_pdft_quadrature_info
+
+subroutine add_pdft_quadrature_info()
+
+use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
+use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
+
+implicit none
+
 call Add_Info('dens_tt',[Dens_I],1,6)
 call Add_Info('dens_a1',[Dens_a1],1,6)
 call Add_Info('dens_b1',[Dens_b1],1,6)
@@ -220,6 +214,5 @@ call Add_Info('corr_f',[CoefR],1,6)
 call Add_Info('excha_a',[Funcaa],1,6)
 call Add_Info('excha_b',[Funcbb],1,6)
 call Add_Info('corr_e',[Funccc],1,6)
-call Add_Info('LPDFTE',[e_lpdft],1,8)
 
-end subroutine print_lpdft_finalize
+end subroutine add_pdft_quadrature_info
