@@ -43,8 +43,8 @@ module lpdft
   !***********************************************************************
   !> LPDFT Kernel Function.
   !> Basically, compute the L-PDFT Hamiltonian, and then contract it with transition density
-  !> matrices to compute the effective Hamiltonian, whose eigen vectors are state-interaction vectors
-  !> and will be used to roate the SA-RAS CI vectors.
+  !> matrices to compute the effective Hamiltonian, whose eigen vectors are state-interaction
+  !> vectors and will be used to roate the SA-RAS CI vectors.
   !>
   !***********************************************************************
 
@@ -57,7 +57,8 @@ module lpdft
     call set_iadr15()
 
     call get_zero_order_densities(casd1_0, casd1s_0, casd2_0)
-    call block_zero_order_1rdms()
+    ! Takes care of symm.
+    call get_sym_adap_1rdm()
     call compute_Eot_and_potentials(CMO)
 
     call compute_hconst(CMO)
@@ -114,14 +115,14 @@ module lpdft
   !> Keep casd1_0 and casd1s_0 unchanged because the on-top routines read
   !> D1mo in the original canonical packing.
   !>***********************************************************************
-  subroutine block_zero_order_1rdms()
+  subroutine get_sym_adap_1rdm()
     casd1_0_blocked(:) = casd1_0(:)
     casd1s_0_blocked(:) = casd1s_0(:)
     if (nAsh(1) /= nac) then
       call dblock(casd1_0_blocked)
       call dblock(casd1s_0_blocked)
     end if
-  end subroutine block_zero_order_1rdms
+  end subroutine get_sym_adap_1rdm
 
   !>***********************************************************************
   !> compute_Eot_and_potentials
