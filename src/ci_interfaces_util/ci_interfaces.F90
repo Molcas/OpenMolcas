@@ -50,6 +50,7 @@ integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
 #ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_Href, Check_H
+real(kind=wp) :: CS_ref, CS
 real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:)
 #endif
 
@@ -129,11 +130,13 @@ end if
 If (.NOT.iDoGAS .and. nRsPrt==1) Then
    Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
    call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
+   CS_ref=Sum(Abs(Sigma_Vec))
    Check_Href=Dot_Product(CI_Vec,Sigma_Vec)
    Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
    Call sg_h_psi(SGS,CIS,EXS,SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
    Check_H   =Dot_Product(SG_PSI,SG_SGM)
    call SG_Reord(iState,STSYM,1,nCSF,SG_SGM,SG_PSI)
+   CS    =Sum(Abs(SG_Psi))
    If (Abs(Check_HRef-Check_H)/nCSF>1.0E-12_wp) Then
       Write (u6,*) 'SGUGA error in H|Psi>'
       Write (u6,*) 'Check_HRef=',Check_HRef
@@ -142,7 +145,17 @@ If (.NOT.iDoGAS .and. nRsPrt==1) Then
       Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
       Call Abend()
    End If
-!  Sigma_Vec(1:nCSF) = SG_PSI(1:nCSF)
+   If (Abs(CS_ref-CS)/nCSF>1.0E-12_wp) Then
+      Write (u6,*) 'SGUGA error in H|Psi>'
+      Write (u6,*) 'CS_ref=',CS_ref
+      Write (u6,*) 'CS   =',CS
+      Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nCSF)
+      Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
+      Call Abend()
+   End If
+   Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nCSF)
+   Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
+   Sigma_Vec(1:nCSF) = SG_PSI(1:nCSF)
    Call mma_deallocate(SG_SGM)
    Call mma_deallocate(SG_PSI)
 End if
