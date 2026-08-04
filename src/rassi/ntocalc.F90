@@ -332,9 +332,9 @@ do I_NTO=1,N_NTO
   ! Putting particle-hole pairs in the output
   write(u6,*)
   if (I_NTO == 1) then
-    write(u6,'(10X,a)') 'NATURAL TRANSITION ORBTIAL INFORMATION FOR ALPHA SPIN'
+    write(u6,'(10X,a)') 'NATURAL TRANSITION ORBITAL INFORMATION FOR ALPHA SPIN'
   else
-    write(u6,'(10X,a)') 'NATURAL TRANSITION ORBTIAL INFORMATION FOR BETA  SPIN'
+    write(u6,'(10X,a)') 'NATURAL TRANSITION ORBITAL INFORMATION FOR BETA  SPIN'
   end if
   write(u6,'(6X,A)') repeat('=',100)
   write(u6,'(10X,5A18)') 'EXCITATION','EIGENVALUE','EXCITATION','HOLE NTO','PARTICLE NTO'

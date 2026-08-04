@@ -483,12 +483,12 @@ if (Conv1 .and. Saddle) then
       !write(u6,*) 'Update reactant'
       Tmp(6*nAtom+1) = Energy(iter)
       E1 = Energy(iter)
-      Tmp(1:3*nAtom) = reshape(Cx(:,:,iter),[3*nAtom])
+      Tmp(1:3*nAtom) = pack(Cx(:,:,iter),.true.)
     else
       !write(u6,*) 'Update product'
       Tmp(6*nAtom+2) = Energy(iter)
       E2 = Energy(iter)
-      Tmp(3*nAtom+1:6*nAtom) = reshape(Cx(:,:,iter),[3*nAtom])
+      Tmp(3*nAtom+1:6*nAtom) = pack(Cx(:,:,iter),.true.)
     end if
     ! Set flag that seward should process the info! This should not
     ! be done for the final macro iteration.

@@ -42,10 +42,6 @@ integer(kind=iwp), intent(in) :: ijkl, jCmp, lCmp, iAO(4), iAOst(4), jBas, lBas,
 real(kind=wp), intent(in) :: AOint(ijkl,jCmp,lCmp)
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: i2, i4, iAOj, iAOl, iAOstj, iAOstl, ij, iOff, iOffA_, iSO, jSO, jSOj, lSO, lSOl, mm_, mx, nijkl, nn
-#ifdef _DEBUGPRINT_
-real(kind=wp) :: r1, r2
-real(kind=wp), external :: ddot_
-#endif
 
 ! Note on the ordering of the basis functions (valence or auxiliary).
 !
@@ -64,10 +60,8 @@ real(kind=wp), external :: ddot_
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-r1 = DDot_(ijkl*jCmp*lCmp,AOInt,1,[One],0)
-r2 = DDot_(ijkl*jCmp*lCmp,AOInt,1,AOInt,1)
-write(u6,*) ' Sum=',r1
-write(u6,*) ' Dot=',r2
+write(u6,*) ' Sum=',sum(AOInt(:,:,:))
+write(u6,*) ' Dot=',sum(AOInt(:,:,:)**2)
 call RecPrt(' In Plf_RI_2: AOInt',' ',AOInt,ijkl,jCmp*lCmp)
 #endif
 

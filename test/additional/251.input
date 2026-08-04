@@ -3,7 +3,7 @@
 * Basis: DEF2-SVP
 * Symmetry: C1
 * Features tested: GUESSORB, SCF, DFT
-* Responsible person: Ignacio Fdez. Galvan
+* Responsible person: Ignacio Fdez. Galván
 * Comments: GuessOrb with ECP and RICD after SEWARD(OneOnly)
 *-------------------------------------------------------------------------------
 

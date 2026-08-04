@@ -7,7 +7,7 @@
 * Comments: SP calculation of analytical gradients at the MBPT2(FULL)/ANO-L-VTZP
 *           level of theory.
 *-------------------------------------------------------------------------------
-> IF ( $MOLCAS_NPROCS != 1)
+> IF ( $MOLCAS_NPROCS != 1 )
 >   EXIT 36
 > ENDIF
 

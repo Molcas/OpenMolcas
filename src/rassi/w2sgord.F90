@@ -42,7 +42,7 @@ call mma_allocate(ICS,SGS%nLev,Label='ICS')
 
 do ICONF=1,NLIST
   ! Unpack total walk to ICS()
-  call UPKWLK(SGS%nLev,MIPWLK,1,KWALK((ICONF-1)*MIPWLK+1),ICS)
+  call SG_UPKWLK(SGS%nLev,MIPWLK,1,KWALK((ICONF-1)*MIPWLK+1),ICS)
 
   ! Follow upper walk down to SGS%MidLev:
   MAWSU = 0

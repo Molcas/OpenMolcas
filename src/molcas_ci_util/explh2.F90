@@ -47,7 +47,8 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !                                                                      *
 !***********************************************************************
 
-use csfbas, only: CONF, NAEL, NBEL
+use Index_Functions, only: nTri_Elem
+use csfbas, only: NAEL, NBEL
 use timers, only: TimeHSel
 use lucia_data, only: DFTP, DTOC, IREOTS
 use rasscf_global, only: ExFac, NAC
@@ -75,7 +76,7 @@ IPRLEV = IPRLOC(3)
 
 ECORE = Zero
 MXXSEL = NSEL
-NHEX = NSEL*(NSEL+1)/2
+NHEX = nTri_Elem(NSEL)
 
 ! ALLOCATE LOCAL MEMORY
 
@@ -97,7 +98,7 @@ IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
 call mma_maxDBLE(MXXWS)
 call mma_allocate(Scr,MXXWS,label='EXHSCR')
-call PHPCSF(EXHAM,ISEL,CNF,MXXSEL,DTOC,DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,NSEL,NPCNF,DIAG,TUVX, &
+call PHPCSF(EXHAM,ISEL,CNF,MXXSEL,DTOC,DFTP,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,NSEL,NPCNF,DIAG,TUVX, &
             IPRINT,ExFac,IREOTS)
 if (IPRLEV == INSANE) then
   call Square(EXHAM,EXPLV,1,NSEL,NSEL)

@@ -8,24 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module ChoCASPT2
-use definitions, only: iwp
+
+module ChoCASPT2
+
 ! Comment: numcho_pt2, InfVec_N2_PT2, and MaxVec_PT2 are copies
 ! of corresponding values in module Cholesky.
 ! Values are transferred at the beginning of caspt2.
-Integer(kind=iwp) Lsplit(8),nIsplit(8),nAsplit(8),      &
-        nksh(8),nkes(8),npsh(8),npes(8),          &
-        numcho_pt2(8),iALGO,InfVec_N2_PT2,MaxVec_PT2,             &
-        IF_CHO,NCHSPC,NHTSPC,NFTSPC,NFTSPC_TOT,                   &
-        MXNVC,MXCHARR
 
-Type ChoType
-   Integer(kind=iwp), Allocatable:: Unit(:)
-   Integer(kind=iwp), Allocatable:: ip(:)
-   Integer(kind=iwp), Allocatable:: np(:)
-   Integer(kind=iwp), Allocatable:: sp(:)
-End Type ChoType
+use Data_Structures, only: Alloc1DiArray_Type
+use Definitions, only: iwp
 
-Type (ChoType) Stuff(8)
+implicit none
+private
 
-END Module ChoCASPT2
+integer(kind=iwp) :: iALGO, MaxVec_PT2, MXCHARR, MXNVC, nAsplit(8), NCHSPC, NFTSPC, NFTSPC_TOT, NHTSPC, nIsplit(8), nksh(8), &
+                     npsh(8), numcho_pt2(8)
+type(Alloc1DiArray_Type) :: Unt(8)
+
+public :: iALGO, MaxVec_PT2, MXCHARR, MXNVC, NASplit, NCHSPC, NFTSPC, NFTSPC_TOT, NHTSPC, NISplit, nksh, npsh, NumCho_PT2, Unt
+
+end module ChoCASPT2

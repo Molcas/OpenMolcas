@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
+subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2,nTUVX,TUVX)
 ! Transform CI vector on LUCIN with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
 !
@@ -35,9 +35,9 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(in) :: T(*)
+integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3, nTUVX
+real(kind=wp), intent(in) :: T(*), TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
-integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
 integer(kind=iwp) :: K, LBLK
 real(kind=wp) :: TKK
 #ifdef _DEBUGPRINT_
@@ -47,7 +47,6 @@ real(kind=wp), external :: INPRDD
 
 LBLK = -1
 ! Transfer vector on LUCIN to LUSC1
-!    COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
 call COPVCD(LUCIN,LUSC1,VEC1,1,LBLK)
 ! A bit of info for the sigma routine
 I_RES_AB = 0
@@ -70,7 +69,7 @@ do K=1,NTOOB
 # endif
   ! For each orbital calculate (1+T+1/2 T^2)|0>
   ! + T
-  call MV7(VEC1,VEC2,LUSC1,LUSC2)
+  call MV7(VEC1,VEC2,LUSC1,LUSC2,size(TUVX),TUVX)
 # ifdef _DEBUGPRINT_
   write(u6,*) ' Correction vector'
   call WRTVCD(VEC1,LUSC2,1,LBLK)
@@ -82,7 +81,7 @@ do K=1,NTOOB
   call WRTVCD(VEC1,LUSC1,1,LBLK)
 # endif
   ! + 1/2 T^2
-  call MV7(VEC1,VEC2,LUSC2,LUSC3)
+  call MV7(VEC1,VEC2,LUSC2,LUSC3,size(TUVX),TUVX)
 # ifdef _DEBUGPRINT_
   write(u6,*) ' Correction vector'
   call WRTVCD(VEC1,LUSC3,1,LBLK)
@@ -95,15 +94,12 @@ do K=1,NTOOB
   call WRTVCD(VEC1,LUSC1,1,LBLK)
 # endif
 end do
-! And transfer to LUCOUT
 #ifdef _DEBUGPRINT_
 CNORM = INPRDD(VEC1,VEC2,LUSC1,LUSC1,1,LBLK)
 write(u6,*) ' Norm of transformed vector',CNORM
 #endif
-!write(u6,*) ' Transformed vector'
-!call WRTVCD(VEC1,LUSC1,1,LBLK)
+! And transfer to LUCOUT
 IDISK(LUSC1) = 0
-!write(u6,*) ' LUCOUT LUSC1 = ',LUCOUT,LUSC1
 call COPVCD(LUSC1,LUCOUT,VEC1,0,LBLK)
 
 end subroutine TRACID

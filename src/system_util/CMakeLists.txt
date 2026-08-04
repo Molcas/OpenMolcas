@@ -29,7 +29,6 @@ set (sources
      fortran_strings.F90
      get_genome.c
      getenvc.c
-     getenvf.F90
      init_linalg.F90
      iprintlevel.F90
      isstructure.F90

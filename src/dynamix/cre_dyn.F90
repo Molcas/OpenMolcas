@@ -251,6 +251,6 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
   call mh5_close_file(wfn_fileid)
 
 end if
-
 #endif
+
 end subroutine cre_dyn

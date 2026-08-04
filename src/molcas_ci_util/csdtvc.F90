@@ -9,11 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CSDTVC(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,IREFSM,ICOPY)
+subroutine CSDTVC(CSFVEC,DETVEC,IWAY,IREFSM,ICOPY)
 ! PURPOSE: TRANSFORM FROM DETERMINANT TO CSF BASIS AND VICE VERSA
 !          IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
 !          IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 
+use lucia_data, only: DTOC, SDREO
 use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -22,9 +23,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY
+integer(kind=iwp), intent(in) :: IWAY, IREFSM, ICOPY
 real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
-real(kind=wp), intent(in) :: DTOCMT(*)
 integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF
 
 ! To avoid compiler complaints
@@ -58,7 +58,7 @@ if (IWAY == 1) then
   call WRTMAT(CSFVEC,1,NCSF,1,NCSF)
   write(u6,*)
 # endif
-  DETVEC(:) = Zero
+  DETVEC(1:NDET) = Zero
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
     ICSF = NCSFTP(ITYP)
@@ -72,10 +72,10 @@ if (IWAY == 1) then
       IOFFDT = IOFFDT+NCNFTP(ITYP-1,IREFSM)*NDTFTP(ITYP-1)
       IOFFCD = IOFFCD+NDTFTP(ITYP-1)*NCSFTP(ITYP-1)
     end if
-    if ((IDET*ICNF*ICSF) > 0) call MATML4(DETVEC(IOFFDT),DTOCMT(IOFFCD),CSFVEC(IOFFCS),IDET,ICNF,IDET,ICSF,ICSF,ICNF,0)
+    if ((IDET*ICNF*ICSF) > 0) call MATML4(DETVEC(IOFFDT),DTOC(IOFFCD),CSFVEC(IOFFCS),IDET,ICNF,IDET,ICSF,ICSF,ICNF,0)
   end do
-  call Sort_Cdet(nDet,ICTSDT,DetVec)
-  if (ICOPY /= 0) CSFVEC(:) = DETVEC(:)
+  call Sort_Cdet(nDet,SDREO,DetVec)
+  if (ICOPY /= 0) CSFVEC(1:NDET) = DETVEC(1:NDET)
 # ifdef _DEBUGPRINT_
   write(u6,*) '   OUTPUT DET VECTOR:'
   call WRTMAT(DETVEC,1,NDET,1,NDET)
@@ -91,12 +91,12 @@ else
   call WRTMAT(DETVEC,1,NDET,1,NDET)
   write(u6,*)
 # endif
-  call GATVCS(CSFVEC,DETVEC,ICTSDT,NDET)
+  call GATVCS(CSFVEC,DETVEC,SDREO,NDET)
 # ifdef _DEBUGPRINT_
-  write(u6,*) ' ICTSDT reorder array'
-  call IWRTMA(ICTSDT,1,100,1,100)
+  write(u6,*) ' SDREO reorder array'
+  call IWRTMA(SDREO,1,100,1,100)
 # endif
-  DETVEC(:) = CSFVEC(:)
+  DETVEC(1:NDET) = CSFVEC(1:NDET)
   do ITYP=1,NTYP
     IDET = NDTFTP(ITYP)
     ICSF = NCSFTP(ITYP)
@@ -110,7 +110,7 @@ else
       IOFFDT = IOFFDT+NCNFTP(ITYP-1,IREFSM)*NDTFTP(ITYP-1)
       IOFFCD = IOFFCD+NDTFTP(ITYP-1)*NCSFTP(ITYP-1)
     end if
-    if ((IDET*ICNF*ICSF) > 0) call MATML4(CSFVEC(IOFFCS),DTOCMT(IOFFCD),DETVEC(IOFFDT),ICSF,ICNF,IDET,ICSF,IDET,ICNF,1)
+    if ((IDET*ICNF*ICSF) > 0) call MATML4(CSFVEC(IOFFCS),DTOC(IOFFCD),DETVEC(IOFFDT),ICSF,ICNF,IDET,ICSF,IDET,ICNF,1)
   end do
   if (ICOPY /= 0) DETVEC(1:NCSF) = CSFVEC(1:NCSF)
 # ifdef _DEBUGPRINT_

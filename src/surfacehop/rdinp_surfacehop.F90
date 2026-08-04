@@ -11,8 +11,8 @@
 
 subroutine rdinp_surfacehop()
 
-use Tully_variables, only: tullyL, DECO, decoherence, NSUBSTEPS, Ethreshold, RandThreshold, fixedrandL, FixedRand, InitSeed, &
-                           iseedL, tullySubVerb, rassi_ovlp, Run_rassi
+use Surfacehop_globals, only: DECO, decoherence, Ethreshold, FixedRand, fixedrandL, InitSeed, iseedL, NSUBSTEPS, RandThreshold, &
+                              rassi_ovlp, Run_rassi, tullyL, tullySubVerb
 #ifdef _HDF5_
 use Surfacehop_globals, only: lH5Restart, File_H5Res
 #endif
@@ -21,12 +21,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=180) :: Key, Line
+integer(kind=iwp) :: i, LuSpool, maxHop, ndata, NSTATE
 logical(kind=iwp) :: Found
-integer(kind=iwp) :: LuSpool, NSTATE, i, j, ndata, maxHop
-real(kind=wp), allocatable :: temp(:), AmatrixVR(:), AmatrixVI(:)
-character(len=180), external :: Get_Ln
+character(len=180) :: Key, Line
+real(kind=wp), allocatable :: AmatrixVI(:,:), AmatrixVR(:,:), temp(:)
 integer(kind=iwp), external :: IsFreeUnit
+character(len=180), external :: Get_Ln
 
 LuSpool = IsFreeUnit(21)
 call SpoolInp(LuSpool)
@@ -59,22 +59,18 @@ read_input: do
     case ('DMTX')
       Line = Get_Ln(LuSpool)
       call Get_I1(1,NSTATE)
-      call mma_allocate(AmatrixVR,NSTATE*NSTATE,label='AmatrixVR')
-      call mma_allocate(AmatrixVI,NSTATE*NSTATE,label='AmatrixVI')
+      call mma_allocate(AmatrixVR,NSTATE,NSTATE,label='AmatrixVR')
+      call mma_allocate(AmatrixVI,NSTATE,NSTATE,label='AmatrixVI')
       call mma_allocate(temp,NSTATE,label='temp')
       do i=1,NSTATE
         Line = Get_Ln(LuSpool)
         call Get_F(1,temp,NSTATE)
-        do j=1,NSTATE
-          AmatrixVR((i-1)*NSTATE+j) = temp(j)
-        end do
+        AmatrixVR(:,i) = temp(:)
       end do
       do i=1,NSTATE
         Line = Get_Ln(LuSpool)
         call Get_F(1,temp,NSTATE)
-        do j=1,NSTATE
-          AmatrixVI((i-1)*NSTATE+j) = temp(j)
-        end do
+        AmatrixVI(:,i) = temp(:)
       end do
       call mma_deallocate(temp)
       call Qpg_zArray('AmatrixV',Found,ndata)
@@ -99,7 +95,7 @@ read_input: do
       Line = Get_Ln(LuSpool)
       call Get_I1(1,maxHop)
       call Put_iScalar('MaxHopsTully',maxHop)
-      !write(u6,*) 'MaxHops set to ', maxHop
+      !write(u6,*) 'MaxHops set to ',maxHop
     case ('NORA')
       rassi_ovlp = .false.
       Run_rassi = .false.
@@ -122,7 +118,5 @@ read_input: do
 end do read_input
 
 close(LuSpool)
-
-return
 
 end subroutine rdinp_surfacehop

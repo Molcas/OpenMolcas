@@ -39,7 +39,7 @@ contains
 subroutine PCM_alaska_lSA()
 
   integer(kind=iwp) :: iGo
-  character(len=8) Method
+  character(len=8) :: Method
 
   call Get_cArray('Relax Method',Method,8)
   lSA = .false.

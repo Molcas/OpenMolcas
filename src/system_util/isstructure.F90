@@ -22,11 +22,11 @@ integer(kind=iwp) :: IsStructure
 character(len=8) :: level, Val
 
 Val = ' '
-call GetEnvF('MOLCAS_STRUCTURE',Val)
+call get_environment_variable('MOLCAS_STRUCTURE',Val)
 IsStructure = 0
 if (Val == '1') then
   IsStructure = -1
-  call getenvf('EMIL_InLoop',level)
+  call get_environment_variable('EMIL_InLoop',level)
   if (level == '') level = '0'
   if (level(1:1) /= '0') IsStructure = 1
 end if

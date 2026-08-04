@@ -18,7 +18,7 @@ subroutine HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
 !     Output: BUFF                                                     *
 !***********************************************************************
 
-use hfc_logical, only: MAG_X2C
+use hfc_logical, only: MagX2C_Avail
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, Four
 use Definitions, only: wp, iwp, u6
@@ -33,7 +33,7 @@ real(kind=wp) :: DA
 real(kind=wp), allocatable :: TA(:)
 
 ! Set MAG_X2C to avoid add_info in hfcts
-MAG_X2C = .true.
+MagX2C_Avail = .true.
 IOPT = 0
 call mma_allocate(TA,NBUFF,Label='TA')
 ! BUFF needs to be initialized

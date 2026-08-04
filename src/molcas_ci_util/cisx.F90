@@ -29,6 +29,7 @@ real(kind=wp) :: SGN, SGN0
 ! Note: A factor of 2 arises because matrices are folded
 
 ! one-body density
+
 IJO = 0
 NIJ = nTri_Elem(NAC)
 NIJKL = nTri_Elem(NIJ)

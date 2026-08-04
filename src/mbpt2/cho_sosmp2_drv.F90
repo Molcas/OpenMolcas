@@ -30,7 +30,7 @@ subroutine Cho_SOSmp2_Drv(irc,EMP2,CMO,EOcc,EVir)
 use Cholesky, only: LuPri, nSym, NumCho
 use ChoMP2, only: nMP2Vec, nT1am, set_cd_thr, ThrMP2, Verbose
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Five
+use Constants, only: Zero, Five
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -46,7 +46,6 @@ integer(kind=iwp), parameter :: iFmt = 0
 real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
 logical(kind=iwp), parameter :: Delete_def = .true.
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Drv'
-real(kind=wp), external :: ddot_
 
 #ifdef _DEBUGPRINT_
 Verbose = .true.
@@ -117,7 +116,7 @@ end if
 ! Squaring each diagonal element
 ! ------------------------------
 Diag(:) = Diag(:)**2
-if (set_cd_thr) ThrMP2 = ddot_(lDiag,[One],0,Diag,1)/(Five*lDiag)
+if (set_cd_thr) ThrMP2 = sum(Diag)/(Five*real(lDiag,kind=wp))
 
 if (Verbose) then
   call CWTime(CPUTra2,WallTra2)

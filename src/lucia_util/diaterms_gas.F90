@@ -55,7 +55,6 @@ integer(kind=iwp) :: NAST
 #endif
 real(kind=wp) :: EAA, EB, HB, RJBB, X
 
-
 if (LUIN > 0) IDISK(LUIN) = 0
 if (LUOUT > 0) IDISK(LUOUT) = 0
 

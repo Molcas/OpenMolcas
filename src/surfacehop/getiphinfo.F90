@@ -13,20 +13,29 @@ subroutine getIphInfo(JOBIPH,nconf,LROOTS,IADR15)
 
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: JOBIPH, IADR15(15)
 integer(kind=iwp), intent(out) :: nconf, LROOTS
-integer(kind=iwp) :: IAD15, NACTEL, ISPIN, NSYM, LSYM, NROOTS, NHOLE1, NELEC3, IPT2
-integer(kind=iwp) :: nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym), nBas(MxSym), iRoot(MxRoot), nRS1(MxSym), nRS2(MxSym), &
-                     nRS3(MxSym)
-character(len=LenIn+8) :: AtName(MxOrb), Title(18,MxTit)
+integer(kind=iwp) :: IAD15, IPT2, ISPIN, LSYM, NACTEL, nASh(MxSym), nBas(MxSym), nDel(MxSym), NELEC3, nFro(MxSym), NHOLE1, &
+                     nISh(MxSym), NROOTS, nRS1(MxSym), nRS2(MxSym), nRS3(MxSym), NSYM
+real(kind=wp) :: POTNUC
+character(len=LenIn+8) :: Title(18,MxTit)
 character(len=2) :: Header(72)
-real(kind=wp) :: POTNUC, Weight(MxRoot)
+integer(kind=iwp), allocatable :: iRoot(:)
+real(kind=wp), allocatable :: Weight(:)
+character(len=LenIn+8), allocatable :: AtName(:)
 
 IAD15 = IADR15(1)
+call mma_allocate(iRoot,MxRoot,Label='iRoot')
+call mma_allocate(Weight,MxRoot,Label='Weight')
+call mma_allocate(AtName,MxOrb,Label='AtName')
 call WR_RASSCF_Info(JOBIPH,2,IAD15,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,MxSym,AtName,(LenIn+8)*mxOrb,NCONF,HEADER,2*72, &
                     TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
+call mma_deallocate(iRoot)
+call mma_deallocate(Weight)
+call mma_deallocate(AtName)
 
 end subroutine getIphInfo

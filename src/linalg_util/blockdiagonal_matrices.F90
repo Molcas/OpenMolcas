@@ -143,7 +143,7 @@ pure function blocksizes(A) result(res)
 end function blocksizes
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define block_mma_allo_1D, block_mma_allo_1D_lim, block_mma_free_1D
 #define _TYPE_ type(t_blockdiagonal)

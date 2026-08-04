@@ -9,60 +9,79 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SG_PrWF(SGS,CIS,LSYM,PRWTHR,iSpin,CI,lCI,KeyPRSD,LUVECDET)
-! PURPOSE: PRINT THE WAVEFUNCTION (SPIN COUPLING AND OCCUPATIONS)
-!
-! NOTE:    THIS ROUTINE USES THE SPLIT GRAPH GUGA CONVENTION, I.E.,
-!          CI BLOCKS ARE MATRICES CI(I,J), WHERE THE  FIRST INDEX
-!          REFERS TO THE UPPER PART OF THE WALK.
+subroutine SG_PRWF(SGS,CIS,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
 
-use sguga, only: CIStruct, SGStruct, MkCList
+use sguga, only: CIStruct, nPack, SGStruct
+use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
-integer(kind=iwp), intent(in) :: LSYM, iSpin, lCI, LUVECDET
-real(kind=wp), intent(in) :: PRWTHR, CI(lCI)
-logical(kind=iwp), intent(in) :: KeyPrSD
-integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICS(50), ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, iOff, ISYDWN, ISYM, ISYUP, IUP, &
-                     IUW0, LEV, MV, NCI, NDWN, NNN, NUP
+integer(kind=iwp), intent(in) :: ISYCI, iSpin, lCI, LuVecDet
+logical(kind=iwp), intent(in) :: KeyPRSD
+real(kind=wp), intent(in) :: CITHR, CI(lCI)
+integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP, IUW0, K, KNXT, &
+                     KOCLAB, KOCSZ, KPAD1, KPAD2, LEV, MV, NCI, NDWN, NNN, NUP
 real(kind=wp) :: COEF
-character(len=400) :: Line
-integer(kind=iwp), allocatable :: Lex(:)
-
-! RECONSTRUCT THE CASE LIST
-
-if (.not. allocated(CIS%iCase)) call MKCLIST(SGS,CIS)
+character(len=80) :: LINE
+integer(kind=iwp), allocatable :: ICS(:), Lex(:)
+logical(kind=iwp), parameter :: SGINFO = .true.
+character, parameter :: CODE(0:3) = ['0','u','d','2']
 
 ! scratch for determinant expansion
 if (KeyPRSD) call mma_allocate(LEX,SGS%nLev,Label='LEX')
 
-Line(1:16) = '      conf/sym  '
-iOff = 16
-iSym = SGS%ISm(1)
-do Lev=1,SGS%nLev
-  if (SGS%ISm(Lev) /= iSym) iOff = iOff+1
-  write(Line(iOff+Lev:),'(I1)') SGS%ISm(Lev)
-  if (SGS%ISm(Lev) /= iSym) iSym = SGS%ISm(Lev)
+! -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
+! -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
+! -- THE   U P P E R   PART OF THE WALK.
+! -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
+!    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
+
+call mma_allocate(ICS,SGS%nLev,Label='ICS')
+
+! Size of occup/spin coupling part of line:
+write(u6,*)
+write(u6,*) '     Occupation of active orbitals, and spin coupling of open shells. (u,d: Spin up or down).'
+write(u6,*)
+LINE = ''
+K = 0
+ISY = 0
+do LEV=1,SGS%nLev
+  if (ISY /= SGS%ISM(LEV)) then
+    ISY = SGS%ISM(LEV)
+    K = K+1
+  end if
+  K = K+1
 end do
-iOff = iOff+SGS%nLev+3
-Line(iOff:iOff+15) = '   Coeff  Weight'
-write(u6,'(A)') Line(1:iOff+15)
-Line = ' '
+KOCLAB = 10
+KOCSZ = max(K,KOCLAB)
+KPAD1 = (KOCSZ-KOCLAB)/2
+KPAD2 = (KOCSZ-K)/2
+if (SGINFO) write(u6,*) '     SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
+LINE(1:10) = '     Conf '
+K = 10
+if (SGINFO) then
+  LINE(K+1:K+15) = '  SGUGA info   '
+  K = K+15
+end if
+LINE(K+KPAD1:K+KPAD1+9) = 'Occupation'
+K = K+KOCSZ
+LINE(K:K+23) = '       Coef       Weight'
+write(u6,*) LINE
+LINE = ''
 
-! ENTER THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
-! WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-
+! -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
+!    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
 do MV=1,CIS%nMidV
-  do ISYUP=1,SGS%nSym
-    NCI = CIS%NOCSF(ISYUP,MV,LSYM)
+  do ISYUP=1,nIrrep
+    NCI = CIS%NOCSF(ISYUP,MV,ISYCI)
     if (NCI == 0) cycle
     NUP = CIS%NOW(1,ISYUP,MV)
-    ISYDWN = 1+ieor(ISYUP-1,LSYM-1)
+    ISYDWN = MUL(ISYUP,ISYCI)
     NDWN = CIS%NOW(2,ISYDWN,MV)
-    ICONF = CIS%IOCSF(ISYUP,MV,LSYM)
+    ICONF = CIS%IOCSF(ISYUP,MV,ISYCI)
     IUW0 = 1-CIS%nIpWlk+CIS%IOW(1,ISYUP,MV)
     IDW0 = 1-CIS%nIpWlk+CIS%IOW(2,ISYDWN,MV)
     IDWNSV = 0
@@ -70,19 +89,19 @@ do MV=1,CIS%nMidV
       do IUP=1,NUP
         ICONF = ICONF+1
         COEF = CI(ICONF)
-        ! SKIP OR PRINT IT OUT?
-        if (abs(COEF) < PRWTHR) cycle
+        ! -- SKIP OR PRINT IT OUT?
+        if (abs(COEF) < CITHR) cycle
         if (IDWNSV /= IDWN) then
           ICDPOS = IDW0+IDWN*CIS%nIpWlk
-          ICDWN = CIS%iCase(ICDPOS)
-          ! UNPACK LOWER WALK.
+          ICDWN = CIS%ICase(ICDPOS)
+          ! -- UNPACK LOWER WALK.
           NNN = 0
           do LEV=1,SGS%MidLev
             NNN = NNN+1
-            if (NNN == 16) then
+            if (NNN == nPack+1) then
               NNN = 1
               ICDPOS = ICDPOS+1
-              ICDWN = CIS%iCase(ICDPOS)
+              ICDWN = CIS%ICase(ICDPOS)
             end if
             IC1 = ICDWN/4
             ICS(LEV) = ICDWN-4*IC1
@@ -91,46 +110,57 @@ do MV=1,CIS%nMidV
           IDWNSV = IDWN
         end if
         ICUPOS = IUW0+CIS%nIpWlk*IUP
-        ICUP = CIS%iCase(ICUPOS)
-        ! UNPACK UPPER WALK:
+        ICUP = CIS%ICase(ICUPOS)
+        ! -- UNPACK UPPER WALK:
         NNN = 0
         do LEV=SGS%MidLev+1,SGS%nLev
           NNN = NNN+1
-          if (NNN == 16) then
+          if (NNN == nPack+1) then
             NNN = 1
             ICUPOS = ICUPOS+1
-            ICUP = CIS%iCase(ICUPOS)
+            ICUP = CIS%ICase(ICUPOS)
           end if
           IC1 = ICUP/4
           ICS(LEV) = ICUP-4*IC1
           ICUP = IC1
         end do
-        ! PRINT IT!
-        write(Line(1:),'(I8)') iConf
-        iOff = 10
-        iSym = SGS%ISm(1)
-        do Lev=1,SGS%nLev
-          if (SGS%ISm(Lev) /= iSym) iOff = iOff+1
-
-          select case (ICS(Lev))
-            case (3)
-              write(Line(iOff+Lev:),'(A1)') '2'
-            case (2)
-              write(Line(iOff+Lev:),'(A1)') 'd'
-            case (1)
-              write(Line(iOff+Lev:),'(A1)') 'u'
-            case (0)
-              write(Line(iOff+Lev:),'(A1)') '0'
-            case default
-              call Abend()
-          end select
-
-          if (SGS%ISm(Lev) /= iSym) iSym = SGS%ISm(Lev)
-
+        ! -- PRINT IT!
+        write(LINE(1:8),'(I7,1X)') ICONF
+        K = 8
+        if (SGINFO) then
+          LINE(K+1:K+1) = '('
+          write(LINE(K+2:K+3),'(I2)') MV
+          LINE(K+4:K+4) = ':'
+          write(LINE(K+5:K+5),'(I1)') ISYUP
+          LINE(K+6:K+6) = ':'
+          write(LINE(K+7:K+9),'(I3)') IUP
+          LINE(K+10:K+10) = '/'
+          write(LINE(K+11:K+13),'(I3)') IDWN
+          LINE(K+14:K+14) = ')'
+          K = K+14
+        end if
+        KNXT = K+KOCSZ
+        K = K+KPAD2
+        ISY = 0
+        do LEV=1,SGS%nLev
+          if (ISY /= SGS%ISM(LEV)) then
+            ISY = SGS%ISM(LEV)
+            K = K+1
+            LINE(K:K) = ' '
+          end if
+          K = K+1
+          LINE(K:K) = CODE(ICS(LEV))
         end do
-        iOff = iOff+SGS%nLev+3
-        write(Line(iOff:),'(2F8.5)') COEF,COEF**2
-        write(u6,'(6X,A)') Line(1:iOff+15)
+        K = KNXT
+        K = K+1
+        LINE(K:K+4) = '     '
+        K = K+5
+        write(LINE(K:K+7),'(F8.5)') COEF
+        K = K+8
+        LINE(K:K+4) = '     '
+        K = K+5
+        write(LINE(K:K+7),'(F8.5)') COEF**2
+        write(u6,*) LINE(1:K+7)
         if (KeyPRSD) then
           ! use maximum spin projection value
           IMS = ISPIN-1
@@ -143,8 +173,12 @@ do MV=1,CIS%nMidV
     end do
   end do
 end do
+write(u6,*)
+write(u6,*) '     ',repeat('*',120)
+
+call mma_deallocate(ICS)
 
 ! free memory for determinant expansion
 if (KeyPRSD) call mma_deallocate(LEX)
 
-end subroutine SG_PrWF
+end subroutine SG_PRWF

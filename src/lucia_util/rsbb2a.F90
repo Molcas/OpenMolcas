@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST, &
-                  SCLFAC,IPHGAS)
+                  SCLFAC,IPHGAS,nTUVX,TUVX)
 ! SUBROUTINE RSBB2A --> 46
 !
 ! two electron excitations on column strings
@@ -71,9 +71,9 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), NSMST, NOBPTS(MXPNGAS,*), &
-                                 MAXI, MAXK, NSMOB, IPHGAS(NGAS)
+                                 MAXI, MAXK, NSMOB, IPHGAS(NGAS), nTUVX
 real(kind=wp), intent(inout) :: SB(*)
-real(kind=wp), intent(in) :: CB(*), SCLFAC
+real(kind=wp), intent(in) :: CB(*), SCLFAC, TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), XINT(*)
 integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*)
 integer(kind=iwp) :: I, I1JL, I4_AC(4), I4_REO(4), I4_TP(4), IAC, IBOT, ICOUL, IDXSM, IDXTYP, IFIRST, IFRST, II12, IIPART, IJKL, &
@@ -380,7 +380,7 @@ if (IDXSM /= 0) then
                   JFRST = 0
                   KFRST = 0
 
-                  if  (NKBTC == 0) exit outer
+                  if (NKBTC == 0) exit outer
                   ! Loop over jl in TS classes
                   J = 0
                   L = 1
@@ -444,7 +444,7 @@ if (IDXSM /= 0) then
                       IXCHNG = 1
                       ! fetch integrals
                       ! Full conjugation symmetry, do do not worry
-                      call GETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
+                      call GETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
                       ! End if similarity transformed Hamiltonian is used
                       do JL=1,NJL
                         XINT(IKOFF+(JLOFF-1+JL-1)*NIKT:IKOFF+(JLOFF-1+JL-1)*NIKT+NIK-1) = SCR((JL-1)*NIK+1:JL*NIK)
@@ -693,9 +693,9 @@ if (IDXSM /= 0) then
                     ! we want the operator in the form a+i ak a+l aj ((ij!lk)-(ik!lj))
                     if (ICOUL == 2) then
                       ! Obtain X2(ik,lj) = (ij!lk)
-                      call GETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,KTYP,KSM,IXCHNG,IKSM,JLSM,ICOUL)
+                      call GETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,KTYP,KSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
                     else if (ICOUL == 1) then
-                      call GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
+                      call GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
                     end if
 
                   end if
@@ -740,7 +740,7 @@ if (IDXSM /= 0) then
 
                   !KFRST = 1
                   call ADAADAST_GAS(1,ISM,ITYP,NI,IAC,1,KSM,KTYP,NK,KAC,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST, &
-                                  KFRST,II12,K12,One)
+                                    KFRST,II12,K12,One)
 
                   IFRST = 0
                   KFRST = 0

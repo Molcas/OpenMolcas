@@ -25,10 +25,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ISTATE, NCI
-type(SGStruct), intent(in) :: SGS
-type(CIStruct), intent(in) :: CIS
+type(SGStruct), intent(inout) :: SGS
+type(CIStruct), intent(inout) :: CIS
 real(kind=wp), intent(out) :: CI(NCI)
-integer(kind=iwp) :: I, IAD, IDISK, JOB, LROOT1, LSYM
+integer(kind=iwp) :: I, IAD, IDISK, JOB, LROOT1, LSYM, LUDUM
 #ifdef _HDF5_
 integer(kind=iwp) :: refwfn_id, IDXCI
 integer(kind=iwp), allocatable :: root2state(:)
@@ -87,14 +87,14 @@ end if
 
 if ((IPGLOB > 0) .and. PRCI) then
   write(u6,*) ' READCI called for state ',ISTATE
-  write(u6,*) ' This is on JobIph nr.',JOB
-  write(u6,*) ' JobIph file name:',JBNAME(JOB)
-  write(u6,*) ' It is root nr.',LROOT(ISTATE)
-  write(u6,*) ' Its length NCI=',NCI
-  write(u6,*) ' Its symmetry  =',IRREP(JOB)
-  write(u6,*) ' Spin multiplic=',MLTPLT(JOB)
+  write(u6,*) ' This is on JobIph nr.    ',JOB
+  write(u6,*) ' JobIph file name:        ',JBNAME(JOB)
+  write(u6,*) ' It is root nr.           ',LROOT(ISTATE)
+  write(u6,*) ' Its length NCI=          ',NCI
+  write(u6,*) ' Its symmetry  =          ',IRREP(JOB)
+  write(u6,*) ' Spin multiplicity=       ',MLTPLT(JOB)
   LSYM = IRREP(JOB)
-  call PRWF(SGS,CIS,LSYM,CI,CITHR)
+  call SG_PRWF(SGS,CIS,LSYM,CITHR,MLTPLT(JOB),CI,NCI,.false.,LUDUM)
 end if
 
 end subroutine READCI

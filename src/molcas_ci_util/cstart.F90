@@ -44,10 +44,9 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 !                                                                      *
 !***********************************************************************
 
-use csfbas, only: CONF
-use lucia_data, only: CFTP
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
-use general_data, only: JOBIPH, JOBOLD, LUDAVID, NACTEL, NCONF, NSEL, STSYM
+use sguga_states, only: CIS, EXS, SGS
+use general_data, only: JOBIPH, JOBOLD, LUDAVID, NCONF, NSEL, STSYM
 use gas_data, only: iDoGas
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
@@ -72,8 +71,8 @@ integer(kind=iwp) :: mh5id
 #endif
 logical(kind=iwp) :: Exists
 character(len=80) :: String
-integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Tmp1(:)
+integer(kind=iwp), parameter :: iState = 1
 
 IPRLEV = IPRLOC(3)
 
@@ -128,18 +127,16 @@ if (Start_Vectors) then
         mh5id = mh5_open_file_r(StartOrbFile)
 
         call mma_allocate(Tmp1,nConf,label='Scr1')
-        call mma_allocate(vkcnf,nactel,label='kcnf')
         do i=1,lRoots
           call mh5_fetch_dset(mh5id,'CI_VECTORS',Tmp1,[nconf,1],[0,i-1])
           if (.not. iDoGas) then
-            call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
+            call SG_Reord(SGS(istate),EXS(istate),STSYM,1,CIS(istate)%nCSF(STSYM),Tmp1,C)
           else
             C(1:nConf) = Tmp1(1:nConf)
           end if
           call Save_CI_vec(i,nConf,C,LuDavid)
         end do
         call mma_deallocate(Tmp1)
-        call mma_deallocate(vkcnf)
 
         call mh5_close_file(mh5id)
       else
@@ -171,11 +168,10 @@ if (Start_Vectors) then
       call IDafile(JOBOLD,2,iToc,15,iDisk)
       iDisk = iToc(4)
       call mma_allocate(Tmp1,nConf,label='Scr1')
-      call mma_allocate(vkcnf,nactel,label='kcnf')
       do i=1,lRoots
         call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
         if (.not. iDoGas) then
-          call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
+          call SG_Reord(SGS(istate),EXS(istate),STSYM,1,CIS(istate)%nCSF(STSYM),Tmp1,C)
         else
           C(1:nConf) = Tmp1(1:nConf)
         end if
@@ -188,7 +184,6 @@ if (Start_Vectors) then
         end if
       end do
       call mma_deallocate(Tmp1)
-      call mma_deallocate(vkcnf)
       if (iJOB == 1) then
         if ((JOBOLD > 0) .and. (JOBOLD /= JOBIPH)) then
           call DaClos(JOBOLD)

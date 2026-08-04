@@ -26,6 +26,7 @@ subroutine OrthoPAO_Localisation(X,nBas,nFro,nOrb2Loc,nSym,nPass,Test)
 !
 ! NOTE: X is assumed to contain all orbitals!!
 
+use Index_Functions, only: nTri_Elem
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -69,7 +70,7 @@ do iSym=2,nSym
   nO2LMax = max(nO2LMax,nOrb2Loc(iSym))
 end do
 
-l_Scr = 2*(nBasMax**2)+nBasMax*(nBasMax+1)/2  ! needed in SqrtMt
+l_Scr = 2*(nBasMax**2)+nTri_Elem(nBasMax)  ! needed in SqrtMt
 call mma_allocate(Vt,nO2LMax**2,3,label='V')
 call mma_allocate(Scr,l_Scr,label='Scr')
 

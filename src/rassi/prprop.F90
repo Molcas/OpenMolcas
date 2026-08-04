@@ -14,16 +14,19 @@ subroutine PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,EigVec)
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: SODYSAMPS
 use kVectors, only: k_Vector, nk_Vector
-use Cntrl, only: BAngRes, BIncre, BStart, DIPR, Do_SK, Do_TMom, DoCD, DYSO, EPrThr, iComp, IfACAL, IfGCAL, IfGTCALSA, IfGTSHSA, &
-                 IfMCal, IFSO, IfvanVleck, IfXCal, IPUSED, ISOCMP, LoopDivide, LoopMax, LPRPR, MLTPLT, MULTIP, NBSTep, NPROP, &
-                 NSOPR, NSTATE, NTS, nTStep, OSThr_DIPR, OSthr_QIPR, PNAME, PNUC, PORIG, PRDIPCOM, PRMEE, PRMES, PRXVE, PTYPE, &
-                 QIALL, QIPR, ReduceLoop, RSPR, RSThr, SOPRNM, SOPRTP, TIncre, TMaxs, TMins, Tolerance, TStart
+use Cntrl, only: Atens_Req, BAngRes, BIncre, BStart, DIPR, Do_SK, Do_TMom, DoCD, DYSO, EPrThr, HypF_rms_Req, iComp, IfGCAL, &
+                 IfGTCALSA, IfGTSHSA, IfMCal, IFSO, IfvanVleck, IfXCal, IPUSED, ISOCMP, LoopDivide, LoopMax, LPRPR, MLTPLT, &
+                 MULTIP, NBSTep, NPROP, NSOPR, NSTATE, NTS, nTStep, OSThr_DIPR, OSthr_QIPR, PNAME, pNMR_req, PNUC, PORIG, &
+                 PRDIPCOM, PRMEE, PRMES, PRXVE, PTYPE, QIALL, QIPR, ReduceLoop, RSPR, RSThr, SOPRNM, SOPRTP, TIncre, TMaxs, TMins, &
+                 Tolerance, TStart
+use hfcop, only: Hyperfine_Oper
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use RASSIWfn, only: wfn_sfs_amfi, wfn_sfs_angmom, wfn_sfs_edipmom, wfn_sos_angmomi, wfn_sos_angmomr, wfn_sos_dys, &
                     wfn_sos_edipmomi, wfn_sos_edipmomr, wfn_sos_spini, wfn_sos_spinr
 use Cntrl, only: RhoDyn
 #endif
+use wigner_util, only: w3j
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Six, Nine, Ten, Half, Quart, OneHalf, Pi, cZero, auTocm, auToeV, auTofs, auTokJ, &
                      auToT, c_in_au, Debye, deg2rad, gElectron, kBoltzmann, mBohr, rNAVO
@@ -47,7 +50,7 @@ real(kind=wp) :: A, AFactor, AX, AY, AZ, B, BFinal, bPhiRes, Bx, By, Bz, c_1(3,3
                  GSTENS(3,3), GTENS(3,3), GTij, GTOTAL(3,3), OSthr, OSThr2, p_Boltz, paramt(3,3), Phi, PLIMIT, PMAX, Q_XXI, Q_XXR, &
                  Q_XYI, Q_XYR, Q_XZI, Q_XZR, Q_YYI, Q_YYR, Q_YZI, Q_YZR, Q_ZZI, Q_ZZR, R, RKT, RMAGM(3), rMagMO, RPart, &
                  Rtensor(6), RXX, RXXY, RXXZ, RXY, RXYX, RXYY, RXYZ, RXZ, RXZX, RXZY, RXZZ, RYX, RYY, RYYX, RYYZ, RYZ, RYZX, RYZY, &
-                 RYZZ, RZX, RZY, RZZ, RZZX, RZZY, S, S1, S2, SOSTERM(3,3), T, TFinal, THE, ThreEJ, TMPm(NTS), TMPMAT(3,3), &
+                 RYZZ, RZX, RZY, RZZ, RZZX, RZZY, S, S1, S2, SOSTERM(3,3), T, TFinal, THE, TMPm(NTS), TMPMAT(3,3), &
                  TMPVEC(3,3), Zstat
 complex(kind=wp) :: T0(3), TM1
 logical(kind=iwp) :: IFAMFI, IFANGM, IFDIP1
@@ -1547,9 +1550,9 @@ if (.false.) then
   ISTATE = 1
   MPLET1 = MLTPLT(JBNUM(ISTATE))
   S1 = Half*real(MPLET1-1,kind=wp)
-  FACT0 = THREEJ(S1,One,S1,S1,Zero,-S1)*THREEJ(S1,One,S1,S1,Zero,-S1)/(S1*S1)
-  FACTP = THREEJ(S1+One,One,S1,S1+One,-One,-S1)*THREEJ(S1,One,S1+One,S1,One,-(S1+One))/((S1+One)*(Two*S1+One))
-  FACTM = THREEJ(S1-One,One,S1,S1-One,One,-S1)*THREEJ(S1,One,S1-One,S1,-One,-(S1-One))/(S1*(Two*S1-One))
+  FACT0 = w3j(S1,One,S1,S1,Zero,-S1)*w3j(S1,One,S1,S1,Zero,-S1)/(S1*S1)
+  FACTP = w3j(S1+One,One,S1,S1+One,-One,-S1)*w3j(S1,One,S1+One,S1,One,-(S1+One))/((S1+One)*(Two*S1+One))
+  FACTM = w3j(S1-One,One,S1,S1-One,One,-S1)*w3j(S1,One,S1-One,S1,-One,-(S1-One))/(S1*(Two*S1-One))
   !write(u6,*)
   !write(u6,*) 'S1 ', S1
   !write(u6,*) 'FACT0 ', FACT0
@@ -2254,7 +2257,7 @@ end if
 !*****************************************************
 
 ! Skip if not a hyperfine calculation
-if (IFACAL) call HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,ESO,XYZCHR,BOLTZ_K)
+if (HypF_rms_Req .or. allocated(Atens_Req) .or. allocated(pNMR_req)) call Hyperfine_Oper(PROP,USOR,USOI,JBNUM)
 
 !*****************************************************
 !* Experimental hyperfine tensor stuff ends here

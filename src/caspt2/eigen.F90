@@ -1,0 +1,46 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Stefano Battaglia                                *
+!***********************************************************************
+! This subroutine diagonalizes a real symmetric matrix A using
+! the Jacobi algorithm
+
+subroutine eigen(A,U,N)
+
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(N,N)
+real(kind=wp), intent(out) :: U(N,N)
+integer(kind=iwp) :: I, IJ, NSCR
+real(kind=wp), allocatable :: SCR(:)
+
+NSCR = nTri_Elem(N)
+call mma_allocate(SCR,NSCR,LABEL='SCR')
+
+IJ = 0
+do I=1,N
+  SCR(IJ+1:IJ+I) = A(I,1:I)
+  IJ = IJ+I
+end do
+
+! Initialize U as the identity matrix
+call unitmat(U,N)
+
+! Call Jacobi algorithm
+call JACOB(SCR,U,N,N)
+
+call mma_deallocate(SCR)
+
+end subroutine eigen
