@@ -439,6 +439,8 @@ module lpdft
   end subroutine compute_hconst
 
   function contract_puvx_2rdm(puvx, p2) result(energy)
+    ! The 2-RDM is canonically pair-pair packed, not symmetry blocked;
+    ! PMAT_RASSCF reorders it to match the symmetry-blocked PUVX layout.
     real(kind=wp), intent(in) :: puvx(nfint), p2(nacpr2)
     real(kind=wp) :: energy
     real(kind=wp), allocatable :: p2_reordered(:)
@@ -534,6 +536,8 @@ module lpdft
     real(kind=wp) :: lpdft_comp
 
     h2e_lpdft_act(:) = 0.0D0
+    ! Convert the symmetry-blocked on-top potential to canonical pair-pair packing;
+    ! symmetry-forbidden elements stay zero for contraction with the canonical 2-TDM.
     call get_tuvx(veff2, h2e_lpdft_act)
 
     ! Adding the hybrid component, if needed.
@@ -753,6 +757,8 @@ module lpdft
   function contract_spin_sum_2tdm(h2,tdm2) result(energy)
 
     implicit none
+    ! The spin-summed 2-TDM uses ordered-pair packing and is not symmetry blocked;
+    ! h2 is in canonical pair-pair packing, with symmetry-forbidden entries zero.
     real(kind=wp), intent(in) :: h2(nacpr2), tdm2(:)
     real(kind=wp) :: energy
     integer(kind=iwp) :: h2Index, iAct, ij, ijPair, ijkl, jAct, kAct, kl, klPair, lAct
