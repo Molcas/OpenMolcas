@@ -31,6 +31,7 @@ module lpdft
   real(kind=wp) :: e_wfn_lpdft = 0.0D0
   real(kind=wp), allocatable, dimension(:) :: dm1_core
   real(kind=wp), allocatable, dimension(:) :: casd1_0, casd1s_0, casd2_0
+  real(kind=wp), allocatable, dimension(:) :: casd1_0_blocked, casd1s_0_blocked
   real(kind=wp), allocatable, dimension(:) :: veff1, veff2
   real(kind=wp), allocatable, dimension(:) :: h1e_lpdft_ao, h1e_lpdft_act, h2e_lpdft_act
   real(kind=wp), allocatable, dimension(:) :: vj, vjk
@@ -56,6 +57,7 @@ module lpdft
     call set_iadr15()
 
     call get_zero_order_densities(casd1_0, casd1s_0, casd2_0)
+    call block_zero_order_1rdms()
     call compute_Eot_and_potentials(CMO)
 
     call compute_hconst(CMO)
@@ -106,6 +108,22 @@ module lpdft
   end subroutine get_zero_order_densities
 
   !>***********************************************************************
+  !> Convert the state-averaged active 1-RDMs from the canonical active-
+  !> orbital packing used on JOBIPH to the compact irrep-blocked packing
+  !> expected by Get_D1A_RASSCF and the symmetry-blocked MO contractions.
+  !> Keep casd1_0 and casd1s_0 unchanged because the on-top routines read
+  !> D1mo in the original canonical packing.
+  !>***********************************************************************
+  subroutine block_zero_order_1rdms()
+    casd1_0_blocked(:) = casd1_0(:)
+    casd1s_0_blocked(:) = casd1s_0(:)
+    if (nAsh(1) /= nac) then
+      call dblock(casd1_0_blocked)
+      call dblock(casd1s_0_blocked)
+    end if
+  end subroutine block_zero_order_1rdms
+
+  !>***********************************************************************
   !> compute_Eot_and_potentials
   !> Compute the on-top energy and the on-top potentials. This is done by
   !> calling the DrvXV routine, which computes the effective potential for
@@ -127,8 +145,8 @@ module lpdft
       logical, parameter :: First=.True., Dff=.False., Do_DFT=.True.
 
       ! Convert CASD1 (MO) -> AO Basis
-      call Get_D1A_RASSCF(CMO, casd1_0, casd1AO_0)
-      call Get_D1A_RASSCF(CMO, casd1s_0, casd1sAO_0)
+      call Get_D1A_RASSCF(CMO, casd1_0_blocked, casd1AO_0)
+      call Get_D1A_RASSCF(CMO, casd1s_0_blocked, casd1sAO_0)
 
       call Fold(nSym, nBas, dm1_core, d1ao_0)
       call Fold(nSym, nBas, casD1AO_0, casD1AO_folded_0)
@@ -219,15 +237,45 @@ module lpdft
         iMO = nIsh(iSym)+iAct
         do jAct=1,iAct
           jMO = nIsh(iSym)+jAct
-          d1mo(iMOff+iTri(iMO,jMO)-1) = casd1_0(iActOff)
+          d1mo(iMOff+iTri(iMO,jMO)-1) = casd1_0_blocked(iActOff)
           if (iAct /= jAct) &
-            d1mo(iMOff+iTri(iMO,jMO)-1) = 2.0_wp*casd1_0(iActOff)
+            d1mo(iMOff+iTri(iMO,jMO)-1) = 2.0_wp*casd1_0_blocked(iActOff)
           iActOff = iActOff+1
         end do
       end do
       iMOff = iMOff+nTri_Elem(iOrb)
     end do
   end subroutine get_dm1_mo
+
+  !***********************************************************************
+  !> Expand a compact irrep-blocked active-space one-electron matrix into
+  !> canonical triangular packing over all active orbitals. Cross-irrep
+  !> elements remain zero for a totally symmetric one-electron operator.
+  !> The RDM and TDM contractions use this canonical packing.
+  !***********************************************************************
+  subroutine unblock_active_1e(matrix)
+    use Index_Functions, only: iTri
+
+    real(kind=wp), intent(inout) :: matrix(nacpar)
+    real(kind=wp), allocatable :: canonical(:)
+    integer(kind=iwp) :: activeOffset, blockedIndex, iAct, iSym, jAct
+
+    call mma_allocate(canonical, nacpar, "ACTIVE_1E_CANONICAL")
+    canonical(:) = 0.0_wp
+    activeOffset = 0
+    blockedIndex = 0
+    do iSym=1,nSym
+      do iAct=1,nAsh(iSym)
+        do jAct=1,iAct
+          blockedIndex = blockedIndex+1
+          canonical(iTri(activeOffset+iAct,activeOffset+jAct)) = matrix(blockedIndex)
+        end do
+      end do
+      activeOffset = activeOffset+nAsh(iSym)
+    end do
+    matrix(:) = canonical(:)
+    call mma_deallocate(canonical)
+  end subroutine unblock_active_1e
 
   !***********************************************************************
   !> get_e_vhf_core
@@ -329,7 +377,7 @@ module lpdft
     ! energy term to shift the diagonal elements of the effective Hamiltonian.
 
     ! Core density matrix in AO basis
-    call Get_D1A_RASSCF(CMO, casd1_0, casd1AO_0)
+    call Get_D1A_RASSCF(CMO, casd1_0_blocked, casd1AO_0)
     call Fold(nSym, nBas, dm1_core, d1ao_0)
     ! Just the active space density matrix in AO basis
     call Fold(nSym, nBas, casd1AO_0, casD1AO_folded_0)
@@ -470,6 +518,8 @@ module lpdft
     if (mcpdft_options%otfnal%is_hybrid()) &
       lpdft_comp = One-mcpdft_options%otfnal%lambda
     call dscal_(nacpar, lpdft_comp, h1e_lpdft_act, 1)
+
+    call unblock_active_1e(h1e_lpdft_act)
 
     call mma_deallocate(vjk_act)
     call mma_deallocate(vj_act)
@@ -835,6 +885,8 @@ module lpdft
 
     call mma_allocate(casd1_0, nacpar, "CASD1_0")
     call mma_allocate(casd1s_0, nacpar, "CASD1s_0")
+    call mma_allocate(casd1_0_blocked, nacpar, "CASD1_0_BLOCKED")
+    call mma_allocate(casd1s_0_blocked, nacpar, "CASD1s_0_BLOCKED")
     call mma_allocate(casd2_0, nacpr2, "CASD2_0")
     call mma_allocate(dm1_core, ntot2, "dm1_core")
     call mma_allocate(veff1, ntot1, "1E-OnTopPot")
@@ -859,6 +911,8 @@ module lpdft
     e_wfn_lpdft = 0.0D0
     casd1_0(:) = 0.0D0
     casd1s_0(:) = 0.0D0
+    casd1_0_blocked(:) = 0.0D0
+    casd1s_0_blocked(:) = 0.0D0
     casd2_0(:) = 0.0D0
     dm1_core(:) = 0.0D0
     veff1(:) = 0.0D0
@@ -873,6 +927,8 @@ module lpdft
   subroutine release_vars()
     call mma_deallocate(casd1_0)
     call mma_deallocate(casd1s_0)
+    call mma_deallocate(casd1_0_blocked)
+    call mma_deallocate(casd1s_0_blocked)
     call mma_deallocate(casd2_0)
     call mma_deallocate(h1e_lpdft_ao)
     call mma_deallocate(h1e_lpdft_act)
