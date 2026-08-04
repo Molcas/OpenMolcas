@@ -38,7 +38,6 @@ integer(kind=iwp) :: ijOrb, klOrb, klijOrb
 integer(kind=iwp) :: ikOrb, ljOrb, ikljOrb, MaxDim, mCSFs
 integer(kind=iwp) :: iSym, jSym, kSym, lSym, ijSym, klSym
 real(kind=wp) :: OneInt, TwoInt
-integer(kind=iwp) :: lOrb_Max
 integer(kind=iwp) :: SigmaSym
 
 integer(kind=iwp), Parameter:: nBuff=10
