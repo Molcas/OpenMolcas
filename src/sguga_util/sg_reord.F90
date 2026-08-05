@@ -71,10 +71,8 @@ real(kind=wp) :: Fact
 integer(kind=iwp) :: i
 #endif
 
-Associate(SGS=>SGS(istate),EXS=>EXS(iState))
-
-nOrb=SGS%nLev
-nEl=SGS%nActEl
+nOrb=SGS(iState)%nLev
+nEl=SGS(iState)%nActEl
 
 ICSFJP = 0
 ICNBS0 = 0 ! dummy initialize
@@ -126,9 +124,9 @@ do ITYP=1,NTYP
       call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
 
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = SG_NUM(SGS,EXS,IWALK)
+      ISG = SG_NUM(SGS(iState),EXS(istate),IWALK)
       ! GET PHASE PHASE FACTOR
-      IP = SG_PHASE(SGS,IWALK)
+      IP = SG_PHASE(SGS(iState),IWALK)
       Fact = Merge(-One,One,IP < 0)
       if (IMODE == 0) then
         CINEW(ISG) = Fact * CIOLD(ICSFJP)
@@ -148,5 +146,4 @@ write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
 write(u6,*)
 #endif
 
-end Associate
 end subroutine SG_Reord
