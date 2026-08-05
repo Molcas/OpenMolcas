@@ -236,6 +236,9 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   real(kind=wp), allocatable :: eri_2d(:,:)
   integer(kind=iwp), external :: isFreeUnit
   character(len=3) :: label
+  integer(kind=iwp), parameter :: max_test = 20
+  integer(kind=iwp) :: n_twoel_written
+  real(kind=wp) :: twoel_written(max_test)
 
   unused_var(orbital_table)
 
@@ -278,6 +281,7 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
     eri_2d(kl,ij) = two_el_table%values(j)
   end do
 
+  n_twoel_written = 0
   do i=1,nmo
     do j=1,i
       ij = iTri(i,j)
@@ -287,6 +291,10 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
           val = eri_2d(ij,kl)
           if (abs(val) > cutoff_default) then
             write(LuFCI,'(1X,E27.20,4I5)') val,i,j,k,l
+            if (n_twoel_written < max_test) then
+              n_twoel_written = n_twoel_written + 1
+              twoel_written(n_twoel_written) = val
+            end if
           end if
         end do
       end do
@@ -300,6 +308,19 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   end do
 
   write(LuFCI,'(1X,E27.20,4I5)') EMY,0,0,0,0
+
+  ! ========== For testing purposes FROM HERE =============
+  if (n_twoel_written > 0) then
+    call Add_Info('fort55 TwoEl Integral element',twoel_written(:n_twoel_written),n_twoel_written,8)
+  end if
+  if (length(fock_table) > 0) then
+    call Add_Info('fort55 Fock element',fock_table%values(1),1,8)
+  end if
+  call Add_Info('fort55 Core energy',[EMY],1,8)
+  if (size(mrcc_orbsym) > 0) then
+    call Add_Info('fort55 Orbsym',real(mrcc_orbsym,kind=wp),size(mrcc_orbsym),8)
+  end if
+  ! ========== For testing purposes TO HERE ===============
 
   close(LuFCI)
 
