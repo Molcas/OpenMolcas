@@ -14,7 +14,7 @@
 subroutine READIN_RASSI()
 
 use Cholesky, only: timings
-use Cntrl, only: ALGO, ALPHZ, AngMom_idx, ASD_idx, Atens_Req, AutoSelect_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, &
+use Cntrl, only: ALGO, ALPHZ, AngMom_idx, MAGXP_idx, Atens_Req, AutoSelect_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, &
                  DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DOCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, &
                  DYSO, EPrThr, GNuc, GNuc_set, HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IFARGU, IFCURD, IFDCPL, IFEJOB, IFGCAL, &
                  IFGTCALSA, IFGTSHSA, IFHAM, IfHCOM, IfHDia, IfHEff, IfHEXT, IfJ2, IfJZ, IFMCAL, IFNTO, IfShft, IFSO, IFTDM, &
@@ -951,20 +951,20 @@ subroutine LineCheck(code)
 
 end subroutine LineCheck
 
-subroutine gen_proplab(prop_lab,iAtom,nComp,idx)
-  !PURPOSE: Generate a specific property for iAtom with nComp
+subroutine gen_proplab(prop_lab,iAtom,comps,idx)
+  !PURPOSE: Generate a specific property for iAtom with comps
 
-  character(len=4), intent(in) :: prop_lab
-  integer(kind=iwp), intent(in) :: iAtom, nComp
+  character(len=5), intent(in) :: prop_lab
+  integer(kind=iwp), intent(in) :: iAtom, comps(:)
   integer(kind=iwp), intent(out) :: idx(:,:)
   integer(kind=iwp) :: iC
-  character(len=4) :: temp_lab
+  character(len=3) :: temp_lab
 
-  do iC=1,nComp
-    write(temp_lab,'(I4)') iAtom
-    PNAME(NPROP+1) = prop_lab//temp_lab
-    ICOMP(NPROP+1) = iC
+  do iC=1,size(comps)
+    write(temp_lab,'(I3)') iAtom
     NPROP = NPROP+1
+    PNAME(NPROP) = prop_lab//temp_lab
+    ICOMP(NPROP) = comps(iC)
     idx(iAtom,iC) = NPROP
   end do
 
@@ -973,7 +973,7 @@ end subroutine gen_proplab
 subroutine gen_hfc_prop_labels()
   ! PURPOSE: Generate PROP property labels for HFC and pNMR calculations.
   ! NOTE   : This subroutine may be deprecated if OpenMolcas stops using the PNAME label.
-  !          In that case, property indices (ASD, PSOP) can be fed directly to the HFCOP subroutine.
+  !          In that case, property indices (MAGXP, PSOP) can be fed directly to the HFCOP subroutine.
 
   integer(kind=iwp) :: iAtom, iC
   logical(kind=iwp) :: do_calc, do_EPR, do_pNMR
@@ -989,10 +989,10 @@ subroutine gen_hfc_prop_labels()
                                             ' please use both keywords RX2C, MXTC in &SEWARD and set clight to a large value.')
   if (MagX2C_Req < 0) call Quit_OnUserError()
 
-  call mma_allocate(ASD_idx,NAtoms,6,'LASD')
+  call mma_allocate(MAGXP_idx,NAtoms,6,'LASD')
   call mma_allocate(PSO_idx,NAtoms,3,'LPSO')
 
-  ASD_idx(:,:) = -1
+  MAGXP_idx(:,:) = -1
   PSO_idx(:,:) = -1
 
   !NOTE  : This logic follows the same branching structure as route_calc in hfcop.F90, but skips iterator updates.
@@ -1011,17 +1011,17 @@ subroutine gen_hfc_prop_labels()
     end if
 
     if (do_calc) then
-      call gen_proplab('ASD ',iAtom,6,ASD_idx)
-      call gen_proplab('PSOP',iAtom,3,PSO_idx)
+      call gen_proplab('MAGXP',iAtom,[1,2,3,5,6,9],MAGXP_idx)
+      call gen_proplab('PSOP ',iAtom,[1,2,3],PSO_idx)
     end if
   end do
 
   if (allocated(pNMR_req)) then
     call mma_allocate(AngMom_idx,3,'AngMom_idx')
     do iC=1,3
-      PNAME(NPROP+1) = 'AngMom'
-      ICOMP(NPROP+1) = iC
       NPROP = NPROP+1
+      PNAME(NPROP) = 'AngMom'
+      ICOMP(NPROP) = iC
       AngMom_idx(iC) = NPROP
     end do
   end if

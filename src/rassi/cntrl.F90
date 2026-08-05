@@ -169,12 +169,12 @@ character(len=8) :: FnEig, FnToM, PNAME(MXPROP), PTYPE(MXPROP), RASTYP(MXJOB), S
                     SOPRTP(MXPROP)
 character(len=4) :: TITLE1(18,mxTit)
 character(len=2) :: HEAD1(72)
-integer(kind=iwp), allocatable :: AngMom_idx(:), ASD_idx(:,:), LCSTATES(:), NucMass(:), PSO_idx(:,:), SODIAG(:), SONAT(:), &
+integer(kind=iwp), allocatable :: AngMom_idx(:), MAGXP_idx(:,:), LCSTATES(:), NucMass(:), PSO_idx(:,:), SODIAG(:), SONAT(:), &
                                   SONTO(:,:)
 real(kind=wp), allocatable :: GNuc(:), HEff(:,:), NucSpin(:), RefEne(:)
 logical(kind=iwp), allocatable :: Atens_Req(:), HypoIso(:), pNMR_req(:)
 
-public :: ALGO, AlphZ, AngMom_idx, ASD_idx, Atens_Req, AutoSelect_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5, &
+public :: ALGO, AlphZ, AngMom_idx, MAGXP_idx, Atens_Req, AutoSelect_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5, &
           CITHR, Coor, DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, &
           DYSEXPSO, DYSO, EMin, EPRThr, ERFNuc, FnEig, FnTOM, FORCE_NON_AO_TDM, GNuc, GNuc_set, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, &
           HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IDCMO, IfArgu, IfCurd, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, &

@@ -26,11 +26,11 @@ use RASSIWfn, only: wfn_h_hfc_rms
 use Molcas, only: LenIn
 use spin_data, only: free_spin_data, get_first_nonzero_GNUC, GNUC_by_nucspin, GNUC_NUCSPIN_by_nucmass, init_spin_data, &
                      NUCSPIN_by_gnuc
-use Cntrl, only: AngMom_idx, ASD_idx, Atens_Req, AutoSelect_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, &
+use Cntrl, only: AngMom_idx, MAGXP_idx, Atens_Req, AutoSelect_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, &
                  LPRPR, MLTPLT, NATens_Calc, NAtoms, NCOUP, NMass_set, NPNMR_Calc, NPROP, NSpin_set, NSTATE, NTP, NucMass, &
                  NucSpin, pNMR_req, PSO_idx, TMAXP, TMINP
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Three, Twelve, Half, cZero, cOne, auTocm, auToHz, auTokJ, c_in_au, gElectron, kBoltzmann, &
+use Constants, only: Zero, One, Two, Three, Four, Twelve, Half, cZero, cOne, auTocm, auToHz, auTokJ, c_in_au, gElectron, kBoltzmann, &
                      proton_mass_in_au
 use Definitions, only: iwp, wp, u6
 
@@ -77,7 +77,8 @@ character, allocatable :: LStability(:)
 ! Conversion factors
 real(kind=wp), parameter :: alpha2 = One/(c_in_au*c_in_au), au2J = auTokJ*1.0e3_wp, beta_e = One/(Two*c_in_au), &
                             beta_n = beta_e/proton_mass_in_au, con_to_MHz = -gElectron*beta_e*beta_n*auToHz*1.0e-6_wp, &
-                            kBoltzman_in_cm = kBoltzmann*auTocm/au2J, to_ppm = 1.0e6_wp*auTocm*alpha2, TwoThird = Two/Three
+                            kBoltzman_in_cm = kBoltzmann*auTocm/au2J, to_ppm = 1.0e6_wp*auTocm*alpha2, TwoThird = Two/Three, &
+                            FourThird = Four/Three
 character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: 'FC','SD','FCSD','PSO','TOTAL']
 character, parameter :: xyz(3) = ['x','y','z']
 
@@ -298,10 +299,11 @@ subroutine calc_h_HFC(iAtom,PROP)
   real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
   integer(kind=iwp) :: idx(6), ISS, iState, JSS, jState
   real(kind=wp) :: A_tens(3,3,5)
-  real(kind=wp), allocatable :: ASD(:,:,:)
+  real(kind=wp), allocatable :: ASD(:,:,:), ASD_FC(:,:)
 
-  idx(:) = ASD_idx(iAtom,:)
+  idx(:) = MAGXP_idx(iAtom,:)
   call mma_allocate(ASD,6,NSS,NSS,Label='ASD')
+  call mma_allocate(ASD_FC,NSS,NSS,Label='ASD_FC')
   do ISS=1,NSS
     iState = MAPST(ISS)
     do JSS=ISS,NSS
@@ -310,6 +312,15 @@ subroutine calc_h_HFC(iAtom,PROP)
       ASD(:,JSS,ISS) = ASD(:,ISS,JSS)
     end do
   end do
+
+  ASD_FC(:,:) =TwoThird * (ASD(1,:,:) + ASD(4,:,:) + ASD(6,:,:))
+
+  ASD(:,:,:) = Two*ASD(:,:,:)
+  ASD(1,:,:) = ASD(1,:,:) - ASD_FC(:,:)
+  ASD(4,:,:) = ASD(4,:,:) - ASD_FC(:,:)
+  ASD(6,:,:) = ASD(6,:,:) - ASD_FC(:,:)
+  ASD_FC(:,:) = Two*ASD_FC(:,:)
+
 
   if (do_EPR .or. do_pNMR) then
     write(u6,*)
@@ -323,9 +334,10 @@ subroutine calc_h_HFC(iAtom,PROP)
   end if
 
 ! CALCULATE HAMILTONIAN
-  call calc_h_FC(ASD(6,:,:))
+  call calc_h_FC(ASD_FC)
   call calc_h_SD(ASD)
   call mma_deallocate(ASD)
+  call mma_deallocate(ASD_FC)
   h_FCSD(:,:,:) = h_FC(:,:,:)+h_SD(:,:,:)
   call calc_h_PSO(iAtom,PROP)
   h_TOT(:,:,:) = h_FCSD(:,:,:)+h_PSO(:,:,:)
@@ -381,16 +393,12 @@ subroutine calc_h_FC(ASD_zz)
   h_FC(1,:,:) = cmplx(CGx_mat(:,:)*ASD_zz(:,:),Zero,kind=wp)
   h_FC(2,:,:) = cmplx(Zero,CGy_mat(:,:)*ASD_zz(:,:),kind=wp)
   h_FC(3,:,:) = cmplx(CGo_mat(:,:)*ASD_zz(:,:),Zero,kind=wp)
-  h_FC(:,:,:) = TwoThird*h_FC(:,:,:)
 
 end subroutine calc_h_FC
 
 subroutine calc_h_SD(ASD)
 
   real(kind=wp), intent(out) :: ASD(6,NSS,NSS)
-
-  ASD(:,:,:) = -ASD(:,:,:)
-  ASD(6,:,:) = -ASD(1,:,:)-ASD(4,:,:)
 
   h_SD(1,:,:) = cmplx(CGx_mat(:,:)*ASD(1,:,:)+CGo_mat(:,:)*ASD(3,:,:),CGy_mat(:,:)*ASD(2,:,:),kind=wp)
   h_SD(2,:,:) = cmplx(CGx_mat(:,:)*ASD(2,:,:)+CGo_mat(:,:)*ASD(5,:,:),CGy_mat(:,:)*ASD(4,:,:),kind=wp)
@@ -1425,7 +1433,7 @@ subroutine cleanup_hfcop()
   call mma_deallocate(GNuc,safe='*')
   call mma_deallocate(LCSTATES,safe='*')
 
-  call mma_deallocate(ASD_idx,safe='*')
+  call mma_deallocate(MAGXP_idx,safe='*')
   call mma_deallocate(PSO_idx,safe='*')
 
   call mma_deallocate(degen_start_idx,safe='*')
