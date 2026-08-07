@@ -237,7 +237,8 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
 !> - '``Last energy``'               Last energy computed.
 !> - '``PC Self Energy``'            Self energy for point charges.
 !> - '``PotNuc``'                    Nuclear repusion energy.
-!> - '``RF Self Energy``'            Self energy in the Kirkwood model.
+!> - '``RF Self Energy``'            Self energy in the solvent model.
+!> - '``RF Pot Energy``'             Interaction energy with the reaction field.
 !> - '``SCF energy``'                Energy for the last SCF calculation.
 !> - '``EThr``'                      Energy convergence threshold.
 !> - '``Thrs``'
@@ -259,7 +260,7 @@ character(len=lw), parameter :: LabelsDS(nTocDS) = [ &
                                 'MD_Time         ','NAD dft energy  ','GradLim         ','Average energy  ', & ! 25-28
                                 'Timestep        ','MD_Etot         ','Max error       ','Total Charge    ', & ! 29-32
                                 'DFT exch coeff  ','DFT corr coeff  ','Value_l         ','R_WF_HMC        ', & ! 33-36
-                                '                ','                ','                ','                ', & ! 37-40
+                                'RF Pot Energy   ','                ','                ','                ', & ! 37-40
                                 '                ','                ','                ','                ', & ! 41-44
                                 '                ','                ','                ','                ', & ! 45-48
                                 '                ','                ','                ','                ', & ! 49-52

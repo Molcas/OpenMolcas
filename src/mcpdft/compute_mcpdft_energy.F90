@@ -25,19 +25,23 @@ use rasscf_files, only: jobiph, jobold
 use Orbital_Spaces, only: nash, nbas, nish, norb, nsym, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
+use rctfld_module, only: lrf
+use mcpdft_output, only: iPrGlb
+use PrintLevel, only: DEBUG
+
 
 implicit none
 integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), intent(in) :: cmo(ntot2), e_mcscf(lroots)
 real(kind=wp), intent(out) :: e_states(lroots)
 integer(kind=iwp) :: charge, dmDisk, IAD19, IADR19(30), iJOB, iSA, isym, jroot, niaia, NQ
-real(kind=wp) :: e_ot, e_state, e_wfn
+real(kind=wp) :: e_ot, e_state, e_wfn, e_rf, e_rf_pot, e_rf_self
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: casdm1(:), casdm1s(:), Coul(:), dm1_cas(:), dm1_core(:), dm1s(:), folded_dm1(:), folded_dm1_cas(:), &
-                              folded_dm1s(:), hcore(:), P2D(:), P2t(:)
+                              folded_dm1s(:), hcore(:), P2D(:), P2t(:), v_rf(:)
 integer(kind=iwp), external :: get_charge
-real(kind=wp), external :: energy_mcwfn
+real(kind=wp), external :: energy_mcwfn, ddot_
 
 ! Molecular charge
 charge = get_charge()
@@ -151,6 +155,18 @@ do jroot=1,lroots
   call get_coulomb(cmo,dm1_core,dm1_cas,coul)
 
   e_wfn = energy_mcwfn(folded_dm1,hcore,coul,PotNuc,ntot1)
+
+  e_rf = Zero
+  if (lrf) then
+    call get_dscalar('RF Pot Energy',e_rf_pot)
+    call get_dscalar('RF Self Energy',e_rf_self)
+    e_rf = e_rf_pot+e_rf_self
+    if (iPrGlb >= DEBUG) then
+      write(u6,'(6X,A,29X,F18.8)') 'Reaction field interaction energy',e_rf_pot
+      write(u6,'(6X,A,36X,F18.8)') 'Reaction field self energy',e_rf_self
+    end if
+  end if
+  e_wfn = e_wfn+e_rf
 
   e_state = e_wfn+e_ot
 

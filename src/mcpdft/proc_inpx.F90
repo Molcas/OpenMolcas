@@ -349,9 +349,12 @@ end if
 if (DBG) write(u6,*) ' Initialize seward.'
 nDiff = 0
 call IniSew(DSCF .or. Langevin_On() .or. PCM_On(),nDiff)
-if (lrf) then
-  call warningmessage(2,'MC-PDFT with solvent not supported!')
-  write(u6,*) 'MC-PDFT cannot be used with solvent!'
+!if (lrf) then
+if (lrf .and. .not. PCM_On()) then
+!  call warningmessage(2,'MC-PDFT with solvent not supported!')
+   call warningmessage(2,'MC-PDFT with non-PCM reaction field not supported!')
+!  write(u6,*) 'MC-PDFT cannot be used with solvent!'
+   write(u6,*) 'MC-PDFT cannot be used with non-PCM reaction field!'
   call Quit_OnUserError()
 end if
 ! ===============================================================

@@ -25,7 +25,7 @@ real(kind=wp), intent(in) :: D(nh1)
 logical(kind=iwp), intent(in) :: First, Dff, NonEq
 integer(kind=iwp), intent(inout) :: iCharge
 integer(kind=iwp) :: iComp, iOpt, iRC, iSyLbl
-real(kind=wp) :: EEE, ERfSelf, RepNuc_RF, RepNucXX(1)
+real(kind=wp) :: EEE, ERfSelf, ERFPot, RepNuc_RF, RepNucXX(1)
 real(kind=wp), save :: RepNuc_Temp
 character(len=8) :: Label
 real(kind=wp), allocatable :: h1_RF(:), h1_XX(:), RFld(:,:)
@@ -91,8 +91,10 @@ RFld(:,1)= RFld(:,1)+RFld(:,2)
 ERFSelf = RepNuc-RepNuc_Temp
 EEE = DDot_(nh1,RFld(1,2),1,D,1)
 ERFSelf = ERFSelf-Half*EEE
+ERFPot = DDot_(nh1,RFld(1,1),1,D,1)
 
 call Put_dScalar('RF Self Energy',ERFSelf)
+call Put_dScalar('RF Pot Energy',ERFPot)
 call Put_dArray('Reaction field',RFld(1,1),nh1)
 call mma_deallocate(RFld)
 !                                                                      *

@@ -27,7 +27,7 @@ use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE,
 use mcpdft_output, only: set_print_level
 use Orbital_Spaces, only: nash, nbas, ndel, nfro, nish, nssh
 use CI_Input, only: ispin, nactel, nelec3, nhole1, nrs1, nrs2, nrs3, stsym
-use rasscf_global, only: DFTFOCK, ExFac, IPT2, iroot, iXSym, lROOTS, NonEq, NROOTS, TITLE, weight
+use rasscf_global, only: DFTFOCK, ExFac, IPT2, iroot, iXSym, lROOTS, NROOTS, TITLE, weight
 use Constants, only: Zero, One
 #ifdef _MOLCAS_MPP_
 use Definitions, only: wp
@@ -79,13 +79,6 @@ NHOLE1 = 0
 NELEC3 = 0
 ! This run will not be the start for a CASPT2 calculation
 IPT2 = 0
-
-! These keys will activate the calculation of the high
-! frequency contribution to the reaction field
-! ???
-! This key controls if a non-equilibrium reaction field
-! calculation is performed.
-NonEq = .false.
 
 ! set default values for orbitals
 nFro(:) = 0
