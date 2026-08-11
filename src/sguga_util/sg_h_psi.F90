@@ -40,7 +40,7 @@ integer(kind=iwp) :: SigmaSym
 
 integer(kind=iwp), Parameter:: nBuff=10
 real(kind=wp) :: TUVX(nBUff)
-integer(kind=iwp) :: iBuff=0, i
+integer(kind=iwp) :: iBuff=0
 real(kind=wp), parameter :: Alpha=One, Beta=One
 integer(kind=iwp), parameter :: incx=1, incy=1
 real(kind=wp) :: CPQ
