@@ -33,8 +33,8 @@ and there are a number of approaches :cite:`Cossi:98,Cossi:01,Karlstroem:88,Serr
 based on the classical reaction field concept.
 
 |molcas| can model the solvent
-within the framework of SCF, RASSCF, CASPT2, MCPDFT programs, for the calculation of energies
-and properties and also for geometry optimizations (properties and geometry optimization is not available for MCPDFT). The reaction field formalism
+within the framework of SCF, RASSCF, CASPT2 and MCPDFT programs, for the calculation of energies
+and properties and also for geometry optimizations (properties and geometry optimization are not available for MCPDFT). The reaction field formalism
 is based on a sharp partition of the system: the solute molecule (possibly
 supplemented by some explicit solvent molecules) is placed in a cavity
 surrounded by a polarizable dielectric.
