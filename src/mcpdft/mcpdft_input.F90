@@ -29,6 +29,7 @@ type :: McpdftInputOptions_t
   logical(kind=iwp) :: is_hdf5_wfn = .false.
   logical(kind=iwp) :: extparam = .false.
   logical(kind=iwp) :: transport = .false.
+  logical(kind=iwp) :: rfpert = .false.
   character(len=256) :: wfn_file = ''
   character(len=256) :: extparamfile = ''
   integer(kind=iwp) :: rlxroot = 0
@@ -126,6 +127,9 @@ subroutine parse_input()
       case ('TRAN')
         mcpdft_options%transport = .true.
         mcpdft_options%grad = .true.
+
+      case ('RFPE')
+        mcpdft_options%rfpert = .true.
 
       case ('NAC ')
         mcpdft_options%nac = .true.
@@ -232,6 +236,14 @@ subroutine verify_input()
       write(u6,*) ' ************* ERROR **************'
       write(u6,*) ' MS-PDFT gradients are not         '
       write(u6,*) ' implemented with density fitting  '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+    if (mcpdft_options%rfpert) then
+      call WarningMessage(2,'MC-PDFT gradients with a reaction field not supported')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' MC-PDFT gradients are not         '
+      write(u6,*) ' implemented with a reaction field '
       write(u6,*) ' **********************************'
       call Quit_OnUserError()
     end if

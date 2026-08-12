@@ -453,6 +453,22 @@ The :kword:`FUNC` is the only required keyword.
               </HELP>
               </KEYWORD>
 
+:kword:`RFPErt`
+  This keyword makes the program add reaction field effects to the energy
+  calculation. This is done by adding the reaction field effects to the
+  one-electron Hamiltonian as a constant perturbation, i.e. the reaction field
+  effect is not treated self consistently. The perturbation is extracted from
+  :file:`RUNOLD`, if that file is not present it defaults to :file:`RUNFILE`.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="RFPERT" APPEAR="Reaction field perturbation" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: RFPert  <advanced>
+              <HELP>
+              Add reaction field from environment as static perturbation
+              to the one-electron Hamiltonian.
+              The perturbation is extracted from RUNOLD if it exists, otherwise from RUNFILE.
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 

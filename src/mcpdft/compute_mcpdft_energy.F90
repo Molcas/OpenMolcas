@@ -26,7 +26,6 @@ use Orbital_Spaces, only: nash, nbas, nish, norb, nsym, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: lrf
 use mcpdft_output, only: iPrGlb
 use PrintLevel, only: DEBUG
 
@@ -157,9 +156,12 @@ do jroot=1,lroots
   e_wfn = energy_mcwfn(folded_dm1,hcore,coul,PotNuc,ntot1)
 
   e_rf = Zero
-  if (lrf) then
+  if (mcpdft_options%rfpert) then
+    call f_Inquire('RUNOLD',Found)
+    if (Found) call NameRun('RUNOLD')
     call get_dscalar('RF Pot Energy',e_rf_pot)
     call get_dscalar('RF Self Energy',e_rf_self)
+    if (Found) call NameRun('#Pop')
     e_rf = e_rf_pot+e_rf_self
     if (iPrGlb >= DEBUG) then
       write(u6,'(6X,A,29X,F18.8)') 'Reaction field interaction energy',e_rf_pot

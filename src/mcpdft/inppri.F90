@@ -28,7 +28,6 @@ use CI_Input, only: nelec3, nhole1, nrs1, nrs2, nrs3
 use rasscf_global, only: nconf
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
-use rctfld_module, only: lrf
 
 implicit none
 integer(kind=iwp), parameter :: iState = 1
@@ -160,13 +159,13 @@ if (iPrLev >= TERSE) then
   call Funi_Print()
 
   ! Print reaction field information
-  if (lrf) then
+  if (mcpdft_options%rfpert) then
     write(u6,*)
     write(u6,fmt1) 'Reaction field specifications:'
     write(u6,fmt1) '------------------------------'
     write(u6,'(6X,A)') 'The reaction field was determined in a previous calculation and added to the'
     write(u6,'(6X,A)') 'one-electron Hamiltonian. It is not reevaluated, since MC-PDFT does not relax'
-    write(u6,'(6X,A)') 'the reference wave function. The solvent correction terms remain same as the reference SCF.'
+    write(u6,'(6X,A)') 'the reference wave function.'
     write(u6,*)
   end if
 end if
