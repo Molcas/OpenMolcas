@@ -13,13 +13,12 @@
 
 subroutine MKNEVE4(NLEV,iSym0,NBA,NBC,Gact,BA,BC)
 
-use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
-use sguga, only: SGS, CIS, EXS
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX
 use general_data, only: NACTEL, STSYM
 use caspt2_module, only: JSTATE, MXCI, NCONF, NSYM
 use PrintLevel, only: verbose
+use sguga, only: sg_epq_psi, CIS, EXS, SGS
 use Symmetry_Info, only: Mul
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par

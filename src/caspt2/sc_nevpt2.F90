@@ -878,9 +878,9 @@ subroutine SC_NEVPT2_res(VECROT)
 
 end subroutine SC_NEVPT2_res
 
-# ifdef _MOLCAS_MPP_
 !-----------------------------------------------------------------------
 
+# ifdef _MOLCAS_MPP_
 subroutine SC_NEVPT2_CLagD1_MPP(V1,LDV1,V2,LDV2,JLO,JHI,NAS,NIS,BMAT,SMAT,LID,derHNS)
 
   integer(kind=iwp), intent(in) :: LDV1, LDV2, JLO, JHI, NAS, NIS

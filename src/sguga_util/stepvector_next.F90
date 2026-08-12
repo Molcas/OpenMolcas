@@ -18,15 +18,14 @@ implicit none
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(in) :: nLev
 integer(kind=iwp), intent(out) :: STEPVECTOR(NLEV)
-
-integer(kind=iwp), parameter :: iState=1
+integer(kind=iwp), parameter :: iState = 1
 
 ! stop when MV is zero
-if (MV == 0) Then
-   write(u6,'(1X,A)') 'stepvector_next has been depleted'
-   write(u6,'(1X,A)') 'IDWN,IUP=',IDWN,IUP
-   write(u6,'(1X,A)') 'nLev=',nLev
-   Call abend()
+if (MV == 0) then
+  write(u6,'(1X,A)') 'stepvector_next has been depleted'
+  write(u6,'(1X,A)') 'IDWN,IUP=',IDWN,IUP
+  write(u6,'(1X,A)') 'nLev=',nLev
+  call abend()
 end if
 
 call GETSTEPVECTOR(CIS(istate)%NOW,CIS(istate)%IOW,MV,IDWN,IUP,STEPVECTOR,nLev,CIS(istate)%nMidV)

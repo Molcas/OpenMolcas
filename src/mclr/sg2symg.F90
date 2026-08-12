@@ -11,26 +11,23 @@
 
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
-use sguga, only: SG_Free
-use Str_Info, only: CNSM, CFTP_MCLR=>CFTP
-use lucia_data, only: CONF_OCC, CFTP
+use sguga, only: SG_Free, SGS
+use Str_Info, only: CFTP_MCLR => CFTP, CNSM
+use lucia_data, only: CFTP, CONF_OCC
 use general_data, only: State_Sym=>STSym
 use input_mclr, only: nConf
 use stdalloc, only: mma_allocate, mma_deallocate
-
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use sguga, only: SGS
 use Definitions, only: u6
 #endif
 
 implicit none
 integer(kind=iwp), intent(in) :: lCI, imode, pState_Sym
 real(kind=wp), intent(inout) :: CI(lCI)
-
 integer(kind=iwp) :: iss
 real(kind=wp), allocatable :: CINEW(:)
-integer(kind=iwp), Parameter:: istate=1
+integer(kind=iwp), parameter :: istate = 1
 #ifdef _DEBUGPRINT_
 real(kind=wp), parameter :: PRWTHR = 0.05_wp
 #endif

@@ -4129,17 +4129,14 @@ if (.not. SkipGUGA) then
   ! 2) not RASSCF or GASSCF
   ! 3) not using the expert, the HEXS or the DEXS key word
   ! 4) not running the CASVB module.
-  If (                                  &
-      nSym==1 .and.                     &
-      (nHole1==0 .and. nElec3==0) .and. &
-      .Not.iDoGas .and.                 &
-      .Not.Key('HEXS') .and.            &
-      .Not.Key('DEXS') .and.            &
-      .Not.Key('EXPE') .and.            &
-      IFVB==0                           &
-     ) Then
-     DoFaro=.True.
-  End If
+  if ((nSym == 1) .and. &
+      ((nHole1 == 0) .and. (nElec3 == 0)) .and. &
+      (.not. iDoGas) .and. &
+      (.not. Key('HEXS')) .and. &
+      (.not. Key('DEXS')) .and. &
+      (.not. Key('EXPE')) .and. &
+      (IFVB == 0)) &
+    DoFaro = .true.
 
   ! faroald initializations
   if (DOFARO) then

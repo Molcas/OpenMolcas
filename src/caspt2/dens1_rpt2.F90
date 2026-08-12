@@ -49,8 +49,8 @@ real(kind=wp) :: GTU
 real(kind=wp) :: G2(NLEV,NLEV,NLEV,NLEV)
 #endif
 integer(kind=iwp), allocatable :: TASK(:,:)
+integer(kind=iwp), parameter :: istate = 1
 real(kind=wp), external :: DDOT_, DNRM2_
-integer(kind=iwp), parameter :: istate=1
 
 ! Purpose: Compute the 1-electron density matrix array G1.
 

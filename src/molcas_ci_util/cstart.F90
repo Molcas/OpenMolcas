@@ -46,11 +46,10 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use sguga, only: CIS
-use rasscf_files, only: JOBIPH, JOBOLD, LUDAVID
+use rasscf_files, only: JOBIPH, JOBOLD, LUDAVID, STARTORBFILE
 use general_data, only: NCONF, NSEL, STSYM, iDoGas
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
-use rasscf_files, only: STARTORBFILE
 #endif
 use output_ras, only: IPRLOC
 use PrintLevel, only: DEBUG, INSANE, TERSE
@@ -73,7 +72,6 @@ logical(kind=iwp) :: Exists
 character(len=80) :: String
 real(kind=wp), allocatable :: Tmp1(:)
 integer(kind=iwp), parameter:: iState=1
-
 
 IPRLEV = IPRLOC(3)
 

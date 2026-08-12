@@ -13,16 +13,14 @@
 
 subroutine DERE4(NLEV,iSym0,NASA,NASC,NCONF,BDERA,BDERC,Clag)
 
-use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use BDerNEV, only: Gact, Gder
-use sguga, only: SGS, CIS, EXS
-use caspt2_global, only: iPrGlb, IDTCEX, LUCIEX
+use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX
 use general_data, only: NACTEL, STSYM
-use caspt2_module, only: JSTATE, NSYM, MXCI
-use NEVPT2_E4, only: do_xvec, do_yvec, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, NXYVEC, NZVEC
-use NEVPT2_E4, only: NEVPT2_E4_derivative1, NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, NEVPT2_E4_XYder1, NEVPT2_E4_XYder2
-use NEVPT2_E4, only: ixyzsta, ixyzend, nxyzdim, NXY_work
+use caspt2_module, only: JSTATE, MXCI, NSYM
+use sguga, only: sg_epq_psi, CIS, EXS, SGS
+use NEVPT2_E4, only: do_xvec, do_yvec, ixyzend, ixyzsta, NEVPT2_E4_derivative1, NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, &
+                     NEVPT2_E4_XYder1, NEVPT2_E4_XYder2, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, NXY_work, NXYVEC, nxyzdim, NZVEC
 use PrintLevel, only: verbose
 use Symmetry_Info, only: Mul
 #ifdef _MOLCAS_MPP_

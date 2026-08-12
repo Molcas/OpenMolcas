@@ -13,12 +13,11 @@
 
 subroutine DERFG3(IFF,NCONF,NLEV,NG3,CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G1,G2)
 
-use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use sguga, only: SGS, CIS, EXS
+use sguga, only: sg_epq_psi, SGS, CIS, EXS
 use caspt2_global, only: iPrGlb, nbuf1_grad
 use general_data, only: nActEl, STSym
 use caspt2_module, only: EPSA, MxCI, nSym

@@ -33,10 +33,9 @@ subroutine DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,DTG2,NTG3,DTG3,C
 ! the usual active orbital number, when they are enumerated across
 ! all the symmetries (The ''absolute'' active index).
 
-use sguga, only: sg_epq_psi
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, SGS
+use sguga, only: sg_epq_psi, CIS, EXS, SGS
 use general_data, only: NACTEL, NLEV
 use caspt2_module, only: IASYM, ISCF, MXCI
 use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
@@ -316,7 +315,7 @@ do IP3STA=1,NASHT**2,NYZBUF
           if ((IP2 >= IP1STA) .and. (IP2 <= IP1END)) then
             ibuf = lsgm1+mxci*(ip2-ip1sta)
             DYZ(1:MXCI,LFROMD) = DYZ(1:MXCI,LFROMD)+DTG2(IV,IX,IY,IZ)*TG3WRK(IBUF:IBUF+MXCI-1)
-          else If (Abs(DTG2(IV,IX,IY,IZ))<1.0E-12_wp) Then
+          else if (abs(DTG2(IV,IX,IY,IZ)) < 1.0e-12_wp) then
             call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,DYZ(1,LFROMD))
           end if
           DTG2(IV,IX,IY,IZ) = Zero

@@ -47,7 +47,7 @@ subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 
 use sguga, only: EXS, SGS
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
-use Lucia_data, only: CONF_Occ, CFTP
+use Lucia_data, only: CFTP, CONF_Occ
 use Molcas, only: MxAct
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -61,18 +61,14 @@ implicit none
 integer(kind=iwp), intent(in) :: iState, IREFSM, IMODE, nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
-
-integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
-                     IWALK(mxAct), JOCC, KOCC, KORB, nOrb, nEl
-integer(kind=iwp), external :: SG_PHASE, SG_NUM
-integer(kind=iwp) :: KCNF(MxAct)
+integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
+                     IWALK(mxAct), JOCC, KCNF(MxAct), KOCC, KORB
 real(kind=wp) :: Fact
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
 #endif
+integer(kind=iwp), external :: SG_NUM, SG_PHASE
 
-nOrb=SGS(iState)%nLev
-nEl=SGS(iState)%nActEl
 
 ICSFJP = 0
 ICNBS0 = 0 ! dummy initialize
@@ -80,12 +76,12 @@ IPBAS = 0 ! dummy initialize
 ! LOOP OVER CONFIGURATIONS TYPES
 do ITYP=1,NTYP
   IOPEN = ITYP+MINOP-1
-  ICL = (NEL-IOPEN)/2
+  ICL = (SGS(iState)%nActEl-IOPEN)/2
   ! BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
   if (ITYP == 1) then
     ICNBS0 = 1
   else
-    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(NEL+IOPEN-1)/2
+    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(SGS(iState)%nActEl+IOPEN-1)/2
   end if
   ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
   if (ITYP == 1) then
@@ -121,13 +117,13 @@ do ITYP=1,NTYP
       end do
 
       ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
+      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),SGS%nLev,IWALK)
 
       ! GET SPLIT GRAPH ORDERING NUMBER
       ISG = SG_NUM(SGS(iState),EXS(istate),IWALK)
       ! GET PHASE PHASE FACTOR
-      IP = SG_PHASE(SGS(iState),IWALK)
-      Fact = Merge(-One,One,IP < 0)
+      IP = SG_PHASE(SGS(istate),IWALK)
+      Fact = merge(-One,One,IP < 0)
       if (IMODE == 0) then
         CINEW(ISG) = Fact * CIOLD(ICSFJP)
       else
@@ -138,12 +134,12 @@ do ITYP=1,NTYP
 end do
 
 #ifdef _DEBUGPRINT_
-write(u6,*)
-write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+  write(u6,*)
+  write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
 write(u6,'(10F12.8)') (CIOLD(I),I=1,min(200,ICSFJP))
-write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+  write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
 write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
-write(u6,*)
+  write(u6,*)
 #endif
 
 end subroutine SG_Reord

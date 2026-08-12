@@ -1107,7 +1107,7 @@ else:
 
       # angular momentum integrals follow similar logic as MLTPL1,
       # but translation requires the linear momentum integrals, since
-      #     L = r x p upon translation changes into L' = (r + ∆r) x p
+      #     L = r × p upon translation changes into L' = (r + ∆r) × p
       elif name == 'ANGMOM_ORIG':
         copy_dataset(fi, fo, name)
         if do_rot:
@@ -1250,7 +1250,7 @@ else:
         else:
           fo[name][:] = fi[name][:]
 
-      # rank 1 cartesian tensors transform among themselves, see below AO_MLTPL_{X,Y,Z}
+      # Rank 1 Cartesian tensors transform among themselves, see below AO_MLTPL_{X,Y,Z}
       elif name in ['AO_ANGMOM_X', 'AO_ANGMOM_Y', 'AO_ANGMOM_Z']:
         comp = ['X', 'Y', 'Z']
         if name.endswith(('_'+comp[1], '_'+comp[2])):

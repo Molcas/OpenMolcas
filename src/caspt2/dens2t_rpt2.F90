@@ -40,8 +40,8 @@ integer(kind=iwp) :: ID, ISSG1, ISSG2, IST, ISTU, ISU, ISV, ISVX, ISX, IT, ITASK
                      NSGM1, NSGM2, NTASKS
 real(kind=wp) :: GTU, GTUVX
 integer(kind=iwp), allocatable :: Task(:,:)
+integer(kind=iwp), parameter :: istate = 1
 real(kind=wp), external :: DDOT_, DNRM2_
-integer(kind=iwp), parameter :: istate=1
 
 G1(:,:) = Zero
 G2(:,:,:,:) = Zero

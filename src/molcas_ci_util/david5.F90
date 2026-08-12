@@ -27,22 +27,21 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
+integer(kind=iwp), intent(in) :: nDet, iSel(nSel), nTU, nTUVX
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr
 real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
-integer(kind=iwp), intent(in) :: nTU, nTUVX
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), TU(nTU), TUVX(nTUVX)
-integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it_ci, jRoot, kRoot, l1, &
-                     l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
+integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it_ci, jRoot, kRoot, l1, l2, l3, lPrint, mRoot, nBasVec, &
+                     nconverged, nleft, nnew, ntrial
 real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, Hji, ovl, R, RR, scl, Sji, ThrRes, Time1(2), &
                  Time2(2), updsiz, Z
 logical(kind=iwp) :: Skip
 real(kind=wp), allocatable :: Cs(:), Es(:), Hs(:), Scr1(:,:), Scr2(:,:), Scr3(:,:), Ss(:), Vec1(:), Vec3(:)
-real(kind=wp), allocatable, target :: ctemp(:), Tmp(:), sigtemp(:)
+real(kind=wp), allocatable, target :: ctemp(:), sigtemp(:), Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
+integer(kind=iwp), parameter :: iState = 1
 real(kind=wp), external :: dDot_, dnrm2_
-integer(kind=iwp), parameter:: iState=1
 
 if (DoFaro) then
   ! determinant wavefunctions Faroald

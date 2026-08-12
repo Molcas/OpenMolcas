@@ -64,7 +64,7 @@ use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri_Elem
 use general_data, only: STSYM
 use caspt2_module, only: MXCI, NTUVES
-use sguga, only: CIS, EXS, SGS
+use sguga, only: sg_epq_psi, CIS, EXS, SGS
 use SUPERINDEX, only: KTUV
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
@@ -83,8 +83,8 @@ integer(kind=iwp) :: ixyzend = 0, ixyzsta = 0, NXY_work = 0, NXYVEC = 0, nxyzdim
 integer(kind=iwp) :: MAXBUF = 0
 #endif
 logical(kind=iwp) :: do_xvec = .false., do_yvec = .false.
+integer(kind=iwp), parameter :: istate = 1
 logical(kind=iwp), parameter :: do_zder = .true.
-integer(kind=iwp), parameter :: istate=1
 
 public :: do_xvec, do_yvec, ixyzend, ixyzsta, NEVPT2_E4_contract1, NEVPT2_E4_contract2, NEVPT2_E4_derivative1, &
           NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, NEVPT2_E4_XYder1, NEVPT2_E4_XYder2, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, &
@@ -1258,7 +1258,7 @@ subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYde
             if (do_xvec) then
               if (NXY_work == NLEV) then
                 Gder(iy,iv,it,iu) = Gder(iy,iv,it,iu)+ddot_(nsgm1,XYder(:,ipxy-ipxysta+1,locx),1,buft(1:nsgm1),1)
-              else if (NXY_work /= NLEV .and. (iylev >= ixyzsta .and. iylev <= ixyzsta)) then
+              else if ((NXY_work /= NLEV) .and. ((iylev >= ixyzsta) .and. (iylev <= ixyzsta))) then
                 Gder(iy,iv,it,iu) = Gder(iy,iv,it,iu)+ddot_(nsgm1,XYder(:,iylev-ixyzsta+1+nxyzdim*(ixlev-1),locx),1,buft(1:nsgm1),1)
               end if
             end if
@@ -1267,7 +1267,7 @@ subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYde
             if (do_yvec) then
               if (NXY_work == NLEV) then
                 Gder(iy,ix,it,iu) = Gder(iy,ix,it,iu)+ddot_(nsgm1,XYder(:,ipxy-ipxysta+1,locy),1,buft(1:nsgm1),1)
-              else if (NXY_work /= NLEV .and. (iylev >= ixyzsta .and. iylev <= ixyzsta)) then
+              else if ((NXY_work /= NLEV) .and. ((iylev >= ixyzsta) .and. (iylev <= ixyzsta))) then
                 Gder(iy,ix,it,iu) = Gder(iy,ix,it,iu)+ddot_(nsgm1,XYder(:,iylev-ixyzsta+1+nxyzdim*(ivlev-1),locy),1,buft(1:nsgm1),1)
               end if
             end if

@@ -26,16 +26,14 @@ contains
 
 Subroutine Mk_H_Psi(iState, STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
 use sguga, only: SGS, EXS, CIS
- use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate
 use Lucia_Interface, only: Lucia_Util
 use lucia_data, only: Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
+use sguga, only: SGStruct, EXStruct, CIStruct
 use rasscf_global, only: DoFaro
 use Constants, only: Zero
 use faroald, only: my_norb, sigma_update, htu, gtuvx
-#ifdef _SGUGA_VERIFY_
-use general_data, only: iDoGAS, nRsPrt
-#endif
 Implicit None
 
 integer(kind=iwp), intent(in):: iState, STSYM, nCSF
@@ -48,13 +46,6 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
-#ifdef _SGUGA_VERIFY_
-real(kind=wp) :: Check_Href, Check_H
-real(kind=wp) :: CS_ref, CS
-real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:)
-#endif
-
-Associate (SGS=>SGS(iState),CIS=>CIS(iState),EXS=>EXS(iState))
 
 if (DOFARO) then
 
@@ -88,7 +79,7 @@ if (DOFARO) then
   Faroald_Psi(1:nDetA,1:nDetB) => ctemp(:)
   Faroald_SGM(1:nDetA,1:nDetB) => sigtemp(:)
 
-  call SG_REORD(iState,STSYM,0,CIS%nCSF(STSYM),CI_Vec,ctemp)
+  call SG_REORD(iState,STSYM,0,CIS(iState)%nCSF(STSYM),CI_Vec,ctemp)
   call CITRANS_SORT('C',ctemp,Sigma_Vec)
   Faroald_PSI(:,:) = Zero
   call CITRANS_CSF2SD(Sigma_Vec,Faroald_PSI)
@@ -96,7 +87,7 @@ if (DOFARO) then
   call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
   call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
   call CITRANS_SORT('O',Sigma_Vec,ctemp)
-  call SG_Reord(iState,STSYM,1,CIS%nCSF(STSYM),ctemp,Sigma_Vec)
+  call SG_Reord(iState,STSYM,1,CIS(iState)%nCSF(STSYM),ctemp,Sigma_Vec)
 
   Faroald_Psi => Null()
   Faroald_SGM => Null()
@@ -125,43 +116,6 @@ else
   call CSDTVC(Sigma_Vec,sigtemp,2,stSym,1)
 
 end if
-
-#ifdef _SGUGA_VERIFY_
-If (.NOT.iDoGAS .and. nRsPrt==1) Then
-   Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
-   call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
-   CS_ref=Sum(Abs(Sigma_Vec))
-   Check_Href=Dot_Product(CI_Vec,Sigma_Vec)
-   Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
-   Call sg_h_psi(SGS,CIS,EXS,SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
-   Check_H   =Dot_Product(SG_PSI,SG_SGM)
-   call SG_Reord(iState,STSYM,1,nCSF,SG_SGM,SG_PSI)
-   CS    =Sum(Abs(SG_Psi))
-   If (Abs(Check_HRef-Check_H)/nCSF>1.0E-12_wp) Then
-      Write (u6,*) 'SGUGA error in H|Psi>'
-      Write (u6,*) 'Check_HRef=',Check_HRef
-      Write (u6,*) 'Check_H   =',Check_H
-      Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nCSF)
-      Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
-      Call Abend()
-   End If
-   If (Abs(CS_ref-CS)/nCSF>1.0E-12_wp) Then
-      Write (u6,*) 'SGUGA error in H|Psi>'
-      Write (u6,*) 'CS_ref=',CS_ref
-      Write (u6,*) 'CS   =',CS
-      Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nCSF)
-      Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
-      Call Abend()
-   End If
-   Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nCSF)
-   Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
-   Sigma_Vec(1:nCSF) = SG_PSI(1:nCSF)
-   Call mma_deallocate(SG_SGM)
-   Call mma_deallocate(SG_PSI)
-End if
-#endif
-
-End Associate
 
 End Subroutine Mk_H_Psi
 
@@ -270,7 +224,6 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
 !         Test the one-particle spin-density matrix
 !         This option is not yet developed for the SGUGA code. To come...
-
 
 !         Test the symmetric two-particle density matrix.
           Check_P=CheckSum(P,NACPR2)

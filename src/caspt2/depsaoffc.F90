@@ -35,8 +35,8 @@ real(kind=wp) :: Alpha, AlphaC, Beta, CPE, CPTF0, CPTF1, CPTF2, CPUT, Delta, Del
                  TIOTF1, TIOTF2, WALLT
 real(kind=wp), allocatable :: Eact(:), G2(:), INT1(:), INT2(:), VecCID(:,:), VecCIT(:,:), VecFancy(:), VecPre(:), VecS1(:,:), &
                               VecS2(:,:), VecST(:,:)
+integer(kind=iwp), parameter :: jState = 1
 real(kind=wp), external :: DDot_
-integer(kind=iwp), parameter:: jState=1
 
 nLev = SGS(jstate)%nLev
 nMidV = CIS(jstate)%nMidV

@@ -31,7 +31,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 logical(kind=iwp), intent(inout):: DBG,SkipGUGA
 integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
-integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, NSTA, nRs1T
+integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, nRs1T, NSTA
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
 integer(kind=iwp), parameter :: istate=1
 
@@ -45,20 +45,20 @@ do IGAS=1,NGAS
 end do
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
-If (nHole1+nElec3/=0) Then
+if (nHole1+nElec3 /= 0) then
    nRsPrt=3
    nRas(:,1)=nRs1(:)
    nRas(:,2)=nRs2(:)
    nRas(:,3)=nRs3(:)
-   nRs1T=Sum(nRs1(1:nSym))
+  nRs1T = sum(nRs1(1:nSym))
    nRasEl(1)=2*nRs1T-nHole1
    nRasEl(2)=nActel-nElec3
    nRasEl(3)=nActel
-Else
+else
    nRsPrt=1
    nRas(:,1)=nRs2(:)
    nRasEl(1)=nActel
-End If
+end if
 
 ! Construct the Guga tables
 

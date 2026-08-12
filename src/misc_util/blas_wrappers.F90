@@ -132,7 +132,6 @@ subroutine dgemm_(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
   real(kind=BLASR8), intent(in) :: alpha, a(lda_,*), b(ldb_,*), beta
   real(kind=BLASR8), intent(inout) :: c(ldc_,*)
   integer(kind=iwp) :: i, j, l
-  integer(kind=iwp), parameter :: mnkSmall = 4096
   real(kind=BLASR8) :: tmp
   logical(kind=iwp) :: NoTrA, NoTrB
 # ifdef MOLCAS_TO_BLAS_INT
@@ -142,6 +141,8 @@ subroutine dgemm_(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
   integer(kind=CUDAInt) :: k4, lda4, ldb4, ldc4, m4, n4
   integer(kind=iwp), parameter :: ncuda = 128*128
 # endif
+  integer(kind=iwp), parameter :: mnkSmall = 4096
+  real(kind=BLASR8), parameter :: ZeroB = 0.0_BLASR8, OneB = 1.0_BLASR8
 
   if ((m_ == 0) .and. (n_ == 0)) return
 
@@ -149,9 +150,9 @@ subroutine dgemm_(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
   ! character comparison, kernel dispatch) dominates the actual work, so
   ! do the multiplication here instead. The threshold is heuristic.
   if ((m_ > 0) .and. (n_ > 0) .and. (k_ > 0) .and. (m_*n_*k_ <= mnkSmall)) then
-    if (beta == 0.0_BLASR8) then
-      c(1:m_,1:n_) = 0.0_BLASR8
-    else if (beta /= 1.0_BLASR8) then
+    if (beta == ZeroB) then
+      c(1:m_,1:n_) = ZeroB
+    else if (beta /= OneB) then
       c(1:m_,1:n_) = beta*c(1:m_,1:n_)
     end if
     NoTrA = (transa == 'N') .or. (transa == 'n')
@@ -160,14 +161,14 @@ subroutine dgemm_(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
       do j=1,n_
         do l=1,k_
           tmp = alpha*b(l,j)
-          if (tmp /= 0.0_BLASR8) c(1:m_,j) = c(1:m_,j)+tmp*a(1:m_,l)
+          if (tmp /= ZeroB) c(1:m_,j) = c(1:m_,j)+tmp*a(1:m_,l)
         end do
       end do
     else if (NoTrA) then
       do j=1,n_
         do l=1,k_
           tmp = alpha*b(j,l)
-          if (tmp /= 0.0_BLASR8) c(1:m_,j) = c(1:m_,j)+tmp*a(1:m_,l)
+          if (tmp /= ZeroB) c(1:m_,j) = c(1:m_,j)+tmp*a(1:m_,l)
         end do
       end do
     else if (NoTrB) then
@@ -225,7 +226,6 @@ subroutine dgemv_(trans,m_,n_,alpha,a,lda_,x,incx_,beta,y,incy_)
   real(kind=BLASR8), intent(in) :: alpha, a(lda_,*), x(*), beta
   real(kind=BLASR8), intent(inout) :: y(*)
   integer(kind=iwp) :: j
-  integer(kind=iwp), parameter :: mnSmall = 1024
   real(kind=BLASR8) :: tmp
 # ifdef MOLCAS_TO_BLAS_INT
   integer(kind=BLASInt) :: incx, incy, lda, m, n
@@ -234,29 +234,32 @@ subroutine dgemv_(trans,m_,n_,alpha,a,lda_,x,incx_,beta,y,incy_)
   integer(kind=CUDAInt) :: lda4, m4, n4, incx4, incy4
   integer(kind=iwp), parameter :: ncuda = 128*128
 # endif
+  integer(kind=iwp), parameter :: mnSmall = 1024
+  real(kind=BLASR8), parameter :: ZeroB = 0.0_BLASR8, OneB = 1.0_BLASR8
 
   ! For small matrices the BLAS call overhead (argument checking,
   ! character comparison, dispatch) dominates the actual work, so do
   ! the multiplication in place instead.
   if ((incx_ == 1) .and. (incy_ == 1) .and. (m_ > 0) .and. (n_ > 0) .and. (m_*n_ <= mnSmall)) then
     if ((trans == 'N') .or. (trans == 'n')) then
-      if (beta == 0.0_BLASR8) then
-        y(1:m_) = 0.0_BLASR8
-      else if (beta /= 1.0_BLASR8) then
+      if (beta == ZeroB) then
+        y(1:m_) = ZeroB
+      else if (beta /= OneB) then
         y(1:m_) = beta*y(1:m_)
       end if
       do j=1,n_
         tmp = alpha*x(j)
-        if (tmp /= 0.0_BLASR8) y(1:m_) = y(1:m_)+tmp*a(1:m_,j)
+        if (tmp /= ZeroB) y(1:m_) = y(1:m_)+tmp*a(1:m_,j)
+      end do
+    else if (beta == ZeroB) then
+      do j=1,n_
+        tmp = sum(a(1:m_,j)*x(1:m_))
+        y(j) = alpha*tmp
       end do
     else
       do j=1,n_
         tmp = sum(a(1:m_,j)*x(1:m_))
-        if (beta == 0.0_BLASR8) then
-          y(j) = alpha*tmp
-        else
-          y(j) = beta*y(j)+alpha*tmp
-        end if
+        y(j) = beta*y(j)+alpha*tmp
       end do
     end if
     return

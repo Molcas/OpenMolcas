@@ -111,8 +111,7 @@ do iiVec=1,nVec,IncVec
         else
           iprm2 = ifirst(icntr2)
           c2 = coeff2(iprm2,icntr2)
-          call dCopy_(mVec,A2(1,iPrm2),1,A3(iiVec,iCntr1,iCntr2),1)
-          call dScal_(mVec,C2,A3(iiVec,iCntr1,iCntr2),1)
+          A3(iiVec:iiVec+mVec-1,iCntr1,iCntr2) = C2*A2(1:mVec,iPrm2)
 
           iPrm2 = ifirst(icntr2)+1
           mPrm2 = last(iCntr2)-iPrm2+1

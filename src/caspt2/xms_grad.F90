@@ -34,8 +34,8 @@ integer(kind=iwp) :: I, iStat, iState, jAsh, jStat, kStat, nBasI, nCor, nLev, nO
 real(kind=wp) :: EDIFF, EEI, EEJ, EINACT, fact, OVL, Scal, TRC, Wgt
 real(kind=wp), allocatable :: CI1(:), CI2(:), DG1(:), DG2(:), DG3(:), DPT2(:), DPT2_AO(:), G1(:,:), RDMEIG(:,:), RDMSA(:,:), &
                               SGM1(:), SGM2(:), SLag(:,:), TG1(:,:), TG2(:), Trf(:), WRK1(:), WRK2(:)
+integer(kind=iwp), parameter :: jstate = 1
 real(kind=wp), external :: ddot_
-integer(kind=iwp), parameter:: jstate=1
 
 nLev = SGS(jstate)%nLev
 

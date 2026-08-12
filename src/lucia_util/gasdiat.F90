@@ -30,10 +30,8 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(_OUT_) :: DIAG(*)
-integer(kind=iwp), intent(in) :: LUDIA, ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK)
-real(kind=wp), intent(in) :: ECORE
-integer(kind=iwp), intent(in):: nTUVX
-real(kind=wp), intent(in):: TUVX(nTUVX)
+integer(kind=iwp), intent(in) :: LUDIA, ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK), nTUVX
+real(kind=wp), intent(in) :: ECORE, TUVX(nTUVX)
 integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB

@@ -18,7 +18,7 @@ subroutine CSDTMT(IDFTP,ICFTP,DTOC,PSSIGN)
 ! prototype combinations in DTOC
 
 use MCLR_Data, only: MS2P, MULTSP, NDPCNT
-use spinfo, only: MINOP, NTYP, NCPCNT=>NCSFTP
+use spinfo, only: MINOP, NCSFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -46,7 +46,7 @@ do ITP=1,NTYP
     ICSBS = 1
   else
     IDTBS = IDTBS+(IOPEN-1)*NDPCNT(ITP-1)
-    ICSBS = ICSBS+(IOPEN-1)*NCPCNT(ITP-1)
+    ICSBS = ICSBS+(IOPEN-1)*NCSFTP(ITP-1)
   end if
 
   if (IOPEN /= 0) then
@@ -69,14 +69,14 @@ do ITP=1,NTYP
   IOPEN = MINOP+ITP-1
   if (ITP > 1) then
     IDTBS = IDTBS+(IOPEN-1)*NDPCNT(ITP-1)
-    ICSBS = ICSBS+(IOPEN-1)*NCPCNT(ITP-1)
-    ICDCBS = ICDCBS+NDPCNT(ITP-1)*NCPCNT(ITP-1)
+    ICSBS = ICSBS+(IOPEN-1)*NCSFTP(ITP-1)
+    ICDCBS = ICDCBS+NDPCNT(ITP-1)*NCSFTP(ITP-1)
   end if
-  if (NDPCNT(ITP)*NCPCNT(ITP) == 0) cycle
+  if (NDPCNT(ITP)*NCSFTP(ITP) == 0) cycle
   if (IOPEN == 0) then
     DTOC(ICDCBS) = One
   else
-    call CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),ICFTP(ICSBS),NCPCNT(ITP),DTOC(ICDCBS),PSSIGN)
+    call CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),ICFTP(ICSBS),NCSFTP(ITP),DTOC(ICDCBS),PSSIGN)
   end if
 end do
 

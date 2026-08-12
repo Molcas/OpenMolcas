@@ -27,9 +27,9 @@ use Cholesky, only: NumCho
 use EQSOLV, only: IFCOUP, NLIST, NLSTOT
 use caspt2_global, only: do_csf, do_grad, do_nac, if_invar, if_invaria, if_SSDM, ipea_shift, iPrGlb, NCMO
 use general_data, only: nActel, nAsh
-use caspt2_module, only: IfChol, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, MxCI, nAshT, nASup, nBasT, nBSqT, nBTri, &
-                         nCases, nConf, nFroT, nG1, nG2, nG3Tot, nIMx, nInDep, nISh, nIshT, nISup, nOrb, nOSqT, nOTri, nSMx, nSsh, &
-                         nState, nSym, nTGTU, nTU, Zeta
+use caspt2_module, only: IfChol, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, MxCI, nAshT, nASup, nBasT, nBSqT, nBTri, nCases, nConf, &
+                         nFroT, nG1, nG2, nG3Tot, nIMx, nInDep, nISh, nIshT, nISup, nOrb, nOSqT, nOTri, nSMx, nSsh, nState, nSym, &
+                         nTGTU, nTU, Zeta
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: NAMX
 #endif

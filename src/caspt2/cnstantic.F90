@@ -26,7 +26,7 @@ real(kind=wp), intent(in) :: UEFF(nState,nState), U0(*)
 integer(kind=iwp) :: i, iMO1, iMO2, iOrb0, iOrb2, iStat, iSym, j, jOrb0, jOrb2, jStat, nOrbI1, nOrbI2
 real(kind=wp) :: Scal
 real(kind=wp), allocatable :: CI1(:), CI2(:), G1(:,:), SGM1(:), SGM2(:), TG1(:,:), WRK1(:), WRK2(:)
-integer(kind=iwp), parameter:: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 call mma_allocate(CI1,nConf,Label='CI1')
 call mma_allocate(CI2,nConf,Label='CI2')

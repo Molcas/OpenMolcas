@@ -24,8 +24,8 @@ implicit none
 integer(kind=iwp), intent(in) :: it
 integer(kind=iwp) :: i, il, n
 character(len=8) :: vec(11)
+integer(kind=iwp), parameter :: istate = 1
 integer(kind=iwp), external :: find_lu
-integer(kind=iwp), parameter:: iState=1
 
 vec(1) = 'TMP01'
 vec(2) = 'TMP02'

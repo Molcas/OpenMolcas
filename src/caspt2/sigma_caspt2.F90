@@ -30,8 +30,8 @@ use Sigma_data, only: IFTEST, NFDXP, NFMV, NFR1, NFSCA
 use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array, GA_Arrays
 use caspt2_global, only: FIFA, LISTS
 use general_data, only: nActel, nAsh
-use caspt2_module, only: CPUSGM, FockType, G1SecIn, MaxIt, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, &
-                         ThrShn, ThrShS, TIOSGM
+use caspt2_module, only: CPUSGM, FockType, G1SecIn, MaxIt, nASup, nCases, nInDep, nIsh, nISup, nOrb, nSsh, nSym, ThrShn, ThrShS, &
+                         TIOSGM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

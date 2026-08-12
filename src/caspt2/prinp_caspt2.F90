@@ -35,10 +35,10 @@ subroutine prinp_caspt2()
 use PrintLevel, only: TERSE, USUAL, VERBOSE
 use caspt2_global, only: do_csf, do_grad, do_nac, imag_shift, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, sigma_p_epsilon, &
                          sigma_p_exponent
-use general_data, only: ISPIN, NACTEL, NASH, nEle3=>nElec3, nHole1, STSym
-use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, &
-                         mState, nAshT, nBas, nConf, nDel, nFro, nIsh, nIshT, nRoots, nSsh, nSshT, &
-                         nState, nSym, Orbin, PT2Method, RFPert, Zeta
+use general_data, only: ISPIN, NACTEL, NASH, nElec3, nHole1, STSym
+use caspt2_module, only: DWType, Header, HZero, IfDOrtho, IfDW, IfMix, IfMSCoup, IfRMS, IfsadRef, IfXMS, iRlxRoot, iSCF, mState, &
+                         nAshT, nBas, nConf, nDel, nFro, nIsh, nIshT, nRoots, nSsh, nSshT, nState, nSym, Orbin, PT2Method, RFPert, &
+                         Zeta
 use SC_NEVPT2, only: Do_FIC, Do_SC, SC_prop, SC_thres
 #ifdef _DMRG_
 use caspt2_global, only: compressMPS
@@ -97,7 +97,7 @@ if (iprglb >= USUAL) then
   write(u6,fmt2//'A,T45,I6)') 'Number of closed shell electrons',2*NISHT
   write(u6,fmt2//'A,T45,I6)') 'Number of electrons in active shells',NACTEL
   write(u6,fmt2//'A,T45,I6)') 'Max number of holes in RAS1 space',NHOLE1
-  write(u6,fmt2//'A,T45,I6)') 'Max number of electrons in RAS3 space',NELE3
+  write(u6,fmt2//'A,T45,I6)') 'Max number of electrons in RAS3 space',nElec3
   write(u6,fmt2//'A,T45,I6)') 'Number of inactive orbitals',NISHT
   write(u6,fmt2//'A,T45,I6)') 'Number of active orbitals',NASHT
   write(u6,fmt2//'A,T45,I6)') 'Number of secondary orbitals',NSSHT

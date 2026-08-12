@@ -44,6 +44,7 @@ integer(kind=iwp) :: IDISK, IOPT, IRC, ISTATE, ISY, J, JOB, JOB1, JOB2, MPLET, n
 logical(kind=iwp) :: aux2, CLOSEONE
 real(kind=wp), allocatable :: DMAT(:), DYSAMPS(:,:), ENERGY(:), OCC(:), OVLP(:,:), PROP(:,:,:), SOENE(:), TDMZZ(:), USOI(:,:), &
                               USOR(:,:), VNAT(:)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *

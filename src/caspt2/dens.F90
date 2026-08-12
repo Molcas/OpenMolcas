@@ -30,8 +30,8 @@ use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_
                          DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_invar, if_invaria, if_SSDM, &
                          imag_shift, iPrGlb, iRoot1, iRoot2, jStLag, NDREF, nOLag, OLag, OMGDER, real_shift, sigma_p_epsilon, &
                          SLag, TORB, Weight
-use caspt2_module, only: DENORM, HZERO, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASHT, &
-                         NBAS, NBAST, NBSQT, NCONF, NFROT, NISH, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, ZETA
+use caspt2_module, only: DENORM, HZERO, IfChol, IFDENS, IFDW, IFMSCOUP, IFSADREF, iRlxRoot, JSTATE, MAXIT, NAES, NASHT, NBAS, &
+                         NBAST, NBSQT, NCONF, NFROT, NISH, NORB, NOSQT, NRAS1T, NRAS2T, NRAS3T, NROOTS, NSYM, ORBIN, ZETA
 use BDerNEV, only: BDerNEV_initial, BDerNEV_final1, BDerNEV_final2
 use SC_NEVPT2, only: SC_prop
 #ifdef _MOLCAS_MPP_
@@ -56,7 +56,7 @@ real(kind=wp), allocatable :: A_PT2(:), CI1(:), CLagT(:,:), DEPSA(:,:), DEPSA_di
                               RDMSA(:,:), T2AO(:), Trf(:), VECROT(:), WRK1(:), WRK2(:)
 real(kind=wp), allocatable, target :: DPT2Canti_(:), DPT2C(:)
 real(kind=wp), pointer :: DPT2Canti(:)
-integer(kind=iwp), parameter :: kstate=1
+integer(kind=iwp), parameter :: kstate = 1
 
 if (do_grad) then
   !! Set indices for densities and partial derivatives

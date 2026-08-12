@@ -43,10 +43,8 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(_OUT_) :: XINT(*)
-integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
-integer(kind=iwp), intent(in) :: nTUVX
+integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL, nTUVX
 real(kind=wp), intent(in) :: TUVX(nTUVX)
-
 integer(kind=iwp) :: I, IINT, IJKL, ILKJ, IMIN, IOFF, IORB, J, JMIN, JOFF, JORB, K, KOFF, KORB, L, LOFF, LORB
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: NI, NIK, NJ, NJL, NK, NL

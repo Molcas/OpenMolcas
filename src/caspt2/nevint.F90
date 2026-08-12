@@ -83,10 +83,10 @@ if (IfChol) then
     MXBGRP = IB2-IB1+1
     if (MXBGRP <= 0) cycle
     call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
-    IBGRP=1
+    IBGRP = 1
     do IB=IB1,IB2
-     BGRP(:,IBGRP) = IB
-     IBGRP=IBGRP+1
+      BGRP(:,IBGRP) = IB
+      IBGRP = IBGRP+1
     end do
     NBGRP = MXBGRP
 
@@ -139,11 +139,11 @@ if (IfChol) then
         LBRASM = LBRASM+NBRASM
       end do
 
-    !if (IBGRP == 1) then
-    !  SCAL = Zero
-    !else
-    !  SCAL = One
-    !call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,One ,KET,NASH(JSYM)**2,KET,NASH(JSYM)**2,SCAL,INT2,NASH(JSYM)**2)
+      !if (IBGRP == 1) then
+      !  SCAL = Zero
+      !else
+      !  SCAL = One
+      !call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,One ,KET,NASH(JSYM)**2,KET,NASH(JSYM)**2,SCAL,INT2,NASH(JSYM)**2)
     end do
     call mma_deallocate(PIQK)
     !call mma_deallocate(BRA)

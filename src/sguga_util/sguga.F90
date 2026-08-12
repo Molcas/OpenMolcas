@@ -14,7 +14,7 @@
 
 module SGUGA
 
-use Molcas, only: MxLev, MxSym, MxGas
+use Molcas, only: MxGas, MxLev, MxSym
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
@@ -25,9 +25,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-integer(kind=iwp) :: iq
-
-type SGStruct
+integer(kind=iwp) :: iq, NCP_Max
 
 ! Split-Graph descriptor, sizes, addresses...
 !
@@ -46,6 +44,7 @@ type SGStruct
 ! LEVEL: external ordering of graphs levels
 ! nRas: number of orbitals in each symmetry and RAS/GAS partionining
 ! nRasEl: Electron limit for each RAS/GAS partioning
+type SGStruct
   integer(kind=iwp) :: NSym = 0, nActEl = 0, IFRAS = 0
   integer(kind=iwp) :: IA0, IB0, IC0, iSpin, nLev, nVert, nVert0, MidLev, MVSta, MVEnd, MXUP, MXDWN
   integer(kind=iwp), allocatable :: ISm(:), DRT(:,:), DRT0(:,:), Down(:,:), Down0(:,:), Up(:,:), Ver(:), MAW(:,:), LTV(:), &
@@ -76,7 +75,6 @@ type CIStruct
   integer(kind=iwp), allocatable :: NOW(:,:,:), IOW(:,:,:), NCSF(:), NOCSF(:,:,:), IOCSF(:,:,:), ICase(:), IVR(:,:), ISGM(:,:)
   real(kind=wp), allocatable :: VSGM(:,:)
 end type CIStruct
-
 
 ! Excitation operators, coupling coefficients,...
 !
@@ -177,10 +175,7 @@ end type TRStruct
 !
 !           When segments are matched together there tail class, or an upper segments, must match the head class of the
 !           lower segment. Matching upper and lower boundaries must be in the same state.
-integer(kind=iwp), parameter :: nSegBase   = 26
-integer(kind=iwp), parameter :: nSegWeight = 8
-integer(kind=iwp), parameter :: nSegTot    = nSegBase + nSegWeight
-integer(kind=iwp), parameter :: nSeg  = nSegBase
+integer(kind=iwp), parameter :: nSegBase = 26, nSegWeight = 8, nSegTot = nSegBase+nSegWeight, nSeg = nSegBase
 
 ! Offsets for diagonal segments  (27:30) and (31:34)
 integer(kind=iwp), parameter :: iSegWUpBeg = nSegBase + 1
@@ -211,7 +206,7 @@ public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Ini
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
-integer(kind=iwp), parameter:: nPack=Storage_size(1_iwp)/2-1
+integer(kind=iwp), parameter :: nPack = storage_size(1_iwp)/2-1
 #elif defined (_I8_)
 integer(kind=iwp), parameter:: nPack=32-1
 #else
@@ -219,8 +214,6 @@ integer(kind=iwp), parameter:: nPack=16-1
 #endif
 
 public :: nPack
-
-integer(kind=iwp) :: NCP_Max
 
 Type (SGStruct) :: SGS(3)
 Type (CIStruct) :: CIS(3)
@@ -240,6 +233,7 @@ subroutine MKSGUGA(SGS,CIS)
 
   type(SGStruct), target, intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
+
   ! COMPUTE TOP ROW OF THE GUGA TABLE
 
   call mknVert0(SGS)
@@ -351,13 +345,13 @@ subroutine mkDRT0(SGS)
 
   maxKey = (Amax+1)*(Bmax+1)*(Cmax+1)
 
-  allocate(vmap(0:maxKey-1))
+  call mma_allocate(vmap,[0,maxKey-1],Label='vmap')
   vmap(:) = 0
 
   ! ------------------------------------------
   ! helper: inline key encoding
   ! ------------------------------------------
-#define KEY(A,B,C) ((A)*(Bmax+1)*(Cmax+1) + (B)*(Cmax+1) + (C))
+#   define _KEY_(A,B,C) ((A)*(Bmax+1)*(Cmax+1)+(B)*(Cmax+1)+(C))
 
   ! TOP vertex
   SGS%DRTP(1,LTAB) = SGS%nLev
@@ -366,7 +360,7 @@ subroutine mkDRT0(SGS)
   SGS%DRTP(1,BTAB) = SGS%IB0
   SGS%DRTP(1,CTAB) = SGS%IC0
 
-  key = KEY(SGS%IA0,SGS%IB0,SGS%IC0)
+  key = _KEY_(SGS%IA0,SGS%IB0,SGS%IC0)
   vmap(key) = 1
 
   VSTA = 1
@@ -394,7 +388,7 @@ subroutine mkDRT0(SGS)
         CDWN = CUP - Steps(3,ISTEP)
         if (CDWN < 0) cycle
 
-        key = KEY(ADWN,BDWN,CDWN)
+        key = _KEY_(ADWN,BDWN,CDWN)
 
         VDWN = vmap(key)
 
@@ -425,15 +419,15 @@ subroutine mkDRT0(SGS)
   ! finalize LTAB / NTAB
   ! ------------------------------------------
   SGS%DRTP(1:VEND,LTAB) = SGS%DRTP(1:VEND,ATAB) + &
-                         SGS%DRTP(1:VEND,BTAB) + &
-                         SGS%DRTP(1:VEND,CTAB)
+                          SGS%DRTP(1:VEND,BTAB) + &
+                          SGS%DRTP(1:VEND,CTAB)
 
   SGS%DRTP(1:VEND,NTAB) = 2*SGS%DRTP(1:VEND,ATAB) + &
-                         SGS%DRTP(1:VEND,BTAB)
+                            SGS%DRTP(1:VEND,BTAB)
 
-  deallocate(vmap)
+    call mma_deallocate(vmap)
 
-#undef KEY
+#   undef _KEY_
 
 end subroutine mkDRT0
 
@@ -610,7 +604,7 @@ end subroutine mkDRT0
     ! Hence MidLev=1 is inappropriate for nLev=0
     ! MIDLEV=1
 
-    SGS%MidLev=Min(SGS%nLev,1)
+    SGS%MidLev = min(SGS%nLev,1)
 
     MINW = 1000000 ! Initiate to a large number
     do IL=1,SGS%nLev-1 ! Loop from level 1 (one above the root vertex) to the
@@ -620,7 +614,7 @@ end subroutine mkDRT0
       ! SGS%DAW(IV,4) is the number of possible paths from the head vertex down to vertex IV
       NW = 0
       do IV=SGS%LTV(IL),SGS%LTV(IL-1)-1  ! Loop over all vertex at this level
-        NW = NW+ABS(SGS%RAW(IV,4)-SGS%DAW(IV,4))
+        NW = NW+abs(SGS%RAW(IV,4)-SGS%DAW(IV,4))
       end do
       NW = abs(NW)
       if (NW >= MINW) cycle
@@ -638,8 +632,8 @@ end subroutine mkDRT0
     SGS%MxUp = 0
     SGS%MxDwn = 0
     do MV=SGS%MVSta,SGS%MVEnd ! Lopp over all vertices of level MIDLEV
-      SGS%MxUp =Max(SGS%MxUp ,SGS%RAW(MV,4))
-      SGS%MxDwn=Max(SGS%MxDwn,SGS%DAW(MV,4))
+      SGS%MxUp  = max(SGS%MxUp,SGS%RAW(MV,4))
+      SGS%MxDwn = max(SGS%MxDwn,SGS%DAW(MV,4))
     end do
 
 #   ifdef _DEBUGPRINT_
@@ -656,7 +650,7 @@ end subroutine mkDRT0
   end subroutine MKMID
 
 subroutine RMVERT(SGS)
-  implicit none
+
   type(SGStruct), intent(inout) :: SGS
 
   integer(kind=iwp) :: IV, IC, ID
@@ -712,7 +706,8 @@ subroutine RMVERT(SGS)
       end if
 
       do IC = 0,3
-        ID = SGS%Down0(IV,IC) ; If (ID<1) Cycle
+          ID = SGS%Down0(IV,IC)
+          if (ID < 1) cycle
 
         if (SGS%Ver(ID) == 0) then
            SGS%Down0(IV,IC) = 0
@@ -743,14 +738,15 @@ subroutine RMVERT(SGS)
       if (SGS%Ver(IV) == 0) cycle
 
       do IC = 0,3
-        ID = SGS%Down0(IV,IC) ; If (ID<1) Cycle
-        If (SGS%Ver(ID) == 1) CONN(ID) = 1
+          ID = SGS%Down0(IV,IC)
+          if (ID < 1) cycle
+          if (SGS%Ver(ID) == 1) CONN(ID) = 1
       end do
     end do
 
     ! remove vertices not connected from above
     do IV = 1, SGS%nVert
-      if (SGS%Ver(IV) == 1 .and. CONN(IV) == 0) then
+        if ((SGS%Ver(IV) == 1) .and. (CONN(IV) == 0)) then
         SGS%Ver(IV) = 0
         NCHANGES = NCHANGES + 1
       end if
@@ -796,6 +792,7 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
   integer(kind=iwp), intent(in) :: nRsPrt, nRas(MxSym,nRsPrt),nRasEl(nRsPrt)
   integer(kind=iwp), optional, intent(in) :: xLevel(MxLev), xL2Act(MxLev), &
                                              xnLev, xNSM(MxLev)
+
   type(TRStruct) :: TRS
 
   call SG_Init_Simple(iState,nSym,nActEl,iSpin,        &
@@ -818,17 +815,17 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
 
   call MKSEG(SGS(iState),CIS(iState),EXS(iState))
 
-  !Create the transition infrastructure.
-  Call MkTrans(SGS(iState),CIS(iState),TRS)
+    !Create the transition infrastructure.
+  call MkTrans(SGS(iState),CIS(iState),TRS)
 
-  ! Count coupling coefficients in compressed blocks indexed by excitation/operator type, symmetry and midvertex.
+    ! Count coupling coefficients in compressed blocks indexed by excitation/operator type, symmetry and midvertex.
   call MkNRCOUP(SGS(iState),CIS(iState),EXS(iState),TRS)
 
-  ! Explicitly generates the compressed coupling tuples '(left walk, right walk, value index)' and compacts repeated
-  ! numerical values into 'VTab'.
+    ! Explicitly generates the compressed coupling tuples '(left walk, right walk, value index)' and compacts repeated
+    ! numerical values into 'VTab'.
   call MKCOUP(SGS(iState),CIS(iState),EXS(iState),TRS)
 
-  Call Trans_Free(TRS)
+  call Trans_Free(TRS)
 
 end subroutine SG_Init
 
@@ -862,7 +859,7 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
   call SG_Free(istate)
   State_is_used(iState)=.True.
 
-  if (nSym < 1 .or. nSym > 8) then
+  if ((nSym < 1) .or. (nSym > 8)) then
     write(u6,*) ' SG_Init_Simple: illegal nSym value:',nSym
     call Abend()
   end if
@@ -895,7 +892,7 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
   if (present(Do_MkSGUGA)) then
     if (Do_MkSGUGA) Then
        call MkSGUGA(SGS(istate),CIS(istate))
-    else
+  else
        SGS(istate)%iSpin = 0
        SGS(istate)%nActEl = 0
 
@@ -943,18 +940,18 @@ call mma_deallocate(CIS%VSGM,safe='*')
 call mma_deallocate(CIS%IVR,safe='*')
 call mma_deallocate(CIS%ISGM,safe='*')
 
-call mma_deallocate(EXS%NOCP,safe='*')
-call mma_deallocate(EXS%IOCP,safe='*')
-call mma_deallocate(EXS%ICoup,safe='*')
-call mma_deallocate(EXS%VTab,safe='*')
-call mma_deallocate(EXS%SGTMP,safe='*')
-call mma_deallocate(EXS%MVL,safe='*')
-call mma_deallocate(EXS%MVR,safe='*')
-call mma_deallocate(EXS%USGN,safe='*')
-call mma_deallocate(EXS%LSGN,safe='*')
-call mma_deallocate(EXS%I1list,safe='*')
-call mma_deallocate(EXS%I2list,safe='*')
-call mma_deallocate(EXS%Xlist,safe='*')
+ call mma_deallocate(EXS%NOCP,safe='*')
+ call mma_deallocate(EXS%IOCP,safe='*')
+ call mma_deallocate(EXS%ICoup,safe='*')
+ call mma_deallocate(EXS%VTab,safe='*')
+ call mma_deallocate(EXS%SGTMP,safe='*')
+ call mma_deallocate(EXS%MVL,safe='*')
+ call mma_deallocate(EXS%MVR,safe='*')
+ call mma_deallocate(EXS%USGN,safe='*')
+ call mma_deallocate(EXS%LSGN,safe='*')
+ call mma_deallocate(EXS%I1list,safe='*')
+ call mma_deallocate(EXS%I2list,safe='*')
+ call mma_deallocate(EXS%Xlist,safe='*')
 
 End Associate
 
@@ -979,42 +976,41 @@ subroutine MKCOT(SGS,CIS)
 
 type(SGStruct), intent(inout) :: SGS
 type(CIStruct), intent(inout) :: CIS
-integer(kind=iwp) :: IHALF, ILND, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, LEV, LEV1, LEV2, MV
-integer(kind=iwp) :: INIT, IC, IPOS, L, LL
-integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
-integer(kind=iwp), allocatable :: SCR(:,:)
+  integer(kind=iwp) :: IC, IHALF, ILND, INIT, IPOS, ISML, ISTP, IVB, IVT, IVTEND, IVTOP, IVTSTA, IWSYM, L, LEV, LEV1, LEV2, LL, MV
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: IS, NUW
 # endif
+integer(kind=iwp), allocatable :: SCR(:,:)
+integer(kind=iwp), parameter :: IVERT = 1, ISYM = 2, ISTEP = 3
 
-Do INIT=0,1
-If (INIT==0) Then
-! Compute the number of integers needed to store the packed case vectors.
-CIS%nIpWlk = 1+(SGS%MidLev-1)/nPack
-CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/nPack)
-call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
-call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
-call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF')
-call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF')
-call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
+do INIT=0,1
+  if (INIT == 0) then
+    ! Compute the number of integers needed to store the packed case vectors.
+    CIS%nIpWlk = 1+(SGS%MidLev-1)/nPack
+    CIS%nIpWlk = max(CIS%nIpWlk,1+(SGS%nLev-SGS%MidLev-1)/nPack)
+    call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW')
+    call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW')
+    call mma_allocate(CIS%NOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%NOCSF')
+    call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF')
+    call mma_allocate(CIS%NCSF,SGS%nSym,Label='CIS%NCSF')
 
-call mma_allocate(Scr,[1,3],[0,SGS%nLev],Label='Scr')  ! First index referenced by IVERT, SYM, and ISTEP
+    call mma_allocate(Scr,[1,3],[0,SGS%nLev],Label='Scr')  ! First index referenced by IVERT, SYM, and ISTEP
 
-! CLEAR ARRAYS IOW AND NOW
+    ! CLEAR ARRAYS IOW AND NOW
 
-CIS%NOW(:,:,:) = 0
-CIS%IOW(:,:,:) = 0
+    CIS%NOW(:,:,:) = 0
+    CIS%IOW(:,:,:) = 0
 
-! CLEAR ARRAYS IOCSF AND NOCSF
+    ! CLEAR ARRAYS IOCSF AND NOCSF
 
-CIS%IOCSF(:,:,:) = 0
-CIS%NOCSF(:,:,:) = 0
-Else
-!call mma_allocate(Scr,[1,3],[0,SGS%nLev],Label='Scr',safe='*')  ! First index referenced by IVERT, SYM, and ISTEP
-call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
-! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
-CIS%NOW(:,:,:) = 0
-EndIf
+    CIS%IOCSF(:,:,:) = 0
+    CIS%NOCSF(:,:,:) = 0
+  else
+    !call mma_allocate(Scr,[1,3],[0,SGS%nLev],Label='Scr',safe='*')  ! First index referenced by IVERT, SYM, and ISTEP
+    call mma_allocate(CIS%ICase,CIS%nWalk*CIS%nIpWlk,Label='CIS%ICase',safe='*')
+    ! CLEAR ARRAY NOW. IT WILL BE RESTORED FINALLY
+    CIS%NOW(:,:,:) = 0
+  end if
 
 ! START MAIN LOOP OVER UPPER AND LOWER WALKS, RESPECTIVELY.
 
@@ -1068,7 +1064,7 @@ do IHALF=1,2
       ! doubly occupied or empty orbital case are total symmetric. Singly occupied orbitals
       ! carry the symmetry of the orbital in the level.
       ISML = 1
-      IF (ISTP==1 .or. ISTP==2) ISML = SGS%ISm(LEV)
+          if (ISTP == 1 .or. ISTP == 2) ISML = SGS%ISm(LEV)
 
       LEV = LEV-1     ! Walk down one level
 
@@ -1086,8 +1082,8 @@ do IHALF=1,2
 
       ILND = CIS%NOW(IHALF,IWSYM,MV) + 1
       CIS%NOW(IHALF,IWSYM,MV) = ILND   ! Increment counter for how many walks there are given the
-                                       ! midvertex index and the total symmetry of the subwalk.
-      If (INIT==1) Then
+      ! midvertex index and the total symmetry of the subwalk.
+      if (INIT == 1) then
         ! CONSEQUENTLY, THE POSITION IMMEDIATELY BEFORE THIS COMPRESSED WALK:
         IPOS = CIS%IOW(IHALF,IWSYM,MV)+(ILND-1)*CIS%nIpWlk
 
@@ -1102,7 +1098,7 @@ do IHALF=1,2
           IPOS = IPOS+1
           CIS%ICase(IPOS) = IC
         end do
-      End If
+      end if
 
       ! BACK UP ONE LEVEL AND EXPLORE NEW WALKS:
       LEV = LEV+1
@@ -1110,9 +1106,9 @@ do IHALF=1,2
   end do
 end do
 
-If (INIT==0) THEN
+if (INIT == 0) then
 ! Generate an off-set array for the CIS%NOW array
-Call Mk_IOW(CIS,SGS)
+call Mk_IOW(CIS,SGS)
 call CSFCOUNT(CIS,SGS)
 
 #ifdef _DEBUGPRINT_
@@ -1136,7 +1132,7 @@ do MV=1,CIS%nMidV
   end do
 end do
 #endif
-End If
+end if
 
 end do ! INIT
 
@@ -1145,8 +1141,8 @@ call mma_deallocate(Scr,safe='*')
 end subroutine MKCOT
 
 subroutine MKMAW(SGS)
-
 ! CONSTRUCT A MODIFIED DIRECT ARC WEIGHT TABLE
+
 type(SGStruct), intent(inout) :: SGS
 integer(kind=iwp) :: IC, ID, ISUM, IU, IV
 
@@ -1207,8 +1203,7 @@ subroutine MKSEG(SGS,CIS,EXS)
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(inout) :: CIS
 type(EXStruct), intent(inout) :: EXS
-integer(kind=iwp) :: IA, IAL, IB, IBL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB, IVLT, IVRB, IVRT, LEV, MV, MVLL
-integer(kind=iwp) :: INL, IN
+  integer(kind=iwp) :: I_N, IA, IAL, IB, IBL, INL, ISGT, ITT, IV, IV1, IV2, IVL, IVLB, IVLT, IVRB, IVRT, LEV, MV, MVLL
 real(kind=wp) :: V
 
 call mma_allocate(CIS%IVR,SGS%nVert,2,Label='CIS%IVR')
@@ -1231,21 +1226,21 @@ do LEV=1,SGS%nLev    ! Loop over all levels
     do IV=IVL+1,IV2         ! loop over all vertices of level LEV, right to left, but the first vertex
       IA = SGS%DRT(IV,ATAB)! Pick up the a-value of the right vertex
       IB = SGS%DRT(IV,BTAB)
-      IN = 2*IA+IB
-!
+      I_N = 2*IA+IB
+
 !     The number of particles in the node decrease left to right. If the difference between two vertices
 !     is higher than 1 then there is no reason to explore further vertices to the right.
 
-      If (INL-IN>1) cycle
+        if (INL-I_N > 1) cycle
 
 !     Test if right vertex is consistent with a tail or an intermediate segment
 !     Delta(b) = B(left vertex) - B(right vertex)
 !     The intermediate segments are divided into five with delta(b)=-1, and five with delat(b)=+1
 !     The tail segments are divided into two with delta(b)=-1, and two with delta(b)=+1
-!
+
 !     2a+b=N, where N is the number of electrons in the CSF described by the vertex
 !     b=2S, where S is the total electonic spinf of the CSF described by the vertex
-!
+
 !     Tabulation of valid cases:
 !     tail (u0,2d): delta(N)=-1, delta(b)=-1 => IA=IAL, and IB=IBL-1
 !     tail (d0,2u): delta(N)=-1, delta(b)=+1 => IA=IAL-1, and IB=IBL-1
@@ -1283,12 +1278,12 @@ write(u6,*)
 write(u6,*) ' MIDVERT PAIR TABLES MVL,MVR IN MKSEG:'
 write(u6,*) ' MVL TABLE:'
 write(u6,1234) (MV,EXS%MVL(MV,1),EXS%MVL(MV,2),MV=1,CIS%nMidV)
-1234 format('  MV=',I2,'    UPPER WALKS:',8I6)
 write(u6,*) ' MVR TABLE:'
 write(u6,1234) (MV,EXS%MVR(MV,1),EXS%MVR(MV,2),MV=1,CIS%nMidV)
 write(u6,*)
 write(u6,*) ' VERTEX PAIR TABLE IVR IN MKSEG:'
 write(u6,1234) (IVL,CIS%IVR(IVL,1),CIS%IVR(IVL,2),IVL=1,SGS%nVert)
+  1234 format('  MV=',I2,'    UPPER WALKS:',8I6)
 #endif
 
 ! INITIALIZE SEGMENT TABLES, AND MARK VERTICES AS UNUSABLE:
@@ -1300,7 +1295,7 @@ do IVLT=1,SGS%nVert     ! Upper left vertex
   do ISGT=1,nSeg
     ITT = ITVPT(ISGT)   ! 0-3
     IVRT = IVLT               ! Upper right vertex is the same as the upper left vertex.
-    If (ITT==1 .or. ITT==2)IVRT = CIS%IVR(IVLT,ITT)  ! Pick up the associated upper right vertex, depends on delta(b)
+    if (ITT == 1 .or. ITT == 2) IVRT = CIS%IVR(IVLT,ITT)  ! Pick up the associated upper right vertex, depends on delta(b)
     if (IVRT == 0) cycle          ! Branch out if there is no vertex that will contruct the top of the segment.
     ! Pick up the vertex index for the left lower vertex as a function of the case
     IVLB = SGS%Down(IVLT,IC1(ISGT))
@@ -1363,7 +1358,6 @@ type(TRStruct), intent(in)    :: TRS
 integer(kind=iwp) :: IBSYM, INDEO, INDEOB, INDEOT, IP, IPQ, IQ, ISGT, ISYDS1, ISYM, ISYUS1, ITSYM, IVLB, IVLT, LEV, LFTSYM, &
                      MV, MV1, MV2, MVSGM, MV4, MV5, MXDWN, MXUP, NDWNS1, NSGMX, NSGTMP, NT1TMP, NT2TMP, NT3TMP, NT4TMP, NT5TMP, &
                      NUPS1, INDEO0
-integer(kind=iwp), allocatable :: NRL(:,:,:)
 integer(kind=iwp) :: ICLASS, IT0, NT, K, ITR
 integer(kind=iwp) :: ITOP, IBOT
 integer(kind=iwp), parameter :: nOpenBands = 4
@@ -1374,11 +1368,11 @@ integer(kind=iwp) :: band, Memory, INDEO_NRL, INDEO_EXS
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IS, IST, NCP, NUW
 #endif
+  integer(kind=iwp), allocatable :: NRL(:,:,:)
 
 ActiveBand = .false.
 ActiveBand(1) = .true.
 ActiveBand(2) = .true.
-
 
 call mma_allocate(CIS%NOW,2,SGS%nSym,CIS%nMidV,Label='CIS%NOW',safe='*')
 call mma_allocate(CIS%IOW,2,SGS%nSym,CIS%nMidV,Label='CIS%IOW',safe='*')
@@ -1389,9 +1383,9 @@ call mma_allocate(CIS%IOCSF,SGS%nSym,CIS%nMidV,SGS%nSym,Label='CIS%IOCSF',safe='
 
 NRL_OpenBlock = nOpenBands * SGS%nLev
 EXS_OpenBlock=0
-Do band=1,nOpenBands
-   If (ActiveBand(band)) EXS_OpenBlock=EXS_OpenBlock+SGS%nLev
-End Do
+  do band=1,nOpenBands
+    if (ActiveBand(band)) EXS_OpenBlock = EXS_OpenBlock+SGS%nLev
+  end do
 
 EXS%MxEO = NRL_OpenBlock + (SGS%nLev*(SGS%nLev+1))/2
 Memory= EXS_OpenBlock + (SGS%nLev*(SGS%nLev+1))/2
@@ -1503,7 +1497,6 @@ do MV=1,CIS%nMidV                  ! loop over midverticies
   do LFTSYM=1,SGS%nSym             ! Loop over symmetries
     CIS%NOW(1,LFTSYM,MV) = NRL(LFTSYM,IVLT,INDEO0)  ! Store away the number of walks to this mid vertex.
     MXUP = max(MXUP,CIS%NOW(1,LFTSYM,MV))           ! The max upper walks to any midvertex
-
 
     ! ---- open loops ----
     do band = 1, nOpenBands
@@ -1618,7 +1611,7 @@ do MV=1,CIS%nMidV
 
       do IQ = 1, SGS%nLev
         INDEO = IQ + (band-1)*SGS%nLev
-        EXS%NOCP(INDEO,LFTSYM,MV) = Max(EXS%NOCP(INDEO,LFTSYM,MV),NRL(LFTSYM,IVLT,INDEO))
+        EXS%NOCP(INDEO,LFTSYM,MV) = max(EXS%NOCP(INDEO,LFTSYM,MV),NRL(LFTSYM,IVLT,INDEO))
       end do
 
     end do
@@ -1629,7 +1622,7 @@ do MV=1,CIS%nMidV
       IPQ = IP*(IP-1)/2 + IQ
       INDEO_EXS = IPQ + EXS_OpenBlock
       INDEO_NRL = IPQ + NRL_OpenBlock
-      EXS%NOCP(INDEO_EXS,LFTSYM,MV) = MAX(EXS%NOCP(INDEO_EXS,LFTSYM,MV),NRL(LFTSYM,IVLT,INDEO_NRL))
+      EXS%NOCP(INDEO_EXS,LFTSYM,MV) = max(EXS%NOCP(INDEO_EXS,LFTSYM,MV),NRL(LFTSYM,IVLT,INDEO_NRL))
     end do
     end do
 
@@ -1637,7 +1630,7 @@ do MV=1,CIS%nMidV
 end do
 
 EXS%nICOup = 0
-do INDEO=1,SIZE(EXS%IOCP,1)
+do INDEO=1,size(EXS%IOCP,1)
   do MV=1,CIS%nMidV
     do LFTSYM=1,SGS%nSym
       EXS%IOCP(INDEO,LFTSYM,MV) = EXS%nICOup
@@ -1646,7 +1639,7 @@ do INDEO=1,SIZE(EXS%IOCP,1)
   end do
 end do
 
-Call Mk_IOW(CIS,SGS)
+call Mk_IOW(CIS,SGS)
 
 call CSFCOUNT(CIS,SGS)
 
@@ -1699,7 +1692,7 @@ do MVSGM=1,CIS%nMidV
 end do
 
 ! Set up the code to wheater or not intermediate sigma vectors are to be reused.
-Call mma_maxDBLE(NT1TMP)
+call mma_maxDBLE(NT1TMP)
 if (NSGTMP*2*SGS%nSym*SGS%MidLev < NT1TMP/4) then
    call mma_allocate(EXS%SGTMP,NSGTMP*2*SGS%nSym*SGS%MidLev,Label='EXS%SGTMP')
    EXS%Reuse_SGTMP=.true.
@@ -1789,7 +1782,6 @@ call mma_deallocate(NRL)
 end subroutine MkNRCOUP
 
 subroutine MKCOUP(SGS,CIS,EXS,TRS)
-
 ! Purpose:
 !   Transition-table version of MKCOUP.
 !
@@ -1804,7 +1796,6 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 !   ISGPTH(ISEG,LEV) is now a bucket cursor K
 !   ISGPTH(IRSEG,LEV) stores the raw segment number ISGT
 
-  implicit none
   type(SGStruct), intent(in)    :: SGS
   type(CIStruct), intent(inout) :: CIS
   type(EXStruct), intent(inout) :: EXS
@@ -1858,22 +1849,10 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   end if
 
   ! NOW is reused as a counter array and restored later by higher-level logic
-  do IHALF = 1, 2
-    do MV = 1, CIS%nMidV
-      do IS = 1, SGS%nSym
-        CIS%NOW(IHALF,IS,MV) = 0
-      end do
-    end do
-  end do
+  CIS%NOW(1:2,1:SGS%nSym,1:CIS%nMidV) = 0
 
   ! Same idea for NOCP
-  do INDEO = 1, SIZE(EXS%NOCP,1)
-    do MV = 1, CIS%nMidV
-      do IS = 1, SGS%nSym
-        EXS%NOCP(INDEO,IS,MV) = 0
-      end do
-    end do
-  end do
+  EXS%NOCP(:,1:SGS%nSym,1:CIS%nMidV) = 0
 
   call mma_allocate(ILNDW,CIS%nWalk,Label='ILNDW')
   call mma_allocate(ISGPTH,[1,8],[0,SGS%nLev],Label='ISGPTH')
@@ -1882,7 +1861,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   hsize = 2*nVTab + 1
   call mma_allocate(VHashKey,[0,hsize-1],Label='VHashKey')
   call mma_allocate(VHashVal,[0,hsize-1],Label='VHashVal')
-  VHashKey(:) = -huge(1_iwp)
+  VHashKey(:) = -huge(VHashKey)
   VHashVal(:) = 0
 
   ! Coupling coefficient value table
@@ -1959,9 +1938,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
 
           ! Right upper vertex
           IVRT = IVLT
-          if (TRS%IPRT(ITR) /= 0) then
-            IVRT = CIS%IVR(IVLT,TRS%IPRT(ITR))
-          end if
+          if (TRS%IPRT(ITR) /= 0) IVRT = CIS%IVR(IVLT,TRS%IPRT(ITR))
 
           ! Store current bucket cursor and raw segment number
           ISGPTH(ISEG,LEV)  = K
@@ -2049,21 +2026,21 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               call Abend()
             end if
 
-! ============================================================
-! M5 BEGIN
-! Keep all of the following logic identical to the original
-! MKCOUP until the transition-based path traversal is fully
-! validated:
-!   - VTab lookup / insertion
-!   - ICoup write
-!   - ILNDW-based Lund renumbering
-!   - final EXS%VTab materialization
-! ============================================================
+            ! ==========================================================
+            ! M5 BEGIN
+            ! Keep all of the following logic identical to the original
+            ! MKCOUP until the transition-based path traversal is fully
+            ! validated:
+            !   - VTab lookup / insertion
+            !   - ICoup write
+            !   - ILNDW-based Lund renumbering
+            !   - final EXS%VTab materialization
+            ! ==========================================================
 
-! ------------------------------------------------------------
-! M5: keep VTab logic identical to the original MKCOUP
-! Do not optimize or refactor this yet.
-! ------------------------------------------------------------
+            ! ----------------------------------------------------------
+            ! M5: keep VTab logic identical to the original MKCOUP
+            ! Do not optimize or refactor this yet.
+            ! ----------------------------------------------------------
             C = val(LEV2)
 
             do i = 1, NVTAB_FINAL
@@ -2081,9 +2058,9 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
               IVTAB = NVTAB_FINAL
             end if
 
-! ------------------------------------------------------------
-! M5: keep ICoup write logic identical to the original MKCOUP
-! ------------------------------------------------------------
+            ! ----------------------------------------------------------
+            ! M5: keep ICoup write logic identical to the original MKCOUP
+            ! ----------------------------------------------------------
 
             EXS%ICoup(1,ICOP) = ISGPTH(IAWSL,LEV2)
             EXS%ICoup(2,ICOP) = ISGPTH(IAWSR,LEV2)
@@ -2144,15 +2121,16 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   EXS%VTab(1:NVTAB_FINAL) = VTab(1:NVTAB_FINAL)
   call mma_deallocate(VTab)
 
-  NCP_Max=Max(1,MaxVal(EXS%NOCP(:,:,:)))
-! Write (u6,*) 'NCP_MAX=',NCP_MAX
-! Write (u6,*) 'SIZE(EXS%NOCP)=',SIZE(EXS%NOCP)
-! Write (u6,*) 'EXS%NOCP=',EXS%NOCP
-  Call mma_allocate(EXS%I1List,NCP_Max,Label='I1List')
-  Call mma_allocate(EXS%I2List,NCP_Max,Label='I2List')
-  Call mma_allocate(EXS%XList,NCP_Max,Label='XList')
+  NCP_Max = max(1,maxval(EXS%NOCP(:,:,:)))
+  !write(u6,*) 'NCP_MAX=',NCP_MAX
+  !write(u6,*) 'SIZE(EXS%NOCP)=',SIZE(EXS%NOCP)
+  !write(u6,*) 'EXS%NOCP=',EXS%NOCP
+  call mma_allocate(EXS%I1List,NCP_Max,Label='I1List')
+  call mma_allocate(EXS%I2List,NCP_Max,Label='I2List')
+  call mma_allocate(EXS%XList,NCP_Max,Label='XList')
   call mma_deallocate(VHashKey)
   call mma_deallocate(VHashVal)
+
 end subroutine MKCOUP
 
 subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
@@ -2161,7 +2139,6 @@ subroutine MKSGNUM(STSYM,SGS,CIS,EXS)
 !          REVERSE ARC WEIGHT SUM, RESPECTIVELY.
 !          STORE THE DATA IN THE TABLES USGN AND LSGN
 
-implicit none
 integer(kind=iwp), intent(in) :: STSYM
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
@@ -2271,16 +2248,13 @@ call mma_deallocate(ISTEPVEC)
 end subroutine MKSGNUM
 
 subroutine CSFCOUNT(CIS,SGS)
+! CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
+! SEPARATED BY MIDVERTICES AND SYMMETRY.
+! FORM ALSO CONTRACTED SUMS OVER MIDVERTICES.
 
 type(CIStruct), intent(inout) :: CIS
 type(SGStruct), intent(inout) :: SGS
 integer(kind=iwp) :: ISYDWN, ISYTOT, ISYUP, MV, N
-
-
-
-! CONSTRUCT COUNTER AND OFFSET TABLES FOR THE CSFS
-! SEPARATED BY MIDVERTICES AND SYMMETRY.
-! FORM ALSO CONTRACTED SUMS OVER MIDVERTICES.
 
 CIS%NCSF(:) = 0   ! Number of CSFs in each irrep
 do ISYTOT=1,SGS%NSYM
@@ -2303,18 +2277,17 @@ end do
 end subroutine CSFCOUNT
 
 subroutine Mk_IOW(CIS,SGS)
-type(CIStruct), intent(inout) :: CIS
-type(SGStruct), intent(inout) :: SGS
-
-integer(kind=iwp) :: ISYM, MV
-
 ! CONSTRUCT OFFSET TABLES FOR UPPER AND LOWER WALKS
 ! SEPARATED FOR EACH MIDVERTEX AND SYMMETRY
 !
 ! CIS%IOW(1/2,ISYM,MV) is an off-set vector associated with CIS%NOW(1/2,ISYM,MV)
 ! CIS%NOW(1/2,ISYM,MV) is the number of upper/lower walks of symmetry ISYM that ends/starts in mid vertex MV (relative indexation).
 ! 1/2 indicate if the off-set is for upper or lower walks.
-!
+
+  type(CIStruct), intent(inout) :: CIS
+  type(SGStruct), intent(inout) :: SGS
+  integer(kind=iwp) :: ISYM, MV
+
 CIS%NUW = 0   ! At completion the total number of upper walks.
 do MV=1,CIS%nMidV
   do ISYM=1,SGS%NSYM
@@ -2332,29 +2305,41 @@ do MV=1,CIS%nMidV
 end do
 end subroutine Mk_IOW
 
-pure logical(kind=iwp) function NeedsRightPartner(ICLASS)
+pure function NeedsRightPartner(ICLASS)
+
+  logical(kind=iwp) :: NeedsRightPartner
   integer(kind=iwp), intent(in) :: ICLASS
 
+  select case (ICLASS)
+    case (1,2)
+      NeedsRightPartner = .true.
+    case default
   NeedsRightPartner = .false.
-  If (ICLASS==1 .or. ICLASS==2) NeedsRightPartner = .true.
+  end select
+
 end function NeedsRightPartner
 
-pure integer(kind=iwp) function PartnerSlot(ICLASS)
+pure function PartnerSlot(ICLASS)
+
+  integer(kind=iwp) :: PartnerSlot
   integer(kind=iwp), intent(in) :: ICLASS
 
-  PartnerSlot = 0
   select case (ICLASS)
   case (1)
     PartnerSlot = 1
   case (2)
     PartnerSlot = 2
+    case default
+      PartnerSlot = 0
   end select
+
 end function PartnerSlot
 
-pure integer(kind=iwp) function OpenBand(ICLASS)
+pure function OpenBand(ICLASS)
+
+  integer(kind=iwp) :: OpenBand
   integer(kind=iwp), intent(in) :: ICLASS
 
-  OpenBand = 0
   select case (ICLASS)
   case (1)
     OpenBand = 1
@@ -2364,10 +2349,14 @@ pure integer(kind=iwp) function OpenBand(ICLASS)
     OpenBand = 3
   case (4)
     OpenBand = 4
+    case default
+      OpenBand = 0
   end select
+
 end function OpenBand
 
 subroutine TRANS_Free(TRS)
+
   type(TRStruct), intent(inout) :: TRS
 
   call mma_deallocate(TRS%NTR,    safe='*')
@@ -2392,20 +2381,17 @@ subroutine TRANS_Free(TRS)
   call mma_deallocate(TRS%MAWR,   safe='*')
 
   call mma_deallocate(TRS%VSEG,   safe='*')
+
 end subroutine TRANS_Free
 
 subroutine MKTRANS(SGS,CIS,TRS)
+
   type(SGStruct), intent(in)    :: SGS
   type(CIStruct), intent(in)    :: CIS
   type(TRStruct), intent(inout) :: TRS
-
-  integer(kind=iwp) :: IVLT, ISGT, ICLASS
-  integer(kind=iwp) :: LEV, IVLB
-  integer(kind=iwp) :: ICL, ICR, ITOP, IBOT
-  integer(kind=iwp) :: IPRT, ISYM, IOBAND, IFLAG
-  integer(kind=iwp) :: ITR, N
-  integer(kind=iwp), allocatable :: IPOS(:,:)
+  integer(kind=iwp) :: IBOT, ICL, ICLASS, ICR, IFLAG, IOBAND, IPRT, ISGT, ISYM, ITOP, ITR, IVLB, IVLT, LEV, N
   real(kind=wp) :: VSEG
+  integer(kind=iwp), allocatable :: IPOS(:,:)
 
   ! Initialize metadata
   call TRANS_Free(TRS)
@@ -2548,7 +2534,6 @@ use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
-implicit none
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
 type(EXStruct), intent(inout), target :: EXS
@@ -2567,13 +2552,13 @@ logical(kind=iwp) :: Reuse_Sigma
 real(kind=wp) :: CI_ID=Zero
 integer(kind=iwp) ::  iOff, jOff
 
-!***********************************************************************
+!*********************************************************************
 !  GIVEN ACTIVE LEVEL INDICES IP AND IQ, AND INPUT CI ARRAYS
 !  CI AND SGM, THIS ROUTINE ADDS TO SGM THE RESULT OF ACTING ON
 !  CI WITH THE NUMBER CPQ TIMES THE EXCITATION OPERATOR E(IP,IQ).
 !  THE ADDITIONAL ENTRIES IN THE PARAMETER LIST ARE TABLES THAT
 !  WERE PREPARED BY GINIT AND ITS SUBROUTINES.
-!***********************************************************************
+!*********************************************************************
 
 nCSFs=CIS%NCSF(ISYCI)
 ! SYMMETRY OF ORBITALS:
@@ -2592,14 +2577,17 @@ if (IQ < IP) then
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
 
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+        if (NS1 == 0) cycle
         ISYDSG = Mul(ISYUSG,ISYSGM)           ! compute the lower symmetry
         ISYDC = Mul(ISYPQ,ISYDSG)             ! compute the symmetry of the sigma vector
-        NDWNC = CIS%NOW(2,ISYDC,MVSGM)       ; if (NDWNC == 0) cycle
+        NDWNC = CIS%NOW(2,ISYDC,MVSGM)
+        if (NDWNC == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM) ! get the off-set to the sigma vector block
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)           ! number of upper half-walks by symmetry and midvertex.
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)       ! get the off-set to the CI vector block
-        NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)    ; if (NCP == 0) cycle
+        NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)
+        if (NCP == 0) cycle
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
         ! CASE IS: LOWER HALF, EXCITE:
@@ -2615,15 +2603,18 @@ if (IQ < IP) then
     INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)  ; if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+        if (NS1 == 0) cycle
         ISYUC = Mul(ISYPQ,ISYUSG)
-        NUPC = CIS%NOW(1,ISYUC,MVSGM)         ; if (NUPC == 0) cycle
+        NUPC = CIS%NOW(1,ISYUC,MVSGM)
+        if (NUPC == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYUC,MVSGM)     ; if (NCP == 0) cycle
+        NCP = EXS%NOCP(INDEO,ISYUC,MVSGM)
+        if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUC,MVSGM)
         ! CASE IS: UPPER HALF, EXCITE:
         call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
@@ -2635,57 +2626,62 @@ if (IQ < IP) then
     ! EXCITING CASE, IQ<=MIDLEV<IP
 
     iOff=1
-    Reuse_Sigma=.False.
-    If (EXS%Reuse_SGTMP .and. i_save_p==IP .and. i_save_q_sym==ISYQ) Then
-       Reuse_Sigma = CI_ID==Sum(CI(1:nCSFs))+DBLE(nCSFs)
-    End If
+    Reuse_Sigma = .false.
+    if (EXS%Reuse_SGTMP .and. (i_save_p == IP) .and. (i_save_q_sym == ISYQ)) &
+      Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
-        MVX = EXS%MVL(MVSGM,MV) ; if (MVX == 0) cycle
+        MVX = EXS%MVL(MVSGM,MV)
+        if (MVX == 0) cycle
         do ISYUSG=1,SGS%nSym
-          NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
+          NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+          if (NS1 == 0) cycle
           ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
           ISYDSG = Mul(ISYUSG,ISYSGM)
           ISYUC = Mul(ISYP,ISYUSG)
           ISYDC = Mul(ISYQ,ISYDSG)
 
-          NUPC = CIS%NOW(1,ISYUC,MVX)         ; if (NUPC == 0) cycle
-          NDWNC = CIS%NOW(2,ISYDC,MVX)        ; if (NDWNC == 0) cycle
+          NUPC = CIS%NOW(1,ISYUC,MVX)
+          if (NUPC == 0) cycle
+          NDWNC = CIS%NOW(2,ISYDC,MVX)
+          if (NDWNC == 0) cycle
 
           INDEO = merge(IP, SGS%nLev+IP, MV==1)
-          NCP1 = EXS%NOCP(INDEO,ISYUC,MVX)  ; if (NCP1 == 0) cycle
+          NCP1 = EXS%NOCP(INDEO,ISYUC,MVX)
+          if (NCP1 == 0) cycle
 
           ! CASE IS: UPPER HALF, EXCITE:
           LICP = EXS%IOCP(INDEO,ISYUC,MVX)
           IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
 
           ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
-          If (EXS%Reuse_SGTMP .and. .NOT.Reuse_Sigma) Then
+          if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
              NTMP = NUPSG*NDWNC
              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
              call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
-          End If
+          end if
 
           jOff=iOff
-          If (EXS%Reuse_SGTMP) Then
-              iOff = iOff + NUPSG*NDWNC
-              If (iOff-1>SIZE(EXS%SGTMP)) Then
-                 Write(6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 1'
-                 Write(6,*) iOff-1,SIZE(EXS%SGTMP)
-                 Call Abend()
-              End If
-          End If
+          if (EXS%Reuse_SGTMP) then
+            iOff = iOff + NUPSG*NDWNC
+            if (iOff-1 > size(EXS%SGTMP)) then
+              write(u6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 1'
+              write(u6,*) iOff-1,size(EXS%SGTMP)
+              call Abend()
+            end if
+          end if
 
           INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
-          NCP2 = EXS%NOCP(INDEO,ISYDC,MVX) ; if (NCP2 == 0) cycle
+          NCP2 = EXS%NOCP(INDEO,ISYDC,MVX)
+          if (NCP2 == 0) cycle
 
-          If (.NOT.EXS%Reuse_SGTMP) Then
+          if (.not. EXS%Reuse_SGTMP) then
              NTMP = NUPSG*NDWNC
              EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
              call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
-          End If
+          end if
 
           ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
@@ -2699,7 +2695,7 @@ if (IQ < IP) then
     i_save_q_sym=ISYQ
     i_save_q=0
     i_save_p_sym=-1
-    If (EXS%Reuse_SGTMP .and. .Not.Reuse_Sigma) CI_ID=Sum(CI(1:nCSFs))+DBLE(nCSFs)
+    if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
   end if
 else if (IP < IQ) then
@@ -2710,19 +2706,22 @@ else if (IP < IQ) then
     INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+        if (NS1 == 0) cycle
         ISYDSG = Mul(ISYUSG,ISYSGM)
         ISYDC = Mul(ISYPQ,ISYDSG)
-        NDWNC = CIS%NOW(2,ISYDC,MVSGM)       ; if (NDWNC == 0) cycle
+        NDWNC = CIS%NOW(2,ISYDC,MVSGM)
+        if (NDWNC == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)   ; if (NCP == 0) cycle
+        NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)
+        if (NCP == 0) cycle
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
         call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,.true.)
-        call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.True.)
+        call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
       end do
     end do
 
@@ -2732,15 +2731,18 @@ else if (IP < IQ) then
     INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)  ; if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+        if (NS1 == 0) cycle
         ISYUC = Mul(ISYPQ,ISYUSG)
-        NUPC = CIS%NOW(1,ISYUC,MVSGM)         ; if (NUPC == 0) cycle
+        NUPC = CIS%NOW(1,ISYUC,MVSGM)
+        if (NUPC == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYUSG,MVSGM)    ; if (NCP == 0) cycle
+        NCP = EXS%NOCP(INDEO,ISYUSG,MVSGM)
+        if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
         ! CASE IS: UPPER HALF, DEEXCITE:
         call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
@@ -2751,59 +2753,64 @@ else if (IP < IQ) then
 
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
     iOff=1
-    Reuse_Sigma=.False.
-    If (EXS%Reuse_SGTMP .and. i_save_q==IQ .and. i_save_p_sym==ISYP) Then
-       Reuse_Sigma = CI_ID==Sum(CI(1:nCSFs))+DBLE(nCSFs)
-    End If
+    Reuse_Sigma = .false.
+    if (EXS%Reuse_SGTMP .and. (i_save_q == IQ) .and. (i_save_p_sym == ISYP)) &
+      Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
-         MVX = EXS%MVR(MVSGM,MV) ; if (MVX == 0) cycle
+        MVX = EXS%MVR(MVSGM,MV)
+        if (MVX == 0) cycle
 
          do ISYUSG=1,SGS%nSym
-           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
+           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+           if (NS1 == 0) cycle
            ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
            NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
            ISYDSG = Mul(ISYUSG,ISYSGM)
            ISYUC = Mul(ISYQ,ISYUSG)
            ISYDC = Mul(ISYP,ISYDSG)
 
-           NUPC = CIS%NOW(1,ISYUC,MVX)          ; if (NUPC == 0) cycle
-           NDWNC = CIS%NOW(2,ISYDC,MVX)         ; if (NDWNC == 0) cycle
+           NUPC = CIS%NOW(1,ISYUC,MVX)
+           if (NUPC == 0) cycle
+           NDWNC = CIS%NOW(2,ISYDC,MVX)
+           if (NDWNC == 0) cycle
 
            INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
-           NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)  ; if (NCP1 == 0) cycle
+           NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)
+           if (NCP1 == 0) cycle
 
            ! CASE IS: UPPER HALF, DEEXCITE:
            LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
            IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
 
            ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
-           If (EXS%Reuse_SGTMP .and. .NOT.Reuse_Sigma) Then
-              NTMP = NUPSG*NDWNC
-              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-              call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
-           End If
+           if (EXS%Reuse_SGTMP .and. .not. Reuse_Sigma) then
+             NTMP = NUPSG*NDWNC
+             EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
+             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+           end if
 
            jOff=iOff
-           If (EXS%Reuse_SGTMP) Then
+           if (EXS%Reuse_SGTMP) then
              iOff = iOff + NUPSG*NDWNC
-             If (iOff-1>SIZE(EXS%SGTMP)) Then
-               Write(6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 2'
-               Write(6,*) iOff-1,SIZE(EXS%SGTMP)
-               Call Abend()
-             End If
-           End If
+             if (iOff-1 > size(EXS%SGTMP)) then
+               write(u6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 2'
+               write(u6,*) iOff-1,size(EXS%SGTMP)
+               call Abend()
+             end if
+           end if
 
            INDEO = merge(IP, SGS%nLev+IP, MV==1)
-           NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM) ; if (NCP2 == 0) cycle
+           NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM)
+           if (NCP2 == 0) cycle
 
            ! CASE IS: UPPER HALF, DEEXCITE:
-           If (.NOT.EXS%Reuse_SGTMP) Then
+           if (.not. EXS%Reuse_SGTMP) then
               NTMP = NUPSG*NDWNC
               EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
               call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
-           End If
+           end if
 
            ! CASE IS: LOWER HALF, DEEXCITE:
            NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
@@ -2818,7 +2825,7 @@ else if (IP < IQ) then
     i_save_p_sym=ISYP
     i_save_p=0
     i_save_q_sym=-1
-    If (EXS%Reuse_SGTMP .and. .Not.Reuse_Sigma) CI_ID=Sum(CI(1:nCSFs))+DBLE(nCSFs)
+    if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
   end if
 else
@@ -2829,7 +2836,8 @@ else
     ! IP=IQ>MIDLEV
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+        if (NS1 == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
@@ -2841,7 +2849,8 @@ else
         IPPOW = 2**IPSHFT
         do I=1,NUPSG
           IC = CIS%ICase(LUW+I*CIS%nIpWlk)
-          ICS = mod(IC/IPPOW,4) ; if (ICS == 0) cycle
+          ICS = mod(IC/IPPOW,4)
+          if (ICS == 0) cycle
           X = CPQ*real((1+ICS)/2,kind=wp)
           ISTA = ISGSTA+I
           call DAXPY_(NDWNSG,X,CI(ISTA),NUPSG,SGM(ISTA),NUPSG)
@@ -2855,7 +2864,8 @@ else
     ! IP=IQ < MIDLEV.
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM) ; if (NS1 == 0) cycle
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+        if (NS1 == 0) cycle
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
@@ -2867,7 +2877,8 @@ else
         IPPOW = 2**IPSHFT
         do J=1,NDWNSG
           JC = CIS%ICase(LLW+J*CIS%nIpWlk)
-          ICS = mod(JC/IPPOW,4) ; if (ICS == 0) cycle
+          ICS = mod(JC/IPPOW,4)
+          if (ICS == 0) cycle
           X = CPQ*real((1+ICS)/2,kind=wp)
           JSTA = ISGSTA + NUPSG*(J-1) + 1
           SGM(JSTA:JSTA+NUPSG-1) = SGM(JSTA:JSTA+NUPSG-1)+X*CI(JSTA:JSTA+NUPSG-1)
@@ -2885,16 +2896,12 @@ end if
 
 contains
 
+  subroutine sort_icoup_block(ICOUP,NCP,swap)
 
-
-subroutine sort_icoup_block(ICOUP, NCP, swap)
-  use Definitions, only: iwp
-  implicit none
   integer(kind=iwp), intent(in) :: NCP
   integer(kind=iwp), intent(inout) :: ICOUP(3,NCP)
   logical(kind=iwp), intent(in) :: swap
-  integer(kind=iwp) :: i, j
-  integer(kind=iwp) :: temp(3)
+    integer(kind=iwp) :: i, j, temp(3)
 
   do i = 2, NCP
      temp = ICOUP(:,i)
@@ -2913,26 +2920,16 @@ subroutine sort_icoup_block(ICOUP, NCP, swap)
 end subroutine sort_icoup_block
 
 subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
-  use Definitions, only: wp, iwp
-  implicit none
-  integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP
-  integer(kind=iwp), intent(in) :: ICOUP(3,NCP)
+
+  integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUP,NDWNC)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap
-
-  integer(kind=iwp) :: ICP, start, finish, start2, finish2
-  integer(kind=iwp) :: nk, nk2, i, I2, I2b, offset, block
-
   integer(kind=iwp), parameter :: KBLOCK = 16
-
-  integer(kind=iwp) :: I1a(KBLOCK), I1b(KBLOCK)
-  real(kind=wp) :: Xa(KBLOCK), Xb(KBLOCK)
-  real(kind=wp) :: ABLOCK(NUP,KBLOCK)
-  real(kind=wp) :: W(KBLOCK,2)
-  real(kind=wp) :: TEMP(NUP,2)
-
+  integer(kind=iwp) :: blck, finish, finish2, i, I1a(KBLOCK), I1b(KBLOCK), I2, I2b, ICP, nk, nk2, offset, start, start2
+  real(kind=wp) :: Xa(KBLOCK), Xb(KBLOCK), ABLOCK(NUP,KBLOCK), W(KBLOCK,2), TEMP(NUP,2)
   real(kind=wp), pointer :: VTAB(:)
+
   VTAB => EXS%VTab
 
   ICP = 1
@@ -2970,7 +2967,7 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
     end if
 
     ! structural GEMM only if perfectly safe AND fits buffers
-    if (nk == nk2 .and. nk > 0 .and. nk <= KBLOCK) then
+    if ((nk == nk2) .and. (nk > 0) .and. (nk <= KBLOCK)) then
       do i=1,nk
         I1a(i)=ICOUP(2,start+i-1)
         I1b(i)=ICOUP(2,start2+i-1)
@@ -2984,7 +2981,7 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
           W(i,2)=Xb(i)
         end do
 
-        call DGEMM_('N','N', NUP, 2, nk, 1.0_wp, ABLOCK, NUP, W, KBLOCK, 0.0_wp, TEMP, NUP)
+        call DGEMM_('N','N',NUP,2,nk,One,ABLOCK,NUP,W,KBLOCK,Zero,TEMP,NUP)
 
         SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
         SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
@@ -2996,15 +2993,15 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
     ! fallback blocked GEMV
     do offset = 1, nk, KBLOCK
-      block = min(KBLOCK, nk-offset+1)
+      blck = min(KBLOCK,nk-offset+1)
 
-      do i=1,block
+      do i=1,blck
         I1a(i)=ICOUP(2,start+offset+i-2)
         Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
         ABLOCK(:,i)=CI(:,I1a(i))
       end do
 
-      call DGEMM_('N','N', NUP, 1, block, 1.0_wp, ABLOCK, NUP, Xa, KBLOCK, 0.0_wp, TEMP, NUP)
+      call DGEMM_('N','N', NUP, 1, blck, 1.0_wp, ABLOCK, NUP, Xa, KBLOCK, 0.0_wp, TEMP, NUP)
 
       SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
     end do
@@ -3042,7 +3039,7 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
       nk2 = -1
     end if
 
-    if (nk == nk2 .and. nk > 0 .and. nk <= KBLOCK) then
+    if ((nk == nk2) .and. (nk > 0) .and. (nk <= KBLOCK)) then
       do i=1,nk
         I1a(i)=ICOUP(1,start+i-1)
         I1b(i)=ICOUP(1,start2+i-1)
@@ -3056,7 +3053,7 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
           W(i,2)=Xb(i)
         end do
 
-        call DGEMM_('N','N', NUP, 2, nk, 1.0_wp, ABLOCK, NUP, W, KBLOCK, 0.0_wp, TEMP, NUP)
+        call DGEMM_('N','N',NUP,2,nk,One,ABLOCK,NUP,W,KBLOCK,Zero,TEMP,NUP)
 
         SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
         SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
@@ -3067,15 +3064,15 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
     end if
 
     do offset = 1, nk, KBLOCK
-      block = min(KBLOCK, nk-offset+1)
+      blck = min(KBLOCK,nk-offset+1)
 
-      do i=1,block
+      do i=1,blck
         I1a(i)=ICOUP(1,start+offset+i-2)
         Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
         ABLOCK(:,i)=CI(:,I1a(i))
       end do
 
-      call DGEMM_('N','N', NUP, 1, block, 1.0_wp, ABLOCK, NUP, Xa, KBLOCK, 0.0_wp, TEMP, NUP)
+      call DGEMM_('N','N',NUP,1,blck,One,ABLOCK,NUP,Xa,KBLOCK,Zero,TEMP,NUP)
 
       SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
     end do
@@ -3086,29 +3083,22 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
   end if
 
-  VTAB => null()
+    nullify(VTAB)
+
 end subroutine apply_col
 
+  subroutine apply_row(CPQ,NDWN,NUPC,CI,NUPSG,SIGMA,NCP,ICOUP,swap)
 
-subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
-  integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP
-  integer(kind=iwp), intent(in) :: ICOUP(3,NCP)
+    integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ, CI(NUPC,NDWN)
   real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
   logical(kind=iwp), intent(in) :: swap
-
   integer(kind=iwp), parameter :: KBLOCK=16
+    integer(kind=iwp) :: blk, i, ICP, IDWN, j, nblk
+    real(kind=wp) :: CI_blk(KBLOCK,KBLOCK), X
+    integer(kind=iwp), pointer :: I1LIST(:), I2LIST(:)
+    real(kind=wp), pointer :: VTAB(:), XLIST(:)
   logical, parameter :: USE_OPT=.true.
-
-  integer(kind=iwp) :: ICP, IDWN, i, j, blk, nblk
-
-  real(kind=wp), pointer :: VTAB(:), XLIST(:)
-  integer(kind=iwp), pointer :: I1LIST(:), I2LIST(:)
-
-  real(kind=wp) :: X
-
-  ! small tiles
-  real(kind=wp) :: CI_blk(KBLOCK,KBLOCK)
 
   VTAB => EXS%VTab
   XLIST => EXS%XLIST
@@ -3183,10 +3173,10 @@ subroutine apply_row(CPQ, NDWN, NUPC, CI, NUPSG, SIGMA, NCP, ICOUP, swap)
 
   end if
 
-  VTAB => null()
+    nullify(VTAB)
 
 end subroutine apply_row
 
-
 end subroutine SG_Epq_Psi
+
 end module SGUGA

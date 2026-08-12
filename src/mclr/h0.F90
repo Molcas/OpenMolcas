@@ -15,8 +15,8 @@ subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
 ! frontend to Jeppe's explicit routines
 
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: FIMO, H0F, H0S, IDC, Int2, iRefSM, NACOB, NAELCI, NBELCI, NDPCNT, nGP, NOCOB, PSSIGN, SBIDT,  XISPSM
-use spinfo, only: NTYP, NCPCNT=>NCSFTP
+use MCLR_Data, only: FIMO, H0F, H0S, IDC, Int2, iRefSM, NACOB, NAELCI, NBELCI, NDPCNT, nGP, NOCOB, PSSIGN, SBIDT, XISPSM
+use spinfo, only: NCSFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -37,7 +37,7 @@ NDET = nint(XISPSM(ISYM,ISPC))
 NSBDET = MP1+MP2+MQ
 MXP = MP1+MP2
 LH0T = nTri_Elem(MXP)+MP1*MQ
-MXCSFC = max(0,maxval(NCPCNT(1:NTYP)))
+MXCSFC = max(0,maxval(NCSFTP(1:NTYP)))
 MXDTFC = max(0,maxval(NDPCNT(1:NTYP)))
 
 nactel = naelci(1)+nbelci(1)

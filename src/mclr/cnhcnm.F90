@@ -23,7 +23,7 @@ subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,SCR,ICONF,NEL,IREFSM,N
 ! ================
 
 use Index_Functions, only: nTri_Elem
-use spinfo, only: NTYP, NCPCNT=>NCSFTP
+use spinfo, only: NCSFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -46,7 +46,7 @@ NDIF0 = 0
 NDIF1 = 0
 NDIF2 = 0
 ! Largest configuration block possible
-MXCSFC = max(0,maxval(NCPCNT(1:NTYP)))
+MXCSFC = max(0,maxval(NCSFTP(1:NTYP)))
 
 KLFREE = 1
 
@@ -59,7 +59,7 @@ call mma_allocate(iSCR,NEL,2,Label='iSCR')
 IILB = 1
 do ICNL=1,NLCNF
   call GETCNF_MCLR(iSCR(:,1),ILTYP,ILCNF(ICNL),ICONF,IREFSM,NEL)
-  NCSFL = NCPCNT(ILTYP)
+  NCSFL = NCSFTP(ILTYP)
   IIRB = 1
   if (ISYM == 0) then
     MXR = NRCNF
@@ -68,7 +68,7 @@ do ICNL=1,NLCNF
   end if
   do ICNR=1,MXR
     call GETCNF_MCLR(iSCR(:,2),IRTYP,IRCNF(ICNR),ICONF,IREFSM,NEL)
-    NCSFR = NCPCNT(IRTYP)
+    NCSFR = NCSFTP(IRTYP)
     call CNHCN2(iSCR(:,1),ILTYP,iSCR(:,2),IRTYP,SCR(KLPHPS),SCR(KLFREE),NEL,NAEL,NBEL,INTSPC,IPRODT,DTOC,NACOB,ICOMBI,PSSIGN, &
                 MDIF0,MDIF1,MDIF2)
     NDIF0 = NDIF0+MDIF0

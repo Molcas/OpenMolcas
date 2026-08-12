@@ -162,9 +162,9 @@ end if
 #ifdef _DMRG_
 if (DMRG) then
   do I=1,NSTATE
-    call qcmaquis_interface_compute_and_store_123rdm_full(int(I-1,c_int),logical(.true.,c_bool))
+    call qcmaquis_interface_compute_and_store_123rdm_full(int(I-1,c_int),.true._c_bool)
     do J=1,NSTATE
-      if (I /= J) call qcmaquis_interface_compute_and_store_trans_123rdm_full(int(I-1,c_int),int(J-1,c_int),logical(.true.,c_bool))
+      if (I /= J) call qcmaquis_interface_compute_and_store_trans_123rdm_full(int(I-1,c_int),int(J-1,c_int),.true._c_bool)
     end do
   end do
 end if

@@ -18,7 +18,6 @@ use MPI_Wrapper, only: MPI_COMM_WORLD, MPI_LOGICAL
 use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
-use Definitions, only: wp, iwp, byte
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_close_group, mh5_fetch_dset, mh5_get_dset_dims, mh5_open_dset, mh5_open_file_r, mh5_open_group
 use Para_Info, only: MyRank
@@ -27,10 +26,12 @@ use caspt2_module, only: jstate, mstate
 use linalg_mod, only: verify_
 use fortran_strings, only: str
 use filesystem, only: getcwd_
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 use Definitions, only: u6
 #endif
+use Constants, only: Zero
+use Definitions, only: wp, iwp, byte
 
 implicit none
 private
@@ -65,7 +66,7 @@ subroutine load_fciqmc_g1(g1,iroot,nLev)
   call load_1RDM(g1)
   if (NonDiagonal) call transform_1rdm(g1)
 
-contains
+  contains
 
   !> @brief
   !>   Transform 1RDM to pseudo-canonical orbitals.
@@ -137,19 +138,19 @@ subroutine mkfg3fciqmc(mkF,g1,f1,g2,f2,g3,f3,idxG3,nLev,nG3)
 
   logical(kind=iwp), intent(in) :: mkF
   integer(kind=iwp), intent(in) :: nLev
-  integer(kind=iwp), intent(inout) :: nG3  ! enters as NG3MAX, needs to be adjusted
   real(kind=wp), intent(inout) :: g1(nLev,nLev), f1(nLev,nLev), g2(nLev,nLev,nLev,nLev), f2(nLev,nLev,nLev,nLev), g3(*), f3(*)
   integer(kind=byte), intent(inout) :: idxG3(6,*)  ! also needs to be set here
+  integer(kind=iwp), intent(inout) :: nG3  ! enters as NG3MAX, needs to be adjusted
 
   ! be compatible with interface
   if (mkF) then
-    f1(:,:) = 0.0_wp
-    f2(:,:,:,:) = 0.0_wp
-    f3(1:nG3) = 0.0_wp
+    f1(:,:) = Zero
+    f2(:,:,:,:) = Zero
+    f3(1:nG3) = Zero
   end if
-  g1(:,:) = 0.0_wp
-  g2(:,:,:,:) = 0.0_wp
-  g3(1:nG3) = 0.0_wp
+  g1(:,:) = Zero
+  g2(:,:,:,:) = Zero
+  g3(1:nG3) = Zero
 
 # ifndef _HDF5_
   unused_var(idxG3(1,1))
@@ -177,9 +178,9 @@ end subroutine mkfg3fciqmc
 #ifdef _HDF5_
 subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev,nG3)
 
-  integer(kind=iwp), intent(in) :: iroot, nLev
   integer(kind=iwp), intent(inout) :: nG3
   integer(kind=byte), intent(inout) :: idxG3(6,nG3)
+  integer(kind=iwp), intent(in) :: iroot, nLev
   real(kind=wp), intent(inout) :: g3(*), g2(nLev,nLev,nLev,nLev), g1(nLev,nLev), f3(*), f2(nLev,nLev,nLev,nLev), f1(nLev,nLev)
   integer(kind=iwp) :: i, t, u, v, x, y, z
   real(kind=wp), allocatable :: f3_temp(:,:,:,:,:,:), g3_temp(:,:,:,:,:,:)
@@ -211,49 +212,45 @@ subroutine load_fciqmc_mats(idxG3,g3,g2,g1,f3,f2,f1,iroot,nLev,nG3)
   ! In the regular code, idxG3 is distributed over ranks.
   ! To prevent copying the task logic in mkfg3.F90 verbatim,
   ! run this section in serial
-#ifdef _MOLCAS_MPP_
+# ifdef _MOLCAS_MPP_
   if (King()) then
-#endif
-    call compute_index_map(idxG3, nG3, nLev)
-  do i=1,nG3
-    t = idxG3(1,i)
-    u = idxG3(2,i)
-    v = idxG3(3,i)
-    x = idxG3(4,i)
-    y = idxG3(5,i)
-    z = idxG3(6,i)
-    g3(i) = g3_temp(t,u,v,x,y,z)
-    f3(i) = f3_temp(t,u,v,x,y,z)
-  end do
-#ifdef _MOLCAS_MPP_
+# endif
+    call compute_index_map(idxG3,nG3,nLev)
+    do i=1,nG3
+      t = idxG3(1,i)
+      u = idxG3(2,i)
+      v = idxG3(3,i)
+      x = idxG3(4,i)
+      y = idxG3(5,i)
+      z = idxG3(6,i)
+      g3(i) = g3_temp(t,u,v,x,y,z)
+      f3(i) = f3_temp(t,u,v,x,y,z)
+    end do
+# ifdef _MOLCAS_MPP_
   end if
-#endif
+# endif
   call mma_deallocate(f3_temp)
   call mma_deallocate(g3_temp)
 
-contains
+  contains
 
-  subroutine compute_index_map(idxG3, nG3, nLev)
+  subroutine compute_index_map(idxG3,nG3,nLev)
+
     use Index_Functions, only: nTri_Elem
-    implicit none
-    integer, intent(in) :: nLev
-    integer, intent(inout) :: nG3
-    integer(1), intent(inout) :: idxG3(6,*)
 
-    integer :: nLev2, ntri1, ntri2
-    integer :: i, j, idx, jdx
-    integer, allocatable :: ij2idx(:,:), idx2ij(:,:), icnj(:)
-    integer :: ip1, ip2, ip3, ip1mx
-    integer :: it, iu, iv, ix, iy, iz
-    integer :: counter
+    integer(byte), intent(inout) :: idxG3(6,*)
+    integer(kind=iwp), intent(inout) :: nG3
+    integer(kind=iwp), intent(in) :: nLev
+    integer(kind=iwp) :: counter, i, idx, ip1, ip1mx, ip2, ip3, it, iu, iv, ix, iy, iz, j, jdx, nLev2, ntri1, ntri2
+    integer(kind=iwp), allocatable :: icnj(:), idx2ij(:,:), ij2idx(:,:)
 
     nLev2 = nLev**2
     ntri1 = nTri_Elem(nLev-1)
     ntri2 = nTri_Elem(nLev)
 
-    allocate(ij2idx(nLev,nLev))
-    allocate(idx2ij(2,nLev2))
-    allocate(icnj(nLev2))
+    call mma_allocate(ij2idx,nLev,nLev,Label='ij2idx')
+    call mma_allocate(idx2ij,2,nLev2,Label='idx2ij')
+    call mma_allocate(icnj,nLev2,Label='icnj')
 
     ij2idx(:,:) = -1
     idx2ij(:,:) = -1
@@ -261,13 +258,13 @@ contains
 
     ! upper triangle i < j
     idx = 0
-    do i = 1, nLev-1
-      do j = i+1, nLev
-        idx = idx + 1
+    do i=1,nLev-1
+      do j=i+1,nLev
+        idx = idx+1
         ij2idx(i,j) = idx
         idx2ij(1,idx) = i
         idx2ij(2,idx) = j
-        jdx = nLev2 + 1 - idx
+        jdx = nLev2+1-idx
         ij2idx(j,i) = jdx
         idx2ij(1,jdx) = j
         idx2ij(2,jdx) = i
@@ -275,26 +272,26 @@ contains
     end do
 
     ! diagonal
-    do i = 1, nLev
-      idx = ntri1 + i
+    do i=1,nLev
+      idx = ntri1+i
       ij2idx(i,i) = idx
       idx2ij(1,idx) = i
       idx2ij(2,idx) = i
     end do
 
     ! conjugate table
-    do idx = 1, nLev2
+    do idx=1,nLev2
       i = idx2ij(1,idx)
       j = idx2ij(2,idx)
       icnj(idx) = ij2idx(j,i)
     end do
 
     counter = 0
-    do ip3 = 1, ntri2
+    do ip3=1,ntri2
       iy = idx2ij(1,ip3)
       iz = idx2ij(2,ip3)
 
-      do ip2 = ip3, ntri2
+      do ip2=ip3,ntri2
         iv = idx2ij(1,ip2)
         ix = idx2ij(2,ip2)
 
@@ -304,24 +301,26 @@ contains
           if (ip2 > ntri1) ip1mx = icnj(ip3)
         end if
 
-        do ip1 = ip2, ip1mx
+        do ip1=ip2,ip1mx
           it = idx2ij(1,ip1)
           iu = idx2ij(2,ip1)
 
-          counter = counter + 1
-          idxG3(1,counter) = int(it, kind=1)
-          idxG3(2,counter) = int(iu, kind=1)
-          idxG3(3,counter) = int(iv, kind=1)
-          idxG3(4,counter) = int(ix, kind=1)
-          idxG3(5,counter) = int(iy, kind=1)
-          idxG3(6,counter) = int(iz, kind=1)
+          counter = counter+1
+          idxG3(1,counter) = int(it,kind=byte)
+          idxG3(2,counter) = int(iu,kind=byte)
+          idxG3(3,counter) = int(iv,kind=byte)
+          idxG3(4,counter) = int(ix,kind=byte)
+          idxG3(5,counter) = int(iy,kind=byte)
+          idxG3(6,counter) = int(iz,kind=byte)
         end do
       end do
     end do
 
     nG3 = counter
 
-    deallocate(ij2idx, idx2ij, icnj)
+    call mma_deallocate(ij2idx)
+    call mma_deallocate(idx2ij)
+    call mma_deallocate(icnj)
 
   end subroutine compute_index_map
 
@@ -540,7 +539,7 @@ subroutine load_six_tensor(tensor,dataset,iroot,nLev)
   call mma_deallocate(values)
   call mh5_close_file(hdf5_file)
 
-contains
+  contains
 
   pure subroutine apply_12fold_symmetry(array,t,u,v,x,y,z,val)
     ! G3 has 12 permutational symmetries, since the spin indices of

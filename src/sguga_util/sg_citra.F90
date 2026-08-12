@@ -121,7 +121,7 @@ if (WFTP /= 'EMPTY') then
 
 end if
 
-Contains
+contains
 
 ! Performs the single-orbital transformations
 subroutine SG_SSOTRA(iState,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
@@ -180,4 +180,5 @@ end do
 call mma_deallocate(ILEV)
 
 end subroutine SG_SSOTRA
+
 end subroutine SG_CITRA

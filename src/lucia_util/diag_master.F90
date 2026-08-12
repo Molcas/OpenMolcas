@@ -18,33 +18,32 @@ subroutine diag_master(nTU,TU,nTUVX,TUVX)
 !
 ! Set up the diagonal for the CI calculation
 
-use constants, only: Zero
 use lucia_data, only: INT1, nIrrep, NGAS, NGSSH
 use CandS, only: ISSM
-use definitions, only: iwp, wp
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nTU, nTUVX
 real(kind=wp), intent(in) :: TU(nTU), TUVX(nTUVX)
-
-integer(kind=iwp) :: MTU, ITU, IADD, iSym, NAT, NT, NU
+integer(kind=iwp) :: IADD, iSym, ITU, MTU, NAT, NT, NU
 
 INT1(:) = Zero
 MTU = 0
 ITU = 0
 IADD = 0
-Do iSym=1,nIrrep
-   NAT=Sum(NGSSH(iSym,1:nGAS))
-   If (NAT==0) cycle
-   Do NT=1,NAT
-      MTU = MTU+IADD
-      Do NU=1,NT
-         MTU = MTU + 1
-         ITU = ITU + 1
-         INT1(ITU) = TU(MTU)
-      End Do
-   End Do
-   IADD=IADD+NAT
+do iSym=1,nIrrep
+  NAT = sum(NGSSH(iSym,1:nGAS))
+  if (NAT == 0) cycle
+  do NT=1,NAT
+    MTU = MTU+IADD
+    do NU=1,NT
+      MTU = MTU+1
+      ITU = ITU+1
+      INT1(ITU) = TU(MTU)
+    end do
+  end do
+  IADD = IADD+NAT
 end do
 
 call GASCI(ISSM,1,nTUVX,TUVX)

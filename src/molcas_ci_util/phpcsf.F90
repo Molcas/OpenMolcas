@@ -12,8 +12,8 @@
 !               1989, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine PHPCSF(PHP,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,IREFSM,ONEBOD,ECORE,NACTOB,SCR,NCONF,NEL,NAEL,NBEL,NPCSF,NPCNF,DIAG, &
-                  TUVX,NTEST,ExFac,IREOTS)
+subroutine PHPCSF(PHP,IPCSF,IPCNF,MXPDIM,DTOC,IPRODT,IREFSM,ONEBOD,ECORE,NACTOB,SCR,NCONF,NEL,NAEL,NBEL,NPCSF,NPCNF,DIAG,TUVX, &
+                  NTEST,ExFac,IREOTS)
 ! Obtain primary subspace and obtain
 ! explicit representation of hamilton matrix in subspace
 !

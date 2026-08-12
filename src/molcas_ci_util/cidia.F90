@@ -41,7 +41,7 @@ IPRLEV = IPRLOC(3)
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
-call Lucia_Util('Diag',nTU=Size(FMO),TU=FMO,nTUVX=Size(TUVX),TUVX=TUVX)
+call Lucia_Util('Diag',nTU=size(FMO),TU=FMO,nTUVX=size(TUVX),TUVX=TUVX)
 
 call mma_allocate(DDIA,NDET,label='DETDIA')
 call get_diag(DDIA,ndet)

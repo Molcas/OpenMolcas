@@ -31,8 +31,8 @@ real(kind=wp), intent(out) :: SGM1(MXCI), G1(NLEV,NLEV)
 integer(kind=iwp) :: ID, ISSG, IST, ISTU, ISU, IT, ITASK, IU, LT, LU, NSGM, NTASKS
 real(kind=wp) :: GTU
 integer(kind=iwp), allocatable :: TASK(:,:)
+integer(kind=iwp), parameter :: istate = 1
 real(kind=wp), external :: ddot_, dnrm2_
-integer(kind=iwp), parameter :: istate=1
 
 ! Purpose: Compute the 1- and 2-electron density matrix
 ! arrays G1 and G2.

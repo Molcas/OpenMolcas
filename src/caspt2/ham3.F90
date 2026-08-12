@@ -23,10 +23,9 @@ subroutine HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
 ! NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 ! NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
 
-use sguga, only: sg_epq_psi
 use Index_Functions, only: iTri, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: CIS, EXS, SGS
+use sguga, only: sg_epq_psi, CIS, EXS, SGS
 use Molcas, only: MxLev
 use general_data, only: NACTEL, nLev
 use caspt2_module, only: IASYM, ISCF, MxCI, NASHT, NCONF, NSYM

@@ -34,12 +34,9 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(in) :: FACTOR
+integer(kind=iwp), intent(in) :: ITASK, NBLOCK, IBLOCK(8,*), IOFF, J12, JDC, nTUVX
+real(kind=wp), intent(in) :: FACTOR, TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: VEC(*)
-integer(kind=iwp), intent(in) :: ITASK, NBLOCK, IBLOCK(8,*), IOFF, J12, JDC
-integer(kind=iwp), intent(in) :: nTUVX
-real(kind=wp), intent(in):: TUVX(nTUVX)
-
 integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB

@@ -141,9 +141,9 @@ real(kind=wp) :: maxtrW
 logical(kind=iwp) :: Do_ESPF
 logical(kind=iwp), external :: PCM_On
 #endif
+integer(kind=iwp), parameter :: iState = 1
 integer(kind=iwp), external :: IsFreeUnit, isStructure
 real(kind=wp), external :: Get_ExFac
-integer(kind=iwp), parameter :: iState=1
 #include "warnings.h"
 
 ! Set status line for monitor:
@@ -726,7 +726,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         call DMRGCTL(CMO,DMAT,DSPN,PMAT,PA,FI,D1I,D1A,TUVX,IFINAL,0)
 #     endif
       else
-        call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,Size(TUVX),TUVX,IFINAL)
+        call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,size(TUVX),TUVX,IFINAL)
 
         if (dofcidump) then
           write(u6,*) ' FCIDUMP file generated. This is the end...'
@@ -986,7 +986,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         call DMRGCTL(CMO,DMAT,DSPN,PMAT,PA,FI,D1I,D1A,TUVX,IFINAL,1)
 #     endif
       else
-        call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,Size(TUVX),TUVX,IFINAL)
+        call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,size(TUVX),TUVX,IFINAL)
       end if
 
       ! call triprt('twxy',' ',TUVX,nTri_Elem(nAc))
@@ -1516,7 +1516,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       !continue
 #   endif
     else
-      call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,Size(TUVX),TUVX,IFINAL)
+      call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,size(TUVX),TUVX,IFINAL)
     end if
     if (lRF .and. ((iPCMRoot <= 0) .or. (DWSolv%DWZeta /= Zero))) then
       IAD15 = IADR15(6)
@@ -1661,9 +1661,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     end if
 #   endif
 
-    if (ITERM /= 99) then
-        call OUTCTL(CMO,OCCN,SMAT,lOPTO)
-    end if
+    if (ITERM /= 99) call OUTCTL(CMO,OCCN,SMAT,lOPTO)
 
     call mma_deallocate(SMAT)
 
@@ -1779,7 +1777,8 @@ if (Do_OFemb) then
   end if
 end if
 
-if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) call SG_Free(iState)
+if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) &
+  call SG_Free(istate)
 
 if (DoFaro) then
   call faroald_free()

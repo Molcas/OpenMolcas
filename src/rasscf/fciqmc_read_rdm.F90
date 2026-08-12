@@ -24,7 +24,7 @@ use RASWFn, only: wfn_dens, wfn_spindens
 #endif
 use fortran_strings, only: str
 use para_info, only: myRank
-use rasscf_global, only: iAdr15, NAc, NRoots, NACPAR, NACPR2
+use rasscf_global, only: iAdr15, NAc, NACPAR, NACPR2, NRoots
 use general_data, only: ispin, nActEl, NASH, NSYM
 use output_ras, only: IPRLOC
 use PrintLevel, only: DEBUG

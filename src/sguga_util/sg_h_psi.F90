@@ -25,9 +25,8 @@ type (SGStruct), intent(in)    :: SGS
 type (CIStruct), intent(in)    :: CIS
 type (EXStruct), intent(inout) :: EXS
 integer(kind=iwp), intent(in) ::nCSFs, PsiSym, nTUVX_Tri, nTU_Tri
-real(kind=wp), intent(in) :: Psi(nCSFs)
+real(kind=wp), intent(in) :: Psi(nCSFs), TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
 real(kind=wp), intent(out) :: Sigma(nCSFs)
-real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri), TU_Tri(nTU_Tri)
 
 real(kind=wp), Allocatable, Target :: Eij_Psi_X(:), Ekl_Eij_Psi(:,:)
 real(kind=wp), Pointer :: Eij_Psi(:)=>Null()
@@ -52,9 +51,9 @@ Write (u6,*) 'i>=j Symmetrize: E_ij + E_ji, k>=l Symmetrize E_kl + E_lj.'
 
 Sigma(:)=Zero
 
-MaxDim=MaxVal(CIS%nCSF(:))
-Call mma_allocate(Eij_Psi_X,MaxDim,Label='Eij_Psi_X')
-Call mma_allocate(Ekl_Eij_Psi,nCSFs,nBuff,Label='Ekl_Eij_Psi')
+MaxDim = maxval(CIS%nCSF(:))
+call mma_allocate(Eij_Psi_X,MaxDim,Label='Eij_Psi_X')
+call mma_allocate(Ekl_Eij_Psi,nCSFs,nBuff,Label='Ekl_Eij_Psi')
 
 OneInt=Zero  ! Cardholder variable
 TwoInt=Zero  ! Cardholder variable
@@ -64,9 +63,9 @@ TwoInt=Zero  ! Cardholder variable
 CPQ=One
 nOrb=SGS%nLev
 
-Do iOrb =1, nOrb
+do iOrb=1,nOrb
    iSym=SGS%ISM(iOrb)
-Do jOrb =1, iOrb
+  do jOrb=1,iOrb
    ijOrb=iTri(iOrb,jOrb)
 
    jSym=SGS%ISM(jOrb)
@@ -79,47 +78,48 @@ Do jOrb =1, iOrb
 
 !  Operate with E_ij on |Psi> and produce E_ij|Psi>
    Eij_Psi(:)=Zero
-   Call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi)
-   If (iOrb/=jOrb) Call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eij_Psi)
+    call SG_Epq_Psi(SGS,CIS,EXS,iOrb,jOrb,CPQ,PsiSym,Psi,Eij_Psi)
+    if (iOrb /= jOrb) call SG_Epq_Psi(SGS,CIS,EXS,jOrb,iOrb,CPQ,PsiSym,Psi,Eij_Psi)
 
-   If (ijSym==1) Then
+   if (ijSym==1) then
 
       TwoInt=Zero
-      Do kOrb=1, nOrb
+      do kOrb=1,nOrb
          lOrb=kOrb
          ikOrb=iTri(iOrb,kOrb)
          ljOrb=iTri(lOrb,jOrb)
          ikljOrb=iTri(ikOrb,ljOrb)
          TwoInt = TwoInt +  TUVX_Tri(ikljOrb)
-      End Do
+      end do
       OneInt=TU_Tri(ijOrb) - Half * TwoInt
 
 !     Operate with E_ij on |Psi> and produce E_ij|Psi>
+      !call DaXpY_(nCSFs,OneInt,Eij_Psi(:),1,Sigma(:),1)
       Sigma(:)=Sigma(:)+OneInt*Eij_Psi(:)
-   End If
+    end if
 
    iBuff=0
-   Do kOrb=1, nOrb
+   do kOrb=1,nOrb
       kSym=SGS%ISM(kOrb)
-   Do lOrb=1, kOrb
+   do lOrb=1,kOrb
       klOrb=iTri(kOrb,lOrb)
 
       lSym=SGS%ISM(lOrb)
       klSym=MUL(kSym,lSym)
 
-      If (ijSym/=klSym) Cycle
+      if (ijSym /= klSym) cycle
       iBuff=iBuff+1
 
 !     Operate with E_kl on E_ij_|Psi> and produce E_kl_E_ij_|Psi>
       Ekl_Eij_Psi(1:nCSFs,iBuff)=Zero
 
-      Call SG_Epq_Psi(SGS,CIS,EXS,kOrb,lOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi(1:nCSFs,iBuff))
-      If (kOrb/=lOrb) Call SG_Epq_Psi(SGS,CIS,EXS,lOrb,kOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi(1:nCSFs,iBuff))
+      call SG_Epq_Psi(SGS,CIS,EXS,kOrb,lOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi(1:nCSFs,iBuff))
+      if (kOrb /= lOrb) Call SG_Epq_Psi(SGS,CIS,EXS,lOrb,kOrb,CPQ,SigmaSym,Eij_Psi,Ekl_Eij_Psi(1:nCSFs,iBuff))
 
       klijOrb=iTri(klOrb,ijOrb)
-      TUVX(iBuff)= Half*TUVX_Tri(klijOrb)
+      TUVX(iBuff) = Half*TUVX_Tri(klijOrb)
 
-      If (iBuff==nBuff) Then
+      if (iBuff == nBuff) then
           Call DGEMV_('N',nCSFs,nBuff,Alpha,Ekl_Eij_Psi(1:nCSFs,1:nBuff),nCSFs, &
                       TUVX(1:nBuff),incx,Beta,Sigma,incy)
 !         Sigma(:)=Sigma(:) + Mat_Mul(Ekl_Eij_Psi(1:nCSFs,1:nBuff),TUVX(1:nBuff))
@@ -130,27 +130,26 @@ Do jOrb =1, iOrb
 !         Ekl_Eij_Psi(:,:)=Zero
       End If
 
-   End Do
-   End Do
+      end do
+    end do
 
-   If (iBuff/=0) Then
-      Call DGEMV_('N',nCSFs,iBuff,Alpha,Ekl_Eij_Psi(1:nCSFs,1:iBuff),nCSFs, &
-                  TUVX(1:iBuff),incx,Beta,Sigma,incy)
+   if (iBuff /= 0) Then
+      Call DGEMV_('N',nCSFs,iBuff,Alpha,Ekl_Eij_Psi(1:nCSFs,1:iBuff),nCSFs,TUVX(1:iBuff),incx,Beta,Sigma,incy)
 !     Sigma(:)=Sigma(:) + Mat_Mul(Ekl_Eij_Psi(1:nCSFs,1:nBuff),TUVX(1:nBuff))
-!     Do i = 1, iBuff
+!     do i = 1,iBuff
 !        Sigma(:)=Sigma(:) + Ekl_Eij_Psi(:,i)*TUVX(i)
-!     End Do
+!     end do
       iBuff=0
-   End If
+   end if
 
-   Eij_Psi=>Null()
+    nullify(Eij_Psi)
 
-End Do
-End Do
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  end do
+end do
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Call mma_deallocate(Ekl_Eij_Psi)
-Call mma_deallocate(Eij_Psi_X)
+call mma_deallocate(Ekl_Eij_Psi)
+call mma_deallocate(Eij_Psi_X)
 
-End Subroutine sg_h_psi
+end subroutine sg_h_psi

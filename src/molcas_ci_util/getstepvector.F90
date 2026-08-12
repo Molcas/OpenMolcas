@@ -20,7 +20,7 @@ integer(kind=iwp), intent(in) :: nMidV, NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), nL
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(out) :: ICS(NLEV)
 integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICUP, ICUPOS, IDW0, IUW0, LEV, NDWN, NNN, NUP
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 ! RECONSTRUCT THE CASE LIST
 

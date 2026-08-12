@@ -70,9 +70,7 @@ use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
 use casvb_global, only: ifvb
 use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
-
 use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
-
 use wadr, only: FMO
 use sxci, only: IDXSX
 use general_data, only: iDoGAS
@@ -91,10 +89,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nTUVX
 real(kind=wp), intent(in) :: CMO(*), FA(*), D1I(*)
+integer(kind=iwp), intent(in) :: nTUVX, iFinal
 real(kind=wp), intent(inout) :: D(NACPAR), DS(NACPAR), P(NACPR2), PA(NACPR2), FI(*), D1A(*), TUVX(nTUVX)
-integer(kind=iwp), intent(in) :: iFinal
 integer(kind=iwp) :: i, iDisk, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVecDet, mconf
 real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF, do_rotate, Exists, Skip
@@ -115,7 +112,6 @@ logical(kind=iwp), external :: PCM_On
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
 integer(kind=iwp), parameter :: istate=1
-
 #include "warnings.h"
 
 ! Local print level (if any)
@@ -286,15 +282,16 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 #       endif
       else
 
-        Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+        call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
 
       end if
     end if
 
-    call mma_allocate(PScr,NACPR2,Label='PScr')
-    if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-    call mma_deallocate(PScr)
-
+    if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) then
+        call mma_allocate(PScr,NACPR2,Label='PScr')
+        call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+        call mma_deallocate(PScr)
+    end if
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
@@ -428,7 +425,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 #   endif
   else
     ! Normal Davidson algorithm
-    call DavCtl(Size(FMO),FMO,nTUVX,TUVX,IFINAL)
+    call DavCtl(size(FMO),FMO,nTUVX,TUVX,IFINAL)
   end if
 
   ! CALCULATE DENSITY MATRICES
@@ -489,11 +486,11 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     ! compute density matrices
 
     if (NAC >= 1) then
-      if (.not. doDMRG) Then
+      if (.not. doDMRG) then
 
-         Call Mk_pdms(CIVEC,Size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+        call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
 
-      End If
+      end if
     end if
 
     if ((.not. doDMRG) .and. ((SGS(istate)%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
@@ -606,7 +603,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         if (.not. iDoGas) then
-          call SG_Reord(iState,STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
+          call SG_Reord(istate,STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
 
           ! save reorder CI vector on disk
           !if (.not. iDoGas) then
@@ -722,8 +719,9 @@ else if (lRF .and. (IPCMROOT > 0)) then
       call file_name_generator(IPCMROOT-1,'results_state.','.h5',maquis_name_results)
 
       !> copy current target wave function to local wave function
-      call systemf('cp -f '//trim(maquis_name_results)//' rf.results_state.h5 && rm -rf rf.checkpoint_state.h5 && cp -r '// &
-                   trim(maquis_name_states)//' rf.checkpoint_state.h5',iErr)
+      call systemf('cp -f '//trim(maquis_name_results)//' rf.results_state.h5',iErr)
+      if (iErr == 0) call systemf('rm -rf rf.checkpoint_state.h5',iErr)
+      if (iErr == 0) call systemf('cp -r '//trim(maquis_name_states)//' rf.checkpoint_state.h5',iErr)
     end if
   end if
 # endif
@@ -781,8 +779,9 @@ else if (lRF .and. (IPCMROOT > 0)) then
     call file_name_generator(IPCMROOT-1,'results_state.','.h5',maquis_name_results)
 
     !> copy current target wave function to local wave function
-    call systemf('cp -f '//trim(maquis_name_results)//' rf.results_state.h5 && rm -rf rf.checkpoint_state.h5 && cp -r '// &
-                 trim(maquis_name_states)//' rf.checkpoint_state.h5',iErr)
+    call systemf('cp -f '//trim(maquis_name_results)//' rf.results_state.h5',iErr)
+    if (iErr == 0) call systemf('rm -rf rf.checkpoint_state.h5',iErr)
+    if (iErr == 0) call systemf('cp -r '//trim(maquis_name_states)//' rf.checkpoint_state.h5',iErr)
 #   endif
   else
     jDisk = IADR15(4)

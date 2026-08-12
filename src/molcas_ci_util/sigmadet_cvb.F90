@@ -29,7 +29,7 @@ call LUCIA_UTIL('SIGMA_CVB', &
                 CI_Vector=C, &
                 SIGMA_Vector=HC, &
                 iSym=iREFSM, &
-                nTU=SIZE(FMO),TU=FMO, &
-                nTUVX=Size(TUVX),TUVX=TUVX)
+                nTU=size(FMO),TU=FMO, &
+                nTUVX=size(TUVX),TUVX=TUVX)
 
 end subroutine SIGMADET_CVB

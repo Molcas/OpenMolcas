@@ -17,19 +17,16 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iState, ISYCI
-integer(kind=iwp), intent(in) :: iSpin, LuVecDet, lCI
+integer(kind=iwp), intent(in) :: iState, ISYCI, iSpin, lCI, LuVecDet
 logical(kind=iwp), intent(in) :: KeyPRSD
-real(kind=wp), intent(in) :: CI(lCI), CITHR
-integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, ISY, ISYDWN, ISYUP, IUP, IUW0, K, KNXT, KOCLAB, &
-                     KOCSZ, KPAD1, KPAD2, LEV, MV, NCI, NDWN, NNN, NUP
+real(kind=wp), intent(in) :: CITHR, CI(lCI)
+integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP, IUW0, K, KNXT, &
+                     KOCLAB, KOCSZ, KPAD1, KPAD2, LEV, MV, NCI, NDWN, NNN, NUP
 real(kind=wp) :: COEF
 character(len=80) :: LINE
-integer(kind=iwp), allocatable :: ICS(:)
+integer(kind=iwp), allocatable :: ICS(:), Lex(:)
 logical(kind=iwp), parameter :: SGINFO = .true.
-integer(kind=iwp) :: IMS
 character, parameter :: CODE(0:3) = ['0','u','d','2']
-integer(kind=iwp), allocatable :: Lex(:)
 
 Associate(SGS=>SGS(iState),CIS=>CIS(iState))
 

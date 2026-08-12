@@ -18,7 +18,7 @@ subroutine GETCNF_MCLR(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 !
 ! Jeppe Olsen, summer of 89
 
-use SpInfo, only: MINOP, NTYP, NCNATS=>NCNFTP
+use SpInfo, only: MINOP, NCNFTP, NTYP
 use Definitions, only: iwp
 
 #include "intent.fh"
@@ -37,7 +37,7 @@ do JTYP=1,NTYP
   JCL = (NEL-JOP)/2
   JOCC = JOP+JCL
 
-  NJCNF = NCNATS(JTYP,IREFSM)
+  NJCNF = NCNFTP(JTYP,IREFSM)
   if ((K >= ICNFB1) .and. (K <= ICNFB1+NJCNF-1)) then
     KREL = K-ICNFB1+1
     KADD = (KREL-1)*JOCC

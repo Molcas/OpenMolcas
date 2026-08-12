@@ -55,7 +55,7 @@ subroutine cre_raswfn()
   implicit none
   integer(kind=iwp) :: dsetid, NTMP1(mxsym), NTMP2(mxsym), NTMP3(mxsym)
   character, allocatable :: typestring(:)
-  integer(kind=iwp), parameter:: istate=1
+  integer(kind=iwp), parameter :: istate = 1
 
   ! create a new wavefunction file!
   wfn_fileid = mh5_create_file('RASWFN')
