@@ -17,7 +17,7 @@ use Index_functions, only: iTri
 use symmetry_info, only: MUL
 use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, One, Half
 use Definitions, only: iwp, wp, u6
 
 Implicit none

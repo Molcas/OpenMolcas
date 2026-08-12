@@ -19,7 +19,6 @@ use RefWfn, only: L2Act, Level
 use sguga, only: SG_Init, SG_Init_Simple, CIS
 use general_data, only: iSpin, nActel, nAsh, nElec3, nHole1, nLev, STSym, nRas, nRasEl, nRsPrt
 use caspt2_module, only: DMRG, DoCumulant, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
-use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none

@@ -30,7 +30,7 @@ module rasscf_files
 ! LUDAVID    : Intermediate results of the diagonalization
 !              (binary, temporary)
 
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 private
