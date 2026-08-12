@@ -9,11 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1996, Jeppe Olsen                                      *
+!               2026, Meng Wang                                        *
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK, &
-                   SSCR,CSCR,I1,XI1S,X,NSMOB,SCLFAC,IPACK)
+subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NSB,NCB,MXPNGAS,NOBPTS, &
+                   IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,X,NSMOB,SCLFAC,IPACK)
 ! SUBROUTINE GSBBD2A --> 37
 !
 ! Contributions to two-electron density matrix from column excitations
@@ -54,15 +55,22 @@ subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS
 ! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
 !              largest number of orbital pairs of given symmetries and
 !              types.
-! I1, XI1S,  : For holding creations/annihilations type and symmetry
+! I1, XI1S, I2, XI2S : For holding creations/annihilations type and symmetry
 !
 ! Jeppe Olsen, Fall of 96
 
 use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
+use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+#ifdef _CUDA_BLAS_
+use, intrinsic :: iso_c_binding, only: c_int64_t
+use GSBBD2A_CUDA_INTERFACE, only: LUCIA_GSBBD2A_CUDA_BEGIN, LUCIA_GSBBD2A_CUDA_DENSITY_BEGIN, &
+                                  LUCIA_GSBBD2A_CUDA_DENSITY_END, LUCIA_GSBBD2A_CUDA_BLOCK_END, &
+                                  LUCIA_GSBBD2A_CUDA_END, LUCIA_GSBBD2A_CUDA_ROUTE
+#endif
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -71,17 +79,21 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(inout) :: RHO2(*), RHO2S(*), RHO2A(*)
-integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPNGAS, &
+integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, NSB, NCB, ISEL(NGAS), ICEL(NGAS), MXPNGAS, &
                                  NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB
-real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
-real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), X(*)
-integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*)
+real(kind=wp), intent(in) :: SB(NROW,NSB), CB(NROW,NCB), SCLFAC
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), XI2S(MAXK,*), X(*)
+integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*), I2(MAXK,*)
 logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: I, I1IK, I1JL, IBOT, IDXSM, IDXTP, IFIRST, IFRST, II12, IIK, IIKE, IIPART, IJL, IJLE, IKBOFF, IKOBSM, IKOFF, &
                      IKSM, IOFF, ISM, ITOP, ITP(256), ITYP, J, JFRST, JLBOFF, JLOBSM, JLOFF, JLSM, JOFF, JSM, JTP(256), JTYP, K, &
                      K12, KBOT, KEND, KFRST, KOFF, KSM, KTOP, KTP(256), KTYP, L, LDUMMY, LOFF, LSM, LTP(256), LTYP, NDXTP, NI, &
                      NIBTC, NIK, NJ, NJL, NK, NKBTC, NL, NONEW, NPART, NPARTSZ
 real(kind=wp) :: FACTOR
+#ifdef _CUDA_BLAS_
+integer(c_int64_t) :: CudaStatus
+logical :: CudaSession, DensitySession, BlockFused
+#endif
 
 #ifdef _DEBUGPRINT_
 write(u6,*)
@@ -112,6 +124,18 @@ call DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,NGAS,ISEL,ICEL)
 ! Symmetry of Double excitation that connects IBSM and JBSM
 IDXSM = Mul(ISCSM,ICCSM)
 if (IDXSM /= 0) then
+#ifdef _CUDA_BLAS_
+  DensitySession = .false.
+  if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NACOB > 0) then
+    CudaStatus = LUCIA_GSBBD2A_CUDA_DENSITY_BEGIN(RHO2,RHO2S,RHO2A,int(NACOB,c_int64_t), &
+                                                  merge(1_c_int64_t,0_c_int64_t,IPACK))
+    if (CudaStatus == -1_c_int64_t) then
+      call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+    else
+      DensitySession = CudaStatus == 1_c_int64_t
+    end if
+  end if
+#endif
 # ifdef _DEBUGPRINT_
   write(u6,*) ' ISCSM,ICCSM ',ISCSM,ICCSM
 # endif
@@ -155,6 +179,30 @@ if (IDXSM /= 0) then
           IFIRST = 1
           ! Loop over batches of I strings
           X(1:NI*NJ*NK*NL) = Zero
+#ifdef _CUDA_BLAS_
+          CudaSession = .false.
+          if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0 .and. NI*NJ*NK*NL > 0) then
+            CudaStatus = LUCIA_GSBBD2A_CUDA_BEGIN(X,SB,CB,NROW,NSB,NCB,NI*NJ*NK*NL)
+            if (CudaStatus == -1_c_int64_t) then
+              call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+            else
+              CudaSession = CudaStatus == 1_c_int64_t
+              if ((.not. CudaSession) .and. DensitySession) then
+                CudaStatus = LUCIA_GSBBD2A_CUDA_DENSITY_END()
+                if (CudaStatus == -1_c_int64_t) then
+                  call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+                end if
+                DensitySession = .false.
+              end if
+            end if
+          else if (DensitySession) then
+            CudaStatus = LUCIA_GSBBD2A_CUDA_DENSITY_END()
+            if (CudaStatus == -1_c_int64_t) then
+              call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+            end if
+            DensitySession = .false.
+          end if
+#endif
           do IIPART=1+MYRANK,NPART,NPROCS
             IBOT = 1+(IIPART-1)*NPARTSZ
             ITOP = min(IBOT+NPARTSZ-1,NROW)
@@ -184,37 +232,22 @@ if (IDXSM /= 0) then
               ! Obtain all double excitations from this group of K strings
               II12 = 1
               K12 = 1
-              call ADADST_GAS(1,JSM,JTYP,NJ,1,LSM,LTYP,NL,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,JFRST,KFRST,II12,K12, &
+              call ADADST_GAS(1,JSM,JTYP,NJ,1,LSM,LTYP,NL,ICCTP,ICCSM,IGRP,KBOT,KTOP,I2,XI2S,MAXK,NKBTC,KEND,JFRST,KFRST,II12,K12, &
                               SCLFAC)
 
               JFRST = 0
               KFRST = 0
 
-              if (NKBTC == 0) cycle outer
-              ! Loop over jl in TS classes
-              J = 0
-              L = 1
-
-              do IJL=1,NJL
-                call NXTIJ(J,L,NJ,NL,JLSM,NONEW)
-                I1JL = (L-1)*NJ+J
-                ! JAN28
-                if (JLSM /= 0) then
-                  IJLE = nTri_Elem(J-1)+L
-                else
-                  IJLE = IJL
+              if (NKBTC == 0) then
+#ifdef _CUDA_BLAS_
+                if (CudaSession) then
+                  CudaStatus = LUCIA_GSBBD2A_CUDA_END()
+                  if (CudaStatus == -1_c_int64_t) call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+                  CudaSession = .false.
                 end if
-                ! JAN28
-                ! CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
-                !JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
-                JLOFF = (JLBOFF-1+IJLE-1)*NKBTC*NIBTC+1
-                if ((JLSM == 1) .and. (J == L)) then
-                  ! a+j a+j gives trivially zero
-                  CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = Zero
-                else
-                  call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,I1JL),XI1S(:,I1JL))
-                end if
-              end do
+#endif
+                cycle outer
+              end if
 
               ! =======================================================
               !
@@ -240,26 +273,72 @@ if (IDXSM /= 0) then
               IFRST = 0
               KFRST = 0
 
-              if (NKBTC == 0) cycle outer
-              ! Loop over jl in TS classes
+              if (NKBTC == 0) then
+#ifdef _CUDA_BLAS_
+                if (CudaSession) then
+                  CudaStatus = LUCIA_GSBBD2A_CUDA_END()
+                  if (CudaStatus == -1_c_int64_t) call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+                  CudaSession = .false.
+                end if
+#endif
+                cycle outer
+              end if
+
+              if (IFIRST == 1) then
+                FACTOR = Zero
+              else
+                FACTOR = One
+              end if
+
+#ifdef _CUDA_BLAS_
+              CudaStatus = 0_c_int64_t
+              if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1) then
+                CudaStatus = LUCIA_GSBBD2A_CUDA_ROUTE(X,SB,CB,I1,XI1S,I2,XI2S,NROW,NSB,NCB,IBOT,NIBTC,MAXK,NKBTC,NI,NK,NJ,NL, &
+                                                      NIK,NJL,IKSM,JLSM,FACTOR)
+              end if
+              if (CudaStatus == -1_c_int64_t) then
+                call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+              else if (CudaStatus /= 1_c_int64_t) then
+                if (DensitySession) then
+                  CudaStatus = LUCIA_GSBBD2A_CUDA_DENSITY_END()
+                  if (CudaStatus == -1_c_int64_t) then
+                    call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+                  end if
+                  DensitySession = .false.
+                end if
+#endif
+              ! Gather C for the CPU fallback.
+              J = 0
+              L = 1
+              do IJL=1,NJL
+                call NXTIJ(J,L,NJ,NL,JLSM,NONEW)
+                I1JL = (L-1)*NJ+J
+                if (JLSM /= 0) then
+                  IJLE = nTri_Elem(J-1)+L
+                else
+                  IJLE = IJL
+                end if
+                JLOFF = (JLBOFF-1+IJLE-1)*NKBTC*NIBTC+1
+                if ((JLSM == 1) .and. (J == L)) then
+                  CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = Zero
+                else
+                  call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I2(:,I1JL),XI2S(:,I1JL))
+                end if
+              end do
+
+              ! Gather S for the CPU fallback.
               I = 0
               K = 1
-
               do IIK=1,NIK
                 call NXTIJ(I,K,NI,NK,IKSM,NONEW)
                 I1IK = (K-1)*NI+I
-                ! JAN28
                 if (IKSM /= 0) then
                   IIKE = nTri_Elem(I-1)+K
                 else
                   IIKE = IIK
                 end if
-                ! JAN28
-                ! SB(IA,KB,ik) = +/-S(IA,a+ka+iIA)
-                !IKOFF = (IKBOFF-1+IIK-1)*NKBTC*NIBTC+1
                 IKOFF = (IKBOFF-1+IIKE-1)*NKBTC*NIBTC+1
                 if ((IKSM == 1) .and. (I == K)) then
-                  ! a+j a+j gives trivially zero
                   SSCR(IKOFF:IKOFF+NKBTC*NIBTC-1) = Zero
                 else
                   call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,I1IK),XI1S(:,I1IK))
@@ -291,14 +370,12 @@ if (IDXSM /= 0) then
               call WRTMAT(SSCR,LDUMMY,NIK,LDUMMY,NIK)
 #             endif
 
-              if (IFIRST == 1) then
-                FACTOR = Zero
-              else
-                FACTOR = One
-              end if
               LDUMMY = NKBTC*NIBTC
               !    MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP)
               call MATML7(X,SSCR,CSCR,NIK,NJL,LDUMMY,NIK,LDUMMY,NJL,FACTOR,-One,1)
+#ifdef _CUDA_BLAS_
+              end if
+#endif
               IFIRST = 0
 #             ifdef _DEBUGPRINT_
               write(u6,*) ' Updated X matrix IK,JL,IK,JL',NIK,NJL,NIK,NJL
@@ -316,7 +393,29 @@ if (IDXSM /= 0) then
           KOFF = IOBPTS(KTYP,KSM)
           LOFF = IOBPTS(LTYP,LSM)
           !write(u6,*) 'I, J, K, L offsets & IPACK :',IOFF,JOFF,KOFF,LOFF,Ipack
+#ifdef _CUDA_BLAS_
+          BlockFused = .false.
+          if (CudaSession) then
+            CudaStatus = LUCIA_GSBBD2A_CUDA_BLOCK_END(int(NI,c_int64_t),int(IOFF,c_int64_t),int(NJ,c_int64_t), &
+                                                       int(JOFF,c_int64_t),int(NK,c_int64_t),int(KOFF,c_int64_t), &
+                                                       int(NL,c_int64_t),int(LOFF,c_int64_t),int(NACOB,c_int64_t), &
+                                                       merge(1_c_int64_t,0_c_int64_t,IPACK))
+            if (CudaStatus == -1_c_int64_t) call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+            BlockFused = CudaStatus == 1_c_int64_t
+            CudaSession = .false.
+          else if (DensitySession) then
+            CudaStatus = LUCIA_GSBBD2A_CUDA_DENSITY_END()
+            if (CudaStatus == -1_c_int64_t) call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+            DensitySession = .false.
+          end if
+#endif
+#ifdef _CUDA_BLAS_
+          if (.not. BlockFused) then
+#endif
           call ADTOR2(RHO2,RHO2S,RHO2A,X,1,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NACOB,IPACK)
+#ifdef _CUDA_BLAS_
+          end if
+#endif
           !    ADTOR2(RHO2,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
 
           !write(u6,*) ' updated density matrix A',' norb = 4 ',norb
@@ -327,6 +426,13 @@ if (IDXSM /= 0) then
       end do
     end do
   end do
+#ifdef _CUDA_BLAS_
+  if (DensitySession) then
+    CudaStatus = LUCIA_GSBBD2A_CUDA_DENSITY_END()
+    if (CudaStatus == -1_c_int64_t) call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
+    DensitySession = .false.
+  end if
+#endif
 end if
 
 end subroutine GSBBD2A

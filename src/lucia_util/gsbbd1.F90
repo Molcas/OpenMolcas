@@ -9,11 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1991,1995,1998, Jeppe Olsen                            *
+!               2026, Meng Wang                                        *
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
-                  XI1S,I2,XI2S,NSMOB,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
+subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NSB,NCB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK, &
+                  SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
 ! SUBROUTINE GSBBD1 --> 40
 !
 ! Contributions to one electron density matrix from column excitations
@@ -64,8 +65,14 @@ subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB
 
 use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
+use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+#ifdef _CUDA_BLAS_
+use, intrinsic :: iso_c_binding, only: c_int64_t
+use GSBBD1_CUDA_INTERFACE, only: LUCIA_GSBBD1_CUDA_BEGIN, LUCIA_GSBBD1_CUDA_END, LUCIA_GSBBD1_CUDA_MAPS_BEGIN, &
+                                 LUCIA_GSBBD1_CUDA_MAPS_END, LUCIA_GSBBD1_CUDA_ROUTE
+#endif
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -74,7 +81,7 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(inout) :: RHO1(*), XI1S(*), XI2S(*), RHO1S(*), SRHO1(*)
-integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPNGAS, &
+integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, NSB, NCB, ISEL(NGAS), ICEL(NGAS), MXPNGAS, &
                                  NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, IPHGAS(*), IDOSRHO1, IAB
 real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*)
@@ -84,6 +91,10 @@ integer(kind=iwp) :: IBIORB, IBJORB, IBOT, ICGOFF, ICGRP(16), IDOCOMP, IIORB, II
                      JTP(256), JTYP, KACT, KBOT, KEND, KTOP, LKABTC, NIBTC, NIORB, NIPART, NIPARTSZ, NJORB, NKAEFF, NKASTR, NKI, &
                      NSXTP
 real(kind=wp) :: FACTORAB, FACTORC, SCLFACS, SIGNIJ, XAB
+#ifdef _CUDA_BLAS_
+integer(c_int64_t) :: CudaStatus
+logical :: CudaMaps, CudaSession
+#endif
 
 ! Add or subtract for spindensity
 if (IAB == 1) then
@@ -91,6 +102,18 @@ if (IAB == 1) then
 else
   XAB = -One
 end if
+#ifdef _CUDA_BLAS_
+CudaSession = .false.
+CudaMaps = .false.
+if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NACOB > 0 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0) then
+  CudaStatus = LUCIA_GSBBD1_CUDA_BEGIN(RHO1,SRHO1,SB,CB,NACOB,NROW,NSB,NCB,IDOSRHO1)
+  if (CudaStatus == -1_c_int64_t) then
+    call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
+  else
+    CudaSession = CudaStatus == 1_c_int64_t
+  end if
+end if
+#endif
 ! Local arrays
 #ifdef _DEBUGPRINT_
 write(u6,*)
@@ -245,6 +268,18 @@ if (IJSM /= 0) then
       end if
       !write(u6,*) ' NKAEFF NKASTR',NKAEFF,NKASTR
 
+#ifdef _CUDA_BLAS_
+      if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NKASTR > 0 .and. IJ_DIM(1) > 0 .and. IJ_DIM(2) > 0) then
+        CudaStatus = LUCIA_GSBBD1_CUDA_MAPS_BEGIN(I1,XI1S,I2,XI2S,int(NKASTR,c_int64_t), &
+                                                  int(IJ_DIM(1),c_int64_t),int(IJ_DIM(2),c_int64_t))
+        if (CudaStatus == -1_c_int64_t) then
+          call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
+        else
+          CudaMaps = CudaStatus == 1_c_int64_t
+        end if
+      end if
+#endif
+
       ! Loop over partitionings of N-1 strings
       KBOT = 1-MAXK
       KTOP = 0
@@ -264,6 +299,16 @@ if (IJSM /= 0) then
           ITOP = min(IBOT+NIPARTSZ-1,NROW)
           NIBTC = ITOP-IBOT+1
           if (NIBTC <= 0) exit
+#         ifdef _CUDA_BLAS_
+          CudaStatus = 0_c_int64_t
+          if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1) then
+            CudaStatus = LUCIA_GSBBD1_CUDA_ROUTE(RHO1,SRHO1,SB,CB,I1,XI1S,I2,XI2S,NACOB,NROW,NSB,NCB,IBOT,NIBTC,NKASTR,KBOT, &
+                                                 LKABTC,IJ_DIM(1),IJ_DIM(2),IJ_OFF(1)-1,IJ_OFF(2)-1,IDOSRHO1,XAB)
+          end if
+          if (CudaStatus == -1_c_int64_t) then
+            call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
+          else if (CudaStatus /= 1_c_int64_t) then
+#         endif
           ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
           do JJORB=1,IJ_DIM(2)
             ICGOFF = 1+(JJORB-1)*LKABTC*NIBTC
@@ -301,6 +346,9 @@ if (IJSM /= 0) then
             end do
           end do
           ! End of hard work
+#         ifdef _CUDA_BLAS_
+          end if
+#         endif
 
         end do
         ! end of this I partitioning
@@ -308,10 +356,28 @@ if (IJSM /= 0) then
         if (KEND /= 0) exit
       end do
       ! End of loop over I partitionings
+#ifdef _CUDA_BLAS_
+      if (CudaMaps) then
+        CudaStatus = LUCIA_GSBBD1_CUDA_MAPS_END()
+        if (CudaStatus /= 1_c_int64_t) then
+          call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
+        end if
+        CudaMaps = .false.
+      end if
+#endif
     end do
     ! (end of loop over symmetries)
   end do
 end if
+
+#ifdef _CUDA_BLAS_
+if (CudaSession) then
+  CudaStatus = LUCIA_GSBBD1_CUDA_END()
+  if (CudaStatus == -1_c_int64_t) then
+    call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
+  end if
+end if
+#endif
 
 !stop ' enforced stop in RSBBD1'
 
