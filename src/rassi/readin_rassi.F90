@@ -14,17 +14,18 @@
 subroutine READIN_RASSI()
 
 use Cholesky, only: timings
-use Cntrl, only: ALGO, ALPHZ, AngMom_idx, MAGXP_idx, Atens_Req, AutoSelect_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, &
+use Cntrl, only: ALGO, ALPHZ, AngMom_idx, Atens_Req, AutoSelect_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, &
                  DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DOCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, &
                  DYSO, EPrThr, GNuc, GNuc_set, HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IFARGU, IFCURD, IFDCPL, IFEJOB, IFGCAL, &
                  IFGTCALSA, IFGTSHSA, IFHAM, IfHCOM, IfHDia, IfHEff, IfHEXT, IfJ2, IfJZ, IFMCAL, IFNTO, IfShft, IFSO, IFTDM, &
                  IFTRD1, IFTRD2, IFVANVLECK, IFXCAL, ISOCMP, ISTAT, JBNAME, l_Eff, LCSTATES, lHami, LOOPDIVIDE, LOOPMAX, LPRPR, &
-                 MULTIP, MXJOB, MXPROP, NATens_Calc, NATO, NAtoms, NBINA, NBSTEP, NCOUP, NJOB, NMass_set, NOHAM, NOSO, NPNMR_Calc, &
-                 NPROP, NRNATO, Nscreen, NSOPR, nSOThr_Prt, NSpin_set, NSTAT, nState, NTP, NTS, NTSTEP, NucMass, NucSpin, OCAA, &
-                 OCAN, ONLY_OVERLAPS, OSTHR_DIPR, OSTHR_QIPR, PNAME, pNMR_req, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, &
-                 PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, PSO_idx, QDPT2EV, QDPT2SC, QIALL, QIPR, REDUCELOOP, &
-                 RFPERT, RHODYN, RSPR, RSThr, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, &
-                 SOThr_Prt, TDIPMIN, TDYS, TINCRE, TMAXP, TMAXS, TMGR_Thrs, TMINP, TMINS, ToFile, TOLERANCE, TRACK, TSTART
+                 MAGXP_idx, MULTIP, MXJOB, MXPROP, NATens_Calc, NATO, NAtoms, NBINA, NBSTEP, NCOUP, NJOB, NMass_set, NOHAM, NOSO, &
+                 NPNMR_Calc, NPROP, NRNATO, Nscreen, NSOPR, nSOThr_Prt, NSpin_set, NSTAT, nState, NTP, NTS, NTSTEP, NucMass, &
+                 NucSpin, OCAA, OCAN, ONLY_OVERLAPS, OSTHR_DIPR, OSTHR_QIPR, PNAME, pNMR_req, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, &
+                 PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, PSO_idx, QDPT2EV, QDPT2SC, QIALL, QIPR,&
+                 REDUCELOOP, RFPERT, RHODYN, RSPR, RSThr, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, &
+                 SONTOSTATES, SOPRNM, SOThr_Prt, TDIPMIN, TDYS, TINCRE, TMAXP, TMAXS, TMGR_Thrs, TMINP, TMINS, ToFile, TOLERANCE,&
+                 TRACK, TSTART
 use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 use frenkel_global_vars, only: DoCoul, doexch, DoExcitonics, excl, iTyp, labB, nestla, nestlb, valst
 use kVectors, only: e_Vector, k_Vector, nk_Vector
