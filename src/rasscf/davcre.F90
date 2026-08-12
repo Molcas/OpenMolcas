@@ -68,6 +68,7 @@ real(kind=wp), external :: DDot_
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(1)
+IPRLEV = DEBUG
 if (IPRLEV >= DEBUG) then
   write(u6,*) ' Entering DAVCRE'
   write(u6,*) 'Super-CI diagonalization. Max iterations: ',ITMAX
@@ -110,8 +111,7 @@ do ITERSX=1,ITMAX
 
   if (IPRLEV >= DEBUG) then
     write(u6,*) ' Davidson H-matrix in iteration ',ITERSX
-    write(u6,*) ' Davidson H-matrix triangular of size =  ',NDIMH
-    write(u6,'(1x,8F14.6)') (HH(I),I=1,KDIMH)
+    Call TriPrt('Davidson H-matrix',' ',HH,NDIMH)
   end if
   E(1) = HH(1)
   CC(1) = One
@@ -248,6 +248,7 @@ do ITERSX=1,ITMAX
   ICONVA = 0
   do I=1,NROOT
     ASQ = DDOT_(NTRIAL,CC(NST),1,CC(NST),1)
+    Write (u6,*) 'ASQ=',ASQ
     if (ASQ < THRA) ICONVA = ICONVA+1
     NST = NST+NDIMH
   end do
@@ -312,6 +313,7 @@ do ITERSX=1,ITMAX
   ICONVL = 0
   NTOTDC = NROOT
 
+  IPRLEV = INSANE
   do
 
     ! First form the overlap matrix
@@ -453,6 +455,7 @@ do ITERSX=1,ITMAX
       IST = IST+NDIM
     end do
   end if
+  IPRLEV = DEBUG
 end do
 
 if (ITERSX > ITMAX) then
