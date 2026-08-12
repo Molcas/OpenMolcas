@@ -46,9 +46,10 @@ subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use sguga, only: CIS
-use rasscf_files, only: JOBIPH, JOBOLD, LUDAVID, STARTORBFILE
+use rasscf_files, only: JOBIPH, JOBOLD, LUDAVID
 use general_data, only: NCONF, NSEL, STSYM, iDoGas
 #ifdef _HDF5_
+use rasscf_files, only: STARTORBFILE
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 #endif
 use output_ras, only: IPRLOC
