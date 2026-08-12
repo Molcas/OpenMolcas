@@ -30,8 +30,8 @@ use Cntrl, only: AngMom_idx, MAGXP_idx, Atens_Req, AutoSelect_GFac, DEGEN_ETHR, 
                  LPRPR, MLTPLT, NATens_Calc, NAtoms, NCOUP, NMass_set, NPNMR_Calc, NPROP, NSpin_set, NSTATE, NTP, NucMass, &
                  NucSpin, pNMR_req, PSO_idx, TMAXP, TMINP
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Three, Four, Twelve, Half, cZero, cOne, auTocm, auToHz, auTokJ, c_in_au, gElectron, kBoltzmann, &
-                     proton_mass_in_au
+use Constants, only: Zero, One, Two, Three, Four, Twelve, Half, cZero, cOne, auTocm, auToHz, auTokJ, c_in_au, gElectron, &
+                     kBoltzmann,proton_mass_in_au
 use Definitions, only: iwp, wp, u6
 
 implicit none

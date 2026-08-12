@@ -174,8 +174,8 @@ integer(kind=iwp), allocatable :: AngMom_idx(:), MAGXP_idx(:,:), LCSTATES(:), Nu
 real(kind=wp), allocatable :: GNuc(:), HEff(:,:), NucSpin(:), RefEne(:)
 logical(kind=iwp), allocatable :: Atens_Req(:), HypoIso(:), pNMR_req(:)
 
-public :: ALGO, AlphZ, AngMom_idx, MAGXP_idx, Atens_Req, AutoSelect_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5, &
-          CITHR, Coor, DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, &
+public :: ALGO, AlphZ, AngMom_idx, MAGXP_idx, Atens_Req, AutoSelect_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, &
+          CIH5, CITHR, Coor, DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, &
           DYSEXPSO, DYSO, EMin, EPRThr, ERFNuc, FnEig, FnTOM, FORCE_NON_AO_TDM, GNuc, GNuc_set, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, &
           HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IDCMO, IfArgu, IfCurd, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, &
           IFHCOM, IFHDIA, IFHEFF, IFHEXT, IfJ2, IfJz, IFMCAL, IFNTO, IFSHFT, IFSO, IfTDM, IfTrD1, IFTRD2, IfvanVleck, IFXCAL, &
