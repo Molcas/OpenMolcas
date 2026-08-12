@@ -23,7 +23,6 @@ integer(kind=iwp) :: ISPIN, MALTER(MAXALTER,3), NACTEL, NALTER, NASH(mxSym), NBA
                      NRS3(mxSym), NRS3T, NSEL, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, NLEV, InVec
 integer(kind=iwp) :: nRas(MxSym,MxGAS), nRasEl(MxGAS), nRsPrt
 real(kind=wp) :: SXDAMP
-character(len=256) :: StartOrbFile
 logical(kind=iwp) :: Lowdin_ON
 integer(kind=iwp), allocatable :: CleanMask(:)
 real(kind=wp), allocatable :: CRPROJ(:), CRVEC(:)

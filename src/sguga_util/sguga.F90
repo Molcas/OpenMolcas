@@ -1806,7 +1806,7 @@ subroutine MKCOUP(SGS,CIS,EXS,TRS)
   integer(kind=iwp) :: i, i1, i2
   integer(kind=iwp) :: IAWS, IC, ICL, ICOP, ICR
   integer(kind=iwp) :: IHALF, ILND, INDEO, IP, IPOS, IQ
-  integer(kind=iwp) :: IS, ISG, ISGT, ISYM, IT, ITYP, ITYPT
+  integer(kind=iwp) :: ISG, ISGT, ISYM, IT, ITYP, ITYPT
   integer(kind=iwp) :: IVLB, IVLT, IVRT, IVRTOP, IVTAB
   integer(kind=iwp) :: IVTOP, IVTSTA, IVTEND
   integer(kind=iwp) :: K, ITR, IT0, NT

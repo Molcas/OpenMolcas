@@ -25,12 +25,10 @@ Public :: Mk_H_Psi, Mk_pdms
 contains
 
 Subroutine Mk_H_Psi(iState, STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
-use sguga, only: SGS, EXS, CIS
-use stdalloc, only: mma_allocate, mma_deallocate
+use sguga, only: CIS
 use Lucia_Interface, only: Lucia_Util
 use lucia_data, only: Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
-use sguga, only: SGStruct, EXStruct, CIStruct
 use rasscf_global, only: DoFaro
 use Constants, only: Zero
 use faroald, only: my_norb, sigma_update, htu, gtuvx
