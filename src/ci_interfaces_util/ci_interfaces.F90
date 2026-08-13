@@ -125,7 +125,7 @@ else
   Sigma_on_disk = .true.
   ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
   ! stored in Sigma_vec.
-  call CSDTVC(Sigma_Vec,sigtemp,2,stSym,1)
+  call CSDTVC(Sigma_Vec,sigtemp,2,STSym,1)
 
 end if
 
@@ -133,11 +133,11 @@ end if
 If (.NOT.iDoGAS .and. nRsPrt==1) Then
    Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
    call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
-   Check_Href=Dot_Product(CI_Vec,Sigma_Vec)
+   Check_Href=CheckSum(Sigma_Vec,nCSF)
    Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
    Call sg_h_psi(SGS,CIS,EXS,SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
-   Check_H   =Dot_Product(SG_PSI,SG_SGM)
    call SG_Reord(iState,STSYM,1,nCSF,SG_SGM,SG_PSI)
+   Check_H   =CheckSum(SG_PSI,nCSF)
    If (Abs(Check_HRef-Check_H)/nCSF>1.0E-12_wp) Then
       Write (u6,*) 'SGUGA error in H|Psi>'
       Write (u6,*) 'Check_HRef=',Check_HRef
