@@ -21,7 +21,6 @@
 subroutine CalcGD(GD,nGD)
 
 use CI_interfaces, only: Mk_T1DM
-use lucia_data, only: Dtmp
 use rasscf_global, only: iADR15, lRoots, NAC
 use rasscf_files, only: JOBIPH
 use general_data, only: NCONF
@@ -46,23 +45,23 @@ do jRoot=1,lRoots
   CIDisk2 = IADR15(4)
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-    Call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2)
+    Call Mk_T1DM(VECR(:),VECL(:),nConf,TMPD,NAC**2)
     IOffNIJ1 = (lRoots*(jRoot-1)+kRoot-1)*NAC2
     IOffNIJ2 = (lRoots*(kRoot-1)+jRoot-1)*NAC2
-    GD(IOffNIJ1+1:IOffNIJ1+NAC2) = Dtmp(1:NAC2)
+    GD(IOffNIJ1+1:IOffNIJ1+NAC2) = TmpD(1:NAC2)
     do q=1,NAC
       do p=1,NAC
         ipq = (q-1)*NAC+p
         iqp = (p-1)*NAC+q
-        GD(IOffNIJ2+iqp) = Dtmp(ipq)
+        GD(IOffNIJ2+iqp) = TmpD(ipq)
       end do
     end do
   end do
   kRoot = jRoot
   call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-  Call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2)
+  Call Mk_T1DM(VECR(:),VECL(:),nConf,TMPD,NAC**2)
   IOffNIJ1 = (lRoots+1)*(jRoot-1)*NAC2
-  GD(IOffNIJ1+1:IOffNIJ1+NAC2) = Dtmp(1:NAC2)
+  GD(IOffNIJ1+1:IOffNIJ1+NAC2) = TmpD(1:NAC2)
 end do
 
 call mma_deallocate(TmpD)
