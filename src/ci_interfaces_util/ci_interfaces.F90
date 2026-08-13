@@ -19,6 +19,7 @@ use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_o
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro, NAC
 use general_data, only: STSYM
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use definitions, only: wp, iwp
 #ifdef _SGUGA_VERIFY_
@@ -38,6 +39,9 @@ contains
 
 Subroutine Mk_H_Psi(iState, STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk
+#ifdef _SGUGA_VERIFY_
+use general_data, only: iDoGAS, nRsPrt
+#endif
 Implicit None
 
 integer(kind=iwp), intent(in):: iState, STSYM, nCSF
@@ -50,6 +54,10 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
+#ifdef _SGUGA_VERIFY_
+real(kind=wp) :: Check_Href, Check_H
+real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:)
+#endif
 
 if (DOFARO) then
 
@@ -121,13 +129,35 @@ else
 
 end if
 
+#ifdef _SGUGA_VERIFY_
+If (.NOT.iDoGAS .and. nRsPrt==1) Then
+   Call mma_allocate(SG_PSI,nCSF,Label='SG_PSI')
+   call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
+   Check_Href=Dot_Product(CI_Vec,Sigma_Vec)
+   Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
+   Call sg_h_psi(SGS,CIS,EXS,SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
+   Check_H   =Dot_Product(SG_PSI,SG_SGM)
+   call SG_Reord(iState,STSYM,1,nCSF,SG_SGM,SG_PSI)
+   If (Abs(Check_HRef-Check_H)/nCSF>1.0E-12_wp) Then
+      Write (u6,*) 'SGUGA error in H|Psi>'
+      Write (u6,*) 'Check_HRef=',Check_HRef
+      Write (u6,*) 'Check_H   =',Check_H
+      Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nCSF)
+      Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
+      Call Abend()
+   End If
+!  Sigma_Vec(1:nCSF) = SG_PSI(1:nCSF)
+   Call mma_deallocate(SG_SGM)
+   Call mma_deallocate(SG_PSI)
+End if
+#endif
+
 End Subroutine Mk_H_Psi
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
 Subroutine Mk_T1DM(Bra_Vec, Ket_Vec, nVec, T1DM, nT1DM)
-use stdalloc, only: mma_allocate, mma_deallocate
 use Lucia_Data, only: DTmp
 #ifdef _SGUGA_VERIFY_
 use general_data, only: iDoGAS
@@ -184,7 +214,6 @@ End Subroutine Mk_T1DM
 !***********************************************************************************************************************************
 
 Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
-use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _SGUGA_VERIFY_
 use general_data, only: iDoGAS
 use rasscf_global, only: NACPAR, NACPR2
