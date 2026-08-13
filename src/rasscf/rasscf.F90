@@ -1589,6 +1589,8 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
           call SG_Reord(iState,STSYM,1,CIS(istate)%nCSF(STSYM),Tmp,VecR)
           ! Compute TDM and store in h5 file
           call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
+          Call add_info('TDM',DTMP,NAC**2,6)
+          if (iSpin > 1) Call add_info('TSDM',DSTMP,NAC**2,6)
           idx = (jRoot-2)*(jRoot-1)/2+kRoot
           call mh5_put_dset(wfn_transdens,Dtmp(1:NAC*NAC),[NAC,NAC,1],[0,0,idx-1])
           if (iSpin > 1) call mh5_put_dset(wfn_transsdens,DStmp(1:NAC**2),[NAC,NAC,1],[0,0,idx-1])
