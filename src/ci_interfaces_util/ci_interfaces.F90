@@ -168,6 +168,7 @@ real(kind=wp), optional, intent(out):: T1SDM(nT1DM)
 
 real(kind=wp), allocatable:: T1SDM_loc(:), CIV(:), Bra_SD(:,:), Ket_SD(:,:), temp(:)
 integer(kind=iwp), parameter :: iState=1
+logical(kind=iwp) :: free_D, free_DS
 
 If (DoFaro) Then
    Call mma_allocate(T1SDM_loc,nT1DM,Label='T1SDM')
@@ -201,9 +202,23 @@ If (DoFaro) Then
    Call mma_deallocate(CIV)
    Call mma_deallocate(T1SDM_loc)
 Else
+   Free_D =.False.
+   Free_DS=.False.
+   If (.Not.Allocated(DTMP)) Then
+      Free_D =.True.
+      Call mma_allocate(DTMP,nT1DM,Label='DTMP')
+   End If
+   If (.Not.Allocated(DSTMP)) Then
+      Free_DS=.True.
+      Call mma_allocate(DSTMP,nT1DM,Label='DSTMP')
+   End If
+
    call Lucia_Util('Densi',CI_Vector=Ket_Vec(:),RVec=Bra_Vec(:))
    T1DM(1:nT1DM)=DTMP(1:nT1DM)
    If (present(T1SDM)) T1SDM(1:nT1DM) = DSTMP(1:nT1DM)
+
+   If (Free_D ) Call mma_deallocate(DTMP )
+   If (Free_DS) Call mma_deallocate(DSTMP)
 End If
 #ifdef _SGUGA_VERIFY_
 If (.NOT.iDoGAS) Then

@@ -1588,6 +1588,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
           call SG_Reord(iState,STSYM,1,CIS(istate)%nCSF(STSYM),Tmp,VecR)
           ! Compute TDM and store in h5 file
+!         Call Mk_T1DM(VECR(:),VECL(:),nConf,TMPD,NAC**2,...)
           call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
           Call add_info('TDM',DTMP,NAC**2,6)
           if (iSpin > 1) Call add_info('TSDM',DSTMP,NAC**2,6)
