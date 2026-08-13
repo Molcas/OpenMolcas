@@ -170,8 +170,7 @@ real(kind=wp), allocatable:: T1SDM_loc(:), CIV(:), Bra_SD(:,:), Ket_SD(:,:), tem
 integer(kind=iwp), parameter :: iState=1
 logical(kind=iwp) :: free_D, free_DS
 
-!If (DoFaro) Then
-If (.False.) Then
+If (DoFaro) Then
    Call mma_allocate(T1SDM_loc,nT1DM,Label='T1SDM')
 
    Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
@@ -193,7 +192,9 @@ If (.False.) Then
    Ket_SD(:,:)=Zero
    call CITRANS_CSF2SD(temp,Ket_SD)
 
-   Call Transition_One_PDM(Bra_SD,Ket_SD,T1DM,T1SDM_loc)
+!  Don't ask me why we need to do it the other way?
+!  Call Transition_One_PDM(Bra_SD,Ket_SD,T1DM,T1SDM_loc)
+   Call Transition_One_PDM(Ket_SD,Bra_SD,T1DM,T1SDM_loc)
 
    If (present(T1SDM)) T1SDM(1:nT1DM) = T1SDM_loc(1:nT1DM)
 

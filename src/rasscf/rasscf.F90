@@ -87,9 +87,6 @@ use output_ras, only: IPRLOC, RC_CI, RC_SX
 use rasscf_files, only: ITERFILE, JOBIPH
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
                         NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
-#ifdef _HDF5_
-use sguga, only: CIS
-#endif
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
@@ -1583,12 +1580,12 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       do jRoot=2,lRoots
         ! Read and reorder the left CI vector
         call DDafile(JOBIPH,2,Tmp,nConf,jDisk)
-        call SG_Reord(iState,STSYM,1,CIS(istate)%nCSF(STSYM),Tmp,VecL)
+        call SG_Reord(iState,STSYM,1,nConf,Tmp,VecL)
         kDisk = IADR15(4)
         do kRoot=1,jRoot-1
           ! Read and reorder the right CI vector
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-          call SG_Reord(iState,STSYM,1,CIS(istate)%nCSF(STSYM),Tmp,VecR)
+          call SG_Reord(iState,STSYM,1,nConf,Tmp,VecR)
           ! Compute TDM and store in h5 file
           Call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
           Call add_info('TDM',DTMP,NAC**2,6)
@@ -1840,8 +1837,6 @@ end if
 ! Exit
 
 call Finalize()
-
-return
 
 #ifdef _DMRG_
 103 format(6X,I3,I3,I4,I7,ES12.2,I4,I5,F15.8,ES12.2,A1,ES9.2,A1,2I4,I2,ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I7,A1,I2.2,A1,I2.2)
