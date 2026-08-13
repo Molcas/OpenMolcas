@@ -30,7 +30,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(inout):: DBG,SkipGUGA
-integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
 integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, nRs1T, NSTA
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
 integer(kind=iwp), parameter :: istate=1
