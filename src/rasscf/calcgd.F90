@@ -40,8 +40,7 @@ call mma_allocate(VecL,NConf,Label='VecL')
 call mma_allocate(VecR,NConf,Label='VecR')
 call mma_allocate(TmpD,NAC**2,Label='TmpD')
 call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
-SDtmp(:) = DStmp(:)
-TmpD(:) = DTmp(:)
+
 CIDisk1 = IADR15(4)
 do jRoot=1,lRoots
   call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)
@@ -51,15 +50,12 @@ do jRoot=1,lRoots
     call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
     IOffNIJ1 = (lRoots*(jRoot-1)+kRoot-1)*NAC2
     IOffNIJ2 = (lRoots*(kRoot-1)+jRoot-1)*NAC2
-    !write(u6,*) 'GD matrix',jRoot,kRoot
-    !call RecPrt(' ',' ',Dtmp,NAC,NAC)
     GD(IOffNIJ1+1:IOffNIJ1+NAC2) = Dtmp(1:NAC2)
     do q=1,NAC
       do p=1,NAC
         ipq = (q-1)*NAC+p
         iqp = (p-1)*NAC+q
         GD(IOffNIJ2+iqp) = Dtmp(ipq)
-        !GDMat(NIJ2,q,p) = Dtmp(q+(p-1)*NAC)
       end do
     end do
   end do
@@ -67,12 +63,9 @@ do jRoot=1,lRoots
   call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
   call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
   IOffNIJ1 = (lRoots+1)*(jRoot-1)*NAC2
-  !write(u6,*) 'GD matrix',jRoot,kRoot
-  !call RecPrt(' ',' ',Dtmp,NAC,NAC)
   GD(IOffNIJ1+1:IOffNIJ1+NAC2) = Dtmp(1:NAC2)
 end do
-DStmp(:) = SDtmp(:)
-Dtmp(:) = TmpD(:)
+
 call mma_deallocate(SDtmp)
 call mma_deallocate(TmpD)
 call mma_deallocate(VecL)
