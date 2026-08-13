@@ -15,6 +15,7 @@ set (sources
      sg_mstow.F90
      sg_num.F90
      sg_one_pdm.F90
+     sg_one_tdm.F90
      sg_phase.F90
      sg_pkwlk.F90
      sg_print.F90
