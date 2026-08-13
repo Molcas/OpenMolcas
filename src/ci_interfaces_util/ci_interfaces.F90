@@ -155,8 +155,8 @@ End Subroutine Mk_H_Psi
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-Subroutine Mk_T1DM(Bra_Vec, Ket_Vec, nVec, T1DM, nT1DM)
-use Lucia_Data, only: DTmp
+Subroutine Mk_T1DM(Bra_Vec, Ket_Vec, nVec, T1DM, nT1DM, T1SDM)
+use Lucia_Data, only: DTmp, DSTmp
 #ifdef _SGUGA_VERIFY_
 use general_data, only: iDoGAS
 #endif
@@ -164,12 +164,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nVec, nT1DM
 real(kind=wp), intent(_IN_):: Bra_Vec(nVec), Ket_Vec(nVec)
 real(kind=wp), intent(out):: T1DM(nT1DM)
+real(kind=wp), optional, intent(out):: T1SDM(nT1DM)
 
-real(kind=wp), allocatable:: T1SDM(:), CIV(:), Bra_SD(:,:), Ket_SD(:,:), temp(:)
+real(kind=wp), allocatable:: T1SDM_loc(:), CIV(:), Bra_SD(:,:), Ket_SD(:,:), temp(:)
 integer(kind=iwp), parameter :: iState=1
 
 If (DoFaro) Then
-   Call mma_allocate(T1SDM,nT1DM,Label='T1SDM')
+   Call mma_allocate(T1SDM_loc,nT1DM,Label='T1SDM')
 
    Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
    Call mma_allocate(temp,nDetA*nDetB,Label='temp')
@@ -190,16 +191,19 @@ If (DoFaro) Then
    Ket_SD(:,:)=Zero
    call CITRANS_CSF2SD(temp,Ket_SD)
 
-   Call Transition_One_PDM(Bra_SD,Ket_SD,T1DM,T1SDM)
+   Call Transition_One_PDM(Bra_SD,Ket_SD,T1DM,T1SDM_loc)
+
+   If (present(T1SDM)) T1SDM(1:nT1DM) = T1SDM_loc(1:nT1DM)
 
    Call mma_deallocate(Ket_SD)
    Call mma_deallocate(Bra_SD)
    Call mma_deallocate(temp)
    Call mma_deallocate(CIV)
-   Call mma_deallocate(T1SDM)
+   Call mma_deallocate(T1SDM_loc)
 Else
    call Lucia_Util('Densi',CI_Vector=Ket_Vec(:),RVec=Bra_Vec(:))
    T1DM(1:nT1DM)=DTMP(1:nT1DM)
+   If (present(T1SDM)) T1SDM(1:nT1DM) = DSTMP(1:nT1DM)
 End If
 #ifdef _SGUGA_VERIFY_
 If (.NOT.iDoGAS) Then
