@@ -146,7 +146,7 @@ If (.NOT.iDoGAS .and. nRsPrt==1) Then
       Call RecPrt('SG_SGM',' ',SG_PSI,1,nCSF)
       Call Abend()
    End If
-!  Sigma_Vec(1:nCSF) = SG_PSI(1:nCSF)
+   Sigma_Vec(1:nCSF) = SG_PSI(1:nCSF)
    Call mma_deallocate(SG_SGM)
    Call mma_deallocate(SG_PSI)
 End if
