@@ -12,7 +12,7 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas_per_Atom,nBas_Start,ThrRot,PctSkp,Debug)
+subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,nOrb2loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
@@ -20,6 +20,7 @@ subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas
 !      Array PACol introduced in argument list.
 
 use Molcas, only: LenIn
+use Localisation_globals, only: Debug, Maximisation, ThrRot
 use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -27,12 +28,10 @@ implicit none
 integer(kind=iwp), intent(in) :: nBasis, nAtoms, nOrb2Loc, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
 real(kind=wp), intent(inout) :: cMO(nBasis,*), PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
-logical(kind=iwp), intent(in) :: Maximisation, Debug
 character(len=LenIn+8), intent(in) :: BName(*)
-real(kind=wp), intent(in) :: ThrRot
 integer(kind=iwp) :: iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
-real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, sin4alpha, SumA, SumB, Tst, Tstc, &
-                 Tsts, xDone, xOrb2Loc, xTotal
+real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, ReNorm, sin4alpha, SumA, SumB, SumC, &
+                 Tst, Tstc, Tsts, xDone, xOrb2Loc, xTotal
 character(len=LenIn+8) :: PALbl
 character(len=80) :: Txt
 
@@ -55,6 +54,7 @@ do iMO1=1,nOrb2Loc-1
     iMO_t = iMO2
     SumA = Zero
     SumB = Zero
+    SumC = Zero
     do iAt=1,nAtoms
       PA_st = PA(iMO_t,iMO_s,iAt)
       PA_ss = PA(iMO_s,iMO_s,iAt)
@@ -71,11 +71,15 @@ do iMO1=1,nOrb2Loc-1
         write(u6,*) '<',iMO_t,'|PA|',iMO_t,'> = ',PA_tt
         write(u6,*) '**************************'
       end if
-      SumA = SumA+PA_st**2-Quart*(PA_ss-PA_tt)**2
+      SumA = SumA+PA_st**2
+      SumC = SumC+Quart*(PA_ss-PA_tt)**2
       SumB = SumB+PA_st*(PA_ss-PA_tt)
     end do
-    Ast = SumA
+    ! If below the numerical noise set it to zero
+    Ast = SumA-SumC
     Bst = SumB
+    if (abs(Ast) < 1.0e-14_wp) Ast = Zero
+    if (abs(Bst) < 1.0e-14_wp) Bst = Zero
 
     if ((Ast == Zero) .and. (Bst == Zero)) then
       cos4alpha = -One
@@ -84,6 +88,9 @@ do iMO1=1,nOrb2Loc-1
       cos4alpha = -Ast/sqrt(Ast**2+Bst**2)
       sin4alpha = Bst/sqrt(Ast**2+Bst**2)
     end if
+    ReNorm = sqrt(cos4alpha**2+sin4alpha**2)
+    cos4alpha = cos4alpha/ReNorm
+    sin4alpha = sin4alpha/ReNorm
     Tst = abs(cos4alpha)-One
     if (Tst > Zero) then
       if (Tst > 1.0e-10_wp) then
@@ -102,7 +109,7 @@ do iMO1=1,nOrb2Loc-1
 
     Alpha1 = acos(cos4alpha)*Quart
     Alpha2 = asin(sin4alpha)*Quart
-    if (Alpha2 < Zero) Alpha1 = Alpha2+Pi
+    if ((Alpha2 < Zero) .and. (abs(Alpha2) > 1.0e-8_wp)) Alpha1 = Alpha2+Pi
     Alpha = Alpha1
     if (.not. Maximisation) then
       Gamma_rot = Alpha-Pi*Quart
@@ -112,6 +119,8 @@ do iMO1=1,nOrb2Loc-1
     if (Debug) then
       write(u6,'(a9,f10.5)') '   Ast :',Ast
       write(u6,'(a9,f10.5)') '   Bst :',Bst
+      write(u6,'(a9,f10.5)') 'cos4Alpha1 :',cos4alpha
+      write(u6,'(a9,f10.5)') 'sin4Alpha2 :',sin4alpha
       write(u6,'(a9,f10.5)') 'Alpha1 :',Alpha1
       write(u6,'(a9,f10.5)') 'Alpha2 :',Alpha2
       write(u6,'(a9,f10.5)') ' Gamma :',Gamma_rot
@@ -120,14 +129,12 @@ do iMO1=1,nOrb2Loc-1
     Tsts = abs(sin(Gamma_rot))
     Tstc = One-abs(cos(Gamma_rot))
     if ((Tsts > ThrRot) .or. (Tstc > ThrRot)) then
-      call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot,Debug)
-      call UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,Gamma_rot,iMO_s,iMO_t,Debug)
+      call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot)
+      call UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,Gamma_rot,iMO_s,iMO_t)
       xDone = xDone+One
     end if
 
-    if (Debug) then
-      call RecPrt('MO after rotation',' ',cMO,nBasis,nBasis)
-    end if
+    if (Debug) call RecPrt('MO after rotation',' ',cMO,nBasis,nOrb2Loc)
 
   end do !iMO2
 end do !iMO1
@@ -139,7 +146,5 @@ if (nOrb2Loc > 1) then
 else
   PctSkp = Zero
 end if
-
-return
 
 end subroutine RotateOrb

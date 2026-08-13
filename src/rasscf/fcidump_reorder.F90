@@ -129,7 +129,9 @@ subroutine ALL_reorder(orbitals,fock,two_el_table,orbsym,P)
   call reorder(fock,P)
   call reorder(two_el_table,P)
   allocate(temp_orbsym(size(orbsym)))
-  temp_orbsym = orbsym
+  do i=1,size(orbsym)
+    temp_orbsym(i) = orbsym(i)
+  end do
   do i=1,size(P)
     orbsym(P(i)) = temp_orbsym(i)
   end do

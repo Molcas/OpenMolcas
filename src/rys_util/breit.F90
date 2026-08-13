@@ -14,7 +14,7 @@
 module Breit
 
 use Constants, only: Zero
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 private

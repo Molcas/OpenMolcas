@@ -548,9 +548,9 @@ if (DoBond) then
   write(u6,*) 'After Desymmetrization'
   !call RecPrt('Density Matrix = ', ' ',D,NBAST,NBAST)
   !call RecPrt('Overlap Matrix = ', ' ',S,NBAST,NBAST)
-  write(u6,*) 'Dens=',DDot_(nBast**2,D,1,D,1),DDot_(nBast**2,D,1,[One],0)
-  write(u6,*) 'Ovrl=',DDot_(nBast**2,S,1,S,1),DDot_(nBast**2,S,1,[One],0)
-  write(u6,*) 'DO  =',DDot_(nBast**2,S,1,D,1)
+  write(u6,*) 'Dens=',sum(D(:,:)**2),sum(D(:,:))
+  write(u6,*) 'Ovrl=',sum(S(:,:)**2),sum(S(:,:))
+  write(u6,*) 'DO  =',sum(S(:,:)*D(:,:))
   E = Zero
   do I=1,NBAST
     do J=1,NBAST
@@ -740,9 +740,9 @@ if ((iCase == 1) .and. (iPL >= 2)) then
     write(u6,'(6X,A,6(5X,F12.4,7X))') 'Charge ',(Fac(i)*Charge(I),I=IST,IEND)
   end do
   write(u6,*)
-  !Write(u6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum_TOT,1)
+  !Write(u6,'(6X,A,F12.6)') 'Total electronic charge=',sum(QSum_TOT(:))
   write(u6,*)
-  !Write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Charge,1)
+  !Write(u6,'(6X,A,F12.6)') 'Total            charge=',sum(Charge(:))
   call mma_deallocate(Q2)
 
 end if
@@ -790,13 +790,13 @@ if (((iCase == 2) .or. (iCase == 3)) .and. (iPL >= 2)) then
   end do
   if (iCase == 3) then
     write(u6,*)
-    !write(u6,'(6X,A,F12.6)') 'Total electronic spin=',DDot_(nNuc,[One],0,QSum,1)
+    !write(u6,'(6X,A,F12.6)') 'Total electronic spin=',sum(QSum(:))
   else
     write(u6,*)
-    !write(u6,'(6X,A,F12.6)') 'Total electronic charge=',DDot_(nNuc,[One],0,QSum,1)
+    !write(u6,'(6X,A,F12.6)') 'Total electronic charge=',sum(QSum(:))
     write(u6,*)
-    !TCh = DDot_(nNuc,[One],0,Charge,1)
-    !write(u6,'(6X,A,F12.6)') 'Total            charge=',DDot_(nNuc,[One],0,Charge,1)
+    !TCh = sum(Charge(:))
+    !write(u6,'(6X,A,F12.6)') 'Total            charge=',TCh
     !call xml_dDump('FormalCharge','Total charge','a.u',0,TCh,1,1)
   end if
 end if

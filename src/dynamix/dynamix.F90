@@ -24,12 +24,12 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
 integer(kind=iwp), parameter :: nTasks = 3
-integer(kind=iwp) :: i, irc, iRlxRoot, iseed, iTask, Itr, j, LuInput, maxHop, mTasks, MxItr, natom, nFlag, nRoots, Task(nTasks)
+integer(kind=iwp) :: i, irc, iseed, iTask, Itr, j, LuInput, maxHop, mTasks, MxItr, natom, nFlag, Task(nTasks)
 real(kind=wp) :: arg, buffer, Ekin, Epot, Etot0, Freq, mean, NHC(nh), Q1, Q2, Sigma, time, val
-logical(kind=iwp) :: Found, lHop
+logical(kind=iwp) :: Exists, Found, lHop
 character(len=16) :: StdIn
 character(len=15) :: caption
-character(len=8) :: ENV
+character(len=8) :: ENV, JOB1, JOB2, Method
 real(kind=wp), parameter :: kb = kBoltzmann/(auTokJ*1.0e3_wp)
 character(len=2), allocatable :: atom(:)
 real(kind=wp), allocatable :: Mass(:), vel(:), pcoo(:,:)
@@ -246,29 +246,41 @@ do iTask=1,mTasks
       end if
       if (lHop) then
 
-        ! Read the roots
-
-        call Get_iScalar('Number of roots',nRoots)
-        call Get_iScalar('Relax CASSCF root',iRlxRoot)
-
         ! Run RASSI
 
-        LuInput = 11
-        LuInput = IsFreeUnit(LuInput)
+        call Get_cArray('Relax Method',Method,8)
+        if ((Method == 'CASPT2') .or. (Method == 'RASPT2')) then
+          JOB1 = 'JOBMIX'
+        else
+          JOB1 = 'JOBIPH'
+        end if
+        call f_inquire('JOBAUTO',Exists)
+        JOB2 = JOB1
+        if (Exists) JOB2 = 'JOBAUTO'
+
         call StdIn_Name(StdIn)
+        LuInput = IsFreeUnit(11)
         call Molcas_Open(LuInput,StdIn)
-        write(LuInput,'(A)') '>export DYN_OLD_TRAP=$MOLCAS_TRAP'
-        write(LuInput,'(A)') '>export MOLCAS_TRAP=ON'
-        write(LuInput,'(A)') ' &RASSI &End'
-        write(LuInput,'(A)') ' NR OF JOBIPHS'
-        write(LuInput,*) ' 1 ',nRoots
-        write(LuInput,*) (i,i=1,nRoots)
-        !write(LuInput,'(X,I1,1X,I1)') inxtState,iRlxRoot
-        write(LuInput,'(A)') ' HOP'
+        write(LuInput,'(A)') '>ECHO OFF'
+        write(LuInput,'(A)') '> export DYN_OLD_TRAP=$MOLCAS_TRAP'
+        write(LuInput,'(A)') '> export MOLCAS_TRAP=ON'
+        write(LuInput,'(A)') ' &RASSI'
+        write(LuInput,'(A)') 'NrOfJobIphs'
+        write(LuInput,'(A)') '  2 all'
+        write(LuInput,'(A)') 'IphNames'
+        write(LuInput,'(A)') '  '//trim(JOB1)
+        write(LuInput,'(A)') '  '//trim(JOB2)
+        write(LuInput,'(A)') 'HOP'
+        write(LuInput,'(A)') 'EJOB'
         write(LuInput,'(A)') 'End of Input'
-        write(LuInput,'(A)') ' &Dynamix &End'
-        write(LuInput,'(A)') ' VV_First'
-        write(LuInput,'(A)') ' DT'
+        if (JOB1 == 'JOBMIX') then
+          write(LuInput,'(A)') '> copy $Project.JobMix JOBAUTO'
+        else
+          write(LuInput,'(A)') '> copy $Project.JobIph JOBAUTO'
+        end if
+        write(LuInput,'(A)') ' &DYNAMIX'
+        write(LuInput,'(A)') 'VV_First'
+        write(LuInput,'(A)') 'DT'
         write(LuInput,*) DT
         write(LuInput,'(A)') 'THERMO'
         write(LuInput,*) THERMO
@@ -279,7 +291,8 @@ do iTask=1,mTasks
         write(LuInput,'(A)') 'IN'
         write(LuInput,*) PIN
         write(LuInput,'(A)') 'End of Input'
-        write(LuInput,'(A)') '>export MOLCAS_TRAP=$DYN_OLD_TRAP'
+        write(LuInput,'(A)') '> export MOLCAS_TRAP=$DYN_OLD_TRAP'
+        write(LuInput,'(A)') '>ECHO ON'
         close(LuInput)
         call Finish(_RC_INVOKED_OTHER_MODULE_)
       else
@@ -334,12 +347,12 @@ call mh5_close_file(dyn_fileid)
 
 if ((IsStructure() == 1) .and. (irc == 0)) then
   MxItr = 0
-  call GetEnvf('MOLCAS_MAXITER',ENV)
+  call get_environment_variable('MOLCAS_MAXITER',ENV)
   if (ENV /= ' ') then
     read(ENV,*) MxItr
   end if
   Itr = 1
-  call GetEnvf('MOLCAS_ITER',ENV)
+  call get_environment_variable('MOLCAS_ITER',ENV)
   if (ENV /= ' ') then
     read(ENV,*) Itr
   end if

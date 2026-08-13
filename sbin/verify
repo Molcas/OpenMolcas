@@ -952,9 +952,9 @@ if opt['module'] or opt['word'] or opt['grep']:
       in_file = False
       for line in f:
         # ignore lines between >FILE and >EOF
-        if (not in_file) and re.match(r'>* *FILE '.encode(), line, re.IGNORECASE):
+        if (not in_file) and re.match(r'>+ *FILE '.encode(), line, re.IGNORECASE):
           in_file = True
-        if in_file and re.match(r'>* *EOF'.encode(), line, re.IGNORECASE):
+        if in_file and re.match(r'>+ *EOF'.encode(), line, re.IGNORECASE):
           in_file = False
         if (not in_file) and re.match(filter_pattern.encode(), line, re.IGNORECASE):
           filtered_filelist.append(filename)
@@ -1247,7 +1247,7 @@ if __name__ == '__main__':
     else:
       msg(info)
 
-if opt['generate']:
-  msg('Generation of check files has been completed\n')
-else:
-  msg('Verification has been completed\n')
+  if opt['generate']:
+    msg('Generation of check files has been completed\n')
+  else:
+    msg('Verification has been completed\n')

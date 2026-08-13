@@ -30,6 +30,7 @@ module Task_Manager
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use GA_Wrapper, only: GA_Create, GA_Destroy, GA_Read_Inc, MT_INT
 #endif
 use Definitions, only: iwp
 
@@ -47,10 +48,6 @@ subroutine init_tsk(id,n)
 
   integer(kind=iwp), intent(out) :: id
   integer(kind=iwp), intent(in) :: n
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# include "mafdecls.fh"
-# endif
 
   if (list_counter == mxtsklst) call sysabendmsg('init_tsk','no free task lists available',' ')
   list_counter = list_counter+1
@@ -79,9 +76,6 @@ end subroutine init_tsk
 subroutine free_tsk(id)
 
   integer(kind=iwp), intent(in) :: id
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# endif
 
   if (list_counter == 0) call sysabendmsg('free_tsk','attempting to free a non-existent task list.',' ')
   if (id /= list_counter) call sysabendmsg('free_tsk','only stack-based task lists are supported.',' ')
@@ -102,9 +96,6 @@ function rsv_tsk(id,task)
   logical(kind=iwp) :: rsv_tsk
   integer(kind=iwp), intent(in) :: id
   integer(kind=iwp), intent(out) :: task
-# ifdef _MOLCAS_MPP_
-# include "global.fh"
-# endif
 
 # ifdef _MOLCAS_MPP_
   if (is_real_par()) then

@@ -34,7 +34,8 @@
 !>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu})\f]
 !>    In output FI contains also the core energy added to
 !>    the diagonal elements.
-!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu}) + \frac{E^{(0)}}{n_{el}} \delta_{\mu\nu} \f]
+!>    \f[\sum_{\sigma\rho} D^I_{\sigma\rho}(g_{\mu\nu\sigma\rho} - \frac{1}{2} g_{\mu\sigma\rho\nu}) +
+!>       \frac{E^{(0)}}{n_{el}} \delta_{\mu\nu} \f]
 !>  @param[in] D1I The inactive one-body density matrix in AO-space
 !>    \f[D^{\text{AO}, I} = 2 C (C^I)^\dagger \f]
 !>    See ::get_D1I_rasscf.
@@ -47,13 +48,8 @@ subroutine SGFCIN(CMO,F,FI,D1I,D1A,D1S)
 
 use Index_Functions, only: nTri_Elem
 use RunFile_procedures, only: Get_dExcdRa
-use fcidump, only: DumpOnly
-use fciqmc, only: DoNECI
-use CC_CI_mod, only: Do_CC_CI
 use timers, only: TimeDens
-use lucia_data, only: INT1, INT1O
-use rasscf_global, only: dftfock, doBlockDMRG, doDMRG, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, &
-                         tot_el_charge, tot_nuc_charge
+use rasscf_global, only: dftfock, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, tot_el_charge, tot_nuc_charge
 use OneDat, only: sNoNuc, sNoOri
 use general_data, only: iSpin, nActEl, nAsh, nBas, nFro, nIsh, nSym, nTot1
 use OFEmbed, only: Do_OFemb, FMaux, OFE_first, Rep_EN
@@ -411,6 +407,7 @@ end if
 call MOTRAC(CMO,X1,X2,X3)
 call mma_deallocate(X3)
 call mma_deallocate(X2)
+
 F(:) = Zero
 NTU = 0
 ITU = 0
@@ -421,31 +418,22 @@ if (NACTEL /= 0) then
 else
   EMYN = Zero
 end if
+
 do NST=1,NSYM
   NAT = NASH(NST)
-  if (NAT /= 0) then
-    do NT=1,NAT
-      NTU = NTU+IADD
-      do NU=1,NT
-        NTU = NTU+1
-        ITU = ITU+1
-        F(NTU) = X1(ITU)
-        if (NT == NU) F(NTU) = F(NTU)+EMYN
-        X0(ITU) = F(NTU)
-      end do
+  if (NAT == 0) cycle
+  do NT=1,NAT
+    NTU = NTU+IADD
+    do NU=1,NT
+      NTU = NTU+1
+      ITU = ITU+1
+      F(NTU) = X1(ITU)
+      if (NT == NU) F(NTU) = F(NTU)+EMYN
+      X0(ITU) = F(NTU)
     end do
-    IADD = IADD+NAT
-  end if
+  end do
+  IADD = IADD+NAT
 end do
-
-!Quan: Fix bug, skip Lucia stuff with DMRG
-! and other external CI solvers.
-if (.not. any([DoNECI,Do_CC_CI,DumpOnly,doDMRG,doBlockDMRG])) then
-  INT1(1:ITU) = X0(1:ITU)
-  INT1(ITU+1:) = Zero
-  INT1O(1:ITU) = X0(1:ITU)
-  INT1O(ITU+1:) = Zero
-end if
 
 call mma_deallocate(X1)
 call mma_deallocate(X0)
@@ -458,7 +446,5 @@ if (IPRLEV >= DEBUG) then
   write(u6,*)
   call TriPrt(' ',' ',F,NAC)
 end if
-
-return
 
 end subroutine SGFCIN

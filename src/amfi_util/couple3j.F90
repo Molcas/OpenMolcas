@@ -16,6 +16,7 @@ function couple3J(l1,l2,l3,m1,m2,m3)
 !bs   sqrt( (2l1+1)(2l2+1)(2l2+3)/ 4Pi)  * 3J(l1,l2,l3,0,0,0) *
 !bs   3J(l1,l2,l3,m1,m2,m3)
 
+use wigner_util, only: w3j_2j
 use Constants, only: Zero, Quart, Pi
 use Definitions, only: wp, iwp
 
@@ -25,13 +26,12 @@ integer(kind=iwp), intent(in) :: l1, l2, l3, m1, m2, m3
 integer(kind=iwp) :: l1d, l2d, l3d, m1d, m2d, m3d
 real(kind=wp) :: fac1, fac2, fac3
 real(kind=wp), parameter :: inv4pi = Quart/Pi
-real(kind=wp), external :: regge3j
 
 !bs initialize couple3J-coefficient
 couple3J = Zero
 !bs quick check
 if (m1+m2+m3 /= 0) return
-!bs double all values for regge3j
+!bs double all values for the 2*j convention of w3j_2j
 l1d = l1+l1
 l2d = l2+l2
 l3d = l3+l3
@@ -39,8 +39,8 @@ m1d = m1+m1
 m2d = m2+m2
 m3d = m3+m3
 fac1 = sqrt(real(l1d+1,kind=wp)*real(l2d+1,kind=wp)*real(l3d+1,kind=wp)*inv4pi)
-fac2 = regge3j(l1d,l2d,l3d,0,0,0)
-fac3 = regge3j(l1d,l2d,l3d,m1d,m2d,m3d)
+fac2 = w3j_2j(l1d,l2d,l3d,0,0,0)
+fac3 = w3j_2j(l1d,l2d,l3d,m1d,m2d,m3d)
 couple3J = fac1*fac2*fac3
 
 return

@@ -135,8 +135,7 @@ call mh5_put_dset(wfn_overlap,OVLP,[NSTATE,NSTATE],[0,0])
 #endif
 call Put_dArray('State Overlaps',OVLP,NSTATE*NSTATE)
 
-if (TRACK) call TRACK_STATE(OVLP)
-if (TRACK .or. ONLY_OVERLAPS) then
+if (TRACK .or. HOP .or. ONLY_OVERLAPS) then
 
   ! Print the overlap matrix here, since MECTL is skipped
   if (IPGLOB >= 2) then
@@ -147,6 +146,8 @@ if (TRACK .or. ONLY_OVERLAPS) then
       write(u6,'(5(1X,F15.8))') (Ovlp(j,iState),j=1,istate)
     end do
   end if
+
+  if (TRACK .or. HOP) call TRACK_STATE(OVLP)
 else
 
   ! Property matrix elements:
@@ -276,17 +277,6 @@ else
       call mma_deallocate(SODYSAMPS)
       call mma_deallocate(SODYSAMPSR)
       call mma_deallocate(SODYSAMPSI)
-    end if
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! Trajectory Surface Hopping
-
-    ! Turns on the procedure if the Keyword HOP was specified.
-
-    if (HOP) then
-      call StatusLine('RASSI: ','Trajectory Surface Hopping')
-      call TSHinit(ENERGY(:))
     end if
     !                                                                  *
     !*******************************************************************

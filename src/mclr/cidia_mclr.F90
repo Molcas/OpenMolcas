@@ -15,7 +15,8 @@ subroutine CIDIA_MCLR(iSym,ralp)
 
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
-use MCLR_Data, only: ICISTR, ipCI, ipDia, NCNATS, NCPCNT, NCSASM, NDPCNT, nexp, nexp_max, nGP, NOCSF, NTYP, XISPSM
+use MCLR_Data, only: ICISTR, ipCI, ipDia, NCSASM, NDPCNT, nexp, nexp_max, nGP, NOCSF, XISPSM
+use spinfo, only: NCNFTP, NCSFTP, NTYP
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, State_Sym, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -67,7 +68,7 @@ end if
 
 call ipin(ipDSDi)
 call IntDia(W(ipDSDi)%A,NSPC,ISPC,ISM,IAMCMP,rin_ene+potnuc)
-if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%A,W(ipDSDi)%A,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT)
+if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%A,W(ipDSDi)%A,NCNFTP(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCSFTP)
 
 if (NOCSF == 0) call ipclose(ipDSDi)
 

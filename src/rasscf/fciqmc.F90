@@ -19,7 +19,7 @@
 module fciqmc
 
 #ifdef _MOLCAS_MPP_
-use mpi, only: MPI_COMM_WORLD
+use MPI_Wrapper, only: MPI_COMM_WORLD
 use Para_Info, only: Is_Real_Par
 use Definitions, only: MPIInt
 #endif

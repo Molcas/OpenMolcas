@@ -18,7 +18,7 @@ logical(kind=iwp) :: rc
 character(len=16) :: bomb
 
 bomb = ' '
-call getenvf('MOLCAS_BOMB',bomb)
+call get_environment_variable('MOLCAS_BOMB',bomb)
 rc = (bomb(1:1) == 'Y') .or. (bomb(1:1) == 'y') .or. (bomb(1:1) == '1')
 
 end function bomb_on_error

@@ -10,11 +10,11 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
+subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec,nTUVX,TUVX)
 
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: Deallocate_Local_Arrays, DTOC, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, &
-                      MXSOOB, NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, SDREO, VEC3, XISPSM
+use lucia_data, only: Deallocate_Local_Arrays, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
+                      NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, VEC3, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
@@ -24,8 +24,8 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: JOBDISK
-integer(kind=iwp), intent(in) :: JOBIPH
-real(kind=wp), intent(in) :: CMOMO(*)
+integer(kind=iwp), intent(in) :: JOBIPH, nTUVX
+real(kind=wp), intent(in) :: CMOMO(*), TUVX(nTUVX)
 integer(kind=iwp), intent(out) :: LREC(MXNTTS)
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, NCONF, &
                      NDIM, NREC
@@ -54,7 +54,7 @@ IDISK(LUC) = 0
 JDISK = JOBDISK
 do JROOT=1,NROOT
   call DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
-  call CSDTVC(VEC4,VEC1,1,DTOC,SDREO,ISSM,0)
+  call CSDTVC(VEC4,VEC1,1,ISSM,0)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'CI-vector written to disk for root = ',JROOT
   call WRTMAT(VEC1,1,20,1,20)
@@ -118,7 +118,7 @@ do JROOT=1,NROOT
   ! Transform CI vector : Input on LUHC, output on LUDIA (!)
   call COPVCD(LUSC1,LUHC,VEC1,1,LBLK)
 
-  call TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2)
+  call TRACI_LUCIA(LCMOMO,LUHC,LUDIA,ISSPC,ISSM,VEC1,VEC2,size(TUVX),TUVX)
 end do
 ! End of loop over roots
 IDISK(LUDIA) = 0
@@ -132,7 +132,7 @@ do JROOT=1,NROOT
   write(u6,*) 'CI-Vector read from disk for root = ',JROOT
   call WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
 # endif
-  call CSDTVC(VEC2,VEC1,2,DTOC,SDREO,ISSM,0)
+  call CSDTVC(VEC2,VEC1,2,ISSM,0)
   call DDAFILE(JOBIPH,1,VEC2,NCONF,JOBDISK)
   call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
 end do

@@ -36,7 +36,6 @@ integer(kind=iwp) :: i, ifr, ii, ioff, iSkip, iSym, ito, j, jD, jOcc, jOff, jp, 
 real(kind=wp) :: Dummy, STrDF, STrDP, tmp, TrDF(8), TrDP(8)
 integer(kind=iwp), allocatable :: iD(:)
 real(kind=wp), allocatable :: CMO(:,:), OrbE(:,:), X(:)
-real(kind=wp), external :: ddot_
 
 irc = 0
 MP2_small = .false.
@@ -167,9 +166,9 @@ do iSym=1,nSym
     kto = jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
     call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),One,CMO(kfr,2),nBas(iSym),X(jD),nSsh(iSym),Zero,CMO(kto,1),nBas(iSym))
     iOff = iOff+nSsh(iSym)**2
-    TrDF(iSym) = ddot_(nSsh(iSym),OrbE(:,2),1,[One],0)
+    TrDF(iSym) = sum(OrbE(1:nSsh(iSym),2))
     ns_V(iSym) = int(vfrac*nSsh(iSym))
-    TrDP(iSym) = ddot_(ns_V(iSym),OrbE(:,2),1,[One],0)
+    TrDP(iSym) = sum(OrbE(1:ns_V(iSym),2))
   end if
   jOff = jOff+nBas(iSym)**2
 end do

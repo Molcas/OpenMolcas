@@ -55,10 +55,10 @@ do
     call Get_I1(1,iPrint)
   else if (Line(1:4) == 'VV_F') then
     !>>>>>>>>>>>>>>>>>>>> VV_First <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    write(u6,*) ' VV_First 1'
+    !write(u6,*) ' VV_First 1'
     mTasks = mTasks+1
     Task(mTasks) = VV_First
-    write(u6,*) ' VV_First 2'
+    !write(u6,*) ' VV_First 2'
   else if (Line(1:4) == 'VV_S') then
     !>>>>>>>>>>>>>>>>>>>> VV_Second <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     mTasks = mTasks+1

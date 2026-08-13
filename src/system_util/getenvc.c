@@ -31,11 +31,9 @@
 char *getenvc(const char *);
 
 #ifdef _CAPITALS_
-# define getenvf2c GETENVF2C
 # define getenvinit GETENVINIT
 #else
 # ifndef ADD_
-#   define getenvf2c getenvf2c_
 #   define getenvinit getenvinit_
 # endif
 #endif
@@ -48,33 +46,6 @@ char *getenvc(const char *);
 #define MAXENV 4096
 static char MOLCAS_ENV[MAXENV];
 
-void getenvf2c(char *name, INT *ilen, char *value, INT *maxlen, INT *irl) {
-  char *envvar;
-  INT len = 0;
-  char *ptr;
-  char *name0;
-  name0 = (char *)malloc((*ilen + 1) * sizeof(char));
-
-  if (!name0)
-    return;
-  memcpy(name0, name, *ilen);
-  name0[*ilen] = 0;
-
-  ptr = strchr(name0, ' ');
-  if (ptr)
-    *ptr = 0;
-  if ((envvar = getenvc(name0)) != NULL) {
-    len = strlen(envvar);
-    if (len > *maxlen - 1)
-      len = *maxlen - 1;
-    memcpy(value, envvar, len);
-    value[len] = 0;
-    free(envvar);
-  }
-  *irl = len;
-  free(name0);
-  return;
-}
 char *getenvc(const char *name) {
 
   char Name[MAXSTR];
@@ -91,11 +62,6 @@ char *getenvc(const char *name) {
   }
   strcat(Name, name);
   strcat(Name, "=");
-  /* debug
-  puts("env=");
-  puts(MOLCAS_ENV);
-
-  */
   ptr = strstr(MOLCAS_ENV, Name);
 
   if (ptr == NULL) {

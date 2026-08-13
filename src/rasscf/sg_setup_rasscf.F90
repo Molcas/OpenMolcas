@@ -9,36 +9,31 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#ifdef _DMRG_
 subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
-#else
-subroutine SG_Setup_RASSCF(DBG,SkipGUGA)
-#endif
 
 use Molcas, only: MxLev
 use fciqmc, only: DoNECI
 use fcidump, only: DumpOnly
 use CC_CI_mod, only: Do_CC_CI
-use gas_data, only: iDoGAS
-use rasscf_global, only: DoBlockDMRG
-use general_data, only: nSym, nActel, iSpin, nHole1, nElec3, nRs1, nRs2, nRs3, STSYM, nConf
+use gas_data, only: iDoGAS, NGAS, NGSSH
+use rasscf_global, only: DoBlockDMRG, NSM
+use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
+use sguga_states, only: CIS, EXS, SGS
+use sguga, only: MKSGNUM, SG_init
+use rasdef, only: nRas, nRasEl, nRsPrt
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate
 #endif
-use gas_data, only: NGAS, NGSSH
-use rasscf_global, only: NSM
-use sguga, only: CIS, EXS, SGS, SG_Init_Simple, MKCOT, MKCLIST, MKSGNUM
-use definitions, only: u6, iwp, wp
+use Definitions, only: wp, iwp, u6
 
-#ifdef _DMRG_
-integer(kind=iwp), allocatable, intent(inout) :: initial_occ(:,:)
-#endif
-
-logical(kind=iwp), intent(inout):: DBG,SkipGUGA
-real(kind=wp) Eterna_1, Eterna_2, dum1, dum2, dum3
-integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA, iq, Level(MxLev)
+implicit none
+logical(kind=iwp), intent(inout) :: DBG, SkipGUGA
+integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
+integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, nRs1T, NSTA
+real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
+integer(kind=iwp), parameter :: istate = 1
 
 NLEV = 0
 do IGAS=1,NGAS
@@ -48,7 +43,22 @@ do IGAS=1,NGAS
     NSM(NSTA:NLEV) = ISYM
   end do
 end do
-Level(1:MxLev)=[(iq,iq=1,MxLev)]
+Level(1:MxLev) = [(iq,iq=1,MxLev)]
+
+if (nHole1+nElec3 /= 0) then
+  nRsPrt = 3
+  nRas(:,1) = nRs1(:)
+  nRas(:,2) = nRs2(:)
+  nRas(:,3) = nRs3(:)
+  nRs1T = sum(nRs1(1:nSym))
+  nRasEl(1) = 2*nRs1T-nHole1
+  nRasEl(2) = nActel-nElec3
+  nRasEl(3) = nActel
+else
+  nRsPrt = 1
+  nRas(:,1) = nRs2(:)
+  nRasEl(1) = nActel
+end if
 
 ! Construct the Guga tables
 
@@ -61,44 +71,41 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
       call mma_deallocate(initial_occ)
       SkipGUGA = .true.
     else
+#   else
+#   include "macros.fh"
+    unused_opt(initial_occ)
 #   endif
       call Timing(Eterna_1,dum1,dum2,dum3)
-      if (DBG) write(u6,*) ' Call SG_Init_Simple'
-      Call SG_Init_Simple(nSym,nActEl,iSpin,SGS,CIS,                 &
-                          EXS,nHole1,nElec3,nRs1,nRs2,nRs3,          &
-                          xLevel=Level,xL2Act=Level,                 &
-                          xNLEV=NLEV,xNSM=NSM)
+      if (DBG) write(u6,*) ' Call SG_Init'
+      call SG_Init(nSym,nActEl,iSpin,SGS(istate),CIS(istate), &
+                   nRas,nRasEl,nRsPrt, &
+                   EXS(istate), &
+                   xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
-      if (SGS%NVERT0 == 0) then
-         CIS%NCSF(STSYM) = 0
-      Else
-         if (doBlockDMRG) then
-            CIS%NCSF(STSYM) = 1
-         Else
+      if (SGS(istate)%NVERT0 == 0) then
+        CIS(istate)%NCSF(STSYM) = 0
+      else
+        if (doBlockDMRG) then
+          CIS(istate)%NCSF(STSYM) = 1
+        else
 
-            ! FORM VARIOUS OFFSET TABLES:
-            ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
-            !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+          ! FORM VARIOUS OFFSET TABLES:
+          ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+          !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
 
-            call MKCOT(SGS,CIS)
+          ! SET UP ENUMERATION TABLES
 
-            ! CONSTRUCT THE CASE LIST
+          call MKSGNUM(STSYM,SGS(istate),CIS(istate),EXS(istate))
 
-            call MKCLIST(SGS,CIS)
+          if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
 
-            ! SET UP ENUMERATION TABLES
-
-            call MKSGNUM(STSYM,SGS,CIS,EXS)
-
-            if (NActEl == 0) CIS%NCSF(STSYM) = 1
-
-            !     (SGS%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
-            !     IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
-            !     SET UP THE REINDEXING TABLE
-         End If
-      End If
+          ! (SGS(istate)%IFRAS-1) IS THE NUMBER OF SYMMETRIES CONTAINING ACTIVE ORBITALS
+          ! IF THIS IS GREATER THAN 1 ORBITAL REORDERING INTEGRALS IS REQUIRED
+          ! SET UP THE REINDEXING TABLE
+        end if
+      end if
       call SETSXCI()
-      NCONF = CIS%NCSF(STSYM)
+      NCONF = CIS(istate)%NCSF(STSYM)
 
       call Timing(Eterna_2,dum1,dum2,dum3)
 #   ifdef _DMRG_

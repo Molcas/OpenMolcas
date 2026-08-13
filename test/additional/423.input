@@ -3,7 +3,7 @@
 * Basis: STO-3G
 * Symmetry: C1
 * Features tested: Numerical frequencies for linear molecule
-* Responsible person: Ignacio Fdez. Galvan
+* Responsible person: Ignacio Fdez. Galván
 * Comments: The structure is not optimized, but this is the one that fails
 *           if the Numerical flag is not properly restored in the code
 *-------------------------------------------------------------------------------

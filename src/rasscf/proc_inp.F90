@@ -15,7 +15,6 @@ subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
-use csfbas, only: CONF
 use lucia_data, only: CFTP
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
@@ -121,16 +120,13 @@ real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Is_First_Iter
 character(len=180), external :: Get_LN
 #include "warnings.h"
-
-#ifdef _DMRG_
-Interface
-   subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
-   use Definitions, only: iwp
-   logical(kind=iwp), intent(inout):: DBG,SkipGUGA
-   integer(kind=iwp), allocatable, intent(inout) :: initial_occ(:,:)
-   End subroutine SG_Setup_RASSCF
-End Interface
-#endif
+interface
+  subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+    import :: iwp
+    logical(kind=iwp), intent(inout) :: DBG, SkipGUGA
+    integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
+  end subroutine SG_Setup_RASSCF
+end interface
 
 !...Dongxia note for GAS:
 !   No changing about read in orbital information from INPORB yet.
@@ -561,10 +557,10 @@ else
     if (index(Line,'COMP') /= 0) OutFmt2 = 'COMPACT'
     if (index(Line,'FULL') /= 0) OutFmt2 = 'FULL'
     if ((OutFmt1 == 'DEFAULT') .and. (OutFmt2 == 'DEFAULT')) then
-      call WarningMessage(1,'Error in ''OUTP'' command?')
+      call WarningMessage(1,'Error in "OUTP" command?')
       write(u6,*) ' Input line is:'
       write(u6,*) Line
-      write(u6,*) ' Did not understand ''OUTP'' input. Ignored.'
+      write(u6,*) ' Did not understand "OUTP" input. Ignored.'
     end if
   end if
   !---  Process PROR (Print levels for orbitals) command
@@ -614,10 +610,10 @@ else
     if (index(Line,'NOCO') /= 0) OutFmt1 = 'NOCORE  '
     if (index(Line,'ALL') /= 0) OutFmt1 = 'ALL     '
     if (OutFmt1 == 'DEFAULT ') then
-      call WarningMessage(1,'Error in ''ORBL'' command?')
+      call WarningMessage(1,'Error in "ORBL" command?')
       write(u6,*) ' Input line is:'
       write(u6,*) Line
-      write(u6,*) ' Did not understand ''OUTL'' input. Ignored.'
+      write(u6,*) ' Did not understand "OUTL" input. Ignored.'
     end if
   end if
   !---  Process ORBA keyword: Orbital Appearance
@@ -642,10 +638,10 @@ else
     if (index(Line,'COMP') /= 0) OutFmt2 = 'COMPACT '
     if (index(Line,'FULL') /= 0) OutFmt2 = 'FULL    '
     if (OutFmt2 == 'DEFAULT ') then
-      call WarningMessage(1,'Error in ''OUTA'' command?')
+      call WarningMessage(1,'Error in "OUTA" command?')
       write(u6,*) ' Input line is:'
       write(u6,*) Line
-      write(u6,*) ' Did not understand ''OUTA'' input. Ignored.'
+      write(u6,*) ' Did not understand "OUTA" input. Ignored.'
     end if
   end if
   !---  Process MAXO keyword: Max nr of state-specific orbital files produced
@@ -700,7 +696,7 @@ else
     if (index(Line,'NATU') /= 0) iOrbTyp = 3
     if (index(Line,'SPIN') /= 0) iOrbTyp = 4
     if (iOrbTyp == 0) then
-      write(u6,*) ' The line after keyword ''OUTORBITALS'' is'
+      write(u6,*) ' The line after keyword "OUTORBITALS" is'
       write(u6,*) ' not understood. That line begins:'
       write(u6,'(1x,a60)') line(1:60)
       write(u6,*) ' This input is IGNORED.'
@@ -806,18 +802,18 @@ else
     do iAlter=1,NAlter
       ReadStatus = ' Failure reading data after ALTER keyword.'
       read(LUInput,*,iostat=istatus) (MAlter(iAlter,i),i=1,3)
-    if (istatus < 0) then
-      call Error(2)
-      return
-    else if (istatus > 0) then
-      call Error(3)
-      return
-    end if
+      if (istatus < 0) then
+        call Error(2)
+        return
+      else if (istatus > 0) then
+        call Error(3)
+        return
+      end if
       ReadStatus = ' O.K. after reading data after ALTER keyword.'
     end do
     ! (SVC) get absolute orbital values for the alterations so that
     ! iMAlter is symmetry independent
-    if (DBG) write(u6,*) ' ''Absolute'' iMAlter indices:'
+    if (DBG) write(u6,*) ' "Absolute" iMAlter indices:'
     do iAlter=1,NAlter
       iEnd = 0
       iStart = 1
@@ -1373,10 +1369,10 @@ else
       Line = Get_Ln(LUInput)
       ReadStatus = ' Failure reading after CIROOTS keyword.'
       read(Line,*,iostat=istatus) (IROOT(I),I=1,NROOTS)
-    if (istatus /= 0) then
-      call Error(3)
-      return
-    end if
+      if (istatus /= 0) then
+        call Error(3)
+        return
+      end if
       ReadStatus = ' O.K.after CIROOTS keyword.'
       WEIGHT(:) = Zero
       if (NROOTS == 1) then
@@ -1490,7 +1486,7 @@ else
   if (Key('CISE')) then
     if (DBG) then
       write(u6,*) ' CISELECT keyword was given.'
-      write(u6,*) ' This input is awkward. Let''s find up'
+      write(u6,*) " This input is awkward. Let's find up"
       write(u6,*) ' a better way to do things.'
     end if
     ICICH = 1
@@ -1512,7 +1508,7 @@ else
       ReadStatus = ' O.K. reading after CISELECT keyword.'
       if (kRef > mxRef) then
         call WarningMessage(1,'CISElect input is wrong.')
-        write(u6,*) 'Number of CSF''s in CiSelect is out of bounds'
+        write(u6,*) "Number of CSF's in CiSelect is out of bounds"
         write(u6,'(a,i3,a,i3)') 'Specified:',kRef,', Max is',mxRef
         write(u6,'(a,i3)') 'Standard fixup, value set to',mxRef
         kRef = mxRef
@@ -1615,8 +1611,8 @@ else
     if (INVEC == 0) then
       if (IPRLEV >= TERSE) then
         call WarningMessage(2,'JOBIPH input is wrong.')
-        write(u6,*) ' Keyword JOBIPH was used, but the ''JOBOLD'' file'
-        write(u6,*) ' does not exist. The ''JOBIPH'' file named'
+        write(u6,*) ' Keyword JOBIPH was used, but the "JOBOLD" file'
+        write(u6,*) ' does not exist. The "JOBIPH" file named'
         write(u6,*) IPHNAME
         write(u6,*) 'also does not exist. This is a fatal error.'
         call Error(4)
@@ -3949,14 +3945,14 @@ if (Key('CIRE')) then
   iJOB = -1
   call f_Inquire('JOBOLD',lExists)
   if (lExists) then
-    if (DBG) write(u6,*) ' ''JOBOLD'' exists.'
+    if (DBG) write(u6,*) ' "JOBOLD" exists.'
     iJOB = 1
   else
     call f_Inquire(IPHNAME,lExists)
     if (lExists) then
       iJOB = 0
       if (DBG) then
-        write(u6,*) ' No ''JOBOLD'', but JOBIPH exists.'
+        write(u6,*) ' No "JOBOLD", but JOBIPH exists.'
         write(u6,*) ' It is named ',IPHNAME
       end if
     end if
@@ -4007,8 +4003,8 @@ twordm_qcm = domcpdftDMRG .or. (.not. Key('CION'))
 ! Setup part for DMRG calculations
 #ifdef _DMRG_
 if (Key('DMRG') .or. doDMRG) then
-  call getenvf('Project',ProjectName)
-  call getenvf('WorkDir',WorkDir)
+  call get_environment_variable('Project',ProjectName)
+  call get_environment_variable('WorkDir',WorkDir)
   ! Initialize the new interface
 
   ! in QCMaquis spins start with 0
@@ -4052,9 +4048,9 @@ SkipGUGA = DoBlockDMRG
 ! Initiate the SGUGA environment conditional to all flags
 
 #ifdef _DMRG_
-Call SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+call SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
 #else
-Call SG_Setup_RASSCF(DBG,SkipGUGA)
+call SG_Setup_RASSCF(DBG,SkipGUGA)
 #endif
 
 ! ======================================================================
@@ -4122,10 +4118,26 @@ if (.not. SkipGUGA) then
   ! ====================================================================
   if (ICICH == 1) then
     call mma_allocate(UG2SG_X,NCONF,Label='UG2SG_X')
-    call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,CONF,CFTP,UG2SG_X,ICI,JCJ,CCI,MXROOT)
+    call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,CFTP,UG2SG_X,ICI,JCJ,CCI,MXROOT)
     call mma_deallocate(UG2SG_X)
   end if
   ! ====================================================================
+
+# ifdef _NOT_NOW_
+  ! Turn on the Faroald SD CI code in case of
+  ! 1) no symmetry
+  ! 2) not RASSCF or GASSCF
+  ! 3) not using the expert, the HEXS or the DEXS key word
+  ! 4) not running the CASVB module.
+  if ((nSym == 1) .and. &
+      ((nHole1 == 0) .and. (nElec3 == 0)) .and. &
+      (.not. iDoGas) .and. &
+      (.not. Key('HEXS')) .and. &
+      (.not. Key('DEXS')) .and. &
+      (.not. Key('EXPE')) .and. &
+      (IFVB == 0)) &
+    DoFaro = .true.
+# endif
 
   ! faroald initializations
   if (DOFARO) then
@@ -4146,8 +4158,6 @@ end if
 
 !---  Normal exit -----------------------------------------------------*
 if (DBG) write(u6,*) ' Normal exit from PROC_INP.'
-
-return
 
 contains
 

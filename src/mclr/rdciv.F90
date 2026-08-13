@@ -29,7 +29,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: i, iDisk, iDisk1, Iter, iMode
+integer(kind=iwp) :: i, iDisk, iDisk1, iMode, Iter
 real(kind=wp), allocatable :: OCIvec(:), Tmp(:,:)
 
 call DaName(LuCIV,'ROOTS')
@@ -44,8 +44,8 @@ iDisk = iToc(4)
 idisk1 = 0
 do i=1,lroots
   call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
-  iMode=1
-  Call SG2SymG(OCIvec,nConf,iMode,State_Sym)
+  iMode = 1
+  call SG2SymG(OCIvec,nConf,iMode,State_Sym)
   call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
 end do
 

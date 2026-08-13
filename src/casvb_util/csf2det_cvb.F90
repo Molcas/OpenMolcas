@@ -14,8 +14,6 @@
 
 subroutine csf2det_cvb(vec,detvec,isym_loc,iWay)
 
-use csfbas, only: cts
-use lucia_data, only: dtoc
 use rasscf_global, only: NAC
 use Definitions, only: wp, iwp
 
@@ -31,7 +29,7 @@ if (iWay == 1) then
   end if
 
   jCopy = 0
-  call csdtvc(vec,detvec,iway,dtoc,cts,isym_loc,jcopy)
+  call csdtvc(vec,detvec,iway,isym_loc,jcopy)
 else if (iWay == 2) then
   if (nac == 0) then
     vec(1) = detvec(1)
@@ -39,7 +37,7 @@ else if (iWay == 2) then
   end if
 
   jCopy = 0
-  call csdtvc(vec,detvec,iway,dtoc,cts,isym_loc,jcopy)
+  call csdtvc(vec,detvec,iway,isym_loc,jcopy)
 end if
 
 end subroutine csf2det_cvb

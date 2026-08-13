@@ -356,6 +356,7 @@ character(len=lw), parameter :: LabelsIA(nTocIA) = [ &
 !> - '``nEFP_Coor``'                  Associated number of coordinates per fragment
 !> - '``Relax Original root``'
 !> - '``NCONF``'                      For MS-PDFT gradient
+!> - '``RX2C/MXTC_SEWARD``'           For readin_rassi to generate ASD/ASDO labels automatically
 
 character(len=lw), parameter :: LabelsIS(nTocIS) = [ &
                                 'Multiplicity    ','nMEP            ','No of Internal c','nSym            ', & !   1-  4
@@ -377,7 +378,7 @@ character(len=lw), parameter :: LabelsIS(nTocIS) = [ &
                                 'MaxHopsTully    ','EFP             ','nEFP_fragments  ','Coor_Type       ', & !  65- 68
                                 'nEFP_Coor       ','Relax Original r','Unique centers  ','nXF             ', & !  69- 72
                                 'CSPF            ','NCONF           ','SH RASSI run    ','isCMSNAC        ', & !  73- 76
-                                'isMECIMSPD      ','CalcNAC_Opt     ','MECI_via_SLAPAF ','                ', & !  77- 80
+                                'isMECIMSPD      ','CalcNAC_Opt     ','MECI_via_SLAPAF ','RX2C/MXTC_SEWARD', & !  77- 80
                                 '                ','                ','                ','                ', & !  81- 84
                                 '                ','                ','                ','                ', & !  85- 88
                                 '                ','                ','                ','                ', & !  89- 92

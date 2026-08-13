@@ -117,7 +117,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
     read(Line,'(A)') FName
     Found = .false.
     if (index(Line,'/') == 0) then
-      call GetEnvF('CurrDir',CurrDir)
+      call get_environment_variable('CurrDir',CurrDir)
       CurrDir = trim(CurrDir)//'/'//FName
       call F_Inquire(CurrDir,Found)
       if (Found) FName = CurrDir
@@ -768,7 +768,7 @@ subroutine TransformGeom(G,M)
 end subroutine TransformGeom
 
 ! Private extensions to mma_interfaces, using preprocessor templates
-! (see src/mma_util/stdalloc.f)
+! (see mma_util/stdalloc.F90)
 
 ! Define xyz_mma_allo_1D, xyz_mma_allo_1D_lim, xyz_mma_free_1D
 #define _TYPE_ type(XYZAtom)

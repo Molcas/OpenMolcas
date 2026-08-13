@@ -118,8 +118,8 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
 # ifdef _HDF5_
   use general_data, only: nSym, nActEl, multiplicity => iSpin, stSym, nAsh
+  use sguga_states, only: SGS
   use gas_data, only: iDoGAS
-  use sguga, only: SGS
   use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_file, mh5_create_dset_int, mh5_create_dset_real, mh5_init_attr, &
                  mh5_put_dset
 # endif
@@ -133,6 +133,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 # ifdef _HDF5_
   integer(kind=iwp) :: dset_id, file_id
   character :: lIrrep(24)
+  integer(kind=iwp), parameter :: istate = 1
 
   file_id = mh5_create_file(path)
 
@@ -145,7 +146,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   ! Set wavefunction type
   if (iDoGAS) then
     call mh5_init_attr(file_id,'CI_TYPE','GAS')
-  else if (SGS%IFRAS == 0) then
+  else if (SGS(istate)%IFRAS == 0) then
     call mh5_init_attr(file_id,'CI_TYPE','CAS')
   else
     call mh5_init_attr(file_id,'CI_TYPE','RAS')
@@ -216,18 +217,17 @@ end subroutine dump_hdf5
 !>    - Line 3:  150000
 !>  One-electron integrals are written from the Fock table only;
 !>  orbital energies are omitted.
-subroutine dump_fort55(path,EMY,fock_table,two_el_table,orbsym)
+subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
   use general_data, only: nActEl, nAsh, nSym
   use Symmetry_Info, only: SymLab, lIrrep, Symmetry_Info_Get
   use Constants, only: Zero
-  use Definitions, only: u6
   use Index_Functions, only: iTri
   use fcidump_tables, only: cutoff_default, length
 
   character(len=*), intent(in) :: path
   real(kind=wp), intent(in) :: EMY
-  type(OrbitalTable)
+  type(OrbitalTable), intent(in) :: orbital_table
   type(FockTable), intent(in) :: fock_table
   type(TwoElIntTable), intent(in) :: two_el_table
   integer(kind=iwp), intent(in) :: orbsym(:)
@@ -236,6 +236,11 @@ subroutine dump_fort55(path,EMY,fock_table,two_el_table,orbsym)
   real(kind=wp), allocatable :: eri_2d(:,:)
   integer(kind=iwp), external :: isFreeUnit
   character(len=3) :: label
+  integer(kind=iwp), parameter :: max_test = 20
+  integer(kind=iwp) :: n_twoel_written
+  real(kind=wp) :: twoel_written(max_test)
+
+  unused_var(orbital_table)
 
   call Symmetry_Info_Get()
 
@@ -276,6 +281,7 @@ subroutine dump_fort55(path,EMY,fock_table,two_el_table,orbsym)
     eri_2d(kl,ij) = two_el_table%values(j)
   end do
 
+  n_twoel_written = 0
   do i=1,nmo
     do j=1,i
       ij = iTri(i,j)
@@ -285,6 +291,10 @@ subroutine dump_fort55(path,EMY,fock_table,two_el_table,orbsym)
           val = eri_2d(ij,kl)
           if (abs(val) > cutoff_default) then
             write(LuFCI,'(1X,E27.20,4I5)') val,i,j,k,l
+            if (n_twoel_written < max_test) then
+              n_twoel_written = n_twoel_written + 1
+              twoel_written(n_twoel_written) = val
+            end if
           end if
         end do
       end do
@@ -298,6 +308,19 @@ subroutine dump_fort55(path,EMY,fock_table,two_el_table,orbsym)
   end do
 
   write(LuFCI,'(1X,E27.20,4I5)') EMY,0,0,0,0
+
+  ! ========== For testing purposes FROM HERE =============
+  if (n_twoel_written > 0) then
+    call Add_Info('fort55 TwoEl Integral element',twoel_written(:n_twoel_written),n_twoel_written,8)
+  end if
+  if (length(fock_table) > 0) then
+    call Add_Info('fort55 Fock element',fock_table%values(1),1,8)
+  end if
+  call Add_Info('fort55 Core energy',[EMY],1,8)
+  if (size(mrcc_orbsym) > 0) then
+    call Add_Info('fort55 Orbsym',real(mrcc_orbsym,kind=wp),size(mrcc_orbsym),8)
+  end if
+  ! ========== For testing purposes TO HERE ===============
 
   close(LuFCI)
 

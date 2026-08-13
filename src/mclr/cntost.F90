@@ -24,7 +24,8 @@ subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISG
 ! April   1991  : LUCIA version
 ! September 1993 > Sign and address stored together
 
-use MCLR_Data, only: MINOP, NCNATS, NDPCNT, NTYP
+use MCLR_Data, only: NDPCNT
+use spinfo, only: MINOP, NCNFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -74,7 +75,7 @@ do ITYP=1,NTYP
   if (ITYP == 1) then
     ICNBS0 = 1
   else
-    ICNBS0 = ICNBS0+NCNATS(ITYP-1,IREFSM)*(NEL+IOPEN-1)/2
+    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(NEL+IOPEN-1)/2
   end if
   ! Base for prototype determinants
   if (ITYP == 1) then
@@ -83,7 +84,7 @@ do ITYP=1,NTYP
     IPBAS = IPBAS+NDPCNT(ITYP-1)*(IOPEN-1)
   end if
   ! Determinants for this configuration
-  do IC=1,NCNATS(ITYP,IREFSM)
+  do IC=1,NCNFTP(ITYP,IREFSM)
     ICNF = ICNF+1
     ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
     ! Check orbital occupancy with additional constraints

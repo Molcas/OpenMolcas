@@ -119,17 +119,17 @@ if (MyRank == 0) then
 
   ! Tinker is running
 
-  call Getenvf('Project ',Line)
+  call get_environment_variable('Project ',Line)
   mLine = len(Line)
   iLast = iCLast(Line,mLine)
   Line = Line(1:iLast)//'.xyz'
   Line = Line(1:iLast)//'.key'
   Line = '/tkr2qm_s ${Project}.xyz>${Project}.Tinker.log'
-  call Getenvf('TINKER ',TkLine)
+  call get_environment_variable('TINKER ',TkLine)
   mLine = len(TkLine)
   iLast = iCLast(TkLine,mLine)
   if (iLast == 0) then
-    call Getenvf('MOLCAS',TkLine)
+    call get_environment_variable('MOLCAS',TkLine)
     mLine = len(TkLine)
     iLast = iCLast(TkLine,mLine)
     TkLine = TkLine(1:iLast)//'/tinker/bin'

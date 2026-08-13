@@ -37,6 +37,8 @@
 #    define unused_var(x) associate(tmp_unused => x); end associate
 !    For external procedures, associate doesn't work with all compilers
 #    define unused_proc(x) if (.false.) call x
+!    and optional arguments get messy (cannot associate if it's not present)
+#    define unused_opt(x) if (present(x)) then ; unused_var(x) ; end if
 
 #    include "compiler_features.h"
 #    ifdef _ASSUMED_LENGTH_ASSOCIATE_
@@ -50,6 +52,7 @@
 
 #    define unused_var(x)
 #    define unused_proc(x)
+#    define unused_opt(x)
 
 #  endif
 

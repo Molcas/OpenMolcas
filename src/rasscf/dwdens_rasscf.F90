@@ -15,11 +15,12 @@
 
 subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
 
+use ci_interfaces, only: Mk_pdms
 use rasscf_global, only: DoDMRG, Ener, IADR15, ITER, NAC, NACPAR, NACPR2, nRoots
 use DWSol, only: DWSol_wgt, W_SOLV
 use gas_data, only: iDoGAS
 use general_data, only: JOBIPH, NACTEL, NCONF
-use sguga, only: SGS
+use sguga_states, only: SGS
 use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 use sxci, only: IDXSX
@@ -38,6 +39,7 @@ integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, jDisk
 real(kind=wp) :: rdum(1), wgt
 real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DX(:)
+integer(kind=iwp), parameter :: istate = 1
 
 call mma_allocate(DA_ave,NACPAR,Label='DA_ave')
 call mma_allocate(DS_ave,NACPAR,Label='DS_ave')
@@ -63,8 +65,8 @@ if ((iFinal == 0) .or. (iFinal == 1)) then
   end do
 else if (iFinal == 2) then
   call mma_allocate(CIVEC,NCONF,Label='CIVEC')
-  call mma_allocate(Dtmp,NACPAR,Label='Dtmp')
-  call mma_allocate(DStmp,NACPAR,Label='DStmp')
+  call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+  call mma_allocate(DStmp,NAC**2,Label='DStmp')
   call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
 
   iDisk = IADR15(4)
@@ -96,10 +98,13 @@ else if (iFinal == 2) then
 #       endif
       else
         call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-        call mma_allocate(Pscr,NACPR2,Label='Pscr')
+        call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
         call Lucia_Util('Densi',CI_Vector=CIVEC(:))
-        if ((SGS%IFRAS > 2) .or. (iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-        call mma_deallocate(Pscr)
+        if ((SGS(istate)%IFRAS > 2) .or. (iDoGAS)) then
+          call mma_allocate(Pscr,NACPR2,Label='Pscr')
+          call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+          call mma_deallocate(Pscr)
+        end if
         call mma_deallocate(PAtmp)
       end if ! doDMRG/doBLOK or CI
     else
@@ -107,8 +112,8 @@ else if (iFinal == 2) then
       DStmp(:) = Zero
       Ptmp(:) = Zero
     end if
-    DA_ave(:) = DA_ave(:)+wgt*Dtmp(:)
-    DS_ave(:) = DS_ave(:)+wgt*DStmp(:)
+    DA_ave(1:NACPAR) = DA_ave(1:NACPAR)+wgt*Dtmp(1:NACPAR)
+    DS_ave(1:NACPAR) = DS_ave(1:NACPAR)+wgt*DStmp(1:NACPAR)
   end do
   call mma_deallocate(DStmp)
   call mma_deallocate(Dtmp)
@@ -129,7 +134,5 @@ call Get_D1A_RASSCF(CMO,DX,D1A)
 call mma_deallocate(DA_ave)
 call mma_deallocate(DS_ave)
 call mma_deallocate(DX)
-
-return
 
 end subroutine DWDens_RASSCF

@@ -91,9 +91,7 @@ else if (myModel == 'PAO ') then
   call mma_allocate(Dv,l_Dv,label='Dv')
   Normalize = .true.
   call GetRawPAOs(R,CMO,nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
-  if (AnaPAO) then
-    call mma_allocate(DvSav,l_R,label='DvSav')
-  end if
+  if (AnaPAO) call mma_allocate(DvSav,l_R,label='DvSav')
   kSav = 1
   kOffC = 1
   do iSym=1,nSym
