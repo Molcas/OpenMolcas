@@ -170,7 +170,8 @@ real(kind=wp), allocatable:: T1SDM_loc(:), CIV(:), Bra_SD(:,:), Ket_SD(:,:), tem
 integer(kind=iwp), parameter :: iState=1
 logical(kind=iwp) :: free_D, free_DS
 
-If (DoFaro) Then
+!If (DoFaro) Then
+If (.False.) Then
    Call mma_allocate(T1SDM_loc,nT1DM,Label='T1SDM')
 
    Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
