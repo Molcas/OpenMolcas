@@ -20,7 +20,7 @@ use definitions, only: u6
 
 Private
 
-Public :: Mk_H_Psi, Mk_pdms, Mk_1tdm
+Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM
 
 contains
 
@@ -116,7 +116,6 @@ else
 end if
 
 End Subroutine Mk_H_Psi
-
 
 Subroutine Mk_T1DM(Bra_Vec, Ket_Vec, nVec, T1DM, nT1DM)
 use Lucia_Interface, only: Lucia_Util
