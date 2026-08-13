@@ -50,6 +50,9 @@ subroutine RASSCF(IRETURN)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+#ifdef _HDF5_
+use ci_interfaces, only: Mk_T1DM
+#endif
 use OneDat, only: sNoNuc, sNoOri
 use Fock_util_global, only: ALGO, DoActive, DoCholesky
 use write_orbital_files, only: OrbFiles, putOrbFile, write_orb_per_iter
@@ -103,7 +106,6 @@ use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, emb
 #endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_attr, mh5_put_dset
-use lucia_data, only: DStmp, Dtmp
 use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
 use general_data, only: STSYM
@@ -129,7 +131,7 @@ real(kind=wp), allocatable :: CMON(:), Dens(:), EDUM(:), Fock(:), folded_Fock(:)
                               Scr1(:), Scr2(:), SMat(:), Tmp1(:), TmpD1S(:), TmpDMat(:), TmpDS(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: iDX, jDisk, jRoot, kDisk
-real(kind=wp), allocatable :: Tmp(:), VecL(:), VecR(:)
+real(kind=wp), allocatable :: Tmp(:), VecL(:), VecR(:), DStmp(:), Dtmp(:)
 #endif
 #ifdef _FDE_
 integer(kind=iwp) :: iDummyEmb, iEmb, iUnit, nNuc
@@ -1588,8 +1590,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
           call SG_Reord(iState,STSYM,1,CIS(istate)%nCSF(STSYM),Tmp,VecR)
           ! Compute TDM and store in h5 file
-!         Call Mk_T1DM(VECR(:),VECL(:),nConf,TMPD,NAC**2,...)
-          call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
+          Call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
           Call add_info('TDM',DTMP,NAC**2,6)
           if (iSpin > 1) Call add_info('TSDM',DSTMP,NAC**2,6)
           idx = (jRoot-2)*(jRoot-1)/2+kRoot
