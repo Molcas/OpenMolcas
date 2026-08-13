@@ -23,7 +23,6 @@ use rasscf_files, only: JOBIPH
 use general_data, only: NACTEL, NCONF
 use sguga, only: SGS
 use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
-use Lucia_Interface, only: Lucia_Util
 use sxci, only: IDXSX
 #ifdef _DMRG_
 use lucia_data, only: RF1, RF2
@@ -100,7 +99,6 @@ else if (iFinal == 2) then
       else
         call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
         call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
-        call Lucia_Util('Densi',CI_Vector=CIVEC(:))
         if ((SGS(istate)%IFRAS > 2) .or. (iDoGAS)) then
           call mma_allocate(Pscr,NACPR2,Label='Pscr')
           call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
