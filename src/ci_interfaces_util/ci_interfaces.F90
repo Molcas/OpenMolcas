@@ -25,6 +25,8 @@ use definitions, only: wp, iwp
 use definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 Private
 
 Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM
@@ -132,7 +134,7 @@ use general_data, only: iDoGAS
 #endif
 implicit none
 integer(kind=iwp), intent(in) :: nVec, nT1DM
-real(kind=wp), intent(in):: Bra_Vec(nVec), Ket_Vec(nVec)
+real(kind=wp), intent(_IN_):: Bra_Vec(nVec), Ket_Vec(nVec)
 real(kind=wp), intent(out):: T1DM(nT1DM)
 
 real(kind=wp), allocatable:: T1SDM(:), CIV(:), Bra_SD(:,:), Ket_SD(:,:), temp(:)
