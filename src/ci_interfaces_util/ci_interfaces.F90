@@ -24,6 +24,9 @@ Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM
 
 contains
 
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
+
 Subroutine Mk_H_Psi(iState, STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
 use sguga, only: CIS
 use Lucia_Interface, only: Lucia_Util
@@ -117,18 +120,72 @@ end if
 
 End Subroutine Mk_H_Psi
 
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
+
 Subroutine Mk_T1DM(Bra_Vec, Ket_Vec, nVec, T1DM, nT1DM)
 use Lucia_Interface, only: Lucia_Util
+use stdalloc, only: mma_allocate, mma_deallocate
+use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use Lucia_Data, only: DTmp
+use rasscf_global, only: DoFaro
+use general_data, only: STSYM
+use faroald, only: ndeta, ndetb ,transition_one_pdm
+use sguga, only: CIS
+use Constants, only: Zero
+#ifdef _SGUGA_VERIFY_
+use general_data, only: iDoGAS
+#endif
 implicit none
 integer(kind=iwp), intent(in) :: nVec, nT1DM
 real(kind=wp), intent(in):: Bra_Vec(nVec), Ket_Vec(nVec)
 real(kind=wp), intent(out):: T1DM(nT1DM)
 
-call Lucia_Util('Densi',CI_Vector=Ket_Vec(:),RVec=Bra_Vec(:))
-T1DM(1:nT1DM)=DTMP(1:nT1DM)
+real(kind=wp), allocatable:: T1SDM(:), CIV(:), Bra_SD(:,:), Ket_SD(:,:), temp(:)
+integer(kind=iwp), parameter :: iState=1
+
+If (DoFaro) Then
+   Call mma_allocate(T1SDM,nT1DM,Label='T1SDM')
+
+   Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
+   Call mma_allocate(temp,nDetA*nDetB,Label='temp')
+   Call mma_allocate(Bra_SD,nDetA,nDetB,Label='Psi')
+   Call mma_allocate(Ket_SD,nDetA,nDetB,Label='Psi')
+
+   CIV(:)=Zero
+   call SG_Reord(iState,STSYM,0,CIS(istate)%nCSF(STSYM),Bra_Vec,CIV)
+   Temp(:)=Zero
+   call CITRANS_SORT('C',CIV,temp)
+   Bra_SD(:,:)=Zero
+   call CITRANS_CSF2SD(temp,Bra_SD)
+
+   CIV(:)=Zero
+   call SG_Reord(iState,STSYM,0,CIS(istate)%nCSF(STSYM),Ket_Vec,CIV)
+   Temp(:)=Zero
+   call CITRANS_SORT('C',CIV,temp)
+   Ket_SD(:,:)=Zero
+   call CITRANS_CSF2SD(temp,Ket_SD)
+
+   Call Transition_One_PDM(Bra_SD,Ket_SD,T1DM,T1SDM)
+
+   Call mma_deallocate(Ket_SD)
+   Call mma_deallocate(Bra_SD)
+   Call mma_deallocate(temp)
+   Call mma_deallocate(CIV)
+   Call mma_deallocate(T1SDM)
+Else
+   call Lucia_Util('Densi',CI_Vector=Ket_Vec(:),RVec=Bra_Vec(:))
+   T1DM(1:nT1DM)=DTMP(1:nT1DM)
+End If
+#ifdef _SGUGA_VERIFY_
+If (.NOT.iDoGAS) Then
+End If
+#endif
 
 End Subroutine Mk_T1DM
+
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
 
 Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
 use Lucia_Interface, only: Lucia_Util
@@ -269,6 +326,9 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 ! end temporary code
 
  End Subroutine Mk_pdms
+
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
 
  Function Checksum(A,nA)
  real(kind=wp) :: Checksum
