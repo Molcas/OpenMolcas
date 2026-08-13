@@ -121,13 +121,6 @@ real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Is_First_Iter
 character(len=180), external :: Get_LN
 #include "warnings.h"
-interface
-  subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
-    import :: iwp
-    logical(kind=iwp), intent(inout) :: DBG, SkipGUGA
-    integer(kind=iwp), allocatable, optional, intent(inout) :: initial_occ(:,:)
-  end subroutine SG_Setup_RASSCF
-end interface
 
 !...Dongxia note for GAS:
 !   No changing about read in orbital information from INPORB yet.
@@ -4049,10 +4042,10 @@ SkipGUGA = DoBlockDMRG
 ! Initiate the SGUGA environment conditional to all flags
 
 #ifdef _DMRG_
-call SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
-#else
-call SG_Setup_RASSCF(DBG,SkipGUGA)
+if (Key('DMRG') .or. doDMRG) call mma_deallocate(initial_occ)
 #endif
+
+call SG_Setup_RASSCF(DBG,SkipGUGA)
 
 ! ======================================================================
 

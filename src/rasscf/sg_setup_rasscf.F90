@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SG_Setup_RASSCF(DBG,SkipGUGA,initial_occ)
+subroutine SG_Setup_RASSCF(DBG,SkipGUGA)
 
 use Molcas, only: MxLev
 use fciqmc, only: DoNECI
@@ -63,18 +63,16 @@ end if
 ! Construct the Guga tables
 
 if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
-  ! right now skip most part of gugactl for GAS, but only call mkism.
+  ! right now skip most part of gugactl for GAS
   if (.not. iDoGas) then
-    ! DMRG calculation no need the SG_Init_RASSCF subroutine
+    ! DMRG calculation no need the SG_Init subroutine
+
 #   ifdef _DMRG_
     if (Key('DMRG') .or. doDMRG) then
-      call mma_deallocate(initial_occ)
       SkipGUGA = .true.
     else
-#   else
-#   include "macros.fh"
-    unused_opt(initial_occ)
 #   endif
+
       call Timing(Eterna_1,dum1,dum2,dum3)
       if (DBG) write(u6,*) ' Call SG_Init'
       call SG_Init(iState,nSym,nActEl,iSpin,                    &
@@ -103,13 +101,16 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
             !     SET UP THE REINDEXING TABLE
         end if
       end if
+
       call SETSXCI()
       NCONF = CIS(istate)%NCSF(STSYM)
 
       call Timing(Eterna_2,dum1,dum2,dum3)
+
 #   ifdef _DMRG_
     end if
 #   endif
+
   end if
 end if
 
