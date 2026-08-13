@@ -20,7 +20,7 @@ use definitions, only: u6
 
 Private
 
-Public :: Mk_H_Psi, Mk_pdms
+Public :: Mk_H_Psi, Mk_pdms, Mk_1tdm
 
 contains
 
@@ -118,20 +118,33 @@ end if
 End Subroutine Mk_H_Psi
 
 
- Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
- use Lucia_Interface, only: Lucia_Util
- use stdalloc, only: mma_allocate, mma_deallocate
- use rasscf_global, only: DoFaro, NAC
- use sguga, only: CIS, SGS, EXS
- use general_data, only: STSYM
- use faroald, only: ndeta, ndetb ,one_pdm, two_pdm, fold_two_pdm
- use citrans, only: citrans_csf2sd, citrans_sort
+Subroutine Mk_T1DM(Bra_Vec, Ket_Vec, nVec, T1DM, nT1DM)
+use Lucia_Interface, only: Lucia_Util
+use Lucia_Data, only: DTmp
+implicit none
+integer(kind=iwp), intent(in) :: nVec, nT1DM
+real(kind=wp), intent(in):: Bra_Vec(nVec), Ket_Vec(nVec)
+real(kind=wp), intent(out):: T1DM(nT1DM)
+
+call Lucia_Util('Densi',CI_Vector=Ket_Vec(:),RVec=Bra_Vec(:))
+T1DM(1:nT1DM)=DTMP(1:nT1DM)
+
+End Subroutine Mk_T1DM
+
+Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
+use Lucia_Interface, only: Lucia_Util
+use stdalloc, only: mma_allocate, mma_deallocate
+use rasscf_global, only: DoFaro, NAC
+use sguga, only: CIS, SGS, EXS
+use general_data, only: STSYM
+use faroald, only: ndeta, ndetb ,one_pdm, two_pdm, fold_two_pdm
+use citrans, only: citrans_csf2sd, citrans_sort
 #ifdef _SGUGA_VERIFY_
- use general_data, only: iDoGAS
- use rasscf_global, only: NACPAR, NACPR2
- use general_data, only: NCONF
+use general_data, only: iDoGAS
+use rasscf_global, only: NACPAR, NACPR2
+use general_data, only: NCONF
 #endif
- use constants, only: Zero
+use constants, only: Zero
 
  implicit none
  integer(kind=iwp), intent(in) :: nCIVEC
