@@ -24,6 +24,7 @@ use Constants, only: Zero
 use definitions, only: wp, iwp
 #ifdef _SGUGA_VERIFY_
 use definitions, only: u6
+use general_data, only: iDoGAS, nRsPrt
 #endif
 
 #include "intent.fh"
@@ -39,9 +40,6 @@ contains
 
 Subroutine Mk_H_Psi(iState, STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk
-#ifdef _SGUGA_VERIFY_
-use general_data, only: iDoGAS, nRsPrt
-#endif
 Implicit None
 
 integer(kind=iwp), intent(in):: iState, STSYM, nCSF
@@ -215,9 +213,7 @@ End Subroutine Mk_T1DM
 
 Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
 #ifdef _SGUGA_VERIFY_
-use general_data, only: iDoGAS
 use rasscf_global, only: NACPAR, NACPR2
-use general_data, only: NCONF
 #endif
 
  implicit none
@@ -292,7 +288,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 #ifdef _SGUGA_VERIFY_
         If (.NOT.iDoGAS) Then
 
-          Call mma_allocate(CIV,nConf,Label='CIV')
+          Call mma_allocate(CIV,nCIVEC,Label='CIV')
           call SG_Reord(iState,STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
 
 !         Test the one-particle density matrix
