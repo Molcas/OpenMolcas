@@ -133,7 +133,7 @@ If (.NOT.iDoGAS .and. nRsPrt==1) Then
    call SG_Reord(iState,STSYM,0,nCSF,CI_VEC,SG_PSI)
    Check_Href=CheckSum(Sigma_Vec,nCSF)
    Call mma_allocate(SG_SGM,nCSF,Label='SG_SGM')
-   Call sg_h_psi(SGS,CIS,EXS,SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
+   Call sg_h_psi(SGS(iState),CIS(iState),EXS(iState),SG_PSI,nCSF,STSYM,SG_SGM,TUVX,nTUVX,TU,nTU)
    call SG_Reord(iState,STSYM,1,nCSF,SG_SGM,SG_PSI)
    Check_H   =CheckSum(SG_PSI,nCSF)
    If (Abs(Check_HRef-Check_H)/nCSF>1.0E-12_wp) Then
