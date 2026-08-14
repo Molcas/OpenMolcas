@@ -59,7 +59,7 @@ end if
 
 ! Analyze the effective Hamiltonian:
 DSHIFT = Zero
-if (HEFF(1,1) <= -100.0_wp) DSHIFT = -real(ceiling(HEFF(1,1)),kind=wp)
+if (HEFF(1,1) <= -100.0_wp) DSHIFT = real(ceiling(HEFF(1,1)),kind=wp)
 do I=1,NSTATE
   HEFF(I,I) = HEFF(I,I)-DSHIFT
 end do
