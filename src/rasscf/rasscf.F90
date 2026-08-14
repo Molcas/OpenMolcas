@@ -128,7 +128,7 @@ real(kind=wp), allocatable :: CMON(:), Dens(:), EDUM(:), Fock(:), folded_Fock(:)
                               Scr1(:), Scr2(:), SMat(:), Tmp1(:), TmpD1S(:), TmpDMat(:), TmpDS(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: iDX, jDisk, jRoot, kDisk
-real(kind=wp), allocatable :: Tmp(:), VecL(:), VecR(:), DStmp(:), Dtmp(:)
+real(kind=wp), allocatable :: Tmp(:), VecL(:), VecR(:), DStmp(:), Dtmp(:), XTmp(:)
 #endif
 #ifdef _FDE_
 integer(kind=iwp) :: iDummyEmb, iEmb, iUnit, nNuc
@@ -1588,8 +1588,14 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
           call SG_Reord(iState,STSYM,1,nConf,Tmp,VecR)
           ! Compute TDM and store in h5 file
           Call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
-          Call add_info('TDM',DTMP,NAC**2,6)
-          if (iSpin > 1) Call add_info('TSDM',DSTMP,NAC**2,6)
+          Call mma_allocate(XTmp,NAC**2,Label='XTmp')
+          XTmp=Abs(DTMP)
+          Call add_info('TDM',XTMP,NAC**2,6)
+          if (iSpin > 1) Then
+             XTmp=Abs(DSTMP)
+             Call add_info('TSDM',XTMP,NAC**2,6)
+          End If
+          Call mma_deallocate(XTmp)
           idx = (jRoot-2)*(jRoot-1)/2+kRoot
           call mh5_put_dset(wfn_transdens,Dtmp(1:NAC*NAC),[NAC,NAC,1],[0,0,idx-1])
           if (iSpin > 1) call mh5_put_dset(wfn_transsdens,DStmp(1:NAC**2),[NAC,NAC,1],[0,0,idx-1])
