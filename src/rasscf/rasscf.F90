@@ -1589,10 +1589,10 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
           ! Compute TDM and store in h5 file
           Call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
           Call mma_allocate(XTmp,NAC**2,Label='XTmp')
-          XTmp=Abs(DTMP)
+          XTmp(:)=Abs(DTMP(:))
           Call add_info('TDM',XTMP,NAC**2,6)
           if (iSpin > 1) Then
-             XTmp=Abs(DSTMP)
+             XTmp(:)=Abs(DSTMP(:))
              Call add_info('TSDM',XTMP,NAC**2,6)
           End If
           Call mma_deallocate(XTmp)
