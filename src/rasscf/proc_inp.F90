@@ -15,7 +15,6 @@ subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
-use lucia_data, only: CFTP
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
 use write_orbital_files, only: OrbFiles, write_orb_per_iter
@@ -99,7 +98,7 @@ character(len=2*72) :: lJobH2
 character(len=72) :: JobTit(mxTit), ReadStatus
 character(len=50) :: ON_scheme_inp, uppercased
 character(len=8) :: InfoLbl, MaxLab, NewJobIphName
-integer(kind=iwp), allocatable :: iType(:), Stab(:), Temp1(:), Temp2(:), Temp3(:), UG2SG_X(:)
+integer(kind=iwp), allocatable :: iType(:), Stab(:), Temp1(:), Temp2(:), Temp3(:)
 real(kind=wp), allocatable :: ENC(:), RF(:)
 character(len=:), allocatable :: buffer
 #ifdef _ENABLE_DICE_SHCI_
@@ -4110,11 +4109,7 @@ if (.not. SkipGUGA) then
   ! to the symmetric group numbering
 
   ! ====================================================================
-  if (ICICH == 1) then
-    call mma_allocate(UG2SG_X,NCONF,Label='UG2SG_X')
-    call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,CFTP,UG2SG_X,ICI,JCJ,CCI,MXROOT)
-    call mma_deallocate(UG2SG_X)
-  end if
+  if (ICICH == 1) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,ICI,JCJ,CCI,MXROOT)
   ! ====================================================================
 
   ! Turn on the Faroald SD CI code in case of

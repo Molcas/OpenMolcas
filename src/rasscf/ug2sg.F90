@@ -12,7 +12,7 @@
 !               1990, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ISPIN,IORD,ICI,JCJ,CCI,MXROOTS)
+subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ICI,JCJ,CCI,MXROOTS)
 ! AUTHOR:  J. OLSEN AND M.P. FUELSCHER
 !          UNIV. OF LUND, SWEDEN 1990
 !
@@ -26,22 +26,27 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ISPIN,IORD,ICI,JCJ,CCI,MXRO
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
 use sguga, only: EXS, SGS
-use Lucia_data, only: Conf_Occ
+use Lucia_data, only: Conf_Occ, ISPIN=>CFTP
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
 use Constants, only: One
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ISPIN(*), MXROOTS, ICI(MXROOTS,MxRef)
-integer(kind=iwp), intent(out) :: IORD(NCONF), JCJ(MXROOTS,MxRef)
+integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, MXROOTS, ICI(MXROOTS,MxRef)
+integer(kind=iwp), intent(out) :: JCJ(MXROOTS,MxRef)
 real(kind=wp), intent(inout) :: CCI(MXROOTS,MxRef)
 integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(mxAct), &
                      JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT
 real(kind=wp) :: PHASE
 integer(kind=iwp), parameter :: istate = 1
+integer(kind=iwp), allocatable :: IORD(:)
 integer(kind=iwp), external :: SG_NUM, SG_PHASE
+
+
+Call mma_allocate(IORD,NCONF,Label='IORD')
 
 ! JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 ! NUMBERS IN THE SYMMETRIC GROUP NUMBERING
@@ -146,5 +151,7 @@ if (IPRINT >= 5) then
   end do
   write(u6,*)
 end if
+
+Call mma_deallocate(IORD)
 
 end subroutine UG2SG
