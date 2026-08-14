@@ -45,7 +45,6 @@ use wadr, only: FMO
 use rctfld_module, only: lRF
 use casvb_global, only: ifvb
 use timers, only: TimeDens
-use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, Ptmp
 use general_data, only: iDoGAS
 use rasscf_global, only: DFTFOCK, ExFac, iAdr15, iPCMRoot, iRoot, ITER, KSDFT, lRoots, n_Det, NAC, NACPAR, NACPR2, nFint, nRoots, &
                          S, Weight
@@ -65,6 +64,7 @@ integer(kind=iwp) :: i, iPrLev, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
 real(kind=wp) :: dum1, dum2, dum3, rdum(1), Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF
 real(kind=wp), allocatable :: P2MO(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), TmpD1S(:), TmpDS(:), TmpPUVX(:), TmpTUVX(:)
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), PAtmp(:), Pscr(:), Ptmp(:)
 
 IPRLEV = IPRLOC(3)
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering DMRGCTL'
