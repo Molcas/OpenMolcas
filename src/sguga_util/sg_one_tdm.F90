@@ -14,7 +14,6 @@
 
 subroutine sg_one_tdm(SGS,CIS,EXS,Bra,Ket,lCI,ISYCI,TD1MAT,lTD1MAT)
 
-use Index_Functions, only: iTri
 use sguga, only: CIStruct, EXStruct, sg_epq_psi, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

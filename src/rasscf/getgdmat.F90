@@ -19,7 +19,6 @@ use rasscf_global, only: iAdr15, lRoots, nAc
 use rasscf_files, only: JOBIPH
 use general_data, only: NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
