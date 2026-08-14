@@ -70,8 +70,6 @@ set (sources
      pageno.F90
      phpcsf.F90
      pmat_rasscf.F90
-     prttim.F90
-     rasdim.F90
      rasscf_files.F90
      rasscf_global.F90
      rassi_data.F90

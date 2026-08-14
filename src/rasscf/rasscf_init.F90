@@ -23,6 +23,7 @@
 
 subroutine RasScf_Init()
 
+use ci_interfaces, only: CI_Timer
 use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk, DoCholesky, DoLocK, Estimate, Nscreen, Update
 use casvb_global, only: ifvb
 use Cholesky, only: ChFracMem, timings
@@ -31,7 +32,6 @@ use UnixInfo, only: SuperName
 use general_data, only: IGSOCCX, NGAS, NGSSH
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
-use lucia_data, only: TDENSI, TSIGMA
 use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoots, iAlphaBeta, ICICH, ICICP, iCIonly, ICIRST, &
                          ICMSIterMax, ICMSIterMin, iCMSP, iExpand, IfCRPR, IfOrde, InOCalc, iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot, &
                          iPhName, iPT2, iRLXRoot, IROOT, iRoot, irotPsi, iSave_Exp, iSPDen, iSupSM, itCore, ITMAX, iXMSP, ixSym, &
@@ -313,9 +313,7 @@ TimePage = Zero
 TimeHCSCE = Zero
 TimeRelax = Zero
 
-!SVC: lucia timers
-tsigma(:) = Zero
-tdensi(:) = Zero
+Call CI_Timer('Init')
 
 ! state rotation
 iRotPsi = 0

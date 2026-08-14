@@ -158,6 +158,7 @@ set (sources
      prsm2.F90
      prsym.F90
      prtstr.F90
+     prttim.F90
      rassg3.F90
      reform_conf_for_gas1.F90
      reform_conf_for_gas2.F90

@@ -31,7 +31,7 @@ use general_data, only: iDoGAS, nRsPrt
 
 Private
 
-Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM
+Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, CI_Timer
 
 contains
 
@@ -388,5 +388,32 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
     Checksum = Checksum + Abs(A(i))/real(i,kind=wp)
  End Do
  End Function Checksum
+
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
+
+subroutine CI_Timer(Opt)
+use lucia_data, only: TDENSI, TSIGMA
+
+character(Len=*) Opt
+
+Select case (Opt(1:3))
+Case ('Ini')
+   !SVC: lucia timers
+   tsigma(:) = Zero
+   tdensi(:) = Zero
+Case ('Pri')
+  If (DoFaro) Then
+  Else
+    call PrtTim()
+  End If
+Case Default
+  Write (u6,*) 'CI_Timer called with illegal option:',Opt
+  Call Abend()
+End Select
+
+end subroutine CI_Timer
+
+
 
 End module CI_Interfaces

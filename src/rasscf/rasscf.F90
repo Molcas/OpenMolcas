@@ -50,6 +50,7 @@ subroutine RASSCF(IRETURN)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use ci_interfaces, only: CI_Timer
 #ifdef _HDF5_
 use ci_interfaces, only: Mk_T1DM
 #endif
@@ -1755,7 +1756,7 @@ call Timing(dum1,dum2,time1(2),dum3)
 TimeTotal = time1(2)
 TimeOutput = TimeOutput+time1(2)-time1(1)
 if (IPRLEV >= 3) then
-  call PrtTim()
+  call CI_Timer('Print')
   call FastIO('STATUS')
 end if
 call ClsFls_RASSCF()
