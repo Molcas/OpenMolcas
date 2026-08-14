@@ -30,6 +30,7 @@ set (sources
      chkinp.F90
      cho_rasscf_rdinp.F90
      cictl.F90
+     cisx.F90
      ci_solver_util.F90
      clnmo.F90
      clsfls_rasscf.F90

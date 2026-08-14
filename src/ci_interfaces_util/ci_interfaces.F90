@@ -233,6 +233,7 @@ End Subroutine Mk_T1DM
 !***********************************************************************************************************************************
 
 Subroutine Mk_pdms(CIVec,nCIVEC,D,SD,P,PA,nD,nP)
+use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
 #ifdef _SGUGA_VERIFY_
 use rasscf_global, only: NACPAR, NACPR2
 #endif
@@ -302,7 +303,19 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    call mma_deallocate(P_loc)
    call mma_deallocate(PA_loc)
  Else
+   Call mma_allocate(DTMP,nD,Label='DTMP')
+   Call mma_allocate(DSTMP,nD,Label='DSTMP')
+   Call mma_allocate(PTMP,nP,Label='PTMP')
+   Call mma_allocate(PATMP,nP,Label='PATMP')
    call Lucia_Util('Densi',CI_Vector=CIVEC)
+   If (Present(D)) D(1:nD)=DTMP(1:nD)
+   If (Present(SD)) SD(1:nD)=DSTMP(1:nD)
+   If (Present(P)) P(1:nP)=PTMP(1:nP)
+   If (Present(PA)) PA(1:nP)=PATMP(1:nP)
+   Call mma_deallocate(DTMP)
+   Call mma_deallocate(DSTMP)
+   Call mma_deallocate(PTMP)
+   Call mma_deallocate(PATMP)
  End If
 
 ! temporary code to verify the functionality of the SGUGA code and its interface

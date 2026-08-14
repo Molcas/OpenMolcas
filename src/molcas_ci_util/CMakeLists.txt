@@ -19,7 +19,6 @@ set (sources
      cidia.F90
      ciovlp.F90
      ciselect.F90
-     cisx.F90
      cndet.F90
      cnfstr.F90
      cnhcn.F90

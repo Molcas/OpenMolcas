@@ -70,7 +70,6 @@ use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
 use casvb_global, only: ifvb
 use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
-use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
 use wadr, only: FMO
 use sxci, only: IDXSX
 use general_data, only: iDoGAS
@@ -97,6 +96,7 @@ real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF, do_rotate, Exists, Skip
 character(len=128) :: filename
 real(kind=wp), allocatable :: CIV(:), CIVec(:), P2MO(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), RF(:), Temp(:), TmpD1S(:), TmpDS(:)
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), PAtmp(:), PTmp(:)
 integer, allocatable :: kCnf(:)
 #ifdef _HDF5_
 real(kind=wp), allocatable :: density_square(:,:)
