@@ -198,7 +198,6 @@ function energy_ot(self,folded_dm1,folded_dm1s,casdm2,charge)
   integer(kind=iwp) :: charge_
   logical(kind=iwp) :: first, dff, do_dft, dummy_lrf, dummy_noneq
   real(kind=wp), allocatable :: dummy1(:), dummy2(:)
-  real(kind=wp) :: potnuc_local
 
   call put_darray('D1ao',folded_dm1,ntot1)
   call put_darray('D1sao',folded_dm1s,ntot1)
@@ -223,8 +222,7 @@ function energy_ot(self,folded_dm1,folded_dm1s,casdm2,charge)
   charge_ = charge
   dummy_lrf = .false.
   dummy_noneq = .false.
-  potnuc_local = potnuc
-  call drvxv(dummy1,dummy2,folded_dm1,potnuc_local,ntot1,first,dff,dummy_noneq,dummy_lrf,self%otxc,exfac,charge_, &
+  call drvxv(dummy1,dummy2,folded_dm1,potnuc,ntot1,first,dff,dummy_noneq,dummy_lrf,self%otxc,exfac,charge_, &
              CI_St(iState)%iSpin,dftfock,do_dft)
   call mma_deallocate(dummy1)
   call mma_deallocate(dummy2)

@@ -74,7 +74,7 @@ Paul B. Calio
 Yannick Carissan  
 Liviu Chibotaru  
 Christophe Chipot  
-Arpan Choudhury
+Arpan Choudhury  
 Jonathan R. Church  
 Aron Cohen  
 David L. Cooper  

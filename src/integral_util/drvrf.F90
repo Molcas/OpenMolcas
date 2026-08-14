@@ -16,7 +16,7 @@ use External_Centers, only: iXPolType
 use rctfld_module, only: lLangevin, lRF, lRFCav, PCM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1
@@ -30,7 +30,6 @@ real(kind=wp), save :: RepNuc_Temp
 character(len=8) :: Label
 real(kind=wp), allocatable :: h1_RF(:), h1_XX(:), RFld(:,:)
 real(kind=wp), external :: DDot_
-integer(kind=iwp) :: i
 
 !                                                                      *
 !***********************************************************************

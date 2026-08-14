@@ -38,9 +38,9 @@ integer(kind=iwp) :: charge, dmDisk, IAD19, IADR19(30), iJOB, iSA, isym, jroot, 
 real(kind=wp) :: e_ot, e_state, e_wfn, e_rf, e_rf_pot, e_rf_self
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: casdm1(:), casdm1s(:), Coul(:), dm1_cas(:), dm1_core(:), dm1s(:), folded_dm1(:), folded_dm1_cas(:), &
-                              folded_dm1s(:), hcore(:), P2D(:), P2t(:), v_rf(:)
+                              folded_dm1s(:), hcore(:), P2D(:), P2t(:)
 integer(kind=iwp), external :: get_charge
-real(kind=wp), external :: energy_mcwfn, ddot_
+real(kind=wp), external :: energy_mcwfn
 
 ! Molecular charge
 charge = get_charge()
@@ -163,6 +163,7 @@ do jroot=1,lroots
     call get_dscalar('RF Self Energy',e_rf_self)
     if (Found) call NameRun('#Pop')
     e_rf = e_rf_pot+e_rf_self
+    call Add_Info('E_RF',[e_rf],1,8)
     if (iPrGlb >= DEBUG) then
       write(u6,'(6X,A,29X,F18.8)') 'Reaction field interaction energy',e_rf_pot
       write(u6,'(6X,A,36X,F18.8)') 'Reaction field self energy',e_rf_self
