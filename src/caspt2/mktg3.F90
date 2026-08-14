@@ -48,16 +48,12 @@ implicit none
 integer(kind=iwp), intent(in) :: LSYM1, LSYM2, NTG3
 real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI)
 real(kind=wp), intent(out) :: OVL, TG1(NASHT,NASHT), TG2(NASHT,NASHT,NASHT,NASHT), TG3(NTG3)
-integer(kind=iwp) :: IL, IND1, IND2, IND3, IP, IP1, IP1END, IP1STA, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, ISSG2, ISTAU, &
-                     IT, IT1, IT2, IT3, ITG3, ITS, IU, IU1, IU2, IU3, IUS, IV, IVS, IX, IXS, IY, IYS, IZ, IZS, JL, jtuvxyz, L, &
-                     LFROM, LSGM1, LSGM2, LTAU, LTO, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
+integer(kind=iwp) :: IL, IND1, IND2, IND3, IP, IP1, IP1END, IP1STA, IP1STAU, IP2, IP3, IP3END, IP3STA, IS1, IS2, IS3, ISSG1, &
+                     ISSG2, ISTAU, IT, IT1, IT2, IT3, ITG3, ITS, IU, IU1, IU2, IU3, IUS, IV, IVS, IX, IXS, IY, IYS, IZ, IZS, JL, &
+                     jtuvxyz, L, LFROM, LSGM1, LSGM2, LTAU, LTO, NB, NCI1, NTAU, NTG3WRK, NTUBUF, NVECS, NYZBUF
 real(kind=wp) :: OCC, VAL
-#ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: iTask
-logical(kind=iwp) :: Poor_Par
-#endif
 integer(kind=iwp), allocatable :: P2LEV(:,:)
-real(kind=wp), allocatable :: TG3WRK(:)
+real(kind=wp), allocatable :: TG3BUF(:), TG3WRK(:)
 real(kind=wp), external :: DDot_
 integer(kind=iwp), parameter :: istate = 1
 
@@ -77,6 +73,8 @@ if (ISCF == 0) then
 
   ! Special pair index allows true RAS cases to be handled:
   call mma_allocate(P2LEV,2,NASHT**2,Label='P2LEV')
+  ! Small buffer for batching <Sigma1|Tau> over the IP1 column block into a single DGEMV
+  call mma_allocate(TG3BUF,NASHT**2,Label='TG3BUF')
   IP = 0
   ! First, IL < JL pairs.
   do IL=1,NLEV-1
@@ -133,14 +131,6 @@ if (ISCF == 0) then
   LTAU = LSGM1+NTUBUF*MXCI
   LSGM2 = LTAU+MXCI
 
-# ifdef _MOLCAS_MPP_
-  !! enable poor parallelization, if applicable
-  if (Is_Real_Par()) then
-    POOR_PAR = .false.
-    iTask = 0
-    !if ((NTUBUF == NYZBUF) .and. (NTUBUF == NASHT**2)) POOR_PAR = .true.
-  end if
-# endif
   ! Sectioning loops over pair indices IP3 (ket side):
   do IP3STA=1,NASHT**2,NYZBUF
     IP3END = min(NASHT**2,IP3STA-1+NYZBUF)
@@ -183,12 +173,9 @@ if (ISCF == 0) then
       LFROM = LSGM2
       do IP3=IP3STA,IP3END
 #       ifdef _MOLCAS_MPP_
-        if (Is_Real_Par()) then
-          iTask = iTask+1
-          if (POOR_PAR .and. (mod(iTask,nProcs) /= MyRank)) then
-            LFROM = LFROM+MXCI
-            cycle
-          end if
+        if (Is_Real_Par() .and. (mod(IP3-1,nProcs) /= MyRank)) then
+          LFROM = LFROM+MXCI
+          cycle
         end if
 #       endif
         IY = SGS(istate)%L2ACT(P2LEV(1,IP3))
@@ -210,24 +197,27 @@ if (ISCF == 0) then
           ! LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           if (ISTAU == LSYM1) TG2(IV,IX,IY,IZ) = DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
-          do IP1=max(IP2,IP1STA),IP1END
-            IT = SGS(istate)%L2ACT(P2LEV(1,IP1))
-            IU = SGS(istate)%L2ACT(P2LEV(2,IP1))
-            ITS = IASYM(IT)
-            IUS = IASYM(IU)
-            ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
-            if (ISSG1 == ISTAU) then
-              L = LSGM1+MXCI*(IP1-IP1STA)
-              VAL = DDOT_(NTAU,TG3WRK(LTAU),1,TG3WRK(L),1)
-              ! Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
-              ! Code to put it in correct place:
-              call get_tg3_index(IT,IU,IV,IX,IY,IZ,NASHT,jtuvxyz)
-              TG3(JTUVXYZ) = VAL
-
+          IP1STAU = max(IP2,IP1STA)
+          NB = IP1END-IP1STAU+1
+          if (NB > 0) then
+            L = LSGM1+MXCI*(IP1STAU-IP1STA)
+            call DGEMV_('T',NTAU,NB,One,TG3WRK(L),MXCI,TG3WRK(LTAU),1,Zero,TG3BUF,1)
+            do IP1=IP1STAU,IP1END
+              IT = SGS(istate)%L2ACT(P2LEV(1,IP1))
+              IU = SGS(istate)%L2ACT(P2LEV(2,IP1))
+              ITS = IASYM(IT)
+              IUS = IASYM(IU)
+              ISSG1 = Mul(Mul(ITS,IUS),LSYM1)
+              if (ISSG1 == ISTAU) then
+                ! Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
+                ! Code to put it in correct place:
+                call get_tg3_index(IT,IU,IV,IX,IY,IZ,NASHT,jtuvxyz)
+                TG3(JTUVXYZ) = TG3BUF(IP1-IP1STAU+1)
+              end if
               ! End of symmetry requirement IF-clause:
-            end if
+            end do
             ! End of IP1 loop.
-          end do
+          end if
           ! End of IP2 loop.
         end do
         LFROM = LFROM+MXCI
@@ -245,7 +235,7 @@ if (ISCF == 0) then
   ! element.
 
 # ifdef _MOLCAS_MPP_
-  if (Is_Real_Par() .and. POOR_PAR) then
+  if (Is_Real_Par()) then
     call GADGOP(TG2,NASHT**4,'+')
     call GADGOP(TG3,NTG3,'+')
   end if
@@ -300,6 +290,7 @@ if (ISCF == 0) then
     end do
   end do
   call mma_deallocate(P2LEV)
+  call mma_deallocate(TG3BUF)
 
 else
 

@@ -21,11 +21,11 @@ subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav,nState)
 use PrintLevel, only: USUAL, VERBOSE
 use EQSOLV, only: iRHS, iVecC, iVecC2, iVecR, iVecW, iVecX
 use caspt2_global, only: do_grad, IDSAVGRD, iPrGlb, iStpGrd
-use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUPRP, CPUPT2, CPURHS, &
-                         CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, IfRMS, &
-                         IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, PT2Method, TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, &
-                         TIOINT, TIOLCS, TIONAD, TIOOVL, TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOSIN, &
-                         TIOVEC
+use caspt2_module, only: CPUDIA, CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUPRP, CPUPT2, &
+                         CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, &
+                         IfRMS, IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, PT2Method, TIODIA, TIOEIG, TIOFG3, TIOFMB, &
+                         TIOGIN, TIOGRD, TIOINT, TIOLCS, TIONAD, TIOOVL, TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, TIOSCA, TIOSER, &
+                         TIOSGM, TIOSIN, TIOVEC
 use SC_NEVPT2, only: Do_FIC
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -107,7 +107,7 @@ stateloop2: do IGROUP=1,NGROUP
     ! if the dens keyword is used, need accurate density and
     ! for that the serial LUSOLV file is needed, in that case copy
     ! the distributed LURHS() to LUSOLV here.
-    if (IFDENS .or. (do_grad .and. ((iRlxRoot == MSTATE(JSTATE)) .or. IFMSCOUP))) then
+    if (IFDENS .and. (.not. do_grad)) then
       if (do_FIC) then
         call PCOLLVEC(IRHS,0)
         call PCOLLVEC(IVECX,0)
@@ -193,6 +193,7 @@ subroutine Iter_Timing()
     write(u6,'(A,2F14.2)') '    - inner products    ',CPUOVL,TIOOVL
     write(u6,'(A,2F14.2)') '    - basis transforms  ',CPUVEC,TIOVEC
     write(u6,'(A,2F14.2)') '    - sigma routines    ',CPUSGM,TIOSGM
+    write(u6,'(A,2F14.2)') '    - diagonal routines ',CPUDIA,TIODIA
     write(u6,'(A,2F14.2)') '  - array collection    ',CPUSER,TIOSER
     write(u6,'(A,2F14.2)') '  Properties            ',CPUPRP,TIOPRP
     write(u6,'(A,2F14.2)') '  MS coupling           ',CPUGRD,TIOGRD

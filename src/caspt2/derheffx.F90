@@ -80,7 +80,7 @@ do ICASE=1,13
       call ABEND()
     end if
 
-    nvlen = (iHi1-jLo1+1)*(jHi1-jLo1+1)
+    nvlen = (iHi1-iLo1+1)*(jHi1-jLo1+1)
 
 #   ifdef _MOLCAS_MPP_
     if (Is_Real_Par()) then

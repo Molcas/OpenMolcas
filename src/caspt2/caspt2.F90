@@ -64,11 +64,11 @@ use INPUTDATA, only: INPUT
 use PT2WFN, only: PT2WFN_DATA, PT2WFN_ESTORE
 use caspt2_qmc_interface, only: DoFCIQMC
 use caspt2_global, only: do_grad, IDSAVGRD, iPrGlb, iStpGrd, nStpGrd
-use caspt2_module, only: CPT2Method, CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPUPRP, &
-                         CPUPT2, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, E2ToT, Energy, HZERO, IfChol, IfDens, &
-                         IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, nLyGroup, nLyRoot, &
-                         nState, PT2Method, RefEne, TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, TIONAD, TIOOVL, &
-                         TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC
+use caspt2_module, only: CPT2Method, CPUDIA, CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, &
+                         CPUPRP, CPUPT2, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, E2ToT, Energy, HZERO, IfChol, &
+                         IfDens, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot, jState, mState, nGroup, nGroupState, nLyGroup, &
+                         nLyRoot, nState, PT2Method, RefEne, TIODIA, TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, &
+                         TIONAD, TIOOVL, TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC
 use SC_NEVPT2, only: Do_FIC, Do_SC, ENERGY_SC, HEFF_SC, SC_prop, SC_NEVPT2_initial, SC_NEVPT2_final
 use PrintLevel, only: TERSE, USUAL, VERBOSE
 use EQSOLV, only: iRHS, iVecC, iVecC2, iVecR, iVecW, iVecX
@@ -180,8 +180,6 @@ end if
 JSTATE_OFF = 0
 STATELOOP: do IGROUP=1,NGROUP
 
-  call TIMING(CPTF0,CPE,TIOTF0,TIOE)
-
   if ((NLYGROUP /= 0) .and. (IGROUP /= NLYGROUP)) then
     JSTATE_OFF = JSTATE_OFF+NGROUPSTATE(IGROUP)
     cycle
@@ -241,6 +239,8 @@ STATELOOP: do IGROUP=1,NGROUP
     ! 3. Sets the EREF value
     ! 4. Recomputes EASUM.
 
+    call TIMING(CPTF0,CPE,TIOTF0,TIOE)
+
     call STINI(JSTATE)
 
     ! Solve CASPT2 equation system and compute corr energies.
@@ -276,7 +276,7 @@ STATELOOP: do IGROUP=1,NGROUP
     ! if the dens keyword is used, need accurate density and
     ! for that the serial LUSOLV file is needed, in that case copy
     ! the distributed LURHS() to LUSOLV here.
-    if (IFDENS .or. (do_grad .and. (iRlxRoot == MSTATE(JSTATE)))) then
+    if (IFDENS .and. (.not. do_grad)) then
       if (do_FIC) then
         call PCOLLVEC(IRHS,0)
         call PCOLLVEC(IVECX,0)
@@ -608,6 +608,7 @@ subroutine Iter_Timing()
     write(u6,'(A,2F14.2)') '    - inner products    ',CPUOVL,TIOOVL
     write(u6,'(A,2F14.2)') '    - basis transforms  ',CPUVEC,TIOVEC
     write(u6,'(A,2F14.2)') '    - sigma routines    ',CPUSGM,TIOSGM
+    write(u6,'(A,2F14.2)') '    - diagonal routines ',CPUDIA,TIODIA
     write(u6,'(A,2F14.2)') '  - array collection    ',CPUSER,TIOSER
     write(u6,'(A,2F14.2)') '  Properties            ',CPUPRP,TIOPRP
     if (.not. DoFCIQMC) then ! MS-CASPT2 currently not possible
