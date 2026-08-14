@@ -24,8 +24,7 @@ use general_data, only: NACTEL, NCONF
 use sguga, only: SGS
 use sxci, only: IDXSX
 #ifdef _DMRG_
-use lucia_data, only: RF1, RF2
-use rasscf_global, only: TwoRDM_qcm
+use rasscf_global, only: TwoRDM_qcm, RF1, RF2
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

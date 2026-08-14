@@ -55,8 +55,9 @@ public :: BName, CBLB, CBLBM, CCI, CMAX, CMSStartMat, CMSThreshold, CONV, CoreSh
 #ifdef _DMRG_
 integer(kind=iwp) :: MPSCompressM
 logical(kind=iwp) :: DoDelChk, domcpdftDMRG, DoNEVPT2Prep, twordm_qcm
+real(kind=wp), allocatable :: RF1(:), RF2(:)
 
-public :: DoDelChk, domcpdftDMRG, DoNEVPT2Prep, MPSCompressM, twordm_qcm
+public :: DoDelChk, domcpdftDMRG, DoNEVPT2Prep, MPSCompressM, twordm_qcm, RF1, RF2
 #endif
 
 #if defined (_ENABLE_CHEMPS2_DMRG_)

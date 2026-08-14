@@ -68,7 +68,7 @@ integer(kind=iwp), allocatable :: CFTP(:), CI1BT(:), CIBT(:), CLBT(:), CLEBT(:),
                                   NSTSGP(:), OCSTR(:,:), PINT1(:), PINT2(:), REO(:,:), SPGPAN(:), SPGPCR(:), Z(:,:), ZSCR(:)
 integer(kind=iwp), allocatable, target :: CBLTP(:)
 integer(kind=iwp), pointer :: SDREO(:)
-real(kind=wp), allocatable :: DStmp(:), Dtmp(:), DTOC(:), INT1(:), PAtmp(:), Pscr(:), Ptmp(:), RF1(:), RF2(:), RHO1(:), &
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), DTOC(:), INT1(:), PAtmp(:), Pscr(:), Ptmp(:), RHO1(:), &
                               SIGMA_VEC(:), SRHO1(:), VEC3(:)
 real(kind=wp), allocatable, target :: CI_VEC(:)
 
@@ -86,7 +86,7 @@ public :: Allocate_Local_Arrays, CBLTP, CFTP, CI1BT, CI_VEC, CIBT, CLBT, CLEBT, 
           NELFSPGP, NELFTP, NELIS, NGAS, NGPSTR, NGRP, NGSOBT, NGSSH, NHLFSPGP, NINOB, NINOBS, NIRREP, NMXOCCLS, NOBPT, NOBPTS, &
           NOCOB, NOCSF, NOCTYP, NOINT, NORB1, NORB2, NORB3, NPCMCNF, NPCSCNF, NPDTCNF, NPTSPC, NROOT, NSD_PER_SYM, NSMOB, &
           NSPGPFTP, NSTFGP, NSTFSMGP, NSTFSMSPGP, NSTRKS, NSTSGP, NSTSO, NSTTP, NSTTYP, NTOOB, NTOOBS, NTSPGP, OCCSTR, OCSTR, &
-          PAtmp, PGINT1, PGINT1A, PINT1, PINT2, Pscr, PSSIGN, Ptmp, REO, REO_PTDT, RF1, RF2, RHO1, SDREO, SDREO_I, Sigma_on_disk, &
+          PAtmp, PGINT1, PGINT1A, PINT1, PINT2, Pscr, PSSIGN, Ptmp, REO, REO_PTDT, RHO1, SDREO, SDREO_I, Sigma_on_disk, &
           SIGMA_VEC, SPGPAN, SPGPCR, SRHO1, STREO, STSTM, TDENSI, TSIGMA, VEC3, XISPSM, Z, Z_PTDT, Zmat, ZSCR
 
 contains

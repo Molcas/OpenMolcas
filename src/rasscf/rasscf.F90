@@ -95,8 +95,7 @@ use RASDim, only: MxIter
 use qcmaquis_interface, only: dmrg_energy, qcmaquis_interface_deinit, qcmaquis_interface_delete_chkp, &
                               qcmaquis_interface_prepare_hirdm_template, qcmaquis_param, TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM
 use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
-use lucia_data, only: RF1, RF2
-use rasscf_global, only: DoDelChk, DoMCPDFTDMRG, DoNEVPT2Prep, Twordm_qcm
+use rasscf_global, only: DoDelChk, DoMCPDFTDMRG, DoNEVPT2Prep, Twordm_qcm, RF1, RF2
 use general_data, only: NACTEL
 #endif
 #ifdef _FDE_
