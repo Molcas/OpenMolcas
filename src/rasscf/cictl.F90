@@ -70,7 +70,7 @@ use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
 use casvb_global, only: ifvb
 use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
-use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
+use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
 use wadr, only: FMO
 use sxci, only: IDXSX
 use general_data, only: iDoGAS
@@ -288,9 +288,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     end if
 
     if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) then
-        call mma_allocate(PScr,NACPR2,Label='PScr')
-        call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-        call mma_deallocate(PScr)
+        call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
     end if
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
@@ -447,7 +445,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
   call mma_allocate(DStmp,NAC**2,Label='DStmp')
   call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
   call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-  call mma_allocate(Pscr,NACPR2,Label='Pscr')
 # ifdef _HDF5_
   call mma_allocate(density_square,nac,nac)
 # endif
@@ -493,7 +490,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
       end if
     end if
 
-    if ((.not. doDMRG) .and. ((SGS(istate)%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+    if ((.not. doDMRG) .and. ((SGS(istate)%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
     ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
     if (doDMRG) then
 #     ifdef _DMRG_
@@ -557,7 +554,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 # ifdef _HDF5_
   call mma_deallocate(density_square)
 # endif
-  call mma_deallocate(Pscr)
   call mma_deallocate(PAtmp)
   call mma_deallocate(Ptmp)
   call mma_deallocate(DStmp)

@@ -176,7 +176,7 @@ if (lRF .or. (KSDFT /= 'SCF') .or. Do_ESPF) then
 #       endif
 
         ! NN.14 NOTE: IFCAS must be 0 for DMRG-CASSCF
-        !if (IFCAS > 2) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+        !if (IFCAS > 2) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
         call mma_deallocate(Pscr)
         call mma_deallocate(PAtmp)
       end if
