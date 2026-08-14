@@ -22,7 +22,6 @@ use general_data, only: iDoGAS
 use rasscf_files, only: JOBIPH
 use general_data, only: NACTEL, NCONF
 use sguga, only: SGS
-use lucia_data, only: DStmp, Dtmp, PAtmp, PTmp
 use sxci, only: IDXSX
 #ifdef _DMRG_
 use lucia_data, only: RF1, RF2
@@ -38,7 +37,7 @@ real(kind=wp), intent(out) :: D1A(NACPAR), RCT_FS(NACPAR)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, jDisk
 real(kind=wp) :: rdum(1), wgt
-real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DX(:)
+real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DX(:), DStmp(:), Dtmp(:), PAtmp(:), PTmp(:)
 integer(kind=iwp), parameter :: istate = 1
 
 call mma_allocate(DA_ave,NACPAR,Label='DA_ave')
