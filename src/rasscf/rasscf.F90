@@ -50,7 +50,7 @@ subroutine RASSCF(IRETURN)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use ci_interfaces, only: CI_Timer
+use ci_interfaces, only: CI_Timer, CI_Close
 #ifdef _HDF5_
 use ci_interfaces, only: Mk_T1DM
 #endif
@@ -71,9 +71,7 @@ use casvb_global, only: ifvb, invec_cvb
 use OFembed, only: Do_OFemb, FMaux
 use UnixInfo, only: ProgName
 use rctfld_module, only: lRF
-use Lucia_Interface, only: Lucia_Util
 use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FockOcc, OccN, PA, PMAT, TUVX
-use sguga, only: SG_Free
 use general_data, only: iDOGAS
 use input_ras, only: Key, LuInput
 use raswfn, only: cre_raswfn, Wfn_FileID
@@ -1742,9 +1740,6 @@ end if
 !end do
 call mma_deallocate(CleanMask,safe='*')
 
-! Skip Lucia stuff if NECI or BLOCK-DMRG is on
-if (.not. any([allocated(CI_solver),DumpOnly,doDMRG,doBlockDMRG])) call Lucia_Util('CLOSE')
-
 call StatusLine('RASSCF: ','Finished.')
 if (IPRLEV >= 2) write(u6,*)
 if (ifvb == 1) call make_close_rvb()
@@ -1784,13 +1779,8 @@ if (Do_OFemb) then
   end if
 end if
 
-if (.not. (iDoGas .or. doDMRG .or. doBlockDMRG .or. allocated(CI_solver) .or. DumpOnly)) &
-  call SG_Free(istate)
-
-if (DoFaro) then
-  call faroald_free()
-  call citrans_free()
-end if
+! Release the CI environment
+Call CI_Close(istate)
 
 if (allocated(CI_solver)) then
   call CI_solver%cleanup()

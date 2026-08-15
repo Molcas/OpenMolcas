@@ -22,37 +22,37 @@ implicit none
 integer(kind=iwp) :: ISM, LBLOCK
 
 ! 1 : One electron integrals (Complete matrix allocated)
-call mma_deallocate(INT1)
+call mma_deallocate(INT1,safe='*')
 ! 2 : Two electron integrals
 !  Pointers to symmetry block of integrals
-call mma_deallocate(PINT1)
-call mma_deallocate(PINT2)
+call mma_deallocate(PINT1,safe='*')
+call mma_deallocate(PINT2,safe='*')
 !  Pointers to nonsymmetric one-electron integrals
 do ISM=1,NSMOB
   ! triangular packed
-  call mma_deallocate(PGINT1(ISM)%A)
+  call mma_deallocate(PGINT1(ISM)%A,safe='*')
   ! no packing
-  call mma_deallocate(PGINT1A(ISM)%A)
+  call mma_deallocate(PGINT1A(ISM)%A,safe='*')
 end do
 ! Symmetry of last index as a function of initial index
-call mma_deallocate(LSM1)
-call mma_deallocate(LSM2)
+call mma_deallocate(LSM1,safe='*')
+call mma_deallocate(LSM2,safe='*')
 ! 3 One-body density
-call mma_deallocate(RHO1)
+call mma_deallocate(RHO1,safe='*')
 ! 3.1 : One-body spin density
-call mma_deallocate(SRHO1)
+call mma_deallocate(SRHO1,safe='*')
 ! indices for pair of orbitals symmetry ordered
 ! Lower half packed
-call mma_deallocate(KINH1)
+call mma_deallocate(KINH1,safe='*')
 ! Complete form
-call mma_deallocate(KINH1_NOCCSYM)
+call mma_deallocate(KINH1_NOCCSYM,safe='*')
 
 ! arrays allocated at end of lucia
 LBLOCK = MXSOOB
 LBLOCK = max(LBLOCK,LCSBLK)
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
 if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
-call mma_deallocate(CI_VEC)
-call mma_deallocate(SIGMA_VEC)
+call mma_deallocate(CI_VEC,safe='*')
+call mma_deallocate(SIGMA_VEC,safe='*')
 
 end subroutine DEALLOC_LUCIA

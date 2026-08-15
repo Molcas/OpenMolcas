@@ -13,7 +13,7 @@
 
 #define _SGUGA_VERIFY_
 module CI_Interfaces
-use sguga, only: CIS, SGS, EXS
+use sguga, only: CIS, SGS, EXS, SG_Free
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
@@ -31,7 +31,7 @@ use general_data, only: iDoGAS, nRsPrt
 
 Private
 
-Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, CI_Timer
+Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, CI_Timer, CI_Close
 
 contains
 
@@ -414,6 +414,21 @@ End Select
 
 end subroutine CI_Timer
 
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
 
+subroutine CI_Close(iState)
+integer(kind=iwp), Intent(in):: iState
+
+! All of these are safe to call even of their corresponding environment have not been activated.
+
+Call Lucia_Util('Close')
+
+call faroald_free()
+call citrans_free()
+
+Call SG_free(iState)
+
+end subroutine CI_Close
 
 End module CI_Interfaces
