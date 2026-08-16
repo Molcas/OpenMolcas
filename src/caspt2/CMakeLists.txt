@@ -32,6 +32,7 @@ set (sources
      chocaspt2.F90
      cho_caspt2_openf.F90
      cho_caspt2_rdinp.F90
+     cho_square.F90
      cholesky_vectors.F90
      chovec_io.F90
      cho_x_loc.F90
