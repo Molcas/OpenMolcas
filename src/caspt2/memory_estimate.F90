@@ -203,7 +203,7 @@ if (MXAVAIL >= MINNICE) then
   NPIQK = MAXPIQK
 else if (MXAVAIL >= MINGOOD) then
   ! group all batches, take smaller buffer size, and try to max out
-  ! integrals, and check they are lager than minimum needed
+  ! integrals, and check they are larger than minimum needed
   NCHOBUF = MAXCHOL
   NBGRP = 1
   LBGRP(1,1) = IB1
