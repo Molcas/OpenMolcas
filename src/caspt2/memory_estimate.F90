@@ -148,6 +148,10 @@ MINCHOL = MXNPITOT*MXBATCH
 
 !SVC: can we fit this all in memory?
 call mma_MaxDBLE(MXAVAIL)
+#ifdef _MOLCAS_MPP_
+! the same on every rank in practice, reduced just in case
+if (Is_Real_Par()) call GAIGOP_SCAL(MXAVAIL,'min')
+#endif
 
 MINNICE = MXRHS+MAXPIQK+2*MAXBUFF+2*MAXCHOL
 MINGOOD = MXRHS+MINPIQK+2*MINBUFF+2*MAXCHOL
