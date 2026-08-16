@@ -41,7 +41,7 @@ use Constants, only: Zero, Quart
 use Definitions, only: wp, iwp, u6, RtoB
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
-use Definitions, only: MPIInt
+use, intrinsic :: iso_c_binding, only: c_int
 #endif
 
 implicit none
@@ -148,9 +148,9 @@ iParRHS = 1
 ! global arrays, and needs to be switched off (using rhsall instead)
 RHSDIRECT = Is_Real_Par() .and. (Input%RHSD .or. (Input%PRHS == 'DIRECT'))
 if (Is_Real_Par() .and. ((Input%PRHS == 'DEFAULT') .or. (Input%PRHS == 'NEW')) .and. (.not. RHSDIRECT)) iParRHS = 2
-! maximum number of real values handled by a single GADGOP call
+! maximum number of real values handled by a single GADGOP (ARMCI) call
 ! compilers complain about huge(xxx)/RtoB with -Werror=integer-division
-MAXBUF = (huge(1_MPIInt)-mod(int(huge(1_MPIInt),kind=iwp),RtoB))/RtoB
+MAXBUF = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB
 #else
 RHSDIRECT = .false.
 MAXBUF = (huge(RtoB)-mod(huge(RtoB),RtoB))/RtoB
