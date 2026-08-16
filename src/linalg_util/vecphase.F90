@@ -18,17 +18,18 @@ implicit none
 integer(kind=iwp), intent(in) :: nA
 real(kind=wp), intent(inout) :: A(nA)
 integer(kind=iwp) :: i
-real(kind=wp) :: Phase
+real(kind=wp) :: Rand
+real(kind=wp), external :: Random_Molcas
+integer(kind=iwp) :: iSeed=17
 
-Phase = Zero
+! Project vector against a standard vector with random structure.
+Rand = Zero
 do i=1,nA
-  Phase = Phase+A(i)*i
+  Rand = Rand+A(i)*Random_Molcas(iSeed)
 end do
-if (Phase < Zero) then
+if (Rand < Zero) then
   A(:) = -A(:)
-  Phase = -Phase
+  Rand = -Rand
 end if
-
-return
 
 end subroutine VecPhase
