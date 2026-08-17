@@ -12,7 +12,7 @@
 !               1990, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ICI,JCJ,CCI,MXROOTS)
+subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,ICI,JCJ,CCI,MXROOTS)
 ! AUTHOR:  J. OLSEN AND M.P. FUELSCHER
 !          UNIV. OF LUND, SWEDEN 1990
 !
@@ -35,7 +35,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, MXROOTS, ICI(MXROOTS,MxRef)
+integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, MXROOTS, ICI(MXROOTS,MxRef)
 integer(kind=iwp), intent(out) :: JCJ(MXROOTS,MxRef)
 real(kind=wp), intent(inout) :: CCI(MXROOTS,MxRef)
 integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(mxAct), &
@@ -51,13 +51,13 @@ Call mma_allocate(IORD,NCONF,Label='IORD')
 ! JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 ! NUMBERS IN THE SYMMETRIC GROUP NUMBERING
 
-if (IPRINT >= 5) then
+#ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*) ' SPLIT GRAPH GUGA CONFIGURATION NUMBERS:'
   do K=1,NROOTS
     write(u6,'(A,I2,A,5I8)') ' ROOT',K,' CSFs:',(ICI(K,L),L=1,5)
   end do
-end if
+#endif
 
 JCJ(:,:) = 0
 
@@ -110,7 +110,6 @@ do ITYP=1,NTYP
       call STEPVEC(KCNF(1),KCNF(1+ICL),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
       ISG = SG_NUM(SGS(istate),EXS(istate),IWALK)
-
       ! GET PHASE PHASE FACTOR
       IP = SG_PHASE(SGS(istate),IWALK)
       ! UPDATE REINDEXING TABLE
@@ -119,20 +118,19 @@ do ITYP=1,NTYP
   end do
 end do
 
-if (IPRINT >= 5) then
+#ifdef _DEBUGPRINT_
   LPRINT = min(200,NCONF)
   write(u6,*)
   write(u6,*) ' INDEX TABLE IN SUBROUTINE REORD'
   write(u6,'(10I8)') (IORD(I),I=1,LPRINT)
   write(u6,*)
-end if
+#endif
 
 ! REPLACE CONFIGURATION NUMBERS
 
 do IC=1,NCONF
   ISG = IORD(IC)
-  PHASE = One
-  if (ISG < 0) PHASE = -One
+  PHASE=Merge(One,-One,ISG<0)
   ISG = abs(ISG)
   do K=1,NROOTS
     do L=1,MXREF
@@ -144,13 +142,13 @@ do IC=1,NCONF
   end do
 end do
 
-if (IPRINT >= 5) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' SYMMETRIC GROUP CONFIGURATION NUMBERS:'
   do K=1,NROOTS
     write(u6,'(A,I2,A,5I6)') ' ROOT',K,' CSFs:',(JCJ(K,L),L=1,5)
   end do
   write(u6,*)
-end if
+#endif
 
 Call mma_deallocate(IORD)
 

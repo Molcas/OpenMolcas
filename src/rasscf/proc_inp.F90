@@ -4109,7 +4109,7 @@ if (.not. SkipGUGA) then
   ! to the symmetric group numbering
 
   ! ====================================================================
-  if (ICICH == 1) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,ICI,JCJ,CCI,MXROOT)
+  if (ICICH == 1) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
   ! ====================================================================
 
   ! Turn on the Faroald SD CI code in case of
