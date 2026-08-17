@@ -25,6 +25,7 @@ set (sources
      sg_two_pdm_full.F90
      sg_upkwlk.F90
      sguga.F90
+     stepvec.F90
      stepvector_next.F90
 )
 

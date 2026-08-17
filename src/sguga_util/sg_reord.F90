@@ -36,13 +36,6 @@ subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !     written by:                                                      *
 !     M.P. Fuelscher and J. Olsen                                      *
 !     University of Lund, Sweden, 1990                                 *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     history: none                                                    *
-!     - updated for integral direct and reaction field calculations    *
-!       M.P. Fuelscher, University of Lund, Sweden, 1996               *
-!                                                                      *
 !***********************************************************************
 
 use sguga, only: EXS, SGS

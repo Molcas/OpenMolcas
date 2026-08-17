@@ -80,7 +80,7 @@ use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
 use general_data, only: CRVec, ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
-use sguga, only: CIS, SGS
+use sguga, only: SGS
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -598,7 +598,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         if (.not. iDoGas) then
-          call SG_Reord(istate,STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
+          call SG_Reord(istate,STSYM,0,nConf,CIVEC,CIV)
 
           ! save reorder CI vector on disk
           !if (.not. iDoGas) then
