@@ -25,11 +25,12 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,ICI,JCJ,CCI,MXROOTS)
 !          INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
-use sguga, only: EXS, SGS
+use sguga, only: CIS, EXS, SGS, MkCot, MkSgNum
 use Lucia_data, only: Conf_Occ, ISPIN=>CFTP
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
+use general_data, only: STSYM
 use Constants, only: One
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -45,6 +46,9 @@ integer(kind=iwp), parameter :: istate = 1
 integer(kind=iwp), allocatable :: IORD(:)
 integer(kind=iwp), external :: SG_NUM, SG_PHASE
 
+
+If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
+If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(STSYM,SGS(istate),CIS(istate),EXS(istate))
 
 Call mma_allocate(IORD,NCONF,Label='IORD')
 
