@@ -899,8 +899,6 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
        ! INITIALIZE SPLIT-GRAPH GUGA DATA SETS:
        call mma_allocate(CIS(istate)%NCSF,SGS(istate)%nSym,Label='CIS%NCSF')
        CIS(istate)%NCSF(:) = 0
-       call mma_allocate(EXS(istate)%ICoup,[1,3],[1,1],Label='EXS%ICoup')
-       call mma_allocate(EXS(istate)%VTab,[1,1],Label='EXS%VTab')
     endif
   else
     call MkSGUGA(SGS(istate),CIS(istate))
