@@ -76,6 +76,7 @@ use Definitions, only: u6
 #endif
 
 #include "intent.fh"
+#include "macros.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, NSB, NCB, ISOC(NGAS), ICOC(NGAS), NSMST, &
@@ -100,6 +101,11 @@ real(kind=wp), allocatable :: CSign(:), SCR(:), SSign(:)
 #ifdef _CUDA_BLAS_
 integer(c_int64_t) :: CudaStatus
 logical :: CudaSession, CudaXint
+#endif
+
+#ifndef _CUDA_BLAS_
+unused_var(NSB)
+unused_var(NCB)
 #endif
 
 call mma_allocate(SCR,MXPTSOB**4,Label='SCR')

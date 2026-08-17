@@ -90,6 +90,7 @@ use Definitions, only: u6
 #endif
 
 #include "intent.fh"
+#include "macros.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(NGAS), IBOC(NGAS), JAOC(NGAS), &
@@ -105,6 +106,10 @@ real(kind=wp) :: CPU, CPU0, CPU1, FACTOR, WALL, WALL0, WALL1
 #ifdef _CUDA_BLAS_
 integer(c_int64_t) :: CudaStatus
 logical :: CudaBlocks, CudaZeroSB
+#endif
+
+#ifndef _CUDA_BLAS_
+unused_var(SBZERO)
 #endif
 
 ! For H(apr)

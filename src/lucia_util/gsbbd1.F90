@@ -78,6 +78,7 @@ use Definitions, only: u6
 #endif
 
 #include "intent.fh"
+#include "macros.fh"
 
 implicit none
 real(kind=wp), intent(inout) :: RHO1(*), XI1S(*), XI2S(*), RHO1S(*), SRHO1(*)
@@ -94,6 +95,11 @@ real(kind=wp) :: FACTORAB, FACTORC, SCLFACS, SIGNIJ, XAB
 #ifdef _CUDA_BLAS_
 integer(c_int64_t) :: CudaStatus
 logical :: CudaMaps, CudaSession
+#endif
+
+#ifndef _CUDA_BLAS_
+unused_var(NSB)
+unused_var(NCB)
 #endif
 
 ! Add or subtract for spindensity
