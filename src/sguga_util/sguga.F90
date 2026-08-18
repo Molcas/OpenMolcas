@@ -202,7 +202,7 @@ integer(kind=iwp), parameter :: TR_CLOSE = 8
 integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
-public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Simple, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum
+public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Simple, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
@@ -3202,7 +3202,6 @@ real(kind=wp) :: Fact
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
 #endif
-integer(kind=iwp), external :: SG_NUM, SG_PHASE
 
 If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
 If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(IREFSM,SGS(istate),CIS(istate),EXS(istate))
@@ -3281,5 +3280,87 @@ write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
 #endif
 
 end subroutine SG_Reord
+
+function SG_NUM(SGS,EXS,IWALK)
+! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
+!          LEXICAL NUMBER IN THE SPLIT GUGA REPRESENTATION
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: SG_NUM
+type(SGStruct), intent(in) :: SGS
+type(EXStruct), intent(in) :: EXS
+integer(kind=iwp), intent(in) :: IWALK(SGS%nLev)
+integer(kind=iwp) :: IC, ICASE, ICONF, IDAWSUM, IRAWSUM, IUW, LEV, LV, MIDV
+
+! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
+
+MIDV = 1
+do LEV=SGS%nLev,(SGS%MidLev+1),-1
+  ICASE = IWALK(LEV)
+  MIDV = SGS%DOWN(MIDV,ICASE)
+end do
+MIDV = MIDV-SGS%MVSta+1
+
+! FIND REVERSE ARC WEIGHT FOR THE UPPER WALK
+
+IRAWSUM = 1
+LV = 1
+do LEV=SGS%nLev,(SGS%MidLev+1),-1
+  IC = IWALK(LEV)
+  LV = SGS%DOWN(LV,IC)
+  IRAWSUM = IRAWSUM+SGS%RAW(LV,IC)
+end do
+IUW = EXS%USGN(IRAWSUM,MIDV)
+
+! FIND DIRECT ARC WEIGHT FOR THE LOWER WALK
+
+IDAWSUM = 1
+LV = SGS%nVert
+do LEV=1,SGS%MidLev
+  IC = IWALK(LEV)
+  LV = SGS%UP(LV,IC)
+  IDAWSUM = IDAWSUM+SGS%DAW(LV,IC)
+end do
+ICONF = EXS%LSGN(IDAWSUM,MIDV)
+
+! COMPUTE LEXICAL ORDERING NUMBER
+
+SG_NUM = IUW+ICONF
+
+end function SG_NUM
+
+
+function SG_PHASE(SGS,IWALK)
+! PURPOSE: THE SYMMETRIC GROUP APPROACH AND THE UNITARY GROUP
+!          APPROACH DIFFER IN THE PHASE CONVENTION. FIND THE
+!          PHASE FACTOR RELATING THE CSFS IN EITHER BASIS.
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: SG_PHASE
+type(SGStruct), intent(in) :: SGS
+integer(kind=iwp), intent(in) :: IWALK(SGS%NLEV)
+integer(kind=iwp) :: ICASE, ISGN, IVERT, LEV
+
+! FIND THE MIDVERTEX AND THE COMBINED WALK SYMMETRY
+
+SG_PHASE = 1
+IVERT = SGS%NVERT
+do LEV=1,SGS%NLEV
+  ICASE = IWALK(LEV)
+  IVERT = SGS%UP(IVERT,ICASE)
+  select case (iCase)
+    case (2,3)
+      ISGN = (-1)**SGS%DRT(IVERT,4)
+    case default
+      ISGN = 1
+  end select
+  SG_PHASE = SG_PHASE*ISGN
+end do
+
+end function SG_PHASE
 
 end module SGUGA

@@ -25,7 +25,7 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,ICI,JCJ,CCI,MXROOTS)
 !          INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
-use sguga, only: CIS, EXS, SGS, MkCOT, MkSgNum
+use sguga, only: CIS, EXS, SGS, MkCOT, MkSgNum, SG_NUM, SG_PHASE
 use Lucia_data, only: Conf_Occ, ISPIN=>CFTP
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
@@ -47,7 +47,6 @@ integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF
 real(kind=wp) :: PHASE
 integer(kind=iwp), parameter :: istate = 1
 integer(kind=iwp), allocatable :: IORD(:)
-integer(kind=iwp), external :: SG_NUM, SG_PHASE
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I, LPRINT
 #endif
