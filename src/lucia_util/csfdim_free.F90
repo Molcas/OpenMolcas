@@ -41,10 +41,11 @@ call mma_deallocate(DFTP,safe='*')
 call mma_deallocate(CFTP,safe='*')
 call mma_deallocate(DTOC,safe='*')
 
-call mma_deallocate(CONF_OCC(ISYM)%A,safe='*')
-call mma_deallocate(CONF_REO(ISYM)%A,safe='*')
-
-call mma_deallocate(SDREO_I(ISYM)%A,safe='*')
+If (iSym>0 .and. iSym<9) Then
+   call mma_deallocate(CONF_OCC(ISYM)%A,safe='*')
+   call mma_deallocate(CONF_REO(ISYM)%A,safe='*')
+   call mma_deallocate(SDREO_I(ISYM)%A,safe='*')
+End If
 nullify(SDREO)
 
 call mma_deallocate(IBCONF_ALL_SYM_FOR_OCCLS,safe='*')

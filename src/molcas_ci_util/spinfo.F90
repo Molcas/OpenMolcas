@@ -24,7 +24,7 @@ module Spinfo
 ! i = 1, 5: combinations, particle hole(sigma), count_aa, count_ab, a/p_parts
 ! nSpeed, iSpeed
 !
-! Root_Molcas, bas_Molcas, gssh_molcas, igsoccx_molcas, ELIMINATED_IN_GAS_MOLCAS, 2ELIMINATED_IN_GAS_MOLCAS, potnuc_Molcas,
+! Root_Molcas, bas_Molcas, gssh_molcas, igsoccx_molcas, ELIMINATED_IN_GAS, 2ELIMINATED_IN_GAS, potnuc_Molcas,
 ! thre_Molcas, nsym_Molcas, nactel_Molcas, ms2_Molcas, ispin_Molcas, lsym_Molcas, itmax_Molcas, nroots_Molcas, ipt2_Molcas,
 ! iprci_Molcas, ngas_molcas, INOCALC_MOLCAS, ISAVE_EXP_MOLCAS, IEXPAND_MOLCAS, N_ELIMINATED_GAS_MOLCAS, N_2ELIMINATED_GAS_MOLCAS,
 ! I_ELIMINATE_GAS_MOLCAS, nCSF_HEXS
@@ -37,7 +37,7 @@ private
 
 integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 
-integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS(MxGAS), IEXPAND_MOLCAS, &
+integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN_GAS_MOLCAS(MxGAS), IEXPAND_MOLCAS, &
                      igsoccx_molcas(MxGAS,2), INOCALC_MOLCAS, iprci_Molcas, ipt2_Molcas, ISAVE_EXP_MOLCAS, iSpeed(nSpeed), &
                      ispin_Molcas, itmax_Molcas, lsym_Molcas, MINOP, MS2, ms2_Molcas, N_2ELIMINATED_GAS_MOLCAS, &
                      N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, &
@@ -46,7 +46,7 @@ integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS_MOLCAS, IELIMIN
 real(kind=wp) :: potnuc_Molcas, thre_Molcas
 logical(kind=iwp) :: DoComb
 
-public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, igsoccx_molcas, &
+public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, igsoccx_molcas, &
           INOCALC_MOLCAS, iprci_Molcas, ipt2_Molcas, ISAVE_EXP_MOLCAS, iSpeed, ispin_Molcas, itmax_Molcas, lsym_Molcas, MINOP, &
           MS2, ms2_Molcas, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, NCNASM, NCNFTP, NCSASM, nCSF_HEXS, &
           NCSFTP, NDET, NDTASM, NDTFTP, ngas_molcas, ngssh_molcas, nroots_Molcas, nsym_Molcas, NTYP, potnuc_Molcas, thre_Molcas

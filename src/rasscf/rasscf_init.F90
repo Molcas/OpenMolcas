@@ -41,7 +41,7 @@ use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoo
 use rasscf_files, only: STARTORBFILE
 use general_data, only: ISPIN, LOWDIN_ON, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, &
                         NSEL, NSSH, STSYM, SXDAMP
-use spinfo, only: I_ELIMINATE_GAS_MOLCAS, ISPEED
+use spinfo, only: I_ELIMINATE_GAS, ISPEED
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -196,7 +196,7 @@ ICICH = 0
 
 ISUPSM = 0
 ! make no use of supersymmetry
-I_ELIMINATE_GAS_MOLCAS = 0
+I_ELIMINATE_GAS = 0
 ! Highly excited states are not default
 hRoots = 0
 ! No hidden roots by default

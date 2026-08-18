@@ -41,7 +41,7 @@ use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
 use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, LOWDIN_ON, MALTER, MAXALTER, NACTEL, &
                         NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, &
                         NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, SXDAMP
-use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, IGSOCCX_MOLCAS, &
+use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, IGSOCCX_MOLCAS, &
                   INOCALC_MOLCAS, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, ITMAX_MOLCAS, LSYM_MOLCAS, &
                   MS2, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NCSASM, NDET, NDTASM, &
                   NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
@@ -2790,12 +2790,12 @@ else
       call Error(1)
       return
     end if
-    if ((I_ELIMINATE_GAS_MOLCAS /= 0) .and. (I_ELIMINATE_GAS_MOLCAS /= 2)) then
+    if ((I_ELIMINATE_GAS /= 0) .and. (I_ELIMINATE_GAS /= 2)) then
       call WarningMessage(2,'HEXS keyword defined more than once')
       call Error(1)
       return
     end if
-    I_ELIMINATE_GAS_MOLCAS = I_ELIMINATE_GAS_MOLCAS+1
+    I_ELIMINATE_GAS = I_ELIMINATE_GAS+1
     ReadStatus = ' Failure reading data following HEXS keyword.'
     read(LUInput,*,iostat=istatus) N_ELIMINATED_GAS_MOLCAS
     if (istatus < 0) then
@@ -2826,12 +2826,12 @@ else
       call Error(1)
       return
     end if
-    if (I_ELIMINATE_GAS_MOLCAS > 1) then
+    if (I_ELIMINATE_GAS > 1) then
       call WarningMessage(2,'DEXS keyword defined more than once')
       call Error(1)
       return
     end if
-    I_ELIMINATE_GAS_MOLCAS = I_ELIMINATE_GAS_MOLCAS+2
+    I_ELIMINATE_GAS = I_ELIMINATE_GAS+2
     ReadStatus = ' Failure reading data following DEXS keyword.'
     read(LUInput,*,iostat=istatus) N_2ELIMINATED_GAS_MOLCAS
     if (istatus < 0) then
