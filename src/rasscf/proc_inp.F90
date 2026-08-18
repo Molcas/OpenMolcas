@@ -51,7 +51,7 @@ use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
 use rasscf_global, only: CCI, CMSStartMat, CMSThreshold, CoreShift, DFTFOCK, DoBLOCKDMRG, DoFaro, DoFCIDump, ExFac, HFOCC, HFOcc, &
                          hRoots, iAlphaBeta, ICI, ICICH, iCIonly, iCIRFROOT, iCIRST, iCMSITERMAX, iCMSITERMin, iCMSP, iExpand, &
-                         IfCRPR, iFORDE, InOCalc, iOrbOnly, iOrbTyp, iOrdEM, iOverWr, iPCMRoot, iPhName, iPR, iPT2, IRLXROOT, &
+                         IfCRPR, iFORDE, InOCalc, iOrbOnly, iOrbTyp, iOrdEM, iOverWr, iPCMRoot, iPhName, iPT2, IRLXROOT, &
                          IROOT, iRotPsi, iSave_Exp, iSCF, iSPDEN, iSupSM, ITCORE, ITMAX, IXMSP, ixSym, iZRot, JCJ, kivo, KSDFT, &
                          kTight, l_CASDFT, LowMS, LROOTS, LvShft, MaxIt, MaxJt, MaxOrbOut, n_keep, NAC, NACPAR, NACPR2, NFR, NIN, &
                          NO2M, NonEq, NORBT, NQUNE, NROOTS, NSEC, NTOT3, NTOT4, OutFmt1, OutFmt2, PotNuc, PreThr, PreThr, ProThr, &

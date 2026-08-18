@@ -33,7 +33,10 @@ use RASDim, only: MxRef
 use general_data, only: STSYM
 use Constants, only: One
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, MXROOTS, ICI(MXROOTS,MxRef)
@@ -45,6 +48,9 @@ real(kind=wp) :: PHASE
 integer(kind=iwp), parameter :: istate = 1
 integer(kind=iwp), allocatable :: IORD(:)
 integer(kind=iwp), external :: SG_NUM, SG_PHASE
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I, LPRINT
+#endif
 
 
 If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))

@@ -18,7 +18,7 @@ use CC_CI_mod, only: Do_CC_CI
 use general_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: DoBlockDMRG, NSM
 use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
-use sguga, only: CIS, EXS, SGS, mkSgNum, SG_init
+use sguga, only: CIS, EXS, SGS, SG_init
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 use input_ras, only: Key
@@ -84,8 +84,6 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
         if (doBlockDMRG) then
           CIS(istate)%NCSF(STSYM) = 1
         else
-
-          call MKSGNUM(STSYM,SGS(istate),CIS(istate),EXS(istate))
 
           if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
 

@@ -38,7 +38,7 @@ subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !     University of Lund, Sweden, 1990                                 *
 !***********************************************************************
 
-use sguga, only: EXS, SGS
+use sguga, only: CIS, EXS, SGS, MkCOT, MkSgNum
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Lucia_data, only: CFTP, CONF_Occ
 use Molcas, only: MxAct
@@ -61,6 +61,9 @@ real(kind=wp) :: Fact
 integer(kind=iwp) :: i
 #endif
 integer(kind=iwp), external :: SG_NUM, SG_PHASE
+
+If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
+If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(IREFSM,SGS(istate),CIS(istate),EXS(istate))
 
 
 ICSFJP = 0
