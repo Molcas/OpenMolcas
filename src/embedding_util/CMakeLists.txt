@@ -11,6 +11,7 @@
 
 set (sources
      embedding_global.F90
+     embpotdensgrid.F90
      embpotene.F90
      embpotfreemem.F90
      embpotinit.F90
@@ -21,6 +22,10 @@ set (sources
      embpotrdrun.F90
      embpotwrrun.F90
      gaussrad.F90
+     ../grid_it/moeval.F90
+     ../grid_it/outmo.F90
+     ../grid_it/power.F90
+     ../grid_it/soadpt.F90
 )
 
 # Source files defining modules that should be available to other *_util directories

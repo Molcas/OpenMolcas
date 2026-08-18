@@ -95,7 +95,7 @@ use rasscf_global, only: DoDelChk, DoMCPDFTDMRG, DoNEVPT2Prep, RF1, RF2, Twordm_
 use general_data, only: NACTEL
 #endif
 #ifdef _FDE_
-use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, embWriteEsp
+use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, embWriteDens, embWriteEsp
 #endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_attr, mh5_put_dset
@@ -1561,6 +1561,13 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     call NATORB_RASSCF(CMO,scr1,scr2,SMAT,CMON,OCCX)
     call mma_deallocate(scr1)
     call mma_deallocate(scr2)
+#   ifdef _FDE_
+    if (embpot .and. embWriteDens) then
+      call embPotDensGrid(CMON,OCCX,NTOT,NTOT2)
+      Eemb = embPotEneMODensities(D1I,D1A,embInt,nBas,nTot2,nSym)
+      call embPotWriteResults('EMBRES',ENER(1,ITER),Eemb,sum(OCCX))
+    end if
+#   endif
     !PAM2009 Deallocate CMON, OCCX.
     call mma_deallocate(CMON)
     call mma_deallocate(OCCX)
@@ -1700,6 +1707,9 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
   call mma_deallocate(D1A)
   call mma_deallocate(OccN)
   call mma_deallocate(CMO)
+# ifdef _FDE_
+  if (embpot) call mma_deallocate(embInt)
+# endif
 # ifdef _DMRG_
   ! Free RDMs for the reaction field reference root in QCMaquis calculations
   if (doDMRG .and. PCM_On()) then
