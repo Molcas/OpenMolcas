@@ -11,11 +11,11 @@
 
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
-use sguga, only: SG_Free, SG_ReOrd
+use sguga, only: CIS, SG_Free, SG_ReOrd
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC
-use general_data, only: State_Sym=>STSym
-use input_mclr, only: nConf
+use general_data, only: State_Sym=>STSym, nSym
+use input_mclr, only: NCSF, NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -35,7 +35,10 @@ real(kind=wp), parameter :: PRWTHR = 0.05_wp
 
 ! Transformation of CI vector to symmetric group from GUGA pepresentation, or the reverse
 
-call SG_Setup_MCLR(pState_Sym)
+call SG_Setup_MCLR()
+
+NCSF(1:nSym) = CIS(istate)%NCSF(1:nSym)
+NCONF        = CIS(istate)%NCSF(pState_Sym)
 
 iss = 1
 if (pState_sym /= state_sym) iss = 2
@@ -58,6 +61,7 @@ Call mma_allocate(CFTP,SIZE(CFTP_MCLR),Label='CFTP')
 CFTP(:)=CFTP_MCLR(:)
 
 call SG_REORD(istate,pState_Sym,iMode,nConf,CI,CINEW)
+
 CI(1:nConf)=CINEW(1:nConf)
 
 Call mma_deallocate(CFTP)

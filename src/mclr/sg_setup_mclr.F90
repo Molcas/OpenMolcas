@@ -9,17 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SG_Setup_MCLR(pState_Sym)
+subroutine SG_Setup_MCLR()
 
 use molcas, only: MxLev
 use sguga, only: SGS, CIS, EXS, SG_Init_Simple
 use general_data, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
 use general_data, only: nRas, nRasEl, nRsPrt
-use input_mclr, only: nConf, nCSF
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in):: pState_Sym
 integer(kind=iwp) :: iBas, iq, ISM(1:MxLev), iSym, Level(MxLev), nLev, nRs1T
 integer(kind=iwp), parameter :: iState=1
 
@@ -64,8 +62,5 @@ Call SG_Init_Simple(istate,nSym,nActEl,iSpin,     &
                     nRas,nRasEl,nRsPrt,            &
                     xLevel=Level, xL2Act=Level,    &
                     xNLEV=nLev, xNSM=ISM)
-
-NCSF(1:nSym) = CIS(istate)%NCSF(1:nSym)
-NCONF        = CIS(istate)%NCSF(pState_Sym)
 
 end subroutine SG_Setup_MCLR
