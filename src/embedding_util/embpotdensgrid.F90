@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) Lukas Schreder                                         *
+! Copyright (C) 2024,2026, Lukas Schreder                              *
 !***********************************************************************
 
 subroutine embPotDensGrid(CMO,Occ,nMOs,nCMO)
