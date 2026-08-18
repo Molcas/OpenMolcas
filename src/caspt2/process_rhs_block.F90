@@ -14,7 +14,11 @@ subroutine Process_RHS_Block(ITI,ITP,ITK,ITQ,nCase,Cho_Bra,nBra,Cho_Ket,nKet,nSh
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
 use AddRHS, only: ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2, ADDRHSE, ADDRHSF, ADDRHSG, ADDRHSH
-use caspt2_global, only: BUFF, idxb, iPrGlb, PIQK
+#ifdef _MOLCAS_MPP_
+use ADDRHS_STRIPED, only: ADDRHSA_STRIPED, ADDRHSB_STRIPED, ADDRHSC_STRIPED, ADDRHSD1_STRIPED, ADDRHSD2_STRIPED, &
+                          ADDRHSE_STRIPED, ADDRHSF_STRIPED, ADDRHSG_STRIPED, ADDRHSH_STRIPED
+#endif
+use caspt2_global, only: BUFF, idxb, iParRHS, iPrGlb, PIQK
 use caspt2_module, only: NSYM
 use Definitions, only: wp, iwp, u6
 
@@ -57,21 +61,27 @@ do ISYI=1,NSYM
     ! buffer, any size can be taken, but assuming there is enough memory
     ! available, it's set to the size of the two-electron integrals unless
     ! larger than some predefined maximum buffer size.
-    NPIQK = NPI*NQK
-    if (NPIQK > MXPIQK) then
-      if (nCase == 'H') then
-        KPI = MXPIQK/NQK
-        NPIQK = KPI*NQK
-      else if (nCase == 'G') then
-        KQK = MXPIQK/NPI
-        NPIQK = NPI*KQK
-      else
-        write(u6,*) ' NPIQK > MXPIQK and case != G or H'
-        write(u6,'(A,A2)') ' CASE =   ',nCase
-        write(u6,'(A,I12)') ' NPIQK =  ',NPIQK
-        write(u6,'(A,I12)') ' MXPIQK = ',MXPIQK
-        write(u6,*) ' This should not happen, please report.'
-        call AbEnd()
+    ! The striped algorithm builds only the local columns and chunks internally, so
+    ! it takes the whole buffer and never needs the full (pi,qk) block.
+    if (iParRHS == 4) then
+      NPIQK = MXPIQK
+    else
+      NPIQK = NPI*NQK
+      if (NPIQK > MXPIQK) then
+        if (nCase == 'H') then
+          KPI = MXPIQK/NQK
+          NPIQK = KPI*NQK
+        else if (nCase == 'G') then
+          KQK = MXPIQK/NPI
+          NPIQK = NPI*KQK
+        else
+          write(u6,*) ' NPIQK > MXPIQK and case != G or H'
+          write(u6,'(A,A2)') ' CASE =   ',nCase
+          write(u6,'(A,I12)') ' NPIQK =  ',NPIQK
+          write(u6,'(A,I12)') ' MXPIQK = ',MXPIQK
+          write(u6,*) ' This should not happen, please report.'
+          call AbEnd()
+        end if
       end if
     end if
 
@@ -81,28 +91,58 @@ do ISYI=1,NSYM
       call AbEnd()
     end if
 
-    select case (nCase)
-      case ('A ')
-        call ADDRHSA(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
-      case ('B ')
-        call ADDRHSB(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
-      case ('D1')
-        call ADDRHSD1(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
-      case ('H ')
-        call ADDRHSH(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
-      case ('C ')
-        call ADDRHSC(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
-      case ('F ')
-        call ADDRHSF(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
-      case ('D2')
-        call ADDRHSD2(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
-      case ('G ')
-        call ADDRHSG(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
-      case ('E ')
-        call ADDRHSE(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
-      case default
-        call Abend()
-    end select
+#   ifdef _MOLCAS_MPP_
+    if (iParRHS == 4) then
+      ! striped RHS construction
+      select case (nCase)
+        case ('A ')
+          call ADDRHSA_STRIPED(JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('B ')
+          call ADDRHSB_STRIPED(JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('D1')
+          call ADDRHSD1_STRIPED(JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('H ')
+          call ADDRHSH_STRIPED(JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('C ')
+          call ADDRHSC_STRIPED(JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('F ')
+          call ADDRHSF_STRIPED(JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('D2')
+          call ADDRHSD2_STRIPED(JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('G ')
+          call ADDRHSG_STRIPED(JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('E ')
+          call ADDRHSE_STRIPED(JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case default
+          call Abend()
+      end select
+    else
+#   endif
+      select case (nCase)
+        case ('A ')
+          call ADDRHSA(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('B ')
+          call ADDRHSB(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('D1')
+          call ADDRHSD1(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('H ')
+          call ADDRHSH(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('C ')
+          call ADDRHSC(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('F ')
+          call ADDRHSF(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('D2')
+          call ADDRHSD2(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('G ')
+          call ADDRHSG(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,NPIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case ('E ')
+          call ADDRHSE(IVEC,JSYM,ISYI,ISYK,NP,NI,NQ,NK,PIQK,nBuff,Buff,idxb,Cho_Bra(LBRASM),Cho_Ket(LKETSM),NV)
+        case default
+          call Abend()
+      end select
+#   ifdef _MOLCAS_MPP_
+    end if
+#   endif
 
     LKETSM = LKETSM+NKETSM
   end do
