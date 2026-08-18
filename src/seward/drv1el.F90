@@ -1213,7 +1213,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
   if (embpot) then
     Label = 'embpot  '
     iRC = -1
-    call WrOne(iRC,iOpt,Label,1,embInt,lOper)
+    call WrOne(iRC,iOpt,Label,1,Emb_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error writing ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_WRITE_)
