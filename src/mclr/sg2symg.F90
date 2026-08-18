@@ -11,7 +11,7 @@
 
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
-use sguga, only: SG_Free
+use sguga, only: SG_Free, SG_ReOrd
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC
 use general_data, only: State_Sym=>STSym

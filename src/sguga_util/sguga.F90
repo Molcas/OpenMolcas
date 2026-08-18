@@ -202,7 +202,7 @@ integer(kind=iwp), parameter :: TR_CLOSE = 8
 integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
-public :: SGStruct, CIStruct, EXStruct, MkCOT, MkSgNum, SG_Free, SG_Init, SG_Init_Simple, SG_Epq_Psi
+public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Simple, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
@@ -260,34 +260,17 @@ subroutine MKSGUGA(SGS,CIS)
   ! VERTICES WHICH VIOLATE THE FORMER.
 
   if (SGS%IFRAS /= 0) then
-    call RmVert(SGS)
-
-    ! REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
-
-    call mkDRT(SGS)
-
-    ! IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED DRT TABLE
-
+    call RmVert(SGS) ! REASSEMBLE THE DRT TABLE (REMOVE DISCONNECTED VERTICES)
+    call mkDRT(SGS) ! IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED DRT TABLE
   end if
 
   nullify(SGS%DOWNP,SGS%DRTP)
 
-  ! COMPUTE DOWNCHAIN TABLE AND ARC WEIGHT
-
-  call MKDAW(SGS)
-
-  ! COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
-
-  call MKRAW(SGS)
-
-  ! COMPUTE LTV TABLES.
-
-  call MKLTV(SGS)
-
-  ! COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICE.
-
-  call MKMID(SGS)
-
+  call MKDAW(SGS) ! COMPUTE DOWNCHAIN TABLE AND ARC WEIGHT
+  call MKRAW(SGS) ! COMPUTE UPCHAIN TABLE AND REVERSE ARC WEIGHTS
+  call MKLTV(SGS) ! COMPUTE LTV TABLES.
+  call MKMID(SGS) ! COMPUTE MIDLEVEL AND LIMITS ON MIDVERTICE.
+  call MKCOT(SGS,CIS) ! CONSTRUCT THE CASE LIST
 contains
 
   subroutine mknVert0(SGS)
@@ -803,12 +786,6 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
 
   call MKMAW(SGS(iState))
 
-!     FORM VARIOUS OFFSET TABLES:
-
-!     CONSTRUCT THE CASE LIST
-
-  call MKCOT(SGS(iState),CIS(iState))
-
 ! THE DAW, UP AND RAW TABLES WILL NOT BE NEEDED ANY MORE:
 
 ! CALCULATE SEGMENT VALUES. ALSO, MVL AND MVR TABLES.
@@ -892,6 +869,7 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
   if (present(Do_MkSGUGA)) then
     if (Do_MkSGUGA) Then
        call MkSGUGA(SGS(istate),CIS(istate))
+
   else
        SGS(istate)%iSpin = 0
        SGS(istate)%nActEl = 0
@@ -3176,5 +3154,132 @@ end subroutine apply_col
 end subroutine apply_row
 
 end subroutine SG_Epq_Psi
+
+subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
+!***********************************************************************
+!                                                                      *
+!     Rearrange CI-vectors                                             *
+!     iMode=0 --> from SGA to split graph GUGA order                   *
+!     iMode=1 --> from split graph GUGA to SGA order                   *
+!                                                                      *
+!     calling arguments:                                               *
+!     iRefSm  : integer                                                *
+!               state symmetry                                         *
+!     iMode   : integer                                                *
+!               switch selecting reordering mode (see above)           *
+!     nSm     : array of integer                                       *
+!               symmetry per active orbital                            *
+!     CIold   : array of real                                          *
+!               incoming CI vector                                     *
+!     CInew   : array of real                                          *
+!               outgoing CI vector                                     *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher and J. Olsen                                      *
+!     University of Lund, Sweden, 1990                                 *
+!***********************************************************************
+
+use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
+use Lucia_data, only: CFTP, CONF_Occ
+use Molcas, only: MxAct
+use Constants, only: One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: iState, IREFSM, IMODE, nConf
+real(kind=wp), intent(in) :: CIOLD(nConf)
+real(kind=wp), intent(out) :: CINEW(nConf)
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
+                     IWALK(mxAct), JOCC, KCNF(MxAct), KOCC, KORB
+real(kind=wp) :: Fact
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
+integer(kind=iwp), external :: SG_NUM, SG_PHASE
+
+If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
+If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(IREFSM,SGS(istate),CIS(istate),EXS(istate))
+
+
+ICSFJP = 0
+ICNBS0 = 0 ! dummy initialize
+IPBAS = 0 ! dummy initialize
+! LOOP OVER CONFIGURATIONS TYPES
+do ITYP=1,NTYP
+  IOPEN = ITYP+MINOP-1
+  ICL = (SGS(iState)%nActEl-IOPEN)/2
+  ! BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
+  if (ITYP == 1) then
+    ICNBS0 = 1
+  else
+    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(SGS(iState)%nActEl+IOPEN-1)/2
+  end if
+  ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
+  if (ITYP == 1) then
+    IPBAS = 1
+  else
+    IPBAS = IPBAS+NCSFTP(ITYP-1)*(IOPEN-1)
+  end if
+
+  ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
+  ! SPIN COUPLINGS
+
+  do IC=1,NCNFTP(ITYP,IREFSM)
+    ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
+    do IICSF=1,NCSFTP(ITYP)
+      ICSFJP = ICSFJP+1
+      ICSBAS = IPBAS+(IICSF-1)*IOPEN
+      KCNF(:)=0
+      ! Obtain configuration in standard RASSCF form
+      IIBOP = 1
+      IIBCL = 1
+      JOCC = ICL+IOPEN
+      do KOCC=0,JOCC-1
+        KORB = Conf_Occ(IREFSM)%A(ICNBS+KOCC)
+        if (KORB < 0) then
+          ! Doubly occupied orbital
+          KCNF(IIBCL) = abs(KORB)
+          IIBCL = IIBCL+1
+        else
+          ! Singly occupied orbital
+          KCNF(ICL+IIBOP) = KORB
+          IIBOP = IIBOP+1
+        end if
+      end do
+
+      ! COMPUTE STEP VECTOR
+      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),SGS(iState)%nLev,IWALK)
+
+      ! GET SPLIT GRAPH ORDERING NUMBER
+      ISG = SG_NUM(SGS(iState),EXS(istate),IWALK)
+      ! GET PHASE PHASE FACTOR
+      IP = SG_PHASE(SGS(istate),IWALK)
+      Fact = merge(-One,One,IP < 0)
+      if (IMODE == 0) then
+        CINEW(ISG) = Fact * CIOLD(ICSFJP)
+      else
+        CINEW(ICSFJP) = Fact * CIOLD(ISG)
+      end if
+    end do
+  end do
+end do
+
+#ifdef _DEBUGPRINT_
+  write(u6,*)
+  write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+write(u6,'(10F12.8)') (CIOLD(I),I=1,min(200,ICSFJP))
+  write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
+  write(u6,*)
+#endif
+
+end subroutine SG_Reord
 
 end module SGUGA

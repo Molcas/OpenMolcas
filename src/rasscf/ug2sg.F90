@@ -25,7 +25,7 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,ICI,JCJ,CCI,MXROOTS)
 !          INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
-use sguga, only: CIS, EXS, SGS, MkCot, MkSgNum
+use sguga, only: CIS, EXS, SGS, MkCOT, MkSgNum
 use Lucia_data, only: Conf_Occ, ISPIN=>CFTP
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
@@ -36,14 +36,15 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
+integer(kind=iwp) :: I, LPRINT
 #endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, MXROOTS, ICI(MXROOTS,MxRef)
 integer(kind=iwp), intent(out) :: JCJ(MXROOTS,MxRef)
 real(kind=wp), intent(inout) :: CCI(MXROOTS,MxRef)
-integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(mxAct), &
-                     JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(mxAct), &
+                     JOCC, K, KCNF(mxAct), KOCC, KORB, L
 real(kind=wp) :: PHASE
 integer(kind=iwp), parameter :: istate = 1
 integer(kind=iwp), allocatable :: IORD(:)

@@ -13,7 +13,7 @@
 
 #define _SGUGA_VERIFY_
 module CI_Interfaces
-use sguga, only: CIS, SGS, EXS, SG_Free
+use sguga, only: CIS, SGS, EXS, SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort

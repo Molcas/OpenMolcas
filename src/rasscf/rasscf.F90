@@ -53,6 +53,7 @@ use Index_Functions, only: nTri_Elem
 use ci_interfaces, only: CI_Timer, CI_Close
 #ifdef _HDF5_
 use ci_interfaces, only: Mk_T1DM
+use sguga, only: sg_reord
 #endif
 use OneDat, only: sNoNuc, sNoOri
 use Fock_util_global, only: ALGO, DoActive, DoCholesky

@@ -80,7 +80,7 @@ use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
 use general_data, only: CRVec, ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
-use sguga, only: SGS
+use sguga, only: SGS, SG_ReOrd
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
