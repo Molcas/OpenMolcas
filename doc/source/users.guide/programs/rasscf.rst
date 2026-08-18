@@ -404,8 +404,8 @@ Optional important keywords are:
 .. class:: keywordlist
 
 :kword:`DMPO`
-  This keyword is used to produce integral files and quit in a clean manner
-  (no CI or CASSCF calculation will be done).  Two modes are available:
+  This keyword is used to produce integral files and quit in a clean manner. 
+  Two modes are available:
 
   * ``DMPO`` (bare) — produces :file:`FCIDUMP` and :file:`H5FCIDUMP` files only
     (default behaviour).
