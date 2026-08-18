@@ -2366,7 +2366,6 @@ else
     DmpMode = 0
     call SetPos(LUInput,'DMPO',Line,iRc)
     if (iRc == _RC_ALL_IS_WELL_) then
-      Line = Get_Ln(LUInput)
       call UpCase(Line)
       if (index(Line,'FORT') /= 0) then
         DmpMode = 1
