@@ -30,8 +30,9 @@ implicit none
 private
 
 logical(kind=iwp) :: DumpOnly = .false.
+integer(kind=iwp) :: DmpMode = 0 ! 0=FCIDUMP only, 1=fort55 only
 
-public :: cleanup, DumpOnly, make_fcidumps, transform
+public :: cleanup, DumpOnly, DmpMode, make_fcidumps, transform
 
 contains
 
@@ -67,7 +68,7 @@ subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,co
 
   if (present(permutation)) call reorder(orbital_table,fock_table,two_el_table,orbsym,permutation)
 
-  if (present(fort55_path)) then
+  if (present(fort55_path) .and. DmpMode == 1) then
     allocate(energy_perm(sum(nAsh(:nSym))))
     allocate(inv_perm(sum(nAsh(:nSym))))
     call energy_sort_permutation(orbital_energies,energy_perm)
@@ -81,8 +82,10 @@ subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,co
     deallocate(inv_perm)
   end if
 
-  call dump_ascii(ascii_path,core_energy,orbital_table,fock_table,two_el_table,orbsym)
-  call dump_hdf5(h5_path,core_energy,orbital_table,fock_table,two_el_table,orbsym)
+  if (DmpMode == 0) then
+    call dump_ascii(ascii_path,core_energy,orbital_table,fock_table,two_el_table,orbsym)
+    call dump_hdf5(h5_path,core_energy,orbital_table,fock_table,two_el_table,orbsym)
+  end if
 
   call mma_deallocate(orbsym)
   call mma_deallocate(fock_table)
