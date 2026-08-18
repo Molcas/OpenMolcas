@@ -12,7 +12,7 @@
 subroutine SG_Setup_MCLR()
 
 use molcas, only: MxLev
-use sguga, only: SGS, CIS, EXS, SG_Init_Simple
+use sguga, only: SG_Init_Simple
 use general_data, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
 use general_data, only: nRas, nRasEl, nRsPrt
 use Definitions, only: iwp

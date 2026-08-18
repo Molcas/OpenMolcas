@@ -36,7 +36,6 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
-integer(kind=iwp) :: I, LPRINT
 #endif
 
 implicit none
