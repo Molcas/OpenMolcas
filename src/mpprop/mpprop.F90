@@ -463,7 +463,7 @@ call Get_Prim_Atom_Tab(nAtoms,nPrim(1),Coor,CenX,CenY,CenZ)
 call Get_dScalar('Last energy',EneV)
 
 write(u6,*)
-write(u6,'(a,f25.16)') ' Total SCF energy ',EneV
+write(u6,'(a,f16.8)') ' Total SCF energy ',EneV
 write(u6,*)
 nOrbi = nBas(1)
 

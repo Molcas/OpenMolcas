@@ -40,9 +40,9 @@ if (nIter(nIterP) > 0) then
   write(u6,'(31x,A,A,A)') cUHF,Label,' iterations: Energy and convergence statistics'
   write(u6,*)
   write(u6,'(A,A,A)') 'Iter     Tot. ',Label, &
-    '       Tot. Energy              One-elec.              Two-elec.          Energy Change Max Dij/Fij   Delta Norm    DNorm'
-  write(u6,'(A)') '         Energy                    Energy                    Energy              Change      Delta Norm'// &
-    '                                                in Sec.'
+                      ' One-elec.       Two-elec.     Energy      Max Dij or  Max Fij      DNorm      TNorm      AccCon     Time'
+  write(u6,'(A)') '         Energy          Energy          Energy        Change      Delta Norm'// &
+                  '                                                in Sec.'
 
 else
   iDummy_run = 1
