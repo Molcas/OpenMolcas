@@ -408,17 +408,17 @@ Optional important keywords are:
   Two modes are available:
 
   * ``DMPO`` (bare) — produces :file:`FCIDUMP` and :file:`H5FCIDUMP` files only
-    (default behaviour).
+    (default behavior).
   * ``DMPO FORT55`` — produces the MRCC-compatible :file:`fort.55` file only.
-    Use this form when interfacing with the :program:`MRCC` program.
+    Use this mode when interfacing with the :program:`MRCC` program.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPO" APPEAR="Dump only" KIND="STRING" LEVEL="ADVANCED">
               %%Keyword: DMPO <advanced>
               <HELP>
               This keyword is used to produce integral files and quit in a clean way
               (no CI or CASSCF calculation will be done).
-              Bare DMPO produces FCIDUMP files (ASCII and HDF5) only.
-              Use "DMPO FORT55" to produce a MRCC-compatible fort.55 file instead.
+              Bare DMPO produces FCIDUMP files only (in ASCII and HDF5 formats).
+              Use "DMPO FORT55" to produce an MRCC-compatible fort.55 file instead (in ASCII format).
               </HELP>
               </KEYWORD>
 
