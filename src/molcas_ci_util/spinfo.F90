@@ -24,7 +24,7 @@ module Spinfo
 ! i = 1, 5: combinations, particle hole(sigma), count_aa, count_ab, a/p_parts
 ! nSpeed, iSpeed
 !
-! ngssh, igsoccx, ELIMINATED_IN_GAS, 2ELIMINATED_IN_GAS, potnuc_Molcas,
+! ngssh, igsoccx, ELIMINATED_IN_GAS, 2ELIMINATED_IN_GAS, potnuc,
 ! thre_Molcas, nsym_Molcas, nactel, ms2, ispin, STSYM, itmax, nroots, ipt2,
 ! iprci, ngas, INOCALC, ISAVE_EXP, IEXPAND, N_ELIMINATED_GAS, N_2ELIMINATED_GAS,
 ! I_ELIMINATE_GAS, nCSF_HEXS
@@ -43,12 +43,12 @@ integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN
                      N_ELIMINATED_GAS, nactel, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, &
                      NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), ngas, ngssh(MxGAS,mxSym), nroots, &
                      nsym_Molcas, NTYP
-real(kind=wp) :: potnuc_Molcas, thre_Molcas
+real(kind=wp) :: potnuc, thre_Molcas
 logical(kind=iwp) :: DoComb
 
 public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, IEXPAND, igsoccx, &
           INOCALC, iprci, ipt2, ISAVE_EXP, iSpeed, ispin, itmax, STSYM, MINOP, &
           MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, nactel, NCNASM, NCNFTP, NCSASM, nCSF_HEXS, &
-          NCSFTP, NDET, NDTASM, NDTFTP, ngas, ngssh, nroots, nsym_Molcas, NTYP, potnuc_Molcas, thre_Molcas
+          NCSFTP, NDET, NDTASM, NDTFTP, ngas, ngssh, nroots, nsym_Molcas, NTYP, potnuc, thre_Molcas
 
 end module Spinfo
