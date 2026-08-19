@@ -21,7 +21,7 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ISYM
+integer(kind=iwp), intent(inout) :: ISYM
 
 If (Allocated(Z_PTDT)) call Deallocate_DT(Z_PTDT)
 If (Allocated(REO_PTDT)) call Deallocate_DT(REO_PTDT)
@@ -45,6 +45,7 @@ If (iSym>0 .and. iSym<9) Then
    call mma_deallocate(CONF_OCC(ISYM)%A,safe='*')
    call mma_deallocate(CONF_REO(ISYM)%A,safe='*')
    call mma_deallocate(SDREO_I(ISYM)%A,safe='*')
+   iSym=-1
 End If
 nullify(SDREO)
 
