@@ -43,7 +43,7 @@ use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, LOWDIN_ON, MALTE
                         NGAS, NGSSH
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, IEXPAND_MOLCAS=>IEXPAND, IGSOCCX_MOLCAS=>IGSOCCX, &
                   INOCALC_MOLCAS=>INOCALC, IPRCI_MOLCAS=>IPRCI, IPT2_MOLCAS=>iPT2, &
-                  ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, ITMAX_MOLCAS, LSYM_MOLCAS, &
+                  ISAVE_EXP_MOLCAS=>ISAVE_EXP, ISPEED, ISPIN_MOLCAS, ITMAX_MOLCAS, LSYM_MOLCAS, &
                   MS2, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NCSASM, NDET, NDTASM, &
                   NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
 use DWSol, only: DWSol_DWRO
@@ -4055,7 +4055,7 @@ if (.not. SkipGUGA) then
   if (DBG) write(u6,*) ' Construct the determinant tables.'
   MS2 = iSpin-1
 
-  ! Set variables needed in Lucia_Ini
+  ! Set variables needed in Lucia_Ini (module spinfo)
 
   ngssh_Molcas(:,:) = ngssh(:,:)
   igsoccx_Molcas(:,:) = igsoccx(:,:)
