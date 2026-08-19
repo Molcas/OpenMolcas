@@ -15,8 +15,8 @@ module Chkpnt
 
 #ifdef _HDF5_
 use mh5, only: mh5_close_attr, mh5_close_dset, mh5_close_file, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, &
-               mh5_create_dset_str, mh5_create_file, mh5_fetch_attr, mh5_get_attr, mh5_init_attr, mh5_is_hdf5, mh5_open_attr, &
-               mh5_open_dset, mh5_open_file_rw, mh5_put_attr, mh5_put_dset, mh5_resize_dset
+               mh5_create_dset_str, mh5_create_file, mh5_exists_dset, mh5_fetch_attr, mh5_get_attr, mh5_init_attr, mh5_is_hdf5, &
+               mh5_open_attr, mh5_open_dset, mh5_open_file_rw, mh5_put_attr, mh5_put_dset, mh5_resize_dset
 use Definitions, only: wp
 #endif
 use Molcas, only: LenIn
@@ -28,8 +28,9 @@ private
 # ifdef _HDF5_
 character(len=*), parameter :: basename = 'SLAPAFCHK'
 
-integer(kind=iwp) :: chkpnt_coor, chkpnt_ener, chkpnt_force, chkpnt_hess, chkpnt_id, chkpnt_iter, chkpnt_new, chkpnt_rootener, &
-                      Iter_all
+integer(kind=iwp) :: chkpnt_appnadc, chkpnt_coor, chkpnt_ener, chkpnt_force, chkpnt_gd, chkpnt_hess, chkpnt_id, chkpnt_iter, &
+                      chkpnt_nac, chkpnt_new, chkpnt_rootener, chkpnt_rootidx, Iter_all
+logical(kind=iwp) :: have_CI, have_NAC
 character(len=12) :: filename
 #endif
 
@@ -61,6 +62,18 @@ subroutine Chkpnt_open()
     chkpnt_new = mh5_open_dset(chkpnt_id,'CENTER_COORDINATES')
     chkpnt_force = mh5_open_dset(chkpnt_id,'FORCES')
     chkpnt_hess = mh5_open_dset(chkpnt_id,'HESSIAN')
+    ! conical intersection / MECI data: created only when the run has it (see Chkpnt_init), so a reopen must check for
+    ! existence first -- mh5_open_dset does not, and would leave a poisoned handle that abends on first use.
+    have_CI = mh5_exists_dset(chkpnt_id,'GRADIENT_DIFFERENCE')
+    if (have_CI) then
+      chkpnt_gd = mh5_open_dset(chkpnt_id,'GRADIENT_DIFFERENCE')
+      chkpnt_rootidx = mh5_open_dset(chkpnt_id,'ROOT_INDICES')
+    end if
+    have_NAC = have_CI .and. mh5_exists_dset(chkpnt_id,'NAC')
+    if (have_NAC) then
+      chkpnt_nac = mh5_open_dset(chkpnt_id,'NAC')
+      chkpnt_appnadc = mh5_open_dset(chkpnt_id,'APPROX_NADC')
+    end if
     call mh5_fetch_attr(chkpnt_id,'NSYM',tmp)
     if (tmp /= nIrrep) create = .true.
     call mh5_fetch_attr(chkpnt_id,'NATOMS_UNIQUE',tmp)
@@ -89,10 +102,11 @@ subroutine Chkpnt_init()
   use Phase_Info, only: iPhase
   use Symmetry_Info, only: nIrrep
   use Index_Functions, only: nTri_Elem
-  use Slapaf_Info, only: AtomLbl, Coor, dMass, dMEPStep, iCoSet, MEP, nDimBC, nStab, rMEP, Smmtrc
+  use Slapaf_Info, only: AtomLbl, Coor, dMass, dMEPStep, EDiffZero, iCoSet, iState, MEP, NADC, nDimBC, nStab, rMEP, Smmtrc, &
+                         TwoRunFiles
   use stdalloc, only: mma_allocate, mma_deallocate
   character :: lIrrep(24)
-  integer(kind=iwp) :: dsetid, i, j, k, mAtom, nRoots
+  integer(kind=iwp) :: Columbus, dsetid, i, j, k, mAtom, nRoots
   logical(kind=iwp) :: Found
   integer(kind=iwp), allocatable :: desym(:,:), symdof(:,:)
   real(kind=wp), allocatable :: charges(:)
@@ -217,6 +231,47 @@ subroutine Chkpnt_init()
   chkpnt_hess = mh5_create_dset_real(chkpnt_id,'HESSIAN',1,[nTri_Elem(nDimBC)])
   call mh5_init_attr(chkpnt_hess,'DESCRIPTION','Cartesian Hessian in triangular form, as a vector of size [DOF*(DOF+1)/2]')
 
+  ! conical intersection / MECI data
+  ! LDV: have_CI/have_NAC are decided once here (or on reopen, from dataset existence) and not re-verified every iteration;
+  ! there is no mechanism by which iState(2) or NADC would flip mid-run for a file that already has these datasets, mirroring
+  ! the NROOTS assumption above.
+  have_CI = (iState(2) /= 0)
+  if (have_CI) then
+    call mh5_init_attr(chkpnt_id,'NADC',merge(1,0,NADC))
+    call mh5_init_attr(chkpnt_id,'EDIFF_ZERO',merge(1,0,EDiffZero))
+    call mh5_init_attr(chkpnt_id,'TWO_RUNFILES',merge(1,0,TwoRunFiles))
+
+    chkpnt_gd = mh5_create_dset_real(chkpnt_id,'GRADIENT_DIFFERENCE',3,[3,size(Coor,2),0],dyn=.true.)
+    call mh5_init_attr(chkpnt_gd,'DESCRIPTION','Gradient difference between the two states referenced by ROOT_INDICES '// &
+                       '(lower-root gradient minus higher-root gradient), matrix of size [ITERATIONS,NATOMS_UNIQUE,3], '// &
+                       'stored with iteration varying slowest, then atom index')
+
+    ! LDV: for a two-RunFile job iState is (active-RunFile root, RUNFILE2 root), not sorted -- see process_gradients.F90:
+    ! L36 zeroes both, L64-75 sets iState(1) from the active RunFile, L104-119 sets iState(2) from RUNFILE2 with no min/max
+    ! sort (unlike the same-spin CI case, where iState(1) ends up the higher root and iState(2) the lower).
+    chkpnt_rootidx = mh5_create_dset_int(chkpnt_id,'ROOT_INDICES',2,[2,0],dyn=.true.)
+    call mh5_init_attr(chkpnt_rootidx,'DESCRIPTION','State-pair indices for the two-state calculation, matrix of size '// &
+                       '[ITERATIONS,2]; column 0 is the higher root (or the active RunFile''s root for a two-RunFile '// &
+                       'job), column 1 is the lower root (or RUNFILE2''s root); not sorted for a two-RunFile job')
+
+    call Get_iScalar('Columbus',Columbus)
+    have_NAC = NADC .and. (Columbus /= 1)
+    if (have_NAC) then
+      chkpnt_nac = mh5_create_dset_real(chkpnt_id,'NAC',3,[3,size(Coor,2),0],dyn=.true.)
+      call mh5_init_attr(chkpnt_nac,'DESCRIPTION','Nonadiabatic coupling derivative vector between the two states '// &
+                         'referenced by ROOT_INDICES, or (when APPROX_NADC is set for that iteration) a normalized '// &
+                         'dimensionless branching-plane vector instead, matrix of size [ITERATIONS,NATOMS_UNIQUE,3], '// &
+                         'stored with iteration varying slowest, then atom index')
+
+      chkpnt_appnadc = mh5_create_dset_int(chkpnt_id,'APPROX_NADC',1,[0],dyn=.true.)
+      call mh5_init_attr(chkpnt_appnadc,'DESCRIPTION','Flag (0/1) per iteration: whether NAC for that iteration is an '// &
+                         'approximate branching-plane vector rather than a true coupling derivative, vector of size '// &
+                         '[ITERATIONS]')
+    end if
+  else
+    have_NAC = .false.
+  end if
+
   ! MEP/IRC information
   if (MEP .or. rMEP) then
     call mh5_init_attr(chkpnt_id,'MEP_STEP',dMEPStep)
@@ -230,7 +285,7 @@ end subroutine Chkpnt_init
 
 subroutine Chkpnt_update()
 # ifdef _HDF5_
-  use Slapaf_Info, only: Cx, Energy, Gx, iter, nDimBC
+  use Slapaf_Info, only: ApproxNADC, Cx, Energy, Gx, Gx0, iState, iter, NAC, nDimBC
   use stdalloc, only: mma_allocate, mma_deallocate
   integer(kind=iwp) :: i, ij, j, nRoots
   logical(kind=iwp) :: Found, FoundRoots
@@ -279,6 +334,19 @@ subroutine Chkpnt_update()
   if (Found) then
     call mh5_put_dset(chkpnt_hess,Hss_X(1))
     call mma_deallocate(Hss_X)
+  end if
+  ! conical intersection / MECI data
+  if (have_CI) then
+    call mh5_resize_dset(chkpnt_gd,[3,size(Cx,2),Iter_all])
+    call mh5_put_dset(chkpnt_gd,Gx0(:,:,Iter),[3,size(Cx,2),1],[0,0,Iter_all-1])
+    call mh5_resize_dset(chkpnt_rootidx,[2,Iter_all])
+    call mh5_put_dset(chkpnt_rootidx,iState,[2,1],[0,Iter_all-1])
+    if (have_NAC) then
+      call mh5_resize_dset(chkpnt_nac,[3,size(Cx,2),Iter_all])
+      call mh5_put_dset(chkpnt_nac,NAC(:,:,Iter),[3,size(Cx,2),1],[0,0,Iter_all-1])
+      call mh5_resize_dset(chkpnt_appnadc,[Iter_all])
+      call mh5_put_dset(chkpnt_appnadc,[merge(1,0,ApproxNADC)],[1],[Iter_all-1])
+    end if
   end if
 # endif
 end subroutine Chkpnt_update
