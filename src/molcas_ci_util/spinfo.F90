@@ -26,7 +26,7 @@ module Spinfo
 !
 ! ngssh, igsoccx, ELIMINATED_IN_GAS, 2ELIMINATED_IN_GAS, potnuc,
 ! thre, nsym, nactel, ms2, ispin, STSYM, itmax, nroots, ipt2,
-! iprci, ngas, INOCALC, ISAVE_EXP, IEXPAND, N_ELIMINATED_GAS, N_2ELIMINATED_GAS,
+! iprci, ngas, INOCALC, ISAVE_EXP, N_ELIMINATED_GAS, N_2ELIMINATED_GAS,
 ! I_ELIMINATE_GAS, nCSF_HEXS
 
 use Molcas, only: MxGAS, MxSym
@@ -37,7 +37,7 @@ private
 
 integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 
-integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN_GAS(MxGAS), IEXPAND, &
+integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN_GAS(MxGAS), &
                      igsoccx(MxGAS,2), INOCALC, iprci, ipt2, ISAVE_EXP, iSpeed(nSpeed), &
                      ispin, itmax, STSYM, MINOP, MS2, N_2ELIMINATED_GAS, &
                      N_ELIMINATED_GAS, nactel, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, &
@@ -46,7 +46,7 @@ integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN
 real(kind=wp) :: potnuc, thre
 logical(kind=iwp) :: DoComb
 
-public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, IEXPAND, igsoccx, &
+public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, igsoccx, &
           INOCALC, iprci, ipt2, ISAVE_EXP, iSpeed, ispin, itmax, STSYM, MINOP, &
           MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, nactel, NCNASM, NCNFTP, NCSASM, nCSF_HEXS, &
           NCSFTP, NDET, NDTASM, NDTFTP, ngas, ngssh, nroots, nsym, NTYP, potnuc, thre

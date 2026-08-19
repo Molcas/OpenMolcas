@@ -26,7 +26,8 @@ use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS=>I2ELIMINATED_IN_GAS, I_ELI
 
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
-use spinfo, only: IEXPAND, INOCALC, IPT2, ISAVE_EXP, THRE_MOLCAS=>THRE
+use spinfo, only: INOCALC, IPT2, ISAVE_EXP, THRE_MOLCAS=>THRE
+use rasscf_global, only: IEXPAND
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

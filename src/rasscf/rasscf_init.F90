@@ -32,16 +32,18 @@ use UnixInfo, only: SuperName
 use general_data, only: IGSOCCX, NGAS, NGSSH
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
+
+use general_data, only: ISPIN, LOWDIN_ON, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, &
+                        NSEL, NSSH, STSYM, SXDAMP
 use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoots, iAlphaBeta, ICICH, ICICP, iCIonly, ICIRST, &
                          ICMSIterMax, ICMSIterMin, iCMSP, iExpand, IfCRPR, IfOrde, InOCalc, iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot, &
                          iPhName, iPT2, iRLXRoot, IROOT, iRoot, irotPsi, iSave_Exp, iSPDen, iSupSM, itCore, ITMAX, iXMSP, ixSym, &
                          KSDFT, kTight, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NewFock, NonEq, NQUNE, NROOTS, &
                          OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXSel, ThFact, Thre, ThrEn, &
                          ThrSX, ThrTE, Title, TMin, Weight
-use rasscf_files, only: STARTORBFILE
-use general_data, only: ISPIN, LOWDIN_ON, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, &
-                        NSEL, NSSH, STSYM, SXDAMP
 use spinfo, only: I_ELIMINATE_GAS, ISPEED
+
+use rasscf_files, only: STARTORBFILE
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
