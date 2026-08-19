@@ -22,7 +22,7 @@ use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS=>I2ELIMINATED_IN_GAS, I_ELI
                   N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
-use spinfo, only: IEXPAND, INOCALC_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, THRE_MOLCAS
+use spinfo, only: IEXPAND, INOCALC, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, THRE_MOLCAS
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -32,7 +32,7 @@ integer(kind=iwp), parameter :: MXPKW = 125
 integer(kind=iwp) :: I, IDENSI, IDOPERT, IEXPERT, IRREP, isetkw(MXPKW), IUSED, MXCIV, NMISS, NWARN
 real(kind=wp) :: ECORE_ENV
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ICLSSEL, IFINMO, INOCALC, IRST2, ISKIPEI, ISAVE_EXP
+integer(kind=iwp) :: ICLSSEL, IFINMO, IRST2, ISKIPEI, ISAVE_EXP
 real(kind=wp) :: PLSIGN, THRES_E
 character(len=4) :: ITRACI_CN, ITRACI_CR
 #endif
@@ -181,7 +181,6 @@ ncmbspc = ncispc
 ! =======================================================
 !  No calculation, save CI vector info, expand CI vector
 ! =======================================================
-INOCALC = INOCALC_MOLCAS
 ISAVE_EXP = ISAVE_EXP_MOLCAS
 #endif
 
