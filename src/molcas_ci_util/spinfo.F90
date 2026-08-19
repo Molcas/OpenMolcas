@@ -25,12 +25,12 @@ module Spinfo
 ! nSpeed, iSpeed
 !
 ! ELIMINATED_IN_GAS, 2ELIMINATED_IN_GAS,
-! nsym, nactel, ms2, ispin, STSYM, itmax, nroots, ipt2,
+! nactel, ms2, ispin, STSYM, itmax, nroots, ipt2,
 ! iprci, ngas, INOCALC, ISAVE_EXP, N_ELIMINATED_GAS, N_2ELIMINATED_GAS,
 ! I_ELIMINATE_GAS, nCSF_HEXS
 
 use Molcas, only: MxGAS, MxSym
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 private
@@ -41,13 +41,12 @@ integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN
                      INOCALC, iprci, ipt2, ISAVE_EXP, iSpeed(nSpeed), &
                      ispin, itmax, STSYM, MINOP, MS2, N_2ELIMINATED_GAS, &
                      N_ELIMINATED_GAS, nactel, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, &
-                     NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), ngas, nroots, &
-                     nsym, NTYP
+                     NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), ngas, nroots, NTYP
 logical(kind=iwp) :: DoComb
 
 public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
           INOCALC, iprci, ipt2, ISAVE_EXP, iSpeed, ispin, itmax, STSYM, MINOP, &
           MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, nactel, NCNASM, NCNFTP, NCSASM, nCSF_HEXS, &
-          NCSFTP, NDET, NDTASM, NDTFTP, ngas, nroots, nsym, NTYP
+          NCSFTP, NDET, NDTASM, NDTFTP, ngas, nroots, NTYP
 
 end module Spinfo
