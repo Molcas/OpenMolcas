@@ -43,7 +43,7 @@ use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, LOWDIN_ON, MALTE
                         NGAS, NGSSH
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, IEXPAND_MOLCAS=>IEXPAND, IGSOCCX_MOLCAS=>IGSOCCX, &
                   INOCALC_MOLCAS=>INOCALC, IPRCI_MOLCAS=>IPRCI, IPT2_MOLCAS=>iPT2, &
-                  ISAVE_EXP_MOLCAS=>ISAVE_EXP, ISPEED, ISPIN_MOLCAS=>ISPIN, ITMAX_MOLCAS=>ITMAX, LSYM_MOLCAS, &
+                  ISAVE_EXP_MOLCAS=>ISAVE_EXP, ISPEED, ISPIN_MOLCAS=>ISPIN, ITMAX_MOLCAS=>ITMAX, STSYM_MOLCAS=>STSYM, &
                   MS2, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NCSASM, NDET, NDTASM, &
                   NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
 use DWSol, only: DWSol_DWRO
@@ -4065,7 +4065,7 @@ if (.not. SkipGUGA) then
   nactel_Molcas = nactel
   ms2_Molcas = ms2
   ispin_Molcas = ispin
-  lsym_Molcas = stsym
+  STSYM_Molcas = stsym
   itmax_Molcas = itmax
   nroots_Molcas = max(nroots,lRoots)
   ipt2_Molcas = ipt2
