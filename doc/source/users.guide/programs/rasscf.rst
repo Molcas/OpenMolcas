@@ -700,7 +700,7 @@ Interface to MRCC
 
    This will only work if you have MRCC installed
 
-Since the :`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in MRCC's :file:`fort.55` format for interfacing to MRCC. Before writing the :file:`fort.55` file, we use :kword:`OutOrbitals` = ``CANOnical`` to re-order the active orbitals from an irrep-grouped ordering into ascending-energy ordering. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. Because :file:`fort.55` is registered in the module file registry, the wrapper automatically copies it from :file:`$WorkDir/` back to the user's output directory after the calculation.
+Since the :`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in MRCC's :file:`fort.55` format for interfacing to MRCC. The :file:`fort.55` dumping code automatically re-orders the active orbitals into ascending-energy order via the :func:`energy_sort_permutation` routine in the ``fcidump`` module. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. Because :file:`fort.55` is registered in the module file registry, the wrapper automatically copies it from :file:`$WorkDir/` back to the user's output directory after the calculation.
 
 Generating an MRCC :file:`fort.55` file
 .......................................
@@ -708,9 +708,8 @@ Generating an MRCC :file:`fort.55` file
 The :kword:`DMPO FORT55` keyword in the :program:`RASSCF` program can be used to produce a
 :file:`fort.55` integral file compatible with the external :program:`MRCC`
 program. The example below shows a full Ne atom calculation in :math:`D_{2h}`
-symmetry with the 6-31G basis set. The :kword:`OutOrbitals` keyword is set to
-``CANOnical`` so that the orbitals are generated in the ordering expected by
-MRCC. ::
+symmetry with the 6-31G basis set. The :kword:`OutOrbitals` = ``CANOnical``
+keyword is included so that the orbitals are diagonalized in the Fock matrix. ::
 
   &GATEWAY
     coord
