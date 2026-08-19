@@ -22,7 +22,7 @@ use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS=>I2ELIMINATED_IN_GAS, I_ELI
                   N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
-use spinfo, only: IEXPAND, INOCALC, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, THRE_MOLCAS
+use spinfo, only: IEXPAND, INOCALC, IPT2, ISAVE_EXP_MOLCAS, THRE_MOLCAS
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -205,7 +205,7 @@ IADVICE = 1
 ! ============================================================
 #ifdef _DEBUGPRINT_
 itraci_cr = 'REST'
-if (ipt2_molcas == 1) then
+if (ipt2 == 1) then
   itraci_cn = 'CANO'
 else
   itraci_cn = 'NATU'
