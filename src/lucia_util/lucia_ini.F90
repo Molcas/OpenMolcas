@@ -17,12 +17,12 @@ use lucia_data, only: ECORE, ENVIRO, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IADVI
                       LCMBSPC, LCSBLK, MOCAA, MS2, MULTS, MXINKA, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL, NCISPC, NCMBSPC, &
                       NGAS, NGSSH, NIRREP, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN, Sigma_on_disk
 use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS=>I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS_MOLCAS=>I_ELIMINATE_GAS,  &
-                  IELIMINATED_IN_GAS_MOLCAS=>IELIMINATED_IN_GAS, IGSOCCX_MOLCAS, &
+                  IELIMINATED_IN_GAS_MOLCAS=>IELIMINATED_IN_GAS, IGSOCCX_MOLCAS=>IGSOCCX, &
                   IPRCI_MOLCAS, ISPEED, ISPIN_MOLCAS, ITMAX_MOLCAS, LSYM_MOLCAS, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, &
                   N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
-use spinfo, only: IEXPAND_MOLCAS, INOCALC_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, THRE_MOLCAS
+use spinfo, only: IEXPAND, INOCALC_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, THRE_MOLCAS
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -32,7 +32,7 @@ integer(kind=iwp), parameter :: MXPKW = 125
 integer(kind=iwp) :: I, IDENSI, IDOPERT, IEXPERT, IRREP, isetkw(MXPKW), IUSED, MXCIV, NMISS, NWARN
 real(kind=wp) :: ECORE_ENV
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ICLSSEL, IEXPAND, IFINMO, INOCALC, IRST2, ISKIPEI, ISAVE_EXP
+integer(kind=iwp) :: ICLSSEL, IFINMO, INOCALC, IRST2, ISKIPEI, ISAVE_EXP
 real(kind=wp) :: PLSIGN, THRES_E
 character(len=4) :: ITRACI_CN, ITRACI_CR
 #endif
@@ -183,7 +183,6 @@ ncmbspc = ncispc
 ! =======================================================
 INOCALC = INOCALC_MOLCAS
 ISAVE_EXP = ISAVE_EXP_MOLCAS
-IEXPAND = IEXPAND_MOLCAS
 #endif
 
 ! ================================================
