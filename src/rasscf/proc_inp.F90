@@ -46,7 +46,7 @@ use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
                   ISAVE_EXP_MOLCAS=>ISAVE_EXP, ISPEED, ISPIN_MOLCAS=>ISPIN, ITMAX_MOLCAS=>ITMAX, STSYM_MOLCAS=>STSYM, &
                   MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL_MOLCAS=>NACTEL, NCSASM, NDET, NDTASM, &
                   NGAS_MOLCAS=>NGAS, NROOTS_MOLCAS=>NROOTS, NSYM_MOLCAS=>NSYM, &
-                  POTNUC_MOLCAS=>POTNUC, THRE_MOLCAS=>THRE
+                  THRE_MOLCAS=>THRE
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
@@ -4055,7 +4055,6 @@ if (.not. SkipGUGA) then
 
   ! Set variables needed in Lucia_Ini (module spinfo)
 
-  potnuc_Molcas = potnuc
   thre_Molcas = thre
   nsym_Molcas = nsym
   nactel_Molcas = nactel
