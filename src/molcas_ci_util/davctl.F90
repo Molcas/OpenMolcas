@@ -52,7 +52,7 @@ use rasscf_global, only: Conv, Emy, Ener, hRoots, IADR15, ICICH, iCIOnly, Iter, 
                          ThFact, ThrEn
 use rasscf_files, only: JOBIPH, LUDAVID
 use general_data, only: NCONF, NSEL, STSYM
-use spinfo, only: N_ELIMINATED_GAS_MOLCAS, NCSF_HEXS, NDET
+use spinfo, only: N_ELIMINATED_GAS, NCSF_HEXS, NDET
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
@@ -93,7 +93,7 @@ call mma_allocate(iSel,m_Sel,label='iSel')
 call mma_allocate(ExplE,m_Sel,label='ExplE')
 call mma_allocate(ExplV,m_Sel,mSel,label='ExplV')
 nMaxSel = nConf
-if (N_ELIMINATED_GAS_MOLCAS > 0) nmaxSel = nCSF_HEXS
+if (N_ELIMINATED_GAS > 0) nmaxSel = nCSF_HEXS
 
 call CStart(CIVEC,FMO,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
 
@@ -127,7 +127,7 @@ ITERCI = 1
 if (NAC == 0) then
   ENER(1,ITER) = EMY
 else
-  if ((nSel == nConf) .or. ((N_ELIMINATED_GAS_MOLCAS > 0) .and. (nSel == nCSF_HEXS))) then
+  if ((nSel == nConf) .or. ((N_ELIMINATED_GAS > 0) .and. (nSel == nCSF_HEXS))) then
     do jRoot=1,lRoots-hRoots
       ENER(jRoot,ITER) = ExplE(jRoot)
     end do

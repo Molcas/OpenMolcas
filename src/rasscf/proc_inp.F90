@@ -44,7 +44,7 @@ use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, LOWDIN_ON, MALTE
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, IEXPAND_MOLCAS=>IEXPAND, IGSOCCX_MOLCAS=>IGSOCCX, &
                   INOCALC_MOLCAS=>INOCALC, IPRCI_MOLCAS=>IPRCI, IPT2_MOLCAS=>iPT2, &
                   ISAVE_EXP_MOLCAS=>ISAVE_EXP, ISPEED, ISPIN_MOLCAS=>ISPIN, ITMAX_MOLCAS=>ITMAX, STSYM_MOLCAS=>STSYM, &
-                  MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NCSASM, NDET, NDTASM, &
+                  MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL_MOLCAS, NCSASM, NDET, NDTASM, &
                   NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
@@ -2798,7 +2798,7 @@ else
     end if
     I_ELIMINATE_GAS = I_ELIMINATE_GAS+1
     ReadStatus = ' Failure reading data following HEXS keyword.'
-    read(LUInput,*,iostat=istatus) N_ELIMINATED_GAS_MOLCAS
+    read(LUInput,*,iostat=istatus) N_ELIMINATED_GAS
     if (istatus < 0) then
       call Error(2)
       return
@@ -2808,7 +2808,7 @@ else
     end if
     ReadStatus = ' O.K. after reading data following HEXS keyword.'
     ReadStatus = ' Failure reading data following HEXS keyword.'
-    read(LUInput,*,iostat=istatus) (IELIMINATED_IN_GAS(I),I=1,N_ELIMINATED_GAS_MOLCAS)
+    read(LUInput,*,iostat=istatus) (IELIMINATED_IN_GAS(I),I=1,N_ELIMINATED_GAS)
     if (istatus < 0) then
       call Error(2)
       return
