@@ -44,7 +44,7 @@ use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, LOWDIN_ON, MALTE
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
                   INOCALC_MOLCAS=>INOCALC, IPRCI_MOLCAS=>IPRCI, IPT2_MOLCAS=>iPT2, &
                   ISAVE_EXP_MOLCAS=>ISAVE_EXP, ISPEED, ISPIN_MOLCAS=>ISPIN, ITMAX_MOLCAS=>ITMAX, STSYM_MOLCAS=>STSYM, &
-                  MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL_MOLCAS=>NACTEL, NCSASM, NDET, NDTASM, &
+                  MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCSASM, NDET, NDTASM, &
                   NGAS_MOLCAS=>NGAS, NROOTS_MOLCAS=>NROOTS
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
@@ -4054,7 +4054,6 @@ if (.not. SkipGUGA) then
 
   ! Set variables needed in Lucia_Ini (module spinfo)
 
-  nactel_Molcas = nactel
   ispin_Molcas = ispin
   STSYM_Molcas = stsym
   itmax_Molcas = itmax
