@@ -12,10 +12,9 @@
 subroutine DEALLOC_LUCIA()
 ! Deallocate memory allocated during alloc_lucia
 
-use lucia_data, only: CI_VEC, INT1, IREFSM, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NSMOB, PGINT1, PGINT1A, PINT1, &
+use lucia_data, only: CI_VEC, INT1, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NSMOB, PGINT1, PGINT1A, PINT1, &
                       PINT2, RHO1, SIGMA_VEC, SRHO1
 use stdalloc, only: mma_deallocate
-use Constants, only: Zero, Two
 use Definitions, only: iwp
 
 implicit none
