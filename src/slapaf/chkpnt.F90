@@ -28,7 +28,8 @@ private
 # ifdef _HDF5_
 character(len=*), parameter :: basename = 'SLAPAFCHK'
 
-integer(kind=iwp) :: chkpnt_coor, chkpnt_ener, chkpnt_force, chkpnt_hess, chkpnt_id, chkpnt_iter, chkpnt_new, Iter_all
+integer(kind=iwp) :: chkpnt_coor, chkpnt_ener, chkpnt_force, chkpnt_hess, chkpnt_id, chkpnt_iter, chkpnt_new, chkpnt_rootener, &
+                      Iter_all
 character(len=12) :: filename
 #endif
 
@@ -55,6 +56,7 @@ subroutine Chkpnt_open()
     chkpnt_id = mh5_open_file_rw(filename)
     chkpnt_iter = mh5_open_attr(chkpnt_id,'ITERATIONS')
     chkpnt_ener = mh5_open_dset(chkpnt_id,'ENERGIES')
+    chkpnt_rootener = mh5_open_dset(chkpnt_id,'ROOT_ENERGIES')
     chkpnt_coor = mh5_open_dset(chkpnt_id,'COORDINATES')
     chkpnt_new = mh5_open_dset(chkpnt_id,'CENTER_COORDINATES')
     chkpnt_force = mh5_open_dset(chkpnt_id,'FORCES')
@@ -90,7 +92,8 @@ subroutine Chkpnt_init()
   use Slapaf_Info, only: AtomLbl, Coor, dMass, dMEPStep, iCoSet, MEP, nDimBC, nStab, rMEP, Smmtrc
   use stdalloc, only: mma_allocate, mma_deallocate
   character :: lIrrep(24)
-  integer(kind=iwp) :: dsetid, i, j, k, mAtom
+  integer(kind=iwp) :: dsetid, i, j, k, mAtom, nRoots
+  logical(kind=iwp) :: Found
   integer(kind=iwp), allocatable :: desym(:,:), symdof(:,:)
   real(kind=wp), allocatable :: charges(:)
 
@@ -189,6 +192,17 @@ subroutine Chkpnt_init()
   chkpnt_ener = mh5_create_dset_real(chkpnt_id,'ENERGIES',1,[0],dyn=.true.)
   call mh5_init_attr(chkpnt_ener,'DESCRIPTION','Energies for all iterations as a matrix of size [ITERATIONS]')
 
+  ! number of roots and per-root energies
+  ! LDV: NROOTS is assumed fixed for the life of the file; unlike NSYM/NATOMS_UNIQUE in Chkpnt_open, it is not re-checked on
+  ! reopen, since there is no mechanism by which the number of computed roots changes mid-optimization.
+  nRoots = 1
+  call Qpg_iScalar('Number of roots',Found)
+  if (Found) call Get_iScalar('Number of roots',nRoots)
+  call mh5_init_attr(chkpnt_id,'NROOTS',nRoots)
+  chkpnt_rootener = mh5_create_dset_real(chkpnt_id,'ROOT_ENERGIES',2,[nRoots,0],dyn=.true.)
+  call mh5_init_attr(chkpnt_rootener,'DESCRIPTION','Energies of all computed roots for all iterations, matrix of size '// &
+                      '[ITERATIONS,NROOTS]')
+
   ! atom coordinates
   chkpnt_coor = mh5_create_dset_real(chkpnt_id,'COORDINATES',3,[3,size(Coor,2),0],dyn=.true.)
   call mh5_init_attr(chkpnt_coor,'DESCRIPTION','Atom coordinates, matrix of size [ITERATIONS,NATOMS_UNIQUE,3], stored with '// &
@@ -218,9 +232,9 @@ subroutine Chkpnt_update()
 # ifdef _HDF5_
   use Slapaf_Info, only: Cx, Energy, Gx, iter, nDimBC
   use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp) :: i, ij, j
-  logical(kind=iwp) :: Found
-  real(kind=wp), allocatable :: Hss_X(:)
+  integer(kind=iwp) :: i, ij, j, nRoots
+  logical(kind=iwp) :: Found, FoundRoots
+  real(kind=wp), allocatable :: Hss_X(:), RootEner(:)
 
   call Qpg_dArray('Hss_X',Found,i)
   if (Found) then
@@ -244,6 +258,15 @@ subroutine Chkpnt_update()
   ! energies
   call mh5_resize_dset(chkpnt_ener,[Iter_all])
   call mh5_put_dset(chkpnt_ener,Energy(Iter:Iter),[1],[Iter_all-1])
+  ! per-root energies
+  nRoots = 1
+  call Qpg_iScalar('Number of roots',FoundRoots)
+  if (FoundRoots) call Get_iScalar('Number of roots',nRoots)
+  call mma_allocate(RootEner,nRoots)
+  call Get_dArray('Last energies',RootEner,nRoots)
+  call mh5_resize_dset(chkpnt_rootener,[nRoots,Iter_all])
+  call mh5_put_dset(chkpnt_rootener,RootEner,[nRoots,1],[0,Iter_all-1])
+  call mma_deallocate(RootEner)
   ! coordinates
   call mh5_resize_dset(chkpnt_coor,[3,size(Cx,2),Iter_all])
   call mh5_put_dset(chkpnt_coor,Cx(:,:,Iter),[3,size(Cx,2),1],[0,0,Iter_all-1])
