@@ -108,6 +108,7 @@ set (sources
      fulltrnsf.F90
      ga_create_striped.F90
      gather_cholesky_vectors.F90
+     gather_striped.F90
      gdmat.F90
      get_cholesky_vectors.F90
      getdpref.F90
