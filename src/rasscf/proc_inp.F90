@@ -56,7 +56,7 @@ use rasscf_global, only: CCI, CMSStartMat, CMSThreshold, CoreShift, DFTFOCK, DoB
                          IfCRPR, iFORDE, InOCalc, iOrbOnly, iOrbTyp, iOrdEM, iOverWr, iPCMRoot, iPhName, iPT2, IRLXROOT, &
                          IROOT, iRotPsi, iSave_Exp, iSCF, iSPDEN, iSupSM, ITCORE, ITMAX, IXMSP, ixSym, iZRot, JCJ, kivo, KSDFT, &
                          kTight, l_CASDFT, LowMS, LROOTS, LvShft, MaxIt, MaxJt, MaxOrbOut, n_keep, NAC, NACPAR, NACPR2, NFR, NIN, &
-                         NO2M, NonEq, NORBT, NQUNE, NROOTS, NSEC, NTOT3, NTOT4, OutFmt1, OutFmt2, PotNuc, PreThr, PreThr, ProThr, &
+                         NO2M, NonEq, NORBT, NQUNE, NROOTS, NSEC, NTOT3, NTOT4, OutFmt1, OutFmt2, PreThr, PreThr, ProThr, &
                          PrwThr, Purify, RFPert, S, SXSEL, ThFact, ThrE, ThrEn, ThrSX, ThrTE, Title, Weight
 #ifdef _ENABLE_DICE_SHCI_
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
