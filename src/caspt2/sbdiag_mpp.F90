@@ -40,7 +40,7 @@ subroutine SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
 
 use Index_Functions, only: nTri_Elem
 #ifdef _SCALAPACK_
-use scalapack_mod, only: GA_PDSYEVX_
+use scalapack_mod, only: GA_PDSYEVD_
 #endif
 use PrintLevel, only: INSANE
 use Para_Info, only: King
@@ -48,19 +48,21 @@ use GA_Wrapper, only: DBL_MB, GA_Destroy, GA_NodeId
 use EQSOLV, only: IDBMAT, IDSMAT, IDTMAT
 use caspt2_global, only: do_grad, do_lindep, idBoriMat, iPrGlb, LUSBT, LUSTD, nStpGrd
 use caspt2_module, only: nASup, nISup, Cases, IfDOrtho, ThrShn, ThrShs, nInDep, BMATRIX, BTRANS, BSPECT
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iSym, iCase
 real(kind=wp), intent(out) :: CondNr, CPU
-integer(kind=iwp) :: I, IDB, IDB2, IDS, IDT, IEND, iHi, iLo, IOFF, ISTA, J, jHi, jLo, lDB, LDS, LDV, lg_B, lg_S, lg_ST, lg_T, &
-                     lg_V, lg_X, mB, MS, mV, MyRank, NAS, NCOEF, NCOL, NIN, NIS, NTMP
+integer(kind=iwp) :: I, IDB, IDB2, IDS, IDT, IEND, iHi, iHiB, iLo, iLoB, IOFF, ISTA, J, jHi, jHiB, jLo, jLoB, JSTA, lDB, LDS, &
+                     LDST, LDT, LDV, LDX, lg_B, lg_B2, lg_S, lg_ST, lg_T, lg_V, lg_X, MAXMEM, mB, MS, mST, mT, mV, mX, MyRank, &
+                     NAS, NBLK, NCOEF, NCOLB, NIN, NIS, NROW_LOC, NTMP
 real(kind=wp) :: CPU1, CPU2, CPUE, dTrans, FP, SDiag, SZMAX, SZMIN, TIO, TIOE
-logical(kind=iwp) :: bSTAT
+logical(kind=iwp) :: bSTAT, DoAcc
 character(len=2) :: cCASE, cSYM
-real(kind=wp), allocatable :: BD(:), COL(:), COND(:), EIG(:), SCA(:), SD(:), TMP(:), TRANS(:)
+real(kind=wp), allocatable :: BD(:), BNEW(:), COND(:), EIG(:), SBLK(:), SCA(:), SD(:), TBLK(:), TMP(:), TRANS(:), VBLK(:), XLOC(:)
+integer(kind=iwp), parameter :: NBLKMX = 128 ! heuristic choice, may not be optimum
 #ifndef _SCALAPACK_
 integer(kind=iwp) :: Info, NSCRATCH
 real(kind=wp) :: WGRONK(2)
@@ -100,22 +102,33 @@ end if
 ! The S matrices are needed later on by non-global routines.  Take the
 ! oportunity to save them to LUSBT here.  FIXME: Should be removed once
 ! full parallelization of use of S matrices is achieved.
+call mma_maxDBLE(MAXMEM)
+! use the lowest available memory to keep the blocking identical on all processes
+call GAIGOP_SCAL(MAXMEM,'min')
+! 3*NAS comes from the SBLK, RECV (in GATHER_STRIPED), and TMP in the master process (safe estimate)
+NBLK = max(1,min(NAS,NBLKMX,MAXMEM/(3*NAS)))
+call mma_allocate(SBLK,NAS*NBLK,Label='SBLK')
 if (KING()) then
-  NCOL = NAS
   NTMP = nTri_Elem(NAS)
-  call mma_allocate(COL,NCOL,Label='COL')
   call mma_allocate(TMP,NTMP,Label='TMP')
-  iOFF = 0
-  do J=1,NAS
-    call GA_Get(lg_S,1,J,J,J,COL,NAS)
-    TMP(iOFF+1:iOFF+J) = COL(1:J)
-    iOFF = iOFF+J
-  end do
-  call mma_deallocate(COL)
+end if
+do JSTA=1,NAS,NBLK
+  NCOLB = min(NBLK,NAS-JSTA+1)
+  ! avoid GA_GET, which is somehow very slow
+  call GATHER_STRIPED(lg_S,NAS,NAS,JSTA,NCOLB,SBLK) ! S(NAS,NCOLB)
+  if (KING()) then
+    do J=JSTA,JSTA+NCOLB-1
+      iOFF = nTri_Elem(J-1)
+      TMP(iOFF+1:iOFF+J) = SBLK((J-JSTA)*NAS+1:(J-JSTA)*NAS+J)
+    end do
+  end if
+end do
+if (KING()) then
   IDS = IDSMAT(ISYM,ICASE)
   call DDAFILE(LUSBT,1,TMP,NTMP,IDS)
   call mma_deallocate(TMP)
 end if
+call mma_deallocate(SBLK)
 
 ! Save the diagonal elements from the S matrix for easy access later on.
 ! FIXME: nicer way to do this?
@@ -174,7 +187,7 @@ EIG(:) = Zero
 ! each processor has a row window of all column vectors
 #ifdef _SCALAPACK_
 call PSBMAT_GETMEM('VMAT',lg_V,NAS)
-call GA_PDSYEVX_(lg_S,lg_V,EIG,0)
+call GA_PDSYEVD_(lg_S,lg_V,EIG,0)
 bSTAT = GA_Destroy(lg_S)
 #else
 ! here for the non-ScaLAPACK version: copy matrix to master process,
@@ -271,6 +284,7 @@ if (BMATRIX == 'NO') then
     call mma_deallocate(TRANS)
   end if
   bStat = GA_Destroy(lg_T)
+  call mma_deallocate(SD)
   return
 else if (BTRANS /= 'YES') then
   ! In other calculations, the B matrix is used but not transformed.  We
@@ -313,6 +327,7 @@ else if (BTRANS /= 'YES') then
     call mma_deallocate(TRANS)
   end if
   bStat = GA_Destroy(lg_T)
+  call mma_deallocate(SD)
   return
 end if
 call mma_deallocate(SD)
@@ -328,28 +343,94 @@ end if
 call PSBMAT_GETMEM('B',lg_B,NAS)
 call PSBMAT_READ('B',iCase,iSym,lg_B,NAS)
 
+if (IPRGLB >= INSANE) then
+  FP = PSBMAT_FPRINT(lg_B,NAS)
+  write(u6,'(1X,A,ES21.14)') 'BMAT NORM: ',FP
+end if
+
 if ((do_grad .or. (nStpGrd == 2)) .and. do_lindep) then
   !! The original B matrix is needed in the LinDepLag subroutine
   IDB2 = idBoriMat(ISYM,ICASE)
   call GA_Distribution(lg_B,myRank,iLo,iHi,jLo,jHi)
-  call GA_Access(lg_B,iLo,iHi,jLo,jHi,mB,LDB)
-  call DDAFILE(LUSTD,1,DBL_MB(mB),(iHi-iLo+1)*(jHi-jLo+1),IDB2)
-  call GA_Release(lg_B,iLo,iHi,jLo,jHi)
+  if ((iLo > 0) .and. (jLo > 0)) then
+    call GA_Access(lg_B,iLo,iHi,jLo,jHi,mB,LDB)
+    call DDAFILE(LUSTD,1,DBL_MB(mB),(iHi-iLo+1)*(jHi-jLo+1),IDB2)
+    call GA_Release(lg_B,iLo,iHi,jLo,jHi)
+  end if
 end if
 
-if (IPRGLB >= INSANE) write(u6,'(1X,A,ES21.14)') 'BMAT NORM: ',FP
-
-! FIXME: Perform transformation of B using horizontal stripes of B or
+! Perform transformation of B using horizontal stripes of B or
 ! vertical stripes of T to reduce memory usage if necessary as indicated
 ! by the available memory, which is now scaling as approx. 3*(NAS**2).
-call GA_CREATE_STRIPED('H',NAS,NIN,'XMAT',lg_X)
-call GA_DGEMM('N','N',NAS,NIN,NAS,One,lg_B,lg_T,Zero,lg_X)
+
+myRank = GA_NodeID()
+call GA_Distribution(lg_T,myRank,iLo,iHi,jLo,jHi)
+NROW_LOC = 0
+if (iLo /= 0) NROW_LOC = iHi-iLo+1
+
+! BNEW(NIN*NIN) is replicated on every process, unlike the GA arrays which are divided over processes
+! If it does not fit, fall back to accumulating each block directly into a GA-distributed array (lg_B2) via GA_Acc
+call mma_maxDBLE(MAXMEM)
+call GAIGOP_SCAL(MAXMEM,'min')
+! DoAcc selects a collective branch, so it must be identical on all processes (hence the reduction above)
+DoAcc = MAXMEM < NIN*NIN+3*NAS
+if (DoAcc) then
+  call GA_CREATE_STRIPED('H',NIN,NIN,'BMAT',lg_B2)
+  call GA_Zero(lg_B2)
+  call GA_Sync()
+else
+  call mma_allocate(BNEW,NIN*NIN,Label='BNEW')
+  BNEW(:) = Zero
+  call mma_maxDBLE(MAXMEM)
+  call GAIGOP_SCAL(MAXMEM,'min')
+end if
+
+NBLK = max(1,min(NIN,NBLKMX,MAXMEM/(3*NAS))) ! TBLK, XLOC, RECV
+call mma_allocate(TBLK,NAS*NBLK,Label='TBLK')
+if (NROW_LOC > 0) call mma_allocate(XLOC,NROW_LOC*NBLK,Label='XLOC')
+! lg_B is NAS*NAS while lg_T is NAS*NIN, so its column range differs
+call GA_Distribution(lg_B,myRank,iLoB,iHiB,jLoB,jHiB)
+do JSTA=1,NIN,NBLK
+  NCOLB = min(NBLK,NIN-JSTA+1)
+  ! here needs some communications, but (much) more efficient than GA_DGEMM
+  call GATHER_STRIPED(lg_T,NAS,NIN,JSTA,NCOLB,TBLK) ! T(NAS,NCOLB)
+  if (NROW_LOC > 0) then
+    ! B: B(1:NAS,jLoB:jHiB)
+    call GA_Access(lg_B,iLoB,iHiB,jLoB,jHiB,mB,LDB)
+    ! XLOC(1:NROW_LOC,NCOLB) = B(iLoB:iHiB,1:NAS)*T(1:NAS,JSTA:NCOLB)
+    call DGEMM_('N','N',NROW_LOC,NCOLB,NAS,One,DBL_MB(mB),LDB,TBLK,NAS,Zero,XLOC,NROW_LOC)
+    call GA_Release(lg_B,iLoB,iHiB,jLoB,jHiB)
+    ! partial product over this process' row range: B_new(:,block) = T_loc^T * X
+    ! T_loc is just the local row block of lg_T; GATHER_STRIPED has already
+    ! released it above, so it can be used in place without a copy
+    call GA_Access(lg_T,iLo,iHi,1,NIN,mT,LDT)
+    if (DoAcc) then
+      ! TBLK's T(NAS,NCOLB), where NIN <= NAS, content is no longer needed this iteration
+      call DGEMM_('T','N',NIN,NCOLB,NROW_LOC,One,DBL_MB(mT),LDT,XLOC,NROW_LOC,Zero,TBLK,NIN)
+      call GA_Acc(lg_B2,1,NIN,JSTA,JSTA+NCOLB-1,TBLK,NIN,One)
+    else
+      ! BNEW(1:NIN,NCOLB) = T(1:NROW_LOC,NIN)*XLOC(1:NROW_LOC,NCOLB)
+      call DGEMM_('T','N',NIN,NCOLB,NROW_LOC,One,DBL_MB(mT),LDT,XLOC,NROW_LOC,Zero,BNEW((JSTA-1)*NIN+1),NIN)
+    end if
+    call GA_Release(lg_T,iLo,iHi,1,NIN)
+  end if
+  if (DoAcc) call GA_Sync() ! wait for all GA_Acc updates to lg_B2 to complete
+end do
+if (NROW_LOC > 0) call mma_deallocate(XLOC)
+call mma_deallocate(TBLK)
+bStat = GA_Destroy(lg_T)
 bStat = GA_Destroy(lg_B)
 
-call GA_CREATE_STRIPED('H',NIN,NIN,'BMAT',lg_B)
-call GA_DGEMM('T','N',NIN,NIN,NAS,One,lg_T,lg_X,Zero,lg_B)
-bStat = GA_Destroy(lg_X)
-bStat = GA_Destroy(lg_T)
+if (DoAcc) then
+  lg_B = lg_B2
+else
+  call GADGOP(BNEW,NIN*NIN,'+')
+  call GA_CREATE_STRIPED('H',NIN,NIN,'BMAT',lg_B)
+  call GA_Distribution(lg_B,myRank,iLo,iHi,jLo,jHi)
+  if (iLo /= 0) call GA_Put(lg_B,iLo,iHi,1,NIN,BNEW(iLo),NIN)
+  call mma_deallocate(BNEW)
+end if
+call GA_Sync()
 
 if (IPRGLB >= INSANE) then
   FP = PSBMAT_FPRINT(lg_B,NIN)
@@ -376,7 +457,7 @@ if (BSPECT /= 'YES') then
 else
 # ifdef _SCALAPACK_
   call GA_CREATE_STRIPED('H',NIN,NIN,'VMAT',lg_V)
-  call GA_PDSYEVX_(lg_B,lg_V,EIG,0)
+  call GA_PDSYEVD_(lg_B,lg_V,EIG,0)
   bStat = GA_Destroy(lg_B)
 # else
   if (myRank == 0) then
@@ -416,13 +497,38 @@ call TIMING(CPU2,CPUE,TIO,TIOE)
 CPU = CPU+CPU2-CPU1
 
 ! Finally, we must form the composite transformation matrix: T(NAS,NIN)
-! matrix on disk * V(NIN*NIN) matrix in core.  FIXME: for now, asume
-! there is enough memory for the full transformation, scaling as
-! approx. 3*(NAS**2).  Should be determined by the available memory.
+! matrix on disk * V(NIN*NIN) matrix in core.  Blocking here is for speed
+! (avoids GA_DGEMM's poor efficiency, see gather_striped.F90), not memory:
+! lg_X/lg_V/lg_T are unavoidable, and VBLK/TBLK add a small net increase.
 call GA_CREATE_STRIPED('H',NAS,NIN,'XMAT',lg_X)
 call PSBMAT_READ('T',iCase,iSym,lg_X,NAS*NIN)
 call GA_CREATE_STRIPED('H',NAS,NIN,'TMAT',lg_T)
-call GA_DGEMM('N','N',NAS,NIN,NIN,One,lg_X,lg_V,Zero,lg_T)
+
+myRank = GA_NodeID()
+call GA_Distribution(lg_X,myRank,iLo,iHi,jLo,jHi)
+NROW_LOC = 0
+if (iLo /= 0) NROW_LOC = iHi-iLo+1
+
+call mma_maxDBLE(MAXMEM)
+call GAIGOP_SCAL(MAXMEM,'min')
+NBLK = max(1,min(NIN,NBLKMX,MAXMEM/(2*NIN))) ! VBLK, RECV
+call mma_allocate(VBLK,NIN*NBLK,Label='VBLK')
+do JSTA=1,NIN,NBLK
+  NCOLB = min(NBLK,NIN-JSTA+1)
+  call GATHER_STRIPED(lg_V,NIN,NIN,JSTA,NCOLB,VBLK) ! C'(NIN,NCOLB)
+  if (NROW_LOC > 0) then
+    call GA_Access(lg_X,iLo,iHi,1,NIN,mX,LDX)
+    call GA_Access(lg_T,iLo,iHi,1,NIN,mT,LDT)
+    ! C = X*C'
+    ! C(NROW_LOC,NCOLB) = X(NROW_LOC,NIN)*C'(NIN,NCOLB) (= lg_X*lg_V)
+    call DGEMM_('N','N',NROW_LOC,NCOLB,NIN,One,DBL_MB(mX),LDX,VBLK,NIN,Zero,DBL_MB(mT+(JSTA-1)*LDT),LDT)
+    call GA_Release_Update(lg_T,iLo,iHi,1,NIN)
+    call GA_Release(lg_X,iLo,iHi,1,NIN)
+  end if
+end do
+call mma_deallocate(VBLK)
+call GA_Sync()
+
 bStat = GA_Destroy(lg_X)
 bStat = GA_Destroy(lg_V)
 
@@ -434,23 +540,50 @@ call PSBMAT_WRITE('T',iCase,iSym,lg_T,NAS*NIN)
 call PSBMAT_GETMEM('S',lg_S,NAS)
 call PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
 
+call mma_maxDBLE(MAXMEM)
+call GAIGOP_SCAL(MAXMEM,'min')
+NBLK = max(1,min(NIN,NBLKMX,MAXMEM/(2*NAS))) ! TBLK, RECV
+call mma_allocate(TBLK,NAS*NBLK,Label='TBLK')
+
 call GA_CREATE_STRIPED('H',NAS,NIN,'STMAT',lg_ST)
-call GA_DGEMM('N','N',NAS,NIN,NAS,One,lg_S,lg_T,Zero,lg_ST)
+call GA_Distribution(lg_S,myRank,iLo,iHi,jLo,jHi)
+NROW_LOC = 0
+if (iLo /= 0) NROW_LOC = iHi-iLo+1
+IDT = IDTMAT(ISYM,ICASE)
+dTRANS = Zero ! accumulated as the square of the norm, see the sqrt after the loop
+do JSTA=1,NIN,NBLK
+  NCOLB = min(NBLK,NIN-JSTA+1)
+  call GATHER_STRIPED(lg_T,NAS,NIN,JSTA,NCOLB,TBLK) ! T(NAS,NCOLB)
+  if (NROW_LOC > 0) then
+    ! note: lg_S is NAS*NAS but lg_ST is NAS*NIN, so the column range of the
+    ! latter is 1..NIN and not the jLo..jHi belonging to lg_S
+    call GA_Access(lg_S,iLo,iHi,jLo,jHi,mS,LDS)
+    call GA_Access(lg_ST,iLo,iHi,1,NIN,mST,LDST)
+    ! ST(NROW_LOC,NBLK) = S*T = S(NROW_LOC,NAS)*T(NAS,NBLK)
+    call DGEMM_('N','N',NROW_LOC,NCOLB,NAS,One,DBL_MB(mS),LDS,TBLK,NAS,Zero,DBL_MB(mST+(JSTA-1)*LDST),LDST)
+    call GA_Release_Update(lg_ST,iLo,iHi,1,NIN)
+    call GA_Release(lg_S,iLo,iHi,jLo,jHi)
+  end if
+  if (KING()) then
+    dTRANS = dTRANS+dNRM2_(NAS*NCOLB,TBLK,1)**2
+    call DDAFILE(LUSBT,1,TBLK,NAS*NCOLB,IDT)
+  end if
+end do
+call mma_deallocate(TBLK)
+call GA_Sync()
 bStat = GA_Destroy(lg_S)
 
 call PSBMAT_WRITE('M',iCase,iSym,lg_ST,NAS*NIN)
 bStat = GA_Destroy(lg_ST)
 
 ! For now, also keep the transformation matrix on disk as a
-! replicate array.  FIXME: Should be removed later.
-if (KING()) then
-  call mma_allocate(TRANS,NAS*NIN,Label='TRANS')
-  call GA_Get(lg_T,1,NAS,1,NIN,TRANS,NAS)
-  dTRANS = dNRM2_(NAS*NIN,TRANS,1)
-  if (iPrGlb >= INSANE) write(u6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ',dTRANS
-  IDT = IDTMAT(ISYM,ICASE)
-  call DDAFILE(LUSBT,1,TRANS,NAS*NIN,IDT)
-  call mma_deallocate(TRANS)
+! replicate array.
+! The replicate copy was already written block by block in the S*T loop above
+
+! the norm is over the whole T matrix, so it can only be printed once the loop is over
+if (KING() .and. (iPrGlb >= INSANE)) then
+  dTRANS = sqrt(dTRANS)
+  write(u6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ',dTRANS
 end if
 
 call ga_sync()
