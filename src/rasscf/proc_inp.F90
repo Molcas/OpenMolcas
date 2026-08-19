@@ -19,7 +19,7 @@ use lucia_data, only: CFTP
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
 use write_orbital_files, only: OrbFiles, write_orb_per_iter
-use fcidump, only: DumpOnly
+use fcidump, only: DumpOnly, DmpMode
 use fcidump_reorder, only: ReOrFlag, ReOrInp
 use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in, tNonDiagStochPT2, tPrepStochCASPT2
 use fciqmc_read_RDM, only: MCM7, WRMA
@@ -2361,7 +2361,17 @@ else
   ! If spin is zero, do not compute and print spin density:
   if (ISPIN == 1) ISPDEN = 0
   ! ====================================================================
-  if (Key('DMPO')) DumpOnly = .true.
+  if (Key('DMPO')) then
+    DumpOnly = .true.
+    DmpMode = 0
+    call SetPos(LUInput,'DMPO',Line,iRc)
+    if (iRc == _RC_ALL_IS_WELL_) then
+      call UpCase(Line)
+      if (index(Line,'FORT') /= 0) then
+        DmpMode = 1
+      end if
+    end if
+  end if
   ! ====================================================================
   if (Key('REOR')) then
     if (DBG) write(u6,*) 'Orbital Reordering (REOR) is activated'

@@ -404,17 +404,21 @@ Optional important keywords are:
 .. class:: keywordlist
 
 :kword:`DMPO`
-  This keyword is used to generate the FCIDUMP file only. The program will deallocate memory and quit in a clean manner.
-  In addition to the standard :file:`FCIDUMP` and :file:`H5FCIDUMP` files,
-  a :file:`fort.55` file in MRCC format is also produced when the
-  interface is available.
+  This keyword is used to produce integral files and quit in a clean manner. 
+  Two modes are available:
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPO" APPEAR="Dump only" KIND="SINGLE" LEVEL="ADVANCED">
+  * ``DMPO`` (bare) — produces :file:`FCIDUMP` and :file:`H5FCIDUMP` files only
+    (default behaviour).
+  * ``DMPO FORT55`` — produces the MRCC-compatible :file:`fort.55` file only.
+    Use this form when interfacing with the :program:`MRCC` program.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPO" APPEAR="Dump only" KIND="STRING" LEVEL="ADVANCED">
               %%Keyword: DMPO <advanced>
               <HELP>
-              This keyword is used to produce FCIDUMP files (ASCII and HDF5)
-              and, when possible, a MRCC-compatible fort.55 file, and quit in a clean way
+              This keyword is used to produce integral files and quit in a clean way
               (no CI or CASSCF calculation will be done).
+              Bare DMPO produces FCIDUMP files (ASCII and HDF5) only.
+              Use "DMPO FORT55" to produce a MRCC-compatible fort.55 file instead.
               </HELP>
               </KEYWORD>
 
@@ -696,17 +700,16 @@ Interface to MRCC
 
    This will only work if you have MRCC installed
 
-Since the :`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in MRCC's :file:`fort.55` format for interfacing to MRCC. Before writing the :file:`fort.55` file, we use :kword:`OutOrbitals` = ``CANOnical`` to re-order the active orbitals from an irrep-grouped ordering into ascending-energy ordering. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. Because :file:`fort.55` is registered in the module file registry, the wrapper automatically copies it from :file:`$WorkDir/` back to the user's output directory after the calculation.
+Since the :`RASSCF` program can be used to print one- and two-electron integrals in the FCIDUMP format for interfacing to other programs such as NECI and DICE, it was also given the ability to print the integrals in MRCC's :file:`fort.55` format for interfacing to MRCC. The :file:`fort.55` dumping code automatically re-orders the active orbitals into ascending-energy order via the :func:`energy_sort_permutation` routine in the ``fcidump`` module. Two-electron integrals are written in 4-fold format (:math:`i \ge j,\; k \ge l`). One-electron integrals are written from the Fock matrix, followed by the core energy. Because :file:`fort.55` is registered in the module file registry, the wrapper automatically copies it from :file:`$WorkDir/` back to the user's output directory after the calculation.
 
 Generating an MRCC :file:`fort.55` file
 .......................................
 
-The :kword:`DMPO` keyword in the :program:`RASSCF` program can be used to produce a
+The :kword:`DMPO FORT55` keyword in the :program:`RASSCF` program can be used to produce a
 :file:`fort.55` integral file compatible with the external :program:`MRCC`
 program. The example below shows a full Ne atom calculation in :math:`D_{2h}`
-symmetry with the 6-31G basis set. The :kword:`OutOrbitals` keyword is set to
-``CANOnical`` so that the orbitals are generated in the ordering expected by
-MRCC. ::
+symmetry with the 6-31G basis set. The :kword:`OutOrbitals` = ``CANOnical``
+keyword is included so that the orbitals are diagonalized in the Fock matrix. ::
 
   &GATEWAY
     coord
@@ -721,10 +724,9 @@ MRCC. ::
     OutOrbitals = CANOnical
     nActEl = 10 0 0
     Ras2 = 3 2 2 0 2 0 0 0
-    DMPO
+    DMPO FORT55
 
-After a successful run, the output directory will contain files named :file:`FCIDUMP`,
-:file:`H5FCIDUMP`, and :file:`fort.55`. The first three lines of
+After a successful run, the output directory will contain a :file:`fort.55` file. The first three lines of
 :file:`fort.55` contain the number of active orbitals and electrons, the
 symmetry labels of each orbital (with MRCC's numbering convention for point groups), and a status flag
 (``150000``). The body contains the two-electron integrals in 4-fold
@@ -911,7 +913,7 @@ Output files
 
 :file:`FORT55`
   MRCC-compatible integral file (:file:`fort.55`). Produced when the
-  :kword:`DMPO` keyword is used. The wrapper copies it from the
+  ``DMPO FORT55`` keyword is used. The wrapper copies it from the
   scratch directory back to the user's output directory.
 
 :file:`MCDENS`

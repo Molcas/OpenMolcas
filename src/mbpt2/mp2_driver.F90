@@ -348,7 +348,7 @@ if (Ready) then
   Wref = One/(One+Wref)   ! Note: this is Cref**2
 
   if (DoCholesky .and. (ChoAlg > 0) .and. (.not. SOS_mp2) .and. (.not. LovMP2) .and. (.not. FNOMP2)) then
-    if (iPL >= 2) write(u6,'(3(/6X,A,F26.16,A)//6X,A,F26.16,A//6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &
       ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
@@ -356,7 +356,7 @@ if (Ready) then
       ' Reference weight ( Cref**2 )         =',Wref
   else if (DoCholesky .and. LovMP2) then
     ESSMP2 = E2BJAI+EOSMP2
-    if (iPL >= 2) write(u6,'(4(/6X,A,F26.16,A)//6X,A,F26.16,A//6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(4(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &
       ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
@@ -365,7 +365,7 @@ if (Ready) then
       ' Reference weight ( Cref**2 )         =',Wref
   else if (DoCholesky .and. FNOMP2) then
     ESSMP2 = E2BJAI+EOSMP2-XEMP2
-    if (iPL >= 2) write(u6,'(5(/6X,A,F26.16,A)//6X,A,F26.16,A//6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(5(/6X,A,F20.10,A)//6X,A,F20.10,A//6X,A,F15.5)') &
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &
       ' ( Opposite-Spin contribution         =',-EOSMP2,' )', &
@@ -378,12 +378,12 @@ if (Ready) then
     if (iPL >= 2) then
       if (Laplace) then
         write(u6,'(/,6X,A,I4)') ' Number of Laplace grid points:',Laplace_nGridPoints
-        write(u6,'(3(/6X,A,F26.16,A)//6X,A,F26.16,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
+        write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
                                                        ' SCF energy                           =',ESCF,' a.u.', &
                                                        ' L-SOS 2nd-order correlation energy   =',E2BJAI,' a.u.', &
                                                        ' Total L-SOS-MP2 energy               =',E2BJAI+ESCF,' a.u.'
       else
-        write(u6,'(3(/6X,A,F26.16,A)//6X,A,F26.16,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
+        write(u6,'(3(/6X,A,F20.10,A)//6X,A,F20.10,A)') ' Opposite-Spin (OS) scaling factor    =',C_os,'     ', &
                                                        ' SCF energy                           =',ESCF,' a.u.', &
                                                        ' SOS 2nd-order correlation energy     =',E2BJAI,' a.u.', &
                                                        ' Total SOS-MP2 energy                 =',E2BJAI+ESCF,' a.u.'
@@ -391,7 +391,7 @@ if (Ready) then
     end if
   else
     WRef = REFC**2
-    if (iPL >= 2) write(u6,'(2(/6X,A,F26.16,A)//6X,A,F26.16,A/6X,A,F15.5)') &
+    if (iPL >= 2) write(u6,'(2(/6X,A,F20.10,A)//6X,A,F20.10,A/6X,A,F15.5)') &
       ' SCF energy                           =',ESCF,' a.u.', &
       ' Second-order correlation energy      =',E2BJAI,' a.u.', &
       ' Total energy                         =',E2BJAI+ESCF,' a.u.', &
