@@ -41,7 +41,7 @@ use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, LOWDIN_ON, MALTE
                         NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, &
                         NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, SXDAMP, iDoGAS, IGSOCCX, &
                         NGAS, NGSSH
-use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, IGSOCCX_MOLCAS=>IGSOCCX, &
+use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
                   INOCALC_MOLCAS=>INOCALC, IPRCI_MOLCAS=>IPRCI, IPT2_MOLCAS=>iPT2, &
                   ISAVE_EXP_MOLCAS=>ISAVE_EXP, ISPEED, ISPIN_MOLCAS=>ISPIN, ITMAX_MOLCAS=>ITMAX, STSYM_MOLCAS=>STSYM, &
                   MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL_MOLCAS=>NACTEL, NCSASM, NDET, NDTASM, &
@@ -4055,7 +4055,6 @@ if (.not. SkipGUGA) then
 
   ! Set variables needed in Lucia_Ini (module spinfo)
 
-  igsoccx_Molcas(:,:) = igsoccx(:,:)
   potnuc_Molcas = potnuc
   thre_Molcas = thre
   nsym_Molcas = nsym
