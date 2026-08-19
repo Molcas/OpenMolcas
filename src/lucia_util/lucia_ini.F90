@@ -28,8 +28,8 @@ use rasscf_global, only: POTNUC_MOLCAS=>POTNUC
 
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
-use spinfo, only: INOCALC, IPT2, ISAVE_EXP, THRE_MOLCAS=>THRE
-use rasscf_global, only: IEXPAND
+use spinfo, only: INOCALC, IPT2, ISAVE_EXP
+use rasscf_global, only: IEXPAND, THRE_MOLCAS=>THRE
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
