@@ -12,14 +12,14 @@
 subroutine DEALLOC_LUCIA()
 ! Deallocate memory allocated during alloc_lucia
 
-use lucia_data, only: CI_VEC, INT1, IREFSM, KINH1, KINH1_NOCCSYM, LCSBLK, LSM1, LSM2, MXSOOB, NSMOB, PGINT1, PGINT1A, PINT1, &
-                      PINT2, PSSIGN, RHO1, SIGMA_VEC, SRHO1, XISPSM
+use lucia_data, only: CI_VEC, INT1, IREFSM, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NSMOB, PGINT1, PGINT1A, PINT1, &
+                      PINT2, RHO1, SIGMA_VEC, SRHO1
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ISM, LBLOCK
+integer(kind=iwp) :: ISM
 
 ! 1 : One electron integrals (Complete matrix allocated)
 call mma_deallocate(INT1,safe='*')
@@ -48,10 +48,6 @@ call mma_deallocate(KINH1,safe='*')
 call mma_deallocate(KINH1_NOCCSYM,safe='*')
 
 ! arrays allocated at end of lucia
-LBLOCK = MXSOOB
-LBLOCK = max(LBLOCK,LCSBLK)
-LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 call mma_deallocate(CI_VEC,safe='*')
 call mma_deallocate(SIGMA_VEC,safe='*')
 
