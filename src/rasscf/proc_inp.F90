@@ -126,8 +126,6 @@ DoFaro = .false.
 DoNEVPT2Prep = .false.
 ! If this is set to 0, MPS compression is disabled
 MPSCompressM = 0
-#else
-DoDMRG=.False.
 #endif
 ! NN.14 Block DMRG flag
 DoBlockDMRG = .false.
@@ -4052,7 +4050,7 @@ if (.not. SkipGUGA) then
 
   if (DBG) write(u6,*) ' Construct the determinant tables.'
 
-  if (.not. (Key('DMRG') .or. DoNECI .or. Do_CC_CI .or. DumpOnly .or. DoDMRG)) then
+  if (.not. (Key('DMRG') .or. DoDMRG .or. DoNECI .or. Do_CC_CI .or. DumpOnly)) then
 
 
     ! switch on/off determinants

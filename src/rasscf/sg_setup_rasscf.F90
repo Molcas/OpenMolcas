@@ -71,11 +71,7 @@ if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA .or. iDoGAS)) then
     CIS(istate)%NCSF(STSYM) = 0
   else
 
-    if (doBlockDMRG) then
-      CIS(istate)%NCSF(STSYM) = 1
-    else
-      if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
-    end if
+    if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
   end if
 
   call SETSXCI()
