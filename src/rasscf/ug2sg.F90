@@ -26,7 +26,7 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,ICI,JCJ,CCI,MXROOTS)
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
 use sguga, only: CIS, EXS, SGS, MkCOT, MkSgNum, SG_NUM, SG_PHASE
-use Lucia_data, only: Conf_Occ, ISPIN=>CFTP
+use Lucia_data, only: Conf_Occ, CFTP
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
@@ -116,7 +116,7 @@ do ITYP=1,NTYP
         end if
       end do
       ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1),KCNF(1+ICL),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
+      call STEPVEC(KCNF(1),KCNF(1+ICL),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
       ISG = SG_NUM(SGS(istate),EXS(istate),IWALK)
       ! GET PHASE PHASE FACTOR
