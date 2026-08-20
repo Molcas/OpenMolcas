@@ -53,7 +53,7 @@ use rasscf_global, only: CCI, CMSStartMat, CMSThreshold, CoreShift, DFTFOCK, DoB
                          IROOT, iRotPsi, iSave_Exp, iSCF, iSPDEN, iSupSM, ITCORE, ITMAX, IXMSP, ixSym, iZRot, JCJ, kivo, KSDFT, &
                          kTight, l_CASDFT, LowMS, LROOTS, LvShft, MaxIt, MaxJt, MaxOrbOut, n_keep, NAC, NACPAR, NACPR2, NFR, NIN, &
                          NO2M, NonEq, NORBT, NQUNE, NROOTS, NSEC, NTOT3, NTOT4, OutFmt1, OutFmt2, PreThr, PreThr, ProThr, &
-                         PrwThr, Purify, RFPert, S, SXSEL, ThFact, ThrE, ThrEn, ThrSX, ThrTE, Title, Weight
+                         PrwThr, Purify, RFPert, S, SXSEL, ThFact, ThrE, ThrEn, ThrSX, ThrTE, Title, Weight, DoDMRG
 #ifdef _ENABLE_DICE_SHCI_
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
@@ -65,7 +65,7 @@ use rasscf_global, only: ChemPS2_BLB, ChemPS2_lRestart, ChemPS2_Noise, ChemPS2_R
 use qcmaquis_interface_cfg, only: dmrg_input, qcmaquis_param
 use qcmaquis_interface, only: qcmaquis_interface_init, qcmaquis_interface_set_param, qcmaquis_interface_stdout, remove_comment
 use active_space_solver_cfg, only: as_solver_inp_proc
-use rasscf_global, only: DoDMRG, DoMCPDFTDMRG, DoNEVPT2Prep, MPSCompressM, Twordm_qcm
+use rasscf_global, only: DoMCPDFTDMRG, DoNEVPT2Prep, MPSCompressM, Twordm_qcm
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_nprocs, mpp_procid
 #endif
@@ -126,6 +126,8 @@ DoFaro = .false.
 DoNEVPT2Prep = .false.
 ! If this is set to 0, MPS compression is disabled
 MPSCompressM = 0
+#else
+DoDMRG=.False.
 #endif
 ! NN.14 Block DMRG flag
 DoBlockDMRG = .false.
@@ -4048,21 +4050,15 @@ if (.not. SkipGUGA) then
 
   if (DBG) write(u6,*) ' Construct the determinant tables.'
 
-  if (.not. (Key('DMRG') .or. DoNECI .or. Do_CC_CI .or. DumpOnly)) then
+  if (.not. (Key('DMRG') .or. DoNECI .or. Do_CC_CI .or. DumpOnly) .or. .Not. DoDMRG) then
     ! switch on/off determinants
-#   ifdef _DMRG_
-    if (.not. doDMRG) then
-#   endif
-      ! Initialize LUCIA and determinant control
-      call StatusLine('RASSCF: ','Initializing Lucia...')
-      call Lucia_Util('Ini')
-      ! to get number of CSFs for GAS
-      ! and number of determinants to store
-      nconf = sum(ncsasm(1:mxsym))
-      nDet = sum(ndtasm(1:mxsym))
-#   ifdef _DMRG_
-    end if
-#   endif
+    ! Initialize LUCIA and determinant control
+    call StatusLine('RASSCF: ','Initializing Lucia...')
+    call Lucia_Util('Ini')
+    ! to get number of CSFs for GAS
+    ! and number of determinants to store
+    nconf = sum(ncsasm(1:mxsym))
+    nDet = sum(ndtasm(1:mxsym))
   end if
 
   ISCF = 0
