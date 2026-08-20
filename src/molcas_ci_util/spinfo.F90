@@ -25,7 +25,7 @@ module Spinfo
 ! nSpeed, iSpeed
 !
 ! ELIMINATED_IN_GAS, 2ELIMINATED_IN_GAS,
-! ms2, ipt2,
+! ms2,
 ! iprci, ngas, INOCALC, ISAVE_EXP, N_ELIMINATED_GAS, N_2ELIMINATED_GAS,
 ! I_ELIMINATE_GAS, nCSF_HEXS
 
@@ -38,14 +38,14 @@ private
 integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 
 integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN_GAS(MxGAS), &
-                     INOCALC, iprci, ipt2, ISAVE_EXP, iSpeed(nSpeed), &
+                     INOCALC, iprci, ISAVE_EXP, iSpeed(nSpeed), &
                      MINOP, MS2, N_2ELIMINATED_GAS, &
                      N_ELIMINATED_GAS, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, &
                      NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), ngas, NTYP
 logical(kind=iwp) :: DoComb
 
 public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
-          INOCALC, iprci, ipt2, ISAVE_EXP, iSpeed, MINOP, &
+          INOCALC, iprci, ISAVE_EXP, iSpeed, MINOP, &
           MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCNASM, NCNFTP, NCSASM, nCSF_HEXS, &
           NCSFTP, NDET, NDTASM, NDTFTP, ngas, NTYP
 
