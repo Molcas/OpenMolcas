@@ -117,7 +117,6 @@ set (sources
      freq.F90
      frmdsc_mclr.F90
      g2qtog2r.F90
-     gasdn2_mclr.F90
      gatrmt.F90
      genstr_mclr.F90
      getcnf_mclr.F90
@@ -270,7 +269,6 @@ set (sources
      sa_prec2.F90
      sa_prec.F90
      scarmt.F90
-     scdtc2_mclr.F90
      sdcmrf_mclr_1.F90
      sdcmrf_mclr_2.F90
      sdcmrf_pre.F90

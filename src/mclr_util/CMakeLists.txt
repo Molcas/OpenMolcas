@@ -11,7 +11,9 @@
 
 set (sources
      densi2_mclr.F90
+     gasdn2_mclr.F90
      mxresc.F90
+     scdtc2_mclr.F90
      sigmavec.F90
 )
 
