@@ -48,7 +48,7 @@ if (nHole1+nElec3 /= 0) then
    nRas(:,1)=nRs1(:)
    nRas(:,2)=nRs2(:)
    nRas(:,3)=nRs3(:)
-  nRs1T = sum(nRs1(1:nSym))
+   nRs1T = sum(nRs1(1:nSym))
    nRasEl(1)=2*nRs1T-nHole1
    nRasEl(2)=nActel-nElec3
    nRasEl(3)=nActel
@@ -60,32 +60,29 @@ end if
 
 ! Construct the Guga tables
 
-if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA)) then
-  ! right now skip most part of gugactl for GAS
-  if (.not. iDoGas) then
+if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA .or. iDoGAS)) then
 
-    call Timing(Eterna_1,dum1,dum2,dum3)
-    call SG_Init(iState,nSym,nActEl,iSpin,                    &
-                 nRas,nRasEl,nRsPrt,                           &
-                 xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
+  call Timing(Eterna_1,dum1,dum2,dum3)
+  call SG_Init(iState,nSym,nActEl,iSpin,                    &
+               nRas,nRasEl,nRsPrt,                           &
+               xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
-    if (SGS(istate)%NVERT0 == 0) then
-      CIS(istate)%NCSF(STSYM) = 0
+  if (SGS(istate)%NVERT0 == 0) then
+    CIS(istate)%NCSF(STSYM) = 0
+  else
+
+    if (doBlockDMRG) then
+      CIS(istate)%NCSF(STSYM) = 1
     else
-
-      if (doBlockDMRG) then
-        CIS(istate)%NCSF(STSYM) = 1
-      else
-        if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
-      end if
+      if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
     end if
-
-    call SETSXCI()
-    NCONF = CIS(istate)%NCSF(STSYM)
-
-    call Timing(Eterna_2,dum1,dum2,dum3)
-
   end if
+
+  call SETSXCI()
+  NCONF = CIS(istate)%NCSF(STSYM)
+
+  call Timing(Eterna_2,dum1,dum2,dum3)
+
 end if
 
 end subroutine sg_setup_rasscf
