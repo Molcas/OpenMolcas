@@ -37,7 +37,7 @@ subroutine PRESDIA(IVEC,JVEC,OVLAPS)
 
 use EQSOLV, only: IDBMAT
 use caspt2_global, only: LUSBT
-use caspt2_module, only: MxCase, nASup, nInDep, nISup, nSym
+use caspt2_module, only: CPUDIA, MxCase, nASup, nInDep, nISup, nSym, TIODIA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -46,12 +46,14 @@ implicit none
 integer(kind=iwp), intent(in) :: IVEC, JVEC
 real(kind=wp), intent(inout) :: OVLAPS(0:8,0:MXCASE)
 integer(kind=iwp) :: ICASE, ISYM, JD, lg_V, NAS, NIN, NIS
-real(kind=wp) :: DOVL, OVL, OVLSUM, OVLTOT
+real(kind=wp) :: CPU, CPU0, CPU1, DOVL, OVL, OVLSUM, OVLTOT, TIO, TIO0, TIO1
 real(kind=wp), allocatable :: BD(:), ID(:)
 
 ! Apply the resolvent of the diagonal part of H0 to a coefficient
 ! vector in vector nr. IVEC on LUSOLV. Put the results in vector
 ! nr. JVEC. Also compute overlaps, see OVLVEC for structure.
+
+call TIMING(CPU0,CPU,TIO0,TIO)
 
 OVLTOT = Zero
 OVLAPS(:,:) = Zero
@@ -92,5 +94,9 @@ do ICASE=1,13
   OVLTOT = OVLTOT+OVLSUM
 end do
 OVLAPS(0,0) = OVLTOT
+
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPUDIA = CPUDIA+(CPU1-CPU0)
+TIODIA = TIODIA+(TIO1-TIO0)
 
 end subroutine PRESDIA

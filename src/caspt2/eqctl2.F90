@@ -31,9 +31,9 @@ use PrintLevel, only: INSANE, USUAL, VERBOSE
 use EQSOLV, only: IRHS, IVECC, IVECC2, IVECR, IVECW, IVECX
 use ChoCASPT2, only: iALGO
 use caspt2_global, only: do_grad, iPrGlb, iStpGrd, nStpGrd
-use caspt2_module, only: CPUEIG, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUVEC, E2TOT, HZERO, &
-                         IfChol, NASUP, NINDEP, NISUP, NSYM, RHSDIRECT, SDECOM, SMATRIX, TIOEIG, TIOLCS, TIONAD, TIOOVL, TIOPCG, &
-                         TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOVEC
+use caspt2_module, only: CPUDIA, CPUEIG, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUVEC, E2TOT, &
+                         HZERO, IfChol, IFDENS, IFMSCOUP, IFPROP, NASUP, NINDEP, NISUP, NSYM, RHSDIRECT, SDECOM, SMATRIX, TIODIA, &
+                         TIOEIG, TIOLCS, TIONAD, TIOOVL, TIOPCG, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOVEC
 use SC_NEVPT2, only: do_FIC, SC_NEVPT2_Print
 use Definitions, only: wp, iwp, u6
 
@@ -191,11 +191,13 @@ CPULCS = 0
 CPUOVL = 0
 CPUSGM = 0
 CPUVEC = 0
+CPUDIA = 0
 TIOSCA = 0
 TIOLCS = 0
 TIOOVL = 0
 TIOSGM = 0
 TIOVEC = 0
+TIODIA = 0
 
 if (do_FIC) then
   ! Transform RHS of CASPT2 equations to eigenbasis for H0:
@@ -217,10 +219,14 @@ if (do_FIC) then
     call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
   end if
 
-  call PTRTOC(0,IVECX,IVECC)
-  call PTRTOC(1,IVECX,IVECC2)
+  ! IVECC and IVECC2 (the contravariant and covariant solutions, respectively) are used
+  ! only by the property, density, gradient, and MS sections hereafter.
+  if (IFDENS .or. IFPROP .or. do_grad .or. IFMSCOUP) then
+    call PTRTOC(0,IVECX,IVECC)
+    call PTRTOC(1,IVECX,IVECC2)
+  end if
 else
-  ! SC-NEVPT2: it is a direct summation, so we assume the convergence is always achieved
+  ! Sole SC-NEVPT2: it is a direct summation, so we assume the convergence is always achieved
   ICONV = 0
 end if
 

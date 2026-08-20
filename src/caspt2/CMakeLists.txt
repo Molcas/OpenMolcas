@@ -32,6 +32,7 @@ set (sources
      chocaspt2.F90
      cho_caspt2_openf.F90
      cho_caspt2_rdinp.F90
+     cho_square.F90
      cholesky_vectors.F90
      chovec_io.F90
      cho_x_loc.F90
@@ -105,6 +106,7 @@ set (sources
      fulltrnsf_boxed.F90
      fulltrnsf.F90
      ga_create_striped.F90
+     gather_striped.F90
      gdmat.F90
      get_cholesky_vectors.F90
      getdpref.F90
