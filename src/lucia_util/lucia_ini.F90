@@ -18,11 +18,10 @@ use lucia_data, only: ECORE, ENVIRO, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IADVI
                       NGAS, NGSSH, NIRREP, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN, Sigma_on_disk
 
 use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS=>I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS_MOLCAS=>I_ELIMINATE_GAS,  &
-                  IELIMINATED_IN_GAS_MOLCAS=>IELIMINATED_IN_GAS, &
-                  ISPEED, MS2_MOLCAS=>MS2, &
+                  IELIMINATED_IN_GAS_MOLCAS=>IELIMINATED_IN_GAS, ISPEED, &
                   N_2ELIMINATED_GAS_MOLCAS=>N_2ELIMINATED_GAS, N_ELIMINATED_GAS_MOLCAS=>N_ELIMINATED_GAS
 use general_data, only: NGSSH_MOLCAS=>NGSSH, IGSOCCX_MOLCAS=>IGSOCCX, NSYM_MOLCAS=>NSYM, NACTEL_MOLCAS=>NACTEL, &
-                        MULTS_MOLCAS=>ISPIN, IREFSM_MOLCAS=>STSYM, nGAS_MOLCAS=>nGAS
+                        MULTS_MOLCAS=>ISPIN, IREFSM_MOLCAS=>STSYM, nGAS_MOLCAS=>nGAS, iSpin
 use rasscf_global, only: POTNUC_MOLCAS=>POTNUC, ITMAX, NROOTS_MOLCAS=>nROOTS, lROOTS_MOLCAS=>lROOTS
 use output_ras, only: iPrLoc
 
@@ -102,7 +101,7 @@ nactel = nactel_Molcas
 ! ===========================
 !  Two times spin projection
 ! ===========================
-ms2 = ms2_molcas
+ms2 = iSpin-1
 
 ! ===================
 !  Spin multiplicity

@@ -13,7 +13,7 @@ module Spinfo
 
 ! stuff from spinfo.fh
 !
-! MXTYP, MS2, MINOP, NTYP, NDTFTP, NCSFTP, NCNFTP
+! MXTYP, MINOP, NTYP, NDTFTP, NCSFTP, NCNFTP
 !
 ! stuff from ciinfo.fh
 !
@@ -25,7 +25,7 @@ module Spinfo
 ! nSpeed, iSpeed
 !
 ! ELIMINATED_IN_GAS, 2ELIMINATED_IN_GAS,
-! ms2, N_ELIMINATED_GAS, N_2ELIMINATED_GAS,
+! N_ELIMINATED_GAS, N_2ELIMINATED_GAS,
 ! I_ELIMINATE_GAS, nCSF_HEXS
 
 use Molcas, only: MxGAS, MxSym
@@ -37,13 +37,13 @@ private
 integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 
 integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN_GAS(MxGAS), &
-                     iSpeed(nSpeed), MINOP, MS2, N_2ELIMINATED_GAS, &
+                     iSpeed(nSpeed), MINOP, N_2ELIMINATED_GAS, &
                      N_ELIMINATED_GAS, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, &
                      NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), NTYP
 logical(kind=iwp) :: DoComb
 
 public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, iSpeed, MINOP, &
-          MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCNASM, NCNFTP, NCSASM, nCSF_HEXS, &
+          N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCNASM, NCNFTP, NCSASM, nCSF_HEXS, &
           NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 
 end module Spinfo
