@@ -11,26 +11,58 @@
 
 subroutine SG_Setup_RASSCF(SkipGUGA)
 
-use Molcas, only: MxLev
 use fciqmc, only: DoNECI
 use fcidump, only: DumpOnly
 use CC_CI_mod, only: Do_CC_CI
 use rasscf_global, only: NSM
-use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM, NLEV, Level, &
-                        iDoGAS, NGAS, NGSSH
+use general_data, only: iSpin, nActel, nConf, nSym, STSYM, NLEV, Level, &
+                        iDoGAS, nRas,nRasEl,nRsPrt
 use sguga, only: CIS, SGS, SG_init
 #ifdef _DMRG_
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate
 #endif
-use general_data, only: nRas,nRasEl,nRsPrt
 use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp), intent(inout):: SkipGUGA
-integer(kind=iwp) :: IGAS, iq, ISYM, nRs1T, NSTA
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
 integer(kind=iwp), parameter :: istate=1
+
+Call Setup_RASSCF()
+
+! Construct the Guga tables
+
+if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA .or. iDoGAS)) then
+
+  call Timing(Eterna_1,dum1,dum2,dum3)
+  call SG_Init(iState,nSym,nActEl,iSpin,                    &
+               nRas,nRasEl,nRsPrt,                           &
+               xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
+
+  if (SGS(istate)%NVERT0 == 0) then
+    CIS(istate)%NCSF(STSYM) = 0
+  else
+
+    if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
+  end if
+
+  call SETSXCI()
+  NCONF = CIS(istate)%NCSF(STSYM)
+
+  call Timing(Eterna_2,dum1,dum2,dum3)
+
+end if
+
+contains
+
+subroutine Setup_RASSCF()
+use Molcas, only: MxLev
+use general_data, only: nActel, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, NLEV, Level, &
+                        NGAS, NGSSH, nRas,nRasEl,nRsPrt
+use Definitions, only: iwp
+implicit none
+integer(kind=iwp) :: IGAS, iq, ISYM, nRs1T, NSTA
 
 NLEV = 0
 do IGAS=1,NGAS
@@ -58,27 +90,6 @@ else
    nRasEl(1)=nActel
 end if
 
-! Construct the Guga tables
-
-if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly .or. SkipGUGA .or. iDoGAS)) then
-
-  call Timing(Eterna_1,dum1,dum2,dum3)
-  call SG_Init(iState,nSym,nActEl,iSpin,                    &
-               nRas,nRasEl,nRsPrt,                           &
-               xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
-
-  if (SGS(istate)%NVERT0 == 0) then
-    CIS(istate)%NCSF(STSYM) = 0
-  else
-
-    if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
-  end if
-
-  call SETSXCI()
-  NCONF = CIS(istate)%NCSF(STSYM)
-
-  call Timing(Eterna_2,dum1,dum2,dum3)
-
-end if
+end subroutine Setup_RASSCF
 
 end subroutine sg_setup_rasscf
