@@ -14,9 +14,8 @@ subroutine SG_Setup_RASSCF(SkipGUGA)
 use fciqmc, only: DoNECI
 use fcidump, only: DumpOnly
 use CC_CI_mod, only: Do_CC_CI
-use rasscf_global, only: NSM
 use general_data, only: iSpin, nActel, nConf, nSym, STSYM, NLEV, Level, &
-                        iDoGAS, nRas,nRasEl,nRsPrt
+                        iDoGAS, nRas,nRasEl,nRsPrt, NSM
 use sguga, only: CIS, SGS, SG_init
 #ifdef _DMRG_
 use input_ras, only: Key

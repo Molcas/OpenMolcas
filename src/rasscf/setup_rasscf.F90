@@ -11,9 +11,8 @@
 
 subroutine Setup_RASSCF()
 use Molcas, only: MxLev
-use rasscf_global, only: NSM
 use general_data, only: nActel, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, NLEV, Level, &
-                        NGAS, NGSSH, nRas,nRasEl,nRsPrt
+                        NGAS, NGSSH, nRas,nRasEl,nRsPrt, NSM
 use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: IGAS, iq, ISYM, nRs1T, NSTA
