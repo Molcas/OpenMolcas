@@ -9,10 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SG_Setup_RASSCF(SkipGUGA)
+subroutine SG_Setup_RASSCF()
 
-use general_data, only: iSpin, nActel, nConf, nSym, STSYM, NLEV, Level, &
-                        nRas,nRasEl,nRsPrt, NSM
+use general_data, only: iSpin, nActel, nConf, nSym, STSYM, NLEV, Level, nRas,nRasEl,nRsPrt, NSM
 use sguga, only: CIS, SGS, SG_init
 #ifdef _DMRG_
 use input_ras, only: Key
@@ -21,11 +20,8 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp), intent(in):: SkipGUGA
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
 integer(kind=iwp), parameter :: istate=1
-
-if (SkipGUGA) Return
 
 ! Construct the Guga tables
 

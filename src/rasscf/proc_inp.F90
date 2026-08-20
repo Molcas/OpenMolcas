@@ -4039,7 +4039,7 @@ call Setup_RASSCF()
 
 ! Initiate the SGUGA environment conditional to all flags
 
-call SG_Setup_RASSCF(SkipGUGA .or. iDoGAS)
+If (.not. (SkipGUGA .or. iDoGAS)) call SG_Setup_RASSCF()
 
 ! ======================================================================
 
