@@ -50,7 +50,8 @@ do JSYM=1,NSYM
   NPB = 0
   do ISYMA=1,NSYM
     ISYMB = Mul(ISYMA,JSYM)
-    NPB = NPB+max(NFRO(iSymA),NISH(iSymA),NASH(iSymA))*NBAS(ISYMB)
+    ! For efficiency, construct Fock matrices using the frozen + inactive density, but not separately
+    NPB = NPB+max(NFRO(iSymA)+NISH(iSymA),NASH(iSymA))*NBAS(ISYMB)
     MXFTARR = max(MXFTARR,NPSH(ISYMA)*NKSH(ISYMB))
   end do
   MXHTARR = max(MXHTARR,NPB)

@@ -17,6 +17,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, OneHalf
 use Definitions, only: wp, iwp
 
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
+#endif
+
 implicit none
 integer(kind=iwp), intent(in) :: ISTART, NDIM, STSym, NCI
 real(kind=wp), intent(inout) :: XMAT(NDIM,NDIM), CI(NCI)
@@ -24,6 +28,12 @@ integer(kind=iwp) :: I, IORB, J, JORB, LI, LJ, M
 real(kind=wp) :: Fact, SCL, XJM
 real(kind=wp), allocatable :: SGM(:), TVEC(:), XSAV(:,:)
 integer(kind=iwp), parameter :: istate = 1
+real(kind=wp), parameter :: THRSCL = 1.0e-12_wp
+
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: ITASK
+real(kind=wp), allocatable :: CIACC(:)
+#endif
 
 if (NDIM <= 0) return
 
@@ -31,7 +41,9 @@ call mma_allocate(XSAV,NDIM,NDIM,Label='XSAV')
 XSAV(:,:) = XMAT(:,:)
 call mma_allocate(TVEC,NDIM,LABEL='TVEC')
 call mma_allocate(SGM,NCI,LABEL='SGM')
-SGM(:) = Zero
+#ifdef _MOLCAS_MPP_
+if (Is_Real_Par()) call mma_allocate(CIACC,NCI,LABEL='CIACC')
+#endif
 
 do J=1,NDIM
   FACT = One/XMAT(J,J)
@@ -53,26 +65,73 @@ do J=1,NDIM
   ! where U(I) = T(I)-Kronecker(I,J).
   JORB = ISTART-1+J
   LJ = SGS(istate)%LEVEL(JORB)
+
+# ifdef _MOLCAS_MPP_
+  ITASK = 0
+  SGM(1:NCI) = Zero
+# else
   SGM(1:NCI) = (OneHalf-Half*TVEC(J))*CI(1:NCI)
+# endif
   do I=1,NDIM
     IORB = ISTART-1+I
     LI = SGS(istate)%LEVEL(IORB)
     SCL = Half*TVEC(I)
     if (I == J) SCL = SCL-Half
-    if (abs(SCL) < 1.0e-12_wp) cycle
-    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,CI,SGM)
+    if (abs(SCL) < THRSCL) cycle
+#   ifdef _MOLCAS_MPP_
+    if (Is_Real_Par()) then
+      ITASK = ITASK+1
+      if (mod(ITASK-1,nProcs) /= MyRank) cycle
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,CI,SGM)
+    else
+#   endif
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,CI,SGM)
+#   ifdef _MOLCAS_MPP_
+    end if
+#   endif
   end do
+# ifdef _MOLCAS_MPP_
+  call GADGOP(SGM,NCI,'+')
+  SGM(1:NCI) = SGM(1:NCI)+(OneHalf-Half*TVEC(J))*CI(1:NCI)
+# endif
+
+  !--- Second half-transformation: SGM -> CI --------------------------
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) then
+    CIACC(1:NCI) = Zero
+    ITASK = 0
+  end if
+# endif
   do I=1,NDIM
     IORB = ISTART-1+I
     LI = SGS(istate)%LEVEL(IORB)
     SCL = TVEC(I)
     if (I == J) SCL = SCL-One
-    if (abs(SCL) < 1.0e-12_wp) cycle
-    call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,SGM,CI)
+    if (abs(SCL) < THRSCL) cycle
+#   ifdef _MOLCAS_MPP_
+    if (Is_Real_Par()) then
+      ITASK = ITASK+1
+      if (mod(ITASK-1,nProcs) /= MyRank) cycle
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,SGM,CIACC)
+    else
+#   endif
+      call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),LI,LJ,SCL,STSYM,SGM,CI)
+#   ifdef _MOLCAS_MPP_
+    end if
+#   endif
   end do
+# ifdef _MOLCAS_MPP_
+  if (Is_Real_Par()) then
+    call GADGOP(CIACC,NCI,'+')
+    CI(1:NCI) = CI(1:NCI)+CIACC(1:NCI)
+  end if
+# endif
 
 end do
 
+#ifdef _MOLCAS_MPP_
+if (Is_Real_Par()) call mma_deallocate(CIACC)
+#endif
 call mma_deallocate(SGM)
 call mma_deallocate(TVEC)
 XMAT(:,:) = XSAV(:,:)

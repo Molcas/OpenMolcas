@@ -17,9 +17,11 @@ use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: ChoVec_Coll, ChoVec_load, ChoVec_Save, npq_ChoType, NVLOC_ChoBatch
 use Cholesky, only: InfVec
 use ChoCASPT2, only: MxNVc, nChSpc, nFtSpc, nHtSpc, NumCho_PT2
+use Cho_Square, only: Cho_Red2Sq, Cho_Sq_Close, Cho_Sq_Setup, IPLSQ, LSQ, NSUB
 use general_data, only: nAsh
-use caspt2_module, only: nBas, nBtch, nBtches, nFro, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
+use caspt2_module, only: nBas, nBasT, nBtch, nBtches, nFro, nInaBx, nIsh, nSecBx, nSsh, nSym, RHSDirect
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -28,7 +30,10 @@ real(kind=wp), intent(in) :: CMO(NCMO)
 integer(kind=iwp) :: IAEND, IASTA, IB, IBATCH, IBATCH_TOT, IBEND, IBSTA, IC, ICASE, IIEND, IISTA, ILOC, ip_htspc, ip_HTVec(8), &
                      IP_LHT, IRC, ISTART(8), ISYM, ISYMA, ISYMB, ISYP, ISYQ, JNUM, JRED, JRED1, JRED2, JREDC, JSTART, JSYM, JV1, &
                      JV2, MUSED, N, N1, N2, NA, NASZ, NBATCH, NBUFFY, NCES(8), NHTOFF, NI, NISZ, NPQ, NUMV, NUSE(8), NVECS_RED
-real(kind=wp), allocatable :: BUFFY(:), CHSPC(:), FTSPC(:), HTSPC(:)
+
+integer(kind=iwp) :: IP_HTVECA(8), ISTARTA(8), JS, NHTACT, NJX, NPB, NUSEA(8)
+logical(kind=iwp) :: USE_SQ
+real(kind=wp), allocatable :: BUFFY(:), CHSPC(:), FTSPC(:), HTACT(:), HTSPC(:)
 #include "warnings.h"
 
 !***********************************************************************
@@ -46,6 +51,22 @@ call mma_allocate(CHSPC,NCHSPC,LABEL='CHSPC')
 call mma_allocate(HTSPC,NHTSPC,LABEL='HTSPC')
 ip_HTSPC = 1
 call mma_allocate(FTSPC,NFTSPC,LABEL='FTSPC')
+
+! Own buffer for the active half transformed vectors.
+NHTACT = 0
+do JSYM=1,NSYM
+  NPB = 0
+  do ISYMA=1,NSYM
+    ISYMB = Mul(ISYMA,JSYM)
+    NPB = NPB+NASH(ISYMA)*NBAS(ISYMB)
+  end do
+  NHTACT = max(NHTACT,NPB)
+end do
+NHTACT = NHTACT*max(1,NCHSPC/max(1,NBAST**2))
+call mma_allocate(HTACT,NHTACT,LABEL='HTACT')
+
+USE_SQ = .true.
+call Cho_Sq_Setup(USE_SQ)
 ! ======================================================================
 
 !IBATCH_TOT=0
@@ -105,22 +126,23 @@ do JSYM=1,NSYM
       end if
 
       ! Frozen half-transformation:
-      NHTOFF = 0
-      do ISYMA=1,NSYM
-        ISYMB = Mul(ISYMA,JSYM)
-        IP_HTVEC(ISYMA) = IP_HTSPC+NHTOFF
-        ISTART(ISYMA) = 1
-        NUSE(ISYMA) = NFRO(ISYMA)
-        NHTOFF = NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
-      end do
-      call HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
+      ! the frozen half-transformed vectors are not actually used anywhere
+!     NHTOFF = 0
+!     do ISYMA=1,NSYM
+!       ISYMB = Mul(ISYMA,JSYM)
+!       IP_HTVEC(ISYMA) = IP_HTSPC+NHTOFF
+!       ISTART(ISYMA) = 1
+!       NUSE(ISYMA) = NFRO(ISYMA)
+!       NHTOFF = NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
+!     end do
+!     call HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 
       ! Inactive half-transformation:
       ! Vectors of type HALF(K,J,B) = Sum(CHO(AB,J)*CMO(A,K) where
       ! A,B are basis functions of symmetry ISYMA, ISYMB,
       ! K is inactive of symmetry ISYMA, J is vector number in 1..NUMV
       ! numbered within the present batch.
-      ! Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
+      ! Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA))
       NHTOFF = 0
       do ISYMA=1,NSYM
         ISYMB = Mul(ISYMA,JSYM)
@@ -129,7 +151,30 @@ do JSYM=1,NSYM
         NUSE(ISYMA) = NISH(ISYMA)
         NHTOFF = NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
       end do
-      call HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
+      ! Same for the active ones, which land in HTACT.
+      NHTOFF = 0
+      do ISYMA=1,NSYM
+        ISYMB = Mul(ISYMA,JSYM)
+        IP_HTVECA(ISYMA) = 1+NHTOFF
+        ISTARTA(ISYMA) = NFRO(ISYMA)+NISH(ISYMA)+1
+        NUSEA(ISYMA) = NASH(ISYMA)
+        NHTOFF = NHTOFF+NUSEA(ISYMA)*NBAS(ISYMB)*JNUM
+      end do
+
+      if (USE_SQ) then
+        ! Build the half transformed vectors of the whole batch through the square form
+        do JS=1,JNUM,NSUB ! NSUB: vectors expanded at a time
+          NJX = min(NSUB,JNUM-JS+1)
+
+          call CHO_RED2SQ(CHSPC,NCHSPC,JS,NJX,JSYM,JREDC,JV1+JS-1)
+
+          call HALFTRNSF2(ISTART,NUSE,IP_HTVEC,HTSPC,JS,NJX)    ! inactive
+          call HALFTRNSF2(ISTARTA,NUSEA,IP_HTVECA,HTACT,JS,NJX) ! active
+        end do
+      else
+        call HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)    ! inactive
+        call HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,JSYM,JREDC,CMO,NCMO,ISTARTA,NUSEA,IP_HTVECA,HTACT,NHTACT) ! active
+      end if
 
       ! Loop over ISYQ
       do ISYQ=1,NSYM
@@ -190,19 +235,8 @@ do JSYM=1,NSYM
       ! A,B are basis functions of symmetry ISYMA, ISYMB,
       ! W is active of symmetry ISYMA, J is vector number in 1..NUMV
       ! numbered within the present batch.
-      ! Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
-      NHTOFF = 0
-      do ISYMA=1,NSYM
-        ISYMB = Mul(ISYMA,JSYM)
-        IP_HTVEC(ISYMA) = IP_HTSPC+NHTOFF
-        ISTART(ISYMA) = NFRO(ISYMA)+NISH(ISYMA)+1
-        NUSE(ISYMA) = NASH(ISYMA)
-        NHTOFF = NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
-      end do
-      ! ---------------------------------------------------
-      ! Active half-transformation:
-      call HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
-
+      ! Symmetry block ISYMA,ISYMB is found at HTACT(IP_HTVECA(ISYMA))
+      ! The active half transformation was already done above, into HTACT.
       do ISYQ=1,NSYM
         ISYP = Mul(ISYQ,JSYM)
 
@@ -212,20 +246,20 @@ do JSYM=1,NSYM
         N1 = NASH(ISYP)
         N2 = NASH(ISYQ)
         IC = 1+NCES(ISYP)+(NFRO(ISYP)+NISH(ISYP))*N
-        IP_LHT = IP_HTVEC(ISYQ)
+        IP_LHT = IP_HTVECA(ISYQ)
         ! Compute fully transformed TV
         if (N1*N2 > 0) then
-          call FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
+          call FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTACT(IP_LHT),FTSPC)
           call CHOVEC_SAVE(FTSPC,NFTSPC,2,ISYQ,JSYM,IBATCH_TOT)
         end if
         ! ---------------------------------------------------
         N1 = NSSH(ISYP)
         N2 = NASH(ISYQ)
         IC = 1+NCES(ISYP)+(NFRO(ISYP)+NISH(ISYP)+NASH(ISYP))*N
-        IP_LHT = IP_HTVEC(ISYQ)
+        IP_LHT = IP_HTVECA(ISYQ)
         ! Compute fully transformed AV
         if (N1*N2 > 0) then
-          call FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
+          call FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTACT(IP_LHT),FTSPC)
           call CHOVEC_SAVE(FTSPC,NFTSPC,3,ISYQ,JSYM,IBATCH_TOT)
         end if
         ! ---------------------------------------------------
@@ -264,5 +298,33 @@ end if
 call mma_deallocate(CHSPC)
 call mma_deallocate(HTSPC)
 call mma_deallocate(FTSPC)
+call mma_deallocate(HTACT)
+call Cho_Sq_Close()
+
+contains
+
+subroutine HALFTRNSF2(ISTARTX,NUSEX,IPHVX,HT,JS_,NJX_)
+
+  integer(kind=iwp), intent(in) :: ISTARTX(8), NUSEX(8), IPHVX(8), JS_, NJX_
+  real(kind=wp), intent(inout) :: HT(*)
+  integer(kind=iwp) :: IBX, ICX, IPH, IPL, ISYA, ISYB, NBXA, NBXB, NKX
+
+  do ISYB=1,NSYM
+    ISYA = Mul(JSYM,ISYB)
+    NBXA = NBAS(ISYA)
+    NBXB = NBAS(ISYB)
+    NKX = NUSEX(ISYA)
+    if ((NKX > 0) .and. (NBXA > 0) .and. (NBXB > 0)) then
+      ICX = 1+NCES(ISYA)+NBXA*(ISTARTX(ISYA)-1)
+      do IBX=1,NBXB
+        ! HT(k,JS_..JS_+NJX_-1,b) = sum_a CMO(a,k) * LSQ(a,j,b)
+        IPH = IPHVX(ISYA)+NKX*(JS_-1)+NKX*JNUM*(IBX-1)
+        IPL = IPLSQ(ISYA)+NBXA*NJX_*(IBX-1)
+        call DGEMM_('T','N',NKX,NJX_,NBXA,One,CMO(ICX),NBXA,LSQ(IPL),NBXA,Zero,HT(IPH),NKX)
+      end do
+    end if
+  end do
+
+end subroutine HALFTRNSF2
 
 end subroutine TRACHO3

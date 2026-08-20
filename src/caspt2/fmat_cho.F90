@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine FMAT_CHO(CMO,NCMO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,FIFA,NFIFA)
+subroutine FMAT_CHO(CMO,NCMO,FFIAO,FAAO,FIMO,NFIMO,FIFA,NFIFA)
 ! THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 ! REPRESENTED BY CHOLESKY VECTORS:
 ! TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
@@ -25,8 +25,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NCMO, NHONE, NFIMO, NFIFA
-real(kind=wp), intent(in) :: CMO(NCMO), FIAO(NBTRI), FAAO(NBTRI), HONE(NHONE)
+integer(kind=iwp), intent(in) :: NCMO, NFIMO, NFIFA
+real(kind=wp), intent(in) :: CMO(NCMO), FFIAO(NBTRI), FAAO(NBTRI)
 real(kind=wp), intent(out) :: FIMO(NFIMO), FIFA(NFIFA)
 integer(kind=iwp) :: I, IFAO, IJ, IOFMO, ISYM, LSC, LSCI, NB, NBBMX, NBOMX, NF, NO, NO_X, NOOMX
 real(kind=wp), allocatable :: SCR1(:), SCR2(:), SCR3(:)
@@ -56,8 +56,8 @@ do ISYM=1,NSYM
   NO_X = max(1,NO)
   NF = NFRO(ISYM)
   LSCI = LSC+NF*NB
-  ! The inactive Fock matrix:
-  call SQUARE(FIAO(IFAO),SCR1,NB,1,NB)
+  ! The frozen + inactive Fock matrix:
+  call SQUARE(FFIAO(IFAO),SCR1,NB,1,NB)
   call DGEMM_('N','N',NB,NO,NB,One,SCR1,NB,CMO(LSCI),NB,Zero,SCR2,NB)
   call DGEMM_('T','N',NO,NO,NB,One,CMO(LSCI),NB,SCR2,NB,Zero,SCR3,NO_X)
   IJ = 0
@@ -83,7 +83,6 @@ call mma_deallocate(SCR1)
 call mma_deallocate(SCR2)
 call mma_deallocate(SCR3)
 
-FIMO(1:NoTri) = FIMO(:)+HONE(:)
 FIFA(1:NoTri) = FIMO(:)+FIFA(:)
 
 #ifdef _DEBUGPRINT_
