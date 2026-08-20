@@ -4030,14 +4030,9 @@ call ChkInp()
 
 ! In DMRG-CASSCF, skip GUGA and LUCIA settings
 NCONF = 1
-SkipGUGA = DoBlockDMRG
+SkipGUGA = DoBlockDMRG .or. Key('DMRG') .or. doDMRG
 
-#ifdef _DMRG_
-if (Key('DMRG') .or. doDMRG) Then
-   call mma_deallocate(initial_occ)
-   SkipGUGA = .true.
-endif
-#   endif
+call mma_deallocate(initial_occ,safe='*')
 ! ======================================================================
 
 call Setup_RASSCF()
