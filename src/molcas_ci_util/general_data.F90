@@ -11,7 +11,7 @@
 
 module general_data
 
-use Molcas, only: MxSym, MxGas
+use Molcas, only: MxSym, MxGas, MxLev
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,7 +21,7 @@ integer(kind=iwp), parameter :: MAXALTER = 16
 integer(kind=iwp) :: ISPIN, MALTER(MAXALTER,3), NACTEL, NALTER, NASH(mxSym), NBAS(mxSym), NCONF, NCRVEC, NDEL(mxSym), NDELT, &
                      NELEC3, NFRO(mxSym), NFROT, NHOLE1, NISH(mxSym), NORB(mxSym), NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T,   &
                      NRS3(mxSym), NRS3T, NSEL, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, NLEV, InVec
-integer(kind=iwp) :: nRas(MxSym,MxGAS), nRasEl(MxGAS), nRsPrt
+integer(kind=iwp) :: nRas(MxSym,MxGAS), nRasEl(MxGAS), nRsPrt, Level(MxLev)
 real(kind=wp) :: SXDAMP
 logical(kind=iwp) :: Lowdin_ON
 integer(kind=iwp), allocatable :: CleanMask(:)
@@ -30,7 +30,7 @@ real(kind=wp), allocatable :: CRPROJ(:), CRVEC(:)
 public :: CleanMask, CRPROJ, CRVEC, ISPIN, Lowdin_On,&
           MALTER, MAXALTER, NACTEL, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, &
           NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, SXDAMP, &
-          NLEV, InVec
+          NLEV, InVec, Level
 
 public :: nRas, nRasEl, nRsPrt
 

@@ -15,9 +15,9 @@ use Molcas, only: MxLev
 use fciqmc, only: DoNECI
 use fcidump, only: DumpOnly
 use CC_CI_mod, only: Do_CC_CI
-use general_data, only: iDoGAS, NGAS, NGSSH
-use rasscf_global, only: DoBlockDMRG, NSM
-use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM
+use rasscf_global, only: NSM
+use general_data, only: iSpin, nActel, nConf, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSYM, NLEV, Level, &
+                        iDoGAS, NGAS, NGSSH
 use sguga, only: CIS, SGS, SG_init
 #ifdef _DMRG_
 use input_ras, only: Key
@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp), intent(inout):: SkipGUGA
-integer(kind=iwp) :: IGAS, iq, ISYM, Level(MxLev), NLEV, nRs1T, NSTA
+integer(kind=iwp) :: IGAS, iq, ISYM, nRs1T, NSTA
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
 integer(kind=iwp), parameter :: istate=1
 
