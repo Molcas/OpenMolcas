@@ -4048,7 +4048,7 @@ if (.not. SkipGUGA) then
 
   if (DBG) write(u6,*) ' Construct the determinant tables.'
 
-  if (.not. (Key('DMRG') .or. DoDMRG .or. DoNECI .or. Do_CC_CI .or. DumpOnly)) then
+  if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly)) then
 
 
     ! switch on/off determinants
