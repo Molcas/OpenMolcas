@@ -163,6 +163,45 @@ with h5py.File(path, 'r') as f:
                  % (k, energies[k], k,
                     np.array2string(root_e[k, :], precision=12), delta))
 
+    # --- A7: ROOT_MAPPING resolves ROOT_ENERGIES to a single persistent state
+    # This is a Track run with a real root crossing, so A6's "matches some
+    # column" is not enough: the matching column changes across iterations.
+    # There must exist one fixed original root r (in the iteration-1 frame)
+    # such that ROOT_ENERGIES[k, ROOT_MAPPING[k, r]] == ENERGIES[k] for every
+    # iteration k. This fails if the mapping direction is reversed, if it is
+    # not re-based against iteration 1, or if rows are misaligned. It does
+    # not assume r = 0.
+    if 'ROOT_MAPPING' not in f:
+        fail('A7: ROOT_MAPPING dataset is missing')
+    else:
+        root_map = f['ROOT_MAPPING'][...]
+        if root_map.shape != (niter, nroots):
+            fail('A7: ROOT_MAPPING shape is %s, expected %s'
+                 % (root_map.shape, (niter, nroots)))
+        else:
+            # ROOT_MAPPING values are Fortran 1-based root numbers; column r
+            # here is the 0-based index of the original root r+1 (iteration-1
+            # frame).
+            found_r = None
+            for r in range(nroots):
+                ok = True
+                for k in range(niter):
+                    col = int(root_map[k, r])-1
+                    if not (0 <= col < nroots):
+                        ok = False
+                        break
+                    if abs(root_e[k, col]-energies[k]) > TOL:
+                        ok = False
+                        break
+                if ok:
+                    found_r = r
+                    break
+            if found_r is None:
+                fail('A7: no fixed original root r satisfies '
+                     'ROOT_ENERGIES[k, ROOT_MAPPING[k,r]] == ENERGIES[k] for '
+                     'every iteration k; ROOT_MAPPING = %s'
+                     % np.array2string(root_map))
+
 if failures:
     sys.stderr.write('\nslapaf.h5 structure check FAILED (%s)\n' % path)
     for item in failures:

@@ -119,6 +119,22 @@ with h5py.File(path, 'r') as f:
         fail('C2: NAC has %d all-zero row(s) (fill-value holes?), first at '
              'iteration %d' % (len(zero_rows), zero_rows[0][0]))
 
+    # --- C2b: APPROX_NADC[k] == 1 implies a unit-norm NAC[k] -----------------
+    # The branching-plane fallback (Maeda/Ohno/Morokuma) is normalized and
+    # dimensionless, unlike a true coupling derivative in Eh/a0. Measured at
+    # exactly 1.000000 for every iteration of standard/075 (this test), versus
+    # 0.0023-0.0088 for additional/875's analytic coupling -- a tight
+    # tolerance here would misfire on the analytic path, so this is checked
+    # only where APPROX_NADC actually marks the fallback.
+    if approx.shape == (niter,) and nac.shape[0] == niter:
+        for k in range(niter):
+            if approx[k] != 1:
+                continue
+            norm = np.sqrt(np.sum(nac[k]**2))
+            if abs(norm-1.0) > 1.0e-5:
+                fail('C2b: iteration %d -- APPROX_NADC = 1 but Frobenius norm '
+                     'of NAC = %.6f, expected 1' % (k, norm))
+
     # --- C3: TWO_RUNFILES == 1 -----------------------------------------------
     if 'TWO_RUNFILES' not in f.attrs:
         fail('C3: TWO_RUNFILES attribute is missing')
