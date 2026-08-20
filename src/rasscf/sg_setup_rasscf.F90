@@ -11,7 +11,6 @@
 
 subroutine SG_Setup_RASSCF(SkipGUGA)
 
-use fcidump, only: DumpOnly
 use general_data, only: iSpin, nActel, nConf, nSym, STSYM, NLEV, Level, &
                         iDoGAS, nRas,nRasEl,nRsPrt, NSM
 use sguga, only: CIS, SGS, SG_init
@@ -28,7 +27,7 @@ integer(kind=iwp), parameter :: istate=1
 
 ! Construct the Guga tables
 
-if (.not. (DumpOnly .or. SkipGUGA .or. iDoGAS)) then
+if (.not. (SkipGUGA .or. iDoGAS)) then
 
   call Timing(Eterna_1,dum1,dum2,dum3)
   call SG_Init(iState,nSym,nActEl,iSpin,                    &
