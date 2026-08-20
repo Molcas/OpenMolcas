@@ -4030,7 +4030,7 @@ call ChkInp()
 
 ! In DMRG-CASSCF, skip GUGA and LUCIA settings
 NCONF = 1
-SkipGUGA = DoBlockDMRG .or. Key('DMRG') .or. doDMRG
+SkipGUGA = DoBlockDMRG .or. Key('DMRG') .or. doDMRG .or. DoNECI .or. Do_CC_CI
 
 call mma_deallocate(initial_occ,safe='*')
 ! ======================================================================
@@ -4048,7 +4048,7 @@ if (.not. SkipGUGA) then
 
   if (DBG) write(u6,*) ' Construct the determinant tables.'
 
-  if (.not. (DoNECI .or. Do_CC_CI .or. DumpOnly)) then
+  if (.not. (DumpOnly)) then
 
 
     ! switch on/off determinants
