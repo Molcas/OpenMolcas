@@ -4050,7 +4050,7 @@ if (.not. SkipGUGA) then
 
   if (DBG) write(u6,*) ' Construct the determinant tables.'
 
-  if (.not. (Key('DMRG') .or. DoNECI .or. Do_CC_CI .or. DumpOnly) .or. .Not. DoDMRG) then
+  if (.not. (Key('DMRG') .or. DoNECI .or. Do_CC_CI .or. DumpOnly .or. DoDMRG)) then
     ! switch on/off determinants
     ! Initialize LUCIA and determinant control
     call StatusLine('RASSCF: ','Initializing Lucia...')
