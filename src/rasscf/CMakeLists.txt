@@ -118,6 +118,7 @@ set (sources
      scan_inp.F90
      setpos.F90
      setprlev.F90
+     setup_rasscf.F90
      sg_setup_rasscf.F90
      sgfcin.F90
      sigvec.F90
