@@ -28,8 +28,8 @@ use output_ras, only: iPrLoc
 
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
-use spinfo, only: INOCALC, ISAVE_EXP
-use rasscf_global, only: IEXPAND, THRE_MOLCAS=>THRE, IPT2
+use spinfo, only: ISAVE_EXP
+use rasscf_global, only: IEXPAND, THRE_MOLCAS=>THRE, IPT2, INOCALC
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

@@ -42,7 +42,6 @@ use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, LOWDIN_ON, MALTE
                         NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, SXDAMP, iDoGAS, IGSOCCX, &
                         NGAS, NGSSH
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
-                  INOCALC_MOLCAS=>INOCALC, &
                   ISAVE_EXP_MOLCAS=>ISAVE_EXP, ISPEED, &
                   MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCSASM, NDET, NDTASM
 use DWSol, only: DWSol_DWRO
@@ -4053,7 +4052,6 @@ if (.not. SkipGUGA) then
 
   ! Set variables needed in Lucia_Ini (module spinfo)
 
-  INOCALC_MOLCAS = INOCALC
   ISAVE_EXP_MOLCAS = ISAVE_EXP
 
   ! And call Lucia_Ini to initialize LUCIA
