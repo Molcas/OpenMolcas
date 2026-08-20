@@ -19,12 +19,13 @@ use lucia_data, only: ECORE, ENVIRO, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IADVI
 
 use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS=>I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS_MOLCAS=>I_ELIMINATE_GAS,  &
                   IELIMINATED_IN_GAS_MOLCAS=>IELIMINATED_IN_GAS, &
-                  IPRCI_MOLCAS=>IPRCI, ISPEED, MS2_MOLCAS=>MS2, &
+                  ISPEED, MS2_MOLCAS=>MS2, &
                   N_2ELIMINATED_GAS_MOLCAS=>N_2ELIMINATED_GAS, N_ELIMINATED_GAS_MOLCAS=>N_ELIMINATED_GAS, &
                   NGAS_MOLCAS=>NGAS
 use general_data, only: NGSSH_MOLCAS=>NGSSH, IGSOCCX_MOLCAS=>IGSOCCX, NSYM_MOLCAS=>NSYM, NACTEL_MOLCAS=>NACTEL, &
                         MULTS_MOLCAS=>ISPIN, IREFSM_MOLCAS=>STSYM
 use rasscf_global, only: POTNUC_MOLCAS=>POTNUC, ITMAX, NROOTS_MOLCAS=>nROOTS, lROOTS_MOLCAS=>lROOTS
+use output_ras, only: iPrLoc
 
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
@@ -224,8 +225,8 @@ I2ELIMINATED_IN_GAS(1:N_2ELIMINATED_GAS) = I2ELIMINATED_IN_GAS_MOLCAS(1:N_2ELIMI
 ! =============
 !  Printlevels
 ! =============
-iprcix = iprci_molcas-2
-iprden = (iprci_molcas-2)/2
+iprcix = iPrLoc(3)-2
+iprden = (iPrLoc(3)-2)/2
 
 ! ==============
 !  Set defaults
