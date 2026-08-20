@@ -4037,13 +4037,13 @@ call mma_deallocate(initial_occ,safe='*')
 
 call Setup_RASSCF()
 
-! Initiate the SGUGA environment conditional to all flags
-
-If (.not. SkipGUGA  .and. .not. iDoGAS) call SG_Setup_RASSCF()
-
 ! ======================================================================
 
 if (.not. SkipGUGA) then
+
+  ! Initiate the SGUGA environment conditional to all flags
+  If (.Not. iDoGAS) call SG_Setup_RASSCF()
+
   ! Construct the determinant tables
 
   if (DBG) write(u6,*) ' Construct the determinant tables.'
