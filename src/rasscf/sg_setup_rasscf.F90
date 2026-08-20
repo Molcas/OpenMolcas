@@ -12,7 +12,7 @@
 subroutine SG_Setup_RASSCF(SkipGUGA)
 
 use general_data, only: iSpin, nActel, nConf, nSym, STSYM, NLEV, Level, &
-                        iDoGAS, nRas,nRasEl,nRsPrt, NSM
+                        nRas,nRasEl,nRsPrt, NSM
 use sguga, only: CIS, SGS, SG_init
 #ifdef _DMRG_
 use input_ras, only: Key
@@ -21,31 +21,28 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp), intent(inout):: SkipGUGA
+logical(kind=iwp), intent(in):: SkipGUGA
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
 integer(kind=iwp), parameter :: istate=1
 
+if (SkipGUGA) Return
+
 ! Construct the Guga tables
 
-if (.not. (SkipGUGA .or. iDoGAS)) then
+call Timing(Eterna_1,dum1,dum2,dum3)
+call SG_Init(iState,nSym,nActEl,iSpin,                    &
+             nRas,nRasEl,nRsPrt,                           &
+             xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
-  call Timing(Eterna_1,dum1,dum2,dum3)
-  call SG_Init(iState,nSym,nActEl,iSpin,                    &
-               nRas,nRasEl,nRsPrt,                           &
-               xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
-
-  if (SGS(istate)%NVERT0 == 0) then
-    CIS(istate)%NCSF(STSYM) = 0
-  else
-
-    if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
-  end if
-
-  call SETSXCI()
-  NCONF = CIS(istate)%NCSF(STSYM)
-
-  call Timing(Eterna_2,dum1,dum2,dum3)
-
+if (SGS(istate)%NVERT0 == 0) then
+  CIS(istate)%NCSF(STSYM) = 0
+else
+  if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
 end if
+
+call SETSXCI()
+NCONF = CIS(istate)%NCSF(STSYM)
+
+call Timing(Eterna_2,dum1,dum2,dum3)
 
 end subroutine sg_setup_rasscf
