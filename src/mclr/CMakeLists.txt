@@ -12,15 +12,10 @@
 set (sources
      main.F90
      abxpy.F90
-     adads1.F90
-     adadst.F90
      add2.F90
      addgrad2.F90
      addgrad.F90
      addgrad_sp.F90
-     ads1.F90
-     adst.F90
-     adtor2_mclr.F90
      annstr.F90
      calcaxk2.F90
      calcaxkzx.F90
@@ -83,7 +78,6 @@ set (sources
      csdtmt.F90
      csdtvc_dmrg.F90
      csdtvc_mclr_1.F90
-     csdtvc_mclr_2.F90
      csf2sd.F90
      csfdet_mclr.F90
      csfinf.F90
@@ -100,7 +94,6 @@ set (sources
      dminvkap_td.F90
      dmrg_dim_change_mclr.F90
      dwder.F90
-     dxtyp.F90
      e2.F90
      e2_td.F90
      exp_close.F90
@@ -115,18 +108,11 @@ set (sources
      freestr.F90
      freqanal.F90
      freq.F90
-     frmdsc_mclr.F90
      g2qtog2r.F90
-     gatrmt.F90
      genstr_mclr.F90
      getcnf_mclr.F90
      getdmatao.F90
      geth1i_mclr.F90
-     getinc_abs.F90
-     getinc_abs_td.F90
-     getinc_abt.F90
-     getint_mclr.F90
-     getint_td.F90
      getpdftfock.F90
      getpdftfock_nac.F90
      getpdftfocks.F90
@@ -135,14 +121,7 @@ set (sources
      get_two_ind.F90
      getwffock.F90
      getwffock_nac.F90
-     gsaxpy.F90
-     gsbbd1_mclr.F90
-     gsbbd2a_mclr.F90
-     gsbbd2b_mclr.F90
-     gsdnbb2_mclr.F90
-     gsttbl_mclr.F90
      gt1dia_mclr.F90
-     gth1es_mclr.F90
      gtijkl_mclr.F90
      gtjk_mclr.F90
      gtsttp_1.F90
@@ -160,7 +139,6 @@ set (sources
      icispc.F90
      icisps.F90
      iel13.F90
-     incoos.F90
      incsfsd.F90
      init_data.F90
      inpctl_mclr.F90
@@ -188,7 +166,6 @@ set (sources
      ncastr_mclr.F90
      negp.F90
      newtyp_mclr.F90
-     ngeth1.F90
      niclas.F90
      nipre.F90
      npre.F90
@@ -196,7 +173,6 @@ set (sources
      nstrso_mclr.F90
      numst3.F90
      numst4_mclr.F90
-     nxtblk_mclr.F90
      oitd.F90
      oit_sp.F90
      opnfls_mclr.F90
@@ -211,7 +187,6 @@ set (sources
      pcm_grad.F90
      pickmo_mclr.F90
      pickmo_td.F90
-     pmplfm.F90
      precaaa.F90
      precaaa_pre.F90
      precabb_2.F90
@@ -228,7 +203,6 @@ set (sources
      preci_cho.F90
      prec_td.F90
      prinp_mclr.F90
-     psttbl_mclr.F90
      putcmsfockocc.F90
      put_temp_data_on_intgrl.F90
      qaap2mo.F90
@@ -236,7 +210,6 @@ set (sources
      r2elint.F90
      r2elint_ns.F90
      r2elint_sp.F90
-     rassg4.F90
      rd1int_mclr.F90
      rd2int.F90
      rdab.F90
@@ -260,23 +233,13 @@ set (sources
      rint_ns.F90
      rint_sp.F90
      rint_td.F90
-     rsbb1e_mclr.F90
-     rsbb2a_mclr.F90
-     rsbb2bn_mclr.F90
      rsmxmn_mclr.F90
-     rssbcbn_mclr.F90
-     rssbcbn_td.F90
      sa_prec2.F90
      sa_prec.F90
-     scarmt.F90
-     sdcmrf_mclr_1.F90
-     sdcmrf_mclr_2.F90
-     sdcmrf_pre.F90
      setlab.F90
      setup_mclr.F90
      sg_setup_mclr.F90
      sg2symg.F90
-     skickj_mclr.F90
      solveforrhs.F90
      solveforzx.F90
      spindens.F90
@@ -286,7 +249,6 @@ set (sources
      stpert.F90
      strinf.F90
      strtyp.F90
-     sxtyp.F90
      tcmo.F90
      thermo_vib.F90
      timese2.F90
@@ -295,8 +257,6 @@ set (sources
      todsc_mclr.F90
      tramo_mclr.F90
      trctl_mclr.F90
-     tripk2_1.F90
-     tripk2_2.F90
      unc.F90
      uncompress2.F90
      uncompress.F90
