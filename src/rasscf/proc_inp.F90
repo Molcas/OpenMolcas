@@ -4033,15 +4033,17 @@ call ChkInp()
 ! In DMRG-CASSCF, skip GUGA and LUCIA settings
 NCONF = 1
 SkipGUGA = DoBlockDMRG
+
+#ifdef _DMRG_
+if (Key('DMRG') .or. doDMRG) Then
+   call mma_deallocate(initial_occ)
+   SkipGUGA = .true.
+endif
+#   endif
 ! ======================================================================
 
 ! Initiate the SGUGA environment conditional to all flags
-
-#ifdef _DMRG_
-if (Key('DMRG') .or. doDMRG) call mma_deallocate(initial_occ)
-#endif
-
-call SG_Setup_RASSCF(DBG,SkipGUGA)
+call SG_Setup_RASSCF(SkipGUGA)
 
 ! ======================================================================
 
@@ -4051,6 +4053,8 @@ if (.not. SkipGUGA) then
   if (DBG) write(u6,*) ' Construct the determinant tables.'
 
   if (.not. (Key('DMRG') .or. DoNECI .or. Do_CC_CI .or. DumpOnly .or. DoDMRG)) then
+
+
     ! switch on/off determinants
     ! Initialize LUCIA and determinant control
     call StatusLine('RASSCF: ','Initializing Lucia...')
@@ -4059,6 +4063,8 @@ if (.not. SkipGUGA) then
     ! and number of determinants to store
     nconf = sum(ncsasm(1:mxsym))
     nDet = sum(ndtasm(1:mxsym))
+
+
   end if
 
   ISCF = 0
