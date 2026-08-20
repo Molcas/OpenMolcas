@@ -24,6 +24,7 @@ use general_data, only: NGSSH_MOLCAS=>NGSSH, IGSOCCX_MOLCAS=>IGSOCCX, NSYM_MOLCA
                         MULTS_MOLCAS=>ISPIN, IREFSM_MOLCAS=>STSYM, nGAS_MOLCAS=>nGAS, iSpin
 use rasscf_global, only: POTNUC_MOLCAS=>POTNUC, ITMAX, NROOTS_MOLCAS=>nROOTS, lROOTS_MOLCAS=>lROOTS
 use output_ras, only: iPrLoc
+use casvb_global, only: ifvb
 
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
@@ -42,14 +43,12 @@ real(kind=wp) :: PLSIGN, THRES_E
 character(len=4) :: ITRACI_CN, ITRACI_CR
 #endif
 
-! ================================================
-!  Some initialization to avoid compiler warnings
-! ================================================
-!MSCOMB_CC = 0
-!I_USE_NEWCCP = 0
 ! =======================
 !  Some initial settings
 ! =======================
+! Combinations don't work for CASVB (at least yet)!
+if (ifvb /= 0) iSpeed(1) = 0
+
 INI_H0 = 1
 ! Flag for compatibility with normal MOLCAS input format
 
@@ -313,7 +312,6 @@ end if
 ! ======================================================================
 ! TEST OF PERFORMANCE
 MOCAA = ISPEED(3)
-!MOCAB = ISPEED(4)
 
 ! 33 : Number of Ci vectors in subspace
 
