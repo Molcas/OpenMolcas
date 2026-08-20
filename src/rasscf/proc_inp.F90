@@ -42,8 +42,7 @@ use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, LOWDIN_ON, MALTE
                         NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, SXDAMP, iDoGAS, IGSOCCX, &
                         NGAS, NGSSH
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
-                  ISAVE_EXP_MOLCAS=>ISAVE_EXP, ISPEED, &
-                  MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCSASM, NDET, NDTASM
+                  ISPEED, MS2, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCSASM, NDET, NDTASM
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
@@ -4049,12 +4048,6 @@ if (.not. SkipGUGA) then
 
   if (DBG) write(u6,*) ' Construct the determinant tables.'
   MS2 = iSpin-1
-
-  ! Set variables needed in Lucia_Ini (module spinfo)
-
-  ISAVE_EXP_MOLCAS = ISAVE_EXP
-
-  ! And call Lucia_Ini to initialize LUCIA
 
   ! Combinations don't work for CASVB (at least yet)!
   if (ifvb /= 0) iSpeed(1) = 0
