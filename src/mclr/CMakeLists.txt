@@ -88,7 +88,6 @@ set (sources
      csfdet_mclr.F90
      csfinf.F90
      degvec.F90
-     densi2_mclr.F90
      detctl.F90
      detstr_mclr.F90
      dihdj2_mclr.F90
@@ -186,7 +185,6 @@ set (sources
      mmsort2.F90
      mmsort.F90
      msstrn_mclr.F90
-     mxresc.F90
      natorb_mclr.F90
      ncastr_mclr.F90
      negp.F90
@@ -280,7 +278,6 @@ set (sources
      setup_mclr.F90
      sg_setup_mclr.F90
      sg2symg.F90
-     sigmavec.F90
      skickj_mclr.F90
      solveforrhs.F90
      solveforzx.F90
