@@ -44,6 +44,7 @@ set (sources
      cidens.F90
      cidens_sa.F90
      cidens_td.F90
+     cidia_mclr.F90
      ci_kap.F90
      ci_reconstruct.F90
      clsfls_mclr.F90
@@ -97,8 +98,6 @@ set (sources
      getwffock_nac.F90
      hess.F90
      hssprt_mclr.F90
-     iabnum.F90
-     iabnus.F90
      incsfsd.F90
      init_data.F90
      inpctl_mclr.F90
@@ -112,7 +111,6 @@ set (sources
      mclr_procedures.F90
      mmsort2.F90
      mmsort.F90
-     msstrn_mclr.F90
      natorb_mclr.F90
      negp.F90
      niclas.F90

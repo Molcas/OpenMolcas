@@ -17,7 +17,6 @@ set (sources
      adtor2_mclr.F90
      annstr.F90
      cidia4.F90
-     cidia_mclr.F90
      cidia_sa.F90
      cidia_td.F90
      cisize.F90
@@ -69,6 +68,8 @@ set (sources
      h0.F90
      h0mat_mclr.F90
      h0csf.F90
+     iabnum.F90
+     iabnus.F90
      iaibcm_mclr.F90
      icispc.F90
      icisps.F90
@@ -83,6 +84,7 @@ set (sources
      mkcipre.F90
      mkp1.F90
      mkp1inv.F90
+     msstrn_mclr.F90
      mxresc.F90
      ncastr_mclr.F90
      newtyp_mclr.F90
