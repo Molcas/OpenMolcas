@@ -15,12 +15,25 @@ set (sources
      ads1.F90
      adst.F90
      adtor2_mclr.F90
+     cidia4.F90
+     cidia_mclr.F90
+     cidia_sa.F90
+     cidia_td.F90
+     cmp2cn.F90
+     cnfstr_mclr.F90
+     cnhcn2.F90
+     cnhcnm.F90
+     csdiag_mclr.F90
      csdtvc_mclr_2.F90
+     degvec.F90
      densi2_mclr.F90
+     dihdj2_mclr.F90
      dxtyp.F90
      frmdsc_mclr.F90
      gasdn2_mclr.F90
      gatrmt.F90
+     getcnf_mclr.F90
+     geth1i_mclr.F90
      getinc_abs.F90
      getinc_abs_td.F90
      getinc_abt.F90
@@ -32,8 +45,19 @@ set (sources
      gsbbd2b_mclr.F90
      gsdnbb2_mclr.F90
      gsttbl_mclr.F90
+     gt1dia_mclr.F90
      gth1es_mclr.F90
+     gtijkl_mclr.F90
+     gtjk_mclr.F90
+     h0.F90
+     h0mat_mclr.F90
+     h0csf.F90
      incoos.F90
+     intdia.F90
+     ippage.F90
+     mkcipre.F90
+     mkp1.F90
+     mkp1inv.F90
      mxresc.F90
      ngeth1.F90
      nxtblk_mclr.F90
@@ -45,6 +69,8 @@ set (sources
      rsbb2bn_mclr.F90
      rssbcbn_mclr.F90
      rssbcbn_td.F90
+     sa_prec.F90
+     sa_prec2.F90
      scarmt.F90
      scdtc2_mclr.F90
      sdcmrf_mclr_1.F90
@@ -53,12 +79,14 @@ set (sources
      sigmavec.F90
      skickj_mclr.F90
      sxtyp.F90
+     todsc_mclr.F90
      tripk2_1.F90
      tripk2_2.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     ippage.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

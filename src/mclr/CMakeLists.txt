@@ -45,22 +45,14 @@ set (sources
      cidens.F90
      cidens_sa.F90
      cidens_td.F90
-     cidia4.F90
-     cidia_mclr.F90
-     cidia_sa.F90
-     cidia_td.F90
      ci_kap.F90
      ci_reconstruct.F90
      cisize.F90
      clsfls_mclr.F90
-     cmp2cn.F90
      cmsrdmat.F90
      cmsrhsgdmat.F90
      cndet_mclr.F90
      cnford.F90
-     cnfstr_mclr.F90
-     cnhcn2.F90
-     cnhcnm.F90
      cntost.F90
      coeff.F90
      compress2.F90
@@ -74,17 +66,14 @@ set (sources
      creq_sp.F90
      creq_td.F90
      crestr.F90
-     csdiag_mclr.F90
      csdtmt.F90
      csdtvc_dmrg.F90
      csdtvc_mclr_1.F90
      csf2sd.F90
      csfdet_mclr.F90
      csfinf.F90
-     degvec.F90
      detctl.F90
      detstr_mclr.F90
-     dihdj2_mclr.F90
      dmat_mclr.F90
      dminvci.F90
      dminvci_sa.F90
@@ -110,9 +99,7 @@ set (sources
      freq.F90
      g2qtog2r.F90
      genstr_mclr.F90
-     getcnf_mclr.F90
      getdmatao.F90
-     geth1i_mclr.F90
      getpdftfock.F90
      getpdftfock_nac.F90
      getpdftfocks.F90
@@ -121,16 +108,10 @@ set (sources
      get_two_ind.F90
      getwffock.F90
      getwffock_nac.F90
-     gt1dia_mclr.F90
-     gtijkl_mclr.F90
-     gtjk_mclr.F90
      gtsttp_1.F90
      gtsttp_2.F90
      gtsttps_1.F90
      gtsttps_2.F90
-     h0csf.F90
-     h0.F90
-     h0mat_mclr.F90
      hess.F90
      hssprt_mclr.F90
      iabnum.F90
@@ -144,10 +125,8 @@ set (sources
      inpctl_mclr.F90
      inpone.F90
      intcsf.F90
-     intdia.F90
      intx.F90
      ioctp2_mclr.F90
-     ippage.F90
      isrot.F90
      isymst_mclr.F90
      kap_ci.F90
@@ -156,9 +135,6 @@ set (sources
      mclr.F90
      mclr_procedures.F90
      memstr.F90
-     mkcipre.F90
-     mkp1.F90
-     mkp1inv.F90
      mmsort2.F90
      mmsort.F90
      msstrn_mclr.F90
@@ -234,8 +210,6 @@ set (sources
      rint_sp.F90
      rint_td.F90
      rsmxmn_mclr.F90
-     sa_prec2.F90
-     sa_prec.F90
      setlab.F90
      setup_mclr.F90
      sg_setup_mclr.F90
@@ -254,7 +228,6 @@ set (sources
      timese2.F90
      timese2_.F90
      timese2mspdft.F90
-     todsc_mclr.F90
      tramo_mclr.F90
      trctl_mclr.F90
      unc.F90
