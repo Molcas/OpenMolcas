@@ -34,7 +34,6 @@ set (sources
      calcomat.F90
      calcw.F90
      calcwop.F90
-     cgs_mod.F90
      cgs_pre.F90
      cgs_x.F90
      check_caspt2.F90
@@ -49,7 +48,6 @@ set (sources
      cidia_td.F90
      ci_kap.F90
      ci_reconstruct.F90
-     clsfls_mclr.F90
      cmsrdmat.F90
      cmsrhsgdmat.F90
      coeff.F90
@@ -63,8 +61,6 @@ set (sources
      creq_sp.F90
      creq_td.F90
      csdtvc_dmrg.F90
-     csdtvc_mclr_1.F90
-     csf2sd.F90
      dmat_mclr.F90
      dminvci.F90
      dminvci_sa.F90
@@ -72,12 +68,7 @@ set (sources
      dminvkap.F90
      dminvkap_sp.F90
      dminvkap_td.F90
-     dmrg_dim_change_mclr.F90
-     dwder.F90
-     e2.F90
-     e2_td.F90
      exp_close.F90
-     exphinvv.F90
      ex_spin.F90
      fact.F90
      fckmat.F90
@@ -105,12 +96,10 @@ set (sources
      inpctl_mclr.F90
      inpone.F90
      intx.F90
-     isrot.F90
      kap_ci.F90
      make_conn.F90
      mclr_banner.F90
      mclr.F90
-     mclr_procedures.F90
      mmsort2.F90
      mmsort.F90
      natorb_mclr.F90
@@ -118,7 +107,6 @@ set (sources
      niclas.F90
      nipre.F90
      npre.F90
-     oitd.F90
      oit_sp.F90
      opnfls_mclr.F90
      out_pt2.F90
@@ -126,7 +114,6 @@ set (sources
      output_td.F90
      outras.F90
      outras_td.F90
-     pcm_grad.F90
      pickmo_mclr.F90
      pickmo_td.F90
      precaaa.F90
@@ -144,7 +131,6 @@ set (sources
      precibb_td.F90
      preci_cho.F90
      prec_td.F90
-     prinp_mclr.F90
      putcmsfockocc.F90
      put_temp_data_on_intgrl.F90
      qaap2mo.F90
@@ -156,14 +142,12 @@ set (sources
      rd2int.F90
      rdab.F90
      rdciv.F90
-     rddens.F90
      rddj.F90
      rdinp_mclr.F90
      read22_2.F90
      read2_2.F90
      read2_ns.F90
      read_dmrg_parameter_for_mclr.F90
-     reload.F90
      rhs_cms.F90
      rhs_cms_nac.F90
      rhs.F90
@@ -177,15 +161,12 @@ set (sources
      rint_td.F90
      setlab.F90
      setup_mclr.F90
-     sg_setup_mclr.F90
-     sg2symg.F90
      solveforrhs.F90
      solveforzx.F90
      spindens.F90
      sqm.F90
      start_mclr.F90
      stpert.F90
-     tcmo.F90
      thermo_vib.F90
      timese2.F90
      timese2_.F90
