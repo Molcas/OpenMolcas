@@ -17,9 +17,9 @@ use Cholesky, only: ChFracMem
 use PrintLevel, only: DEBUG, INSANE, TERSE
 use mcpdft_input, only: mcpdft_options
 use mcpdft_output, only: iPrLoc
-use rasscf_global, only: IPT2, iRoot, lRoots, NAC, NACPAR, NACPR2, NFR, NIN, NO2M, NORBT, NROOTS, NSEC, nTot3, nTot4, Weight
+use rasscf_global, only: IPT2, iRoot, lRoots, NAC, NACPAR, NACPR2, NFR, NIN, NO2M, NORBT, NROOTS, NSEC, nTot3, nTot4, Weight, INVEC
 use rasscf_files, only: jobiph, jobold
-use general_data, only: invec, ispin, nactel, nash, nbas, nconf, ndel, ndelt, nelec3, nfro, nhole1, nish, norb, &
+use general_data, only: ispin, nactel, nash, nbas, nconf, ndel, ndelt, nelec3, nfro, nhole1, nish, norb, &
                         nrs1, nrs1t, nrs2, nrs2t, nrs3, nrs3t, nssh, nsym, ntot, ntot1, ntot2, ntotsp, stsym
 use rctfld_module, only: lrf
 #ifdef _HDF5_

@@ -82,14 +82,14 @@ use rasscf_global, only: CBLBM, CMAX, Conv, DE, DoDMRG, DoFCIDump, ECAS, EMY, En
                          iAdr15, iBLBM, ICICH, iCIOnly, iCIRST, iExpand, IfCrPr, InOCalc, IPCMROOT, iPr, iPT2, iRLXRoot, iRoot, &
                          iSave_Exp, iSymBB, ITER, ITERCI, ITERSX, JBLBM, KSDFT, KSDFT_Temp, l_casdft, lSquare, MaxIt, NAC, NACPAR, &
                          NACPR2, NewFock, nFint, no2m, NonEQ, nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax, Start_Vectors, SXShft, Thre, &
-                         ThrSX, THRTE, TMin, Tot_Charge, VIA_DFT, Weight,  NALTER, CRPROJ, CRVec, NCRVEC
+                         ThrSX, THRTE, TMin, Tot_Charge, VIA_DFT, Weight,  NALTER, CRPROJ, CRVec, NCRVEC, INVEC
 #   if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
 use rasscf_global, only: DOBLOCKDMRG
 #endif
 use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use rasscf_files, only: ITERFILE, JOBIPH
-use general_data, only: CleanMask, INVEC, ISPIN, NASH, NBAS, NCONF, NDEL, NFRO, &
+use general_data, only: CleanMask, ISPIN, NASH, NBAS, NCONF, NDEL, NFRO, &
                         NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2, iDOGAS
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
 #ifdef _DMRG_

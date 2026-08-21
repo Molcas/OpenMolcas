@@ -37,9 +37,9 @@ use Symmetry_info, only: Mul
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
 use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
-use general_data, only: CleanMask, INVEC, ISPIN, LOWDIN_ON, NACTEL, &
+use general_data, only: CleanMask, ISPIN, LOWDIN_ON, NACTEL, &
                         NASH, NBAS, NCONF, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, &
-                        NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, SXDAMP, iDoGAS, IGSOCCX, &
+                        NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, iDoGAS, IGSOCCX, &
                         NGAS, NGSSH
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
                   N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCSASM, NDTASM
@@ -54,7 +54,7 @@ use rasscf_global, only: CCI, CMSStartMat, CMSThreshold, CoreShift, DFTFOCK, DoB
                          kTight, l_CASDFT, LowMS, LROOTS, LvShft, MaxIt, MaxJt, MaxOrbOut, n_keep, NAC, NACPAR, NACPR2, NFR, NIN, &
                          NO2M, NonEq, NORBT, NQUNE, NROOTS, NSEC, NTOT3, NTOT4, OutFmt1, OutFmt2, PreThr, PreThr, ProThr, &
                          PrwThr, Purify, RFPert, S, SXSEL, ThFact, ThrE, ThrEn, ThrSX, ThrTE, Title, Weight, DoDMRG, MAXALTER, &
-                         NALTER, MALTER, NCRVEc, CRVEC, CRPROJ
+                         NALTER, MALTER, NCRVEc, CRVEC, CRPROJ, INVEC, SXDAMP
 #ifdef _ENABLE_DICE_SHCI_
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif

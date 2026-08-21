@@ -19,15 +19,14 @@ private
 
 integer(kind=iwp) :: ISPIN, NACTEL, NASH(mxSym), NBAS(mxSym), NCONF,  NDEL(mxSym), NDELT, &
                      NELEC3, NFRO(mxSym), NFROT, NHOLE1, NISH(mxSym), NORB(mxSym), NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T,   &
-                     NRS3(mxSym), NRS3T, NSEL, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, NLEV, InVec
+                     NRS3(mxSym), NRS3T, NSEL, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, NLEV
 integer(kind=iwp) :: nRas(MxSym,MxGAS), nRasEl(MxGAS), nRsPrt, Level(MxLev), NSM(mxOrb)
-real(kind=wp) :: SXDAMP
 logical(kind=iwp) :: Lowdin_ON
 integer(kind=iwp), allocatable :: CleanMask(:)
 
 public :: CleanMask, ISPIN, Lowdin_On, NACTEL, NASH, NBAS, NCONF, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, &
-          NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, SXDAMP, &
-          NLEV, InVec, Level, NSM
+          NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, &
+          NLEV, NSM, Level
 
 public :: nRas, nRasEl, nRsPrt
 
