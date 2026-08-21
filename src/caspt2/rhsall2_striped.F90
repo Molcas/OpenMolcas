@@ -40,7 +40,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
 
-integer(kind=iwp) :: IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK, iOffp, iOffQ, IST, ISYI, ISYK, ISYP, ISYQ, ITIER, JSYM, &
+integer(kind=iwp) :: IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK, iOffp, iOffQ, ISYI, ISYK, ISYMT, ISYP, ISYQ, ITIER, JSYM, &
                      LBRASM, LKETSM, MINREQ, MXAVAIL, MXBGRP, MXPIQK, nAA, NBGRP, nBra, NBRABUF, NBRASM, NI, NK, nKet, NKETBUF, &
                      NKETSM, &
                      NP, NPI, NQ, NQK, NRHSGRPLOC, NRHSLOC, NRHSSYMLOC, nSh(8,3), NSYMT, NTUVX, NUMERR = 0, NV, NVLOC
@@ -282,8 +282,8 @@ do JSYM=1,NSYM
     ! Assemble contributions to TJVX
     ! Loop over the bras and kets, form <A|0>
 
-    do IST=1,NSYMT
-      call RHSLOC_LOAD(IVEC,IGRP_A,IST)
+    do ISYMT=1,NSYMT
+      call RHSLOC_LOAD(IVEC,IGRP_A,ISYMT)
       call Process_RHS_Block(Inactive,Active,Active,Active,'A ',BRA,nBra,CHOAA,nAA,nSh,JSYM,IVEC,NV)
     end do
     !                                                                  *
@@ -292,8 +292,8 @@ do JSYM=1,NSYM
     ! TJVL RHSB
     ! TJVL: Use TJ buffer as if it was VL, form <B|0>
 
-    do IST=1,NSYMT
-      call RHSLOC_LOAD(IVEC,IGRP_B,IST)
+    do ISYMT=1,NSYMT
+      call RHSLOC_LOAD(IVEC,IGRP_B,ISYMT)
       call Process_RHS_Block(Inactive,Active,Inactive,Active,'B ',BRA,nBra,BRA,nBra,nSh,JSYM,IVEC,NV)
     end do
     !                                                                  *
@@ -309,8 +309,8 @@ do JSYM=1,NSYM
     ! AJVL RHSE
     ! AJVL: L(AJ) are the bras here, L(VL) the kets. Form <E|0>
 
-    do IST=1,NSYMT
-      call RHSLOC_LOAD(IVEC,IGRP_E,IST)
+    do ISYMT=1,NSYMT
+      call RHSLOC_LOAD(IVEC,IGRP_E,ISYMT)
       call Process_RHS_Block(Inactive,Virtual,Inactive,Active,'E ',KET,nKet,BRA,nBra,nSh,JSYM,IVEC,NV)
     end do
     !                                                                  *
@@ -319,8 +319,8 @@ do JSYM=1,NSYM
     ! AJCL RHSH
     ! AJCL: Use the L(AJ) vectors as if they were CL, form <H|0>
 
-    do IST=1,NSYMT
-      call RHSLOC_LOAD(IVEC,IGRP_H,IST)
+    do ISYMT=1,NSYMT
+      call RHSLOC_LOAD(IVEC,IGRP_H,ISYMT)
       call Process_RHS_Block(Inactive,Virtual,Inactive,Virtual,'H ',KET,nKet,KET,nKet,nSh,JSYM,IVEC,NV)
     end do
     !                                                                  *
@@ -329,8 +329,8 @@ do JSYM=1,NSYM
     ! AJVX RHSD1
     ! Loop over the bra and ket vectors, form <D1|0>
 
-    do IST=1,NSYMT
-      call RHSLOC_LOAD(IVEC,IGRP_D1,IST)
+    do ISYMT=1,NSYMT
+      call RHSLOC_LOAD(IVEC,IGRP_D1,ISYMT)
       call Process_RHS_Block(Inactive,Virtual,Active,Active,'D1',KET,nKet,CHOAA,nAA,nSh,JSYM,IVEC,NV)
     end do
     !                                                                  *
@@ -350,8 +350,8 @@ do JSYM=1,NSYM
 
     call TRANSPOSE_KET()
 
-    do IST=1,NSYMT
-      call RHSLOC_LOAD(IVEC,IGRP_G,IST)
+    do ISYMT=1,NSYMT
+      call RHSLOC_LOAD(IVEC,IGRP_G,ISYMT)
       call Process_RHS_Block(Active,Virtual,Inactive,Virtual,'G ',BRA,nBra,KET,nKet,nSh,JSYM,IVEC,NV)
     end do
     !                                                                  *
@@ -360,8 +360,8 @@ do JSYM=1,NSYM
     ! AUCX RHSF
     ! AUCX: Use AU buffer still in core as if it was CX, form <F|0>
 
-    do IST=1,NSYMT
-      call RHSLOC_LOAD(IVEC,IGRP_F,IST)
+    do ISYMT=1,NSYMT
+      call RHSLOC_LOAD(IVEC,IGRP_F,ISYMT)
       call Process_RHS_Block(Active,Virtual,Active,Virtual,'F ',BRA,nBra,BRA,nBra,nSh,JSYM,IVEC,NV)
     end do
     !                                                                  *
@@ -370,8 +370,8 @@ do JSYM=1,NSYM
     ! AUVX RHSC
     ! AUVX: Loop over the bras and kets, form <C|0>
 
-    do IST=1,NSYMT
-      call RHSLOC_LOAD(IVEC,IGRP_C,IST)
+    do ISYMT=1,NSYMT
+      call RHSLOC_LOAD(IVEC,IGRP_C,ISYMT)
       call Process_RHS_Block(Active,Virtual,Active,Active,'C ',BRA,nBra,CHOAA,nAA,nSh,JSYM,IVEC,NV)
     end do
     !                                                                  *
@@ -387,8 +387,8 @@ do JSYM=1,NSYM
     ! AUVL RHSD2
     ! Loop over bras and kets, form <D2|0>.
 
-    do IST=1,NSYMT
-      call RHSLOC_LOAD(IVEC,IGRP_D2,IST)
+    do ISYMT=1,NSYMT
+      call RHSLOC_LOAD(IVEC,IGRP_D2,ISYMT)
       call Process_RHS_Block(Active,Virtual,Inactive,Active,'D2',BRA,nBra,KET,nKet,nSh,JSYM,IVEC,NV)
     end do
     !                                                                  *
@@ -482,7 +482,7 @@ subroutine STRIPED_SIZES()
   integer(kind=iwp), allocatable :: NVEFF(:)
 
   ! orbital types (bra p, bra i, ket q, ket k) of each case,
-  ! icase = 1, 2,  3, 4, 5, 6,  7, 8, 9 for A, B, D1, H, C, F, D2, G, E
+  ! icase = 1, 2, 3, 4, 5, 6, 7, 8, 9 for A, B, D1, H, C, F, D2, G, E
   integer(kind=iwp), parameter :: ITYPE(4,9) = reshape([Inactive,  Active,  Active,  Active, &
                                                         Inactive,  Active,Inactive,  Active, &
                                                         Inactive, Virtual,  Active,  Active, &
@@ -735,7 +735,7 @@ subroutine MEMORY_ESTIMATE_STRIPED()
   NBRABUF = NPIBRA*NVGRP
   NKETBUF = NPIKET*NVGRP
   NAABUF = NAAPI*NVGRP
-  NXTRA = max(2*NPITRA*NVGRP,NPIGAT*min(MXVLOC,NVGRP),NPIKTR)
+  NXTRA = max(2*NPITRA*NVGRP,NPIPCK*NVGRP,NPIGAT*min(MXVLOC,NVGRP),NPIKTR)
 
   ! sanity check, should not happen.
   if (MXRHS > MXAVAIL-NBRABUF-NKETBUF-NAABUF-NXTRA-MXPIQK-2*NADDBUF) then
@@ -757,7 +757,7 @@ subroutine MEMORY_ESTIMATE_STRIPED()
     write(u6,*)
     write(u6,'(A16,2A16)') '  Buffer sizes:','           used','          ideal'
     write(u6,'(A16,2I16)') '  ChoVecs:  ',NBRABUF+NKETBUF+NAABUF+NXTRA, &
-                                         NPIPER*NVECTOT+max(2*NPITRA*NVECTOT,NPIGAT*MXVLOC,NPIKTR)
+                                          NPIPER*NVECTOT+max(2*NPITRA*NVECTOT,NPIPCK*NVECTOT,NPIGAT*MXVLOC,NPIKTR)
     write(u6,'(A16,2I16)') '  Integral: ',MXPIQK,MAXPIQK
     write(u6,*)
   end if

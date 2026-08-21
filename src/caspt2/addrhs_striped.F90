@@ -56,7 +56,7 @@ integer(kind=iwp), parameter :: IRHSGRP(2,NRHSGRP) = reshape([ 1, 0, & ! A
                                                                5, 0],& ! D2, the lower half of D
                                                                [2,NRHSGRP])
 
-! a-block width of ADDRHSF/G_STRIPED_K, 32 measured best
+! a-block width of ADDRHSF/G_STRIPED_D, 32 measured best
 integer(kind=iwp), parameter :: NAMXCAP = 32
 
 ! weights of the symmetrized combinations, as in the replicated MKRHS routines
@@ -199,21 +199,21 @@ end subroutine RHSLOC_ALLOCATE
 
 !-----------------------------------------------------------------------
 
-subroutine RHSLOC_LOAD(IVEC,IGRP,IST)
+subroutine RHSLOC_LOAD(IVEC,IGRP,ISYMT)
 
   use caspt2_module, only: NSYM
 
-  integer(kind=iwp), intent(in) :: IVEC, IGRP, IST
+  integer(kind=iwp), intent(in) :: IVEC, IGRP, ISYMT
 
   integer(kind=iwp) :: ICASE, IOFF, IPAIR, ISYM, NBLK
 
   ! Make the blocks of case group IGRP in memory, writing back the previous ones
 
   ISYMTGT = 0
-  if (iRHSLocTier == 2) ISYMTGT = IST
+  if (iRHSLocTier == 2) ISYMTGT = ISYMT
 
   if (iRHSLocTier == 0) return
-  if ((IGRP == iRHSLocGrp) .and. (IST == iRHSLocSym)) return
+  if ((IGRP == iRHSLocGrp) .and. (ISYMT == iRHSLocSym)) return
 
   call RHSLOC_SAVE(IVEC)
 
@@ -236,7 +236,7 @@ subroutine RHSLOC_LOAD(IVEC,IGRP,IST)
     end do
   end do
   iRHSLocGrp = IGRP
-  iRHSLocSym = IST
+  iRHSLocSym = ISYMT
 
 end subroutine RHSLOC_LOAD
 
@@ -291,7 +291,7 @@ subroutine RHSLOC_FINALIZE(IVEC)
 
   integer(kind=iwp), intent(in) :: IVEC
 
-  integer(kind=iwp) :: IGRP, IST, NSYMT
+  integer(kind=iwp) :: IGRP, ISYMT, NSYMT
 
   ! Write out what is still in memory
   ! All blocks at tier 0, the last group below that
@@ -301,8 +301,8 @@ subroutine RHSLOC_FINALIZE(IVEC)
     NSYMT = 1
     if (iRHSLocTier == 2) NSYMT = NSYM
     do IGRP=1,NRHSGRP
-      do IST=1,NSYMT
-        call RHSLOC_LOAD(IVEC,IGRP,IST)
+      do ISYMT=1,NSYMT
+        call RHSLOC_LOAD(IVEC,IGRP,ISYMT)
       end do
     end do
   end if
@@ -370,18 +370,19 @@ end function SKIP_SYM
 ! Naming used throughout the kernels below.
 !
 ! Passed in:
-!   W...            the local stripe of an RHS block, as (row,column)
-!   JLO/JHI, MOFF   the column range of that stripe and its offset in RHSLoc, from RHSLOC_BOUNDS
-!                   an absent stripe is JLO:JHI = 1:0
+!   W...            the local stripe of an RHS block
+!   JLO/JHI, MOFF   the column range of that stripe and where it starts in RHSLoc, from RHSLOC_BOUNDS
+!                   MOFF counts elements, not columns; an absent stripe is JLO:JHI = 1:0
 !   SCR, NSCR       the scratch the integral block of the current batch is built in, and its size
 !
 ! Indices and sizes:
 !   N<x>MX          the number of values of index x one batch may hold at most
 !   N<x>SZ          the number of values x holds in the current batch
-!   NACMX           budget for NASZ*NCMX where both a and c are batched (F, G)
+!   NACMX           the largest NAMX*NCMX the scratch allows, the kernel splits it (F, G)
 !   I<x>STA/I<x>END first and last index of x in the current batch, respectively
 !   I<x>LO/I<x>HI   first and last index of x this process needs at all
 !   IQLO/IQHI       first and last index of q, the first member of an unordered superindex pair
+!   IQ, IQSTA/IQEND that index and its batch, in the off-diagonal kernels of F and G
 !   ...P/...M       the plus (t>=u, i>=j, a>=b) and minus (t>u, ...) combination of a case, wherever both have to be kept apart
 !   ...A            an array holding one such quantity per a of an a-block
 !
@@ -391,13 +392,12 @@ end function SKIP_SYM
 !   IROFF           row offset of such a run, i.e. its i-th row is IROFF+i
 !   LDY             the leading dimension of the integral block in SCR
 !   IY1/IY2         the two integral blocks in SCR when a kernel needs both
+!   I<x>L           position of x within the current batch, i.e. x = I<x>STA+I<x>L-1
 !
-! A case with both combinations is split in two kernels:
-!   ..._K  the diagonal block, bra and ket are the same symmetry block of Cholesky vectors
-!          one integral block gives both terms
-!   ..._O  the off-diagonal one, only one term arrives, its partner comes from the
-!          iteration with the two symmetries exchanged
-!          no triangular restriction, no Kronecker weights, a uniform weight
+! A case with plus/minus combinations is split into two kernels,
+! selected by whether the bra and ket symmetry labels agree:
+!   ..._D  the diagonal block, one integral block gives both terms
+!   ..._O  the off-diagonal one, one term per iteration and a uniform weight
 ! A superindex pair is written (q,r) with q >= r; q is the first argument of KAGEB/KAGTB and KIGEJ/KIGTJ.
 ! The bra index is q when its symmetry is the higher one.
 !
@@ -503,8 +503,9 @@ subroutine ADDRHSB_STRIPED(JSYM,ISYJ,ISYL,NT,NJ,NV,NL, &
   call RHSLOC_BOUNDS(ISYM,2,NASP*NISP>0,MOFFP,JLOP,JHIP)
   call RHSLOC_BOUNDS(ISYM,3,NASM*NISM>0,MOFFM,JLOM,JHIM)
 
-  if (ISYM == 1) then
-    call ADDRHSB_STRIPED_K(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISYM,NT,NJ, &
+  ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
+  if (ISYJ == ISYL) then
+    call ADDRHSB_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISYM,NT,NJ, &
                            SCR,NSCR,NLMX,Cho_Bra,NCHO)
   else
     call ADDRHSB_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYT,ISYV,ISYM,NT,NJ,NV,NL, &
@@ -515,7 +516,7 @@ end subroutine ADDRHSB_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSB_STRIPED_K(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISYM,NT,NJ, &
+subroutine ADDRHSB_STRIPED_D(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISYM,NT,NJ, &
                              SCR,NSCR,NLMX,Cho_Bra,NCHO)
 
   use SUPERINDEX, only: KIGEJ, KIGTJ, KTGEU, KTGTU
@@ -615,7 +616,7 @@ subroutine ADDRHSB_STRIPED_K(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISY
   end do
   nullify(Y)
 
-end subroutine ADDRHSB_STRIPED_K
+end subroutine ADDRHSB_STRIPED_D
 
 !-----------------------------------------------------------------------
 
@@ -716,7 +717,7 @@ subroutine ADDRHSC_STRIPED(JSYM,ISYU,ISYX,NA,NU,NV,NX, &
     do IA=JLO,JHI
       do IP=1,NCHO
         do IU=1,NU
-          CHOBA(IU+NU*(IP-1)) = Cho_Bra(IA,IU,IP)
+          CHOBA(IU+NU*(IP-1)) = Cho_Bra(IA,IU,IP) ! the (u,P) slice of this a
         end do
       end do
       ! SCR(u,(v,x)) = sum_P CHOBA(u)^P Cho_Ket(v,x)^P = (au,vx)
@@ -790,7 +791,7 @@ subroutine ADDRHSD1_STRIPED(JSYM,ISYJ,ISYX,NA,NJ,NV,NX, &
       NJSZ = IJHI-IJLO+1
       do IP=1,NCHO
         do IJ=IJLO,IJHI
-          CHOBA(IJ-IJLO+1+NJSZ*(IP-1)) = Cho_Bra(IA+NA*(IJ-1),IP)
+          CHOBA(IJ-IJLO+1+NJSZ*(IP-1)) = Cho_Bra(IA+NA*(IJ-1),IP) ! the (j,P) slice of this a, local j only
         end do
       end do
       ! SCR((v,x),j)
@@ -866,7 +867,7 @@ subroutine ADDRHSD2_STRIPED(JSYM,ISYU,ISYL,NA,NU,NV,NL, &
       NLSZ = ILHI-ILLO+1
       do IP=1,NCHO
         do IU=1,NU
-          CHOBA(IU+NU*(IP-1)) = Cho_Bra(IA,IU,IP)
+          CHOBA(IU+NU*(IP-1)) = Cho_Bra(IA,IU,IP) ! the (u,P) slice of this a
         end do
       end do
       ! SCR((v,l),u)
@@ -924,19 +925,20 @@ subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL, &
   call RHSLOC_BOUNDS(ISYM,6,NAS*NISP>0,MOFFP,JLOP,JHIP)
   call RHSLOC_BOUNDS(ISYM,7,NAS*NISM>0,MOFFM,JLOM,JHIM)
 
-  if (ISYJL == 1) then
-    call ADDRHSE_STRIPED_K(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV,SCR,NSCR,NAMX, &
-                           Cho_Bra,Cho_Ket,NCHO)
+  ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
+  if (ISYJ == ISYL) then
+    call ADDRHSE_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV, &
+                           SCR,NSCR,NAMX,Cho_Bra,Cho_Ket,NCHO)
   else
-    call ADDRHSE_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYM,ISYJL,NA,NJ,NV,NL,SCR,NSCR, &
-                           NAMX,Cho_Bra,Cho_Ket,NCHO)
+    call ADDRHSE_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYM,ISYJL,NA,NJ,NV,NL, &
+                           SCR,NSCR,NAMX,Cho_Bra,Cho_Ket,NCHO)
   end if
 
 end subroutine ADDRHSE_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSE_STRIPED_K(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV, &
+subroutine ADDRHSE_STRIPED_D(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV, &
                              SCR,NSCR,NAMX,Cho_Bra,Cho_Ket,NCHO)
 
   use SUPERINDEX, only: KIGEJ, KIGTJ
@@ -1031,8 +1033,8 @@ subroutine ADDRHSE_STRIPED_K(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJ
         IY2 = 1+NV*NASZ
         ! Y1(v,a) = (aj,vl), Y2(v,a) = (al,vj)
         call DGEMM_('N','T',NV,NASZ,NCHO,One,Cho_Ket(1+NV*(IL-1),1),NV*NJ,Cho_Bra(IASTA+NA*(IJ-1),1),NA*NJ,Zero,SCR(IY1),NV)
-        if (IL /= IJ) call DGEMM_('N','T',NV,NASZ,NCHO,One,Cho_Ket(1+NV*(IJ-1),1),NV*NJ,Cho_Bra(IASTA+NA*(IL-1),1),NA*NJ,Zero, &
-          SCR(IY2),NV)
+        if (IL /= IJ) call DGEMM_('N','T',NV,NASZ,NCHO,One,Cho_Ket(1+NV*(IJ-1),1),NV*NJ,Cho_Bra(IASTA+NA*(IL-1),1),NA*NJ, &
+          Zero,SCR(IY2),NV)
         Y1(1:NV,1:NASZ) => SCR(IY1:IY1+NV*NASZ-1)
         Y2(1:NV,1:NASZ) => SCR(IY2:IY2+NV*NASZ-1) ! it is used only when IL /= IJ, but a compiler complains...
         do IA=IASTA,IAEND
@@ -1059,7 +1061,7 @@ subroutine ADDRHSE_STRIPED_K(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJ
   end do
   nullify(Y1,Y2)
 
-end subroutine ADDRHSE_STRIPED_K
+end subroutine ADDRHSE_STRIPED_D
 
 !-----------------------------------------------------------------------
 
@@ -1193,8 +1195,8 @@ subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX, &
   if ((NINDEP(ISYM,9) == 0) .and. (.not. Do_SC)) NISM = 0
   if (NASP*NISP+NASM*NISM == 0) return
 
-  ! (a-block width) x (c columns) budget whose two integral blocks fit the
-  ! scratch; the diagonal kernel splits it between the two dimensions
+  ! the largest (a-block width) x (c columns) whose two integral blocks fit
+  ! the scratch; the diagonal kernel splits it between the two dimensions
   NACMX = NSCR/(NU*NX+NU*NX)
   if (NACMX < 1) then
     write(u6,*) 'Not enough memory in ADDRHSF_STRIPED, I give up'
@@ -1216,12 +1218,13 @@ subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX, &
   call RHSLOC_BOUNDS(ISYM,8,NASP*NISP>0,MOFFP,JLOP,JHIP)
   call RHSLOC_BOUNDS(ISYM,9,NASM*NISM>0,MOFFM,JLOM,JHIM)
 
-  if (ISYM == 1) then
-    call ADDRHSF_STRIPED_K(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYM,NA,NU,NX,SCR,NSCR,NACMX, &
-                           CHOBT,CHOBT,NCHO)
+  ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
+  if (ISYU == ISYX) then
+    call ADDRHSF_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYM,NA,NU,NX, &
+                           SCR,NSCR,NACMX,CHOBT,CHOBT,NCHO)
   else
-    call ADDRHSF_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYC,ISYM,NA,NU,NC,NX,SCR, &
-                           NSCR,CHOBT,Cho_Ket,NCHO)
+    call ADDRHSF_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYC,ISYM,NA,NU,NC,NX, &
+                           SCR,NSCR,CHOBT,Cho_Ket,NCHO)
   end if
 
   call mma_deallocate(CHOBT)
@@ -1230,7 +1233,7 @@ end subroutine ADDRHSF_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSF_STRIPED_K(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYM,NA,NU,NX, &
+subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYM,NA,NU,NX, &
                              SCR,NSCR,NACMX,CHOBT,CHOKT,NCHO)
 
   use SUPERINDEX, only: KAGEB, KAGTB, KTGEU, KTGTU
@@ -1256,12 +1259,12 @@ subroutine ADDRHSF_STRIPED_K(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
   ! KTGEU/KTGTU(u,x) is contiguous in u for a fixed x
   ! Cho_Bra is (a,u,P), transposed to make "fixed a" a BLAS operand, the ket is the same block
 
-  ! ISYU is kept for symmetry with the other _K kernels, the block is already
+  ! ISYU is kept for symmetry with the other _D kernels, the block is already
   ! selected by the caller
   unused_var(ISYU)
 
   ! a is blocked as in case G, one GEMM per block over the bounding c-rectangle
-  ! the (x,c) panel is then read once per block, not once per a. See ADDRHSG_STRIPED_K
+  ! the (x,c) panel is then read once per block, not once per a. See ADDRHSG_STRIPED_D
   NAMX = min(NA,NAMXCAP,NACMX)
   NCMX = max(NACMX/NAMX,1)
 
@@ -1311,10 +1314,11 @@ subroutine ADDRHSF_STRIPED_K(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
       ! (cu,ax)
       IY1 = 1
       IY2 = 1+NU*NASZ*NX*NCSZ
-      call DGEMM_('N','T',NU*NASZ,NX*NCSZ,NCHO,One,CHOBT(1+NU*(IASTA-1),1),NU*NA,CHOKT(1+NX*(ICSTA-1),1),NX*NA,Zero,SCR(IY1), &
-                  NU*NASZ)
-      call DGEMM_('N','T',NU*NCSZ,NX*NASZ,NCHO,One,CHOBT(1+NU*(ICSTA-1),1),NU*NA,CHOKT(1+NX*(IASTA-1),1),NX*NA,Zero,SCR(IY2), &
-                  NU*NCSZ)
+      call DGEMM_('N','T',NU*NASZ,NX*NCSZ,NCHO,One,CHOBT(1+NU*(IASTA-1),1),NU*NA,CHOKT(1+NX*(ICSTA-1),1),NX*NA, &
+                  Zero,SCR(IY1),NU*NASZ)
+      call DGEMM_('N','T',NU*NCSZ,NX*NASZ,NCHO,One,CHOBT(1+NU*(ICSTA-1),1),NU*NA,CHOKT(1+NX*(IASTA-1),1),NX*NA, &
+                  Zero,SCR(IY2),NU*NCSZ)
+
       Y1(1:NU,1:NASZ,1:NX,1:NCSZ) => SCR(IY1:IY1+NU*NASZ*NX*NCSZ-1)
       Y2(1:NU,1:NCSZ,1:NX,1:NASZ) => SCR(IY2:IY2+NU*NCSZ*NX*NASZ-1)
 
@@ -1377,7 +1381,7 @@ subroutine ADDRHSF_STRIPED_K(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
   end do
   nullify(Y1,Y2)
 
-end subroutine ADDRHSF_STRIPED_K
+end subroutine ADDRHSF_STRIPED_D
 
 !-----------------------------------------------------------------------
 
@@ -1393,7 +1397,7 @@ subroutine ADDRHSF_STRIPED_O(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: CHOBT(NU*NA,NCHO), Cho_Ket(NC*NX,NCHO)
 
-  integer(kind=iwp) :: IA, IAABS, IAEND, IASTA, IC, ICABS, ICOLM, ICOLP, IL, ILABS, IP, IQHI, IQLO, IRBASM, IRBASP, IX, &
+  integer(kind=iwp) :: IA, IAABS, IAEND, IASTA, IC, ICABS, ICOLM, ICOLP, IP, IQ, IQHI, IQLO, IRBASM, IRBASP, IX, &
                        IXABS, JBASM, JBASP, LDY, NAMX, NASZ, NQ, NQSZ, NR
   real(kind=wp) :: SGN
 
@@ -1421,22 +1425,22 @@ subroutine ADDRHSF_STRIPED_O(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
 
   IQLO = NQ+1
   IQHI = 0
-  do IL=1,NQ
+  do IQ=1,NQ
     if (ISYA > ISYC) then
-      JBASP = KAGEB(IL+NSES(ISYA),1+NSES(ISYC))-NAGEBES(ISYM)
-      JBASM = KAGTB(IL+NSES(ISYA),1+NSES(ISYC))-NAGTBES(ISYM)
+      JBASP = KAGEB(IQ+NSES(ISYA),1+NSES(ISYC))-NAGEBES(ISYM)
+      JBASM = KAGTB(IQ+NSES(ISYA),1+NSES(ISYC))-NAGTBES(ISYM)
     else
-      JBASP = KAGEB(IL+NSES(ISYC),1+NSES(ISYA))-NAGEBES(ISYM)
-      JBASM = KAGTB(IL+NSES(ISYC),1+NSES(ISYA))-NAGTBES(ISYM)
+      JBASP = KAGEB(IQ+NSES(ISYC),1+NSES(ISYA))-NAGEBES(ISYM)
+      JBASM = KAGTB(IQ+NSES(ISYC),1+NSES(ISYA))-NAGTBES(ISYM)
     end if
     if ((JBASP+NR-1 >= JLOP) .and. (JBASP <= JHIP)) then
-      IQLO = min(IQLO,IL)
-      IQHI = max(IQHI,IL)
+      IQLO = min(IQLO,IQ)
+      IQHI = max(IQHI,IQ)
     end if
     if (NASM > 0) then
       if ((JBASM+NR-1 >= JLOM) .and. (JBASM <= JHIM)) then
-        IQLO = min(IQLO,IL)
-        IQHI = max(IQHI,IL)
+        IQLO = min(IQLO,IQ)
+        IQHI = max(IQHI,IQ)
       end if
     end if
   end do
@@ -1507,10 +1511,10 @@ subroutine ADDRHSF_STRIPED_O(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
       do IA=IASTA,IAEND
         IAABS = IA+NSES(ISYA)
         do IC=1,NQSZ
-          ILABS = IQLO+IC-1+NSES(ISYC)
-          ICOLP = KAGEB(ILABS,IAABS)-NAGEBES(ISYM)
+          ICABS = IQLO+IC-1+NSES(ISYC)
+          ICOLP = KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
           ICOLM = 0
-          if (NASM > 0) ICOLM = KAGTB(ILABS,IAABS)-NAGTBES(ISYM)
+          if (NASM > 0) ICOLM = KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
           do IX=1,NX
             IXABS = IX+NAES(ISYX)
             ! plus combination
@@ -1565,8 +1569,8 @@ subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL, &
   NISM = NISUP(ISYM,11)
   if (NAS*(NISP+NISM) == 0) return
 
-  ! (a-block width) x (c columns) budget whose two integral blocks fit the
-  ! scratch; the diagonal kernel splits it between the two dimensions
+  ! the largest (a-block width) x (c columns) whose two integral blocks fit
+  ! the scratch; the diagonal kernel splits it between the two dimensions
   NACMX = NSCR/(2*NU*NL)
   if (NACMX < 1) then
     write(u6,*) 'Not enough memory in ADDRHSG_STRIPED, I give up'
@@ -1584,8 +1588,9 @@ subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL, &
   call RHSLOC_BOUNDS(ISYM,10,NAS*NISP>0,MOFFP,JLOP,JHIP)
   call RHSLOC_BOUNDS(ISYM,11,NAS*NISM>0,MOFFM,JLOM,JHIM)
 
-  if (ISYAC == 1) then
-    call ADDRHSG_STRIPED_K(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYAC,NA,NU,NL, &
+  ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
+  if (ISYU == ISYL) then
+    call ADDRHSG_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYAC,NA,NU,NL, &
                            SCR,NSCR,NACMX,CHOBT,Cho_Ket,NCHO)
   else
     call ADDRHSG_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYC,ISYM,ISYAC,NA,NU,NC,NL, &
@@ -1598,7 +1603,7 @@ end subroutine ADDRHSG_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSG_STRIPED_K(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYAC,NA,NU,NL, &
+subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYAC,NA,NU,NL, &
                              SCR,NSCR,NACMX,CHOBT,CHOKT,NCHO)
 
   use SUPERINDEX, only: KAGEB, KAGTB
@@ -1639,7 +1644,7 @@ subroutine ADDRHSG_STRIPED_K(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
   ! a is blocked, the (l,c) panel is read once per block instead of once per a
   ! the block spans [ICBLO,ICBHI] though row a needs only a >= c
   ! the extra c > a columns computed this way are about NAMX/(2a) of the block
-  ! NACMX = NSCR/(2*NU*NL) is the NAMX*NCMX budget
+  ! NACMX = NSCR/(2*NU*NL) is the largest NAMX*NCMX that fits
   NAMX = min(NA,NAMXCAP,NACMX)
   NCMX = max(NACMX/NAMX,1)
 
@@ -1703,10 +1708,11 @@ subroutine ADDRHSG_STRIPED_K(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
       ! (cu,al)
       IY1 = 1
       IY2 = 1+NU*NASZ*NL*NCSZ
-      call DGEMM_('N','T',NU*NASZ,NL*NCSZ,NCHO,One,CHOBT(1+NU*(IASTA-1),1),NU*NA,CHOKT(1+NL*(ICSTA-1),1),NL*NA,Zero,SCR(IY1), &
-                  NU*NASZ)
-      call DGEMM_('N','T',NU*NCSZ,NL*NASZ,NCHO,One,CHOBT(1+NU*(ICSTA-1),1),NU*NA,CHOKT(1+NL*(IASTA-1),1),NL*NA,Zero,SCR(IY2), &
-                  NU*NCSZ)
+      call DGEMM_('N','T',NU*NASZ,NL*NCSZ,NCHO,One,CHOBT(1+NU*(IASTA-1),1),NU*NA,CHOKT(1+NL*(ICSTA-1),1),NL*NA, &
+                  Zero,SCR(IY1),NU*NASZ)
+      call DGEMM_('N','T',NU*NCSZ,NL*NASZ,NCHO,One,CHOBT(1+NU*(ICSTA-1),1),NU*NA,CHOKT(1+NL*(IASTA-1),1),NL*NA,
+                  Zero,SCR(IY2),NU*NCSZ)
+
       Y1(1:NU,1:NASZ,1:NL,1:NCSZ) => SCR(IY1:IY1+NU*NASZ*NL*NCSZ-1)
       Y2(1:NU,1:NCSZ,1:NL,1:NASZ) => SCR(IY2:IY2+NU*NCSZ*NL*NASZ-1)
 
@@ -1757,7 +1763,7 @@ subroutine ADDRHSG_STRIPED_K(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
   end do
   nullify(Y1,Y2)
 
-end subroutine ADDRHSG_STRIPED_K
+end subroutine ADDRHSG_STRIPED_D
 
 !-----------------------------------------------------------------------
 
@@ -1773,8 +1779,8 @@ subroutine ADDRHSG_STRIPED_O(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYC,ISYM
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: CHOBT(NU*NA,NCHO), CHOKT(NL*NC,NCHO)
 
-  integer(kind=iwp) :: IA, IAABS, IAEND, IAGEC, IAGTC, IAHI, IALO, IASTA, IC, ICABS, ICEND, ICOLM, ICOLP, ICSTA, IL, IOFFM, &
-                       IOFFP, IQHI, IQLO, ISAB, ISI, JBASM, JBASP, LDY, NAMX, NASZ, NCSZ, NQ, NR
+  integer(kind=iwp) :: IA, IAABS, IAGEC, IAGTC, IAHI, IALO, IC, ICABS, ICEND, ICOLM, ICOLP, ICSTA, IL, IOFFM, &
+                       IOFFP, IQ, IQEND, IQHI, IQLO, IQSTA, ISAB, ISI, JBASM, JBASP, LDY, NASZ, NCSZ, NQ, NQMX, NR
   real(kind=wp) :: SGN
 
   ! Case G, off-diagonal block: uniform weight, same flow as case H once both blocks are transposed
@@ -1804,21 +1810,21 @@ subroutine ADDRHSG_STRIPED_O(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYC,ISYM
   end if
   IQLO = NQ+1
   IQHI = 0
-  do IA=1,NQ
+  do IQ=1,NQ
     if (ISYA > ISYC) then
-      JBASP = KAGEB(IA+NSES(ISYA),1+NSES(ISYC))-NAGEBES(ISYAC)
-      JBASM = KAGTB(IA+NSES(ISYA),1+NSES(ISYC))-NAGTBES(ISYAC)
+      JBASP = KAGEB(IQ+NSES(ISYA),1+NSES(ISYC))-NAGEBES(ISYAC)
+      JBASM = KAGTB(IQ+NSES(ISYA),1+NSES(ISYC))-NAGTBES(ISYAC)
     else
-      JBASP = KAGEB(IA+NSES(ISYC),1+NSES(ISYA))-NAGEBES(ISYAC)
-      JBASM = KAGTB(IA+NSES(ISYC),1+NSES(ISYA))-NAGTBES(ISYAC)
+      JBASP = KAGEB(IQ+NSES(ISYC),1+NSES(ISYA))-NAGEBES(ISYAC)
+      JBASM = KAGTB(IQ+NSES(ISYC),1+NSES(ISYA))-NAGTBES(ISYAC)
     end if
     if ((IOFFP+NL*(JBASP+NR-1) >= JLOP) .and. (IOFFP+NL*(JBASP-1)+1 <= JHIP)) then
-      IQLO = min(IQLO,IA)
-      IQHI = max(IQHI,IA)
+      IQLO = min(IQLO,IQ)
+      IQHI = max(IQHI,IQ)
     end if
     if ((IOFFM+NL*(JBASM+NR-1) >= JLOM) .and. (IOFFM+NL*(JBASM-1)+1 <= JHIM)) then
-      IQLO = min(IQLO,IA)
-      IQHI = max(IQHI,IA)
+      IQLO = min(IQLO,IQ)
+      IQHI = max(IQHI,IQ)
     end if
   end do
   if (IQHI < IQLO) return
@@ -1827,26 +1833,26 @@ subroutine ADDRHSG_STRIPED_O(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYC,ISYM
     write(u6,*) 'Not enough memory in ADDRHSG_STRIPED_O, I give up'
     call Abend()
   end if
-  NAMX = NSCR/(NL*NR*NU)
+  NQMX = NSCR/(NL*NR*NU)
 
-  do IASTA=IQLO,IQHI,NAMX
-    IAEND = min(IASTA+NAMX-1,IQHI)
+  do IQSTA=IQLO,IQHI,NQMX
+    IQEND = min(IQSTA+NQMX-1,IQHI)
     ! IALO:IAHI and ICSTA:ICEND: the a and c ranges this block covers. Only the
     ! q member is blocked, the other one is taken whole
     if (ISYA > ISYC) then
-      IALO = IASTA
-      IAHI = IAEND
+      IALO = IQSTA
+      IAHI = IQEND
       ICSTA = 1
       ICEND = NC
       NASZ = IAHI-IALO+1
       NCSZ = NC
       LDY = NL*NCSZ
-      call DGEMM_('N','T',LDY,NASZ*NU,NCHO,One,CHOKT,NL*NC,CHOBT(1+NU*(IASTA-1),1),NU*NA,Zero,SCR,LDY)
+      call DGEMM_('N','T',LDY,NASZ*NU,NCHO,One,CHOKT,NL*NC,CHOBT(1+NU*(IQSTA-1),1),NU*NA,Zero,SCR,LDY)
     else
       IALO = 1
       IAHI = NA
-      ICSTA = IASTA
-      ICEND = IAEND
+      ICSTA = IQSTA
+      ICEND = IQEND
       NASZ = IAHI-IALO+1
       NCSZ = ICEND-ICSTA+1
       LDY = NL*NCSZ
@@ -1919,19 +1925,20 @@ subroutine ADDRHSH_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NC,NL, &
   call RHSLOC_BOUNDS(ISYM,12,NASP*NISP>0,MOFFP,JLOP,JHIP)
   call RHSLOC_BOUNDS(ISYM,13,NASM*NISM>0,MOFFM,JLOM,JHIM)
 
+  ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
   if (ISYJ == ISYL) then
-    call ADDRHSH_STRIPED_K(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,NA,NJ,SCR,NSCR,NLMX,Cho_Bra, &
-                           NCHO)
+    call ADDRHSH_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,NA,NJ, &
+                           SCR,NSCR,NLMX,Cho_Bra,NCHO)
   else
-    call ADDRHSH_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYC,ISYM,NA,NJ,NC,NL,SCR, &
-                           NSCR,NLMX,Cho_Bra,Cho_Ket,NCHO)
+    call ADDRHSH_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYC,ISYM,NA,NJ,NC,NL, &
+                           SCR,NSCR,NLMX,Cho_Bra,Cho_Ket,NCHO)
   end if
 
 end subroutine ADDRHSH_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSH_STRIPED_K(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,NA,NJ, &
+subroutine ADDRHSH_STRIPED_D(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,NA,NJ, &
                              SCR,NSCR,NLMX,Cho_Bra,NCHO)
 
   use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ
@@ -1968,15 +1975,16 @@ subroutine ADDRHSH_STRIPED_K(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISY
       ILHIM = min(IJ-1,JHIM-JBASM+1)
     end if
 
-    ! ILLO:ILHI: union of the l ranges the two combinations need
     if ((ILHIP < ILLOP) .and. (ILHIM < ILLOM)) cycle
-    if (ILHIP < ILLOP) then
+
+    ! ILLO:ILHI: union of the l ranges the two combinations need
+    if (ILHIP < ILLOP) then ! only minus
       ILLO = ILLOM
       ILHI = ILHIM
-    else if (ILHIM < ILLOM) then
+    else if (ILHIM < ILLOM) then ! only plus
       ILLO = ILLOP
       ILHI = ILHIP
-    else
+    else ! both
       ILLO = min(ILLOP,ILLOM)
       ILHI = max(ILHIP,ILHIM)
     end if
@@ -2024,7 +2032,7 @@ subroutine ADDRHSH_STRIPED_K(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISY
     end do
   end do
 
-end subroutine ADDRHSH_STRIPED_K
+end subroutine ADDRHSH_STRIPED_D
 
 !-----------------------------------------------------------------------
 
@@ -2069,8 +2077,9 @@ subroutine ADDRHSH_STRIPED_O(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISY
       ILHIM = min(NL,JHIM-JBASM+1)
     end if
 
-    ! ILLO:ILHI: union of the l ranges the two combinations need
     if ((ILHIP < ILLOP) .and. (ILHIM < ILLOM)) cycle
+
+    ! ILLO:ILHI: union of the l ranges the two combinations need
     if (ILHIP < ILLOP) then
       ILLO = ILLOM
       ILHI = ILHIM
