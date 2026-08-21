@@ -19,6 +19,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
+integer(kind=iwp), parameter :: MAXALTER = 16
 integer(kind=iwp), parameter :: ITRIM = mxAct*(mxAct+1)/2
 
 integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLBM, ICI(mxRoot,mxRef), ICICH, ICICP, iCIonly, &
@@ -27,7 +28,7 @@ integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLB
                      ISTORP(9), ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc(64), IXMSP, IXSYM(mxOrb), IZROT(ITRIM), &
                      JBLB(8), JBLBM, JCJ(mxRoot,mxRef), KTIGHT, LOWMS, LROOTS, MAXIT, MAXJT, MAXORBOUT, MxDMRG, n_Det, n_keep, &
                      NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NORBT, NQUNE, NROOT, NROOTS, NSEC, &
-                     NSXS, NTIT, NTOT3, NTOT4
+                     NSXS, NTIT, NTOT3, NTOT4, MALTER(MAXALTER,3), NALTER
 real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, CONV(6,mxIter+2), CoreShift, DE, E2act, &
                  ECAS = Zero, EMY, ENER(mxRoot,mxIter+2), ESX, ExFac, FDIAG(mxOrb) = Zero, HALFQ = Zero, HALFQ1 = Zero, LVSHFT, &
                  POTNUC, PRETHR, PROTHR, PRWTHR, RLXGRD, ROTMAX, S, SXSHFT = Zero, THFACT, THRE, THREN, THRSX, THRTE, TMIN, &
@@ -50,7 +51,7 @@ public :: BName, CBLB, CBLBM, CCI, CMAX, CMSStartMat, CMSThreshold, CONV, CoreSh
           NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, NSXS, NTIT, &
           NTOT3, NTOT4, OutFmt1, OutFmt2, POTNUC, PRETHR, PROTHR, PRWTHR, PURIFY, QNSTEP, QNUPDT, RFpert, RLXGRD, ROTMAX, S, &
           Start_Vectors, SXSEL, SXSHFT, THFACT, THRE, THREN, THRSX, THRTE, TITLE, TMIN, Tot_Charge, Tot_El_Charge, &
-          Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT
+          Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT, MALTER, NALTER, MAXALTER
 
 #ifdef _DMRG_
 integer(kind=iwp) :: MPSCompressM

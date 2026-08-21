@@ -49,6 +49,8 @@ subroutine RASSCF(IRETURN)
 !                                                                      *
 !***********************************************************************
 
+use Molcas, only: MxRoot
+use RASDim, only: MxIter
 use Index_Functions, only: nTri_Elem
 use ci_interfaces, only: CI_Timer, CI_Close
 #ifdef _HDF5_
@@ -73,7 +75,6 @@ use OFembed, only: Do_OFemb, FMaux
 use UnixInfo, only: ProgName
 use rctfld_module, only: lRF
 use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FockOcc, OccN, PA, PMAT, TUVX
-use general_data, only: iDOGAS
 use input_ras, only: Key, LuInput
 use raswfn, only: cre_raswfn, Wfn_FileID
 use timers, only: TimeCIOpt, TimeInput, TimeOrb, TimeOutput, TimeRelax, TimeTotal, TimeTrans, TimeWfn
@@ -81,18 +82,16 @@ use rasscf_global, only: CBLBM, CMAX, Conv, DE, DoDMRG, DoFCIDump, ECAS, EMY, En
                          iAdr15, iBLBM, ICICH, iCIOnly, iCIRST, iExpand, IfCrPr, InOCalc, IPCMROOT, iPr, iPT2, iRLXRoot, iRoot, &
                          iSave_Exp, iSymBB, ITER, ITERCI, ITERSX, JBLBM, KSDFT, KSDFT_Temp, l_casdft, lSquare, MaxIt, NAC, NACPAR, &
                          NACPR2, NewFock, nFint, no2m, NonEQ, nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax, Start_Vectors, SXShft, Thre, &
-                         ThrSX, THRTE, TMin, Tot_Charge, VIA_DFT, Weight
+                         ThrSX, THRTE, TMin, Tot_Charge, VIA_DFT, Weight,  NALTER
 #   if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
 use rasscf_global, only: DOBLOCKDMRG
 #endif
 use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use rasscf_files, only: ITERFILE, JOBIPH
-use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
-                        NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
+use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
+                        NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2, iDOGAS
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
-use Molcas, only: MxRoot
-use RASDim, only: MxIter
 #ifdef _DMRG_
 use qcmaquis_interface, only: dmrg_energy, qcmaquis_interface_deinit, qcmaquis_interface_delete_chkp, &
                               qcmaquis_interface_prepare_hirdm_template, qcmaquis_param, TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM
