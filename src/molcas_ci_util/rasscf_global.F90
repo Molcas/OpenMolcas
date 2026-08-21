@@ -28,11 +28,12 @@ integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLB
                      ISTORP(9), ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc(64), IXMSP, IXSYM(mxOrb), IZROT(ITRIM), &
                      JBLB(8), JBLBM, JCJ(mxRoot,mxRef), KTIGHT, LOWMS, LROOTS, MAXIT, MAXJT, MAXORBOUT, MxDMRG, n_Det, n_keep, &
                      NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NORBT, NQUNE, NROOT, NROOTS, NSEC, &
-                     NSXS, NTIT, NTOT3, NTOT4, MALTER(MAXALTER,3), NALTER
+                     NSXS, NTIT, NTOT3, NTOT4, MALTER(MAXALTER,3), NALTER, NCRVEC
 real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, CONV(6,mxIter+2), CoreShift, DE, E2act, &
                  ECAS = Zero, EMY, ENER(mxRoot,mxIter+2), ESX, ExFac, FDIAG(mxOrb) = Zero, HALFQ = Zero, HALFQ1 = Zero, LVSHFT, &
                  POTNUC, PRETHR, PROTHR, PRWTHR, RLXGRD, ROTMAX, S, SXSHFT = Zero, THFACT, THRE, THREN, THRSX, THRTE, TMIN, &
                  Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
+real(kind=wp), allocatable :: CRPROJ(:), CRVEC(:)
 logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, lSquare, NonEq, RFpert, Start_Vectors
 character(len=LenIn+8) :: BName(mxOrb)
 character(len=256) :: CMSStartMat
@@ -51,7 +52,7 @@ public :: BName, CBLB, CBLBM, CCI, CMAX, CMSStartMat, CMSThreshold, CONV, CoreSh
           NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, NSXS, NTIT, &
           NTOT3, NTOT4, OutFmt1, OutFmt2, POTNUC, PRETHR, PROTHR, PRWTHR, PURIFY, QNSTEP, QNUPDT, RFpert, RLXGRD, ROTMAX, S, &
           Start_Vectors, SXSEL, SXSHFT, THFACT, THRE, THREN, THRSX, THRTE, TITLE, TMIN, Tot_Charge, Tot_El_Charge, &
-          Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT, MALTER, NALTER, MAXALTER
+          Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT, MALTER, NALTER, MAXALTER, NCRVEC, CRPROJ, CRVEC
 
 #ifdef _DMRG_
 integer(kind=iwp) :: MPSCompressM

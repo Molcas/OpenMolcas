@@ -71,15 +71,14 @@ use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
 use wadr, only: FMO
 use sxci, only: IDXSX
-use general_data, only: iDoGAS
 use input_ras, only: Key
 use timers, only: TimeDens
 use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, ICMSP, IFCRPR, iPCMRoot, iRoot, iRotPsi, ITER, &
-                         IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
+                         IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight, CRVEC
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
-use general_data, only: CRVec, ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
+use general_data, only: ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM, iDoGAS
 use sguga, only: SGS, SG_ReOrd
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
