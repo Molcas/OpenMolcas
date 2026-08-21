@@ -182,7 +182,6 @@ set (sources
      wfctl_sa.F90
      wfctl_sp.F90
      wfctl_td.F90
-     wrtrs2_mclr.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)
