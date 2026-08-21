@@ -29,8 +29,8 @@ private
 character(len=*), parameter :: basename = 'SLAPAFCHK'
 
 integer(kind=iwp) :: chkpnt_appnadc, chkpnt_coor, chkpnt_ener, chkpnt_force, chkpnt_gd, chkpnt_hess, chkpnt_id, chkpnt_iter, &
-                      chkpnt_nac, chkpnt_new, chkpnt_rootener, chkpnt_rootidx, chkpnt_rootmap, Iter_all
-logical(kind=iwp) :: have_CI, have_NAC, have_RootMap
+                      chkpnt_nac, chkpnt_new, chkpnt_rootener, chkpnt_rootener2, chkpnt_rootidx, chkpnt_rootmap, Iter_all
+logical(kind=iwp) :: have_CI, have_NAC, have_RootMap, have_RootEner2
 character(len=12) :: filename
 #endif
 
@@ -78,6 +78,10 @@ subroutine Chkpnt_open()
     ! for the CI/MECI datasets above.
     have_RootMap = mh5_exists_dset(chkpnt_id,'ROOT_MAPPING')
     if (have_RootMap) chkpnt_rootmap = mh5_open_dset(chkpnt_id,'ROOT_MAPPING')
+    ! ROOT_ENERGIES_2: created only for a two-RunFile run (see Chkpnt_init), so a reopen must check for existence first,
+    ! exactly as for the CI/MECI and ROOT_MAPPING datasets above.
+    have_RootEner2 = mh5_exists_dset(chkpnt_id,'ROOT_ENERGIES_2')
+    if (have_RootEner2) chkpnt_rootener2 = mh5_open_dset(chkpnt_id,'ROOT_ENERGIES_2')
     call mh5_fetch_attr(chkpnt_id,'NSYM',tmp)
     if (tmp /= nIrrep) create = .true.
     call mh5_fetch_attr(chkpnt_id,'NATOMS_UNIQUE',tmp)
@@ -110,7 +114,7 @@ subroutine Chkpnt_init()
                          Track, TwoRunFiles
   use stdalloc, only: mma_allocate, mma_deallocate
   character :: lIrrep(24)
-  integer(kind=iwp) :: Columbus, dsetid, i, j, k, mAtom, nRoots
+  integer(kind=iwp) :: Columbus, dsetid, i, j, k, mAtom, nRoots, nRoots2
   logical(kind=iwp) :: Found
   integer(kind=iwp), allocatable :: desym(:,:), symdof(:,:)
   real(kind=wp), allocatable :: charges(:)
@@ -222,8 +226,8 @@ subroutine Chkpnt_init()
                       '[ITERATIONS,NROOTS]; column order is assigned per geometry and a column need not hold the same '// &
                       'state across iterations -- ROOT_MAPPING resolves this when present, but its absence means the '// &
                       'reordering was not tracked, not that the order is fixed; on a TWO_RUNFILES run these are the '// &
-                      'active RunFile''s roots only, and RUNFILE2''s energies are stored nowhere in this file, so '// &
-                      'ROOT_INDICES column 1 must not be used to index this dataset')
+                      'active RunFile''s roots only -- RUNFILE2''s roots are in ROOT_ENERGIES_2 when that dataset is '// &
+                      'present -- so ROOT_INDICES column 1 must not be used to index this dataset')
 
   ! root mapping: only meaningful (and only created) for a Track run, where the solver can reassign which root occupies
   ! which ROOT_ENERGIES column between iterations
@@ -266,6 +270,24 @@ subroutine Chkpnt_init()
     call mh5_init_attr(chkpnt_id,'EDIFF_ZERO',merge(1,0,EDiffZero))
     call mh5_init_attr(chkpnt_id,'TWO_RUNFILES',merge(1,0,TwoRunFiles))
 
+    ! per-root energies from RUNFILE2, present only for a two-RunFile run, where ROOT_ENERGIES alone cannot express the
+    ! second wavefunction's roots
+    have_RootEner2 = TwoRunFiles
+    if (have_RootEner2) then
+      nRoots2 = 1
+      call NameRun('RUNFILE2')
+      call Qpg_iScalar('Number of roots',Found)
+      if (Found) call Get_iScalar('Number of roots',nRoots2)
+      call NameRun('#Pop')
+      call mh5_init_attr(chkpnt_id,'NROOTS_2',nRoots2)
+      chkpnt_rootener2 = mh5_create_dset_real(chkpnt_id,'ROOT_ENERGIES_2',2,[nRoots2,0],dyn=.true.)
+      call mh5_init_attr(chkpnt_rootener2,'DESCRIPTION','Energies of all computed roots of the wavefunction copied to '// &
+                         'RUNFILE2 for a two-RunFile crossing run (e.g. the CASPT2 states of a CASPT2 gradient job, '// &
+                         'not necessarily RASSCF), matrix of size [ITERATIONS,NROOTS_2]; ROOT_INDICES column 1 '// &
+                         '(Fortran index 2) selects within this array, while ROOT_INDICES column 0 selects within '// &
+                         'ROOT_ENERGIES')
+    end if
+
     chkpnt_gd = mh5_create_dset_real(chkpnt_id,'GRADIENT_DIFFERENCE',3,[3,size(Coor,2),0],dyn=.true.)
     call mh5_init_attr(chkpnt_gd,'DESCRIPTION','Gradient difference between the two states referenced by ROOT_INDICES '// &
                        '(column 1 gradient minus column 0 gradient), matrix of size [ITERATIONS,NATOMS_UNIQUE,3], '// &
@@ -276,12 +298,13 @@ subroutine Chkpnt_init()
     ! sort (unlike the same-spin CI case, where iState(1) ends up the higher root and iState(2) the lower).
     chkpnt_rootidx = mh5_create_dset_int(chkpnt_id,'ROOT_INDICES',2,[2,0],dyn=.true.)
     call mh5_init_attr(chkpnt_rootidx,'DESCRIPTION','State-pair indices for the two-state calculation, matrix of size '// &
-                       '[ITERATIONS,2]; column 0 is the higher root and column 1 the lower root, unless TWO_RUNFILES '// &
-                       'is set, in which case column 0 is the active RunFile''s root and column 1 is RUNFILE2''s '// &
-                       'root, and the pair is not sorted; the NADC attribute is 1 when a coupling derivative vector '// &
-                       'was computed for this pair, in which case NAC is present, and 0 when it was not, i.e. a '// &
-                       'minimum-energy crossing point rather than a conical intersection; EDIFF_ZERO is 1 when the '// &
-                       'energy difference is constrained to zero and 0 when a fixed nonzero gap is sought')
+                       '[ITERATIONS,2], holding Fortran 1-based root numbers -- a 0-based reader must subtract one; '// &
+                       'column 0 is the higher root and column 1 the lower root, unless TWO_RUNFILES is set, in which '// &
+                       'case column 0 is the active RunFile''s root and column 1 is RUNFILE2''s root, and the pair is '// &
+                       'not sorted; the NADC attribute is 1 when a coupling derivative vector was computed for this '// &
+                       'pair, in which case NAC is present, and 0 when it was not, i.e. a minimum-energy crossing '// &
+                       'point rather than a conical intersection; EDIFF_ZERO is 1 when the energy difference is '// &
+                       'constrained to zero and 0 when a fixed nonzero gap is sought')
 
     call Get_iScalar('Columbus',Columbus)
     ! Columbus /= 1 because in Columbus mode the block that fills NAC is skipped and the array keeps its zero fill; the flag
@@ -302,6 +325,7 @@ subroutine Chkpnt_init()
     end if
   else
     have_NAC = .false.
+    have_RootEner2 = .false.
   end if
 
   ! MEP/IRC information
@@ -317,11 +341,11 @@ end subroutine Chkpnt_init
 
 subroutine Chkpnt_update()
 # ifdef _HDF5_
-  use Slapaf_Info, only: ApproxNADC, Cx, Energy, Gx, Gx0, iState, iter, NAC, nDimBC, RootMap
+  use Slapaf_Info, only: ApproxNADC, Cx, Energy, Gx, Gx0, iState, iter, NAC, nDimBC, RootMap, TwoRunFiles
   use stdalloc, only: mma_allocate, mma_deallocate
-  integer(kind=iwp) :: i, ij, j, nRoots
+  integer(kind=iwp) :: i, ij, j, nRoots, nRoots2
   logical(kind=iwp) :: Found, FoundRoots
-  real(kind=wp), allocatable :: Hss_X(:), RootEner(:)
+  real(kind=wp), allocatable :: Hss_X(:), RootEner(:), RootEner2(:)
 
   call Qpg_dArray('Hss_X',Found,i)
   if (Found) then
@@ -354,6 +378,21 @@ subroutine Chkpnt_update()
   call mh5_resize_dset(chkpnt_rootener,[nRoots,Iter_all])
   call mh5_put_dset(chkpnt_rootener,RootEner,[nRoots,1],[0,Iter_all-1])
   call mma_deallocate(RootEner)
+  ! per-root energies from RUNFILE2, on a two-RunFile run
+  ! LDV: fCopy('RUNBACK','RUNFILE') at rlxctl.F90:331 restores the active RunFile from its saved snapshot but leaves
+  ! RUNFILE2 untouched, so on an lNmHss run this row may come from a different geometry than ROOT_ENERGIES.
+  if (TwoRunFiles) then
+    call NameRun('RUNFILE2')
+    nRoots2 = 1
+    call Qpg_iScalar('Number of roots',Found)
+    if (Found) call Get_iScalar('Number of roots',nRoots2)
+    call mma_allocate(RootEner2,nRoots2)
+    call Get_dArray('Last energies',RootEner2,nRoots2)
+    call NameRun('#Pop')
+    call mh5_resize_dset(chkpnt_rootener2,[nRoots2,Iter_all])
+    call mh5_put_dset(chkpnt_rootener2,RootEner2,[nRoots2,1],[0,Iter_all-1])
+    call mma_deallocate(RootEner2)
+  end if
   ! root mapping
   if (have_RootMap) then
     call mh5_resize_dset(chkpnt_rootmap,[nRoots,Iter_all])
