@@ -202,7 +202,7 @@ integer(kind=iwp), parameter :: TR_CLOSE = 8
 integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
-public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Simple, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
+public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
@@ -778,7 +778,7 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
 
   type(TRStruct) :: TRS
 
-  call SG_Init_Simple(iState,nSym,nActEl,iSpin,        &
+  call SG_Init_Light(iState,nSym,nActEl,iSpin,        &
                       nRas,nRasEl,nRsPrt,               &
                       xLevel,xL2Act,xnLev,xNSM)
 
@@ -806,7 +806,7 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
 
 end subroutine SG_Init
 
-subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
+subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
                           nRas,nRasEl,nRsPrt,                     &
                           xLevel,xL2Act,xNLEV,xNSM,Do_MkSGUGA)
 
@@ -818,7 +818,7 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
   integer(kind=iwp) :: iSym
 
   If (State_is_used(iState)) Then
-     Write (u6,*) 'SG_Init_Simple: State is already initiated'
+     Write (u6,*) 'SG_Init_Light: State is already initiated'
      Write (u6,*) 'iState: ',iState
      Call abend()
   End If
@@ -837,15 +837,15 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
   State_is_used(iState)=.True.
 
   if ((nSym < 1) .or. (nSym > 8)) then
-    write(u6,*) ' SG_Init_Simple: illegal nSym value:',nSym
+    write(u6,*) ' SG_Init_Light: illegal nSym value:',nSym
     call Abend()
   end if
   if (iSpin < 1) then
-    write(u6,*) ' SG_Init_Simple: illegal iSpin value:',iSpin
+    write(u6,*) ' SG_Init_Light: illegal iSpin value:',iSpin
     call Abend()
   end if
   if (nActEl < 0) then
-    write(u6,*) ' SG_Init_Simple: illegal nActEl value:',nActEl
+    write(u6,*) ' SG_Init_Light: illegal nActEl value:',nActEl
     call Abend()
   end if
 
@@ -882,7 +882,9 @@ subroutine SG_Init_Simple(iState,nSym,nActEl,iSpin,              &
     call MkSGUGA(SGS(istate),CIS(istate))
   end if
 
-end subroutine SG_Init_Simple
+  if (NActEl == 0) CIS(istate)%NCSF(:) = 1
+
+end subroutine SG_Init_Light
 
 subroutine SG_Free(iState)
 ! PURPOSE: FREE THE SGUGA TABLES

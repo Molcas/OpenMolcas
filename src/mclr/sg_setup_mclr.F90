@@ -12,7 +12,7 @@
 subroutine SG_Setup_MCLR()
 
 use molcas, only: MxLev
-use sguga, only: SG_Init_Simple
+use sguga, only: SG_Init_Light
 use general_data, only: iSpin, nActEl, nElec3, nHole1, nRS1, nRS2, nRS3, nSym
 use general_data, only: nRas, nRasEl, nRsPrt
 use Definitions, only: iwp
@@ -58,9 +58,9 @@ end if
 
 Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
-Call SG_Init_Simple(istate,nSym,nActEl,iSpin,     &
-                    nRas,nRasEl,nRsPrt,            &
-                    xLevel=Level, xL2Act=Level,    &
-                    xNLEV=nLev, xNSM=ISM)
+Call SG_Init_Light(istate,nSym,nActEl,iSpin,     &
+                   nRas,nRasEl,nRsPrt,            &
+                   xLevel=Level, xL2Act=Level,    &
+                   xNLEV=nLev, xNSM=ISM)
 
 end subroutine SG_Setup_MCLR

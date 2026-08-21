@@ -16,7 +16,7 @@ subroutine SG_SETUP_CASPT2()
 use Molcas, only: MxLev
 use caspt2_qmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
-use sguga, only: SG_Init, SG_Init_Simple, CIS
+use sguga, only: SG_Init, SG_Init_Light, CIS
 use general_data, only: iSpin, nActel, nAsh, nElec3, nHole1, nLev, STSym, nRas, nRasEl, nRsPrt
 use caspt2_module, only: DMRG, DoCumulant, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
 use Definitions, only: iwp
@@ -56,7 +56,7 @@ if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQM
 
 else
 
-  call SG_Init_Simple(iState,nSym,nActEl,iSpin,                      &
+  call SG_Init_Light(iState,nSym,nActEl,iSpin,                      &
                      nRas,nRasEl,nRsPrt,                               &
                      xLevel=Level,xL2Act=L2Act,xnLev=nLev,             &
                      xNSM=ISM,Do_MkSGuga=.false.)
