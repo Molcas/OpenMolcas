@@ -4040,38 +4040,25 @@ call Setup_RASSCF()
 ! ======================================================================
 
 if (.not. SkipGUGA) then
+  call StatusLine('RASSCF: ','Initializing Lucia/SGUGA/Faroald')
 
   ! Initiate the SGUGA environment conditional to all flags
-  If (.Not. iDoGAS) call SG_Setup_RASSCF()
+  If (.Not. iDoGAS) Then
+      write(u6,'(1X,A)') '**EXPERIMENTAL**'
+      write(u6,'(1X,A)') 'CI backend is SGUGA instead of LUCIA.'
+      write(u6,'(1X,A)') '**EXPERIMENTAL**'
+     call SG_Setup_RASSCF()
+  End If
 
   ! Construct the determinant tables
 
-  if (DBG) write(u6,*) ' Construct the determinant tables.'
-
-  ! switch on/off determinants
   ! Initialize LUCIA and determinant control
-  call StatusLine('RASSCF: ','Initializing Lucia...')
   call Lucia_Util('Ini')
+
   ! to get number of CSFs for GAS
   ! and number of determinants to store
   nconf = sum(ncsasm(1:mxsym))
   nDet = sum(ndtasm(1:mxsym))
-
-  ISCF = 0
-  if ((ISPIN == NAC+1) .and. (NACTEL == NAC)) ISCF = 1
-  if ((ISPIN == 1) .and. (NACTEL == 2*NAC)) ISCF = 1
-  if (ISCF == 1) then
-    NCONF = 1
-    MAXJT = 1
-  end if
-
-  ! If the CI-root selectioning option has been specified translate
-  ! the reference configuration numbers from the split graph GUGA
-  ! to the symmetric group numbering
-
-  ! ====================================================================
-  if (ICICH == 1) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
-  ! ====================================================================
 
   ! Turn on the Faroald SD CI code in case of
   ! 1) no symmetry
@@ -4102,7 +4089,24 @@ if (.not. SkipGUGA) then
     end if
   end if
 
+  ISCF = 0
+  if ((ISPIN == NAC+1) .and. (NACTEL == NAC)) ISCF = 1
+  if ((ISPIN == 1) .and. (NACTEL == 2*NAC)) ISCF = 1
+  if (ISCF == 1) then
+    NCONF = 1
+    MAXJT = 1
+  end if
+
 end if
+
+! If the CI-root selectioning option has been specified translate
+! the reference configuration numbers from the split graph GUGA
+! to the symmetric group numbering
+
+! ====================================================================
+if (ICICH == 1 .and. (.Not. SkipGUGA)) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
+! ====================================================================
+
 
 !---  Normal exit -----------------------------------------------------*
 if (DBG) write(u6,*) ' Normal exit from PROC_INP.'

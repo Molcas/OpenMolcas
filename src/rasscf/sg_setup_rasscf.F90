@@ -26,17 +26,15 @@ integer(kind=iwp), parameter :: istate=1
 ! Construct the Guga tables
 
 call Timing(Eterna_1,dum1,dum2,dum3)
+
 call SG_Init(iState,nSym,nActEl,iSpin,                    &
              nRas,nRasEl,nRsPrt,                           &
              xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
-if (SGS(istate)%NVERT0 == 0) then
-  CIS(istate)%NCSF(STSYM) = 0
-else
-  if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
-end if
+if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1
 
 call SETSXCI()
+
 NCONF = CIS(istate)%NCSF(STSYM)
 
 call Timing(Eterna_2,dum1,dum2,dum3)
