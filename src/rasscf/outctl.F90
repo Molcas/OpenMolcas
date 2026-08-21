@@ -36,7 +36,7 @@ use input_ras, only: Key
 use rasscf_global, only: BName, CBLBM, cCI, CMAX, DE, DoDMRG, ECAS, Ener, ESX, FDIAG, HalfQ, iADR15, IBLBM, iCI, ICICH, iPCMRoot, &
                          iPT2, iRLXRoot, iRoot, iSPDen, iSupSM, iSymBB, ITER, ixSym, JBLBM, kIVO, KSDFT, lRoots, MaxOrbOut, NAC, &
                          NACPAR, NACPR2, NIN, NONEQ, nRoots, NSEC, OutFmt1, RFPert, RLXGrd, RotMax, Tot_Charge, Tot_El_Charge, &
-                         Tot_Nuc_Charge, via_DFT, Weight
+                         Tot_Nuc_Charge, via_DFT, Weight, CleanMask
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
 use rasscf_global, only: DoBlockDMRG, MxDMRG
 #endif
@@ -50,7 +50,7 @@ use rasscf_global, only: ChemPS2_blb, ChemPS2_lrestart, ChemPS2_Noise, ChemPS2_r
 use PrintLevel, only: DEBUG, TERSE, USUAL, VERBOSE
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
-use general_data, only: CleanMask, ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, &
+use general_data, only: ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, &
                         NSSH, NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM
 use spinfo, only: NCSASM, NDTASM
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
