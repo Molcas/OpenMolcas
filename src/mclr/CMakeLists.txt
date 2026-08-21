@@ -16,7 +16,6 @@ set (sources
      addgrad2.F90
      addgrad.F90
      addgrad_sp.F90
-     annstr.F90
      calcaxk2.F90
      calcaxkzx.F90
      calcaxpzx.F90
@@ -47,17 +46,12 @@ set (sources
      cidens_td.F90
      ci_kap.F90
      ci_reconstruct.F90
-     cisize.F90
      clsfls_mclr.F90
      cmsrdmat.F90
      cmsrhsgdmat.F90
-     cndet_mclr.F90
-     cnford.F90
-     cntost.F90
      coeff.F90
      compress2.F90
      compress.F90
-     confg2.F90
      creq2.F90
      creqadd2.F90
      creqadd.F90
@@ -65,15 +59,9 @@ set (sources
      creq.F90
      creq_sp.F90
      creq_td.F90
-     crestr.F90
-     csdtmt.F90
      csdtvc_dmrg.F90
      csdtvc_mclr_1.F90
      csf2sd.F90
-     csfdet_mclr.F90
-     csfinf.F90
-     detctl.F90
-     detstr_mclr.F90
      dmat_mclr.F90
      dminvci.F90
      dminvci_sa.F90
@@ -98,7 +86,6 @@ set (sources
      freqanal.F90
      freq.F90
      g2qtog2r.F90
-     genstr_mclr.F90
      getdmatao.F90
      getpdftfock.F90
      getpdftfock_nac.F90
@@ -108,53 +95,32 @@ set (sources
      get_two_ind.F90
      getwffock.F90
      getwffock_nac.F90
-     gtsttp_1.F90
-     gtsttp_2.F90
-     gtsttps_1.F90
-     gtsttps_2.F90
      hess.F90
      hssprt_mclr.F90
      iabnum.F90
      iabnus.F90
-     iaibcm_mclr.F90
-     icispc.F90
-     icisps.F90
-     iel13.F90
      incsfsd.F90
      init_data.F90
      inpctl_mclr.F90
      inpone.F90
-     intcsf.F90
      intx.F90
-     ioctp2_mclr.F90
      isrot.F90
-     isymst_mclr.F90
      kap_ci.F90
      make_conn.F90
      mclr_banner.F90
      mclr.F90
      mclr_procedures.F90
-     memstr.F90
      mmsort2.F90
      mmsort.F90
      msstrn_mclr.F90
      natorb_mclr.F90
-     ncastr_mclr.F90
      negp.F90
-     newtyp_mclr.F90
      niclas.F90
      nipre.F90
      npre.F90
-     nrasdt.F90
-     nstrso_mclr.F90
-     numst3.F90
-     numst4_mclr.F90
      oitd.F90
      oit_sp.F90
      opnfls_mclr.F90
-     orbinf_mclr.F90
-     orbord.F90
-     ordstr_mclr.F90
      out_pt2.F90
      output_mclr.F90
      output_td.F90
@@ -209,7 +175,6 @@ set (sources
      rint_ns.F90
      rint_sp.F90
      rint_td.F90
-     rsmxmn_mclr.F90
      setlab.F90
      setup_mclr.F90
      sg_setup_mclr.F90
@@ -217,12 +182,9 @@ set (sources
      solveforrhs.F90
      solveforzx.F90
      spindens.F90
-     spncom_mclr.F90
      sqm.F90
      start_mclr.F90
      stpert.F90
-     strinf.F90
-     strtyp.F90
      tcmo.F90
      thermo_vib.F90
      timese2.F90
@@ -233,7 +195,6 @@ set (sources
      unc.F90
      uncompress2.F90
      uncompress.F90
-     weight_mclr.F90
      wfctl_hess.F90
      wfctl_mspd.F90
      wfctl_pdft.F90
@@ -241,10 +202,6 @@ set (sources
      wfctl_sp.F90
      wfctl_td.F90
      wrtrs2_mclr.F90
-     zbase.F90
-     zoos.F90
-     zsmcl.F90
-     zstinf_mclr.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)
