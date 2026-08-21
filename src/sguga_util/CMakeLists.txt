@@ -18,6 +18,7 @@ set (sources
      sg_pkwlk.F90
      sg_print.F90
      sg_prwf.F90
+     sg_setup_rasscf.F90
      sg_two_pdm.F90
      sg_two_pdm_full.F90
      sg_upkwlk.F90

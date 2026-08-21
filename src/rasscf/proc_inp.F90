@@ -13,6 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
+use ci_interfaces, only: CI_Initialize
 use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
@@ -4060,7 +4061,7 @@ if (.not. SkipGUGA) then
       (IFVB == 0)) &
     DoFaro = .true.
 
-    Call CI_Initilaize(.NOT. iDoGAS,DOFARO)
+    Call CI_Initialize(.NOT. iDoGAS,DOFARO)
 
   ISCF = 0
   if ((ISPIN == NAC+1) .and. (NACTEL == NAC)) ISCF = 1
@@ -4123,43 +4124,5 @@ subroutine Error(code)
   if (DBG) write(u6,*) ' Abnormal exit from PROC_INP.'
 
 end subroutine Error
-
-subroutine CI_Initilaize(DO_SGUGA,DO_FAROALD)
-use Lucia_Interface, only: Lucia_Util
-use general_data, only: nConf, nActEl, nAsh
-use Molcas, only: MxSym
-use spinfo, only: nDet, ncsasm, ndtasm
-use definitions, only: iwp
-
-implicit none
-logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
-
-! Construct the determinant tables
-! Initialize LUCIA and determinant control
-call Lucia_Util('Ini')
-
-! to get number of CSFs for GAS
-! and number of determinants to store
-nconf = sum(ncsasm(1:mxsym))
-nDet = sum(ndtasm(1:mxsym))
-
-! Initiate the SGUGA environment conditional to all flags
-If (Do_SGUGA) Then
-    write(u6,'(1X,A)') '**EXPERIMENTAL**'
-    write(u6,'(1X,A)') 'CI backend is SGUGA instead of LUCIA.'
-    write(u6,'(1X,A)') '**EXPERIMENTAL**'
-   call SG_Setup_RASSCF()
-End If
-
-! faroald initializations
-if (DO_FAROALD) then
-  write(u6,'(1X,A)') '**EXPERIMENTAL**'
-  write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
-  write(u6,'(1X,A)') '**EXPERIMENTAL**'
-  call FAROALD_INIT(NACTEL,NASH(1),ISPIN)
-  call CITRANS_INIT(NACTEL,NASH(1),ISPIN)
-end if
-
-End subroutine CI_Initilaize
 
 end subroutine proc_inp

@@ -18,7 +18,7 @@ use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro, NAC
-use general_data, only: STSYM
+use general_data, only: ISPIN, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use definitions, only: wp, iwp
@@ -31,7 +31,7 @@ use general_data, only: iDoGAS, nRsPrt
 
 Private
 
-Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, CI_Timer, CI_Close
+Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, CI_Timer, CI_Initialize, CI_Close
 
 contains
 
@@ -413,6 +413,48 @@ Case Default
 End Select
 
 end subroutine CI_Timer
+
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
+
+subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
+use Lucia_Interface, only: Lucia_Util
+use general_data, only: nConf, nActEl, nAsh
+use Molcas, only: MxSym
+use spinfo, only: nDet, ncsasm, ndtasm
+use definitions, only: iwp
+
+implicit none
+logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
+
+! Construct the determinant tables
+! Initialize LUCIA and determinant control
+call Lucia_Util('Ini')
+
+! to get number of CSFs for GAS
+! and number of determinants to store
+nconf = sum(ncsasm(1:mxsym))
+nDet = sum(ndtasm(1:mxsym))
+
+! Initiate the SGUGA environment conditional to all flags
+If (Do_SGUGA) Then
+    write(u6,'(1X,A)') '**EXPERIMENTAL**'
+    write(u6,'(1X,A)') 'CI backend is SGUGA instead of LUCIA.'
+    write(u6,'(1X,A)') '**EXPERIMENTAL**'
+   call SG_Setup_RASSCF()
+End If
+
+! faroald initializations
+if (DO_FAROALD) then
+  write(u6,'(1X,A)') '**EXPERIMENTAL**'
+  write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
+  write(u6,'(1X,A)') '**EXPERIMENTAL**'
+  call FAROALD_INIT(NACTEL,NASH(1),ISPIN)
+  call CITRANS_INIT(NACTEL,NASH(1),ISPIN)
+end if
+
+End subroutine CI_Initialize
+
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
