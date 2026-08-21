@@ -18,7 +18,7 @@ use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro, NAC
-use general_data, only: ISPIN, STSYM
+use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use definitions, only: wp, iwp
@@ -31,7 +31,7 @@ use general_data, only: iDoGAS, nRsPrt
 
 Private
 
-Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, CI_Timer, CI_Initialize, CI_Close
+Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close
 
 contains
 
@@ -418,11 +418,8 @@ end subroutine CI_Timer
 !***********************************************************************************************************************************
 
 subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
-use Lucia_Interface, only: Lucia_Util
-use general_data, only: nConf, nDet, nActEl, nAsh
 use Molcas, only: MxSym
 use spinfo, only: ncsasm, ndtasm
-use definitions, only: iwp
 
 implicit none
 logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
@@ -455,7 +452,6 @@ end if
 
 End subroutine CI_Initialize
 
-
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
@@ -472,5 +468,36 @@ call citrans_free()
 Call SG_free(iState)
 
 end subroutine CI_Close
+
+!***********************************************************************************************************************************
+!***********************************************************************************************************************************
+
+subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
+use Lucia_Interface, only: Lucia_Util
+use Lucia_data, only: SDREO
+use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
+
+integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
+real(kind=wp), intent(in):: CSFDIA(nConf), TU(nTU), TUVX(nTUVX)
+
+real(kind=wp), allocatable :: DDIA(:)
+integer(kind=iwp):: IPRINT=0
+
+! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
+
+call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+
+call mma_allocate(DDIA,NDET,label='DETDIA')
+
+call get_diag(DDIA,ndet)
+
+! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
+call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
+
+! DEALLOCATE LOCAL MEMORY
+
+call mma_deallocate(DDIA)
+
+End subroutine Mk_CI_Diag
 
 End module CI_Interfaces
