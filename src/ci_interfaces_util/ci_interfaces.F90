@@ -15,10 +15,10 @@
 module CI_Interfaces
 use sguga, only: CIS, SGS, EXS, SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
-use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
+use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, Hdiag
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
-use rasscf_global, only: DoFaro, NAC
-use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl
+use rasscf_global, only: DoFaro
+use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use definitions, only: wp, iwp
@@ -480,7 +480,7 @@ use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(in):: CSFDIA(nConf), TU(nTU), TUVX(nTUVX)
 
-real(kind=wp), allocatable :: DDIA(:)
+real(kind=wp), allocatable :: DDIA(:), DIAG(:)
 integer(kind=iwp):: IPRINT=0
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
@@ -494,9 +494,48 @@ call get_diag(DDIA,ndet)
 ! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
-! DEALLOCATE LOCAL MEMORY
+If (DoFaro .and. nDet/=nConf) Then
+  Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
+  Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
 
+  htu(:,:) = Zero
+  gtuvx(:,:,:,:) = Zero
+  itu = 0
+  ituvx = 0
+  do it=1,my_norb
+    do iu=1,it
+      itu = itu+1
+      htu(iu,it) = TU(itu)
+      htu(it,iu) = TU(itu)
+      do iv=1,it
+        ixmax = iv
+        if (it == iv) ixmax = iu
+        do ix=1,ixmax
+          ituvx = ituvx+1
+          GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
+          GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
+          GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
+          GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
+          GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
+          GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
+          GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
+          GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
+        end do
+      end do
+    end do
+  end do
+
+  Call mma_allocate(Diag,nDetA*nDetB,Label='Diag')
+  Diag(:)=Zero
+  Call hdiag(htu,gtuvx,diag)
+  Call RecPrt('Diag(FAROALD)',' ',Diag,1,nDetA*nDetB)
+  Call mma_deallocate(Diag)
+
+End If
+
+! DEALLOCATE LOCAL MEMORY
 call mma_deallocate(DDIA)
+
 
 End subroutine Mk_CI_Diag
 

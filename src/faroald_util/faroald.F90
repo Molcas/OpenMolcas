@@ -51,7 +51,7 @@ integer(kind=int64) :: nflop
 
 public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
           my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, transition_two_pdm, &
-          two_pdm
+          two_pdm, hDiag
 
 ! Extensions to mma interfaces
 
