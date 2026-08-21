@@ -220,7 +220,10 @@ subroutine Chkpnt_init()
   chkpnt_rootener = mh5_create_dset_real(chkpnt_id,'ROOT_ENERGIES',2,[nRoots,0],dyn=.true.)
   call mh5_init_attr(chkpnt_rootener,'DESCRIPTION','Energies of all computed roots for all iterations, matrix of size '// &
                       '[ITERATIONS,NROOTS]; column order is assigned per geometry and a column need not hold the same '// &
-                      'state across iterations -- ROOT_MAPPING resolves this when present')
+                      'state across iterations -- ROOT_MAPPING resolves this when present, but its absence means the '// &
+                      'reordering was not tracked, not that the order is fixed; on a TWO_RUNFILES run these are the '// &
+                      'active RunFile''s roots only, and RUNFILE2''s energies are stored nowhere in this file, so '// &
+                      'ROOT_INDICES column 1 must not be used to index this dataset')
 
   ! root mapping: only meaningful (and only created) for a Track run, where the solver can reassign which root occupies
   ! which ROOT_ENERGIES column between iterations
@@ -246,7 +249,14 @@ subroutine Chkpnt_init()
   chkpnt_hess = mh5_create_dset_real(chkpnt_id,'HESSIAN',1,[nTri_Elem(nDimBC)])
   call mh5_init_attr(chkpnt_hess,'DESCRIPTION','Cartesian Hessian in triangular form, as a vector of size [DOF*(DOF+1)/2]')
 
-  ! conical intersection / MECI data
+  ! conical intersection / MECI data, created only when the run actually has it, following DESYM_FACTORS above rather than
+  ! HESSIAN: an absent dataset says "not applicable", whereas one full of fill values cannot be told apart from a real result.
+  ! Two conditions, deliberately different. have_CI is the wider one: Gx0 is a difference of two computed gradients on a
+  ! same-spin CI run and on a two-RunFile crossing run alike, and on the latter it is the only two-state data in the file, so
+  ! gating GRADIENT_DIFFERENCE on NADC would drop it exactly where it matters most. ROOT_INDICES and APPROX_NADC are
+  ! per-iteration datasets rather than scalar attributes: ApproxNADC is reset every invocation and set only for that
+  ! invocation's coupling failure, so an attribute would record the last geometry and label every earlier fallback as a real
+  ! coupling; iState is RootMap-translated and can change across a root crossing.
   ! LDV: have_CI/have_NAC are decided once here (or on reopen, from dataset existence) and not re-verified every iteration;
   ! there is no mechanism by which iState(2) or NADC would flip mid-run for a file that already has these datasets, mirroring
   ! the NROOTS assumption above.
@@ -268,16 +278,22 @@ subroutine Chkpnt_init()
     call mh5_init_attr(chkpnt_rootidx,'DESCRIPTION','State-pair indices for the two-state calculation, matrix of size '// &
                        '[ITERATIONS,2]; column 0 is the higher root and column 1 the lower root, unless TWO_RUNFILES '// &
                        'is set, in which case column 0 is the active RunFile''s root and column 1 is RUNFILE2''s '// &
-                       'root, and the pair is not sorted')
+                       'root, and the pair is not sorted; the NADC attribute is 1 when a coupling derivative vector '// &
+                       'was computed for this pair, in which case NAC is present, and 0 when it was not, i.e. a '// &
+                       'minimum-energy crossing point rather than a conical intersection; EDIFF_ZERO is 1 when the '// &
+                       'energy difference is constrained to zero and 0 when a fixed nonzero gap is sought')
 
     call Get_iScalar('Columbus',Columbus)
+    ! Columbus /= 1 because in Columbus mode the block that fills NAC is skipped and the array keeps its zero fill; the flag
+    ! is queried live where the array is filled, not taken from the input.
     have_NAC = NADC .and. (Columbus /= 1)
     if (have_NAC) then
       chkpnt_nac = mh5_create_dset_real(chkpnt_id,'NAC',3,[3,size(Coor,2),0],dyn=.true.)
       call mh5_init_attr(chkpnt_nac,'DESCRIPTION','Nonadiabatic coupling derivative vector between the two states '// &
                          'referenced by ROOT_INDICES, or (when APPROX_NADC is set for that iteration) a normalized '// &
                          'dimensionless branching-plane vector instead, matrix of size [ITERATIONS,NATOMS_UNIQUE,3], '// &
-                         'stored with iteration varying slowest, then atom index')
+                         'stored with iteration varying slowest, then atom index; the NADC and EDIFF_ZERO attributes '// &
+                         'are described with ROOT_INDICES')
 
       chkpnt_appnadc = mh5_create_dset_int(chkpnt_id,'APPROX_NADC',1,[0],dyn=.true.)
       call mh5_init_attr(chkpnt_appnadc,'DESCRIPTION','Flag (0/1) per iteration: whether NAC for that iteration is an '// &
