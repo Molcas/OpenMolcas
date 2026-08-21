@@ -4062,16 +4062,16 @@ if (.not. SkipGUGA) then
       (IFVB == 0)) &
     DoFaro = .true.
 
-    Call CI_Initialize(.NOT. iDoGAS,DOFARO)
+  Call CI_Initialize(.NOT. iDoGAS,DOFARO)
 
-  ISCF = 0
-  if ((ISPIN == NAC+1) .and. (NACTEL == NAC)) ISCF = 1
-  if ((ISPIN == 1) .and. (NACTEL == 2*NAC)) ISCF = 1
-  if (ISCF == 1) then
-    NCONF = 1
-    MAXJT = 1
-  end if
+end if
 
+ISCF = 0
+if ((ISPIN == NAC+1) .and. (NACTEL == NAC)) ISCF = 1
+if ((ISPIN == 1) .and. (NACTEL == 2*NAC)) ISCF = 1
+if (ISCF == 1) then
+  NCONF = 1
+  MAXJT = 1
 end if
 
 ! If the CI-root selectioning option has been specified translate
@@ -4081,7 +4081,6 @@ end if
 ! ====================================================================
 if (ICICH == 1 .and. (.Not. SkipGUGA)) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
 ! ====================================================================
-
 
 !---  Normal exit -----------------------------------------------------*
 if (DBG) write(u6,*) ' Normal exit from PROC_INP.'
