@@ -20,6 +20,8 @@ set (sources
      cidia_sa.F90
      cidia_td.F90
      cisize.F90
+     cgs_mod.F90
+     clsfls_mclr.F90
      cmp2cn.F90
      cndet_mclr.F90
      cnford.F90
@@ -31,7 +33,9 @@ set (sources
      crestr.F90
      csdiag_mclr.F90
      csdtmt.F90
+     csdtvc_mclr_1.F90
      csdtvc_mclr_2.F90
+     csf2sd.F90
      csfdet_mclr.F90
      csfinf.F90
      degvec.F90
@@ -39,7 +43,12 @@ set (sources
      detctl.F90
      detstr_mclr.F90
      dihdj2_mclr.F90
+     dmrg_dim_change_mclr.F90
+     dwder.F90
      dxtyp.F90
+     exphinvv.F90
+     e2.F90
+     e2_td.F90
      frmdsc_mclr.F90
      gasdn2_mclr.F90
      gatrmt.F90
@@ -79,7 +88,9 @@ set (sources
      intdia.F90
      ioctp2_mclr.F90
      ippage.F90
+     isrot.F90
      isymst_mclr.F90
+     mclr_procedures.F90
      memstr.F90
      mkcipre.F90
      mkp1.F90
@@ -94,12 +105,17 @@ set (sources
      numst3.F90
      numst4_mclr.F90
      nxtblk_mclr.F90
+     oitd.F90
      orbinf_mclr.F90
      orbord.F90
      ordstr_mclr.F90
      pmplfm.F90
+     prinp_mclr.F90
+     pcm_grad.F90
      psttbl_mclr.F90
      rassg4.F90
+     reload.F90
+     rddens.F90
      rsbb1e_mclr.F90
      rsbb2a_mclr.F90
      rsbb2bn_mclr.F90
@@ -113,16 +129,20 @@ set (sources
      sdcmrf_mclr_1.F90
      sdcmrf_mclr_2.F90
      sdcmrf_pre.F90
+     sg_setup_mclr.F90
+     sg2symg.F90
      sigmavec.F90
      skickj_mclr.F90
      spncom_mclr.F90
      strinf.F90
      strtyp.F90
      sxtyp.F90
+     tcmo.F90
      todsc_mclr.F90
      tripk2_1.F90
      tripk2_2.F90
      weight_mclr.F90
+     wrtrs2_mclr.F90
      zbase.F90
      zoos.F90
      zsmcl.F90
@@ -132,6 +152,10 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      ippage.F90
+     pcm_grad.F90
+     isrot.F90
+     cgs_mod.F90
+     mclr_procedures.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

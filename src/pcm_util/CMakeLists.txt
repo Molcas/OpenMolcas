@@ -76,6 +76,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      pcm_arrays.F90
+     dwsol.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
