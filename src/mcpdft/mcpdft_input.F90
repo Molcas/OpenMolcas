@@ -249,6 +249,17 @@ subroutine verify_input()
     end if
   end if
 
+  if (mcpdft_options%rfpert) then
+    if (mcpdft_options%mspdft) then
+      call WarningMessage(2,'MS-PDFT with a reaction field not supported')
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' MS-PDFT is not implemented        '
+      write(u6,*) ' with a reaction field             '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    end if
+  end if
+
   if (mcpdft_options%nac) then
     if (Get_Func_Type(get_base(mcpdft_options%otfnal%otxc)) == meta_GGA_Type1) then
       call WarningMessage(2,'NACs with translated meta-GGA not implemented')
