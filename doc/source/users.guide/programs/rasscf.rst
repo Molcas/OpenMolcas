@@ -412,7 +412,7 @@ Optional important keywords are:
   * ``DMPO FORT55`` — produces the MRCC-compatible :file:`fort.55` file only.
     Use this form when interfacing with the :program:`MRCC` program.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPO" APPEAR="Dump only" KIND="STRING" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPO" APPEAR="Dump only" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: DMPO <advanced>
               <HELP>
               This keyword is used to produce integral files and quit in a clean way
