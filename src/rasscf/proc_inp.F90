@@ -107,8 +107,8 @@ integer(kind=iwp) :: LRras2_dmrg(8), nr_lines
 character(len=256) :: WorkDir
 character(len=72) :: ProjectName
 character(len=20) :: guess_dmrg
-integer(kind=iwp), allocatable :: initial_occ(:,:)
 #endif
+integer(kind=iwp), allocatable :: initial_occ(:,:)
 #ifdef _HDF5_
 integer(kind=iwp) :: lRoots_l, mh5id
 character, allocatable :: typestring(:)
