@@ -32,7 +32,6 @@ use KSDFT_Info, only: CoefR, CoefX
 use OFembed, only: dFMD, Do_OFemb, KEonly, OFE_KSDFT, ThrFThaw, Xsigma
 use CMS, only: CMSGiveOpt, CMSGuessFile, iCMSOpt
 use UnixInfo, only: SuperName
-use Lucia_Interface, only: Lucia_Util
 use Symmetry_info, only: Mul
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
@@ -42,7 +41,7 @@ use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, LOWDIN_ON, MALTE
                         NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, SXDAMP, iDoGAS, IGSOCCX, &
                         NGAS, NGSSH
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
-                  N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCSASM, NDET, NDTASM
+                  N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCSASM, NDTASM
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
@@ -4037,28 +4036,15 @@ call mma_deallocate(initial_occ,safe='*')
 
 call Setup_RASSCF()
 
+if (DOFARO .and.  NSYM > 1) then
+  write(u6,'(1X,A)') 'FARO keyword was used, but NSYM > 1,'
+  write(u6,'(1X,A)') 'switching to LUCIA as the CI backend.'
+  DOFARO = .false.
+endif
 ! ======================================================================
 
 if (.not. SkipGUGA) then
   call StatusLine('RASSCF: ','Initializing Lucia/SGUGA/Faroald')
-
-  ! Initiate the SGUGA environment conditional to all flags
-  If (.Not. iDoGAS) Then
-      write(u6,'(1X,A)') '**EXPERIMENTAL**'
-      write(u6,'(1X,A)') 'CI backend is SGUGA instead of LUCIA.'
-      write(u6,'(1X,A)') '**EXPERIMENTAL**'
-     call SG_Setup_RASSCF()
-  End If
-
-  ! Construct the determinant tables
-
-  ! Initialize LUCIA and determinant control
-  call Lucia_Util('Ini')
-
-  ! to get number of CSFs for GAS
-  ! and number of determinants to store
-  nconf = sum(ncsasm(1:mxsym))
-  nDet = sum(ndtasm(1:mxsym))
 
   ! Turn on the Faroald SD CI code in case of
   ! 1) no symmetry
@@ -4074,20 +4060,7 @@ if (.not. SkipGUGA) then
       (IFVB == 0)) &
     DoFaro = .true.
 
-  ! faroald initializations
-  if (DOFARO) then
-    if (NSYM > 1) then
-      write(u6,'(1X,A)') 'FARO keyword was used, but NSYM > 1,'
-      write(u6,'(1X,A)') 'switching to LUCIA as the CI backend.'
-      DOFARO = .false.
-    else
-      write(u6,'(1X,A)') '**EXPERIMENTAL**'
-      write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
-      write(u6,'(1X,A)') '**EXPERIMENTAL**'
-      call FAROALD_INIT(NACTEL,NASH(1),ISPIN)
-      call CITRANS_INIT(NACTEL,NASH(1),ISPIN)
-    end if
-  end if
+    Call CI_Initilaize(.NOT. iDoGAS,DOFARO)
 
   ISCF = 0
   if ((ISPIN == NAC+1) .and. (NACTEL == NAC)) ISCF = 1
@@ -4150,5 +4123,43 @@ subroutine Error(code)
   if (DBG) write(u6,*) ' Abnormal exit from PROC_INP.'
 
 end subroutine Error
+
+subroutine CI_Initilaize(DO_SGUGA,DO_FAROALD)
+use Lucia_Interface, only: Lucia_Util
+use general_data, only: nConf, nActEl, nAsh
+use Molcas, only: MxSym
+use spinfo, only: nDet, ncsasm, ndtasm
+use definitions, only: iwp
+
+implicit none
+logical(kind=iwp), intent(in) :: DO_SGUGA,DO_FAROALD
+
+! Construct the determinant tables
+! Initialize LUCIA and determinant control
+call Lucia_Util('Ini')
+
+! to get number of CSFs for GAS
+! and number of determinants to store
+nconf = sum(ncsasm(1:mxsym))
+nDet = sum(ndtasm(1:mxsym))
+
+! Initiate the SGUGA environment conditional to all flags
+If (Do_SGUGA) Then
+    write(u6,'(1X,A)') '**EXPERIMENTAL**'
+    write(u6,'(1X,A)') 'CI backend is SGUGA instead of LUCIA.'
+    write(u6,'(1X,A)') '**EXPERIMENTAL**'
+   call SG_Setup_RASSCF()
+End If
+
+! faroald initializations
+if (DO_FAROALD) then
+  write(u6,'(1X,A)') '**EXPERIMENTAL**'
+  write(u6,'(1X,A)') 'CI backend is FAROALD instead of LUCIA.'
+  write(u6,'(1X,A)') '**EXPERIMENTAL**'
+  call FAROALD_INIT(NACTEL,NASH(1),ISPIN)
+  call CITRANS_INIT(NACTEL,NASH(1),ISPIN)
+end if
+
+End subroutine CI_Initilaize
 
 end subroutine proc_inp
