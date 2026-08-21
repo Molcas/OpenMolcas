@@ -17,7 +17,7 @@ module Spinfo
 !
 ! stuff from ciinfo.fh
 !
-! ICOMBI, NDET, NDTASM, NCSASM, NCNASM
+! ICOMBI, NDTASM, NCSASM, NCNASM
 !
 ! stuff from lucia_ini.fh
 !
@@ -39,11 +39,11 @@ integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 integer(kind=iwp) :: I2ELIMINATED_IN_GAS(MxGAS), I_ELIMINATE_GAS, IELIMINATED_IN_GAS(MxGAS), &
                      iSpeed(nSpeed), MINOP, N_2ELIMINATED_GAS, &
                      N_ELIMINATED_GAS, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, &
-                     NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), NTYP
+                     NCSFTP(MXTYP), NDTASM(mxSym), NDTFTP(MXTYP), NTYP
 logical(kind=iwp) :: DoComb
 
 public :: DoComb, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, iSpeed, MINOP, &
           N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCNASM, NCNFTP, NCSASM, nCSF_HEXS, &
-          NCSFTP, NDET, NDTASM, NDTFTP, NTYP
+          NCSFTP, NDTASM, NDTFTP, NTYP
 
 end module Spinfo

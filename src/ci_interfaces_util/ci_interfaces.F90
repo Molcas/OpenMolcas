@@ -419,9 +419,9 @@ end subroutine CI_Timer
 
 subroutine CI_Initialize(DO_SGUGA,DO_FAROALD)
 use Lucia_Interface, only: Lucia_Util
-use general_data, only: nConf, nActEl, nAsh
+use general_data, only: nConf, nDet, nActEl, nAsh
 use Molcas, only: MxSym
-use spinfo, only: nDet, ncsasm, ndtasm
+use spinfo, only: ncsasm, ndtasm
 use definitions, only: iwp
 
 implicit none
@@ -433,8 +433,8 @@ call Lucia_Util('Ini')
 
 ! to get number of CSFs for GAS
 ! and number of determinants to store
-nconf = sum(ncsasm(1:mxsym))
-nDet = sum(ndtasm(1:mxsym))
+nconf = MaxVal(ncsasm(1:mxsym))
+nDet = MaxVal(ndtasm(1:mxsym))
 
 ! Initiate the SGUGA environment conditional to all flags
 If (Do_SGUGA) Then

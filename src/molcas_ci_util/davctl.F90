@@ -51,8 +51,8 @@ subroutine DavCtl(nFMO,FMO,nTUVX,TUVX,IFINAL)
 use rasscf_global, only: Conv, Emy, Ener, hRoots, IADR15, ICICH, iCIOnly, Iter, ITERCI, kTight, lRoots, MAXJT, n_Keep, NAC, &
                          ThFact, ThrEn
 use rasscf_files, only: JOBIPH, LUDAVID
-use general_data, only: NCONF, NSEL, STSYM
-use spinfo, only: N_ELIMINATED_GAS, NCSF_HEXS, NDET
+use general_data, only: NCONF, NDET, NSEL, STSYM
+use spinfo, only: N_ELIMINATED_GAS, NCSF_HEXS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp

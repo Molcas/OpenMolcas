@@ -42,9 +42,8 @@ subroutine cre_raswfn()
   use general_data, only: iDoGAS, NGAS, NGSSH
   use input_ras, only: Key
   use general_data, only: ISPIN, NACTEL, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, NTOT, &
-                          NTOT2, STSYM
+                          NTOT2, STSYM, NDET
   use sguga, only: SGS
-  use spinfo, only: NDET
   use Molcas, only: MxAct, MxSym
   use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT
 # ifdef _DMRG_

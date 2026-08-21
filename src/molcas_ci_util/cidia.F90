@@ -25,7 +25,8 @@ use lucia_data, only: SDREO
 use Lucia_Interface, only: Lucia_Util
 use output_ras, only: IPRLOC
 use PrintLevel, only: DEBUG, INSANE
-use spinfo, only: NCNFTP, NCSFTP, NDET, NDTFTP, NTYP
+use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
+use general_data, only: NDET
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

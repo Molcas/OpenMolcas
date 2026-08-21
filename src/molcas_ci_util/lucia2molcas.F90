@@ -14,8 +14,8 @@ subroutine LUCIA2MOLCAS(NDET_LUCIA,NCSASM_LUCIA,NDTASM_LUCIA,NCNASM_LUCIA,MXPCSM
 ! Transfer arguments to the common blocks used by MOLCAS.
 
 use csfbas, only: maxop_lucia, NAEL, NBEL
-use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, STSYM, ISPIN
-use spinfo, only: I_ELIMINATE_GAS, MINOP, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
+use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, STSYM, ISPIN, NDET
+use spinfo, only: I_ELIMINATE_GAS, MINOP, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDTASM, NDTFTP, NTYP
 use Molcas, only: MxSym
 use Definitions, only: iwp
 
