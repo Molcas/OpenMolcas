@@ -14,6 +14,7 @@
 #include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
 
+!#define _STRIPED_MEMTEST_
 subroutine RHSALL2_STRIPED(IVEC)
 
 ! Striped construction of the CASPT2 right-hand side, selected with PRHS = 4 or STRIPED (iParRHS = 4).
@@ -54,10 +55,6 @@ real(kind=wp), allocatable :: BRA(:), CHOAA(:), KET(:), TUVX(:)
 ! the buffers are not used here, fixed to 1
 integer(kind=iwp), parameter :: NADDBUF = 1
 integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
-
-  ! for test: MOLCAS_RHSTIER, see where ITIER is selected
-! integer(kind=iwp) :: ISTAT, ITIERF
-! character(len=8) :: TIERSTR
 
 !                                                                      *
 !***********************************************************************
@@ -106,12 +103,10 @@ else
 end if
 call GAIGOP_SCAL(ITIER,'max')
 
-  ! for test: force a higher tier than the one selected
-! call get_environment_variable('MOLCAS_RHSTIER',TIERSTR,STATUS=ISTAT)
-! if (ISTAT == 0) then
-!   read(TIERSTR,*,IOSTAT=ISTAT) ITIERF
-!   if ((ISTAT == 0) .and. (ITIERF > ITIER) .and. (ITIERF <= 3)) ITIER = ITIERF
-! end if
+#ifdef _STRIPED_MEMTEST_
+! for test: force a higher tier (2 = one symmetry at a time, 3 = replicated fallback)
+ITIER = max(ITIER,2)
+#endif
 
 if (IPRGLB > VERBOSE) then
   write(u6,*)
@@ -145,6 +140,7 @@ if (ITIER == 3) then
     write(u6,'(2X,A8,2X,I14)') 'MINREQ  ',MINREQ
   end if
   if (IPRGLB >= USUAL) write(u6,*)
+  ! the fallback is permanent: later calls take the replicated branch in EQCTL2 directly
   iParRHS = 2
   call RHS_ZERO(IVEC)
   call RHSALL2(IVEC)
@@ -421,6 +417,7 @@ call RHSLOC_FREE()
 call MODRHS(IVEC,FIMO,size(FIMO))
 
 ! Put TUVX on disk for possible later use:
+! TUVX in the replicated path (PRHS = 1/2) is incomplete (need GADGOP), whereas the TUVX here is complete
 call PT2_PUT(NTUVX,'TUVX',TUVX)
 call mma_deallocate(TUVX)
 !                                                                      *
@@ -606,15 +603,11 @@ end subroutine STRIPED_SIZES
 
 subroutine MEMORY_ESTIMATE_STRIPED()
 
-  integer(kind=iwp) :: IB, IBGRP, IBRANCH, MAXPIQK, MINGOOD, MINNICE, MINPIQK, MINSLOW, MXBATCH, MXCHOVEC, MXRHS, MXVLOC, NAABUF, &
+  integer(kind=iwp) :: IB, IBGRP, MAXPIQK, MINGOOD, MINNICE, MINPIQK, MINSLOW, MXBATCH, MXCHOVEC, MXRHS, MXVLOC, NAABUF, &
                        NAAPI, NCHOVEC, NCHUNK, NPIBRA, NPIGAT, NPIKET, NPIKTR, NPIPCK, NPIPER, NPITRA, NPIXTR, NV, NVECTOT, &
                        NVGRP, NXTRA
 
   integer(kind=iwp), allocatable :: NVEFF(:)
-
-  ! for test: MOLCAS_RHSBRANCH, see where IBRANCH is set
-! integer(kind=iwp) :: ISTAT
-! character(len=8) :: BRSTR
 
   ! Striped counterpart of MEMORY_ESTIMATE
 
@@ -654,15 +647,10 @@ subroutine MEMORY_ESTIMATE_STRIPED()
   ! MINSLOW can exceed MINGOOD when there is only one batch, clamp it
   MINSLOW = min(MXRHS+MINPIQK+2*NADDBUF+(NPIPER+NPIXTR)*MXBATCH+NPIKTR,MINGOOD)
 
-  IBRANCH = 0
-  ! for test: force the convenient (2) or the minimum (3) branch
-! call get_environment_variable('MOLCAS_RHSBRANCH',BRSTR,STATUS=ISTAT)
-! if (ISTAT == 0) then
-!   read(BRSTR,*,IOSTAT=ISTAT) IBRANCH
-!   if (ISTAT /= 0) IBRANCH = 0
-!   if (IBRANCH == 2) MXAVAIL = min(MXAVAIL,MINGOOD)
-!   if (IBRANCH == 3) MXAVAIL = min(MXAVAIL,MINSLOW)
-! end if
+# ifdef _STRIPED_MEMTEST_
+  ! for test: force the minimum branch (MINGOOD selects the convenient one)
+  MXAVAIL = min(MXAVAIL,MINSLOW)
+# endif
 
   if (IPRGLB > VERBOSE) then
     write(u6,*)
@@ -672,10 +660,10 @@ subroutine MEMORY_ESTIMATE_STRIPED()
     write(u6,'(A,2X,I16)') '   convenient:     ',MINGOOD
     write(u6,'(A,2X,I16)') '   minimum:        ',MINSLOW
     write(u6,*)
-    if ((MXAVAIL >= MINNICE) .and. (IBRANCH == 0)) then
+    if (MXAVAIL >= MINNICE) then
       write(u6,*) ' I can use all cholesky vectors at once'
       write(u6,*) ' as well as the whole integral matrix.'
-    else if ((MXAVAIL >= MINGOOD) .and. (IBRANCH /= 3)) then
+    else if (MXAVAIL >= MINGOOD) then
       write(u6,*) ' I will group batches of cholesky vectors'
       write(u6,*) ' and then maximize use of the integral matrix.'
     else if (MXAVAIL >= MINSLOW) then
@@ -686,14 +674,14 @@ subroutine MEMORY_ESTIMATE_STRIPED()
   end if
 
   NVGRP = 0
-  if ((MXAVAIL >= MINNICE) .and. (IBRANCH == 0)) then
+  if (MXAVAIL >= MINNICE) then
     ! group all batches and take the maximum needed for integrals
     NVGRP = NVECTOT
     NBGRP = 1
     BGRP(1,1) = IB1
     BGRP(2,1) = IB2
     MXPIQK = MAXPIQK
-  else if ((MXAVAIL >= MINGOOD) .and. (IBRANCH /= 3)) then
+  else if (MXAVAIL >= MINGOOD) then
     ! group all batches and try to max out the integrals, keeping them larger than the minimum
     NVGRP = NVECTOT
     NBGRP = 1

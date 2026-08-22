@@ -24,7 +24,6 @@ module ADDRHS_STRIPED
 
 #include "macros.fh"
 
-use Para_Info, only: Is_Real_Par, MyRank, nProcs
 use Constants, only: Zero, One, Two, Three, Half, OneHalf
 use Definitions, only: wp, iwp, u6
 
@@ -81,7 +80,7 @@ subroutine RHSLOC_SIZES(NALL,NGRP,NSYM1)
 
   integer(kind=iwp), intent(out) :: NALL, NGRP, NSYM1
 
-  integer(kind=iwp) :: ICASE, IGRP, IPAIR, ISYM, JHI, JLO, NAS, NBLK, NIS
+  integer(kind=iwp) :: ICASE, IGRP, IHI, ILO, IPAIR, ISYM, JHI, JLO, NAS, NBLK, NIS
 
   ! Sizes of the local RHS:
   !   NALL for all blocks at once
@@ -100,10 +99,11 @@ subroutine RHSLOC_SIZES(NALL,NGRP,NSYM1)
       NAS = NASUP(ISYM,ICASE)
       NIS = NISUP(ISYM,ICASE)
       if (NAS*NIS == 0) cycle
-      call RHSLOC_STRIPE(NIS,JLO,JHI)
+      ! the same column distribution the RHS global arrays get, from GA_CREATE_STRIPED
+      call RHS_DISTRIBUTION(NAS,NIS,ILO,IHI,JLO,JHI)
+      if (JHI < JLO) cycle ! this process owns no column of this block, leave the 1:0 set above
       jLoRHSLoc(ISYM,ICASE) = JLO
       jHiRHSLoc(ISYM,ICASE) = JHI
-      if (JHI < JLO) cycle
       nRHSLocSz(ISYM,ICASE) = NAS*(JHI-JLO+1)
       NALL = NALL+nRHSLocSz(ISYM,ICASE)
     end do
@@ -130,36 +130,6 @@ subroutine RHSLOC_SIZES(NALL,NGRP,NSYM1)
 
 end subroutine RHSLOC_SIZES
 
-!-----------------------------------------------------------------------
-
-subroutine RHSLOC_STRIPE(NIS,JLO,JHI)
-
-  integer(kind=iwp), intent(in) :: NIS
-  integer(kind=iwp), intent(out) :: JLO, JHI
-
-  integer(kind=iwp) :: NBASE, NBLOCK, NREST
-
-  ! Column range of an RHS array that belongs to this process.
-  ! Must stay consistent with GA_CREATE_STRIPED.
-
-  if (Is_Real_Par()) then
-    NBLOCK = min(NIS,nProcs)
-    if (MyRank >= NBLOCK) then
-      JLO = 1
-      JHI = 0
-    else
-      NBASE = NIS/nProcs
-      NREST = mod(NIS,nProcs)
-      JLO = 1+MyRank*NBASE+min(MyRank,NREST)
-      JHI = JLO+NBASE-1
-      if (MyRank < NREST) JHI = JHI+1
-    end if
-  else
-    JLO = 1
-    JHI = NIS
-  end if
-
-end subroutine RHSLOC_STRIPE
 
 !-----------------------------------------------------------------------
 
@@ -1198,7 +1168,7 @@ subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX, &
   ! the largest (a-block width) x (c columns) whose two integral blocks fit
   ! the scratch; the diagonal kernel splits it between the two dimensions
   NACMX = NSCR/(NU*NX+NU*NX)
-  if (NACMX < 1) then
+  if ((NACMX < 1) .and. (ISYU == ISYX)) then
     write(u6,*) 'Not enough memory in ADDRHSF_STRIPED, I give up'
     call Abend()
   end if
@@ -1245,9 +1215,9 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
   real(kind=wp), intent(out), target :: SCR(NSCR)
   real(kind=wp), intent(in) :: CHOBT(NU*NA,NCHO), CHOKT(NX*NA,NCHO)
 
-  integer(kind=iwp) :: IA, IAABS, IAEND, IAL, IASTA, IC, ICBHI, ICBLO, ICEND, ICHI, ICHIM, ICHIMA(NA), ICHIP, ICHIPA(NA), ICL, &
-                       ICLO, ICLOM, ICLOMA(NA), ICLOP, ICLOPA(NA), ICOLM, ICOLP, ICSTA, IRBASM, IRBASP, IX, IXABS, IY1, IY2, &
-                       JBASM, JBASMA(NA), JBASP, JBASPA(NA), NAMX, NASZ, NCMX, NCSZ
+  integer(kind=iwp) :: IA, IAABS, IAEND, IAL, IASTA, IC, ICBHI, ICBLO, ICEND, ICHI, ICHIM, ICHIMA(NAMXCAP), ICHIP, &
+                       ICHIPA(NAMXCAP), ICL, ICLO, ICLOM, ICLOMA(NAMXCAP), ICLOP, ICLOPA(NAMXCAP), ICOLM, ICOLP, ICSTA, IRBASM, &
+                       IRBASP, IX, IXABS, IY1, IY2, JBASM, JBASMA(NAMXCAP), JBASP, JBASPA(NAMXCAP), NAMX, NASZ, NCMX, NCSZ
 
   real(kind=wp), pointer, contiguous :: Y1(:,:,:,:) ! the (au,cx) block of this batch, as (u,a,x,c)
   real(kind=wp), pointer, contiguous :: Y2(:,:,:,:) ! the (cu,ax) block of this batch, as (u,c,x,a)
@@ -1298,12 +1268,13 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
           ICBHI = max(ICBHI,ICHIM)
         end if
       end if
-      JBASPA(IA) = JBASP
-      JBASMA(IA) = JBASM
-      ICLOPA(IA) = ICLOP
-      ICHIPA(IA) = ICHIP
-      ICLOMA(IA) = ICLOM
-      ICHIMA(IA) = ICHIM
+      IAL = IA-IASTA+1
+      JBASPA(IAL) = JBASP
+      JBASMA(IAL) = JBASM
+      ICLOPA(IAL) = ICLOP
+      ICHIPA(IAL) = ICHIP
+      ICLOMA(IAL) = ICLOM
+      ICHIMA(IAL) = ICHIM
     end do
     if (ICBHI < ICBLO) cycle
 
@@ -1323,10 +1294,11 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
       Y2(1:NU,1:NCSZ,1:NX,1:NASZ) => SCR(IY2:IY2+NU*NCSZ*NX*NASZ-1)
 
       do IA=IASTA,IAEND
-        ICLOP = max(ICLOPA(IA),ICSTA)
-        ICHIP = min(ICHIPA(IA),ICEND)
-        ICLOM = max(ICLOMA(IA),ICSTA)
-        ICHIM = min(ICHIMA(IA),ICEND)
+        IAL = IA-IASTA+1
+        ICLOP = max(ICLOPA(IAL),ICSTA)
+        ICHIP = min(ICHIPA(IAL),ICEND)
+        ICLOM = max(ICLOMA(IAL),ICSTA)
+        ICHIM = min(ICHIMA(IAL),ICEND)
         if ((ICHIP < ICLOP) .and. (ICHIM < ICLOM)) cycle
         ! ICLO:ICHI: union of the c ranges the two combinations need
         if (ICHIP < ICLOP) then
@@ -1339,9 +1311,8 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
           ICLO = min(ICLOP,ICLOM)
           ICHI = max(ICHIP,ICHIM)
         end if
-        JBASP = JBASPA(IA)
-        JBASM = JBASMA(IA)
-        IAL = IA-IASTA+1
+        JBASP = JBASPA(IAL)
+        JBASM = JBASMA(IAL)
 
         do IC=ICLO,ICHI
           ICL = IC-ICSTA+1
@@ -1572,7 +1543,7 @@ subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL, &
   ! the largest (a-block width) x (c columns) whose two integral blocks fit
   ! the scratch; the diagonal kernel splits it between the two dimensions
   NACMX = NSCR/(2*NU*NL)
-  if (NACMX < 1) then
+  if ((NACMX < 1) .and. (ISYU == ISYL)) then
     write(u6,*) 'Not enough memory in ADDRHSG_STRIPED, I give up'
     call Abend()
   end if
@@ -1615,9 +1586,9 @@ subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
   real(kind=wp), intent(out), target :: SCR(NSCR)
   real(kind=wp), intent(in) :: CHOBT(NU*NA,NCHO), CHOKT(NL*NA,NCHO)
 
-  integer(kind=iwp) :: IA, IAABS, IAEND, IAL, IASTA, IC, ICBHI, ICBLO, ICEND, ICHI, ICHIM, ICHIMA(NA), ICHIP, ICHIPA(NA), ICL, &
-                       ICLO, ICLOM, ICLOMA(NA), ICLOP, ICLOPA(NA), ICOL, ICSTA, IL, IOFFM, IOFFP, ISAB, ISI, IY1, IY2, JBASM, &
-                       JBASMA(NA), JBASP, JBASPA(NA), JCOLHI, JCOLLO, NAMX, NASZ, NCMX, NCSZ
+  integer(kind=iwp) :: IA, IAABS, IAEND, IAL, IASTA, IC, ICBHI, ICBLO, ICEND, ICHI, ICHIM, ICHIMA(NAMXCAP), ICHIP, &
+                       ICHIPA(NAMXCAP), ICL, ICLO, ICLOM, ICLOMA(NAMXCAP), ICLOP, ICLOPA(NAMXCAP), ICOL, ICSTA, IL, IOFFM, IOFFP, &
+                       ISAB, ISI, IY1, IY2, JBASM, JBASMA(NAMXCAP), JBASP, JBASPA(NAMXCAP), JCOLHI, JCOLLO, NAMX, NASZ, NCMX, NCSZ
 
   real(kind=wp), pointer, contiguous :: Y1(:,:,:,:) ! the (au,cl) block of this batch, as (u,a,l,c)
   real(kind=wp), pointer, contiguous :: Y2(:,:,:,:) ! the (cu,al) block of this batch, as (u,c,l,a)
@@ -1692,12 +1663,13 @@ subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
         ICLOM = 1
         ICHIM = 0
       end if
-      JBASPA(IA) = JBASP
-      JBASMA(IA) = JBASM
-      ICLOPA(IA) = ICLOP
-      ICHIPA(IA) = ICHIP
-      ICLOMA(IA) = ICLOM
-      ICHIMA(IA) = ICHIM
+      IAL = IA-IASTA+1
+      JBASPA(IAL) = JBASP
+      JBASMA(IAL) = JBASM
+      ICLOPA(IAL) = ICLOP
+      ICHIPA(IAL) = ICHIP
+      ICLOMA(IAL) = ICLOM
+      ICHIMA(IAL) = ICHIM
     end do
     if (ICBHI < ICBLO) cycle
 
@@ -1710,17 +1682,18 @@ subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
       IY2 = 1+NU*NASZ*NL*NCSZ
       call DGEMM_('N','T',NU*NASZ,NL*NCSZ,NCHO,One,CHOBT(1+NU*(IASTA-1),1),NU*NA,CHOKT(1+NL*(ICSTA-1),1),NL*NA, &
                   Zero,SCR(IY1),NU*NASZ)
-      call DGEMM_('N','T',NU*NCSZ,NL*NASZ,NCHO,One,CHOBT(1+NU*(ICSTA-1),1),NU*NA,CHOKT(1+NL*(IASTA-1),1),NL*NA,
+      call DGEMM_('N','T',NU*NCSZ,NL*NASZ,NCHO,One,CHOBT(1+NU*(ICSTA-1),1),NU*NA,CHOKT(1+NL*(IASTA-1),1),NL*NA, &
                   Zero,SCR(IY2),NU*NCSZ)
 
       Y1(1:NU,1:NASZ,1:NL,1:NCSZ) => SCR(IY1:IY1+NU*NASZ*NL*NCSZ-1)
       Y2(1:NU,1:NCSZ,1:NL,1:NASZ) => SCR(IY2:IY2+NU*NCSZ*NL*NASZ-1)
 
       do IA=IASTA,IAEND
-        ICLOP = max(ICLOPA(IA),ICSTA)
-        ICHIP = min(ICHIPA(IA),ICEND)
-        ICLOM = max(ICLOMA(IA),ICSTA)
-        ICHIM = min(ICHIMA(IA),ICEND)
+        IAL = IA-IASTA+1
+        ICLOP = max(ICLOPA(IAL),ICSTA)
+        ICHIP = min(ICHIPA(IAL),ICEND)
+        ICLOM = max(ICLOMA(IAL),ICSTA)
+        ICHIM = min(ICHIMA(IAL),ICEND)
         if ((ICHIP < ICLOP) .and. (ICHIM < ICLOM)) cycle
         ! ICLO:ICHI: union of the c ranges the two combinations need
         if (ICHIP < ICLOP) then
@@ -1733,9 +1706,8 @@ subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
           ICLO = min(ICLOP,ICLOM)
           ICHI = max(ICHIP,ICHIM)
         end if
-        JBASP = JBASPA(IA)
-        JBASM = JBASMA(IA)
-        IAL = IA-IASTA+1
+        JBASP = JBASPA(IAL)
+        JBASM = JBASMA(IAL)
 
         do IC=ICLO,ICHI
           ICL = IC-ICSTA+1
