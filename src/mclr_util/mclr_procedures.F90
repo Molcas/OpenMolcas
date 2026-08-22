@@ -20,10 +20,10 @@ public :: CISigma, CISigma_sa, CISigma_td, RdJobIph, RdJobIph_td
 contains
 
 #define _IN_MODULE_
-#include "cisigma.F90"
-#include "cisigma_sa.F90"
-#include "cisigma_td.F90"
-#include "rdjobiph.F90"
-#include "rdjobiph_td.F90"
+#include "../mclr/cisigma.F90"
+#include "../mclr/cisigma_sa.F90"
+#include "../mclr/cisigma_td.F90"
+#include "../mclr/rdjobiph.F90"
+#include "../mclr/rdjobiph_td.F90"
 
 end module MCLR_procedures
