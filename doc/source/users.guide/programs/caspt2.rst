@@ -1039,6 +1039,7 @@ Keywords
   (RHS; :math:`\langle I | \hat{H} | 0 \rangle`) vector in connection with Cholesky or RI.
   Default is 1 (OLD) for serial calculations and 2 (NEW) for parallel calculations using Global Arrays.
   ``PRHS = 3`` or ``DIRECT`` involves more computation but reduces data communication; this option is expected to be efficient for calculations using a large number of computer nodes.
+  ``PRHS = 4`` or ``STRIPED`` is an improved version of ``PRHS = 3``, gathering the Cholesky vectors in memory instead of replicating them on disk; it falls back to ``PRHS = 2`` when they do not fit.
   The default value is a sensible choice.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="PRHS" APPEAR="Parallel RHS construction" KIND="CHOICE" LIST="1,OLD,2,NEW,3,DIRECT,4,STRIPED" LEVEL="ADVANCED">
