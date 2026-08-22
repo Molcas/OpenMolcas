@@ -388,7 +388,7 @@ subroutine ADDRHSA_STRIPED(JSYM,ISYJ,ISYX,NT,NJ,NV,NX, &
   integer(kind=iwp) :: IJ, IJEND, IJSTA, IROFF, ISYM, ISYT, ISYV, JHI, JLO, LDY, MOFF, NAS, NIS, NJMX, NJSZ
 
   real(kind=wp), pointer, contiguous :: WBLK(:,:)   ! the local stripe of the block, as (row,column)
-  real(kind=wp), pointer, contiguous :: SCR3(:,:,:) ! the DGEMM output, viewed as (t,j,vx)
+  real(kind=wp), pointer, contiguous :: YBLK(:,:,:) ! the integral block of this batch, as (t,j,vx)
   real(kind=wp), pointer, contiguous :: WCOL(:,:)   ! one WBLK column's (t,vx) sub-block
 
   ! Case A: W(tvx,j) = (tj,vx)
@@ -419,13 +419,13 @@ subroutine ADDRHSA_STRIPED(JSYM,ISYJ,ISYX,NT,NJ,NV,NX, &
       NJSZ = IJEND-IJSTA+1
       LDY = NT*NJSZ
       call DGEMM_('N','T',LDY,NV*NX,NCHO,One,Cho_Bra(1+NT*(IJSTA-1),1),NT*NJ,Cho_Ket,NV*NX,Zero,SCR,LDY)
-      SCR3(1:NT,1:NJSZ,1:NV*NX) => SCR(1:LDY*NV*NX)
+      YBLK(1:NT,1:NJSZ,1:NV*NX) => SCR(1:LDY*NV*NX)
       do IJ=IJSTA,IJEND
         WCOL(1:NT,1:NV*NX) => WBLK(IROFF+1:IROFF+NT*NV*NX,IJ)
-        WCOL(1:NT,1:NV*NX) = WCOL(1:NT,1:NV*NX)+SCR3(1:NT,IJ-IJSTA+1,1:NV*NX)
+        WCOL(1:NT,1:NV*NX) = WCOL(1:NT,1:NV*NX)+YBLK(1:NT,IJ-IJSTA+1,1:NV*NX)
       end do
     end do
-    nullify(WBLK,SCR3,WCOL)
+    nullify(WBLK,YBLK,WCOL)
   end if
 
 end subroutine ADDRHSA_STRIPED
@@ -501,7 +501,7 @@ subroutine ADDRHSB_STRIPED_D(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISY
   integer(kind=iwp) :: ICOL, IJ, IJABS, IL, ILEND, ILHI, ILHIM, ILHIP, ILL, ILLO, ILLOM, ILLOP, ILSTA, IRBASM, IRBASP, IV, &
                        IVABS, JBASM, JBASP, LDY, NLSZ
 
-  real(kind=wp), pointer, contiguous :: Y(:,:,:) ! the integral block of this batch, as (v,l,t)
+  real(kind=wp), pointer, contiguous :: YBLK(:,:,:) ! the integral block of this batch, as (v,l,t)
 
   ! Case B, diagonal block.
   !   WP(t>=v,j>=l) = ((tj,vl)+(tl,vj))/SQRT((1+Kron(jl))*...), the Half/Quart weights of
@@ -544,12 +544,12 @@ subroutine ADDRHSB_STRIPED_D(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISY
       LDY = NT*NLSZ
       ! SCR((v,l),t) = sum_P Cho_Bra(v,l)^P Cho_Bra(t,j)^P = (tj,vl)
       call DGEMM_('N','T',LDY,NT,NCHO,One,Cho_Bra(1+NT*(ILSTA-1),1),NT*NJ,Cho_Bra(1+NT*(IJ-1),1),NT*NJ,Zero,SCR,LDY)
-      Y(1:NT,1:NLSZ,1:NT) => SCR(1:LDY*NT)
+      YBLK(1:NT,1:NLSZ,1:NT) => SCR(1:LDY*NT)
 
       do IL=ILSTA,ILEND
         ILL = IL-ILSTA+1
 
-        ! term1 = Y(v,l,t) = (tj,vl), term2 = Y(t,l,v) = (tl,vj); at t == v the two are the same element
+        ! term1 = YBLK(v,l,t) = (tj,vl), term2 = YBLK(t,l,v) = (tl,vj); at t == v the two are the same element
         ! plus combination
         if ((IL >= ILLOP) .and. (IL <= ILHIP)) then
           ICOL = JBASP+IL-1
@@ -558,13 +558,13 @@ subroutine ADDRHSB_STRIPED_D(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISY
             ! rows KTGEU(t,v) for t = v..NT are contiguous
             IRBASP = KTGEU(IVABS,IVABS)-NTGEUES(ISYM)
             if (IL == IJ) then
-              WBP(IRBASP,ICOL) = WBP(IRBASP,ICOL)+SQ2*Quart*Y(IV,ILL,IV)
+              WBP(IRBASP,ICOL) = WBP(IRBASP,ICOL)+SQ2*Quart*YBLK(IV,ILL,IV)
               if (IV < NT) WBP(IRBASP+1:IRBASP+NT-IV,ICOL) = WBP(IRBASP+1:IRBASP+NT-IV,ICOL) &
-                                                             +SQ2*Half*Y(IV,ILL,IV+1:NT)
+                                                             +SQ2*Half*YBLK(IV,ILL,IV+1:NT)
             else
-              WBP(IRBASP,ICOL) = WBP(IRBASP,ICOL)+Half*Y(IV,ILL,IV)
+              WBP(IRBASP,ICOL) = WBP(IRBASP,ICOL)+Half*YBLK(IV,ILL,IV)
               if (IV < NT) WBP(IRBASP+1:IRBASP+NT-IV,ICOL) = WBP(IRBASP+1:IRBASP+NT-IV,ICOL) &
-                                                             +Half*(Y(IV,ILL,IV+1:NT)+Y(IV+1:NT,ILL,IV))
+                                                             +Half*(YBLK(IV,ILL,IV+1:NT)+YBLK(IV+1:NT,ILL,IV))
             end if
           end do
         end if
@@ -577,14 +577,14 @@ subroutine ADDRHSB_STRIPED_D(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISY
             ! rows KTGTU(t,v) for t = v+1..NT are contiguous
             IRBASM = KTGTU(IVABS+1,IVABS)-NTGTUES(ISYM)
             WBM(IRBASM:IRBASM+NT-IV-1,ICOL) = WBM(IRBASM:IRBASM+NT-IV-1,ICOL) &
-                                              +Half*(Y(IV,ILL,IV+1:NT)-Y(IV+1:NT,ILL,IV))
+                                              +Half*(YBLK(IV,ILL,IV+1:NT)-YBLK(IV+1:NT,ILL,IV))
           end do
         end if
 
       end do
     end do
   end do
-  nullify(Y)
+  nullify(YBLK)
 
 end subroutine ADDRHSB_STRIPED_D
 
@@ -923,7 +923,7 @@ subroutine ADDRHSE_STRIPED_D(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJ
   integer(kind=iwp) :: IA, IAEND, IAHI, IAL, IALO, IASTA, ICOL, IJ, IJABS, IL, ILHI, ILHIM, ILHIP, ILLO, ILLOM, ILLOP, IOFFM, &
                        IOFFP, ISA, ISIJ, IY1, IY2, JBASM, JBASP, JCOLHI, JCOLLO, NASZ
 
-  real(kind=wp), pointer, contiguous :: Y1(:,:), Y2(:,:) ! the two integral blocks of this batch, as (v,a)
+  real(kind=wp), pointer, contiguous :: YBLK1(:,:), YBLK2(:,:) ! the two integral blocks of this batch, as (v,a)
 
   ! Case E, diagonal block.
   !   WP(v,a,j>=l) = ((aj,vl)+(al,vj))/SQRT(2+2*Kron(jl))
@@ -1001,12 +1001,12 @@ subroutine ADDRHSE_STRIPED_D(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJ
         NASZ = IAEND-IASTA+1
         IY1 = 1
         IY2 = 1+NV*NASZ
-        ! Y1(v,a) = (aj,vl), Y2(v,a) = (al,vj)
+        ! YBLK1(v,a) = (aj,vl), YBLK2(v,a) = (al,vj)
         call DGEMM_('N','T',NV,NASZ,NCHO,One,Cho_Ket(1+NV*(IL-1),1),NV*NJ,Cho_Bra(IASTA+NA*(IJ-1),1),NA*NJ,Zero,SCR(IY1),NV)
         if (IL /= IJ) call DGEMM_('N','T',NV,NASZ,NCHO,One,Cho_Ket(1+NV*(IJ-1),1),NV*NJ,Cho_Bra(IASTA+NA*(IL-1),1),NA*NJ, &
           Zero,SCR(IY2),NV)
-        Y1(1:NV,1:NASZ) => SCR(IY1:IY1+NV*NASZ-1)
-        Y2(1:NV,1:NASZ) => SCR(IY2:IY2+NV*NASZ-1) ! it is used only when IL /= IJ, but a compiler complains...
+        YBLK1(1:NV,1:NASZ) => SCR(IY1:IY1+NV*NASZ-1)
+        YBLK2(1:NV,1:NASZ) => SCR(IY2:IY2+NV*NASZ-1) ! it is used only when IL /= IJ, but a compiler complains...
         do IA=IASTA,IAEND
           IAL = IA-IASTA+1
           ! plus combination
@@ -1014,22 +1014,22 @@ subroutine ADDRHSE_STRIPED_D(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJ
             ICOL = IOFFP+NA*(JBASP+IL-2)+IA
             if ((ICOL >= JLOP) .and. (ICOL <= JHIP)) then
               if (IL == IJ) then
-                WEP(1:NV,ICOL) = WEP(1:NV,ICOL)+Y1(:,IAL)
+                WEP(1:NV,ICOL) = WEP(1:NV,ICOL)+YBLK1(:,IAL)
               else
-                WEP(1:NV,ICOL) = WEP(1:NV,ICOL)+SQH*(Y1(:,IAL)+Y2(:,IAL))
+                WEP(1:NV,ICOL) = WEP(1:NV,ICOL)+SQH*(YBLK1(:,IAL)+YBLK2(:,IAL))
               end if
             end if
           end if
           ! minus combination
           if ((IL /= IJ) .and. (IL >= ILLOM) .and. (IL <= ILHIM)) then
             ICOL = IOFFM+NA*(JBASM+IL-2)+IA
-            if ((ICOL >= JLOM) .and. (ICOL <= JHIM)) WEM(1:NV,ICOL) = WEM(1:NV,ICOL)+SQ32*(Y1(:,IAL)-Y2(:,IAL))
+            if ((ICOL >= JLOM) .and. (ICOL <= JHIM)) WEM(1:NV,ICOL) = WEM(1:NV,ICOL)+SQ32*(YBLK1(:,IAL)-YBLK2(:,IAL))
           end if
         end do
       end do
     end do
   end do
-  nullify(Y1,Y2)
+  nullify(YBLK1,YBLK2)
 
 end subroutine ADDRHSE_STRIPED_D
 
@@ -1219,8 +1219,8 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
                        ICHIPA(NAMXCAP), ICL, ICLO, ICLOM, ICLOMA(NAMXCAP), ICLOP, ICLOPA(NAMXCAP), ICOLM, ICOLP, ICSTA, IRBASM, &
                        IRBASP, IX, IXABS, IY1, IY2, JBASM, JBASMA(NAMXCAP), JBASP, JBASPA(NAMXCAP), NAMX, NASZ, NCMX, NCSZ
 
-  real(kind=wp), pointer, contiguous :: Y1(:,:,:,:) ! the (au,cx) block of this batch, as (u,a,x,c)
-  real(kind=wp), pointer, contiguous :: Y2(:,:,:,:) ! the (cu,ax) block of this batch, as (u,c,x,a)
+  real(kind=wp), pointer, contiguous :: YBLK1(:,:,:,:) ! the (au,cx) block of this batch, as (u,a,x,c)
+  real(kind=wp), pointer, contiguous :: YBLK2(:,:,:,:) ! the (cu,ax) block of this batch, as (u,c,x,a)
 
   ! Case F, diagonal block.
   !   WP(u>=x,a>=c) = ((au,cx)+(cu,ax))*(1-Kron(ux)/2)/2 * SQRT(1+Kron(ac))
@@ -1281,7 +1281,7 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
     do ICSTA=ICBLO,ICBHI,NCMX
       ICEND = min(ICSTA+NCMX-1,ICBHI)
       NCSZ = ICEND-ICSTA+1
-      ! SCR(1:) = Y1((u,a),(x,c)) = (au,cx); SCR(IY2:) = Y2((u,c),(x,a)) =
+      ! SCR(1:) = YBLK1((u,a),(x,c)) = (au,cx); SCR(IY2:) = YBLK2((u,c),(x,a)) =
       ! (cu,ax)
       IY1 = 1
       IY2 = 1+NU*NASZ*NX*NCSZ
@@ -1290,8 +1290,8 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
       call DGEMM_('N','T',NU*NCSZ,NX*NASZ,NCHO,One,CHOBT(1+NU*(ICSTA-1),1),NU*NA,CHOKT(1+NX*(IASTA-1),1),NX*NA, &
                   Zero,SCR(IY2),NU*NCSZ)
 
-      Y1(1:NU,1:NASZ,1:NX,1:NCSZ) => SCR(IY1:IY1+NU*NASZ*NX*NCSZ-1)
-      Y2(1:NU,1:NCSZ,1:NX,1:NASZ) => SCR(IY2:IY2+NU*NCSZ*NX*NASZ-1)
+      YBLK1(1:NU,1:NASZ,1:NX,1:NCSZ) => SCR(IY1:IY1+NU*NASZ*NX*NCSZ-1)
+      YBLK2(1:NU,1:NCSZ,1:NX,1:NASZ) => SCR(IY2:IY2+NU*NCSZ*NX*NASZ-1)
 
       do IA=IASTA,IAEND
         IAL = IA-IASTA+1
@@ -1328,13 +1328,13 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
             if ((IC >= ICLOP) .and. (IC <= ICHIP)) then
               if (IC == IA) then
                 ! only one contribution, with the extra SQRT(2)
-                WFP(IRBASP,ICOLP) = WFP(IRBASP,ICOLP)+SQ2*Quart*Y1(IX,IAL,IX,ICL)
+                WFP(IRBASP,ICOLP) = WFP(IRBASP,ICOLP)+SQ2*Quart*YBLK1(IX,IAL,IX,ICL)
                 if (IX < NU) WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) = WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) &
-                                                                +SQ2*Half*Y1(IX+1:NU,IAL,IX,ICL)
+                                                                +SQ2*Half*YBLK1(IX+1:NU,IAL,IX,ICL)
               else
-                WFP(IRBASP,ICOLP) = WFP(IRBASP,ICOLP)+Quart*(Y1(IX,IAL,IX,ICL)+Y2(IX,ICL,IX,IAL))
+                WFP(IRBASP,ICOLP) = WFP(IRBASP,ICOLP)+Quart*(YBLK1(IX,IAL,IX,ICL)+YBLK2(IX,ICL,IX,IAL))
                 if (IX < NU) WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) = WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) &
-                                                                +Half*(Y1(IX+1:NU,IAL,IX,ICL)+Y2(IX+1:NU,ICL,IX,IAL))
+                                                                +Half*(YBLK1(IX+1:NU,IAL,IX,ICL)+YBLK2(IX+1:NU,ICL,IX,IAL))
               end if
             end if
 
@@ -1343,14 +1343,14 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
               ! rows KTGTU(u,x) for u = x+1..NU are contiguous
               IRBASM = KTGTU(IXABS+1,IXABS)-NTGTUES(ISYM)
               WFM(IRBASM:IRBASM+NU-IX-1,ICOLM) = WFM(IRBASM:IRBASM+NU-IX-1,ICOLM) &
-                                                 +Half*(Y2(IX+1:NU,ICL,IX,IAL)-Y1(IX+1:NU,IAL,IX,ICL))
+                                                 +Half*(YBLK2(IX+1:NU,ICL,IX,IAL)-YBLK1(IX+1:NU,IAL,IX,ICL))
             end if
           end do
         end do
       end do
     end do
   end do
-  nullify(Y1,Y2)
+  nullify(YBLK1,YBLK2)
 
 end subroutine ADDRHSF_STRIPED_D
 
@@ -1590,8 +1590,8 @@ subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
                        ICHIPA(NAMXCAP), ICL, ICLO, ICLOM, ICLOMA(NAMXCAP), ICLOP, ICLOPA(NAMXCAP), ICOL, ICSTA, IL, IOFFM, IOFFP, &
                        ISAB, ISI, IY1, IY2, JBASM, JBASMA(NAMXCAP), JBASP, JBASPA(NAMXCAP), JCOLHI, JCOLLO, NAMX, NASZ, NCMX, NCSZ
 
-  real(kind=wp), pointer, contiguous :: Y1(:,:,:,:) ! the (au,cl) block of this batch, as (u,a,l,c)
-  real(kind=wp), pointer, contiguous :: Y2(:,:,:,:) ! the (cu,al) block of this batch, as (u,c,l,a)
+  real(kind=wp), pointer, contiguous :: YBLK1(:,:,:,:) ! the (au,cl) block of this batch, as (u,a,l,c)
+  real(kind=wp), pointer, contiguous :: YBLK2(:,:,:,:) ! the (cu,al) block of this batch, as (u,c,l,a)
 
   ! Case G, diagonal block.
   !   WP(u,l,a>=c) = ((au,cl)+(cu,al))/SQRT(2+2*Kron(ac))
@@ -1676,7 +1676,7 @@ subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
     do ICSTA=ICBLO,ICBHI,NCMX
       ICEND = min(ICSTA+NCMX-1,ICBHI)
       NCSZ = ICEND-ICSTA+1
-      ! SCR(1:) = Y1((u,a),(l,c)) = (au,cl); SCR(IY2:) = Y2((u,c),(l,a)) =
+      ! SCR(1:) = YBLK1((u,a),(l,c)) = (au,cl); SCR(IY2:) = YBLK2((u,c),(l,a)) =
       ! (cu,al)
       IY1 = 1
       IY2 = 1+NU*NASZ*NL*NCSZ
@@ -1685,8 +1685,8 @@ subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
       call DGEMM_('N','T',NU*NCSZ,NL*NASZ,NCHO,One,CHOBT(1+NU*(ICSTA-1),1),NU*NA,CHOKT(1+NL*(IASTA-1),1),NL*NA, &
                   Zero,SCR(IY2),NU*NCSZ)
 
-      Y1(1:NU,1:NASZ,1:NL,1:NCSZ) => SCR(IY1:IY1+NU*NASZ*NL*NCSZ-1)
-      Y2(1:NU,1:NCSZ,1:NL,1:NASZ) => SCR(IY2:IY2+NU*NCSZ*NL*NASZ-1)
+      YBLK1(1:NU,1:NASZ,1:NL,1:NCSZ) => SCR(IY1:IY1+NU*NASZ*NL*NCSZ-1)
+      YBLK2(1:NU,1:NCSZ,1:NL,1:NASZ) => SCR(IY2:IY2+NU*NCSZ*NL*NASZ-1)
 
       do IA=IASTA,IAEND
         IAL = IA-IASTA+1
@@ -1716,16 +1716,16 @@ subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
             ICOL = IOFFP+(JBASP+IC-2)*NL+IL
             if ((IC >= ICLOP) .and. (IC <= ICHIP) .and. (ICOL >= JLOP) .and. (ICOL <= JHIP)) then
               if (IC == IA) then
-                WGP(1:NU,ICOL) = WGP(1:NU,ICOL)+Y1(:,IAL,IL,ICL)
+                WGP(1:NU,ICOL) = WGP(1:NU,ICOL)+YBLK1(:,IAL,IL,ICL)
               else
-                WGP(1:NU,ICOL) = WGP(1:NU,ICOL)+SQH*(Y1(:,IAL,IL,ICL)+Y2(:,ICL,IL,IAL))
+                WGP(1:NU,ICOL) = WGP(1:NU,ICOL)+SQH*(YBLK1(:,IAL,IL,ICL)+YBLK2(:,ICL,IL,IAL))
               end if
             end if
             ! minus combination, a > c only
             if (IC < IA) then
               ICOL = IOFFM+(JBASM+IC-2)*NL+IL
               if ((IC >= ICLOM) .and. (IC <= ICHIM) .and. (ICOL >= JLOM) .and. (ICOL <= JHIM)) &
-                WGM(1:NU,ICOL) = WGM(1:NU,ICOL)+SQ32*(Y1(:,IAL,IL,ICL)-Y2(:,ICL,IL,IAL))
+                WGM(1:NU,ICOL) = WGM(1:NU,ICOL)+SQ32*(YBLK1(:,IAL,IL,ICL)-YBLK2(:,ICL,IL,IAL))
             end if
           end do
         end do
@@ -1733,7 +1733,7 @@ subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYA
 
     end do
   end do
-  nullify(Y1,Y2)
+  nullify(YBLK1,YBLK2)
 
 end subroutine ADDRHSG_STRIPED_D
 

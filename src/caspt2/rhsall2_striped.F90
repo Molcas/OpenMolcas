@@ -474,7 +474,7 @@ end subroutine TRANSPOSE_KET
 subroutine STRIPED_SIZES()
 
   integer(kind=iwp) :: ICASE, ISYI, ISYK, ISYP, ISYQ, JB1, JB2, JSY, MAXPIQK, MINPIQK, MXVLOC, NI, NK, NP, NPI, NPI_AV, NPI_IA, &
-                       NPI_IV, NPIKTR, NPIPCK, NPITRA, NPMAX, NPMIN, NQ, NQK
+                       NPI_IV, NPIKTR, NPIPCK, NPITRA, NPIQKMAX, NPIQKMIN, NQ, NQK
 
   integer(kind=iwp), allocatable :: NVEFF(:)
 
@@ -541,8 +541,8 @@ subroutine STRIPED_SIZES()
 
     ! Size needed to hold the integral matrix, at least the TUVX integrals (NASHT**4)
     ! The whole (pi,qk) block is never formed, the scratch holds one chunk of it
-    ! NPMAX: the size at which the outer loop needs no chunking
-    ! NPMIN: the smallest chunk that still works
+    ! NPIQKMAX: the size at which the outer loop needs no chunking
+    ! NPIQKMIN: the smallest chunk that still works
     MAXPIQK = NASHT**4
     MINPIQK = NASHT**4
     do ICASE=1,9
@@ -558,25 +558,25 @@ subroutine STRIPED_SIZES()
           NQK = NQ*NK
           select case (ICASE)
             case (1)                                 ! A: Y((t,j),(v,x))
-              NPMAX = NPI*NQK
-              NPMIN = NP*NQK
+              NPIQKMAX = NPI*NQK
+              NPIQKMIN = NP*NQK
             case (2,4)                               ! B, H: Y((.,l),.)
-              NPMAX = NP*NQK
-              NPMIN = NP*NQ
+              NPIQKMAX = NP*NQK
+              NPIQKMIN = NP*NQ
             case (3,5,7)                             ! D1, C, D2: one a/j
-              NPMAX = NI*NQK
-              NPMIN = NI*NQK
+              NPIQKMAX = NI*NQK
+              NPIQKMIN = NI*NQK
             case (6,8)                               ! F, G: two blocks
               ! either NP or NQ can be the un-batched one, depending on ISYA vs ISYC
-              NPMAX = max(2*NI*NK*NP,NI*NK*NQ)
-              NPMIN = max(2*NI*NK,NI*NK*NQ,NI*NK*NP)
+              NPIQKMAX = max(2*NI*NK*NP,NI*NK*NQ)
+              NPIQKMIN = max(2*NI*NK,NI*NK*NQ,NI*NK*NP)
             case default                             ! 9 = E: Y(v,a)
               ! the diagonal kernel takes one l at a time, the off-diagonal one the whole range
-              NPMAX = NP*max(2*NQ,NQ*NK)
-              NPMIN = max(2*NQ,NQ*NK)
+              NPIQKMAX = NP*max(2*NQ,NQ*NK)
+              NPIQKMIN = max(2*NQ,NQ*NK)
           end select
-          MAXPIQK = max(MAXPIQK,NPMAX)
-          MINPIQK = max(MINPIQK,NPMIN)
+          MAXPIQK = max(MAXPIQK,NPIQKMAX)
+          MINPIQK = max(MINPIQK,NPIQKMIN)
         end do
       end do
     end do
@@ -604,7 +604,7 @@ end subroutine STRIPED_SIZES
 subroutine MEMORY_ESTIMATE_STRIPED()
 
   integer(kind=iwp) :: IB, IBGRP, MAXPIQK, MINGOOD, MINNICE, MINPIQK, MINSLOW, MXBATCH, MXCHOVEC, MXRHS, MXVLOC, NAABUF, &
-                       NAAPI, NCHOVEC, NCHUNK, NPIBRA, NPIGAT, NPIKET, NPIKTR, NPIPCK, NPIPER, NPITRA, NPIXTR, NV, NVECTOT, &
+                       NAAPI, NCHOVEC, NCHUNK, NPIBRA, NPIGAT, NPIKET, NPIKTR, NPIPCK, NPIPER, NPITRA, NPIXTR, NVBATCH, NVECTOT, &
                        NVGRP, NXTRA
 
   integer(kind=iwp), allocatable :: NVEFF(:)
@@ -700,13 +700,13 @@ subroutine MEMORY_ESTIMATE_STRIPED()
     IBGRP = 1
     BGRP(1,IBGRP) = IB1
     do IB=IB1,IB2
-      NV = NVEFF(IB)
-      NCHOVEC = NCHOVEC+NV
+      NVBATCH = NVEFF(IB)
+      NCHOVEC = NCHOVEC+NVBATCH
       if (NCHOVEC > MXCHOVEC) then
         BGRP(2,IBGRP) = IB-1
         IBGRP = IBGRP+1
         BGRP(1,IBGRP) = IB
-        NCHOVEC = NV
+        NCHOVEC = NVBATCH
       end if
     end do
     BGRP(2,IBGRP) = IB2
