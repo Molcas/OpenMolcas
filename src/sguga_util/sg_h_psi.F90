@@ -46,8 +46,8 @@ real(kind=wp) :: CPQ
 
 ! SGUGA driven algorithm for H|Psi>, DGEMV version
 ! i>=j Symmetrize: E_ij + E_ji, k>=l Symmetrize E_kl + E_lj.
-Write (u6,*) 'SGUGA driven algorithm for H|Psi>, DGEMV version'
-Write (u6,*) 'i>=j Symmetrize: E_ij + E_ji, k>=l Symmetrize E_kl + E_lj.'
+!Write (u6,*) 'SGUGA driven algorithm for H|Psi>, DGEMV version'
+!Write (u6,*) 'i>=j Symmetrize: E_ij + E_ji, k>=l Symmetrize E_kl + E_lj.'
 
 Sigma(:)=Zero
 

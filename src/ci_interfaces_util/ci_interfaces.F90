@@ -494,9 +494,9 @@ call get_diag(DDIA,ndet)
 ! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
-If (DoFaro .and. nDet/=nConf) Then
-  Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
-  Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
+If (DoFaro) Then
+! Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
+! Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -528,7 +528,7 @@ If (DoFaro .and. nDet/=nConf) Then
   Call mma_allocate(Diag,nDetA*nDetB,Label='Diag')
   Diag(:)=Zero
   Call hdiag(htu,gtuvx,diag)
-  Call RecPrt('Diag(FAROALD)',' ',Diag,1,nDetA*nDetB)
+! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nDetA*nDetB)
   Call mma_deallocate(Diag)
 
 End If
