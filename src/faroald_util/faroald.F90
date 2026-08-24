@@ -55,6 +55,10 @@ integer(kind=iwp) :: npat
 integer(kind=iwp), allocatable :: occpat(:,:),  &    ! (my_norb,npat)
                                   ipat_of_det(:)
 integer(kind=iwp), allocatable :: ndoub(:), nsing(:)
+!
+! nspin_comb : raw alpha/beta assignments among open shells
+! ncomb      : Lucia-compatible counting of diagonal states
+!
 integer(kind=iwp), allocatable :: nspin_comb(:), nComb(:)
 
 public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
@@ -1361,6 +1365,8 @@ subroutine analyse_patterns()
 
   integer(kind=iwp) :: ipat, p
 
+  integer(kind=iwp), allocatable :: comb(:,:)
+
   call mma_allocate(ndoub,npat,label='NDoub')
   call mma_allocate(nsing,npat,label='NSing')
   call mma_allocate(nspin_comb,npat,label='NSpinComb')
@@ -1412,6 +1418,14 @@ subroutine analyse_patterns()
        end if
      end if
 
+#ifdef _DEBUGPRINT_
+if (nsing(ipat) > 0 .and. mult==1) then
+   call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
+   call spncom_faroald(nsing(ipat),0,nspin_comb(ipat),comb)
+   call mma_deallocate(comb)
+end if
+#endif
+
   end do
 #ifdef _DEBUGPRINT_
   write(u6,'(A,I10)') ' NSpin_Comb = ', sum(nSpin_comb(:))
@@ -1438,6 +1452,53 @@ use second_quantization, only: binom_coef
   end if
 
 end function spin_comb_count
+subroutine spncom_faroald(nopen,ms2,ncomb,comb)
+
+  integer(kind=iwp), intent(in) :: nopen, ms2
+  integer(kind=iwp), intent(in) :: ncomb
+  integer(kind=iwp), intent(out) ::  comb(nopen,ncomb)
+  integer(kind=iwp) :: i,j, add, nalpha, icomb
+  integer(kind=iwp) :: work(nopen)
+  integer(kind=iwp) :: mx
+
+  work(:) = 0
+  mx = 2**nopen
+  icomb = 0
+
+  do i=1,mx
+     if (i > 1) then
+        add = 1
+        j   = 0
+        do while (add == 1)
+           j = j + 1
+           if (work(j) == 1) then
+              work(j) = 0
+           else
+              work(j) = 1
+              add = 0
+           end if
+        end do
+     end if
+
+     nalpha = sum(work)
+
+     if (2*nalpha-nopen == ms2) then
+       if (mult /= 1 .or. work(1) == 1) then
+         icomb = icomb + 1
+         comb(:,icomb) = work(:)
+       end if
+     end if
+
+  end do
+  write(u6,*)
+  write(u6,*) 'SPNCOM_FAROALD'
+  write(u6,*)
+
+  do i=1,icomb
+     write(u6,'(I5,2X,30I2)') i, comb(:,i)
+  end do
+
+end subroutine spncom_faroald
 
 subroutine build_pattern_diagonal(h,g,diag)
 
@@ -1450,7 +1511,6 @@ subroutine build_pattern_diagonal(h,g,diag)
 
 
   do ipat=1,npat
-
      diag(ipat) = Zero
 
      !
@@ -1458,11 +1518,8 @@ subroutine build_pattern_diagonal(h,g,diag)
      !
 
      do p=1,my_norb
-
         np = occpat(p,ipat)
-
         diag(ipat) = diag(ipat) + real(np,wp)*h(p,p)
-
      end do
 
      !
@@ -1470,53 +1527,36 @@ subroutine build_pattern_diagonal(h,g,diag)
      !
 
      do p=1,my_norb-1
-
         np = occpat(p,ipat)
-
         if (np == 0) cycle
-
         do q=p+1,my_norb
-
            nq = occpat(q,ipat)
-
            if (nq == 0) cycle
-
            !
            ! Coulomb
            !
-
            diag(ipat) = diag(ipat) + real(np*nq,wp) * g(p,p,q,q)
-
            !
            ! Exchange
            !
-
            if (np == 2 .and. nq == 2) then
               exch = 2
            else
               exch = 1
            end if
-
            diag(ipat) = diag(ipat) - real(exch,wp) * g(p,q,q,p)
 
         end do
-
      end do
-
      !
      ! On-site double occupations
      !
 
      do p=1,my_norb
-
         if (occpat(p,ipat) == 2) then
-
            diag(ipat) = diag(ipat) + g(p,p,p,p)
-
         end if
-
      end do
-
   end do
 
 end subroutine build_pattern_diagonal
