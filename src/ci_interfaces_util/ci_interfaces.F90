@@ -476,7 +476,7 @@ subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
-use faroald, only: nPat, hdiag, ipat_of_det, build_pattern_diagonal, build_pattern_diagonal_approx, nComb
+use faroald, only: nPat, hdiag, ipat_of_det, build_pattern_diagonal, build_pattern_diagonal_approx, nComb, ncomb_tot
 use general_data, only: iSpin
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
@@ -498,7 +498,8 @@ call get_diag(DDIA,ndet)
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
 If (DoFaro) Then
-  If (nDet/=Sum(nComb(:))) Then
+! If (nDet/=Sum(nComb(:))) Then
+  If (nDet/=nComb_tot) Then
      Write (u6,*) 'Warning: nDet/=nComb'
      Write (u6,*) 'iSpin=',iSpin
      Write (u6,*) 'nConf=',nConf
