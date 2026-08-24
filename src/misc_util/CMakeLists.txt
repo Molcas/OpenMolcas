@@ -158,6 +158,7 @@ set (sources
 set (modfile_list
      getint_mod.F90
      index_functions.F90
+     mckdat.F90
      onedat.F90
      pack_mod.F90
      sorting.F90

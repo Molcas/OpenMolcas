@@ -102,11 +102,13 @@ set (modfile_list
      csfbas.F90
      dmrginfo.F90
      input_mclr.F90
+     mclr_data.F90
      output_ras.F90
      rasdim.F90
      rasscf_files.F90
      rasscf_global.F90
      rassi_data.F90
+     str_info.F90
      spinfo.F90
      timers.F90
      wadr.F90
