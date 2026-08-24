@@ -498,14 +498,13 @@ call get_diag(DDIA,ndet)
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
 If (DoFaro) Then
-! If (nDet/=Sum(nComb(:))) Then
   If (nDet/=nComb_tot) Then
      Write (u6,*) 'Warning: nDet/=nComb'
      Write (u6,*) 'iSpin=',iSpin
      Write (u6,*) 'nConf=',nConf
      Write (u6,*) 'nDet=',nDet
      Write (u6,*) 'nPat=',nPat
-     Write (u6,*) 'nComb=',Sum(nComb(:))
+     Write (u6,*) 'nComb_tot',nComb_tot
      Call Abend()
   End If
   Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
