@@ -17,7 +17,8 @@ use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: FANCY_PRECONDITIONER, ICISTR, ipCI, ipDia, NDPCNT, NOCSF, XISPSM
 use spinfo, only: NCNFTP, NCSFTP, NTYP
-use input_mclr, only: ERASSCF, nCSF, nRoots, PotNuc, rIn_Ene, State_Sym, Weight
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: ERASSCF, nCSF, nRoots, PotNuc, rIn_Ene, Weight
 use Constants, only: One
 use Definitions, only: wp, iwp
 
