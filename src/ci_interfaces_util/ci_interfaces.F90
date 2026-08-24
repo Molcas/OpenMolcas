@@ -15,7 +15,7 @@
 module CI_Interfaces
 use sguga, only: CIS, SGS, EXS, SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
-use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm, Hdiag
+use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
@@ -476,11 +476,13 @@ subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
+use faroald, only: nPat, hdiag, ipat_of_det, build_pattern_diagonal, build_pattern_diagonal_approx, nComb
+use general_data, only: iSpin
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(in):: CSFDIA(nConf), TU(nTU), TUVX(nTUVX)
 
-real(kind=wp), allocatable :: DDIA(:), DIAG(:)
+real(kind=wp), allocatable :: DDIA(:), DIAG(:), D1(:), D2(:)
 integer(kind=iwp):: IPRINT=0
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
@@ -496,8 +498,17 @@ call get_diag(DDIA,ndet)
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
 If (DoFaro) Then
-! Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
-! Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
+  If (nDet/=Sum(nComb(:))) Then
+     Write (u6,*) 'Warning: nDet/=nComb'
+     Write (u6,*) 'iSpin=',iSpin
+     Write (u6,*) 'nConf=',nConf
+     Write (u6,*) 'nDet=',nDet
+     Write (u6,*) 'nPat=',nPat
+     Write (u6,*) 'nComb=',Sum(nComb(:))
+     Call Abend()
+  End If
+  Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
+  Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -529,8 +540,20 @@ If (DoFaro) Then
   Call mma_allocate(Diag,nDetA*nDetB,Label='Diag')
   Diag(:)=Zero
   Call hdiag(htu,gtuvx,diag)
-! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nDetA*nDetB)
+  Call RecPrt('Diag(FAROALD)',' ',Diag,1,nDetA*nDetB)
   Call mma_deallocate(Diag)
+
+! Call mma_allocate(D1,nPat,Label='D1')
+! D1(:)=Zero
+! Call build_pattern_diagonal_Approx(htu,gtuvx,D1)
+! Call RecPrt('D1(FAROALD)',' ',D1,1,nPat)
+! Call mma_deallocate(D1)
+
+  Call mma_allocate(D2,nPat,Label='D2')
+  D2(:)=Zero
+  Call build_pattern_diagonal(htu,gtuvx,D2)
+  Call RecPrt('D2(FAROALD)',' ',D2,1,nPat)
+  Call mma_deallocate(D2)
 
 End If
 

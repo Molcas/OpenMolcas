@@ -55,10 +55,12 @@ integer(kind=iwp) :: npat
 integer(kind=iwp), allocatable :: occpat(:,:),  &    ! (my_norb,npat)
                                   ipat_of_det(:)
 integer(kind=iwp), allocatable :: ndoub(:), nsing(:)
+integer(kind=iwp), allocatable :: nspin_comb(:), nComb(:)
 
 public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
           my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, transition_two_pdm, &
-          two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing
+          two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing, build_pattern_diagonal, &
+          build_pattern_diagonal_approx, nSpin_Comb, nComb
 public :: npat, occpat, ipat_of_det
 
 ! Extensions to mma interfaces
@@ -1213,7 +1215,6 @@ subroutine verify_occ_patterns()
 
         end do
 
-        if (ia <= 3 .and. ib == 1) write(u6,'(A,20I2)') 'occ=',occ(:)
         !
         ! Consistency checks
         !
@@ -1345,6 +1346,9 @@ subroutine build_patterns()
 
   end do
 
+  do k = 1, nPat
+     write(u6,'(A,20I2)') 'occ=',occpat(:,k)
+  end do
   write(u6,'(A,I10)') ' NDet = ', my_ndet
   write(u6,'(A,I10)') ' NPat = ', npat
   write(u6,'(A,F12.4)') ' Compression = ', real(my_ndet,wp)/real(npat,wp)
@@ -1357,6 +1361,8 @@ subroutine analyse_patterns()
 
   call mma_allocate(ndoub,npat,label='NDoub')
   call mma_allocate(nsing,npat,label='NSing')
+  call mma_allocate(nspin_comb,npat,label='NSpinComb')
+  call mma_allocate(ncomb,npat,label='NComb')
 
   do ipat=1,npat
 
@@ -1387,9 +1393,47 @@ subroutine analyse_patterns()
         call Abend()
 
      end if
+!
+! Lucia uses spin combinations only for singlets (MS2 = 0).
+! For all other spins the code falls back to the ordinary
+! SD representation. Therefore nComb equals the number of
+! alpha/beta assignments among the open shells.
+!
+     nspin_comb(ipat) = spin_comb_count(nsing(ipat),mult-1)
+     if (mult /= 1) then
+       ncomb(ipat) = nspin_comb(ipat)
+     else
+       if (nsing(ipat) == 0) then
+         ncomb(ipat) = 1
+       else
+         ncomb(ipat) = nspin_comb(ipat)/2
+       end if
+     end if
 
   end do
+  write(u6,'(A,I10)') ' NSpin_Comb = ', sum(nSpin_comb(:))
+  write(u6,'(A,I10)') ' NComb = ', sum(nComb(:))
+
 end subroutine analyse_patterns
+
+integer(kind=iwp) function spin_comb_count(iopen,ms2)
+use second_quantization, only: binom_coef
+
+  integer(kind=iwp), intent(in) :: iopen, ms2
+  integer(kind=iwp) :: iael, ibel
+
+  iael = (iopen+ms2)/2
+  ibel = (iopen-ms2)/2
+
+  if (iael < 0 .or. ibel < 0) then
+     spin_comb_count = 0
+  else if (iael+ibel /= iopen) then
+     spin_comb_count = 0
+  else
+     spin_comb_count = binom_coef(iael,iopen)
+  end if
+
+end function spin_comb_count
 
 subroutine build_pattern_diagonal(h,g,diag)
 
