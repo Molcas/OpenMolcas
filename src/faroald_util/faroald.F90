@@ -45,6 +45,7 @@ integer(kind=iwp) :: max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs
 
 ! integral storage in Faroald format
 real(kind=wp), allocatable :: gtuvx(:,:,:,:), htu(:,:)
+
 #ifdef _PROF_
 integer(kind=int64) :: nflop
 #endif
@@ -53,12 +54,12 @@ integer(kind=iwp) :: npat
 
 integer(kind=iwp), allocatable :: occpat(:,:),  &    ! (my_norb,npat)
                                   ipat_of_det(:)
+integer(kind=iwp), allocatable :: ndoub(:), nsing(:)
 
 public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
           my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, transition_two_pdm, &
-          two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns
+          two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing
 public :: npat, occpat, ipat_of_det
-public :: build_patterns
 
 ! Extensions to mma interfaces
 
@@ -1048,16 +1049,14 @@ contains
 
 end subroutine hdiag
 
-subroutine pattern_diagonal(h,g,npat,occ,diag)
+subroutine build_pattern_diagonal_approx(h,g,diag)
+
+! Occupation-pattern (Olsen-type) diagonal.
+! Does NOT represent the exact CSF diagonal.
 
   use Constants, only: Zero
 
-  integer(kind=iwp), intent(in) :: npat
-
-  integer(kind=iwp), intent(in) :: occ(my_norb,npat)
-
   real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
-
   real(kind=wp), intent(out) :: diag(npat)
 
   integer(kind=iwp) :: ipat, p, q
@@ -1073,7 +1072,7 @@ subroutine pattern_diagonal(h,g,npat,occ,diag)
      !
      do p=1,my_norb
 
-        np = occ(p,ipat)
+        np = occpat(p,ipat)
 
         diag(ipat) = diag(ipat) + real(np,wp)*h(p,p)
 
@@ -1084,12 +1083,12 @@ subroutine pattern_diagonal(h,g,npat,occ,diag)
      !
      do p=1,my_norb-1
 
-        np = occ(p,ipat)
+        np = occpat(p,ipat)
         if (np == 0) cycle
 
         do q=p+1,my_norb
 
-           nq = occ(q,ipat)
+           nq = occpat(q,ipat)
            if (nq == 0) cycle
 
            !
@@ -1114,7 +1113,7 @@ subroutine pattern_diagonal(h,g,npat,occ,diag)
 
   end do
 
-end subroutine pattern_diagonal
+end subroutine build_pattern_diagonal_approx
 
 subroutine det_occ_pattern(ia,ib,occ)
 
@@ -1354,9 +1353,7 @@ end subroutine build_patterns
 
 subroutine analyse_patterns()
 
-  integer(kind=iwp) ::
-&    ipat,
-&    p
+  integer(kind=iwp) :: ipat, p
 
   call mma_allocate(ndoub,npat,label='NDoub')
   call mma_allocate(nsing,npat,label='NSing')
@@ -1393,6 +1390,88 @@ subroutine analyse_patterns()
 
   end do
 end subroutine analyse_patterns
+
+subroutine build_pattern_diagonal(h,g,diag)
+
+  use Constants, only: Zero
+
+  real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(out) :: diag(npat)
+
+  integer(kind=iwp) :: ipat, p,q, np,nq, exch
+
+
+  do ipat=1,npat
+
+     diag(ipat) = Zero
+
+     !
+     ! One-electron contribution
+     !
+
+     do p=1,my_norb
+
+        np = occpat(p,ipat)
+
+        diag(ipat) = diag(ipat) + real(np,wp)*h(p,p)
+
+     end do
+
+     !
+     ! Two-electron contribution
+     !
+
+     do p=1,my_norb-1
+
+        np = occpat(p,ipat)
+
+        if (np == 0) cycle
+
+        do q=p+1,my_norb
+
+           nq = occpat(q,ipat)
+
+           if (nq == 0) cycle
+
+           !
+           ! Coulomb
+           !
+
+           diag(ipat) = diag(ipat) + real(np*nq,wp) * g(p,p,q,q)
+
+           !
+           ! Exchange
+           !
+
+           if (np == 2 .and. nq == 2) then
+              exch = 2
+           else
+              exch = 1
+           end if
+
+           diag(ipat) = diag(ipat) - real(exch,wp) * g(p,q,q,p)
+
+        end do
+
+     end do
+
+     !
+     ! On-site double occupations
+     !
+
+     do p=1,my_norb
+
+        if (occpat(p,ipat) == 2) then
+
+           diag(ipat) = diag(ipat) + g(p,p,p,p)
+
+        end if
+
+     end do
+
+  end do
+
+end subroutine build_pattern_diagonal
 
 subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 ! for a pair of orbitals p and q, and determinants

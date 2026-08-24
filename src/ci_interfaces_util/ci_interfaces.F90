@@ -491,6 +491,7 @@ call mma_allocate(DDIA,NDET,label='DETDIA')
 
 call get_diag(DDIA,ndet)
 
+! ndet comes from general_data!! Check this!
 ! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 

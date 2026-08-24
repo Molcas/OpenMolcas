@@ -13,7 +13,7 @@ subroutine faroald_free()
 ! The finalization subroutine lives outside of the
 ! faroald module so that it can be called separately.
 
-use faroald, only: ex1_a, ex1_b, gtuvx, htu, ipat_of_det, occpat, mma_deallocate
+use faroald, only: ex1_a, ex1_b, gtuvx, htu, ipat_of_det, occpat, mma_deallocate, ndoub, nsing
 
 implicit none
 
@@ -23,5 +23,7 @@ call mma_deallocate(htu,safe='*')
 call mma_deallocate(gtuvx,safe='*')
 call mma_deallocate(ipat_of_det,safe='*')
 call mma_deallocate(occpat,safe='*')
+call mma_deallocate(ndoub,safe='*')
+call mma_deallocate(nsing,safe='*')
 
 end subroutine faroald_free
