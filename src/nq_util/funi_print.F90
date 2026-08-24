@@ -18,7 +18,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: iOpt, iPrint
 real(kind=wp) :: EThr
-character(len=1024) :: GridFileName, ProjectName
+character(len=1024) :: GridFileName
+integer(kind=iwp) :: lGridFileName
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
 
@@ -75,13 +76,8 @@ if ((.not. Reduce_Prt()) .and. (iPrint >= 2)) then
     write(u6,'(6X,A)') 'AO values are stored on disk'
   end if
   if (WriteGrid) then
-    call get_environment_variable('Project',ProjectName)
-    if (len_trim(ProjectName) > 0) then
-      GridFileName = trim(ProjectName)//'.GridFile'
-    else
-      GridFileName = 'GRIDFILE'
-    end if
-    write(u6,'(6X,2A)') 'Numerical quadrature grid is written to ',trim(GridFileName)
+    call PrgmTranslate('GRIDFILE',GridFileName,lGridFileName)
+    write(u6,'(6X,2A)') 'Numerical quadrature grid is written to ',GridFileName(:lGridFileName)
   end if
 end if
 !                                                                      *
