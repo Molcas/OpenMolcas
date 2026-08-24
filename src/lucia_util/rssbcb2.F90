@@ -76,7 +76,6 @@ subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,J
 ! Jeppe Olsen, Winter of 1991
 
 use lucia_data, only: TSIGMA
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 #ifdef _CUDA_BLAS_
@@ -187,7 +186,7 @@ if (IDIAG == 0) then
 
     if (NBEL >= 0) then
 #if defined(_CUDA_BLAS_) && !defined(_DEBUGPRINT_)
-      if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. .not. CudaBlocks) then
+      if (NPROCS == 1 .and. .not. CudaBlocks) then
         if (CudaZeroSB) then
           CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
                                                            int(NJA,c_int64_t)*int(NJB,c_int64_t))
@@ -283,7 +282,7 @@ if (IDIAG == 0) then
     if (JJJTRNS == 0) then
       !if (IUSE_PA == 0) then
 #if defined(_CUDA_BLAS_) && !defined(_DEBUGPRINT_)
-      if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. .not. CudaBlocks) then
+      if (NPROCS == 1 .and. .not. CudaBlocks) then
         if (CudaZeroSB) then
           CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
                                                            int(NJA,c_int64_t)*int(NJB,c_int64_t))
@@ -323,7 +322,7 @@ if (IDIAG == 0) then
       !write(u6,*) ' RSSBCB2 : Transpose path choosen'
 
 #if defined(_CUDA_BLAS_) && !defined(_DEBUGPRINT_)
-      if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. .not. CudaBlocks) then
+      if (NPROCS == 1 .and. .not. CudaBlocks) then
         if (CudaZeroSB) then
           CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
                                                            int(NJA,c_int64_t)*int(NJB,c_int64_t))
@@ -389,7 +388,7 @@ if (IDIAG == 0) then
     ! alpha single excitation
 
 #if defined(_CUDA_BLAS_) && !defined(_DEBUGPRINT_)
-    if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. .not. CudaBlocks) then
+    if (NPROCS == 1 .and. .not. CudaBlocks) then
       if (CudaZeroSB) then
         CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
                                                          int(NJA,c_int64_t)*int(NJB,c_int64_t))

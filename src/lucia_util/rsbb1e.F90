@@ -66,7 +66,7 @@ subroutine RSBB1E(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NOBPTS,
 use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPNGAS, MXPTSOB
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
+use lucia_parameters, only: RSBB1E_CPU_D1_MAX, RSBB1E_CPU_D2_MAX
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -94,7 +94,6 @@ integer(c_int64_t) :: CudaStatus, NCBCUDA, NSBCUDA
 logical :: CudaSession
 #endif
 real(kind=wp) :: FACTORAB, FACTORC, HSCR(MXPTSOB*MXPTSOB), SCLFACS, SIGNIJ
-#include "rasscf_opt_tiny_thresholds.fh"
 
 !MOC = 1
 #ifdef _DEBUGPRINT_
@@ -112,7 +111,7 @@ call IWRTMA(ICEL,1,NGAS,1,NGAS)
 
 #ifdef _CUDA_BLAS_
 CudaSession = .false.
-if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NROW > 0) then
+if (NPROCS == 1 .and. NROW > 0) then
   CudaStatus = LUCIA_RSBB1E_CUDA_BEGIN(SB,CB,NROW)
   if (CudaStatus == -1_c_int64_t) then
     call SYSABENDMSG('lucia_util/rsbb1e','CUDA execution failed','')
@@ -264,7 +263,7 @@ if (IJSM /= 0) then
           NKAEFF = NKASTR
         end if
 #ifdef _CUDA_BLAS_
-        if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NROW > 0 .and. NKAEFF > 0 .and. MAXK > 0) then
+        if (NPROCS == 1 .and. NROW > 0 .and. NKAEFF > 0 .and. MAXK > 0) then
           NCBCUDA = 0_c_int64_t
           do JJORB=1,IJ_DIM(2)
             NCBCUDA = max(NCBCUDA, int(maxval(I1(1+(JJORB-1)*NKASTR:NKAEFF+(JJORB-1)*NKASTR)),c_int64_t))
@@ -325,7 +324,7 @@ if (IJSM /= 0) then
             write(u6,*) ' CSCR array,NIK X NJORB array'
             call WRTMAT(CSCR,NIK,IJ_DIM(2),NIK,IJ_DIM(2))
 #           endif
-            if (LUCIA_OPTIMIZATIONS_ENABLED() .and. (NIK > 0) .and. &
+            if ((NIK > 0) .and. &
                 (IJ_DIM(1) > 0) .and. (IJ_DIM(1) <= RSBB1E_CPU_D1_MAX) .and. &
                 (IJ_DIM(2) > 0) .and. (IJ_DIM(2) <= RSBB1E_CPU_D2_MAX)) then
               call DGEMM_CPU_('N','N',NIK,IJ_DIM(1),IJ_DIM(2),FACTORAB,CSCR,NIK,H,IJ_DIM(2),FACTORC,SSCR,NIK)

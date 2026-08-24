@@ -11,6 +11,9 @@
 ! Copyright (C) 2026, Meng Wang                                        *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _CUDA_BLAS_
+
 module ABTOR2_CUDA_INTERFACE
 
 use, intrinsic :: iso_c_binding, only: c_double, c_int64_t
@@ -36,3 +39,11 @@ interface
 end interface
 
 end module ABTOR2_CUDA_INTERFACE
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(ABTOR2_CUDA_INTERFACE)
+
+#endif

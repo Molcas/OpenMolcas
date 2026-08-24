@@ -73,19 +73,12 @@ program. The GUGA formalism is available both for CAS, RAS and GAS wave function
 Lucia contraction optimizations
 -------------------------------
 
-Optimized contraction paths in the conventional Lucia CI solver are opt-in.
-Set the environment variable :variable:`MOLCAS_RASSCF_LUCIA_OPT` to ``1``,
-``ON``, ``YES``, or ``TRUE`` to enable them. The values ``0``, ``OFF``,
-``NO``, and ``FALSE`` disable them, as does leaving the variable unset.
-Values are case-insensitive; any other value terminates the calculation with
-an error.
-
-The optimized CPU paths handle selected small contractions. When |molcas| is
-built with ``CUBLAS=ON``, the native Lucia CUDA kernels are built as well and
-the same runtime variable enables their use. Unsupported contractions fall
-back to the existing CPU implementation. With the variable disabled, a
-CUBLAS-enabled build still uses the existing generic cuBLAS wrappers; only the
-Lucia-specific optimized paths are disabled.
+Optimized contraction paths in the conventional Lucia CI solver are enabled
+automatically. The optimized CPU paths handle selected small contractions.
+When |molcas| is built with ``CUBLAS=ON``, the native Lucia CUDA kernels are
+built and selected automatically for supported contractions. Size and
+execution-mode guards keep unsupported contractions on the existing CPU
+implementation.
 
 The orbital optimization in the :program:`RASSCF` program is performed
 using the super-CI method. The reader is referred to the

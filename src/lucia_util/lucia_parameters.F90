@@ -11,9 +11,21 @@
 ! Copyright (C) 2026, Meng Wang                                        *
 !***********************************************************************
 
-integer(kind=iwp), parameter :: SKICKJ_TINY_N_MAX = 4_iwp
-integer(kind=iwp), parameter :: SKICKJ_TINY_K_MAX = 4_iwp
+module lucia_parameters
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+public :: ABTOR2_TINY_M_MAX, ABTOR2_TINY_N_MAX, RSBB1E_CPU_D1_MAX, RSBB1E_CPU_D2_MAX, &
+          SKICKJ_TINY_K_MAX, SKICKJ_TINY_N_MAX
+
 integer(kind=iwp), parameter :: ABTOR2_TINY_M_MAX = 4_iwp
 integer(kind=iwp), parameter :: ABTOR2_TINY_N_MAX = 4_iwp
 integer(kind=iwp), parameter :: RSBB1E_CPU_D1_MAX = 16_iwp
 integer(kind=iwp), parameter :: RSBB1E_CPU_D2_MAX = 16_iwp
+integer(kind=iwp), parameter :: SKICKJ_TINY_K_MAX = 4_iwp
+integer(kind=iwp), parameter :: SKICKJ_TINY_N_MAX = 4_iwp
+
+end module lucia_parameters

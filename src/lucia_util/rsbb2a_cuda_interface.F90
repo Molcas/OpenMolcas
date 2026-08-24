@@ -11,6 +11,9 @@
 ! Copyright (C) 2026, Meng Wang                                        *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _CUDA_BLAS_
+
 module RSBB2A_CUDA_INTERFACE
 
   use, intrinsic :: iso_c_binding, only: c_double, c_int64_t
@@ -61,6 +64,14 @@ module RSBB2A_CUDA_INTERFACE
 
     subroutine LUCIA_RSBB2A_CUDA_RELEASE() bind(C,name='lucia_rsbb2a_cuda_release')
     end subroutine LUCIA_RSBB2A_CUDA_RELEASE
-  end interface
+end interface
 
 end module RSBB2A_CUDA_INTERFACE
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(RSBB2A_CUDA_INTERFACE)
+
+#endif

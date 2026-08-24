@@ -65,7 +65,6 @@ subroutine GSBBD2B(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,J
 
 use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
 use lucia_data, only: LOFFI
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -126,7 +125,7 @@ if ((NIJTYP == 0) .or. (NKLTYP == 0)) return
 #ifdef _CUDA_BLAS_
 CudaSession = .false.
 CudaMaps = .false.
-if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NIA > 0 .and. NIB > 0 .and. NJA > 0 .and. NJB > 0) then
+if (NPROCS == 1 .and. NIA > 0 .and. NIB > 0 .and. NJA > 0 .and. NJB > 0) then
   CudaStatus = LUCIA_GSBBD2B_CUDA_BEGIN(SB,CB,RHO2,RHO2S,RHO2A,S2_TERM1,int(NIA,c_int64_t),int(NIB,c_int64_t), &
                                         int(NJA,c_int64_t),int(NJB,c_int64_t),int(NORB,c_int64_t), &
                                         merge(1_c_int64_t,0_c_int64_t,IPACK))
@@ -244,7 +243,7 @@ do IJTYP=1,NIJTYP
 
 #ifdef _CUDA_BLAS_
           CudaStatus = 0_c_int64_t
-          if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1) then
+          if (NPROCS == 1) then
             CudaStatus = LUCIA_GSBBD2B_CUDA_ROUTE(X,SB,CB,I1,XI1S,I3,XI3S,I4,XI4S,I2,XI2S,NIA,NIB,NJA,NJB,NKASTR,KABOT, &
                                                   LKABTC,NKBSTR,NI,NJ,NK,NL,IKORD,int(IOFF,c_int64_t),int(JOFF,c_int64_t), &
                                                   int(KOFF,c_int64_t),int(LOFF,c_int64_t),int(NORB,c_int64_t), &

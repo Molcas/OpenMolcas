@@ -14,7 +14,6 @@
 subroutine LUCIA()
 
 use lucia_data, only: CI_VEC, IREFSM, LCSBLK, MXSOOB, NOINT, PSSIGN, SIGMA_VEC, XISPSM
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, Two
 use Definitions, only: iwp, u6
@@ -27,13 +26,11 @@ use LUCIA_SIGMA_CUDA_BLOCKS_INTERFACE, only: LUCIA_SIGMA_CUDA_BLOCKS_HOST_BEGIN
 implicit none
 #include "warnings.h"
 integer(kind=iwp) :: LBLOCK
-logical :: UseOptimizedPaths
 #ifdef _CUDA_BLAS_
 integer(c_int64_t) :: CudaStatus
 #endif
 
 ! No floating point underflow
-UseOptimizedPaths = LUCIA_OPTIMIZATIONS_ENABLED()
 !call XUFLOW()
 ! Assign diskunits
 !if (ENVIRO == 'RASSCF') then
@@ -87,7 +84,7 @@ if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 call mma_allocate(CI_VEC,LBLOCK,Label='CI_VEC')
 call mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')
 #ifdef _CUDA_BLAS_
-if (UseOptimizedPaths .and. NPROCS == 1) then
+if (NPROCS == 1) then
   CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_HOST_BEGIN(SIGMA_VEC,CI_VEC,int(LBLOCK,c_int64_t),int(LBLOCK,c_int64_t))
   if (CudaStatus == -1_c_int64_t) call SYSABENDMSG('lucia_util/lucia','CUDA execution failed','')
 end if

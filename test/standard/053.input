@@ -4,10 +4,8 @@
 * Symmetry: C1
 * Features tested: RASSCF Lucia optimized contractions
 * Responsible person: Meng Wang 260814
-* Comments: Keep the opt-in Lucia contraction paths covered by verification.
+* Comments: Keep the Lucia contraction paths covered by verification.
 *-------------------------------------------------------------------------------
-
->> EXPORT MOLCAS_RASSCF_LUCIA_OPT=1
 
 &seward
 Title = Water

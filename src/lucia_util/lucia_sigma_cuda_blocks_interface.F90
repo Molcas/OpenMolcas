@@ -11,6 +11,8 @@
 ! Copyright (C) 2026, Meng Wang                                        *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _CUDA_BLAS_
 
 module LUCIA_SIGMA_CUDA_BLOCKS_INTERFACE
 
@@ -66,6 +68,14 @@ module LUCIA_SIGMA_CUDA_BLOCKS_INTERFACE
     subroutine LUCIA_SIGMA_CUDA_BLOCKS_RELEASE() &
         bind(C,name='lucia_sigma_cuda_blocks_release')
     end subroutine LUCIA_SIGMA_CUDA_BLOCKS_RELEASE
-  end interface
+end interface
 
 end module LUCIA_SIGMA_CUDA_BLOCKS_INTERFACE
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(LUCIA_SIGMA_CUDA_BLOCKS_INTERFACE)
+
+#endif

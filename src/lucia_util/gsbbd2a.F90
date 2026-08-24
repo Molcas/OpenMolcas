@@ -62,7 +62,6 @@ subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS
 use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _CUDA_BLAS_
@@ -126,7 +125,7 @@ IDXSM = Mul(ISCSM,ICCSM)
 if (IDXSM /= 0) then
 #ifdef _CUDA_BLAS_
   DensitySession = .false.
-  if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NACOB > 0) then
+  if (NPROCS == 1 .and. NACOB > 0) then
     CudaStatus = LUCIA_GSBBD2A_CUDA_DENSITY_BEGIN(RHO2,RHO2S,RHO2A,int(NACOB,c_int64_t), &
                                                   merge(1_c_int64_t,0_c_int64_t,IPACK))
     if (CudaStatus == -1_c_int64_t) then
@@ -181,7 +180,7 @@ if (IDXSM /= 0) then
           X(1:NI*NJ*NK*NL) = Zero
 #ifdef _CUDA_BLAS_
           CudaSession = .false.
-          if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0 .and. NI*NJ*NK*NL > 0) then
+          if (NPROCS == 1 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0 .and. NI*NJ*NK*NL > 0) then
             CudaStatus = LUCIA_GSBBD2A_CUDA_BEGIN(X,SB,CB,NROW,NSB,NCB,NI*NJ*NK*NL)
             if (CudaStatus == -1_c_int64_t) then
               call SYSABENDMSG('lucia_util/gsbbd2a','CUDA execution failed','')
@@ -292,7 +291,7 @@ if (IDXSM /= 0) then
 
 #ifdef _CUDA_BLAS_
               CudaStatus = 0_c_int64_t
-              if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1) then
+              if (NPROCS == 1) then
                 CudaStatus = LUCIA_GSBBD2A_CUDA_ROUTE(X,SB,CB,I1,XI1S,I2,XI2S,NROW,NSB,NCB,IBOT,NIBTC,MAXK,NKBTC,NI,NK,NJ,NL, &
                                                       NIK,NJL,IKSM,JLSM,FACTOR)
               end if

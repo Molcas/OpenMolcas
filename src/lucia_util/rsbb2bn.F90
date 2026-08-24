@@ -73,7 +73,6 @@ subroutine RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP
 
 use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
 use lucia_data, only: MXPNGAS, TSIGMA
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -132,7 +131,7 @@ if ((NIJTYP == 0) .or. (NKLTYP == 0)) return
 
 #ifdef _CUDA_BLAS_
 CudaSession = .false.
-if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NIA > 0 .and. NIB > 0 .and. NJA > 0 .and. NJB > 0) then
+if (NPROCS == 1 .and. NIA > 0 .and. NIB > 0 .and. NJA > 0 .and. NJB > 0) then
   CudaStatus = LUCIA_RSBB2BN_CUDA_BEGIN(SB,CB,NIA,NIB,NJA,NJB)
   if (CudaStatus == -1_c_int64_t) then
     call SYSABENDMSG('lucia_util/rsbb2bn','CUDA execution failed','')
@@ -315,7 +314,7 @@ do IJTYP=1,NIJTYP
           IROUTE = 3
 #         ifdef _CUDA_BLAS_
           CudaStatus = 0_c_int64_t
-          if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1) then
+          if (NPROCS == 1) then
             CudaStatus = LUCIA_RSBB2BN_CUDA_ROUTE(SB,CB,XINT,I1,XI1S,I3,XI3S,I4,XI4S,I2,XI2S,NIA,NIB,NJA,NJB,NKASTR,KABOT, &
                                                   LKABTC,NKBSTR,IJ_DIM(1),IJ_DIM(2),KL_DIM(1),KL_DIM(2),IKORD)
           end if

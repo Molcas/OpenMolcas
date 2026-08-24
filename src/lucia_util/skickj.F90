@@ -22,7 +22,7 @@ subroutine SKICKJ(SKII,CKJJ,NKA,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB
 ! : Note : Route 1 has retired, March 97
 
 use lucia_data, only: MXPTSOB
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
+use lucia_parameters, only: SKICKJ_TINY_K_MAX, SKICKJ_TINY_N_MAX
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 #ifdef _CUDA_BLAS_
@@ -35,15 +35,10 @@ real(kind=wp), intent(inout) :: SKII(*), XIJKL(*)
 integer(kind=iwp), intent(in) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), KBJB(MAXK,*), IKORD, IROUTE
 real(kind=wp), intent(in) :: CKJJ(*), XKBIB(MAXK,*), XKBJB(MAXK,*), FACS
 integer(kind=iwp) :: IB, ICOFF, IKINTOF, IMAX, INTOF, ISOFF, JB, JKINTOF, K, KB, KK, L, LL
-logical :: UseOptimizedPaths
 real(kind=wp) :: FACTOR, SGNK, SGNL, XIJILS(MXPTSOB)
 #ifdef _CUDA_BLAS_
 integer(c_int64_t) :: CudaStatus, NIBCUDA, NJBCUDA
 #endif
-#include "rasscf_opt_tiny_thresholds.fh"
-
-UseOptimizedPaths = LUCIA_OPTIMIZATIONS_ENABLED()
-
 ! To get rid of annoying and incorrect compiler warnings
 JKINTOF = 0
 IKINTOF = 0
@@ -58,7 +53,7 @@ end if
 if (IROUTE == 3) then
   ! S(Ka,i,Ib) = S(Ka,i,Ib) + sum(j) (ji!kl) C(Ka,j,Jb)
 #ifdef _CUDA_BLAS_
-  if (UseOptimizedPaths .and. (NKA > 0) .and. (NKB > 0) .and. (NI > 0) .and. (NJ > 0) .and. (NK > 0) .and. &
+  if ((NKA > 0) .and. (NKB > 0) .and. (NI > 0) .and. (NJ > 0) .and. (NK > 0) .and. &
       (NL > 0) .and. (MAXK > 0) .and. (NKB <= MAXK) .and. &
       ((IKORD == 0) .or. (IKORD == 1)) .and. (FACS == 1.0_wp)) then
     NIBCUDA = maxval(KBIB(1:NKB,1:NK))
@@ -109,7 +104,7 @@ if (IROUTE == 3) then
                 XIJKL(JKINTOF-1+L) = Half*XIJKL(JKINTOF-1+L)
                 XIJKL(JKINTOF+L:JKINTOF-1+NL) = Zero
               end if
-              if (UseOptimizedPaths .and. (IMAX >= 1) .and. (IMAX <= SKICKJ_TINY_N_MAX) .and. &
+              if ((IMAX >= 1) .and. (IMAX <= SKICKJ_TINY_N_MAX) .and. &
                   (NJ >= 1) .and. (NJ <= SKICKJ_TINY_K_MAX)) then
                 call SKICKJ_MATML7_NN_TINY(SKII(ISOFF),CKJJ(ICOFF),XIJKL(INTOF),NKA,IMAX,NJ,FACS,FACTOR)
               else

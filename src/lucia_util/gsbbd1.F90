@@ -65,7 +65,6 @@ subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB
 
 use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _CUDA_BLAS_
@@ -111,7 +110,7 @@ end if
 #ifdef _CUDA_BLAS_
 CudaSession = .false.
 CudaMaps = .false.
-if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NACOB > 0 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0) then
+if (NPROCS == 1 .and. NACOB > 0 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0) then
   CudaStatus = LUCIA_GSBBD1_CUDA_BEGIN(RHO1,SRHO1,SB,CB,NACOB,NROW,NSB,NCB,IDOSRHO1)
   if (CudaStatus == -1_c_int64_t) then
     call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
@@ -275,7 +274,7 @@ if (IJSM /= 0) then
       !write(u6,*) ' NKAEFF NKASTR',NKAEFF,NKASTR
 
 #ifdef _CUDA_BLAS_
-      if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NKASTR > 0 .and. IJ_DIM(1) > 0 .and. IJ_DIM(2) > 0) then
+      if (NPROCS == 1 .and. NKASTR > 0 .and. IJ_DIM(1) > 0 .and. IJ_DIM(2) > 0) then
         CudaStatus = LUCIA_GSBBD1_CUDA_MAPS_BEGIN(I1,XI1S,I2,XI2S,int(NKASTR,c_int64_t), &
                                                   int(IJ_DIM(1),c_int64_t),int(IJ_DIM(2),c_int64_t))
         if (CudaStatus == -1_c_int64_t) then
@@ -307,7 +306,7 @@ if (IJSM /= 0) then
           if (NIBTC <= 0) exit
 #         ifdef _CUDA_BLAS_
           CudaStatus = 0_c_int64_t
-          if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1) then
+          if (NPROCS == 1) then
             CudaStatus = LUCIA_GSBBD1_CUDA_ROUTE(RHO1,SRHO1,SB,CB,I1,XI1S,I2,XI2S,NACOB,NROW,NSB,NCB,IBOT,NIBTC,NKASTR,KBOT, &
                                                  LKABTC,IJ_DIM(1),IJ_DIM(2),IJ_OFF(1)-1,IJ_OFF(2)-1,IDOSRHO1,XAB)
           end if

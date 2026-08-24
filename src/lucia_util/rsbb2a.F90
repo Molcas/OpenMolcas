@@ -61,7 +61,6 @@ subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,NSB,NCB
 use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
 use lucia_data, only: MXPNGAS, MXPTSOB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -116,7 +115,7 @@ call mma_allocate(SSign,MAXK*MXPTSOB**2,Label='SSign')
 #ifdef _CUDA_BLAS_
 CudaSession = .false.
 CudaXint = .false.
-if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0) then
+if (NPROCS == 1 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0) then
   CudaStatus = LUCIA_RSBB2A_CUDA_BEGIN(SB,CB,NROW,NSB,NCB)
   if (CudaStatus == -1_c_int64_t) then
     call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
@@ -548,7 +547,7 @@ if (IDXSM /= 0) then
                 FACTORAB = One
 #               ifdef _CUDA_BLAS_
                 CudaStatus = 0_c_int64_t
-                if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1) then
+                if (NPROCS == 1) then
                   CudaStatus = LUCIA_RSBB2A_CUDA_ROUTE(SB,CB,XINT,CMap,CSign,SMap,SSign,NROW,NSB,NCB,IBOT,NIBTC,NKBTC,NIKT,NJLT, &
                                                        FACTORAB)
                 end if
@@ -783,7 +782,7 @@ if (IDXSM /= 0) then
                   FACTORAB = FACX
 #                 ifdef _CUDA_BLAS_
                   CudaStatus = 0_c_int64_t
-                  if (LUCIA_OPTIMIZATIONS_ENABLED() .and. NPROCS == 1) then
+                  if (NPROCS == 1) then
                     CudaStatus = LUCIA_RSBB2A_CUDA_ROUTE(SB,CB,XINT,CMap,CSign,SMap,SSign,NROW,NSB,NCB,IBOT,NIBTC,NKBTC,NIK,NJL, &
                                                          FACTORAB)
                   end if

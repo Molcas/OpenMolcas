@@ -11,6 +11,8 @@
 ! Copyright (C) 2026, Meng Wang                                        *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _CUDA_BLAS_
 
 module RSBB1E_CUDA_INTERFACE
 
@@ -47,6 +49,14 @@ module RSBB1E_CUDA_INTERFACE
 
     subroutine LUCIA_RSBB1E_CUDA_RELEASE() bind(C,name='lucia_rsbb1e_cuda_release')
     end subroutine LUCIA_RSBB1E_CUDA_RELEASE
-  end interface
+end interface
 
 end module RSBB1E_CUDA_INTERFACE
+
+#elif ! defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(RSBB1E_CUDA_INTERFACE)
+
+#endif

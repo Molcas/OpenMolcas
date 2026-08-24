@@ -23,7 +23,7 @@ subroutine ABTOR2(SKII,CKJJ,NKA,NKB,RHO2B,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB
 
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
-use lucia_runtime, only: LUCIA_OPTIMIZATIONS_ENABLED
+use lucia_parameters, only: ABTOR2_TINY_M_MAX, ABTOR2_TINY_N_MAX
 #ifdef _CUDA_BLAS_
 use, intrinsic :: iso_c_binding, only: c_int64_t
 use ABTOR2_CUDA_INTERFACE, only: LUCIA_ABTOR2_CUDA_ROUTE
@@ -34,15 +34,10 @@ integer(kind=iwp), intent(in) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,NK), 
 real(kind=wp), intent(in) :: SKII(*), CKJJ(*), XKBIB(MAXK,NK), XKBJB(MAXK,NL)
 real(kind=wp), intent(inout) :: RHO2B(NI*NJ*NK*NL)
 integer(kind=iwp) :: IB, ICOFF, IMAX, ISOFF, JB, K, KB, KK, KLOFF, L, LL
-logical :: UseOptimizedPaths
 real(kind=wp) :: FACTOR, SGNK, SGNL
 #ifdef _CUDA_BLAS_
 integer(c_int64_t) :: CudaStatus, NIBCUDA, NJBCUDA
 #endif
-#include "rasscf_opt_tiny_thresholds.fh"
-
-UseOptimizedPaths = LUCIA_OPTIMIZATIONS_ENABLED()
-
 if (IKORD /= 0) then
   write(u6,*) ' ABTOR2 : IKORD /= 0'
   write(u6,*) ' I am not ready for this'
@@ -51,7 +46,7 @@ if (IKORD /= 0) then
 end if
 
 #ifdef _CUDA_BLAS_
-if (UseOptimizedPaths .and. (NKA > 0) .and. (NKB > 0) .and. (NI > 0) .and. (NJ > 0) .and. (NK > 0) .and. &
+if ((NKA > 0) .and. (NKB > 0) .and. (NI > 0) .and. (NJ > 0) .and. (NK > 0) .and. &
     (NL > 0) .and. (MAXK > 0) .and. (NKB <= MAXK) .and. (IKORD == 0)) then
   NIBCUDA = maxval(KBIB(1:NKB,1:NK))
   NJBCUDA = maxval(KBJB(1:NKB,1:NL))
@@ -99,7 +94,7 @@ do KB=1,NKB
             !  XIJKL(JKINTOF-1+L) = Half*XIJKL(JKINTOF-1+L)
             !  XIJKL(JKINTOF+L:JKINTOF+NL-1) = Zero
             !end if
-            if (UseOptimizedPaths .and. (IMAX == NI) .and. (NI >= 1) .and. (NI <= ABTOR2_TINY_M_MAX) .and. &
+            if ((IMAX == NI) .and. (NI >= 1) .and. (NI <= ABTOR2_TINY_M_MAX) .and. &
                 (NJ >= 1) .and. (NJ <= ABTOR2_TINY_N_MAX)) then
               call ABTOR2_MATML7_TN_TINY(RHO2B(KLOFF),SKII(ISOFF),CKJJ(ICOFF),NI,NJ,NKA,FACTOR)
             else
