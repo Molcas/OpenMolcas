@@ -1346,12 +1346,14 @@ subroutine build_patterns()
 
   end do
 
+#ifdef _DEBUGPRINT_
   do k = 1, nPat
      write(u6,'(A,20I2)') 'occ=',occpat(:,k)
   end do
   write(u6,'(A,I10)') ' NDet = ', my_ndet
   write(u6,'(A,I10)') ' NPat = ', npat
   write(u6,'(A,F12.4)') ' Compression = ', real(my_ndet,wp)/real(npat,wp)
+#endif
 
 end subroutine build_patterns
 
@@ -1411,8 +1413,10 @@ subroutine analyse_patterns()
      end if
 
   end do
+#ifdef _DEBUGPRINT_
   write(u6,'(A,I10)') ' NSpin_Comb = ', sum(nSpin_comb(:))
   write(u6,'(A,I10)') ' NComb = ', sum(nComb(:))
+#endif
 
 end subroutine analyse_patterns
 
