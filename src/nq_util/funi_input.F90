@@ -262,14 +262,6 @@ do
 
       WriteGrid = .true.
 
-    case ('NOWR')
-      !                                                                *
-      !***** NOWR ******************************************************
-      !                                                                *
-      ! Do not write the final numerical quadrature grid to GRIDFILE.
-      ! By default, the grid is not written to GRIDFILE.
-      WriteGrid = .false.
-
     case ('FADE')
       !                                                                *
       !***** FADE ******************************************************
