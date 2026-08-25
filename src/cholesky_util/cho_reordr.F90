@@ -55,8 +55,8 @@ subroutine CHO_REORDR(irc,scr,lscr,jVref,JVEC1,JNUM,NUMV,JSYM,IREDC,iSwap,ipChoV
 use Symmetry_Info, only: Mul
 use Index_Functions, only: iTri, nTri_Elem
 use Cholesky, only: iBas, iiBstR, IndRed, InfVec, iRS2F, nBas, nDimRS, nnBstR
-use Definitions, only: wp, iwp, u6
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -64,12 +64,11 @@ integer(kind=iwp), intent(in) :: lscr, jVref, JVEC1, JNUM, NUMV, JSYM, iSwap, ip
 real(kind=wp), intent(in) :: Scr(lscr)
 integer(kind=iwp), intent(inout) :: IREDC
 real(kind=wp), intent(inout) :: Arr(*)
-integer(kind=iwp) :: iabf, iag, ias, ibg, ibs, iLoc, iRab, iSyma, iSymb, jRab, JRED, JVEC, kchov, kchov1, kchov2, kRab, kscr, NREAD
-integer(kind=iwp) :: JJ, jRabEnd, jRabSta, JV, JVEnd, nBxa, nBxb, NPAIR, NRS
-integer(kind=iwp), external :: cho_isao
-
-integer(kind=iwp), parameter :: NCHUNK = 256 ! heuristic choice
+integer(kind=iwp) :: iabf, iag, ias, ibg, ibs, iLoc, iRab, iSyma, iSymb, JJ, jRab, jRabEnd, jRabSta, JRED, JV, JVEC, JVEnd, kchov, &
+                     kchov1, kchov2, kRab, kscr, nBxa, nBxb, NPAIR, NREAD, NRS
 integer(kind=iwp), allocatable :: IPOSA(:), IPOSB(:), NSTRA(:), NSTRB(:)
+integer(kind=iwp), parameter :: NCHUNK = 256 ! heuristic choice
+integer(kind=iwp), external :: cho_isao
 
 !*********************************************************
 !
@@ -322,7 +321,9 @@ else if ((jSym > 1) .and. (iSwap == 1)) then
     end do
 
   end do
+
 else if (iSwap == 3) then
+
   call mma_allocate(IPOSA,NCHUNK,Label='IPOSA')
   call mma_allocate(IPOSB,NCHUNK,Label='IPOSB')
   call mma_allocate(NSTRA,NCHUNK,Label='NSTRA')
@@ -413,6 +414,7 @@ else if (iSwap == 3) then
   call mma_deallocate(IPOSB)
   call mma_deallocate(NSTRA)
   call mma_deallocate(NSTRB)
+
 else
 
   write(u6,*) 'Wrong parameters combination. JSYM,iSwap= ',JSYM,iSwap

@@ -90,6 +90,7 @@ set (sources
      ippage.F90
      isrot.F90
      isymst_mclr.F90
+     mclr_data.F90
      mclr_procedures.F90
      memstr.F90
      mkcipre.F90
@@ -134,6 +135,7 @@ set (sources
      sigmavec.F90
      skickj_mclr.F90
      spncom_mclr.F90
+     str_info.F90
      strinf.F90
      strtyp.F90
      sxtyp.F90
@@ -150,12 +152,6 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list
-     ippage.F90
-     pcm_grad.F90
-     isrot.F90
-     cgs_mod.F90
-     mclr_procedures.F90
-)
+set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

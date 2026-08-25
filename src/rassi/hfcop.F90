@@ -796,7 +796,7 @@ subroutine proc_coupl_states()
   ! SHIFTING ENERGY by NCOUP/COUP-------------------------------------------
   ! then re-determine the coupled states based on energy threshold.
   if (allocated(LCSTATES)) then
-    min_energy=minval(ESO(LCSTATES(:)))
+    min_energy = minval(ESO(LCSTATES(:)))
     do ISS=1,size(LCSTATES)
       ESO(LCSTATES(ISS)) = min_energy
     end do
@@ -1049,7 +1049,7 @@ subroutine transf_prin_axes(A,X,a_sm)
     call dgemm_('n','n',3,3,3,One,A(:,:,iContr),3,X,3,Zero,tmpmat,3)
     call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,a_sm(:,:,iContr),3)
 
-    if (any([a_sm(1,1,iContr), a_sm(2,2,iContr), a_sm(3,3,iContr)] < Zero)) then
+    if (min(a_sm(1,1,iContr),a_sm(2,2,iContr),a_sm(3,3,iContr)) < Zero) then
       call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
       call AbEnd()
     end if

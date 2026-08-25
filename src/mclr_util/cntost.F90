@@ -39,8 +39,8 @@ integer(kind=iwp), intent(in) :: ICONF(*), NAEL, NBEL, IPRODT(*), IREFSM, NORB, 
 integer(kind=iwp), intent(_OUT_) :: ICTSDT(*)
 integer(kind=iwp), intent(out) :: NEL
 real(kind=wp), intent(in) :: PSSIGN
-integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICNF, IDET, IJKL_NUM, IOCC, IOPEN, IPBAS, IPSFAC, ISGN, ISGNAB, ITYP, JDET, &
-                     JDTABS, MXDT
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICNF, IDET, IJKL_NUM, IOCC, IOPEN, IPBAS, IPSFAC, ISGN, ISGNAB, ITYP, JDET, JDTABS, &
+                     MXDT
 integer(kind=iwp), allocatable :: LDTBL(:), LIA(:), LIB(:), SCR23(:)
 integer(kind=iwp), external :: IABNUM
 

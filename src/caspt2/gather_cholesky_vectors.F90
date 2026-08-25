@@ -15,34 +15,29 @@
 #ifdef _MOLCAS_MPP_
 
 subroutine Gather_Cholesky_Vectors(ITK,ITQ,JSYM,Array,mArray,nArray,NVLOC,NVTOT)
-
 ! Gather Cholesky vectors that are constructed in Get_Cholesky_Vectors
 ! The Array vector will be [NQK(ISYK=1)*NVTOT] [NQK(ISYK=2)*NVTOT]...
 ! NQK  : the number of (p,q) pairs per vector in the ISYK block
 ! NVTOT: the group's vector count over all ranks.
 
+use, intrinsic :: iso_c_binding, only: c_int
 use CHOVEC_IO, only: NPQ_CHOTYPE
 use allgather_wrapper, only: allgather
 use GA_Wrapper, only: GA_NNodes, GA_NodeId
 use caspt2_module, only: NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, RtoB
-use, intrinsic :: iso_c_binding, only: c_int
 
 implicit none
-
 integer(kind=iwp), intent(in) :: ITK, ITQ, JSYM, mArray, NVLOC, NVTOT
 real(kind=wp), intent(inout) :: Array(mArray)
 integer(kind=iwp), intent(out) :: nArray
-
 integer(kind=iwp) :: ICASE, iProc, iProcEND, iProcSTA, ISYK, iVecSTA, LGLOB, LLOC, myRank, nProcs, NQK, NSEND, NVCHUNK
-
 integer(kind=iwp), allocatable :: NVALL(:)
 real(kind=wp), allocatable :: LocBuf(:)
-
-! largest element count passing the 2 GB byte check in ALLGATHER_R
-! not MAXBUF (procinp_caspt2), which bounds the ARMCI path: here MPI_Allgatherv is called directly
 integer(kind=iwp), parameter :: MAXRECV = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB
+! MAXRECV: largest element count passing the 2 GB byte check in ALLGATHER_R
+! not MAXBUF (procinp_caspt2), which bounds the ARMCI path: here MPI_Allgatherv is called directly
 
 ! ugly hack to convert separate k/q orbital types into a specific case
 ICASE = ITK*ITQ

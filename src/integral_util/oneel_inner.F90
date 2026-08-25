@@ -143,7 +143,7 @@ do ijS=1,nijS
     mFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
   else
     mFinal = nIC*iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng)
-  endif
+  end if
   lFinal = max(lFinal,mFinal)
 
   if (Label(1:3) == 'MAG') cycle

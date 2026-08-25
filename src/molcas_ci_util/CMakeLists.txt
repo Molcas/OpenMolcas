@@ -58,7 +58,6 @@ set (sources
      load_tmp_sig_vec.F90
      lucia2molcas.F90
      matml4.F90
-     mclr_data.F90
      motrac.F90
      newgs.F90
      ordstr.F90
@@ -86,7 +85,6 @@ set (sources
      simplify.F90
      sort_cdet.F90
      spinfo.F90
-     str_info.F90
      sxci.F90
      term_david.F90
      timers.F90
@@ -102,13 +100,11 @@ set (modfile_list
      csfbas.F90
      dmrginfo.F90
      input_mclr.F90
-     mclr_data.F90
      output_ras.F90
      rasdim.F90
      rasscf_files.F90
      rasscf_global.F90
      rassi_data.F90
-     str_info.F90
      spinfo.F90
      timers.F90
      wadr.F90

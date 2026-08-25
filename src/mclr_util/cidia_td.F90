@@ -26,7 +26,7 @@ integer(kind=iwp), intent(in) :: iSym
 integer(kind=iwp) :: i, iAMCmp, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), nD, nP1, nP2, nQ, nSD, nSpc
 
 ! This is just a interface to hide Jeppe from the rest of the world
-! we dont want to let world see the work of the Danish
+! we don't want to let world see the work of the Danish
 ! (I hope he never reads that)
 ! Anyway concerning the CSF/SD stuff.
 ! If we work with spin dependent perturbations

@@ -28,10 +28,9 @@ implicit none
 integer(kind=iwp), intent(in) :: NCMO
 real(kind=wp), intent(in) :: CMO(NCMO)
 integer(kind=iwp) :: IAEND, IASTA, IB, IBATCH, IBATCH_TOT, IBEND, IBSTA, IC, ICASE, IIEND, IISTA, ILOC, ip_htspc, ip_HTVec(8), &
-                     IP_LHT, IRC, ISTART(8), ISYM, ISYMA, ISYMB, ISYP, ISYQ, JNUM, JRED, JRED1, JRED2, JREDC, JSTART, JSYM, JV1, &
-                     JV2, MUSED, N, N1, N2, NA, NASZ, NBATCH, NBUFFY, NCES(8), NHTOFF, NI, NISZ, NPQ, NUMV, NUSE(8), NVECS_RED
-
-integer(kind=iwp) :: IP_HTVECA(8), ISTARTA(8), JS, NHTACT, NJX, NPB, NUSEA(8)
+                     IP_HTVECA(8), IP_LHT, IRC, ISTART(8), ISTARTA(8), ISYM, ISYMA, ISYMB, ISYP, ISYQ, JNUM, JRED, JRED1, JRED2, &
+                     JREDC, JS, JSTART, JSYM, JV1, JV2, MUSED, N, N1, N2, NA, NASZ, NBATCH, NBUFFY, NCES(8), NHTACT, NHTOFF, NI, &
+                     NISZ, NJX, NPB, NPQ, NUMV, NUSE(8), NUSEA(8), NVECS_RED
 logical(kind=iwp) :: USE_SQ
 real(kind=wp), allocatable :: BUFFY(:), CHSPC(:), FTSPC(:), HTACT(:), HTSPC(:)
 #include "warnings.h"
@@ -127,15 +126,15 @@ do JSYM=1,NSYM
 
       ! Frozen half-transformation:
       ! the frozen half-transformed vectors are not actually used anywhere
-!     NHTOFF = 0
-!     do ISYMA=1,NSYM
-!       ISYMB = Mul(ISYMA,JSYM)
-!       IP_HTVEC(ISYMA) = IP_HTSPC+NHTOFF
-!       ISTART(ISYMA) = 1
-!       NUSE(ISYMA) = NFRO(ISYMA)
-!       NHTOFF = NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
-!     end do
-!     call HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
+      !NHTOFF = 0
+      !do ISYMA=1,NSYM
+      !  ISYMB = Mul(ISYMA,JSYM)
+      !  IP_HTVEC(ISYMA) = IP_HTSPC+NHTOFF
+      !  ISTART(ISYMA) = 1
+      !  NUSE(ISYMA) = NFRO(ISYMA)
+      !  NHTOFF = NHTOFF+NUSE(ISYMA)*NBAS(ISYMB)*JNUM
+      !end do
+      !call HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 
       ! Inactive half-transformation:
       ! Vectors of type HALF(K,J,B) = Sum(CHO(AB,J)*CMO(A,K) where

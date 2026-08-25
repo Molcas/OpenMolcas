@@ -16,7 +16,6 @@
 
 !#define _STRIPED_MEMTEST_
 subroutine RHSALL2_STRIPED(IVEC)
-
 ! Striped construction of the CASPT2 right-hand side, selected with PRHS = 4 or STRIPED (iParRHS = 4).
 ! This algorithm can be considered an improved version of the direct RHS (iParRHS = 3)
 !
@@ -26,8 +25,8 @@ subroutine RHSALL2_STRIPED(IVEC)
 ! This is basically similar to what the direct RHS does.
 ! The kernels that do the accumulation are in ADDRHS_STRIPED.
 
-use ADDRHS_STRIPED, only: IGRP_A, IGRP_B, IGRP_C, IGRP_D1, IGRP_D2, IGRP_E, IGRP_F, IGRP_G, IGRP_H
-use ADDRHS_STRIPED, only: RHSLOC_SIZES, RHSLOC_ALLOCATE, RHSLOC_LOAD, RHSLOC_FINALIZE, RHSLOC_FREE
+use ADDRHS_STRIPED, only: IGRP_A, IGRP_B, IGRP_C, IGRP_D1, IGRP_D2, IGRP_E, IGRP_F, IGRP_G, IGRP_H, RHSLOC_ALLOCATE, &
+                          RHSLOC_FINALIZE, RHSLOC_FREE, RHSLOC_LOAD, RHSLOC_SIZES
 use Symmetry_Info, only: Mul
 use CHOVEC_IO, only: NPQ_CHOTYPE, NVLOC_CHOBATCH
 use PrintLevel, only: USUAL, VERBOSE
@@ -40,28 +39,24 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-
 integer(kind=iwp) :: IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK, iOffp, iOffQ, ISYI, ISYK, ISYMT, ISYP, ISYQ, ITIER, JSYM, &
-                     LBRASM, LKETSM, MINREQ, MXAVAIL, MXBGRP, MXPIQK, nAA, NBGRP, nBra, NBRABUF, NBRASM, NI, NK, nKet, NKETBUF, &
-                     NKETSM, &
-                     NP, NPI, NQ, NQK, NRHSGRPLOC, NRHSLOC, NRHSSYMLOC, nSh(8,3), NSYMT, NTUVX, NUMERR = 0, NV, NVLOC
-! buffer sizes per JSYM, set by STRIPED_SIZES
-integer(kind=iwp) :: MAXPIQK_J(8), MINPIQK_J(8), MXBATCH_J(8), MXVLOC_J(8), NAAPI_J(8), NPIBRA_J(8), NPIKET_J(8), NPIKTR_J(8), &
-                     NPIPCK_J(8), NPITRA_J(8), NVECTOT_J(8)
-
+                     LBRASM, LKETSM, MAXPIQK_J(8), MINPIQK_J(8), MINREQ, MXAVAIL, MXBATCH_J(8), MXBGRP, MXPIQK, MXVLOC_J(8), nAA, &
+                     NAAPI_J(8), NBGRP, nBra, NBRABUF, NBRASM, NI, NK, nKet, NKETBUF, NKETSM, NP, NPI, NPIBRA_J(8), NPIKET_J(8), &
+                     NPIKTR_J(8), NPIPCK_J(8), NPITRA_J(8), NQ, NQK, NRHSGRPLOC, NRHSLOC, NRHSSYMLOC, nSh(8,3), NSYMT, NTUVX, &
+                     NUMERR = 0, NV, NVECTOT_J(8), NVLOC
 integer(kind=iwp), allocatable :: BGRP(:,:)
 real(kind=wp), allocatable :: BRA(:), CHOAA(:), KET(:), TUVX(:)
-
-! the buffers are not used here, fixed to 1
-integer(kind=iwp), parameter :: NADDBUF = 1
-integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3
+integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3, NADDBUF = 1
+! buffer sizes per JSYM, set by STRIPED_SIZES:
+! MAXPIQK_J, MINPIQK_J, MXBATCH_J, MXVLOC_J, NAAPI_J, NPIBRA_J, NPIKET_J, NPIKTR_J, NPIPCK_J, NPITRA_J, NVECTOT_J
+! NADDBUF: the buffers are not used here
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 nSh(1:NSYM,Inactive) = NISH(1:NSYM)
-nSh(1:NSYM,Active)   = NASH(1:NSYM)
-nSh(1:NSYM,Virtual)  = NSSH(1:NSYM)
+nSh(1:NSYM,Active) = NASH(1:NSYM)
+nSh(1:NSYM,Virtual) = NSSH(1:NSYM)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -86,10 +81,9 @@ do JSYM=1,NSYM
   !   + the largest of the kernels' transposes and the gather buffer, over one batch
   !   + the block the ket transpose works on
   ! MINREQ and MINSLOW have to agree, or a tier chosen here may not fit there
-  MINREQ = max(MINREQ,NTUVX+MINPIQK_J(JSYM)+2*NADDBUF+NPIKTR_J(JSYM)+ &
-                      (NPIBRA_J(JSYM)+NPIKET_J(JSYM)+NAAPI_J(JSYM)+ &
-                       max(2*NPITRA_J(JSYM),NPIBRA_J(JSYM),NPIKET_J(JSYM),NAAPI_J(JSYM), &
-                           NPIPCK_J(JSYM)))*MXBATCH_J(JSYM))
+  MINREQ = max(MINREQ, &
+               NTUVX+MINPIQK_J(JSYM)+2*NADDBUF+NPIKTR_J(JSYM)+(NPIBRA_J(JSYM)+NPIKET_J(JSYM)+NAAPI_J(JSYM)+ &
+               max(2*NPITRA_J(JSYM),NPIBRA_J(JSYM),NPIKET_J(JSYM),NAAPI_J(JSYM),NPIPCK_J(JSYM)))*MXBATCH_J(JSYM))
 end do
 call mma_MaxDBLE(MXAVAIL)
 if (NRHSLOC <= MXAVAIL-MINREQ) then
@@ -432,7 +426,6 @@ subroutine TRANSPOSE_KET()
   use Symmetry_Info, only: Mul
 
   integer(kind=iwp) :: IC, IL, IOFF, IP, ISYC, ISYL, LKET, NC, NL, NTMP
-
   real(kind=wp), allocatable :: TMP(:)
 
   ! Transpose KET from (c,l,P) to (l,c,P) in place
@@ -469,17 +462,12 @@ subroutine TRANSPOSE_KET()
 
 end subroutine TRANSPOSE_KET
 
-!-----------------------------------------------------------------------
-
 subroutine STRIPED_SIZES()
 
   integer(kind=iwp) :: ICASE, ISYI, ISYK, ISYP, ISYQ, JB1, JB2, JSY, MAXPIQK, MINPIQK, MXVLOC, NI, NK, NP, NPI, NPI_AV, NPI_IA, &
-                       NPI_IV, NPIKTR, NPIPCK, NPITRA, NPIQKMAX, NPIQKMIN, NQ, NQK
+                       NPI_IV, NPIKTR, NPIPCK, NPIQKMAX, NPIQKMIN, NPITRA, NQ, NQK
 
   integer(kind=iwp), allocatable :: NVEFF(:)
-
-  ! orbital types (bra p, bra i, ket q, ket k) of each case,
-  ! icase = 1, 2, 3, 4, 5, 6, 7, 8, 9 for A, B, D1, H, C, F, D2, G, E
   integer(kind=iwp), parameter :: ITYPE(4,9) = reshape([Inactive,  Active,  Active,  Active, &
                                                         Inactive,  Active,Inactive,  Active, &
                                                         Inactive, Virtual,  Active,  Active, &
@@ -489,6 +477,8 @@ subroutine STRIPED_SIZES()
                                                           Active, Virtual,Inactive,  Active, &
                                                           Active, Virtual,Inactive, Virtual, &
                                                         Inactive, Virtual,Inactive,  Active],[4,9])
+  ! ITYPE: orbital types (bra p, bra i, ket q, ket k) of each case,
+  ! icase = 1, 2, 3, 4, 5, 6, 7, 8, 9 for A, B, D1, H, C, F, D2, G, E
 
   ! Buffer sizes for all JSYM at once
   ! needed before RHSLoc is allocated, the tier cannot be changed afterwards
@@ -599,14 +589,11 @@ subroutine STRIPED_SIZES()
 
 end subroutine STRIPED_SIZES
 
-!-----------------------------------------------------------------------
-
 subroutine MEMORY_ESTIMATE_STRIPED()
 
-  integer(kind=iwp) :: IB, IBGRP, MAXPIQK, MINGOOD, MINNICE, MINPIQK, MINSLOW, MXBATCH, MXCHOVEC, MXRHS, MXVLOC, NAABUF, &
-                       NAAPI, NCHOVEC, NCHUNK, NPIBRA, NPIGAT, NPIKET, NPIKTR, NPIPCK, NPIPER, NPITRA, NPIXTR, NVBATCH, NVECTOT, &
-                       NVGRP, NXTRA
-
+  integer(kind=iwp) :: IB, IBGRP, MAXPIQK, MINGOOD, MINNICE, MINPIQK, MINSLOW, MXBATCH, MXCHOVEC, MXRHS, MXVLOC, NAABUF, NAAPI, &
+                       NCHOVEC, NCHUNK, NPIBRA, NPIGAT, NPIKET, NPIKTR, NPIPCK, NPIPER, NPITRA, NPIXTR, NVBATCH, NVECTOT, NVGRP, &
+                       NXTRA
   integer(kind=iwp), allocatable :: NVEFF(:)
 
   ! Striped counterpart of MEMORY_ESTIMATE
@@ -745,7 +732,7 @@ subroutine MEMORY_ESTIMATE_STRIPED()
     write(u6,*)
     write(u6,'(A16,2A16)') '  Buffer sizes:','           used','          ideal'
     write(u6,'(A16,2I16)') '  ChoVecs:  ',NBRABUF+NKETBUF+NAABUF+NXTRA, &
-                                          NPIPER*NVECTOT+max(2*NPITRA*NVECTOT,NPIPCK*NVECTOT,NPIGAT*MXVLOC,NPIKTR)
+      NPIPER*NVECTOT+max(2*NPITRA*NVECTOT,NPIPCK*NVECTOT,NPIGAT*MXVLOC,NPIKTR)
     write(u6,'(A16,2I16)') '  Integral: ',MXPIQK,MAXPIQK
     write(u6,*)
   end if
