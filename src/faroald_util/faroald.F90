@@ -66,7 +66,7 @@ integer(kind=iwp) :: ncomb_tot
 public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
           my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, transition_two_pdm, &
           two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing, build_pattern_diagonal, &
-          build_pattern_diagonal_approx, nSpin_Comb, nComb, ibComb, nComb_tot
+          build_pattern_diagonal_approx, nSpin_Comb, nComb, ibComb, nComb_tot, pattern_combinations
 public :: npat, occpat, ipat_of_det
 
 ! Extensions to mma interfaces
@@ -1464,6 +1464,7 @@ use second_quantization, only: binom_coef
   end if
 
 end function spin_comb_count
+
 subroutine spncom_faroald(nopen,ms2,ncomb,comb)
 
   integer(kind=iwp), intent(in) :: nopen, ms2
@@ -1511,6 +1512,27 @@ subroutine spncom_faroald(nopen,ms2,ncomb,comb)
   end do
 
 end subroutine spncom_faroald
+
+subroutine pattern_combinations(ipat,nopen,ncomb_pat,comb)
+
+  integer(kind=iwp), intent(in) :: ipat
+  integer(kind=iwp), intent(out) :: nopen, ncomb_pat
+  integer(kind=iwp), intent(out) :: comb(:,:)
+
+  integer(kind=iwp) :: p
+
+  nopen = 0
+
+  do p=1,my_norb
+     if (occpat(p,ipat) == 1) nopen = nopen + 1
+  end do
+
+  ncomb_pat = ncomb(ipat)
+
+  call spncom_faroald(nopen,mult-1,ncomb_pat,comb)
+
+end subroutine pattern_combinations
+
 
 subroutine build_pattern_diagonal(h,g,diag)
 
