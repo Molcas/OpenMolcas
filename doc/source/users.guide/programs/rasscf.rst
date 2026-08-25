@@ -70,16 +70,6 @@ handled with the present program is about :math:`10^7` CSFs and is,
 in general, limited by the dynamic work array available to the
 program. The GUGA formalism is available both for CAS, RAS and GAS wave functions.
 
-Lucia contraction optimizations
--------------------------------
-
-Optimized contraction paths in the conventional Lucia CI solver are enabled
-automatically. The optimized CPU paths handle selected small contractions.
-When |molcas| is built with ``CUBLAS=ON``, the native Lucia CUDA kernels are
-built and selected automatically for supported contractions. Size and
-execution-mode guards keep unsupported contractions on the existing CPU
-implementation.
-
 The orbital optimization in the :program:`RASSCF` program is performed
 using the super-CI method. The reader is referred to the
 references :cite:`raspek,caspek3` for more details.
@@ -224,6 +214,14 @@ orbitals have been prepared to be adapted to linear symmetry, the
 The program will do this automatically with the use of the
 input keyword :kword:`LINEAR`. Similarly, for single atoms, spherical
 symmetry can be enforced by the keyword :kword:`ATOM`.
+
+Lucia contraction optimizations
+-------------------------------
+
+The conventional Lucia CI solver uses optimized CPU paths for selected small
+contractions. In builds configured with ``CUBLAS=ON``, supported contractions
+use native Lucia CUDA kernels. Size and execution-mode constraints determine
+which contractions run on the CPU.
 
 .. _UG\:sec\:core-hole:
 

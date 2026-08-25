@@ -240,18 +240,8 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     abtor2_cuda_interface.F90
-     gsbbd1_cuda_interface.F90
-     gsbbd2a_cuda_interface.F90
-     gsbbd2b_cuda_interface.F90
      lucia_data.F90
      lucia_interface.F90
-     lucia_parameters.F90
-     lucia_sigma_cuda_blocks_interface.F90
-     rsbb1e_cuda_interface.F90
-     rsbb2a_cuda_interface.F90
-     rsbb2bn_cuda_interface.F90
-     skickj_cuda_interface.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

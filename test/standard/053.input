@@ -1,12 +1,3 @@
-*-------------------------------------------------------------------------------
-* Molecule: H2O
-* Basis: ANO-RCC-VDZ
-* Symmetry: C1
-* Features tested: RASSCF Lucia optimized contractions
-* Responsible person: Meng Wang 260814
-* Comments: Keep the Lucia contraction paths covered by verification.
-*-------------------------------------------------------------------------------
-
 &seward
 Title = Water
 Coord 
