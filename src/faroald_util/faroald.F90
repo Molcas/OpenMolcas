@@ -68,6 +68,8 @@ public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, 
           two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing, build_pattern_diagonal, &
           build_pattern_diagonal_approx, nSpin_Comb, nComb, ibComb, nComb_tot, pattern_combinations
 public :: npat, occpat, ipat_of_det
+public :: combination_occupations
+public :: combination_diagonal
 
 ! Extensions to mma interfaces
 
@@ -901,7 +903,7 @@ subroutine hdiag(h,g,diag)
 
   integer(kind=iwp), allocatable :: occa(:,:), occb(:,:)
 
-  integer(kind=iwp) :: ia, ib, i, j, k
+  integer(kind=iwp) :: ia, ib, i, j, k, iaLow
 
   call mma_allocate(Da,ndeta,label='Da')
   call mma_allocate(Db,ndetb,label='Db')
@@ -967,7 +969,9 @@ subroutine hdiag(h,g,diag)
   k = 0
 
   do ib=1,ndetb
-     do ia=1,ndeta
+     iaLow = 1
+     if (Mult==1) iaLow=ib
+     do ia=iaLow,ndetA
 
         k = k + 1
 
@@ -1361,6 +1365,15 @@ subroutine build_patterns()
   write(u6,'(A,F12.4)') ' Compression = ', real(my_ndet,wp)/real(npat,wp)
 #endif
 
+!#ifdef _DEBUGPRINT_
+do ipat=1,npat
+   write(u6,'(A,I4,A,20I2)') &
+        'ipat=',ipat, &
+        ' occ=',occpat(:,ipat)
+end do
+!#endif
+
+
 end subroutine build_patterns
 
 subroutine analyse_patterns()
@@ -1368,11 +1381,17 @@ subroutine analyse_patterns()
   integer(kind=iwp) :: ipat, p
 
   integer(kind=iwp), allocatable :: comb(:,:)
+#ifdef _DEBUGPRINT_
+  integer(kind=iwp) :: nopen, ncomb_pat, icomb
+  integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
+#endif
 
   call mma_allocate(ndoub,npat,label='NDoub')
   call mma_allocate(nsing,npat,label='NSing')
   call mma_allocate(nspin_comb,npat,label='NSpinComb')
   call mma_allocate(ncomb,npat,label='NComb')
+
+Write (6,*) 'Enter analyse'
 
   do ipat=1,npat
 
@@ -1424,6 +1443,27 @@ subroutine analyse_patterns()
 if (nsing(ipat) > 0 .and. mult==1) then
    call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
    call spncom_faroald(nsing(ipat),0,nspin_comb(ipat),comb)
+   call mma_deallocate(comb)
+end if
+#endif
+
+#ifdef _DEBUGPRINT_
+if (nsing(ipat) == 4 .and. mult == 1) then
+
+   call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
+
+   call pattern_combinations(ipat,nopen,ncomb_pat,comb)
+
+   do icomb=1,ncomb_pat
+
+      call combination_occupations(ipat,comb(:,icomb),occa_tmp,occb_tmp)
+
+      write(u6,'(A,I3)') 'Combination ',icomb
+      write(u6,'(A,20I3)') 'Alpha:',occa_tmp
+      write(u6,'(A,20I3)') 'Beta :',occb_tmp
+
+   end do
+
    call mma_deallocate(comb)
 end if
 #endif
@@ -1503,13 +1543,13 @@ subroutine spncom_faroald(nopen,ms2,ncomb,comb)
      end if
 
   end do
-  write(u6,*)
-  write(u6,*) 'SPNCOM_FAROALD'
-  write(u6,*)
+! write(u6,*)
+! write(u6,*) 'SPNCOM_FAROALD'
+! write(u6,*)
 
-  do i=1,icomb
-     write(u6,'(I5,2X,30I2)') i, comb(:,i)
-  end do
+! do i=1,icomb
+!    write(u6,'(I5,2X,30I2)') i, comb(:,i)
+! end do
 
 end subroutine spncom_faroald
 
@@ -1533,6 +1573,108 @@ subroutine pattern_combinations(ipat,nopen,ncomb_pat,comb)
 
 end subroutine pattern_combinations
 
+subroutine combination_occupations(ipat,comb,occa,occb)
+
+  integer(kind=iwp), intent(in) :: ipat
+  integer(kind=iwp), intent(in), optional :: comb(:)
+
+  integer(kind=iwp), intent(out) :: occa(nela)
+  integer(kind=iwp), intent(out) :: occb(nelb)
+
+  integer(kind=iwp) :: ia
+  integer(kind=iwp) :: ib
+  integer(kind=iwp) :: ic
+  integer(kind=iwp) :: p
+
+  ia = 0
+  ib = 0
+  ic = 0
+
+  do p=1,my_norb
+
+     select case (occpat(p,ipat))
+
+     case (2)
+
+        ia = ia + 1
+        ib = ib + 1
+
+        occa(ia) = p
+        occb(ib) = p
+
+     case (1)
+
+        ic = ic + 1
+
+        if (.not. present(comb)) then
+          write (u6,*) 'combination_occupations. comb missing'
+          call Abend()
+        else if (comb(ic) == 1) then
+
+           ia = ia + 1
+           occa(ia) = p
+
+        else
+
+           ib = ib + 1
+           occb(ib) = p
+
+        end if
+
+     end select
+
+  end do
+
+end subroutine combination_occupations
+
+subroutine combination_diagonal(ipat,h,g,e,comb)
+
+  real(kind=wp), intent(in) :: h(my_norb,my_norb)
+  real(kind=wp), intent(in) :: g(my_norb,my_norb,my_norb,my_norb)
+
+  integer(kind=iwp), intent(in) :: ipat
+  integer(kind=iwp), intent(in), optional :: comb(:)
+
+  real(kind=wp), intent(out) :: e
+
+  integer(kind=iwp) :: occa(nela)
+  integer(kind=iwp) :: occb(nelb)
+
+  integer(kind=iwp) :: i,j
+
+  call combination_occupations(ipat,comb,occa,occb)
+
+  e = Zero
+
+  do i=1,nela
+     e = e + h(occa(i),occa(i))
+  end do
+
+  do i=1,nelb
+     e = e + h(occb(i),occb(i))
+  end do
+
+  do i=1,nela
+     do j=i+1,nela
+        e = e + g(occa(i),occa(i),occa(j),occa(j))
+        e = e - g(occa(i),occa(j),occa(j),occa(i))
+     end do
+  end do
+
+  do i=1,nelb
+     do j=i+1,nelb
+        e = e + g(occb(i),occb(i),occb(j),occb(j))
+        e = e - g(occb(i),occb(j),occb(j),occb(i))
+     end do
+  end do
+
+  do i=1,nela
+     do j=1,nelb
+        e = e + g(occa(i),occa(i),occb(j),occb(j))
+     end do
+  end do
+
+end subroutine combination_diagonal
 
 subroutine build_pattern_diagonal(h,g,diag)
 

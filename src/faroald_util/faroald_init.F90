@@ -16,7 +16,7 @@ subroutine faroald_init(nactel,nasht,ispin)
 ! in preparation for the sigma_update routine.
 
 use faroald, only: ex1_a, ex1_b, ex1_init, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, my_nel, &
-                   my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob
+                   my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, nComb_tot
 use faroald, only: mma_allocate ! with extensions for ex1_struct
 use faroald, only: verify_occ_patterns, build_patterns, analyse_patterns
 use second_quantization, only: binom_coef, rank_init
@@ -64,9 +64,14 @@ call mma_allocate(ex1_a,max_ex1a,ndeta,label='ex1_a')
 call ex1_init(nela,my_norb,ex1_a)
 !end if
 
-call verify_occ_patterns()
-call build_patterns()
-call analyse_patterns()
+if (mult == 1) then
+   ncomb_tot = ndeta*(ndeta+1)/2
+else
+   ncomb_tot = ndeta*ndetb
+end if
+!call verify_occ_patterns()
+!call build_patterns()
+!call analyse_patterns()
 
 ! For sigma3, we need to construct a list of determinant couples L(i)
 ! = E_pq R(i) for a given p and q for the alpha strings. This is done

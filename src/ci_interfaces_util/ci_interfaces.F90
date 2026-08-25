@@ -476,14 +476,17 @@ subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
-use faroald, only: nPat, hdiag, ipat_of_det, build_pattern_diagonal, build_pattern_diagonal_approx, nComb, ncomb_tot
-use general_data, only: iSpin
+use faroald, only: nPat, hdiag, ipat_of_det, nComb, ncomb_tot
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(in):: CSFDIA(nConf), TU(nTU), TUVX(nTUVX)
 
-real(kind=wp), allocatable :: DDIA(:), DIAG(:), D1(:), D2(:)
+real(kind=wp), allocatable :: DDIA(:), DIAG(:)
 integer(kind=iwp):: IPRINT=0
+
+integer(kind=iwp) :: nopen, ncomb_pat, icomb, i
+integer(kind=iwp), allocatable :: comb(:,:)
+real(kind=wp) :: ecomb
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
@@ -507,8 +510,8 @@ If (DoFaro) Then
      Write (u6,*) 'nComb_tot',nComb_tot
      Call Abend()
   End If
-  Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
-  Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
+! Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
+! Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -537,23 +540,20 @@ If (DoFaro) Then
     end do
   end do
 
-  Call mma_allocate(Diag,nDetA*nDetB,Label='Diag')
+  Call mma_allocate(Diag,nComb_tot,Label='Diag')
   Diag(:)=Zero
   Call hdiag(htu,gtuvx,diag)
-  Call RecPrt('Diag(FAROALD)',' ',Diag,1,nDetA*nDetB)
+! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
+  Do i=1,nComb_tot
+     If (abs(ddia(i)-diag(i))>1.0e-12_wp) Then
+        Write (u6,*) 'i, abs(ddia(i)-diag(i))'
+        Write (u6,*) i, abs(ddia(i)-diag(i))
+        Write (u6,*) ddia(i),diag(i)
+        Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
+        Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
+     End If
+  End Do
   Call mma_deallocate(Diag)
-
-! Call mma_allocate(D1,nPat,Label='D1')
-! D1(:)=Zero
-! Call build_pattern_diagonal_Approx(htu,gtuvx,D1)
-! Call RecPrt('D1(FAROALD)',' ',D1,1,nPat)
-! Call mma_deallocate(D1)
-
-  Call mma_allocate(D2,nPat,Label='D2')
-  D2(:)=Zero
-  Call build_pattern_diagonal(htu,gtuvx,D2)
-  Call RecPrt('D2(FAROALD)',' ',D2,1,nPat)
-  Call mma_deallocate(D2)
 
 End If
 
