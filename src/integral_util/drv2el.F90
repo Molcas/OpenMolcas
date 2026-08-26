@@ -184,6 +184,7 @@ do
     A_int = TMax(iS,jS)*TMax(kS,lS)
     if (A_Int < CutInt) cycle
 
+    TInt(1:nTInt) = Zero
     call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
   end do
