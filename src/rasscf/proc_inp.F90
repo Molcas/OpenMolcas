@@ -42,7 +42,7 @@ use general_data, only: ISPIN, NACTEL, &
                         NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, iDoGAS, IGSOCCX, &
                         NGAS, NGSSH
 use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
-                  N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCSASM, NDTASM
+                  N_2ELIMINATED_GAS, N_ELIMINATED_GAS
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit

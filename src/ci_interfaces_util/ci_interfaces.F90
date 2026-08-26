@@ -476,7 +476,7 @@ subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
-use faroald, only: nPat, hdiag, ipat_of_det, nComb, ncomb_tot
+use faroald, only: nPat, hdiag, ncomb_tot, ictsdt
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(in):: CSFDIA(nConf), TU(nTU), TUVX(nTUVX)
@@ -484,10 +484,10 @@ real(kind=wp), intent(in):: CSFDIA(nConf), TU(nTU), TUVX(nTUVX)
 real(kind=wp), allocatable :: DDIA(:), DIAG(:)
 integer(kind=iwp):: IPRINT=0
 
-integer(kind=iwp) :: nopen, ncomb_pat, icomb, i
-integer(kind=iwp), allocatable :: comb(:,:)
-real(kind=wp) :: ecomb
+integer(kind=iwp) :: i
 
+Write (u6,*) 'SDREO:',SDREO
+Write (u6,*) 'ictsdt:',ictsdt
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
 call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)

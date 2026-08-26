@@ -12,7 +12,7 @@
 subroutine SG_Setup_RASSCF()
 
 use general_data, only: iSpin, nActel, nConf, nSym, STSYM, NLEV, Level, nRas,nRasEl,nRsPrt, NSM
-use sguga, only: CIS, SGS, SG_init
+use sguga, only: CIS, SG_init
 #ifdef _DMRG_
 use input_ras, only: Key
 use stdalloc, only: mma_deallocate

@@ -30,10 +30,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
-integer(kind=iwp) :: IPRINT, IPRL, IPRLEV
+integer(kind=iwp) :: IPRL, IPRLEV, ix
 real(kind=wp) :: dum1, dum2, dum3, Time(2)
-real(kind=wp), allocatable :: DDIA(:)
 
+ix=irefsm
 call Timing(Time(1),dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
 
