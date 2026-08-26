@@ -90,9 +90,9 @@ integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1),
 integer(kind=iwp) :: IBLOCK, II
 #endif
 real(kind=wp) :: C(1), PL, XFAC
+logical(kind=iwp) :: SBZERO(NSBLOCK)
 ! IH_OCC_CONS = 1 implies that we should employ occupation conserving part of Hamiltonian
 integer(kind=iwp), parameter :: IH_OCC_CONS = 0
-logical :: SBZERO(NSBLOCK)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ================='
@@ -129,7 +129,7 @@ do JSBLOCK=1,NSBLOCK
   NBSTR = NSSOB(IBSM,IBTP)
   if (ISBLOCK(1,JSBLOCK) > 0) SB(IOFF:IOFF+NASTR*NBSTR-1) = Zero
 end do
-SBZERO = .true.
+SBZERO(:) = .true.
 ! Loop over batches over C blocks
 if (IDOH2 == 1) then
   MXEXC = 2

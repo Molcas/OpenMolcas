@@ -74,13 +74,13 @@ subroutine RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP
 use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPNGAS, TSIGMA
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp
 #ifdef _CUDA_BLAS_
 use, intrinsic :: iso_c_binding, only: c_int64_t
-use RSBB2BN_CUDA_INTERFACE, only: LUCIA_RSBB2BN_CUDA_BEGIN, LUCIA_RSBB2BN_CUDA_FLUSH, LUCIA_RSBB2BN_CUDA_END, &
-                                  LUCIA_RSBB2BN_CUDA_ROUTE
+use LUCIA_CUDA_INTERFACE, only: LUCIA_RSBB2BN_CUDA_BEGIN, LUCIA_RSBB2BN_CUDA_END, LUCIA_RSBB2BN_CUDA_FLUSH, &
+                                LUCIA_RSBB2BN_CUDA_ROUTE
 #endif
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -99,10 +99,10 @@ integer(kind=iwp) :: IASPGP(20), IBSPGP(20), ICOUL, IDOCOMP, II, IJ_DIM(2), IJ_R
                      KACT, KATOP, KL_DIM(2), KL_REO(2), KL_SYM(2), KL_TYP(2), KLAC, KLSM, KLTYP, KSM, KTP(20), KTYP, LKABTC, LSM, &
                      LTP(20), LTYP, NI, NIJTYP, NJ, NK, NKABTC, NKABTCSZ, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL
 real(kind=wp) :: CPU, CPU0, CPU1, FACS, SIGNIJ2, SIGNKL, WALL, WALL0, WALL1
-logical :: HaveCpuContrib
+logical(kind=iwp) :: HaveCpuContrib
 #ifdef _CUDA_BLAS_
-integer(c_int64_t) :: CudaStatus
-logical :: CudaSession
+integer(kind=c_int64_t) :: CudaStatus
+logical(kind=iwp) :: CudaSession
 #endif
 
 #ifdef _DEBUGPRINT_
@@ -131,12 +131,12 @@ if ((NIJTYP == 0) .or. (NKLTYP == 0)) return
 
 #ifdef _CUDA_BLAS_
 CudaSession = .false.
-if (NPROCS == 1 .and. NIA > 0 .and. NIB > 0 .and. NJA > 0 .and. NJB > 0) then
+if ((NPROCS == 1) .and. (NIA > 0) .and. (NIB > 0) .and. (NJA > 0) .and. (NJB > 0)) then
   CudaStatus = LUCIA_RSBB2BN_CUDA_BEGIN(SB,CB,NIA,NIB,NJA,NJB)
-  if (CudaStatus == -1_c_int64_t) then
+  if (CudaStatus == -1) then
     call SYSABENDMSG('lucia_util/rsbb2bn','CUDA execution failed','')
   else
-    CudaSession = CudaStatus == 1_c_int64_t
+    CudaSession = CudaStatus == 1
   end if
 end if
 #endif
@@ -313,27 +313,26 @@ do IJTYP=1,NIJTYP
 
           IROUTE = 3
 #         ifdef _CUDA_BLAS_
-          CudaStatus = 0_c_int64_t
-          if (NPROCS == 1) then
-            CudaStatus = LUCIA_RSBB2BN_CUDA_ROUTE(SB,CB,XINT,I1,XI1S,I3,XI3S,I4,XI4S,I2,XI2S,NIA,NIB,NJA,NJB,NKASTR,KABOT, &
-                                                  LKABTC,NKBSTR,IJ_DIM(1),IJ_DIM(2),KL_DIM(1),KL_DIM(2),IKORD)
-          end if
-          if (CudaStatus == -1_c_int64_t) then
+          CudaStatus = 0
+          if (NPROCS == 1) CudaStatus = LUCIA_RSBB2BN_CUDA_ROUTE(SB,CB,XINT,I1,XI1S,I3,XI3S,I4,XI4S,I2,XI2S,NIA,NIB,NJA,NJB,&
+                                                                 NKASTR,KABOT,LKABTC,NKBSTR,IJ_DIM(1),IJ_DIM(2),KL_DIM(1),&
+                                                                 KL_DIM(2),IKORD)
+          if (CudaStatus == -1) then
             call SYSABENDMSG('lucia_util/rsbb2bn','CUDA execution failed','')
-          else if (CudaStatus /= 1_c_int64_t) then
+          else if (CudaStatus /= 1) then
 #         endif
-          if (.not. HaveCpuContrib) then
-            do JJ=1,IJ_DIM(2)
-              call GET_CKAJJB(CB,IJ_DIM(2),NJA,CJRES,LKABTC,NJB,JJ,I1(KABOT+(JJ-1)*NKASTR),XI1S(KABOT+(JJ-1)*NKASTR))
-            end do
-            SIRES(1:NIB*LKABTC*IJ_DIM(1)) = Zero
-            HaveCpuContrib = .true.
-          end if
-          call TIMING(CPU0,CPU,WALL0,WALL)
-          call SKICKJ(SIRES,CJRES,LKABTC,NKBSTR,XINT,IJ_DIM(1),IJ_DIM(2),KL_DIM(1),KL_DIM(2),NKBSTR,I4,XI4S,I2,XI2S,IKORD,FACS, &
-                      IROUTE)
-          call TIMING(CPU1,CPU,WALL1,WALL)
-          TSIGMA(5) = TSIGMA(5)+(WALL1-WALL0)
+            if (.not. HaveCpuContrib) then
+              do JJ=1,IJ_DIM(2)
+                call GET_CKAJJB(CB,IJ_DIM(2),NJA,CJRES,LKABTC,NJB,JJ,I1(KABOT+(JJ-1)*NKASTR),XI1S(KABOT+(JJ-1)*NKASTR))
+              end do
+              SIRES(1:NIB*LKABTC*IJ_DIM(1)) = Zero
+              HaveCpuContrib = .true.
+            end if
+            call TIMING(CPU0,CPU,WALL0,WALL)
+            call SKICKJ(SIRES,CJRES,LKABTC,NKBSTR,XINT,IJ_DIM(1),IJ_DIM(2),KL_DIM(1),KL_DIM(2),NKBSTR,I4,XI4S,I2,XI2S,IKORD,FACS, &
+                        IROUTE)
+            call TIMING(CPU1,CPU,WALL1,WALL)
+            TSIGMA(5) = TSIGMA(5)+(WALL1-WALL0)
 #         ifdef _CUDA_BLAS_
           end if
 #         endif
@@ -360,14 +359,12 @@ do IJTYP=1,NIJTYP
 #     endif
 
       call TIMING(CPU0,CPU,WALL0,WALL)
-#ifdef _CUDA_BLAS_
+#     ifdef _CUDA_BLAS_
       if (CudaSession .and. HaveCpuContrib) then
         CudaStatus = LUCIA_RSBB2BN_CUDA_FLUSH()
-        if (CudaStatus == -1_c_int64_t) then
-          call SYSABENDMSG('lucia_util/rsbb2bn','CUDA execution failed','')
-        end if
+        if (CudaStatus == -1) call SYSABENDMSG('lucia_util/rsbb2bn','CUDA execution failed','')
       end if
-#endif
+#     endif
       if (HaveCpuContrib) then
         do II=1,IJ_DIM(1)
           call ADD_SKAIIB(SB,IJ_DIM(1),NIA,SIRES,LKABTC,NIB,II,I3(KABOT+(II-1)*NKASTR),XI3S(KABOT+(II-1)*NKASTR))
@@ -385,9 +382,7 @@ end do
 #ifdef _CUDA_BLAS_
 if (CudaSession) then
   CudaStatus = LUCIA_RSBB2BN_CUDA_END()
-  if (CudaStatus == -1_c_int64_t) then
-    call SYSABENDMSG('lucia_util/rsbb2bn','CUDA execution failed','')
-  end if
+  if (CudaStatus == -1) call SYSABENDMSG('lucia_util/rsbb2bn','CUDA execution failed','')
 end if
 #endif
 

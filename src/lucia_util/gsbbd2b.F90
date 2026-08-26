@@ -66,14 +66,14 @@ subroutine GSBBD2B(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,J
 use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: LOFFI
+#ifdef _CUDA_BLAS_
+use, intrinsic :: iso_c_binding, only: c_int64_t
+use LUCIA_CUDA_INTERFACE, only: LUCIA_GSBBD2B_CUDA_BEGIN, LUCIA_GSBBD2B_CUDA_BEGIN_MAPS, LUCIA_GSBBD2B_CUDA_END, &
+                                LUCIA_GSBBD2B_CUDA_END_MAPS, LUCIA_GSBBD2B_CUDA_ROUTE
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-#ifdef _CUDA_BLAS_
-use, intrinsic :: iso_c_binding, only: c_int64_t
-use GSBBD2B_CUDA_INTERFACE, only: LUCIA_GSBBD2B_CUDA_BEGIN, LUCIA_GSBBD2B_CUDA_END, LUCIA_GSBBD2B_CUDA_BEGIN_MAPS, &
-                                  LUCIA_GSBBD2B_CUDA_END_MAPS, LUCIA_GSBBD2B_CUDA_ROUTE
-#endif
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -93,10 +93,8 @@ integer(kind=iwp) :: I, IDOCOMP, II, IJ, IJSM, IJTYP, IKABTC, IKORD, IOFF, ISM, 
                      NJ, NK, NKABTC, NKABTCSZ, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL
 real(kind=wp), allocatable :: OFFI(:)
 #ifdef _CUDA_BLAS_
-integer(c_int64_t) :: CudaStatus
-logical :: HaveGathered
-logical :: CudaSession
-logical :: CudaMaps
+integer(kind=c_int64_t) :: CudaStatus
+logical(kind=iwp) :: CudaMaps, CudaSession, HaveGathered
 #endif
 
 #ifdef _DEBUGPRINT_
@@ -125,14 +123,13 @@ if ((NIJTYP == 0) .or. (NKLTYP == 0)) return
 #ifdef _CUDA_BLAS_
 CudaSession = .false.
 CudaMaps = .false.
-if (NPROCS == 1 .and. NIA > 0 .and. NIB > 0 .and. NJA > 0 .and. NJB > 0) then
-  CudaStatus = LUCIA_GSBBD2B_CUDA_BEGIN(SB,CB,RHO2,RHO2S,RHO2A,S2_TERM1,int(NIA,c_int64_t),int(NIB,c_int64_t), &
-                                        int(NJA,c_int64_t),int(NJB,c_int64_t),int(NORB,c_int64_t), &
-                                        merge(1_c_int64_t,0_c_int64_t,IPACK))
-  if (CudaStatus == -1_c_int64_t) then
+if ((NPROCS == 1) .and. (NIA > 0) .and. (NIB > 0) .and. (NJA > 0) .and. (NJB > 0)) then
+  CudaStatus = LUCIA_GSBBD2B_CUDA_BEGIN(SB,CB,RHO2,RHO2S,RHO2A,S2_TERM1,int(NIA,c_int64_t),int(NIB,c_int64_t),int(NJA,c_int64_t), &
+                                        int(NJB,c_int64_t),int(NORB,c_int64_t),merge(1_c_int64_t,0_c_int64_t,IPACK))
+  if (CudaStatus == -1) then
     call SYSABENDMSG('lucia_util/gsbbd2b','CUDA execution failed','')
   else
-    CudaSession = CudaStatus == 1_c_int64_t
+    CudaSession = CudaStatus == 1
   end if
 end if
 #endif
@@ -181,26 +178,25 @@ do IJTYP=1,NIJTYP
       if (NKABTCSZ <= MAXK) exit
     end do
 
-#ifdef _CUDA_BLAS_
-    if (CudaSession .and. NKASTR > 0 .and. NI > 0 .and. NJ > 0) then
-      CudaStatus = LUCIA_GSBBD2B_CUDA_BEGIN_MAPS(I1,XI1S,I3,XI3S,int(NKASTR,c_int64_t), &
-                                                int(NI,c_int64_t),int(NJ,c_int64_t))
-      if (CudaStatus == -1_c_int64_t) then
+#   ifdef _CUDA_BLAS_
+    if (CudaSession .and. (NKASTR > 0) .and. (NI > 0) .and. (NJ > 0)) then
+      CudaStatus = LUCIA_GSBBD2B_CUDA_BEGIN_MAPS(I1,XI1S,I3,XI3S,int(NKASTR,c_int64_t),int(NI,c_int64_t),int(NJ,c_int64_t))
+      if (CudaStatus == -1) then
         call SYSABENDMSG('lucia_util/gsbbd2b','CUDA execution failed','')
       else
-        CudaMaps = CudaStatus == 1_c_int64_t
+        CudaMaps = CudaStatus == 1
       end if
     end if
-#endif
+#   endif
 
     do IKABTC=1+MYRANK,NKABTC,NPROCS
       KABOT = (IKABTC-1)*NKABTCSZ+1
       KATOP = min(KABOT+NKABTCSZ-1,NKAEFF)
       LKABTC = KATOP-KABOT+1
       if (LKABTC <= 0) exit
-#ifdef _CUDA_BLAS_
+#     ifdef _CUDA_BLAS_
       HaveGathered = .false.
-#else
+#     else
       ! Obtain C(ka,J,JB) for Ka in batch
       do JJ=1,NJ
         call GET_CKAJJB(CB,NJ,NJA,CJRES,LKABTC,NJB,JJ,I1(KABOT+(JJ-1)*NKASTR),XI1S(KABOT+(JJ-1)*NKASTR))
@@ -209,7 +205,7 @@ do IJTYP=1,NIJTYP
       do II=1,NI
         call GET_CKAJJB(SB,NI,NIA,SIRES,LKABTC,NIB,II,I3(KABOT+(II-1)*NKASTR),XI3S(KABOT+(II-1)*NKASTR))
       end do
-#endif
+#     endif
 
       do KLTYP=1,NKLTYP
         KTYP = KTP(KLTYP)
@@ -241,20 +237,17 @@ do IJTYP=1,NIJTYP
 
           X(1:NI*NJ*NK*NL) = Zero
 
-#ifdef _CUDA_BLAS_
-          CudaStatus = 0_c_int64_t
+#         ifdef _CUDA_BLAS_
+          CudaStatus = 0
           if (NPROCS == 1) then
-            CudaStatus = LUCIA_GSBBD2B_CUDA_ROUTE(X,SB,CB,I1,XI1S,I3,XI3S,I4,XI4S,I2,XI2S,NIA,NIB,NJA,NJB,NKASTR,KABOT, &
-                                                  LKABTC,NKBSTR,NI,NJ,NK,NL,IKORD,int(IOFF,c_int64_t),int(JOFF,c_int64_t), &
+            CudaStatus = LUCIA_GSBBD2B_CUDA_ROUTE(X,SB,CB,I1,XI1S,I3,XI3S,I4,XI4S,I2,XI2S,NIA,NIB,NJA,NJB,NKASTR,KABOT,LKABTC, &
+                                                  NKBSTR,NI,NJ,NK,NL,IKORD,int(IOFF,c_int64_t),int(JOFF,c_int64_t), &
                                                   int(KOFF,c_int64_t),int(LOFF,c_int64_t),int(NORB,c_int64_t), &
-                                                  merge(1_c_int64_t,0_c_int64_t,IPACK), &
-                                                  merge(1_c_int64_t,0_c_int64_t,(KTYP == JTYP .and. KSM == JSM .and. &
-                                                                                ITYP == LTYP .and. ISM == LSM)))
+                                                  merge(1_c_int64_t,0_c_int64_t,IPACK),merge(1_c_int64_t,0_c_int64_t, &
+                                                  (KTYP == JTYP) .and. (KSM == JSM) .and. (ITYP == LTYP) .and. (ISM == LSM)))
           end if
-          if (CudaStatus == -1_c_int64_t) then
-            call SYSABENDMSG('lucia_util/gsbbd2b','CUDA execution failed','')
-          end if
-          if (CudaStatus /= 1_c_int64_t) then
+          if (CudaStatus == -1) call SYSABENDMSG('lucia_util/gsbbd2b','CUDA execution failed','')
+          if (CudaStatus /= 1) then
             if (.not. HaveGathered) then
               do JJ=1,NJ
                 call GET_CKAJJB(CB,NJ,NJA,CJRES,LKABTC,NJB,JJ,I1(KABOT+(JJ-1)*NKASTR),XI1S(KABOT+(JJ-1)*NKASTR))
@@ -264,31 +257,31 @@ do IJTYP=1,NIJTYP
               end do
               HaveGathered = .true.
             end if
-#endif
-          call ABTOR2(SIRES,CJRES,LKABTC,NKBSTR,X,NI,NJ,NK,NL,NKBSTR,I4,XI4S,I2,XI2S,IKORD)
-#ifdef _CUDA_BLAS_
+#         endif
+            call ABTOR2(SIRES,CJRES,LKABTC,NKBSTR,X,NI,NJ,NK,NL,NKBSTR,I4,XI4S,I2,XI2S,IKORD)
+#         ifdef _CUDA_BLAS_
           end if
-          if ((CudaStatus /= 1_c_int64_t) .or. (.not. CudaSession)) then
-#endif
-          ! contributions to Rho2(ij,kl) has been obtained, scatter out
-          !call wrtmat(x,ni*nj,nk*nl,ni*nj,nk*nl)
-          ! Contribution to S2
-          if ((KTYP == JTYP) .and. (KSM == JSM) .and. (ITYP == LTYP) .and. (ISM == LSM)) then
-            do I=1,NI
-              do J=1,NJ
-                IJ = (J-1)*NI+I
-                JI = (I-1)*NJ+J
-                NIJ = NI*NJ
-                S2_TERM1 = S2_TERM1-X((JI-1)*NIJ+IJ)
+          if ((CudaStatus /= 1) .or. (.not. CudaSession)) then
+#         endif
+            ! contributions to Rho2(ij,kl) has been obtained, scatter out
+            !call wrtmat(x,ni*nj,nk*nl,ni*nj,nk*nl)
+            ! Contribution to S2
+            if ((KTYP == JTYP) .and. (KSM == JSM) .and. (ITYP == LTYP) .and. (ISM == LSM)) then
+              do I=1,NI
+                do J=1,NJ
+                  IJ = (J-1)*NI+I
+                  JI = (I-1)*NJ+J
+                  NIJ = NI*NJ
+                  S2_TERM1 = S2_TERM1-X((JI-1)*NIJ+IJ)
+                end do
               end do
-            end do
-          end if
+            end if
 
-          call ADTOR2(RHO2,RHO2S,RHO2A,X,2,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB,IPACK)
+            call ADTOR2(RHO2,RHO2S,RHO2A,X,2,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB,IPACK)
 
-#ifdef _CUDA_BLAS_
+#         ifdef _CUDA_BLAS_
           end if
-#endif
+#         endif
 
           !write(u6,*) ' updated density matrix B ','norb = ',norb
           !write(u6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
@@ -298,24 +291,20 @@ do IJTYP=1,NIJTYP
       end do
     end do
     ! End of loop over partitioning of alpha strings
-#ifdef _CUDA_BLAS_
+#   ifdef _CUDA_BLAS_
     if (CudaMaps) then
       CudaStatus = LUCIA_GSBBD2B_CUDA_END_MAPS()
-      if (CudaStatus /= 1_c_int64_t) then
-        call SYSABENDMSG('lucia_util/gsbbd2b','CUDA execution failed','')
-      end if
+      if (CudaStatus /= 1) call SYSABENDMSG('lucia_util/gsbbd2b','CUDA execution failed','')
       CudaMaps = .false.
     end if
-#endif
+#   endif
   end do
 end do
 ! This 'flush' outerlooped here. Was previously inside ADSTN_GAS.
 #ifdef _CUDA_BLAS_
 if (CudaSession) then
   CudaStatus = LUCIA_GSBBD2B_CUDA_END()
-  if (CudaStatus /= 1_c_int64_t) then
-    call SYSABENDMSG('lucia_util/gsbbd2b','CUDA execution failed','')
-  end if
+  if (CudaStatus /= 1) call SYSABENDMSG('lucia_util/gsbbd2b','CUDA execution failed','')
 end if
 #endif
 call mma_deallocate(OFFI)

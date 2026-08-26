@@ -13,7 +13,6 @@ set (sources
      abstr_to_ordstr.F90
      abtor2.F90
      abtor2_cuda.cu
-     abtor2_cuda_interface.F90
      adaadas1_gas.F90
      adaadast_gas.F90
      adads1_gas.F90
@@ -79,13 +78,10 @@ set (sources
      grapw.F90
      gsbbd1.F90
      gsbbd1_cuda.cu
-     gsbbd1_cuda_interface.F90
      gsbbd2a.F90
      gsbbd2a_cuda.cu
-     gsbbd2a_cuda_interface.F90
      gsbbd2b.F90
      gsbbd2b_cuda.cu
-     gsbbd2b_cuda_interface.F90
      gsdnbb2.F90
      gsttbl.F90
      gt1dia.F90
@@ -121,11 +117,10 @@ set (sources
      lucia_close.F90
      lucia_data.F90
      lucia.F90
+     lucia_cuda_interface.F90
      lucia_ini.F90
      lucia_interface.F90
-     lucia_parameters.F90
      lucia_sigma_cuda_blocks.cu
-     lucia_sigma_cuda_blocks_interface.F90
      lulu.F90
      matcas.F90
      matcg.F90
@@ -180,13 +175,10 @@ set (sources
      rftts.F90
      rsbb1e.F90
      rsbb1e_cuda.cu
-     rsbb1e_cuda_interface.F90
      rsbb2a.F90
      rsbb2a_cuda.cu
-     rsbb2a_cuda_interface.F90
      rsbb2bn.F90
      rsbb2bn_cuda.cu
-     rsbb2bn_cuda_interface.F90
      rsmxmn.F90
      rssbcb2.F90
      sblock.F90
@@ -198,7 +190,6 @@ set (sources
      sigvst.F90
      skickj.F90
      skickj_cuda.cu
-     skickj_cuda_interface.F90
      skprcd2.F90
      smdfgp_gen.F90
      spgp_ac.F90
