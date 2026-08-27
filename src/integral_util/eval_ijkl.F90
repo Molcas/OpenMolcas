@@ -83,7 +83,6 @@ write(u6,*) ' -->',iS,jS,kS,lS,'<--'
 PMax = Zero
 nQuad = nTri_Elem(nTri_Elem(mSkal))
 
-TInt(:) = Zero
 #ifdef _DEBUGBREIT_
 ! use the Breit option computing 1/r^3 integralas but convert to
 ! conventional 1/r integrals

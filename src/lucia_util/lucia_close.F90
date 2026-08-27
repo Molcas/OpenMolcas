@@ -1,3 +1,4 @@
+
 !***********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
@@ -20,6 +21,10 @@ logical(kind=iwp), external :: is_opened
 ! Free memory allocated by Lucia
 
 call FREESTR_GAS()
+#ifdef _CUDA_BLAS_
+CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_HOST_END()
+if (CudaStatus == -1_c_int64_t) call SYSABENDMSG('lucia_util/lucia_close','CUDA execution failed','')
+#endif
 call DeAlloc_Lucia()
 
 ! Close any files opened by Lucia
