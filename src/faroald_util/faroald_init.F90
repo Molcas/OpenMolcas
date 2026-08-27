@@ -18,9 +18,10 @@ subroutine faroald_init(nactel,nasht,ispin)
 use faroald, only: ex1_a, ex1_b, ex1_init, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, my_nel, &
                    my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob
 use faroald, only: mma_allocate ! with extensions for ex1_struct
-use faroald, only: verify_occ_patterns, build_patterns, analyse_patterns, build_conf_arcw
+!use faroald, only: verify_occ_patterns, build_patterns, analyse_patterns, build_conf_arcw
+use faroald, only: verify_occ_patterns, build_patterns, analyse_patterns
 use second_quantization, only: binom_coef, rank_init
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nactel, nasht, ispin

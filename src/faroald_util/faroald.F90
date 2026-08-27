@@ -75,7 +75,8 @@ public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, 
 public :: npat, occpat, ipat_of_det, conf_arcw
 public :: combination_occupations
 public :: combination_diagonal
-public :: build_ictsdt, ictsdt, conf_by_nopen, icnf_out, conf_reo, build_conf_arcw
+!public :: build_ictsdt, ictsdt, conf_by_nopen, icnf_out, conf_reo, build_conf_arcw
+public :: build_ictsdt, ictsdt, conf_by_nopen, icnf_out, conf_reo
 
 ! Extensions to mma interfaces
 
@@ -1387,7 +1388,7 @@ subroutine analyse_patterns()
   integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
 #endif
   integer(kind=iwp) :: iopen, k, i
-  integer(kind=iwp), allocatable :: vertex(:,:)
+! integer(kind=iwp), allocatable :: vertex(:,:)
 
   call mma_allocate(ndoub,npat,label='NDoub')
   call mma_allocate(nsing,npat,label='NSing')
@@ -1395,7 +1396,9 @@ subroutine analyse_patterns()
   call mma_allocate(ncomb,npat,label='NComb')
   call mma_allocate(conf_by_nopen,npat,label='conf_by_nopen')
   call mma_allocate(icnf_out,npat,label='ICNF_OUT')
-  call mma_allocate(vertex,my_norb+1,my_nel+1,label='Vertex')
+
+
+! call mma_allocate(vertex,my_norb+1,my_nel+1,label='Vertex')
 
   do ipat=1,npat
 
@@ -1476,6 +1479,14 @@ end if
 #endif
 
   end do
+
+write(u6,*)
+write(u6,*) 'IPAT -> NSING'
+
+do ipat=1,npat
+   write(u6,'(2I6)') ipat, nsing(ipat)
+end do
+
 #ifdef _DEBUGPRINT_
   write(u6,'(A,I10)') ' NSpin_Comb = ', sum(nSpin_comb(:))
   write(u6,'(A,I10)') ' NComb = ', sum(nComb(:))
@@ -1498,11 +1509,30 @@ end if
 call build_ictsdt()
 
 k = 0
-do iopen=0,maxval(nsing),2
+do iopen=minval(nsing),maxval(nsing),2
    do ipat=1,npat
       if (nsing(ipat) /= iopen) cycle
       k = k + 1
       conf_by_nopen(ipat) = k
+   end do
+end do
+
+write(u6,*)
+write(u6,*) 'IPAT -> CONF_BY_NOPEN'
+
+do ipat=1,npat
+   write(u6,'(2I6)') ipat, conf_by_nopen(ipat)
+end do
+
+write(u6,*)
+write(u6,*) 'CONF_BY_NOPEN -> IPAT'
+
+do i=1,npat
+   do ipat=1,npat
+      if (conf_by_nopen(ipat) == i) then
+         write(u6,'(2I6)') i, ipat
+         exit
+      end if
    end do
 end do
 
@@ -1517,8 +1547,8 @@ do ipat=1,npat
    conf_reo(conf_by_nopen(ipat)) = ipat
 end do
 
-call build_vertex_weights(vertex)
-call mma_deallocate(vertex)
+!call build_vertex_weights(vertex)
+!call mma_deallocate(vertex)
 
 end subroutine analyse_patterns
 

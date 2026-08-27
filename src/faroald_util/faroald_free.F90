@@ -15,6 +15,7 @@ subroutine faroald_free()
 
 use faroald, only: ex1_a, ex1_b, gtuvx, htu, ipat_of_det, occpat, mma_deallocate, ndoub, nsing, nSpin_Comb, nComb, ibComb, ictsdt
 use faroald, only: conf_by_nopen, icnf_out, conf_reo, conf_arcw
+use definitions, only: iwp
 
 implicit none
 
