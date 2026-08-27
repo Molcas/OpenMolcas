@@ -1451,7 +1451,7 @@ subroutine analyse_patterns()
        end if
      end if
 
-#ifdef _DEBUGPRINT_
+#ifdef _NOT_IN_USE_
 if (nsing(ipat) > 0 .and. mult==1) then
    call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
    call spncom_faroald(nsing(ipat),0,nspin_comb(ipat),comb)
