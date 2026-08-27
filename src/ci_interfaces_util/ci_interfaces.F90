@@ -499,7 +499,8 @@ call get_diag(DDIA,ndet)
 ! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
-If (DoFaro) Then
+!If (DoFaro) Then
+If (.False.) Then
   If (nDet/=nComb_tot) Then
      Write (u6,*) 'Warning: nDet/=nComb'
      Write (u6,*) 'iSpin=',iSpin
@@ -509,8 +510,8 @@ If (DoFaro) Then
      Write (u6,*) 'nComb_tot',nComb_tot
      Call Abend()
   End If
- Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
-! Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
+!Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
+!Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -542,7 +543,7 @@ If (DoFaro) Then
   Call mma_allocate(Diag,nComb_tot,Label='Diag')
   Diag(:)=Zero
   Call hdiag(htu,gtuvx,diag)
-  Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
+! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
   Do i=1,nComb_tot
      If (abs(ddia(i)-diag(i))>1.0e-12_wp) Then
         Write (u6,*) 'i, abs(ddia(i)-diag(i))'
