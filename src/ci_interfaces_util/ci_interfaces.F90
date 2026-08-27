@@ -13,7 +13,7 @@
 
 !#define _SGUGA_VERIFY_
 module CI_Interfaces
-use sguga, only: CIS, SGS, EXS, SG_Free, SG_ReOrd
+use sguga, only: SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
@@ -23,6 +23,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use definitions, only: wp, iwp, u6
 #ifdef _SGUGA_VERIFY_
+use sguga, only: CIS, SGS, EXS
 use general_data, only: iDoGAS, nRsPrt
 #endif
 
@@ -478,7 +479,8 @@ use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
 use faroald, only: nPat, hdiag, ncomb_tot
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
-real(kind=wp), intent(in):: CSFDIA(nConf), TU(nTU), TUVX(nTUVX)
+real(kind=wp), intent(out):: CSFDIA(nConf)
+real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 real(kind=wp), allocatable :: DDIA(:), DIAG(:)
 integer(kind=iwp):: IPRINT=0

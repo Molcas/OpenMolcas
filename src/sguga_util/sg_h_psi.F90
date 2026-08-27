@@ -18,7 +18,7 @@ use symmetry_info, only: MUL
 use sguga, only: SGStruct, CIStruct, EXStruct, sg_epq_psi
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: iwp, wp, u6
+use Definitions, only: iwp, wp
 
 Implicit none
 type (SGStruct), intent(in)    :: SGS

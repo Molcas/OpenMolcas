@@ -51,7 +51,7 @@ subroutine DavCtl(nFMO,FMO,nTUVX,TUVX,IFINAL)
 use rasscf_global, only: Conv, Emy, Ener, hRoots, IADR15, ICICH, iCIOnly, Iter, ITERCI, kTight, lRoots, MAXJT, n_Keep, NAC, &
                          ThFact, ThrEn
 use rasscf_files, only: JOBIPH, LUDAVID
-use general_data, only: NCONF, NDET, NSEL, STSYM
+use general_data, only: NCONF, NDET, NSEL
 use spinfo, only: N_ELIMINATED_GAS, NCSF_HEXS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
@@ -80,7 +80,7 @@ call Ini_David(lRoots,nConf,nDet,nSel,n_keep,nAc,LuDavid)
 ! CIVEC: TEMPORARY CI VECTOR IN CSF BASIS
 
 call mma_allocate(CIVEC,NCONF,label='CIVEC')
-if (NAC > 0) call CIDIA(NCONF,STSYM,CIVEC,LUDAVID)
+if (NAC > 0) call CIDIA(NCONF,CIVEC,LUDAVID)
 
 !-----------------------------------------------------------------------
 ! OBTAIN STARTING VECTORS

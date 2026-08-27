@@ -1459,7 +1459,7 @@ if (nsing(ipat) > 0 .and. mult==1) then
 end if
 #endif
 
-#ifdef _DEBUGPRINT_
+#ifdef _NOT_IN_USE_
 if (nsing(ipat) == 4 .and. mult == 1) then
    call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
    call pattern_combinations(ipat,nopen,ncomb_pat,comb)

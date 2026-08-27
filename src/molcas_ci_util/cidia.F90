@@ -9,14 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CIDIA(NCONF,IREFSM,CSFDIA,LUDAVID)
+subroutine CIDIA(NCONF,CSFDIA,LUDAVID)
 ! PURPOSE: - COMPUTE DIAGONAL ELEMENTS OF THE CI-MATRIX
 !            THE DETERMINANT BASIS
 !          - TRANSLATE FORM DET => CSF BASIS
 !
 ! CALLING PARAMETERS:
 ! NCONF :  NO. OF CSF
-! IREFSM:  REFERENCE SYMMETRY
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
 use CI_Interfaces, only: Mk_CI_Diag
@@ -24,16 +23,14 @@ use wadr, only: FMO, TUVX
 use timers, only: TimeHDiag
 use output_ras, only: IPRLOC
 use PrintLevel, only: DEBUG, INSANE
-use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
+integer(kind=iwp), intent(in) :: NCONF, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
-integer(kind=iwp) :: IPRL, IPRLEV, ix
+integer(kind=iwp) :: IPRL, IPRLEV
 real(kind=wp) :: dum1, dum2, dum3, Time(2)
 
-ix=irefsm
 call Timing(Time(1),dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
 

@@ -12,7 +12,7 @@
 module general_data
 
 use Molcas, only: MxSym, MxGas, MxLev, MxOrb
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 private
