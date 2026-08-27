@@ -33,7 +33,6 @@ real(kind=wp) :: EAVER
 
 ICSOFF = 0
 IDTOFF = 0
-Write (6,*) 'NTYP=',NTYP
 do ITYP=1,NTYP
   IDET = NDTFTP(ITYP)
   ICSF = NCSFTP(ITYP)
