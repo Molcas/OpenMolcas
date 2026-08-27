@@ -1383,7 +1383,7 @@ subroutine analyse_patterns()
 
   integer(kind=iwp) :: ipat, p
 
-#ifdef _DEBUGPRINT_
+#ifdef _NOT_IN_USE_
   integer(kind=iwp) :: nopen, ncomb_pat, icomb
   integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
 #endif
