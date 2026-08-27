@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-#define _SGUGA_VERIFY_
+!#define _SGUGA_VERIFY_
 module CI_Interfaces
 use sguga, only: CIS, SGS, EXS, SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
@@ -21,9 +21,8 @@ use rasscf_global, only: DoFaro
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use definitions, only: wp, iwp
+use definitions, only: wp, iwp, u6
 #ifdef _SGUGA_VERIFY_
-use definitions, only: u6
 use general_data, only: iDoGAS, nRsPrt
 #endif
 
