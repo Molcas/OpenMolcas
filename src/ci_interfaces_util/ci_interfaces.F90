@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
 
-!#define _SGUGA_VERIFY_
+#define _SGUGA_VERIFY_
 module CI_Interfaces
 use sguga, only: SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
@@ -499,8 +499,7 @@ call get_diag(DDIA,ndet)
 ! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
-!If (DoFaro) Then
-If (.False.) Then
+If (DoFaro) Then
   If (nDet/=nComb_tot) Then
      Write (u6,*) 'Warning: nDet/=nComb'
      Write (u6,*) 'iSpin=',iSpin
@@ -553,6 +552,9 @@ If (.False.) Then
         Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
      End If
   End Do
+
+!... more to come ...
+
   Call mma_deallocate(Diag)
 
 End If

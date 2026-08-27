@@ -4048,7 +4048,6 @@ endif
 if (.not. SkipGUGA) then
   call StatusLine('RASSCF: ','Initializing Lucia/SGUGA/Faroald')
 
-#ifdef _FAROALD_VERIFY_
   ! Turn on the Faroald SD CI code in case of
   ! 1) no symmetry
   ! 2) not RASSCF or GASSCF
@@ -4062,7 +4061,6 @@ if (.not. SkipGUGA) then
       (.not. Key('EXPE')) .and. &
       (IFVB == 0)) &
     DoFaro = .true.
-#endif
 
   Call CI_Initialize(.NOT. iDoGAS, DOFARO)
 
