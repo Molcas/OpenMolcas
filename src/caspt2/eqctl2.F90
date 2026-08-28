@@ -36,6 +36,9 @@ use caspt2_module, only: CPUDIA, CPUEIG, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPURHS,
                          TIOEIG, TIOLCS, TIONAD, TIOOVL, TIOPCG, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOVEC
 use SC_NEVPT2, only: do_FIC, SC_NEVPT2_Print
 use Definitions, only: wp, iwp, u6
+#ifdef _MOLCAS_MPP_
+use caspt2_global, only: iParRHS
+#endif
 
 implicit none
 integer(kind=iwp), intent(inout) :: ICONV
@@ -164,6 +167,11 @@ if (IfChol .and. (iALGO == 1)) then
     else
       call RHSOD(IVECW)
     end if
+#ifdef _MOLCAS_MPP_
+  else if (iParRHS == 4) then
+    ! every stripe of every block is written in full, no need to zero first
+    call RHSALL2_STRIPED(IVECW)
+#endif
   else
     call RHS_ZERO(IVECW)
     call RHSALL2(IVECW)

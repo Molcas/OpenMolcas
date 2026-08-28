@@ -26,10 +26,10 @@ use SUPERINDEX, only: SUPINI
 use Cholesky, only: NumCho
 use EQSOLV, only: IFCOUP, NLIST, NLSTOT
 use caspt2_global, only: do_csf, do_grad, do_nac, if_invar, if_invaria, if_SSDM, ipea_shift, iPrGlb, NCMO
-use general_data, only: nActel, nAsh
-use caspt2_module, only: IfChol, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, MxCI, nAshT, nASup, nBasT, nBSqT, nBTri, nCases, nConf, &
-                         nFroT, nG1, nG2, nG3Tot, nIMx, nInDep, nISh, nIshT, nISup, nOrb, nOSqT, nOTri, nSMx, nSsh, nState, nSym, &
-                         nTGTU, nTU, Zeta
+use general_data, only: nActel, nAsh, nLev
+use caspt2_module, only: HZero, IfChol, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, MxCI, nAshT, nASup, nBasT, nBSqT, nBTri, nCases, &
+                         nConf, nFroT, nG1, nG2, nG3Tot, nIMx, nInDep, nISh, nIshT, nISup, nOrb, nOSqT, nOTri, nSMx, nSsh, nState, &
+                         nSym, nTGTU, nTU, nTUV, Zeta
 #ifdef _DEBUGPRINT_
 use caspt2_module, only: NAMX
 #endif
@@ -42,9 +42,10 @@ implicit none
 integer(kind=iwp) :: ICASE, ICASE1, ICASE2, ISL1, ISL2, ISL3, ISYM, ISYM1, ISYM2, M, M11, M12, M21, M22, M31, MAXAIS, MC1S1DER, &
                      MC2DER, MEMBASE, MINBUF, MMX, MXLeft, MXLFT, N, NAS, NAS1, NAS2, NBOTTOM, NCH, nCLag, NCX, NDD, NEED, NEED0, &
                      NFIA, NFIT, NFTA, NG02, NG10, NG12, NG20, NG30, NGARR, ngrad, ngrad1, ngrad10, ngrad11, ngrad11_1, ngrad11_2, &
-                     ngrad2, ngrad3, ngrad4, ngrad5, ngrad6, ngrad6_1, ngrad6_2, ngrad7, ngrad7_1, ngrad7_2, ngrad8, ngrad9, NIN, &
-                     NIN1, NIS, NIS1, NIS2, NMKRHS, NMX, nOLag, nOMax, NPLBUF, NPoly, nPrp, nPrp1, nPrp2, nRHSP, nSgm1, nSgm2, &
-                     nSigma, nSigma_inner, nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT, nV, nVCUtil, nWLag, NX
+                     ngrad2, ngrad3, ngrad4, ngrad5, ngrad6, ngrad6_1, ngrad6_2, ngrad6_3, ngrad6_4, ngrad7, ngrad7_1, ngrad7_2, &
+                     ngrad8, ngrad9, NIN, NIN1, NIS, NIS1, NIS2, NMKRHS, NMX, NNEVE4, nOLag, nOMax, NPLBUF, NPoly, nPrp, nPrp1, &
+                     nPrp2, nRHSP, nSgm1, nSgm2, nSigma, nSigma_inner, nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT, nV, nVCUtil, &
+                     nWLag, NX
 real(kind=wp) :: XX, YY
 integer(kind=iwp), external :: iParDiv
 integer(kind=iwp), parameter :: Magic = 119000
@@ -88,6 +89,11 @@ if (NACTEL > 0) then
   !write(u6,*)
   !write(u6,*) ' Total, for POLY3                 :',NPOLY
   !write(u6,*)
+  ! For NEVPT2 (MKNEVE4)
+  if (HZERO == 'DYALL') then
+    NNEVE4 = NBOTTOM+NCONF+MXCI+(2*MXCI+3*NLEV**2+2)*NLEV
+    NPOLY = max(NPOLY,NNEVE4)
+  end if
 end if
 
 ! Precompute sizes, offsets etc.
@@ -281,7 +287,7 @@ if (do_grad) then
   nWLag = NBTRI
   ngrad1 = NBSQT*4+nCLag*2+nOLag*2+nSLag*2+nWLag+NBSQT*2+nAshT**2
   if (IFXMS .or. IFRMS) ngrad1 = ngrad1+NBSQT
-  if (IFDW .and. (zeta >= Zero)) ngrad1 = ngrad1+nState
+  if (IFDW .and. (zeta >= Zero)) ngrad1 = ngrad1+nState**2
   if (do_nac) ngrad1 = ngrad1+NBSQT
   if (nFroT /= 0) ngrad1 = ngrad1+nFroT**2
 
@@ -357,7 +363,7 @@ if (do_grad) then
       end do
     end do
   end do
-  ngrad5 = NFIT*2+NFIA*2+NFTA*2+MMX
+  ngrad5 = NFIT*2+NFIA*2+NFTA*2+max(MMX,maxval(NASUP(1:NSYM,1:11)**2))
 
   ! gradient: CI derivatives (clagx)
   ngrad6 = NG1*4+NG2*4+NG3TOT*3
@@ -399,6 +405,12 @@ if (do_grad) then
   MXLFT = min(MXCI*(3*NASHT**2+NASHT),MXLFT)
   ngrad6_2 = ngrad6_2+MXLFT
   ngrad6 = ngrad6+max(ngrad6_1,ngrad6_2)
+  ! For NEVPT2
+  if (HZERO == 'DYALL') then
+    ngrad6_3 = NCONF+MXCI+(4*MXCI+5*NLEV**2+2*nTri_Elem(NLEV**2))*NLEV ! DERE4 (inside CLagX)
+    ngrad6_4 = 6*NASHT**2+2*NASHT**4+2*sum(NTUV(1:NSYM)**2) ! BDerNEV (before CLagX)
+    ngrad6 = max(ngrad6,ngrad6_3)+ngrad6_4
+  end if
 
   ! gradient: effective Hamiltonian (DerHEff)
   NTG1 = NASHT**2
