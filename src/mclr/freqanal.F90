@@ -12,7 +12,8 @@
 subroutine Freqanal(nDisp,nDeg,nrvec,H,converged,ELEC,iel,elout,ldisp,Lu_10)
 
 use Index_Functions, only: nTri_Elem
-use input_mclr, only: ChIrr, nSRot, nSym, nUserPT, UserP, UserT
+use general_data, only: nSym
+use input_mclr, only: ChIrr, nSRot, nUserPT, UserP, UserT
 use temperatures, only: DefTemp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Five

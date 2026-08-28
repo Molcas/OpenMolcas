@@ -19,6 +19,7 @@
 
 subroutine mcpdft(ireturn)
 
+use ci_interfaces, only: CI_Timer
 use Fock_util_global, only: DoCholesky
 use timers, only: TimeInput, TimeOutput, TimeTotal, TimeTrans
 use write_pdft_job, only: writejob
@@ -211,7 +212,7 @@ call Timing(dum1,dum2,time1(2),dum3)
 TimeTotal = time1(2)
 TimeOutput = TimeOutput+time1(2)-time1(1)
 if (IPRLEV >= 3) then
-  call PrtTim()
+  call CI_Timer('Print')
   call FastIO('STATUS')
 end if
 

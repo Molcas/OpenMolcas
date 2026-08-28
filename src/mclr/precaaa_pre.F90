@@ -14,7 +14,8 @@
 subroutine Precaaa_Pre(ActInt,A_J,Scr)
 
 use MCLR_Data, only: nA
-use input_mclr, only: nAsh, nBas, nIsh, nSym, ntAsh
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas, ntAsh
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

@@ -14,7 +14,8 @@ subroutine Ci_Ci(ipcid,ips2)
 use ipPage, only: ipin, W
 use MCLR_Data, only: INT2, FIMO
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: ERASSCF, NCSF, nRoots, PotNuc, rIn_Ene, State_Sym, Weight
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: ERASSCF, NCSF, nRoots, PotNuc, rIn_Ene, Weight
 use Constants, only: Two
 use Definitions, only: wp, iwp
 

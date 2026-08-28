@@ -66,8 +66,8 @@ use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCI
                          l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NSXS, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: JOBIPH, LUINTM, LUQUNE, NACTEL, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT, &
-                        NTOT1, NTOT2
+use rasscf_files, only: JOBIPH, LUINTM, LUQUNE
+use general_data, only: NACTEL, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT, NTOT1, NTOT2
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use raswfn, only: wfn_mocoef, wfn_occnum

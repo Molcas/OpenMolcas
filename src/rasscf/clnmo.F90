@@ -35,7 +35,8 @@ subroutine ClnMO(CMO)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: CleanMask, NSYM, NBAS
+use rasscf_global, only: CleanMask
+use general_data, only: NSYM, NBAS
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

@@ -42,7 +42,7 @@ use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use caspt2_global, only: iPrGlb
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga_states, only: CIS, SGS
+use sguga, only: CIS, SGS
 use Molcas, only: MxLev
 use general_data, only: nActEl, STSym
 use caspt2_module, only: MxCI, nG1, nG2, nG3, nSym

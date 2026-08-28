@@ -58,9 +58,8 @@ use qcmaquis_interface, only: qcmaquis_interface_get_overlap, qcmaquis_interface
                               qcmaquis_interface_set_param, qcmaquis_interface_update_integrals
 use qcmaquis_interface_cfg, only: dmrg_energy, dmrg_file, dmrg_orbital_space, dmrg_warmup, qcmaquis_param
 use qcmaquis_interface_utility_routines, only: fiedlerorder_length, file_name_generator, qcmaquis_interface_fcidump
-use lucia_data, only: RF1, RF2
 use RASWfn, only: wfn_dmrg_checkpoint
-use rasscf_global, only: DOFCIDump, Emy, TwoRDM_qcm
+use rasscf_global, only: DOFCIDump, Emy, TwoRDM_qcm, RF1, RF2
 #endif
 use ci_interfaces, only: Mk_pdms
 #ifdef _HDF5_
@@ -70,18 +69,17 @@ use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
 use casvb_global, only: ifvb
 use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
-use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
 use wadr, only: FMO
 use sxci, only: IDXSX
-use gas_data, only: iDoGAS
 use input_ras, only: Key
 use timers, only: TimeDens
 use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, ICMSP, IFCRPR, iPCMRoot, iRoot, iRotPsi, ITER, &
-                         IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
+                         IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight, CRVEC
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
-use sguga_states, only: CIS, EXS, SGS
+use rasscf_files, only: JOBIPH
+use general_data, only: ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM, iDoGAS
+use sguga, only: SGS, SG_ReOrd
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -96,6 +94,7 @@ real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF, do_rotate, Exists, Skip
 character(len=128) :: filename
 real(kind=wp), allocatable :: CIV(:), CIVec(:), P2MO(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), RF(:), Temp(:), TmpD1S(:), TmpDS(:)
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), PAtmp(:), PTmp(:)
 integer, allocatable :: kCnf(:)
 #ifdef _HDF5_
 real(kind=wp), allocatable :: density_square(:,:)
@@ -110,7 +109,7 @@ logical(kind=iwp), external :: PCM_On
 #endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
-integer(kind=iwp), parameter :: istate = 1
+integer(kind=iwp), parameter :: istate=1
 #include "warnings.h"
 
 ! Local print level (if any)
@@ -287,9 +286,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     end if
 
     if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) then
-      call mma_allocate(PScr,NACPR2,Label='PScr')
-      call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-      call mma_deallocate(PScr)
+        call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
     end if
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
@@ -446,7 +443,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
   call mma_allocate(DStmp,NAC**2,Label='DStmp')
   call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
   call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-  call mma_allocate(Pscr,NACPR2,Label='Pscr')
 # ifdef _HDF5_
   call mma_allocate(density_square,nac,nac)
 # endif
@@ -492,7 +488,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
       end if
     end if
 
-    if ((.not. doDMRG) .and. ((SGS(istate)%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+    if ((.not. doDMRG) .and. ((SGS(istate)%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
     ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
     if (doDMRG) then
 #     ifdef _DMRG_
@@ -556,7 +552,6 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 # ifdef _HDF5_
   call mma_deallocate(density_square)
 # endif
-  call mma_deallocate(Pscr)
   call mma_deallocate(PAtmp)
   call mma_deallocate(Ptmp)
   call mma_deallocate(DStmp)
@@ -602,7 +597,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
         if (.not. iDoGas) then
-          call SG_Reord(SGS(istate),EXS(istate),STSYM,0,CIS(istate)%nCSF(STSYM),CIVEC,CIV)
+          call SG_Reord(istate,STSYM,0,nConf,CIVEC,CIV)
 
           ! save reorder CI vector on disk
           !if (.not. iDoGas) then
@@ -626,7 +621,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
               call Molcas_open(LuVecDet,filename)
               write(LuVecDet,'(8i4)') nish
             end if
-            call SG_PrWF(SGS(istate),CIS(istate),STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+            call SG_PrWF(iState,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
             ! Close GronOR vecdet file (tps/cdg 20210430)
             if (Key('PRSD')) close(LuVecDet)
           end if

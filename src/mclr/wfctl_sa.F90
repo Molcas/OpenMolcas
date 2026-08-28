@@ -21,8 +21,9 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
-use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nAsh, nCSF, nDisp, nIter, NROOTS, nRS2, PT2, &
-                      State_Sym, STEPTYPE, TWOSTEP
+use general_data, only: nAsh, nRS2, State_Sym=>STSym
+use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, NROOTS, PT2, &
+                      STEPTYPE, TWOSTEP
 use PCM_grad, only: def_solv, do_RF, iStpPCM, PCM_grad_CLag, PCM_grad_PT2
 use ISRotation, only: DMInvISR, InvSCF, ISR, ISR_final, ISR_init, ISR_projection, ISR_RHS
 use cgs_mod, only: CGS, CGS_init, CGS_final

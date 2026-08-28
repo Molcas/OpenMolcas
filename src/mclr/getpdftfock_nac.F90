@@ -20,7 +20,8 @@ subroutine GetPDFTFock_NAC(bk)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, nDens
-use input_mclr, only: nBas, nSym
+use general_data, only: nSym
+use input_mclr, only: nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
 use Definitions, only: wp, iwp

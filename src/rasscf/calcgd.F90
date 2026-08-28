@@ -20,10 +20,10 @@
 !     calculating GD with lucia.
 subroutine CalcGD(GD,nGD)
 
-use lucia_data, only: Dtmp, DStmp
-use Lucia_Interface, only: Lucia_Util
+use CI_interfaces, only: Mk_T1DM
 use rasscf_global, only: iADR15, lRoots, NAC
-use general_data, only: JOBIPH, NCONF
+use rasscf_files, only: JOBIPH
+use general_data, only: NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -31,48 +31,39 @@ implicit none
 integer(kind=iwp), intent(in) :: nGD
 real(kind=wp), intent(out) :: GD(nGD)
 integer(kind=iwp) :: CIDisk1, CIDisk2, IOffNIJ1, IOffNIJ2, ipq, iqp, jRoot, kRoot, NAC2, p, q
-real(kind=wp), allocatable :: SDtmp(:), TmpD(:)
+real(kind=wp), allocatable :: TmpD(:)
 real(kind=wp), allocatable, target :: VecL(:), VecR(:)
 
 NAC2 = NAC**2
 call mma_allocate(VecL,NConf,Label='VecL')
 call mma_allocate(VecR,NConf,Label='VecR')
 call mma_allocate(TmpD,NAC**2,Label='TmpD')
-call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
-SDtmp(:) = DStmp(:)
-TmpD(:) = DTmp(:)
+
 CIDisk1 = IADR15(4)
 do jRoot=1,lRoots
   call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)
   CIDisk2 = IADR15(4)
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-    call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
+    Call Mk_T1DM(VECR(:),VECL(:),nConf,TMPD,NAC**2)
     IOffNIJ1 = (lRoots*(jRoot-1)+kRoot-1)*NAC2
     IOffNIJ2 = (lRoots*(kRoot-1)+jRoot-1)*NAC2
-    !write(u6,*) 'GD matrix',jRoot,kRoot
-    !call RecPrt(' ',' ',Dtmp,NAC,NAC)
-    GD(IOffNIJ1+1:IOffNIJ1+NAC2) = Dtmp(1:NAC2)
+    GD(IOffNIJ1+1:IOffNIJ1+NAC2) = TmpD(1:NAC2)
     do q=1,NAC
       do p=1,NAC
         ipq = (q-1)*NAC+p
         iqp = (p-1)*NAC+q
-        GD(IOffNIJ2+iqp) = Dtmp(ipq)
-        !GDMat(NIJ2,q,p) = Dtmp(q+(p-1)*NAC)
+        GD(IOffNIJ2+iqp) = TmpD(ipq)
       end do
     end do
   end do
   kRoot = jRoot
   call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-  call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
+  Call Mk_T1DM(VECR(:),VECL(:),nConf,TMPD,NAC**2)
   IOffNIJ1 = (lRoots+1)*(jRoot-1)*NAC2
-  !write(u6,*) 'GD matrix',jRoot,kRoot
-  !call RecPrt(' ',' ',Dtmp,NAC,NAC)
-  GD(IOffNIJ1+1:IOffNIJ1+NAC2) = Dtmp(1:NAC2)
+  GD(IOffNIJ1+1:IOffNIJ1+NAC2) = TmpD(1:NAC2)
 end do
-DStmp(:) = SDtmp(:)
-Dtmp(:) = TmpD(:)
-call mma_deallocate(SDtmp)
+
 call mma_deallocate(TmpD)
 call mma_deallocate(VecL)
 call mma_deallocate(VecR)
