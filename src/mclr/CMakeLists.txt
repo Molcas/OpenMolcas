@@ -44,8 +44,6 @@ set (sources
      cidens_sa.F90
      cidens_td.F90
      cidia_mclr.F90
-     cidia_sa.F90
-     cidia_td.F90
      ci_kap.F90
      ci_reconstruct.F90
      cmsrdmat.F90

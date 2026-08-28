@@ -11,7 +11,7 @@
 
 subroutine SG_Setup_RASSCF()
 
-use general_data, only: iSpin, nActel, nConf, nSym, STSYM, NLEV, Level, nRas,nRasEl,nRsPrt, NSM
+use general_data, only: iSpin, Level, nActel, nConf, NLEV, nRas, nRasEl, nRsPrt, NSM, nSym, STSYM
 use sguga, only: CIS, SG_init
 #ifdef _DMRG_
 use input_ras, only: Key
@@ -21,14 +21,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: dum1, dum2, dum3, Eterna_1, Eterna_2
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 ! Construct the Guga tables
 
 call Timing(Eterna_1,dum1,dum2,dum3)
 
-call SG_Init(iState,nSym,nActEl,iSpin,                    &
-             nRas,nRasEl,nRsPrt,                           &
+call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
              xLevel=Level,xL2Act=Level,xNLEV=NLEV,xNSM=NSM)
 
 if (NActEl == 0) CIS(istate)%NCSF(STSYM) = 1

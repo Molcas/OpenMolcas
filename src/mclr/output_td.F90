@@ -37,7 +37,7 @@ use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: Hss, lDisp, LuTEMP, nConf1, nDensC, nHess, XISPSM
-use general_data, only: nSym, State_Sym=>STSym
+use general_data, only: nSym, STSym
 use input_mclr, only: Coor, Debug, iMethod, lCalc, McKinley, nCSF, nDisp, nTPert, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
@@ -90,7 +90,7 @@ do iSym=1,nSym
   ! Output: Commonblocks (Pointers.fh)
 
   call Setup_MCLR(iSym)
-  PState_SYM = Mul(State_Sym,iSym)
+  PState_SYM = Mul(STSym,iSym)
   nconfM = max(ncsf(PState_Sym),nint(xispsm(Pstate_Sym,1)))
   nconf1 = ncsf(PState_Sym)
   if (TimeDep) nconf1 = nconf1*2

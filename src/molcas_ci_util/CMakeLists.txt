@@ -49,7 +49,6 @@ set (sources
      hcsce.F90
      ini_david.F90
      init_lex.F90
-     input_mclr.F90
      lex_iter.F90
      load_ci_vec.F90
      load_h_diag.F90
@@ -99,7 +98,6 @@ set (modfile_list
      caspt2_module.F90
      csfbas.F90
      dmrginfo.F90
-     input_mclr.F90
      output_ras.F90
      rasdim.F90
      rasscf_files.F90

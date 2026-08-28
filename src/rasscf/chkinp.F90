@@ -30,10 +30,10 @@ subroutine ChkInp()
 
 use linalg_mod, only: abort_
 use general_data, only: iDoGAS, iGSOCCX, nGAS, nGSSH
-use rasscf_global, only: iRoot, ITMAX, lRoots, MAXIT, MAXJT, NAC, NIN, nRoots, OutFmt1, OutFmt2, PreThr, ProThr, ThFact, ThrE, &
-                         ThrEn, ThrSX, ThrTE, MALTER, NALTER, INVEC
-use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NORB, NRS1, NRS1T, &
-                        NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, STSYM
+use rasscf_global, only: INVEC, iRoot, ITMAX, lRoots, MALTER, MAXIT, MAXJT, NAC, NALTER, NIN, nRoots, OutFmt1, OutFmt2, PreThr, &
+                         ProThr, ThFact, ThrE, ThrEn, ThrSX, ThrTE
+use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, &
+                        NSEL, NSSH, NSYM, NTOT, STSYM
 use Molcas, only: MxAct, MxBas, MxGAS, MxIna, MxOrb, MxRoot
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero

@@ -56,7 +56,7 @@ integer(kind=byte), allocatable :: idxG3(:,:)
 real(kind=wp), allocatable :: CI(:)
 real(kind=wp), allocatable, target :: F1_H(:), F2_H(:), F3_H(:), G1(:), G2(:), G3(:)
 real(kind=wp), pointer :: F1(:), F2(:), F3(:)
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 ! Note that in case of FCIQMC nConf is set to 0.
 nCI = CIS(istate)%NCSF(STSYM)
@@ -134,9 +134,9 @@ else if (ISCF == 0) then
   if ((.not. DoCumulant) .and. (.not. DMRG)) then
 # endif
     if (.not. DoFCIQMC) then
-       call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
+      call MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
     else
-       call mkfg3fciqmc(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
+      call mkfg3fciqmc(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
     end if
 # if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
   else

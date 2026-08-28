@@ -16,14 +16,14 @@ subroutine SG_SETUP_CASPT2()
 use Molcas, only: MxLev
 use caspt2_qmc_interface, only: DoFCIQMC
 use RefWfn, only: L2Act, Level
-use sguga, only: SG_Init, SG_Init_Light, CIS
-use general_data, only: iSpin, nActel, nAsh, nElec3, nHole1, nLev, STSym, nRas, nRasEl, nRsPrt
+use sguga, only: CIS, SG_Init, SG_Init_Light
+use general_data, only: iSpin, nActel, nAsh, nElec3, nHole1, nLev, nRas, nRasEl, nRsPrt, STSym
 use caspt2_module, only: DMRG, DoCumulant, iSCF, MxCI, nRas1, nRas2, nRas3, nSym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ISM(MxLev), ISYM, IT, nRs1T
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 nLEV = 0
 do ISYM=1,NSYM
@@ -34,32 +34,29 @@ do ISYM=1,NSYM
 end do
 
 if (nHole1+nElec3 /= 0) then
-   nRsPrt=3
-   nRas(:,1)=nRas1(:)
-   nRas(:,2)=nRas2(:)
-   nRas(:,3)=nRas3(:)
+  nRsPrt= 3
+  nRas(:,1)= nRas1(:)
+  nRas(:,2)= nRas2(:)
+  nRas(:,3)= nRas3(:)
   nRs1T = sum(nRas1(1:nSym))
-   nRasEl(1)=2*nRs1T-nHole1
+  nRasEl(1)= 2*nRs1T-nHole1
   nRasEl(2) = nActel-nElec3
-   nRasEl(3)=nActel
+  nRasEl(3)= nActel
 else
-   nRsPrt=1
-   nRas(:,1)=nRas2(:)
-   nRasEl(1)=nActel
+  nRsPrt= 1
+  nRas(:,1)= nRas2(:)
+  nRasEl(1)= nActel
 end if
 
 if ((.not. DoCumulant) .and. (nactel > 0) .and. (iscf == 0) .and. (.not. DoFCIQMC) .and. (.not. DMRG)) then
 
-  call SG_Init(iState,nSym,nActEl,iSpin,                             &
-               nRas,nRasEl,nRsPrt,                                &
+  call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
                xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM)
 
 else
 
-  call SG_Init_Light(iState,nSym,nActEl,iSpin,                      &
-                     nRas,nRasEl,nRsPrt,                               &
-                     xLevel=Level,xL2Act=L2Act,xnLev=nLev,             &
-                     xNSM=ISM,Do_MkSGuga=.false.)
+  call SG_Init_Light(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
+                     xLevel=Level,xL2Act=L2Act,xnLev=nLev,xNSM=ISM,Do_MkSGuga=.false.)
   CIS(iState)%NCSF(STSYM) = 1
 end if
 

@@ -24,7 +24,7 @@ subroutine DENS2T_RPT2(NLEV,NCONF,MXCI,CI1,CI2,SGM1,SGM2,G1,G2)
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
-use sguga, only: SGS, CIS
+use sguga, only: CIS, SGS
 use caspt2_global, only: iPrGlb
 use general_data, only: nActEl, STSym
 use caspt2_module, only: iSCF, nAshT, nG1, nG2

@@ -17,7 +17,7 @@ use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: FANCY_PRECONDITIONER, ICISTR, ipCI, ipDia, NDPCNT, NOCSF, XISPSM
 use spinfo, only: NCNFTP, NCSFTP, NTYP
-use general_data, only: State_Sym=>STSym
+use general_data, only: STSym
 use input_mclr, only: ERASSCF, nCSF, nRoots, PotNuc, rIn_Ene, Weight
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -42,7 +42,7 @@ iSM(1) = iSym
 IAMCMP = 0
 ICISTR = 1
 i = 2
-if (isym == state_sym) i = 1
+if (isym == STSym) i = 1
 if (NOCSF == 0) then
   nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
   ipdcsfi = ipget(nsd)
@@ -78,8 +78,8 @@ else
   call ipin(ipCI)
   ip2 = 0
   do j=1,nroots
-    ralp(j) = sum(One/(W(ipdiai)%A(1:ncsf(State_Sym))-ERASSCF(j))*Weight(j)*W(ipCI)%A(ip2+1:ip2+ncsf(State_Sym))**2)
-    ip2 = ip2+ncsf(State_Sym)
+    ralp(j) = sum(One/(W(ipdiai)%A(1:ncsf(STSym))-ERASSCF(j))*Weight(j)*W(ipCI)%A(ip2+1:ip2+ncsf(STSym))**2)
+    ip2 = ip2+ncsf(STSym)
   end do
 end if
 

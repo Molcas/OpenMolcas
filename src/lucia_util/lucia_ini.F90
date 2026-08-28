@@ -16,19 +16,17 @@ use lucia_data, only: ECORE, ENVIRO, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IADVI
                       IELIMINATED_IN_GAS, IGSOCCX, IH0INSPC, IH0SPC, ini_h0, IPART, IPRCIX, IPRDEN, IREFSM, IRESTR, ISIMSYM, &
                       LCMBSPC, LCSBLK, MOCAA, MS2, MULTS, MXINKA, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL, NCISPC, NCMBSPC, &
                       NGAS, NGSSH, NIRREP, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN, Sigma_on_disk
-
-use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS=>I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS_MOLCAS=>I_ELIMINATE_GAS,  &
-                  IELIMINATED_IN_GAS_MOLCAS=>IELIMINATED_IN_GAS, ISPEED, &
-                  N_2ELIMINATED_GAS_MOLCAS=>N_2ELIMINATED_GAS, N_ELIMINATED_GAS_MOLCAS=>N_ELIMINATED_GAS
-use general_data, only: NGSSH_MOLCAS=>NGSSH, IGSOCCX_MOLCAS=>IGSOCCX, NSYM_MOLCAS=>NSYM, NACTEL_MOLCAS=>NACTEL, &
-                        MULTS_MOLCAS=>ISPIN, IREFSM_MOLCAS=>STSYM, nGAS_MOLCAS=>nGAS, iSpin
-use rasscf_global, only: POTNUC_MOLCAS=>POTNUC, ITMAX, NROOTS_MOLCAS=>nROOTS, lROOTS_MOLCAS=>lROOTS
+use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS => I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS_MOLCAS => I_ELIMINATE_GAS, &
+                  IELIMINATED_IN_GAS_MOLCAS => IELIMINATED_IN_GAS, ISPEED, N_2ELIMINATED_GAS_MOLCAS => N_2ELIMINATED_GAS, &
+                  N_ELIMINATED_GAS_MOLCAS => N_ELIMINATED_GAS
+use general_data, only: IGSOCCX_MOLCAS => IGSOCCX, iSpin, NACTEL_MOLCAS => NACTEL, nGAS_MOLCAS => nGAS, NGSSH_MOLCAS => NGSSH, &
+                        NSYM, STSYM
+use rasscf_global, only: ITMAX, lROOTS, nROOTS, POTNUC
 use output_ras, only: iPrLoc
 use casvb_global, only: ifvb
-
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
-use rasscf_global, only: IEXPAND, THRE_MOLCAS=>THRE, IPT2, INOCALC, ISAVE_EXP
+use rasscf_global, only: IEXPAND, THRE, IPT2, INOCALC, ISAVE_EXP
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -80,8 +78,8 @@ isetkw(:) = 0
 ! ==============================
 !  Number of irreps of orbitals
 ! ==============================
-nirrep = nsym_molcas
-nsmob = nsym_molcas
+nirrep = NSYM
+nsmob = NSYM
 
 ! ============================
 !  Number of active electrons
@@ -105,17 +103,17 @@ ms2 = iSpin-1
 ! ===================
 !  Spin multiplicity
 ! ===================
-mults = mults_molcas
+mults = iSpin
 
 ! ====================
 !  Reference symmetry
 ! ====================
-irefsm = IREFSM_MOLCAS
+irefsm = STSYM
 
 ! =======
 !  Roots
 ! =======
-nroot = Max(nroots_molcas,lroots_molcas)
+nroot = max(nroots,lroots)
 !iroot(1:nroot) = iroot_molcas(1:nroot)
 !iroot(1:nroot) = 0
 
@@ -172,7 +170,7 @@ igsoccx(1:ngas,:,1) = igsoccx_molcas(1:ngas,:)
 ! ==========================
 !  Energy convergence of CI
 ! ==========================
-thres_e = thre_molcas
+thres_e = thre
 #endif
 
 ! ==========================================
@@ -722,7 +720,7 @@ end if
 ! Open one-electron file to obtain core energy and
 ! Number of MO's and AO's
 if ((NOINT == 0) .and. (ENVIRO(1:4) /= 'NONE')) then
-  ecore_env = potnuc_molcas
+  ecore_env = potnuc
   ECORE = ECORE_ENV
 else
   write(u6,*) ' GETOBS and CHK_ORBDIM not called'

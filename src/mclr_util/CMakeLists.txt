@@ -84,6 +84,7 @@ set (sources
      icisps.F90
      iel13.F90
      incoos.F90
+     input_mclr.F90
      intcsf.F90
      intdia.F90
      ioctp2_mclr.F90
@@ -152,6 +153,8 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     input_mclr.F90
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

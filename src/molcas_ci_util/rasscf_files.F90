@@ -37,7 +37,7 @@ private
 
 integer(kind=iwp) :: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, LUStartOrb
 character(len=256) :: StartOrbFile
-public :: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, &
-          LUStartOrb, StartOrbFile
+
+public :: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, LUStartOrb, StartOrbFile
 
 end module rasscf_files

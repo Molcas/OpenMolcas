@@ -32,8 +32,8 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, ist, KAIN1, KINT2, KINT2A, nConf1, nDens, pInt1, Square, XISPSM
 use CandS, only: ICSM, ISSM
+use general_data, only: nSym, STSym
 use input_mclr, only: nBas, nCSF, ntAsh, Page, TimeDep
-use general_data, only: nSym, State_Sym=>STSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -85,13 +85,13 @@ end if
 
 iSSM = iSSym
 kic(2) = 2
-if (issm == State_sym) kic(2) = 1
+if (issm == STSym) kic(2) = 1
 
 ! Symmetry of CI vector
 
 iCSM = iCSym
 kic(1) = 2
-if (icsm == State_sym) kic(1) = 1
+if (icsm == STSym) kic(1) = 1
 
 ! Symmetry properties of operator
 

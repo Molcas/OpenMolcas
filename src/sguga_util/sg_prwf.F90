@@ -11,7 +11,7 @@
 
 subroutine SG_PRWF(iState,ISYCI,CITHR,iSpin,CI,lCI,KeyPRSD,LuVecDet)
 
-use sguga, only: CIS, SGS, nPack
+use sguga, only: CIS, nPack, SGS
 use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -28,10 +28,8 @@ integer(kind=iwp), allocatable :: ICS(:), Lex(:)
 logical(kind=iwp), parameter :: SGINFO = .true.
 character, parameter :: CODE(0:3) = ['0','u','d','2']
 
-Associate(SGS=>SGS(iState),CIS=>CIS(iState))
-
 ! scratch for determinant expansion
-if (KeyPRSD) call mma_allocate(LEX,SGS%nLev,Label='LEX')
+if (KeyPRSD) call mma_allocate(LEX,SGS(iState)%nLev,Label='LEX')
 
 ! -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 ! -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
@@ -39,7 +37,7 @@ if (KeyPRSD) call mma_allocate(LEX,SGS%nLev,Label='LEX')
 ! -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 !    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
 
-call mma_allocate(ICS,SGS%nLev,Label='ICS')
+call mma_allocate(ICS,SGS(iState)%nLev,Label='ICS')
 
 ! Size of occup/spin coupling part of line:
 write(u6,*)
@@ -48,9 +46,9 @@ write(u6,*)
 LINE = ''
 K = 0
 ISY = 0
-do LEV=1,SGS%nLev
-  if (ISY /= SGS%ISM(LEV)) then
-    ISY = SGS%ISM(LEV)
+do LEV=1,SGS(iState)%nLev
+  if (ISY /= SGS(iState)%ISM(LEV)) then
+    ISY = SGS(iState)%ISM(LEV)
     K = K+1
   end if
   K = K+1
@@ -74,16 +72,16 @@ LINE = ''
 
 ! -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 !    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-do MV=1,CIS%nMidV
+do MV=1,CIS(iState)%nMidV
   do ISYUP=1,nIrrep
-    NCI = CIS%NOCSF(ISYUP,MV,ISYCI)
+    NCI = CIS(iState)%NOCSF(ISYUP,MV,ISYCI)
     if (NCI == 0) cycle
-    NUP = CIS%NOW(1,ISYUP,MV)
+    NUP = CIS(iState)%NOW(1,ISYUP,MV)
     ISYDWN = MUL(ISYUP,ISYCI)
-    NDWN = CIS%NOW(2,ISYDWN,MV)
-    ICONF = CIS%IOCSF(ISYUP,MV,ISYCI)
-    IUW0 = 1-CIS%nIpWlk+CIS%IOW(1,ISYUP,MV)
-    IDW0 = 1-CIS%nIpWlk+CIS%IOW(2,ISYDWN,MV)
+    NDWN = CIS(iState)%NOW(2,ISYDWN,MV)
+    ICONF = CIS(iState)%IOCSF(ISYUP,MV,ISYCI)
+    IUW0 = 1-CIS(iState)%nIpWlk+CIS(iState)%IOW(1,ISYUP,MV)
+    IDW0 = 1-CIS(iState)%nIpWlk+CIS(iState)%IOW(2,ISYDWN,MV)
     IDWNSV = 0
     do IDWN=1,NDWN
       do IUP=1,NUP
@@ -92,16 +90,16 @@ do MV=1,CIS%nMidV
         ! -- SKIP OR PRINT IT OUT?
         if (abs(COEF) < CITHR) cycle
         if (IDWNSV /= IDWN) then
-          ICDPOS = IDW0+IDWN*CIS%nIpWlk
-          ICDWN = CIS%ICase(ICDPOS)
+          ICDPOS = IDW0+IDWN*CIS(iState)%nIpWlk
+          ICDWN = CIS(iState)%ICase(ICDPOS)
           ! -- UNPACK LOWER WALK.
           NNN = 0
-          do LEV=1,SGS%MidLev
+          do LEV=1,SGS(iState)%MidLev
             NNN = NNN+1
             if (NNN == nPack+1) then
               NNN = 1
               ICDPOS = ICDPOS+1
-              ICDWN = CIS%ICase(ICDPOS)
+              ICDWN = CIS(iState)%ICase(ICDPOS)
             end if
             IC1 = ICDWN/4
             ICS(LEV) = ICDWN-4*IC1
@@ -109,16 +107,16 @@ do MV=1,CIS%nMidV
           end do
           IDWNSV = IDWN
         end if
-        ICUPOS = IUW0+CIS%nIpWlk*IUP
-        ICUP = CIS%ICase(ICUPOS)
+        ICUPOS = IUW0+CIS(iState)%nIpWlk*IUP
+        ICUP = CIS(iState)%ICase(ICUPOS)
         ! -- UNPACK UPPER WALK:
         NNN = 0
-        do LEV=SGS%MidLev+1,SGS%nLev
+        do LEV=SGS(iState)%MidLev+1,SGS(iState)%nLev
           NNN = NNN+1
           if (NNN == nPack+1) then
             NNN = 1
             ICUPOS = ICUPOS+1
-            ICUP = CIS%ICase(ICUPOS)
+            ICUP = CIS(iState)%ICase(ICUPOS)
           end if
           IC1 = ICUP/4
           ICS(LEV) = ICUP-4*IC1
@@ -142,9 +140,9 @@ do MV=1,CIS%nMidV
         KNXT = K+KOCSZ
         K = K+KPAD2
         ISY = 0
-        do LEV=1,SGS%nLev
-          if (ISY /= SGS%ISM(LEV)) then
-            ISY = SGS%ISM(LEV)
+        do LEV=1,SGS(iState)%nLev
+          if (ISY /= SGS(iState)%ISM(LEV)) then
+            ISY = SGS(iState)%ISM(LEV)
             K = K+1
             LINE(K:K) = ' '
           end if
@@ -165,7 +163,7 @@ do MV=1,CIS%nMidV
           ! use maximum spin projection value
           IMS = ISPIN-1
           write(u6,*)
-          call EXPCSF(ICS,SGS%nLev,IMS,LEX,coef,LuVecDet)
+          call EXPCSF(ICS,SGS(iState)%nLev,IMS,LEX,coef,LuVecDet)
           write(u6,*)
         end if
         Line = ' '
@@ -180,7 +178,5 @@ call mma_deallocate(ICS)
 
 ! free memory for determinant expansion
 if (KeyPRSD) call mma_deallocate(LEX)
-
-End Associate
 
 end subroutine SG_PRWF

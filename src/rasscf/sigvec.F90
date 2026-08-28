@@ -20,7 +20,7 @@ subroutine SIGVEC(CIN,HC,HD,BM,SXN,G,H,DIA,F1,F2,X,C,NTRIAL)
 ! ********** IBM-3090 Release 88 09 01 **********
 
 use Index_Functions, only: nTri_Elem
-use rasscf_global, only: ICICP, ITER, NDIMSX, NROOT, NSXS, SXSHFT, IROOT, ENER, SXDAMP
+use rasscf_global, only: ENER, ICICP, IROOT, ITER, NDIMSX, NROOT, NSXS, SXDAMP, SXSHFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: NSYM, NASH, NISH, NSSH

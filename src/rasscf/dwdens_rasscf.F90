@@ -24,7 +24,7 @@ use general_data, only: NACTEL, NCONF
 use sguga, only: SGS
 use sxci, only: IDXSX
 #ifdef _DMRG_
-use rasscf_global, only: TwoRDM_qcm, RF1, RF2
+use rasscf_global, only: RF1, RF2, TwoRDM_qcm
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -36,7 +36,7 @@ real(kind=wp), intent(out) :: D1A(NACPAR), RCT_FS(NACPAR)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, jDisk
 real(kind=wp) :: rdum(1), wgt
-real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DX(:), DStmp(:), Dtmp(:), PAtmp(:), PTmp(:)
+real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DStmp(:), Dtmp(:), DX(:), PAtmp(:), PTmp(:)
 integer(kind=iwp), parameter :: istate = 1
 
 call mma_allocate(DA_ave,NACPAR,Label='DA_ave')

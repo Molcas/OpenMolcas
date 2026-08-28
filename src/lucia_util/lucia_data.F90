@@ -45,7 +45,7 @@ integer(kind=iwp) :: I12, I1234S, I12S, I2ELIMINATED_IN_GAS(MXPNGAS), I34S, I_AM
                      IBSPGPFTP(MXPSTT), ICISTR, ICJKAIB, ICMBSPC(MXPSTT,MXPICI), IDC, IDIAG, IDISK(100), &
                      IELIMINATED_IN_GAS(MXPNGAS), IGSFGP(MXPSTT), IGSOCC(MXPNGAS,2), IGSOCCX(MXPNGAS,2,MXPICI), &
                      IH0INSPC(MXPPTSPC), IH0SPC, IH1FORM, INGRP_VAL, ini_h0, IOBPTS(6+MXPR4T,MXPOBS), IPART, IPHGAS(MXPNGAS), &
-                     IPRCIX, IPRDEN, IREFSM=-1, IREOST(MXPORB), IREOTS(MXPORB), IRESTR, ISIMSYM, ISMFSO(MXPORB), ISMFTO(MXPORB), &
+                     IPRCIX, IPRDEN, IREFSM = -1, IREOST(MXPORB), IREOTS(MXPORB), IRESTR, ISIMSYM, ISMFSO(MXPORB), ISMFTO(MXPORB), &
                      ISPGPFTP(MXPNGAS,MXPSTT), ISTAC(MXPSTT,2), ITOOBS(MXPOBS), kvec3_length = 0, LCMBSPC(MXPICI), LCSBLK, LUC, &
                      LUDIA, LUHC, LUMOUT, LUSC1, LUSC2, LUSC3, LUSC34, LUSC35, LUSC36, LUSC37, LUSC38, LUSC39, LUSC40, &
                      MAX_STR_OC_BLK, MAX_STR_SPGP, MAXOP, Memory_Needed_Lucia = 0, MINMAX_SM_GP(2,MXPSTT), MINOP, MNGSOC(MXPNGAS), &
@@ -70,8 +70,8 @@ integer(kind=iwp), allocatable :: CFTP(:), CI1BT(:), CIBT(:), CLBT(:), CLEBT(:),
                                   NSTSGP(:), OCSTR(:,:), PINT1(:), PINT2(:), REO(:,:), SPGPAN(:), SPGPCR(:), Z(:,:), ZSCR(:)
 integer(kind=iwp), allocatable, target :: CBLTP(:)
 integer(kind=iwp), pointer :: SDREO(:)
-real(kind=wp), allocatable :: DStmp(:), Dtmp(:), DTOC(:), INT1(:), PAtmp(:), Pscr(:), Ptmp(:), RHO1(:), &
-                              SIGMA_VEC(:), SRHO1(:), VEC3(:)
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), DTOC(:), INT1(:), PAtmp(:), Pscr(:), Ptmp(:), RHO1(:), SIGMA_VEC(:), SRHO1(:), &
+                              VEC3(:)
 real(kind=wp), allocatable, target :: CI_VEC(:)
 
 public :: ABTOR2_TINY_M_MAX, ABTOR2_TINY_N_MAX, Allocate_Local_Arrays, CBLTP, CFTP, CI1BT, CI_VEC, CIBT, CLBT, CLEBT, CONF_OCC, &
@@ -88,8 +88,8 @@ public :: ABTOR2_TINY_M_MAX, ABTOR2_TINY_N_MAX, Allocate_Local_Arrays, CBLTP, CF
           NCSF_HEXS, NCSF_PER_SYM, NDEOB, NELEC, NELFGP, NELFSPGP, NELFTP, NELIS, NGAS, NGPSTR, NGRP, NGSOBT, NGSSH, NHLFSPGP, &
           NINOB, NINOBS, NIRREP, NMXOCCLS, NOBPT, NOBPTS, NOCOB, NOCSF, NOCTYP, NOINT, NORB1, NORB2, NORB3, NPCMCNF, NPCSCNF, &
           NPDTCNF, NPTSPC, NROOT, NSD_PER_SYM, NSMOB, NSPGPFTP, NSTFGP, NSTFSMGP, NSTFSMSPGP, NSTRKS, NSTSGP, NSTSO, NSTTP, &
-          PAtmp, PGINT1, PGINT1A, PINT1, PINT2, Pscr, PSSIGN, Ptmp, REO, REO_PTDT, RHO1, SDREO, SDREO_I, Sigma_on_disk, &
-          RF1, RF2, RHO1, RSBB1E_CPU_D1_MAX, RSBB1E_CPU_D2_MAX, SDREO, SDREO_I, Sigma_on_disk, SIGMA_VEC, SKICKJ_TINY_K_MAX, &
+          NSTTYP, NTOOB, NTOOBS, NTSPGP, OCCSTR, OCSTR, PAtmp, PGINT1, PGINT1A, PINT1, PINT2, Pscr, PSSIGN, Ptmp, REO, REO_PTDT, &
+          RHO1, RSBB1E_CPU_D1_MAX, RSBB1E_CPU_D2_MAX, SDREO, SDREO_I, Sigma_on_disk, SIGMA_VEC, SKICKJ_TINY_K_MAX, &
           SKICKJ_TINY_N_MAX, SPGPAN, SPGPCR, SRHO1, STREO, STSTM, TDENSI, TSIGMA, VEC3, XISPSM, Z, Z_PTDT, Zmat, ZSCR
 
 contains

@@ -21,7 +21,7 @@ subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: ipCI, IRLXROOT, LuJob, nConf1, nDens, nNA, XISPSM
-use general_data, only: State_Sym=>STSym
+use general_data, only: STSym
 use input_mclr, only: iTOC, nCSF, nRoots, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
@@ -52,15 +52,15 @@ call mma_allocate(G1r,ntash**2,Label='G1r')
 call mma_allocate(G2r,nTri_Elem(ntash**2),Label='G2r')
 call mma_allocate(G2rt,nTri_Elem(ntash**2),Label='G2rt')
 ! Rotate CI vectors back to those for reference states
-NCSFs = NCSF(state_sym)
+NCSFs = NCSF(STSym)
 call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%A,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
-nConfL = max(ncsf(state_sym),nint(xispsm(state_sym,1)))
+nConfL = max(ncsf(STSym),nint(xispsm(STSym,1)))
 
 call mma_allocate(CIL,nConfL)
 call mma_allocate(CIR,nConfL)
 
 I = IRlxRoot
-call CSF2SD(FinCI(1+(I-1)*NCSFs),CIL,state_sym)
+call CSF2SD(FinCI(1+(I-1)*NCSFs),CIL,STSym)
 CIR(:) = CIL(:)
 call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,nTri_Elem(ntash**2))
 do iA=1,nnA

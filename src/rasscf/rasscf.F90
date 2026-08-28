@@ -52,11 +52,7 @@ subroutine RASSCF(IRETURN)
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
 use Index_Functions, only: nTri_Elem
-use ci_interfaces, only: CI_Timer, CI_Close
-#ifdef _HDF5_
-use ci_interfaces, only: Mk_T1DM
-use sguga, only: sg_reord
-#endif
+use ci_interfaces, only: CI_Close, CI_Timer
 use OneDat, only: sNoNuc, sNoOri
 use Fock_util_global, only: ALGO, DoActive, DoCholesky
 use write_orbital_files, only: OrbFiles, putOrbFile, write_orb_per_iter
@@ -78,25 +74,24 @@ use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FockOcc, OccN, PA, PMAT
 use input_ras, only: Key, LuInput
 use raswfn, only: cre_raswfn, Wfn_FileID
 use timers, only: TimeCIOpt, TimeInput, TimeOrb, TimeOutput, TimeRelax, TimeTotal, TimeTrans, TimeWfn
-use rasscf_global, only: CBLBM, CMAX, Conv, DE, DoDMRG, DoFCIDump, ECAS, EMY, Ener, ESX, ExFac, FDIAG, HalfQ, &
-                         iAdr15, iBLBM, ICICH, iCIOnly, iCIRST, iExpand, IfCrPr, InOCalc, IPCMROOT, iPr, iPT2, iRLXRoot, iRoot, &
-                         iSave_Exp, iSymBB, ITER, ITERCI, ITERSX, JBLBM, KSDFT, KSDFT_Temp, l_casdft, lSquare, MaxIt, NAC, NACPAR, &
-                         NACPR2, NewFock, nFint, no2m, NonEQ, nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax, Start_Vectors, SXShft, Thre, &
-                         ThrSX, THRTE, TMin, Tot_Charge, VIA_DFT, Weight,  NALTER, CRPROJ, CRVec, NCRVEC, INVEC, CleanMask
-#   if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
-use rasscf_global, only: DOBLOCKDMRG
-#endif
+use rasscf_global, only: CBLBM, CMAX, Conv, DE, DoDMRG, DoFCIDump, ECAS, EMY, Ener, ESX, ExFac, FDIAG, HalfQ, iAdr15, iBLBM, &
+                         ICICH, iCIOnly, iCIRST, iExpand, IfCrPr, InOCalc, IPCMROOT, iPr, iPT2, iRLXRoot, iRoot, iSave_Exp, &
+                         iSymBB, ITER, ITERCI, ITERSX, JBLBM, KSDFT, KSDFT_Temp, l_casdft, lSquare, MaxIt, NAC, NACPAR, NACPR2, &
+                         NewFock, nFint, no2m, NonEQ, nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax, Start_Vectors, SXShft, Thre, ThrSX, &
+                         THRTE, TMin, Tot_Charge, VIA_DFT, Weight,  NALTER, CRPROJ, CRVec, NCRVEC, INVEC, CleanMask
 use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
 use rasscf_files, only: ITERFILE, JOBIPH
-use general_data, only: ISPIN, NASH, NBAS, NCONF, NDEL, NFRO, &
-                        NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2, iDOGAS
+use general_data, only: iDOGAS, ISPIN, NASH, NBAS, NCONF, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
 use DWSol, only: DWSol_final, DWSol_init, DWSolv
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
+use rasscf_global, only: DOBLOCKDMRG
+#endif
 #ifdef _DMRG_
 use qcmaquis_interface, only: dmrg_energy, qcmaquis_interface_deinit, qcmaquis_interface_delete_chkp, &
                               qcmaquis_interface_prepare_hirdm_template, qcmaquis_param, TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM
 use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
-use rasscf_global, only: DoDelChk, DoMCPDFTDMRG, DoNEVPT2Prep, Twordm_qcm, RF1, RF2
+use rasscf_global, only: DoDelChk, DoMCPDFTDMRG, DoNEVPT2Prep, RF1, RF2, Twordm_qcm
 use general_data, only: NACTEL
 #endif
 #ifdef _FDE_
@@ -104,6 +99,8 @@ use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, emb
 #endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_attr, mh5_put_dset
+use ci_interfaces, only: Mk_T1DM
+use sguga, only: sg_reord
 use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
 use general_data, only: STSYM
@@ -129,7 +126,7 @@ real(kind=wp), allocatable :: CMON(:), Dens(:), EDUM(:), Fock(:), folded_Fock(:)
                               Scr1(:), Scr2(:), SMat(:), Tmp1(:), TmpD1S(:), TmpDMat(:), TmpDS(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: iDX, jDisk, jRoot, kDisk
-real(kind=wp), allocatable :: Tmp(:), VecL(:), VecR(:), DStmp(:), Dtmp(:), XTmp(:)
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), Tmp(:), VecL(:), VecR(:), XTmp(:)
 #endif
 #ifdef _FDE_
 integer(kind=iwp) :: iDummyEmb, iEmb, iUnit, nNuc
@@ -1588,15 +1585,15 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
           call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
           call SG_Reord(iState,STSYM,1,nConf,Tmp,VecR)
           ! Compute TDM and store in h5 file
-          Call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
-          Call mma_allocate(XTmp,NAC**2,Label='XTmp')
-          XTmp(:)=Abs(DTMP(:))
-          Call add_info('TDM',XTMP,NAC**2,6)
-          if (iSpin > 1) Then
-             XTmp(:)=Abs(DSTMP(:))
-             Call add_info('TSDM',XTMP,NAC**2,6)
-          End If
-          Call mma_deallocate(XTmp)
+          call Mk_T1DM(VECR(:),VECL(:),nConf,DTMP,NAC**2,DSTMP)
+          call mma_allocate(XTmp,NAC**2,Label='XTmp')
+          XTmp(:) = abs(DTMP(:))
+          call add_info('TDM',XTMP,NAC**2,6)
+          if (iSpin > 1) then
+             XTmp(:) = abs(DSTMP(:))
+             call add_info('TSDM',XTMP,NAC**2,6)
+          end if
+          call mma_deallocate(XTmp)
           idx = (jRoot-2)*(jRoot-1)/2+kRoot
           call mh5_put_dset(wfn_transdens,Dtmp(1:NAC*NAC),[NAC,NAC,1],[0,0,idx-1])
           if (iSpin > 1) call mh5_put_dset(wfn_transsdens,DStmp(1:NAC**2),[NAC,NAC,1],[0,0,idx-1])
@@ -1783,7 +1780,7 @@ if (Do_OFemb) then
 end if
 
 ! Release the CI environment
-Call CI_Close(istate)
+call CI_Close(istate)
 
 if (allocated(CI_solver)) then
   call CI_solver%cleanup()

@@ -15,7 +15,7 @@ subroutine CIDens_TD(iCI,iS,rP,rD)
 use ipPage, only: ipin, ipnout, W
 use MCLR_Data, only: ipCI, n1Dens, n2Dens, nConf1, NOCSF, XISPSM
 use CandS, only: ICSM, ISSM
-use general_data, only: State_Sym=>STSym
+use general_data, only: STSym
 use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -81,7 +81,7 @@ rP(1:n2Dens) = Zero
 
 if (nocsf == 0) then
   nConfL = max(ncsf(iS),nint(xispsm(iS,1)))
-  nConfR = max(ncsf(State_SYM),nint(xispsm(STATE_SYM,1)))
+  nConfR = max(ncsf(STSym),nint(xispsm(STSym,1)))
   nC = max(nconfL,nconfR)
   call mma_allocate(CIL,nC,Label='CIL')
   call mma_allocate(CIR,nC,Label='CIR')
@@ -91,7 +91,7 @@ if (nocsf == 0) then
   call ipin(iCI)
   call ipin(ipCI)
   call CSF2SD(W(iCI)%A,CIR,iS)
-  call CSF2SD(W(ipCI)%A,CIL,State_SYM)
+  call CSF2SD(W(ipCI)%A,CIL,STSym)
 
   !write(u6,*) 'ipL*ipL',ddot_(nConfL,CIL,1,CIL,1)
   !write(u6,*) 'ipR*ipR',ddot_(nConfR,CIR,1,CIR,1)
@@ -100,7 +100,7 @@ if (nocsf == 0) then
 
   call ipnout(-1)
   icsm = iS
-  issm = STATE_SYM
+  issm = STSym
 
   ! <P|E_pq|0> & <P|e_pqrs|0> -> ipDe & ipP
   ! ipL is the bra side vector
@@ -120,7 +120,7 @@ if (nocsf == 0) then
   call ipin(iCI)
   call ipin(ipCI)
   call CSF2SD(W(iCI)%A(1+nconf1),CIL,iS)
-  call CSF2SD(W(ipci)%A,CIR,State_SYM)
+  call CSF2SD(W(ipci)%A,CIR,STSym)
 
   !write(u6,*) 'CIL*CIL',ddot_(nConfL,CIL,1,CIL,1)
   !write(u6,*) 'CIR*CIR',ddot_(nConfR,CIR,1,CIR,1)
@@ -129,7 +129,7 @@ if (nocsf == 0) then
 
   call ipnout(-1)
   issm = iS
-  icsm = STATE_SYM
+  icsm = STSym
   De(:) = Zero
   Pe(:) = Zero
   call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1Dens,n2Dens)

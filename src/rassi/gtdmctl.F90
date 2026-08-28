@@ -68,7 +68,7 @@ real(kind=wp), allocatable, target :: DETTOT1(:,:), DETTOT2(:,:)
 character(len=NASHT+1), allocatable :: detocc(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
-integer(kind=iwp), parameter:: iState1=1, iState2=2
+integer(kind=iwp), parameter:: iState1 = 1, iState2 = 2
 
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_

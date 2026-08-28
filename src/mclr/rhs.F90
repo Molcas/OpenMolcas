@@ -37,7 +37,7 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipin, W
 use MCLR_Data, only: DspVec, G1t, G2t, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, n2Dens, nA, nCMO, nConf1, nDens, nMBA
 use MCLR_procedures, only: CISigma
-use general_data, only: nAsh, nIsh, nSym, State_Sym=>STSym
+use general_data, only: nAsh, nIsh, nSym, STSym
 use input_mclr, only: Debug, iMethod, nBas, nOrb, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two
@@ -194,7 +194,7 @@ if ((iMethod == 2) .and. btest(ntpert(idisp),2)) call ABXpY(MOT,MOX,idsym)
 
 if (CI) then
 
-  call CiSigma(0,State_Sym,Mul(State_sym,idsym),FIX,nDens,MOX,size(MOX),rdum,1,ipCI,ipst,.true.)
+  call CiSigma(0,STSym,Mul(STSym,idsym),FIX,nDens,MOX,size(MOX),rdum,1,ipCI,ipst,.true.)
 
   call ipin(ipst)
   if (idsym == 1) then

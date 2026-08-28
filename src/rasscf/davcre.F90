@@ -44,8 +44,8 @@ use wadr, only: DIA, PA, SXN
 use PrintLevel, only: DEBUG, INSANE
 use output_ras, only: IPRLOC, RC_SX
 use RASDim, only: MxSXIt
-use stdalloc, only: mma_allocate, mma_deallocate
 use rasscf_global, only: iter, iCIRst
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -60,26 +60,25 @@ character(len=*), intent(in) :: SXSEL
 integer(kind=iwp), intent(out) :: ITERSX
 integer(kind=iwp) :: i, iConvA, iConvL, iConvQ, ii, ij, iPass, iPrLev, iSel, iST, iSTC, iSTQ, j, ji, jST, k, kDimH, Length, nCR, &
                      nDimH, nDimH2, nST, nTotDC, nTrial
-real(kind=wp) :: ASQ, Ei, ENO, Ovl, QNorm, SWAP, XMX, XNorm, XX
+real(kind=wp) :: ASQ, Ei, ENO, Ovl, QNorm, SWAP, THRA_, XMX, XNorm, XX
 character(len=4) :: IOUTW, IOUTX
 real(kind=wp), allocatable :: C1(:), C2(:), X(:)
 real(kind=wp), parameter :: THRA = 1.0e-13_wp, THRLD1 = 1.0e-8_wp, THRLD2 = 5.0e-14_wp, THRQ = 1.0e-7_wp, THRZ = 1.0e-6_wp
-real(kind=wp) :: THRA_
 real(kind=wp), external :: DDot_
 #include "warnings.h"
 
-If (iCIRst==1) Then
-   THRA_=THRA
-Else
-   Select Case (iter)
-     Case(1)
-       THRA_=1.0e-11_wp
-     Case(2)
-       THRA_=1.0e-12_wp
-     Case Default
-       THRA_=THRA
-   End Select
-End If
+if (iCIRst == 1) then
+  THRA_ = THRA
+else
+  select case (iter)
+    case(1)
+      THRA_ = 1.0e-11_wp
+    case(2)
+      THRA_ = 1.0e-12_wp
+    case default
+      THRA_ = THRA
+  end select
+end if
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(1)
@@ -125,7 +124,7 @@ do ITERSX=1,ITMAX
 
   if (IPRLEV >= DEBUG) then
     write(u6,*) ' Davidson H-matrix in iteration ',ITERSX
-    Call TriPrt('Davidson H-matrix',' ',HH,NDIMH)
+    call TriPrt('Davidson H-matrix',' ',HH,NDIMH)
   end if
   E(1) = HH(1)
   CC(1) = One

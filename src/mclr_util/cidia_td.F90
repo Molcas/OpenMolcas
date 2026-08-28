@@ -17,7 +17,7 @@ use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use MCLR_Data, only: ICISTR, ipDia, NCSASM, NDPCNT, nexp, nexp_max, NOCSF, XISPSM
 use spinfo, only: NCNFTP, NCSFTP, NTYP
-use general_data, only: State_Sym=>STSym
+use general_data, only: STSym
 use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
 use Definitions, only: iwp
 
@@ -40,7 +40,7 @@ iSM(1) = iSym
 IAMCMP = 0
 ICISTR = 1
 i = 2
-if (isym == state_sym) i = 1
+if (isym == STSym) i = 1
 if (NOCSF == 0) then
   nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
   ipdcsfi = ipget(nsd)
