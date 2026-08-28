@@ -509,8 +509,8 @@ If (DoFaro) Then
      Write (u6,*) 'nComb_tot',nComb_tot
      Call Abend()
   End If
-!Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
-!Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
+ Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
+ Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -542,7 +542,7 @@ If (DoFaro) Then
   Call mma_allocate(Diag,nComb_tot,Label='Diag')
   Diag(:)=Zero
   Call hdiag(htu,gtuvx,diag)
-! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
+  Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
   Do i=1,nComb_tot
      If (abs(ddia(i)-diag(i))>1.0e-12_wp) Then
         Write (u6,*) 'i, abs(ddia(i)-diag(i))'
@@ -550,6 +550,7 @@ If (DoFaro) Then
         Write (u6,*) ddia(i),diag(i)
         Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
         Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
+        Call abend()
      End If
   End Do
 
