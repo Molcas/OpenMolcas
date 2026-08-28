@@ -1480,12 +1480,12 @@ end if
 
   end do
 
-write(u6,*)
-write(u6,*) 'IPAT -> NSING'
+!write(u6,*)
+!write(u6,*) 'IPAT -> NSING'
 
-do ipat=1,npat
-   write(u6,'(2I6)') ipat, nsing(ipat)
-end do
+!do ipat=1,npat
+!   write(u6,'(2I6)') ipat, nsing(ipat)
+!end do
 
 #ifdef _DEBUGPRINT_
   write(u6,'(A,I10)') ' NSpin_Comb = ', sum(nSpin_comb(:))
@@ -1517,24 +1517,24 @@ do iopen=minval(nsing),maxval(nsing),2
    end do
 end do
 
-write(u6,*)
-write(u6,*) 'IPAT -> CONF_BY_NOPEN'
+!!write(u6,*)
+!write(u6,*) 'IPAT -> CONF_BY_NOPEN'
 
-do ipat=1,npat
-   write(u6,'(2I6)') ipat, conf_by_nopen(ipat)
-end do
+!do ipat=1,npat
+!   write(u6,'(2I6)') ipat, conf_by_nopen(ipat)
+!end do
 
-write(u6,*)
-write(u6,*) 'CONF_BY_NOPEN -> IPAT'
+!write(u6,*)
+!write(u6,*) 'CONF_BY_NOPEN -> IPAT'
 
-do i=1,npat
-   do ipat=1,npat
-      if (conf_by_nopen(ipat) == i) then
-         write(u6,'(2I6)') i, ipat
-         exit
-      end if
-   end do
-end do
+!do i=1,npat
+!   do ipat=1,npat
+!      if (conf_by_nopen(ipat) == i) then
+!         write(u6,'(2I6)') i, ipat
+!         exit
+!      end if
+!   end do
+!end do
 
 icnf_out(:)=0
 do ipat=1,npat
