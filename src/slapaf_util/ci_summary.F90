@@ -56,6 +56,7 @@ if (norm_h > 1.0e-12_wp) then
 else
   h(:) = Zero
 end if
+hdir = 1
 ! Ensure that the asymmetry will be positive
 ! this fixes which vector is x and which is y
 ! But it should never be needed, because the use of atan2 effectively guarantees that gg >= hh
@@ -72,7 +73,6 @@ if (hh > gg) then
 end if
 sg = -dDot_(n,Gx(:,:,iter),1,g,1)
 sh = -dDot_(n,Gx(:,:,iter),1,h,1)
-hdir = 1
 ! Ensure that the tilt heading will be in the first quadrant
 ! this fixes the signs of the x and y vectors
 if (sg < Zero) then
@@ -178,6 +178,11 @@ call mma_Deallocate(tmp)
 call CollapseOutput(0,'Conical Intersection Characterization')
 
 call bp_molden(n,g,h,deltagh)
+
+call Add_Info('PITCH',[dgh],1,6)
+call Add_Info('ASYMMETRY',[deltagh],1,6)
+call Add_Info('TILT',[srel],1,5)
+call Add_Info('HEADING',[shead],1,4)
 
 call mma_Deallocate(g)
 call mma_Deallocate(h)
