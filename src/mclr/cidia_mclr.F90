@@ -17,7 +17,8 @@ use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use MCLR_Data, only: ICISTR, ipCI, ipDia, NCSASM, NDPCNT, nexp, nexp_max, nGP, NOCSF, XISPSM
 use spinfo, only: NCNFTP, NCSFTP, NTYP
-use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, State_Sym, TimeDep
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

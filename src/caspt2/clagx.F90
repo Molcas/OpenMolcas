@@ -14,7 +14,7 @@
 subroutine CLagX(IFF,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
 
 use PrintLevel, only: VERBOSE
-use sguga_states, only: SGS
+use sguga, only: SGS
 use general_data, only: nLev
 use caspt2_global, only: iPrGlb
 use caspt2_module, only: EPSA, HZERO, ISCF, JSTATE, NG1, NG2, NG3, NG3TOT

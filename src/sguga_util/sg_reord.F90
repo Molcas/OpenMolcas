@@ -11,8 +11,8 @@
 ! Copyright (C) 1990,1996, Markus P. Fuelscher                         *
 !               1990, Jeppe Olsen                                      *
 !***********************************************************************
-
-subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,nConf,CIOLD,CINEW)
+!define _DEBUGPRINT_
+subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !***********************************************************************
 !                                                                      *
 !     Rearrange CI-vectors                                             *
@@ -36,38 +36,35 @@ subroutine SG_ReOrd(SGS,EXS,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !     written by:                                                      *
 !     M.P. Fuelscher and J. Olsen                                      *
 !     University of Lund, Sweden, 1990                                 *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     history: none                                                    *
-!     - updated for integral direct and reaction field calculations    *
-!       M.P. Fuelscher, University of Lund, Sweden, 1996               *
-!                                                                      *
 !***********************************************************************
 
-use sguga, only: EXStruct, SGStruct
-use output_ras, only: IPRLOC
+use sguga, only: CIS, EXS, SGS, MkCOT, MkSgNum
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
-use PrintLevel, only: DEBUG
 use Lucia_data, only: CFTP, CONF_Occ
 use Molcas, only: MxAct
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
-type(SGStruct), intent(in) :: SGS
-type(EXStruct), intent(in) :: EXS
-integer(kind=iwp), intent(in) :: IREFSM, IMODE, nConf
+integer(kind=iwp), intent(in) :: iState, IREFSM, IMODE, nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
-integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
-                     IWALK(mxAct), JOCC, KCNF(MxAct), KOCC, KORB, LPRINT
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
+                     IWALK(mxAct), JOCC, KCNF(MxAct), KOCC, KORB
 real(kind=wp) :: Fact
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 integer(kind=iwp), external :: SG_NUM, SG_PHASE
 
-IPRLEV = IPRLOC(3)
+If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
+If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(IREFSM,SGS(istate),CIS(istate),EXS(istate))
+
 
 ICSFJP = 0
 ICNBS0 = 0 ! dummy initialize
@@ -75,12 +72,12 @@ IPBAS = 0 ! dummy initialize
 ! LOOP OVER CONFIGURATIONS TYPES
 do ITYP=1,NTYP
   IOPEN = ITYP+MINOP-1
-  ICL = (SGS%nActEl-IOPEN)/2
+  ICL = (SGS(iState)%nActEl-IOPEN)/2
   ! BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
   if (ITYP == 1) then
     ICNBS0 = 1
   else
-    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(SGS%nActEl+IOPEN-1)/2
+    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(SGS(iState)%nActEl+IOPEN-1)/2
   end if
   ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
   if (ITYP == 1) then
@@ -97,7 +94,7 @@ do ITYP=1,NTYP
     do IICSF=1,NCSFTP(ITYP)
       ICSFJP = ICSFJP+1
       ICSBAS = IPBAS+(IICSF-1)*IOPEN
-      KCNF(:) = 0
+      KCNF(:)=0
       ! Obtain configuration in standard RASSCF form
       IIBOP = 1
       IIBCL = 1
@@ -116,30 +113,29 @@ do ITYP=1,NTYP
       end do
 
       ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),SGS%nLev,IWALK)
+      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),SGS(iState)%nLev,IWALK)
 
       ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = SG_NUM(SGS,EXS,IWALK)
+      ISG = SG_NUM(SGS(iState),EXS(istate),IWALK)
       ! GET PHASE PHASE FACTOR
-      IP = SG_PHASE(SGS,IWALK)
+      IP = SG_PHASE(SGS(istate),IWALK)
       Fact = merge(-One,One,IP < 0)
       if (IMODE == 0) then
-        CINEW(ISG) = Fact*CIOLD(ICSFJP)
+        CINEW(ISG) = Fact * CIOLD(ICSFJP)
       else
-        CINEW(ICSFJP) = Fact*CIOLD(ISG)
+        CINEW(ICSFJP) = Fact * CIOLD(ISG)
       end if
     end do
   end do
 end do
 
-if (IPRLEV >= DEBUG) then
-  LPRINT = min(200,ICSFJP)
+#ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
-  write(u6,'(10F12.8)') (CIOLD(I),I=1,LPRINT)
+write(u6,'(10F12.8)') (CIOLD(I),I=1,min(200,ICSFJP))
   write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
-  write(u6,'(10F12.8)') (CINEW(I),I=1,LPRINT)
+write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
   write(u6,*)
-end if
+#endif
 
 end subroutine SG_Reord

@@ -24,8 +24,8 @@ use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, ipCI, ipDia, ipMat, IRLXROOT, ISNAC, LuTemp, nAcPar, nAcPr2, NACSTATES, nConf1, nDens, nDensC, &
                      nNA, PDFT_Ratio, WF_Ratio, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nAsh, nBas, nCSF, nDisp, nIter, nRoots, nRs2, &
-                      nSym, ntAsh, State_Sym, Weight
+use general_data, only: nAsh, nRs2, nSym, State_Sym=>STSym
+use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nBas, nCSF, nDisp, nIter, nRoots, ntAsh, Weight
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

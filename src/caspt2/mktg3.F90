@@ -33,8 +33,7 @@ subroutine MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: sg_epq_psi
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: sg_epq_psi, CIS, EXS, SGS
 use general_data, only: NACTEL, nLev
 use caspt2_module, only: IASYM, ISCF, NASHT, MxCI
 #ifdef _MOLCAS_MPP_
@@ -55,7 +54,7 @@ real(kind=wp) :: OCC, VAL
 integer(kind=iwp), allocatable :: P2LEV(:,:)
 real(kind=wp), allocatable :: TG3BUF(:), TG3WRK(:)
 real(kind=wp), external :: DDot_
-integer(kind=iwp), parameter :: istate = 1
+integer(kind=iwp), parameter :: istate=1
 
 ! Put in zeroes. Recognize special cases:
 OVL = One

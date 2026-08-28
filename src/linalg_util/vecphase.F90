@@ -20,15 +20,24 @@ real(kind=wp), intent(inout) :: A(nA)
 integer(kind=iwp) :: i
 real(kind=wp) :: Phase
 
+#define _OLD_CODE_
+#ifdef _OLD_CODE_
+
 Phase = Zero
 do i=1,nA
   Phase = Phase+A(i)*i
 end do
-if (Phase < Zero) then
-  A(:) = -A(:)
-  Phase = -Phase
-end if
+if (Phase < Zero) A(:) = -A(:)
+#else
+real(kind=wp), external :: Random_Molcas
+integer(kind=iwp) :: iSeed=17
 
-return
+! Project vector against a standard vector with random structure.
+Phase = Zero
+do i=1,nA
+  Phase = Phase+A(i)*Random_Molcas(iSeed)
+end do
+if (Phase < Zero) A(:) = -A(:)
+#endif
 
 end subroutine VecPhase

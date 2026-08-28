@@ -74,7 +74,8 @@ subroutine CREIPH()
 
 use sxci, only: IDXCI, IDXSX
 use rasscf_global, only: BName, header, IADR15, IPT2, iRoot, lRoots, NACPAR, NACPR2, nOrbT, nRoots, NTOT3, POTNUC, Title, Weight
-use general_data, only: ISPIN, JOBIPH, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSYM, NTOT, &
+use rasscf_files, only: JOBIPH
+use general_data, only: ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSYM, NTOT, &
                         NTOT2, STSYM
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit

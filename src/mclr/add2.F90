@@ -20,7 +20,8 @@ subroutine Add2(rMat,fact)
 !   which is just the case if E is symmetric.
 
 use MCLR_data, only: ipCM, ipMat, SFock
-use input_mclr, only: nBas, nOrb, nSym
+use general_data, only: nSym
+use input_mclr, only: nBas, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Four
 use Definitions, only: wp, iwp

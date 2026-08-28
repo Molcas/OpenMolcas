@@ -14,7 +14,7 @@
 subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
 use Index_Functions, only: nTri_Elem, nTri3_Elem
-use sguga_states, only: SGS
+use sguga, only: SGS
 use general_data, only: STSym
 use caspt2_global, only: CLag, CLagFull, CMOPT2, do_csf, do_nac, DPT2_tot, FIFA, FIFA_all, FIFASA_all, if_equalW, iRoot1, iRoot2, &
                          NDREF, nOLag, OLag, TORB, weight

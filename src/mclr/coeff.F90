@@ -12,7 +12,7 @@
 subroutine coeff(ralpha,rbetaa,rbetas)
 
 use MCLR_Data, only: mS2
-use input_mclr, only: iSpin
+use general_data, only: iSpin
 use wigner_util, only: wcg_real
 use Constants, only: Zero, One, Two, Six, Eight, Half
 use Definitions, only: wp, u6

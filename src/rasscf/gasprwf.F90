@@ -38,7 +38,8 @@ subroutine gasprwf(NORB,NEL,IREFSM,CICOEF,kcnf)
 !                                                                      *
 !***********************************************************************
 
-use rasscf_global, only: nSm, PrwThr
+use rasscf_global, only: PrwThr
+use general_data, only: NSM
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use lucia_data, only: Conf_Occ, CFTP
 use Molcas, only: MxAct

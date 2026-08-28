@@ -29,7 +29,8 @@ subroutine DMInvKap(rMFact,iMFact,rIn,rOut,rtemp,isym,iter)
 use Symmetry_Info, only: Mul
 use Spool, only: LuWr
 use MCLR_Data, only: ipMat, nDens, nDensC, SA
-use input_mclr, only: kprint, nAsh, nIsh, nOrb, nRs1, nRs2, nRs3, nSym, PT2
+use general_data, only: nAsh, nIsh, nRs1, nRs2, nRs3, nSym
+use input_mclr, only: kprint, nOrb, PT2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Definitions, only: wp, iwp, u6
 

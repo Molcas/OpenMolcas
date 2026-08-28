@@ -26,7 +26,8 @@ subroutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,iDSym,Sgn,Fact,jspin)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: FAMO, FIMO, G1t, ipCM, ipMat, nA, nCMO, nDens, nMBA
-use input_mclr, only: iMethod, nAsh, nBas, nIsh, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: iMethod, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp

@@ -35,7 +35,8 @@ subroutine Alter_MO(CMO)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: MALTER, NALTER, NBAS
+use general_data, only: NBAS
+use rasscf_global, only: MALTER, NALTER
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

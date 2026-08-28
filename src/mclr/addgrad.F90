@@ -21,7 +21,8 @@ subroutine AddGrad(rKappa,rMat,idsym,fact)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: F0SQMO, ipCM, ipMat
-use input_mclr, only: nOrb, nSym
+use general_data, only: nSym
+use input_mclr, only: nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Half
 use Definitions, only: wp, iwp

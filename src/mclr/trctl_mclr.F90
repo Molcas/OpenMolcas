@@ -20,7 +20,8 @@ subroutine TRCTL_MCLR()
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, FnHlf2, FnHlf3, FnTri1, FnTri2, FnTri3, FnTri4, FnTri5, ipCM, LuHlf2, LuHlf3, LuTri1, LuTri2, LuTri3, &
                      LuTri4, LuTri5
-use input_mclr, only: nAsh, nBas, nFro, nIsh, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas, nFro
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 

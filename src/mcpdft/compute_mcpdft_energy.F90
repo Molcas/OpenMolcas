@@ -21,7 +21,8 @@ use KSDFT_Info, only: do_pdftpot
 use mspdftgrad, only: D1aoMS, D1SaoMS, DIDA, P2MOT
 use libxc_parameters, only: FuncExtParams
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2, PotNuc
-use general_data, only: ispin, jobiph, jobold, nash, nbas, nish, norb, nsym, ntot1, ntot2
+use rasscf_files, only: jobiph, jobold
+use general_data, only: ispin, nash, nbas, nish, norb, nsym, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

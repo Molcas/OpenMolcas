@@ -21,7 +21,8 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, CMO_Inv, FAMO, FIMO, G1t, G2t, ipCM, ipMat, ipMatBA, nA, nDens, nMBA
-use input_mclr, only: iMethod, IsPop, LuAChoVec, LuIChoVec, nAsh, nBas, NewCho, nIsh, nOrb, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: iMethod, IsPop, LuAChoVec, LuIChoVec, nBas, NewCho, nOrb
 #ifdef _DEBUGPRINT_
 use Spool, only: LuWr
 #endif

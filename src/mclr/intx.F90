@@ -14,7 +14,8 @@ subroutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,rMo,loper,idisp)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, DspVec, G1t, ipCM, ipMat, ipMatLT, nA, nB, nDens, SWLbl
-use input_mclr, only: iMethod, nAsh, nBas, nIsh, nOrb, nSym, nTPert
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: iMethod, nBas, nOrb, nTPert
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 

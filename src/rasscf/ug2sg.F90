@@ -12,7 +12,7 @@
 !               1990, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ISPIN,IORD,ICI,JCJ,CCI,MXROOTS)
+subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,ICI,JCJ,CCI,MXROOTS)
 ! AUTHOR:  J. OLSEN AND M.P. FUELSCHER
 !          UNIV. OF LUND, SWEDEN 1990
 !
@@ -25,34 +25,48 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ISPIN,IORD,ICI,JCJ,CCI,MXRO
 !          INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
-use sguga_states, only: EXS, SGS
-use Lucia_data, only: Conf_Occ
+use sguga, only: CIS, EXS, SGS, MkCOT, MkSgNum, SG_NUM, SG_PHASE
+use Lucia_data, only: Conf_Occ, CFTP
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
+use general_data, only: STSYM
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ISPIN(*), MXROOTS, ICI(MXROOTS,MxRef)
-integer(kind=iwp), intent(out) :: IORD(NCONF), JCJ(MXROOTS,MxRef)
+integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, MXROOTS, ICI(MXROOTS,MxRef)
+integer(kind=iwp), intent(out) :: JCJ(MXROOTS,MxRef)
 real(kind=wp), intent(inout) :: CCI(MXROOTS,MxRef)
-integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(mxAct), &
-                     JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(mxAct), &
+                     JOCC, K, KCNF(mxAct), KOCC, KORB, L
 real(kind=wp) :: PHASE
 integer(kind=iwp), parameter :: istate = 1
-integer(kind=iwp), external :: SG_NUM, SG_PHASE
+integer(kind=iwp), allocatable :: IORD(:)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I, LPRINT
+#endif
+
+
+If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
+If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(STSYM,SGS(istate),CIS(istate),EXS(istate))
+
+Call mma_allocate(IORD,NCONF,Label='IORD')
 
 ! JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 ! NUMBERS IN THE SYMMETRIC GROUP NUMBERING
 
-if (IPRINT >= 5) then
+#ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*) ' SPLIT GRAPH GUGA CONFIGURATION NUMBERS:'
   do K=1,NROOTS
     write(u6,'(A,I2,A,5I8)') ' ROOT',K,' CSFs:',(ICI(K,L),L=1,5)
   end do
-end if
+#endif
 
 JCJ(:,:) = 0
 
@@ -102,10 +116,9 @@ do ITYP=1,NTYP
         end if
       end do
       ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1),KCNF(1+ICL),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
+      call STEPVEC(KCNF(1),KCNF(1+ICL),ICL,IOPEN,CFTP(ICSBAS),NORB,IWALK)
       ! GET SPLIT GRAPH ORDERING NUMBER
       ISG = SG_NUM(SGS(istate),EXS(istate),IWALK)
-
       ! GET PHASE PHASE FACTOR
       IP = SG_PHASE(SGS(istate),IWALK)
       ! UPDATE REINDEXING TABLE
@@ -114,20 +127,19 @@ do ITYP=1,NTYP
   end do
 end do
 
-if (IPRINT >= 5) then
+#ifdef _DEBUGPRINT_
   LPRINT = min(200,NCONF)
   write(u6,*)
   write(u6,*) ' INDEX TABLE IN SUBROUTINE REORD'
   write(u6,'(10I8)') (IORD(I),I=1,LPRINT)
   write(u6,*)
-end if
+#endif
 
 ! REPLACE CONFIGURATION NUMBERS
 
 do IC=1,NCONF
   ISG = IORD(IC)
-  PHASE = One
-  if (ISG < 0) PHASE = -One
+  PHASE=Merge(One,-One,ISG<0)
   ISG = abs(ISG)
   do K=1,NROOTS
     do L=1,MXREF
@@ -139,12 +151,14 @@ do IC=1,NCONF
   end do
 end do
 
-if (IPRINT >= 5) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' SYMMETRIC GROUP CONFIGURATION NUMBERS:'
   do K=1,NROOTS
     write(u6,'(A,I2,A,5I6)') ' ROOT',K,' CSFs:',(JCJ(K,L),L=1,5)
   end do
   write(u6,*)
-end if
+#endif
+
+Call mma_deallocate(IORD)
 
 end subroutine UG2SG

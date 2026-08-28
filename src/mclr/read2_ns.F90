@@ -51,7 +51,8 @@ subroutine Read2_ns(rMO1,rMO2,FockI,FockA,Temp1,nDens22,Temp2,Temp3,Temp4,DI13,D
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipCM, ipMat, ipMO, nB, nCMO, nDens, nMBA
-use input_mclr, only: iMethod, nAsh, nBas, nIsh, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: iMethod, nBas
 use Constants, only: Zero, Half, One
 use Definitions, only: wp, iwp, u6
 

@@ -799,6 +799,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
                        IOFF2(8), ISA, ISIJ, ISYA, ISYJL, ISYM, ISYV, IV, IW, IW1, IW2, JGEL, JGTL, LDEM, LDEP, lg_EM, lg_EP, NAS, &
                        NASZ, NBXSZA, NBXSZJ, NISM, NISP, NJSZ, NW, NWM, NWP
   real(kind=wp) :: SCL, SQ32
+  logical(kind=iwp) :: DGEMM_ONCE ! whether the (aj|vl) integral is built once
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: IHIV, ILOV, JHIV, JLOV, LDV, MV, myRank
 # endif
@@ -851,6 +852,18 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
   !LWEM = LWE
   LDEP = NAS
   LDEM = NAS
+
+  NBXSZA = NSECBX
+  NBXSZJ = NINABX
+
+  DGEMM_ONCE = (NBXSZA >= NA) .and. (NBXSZJ >= NJ)
+  if (DGEMM_ONCE) then
+    call DGEMM_('N','T',NV*NL,NA*NJ,NCHO,One,Cho_Ket,NV*NL,Cho_Bra,NA*NJ,Zero,AJVL,NV*NL)
+#   ifdef _MOLCAS_MPP_
+    if (iParRHS == 2) call GADSUM_ADDRHS(AJVL,NV*NL*NA*NJ)
+#   endif
+  end if
+
   ! The plus combination:
   if (NWP > 0) then
     ICASE = 6
@@ -865,9 +878,6 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
     end if
 #   endif
 
-    NBXSZA = NSECBX
-    NBXSZJ = NINABX
-
     do IASTA=1,NA,NBXSZA
       IAEND = min(IASTA-1+NBXSZA,NA)
       NASZ = IAEND-IASTA+1
@@ -876,7 +886,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
         NJSZ = IJEND-IJSTA+1
 
         IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-        call DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,One,Cho_Ket,NV*NL,Cho_Bra(IAJSTA,1),NA*NJ,Zero,AJVL,NV*NL)
+        if (.not. DGEMM_ONCE) call DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,One,Cho_Ket,NV*NL,Cho_Bra(IAJSTA,1),NA*NJ,Zero,AJVL,NV*NL)
         if (iParRHS == 1) then
           IAJ = 0
           IBUF = 0
@@ -914,7 +924,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
           if (IBUF /= 0) call RHS_SCATTER(LDEP,lg_EP,Buff,idxBuf,IBUF)
 #       ifdef _MOLCAS_MPP_
         else
-          call GADSUM_ADDRHS(AJVL,NV*NL*NASZ*NJSZ)
+          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AJVL,NV*NL*NASZ*NJSZ)
           if (JLOV > 0) then
             IAJ = 0
             do IJ=IJSTA,IJEND
@@ -970,9 +980,6 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
     end if
 #   endif
 
-    NBXSZA = NSECBX
-    NBXSZJ = NINABX
-
     do IASTA=1,NA,NBXSZA
       IAEND = min(IASTA-1+NBXSZA,NA)
       NASZ = IAEND-IASTA+1
@@ -981,7 +988,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
         NJSZ = IJEND-IJSTA+1
 
         IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-        call DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,One,Cho_Ket,NV*NL,Cho_Bra(IAJSTA,1),NA*NJ,Zero,AJVL,NV*NL)
+        if (.not. DGEMM_ONCE) call DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,One,Cho_Ket,NV*NL,Cho_Bra(IAJSTA,1),NA*NJ,Zero,AJVL,NV*NL)
 
         if (iParRHS == 1) then
           IAJ = 0
@@ -1021,7 +1028,7 @@ subroutine ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,nBuff,Buff,idxBuf,Cho_Br
           if (IBUF /= 0) call RHS_SCATTER(LDEM,lg_EM,Buff,idxBuf,IBUF)
 #       ifdef _MOLCAS_MPP_
         else if (iParRHS == 2) then
-          call GADSUM_ADDRHS(AJVL,NV*NL*NASZ*NJSZ)
+          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AJVL,NV*NL*NASZ*NJSZ)
           if (JLOV > 0) then
             IAJ = 0
             do IJ=IJSTA,IJEND
@@ -1348,6 +1355,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
                        IOFF1(8), IOFF2(8), ISAB, ISI, ISYA, ISYAC, ISYC, ISYM, IU, IW, IW1, IW2, KCL, LDGM, LDGP, lg_GM, lg_GP, &
                        NAS, NBXSZC, NBXSZL, NCSZ, NISM, NISP, NLSZ, NWGM, NWGP
   real(kind=wp) :: SCL
+  logical(kind=iwp) :: DGEMM_ONCE ! whether the (au|cl) integral is built once
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: IHIV, ILOV, ITMP1, ITMP2, JHIV, JLOV, LDV, MV, myRank
 # endif
@@ -1397,6 +1405,26 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
   !LWGM = LWG
   LDGP = NAS
   LDGM = NAS
+  if (NWGP+NWGM <= 0) return
+
+  ! to keep memory advantage, scale NL so that NC*NL fits in KCL
+  ! (scaling NL does not affect ordering of integrals = safe)
+  NBXSZC = NSECBX
+  !NBXSZJ = NINABX
+  KCL = NAUCL/(NA*NU)
+  NBXSZL = KCL/NC
+  if (NBXSZL <= 0) then
+    write(u6,*) 'Not enough memory in ADDRHSG, I give up'
+    call Abend()
+  end if
+
+  DGEMM_ONCE = (NBXSZC >= NC) .and. (NBXSZL >= NL)
+  if (DGEMM_ONCE) then
+    call DGEMM_('N','T',NA*NU,NC*NL,NCHO,One,Cho_Bra,NA*NU,Cho_Ket,NC*NL,Zero,AUCL,NA*NU)
+#   ifdef _MOLCAS_MPP_
+    if (iParRHS == 2) call GADSUM_ADDRHS(AUCL,NA*NU*NC*NL)
+#   endif
+  end if
 
   ! The plus combination:
   if (NWGP > 0) then
@@ -1412,17 +1440,6 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
     end if
 #   endif
 
-    ! to keep memory advantage, scale NL so that NC*NL fits in KCL
-    ! (scaling NL does not affect ordering of integrals = safe)
-    NBXSZC = NSECBX
-    !NBXSZJ = NINABX
-    KCL = NAUCL/(NA*NU)
-    NBXSZL = KCL/NC
-    if (NBXSZL <= 0) then
-      write(u6,*) 'Not enough memory in ADDRHSG, I give up'
-      call Abend()
-    end if
-
     do ICSTA=1,NC,NBXSZC
       ICEND = min(ICSTA-1+NBXSZC,NC)
       NCSZ = ICEND-ICSTA+1
@@ -1431,7 +1448,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
         NLSZ = ILEND-ILSTA+1
 
         ICLSTA = 1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-        call DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,One,Cho_Bra,NA*NU,Cho_Ket(ICLSTA,1),NC*NL,Zero,AUCL,NA*NU)
+        if (.not. DGEMM_ONCE) call DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,One,Cho_Bra,NA*NU,Cho_Ket(ICLSTA,1),NC*NL,Zero,AUCL,NA*NU)
 
         if (iParRHS == 1) then
           ICL = 0
@@ -1469,7 +1486,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
           if (IBUF /= 0) call RHS_SCATTER(LDGP,lg_GP,Buff,idxBuf,IBUF)
 #       ifdef _MOLCAS_MPP_
         else if (iParRHS == 2) then
-          call GADSUM_ADDRHS(AUCL,NA*NU*NCSZ*NLSZ)
+          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AUCL,NA*NU*NCSZ*NLSZ)
           if (JLOV > 0) then
             ICL = 0
             do IL=ILSTA,ILEND
@@ -1526,17 +1543,6 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
     end if
 #   endif
 
-    ! to keep memory advantage, scale NL so that NC*NL fits in KCL
-    ! (scaling NL does not affect ordering of integrals = safe)
-    NBXSZC = NSECBX
-    !NBXSZJ = NINABX
-    KCL = NAUCL/(NA*NU)
-    NBXSZL = KCL/NC
-    if (NBXSZL <= 0) then
-      write(u6,*) 'Not enough memory in ADDRHSG, I give up'
-      call Abend()
-    end if
-
     do ICSTA=1,NC,NBXSZC
       ICEND = min(ICSTA-1+NBXSZC,NC)
       NCSZ = ICEND-ICSTA+1
@@ -1545,7 +1551,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
         NLSZ = ILEND-ILSTA+1
 
         ICLSTA = 1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-        call DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,One,Cho_Bra,NA*NU,Cho_Ket(ICLSTA,1),NC*NL,Zero,AUCL,NA*NU)
+        if (.not. DGEMM_ONCE) call DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,One,Cho_Bra,NA*NU,Cho_Ket(ICLSTA,1),NC*NL,Zero,AUCL,NA*NU)
 
         if (iParRHS == 1) then
           ICL = 0
@@ -1596,7 +1602,7 @@ subroutine ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,nBuff,Buff,idxBuf,
           if (IBUF /= 0) call RHS_SCATTER(LDGM,lg_GM,Buff,idxBuf,IBUF)
 #       ifdef _MOLCAS_MPP_
         else if (iParRHS == 2) then
-          call GADSUM_ADDRHS(AUCL,NA*NU*NCSZ*NLSZ)
+          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AUCL,NA*NU*NCSZ*NLSZ)
           if (JLOV > 0) then
             ICL = 0
             do IL=ILSTA,ILEND
@@ -1665,6 +1671,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
                        LDHM, LDHP, lg_HM, lg_HP, NASM, NASP, NASZ, NBXSZA, NBXSZC, NBXSZJ, NBXSZL, NCSZ, NISM, NISP, NJSZ, NWHM, &
                        NWHP
   real(kind=wp) :: SCL, SCL1
+  logical(kind=iwp) :: DGEMM_ONCE ! whether the (aj|cl) integral is built once
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: IHIV, ILOV, ITMP1, ITMP2, JHIV, JLOV, LDV, MV, myRank
 # endif
@@ -1714,6 +1721,29 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
   LDHP = NASP
   LDHM = NASM
 
+  ! to keep memory advantage, scale NJ so that NA*NJ fits in KAJ
+  ! (scaling NJ or NL does not affect ordering of integrals = safe)
+  NBXSZA = NSECBX
+  !NBXSZJ = NINABX
+  KAJ = NAJCL/(NC*NL)
+  NBXSZJ = KAJ/NA
+  if (NBXSZJ <= 0) then
+    write(u6,*) 'Not enough memory in ADDRHSH, I give up'
+    call Abend()
+  end if
+  NBXSZC = NSECBX
+  NBXSZL = NINABX
+
+  ! The two combinations (plus/minus) are built from the same integrals,
+  ! so build them only once when the whole (aj|cl) block fits in AJCL.
+  DGEMM_ONCE = (NBXSZA >= NA) .and. (NBXSZJ >= NJ)
+  if (DGEMM_ONCE) then
+    call DGEMM_('N','T',NC*NL,NA*NJ,NCHO,One,Cho_Ket,NC*NL,Cho_Bra,NA*NJ,Zero,AJCL,NC*NL)
+#   ifdef _MOLCAS_MPP_
+    if (iParRHS == 2) call GADSUM_ADDRHS(AJCL,NC*NL*NA*NJ)
+#   endif
+  end if
+
   ! The plus combination:
   if (NWHP > 0) then
     ICASE = 12
@@ -1733,20 +1763,6 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
     !-SVC20100313: use only part of aj but all of cl, this introduces
     ! a reordered loop over parts of the RHS array.
 
-    ! to keep memory advantage, scale NJ so that NA*NJ fits in KAJ
-    ! (scaling NJ or NL does not affect ordering of integrals = safe)
-    NBXSZA = NSECBX
-    !NBXSZJ = NINABX
-    KAJ = NAJCL/(NC*NL)
-    NBXSZJ = KAJ/NA
-    if (NBXSZJ <= 0) then
-      write(u6,*) 'Not enough memory in ADDRHSH, I give up'
-      call Abend()
-    end if
-
-    NBXSZC = NSECBX
-    NBXSZL = NINABX
-
     do IASTA=1,NA,NBXSZA
       IAEND = min(IASTA-1+NBXSZA,NA)
       NASZ = IAEND-IASTA+1
@@ -1755,7 +1771,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
         NJSZ = IJEND-IJSTA+1
 
         IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-        call DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,One,Cho_Ket,NC*NL,Cho_Bra(IAJSTA,1),NA*NJ,Zero,AJCL,NC*NL)
+        if (.not. DGEMM_ONCE) call DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,One,Cho_Ket,NC*NL,Cho_Bra(IAJSTA,1),NA*NJ,Zero,AJCL,NC*NL)
 
         if (iParRHS == 1) then
           do ICSTA=1,NC,NBXSZC
@@ -1812,7 +1828,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
           end do
 #       ifdef _MOLCAS_MPP_
         else if (iParRHS == 2) then
-          call GADSUM_ADDRHS(AJCL,NC*NL*NASZ*NJSZ)
+          if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AJCL,NC*NL*NASZ*NJSZ)
           if (JLOV > 0) then
 
             do ICSTA=1,NC,NBXSZC
@@ -1896,17 +1912,6 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
 # endif
 
   !VM(jl,ac) = ((ajcl)-(alcj))*sqrt(Three)
-  NBXSZA = NSECBX
-  !NBXSZJ = NINABX
-  KAJ = NAJCL/(NC*NL)
-  NBXSZJ = KAJ/NA
-  if (NBXSZJ <= 0) then
-    write(u6,*) 'Not enough memory in ADDRHSH, I give up'
-    call Abend()
-  end if
-  NBXSZC = NSECBX
-  NBXSZL = NINABX
-
   do IASTA=1,NA,NBXSZA
     IAEND = min(IASTA-1+NBXSZA,NA)
     NASZ = IAEND-IASTA+1
@@ -1915,7 +1920,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
       NJSZ = IJEND-IJSTA+1
 
       IAJSTA = 1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
-      call DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,One,Cho_Ket,NC*NL,Cho_Bra(IAJSTA,1),NA*NJ,Zero,AJCL,NC*NL)
+      if (.not. DGEMM_ONCE) call DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,One,Cho_Ket,NC*NL,Cho_Bra(IAJSTA,1),NA*NJ,Zero,AJCL,NC*NL)
 
       if (iParRHS == 1) then
         do ICSTA=1,NC,NBXSZC
@@ -1972,7 +1977,7 @@ subroutine ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,nBuff,Buff,idxBuf,
         end do
 #     ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-        call GADSUM_ADDRHS(AJCL,NC*NL*NASZ*NJSZ)
+        if (.not. DGEMM_ONCE) call GADSUM_ADDRHS(AJCL,NC*NL*NASZ*NJSZ)
         if (JLOV > 0) then
 
           do ICSTA=1,NC,NBXSZC

@@ -24,7 +24,7 @@ use CHOVEC_IO, only: nvloc_chobatch
 use PrintLevel, only: DEBUG, VERBOSE
 use EQSOLV, only: IVECC, IVECC2, IVECR, IVECW, IVECX
 use ChoCASPT2, only: iALGO, MaxVec_PT2
-use sguga_states, only: SGS
+use sguga, only: SGS
 use general_data, only: nAsh
 use caspt2_global, only: CLag, CLagFull, CMOPT2, DMIX, do_csf, do_grad, DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, &
                          DPT2Canti_tot, DREF, FIFA, FIFA_all, FIMO, FIMO_all, IDCIEX, IDTCEX, if_invar, if_invaria, if_SSDM, &

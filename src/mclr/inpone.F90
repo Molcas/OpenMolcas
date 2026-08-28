@@ -15,7 +15,8 @@ use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
 use rctfld_module, only: Conductor, lRF
 use MCLR_Data, only: CMO, Int1, KAIN1, nDens, SA
-use input_mclr, only: iSpin, nActEl, nAtoms, nBas, nFro, nIsh, nOrb, nSym, PotNuc, PT2
+use general_data, only: iSpin, nActEl, nIsh, nSym
+use input_mclr, only: nAtoms, nBas, nFro, nOrb, PotNuc, PT2
 use PCM_grad, only: DSCFAO, DSCFMO, iCharge_PCM, iStpPCM, PCM_grad_dens, PCM_grad_dens2, potnuc_pcm, RFPERT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

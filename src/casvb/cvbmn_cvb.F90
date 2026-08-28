@@ -14,12 +14,13 @@
 
 subroutine cvbmn_cvb(icode)
 
+use ci_interfaces, only: CI_Close
 use casvb_global, only: esym, n_iter
-use Lucia_Interface, only: Lucia_Util
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: icode
+integer(kind=iwp), parameter:: iState=1
 
 ! ICODE=0 standard casvb calculation
 ! ICODE=1 variational calculation
@@ -28,6 +29,7 @@ integer(kind=iwp), intent(in) :: icode
 call cvbstart_cvb_lt9(icode)
 call main_cvb()
 call setretvals_cvb(esym,n_iter)
-call Lucia_Util('CLOSE')
+
+Call CI_Close(iState)
 
 end subroutine cvbmn_cvb

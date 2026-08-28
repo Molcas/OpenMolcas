@@ -334,6 +334,7 @@ do while (.not. Last)
     write(u6,'(2X,A,1X,I5)') 'Solving for subspace size:',mk
 #   endif
     EVec(:) = Proj(:)
+    info=0
     call dsyev_('V','L',mk,EVec,maxk,EVal,Dum,-1,info)
     if (info /= 0) then
       write(u6,*) 'info(2)/=0',info
@@ -341,6 +342,7 @@ do while (.not. Last)
     end if
     nTmp = max(1,int(Dum(1)))
     call mma_allocate(TmpVec,nTmp,Label='TmpVec')
+    info=0
     call dsyev_('V','L',mk,EVec,maxk,EVal,TmpVec,nTmp,info)
     if (info /= 0) then
       write(u6,*) 'info(2)/=0',info

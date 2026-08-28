@@ -20,7 +20,8 @@ subroutine RotState()
 use rasscf_global, only: Ener, IADR15, ICMSP, ITER, IXMSP, LROOTS
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: JOBIPH, NCONF
+use rasscf_files, only: JOBIPH
+use general_data, only: NCONF
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
 use stdalloc, only: mma_allocate, mma_deallocate

@@ -11,25 +11,14 @@
 
 module Input_MCLR
 
-! nActEl                : Number of active electrons
-! iSpin                 : Spin of state
-! nSym                  : Number of symmetries
-! State_Sym             : Symmetry of state
 ! nConf                 : Number of configurations in state sym
 ! nAtoms                : Guess
 ! lRoots                : State from CASSCF
 ! nRoots                : nr of states from CASSCF
-! nHole1                : nr of holes RAS1
-! nElec3                : nr of el in RAS3
 ! nBas                  : Number of basis functions
 ! nOrb                  : Number of basis functions
 ! nFro                  : Nr of frozen orb (not allowed)
 ! nDel                  : Nr of deleted orbitals (not allowed)
-! nIsh                  : nr of inactive orbitals
-! nAsh                  : number of active orbitals
-! nRs1                  : number of Rs1
-! nRs2                  : nr     of rs2
-! nRs3                  : nr     of rs3
 ! nSkip                 : Not active
 ! iRoot                 : nonono
 ! iPt2                  : CASPT2 orbitals
@@ -82,11 +71,11 @@ private
 
 integer(kind=iwp), parameter :: itociph = 64, mxPer = 255
 
-integer(kind=iwp) :: iaddressQDAT, iBreak, iMethod, iPt2, iRoot(mxRoot), iSpin, ispop, iToc(itociph), kprint, lRoots, &
-                     LuAChoVec(8), LuChoInt(2), LuIChoVec(8), mTit, nActEl, nAsh(mxSym), nAtoms, nBas(mxSym), nConf, nCSF(8), &
-                     nDel(mxSym), nDisp, nElec3, nFro(mxSym), nHole1, NIRREP, nIsh(mxSym), niter, nOrb(mxSym), nRoots, &
-                     nRs1(mxSym), nRs2(mxSym), nRs3(mxSym), nSkip(mxSym), nsRot, nSym, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, &
-                     ntBtri, ntIsh, ntIsqr, ntItri, nTPert(mxPer), nUserPT, State_Sym
+integer(kind=iwp) :: iaddressQDAT, iBreak, iMethod, iPt2, iRoot(mxRoot), ispop, iToc(itociph), kprint, lRoots, &
+                     LuAChoVec(8), LuChoInt(2), LuIChoVec(8), mTit, nAtoms, nBas(mxSym), nConf, nCSF(8), &
+                     nDel(mxSym), nDisp, nFro(mxSym), NIRREP, niter, nOrb(mxSym), nRoots, &
+                     nSkip(mxSym), nsRot, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, &
+                     ntBtri, ntIsh, ntIsqr, ntItri, nTPert(mxPer), nUserPT
 real(kind=wp) :: Coor(3,MxAtom), Eps, ERASSCF(mxroot), ESCF, Omega, PotNuc, rin_ene, UserP, UserT(64), Weight(mxroot)
 logical(kind=iwp) :: CASINT, debug, double, fail, iMCPD, iMSPD, lCalc(3*MxAtom+3), McKinley, newCho, page, PT2, RASSI, lSave, &
                      SPINPOL, Timedep, TwoStep
@@ -98,10 +87,10 @@ character(len=4) :: StepType
 character(len=3) :: chirr(8)
 
 public :: AtLbl, CASINT, chirr, Coor, debug, double, Eps, ERASSCF, ESCF, fail, Header1I, HeaderJP, iaddressQDAT, iBreak, iMCPD, &
-          iMethod, iMSPD, iPt2, iRoot, iSpin, ispop, iToc, itociph, kprint, lCalc, lRoots, LuAChoVec, LuChoInt, LuIChoVec, &
-          McKinley, mTit, nActEl, nAsh, nAtoms, nBas, nConf, nCSF, nDel, nDisp, nElec3, newCho, nFro, nHole1, NIRREP, nIsh, niter, &
-          nOrb, nRoots, nRs1, nRs2, nRs3, nSkip, nsRot, nSym, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, ntIsqr, ntItri, &
-          nTPert, nUserPT, Omega, page, Perturbation, PotNuc, PT2, RASSI, rin_ene, lSave, SPINPOL, State_Sym, StepType, Timedep, &
+          iMethod, iMSPD, iPt2, iRoot, ispop, iToc, itociph, kprint, lCalc, lRoots, LuAChoVec, LuChoInt, LuIChoVec, &
+          McKinley, mTit, nAtoms, nBas, nConf, nCSF, nDel, nDisp, newCho, nFro, NIRREP, niter, &
+          nOrb, nRoots, nSkip, nsRot, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, ntIsqr, ntItri, &
+          nTPert, nUserPT, Omega, page, Perturbation, PotNuc, PT2, RASSI, rin_ene, lSave, SPINPOL, StepType, Timedep, &
           TitleIN, TitleJp, TwoStep, UserP, UserT, Weight
 
 end module Input_MCLR

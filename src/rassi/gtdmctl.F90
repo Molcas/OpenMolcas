@@ -14,10 +14,10 @@ subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: MUL, nIrrep
 use frenkel_global_vars, only: DoCoul
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS
 use sguga, only: SG_Free
 use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
-use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
+use general_data, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
 use rasscf_global, only: DoDMRG
 use rassi_aux, only: AO_Mode, iDisk_TDM, ipglob, jDisk_TDM
 use rassi_data, only: ENUC, NASH, NASHT, NCMO, NDEL, NFRO, NISH, NISHT, NOSH, NSSH, NTDMAB, NTDMZZ, NTRA
@@ -68,6 +68,7 @@ real(kind=wp), allocatable, target :: DETTOT1(:,:), DETTOT2(:,:)
 character(len=NASHT+1), allocatable :: detocc(:)
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
+integer(kind=iwp), parameter:: iState1=1, iState2=2
 
 #define _TIME_GTDM
 #ifdef _TIME_GTDM_
@@ -376,11 +377,7 @@ end do
 
 !---------------    JOB1 wave functions: ---------------------
 ! Initialize SGUGA tables for JOB1 functions.
-! These are structures stored in user defined types:
-! SGS(1),CIS(1) and EXS(1).
 
-! Set variables in /RASDEF/, used by SGUGA codes, which define
-! the SGUGA space of JOB1. General RAS:
 if (WFTP1 == 'GENERAL') then
   NRSPRT = 3
   NRAS(:,1) = NRS1(:)
@@ -391,10 +388,10 @@ if (WFTP1 == 'GENERAL') then
   NRASEL(3) = NACTE1
 
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1),EXS(1))
+    call SG_Setup_RASSI(nIrrep,NACTE1,MPLET1,iState1)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
-      call SG_Print(SGS(1))
+      call SG_Print(iState1)
     end if
     ! CI sizes, as function of symmetry, are now known.
     NCONF1 = CIS(1)%NCSF(LSYM1)
@@ -499,11 +496,7 @@ else
 end if
 !---------------    JOB2 wave functions: ---------------------
 ! Initialize SGUGA tables for JOB2 functions.
-! These are structures stored in arrays:
-! SGS(2),CIS(2) and EXS(2).
 
-! Set variables in /RASDEF/, used by SGUGA codes, which define
-! the SGUGA space of JOB1. General RAS:
 if (WFTP2 == 'GENERAL') then
   NRSPRT = 3
   NRAS(:,1) = NRS1(:)
@@ -514,10 +507,10 @@ if (WFTP2 == 'GENERAL') then
   NRASEL(3) = NACTE2
 
   if (.not. doDMRG) then
-    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2),EXS(2))
+    call SG_Setup_RASSI(nIrrep,NACTE2,MPLET2,iState2)
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
-      call SG_Print(SGS(2))
+      call SG_Print(iState2)
     end if
     ! CI sizes, as function of symmetry, are now known.
     NCONF2 = CIS(2)%NCSF(LSYM2)
@@ -623,15 +616,15 @@ do IST=1,NSTAT(JOB1)
   if (.not. doDMRG) then
     ! Read ISTATE wave function
     if (WFTP1 == 'GENERAL') then
-      call READCI(ISTATE,SGS(1),CIS(1),NCONF1,CI1)
+      call READCI(ISTATE,istate1,NCONF1,CI1)
     else
       CI1(1) = One
     end if
     DET1(:) = Zero
     ! Transform to bion basis, Split-Guga format
-    if (TrOrb) call SG_CITRA(WFTP1,SGS(1),CIS(1),EXS(1),LSYM1,NTRA,TRA1,NCONF1,CI1,NOSH,NISH,NASH)
+    if (TrOrb) call SG_CITRA(WFTP1,iState1,LSYM1,NTRA,TRA1,NCONF1,CI1,NOSH,NISH,NASH)
     call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
-    call PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,CNFTAB1,SPNTAB1,SSTAB,FSBTAB1,NCONF1,CI1,DET1,detocc,detcoeff1,TRANS1)
+    call PREPSD(WFTP1,iState1,LSYM1,CNFTAB1,SPNTAB1,SSTAB,FSBTAB1,NCONF1,CI1,DET1,detocc,detcoeff1,TRANS1)
 
     ! print transformed ci expansion
     if (JOB1 /= JOB2) then
@@ -673,16 +666,16 @@ do JST=1,NSTAT(JOB2)
   if (.not. doDMRG) then
     ! Read JSTATE wave function
     if (WFTP2 == 'GENERAL') then
-      call READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
+      call READCI(JSTATE,istate2,NCONF2,CI2)
     else
       CI2(1) = One
     end if
     if (DoGSOR) CI2_o(:) = CI2(:)
     DET2(:) = Zero
     ! Transform to bion basis, Split-Guga format
-    if (TrOrb) call SG_CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,NTRA,TRA2,NCONF2,CI2,NOSH,NISH,NASH)
+    if (TrOrb) call SG_CITRA(WFTP2,iState2,LSYM2,NTRA,TRA2,NCONF2,CI2,NOSH,NISH,NASH)
     call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
-    call PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,CNFTAB2,SPNTAB2,SSTAB,FSBTAB2,NCONF2,CI2,DET2,detocc,detcoeff2,TRANS2)
+    call PREPSD(WFTP2,iState2,LSYM2,CNFTAB2,SPNTAB2,SSTAB,FSBTAB2,NCONF2,CI2,DET2,detocc,detcoeff2,TRANS2)
 
     ! print transformed ci expansion
     if (JOB1 /= JOB2) then
@@ -1064,11 +1057,11 @@ if (DoGSOR) then
     call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
     do JST=2,NSTAT(JOB2)
       JSTATE = ISTAT(JOB2)-1+JST
-      call READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
+      call READCI(JSTATE,iState2,NCONF2,CI2)
       CI2_o(:) = CI2(:)
       DET2(:) = Zero
-      if (TrOrb) call SG_CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,NTRA,TRA2,NCONF2,CI2,NOSH,NISH,NASH)
-      call PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,CNFTAB2,SPNTAB2,SSTAB,FSBTAB2,NCONF2,CI2,DET2,detocc,detcoeff2,TRANS2)
+      if (TrOrb) call SG_CITRA(WFTP2,iState2,LSYM2,NTRA,TRA2,NCONF2,CI2,NOSH,NISH,NASH)
+      call PREPSD(WFTP2,iState2,LSYM2,CNFTAB2,SPNTAB2,SSTAB,FSBTAB2,NCONF2,CI2,DET2,detocc,detcoeff2,TRANS2)
 
       call mma_allocate(ThetaN,NCONF2,Label='ThetaN')
       ThetaN(:) = Zero
@@ -1170,10 +1163,10 @@ if (mstate_dens) then
 end if
 
 if (WFTP1 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(SGS(1),CIS(1),EXS(1))
+  if (.not. doDMRG) call SG_Free(iState1)
 end if
 if (WFTP2 == 'GENERAL') then
-  if (.not. doDMRG) call SG_Free(SGS(2),CIS(2),EXS(2))
+  if (.not. doDMRG) call SG_Free(iState2)
 end if
 
 if (JOB1 /= JOB2) then

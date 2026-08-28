@@ -16,7 +16,8 @@ subroutine CMSRHSGDMat(GDMat)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: ipCI, n1Dens, n2Dens, nNA, XISPSM
-use input_mclr, only: nCSF, nRoots, State_Sym
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: nCSF, nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 

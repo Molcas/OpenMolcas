@@ -270,6 +270,7 @@ do
 
   if (.not. NoSkip) cycle
 
+  TInt(1:nTInt) = Zero
   call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
 # ifdef _DEBUGPRINT_

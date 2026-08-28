@@ -33,7 +33,8 @@ subroutine Prec_dig(rpre,ipre,idsym)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: F0SQMO, FAMO, FIMO, ipCM, nrec
-use input_mclr, only: iMethod, nAsh, nBas, nIsh, nRS1, nRS2, nRS3, nSym, TimeDep
+use general_data, only: nAsh, nIsh, nRS1, nRS2, nRS3, nSym
+use input_mclr, only: iMethod, nBas, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

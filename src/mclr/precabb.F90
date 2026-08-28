@@ -35,7 +35,8 @@ subroutine Precabb(ib,is,js,nd,nba,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,Sgn)
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t, nA, nB
-use input_mclr, only: nAsh, nBas, nIsh, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas
 use Constants, only: Zero, Two, Four
 use Definitions, only: wp, iwp
 

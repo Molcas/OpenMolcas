@@ -13,7 +13,8 @@ subroutine DMinvCI_sa(ipSigma,rout,S)
 
 use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI, ipDia, nConf1
-use input_mclr, only: ERASSCF, nCSF, nRoots, State_Sym
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: ERASSCF, nCSF, nRoots
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

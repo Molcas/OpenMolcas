@@ -1108,6 +1108,9 @@ if (CUBLAS OR NVBLAS)
     # CUDA needs to link to the C++ standard library, so enable CXX here to
     # be able to use it as a linker later on for the program executables
     enable_language (CXX)
+    enable_language (CUDA)
+    set (CMAKE_CUDA_STANDARD 14)
+    set (CMAKE_CUDA_STANDARD_REQUIRED ON)
 
     add_compile_definitions (_CUDA_BLAS_)
 

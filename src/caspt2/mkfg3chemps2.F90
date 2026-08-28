@@ -18,7 +18,7 @@
 subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
 
 use Symmetry_Info, only: Mul
-use sguga_states, only: SGS
+use sguga, only: SGS
 use general_data, only: nActel
 use caspt2_module, only: EPSA, jState, mState
 use Constants, only: Zero

@@ -52,7 +52,8 @@ use csfbas, only: NAEL, NBEL
 use timers, only: TimeHSel
 use lucia_data, only: DFTP, DTOC, IREOTS
 use rasscf_global, only: ExFac, NAC
-use general_data, only: LUDAVID, NCONF, NSEL, STSYM
+use rasscf_files, only: LUDAVID
+use general_data, only: NCONF, NSEL, STSYM
 use spinfo, only: NCNASM
 use output_ras, only: IPRLOC
 use PrintLevel, only: INSANE

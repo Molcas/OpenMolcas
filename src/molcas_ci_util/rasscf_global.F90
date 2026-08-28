@@ -19,6 +19,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
+integer(kind=iwp), parameter :: MAXALTER = 16
 integer(kind=iwp), parameter :: ITRIM = mxAct*(mxAct+1)/2
 
 integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLBM, ICI(mxRoot,mxRef), ICICH, ICICP, iCIonly, &
@@ -26,13 +27,16 @@ integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLB
                      iOverwr, IPCMROOT, IPR, IPT2, iRlxRoot, IROOT(mxRoot), IRotPsi, ISAVE_EXP, ISCF, ISPDEN, ISTORD(9), &
                      ISTORP(9), ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc(64), IXMSP, IXSYM(mxOrb), IZROT(ITRIM), &
                      JBLB(8), JBLBM, JCJ(mxRoot,mxRef), KTIGHT, LOWMS, LROOTS, MAXIT, MAXJT, MAXORBOUT, MxDMRG, n_Det, n_keep, &
-                     NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NORBT, NQUNE, NROOT, NROOTS, NSEC, NSM(mxOrb), &
-                     NSXS, NTIT, NTOT3, NTOT4
+                     NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NORBT, NQUNE, NROOT, NROOTS, NSEC, &
+                     NSXS, NTIT, NTOT3, NTOT4, MALTER(MAXALTER,3), NALTER, NCRVEC, INVEC
+integer(kind=iwp), allocatable :: CleanMask(:)
 real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, CONV(6,mxIter+2), CoreShift, DE, E2act, &
                  ECAS = Zero, EMY, ENER(mxRoot,mxIter+2), ESX, ExFac, FDIAG(mxOrb) = Zero, HALFQ = Zero, HALFQ1 = Zero, LVSHFT, &
                  POTNUC, PRETHR, PROTHR, PRWTHR, RLXGRD, ROTMAX, S, SXSHFT = Zero, THFACT, THRE, THREN, THRSX, THRTE, TMIN, &
-                 Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
-logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, lSquare, NonEq, RFpert, Start_Vectors
+                 Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot), SXDAMP
+real(kind=wp), allocatable :: CRPROJ(:), CRVEC(:)
+logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, lSquare, NonEq, RFpert, Start_Vectors, &
+                     Lowdin_On
 character(len=LenIn+8) :: BName(mxOrb)
 character(len=256) :: CMSStartMat
 character(len=80) :: KSDFT, KSDFT_TEMP, TITLE(18)
@@ -47,16 +51,18 @@ public :: BName, CBLB, CBLBM, CCI, CMAX, CMSStartMat, CMSThreshold, CONV, CoreSh
           iOrbOnly, iOrbTyp, IORDEM, iOverwr, IPCMROOT, IPHNAME, IPR, IPT2, iRlxRoot, IROOT, IRotPsi, ISAVE_EXP, ISCF, ISPDEN, &
           ISTORD, ISTORP, ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc, IXMSP, IXSYM, IZROT, JBLB, JBLBM, JCJ, kIvo, &
           KSDFT, KSDFT_TEMP, KTIGHT, l_casdft, LOWMS, LROOTS, lSquare, LVSHFT, MAXIT, MAXJT, MAXORBOUT, MxDMRG, n_Det, n_keep, &
-          NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, NSM, NSXS, NTIT, &
+          NAC, NACPAR, NACPR2, NDIMSX, NewFock, NFINT, NFR, NIN, NO2M, NonEq, NORBT, NQUNE, NROOT, NROOTS, NSEC, NSXS, NTIT, &
           NTOT3, NTOT4, OutFmt1, OutFmt2, POTNUC, PRETHR, PROTHR, PRWTHR, PURIFY, QNSTEP, QNUPDT, RFpert, RLXGRD, ROTMAX, S, &
           Start_Vectors, SXSEL, SXSHFT, THFACT, THRE, THREN, THRSX, THRTE, TITLE, TMIN, Tot_Charge, Tot_El_Charge, &
-          Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT
+          Tot_Nuc_Charge, VIA, VIA_DFT, WEIGHT, MALTER, NALTER, MAXALTER, NCRVEC, CRPROJ, CRVEC, INVEC, SXDAMP, CleanMask, &
+          Lowdin_On
 
 #ifdef _DMRG_
 integer(kind=iwp) :: MPSCompressM
 logical(kind=iwp) :: DoDelChk, domcpdftDMRG, DoNEVPT2Prep, twordm_qcm
+real(kind=wp), allocatable :: RF1(:), RF2(:)
 
-public :: DoDelChk, domcpdftDMRG, DoNEVPT2Prep, MPSCompressM, twordm_qcm
+public :: DoDelChk, domcpdftDMRG, DoNEVPT2Prep, MPSCompressM, twordm_qcm, RF1, RF2
 #endif
 
 #if defined (_ENABLE_CHEMPS2_DMRG_)

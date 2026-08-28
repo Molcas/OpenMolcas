@@ -17,7 +17,8 @@ subroutine oit_sp(rkappa,sigma,i1,r3,p11,r4,p12,D,FA,rm1,rm2,focki)
 !              pq       pq
 
 use MCLR_Data, only: ipMat, nA, nDens, nDensC, nMBA, nNA
-use input_mclr, only: nAsh, nBas, nIsh, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp

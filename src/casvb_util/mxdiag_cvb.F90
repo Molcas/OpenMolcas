@@ -25,13 +25,13 @@ integer(kind=iwp) :: ierr
 real(kind=wp), allocatable :: tmp(:)
 
 call mma_allocate(tmp,n*3,label='tmp')
+!tmp(:)=0.0e0_wp
+ierr=0
 call dsyev_('V','L',n,a,n,eigval,tmp,n*3,ierr)
 call mma_deallocate(tmp)
 if (ierr /= 0) then
   write(u6,*) ' Fatal error in mxdiag, ierr :',ierr
   call abend_cvb()
 end if
-
-return
 
 end subroutine mxdiag_cvb

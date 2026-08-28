@@ -28,7 +28,8 @@ use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, FIMO, ipCM, ipMat, isNAC, nA, nDens, nNA
-use input_mclr, only: LuAChoVec, nAsh, nBas, NewCho, nIsh, nOrb, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: LuAChoVec, nBas, NewCho, nOrb
 use PCM_grad, only: do_RF, DSCFMO, iStpPCM, PCMPT2MO, PCMSCFMO, PCMSSMO, PT2_solv
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate

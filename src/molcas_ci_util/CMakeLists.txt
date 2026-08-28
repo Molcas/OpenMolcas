@@ -19,7 +19,6 @@ set (sources
      cidia.F90
      ciovlp.F90
      ciselect.F90
-     cisx.F90
      cndet.F90
      cnfstr.F90
      cnhcn.F90
@@ -40,9 +39,7 @@ set (sources
      explh2.F90
      fndmnx.F90
      fockoc.F90
-     gas_data.F90
      gatvcs.F90
-     general_data.F90
      get_d1a_rasscf.F90
      get_d1i_rasscf.F90
      get_umn.F90
@@ -71,9 +68,7 @@ set (sources
      pageno.F90
      phpcsf.F90
      pmat_rasscf.F90
-     prttim.F90
-     rasdef.F90
-     rasdim.F90
+     rasscf_files.F90
      rasscf_global.F90
      rassi_data.F90
      rd1int.F90
@@ -91,7 +86,6 @@ set (sources
      simplify.F90
      sort_cdet.F90
      spinfo.F90
-     stepvec.F90
      str_info.F90
      sxci.F90
      term_david.F90
@@ -107,14 +101,14 @@ set (modfile_list
      caspt2_module.F90
      csfbas.F90
      dmrginfo.F90
-     gas_data.F90
-     general_data.F90
      input_mclr.F90
+     mclr_data.F90
      output_ras.F90
-     rasdef.F90
      rasdim.F90
+     rasscf_files.F90
      rasscf_global.F90
      rassi_data.F90
+     str_info.F90
      spinfo.F90
      timers.F90
      wadr.F90

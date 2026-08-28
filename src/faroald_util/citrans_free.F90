@@ -16,10 +16,10 @@ use stdalloc, only: mma_deallocate
 
 implicit none
 
-call mma_deallocate(ndoc_group)
-call mma_deallocate(nsoc_group)
-call mma_deallocate(ndet_group)
-call mma_deallocate(ncsf_group)
+call mma_deallocate(ndoc_group,safe='*')
+call mma_deallocate(nsoc_group,safe='*')
+call mma_deallocate(ndet_group,safe='*')
+call mma_deallocate(ncsf_group,safe='*')
 call spintabs_free()
 
 end subroutine citrans_free

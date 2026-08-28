@@ -12,7 +12,8 @@
 subroutine NatOrb_MCLR(Dens,CMOO,CMON,OCCN)
 
 use MCLR_Data, only: ipCM, ipMat, nDens
-use input_mclr, only: kPrint, nBas, nSym
+use general_data, only: nSym
+use input_mclr, only: kPrint, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

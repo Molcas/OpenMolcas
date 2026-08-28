@@ -36,7 +36,7 @@ use Fock_util_global, only: DoLocK
 use Functionals, only: Init_Funcs, Print_Info
 use KSDFT_Info, only: CoefR, CoefX
 use rctfld_module, only: lRF
-use gas_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
+use general_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use rasscf_global, only: cCI, DoBlockDMRG, DoDMRG, Header, iCI, ICICH, ICIRST, iPCMRoot, iRLXRoot, iRoot, iSupSM, ITMAX, ixSym, &
                          KSDFT, l_casdft, lRoots, lSquare, LvShft, MAXIT, n_Det, NAC, NFR, NIN, NONEQ, NQUNE, NROOTS, NSEC, nTit, &
                          RFPert, ThrE, ThrSX, ThrTE, Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, Weight
@@ -55,7 +55,7 @@ use PrintLevel, only: SILENT, USUAL
 use output_ras, only: IPRLOC
 use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSEL, NSSH, NSYM, NTOT1, &
                         STSYM
-use spinfo, only: DoComb, I_ELIMINATE_GAS_MOLCAS, NCNFTP, NCSASM, NCSF_HEXS, NDTASM, NDTFTP
+use spinfo, only: DoComb, I_ELIMINATE_GAS, NCNFTP, NCSASM, NCSF_HEXS, NDTASM, NDTFTP
 use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use RASDim, only: MxRef
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
@@ -280,7 +280,7 @@ if (IPRLEV > SILENT) then
 #       endif
       else
         write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
-        if (I_ELIMINATE_GAS_MOLCAS > 0) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',nCSF_HEXS
+        if (I_ELIMINATE_GAS > 0) write(u6,Fmt2//'A,T40,I11)') 'Number of highly excited CSFs',nCSF_HEXS
         if (DoComb) then
           write(u6,Fmt2//'A,T40,I11)') 'Number of spin combinations',NDTASM(STSYM)
           write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',2*NDTASM(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)

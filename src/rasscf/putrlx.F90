@@ -18,7 +18,8 @@ use rasscf_global, only: CBLBM, ENER, ExFac, iAdr15, iBLBM, IPCMROOT, iPr, iRLXR
                          NACPAR, NACPR2, NewFock, nFint, nRoots, NSXS, NTOT4, RlxGrd
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: JOBIPH, NBAS, NSYM, NTOT1, NTOT2
+use rasscf_files, only: JOBIPH
+use general_data, only: NBAS, NSYM, NTOT1, NTOT2
 use DWSol, only: DWSol_wgt, DWSolv, W_SOLV
 use rctfld_module, only: lRF
 use stdalloc, only: mma_allocate, mma_deallocate

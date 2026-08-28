@@ -15,7 +15,8 @@ subroutine CSDTVC(CSFVEC,DETVEC,IWAY,IREFSM,ICOPY)
 !          IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 
 use lucia_data, only: DTOC, SDREO
-use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
+use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDTASM, NDTFTP, NTYP
+use general_data, only: NDET
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

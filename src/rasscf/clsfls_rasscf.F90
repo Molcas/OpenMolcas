@@ -32,7 +32,7 @@ subroutine ClsFls_RASSCF()
 use mh5, only: mh5_close_file
 use RASWfn, only: wfn_fileid
 #endif
-use general_data, only: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTM, LUQUNE
+use rasscf_files, only: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTM, LUQUNE
 use Definitions, only: iwp
 
 implicit none

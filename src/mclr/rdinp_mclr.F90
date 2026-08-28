@@ -24,8 +24,9 @@ use OneDat, only: sOpSiz
 use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
 use MCLR_Data, only: DspVec, ESTERR, FANCY_PRECONDITIONER, ISMECIMSPD, ISNAC, ISTATE, lDisp, NACSTATES, NewPre, nexp_max, nGP, &
                      NoFile, NSSA, OVERRIDE, SA, SwLbl
+use general_data, only: nSym
 use input_mclr, only: CasInt, Debug, double, Eps, iBreak, IsPop, kPrint, lCalc, lRoots, lSave, mTit, nAtoms, nDisp, NewCho, nIter, &
-                      nsRot, nSym, ntPert, nUserPT, Omega, Page, RASSI, SpinPol, StepType, TimeDep, TitleIn, TwoStep, UserP, UserT
+                      nsRot, ntPert, nUserPT, Omega, Page, RASSI, SpinPol, StepType, TimeDep, TitleIn, TwoStep, UserP, UserT
 use PCM_grad, only: RFPERT
 use cgs_mod, only: CGS
 use Molcas, only: MxAtom

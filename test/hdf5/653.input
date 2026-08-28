@@ -1,0 +1,275 @@
+*-------------------------------------------------------------------------------
+* System: HF (hand-written for this test; the cheapest single-state
+*             optimization available -- a two-atom RHF/STO-3G job)
+* Basis: STO-3G
+* Features tested: slapaf.h5 must gain NONE of the conical-intersection /
+*                   MECI datasets or attributes for an ordinary single-state
+*                   geometry optimization with no two-state constraint.
+* Responsible person: Luca De Vico
+*-------------------------------------------------------------------------------
+* This is the negative control: it verifies that GRADIENT_DIFFERENCE, NAC,
+* ROOT_INDICES, APPROX_NADC, NADC, EDIFF_ZERO and TWO_RUNFILES are all
+* conditionally created and therefore absent here, while the ordinary
+* datasets (ENERGIES, COORDINATES, FORCES, NROOTS, ROOT_ENERGIES) are still
+* present and correctly shaped. None of this is visible to the ordinary
+* checkfile mechanism, since Add_Info only ever sees the in-memory value at
+* the call site and never the written file. Numerical values remain the
+* responsibility of the checkfile below.
+*-------------------------------------------------------------------------------
+
+* Test HDF5 support
+> RM -FORCE TEST_HDF5
+> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
+> ENDIF
+> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
+> IF ( -FILE TEST_HDF5 )
+>   EXIT 36
+> ENDIF
+
+* Test h5py support (the structure check below needs it)
+> RM -FORCE TEST_H5PY
+> SHELL python3 -c "import h5py" || touch TEST_H5PY
+> IF ( -FILE TEST_H5PY )
+>   EXIT 36
+> ENDIF
+
+>FILE check_no_ci.py
+#
+# Structure check for slapaf.h5: a plain single-state optimization must gain
+# NONE of the conical-intersection / MECI datasets and attributes. This is
+# the whole contract of their conditional creation -- an ordinary run's file
+# must be unaffected.
+#
+# Exits 0 on success, 1 on any failure. A nonzero exit trips MOLCAS_TRAP and is
+# reported by the verify script as a test failure.
+#
+import sys
+import glob
+
+import h5py
+import numpy as np
+
+failures = []
+notes = []
+
+
+def fail(msg):
+    failures.append(msg)
+
+
+def as_int(value):
+    """mh5 attributes may arrive as a scalar or as a length-1 array."""
+    arr = np.atleast_1d(np.asarray(value))
+    if arr.size != 1:
+        raise ValueError('expected a scalar attribute, got size %d' % arr.size)
+    return int(arr[0])
+
+
+def locate():
+    if len(sys.argv) > 1 and glob.glob(sys.argv[1]):
+        return sys.argv[1]
+    candidates = sorted(glob.glob('*.slapaf.h5'))
+    if not candidates:
+        sys.stderr.write('FATAL: no slapaf.h5 found (argv=%s)\n' % sys.argv[1:])
+        sys.exit(1)
+    if len(candidates) > 1:
+        notes.append('multiple slapaf.h5 present, using %s' % candidates[0])
+    return candidates[0]
+
+
+path = locate()
+
+with h5py.File(path, 'r') as f:
+
+    # --- D1: none of the conditional CI datasets exist ----------------------
+    for name in ('GRADIENT_DIFFERENCE', 'NAC', 'ROOT_INDICES', 'APPROX_NADC'):
+        if name in f:
+            fail('D1: %s dataset is present in a single-state run' % name)
+
+    # --- D2: none of the conditional CI attributes exist --------------------
+    for attr in ('NADC', 'EDIFF_ZERO', 'TWO_RUNFILES'):
+        if attr in f.attrs:
+            fail('D2: %s attribute is present in a single-state run' % attr)
+
+    # --- D3: the ordinary datasets are still present and correctly shaped --
+    if 'ITERATIONS' not in f.attrs:
+        fail('D3: ITERATIONS attribute is missing')
+        sys.stderr.write('\n'.join(failures) + '\n')
+        sys.exit(1)
+    niter = as_int(f.attrs['ITERATIONS'])
+    if niter < 1:
+        fail('D3: ITERATIONS = %d, expected >= 1' % niter)
+
+    if 'NROOTS' not in f.attrs:
+        fail('D3: NROOTS attribute is missing')
+        sys.stderr.write('\n'.join(failures) + '\n')
+        sys.exit(1)
+    nroots = as_int(f.attrs['NROOTS'])
+
+    for name in ('ENERGIES', 'COORDINATES', 'FORCES', 'ROOT_ENERGIES'):
+        if name not in f:
+            fail('D3: %s dataset is missing' % name)
+    if failures:
+        sys.stderr.write('\n'.join(failures) + '\n')
+        sys.exit(1)
+
+    energies = f['ENERGIES'][...]
+    coords = f['COORDINATES'][...]
+    forces = f['FORCES'][...]
+    root_e = f['ROOT_ENERGIES'][...]
+
+    if energies.shape[0] != niter:
+        fail('D3: ENERGIES leading dimension %d != ITERATIONS %d' % (energies.shape[0], niter))
+    if coords.shape[0] != niter:
+        fail('D3: COORDINATES leading dimension %d != ITERATIONS %d' % (coords.shape[0], niter))
+    if forces.shape[0] != niter:
+        fail('D3: FORCES leading dimension %d != ITERATIONS %d' % (forces.shape[0], niter))
+    if root_e.shape != (niter, nroots):
+        fail('D3: ROOT_ENERGIES shape is %s, expected %s' % (root_e.shape, (niter, nroots)))
+
+if failures:
+    sys.stderr.write('\nslapaf.h5 structure check FAILED (%s)\n' % path)
+    for item in failures:
+        sys.stderr.write('  %s\n' % item)
+    sys.exit(1)
+
+for item in notes:
+    sys.stdout.write('  note: %s\n' % item)
+sys.stdout.write('slapaf.h5 negative-control check passed: ITERATIONS=%d '
+                 'NROOTS=%d, no CI/MECI datasets or attributes present\n'
+                 % (niter, nroots))
+sys.exit(0)
+>EOF
+
+>>> EXPORT MOLCAS_REDUCE_PRT = NO
+
+&GATEWAY
+  Coord = 2
+    Angstrom
+    H 0.000000 0.000000 0.000000
+    F 0.000000 0.000000 0.900000
+  Basis = STO-3G
+  Group = NoSymm
+  NoCD
+
+>>> DoWhile
+
+&SEWARD
+
+&SCF
+
+&SLAPAF
+
+>>> EndDo
+
+* --- structure check of the resulting checkpoint file -------------------------
+> SHELL python3 check_no_ci.py $Project.slapaf.h5
+>>FILE checkfile
+* This file is autogenerated:
+* Molcas version 26.06-890-gb65003763
+* Darwin Luca-De-Vicos-MacBook-Pro-2.local 24.6.0 Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:21 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_X86_64 x86_64
+* Wed Aug 19 19:51:34 2026
+*
+#>>   1
+#> POTNUC="5.291772105440"/12
+#>>   2
+#> POTNUC="5.291772105440"/6
+#> SEWARD_MLTPL1X="0.0"/5
+#> SEWARD_KINETIC="0.760031879922"/5
+#> SEWARD_ATTRACT="-6.277604744918"/5
+#>>   3
+#> SCF_ITER="7"/8
+#> E_SCF="-98.568398554857"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.513448488430"/5
+#> MLTPL__2[0]="-0.454205341324"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.454205341324"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.908410682649"/5
+#>>   4
+#> GRAD[0]="0.0"/6
+#> GRAD[1]="0.0"/6
+#> GRAD[2]="0.089679901743"/6
+#> GRAD[3]="0.0"/6
+#> GRAD[4]="0.0"/6
+#> GRAD[5]="-0.089679901743"/6
+#>>   5
+#>>   6
+#>>   8
+#> POTNUC="4.975321804934"/6
+#> SEWARD_MLTPL1X="0.0"/5
+#> SEWARD_KINETIC="0.760031879922"/5
+#> SEWARD_ATTRACT="-6.021079600979"/5
+#>>   9
+#> SCF_ITER="5"/8
+#> E_SCF="-98.572843326075"/8
+#> MLTPL__0="-0.000000000000"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.491920829144"/5
+#> MLTPL__2[0]="-0.478765875486"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.478765875486"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.957531750972"/5
+#>>  10
+#> GRAD[0]="0.0"/6
+#> GRAD[1]="0.0"/6
+#> GRAD[2]="-0.002426274938"/6
+#> GRAD[3]="0.0"/6
+#> GRAD[4]="0.0"/6
+#> GRAD[5]="0.002426274938"/6
+#>>  11
+#>>  12
+#>>  14
+#> POTNUC="4.984671290215"/6
+#> SEWARD_MLTPL1X="0.0"/5
+#> SEWARD_KINETIC="0.760031879922"/5
+#> SEWARD_ATTRACT="-6.028807822731"/5
+#>>  15
+#> SCF_ITER="4"/8
+#> E_SCF="-98.572847418761"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.492576663716"/5
+#> MLTPL__2[0]="-0.477999762439"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.477999762439"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.955999524878"/5
+#>>  16
+#> GRAD[0]="0.0"/6
+#> GRAD[1]="0.0"/6
+#> GRAD[2]="0.000019958667"/6
+#> GRAD[3]="0.0"/6
+#> GRAD[4]="0.0"/6
+#> GRAD[5]="-0.000019958667"/6
+#>>  17
+#> GEO_ITER="3"/8
+#> POTNUC="4.984595436028"/6
+#> SEWARD_MLTPL1X="0.0"/5
+#> SEWARD_KINETIC="0.760031879922"/5
+#> SEWARD_ATTRACT="-6.028745158264"/5
+#> SCF_ITER="2"/8
+#> E_SCF="-98.572847419036"/8
+#> MLTPL__0="0.0"/5
+#> MLTPL__1[0]="0.0"/5
+#> MLTPL__1[1]="0.0"/5
+#> MLTPL__1[2]="-0.492571624680"/5
+#> MLTPL__2[0]="-0.478006038650"/5
+#> MLTPL__2[1]="0.0"/5
+#> MLTPL__2[2]="0.0"/5
+#> MLTPL__2[3]="-0.478006038650"/5
+#> MLTPL__2[4]="0.0"/5
+#> MLTPL__2[5]="0.956012077300"/5
+#>>  18
+#>>  19
+>>EOF

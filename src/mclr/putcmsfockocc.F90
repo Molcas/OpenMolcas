@@ -18,7 +18,8 @@
 subroutine PutCMSFockOcc(FOccMO,nTri)
 
 use MCLR_Data, only: ipMat, nDens
-use input_mclr, only: nBas, nSym
+use general_data, only: nSym
+use input_mclr, only: nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

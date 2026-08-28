@@ -16,12 +16,19 @@ use lucia_data, only: ECORE, ENVIRO, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IADVI
                       IELIMINATED_IN_GAS, IGSOCCX, IH0INSPC, IH0SPC, ini_h0, IPART, IPRCIX, IPRDEN, IREFSM, IRESTR, ISIMSYM, &
                       LCMBSPC, LCSBLK, MOCAA, MS2, MULTS, MXINKA, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL, NCISPC, NCMBSPC, &
                       NGAS, NGSSH, NIRREP, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN, Sigma_on_disk
-use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IGSOCCX_MOLCAS, &
-                  IPRCI_MOLCAS, ISPEED, ISPIN_MOLCAS, ITMAX_MOLCAS, LSYM_MOLCAS, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, &
-                  N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS
+
+use spinfo, only: DoComb, I2ELIMINATED_IN_GAS_MOLCAS=>I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS_MOLCAS=>I_ELIMINATE_GAS,  &
+                  IELIMINATED_IN_GAS_MOLCAS=>IELIMINATED_IN_GAS, ISPEED, &
+                  N_2ELIMINATED_GAS_MOLCAS=>N_2ELIMINATED_GAS, N_ELIMINATED_GAS_MOLCAS=>N_ELIMINATED_GAS
+use general_data, only: NGSSH_MOLCAS=>NGSSH, IGSOCCX_MOLCAS=>IGSOCCX, NSYM_MOLCAS=>NSYM, NACTEL_MOLCAS=>NACTEL, &
+                        MULTS_MOLCAS=>ISPIN, IREFSM_MOLCAS=>STSYM, nGAS_MOLCAS=>nGAS, iSpin
+use rasscf_global, only: POTNUC_MOLCAS=>POTNUC, ITMAX, NROOTS_MOLCAS=>nROOTS, lROOTS_MOLCAS=>lROOTS
+use output_ras, only: iPrLoc
+use casvb_global, only: ifvb
+
 #ifdef _DEBUGPRINT_
 use lucia_data, only: NOCSF
-use spinfo, only: IEXPAND_MOLCAS, INOCALC_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, THRE_MOLCAS
+use rasscf_global, only: IEXPAND, THRE_MOLCAS=>THRE, IPT2, INOCALC, ISAVE_EXP
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -31,19 +38,17 @@ integer(kind=iwp), parameter :: MXPKW = 125
 integer(kind=iwp) :: I, IDENSI, IDOPERT, IEXPERT, IRREP, isetkw(MXPKW), IUSED, MXCIV, NMISS, NWARN
 real(kind=wp) :: ECORE_ENV
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ICLSSEL, IEXPAND, IFINMO, INOCALC, IRST2, ISKIPEI, ISAVE_EXP
+integer(kind=iwp) :: ICLSSEL, IFINMO, IRST2, ISKIPEI
 real(kind=wp) :: PLSIGN, THRES_E
 character(len=4) :: ITRACI_CN, ITRACI_CR
 #endif
 
-! ================================================
-!  Some initialization to avoid compiler warnings
-! ================================================
-!MSCOMB_CC = 0
-!I_USE_NEWCCP = 0
 ! =======================
 !  Some initial settings
 ! =======================
+! Combinations don't work for CASVB (at least yet)!
+if (ifvb /= 0) iSpeed(1) = 0
+
 INI_H0 = 1
 ! Flag for compatibility with normal MOLCAS input format
 
@@ -95,22 +100,22 @@ nactel = nactel_Molcas
 ! ===========================
 !  Two times spin projection
 ! ===========================
-ms2 = ms2_molcas
+ms2 = iSpin-1
 
 ! ===================
 !  Spin multiplicity
 ! ===================
-mults = iSpin_molcas
+mults = mults_molcas
 
 ! ====================
 !  Reference symmetry
 ! ====================
-irefsm = lsym_molcas
+irefsm = IREFSM_MOLCAS
 
 ! =======
 !  Roots
 ! =======
-nroot = nroots_molcas
+nroot = Max(nroots_molcas,lroots_molcas)
 !iroot(1:nroot) = iroot_molcas(1:nroot)
 !iroot(1:nroot) = 0
 
@@ -175,15 +180,6 @@ thres_e = thre_molcas
 ! ==========================================
 ncmbspc = ncispc
 
-#ifdef _DEBUGPRINT_
-! =======================================================
-!  No calculation, save CI vector info, expand CI vector
-! =======================================================
-INOCALC = INOCALC_MOLCAS
-ISAVE_EXP = ISAVE_EXP_MOLCAS
-IEXPAND = IEXPAND_MOLCAS
-#endif
-
 ! ================================================
 !  Length of smallest block og C an Sigma vectors
 ! ================================================
@@ -205,7 +201,7 @@ IADVICE = 1
 ! ============================================================
 #ifdef _DEBUGPRINT_
 itraci_cr = 'REST'
-if (ipt2_molcas == 1) then
+if (ipt2 == 1) then
   itraci_cn = 'CANO'
 else
   itraci_cn = 'NATU'
@@ -219,15 +215,14 @@ end if
 I_ELIMINATE_GAS = I_ELIMINATE_GAS_MOLCAS
 N_ELIMINATED_GAS = N_ELIMINATED_GAS_MOLCAS
 N_2ELIMINATED_GAS = N_2ELIMINATED_GAS_MOLCAS
-!write(u6,*) I_ELIMINATE_GAS_MOLCAS,N_ELIMINATED_GAS_MOLCAS
 IELIMINATED_IN_GAS(1:N_ELIMINATED_GAS) = IELIMINATED_IN_GAS_MOLCAS(1:N_ELIMINATED_GAS)
 I2ELIMINATED_IN_GAS(1:N_2ELIMINATED_GAS) = I2ELIMINATED_IN_GAS_MOLCAS(1:N_2ELIMINATED_GAS)
 
 ! =============
 !  Printlevels
 ! =============
-iprcix = iprci_molcas-2
-iprden = (iprci_molcas-2)/2
+iprcix = iPrLoc(3)-2
+iprden = (iPrLoc(3)-2)/2
 
 ! ==============
 !  Set defaults
@@ -317,7 +312,6 @@ end if
 ! ======================================================================
 ! TEST OF PERFORMANCE
 MOCAA = ISPEED(3)
-!MOCAB = ISPEED(4)
 
 ! 33 : Number of Ci vectors in subspace
 
@@ -460,7 +454,7 @@ IDOPERT = 0
 !    if (ISEQCI(JSEQCI,JCMBSPC) == -5) IDOPERT = 1
 !  end do
 !end do
-if (itmax_molcas == -5) IDOPERT = 1
+if (itmax == -5) IDOPERT = 1
 
 if (IDOPERT == 1) then
   write(u6,*) ' Perturbation theory will be used'

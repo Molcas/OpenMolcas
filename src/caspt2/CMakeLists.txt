@@ -15,6 +15,7 @@ set (sources
      adddepsa.F90
      adddptc.F90
      addrhs.F90
+     addrhs_striped.F90
      addtuvx.F90
      afreez.F90
      allgather_wrapper.F90
@@ -106,6 +107,7 @@ set (sources
      fulltrnsf_boxed.F90
      fulltrnsf.F90
      ga_create_striped.F90
+     gather_cholesky_vectors.F90
      gather_striped.F90
      gdmat.F90
      get_cholesky_vectors.F90
@@ -295,6 +297,7 @@ set (sources
      rhs_access.F90
      rhs_add.F90
      rhsall2.F90
+     rhsall2_striped.F90
      rhs_allo.F90
      rhs_daxpy.F90
      rhs_ddot.F90

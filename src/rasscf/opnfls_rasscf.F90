@@ -28,7 +28,7 @@ subroutine OpnFls_RASSCF(DSCF,DoCholesky)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE
+use rasscf_files, only: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE
 use Definitions, only: iwp, u6
 
 implicit none

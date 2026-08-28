@@ -45,6 +45,7 @@ use PrintLevel, only: DEBUG, INSANE
 use output_ras, only: IPRLOC, RC_SX
 use RASDim, only: MxSXIt
 use stdalloc, only: mma_allocate, mma_deallocate
+use rasscf_global, only: iter, iCIRst
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -63,8 +64,22 @@ real(kind=wp) :: ASQ, Ei, ENO, Ovl, QNorm, SWAP, XMX, XNorm, XX
 character(len=4) :: IOUTW, IOUTX
 real(kind=wp), allocatable :: C1(:), C2(:), X(:)
 real(kind=wp), parameter :: THRA = 1.0e-13_wp, THRLD1 = 1.0e-8_wp, THRLD2 = 5.0e-14_wp, THRQ = 1.0e-7_wp, THRZ = 1.0e-6_wp
+real(kind=wp) :: THRA_
 real(kind=wp), external :: DDot_
 #include "warnings.h"
+
+If (iCIRst==1) Then
+   THRA_=THRA
+Else
+   Select Case (iter)
+     Case(1)
+       THRA_=1.0e-11_wp
+     Case(2)
+       THRA_=1.0e-12_wp
+     Case Default
+       THRA_=THRA
+   End Select
+End If
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(1)
@@ -110,8 +125,7 @@ do ITERSX=1,ITMAX
 
   if (IPRLEV >= DEBUG) then
     write(u6,*) ' Davidson H-matrix in iteration ',ITERSX
-    write(u6,*) ' Davidson H-matrix triangular of size =  ',NDIMH
-    write(u6,'(1x,8F14.6)') (HH(I),I=1,KDIMH)
+    Call TriPrt('Davidson H-matrix',' ',HH,NDIMH)
   end if
   E(1) = HH(1)
   CC(1) = One
@@ -248,7 +262,7 @@ do ITERSX=1,ITMAX
   ICONVA = 0
   do I=1,NROOT
     ASQ = DDOT_(NTRIAL,CC(NST),1,CC(NST),1)
-    if (ASQ < THRA) ICONVA = ICONVA+1
+    if (ASQ < THRA_) ICONVA = ICONVA+1
     NST = NST+NDIMH
   end do
 
@@ -384,7 +398,7 @@ do ITERSX=1,ITMAX
           write(u6,*) ' Tests for possible solution on the way...'
         end if
       end if
-      XNORM = sqrt(max(Zero,XNORM))
+      XNORM = sqrt(max(1.0e-24_wp,XNORM))
       if (IPRLEV >= INSANE) write(u6,'(1X,A,I3,A,I3,A,ES16.8)') 'Pass ',IPASS,' New orthogonal vector ',I,' has norm ',XNORM
 
       !PAM01 Two different treatments, depending on if this is first or
@@ -394,7 +408,7 @@ do ITERSX=1,ITMAX
         if ((ITERSX == 1) .or. (XNORM > THRLD1)) then
           ISTQ = NTRIAL*NDIM+1
           NTRIAL = NTRIAL+1
-          XNORM = One/(XNORM+1.0e-24_wp)
+          XNORM = One/XNORM
           !PAM01 Note that ISTQ can be (and is!) the same as IST:
           Q(ISTQ:ISTQ+NDIM-1) = XNORM*Q(IST:IST+NDIM-1)
         end if
@@ -406,7 +420,7 @@ do ITERSX=1,ITMAX
         if ((ITERSX == 1) .or. (abs(XNORM-One) < THRLD2)) then
           ISTQ = NTRIAL*NDIM+1
           NTRIAL = NTRIAL+1
-          XNORM = One/(XNORM+1.0e-24_wp)
+          XNORM = One/XNORM
           !PAM01 Note that ISTQ can be (and is!) the same as IST:
           Q(ISTQ:ISTQ+NDIM-1) = XNORM*Q(IST:IST+NDIM-1)
         end if

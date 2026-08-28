@@ -15,7 +15,8 @@ subroutine TimesE2(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: ipin, opout, W
 use MCLR_Data, only: ipCI, n2Dens, nConf1, nDens, nDensC
-use input_mclr, only: nAsh, nRoots, nRS2
+use general_data, only: nAsh, nRS2
+use input_mclr, only: nRoots
 use PCM_grad, only: do_RF, PCM_grad_TimesE2
 use ISRotation, only: InvSCF, ISR, ISR_projection, ISR_TimesE2, unequal_SA
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2

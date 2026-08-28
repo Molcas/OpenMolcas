@@ -14,7 +14,8 @@ subroutine Kap_CI(h1,nh1,h2,nh2,ipS1)
 use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI, nConf1
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: nCSF, nRoots, State_Sym
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: nCSF, nRoots
 use ISRotation, only: unequal_SA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two

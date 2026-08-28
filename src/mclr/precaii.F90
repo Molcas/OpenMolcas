@@ -38,7 +38,8 @@ subroutine Precaii(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,Sgn,A_
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t, nA
-use input_mclr, only: nAsh, nBas, nIsh, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas
 use Constants, only: Two, Four, Seven
 use Definitions, only: wp, iwp
 

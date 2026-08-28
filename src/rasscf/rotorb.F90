@@ -22,7 +22,7 @@ subroutine rotorb(cmoo,cmon,c,x,x2,y,thmax,FA)
 !      ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 
 use Index_Functions, only: nTri_Elem
-use gas_data, only: iDoGAS, NGAS, NGSSH
+use general_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: CMAX, iXSym, PURIFY, ROTMAX
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRLOC

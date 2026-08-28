@@ -24,8 +24,8 @@ use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use transform_procedures, only: SetUp_CASPT2_Tra
 use MCLR_Data, only: CMO, CMO_Inv, FnMotra, FnQDat, FnTri1, INT1, LuHlf2, LuHlf3, LuMotra, LuQDat, LuTri1, LuTri2, nDens, SA
-use input_mclr, only: ERASSCF, kPrint, LuAChoVec, LuChoInt, LuIChoVec, nAsh, nBas, nDel, NewCho, nFro, nIsh, nOrb, nSym, PT2, &
-                      StepType, TwoStep
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: ERASSCF, kPrint, LuAChoVec, LuChoInt, LuIChoVec, nBas, nDel, NewCho, nFro, nOrb, PT2, StepType, TwoStep
 use PCM_grad, only: do_RF, PCM_grad_init, PCM_mod_ERASSCF, PrepPCM
 use rctfld_module, only: iCharge_Ref, NonEQ_Ref, PCM
 !use DWSol, only: DWSCF_init

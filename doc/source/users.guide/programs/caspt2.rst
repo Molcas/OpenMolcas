@@ -1035,13 +1035,14 @@ Keywords
               </KEYWORD>
 
 :kword:`PRHS`
-  This keyword expects an integer (1, 2, or 3) or characters (OLD, NEW, or DIRECT) to specify the parallelization strategy for constructing the right-hand-side
+  This keyword expects an integer (1, 2, 3, or 4) or characters (OLD, NEW, DIRECT, or STRIPED) to specify the parallelization strategy for constructing the right-hand-side
   (RHS; :math:`\langle I | \hat{H} | 0 \rangle`) vector in connection with Cholesky or RI.
   Default is 1 (OLD) for serial calculations and 2 (NEW) for parallel calculations using Global Arrays.
   ``PRHS = 3`` or ``DIRECT`` involves more computation but reduces data communication; this option is expected to be efficient for calculations using a large number of computer nodes.
+  ``PRHS = 4`` or ``STRIPED`` is an improved version of ``PRHS = 3``, gathering the Cholesky vectors in memory instead of replicating them on disk; it falls back to ``PRHS = 2`` when they do not fit.
   The default value is a sensible choice.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="PRHS" APPEAR="Parallel RHS construction" KIND="CHOICE" LIST="1,OLD,2,NEW,3,DIRECT" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="PRHS" APPEAR="Parallel RHS construction" KIND="CHOICE" LIST="1,OLD,2,NEW,3,DIRECT,4,STRIPED" LEVEL="ADVANCED">
               %%Keyword: PRHS <advanced>
               <HELP>
               Specify the parallelization strategy for the right-hand-side construction in connection with Cholesky or RI

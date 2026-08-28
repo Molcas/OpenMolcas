@@ -16,7 +16,8 @@ use MckDat, only: sNew
 use ipPage, only: ipin, W
 use MCLR_Data, only: FAMO_SpinM, FAMO_SpinP, Fm, FnMck, Fp, G1m, G1p, G2mm, G2mp, G2pp, Hss, ipCI, lDisp, LuMck, MS2, nDens, &
                      rBetaA, rBetaS, RMS, SwLbl
-use input_mclr, only: McKinley, nAsh, nBas, nDisp, nIsh, nSym, nTPert, PT2, SpinPol, State_Sym
+use general_data, only: nAsh, nIsh, nSym, State_Sym=>STSym
+use input_mclr, only: McKinley, nBas, nDisp, nTPert, PT2, SpinPol
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6

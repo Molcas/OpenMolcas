@@ -7,6 +7,8 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2026, Meng Wang                                        *
 !***********************************************************************
 ! Molcas BLAS wrappers
 ! These wrappers handle lp64/ilp64 interfaces and various other
@@ -19,6 +21,7 @@
 ! dcopy_
 ! ddot_
 ! dgemm_
+! dgemm_cpu_
 ! dgemv_
 ! dger_
 ! dnrm2_
@@ -215,6 +218,30 @@ subroutine dgemm_(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
   end if
 # endif
 end subroutine dgemm_
+
+! Call the configured CPU BLAS directly, bypassing the generic CUDA threshold.
+subroutine dgemm_cpu_(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
+  use Definitions, only: BLASR8, iwp
+  _BLAS_INT_use_
+  implicit none
+  character, intent(in) :: transa, transb
+  integer(kind=iwp), intent(in) :: m_, n_, k_, lda_, ldb_, ldc_
+  real(kind=BLASR8), intent(in) :: alpha, a(lda_,*), b(ldb_,*), beta
+  real(kind=BLASR8), intent(inout) :: c(ldc_,*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: k, lda, ldb, ldc, m, n
+
+  m = int(m_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  k = int(k_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  ldb = int(ldb_,kind=BLASInt)
+  ldc = int(ldc_,kind=BLASInt)
+  call dgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+# else
+  call dgemm(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
+# endif
+end subroutine dgemm_cpu_
 
 subroutine dgemv_(trans,m_,n_,alpha,a,lda_,x,incx_,beta,y,incy_)
   use Definitions, only: BLASR8, iwp
