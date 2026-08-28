@@ -4,7 +4,7 @@
 * Symmetry: C1
 * Features tested: QD-PC-NEVPT2 MECI optimization
 * Responsible person: Yoshio Nishimoto
-* Comments: Analytic gradients and NAC, RICD, imag shift
+* Comments: Analytic gradients and NAC, RICD, imag shift with striped RHS construction
 *-------------------------------------------------------------------------------
 
 *-------------------------------------------------------------------------------
@@ -50,6 +50,7 @@
   imag    = 0.20
   thresholds  = 1.0d-9 1.0d-07
   rlxRoot = 1
+  PRHS    = 4
 
 &MCLR
 
