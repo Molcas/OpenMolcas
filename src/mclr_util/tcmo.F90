@@ -13,7 +13,8 @@ subroutine TCMO(A,isym,ictl)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, ipCM, ipMat, nDens
-use input_mclr, only: nBas, nOrb, nSym
+use general_data, only: nSym
+use input_mclr, only: nBas, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

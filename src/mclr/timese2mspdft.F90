@@ -15,7 +15,8 @@ subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: ipin, opout, W
 use MCLR_Data, only: n2Dens, nConf1, nDens, nDensC
-use input_mclr, only: nAsh, nRoots, nRS2, Weight
+use general_data, only: nAsh, nRS2
+use input_mclr, only: nRoots, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two

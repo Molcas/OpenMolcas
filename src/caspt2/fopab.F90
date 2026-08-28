@@ -12,8 +12,7 @@
 subroutine FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
 
 use Index_Functions, only: iTri, nTri_Elem
-use sguga, only: sg_epq_psi
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: sg_epq_psi, SGS, CIS, EXS
 use caspt2_global, only: IDCIEX, LUCIEX
 use general_data, only: NASH, nLEV, STSYM
 use caspt2_module, only: ISCF, NAES, NCONF, NISH, NORB, NSYM
@@ -30,7 +29,7 @@ integer(kind=iwp) :: I, ID, IFTEST, II, IJ, IOFF(8), ISCR, IST, ISU, ISYM, IT, I
 real(kind=wp) :: EINACT, ESUM, FTU, OCC, TRC
 real(kind=wp), allocatable :: BRA(:), KET(:), SGM(:)
 real(kind=wp), external :: DDot_
-integer(kind=iwp), parameter :: istate = 1
+integer(kind=iwp), parameter :: istate=1
 
 ! Procedure for computing one matrix element of the Fock matrix in the
 ! basis of the CASSCF states: <BRA|FOP|KET>

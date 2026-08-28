@@ -7,23 +7,40 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
 !***********************************************************************
 
-module rasdef
-
-! NRSPRT = Nr of RAS partitions
-! NRAS(ISYM,IP)=Nr of orbitals with symmetry ISYM in each part.
-! NRASEL(IP)=Min nr of accumulated electrons
-
-use Molcas, only: MxGAS
+subroutine Setup_RASSCF()
+use Molcas, only: MxLev
+use general_data, only: nActel, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, NLEV, Level, &
+                        NGAS, NGSSH, nRas,nRasEl,nRsPrt, NSM
 use Definitions, only: iwp
-
 implicit none
-private
+integer(kind=iwp) :: IGAS, iq, ISYM, nRs1T, NSTA
 
-integer(kind=iwp) :: NRAS(8,MxGAS), NRASEL(MxGAS), NRS1(8), NRS1T, NRS2(8), NRS2T, NRS3(8), NRS3T, NRSPRT
+NLEV = 0
+do IGAS=1,NGAS
+  do ISYM=1,NSYM
+    NSTA = NLEV+1
+    NLEV = NLEV+NGSSH(IGAS,ISYM)
+    NSM(NSTA:NLEV) = ISYM
+  end do
+end do
 
-public :: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
+Level(1:MxLev)=[(iq,iq=1,MxLev)]
 
-end module rasdef
+if (nHole1+nElec3 /= 0) then
+   nRsPrt=3
+   nRas(:,1)=nRs1(:)
+   nRas(:,2)=nRs2(:)
+   nRas(:,3)=nRs3(:)
+   nRs1T = sum(nRs1(1:nSym))
+   nRasEl(1)=2*nRs1T-nHole1
+   nRasEl(2)=nActel-nElec3
+   nRasEl(3)=nActel
+else
+   nRsPrt=1
+   nRas(:,1)=nRs2(:)
+   nRasEl(1)=nActel
+end if
+
+end subroutine Setup_RASSCF

@@ -12,7 +12,8 @@
 subroutine HssPrt_MCLR(ideg,Hess,ldisp)
 
 use Index_Functions, only: iTri, nTri_Elem
-use input_mclr, only: ChIrr, nIrrep, nSym
+use general_data, only: nSym
+use input_mclr, only: ChIrr, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

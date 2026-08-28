@@ -9,17 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module gas_data
+module general_data
 
-use Molcas, only: MxGas, MxSym
+use Molcas, only: MxSym, MxGas, MxLev, MxOrb
 use Definitions, only: iwp
 
 implicit none
 private
 
+integer(kind=iwp) :: ISPIN, NACTEL, NASH(mxSym), NBAS(mxSym), NCONF, NDET, NDEL(mxSym), NDELT, &
+                     NELEC3, NFRO(mxSym), NFROT, NHOLE1, NISH(mxSym), NORB(mxSym), NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T,   &
+                     NRS3(mxSym), NRS3T, NSEL, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, NLEV
+integer(kind=iwp) :: nRas(MxSym,MxGAS), nRasEl(MxGAS), nRsPrt, Level(MxLev), NSM(mxOrb)
 integer(kind=iwp) :: IGSOCCX(mxGAS,2) = 0, NGAS = 0, NGSSH(mxGAS,mxSym) = 0
 logical(kind=iwp) :: iDoGas = .false.
 
-public :: iDoGas, IGSOCCX, NGAS, NGSSH
+public :: ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, &
+          NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, NLEV, NSM, Level, nRas, nRasEl, nRsPrt, iDoGas, IGSOCCX, &
+          NGAS, NGSSH, NDET
 
-end module gas_data
+end module general_data

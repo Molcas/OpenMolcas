@@ -19,7 +19,7 @@ subroutine PART(SXY,TRA1,TRA2)
 ! ORIGINAL VERSION, MALMQUIST 84-04-04
 ! RASSCF VERSION,   MALMQUIST 89-11-15
 
-use rasdef, only: NRS1, NRS2, NRS3
+use general_data, only: NRS1, NRS2, NRS3
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NISH, NOSH, NSXY, NTRA
 use stdalloc, only: mma_allocate, mma_deallocate

@@ -21,7 +21,8 @@ subroutine RdCIV()
 !***********************************************************************
 
 use MCLR_Data, only: ERAS, LuCIV, LuJob
-use input_mclr, only: iTOC, lRoots, nConf, State_Sym
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: iTOC, lRoots, nConf
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
 use stdalloc, only: mma_allocate, mma_deallocate

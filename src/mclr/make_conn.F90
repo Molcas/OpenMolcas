@@ -13,7 +13,8 @@ subroutine Make_Conn(F,Kappa,P,D)
 
 use MCLR_Data, only: F0SQMO, ipMat, n2Dens, nDens
 use PCM_grad, only: do_RF, PCM_grad_TimesE2
-use input_mclr, only: nBas, nSym
+use general_data, only: nSym
+use input_mclr, only: nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One
 use Definitions, only: wp, iwp

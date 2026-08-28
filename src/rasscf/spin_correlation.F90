@@ -16,7 +16,7 @@ module spin_correlation
 use CI_solver_util, only: rdm_from_runfile
 use rasscf_global, only: iAdr15, lRoots, nacpar, nacpr2
 use index_symmetry, only: one_el_idx_flatten, two_el_idx_flatten
-use general_data, only: JobIPH
+use rasscf_files, only: JobIPH
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

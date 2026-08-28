@@ -19,7 +19,7 @@
 
 subroutine PRWF_CP2(ISYCI,NCO,CI,THR)
 
-use sguga_states, only: CIS
+use sguga, only: CIS
 use Definitions, only: wp, iwp, u6
 
 implicit none

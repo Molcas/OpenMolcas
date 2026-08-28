@@ -23,24 +23,27 @@
 
 subroutine RasScf_Init()
 
+use ci_interfaces, only: CI_Timer
 use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk, DoCholesky, DoLocK, Estimate, Nscreen, Update
 use casvb_global, only: ifvb
 use Cholesky, only: ChFracMem, timings
 use CMS, only: CMSGiveOpt, iCMSOpt
 use UnixInfo, only: SuperName
-use gas_data, only: IGSOCCX, NGAS, NGSSH
+use general_data, only: IGSOCCX, NGAS, NGSSH
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
-use lucia_data, only: TDENSI, TSIGMA
+
+use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, &
+                        NSEL, NSSH, STSYM
 use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoots, iAlphaBeta, ICICH, ICICP, iCIonly, ICIRST, &
                          ICMSIterMax, ICMSIterMin, iCMSP, iExpand, IfCRPR, IfOrde, InOCalc, iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot, &
                          iPhName, iPT2, iRLXRoot, IROOT, iRoot, irotPsi, iSave_Exp, iSPDen, iSupSM, itCore, ITMAX, iXMSP, ixSym, &
                          KSDFT, kTight, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NewFock, NonEq, NQUNE, NROOTS, &
                          OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXSel, ThFact, Thre, ThrEn, &
-                         ThrSX, ThrTE, Title, TMin, Weight
-use general_data, only: ISPIN, LOWDIN_ON, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, &
-                        NSEL, NSSH, STARTORBFILE, STSYM, SXDAMP
-use spinfo, only: I_ELIMINATE_GAS_MOLCAS, ISPEED
+                         ThrSX, ThrTE, Title, TMin, Weight, NALTER, SXDAMP, LOWDIN_ON
+use spinfo, only: I_ELIMINATE_GAS, ISPEED
+
+use rasscf_files, only: STARTORBFILE
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -195,7 +198,7 @@ ICICH = 0
 
 ISUPSM = 0
 ! make no use of supersymmetry
-I_ELIMINATE_GAS_MOLCAS = 0
+I_ELIMINATE_GAS = 0
 ! Highly excited states are not default
 hRoots = 0
 ! No hidden roots by default
@@ -312,9 +315,7 @@ TimePage = Zero
 TimeHCSCE = Zero
 TimeRelax = Zero
 
-!SVC: lucia timers
-tsigma(:) = Zero
-tdensi(:) = Zero
+Call CI_Timer('Init')
 
 ! state rotation
 iRotPsi = 0

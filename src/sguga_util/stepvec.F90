@@ -21,7 +21,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: NCL, ICL(NCL), NOP, IOP(NOP), ISPIN(NOP), NORB
 integer(kind=iwp), intent(out) :: IWALK(NORB)
-integer(kind=iwp) :: IDELSP, IORB, NXTCL, NXTOP
+integer(kind=iwp) :: IORB, NXTCL, NXTOP
 logical(kind=iwp) :: Test1, Test2
 
 NXTCL = 1
@@ -42,15 +42,11 @@ do IORB=1,NORB
   else if (Test2) then
 
     if (ISPIN(NXTOP) == 1) then
-      IDELSP = 1
-    else
-      IDELSP = -1
-    end if
-    if (IDELSP == 1) then
       IWALK(IORB) = 1
-    else if (IDELSP == -1) then
+    else
       IWALK(IORB) = 2
     end if
+
     NXTOP = NXTOP+1
 
   else

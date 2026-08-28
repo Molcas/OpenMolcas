@@ -20,7 +20,8 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, iST, KAIN1, KINT2, KINT2A, nConf1, pInt1, Square, XISPSM
 use CandS, only: ICSM, ISSM
-use input_mclr, only: nCSF, nRoots, nSym, Page, State_Sym, Weight
+use input_mclr, only: nCSF, nRoots, Page, Weight
+use general_data, only: nSym, State_Sym=>STSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp

@@ -7,17 +7,25 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2026, Meng Wang                                        *
 !***********************************************************************
 
-module SGUGA_States
+module lucia_parameters
 
-use sguga, only: CIStruct, EXStruct, SGStruct
 use Definitions, only: iwp
 
-type(SGStruct) :: SGS(3)
-type(CIStruct) :: CIS(3)
-type(EXStruct) :: EXS(3)
+implicit none
+private
 
-public :: CIS, EXS, SGS
+public :: ABTOR2_TINY_M_MAX, ABTOR2_TINY_N_MAX, RSBB1E_CPU_D1_MAX, RSBB1E_CPU_D2_MAX, &
+          SKICKJ_TINY_K_MAX, SKICKJ_TINY_N_MAX
 
-end module SGUGA_States
+integer(kind=iwp), parameter :: ABTOR2_TINY_M_MAX = 4_iwp
+integer(kind=iwp), parameter :: ABTOR2_TINY_N_MAX = 4_iwp
+integer(kind=iwp), parameter :: RSBB1E_CPU_D1_MAX = 16_iwp
+integer(kind=iwp), parameter :: RSBB1E_CPU_D2_MAX = 16_iwp
+integer(kind=iwp), parameter :: SKICKJ_TINY_K_MAX = 4_iwp
+integer(kind=iwp), parameter :: SKICKJ_TINY_N_MAX = 4_iwp
+
+end module lucia_parameters

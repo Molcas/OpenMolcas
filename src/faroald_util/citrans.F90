@@ -67,7 +67,7 @@ module citrans
 ! nsoc*(rankdo-1)+rankso, with nsoc the number of singly occupied
 ! strings per doubly occupied string in a group, i.e., n-dCs.
 
-use sguga_states, only: SGS
+use sguga, only: SGS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -406,12 +406,15 @@ subroutine spintabs_allocate()
 
     subroutine spintabs_free()
 
-      integer(kind=iwp) :: i
+      integer(kind=iwp) :: i, s
 
-      do i=lbound(spintabs,1),ubound(spintabs,1)
-        call mma_deallocate(spintabs(i)%coef)
-      end do
-      call mma_deallocate(spintabs)
+      s = merge(size(Spintabs),0,allocated(Spintabs))
+      If (s/=0) Then
+         do i=lbound(spintabs,1),ubound(spintabs,1)
+           call mma_deallocate(spintabs(i)%coef,safe='*')
+         end do
+         call mma_deallocate(spintabs,safe='*')
+      End If
 
     end subroutine spintabs_free
 

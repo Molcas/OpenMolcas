@@ -17,7 +17,8 @@ subroutine creq(q,rint,G2,idsym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMatBA, ipMO, nA, nDens
-use input_mclr, only: nAsh, nOrb, nSym
+use general_data, only: nAsh, nSym
+use input_mclr, only: nOrb
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

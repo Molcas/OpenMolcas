@@ -9,52 +9,32 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CIDIA(NCONF,IREFSM,CSFDIA,LUDAVID)
+subroutine CIDIA(NCONF,CSFDIA,LUDAVID)
 ! PURPOSE: - COMPUTE DIAGONAL ELEMENTS OF THE CI-MATRIX
 !            THE DETERMINANT BASIS
 !          - TRANSLATE FORM DET => CSF BASIS
 !
 ! CALLING PARAMETERS:
 ! NCONF :  NO. OF CSF
-! IREFSM:  REFERENCE SYMMETRY
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
+use CI_Interfaces, only: Mk_CI_Diag
 use wadr, only: FMO, TUVX
 use timers, only: TimeHDiag
-use lucia_data, only: SDREO
-use Lucia_Interface, only: Lucia_Util
 use output_ras, only: IPRLOC
 use PrintLevel, only: DEBUG, INSANE
-use spinfo, only: NCNFTP, NCSFTP, NDET, NDTFTP, NTYP
-use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
+integer(kind=iwp), intent(in) :: NCONF, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
-integer(kind=iwp) :: IPRINT, IPRL, IPRLEV
+integer(kind=iwp) :: IPRL, IPRLEV
 real(kind=wp) :: dum1, dum2, dum3, Time(2)
-real(kind=wp), allocatable :: DDIA(:)
 
 call Timing(Time(1),dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
 
-! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
-
-call Lucia_Util('Diag',nTU=size(FMO),TU=FMO,nTUVX=size(TUVX),TUVX=TUVX)
-
-call mma_allocate(DDIA,NDET,label='DETDIA')
-call get_diag(DDIA,ndet)
-
-! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
-
-IPRINT = 0
-if (IPRLEV == INSANE) IPRINT = 40
-call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
-
-! DEALLOCATE LOCAL MEMORY
-
-call mma_deallocate(DDIA)
+Call Mk_CI_Diag(CSFDIA,nConf,FMO,size(FMO),TUVX,size(TUVX))
 
 ! PRINT CI-DIAGONAL
 

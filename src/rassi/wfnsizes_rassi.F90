@@ -11,7 +11,7 @@
 
 subroutine wfnsizes_rassi()
 
-use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
+use general_data, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
 use rassi_aux, only: nasht_save
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NAES, NASH, NASHT, NBASF, NBST, NISH, NISHT, NOSH, NOSHT, NSSH, NSSHT

@@ -19,7 +19,7 @@ module CI_solver_util
 use Para_Info, only: MyRank
 use linalg_mod, only: verify_
 use rasscf_global, only: nAc, nAcPar, nAcpr2, nroots
-use general_data, only: JobIPH
+use rasscf_files, only: JobIPH
 #ifdef _MOLCAS_MPP_
 use MPI_Wrapper, only: MPI_Bcast, MPI_COMM_WORLD, MPI_LOGICAL, MPI_REAL8
 use GA_Wrapper, only: GA_Create

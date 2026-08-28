@@ -21,7 +21,8 @@ subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: ipCI, IRLXROOT, LuJob, nConf1, nDens, nNA, XISPSM
-use input_mclr, only: iTOC, nCSF, nRoots, ntAsh, State_Sym
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: iTOC, nCSF, nRoots, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
