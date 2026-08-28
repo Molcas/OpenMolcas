@@ -1386,8 +1386,9 @@ subroutine analyse_patterns()
 #ifdef _NOT_IN_USE_
   integer(kind=iwp) :: nopen, ncomb_pat, icomb
   integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
+  integer(kind=iwp) :: i
 #endif
-  integer(kind=iwp) :: iopen, k, i
+  integer(kind=iwp) :: iopen, k
 ! integer(kind=iwp), allocatable :: vertex(:,:)
 
   call mma_allocate(ndoub,npat,label='NDoub')
