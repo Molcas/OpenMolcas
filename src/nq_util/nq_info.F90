@@ -37,6 +37,7 @@ real(kind=wp) :: Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_
                  Threshold_save, x_min, y_min, z_min
 character(len=10) :: Quadrature
 character(len=8) :: MBC
+logical(kind=iwp) :: WriteGrid = .false.
 
 public :: Angular_Pruning, Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, &
           Fade, Fixed_Grid, Functional_Type, GGA_Type, Grad_I, Grid_Type, IOff_Ash, IOff_Bas, IOff_BasAct, iOpt_Angular, L_Quad, &
@@ -44,7 +45,8 @@ public :: Angular_Pruning, Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens
           Moving_Grid, mRad, nAngularGrids, nAsh, NASHT, nAtoms, ndc, nFro, nISh, nOrbt, nPot1, nPot2, NQ_Direct, NQ_Info_Dmp, &
           NQ_Info_Get, nR, nR_Save, nTotGP, number_of_subblocks, nUVX, nUVXt, nVX, nVXt, nx, ny, nz, Off, OffBas, OffBas2, &
           OffBasFro, OffOrb, OffOrb2, OffOrbTri, OffPUVX, OffUVX, OffVX, On, Other_Type, Packing, Quadrature, &
-          Rotational_Invariance, T_Y, Tau_a1, Tau_a2, Tau_b1, Tau_b2, Tau_I, ThrC, Threshold, Threshold_save, x_min, y_min, z_min
+          Rotational_Invariance, T_Y, Tau_a1, Tau_a2, Tau_b1, Tau_b2, Tau_I, ThrC, Threshold, Threshold_save, WriteGrid, x_min, &
+          y_min, z_min
 
 contains
 
@@ -57,7 +59,7 @@ subroutine NQ_Info_Dmp()
   integer(kind=iwp), allocatable :: iDmp(:)
   real(kind=wp), allocatable :: rDmp(:)
   character, allocatable :: cDmp(:)
-  integer(kind=iwp), parameter :: liDmp = 25+5*8, lrDmp = 20
+  integer(kind=iwp), parameter :: liDmp = 26+5*8, lrDmp = 20
 
   ! Real Stuff
 
@@ -168,6 +170,9 @@ subroutine NQ_Info_Dmp()
   i = i+1
   iDmp(i) = Packing
   i = i+1
+  iDmp(i) = 0
+  if (WriteGrid) iDmp(i) = 1
+  i = i+1
   iDmp(i:i+7) = OffPUVX
   i = i+8
   call Put_iArray('Quad_i',iDmp,liDmp)
@@ -192,11 +197,12 @@ subroutine NQ_Info_Get()
   use fortran_strings, only: str
   use stdalloc, only: mma_allocate, mma_deallocate
 
-  integer(kind=iwp) :: i, lcDmp
+  integer(kind=iwp) :: i, lcDmp, liDmp_Run
+  logical(kind=iwp) :: Found
   integer(kind=iwp), allocatable :: iDmp(:)
   real(kind=wp), allocatable :: rDmp(:)
   character, allocatable :: cDmp(:)
-  integer(kind=iwp), parameter :: liDmp = 25+5*8, lrDmp = 20
+  integer(kind=iwp), parameter :: liDmp = 26+5*8, liDmp_Old = 25+5*8, lrDmp = 20
 
   ! Real Stuff
 
@@ -247,8 +253,10 @@ subroutine NQ_Info_Get()
 
   ! Integer Stuff
 
-  call mma_allocate(iDmp,liDmp,Label='iDmp')
-  call Get_iArray('Quad_i',iDmp,liDmp)
+  call Qpg_iArray('Quad_i',Found,liDmp_Run)
+  if (.not. Found) liDmp_Run = liDmp
+  call mma_allocate(iDmp,liDmp_Run,Label='iDmp')
+  call Get_iArray('Quad_i',iDmp,liDmp_Run)
   i = 1
   NASHT = iDmp(i)
   i = i+1
@@ -308,6 +316,14 @@ subroutine NQ_Info_Get()
   i = i+1
   Packing = iDmp(i)
   i = i+1
+  if (liDmp_Run >= liDmp) then
+    WriteGrid = iDmp(i) /= 0
+    i = i+1
+  else if (liDmp_Run == liDmp_Old) then
+    WriteGrid = .false.
+  else
+    call SysAbendMsg('NQ_Info_Get','Unexpected Quad_i length',' ')
+  end if
   OffPUVX = iDmp(i:i+7)
   i = i+8
   call mma_deallocate(iDmp)
