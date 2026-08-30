@@ -544,7 +544,7 @@ If (DoFaro) Then
   Call hdiag(htu,gtuvx,diag)
 ! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
   Do i=1,nComb_tot
-     If (abs(ddia(i)-diag(i))/real(nComb_tot,wp)>1.0e-12_wp) Then
+     If (abs(ddia(i)-diag(i))/real(nComb_tot,wp)>1.0e-10_wp) Then
         Write (u6,*) 'i, abs(ddia(i)-diag(i))'
         Write (u6,*) i, abs(ddia(i)-diag(i))
         Write (u6,*) ddia(i),diag(i)

@@ -918,10 +918,8 @@ subroutine hdiag(h,g,diag)
   call mma_allocate(occa,nela,ndeta,label='OccA')
   call mma_allocate(occb,nelb,ndetb,label='OccB')
 
-  Write (6,*) 'Crap 1'
   call build_occ_alpha(occa)
   call build_occ_beta (occb)
-  Write (6,*) 'Crap 2'
 
   !
   ! Alpha-string energies
@@ -946,7 +944,6 @@ subroutine hdiag(h,g,diag)
      end do
 
   end do
-  Write (6,*) 'Crap 3'
 
   !
   ! Beta-string energies
@@ -971,7 +968,6 @@ subroutine hdiag(h,g,diag)
      end do
 
   end do
-  Write (6,*) 'Crap 4'
 
   !
   ! Full determinant-product diagonal
@@ -1000,13 +996,11 @@ subroutine hdiag(h,g,diag)
 
      end do
   end do
-  Write (6,*) 'Crap 5'
 
   call mma_deallocate(occb)
   call mma_deallocate(occa)
   call mma_deallocate(Db)
   call mma_deallocate(Da)
-  Write (6,*) 'Crap 6'
 
 contains
 
