@@ -1042,12 +1042,25 @@ subroutine transf_prin_axes(A,X,a_sm)
   real(kind=wp), intent(in) :: A(3,3,5), X(3,3)
   real(kind=wp), intent(out) :: a_sm(3,3,5)
   integer(kind=iwp) :: iContr
-  real(kind=wp) :: tmpmat(3,3)
+  real(kind=wp) :: tmpmat(3,3), tmpmat2(3,3)
 
   do iContr=1,5
     tmpmat(:,:) = Zero
     call dgemm_('n','n',3,3,3,One,A(:,:,iContr),3,X,3,Zero,tmpmat,3)
     call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,a_sm(:,:,iContr),3)
+
+    if (any([a_sm(1,1,iContr), a_sm(2,2,iContr), a_sm(3,3,iContr)] < Zero)) then
+      call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
+      call AbEnd()
+    end if
+
+    tmpmat2(:,:) = Zero
+    tmpmat2(1,1) = sqrt(a_sm(1,1,iContr))
+    tmpmat2(2,2) = sqrt(a_sm(2,2,iContr))
+    tmpmat2(3,3) = sqrt(a_sm(3,3,iContr))
+    call dgemm_('n','n',3,3,3,One,tmpmat2,3,X,3,Zero,tmpmat,3)
+    call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,a_sm(:,:,iContr),3)
+
   end do
 
 end subroutine transf_prin_axes
@@ -1112,23 +1125,15 @@ subroutine calc_prin_val(iAtom,A_tens)
     if (fnorm_off_diag/fnorm_diag > 0.05_wp) call WarningMessage(1,'Relative Frobenius diag/off-diag norm > 5%')
 
     do iAxis=1,3
-      EVR(iAxis) = a_small(iAxis,iAxis,iContr)
+      prin_vals(iACalc,iContr,iAxis) = a_small(iAxis,iAxis,iContr)
     end do
-
-    if (any(EVR(:) < Zero)) then
-      call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
-      call AbEnd()
-    end if
-
-    ! principal values (sqrt of diagonal elements)
-    prin_vals(iACalc,iContr,:) = sqrt(EVR)
 
     ! Print absolute principal values without signs
     write(u6,*)
-    write(u6,'(20X,A31,A7)') 'ABS. PRINCIPAL VALUES [+/-] :: ',contrib_lab(iContr)
-    write(u6,'(12X,A52)') repeat('.',52)
-    write(u6,'(22X,A10,12X,A4,11X,A5)') 'sqrt(a_ii)','(au)','(MHz)'
-    write(u6,'(12X,A52)') repeat('.',52)
+    write(u6,'(20X,A25,A7)') 'ABS. PRINCIPAL VALUES :: ',contrib_lab(iContr)
+    write(u6,'(12X,A52)') repeat('-',52)
+    write(u6,'(24X,A4,12X,A4,11X,A5)') 'a_ii','(au)','(MHz)'
+    write(u6,'(12X,A52)') repeat('-',52)
     do iAxis=1,3
       prvl = prin_vals(iACalc,iContr,iAxis)
       write(u6,'(12X,A1,A1,5X,E13.6,3x,E13.6,3x,E13.6)') xyz(iAxis),xyz(iAxis),prvl,prvl*to_au,prvl*con_to_MHz*GNuc(iAtom)
