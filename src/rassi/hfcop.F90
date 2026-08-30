@@ -796,7 +796,7 @@ subroutine proc_coupl_states()
   ! SHIFTING ENERGY by NCOUP/COUP-------------------------------------------
   ! then re-determine the coupled states based on energy threshold.
   if (allocated(LCSTATES)) then
-    min_energy = ESO(1)
+    min_energy=minval(ESO(LCSTATES(:)))
     do ISS=1,size(LCSTATES)
       ESO(LCSTATES(ISS)) = min_energy
     end do
