@@ -13,7 +13,8 @@ function E2(FockI,rMo,loper,idisp)
 
 use Index_Functions, only: iTri
 use MCLR_Data, only: G1t, G2t, ipCM, nA, nCMO, nNA
-use input_mclr, only: nAsh, nIsh, nOrb, nSym, ntPert
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nOrb, ntPert
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 

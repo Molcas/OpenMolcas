@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module general_data
+module rasscf_files
 
 ! common logical unit numbers
 !
@@ -30,26 +30,14 @@ module general_data
 ! LUDAVID    : Intermediate results of the diagonalization
 !              (binary, temporary)
 
-use Molcas, only: MxSym
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
 private
 
-integer(kind=iwp), parameter :: MAXALTER = 16
-integer(kind=iwp) :: INVEC, ISPIN, ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, LUStartOrb, &
-                     MALTER(MAXALTER,3), NACTEL, NALTER, NASH(mxSym), NBAS(mxSym), NCONF, NCRVEC, NDEL(mxSym), NDELT, NELEC3, &
-                     NFRO(mxSym), NFROT, NHOLE1, NISH(mxSym), NLEV, NORB(mxSym), NRS1(mxSym), NRS1T, NRS2(mxSym), NRS2T, &
-                     NRS3(mxSym), NRS3T, NSEL, NSSH(mxSym), NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM
-real(kind=wp) :: SXDAMP
+integer(kind=iwp) :: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, LUStartOrb
 character(len=256) :: StartOrbFile
-logical(kind=iwp) :: Lowdin_ON
-integer(kind=iwp), allocatable :: CleanMask(:)
-real(kind=wp), allocatable :: CRPROJ(:), CRVEC(:)
+public :: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, &
+          LUStartOrb, StartOrbFile
 
-public :: CleanMask, CRPROJ, CRVEC, INVEC, ISPIN, ITERFILE, JOBIPH, JOBOLD, Lowdin_ON, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, &
-          LUStartOrb, MALTER, MAXALTER, NACTEL, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, &
-          NLEV, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, StartOrbFile, STSYM, &
-          SXDAMP
-
-end module general_data
+end module rasscf_files

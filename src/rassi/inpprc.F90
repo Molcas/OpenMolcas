@@ -12,7 +12,7 @@
 subroutine INPPRC()
 
 use Index_Functions, only: nTri_Elem
-use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
+use general_data, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
 use rassi_global_arrays, only: ESHFT, HAM, HDIAG, JBNUM, LROOT
 use rassi_aux, only: AO_Mode, CMO1, CMO2, DMAB, ipglob, jDisk_TDM, JOB_INDEX, mTRA
 use rassi_data, only: NASH, NASHT, NBASF, NBMX, NBSQ, NBSQPR, NBST, NBTRI, NCMO, NISH, NISHT, NOSH, NSSH, NSSHT, NTDMAB, NTDMZZ, &

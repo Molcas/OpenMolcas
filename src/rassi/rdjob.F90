@@ -15,7 +15,7 @@ use Cntrl, only: bNAME, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, IDCMO, IFEJOB, IFHEFF
                  LSYM1, LuIPH, MLTPLT, MPLET1, NACTE, NACTE1, NASH1, NBAS1, NCONF, NCONF1, NDEL1, NELE3, NELE31, NFRO1, NHOL11, &
                  NHOLE1, NISH1, NROOT1, NRS11, NRS21, NRS31, NSTAT, NSTATE, NSYM1, RASTYP, RefEne, TITLE1
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym, MxLev
-use rasdef, only: NRS1, NRS2, NRS3
+use general_data, only: NRS1, NRS2, NRS3
 use RASDim, only: MxIter, MxTit
 use rassi_aux, only: ipglob, Level
 use rassi_data, only: WFTYPE, NASH, NSSH, NDEL, NOSH, NASH, NISH, NFRO, NBASF, NDEL, NFRO, NISH

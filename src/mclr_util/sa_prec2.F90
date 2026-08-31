@@ -11,7 +11,8 @@
 
 subroutine SA_PREC2(rdia,S,CI,ENE)
 
-use input_mclr, only: nCSF, nRoots, State_Sym
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: nCSF, nRoots
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

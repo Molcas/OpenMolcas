@@ -30,6 +30,7 @@ set (sources
      chkinp.F90
      cho_rasscf_rdinp.F90
      cictl.F90
+     cisx.F90
      ci_solver_util.F90
      clnmo.F90
      clsfls_rasscf.F90
@@ -117,7 +118,7 @@ set (sources
      scan_inp.F90
      setpos.F90
      setprlev.F90
-     sg_setup_rasscf.F90
+     setup_rasscf.F90
      sgfcin.F90
      sigvec.F90
      socc_dmrg_rdinp.F90

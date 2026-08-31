@@ -45,13 +45,38 @@ integer(kind=iwp) :: max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs
 
 ! integral storage in Faroald format
 real(kind=wp), allocatable :: gtuvx(:,:,:,:), htu(:,:)
+
 #ifdef _PROF_
 integer(kind=int64) :: nflop
 #endif
 
+integer(kind=iwp) :: npat
+
+integer(kind=iwp), allocatable :: occpat(:,:),  &    ! (my_norb,npat)
+                                  ipat_of_det(:)
+integer(kind=iwp), allocatable :: ndoub(:), nsing(:)
+integer(kind=iwp), allocatable :: conf_by_nopen(:)
+integer(kind=iwp), allocatable :: icnf_out(:)
+integer(kind=iwp), allocatable :: conf_reo(:)
+!
+! nspin_comb : raw alpha/beta assignments among open shells
+! ncomb      : Lucia-compatible counting of diagonal states
+!
+integer(kind=iwp), allocatable :: nspin_comb(:), nComb(:)
+integer(kind=iwp), allocatable :: ibcomb(:)
+integer(kind=iwp) :: ncomb_tot
+integer(kind=iwp), allocatable :: ictsdt(:)
+integer(kind=iwp), allocatable :: conf_arcw(:,:,:)
+
 public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
           my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, transition_two_pdm, &
-          two_pdm
+          two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing, build_pattern_diagonal, &
+          build_pattern_diagonal_approx, nSpin_Comb, nComb, ibComb, nComb_tot, pattern_combinations
+public :: npat, occpat, ipat_of_det, conf_arcw
+public :: combination_occupations
+public :: combination_diagonal
+!public :: build_ictsdt, ictsdt, conf_by_nopen, icnf_out, conf_reo, build_conf_arcw
+public :: build_ictsdt, ictsdt, conf_by_nopen, icnf_out, conf_reo
 
 ! Extensions to mma interfaces
 
@@ -872,6 +897,1059 @@ subroutine ex1_init(k,n,ex1_table)
   end do
 
 end subroutine ex1_init
+
+subroutine hdiag(h,g,diag)
+
+  use Constants, only: Zero
+
+  real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
+
+  real(kind=wp), intent(out) :: diag(my_ndet)
+
+  real(kind=wp), allocatable :: Da(:), Db(:)
+
+  integer(kind=iwp), allocatable :: occa(:,:), occb(:,:)
+
+  integer(kind=iwp) :: ia, ib, i, j, k, iaLow
+
+  call mma_allocate(Da,ndeta,label='Da')
+  call mma_allocate(Db,ndetb,label='Db')
+
+  call mma_allocate(occa,nela,ndeta,label='OccA')
+  call mma_allocate(occb,nelb,ndetb,label='OccB')
+
+  call build_occ_alpha(occa)
+  call build_occ_beta (occb)
+
+  !
+  ! Alpha-string energies
+  !
+
+  do ia=1,ndeta
+
+     Da(ia) = Zero
+
+     do i=1,nela
+        Da(ia) = Da(ia) + h(occa(i,ia),occa(i,ia))
+     end do
+
+     do i=1,nela
+        do j=i+1,nela
+
+           Da(ia) = Da(ia)                                      &
+              + g(occa(i,ia),occa(i,ia),occa(j,ia),occa(j,ia)) &
+              - g(occa(i,ia),occa(j,ia),occa(j,ia),occa(i,ia))
+
+        end do
+     end do
+
+  end do
+
+  !
+  ! Beta-string energies
+  !
+
+  do ib=1,ndetb
+
+     Db(ib) = Zero
+
+     do i=1,nelb
+        Db(ib) = Db(ib) + h(occb(i,ib),occb(i,ib))
+     end do
+
+     do i=1,nelb
+        do j=i+1,nelb
+
+           Db(ib) = Db(ib)                                      &
+              + g(occb(i,ib),occb(i,ib),occb(j,ib),occb(j,ib)) &
+              - g(occb(i,ib),occb(j,ib),occb(j,ib),occb(i,ib))
+
+        end do
+     end do
+
+  end do
+
+  !
+  ! Full determinant-product diagonal
+  !
+
+  k = 0
+
+  do ib=1,ndetb
+     iaLow = 1
+     if (Mult==1) iaLow=ib
+     do ia=iaLow,ndetA
+
+        k = k + 1
+
+        diag(k) = Da(ia) + Db(ib)
+
+        do i=1,nela
+           do j=1,nelb
+
+              diag(k) = diag(k)                                   &
+                 + g(occa(i,ia),occa(i,ia),                       &
+                     occb(j,ib),occb(j,ib))
+
+           end do
+        end do
+
+     end do
+  end do
+
+  call mma_deallocate(occb)
+  call mma_deallocate(occa)
+  call mma_deallocate(Db)
+  call mma_deallocate(Da)
+
+contains
+
+  subroutine build_occ_alpha(occ)
+
+    integer(kind=iwp), intent(out) :: occ(nela,ndeta)
+
+    integer(kind=iwp) :: ia, ipq, nocc
+
+    do ia=1,ndeta
+
+       nocc = 0
+
+       do ipq=1,max_ex1a
+
+          if (ex1_a(ipq,ia)%p == ex1_a(ipq,ia)%q .and. &
+              ex1_a(ipq,ia)%rank == ia) then
+
+             nocc = nocc + 1
+             occ(nocc,ia) = ex1_a(ipq,ia)%p
+
+          end if
+
+       end do
+
+       if (nocc /= nela) then
+          write(u6,*) 'build_occ_alpha: wrong occupation count'
+          call Abend()
+       end if
+
+    end do
+
+  end subroutine build_occ_alpha
+
+  subroutine build_occ_beta(occ)
+
+    integer(kind=iwp), intent(out) :: occ(nelb,ndetb)
+
+    integer(kind=iwp) :: ib, ipq, nocc
+
+    do ib=1,ndetb
+
+       nocc = 0
+
+       do ipq=1,max_ex1b
+
+          if (ex1_b(ipq,ib)%p == ex1_b(ipq,ib)%q .and. &
+              ex1_b(ipq,ib)%rank == ib) then
+
+             nocc = nocc + 1
+             occ(nocc,ib) = ex1_b(ipq,ib)%p
+
+          end if
+
+       end do
+
+       if (nocc /= nelb) then
+          write(u6,*) 'build_occ_beta: wrong occupation count'
+          call Abend()
+       end if
+
+    end do
+
+  end subroutine build_occ_beta
+
+end subroutine hdiag
+
+subroutine build_pattern_diagonal_approx(h,g,diag)
+
+! Occupation-pattern (Olsen-type) diagonal.
+! Does NOT represent the exact CSF diagonal.
+
+  use Constants, only: Zero
+
+  real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(out) :: diag(npat)
+
+  integer(kind=iwp) :: ipat, p, q
+
+  integer(kind=iwp) :: np, nq, exch
+
+  do ipat=1,npat
+
+     diag(ipat) = Zero
+
+     !
+     ! One-electron contribution
+     !
+     do p=1,my_norb
+
+        np = occpat(p,ipat)
+
+        diag(ipat) = diag(ipat) + real(np,wp)*h(p,p)
+
+     end do
+
+     !
+     ! Two-electron contribution
+     !
+     do p=1,my_norb-1
+
+        np = occpat(p,ipat)
+        if (np == 0) cycle
+
+        do q=p+1,my_norb
+
+           nq = occpat(q,ipat)
+           if (nq == 0) cycle
+
+           !
+           ! Coulomb term
+           !
+           diag(ipat) = diag(ipat) + real(np*nq,wp) * g(p,p,q,q)
+
+           !
+           ! Exchange coefficient
+           !
+           if (np == 2 .and. nq == 2) then
+              exch = 2
+           else
+              exch = 1
+           end if
+
+           diag(ipat) = diag(ipat) - real(exch,wp) * g(p,q,q,p)
+
+        end do
+
+     end do
+
+  end do
+
+end subroutine build_pattern_diagonal_approx
+
+subroutine det_occ_pattern(ia,ib,occ)
+
+  integer(kind=iwp), intent(in) :: ia, ib
+
+  integer(kind=iwp), intent(out) :: occ(my_norb)
+
+  integer(kind=iwp) :: p, pq
+
+  occ(:) = 0
+
+  !
+  ! Alpha occupations
+  !
+
+  do pq=1,max_ex1a
+
+     if (ex1_a(pq,ia)%p == ex1_a(pq,ia)%q .and. &
+         ex1_a(pq,ia)%rank == ia) then
+
+        p = ex1_a(pq,ia)%p
+        occ(p) = occ(p) + 1
+
+     end if
+
+  end do
+
+  !
+  ! Beta occupations
+  !
+
+  do pq=1,max_ex1b
+
+     if (ex1_b(pq,ib)%p == ex1_b(pq,ib)%q .and. &
+         ex1_b(pq,ib)%rank == ib) then
+
+        p = ex1_b(pq,ib)%p
+        occ(p) = occ(p) + 1
+
+     end if
+
+  end do
+
+end subroutine det_occ_pattern
+
+subroutine verify_occ_patterns()
+
+  integer(kind=iwp) :: ia, ib, pq, p
+
+  integer(kind=iwp) :: occ(my_norb)
+
+  integer(kind=iwp) :: na, nb
+
+  do ib=1,ndetb
+
+     do ia=1,ndeta
+
+        occ(:) = 0
+
+        !
+        ! Recover alpha occupations
+        !
+
+        na = 0
+
+        do pq=1,max_ex1a
+
+           if (ex1_a(pq,ia)%p == ex1_a(pq,ia)%q .and. &
+               ex1_a(pq,ia)%rank == ia) then
+
+              p = ex1_a(pq,ia)%p
+
+              occ(p) = occ(p) + 1
+              na = na + 1
+
+           end if
+
+        end do
+
+        !
+        ! Recover beta occupations
+        !
+
+        nb = 0
+
+        do pq=1,max_ex1b
+
+           if (ex1_b(pq,ib)%p == ex1_b(pq,ib)%q .and. &
+               ex1_b(pq,ib)%rank == ib) then
+
+              p = ex1_b(pq,ib)%p
+
+              occ(p) = occ(p) + 1
+              nb = nb + 1
+
+           end if
+
+        end do
+
+        !
+        ! Consistency checks
+        !
+
+        if (na /= nela) then
+           write(u6,*) 'verify_occ_patterns: wrong alpha count'
+           write(u6,*) 'ia=',ia,' na=',na,' nela=',nela
+           call Abend()
+        end if
+
+        if (nb /= nelb) then
+           write(u6,*) 'verify_occ_patterns: wrong beta count'
+           write(u6,*) 'ib=',ib,' nb=',nb,' nelb=',nelb
+           call Abend()
+        end if
+
+        if (sum(occ) /= my_nel) then
+           write(u6,*) 'verify_occ_patterns: wrong electron count'
+           write(u6,*) 'ia=',ia,' ib=',ib
+           write(u6,*) 'sum(occ)=',sum(occ)
+           write(u6,*) 'my_nel  =',my_nel
+           call Abend()
+        end if
+
+        if (maxval(occ) > 2) then
+           write(u6,*) 'verify_occ_patterns: occupation > 2'
+           write(u6,*) 'ia=',ia,' ib=',ib
+           call Abend()
+        end if
+
+     end do
+
+  end do
+
+end subroutine verify_occ_patterns
+
+subroutine build_patterns()
+
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp) :: ia, ib, k, ipat, jpat
+
+  integer(kind=iwp) :: occ(my_norb)
+
+  integer(kind=iwp), allocatable :: tmp(:,:)
+
+  logical :: found
+
+  !
+  ! Worst case: every determinant product generates
+  ! its own occupation pattern.
+  !
+
+  call mma_allocate(occpat,my_norb,my_ndet,label='OccPat')
+  call mma_allocate(ipat_of_det,my_ndet,label='IPatDet')
+
+  npat = 0
+  k    = 0
+
+  do ib=1,ndetb
+
+     do ia=1,ndeta
+
+        k = k + 1
+
+        call det_occ_pattern(ia,ib,occ)
+
+        found = .false.
+
+        do jpat=1,npat
+
+           if (all(occ(:) == occpat(:,jpat))) then
+
+              ipat_of_det(k) = jpat
+              found = .true.
+
+              exit
+
+           end if
+
+        end do
+
+        if (.not. found) then
+
+           npat = npat + 1
+
+           occpat(:,npat) = occ(:)
+
+           ipat_of_det(k) = npat
+
+        end if
+
+     end do
+
+  end do
+
+  !
+  ! Compress occpat to its actual size.
+  !
+
+  call mma_allocate(tmp,my_norb,npat,label='TmpPat')
+
+  tmp(:,:) = occpat(:,1:npat)
+
+  call mma_deallocate(occpat)
+
+  call mma_allocate(occpat,my_norb,npat,label='OccPat')
+
+  occpat(:,:) = tmp(:,:)
+
+  call mma_deallocate(tmp)
+
+  !
+  ! Consistency checks
+  !
+
+  do k=1,my_ndet
+     ipat = ipat_of_det(k)
+
+     if (ipat < 1 .or. ipat > npat) then
+        write(u6,*) 'build_patterns: invalid pattern index'
+        write(u6,*) 'k=',k,' ipat=',ipat,' npat=',npat
+        call Abend()
+     end if
+
+  end do
+
+#ifdef _DEBUGPRINT_
+  do k = 1, nPat
+     write(u6,'(A,20I2)') 'occ=',occpat(:,k)
+  end do
+  write(u6,'(A,I10)') ' NDet = ', my_ndet
+  write(u6,'(A,I10)') ' NPat = ', npat
+  write(u6,'(A,F12.4)') ' Compression = ', real(my_ndet,wp)/real(npat,wp)
+#endif
+
+#ifdef _DEBUGPRINT_
+do ipat=1,npat
+   write(u6,'(A,I4,A,20I2)') &
+        'ipat=',ipat, &
+        ' occ=',occpat(:,ipat)
+end do
+#endif
+
+
+end subroutine build_patterns
+
+subroutine analyse_patterns()
+
+  integer(kind=iwp) :: ipat, p
+
+#ifdef _NOT_IN_USE_
+  integer(kind=iwp) :: nopen, ncomb_pat, icomb
+  integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
+  integer(kind=iwp) :: i
+#endif
+  integer(kind=iwp) :: iopen, k
+! integer(kind=iwp), allocatable :: vertex(:,:)
+
+  call mma_allocate(ndoub,npat,label='NDoub')
+  call mma_allocate(nsing,npat,label='NSing')
+  call mma_allocate(nspin_comb,npat,label='NSpinComb')
+  call mma_allocate(ncomb,npat,label='NComb')
+  call mma_allocate(conf_by_nopen,npat,label='conf_by_nopen')
+  call mma_allocate(icnf_out,npat,label='ICNF_OUT')
+
+
+! call mma_allocate(vertex,my_norb+1,my_nel+1,label='Vertex')
+
+  do ipat=1,npat
+
+     ndoub(ipat) = 0
+     nsing(ipat) = 0
+
+     do p=1,my_norb
+
+        select case (occpat(p,ipat))
+
+        case (2)
+
+           ndoub(ipat) = ndoub(ipat) + 1
+
+        case (1)
+
+           nsing(ipat) = nsing(ipat) + 1
+
+        end select
+
+     end do
+
+     if (2*ndoub(ipat)+nsing(ipat) /= my_nel) then
+
+        write(u6,*) 'analyse_patterns: electron count error'
+        write(u6,*) 'ipat=',ipat
+
+        call Abend()
+
+     end if
+!
+! Lucia uses spin combinations only for singlets (MS2 = 0).
+! For all other spins the code falls back to the ordinary
+! SD representation. Therefore nComb equals the number of
+! alpha/beta assignments among the open shells.
+!
+     nspin_comb(ipat) = spin_comb_count(nsing(ipat),mult-1)
+     if (mult /= 1) then
+       !
+       ! Lucia uses spin combinations only for singlets.
+       ! For non-singlets the code falls back to the ordinary
+       ! SD representation
+       !
+       ncomb(ipat) = nspin_comb(ipat)
+     else
+       if (nsing(ipat) == 0) then
+         ncomb(ipat) = 1
+       else
+         ncomb(ipat) = nspin_comb(ipat)/2
+       end if
+     end if
+
+#ifdef _NOT_IN_USE_
+if (nsing(ipat) > 0 .and. mult==1) then
+   call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
+   call spncom_faroald(nsing(ipat),0,nspin_comb(ipat),comb)
+   call mma_deallocate(comb)
+end if
+#endif
+
+#ifdef _NOT_IN_USE_
+if (nsing(ipat) == 4 .and. mult == 1) then
+   call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
+   call pattern_combinations(ipat,nopen,ncomb_pat,comb)
+
+   do icomb=1,ncomb_pat
+
+      call combination_occupations(ipat,comb(:,icomb),occa_tmp,occb_tmp)
+
+      write(u6,'(A,I3)') 'Combination ',icomb
+      write(u6,'(A,20I3)') 'Alpha:',occa_tmp
+      write(u6,'(A,20I3)') 'Beta :',occb_tmp
+
+   end do
+
+   call mma_deallocate(comb)
+end if
+#endif
+
+  end do
+
+!write(u6,*)
+!write(u6,*) 'IPAT -> NSING'
+
+!do ipat=1,npat
+!   write(u6,'(2I6)') ipat, nsing(ipat)
+!end do
+
+#ifdef _DEBUGPRINT_
+  write(u6,'(A,I10)') ' NSpin_Comb = ', sum(nSpin_comb(:))
+  write(u6,'(A,I10)') ' NComb = ', sum(nComb(:))
+#endif
+
+call mma_allocate(ibcomb,npat,label='IBComb')
+
+ibcomb(1) = 1
+
+do ipat=2,npat
+   ibcomb(ipat) = ibcomb(ipat-1) + ncomb(ipat-1)
+end do
+
+if (mult == 1) then
+   ncomb_tot = ndeta*(ndeta+1)/2
+else
+   ncomb_tot = ndeta*ndetb
+end if
+
+call build_ictsdt()
+
+k = 0
+do iopen=minval(nsing),maxval(nsing),2
+   do ipat=1,npat
+      if (nsing(ipat) /= iopen) cycle
+      k = k + 1
+      conf_by_nopen(ipat) = k
+   end do
+end do
+
+!!write(u6,*)
+!write(u6,*) 'IPAT -> CONF_BY_NOPEN'
+
+!do ipat=1,npat
+!   write(u6,'(2I6)') ipat, conf_by_nopen(ipat)
+!end do
+
+!write(u6,*)
+!write(u6,*) 'CONF_BY_NOPEN -> IPAT'
+
+!do i=1,npat
+!   do ipat=1,npat
+!      if (conf_by_nopen(ipat) == i) then
+!         write(u6,'(2I6)') i, ipat
+!         exit
+!      end if
+!   end do
+!end do
+
+icnf_out(:)=0
+do ipat=1,npat
+   icnf_out(conf_by_nopen(ipat)) = ipat
+end do
+
+call mma_allocate(conf_reo,npat,label='CONF_REO')
+
+do ipat=1,npat
+   conf_reo(conf_by_nopen(ipat)) = ipat
+end do
+
+!call build_vertex_weights(vertex)
+!call mma_deallocate(vertex)
+
+end subroutine analyse_patterns
+
+integer(kind=iwp) function spin_comb_count(iopen,ms2)
+use second_quantization, only: binom_coef
+
+  integer(kind=iwp), intent(in) :: iopen, ms2
+  integer(kind=iwp) :: iael, ibel
+
+  iael = (iopen+ms2)/2
+  ibel = (iopen-ms2)/2
+
+  if (iael < 0 .or. ibel < 0) then
+     spin_comb_count = 0
+  else if (iael+ibel /= iopen) then
+     spin_comb_count = 0
+  else
+     spin_comb_count = binom_coef(iael,iopen)
+  end if
+
+end function spin_comb_count
+
+subroutine spncom_faroald(nopen,ms2,ncomb,comb)
+
+  integer(kind=iwp), intent(in) :: nopen, ms2
+  integer(kind=iwp), intent(in) :: ncomb
+  integer(kind=iwp), intent(out) ::  comb(nopen,ncomb)
+  integer(kind=iwp) :: i,j, add, nalpha, icomb
+  integer(kind=iwp) :: work(nopen)
+  integer(kind=iwp) :: mx
+
+  work(:) = 0
+  mx = 2**nopen
+  icomb = 0
+
+  do i=1,mx
+     if (i > 1) then
+        add = 1
+        j   = 0
+        do while (add == 1)
+           j = j + 1
+           if (work(j) == 1) then
+              work(j) = 0
+           else
+              work(j) = 1
+              add = 0
+           end if
+        end do
+     end if
+
+     nalpha = sum(work)
+
+     if (2*nalpha-nopen == ms2) then
+       if (mult /= 1 .or. work(1) == 1) then
+         icomb = icomb + 1
+         comb(:,icomb) = work(:)
+       end if
+     end if
+
+  end do
+
+end subroutine spncom_faroald
+
+
+subroutine pattern_combinations(ipat,nopen,ncomb_pat,comb)
+
+  integer(kind=iwp), intent(in) :: ipat
+  integer(kind=iwp), intent(out) :: nopen, ncomb_pat
+  integer(kind=iwp), intent(out) :: comb(:,:)
+
+  integer(kind=iwp) :: p
+
+  nopen = 0
+
+  do p=1,my_norb
+     if (occpat(p,ipat) == 1) nopen = nopen + 1
+  end do
+
+  ncomb_pat = ncomb(ipat)
+
+  call spncom_faroald(nopen,mult-1,ncomb_pat,comb)
+
+end subroutine pattern_combinations
+
+subroutine combination_occupations(ipat,comb,occa,occb)
+
+  integer(kind=iwp), intent(in) :: ipat
+  integer(kind=iwp), intent(in), optional :: comb(:)
+
+  integer(kind=iwp), intent(out) :: occa(nela)
+  integer(kind=iwp), intent(out) :: occb(nelb)
+
+  integer(kind=iwp) :: ia
+  integer(kind=iwp) :: ib
+  integer(kind=iwp) :: ic
+  integer(kind=iwp) :: p
+
+  ia = 0
+  ib = 0
+  ic = 0
+
+  do p=1,my_norb
+
+     select case (occpat(p,ipat))
+
+     case (2)
+
+        ia = ia + 1
+        ib = ib + 1
+
+        occa(ia) = p
+        occb(ib) = p
+
+     case (1)
+
+        ic = ic + 1
+
+        if (.not. present(comb)) then
+          write (u6,*) 'combination_occupations. comb missing'
+          call Abend()
+        else if (comb(ic) == 1) then
+
+           ia = ia + 1
+           occa(ia) = p
+
+        else
+
+           ib = ib + 1
+           occb(ib) = p
+
+        end if
+
+     end select
+
+  end do
+
+end subroutine combination_occupations
+
+subroutine combination_diagonal(ipat,h,g,e,comb)
+
+  real(kind=wp), intent(in) :: h(my_norb,my_norb)
+  real(kind=wp), intent(in) :: g(my_norb,my_norb,my_norb,my_norb)
+
+  integer(kind=iwp), intent(in) :: ipat
+  integer(kind=iwp), intent(in), optional :: comb(:)
+
+  real(kind=wp), intent(out) :: e
+
+  integer(kind=iwp) :: occa(nela)
+  integer(kind=iwp) :: occb(nelb)
+
+  integer(kind=iwp) :: i,j
+
+  call combination_occupations(ipat,comb,occa,occb)
+
+  e = Zero
+
+  do i=1,nela
+     e = e + h(occa(i),occa(i))
+  end do
+
+  do i=1,nelb
+     e = e + h(occb(i),occb(i))
+  end do
+
+  do i=1,nela
+     do j=i+1,nela
+        e = e + g(occa(i),occa(i),occa(j),occa(j))
+        e = e - g(occa(i),occa(j),occa(j),occa(i))
+     end do
+  end do
+
+  do i=1,nelb
+     do j=i+1,nelb
+        e = e + g(occb(i),occb(i),occb(j),occb(j))
+        e = e - g(occb(i),occb(j),occb(j),occb(i))
+     end do
+  end do
+
+  do i=1,nela
+     do j=1,nelb
+        e = e + g(occa(i),occa(i),occb(j),occb(j))
+     end do
+  end do
+
+end subroutine combination_diagonal
+
+subroutine build_pattern_diagonal(h,g,diag)
+
+  use Constants, only: Zero
+
+  real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
+  real(kind=wp), intent(out) :: diag(npat)
+
+  integer(kind=iwp) :: ipat, p,q, np,nq, exch
+
+
+  do ipat=1,npat
+     diag(ipat) = Zero
+
+     !
+     ! One-electron contribution
+     !
+
+     do p=1,my_norb
+        np = occpat(p,ipat)
+        diag(ipat) = diag(ipat) + real(np,wp)*h(p,p)
+     end do
+
+     !
+     ! Two-electron contribution
+     !
+
+     do p=1,my_norb-1
+        np = occpat(p,ipat)
+        if (np == 0) cycle
+        do q=p+1,my_norb
+           nq = occpat(q,ipat)
+           if (nq == 0) cycle
+           !
+           ! Coulomb
+           !
+           diag(ipat) = diag(ipat) + real(np*nq,wp) * g(p,p,q,q)
+           !
+           ! Exchange
+           !
+           if (np == 2 .and. nq == 2) then
+              exch = 2
+           else
+              exch = 1
+           end if
+           diag(ipat) = diag(ipat) - real(exch,wp) * g(p,q,q,p)
+
+        end do
+     end do
+     !
+     ! On-site double occupations
+     !
+
+     do p=1,my_norb
+        if (occpat(p,ipat) == 2) then
+           diag(ipat) = diag(ipat) + g(p,p,p,p)
+        end if
+     end do
+  end do
+
+end subroutine build_pattern_diagonal
+
+subroutine build_ictsdt()
+
+  integer(kind=iwp) :: ia
+  integer(kind=iwp) :: ib
+  integer(kind=iwp) :: iaLow
+  integer(kind=iwp) :: k
+
+  call mma_allocate(ictsdt,ncomb_tot,label='ICTSDT')
+
+  k = 0
+
+  do ib=1,ndetb
+
+     iaLow = 1
+     if (mult == 1) iaLow = ib
+
+     do ia=iaLow,ndeta
+
+        k = k + 1
+
+        ictsdt(k) = k
+
+     end do
+
+  end do
+
+end subroutine build_ictsdt
+
+#ifdef _NOT_YET_
+subroutine pattern_lex_order()
+
+  integer(kind=iwp) :: ipat
+  integer(kind=iwp) :: ilex
+
+  write(u6,*)
+  write(u6,*) 'PATTERN LEXICAL ORDER'
+  write(u6,*)
+
+  do ipat=1,npat
+
+     ilex = lexical_conf(occpat(:,ipat))
+
+     write(u6,'(2I6,2X,20I2)') ipat,ilex,occpat(:,ipat)
+
+  end do
+
+end subroutine pattern_lex_order
+#endif
+
+#ifdef _DISABLED_
+!
+! Experimental support for reproducing Lucia configuration
+! ordering. Currently not used in production code.
+!
+subroutine build_conf_arcw()
+
+  integer(kind=iwp) :: vertex(my_norb+1,my_nel+1)
+  integer(kind=iwp) :: iorb, iel
+
+  call mma_allocate(conf_arcw,my_norb,my_nel,2,label='ConfArcW')
+
+  vertex(:,:) = 0
+  vertex(1,1) = 1
+
+  do iorb=1,my_norb
+     do iel=0,my_nel
+        if (iel == 0) then
+           vertex(iorb+1,iel+1) = vertex(iorb,iel+1)
+        else if (iel == 1) then
+           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
+                                + vertex(iorb,iel)
+        else
+           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
+                                + vertex(iorb,iel) &
+                                + vertex(iorb,iel-1)
+        end if
+     end do
+  end do
+
+  conf_arcw(:,:,:) = 0
+  do iorb=1,my_norb
+     do iel=1,my_nel
+        conf_arcw(iorb,iel,1) = vertex(iorb,iel+1)
+        if (iel >= 2) then
+           conf_arcw(iorb,iel,2) = vertex(iorb,iel+1) &
+                                 + vertex(iorb,iel-1)
+        end if
+     end do
+  end do
+
+end subroutine build_conf_arcw
+
+
+!subroutine build_vertex_weights(iocc_min,iocc_max,vertex)
+subroutine build_vertex_weights(vertex)
+
+! integer(kind=iwp), intent(in) :: iocc_min(my_norb), iocc_max(my_norb)
+
+  integer(kind=iwp), intent(out) :: vertex(my_norb+1,my_nel+1)
+
+  integer(kind=iwp) :: iorb, iel
+  integer(kind=iwp) :: iocc_min(4), iocc_max(4)
+
+iocc_min = [0,0,2,4]
+iocc_max = [2,4,4,4]
+
+  vertex(:,:) = 0
+  vertex(1,1) = 1
+
+  do iorb=1,my_norb
+     do iel=iocc_min(iorb),iocc_max(iorb)
+        if (iel == 0) then
+           vertex(iorb+1,iel+1) = vertex(iorb,iel+1)
+        else if (iel == 1) then
+           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
+                                + vertex(iorb,iel)
+        else
+
+           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
+                                + vertex(iorb,iel) &
+                                + vertex(iorb,iel-1)
+        end if
+     end do
+  end do
+
+end subroutine build_vertex_weights
+
+
+integer(kind=iwp) function lexconf_from_packed(iconf,nocob)
+
+  integer(kind=iwp), intent(in) :: nocob
+  integer(kind=iwp), intent(in) :: iconf(nocob)
+
+  integer(kind=iwp) :: iocc
+  integer(kind=iwp) :: iel
+
+  iel = 0
+  lexconf_from_packed = 1
+  do iocc=1,nocob
+     if (iconf(iocc) > 0) then
+        iel = iel + 1
+        lexconf_from_packed = lexconf_from_packed &
+                            + conf_arcw(iconf(iocc),iel,1)
+     else
+        iel = iel + 2
+        lexconf_from_packed = lexconf_from_packed &
+                            + conf_arcw(-iconf(iocc),iel,2)
+     end if
+  end do
+
+end function lexconf_from_packed
+#endif
 
 subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 ! for a pair of orbitals p and q, and determinants

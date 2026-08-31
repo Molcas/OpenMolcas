@@ -36,7 +36,8 @@ subroutine Preciaa(iB,iS,jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,Sgn,A_J,
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t, nA
-use input_mclr, only: nAsh, nBas, nIsh, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas
 use Constants, only: Two, Three, Four
 use Definitions, only: wp, iwp
 

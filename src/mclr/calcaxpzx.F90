@@ -110,7 +110,8 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipget, W
 use MCLR_Data, only: ipCI, nConf1, nDens, nNA, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: State_Sym, nSym, nRoots, ntAsh, nAsh
+use general_data, only: State_Sym=>STSym, nSym, nAsh
+use input_mclr, only: nRoots, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp

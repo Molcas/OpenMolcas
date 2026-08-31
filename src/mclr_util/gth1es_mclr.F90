@@ -18,7 +18,8 @@ function GTH1ES_MCLR(IORB,ITP,ISM,JORB,JTP,JSM)
 ! correct combination of row and column symmetry is assumed
 
 use MCLR_Data, only: IBsO, IBTSOB, IREOTS, KAIN1, pInt1
-use input_mclr, only: nIsh, nOrb
+use general_data, only: nIsh
+use input_mclr, only: nOrb
 use Definitions, only: wp, iwp
 
 implicit none

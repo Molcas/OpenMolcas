@@ -27,7 +27,8 @@ subroutine Preci_cho(jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,Sgn,A_J,nScr
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t, nA
-use input_mclr, only: LuChoInt, nAsh, nBas, nIsh, nOrb, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: LuChoInt, nBas, nOrb
 use Constants, only: One, Two, Three, Four
 use Definitions, only: wp, iwp
 

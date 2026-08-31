@@ -9,21 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CISX(IDX,D,DS,PS,PA,SCR)
+subroutine CISX(IDX,D,DS,PS,PA)
 
 use Index_Functions, only: iTri, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use rasscf_global, only: NAC, NACPR2
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: IDX(NAC)
 real(kind=wp), intent(inout) :: D(*), DS(*), PS(*), PA(*)
-real(kind=wp), intent(_OUT_) :: SCR(*)
 integer(kind=iwp) :: I, ICASE, IJKLN, IJKLO, IJNEW, IJO, J, K, KLNEW, L, LLIM, NIJ, NIJKL
 real(kind=wp) :: SGN, SGN0
+real(kind=wp), allocatable:: SCR(:)
+
+Call mma_allocate(SCR,NACPR2,Label='SCR')
 
 ! Convert from CI to SX ordering
 ! Note: A factor of 2 arises because matrices are folded
@@ -105,5 +106,7 @@ do ICASE=1,2
   end if
 
 end do
+
+Call mma_deallocate(SCR)
 
 end subroutine CISX

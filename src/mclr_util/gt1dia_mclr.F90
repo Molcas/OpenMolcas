@@ -12,7 +12,8 @@
 subroutine GT1DIA_MCLR(H1DIA)
 
 use MCLR_Data, only: FIMO, ipCM
-use input_mclr, only: nAsh, nIsh, nOrb, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nOrb
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

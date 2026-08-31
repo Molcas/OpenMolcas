@@ -21,7 +21,8 @@ subroutine Init_Data()
 use MCLR_Data, only: FNCSF2SD, FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, &
                      FNTRI5, FnTwo, LUCSF2SD, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, &
                      LUTRi3, LUTRI4, LUTRI5, LuTwo
-use input_mclr, only: nsRot, nUserPT, State_Sym, UserP, UserT
+use general_data, only: State_Sym=>STSym
+use input_mclr, only: nsRot, nUserPT, UserP, UserT
 use Constants, only: Zero, One
 
 implicit none

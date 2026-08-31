@@ -34,8 +34,9 @@ use GA_Wrapper, only: GA_Create, MT_DBL
 use Spool, only: LuWr
 use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC, XISPSM
 use MCLR_procedures, only: CISigma
-use input_mclr, only: Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nAsh, nCSF, nDisp, nIter, nRs2, nSym, nTPert, PotNuc, &
-                      PT2, rIn_Ene, State_Sym, TimeDep
+use general_data, only: nAsh, nRs2, nSym, State_Sym=>STSym
+use input_mclr, only: Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, nTPert, PotNuc, &
+                      PT2, rIn_Ene, TimeDep
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two

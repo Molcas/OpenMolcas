@@ -26,7 +26,8 @@ use Index_Functions, only: nTri_Elem
 use rasscf_global, only: iADR15, KSDFT, lRoots, NACPAR, NACPR2
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: JOBIPH, NASH, NBAS, NFRO, NISH, NSYM, NTOT, NTOT2
+use rasscf_files, only: JOBIPH
+use general_data, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT, NTOT2
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 

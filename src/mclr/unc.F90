@@ -18,7 +18,8 @@ subroutine UnC(ArrayIn,ArrayOut,dsym,Sgn)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, nB, nDens, nDensC
-use input_mclr, only: nIsh, nOrb, nRS1, nRS2, nRS3, nSym, TimeDep
+use general_data, only: nIsh, nRS1, nRS2, nRS3, nSym
+use input_mclr, only: nOrb, TimeDep
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

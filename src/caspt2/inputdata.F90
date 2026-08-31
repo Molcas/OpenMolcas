@@ -147,7 +147,7 @@ type InputTable
   ! PRSD  print the determinant expansion of CSFs
   logical(kind=iwp) :: PrSD = .false.
   ! PRHS  Parallel strategy for RHS construction
-  !       '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
+  !       '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT', '4' = 'STRIPED'
   character(len=7) :: PRHS = 'DEFAULT'
 
   ! DMRG-related keywords

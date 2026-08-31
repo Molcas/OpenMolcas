@@ -12,7 +12,8 @@
 subroutine Ex_spin(rD,Fock,Temp1,ntemp,Temp2)
 
 use MCLR_Data, only: ipCM, nDens, nNA
-use input_mclr, only: nAsh, nBas, nIsh, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 

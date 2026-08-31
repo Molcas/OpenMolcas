@@ -16,7 +16,8 @@ subroutine Get_PUVXLen(NPUVX)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use input_mclr, only: nAsh, nOrb, nSym
+use general_data, only: nAsh, nSym
+use input_mclr, only: nOrb
 use Definitions, only: iwp
 
 implicit none

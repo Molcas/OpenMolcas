@@ -12,7 +12,8 @@
 subroutine DetCtl()
 
 use MCLR_Data, only: FnCSF2SD, i12, ICISTR, idc, IDIAG, iST, LuCSF2SD, MS2, NOCSF, NOPART, pINT1, pINT2, PSSIGN
-use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nIrrep, nRs1, nRs2, nRs3, nSym, State_Sym
+use general_data, only: iSpin, nActEl, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, State_Sym=>STSym
+use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 use Definitions, only: iwp

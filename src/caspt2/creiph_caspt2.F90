@@ -25,7 +25,7 @@ use PrintLevel, only: USUAL
 use REFWFN, only: IADR15, REFWFN_FILENAME
 use Molcas, only: LenIn, MxAct, MxLev, MxOrb, MxRoot
 use RASDim, only: MxIter, MxTit
-use sguga_states, only: SGS
+use sguga, only: SGS
 use caspt2_global, only: CMO, CMO_Internal, iPrGlb, NCMO, Weight
 use general_data, only: ISPIN, NACTEL, NASH, nElec3, NHOLE1, STSYM
 use caspt2_module, only: BNAME, CITHR, DOCUMULANT, ENERGY, HEADER, IFMIX, IFMSCOUP, IFQCAN, IFRMS, IFXMS, IROOT, ISCF, LROOTS, &

@@ -61,8 +61,7 @@ subroutine MKFG3(mkF,CI,nCI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG, VERBOSE
-use sguga, only: sg_epq_psi
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: sg_epq_psi, SGS, CIS, EXS
 use caspt2_global, only: do_grad, iPrGlb, iTasks_grad, nbuf1_grad, nStpGrd, nTasks_grad
 use general_data, only: nActEl, STSym
 use caspt2_module, only: EPSA, MxCI, nAshT, nBasT, nSym
@@ -201,9 +200,9 @@ call mma_allocate(bufr,nlev2,Label='bufr')
 if (do_grad .or. (nStpGrd == 2)) then
   nTasks_grad = 0
   !! This nTasks_grad is the largest number of tasks; the actual number is smaller if parallel
-  do issg1=1,nsym
+  do issg1 = 1, nsym
     call build_TaskList(issg1,nTasks,nSubTasks)
-    nTasks_grad = nTasks_grad+nSubTasks
+    nTasks_grad = nTasks_grad + nSubTasks
   end do
   call mma_deallocate(iTasks_grad,safe='*')
   call mma_allocate(iTasks_grad,max(1,nTasks_grad),Label='Tasks_grad')

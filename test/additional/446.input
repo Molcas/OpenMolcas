@@ -5,6 +5,7 @@
 * Features tested: PC-NEVPT2 and SC-NEVPT2 energies
 * Responsible person: Yoshio Nishimoto
 * Comments: PC-NEVPT2 and SC-NEVPT2 energies with CASSCF(8e,5o)/6-31G(d) ref
+*           Tests the striped RHS construction (PRHS = 4) with symmetry
 *-------------------------------------------------------------------------------
 
 *-------------------------------------------------------------------------------
@@ -45,6 +46,7 @@
   Thre = 1.0d-10 1.0d-07
   Imag = 0.2
   DORT
+  PRHS = 4
 
 *-------------------------------------------------------------------------------
 * PC-NEVPT2 without imaginary shift and SC-NEVPT2 energies
@@ -54,6 +56,7 @@
   NEVPT2
   Thre = 1.0d-10 1.0d-07
   DORT
+  PRHS = 4
 
 >>FILE guess_symm.RasOrb
 #INPORB 2.2
