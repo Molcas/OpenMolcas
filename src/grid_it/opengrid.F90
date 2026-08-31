@@ -145,7 +145,7 @@ do iiUHF=0,merge(1,0,isUHF)
     else ! not luscus
       if (iBinary == 1) then
         call molcas_open_ext2(LuVal,RealName,'sequential','unformatted',istatus,.false.,irecl,'unknown',is_error)
-        !open(unit=LuVal,access='sequential',form='unformatted',file=RealName)
+        !open(LuVal,access='sequential',form='unformatted',file=RealName)
         !write(u6,*) '** Create Grid file:',trim(RealName)
         write(LuVal) 'a'
         !if (isMOPack) then
@@ -160,7 +160,7 @@ do iiUHF=0,merge(1,0,isUHF)
         write(LuVal) Title1
       else if (iBinary == 0) then
         call molcas_open(LuVal,RealName)
-        !open(unit=LuVal,file=RealName,Form='FORMATTED')
+        !open(LuVal,file=RealName,Form='FORMATTED')
         if (isLine) then
           write(LuVal,'(a)') '# data in GNUplot format'
           exit
@@ -201,7 +201,7 @@ do iiUHF=0,merge(1,0,isUHF)
     else ! not luscus
       if (iBinary == 1) then
         call molcas_open_ext2(LuVal_ab,RealName,'sequential','unformatted',istatus,.false.,irecl,'unknown',is_error)
-        !open(unit=LuVal_ab,access='sequential',form='unformatted',file=RealName)
+        !open(LuVal_ab,access='sequential',form='unformatted',file=RealName)
         !write(u6,*) '** Create Grid file',trim(RealName)
         write(LuVal_ab) 'a'
         !if (isMOPack) then
@@ -216,7 +216,7 @@ do iiUHF=0,merge(1,0,isUHF)
         write(LuVal_ab) Title1
       else if (iBinary == 0) then
         call molcas_open(LuVal_ab,RealName)
-        !open(unit=LuVal_ab,file=RealName,Form='FORMATTED')
+        !open(LuVal_ab,file=RealName,Form='FORMATTED')
         !write(u6,*) '** Create Grid file (in ASCII format):',trim(RealName)
         if (isTheOne) then
           write(LuVal_ab,'(a1)') '9'

@@ -63,7 +63,7 @@ EDiffValue = One
 
 nLines = 0
 do
-  read(Lu,'(A)',IOSTAT=Error) Line1
+  read(Lu,'(A)',iostat=Error) Line1
   nLines = nLines+1
   if (Error /= 0) exit
 end do
@@ -96,11 +96,11 @@ do
     EDiffName = Line1
     iPos = index(Line2,' ')
     Line2 = Line2(iPos+1:)
-    read(Line2,*,IOSTAT=Error) i
+    read(Line2,*,iostat=Error) i
     if (Error /= 0) i = 0
     iPos = index(Line2,' ')
     Line2 = Line2(iPos+1:)
-    read(Line2,*,IOSTAT=Error) j
+    read(Line2,*,iostat=Error) j
     if (Error /= 0) j = 0
     iState(1) = max(i,j)
     iState(2) = min(i,j)
@@ -137,7 +137,7 @@ do
   end if
   ! If the name matches the "EDIFF" primitive, read the value
   if (Line1 == EDiffName) then
-    read(Line2,*,IOSTAT=Error) EDiffValue
+    read(Line2,*,iostat=Error) EDiffValue
     if (Error /= 0) EDiffValue = One
   end if
   ! If the constraint is explicitly "soft"
@@ -149,7 +149,7 @@ end do
 ! First advance to the end of file and then backspace
 
 do
-  read(Lu,'(A)',IOSTAT=Error) Line1
+  read(Lu,'(A)',iostat=Error) Line1
   if (Error /= 0) exit
 end do
 do i=1,nLines

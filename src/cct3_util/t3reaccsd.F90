@@ -31,7 +31,7 @@ lunrst = 1
 
 if (iokey == 1) then
   ! Fortran IO
-  !open(unit=lunrst,file=filerst,form='unformatted')
+  !open(lunrst,file=filerst,form='unformatted')
   call molcas_binaryopen_vanilla(lunrst,filerst)
 
 else

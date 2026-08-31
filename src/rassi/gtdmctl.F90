@@ -1046,7 +1046,7 @@ if (DoGSOR) then
 
     !Write theta1 to file.
     LUCITH = IsFreeUnit(87)
-    !Open(unit=87,file='CI_THETA', action='write',iostat=ios)
+    !Open(87,file='CI_THETA', action='write',iostat=ios)
     call Molcas_Open(LUCITH,'CI_THETA')
     do i=1,NCONF2
       write(LUCITH,*) Theta1(i)
@@ -1070,7 +1070,7 @@ if (DoGSOR) then
 
       LUCITH = IsFreeUnit(LUCITH)
       call Molcas_Open(LUCITH,'CI_THETA')
-      !open(unit=87,file='CI_THETA',action='read',iostat=ios)
+      !open(87,file='CI_THETA',action='read',iostat=ios)
       if (JST-1 >= 2) then
         do i=1,NCONF2
           read(LUCITH,*) dot_prod ! dummy
@@ -1101,7 +1101,7 @@ if (DoGSOR) then
       LUCITH = IsFreeUnit(LUCITH)
       call Molcas_Open(LUCITH,'CI_THETA')
       call Append_file(LUCITH)
-      !open(unit=87,file='CI_THETA',position='append',iostat=ios,action='write')
+      !open(87,file='CI_THETA',position='append',iostat=ios,action='write')
       do i=1,nConf2
         write(LUCITH,*) ThetaN(i)
       end do
@@ -1112,7 +1112,7 @@ if (DoGSOR) then
     ! Copy to new IPH file
     LUCITH = IsFreeUnit(LUCITH)
     call Molcas_Open(LUCITH,'CI_THETA')
-    !open(unit=87,file='CI_THETA',iostat=ios,action='read')
+    !open(87,file='CI_THETA',iostat=ios,action='read')
     call DANAME(LUIPHn,'JOBGS')
     IAD = 0
     call IDAFILE(LUIPHn,2,ITOC15,30,IAD)

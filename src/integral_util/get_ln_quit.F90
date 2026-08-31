@@ -80,7 +80,7 @@ if (istatus >= 0) then
   end if
 
   filename = ' '
-  inquire(unit=lunit,name=filename)
+  inquire(lunit,name=filename)
   if (filename /= ' ') then
     write(u6,'(a,a)') 'Error reading file=',filename
   else
@@ -95,7 +95,7 @@ if (icritical == 0) then
 end if
 
 filename = ' '
-inquire(unit=lunit,name=filename)
+inquire(lunit,name=filename)
 if (filename /= ' ') then
   write(u6,'(a,a)') 'EOF reached for file=',filename
 else

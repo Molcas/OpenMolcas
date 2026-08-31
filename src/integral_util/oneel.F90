@@ -162,7 +162,7 @@ do iComp=1,nComp
     if (n_Int /= 0) call XProp(Short,ifallorb,nIrrep,nBas,nVec,Vec,nOcc,Occ,nDen,Array(ip(iComp)),Out_(ipOut+(iComp-1)*mDim))
 
     if (Label(1:3) == 'PAM') then
-      !open(unit=28,file='R_vect',access='append')
+      !open(28,file='R_vect',access='append')
       endfile(28)
       if (Short) then
         write(28,'(a8,2x,f20.14)') Label,Out_(ipOut+(iComp-1)*mDim)

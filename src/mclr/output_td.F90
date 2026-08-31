@@ -399,7 +399,7 @@ endif
 
 Lu_10 = IsFreeUnit(10)
 call molcas_open(lu_10,'UNSYM')
-!open(unit=Lu_10, file='UNSYM')
+!open(Lu_10, file='UNSYM')
 
 if (Mckinley) then
   call FreqAnal(nDisp,DegDisp,NrDisp,Hess,converged,ELEC,ielec,ELOUT,ldisp2,Lu_10)

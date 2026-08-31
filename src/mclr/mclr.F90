@@ -185,7 +185,7 @@ doMCLR = .false.
 !  write(u6,*) 'nstates_RGLR ',nstates_RGLR
 !  write(u6,*) 'RGras2 : ',RGras2
 !  write(u6,*) 'LRras2 : ',LRras2
-!  open(unit=117,file='mclr_dets.initial')
+!  open(117,file='mclr_dets.initial')
 !end if
 !#endif
 !                                                                      *

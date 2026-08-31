@@ -1857,7 +1857,7 @@ subroutine Finalize()
 
   if (IfVB /= 2) then
     do I=10,99
-      inquire(unit=I,opened=IfOpened)
+      inquire(I,opened=IfOpened)
       if (IfOpened .and. (I /= 19)) close(I)
     end do
     close(LUInput)
