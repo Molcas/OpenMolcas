@@ -116,6 +116,7 @@ integer(kind=iwp), parameter :: istate=1
 IPRLEV = IPRLOC(3)
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering CICTL'
 
+write (6,*) 'Urk1'
 ! PAM 2017-05-23 Modify TUVX by adding a shift vector to TUVX, which has
 ! the effect of adding a scalar times a projector for doubly-occupied
 ! core states.
@@ -169,6 +170,7 @@ if (doDMRG) then
 end if
 #endif
 
+write (6,*) 'Urk2'
 if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 
   ! In case of a reaction field in combination with an average CAS
@@ -280,7 +282,10 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 #       endif
       else
 
+
+write (6,*) 'Urk30'
         call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+write (6,*) 'Urk31'
 
       end if
     end if
@@ -336,6 +341,7 @@ else
   call mma_deallocate(TmpD1S)
 
 end if
+write (6,*) 'Urk40'
 
 Skip = .false.
 #ifdef _DMRG_
@@ -385,6 +391,7 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 
   ! DAVIDSON DIAGONALIZATION
 
+write (6,*) 'Urk41'
   if (IfVB == 1) then
     call cvbmn_rvb(max(ifinal,1))
   else if (doDMRG) then
@@ -421,7 +428,9 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
 #   endif
   else
     ! Normal Davidson algorithm
+write (6,*) 'Urk42'
     call DavCtl(size(FMO),FMO,nTUVX,TUVX,IFINAL)
+write (6,*) 'Urk43'
   end if
 
   ! CALCULATE DENSITY MATRICES
@@ -483,7 +492,9 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     if (NAC >= 1) then
       if (.not. doDMRG) then
 
+write (6,*) 'Urk44'
         call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
+write (6,*) 'Urk45'
 
       end if
     end if

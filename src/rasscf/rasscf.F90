@@ -748,7 +748,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         if ((IPRLEV >= USUAL) .and. (.not. doDMRG)) write(u6,'(a,i4)') ' Nr of preliminary CI iterations:',ITERCI
       end if
 
-      Write (6,*) 'Crap 1'
       !.. dongxia testing jobiph
       !.. upt to here, jobiph are all zeros at iadr15(2)
       ! If CASVB job, go directly to return.
@@ -856,7 +855,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     !*******************************************************************
     !^ End First iteration
     !*******************************************************************
-      Write (6,*) 'Crap 2'
 
     ! Print header to file containing informations on CI iterations.
 
@@ -923,6 +921,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     end if
       Write (6,*) 'Crap 3'
     call TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
+      Write (6,*) 'Crap 30'
 
     if (IPRLEV >= DEBUG) then
       write(u6,*)
@@ -989,7 +988,9 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         call DMRGCTL(CMO,DMAT,DSPN,PMAT,PA,FI,D1I,D1A,TUVX,IFINAL,1)
 #     endif
       else
+      Write (6,*) 'Crap 31'
         call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,size(TUVX),TUVX,IFINAL)
+      Write (6,*) 'Crap 32'
       end if
       Write (6,*) 'Crap 4'
 
@@ -1131,7 +1132,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
       call TRIPRT('Averaged two-body density matrix, P',' ',PMAT,NACPAR)
       call TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',' ',PA,NACPAR)
     end if
-      Write (6,*) 'Crap 5'
     call SXCTL(CMO,OCCN,DMAT,PMAT,PA,FI,FA,D1A,THMAX,IFINAL)
 
     if (IPRLEV >= DEBUG) then
@@ -1197,7 +1197,6 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     call mh5_put_attr(wfn_iter,Iter)
     call mh5_put_dset(wfn_energy,ENER(1,Iter))
 #   endif
-      Write (6,*) 'Crap 6'
 
     ! Print output of energies and convergence parameters
 
