@@ -404,21 +404,27 @@ Optional important keywords are:
 .. class:: keywordlist
 
 :kword:`DMPO`
-  This keyword is used to produce integral files and quit in a clean manner. 
-  Two modes are available:
-
-  * ``DMPO`` (bare) — produces :file:`FCIDUMP` and :file:`H5FCIDUMP` files only
-    (default behaviour).
-  * ``DMPO FORT55`` — produces the MRCC-compatible :file:`fort.55` file only.
-    Use this form when interfacing with the :program:`MRCC` program.
+  This keyword is used to produce the FCIDUMP file only. The program will deallocate memory and quit in a clean manner.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPO" APPEAR="Dump only" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: DMPO <advanced>
               <HELP>
-              This keyword is used to produce integral files and quit in a clean way
-              (no CI or CASSCF calculation will be done).
-              Bare DMPO produces FCIDUMP files (ASCII and HDF5) only.
-              Use "DMPO FORT55" to produce a MRCC-compatible fort.55 file instead.
+              This keyword is used to produce FCIDUMP files (ASCII and HDF5)
+              and quit in a clean way (no CI or CASSCF calculation will be done).
+              </HELP>
+              </KEYWORD>
+
+:kword:`DMPF`
+  This keyword is used to produce a MRCC-compatible :file:`fort.55` integral file
+  and quit in a clean manner. The active orbitals are re-ordered into
+  ascending-energy order as expected by MRCC.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPF" APPEAR="Dump fort.55" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: DMPF <advanced>
+              <HELP>
+              This keyword is used to produce a MRCC-compatible fort.55 integral file
+              and quit in a clean way (no CI or CASSCF calculation will be done).
+              Active orbitals are re-ordered into ascending-energy order.
               </HELP>
               </KEYWORD>
 
@@ -705,7 +711,7 @@ Since the :`RASSCF` program can be used to print one- and two-electron integrals
 Generating an MRCC :file:`fort.55` file
 .......................................
 
-The :kword:`DMPO FORT55` keyword in the :program:`RASSCF` program can be used to produce a
+The :kword:`DMPF` keyword in the :program:`RASSCF` program can be used to produce a
 :file:`fort.55` integral file compatible with the external :program:`MRCC`
 program. The example below shows a full Ne atom calculation in :math:`D_{2h}`
 symmetry with the 6-31G basis set. The :kword:`OutOrbitals` = ``CANOnical``
@@ -724,7 +730,7 @@ keyword is included so that the orbitals are diagonalized in the Fock matrix. ::
     OutOrbitals = CANOnical
     nActEl = 10 0 0
     Ras2 = 3 2 2 0 2 0 0 0
-    DMPO FORT55
+    DMPF
 
 After a successful run, the output directory will contain a :file:`fort.55` file. The first three lines of
 :file:`fort.55` contain the number of active orbitals and electrons, the
@@ -913,7 +919,7 @@ Output files
 
 :file:`FORT55`
   MRCC-compatible integral file (:file:`fort.55`). Produced when the
-  ``DMPO FORT55`` keyword is used. The wrapper copies it from the
+  ``DMPF`` keyword is used. The wrapper copies it from the
   scratch directory back to the user's output directory.
 
 :file:`MCDENS`

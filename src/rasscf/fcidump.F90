@@ -69,8 +69,8 @@ subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,co
   if (present(permutation)) call reorder(orbital_table,fock_table,two_el_table,orbsym,permutation)
 
   if (present(fort55_path) .and. DmpMode == 1) then
-    allocate(energy_perm(sum(nAsh(:nSym))))
-    allocate(inv_perm(sum(nAsh(:nSym))))
+    call mma_allocate(energy_perm,sum(nAsh(:nSym)),Label='energy_perm')
+    call mma_allocate(inv_perm,sum(nAsh(:nSym)),Label='inv_perm')
     call energy_sort_permutation(orbital_energies,energy_perm)
     call reorder(orbital_table,fock_table,two_el_table,orbsym,energy_perm)
     call dump_fort55(fort55_path,core_energy,orbital_table,fock_table,two_el_table,orbsym)
@@ -78,8 +78,8 @@ subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,co
       inv_perm(energy_perm(i)) = i
     end do
     call reorder(orbital_table,fock_table,two_el_table,orbsym,inv_perm)
-    deallocate(energy_perm)
-    deallocate(inv_perm)
+    call mma_deallocate(energy_perm)
+    call mma_deallocate(inv_perm)
   end if
 
   if (DmpMode == 0) then
@@ -116,7 +116,8 @@ subroutine energy_sort_permutation(orbital_energies,permutation)
   real(kind=wp), allocatable :: active_energies(:)
 
   nmo = sum(nAsh(:nSym))
-  allocate(active_energies(nmo), idx_map(nmo))
+  call mma_allocate(active_energies,nmo,Label='active_energies')
+  call mma_allocate(idx_map,nmo,Label='idx_map')
 
   count = 1
   offset = 1
@@ -149,7 +150,8 @@ subroutine energy_sort_permutation(orbital_energies,permutation)
     permutation(idx_map(i)) = i
   end do
 
-  deallocate(active_energies, idx_map)
+  call mma_deallocate(active_energies)
+  call mma_deallocate(idx_map)
 
 end subroutine energy_sort_permutation
 
