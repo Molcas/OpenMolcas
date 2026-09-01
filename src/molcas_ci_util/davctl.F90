@@ -143,7 +143,9 @@ else
     end if
     ! PAM Feb 2009: New code in david5.
 
+Write (6,*) 'Gronk1'
     call David5(nDet,ItLimit,IterCI,CI_conv,Threshold,iSel,ExplE,ExplV,nFMO,FMO,nTUVX,TUVX)
+Write (6,*) 'Gronk2'
 
     do jRoot=1,lRoots-hRoots
       ENER(jRoot,ITER) = CI_conv(1,jRoot,ITERCI)

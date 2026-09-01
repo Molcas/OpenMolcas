@@ -91,6 +91,7 @@ write(IterFile,'(A)') repeat('=',72)
 call xFlush(IterFile)
 !=======================================================================
 ! start long loop over iterations
+Write (6,*) 'Seriously1'
 Skip = .false.
 nconverged = 0
 iskipconv = 1
@@ -115,7 +116,9 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
+Write (6,*) 'Seriously2'
     Call Mk_H_Psi(iState,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb,nTU,TU,nTUVX,TUVX)
+Write (6,*) 'Seriously3'
 
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)
