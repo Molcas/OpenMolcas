@@ -71,7 +71,9 @@ real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:)
 !-----------------------------------------------------------------------
 
 lRoots = lRoots+hroots
+Write (6,*) 'DavClt1'
 call Ini_David(lRoots,nConf,nDet,nSel,n_keep,nAc,LuDavid)
+Write (6,*) 'DavClt2'
 
 !-----------------------------------------------------------------------
 ! COMPUTE THE DIAGONAL ELEMENTS OF THE HAMILTONIAN
@@ -80,7 +82,9 @@ call Ini_David(lRoots,nConf,nDet,nSel,n_keep,nAc,LuDavid)
 ! CIVEC: TEMPORARY CI VECTOR IN CSF BASIS
 
 call mma_allocate(CIVEC,NCONF,label='CIVEC')
+Write (6,*) 'DavClt3'
 if (NAC > 0) call CIDIA(NCONF,CIVEC,LUDAVID)
+Write (6,*) 'DavClt4'
 
 !-----------------------------------------------------------------------
 ! OBTAIN STARTING VECTORS

@@ -505,17 +505,23 @@ integer(kind=iwp) :: i
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
+Write (6,*) 'Mk_CI_Diag 1'
 call Lucia_Util('Diag',nTU=nTU,TU=TU,nTUVX=nTUVX,TUVX=TUVX)
+Write (6,*) 'Mk_CI_Diag 2'
 
 call mma_allocate(DDIA,NDET,label='DETDIA')
 
+Write (6,*) 'Mk_CI_Diag 3'
 call get_diag(DDIA,ndet)
+Write (6,*) 'Mk_CI_Diag 4'
 
 ! ndet comes from general_data!! Check this!
 ! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
+Write (6,*) 'Mk_CI_Diag 5'
 
 If (DoFaro) Then
+Write (6,*) 'Mk_CI_Diag 6'
   If (nDet/=nComb_tot) Then
      Write (u6,*) 'Warning: nDet/=nComb'
      Write (u6,*) 'iSpin=',iSpin
@@ -554,10 +560,12 @@ If (DoFaro) Then
       end do
     end do
   end do
+Write (6,*) 'Mk_CI_Diag 7'
 
   Call mma_allocate(Diag,nComb_tot,Label='Diag')
   Diag(:)=Zero
   Call hdiag(htu,gtuvx,diag)
+Write (6,*) 'Mk_CI_Diag 8'
 ! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
   Do i=1,nComb_tot
      If (abs(ddia(i)-diag(i))/real(nComb_tot,wp)>1.0e-10_wp) Then
@@ -573,6 +581,7 @@ If (DoFaro) Then
 !... more to come ...
 
   Call mma_deallocate(Diag)
+Write (6,*) 'Mk_CI_Diag 9'
 
 End If
 

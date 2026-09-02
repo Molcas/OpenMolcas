@@ -34,7 +34,9 @@ real(kind=wp) :: dum1, dum2, dum3, Time(2)
 call Timing(Time(1),dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
 
+Write (6,*) 'Mk_CI_Diag1'
 Call Mk_CI_Diag(CSFDIA,nConf,FMO,size(FMO),TUVX,size(TUVX))
+Write (6,*) 'Mk_CI_Diag2'
 
 ! PRINT CI-DIAGONAL
 
@@ -50,7 +52,5 @@ call Save_H_diag(nConf,CSFDIA,LUDAVID)
 
 call Timing(Time(2),dum1,dum2,dum3)
 TimeHDiag = TimeHDiag+Time(2)-Time(1)
-
-return
 
 end subroutine CIDIA
