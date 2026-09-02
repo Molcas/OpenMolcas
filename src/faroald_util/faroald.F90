@@ -428,6 +428,7 @@ subroutine transition_one_pdm(bra,ket,d,sd,da,db)
   Write (6,*) 'lb 1'
   call mma_allocate(da_loc,my_norb,my_norb,label='da_loc')
   Write (6,*) 'lb 2'
+  Write (6,*) allocated(db_loc),my_norb
   call mma_allocate(db_loc,my_norb,my_norb,label='db_loc')
   Write (6,*) 'lb 3'
 
@@ -935,6 +936,7 @@ subroutine hdiag(h,g,diag)
 Write (6,*) 'Faroald:hdiag a'
   call mma_allocate(Da,ndeta,label='Da')
 Write (6,*) 'Faroald:hdiag b'
+Write (6,*) 'ndetb=',nDetb
   call mma_allocate(Db,ndetb,label='Db')
 Write (6,*) 'Faroald:hdiag ba'
 
