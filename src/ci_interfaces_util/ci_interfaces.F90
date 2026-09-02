@@ -564,6 +564,7 @@ Write (6,*) 'Mk_CI_Diag 7'
 
   Call mma_allocate(Diag,nComb_tot,Label='Diag')
   Diag(:)=Zero
+Write (6,*) 'Mk_CI_Diag 7+'
   Call hdiag(htu,gtuvx,diag)
 Write (6,*) 'Mk_CI_Diag 8'
 ! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)

@@ -569,18 +569,24 @@ subroutine transition_two_pdm(bra,ket,p2,p2prod)
   call mma_allocate(d1,my_norb,my_norb,label='d1')
   call mma_allocate(sd1,my_norb,my_norb,label='sd1')
 
+Write (6,*) 't_two_pdm 1'
   call transition_two_pdm_product(bra,ket,pprod)
+Write (6,*) 't_two_pdm 2'
 
   ! One-particle transition density needed for the contraction term.
   call transition_one_pdm(bra,ket,d1,sd1)
+Write (6,*) 't_two_pdm 3'
 
   p2(:,:,:,:) = pprod(:,:,:,:)
+Write (6,*) 't_two_pdm 4'
 
   do u=1,my_norb
     p2(:,u,u,:) = p2(:,u,u,:)-d1(:,:)
   end do
+Write (6,*) 't_two_pdm 5'
 
   if (present(p2prod)) p2prod(:,:,:,:) = pprod(:,:,:,:)
+Write (6,*) 't_two_pdm 6'
 
   call mma_deallocate(sd1)
   call mma_deallocate(d1)
@@ -918,8 +924,11 @@ subroutine hdiag(h,g,diag)
   call mma_allocate(occa,nela,ndeta,label='OccA')
   call mma_allocate(occb,nelb,ndetb,label='OccB')
 
+Write (6,*) 'Faroald:hdiag1'
   call build_occ_alpha(occa)
+Write (6,*) 'Faroald:hdiag2'
   call build_occ_beta (occb)
+Write (6,*) 'Faroald:hdiag3'
 
   !
   ! Alpha-string energies
@@ -944,6 +953,7 @@ subroutine hdiag(h,g,diag)
      end do
 
   end do
+Write (6,*) 'Faroald:hdiag4'
 
   !
   ! Beta-string energies
@@ -968,6 +978,7 @@ subroutine hdiag(h,g,diag)
      end do
 
   end do
+Write (6,*) 'Faroald:hdiag5'
 
   !
   ! Full determinant-product diagonal
@@ -996,11 +1007,13 @@ subroutine hdiag(h,g,diag)
 
      end do
   end do
+Write (6,*) 'Faroald:hdiag6'
 
   call mma_deallocate(occb)
   call mma_deallocate(occa)
   call mma_deallocate(Db)
   call mma_deallocate(Da)
+Write (6,*) 'Faroald:hdiag7'
 
 contains
 
