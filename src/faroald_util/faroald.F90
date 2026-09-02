@@ -425,20 +425,28 @@ subroutine transition_one_pdm(bra,ket,d,sd,da,db)
   real(kind=wp), intent(out), optional :: da(my_norb,my_norb), db(my_norb,my_norb)
   real(kind=wp), allocatable :: da_loc(:,:), db_loc(:,:)
 
+  Write (6,*) 'lb 1'
   call mma_allocate(da_loc,my_norb,my_norb,label='da_loc')
+  Write (6,*) 'lb 2'
   call mma_allocate(db_loc,my_norb,my_norb,label='db_loc')
+  Write (6,*) 'lb 3'
 
   call alpha_transition_one_pdm(bra,ket,da_loc)
+  Write (6,*) 'lb 4'
   call beta_transition_one_pdm(bra,ket,db_loc)
+  Write (6,*) 'lb 5'
 
   d(:,:) = da_loc(:,:)+db_loc(:,:)
   sd(:,:) = da_loc(:,:)-db_loc(:,:)
 
+  Write (6,*) 'lb 6'
   if (present(da)) da(:,:) = da_loc(:,:)
   if (present(db)) db(:,:) = db_loc(:,:)
+  Write (6,*) 'lb 7'
 
   call mma_deallocate(da_loc)
   call mma_deallocate(db_loc)
+  Write (6,*) 'lb 8'
 
 end subroutine transition_one_pdm
 
@@ -923,10 +931,12 @@ subroutine hdiag(h,g,diag)
 
   integer(kind=iwp) :: ia, ib, i, j, k, iaLow
 
+  Write (6,*) Allocated(Da), Allocated(Db)
 Write (6,*) 'Faroald:hdiag a'
   call mma_allocate(Da,ndeta,label='Da')
 Write (6,*) 'Faroald:hdiag b'
   call mma_allocate(Db,ndetb,label='Db')
+Write (6,*) 'Faroald:hdiag ba'
 
   call mma_allocate(occa,nela,ndeta,label='OccA')
 Write (6,*) 'Faroald:hdiag c'
