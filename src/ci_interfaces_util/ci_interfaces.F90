@@ -258,6 +258,7 @@ real(kind=wp), allocatable :: D_Sguga(:)
 real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 #endif
 
+Write (6,*) 'Sloppy 1'
  If (DoFaro) Then
    call mma_allocate(D_loc,nD,Label='D_loc')
    call mma_allocate(SD_loc,nD,Label='SD_loc')
@@ -266,26 +267,33 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
 
    Call mma_allocate(CIV,nDetA*nDetB,Label='CIV')
    CIV(:)=Zero
-   Call mma_allocate(temp,nDetA*nDetB,Label='temp')
+   Call mma_allocate(Temp,nDetA*nDetB,Label='temp')
    Call mma_allocate(Faroald_Psi,nDetA,nDetB,Label='Psi')
 
+Write (6,*) 'Sloppy 2'
    call SG_Reord(istate,STSYM,0,nCIVEC,CIVEC,CIV)
    Temp(:)=Zero
+Write (6,*) 'Sloppy 3'
    call CITRANS_SORT('C',CIV,temp)
    Faroald_Psi(:,:)=Zero
+Write (6,*) 'Sloppy 4'
    call CITRANS_CSF2SD(temp,Faroald_PSI)
+Write (6,*) 'Sloppy 5'
 
    Call mma_deallocate(CIV)
    Call mma_deallocate(temp)
 
    Call mma_allocate(D_Faroald,NAC,NAC)
    Call mma_allocate(SD_Faroald,NAC,NAC)
+Write (6,*) 'Sloppy 6'
    Call One_pdm(Faroald_Psi,D_Faroald,SD_Faroald)
    Call Fold2(1,[NAC],D_faroald,D_loc)
    Call Fold2(1,[NAC],SD_faroald,SD_loc)
 
    Call mma_allocate(P_Faroald,NAC,NAC,NAC,NAC)
+Write (6,*) 'Sloppy 7'
    Call two_pdm(Faroald_psi,P_Faroald)
+Write (6,*) 'Sloppy 8'
    Call Fold_Two_pdm(P_Faroald,P_loc,PA_loc)
 
    Call mma_deallocate(Faroald_Psi)
@@ -302,7 +310,9 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    call mma_deallocate(SD_loc)
    call mma_deallocate(P_loc)
    call mma_deallocate(PA_loc)
+Write (6,*) 'Sloppy 9'
  Else
+Write (6,*) 'Sloppy 10'
    Call mma_allocate(DTMP,nD,Label='DTMP')
    Call mma_allocate(DSTMP,nD,Label='DSTMP')
    Call mma_allocate(PTMP,nP,Label='PTMP')
@@ -316,6 +326,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
    Call mma_deallocate(DSTMP)
    Call mma_deallocate(PTMP)
    Call mma_deallocate(PATMP)
+Write (6,*) 'Sloppy 11'
  End If
 
 ! temporary code to verify the functionality of the SGUGA code and its interface
@@ -323,12 +334,14 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
         If (.NOT.iDoGAS) Then
 
           Call mma_allocate(CIV,nCIVEC,Label='CIV')
+Write (6,*) 'Sloppy 12'
           call SG_Reord(iState,STSYM,0,nCIVEC,CIVEC,CIV)
 
 !         Test the one-particle density matrix
           Check_D1=CheckSum(D,NACPAR)
           Call mma_allocate(D_sguga,NAC*(NAC+1)/2)
 
+Write (6,*) 'Sloppy 13'
           call sg_one_pdm(SGS(istate),CIS(istate),EXS(istate),CIV,SIZE(CIV),STSYM,D_sguga,Size(D_sguga))
           If (ABS(CheckSum(D_sguga,NACPAR)-Check_D1)/SIZE(D_sguga)>1.0e-12_wp) Then
              Check_D1=CheckSum(D_sguga,NACPAR)
@@ -351,8 +364,10 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
           Call mma_allocate(P_sguga,NACPR2,Label='P')
           Call mma_allocate(PA_sguga,NACPR2,Label='PA')
 
+Write (6,*) 'Sloppy 14'
           Call sg_two_pdm(SGS(istate),CIS(istate),EXS(istate),CIV,SIZE(CIV),STSYM,P_sguga,PA_sguga,NACPAR*(NACPAR+1)/2)
 
+Write (6,*) 'Sloppy 15'
           If (ABS(CheckSum(P_sguga,NACPR2)-Check_P)/SIZE(p_sguga)>1.0e-12_wp) Then
              Check_P=CheckSum(P_sguga,NACPR2)
              Write (u6,*) 'SGUGA error in P'
@@ -368,6 +383,7 @@ real(kind=wp), allocatable :: P_Sguga(:), PA_sguga(:)
           Call mma_deallocate(PA_sguga)
           Call mma_deallocate(P_sguga)
           Call mma_deallocate(CIV)
+Write (6,*) 'Sloppy 16'
 
         END IF
 #endif
