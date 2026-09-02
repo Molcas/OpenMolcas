@@ -615,10 +615,15 @@ subroutine transition_two_pdm_product(bra,ket,pprod)
 
   pprod(:,:,:,:) = Zero
 
+  Write (6,*) 'nisse 1'
   call alpha_alpha_two_pdm_product(bra,ket,pprod)
+  Write (6,*) 'nisse 2'
   call beta_beta_two_pdm_product(bra,ket,pprod)
+  Write (6,*) 'nisse 3'
   call alpha_beta_two_pdm_product(bra,ket,pprod)
+  Write (6,*) 'nisse 4'
   call beta_alpha_two_pdm_product(bra,ket,pprod)
+  Write (6,*) 'nisse 5'
 
 end subroutine transition_two_pdm_product
 
@@ -918,10 +923,13 @@ subroutine hdiag(h,g,diag)
 
   integer(kind=iwp) :: ia, ib, i, j, k, iaLow
 
+Write (6,*) 'Faroald:hdiag a'
   call mma_allocate(Da,ndeta,label='Da')
+Write (6,*) 'Faroald:hdiag b'
   call mma_allocate(Db,ndetb,label='Db')
 
   call mma_allocate(occa,nela,ndeta,label='OccA')
+Write (6,*) 'Faroald:hdiag c'
   call mma_allocate(occb,nelb,ndetb,label='OccB')
 
 Write (6,*) 'Faroald:hdiag1'
