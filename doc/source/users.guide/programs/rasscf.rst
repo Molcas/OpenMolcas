@@ -415,14 +415,14 @@ Optional important keywords are:
               </KEYWORD>
 
 :kword:`DMPF`
-  This keyword is used to produce a MRCC-compatible :file:`fort.55` integral file
+  This keyword is used to produce an MRCC-compatible :file:`fort.55` integral file
   and quit in a clean manner. The active orbitals are re-ordered into
   ascending-energy order as expected by MRCC.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DMPF" APPEAR="Dump fort.55" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: DMPF <advanced>
               <HELP>
-              This keyword is used to produce a MRCC-compatible fort.55 integral file
+              This keyword is used to produce an MRCC-compatible fort.55 integral file
               and quit in a clean way (no CI or CASSCF calculation will be done).
               Active orbitals are re-ordered into ascending-energy order.
               </HELP>
