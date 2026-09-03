@@ -8,6 +8,7 @@
 # - intel_llvm: use Intel LLVM compilers
 # - intel13: use Intel 2013 compilers (build on specific runner)
 # - nag: use NAG Fortran compiler and Garble (build on specific runner)
+#     set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
 # - garble: setup with Garble option and gcc compilers
 # - bounds: enable interprocedural optimization and bounds checking (slow)
 # - debug: build with no optimization (no tests)
@@ -176,7 +177,6 @@
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
       set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
-#     set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
       set (BUILD_SHARED_LIBS "OFF" CACHE BOOL "static molcas lib" )
       set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE BOOL "use static HDF5")
       set (HDF5 "ON" CACHE BOOL "turn on HDF5")
