@@ -175,7 +175,8 @@
   variables:
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
-      set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
+      set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
+#     set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
       set (BUILD_SHARED_LIBS "OFF" CACHE BOOL "static molcas lib" )
       set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE BOOL "use static HDF5")
       set (HDF5 "ON" CACHE BOOL "turn on HDF5")
