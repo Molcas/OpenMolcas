@@ -408,8 +408,8 @@ subroutine spintabs_allocate()
 
       integer(kind=iwp) :: i, s
 
-      s = merge(size(Spintabs),0,allocated(Spintabs))
-      If (s/=0) Then
+      If (allocated(Spintabs)) Then
+         s = size(Spintabs)
          do i=lbound(spintabs,1),ubound(spintabs,1)
            call mma_deallocate(spintabs(i)%coef,safe='*')
          end do
