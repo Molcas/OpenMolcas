@@ -425,29 +425,20 @@ subroutine transition_one_pdm(bra,ket,d,sd,da,db)
   real(kind=wp), intent(out), optional :: da(my_norb,my_norb), db(my_norb,my_norb)
   real(kind=wp), allocatable :: da_loc(:,:), db_loc(:,:)
 
-  Write (6,*) 'lb 1'
   call mma_allocate(da_loc,my_norb,my_norb,label='da_loc')
-  Write (6,*) 'lb 2'
-  Write (6,*) allocated(db_loc),my_norb
   call mma_allocate(db_loc,my_norb,my_norb,label='db_loc')
-  Write (6,*) 'lb 3'
 
   call alpha_transition_one_pdm(bra,ket,da_loc)
-  Write (6,*) 'lb 4'
   call beta_transition_one_pdm(bra,ket,db_loc)
-  Write (6,*) 'lb 5'
 
   d(:,:) = da_loc(:,:)+db_loc(:,:)
   sd(:,:) = da_loc(:,:)-db_loc(:,:)
 
-  Write (6,*) 'lb 6'
   if (present(da)) da(:,:) = da_loc(:,:)
   if (present(db)) db(:,:) = db_loc(:,:)
-  Write (6,*) 'lb 7'
 
   call mma_deallocate(da_loc)
   call mma_deallocate(db_loc)
-  Write (6,*) 'lb 8'
 
 end subroutine transition_one_pdm
 
@@ -578,24 +569,18 @@ subroutine transition_two_pdm(bra,ket,p2,p2prod)
   call mma_allocate(d1,my_norb,my_norb,label='d1')
   call mma_allocate(sd1,my_norb,my_norb,label='sd1')
 
-Write (6,*) 't_two_pdm 1'
   call transition_two_pdm_product(bra,ket,pprod)
-Write (6,*) 't_two_pdm 2'
 
   ! One-particle transition density needed for the contraction term.
   call transition_one_pdm(bra,ket,d1,sd1)
-Write (6,*) 't_two_pdm 3'
 
   p2(:,:,:,:) = pprod(:,:,:,:)
-Write (6,*) 't_two_pdm 4'
 
   do u=1,my_norb
     p2(:,u,u,:) = p2(:,u,u,:)-d1(:,:)
   end do
-Write (6,*) 't_two_pdm 5'
 
   if (present(p2prod)) p2prod(:,:,:,:) = pprod(:,:,:,:)
-Write (6,*) 't_two_pdm 6'
 
   call mma_deallocate(sd1)
   call mma_deallocate(d1)
@@ -624,15 +609,10 @@ subroutine transition_two_pdm_product(bra,ket,pprod)
 
   pprod(:,:,:,:) = Zero
 
-  Write (6,*) 'nisse 1'
   call alpha_alpha_two_pdm_product(bra,ket,pprod)
-  Write (6,*) 'nisse 2'
   call beta_beta_two_pdm_product(bra,ket,pprod)
-  Write (6,*) 'nisse 3'
   call alpha_beta_two_pdm_product(bra,ket,pprod)
-  Write (6,*) 'nisse 4'
   call beta_alpha_two_pdm_product(bra,ket,pprod)
-  Write (6,*) 'nisse 5'
 
 end subroutine transition_two_pdm_product
 
@@ -932,23 +912,14 @@ subroutine hdiag(h,g,diag)
 
   integer(kind=iwp) :: ia, ib, i, j, k, iaLow
 
-  Write (6,*) Allocated(Da), Allocated(Db)
-Write (6,*) 'Faroald:hdiag a'
   call mma_allocate(Da,ndeta,label='Da')
-Write (6,*) 'Faroald:hdiag b'
-Write (6,*) 'ndetb=',nDetb
   call mma_allocate(Db,ndetb,label='Db')
-Write (6,*) 'Faroald:hdiag ba'
 
   call mma_allocate(occa,nela,ndeta,label='OccA')
-Write (6,*) 'Faroald:hdiag c'
   call mma_allocate(occb,nelb,ndetb,label='OccB')
 
-Write (6,*) 'Faroald:hdiag1'
   call build_occ_alpha(occa)
-Write (6,*) 'Faroald:hdiag2'
   call build_occ_beta (occb)
-Write (6,*) 'Faroald:hdiag3'
 
   !
   ! Alpha-string energies
@@ -973,7 +944,6 @@ Write (6,*) 'Faroald:hdiag3'
      end do
 
   end do
-Write (6,*) 'Faroald:hdiag4'
 
   !
   ! Beta-string energies
@@ -998,7 +968,6 @@ Write (6,*) 'Faroald:hdiag4'
      end do
 
   end do
-Write (6,*) 'Faroald:hdiag5'
 
   !
   ! Full determinant-product diagonal
@@ -1027,13 +996,11 @@ Write (6,*) 'Faroald:hdiag5'
 
      end do
   end do
-Write (6,*) 'Faroald:hdiag6'
 
   call mma_deallocate(occb)
   call mma_deallocate(occa)
   call mma_deallocate(Db)
   call mma_deallocate(Da)
-Write (6,*) 'Faroald:hdiag7'
 
 contains
 

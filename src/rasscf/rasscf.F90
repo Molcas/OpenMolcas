@@ -919,9 +919,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         iOff = iOff+iBas*iBas
       end do
     end if
-      Write (6,*) 'Crap 3'
     call TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
-      Write (6,*) 'Crap 30'
 
     if (IPRLEV >= DEBUG) then
       write(u6,*)
@@ -988,11 +986,8 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         call DMRGCTL(CMO,DMAT,DSPN,PMAT,PA,FI,D1I,D1A,TUVX,IFINAL,1)
 #     endif
       else
-      Write (6,*) 'Crap 31'
         call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,size(TUVX),TUVX,IFINAL)
-      Write (6,*) 'Crap 32'
       end if
-      Write (6,*) 'Crap 4'
 
       ! call triprt('twxy',' ',TUVX,nTri_Elem(nAc))
       ! call triprt('P-mat 2',' ',PMAT,nTri_Elem(nAc))
