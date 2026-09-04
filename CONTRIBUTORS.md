@@ -159,8 +159,8 @@ Christian Pomelli
 Ben Pritchard  
 Juraj Raab  
 Gerardo Raggi  
-Alistair Rendell  
 Markus Reiher  
+Alistair Rendell  
 H. Rieger  
 Thies Romig  
 Björn O. Roos  
