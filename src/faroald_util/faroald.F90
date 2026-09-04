@@ -893,10 +893,13 @@ subroutine ex1_init(k,n,ex1_table)
 
 end subroutine ex1_init
 
-subroutine hdiag(h,g,diag)
+subroutine hdiag(h,g,diag,CSFDIA,nConf)
 
+  use second_quantization, only: binom_coef
   use Constants, only: Zero
 
+  integer(kind=iwp), intent(in):: nConf
+  real(kind=wp) :: CSFDIA(nConf)
   real(kind=wp), intent(in) :: h(my_norb,my_norb), g(my_norb,my_norb,my_norb,my_norb)
 
   real(kind=wp), intent(out) :: diag(my_ndet)
@@ -906,6 +909,8 @@ subroutine hdiag(h,g,diag)
   integer(kind=iwp), allocatable :: occa(:,:), occb(:,:)
 
   integer(kind=iwp) :: ia, ib, i, j, k, iaLow
+  integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl, nBEl, iDet, iCSF, iCBF, iCNF, jCNF, iCSFOff
+  real(kind=wp) :: EAver
 
   call mma_allocate(Da,ndeta,label='Da')
   call mma_allocate(Db,ndetb,label='Db')
@@ -977,7 +982,7 @@ subroutine hdiag(h,g,diag)
 
         k = k + 1
 
-        Write (6,*) 'k=',k,' -> ib, ia:',ib,ia
+!       Write (6,*) 'k=',k,' -> ib, ia:',ib,ia
         diag(k) = Da(ia) + Db(ib)
 
         do i=1,nela
@@ -994,6 +999,34 @@ subroutine hdiag(h,g,diag)
   end do
 
   Call RecPrt('Diag',' ',Diag,1,k)
+
+! Construct the averaged determinant contribution of a configurtion and distribute it
+! to all the CSFs of the same configuration.
+
+  MinOpen=Mult-1
+  MaxOpen=Min(my_nEl,my_norb)
+  If (mod(MaxOpen-my_nEl,2) /= 0) MaxOpen=MaxOpen-1
+
+! nOpen = Index of open-shell class. Equal the actual number of open shells.
+  iCSFOff=0
+  Do nOpen = MinOpen, MaxOpen, 2
+     nAEl=(nOpen+(Mult-1))/2
+     nBEl=(nOpen-(Mult-1))/2
+!    IDET = number of prototype determinants per configuration in this open-shell class.
+!    ICSF = number of CSFs per configuration in this open-shell class.
+!    ICNF = number of configurations in this open-shell class.
+     iDet=Binom_coef(nAEl,nOpen)
+     iCSF=ncsf_open_shells(nOpen,Mult-1)
+     iCNF=nconf_open_shells(my_norb,my_nel,nOpen)
+     Write(6,'(A,5I6)') 'nOpen, nAEl, nBEl, nDet, nCSF=', nOpen, nAEl, nBEl, iDet, iCSF
+     Do jCNF=1, iCNF
+        EAver=Zero
+        ! EAVER to be computed properly
+!       CSFDIA(iCSFOff+1:iCSFOff+iCSF) = EAver
+        CSFDIA(iCSFOff+1:iCSFOff+iCSF) = 1.0_wp * CSFDIA(iCSFOff+1:iCSFOff+iCSF)
+        iCSFOff = iCSFOff + iCSF
+     End Do
+  End Do
 
   call mma_deallocate(occb)
   call mma_deallocate(occa)
@@ -1377,7 +1410,7 @@ end do
 
 end subroutine build_patterns
 
-#define _Print_Combinations_
+!#define _Print_Combinations_
 subroutine analyse_patterns()
 
   integer(kind=iwp) :: ipat, p
@@ -1755,6 +1788,56 @@ subroutine build_ictsdt()
   end do
 
 end subroutine build_ictsdt
+
+integer(kind=iwp) function nconf_open_shells(norb,nel,nopen)
+
+  use second_quantization, only: binom_coef
+
+  integer(kind=iwp), intent(in) :: norb
+  integer(kind=iwp), intent(in) :: nel
+  integer(kind=iwp), intent(in) :: nopen
+
+  integer(kind=iwp) :: ndoub
+
+  if (mod(nel-nopen,2) /= 0) then
+     nconf_open_shells = 0
+     return
+  end if
+
+  ndoub = (nel-nopen)/2
+
+  nconf_open_shells = &
+       binom_coef(nopen,norb) * &
+       binom_coef(ndoub,norb-nopen)
+
+end function nconf_open_shells
+
+integer(kind=iwp) function ncsf_open_shells(nopen,ms2)
+
+  use second_quantization, only: binom_coef
+
+  integer(kind=iwp), intent(in) :: nopen
+  integer(kind=iwp), intent(in) :: ms2
+
+  integer(kind=iwp) :: k
+
+  ! parity check
+  if (mod(nopen-ms2,2) /= 0) then
+     ncsf_open_shells = 0
+     return
+  end if
+
+  k = (nopen-ms2)/2
+
+  ncsf_open_shells = binom_coef(k,nopen)
+
+  if (k > 0) then
+     ncsf_open_shells = ncsf_open_shells - &
+                        binom_coef(k-1,nopen)
+  end if
+
+end function ncsf_open_shells
+
 
 subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 ! for a pair of orbitals p and q, and determinants
