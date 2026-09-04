@@ -23,9 +23,10 @@ real(kind=wp), intent(in) :: CITHR, CI(lCI)
 integer(kind=iwp) :: IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0, IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP, IUW0, K, KNXT, &
                      KOCLAB, KOCSZ, KPAD1, KPAD2, LEV, MV, NCI, NDWN, NNN, NUP
 real(kind=wp) :: COEF
-character(len=80) :: LINE
+logical(kind=iwp) :: PrSym
+character(len=200) :: LINE
 integer(kind=iwp), allocatable :: ICS(:), Lex(:)
-logical(kind=iwp), parameter :: SGINFO = .true.
+logical(kind=iwp), parameter :: SGINFO = .false.
 character, parameter :: CODE(0:3) = ['0','u','d','2']
 
 ! scratch for determinant expansion
@@ -41,34 +42,53 @@ call mma_allocate(ICS,SGS(iState)%nLev,Label='ICS')
 
 ! Size of occup/spin coupling part of line:
 write(u6,*)
-write(u6,*) '     Occupation of active orbitals, and spin coupling of open shells. (u,d: Spin up or down).'
+write(u6,100) 'Occupation of active orbitals, and spin coupling of open shells. (u,d: Spin up or down).'
 write(u6,*)
 LINE = ''
-K = 0
 ISY = 0
+PrSym = .false.
+K = SGS(iState)%nLev
 do LEV=1,SGS(iState)%nLev
   if (ISY /= SGS(iState)%ISM(LEV)) then
     ISY = SGS(iState)%ISM(LEV)
+    if (ISY > 1) PrSym = .true.
     K = K+1
   end if
-  K = K+1
 end do
-KOCLAB = 10
+KOCLAB = len(' Occupation')
 KOCSZ = max(K,KOCLAB)
-KPAD1 = (KOCSZ-KOCLAB)/2
-KPAD2 = (KOCSZ-K)/2
-if (SGINFO) write(u6,*) '     SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
-LINE(1:10) = '     Conf '
-K = 10
+KPAD1 = KOCSZ-KOCLAB-(KOCSZ-KOCLAB)/2
+KPAD2 = KOCSZ-K-(KOCSZ-K)/2
+if (SGINFO) write(u6,100) 'SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
+K = 0
+LINE(K+1:K+7) = '   Conf'
+K = K+7
 if (SGINFO) then
-  LINE(K+1:K+15) = '  SGUGA info   '
+  LINE(K+1:K+15) = '   SGUGA info  '
   K = K+15
 end if
-LINE(K+KPAD1:K+KPAD1+9) = 'Occupation'
+LINE(K+KPAD1+1:K+KPAD1+11) = ' Occupation'
 K = K+KOCSZ
-LINE(K:K+23) = '       Coef       Weight'
-write(u6,*) LINE
-LINE = ''
+LINE(K+1:K+17) = '    Coeff  Weight'
+write(u6,100) trim(LINE)
+if (PrSym) then
+  LINE = ''
+  K = 0
+  LINE(K+1:K+7) = '    Sym'
+  K = K+7
+  if (SGINFO) K = K+15
+  K = K+KPAD2
+  ISY = 0
+  do LEV=1,SGS(iState)%nLev
+    if (ISY /= SGS(iState)%ISM(LEV)) then
+      ISY = SGS(iState)%ISM(LEV)
+      K = K+1
+    end if
+    K = K+1
+    write(LINE(K:K),'(I1)') ISY
+  end do
+  write(u6,100) trim(LINE)
+end if
 
 ! -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 !    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
@@ -123,19 +143,13 @@ do MV=1,CIS(iState)%nMidV
           ICUP = IC1
         end do
         ! -- PRINT IT!
-        write(LINE(1:8),'(I7,1X)') ICONF
-        K = 8
+        LINE = ''
+        K = 0
+        write(LINE(K+1:K+7),'(I7)') ICONF
+        K = K+7
         if (SGINFO) then
-          LINE(K+1:K+1) = '('
-          write(LINE(K+2:K+3),'(I2)') MV
-          LINE(K+4:K+4) = ':'
-          write(LINE(K+5:K+5),'(I1)') ISYUP
-          LINE(K+6:K+6) = ':'
-          write(LINE(K+7:K+9),'(I3)') IUP
-          LINE(K+10:K+10) = '/'
-          write(LINE(K+11:K+13),'(I3)') IDWN
-          LINE(K+14:K+14) = ')'
-          K = K+14
+          write(LINE(K+1:K+15),'(1x,"(",I2,":",I1,":",I3,"/",I3,")")') MV,ISYUP,IUP,IDWN
+          K = K+15
         end if
         KNXT = K+KOCSZ
         K = K+KPAD2
@@ -144,21 +158,14 @@ do MV=1,CIS(iState)%nMidV
           if (ISY /= SGS(iState)%ISM(LEV)) then
             ISY = SGS(iState)%ISM(LEV)
             K = K+1
-            LINE(K:K) = ' '
           end if
           K = K+1
           LINE(K:K) = CODE(ICS(LEV))
         end do
         K = KNXT
-        K = K+1
-        LINE(K:K+4) = '     '
-        K = K+5
-        write(LINE(K:K+7),'(F8.5)') COEF
-        K = K+8
-        LINE(K:K+4) = '     '
-        K = K+5
-        write(LINE(K:K+7),'(F8.5)') COEF**2
-        write(u6,*) LINE(1:K+7)
+        write(LINE(K+1:K+17),'(1x,F8.5,F8.5)') COEF,COEF**2
+        K = K+17
+        write(u6,100) trim(LINE)
         if (KeyPRSD) then
           ! use maximum spin projection value
           IMS = ISPIN-1
@@ -166,17 +173,18 @@ do MV=1,CIS(iState)%nMidV
           call EXPCSF(ICS,SGS(iState)%nLev,IMS,LEX,coef,LuVecDet)
           write(u6,*)
         end if
-        Line = ' '
       end do
     end do
   end do
 end do
 write(u6,*)
-write(u6,*) '     ',repeat('*',120)
+write(u6,100) repeat('*',120)
 
 call mma_deallocate(ICS)
 
 ! free memory for determinant expansion
 if (KeyPRSD) call mma_deallocate(LEX)
+
+100 format(6x,a)
 
 end subroutine SG_PRWF
