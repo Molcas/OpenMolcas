@@ -43,7 +43,6 @@ if (nIter(nIterP) > 0) then
                       ' One-elec.       Two-elec.     Energy      Max Dij or  Max Fij      DNorm      TNorm      AccCon     Time'
   write(u6,'(A)') '         Energy          Energy          Energy        Change      Delta Norm'// &
                   '                                                in Sec.'
-
 else
   iDummy_run = 1
   write(u6,'(45x,A)') 'No optimization is performed'

@@ -2364,13 +2364,10 @@ else
   if (Key('DMPO')) then
     DumpOnly = .true.
     DmpMode = 0
-    call SetPos(LUInput,'DMPO',Line,iRc)
-    if (iRc == _RC_ALL_IS_WELL_) then
-      call UpCase(Line)
-      if (index(Line,'FORT') /= 0) then
-        DmpMode = 1
-      end if
-    end if
+  end if
+  if (Key('DMPF')) then
+    DumpOnly = .true.
+    DmpMode = 1
   end if
   ! ====================================================================
   if (Key('REOR')) then
@@ -2450,6 +2447,11 @@ else
 
     if (Key('DMPO')) then
       call WarningMessage(2,'NECI and DMPOnly are mutually exclusive.')
+      call Error(4)
+      return
+    end if
+    if (Key('DMPF')) then
+      call WarningMessage(2,'NECI and DMPF are mutually exclusive.')
       call Error(4)
       return
     end if
@@ -2703,6 +2705,11 @@ else
 
     if (Key('DMPO')) then
       call WarningMessage(2,'CC-CI and DMPOnly are mutually exclusive.')
+      call Error(4)
+      return
+    end if
+    if (Key('DMPF')) then
+      call WarningMessage(2,'CC-CI and DMPF are mutually exclusive.')
       call Error(4)
       return
     end if

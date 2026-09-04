@@ -124,6 +124,7 @@ Stefan Knecht
 Vladislav Kochetov  
 Jesper Wisborg Krogh  
 Teodoro Laino  
+Dong Q. Le  
 Susi Lehtola  
 Giovanni Li Manni  
 Roland Lindh  
@@ -158,6 +159,7 @@ Christian Pomelli
 Ben Pritchard  
 Juraj Raab  
 Gerardo Raggi  
+Alistair Rendell  
 Markus Reiher  
 H. Rieger  
 Thies Romig  
@@ -211,4 +213,4 @@ Lila Zapp
 Alexander Zech  
 Yan Zhao  
 Chen Zhou  
-J. Patrick Zobel 
+J. Patrick Zobel  

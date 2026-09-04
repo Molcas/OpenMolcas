@@ -18,7 +18,7 @@
 
 module fcidump_dump
 
-use fcidump_tables, only: FockTable, length, OrbitalTable, TwoElIntTable
+use fcidump_tables, only: FockTable, length, mma_allocate, mma_deallocate, OrbitalTable, TwoElIntTable
 use Definitions, only: wp, iwp
 
 implicit none
@@ -267,7 +267,7 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   write(LuFCI,'(A)') ' 150000'
 
   ! 4-fold symmetry
-  allocate(eri_2d(npair,npair))
+  call mma_allocate(eri_2d,npair,npair,Label='eri_2d')
   eri_2d = Zero
 
   do j=1,length(two_el_table)
@@ -301,7 +301,7 @@ subroutine dump_fort55(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
     end do
   end do
 
-  deallocate(eri_2d)
+  call mma_deallocate(eri_2d)
 
   do j=1,length(fock_table)
     write(LuFCI,'(1X,E27.20,4I5)') fock_table%values(j),(fock_table%idx(i,j),i=1,2),0,0
