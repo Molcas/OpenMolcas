@@ -1,5 +1,5 @@
 ********************************************************************************
-* Author = Jaafar Mehrez
+* Authors = Nike Dattani, Jaafar Mehrez
 * Date = August 2026
 * Description = Test for dumping integrals into fort.55 file in MRCC format:
 *               verifies core energy, Fock elements, two-electron integrals
