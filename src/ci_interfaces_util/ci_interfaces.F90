@@ -476,7 +476,8 @@ subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
-use faroald, only: nPat, hdiag, ncomb_tot
+use faroald, only: nPat, hdiag, ncomb_tot, mult, my_norb, my_nel
+use second_quantization, only: binom_coef
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(out):: CSFDIA(nConf)
@@ -485,7 +486,7 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 real(kind=wp), allocatable :: DDIA(:), DIAG(:)
 integer(kind=iwp):: IPRINT=0
 
-integer(kind=iwp) :: i
+integer(kind=iwp) :: i, nOpen, MaxOpen, MinOpen, iDet, nAEl, nBEl, iCSF, iCNF
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
@@ -554,6 +555,21 @@ If (DoFaro) Then
      End If
   End Do
 
+  MinOpen=Mult-1
+  MaxOpen=Min(my_nEl,my_norb)
+  If (mod(MaxOpen-my_nEl,2) /= 0) MaxOpen=MaxOpen-1
+
+  Write (6,*) '2S=',MULT-1
+  Do nOpen = MinOpen, MaxOpen, 2
+     nAEl=(nOpen+(Mult-1))/2
+     nBEl=(nOpen-(Mult-1))/2
+     iDet=Binom_coef(nAEl,nOpen)
+     iCSF=ncsf_open_shells(nOpen,Mult-1)
+     iCNF=nconf_open_shells(my_norb,my_nel,nOpen)
+     Write(6,'(A,5I6)') 'nOpen, nAEl, nBEl, nDet, nCSF=', nOpen, nAEl, nBEl, iDet, iCSF
+     Do jCNF=1, iCNF
+     End Do
+  End Do
 !... more to come ...
 
   Call mma_deallocate(Diag)
@@ -565,5 +581,54 @@ call mma_deallocate(DDIA)
 
 
 End subroutine Mk_CI_Diag
+
+integer(kind=iwp) function ncsf_open_shells(nopen,ms2)
+
+  use second_quantization, only: binom_coef
+
+  integer(kind=iwp), intent(in) :: nopen
+  integer(kind=iwp), intent(in) :: ms2
+
+  integer(kind=iwp) :: k
+
+  ! parity check
+  if (mod(nopen-ms2,2) /= 0) then
+     ncsf_open_shells = 0
+     return
+  end if
+
+  k = (nopen-ms2)/2
+
+  ncsf_open_shells = binom_coef(k,nopen)
+
+  if (k > 0) then
+     ncsf_open_shells = ncsf_open_shells - &
+                        binom_coef(k-1,nopen)
+  end if
+
+end function ncsf_open_shells
+
+integer(kind=iwp) function nconf_open_shells(norb,nel,nopen)
+
+  use second_quantization, only: binom_coef
+
+  integer(kind=iwp), intent(in) :: norb
+  integer(kind=iwp), intent(in) :: nel
+  integer(kind=iwp), intent(in) :: nopen
+
+  integer(kind=iwp) :: ndoub
+
+  if (mod(nel-nopen,2) /= 0) then
+     nconf_open_shells = 0
+     return
+  end if
+
+  ndoub = (nel-nopen)/2
+
+  nconf_open_shells = &
+       binom_coef(nopen,norb) * &
+       binom_coef(ndoub,norb-nopen)
+
+end function
 
 End module CI_Interfaces

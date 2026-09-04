@@ -55,9 +55,6 @@ integer(kind=iwp) :: npat
 integer(kind=iwp), allocatable :: occpat(:,:),  &    ! (my_norb,npat)
                                   ipat_of_det(:)
 integer(kind=iwp), allocatable :: ndoub(:), nsing(:)
-integer(kind=iwp), allocatable :: conf_by_nopen(:)
-integer(kind=iwp), allocatable :: icnf_out(:)
-integer(kind=iwp), allocatable :: conf_reo(:)
 !
 ! nspin_comb : raw alpha/beta assignments among open shells
 ! ncomb      : Lucia-compatible counting of diagonal states
@@ -66,17 +63,15 @@ integer(kind=iwp), allocatable :: nspin_comb(:), nComb(:)
 integer(kind=iwp), allocatable :: ibcomb(:)
 integer(kind=iwp) :: ncomb_tot
 integer(kind=iwp), allocatable :: ictsdt(:)
-integer(kind=iwp), allocatable :: conf_arcw(:,:,:)
 
 public :: ex1_a, ex1_b, ex1_init, fold_two_pdm, gtuvx, htu, max_ex1a, max_ex1b, max_ex2a, max_ex2b, max_LRs, mult, my_ndet, &
           my_nel, my_norb, ndeta, ndetb, nela, nelb, nhoa, nhob, one_pdm, sigma_update, transition_one_pdm, transition_two_pdm, &
           two_pdm, hDiag, verify_occ_patterns, build_patterns, analyse_patterns, ndoub, nsing, build_pattern_diagonal, &
           build_pattern_diagonal_approx, nSpin_Comb, nComb, ibComb, nComb_tot, pattern_combinations
-public :: npat, occpat, ipat_of_det, conf_arcw
+public :: npat, occpat, ipat_of_det
 public :: combination_occupations
 public :: combination_diagonal
-!public :: build_ictsdt, ictsdt, conf_by_nopen, icnf_out, conf_reo, build_conf_arcw
-public :: build_ictsdt, ictsdt, conf_by_nopen, icnf_out, conf_reo
+public :: build_ictsdt, ictsdt
 
 ! Extensions to mma interfaces
 
@@ -982,6 +977,7 @@ subroutine hdiag(h,g,diag)
 
         k = k + 1
 
+        Write (6,*) 'k=',k,' -> ib, ia:',ib,ia
         diag(k) = Da(ia) + Db(ib)
 
         do i=1,nela
@@ -996,6 +992,8 @@ subroutine hdiag(h,g,diag)
 
      end do
   end do
+
+  Call RecPrt('Diag',' ',Diag,1,k)
 
   call mma_deallocate(occb)
   call mma_deallocate(occa)
@@ -1379,27 +1377,22 @@ end do
 
 end subroutine build_patterns
 
+#define _Print_Combinations_
 subroutine analyse_patterns()
 
   integer(kind=iwp) :: ipat, p
 
-#ifdef _NOT_IN_USE_
-  integer(kind=iwp) :: nopen, ncomb_pat, icomb
-  integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
-  integer(kind=iwp) :: i
-#endif
   integer(kind=iwp) :: iopen, k
-! integer(kind=iwp), allocatable :: vertex(:,:)
+#ifdef _Print_Combinations_
+integer(kind=iwp) :: nopen, ncomb_pat, icomb
+integer(kind=iwp), allocatable :: Comb(:,:)
+integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
+#endif
 
   call mma_allocate(ndoub,npat,label='NDoub')
   call mma_allocate(nsing,npat,label='NSing')
   call mma_allocate(nspin_comb,npat,label='NSpinComb')
   call mma_allocate(ncomb,npat,label='NComb')
-  call mma_allocate(conf_by_nopen,npat,label='conf_by_nopen')
-  call mma_allocate(icnf_out,npat,label='ICNF_OUT')
-
-
-! call mma_allocate(vertex,my_norb+1,my_nel+1,label='Vertex')
 
   do ipat=1,npat
 
@@ -1452,16 +1445,7 @@ subroutine analyse_patterns()
        end if
      end if
 
-#ifdef _NOT_IN_USE_
-if (nsing(ipat) > 0 .and. mult==1) then
-   call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
-   call spncom_faroald(nsing(ipat),0,nspin_comb(ipat),comb)
-   call mma_deallocate(comb)
-end if
-#endif
-
-#ifdef _NOT_IN_USE_
-if (nsing(ipat) == 4 .and. mult == 1) then
+#ifdef _Print_Combinations_
    call mma_allocate(comb,nsing(ipat),nspin_comb(ipat),label='Comb')
    call pattern_combinations(ipat,nopen,ncomb_pat,comb)
 
@@ -1476,22 +1460,9 @@ if (nsing(ipat) == 4 .and. mult == 1) then
    end do
 
    call mma_deallocate(comb)
-end if
 #endif
 
   end do
-
-!write(u6,*)
-!write(u6,*) 'IPAT -> NSING'
-
-!do ipat=1,npat
-!   write(u6,'(2I6)') ipat, nsing(ipat)
-!end do
-
-#ifdef _DEBUGPRINT_
-  write(u6,'(A,I10)') ' NSpin_Comb = ', sum(nSpin_comb(:))
-  write(u6,'(A,I10)') ' NComb = ', sum(nComb(:))
-#endif
 
 call mma_allocate(ibcomb,npat,label='IBComb')
 
@@ -1509,47 +1480,6 @@ end if
 
 call build_ictsdt()
 
-k = 0
-do iopen=minval(nsing),maxval(nsing),2
-   do ipat=1,npat
-      if (nsing(ipat) /= iopen) cycle
-      k = k + 1
-      conf_by_nopen(ipat) = k
-   end do
-end do
-
-!!write(u6,*)
-!write(u6,*) 'IPAT -> CONF_BY_NOPEN'
-
-!do ipat=1,npat
-!   write(u6,'(2I6)') ipat, conf_by_nopen(ipat)
-!end do
-
-!write(u6,*)
-!write(u6,*) 'CONF_BY_NOPEN -> IPAT'
-
-!do i=1,npat
-!   do ipat=1,npat
-!      if (conf_by_nopen(ipat) == i) then
-!         write(u6,'(2I6)') i, ipat
-!         exit
-!      end if
-!   end do
-!end do
-
-icnf_out(:)=0
-do ipat=1,npat
-   icnf_out(conf_by_nopen(ipat)) = ipat
-end do
-
-call mma_allocate(conf_reo,npat,label='CONF_REO')
-
-do ipat=1,npat
-   conf_reo(conf_by_nopen(ipat)) = ipat
-end do
-
-!call build_vertex_weights(vertex)
-!call mma_deallocate(vertex)
 
 end subroutine analyse_patterns
 
@@ -1825,131 +1755,6 @@ subroutine build_ictsdt()
   end do
 
 end subroutine build_ictsdt
-
-#ifdef _NOT_YET_
-subroutine pattern_lex_order()
-
-  integer(kind=iwp) :: ipat
-  integer(kind=iwp) :: ilex
-
-  write(u6,*)
-  write(u6,*) 'PATTERN LEXICAL ORDER'
-  write(u6,*)
-
-  do ipat=1,npat
-
-     ilex = lexical_conf(occpat(:,ipat))
-
-     write(u6,'(2I6,2X,20I2)') ipat,ilex,occpat(:,ipat)
-
-  end do
-
-end subroutine pattern_lex_order
-#endif
-
-#ifdef _DISABLED_
-!
-! Experimental support for reproducing Lucia configuration
-! ordering. Currently not used in production code.
-!
-subroutine build_conf_arcw()
-
-  integer(kind=iwp) :: vertex(my_norb+1,my_nel+1)
-  integer(kind=iwp) :: iorb, iel
-
-  call mma_allocate(conf_arcw,my_norb,my_nel,2,label='ConfArcW')
-
-  vertex(:,:) = 0
-  vertex(1,1) = 1
-
-  do iorb=1,my_norb
-     do iel=0,my_nel
-        if (iel == 0) then
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1)
-        else if (iel == 1) then
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
-                                + vertex(iorb,iel)
-        else
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
-                                + vertex(iorb,iel) &
-                                + vertex(iorb,iel-1)
-        end if
-     end do
-  end do
-
-  conf_arcw(:,:,:) = 0
-  do iorb=1,my_norb
-     do iel=1,my_nel
-        conf_arcw(iorb,iel,1) = vertex(iorb,iel+1)
-        if (iel >= 2) then
-           conf_arcw(iorb,iel,2) = vertex(iorb,iel+1) &
-                                 + vertex(iorb,iel-1)
-        end if
-     end do
-  end do
-
-end subroutine build_conf_arcw
-
-
-!subroutine build_vertex_weights(iocc_min,iocc_max,vertex)
-subroutine build_vertex_weights(vertex)
-
-! integer(kind=iwp), intent(in) :: iocc_min(my_norb), iocc_max(my_norb)
-
-  integer(kind=iwp), intent(out) :: vertex(my_norb+1,my_nel+1)
-
-  integer(kind=iwp) :: iorb, iel
-  integer(kind=iwp) :: iocc_min(4), iocc_max(4)
-
-iocc_min = [0,0,2,4]
-iocc_max = [2,4,4,4]
-
-  vertex(:,:) = 0
-  vertex(1,1) = 1
-
-  do iorb=1,my_norb
-     do iel=iocc_min(iorb),iocc_max(iorb)
-        if (iel == 0) then
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1)
-        else if (iel == 1) then
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
-                                + vertex(iorb,iel)
-        else
-
-           vertex(iorb+1,iel+1) = vertex(iorb,iel+1) &
-                                + vertex(iorb,iel) &
-                                + vertex(iorb,iel-1)
-        end if
-     end do
-  end do
-
-end subroutine build_vertex_weights
-
-
-integer(kind=iwp) function lexconf_from_packed(iconf,nocob)
-
-  integer(kind=iwp), intent(in) :: nocob
-  integer(kind=iwp), intent(in) :: iconf(nocob)
-
-  integer(kind=iwp) :: iocc
-  integer(kind=iwp) :: iel
-
-  iel = 0
-  lexconf_from_packed = 1
-  do iocc=1,nocob
-     if (iconf(iocc) > 0) then
-        iel = iel + 1
-        lexconf_from_packed = lexconf_from_packed &
-                            + conf_arcw(iconf(iocc),iel,1)
-     else
-        iel = iel + 2
-        lexconf_from_packed = lexconf_from_packed &
-                            + conf_arcw(-iconf(iocc),iel,2)
-     end if
-  end do
-
-end function lexconf_from_packed
-#endif
 
 subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 ! for a pair of orbitals p and q, and determinants
