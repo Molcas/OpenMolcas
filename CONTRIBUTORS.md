@@ -173,6 +173,7 @@ Andrew M. Sand
 Michael A. Saunders  
 Igor Schapiro  
 Bernd Schimmelpfennig  
+Lukas Schreder  
 Martin Schütz  
 Thais Scott  
 Luis Seijo  
@@ -216,5 +217,3 @@ Alexander Zech
 Yan Zhao  
 Chen Zhou  
 J. Patrick Zobel  
-Lukas Schreder  
-
