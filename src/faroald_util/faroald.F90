@@ -1554,6 +1554,7 @@ integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
 
   end do
 
+#ifdef _DEGUGPRINT_
 write(u6,*)
 write(u6,*) 'IPAT  NOPEN  NDETALL  NDETPROTO  NCSF'
 
@@ -1567,6 +1568,7 @@ do ipat=1,npat
         ncsf_open_shells(nsing(ipat),mult-1)
 
 end do
+#endif
 
 call mma_allocate(ibcomb,npat,label='IBComb')
 
