@@ -509,8 +509,8 @@ If (DoFaro) Then
      Write (u6,*) 'nComb_tot',nComb_tot
      Call Abend()
   End If
-!Call RecPrt('CSFDIA',' ',CSFDIA,1,nConf)
 !Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
+Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero

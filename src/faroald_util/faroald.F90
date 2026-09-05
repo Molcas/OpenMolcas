@@ -21,6 +21,7 @@ module faroald
 ! The implementation follows the minimum operation count algorithm
 ! published by Olsen & Co in J. Chem. Phys. 89, 2185 (1988).
 
+use second_quantization, only: binom_coef
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -861,7 +862,7 @@ end subroutine fold_two_pdm
 
 subroutine ex1_init(k,n,ex1_table)
 
-  use second_quantization, only: binom_coef, ex1, fase, lex_init, lex_next, lexrank
+  use second_quantization, only: ex1, fase, lex_init, lex_next, lexrank
 
   integer(kind=iwp), intent(in) :: k, n
   type(ex1_struct), intent(out) :: ex1_table(:,:)
@@ -895,7 +896,6 @@ end subroutine ex1_init
 
 subroutine hdiag(h,g,diag,CSFDIA,nConf)
 
-  use second_quantization, only: binom_coef
   use Constants, only: Zero
 
   integer(kind=iwp), intent(in):: nConf
@@ -909,8 +909,11 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
   integer(kind=iwp), allocatable :: occa(:,:), occb(:,:)
 
   integer(kind=iwp) :: ia, ib, i, j, k, iaLow
-  integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl, nBEl, iDet, iCSF, iCBF, iCNF, jCNF, iCSFOff
-  real(kind=wp) :: EAver
+  integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl, nBEl, iDet, jDet, iCSF, iCBF, iCNF, jCNF, iCSFOff
+  integer(kind=iwp) :: SumDet, SumCSF, ipat, ipat_match
+  real(kind=wp) :: EAver, EDet
+
+  integer(kind=iwp) :: occ(my_norb)
 
   call mma_allocate(Da,ndeta,label='Da')
   call mma_allocate(Db,ndetb,label='Db')
@@ -920,85 +923,60 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
 
   call build_occ_alpha(occa)
   call build_occ_beta (occb)
-
   !
   ! Alpha-string energies
   !
-
   do ia=1,ndeta
-
      Da(ia) = Zero
-
      do i=1,nela
         Da(ia) = Da(ia) + h(occa(i,ia),occa(i,ia))
      end do
-
      do i=1,nela
         do j=i+1,nela
-
            Da(ia) = Da(ia)                                      &
               + g(occa(i,ia),occa(i,ia),occa(j,ia),occa(j,ia)) &
               - g(occa(i,ia),occa(j,ia),occa(j,ia),occa(i,ia))
-
         end do
      end do
-
   end do
-
   !
   ! Beta-string energies
   !
-
   do ib=1,ndetb
-
      Db(ib) = Zero
-
      do i=1,nelb
         Db(ib) = Db(ib) + h(occb(i,ib),occb(i,ib))
      end do
-
      do i=1,nelb
         do j=i+1,nelb
-
            Db(ib) = Db(ib)                                      &
               + g(occb(i,ib),occb(i,ib),occb(j,ib),occb(j,ib)) &
               - g(occb(i,ib),occb(j,ib),occb(j,ib),occb(i,ib))
-
         end do
      end do
-
   end do
-
   !
   ! Full determinant-product diagonal
   !
-
   k = 0
-
   do ib=1,ndetb
      iaLow = 1
      if (Mult==1) iaLow=ib
      do ia=iaLow,ndetA
-
         k = k + 1
-
 !       Write (6,*) 'k=',k,' -> ib, ia:',ib,ia
         diag(k) = Da(ia) + Db(ib)
-
         do i=1,nela
            do j=1,nelb
-
               diag(k) = diag(k)                                   &
                  + g(occa(i,ia),occa(i,ia),                       &
                      occb(j,ib),occb(j,ib))
-
            end do
         end do
-
      end do
   end do
 
-  Call RecPrt('Diag',' ',Diag,1,k)
+! Call RecPrt('Diag',' ',Diag,1,k)
 
 ! Construct the averaged determinant contribution of a configurtion and distribute it
 ! to all the CSFs of the same configuration.
@@ -1008,25 +986,72 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
   If (mod(MaxOpen-my_nEl,2) /= 0) MaxOpen=MaxOpen-1
 
 ! nOpen = Index of open-shell class. Equal the actual number of open shells.
+  CSFDIA(:)=Zero
   iCSFOff=0
+  sumDet = 0
+  sumCSF = 0
   Do nOpen = MinOpen, MaxOpen, 2
      nAEl=(nOpen+(Mult-1))/2
      nBEl=(nOpen-(Mult-1))/2
 !    IDET = number of prototype determinants per configuration in this open-shell class.
 !    ICSF = number of CSFs per configuration in this open-shell class.
 !    ICNF = number of configurations in this open-shell class.
-     iDet=Binom_coef(nAEl,nOpen)
+
+!
+! Number of prototype determinants associated with this
+! configuration (occupation pattern).  For singlets this is
+! smaller than the full determinant count because spin-reversed
+! determinant pairs are merged into a single prototype
+! determinant.  Therefore use
+!
+!    iDet = nComb(ipat_match)
+!
+! rather than the full determinant multiplicity
+!
+!    binom(nOpen,nAEl)
+!
+! when constructing the configuration average.
+!
+     iDet = binom_coef(nAEl,nOpen)
      iCSF=ncsf_open_shells(nOpen,Mult-1)
      iCNF=nconf_open_shells(my_norb,my_nel,nOpen)
      Write(6,'(A,5I6)') 'nOpen, nAEl, nBEl, nDet, nCSF=', nOpen, nAEl, nBEl, iDet, iCSF
+     sumDet = sumDet + iDet*iCNF
+     sumCSF = sumCSF + iCSF*iCNF
      Do jCNF=1, iCNF
-        EAver=Zero
-        ! EAVER to be computed properly
-!       CSFDIA(iCSFOff+1:iCSFOff+iCSF) = EAver
-        CSFDIA(iCSFOff+1:iCSFOff+iCSF) = 1.0_wp * CSFDIA(iCSFOff+1:iCSFOff+iCSF)
+
+        call configuration_from_index(nOpen,jCNF,occ)
+
+        ipat_match = 0
+
+        do ipat=1,npat
+           if (all(occ(:) == occpat(:,ipat))) then
+              ipat_match = ipat
+              exit
+           end if
+        end do
+        write(u6,'(A,3I6,A,20I2)') 'nOpen,jCNF,ipat=',nOpen,jCNF,ipat_match,' occ=',occ(:)
+
+        EAver = Zero
+
+        iDet = nComb(ipat_match)
+        do jDet=1,iDet
+          call prototype_diagonal(ipat_match,jDet,eDet)
+!         write(u6,*) jDet, eDet
+          EAver = EAver + eDet
+        end do
+        EAver = EAver / real(iDet,wp)
+!       write(u6,'(A,2I6,F20.10)') 'jCNF, ipat =', jCNF, ipat_match, EAver
+
+!       write(u6,'(A,4I6)') 'nOpen,jCNF,ipat,nCSF=',  nOpen,jCNF,ipat_match,iCSF
+
+        CSFDIA(iCSFOff+1:iCSFOff+iCSF) = EAver
         iCSFOff = iCSFOff + iCSF
      End Do
   End Do
+  Write(6,'(A,2I6)') 'SumDet, SumCSF=', SumDet, SumCSF
+
+  Call RecPrt('CSFDIA(Farolad)',' ',CSFDIA,1,nConf)
 
   call mma_deallocate(occb)
   call mma_deallocate(occa)
@@ -1034,6 +1059,37 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
   call mma_deallocate(Da)
 
 contains
+
+subroutine prototype_diagonal(ipat,jDet,e)
+
+   integer(kind=iwp), intent(in) :: ipat
+   integer(kind=iwp), intent(in) :: jDet
+   real(kind=wp), intent(out)    :: e
+
+   integer(kind=iwp) :: nOpen
+   integer(kind=iwp) :: nCombPat
+   integer(kind=iwp), allocatable :: comb(:,:)
+
+   nOpen = nsing(ipat)
+
+   if (nOpen == 0) then
+
+      call combination_diagonal(ipat,htu,gtuvx,e)
+
+   else
+
+      call mma_allocate(comb,nOpen,ncomb(ipat),label='Comb')
+
+      call pattern_combinations(ipat,nOpen,nCombPat,comb)
+
+      call combination_diagonal(ipat,htu,gtuvx,e,comb(:,jDet))
+
+      call mma_deallocate(comb)
+
+   end if
+
+end subroutine
+
 
   subroutine build_occ_alpha(occ)
 
@@ -1096,6 +1152,7 @@ contains
     end do
 
   end subroutine build_occ_beta
+
 
 end subroutine hdiag
 
@@ -1497,6 +1554,20 @@ integer(kind=iwp) :: occa_tmp(nela), occb_tmp(nelb)
 
   end do
 
+write(u6,*)
+write(u6,*) 'IPAT  NOPEN  NDETALL  NDETPROTO  NCSF'
+
+do ipat=1,npat
+
+   write(u6,'(5I8)') &
+        ipat, &
+        nsing(ipat), &
+        count(ipat_of_det == ipat), &
+        ncomb(ipat), &
+        ncsf_open_shells(nsing(ipat),mult-1)
+
+end do
+
 call mma_allocate(ibcomb,npat,label='IBComb')
 
 ibcomb(1) = 1
@@ -1517,7 +1588,6 @@ call build_ictsdt()
 end subroutine analyse_patterns
 
 integer(kind=iwp) function spin_comb_count(iopen,ms2)
-use second_quantization, only: binom_coef
 
   integer(kind=iwp), intent(in) :: iopen, ms2
   integer(kind=iwp) :: iael, ibel
@@ -1789,9 +1859,8 @@ subroutine build_ictsdt()
 
 end subroutine build_ictsdt
 
-integer(kind=iwp) function nconf_open_shells(norb,nel,nopen)
 
-  use second_quantization, only: binom_coef
+integer(kind=iwp) function nconf_open_shells(norb,nel,nopen)
 
   integer(kind=iwp), intent(in) :: norb
   integer(kind=iwp), intent(in) :: nel
@@ -1813,8 +1882,6 @@ integer(kind=iwp) function nconf_open_shells(norb,nel,nopen)
 end function nconf_open_shells
 
 integer(kind=iwp) function ncsf_open_shells(nopen,ms2)
-
-  use second_quantization, only: binom_coef
 
   integer(kind=iwp), intent(in) :: nopen
   integer(kind=iwp), intent(in) :: ms2
@@ -1839,6 +1906,194 @@ integer(kind=iwp) function ncsf_open_shells(nopen,ms2)
 end function ncsf_open_shells
 
 
+subroutine configuration_from_index(nOpen,jCNF,occ)
+
+  integer(kind=iwp), intent(in)  :: nOpen
+  integer(kind=iwp), intent(in)  :: jCNF
+  integer(kind=iwp), intent(out) :: occ(my_norb)
+
+  integer(kind=iwp) :: iconf_exp(my_nel)
+  integer(kind=iwp) :: occ_local(my_norb)
+
+  integer(kind=iwp) :: i
+  integer(kind=iwp) :: nopen_local
+  integer(kind=iwp) :: count_conf
+  integer(kind=iwp) :: nonew
+
+  occ(:) = 0
+
+  !
+  ! Initial configuration
+  !
+  call nxt_conf_faroald(iconf_exp,my_nel,my_norb,1,nonew)
+
+  count_conf = 0
+
+  do while (nonew == 0)
+
+     !
+     ! Expanded occupation list -> occupation pattern
+     !
+     occ_local(:) = 0
+
+     do i=1,my_nel
+        occ_local(iconf_exp(i)) = occ_local(iconf_exp(i)) + 1
+     end do
+
+     !
+     ! Lucia only allows occupations 0,1,2
+     !
+     if (maxval(occ_local) <= 2) then
+
+        nopen_local = count(occ_local(:) == 1)
+
+        if (nopen_local == nOpen) then
+
+           count_conf = count_conf + 1
+
+           if (count_conf == jCNF) then
+
+              occ(:) = occ_local(:)
+
+              return
+
+           end if
+
+        end if
+
+     end if
+
+     !
+     ! Next configuration in Lucia order
+     !
+     call nxt_conf_faroald(iconf_exp,my_nel,my_norb,0,nonew)
+
+  end do
+
+  write(u6,*) 'configuration_from_index: jCNF out of range'
+  write(u6,*) 'nOpen=',nOpen,' jCNF=',jCNF
+  call Abend()
+
+end subroutine configuration_from_index
+
+subroutine nxt_conf_faroald(iconf, nel, norb, ini, nonew)
+
+  integer(kind=iwp), intent(in)    :: nel
+  integer(kind=iwp), intent(in)    :: norb
+  integer(kind=iwp), intent(in)    :: ini
+
+  integer(kind=iwp), intent(inout) :: iconf(nel)
+
+  integer(kind=iwp), intent(out)   :: nonew
+
+  integer(kind=iwp) :: i
+  integer(kind=iwp) :: iadd
+  integer(kind=iwp) :: iel
+  integer(kind=iwp) :: increase
+  integer(kind=iwp) :: jorb
+  integer(kind=iwp) :: ndouble
+
+  if (ini == 1) then
+
+     if (nel <= 2*norb) then
+
+        nonew = 0
+
+        ndouble = nel/2
+
+        do i=1,ndouble
+           iconf(2*i-1) = i
+           iconf(2*i  ) = i
+        end do
+
+        if (2*ndouble /= nel) then
+           iconf(2*ndouble+1) = ndouble+1
+        end if
+
+     else
+
+        nonew = 1
+
+     end if
+
+  else
+
+     iadd = 1
+     iel  = 0
+
+     do while (iadd == 1)
+
+        iel = iel + 1
+
+        increase = 0
+
+        if (iel < nel) then
+
+           if (iconf(iel) < iconf(iel+1)-1) then
+
+              increase = 1
+
+           else if (iconf(iel) == iconf(iel+1)-1) then
+
+              if (iel == nel-1) then
+
+                 increase = 1
+
+              else if (iconf(iel+1) /= iconf(iel+2)) then
+
+                 increase = 1
+
+              end if
+
+           end if
+
+        else if (iel == nel) then
+
+           if (iconf(iel) < norb) then
+
+              increase = 1
+
+           else
+
+              nonew = 1
+              exit
+
+           end if
+
+        else
+
+           nonew = 1
+           exit
+
+        end if
+
+        if (increase == 1) then
+
+           nonew = 0
+
+           iconf(iel) = iconf(iel) + 1
+
+           ndouble = (iel-1)/2
+
+           do jorb=1,ndouble
+              iconf(2*jorb-1) = jorb
+              iconf(2*jorb  ) = jorb
+           end do
+
+           if (2*ndouble < iel-1) then
+              iconf(iel-1) = ndouble + 1
+           end if
+
+           iadd = 0
+
+        end if
+
+     end do
+
+  end if
+
+end subroutine nxt_conf_faroald
+
 subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 ! for a pair of orbitals p and q, and determinants
 ! generated by my_nel electrons in my_norb spin orbitals,
@@ -1848,7 +2103,7 @@ subroutine LRs_init(p,q,my_nel,my_norb,L,R,sgn,counter)
 ! where i is a counter from 1 to n_det. The sign of
 ! jdet is stored in the sgn array.
 
-  use second_quantization, only: binom_coef, ex1, fase, lex_init, lex_next, lexrank
+  use second_quantization, only: ex1, fase, lex_init, lex_next, lexrank
 
   integer(kind=iwp), intent(in) :: p, q, my_nel, my_norb
   integer(kind=iwp), intent(out) :: L(:), R(:), sgn(:), counter
