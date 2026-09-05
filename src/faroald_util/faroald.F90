@@ -1015,7 +1015,7 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
      iDet = binom_coef(nAEl,nOpen)
      iCSF=ncsf_open_shells(nOpen,Mult-1)
      iCNF=nconf_open_shells(my_norb,my_nel,nOpen)
-     Write(6,'(A,5I6)') 'nOpen, nAEl, nBEl, nDet, nCSF=', nOpen, nAEl, nBEl, iDet, iCSF
+!    Write(6,'(A,5I6)') 'nOpen, nAEl, nBEl, nDet, nCSF=', nOpen, nAEl, nBEl, iDet, iCSF
      sumDet = sumDet + iDet*iCNF
      sumCSF = sumCSF + iCSF*iCNF
      Do jCNF=1, iCNF
@@ -1030,7 +1030,7 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
               exit
            end if
         end do
-        write(u6,'(A,3I6,A,20I2)') 'nOpen,jCNF,ipat=',nOpen,jCNF,ipat_match,' occ=',occ(:)
+!       write(u6,'(A,3I6,A,20I2)') 'nOpen,jCNF,ipat=',nOpen,jCNF,ipat_match,' occ=',occ(:)
 
         EAver = Zero
 
@@ -1049,9 +1049,9 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
         iCSFOff = iCSFOff + iCSF
      End Do
   End Do
-  Write(6,'(A,2I6)') 'SumDet, SumCSF=', SumDet, SumCSF
+! Write(6,'(A,2I6)') 'SumDet, SumCSF=', SumDet, SumCSF
 
-  Call RecPrt('CSFDIA(Farolad)',' ',CSFDIA,1,nConf)
+! Call RecPrt('CSFDIA(Farolad)',' ',CSFDIA,1,nConf)
 
   call mma_deallocate(occb)
   call mma_deallocate(occa)

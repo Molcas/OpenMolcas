@@ -32,7 +32,6 @@ real(kind=wp) :: dum1, dum2, dum3, Time(2)
 
 call Timing(Time(1),dum1,dum2,dum3)
 
-Write (6,*) 'Call Mk_CI_Diag: mConf=',nConf
 Call Mk_CI_Diag(CSFDIA,nConf,FMO,size(FMO),TUVX,size(TUVX))
 
 ! PRINT CI-DIAGONAL

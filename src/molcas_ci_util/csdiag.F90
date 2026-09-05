@@ -31,7 +31,7 @@ real(kind=wp), intent(in) :: DETDIA(NDET)
 integer(kind=iwp) :: ICNF, ICSF, ICSOFF, IDET, IDTOFF, ITYP, JCNF, JDET, NCSTOT, NDTTOT
 real(kind=wp) :: EAVER
 
-Write (6,*) 'NTYP=',NTYP
+!Write (6,*) 'NTYP=',NTYP
 ICSOFF = 0
 IDTOFF = 0
 ! NTYP = number of open-shell class.
@@ -42,7 +42,7 @@ do ITYP=1,NTYP
   ICNF = NCNFTP(ITYP)
   IDET = NDTFTP(ITYP)
   ICSF = NCSFTP(ITYP)
-  Write (6,*) 'ITYP, IDET, ICSF, ICNF=',ITYP, IDET, ICSF, ICNF
+!  Write (6,*) 'ITYP, IDET, ICSF, ICNF=',ITYP, IDET, ICSF, ICNF
   do JCNF=1,ICNF
     EAVER = Zero
     do JDET=1,IDET
@@ -65,7 +65,5 @@ if (IPRINT >= 40) then
   write(u6,*) ' CIDIAGONAL IN CSF BASIS'
   call WRTMAT(CSFDIA,1,NCSTOT,1,NCSTOT)
 end if
-
-return
 
 end subroutine CSDIAG

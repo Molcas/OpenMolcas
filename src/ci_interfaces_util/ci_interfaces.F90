@@ -510,7 +510,7 @@ If (DoFaro) Then
      Call Abend()
   End If
 !Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
-Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
+!Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
