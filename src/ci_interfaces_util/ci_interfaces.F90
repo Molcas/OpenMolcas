@@ -585,12 +585,12 @@ call mma_deallocate(DDIA)
 
 #ifdef _SGUGA_VERIFY_
 Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
-Call sg_diag_reference(SGS(iState),CIS(iState),EXS(iState), &
-                       nConf,STSYM, &
-                       TUVX,nTUVX, &
-                       TU,nTU, &
-                       TMP)
-Call RecPrt('TMP',' ',TMP,1,nConf)
+Call sg_hdiag_ref(SGS(iState),CIS(iState),EXS(iState), &
+                  nConf,STSYM, &
+                  TUVX,nTUVX, &
+                  TU,nTU, &
+                  TMP)
+!Call RecPrt('TMP',' ',TMP,1,nConf)
 Call mma_allocate(CSFDIA_SGUGA,nConf,Label='CSFDIA_S')
 Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_SGUGA)
 Call mma_deallocate(TMP)

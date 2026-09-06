@@ -10,42 +10,60 @@
 !                                                                      *
 ! Copyright (C) 2026, Roland Lindh                                     *
 !***********************************************************************
-subroutine sg_diag_reference(SGS,CIS,EXS, &
-                             nCSFs,PsiSym, &
-                             TUVX_Tri,nTUVX_Tri, &
-                             TU_Tri,nTU_Tri, &
-                             Diag)
-use Constants, only: Zero, One
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: iwp, wp
 
-   real(kind=wp), intent(out) :: Diag(nCSFs)
+subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
+                        TUVX_Tri,nTUVX_Tri, &
+                        TU_Tri,nTU_Tri, &
+                        Diag)
 
-   real(kind=wp), allocatable :: Psi(:), Sigma(:)
+  use sguga, only: SGStruct, CIStruct, EXStruct
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, One
+  use Definitions, only: wp, iwp
 
-   integer(kind=iwp) :: iCSF
+  implicit none
 
-   call mma_allocate(Psi,nCSFs,label='Psi')
-   call mma_allocate(Sigma,nCSFs,label='Sigma')
+  type(SGStruct), intent(in)    :: SGS
+  type(CIStruct), intent(in)    :: CIS
+  type(EXStruct), intent(inout) :: EXS
 
-   do iCSF=1,nCSFs
+  integer(kind=iwp), intent(in) :: nCSFs
+  integer(kind=iwp), intent(in) :: CSFSym
 
-      Psi(:)   = Zero
-      Sigma(:) = Zero
+  integer(kind=iwp), intent(in) :: nTUVX_Tri
+  integer(kind=iwp), intent(in) :: nTU_Tri
 
-      Psi(iCSF) = One
+  real(kind=wp), intent(in) :: TUVX_Tri(nTUVX_Tri)
+  real(kind=wp), intent(in) :: TU_Tri(nTU_Tri)
 
-      call sg_h_psi(SGS,CIS,EXS, &
-                    Psi,nCSFs,PsiSym, &
-                    Sigma, &
-                    TUVX_Tri,nTUVX_Tri, &
-                    TU_Tri,nTU_Tri)
+  real(kind=wp), intent(out) :: Diag(nCSFs)
 
-      Diag(iCSF) = Sigma(iCSF)
+  real(kind=wp), allocatable :: Psi(:)
+  real(kind=wp), allocatable :: Sigma(:)
 
-   end do
+  integer(kind=iwp) :: iCSF
 
-   call mma_deallocate(Sigma)
-   call mma_deallocate(Psi)
+  call mma_allocate(Psi,nCSFs,Label='Psi')
+  call mma_allocate(Sigma,nCSFs,Label='Sigma')
 
-end subroutine sg_diag_reference
+  do iCSF=1,nCSFs
+
+     Psi(:)   = Zero
+     Sigma(:) = Zero
+
+     Psi(iCSF) = One
+
+     call sg_h_psi(SGS,CIS,EXS, &
+                   Psi,nCSFs,CSFSym, &
+                   Sigma, &
+                   TUVX_Tri,nTUVX_Tri, &
+                   TU_Tri,nTU_Tri)
+
+     Diag(iCSF) = Sigma(iCSF)
+
+  end do
+
+  call mma_deallocate(Sigma)
+  call mma_deallocate(Psi)
+
+end subroutine sg_hdiag_ref
