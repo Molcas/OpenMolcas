@@ -479,6 +479,9 @@ use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
 use faroald, only: nPat, hdiag, ncomb_tot
+#ifdef _SGUGA_VERIFY_
+use sguga, only: SGS, EXS, CIS
+#endif
 
 integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(out):: CSFDIA(nConf)
@@ -488,6 +491,10 @@ real(kind=wp), allocatable :: DDIA(:), DIAG(:), CSFDIA_Faroald(:)
 integer(kind=iwp):: IPRINT=0
 
 integer(kind=iwp) :: i
+#ifdef _SGUGA_VERIFY_
+integer(kind=iwp), parameter :: iState=1
+real(kind=wp), allocatable :: TMP(:), CSFDIA_SGUGA(:)
+#endif
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
 
@@ -512,7 +519,7 @@ If (DoFaro) Then
      Call Abend()
   End If
 !Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
-!Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
+Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -565,6 +572,7 @@ If (DoFaro) Then
         Call abend()
      End If
   End Do
+  Call RecPrt('CSFDIA(Faroald)',' ',CSFDIA_Faroald,1,nConf)
   CSFDIA(:)= CSFDIA_Faroald(:)
 
   Call mma_deallocate(CSFDIA_Faroald)
@@ -574,6 +582,24 @@ End If
 
 ! DEALLOCATE LOCAL MEMORY
 call mma_deallocate(DDIA)
+
+#ifdef _SGUGA_VERIFY_
+Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
+Call sg_diag_reference(SGS(iState),CIS(iState),EXS(iState), &
+                       nConf,STSYM, &
+                       TUVX,nTUVX, &
+                       TU,nTU, &
+                       TMP)
+Call RecPrt('TMP',' ',TMP,1,nConf)
+Call mma_allocate(CSFDIA_SGUGA,nConf,Label='CSFDIA_S')
+Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_SGUGA)
+Call mma_deallocate(TMP)
+! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
+CSFDIA_SGUGA(:)=-ABS(CSFDIA_SGUGA(:))
+Call RecPrt('CSFDIA(SGUGA)',' ',CSFDIA_SGUGA,1,nConf)
+Call mma_deallocate(CSFDIA_SGUGA)
+
+#endif
 
 End subroutine Mk_CI_Diag
 
