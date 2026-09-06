@@ -482,7 +482,7 @@ integer(kind=iwp), intent(in) :: nConf, nTU, nTUVX
 real(kind=wp), intent(out):: CSFDIA(nConf)
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
-real(kind=wp), allocatable :: DDIA(:), DIAG(:)
+real(kind=wp), allocatable :: DDIA(:), DIAG(:), CSFDIA_Faroald(:)
 integer(kind=iwp):: IPRINT=0
 
 integer(kind=iwp) :: i
@@ -540,8 +540,9 @@ If (DoFaro) Then
   end do
 
   Call mma_allocate(Diag,nComb_tot,Label='Diag')
+  Call mma_allocate(CSFDIA_Faroald,nConf,Label='CSFDIA_F')
   Diag(:)=Zero
-  Call hdiag(htu,gtuvx,diag,CSFDIA,nConf)
+  Call hdiag(htu,gtuvx,diag,CSFDIA_Faroald,nConf)
 ! Call RecPrt('Diag(FAROALD)',' ',Diag,1,nComb_tot)
   Do i=1,nComb_tot
      If (abs(ddia(i)-diag(i))/real(nComb_tot,wp)>1.0e-10_wp) Then
@@ -553,7 +554,18 @@ If (DoFaro) Then
         Call abend()
      End If
   End Do
+  Do i=1,nConf
+     If (abs(CSFDIA(i)-CSFDIA_Faroald(i))/real(nConf,wp)>1.0e-10_wp) Then
+        Write (u6,*) 'i, abs(CSFDIA(i)-CSFDIA_Faroald(i))', i, abs(CSFDIA(i)-CSFDIA_Faroald(i))
+        Write (u6,*) CSFDIA(i),CSFDIA_Faroald(i)
+        Call RecPrt('CSFDIA(LUCIA)',' ',CSFDIA,1,nConf)
+        Call RecPrt('CSFDIA(Faroald)',' ',CSFDIA_Faroald,1,nConf)
+        Call abend()
+     End If
+  End Do
+  CSFDIA(:)= CSFDIA_Faroald(:)
 
+  Call mma_deallocate(CSFDIA_Faroald)
   Call mma_deallocate(Diag)
 
 End If
