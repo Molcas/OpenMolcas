@@ -47,7 +47,7 @@ if (iokey == 1) then
     ! file will be opened first time, it must be opened
     ! with the pointer at then first position
     call molcas_binaryopen_vanilla(lunpublic,tmpnam(i1))
-    !open(unit=lunpublic,file=tmpnam(i1),form='unformatted',status='unknown')
+    !open(lunpublic,file=tmpnam(i1),form='unformatted',status='unknown')
     stattemp(i1) = 1
 
   else
@@ -55,10 +55,10 @@ if (iokey == 1) then
     ! be opened with the pointer at the end of the file
 !#   ifdef _DECAXP_
     call molcas_open_ext2(lunpublic,tmpnam(i1),'append','unformatted',f_iostat,.false.,1,'unknown',is_error)
-    !vv open(unit=lunpublic,file=tmpnam(i1),form='unformatted',status='unknown',access='append')
+    !vv open(lunpublic,file=tmpnam(i1),form='unformatted',status='unknown',access='append')
 !#   else
 !    call molcas_binaryopen_vanilla(lunpublic,tmpnam(i1))
-!    open(unit=lunpublic,file=tmpnam(i1),form='unformatted',status='unknown')
+!    open(lunpublic,file=tmpnam(i1),form='unformatted',status='unknown')
 !    do iRec=1,nrectemp(i1)
 !      Read(lunpublic) m2
 !    end do

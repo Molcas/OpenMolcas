@@ -20,7 +20,6 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin, iState
-
 integer(kind=iwp) :: ILEV, iq, ISM(MxLev), ISYM, IT, L2Act(MxLev), nLev
 
 nLev = 0
@@ -34,8 +33,7 @@ end do
 
 L2Act(1:MxLev) = [(iq,iq=1,MxLev)]
 
-call SG_Init(iState,nSym,nActEl,iSpin,    &
-             nRas,nRasEl,nRsPrt,                           &
+call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
              xLevel=Level,xL2Act=L2Act,xNLEV=nLev,xNSM=ISM)
 
 end subroutine SG_setup_RASSI

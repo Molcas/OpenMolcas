@@ -1,6 +1,8 @@
 OpenMolcas
 ==========
 
+**Home page**: https://molcas.gitlab.io
+
 OpenMolcas is a quantum chemistry software package developed by scientists
 and intended to be used by scientists. It includes programs to apply many
 different electronic structure methods to chemical systems, but its key

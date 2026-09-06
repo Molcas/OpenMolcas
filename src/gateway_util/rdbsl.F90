@@ -179,7 +179,7 @@ end if
 ! check basistype
 call BasisType(Filename,0,BasisTypes)
 call molcas_open_ext2(lUnit,FileName,'sequential','formatted',istatus,.false.,irecl,'unknown',is_error)
-!open(unit=lUnit,file=Filename,form='FORMATTED',iostat=istatus)
+!open(lUnit,file=Filename,form='FORMATTED',iostat=istatus)
 if (istatus /= 0) then
   iLast3 = len_trim(Filename)
   call WarningMessage(2,' Problems opening basis set file '//Filename(1:iLast3))

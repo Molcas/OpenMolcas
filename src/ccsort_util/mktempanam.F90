@@ -26,7 +26,7 @@ integer(kind=iwp) :: itemp, k1, lun
 
 lun = lunpublic
 call molcas_open(lun,'TEMP000')
-!open(unit=lun,file='TEMP000')
+!open(lun,file='TEMP000')
 
 do k1=1,mbas
   if (k1 < 10) then

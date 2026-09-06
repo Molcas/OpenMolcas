@@ -52,7 +52,7 @@ end if
 ! Read until EOF
 PT(:,:,:,:) = Zero
 do
-  read(LU,*,IOSTAT=ierr) idx1,idx2,idx3,idx4,PTtemp
+  read(LU,*,iostat=ierr) idx1,idx2,idx3,idx4,PTtemp
   if (ierr /= 0) exit
   PT(idx1+1,idx3+1,idx4+1,idx2+1) = PTtemp
 end do

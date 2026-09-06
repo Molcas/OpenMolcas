@@ -36,7 +36,7 @@ do jRoot=1,lRoots
   CIDisk2 = IADR15(4)
   do kRoot=1,jRoot
     call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-    Call Mk_T1DM(VECR(:),VECL(:),nConf,TMPD,NAC**2)
+    call Mk_T1DM(VECR,VECL,nConf,TMPD,NAC**2)
     do IOrb=1,NAC
       GDMat(iTri(jRoot,kRoot),:,IOrb) = TmpD((IOrb-1)*NAC+1:IOrb*NAC)
     end do

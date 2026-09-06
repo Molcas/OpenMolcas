@@ -96,7 +96,7 @@ if (file_exist) then
     write(u6,'(A)') 'file "lineOUT" is opened'
 #   endif
     ! close the file:
-    close(unit=file_number,status='DELETE')
+    close(file_number,status='DELETE')
   end if
   ! delete the file
 # ifdef _DEBUGPRINT_

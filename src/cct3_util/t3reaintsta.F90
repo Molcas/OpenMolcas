@@ -28,12 +28,13 @@ implicit none
 integer(kind=iwp), intent(in) :: wrksize
 real(kind=wp), intent(out) :: wrk(wrksize)
 integer(kind=iwp) :: lunsta, rc
+integer(kind=iwp), external :: isFreeUnit
 
 !* open INTSTA file
-lunsta = 1
+lunsta = isFreeUnit(14)
 if (iokey == 1) then
   ! Fortran IO
-  !open(unit=lunsta,file='INTSTA',form='unformatted')
+  !open(lunsta,file='INTSTA',form='unformatted')
   call molcas_binaryopen_vanilla(lunsta,'INTSTA')
 
 else

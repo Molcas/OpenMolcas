@@ -1,0 +1,33 @@
+line-length = 132
+
+# indents
+indent = 2
+strict-indent = true
+
+# replacements
+case = [1, 1, 1, 1]
+enable-replacements = true
+c-relations = true
+
+# whitespace
+enable-decl = true
+whitespace-comma = false
+whitespace-decl = true
+whitespace-assignment = true
+whitespace-relational = true
+whitespace-logical = true
+whitespace-plusminus = false
+whitespace-multdiv = false
+whitespace-print = true
+whitespace-type = false
+whitespace-intrinsics = false
+
+# new options
+whitespace-end = true
+whitespace-only = true
+whitespace-if = true
+whitespace-do = false
+whitespace-list = true
+reset-indent = true
+disable-indent-first = true
+indent-select = true

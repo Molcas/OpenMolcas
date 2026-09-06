@@ -42,7 +42,7 @@ Exists = .false.
 
 ! Check that file exists
 
-!open(unit=Lu,file=FName,status='UNKNOWN',form='FORMATTED')
+!open(Lu,file=FName,status='UNKNOWN',form='FORMATTED')
 call F_Inquire(FName,Exists)
 call Molcas_Open(Lu,FName)
 

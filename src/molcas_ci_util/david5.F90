@@ -115,7 +115,7 @@ do it_ci=1,mxItr
 
     call Timing(Time2(1),dum1,dum2,dum3)
 
-    Call Mk_H_Psi(iState,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,Size(ctemp),nDeta,nDetb,nTU,TU,nTUVX,TUVX)
+    call Mk_H_Psi(iState,STSYM,nConf,Vec1,Vec2,ctemp,sigtemp,size(ctemp),nDeta,nDetb,nTU,TU,nTUVX,TUVX)
 
     ! Timings on generation of the sigma vector
     call Timing(Time2(2),dum1,dum2,dum3)

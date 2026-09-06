@@ -29,8 +29,8 @@ private
 character(len=*), parameter :: basename = 'SLAPAFCHK'
 
 integer(kind=iwp) :: chkpnt_appnadc, chkpnt_coor, chkpnt_ener, chkpnt_force, chkpnt_gd, chkpnt_hess, chkpnt_id, chkpnt_iter, &
-                      chkpnt_nac, chkpnt_new, chkpnt_rootener, chkpnt_rootener2, chkpnt_rootidx, chkpnt_rootmap, Iter_all
-logical(kind=iwp) :: have_CI, have_NAC, have_RootMap, have_RootEner2
+                     chkpnt_nac, chkpnt_new, chkpnt_rootener, chkpnt_rootener2, chkpnt_rootidx, chkpnt_rootmap, Iter_all
+logical(kind=iwp) :: have_CI, have_NAC, have_RootEner2, have_RootMap
 character(len=12) :: filename
 #endif
 
@@ -110,8 +110,8 @@ subroutine Chkpnt_init()
   use Phase_Info, only: iPhase
   use Symmetry_Info, only: nIrrep
   use Index_Functions, only: nTri_Elem
-  use Slapaf_Info, only: AtomLbl, Coor, dMass, dMEPStep, EDiffZero, iCoSet, iState, MEP, NADC, nDimBC, nStab, rMEP, Smmtrc, &
-                         Track, TwoRunFiles
+  use Slapaf_Info, only: AtomLbl, Coor, dMass, dMEPStep, EDiffZero, iCoSet, iState, MEP, NADC, nDimBC, nStab, rMEP, Smmtrc, Track, &
+                         TwoRunFiles
   use stdalloc, only: mma_allocate, mma_deallocate
   character :: lIrrep(24)
   integer(kind=iwp) :: Columbus, dsetid, i, j, k, mAtom, nRoots, nRoots2
@@ -223,20 +223,20 @@ subroutine Chkpnt_init()
   call mh5_init_attr(chkpnt_id,'NROOTS',nRoots)
   chkpnt_rootener = mh5_create_dset_real(chkpnt_id,'ROOT_ENERGIES',2,[nRoots,0],dyn=.true.)
   call mh5_init_attr(chkpnt_rootener,'DESCRIPTION','Energies of all computed roots for all iterations, matrix of size '// &
-                      '[ITERATIONS,NROOTS]; column order is assigned per geometry and a column need not hold the same '// &
-                      'state across iterations -- ROOT_MAPPING resolves this when present, but its absence means the '// &
-                      'reordering was not tracked, not that the order is fixed; on a TWO_RUNFILES run these are the '// &
-                      'active RunFile''s roots only -- RUNFILE2''s roots are in ROOT_ENERGIES_2 when that dataset is '// &
-                      'present -- so ROOT_INDICES column 1 must not be used to index this dataset')
+                     '[ITERATIONS,NROOTS]; column order is assigned per geometry and a column need not hold the same state '// &
+                     'across iterations -- ROOT_MAPPING resolves this when present, but its absence means the reordering was '// &
+                     "not tracked, not that the order is fixed; on a TWO_RUNFILES run these are the active RunFile's roots "// &
+                     "only -- RUNFILE2's roots are in ROOT_ENERGIES_2 when that dataset is present -- so ROOT_INDICES column "// &
+                     '1 must not be used to index this dataset')
 
   ! root mapping: only meaningful (and only created) for a Track run, where the solver can reassign which root occupies
   ! which ROOT_ENERGIES column between iterations
   have_RootMap = Track
   if (have_RootMap) then
     chkpnt_rootmap = mh5_create_dset_int(chkpnt_id,'ROOT_MAPPING',2,[nRoots,0],dyn=.true.)
-    call mh5_init_attr(chkpnt_rootmap,'DESCRIPTION','Mapping from each root''s original index at iteration 1 to its '// &
-                       'current slot, matrix of size [ITERATIONS,NROOTS]: entry [k,i] is the slot occupied at '// &
-                       'iteration k by the root that was index i at iteration 1')
+    call mh5_init_attr(chkpnt_rootmap,'DESCRIPTION',"Mapping from each root's original index at iteration 1 to its current "// &
+                       'slot, matrix of size [ITERATIONS,NROOTS]: entry [k,i] is the slot occupied at iteration k by the root '// &
+                       'that was index i at iteration 1')
   end if
 
   ! atom coordinates
@@ -281,30 +281,29 @@ subroutine Chkpnt_init()
       call NameRun('#Pop')
       call mh5_init_attr(chkpnt_id,'NROOTS_2',nRoots2)
       chkpnt_rootener2 = mh5_create_dset_real(chkpnt_id,'ROOT_ENERGIES_2',2,[nRoots2,0],dyn=.true.)
-      call mh5_init_attr(chkpnt_rootener2,'DESCRIPTION','Energies of all computed roots of the wavefunction copied to '// &
-                         'RUNFILE2 for a two-RunFile crossing run (e.g. the CASPT2 states of a CASPT2 gradient job, '// &
-                         'not necessarily RASSCF), matrix of size [ITERATIONS,NROOTS_2]; ROOT_INDICES column 1 '// &
-                         '(Fortran index 2) selects within this array, while ROOT_INDICES column 0 selects within '// &
-                         'ROOT_ENERGIES')
+      call mh5_init_attr(chkpnt_rootener2,'DESCRIPTION','Energies of all computed roots of the wavefunction copied to RUNFILE2 '// &
+                         'for a two-RunFile crossing run (e.g. the CASPT2 states of a CASPT2 gradient job, not necessarily '// &
+                         'RASSCF), matrix of size [ITERATIONS,NROOTS_2]; ROOT_INDICES column 1 (Fortran index 2) selects '// &
+                         'within this array, while ROOT_INDICES column 0 selects within ROOT_ENERGIES')
     end if
 
     chkpnt_gd = mh5_create_dset_real(chkpnt_id,'GRADIENT_DIFFERENCE',3,[3,size(Coor,2),0],dyn=.true.)
-    call mh5_init_attr(chkpnt_gd,'DESCRIPTION','Gradient difference between the two states referenced by ROOT_INDICES '// &
-                       '(column 1 gradient minus column 0 gradient), matrix of size [ITERATIONS,NATOMS_UNIQUE,3], '// &
-                       'stored with iteration varying slowest, then atom index')
+    call mh5_init_attr(chkpnt_gd,'DESCRIPTION','Gradient difference between the two states referenced by ROOT_INDICES (column '// &
+                       '1 gradient minus column 0 gradient), matrix of size [ITERATIONS,NATOMS_UNIQUE,3], stored with '// &
+                       'iteration varying slowest, then atom index')
 
     ! LDV: for a two-RunFile job iState is (active-RunFile root, RUNFILE2 root), not sorted -- see process_gradients.F90:
     ! L36 zeroes both, L64-75 sets iState(1) from the active RunFile, L104-119 sets iState(2) from RUNFILE2 with no min/max
     ! sort (unlike the same-spin CI case, where iState(1) ends up the higher root and iState(2) the lower).
     chkpnt_rootidx = mh5_create_dset_int(chkpnt_id,'ROOT_INDICES',2,[2,0],dyn=.true.)
     call mh5_init_attr(chkpnt_rootidx,'DESCRIPTION','State-pair indices for the two-state calculation, matrix of size '// &
-                       '[ITERATIONS,2], holding Fortran 1-based root numbers -- a 0-based reader must subtract one; '// &
-                       'column 0 is the higher root and column 1 the lower root, unless TWO_RUNFILES is set, in which '// &
-                       'case column 0 is the active RunFile''s root and column 1 is RUNFILE2''s root, and the pair is '// &
-                       'not sorted; the NADC attribute is 1 when a coupling derivative vector was computed for this '// &
-                       'pair, in which case NAC is present, and 0 when it was not, i.e. a minimum-energy crossing '// &
-                       'point rather than a conical intersection; EDIFF_ZERO is 1 when the energy difference is '// &
-                       'constrained to zero and 0 when a fixed nonzero gap is sought')
+                       '[ITERATIONS,2], holding Fortran 1-based root numbers -- a 0-based reader must subtract one; column 0 '// &
+                       'is the higher root and column 1 the lower root, unless TWO_RUNFILES is set, in which case column 0 is '// &
+                       "the active RunFile's root and column 1 is RUNFILE2's root, and the pair is not sorted; the NADC "// &
+                       'attribute is 1 when a coupling derivative vector was computed for this pair, in which case NAC is '// &
+                       'present, and 0 when it was not, i.e. a minimum-energy crossing point rather than a conical '// &
+                       'intersection; EDIFF_ZERO is 1 when the energy difference is constrained to zero and 0 when a fixed '// &
+                       'nonzero gap is sought')
 
     call Get_iScalar('Columbus',Columbus)
     ! Columbus /= 1 because in Columbus mode the block that fills NAC is skipped and the array keeps its zero fill; the flag
@@ -312,16 +311,14 @@ subroutine Chkpnt_init()
     have_NAC = NADC .and. (Columbus /= 1)
     if (have_NAC) then
       chkpnt_nac = mh5_create_dset_real(chkpnt_id,'NAC',3,[3,size(Coor,2),0],dyn=.true.)
-      call mh5_init_attr(chkpnt_nac,'DESCRIPTION','Nonadiabatic coupling derivative vector between the two states '// &
-                         'referenced by ROOT_INDICES, or (when APPROX_NADC is set for that iteration) a normalized '// &
-                         'dimensionless branching-plane vector instead, matrix of size [ITERATIONS,NATOMS_UNIQUE,3], '// &
-                         'stored with iteration varying slowest, then atom index; the NADC and EDIFF_ZERO attributes '// &
-                         'are described with ROOT_INDICES')
+      call mh5_init_attr(chkpnt_nac,'DESCRIPTION','Nonadiabatic coupling derivative vector between the two states referenced '// &
+                         'by ROOT_INDICES, or (when APPROX_NADC is set for that iteration) a normalized dimensionless '// &
+                         'branching-plane vector instead, matrix of size [ITERATIONS,NATOMS_UNIQUE,3], stored with iteration '// &
+                         'varying slowest, then atom index; the NADC and EDIFF_ZERO attributes are described with ROOT_INDICES')
 
       chkpnt_appnadc = mh5_create_dset_int(chkpnt_id,'APPROX_NADC',1,[0],dyn=.true.)
       call mh5_init_attr(chkpnt_appnadc,'DESCRIPTION','Flag (0/1) per iteration: whether NAC for that iteration is an '// &
-                         'approximate branching-plane vector rather than a true coupling derivative, vector of size '// &
-                         '[ITERATIONS]')
+                         'approximate branching-plane vector rather than a true coupling derivative, vector of size [ITERATIONS]')
     end if
   else
     have_NAC = .false.

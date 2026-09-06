@@ -20,6 +20,8 @@
 
 module Cho_Square
 
+use Symmetry_Info, only: Mul
+use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 use Definitions, only: wp, iwp
 
 implicit none
@@ -33,9 +35,7 @@ integer(kind=iwp) :: JREDPRV = -1    ! reduced set of the previous expansion
 integer(kind=iwp) :: NJPRV = -1      ! number of vectors in the previous expansion
 real(kind=wp), allocatable :: LSQ(:) ! the expanded vectors, LSQ(a,j,b)
 
-public :: Cho_Sq_Setup, Cho_Sq_Close
-public :: Cho_Red2Sq
-public :: LSQ, IPLSQ, NSUB
+public :: Cho_Red2Sq, Cho_Sq_Close, Cho_Sq_Setup, IPLSQ, LSQ, NSUB
 
 contains
 
@@ -43,13 +43,10 @@ contains
 
 subroutine Cho_Sq_Setup(USE_SQ)
 
-  use Symmetry_Info, only: Mul
   use ChoCASPT2, only: MXCHARR, NCHSPC
   use caspt2_module, only: nBas, nSym
-  use stdalloc, only: mma_allocate, mma_MaxDBLE
 
   logical(kind=iwp), intent(inout) :: USE_SQ
-
   integer(kind=iwp) :: ISYMA, ISYMB, JSYM, MAXSUB, MXAVAIL, NPB
   integer(kind=iwp), parameter :: MAXSUB_DEF = 32 ! cap on NSUB
 
@@ -84,9 +81,7 @@ end subroutine Cho_Sq_Setup
 
 subroutine Cho_Sq_Close()
 
-  use stdalloc, only: mma_deallocate
-
-  if (allocated(LSQ)) call mma_deallocate(LSQ)
+  call mma_deallocate(LSQ,safe='*')
   NSUB = 0
 
 end subroutine Cho_Sq_Close
@@ -95,14 +90,12 @@ end subroutine Cho_Sq_Close
 
 subroutine Cho_Red2Sq(SCR,LSCR,JSUB,NJ,JSYM,JREDC,JVGLB)
 
-  use Symmetry_Info, only: Mul
   use Cholesky, only: nBas, nDimRS, nSym
   use Constants, only: Zero
 
   integer(kind=iwp), intent(in) :: LSCR, JSUB, NJ, JSYM, JREDC, JVGLB
   real(kind=wp), intent(in) :: SCR(LSCR)
-
-  integer(kind=iwp) :: IOFF, IREDCL, IRC, ISKIP(8), ISYMA, ISYMB, NRS, NTOT
+  integer(kind=iwp) :: IOFF, IRC, IREDCL, ISKIP(8), ISYMA, ISYMB, NRS, NTOT
   logical(kind=iwp) :: do_clear
 
   ! Expand NJ Cholesky vectors from the reduced set storage into square symmetry blocks,

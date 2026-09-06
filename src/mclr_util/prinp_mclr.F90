@@ -24,11 +24,10 @@ subroutine PrInp_MCLR(iPL)
 !***********************************************************************
 
 use MCLR_Data, only: ChDisp, DspVec, IRLXROOT, ISNAC, ISTATE, lDisp, NACSTATES, nexp_max, NSSA, SA, SwLbl, XISPSM
-use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, State_Sym=>STSym
-use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, iMethod, iPT2, iRoot, mTit, &
-                      nAtoms, nBas, nCSF, nDel, nDisp,  NewCho, nFro, nIter, nOrb, nRoots, &
-                      nSkip, ntAsh, ntBas, ntIsh, nTPert, Perturbation, PotNuc, PT2, SpinPol, &
-                      StepType, TitleIn, TwoStep, Weight
+use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, STSym
+use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, iMethod, iPT2, iRoot, mTit, nAtoms, nBas, nCSF, &
+                      nDel, nDisp, NewCho, nFro, nIter, nOrb, nRoots, nSkip, ntAsh, ntBas, ntIsh, nTPert, Perturbation, PotNuc, &
+                      PT2, SpinPol, StepType, TitleIn, TwoStep, Weight
 use PCM_grad, only: RFPERT
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
@@ -122,7 +121,7 @@ if (iMethod == 2) then
     write(u6,Fmt2//'A,T47,I6)') 'Number of active orbitals',ntAsh
     write(u6,Fmt2//'A,T47,I6)') 'Number of secondary orbitals',ntSsh
     write(u6,Fmt2//'A,T47,F6.1)') 'Spin quantum number',real(iSpin-1,kind=wp)*Half
-    write(u6,Fmt2//'A,T47,I6)') 'State symmetry',State_Sym
+    write(u6,Fmt2//'A,T47,I6)') 'State symmetry',STSym
     write(u6,Fmt2//'A,T47,I6)') 'Number of CI roots',nroots
     write(u6,Fmt2//'A,(T47,10I6))') 'States considered',(iroot(i),i=1,nroots)
     write(u6,Fmt2//'A,(T47,10F6.3))') 'Weights',(weight(i),i=1,nroots)

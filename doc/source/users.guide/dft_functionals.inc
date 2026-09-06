@@ -2,7 +2,7 @@ DFT functionals:
 ::::::::::::::::
 
 Below is a partial list of the keywords for DFT functionals currently implemented in the package.
-Note that most `Libxc <https://www.tddft.org/programs/libxc/>`_ functionals are available too.
+Note that most `Libxc <https://libxc.gitlab.io/>`_ functionals are available too.
 
 .. class:: keywordlist
 

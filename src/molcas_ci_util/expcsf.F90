@@ -116,7 +116,7 @@ do while (.not. LAST)
     write(u6,*) LINE(1:K+1)
     ! Write to GronOR vecdet files
     if (LuVecDet > 0) then
-      inquire(unit=LuVecDet,opened=lod39)
+      inquire(LuVecDet,opened=lod39)
       if (lod39) then
         qdet = coef*sqrt(real(icoef(1),kind=wp)/real(icoef(2),kind=wp))
         if (LPHASE) then

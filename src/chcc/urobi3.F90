@@ -42,7 +42,7 @@ do aGrp=1,NaGrp
     call RNFill(len_,I3,schem)
 
     !1.3 open proper file
-    !open(unit=LunAux,file=I3Name(aGrp,beGrp),form='unformatted')
+    !open(LunAux,file=I3Name(aGrp,beGrp),form='unformatted')
     call MOLCAS_BinaryOpen_Vanilla(LunAux,I3Name(aGrp,beGrp))
 
     !1.4 write I3 into proper file

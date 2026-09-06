@@ -29,10 +29,10 @@ do n=1,MxFile
     call Abend()
 #   endif
   end if
-  inquire(unit=n,opened=is_open)
+  inquire(n,opened=is_open)
   if (is_open) then
     if ((n /= u6) .and. (n /= u5)) then
-      inquire(unit=n,name=filename)
+      inquire(n,name=filename)
       write(u6,*) 'Fortran file:',n,'(',trim(filename),')  is still open!'
 #     ifndef _DEVEL_
       call Abend()

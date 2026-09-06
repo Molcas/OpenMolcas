@@ -52,7 +52,7 @@ subroutine pt2wfn_init()
 # ifdef _HDF5_
   integer(kind=iwp) :: dsetid, ndmat
   character, allocatable :: typestring(:)
-  integer(kind=iwp), parameter :: istate=1
+  integer(kind=iwp), parameter :: istate = 1
 # endif
 
   if (refwfn_active) then

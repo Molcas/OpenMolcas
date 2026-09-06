@@ -34,7 +34,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: irc, iSym
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 
 if (IfChol) then
   ! Finalize Cholesky information

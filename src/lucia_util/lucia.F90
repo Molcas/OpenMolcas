@@ -14,20 +14,20 @@
 subroutine LUCIA()
 
 use lucia_data, only: CI_VEC, IREFSM, LCSBLK, MXSOOB, NOINT, PSSIGN, SIGMA_VEC, XISPSM
+#ifdef _CUDA_BLAS_
+use, intrinsic :: iso_c_binding, only: c_int64_t
+use Para_Info, only: nProcs
+use LUCIA_CUDA_INTERFACE, only: LUCIA_SIGMA_CUDA_BLOCKS_HOST_BEGIN
+#endif
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, Two
 use Definitions, only: iwp, u6
-#ifdef _CUDA_BLAS_
-use Para_Info, only: nProcs
-use, intrinsic :: iso_c_binding, only: c_int64_t
-use LUCIA_SIGMA_CUDA_BLOCKS_INTERFACE, only: LUCIA_SIGMA_CUDA_BLOCKS_HOST_BEGIN
-#endif
 
 implicit none
 #include "warnings.h"
 integer(kind=iwp) :: LBLOCK
 #ifdef _CUDA_BLAS_
-integer(c_int64_t) :: CudaStatus
+integer(kind=c_int64_t) :: CudaStatus
 #endif
 
 ! No floating point underflow
@@ -86,7 +86,7 @@ call mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')
 #ifdef _CUDA_BLAS_
 if (NPROCS == 1) then
   CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_HOST_BEGIN(SIGMA_VEC,CI_VEC,int(LBLOCK,c_int64_t),int(LBLOCK,c_int64_t))
-  if (CudaStatus == -1_c_int64_t) call SYSABENDMSG('lucia_util/lucia','CUDA execution failed','')
+  if (CudaStatus == -1) call SYSABENDMSG('lucia_util/lucia','CUDA execution failed','')
 end if
 #endif
 

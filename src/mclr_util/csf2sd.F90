@@ -17,7 +17,7 @@ subroutine CSF2SD(CSF,SD,is)
 use Symmetry_Info, only: Mul
 use Str_Info, only: CNSM, DTOC
 use MCLR_Data, only: NDTASM
-use general_data, only: State_Sym=>STSym
+use general_data, only: STSym
 use input_mclr, only: nConf, nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -34,7 +34,7 @@ real(kind=wp), allocatable :: CTM(:)
 
 iiCOPY = 0
 nConf = max(ncsf(is),ndtasm(iS))
-isym = Mul(is,State_Sym)
+isym = Mul(is,STSym)
 i = 2
 if (isym == 1) i = 1
 

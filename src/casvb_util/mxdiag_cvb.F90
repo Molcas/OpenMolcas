@@ -25,8 +25,8 @@ integer(kind=iwp) :: ierr
 real(kind=wp), allocatable :: tmp(:)
 
 call mma_allocate(tmp,n*3,label='tmp')
-!tmp(:)=0.0e0_wp
-ierr=0
+!tmp(:) = Zero
+ierr = 0
 call dsyev_('V','L',n,a,n,eigval,tmp,n*3,ierr)
 call mma_deallocate(tmp)
 if (ierr /= 0) then

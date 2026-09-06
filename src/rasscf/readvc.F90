@@ -59,8 +59,8 @@ subroutine ReadVC(CMO,OCC,D,DS,P,PA,scheme)
 !                                                                      *
 !***********************************************************************
 
-use rasscf_global, only: iAdr15, iAlphaBeta, iCIrst, iOverwr, iPhName, iRoot, iSUPSM, iXsym, lRoots, nAcPar, nAcpr2, nOrbT, &
-                         nRoots, purify, Weight, INVEC, CleanMask
+use rasscf_global, only: CleanMask, iAdr15, iAlphaBeta, iCIrst, INVEC, iOverwr, iPhName, iRoot, iSUPSM, iXsym, lRoots, nAcPar, &
+                         nAcpr2, nOrbT, nRoots, purify, Weight, INVEC
 use rasscf_files, only: JobIph, JobOld, LuStartOrb, StartOrbFile
 use general_data, only: nBas, nDel, nOrb, nSSH, nSym, nTot, nTot2
 use casvb_global, only: ifvb

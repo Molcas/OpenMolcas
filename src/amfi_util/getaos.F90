@@ -32,7 +32,7 @@ if (.not. EX) then
 else
   Lu_33 = IsFreeUnit(33)
   call molcas_open(Lu_33,'AO-expansion')
-  !open(unit=Lu_33,file='AO-expansion',status='UNKNOWN')
+  !open(Lu_33,file='AO-expansion',status='UNKNOWN')
   !BS write(u6,*) 'Orbitals for mean-field'
   do lrun=0,lhigh
     !BS write(u6,'(A3,I3)') 'L= ',lrun

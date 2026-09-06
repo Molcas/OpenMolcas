@@ -38,7 +38,7 @@ subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 !     University of Lund, Sweden, 1990                                 *
 !***********************************************************************
 
-use sguga, only: CIS, EXS, SGS, MkCOT, MkSgNum
+use sguga, only: CIS, EXS, MkCOT, MkSgNum, SGS
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Lucia_data, only: CFTP, CONF_Occ
 use Molcas, only: MxAct
@@ -48,22 +48,20 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: iState, IREFSM, IMODE, nConf
 real(kind=wp), intent(in) :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
-integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
-                     IWALK(mxAct), JOCC, KCNF(MxAct), KOCC, KORB
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(mxAct), JOCC, &
+                     KCNF(MxAct), KOCC, KORB
 real(kind=wp) :: Fact
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
 #endif
 integer(kind=iwp), external :: SG_NUM, SG_PHASE
 
-If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
-If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(IREFSM,SGS(istate),CIS(istate),EXS(istate))
+if (.not. allocated(CIS(iState)%ICASE)) call MkCOT(SGS(istate),CIS(istate))
+if (.not. allocated(EXS(iState)%USGN)) call MkSgNum(IREFSM,SGS(istate),CIS(istate),EXS(istate))
 
 
 ICSFJP = 0
@@ -94,7 +92,7 @@ do ITYP=1,NTYP
     do IICSF=1,NCSFTP(ITYP)
       ICSFJP = ICSFJP+1
       ICSBAS = IPBAS+(IICSF-1)*IOPEN
-      KCNF(:)=0
+      KCNF(:) = 0
       ! Obtain configuration in standard RASSCF form
       IIBOP = 1
       IIBCL = 1
@@ -121,21 +119,21 @@ do ITYP=1,NTYP
       IP = SG_PHASE(SGS(istate),IWALK)
       Fact = merge(-One,One,IP < 0)
       if (IMODE == 0) then
-        CINEW(ISG) = Fact * CIOLD(ICSFJP)
+        CINEW(ISG) = Fact*CIOLD(ICSFJP)
       else
-        CINEW(ICSFJP) = Fact * CIOLD(ISG)
+        CINEW(ICSFJP) = Fact*CIOLD(ISG)
       end if
     end do
   end do
 end do
 
 #ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+write(u6,*)
+write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
 write(u6,'(10F12.8)') (CIOLD(I),I=1,min(200,ICSFJP))
-  write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
 write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
-  write(u6,*)
+write(u6,*)
 #endif
 
 end subroutine SG_Reord

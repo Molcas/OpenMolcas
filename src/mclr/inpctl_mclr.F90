@@ -24,7 +24,7 @@ use Str_Info, only: DTOC
 use ipPage, only: ipget, ipin, ipout, ipopen, W
 use MCLR_Data, only: ipCI, ISTATE, LuPT2, nGP, SA
 use MCLR_procedures, only: RdJobIph, RdJobIph_td
-use general_data, only: State_Sym=>STSym
+use general_data, only: STSym
 use input_mclr, only: iMCPD, iMethod, iRoot, nConf, nDisp, nRoots, Page, PT2, TimeDep
 use dmrginfo, only: DoDMRG, DoMCLR, nDets_RGLR
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -81,7 +81,7 @@ if (iMethod == 2) then
   !write(u6,*) 'Setup of Determinant tables'
   call DetCtl()   ! set up determinant tables
   ! Read in tables from disk
-  call InCsfSD(State_sym,State_sym)
+  call InCsfSD(STSym,STSym)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -108,7 +108,7 @@ if (iMethod == 2) then
       ! transform to sym. group
 
       iMode = 1
-      call SG2SymG(CITmp,size(CITmp),iMode,State_Sym)
+      call SG2SymG(CITmp,size(CITmp),iMode,STSym)
 
     end if
 

@@ -25,7 +25,7 @@ real(kind=wp), parameter :: thr = 1.0e-16_wp
 integer(kind=iwp), external :: isFreeUnit
 
 writeout = isfreeunit(28)
-!open(unit=writeout,file='FCIDUMP_CHEMPS2',action='write',status='replace')
+!open(writeout,file='FCIDUMP_CHEMPS2',action='write',status='replace')
 call molcas_open(writeout,'FCIDUMP_CHEMPS2')
 write(writeout,'(a11,i3,a7,i3,a5,i2,a1)') ' &FCI NORB=',NACT,',NELEC=',NELEC,',MS2=',TWOMS,','
 write(writeout,'(a9)',advance='NO') '  ORBSYM='

@@ -12,9 +12,8 @@
 !               2026, Meng Wang                                        *
 !***********************************************************************
 
-subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,NSB,NCB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT, &
-                  NSMOB,NSMST, &
-                  SCLFAC,IPHGAS,nTUVX,TUVX)
+subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,NSB,NCB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB, &
+                  NSMST,SCLFAC,IPHGAS,nTUVX,TUVX)
 ! SUBROUTINE RSBB2A --> 46
 !
 ! two electron excitations on column strings
@@ -62,14 +61,14 @@ use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPNGAS, MXPTSOB
+#ifdef _CUDA_BLAS_
+use, intrinsic :: iso_c_binding, only: c_int64_t
+use LUCIA_CUDA_INTERFACE, only: LUCIA_RSBB2A_CUDA_BEGIN, LUCIA_RSBB2A_CUDA_END, LUCIA_RSBB2A_CUDA_ROUTE, &
+                                LUCIA_RSBB2A_CUDA_XINT_BEGIN, LUCIA_RSBB2A_CUDA_XINT_END
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
-#ifdef _CUDA_BLAS_
-use, intrinsic :: iso_c_binding, only: c_int64_t
-use RSBB2A_CUDA_INTERFACE, only: LUCIA_RSBB2A_CUDA_BEGIN, LUCIA_RSBB2A_CUDA_END, LUCIA_RSBB2A_CUDA_ROUTE, &
-                                LUCIA_RSBB2A_CUDA_XINT_BEGIN, LUCIA_RSBB2A_CUDA_XINT_END
-#endif
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -78,8 +77,8 @@ use Definitions, only: u6
 #include "macros.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, NSB, NCB, ISOC(NGAS), ICOC(NGAS), NSMST, &
-                                 NOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, IPHGAS(NGAS), nTUVX
+integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), NSB, NCB, &
+                                 NOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, NSMST, IPHGAS(NGAS), nTUVX
 real(kind=wp), intent(inout) :: SB(*)
 real(kind=wp), intent(in) :: CB(*), SCLFAC, TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), XINT(*)
@@ -98,8 +97,8 @@ real(kind=wp) :: FACTORAB, FACTORC, FACX
 integer(kind=iwp), allocatable :: CMap(:), SMap(:)
 real(kind=wp), allocatable :: CSign(:), SCR(:), SSign(:)
 #ifdef _CUDA_BLAS_
-integer(c_int64_t) :: CudaStatus
-logical :: CudaSession, CudaXint
+integer(kind=c_int64_t) :: CudaStatus
+logical(kind=iwp) :: CudaSession, CudaXint
 #endif
 
 #ifndef _CUDA_BLAS_
@@ -115,12 +114,12 @@ call mma_allocate(SSign,MAXK*MXPTSOB**2,Label='SSign')
 #ifdef _CUDA_BLAS_
 CudaSession = .false.
 CudaXint = .false.
-if (NPROCS == 1 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0) then
+if ((NPROCS == 1) .and. (NROW > 0) .and. (NSB > 0) .and. (NCB > 0)) then
   CudaStatus = LUCIA_RSBB2A_CUDA_BEGIN(SB,CB,NROW,NSB,NCB)
-  if (CudaStatus == -1_c_int64_t) then
+  if (CudaStatus == -1) then
     call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
   else
-    CudaSession = CudaStatus == 1_c_int64_t
+    CudaSession = CudaStatus == 1
   end if
 end if
 #endif
@@ -487,16 +486,16 @@ if (IDXSM /= 0) then
                     end do
                     JLOFF = JLOFF+NJL
                   end do
-#ifdef _CUDA_BLAS_
-                  if (CudaSession .and. NIKT > 0 .and. NJLT > 0) then
+#                 ifdef _CUDA_BLAS_
+                  if (CudaSession .and. (NIKT > 0) .and. (NJLT > 0)) then
                     CudaStatus = LUCIA_RSBB2A_CUDA_XINT_BEGIN(XINT,int(NIKT,c_int64_t),int(NJLT,c_int64_t))
-                    if (CudaStatus == -1_c_int64_t) then
+                    if (CudaStatus == -1) then
                       call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
-                    else if (CudaStatus == 1_c_int64_t) then
+                    else if (CudaStatus == 1) then
                       CudaXint = .true.
                     end if
                   end if
-#endif
+#                 endif
                 end if
                 ! End if integrals should be fetched
                 IFIRST = 0
@@ -546,14 +545,14 @@ if (IDXSM /= 0) then
                 FACTORC = Zero
                 FACTORAB = One
 #               ifdef _CUDA_BLAS_
-                CudaStatus = 0_c_int64_t
+                CudaStatus = 0
                 if (NPROCS == 1) then
                   CudaStatus = LUCIA_RSBB2A_CUDA_ROUTE(SB,CB,XINT,CMap,CSign,SMap,SSign,NROW,NSB,NCB,IBOT,NIBTC,NKBTC,NIKT,NJLT, &
                                                        FACTORAB)
                 end if
-                if (CudaStatus == -1_c_int64_t) then
+                if (CudaStatus == -1) then
                   call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
-                else if (CudaStatus /= 1_c_int64_t) then
+                else if (CudaStatus /= 1) then
 #               endif
                   do IJL=1,NJLT
                     JLOFF = 1+(IJL-1)*LIKB
@@ -573,15 +572,13 @@ if (IDXSM /= 0) then
               ! End of loop over partitionings of resolution strings
             end do
             ! End of loop over partitionings of I strings
-#ifdef _CUDA_BLAS_
+#           ifdef _CUDA_BLAS_
             if (CudaXint) then
               CudaStatus = LUCIA_RSBB2A_CUDA_XINT_END()
-              if (CudaStatus /= 1_c_int64_t) then
-                call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
-              end if
+              if (CudaStatus /= 1) call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
               CudaXint = .false.
             end if
-#endif
+#           endif
           end do
           ! End of loop over batches of JL
         end do
@@ -745,16 +742,16 @@ if (IDXSM /= 0) then
                     else if (ICOUL == 1) then
                       call GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
                     end if
-#ifdef _CUDA_BLAS_
-                    if (CudaSession .and. NIK > 0 .and. NJL > 0) then
+#                   ifdef _CUDA_BLAS_
+                    if (CudaSession .and. (NIK > 0) .and. (NJL > 0)) then
                       CudaStatus = LUCIA_RSBB2A_CUDA_XINT_BEGIN(XINT,int(NIK,c_int64_t),int(NJL,c_int64_t))
-                      if (CudaStatus == -1_c_int64_t) then
+                      if (CudaStatus == -1) then
                         call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
-                      else if (CudaStatus == 1_c_int64_t) then
+                      else if (CudaStatus == 1) then
                         CudaXint = .true.
                       end if
                     end if
-#endif
+#                   endif
 
                   end if
                   ! End if integrals should be fetched
@@ -781,14 +778,14 @@ if (IDXSM /= 0) then
                   FACTORC = Zero
                   FACTORAB = FACX
 #                 ifdef _CUDA_BLAS_
-                  CudaStatus = 0_c_int64_t
+                  CudaStatus = 0
                   if (NPROCS == 1) then
                     CudaStatus = LUCIA_RSBB2A_CUDA_ROUTE(SB,CB,XINT,CMap,CSign,SMap,SSign,NROW,NSB,NCB,IBOT,NIBTC,NKBTC,NIK,NJL, &
                                                          FACTORAB)
                   end if
-                  if (CudaStatus == -1_c_int64_t) then
+                  if (CudaStatus == -1) then
                     call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
-                  else if (CudaStatus /= 1_c_int64_t) then
+                  else if (CudaStatus /= 1) then
 #                 endif
                     do IJL=1,NJL
                       JLOFF = 1+(IJL-1)*LIKB
@@ -808,15 +805,13 @@ if (IDXSM /= 0) then
                 ! End of loop over partitionings of resolution strings
               end do
               ! End of loop over batches of I strings
-#ifdef _CUDA_BLAS_
+#             ifdef _CUDA_BLAS_
               if (CudaXint) then
                 CudaStatus = LUCIA_RSBB2A_CUDA_XINT_END()
-                if (CudaStatus /= 1_c_int64_t) then
-                  call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
-                end if
+                if (CudaStatus /= 1) call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
                 CudaXint = .false.
               end if
-#endif
+#             endif
             end if
             ! End of if I >= K, J >= L
           end do
@@ -834,9 +829,7 @@ end if
 #ifdef _CUDA_BLAS_
 if (CudaSession) then
   CudaStatus = LUCIA_RSBB2A_CUDA_END()
-  if (CudaStatus == -1_c_int64_t) then
-    call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
-  end if
+  if (CudaStatus == -1) call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
 end if
 #endif
 

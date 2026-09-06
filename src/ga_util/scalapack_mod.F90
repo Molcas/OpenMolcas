@@ -222,8 +222,8 @@ subroutine ga_pdsyevd_(g_a,g_b,eval,nb8)
   integer(kind=iwp), intent(in) :: g_a, g_b, nb8
   real(kind=wp), intent(_OUT_) :: eval(*)
   integer(kind=iwp) :: dimA18, dimA28, dimB18, dimB28, elemA, elemB, info8, lcwork, liwork, typeA, typeB
-  integer(kind=BLASInt) :: descA(9), descB(9), dimA1, dimA2, dimB1, dimB2, info, iwquery(1), lcwork4, lda, ldb, liwork4, &
-                           lwormtr, mpA, mpB, n, nb, nqA, nqB, numroc, trilwmin
+  integer(kind=BLASInt) :: descA(9), descB(9), dimA1, dimA2, dimB1, dimB2, info, iwquery(1), lcwork4, lda, ldb, liwork4, lwormtr, &
+                           mpA, mpB, n, nb, nqA, nqB, numroc, trilwmin
   real(kind=wp) :: wquery(1)
   logical(kind=iwp) :: oactive
   character :: jobz, uplo

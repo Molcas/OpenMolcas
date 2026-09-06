@@ -383,7 +383,7 @@ subroutine readin_CASPT2(LuIn,nSym)
         read(Line,*,iostat=iError) Input%RlxRoot
         if (iError /= 0) call IOError(Line)
 
-      ! freeze-deleted control
+        ! freeze-deleted control
 
       case ('FROZ')
         Input%FROZ = .true.
@@ -752,7 +752,7 @@ subroutine readin_CASPT2(LuIn,nSym)
         read(Line,*,iostat=iError) Input%SC_thres
         if (iError /= 0) call IOError(Line)
 
-      ! OBSOLETE KEYWORDS
+        ! OBSOLETE KEYWORDS
 
       case ('GRAD')
         call WarningMessage(2,'Obsolete keyword: '//Command)

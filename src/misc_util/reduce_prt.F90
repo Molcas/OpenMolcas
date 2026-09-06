@@ -29,7 +29,8 @@ if (SuperName == 'last_energy') return
 ! Reduce printing if iter > 1
 
 call get_environment_variable('MOLCAS_ITER',Word)
-read(Word,*) i
+i = 0
+read(Word,*,iostat=Err) i
 if (i > 1) Reduce_Prt = .true.
 
 ! ... but not if MOLCAS_REDUCE_PRT = NO
@@ -50,7 +51,7 @@ end if
 if (Reduce_Prt) then
   call get_environment_variable('SADDLE_FIRST',Word)
   i = 0
-  read(Word,*,IOSTAT=Err) i
+  read(Word,*,iostat=Err) i
   if (i == 1) Reduce_Prt = .false.
 end if
 
