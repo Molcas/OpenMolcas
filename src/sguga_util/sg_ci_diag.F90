@@ -16,10 +16,10 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
                         TU_Tri,nTU_Tri, &
                         Diag)
 
-  use sguga, only: SGStruct, CIStruct, EXStruct
+  use sguga, only: SGStruct, CIStruct, EXStruct, sg_Epq_Psi, sg_EpqEqp_diag
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One
-  use Definitions, only: wp, iwp
+  use Definitions, only: wp, iwp, u6
 
   implicit none
 
@@ -42,9 +42,140 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
   real(kind=wp), allocatable :: Sigma(:)
 
   integer(kind=iwp) :: iCSF
+#define _TEST_
+#ifdef _TEST_
+  integer(kind=iwp) :: p, q
+  real(kind=wp), allocatable :: Epq(:), Eqp(:)
+#endif
+
+#ifdef _EXPERIMENTAL_
+  real(kind=wp), allocatable :: Epp_Psi(:)
+  real(kind=wp), allocatable :: E11(:), E22E11(:), E11E11(:), E12(:), E21E12(:)
+  integer(kind=iwp) :: p
+#endif
 
   call mma_allocate(Psi,nCSFs,Label='Psi')
   call mma_allocate(Sigma,nCSFs,Label='Sigma')
+
+#ifdef _TEST_
+call mma_allocate(Epq,nCSFs,Label='Epq')
+call mma_allocate(Eqp,nCSFs,Label='Eqp')
+do p=1,SGS%nLev
+do q=1,SGS%nLev
+Write (6,*) 'p,q=',p,q
+do iCSF=1,nCSFs
+  Psi(:) = Zero
+  Psi(iCSF) = One
+  Sigma(:) = Zero
+  call SG_Epq_Psi(SGS,CIS,EXS, &
+                  p,q, &
+                  One, &
+                  CSFSym, &
+                  Psi, &
+                  Sigma)
+  Epq(iCSF)=Dot_product(Sigma,Sigma)
+end do
+Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
+
+Psi(:) = One
+Sigma(:) = Zero
+If (p==q) Then
+  call SG_Epq_Psi(SGS,CIS,EXS, &
+                  p,q, &
+                  One, &
+                  CSFSym, &
+                  Psi, &
+                  Sigma)
+  Sigma(:) = Sigma(:)**2
+Else
+  call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+                  p,q, &
+                  One, &
+                  CSFSym, &
+                  Psi, &
+                  Sigma)
+Sigma(:) = Zero
+End If
+Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
+
+end do
+end do
+
+call mma_deallocate(Eqp)
+call mma_deallocate(Epq)
+
+Call Abend()
+#endif
+
+#ifdef _EXPERIMENTAL_
+call mma_allocate(Epp_Psi,nCSFs,Label='Eij_Psi')
+Psi(:) = One
+do p=1,SGS%nLev
+   Epp_Psi(:) = Zero
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   p,p, &
+                   One, &
+                   CSFSym, &
+                   Psi, &
+                   Epp_Psi)
+   call RecPrt('Epp_Psi',' ',Epp_Psi,1,nCSFs)
+end do
+call mma_deallocate(Epp_Psi)
+
+Psi(:) = One
+call mma_allocate(E11,nCSFs,Label='E11')
+call mma_allocate(E12,nCSFs,Label='E12')
+call mma_allocate(E11E11,nCSFs,Label='E11111')
+call mma_allocate(E22E11,nCSFs,Label='E22E11')
+call mma_allocate(E21E12,nCSFs,Label='E21E12')
+   E11(:) = Zero
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   1,1, &
+                   One, &
+                   CSFSym, &
+                   Psi, &
+                   E11)
+   E12(:) = Zero
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   1,2, &
+                   One, &
+                   CSFSym, &
+                   Psi, &
+                   E12)
+   E11E11(:) = Zero
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   1,1, &
+                   One, &
+                   CSFSym, &
+                   E11, &
+                   E11E11)
+   call RecPrt('E11E11',' ',E11E11,1,nCSFs)
+
+   E22E11(:) = Zero
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   2,2, &
+                   One, &
+                   CSFSym, &
+                   E11, &
+                   E22E11)
+   call RecPrt('E22E11',' ',E22E11,1,nCSFs)
+
+   E21E12(:) = Zero
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   2,1, &
+                   One, &
+                   CSFSym, &
+                   E12, &
+                   E21E12)
+   call RecPrt('E21E12',' ',E21E12,1,nCSFs)
+
+call mma_deallocate(E21E12)
+call mma_deallocate(E22E11)
+call mma_deallocate(E11E11)
+call mma_deallocate(E12)
+call mma_deallocate(E11)
+#endif
+
 
   do iCSF=1,nCSFs
 
@@ -67,3 +198,153 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
   call mma_deallocate(Psi)
 
 end subroutine sg_hdiag_ref
+
+subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
+                         TUVX_Tri,nTUVX_Tri, &
+                         TU_Tri,nTU_Tri, &
+                         Diag)
+
+  use sguga, only: SGStruct, CIStruct, EXStruct, SG_Epq_Psi
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Constants, only: Zero, One, Half
+  use Definitions, only: wp, iwp
+  use Index_Functions, only: iTri
+
+  implicit none
+
+  type(SGStruct), intent(in)    :: SGS
+  type(CIStruct), intent(in)    :: CIS
+  type(EXStruct), intent(inout) :: EXS
+
+  integer(kind=iwp), intent(in) :: nCSFs
+  integer(kind=iwp), intent(in) :: CSFSym
+
+  integer(kind=iwp), intent(in) :: nTUVX_Tri
+  integer(kind=iwp), intent(in) :: nTU_Tri
+
+  real(kind=wp), intent(in)  :: TUVX_Tri(nTUVX_Tri)
+  real(kind=wp), intent(in)  :: TU_Tri(nTU_Tri)
+
+  real(kind=wp), intent(out) :: Diag(nCSFs)
+
+  real(kind=wp), allocatable :: Psi(:)
+  real(kind=wp), allocatable :: Epp(:)
+  real(kind=wp), allocatable :: EqqEpp(:)
+  real(kind=wp), allocatable :: EqpEpq(:)
+
+  integer(kind=iwp) :: p,q
+  integer(kind=iwp) :: ppTri
+  integer(kind=iwp) :: pqTri
+  integer(kind=iwp) :: ppqqTri
+  integer(kind=iwp) :: pqqpTri
+
+  real(kind=wp) :: OneInt
+  real(kind=wp) :: Coul
+  real(kind=wp) :: Exch
+
+  Diag(:) = Zero
+
+  call mma_allocate(Psi,nCSFs,Label='Psi')
+  call mma_allocate(Epp,nCSFs,Label='Epp')
+  call mma_allocate(EqqEpp,nCSFs,Label='EqqEpp')
+  call mma_allocate(EqpEpq,nCSFs,Label='EqpEpq')
+
+  !
+  ! Trick:
+  !
+  ! Psi(:)=1 allows SG_Epq_Psi to return the diagonal
+  ! expectation values for ALL CSFs simultaneously.
+  !
+  Psi(:) = One
+
+  !
+  ! One-electron contribution
+  !
+  do p=1,SGS%nLev
+
+     Epp(:) = Zero
+
+     call SG_Epq_Psi(SGS,CIS,EXS, &
+                     p,p, &
+                     One, &
+                     CSFSym, &
+                     Psi, &
+                     Epp)
+
+     ppTri = iTri(p,p)
+
+     OneInt = TU_Tri(ppTri)
+
+     Diag(:) = Diag(:) + OneInt*Epp(:)
+
+  end do
+
+  !
+  ! Two-electron Coulomb / exchange contribution
+  !
+  do p=1,SGS%nLev
+
+     Epp(:) = Zero
+
+     call SG_Epq_Psi(SGS,CIS,EXS, &
+                     p,p, &
+                     One, &
+                     CSFSym, &
+                     Psi, &
+                     Epp)
+
+     do q=1,SGS%nLev
+
+        !
+        ! <Eqq Epp>
+        !
+        EqqEpp(:) = Zero
+
+        call SG_Epq_Psi(SGS,CIS,EXS, &
+                        q,q, &
+                        One, &
+                        CSFSym, &
+                        Epp, &
+                        EqqEpp)
+
+        !
+        ! <Eqp Epq>
+        !
+        EqpEpq(:) = Zero
+
+        call SG_Epq_Psi(SGS,CIS,EXS, &
+                        p,q, &
+                        One, &
+                        CSFSym, &
+                        Psi, &
+                        EqpEpq)
+
+        call SG_Epq_Psi(SGS,CIS,EXS, &
+                        q,p, &
+                        One, &
+                        CSFSym, &
+                        EqpEpq, &
+                        EqpEpq)
+
+        pqTri   = iTri(max(p,q),min(p,q))
+        ppqqTri = iTri(iTri(p,p),iTri(q,q))
+        pqqpTri = iTri(iTri(max(p,q),min(p,q)), &
+                       iTri(max(p,q),min(p,q)))
+
+        Coul = Half*TUVX_Tri(ppqqTri)
+        Exch = Half*TUVX_Tri(pqqpTri)
+
+        Diag(:) = Diag(:) &
+                + Coul*EqqEpp(:) &
+                - Exch*EqpEpq(:)
+
+     end do
+
+  end do
+
+  call mma_deallocate(EqpEpq)
+  call mma_deallocate(EqqEpp)
+  call mma_deallocate(Epp)
+  call mma_deallocate(Psi)
+
+end subroutine sg_hdiag_fast
