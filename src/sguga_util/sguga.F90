@@ -3483,37 +3483,19 @@ subroutine apply_colX(CPQ, NUP, NDWNSG, SIGMA, NCP, ICOUP, swap)
   real(kind=wp), pointer :: VTAB(:)
 
 vTab => EXS%VTab
-if (swap) Then
-    do ICP=1,NCP
-      JLFT = ICOUP(1,ICP)
-      JRGT = ICOUP(2,ICP)
+do ICP=1,NCP
+   JLFT = ICOUP(1,ICP)
+   JRGT = ICOUP(2,ICP)
 
-      I1 = MERGE(JRGT,JLFT,Swap)
+   I1 = MERGE(JRGT,JLFT,Swap)
 
-      idx=ICOUP(3,ICP)
-      X = CPQ * VTab(idx)
-      X = X**2
-      !$OMP SIMD
-      do IUP=1,NUP
-        SIGMA(IUP,I1) = SIGMA(IUP,I1) + X
-      end do
-    end do
-else
-    do ICP=1,NCP
-      JLFT = ICOUP(1,ICP)
-      JRGT = ICOUP(2,ICP)
-
-      I1 = MERGE(JRGT,JLFT,Swap)
-
-      idx=ICOUP(3,ICP)
-      X = CPQ * VTab(idx)
-      X = X**2
-      !$OMP SIMD
-      do IUP=1,NUP
-        SIGMA(IUP,I1) = SIGMA(IUP,I1) + X
-      end do
-    end do
-end if
+   idx=ICOUP(3,ICP)
+   X = (CPQ * VTab(idx))**2
+   !$OMP SIMD
+   do IUP=1,NUP
+     SIGMA(IUP,I1) = SIGMA(IUP,I1) + X
+   end do
+ end do
 vTab => Null()
 end subroutine apply_colX
 
@@ -3524,43 +3506,24 @@ subroutine apply_rowX(CPQ, NDWN, NUPSG, SIGMA, NCP, ICOUP, swap)
   real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
   logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC2), =.true. (DEX2)
 
-  integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN, I1, I2, idx
+  integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN, I1, idx
   real(kind=wp) :: X
   real(kind=wp), pointer :: VTAB(:)
 
 vTab => EXS%VTab
+do ICP=1,NCP
+  ILFT = ICOUP(1,ICP)
+  IRGT = ICOUP(2,ICP)
 
-if (swap) then
-    do ICP=1,NCP
-      ILFT = ICOUP(1,ICP)
-      IRGT = ICOUP(2,ICP)
+  I1=MERGE(IRGT,ILFT,Swap)
 
-      I1 = IRGT; I2 = ILFT
-
-      idx=ICOUP(3,ICP)
-      X = CPQ * VTab(idx)
-      X = X**2
-      !$OMP SIMD
-      do IDWN=1,NDWN
-        SIGMA(I1,IDWN) = SIGMA(I1,IDWN) + X
-      end do
-    end do
-else
-    do ICP=1,NCP
-      ILFT = ICOUP(1,ICP)
-      IRGT = ICOUP(2,ICP)
-
-      I1 = ILFT; I2 = IRGT
-
-      idx=ICOUP(3,ICP)
-      X = CPQ * VTab(idx)
-      X = X**2
-      !$OMP SIMD
-      do IDWN=1,NDWN
-        SIGMA(I1,IDWN) = SIGMA(I1,IDWN) + X
-      end do
-    end do
-end if
+  idx=ICOUP(3,ICP)
+  X = (CPQ * VTab(idx))**2
+  !$OMP SIMD
+  do IDWN=1,NDWN
+    SIGMA(I1,IDWN) = SIGMA(I1,IDWN) + X
+  end do
+end do
 vTab => Null()
 end subroutine apply_rowX
 
