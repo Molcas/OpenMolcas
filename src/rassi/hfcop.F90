@@ -833,6 +833,11 @@ subroutine proc_coupl_states()
     write(u6,*)
     write(u6,*)
 
+    if (NCOUP == 1) then
+      call WarningMessage(2, "No Kramers degeneracies were found; therefore, the HFCCs are zero.")
+      call Quit_OnUserError()
+    endif
+
     ! PSEUDOSPIN APPROACH
     !--------------------
     ! Purpose: Calculate Atens_fac used to calculate Atensor
