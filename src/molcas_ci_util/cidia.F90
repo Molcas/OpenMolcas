@@ -27,7 +27,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
-integer(kind=iwp) :: IPRL, IPRLEV
 real(kind=wp) :: dum1, dum2, dum3, Time(2)
 
 call Timing(Time(1),dum1,dum2,dum3)

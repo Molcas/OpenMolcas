@@ -909,7 +909,7 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
   integer(kind=iwp), allocatable :: occa(:,:), occb(:,:)
 
   integer(kind=iwp) :: ia, ib, i, j, k, iaLow
-  integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl, nBEl, iDet, jDet, iCSF, iCBF, iCNF, jCNF, iCSFOff
+  integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl, nBEl, iDet, jDet, iCSF, iCNF, jCNF, iCSFOff
   integer(kind=iwp) :: SumDet, SumCSF, ipat, ipat_match
   real(kind=wp) :: EAver, EDet
 
@@ -933,7 +933,7 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
      end do
      do i=1,nela
         do j=i+1,nela
-           Da(ia) = Da(ia)                                      &
+           Da(ia) = Da(ia)                                     &
               + g(occa(i,ia),occa(i,ia),occa(j,ia),occa(j,ia)) &
               - g(occa(i,ia),occa(j,ia),occa(j,ia),occa(i,ia))
         end do
@@ -949,7 +949,7 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
      end do
      do i=1,nelb
         do j=i+1,nelb
-           Db(ib) = Db(ib)                                      &
+           Db(ib) = Db(ib)                                     &
               + g(occb(i,ib),occb(i,ib),occb(j,ib),occb(j,ib)) &
               - g(occb(i,ib),occb(j,ib),occb(j,ib),occb(i,ib))
         end do
@@ -1472,7 +1472,6 @@ subroutine analyse_patterns()
 
   integer(kind=iwp) :: ipat, p
 
-  integer(kind=iwp) :: iopen, k
 #ifdef _Print_Combinations_
 integer(kind=iwp) :: nopen, ncomb_pat, icomb
 integer(kind=iwp), allocatable :: Comb(:,:)

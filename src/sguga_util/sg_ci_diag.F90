@@ -48,21 +48,17 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
   real(kind=wp), allocatable :: Epq(:), Eqp(:)
 #endif
 
-#ifdef _EXPERIMENTAL_
-  real(kind=wp), allocatable :: Epp_Psi(:)
-  real(kind=wp), allocatable :: E11(:), E22E11(:), E11E11(:), E12(:), E21E12(:)
-  integer(kind=iwp) :: p
-#endif
-
   call mma_allocate(Psi,nCSFs,Label='Psi')
   call mma_allocate(Sigma,nCSFs,Label='Sigma')
 
 #ifdef _TEST_
 call mma_allocate(Epq,nCSFs,Label='Epq')
 call mma_allocate(Eqp,nCSFs,Label='Eqp')
+
 do p=1,SGS%nLev
 do q=1,SGS%nLev
 Write (6,*) 'p,q=',p,q
+
 do iCSF=1,nCSFs
   Psi(:) = Zero
   Psi(iCSF) = One
@@ -73,8 +69,10 @@ do iCSF=1,nCSFs
                   CSFSym, &
                   Psi, &
                   Sigma)
+  Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
   Epq(iCSF)=Dot_product(Sigma,Sigma)
 end do
+
 Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
 
 Psi(:) = One
@@ -94,7 +92,6 @@ Else
                   CSFSym, &
                   Psi, &
                   Sigma)
-Sigma(:) = Zero
 End If
 Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
 
@@ -106,76 +103,6 @@ call mma_deallocate(Epq)
 
 Call Abend()
 #endif
-
-#ifdef _EXPERIMENTAL_
-call mma_allocate(Epp_Psi,nCSFs,Label='Eij_Psi')
-Psi(:) = One
-do p=1,SGS%nLev
-   Epp_Psi(:) = Zero
-   call SG_Epq_Psi(SGS,CIS,EXS, &
-                   p,p, &
-                   One, &
-                   CSFSym, &
-                   Psi, &
-                   Epp_Psi)
-   call RecPrt('Epp_Psi',' ',Epp_Psi,1,nCSFs)
-end do
-call mma_deallocate(Epp_Psi)
-
-Psi(:) = One
-call mma_allocate(E11,nCSFs,Label='E11')
-call mma_allocate(E12,nCSFs,Label='E12')
-call mma_allocate(E11E11,nCSFs,Label='E11111')
-call mma_allocate(E22E11,nCSFs,Label='E22E11')
-call mma_allocate(E21E12,nCSFs,Label='E21E12')
-   E11(:) = Zero
-   call SG_Epq_Psi(SGS,CIS,EXS, &
-                   1,1, &
-                   One, &
-                   CSFSym, &
-                   Psi, &
-                   E11)
-   E12(:) = Zero
-   call SG_Epq_Psi(SGS,CIS,EXS, &
-                   1,2, &
-                   One, &
-                   CSFSym, &
-                   Psi, &
-                   E12)
-   E11E11(:) = Zero
-   call SG_Epq_Psi(SGS,CIS,EXS, &
-                   1,1, &
-                   One, &
-                   CSFSym, &
-                   E11, &
-                   E11E11)
-   call RecPrt('E11E11',' ',E11E11,1,nCSFs)
-
-   E22E11(:) = Zero
-   call SG_Epq_Psi(SGS,CIS,EXS, &
-                   2,2, &
-                   One, &
-                   CSFSym, &
-                   E11, &
-                   E22E11)
-   call RecPrt('E22E11',' ',E22E11,1,nCSFs)
-
-   E21E12(:) = Zero
-   call SG_Epq_Psi(SGS,CIS,EXS, &
-                   2,1, &
-                   One, &
-                   CSFSym, &
-                   E12, &
-                   E21E12)
-   call RecPrt('E21E12',' ',E21E12,1,nCSFs)
-
-call mma_deallocate(E21E12)
-call mma_deallocate(E22E11)
-call mma_deallocate(E11E11)
-call mma_deallocate(E12)
-call mma_deallocate(E11)
-#endif
-
 
   do iCSF=1,nCSFs
 
@@ -193,9 +120,11 @@ call mma_deallocate(E11)
      Diag(iCSF) = Sigma(iCSF)
 
   end do
+   call RecPrt('Diag',' ',Diag,1,nCSFs)
 
   call mma_deallocate(Sigma)
   call mma_deallocate(Psi)
+Call Abend()
 
 end subroutine sg_hdiag_ref
 

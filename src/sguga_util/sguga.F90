@@ -3173,10 +3173,9 @@ type(EXStruct), intent(inout), target :: EXS
 integer(kind=iwp), intent(in) :: IP, IQ, ISYCI
 real(kind=wp), intent(in) :: CPQ, CI(*)
 real(kind=wp), intent(_OUT_) :: DIAG(*)
-integer(kind=iwp) :: I, IC, ICS, INDEO, IOC, IOLW, IOUW, IPPOW, IPSHFT, ISGSTA, ISTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
-                     ISYUC, ISYUSG, J, JC, JSTA, LICP, LLW, LUW, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
+integer(kind=iwp) :: INDEO, IOC, ISGSTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
+                     ISYUC, ISYUSG, LICP, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
                      NUPSG, NCP1, NCP2, MV, MVX, nCSFs
-real(kind=wp) :: X
 
 ! declarations to facilitate the reuse of sigma vectors if possible
 integer(kind=iwp), save:: i_save_p=0, i_save_q=0
@@ -3207,8 +3206,6 @@ if (IQ < IP) then
 
     ! EXCITING CASE, IQ<IP<=MIDLEV.
     INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
-    Write (u6,*) 'Here we go!'
-    Write (u6,*) 'nMidV=',CIS%nMidV
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
 
@@ -3226,10 +3223,9 @@ if (IQ < IP) then
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
         ! CASE IS: LOWER HALF, EXCITE:
-        call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,.false.)
 
 !       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
-        call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
+        call Apply_colX(CPQ,NUPSG,NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
 
       end do
     end do
@@ -3254,7 +3250,8 @@ if (IQ < IP) then
         if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUC,MVSGM)
         ! CASE IS: UPPER HALF, EXCITE:
-        call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
+!       call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
+        call apply_rowX(CPQ,NDWNSG,NUPC,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
       end do
     end do
 
@@ -3262,6 +3259,7 @@ if (IQ < IP) then
 
     ! EXCITING CASE, IQ<=MIDLEV<IP
 
+    Write (6,*) 'Not implemented yet!'
     iOff=1
     Reuse_Sigma = .false.
     if (EXS%Reuse_SGTMP .and. (i_save_p == IP) .and. (i_save_q_sym == ISYQ)) &
@@ -3297,7 +3295,7 @@ if (IQ < IP) then
           if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
              NTMP = NUPSG*NDWNC
              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
           end if
 
           jOff=iOff
@@ -3317,13 +3315,13 @@ if (IQ < IP) then
           if (.not. EXS%Reuse_SGTMP) then
              NTMP = NUPSG*NDWNC
              EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
           end if
 
           ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           LICP = EXS%IOCP(INDEO,ISYDC,MVX)
-          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,DIAG(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
+!         call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,DIAG(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
 
         end do
       end do
@@ -3357,8 +3355,8 @@ else if (IP < IQ) then
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
-        call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,.true.)
-        call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
+!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
+        call Apply_colX(CPQ,NUPSG,NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
       end do
     end do
 
@@ -3382,12 +3380,14 @@ else if (IP < IQ) then
         if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
         ! CASE IS: UPPER HALF, DEEXCITE:
-        call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
+!       call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
+        call Apply_rowX(CPQ,NDWNSG,NUPC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
       end do
     end do
 
   else
 
+    Write (6,*) 'Not implemented yet!'
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
     iOff=1
     Reuse_Sigma = .false.
@@ -3425,7 +3425,7 @@ else if (IP < IQ) then
            if (EXS%Reuse_SGTMP .and. .not. Reuse_Sigma) then
              NTMP = NUPSG*NDWNC
              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
            end if
 
            jOff=iOff
@@ -3446,13 +3446,13 @@ else if (IP < IQ) then
            if (.not. EXS%Reuse_SGTMP) then
               NTMP = NUPSG*NDWNC
               EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-              call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+!             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
            end if
 
            ! CASE IS: LOWER HALF, DEEXCITE:
            NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
            LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
-           call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,DIAG(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
+!          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,DIAG(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
 
         end do
 
@@ -3472,297 +3472,97 @@ end if
 
 contains
 
-  subroutine sort_icoup_block(ICOUP,NCP,swap)
-
-  integer(kind=iwp), intent(in) :: NCP
-  integer(kind=iwp), intent(inout) :: ICOUP(3,NCP)
-  logical(kind=iwp), intent(in) :: swap
-    integer(kind=iwp) :: i, j, temp(3)
-
-  do i = 2, NCP
-     temp = ICOUP(:,i)
-     j = i-1
-     do while (j >= 1)
-        if (swap) then
-           if (ICOUP(1,j) <= temp(1)) exit
-        else
-           if (ICOUP(2,j) <= temp(2)) exit
-        end if
-        ICOUP(:,j+1) = ICOUP(:,j)
-        j = j - 1
-     end do
-     ICOUP(:,j+1) = temp
-  end do
-end subroutine sort_icoup_block
-
-subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
-
-  integer(kind=iwp), intent(in) :: NUP, NDWNC, NDWNSG, NCP, ICOUP(3,NCP)
-  real(kind=wp), intent(in) :: CPQ, CI(NUP,NDWNC)
+subroutine apply_colX(CPQ, NUP, NDWNSG, SIGMA, NCP, ICOUP, swap)
+  integer(kind=iwp), intent(in) :: NUP, NDWNSG, NCP, ICOUP(3,NCP)
+  real(kind=wp), intent(in) :: CPQ
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
-  logical(kind=iwp), intent(in) :: swap
-  integer(kind=iwp), parameter :: KBLOCK = 16
-  integer(kind=iwp) :: blck, finish, finish2, i, I1a(KBLOCK), I1b(KBLOCK), I2, I2b, ICP, nk, nk2, offset, start, start2
-  real(kind=wp) :: Xa(KBLOCK), Xb(KBLOCK), ABLOCK(NUP,KBLOCK), W(KBLOCK,2), TEMP(NUP,2)
+  logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC1), =.true. (DEX1)
+
+  integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1, idx
+  real(kind=wp) :: X
   real(kind=wp), pointer :: VTAB(:)
 
-  VTAB => EXS%VTab
-
-  ICP = 1
-  start2=0
-  i2b=0
-  finish2=0
-
-  if (swap) then
-
-  do while (ICP <= NCP)
-
-    I2 = ICOUP(1,ICP)
-    start = ICP
-    finish = ICP
-    do
-      if (finish > NCP) exit
-      if (ICOUP(1,finish)/=I2) exit
-      finish = finish + 1
-    end do
-
-    nk = finish-start
-
-    if (finish <= NCP) then
-      I2b = ICOUP(1,finish)
-      start2 = finish
-      finish2 = start2
-      do
-        if (finish2 > NCP) exit
-        if (ICOUP(1,finish2)/=I2b) exit
-        finish2 = finish2 + 1
-      end do
-      nk2 = finish2-start2
-    else
-      nk2 = -1
-    end if
-
-    ! structural GEMM only if perfectly safe AND fits buffers
-    if ((nk == nk2) .and. (nk > 0) .and. (nk <= KBLOCK)) then
-      do i=1,nk
-        I1a(i)=ICOUP(2,start+i-1)
-        I1b(i)=ICOUP(2,start2+i-1)
-      end do
-      if (all(I1a(1:nk)==I1b(1:nk))) then
-        do i=1,nk
-          Xa(i)=CPQ*VTAB(ICOUP(3,start+i-1))
-          Xb(i)=CPQ*VTAB(ICOUP(3,start2+i-1))
-          ABLOCK(:,i)=CI(:,I1a(i))
-          W(i,1)=Xa(i)
-          W(i,2)=Xb(i)
-        end do
-
-        call DGEMM_('N','N',NUP,2,nk,One,ABLOCK,NUP,W,KBLOCK,Zero,TEMP,NUP)
-
-        SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
-        SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
-
-        ICP = finish2
-        cycle
-      end if
-    end if
-
-    ! fallback blocked GEMV
-    do offset = 1, nk, KBLOCK
-      blck = min(KBLOCK,nk-offset+1)
-
-      do i=1,blck
-        I1a(i)=ICOUP(2,start+offset+i-2)
-        Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
-        ABLOCK(:,i)=CI(:,I1a(i))
-      end do
-
-      call DGEMM_('N','N', NUP, 1, blck, 1.0_wp, ABLOCK, NUP, Xa, KBLOCK, 0.0_wp, TEMP, NUP)
-
-      SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
-    end do
-
-    ICP = finish
-
-  end do
-
-  else
-
-  Call RecPrt('CI',' ',CI,NUP,NDWNC)
-  Call RecPrt('SIGMA',' ',SIGMA,NUP,NDWNSG)
-  do while (ICP <= NCP)
-    Write (6,*) 'ICP, NCP=',ICP, NCP
-
-    I2 = ICOUP(2,ICP)
-    start = ICP
-    finish = ICP
-    do
-      if (finish > NCP) exit
-      if (ICOUP(2,finish)/=I2) exit
-      finish = finish + 1
-    end do
-
-    nk = finish-start
-
-    if (finish <= NCP) then
-      I2b = ICOUP(2,finish)
-      start2 = finish
-      finish2 = start2
-      do
-        if (finish2 > NCP) exit
-        if (ICOUP(2,finish2)/=I2b) exit
-        finish2 = finish2 + 1
-      end do
-      nk2 = finish2-start2
-    else
-      nk2 = -1
-    end if
-
-    if ((nk == nk2) .and. (nk > 0) .and. (nk <= KBLOCK)) then
-      Write (6,*) 'Case 1'
-      do i=1,nk
-        I1a(i)=ICOUP(1,start+i-1)
-        I1b(i)=ICOUP(1,start2+i-1)
-      end do
-      if (all(I1a(1:nk)==I1b(1:nk))) then
-        do i=1,nk
-          Xa(i)=CPQ*VTAB(ICOUP(3,start+i-1))
-          Xb(i)=CPQ*VTAB(ICOUP(3,start2+i-1))
-          ABLOCK(:,i)=CI(:,I1a(i))
-          W(i,1)=Xa(i)
-          W(i,2)=Xb(i)
-        end do
-
-        call DGEMM_('N','N',NUP,2,nk,One,ABLOCK,NUP,W,KBLOCK,Zero,TEMP,NUP)
-
-        SIGMA(:,I2)  = SIGMA(:,I2)  + TEMP(:,1)
-        SIGMA(:,I2b) = SIGMA(:,I2b) + TEMP(:,2)
-
-        ICP = finish2
-        cycle
-      end if
-    end if
-
-    do offset = 1, nk, KBLOCK
-      Write (6,*) 'Case 2'
-      blck = min(KBLOCK,nk-offset+1)
-
-      do i=1,blck
-        I1a(i)=ICOUP(1,start+offset+i-2)
-        Xa(i)=CPQ*VTAB(ICOUP(3,start+offset+i-2))
-        ABLOCK(:,i)=CI(:,I1a(i))
-      end do
-
-      Call RecPrt('ABLOCK',' ',ABLOCK,NUP,BLCK)
-      Call RECPRT('Xa(i)',' ',Xa(i),Blck,1)
-      call DGEMM_('N','N',NUP,1,blck,One,ABLOCK,NUP,Xa,KBLOCK,Zero,TEMP,NUP)
-
-      SIGMA(:,I2) = SIGMA(:,I2) + TEMP(:,1)
-    end do
-
-    ICP = finish
-
-  end do
-  Write (6,*) 'Down'
-  Call RecPrt('CI',' ',CI,NUP,NDWNC)
-  Call RecPrt('SIGMA',' ',SIGMA,NUP,NDWNSG)
-
-  end if
-
-    nullify(VTAB)
-
-end subroutine apply_col
-
-  subroutine apply_row(CPQ,NDWN,NUPC,CI,NUPSG,SIGMA,NCP,ICOUP,swap)
-
-    integer(kind=iwp), intent(in) :: NDWN, NUPC, NUPSG, NCP, ICOUP(3,NCP)
-  real(kind=wp), intent(in) :: CPQ, CI(NUPC,NDWN)
-  real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
-  logical(kind=iwp), intent(in) :: swap
-  integer(kind=iwp), parameter :: KBLOCK=16
-    integer(kind=iwp) :: blk, i, ICP, IDWN, j, nblk
-    real(kind=wp) :: CI_blk(KBLOCK,KBLOCK), X
-    integer(kind=iwp), pointer :: I1LIST(:), I2LIST(:)
-    real(kind=wp), pointer :: VTAB(:), XLIST(:)
-  logical, parameter :: USE_OPT=.true.
-
-  VTAB => EXS%VTab
-  XLIST => EXS%XLIST
-  I1LIST => EXS%I1LIST
-  I2LIST => EXS%I2LIST
-
-  if (.not. USE_OPT) then
-
-    if (swap) then
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(2,ICP)
-        I2list(ICP)=ICOUP(1,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    else
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(1,ICP)
-        I2list(ICP)=ICOUP(2,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    end if
-
-
+vTab => EXS%VTab
+if (swap) Then
     do ICP=1,NCP
-!$OMP SIMD
+      JLFT = ICOUP(1,ICP)
+      JRGT = ICOUP(2,ICP)
+
+      I1 = MERGE(JRGT,JLFT,Swap)
+
+      idx=ICOUP(3,ICP)
+      X = CPQ * VTab(idx)
+      X = X**2
+      !$OMP SIMD
+      do IUP=1,NUP
+        SIGMA(IUP,I1) = SIGMA(IUP,I1) + X
+      end do
+    end do
+else
+    do ICP=1,NCP
+      JLFT = ICOUP(1,ICP)
+      JRGT = ICOUP(2,ICP)
+
+      I1 = MERGE(JRGT,JLFT,Swap)
+
+      idx=ICOUP(3,ICP)
+      X = CPQ * VTab(idx)
+      X = X**2
+      !$OMP SIMD
+      do IUP=1,NUP
+        SIGMA(IUP,I1) = SIGMA(IUP,I1) + X
+      end do
+    end do
+end if
+vTab => Null()
+end subroutine apply_colX
+
+
+subroutine apply_rowX(CPQ, NDWN, NUPSG, SIGMA, NCP, ICOUP, swap)
+  integer(kind=iwp), intent(in) :: NDWN, NUPSG, NCP, ICOUP(3,NCP)
+  real(kind=wp), intent(in) :: CPQ
+  real(kind=wp), intent(inout) :: SIGMA(NUPSG,NDWN)
+  logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC2), =.true. (DEX2)
+
+  integer(kind=iwp) :: ICP, ILFT, IRGT, IDWN, I1, I2, idx
+  real(kind=wp) :: X
+  real(kind=wp), pointer :: VTAB(:)
+
+vTab => EXS%VTab
+
+if (swap) then
+    do ICP=1,NCP
+      ILFT = ICOUP(1,ICP)
+      IRGT = ICOUP(2,ICP)
+
+      I1 = IRGT; I2 = ILFT
+
+      idx=ICOUP(3,ICP)
+      X = CPQ * VTab(idx)
+      X = X**2
+      !$OMP SIMD
       do IDWN=1,NDWN
-        SIGMA(I2list(ICP),IDWN)=SIGMA(I2list(ICP),IDWN)+Xlist(ICP)*CI(I1list(ICP),IDWN)
+        SIGMA(I1,IDWN) = SIGMA(I1,IDWN) + X
       end do
     end do
+else
+    do ICP=1,NCP
+      ILFT = ICOUP(1,ICP)
+      IRGT = ICOUP(2,ICP)
 
-  else
+      I1 = ILFT; I2 = IRGT
 
-    ! sorted input improves locality (optional external sort)
-    if (swap) then
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(2,ICP)
-        I2list(ICP)=ICOUP(1,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    else
-      do ICP=1,NCP
-        I1list(ICP)=ICOUP(1,ICP)
-        I2list(ICP)=ICOUP(2,ICP)
-        Xlist(ICP)=CPQ*VTAB(ICOUP(3,ICP))
-      end do
-    end if
-
-    ! tiled processing
-    do j=1,NDWN,KBLOCK
-      nblk = min(KBLOCK, NDWN-j+1)
-
-      do i=1,NCP,KBLOCK
-        blk = min(KBLOCK, NCP-i+1)
-
-        ! pack tile (transpose-like)
-        do ICP=1,blk
-          do IDWN=1,nblk
-            CI_blk(IDWN,ICP)=CI(I1list(i+ICP-1), j+IDWN-1)
-          end do
-        end do
-
-        ! compute
-        do ICP=1,blk
-          X = Xlist(i+ICP-1)
-!$OMP SIMD
-          do IDWN=1,nblk
-            SIGMA(I2list(i+ICP-1), j+IDWN-1) =               SIGMA(I2list(i+ICP-1), j+IDWN-1) + X*CI_blk(IDWN,ICP)
-          end do
-        end do
-
+      idx=ICOUP(3,ICP)
+      X = CPQ * VTab(idx)
+      X = X**2
+      !$OMP SIMD
+      do IDWN=1,NDWN
+        SIGMA(I1,IDWN) = SIGMA(I1,IDWN) + X
       end do
     end do
-
-  end if
-
-    nullify(VTAB)
-
-end subroutine apply_row
+end if
+vTab => Null()
+end subroutine apply_rowX
 
 end subroutine SG_EpqEqp_Diag
 
