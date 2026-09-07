@@ -42,8 +42,10 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
   real(kind=wp), allocatable :: Sigma(:)
 
   integer(kind=iwp) :: iCSF
+
 #define _TEST_
 #ifdef _TEST_
+  logical(kind=iwp) :: ReUse_Save
   integer(kind=iwp) :: p, q
   real(kind=wp), allocatable :: Epq(:), Eqp(:)
 #endif
@@ -52,6 +54,8 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
   call mma_allocate(Sigma,nCSFs,Label='Sigma')
 
 #ifdef _TEST_
+  ReUse_Save=EXS%Reuse_SGTMP
+  EXS%Reuse_SGTMP=.False.
 call mma_allocate(Epq,nCSFs,Label='Epq')
 call mma_allocate(Eqp,nCSFs,Label='Eqp')
 
@@ -101,6 +105,7 @@ end do
 call mma_deallocate(Eqp)
 call mma_deallocate(Epq)
 
+  EXS%Reuse_SGTMP=ReUse_Save
 Call Abend()
 #endif
 
@@ -124,7 +129,7 @@ Call Abend()
 
   call mma_deallocate(Sigma)
   call mma_deallocate(Psi)
-Call Abend()
+  Call Abend()
 
 end subroutine sg_hdiag_ref
 

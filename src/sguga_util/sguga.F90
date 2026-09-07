@@ -2548,6 +2548,8 @@ ISYPQ = Mul(ISYP,ISYQ)
 ISYSGM = Mul(ISYPQ,ISYCI)
 
 if (IQ < IP) then
+  Write (6,*) 'IQ < IP'
+  Call RecPrt('Psi',' ',CI,1,8)
   ! THEN THIS IS AN EXCITING OPERATOR.
   if (IP <= SGS%MidLev) then
 
