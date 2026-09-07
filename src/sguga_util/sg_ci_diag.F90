@@ -54,10 +54,37 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
   call mma_allocate(Sigma,nCSFs,Label='Sigma')
 
 #ifdef _TEST_
-  ReUse_Save=EXS%Reuse_SGTMP
-  EXS%Reuse_SGTMP=.False.
+! turn off reuse of SGTMP
+ReUse_Save=EXS%Reuse_SGTMP
+EXS%Reuse_SGTMP=.False.
 call mma_allocate(Epq,nCSFs,Label='Epq')
 call mma_allocate(Eqp,nCSFs,Label='Eqp')
+
+p=3
+q=1
+do iCSF=1,nCSFs
+Psi(:) = Zero
+Psi(iCSF) = One
+Sigma(:) = Zero
+call SG_Epq_Psi(SGS,CIS,EXS, &
+                p,q, &
+                One, &
+                CSFSym, &
+                Psi, &
+                Sigma)
+Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
+End do
+Psi(:) = Zero
+Sigma(:) = Zero
+call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+                  p,q, &
+                  One, &
+                  CSFSym, &
+                  Psi, &
+                  Sigma)
+Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
+
+Call Abend()
 
 do p=1,SGS%nLev
 do q=1,SGS%nLev

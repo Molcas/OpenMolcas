@@ -2548,8 +2548,6 @@ ISYPQ = Mul(ISYP,ISYQ)
 ISYSGM = Mul(ISYPQ,ISYCI)
 
 if (IQ < IP) then
-  Write (6,*) 'IQ < IP'
-  Call RecPrt('Psi',' ',CI,1,8)
   ! THEN THIS IS AN EXCITING OPERATOR.
   if (IP <= SGS%MidLev) then
 
@@ -3064,7 +3062,7 @@ subroutine apply_col(CPQ, NUP, NDWNC, CI, NDWNSG, SIGMA, NCP, ICOUP, swap)
 
   end if
 
-    nullify(VTAB)
+  nullify(VTAB)
 
 end subroutine apply_col
 
@@ -3261,7 +3259,6 @@ if (IQ < IP) then
 
     ! EXCITING CASE, IQ<=MIDLEV<IP
 
-    Write (6,*) 'Not implemented yet!'
     iOff=1
     Reuse_Sigma = .false.
     if (EXS%Reuse_SGTMP .and. (i_save_p == IP) .and. (i_save_q_sym == ISYQ)) &
@@ -3297,12 +3294,12 @@ if (IQ < IP) then
           if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
              NTMP = NUPSG*NDWNC
              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+             call Apply_rowY(One,NUPC,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
           end if
 
           jOff=iOff
           if (EXS%Reuse_SGTMP) then
-            iOff = iOff + NUPSG*NDWNC
+            iOff = iOff + NUPC
             if (iOff-1 > size(EXS%SGTMP)) then
               write(u6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 1'
               write(u6,*) iOff-1,size(EXS%SGTMP)
@@ -3315,15 +3312,15 @@ if (IQ < IP) then
           if (NCP2 == 0) cycle
 
           if (.not. EXS%Reuse_SGTMP) then
-             NTMP = NUPSG*NDWNC
+             NTMP = NUPC
              EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+             call Apply_rowY(One,NUPC,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
           end if
 
           ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           LICP = EXS%IOCP(INDEO,ISYDC,MVX)
-!         call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,DIAG(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
+          call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNSG,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
 
         end do
       end do
@@ -3389,7 +3386,7 @@ else if (IP < IQ) then
 
   else
 
-    Write (6,*) 'Not implemented yet!'
+    Write (6,*) 'Not implemented yet, IP<=MIDLEV<IQ!'
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
     iOff=1
     Reuse_Sigma = .false.
@@ -3501,7 +3498,6 @@ do ICP=1,NCP
 vTab => Null()
 end subroutine apply_colX
 
-
 subroutine apply_rowX(CPQ, NDWN, NUPSG, SIGMA, NCP, ICOUP, swap)
   integer(kind=iwp), intent(in) :: NDWN, NUPSG, NCP, ICOUP(3,NCP)
   real(kind=wp), intent(in) :: CPQ
@@ -3528,6 +3524,59 @@ do ICP=1,NCP
 end do
 vTab => Null()
 end subroutine apply_rowX
+
+subroutine apply_rowY(CPQ, NUPSG, UP, NCP, ICOUP, swap)
+  integer(kind=iwp), intent(in) :: NUPSG, NCP, ICOUP(3,NCP)
+  real(kind=wp), intent(in) :: CPQ
+  real(kind=wp), intent(inout) :: UP(NUPSG)
+  logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC2), =.true. (DEX2)
+
+  integer(kind=iwp) :: ICP, ILFT, IRGT, I1, I2, idx
+  real(kind=wp) :: X
+  real(kind=wp), pointer :: VTAB(:)
+
+vTab => EXS%VTab
+do ICP=1,NCP
+  ILFT = ICOUP(1,ICP)
+  IRGT = ICOUP(2,ICP)
+
+  I1=MERGE(IRGT,ILFT,SWAP)
+  I2=MERGE(ILFT,IRGT,SWAP)
+
+  idx=ICOUP(3,ICP)
+  X = (CPQ * VTab(idx))**2
+  UP(I1) = UP(I1) + X
+end do
+vTab => Null()
+end subroutine apply_rowY
+
+subroutine apply_colY(CPQ, NUP, Up, NDWNSG, SIGMA, NCP, ICOUP, swap)
+  integer(kind=iwp), intent(in) :: NUP, NDWNSG, NCP, ICOUP(3,NCP)
+  real(kind=wp), intent(in) :: CPQ, Up(NUP)
+  real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
+  logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC1), =.true. (DEX1)
+
+  integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1, I2, idx
+  real(kind=wp) :: X
+  real(kind=wp), pointer :: VTAB(:)
+
+vTab => EXS%VTab
+do ICP=1,NCP
+  JLFT = ICOUP(1,ICP)
+  JRGT = ICOUP(2,ICP)
+
+  I1=MERGE(JRGT,JLFT,Swap)
+  I2=MERGE(JLFT,JRGT,Swap)
+
+  idx=ICOUP(3,ICP)
+  X = (CPQ * VTab(idx))**2
+  !$OMP SIMD
+  do IUP=1,NUP
+    SIGMA(IUP,I1) = SIGMA(IUP,I1) + X*Up(IUP)
+  end do
+end do
+vTab => Null()
+end subroutine apply_colY
 
 end subroutine SG_EpqEqp_Diag
 
