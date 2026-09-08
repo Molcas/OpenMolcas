@@ -2621,14 +2621,15 @@ if (IQ < IP) then
       do MV = 1, 2
         MVX = EXS%MVL(MVSGM,MV)
         if (MVX == 0) cycle
+
         do ISYUSG=1,SGS%nSym
           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
           if (NS1 == 0) cycle
           ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
           ISYDSG = Mul(ISYUSG,ISYSGM)
-          ISYUC = Mul(ISYP,ISYUSG)
-          ISYDC = Mul(ISYQ,ISYDSG)
+          ISYUC = MERGE(Mul(ISYQ,ISYUSG),Mul(ISYP,ISYUSG),Swap)
+          ISYDC = MERGE(Mul(ISYP,ISYDSG),Mul(ISYQ,ISYDSG),Swap)
 
           NUPC = CIS%NOW(1,ISYUC,MVX)
           if (NUPC == 0) cycle
@@ -2759,8 +2760,8 @@ else if (IP < IQ) then
            ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
            NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
            ISYDSG = Mul(ISYUSG,ISYSGM)
-           ISYUC = Mul(ISYQ,ISYUSG)
-           ISYDC = Mul(ISYP,ISYDSG)
+           ISYUC = MERGE(Mul(ISYQ,ISYUSG),Mul(ISYP,ISYUSG),Swap)
+           ISYDC = MERGE(Mul(ISYP,ISYDSG),Mul(ISYQ,ISYDSG),Swap)
 
            NUPC = CIS%NOW(1,ISYUC,MVX)
            if (NUPC == 0) cycle
