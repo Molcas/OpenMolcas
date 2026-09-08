@@ -15,8 +15,9 @@
 module lpdft
   use stdalloc, only: mma_allocate, mma_deallocate
   use definitions, only: wp, iwp, u6
-  use general_data, only: ispin, jobiph, jobold, nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
+  use general_data, only: ispin, nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
   use mcpdft_input, only: mcpdft_options
+  use rasscf_files, only: jobiph, jobold
   use rasscf_global, only: dftfock, exfac, iadr15, istord, istorp, lroots, nac, nacpar, nacpr2, nfint, noneq, potnuc, nroots, &
                            weight
   use rctfld_module, only: lRF
@@ -572,8 +573,9 @@ module lpdft
     integer(kind=iwp) :: iPair, iRoot, jRoot, nPairs, nSpinTdm2
     real(kind=wp), allocatable :: tdm1(:,:,:), tdm2(:,:), tdm2Spin(:,:)
 #ifdef _HDF5_
-    character(len=1024) :: currDir, fileName, project
-    integer(kind=iwp) :: mh5id
+    character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
+    character(len=1024) :: fileName
+    integer(kind=iwp) :: lFileName, mh5id
     integer(kind=iwp), allocatable :: rootPairs(:,:)
 #endif
 
@@ -588,21 +590,14 @@ module lpdft
     call WarningMessage(2,'LPDFT MS-PDFT requested, but HDF5 support is disabled.')
     call Quit_OnUserError()
 #else
-    call get_environment_variable('Project',project)
-    if (len_trim(project) == 0) project = 'Noname'
-    call get_environment_variable('CurrDir',currDir)
-    if (len_trim(currDir) > 0) then
-      fileName = trim(currDir)//'/'//trim(project)//'_tdm_4_lpdft.h5'
-    else
-      fileName = trim(project)//'_tdm_4_lpdft.h5'
-    end if
+    call PrgmTranslate(LPDFTDM,fileName,lFileName)
 
-    if (.not. mh5_is_hdf5(trim(fileName))) then
-      call WarningMessage(2,'LPDFT transition density HDF5 file not found: '//trim(fileName))
+    if (.not. mh5_is_hdf5(LPDFTDM)) then
+      call WarningMessage(2,'LPDFT transition density HDF5 file not found: '//fileName(:lFileName))
       call Quit_OnUserError()
     end if
 
-    mh5id = mh5_open_file_r(trim(fileName))
+    mh5id = mh5_open_file_r(LPDFTDM)
     if (.not. mh5_exists_dset(mh5id,'ACTIVE_1TDM')) then
       call WarningMessage(2,'LPDFT transition density HDF5 file does not contain ACTIVE_1TDM.')
       call Quit_OnUserError()

@@ -13,7 +13,7 @@
 
 subroutine LPDFT_TDM()
 !> Compute active-space transition 1- and 2-density matrices for LPDFT
-!> and store them in ${Project}_tdm_4_lpdft.h5.
+!> and store them in ${Project}.tdm_4_lpdft.h5.
 
 use input_ras, only: Key
 use Definitions, only: u6
@@ -22,8 +22,9 @@ use Index_Functions, only: nTri_Elem
 use lucia_data, only: DStmp, Dtmp, Ptmp
 use Lucia_Interface, only: Lucia_Util
 use rasscf_global, only: IADR15, lRoots, NAC, NACPAR, NACPR2
-use general_data, only: JOBIPH, NCONF, STSYM
-use sguga_states, only: SGS, EXS, CIS
+use general_data, only: NCONF, STSYM
+use rasscf_files, only: JOBIPH
+use sguga, only: CIS, SG_ReOrd
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_dset_int, mh5_create_dset_real, mh5_create_file, mh5_put_dset
@@ -33,8 +34,9 @@ implicit none
 #ifdef _HDF5_
 integer(kind=iwp) :: dDisk, iDisk, iPair, jRoot, kDisk, kRoot, nPairs, nSpinTdm2
 real(kind=wp), allocatable :: SpinTdm2(:), Tmp(:), VecL(:), VecR(:)
-character(len=1024) :: currDir, fileName, project
-integer(kind=iwp) :: fileId, oneTdmId, twoTdmId, twoTdmSpinId, rootPairsId
+character(len=*), parameter :: LPDFTDM = 'LPDFTDM'
+character(len=1024) :: fileName
+integer(kind=iwp) :: fileId, lFileName, oneTdmId, twoTdmId, twoTdmSpinId, rootPairsId
 integer(kind=iwp), allocatable :: rootPairs(:,:)
 #endif
 
@@ -49,21 +51,13 @@ return
 nPairs = (lRoots*(lRoots+1))/2
 nSpinTdm2 = nTri_Elem(NAC*NAC)
 
-call get_environment_variable('Project',project)
-
-if (len_trim(project) == 0) project = 'Noname'
-call get_environment_variable('CurrDir',currDir)
-if (len_trim(currDir) > 0) then
-  fileName = trim(currDir)//'/'//trim(project)//'_tdm_4_lpdft.h5'
-else
-  fileName = trim(project)//'_tdm_4_lpdft.h5'
-end if
+call PrgmTranslate(LPDFTDM,fileName,lFileName)
 
 write(u6,*)
 write(u6,'(6X,A)') '-----------------------------------------'
 write(u6,'(6X,A)') '     Multi-State PDFT Intermediate       '
 write(u6,'(6X,A)') '-----------------------------------------'
-write(u6,'(6X,A)') 'Computing and storing active 1-TDM and 2-TDM matrices in '//trim(fileName)
+write(u6,'(6X,A)') 'Computing and storing active 1-TDM and 2-TDM matrices in '//fileName(:lFileName)
 
 call mma_allocate(Tmp,NConf,Label='Tmp')
 call mma_allocate(VecL,NConf,Label='VecL')
@@ -74,7 +68,7 @@ call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
 call mma_allocate(SpinTdm2,nSpinTdm2,Label='SpinTdm2')
 call mma_allocate(rootPairs,2,nPairs,Label='rootPairs')
 
-fileId = mh5_create_file(trim(fileName))
+fileId = mh5_create_file(LPDFTDM)
 oneTdmId = mh5_create_dset_real(fileId,'ACTIVE_1TDM',3,[NAC,NAC,nPairs])
 twoTdmId = mh5_create_dset_real(fileId,'ACTIVE_2TDM',2,[NACPR2,nPairs])
 twoTdmSpinId = mh5_create_dset_real(fileId,'ACTIVE_2TDM_SPINSUM',2,[nSpinTdm2,nPairs])
@@ -85,11 +79,11 @@ iDisk = IADR15(4)
 dDisk = IADR15(3)
 do jRoot=1,lRoots
   call DDafile(JOBIPH,2,Tmp,nConf,iDisk)
-  call SG_ReOrd(SGS(1),EXS(1),STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecL)
+  call SG_ReOrd(1,STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecL)
   kDisk = IADR15(4)
   do kRoot=1,jRoot-1
     call DDafile(JOBIPH,2,Tmp,nConf,kDisk)
-    call SG_ReOrd(SGS(1),EXS(1),STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecR)
+    call SG_ReOrd(1,STSYM,1,CIS(1)%nCSF(STSYM),Tmp,VecR)
     SpinTdm2(:) = 0.0_wp
     call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:),TwoBodyTDM=.true.,Raw2TDM=SpinTdm2(:))
     call scale_spin_tdm2_for_hamiltonian(SpinTdm2,nac)
