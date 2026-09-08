@@ -2634,7 +2634,7 @@ if (IQ < IP) then
           NDWNC = CIS%NOW(2,ISYDC,MVX)
           if (NDWNC == 0) cycle
 
-          INDEO = merge(IP, SGS%nLev+IP, MV==1)
+          INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),Swap)
           NCP1 = EXS%NOCP(INDEO,ISYUC,MVX)
           if (NCP1 == 0) cycle
 
@@ -2762,7 +2762,7 @@ else if (IP < IQ) then
            NDWNC = CIS%NOW(2,ISYDC,MVX)
            if (NDWNC == 0) cycle
 
-           INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
+           INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),Swap)
            NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)
            if (NCP1 == 0) cycle
 
