@@ -13,8 +13,8 @@ subroutine faroald_free()
 ! The finalization subroutine lives outside of the
 ! faroald module so that it can be called separately.
 
-use faroald, only: ex1_a, ex1_b, gtuvx, htu, ipat_of_det, occpat, mma_deallocate, ndoub, nsing, nSpin_Comb, nComb, ibComb, ictsdt
-use faroald, only: conf_by_nopen, icnf_out, conf_reo, conf_arcw
+use faroald, only: conf_arcw, conf_by_nopen, conf_reo, ex1_a, ex1_b, gtuvx, htu, ibComb, icnf_out, ictsdt, ipat_of_det, &
+                   mma_deallocate, nComb, ndoub, nsing, nSpin_Comb, occpat
 
 implicit none
 

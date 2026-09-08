@@ -15,9 +15,9 @@ subroutine DEPSAOffC(NCONF,NSTATE,NASHT,NBAST,CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 
 use Symmetry_Info, only: Mul
 use PrintLevel, only: VERBOSE
-use sguga, only: SGS, CIS
+use sguga, only: CIS, SGS
 use caspt2_global, only: ConvInvar, IDCIEX, IDTCEX, IPrGlb, LUCIEX, SLag
-use general_data, only: NASH,  STSYM
+use general_data, only: NASH, STSYM
 use caspt2_module, only: IFRMS, IFXMS, ISCF, NBAS, NBTCH, NBTCHES, NFRO, NISH, NORB, NROOTS, NSYM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par

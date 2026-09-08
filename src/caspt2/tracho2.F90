@@ -33,16 +33,14 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: NCMO, NDREF
 real(kind=wp), intent(in) :: CMO(NCMO), DREF(NDREF)
-! FFIAO is the Fock matrix of the frozen and inactive orbitals
 real(kind=wp), intent(out) :: FFIAO(NBTRI), FAAO(NBTRI)
 logical(kind=iwp), intent(in) :: IF_TRNSF
-integer(kind=iwp) :: I, IA, IAEND, IASTA, IB, IBATCH, IBATCH_TOT, IBEND, IBSTA, IC, ICASE, IDAIJ, IDFIJ, IIEND, IISTA, &
-                     ILOC, ip_htspc, ip_HTVec(8), IP_LHT, IRC, ISFA, ISFF, ISFI, ISTART(8), ISYM, ISYMA, ISYMB, ISYMK, ISYMW, &
-                     ISYP, ISYQ, JNUM, JRED, JRED1, JRED2, JREDC, JSTART, JSYM, JV1, JV2, LC, LO, LSC, LSO, MUSED, N, N1, N2, NA, &
-                     NASZ, NB, NBATCH, NBUFFY, NCES(8), NF, NHTOFF, NI, NISZ, NK, NPQ, NRS, NUMV, NUSE(8), NVECS_RED, NW
+integer(kind=iwp) :: I, IA, IAEND, IASTA, IB, IBATCH, IBATCH_TOT, IBEND, IBSTA, IC, ICASE, IDAIJ, IDFIJ, IIEND, IISTA, ILOC, &
+                     ip_htspc, ip_HTVec(8), IP_LHT, IPF, IPFSQ(8), IRC, ISF, ISFA, ISFF, ISFI, ISTART(8), ISTX(8), ISYM, ISYMA, &
+                     ISYMB, ISYMK, ISYMW, ISYP, ISYQ, JNUM, JRED, JRED1, JRED2, JREDC, JSTART, JSUB, JSYM, JV1, JV2, LC, LO, LSC, &
+                     LSO, MUSED, N, N1, N2, NA, NASZ, NB, NBATCH, NBUFFY, NCES(8), NF, NHTOFF, NI, NISZ, NJ, NK, NPQ, NRS, NSQSYM, &
+                     NT, NUMV, NUSE(8), NUSX(8), NVECS_RED, NW
 real(kind=wp) :: FACTC, FACTXA, FACTXI
-! For square-expansion route (see Cho_Square)
-integer(kind=iwp) :: IPF, IPFSQ(8), ISF, ISTX(8), JSUB, NJ, NSQSYM, NT, NUSX(8)
 logical(kind=iwp) :: USE_SQ
 real(kind=wp), allocatable :: BUFFY(:), CHSPC(:), CNAT(:), DA(:), DA_RED(:), DFI(:), DFI_RED(:), FA_RED(:), FFI_RED(:), FSQ(:), &
                               FTSPC(:), HTSPC(:), OCC(:), VEC(:)
@@ -51,6 +49,8 @@ real(kind=wp) :: ECORE, ECORE1, ECORE2
 real(kind=wp), external :: DDOT_
 #endif
 #include "warnings.h"
+
+! FFIAO is the Fock matrix of the frozen and inactive orbitals
 
 !***********************************************************************
 ! ======================================================================
@@ -561,7 +561,7 @@ call mma_deallocate(CHSPC)
 call mma_deallocate(HTSPC)
 if (IF_TRNSF) call mma_deallocate(FTSPC)
 call Cho_Sq_Close()
-if (allocated(FSQ)) call mma_deallocate(FSQ)
+call mma_deallocate(FSQ,safe='*')
 
 #ifdef _DEBUGPRINT_
 write(u6,'(6X,A)') 'TEST PRINT FROM TRACHO2.'

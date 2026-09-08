@@ -14,7 +14,7 @@ subroutine sg2symg(CI,lCI,imode,pState_Sym)
 use sguga, only: CIS, SG_Free, SG_ReOrd
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC
-use general_data, only: State_Sym=>STSym, nSym
+use general_data, only: nSym, STSym
 use input_mclr, only: NCSF, NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -38,10 +38,10 @@ real(kind=wp), parameter :: PRWTHR = 0.05_wp
 call SG_Setup_MCLR()
 
 NCSF(1:nSym) = CIS(istate)%NCSF(1:nSym)
-NCONF        = CIS(istate)%NCSF(pState_Sym)
+NCONF = CIS(istate)%NCSF(pState_Sym)
 
 iss = 1
-if (pState_sym /= state_sym) iss = 2
+if (pState_sym /= STSym) iss = 2
 
 #ifdef _DEBUGPRINT_
 write(u6,101)
@@ -54,19 +54,19 @@ write(u6,103)
 103 format(/,6X,100('-'),/)
 #endif
 
-Call mma_allocate(CINEW,nConf,Label='CINEW')
-Call mma_allocate(Conf_Occ(pState_Sym)%A,SIZE(CNSM(iss)%ICONF),Label='CINEW')
-Conf_Occ(pState_Sym)%A(:)=-CNSM(iss)%ICONF
-Call mma_allocate(CFTP,SIZE(CFTP_MCLR),Label='CFTP')
-CFTP(:)=CFTP_MCLR(:)
+call mma_allocate(CINEW,nConf,Label='CINEW')
+call mma_allocate(Conf_Occ(pState_Sym)%A,size(CNSM(iss)%ICONF),Label='CINEW')
+Conf_Occ(pState_Sym)%A(:) = -CNSM(iss)%ICONF
+call mma_allocate(CFTP,size(CFTP_MCLR),Label='CFTP')
+CFTP(:) = CFTP_MCLR(:)
 
 call SG_REORD(istate,pState_Sym,iMode,nConf,CI,CINEW)
 
-CI(1:nConf)=CINEW(1:nConf)
+CI(1:nConf) = CINEW(:)
 
-Call mma_deallocate(CFTP)
-Call mma_deallocate(Conf_Occ(pState_Sym)%A)
-Call mma_deallocate(CINEW)
+call mma_deallocate(CFTP)
+call mma_deallocate(Conf_Occ(pState_Sym)%A)
+call mma_deallocate(CINEW)
 
 #ifdef _DEBUGPRINT_
 call SG_PrWF(iState,pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)

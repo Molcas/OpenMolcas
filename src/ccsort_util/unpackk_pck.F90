@@ -45,7 +45,7 @@ vint(:,:,:) = Zero
 if (iokey == 1) then
   ! Fortran IO
   call molcas_binaryopen_vanilla(lunpublic,tmpnam(i))
-  !open(unit=lunpublic,file=tmpnam(i),form='unformatted')
+  !open(lunpublic,file=tmpnam(i),form='unformatted')
 else
   ! MOLCAS IO
   call daname(lunpublic,tmpnam(i))

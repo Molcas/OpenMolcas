@@ -30,10 +30,9 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sNew
 use MCLR_Data, only: CMO, FnJob, FnMck, G1t, G2t, IRLXROOT, ISNAC, ISTATE, LuJob, LuMck, nA, NACSTATES, nNA, NSSA, OVERRIDE, SA
-use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, State_Sym=>STSym
-use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iTOC, iTocIph, lRoots, McKinley, &
-                      nBas, nCOnf, nDel, nFro, nOrb, nRoots, ntAsh, ntASqr, ntATri, &
-                      ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, TitleJP, Weight
+use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, STSym
+use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iTOC, iTocIph, lRoots, McKinley, nBas, nCOnf, nDel, &
+                      nFro, nOrb, nRoots, ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, TitleJP, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
@@ -78,8 +77,8 @@ call mma_allocate(TempTxt,(LenIn+8)*MxOrb,Label='TempTxt')
 iDisk = iToc(1)
 
 !write(u6,*) 'if dmrg, it should be something else'
-call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,State_sym,nFro,nIsh,nAsh,nDel,nBas,MxSym,TempTxt,(LenIn+8)*mxorb,nConf, &
-                    HeaderJP,144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
+call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,STSym,nFro,nIsh,nAsh,nDel,nBas,MxSym,TempTxt,(LenIn+8)*mxorb,nConf,HeaderJP, &
+                    144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
 
 if (doDMRG) then ! yma
   nash(:) = LRras2(:)
@@ -133,7 +132,7 @@ end do
 if (doDMRG) then  ! yma
   imode = -99
   ! generate the Nr. of csfs in each sym
-  call SG2SymG(rdum,1,imode,State_sym)
+  call SG2SymG(rdum,1,imode,STSym)
 end if
 
 !----------------------------------------------------------------------*

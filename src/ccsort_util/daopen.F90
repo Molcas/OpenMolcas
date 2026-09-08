@@ -31,7 +31,7 @@ recln = reclen*8
 #endif
 
 call molcas_open_ext2(lun,fname,'direct','unformatted',f_iostat,.true.,recln,'unknown',is_error)
-!open(unit=lun,file=fname,form='unformatted',access='direct',recl=recln)
+!open(lun,file=fname,form='unformatted',access='direct',recl=recln)
 
 return
 

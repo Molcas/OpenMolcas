@@ -13,8 +13,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NSB,NCB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK, &
-                  SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
+subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NSB,NCB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
+                  CSCR,I1,XI1S,I2,XI2S,NSMOB,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
 ! SUBROUTINE GSBBD1 --> 40
 !
 ! Contributions to one electron density matrix from column excitations
@@ -65,13 +65,13 @@ subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB
 
 use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp
 #ifdef _CUDA_BLAS_
 use, intrinsic :: iso_c_binding, only: c_int64_t
-use GSBBD1_CUDA_INTERFACE, only: LUCIA_GSBBD1_CUDA_BEGIN, LUCIA_GSBBD1_CUDA_END, LUCIA_GSBBD1_CUDA_MAPS_BEGIN, &
-                                 LUCIA_GSBBD1_CUDA_MAPS_END, LUCIA_GSBBD1_CUDA_ROUTE
+use LUCIA_CUDA_INTERFACE, only: LUCIA_GSBBD1_CUDA_BEGIN, LUCIA_GSBBD1_CUDA_END, LUCIA_GSBBD1_CUDA_MAPS_BEGIN, &
+                                LUCIA_GSBBD1_CUDA_MAPS_END, LUCIA_GSBBD1_CUDA_ROUTE
 #endif
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -81,7 +81,7 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(inout) :: RHO1(*), XI1S(*), XI2S(*), RHO1S(*), SRHO1(*)
-integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, NSB, NCB, ISEL(NGAS), ICEL(NGAS), MXPNGAS, &
+integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPNGAS, NSB, NCB, &
                                  NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, IPHGAS(*), IDOSRHO1, IAB
 real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*)
@@ -92,8 +92,8 @@ integer(kind=iwp) :: IBIORB, IBJORB, IBOT, ICGOFF, ICGRP(16), IDOCOMP, IIORB, II
                      NSXTP
 real(kind=wp) :: FACTORAB, FACTORC, SCLFACS, SIGNIJ, XAB
 #ifdef _CUDA_BLAS_
-integer(c_int64_t) :: CudaStatus
-logical :: CudaMaps, CudaSession
+integer(kind=c_int64_t) :: CudaStatus
+logical(kind=iwp) :: CudaMaps, CudaSession
 #endif
 
 #ifndef _CUDA_BLAS_
@@ -110,12 +110,12 @@ end if
 #ifdef _CUDA_BLAS_
 CudaSession = .false.
 CudaMaps = .false.
-if (NPROCS == 1 .and. NACOB > 0 .and. NROW > 0 .and. NSB > 0 .and. NCB > 0) then
+if ((NPROCS == 1) .and. (NACOB > 0) .and. (NROW > 0) .and. (NSB > 0) .and. (NCB > 0)) then
   CudaStatus = LUCIA_GSBBD1_CUDA_BEGIN(RHO1,SRHO1,SB,CB,NACOB,NROW,NSB,NCB,IDOSRHO1)
-  if (CudaStatus == -1_c_int64_t) then
+  if (CudaStatus == -1) then
     call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
   else
-    CudaSession = CudaStatus == 1_c_int64_t
+    CudaSession = CudaStatus == 1
   end if
 end if
 #endif
@@ -273,17 +273,17 @@ if (IJSM /= 0) then
       end if
       !write(u6,*) ' NKAEFF NKASTR',NKAEFF,NKASTR
 
-#ifdef _CUDA_BLAS_
-      if (NPROCS == 1 .and. NKASTR > 0 .and. IJ_DIM(1) > 0 .and. IJ_DIM(2) > 0) then
-        CudaStatus = LUCIA_GSBBD1_CUDA_MAPS_BEGIN(I1,XI1S,I2,XI2S,int(NKASTR,c_int64_t), &
-                                                  int(IJ_DIM(1),c_int64_t),int(IJ_DIM(2),c_int64_t))
-        if (CudaStatus == -1_c_int64_t) then
+#     ifdef _CUDA_BLAS_
+      if ((NPROCS == 1) .and. (NKASTR > 0) .and. (IJ_DIM(1) > 0) .and. (IJ_DIM(2) > 0)) then
+        CudaStatus = LUCIA_GSBBD1_CUDA_MAPS_BEGIN(I1,XI1S,I2,XI2S,int(NKASTR,c_int64_t),int(IJ_DIM(1),c_int64_t), &
+                                                  int(IJ_DIM(2),c_int64_t))
+        if (CudaStatus == -1) then
           call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
         else
-          CudaMaps = CudaStatus == 1_c_int64_t
+          CudaMaps = CudaStatus == 1
         end if
       end if
-#endif
+#     endif
 
       ! Loop over partitionings of N-1 strings
       KBOT = 1-MAXK
@@ -305,52 +305,51 @@ if (IJSM /= 0) then
           NIBTC = ITOP-IBOT+1
           if (NIBTC <= 0) exit
 #         ifdef _CUDA_BLAS_
-          CudaStatus = 0_c_int64_t
-          if (NPROCS == 1) then
+          CudaStatus = 0
+          if (NPROCS == 1) &
             CudaStatus = LUCIA_GSBBD1_CUDA_ROUTE(RHO1,SRHO1,SB,CB,I1,XI1S,I2,XI2S,NACOB,NROW,NSB,NCB,IBOT,NIBTC,NKASTR,KBOT, &
                                                  LKABTC,IJ_DIM(1),IJ_DIM(2),IJ_OFF(1)-1,IJ_OFF(2)-1,IDOSRHO1,XAB)
-          end if
-          if (CudaStatus == -1_c_int64_t) then
+          if (CudaStatus == -1) then
             call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
-          else if (CudaStatus /= 1_c_int64_t) then
+          else if (CudaStatus /= 1) then
 #         endif
-          ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
-          do JJORB=1,IJ_DIM(2)
-            ICGOFF = 1+(JJORB-1)*LKABTC*NIBTC
-            call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,LKABTC,I1(KBOT+(JJORB-1)*NKASTR),XI1S(KBOT+(JJORB-1)*NKASTR))
-          end do
-          ! Obtain SSCR(I,K,IORB) = SUM(I)<K!A IORB!J>S(I,J)
-          do IIORB=1,IJ_DIM(1)
-            ! Gather S Block
-            ISGOFF = 1+(IIORB-1)*LKABTC*NIBTC
-            call MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,LKABTC,I2(KBOT+(IIORB-1)*NKASTR),XI2S(KBOT+(IIORB-1)*NKASTR))
-          end do
-
-          ! And then the hard work
-          NKI = LKABTC*NIBTC
-#         ifdef _DEBUGPRINT_
-          write(u6,*) ' CSCR and SSCR'
-          call WRTMAT(CSCR,IJ_DIM(2),NKI,IJ_DIM(2),NKI)
-          call WRTMAT(SSCR,IJ_DIM(1),NKI,IJ_DIM(1),NKI)
-#         endif
-          FACTORC = Zero
-          FACTORAB = One
-          call MATML7(RHO1S,SSCR,CSCR,IJ_DIM(1),IJ_DIM(2),NKI,IJ_DIM(1),NKI,IJ_DIM(2),FACTORC,FACTORAB,1)
-
-#         ifdef _DEBUGPRINT_
-          write(u6,*) ' Block to one-body density'
-          call WRTMAT(RHO1S,IJ_DIM(1),IJ_DIM(2),IJ_DIM(1),IJ_DIM(2))
-#         endif
-          ! Scatter out to complete matrix
-          do JJORB=1,IJ_DIM(2)
-            JORB = IJ_OFF(2)-1+JJORB
-            do IIORB=1,IJ_DIM(1)
-              IORB = IJ_OFF(1)-1+IIORB
-              RHO1((JORB-1)*NACOB+IORB) = RHO1((JORB-1)*NACOB+IORB)+RHO1S((JJORB-1)*IJ_DIM(1)+IIORB)
-              if (IDOSRHO1 == 1) SRHO1((JORB-1)*NACOB+IORB) = SRHO1((JORB-1)*NACOB+IORB)+XAB*RHO1S((JJORB-1)*IJ_DIM(1)+IIORB)
+            ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
+            do JJORB=1,IJ_DIM(2)
+              ICGOFF = 1+(JJORB-1)*LKABTC*NIBTC
+              call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,LKABTC,I1(KBOT+(JJORB-1)*NKASTR),XI1S(KBOT+(JJORB-1)*NKASTR))
             end do
-          end do
-          ! End of hard work
+            ! Obtain SSCR(I,K,IORB) = SUM(I)<K!A IORB!J>S(I,J)
+            do IIORB=1,IJ_DIM(1)
+              ! Gather S Block
+              ISGOFF = 1+(IIORB-1)*LKABTC*NIBTC
+              call MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,LKABTC,I2(KBOT+(IIORB-1)*NKASTR),XI2S(KBOT+(IIORB-1)*NKASTR))
+            end do
+
+            ! And then the hard work
+            NKI = LKABTC*NIBTC
+#           ifdef _DEBUGPRINT_
+            write(u6,*) ' CSCR and SSCR'
+            call WRTMAT(CSCR,IJ_DIM(2),NKI,IJ_DIM(2),NKI)
+            call WRTMAT(SSCR,IJ_DIM(1),NKI,IJ_DIM(1),NKI)
+#           endif
+            FACTORC = Zero
+            FACTORAB = One
+            call MATML7(RHO1S,SSCR,CSCR,IJ_DIM(1),IJ_DIM(2),NKI,IJ_DIM(1),NKI,IJ_DIM(2),FACTORC,FACTORAB,1)
+
+#           ifdef _DEBUGPRINT_
+            write(u6,*) ' Block to one-body density'
+            call WRTMAT(RHO1S,IJ_DIM(1),IJ_DIM(2),IJ_DIM(1),IJ_DIM(2))
+#           endif
+            ! Scatter out to complete matrix
+            do JJORB=1,IJ_DIM(2)
+              JORB = IJ_OFF(2)-1+JJORB
+              do IIORB=1,IJ_DIM(1)
+                IORB = IJ_OFF(1)-1+IIORB
+                RHO1((JORB-1)*NACOB+IORB) = RHO1((JORB-1)*NACOB+IORB)+RHO1S((JJORB-1)*IJ_DIM(1)+IIORB)
+                if (IDOSRHO1 == 1) SRHO1((JORB-1)*NACOB+IORB) = SRHO1((JORB-1)*NACOB+IORB)+XAB*RHO1S((JJORB-1)*IJ_DIM(1)+IIORB)
+              end do
+            end do
+            ! End of hard work
 #         ifdef _CUDA_BLAS_
           end if
 #         endif
@@ -361,15 +360,13 @@ if (IJSM /= 0) then
         if (KEND /= 0) exit
       end do
       ! End of loop over I partitionings
-#ifdef _CUDA_BLAS_
+#     ifdef _CUDA_BLAS_
       if (CudaMaps) then
         CudaStatus = LUCIA_GSBBD1_CUDA_MAPS_END()
-        if (CudaStatus /= 1_c_int64_t) then
-          call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
-        end if
+        if (CudaStatus /= 1) call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
         CudaMaps = .false.
       end if
-#endif
+#     endif
     end do
     ! (end of loop over symmetries)
   end do
@@ -378,9 +375,7 @@ end if
 #ifdef _CUDA_BLAS_
 if (CudaSession) then
   CudaStatus = LUCIA_GSBBD1_CUDA_END()
-  if (CudaStatus == -1_c_int64_t) then
-    call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
-  end if
+  if (CudaStatus == -1) call SYSABENDMSG('lucia_util/gsbbd1','CUDA execution failed','')
 end if
 #endif
 

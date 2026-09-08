@@ -13,13 +13,12 @@ subroutine TRACI_RPT2(ISTART,NDIM,XMAT,STSYM,NCI,CI)
 
 use sguga, only: sg_epq_psi
 use sguga, only: CIS, EXS, SGS
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half, OneHalf
-use Definitions, only: wp, iwp
-
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, MyRank, nProcs
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half, OneHalf
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ISTART, NDIM, STSym, NCI
@@ -27,13 +26,12 @@ real(kind=wp), intent(inout) :: XMAT(NDIM,NDIM), CI(NCI)
 integer(kind=iwp) :: I, IORB, J, JORB, LI, LJ, M
 real(kind=wp) :: Fact, SCL, XJM
 real(kind=wp), allocatable :: SGM(:), TVEC(:), XSAV(:,:)
-integer(kind=iwp), parameter :: istate = 1
-real(kind=wp), parameter :: THRSCL = 1.0e-12_wp
-
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: ITASK
 real(kind=wp), allocatable :: CIACC(:)
 #endif
+integer(kind=iwp), parameter :: istate = 1
+real(kind=wp), parameter :: THRSCL = 1.0e-12_wp
 
 if (NDIM <= 0) return
 

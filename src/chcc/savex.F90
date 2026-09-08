@@ -13,7 +13,7 @@ subroutine SaveX(X,length,Lun,LunName,keyopen,keyclose)
 ! this routine does
 ! 1) keyopen = 1 - open LunName file with Lun
 !              2 - rewind Lun file
-!              3 - open LunName file with Lun with ACCESS='append'
+!              3 - open LunName file with Lun with access='append'
 !           else - nothing (i.e) file is opened
 ! 2) write X of dimension length
 ! 3) keyclose= 1 - close Lun file
@@ -28,12 +28,12 @@ character(len=6) :: LunName
 
 !1
 if (keyopen == 1) then
-  !open(unit=Lun,file=LunName,form='unformatted')
+  !open(Lun,file=LunName,form='unformatted')
   call MOLCAS_BinaryOpen_Vanilla(Lun,LunName)
 else if (keyopen == 2) then
   rewind(Lun)
 else if (keyopen == 3) then
-  !mp open(unit=Lun,file=LunName,form='unformatted',ACCESS='append')
+  !mp open(Lun,file=LunName,form='unformatted',access='append')
 
   call MOLCAS_BinaryOpen_Vanilla(Lun,LunName)
   call append_file_u(Lun)

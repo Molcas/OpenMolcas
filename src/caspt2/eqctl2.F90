@@ -31,14 +31,14 @@ use PrintLevel, only: INSANE, USUAL, VERBOSE
 use EQSOLV, only: IRHS, IVECC, IVECC2, IVECR, IVECW, IVECX
 use ChoCASPT2, only: iALGO
 use caspt2_global, only: do_grad, iPrGlb, iStpGrd, nStpGrd
+#ifdef _MOLCAS_MPP_
+use caspt2_global, only: iParRHS
+#endif
 use caspt2_module, only: CPUDIA, CPUEIG, CPULCS, CPUNAD, CPUOVL, CPUPCG, CPURHS, CPUSBM, CPUSCA, CPUSER, CPUSGM, CPUVEC, E2TOT, &
                          HZERO, IfChol, IFDENS, IFMSCOUP, IFPROP, NASUP, NINDEP, NISUP, NSYM, RHSDIRECT, SDECOM, SMATRIX, TIODIA, &
                          TIOEIG, TIOLCS, TIONAD, TIOOVL, TIOPCG, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOVEC
 use SC_NEVPT2, only: do_FIC, SC_NEVPT2_Print
 use Definitions, only: wp, iwp, u6
-#ifdef _MOLCAS_MPP_
-use caspt2_global, only: iParRHS
-#endif
 
 implicit none
 integer(kind=iwp), intent(inout) :: ICONV
@@ -167,11 +167,11 @@ if (IfChol .and. (iALGO == 1)) then
     else
       call RHSOD(IVECW)
     end if
-#ifdef _MOLCAS_MPP_
+# ifdef _MOLCAS_MPP_
   else if (iParRHS == 4) then
     ! every stripe of every block is written in full, no need to zero first
     call RHSALL2_STRIPED(IVECW)
-#endif
+# endif
   else
     call RHS_ZERO(IVECW)
     call RHSALL2(IVECW)

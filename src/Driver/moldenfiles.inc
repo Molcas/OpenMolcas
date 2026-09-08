@@ -24,5 +24,6 @@
  (file)  MD_SADDLE "$WorkDir/$Project."saddle.molden              rwstg
  (file)  MD_IRC    "$WorkDir/$Project."irc.molden                 rwstg
  (file)  MD_FREQ   "$WorkDir/$Project$SubProject."freq.molden     rwstg
+ (file)  MD_BP     "$WorkDir/$Project$SubProject."bp.molden       rwstg
 #define _MOLDENFILES_
 #endif

@@ -226,7 +226,7 @@ call mma_allocate(x2,nnoab(isp)*vblock*vblock,label='klv_oo_ix')
 !mp !call gen_vvoo(G(it),G(il1),G(itmp),G(il2))
 !mpn call gen_vvoo(Work(it),l1,tmp,l2)
 
-!mp !open(unit=36,file='vvoo_moje')
+!mp !open(36,file='vvoo_moje')
 !mp !do i=0,NNUAB(3)*NNOAB(3)-1
 !mp !  if (abs(G(it+i)) < 1.0e-7_wp) G(it+i) = Zero
 !mp !  write(36,*) i,G(it+i)

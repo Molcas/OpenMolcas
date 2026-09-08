@@ -28,10 +28,9 @@ subroutine RdJobIph_td(CIVec)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, FnJob, G1t, G2sq, G2t, LuJob, nA, nNA
-use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, State_Sym=>STSym
-use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iTOC, iTocIph, lRoots, nBas, nCOnf, nDel, nFro, &
-                      nOrb, nRoots, ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, &
-                      ntISqr, ntITri, TitleJP, Weight
+use general_data, only: iSpin, nActEl, nAsh, nElec3, nHole1, nIsh, nRS1, nRS2, nRS3, nSym, STSym
+use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iTOC, iTocIph, lRoots, nBas, nCOnf, nDel, nFro, nOrb, nRoots, ntAsh, ntASqr, &
+                      ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, TitleJP, Weight
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -61,8 +60,8 @@ call iDaFile(LuJob,2,iToc,iTOCIPH,iDisk)
 !----------------------------------------------------------------------*
 call mma_allocate(TempTxt,(LenIn+8)*MxOrb,Label='TempTxt')
 iDisk = iToc(1)
-call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,State_sym,nFro,nIsh,nAsh,nDel,nBas,MxSym,TempTxt,(LenIn+8)*mxorb,nConf, &
-                    HeaderJP,144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
+call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,STSym,nFro,nIsh,nAsh,nDel,nBas,MxSym,TempTxt,(LenIn+8)*mxorb,nConf,HeaderJP, &
+                    144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
 call mma_deallocate(TempTxt)
 !----------------------------------------------------------------------*
 !     Overwrite the variable lroots if approriate                      *

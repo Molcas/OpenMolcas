@@ -29,13 +29,14 @@ integer(kind=iwp), intent(in) :: wrksize
 real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: f_iostat, f_recl, lunsta, rc
 logical(kind=iwp) :: is_error
+integer(kind=iwp), external :: isFreeUnit
 
 !* open INTSTA file
-lunsta = 1
+lunsta = isFreeUnit(12)
 if (iokey == 1) then
   !  Fortran IO
   call molcas_open_ext2(lunsta,'INTSTA','sequential','unformatted',f_iostat,.false.,f_recl,'unknown',is_error)
-  !open(unit=lunsta,file='INTSTA',form='unformatted')
+  !open(lunsta,file='INTSTA',form='unformatted')
 
 else
   !  MOLCAS IO

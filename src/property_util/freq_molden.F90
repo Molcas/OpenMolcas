@@ -22,7 +22,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nFreq, nVectors, nSym, mDisp(nSym)
 real(kind=wp), intent(in) :: Freq(nFreq), Vectors(nVectors), Intens(nFreq), RedMas(nFreq)
-integer(kind=iwp) :: iCoor, iCoord, iFreq, Lu_9, nAll_Atoms, nCoord, nUnique_Atoms
+integer(kind=iwp) :: iCoor, iFreq, Lu_9, nAll_Atoms, nCoord, nUnique_Atoms
 real(kind=wp), allocatable :: Coord(:,:), NMode(:,:,:)
 character(len=2), allocatable :: Element(:)
 integer(kind=iwp), external :: isFreeUnit
@@ -42,8 +42,7 @@ write(u6,*) 'mDisp=',mDisp
 !                                                                      *
 ! Open input file for MOLDEN
 
-Lu_9 = 9
-Lu_9 = isFreeUnit(Lu_9)
+Lu_9 = isFreeUnit(9)
 call molcas_open(Lu_9,'MD_FREQ')
 !                                                                      *
 !***********************************************************************
@@ -52,7 +51,7 @@ write(Lu_9,*) '[Molden Format]'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Write frequecnies to Molden input file
+! Write frequencies to Molden input file
 
 write(Lu_9,*) '[N_FREQ]'
 write(Lu_9,*) nFreq
@@ -81,8 +80,8 @@ write(Lu_9,*) '[NATOM]'
 write(Lu_9,*) nCoord
 
 write(Lu_9,*) '[FR-COORD]'
-do iCoord=1,nCoord
-  write(Lu_9,'(A,3E16.8)') Element(iCoord),Coord(1:3,iCoord)
+do iCoor=1,nCoord
+  write(Lu_9,'(A,3E16.8)') Element(iCoor),Coord(:,iCoor)
 end do
 call mma_deallocate(Coord)
 call mma_deallocate(Element)

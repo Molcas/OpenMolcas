@@ -68,7 +68,7 @@ do
 
     ! Check for Fortran I/O
 
-    inquire(unit=kan,opened=is_opened)
+    inquire(kan,opened=is_opened)
     if (is_opened) then
       kan = kan+1
     else

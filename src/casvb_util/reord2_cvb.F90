@@ -17,16 +17,14 @@ subroutine reord2_cvb(cfrom,cto,imode)
 ! from SGA CSFs to split-graph-GUGA CSFs.
 
 use sguga, only: sg_reord
-use general_data, only: STSYM, nConf
+use general_data, only: nConf, STSYM
 use Definitions, only: wp, iwp
-
-#include "intent.fh"
 
 implicit none
 real(kind=wp), intent(in) :: cfrom(nConf)
-real(kind=wp), intent(_OUT_) :: cto(nConf)
+real(kind=wp), intent(out) :: cto(nConf)
 integer(kind=iwp), intent(in) :: imode
-integer(kind=iwp), parameter :: iState=1
+integer(kind=iwp), parameter :: iState = 1
 
 call sg_reord(iState,stsym,imode,nConf,cfrom,cto)
 

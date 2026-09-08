@@ -63,8 +63,8 @@ integer(kind=iwp), intent(in) :: iFinal, IRst
 integer(kind=iwp) :: i, iPrLev, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
 real(kind=wp) :: dum1, dum2, dum3, rdum(1), Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF
-real(kind=wp), allocatable :: P2MO(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), TmpD1S(:), TmpDS(:), TmpPUVX(:), TmpTUVX(:)
-real(kind=wp), allocatable :: DStmp(:), Dtmp(:), PAtmp(:), Pscr(:), Ptmp(:)
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), P2MO(:), PAtmp(:), Pscr(:), Ptmp(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), &
+                              TmpD1S(:), TmpDS(:), TmpPUVX(:), TmpTUVX(:)
 
 IPRLEV = IPRLOC(3)
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering DMRGCTL'

@@ -13,6 +13,7 @@
  (file) xmldump     "$WorkDir/"xmldump                 rws
  (file) RUNFILE     "$WorkDir/$Project$SubProject."RunFile       rw
  (file) RUNTMP      "$WorkDir/$Project."RunFileTmp     rwp
+ (file) GRIDFILE    "$WorkDir/$Project."GridFile       rwst
  (file) RUNOLD      "$WorkDir/$Project$SubProject."RunOld        rw
  (file) RUNBACK     "$WorkDir/$Project$SubProject."RunBack       rw
  (file) RUNBCK2     "$WorkDir/$Project$SubProject."RunBack2      rw

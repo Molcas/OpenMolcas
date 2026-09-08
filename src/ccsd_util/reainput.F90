@@ -86,16 +86,18 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: f_iostat, f_recl, LuSpool, nhelp
+integer(kind=iwp) :: f_iostat, f_recl, Lu, LuSpool, nhelp
 character(len=80) :: LINE
 logical(kind=iwp) :: is_error
+integer(kind=iwp), external :: isFreeUnit
 
 !1 read INPDAT
 
-call molcas_open_ext2(1,'INPDAT','sequential','unformatted',f_iostat,.false.,f_recl,'unknown',is_error)
-!open(unit=1,file='INPDAT',form='unformatted')
-read(1) nactel,ispin,nsym,lsym,mmul,noa,nob,nva,nvb,norb,eps,Escf
-close(1)
+Lu = isFreeUnit(11)
+call molcas_open_ext2(Lu,'INPDAT','sequential','unformatted',f_iostat,.false.,f_recl,'unknown',is_error)
+!open(Lu,file='INPDAT',form='unformatted')
+read(Lu) nactel,ispin,nsym,lsym,mmul,noa,nob,nva,nvb,norb,eps,Escf
+close(Lu)
 
 !2 def dimm
 

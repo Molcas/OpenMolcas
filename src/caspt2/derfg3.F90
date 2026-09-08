@@ -17,7 +17,7 @@ use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG, VERBOSE
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use sguga, only: sg_epq_psi, SGS, CIS, EXS
+use sguga, only: CIS, EXS, sg_epq_psi, SGS
 use caspt2_global, only: iPrGlb, nbuf1_grad
 use general_data, only: nActEl, STSym
 use caspt2_module, only: EPSA, MxCI, nSym
@@ -42,7 +42,7 @@ real(kind=wp) :: SCAL, ScalF, ScalG
 logical(kind=iwp) :: first
 integer(kind=iwp), allocatable :: ICNJ(:), IDX2IJ(:,:), IJ2IDX(:,:), IP1_BUF(:), TASKLIST(:,:)
 real(kind=wp), allocatable :: BUF1(:,:), BUF2(:), BUF3(:), BUF4(:), BUFD(:), BUFT(:), BUFX(:,:), DAB(:,:), DTU(:,:), DYZ(:)
-integer(kind=iwp), parameter :: iState=1
+integer(kind=iwp), parameter :: iState = 1
 
 ! IJ2IDX, IDX2IJ: translation tables for levels i,j to and from pair indices idx
 

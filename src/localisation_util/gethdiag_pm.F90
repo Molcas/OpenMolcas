@@ -32,11 +32,8 @@ real(kind=wp) :: Q_kk, Q_kl, Q_ll, Thr
 real(kind=wp) :: maxel
 #endif
 logical(kind=iwp) :: SORange
+real(kind=wp), parameter :: Thr_H_Min = 2.0e-1_wp, Thr_H_TRust = 1.0e-1_wp, Thr_Zeros = 1.0e-10_wp
 logical(kind=iwp), parameter :: prnt = .false., prnt2 = .false.
-
-real(kind=wp), parameter :: Thr_Zeros  =1.0e-10_wp
-real(kind=wp), parameter :: Thr_H_TRust=1.0e-1_wp
-real(kind=wp), parameter :: Thr_H_Min  =2.0e-1_wp
 
 npos = 0
 posel(:) = 0
@@ -78,7 +75,7 @@ do k=1,nOrb2Loc-1
       ! Make sure that element has a negative value -- we are maximizing the target function
       ! Make sure that the element is not too small, this would yield a too large displacement.
       if (H_diag(kl) > Zero) then
-        If (Abs(H_diag(kl))>Thr_Zeros) npos = npos+1
+        if (abs(H_diag(kl)) > Thr_Zeros) npos = npos+1
         if (prnt2) write(u6,*) 'flip sign at',kl,'H_diag(kl)=',H_diag(kl)
         H_diag(kl) = -H_diag(kl)
         posel(kl) = 1
@@ -125,11 +122,11 @@ end if
 #endif
 
 #ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,*) 'In GetHdiag_PM'
-  write(u6,*) '-------------'
-  call RecPrt('Hdiag','',H_diag,nTri_Elem(nOrb2Loc-1),1)
-  write(u6,*)
+write(u6,*)
+write(u6,*) 'In GetHdiag_PM'
+write(u6,*) '-------------'
+call RecPrt('Hdiag','',H_diag,nTri_Elem(nOrb2Loc-1),1)
+write(u6,*)
 #endif
 
 end subroutine GetHdiag_PM

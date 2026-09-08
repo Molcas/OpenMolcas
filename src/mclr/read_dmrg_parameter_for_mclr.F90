@@ -16,42 +16,43 @@ use dmrginfo, only: DoDMRG, DoMCLR, LRRAS2, MS2_RGLR, nEle_RGLR, nStates_RGLR, R
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, ierr
+integer(kind=iwp) :: i, ierr, lu
+integer(kind=iwp), external :: isFreeUnit
 
-open(unit=100,file='dmrg_for_mclr.parameters',status='OLD',action='READ',iostat=ierr)
+lu = isFreeUnit(100)
+open(lu,file='dmrg_for_mclr.parameters',status='OLD',action='READ',iostat=ierr)
 if (ierr /= 0) then
   doDMRG = .false.
   doMCLR = .false.
 else
-  read(100,'(11X,L1,4X)') doDMRG
-  read(100,'(4X,I8,4X)') nele_RGLR
-  read(100,'(4X,I8,4X)') ms2_RGLR
+  read(lu,'(11X,L1,4X)') doDMRG
+  read(lu,'(4X,I8,4X)') nele_RGLR
+  read(lu,'(4X,I8,4X)') ms2_RGLR
   !write(u6,*) doDMRG,dmrg_state%nactel,dmrg_state%ms2
   do i=1,8
-    read(100,'(4X,I3)',advance='no') RGras2(i)
+    read(lu,'(4X,I3)',advance='no') RGras2(i)
   end do
-  read(100,*)
+  read(lu,*)
   do i=1,8
-    read(100,'(4X,I3)',advance='no') LRras2(i)
+    read(lu,'(4X,I3)',advance='no') LRras2(i)
   end do
   !write(u6,*) RGras2
   !write(u6,*) LRras2
-  read(100,*)
-  read(100,'(4X,I8,4X)') nstates_RGLR
+  read(lu,*)
+  read(lu,'(4X,I8,4X)') nstates_RGLR
   !call mma_allocate(checkpoint,nstates_RGLR,label='checkpoint')
   !checkpoint = ''
   do i=1,nstates_RGLR
-    read(100,*)
-    read(100,'(G20.12)') ERASSCF(i)
+    read(lu,*)
+    read(lu,'(G20.12)') ERASSCF(i)
     write(u6,*) 'RASSCF energy',ERASSCF(i)
   end do
   ! It is redundant
   doMCLR = .true.
 end if
-close(100)
+close(lu)
 
 write(u6,*) 'doDMRG, nele_dmrg, ms2_dmrg'
 write(u6,*) doDMRG,nele_rglr,ms2_rglr
-call xflush(u6)
 
 end subroutine read_dmrg_parameter_for_mclr

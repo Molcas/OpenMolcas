@@ -33,16 +33,16 @@ use qcmaquis_interface, only: qcmaquis_interface_init_checkpoint, qcmaquis_inter
 use PrintLevel, only: VERBOSE
 use stdalloc, only: mma_allocate
 #endif
+#ifdef _MOLCAS_MPP_
+use, intrinsic :: iso_c_binding, only: c_int
+use Para_Info, only: Is_Real_Par, nProcs
+#endif
 #if 0
 ! NOT TESTED
 use OFembed, only: Do_OFemb
 #endif
 use Constants, only: Zero, Quart
 use Definitions, only: wp, iwp, u6, RtoB
-#ifdef _MOLCAS_MPP_
-use Para_Info, only: Is_Real_Par, nProcs
-use, intrinsic :: iso_c_binding, only: c_int
-#endif
 
 implicit none
 integer(kind=iwp) :: I, iDNG, iDummy, iGroup, iOff, iSym, J, nCore(mxSym), nDiff, NFI, NSD

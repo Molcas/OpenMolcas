@@ -402,7 +402,7 @@ subroutine PCM_grad_dens(mode)
 
   use ipPage, only: W
   use MCLR_Data, only: ipCI, iRlxRoot, isNAC, NSSA, xispsm
-  use general_data, only: State_Sym=>STSym
+  use general_data, only: STSym
   use input_mclr, only: nConf, ncsf, nRoots, ntAsh
 
   integer(kind=iwp), intent(in) :: mode
@@ -414,8 +414,8 @@ subroutine PCM_grad_dens(mode)
   ! mode=1: construct density used for PCM in SCF
   ! mode=2: mostly state-specific density
 
-  nconf1 = ncsf(state_sym)
-  nConfL = max(nconf1,nint(xispsm(state_sym,1)))
+  nconf1 = ncsf(STSym)
+  nConfL = max(nconf1,nint(xispsm(STSym,1)))
   nConfR = nConfL
 
   ng1 = ntash*ntash
@@ -433,8 +433,8 @@ subroutine PCM_grad_dens(mode)
       G1q(:,:) = Zero
       do jR=1,nRoots
         if (W_SOLV(jR) <= 1.0e-10_wp) cycle
-        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,state_sym)
-        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIR,state_sym)
+        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,STSym)
+        call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIR,STSym)
         G1r(:,:) = Zero
         call Densi2_MCLR(1,G1r,G2r,CIL,CIR,0,0,0,ng1,ng2)
         !! For RDM1
@@ -451,8 +451,8 @@ subroutine PCM_grad_dens(mode)
         jR = iRlxRoot
         kR = iRlxRoot
       end if
-      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,state_sym)
-      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,state_sym)
+      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,STSym)
+      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,STSym)
       call Densi2_MCLR(1,G1r,G2r,CIL,CIR,0,0,0,ng1,ng2)
       !! For RDM1
       G1q(:,:) = G1q(:,:)+G1r(:,:)
@@ -472,7 +472,7 @@ subroutine PCM_grad_dens(mode)
   call mma_deallocate(G1r)
   call mma_deallocate(G2r)
 
-  nConf = ncsf(state_sym)
+  nConf = ncsf(STSym)
   !! use weights
   !if (mode == 1) G1q(:,:) = G1q(:,:)/real(nRoots,kind=wp)
 
@@ -592,7 +592,7 @@ end subroutine PCM_grad_D2V
 
 subroutine PCM_grad_TimesE2(idSym,rKappa,FockOut,ipCIOut)
 
-  use general_data, only: nAsh, nIsh, nSym, State_Sym=>STSym
+  use general_data, only: nAsh, nIsh, nSym, STSym
   use input_mclr, only: nBas, nOrb, nRoots, ntBsqr, weight
   use ISRotation, only: ISR
   use MCLR_Data, only: ipCI, ipCM, ipMat, nA
@@ -669,7 +669,7 @@ subroutine PCM_grad_TimesE2(idSym,rKappa,FockOut,ipCIOut)
   end do
 
   if (idSym == 1) then
-  !if (state_sym == 1) then !?
+  !if (STSym == 1) then !?
     do iS=1,nSym
       if (nBas(iS)*nIsh(iS) > 0) &
         DZMO(ipMat(iS,iS):ipMat(iS,iS)+nBas(iS)*nIsh(iS)-1) = DZMO(ipMat(iS,iS):ipMat(iS,iS)+nBas(iS)*nIsh(iS)-1)+ &
@@ -714,7 +714,7 @@ subroutine PCM_grad_TimesE2(idSym,rKappa,FockOut,ipCIOut)
   ! Note that ipCIOUT will be weighted with (2)W_SOLV
   call dswap_(nRoots,weight,1,W_SOLV,1)
   Weight(:) = Two*Weight(:)
-  call CISigma_sa(0,state_sym,state_sym,DZMO,size(DZMO),rdum,1,rdum,1,ipCI,ipCIOUT,.false.)
+  call CISigma_sa(0,STSym,STSym,DZMO,size(DZMO),rdum,1,rdum,1,ipCI,ipCIOUT,.false.)
   Weight(:) = Half*Weight(:)
   call dswap_(nRoots,weight,1,W_SOLV,1)
 
@@ -729,7 +729,7 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
 
   use MCLR_Data, only: ipMat, isNAC, nDens
   use MCLR_procedures, only: CISigma_sa
-  use general_data, only: nAsh, nIsh, nSym, State_Sym=>STSym
+  use general_data, only: nAsh, nIsh, nSym, STSym
   use input_mclr, only: nBas, ncsf, nRoots, weight
   use ipPage, only: W
   use ISRotation, only: ISR
@@ -743,7 +743,7 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
   ! mode = 1: evaluate derivatives of the state-specific energy
   ! mode = 2: evaluate derivatives of the rotated state
 
-  nconf1 = ncsf(State_Sym)
+  nconf1 = ncsf(STSym)
   rtmp(1) = Zero
 
   call mma_allocate(SCFcont,nDens,Label='SCFcont')
@@ -760,7 +760,7 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
   ! For NAC, we just need the implicit part of D^SS*V(e,SCF) in the eigenenergy
   do iS=1,nSym
     if (nAsh(iS) > 0) then
-      jS = Mul(iS,state_sym)
+      jS = Mul(iS,STSym)
       do jA=1,nAsh(js)
         !ip1 = nIsh(iS)+1+nBas(jS)*(nIsh(js)+jA-1)!+ipCM(is)
         ip1 = nIsh(iS)+1+nBas(iS)*(nIsh(js)+jA-1)+ipMat(iS,jS)-1 !+ipCM(is)
@@ -783,11 +783,11 @@ subroutine PCM_grad_CLag(mode,ipCI,ipCID)
   !! state averaged quantities (ipCID is overwritten)
   !! it is not actually state-averaged; it is solvent density, so use W_SOLV
   call dswap_(nRoots,weight,1,W_SOLV,1)
-  call CISigma_sa(0,state_sym,state_sym,SCFcont,nDens,rtmp,1,rtmp,1,ipCI,ipCID,.false.)
+  call CISigma_sa(0,STSym,STSym,SCFcont,nDens,rtmp,1,rtmp,1,ipCI,ipCID,.false.)
   call dswap_(nRoots,weight,1,W_SOLV,1)
 
   !! consider the weight of the derivative
-  idsym = state_sym !?
+  idsym = STSym !?
   if (DWSolv%DWZeta /= Zero) call DWder_MCLR(2,idsym,SCFcont,nDens,SCFcont,nDens,ISR%RVec)
 
   !! State rotations are not needed, because CI vectors are obtained by diagonalization (?)
@@ -821,7 +821,7 @@ subroutine PCM_mod_ERASSCF(ERASSCF_)
     ecorr = Zero
 
     do iS=1,nSym
-      !jS = Mul(iS,state_sym)
+      !jS = Mul(iS,STSym)
       !! inactive
       do iA=1,nIsh(iS)
         ip2 = iA-1+nOrb(iS)*(iA-1)+ipMat(iS,iS)
@@ -833,7 +833,7 @@ subroutine PCM_mod_ERASSCF(ERASSCF_)
 
     !! active
     do iS=1,nSym
-      !jS = Mul(iS,state_sym)
+      !jS = Mul(iS,STSym)
       jS = Mul(iS,idSym)
       do iA=1,nash(iS)
         do jA=1,nash(jS)

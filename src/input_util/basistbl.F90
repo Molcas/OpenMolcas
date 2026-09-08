@@ -40,7 +40,7 @@ call f_Inquire(Temp,Exists)
 if (.not. Exists) return
 iUnit = isfreeunit(15)
 call molcas_Open_ext2(iunit,temp,'sequential','formatted',istatus,.false.,irecl,'unknown',is_error)
-!open(unit=iUnit,file=Temp,form='FORMATTED',iostat=istatus)
+!open(iUnit,file=Temp,form='FORMATTED',iostat=istatus)
 if (istatus /= 0) return
 iLast = StrnLn(Label)
 

@@ -20,7 +20,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: icode
-integer(kind=iwp), parameter:: iState=1
+integer(kind=iwp), parameter:: iState = 1
 
 ! ICODE=0 standard casvb calculation
 ! ICODE=1 variational calculation
@@ -30,6 +30,6 @@ call cvbstart_cvb_lt9(icode)
 call main_cvb()
 call setretvals_cvb(esym,n_iter)
 
-Call CI_Close(iState)
+call CI_Close(iState)
 
 end subroutine cvbmn_cvb

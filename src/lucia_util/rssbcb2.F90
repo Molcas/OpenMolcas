@@ -76,14 +76,13 @@ subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,J
 ! Jeppe Olsen, Winter of 1991
 
 use lucia_data, only: TSIGMA
-use Constants, only: Zero, Half
-use Definitions, only: wp, iwp
 #ifdef _CUDA_BLAS_
 use, intrinsic :: iso_c_binding, only: c_int64_t
 use Para_Info, only: nProcs
-use LUCIA_SIGMA_CUDA_BLOCKS_INTERFACE, only: LUCIA_SIGMA_CUDA_BLOCKS_BEGIN, LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED, &
-                                             LUCIA_SIGMA_CUDA_BLOCKS_END
+use LUCIA_CUDA_INTERFACE, only: LUCIA_SIGMA_CUDA_BLOCKS_BEGIN, LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED, LUCIA_SIGMA_CUDA_BLOCKS_END
 #endif
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -99,12 +98,12 @@ real(kind=wp), intent(inout) :: SB(NIA*NIB), CB(NJA*NJB), XI1S(*), XI2S(*), XI3S
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), C2(*), XINT(*), CJRES(*), SIRES(*)
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: SCLFAC, TUVX(nTUVX)
-logical, intent(in) :: SBZERO
+logical(kind=iwp), intent(in) :: SBZERO
 integer(kind=iwp) :: I12, IBLOCK(8), IDIAG, IDOH2, IIDC, IIITRNS, ITASK, IUSEAB, JJJTRNS, LADVICE
 real(kind=wp) :: CPU, CPU0, CPU1, FACTOR, WALL, WALL0, WALL1
 #ifdef _CUDA_BLAS_
-integer(c_int64_t) :: CudaStatus
-logical :: CudaBlocks, CudaZeroSB
+integer(kind=c_int64_t) :: CudaStatus
+logical(kind=iwp) :: CudaBlocks, CudaZeroSB
 #endif
 
 #ifndef _CUDA_BLAS_
@@ -185,23 +184,23 @@ if (IDIAG == 0) then
     CB(1:NJA*NJB) = C2(1:NJA*NJB)
 
     if (NBEL >= 0) then
-#if defined(_CUDA_BLAS_) && !defined(_DEBUGPRINT_)
-      if (NPROCS == 1 .and. .not. CudaBlocks) then
+#     if defined(_CUDA_BLAS_) && ! defined(_DEBUGPRINT_)
+      if ((NPROCS == 1) .and. (.not. CudaBlocks)) then
         if (CudaZeroSB) then
           CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
-                                                           int(NJA,c_int64_t)*int(NJB,c_int64_t))
+                                                            int(NJA,c_int64_t)*int(NJB,c_int64_t))
         else
           CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
-                                                    int(NJA,c_int64_t)*int(NJB,c_int64_t))
+                                                     int(NJA,c_int64_t)*int(NJB,c_int64_t))
         end if
         CudaZeroSB = .false.
-        if (CudaStatus == -1_c_int64_t) then
+        if (CudaStatus == -1) then
           call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
         else
-          CudaBlocks = CudaStatus == 1_c_int64_t
+          CudaBlocks = CudaStatus == 1
         end if
       end if
-#endif
+#     endif
 #     ifdef _DEBUGPRINT_
       write(u6,*) ' SB before RSBB1E'
       call wrtmat(sb,nia,nib,nia,nib)
@@ -241,15 +240,13 @@ if (IDIAG == 0) then
       write(u6,*) ' first element of SB after RSBB1E',SB(1)
 #     endif
     end if
-#ifdef _CUDA_BLAS_
+#   ifdef _CUDA_BLAS_
     if (CudaBlocks) then
       CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_END()
-      if (CudaStatus == -1_c_int64_t) then
-        call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
-      end if
+      if (CudaStatus == -1) call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
       CudaBlocks = .false.
     end if
-#endif
+#   endif
     call TRPMT3(SB,NIA,NIB,C2)
     SB(1:NIA*NIB) = C2(1:NIA*NIB)
     call TRPMT3(CB,NJA,NJB,C2)
@@ -281,23 +278,23 @@ if (IDIAG == 0) then
 
     if (JJJTRNS == 0) then
       !if (IUSE_PA == 0) then
-#if defined(_CUDA_BLAS_) && !defined(_DEBUGPRINT_)
-      if (NPROCS == 1 .and. .not. CudaBlocks) then
+#     if defined(_CUDA_BLAS_) && ! defined(_DEBUGPRINT_)
+      if ((NPROCS == 1) .and. (.not. CudaBlocks)) then
         if (CudaZeroSB) then
           CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
-                                                           int(NJA,c_int64_t)*int(NJB,c_int64_t))
+                                                            int(NJA,c_int64_t)*int(NJB,c_int64_t))
         else
           CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
-                                                    int(NJA,c_int64_t)*int(NJB,c_int64_t))
+                                                     int(NJA,c_int64_t)*int(NJB,c_int64_t))
         end if
         CudaZeroSB = .false.
-        if (CudaStatus == -1_c_int64_t) then
+        if (CudaStatus == -1) then
           call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
         else
-          CudaBlocks = CudaStatus == 1_c_int64_t
+          CudaBlocks = CudaStatus == 1
         end if
       end if
-#endif
+#     endif
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,NOBPTS, &
                    MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS,size(TUVX),TUVX)
@@ -321,23 +318,23 @@ if (IDIAG == 0) then
       CB(1:NJA*NJB) = C2(1:NJA*NJB)
       !write(u6,*) ' RSSBCB2 : Transpose path choosen'
 
-#if defined(_CUDA_BLAS_) && !defined(_DEBUGPRINT_)
-      if (NPROCS == 1 .and. .not. CudaBlocks) then
+#     if defined(_CUDA_BLAS_) && ! defined(_DEBUGPRINT_)
+      if ((NPROCS == 1) .and. (.not. CudaBlocks)) then
         if (CudaZeroSB) then
           CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
-                                                           int(NJA,c_int64_t)*int(NJB,c_int64_t))
+                                                            int(NJA,c_int64_t)*int(NJB,c_int64_t))
         else
           CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
-                                                    int(NJA,c_int64_t)*int(NJB,c_int64_t))
+                                                     int(NJA,c_int64_t)*int(NJB,c_int64_t))
         end if
         CudaZeroSB = .false.
-        if (CudaStatus == -1_c_int64_t) then
+        if (CudaStatus == -1) then
           call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
         else
-          CudaBlocks = CudaStatus == 1_c_int64_t
+          CudaBlocks = CudaStatus == 1
         end if
       end if
-#endif
+#     endif
       !if (IUSE_PA == 0) then
       ! No division into active/passive
       call TIMING(CPU0,CPU,WALL0,WALL)
@@ -348,15 +345,13 @@ if (IDIAG == 0) then
 
       ! CALL RSBB2BN --> 52
 
-#ifdef _CUDA_BLAS_
+#     ifdef _CUDA_BLAS_
       if (CudaBlocks) then
         CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_END()
-        if (CudaStatus == -1_c_int64_t) then
-          call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
-        end if
+        if (CudaStatus == -1) call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
         CudaBlocks = .false.
       end if
-#endif
+#     endif
 
       !else
       !  ! Divide into active/passive
@@ -387,23 +382,23 @@ if (IDIAG == 0) then
 
     ! alpha single excitation
 
-#if defined(_CUDA_BLAS_) && !defined(_DEBUGPRINT_)
-    if (NPROCS == 1 .and. .not. CudaBlocks) then
+#   if defined(_CUDA_BLAS_) && ! defined(_DEBUGPRINT_)
+    if ((NPROCS == 1) .and. (.not. CudaBlocks)) then
       if (CudaZeroSB) then
         CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
-                                                         int(NJA,c_int64_t)*int(NJB,c_int64_t))
+                                                          int(NJA,c_int64_t)*int(NJB,c_int64_t))
       else
         CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_BEGIN(SB,CB,int(NIA,c_int64_t)*int(NIB,c_int64_t), &
-                                                  int(NJA,c_int64_t)*int(NJB,c_int64_t))
+                                                   int(NJA,c_int64_t)*int(NJB,c_int64_t))
       end if
       CudaZeroSB = .false.
-      if (CudaStatus == -1_c_int64_t) then
+      if (CudaStatus == -1) then
         call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
       else
-        CudaBlocks = CudaStatus == 1_c_int64_t
+        CudaBlocks = CudaStatus == 1
       end if
     end if
-#endif
+#   endif
 #   ifdef _DEBUGPRINT_
     write(u6,*) ' I am going to call RSBB1E (last time)'
 #   endif
@@ -445,15 +440,13 @@ if (IDIAG == 0) then
     call wrtmat(sb,nia,nib,nia,nib)
 #   endif
   end if
-#ifdef _CUDA_BLAS_
+# ifdef _CUDA_BLAS_
   if (CudaBlocks) then
     CudaStatus = LUCIA_SIGMA_CUDA_BLOCKS_END()
-    if (CudaStatus == -1_c_int64_t) then
-      call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
-    end if
+    if (CudaStatus == -1) call SYSABENDMSG('lucia_util/rssbcb2','CUDA execution failed','')
     CudaBlocks = .false.
   end if
-#endif
+# endif
 
 else if (IDIAG == 1) then
 

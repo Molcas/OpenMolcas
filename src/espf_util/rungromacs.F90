@@ -38,30 +38,30 @@ real(kind=wp), allocatable :: CoordGMX(:,:), CoordMMO(:,:), Field2GMX(:,:), Fiel
 real(kind=wp), parameter :: AuToNm = Angstrom/Ten
 integer(kind=iwp), external :: isFreeUnit
 interface
-  subroutine mmslave_done(gms) bind(C,NAME='mmslave_done_')
+  subroutine mmslave_done(gms) bind(C,name='mmslave_done_')
     use, intrinsic :: iso_c_binding, only: c_ptr
     type(c_ptr), value :: gms
   end subroutine mmslave_done
-  function mmslave_init(cr,log_) bind(C,NAME='mmslave_init_')
+  function mmslave_init(cr,log_) bind(C,name='mmslave_init_')
     use, intrinsic :: iso_c_binding, only: c_char, c_ptr
     type(c_ptr) :: mmslave_init
     type(c_ptr), value :: cr
     character(kind=c_char) :: log_(*)
   end function mmslave_init
-  function mmslave_read_tpr(tpr,gms) bind(C,NAME='mmslave_read_tpr_')
+  function mmslave_read_tpr(tpr,gms) bind(C,name='mmslave_read_tpr_')
     use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr
     integer(kind=c_int) :: mmslave_read_tpr
     character(kind=c_char) :: tpr(*)
     type(c_ptr), value :: gms
   end function mmslave_read_tpr
-  function mmslave_set_q(gms,id,q) bind(C,NAME='mmslave_set_q_')
+  function mmslave_set_q(gms,id,q) bind(C,name='mmslave_set_q_')
     use, intrinsic :: iso_c_binding, only: c_double, c_int, c_ptr
     integer(kind=c_int) :: mmslave_set_q
     type(c_ptr), value :: gms
     integer(kind=c_int), value :: id
     real(kind=c_double), value :: q
   end function mmslave_set_q
-  function init_commrec() bind(C,NAME='init_commrec_')
+  function init_commrec() bind(C,name='init_commrec_')
     use, intrinsic :: iso_c_binding, only: c_ptr
     type(c_ptr) :: init_commrec
   end function init_commrec
@@ -264,7 +264,7 @@ function mmslave_calc_energy_wrapper(gms,x,f,A,phi,energy)
   real(kind=wp), target :: x(*), f(*), A(*), phi(*)
   real(kind=wp) :: energy
   interface
-    function mmslave_calc_energy(gms,x,f,A,phi,energy) bind(C,NAME='mmslave_calc_energy_')
+    function mmslave_calc_energy(gms,x,f,A,phi,energy) bind(C,name='mmslave_calc_energy_')
       use, intrinsic :: iso_c_binding, only: c_double, c_int, c_ptr
       integer(kind=c_int) :: mmslave_calc_energy
       type(c_ptr), value :: gms, x, f, A, phi

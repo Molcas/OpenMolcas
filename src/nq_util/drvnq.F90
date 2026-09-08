@@ -29,9 +29,9 @@ use nq_pdft, only: lft, lGGA, lmGGA1, lmGGA2
 use nq_MO, only: nMOs, CMO, D1MO, P2MO, P2_ontop
 use nq_Structure, only: Close_NQ_Data
 use nq_Info, only: Functional_type, GGA_type, LDA_type, mBas, meta_GGA_type1, meta_GGA_type2, mIrrep, nAsh, nAtoms, nFro, &
-                   number_of_subblocks, Other_type
+                   number_of_subblocks, Other_type, WriteGrid
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
-                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old, WriteGrid
+                        LuGridFile, Old_Functional_Type, Regenerate, Use_Old
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dsigma, dfunc_dTau, func
 use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate

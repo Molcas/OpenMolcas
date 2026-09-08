@@ -21,7 +21,7 @@ subroutine RdCIV()
 !***********************************************************************
 
 use MCLR_Data, only: ERAS, LuCIV, LuJob
-use general_data, only: State_Sym=>STSym
+use general_data, only: STSym
 use input_mclr, only: iTOC, lRoots, nConf
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
@@ -46,7 +46,7 @@ idisk1 = 0
 do i=1,lroots
   call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
   iMode = 1
-  call SG2SymG(OCIvec,nConf,iMode,State_Sym)
+  call SG2SymG(OCIvec,nConf,iMode,STSym)
   call dDafile(LuCIV,1,OCIvec,nconf,iDisk1)
 end do
 

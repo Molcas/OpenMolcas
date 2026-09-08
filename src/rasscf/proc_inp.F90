@@ -37,24 +37,21 @@ use Symmetry_info, only: Mul
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
 use rasscf_files, only: JOBIPH, JOBOLD, LUSTARTORB, STARTORBFILE
-use general_data, only: ISPIN, NACTEL, &
-                        NASH, NBAS, NCONF, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, &
-                        NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, iDoGAS, IGSOCCX, &
-                        NGAS, NGSSH
-use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, &
-                  N_2ELIMINATED_GAS, N_ELIMINATED_GAS
+use general_data, only: iDoGAS, IGSOCCX, ISPIN, NACTEL, NASH, NBAS, NCONF, NDEL, NDELT, NELEC3, NFRO, NFROT, NGAS, NGSSH, NHOLE1, &
+                        NISH, NORB, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM
+use spinfo, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IELIMINATED_IN_GAS, N_2ELIMINATED_GAS, N_ELIMINATED_GAS
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
-use rasscf_global, only: CCI, CMSStartMat, CMSThreshold, CoreShift, DFTFOCK, DoBLOCKDMRG, DoFaro, DoFCIDump, ExFac, HFOCC, HFOcc, &
-                         hRoots, iAlphaBeta, ICI, ICICH, iCIonly, iCIRFROOT, iCIRST, iCMSITERMAX, iCMSITERMin, iCMSP, iExpand, &
-                         IfCRPR, iFORDE, InOCalc, iOrbOnly, iOrbTyp, iOrdEM, iOverWr, iPCMRoot, iPhName, iPT2, IRLXROOT, &
-                         IROOT, iRotPsi, iSave_Exp, iSCF, iSPDEN, iSupSM, ITCORE, ITMAX, IXMSP, ixSym, iZRot, JCJ, kivo, KSDFT, &
-                         kTight, l_CASDFT, LowMS, LROOTS, LvShft, MaxIt, MaxJt, MaxOrbOut, n_keep, NAC, NACPAR, NACPR2, NFR, NIN, &
-                         NO2M, NonEq, NORBT, NQUNE, NROOTS, NSEC, NTOT3, NTOT4, OutFmt1, OutFmt2, PreThr, PreThr, ProThr, &
-                         PrwThr, Purify, RFPert, S, SXSEL, ThFact, ThrE, ThrEn, ThrSX, ThrTE, Title, Weight, DoDMRG, MAXALTER, &
-                         NALTER, MALTER, NCRVEc, CRVEC, CRPROJ, INVEC, SXDAMP, CleanMask, LOWDIN_ON
+use rasscf_global, only: CCI, CleanMask, CMSStartMat, CMSThreshold, CoreShift, CRPROJ, CRVEC, DFTFOCK, DoBLOCKDMRG, DoDMRG, &
+                         DoFaro, DoFCIDump, ExFac, HFOCC, HFOcc, hRoots, iAlphaBeta, ICI, ICICH, iCIonly, iCIRFROOT, iCIRST, &
+                         iCMSITERMAX, iCMSITERMin, iCMSP, iExpand, IfCRPR, iFORDE, InOCalc, INVEC, iOrbOnly, iOrbTyp, iOrdEM, &
+                         iOverWr, iPCMRoot, iPhName, iPT2, IRLXROOT, IROOT, iRotPsi, iSave_Exp, iSCF, iSPDEN, iSupSM, ITCORE, &
+                         ITMAX, IXMSP, ixSym, iZRot, JCJ, kivo, KSDFT, kTight, l_CASDFT, LOWDIN_ON, LowMS, LROOTS, LvShft, MALTER, &
+                         MAXALTER, MaxIt, MaxJt, MaxOrbOut, n_keep, NAC, NACPAR, NACPR2, NALTER, NCRVEc, NFR, NIN, NO2M, NonEq, &
+                         NORBT, NQUNE, NROOTS, NSEC, NTOT3, NTOT4, OutFmt1, OutFmt2, PreThr, PreThr, ProThr, PrwThr, Purify, &
+                         RFPert, S, SXDAMP, SXSEL, ThFact, ThrE, ThrEn, ThrSX, ThrTE, Title, Weight
 #ifdef _ENABLE_DICE_SHCI_
 use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
@@ -97,7 +94,7 @@ character(len=2*72) :: lJobH2
 character(len=72) :: JobTit(mxTit), ReadStatus
 character(len=50) :: ON_scheme_inp, uppercased
 character(len=8) :: InfoLbl, MaxLab, NewJobIphName
-integer(kind=iwp), allocatable :: iType(:), Stab(:), Temp1(:), Temp2(:), Temp3(:)
+integer(kind=iwp), allocatable :: initial_occ(:,:), iType(:), Stab(:), Temp1(:), Temp2(:), Temp3(:)
 real(kind=wp), allocatable :: ENC(:), RF(:)
 character(len=:), allocatable :: buffer
 #ifdef _ENABLE_DICE_SHCI_
@@ -109,7 +106,6 @@ character(len=256) :: WorkDir
 character(len=72) :: ProjectName
 character(len=20) :: guess_dmrg
 #endif
-integer(kind=iwp), allocatable :: initial_occ(:,:)
 #ifdef _HDF5_
 integer(kind=iwp) :: lRoots_l, mh5id
 character, allocatable :: typestring(:)
@@ -4038,7 +4034,7 @@ call mma_deallocate(initial_occ,safe='*')
 
 call Setup_RASSCF()
 
-if (DOFARO .and.  NSYM > 1) then
+if (DOFARO .and. (NSYM > 1)) then
   write(u6,'(1X,A)') 'FARO keyword was used, but NSYM > 1,'
   write(u6,'(1X,A)') 'switching to LUCIA as the CI backend.'
   DOFARO = .false.
@@ -4048,7 +4044,7 @@ endif
 if (.not. SkipGUGA) then
   call StatusLine('RASSCF: ','Initializing Lucia/SGUGA/Faroald')
 
-#ifdef _FAROALD_VERIFY_
+# ifdef _FAROALD_VERIFY_
   ! Turn on the Faroald SD CI code in case of
   ! 1) no symmetry
   ! 2) not RASSCF or GASSCF
@@ -4062,9 +4058,9 @@ if (.not. SkipGUGA) then
       (.not. Key('EXPE')) .and. &
       (IFVB == 0)) &
     DoFaro = .true.
-#endif
+# endif
 
-  Call CI_Initialize(.NOT. iDoGAS, DOFARO)
+  call CI_Initialize(.NOT. iDoGAS, DOFARO)
 
 end if
 
@@ -4076,12 +4072,12 @@ if (ISCF == 1) then
   MAXJT = 1
 end if
 
-! If the CI-root selectioning option has been specified translate
+! If the CI-root selecting option has been specified translate
 ! the reference configuration numbers from the split graph GUGA
 ! to the symmetric group numbering
 
 ! ====================================================================
-if (ICICH == 1 .and. (.Not. SkipGUGA)) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
+if (ICICH == 1 .and. (.not. SkipGUGA)) call UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,ICI,JCJ,CCI,MXROOT)
 ! ====================================================================
 
 !---  Normal exit -----------------------------------------------------*

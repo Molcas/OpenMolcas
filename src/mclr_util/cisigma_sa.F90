@@ -14,22 +14,23 @@
 #error "This file must be compiled inside a module"
 #endif
 
-subroutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
+subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
 
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, iST, KAIN1, KINT2, KINT2A, nConf1, pInt1, Square, XISPSM
 use CandS, only: ICSM, ISSM
-use input_mclr, only: nCSF, Page
-use general_data, only: nSym, State_Sym=>STSym
+use general_data, only: nSym, STSym
+use input_mclr, only: nCSF, nRoots, Page, Weight
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
 real(kind=wp), target, intent(in) :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
 logical(kind=iwp), intent(in) :: Have_2_el
-integer(kind=iwp) :: nDet, iOp, iS, kic(2)
+integer(kind=iwp) :: nDet, i, iOp, iS, kic(2)
 real(kind=wp), allocatable :: CIDET(:)
 
 ! Interface Anders to Jeppe
@@ -71,13 +72,13 @@ end if
 
 iSSM = iSSym
 kic(2) = 2
-if (issm == State_sym) kic(2) = 1
+if (issm == STSym) kic(2) = 1
 
 ! Symmetry of CI vector
 
 iCSM = iCSym
 kic(1) = 2
-if (icsm == State_sym) kic(1) = 1
+if (icsm == STSym) kic(1) = 1
 
 ! Symmetry properties of operator
 
@@ -100,30 +101,25 @@ ist = iispin+1
 square = .false.
 
 if (.not. page) then
-
   call mma_allocate(CIDET,nDet,Label='CIDET')
-# ifdef _MS_
   call ipin(ipCI1)
   call ipin(ipci2)
   do i=1,nroots
-    CIDET(1:nCSF(iCSM)) = W(ipCI1)%A((i-1)*ncsf(icsm)+1:i*ncsf(icsm))
-    call SigmaVec(CIDET,W(ipci2)%A((i-1)*ncsf(issm)+1),kic)
+    if (weight(i) == Zero) then
+      W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm)) = Zero
+    else
+      CIDET(1:nCSF(iCSM)) = W(ipCI1)%A((i-1)*ncsf(icsm)+1:i*ncsf(icsm))
+      call SigmaVec(CIDET,W(ipci2)%A(1+(i-1)*ncsf(issm)),kic)
+      W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm)) = weight(i)*W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm))
+    end if
   end do
-# else
-  CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(1:nCSF(iCSM))
-
-  call SigmaVec(CIDET,W(ipci2)%A,kic)
-
-# endif
   call mma_deallocate(CIDET)
 else
   call ipnout(ipci2)
-
   call ipin1(ipCI1,ndet)
   call ipin(ipci2)
   call SigmaVec(W(ipCI1)%A,W(ipci2)%A,kic)
   call opout(ipci1)
-
 end if
 
-end subroutine CISigma
+end subroutine CISigma_sa

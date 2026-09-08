@@ -15,8 +15,8 @@ use Symmetry_Info, only: Mul
 use PrintLevel, only: DEBUG
 use AddRHS, only: ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2, ADDRHSE, ADDRHSF, ADDRHSG, ADDRHSH
 #ifdef _MOLCAS_MPP_
-use ADDRHS_STRIPED, only: ADDRHSA_STRIPED, ADDRHSB_STRIPED, ADDRHSC_STRIPED, ADDRHSD1_STRIPED, ADDRHSD2_STRIPED, &
-                          ADDRHSE_STRIPED, ADDRHSF_STRIPED, ADDRHSG_STRIPED, ADDRHSH_STRIPED
+use ADDRHS_STRIPED, only: ADDRHSA_STRIPED, ADDRHSB_STRIPED, ADDRHSC_STRIPED, ADDRHSD1_STRIPED, ADDRHSD2_STRIPED, ADDRHSE_STRIPED, &
+                          ADDRHSF_STRIPED, ADDRHSG_STRIPED, ADDRHSH_STRIPED
 #endif
 use caspt2_global, only: BUFF, idxb, iParRHS, iPrGlb, PIQK
 use caspt2_module, only: NSYM
@@ -68,20 +68,21 @@ do ISYI=1,NSYM
     else
       NPIQK = NPI*NQK
       if (NPIQK > MXPIQK) then
-        if (nCase == 'H') then
-          KPI = MXPIQK/NQK
-          NPIQK = KPI*NQK
-        else if (nCase == 'G') then
-          KQK = MXPIQK/NPI
-          NPIQK = NPI*KQK
-        else
-          write(u6,*) ' NPIQK > MXPIQK and case != G or H'
-          write(u6,'(A,A2)') ' CASE =   ',nCase
-          write(u6,'(A,I12)') ' NPIQK =  ',NPIQK
-          write(u6,'(A,I12)') ' MXPIQK = ',MXPIQK
-          write(u6,*) ' This should not happen, please report.'
-          call AbEnd()
-        end if
+        select case (nCase)
+          case ('H')
+            KPI = MXPIQK/NQK
+            NPIQK = KPI*NQK
+          case ('G')
+            KQK = MXPIQK/NPI
+            NPIQK = NPI*KQK
+          case default
+            write(u6,*) ' NPIQK > MXPIQK and case != G or H'
+            write(u6,'(A,A2)') ' CASE =   ',nCase
+            write(u6,'(A,I12)') ' NPIQK =  ',NPIQK
+            write(u6,'(A,I12)') ' MXPIQK = ',MXPIQK
+            write(u6,*) ' This should not happen, please report.'
+            call AbEnd()
+        end select
       end if
     end if
 

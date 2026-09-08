@@ -12,7 +12,7 @@
 subroutine DetCtl()
 
 use MCLR_Data, only: FnCSF2SD, i12, ICISTR, idc, IDIAG, iST, LuCSF2SD, MS2, NOCSF, NOPART, pINT1, pINT2, PSSIGN
-use general_data, only: iSpin, nActEl, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, State_Sym=>STSym
+use general_data, only: iSpin, nActEl, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, STSym
 use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
@@ -59,6 +59,6 @@ call ICISPC(MNRS10,MXRS30)  ! looks alright
 call ICISPS()  ! looks alright
 ! CSF information
 call DANAME(LUCSF2SD,FNCSF2SD)
-call CSFINF(State_sym,iSpin,1,nsym)
+call CSFINF(STSym,iSpin,1,nsym)
 
 end subroutine DetCtl

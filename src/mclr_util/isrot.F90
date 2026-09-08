@@ -212,10 +212,10 @@ end subroutine ISR_final2
 
 subroutine ISR_RHS(CI,CIDER)
 
-  use general_data, only: State_Sym=>STSym
+  use general_data, only: STSym
   use input_mclr, only: ERASSCF, ncsf, nRoots
 
-  real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots), CIDER(ncsf(State_Sym),nRoots)
+  real(kind=wp), intent(in) :: CI(ncsf(STSym),nRoots), CIDER(ncsf(STSym),nRoots)
   integer(kind=iwp) :: i, j
   real(kind=wp) :: scal
   real(kind=wp), external :: ddot_
@@ -224,7 +224,7 @@ subroutine ISR_RHS(CI,CIDER)
 
   do i=1,nRoots
     do j=1,i-1
-      scal = DDot_(ncsf(State_Sym),CI(:,i),1,CIDER(:,j),1)-DDot_(ncsf(State_Sym),CI(:,j),1,CIDER(:,i),1)
+      scal = DDot_(ncsf(STSym),CI(:,i),1,CIDER(:,j),1)-DDot_(ncsf(STSym),CI(:,j),1,CIDER(:,i),1)
       if (InvSCF) then
         ! non-iterative internal state rotations, if invariant
         ISR%Rvec(i,j) = ISR%Rvec(i,j)+scal/(ERASSCF(j)-ERASSCF(i))
@@ -244,11 +244,11 @@ end subroutine ISR_RHS
 
 subroutine ISR_projection(CI,CIDER)
 
-  use general_data, only: State_Sym=>STSym
+  use general_data, only: STSym
   use input_mclr, only: ncsf, nRoots
 
-  real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots)
-  real(kind=wp), intent(inout) :: CIDER(ncsf(State_Sym),nRoots)
+  real(kind=wp), intent(in) :: CI(ncsf(STSym),nRoots)
+  real(kind=wp), intent(inout) :: CIDER(ncsf(STSym),nRoots)
   integer(kind=iwp) :: i, j
   real(kind=wp) :: scal
   real(kind=wp), external :: ddot_
@@ -257,7 +257,7 @@ subroutine ISR_projection(CI,CIDER)
 
   do i=1,nRoots
     do j=1,nRoots
-      scal = DDot_(ncsf(State_Sym),CI(:,i),1,CIDER(:,j),1)
+      scal = DDot_(ncsf(STSym),CI(:,i),1,CIDER(:,j),1)
       CIDER(:,j) = CIDER(:,j)-Scal*CI(:,i)
     end do
   end do
@@ -268,13 +268,13 @@ end subroutine ISR_projection
 
 subroutine ISR_TimesE2(MODE,CI,CIDER)
 
-  use general_data, only: State_Sym=>STSym
+  use general_data, only: STSym
   use input_mclr, only: ERASSCF, ncsf, nRoots, Weight
   !use DWSol, only: DWSCF, DWSol_Der
 
   integer(kind=iwp), intent(in) :: MODE
-  real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots)
-  real(kind=wp), intent(inout) :: CIDER(ncsf(State_Sym),nRoots)
+  real(kind=wp), intent(in) :: CI(ncsf(STSym),nRoots)
+  real(kind=wp), intent(inout) :: CIDER(ncsf(STSym),nRoots)
   integer(kind=iwp) :: i, j
   real(kind=wp) :: fact, scal
   !real(kind=wp), allocatable :: DERHII(:), DEROMG(:)
@@ -295,7 +295,7 @@ subroutine ISR_TimesE2(MODE,CI,CIDER)
         scal = Zero
         if (IntRotOff) then
           !! Note that CIDER has been multiplied by Weight or W_SOLV
-          scal = DDot_(ncsf(State_Sym),CI(:,i),1,CIDER(:,j),1)-DDot_(ncsf(State_Sym),CI(:,j),1,CIDER(:,i),1)
+          scal = DDot_(ncsf(STSym),CI(:,i),1,CIDER(:,j),1)-DDot_(ncsf(STSym),CI(:,j),1,CIDER(:,i),1)
         end if
         if (ScalWeight .and. (abs(Weight(i)-Weight(j)) > 1.0e-9_wp)) then
           ISR%Ap(i,j) = ISR%Ap(i,j)+scal+(ERASSCF(i)-ERASSCF(j))*ISR%p(i,j)*Two*fact*(Weight(i)-Weight(j))
@@ -317,7 +317,7 @@ subroutine ISR_TimesE2(MODE,CI,CIDER)
   !    do i=1,nRoots
   !      ! CIDER has been scaled with the weight in cisigma_sa
   !      if (weight(i) >= 1.0e-8_wp) then
-  !        DEROMG(i) = DDot_(ncsf(State_Sym),CI(:,i),1,CIDER(:,i),1)/weight(i)
+  !        DEROMG(i) = DDot_(ncsf(STSym),CI(:,i),1,CIDER(:,i),1)/weight(i)
   !      else
   !        DEROMG(i) = Zero !! under consideration
   !      end if

@@ -52,11 +52,12 @@ if (iSym == 1) then
   end if
 end if
 
-!open(unit=1422,file='det.index') ! yma
+!lu = isFreeUnit(14)
+!open(lu,file='det.index') ! yma
 !do i=1,lldet
-!  write(1422,*)CNSM(iAdr)%icts(i)
+!  write(lu,*) CNSM(iAdr)%icts(i)
 !end do
-!close(1422)
+!close(lu)
 
 ! calculated from zoo.f, the GUGA number for determinent
 call iDafile(LUCSF2SD,2,CNSM(iAdr)%icts,lldet,iad)

@@ -120,7 +120,7 @@ abcdLen = abLen*cdLen
 call MkNameV4(pSGrp,qSGrp,rSGrp,sSGrp,'W4',LunName)
 
 !5 Read Wa(pqrs) - velka udalost
-!open(unit=LunAux,file=LunName,form='unformatted')
+!open(LunAux,file=LunName,form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,LunName)
 call rea_chcc(LunAux,abcdLen,Wa)
 close(LunAux)

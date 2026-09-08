@@ -68,7 +68,7 @@ logical(kind=iwp) :: do_calc, do_EPR, do_pNMR
 integer(kind=iwp), allocatable :: degen_end_idx(:), degen_group(:), degen_start_idx(:), LAtNumb(:), MAPST(:)
 real(kind=wp), allocatable :: C_tens(:,:,:), CGo_mat(:,:), CGx_mat(:,:), CGy_mat(:,:), C_shifts(:,:,:), dE_inv(:,:), &
                               ESO(:), h_hfc_rms(:,:), h_rms_nuc(:,:), LR_shifts(:,:,:), LR_tens(:,:,:), pBoltz(:,:), &
-                              prin_vals(:,:,:), Temp_in_K(:), Z_HFC_int_oper(:,:,:,:), Z_HFC_over_dE(:,:,:,:)
+                              pr_vals(:,:,:), Temp_in_K(:), Z_HFC_int_oper(:,:,:,:), Z_HFC_over_dE(:,:,:,:)
 complex(kind=wp), allocatable :: h_FC(:,:,:), h_FCSD(:,:,:), h_PSO(:,:,:), h_SD(:,:,:), h_TOT(:,:,:), h_Zeeman(:,:,:), USO(:,:)
 logical(kind=iwp), allocatable :: signs_resolved(:)
 character(len=LenIn), allocatable :: LAtomLbl(:)
@@ -148,7 +148,7 @@ subroutine setup_hfc_calc(JBNUM,USOR,USOI)
   end if
 
   if (allocated(Atens_Req)) then
-    call mma_allocate(prin_vals,NATens_Calc,5,3,Label='prin_vals')
+    call mma_allocate(pr_vals,NATens_Calc,5,3,Label='prin_vals')
     call mma_allocate(signs_resolved,NATens_Calc,Label='signs_resolved')
     signs_resolved(:) = .false.
   end if
@@ -677,7 +677,7 @@ subroutine print_EPR_summary()
       iACalc = iACalc+1
       do iContr=1,5
         iCheckVal = iCheckVal+1
-        checkfile_vals(iCheckVal) = sum(abs(prin_vals(iACalc,iContr,1:3)))/Three
+        checkfile_vals(iCheckVal) = sum(abs(pr_vals(iACalc,iContr,1:3)))/Three
       end do
     end if
   end do
@@ -690,7 +690,7 @@ subroutine print_EPR_summary()
     if (Atens_Req(iAtom)) then
       iACalc = iACalc+1
       conv = con_to_MHz*GNuc(iAtom)
-      prin_vals(iACalc,:,:) = conv*prin_vals(iACalc,:,:)
+      pr_vals(iACalc,:,:) = conv*pr_vals(iACalc,:,:)
       call assign_hfc_prvl_signs()
     end if
   end do
@@ -713,21 +713,21 @@ subroutine print_EPR_summary()
       write(u6,'(3X,A4,2X,A12,5X,A12,3(2X,A12))') repeat('-',4),(repeat('-',12),iContr=1,5)
 
       do iAxis=1,3
-        write(u6,'(3X,A2,A1,A1,2x,F12.2,5x,F12.2,3(2x,F12.2))') 'A_',xyz(iAxis),xyz(iAxis),prin_vals(iACalc,5,iAxis), &
-                                                                (prin_vals(iACalc,iContr,iAxis),iContr=1,4)
+        write(u6,'(3X,A2,A1,A1,2x,F12.2,5x,F12.2,3(2x,F12.2))') 'a_',xyz(iAxis),xyz(iAxis),pr_vals(iACalc,5,iAxis), &
+                                                                (pr_vals(iACalc,iContr,iAxis),iContr=1,4)
       end do
 
       !--> Print isotropic values
       if (signs_resolved(iACalc)) then
-        Aiso_tot = sum(prin_vals(iACalc,5,:))/Three
+        Aiso_tot = sum(pr_vals(iACalc,5,:))/Three
         write(u6,'(3X,A4,2X,A12,5X,A12,3(2X,A12))') repeat('-',4),(repeat('-',12),iContr=1,5)
-        write(u6,'(3X,A5,1x,F12.2,5x,F12.2,3(2x,F12.2))') 'A_iso',abs(Aiso_tot), &
-                                                          (abs(sum(prin_vals(iACalc,iContr,:))/Three),iContr=1,4)
+        write(u6,'(3X,A5,1x,F12.2,5x,F12.2,3(2x,F12.2))') 'a_iso',abs(Aiso_tot), &
+                                                          (abs(sum(pr_vals(iACalc,iContr,:))/Three),iContr=1,4)
         write(u6,*)
         write(u6,'(3X,A33,F13.3,1X,A5)') '>>>>  Isotropic HFCCs (Total)  = ',abs(Aiso_TOT),unt
         write(u6,*)
       else
-        write(u6,'(3X,A5,1x,A12,5x,A12,3(2x,A12))') 'A_iso',undef_res,undef_res,undef_res,undef_res,undef_res
+        write(u6,'(3X,A5,1x,A12,5x,A12,3(2x,A12))') 'a_iso',undef_res,undef_res,undef_res,undef_res,undef_res
         write(u6,*)
         write(u6,'(17x,A57)') 'NOTE: Signs of principal values cannot be determined.'
       end if
@@ -747,9 +747,9 @@ subroutine print_EPR_summary()
   write(u6,*)
 
   write(string_val,'(F12.4)')-gElectron*beta_e*beta_n*1.0e9_wp
-  write(u6,'(A52,A7,A4)') '                A(MHz) = A(au) * nuclear-g-factor * ',adjustl(string_val(6:12)),'E-09'
+  write(u6,'(A52,A7,A4)') '                a(MHz) = a(au) * nuclear-g-factor * ',adjustl(string_val(6:12)),'E-09'
   write(string_val,'(F12.4)') con_to_MHz
-  write(u6,'(A60,A7)') '             or A(MHz) = sqrt(eigvval) * nuclear-g-factor * ',adjustl(string_val(6:12))
+  write(u6,'(A60,A7)') '             or a(MHz) = a(raw output) * nuclear-g-factor * ',adjustl(string_val(6:12))
   write(u6,*)
   write(u6,*)
 
@@ -796,7 +796,7 @@ subroutine proc_coupl_states()
   ! SHIFTING ENERGY by NCOUP/COUP-------------------------------------------
   ! then re-determine the coupled states based on energy threshold.
   if (allocated(LCSTATES)) then
-    min_energy = ESO(1)
+    min_energy = minval(ESO(LCSTATES(:)))
     do ISS=1,size(LCSTATES)
       ESO(LCSTATES(ISS)) = min_energy
     end do
@@ -832,6 +832,11 @@ subroutine proc_coupl_states()
     write(u6,'(7X,A25)') '-------------------------'
     write(u6,*)
     write(u6,*)
+
+    if (NCOUP == 1) then
+      call WarningMessage(2, "No Kramers degeneracies were found; therefore, the HFCCs are zero.")
+      call Quit_OnUserError()
+    endif
 
     ! PSEUDOSPIN APPROACH
     !--------------------
@@ -952,88 +957,139 @@ end subroutine calc_A_tens
 
 subroutine assign_hfc_prvl_signs()
 
-  integer(kind=iwp) :: iAxis
-  logical(kind=iwp) :: is_determined(3)
+  integer(kind=iwp) :: iAx
+  logical(kind=iwp) :: is_determined(3), ill_defined(2)
+
+  ! VARIABLE DESCRIPTION
+  !  is_determined: same axis, different contributions --> ROWs in summary table
+  !                 For example: a_FC(xx) +- a_SD(xx) +- a_PSO(xx)
+  !  ill_defined  : same contribution, different axes  --> COLs in summary table
+  !                 only happens when FC is zeros or both FC and SD are zeros
+  !                 a_SD(xx) +- a_SD(yy) +- a_SD(zz)
+  ! sign_resolved = .true. when signs are resolved among both different contributions and different axes.
 
   !----------------------------------------------
   ! STEP 1: determine FC  +/- SD  =  +/- FCSD
   is_determined(:) = .false.
-  do iAxis=1,3
-    call assign_abc_signs(prin_vals(iACalc,1,iAxis),prin_vals(iACalc,2,iAxis),prin_vals(iACalc,3,iAxis),is_determined(iAxis))
+  ill_defined(:) = .false.
+  do iAx=1,3
+    call assign_abc_signs(pr_vals(iACalc,1,iAx),pr_vals(iACalc,2,iAx),pr_vals(iACalc,3,iAx),is_determined(iAx),ill_defined(1))
   end do
 
   if (all(is_determined)) then
     !----------------------------------------------
     ! STEP 2: determine FCSD  +/- PSO  =  +/- TOTAL
     is_determined(:) = .false.
-    do iAxis=1,3
-      call assign_abc_signs(prin_vals(iACalc,3,iAxis),prin_vals(iACalc,4,iAxis),prin_vals(iACalc,5,iAxis),is_determined(iAxis))
+    do iAx=1,3
+      call assign_abc_signs(pr_vals(iACalc,3,iAx),pr_vals(iACalc,4,iAx),pr_vals(iACalc,5,iAx),is_determined(iAx),ill_defined(2))
     end do
-    if (all(is_determined)) signs_resolved(iACalc) = .true.
+
+    signs_resolved(iACalc) = .not. any(ill_defined) .and. all(is_determined)
   end if
 
-  if (.not. signs_resolved(iACalc)) prin_vals(iACalc,:,:) = abs(prin_vals(iACalc,:,:))
+  if (.not. signs_resolved(iACalc)) pr_vals(iACalc,:,:) = abs(pr_vals(iACalc,:,:))
 
 end subroutine assign_hfc_prvl_signs
 
-subroutine assign_abc_signs(a,b,c,is_determined)
-  ! PURPOSE: Determine signs of this equatiion:
+subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
+  ! PURPOSE: Determine signs of this equation:
   !           a  +/- |b| = +/- |c|
   ! where sign(a) is fixed (always positive or negative). OUTPUT: sign(b), sign(c)
-  ! There are two steps:
-  !           STEP 1: Compare  MAX(|a|,|b|) and |c|
-  !           STEP 2: Compare with the tolerance [5% of the abs maximum]
+  ! There are two cases:
+  !           CASE I: There is zero in a, b, or c
+  !           CASE II: all is non-zero
+  !                  1. a, b have the same sign --> abs(c) increases
+  !                  2. a, b have different signs --> abs(c) decreases
+  ! Cases II.1 and II.2 follows two steps:
+  !     step 1. Compare  MAX(|a|,|b|) and |c|
+  !     step 2. Compare with the relative tolerance [5% of the maximum absolute value]
 
   real(kind=wp), intent(in) :: a
   real(kind=wp), intent(out) :: b, c
-  logical(kind=iwp), intent(out) :: is_determined
-  real(kind=wp) :: abs_a, abs_b, abs_c, max_left_absval
-  real(kind=wp), parameter :: tol = 0.05_wp
+  logical(kind=iwp), intent(out) :: is_determined, ill_defined
+  real(kind=wp) :: abs_a, abs_b, abs_c, max_left_absval, abs_tol
+  real(kind=wp), parameter :: rel_tol = 0.05_wp, zero_tol = 1.0e-8_wp
+  integer(kind=iwp) :: nzeros
 
-  ! Tolerance for determining signs
-  ! 5% of the maximum absolute value among a, b, c
+
   abs_a = abs(a)
   abs_b = abs(b)
   abs_c = abs(c)
   max_left_absval = max(abs_a,abs_b)
+  ! Relative tolerance for determining signs is 5%
+  ! Absolute tolerance is 5% of the largest absolute value among a, b, c
+  abs_tol = rel_tol * max(abs_a, abs_b, abs_c)
   is_determined = .false.
+  ill_defined = .false.
 
-  if (abs_c > max_left_absval) then
-    ! CASE 1: abs_c increases
-    !------------------------
-    ! a, b should have the SAME sign --> 2 cases: [+] + [+] = [+]
-    !                                          or [-] + [-] = [-]
-    if (abs((abs_a+abs_b)/abs_c-One) <= tol) then
+  nzeros = count([abs_a, abs_b, abs_c] < zero_tol)
+
+  ! CASE I: Handle cases where at least one magnitude is effectively zero.
+  if (nzeros == 3) then
+    is_determined = .true.
+  else if (nzeros == 2) then
+    ! If two values are zero and the third is non-zero, this would be impossible
+    ! is_determined = .false. already, do nothing here
+  else if (nzeros == 1) then
+
+    ! c = 0 --> check if a - b = 0
+    if (abs_c < zero_tol .and. abs(abs_a - abs_b) < zero_tol) then
       is_determined = .true.
-      ! a = [+] --> b = [+]  , c = [+]
-      ! a = [-] --> b = [-]  , c = [-]
-      if (a < Zero) then
-        b = -abs_b
-        c = -abs_c
+      if (a > Zero) b = -abs_b
+    endif
+
+    ! a = 0 --> check if b = c
+    ! This case is vague. b could be positive or negative.
+    if (abs_a < zero_tol .and. abs(abs_b - abs_c) < zero_tol) then
+      is_determined = .true.
+      ill_defined = .true.
+    endif
+
+    ! b = 0 --> check if a = c
+    if (abs_b < zero_tol .and. abs(abs_a - abs_c) < zero_tol) then
+      is_determined = .true.
+      if (a < Zero) c = -abs_c
+    endif
+
+  else
+  ! CASE II: All three values are nonzero
+    if (abs_c > max_left_absval) then
+      ! CASE 1: abs_c increases
+      !------------------------
+      ! a, b should have the SAME sign --> 2 cases: [+] + [+] = [+]
+      !                                          or [-] + [-] = [-]
+      if ((abs_a+abs_b-abs_c) < abs_tol) then
+        is_determined = .true.
+        ! a = [+] --> b = [+]  , c = [+]
+        ! a = [-] --> b = [-]  , c = [-]
+        if (a < Zero) then
+          b = -abs_b
+          c = -abs_c
+        end if
+      end if
+
+    else if (abs_c < max_left_absval) then
+      ! CASE 2: abs_c decreases
+      !------------------------
+      ! a, b should have the DIFFERENT signs --> 2 cases: [+] + [-]
+      !                                                or [-] + [+]
+
+      if (abs(abs(abs_a-abs_b)-abs_c) < abs_tol) then
+        is_determined = .true.
+
+        ! b needs to have the OPPOSITE sign of a. Sign of c depends on a & b
+        ! a = [+] --> b = [-]  , c = [+] if |a| > |b| and vice versa
+        ! a < [-] --> b = [+]  , c = [-] if |a| > |b| and vice versa
+
+        if (a > Zero) then
+          b = -abs_b
+          if (abs_a < abs_b) c = -abs_c
+        else if (a < Zero) then
+          if (abs_a > abs_b) c = -abs_c
+        end if
       end if
     end if
-
-  else if (abs_c < max_left_absval) then
-    ! CASE 2: abs_c decreases
-    !------------------------
-    ! a, b should have the DIFFERENT signs --> 2 cases: [+] + [-]
-    !                                                or [-] + [+]
-
-    if (abs(abs(abs_a-abs_b)/abs_c-One) <= tol) then
-      is_determined = .true.
-
-      ! b needs to have the OPOSITE sign of a. Sign of c depends on a & b
-      ! a = [+] --> b = [-]  , c = [+] if |a| > |b| and vice versa
-      ! a < [-] --> b = [+]  , c = [-] if |a| > |b| and vice versa
-
-      if (a >= Zero) then
-        b = -abs_b
-        if (abs_a < abs_b) c = -abs_c
-      else if (a < Zero) then
-        if (abs_a > abs_b) c = -abs_c
-      end if
-    end if
-  end if
+  endif
 
 end subroutine assign_abc_signs
 
@@ -1042,12 +1098,37 @@ subroutine transf_prin_axes(A,X,a_sm)
   real(kind=wp), intent(in) :: A(3,3,5), X(3,3)
   real(kind=wp), intent(out) :: a_sm(3,3,5)
   integer(kind=iwp) :: iContr
-  real(kind=wp) :: tmpmat(3,3)
+  real(kind=wp) :: tmpmat(3,3), tmpmat2(3,3)
+  real(kind=wp), parameter :: zero_tol = 1.0e-8_wp
 
   do iContr=1,5
     tmpmat(:,:) = Zero
     call dgemm_('n','n',3,3,3,One,A(:,:,iContr),3,X,3,Zero,tmpmat,3)
     call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,a_sm(:,:,iContr),3)
+
+    ! TRUNCATION:After diagonalization, numbers near zero will fluctate a lot due to numerical noise.
+    !            For example, -1.0E-50 or +1.0E-50 are equipvalent to 0.0
+    !            That creates a problem that we could not take the square root of a negative number (-1.0E-50).
+    !            To prevent this, we truncate very-small values to zero.
+
+    ! Typical g-factors are lower than 6.0, while conv_to_MHz (print_EPR_summary) is around 100.0 (95.5)
+    ! if a value is below 1.0e-8_wp, A(MHz) is around 6.0*100.0*10^-8 = 0.000006 MHz
+    where (abs(a_sm(:,:,iContr)) < zero_tol)
+      a_sm(:,:,iContr) = Zero
+    end where
+
+    if (min(a_sm(1,1,iContr),a_sm(2,2,iContr),a_sm(3,3,iContr)) < Zero) then
+      call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
+      call AbEnd()
+    end if
+
+    tmpmat2(:,:) = Zero
+    tmpmat2(1,1) = sqrt(a_sm(1,1,iContr))
+    tmpmat2(2,2) = sqrt(a_sm(2,2,iContr))
+    tmpmat2(3,3) = sqrt(a_sm(3,3,iContr))
+    call dgemm_('n','n',3,3,3,One,tmpmat2,3,X,3,Zero,tmpmat,3)
+    call dgemm_('t','n',3,3,3,One,X,3,tmpmat,3,Zero,a_sm(:,:,iContr),3)
+
   end do
 
 end subroutine transf_prin_axes
@@ -1112,25 +1193,17 @@ subroutine calc_prin_val(iAtom,A_tens)
     if (fnorm_off_diag/fnorm_diag > 0.05_wp) call WarningMessage(1,'Relative Frobenius diag/off-diag norm > 5%')
 
     do iAxis=1,3
-      EVR(iAxis) = a_small(iAxis,iAxis,iContr)
+      pr_vals(iACalc,iContr,iAxis) = a_small(iAxis,iAxis,iContr)
     end do
-
-    if (any(EVR(:) < Zero)) then
-      call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
-      call AbEnd()
-    end if
-
-    ! principal values (sqrt of diagonal elements)
-    prin_vals(iACalc,iContr,:) = sqrt(EVR)
 
     ! Print absolute principal values without signs
     write(u6,*)
-    write(u6,'(20X,A31,A7)') 'ABS. PRINCIPAL VALUES [+/-] :: ',contrib_lab(iContr)
-    write(u6,'(12X,A52)') repeat('.',52)
-    write(u6,'(22X,A10,12X,A4,11X,A5)') 'sqrt(a_ii)','(au)','(MHz)'
-    write(u6,'(12X,A52)') repeat('.',52)
+    write(u6,'(24X,A25,A7)') 'ABS. PRINCIPAL VALUES :: ',contrib_lab(iContr)
+    write(u6,'(12X,A52)') repeat('-',52)
+    write(u6,'(24X,A4,12X,A4,11X,A5)') 'a_ii','(au)','(MHz)'
+    write(u6,'(12X,A52)') repeat('-',52)
     do iAxis=1,3
-      prvl = prin_vals(iACalc,iContr,iAxis)
+      prvl = pr_vals(iACalc,iContr,iAxis)
       write(u6,'(12X,A1,A1,5X,E13.6,3x,E13.6,3x,E13.6)') xyz(iAxis),xyz(iAxis),prvl,prvl*to_au,prvl*con_to_MHz*GNuc(iAtom)
     end do
     write(u6,*)
@@ -1433,7 +1506,7 @@ subroutine cleanup_hfcop()
 
   if (allocated(Atens_Req)) then
     call mma_deallocate(Atens_Req)
-    call mma_deallocate(prin_vals)
+    call mma_deallocate(pr_vals)
     call mma_deallocate(signs_resolved)
   end if
 

@@ -30,7 +30,7 @@ end if
 ISEED = LOCUNT
 LOCUNT = ISFREEUNIT(ISEED)
 call molcas_binaryopen_vanilla(Locunt,Fname)
-!open(LOCUNT,FILE=FNAME,STATUS='UNKNOWN',FORM='UNFORMATTED')
+!open(LOCUNT,file=FNAME,status='UNKNOWN',form='UNFORMATTED')
 LUNIT = LOCUNT
 
 end subroutine CHO_OPEN

@@ -780,7 +780,7 @@ do aGrp=1,NaGrp
                       call MkNameV3(aSGrp,bSGrp,cSGrp,'W3',LunName8)
 
                       ! Write integral block to proper file
-                      !open(unit=LunAux,file=LunName8,form='unformatted')
+                      !open(LunAux,file=LunName8,form='unformatted')
                       call MOLCAS_BinaryOpen_Vanilla(LunAux,LunName8)
                       call wri_chcc(LunAux,dimabpp*dimcpp*no,wrk(PosV1))
                       close(LunAux)
@@ -924,7 +924,7 @@ do aGrp=1,NaGrp
                                 call MkNameV4(aSGrp,bSGrp,cSGrp,dSGrp,'W4',LunName10)
 
                                 ! Write integral block to proper file
-                                !open(unit=LunAux,file=LunName10,form='unformatted')
+                                !open(LunAux,file=LunName10,form='unformatted')
                                 call MOLCAS_BinaryOpen_Vanilla(LunAux,LunName10)
                                 call wri_chcc(LunAux,dimabpp*dimcdpp,wrk(PosV1))
                                 close(LunAux)

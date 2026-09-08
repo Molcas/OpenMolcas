@@ -15,7 +15,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO, ESTERR, ipCI, ipCM, ipMat, IRLXROOT, ISNAC, ISTATE, LuJob, LuPT2, LuTEMP, n1Dens, n2Dens, nA, NACSTATES, &
                      nConf1, nDens, nDensC, OVERRIDE
-use general_data, only: nAsh, nIsh, nSym, State_Sym=>STSym
+use general_data, only: nAsh, nIsh, nSym, STSym
 use input_mclr, only: iRoot, iTOC, nBas, nCSF, nDisp, nRoots, ntAsh, ntBtri, PT2
 use PCM_grad, only: DSCFAO, DSSAO, PCM_grad_D2v, PCMSCFAO, PCMSCFMO
 use rctfld_module, only: lRF
@@ -76,7 +76,7 @@ call mma_allocate(Dtmp,nDens,Label='DTmp')
 ! All multipliers are introduced as densities
 
 if (CI) then
-  nconf1 = ncsf(State_sym)
+  nconf1 = ncsf(STSym)
   ilen = nconf1*nroots ! nroot = # of roots in SA
   ipcip = ipget(nconf1*nroots)
   iDisk = iCIDisp(1)
@@ -85,7 +85,7 @@ if (CI) then
 
   ! Calculate the densities that correct the nonvariational CI stuff
 
-  call CIDens_sa(.true.,ipCIp,ipCI,State_sym,State_sym,P_CI,D_CI) ! \bar{d} and \bar{D}
+  call CIDens_sa(.true.,ipCIp,ipCI,STSym,STSym,P_CI,D_CI) ! \bar{d} and \bar{D}
 
   ! ====================================================================
   if (doDMRG) then  ! yma

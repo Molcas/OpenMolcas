@@ -435,9 +435,11 @@ nDet = MaxVal(ndtasm(1:mxsym))
 
 ! Initiate the SGUGA environment conditional to all flags
 If (Do_SGUGA) Then
+#ifdef _SGUGA_VERIFY_
     write(u6,'(1X,A)') '**EXPERIMENTAL**'
     write(u6,'(1X,A)') 'CI backend is SGUGA instead of LUCIA.'
     write(u6,'(1X,A)') '**EXPERIMENTAL**'
+#endif
    call SG_Setup_RASSCF()
 End If
 

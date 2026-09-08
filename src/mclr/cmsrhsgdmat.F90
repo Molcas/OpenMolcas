@@ -16,7 +16,7 @@ subroutine CMSRHSGDMat(GDMat)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: ipCI, n1Dens, n2Dens, nNA, XISPSM
-use general_data, only: State_Sym=>STSym
+use general_data, only: STSym
 use input_mclr, only: nCSF, nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -32,8 +32,8 @@ real(kind=wp), allocatable :: CIL(:), CIR(:), GDArray(:,:), rdum(:)
 !  <I|E_pq|J>=<J|E_qp|I>
 call mma_allocate(GDArray,nnA,nnA)
 call mma_allocate(rdum,n2Dens)
-iL = state_sym
-iR = state_sym
+iL = STSym
+iR = STSym
 nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
 nConfL = max(ncsf(iL),nint(xispsm(iL,1)))
 call mma_allocate(CIR,nConfR)

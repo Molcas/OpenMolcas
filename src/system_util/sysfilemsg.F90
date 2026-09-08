@@ -26,7 +26,7 @@ call SysPuts('Location: ',Location,'\n')
 write(str,*) Lu
 call SysPuts('Unit    : ',str,' ')
 str = ' '
-inquire(unit=lu,name=str)
+inquire(lu,name=str)
 if (str /= ' ') then
   call SysPuts('File    : ',str,'\n')
 end if

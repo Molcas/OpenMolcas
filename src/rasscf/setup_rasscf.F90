@@ -10,10 +10,11 @@
 !***********************************************************************
 
 subroutine Setup_RASSCF()
+
 use Molcas, only: MxLev
-use general_data, only: nActel, nElec3, nHole1, nRs1, nRs2, nRs3, nSym, NLEV, Level, &
-                        NGAS, NGSSH, nRas,nRasEl,nRsPrt, NSM
+use general_data, only: Level, nActel, nElec3, NGAS, NGSSH, nHole1, NLEV, nRas, nRasEl, nRs1, nRs2, nRs3, nRsPrt, NSM, nSym
 use Definitions, only: iwp
+
 implicit none
 integer(kind=iwp) :: IGAS, iq, ISYM, nRs1T, NSTA
 
@@ -26,21 +27,21 @@ do IGAS=1,NGAS
   end do
 end do
 
-Level(1:MxLev)=[(iq,iq=1,MxLev)]
+Level(1:MxLev) = [(iq,iq=1,MxLev)]
 
 if (nHole1+nElec3 /= 0) then
-   nRsPrt=3
-   nRas(:,1)=nRs1(:)
-   nRas(:,2)=nRs2(:)
-   nRas(:,3)=nRs3(:)
-   nRs1T = sum(nRs1(1:nSym))
-   nRasEl(1)=2*nRs1T-nHole1
-   nRasEl(2)=nActel-nElec3
-   nRasEl(3)=nActel
+  nRsPrt = 3
+  nRas(:,1) = nRs1(:)
+  nRas(:,2) = nRs2(:)
+  nRas(:,3) = nRs3(:)
+  nRs1T = sum(nRs1(1:nSym))
+  nRasEl(1) = 2*nRs1T-nHole1
+  nRasEl(2) = nActel-nElec3
+  nRasEl(3) = nActel
 else
-   nRsPrt=1
-   nRas(:,1)=nRs2(:)
-   nRasEl(1)=nActel
+  nRsPrt = 1
+  nRas(:,1) = nRs2(:)
+  nRasEl(1) = nActel
 end if
 
 end subroutine Setup_RASSCF

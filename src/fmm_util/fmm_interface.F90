@@ -132,9 +132,9 @@ subroutine fmm_get_J_matrix(nBas,dens,fockAO)
   ! Write null header file for nuclear moments (not computed!)
   FBuf = trim(FName)//'.fmm2header'
   LUINTM = IsFreeUnit(LUINTM)
-  open(unit=LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',form='UNFORMATTED')
+  open(LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',form='UNFORMATTED')
   write(LUINTM) 0
-  close(unit=LUINTM,status='KEEP')
+  close(LUINTM,status='KEEP')
 
   sq_dens(:,:) = zero
   ij = 0
@@ -224,19 +224,19 @@ subroutine fmm_initialise_gfc_grid(npoints,coor)
   ! Write grid points to disk
   FBuf = trim(FName)//'.fmm2'
   LUINTM = IsFreeUnit(LUINTM)
-  open(unit=LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',FORM='UNFORMATTED')
+  open(LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',form='UNFORMATTED')
   rewind(LUINTM)
   do i=1,npoints
     write(LUINTM) 0,0,0,0,0,coor(1,i),coor(2,i),coor(3,i),one
   end do
-  close(unit=LUINTM,status='KEEP')
+  close(LUINTM,status='KEEP')
 
   ! Write header file
   FBuf = trim(FName)//'.fmm2header'
   LUINTM = IsFreeUnit(LUINTM)
-  open(unit=LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',form='UNFORMATTED')
+  open(LUINTM,file=trim(FBuf),status='REPLACE',access='SEQUENTIAL',form='UNFORMATTED')
   write(LUINTM) npoints
-  close(unit=LUINTM,status='KEEP')
+  close(LUINTM,status='KEEP')
 
 end subroutine fmm_initialise_gfc_grid
 

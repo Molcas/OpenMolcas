@@ -110,7 +110,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipget, W
 use MCLR_Data, only: ipCI, nConf1, nDens, nNA, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use general_data, only: State_Sym=>STSym, nSym, nAsh
+use general_data, only: nAsh, nSym, STSym
 use input_mclr, only: nRoots, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
@@ -136,7 +136,7 @@ do jSym=2,nSym
 end do
 
 ! Memory allocation
-nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
+nConf3 = nint(max(xispsm(STSym,1),xispsm(STSym,1)))
 ipwslam = ipGet(nConf3*nRoots)
 
 call mma_allocate(Wop,nDens)
@@ -163,7 +163,7 @@ do M=1,nRoots
     Coeff = Two*zx(IKM2)
     if (K > M) Coeff = -Coeff
     call CalcWop(Wop,Ddiff,PUVX,NPUVX,IndTUVX,Coeff,off_Ash)
-    call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens,tempda,1,tempda,1,ipci,ipwslam,.false.)
+    call CISigma_SA(0,STSym,STSym,Wop,nDens,tempda,1,tempda,1,ipci,ipwslam,.false.)
     !call ipin(ipwslam)
     AXPzx(:,M) = AXPzx(:,M)+dRoots*W(ipwslam)%A((K-1)*nConf1+1:K*nConf1)
   end do
@@ -171,7 +171,7 @@ do M=1,nRoots
   D_acc(:) = Zero
   call CalcDacc(D_acc,GDMat,M,nnA,nRoots,zx)
   call CalcWop(Wop,D_acc,PUVX,NPUVX,IndTUVX,One,off_Ash)
-  call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens,tempda,1,tempda,1,ipci,ipwslam,.false.)
+  call CISigma_SA(0,STSym,STSym,Wop,nDens,tempda,1,tempda,1,ipci,ipwslam,.false.)
   AXPzx(:,M) = AXPzx(:,M)+dRoots*W(ipwslam)%A((M-1)*nConf1+1:M*nConf1)
   ! Computing (3)
   do K=2,nRoots

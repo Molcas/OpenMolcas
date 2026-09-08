@@ -13,14 +13,14 @@ subroutine DMinvCI_sa(ipSigma,rout,S)
 
 use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI, ipDia, nConf1
-use general_data, only: State_Sym=>STSym
+use general_data, only: STSym
 use input_mclr, only: ERASSCF, nCSF, nRoots
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: ipSigma
-real(kind=wp), intent(out) :: rout(nCSF(State_Sym),nRoots)
+real(kind=wp), intent(out) :: rout(nCSF(STSym),nRoots)
 real(kind=wp), intent(in) :: S(nRoots,nRoots,nRoots)
 integer(kind=iwp) :: iR, jR, k
 real(kind=wp) :: alpha(nRoots), rcoeff(nRoots)
@@ -39,15 +39,15 @@ if (nconf1 > 1) then
   call ipin(ipsigma)
   k = 0
   do iR=1,nRoots
-    rout(:,iR) = W(ipSigma)%A(k+1:k+nCSF(State_Sym))/(W(ipdia)%A(1:nCSF(State_Sym))-ERASSCF(iR))
-    k = k+nCSF(State_Sym)
+    rout(:,iR) = W(ipSigma)%A(k+1:k+nCSF(STSym))/(W(ipdia)%A(1:nCSF(STSym))-ERASSCF(iR))
+    k = k+nCSF(STSym)
   end do
   do iR=1,nRoots
 
     !We = weight(iR)
     call ipin(ipCI)
     do jR=1,nRoots
-      rcoeff(jR) = ddot_(nconf1,rout(:,iR),1,W(ipCI)%A(1+(jR-1)*nCSF(State_Sym)),1)
+      rcoeff(jR) = ddot_(nconf1,rout(:,iR),1,W(ipCI)%A(1+(jR-1)*nCSF(STSym)),1)
     end do
 
     do jR=1,nRoots
@@ -55,8 +55,7 @@ if (nconf1 > 1) then
     end do
 
     do jR=1,nRoots
-      rout(:,iR) = rout(:,iR)- &
-                   W(ipCI)%A((jR-1)*nCSF(State_Sym)+1:jR*nCSF(State_Sym))*alpha(jR)/(W(ipdia)%A(1:nCSF(State_Sym))-ERASSCF(iR))
+      rout(:,iR) = rout(:,iR)-W(ipCI)%A((jR-1)*nCSF(STSym)+1:jR*nCSF(STSym))*alpha(jR)/(W(ipdia)%A(1:nCSF(STSym))-ERASSCF(iR))
     end do
     !if (abs(Weight(iR)) > 1.0e-9_wp) rout(:,iR) = rout(:,iR)/Weight(iR)
 

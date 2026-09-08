@@ -24,7 +24,9 @@ module ADDRHS_STRIPED
 
 #include "macros.fh"
 
-use Constants, only: Zero, One, Two, Three, Half, OneHalf
+use Symmetry_Info, only: Mul
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Half, OneHalf, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -42,18 +44,18 @@ logical(kind=iwp) :: RHSLocOnDisk(8,13) = .false. ! true once the block has been
 
 real(kind=wp), allocatable, target :: RHSLoc(:)   ! the buffer, the in-core blocks concatenated
 
-integer(kind=iwp), parameter :: IGRP_A = 1, IGRP_B = 2, IGRP_E = 3, IGRP_H = 4, IGRP_D1 = 5, &
-                                IGRP_G = 6, IGRP_F = 7, IGRP_C = 8, IGRP_D2 = 9, NRHSGRP = 9
-integer(kind=iwp), parameter :: IRHSGRP(2,NRHSGRP) = reshape([ 1, 0, & ! A
-                                                               2, 3, & ! B+ B-
-                                                               6, 7, & ! E+ E-
-                                                              12,13, & ! H+ H-
-                                                               5, 0, & ! D1, the upper half of D
-                                                              10,11, & ! G+ G-
-                                                               8, 9, & ! F+ F-
-                                                               4, 0, & ! C
-                                                               5, 0],& ! D2, the lower half of D
-                                                               [2,NRHSGRP])
+integer(kind=iwp), parameter :: IGRP_A = 1, IGRP_B = 2, IGRP_E = 3, IGRP_H = 4, IGRP_D1 = 5, IGRP_G = 6, IGRP_F = 7, IGRP_C = 8, &
+                                IGRP_D2 = 9, NRHSGRP = 9
+integer(kind=iwp), parameter :: IRHSGRP(2,NRHSGRP) = reshape([ 1, 0, &  ! A
+                                                               2, 3, &  ! B+ B-
+                                                               6, 7, &  ! E+ E-
+                                                              12,13, &  ! H+ H-
+                                                               5, 0, &  ! D1, the upper half of D
+                                                              10,11, &  ! G+ G-
+                                                               8, 9, &  ! F+ F-
+                                                               4, 0, &  ! C
+                                                               5, 0], & ! D2, the lower half of D
+                                                             [ 2,NRHSGRP])
 
 ! a-block width of ADDRHSF/G_STRIPED_D, 32 measured best
 integer(kind=iwp), parameter :: NAMXCAP = 32
@@ -61,10 +63,9 @@ integer(kind=iwp), parameter :: NAMXCAP = 32
 ! weights of the symmetrized combinations, as in the replicated MKRHS routines
 real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ3 = sqrt(Three), SQH = sqrt(Half), SQ32 = sqrt(OneHalf)
 
-public :: RHSLOC_SIZES, RHSLOC_ALLOCATE, RHSLOC_LOAD, RHSLOC_FINALIZE, RHSLOC_FREE
-public :: ADDRHSA_STRIPED, ADDRHSB_STRIPED, ADDRHSC_STRIPED, ADDRHSD1_STRIPED, ADDRHSD2_STRIPED, &
-          ADDRHSE_STRIPED, ADDRHSF_STRIPED, ADDRHSG_STRIPED, ADDRHSH_STRIPED
-public :: IGRP_A, IGRP_B, IGRP_C, IGRP_D1, IGRP_D2, IGRP_E, IGRP_F, IGRP_G, IGRP_H
+public :: ADDRHSA_STRIPED, ADDRHSB_STRIPED, ADDRHSC_STRIPED, ADDRHSD1_STRIPED, ADDRHSD2_STRIPED, ADDRHSE_STRIPED, ADDRHSF_STRIPED, &
+          ADDRHSG_STRIPED, ADDRHSH_STRIPED, IGRP_A, IGRP_B, IGRP_C, IGRP_D1, IGRP_D2, IGRP_E, IGRP_F, IGRP_G, IGRP_H, &
+          RHSLOC_ALLOCATE, RHSLOC_FINALIZE, RHSLOC_FREE, RHSLOC_LOAD, RHSLOC_SIZES
 
 contains
 
@@ -79,7 +80,6 @@ subroutine RHSLOC_SIZES(NALL,NGRP,NSYM1)
   use caspt2_module, only: NASUP, NISUP, NSYM
 
   integer(kind=iwp), intent(out) :: NALL, NGRP, NSYM1
-
   integer(kind=iwp) :: ICASE, IGRP, IHI, ILO, IPAIR, ISYM, JHI, JLO, NAS, NBLK, NIS
 
   ! Sizes of the local RHS:
@@ -130,16 +130,13 @@ subroutine RHSLOC_SIZES(NALL,NGRP,NSYM1)
 
 end subroutine RHSLOC_SIZES
 
-
 !-----------------------------------------------------------------------
 
 subroutine RHSLOC_ALLOCATE(ITIER,NBUF)
 
   use caspt2_module, only: NSYM
-  use stdalloc, only: mma_allocate
 
   integer(kind=iwp), intent(in) :: ITIER, NBUF
-
   integer(kind=iwp) :: ICASE, IOFF, ISYM
 
   ! Allocate the buffer depending on the tier (ITIER).
@@ -174,7 +171,6 @@ subroutine RHSLOC_LOAD(IVEC,IGRP,ISYMT)
   use caspt2_module, only: NSYM
 
   integer(kind=iwp), intent(in) :: IVEC, IGRP, ISYMT
-
   integer(kind=iwp) :: ICASE, IOFF, IPAIR, ISYM, NBLK
 
   ! Make the blocks of case group IGRP in memory, writing back the previous ones
@@ -217,7 +213,6 @@ subroutine RHSLOC_SAVE(IVEC)
   use caspt2_module, only: NSYM
 
   integer(kind=iwp), intent(in) :: IVEC
-
   integer(kind=iwp) :: ICASE, ISYM, NBLK
 
   ! Write the in-core blocks back to their slots on LURHS
@@ -243,7 +238,6 @@ subroutine RHSLOC_IO(IVEC,ISYM,ICASE,IOPT,IOFF,NBLK)
   use caspt2_module, only: IOFFRHS
 
   integer(kind=iwp), intent(in) :: IVEC, ISYM, ICASE, IOPT, IOFF, NBLK
-
   integer(kind=iwp) :: IDISK
 
   ! One block of RHSLoc to (IOPT = 1) or from (IOPT = 2) its slot on LURHS.
@@ -260,7 +254,6 @@ subroutine RHSLOC_FINALIZE(IVEC)
   use caspt2_module, only: NSYM
 
   integer(kind=iwp), intent(in) :: IVEC
-
   integer(kind=iwp) :: IGRP, ISYMT, NSYMT
 
   ! Write out what is still in memory
@@ -283,8 +276,6 @@ end subroutine RHSLOC_FINALIZE
 !-----------------------------------------------------------------------
 
 subroutine RHSLOC_FREE()
-
-  use stdalloc, only: mma_deallocate
 
   call mma_deallocate(RHSLoc)
 
@@ -373,23 +364,20 @@ end function SKIP_SYM
 !
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSA_STRIPED(JSYM,ISYJ,ISYX,NT,NJ,NV,NX, &
-                           SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSA_STRIPED(JSYM,ISYJ,ISYX,NT,NJ,NV,NX,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
   use SUPERINDEX, only: KTUV
   use caspt2_module, only: NAES, NINDEP, NISH, NTUV, NTUVES
-  use Symmetry_Info, only: Mul
   use SC_NEVPT2, only: Do_SC
 
   integer(kind=iwp), intent(in) :: JSYM, ISYJ, ISYX, NT, NJ, NV, NX, NSCR, NCHO
   real(kind=wp), intent(out), target :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NT*NJ,NCHO), Cho_Ket(NV*NX,NCHO)
-
   integer(kind=iwp) :: IJ, IJEND, IJSTA, IROFF, ISYM, ISYT, ISYV, JHI, JLO, LDY, MOFF, NAS, NIS, NJMX, NJSZ
-
-  real(kind=wp), pointer, contiguous :: WBLK(:,:)   ! the local stripe of the block, as (row,column)
-  real(kind=wp), pointer, contiguous :: YBLK(:,:,:) ! the integral block of this batch, as (t,j,vx)
-  real(kind=wp), pointer, contiguous :: WCOL(:,:)   ! one WBLK column's (t,vx) sub-block
+  real(kind=wp), pointer, contiguous :: WBLK(:,:), WCOL(:,:), YBLK(:,:,:)
+  !WBLK : the local stripe of the block, as (row,column)
+  !YBLK : the integral block of this batch, as (t,j,vx)
+  !WCOL : one WBLK column's (t,vx) sub-block
 
   ! Case A: W(tvx,j) = (tj,vx)
   !   SCR((t,j),(v,x)) = sum_P Cho_Bra(t,j)^P Cho_Ket(v,x)^P
@@ -410,7 +398,7 @@ subroutine ADDRHSA_STRIPED(JSYM,ISYJ,ISYX,NT,NJ,NV,NX, &
   end if
   IROFF = KTUV(1+NAES(ISYT),1+NAES(ISYV),1+NAES(ISYX))-NTUVES(ISYM)-1
 
-  call RHSLOC_BOUNDS(ISYM,1,NAS*NIS>0,MOFF,JLO,JHI)
+  call RHSLOC_BOUNDS(ISYM,1,NAS*NIS > 0,MOFF,JLO,JHI)
   if (JHI >= JLO) then
     WBLK(1:NAS,JLO:JHI) => RHSLoc(MOFF:MOFF+nRHSLocSz(ISYM,1)-1)
     NJMX = min(NJMX,NJ)
@@ -432,17 +420,14 @@ end subroutine ADDRHSA_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSB_STRIPED(JSYM,ISYJ,ISYL,NT,NJ,NV,NL, &
-                           SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSB_STRIPED(JSYM,ISYJ,ISYL,NT,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
   use caspt2_module, only: NIGEJ, NIGTJ, NINDEP, NTGEU, NTGTU
-  use Symmetry_Info, only: Mul
   use SC_NEVPT2, only: Do_SC
 
   integer(kind=iwp), intent(in) :: JSYM, ISYJ, ISYL, NT, NJ, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NT*NJ*NCHO), Cho_Ket(NV*NL*NCHO)
-
   integer(kind=iwp) :: ISYM, ISYT, ISYV, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NASM, NASP, NISM, NISP, NLMX
 
   ! Case B: both combinations of (tj,vl)
@@ -470,38 +455,35 @@ subroutine ADDRHSB_STRIPED(JSYM,ISYJ,ISYL,NT,NJ,NV,NL, &
     call Abend()
   end if
 
-  call RHSLOC_BOUNDS(ISYM,2,NASP*NISP>0,MOFFP,JLOP,JHIP)
-  call RHSLOC_BOUNDS(ISYM,3,NASM*NISM>0,MOFFM,JLOM,JHIM)
+  call RHSLOC_BOUNDS(ISYM,2,NASP*NISP > 0,MOFFP,JLOP,JHIP)
+  call RHSLOC_BOUNDS(ISYM,3,NASM*NISM > 0,MOFFM,JLOM,JHIM)
 
   ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
   if (ISYJ == ISYL) then
-    call ADDRHSB_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISYM,NT,NJ, &
-                           SCR,NSCR,NLMX,Cho_Bra,NCHO)
+    call ADDRHSB_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISYM,NT,NJ,SCR,NSCR,NLMX,Cho_Bra, &
+                           NCHO)
   else
-    call ADDRHSB_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYT,ISYV,ISYM,NT,NJ,NV,NL, &
-                           SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+    call ADDRHSB_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYT,ISYV,ISYM,NT,NJ,NV,NL,SCR, &
+                           NSCR,Cho_Bra,Cho_Ket,NCHO)
   end if
 
 end subroutine ADDRHSB_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSB_STRIPED_D(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISYM,NT,NJ, &
-                             SCR,NSCR,NLMX,Cho_Bra,NCHO)
+subroutine ADDRHSB_STRIPED_D(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISYM,NT,NJ,SCR,NSCR,NLMX,Cho_Bra,NCHO)
 
   use SUPERINDEX, only: KIGEJ, KIGTJ, KTGEU, KTGTU
   use caspt2_module, only: NAES, NIES, NIGEJES, NIGTJES, NTGEUES, NTGTUES
-  use Constants, only: Quart
 
   integer(kind=iwp), intent(in) :: NASP, NASM, JLOP, JHIP, JLOM, JHIM, ISYJ, ISYT, ISYM, NT, NJ, NSCR, NLMX, NCHO
   real(kind=wp), intent(inout) :: WBP(NASP,JLOP:JHIP), WBM(NASM,JLOM:JHIM)
   real(kind=wp), intent(out), target :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NT*NJ,NCHO)
-
-  integer(kind=iwp) :: ICOL, IJ, IJABS, IL, ILEND, ILHI, ILHIM, ILHIP, ILL, ILLO, ILLOM, ILLOP, ILSTA, IRBASM, IRBASP, IV, &
-                       IVABS, JBASM, JBASP, LDY, NLSZ
-
-  real(kind=wp), pointer, contiguous :: YBLK(:,:,:) ! the integral block of this batch, as (v,l,t)
+  integer(kind=iwp) :: ICOL, IJ, IJABS, IL, ILEND, ILHI, ILHIM, ILHIP, ILL, ILLO, ILLOM, ILLOP, ILSTA, IRBASM, IRBASP, IV, IVABS, &
+                       JBASM, JBASP, LDY, NLSZ
+  real(kind=wp), pointer, contiguous :: YBLK(:,:,:)
+  !YBLK : the integral block of this batch, as (v,l,t)
 
   ! Case B, diagonal block.
   !   WP(t>=v,j>=l) = ((tj,vl)+(tl,vj))/SQRT((1+Kron(jl))*...), the Half/Quart weights of
@@ -559,12 +541,11 @@ subroutine ADDRHSB_STRIPED_D(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISY
             IRBASP = KTGEU(IVABS,IVABS)-NTGEUES(ISYM)
             if (IL == IJ) then
               WBP(IRBASP,ICOL) = WBP(IRBASP,ICOL)+SQ2*Quart*YBLK(IV,ILL,IV)
-              if (IV < NT) WBP(IRBASP+1:IRBASP+NT-IV,ICOL) = WBP(IRBASP+1:IRBASP+NT-IV,ICOL) &
-                                                             +SQ2*Half*YBLK(IV,ILL,IV+1:NT)
+              if (IV < NT) WBP(IRBASP+1:IRBASP+NT-IV,ICOL) = WBP(IRBASP+1:IRBASP+NT-IV,ICOL)+SQ2*Half*YBLK(IV,ILL,IV+1:NT)
             else
               WBP(IRBASP,ICOL) = WBP(IRBASP,ICOL)+Half*YBLK(IV,ILL,IV)
-              if (IV < NT) WBP(IRBASP+1:IRBASP+NT-IV,ICOL) = WBP(IRBASP+1:IRBASP+NT-IV,ICOL) &
-                                                             +Half*(YBLK(IV,ILL,IV+1:NT)+YBLK(IV+1:NT,ILL,IV))
+              if (IV < NT) WBP(IRBASP+1:IRBASP+NT-IV,ICOL) = WBP(IRBASP+1:IRBASP+NT-IV,ICOL)+ &
+                                                             Half*(YBLK(IV,ILL,IV+1:NT)+YBLK(IV+1:NT,ILL,IV))
             end if
           end do
         end if
@@ -576,8 +557,7 @@ subroutine ADDRHSB_STRIPED_D(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYT,ISY
             IVABS = IV+NAES(ISYT)
             ! rows KTGTU(t,v) for t = v+1..NT are contiguous
             IRBASM = KTGTU(IVABS+1,IVABS)-NTGTUES(ISYM)
-            WBM(IRBASM:IRBASM+NT-IV-1,ICOL) = WBM(IRBASM:IRBASM+NT-IV-1,ICOL) &
-                                              +Half*(YBLK(IV,ILL,IV+1:NT)-YBLK(IV+1:NT,ILL,IV))
+            WBM(IRBASM:IRBASM+NT-IV-1,ICOL) = WBM(IRBASM:IRBASM+NT-IV-1,ICOL)+Half*(YBLK(IV,ILL,IV+1:NT)-YBLK(IV+1:NT,ILL,IV))
           end do
         end if
 
@@ -590,8 +570,8 @@ end subroutine ADDRHSB_STRIPED_D
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSB_STRIPED_O(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYT,ISYV,ISYM,NT,NJ,NV,NL, &
-                             SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSB_STRIPED_O(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYT,ISYV,ISYM,NT,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket, &
+                             NCHO)
 
   use SUPERINDEX, only: KIGEJ, KIGTJ, KTGEU, KTGTU
   use caspt2_module, only: NAES, NIES, NIGEJES, NIGTJES, NTGEUES, NTGTUES
@@ -600,7 +580,6 @@ subroutine ADDRHSB_STRIPED_O(WBP,WBM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISY
   real(kind=wp), intent(inout) :: WBP(NASP,JLOP:JHIP), WBM(NASM,JLOM:JHIM)
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NT*NJ,NCHO), Cho_Ket(NV*NL,NCHO)
-
   integer(kind=iwp) :: ICOLM, ICOLP, IJ, IJABS, IL, ILABS, IRBASM, IRBASP, IV, IVABS
   real(kind=wp) :: SGN
 
@@ -646,23 +625,19 @@ end subroutine ADDRHSB_STRIPED_O
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSC_STRIPED(JSYM,ISYU,ISYX,NA,NU,NV,NX, &
-                           SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSC_STRIPED(JSYM,ISYU,ISYX,NA,NU,NV,NX,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
   use SUPERINDEX, only: KTUV
-  use stdalloc, only: mma_allocate, mma_deallocate
   use caspt2_module, only: NAES, NINDEP, NSSH, NTUV, NTUVES
-  use Symmetry_Info, only: Mul
   use SC_NEVPT2, only: Do_SC
 
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYX, NA, NU, NV, NX, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV*NX,NCHO)
-
   integer(kind=iwp) :: IA, IP, IR, IROFF, ISYM, ISYV, IU, JHI, JLO, MOFF, NAS, NIS
-
   real(kind=wp), allocatable :: CHOBA(:)
-  real(kind=wp), pointer, contiguous :: WBLK(:,:) ! the local stripe of the block, as (row,column)
+  real(kind=wp), pointer, contiguous :: WBLK(:,:)
+  !WBLK : the local stripe of the block, as (row,column)
 
   ! Case C: W(uvx,a) = (au,vx)
   ! same shape as case A, but the bra is (a,u,P), packed and contracted per a
@@ -680,7 +655,7 @@ subroutine ADDRHSC_STRIPED(JSYM,ISYU,ISYX,NA,NU,NV,NX, &
   end if
   IROFF = KTUV(1+NAES(ISYU),1+NAES(ISYV),1+NAES(ISYX))-NTUVES(ISYM)-1
 
-  call RHSLOC_BOUNDS(ISYM,4,NAS*NIS>0,MOFF,JLO,JHI)
+  call RHSLOC_BOUNDS(ISYM,4,NAS*NIS > 0,MOFF,JLO,JHI)
   if (JHI >= JLO) then
     WBLK(1:NAS,JLO:JHI) => RHSLoc(MOFF:MOFF+nRHSLocSz(ISYM,4)-1)
     call mma_allocate(CHOBA,NU*NCHO,Label='CHOBA')
@@ -704,24 +679,19 @@ end subroutine ADDRHSC_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSD1_STRIPED(JSYM,ISYJ,ISYX,NA,NJ,NV,NX, &
-                            SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSD1_STRIPED(JSYM,ISYJ,ISYX,NA,NJ,NV,NX,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
   use SUPERINDEX, only: KTU
-  use stdalloc, only: mma_allocate, mma_deallocate
   use caspt2_module, only: NAES, NINDEP, NISH, NISUP, NSSH, NSYM, NTU, NTUES
-  use Symmetry_Info, only: Mul
   use SC_NEVPT2, only: Do_SC
 
   integer(kind=iwp), intent(in) :: JSYM, ISYJ, ISYX, NA, NJ, NV, NX, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV*NX,NCHO)
-
-  integer(kind=iwp) :: IA, ICOL, IJ, IJHI, IJLO, IOFF, IOFFD, IP, IROFF, ISA, ISI, ISYA, ISYM, ISYV, JHI, JLO, MOFF, &
-                       NAS, NIS, NJSZ
-
+  integer(kind=iwp) :: IA, ICOL, IJ, IJHI, IJLO, IOFF, IOFFD, IP, IROFF, ISA, ISI, ISYA, ISYM, ISYV, JHI, JLO, MOFF, NAS, NIS, NJSZ
   real(kind=wp), allocatable :: CHOBA(:)
-  real(kind=wp), pointer, contiguous :: WBLK(:,:) ! the local stripe of the block, as (row,column)
+  real(kind=wp), pointer, contiguous :: WBLK(:,:)
+  !WBLK : the local stripe of the block, as (row,column)
 
   ! Case D1: W(vx, IOFFD+j+NJ*(a-1)) = (aj,vx)
   ! no pair index, no symmetrization
@@ -749,7 +719,7 @@ subroutine ADDRHSD1_STRIPED(JSYM,ISYJ,ISYX,NA,NJ,NV,NX, &
   end do
   IROFF = KTU(1+NAES(ISYV),1+NAES(ISYX))-NTUES(ISYM)-1
 
-  call RHSLOC_BOUNDS(ISYM,5,NAS*NIS>0,MOFF,JLO,JHI)
+  call RHSLOC_BOUNDS(ISYM,5,NAS*NIS > 0,MOFF,JLO,JHI)
   if (JHI >= JLO) then
     WBLK(1:NAS,JLO:JHI) => RHSLoc(MOFF:MOFF+nRHSLocSz(ISYM,5)-1)
     call mma_allocate(CHOBA,NJ*NCHO,Label='CHOBA')
@@ -780,24 +750,20 @@ end subroutine ADDRHSD1_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSD2_STRIPED(JSYM,ISYU,ISYL,NA,NU,NV,NL, &
-                            SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSD2_STRIPED(JSYM,ISYU,ISYL,NA,NU,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
   use SUPERINDEX, only: KTU
-  use stdalloc, only: mma_allocate, mma_deallocate
   use caspt2_module, only: NAES, NINDEP, NISH, NISUP, NSSH, NSYM, NTU, NTUES
-  use Symmetry_Info, only: Mul
   use SC_NEVPT2, only: Do_SC
 
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYL, NA, NU, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV*NL,NCHO)
-
-  integer(kind=iwp) :: IA, ICOL, IL, ILHI, ILLO, IOFF, IOFFD, IP, IROFF, IROFFU, ISA, ISI, ISYA, ISYM, ISYV, IU, JHI, JLO, &
-                       MOFF, NAS, NAS1, NIS, NLSZ
-
+  integer(kind=iwp) :: IA, ICOL, IL, ILHI, ILLO, IOFF, IOFFD, IP, IROFF, IROFFU, ISA, ISI, ISYA, ISYM, ISYV, IU, JHI, JLO, MOFF, &
+                       NAS, NAS1, NIS, NLSZ
   real(kind=wp), allocatable :: CHOBA(:)
-  real(kind=wp), pointer, contiguous :: WBLK(:,:) ! the local stripe of the block, as (row,column)
+  real(kind=wp), pointer, contiguous :: WBLK(:,:)
+  !WBLK : the local stripe of the block, as (row,column)
 
   ! Case D2: W(NAS1+vu, IOFFD+l+NL*(a-1)) = (au,vl)
   ! the fast column index l comes from the ket, one contraction per a over the owned l range
@@ -825,7 +791,7 @@ subroutine ADDRHSD2_STRIPED(JSYM,ISYU,ISYL,NA,NU,NV,NL, &
   end do
   IROFF = NAS1+KTU(1+NAES(ISYV),1+NAES(ISYU))-NTUES(ISYM)-1
 
-  call RHSLOC_BOUNDS(ISYM,5,NAS*NIS>0,MOFF,JLO,JHI)
+  call RHSLOC_BOUNDS(ISYM,5,NAS*NIS > 0,MOFF,JLO,JHI)
   if (JHI >= JLO) then
     WBLK(1:NAS,JLO:JHI) => RHSLoc(MOFF:MOFF+nRHSLocSz(ISYM,5)-1)
     call mma_allocate(CHOBA,NU*NCHO,Label='CHOBA')
@@ -859,17 +825,14 @@ end subroutine ADDRHSD2_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL, &
-                           SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
   use caspt2_module, only: NISUP
   use general_data, only: NASH
-  use Symmetry_Info, only: Mul
 
   integer(kind=iwp), intent(in) :: JSYM, ISYJ, ISYL, NA, NJ, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV*NL,NCHO)
-
   integer(kind=iwp) :: ISYA, ISYJL, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NAMX, NAS, NISM, NISP
 
   ! Case E: both combinations of (aj,vl)
@@ -892,38 +855,35 @@ subroutine ADDRHSE_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NV,NL, &
   end if
   NAMX = min(NAMX,NA)
 
-  call RHSLOC_BOUNDS(ISYM,6,NAS*NISP>0,MOFFP,JLOP,JHIP)
-  call RHSLOC_BOUNDS(ISYM,7,NAS*NISM>0,MOFFM,JLOM,JHIM)
+  call RHSLOC_BOUNDS(ISYM,6,NAS*NISP > 0,MOFFP,JLOP,JHIP)
+  call RHSLOC_BOUNDS(ISYM,7,NAS*NISM > 0,MOFFM,JLOM,JHIM)
 
   ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
   if (ISYJ == ISYL) then
-    call ADDRHSE_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV, &
-                           SCR,NSCR,NAMX,Cho_Bra,Cho_Ket,NCHO)
+    call ADDRHSE_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV,SCR,NSCR,NAMX, &
+                           Cho_Bra,Cho_Ket,NCHO)
   else
-    call ADDRHSE_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYM,ISYJL,NA,NJ,NV,NL, &
-                           SCR,NSCR,NAMX,Cho_Bra,Cho_Ket,NCHO)
+    call ADDRHSE_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYM,ISYJL,NA,NJ,NV,NL,SCR,NSCR, &
+                           NAMX,Cho_Bra,Cho_Ket,NCHO)
   end if
 
 end subroutine ADDRHSE_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSE_STRIPED_D(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV, &
-                             SCR,NSCR,NAMX,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSE_STRIPED_D(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJL,NA,NJ,NV,SCR,NSCR,NAMX,Cho_Bra,Cho_Ket,NCHO)
 
   use SUPERINDEX, only: KIGEJ, KIGTJ
   use caspt2_module, only: NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NSSH, NSYM
-  use Symmetry_Info, only: Mul
 
   integer(kind=iwp), intent(in) :: NAS, JLOP, JHIP, JLOM, JHIM, ISYJ, ISYA, ISYM, ISYJL, NA, NJ, NV, NSCR, NAMX, NCHO
   real(kind=wp), intent(inout) :: WEP(NAS,JLOP:JHIP), WEM(NAS,JLOM:JHIM)
   real(kind=wp), intent(out), target :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV*NJ,NCHO)
-
   integer(kind=iwp) :: IA, IAEND, IAHI, IAL, IALO, IASTA, ICOL, IJ, IJABS, IL, ILHI, ILHIM, ILHIP, ILLO, ILLOM, ILLOP, IOFFM, &
                        IOFFP, ISA, ISIJ, IY1, IY2, JBASM, JBASP, JCOLHI, JCOLLO, NASZ
-
-  real(kind=wp), pointer, contiguous :: YBLK1(:,:), YBLK2(:,:) ! the two integral blocks of this batch, as (v,a)
+  real(kind=wp), pointer, contiguous :: YBLK1(:,:), YBLK2(:,:)
+  !YBLK1, YBLK2 : the two integral blocks of this batch, as (v,a)
 
   ! Case E, diagonal block.
   !   WP(v,a,j>=l) = ((aj,vl)+(al,vj))/SQRT(2+2*Kron(jl))
@@ -1004,7 +964,7 @@ subroutine ADDRHSE_STRIPED_D(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,ISYJ
         ! YBLK1(v,a) = (aj,vl), YBLK2(v,a) = (al,vj)
         call DGEMM_('N','T',NV,NASZ,NCHO,One,Cho_Ket(1+NV*(IL-1),1),NV*NJ,Cho_Bra(IASTA+NA*(IJ-1),1),NA*NJ,Zero,SCR(IY1),NV)
         if (IL /= IJ) call DGEMM_('N','T',NV,NASZ,NCHO,One,Cho_Ket(1+NV*(IJ-1),1),NV*NJ,Cho_Bra(IASTA+NA*(IL-1),1),NA*NJ, &
-          Zero,SCR(IY2),NV)
+                                  Zero,SCR(IY2),NV)
         YBLK1(1:NV,1:NASZ) => SCR(IY1:IY1+NV*NASZ-1)
         YBLK2(1:NV,1:NASZ) => SCR(IY2:IY2+NV*NASZ-1) ! it is used only when IL /= IJ, but a compiler complains...
         do IA=IASTA,IAEND
@@ -1035,20 +995,18 @@ end subroutine ADDRHSE_STRIPED_D
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSE_STRIPED_O(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYM,ISYJL,NA,NJ,NV,NL, &
-                             SCR,NSCR,NAMX,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSE_STRIPED_O(WEP,WEM,NAS,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYM,ISYJL,NA,NJ,NV,NL,SCR,NSCR,NAMX,Cho_Bra,Cho_Ket, &
+                             NCHO)
 
   use SUPERINDEX, only: KIGEJ, KIGTJ
   use caspt2_module, only: NIES, NIGEJ, NIGEJES, NIGTJ, NIGTJES, NSSH, NSYM
-  use Symmetry_Info, only: Mul
 
   integer(kind=iwp), intent(in) :: NAS, JLOP, JHIP, JLOM, JHIM, ISYJ, ISYL, ISYA, ISYM, ISYJL, NA, NJ, NV, NL, NSCR, NAMX, NCHO
   real(kind=wp), intent(inout) :: WEP(NAS,JLOP:JHIP), WEM(NAS,JLOM:JHIM)
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV*NL,NCHO)
-
-  integer(kind=iwp) :: IA, IAEND, IAHI, IALO, IASTA, IJ, IJABS, IL, ILABS, IOFFM, IOFFP, ISA, ISIJ, JBASM, JBASP, JGEL, JGTL, &
-                       LDY, NASZ
+  integer(kind=iwp) :: IA, IAEND, IAHI, IALO, IASTA, IJ, IJABS, IL, ILABS, IOFFM, IOFFP, ISA, ISIJ, JBASM, JBASP, JGEL, JGTL, LDY, &
+                       NASZ
   real(kind=wp) :: SGN
 
   ! Case E, off-diagonal block (ISYJ /= ISYL): one term, uniform weight.
@@ -1130,20 +1088,15 @@ end subroutine ADDRHSE_STRIPED_O
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX, &
-                           SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
-  use stdalloc, only: mma_allocate, mma_deallocate
   use caspt2_module, only: NAGEB, NAGTB, NINDEP, NTGEU, NTGTU
-  use Symmetry_Info, only: Mul
   use SC_NEVPT2, only: Do_SC
 
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYX, NA, NU, NC, NX, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
-
   integer(kind=iwp) :: IA, IP, ISYA, ISYC, ISYM, IT, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NASM, NASP, NISM, NISP
-
   real(kind=wp), allocatable :: CHOBT(:)
 
   ! Case F: both combinations of (au,cx)
@@ -1185,8 +1138,8 @@ subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX, &
     end do
   end do
 
-  call RHSLOC_BOUNDS(ISYM,8,NASP*NISP>0,MOFFP,JLOP,JHIP)
-  call RHSLOC_BOUNDS(ISYM,9,NASM*NISM>0,MOFFM,JLOM,JHIM)
+  call RHSLOC_BOUNDS(ISYM,8,NASP*NISP > 0,MOFFP,JLOP,JHIP)
+  call RHSLOC_BOUNDS(ISYM,9,NASM*NISM > 0,MOFFM,JLOM,JHIM)
 
   ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
   if (ISYU == ISYX) then
@@ -1203,24 +1156,21 @@ end subroutine ADDRHSF_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYM,NA,NU,NX, &
-                             SCR,NSCR,NACMX,CHOBT,CHOKT,NCHO)
+subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYM,NA,NU,NX,SCR,NSCR,NACMX,CHOBT,CHOKT,NCHO)
 
   use SUPERINDEX, only: KAGEB, KAGTB, KTGEU, KTGTU
   use caspt2_module, only: NAES, NAGEBES, NAGTBES, NSES, NTGEUES, NTGTUES
-  use Constants, only: Quart
 
   integer(kind=iwp), intent(in) :: NASP, NASM, JLOP, JHIP, JLOM, JHIM, ISYU, ISYX, ISYA, ISYM, NA, NU, NX, NSCR, NACMX, NCHO
   real(kind=wp), intent(inout) :: WFP(NASP,JLOP:JHIP), WFM(NASM,JLOM:JHIM)
   real(kind=wp), intent(out), target :: SCR(NSCR)
   real(kind=wp), intent(in) :: CHOBT(NU*NA,NCHO), CHOKT(NX*NA,NCHO)
-
   integer(kind=iwp) :: IA, IAABS, IAEND, IAL, IASTA, IC, ICBHI, ICBLO, ICEND, ICHI, ICHIM, ICHIMA(NAMXCAP), ICHIP, &
                        ICHIPA(NAMXCAP), ICL, ICLO, ICLOM, ICLOMA(NAMXCAP), ICLOP, ICLOPA(NAMXCAP), ICOLM, ICOLP, ICSTA, IRBASM, &
                        IRBASP, IX, IXABS, IY1, IY2, JBASM, JBASMA(NAMXCAP), JBASP, JBASPA(NAMXCAP), NAMX, NASZ, NCMX, NCSZ
-
-  real(kind=wp), pointer, contiguous :: YBLK1(:,:,:,:) ! the (au,cx) block of this batch, as (u,a,x,c)
-  real(kind=wp), pointer, contiguous :: YBLK2(:,:,:,:) ! the (cu,ax) block of this batch, as (u,c,x,a)
+  real(kind=wp), pointer, contiguous :: YBLK1(:,:,:,:), YBLK2(:,:,:,:)
+  !YBLK1 : the (au,cx) block of this batch, as (u,a,x,c)
+  !YBLK2 : the (cu,ax) block of this batch, as (u,c,x,a)
 
   ! Case F, diagonal block.
   !   WP(u>=x,a>=c) = ((au,cx)+(cu,ax))*(1-Kron(ux)/2)/2 * SQRT(1+Kron(ac))
@@ -1329,12 +1279,11 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
               if (IC == IA) then
                 ! only one contribution, with the extra SQRT(2)
                 WFP(IRBASP,ICOLP) = WFP(IRBASP,ICOLP)+SQ2*Quart*YBLK1(IX,IAL,IX,ICL)
-                if (IX < NU) WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) = WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) &
-                                                                +SQ2*Half*YBLK1(IX+1:NU,IAL,IX,ICL)
+                if (IX < NU) WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) = WFP(IRBASP+1:IRBASP+NU-IX,ICOLP)+SQ2*Half*YBLK1(IX+1:NU,IAL,IX,ICL)
               else
                 WFP(IRBASP,ICOLP) = WFP(IRBASP,ICOLP)+Quart*(YBLK1(IX,IAL,IX,ICL)+YBLK2(IX,ICL,IX,IAL))
-                if (IX < NU) WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) = WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) &
-                                                                +Half*(YBLK1(IX+1:NU,IAL,IX,ICL)+YBLK2(IX+1:NU,ICL,IX,IAL))
+                if (IX < NU) WFP(IRBASP+1:IRBASP+NU-IX,ICOLP) = WFP(IRBASP+1:IRBASP+NU-IX,ICOLP)+ &
+                                                                Half*(YBLK1(IX+1:NU,IAL,IX,ICL)+YBLK2(IX+1:NU,ICL,IX,IAL))
               end if
             end if
 
@@ -1342,8 +1291,8 @@ subroutine ADDRHSF_STRIPED_D(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISY
             if ((IC >= ICLOM) .and. (IC <= ICHIM) .and. (IX < NU)) then
               ! rows KTGTU(u,x) for u = x+1..NU are contiguous
               IRBASM = KTGTU(IXABS+1,IXABS)-NTGTUES(ISYM)
-              WFM(IRBASM:IRBASM+NU-IX-1,ICOLM) = WFM(IRBASM:IRBASM+NU-IX-1,ICOLM) &
-                                                 +Half*(YBLK2(IX+1:NU,ICL,IX,IAL)-YBLK1(IX+1:NU,IAL,IX,ICL))
+              WFM(IRBASM:IRBASM+NU-IX-1,ICOLM) = WFM(IRBASM:IRBASM+NU-IX-1,ICOLM)+ &
+                                                 Half*(YBLK2(IX+1:NU,ICL,IX,IAL)-YBLK1(IX+1:NU,IAL,IX,ICL))
             end if
           end do
         end do
@@ -1356,22 +1305,18 @@ end subroutine ADDRHSF_STRIPED_D
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSF_STRIPED_O(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYC,ISYM,NA,NU,NC,NX, &
-                             SCR,NSCR,CHOBT,Cho_Ket,NCHO)
+subroutine ADDRHSF_STRIPED_O(WFP,WFM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYU,ISYX,ISYA,ISYC,ISYM,NA,NU,NC,NX,SCR,NSCR,CHOBT,Cho_Ket,NCHO)
 
   use SUPERINDEX, only: KAGEB, KAGTB, KTGEU, KTGTU
   use caspt2_module, only: NAES, NAGEBES, NAGTBES, NSES, NTGEUES, NTGTUES
-  use stdalloc, only: mma_allocate, mma_deallocate
 
   integer(kind=iwp), intent(in) :: NASP, NASM, JLOP, JHIP, JLOM, JHIM, ISYU, ISYX, ISYA, ISYC, ISYM, NA, NU, NC, NX, NSCR, NCHO
   real(kind=wp), intent(inout) :: WFP(NASP,JLOP:JHIP), WFM(NASM,JLOM:JHIM)
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: CHOBT(NU*NA,NCHO), Cho_Ket(NC*NX,NCHO)
-
-  integer(kind=iwp) :: IA, IAABS, IAEND, IASTA, IC, ICABS, ICOLM, ICOLP, IP, IQ, IQHI, IQLO, IRBASM, IRBASP, IX, &
-                       IXABS, JBASM, JBASP, LDY, NAMX, NASZ, NQ, NQSZ, NR
+  integer(kind=iwp) :: IA, IAABS, IAEND, IASTA, IC, ICABS, ICOLM, ICOLP, IP, IQ, IQHI, IQLO, IRBASM, IRBASP, IX, IXABS, JBASM, &
+                       JBASP, LDY, NAMX, NASZ, NQ, NQSZ, NR
   real(kind=wp) :: SGN
-
   real(kind=wp), allocatable :: CHOKC(:,:)
 
   ! Case F, off-diagonal block: full rectangles, uniform Half weight
@@ -1510,20 +1455,15 @@ end subroutine ADDRHSF_STRIPED_O
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL, &
-                           SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
-  use stdalloc, only: mma_allocate, mma_deallocate
   use caspt2_module, only: NISUP
   use general_data, only: NASH
-  use Symmetry_Info, only: Mul
 
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYL, NA, NU, NC, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
-
   integer(kind=iwp) :: IA, IP, ISYA, ISYAC, ISYC, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NAS, NISM, NISP
-
   real(kind=wp), allocatable :: CHOBT(:)
 
   ! Case G: both combinations of (au,cl)
@@ -1556,16 +1496,16 @@ subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL, &
     end do
   end do
 
-  call RHSLOC_BOUNDS(ISYM,10,NAS*NISP>0,MOFFP,JLOP,JHIP)
-  call RHSLOC_BOUNDS(ISYM,11,NAS*NISM>0,MOFFM,JLOM,JHIM)
+  call RHSLOC_BOUNDS(ISYM,10,NAS*NISP > 0,MOFFP,JLOP,JHIP)
+  call RHSLOC_BOUNDS(ISYM,11,NAS*NISM > 0,MOFFM,JLOM,JHIM)
 
   ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
   if (ISYU == ISYL) then
-    call ADDRHSG_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYAC,NA,NU,NL, &
-                           SCR,NSCR,NACMX,CHOBT,Cho_Ket,NCHO)
+    call ADDRHSG_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYAC,NA,NU,NL,SCR,NSCR,NACMX,CHOBT, &
+                           Cho_Ket,NCHO)
   else
-    call ADDRHSG_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYC,ISYM,ISYAC,NA,NU,NC,NL, &
-                           SCR,NSCR,CHOBT,Cho_Ket,NCHO)
+    call ADDRHSG_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYC,ISYM,ISYAC,NA,NU,NC,NL,SCR,NSCR, &
+                           CHOBT,Cho_Ket,NCHO)
   end if
 
   call mma_deallocate(CHOBT)
@@ -1574,24 +1514,21 @@ end subroutine ADDRHSG_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYAC,NA,NU,NL, &
-                             SCR,NSCR,NACMX,CHOBT,CHOKT,NCHO)
+subroutine ADDRHSG_STRIPED_D(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYM,ISYAC,NA,NU,NL,SCR,NSCR,NACMX,CHOBT,CHOKT,NCHO)
 
   use SUPERINDEX, only: KAGEB, KAGTB
   use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NISH, NSES, NSYM
-  use Symmetry_Info, only: Mul
 
   integer(kind=iwp), intent(in) :: NAS, JLOP, JHIP, JLOM, JHIM, ISYL, ISYA, ISYM, ISYAC, NA, NU, NL, NSCR, NACMX, NCHO
   real(kind=wp), intent(inout) :: WGP(NAS,JLOP:JHIP), WGM(NAS,JLOM:JHIM)
   real(kind=wp), intent(out), target :: SCR(NSCR)
   real(kind=wp), intent(in) :: CHOBT(NU*NA,NCHO), CHOKT(NL*NA,NCHO)
-
   integer(kind=iwp) :: IA, IAABS, IAEND, IAL, IASTA, IC, ICBHI, ICBLO, ICEND, ICHI, ICHIM, ICHIMA(NAMXCAP), ICHIP, &
                        ICHIPA(NAMXCAP), ICL, ICLO, ICLOM, ICLOMA(NAMXCAP), ICLOP, ICLOPA(NAMXCAP), ICOL, ICSTA, IL, IOFFM, IOFFP, &
                        ISAB, ISI, IY1, IY2, JBASM, JBASMA(NAMXCAP), JBASP, JBASPA(NAMXCAP), JCOLHI, JCOLLO, NAMX, NASZ, NCMX, NCSZ
-
-  real(kind=wp), pointer, contiguous :: YBLK1(:,:,:,:) ! the (au,cl) block of this batch, as (u,a,l,c)
-  real(kind=wp), pointer, contiguous :: YBLK2(:,:,:,:) ! the (cu,al) block of this batch, as (u,c,l,a)
+  real(kind=wp), pointer, contiguous :: YBLK1(:,:,:,:), YBLK2(:,:,:,:)
+  !YBLK1 : the (au,cl) block of this batch, as (u,a,l,c)
+  !YBLK2 : the (cu,al) block of this batch, as (u,c,l,a)
 
   ! Case G, diagonal block.
   !   WP(u,l,a>=c) = ((au,cl)+(cu,al))/SQRT(2+2*Kron(ac))
@@ -1739,20 +1676,17 @@ end subroutine ADDRHSG_STRIPED_D
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSG_STRIPED_O(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYC,ISYM,ISYAC,NA,NU,NC,NL, &
-                             SCR,NSCR,CHOBT,CHOKT,NCHO)
+subroutine ADDRHSG_STRIPED_O(WGP,WGM,NAS,JLOP,JHIP,JLOM,JHIM,ISYL,ISYA,ISYC,ISYM,ISYAC,NA,NU,NC,NL,SCR,NSCR,CHOBT,CHOKT,NCHO)
 
   use SUPERINDEX, only: KAGEB, KAGTB
   use caspt2_module, only: NAGEB, NAGEBES, NAGTB, NAGTBES, NISH, NSES, NSYM
-  use Symmetry_Info, only: Mul
 
   integer(kind=iwp), intent(in) :: NAS, JLOP, JHIP, JLOM, JHIM, ISYL, ISYA, ISYC, ISYM, ISYAC, NA, NU, NC, NL, NSCR, NCHO
   real(kind=wp), intent(inout) :: WGP(NAS,JLOP:JHIP), WGM(NAS,JLOM:JHIM)
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: CHOBT(NU*NA,NCHO), CHOKT(NL*NC,NCHO)
-
-  integer(kind=iwp) :: IA, IAABS, IAGEC, IAGTC, IAHI, IALO, IC, ICABS, ICEND, ICOLM, ICOLP, ICSTA, IL, IOFFM, &
-                       IOFFP, IQ, IQEND, IQHI, IQLO, IQSTA, ISAB, ISI, JBASM, JBASP, LDY, NASZ, NCSZ, NQ, NQMX, NR
+  integer(kind=iwp) :: IA, IAABS, IAGEC, IAGTC, IAHI, IALO, IC, ICABS, ICEND, ICOLM, ICOLP, ICSTA, IL, IOFFM, IOFFP, IQ, IQEND, &
+                       IQHI, IQLO, IQSTA, ISAB, ISI, JBASM, JBASP, LDY, NASZ, NCSZ, NQ, NQMX, NR
   real(kind=wp) :: SGN
 
   ! Case G, off-diagonal block: uniform weight, same flow as case H once both blocks are transposed
@@ -1860,16 +1794,13 @@ end subroutine ADDRHSG_STRIPED_O
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSH_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NC,NL, &
-                           SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSH_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NC,NL,SCR,NSCR,Cho_Bra,Cho_Ket,NCHO)
 
   use caspt2_module, only: NAGEB, NAGTB, NIGEJ, NIGTJ
-  use Symmetry_Info, only: Mul
 
   integer(kind=iwp), intent(in) :: JSYM, ISYJ, ISYL, NA, NJ, NC, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ*NCHO), Cho_Ket(NC*NL*NCHO)
-
   integer(kind=iwp) :: ISYA, ISYC, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NASM, NASP, NISM, NISP, NLMX
 
   ! Case H: both combinations of (aj,cl)
@@ -1894,24 +1825,23 @@ subroutine ADDRHSH_STRIPED(JSYM,ISYJ,ISYL,NA,NJ,NC,NL, &
     call Abend()
   end if
 
-  call RHSLOC_BOUNDS(ISYM,12,NASP*NISP>0,MOFFP,JLOP,JHIP)
-  call RHSLOC_BOUNDS(ISYM,13,NASM*NISM>0,MOFFM,JLOM,JHIM)
+  call RHSLOC_BOUNDS(ISYM,12,NASP*NISP > 0,MOFFP,JLOP,JHIP)
+  call RHSLOC_BOUNDS(ISYM,13,NASM*NISM > 0,MOFFM,JLOM,JHIM)
 
   ! the bra and the ket are the same block of Cholesky vectors when their symmetry labels agree
   if (ISYJ == ISYL) then
-    call ADDRHSH_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,NA,NJ, &
-                           SCR,NSCR,NLMX,Cho_Bra,NCHO)
+    call ADDRHSH_STRIPED_D(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,NA,NJ,SCR,NSCR,NLMX,Cho_Bra, &
+                           NCHO)
   else
-    call ADDRHSH_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYC,ISYM,NA,NJ,NC,NL, &
-                           SCR,NSCR,NLMX,Cho_Bra,Cho_Ket,NCHO)
+    call ADDRHSH_STRIPED_O(RHSLoc(MOFFP),RHSLoc(MOFFM),NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYC,ISYM,NA,NJ,NC,NL,SCR, &
+                           NSCR,NLMX,Cho_Bra,Cho_Ket,NCHO)
   end if
 
 end subroutine ADDRHSH_STRIPED
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSH_STRIPED_D(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,NA,NJ, &
-                             SCR,NSCR,NLMX,Cho_Bra,NCHO)
+subroutine ADDRHSH_STRIPED_D(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISYM,NA,NJ,SCR,NSCR,NLMX,Cho_Bra,NCHO)
 
   use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ
   use caspt2_module, only: NAGEBES, NAGTBES, NIES, NIGEJES, NIGTJES, NSES
@@ -1920,9 +1850,8 @@ subroutine ADDRHSH_STRIPED_D(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISY
   real(kind=wp), intent(inout) :: WHP(NASP,JLOP:JHIP), WHM(NASM,JLOM:JHIM)
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO)
-
-  integer(kind=iwp) :: IA, IAABS, ICOL, IJ, IJABS, IL, ILEND, ILHI, ILHIM, ILHIP, ILLO, ILLOM, ILLOP, ILSTA, IOFF, IRBASM, &
-                       IRBASP, JBASM, JBASP, LDY, NLSZ
+  integer(kind=iwp) :: IA, IAABS, ICOL, IJ, IJABS, IL, ILEND, ILHI, ILHIM, ILHIP, ILLO, ILLOM, ILLOP, ILSTA, IOFF, IRBASM, IRBASP, &
+                       JBASM, JBASP, LDY, NLSZ
   real(kind=wp) :: SCL
 
   ! Case H, diagonal block
@@ -1995,7 +1924,7 @@ subroutine ADDRHSH_STRIPED_D(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYA,ISY
             IAABS = IA+NSES(ISYA)
             ! the rows KAGTB(a,c), c = 1..a-1, are contiguous
             IRBASM = KAGTB(IAABS,1+NSES(ISYA))-NAGTBES(ISYM)
-            call DAXPY_(IA-1, SQ3,SCR(IOFF+1+LDY*(IA-1)),1,WHM(IRBASM,ICOL),1)
+            call DAXPY_(IA-1,SQ3,SCR(IOFF+1+LDY*(IA-1)),1,WHM(IRBASM,ICOL),1)
             call DAXPY_(IA-1,-SQ3,SCR(IOFF+IA),LDY,WHM(IRBASM,ICOL),1)
           end do
         end if
@@ -2008,18 +1937,17 @@ end subroutine ADDRHSH_STRIPED_D
 
 !-----------------------------------------------------------------------
 
-subroutine ADDRHSH_STRIPED_O(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYC,ISYM,NA,NJ,NC,NL, &
-                             SCR,NSCR,NLMX,Cho_Bra,Cho_Ket,NCHO)
+subroutine ADDRHSH_STRIPED_O(WHP,WHM,NASP,NASM,JLOP,JHIP,JLOM,JHIM,ISYJ,ISYL,ISYA,ISYC,ISYM,NA,NJ,NC,NL,SCR,NSCR,NLMX,Cho_Bra, &
+                             Cho_Ket,NCHO)
 
   use SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ
   use caspt2_module, only: NAGEBES, NAGTBES, NIES, NIGEJES, NIGTJES, NSES
 
-  integer(kind=iwp), intent(in) :: NASP, NASM, JLOP, JHIP, JLOM, JHIM, ISYJ, ISYL, ISYA, ISYC, ISYM, NA, NJ, NC, NL, &
-                                   NSCR, NLMX, NCHO
+  integer(kind=iwp), intent(in) :: NASP, NASM, JLOP, JHIP, JLOM, JHIM, ISYJ, ISYL, ISYA, ISYC, ISYM, NA, NJ, NC, NL, NSCR, NLMX, &
+                                   NCHO
   real(kind=wp), intent(inout) :: WHP(NASP,JLOP:JHIP), WHM(NASM,JLOM:JHIM)
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA*NJ,NCHO), Cho_Ket(NC*NL,NCHO)
-
   integer(kind=iwp) :: IA, IAABS, IC, ICABS, ICOL, IJ, IJABS, IL, ILEND, ILHI, ILHIM, ILHIP, ILLO, ILLOM, ILLOP, ILSTA, IOFF, &
                        IRBASM, IRBASP, JBASM, JBASP, LDY, NLSZ
   real(kind=wp) :: SGN

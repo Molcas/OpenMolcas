@@ -59,7 +59,7 @@ use qcmaquis_interface, only: qcmaquis_interface_get_overlap, qcmaquis_interface
 use qcmaquis_interface_cfg, only: dmrg_energy, dmrg_file, dmrg_orbital_space, dmrg_warmup, qcmaquis_param
 use qcmaquis_interface_utility_routines, only: fiedlerorder_length, file_name_generator, qcmaquis_interface_fcidump
 use RASWfn, only: wfn_dmrg_checkpoint
-use rasscf_global, only: DOFCIDump, Emy, TwoRDM_qcm, RF1, RF2
+use rasscf_global, only: DOFCIDump, Emy, RF1, RF2, TwoRDM_qcm
 #endif
 use ci_interfaces, only: Mk_pdms
 #ifdef _HDF5_
@@ -73,13 +73,13 @@ use wadr, only: FMO
 use sxci, only: IDXSX
 use input_ras, only: Key
 use timers, only: TimeDens
-use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, ICMSP, IFCRPR, iPCMRoot, iRoot, iRotPsi, ITER, &
-                         IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight, CRVEC
+use rasscf_global, only: CMSStartMat, CRVEC, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, ICMSP, IFCRPR, iPCMRoot, iRoot, iRotPsi, &
+                         ITER, IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
 use rasscf_files, only: JOBIPH
 use general_data, only: ISPIN, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM, iDoGAS
-use sguga, only: SGS, SG_ReOrd
+use sguga, only: SG_ReOrd, SGS
 use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -93,8 +93,8 @@ integer(kind=iwp) :: i, iDisk, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVe
 real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF, do_rotate, Exists, Skip
 character(len=128) :: filename
-real(kind=wp), allocatable :: CIV(:), CIVec(:), P2MO(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), RF(:), Temp(:), TmpD1S(:), TmpDS(:)
-real(kind=wp), allocatable :: DStmp(:), Dtmp(:), PAtmp(:), PTmp(:)
+real(kind=wp), allocatable :: CIV(:), CIVec(:), DStmp(:), Dtmp(:), P2MO(:), PAtmp(:), PTmp(:), RCT(:), RCT_F(:), RCT_FS(:), &
+                              RCT_S(:), RF(:), Temp(:), TmpD1S(:), TmpDS(:)
 integer, allocatable :: kCnf(:)
 #ifdef _HDF5_
 real(kind=wp), allocatable :: density_square(:,:)
@@ -109,7 +109,7 @@ logical(kind=iwp), external :: PCM_On
 #endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
-integer(kind=iwp), parameter :: istate=1
+integer(kind=iwp), parameter :: istate = 1
 #include "warnings.h"
 
 ! Local print level (if any)
@@ -285,9 +285,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
       end if
     end if
 
-    if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) then
-        call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
-    end if
+    if ((SGS(istate)%IFRAS > 2) .or. iDoGAS) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE

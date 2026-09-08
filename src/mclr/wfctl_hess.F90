@@ -34,9 +34,8 @@ use GA_Wrapper, only: GA_Create, MT_DBL
 use Spool, only: LuWr
 use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC, XISPSM
 use MCLR_procedures, only: CISigma
-use general_data, only: nAsh, nRs2, nSym, State_Sym=>STSym
-use input_mclr, only: Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, nTPert, PotNuc, &
-                      PT2, rIn_Ene, TimeDep
+use general_data, only: nAsh, nRs2, nSym, STSym
+use input_mclr, only: Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, nTPert, PotNuc, PT2, rIn_Ene, TimeDep
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -187,14 +186,14 @@ do
     end if
     iSym_Old = iSym
 
-    PState_SYM = Mul(State_Sym,iSym)
+    PState_SYM = Mul(STSym,iSym)
     nconf1 = ncsf(PState_Sym)
     CI = .false.
     if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
     if (CI .and. (nconf1 == 1) .and. (isym == 1)) CI = .false.
     ! Initiate CSF <-> SD
-    if (CI) call InCSFSD(Mul(iSym,State_Sym),State_sym)
+    if (CI) call InCSFSD(Mul(iSym,STSym),STSym)
 
     ! Calculate length of the density, Fock and Kappa matrix etc
     ! notice that this matrixes not necessary are symmetric.
@@ -205,11 +204,11 @@ do
     !
     ! Output: Commonblocks (Pointers.fh)
 
-    PState_SYM = Mul(State_Sym,iSym)
+    PState_SYM = Mul(STSym,iSym)
     !nConf2 = nint(xispsm(PState_SYM,1))
     !nConf2 = ndtasm(PState_SYM)
-    nconf3 = nint(max(xispsm(PState_SYM,1),xispsm(State_SYM,1)))
-    !nconf3 = max(ndtasm(PState_SYM),ndtasm(State_SYM))
+    nconf3 = nint(max(xispsm(PState_SYM,1),xispsm(STSym,1)))
+    !nconf3 = max(ndtasm(PState_SYM),ndtasm(STSym))
 
     if (doDMRG) then  ! yma
       nash(:) = RGras2(:)
@@ -465,7 +464,7 @@ do
       !*****************************************************************
       !                                                                *
       if (CI) then
-        call CISigma(jspin,State_Sym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,.true.)
+        call CISigma(jspin,STSym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,.true.)
         Clock(iTimeKC) = Clock(iTimeKC)+Tim3
 #       ifdef _DEBUGPRINT_
         call ipin(ipCI)
@@ -547,7 +546,7 @@ do
       call RecPrt('CI','(3F10.4)',W(ipCI)%A,1,nConf1)
       call RecPrt('CId','(3F10.4)',W(ipCId)%A,1,nConf1)
 #     endif
-      call CIDens(Response,ipCI,ipCId,State_sym,PState_Sym,Pens,Dens)     ! Jeppe's
+      call CIDens(Response,ipCI,ipCId,STSym,PState_Sym,Pens,Dens)     ! Jeppe's
 
 #     ifdef _DEBUGPRINT_
       write(LuWr,*) 'After CIDens'

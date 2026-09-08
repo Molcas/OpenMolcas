@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _RANDOM_CODE_
 subroutine VecPhase(A,nA)
 
 use Constants, only: Zero
@@ -19,25 +20,20 @@ integer(kind=iwp), intent(in) :: nA
 real(kind=wp), intent(inout) :: A(nA)
 integer(kind=iwp) :: i
 real(kind=wp) :: Phase
-
-#define _OLD_CODE_
-#ifdef _OLD_CODE_
-
-Phase = Zero
-do i=1,nA
-  Phase = Phase+A(i)*i
-end do
-if (Phase < Zero) A(:) = -A(:)
-#else
+#ifdef _RANDOM_CODE_
+integer(kind=iwp) :: iSeed = 17
 real(kind=wp), external :: Random_Molcas
-integer(kind=iwp) :: iSeed=17
+#endif
 
-! Project vector against a standard vector with random structure.
 Phase = Zero
 do i=1,nA
+# ifdef _RANDOM_CODE_
+  ! Project vector against a standard vector with random structure.
   Phase = Phase+A(i)*Random_Molcas(iSeed)
+# else
+  Phase = Phase+A(i)*i
+# endif
 end do
 if (Phase < Zero) A(:) = -A(:)
-#endif
 
 end subroutine VecPhase

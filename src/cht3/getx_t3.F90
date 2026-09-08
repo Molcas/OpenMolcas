@@ -14,7 +14,7 @@ subroutine GetX_t3(X,length,Lun,LunName,keyopen,keyclose)
 ! 1) keyopen = 0 - nothing (i.e) file is opened
 !              1 - open LunName file with Lun
 !              2 - rewind Lun file
-!              3 - open LunName file with Lun with ACCESS='append'
+!              3 - open LunName file with Lun with access='append'
 ! 2) read X of dimension length
 ! 3) keyclose = 0 - nothing
 !               1 - close Lun file
@@ -28,12 +28,12 @@ character(len=6) :: LunName
 
 !1
 if (keyopen == 1) then
-  !open(unit=Lun,file=LunName,form='unformatted')
+  !open(Lun,file=LunName,form='unformatted')
   call MOLCAS_BinaryOpen_Vanilla(Lun,LunName)
 else if (keyopen == 2) then
   rewind(Lun)
 else if (keyopen == 3) then
-  !mp !open(unit=Lun,file=LunName,form='unformatted',ACCESS='append')
+  !mp !open(Lun,file=LunName,form='unformatted',access='append')
 
   call MOLCAS_BinaryOpen_Vanilla(Lun,LunName)
   call append_file_u(Lun)

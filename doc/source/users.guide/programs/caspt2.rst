@@ -1035,7 +1035,7 @@ Keywords
               </KEYWORD>
 
 :kword:`PRHS`
-  This keyword expects an integer (1, 2, 3, or 4) or characters (OLD, NEW, DIRECT, or STRIPED) to specify the parallelization strategy for constructing the right-hand-side
+  This keyword expects an integer (``1``, ``2``, ``3``, or ``4``) or characters (``OLD``, ``NEW``, ``DIRECT``, or ``STRIPED``) to specify the parallelization strategy for constructing the right-hand-side
   (RHS; :math:`\langle I | \hat{H} | 0 \rangle`) vector in connection with Cholesky or RI.
   Default is 1 (OLD) for serial calculations and 2 (NEW) for parallel calculations using Global Arrays.
   ``PRHS = 3`` or ``DIRECT`` involves more computation but reduces data communication; this option is expected to be efficient for calculations using a large number of computer nodes.

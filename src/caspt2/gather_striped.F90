@@ -15,7 +15,6 @@
 #ifdef _MOLCAS_MPP_
 
 subroutine GATHER_STRIPED(lg_M,NROW,NCOL,JSTA,NCOLB,BLK)
-
 ! Gather the columns JSTA to JSTA+NCOLB-1 of a horizontally striped global array into BLK(NROW,NCOLB), replicated on every process
 ! The buffer is then NROW*NCOLB per process, not NROW*NCOL (the full matrix)
 !
@@ -29,10 +28,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: lg_M, NROW, NCOL, JSTA, NCOLB
 real(kind=wp), intent(out) :: BLK(NROW,NCOLB)
-
 integer(kind=iwp) :: iHi, iLo, iOff, iProc, J, jHi, jLo, LDM, mM, myRank, nLoc, nProcs, nRowP
 real(kind=wp) :: DUMMY(1)
-
 real(kind=wp), allocatable :: RECV(:)
 
 if ((JSTA < 1) .or. ((JSTA+NCOLB-1) > NCOL)) then
@@ -86,14 +83,10 @@ call mma_deallocate(RECV)
 
 contains
 
-!-----------------------------------------------------------------------
-
 subroutine GATHER_STRIPED_SEND(SEND,NSEND,RECV,NRECV)
 
 use allgather_wrapper, only: allgather
-use Definitions, only: wp, iwp
 
-implicit none
 integer(kind=iwp), intent(in) :: NSEND, NRECV
 real(kind=wp), intent(in) :: SEND(NSEND)
 real(kind=wp), intent(out) :: RECV(NRECV)
