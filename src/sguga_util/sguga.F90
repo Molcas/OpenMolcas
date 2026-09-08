@@ -2527,7 +2527,7 @@ real(kind=wp) :: X
 ! declarations to facilitate the reuse of sigma vectors if possible
 integer(kind=iwp), save:: i_save_p=0, i_save_q=0
 integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
-logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2
+logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2, Test3
 real(kind=wp) :: CI_ID=Zero
 integer(kind=iwp) ::  iOff, jOff
 
@@ -2570,7 +2570,7 @@ if (IQ < IP) then
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM) ! get the off-set to the sigma vector block
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)           ! number of upper half-walks by symmetry and midvertex.
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)       ! get the off-set to the CI vector block
-        NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)
+        NCP = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVSGM),Swap)
         if (NCP == 0) cycle
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
 
@@ -2599,7 +2599,7 @@ if (IQ < IP) then
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYUC,MVSGM)
+        NCP = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVSGM),Swap)
         if (NCP == 0) cycle
         LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVSGM),Swap)
         ! CASE IS: UPPER HALF, EXCITE:
@@ -2613,8 +2613,9 @@ if (IQ < IP) then
 
     iOff=1
     Reuse_Sigma = .false.
-    if (EXS%Reuse_SGTMP .and. (i_save_p == IP) .and. (i_save_q_sym == ISYQ)) &
-      Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
+    Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
+                (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
+    if (EXS%Reuse_SGTMP .and.  Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
@@ -2692,6 +2693,7 @@ else if (IP < IQ) then
     INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
+
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
         if (NS1 == 0) cycle
         ISYDSG = Mul(ISYUSG,ISYSGM)
@@ -2701,9 +2703,11 @@ else if (IP < IQ) then
         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)
+        NCP = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVSGM),Swap)
         if (NCP == 0) cycle
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
+
+        ! get the off-set to the block of compressed coupling coefficients.
         LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVSGM),Swap)
         ! CASE IS: LOWER HALF, DEEXCITE:
         call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
@@ -2727,7 +2731,7 @@ else if (IP < IQ) then
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYUSG,MVSGM)
+        NCP = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVSGM),Swap)
         if (NCP == 0) cycle
         LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVSGM),Swap)
         ! CASE IS: UPPER HALF, DEEXCITE:
@@ -2740,8 +2744,9 @@ else if (IP < IQ) then
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
     iOff=1
     Reuse_Sigma = .false.
-    if (EXS%Reuse_SGTMP .and. (i_save_q == IQ) .and. (i_save_p_sym == ISYP)) &
-      Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
+    Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
+                (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
+    if (EXS%Reuse_SGTMP .and. Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
