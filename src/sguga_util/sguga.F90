@@ -2557,7 +2557,7 @@ if (IQ < IP) then
   if (Test1) then
 
     ! EXCITING CASE, IQ<IP<=MIDLEV.
-    INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
+    INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
 
@@ -2584,7 +2584,7 @@ if (IQ < IP) then
   else if (Test2) then
 
     ! EXCITING CASE, MIDLEV<IQ<IP
-    INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
+    INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
@@ -2687,7 +2687,7 @@ else if (IP < IQ) then
   if (Test1) then
 
     ! DEEXCITING OPERATOR, IP<IQ<=MIDLEV.
-    INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
+    INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
@@ -2712,7 +2712,7 @@ else if (IP < IQ) then
   else if (Test2) then
 
     ! DEEXCITING OPERATOR, MIDLEV<IP<IQ
-    INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
+    INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
     do MVSGM=1,CIS%nMidV
       do ISYUSG=1,SGS%nSym
         NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
