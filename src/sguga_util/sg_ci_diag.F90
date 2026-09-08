@@ -211,9 +211,6 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
   !
   Psi(:) = One
 
-  !
-  ! One-electron contribution
-  !
   do p=1,SGS%nLev
 
      Epp(:) = Zero
@@ -229,9 +226,10 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
 
      OneInt = TU_Tri(ppTri)
 
+!
+! One-electron contribution
+!
      Diag(:) = Diag(:) + OneInt*Epp(:)
-
-  end do
 
 !
 !-------------------------------------------------------
@@ -240,6 +238,14 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
 ! 1/2 (pp|pp) [Epp*Epp - Epp]
 !-------------------------------------------------------
 !
+   ppqqTri = iTri(iTri(p,p),iTri(p,p))
+   Coul    = Half*TUVX_Tri(ppqqTri)
+
+   Diag(:)=Diag(:) + Coul*(Epp(:)**2 - Epp(:))
+
+  end do
+
+
 do p=1,SGS%nLev
 
    Epp(:)=Zero
@@ -249,14 +255,6 @@ do p=1,SGS%nLev
                    CSFSym, &
                    Psi, &
                    Epp)
-
-   ppqqTri = iTri(iTri(p,p),iTri(p,p))
-   Coul    = Half*TUVX_Tri(ppqqTri)
-
-   Diag(:)=Diag(:) + Coul*(Epp(:)**2 - Epp(:))
-
-end do
-
 !
 !-------------------------------------------------------
 ! PPQQ contribution
@@ -264,16 +262,6 @@ end do
 ! (pp|qq) Epp Eqq
 !-------------------------------------------------------
 !
-do p=1,SGS%nLev
-
-   Epp(:)=Zero
-   call SG_Epq_Psi(SGS,CIS,EXS, &
-                   p,p, &
-                   One, &
-                   CSFSym, &
-                   Psi, &
-                   Epp)
-
    do q=p+1,SGS%nLev
 
       EqqEpp(:)=Zero
