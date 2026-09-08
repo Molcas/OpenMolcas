@@ -3224,7 +3224,8 @@ if (IQ < IP) then
         LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
         ! CASE IS: LOWER HALF, EXCITE:
 
-!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
+!       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,.false.)
+!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
         call Apply_colX(CPQ,NUPSG,NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
 
       end do
@@ -3250,7 +3251,7 @@ if (IQ < IP) then
         if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUC,MVSGM)
         ! CASE IS: UPPER HALF, EXCITE:
-!       call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
+!       call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
         call apply_rowX(CPQ,NDWNSG,NUPC,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
       end do
     end do
@@ -3292,8 +3293,9 @@ if (IQ < IP) then
 
           ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
           if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
-             NTMP = NUPSG*NDWNC
+             NTMP = NUPC
              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
+!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
              call Apply_rowY(One,NUPC,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
           end if
 
@@ -3314,12 +3316,14 @@ if (IQ < IP) then
           if (.not. EXS%Reuse_SGTMP) then
              NTMP = NUPC
              EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
+!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
              call Apply_rowY(One,NUPC,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
           end if
 
           ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           LICP = EXS%IOCP(INDEO,ISYDC,MVX)
+!         call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
           call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
 
         end do
@@ -3354,7 +3358,8 @@ else if (IP < IQ) then
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
-!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
+!       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,.true.)
+!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
         call Apply_colX(CPQ,NUPSG,NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
       end do
     end do
@@ -3379,14 +3384,13 @@ else if (IP < IQ) then
         if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
         ! CASE IS: UPPER HALF, DEEXCITE:
-!       call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
+!       call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
         call Apply_rowX(CPQ,NDWNSG,NUPC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
       end do
     end do
 
   else
 
-    Write (6,*) 'Not implemented yet, IP<=MIDLEV<IQ!'
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
     iOff=1
     Reuse_Sigma = .false.
@@ -3422,14 +3426,15 @@ else if (IP < IQ) then
 
            ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
            if (EXS%Reuse_SGTMP .and. .not. Reuse_Sigma) then
-             NTMP = NUPSG*NDWNC
+             NTMP = NUPC
              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
 !            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+             call Apply_rowY(One,NUPC,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
            end if
 
            jOff=iOff
            if (EXS%Reuse_SGTMP) then
-             iOff = iOff + NUPSG*NDWNC
+             iOff = iOff + NUPC
              if (iOff-1 > size(EXS%SGTMP)) then
                write(u6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 2'
                write(u6,*) iOff-1,size(EXS%SGTMP)
@@ -3443,15 +3448,17 @@ else if (IP < IQ) then
 
            ! CASE IS: UPPER HALF, DEEXCITE:
            if (.not. EXS%Reuse_SGTMP) then
-              NTMP = NUPSG*NDWNC
+              NTMP = NUPC
               EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
 !             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+              call Apply_rowY(One,NUPC,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
            end if
 
            ! CASE IS: LOWER HALF, DEEXCITE:
            NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
            LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
-!          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,DIAG(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
+!          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
+          call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
 
         end do
 
