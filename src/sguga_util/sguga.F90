@@ -2606,6 +2606,13 @@ else if (Test2) then
     end do
   end do
 else
+  ! EXCITING CASE, IQ<=MIDLEV<IP
+
+  iOff=1
+  Reuse_Sigma = .false.
+  Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
+              (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
+  if (EXS%Reuse_SGTMP .and.  Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 end if
 
 if (.NOT.SWAP) then
@@ -2613,14 +2620,6 @@ if (.NOT.SWAP) then
   if (Test1) then
   else if (Test2) then
   else
-
-    ! EXCITING CASE, IQ<=MIDLEV<IP
-
-    iOff=1
-    Reuse_Sigma = .false.
-    Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
-                (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
-    if (EXS%Reuse_SGTMP .and.  Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
@@ -2706,13 +2705,6 @@ else
   else if (Test2) then
   else
 
-    ! DEEXCITING CASE, IP<=MIDLEV<IQ.
-    iOff=1
-    Reuse_Sigma = .false.
-    Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
-                (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
-    if (EXS%Reuse_SGTMP .and. Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
-
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
         MVX = EXS%MVR(MVSGM,MV)
@@ -2791,6 +2783,7 @@ else
     if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
   end if
+
 end if
 
 else
