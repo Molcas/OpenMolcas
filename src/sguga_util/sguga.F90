@@ -2637,7 +2637,7 @@ if (IQ < IP) then
           if (NDWNC == 0) cycle
 
           INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),Swap)
-          NCP1 = EXS%NOCP(INDEO,ISYUC,MVX)
+          NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),Swap)
           if (NCP1 == 0) cycle
 
           ! CASE IS: UPPER HALF, EXCITE:
@@ -2662,7 +2662,7 @@ if (IQ < IP) then
           end if
 
           INDEO = MERGE(merge(IP, SGS%nLev+IP, MV==1),merge(IQ, SGS%nLev+IQ, MV==1),Swap)
-          NCP2 = EXS%NOCP(INDEO,ISYDC,MVX)
+          NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),Swap)
           if (NCP2 == 0) cycle
 
           if (.not. EXS%Reuse_SGTMP) then
@@ -2679,10 +2679,17 @@ if (IQ < IP) then
         end do
       end do
     end do
-    i_save_p=IP
-    i_save_q_sym=ISYQ
-    i_save_q=0
-    i_save_p_sym=-1
+    If (SWAP) Then
+       i_save_q=IQ
+       i_save_p_sym=ISYP
+       i_save_p=0
+       i_save_q_sym=-1
+    else
+       i_save_p=IP
+       i_save_q_sym=ISYQ
+       i_save_q=0
+       i_save_p_sym=-1
+    end if
     if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
   end if
@@ -2769,7 +2776,7 @@ else if (IP < IQ) then
            if (NDWNC == 0) cycle
 
            INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),Swap)
-           NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)
+           NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),Swap)
            if (NCP1 == 0) cycle
 
            ! CASE IS: UPPER HALF, DEEXCITE:
@@ -2794,7 +2801,7 @@ else if (IP < IQ) then
            end if
 
            INDEO = MERGE(merge(IP, SGS%nLev+IP, MV==1),merge(IQ, SGS%nLev+IQ, MV==1),Swap)
-           NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM)
+           NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),Swap)
            if (NCP2 == 0) cycle
 
            ! CASE IS: UPPER HALF, DEEXCITE:
@@ -2813,10 +2820,17 @@ else if (IP < IQ) then
 
       end do
     end do
-    i_save_q=IQ
-    i_save_p_sym=ISYP
-    i_save_p=0
-    i_save_q_sym=-1
+    If (SWAP) Then
+       i_save_q=IQ
+       i_save_p_sym=ISYP
+       i_save_p=0
+       i_save_q_sym=-1
+    else
+       i_save_p=IP
+       i_save_q_sym=ISYQ
+       i_save_q=0
+       i_save_p_sym=-1
+    end if
     if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
   end if
