@@ -264,7 +264,7 @@ end do
 ! (pp|qq) Epp Eqq
 !-------------------------------------------------------
 !
-do p=1,SGS%nLev-1
+do p=1,SGS%nLev
 
    Epp(:)=Zero
    call SG_Epq_Psi(SGS,CIS,EXS, &
