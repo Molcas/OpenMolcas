@@ -493,7 +493,8 @@ integer(kind=iwp):: IPRINT=0
 integer(kind=iwp) :: i
 #ifdef _SGUGA_VERIFY_
 integer(kind=iwp), parameter :: iState=1
-real(kind=wp), allocatable :: TMP(:), CSFDIA_SGUGA(:)
+real(kind=wp), allocatable :: TMP(:), CSFDIA_SGUGA(:), CSFDIA_FAST(:)
+real(kind=wp) :: Err
 #endif
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
@@ -584,7 +585,7 @@ End If
 call mma_deallocate(DDIA)
 
 #ifdef _SGUGA_VERIFY_
-
+If (.NOT.iDoGAS .and. nRsPrt==1) Then
 Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
 Call sg_hdiag_ref(SGS(iState),CIS(iState),EXS(iState), &
                   nConf,STSYM, &
@@ -598,24 +599,34 @@ Call mma_deallocate(TMP)
 ! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
 CSFDIA_SGUGA(:)=-ABS(CSFDIA_SGUGA(:))
 !Call RecPrt('CSFDIA(SGUGA_ref)',' ',CSFDIA_SGUGA,1,nConf)
+
+Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
+Call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState), &
+                   nConf,STSYM, &
+                   TUVX,nTUVX, &
+                   TU,nTU, &
+                   TMP)
+!Call RecPrt('TMP',' ',TMP,1,nConf)
+Call mma_allocate(CSFDIA_FAST,nConf,Label='CSFDIA_S')
+Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_FAST)
+Call mma_deallocate(TMP)
+! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
+CSFDIA_FAST(:)=-ABS(CSFDIA_FAST(:))
+!Call RecPrt('CSFDIA(SGUGA_fast)',' ',CSFDIA_FAST,1,nConf)
+
+Do i=1,nConf
+   Err = Abs(CSFDIA_SGUGA(i)-CSFDIA_fast(i))
+   If (Err > 1.0D-12) Then
+      Write(6,*) 'CSF=',i
+      Write(6,*) 'REF =',CSFDIA_SGUGA(i)
+      Write(6,*) 'FAST=',CSFDIA_fast(i)
+      Write(6,*) 'ERR =',Err
+   End If
+End Do
+
 Call mma_deallocate(CSFDIA_SGUGA)
-
-!Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
-!Call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState), &
-!                  nConf,STSYM, &
-!                  TUVX,nTUVX, &
-!                  TU,nTU, &
-!                  TMP)
-!!Call RecPrt('TMP',' ',TMP,1,nConf)
-!Call mma_allocate(CSFDIA_SGUGA,nConf,Label='CSFDIA_S')
-!Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_SGUGA)
-!Call mma_deallocate(TMP)
-!! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
-!CSFDIA_SGUGA(:)=-ABS(CSFDIA_SGUGA(:))
-!!Call RecPrt('CSFDIA(SGUGA_fast)',' ',CSFDIA_SGUGA,1,nConf)
-!Call mma_deallocate(CSFDIA_SGUGA)
-
-
+Call mma_deallocate(CSFDIA_FAST)
+endif
 
 #endif
 

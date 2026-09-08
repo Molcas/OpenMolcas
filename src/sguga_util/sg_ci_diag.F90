@@ -43,7 +43,7 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   integer(kind=iwp) :: iCSF, mCSFs
 
-#define _TEST_
+!#define _TEST_
 #ifdef _TEST_
   logical(kind=iwp) :: ReUse_Save
   integer(kind=iwp) :: p, q
@@ -179,8 +179,10 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   real(kind=wp), allocatable :: Psi(:)
   real(kind=wp), allocatable :: Epp(:)
+  real(kind=wp), allocatable :: Eqq(:)
   real(kind=wp), allocatable :: EqqEpp(:)
   real(kind=wp), allocatable :: EqpEpq(:)
+  real(kind=wp), allocatable :: EpqEqp(:)
 
   integer(kind=iwp) :: p,q
   integer(kind=iwp) :: ppTri
@@ -196,8 +198,10 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   call mma_allocate(Psi,nCSFs,Label='Psi')
   call mma_allocate(Epp,nCSFs,Label='Epp')
+  call mma_allocate(Eqq,nCSFs,Label='Eqq')
   call mma_allocate(EqqEpp,nCSFs,Label='EqqEpp')
   call mma_allocate(EqpEpq,nCSFs,Label='EqpEpq')
+  call mma_allocate(EpqEqp,nCSFs,Label='EpqEqp')
 
   !
   ! Trick:
@@ -229,62 +233,128 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   end do
 
-  !
-  ! Two-electron Coulomb / exchange contribution
-  !
-  do p=1,SGS%nLev
+!
+!-------------------------------------------------------
+! PPPP contribution
+!
+! 1/2 (pp|pp) [Epp*Epp - Epp]
+!-------------------------------------------------------
+!
+do p=1,SGS%nLev
 
-     Epp(:) = Zero
+   Epp(:)=Zero
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   p,p, &
+                   One, &
+                   CSFSym, &
+                   Psi, &
+                   Epp)
 
-     call SG_Epq_Psi(SGS,CIS,EXS, &
-                     p,p, &
-                     One, &
-                     CSFSym, &
-                     Psi, &
-                     Epp)
+   ppqqTri = iTri(iTri(p,p),iTri(p,p))
+   Coul    = Half*TUVX_Tri(ppqqTri)
 
-     do q=1,SGS%nLev
+   Diag(:)=Diag(:) + Coul*(Epp(:)**2 - Epp(:))
 
-        !
-        ! <Eqq Epp>
-        !
-        EqqEpp(:) = Zero
+end do
 
-        call SG_Epq_Psi(SGS,CIS,EXS, &
-                        q,q, &
-                        One, &
-                        CSFSym, &
-                        Epp, &
-                        EqqEpp)
+!
+!-------------------------------------------------------
+! PPQQ contribution
+!
+! (pp|qq) Epp Eqq
+!-------------------------------------------------------
+!
+!do p=1,SGS%nLev-1
+do p=1,SGS%nLev
 
-        !
-        ! <Eqp Epq>
-        !
-        EqpEpq(:) = Zero
+   Epp(:)=Zero
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   p,p, &
+                   One, &
+                   CSFSym, &
+                   Psi, &
+                   Epp)
 
-        call SG_EpqEqp_Diag(SGS,CIS,EXS, &
-                            q,p, &
-                            One, &
-                            CSFSym, &
-                            Psi, &
-                            EqpEpq)
+!  do q=p+1,SGS%nLev
+   do q=1,SGS%nLev
+      if (p==q) Cycle
 
-        pqTri   = iTri(max(p,q),min(p,q))
-        ppqqTri = iTri(iTri(p,p),iTri(q,q))
-        pqqpTri = iTri(iTri(max(p,q),min(p,q)), &
-                       iTri(max(p,q),min(p,q)))
+      EqqEpp(:)=Zero
+      call SG_Epq_Psi(SGS,CIS,EXS, &
+                      q,q, &
+                      One, &
+                      CSFSym, &
+                      Epp, &
+                      EqqEpp)
 
-        Coul = Half*TUVX_Tri(ppqqTri)
-        Exch = Half*TUVX_Tri(pqqpTri)
+      ppqqTri = iTri(iTri(p,p),iTri(q,q))
 
-        Diag(:) = Diag(:) + Coul*EqqEpp(:) - Exch*EqpEpq(:)
+      Diag(:)=Diag(:) + Half*TUVX_Tri(ppqqTri)*EqqEpp(:)
 
-     end do
+   end do
+end do
 
-  end do
+!
+!-------------------------------------------------------
+! PQQP contribution
+!
+! 1/2 (pq|qp)
+! [ <EpqEqp> + <EqpEpq> - Epp - Eqq ]
+!-------------------------------------------------------
+!
+!do p=1,SGS%nLev-1
+do p=1,SGS%nLev
 
+   Epp(:)=Zero
+   call SG_Epq_Psi(SGS,CIS,EXS, &
+                   p,p, &
+                   One, &
+                   CSFSym, &
+                   Psi, &
+                   Epp)
+
+!  do q=p+1,SGS%nLev
+   do q=1,SGS%nLev
+      if (p==q) Cycle
+
+      Eqq(:)=Zero
+      call SG_Epq_Psi(SGS,CIS,EXS, &
+                      q,q, &
+                      One, &
+                      CSFSym, &
+                      Psi, &
+                      Eqq)
+
+      EpqEqp(:)=Zero
+      call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+                          p,q, &
+                          One, &
+                          CSFSym, &
+                          Psi, &
+                          EpqEqp)
+
+!     EqpEpq(:)=Zero
+!     call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+!                         q,p, &
+!                         One, &
+!                         CSFSym, &
+!                         Psi, &
+!                         EqpEpq)
+
+      pqqpTri = iTri(iTri(q,p),iTri(q,p))
+      Exch    = Half*TUVX_Tri(pqqpTri)
+
+!     Diag(:)=Diag(:) + Exch * ( EpqEqp(:) + EqpEpq(:) - Epp(:) - Eqq(:) )
+      Diag(:)=Diag(:) + Exch * ( EpqEqp(:) - Eqq(:) )
+
+   end do
+end do
+
+
+  call mma_deallocate(EpqEqp)
   call mma_deallocate(EqpEpq)
   call mma_deallocate(EqqEpp)
+  call mma_deallocate(Eqq)
   call mma_deallocate(Epp)
   call mma_deallocate(Psi)
 
