@@ -2557,61 +2557,61 @@ Test2 = MERGE(SGS%MidLev < IP,SGS%MidLev < IQ,Swap)
 
 if (Test1) then
 
-   ! EXCITING CASE, IQ<IP<=MIDLEV.
-   INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
-   do MVSGM=1,CIS%nMidV
-     do ISYUSG=1,SGS%nSym
+  ! EXCITING CASE, IQ<IP<=MIDLEV.
+  INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
+  do MVSGM=1,CIS%nMidV
+    do ISYUSG=1,SGS%nSym
 
-       NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-       if (NS1 == 0) cycle
+      NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+      if (NS1 == 0) cycle
       ISYDSG = Mul(ISYUSG,ISYSGM)           ! compute the lower symmetry
-       ISYDC = Mul(ISYPQ,ISYDSG)             ! compute the symmetry of the sigma vector
-       NDWNC = CIS%NOW(2,ISYDC,MVSGM)
-       if (NDWNC == 0) cycle
-       ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM) ! get the off-set to the sigma vector block
-       NUPSG = CIS%NOW(1,ISYUSG,MVSGM)           ! number of upper half-walks by symmetry and midvertex.
-       IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)       ! get the off-set to the CI vector block
-       NCP = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVSGM),Swap)
-       if (NCP == 0) cycle
-       NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
+      ISYDC = Mul(ISYPQ,ISYDSG)             ! compute the symmetry of the sigma vector
+      NDWNC = CIS%NOW(2,ISYDC,MVSGM)
+      if (NDWNC == 0) cycle
+      ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM) ! get the off-set to the sigma vector block
+      NUPSG = CIS%NOW(1,ISYUSG,MVSGM)           ! number of upper half-walks by symmetry and midvertex.
+      IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)       ! get the off-set to the CI vector block
+      NCP = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVSGM),Swap)
+      if (NCP == 0) cycle
+      NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
 
-       ! get the off-set to the block of compressed coupling coefficients.
-       LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVSGM),Swap)
-       ! CASE IS: LOWER HALF, EXCITE:
-       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
-       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
+      ! get the off-set to the block of compressed coupling coefficients.
+      LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVSGM),Swap)
+      ! CASE IS: LOWER HALF, EXCITE:
+      call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
+      call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
 
-     end do
-   end do
+    end do
+  end do
+else if (Test2) then
+  ! EXCITING CASE, MIDLEV<IQ<IP
+  INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
+  do MVSGM=1,CIS%nMidV
+    do ISYUSG=1,SGS%nSym
+      NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+      if (NS1 == 0) cycle
+      ISYUC = Mul(ISYPQ,ISYUSG)
+      NUPC = CIS%NOW(1,ISYUC,MVSGM)
+      if (NUPC == 0) cycle
+      ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+      NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
+      ISYDSG = Mul(ISYUSG,ISYSGM)
+      NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
+      IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
+      NCP = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVSGM),Swap)
+      if (NCP == 0) cycle
+      LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVSGM),Swap)
+      ! CASE IS: UPPER HALF, EXCITE:
+      call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
+    end do
+  end do
+else
 end if
 
 if (.NOT.SWAP) then
   ! THEN THIS IS AN EXCITING OPERATOR.
   if (Test1) then
   else if (Test2) then
-
-    ! EXCITING CASE, MIDLEV<IQ<IP
-    INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
-    do MVSGM=1,CIS%nMidV
-      do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
-        ISYUC = Mul(ISYPQ,ISYUSG)
-        NUPC = CIS%NOW(1,ISYUC,MVSGM)
-        if (NUPC == 0) cycle
-        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-        NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-        ISYDSG = Mul(ISYUSG,ISYSGM)
-        NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-        IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        NCP = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVSGM),Swap)
-        if (NCP == 0) cycle
-        LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVSGM),Swap)
-        ! CASE IS: UPPER HALF, EXCITE:
-        call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
-      end do
-    end do
-
   else
 
     ! EXCITING CASE, IQ<=MIDLEV<IP
@@ -2704,29 +2704,6 @@ else
   ! THEN THIS IS A DEEXCITING OPERATOR.
   if (Test1) then
   else if (Test2) then
-
-    ! DEEXCITING OPERATOR, MIDLEV<IP<IQ
-    INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
-    do MVSGM=1,CIS%nMidV
-      do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
-        ISYUC = Mul(ISYPQ,ISYUSG)
-        NUPC = CIS%NOW(1,ISYUC,MVSGM)
-        if (NUPC == 0) cycle
-        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-        NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-        ISYDSG = Mul(ISYUSG,ISYSGM)
-        NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-        IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        NCP = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVSGM),Swap)
-        if (NCP == 0) cycle
-        LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVSGM),Swap)
-        ! CASE IS: UPPER HALF, DEEXCITE:
-        call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
-      end do
-    end do
-
   else
 
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
