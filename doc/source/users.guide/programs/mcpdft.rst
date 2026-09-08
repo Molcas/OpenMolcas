@@ -133,9 +133,10 @@ The :kword:`FUNC` is the only required keyword.
   ``T:``, but one cannot use ``FT:`` Hybrid functional names (e.g. PBE0 or
   B3LYP) should not be used after ``FUNC=T:`` or ``FUNC=FT:`` in this module.
   See keyword :kword:`LAMBda` for a description on how to run hybrid MC-PDFT
-  calculations. L-PDFT currently supports translated and fully translated
-  LSDA and GGA functionals; meta-GGA functionals are not implemented for
-  L-PDFT. Also note that the format of a number :math:`N` followed by
+  and hybrid L-PDFT calculations. L-PDFT currently supports pure and hybrid
+  variants of translated and fully translated LSDA and GGA functionals;
+  meta-GGA functionals are not implemented for L-PDFT. Also note that the
+  format of a number :math:`N` followed by
   :math:`N` lines, each of them containing a weight factor and a Libxc
   functional name, is not supported in this module. Examples of this keyword
 
@@ -237,10 +238,11 @@ The :kword:`FUNC` is the only required keyword.
   reference RASSCF states. The roots, orbitals, and CI vectors must correspond
   to those used to generate :file:`$Project.tdm_4_lpdft.h5`.
 
-  Translated and fully translated LSDA and GGA functionals are supported.
-  Meta-GGA functionals and analytical gradients are not implemented for
-  L-PDFT. Hybrid L-PDFT is requested with :kword:`LAMBda`; hybrid functional
-  names such as ``T:PBE0`` must not be supplied directly.
+  Pure and hybrid L-PDFT calculations with translated and fully translated
+  LSDA and GGA functionals are supported. Meta-GGA functionals and analytical
+  gradients are not implemented for L-PDFT. Hybrid L-PDFT is requested with
+  :kword:`LAMBda`; hybrid functional names such as ``T:PBE0`` must not be
+  supplied directly.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="LPDF" APPEAR="L-PDFT" KIND="SINGLE" LEVEL="BASIC" REQUIRE="MSPD">
               %%Keyword: LPDF <basic>
