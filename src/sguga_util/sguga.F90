@@ -2573,7 +2573,9 @@ if (IQ < IP) then
         NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)
         if (NCP == 0) cycle
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-        LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
+
+        ! get the off-set to the block of compressed coupling coefficients.
+        LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVSGM),Swap)
         ! CASE IS: LOWER HALF, EXCITE:
         call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
         call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
@@ -2599,7 +2601,7 @@ if (IQ < IP) then
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
         NCP = EXS%NOCP(INDEO,ISYUC,MVSGM)
         if (NCP == 0) cycle
-        LICP = EXS%IOCP(INDEO,ISYUC,MVSGM)
+        LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVSGM),Swap)
         ! CASE IS: UPPER HALF, EXCITE:
         call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
       end do
@@ -2669,7 +2671,7 @@ if (IQ < IP) then
 
           ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-          LICP = EXS%IOCP(INDEO,ISYDC,MVX)
+          LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVX),Swap)
           call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
 
         end do
@@ -2702,7 +2704,7 @@ else if (IP < IQ) then
         NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)
         if (NCP == 0) cycle
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-        LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
+        LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVSGM),Swap)
         ! CASE IS: LOWER HALF, DEEXCITE:
         call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
         call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
@@ -2727,7 +2729,7 @@ else if (IP < IQ) then
         IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
         NCP = EXS%NOCP(INDEO,ISYUSG,MVSGM)
         if (NCP == 0) cycle
-        LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
+        LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVSGM),Swap)
         ! CASE IS: UPPER HALF, DEEXCITE:
         call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
       end do
@@ -2798,7 +2800,7 @@ else if (IP < IQ) then
 
            ! CASE IS: LOWER HALF, DEEXCITE:
            NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-           LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
+           LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVX),Swap)
            call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
 
         end do
