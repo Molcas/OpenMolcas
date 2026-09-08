@@ -2547,12 +2547,15 @@ ISYPQ = Mul(ISYP,ISYQ)
 ! SYMMETRY OF SIGMA ARRAY:
 ISYSGM = Mul(ISYPQ,ISYCI)
 
+
+if (IQ/=IP) then
+
 ! Unified code for the case P/=Q
 Swap = IQ > IP
 Test1 = MERGE(IQ <= SGS%MidLev,IP <= SGS%MidLev,Swap)
 Test2 = MERGE(SGS%MidLev < IP,SGS%MidLev < IQ,Swap)
 
-if (IQ < IP) then
+if (.NOT.SWAP) then
   ! THEN THIS IS AN EXCITING OPERATOR.
   if (Test1) then
 
@@ -2693,7 +2696,9 @@ if (IQ < IP) then
     if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
   end if
-else if (IP < IQ) then
+
+else
+
   ! THEN THIS IS A DEEXCITING OPERATOR.
   if (Test1) then
 
@@ -2834,7 +2839,10 @@ else if (IP < IQ) then
     if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
   end if
+end if
+
 else
+
   ! THEN THIS IS A SPECIAL CASE.
   if (IP > SGS%MidLev) then
 
