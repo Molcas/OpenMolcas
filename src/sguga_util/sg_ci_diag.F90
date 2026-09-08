@@ -154,7 +154,7 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
                          TU_Tri,nTU_Tri, &
                          Diag)
 
-  use sguga, only: SGStruct, CIStruct, EXStruct, SG_Epq_Psi
+  use sguga, only: SGStruct, CIStruct, EXStruct, SG_Epq_Psi, SG_EpqEqp_Diag
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One, Half
   use Definitions, only: wp, iwp
@@ -262,19 +262,12 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
         !
         EqpEpq(:) = Zero
 
-        call SG_Epq_Psi(SGS,CIS,EXS, &
-                        p,q, &
-                        One, &
-                        CSFSym, &
-                        Psi, &
-                        EqpEpq)
-
-        call SG_Epq_Psi(SGS,CIS,EXS, &
-                        q,p, &
-                        One, &
-                        CSFSym, &
-                        EqpEpq, &
-                        EqpEpq)
+        call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+                            q,p, &
+                            One, &
+                            CSFSym, &
+                            Psi, &
+                            EqpEpq)
 
         pqTri   = iTri(max(p,q),min(p,q))
         ppqqTri = iTri(iTri(p,p),iTri(q,q))
@@ -284,9 +277,7 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
         Coul = Half*TUVX_Tri(ppqqTri)
         Exch = Half*TUVX_Tri(pqqpTri)
 
-        Diag(:) = Diag(:) &
-                + Coul*EqqEpp(:) &
-                - Exch*EqpEpq(:)
+        Diag(:) = Diag(:) + Coul*EqqEpp(:) - Exch*EqpEpq(:)
 
      end do
 
