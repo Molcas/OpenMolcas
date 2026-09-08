@@ -242,13 +242,9 @@ do p=1,SGS%nLev
    Coul    = Half*TUVX_Tri(ppqqTri)
 
    Diag(:)=Diag(:) + Coul*(Epp(:)**2 - Epp(:))
-!
-!-------------------------------------------------------
-! PPQQ contribution
-!
-! (pp|qq) Epp Eqq
-!-------------------------------------------------------
-!
+
+! PPQQ and PQQP contributions
+
    do q=p+1,SGS%nLev
 
       EqqEpp(:)=Zero
@@ -258,13 +254,16 @@ do p=1,SGS%nLev
                       CSFSym, &
                       Epp, &
                       EqqEpp)
-
+!
+!-------------------------------------------------------
+! PPQQ contribution
+!
+! (pp|qq) Epp Eqq
+!-------------------------------------------------------
+!
       ppqqTri = iTri(iTri(p,p),iTri(q,q))
 
       Diag(:)=Diag(:) + TUVX_Tri(ppqqTri)*EqqEpp(:)
-
-   end do
-end do
 
 !
 !-------------------------------------------------------
@@ -274,18 +273,6 @@ end do
 ! [ <EpqEqp> + <EqpEpq> - Epp - Eqq ]
 !-------------------------------------------------------
 !
-do p=1,SGS%nLev
-
-   Epp(:)=Zero
-   call SG_Epq_Psi(SGS,CIS,EXS, &
-                   p,p, &
-                   One, &
-                   CSFSym, &
-                   Psi, &
-                   Epp)
-
-   do q=p+1,SGS%nLev
-
       Eqq(:)=Zero
       call SG_Epq_Psi(SGS,CIS,EXS, &
                       q,q, &
@@ -314,10 +301,8 @@ do p=1,SGS%nLev
       Exch    = Half*TUVX_Tri(pqqpTri)
 
       Diag(:)=Diag(:) + Exch * ( EpqEqp(:) + EqpEpq(:) - Epp(:) - Eqq(:) )
-
    end do
 end do
-
 
   call mma_deallocate(EpqEqp)
   call mma_deallocate(EqpEpq)
