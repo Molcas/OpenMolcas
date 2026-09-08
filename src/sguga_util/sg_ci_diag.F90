@@ -60,32 +60,6 @@ EXS%Reuse_SGTMP=.False.
 call mma_allocate(Epq,nCSFs,Label='Epq')
 call mma_allocate(Eqp,nCSFs,Label='Eqp')
 
-p=3
-q=1
-do iCSF=1,nCSFs
-Psi(:) = Zero
-Psi(iCSF) = One
-Sigma(:) = Zero
-call SG_Epq_Psi(SGS,CIS,EXS, &
-                p,q, &
-                One, &
-                CSFSym, &
-                Psi, &
-                Sigma)
-Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
-End do
-Psi(:) = Zero
-Sigma(:) = Zero
-call SG_EpqEqp_Diag(SGS,CIS,EXS, &
-                  p,q, &
-                  One, &
-                  CSFSym, &
-                  Psi, &
-                  Sigma)
-Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
-
-Call Abend()
-
 do p=1,SGS%nLev
 do q=1,SGS%nLev
 Write (6,*) 'p,q=',p,q
@@ -100,7 +74,7 @@ do iCSF=1,nCSFs
                   CSFSym, &
                   Psi, &
                   Sigma)
-  Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
+! Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
   Epq(iCSF)=Dot_product(Sigma,Sigma)
 end do
 

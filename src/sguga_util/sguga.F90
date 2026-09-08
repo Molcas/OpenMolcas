@@ -3320,7 +3320,7 @@ if (IQ < IP) then
           ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           LICP = EXS%IOCP(INDEO,ISYDC,MVX)
-          call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNSG,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
+          call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
 
         end do
       end do
