@@ -31,7 +31,7 @@ subroutine get_ref_energy(nroots, jobold, iadr19, ref_energy)
 
   maybe = 0
   do iter=1, mxiter
-    aemax = 0.0D0
+    aemax = 0.0_wp
     do root=1, mxroot
       AEMAX=max(aemax, abs(elist(mxroot*(iter-1) + root)))
     end do

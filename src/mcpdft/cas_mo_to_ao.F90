@@ -30,6 +30,7 @@ subroutine cas_mo_to_ao(CMO, CAS_MO, CAS_AO)
   ! Returns:
   !   CAS_AO: ndarray (ntot2)
   !     Matrix converted into AO basis
+  use Constants, only: Zero, One
   use definitions, only: wp
   use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
@@ -39,22 +40,22 @@ subroutine cas_mo_to_ao(CMO, CAS_MO, CAS_AO)
 #include "general.fh"
   ! For nacpar
 #include "rasscf.fh"
-  real(kind=wp), parameter :: zero = 0.0_wp
-  real(kind=wp), dimension(ntot2), intent(in) :: CMO
-  real(kind=wp), dimension(NACPAR), intent(in) :: CAS_MO
-  real(kind=wp), dimension(ntot2), intent(out) :: CAS_AO
+  real(kind=wp), intent(in) :: CMO(ntot2)
+  real(kind=wp), intent(in) :: CAS_MO(NACPAR)
+  real(kind=wp), intent(out) :: CAS_AO(ntot2)
 
   real(kind=wp), allocatable :: tmp1(:), tmp2(:)
   integer :: iSym, nBasis, nActive, nInactive, nFrozen
-  integer, dimension(2) :: offset
-  offset = 1
+  integer :: offset(2)
+
+  offset(:) = 1
+  CAS_AO(:) = Zero
 
   do iSym=1, nSym
     nBasis = nbas(iSym)
     nActive = nash(iSym)
     nInactive = nIsh(iSym)
     nFrozen = nFro(iSym)
-    call dCopy_(nBasis*nBasis, [zero], 0, CAS_AO(offset(2)), 1)
     if(nActive /= 0) then
       call mma_allocate(tmp1, nActive*nActive, label='Scr1')
       call mma_allocate(tmp2, nActive*nBasis, label='Scr2')
@@ -62,12 +63,12 @@ subroutine cas_mo_to_ao(CMO, CAS_MO, CAS_AO)
       ! and we need iTmp1 to be a full square matrix.
       call square(CAS_MO(offset(1)), tmp1, 1, nactive, nactive)
       ! Does essentially C_a * D1A * C_a converting from MO -> AO basis
-      call dgemm_('n','t', nbasis, nactive, nactive, 1.0_wp, &
+      call dgemm_('n','t', nbasis, nactive, nactive, One, &
               CMO(offset(2)+(nFrozen+nInactive)*nBasis), nbasis, tmp1, &
-              nActive, zero, tmp2, nbasis)
-      call dgemm_('n', 't', nbasis, nbasis, nactive, 1.0_wp, tmp2, &
+              nActive, Zero, tmp2, nbasis)
+      call dgemm_('n', 't', nbasis, nbasis, nactive, One, tmp2, &
               nbasis, CMO(offset(2) + (nFrozen+nInactive)*nBasis), &
-              nbasis, zero, CAS_AO(offset(2)), nbasis)
+              nbasis, Zero, CAS_AO(offset(2)), nbasis)
 
       call mma_deallocate(tmp1)
       call mma_deallocate(tmp2)
