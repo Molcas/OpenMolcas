@@ -584,6 +584,7 @@ End If
 ! DEALLOCATE LOCAL MEMORY
 call mma_deallocate(DDIA)
 
+#ifdef _TEMPORARY_OFF_LINE_
 #ifdef _SGUGA_VERIFY_
 If (.NOT.iDoGAS .and. nRsPrt==1) Then
 Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
@@ -628,6 +629,7 @@ Call mma_deallocate(CSFDIA_SGUGA)
 Call mma_deallocate(CSFDIA_FAST)
 endif
 
+#endif
 #endif
 
 End subroutine Mk_CI_Diag
