@@ -41,7 +41,7 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
   real(kind=wp), allocatable :: Psi(:)
   real(kind=wp), allocatable :: Sigma(:)
 
-  integer(kind=iwp) :: iCSF
+  integer(kind=iwp) :: iCSF, mCSFs
 
 #define _TEST_
 #ifdef _TEST_
@@ -50,8 +50,10 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
   real(kind=wp), allocatable :: Epq(:), Eqp(:)
 #endif
 
+! Note, the sigma vector might be of a different length than Psi. For safty measurers allocate the largest possible size.
+  mCSFs=MaxVal(CIS%nCSF)
   call mma_allocate(Psi,nCSFs,Label='Psi')
-  call mma_allocate(Sigma,nCSFs,Label='Sigma')
+  call mma_allocate(Sigma,mCSFs,Label='Sigma')
 
 #ifdef _TEST_
 ! turn off reuse of SGTMP
