@@ -35,8 +35,8 @@ subroutine get_d1i_mcpdft(cmo, d1i)
   real(kind=wp), dimension(ntot2) :: cmo
   real(kind=wp), dimension(ntot2) :: d1i
 
-  real(kind=wp), parameter :: zero=0.0d0
-  real(kind=wp), parameter :: two=2.0d0
+  real(kind=wp), parameter :: zero=0.0_wp
+  real(kind=wp), parameter :: two=2.0_wp
 
   integer :: isym, nb, nfi, nbsq, ista
 

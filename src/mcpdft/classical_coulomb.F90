@@ -27,7 +27,7 @@ subroutine active_classical_coulomb(DmatDmat, eri, coulomb_energy)
   integer :: iSym, nActive, NUVX, nOrbitals, nInactive
   integer :: ISTP, jstf, nt, ntt
 
-  coulomb_energy = 0.0D0
+  coulomb_energy = 0.0_wp
 
   do iSym=1, nSym
     nActive = nAsh(iSym)
@@ -40,8 +40,8 @@ subroutine active_classical_coulomb(DmatDmat, eri, coulomb_energy)
       NUVX = (ISTORP(ISYM+1)-ISTORP(ISYM))/nActive
 
       call mma_allocate(q, nOrbitals*nActive, "q")
-      CALL DGEMM_('N','N', nOrbitals,nActive, NUVX, 1.0d0, eri(JSTF), &
-              nOrbitals, DmatDmat(ISTP), NUVX, 0.0d0, Q, nOrbitals)
+      CALL DGEMM_('N','N', nOrbitals,nActive, NUVX, 1.0_wp, eri(JSTF), &
+              nOrbitals, DmatDmat(ISTP), NUVX, 0.0_wp, Q, nOrbitals)
 
       do nt=1, nActive
         ntt = (nt-1)*nOrbitals + nInactive + nt
@@ -52,5 +52,5 @@ subroutine active_classical_coulomb(DmatDmat, eri, coulomb_energy)
     end if
   end do
 
-  coulomb_energy = 0.5D0 * coulomb_energy
+  coulomb_energy = 0.5_wp * coulomb_energy
 end subroutine active_classical_coulomb

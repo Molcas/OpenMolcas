@@ -39,7 +39,7 @@ subroutine cas_mo_to_ao(CMO, CAS_MO, CAS_AO)
 #include "general.fh"
   ! For nacpar
 #include "rasscf.fh"
-  real(kind=wp), parameter :: zero = 0.0D0
+  real(kind=wp), parameter :: zero = 0.0_wp
   real(kind=wp), dimension(ntot2), intent(in) :: CMO
   real(kind=wp), dimension(NACPAR), intent(in) :: CAS_MO
   real(kind=wp), dimension(ntot2), intent(out) :: CAS_AO
@@ -62,10 +62,10 @@ subroutine cas_mo_to_ao(CMO, CAS_MO, CAS_AO)
       ! and we need iTmp1 to be a full square matrix.
       call square(CAS_MO(offset(1)), tmp1, 1, nactive, nactive)
       ! Does essentially C_a * D1A * C_a converting from MO -> AO basis
-      call dgemm_('n','t', nbasis, nactive, nactive, 1.0D0, &
+      call dgemm_('n','t', nbasis, nactive, nactive, 1.0_wp, &
               CMO(offset(2)+(nFrozen+nInactive)*nBasis), nbasis, tmp1, &
               nActive, zero, tmp2, nbasis)
-      call dgemm_('n', 't', nbasis, nbasis, nactive, 1.0d0, tmp2, &
+      call dgemm_('n', 't', nbasis, nbasis, nactive, 1.0_wp, tmp2, &
               nbasis, CMO(offset(2) + (nFrozen+nInactive)*nBasis), &
               nbasis, zero, CAS_AO(offset(2)), nbasis)
 
