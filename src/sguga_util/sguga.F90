@@ -3252,7 +3252,7 @@ if (IQ < IP) then
         LICP = EXS%IOCP(INDEO,ISYUC,MVSGM)
         ! CASE IS: UPPER HALF, EXCITE:
 !       call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
-        call apply_rowX(CPQ,NDWNSG,NUPC,DIAG(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
+        call apply_rowX(CPQ,NDWNSG,NUPC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
       end do
     end do
 

@@ -104,6 +104,9 @@ End If
 Do iCSF=1,nCSFs
 If (Abs(Epq(iCSF)-Sigma(iCSF))>1.0e-10_wp) Then
    Write (6,*) 'p, q, iCSF=',p, q, iCSF
+   Write (6,*) 'MidLev=',SGS%MidLev
+   Write (6,*) 'Level=',SGS%Level(1:SGS%nLev)
+   Write (6,*) 'L2Act=',SGS%L2Act(1:SGS%nLev)
    Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
    Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
    Call Abend()
