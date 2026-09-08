@@ -35,7 +35,7 @@ subroutine get_ref_energy(nroots, jobold, iadr19, ref_energy)
     do root=1, mxroot
       AEMAX=max(aemax, abs(elist(mxroot*(iter-1) + root)))
     end do
-    if (abs(AEMAX) <= 1.0D-12) exit
+    if (abs(AEMAX) <= 1.0e-12_wp) exit
     maybe=iter
   end do
 
