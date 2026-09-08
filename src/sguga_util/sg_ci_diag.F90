@@ -118,7 +118,7 @@ EXS%Reuse_SGTMP=ReUse_Save
 Write (6,*)
 Write (6,*) 'Test passed!'
 Write (6,*)
-Call Abend()
+!Call Abend()
 #endif
 
   do iCSF=1,nCSFs
@@ -137,11 +137,10 @@ Call Abend()
      Diag(iCSF) = Sigma(iCSF)
 
   end do
-   call RecPrt('Diag',' ',Diag,1,nCSFs)
+!  call RecPrt('Diag',' ',Diag,1,nCSFs)
 
   call mma_deallocate(Sigma)
   call mma_deallocate(Psi)
-  Call Abend()
 
 end subroutine sg_hdiag_ref
 

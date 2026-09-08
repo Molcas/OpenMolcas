@@ -519,7 +519,7 @@ If (DoFaro) Then
      Call Abend()
   End If
 !Call RecPrt('DDIA(LUCIA)',' ',DDIA,1,nDet)
-Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
+!Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -572,7 +572,7 @@ Call RecPrt('CSFDIA(Lucia)',' ',CSFDIA,1,nConf)
         Call abend()
      End If
   End Do
-  Call RecPrt('CSFDIA(Faroald)',' ',CSFDIA_Faroald,1,nConf)
+! Call RecPrt('CSFDIA(Faroald)',' ',CSFDIA_Faroald,1,nConf)
   CSFDIA(:)= CSFDIA_Faroald(:)
 
   Call mma_deallocate(CSFDIA_Faroald)
@@ -597,23 +597,23 @@ Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_SGUGA)
 Call mma_deallocate(TMP)
 ! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
 CSFDIA_SGUGA(:)=-ABS(CSFDIA_SGUGA(:))
-Call RecPrt('CSFDIA(SGUGA_ref)',' ',CSFDIA_SGUGA,1,nConf)
+!Call RecPrt('CSFDIA(SGUGA_ref)',' ',CSFDIA_SGUGA,1,nConf)
 Call mma_deallocate(CSFDIA_SGUGA)
 
-Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
-Call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState), &
-                  nConf,STSYM, &
-                  TUVX,nTUVX, &
-                  TU,nTU, &
-                  TMP)
-!Call RecPrt('TMP',' ',TMP,1,nConf)
-Call mma_allocate(CSFDIA_SGUGA,nConf,Label='CSFDIA_S')
-Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_SGUGA)
-Call mma_deallocate(TMP)
-! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
-CSFDIA_SGUGA(:)=-ABS(CSFDIA_SGUGA(:))
-Call RecPrt('CSFDIA(SGUGA_fast)',' ',CSFDIA_SGUGA,1,nConf)
-Call mma_deallocate(CSFDIA_SGUGA)
+!Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
+!Call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState), &
+!                  nConf,STSYM, &
+!                  TUVX,nTUVX, &
+!                  TU,nTU, &
+!                  TMP)
+!!Call RecPrt('TMP',' ',TMP,1,nConf)
+!Call mma_allocate(CSFDIA_SGUGA,nConf,Label='CSFDIA_S')
+!Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_SGUGA)
+!Call mma_deallocate(TMP)
+!! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
+!CSFDIA_SGUGA(:)=-ABS(CSFDIA_SGUGA(:))
+!!Call RecPrt('CSFDIA(SGUGA_fast)',' ',CSFDIA_SGUGA,1,nConf)
+!Call mma_deallocate(CSFDIA_SGUGA)
 
 
 
