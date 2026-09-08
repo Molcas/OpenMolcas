@@ -302,8 +302,7 @@ end do
 ! [ <EpqEqp> + <EqpEpq> - Epp - Eqq ]
 !-------------------------------------------------------
 !
-!do p=1,SGS%nLev-1
-do p=1,SGS%nLev
+do p=1,SGS%nLev-1
 
    Epp(:)=Zero
    call SG_Epq_Psi(SGS,CIS,EXS, &
@@ -313,9 +312,7 @@ do p=1,SGS%nLev
                    Psi, &
                    Epp)
 
-!  do q=p+1,SGS%nLev
-   do q=1,SGS%nLev
-      if (p==q) Cycle
+   do q=p+1,SGS%nLev
 
       Eqq(:)=Zero
       call SG_Epq_Psi(SGS,CIS,EXS, &
@@ -333,19 +330,18 @@ do p=1,SGS%nLev
                           Psi, &
                           EpqEqp)
 
-!     EqpEpq(:)=Zero
-!     call SG_EpqEqp_Diag(SGS,CIS,EXS, &
-!                         q,p, &
-!                         One, &
-!                         CSFSym, &
-!                         Psi, &
-!                         EqpEpq)
+      EqpEpq(:)=Zero
+      call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+                          q,p, &
+                          One, &
+                          CSFSym, &
+                          Psi, &
+                          EqpEpq)
 
       pqqpTri = iTri(iTri(q,p),iTri(q,p))
       Exch    = Half*TUVX_Tri(pqqpTri)
 
-!     Diag(:)=Diag(:) + Exch * ( EpqEqp(:) + EqpEpq(:) - Epp(:) - Eqq(:) )
-      Diag(:)=Diag(:) + Exch * ( EpqEqp(:) - Eqq(:) )
+      Diag(:)=Diag(:) + Exch * ( EpqEqp(:) + EqpEpq(:) - Epp(:) - Eqq(:) )
 
    end do
 end do
