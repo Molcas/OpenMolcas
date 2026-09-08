@@ -39,7 +39,7 @@ use Integral_interfaces, only: int_kernel, int_mem
 use Property_Label, only: PLabel
 use NDDO, only: oneel_NDDO
 #ifdef _FDE_
-use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
+use Embedding_Global, only: embPot, embPotInBasis, embPotPath
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
