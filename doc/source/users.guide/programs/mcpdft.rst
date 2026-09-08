@@ -74,7 +74,7 @@ Dependencies
     end of grid input
 
   Additionally, a :file:`JOBIPH` (or :file:`wavefunction.h5`) file must be supplied to provide the molecular orbitals and one- and two-body density matrices.
-  An L-PDFT calculation also requires :file:`$Project_tdm_4_lpdft.h5`, generated
+  An L-PDFT calculation also requires :file:`$Project.tdm_4_lpdft.h5`, generated
   by specifying :kword:`LPDF` in the preceding :program:`RASSCF` calculation.
 
 .. _UG\:sec\:mcpdft_files:
@@ -90,7 +90,7 @@ Input files
 :program:`MCPDFT` will use the following input
 files: :file:`ONEINT`, :file:`ORDINT`, :file:`RUNFILE`, :file:`JOBOLD`,
 :file:`JOBIPH`, :file:`wavefunction.h5`. L-PDFT additionally reads
-:file:`$Project_tdm_4_lpdft.h5`.
+:file:`$Project.tdm_4_lpdft.h5`.
 
 If Cholesky options are selected, additional Cholesky-related files will also be used.
 Only :file:`JOBIPH` or :file:`JOBOLD` or :file:`wavefunction.h5` is needed; the code will first look for :file:`JOBOLD`
@@ -235,7 +235,7 @@ The :kword:`FUNC` is the only required keyword.
   L-PDFT does not require :file:`H0_Rotate.txt` or an XMS/CMS rotation. Instead,
   the effective Hamiltonian is constructed directly in the basis of the
   reference RASSCF states. The roots, orbitals, and CI vectors must correspond
-  to those used to generate :file:`$Project_tdm_4_lpdft.h5`.
+  to those used to generate :file:`$Project.tdm_4_lpdft.h5`.
 
   Translated and fully translated LSDA and GGA functionals are supported.
   Meta-GGA functionals and analytical gradients are not implemented for

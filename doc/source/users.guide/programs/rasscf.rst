@@ -835,7 +835,7 @@ Output files
   This ASCII file is generated for MC-PDFT calculations.
   It contains spin densities, total density and on-top pair density values on grid (coordinates in a.u.).
 
-:file:`$Project_tdm_4_lpdft.h5` (optional)
+:file:`$Project.tdm_4_lpdft.h5` (optional)
   This HDF5 file is generated when :kword:`LPDF` is specified. It contains the
   active-space one- and two-particle reduced density matrices and transition
   density matrices. A subsequent L-PDFT calculation
@@ -1798,7 +1798,7 @@ A list of these keywords is given below:
   roots are those defined by :kword:`CIROot`.
 
   The matrices and the root-pair map are written to
-  :file:`$Project_tdm_4_lpdft.h5`; consequently, HDF5 support is required. The
+  :file:`$Project.tdm_4_lpdft.h5`; consequently, HDF5 support is required. The
   following :program:`MCPDFT` input must contain both :kword:`MSPDft` and its
   own :kword:`LPDF` keyword. The file is specific to the RASSCF reference and
   should not be reused with a different set of orbitals or CI roots.
