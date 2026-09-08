@@ -62,7 +62,7 @@ call mma_allocate(Eqp,nCSFs,Label='Eqp')
 
 do p=1,SGS%nLev
 do q=1,SGS%nLev
-Write (6,*) 'p,q=',p,q
+!Write (6,*) 'p,q=',p,q
 
 do iCSF=1,nCSFs
   Psi(:) = Zero
@@ -77,8 +77,7 @@ do iCSF=1,nCSFs
 ! Call RecPrt('Sigma',' ',Sigma,1,nCSFs)
   Epq(iCSF)=Dot_product(Sigma,Sigma)
 end do
-
-Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
+!Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
 
 Psi(:) = One
 Sigma(:) = Zero
@@ -98,7 +97,16 @@ Else
                   Psi, &
                   Sigma)
 End If
-Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
+!Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
+
+Do iCSF=1,nCSFs
+If (Abs(Epq(iCSF)-Sigma(iCSF))>1.0e-10_wp) Then
+   Write (6,*) 'p, q, iCSF=',p, q, iCSF
+   Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
+   Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
+   Call Abend()
+End If
+End Do
 
 end do
 end do
@@ -106,7 +114,10 @@ end do
 call mma_deallocate(Eqp)
 call mma_deallocate(Epq)
 
-  EXS%Reuse_SGTMP=ReUse_Save
+EXS%Reuse_SGTMP=ReUse_Save
+Write (6,*)
+Write (6,*) 'Test passed!'
+Write (6,*)
 Call Abend()
 #endif
 
