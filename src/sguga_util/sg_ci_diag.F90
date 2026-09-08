@@ -264,8 +264,7 @@ end do
 ! (pp|qq) Epp Eqq
 !-------------------------------------------------------
 !
-!do p=1,SGS%nLev-1
-do p=1,SGS%nLev
+do p=1,SGS%nLev-1
 
    Epp(:)=Zero
    call SG_Epq_Psi(SGS,CIS,EXS, &
@@ -275,9 +274,7 @@ do p=1,SGS%nLev
                    Psi, &
                    Epp)
 
-!  do q=p+1,SGS%nLev
-   do q=1,SGS%nLev
-      if (p==q) Cycle
+   do q=p+1,SGS%nLev
 
       EqqEpp(:)=Zero
       call SG_Epq_Psi(SGS,CIS,EXS, &
@@ -289,7 +286,7 @@ do p=1,SGS%nLev
 
       ppqqTri = iTri(iTri(p,p),iTri(q,q))
 
-      Diag(:)=Diag(:) + Half*TUVX_Tri(ppqqTri)*EqqEpp(:)
+      Diag(:)=Diag(:) + TUVX_Tri(ppqqTri)*EqqEpp(:)
 
    end do
 end do
@@ -302,7 +299,7 @@ end do
 ! [ <EpqEqp> + <EqpEpq> - Epp - Eqq ]
 !-------------------------------------------------------
 !
-do p=1,SGS%nLev-1
+do p=1,SGS%nLev
 
    Epp(:)=Zero
    call SG_Epq_Psi(SGS,CIS,EXS, &
