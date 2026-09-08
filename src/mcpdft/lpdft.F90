@@ -13,6 +13,7 @@
 !***********************************************************************
 
 module lpdft
+  use Constants, only: Zero, One, Two, Half
   use stdalloc, only: mma_allocate, mma_deallocate
   use definitions, only: wp, iwp, u6
   use general_data, only: ispin, nash, nbas, nfro, nish, norb, nsym, ntot1, ntot2
@@ -26,10 +27,10 @@ module lpdft
   private
   logical :: do_lpdft=.false.
 
-  real(kind=wp) :: hconst = 0.0_wp
-  real(kind=wp) :: e_ot_lpdft = 0.0_wp
-  real(kind=wp) :: e_nuc_lpdft = 0.0_wp
-  real(kind=wp) :: e_wfn_lpdft = 0.0_wp
+  real(kind=wp) :: hconst = Zero
+  real(kind=wp) :: e_ot_lpdft = Zero
+  real(kind=wp) :: e_nuc_lpdft = Zero
+  real(kind=wp) :: e_wfn_lpdft = Zero
   real(kind=wp), allocatable, dimension(:) :: dm1_core
   real(kind=wp), allocatable, dimension(:) :: casd1_0, casd1s_0, casd2_0
   real(kind=wp), allocatable, dimension(:) :: casd1_0_blocked, casd1s_0_blocked
@@ -92,9 +93,9 @@ module lpdft
     integer(kind=iwp) :: disk, root
 
     disk = iAdr15(3)
-    casd1_0(:) = 0.0_wp
-    casd1s_0(:) = 0.0_wp
-    casd2_0(:) = 0.0_wp
+    casd1_0(:) = Zero
+    casd1s_0(:) = Zero
+    casd2_0(:) = Zero
 
     do root=1, nroots
       call dDaFile(JOBOLD,2, casd1, nacpar, disk)
@@ -155,7 +156,7 @@ module lpdft
       call Fold(nSym, nBas, casd1sAO_0, d1sao_0)
 
       ! Create full 1RDM (inactive/frozen + active) and store in d1ao_0
-      call daxpy_(nTot1, 1.0_wp, casD1AO_folded_0, 1, d1ao_0, 1)
+      call daxpy_(nTot1, One, casD1AO_folded_0, 1, d1ao_0, 1)
 
       ! Load in the nuclear potential
       Call Get_dScalar('PotNuc',potNuc)
@@ -165,9 +166,9 @@ module lpdft
       ! We need the 1 and 2-electron potentials
       do_pdftpot = .True.
 
-      veff1(:) = 0.0_wp
-      veff2(:) = 0.0_wp
-      vjk(:) = 0.0_wp
+      veff1(:) = Zero
+      veff2(:) = Zero
+      vjk(:) = Zero
       call put_dArray('ONTOPO', veff1, ntot1)
       call put_dArray('ONTOPT', veff2, nfint)
       call put_dArray('FI_V', vjk, ntot1)
@@ -179,8 +180,8 @@ module lpdft
       call put_iArray('nAsh', nash, nsym)
       call put_iArray('nIsh', nish, nsym)
 
-      htmp = 0.0_wp
-      gtmp = 0.0_wp
+      htmp = Zero
+      gtmp = Zero
       call DrvXV(htmp, gtmp, d1ao_0, potnuc, nTot1, First, Dff, NonEq, &
                  lRF, mcpdft_options%otfnal%otxc, ExFac, charge, ispin, dftfock, Do_DFT)
 
@@ -205,12 +206,12 @@ module lpdft
     real(kind=wp), intent(out) :: dm1_core_mo(ntot1)
     integer(kind=iwp) :: iCore, iMOff, iOrb, iSym
 
-    dm1_core_mo(:) = 0.0_wp
+    dm1_core_mo(:) = Zero
     iMOff = 1
     do iSym=1,nSym
       iOrb = nOrb(iSym)
       do iCore=1,nIsh(iSym)
-        dm1_core_mo(iMOff+iTri(iCore,iCore)-1) = 2.0_wp
+        dm1_core_mo(iMOff+iTri(iCore,iCore)-1) = Two
       end do
       iMOff = iMOff+nTri_Elem(iOrb)
     end do
@@ -227,13 +228,13 @@ module lpdft
     real(kind=wp), intent(out) :: d1mo(ntot1)
     integer(kind=iwp) :: iAct, iActOff, iCore, iMOff, iMO, iOrb, iSym, jAct, jMO
 
-    d1mo(:) = 0.0_wp
+    d1mo(:) = Zero
     iMOff = 1
     iActOff = 1
     do iSym=1,nSym
       iOrb = nOrb(iSym)
       do iCore=1,nIsh(iSym)
-        d1mo(iMOff+iTri(iCore,iCore)-1) = 2.0_wp
+        d1mo(iMOff+iTri(iCore,iCore)-1) = Two
       end do
       do iAct=1,nAsh(iSym)
         iMO = nIsh(iSym)+iAct
@@ -241,7 +242,7 @@ module lpdft
           jMO = nIsh(iSym)+jAct
           d1mo(iMOff+iTri(iMO,jMO)-1) = casd1_0_blocked(iActOff)
           if (iAct /= jAct) &
-            d1mo(iMOff+iTri(iMO,jMO)-1) = 2.0_wp*casd1_0_blocked(iActOff)
+            d1mo(iMOff+iTri(iMO,jMO)-1) = Two*casd1_0_blocked(iActOff)
           iActOff = iActOff+1
         end do
       end do
@@ -263,7 +264,7 @@ module lpdft
     integer(kind=iwp) :: activeOffset, blockedIndex, iAct, iSym, jAct
 
     call mma_allocate(canonical, nacpar, "ACTIVE_1E_CANONICAL")
-    canonical(:) = 0.0_wp
+    canonical(:) = Zero
     activeOffset = 0
     blockedIndex = 0
     do iSym=1,nSym
@@ -292,7 +293,7 @@ module lpdft
     real(kind=wp) :: e_core
     integer(kind=iwp) :: iCore, iMOff, iOrb, iSym
 
-    e_core = 0.0_wp
+    e_core = Zero
     iMOff = 1
     do iSym=1,nSym
       iOrb = nOrb(iSym)
@@ -320,11 +321,11 @@ module lpdft
     call mma_allocate(hcore_mo, ntot1, "HCORE_MO_LPDFT")
     call mma_allocate(vj_mo, ntot1, "VJ_MO_LPDFT")
 
-    e_core = 0.0_wp
-    dm1_core_mo(:) = 0.0_wp
-    hcore_mo(:) = 0.0_wp
-    vj_mo(:) = 0.0_wp
-    h1e_lpdft_ao(:) = 0.0_wp
+    e_core = Zero
+    dm1_core_mo(:) = Zero
+    hcore_mo(:) = Zero
+    vj_mo(:) = Zero
+    h1e_lpdft_ao(:) = Zero
 
     call get_core_dm1_mo(dm1_core_mo)
     call get_hcore(h1e_lpdft_ao)
@@ -350,21 +351,19 @@ module lpdft
   !> hconst = E_nuc + E_core + E_ot - E_1 - E_2
   !>***********************************************************************
   subroutine compute_hconst(CMO)
-    use Constants, only: One, Two
-
     implicit none
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
     real(kind=wp) :: e1_lpdft, e2_lpdft, e_core_lpdft, e_coul_lpdft, e_vhf_c, e_vhf_c_core, hnuc, lpdft_comp
     real(kind=wp), allocatable, dimension(:) :: casd1AO_0, casD1AO_folded_0, d1ao_0, d1mo_0
     real(kind=wp), external :: dDot_, energy_mcwfn
 
-    hnuc = 0.0_wp
-    e1_lpdft = 0.0_wp
-    e2_lpdft = 0.0_wp
-    e_core_lpdft = 0.0_wp
-    e_coul_lpdft = 0.0_wp
-    e_vhf_c = 0.0_wp
-    e_vhf_c_core = 0.0_wp
+    hnuc = Zero
+    e1_lpdft = Zero
+    e2_lpdft = Zero
+    e_core_lpdft = Zero
+    e_coul_lpdft = Zero
+    e_vhf_c = Zero
+    e_vhf_c_core = Zero
 
     ! Term-1: Get the nuclear repulsion energy
     Call Get_dScalar('PotNuc',hnuc)
@@ -384,14 +383,14 @@ module lpdft
     ! Just the active space density matrix in AO basis
     call Fold(nSym, nBas, casd1AO_0, casD1AO_folded_0)
     ! Complete 1e density matrix in AO basis
-    call daxpy_(ntot1, 1.0_wp, casD1AO_folded_0, 1, d1ao_0, 1)
+    call daxpy_(ntot1, One, casD1AO_folded_0, 1, d1ao_0, 1)
 
     call get_dm1_mo(d1mo_0)
 
     ! Compute the classical Coulomb energy
-    vj(:) = 0.0_wp
+    vj(:) = Zero
     call get_coulomb(CMO, dm1_core, casd1AO_0, vj)
-    e_coul_lpdft = 0.5_wp*dDot_(ntot1, vj, 1, d1ao_0, 1)
+    e_coul_lpdft = Half*dDot_(ntot1, vj, 1, d1ao_0, 1)
 
     ! Compute the veff1 (1e on-top potential) contribution
     e1_lpdft = dDot_(ntot1, veff1, 1, d1mo_0, 1)
@@ -447,7 +446,7 @@ module lpdft
     real(kind=wp), allocatable :: p2_reordered(:)
     integer(kind=iwp) :: isym, lrow, nao, nat, nio, no, nuvx, p_idx, puvx_idx
 
-    energy = 0.0_wp
+    energy = Zero
     if (istorp(nsym+1) <= 0) return
 
     call mma_allocate(p2_reordered, istorp(nsym+1), label='p2_reordered_lpdft')
@@ -468,7 +467,7 @@ module lpdft
       end do
     end do
 
-    energy = 0.5_wp*energy
+    energy = Half*energy
     call mma_deallocate(p2_reordered)
   end function contract_puvx_2rdm
 
@@ -481,8 +480,6 @@ module lpdft
   !> @param[out] h1e_lpdft_act: 1e L-PDFT Hamiltonian in the active space in MO basis.
   !***********************************************************************
   subroutine compute_h1e_lpdft(CMO)
-    use Constants, only: One
-
     implicit none
     real(kind=wp), dimension(ntot2), intent(in) :: CMO
     real(kind=wp) :: lpdft_comp
@@ -492,11 +489,11 @@ module lpdft
     call mma_allocate(vj_act, nacpar, "VJ_ACT_LPDFT")
     call mma_allocate(vjk_act, nacpar, "VJK_ACT_LPDFT")
 
-    h1e_lpdft_ao(:) = 0.0_wp
-    h1e_lpdft_act(:) = 0.0_wp
-    veff1_act(:) = 0.0_wp
-    vj_act(:) = 0.0_wp
-    vjk_act(:) = 0.0_wp
+    h1e_lpdft_ao(:) = Zero
+    h1e_lpdft_act(:) = Zero
+    veff1_act(:) = Zero
+    vj_act(:) = Zero
+    vjk_act(:) = Zero
 
     ! Compute the hcore term and transform it to the active space in MO basis
     call get_hcore(h1e_lpdft_ao)
@@ -505,16 +502,16 @@ module lpdft
     ! Add the classical Coulomb and veff2 core-response terms.
     ! Term-2: Add the classical Coulomb term
     call ao2moact_1e(CMO, vj, vj_act, nSym, nBas, nAsh, nFro, nIsh)
-    call daxpy_(nacpar, 1.0_wp, vj_act, 1, h1e_lpdft_act, 1)
+    call daxpy_(nacpar, One, vj_act, 1, h1e_lpdft_act, 1)
 
     ! Term-4: Add the FI_V/vhf_c term, already stored in the MO basis.
     call mo2act_1e(vjk, vjk_act, nSym, nOrb, nAsh, nIsh)
-    call daxpy_(nacpar, 1.0_wp, vjk_act, 1, h1e_lpdft_act, 1)
+    call daxpy_(nacpar, One, vjk_act, 1, h1e_lpdft_act, 1)
 
     ! Compute the 1e on-top potential term and transform it to the active space
     ! in MO basis
     call mo2act_1e(veff1, veff1_act, nSym, nOrb, nAsh, nIsh)
-    call daxpy_(nacpar, 1.0_wp, veff1_act, 1, h1e_lpdft_act, 1)
+    call daxpy_(nacpar, One, veff1_act, 1, h1e_lpdft_act, 1)
 
     ! Adding the hybrid component, if needed.
     ! For hybrid L-PDFT, the 1e Hamiltonian is scaled by (1-lambda)
@@ -531,12 +528,10 @@ module lpdft
   end subroutine compute_h1e_lpdft
 
   subroutine compute_h2e_lpdft()
-    use Constants, only: One
-
     implicit none
     real(kind=wp) :: lpdft_comp
 
-    h2e_lpdft_act(:) = 0.0_wp
+    h2e_lpdft_act(:) = Zero
     ! Convert the symmetry-blocked on-top potential to canonical pair-pair packing;
     ! symmetry-forbidden elements stay zero for contraction with the canonical 2-TDM.
     call get_tuvx(veff2, h2e_lpdft_act)
@@ -562,7 +557,6 @@ module lpdft
   !***********************************************************************
   subroutine construct_lpdft_ham()
 
-    use Constants, only: Zero
     use mspdft, only: heff
 #ifdef _HDF5_
     use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
@@ -721,8 +715,6 @@ module lpdft
 
   function contract_lpdft_rdms(rdm1,rdm2) result(ediagval)
 
-    use Constants, only: One, Zero
-
     implicit none
     real(kind=wp), intent(in) :: rdm1(nac,nac), rdm2(nacpr2)
     real(kind=wp) :: ediagval, lpdft_comp
@@ -758,7 +750,7 @@ module lpdft
     real(kind=wp) :: energy
     integer(kind=iwp) :: h2Index, iAct, ij, ijPair, ijkl, jAct, kAct, kl, klPair, lAct
 
-    energy = 0.0_wp
+    energy = Zero
     do jAct=1,nac
       do iAct=1,nac
         ij = iAct+nac*(jAct-1)
@@ -813,8 +805,6 @@ module lpdft
   !> @return eoffdiagval: The off-diagonal element of the effective Hamiltonian.
   !***********************************************************************
   function contract_lpdft_tdms(tdm1,tdm2) result(eoffdiagval)
-
-    use Constants, only: Zero
 
     implicit none
     real(kind=wp), intent(in) :: tdm1(nac,nac), tdm2(:)
@@ -901,29 +891,29 @@ module lpdft
 
     call zero_global_arrays()
 
-    dm1_core(:) = 0.0_wp
+    dm1_core(:) = Zero
     call Get_D1I_RASSCF(CMO, dm1_core)
 
   end subroutine init_vars
 
   subroutine zero_global_arrays()
-    hconst = 0.0_wp
-    e_ot_lpdft = 0.0_wp
-    e_nuc_lpdft = 0.0_wp
-    e_wfn_lpdft = 0.0_wp
-    casd1_0(:) = 0.0_wp
-    casd1s_0(:) = 0.0_wp
-    casd1_0_blocked(:) = 0.0_wp
-    casd1s_0_blocked(:) = 0.0_wp
-    casd2_0(:) = 0.0_wp
-    dm1_core(:) = 0.0_wp
-    veff1(:) = 0.0_wp
-    veff2(:) = 0.0_wp
-    h1e_lpdft_ao(:) = 0.0_wp
-    h1e_lpdft_act(:) = 0.0_wp
-    h2e_lpdft_act(:) = 0.0_wp
-    vj(:) = 0.0_wp
-    vjk(:) = 0.0_wp
+    hconst = Zero
+    e_ot_lpdft = Zero
+    e_nuc_lpdft = Zero
+    e_wfn_lpdft = Zero
+    casd1_0(:) = Zero
+    casd1s_0(:) = Zero
+    casd1_0_blocked(:) = Zero
+    casd1s_0_blocked(:) = Zero
+    casd2_0(:) = Zero
+    dm1_core(:) = Zero
+    veff1(:) = Zero
+    veff2(:) = Zero
+    h1e_lpdft_ao(:) = Zero
+    h1e_lpdft_act(:) = Zero
+    h2e_lpdft_act(:) = Zero
+    vj(:) = Zero
+    vjk(:) = Zero
   end subroutine zero_global_arrays
 
   subroutine release_vars()

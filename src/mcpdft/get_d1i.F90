@@ -27,6 +27,7 @@ subroutine get_d1i_mcpdft(cmo, d1i)
   ! Returns:
   !   D1I: ndarray (ntot2)
   !     Frozen/Inactive one-body reduced density matrix in AO basis
+  use Constants, only: Zero, Two
   use definitions, only: wp
   implicit none
 #include "rasdim.fh"
@@ -34,9 +35,6 @@ subroutine get_d1i_mcpdft(cmo, d1i)
 
   real(kind=wp), dimension(ntot2) :: cmo
   real(kind=wp), dimension(ntot2) :: d1i
-
-  real(kind=wp), parameter :: zero=0.0_wp
-  real(kind=wp), parameter :: two=2.0_wp
 
   integer :: isym, nb, nfi, nbsq, ista
 
@@ -46,11 +44,11 @@ subroutine get_d1i_mcpdft(cmo, d1i)
     nbsq = nb**2
     nfi = nfro(isym) + nish(isym)
     if(nb > 0) then
-      call dcopy_(nbsq, [zero], 0, d1i(ista), 1)
+      call dcopy_(nbsq, [Zero], 0, d1i(ista), 1)
       if(nfi > 0) then
         ! D1I = 2* C \dot C within the correct symmetry
-        call DGEMM_('n', 't', nb, nb, nfi, two, &
-             cmo(ista), nb, cmo(ista), nb, zero, d1i(ista), nb)
+        call DGEMM_('n', 't', nb, nb, nfi, Two, &
+             cmo(ista), nb, cmo(ista), nb, Zero, d1i(ista), nb)
       end if
       ista = ista + nbsq
     end if
