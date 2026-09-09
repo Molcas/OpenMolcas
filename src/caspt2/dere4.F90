@@ -18,8 +18,7 @@ use BDerNEV, only: Gact, Gder
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX
 use general_data, only: NACTEL, STSYM
 use caspt2_module, only: JSTATE, MXCI, NSYM
-use sguga, only: sg_epq_psi
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, sg_epq_psi, SGS
 use NEVPT2_E4, only: do_xvec, do_yvec, ixyzend, ixyzsta, NEVPT2_E4_derivative1, NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, &
                      NEVPT2_E4_XYder1, NEVPT2_E4_XYder2, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, NXY_work, NXYVEC, nxyzdim, NZVEC
 use PrintLevel, only: verbose

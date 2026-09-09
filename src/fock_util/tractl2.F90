@@ -19,7 +19,7 @@ subroutine TraCtl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !***********************************************************************
 
 use Fock_util_global, only: ALGO, DoCholesky
-use general_data, only: LUINTM
+use rasscf_files, only: LUINTM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 use general_data, only: NTOT1

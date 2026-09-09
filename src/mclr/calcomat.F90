@@ -20,7 +20,8 @@ subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
 use ipPage, only: ipget, W
 use MCLR_Data, only: ipCI, ipMat, nAcPr2, nConf1, nDens, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: nBas, nRoots, nSym, State_Sym
+use general_data, only: nSym, STSym
+use input_mclr, only: nBas, nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -34,7 +35,7 @@ real(kind=wp) :: rdum(1)
 real(kind=wp), allocatable :: FMO1(:)
 real(kind=wp), external :: DDot_
 
-nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
+nConf3 = nint(max(xispsm(STSym,1),xispsm(STSym,1)))
 iptmp = ipGet(nconf3*nRoots)
 CSFOK(:,:) = Zero
 W(iptmp)%A(1:nRoots*nConf3) = Zero
@@ -59,7 +60,7 @@ do I=1,nRoots
     end if
   end do
   !call ipin(ipCI)
-  call CISigma_SA(0,State_Sym,State_Sym,FMO1,nDens,FMO2t(:,I),NACPR2,rdum,1,ipci,iptmp,.true.)
+  call CISigma_SA(0,STSym,STSym,FMO1,nDens,FMO2t(:,I),NACPR2,rdum,1,ipci,iptmp,.true.)
   CSFOK(:,I) = CSFOK(:,I)+real(nRoots,kind=wp)*W(iptmp)%A((I-1)*nConf1+1:I*nConf1)
 
   do L=1,nRoots

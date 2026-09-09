@@ -37,7 +37,7 @@ lunsta = 21
 if (iokey == 1) then
   ! Fortarn IO
   call molcas_binaryopen_vanilla(lunsta,'INTSTA')
-  !open(unit=lunsta,file='INTSTA',form='unformatted')
+  !open(lunsta,file='INTSTA',form='unformatted')
 
 else
   ! MOLCAS IO

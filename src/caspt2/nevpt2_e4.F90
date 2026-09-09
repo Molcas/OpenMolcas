@@ -63,8 +63,7 @@ module NEVPT2_E4
 use Index_Functions, only: iTri, nTri_Elem
 use general_data, only: STSYM
 use caspt2_module, only: MXCI, NTUVES
-use sguga, only: sg_epq_psi
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, sg_epq_psi, SGS
 use SUPERINDEX, only: KTUV
 use Symmetry_Info, only: Mul
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
@@ -533,7 +532,7 @@ subroutine NEVPT2_E4_contract2(iSym0,iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUF
       nsgm2 = CIS(istate)%ncsf(issg2)
       iv = SGS(istate)%L2ACT(ivlev)
       ix = SGS(istate)%L2ACT(ixlev)
-      do ipxy=ipxysta,ipxyend
+      do ipxy = ipxysta,ipxyend
         itlev = idx2ij(1,ipxy)
         iulev = idx2ij(2,ipxy)
         istu = Mul(SGS(istate)%ism(itlev),SGS(istate)%ism(iulev))
@@ -1338,7 +1337,7 @@ subroutine NEVPT2_E4_XYder2(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,Gact
       nsgm2 = CIS(istate)%ncsf(issg2)
       iv = SGS(istate)%L2ACT(ivlev)
       ix = SGS(istate)%L2ACT(ixlev)
-      !ibuf = ibuf+1
+      !ibuf = ibuf + 1
       BUFT(1:MXCI) = Zero
       call SG_Epq_Psi(SGS(istate),CIS(istate),EXS(istate),IVLEV,IXLEV,One,STSYM,CI,BUFT(:))
       if (NXY_work == NLEV) then

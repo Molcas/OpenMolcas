@@ -22,7 +22,7 @@ integer(kind=iwp), intent(in) :: wrksize, LunAux, niter
 real(kind=wp), intent(in) :: wrk(wrksize), E1old, E2old
 integer(kind=iwp) :: len_
 
-!open(unit=LunAux,File='RstFil',form='unformatted')
+!open(LunAux,File='RstFil',form='unformatted')
 call MOLCAS_BinaryOpen_Vanilla(LunAux,'RstFil')
 len_ = no*nv
 call wri_chcc(LunAux,len_,wrk(PosT1o))

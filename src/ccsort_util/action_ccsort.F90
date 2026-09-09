@@ -22,10 +22,11 @@ use Definitions, only: wp, iwp, u6, RtoB
 implicit none
 real(kind=wp), intent(out) :: foka(mbas*(mbas+1)/2), fokb(mbas*(mbas+1)/2)
 real(kind=wp), intent(in) :: fi(*), eps(mbas)
-integer(kind=iwp) :: a, freespace, ickey, keyred, ndimv1, ndimv2, ndimv3, ndimvi, p, post, rc, symp, sympq, sympqr, symq, symr, &
-                     syms, t3help1, t3help2, t3help3, t3help4, vsize, wrksize
+integer(kind=iwp) :: a, freespace, ickey, keyred, lu, ndimv1, ndimv2, ndimv3, ndimvi, p, post, rc, symp, sympq, sympqr, symq, &
+                     symr, syms, t3help1, t3help2, t3help3, t3help4, vsize, wrksize
 integer(kind=iwp), allocatable :: AMMAP(:,:,:), ABMAP(:,:,:), JN(:,:), KN(:,:), LN(:,:), PQIND(:,:)
 real(kind=wp), allocatable :: CCSORT(:), CCSORT2(:), VALN(:,:)
+integer(kind=iwp), external :: isFreeUnit
 
 ! distribute memory
 
@@ -73,11 +74,11 @@ if (iokey == 1) then
   call molcas_binaryopen_vanilla(luna3,'INTA3')
   call molcas_binaryopen_vanilla(luna4,'INTA4')
   call molcas_binaryopen_vanilla(lunab,'INTAB')
-  !open(unit=luna1,file='INTA1',form='unformatted')
-  !open(unit=luna2,file='INTA2',form='unformatted')
-  !open(unit=luna3,file='INTA3',form='unformatted')
-  !open(unit=luna4,file='INTA4',form='unformatted')
-  !open(unit=lunab,file='INTAB',form='unformatted')
+  !open(luna1,file='INTA1',form='unformatted')
+  !open(luna2,file='INTA2',form='unformatted')
+  !open(luna3,file='INTA3',form='unformatted')
+  !open(luna4,file='INTA4',form='unformatted')
+  !open(lunab,file='INTAB',form='unformatted')
 
 else
   ! MOLCAS IO
@@ -403,10 +404,11 @@ call mkintsta(CCSORT,wrksize,foka,fokb)
 
 ! write general informations to INPDAT
 
-call molcas_binaryopen_vanilla(1,'INPDAT')
-!open(unit=1,file='INPDAT',form='unformatted')
-write(1) NACTEL,ISPIN,NSYM,LSYM,mul,noa,nob,nva,nvb,norb,eps,Escf
-close(1)
+lu = isFreeUnit(13)
+call molcas_binaryopen_vanilla(lu,'INPDAT')
+!open(lu,file='INPDAT',form='unformatted')
+write(lu) NACTEL,ISPIN,NSYM,LSYM,mul,noa,nob,nva,nvb,norb,eps,Escf
+close(lu)
 
 ! Release the memory
 call mma_deallocate(CCSORT)

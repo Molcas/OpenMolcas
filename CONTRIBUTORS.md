@@ -115,6 +115,7 @@ José Manuel Hermida-Ramón
 Bernd Artur Heß  
 Asbjørn Holt  
 Chad E. Hoyer  
+Bhavnesh Jangid  
 Denis Jelovina  
 Marcus Johansson  
 Andy Kaiser  
@@ -141,6 +142,7 @@ Deyan Mihaylov
 Samuel Mikes  
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
+Prashant J. Nair  
 Takahito Nakajima  
 Naoki Nakatani  
 Pavel Neogrády  
@@ -200,6 +202,7 @@ Steven Vancoillie
 Valera Veryazov  
 Victor P. Vysotskiy  
 Ulf Wahlgren  
+Meng Wang  
 Yubin Wang  
 Mark A. Watson  
 Hans-Joachim Werner  

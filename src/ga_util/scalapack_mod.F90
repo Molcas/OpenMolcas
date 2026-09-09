@@ -37,7 +37,7 @@ private
 integer(kind=BLASInt) :: iam, iSLctxt, maxproc, mycol, myrow, nnodes, npcol, nprow
 logical(kind=BLASInt) :: init = .false.
 
-public :: ga_pdsyevx_
+public :: ga_pdsyevd_, ga_pdsyevx_
 
 contains
 
@@ -98,7 +98,7 @@ subroutine ga_pdsyevx_(g_a,g_b,eval,nb8)
 
   call SLinit2_(n)
   oactive = iam < maxproc
-  call ga_sync
+  call ga_sync()
   if (oactive) then
 
     !*** find SBS format parameters
@@ -213,6 +213,145 @@ subroutine ga_pdsyevx_(g_a,g_b,eval,nb8)
   if ((maxproc < nnodes) .or. (dima1 <= nb)) call GA_Brdcst(MT_DBL,eval,dima18,0)
 
 end subroutine ga_pdsyevx_
+
+subroutine ga_pdsyevd_(g_a,g_b,eval,nb8)
+
+  use GA_Wrapper, only: GA_Brdcst, MT_DBL
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp), intent(in) :: g_a, g_b, nb8
+  real(kind=wp), intent(_OUT_) :: eval(*)
+  integer(kind=iwp) :: dimA18, dimA28, dimB18, dimB28, elemA, elemB, info8, lcwork, liwork, typeA, typeB
+  integer(kind=BLASInt) :: descA(9), descB(9), dimA1, dimA2, dimB1, dimB2, info, iwquery(1), lcwork4, lda, ldb, liwork4, lwormtr, &
+                           mpA, mpB, n, nb, nqA, nqB, numroc, trilwmin
+  real(kind=wp) :: wquery(1)
+  logical(kind=iwp) :: oactive
+  character :: jobz, uplo
+  integer(kind=iwp), allocatable :: adriwork(:)
+  real(kind=wp), allocatable :: adrA(:), adrB(:), adrcwork(:)
+
+  ! Divide-and-conquer version of ga_pdsyevx_
+
+  if (nb8 == 0) then
+    nb = 16
+  else
+    nb = nb8
+  end if
+
+  !*** check GA info for input arrays
+
+  call ga_inquire(g_a,typeA,dimA18,dimA28)
+  call ga_inquire(g_b,typeB,dimB18,dimB28)
+
+  dima1 = dima18
+  dima2 = dima28
+  dimb1 = dimb18
+  dimb2 = dimb28
+  n = dima1
+  if (nb < 1) nb = 1
+  if (dimA1 /= dima2) call ga_error('ga_pdsyevd: matrix A not square ',0)
+  if (dimb1 /= dimb2) call ga_error('ga_pdsyevd: matrix B not square ',0)
+  if (dimb1 /= n) call ga_error('ga_pdsyevd: size matrix A and B differ ',0)
+
+  !*** initialize SL interface
+
+  call SLinit2_(n)
+
+  ! PDSYEVD hangs when a process of the BLACS grid owns no part of the matrix.
+  ! Fall back to PDSYEVX there; small matrices are not where PDSYEVD pays off.
+  ! The test here uses maxproc, not nprow/npcol,
+  ! because those are zero on inactive processes and every process must take the same branch.
+  if (n <= nb*maxproc) then
+    call ga_pdsyevx_(g_a,g_b,eval,nb8)
+    return
+  end if
+
+  oactive = iam < maxproc
+  call ga_sync()
+  if (oactive) then
+
+    !*** find SBS format parameters
+
+    mpA = numroc(dimA1,nb,myrow,0_BLASInt,nprow)
+    nqA = numroc(dimA2,nb,mycol,0_BLASInt,npcol)
+
+    mpB = numroc(dimB1,nb,myrow,0_BLASInt,nprow)
+    nqB = numroc(dimB2,nb,mycol,0_BLASInt,npcol)
+
+    lda = max(1_BLASInt,mpA)
+    ldb = max(1_BLASInt,mpB)
+
+    elemA = mpA*nqA
+    if (elemA /= 0) call mma_allocate(adrA,elemA,Label='adrA')
+
+    !*** copy g_a to A using the block cyclic scalapack format
+
+    call ga_to_SL2_(g_a,dimA1,dimA2,nb,nb,adrA,lda)
+
+    elemB = mpB*nqB
+    if (elemB /= 0) call mma_allocate(adrB,elemB,Label='adrB')
+  end if
+  call ga_sync()
+  if (oactive) then
+
+    !*** fill SCALAPACK matrix descriptors
+
+    call descinit(descA,dimA1,dimA2,nb,nb,0_BLASInt,0_BLASInt,islctxt,lda,info)
+    info8 = info
+    if (info8 /= 0) call ga_error(' ga_pdsyevd: descinit A failed ',-info8)
+    call descinit(descB,dimB1,dimB2,nb,nb,0_BLASInt,0_BLASInt,islctxt,ldb,info)
+    info8 = info
+    if (info8 /= 0) call ga_error(' ga_pdsyevd: descinit B failed ',-info8)
+
+    jobz = 'V'
+    uplo = 'L'
+
+    ! Workspace
+    ! https://www.netlib.org/scalapack/double/pdsyevd.f
+    ! https://www.netlib.org/scalapack/double/pdormtr.f (LWORMTR, SIDE='L')
+    trilwmin = 3*n+max(nb*(mpA+1_BLASInt),3_BLASInt*nb)
+    lcwork = max(1_BLASInt+6_BLASInt*n+2_BLASInt*mpA*nqA,trilwmin)+2_BLASInt*n
+    lwormtr = max((nb*(nb-1_BLASInt))/2_BLASInt,(nqB+mpB)*nb)+nb*nb
+    lcwork = max(lcwork,int(trilwmin+lwormtr,kind=iwp))
+    liwork = 7*n+8*npcol+2
+
+    lcwork4 = -1_BLASInt
+    liwork4 = -1_BLASInt
+    call pdsyevd(jobz,uplo,n,adrA,1_BLASInt,1_BLASInt,descA,eval,adrB,1_BLASInt,1_BLASInt,descB,wquery,lcwork4,iwquery,liwork4,info)
+    if (info == 0) then
+      lcwork = max(lcwork,nint(wquery(1),kind=iwp))
+      liwork = max(liwork,int(iwquery(1),kind=iwp))
+    else
+      call ga_error(' ga_pdsyevd: pdsyevd (workspace) failed ',info)
+    end if
+
+    if (lcwork /= 0) call mma_allocate(adrcwork,lcwork,Label='adrcwork')
+    if (liwork /= 0) call mma_allocate(adriwork,liwork,Label='adriwork')
+
+    lcwork4 = lcwork
+    liwork4 = liwork
+    call pdsyevd(jobz,uplo,n,adrA,1_BLASInt,1_BLASInt,descA,eval,adrB,1_BLASInt,1_BLASInt,descB,adrcwork,lcwork4,adriwork, &
+                 liwork4,info)
+
+    if (info /= 0) call ga_error(' ga_pdsyevd: pdsyevd failed ',info)
+
+    !*** copy solution matrix back to g_b
+
+    call ga_from_SL2_(g_b,dimA1,dimB2,nb,nb,adrB,ldb)
+
+    !*** deallocate work/SL arrays
+
+    if (liwork /= 0) call mma_deallocate(adriwork)
+    if (lcwork /= 0) call mma_deallocate(adrcwork)
+    if (elemB /= 0) call mma_deallocate(adrB)
+    if (elemA /= 0) call mma_deallocate(adrA)
+  end if
+
+  call ga_sync()
+  ! broadcast evals
+  if ((maxproc < nnodes) .or. (dima1 <= nb)) call GA_Brdcst(MT_DBL,eval,dima18,0)
+
+end subroutine ga_pdsyevd_
 
 subroutine slinit2_(n)
 

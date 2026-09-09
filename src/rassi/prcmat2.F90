@@ -58,7 +58,7 @@ else
   return
 end if
 Lu = IsFreeUnit(88)
-open(unit=LU,file=FILENAME,status='REPLACE')
+open(LU,file=FILENAME,status='REPLACE')
 write(LU,*) '#NROW NCOL REAL IMAG'
 do JSTA=1,NSS
   do ISS=1,NSS

@@ -63,7 +63,7 @@ end subroutine writejob
 !> @param[in] e_states state energies
 subroutine save_energies(e_states)
 
-  use general_data, only: jobiph
+  use rasscf_files, only: jobiph
 # ifdef _HDF5_
   use mcpdft_input, only: mcpdft_options
   use mh5, only: mh5_close_file, mh5_open_attr, mh5_open_dset, mh5_open_file_rw, mh5_put_attr, mh5_put_dset
@@ -106,7 +106,8 @@ end subroutine save_energies
 !> @param[in] nstates number of states
 subroutine save_ci(si_pdft,nstates)
 
-  use general_data, only: jobiph, nconf
+  use rasscf_files, only: jobiph
+  use general_data, only: nconf
 # ifdef _HDF5_
   use mcpdft_input, only: mcpdft_options
   use mh5, only: mh5_close_file, mh5_fetch_dset, mh5_open_dset, mh5_open_file_rw, mh5_put_dset

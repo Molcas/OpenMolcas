@@ -82,7 +82,7 @@ function get_P_GAS(ngssh) result(P)
 
   use sorting, only: argsort
   use general_data, only: nSym
-  use gas_data, only: nGAS
+  use general_data, only: nGAS
 
   integer(kind=iwp), intent(in) :: ngssh(:,:)
   integer(kind=iwp) :: P(sum(ngssh))

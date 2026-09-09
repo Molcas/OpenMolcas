@@ -14,7 +14,8 @@ subroutine Pickmo_td(rmo,rmoaa,idsym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMO, nA
-use input_mclr, only: nAsh, nBas, nIsh, nSym, ntAsh, TimeDep
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas, ntAsh, TimeDep
 use Definitions, only: wp, iwp
 
 #include "intent.fh"

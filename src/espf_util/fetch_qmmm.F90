@@ -37,40 +37,40 @@ integer(kind=iwp), parameter :: QMGMX = 0, MMGMX = 1
 real(kind=wp), parameter :: AuToNm = Angstrom/Ten, NmToAng = Ten
 integer(kind=iwp), external :: isFreeUnit
 interface
-  subroutine mmslave_done(gms) bind(C,NAME='mmslave_done_')
+  subroutine mmslave_done(gms) bind(C,name='mmslave_done_')
     import :: c_ptr
     type(c_ptr), value :: gms
   end subroutine mmslave_done
-  function mmslave_init(cr,log_) bind(C,NAME='mmslave_init_')
+  function mmslave_init(cr,log_) bind(C,name='mmslave_init_')
     import :: c_char, c_ptr
     type(c_ptr) :: mmslave_init
     type(c_ptr), value :: cr
     character(kind=c_char) :: log_(*)
   end function mmslave_init
-  function mmslave_get_atomnumber(gms,id) bind(C,NAME='mmslave_get_atomnumber_')
+  function mmslave_get_atomnumber(gms,id) bind(C,name='mmslave_get_atomnumber_')
     import :: c_int, c_ptr
     integer(kind=c_int) :: mmslave_get_atomnumber
     type(c_ptr), value :: gms
     integer(kind=c_int), value :: id
   end function mmslave_get_atomnumber
-  function mmslave_get_group_id(gms,id) bind(C,NAME='mmslave_get_group_id_')
+  function mmslave_get_group_id(gms,id) bind(C,name='mmslave_get_group_id_')
     import :: c_int, c_ptr
     integer(kind=c_int) :: mmslave_get_group_id
     type(c_ptr), value :: gms
     integer(kind=c_int), value :: id
   end function mmslave_get_group_id
-  function mmslave_natoms(gms) bind(C,NAME='mmslave_natoms_')
+  function mmslave_natoms(gms) bind(C,name='mmslave_natoms_')
     import :: c_int, c_ptr
     integer(kind=c_int) :: mmslave_natoms
     type(c_ptr), value :: gms
   end function mmslave_natoms
-  function mmslave_read_tpr(tpr,gms) bind(C,NAME='mmslave_read_tpr_')
+  function mmslave_read_tpr(tpr,gms) bind(C,name='mmslave_read_tpr_')
     import :: c_char, c_int, c_ptr
     integer(kind=c_int) :: mmslave_read_tpr
     character(kind=c_char) :: tpr(*)
     type(c_ptr), value :: gms
   end function mmslave_read_tpr
-  function init_commrec() bind(C,NAME='init_commrec_')
+  function init_commrec() bind(C,name='init_commrec_')
     import :: c_ptr
     type(c_ptr) :: init_commrec
   end function init_commrec
@@ -194,7 +194,7 @@ function mmslave_copyx_wrapper(gms,natoms,x)
   integer(kind=c_int) :: natoms
   real(kind=wp), target :: x(*)
   interface
-    function mmslave_copyx(gms,natoms,x) bind(C,NAME='mmslave_copyx_')
+    function mmslave_copyx(gms,natoms,x) bind(C,name='mmslave_copyx_')
       import :: c_int, c_ptr
       integer(kind=c_int) :: mmslave_copyx
       type(c_ptr), value :: gms, x

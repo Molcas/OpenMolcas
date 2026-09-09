@@ -14,7 +14,8 @@ subroutine Kap_CI(h1,nh1,h2,nh2,ipS1)
 use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI, nConf1
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: nCSF, nRoots, State_Sym
+use general_data, only: STSym
+use input_mclr, only: nCSF, nRoots
 use ISRotation, only: unequal_SA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
@@ -28,12 +29,12 @@ real(kind=wp) :: rDum(1)
 real(kind=wp), allocatable :: R(:,:)
 real(kind=wp), external :: DDot_
 
-call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,1,ipCI,ipS1,.true.)
+call CISigma_sa(0,STSym,STSym,h1,nh1,h2,nh2,rdum,1,ipCI,ipS1,.true.)
 
 call ipin(ipS1)
 call ipin(ipCI)
 
-W(ipS1)%A(1:nroots*ncsf(STATE_SYM)) = Two*W(ipS1)%A(1:nroots*ncsf(STATE_SYM))
+W(ipS1)%A(1:nroots*ncsf(STSym)) = Two*W(ipS1)%A(1:nroots*ncsf(STSym))
 
 ! if not equally state-averaged, do not project out the internal space contributions here
 if (unequal_SA) return

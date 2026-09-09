@@ -25,7 +25,8 @@ subroutine Compress2(ArrayIn,ArrayOut,dsym)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, nB, nDens, nDensC
-use input_mclr, only: nIsh, nOrb, nRs1, nRs2, nRs3, nSym, TimeDep
+use general_data, only: nIsh, nRs1, nRs2, nRs3, nSym
+use input_mclr, only: nOrb, TimeDep
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 

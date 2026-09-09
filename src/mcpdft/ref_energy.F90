@@ -15,7 +15,7 @@ use PrintLevel, only: USUAL
 use mcpdft_output, only: iprglb
 use mcpdft_input, only: mcpdft_options
 use mspdft, only: heff
-use general_data, only: jobiph
+use rasscf_files, only: jobiph
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 #endif

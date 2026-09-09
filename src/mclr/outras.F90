@@ -27,7 +27,8 @@ subroutine OutRAS(iKapDisp,iCiDisp)
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use MCLR_Data, only: DspVec, lDisp, LuTEMP, nConf1, nDens, nDensC
-use input_mclr, only: iMethod, kPrint, nCSF, nDisp, nSym, nTPert, State_Sym
+use general_data, only: nSym, STSym
+use input_mclr, only: iMethod, kPrint, nCSF, nDisp, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -52,7 +53,7 @@ write(u6,*)
 idisp = 0
 do iSym=1,nSym
   call Setup_MCLR(iSym)
-  PState_SYM = Mul(State_Sym,iSym)
+  PState_SYM = Mul(STSym,iSym)
   nconfM = ncsf(PState_Sym)
   nconf1 = ncsf(PState_Sym)
   CI = .false.
@@ -66,7 +67,7 @@ do iSym=1,nSym
   call mma_allocate(Kap3,nDens,Label='Kap3')
   if (CI) then
     call mma_allocate(CIp1,nconfM,Label='CIp1')
-    call InCSFSD(Pstate_sym,State_sym)
+    call InCSFSD(Pstate_sym,STSym)
   end if
   do jDisp=1,lDisp(iSym)
     iDisp = iDisp+1

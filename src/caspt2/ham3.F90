@@ -25,8 +25,7 @@ subroutine HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
 
 use Index_Functions, only: iTri, nTri3_Elem
 use Symmetry_Info, only: Mul
-use sguga, only: sg_epq_psi
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, sg_epq_psi, SGS
 use Molcas, only: MxLev
 use general_data, only: NACTEL, nLev
 use caspt2_module, only: IASYM, ISCF, MxCI, NASHT, NCONF, NSYM

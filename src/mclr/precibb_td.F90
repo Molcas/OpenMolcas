@@ -34,7 +34,8 @@ subroutine Precibb_td(ib,is,js,nd,rout,nba,Temp1,Scr,Temp2,fockii,fockai,focki,f
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use input_mclr, only: nAsh, nBas, nIsh
+use general_data, only: nAsh, nIsh
+use input_mclr, only: nBas
 use Constants, only: Four, Twelve
 use Definitions, only: wp, iwp
 

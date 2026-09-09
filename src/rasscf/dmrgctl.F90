@@ -45,13 +45,13 @@ use wadr, only: FMO
 use rctfld_module, only: lRF
 use casvb_global, only: ifvb
 use timers, only: TimeDens
-use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, Ptmp
-use gas_data, only: iDoGAS
+use general_data, only: iDoGAS
 use rasscf_global, only: DFTFOCK, ExFac, iAdr15, iPCMRoot, iRoot, ITER, KSDFT, lRoots, n_Det, NAC, NACPAR, NACPR2, nFint, nRoots, &
                          S, Weight
 use PrintLevel, only: DEBUG, INSANE
 use output_ras, only: IPRLOC
-use general_data, only: ISPIN, jobiph, nactel, nash, ntot2
+use rasscf_files, only: jobiph
+use general_data, only: ISPIN, nactel, nash, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -63,7 +63,8 @@ integer(kind=iwp), intent(in) :: iFinal, IRst
 integer(kind=iwp) :: i, iPrLev, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
 real(kind=wp) :: dum1, dum2, dum3, rdum(1), Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF
-real(kind=wp), allocatable :: P2MO(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), TmpD1S(:), TmpDS(:), TmpPUVX(:), TmpTUVX(:)
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), P2MO(:), PAtmp(:), Pscr(:), Ptmp(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), &
+                              TmpD1S(:), TmpDS(:), TmpPUVX(:), TmpTUVX(:)
 
 IPRLEV = IPRLOC(3)
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering DMRGCTL'
@@ -175,7 +176,7 @@ if (lRF .or. (KSDFT /= 'SCF') .or. Do_ESPF) then
 #       endif
 
         ! NN.14 NOTE: IFCAS must be 0 for DMRG-CASSCF
-        !if (IFCAS > 2) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+        !if (IFCAS > 2) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
         call mma_deallocate(Pscr)
         call mma_deallocate(PAtmp)
       end if

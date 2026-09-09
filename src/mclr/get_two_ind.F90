@@ -19,7 +19,8 @@ subroutine Get_Two_Ind(IndPUVX,IndTUVX)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use input_mclr, only: nAsh, nIsh, nOrb, nSym, ntAsh, ntBas
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nOrb, ntAsh, ntBas
 use Definitions, only: iwp
 
 implicit none

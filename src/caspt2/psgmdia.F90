@@ -23,7 +23,7 @@ subroutine PSGMDIA(ALPHA,BETA,IVEC,JVEC)
 
 use EQSOLV, only: IDBMat
 use caspt2_global, only: LUSBT
-use caspt2_module, only: nASup, nInDep, nISup, nSym
+use caspt2_module, only: CPUDIA, nASup, nInDep, nISup, nSym, TIODIA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -32,7 +32,10 @@ implicit none
 real(kind=wp), intent(in) :: ALPHA, BETA
 integer(kind=iwp), intent(in) :: IVEC, JVEC
 integer(kind=iwp) :: ICASE, ISYM, JD, lg_V1, lg_V2, NAS, NIN, NIS
+real(kind=wp) :: CPU, CPU0, CPU1, TIO, TIO0, TIO1
 real(kind=wp), allocatable :: BD(:), ID(:)
+
+call TIMING(CPU0,CPU,TIO0,TIO)
 
 do ICASE=1,13
   do ISYM=1,NSYM
@@ -80,5 +83,9 @@ do ICASE=1,13
     call mma_deallocate(ID)
   end do
 end do
+
+call TIMING(CPU1,CPU,TIO1,TIO)
+CPUDIA = CPUDIA+(CPU1-CPU0)
+TIODIA = TIODIA+(TIO1-TIO0)
 
 end subroutine PSGMDIA
