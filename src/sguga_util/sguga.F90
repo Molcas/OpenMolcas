@@ -2613,158 +2613,70 @@ else
   Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
               (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
   if (EXS%Reuse_SGTMP .and.  Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
-end if
 
-if (.NOT.SWAP) then
-  ! THEN THIS IS AN EXCITING OPERATOR.
-  if (Test1) then
-  else if (Test2) then
-  else
+  do MVSGM=1,CIS%nMidV
+    do MV = 1, 2
+      MVX = MERGE(EXS%MVR(MVSGM,MV),EXS%MVL(MVSGM,MV),SWAP)
+      if (MVX == 0) cycle
 
-    do MVSGM=1,CIS%nMidV
-      do MV = 1, 2
-        MVX = MERGE(EXS%MVR(MVSGM,MV),EXS%MVL(MVSGM,MV),SWAP)
-        if (MVX == 0) cycle
+      do ISYUSG=1,SGS%nSym
+        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
+        if (NS1 == 0) cycle
+        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+        NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
+        ISYDSG = Mul(ISYUSG,ISYSGM)
+        ISYUC = MERGE(Mul(ISYQ,ISYUSG),Mul(ISYP,ISYUSG),Swap)
+        ISYDC = MERGE(Mul(ISYP,ISYDSG),Mul(ISYQ,ISYDSG),Swap)
 
-        do ISYUSG=1,SGS%nSym
-          NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-          if (NS1 == 0) cycle
-          ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-          NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-          ISYDSG = Mul(ISYUSG,ISYSGM)
-          ISYUC = MERGE(Mul(ISYQ,ISYUSG),Mul(ISYP,ISYUSG),Swap)
-          ISYDC = MERGE(Mul(ISYP,ISYDSG),Mul(ISYQ,ISYDSG),Swap)
+        NUPC = CIS%NOW(1,ISYUC,MVX)
+        if (NUPC == 0) cycle
+        NDWNC = CIS%NOW(2,ISYDC,MVX)
+        if (NDWNC == 0) cycle
 
-          NUPC = CIS%NOW(1,ISYUC,MVX)
-          if (NUPC == 0) cycle
-          NDWNC = CIS%NOW(2,ISYDC,MVX)
-          if (NDWNC == 0) cycle
+        INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),Swap)
+        NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),Swap)
+        if (NCP1 == 0) cycle
 
-          INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),Swap)
-          NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),Swap)
-          if (NCP1 == 0) cycle
+        ! CASE IS: UPPER HALF, EXCITE:
+        LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVX),Swap)
+        IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
 
-          ! CASE IS: UPPER HALF, EXCITE:
-          LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVX),Swap)
-          IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
+        ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
+        if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
+           NTMP = NUPSG*NDWNC
+           EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
+           call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
+        end if
 
-          ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
-          if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
-             NTMP = NUPSG*NDWNC
-             EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
+        jOff=iOff
+        if (EXS%Reuse_SGTMP) then
+          iOff = iOff + NUPSG*NDWNC
+          if (iOff-1 > size(EXS%SGTMP)) then
+            write(u6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 1'
+            write(u6,*) iOff-1,size(EXS%SGTMP)
+            call Abend()
           end if
+        end if
 
-          jOff=iOff
-          if (EXS%Reuse_SGTMP) then
-            iOff = iOff + NUPSG*NDWNC
-            if (iOff-1 > size(EXS%SGTMP)) then
-              write(u6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 1'
-              write(u6,*) iOff-1,size(EXS%SGTMP)
-              call Abend()
-            end if
-          end if
+        INDEO = MERGE(merge(IP, SGS%nLev+IP, MV==1),merge(IQ, SGS%nLev+IQ, MV==1),Swap)
+        NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),Swap)
+        if (NCP2 == 0) cycle
 
-          INDEO = MERGE(merge(IP, SGS%nLev+IP, MV==1),merge(IQ, SGS%nLev+IQ, MV==1),Swap)
-          NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),Swap)
-          if (NCP2 == 0) cycle
+        if (.not. EXS%Reuse_SGTMP) then
+           NTMP = NUPSG*NDWNC
+           EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
+           call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
+        end if
 
-          if (.not. EXS%Reuse_SGTMP) then
-             NTMP = NUPSG*NDWNC
-             EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
-          end if
-
-          ! CASE IS: LOWER HALF, EXCITE:
-          NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-          LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVX),Swap)
-          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
-
-        end do
-      end do
-    end do
-
-  end if
-
-else
-
-  ! THEN THIS IS A DEEXCITING OPERATOR.
-  if (Test1) then
-  else if (Test2) then
-  else
-
-    do MVSGM=1,CIS%nMidV
-      do MV = 1, 2
-        MVX = MERGE(EXS%MVR(MVSGM,MV),EXS%MVL(MVSGM,MV),SWAP)
-        if (MVX == 0) cycle
-
-         do ISYUSG=1,SGS%nSym
-           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-           if (NS1 == 0) cycle
-           ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-           NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-           ISYDSG = Mul(ISYUSG,ISYSGM)
-           ISYUC = MERGE(Mul(ISYQ,ISYUSG),Mul(ISYP,ISYUSG),Swap)
-           ISYDC = MERGE(Mul(ISYP,ISYDSG),Mul(ISYQ,ISYDSG),Swap)
-
-           NUPC = CIS%NOW(1,ISYUC,MVX)
-           if (NUPC == 0) cycle
-           NDWNC = CIS%NOW(2,ISYDC,MVX)
-           if (NDWNC == 0) cycle
-
-           INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),Swap)
-           NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),Swap)
-           if (NCP1 == 0) cycle
-
-           ! CASE IS: UPPER HALF, DEEXCITE:
-           LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVX),Swap)
-           IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
-
-           ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
-           if (EXS%Reuse_SGTMP .and. .not. Reuse_Sigma) then
-             NTMP = NUPSG*NDWNC
-             EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
-           end if
-
-           jOff=iOff
-           if (EXS%Reuse_SGTMP) then
-             iOff = iOff + NUPSG*NDWNC
-             if (iOff-1 > size(EXS%SGTMP)) then
-               write(u6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 2'
-               write(u6,*) iOff-1,size(EXS%SGTMP)
-               call Abend()
-             end if
-           end if
-
-           INDEO = MERGE(merge(IP, SGS%nLev+IP, MV==1),merge(IQ, SGS%nLev+IQ, MV==1),Swap)
-           NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),Swap)
-           if (NCP2 == 0) cycle
-
-           ! CASE IS: UPPER HALF, DEEXCITE:
-           if (.not. EXS%Reuse_SGTMP) then
-              NTMP = NUPSG*NDWNC
-              EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-              call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
-           end if
-
-           ! CASE IS: LOWER HALF, DEEXCITE:
-           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-           LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVX),Swap)
-           call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
-
-        end do
+        ! CASE IS: LOWER HALF, EXCITE:
+        NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
+        LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVX),Swap)
+        call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
 
       end do
     end do
+  end do
 
-  end if
-
-end if
-
-if (Test1) then
-else if (Test2) then
-else
   If (SWAP) Then
     i_save_q=IQ
     i_save_p_sym=ISYP
@@ -2777,7 +2689,8 @@ else
     i_save_p_sym=-1
   end if
   if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
-endif
+
+end if
 
 else
 
