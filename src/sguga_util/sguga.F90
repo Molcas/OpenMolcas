@@ -3178,12 +3178,12 @@ if (IQ < IP) then
           NDWNC = CIS%NOW(2,ISYDC,MVX)
           if (NDWNC == 0) cycle
 
-          INDEO = merge(IP, SGS%nLev+IP, MV==1)
-          NCP1 = EXS%NOCP(INDEO,ISYUC,MVX)
+          INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),SWAP)
+          NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),SWAP)
           if (NCP1 == 0) cycle
 
           ! CASE IS: UPPER HALF, EXCITE:
-          LICP = EXS%IOCP(INDEO,ISYUC,MVX)
+          LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVX),Swap)
           IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
 
           ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
@@ -3312,12 +3312,12 @@ else if (IP < IQ) then
            NDWNC = CIS%NOW(2,ISYDC,MVX)
            if (NDWNC == 0) cycle
 
-           INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
-           NCP1 = EXS%NOCP(INDEO,ISYUSG,MVSGM)
+           INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),SWAP)
+           NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),SWAP)
            if (NCP1 == 0) cycle
 
            ! CASE IS: UPPER HALF, DEEXCITE:
-           LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
+           LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVX),Swap)
            IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
 
            ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
