@@ -805,6 +805,10 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
 
   call Trans_Free(TRS)
 
+    ! Generate flat tables for sg_Epq_Psi_flat
+
+  call MK_FLAT_Epq(SGS(iState))
+
 end subroutine SG_Init
 
 subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
@@ -3564,5 +3568,19 @@ do LEV=1,SGS%NLEV
 end do
 
 end function SG_PHASE
+
+subroutine MK_FLAT_Epq(SGS)
+integer(kind=iwp) p, q, iSym
+type(SGStruct), intent(inout) :: SGS
+
+Do iSym = 1, SGS%nSym
+Do p = 1, SGS%nLev
+Do q = 1, SGS%nLev
+
+End Do
+End Do
+End Do
+
+end subroutine MK_FLAT_Epq
 
 end module SGUGA

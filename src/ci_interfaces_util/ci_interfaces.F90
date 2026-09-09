@@ -497,7 +497,7 @@ real(kind=wp), allocatable :: DDIA(:), DIAG(:), CSFDIA_Faroald(:)
 integer(kind=iwp):: IPRINT=0
 
 integer(kind=iwp) :: i
-!#ifdef _SGUGA_VERIFY_EXTRA_
+#ifdef _SGUGA_VERIFY_EXTRA_
 integer(kind=iwp), parameter :: iState=1
 real(kind=wp), allocatable :: TMP(:), CSFDIA_SGUGA(:), CSFDIA_FAST(:)
 real(kind=wp) :: Err
