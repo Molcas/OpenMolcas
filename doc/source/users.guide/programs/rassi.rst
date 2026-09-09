@@ -1457,7 +1457,7 @@ Keywords
 
   To convert isotropic values to MHz, the nuclear g-factors of the corresponding atoms could be defined by specifying one of the following keywords: :kword:`NMASs` or :kword:`NSPIn` or :kword:`GNUC` and/or :kword:`HISO`.
 
-  By default, the keyword :kword:`AUNG` will be automatically turned on if all keywords :kword:`NMASs`, :kword:`NSPIn`, :kword:`GNUC` are absent.
+  By default, the keyword most-abudance non-zero nuclear g-factor will be automatically selected if all keywords :kword:`NMASs`, :kword:`NSPIn`, :kword:`GNUC` are absent.
 
   Keywords :kword:`AMFI`, :kword:`RX2C`, :kword:`MXTC` (in :program:`SEWARD`) and :kword:`SPINorbit` (in :program:`RASSI`) are required. |openmolcas| must be built with option :command:`-D GEN1INT=ON` for the current implementation (SO-X2C) :cite:`Feng_JChemTheoryComput_Electron_2021`.
 
@@ -1516,13 +1516,14 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`AUNG`
-  When specified, the program automatically selects the most abundant isotope with a non-zero g-factor (indicating non-zero hyperfine coupling).
+:kword:`DAUG`
+  This keyword disables the feature that automatically selects the most abundant isotope with a nonzero nuclear g-factor,
+  indicating nonzero hyperfine coupling. Isotope information will be obtained from :program:`SEWARD` or :program:`GATEWAY` using the :kword:`ISOT` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="AUNG" APPEAR="AutoSelect non-zero g-factors" KIND="SINGLE" REQUIRE="HFCAT.OR.HFCOP" LEVEL="ADVANCED">
-              %%Keyword: AUNG <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DAUG" APPEAR="AutoSelect non-zero g-factors" KIND="SINGLE" REQUIRE="HFCAT" LEVEL="ADVANCED">
+              %%Keyword: DAUG <advanced>
               <HELP>
-              Selects the most abundant isotope with a non-zero g-factor.
+              Disable auto-selection of non-zero g-factor.
               </HELP>
               </KEYWORD>
 
@@ -1777,7 +1778,6 @@ For example, consider a quick calculation for the :math:`\ce{Er}` atom (pseudosp
   SPIN
   HFCAt
   all
-  AUNG
   NCOU
   13
 

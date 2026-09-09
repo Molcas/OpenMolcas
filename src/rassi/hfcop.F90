@@ -26,9 +26,9 @@ use RASSIWfn, only: wfn_h_hfc_rms
 use Molcas, only: LenIn
 use spin_data, only: free_spin_data, get_first_nonzero_GNUC, GNUC_by_nucspin, GNUC_NUCSPIN_by_nucmass, init_spin_data, &
                      NUCSPIN_by_gnuc
-use Cntrl, only: AngMom_idx, MAGXP_idx, Atens_Req, AutoSelect_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, &
+use Cntrl, only: AngMom_idx, ASD_idx, Atens_Req, AutoSel_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, &
                  LPRPR, MLTPLT, NATens_Calc, NAtoms, NCOUP, NMass_set, NPNMR_Calc, NPROP, NSpin_set, NSTATE, NTP, NucMass, &
-                 NucSpin, pNMR_req, PSO_idx, TMAXP, TMINP
+                 NucSpin, pNMR_req, PSO_idx, TMAXP, TMINP, SDFlip
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Twelve, Half, cZero, cOne, auTocm, auToHz, auTokJ, c_in_au, gElectron, &
                      kBoltzmann,proton_mass_in_au
@@ -301,7 +301,7 @@ subroutine calc_h_HFC(iAtom,PROP)
   real(kind=wp) :: A_tens(3,3,5)
   real(kind=wp), allocatable :: ASD(:,:,:), ASD_FC(:,:)
 
-  idx(:) = MAGXP_idx(iAtom,:)
+  idx(:) = ASD_idx(iAtom,:)
   call mma_allocate(ASD,6,NSS,NSS,Label='ASD')
   call mma_allocate(ASD_FC,NSS,NSS,Label='ASD_FC')
   do ISS=1,NSS
@@ -313,7 +313,20 @@ subroutine calc_h_HFC(iAtom,PROP)
     end do
   end do
 
-  ASD_FC(:,:) =TwoThird * (ASD(1,:,:) + ASD(4,:,:) + ASD(6,:,:))
+  ! Operator (not integral form)
+  ! * MAG:
+  !   1: x_k*d/dx  4: x_k*d/dy  7: x_k*d/dz
+  !   2: y_k*d/dx  5: y_k*d/dy  8: y_k*d/dz
+  !   3: z_k*d/dx  6: z_k*d/dy  9: z_k*d/dz
+  ! ASD [1,2,3,4,5,6] = MAG[1,2,3,5,6,9]
+  !
+  ! Fermi-Contact = 2/3 (x_k*dx + y_k*dy + z_k*dz)
+  !
+  ! ASD_1 = 2 x_k*dx - 2/3 (x_k*dx + y_k*dy + z_k*dz)
+  !       = 2/3 (2 x_k*dx - y_k*dy - z_k*dz)
+  !       = 2/3 (3 x_k*dx - (x_k*dx + y_k*dy + z_k*dz))
+
+  ASD_FC(:,:) = TwoThird * (ASD(1,:,:) + ASD(4,:,:) + ASD(6,:,:))
 
   ASD(:,:,:) = Two*ASD(:,:,:)
   ASD(1,:,:) = ASD(1,:,:) - ASD_FC(:,:)
@@ -336,11 +349,15 @@ subroutine calc_h_HFC(iAtom,PROP)
 ! CALCULATE HAMILTONIAN
   call calc_h_FC(ASD_FC)
   call calc_h_SD(ASD)
+  ! Revision for JCTC-2021: https://dx.doi.org/10.1021/acs.jctc.0c01005
+  if(SDFlip) h_SD(:,:,:) = -h_SD(:,:,:)
   call mma_deallocate(ASD)
   call mma_deallocate(ASD_FC)
   h_FCSD(:,:,:) = h_FC(:,:,:)+h_SD(:,:,:)
   call calc_h_PSO(iAtom,PROP)
   h_TOT(:,:,:) = h_FCSD(:,:,:)+h_PSO(:,:,:)
+
+
 
 ! TRANSFORM TO SPIN-ORIBT BASIS HAMILTONIAN
   call to_cmpl_SO_states(h_FC)
@@ -487,16 +504,21 @@ subroutine proc_spin_data()
   use_seward_mass = .false.
   ! Setting DEFAULT case based on user input
   if (HypF_rms_Req) then
-    if (.not.(AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
+    if (.not.(AutoSel_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
   else if (allocated(Atens_Req)) then
-    if (.not.(AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) AutoSelect_GFac = .true.
+    if (.not.AutoSel_GFac) then
+    ! Use SEWARD mass as default if keyword DAUG is present
+      use_seward_mass= .true.
+    else if (.not.(NMass_set .or. NSpin_set .or. GNuc_set)) then
+      AutoSel_GFac = .true.
+    end if
   end if
 
   if (use_seward_mass) icase = 1
   if (NMass_set) icase = 2
   if (NSpin_set) icase = 3
   if (GNuc_set) icase = 4
-  if (AutoSelect_GFac) icase = 5
+  if (AutoSel_GFac) icase = 5
 
   ! HYPOTHEICAL ISOTOPE-------------------------------------------------------------
   if (.not. allocated(HypoIso)) then
@@ -1506,7 +1528,7 @@ subroutine cleanup_hfcop()
   call mma_deallocate(GNuc,safe='*')
   call mma_deallocate(LCSTATES,safe='*')
 
-  call mma_deallocate(MAGXP_idx,safe='*')
+  call mma_deallocate(ASD_idx,safe='*')
   call mma_deallocate(PSO_idx,safe='*')
 
   call mma_deallocate(degen_start_idx,safe='*')
