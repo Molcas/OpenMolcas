@@ -3110,10 +3110,12 @@ if (IQ < IP) then
 !       ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM) ! get the off-set to the sigma vector block
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)           ! number of upper half-walks by symmetry and midvertex.
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)       ! get the off-set to the CI vector block
-        NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)
+        NCP = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVSGM),SWAP)
         if (NCP == 0) cycle
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-        LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
+
+        ! off-set to the block of compressed coupling coefficients.
+        LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVSGM),SWAP)
         ! CASE IS: LOWER HALF, EXCITE:
 
 !       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
@@ -3245,10 +3247,10 @@ else if (IP < IQ) then
 !       ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)
-        NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)
+        NCP = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVSGM),SWAP)
         if (NCP == 0) cycle
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-        LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
+        LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVSGM),SWAP)
         ! CASE IS: LOWER HALF, DEEXCITE:
 !       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
 !       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
