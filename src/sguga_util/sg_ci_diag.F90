@@ -24,7 +24,7 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
   use sguga, only: SGStruct, CIStruct, EXStruct
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One
-  use Definitions, only: wp, iwp, u6
+  use Definitions, only: wp, iwp
 
   implicit none
 
@@ -68,7 +68,7 @@ call mma_allocate(Eqp,nCSFs,Label='Eqp')
 
 do p=1,SGS%nLev
 do q=1,SGS%nLev
-!Write (6,*) 'p,q=',p,q
+!Write (u6,*) 'p,q=',p,q
 
 do iCSF=1,nCSFs
   Psi(:) = Zero
@@ -107,10 +107,10 @@ End If
 
 Do iCSF=1,nCSFs
 If (Abs(Epq(iCSF)-Sigma(iCSF))>1.0e-10_wp) Then
-   Write (6,*) 'p, q, iCSF=',p, q, iCSF
-   Write (6,*) 'MidLev=',SGS%MidLev
-   Write (6,*) 'Level=',SGS%Level(1:SGS%nLev)
-   Write (6,*) 'L2Act=',SGS%L2Act(1:SGS%nLev)
+   Write (u6,*) 'p, q, iCSF=',p, q, iCSF
+   Write (u6,*) 'MidLev=',SGS%MidLev
+   Write (u6,*) 'Level=',SGS%Level(1:SGS%nLev)
+   Write (u6,*) 'L2Act=',SGS%L2Act(1:SGS%nLev)
    Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
    Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
    Call Abend()
@@ -124,9 +124,9 @@ call mma_deallocate(Eqp)
 call mma_deallocate(Epq)
 
 EXS%Reuse_SGTMP=ReUse_Save
-Write (6,*)
-Write (6,*) 'Test passed!'
-Write (6,*)
+Write (u6,*)
+Write (u6,*) 'Test passed!'
+Write (u6,*)
 !Call Abend()
 #endif
 
