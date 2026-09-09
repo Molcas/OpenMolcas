@@ -2639,7 +2639,8 @@ else
         NDWNC = CIS%NOW(2,ISYDC,MVX)
         if (NDWNC == 0) cycle
 
-        INDEO =merge(JP, SGS%nLev+JP, MV==1)
+!       INDEO =merge(JP, SGS%nLev+JP, MV==1)
+        INDEO =(MV-1)*SGS%nLev+JP
         NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),Swap)
         if (NCP1 == 0) cycle
 
@@ -2648,13 +2649,15 @@ else
         IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
 
         ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
+        ! Put it at the offset jOff
+        jOff=iOff
         if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
            NTMP = NUPSG*NDWNC
-           EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-           call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP1+1),swap=Swap)
+           EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
+           call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP1+1),swap=Swap)
         end if
 
-        jOff=iOff
+        ! Update the pointer in SGTMP to the next slot.
         if (EXS%Reuse_SGTMP) then
           iOff = iOff + NUPSG*NDWNC
           if (iOff-1 > size(EXS%SGTMP)) then
@@ -2664,10 +2667,12 @@ else
           end if
         end if
 
-        INDEO = merge(JQ, SGS%nLev+JQ, MV==1)
+!       INDEO = merge(JQ, SGS%nLev+JQ, MV==1)
+        INDEO = (MV-1)*SGS%nLev+JQ
         NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),Swap)
         if (NCP2 == 0) cycle
 
+        ! In case of no reuse compute the sigma vector here.
         if (.not. EXS%Reuse_SGTMP) then
            NTMP = NUPSG*NDWNC
            EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
