@@ -474,11 +474,12 @@ end subroutine CI_Close
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-! Activate verification of the SGUGA computed CI diagonal in the CSF basis.
-! The analytic result is computed by sg_hdiag_fast
+! Activate verification of the SGUGA to computed CI diagonal in the CSF basis.
+! The analytic result is computed by sg_hdiag_fast (using sg_EpqEqp_diag).
 ! sg_hdiag_ref computes the diagonal brute force by setting the CI element iCSF to 1 and compute the matrix element
 ! <Psi|H|Psi> using the routine sg_h_psi.
-!#define _SGUGA_VERIFY_EXTRA_
+#define _SGUGA_VERIFY_EXTRA_
+
 subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
@@ -603,7 +604,7 @@ Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_SGUGA)
 Call mma_deallocate(TMP)
 ! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
 CSFDIA_SGUGA(:)=-ABS(CSFDIA_SGUGA(:))
-!Call RecPrt('CSFDIA(SGUGA_ref)',' ',CSFDIA_SGUGA,1,nConf)
+Call RecPrt('CSFDIA(SGUGA_ref)',' ',CSFDIA_SGUGA,1,nConf)
 
 Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
 Call sg_hdiag_fast(SGS(iState),CIS(iState),EXS(iState), &
@@ -617,7 +618,7 @@ Call SG_ReOrd(iState,STSYM,1,nConf,TMP,CSFDIA_FAST)
 Call mma_deallocate(TMP)
 ! Note the SG_ReOrd introduce a sign change of some elements which we have to remove.
 CSFDIA_FAST(:)=-ABS(CSFDIA_FAST(:))
-!Call RecPrt('CSFDIA(SGUGA_fast)',' ',CSFDIA_FAST,1,nConf)
+Call RecPrt('CSFDIA(SGUGA_fast)',' ',CSFDIA_FAST,1,nConf)
 
 Do i=1,nConf
    Err = Abs(CSFDIA_SGUGA(i)-CSFDIA_fast(i))
