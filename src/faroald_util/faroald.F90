@@ -909,7 +909,9 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
   integer(kind=iwp), allocatable :: occa(:,:), occb(:,:)
 
   integer(kind=iwp) :: ia, ib, i, j, k, iaLow
-  integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl, nBEl, iDet, jDet, iCSF, iCNF, jCNF, iCSFOff
+! ToDo cleanup this!
+! integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl, nBEl, iDet, jDet, iCSF, iCNF, jCNF, iCSFOff
+  integer(kind=iwp) :: MinOpen, MaxOpen, nOpen, nAEl,       iDet, jDet, iCSF, iCNF, jCNF, iCSFOff
   integer(kind=iwp) :: SumDet, SumCSF, ipat, ipat_match
   real(kind=wp) :: EAver, EDet
 
@@ -955,6 +957,7 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
         end do
      end do
   end do
+! Todo: Remove the computation of diag!(?)
   !
   ! Full determinant-product diagonal
   !
@@ -992,7 +995,7 @@ subroutine hdiag(h,g,diag,CSFDIA,nConf)
   sumCSF = 0
   Do nOpen = MinOpen, MaxOpen, 2
      nAEl=(nOpen+(Mult-1))/2
-     nBEl=(nOpen-(Mult-1))/2
+!    nBEl=(nOpen-(Mult-1))/2
 !    IDET = number of prototype determinants per configuration in this open-shell class.
 !    ICSF = number of CSFs per configuration in this open-shell class.
 !    ICNF = number of configurations in this open-shell class.

@@ -474,12 +474,17 @@ end subroutine CI_Close
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
+! Activate verification of the SGUGA computed CI diagonal in the CSF basis.
+! The analytic result is computed by sg_hdiag_fast
+! sg_hdiag_ref computes the diagonal brute force by setting the CI element iCSF to 1 and compute the matrix element
+! <Psi|H|Psi> using the routine sg_h_psi.
+!#define _SGUGA_VERIFY_EXTRA_
 subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
 use Lucia_data, only: SDREO
 use spinfo, only: NCNFTP, NCSFTP, NDTFTP, NTYP
 use faroald, only: nPat, hdiag, ncomb_tot
-#ifdef _SGUGA_VERIFY_
+#ifdef _SGUGA_VERIFY_EXTRA_
 use sguga, only: SGS, EXS, CIS
 #endif
 
@@ -491,7 +496,7 @@ real(kind=wp), allocatable :: DDIA(:), DIAG(:), CSFDIA_Faroald(:)
 integer(kind=iwp):: IPRINT=0
 
 integer(kind=iwp) :: i
-#ifdef _SGUGA_VERIFY_
+#ifdef _SGUGA_VERIFY_EXTRA_
 integer(kind=iwp), parameter :: iState=1
 real(kind=wp), allocatable :: TMP(:), CSFDIA_SGUGA(:), CSFDIA_FAST(:)
 real(kind=wp) :: Err
@@ -505,7 +510,7 @@ call mma_allocate(DDIA,NDET,label='DETDIA')
 
 call get_diag(DDIA,ndet)
 
-! ndet comes from general_data!! Check this!
+! Todo: ndet comes from general_data!! Check this!
 ! TRANSFORM CI DIAGONAL FROM DET TO CSF BASIS
 call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,STSYM),NTYP,SDREO,NDTFTP,NCSFTP,IPRINT)
 
@@ -584,8 +589,7 @@ End If
 ! DEALLOCATE LOCAL MEMORY
 call mma_deallocate(DDIA)
 
-#ifdef _TEMPORARY_OFF_LINE_
-#ifdef _SGUGA_VERIFY_
+#ifdef _SGUGA_VERIFY_EXTRA_
 If (.NOT.iDoGAS .and. nRsPrt==1) Then
 Call mma_allocate(TMP,nConf,Label='CSFDIA_S')
 Call sg_hdiag_ref(SGS(iState),CIS(iState),EXS(iState), &
@@ -629,7 +633,6 @@ Call mma_deallocate(CSFDIA_SGUGA)
 Call mma_deallocate(CSFDIA_FAST)
 endif
 
-#endif
 #endif
 
 End subroutine Mk_CI_Diag

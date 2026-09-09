@@ -16,7 +16,12 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
                         TU_Tri,nTU_Tri, &
                         Diag)
 
-  use sguga, only: SGStruct, CIStruct, EXStruct, sg_Epq_Psi, sg_EpqEqp_diag
+!#define _TEST_
+#ifdef _TEST_
+  use sguga, only: sg_Epq_Psi, sg_EpqEqp_diag
+  use Definitions, only: u6
+#endif
+  use sguga, only: SGStruct, CIStruct, EXStruct
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero, One
   use Definitions, only: wp, iwp, u6
@@ -43,7 +48,6 @@ subroutine sg_hdiag_ref(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   integer(kind=iwp) :: iCSF, mCSFs
 
-!#define _TEST_
 #ifdef _TEST_
   logical(kind=iwp) :: ReUse_Save
   integer(kind=iwp) :: p, q
@@ -186,7 +190,6 @@ subroutine sg_hdiag_fast(SGS,CIS,EXS,nCSFs,CSFSym, &
 
   integer(kind=iwp) :: p,q
   integer(kind=iwp) :: ppTri
-  integer(kind=iwp) :: pqTri
   integer(kind=iwp) :: ppqqTri
   integer(kind=iwp) :: pqqpTri
 
