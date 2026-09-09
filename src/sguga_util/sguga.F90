@@ -3126,17 +3126,6 @@ if (IQ /= IP) Then
       end do
     end do
   Else If (Test2) Then
-  Else
-  End If
-Else
-  write(u6,*) 'SG_EpqEqp_Diag: IP == IQ'
-End If
-
-if (IQ < IP) then
-  ! THEN THIS IS AN EXCITING OPERATOR.
-  if (Test1) then
-  else if (Test2) then
-
     ! EXCITING CASE, MIDLEV<IQ<IP
     INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,SWAP)
     do MVSGM=1,CIS%nMidV
@@ -3159,7 +3148,16 @@ if (IQ < IP) then
         call apply_rowX(CPQ,NDWNSG,NUPC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
       end do
     end do
+  Else
+  End If
+Else
+  write(u6,*) 'SG_EpqEqp_Diag: IP == IQ'
+End If
 
+if (IQ < IP) then
+  ! THEN THIS IS AN EXCITING OPERATOR.
+  if (Test1) then
+  else if (Test2) then
   else
 
     ! EXCITING CASE, IQ<=MIDLEV<IP
@@ -3252,30 +3250,6 @@ else if (IP < IQ) then
   ! THEN THIS IS A DEEXCITING OPERATOR.
   if (Test1) then
   else if (Test2) then
-
-    ! DEEXCITING OPERATOR, MIDLEV<IP<IQ
-    INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,SWAP)
-    do MVSGM=1,CIS%nMidV
-      do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
-        ISYUC = Mul(ISYPQ,ISYUSG)
-        NUPC = CIS%NOW(1,ISYUC,MVSGM)
-        if (NUPC == 0) cycle
-!       ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-        NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-        ISYDSG = Mul(ISYUSG,ISYSGM)
-        NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-        IOC = CIS%IOCSF(ISYUC,MVSGM,ISYCI)
-        NCP = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVSGM),SWAP)
-        if (NCP == 0) cycle
-        LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVSGM),SWAP)
-        ! CASE IS: UPPER HALF, DEEXCITE:
-!       call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
-        call Apply_rowX(CPQ,NDWNSG,NUPC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
-      end do
-    end do
-
   else
 
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
