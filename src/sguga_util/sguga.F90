@@ -2623,7 +2623,7 @@ if (.NOT.SWAP) then
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
-        MVX = EXS%MVL(MVSGM,MV)
+        MVX = MERGE(EXS%MVR(MVSGM,MV),EXS%MVL(MVSGM,MV),SWAP)
         if (MVX == 0) cycle
 
         do ISYUSG=1,SGS%nSym
@@ -2695,7 +2695,7 @@ else
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
-        MVX = EXS%MVR(MVSGM,MV)
+        MVX = MERGE(EXS%MVR(MVSGM,MV),EXS%MVL(MVSGM,MV),SWAP)
         if (MVX == 0) cycle
 
          do ISYUSG=1,SGS%nSym
