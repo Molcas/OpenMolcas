@@ -40,7 +40,6 @@ real(kind=wp), external :: DDot_
 ISTATE = max(ISTATE_,JSTATE_)
 JSTATE = min(ISTATE_,JSTATE_)
 
-write(u6,*) "Making PROP ", IPROP, " IC=", ICOMP(IPROP), LABEL
 IC = ICOMP(IPROP)
 !write(u6,*) 'Mk_Prop: Label=',Label
 !write(u6,*) 'Mk_Prop:    IC=',IC
