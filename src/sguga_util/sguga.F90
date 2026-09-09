@@ -3304,7 +3304,9 @@ subroutine apply_rowY(CPQ, NUPSG, UP, NCP, ICOUP, swap)
   real(kind=wp), intent(inout) :: UP(NUPSG)
   logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC2), =.true. (DEX2)
 
-  integer(kind=iwp) :: ICP, ILFT, IRGT, I1, I2, idx
+! todo: cleanup
+! integer(kind=iwp) :: ICP, ILFT, IRGT, I1, I2, idx
+  integer(kind=iwp) :: ICP, ILFT, IRGT, I1,     idx
   real(kind=wp) :: X
   real(kind=wp), pointer :: VTAB(:)
 
@@ -3314,7 +3316,7 @@ do ICP=1,NCP
   IRGT = ICOUP(2,ICP)
 
   I1=MERGE(IRGT,ILFT,SWAP)
-  I2=MERGE(ILFT,IRGT,SWAP)
+! I2=MERGE(ILFT,IRGT,SWAP)
 
   idx=ICOUP(3,ICP)
   X = (CPQ * VTab(idx))**2
@@ -3329,7 +3331,9 @@ subroutine apply_colY(CPQ, NUP, Up, NDWNSG, SIGMA, NCP, ICOUP, swap)
   real(kind=wp), intent(inout) :: SIGMA(NUP,NDWNSG)
   logical(kind=iwp), intent(in) :: swap   ! =.false. (EXC1), =.true. (DEX1)
 
-  integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1, I2, idx
+! todo: cleanup
+! integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1, I2, idx
+  integer(kind=iwp) :: ICP, JLFT, JRGT, IUP, I1,     idx
   real(kind=wp) :: X
   real(kind=wp), pointer :: VTAB(:)
 
@@ -3339,7 +3343,7 @@ do ICP=1,NCP
   JRGT = ICOUP(2,ICP)
 
   I1=MERGE(JRGT,JLFT,Swap)
-  I2=MERGE(JLFT,JRGT,Swap)
+! I2=MERGE(JLFT,JRGT,Swap)
 
   idx=ICOUP(3,ICP)
   X = (CPQ * VTab(idx))**2
