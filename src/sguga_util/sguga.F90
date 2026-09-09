@@ -2525,7 +2525,7 @@ real(kind=wp), intent(in) :: CPQ, CI(*)
 real(kind=wp), intent(_OUT_) :: SGM(*)
 integer(kind=iwp) :: I, IC, ICS, INDEO, IOC, IOLW, IOUW, IPPOW, IPSHFT, ISGSTA, ISTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
                      ISYUC, ISYUSG, J, JC, JSTA, LICP, LLW, LUW, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
-                     NUPSG, NCP1, NCP2, MV, MVX, nCSFs, LICP1, LICP2
+                     NUPSG, NCP1, NCP2, MV, MVX, nCSFs, LICP1, LICP2, JQ, JP
 real(kind=wp) :: X
 
 ! declarations to facilitate the reuse of sigma vectors if possible
@@ -2618,6 +2618,8 @@ else
               (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
   if (EXS%Reuse_SGTMP .and.  Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
+  JP=MERGE(IQ,IP,SWAP)
+  JQ=MERGE(IP,IQ,SWAP)
   do MVSGM=1,CIS%nMidV
     do MV = 1, 2
       MVX = MERGE(EXS%MVR(MVSGM,MV),EXS%MVL(MVSGM,MV),SWAP)
@@ -2637,7 +2639,7 @@ else
         NDWNC = CIS%NOW(2,ISYDC,MVX)
         if (NDWNC == 0) cycle
 
-        INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),Swap)
+        INDEO =merge(JP, SGS%nLev+JP, MV==1)
         NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),Swap)
         if (NCP1 == 0) cycle
 
@@ -2662,7 +2664,7 @@ else
           end if
         end if
 
-        INDEO = MERGE(merge(IP, SGS%nLev+IP, MV==1),merge(IQ, SGS%nLev+IQ, MV==1),Swap)
+        INDEO = merge(JQ, SGS%nLev+JQ, MV==1)
         NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),Swap)
         if (NCP2 == 0) cycle
 
