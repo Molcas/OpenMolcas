@@ -3057,7 +3057,8 @@ type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
 type(EXStruct), intent(inout), target :: EXS
 integer(kind=iwp), intent(in) :: IP, IQ, ISYCI
-real(kind=wp), intent(in) :: CPQ, CI(*)
+real(kind=wp), intent(in) :: CPQ
+real(kind=wp), intent(inout) :: CI(*)
 real(kind=wp), intent(_OUT_) :: DIAG(*)
 ! todo: cleanup
 !integer(kind=iwp) :: INDEO, IOC, ISGSTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
@@ -3236,7 +3237,9 @@ if (IQ /= IP) Then
     if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
   End If
 Else
-  write(u6,*) 'SG_EpqEqp_Diag: IP == IQ'
+  CI(1:nCSFs)=One
+  Call SG_Epq_Psi(SGS,CIS,EXS,IP,IQ,CPQ,ISYCI,CI,DIAG)
+  DIAG(1:nCSFs) = DIAG(1:nCSFs)**2
 End If
 
 contains

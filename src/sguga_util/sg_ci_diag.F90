@@ -85,24 +85,12 @@ do iCSF=1,nCSFs
 end do
 !Call RecPrt('EqpEpq(exact)',' ',Epq,1,nCSFs)
 
-Psi(:) = One
-Sigma(:) = Zero
-If (p==q) Then
-  call SG_Epq_Psi(SGS,CIS,EXS, &
-                  p,q, &
-                  One, &
-                  CSFSym, &
-                  Psi, &
-                  Sigma)
-  Sigma(:) = Sigma(:)**2
-Else
-  call SG_EpqEqp_Diag(SGS,CIS,EXS, &
-                  p,q, &
-                  One, &
-                  CSFSym, &
-                  Psi, &
-                  Sigma)
-End If
+call SG_EpqEqp_Diag(SGS,CIS,EXS, &
+                    p,q, &
+                    One, &
+                    CSFSym, &
+                    Psi, &
+                    Sigma)
 !Call RecPrt('EqpEpq(Direct)',' ',Sigma,1,nCSFs)
 
 Do iCSF=1,nCSFs
