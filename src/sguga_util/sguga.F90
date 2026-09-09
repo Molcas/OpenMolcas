@@ -3149,16 +3149,6 @@ if (IQ /= IP) Then
       end do
     end do
   Else
-  End If
-Else
-  write(u6,*) 'SG_EpqEqp_Diag: IP == IQ'
-End If
-
-if (IQ < IP) then
-  ! THEN THIS IS AN EXCITING OPERATOR.
-  if (Test1) then
-  else if (Test2) then
-  else
 
     ! EXCITING CASE, IQ<=MIDLEV<IP
 
@@ -3244,106 +3234,10 @@ if (IQ < IP) then
       i_save_p_sym=-1
     End If
     if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
-
-  end if
-else if (IP < IQ) then
-  ! THEN THIS IS A DEEXCITING OPERATOR.
-  if (Test1) then
-  else if (Test2) then
-  else
-
-    ! DEEXCITING CASE, IP<=MIDLEV<IQ.
-    iOff=1
-    Reuse_Sigma = .false.
-    Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
-                (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
-    if (EXS%Reuse_SGTMP .and. Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
-
-    do MVSGM=1,CIS%nMidV
-      do MV = 1, 2
-        MVX = MERGE(EXS%MVR(MVSGM,MV),EXS%MVL(MVSGM,MV),SWAP)
-        if (MVX == 0) cycle
-
-         do ISYUSG=1,SGS%nSym
-           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-           if (NS1 == 0) cycle
-!          ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-           NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-           ISYDSG = Mul(ISYUSG,ISYSGM)
-           ISYUC = MERGE(Mul(ISYQ,ISYUSG),Mul(ISYP,ISYUSG),SWAP)
-           ISYDC = MERGE(Mul(ISYP,ISYDSG),Mul(ISYQ,ISYDSG),SWAP)
-
-           NUPC = CIS%NOW(1,ISYUC,MVX)
-           if (NUPC == 0) cycle
-           NDWNC = CIS%NOW(2,ISYDC,MVX)
-           if (NDWNC == 0) cycle
-
-           INDEO = MERGE(merge(IQ, SGS%nLev+IQ, MV==1),merge(IP, SGS%nLev+IP, MV==1),SWAP)
-           NCP1 = MERGE(EXS%NOCP(INDEO,ISYUSG,MVSGM),EXS%NOCP(INDEO,ISYUC,MVX),SWAP)
-           if (NCP1 == 0) cycle
-
-           ! CASE IS: UPPER HALF, DEEXCITE:
-           LICP = MERGE(EXS%IOCP(INDEO,ISYUSG,MVSGM),EXS%IOCP(INDEO,ISYUC,MVX),Swap)
-           IOC = CIS%IOCSF(ISYUC,MVX,ISYCI)
-
-           ! IN CASE OF REUSE COMPUTE THE TEMPORARY SIGMA VECTOR REGARDLESS OF THE NCP2 VALUE.
-           if (EXS%Reuse_SGTMP .and. .not. Reuse_Sigma) then
-             NTMP = NUPC
-             EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
-             call Apply_rowY(One,NUPC,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
-           end if
-
-           jOff=iOff
-           if (EXS%Reuse_SGTMP) then
-             iOff = iOff + NUPC
-             if (iOff-1 > size(EXS%SGTMP)) then
-               write(u6,*) 'iOff-1>SIZE(EXS%SGTMP) -- 2'
-               write(u6,*) iOff-1,size(EXS%SGTMP)
-               call Abend()
-             end if
-           end if
-
-           INDEO = MERGE(merge(IP, SGS%nLev+IP, MV==1),merge(IQ, SGS%nLev+IQ, MV==1),SWAP)
-           NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),SWAP)
-           if (NCP2 == 0) cycle
-
-           ! CASE IS: UPPER HALF, DEEXCITE:
-           if (.not. EXS%Reuse_SGTMP) then
-              NTMP = NUPC
-              EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-!             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
-              call Apply_rowY(One,NUPC,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
-           end if
-
-           ! CASE IS: LOWER HALF, DEEXCITE:
-           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-           LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVX),SWAP)
-!          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
-          call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
-
-        end do
-
-      end do
-    end do
-    If (SWAP) Then
-      i_save_q=IQ
-      i_save_p_sym=ISYP
-      i_save_p=0
-      i_save_q_sym=-1
-    Else
-      i_save_p=IP
-      i_save_q_sym=ISYQ
-      i_save_q=0
-      i_save_p_sym=-1
-    End If
-    if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
-
-  end if
-else
+  End If
+Else
   write(u6,*) 'SG_EpqEqp_Diag: IP == IQ'
-  call Abend()
-end if
+End If
 
 contains
 
