@@ -3068,7 +3068,7 @@ integer(kind=iwp) :: INDEO, IOC, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
 ! declarations to facilitate the reuse of sigma vectors if possible
 integer(kind=iwp), save:: i_save_p=0, i_save_q=0
 integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
-logical(kind=iwp) :: Reuse_Sigma, Swap, Test1
+logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2
 real(kind=wp) :: CI_ID=Zero
 integer(kind=iwp) ::  iOff, jOff
 
@@ -3090,6 +3090,7 @@ ISYSGM = Mul(ISYPQ,ISYCI)
 
 Swap = IQ > IP
 Test1=MERGE(IQ <= SGS%MidLev,IP <= SGS%MidLev,Swap)
+Test2=MERGE(SGS%MidLev < IP,SGS%MidLev < IQ,Swap)
 
 if (IQ < IP) then
   ! THEN THIS IS AN EXCITING OPERATOR.
@@ -3122,7 +3123,7 @@ if (IQ < IP) then
       end do
     end do
 
-  else if (SGS%MidLev < IQ) then
+  else if (Test2) then
 
     ! EXCITING CASE, MIDLEV<IQ<IP
     INDEO = 2*SGS%nLev+(IP*(IP-1))/2+IQ
@@ -3255,7 +3256,7 @@ else if (IP < IQ) then
       end do
     end do
 
-  else if (SGS%MidLev < IP) then
+  else if (Test2) then
 
     ! DEEXCITING OPERATOR, MIDLEV<IP<IQ
     INDEO = 2*SGS%nLev+(IQ*(IQ-1))/2+IP
