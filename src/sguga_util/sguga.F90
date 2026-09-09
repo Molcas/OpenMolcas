@@ -3092,6 +3092,18 @@ Swap = IQ > IP
 Test1=MERGE(IQ <= SGS%MidLev,IP <= SGS%MidLev,Swap)
 Test2=MERGE(SGS%MidLev < IP,SGS%MidLev < IQ,Swap)
 
+if (IQ /= IP) Then
+  Swap = IQ > IP
+  Test1=MERGE(IQ <= SGS%MidLev,IP <= SGS%MidLev,Swap)
+  Test2=MERGE(SGS%MidLev < IP,SGS%MidLev < IQ,Swap)
+  If (Test1) Then
+  Else If (Test2) Then
+  Else
+  End If
+Else
+  write(u6,*) 'SG_EpqEqp_Diag: IP == IQ'
+End If
+
 if (IQ < IP) then
   ! THEN THIS IS AN EXCITING OPERATOR.
   if (Test1) then
