@@ -19,7 +19,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: LunAux
 
-!open(unit=LunAux,file='ChKDat',form='unformatted')
+!open(LunAux,file='ChKDat',form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,'ChKDat')
 write(LunAux) T1c,T2c,OEo,OEv,Q0,Q1,Q21,Q22,Q3,Q4,L0k,L1k,L2k
 close(LunAux)

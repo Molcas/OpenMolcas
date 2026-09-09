@@ -28,18 +28,16 @@ implicit none
 integer(kind=iwp), intent(in) :: NCSF, NDET, NTYP, ICTSDT(NDET), NCNFTP(NTYP), NDTFTP(NTYP), NCSFTP(NTYP), IPRINT
 real(kind=wp), intent(out) :: CSFDIA(NCSF)
 real(kind=wp), intent(in) :: DETDIA(NDET)
-integer(kind=iwp) :: ICNF, ICSF, ICSOFF, IDET, IDTOFF, ITYP, JCNABS, JCNF, JDET, NCSTOT, NDTTOT
+integer(kind=iwp) :: ICNF, ICSF, ICSOFF, IDET, IDTOFF, ITYP, JCNF, JDET, NCSTOT, NDTTOT
 real(kind=wp) :: EAVER
 
 ICSOFF = 0
 IDTOFF = 0
-JCNABS = 0
 do ITYP=1,NTYP
   IDET = NDTFTP(ITYP)
   ICSF = NCSFTP(ITYP)
   ICNF = NCNFTP(ITYP)
   do JCNF=1,ICNF
-    JCNABS = JCNABS+1
     EAVER = Zero
     do JDET=1,IDET
       EAVER = EAVER+DETDIA(abs(ICTSDT(IDTOFF+JDET)))

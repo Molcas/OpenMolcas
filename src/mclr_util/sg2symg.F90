@@ -1,0 +1,77 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine sg2symg(CI,lCI,imode,pState_Sym)
+
+use sguga, only: CIS, SG_Free, SG_ReOrd
+use Str_Info, only: CFTP_MCLR => CFTP, CNSM
+use lucia_data, only: CFTP, CONF_OCC
+use general_data, only: nSym, STSym
+use input_mclr, only: NCSF, NCONF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use sguga, only: SGS
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp), intent(in) :: lCI, imode, pState_Sym
+real(kind=wp), intent(inout) :: CI(lCI)
+integer(kind=iwp) :: iss
+real(kind=wp), allocatable :: CINEW(:)
+integer(kind=iwp), parameter :: istate = 1
+#ifdef _DEBUGPRINT_
+real(kind=wp), parameter :: PRWTHR = 0.05_wp
+#endif
+
+! Transformation of CI vector to symmetric group from GUGA pepresentation, or the reverse
+
+call SG_Setup_MCLR()
+
+NCSF(1:nSym) = CIS(istate)%NCSF(1:nSym)
+NCONF = CIS(istate)%NCSF(pState_Sym)
+
+iss = 1
+if (pState_sym /= STSym) iss = 2
+
+#ifdef _DEBUGPRINT_
+write(u6,101)
+write(u6,102) PRWTHR
+call SG_PrWF(istate,pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)
+write(u6,103)
+101 format(/,6X,100('-'),/,6X,29X,'Wave function printout: Split Graph format',/,6X,8X, &
+           'in parenthesis: midvertex, upper-walk symmetry upper- and lower-walk serial numbers',/,6X,100('-'),/)
+102 format(6X,'printout of CI-coefficients larger than',F6.2)
+103 format(/,6X,100('-'),/)
+#endif
+
+call mma_allocate(CINEW,nConf,Label='CINEW')
+call mma_allocate(Conf_Occ(pState_Sym)%A,size(CNSM(iss)%ICONF),Label='CINEW')
+Conf_Occ(pState_Sym)%A(:) = -CNSM(iss)%ICONF
+call mma_allocate(CFTP,size(CFTP_MCLR),Label='CFTP')
+CFTP(:) = CFTP_MCLR(:)
+
+call SG_REORD(istate,pState_Sym,iMode,nConf,CI,CINEW)
+
+CI(1:nConf) = CINEW(:)
+
+call mma_deallocate(CFTP)
+call mma_deallocate(Conf_Occ(pState_Sym)%A)
+call mma_deallocate(CINEW)
+
+#ifdef _DEBUGPRINT_
+call SG_PrWF(iState,pState_sym,PRWTHR,SGS(istate)%iSpin,CI,nConf,.false.,-99)
+#endif
+
+call SG_Free(iState)
+
+end subroutine sg2symg

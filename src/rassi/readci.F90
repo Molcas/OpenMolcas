@@ -9,11 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine READCI(ISTATE,SGS,CIS,NCI,CI)
+subroutine READCI(ISTATE,iStateX,NCI,CI)
 
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: JBNUM, LROOT
-use sguga, only: CIStruct, SGStruct
 use Cntrl, only: CITHR, IRREP, iTOC15, JBNAME, LuIph, MLTPLT, NSTATE, PRCI
 use Molcas, only: MxRoot
 #ifdef _HDF5_
@@ -24,9 +23,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ISTATE, NCI
-type(SGStruct), intent(inout) :: SGS
-type(CIStruct), intent(inout) :: CIS
+integer(kind=iwp), intent(in) :: ISTATE, iStateX, NCI
 real(kind=wp), intent(out) :: CI(NCI)
 integer(kind=iwp) :: I, IAD, IDISK, JOB, LROOT1, LSYM, LUDUM
 #ifdef _HDF5_
@@ -94,7 +91,7 @@ if ((IPGLOB > 0) .and. PRCI) then
   write(u6,*) ' Its symmetry  =          ',IRREP(JOB)
   write(u6,*) ' Spin multiplicity=       ',MLTPLT(JOB)
   LSYM = IRREP(JOB)
-  call SG_PRWF(SGS,CIS,LSYM,CITHR,MLTPLT(JOB),CI,NCI,.false.,LUDUM)
+  call SG_PRWF(iStatex,LSYM,CITHR,MLTPLT(JOB),CI,NCI,.false.,LUDUM)
 end if
 
 end subroutine READCI

@@ -34,7 +34,8 @@ use Index_Functions, only: iTri, nTri_Elem
 use rasscf_global, only: NORBT, NTOT3, FDIAG, ixSym, IADR15
 use PrintLevel, only: DEBUG, VERBOSE
 use output_ras, only: IPRLOC
-use general_data, only: JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT, NTOT2
+use rasscf_files, only: JOBIPH
+use general_data, only: NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT, NTOT2
 #ifdef _HDF5_
 use mh5, only: mh5_close_dset, mh5_create_dset_int, mh5_create_dset_real, mh5_create_file, mh5_put_dset
 use fciqmc, only: tNonDiagStochPT2, tPrepStochCASPT2
@@ -114,7 +115,7 @@ do iSym=1,nSym
 end do
 
 LuFCK = isFreeUnit(27)
-!open(unit=LuFCK,file='FOCK_CHEMPS2',action='write' status='replace')
+!open(LuFCK,file='FOCK_CHEMPS2',action='write' status='replace')
 call molcas_open(LuFCK,'FOCK_CHEMPS2')
 write(LuFCK,'(1X,A12,I2,A1)') '&FOCK NACT= ',norbtot,','
 write(LuFCK,'(2X,A7)',advance='NO') 'ORBSYM='

@@ -110,6 +110,7 @@ do ijS=1,nPairs
   A_int = TMax(iS,jS)*TMax(iS,jS)
   if (A_Int < CutInt) cycle
 
+  TInt(1:nTInt) = Zero
   call Eval_IJKL(iS,jS,iS,jS,TInt,nTInt)
   !write(u6,*) iS,jS,Tmax(iS,jS),sqrt(abs(TInt(1)))
   TMax(iS,jS) = sqrt(abs(TInt(1)))

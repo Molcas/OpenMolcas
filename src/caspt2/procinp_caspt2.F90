@@ -33,16 +33,16 @@ use qcmaquis_interface, only: qcmaquis_interface_init_checkpoint, qcmaquis_inter
 use PrintLevel, only: VERBOSE
 use stdalloc, only: mma_allocate
 #endif
+#ifdef _MOLCAS_MPP_
+use, intrinsic :: iso_c_binding, only: c_int
+use Para_Info, only: Is_Real_Par, nProcs
+#endif
 #if 0
 ! NOT TESTED
 use OFembed, only: Do_OFemb
 #endif
 use Constants, only: Zero, Quart
 use Definitions, only: wp, iwp, u6, RtoB
-#ifdef _MOLCAS_MPP_
-use Para_Info, only: Is_Real_Par, nProcs
-use Definitions, only: MPIInt
-#endif
 
 implicit none
 integer(kind=iwp) :: I, iDNG, iDummy, iGroup, iOff, iSym, J, nCore(mxSym), nDiff, NFI, NSD
@@ -137,7 +137,9 @@ if (Input%PRHS == '0') Input%PRHS = 'DEFAULT'
 if (Input%PRHS == '1') Input%PRHS = 'OLD'
 if (Input%PRHS == '2') Input%PRHS = 'NEW'
 if (Input%PRHS == '3') Input%PRHS = 'DIRECT'  ! synonym of the DIREct keyword (undocumented)
-if ((Input%PRHS /= 'DEFAULT') .and. (Input%PRHS /= 'OLD') .and. (Input%PRHS /= 'NEW') .and. (Input%PRHS /= 'DIRECT')) then
+if (Input%PRHS == '4') Input%PRHS = 'STRIPED'
+if ((Input%PRHS /= 'DEFAULT') .and. (Input%PRHS /= 'OLD') .and. (Input%PRHS /= 'NEW') .and. (Input%PRHS /= 'DIRECT') .and. &
+    (Input%PRHS /= 'STRIPED')) then
   call WarningMessage(1,'The selected PRHS is not supported. Going to use the default strategy.')
   Input%PRHS = 'DEFAULT'
 end if
@@ -148,9 +150,12 @@ iParRHS = 1
 ! global arrays, and needs to be switched off (using rhsall instead)
 RHSDIRECT = Is_Real_Par() .and. (Input%RHSD .or. (Input%PRHS == 'DIRECT'))
 if (Is_Real_Par() .and. ((Input%PRHS == 'DEFAULT') .or. (Input%PRHS == 'NEW')) .and. (.not. RHSDIRECT)) iParRHS = 2
-! maximum number of real values handled by a single GADGOP call
+! A striped algorithm: gather the Cholesky vectors instead of reducing the integral blocks,
+! and let each process evaluate only the RHS columns it owns.
+if (Is_Real_Par() .and. (Input%PRHS == 'STRIPED') .and. (.not. RHSDIRECT)) iParRHS = 4
+! maximum number of real values handled by a single GADGOP (ARMCI) call
 ! compilers complain about huge(xxx)/RtoB with -Werror=integer-division
-MAXBUF = (huge(1_MPIInt)-mod(int(huge(1_MPIInt),kind=iwp),RtoB))/RtoB
+MAXBUF = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB
 #else
 RHSDIRECT = .false.
 MAXBUF = (huge(RtoB)-mod(huge(RtoB),RtoB))/RtoB

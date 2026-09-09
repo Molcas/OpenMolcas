@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp), intent(in) :: istate, nsdet
 real(kind=wp), intent(out) :: vector(nsdet) ! determinants
 integer(kind=iwp), intent(out) :: indexSD(nsdet) ! index
-integer(kind=iwp) :: i, idet, idx_det, iorbLR, iorbLR0, irrep_diff(8), irrep_pre, j, lcheckpoint, ndets_mclr, nDets_Total, &
+integer(kind=iwp) :: i, idet, idx_det, iorbLR, iorbLR0, irrep_diff(8), irrep_pre, j, lcheckpoint, lu, ndets_mclr, nDets_Total, &
                      nele_alpha, nele_beta, nele_mod, neletol, norb, norbLR, rc
 real(kind=wp) :: dtmp
 logical(kind=iwp) :: IFFILE
@@ -98,7 +98,8 @@ write(u6,*) 'pre_ele, ndets_RGLR',pre_ele,ndets_RGLR
 write(u6,*) 'nalpha,  nbeta     ',nele_alpha,nele_beta
 
 ! DETs read from mclr_dets.initial
-open(UNIT=117,file='mclr_dets.initial',status='OLD')
+lu = IsFreeUnit(117)
+open(lu,file='mclr_dets.initial',status='OLD')
 call mma_allocate(itype,ndets_RGLR,Label='itype')
 call mma_allocate(inum,ndets_RGLR,Label='inum')
 call mma_allocate(isgn,ndets_RGLR,Label='isgn')
@@ -112,14 +113,14 @@ electron(:,:) = 0
 ele_conf(:,:) = 0
 dV(:,:) = Zero
 do idet=1,ndets_RGLR
-  read(117,'(1X,I8,6X)',advance='no') itype(idet)
+  read(lu,'(1X,I8,6X)',advance='no') itype(idet)
   do i=1,neletol
-    read(117,'(1X,I5)',advance='no') electron(i,idet)
+    read(lu,'(1X,I5)',advance='no') electron(i,idet)
   end do
-  read(117,'(5X,I3)',advance='no') isgn(idet)
-  read(117,'(11X,I20)') inum(idet)
+  read(lu,'(5X,I3)',advance='no') isgn(idet)
+  read(lu,'(11X,I20)') inum(idet)
 end do
-close(117)
+close(lu)
 
 write(u6,*) 'before get the executable file'
 
@@ -131,7 +132,8 @@ write(u6,*) 'before get the executable file'
 call mma_allocate(ele_orb_alpha,norb,label='ele_orb_alpha')
 call mma_allocate(ele_orb_beta,norb,label='ele_orb_beta')
 ! All of the DETs into Maquis format
-open(unit=118,file='dets.mclr')
+lu = isFreeUnit(118)
+open(lu,file='dets.mclr')
 do idet=1,ndets_RGLR
   !write(u6,*) 'idet',idet
   ele_orb_alpha = 0
@@ -154,12 +156,12 @@ do idet=1,ndets_RGLR
     !write(u6,*) 'ele_conf(i,idet)',ele_conf(i,idet)
   end do
   do i=1,norb
-    write(118,'(I1)',advance='no') ele_conf(i,idet)
+    write(lu,'(I1)',advance='no') ele_conf(i,idet)
     !write(u6,*) 'ele_conf(',i,',idet)',ele_conf(i,idet)
   end do
-  write(118,*)
+  write(lu,*)
 end do
-close(118)
+close(lu)
 call mma_deallocate(ele_orb_alpha)
 call mma_deallocate(ele_orb_beta)
 
@@ -169,9 +171,10 @@ write(u6,*) 'After write dets.mclr file'
 ! The way of "open file" need to be written
 !                                  Yingjin 2015.8.13
 call systemf('wc -l dets.mclr > dets.mclr.info',rc)
-open(unit=118,file='dets.mclr.info')
-read(118,*) ndets_total
-close(118)
+lu = isFreeUnit(118)
+open(lu,file='dets.mclr.info')
+read(lu,*) ndets_total
+close(lu)
 ! If too many determinants,
 ! try to use the single, double, triple gradually untill 9999 (as the maximum)
 if (ndets_total > 9999) call systemf('head -9999 dets.mclr > ELE_CISR_FOR_MCLR',rc)
@@ -180,25 +183,27 @@ if (ndets_total > 9999) call systemf('head -9999 dets.mclr > ELE_CISR_FOR_MCLR',
 ! ========= should be improved by Hash etc. ==========
 do i=istate,istate
   !write(u6,*) 'dV(i,idet)',i
-  open(unit=118,file='GET_COEFF_IN_LIST')
+  lu = isFreeUnit(118)
+  open(lu,file='GET_COEFF_IN_LIST')
   call f_inquire('ELE_CISR_FOR_MCLR',IFFILE)
   if (IFFILE) then
     tmp_run = './srcas '//trim(checkpoint(i))//' dets.mclr 1.0 1.0 0 ELE_CISR_FOR_MCLR > CIRE.scratch'
   else
     tmp_run = './srcas '//trim(checkpoint(i))//' dets.mclr 1.0 1.0 0 dets.mclr > CIRE.scratch'
   end if
-  write(118,*) trim(tmp_run)
-  close(118)
+  write(lu,*) trim(tmp_run)
+  close(lu)
   call systemf('chmod +x GET_COEFF_IN_LIST',rc)
   call systemf('./GET_COEFF_IN_LIST',rc)
   ! read in the dets-coefficients
-  open(unit=118,file='det_coeff.tmp')
-  read(118,*) ndets_mclr
+  lu = isFreeUnit(118)
+  open(lu,file='det_coeff.tmp')
+  read(lu,*) ndets_mclr
   do idet=1,ndets_mclr
-    read(118,*) idx_det,dV(i,idx_det)
+    read(lu,*) idx_det,dV(i,idx_det)
     !write(u6,*) idx_det,dV(i,idx_det)
   end do
-  close(118)
+  close(lu)
   ! off-diagional multiply 2
   do idet=1,ndets_RGLR
     if (itype(idet) == 1) then

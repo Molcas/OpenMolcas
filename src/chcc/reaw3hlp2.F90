@@ -25,7 +25,7 @@ integer(kind=iwp) :: a, abebi, b, i, length
 
 ! read block (a">=be"|b"_i)
 length = no*nTri_Elem(dima)*dimb
-!open(unit=LunAux,file=LunName,form='unformatted')
+!open(LunAux,file=LunName,form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,LunName)
 call rea_chcc(LunAux,length,Wx)
 !mp Wx(1:length) = Zero

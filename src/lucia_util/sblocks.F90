@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1991,1999, Jeppe Olsen                                 *
+!               2026, Meng Wang                                        *
 !***********************************************************************
 
 subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSM,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB, &
@@ -89,6 +90,7 @@ integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1),
 integer(kind=iwp) :: IBLOCK, II
 #endif
 real(kind=wp) :: C(1), PL, XFAC
+logical(kind=iwp) :: SBZERO(NSBLOCK)
 ! IH_OCC_CONS = 1 implies that we should employ occupation conserving part of Hamiltonian
 integer(kind=iwp), parameter :: IH_OCC_CONS = 0
 
@@ -127,6 +129,7 @@ do JSBLOCK=1,NSBLOCK
   NBSTR = NSSOB(IBSM,IBTP)
   if (ISBLOCK(1,JSBLOCK) > 0) SB(IOFF:IOFF+NASTR*NBSTR-1) = Zero
 end do
+SBZERO(:) = .true.
 ! Loop over batches over C blocks
 if (IDOH2 == 1) then
   MXEXC = 2
@@ -305,7 +308,8 @@ do JCBATCH=JCBAT_INI,JCBAT_END
           call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(:,IATP+IOCTPA-1),NELFSPGP(:,IBTP+IOCTPB-1), &
                        NELFSPGP(:,LLATP+IOCTPA-1),NELFSPGP(:,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
                        NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA,NLLB,IDC,CJRES,SIRES,I3,XI3S, &
-                       I4,XI4S,MOCAA,XFAC,IPHGAS,I_RES_AB,size(TUVX),TUVX)
+                       I4,XI4S,MOCAA,XFAC,IPHGAS,I_RES_AB,size(TUVX),TUVX,SBZERO(ISBLK))
+          SBZERO(ISBLK) = .false.
           ! CALL RSSBCB2 --> 82
         end do
         ! End of loop over sigma blocks

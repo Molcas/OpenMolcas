@@ -25,8 +25,8 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, CMO_Inv, G1t, G2t, Int1, ipCM, ipMat, ipMatBA, LuQDat, nA, nB, nDens
-use input_mclr, only: Debug, iAddressQDat, iMethod, LuAChoVec, LuIChoVec, nAsh, nBas, NewCho, nIsh, nOrb, nSym, PotNuc, rIn_Ene, &
-                      StepType, TwoStep
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: Debug, iAddressQDat, iMethod, LuAChoVec, LuIChoVec, nBas, NewCho, nOrb, PotNuc, rIn_Ene, StepType, TwoStep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6

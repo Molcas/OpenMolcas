@@ -22,8 +22,8 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISMECIMSPD, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, OVERRIDE, &
                      ResQaaLag2, XISPSM
-use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nAsh, nCSF, nDisp, nIter, nRoots, nRS2, &
-                      State_Sym, StepType, TwoStep
+use general_data, only: nAsh, nRS2, STSym
+use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, nRoots, StepType, TwoStep
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -70,13 +70,13 @@ if (lSAVE) then
   call Abend()
 end if
 isym = 1
-nconf1 = ncsf(State_Sym)
+nconf1 = ncsf(STSym)
 
 CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
 ! Initiate CSF <-> SD
-call InCSFSD(Mul(iSym,State_Sym),State_sym)
+call InCSFSD(Mul(iSym,STSym),STSym)
 
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.
@@ -87,7 +87,7 @@ call InCSFSD(Mul(iSym,State_Sym),State_sym)
 !
 ! Output: Commonblocks (Pointers.fh)
 
-nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
+nConf3 = nint(max(xispsm(STSym,1),xispsm(STSym,1)))
 
 call Setup_MCLR(iSym)
 
@@ -104,7 +104,7 @@ if (isNAC) override = .true.
 
 call mma_allocate(FANCY,nroots**3,Label='FANCY')
 call mma_allocate(rCHC,nRoots,Label='rCHC')
-call CIDia_SA(State_Sym,rCHC,Fancy)
+call CIDia_SA(STSym,rCHC,Fancy)
 call mma_deallocate(rCHC)
 
 call ipOut(ipdia)

@@ -12,12 +12,14 @@
 subroutine Funi_Print()
 
 use nq_Grid, only: nGridMax
-use nq_Info, only: Angular_Pruning, Crowding, Fade, iOpt_Angular, L_Quad, NQ_Direct, nR, On, Quadrature, T_Y, Threshold
+use nq_Info, only: Angular_Pruning, Crowding, Fade, iOpt_Angular, L_Quad, NQ_Direct, nR, On, Quadrature, T_Y, Threshold, WriteGrid
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: iOpt, iPrint
 real(kind=wp) :: EThr
+character(len=1024) :: GridFileName
+integer(kind=iwp) :: lGridFileName
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
 
@@ -72,6 +74,10 @@ if ((.not. Reduce_Prt()) .and. (iPrint >= 2)) then
     write(u6,'(6X,A)') 'AO values are recomputed each iteration'
   else
     write(u6,'(6X,A)') 'AO values are stored on disk'
+  end if
+  if (WriteGrid) then
+    call PrgmTranslate('GRIDFILE',GridFileName,lGridFileName)
+    write(u6,'(6X,2A)') 'Numerical quadrature grid is written to ',GridFileName(:lGridFileName)
   end if
 end if
 !                                                                      *

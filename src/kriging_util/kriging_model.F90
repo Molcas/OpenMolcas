@@ -51,6 +51,7 @@ call RecPrt('PSI',' ',A,m_t,m_t)
 
 ! Now form (A^{-1} f) (to be used for the computation of the dispersion)
 
+INFO = 0
 #ifdef _DPOSV_
 ! Cholesky decomposition, A=LL^T
 call DPOSV_('U',m_t,1,A,m_t,B,m_t,INFO)

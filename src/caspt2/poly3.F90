@@ -38,7 +38,7 @@ subroutine POLY3(mkF)
 
 use caspt2_qmc_interface, only: DoFCIQMC, mkfg3fciqmc
 use PrintLevel, only: VERBOSE
-use sguga_states, only: CIS, SGS
+use sguga, only: CIS, SGS
 use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX, LUSOLV
 use general_data, only: NACTEL, nLev, STSym
 use caspt2_module, only: CIThr, DoCumulant, EPSA, Eta, iSCF, jState, mState, NAshT, nConf, nG1, nG2, nG3, nG3Tot, nState

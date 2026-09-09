@@ -9,20 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SG_setup_RASSI(nSym,nActEl,iSpin,SGS,CIS,EXS)
+subroutine SG_setup_RASSI(nSym,nActEl,iSpin,iState)
 
 use Molcas, only: MxLev
-use sguga, only: SGStruct, CIStruct, EXStruct, SG_Init
+use sguga, only: SG_Init
 use rassi_aux, only: Level
 use rassi_data, only: NASH
-use rasdef, only: nRas, nRasEl, nRsPrt
+use general_data, only: nRas, nRasEl, nRsPrt
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin
-type(SGStruct), intent(inout) :: SGS
-type(CIStruct), intent(inout) :: CIS
-type(EXStruct), intent(inout) :: EXS
+integer(kind=iwp), intent(in) :: nSym, nActEl, iSpin, iState
 integer(kind=iwp) :: ILEV, iq, ISM(MxLev), ISYM, IT, L2Act(MxLev), nLev
 
 nLev = 0
@@ -36,9 +33,7 @@ end do
 
 L2Act(1:MxLev) = [(iq,iq=1,MxLev)]
 
-call SG_Init(nSym,nActEl,iSpin,SGS,CIS, &
-             nRas,nRasEl,nRsPrt, &
-             EXS, &
+call SG_Init(iState,nSym,nActEl,iSpin,nRas,nRasEl,nRsPrt, &
              xLevel=Level,xL2Act=L2Act,xNLEV=nLev,xNSM=ISM)
 
 end subroutine SG_setup_RASSI

@@ -21,8 +21,9 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
-use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nAsh, nCSF, nDisp, nIter, NROOTS, nRS2, PT2, &
-                      State_Sym, STEPTYPE, TWOSTEP
+use general_data, only: nAsh, nRS2, STSym
+use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nCSF, nDisp, nIter, NROOTS, PT2, STEPTYPE, &
+                      TWOSTEP
 use PCM_grad, only: def_solv, do_RF, iStpPCM, PCM_grad_CLag, PCM_grad_PT2
 use ISRotation, only: DMInvISR, InvSCF, ISR, ISR_final, ISR_init, ISR_projection, ISR_RHS
 use cgs_mod, only: CGS, CGS_init, CGS_final
@@ -71,7 +72,7 @@ if (lSAVE) then
   call Abend()
 end if
 isym = 1
-nconf1 = ncsf(State_Sym)
+nconf1 = ncsf(STSym)
 !! iStpPCM has been set somewhere; just a reminder
 iStpPCM = 1
 
@@ -79,7 +80,7 @@ CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
 ! Initiate CSF <-> SD
-call InCSFSD(Mul(iSym,State_Sym),State_sym)
+call InCSFSD(Mul(iSym,STSym),STSym)
 
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.
@@ -90,7 +91,7 @@ call InCSFSD(Mul(iSym,State_Sym),State_sym)
 !
 ! Output: Commonblocks (Pointers.fh)
 
-nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
+nConf3 = nint(max(xispsm(STSym,1),xispsm(STSym,1)))
 
 call Setup_MCLR(iSym)
 
@@ -100,7 +101,7 @@ call Setup_MCLR(iSym)
 
 call mma_allocate(FANCY,nroots**3,Label='FANCY')
 call mma_allocate(rCHC,nRoots,Label='rCHC')
-call CIDia_SA(State_Sym,rCHC,Fancy)
+call CIDia_SA(STSym,rCHC,Fancy)
 call mma_deallocate(rCHC)
 
 call ipOut(ipdia)
@@ -194,7 +195,7 @@ else
       do iR=1,nRoots
         wrk(:) = W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR)
         iMode = 1
-        call SG2SymG(wrk,nConf1,iMode,State_Sym)
+        call SG2SymG(wrk,nConf1,iMode,STSym)
         W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
       end do
       call mma_deallocate(wrk)

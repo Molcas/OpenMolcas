@@ -24,7 +24,7 @@ use Symmetry_Info, only: Mul
 use caspt2_qmc_interface, only: DoFCIQMC, load_fciqmc_g1
 use PrintLevel, only: DEBUG
 use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-use sguga_states, only: CIS, SGS
+use sguga, only: CIS, SGS
 use caspt2_global, only: iPrGlb
 use general_data, only: nActEl, STSym
 use caspt2_module, only: iSCF, jState, mState, nAshT, nG1

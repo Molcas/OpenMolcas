@@ -15,7 +15,7 @@
 subroutine close_files_mcpdft()
 
 use Fock_util_global, only: docholesky
-use general_data, only: jobiph, jobold, luintm
+use rasscf_files, only: jobiph, jobold, luintm
 use Definitions, only: iwp, u6
 
 implicit none

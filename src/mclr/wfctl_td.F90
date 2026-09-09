@@ -22,8 +22,9 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC, XISPSM
 use MCLR_procedures, only: CISigma_td
-use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lCalc, lSave, nCSF, nDisp, nIter, nSym, nTPert, Omega, &
-                      PotNuc, PT2, rIn_Ene, State_Sym
+use general_data, only: nSym, STSym
+use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lCalc, lSave, nCSF, nDisp, nIter, nTPert, Omega, PotNuc, &
+                      PT2, rIn_Ene
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -75,14 +76,14 @@ if (PT2) kkkSym = 1
 ! Starting loop over all symmetries/PT
 
 do iSym=kksym,kkksym
-  PState_SYM = Mul(State_Sym,iSym)
+  PState_SYM = Mul(STSym,iSym)
   nconf1 = ncsf(PState_Sym)
   CI = .false.
   if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
   if (CI .and. (nconf1 == 1) .and. (isym == 1)) CI = .false.
   ! Initiate CSF <-> SD
-  if (CI) call InCSFSD(Mul(iSym,State_Sym),State_sym)
+  if (CI) call InCSFSD(Mul(iSym,STSym),STSym)
 
   ! Calculate length of the density, Fock and Kappa matrix etc
   ! notice that this matrixes not necessary are symmetric.
@@ -93,11 +94,11 @@ do iSym=kksym,kkksym
   !
   ! Output: Commonblocks (Pointers.fh)
 
-  PState_SYM = Mul(State_Sym,iSym)
+  PState_SYM = Mul(STSym,iSym)
   !nConf2 = nint(xispsm(PState_SYM,1))
   !nConf2 = ndtasm(PState_SYM)
-  nconf3 = nint(max(xispsm(PState_SYM,1),xispsm(State_SYM,1)))
-  !nconf3 = max(ndtasm(PState_SYM),ndtasm(State_SYM))
+  nconf3 = nint(max(xispsm(PState_SYM,1),xispsm(STSym,1)))
+  !nconf3 = max(ndtasm(PState_SYM),ndtasm(STSym))
 
   ! Setup is realted to symmetry treatment
 
@@ -327,7 +328,7 @@ do iSym=kksym,kkksym
 
         if (CI) then
           ! Adjusted to timedep
-          call CISigma_td(jspin,State_Sym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,'T',.true.)
+          call CISigma_td(jspin,STSym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,'T',.true.)
           Clock(iTimeKC) = Clock(iTimeKC)+Tim3
 
           ! This will give us a better

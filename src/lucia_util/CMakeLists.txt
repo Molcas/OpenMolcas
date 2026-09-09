@@ -12,6 +12,7 @@
 set (sources
      abstr_to_ordstr.F90
      abtor2.F90
+     abtor2_cuda.cu
      adaadas1_gas.F90
      adaadast_gas.F90
      adads1_gas.F90
@@ -76,8 +77,11 @@ set (sources
      getstr_totsm_spgp.F90
      grapw.F90
      gsbbd1.F90
+     gsbbd1_cuda.cu
      gsbbd2a.F90
+     gsbbd2a_cuda.cu
      gsbbd2b.F90
+     gsbbd2b_cuda.cu
      gsdnbb2.F90
      gsttbl.F90
      gt1dia.F90
@@ -113,8 +117,10 @@ set (sources
      lucia_close.F90
      lucia_data.F90
      lucia.F90
+     lucia_cuda_interface.F90
      lucia_ini.F90
      lucia_interface.F90
+     lucia_sigma_cuda_blocks.cu
      lulu.F90
      matcas.F90
      matcg.F90
@@ -158,6 +164,7 @@ set (sources
      prsm2.F90
      prsym.F90
      prtstr.F90
+     prttim.F90
      rassg3.F90
      reform_conf_for_gas1.F90
      reform_conf_for_gas2.F90
@@ -167,8 +174,11 @@ set (sources
      reo_ptdet.F90
      rftts.F90
      rsbb1e.F90
+     rsbb1e_cuda.cu
      rsbb2a.F90
+     rsbb2a_cuda.cu
      rsbb2bn.F90
+     rsbb2bn_cuda.cu
      rsmxmn.F90
      rssbcb2.F90
      sblock.F90
@@ -179,6 +189,7 @@ set (sources
      shtoob.F90
      sigvst.F90
      skickj.F90
+     skickj_cuda.cu
      skprcd2.F90
      smdfgp_gen.F90
      spgp_ac.F90

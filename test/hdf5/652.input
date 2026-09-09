@@ -1,0 +1,846 @@
+*-------------------------------------------------------------------------------
+* System: CH2NH2+ (as in test/standard/075.input)
+* Basis: 6-31G (as in test/standard/075.input)
+* Features tested: slapaf.h5 NAC / APPROX_NADC / TWO_RUNFILES structure for a
+*                   same-spin conical intersection optimized via the
+*                   two-RunFile trick, with an approximate (branching-plane)
+*                   coupling vector rather than an analytic one.
+* Responsible person: Luca De Vico
+*-------------------------------------------------------------------------------
+* This test verifies properties of the slapaf.h5 file itself on the
+* branching-plane fallback path -- that APPROX_NADC is set whenever NAC holds
+* an approximate vector rather than a true coupling derivative -- which the
+* ordinary checkfile mechanism cannot observe, since Add_Info only ever sees
+* the in-memory value at the call site and never the written file. Numerical
+* values remain the responsibility of the checkfile below.
+*-------------------------------------------------------------------------------
+
+* Test HDF5 support
+> RM -FORCE TEST_HDF5
+> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>   EXPORT MOLCAS_DRIVER=molcas
+> ENDIF
+> SHELL $MOLCAS_DRIVER have_feature hdf5 || touch TEST_HDF5
+> IF ( -FILE TEST_HDF5 )
+>   EXIT 36
+> ENDIF
+
+* Test h5py support (the structure check below needs it)
+> RM -FORCE TEST_H5PY
+> SHELL python3 -c "import h5py" || touch TEST_H5PY
+> IF ( -FILE TEST_H5PY )
+>   EXIT 36
+> ENDIF
+
+>FILE check_ci_approx.py
+#
+# Structure check for slapaf.h5: conical-intersection datasets on the
+# branching-plane fallback path (approximate coupling, two-RunFile job).
+#
+# The point of this test is C1: APPROX_NADC must be set at every iteration.
+# When the true coupling derivative cannot be computed, NAC instead holds a
+# normalized, dimensionless branching-plane vector -- not a physical coupling
+# derivative in Eh/a0. A downstream tool that reads NAC without checking
+# APPROX_NADC would silently misinterpret that vector's units and magnitude.
+# This is the only automated coverage for that fallback path.
+#
+# Exits 0 on success, 1 on any failure. A nonzero exit trips MOLCAS_TRAP and is
+# reported by the verify script as a test failure.
+#
+import sys
+import glob
+
+import h5py
+import numpy as np
+
+failures = []
+notes = []
+
+
+def fail(msg):
+    failures.append(msg)
+
+
+def as_int(value):
+    """mh5 attributes may arrive as a scalar or as a length-1 array."""
+    arr = np.atleast_1d(np.asarray(value))
+    if arr.size != 1:
+        raise ValueError('expected a scalar attribute, got size %d' % arr.size)
+    return int(arr[0])
+
+
+def locate():
+    if len(sys.argv) > 1 and glob.glob(sys.argv[1]):
+        return sys.argv[1]
+    candidates = sorted(glob.glob('*.slapaf.h5'))
+    if not candidates:
+        sys.stderr.write('FATAL: no slapaf.h5 found (argv=%s)\n' % sys.argv[1:])
+        sys.exit(1)
+    if len(candidates) > 1:
+        notes.append('multiple slapaf.h5 present, using %s' % candidates[0])
+    return candidates[0]
+
+
+path = locate()
+
+with h5py.File(path, 'r') as f:
+
+    if 'ITERATIONS' not in f.attrs:
+        sys.stderr.write('FATAL: ITERATIONS attribute is missing\n')
+        sys.exit(1)
+    niter = as_int(f.attrs['ITERATIONS'])
+
+    # --- C1: APPROX_NADC exists, every entry == 1 ---------------------------
+    if 'APPROX_NADC' not in f:
+        fail('C1: APPROX_NADC dataset is missing')
+        sys.stderr.write('\n'.join(failures) + '\n')
+        sys.exit(1)
+    approx = f['APPROX_NADC'][...]
+    if approx.shape != (niter,):
+        fail('C1: APPROX_NADC shape is %s, expected %s' % (approx.shape, (niter,)))
+    elif np.any(approx != 1):
+        fail('C1: APPROX_NADC has %d entries != 1, expected every iteration '
+             'to fall back to the branching-plane approximation: %s'
+             % (int(np.sum(approx != 1)), np.array2string(approx)))
+
+    # --- C2: NAC exists and is fully populated ------------------------------
+    if 'NAC' not in f:
+        fail('C2: NAC dataset is missing')
+        sys.stderr.write('\n'.join(failures) + '\n')
+        sys.exit(1)
+    nac = f['NAC'][...]
+    if nac.shape[0] != niter:
+        fail('C2: NAC leading dimension %d != ITERATIONS %d' % (nac.shape[0], niter))
+    if not np.all(np.isfinite(nac)):
+        bad = np.argwhere(~np.isfinite(nac))
+        fail('C2: NAC has %d non-finite entries, first at %s' % (len(bad), tuple(bad[0])))
+    zero_rows = np.argwhere(np.all(nac == 0.0, axis=tuple(range(1, nac.ndim))))
+    if len(zero_rows):
+        fail('C2: NAC has %d all-zero row(s) (fill-value holes?), first at '
+             'iteration %d' % (len(zero_rows), zero_rows[0][0]))
+
+    # --- C2b: APPROX_NADC[k] == 1 implies a unit-norm NAC[k] -----------------
+    # The branching-plane fallback (Maeda/Ohno/Morokuma) is normalized and
+    # dimensionless, unlike a true coupling derivative in Eh/a0. Measured at
+    # exactly 1.000000 for every iteration of standard/075 (this test), versus
+    # 0.0023-0.0088 for additional/875's analytic coupling -- a tight
+    # tolerance here would misfire on the analytic path, so this is checked
+    # only where APPROX_NADC actually marks the fallback.
+    if approx.shape == (niter,) and nac.shape[0] == niter:
+        for k in range(niter):
+            if approx[k] != 1:
+                continue
+            norm = np.sqrt(np.sum(nac[k]**2))
+            if abs(norm-1.0) > 1.0e-5:
+                fail('C2b: iteration %d -- APPROX_NADC = 1 but Frobenius norm '
+                     'of NAC = %.6f, expected 1' % (k, norm))
+
+    # --- C3: TWO_RUNFILES == 1 -----------------------------------------------
+    if 'TWO_RUNFILES' not in f.attrs:
+        fail('C3: TWO_RUNFILES attribute is missing')
+    else:
+        got = as_int(f.attrs['TWO_RUNFILES'])
+        if got != 1:
+            fail('C3: TWO_RUNFILES = %d, expected 1' % got)
+
+    # --- C4: ROOT_INDICES shape and range only -------------------------------
+    # Deliberately NOT checking the actual values. For this two-RunFile job
+    # the pair is (root on the currently active RunFile, root on RUNFILE2),
+    # not a sorted (higher, lower) pair -- it only happens to look sorted
+    # here because of how this particular input orders its two RlxRoot
+    # values. Asserting the exact numbers would encode that accident rather
+    # than a real property of the code.
+    if 'ROOT_INDICES' not in f:
+        fail('C4: ROOT_INDICES dataset is missing')
+    else:
+        root_idx = f['ROOT_INDICES'][...]
+        if root_idx.shape != (niter, 2):
+            fail('C4: ROOT_INDICES shape is %s, expected %s' % (root_idx.shape, (niter, 2)))
+        elif np.any(root_idx < 1):
+            fail('C4: ROOT_INDICES has entries < 1: %s' % np.array2string(root_idx))
+
+if failures:
+    sys.stderr.write('\nslapaf.h5 structure check FAILED (%s)\n' % path)
+    for item in failures:
+        sys.stderr.write('  %s\n' % item)
+    sys.exit(1)
+
+for item in notes:
+    sys.stdout.write('  note: %s\n' % item)
+sys.stdout.write('slapaf.h5 branching-plane structure check passed: '
+                 'ITERATIONS=%d APPROX_NADC=%s NAC=%s ROOT_INDICES=%s\n'
+                 % (niter, approx.shape, nac.shape, root_idx.shape))
+sys.exit(0)
+>EOF
+
+>>> EXPORT MOLCAS_REDUCE_PRT = NO
+
+&GATEWAY
+  Coord = 6
+    Angstrom
+    C  0.00000  0.00000  0.00000
+    N  1.29450  0.00000  0.00000
+    H -0.57034  0.00000 -0.93388
+    H  1.84217 -0.86059 -0.01502
+    H -0.57032 -0.00000  0.93390
+    H  1.84217  0.86059  0.01502
+  Basis = 6-31G
+  Group = NoSymm
+  Constraints
+    a = EDiff
+  Values
+    a = 0.0
+  End of Constraints
+  NoCD
+
+>>> DoWhile
+
+&SEWARD
+
+&RASSCF
+  Spin = 1
+  Charge = 1
+  Ras2 = 2
+  NActElectrons = 2 0 0
+  CIRoot = 2 2 1
+  RlxRoot = 1
+
+&ALASKA
+
+>>> COPY $Project.RunFile RUNFILE2
+
+&RASSCF
+  Spin = 1
+  Charge = 1
+  Ras2 = 2
+  NActElectrons = 2 0 0
+  CIRoot = 2 2 1
+  RlxRoot = 2
+
+&ALASKA
+
+&SLAPAF
+  Thrshld = 0.0 1.0D-3
+
+>>> EndDo
+
+* --- structure check of the resulting checkpoint file -------------------------
+> SHELL python3 check_ci_approx.py $Project.slapaf.h5
+>>FILE checkfile
+* This file is autogenerated:
+* Molcas version 26.06-890-gb65003763
+* Darwin Luca-De-Vicos-MacBook-Pro-2.local 24.6.0 Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:21 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_X86_64 x86_64
+* Wed Aug 19 19:51:34 2026
+*
+#>>   1
+#> POTNUC="38.276409122032"/12
+#>>   2
+#> POTNUC="38.276409122032"/6
+#> SEWARD_MLTPL1X="-1.301824987797"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-38.501949133639"/5
+#>>   3
+#> RASSCF_ITER="10"/8
+#> E_RASSCF[0]="-94.215534388911"/8
+#> E_RASSCF[1]="-94.205871341360"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.630307787215"/5
+#> MLTPL__1[1]="-0.000001256650"/5
+#> MLTPL__1[2]="0.000001093821"/5
+#> MLTPL__2[0]="3.758972913926"/5
+#> MLTPL__2[1]="0.000005573069"/5
+#> MLTPL__2[2]="0.000021841366"/5
+#> MLTPL__2[3]="0.224687945071"/5
+#> MLTPL__2[4]="-0.212206514802"/5
+#> MLTPL__2[5]="-3.983660858997"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.022570978786"/5
+#> MLTPL__1[1]="0.000001273770"/5
+#> MLTPL__1[2]="0.000007450460"/5
+#> MLTPL__2[0]="3.801384737471"/5
+#> MLTPL__2[1]="-0.000005598784"/5
+#> MLTPL__2[2]="-0.000000551713"/5
+#> MLTPL__2[3]="-1.638107174156"/5
+#> MLTPL__2[4]="0.363656112999"/5
+#> MLTPL__2[5]="-2.163277563315"/5
+#>>   4
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.771793731311"/5
+#> MLTPL__1[1]="-0.000001109851"/5
+#> MLTPL__1[2]="0.000004493703"/5
+#> MLTPL__2[0]="3.832309261589"/5
+#> MLTPL__2[1]="0.000005397086"/5
+#> MLTPL__2[2]="0.000014721629"/5
+#> MLTPL__2[3]="0.008924391206"/5
+#> MLTPL__2[4]="-0.200515763345"/5
+#> MLTPL__2[5]="-3.841233652795"/5
+#>>   5
+#> GRAD[0]="0.049237725700"/6
+#> GRAD[1]="-0.000000438177"/6
+#> GRAD[2]="-0.000006580547"/6
+#> GRAD[3]="-0.060074205469"/6
+#> GRAD[4]="0.000000527509"/6
+#> GRAD[5]="0.000001715811"/6
+#> GRAD[6]="0.000546894184"/6
+#> GRAD[7]="0.023732779667"/6
+#> GRAD[8]="-0.006633985196"/6
+#> GRAD[9]="0.004871275634"/6
+#> GRAD[10]="-0.011477048548"/6
+#> GRAD[11]="0.025552948124"/6
+#> GRAD[12]="0.000546909061"/6
+#> GRAD[13]="-0.023732806273"/6
+#> GRAD[14]="0.006638664296"/6
+#> GRAD[15]="0.004871400891"/6
+#> GRAD[16]="0.011476985822"/6
+#> GRAD[17]="-0.025552762489"/6
+#>>   6
+#>>   7
+#> RASSCF_ITER="4"/8
+#> E_RASSCF[0]="-94.215534411415"/8
+#> E_RASSCF[1]="-94.205871318858"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.630302382848"/5
+#> MLTPL__1[1]="-0.000001256692"/5
+#> MLTPL__1[2]="0.000001093921"/5
+#> MLTPL__2[0]="3.758974886980"/5
+#> MLTPL__2[1]="0.000005572538"/5
+#> MLTPL__2[2]="0.000021841019"/5
+#> MLTPL__2[3]="0.224688743607"/5
+#> MLTPL__2[4]="-0.212203896325"/5
+#> MLTPL__2[5]="-3.983663630588"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.022572781333"/5
+#> MLTPL__1[1]="0.000001273801"/5
+#> MLTPL__1[2]="0.000007450337"/5
+#> MLTPL__2[0]="3.801387369349"/5
+#> MLTPL__2[1]="-0.000005598108"/5
+#> MLTPL__2[2]="-0.000000550667"/5
+#> MLTPL__2[3]="-1.638116150703"/5
+#> MLTPL__2[4]="0.363653074201"/5
+#> MLTPL__2[5]="-2.163271218646"/5
+#>>   8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="1.881085786481"/5
+#> MLTPL__1[1]="0.000001126976"/5
+#> MLTPL__1[2]="0.000004050595"/5
+#> MLTPL__2[0]="3.728050875293"/5
+#> MLTPL__2[1]="-0.000005422556"/5
+#> MLTPL__2[2]="0.000006568315"/5
+#> MLTPL__2[3]="-1.422351037805"/5
+#> MLTPL__2[4]="0.351962071559"/5
+#> MLTPL__2[5]="-2.305699837488"/5
+#>>   9
+#> GRAD[0]="0.114084847524"/6
+#> GRAD[1]="0.000000437857"/6
+#> GRAD[2]="-0.000005621618"/6
+#> GRAD[3]="-0.103169680123"/6
+#> GRAD[4]="-0.000000523625"/6
+#> GRAD[5]="0.000001446992"/6
+#> GRAD[6]="-0.008037672502"/6
+#> GRAD[7]="-0.023953243756"/6
+#> GRAD[8]="-0.007848613339"/6
+#> GRAD[9]="0.002580354828"/6
+#> GRAD[10]="-0.006208131257"/6
+#> GRAD[11]="-0.026100693326"/6
+#> GRAD[12]="-0.008038087223"/6
+#> GRAD[13]="0.023953268725"/6
+#> GRAD[14]="0.007852870666"/6
+#> GRAD[15]="0.002580237497"/6
+#> GRAD[16]="0.006208192056"/6
+#> GRAD[17]="0.026100610625"/6
+#>>  10
+#>>  11
+#>>  13
+#> POTNUC="38.072319443813"/6
+#> SEWARD_MLTPL1X="-1.318860783690"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-38.466130535936"/5
+#>>  14
+#> RASSCF_ITER="7"/8
+#> E_RASSCF[0]="-94.216077445438"/8
+#> E_RASSCF[1]="-94.209797604947"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.441935437258"/5
+#> MLTPL__1[1]="-0.000000549393"/5
+#> MLTPL__1[2]="0.000005219984"/5
+#> MLTPL__2[0]="3.850597598978"/5
+#> MLTPL__2[1]="-0.000000178687"/5
+#> MLTPL__2[2]="0.000011001285"/5
+#> MLTPL__2[3]="0.333736019032"/5
+#> MLTPL__2[4]="0.081207579362"/5
+#> MLTPL__2[5]="-4.184333618009"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.178778411451"/5
+#> MLTPL__1[1]="0.000000678611"/5
+#> MLTPL__1[2]="0.000006537300"/5
+#> MLTPL__2[0]="3.888332528924"/5
+#> MLTPL__2[1]="-0.000002205926"/5
+#> MLTPL__2[2]="-0.000006660392"/5
+#> MLTPL__2[3]="-1.857958617889"/5
+#> MLTPL__2[4]="-0.056930082709"/5
+#> MLTPL__2[5]="-2.030373911034"/5
+#>>  15
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.621317779053"/5
+#> MLTPL__1[1]="-0.000000247723"/5
+#> MLTPL__1[2]="0.000007784729"/5
+#> MLTPL__2[0]="3.939934068655"/5
+#> MLTPL__2[1]="-0.000000617877"/5
+#> MLTPL__2[2]="0.000005123970"/5
+#> MLTPL__2[3]="0.073363514678"/5
+#> MLTPL__2[4]="0.075544915868"/5
+#> MLTPL__2[5]="-4.013297583333"/5
+#>>  16
+#> GRAD[0]="0.019936255196"/6
+#> GRAD[1]="-0.000000207687"/6
+#> GRAD[2]="-0.000004765945"/6
+#> GRAD[3]="-0.032573421612"/6
+#> GRAD[4]="0.000000049549"/6
+#> GRAD[5]="0.000001229230"/6
+#> GRAD[6]="0.002048500738"/6
+#> GRAD[7]="-0.004181408881"/6
+#> GRAD[8]="-0.004095303997"/6
+#> GRAD[9]="0.004270066180"/6
+#> GRAD[10]="-0.008255625922"/6
+#> GRAD[11]="-0.004635965742"/6
+#> GRAD[12]="0.002048525781"/6
+#> GRAD[13]="0.004181585579"/6
+#> GRAD[14]="0.004098661041"/6
+#> GRAD[15]="0.004270073717"/6
+#> GRAD[16]="0.008255607362"/6
+#> GRAD[17]="0.004636145413"/6
+#>>  17
+#>>  18
+#> RASSCF_ITER="4"/8
+#> E_RASSCF[0]="-94.216077498290"/8
+#> E_RASSCF[1]="-94.209797552233"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.441925426871"/5
+#> MLTPL__1[1]="-0.000000549265"/5
+#> MLTPL__1[2]="0.000005219311"/5
+#> MLTPL__2[0]="3.850606656915"/5
+#> MLTPL__2[1]="-0.000000179523"/5
+#> MLTPL__2[2]="0.000011003913"/5
+#> MLTPL__2[3]="0.333737016528"/5
+#> MLTPL__2[4]="0.081164815075"/5
+#> MLTPL__2[5]="-4.184343673442"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.178801846024"/5
+#> MLTPL__1[1]="0.000000678560"/5
+#> MLTPL__1[2]="0.000006536201"/5
+#> MLTPL__2[0]="3.888306953540"/5
+#> MLTPL__2[1]="-0.000002206840"/5
+#> MLTPL__2[2]="-0.000006653288"/5
+#> MLTPL__2[3]="-1.857948197536"/5
+#> MLTPL__2[4]="-0.056908392160"/5
+#> MLTPL__2[5]="-2.030358756003"/5
+#>>  19
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="1.999401012809"/5
+#> MLTPL__1[1]="0.000000377082"/5
+#> MLTPL__1[2]="0.000003971772"/5
+#> MLTPL__2[0]="3.798989893467"/5
+#> MLTPL__2[1]="-0.000001767981"/5
+#> MLTPL__2[2]="-0.000000778198"/5
+#> MLTPL__2[3]="-1.597587839171"/5
+#> MLTPL__2[4]="-0.051250097051"/5
+#> MLTPL__2[5]="-2.201402054296"/5
+#>>  20
+#> GRAD[0]="0.097265226161"/6
+#> GRAD[1]="-0.000000047632"/6
+#> GRAD[2]="-0.000004122083"/6
+#> GRAD[3]="-0.082764882805"/6
+#> GRAD[4]="0.000000049199"/6
+#> GRAD[5]="0.000001018191"/6
+#> GRAD[6]="-0.008682036462"/6
+#> GRAD[7]="0.004291821514"/6
+#> GRAD[8]="-0.005491552615"/6
+#> GRAD[9]="0.001432033107"/6
+#> GRAD[10]="-0.003214186449"/6
+#> GRAD[11]="0.004583540209"/6
+#> GRAD[12]="-0.008682374554"/6
+#> GRAD[13]="-0.004291812153"/6
+#> GRAD[14]="0.005494634969"/6
+#> GRAD[15]="0.001432034554"/6
+#> GRAD[16]="0.003214175521"/6
+#> GRAD[17]="-0.004583518672"/6
+#>>  21
+#>>  22
+#>>  24
+#> POTNUC="37.744325169422"/6
+#> SEWARD_MLTPL1X="-1.347036522171"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-38.408432084269"/5
+#>>  25
+#> RASSCF_ITER="8"/8
+#> E_RASSCF[0]="-94.216566991368"/8
+#> E_RASSCF[1]="-94.213449332077"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.347566987331"/5
+#> MLTPL__1[1]="0.000027902504"/5
+#> MLTPL__1[2]="-0.000069458220"/5
+#> MLTPL__2[0]="3.976070021023"/5
+#> MLTPL__2[1]="-0.000021168414"/5
+#> MLTPL__2[2]="-0.000261729348"/5
+#> MLTPL__2[3]="0.240609315115"/5
+#> MLTPL__2[4]="0.055030310720"/5
+#> MLTPL__2[5]="-4.216679336138"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.217860039548"/5
+#> MLTPL__1[1]="-0.000030607225"/5
+#> MLTPL__1[2]="-0.000016676051"/5
+#> MLTPL__2[0]="3.977607021942"/5
+#> MLTPL__2[1]="0.000100755141"/5
+#> MLTPL__2[2]="-0.000145754306"/5
+#> MLTPL__2[3]="-1.911393078643"/5
+#> MLTPL__2[4]="-0.021031146041"/5
+#> MLTPL__2[5]="-2.066213943299"/5
+#>>  26
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.549848543151"/5
+#> MLTPL__1[1]="0.000015195214"/5
+#> MLTPL__1[2]="-0.000065507130"/5
+#> MLTPL__2[0]="4.062984008350"/5
+#> MLTPL__2[1]="-0.000003327782"/5
+#> MLTPL__2[2]="-0.000265717840"/5
+#> MLTPL__2[3]="-0.018591532322"/5
+#> MLTPL__2[4]="0.050899311942"/5
+#> MLTPL__2[5]="-4.044392476028"/5
+#>>  27
+#> GRAD[0]="-0.015132846107"/6
+#> GRAD[1]="0.000011043402"/6
+#> GRAD[2]="-0.000002325378"/6
+#> GRAD[3]="0.003449371798"/6
+#> GRAD[4]="-0.000005058432"/6
+#> GRAD[5]="0.000001406327"/6
+#> GRAD[6]="0.003283203004"/6
+#> GRAD[7]="-0.001812279042"/6
+#> GRAD[8]="-0.000772302432"/6
+#> GRAD[9]="0.002559053811"/6
+#> GRAD[10]="-0.003354575758"/6
+#> GRAD[11]="-0.002000416985"/6
+#> GRAD[12]="0.003282626557"/6
+#> GRAD[13]="0.001805198161"/6
+#> GRAD[14]="0.000774048668"/6
+#> GRAD[15]="0.002558590936"/6
+#> GRAD[16]="0.003355671669"/6
+#> GRAD[17]="0.001999589800"/6
+#>>  28
+#>>  29
+#> RASSCF_ITER="4"/8
+#> E_RASSCF[0]="-94.216567063448"/8
+#> E_RASSCF[1]="-94.213449260003"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.347565669282"/5
+#> MLTPL__1[1]="0.000027899961"/5
+#> MLTPL__1[2]="-0.000069458936"/5
+#> MLTPL__2[0]="3.976077522483"/5
+#> MLTPL__2[1]="-0.000021149710"/5
+#> MLTPL__2[2]="-0.000261734242"/5
+#> MLTPL__2[3]="0.240600891401"/5
+#> MLTPL__2[4]="0.055031295954"/5
+#> MLTPL__2[5]="-4.216678413883"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.217858965477"/5
+#> MLTPL__1[1]="-0.000030605784"/5
+#> MLTPL__1[2]="-0.000016676075"/5
+#> MLTPL__2[0]="3.977611912151"/5
+#> MLTPL__2[1]="0.000100758861"/5
+#> MLTPL__2[2]="-0.000145760043"/5
+#> MLTPL__2[3]="-1.911397683294"/5
+#> MLTPL__2[4]="-0.021031286860"/5
+#> MLTPL__2[5]="-2.066214228857"/5
+#>>  30
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.015576634991"/5
+#> MLTPL__1[1]="-0.000017901071"/5
+#> MLTPL__1[2]="-0.000020627576"/5
+#> MLTPL__2[0]="3.890698830373"/5
+#> MLTPL__2[1]="0.000082924135"/5
+#> MLTPL__2[2]="-0.000141770764"/5
+#> MLTPL__2[3]="-1.652198725068"/5
+#> MLTPL__2[4]="-0.016900173072"/5
+#> MLTPL__2[5]="-2.238500105305"/5
+#>>  31
+#> GRAD[0]="0.064487111127"/6
+#> GRAD[1]="0.000001096282"/6
+#> GRAD[2]="-0.000003856839"/6
+#> GRAD[3]="-0.046577813507"/6
+#> GRAD[4]="-0.000000261562"/6
+#> GRAD[5]="0.000006428163"/6
+#> GRAD[6]="-0.007985448871"/6
+#> GRAD[7]="0.001838126248"/6
+#> GRAD[8]="-0.002087268785"/6
+#> GRAD[9]="-0.000969440941"/6
+#> GRAD[10]="0.001595425826"/6
+#> GRAD[11]="0.001991286368"/6
+#> GRAD[12]="-0.007985075663"/6
+#> GRAD[13]="-0.001839412224"/6
+#> GRAD[14]="0.002088872085"/6
+#> GRAD[15]="-0.000969332145"/6
+#> GRAD[16]="-0.001594974570"/6
+#> GRAD[17]="-0.001995460992"/6
+#>>  32
+#>>  33
+#>>  35
+#> POTNUC="37.602315534891"/6
+#> SEWARD_MLTPL1X="-1.359849187647"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-38.383706703790"/5
+#>>  36
+#> RASSCF_ITER="7"/8
+#> E_RASSCF[0]="-94.216157263940"/8
+#> E_RASSCF[1]="-94.214601320925"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.305530216631"/5
+#> MLTPL__1[1]="-0.000103600733"/5
+#> MLTPL__1[2]="0.000031645515"/5
+#> MLTPL__2[0]="3.997527700487"/5
+#> MLTPL__2[1]="0.000088146842"/5
+#> MLTPL__2[2]="0.000042554585"/5
+#> MLTPL__2[3]="0.216355479369"/5
+#> MLTPL__2[4]="0.034476758203"/5
+#> MLTPL__2[5]="-4.213883179856"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.234623753609"/5
+#> MLTPL__1[1]="0.000117644095"/5
+#> MLTPL__1[2]="0.000008398264"/5
+#> MLTPL__2[0]="3.977274175042"/5
+#> MLTPL__2[1]="-0.000381843651"/5
+#> MLTPL__2[2]="0.000012913347"/5
+#> MLTPL__2[3]="-1.915286558603"/5
+#> MLTPL__2[4]="0.002283831306"/5
+#> MLTPL__2[5]="-2.061987616438"/5
+#>>  37
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.519328198842"/5
+#> MLTPL__1[1]="-0.000055262444"/5
+#> MLTPL__1[2]="0.000030342764"/5
+#> MLTPL__2[0]="4.080976608172"/5
+#> MLTPL__2[1]="0.000020333453"/5
+#> MLTPL__2[2]="0.000042620209"/5
+#> MLTPL__2[3]="-0.041618920172"/5
+#> MLTPL__2[4]="0.031038727383"/5
+#> MLTPL__2[5]="-4.039357688000"/5
+#>>  38
+#> GRAD[0]="-0.029823786571"/6
+#> GRAD[1]="-0.000041593834"/6
+#> GRAD[2]="0.000000031143"/6
+#> GRAD[3]="0.017342936270"/6
+#> GRAD[4]="0.000018344745"/6
+#> GRAD[5]="0.000000069609"/6
+#> GRAD[6]="0.004472638588"/6
+#> GRAD[7]="0.000106293679"/6
+#> GRAD[8]="0.000388339049"/6
+#> GRAD[9]="0.001766140206"/6
+#> GRAD[10]="-0.001909019906"/6
+#> GRAD[11]="0.000089529275"/6
+#> GRAD[12]="0.004473495772"/6
+#> GRAD[13]="-0.000079904128"/6
+#> GRAD[14]="-0.000388654654"/6
+#> GRAD[15]="0.001768575735"/6
+#> GRAD[16]="0.001905879443"/6
+#> GRAD[17]="-0.000089314423"/6
+#>>  39
+#>>  40
+#> RASSCF_ITER="4"/8
+#> E_RASSCF[0]="-94.216157145767"/8
+#> E_RASSCF[1]="-94.214601439107"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.305527703746"/5
+#> MLTPL__1[1]="-0.000103578244"/5
+#> MLTPL__1[2]="0.000031646187"/5
+#> MLTPL__2[0]="3.997531127275"/5
+#> MLTPL__2[1]="0.000087973413"/5
+#> MLTPL__2[2]="0.000042574117"/5
+#> MLTPL__2[3]="0.216352778853"/5
+#> MLTPL__2[4]="0.034479381145"/5
+#> MLTPL__2[5]="-4.213883906128"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.234620305942"/5
+#> MLTPL__1[1]="0.000117627200"/5
+#> MLTPL__1[2]="0.000008401568"/5
+#> MLTPL__2[0]="3.977275447217"/5
+#> MLTPL__2[1]="-0.000381883447"/5
+#> MLTPL__2[2]="0.000012931515"/5
+#> MLTPL__2[3]="-1.915287486143"/5
+#> MLTPL__2[4]="0.002281753973"/5
+#> MLTPL__2[5]="-2.061987961074"/5
+#>>  41
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.020822508111"/5
+#> MLTPL__1[1]="0.000069313841"/5
+#> MLTPL__1[2]="0.000009703002"/5
+#> MLTPL__2[0]="3.893826672881"/5
+#> MLTPL__2[1]="-0.000314124622"/5
+#> MLTPL__2[2]="0.000012867952"/5
+#> MLTPL__2[3]="-1.657312637247"/5
+#> MLTPL__2[4]="0.005719915010"/5
+#> MLTPL__2[5]="-2.236514035634"/5
+#>>  42
+#> GRAD[0]="0.050766278277"/6
+#> GRAD[1]="-0.000003840753"/6
+#> GRAD[2]="0.000000597499"/6
+#> GRAD[3]="-0.032318457283"/6
+#> GRAD[4]="0.000000407484"/6
+#> GRAD[5]="-0.000001287850"/6
+#> GRAD[6]="-0.007084352449"/6
+#> GRAD[7]="-0.000086896226"/6
+#> GRAD[8]="-0.000870305615"/6
+#> GRAD[9]="-0.002139499513"/6
+#> GRAD[10]="0.002986731350"/6
+#> GRAD[11]="-0.000080125547"/6
+#> GRAD[12]="-0.007083818902"/6
+#> GRAD[13]="0.000091481074"/6
+#> GRAD[14]="0.000869819055"/6
+#> GRAD[15]="-0.002140150130"/6
+#> GRAD[16]="-0.002987882928"/6
+#> GRAD[17]="0.000081302457"/6
+#>>  43
+#>>  44
+#>>  46
+#> POTNUC="37.531854630837"/6
+#> SEWARD_MLTPL1X="-1.365901937735"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-38.372203382314"/5
+#>>  47
+#> RASSCF_ITER="7"/8
+#> E_RASSCF[0]="-94.215840516916"/8
+#> E_RASSCF[1]="-94.215060718780"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.291322952192"/5
+#> MLTPL__1[1]="0.000410598941"/5
+#> MLTPL__1[2]="-0.000007562351"/5
+#> MLTPL__2[0]="3.999628708139"/5
+#> MLTPL__2[1]="-0.000349236885"/5
+#> MLTPL__2[2]="-0.000148296154"/5
+#> MLTPL__2[3]="0.204691028929"/5
+#> MLTPL__2[4]="-0.006446476949"/5
+#> MLTPL__2[5]="-4.204319737068"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.237712284367"/5
+#> MLTPL__1[1]="-0.000468929392"/5
+#> MLTPL__1[2]="-0.000012603467"/5
+#> MLTPL__2[0]="3.967098597016"/5
+#> MLTPL__2[1]="0.001535894403"/5
+#> MLTPL__2[2]="-0.000043762221"/5
+#> MLTPL__2[3]="-1.907566147965"/5
+#> MLTPL__2[4]="0.044646549821"/5
+#> MLTPL__2[5]="-2.059532449051"/5
+#>>  48
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.509735389363"/5
+#> MLTPL__1[1]="0.000217640941"/5
+#> MLTPL__1[2]="-0.000005344737"/5
+#> MLTPL__2[0]="4.080245477812"/5
+#> MLTPL__2[1]="-0.000077555129"/5
+#> MLTPL__2[2]="-0.000153751374"/5
+#> MLTPL__2[3]="-0.051415005322"/5
+#> MLTPL__2[4]="-0.008930874925"/5
+#> MLTPL__2[5]="-4.028830472490"/5
+#>>  49
+#> GRAD[0]="-0.036233443279"/6
+#> GRAD[1]="0.000165389113"/6
+#> GRAD[2]="0.000004091895"/6
+#> GRAD[3]="0.022678003117"/6
+#> GRAD[4]="-0.000072638123"/6
+#> GRAD[5]="-0.000000884667"/6
+#> GRAD[6]="0.005125186147"/6
+#> GRAD[7]="0.003829775086"/6
+#> GRAD[8]="0.000700055841"/6
+#> GRAD[9]="0.001656635169"/6
+#> GRAD[10]="-0.001815886139"/6
+#> GRAD[11]="0.004219604853"/6
+#> GRAD[12]="0.005126765833"/6
+#> GRAD[13]="-0.003934427885"/6
+#> GRAD[14]="-0.000703940857"/6
+#> GRAD[15]="0.001646853012"/6
+#> GRAD[16]="0.001827787948"/6
+#> GRAD[17]="-0.004218927065"/6
+#>>  50
+#>>  51
+#> RASSCF_ITER="4"/8
+#> E_RASSCF[0]="-94.215840400123"/8
+#> E_RASSCF[1]="-94.215060835579"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.291325475575"/5
+#> MLTPL__1[1]="0.000410384173"/5
+#> MLTPL__1[2]="-0.000007562980"/5
+#> MLTPL__2[0]="3.999631593679"/5
+#> MLTPL__2[1]="-0.000347956943"/5
+#> MLTPL__2[2]="-0.000148279028"/5
+#> MLTPL__2[3]="0.204689544409"/5
+#> MLTPL__2[4]="-0.006454558937"/5
+#> MLTPL__2[5]="-4.204321138088"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.237707050038"/5
+#> MLTPL__1[1]="-0.000468789378"/5
+#> MLTPL__1[2]="-0.000012612966"/5
+#> MLTPL__2[0]="3.967100014035"/5
+#> MLTPL__2[1]="0.001536134699"/5
+#> MLTPL__2[2]="-0.000043793876"/5
+#> MLTPL__2[3]="-1.907563936648"/5
+#> MLTPL__2[4]="0.044655149038"/5
+#> MLTPL__2[5]="-2.059536077387"/5
+#>>  52
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.019297116609"/5
+#> MLTPL__1[1]="-0.000276036747"/5
+#> MLTPL__1[2]="-0.000014825892"/5
+#> MLTPL__2[0]="3.886483354976"/5
+#> MLTPL__2[1]="0.001264935770"/5
+#> MLTPL__2[2]="-0.000038328615"/5
+#> MLTPL__2[3]="-1.651457858196"/5
+#> MLTPL__2[4]="0.047139209046"/5
+#> MLTPL__2[5]="-2.235025496780"/5
+#>>  53
+#> GRAD[0]="0.044441381845"/6
+#> GRAD[1]="0.000015368012"/6
+#> GRAD[2]="-0.000003083287"/6
+#> GRAD[3]="-0.026557122166"/6
+#> GRAD[4]="-0.000001129987"/6
+#> GRAD[5]="0.000002258356"/6
+#> GRAD[6]="-0.006520364184"/6
+#> GRAD[7]="-0.003896465846"/6
+#> GRAD[8]="-0.000564663883"/6
+#> GRAD[9]="-0.002422255489"/6
+#> GRAD[10]="0.003074073466"/6
+#> GRAD[11]="-0.004214825624"/6
+#> GRAD[12]="-0.006522219500"/6
+#> GRAD[13]="0.003878528969"/6
+#> GRAD[14]="0.000567571918"/6
+#> GRAD[15]="-0.002419420506"/6
+#> GRAD[16]="-0.003070374614"/6
+#> GRAD[17]="0.004212742519"/6
+#>>  54
+#>>  55
+#> GEO_ITER="5"/8
+#> POTNUC="37.497238090609"/6
+#> SEWARD_MLTPL1X="-1.368782410655"/5
+#> SEWARD_KINETIC="16.207567973450"/5
+#> SEWARD_ATTRACT="-38.366869279596"/5
+#> RASSCF_ITER="6"/8
+#> E_RASSCF[0]="-94.215658758677"/8
+#> E_RASSCF[1]="-94.215268411221"/8
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="0.297710544610"/5
+#> MLTPL__1[1]="-0.001593082469"/5
+#> MLTPL__1[2]="-0.000013348202"/5
+#> MLTPL__2[0]="3.998233592520"/5
+#> MLTPL__2[1]="0.001334884601"/5
+#> MLTPL__2[2]="0.000181600659"/5
+#> MLTPL__2[3]="0.186360764919"/5
+#> MLTPL__2[4]="-0.051299795787"/5
+#> MLTPL__2[5]="-4.184594357439"/5
+#> MLTPL__0="1"/5
+#> MLTPL__1[0]="2.226706635389"/5
+#> MLTPL__1[1]="0.001826167463"/5
+#> MLTPL__1[2]="0.000046114782"/5
+#> MLTPL__2[0]="3.958863979167"/5
+#> MLTPL__2[1]="-0.006016259106"/5
+#> MLTPL__2[2]="-0.000202673653"/5
+#> MLTPL__2[3]="-1.890045110669"/5
+#> MLTPL__2[4]="0.089473068717"/5
+#> MLTPL__2[5]="-2.068818868498"/5
+#>>  56
+>>EOF

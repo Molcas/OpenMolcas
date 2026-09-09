@@ -9,10 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1991, Jeppe Olsen                                      *
+!               2026, Meng Wang                                        *
 !***********************************************************************
 
-subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST, &
-                  SCLFAC,IPHGAS,nTUVX,TUVX)
+subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,NSB,NCB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB, &
+                  NSMST,SCLFAC,IPHGAS,nTUVX,TUVX)
 ! SUBROUTINE RSBB2A --> 46
 !
 ! two electron excitations on column strings
@@ -60,6 +61,11 @@ use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPNGAS, MXPTSOB
+#ifdef _CUDA_BLAS_
+use, intrinsic :: iso_c_binding, only: c_int64_t
+use LUCIA_CUDA_INTERFACE, only: LUCIA_RSBB2A_CUDA_BEGIN, LUCIA_RSBB2A_CUDA_END, LUCIA_RSBB2A_CUDA_ROUTE, &
+                                LUCIA_RSBB2A_CUDA_XINT_BEGIN, LUCIA_RSBB2A_CUDA_XINT_END
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -68,10 +74,11 @@ use Definitions, only: u6
 #endif
 
 #include "intent.fh"
+#include "macros.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), NSMST, NOBPTS(MXPNGAS,*), &
-                                 MAXI, MAXK, NSMOB, IPHGAS(NGAS), nTUVX
+integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), NSB, NCB, &
+                                 NOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, NSMST, IPHGAS(NGAS), nTUVX
 real(kind=wp), intent(inout) :: SB(*)
 real(kind=wp), intent(in) :: CB(*), SCLFAC, TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), XINT(*)
@@ -87,9 +94,35 @@ integer(kind=iwp) :: I, I1JL, I4_AC(4), I4_REO(4), I4_TP(4), IAC, IBOT, ICOUL, I
 integer(kind=iwp) :: II, JIKBT, JJLBT
 #endif
 real(kind=wp) :: FACTORAB, FACTORC, FACX
-real(kind=wp), allocatable :: SCR(:)
+integer(kind=iwp), allocatable :: CMap(:), SMap(:)
+real(kind=wp), allocatable :: CSign(:), SCR(:), SSign(:)
+#ifdef _CUDA_BLAS_
+integer(kind=c_int64_t) :: CudaStatus
+logical(kind=iwp) :: CudaSession, CudaXint
+#endif
+
+#ifndef _CUDA_BLAS_
+unused_var(NSB)
+unused_var(NCB)
+#endif
 
 call mma_allocate(SCR,MXPTSOB**4,Label='SCR')
+call mma_allocate(CMap,MAXK*MXPTSOB**2,Label='CMap')
+call mma_allocate(SMap,MAXK*MXPTSOB**2,Label='SMap')
+call mma_allocate(CSign,MAXK*MXPTSOB**2,Label='CSign')
+call mma_allocate(SSign,MAXK*MXPTSOB**2,Label='SSign')
+#ifdef _CUDA_BLAS_
+CudaSession = .false.
+CudaXint = .false.
+if ((NPROCS == 1) .and. (NROW > 0) .and. (NSB > 0) .and. (NCB > 0)) then
+  CudaStatus = LUCIA_RSBB2A_CUDA_BEGIN(SB,CB,NROW,NSB,NCB)
+  if (CudaStatus == -1) then
+    call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
+  else
+    CudaSession = CudaStatus == 1
+  end if
+end if
+#endif
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ==============='
 write(u6,*) ' RSBB2A speaking'
@@ -388,13 +421,13 @@ if (IDXSM /= 0) then
                   do IJL=1,NJL
                     call NXTIJ(J,L,NJ,NL,JLSM,NONEW)
                     I1JL = (L-1)*NJ+J
-                    ! CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
-                    JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
+                    JLOFF = (JLBOFF+IJL-2)*NKBTC+1
                     if ((JLSM == 1) .and. (J == L)) then
-                      ! a+j a+j gives trivially zero
-                      CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = Zero
+                      CMap(JLOFF:JLOFF+NKBTC-1) = 0
+                      CSign(JLOFF:JLOFF+NKBTC-1) = Zero
                     else
-                      call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,I1JL),XI1S(:,I1JL))
+                      CMap(JLOFF:JLOFF+NKBTC-1) = I1(1:NKBTC,I1JL)
+                      CSign(JLOFF:JLOFF+NKBTC-1) = XI1S(1:NKBTC,I1JL)
                     end if
                   end do
 
@@ -453,41 +486,20 @@ if (IDXSM /= 0) then
                     end do
                     JLOFF = JLOFF+NJL
                   end do
+#                 ifdef _CUDA_BLAS_
+                  if (CudaSession .and. (NIKT > 0) .and. (NJLT > 0)) then
+                    CudaStatus = LUCIA_RSBB2A_CUDA_XINT_BEGIN(XINT,int(NIKT,c_int64_t),int(NJLT,c_int64_t))
+                    if (CudaStatus == -1) then
+                      call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
+                    else if (CudaStatus == 1) then
+                      CudaXint = .true.
+                    end if
+                  end if
+#                 endif
                 end if
                 ! End if integrals should be fetched
                 IFIRST = 0
-                ! and now, to the work
-                LIKB = NIBTC*NKBTC
-#               ifdef _DEBUGPRINT_
-                write(u6,*) ' Integral block'
-                call WRTMAT(XINT,NIKT,NJLT,NIKT,NJLT)
-                write(u6,*) ' CSCR matrix'
-                call WRTMAT(CSCR,LIKB,NJLT,LIKB,NJLT)
-#               endif
-
-                !!MXACIJO = MXACIJ
-                !MXACIJ = MAX(MXACIJ,LIKB*NJLT,LIKB*NIKT)
-                !!if (MXACIJ > MXACIJO) then
-                !!  write(u6,*) ' New max MXACIJ = ', MXACIJ
-                !!  write(u6,*) ' ISCTP,ICCTP', ISCTP,ICCTP
-                !!  write(u6,*) ' ITYP,JTYP,KTYP,LTYP',ITYP,JTYP,KTYP,LTYP
-                !!  write(u6,*) 'NIJT, NJLT, NIBTC NKBTC',NIJT,NJLT,NIBTC,NKBTC
-                !!end if
-
-                FACTORC = Zero
-                FACTORAB = One
-                call MATML7(SSCR,CSCR,XINT,LIKB,NIKT,LIKB,NJLT,NIKT,NJLT,FACTORC,FACTORAB,2)
-#               ifdef _DEBUGPRINT_
-                write(u6,*) ' SSCR matrix'
-                call WRTMAT(SSCR,LIKB,NIKT,LIKB,NIKT)
-#               endif
-                ! ============================
-                ! Loop over ik and scatter out
-                ! ============================
-                ! Generate double excitations from K strings
-                ! I strings connected with K strings in batch <I!a+i a+k!K)
                 II12 = 2
-
                 IKBOFF = 1
                 do IKPAIR=1,IKBT(2,IKBTC)
                   ISM = IKSMBT(1,IKBT(1,IKBTC)-1+IKPAIR)
@@ -517,23 +529,56 @@ if (IDXSM /= 0) then
                   do IK=1,NIK
                     call NXTIJ(I,K,NI,NK,IKSM,NONEW)
                     IKOFF = (K-1)*NI+I
-                    ISBOFF = 1+(IKBOFF-1+IK-1)*NIBTC*NKBTC
+                    ISBOFF = 1+(IKBOFF+IK-2)*NKBTC
                     if ((IKSM == 1) .and. (I == k)) then
-                      ! a+ i a+i gives trivially zero
+                      SMap(ISBOFF:ISBOFF+NKBTC-1) = 0
+                      SSign(ISBOFF:ISBOFF+NKBTC-1) = Zero
                     else
-                      call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(:,IKOFF),XI1S(:,IKOFF))
+                      SMap(ISBOFF:ISBOFF+NKBTC-1) = I1(1:NKBTC,IKOFF)
+                      SSign(ISBOFF:ISBOFF+NKBTC-1) = XI1S(1:NKBTC,IKOFF)
                     end if
                   end do
                   IKBOFF = IKBOFF+NIK
-
                 end do
-                ! End of loop over IKPAIRS in batch
+
+                LIKB = NIBTC*NKBTC
+                FACTORC = Zero
+                FACTORAB = One
+#               ifdef _CUDA_BLAS_
+                CudaStatus = 0
+                if (NPROCS == 1) then
+                  CudaStatus = LUCIA_RSBB2A_CUDA_ROUTE(SB,CB,XINT,CMap,CSign,SMap,SSign,NROW,NSB,NCB,IBOT,NIBTC,NKBTC,NIKT,NJLT, &
+                                                       FACTORAB)
+                end if
+                if (CudaStatus == -1) then
+                  call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
+                else if (CudaStatus /= 1) then
+#               endif
+                  do IJL=1,NJLT
+                    JLOFF = 1+(IJL-1)*LIKB
+                    call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,CMap(1+(IJL-1)*NKBTC),CSign(1+(IJL-1)*NKBTC))
+                  end do
+                  call MATML7(SSCR,CSCR,XINT,LIKB,NIKT,LIKB,NJLT,NIKT,NJLT,FACTORC,FACTORAB,2)
+                  do IK=1,NIKT
+                    ISBOFF = 1+(IK-1)*LIKB
+                    call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,SMap(1+(IK-1)*NKBTC),SSign(1+(IK-1)*NKBTC))
+                  end do
+#               ifdef _CUDA_BLAS_
+                end if
+#               endif
 
                 if (KEND /= 0) exit outer
               end do outer
               ! End of loop over partitionings of resolution strings
             end do
             ! End of loop over partitionings of I strings
+#           ifdef _CUDA_BLAS_
+            if (CudaXint) then
+              CudaStatus = LUCIA_RSBB2A_CUDA_XINT_END()
+              if (CudaStatus /= 1) call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
+              CudaXint = .false.
+            end if
+#           endif
           end do
           ! End of loop over batches of JL
         end do
@@ -653,9 +698,9 @@ if (IDXSM /= 0) then
                   do IJL=1,NJL
                     call NXTIJ(J,L,NJ,NL,JLSM,NONEW)
                     I1JL = (L-1)*NJ+J
-                    ! CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
-                    JLOFF = (IJL-1)*NKBTC*NIBTC+1
-                    call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,I1JL),XI1S(:,I1JL))
+                    JLOFF = (IJL-1)*NKBTC+1
+                    CMap(JLOFF:JLOFF+NKBTC-1) = I1(1:NKBTC,I1JL)
+                    CSign(JLOFF:JLOFF+NKBTC-1) = XI1S(1:NKBTC,I1JL)
                   end do
 
                   !=============================================
@@ -697,69 +742,76 @@ if (IDXSM /= 0) then
                     else if (ICOUL == 1) then
                       call GETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,JSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,nTUVX,TUVX)
                     end if
+#                   ifdef _CUDA_BLAS_
+                    if (CudaSession .and. (NIK > 0) .and. (NJL > 0)) then
+                      CudaStatus = LUCIA_RSBB2A_CUDA_XINT_BEGIN(XINT,int(NIK,c_int64_t),int(NJL,c_int64_t))
+                      if (CudaStatus == -1) then
+                        call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
+                      else if (CudaStatus == 1) then
+                        CudaXint = .true.
+                      end if
+                    end if
+#                   endif
 
                   end if
                   ! End if integrals should be fetched
                   IFIRST = 0
-                  ! and now, to the work
-                  LIKB = NIBTC*NKBTC
-#                 ifdef _DEBUGPRINT_
-                  write(u6,*) ' Integral block'
-                  call WRTMAT(XINT,NIK,NJL,NIK,NJL)
-                  write(u6,*) ' CSCR matrix'
-                  call WRTMAT(CSCR,LIKB,NJL,LIKB,NJL)
-#                 endif
-
-                  !!MXACIJO = MXACIJ
-                  !MXACIJ = MAX(MXACIJ,LIKB*NJL,LIKB*NIK)
-                  !!if (MXACIJ > MXACIJO) then
-                  !!  write(u6,*) ' New max MXACIJ = ', MXACIJ
-                  !!  write(u6,*) ' ISCTP,ICCTP', ISCTP,ICCTP
-                  !!  write(u6,*) ' ITYP,JTYP,KTYP,LTYP',ITYP,JTYP,KTYP,LTYP
-                  !!  write(u6,*) 'NIJ NJL NIBTC NKBTC',NIJ,NJL,NIBTC,NKBTC
-                  !!end if
-
-                  FACTORC = Zero
-                  FACTORAB = FACX
-                  call MATML7(SSCR,CSCR,XINT,LIKB,NIK,LIKB,NJL,NIK,NJL,FACTORC,FACTORAB,2)
-#                 ifdef _DEBUGPRINT_
-                  write(u6,*) ' SSCR matrix'
-                  call WRTMAT(SSCR,LIKB,NIK,LIKB,NIK)
-#                 endif
-                  ! ============================
-                  ! Loop over ik and scatter out
-                  ! ============================
-                  ! Generate double excitations from K strings
-                  ! I strings connected with K strings in batch <I!a+i a+k!K)
                   II12 = 2
-
                   if (IFRST == 1) KFRST = 1
-
                   IAC = I4_AC(1)
                   KAC = I4_AC(2)
-
-                  !KFRST = 1
                   call ADAADAST_GAS(1,ISM,ITYP,NI,IAC,1,KSM,KTYP,NK,KAC,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST, &
                                     KFRST,II12,K12,One)
-
                   IFRST = 0
                   KFRST = 0
-
                   I = 0
                   K = 1
                   do IK=1,NIK
                     call NXTIJ(I,K,NI,NK,IKSM,NONEW)
                     IKOFF = (K-1)*NI+I
-                    ISBOFF = 1+(IK-1)*NIBTC*NKBTC
-                    call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(:,IKOFF),XI1S(:,IKOFF))
+                    ISBOFF = 1+(IK-1)*NKBTC
+                    SMap(ISBOFF:ISBOFF+NKBTC-1) = I1(1:NKBTC,IKOFF)
+                    SSign(ISBOFF:ISBOFF+NKBTC-1) = XI1S(1:NKBTC,IKOFF)
                   end do
-                  !write(u6,*) ' first element of updated SB',SB(1)
+
+                  LIKB = NIBTC*NKBTC
+                  FACTORC = Zero
+                  FACTORAB = FACX
+#                 ifdef _CUDA_BLAS_
+                  CudaStatus = 0
+                  if (NPROCS == 1) then
+                    CudaStatus = LUCIA_RSBB2A_CUDA_ROUTE(SB,CB,XINT,CMap,CSign,SMap,SSign,NROW,NSB,NCB,IBOT,NIBTC,NKBTC,NIK,NJL, &
+                                                         FACTORAB)
+                  end if
+                  if (CudaStatus == -1) then
+                    call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
+                  else if (CudaStatus /= 1) then
+#                 endif
+                    do IJL=1,NJL
+                      JLOFF = 1+(IJL-1)*LIKB
+                      call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,CMap(1+(IJL-1)*NKBTC),CSign(1+(IJL-1)*NKBTC))
+                    end do
+                    call MATML7(SSCR,CSCR,XINT,LIKB,NIK,LIKB,NJL,NIK,NJL,FACTORC,FACTORAB,2)
+                    do IK=1,NIK
+                      ISBOFF = 1+(IK-1)*LIKB
+                      call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,SMap(1+(IK-1)*NKBTC),SSign(1+(IK-1)*NKBTC))
+                    end do
+#                 ifdef _CUDA_BLAS_
+                  end if
+#                 endif
 
                   if (KEND /= 0) exit
                 end do
                 ! End of loop over partitionings of resolution strings
               end do
               ! End of loop over batches of I strings
+#             ifdef _CUDA_BLAS_
+              if (CudaXint) then
+                CudaStatus = LUCIA_RSBB2A_CUDA_XINT_END()
+                if (CudaStatus /= 1) call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
+                CudaXint = .false.
+              end if
+#             endif
             end if
             ! End of if I >= K, J >= L
           end do
@@ -774,6 +826,17 @@ if (IDXSM /= 0) then
 
 end if
 
+#ifdef _CUDA_BLAS_
+if (CudaSession) then
+  CudaStatus = LUCIA_RSBB2A_CUDA_END()
+  if (CudaStatus == -1) call SYSABENDMSG('lucia_util/rsbb2a','CUDA execution failed','')
+end if
+#endif
+
+call mma_deallocate(CMap)
+call mma_deallocate(SMap)
+call mma_deallocate(CSign)
+call mma_deallocate(SSign)
 call mma_deallocate(SCR)
 
 end subroutine RSBB2A

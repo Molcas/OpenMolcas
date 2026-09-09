@@ -24,8 +24,8 @@ use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, ipCI, ipDia, ipMat, IRLXROOT, ISNAC, LuTemp, nAcPar, nAcPr2, NACSTATES, nConf1, nDens, nDensC, &
                      nNA, PDFT_Ratio, WF_Ratio, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nAsh, nBas, nCSF, nDisp, nIter, nRoots, nRs2, &
-                      nSym, ntAsh, State_Sym, Weight
+use general_data, only: nAsh, nRs2, nSym, STSym
+use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nBas, nCSF, nDisp, nIter, nRoots, ntAsh, Weight
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -74,13 +74,13 @@ if (lSAVE) then
   call Abend()
 end if
 isym = 1
-nconf1 = ncsf(State_Sym)
+nconf1 = ncsf(STSym)
 
 CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
 ! Initiate CSF <-> SD
-call InCSFSD(Mul(iSym,State_Sym),State_sym)
+call InCSFSD(Mul(iSym,STSym),STSym)
 
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.
@@ -91,7 +91,7 @@ call InCSFSD(Mul(iSym,State_Sym),State_sym)
 !
 ! Output: Commonblocks (Pointers.fh)
 
-nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
+nConf3 = nint(max(xispsm(STSym,1),xispsm(STSym,1)))
 
 call Setup_MCLR(iSym)
 
@@ -105,7 +105,7 @@ call mma_allocate(rCHC,nRoots,Label='rCHC')
 !AMS - what to do here?
 ! What should rCHC be?  is it computed with E(mcscf) or E(pdft)?
 !____________________
-call CIDia_SA(State_Sym,rCHC,Fancy)
+call CIDia_SA(STSym,rCHC,Fancy)
 call mma_deallocate(rCHC)
 call ipOut(ipdia)
 
@@ -225,7 +225,7 @@ do iDisp=1,nDisp
 
   call get_darray('F2_PDFT',FMO2t,nacpr2)
 
-  call CISigma_sa(0,State_sym,State_sym,FMO1,nDens,FMO2t,size(FMO2t),rdum,1,ipci,ipST,.true.)
+  call CISigma_sa(0,STSym,STSym,FMO1,nDens,FMO2t,size(FMO2t),rdum,1,ipci,ipST,.true.)
   call mma_deallocate(FMO2t)
 
   troot = (irlxroot-1)

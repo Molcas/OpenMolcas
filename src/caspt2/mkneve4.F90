@@ -18,8 +18,7 @@ use caspt2_global, only: IDTCEX, iPrGlb, LUCIEX
 use general_data, only: NACTEL, STSYM
 use caspt2_module, only: JSTATE, MXCI, NCONF, NSYM
 use PrintLevel, only: verbose
-use sguga, only: sg_epq_psi
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, sg_epq_psi, SGS
 use Symmetry_Info, only: Mul
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par

@@ -21,6 +21,7 @@ subroutine CHO_MCA_CALCINT_4(XINT,LINT,ISHLCD,ISHLAB)
 !              column).
 
 use Cholesky, only: INF_IN2, IPRINT, iSP2F, LuPri, NCOLAB, nSym, TINTEG
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -69,6 +70,7 @@ end if
 ! --------------------
 
 call CWTIME(C1,W1)
+XINT(1:LINT) = Zero
 call CHO_MCA_INT_1(ISHLCD,ISHLAB,XINT,LINT,LOCDBG .or. (IPRINT >= 100))
 call CWTIME(C2,W2)
 TINTEG(1,1) = TINTEG(1,1)+C2-C1

@@ -35,7 +35,8 @@ subroutine Precabi(ib,is,js,nd,rOut,nba,focki,focka,Sgn,A_J,A_K,Scr,nScr)
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t, nA
-use input_mclr, only: nAsh, nBas, nIsh, nOrb, nSym
+use general_data, only: nAsh, nIsh, nSym
+use input_mclr, only: nBas, nOrb
 use Constants, only: Two, Four, Eight
 use Definitions, only: wp, iwp
 

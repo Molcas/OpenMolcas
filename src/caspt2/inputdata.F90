@@ -147,7 +147,7 @@ type InputTable
   ! PRSD  print the determinant expansion of CSFs
   logical(kind=iwp) :: PrSD = .false.
   ! PRHS  Parallel strategy for RHS construction
-  !       '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
+  !       '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT', '4' = 'STRIPED'
   character(len=7) :: PRHS = 'DEFAULT'
 
   ! DMRG-related keywords
@@ -383,7 +383,7 @@ subroutine readin_CASPT2(LuIn,nSym)
         read(Line,*,iostat=iError) Input%RlxRoot
         if (iError /= 0) call IOError(Line)
 
-      ! freeze-deleted control
+        ! freeze-deleted control
 
       case ('FROZ')
         Input%FROZ = .true.
@@ -752,7 +752,7 @@ subroutine readin_CASPT2(LuIn,nSym)
         read(Line,*,iostat=iError) Input%SC_thres
         if (iError /= 0) call IOError(Line)
 
-      ! OBSOLETE KEYWORDS
+        ! OBSOLETE KEYWORDS
 
       case ('GRAD')
         call WarningMessage(2,'Obsolete keyword: '//Command)

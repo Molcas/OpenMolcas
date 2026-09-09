@@ -38,7 +38,8 @@ use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: Hss, lDisp, LuTEMP, nConf1, nDensC, nHess, XISPSM
-use input_mclr, only: Coor, Debug, iMethod, lCalc, McKinley, nCSF, nDisp, nSym, nTPert, State_Sym
+use general_data, only: nSym, STSym
+use input_mclr, only: Coor, Debug, iMethod, lCalc, McKinley, nCSF, nDisp, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
@@ -99,7 +100,7 @@ do iSym=1,nSym
   ! Output: Commonblocks (Pointers.fh)
 
   call Setup_MCLR(iSym)
-  PState_SYM = Mul(State_Sym,iSym)
+  PState_SYM = Mul(STSym,iSym)
   nconfM = max(ncsf(PState_Sym),nint(xispsm(Pstate_Sym,1)))
   nconf1 = ncsf(PState_Sym)
   CI = .false.
@@ -498,10 +499,9 @@ if (.true.) then
   if (debug .and. elec_On) call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
 # endif
 
-  Lu_10 = 10
-  Lu_10 = IsFreeUnit(Lu_10)
+  Lu_10 = IsFreeUnit(10)
   call molcas_open(lu_10,'UNSYM')
-  !open(unit=Lu_10,file='UNSYM')
+  !open(Lu_10,file='UNSYM')
 
   if (Mckinley) then
     call FreqAnal(nDisp,DegDisp,NrDisp,Hess,converged,ELEC,ielec,elout,ldisp2,Lu_10)

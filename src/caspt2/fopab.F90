@@ -12,8 +12,7 @@
 subroutine FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
 
 use Index_Functions, only: iTri, nTri_Elem
-use sguga, only: sg_epq_psi
-use sguga_states, only: CIS, EXS, SGS
+use sguga, only: CIS, EXS, sg_epq_psi, SGS
 use caspt2_global, only: IDCIEX, LUCIEX
 use general_data, only: NASH, nLEV, STSYM
 use caspt2_module, only: ISCF, NAES, NCONF, NISH, NORB, NSYM

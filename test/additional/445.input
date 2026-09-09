@@ -6,6 +6,7 @@
 * Responsible person: Yoshio Nishimoto
 * Comments: CASSCF and XMS-CASPT2 analytic gradients with unequal weight
 *           Conjugate gradient squared method is employed
+*           Tests the striped RHS construction (PRHS = 4) with XMS
 *-------------------------------------------------------------------------------
 
 *-------------------------------------------------------------------------------
@@ -106,6 +107,7 @@
   DORT
   GRDT
   RLXRoot     = 4
+  PRHS        = 4
 
 &MCLR
   THRE = 1.0d-05

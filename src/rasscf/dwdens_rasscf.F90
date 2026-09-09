@@ -18,15 +18,13 @@ subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
 use ci_interfaces, only: Mk_pdms
 use rasscf_global, only: DoDMRG, Ener, IADR15, ITER, NAC, NACPAR, NACPR2, nRoots
 use DWSol, only: DWSol_wgt, W_SOLV
-use gas_data, only: iDoGAS
-use general_data, only: JOBIPH, NACTEL, NCONF
-use sguga_states, only: SGS
-use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
-use Lucia_Interface, only: Lucia_Util
+use general_data, only: iDoGAS
+use rasscf_files, only: JOBIPH
+use general_data, only: NACTEL, NCONF
+use sguga, only: SGS
 use sxci, only: IDXSX
 #ifdef _DMRG_
-use lucia_data, only: RF1, RF2
-use rasscf_global, only: TwoRDM_qcm
+use rasscf_global, only: RF1, RF2, TwoRDM_qcm
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -38,7 +36,7 @@ real(kind=wp), intent(out) :: D1A(NACPAR), RCT_FS(NACPAR)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, jDisk
 real(kind=wp) :: rdum(1), wgt
-real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DX(:)
+real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DStmp(:), Dtmp(:), DX(:), PAtmp(:), PTmp(:)
 integer(kind=iwp), parameter :: istate = 1
 
 call mma_allocate(DA_ave,NACPAR,Label='DA_ave')
@@ -99,11 +97,8 @@ else if (iFinal == 2) then
       else
         call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
         call Mk_pdms(CIVEC,size(CIVEC),D=Dtmp,SD=DStmp,P=Ptmp,PA=PAtmp,nD=NAC**2,nP=NACPR2)
-        call Lucia_Util('Densi',CI_Vector=CIVEC(:))
         if ((SGS(istate)%IFRAS > 2) .or. (iDoGAS)) then
-          call mma_allocate(Pscr,NACPR2,Label='Pscr')
-          call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-          call mma_deallocate(Pscr)
+          call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp)
         end if
         call mma_deallocate(PAtmp)
       end if ! doDMRG/doBLOK or CI

@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1991,1997, Jeppe Olsen                                 *
+!               2026, Meng Wang                                        *
 !***********************************************************************
 
 !#define _DEBUGPRINT_
@@ -64,7 +65,11 @@ subroutine RSBB1E(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NOBPTS,
 
 use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
-use lucia_data, only: MXPNGAS, MXPTSOB
+use lucia_data, only: MXPNGAS, MXPTSOB, RSBB1E_CPU_D1_MAX, RSBB1E_CPU_D2_MAX
+#ifdef _CUDA_BLAS_
+use, intrinsic :: iso_c_binding, only: c_int64_t
+use LUCIA_CUDA_INTERFACE, only: LUCIA_RSBB1E_CUDA_BEGIN, LUCIA_RSBB1E_CUDA_END, LUCIA_RSBB1E_CUDA_ROUTE
+#endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -84,6 +89,10 @@ integer(kind=iwp) :: IBOT, ICGOFF, ICGRP(16), IDOCOMP, IIORB, IIPART, IJ_AC(2), 
                      IJTP, ISBOFF, ISGRP(16), ISM, ITOP, ITP(16), ITYP, IXXX, JJORB, JSM, JTP(16), JTYP, KACT, KBOT, KEND, KTOP, &
                      LKABTC, NIBTC, NIK, NIORB, NIPART, NIPARTSZ, NJORB, NKAEFF, NKASTR, NSXTP
 real(kind=wp) :: FACTORAB, FACTORC, HSCR(MXPTSOB*MXPTSOB), SCLFACS, SIGNIJ
+#ifdef _CUDA_BLAS_
+integer(kind=c_int64_t) :: CudaStatus, NCBCUDA, NSBCUDA
+logical(kind=iwp) :: CudaSession
+#endif
 
 !MOC = 1
 #ifdef _DEBUGPRINT_
@@ -97,6 +106,18 @@ write(u6,*) ' ISEL :'
 call IWRTMA(ISEL,1,NGAS,1,NGAS)
 write(u6,*) ' ICEL :'
 call IWRTMA(ICEL,1,NGAS,1,NGAS)
+#endif
+
+#ifdef _CUDA_BLAS_
+CudaSession = .false.
+if ((NPROCS == 1) .and. (NROW > 0)) then
+  CudaStatus = LUCIA_RSBB1E_CUDA_BEGIN(SB,CB,NROW)
+  if (CudaStatus == -1) then
+    call SYSABENDMSG('lucia_util/rsbb1e','CUDA execution failed','')
+  else
+    CudaSession = CudaStatus == 1
+  end if
+end if
 #endif
 
 ! Number of partitionings over column strings
@@ -240,6 +261,27 @@ if (IJSM /= 0) then
         else
           NKAEFF = NKASTR
         end if
+#       ifdef _CUDA_BLAS_
+        if ((NPROCS == 1) .and. (NROW > 0) .and. (NKAEFF > 0) .and. (MAXK > 0)) then
+          NCBCUDA = 0
+          do JJORB=1,IJ_DIM(2)
+            NCBCUDA = max(NCBCUDA,maxval(I1(1+(JJORB-1)*NKASTR:NKAEFF+(JJORB-1)*NKASTR)))
+          end do
+          NSBCUDA = 0
+          do IIORB=1,IJ_DIM(1)
+            NSBCUDA = max(NSBCUDA,maxval(I2(1+(IIORB-1)*NKASTR:NKAEFF+(IIORB-1)*NKASTR)))
+          end do
+          if ((NCBCUDA > 0) .and. (NSBCUDA > 0)) then
+            CudaStatus = LUCIA_RSBB1E_CUDA_ROUTE(SB,CB,H,I1,XI1S,I2,XI2S,NROW,NCBCUDA,NSBCUDA,NKASTR,NKAEFF,IJ_DIM(1),IJ_DIM(2), &
+                                                 MAXK)
+            if (CudaStatus == -1) then
+              call SYSABENDMSG('lucia_util/rsbb1e','CUDA execution failed','')
+            else if (CudaStatus == 1) then
+              cycle
+            end if
+          end if
+        end if
+#       endif
         ! Loop over partitionings of the row strings
         ! Loop over partitionings of N-1 strings
         KBOT = 1-MAXK
@@ -281,7 +323,13 @@ if (IJSM /= 0) then
             write(u6,*) ' CSCR array,NIK X NJORB array'
             call WRTMAT(CSCR,NIK,IJ_DIM(2),NIK,IJ_DIM(2))
 #           endif
-            call MATML7(SSCR,CSCR,H,NIK,IJ_DIM(1),NIK,IJ_DIM(2),IJ_DIM(2),IJ_DIM(1),FACTORC,FACTORAB,0)
+            if ((NIK > 0) .and. &
+                (IJ_DIM(1) > 0) .and. (IJ_DIM(1) <= RSBB1E_CPU_D1_MAX) .and. &
+                (IJ_DIM(2) > 0) .and. (IJ_DIM(2) <= RSBB1E_CPU_D2_MAX)) then
+              call DGEMM_CPU_('N','N',NIK,IJ_DIM(1),IJ_DIM(2),FACTORAB,CSCR,NIK,H,IJ_DIM(2),FACTORC,SSCR,NIK)
+            else
+              call MATML7(SSCR,CSCR,H,NIK,IJ_DIM(1),NIK,IJ_DIM(2),IJ_DIM(2),IJ_DIM(1),FACTORC,FACTORAB,0)
+            end if
 #           ifdef _DEBUGPRINT_
             write(u6,*) ' SSCR array,NIK X NIORB array'
             call WRTMAT(SSCR,NIK,IJ_DIM(1),NIK,IJ_DIM(1))
@@ -303,5 +351,14 @@ if (IJSM /= 0) then
     ! (end of loop over symmetries)
   end do
 end if
+
+#ifdef _CUDA_BLAS_
+if (CudaSession) then
+  CudaStatus = LUCIA_RSBB1E_CUDA_END()
+  if (CudaStatus == -1) then
+    call SYSABENDMSG('lucia_util/rsbb1e','CUDA execution failed','')
+  end if
+end if
+#endif
 
 end subroutine RSBB1E

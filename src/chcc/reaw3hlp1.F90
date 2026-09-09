@@ -22,7 +22,7 @@ real(kind=wp), intent(out) :: Ww(dima,dimbe,dimb,no)
 character(len=8) :: LunName
 integer(kind=iwp) :: length
 
-!open(unit=LunAux,file=LunName,form='unformatted')
+!open(LunAux,file=LunName,form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,LunName)
 
 length = dima*dimbe*dimb*no
