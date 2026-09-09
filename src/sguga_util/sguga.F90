@@ -3068,7 +3068,7 @@ integer(kind=iwp) :: INDEO, IOC, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
 ! declarations to facilitate the reuse of sigma vectors if possible
 integer(kind=iwp), save:: i_save_p=0, i_save_q=0
 integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
-logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2
+logical(kind=iwp) :: Reuse_Sigma, Swap, Test1, Test2, Test3
 real(kind=wp) :: CI_ID=Zero
 integer(kind=iwp) ::  iOff, jOff
 
@@ -3156,12 +3156,13 @@ if (IQ < IP) then
 
     iOff=1
     Reuse_Sigma = .false.
-    if (EXS%Reuse_SGTMP .and. (i_save_p == IP) .and. (i_save_q_sym == ISYQ)) &
-      Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
+    Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
+                (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
+    if (EXS%Reuse_SGTMP .and. Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
-        MVX = EXS%MVL(MVSGM,MV)
+        MVX = MERGE(EXS%MVR(MVSGM,MV),EXS%MVL(MVSGM,MV),SWAP)
         if (MVX == 0) cycle
         do ISYUSG=1,SGS%nSym
           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
@@ -3288,12 +3289,13 @@ else if (IP < IQ) then
     ! DEEXCITING CASE, IP<=MIDLEV<IQ.
     iOff=1
     Reuse_Sigma = .false.
-    if (EXS%Reuse_SGTMP .and. (i_save_q == IQ) .and. (i_save_p_sym == ISYP)) &
-      Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
+    Test3=MERGE((i_save_q == IQ) .and. (i_save_p_sym == ISYP), &
+                (i_save_p == IP) .and. (i_save_q_sym == ISYQ), Swap)
+    if (EXS%Reuse_SGTMP .and. Test3) Reuse_Sigma = CI_ID == sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
     do MVSGM=1,CIS%nMidV
       do MV = 1, 2
-        MVX = EXS%MVR(MVSGM,MV)
+        MVX = MERGE(EXS%MVR(MVSGM,MV),EXS%MVL(MVSGM,MV),SWAP)
         if (MVX == 0) cycle
 
          do ISYUSG=1,SGS%nSym
