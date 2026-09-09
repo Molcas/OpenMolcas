@@ -3059,14 +3059,16 @@ type(EXStruct), intent(inout), target :: EXS
 integer(kind=iwp), intent(in) :: IP, IQ, ISYCI
 real(kind=wp), intent(in) :: CPQ, CI(*)
 real(kind=wp), intent(_OUT_) :: DIAG(*)
-integer(kind=iwp) :: INDEO, IOC, ISGSTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
+! todo: cleanup
+!integer(kind=iwp) :: INDEO, IOC, ISGSTA, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
+integer(kind=iwp) :: INDEO, IOC, ISYDC, ISYDSG, ISYP, ISYPQ, ISYQ, ISYSGM, &
                      ISYUC, ISYUSG, LICP, MVSGM, NCP, NDWNC, NDWNSG, NS1, NTMP, NUPC, &
                      NUPSG, NCP1, NCP2, MV, MVX, nCSFs
 
 ! declarations to facilitate the reuse of sigma vectors if possible
 integer(kind=iwp), save:: i_save_p=0, i_save_q=0
 integer(kind=iwp), save:: i_save_p_sym=-1, i_save_q_sym=-1
-logical(kind=iwp) :: Reuse_Sigma
+logical(kind=iwp) :: Reuse_Sigma, Swap
 real(kind=wp) :: CI_ID=Zero
 integer(kind=iwp) ::  iOff, jOff
 
@@ -3086,6 +3088,8 @@ ISYPQ = Mul(ISYP,ISYQ)
 ! SYMMETRY OF SIGMA ARRAY:
 ISYSGM = Mul(ISYPQ,ISYCI)
 
+Swap = IQ > IP
+
 if (IQ < IP) then
   ! THEN THIS IS AN EXCITING OPERATOR.
   if (IP <= SGS%MidLev) then
@@ -3101,7 +3105,7 @@ if (IQ < IP) then
         ISYDC = Mul(ISYPQ,ISYDSG)             ! compute the symmetry of the sigma vector
         NDWNC = CIS%NOW(2,ISYDC,MVSGM)
         if (NDWNC == 0) cycle
-        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM) ! get the off-set to the sigma vector block
+!       ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM) ! get the off-set to the sigma vector block
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)           ! number of upper half-walks by symmetry and midvertex.
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)       ! get the off-set to the CI vector block
         NCP = EXS%NOCP(INDEO,ISYDC,MVSGM)
@@ -3110,9 +3114,9 @@ if (IQ < IP) then
         LICP = EXS%IOCP(INDEO,ISYDC,MVSGM)      ! get the off-set to the block of compressed coupling coefficients.
         ! CASE IS: LOWER HALF, EXCITE:
 
-!       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,.false.)
-!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
-        call Apply_colX(CPQ,NUPSG,NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
+!       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
+!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
+        call Apply_colX(CPQ,NUPSG,NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
 
       end do
     end do
@@ -3128,7 +3132,7 @@ if (IQ < IP) then
         ISYUC = Mul(ISYPQ,ISYUSG)
         NUPC = CIS%NOW(1,ISYUC,MVSGM)
         if (NUPC == 0) cycle
-        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+!       ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
@@ -3137,8 +3141,8 @@ if (IQ < IP) then
         if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUC,MVSGM)
         ! CASE IS: UPPER HALF, EXCITE:
-!       call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
-        call apply_rowX(CPQ,NDWNSG,NUPC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.false.)
+!       call apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
+        call apply_rowX(CPQ,NDWNSG,NUPC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
       end do
     end do
 
@@ -3158,7 +3162,7 @@ if (IQ < IP) then
         do ISYUSG=1,SGS%nSym
           NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
           if (NS1 == 0) cycle
-          ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+!         ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
           NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
           ISYDSG = Mul(ISYUSG,ISYSGM)
           ISYUC = Mul(ISYP,ISYUSG)
@@ -3181,8 +3185,8 @@ if (IQ < IP) then
           if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) then
              NTMP = NUPC
              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
-             call Apply_rowY(One,NUPC,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
+             call Apply_rowY(One,NUPC,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
           end if
 
           jOff=iOff
@@ -3202,15 +3206,15 @@ if (IQ < IP) then
           if (.not. EXS%Reuse_SGTMP) then
              NTMP = NUPC
              EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
-             call Apply_rowY(One,NUPC,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.false.)
+!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
+             call Apply_rowY(One,NUPC,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
           end if
 
           ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
           LICP = EXS%IOCP(INDEO,ISYDC,MVX)
-!         call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
-          call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.false.)
+!         call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
+          call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
 
         end do
       end do
@@ -3236,7 +3240,7 @@ else if (IP < IQ) then
         ISYDC = Mul(ISYPQ,ISYDSG)
         NDWNC = CIS%NOW(2,ISYDC,MVSGM)
         if (NDWNC == 0) cycle
-        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+!       ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)
         NCP = EXS%NOCP(INDEO,ISYDSG,MVSGM)
@@ -3244,9 +3248,9 @@ else if (IP < IQ) then
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
         LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
         ! CASE IS: LOWER HALF, DEEXCITE:
-!       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,.true.)
-!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
-        call Apply_colX(CPQ,NUPSG,NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
+!       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
+!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
+        call Apply_colX(CPQ,NUPSG,NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
       end do
     end do
 
@@ -3261,7 +3265,7 @@ else if (IP < IQ) then
         ISYUC = Mul(ISYPQ,ISYUSG)
         NUPC = CIS%NOW(1,ISYUC,MVSGM)
         if (NUPC == 0) cycle
-        ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+!       ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
         NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
         ISYDSG = Mul(ISYUSG,ISYSGM)
         NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
@@ -3270,8 +3274,8 @@ else if (IP < IQ) then
         if (NCP == 0) cycle
         LICP = EXS%IOCP(INDEO,ISYUSG,MVSGM)
         ! CASE IS: UPPER HALF, DEEXCITE:
-!       call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
-        call Apply_rowX(CPQ,NDWNSG,NUPC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=.true.)
+!       call Apply_row(CPQ,NDWNSG,NUPC,CI(IOC+1),NUPSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
+        call Apply_rowX(CPQ,NDWNSG,NUPC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
       end do
     end do
 
@@ -3291,7 +3295,7 @@ else if (IP < IQ) then
          do ISYUSG=1,SGS%nSym
            NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
            if (NS1 == 0) cycle
-           ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
+!          ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
            NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
            ISYDSG = Mul(ISYUSG,ISYSGM)
            ISYUC = Mul(ISYQ,ISYUSG)
@@ -3314,8 +3318,8 @@ else if (IP < IQ) then
            if (EXS%Reuse_SGTMP .and. .not. Reuse_Sigma) then
              NTMP = NUPC
              EXS%SGTMP(iOff:iOff+NTMP-1) = Zero
-!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
-             call Apply_rowY(One,NUPC,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+!            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
+             call Apply_rowY(One,NUPC,EXS%SGTMP(iOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
            end if
 
            jOff=iOff
@@ -3336,15 +3340,15 @@ else if (IP < IQ) then
            if (.not. EXS%Reuse_SGTMP) then
               NTMP = NUPC
               EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
-!             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
-              call Apply_rowY(One,NUPC,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=.true.)
+!             call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
+              call Apply_rowY(One,NUPC,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP+1),swap=Swap)
            end if
 
            ! CASE IS: LOWER HALF, DEEXCITE:
            NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
            LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
-!          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
-          call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=.true.)
+!          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
+          call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
 
         end do
 
