@@ -478,7 +478,7 @@ end subroutine CI_Close
 ! The analytic result is computed by sg_hdiag_fast (using sg_EpqEqp_diag).
 ! sg_hdiag_ref computes the diagonal brute force by setting the CI element iCSF to 1 and compute the matrix element
 ! <Psi|H|Psi> using the routine sg_h_psi.
-#define _SGUGA_VERIFY_EXTRA_
+!#define _SGUGA_VERIFY_EXTRA_
 
 subroutine Mk_CI_Diag(CSFDIA,nConf,TU,nTU,TUVX,nTUVX)
 use Lucia_Interface, only: Lucia_Util
