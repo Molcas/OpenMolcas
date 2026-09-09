@@ -3224,10 +3224,17 @@ if (IQ < IP) then
         end do
       end do
     end do
-    i_save_p=IP
-    i_save_q_sym=ISYQ
-    i_save_q=0
-    i_save_p_sym=-1
+    If (SWAP) Then
+      i_save_q=IQ
+      i_save_p_sym=ISYP
+      i_save_p=0
+      i_save_q_sym=-1
+    Else
+      i_save_p=IP
+      i_save_q_sym=ISYQ
+      i_save_q=0
+      i_save_p_sym=-1
+    End If
     if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
   end if
@@ -3360,10 +3367,17 @@ else if (IP < IQ) then
 
       end do
     end do
-    i_save_q=IQ
-    i_save_p_sym=ISYP
-    i_save_p=0
-    i_save_q_sym=-1
+    If (SWAP) Then
+      i_save_q=IQ
+      i_save_p_sym=ISYP
+      i_save_p=0
+      i_save_q_sym=-1
+    Else
+      i_save_p=IP
+      i_save_q_sym=ISYQ
+      i_save_q=0
+      i_save_p_sym=-1
+    End If
     if (EXS%Reuse_SGTMP .and. (.not. Reuse_Sigma)) CI_ID = sum(CI(1:nCSFs))+real(nCSFs,kind=wp)
 
   end if
