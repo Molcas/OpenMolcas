@@ -3204,8 +3204,8 @@ if (IQ < IP) then
             end if
           end if
 
-          INDEO = merge(IQ, SGS%nLev+IQ, MV==1)
-          NCP2 = EXS%NOCP(INDEO,ISYDC,MVX)
+          INDEO = MERGE(merge(IP, SGS%nLev+IP, MV==1),merge(IQ, SGS%nLev+IQ, MV==1),SWAP)
+          NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),SWAP)
           if (NCP2 == 0) cycle
 
           if (.not. EXS%Reuse_SGTMP) then
@@ -3217,7 +3217,7 @@ if (IQ < IP) then
 
           ! CASE IS: LOWER HALF, EXCITE:
           NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-          LICP = EXS%IOCP(INDEO,ISYDC,MVX)
+          LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVX),SWAP)
 !         call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
           call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
 
@@ -3338,8 +3338,8 @@ else if (IP < IQ) then
              end if
            end if
 
-           INDEO = merge(IP, SGS%nLev+IP, MV==1)
-           NCP2 = EXS%NOCP(INDEO,ISYDSG,MVSGM)
+           INDEO = MERGE(merge(IP, SGS%nLev+IP, MV==1),merge(IQ, SGS%nLev+IQ, MV==1),SWAP)
+           NCP2 = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVX),SWAP)
            if (NCP2 == 0) cycle
 
            ! CASE IS: UPPER HALF, DEEXCITE:
@@ -3352,7 +3352,7 @@ else if (IP < IQ) then
 
            ! CASE IS: LOWER HALF, DEEXCITE:
            NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-           LICP = EXS%IOCP(INDEO,ISYDSG,MVSGM)
+           LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVX),SWAP)
 !          call Apply_col(CPQ,NUPSG,NDWNC,EXS%SGTMP(jOff),NDWNSG,SGM(ISGSTA+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
           call Apply_colY(CPQ,NUPC,EXS%SGTMP(jOff),NDWNC,DIAG(IOC+1),NCP2,EXS%ICOUP(1,LICP+1),swap=Swap)
 
