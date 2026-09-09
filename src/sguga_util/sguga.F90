@@ -3097,17 +3097,6 @@ if (IQ /= IP) Then
   Test1=MERGE(IQ <= SGS%MidLev,IP <= SGS%MidLev,Swap)
   Test2=MERGE(SGS%MidLev < IP,SGS%MidLev < IQ,Swap)
   If (Test1) Then
-  Else If (Test2) Then
-  Else
-  End If
-Else
-  write(u6,*) 'SG_EpqEqp_Diag: IP == IQ'
-End If
-
-if (IQ < IP) then
-  ! THEN THIS IS AN EXCITING OPERATOR.
-  if (Test1) then
-
     ! EXCITING CASE, IQ<IP<=MIDLEV.
     INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
     do MVSGM=1,CIS%nMidV
@@ -3136,7 +3125,16 @@ if (IQ < IP) then
 
       end do
     end do
+  Else If (Test2) Then
+  Else
+  End If
+Else
+  write(u6,*) 'SG_EpqEqp_Diag: IP == IQ'
+End If
 
+if (IQ < IP) then
+  ! THEN THIS IS AN EXCITING OPERATOR.
+  if (Test1) then
   else if (Test2) then
 
     ! EXCITING CASE, MIDLEV<IQ<IP
@@ -3253,31 +3251,6 @@ if (IQ < IP) then
 else if (IP < IQ) then
   ! THEN THIS IS A DEEXCITING OPERATOR.
   if (Test1) then
-
-    ! DEEXCITING OPERATOR, IP<IQ<=MIDLEV.
-    INDEO = MERGE(2*SGS%nLev+(IQ*(IQ-1))/2+IP,2*SGS%nLev+(IP*(IP-1))/2+IQ,Swap)
-    do MVSGM=1,CIS%nMidV
-      do ISYUSG=1,SGS%nSym
-        NS1 = CIS%NOCSF(ISYUSG,MVSGM,ISYSGM)
-        if (NS1 == 0) cycle
-        ISYDSG = Mul(ISYUSG,ISYSGM)
-        ISYDC = Mul(ISYPQ,ISYDSG)
-        NDWNC = CIS%NOW(2,ISYDC,MVSGM)
-        if (NDWNC == 0) cycle
-!       ISGSTA = CIS%IOCSF(ISYUSG,MVSGM,ISYSGM)
-        NUPSG = CIS%NOW(1,ISYUSG,MVSGM)
-        IOC = CIS%IOCSF(ISYUSG,MVSGM,ISYCI)
-        NCP = MERGE(EXS%NOCP(INDEO,ISYDSG,MVSGM),EXS%NOCP(INDEO,ISYDC,MVSGM),SWAP)
-        if (NCP == 0) cycle
-        NDWNSG = CIS%NOW(2,ISYDSG,MVSGM)
-        LICP = MERGE(EXS%IOCP(INDEO,ISYDSG,MVSGM),EXS%IOCP(INDEO,ISYDC,MVSGM),SWAP)
-        ! CASE IS: LOWER HALF, DEEXCITE:
-!       call sort_icoup_block(EXS%ICOUP(1,LICP+1),NCP,Swap)
-!       call Apply_col(CPQ,NUPSG,NDWNC,CI(IOC+1),NDWNSG,SGM(ISGSTA+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
-        call Apply_colX(CPQ,NUPSG,NDWNC,DIAG(IOC+1),NCP,EXS%ICOUP(1,LICP+1),swap=Swap)
-      end do
-    end do
-
   else if (Test2) then
 
     ! DEEXCITING OPERATOR, MIDLEV<IP<IQ
