@@ -695,7 +695,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
                        F_IN=FI(:), &
                        orbital_E=orbital_E, &
                        folded_Fock=folded_Fock)
-        call make_fcidumps('FCIDUMP','H5FCIDUMP',orbital_E,folded_Fock,TUVX=tuvx(:),core_energy=EMY)
+        call make_fcidumps('FCIDUMP','H5FCIDUMP',orbital_E,folded_Fock,TUVX=tuvx(:),core_energy=EMY,fort55_path='fort.55')
         call mma_deallocate(orbital_E)
         call mma_deallocate(folded_Fock)
         write(u6,*) 'FCIDMP file generated. Here for serving you!'

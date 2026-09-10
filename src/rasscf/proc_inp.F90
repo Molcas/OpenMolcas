@@ -19,7 +19,7 @@ use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
 use write_orbital_files, only: OrbFiles, write_orb_per_iter
-use fcidump, only: DumpOnly
+use fcidump, only: DumpOnly, DmpMode
 use fcidump_reorder, only: ReOrFlag, ReOrInp
 use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in, tNonDiagStochPT2, tPrepStochCASPT2
 use fciqmc_read_RDM, only: MCM7, WRMA
@@ -2346,7 +2346,14 @@ else
   ! If spin is zero, do not compute and print spin density:
   if (ISPIN == 1) ISPDEN = 0
   ! ====================================================================
-  if (Key('DMPO')) DumpOnly = .true.
+  if (Key('DMPO')) then
+    DumpOnly = .true.
+    DmpMode = 0
+  end if
+  if (Key('DMPF')) then
+    DumpOnly = .true.
+    DmpMode = 1
+  end if
   ! ====================================================================
   if (Key('REOR')) then
     if (DBG) write(u6,*) 'Orbital Reordering (REOR) is activated'
@@ -2425,6 +2432,11 @@ else
 
     if (Key('DMPO')) then
       call WarningMessage(2,'NECI and DMPOnly are mutually exclusive.')
+      call Error(4)
+      return
+    end if
+    if (Key('DMPF')) then
+      call WarningMessage(2,'NECI and DMPF are mutually exclusive.')
       call Error(4)
       return
     end if
@@ -2678,6 +2690,11 @@ else
 
     if (Key('DMPO')) then
       call WarningMessage(2,'CC-CI and DMPOnly are mutually exclusive.')
+      call Error(4)
+      return
+    end if
+    if (Key('DMPF')) then
+      call WarningMessage(2,'CC-CI and DMPF are mutually exclusive.')
       call Error(4)
       return
     end if
