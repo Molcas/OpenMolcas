@@ -14,7 +14,7 @@ subroutine SIGMADET_CVB(C,HC,IREFSM_CASVB,NCI)
 use wadr, only: FMO, TUVX
 use CandS, only: ICSM, ISSM
 use Lucia_Interface, only: Lucia_Util
-use Lucia_Data, only: IREFSM, SIGMA_ON_DISK
+use Lucia_Data, only: IREFSM, IH1FORM
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -32,19 +32,23 @@ IREFSM=IREFSM_CASVB
 ICSM=IREFSM_CASVB
 ISSM=IREFSM_CASVB
 
+!Call RecPrt('C',' ',C,1,7)
 ! Call the sigma routine
 call LUCIA_UTIL('SIGMA', &
                 CI_Vector=C, &
                 SIGMA_Vector=HC, &
                 nTU=size(FMO),TU=FMO, &
                 nTUVX=size(TUVX),TUVX=TUVX)
+!Call RecPrt('HC(first)',' ',HC,1,7)
 
-SIGMA_ON_DISK = .True.
 
+#define _ON_
+#ifdef _ON_
 call Lucia_Util('Diag', &
                 nTU=size(FMO),TU=FMO, &
                 nTUVX=size(TUVX),TUVX=TUVX)
-
+#endif
+!Call RecPrt('HC(second)',' ',HC,1,7)
 
 IREFSM=IREFSM_SAVE
 ICSM=IREFSM
