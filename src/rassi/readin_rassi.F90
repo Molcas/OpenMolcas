@@ -14,17 +14,18 @@
 subroutine READIN_RASSI()
 
 use Cholesky, only: timings
-use Cntrl, only: ALGO, ALPHZ, AngMom_idx, ASD_idx, Atens_Req, AutoSelect_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, &
+use Cntrl, only: ALGO, ALPHZ, AngMom_idx, Atens_Req, AutoSel_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, &
                  DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DOCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, &
                  DYSO, EPrThr, GNuc, GNuc_set, HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IFARGU, IFCURD, IFDCPL, IFEJOB, IFGCAL, &
                  IFGTCALSA, IFGTSHSA, IFHAM, IfHCOM, IfHDia, IfHEff, IfHEXT, IfJ2, IfJZ, IFMCAL, IFNTO, IfShft, IFSO, IFTDM, &
                  IFTRD1, IFTRD2, IFVANVLECK, IFXCAL, ISOCMP, ISTAT, JBNAME, l_Eff, LCSTATES, lHami, LOOPDIVIDE, LOOPMAX, LPRPR, &
-                 MULTIP, MXJOB, MXPROP, NATens_Calc, NATO, NAtoms, NBINA, NBSTEP, NCOUP, NJOB, NMass_set, NOHAM, NOSO, NPNMR_Calc, &
-                 NPROP, NRNATO, Nscreen, NSOPR, nSOThr_Prt, NSpin_set, NSTAT, nState, NTP, NTS, NTSTEP, NucMass, NucSpin, OCAA, &
-                 OCAN, ONLY_OVERLAPS, OSTHR_DIPR, OSTHR_QIPR, PNAME, pNMR_req, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, &
-                 PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, PSO_idx, QDPT2EV, QDPT2SC, QIALL, QIPR, REDUCELOOP, &
-                 RFPERT, RHODYN, RSPR, RSThr, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, &
-                 SOThr_Prt, TDIPMIN, TDYS, TINCRE, TMAXP, TMAXS, TMGR_Thrs, TMINP, TMINS, ToFile, TOLERANCE, TRACK, TSTART
+                 ASD_idx, MULTIP, MXJOB, MXPROP, NATens_Calc, NATO, NAtoms, NBINA, NBSTEP, NCOUP, NJOB, NMass_set, NOHAM, NOSO, &
+                 NPNMR_Calc, NPROP, NRNATO, Nscreen, NSOPR, nSOThr_Prt, NSpin_set, NSTAT, nState, NTP, NTS, NTSTEP, NucMass, &
+                 NucSpin, OCAA, OCAN, ONLY_OVERLAPS, OSTHR_DIPR, OSTHR_QIPR, PNAME, pNMR_req, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, &
+                 PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, PSO_idx, QDPT2EV, QDPT2SC, QIALL, QIPR,&
+                 REDUCELOOP, RFPERT, RHODYN, RSPR, RSThr, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, &
+                 SONTOSTATES, SOPRNM, SOThr_Prt, TDIPMIN, TDYS, TINCRE, TMAXP, TMAXS, TMGR_Thrs, TMINP, TMINS, ToFile, TOLERANCE,&
+                 TRACK, TSTART, SDFlip
 use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 use frenkel_global_vars, only: DoCoul, doexch, DoExcitonics, excl, iTyp, labB, nestla, nestlb, valst
 use kVectors, only: e_Vector, k_Vector, nk_Vector
@@ -681,6 +682,10 @@ do
       end if
       Linenr = Linenr+1
 
+    case('SDFL')
+      SDFlip = .true.
+      Linenr = Linenr+1
+
     case ('DETH')
       read(LuIn,*,iostat=istatus) DEGEN_ETHR
       call LineCheck(istatus)
@@ -727,8 +732,8 @@ do
         end do
       end if
 
-    case ('AUNG')
-      AutoSelect_GFac = .true.
+    case ('DAUG')
+      AutoSel_GFac = .false.
 
     case ('GNUC')
       if (NATens_Calc == 0) then
@@ -951,20 +956,20 @@ subroutine LineCheck(code)
 
 end subroutine LineCheck
 
-subroutine gen_proplab(prop_lab,iAtom,nComp,idx)
-  !PURPOSE: Generate a specific property for iAtom with nComp
+subroutine gen_proplab(prop_lab,iAtom,comps,idx)
+  !PURPOSE: Generate a specific property for iAtom with comps
 
-  character(len=4), intent(in) :: prop_lab
-  integer(kind=iwp), intent(in) :: iAtom, nComp
+  character(len=5), intent(in) :: prop_lab
+  integer(kind=iwp), intent(in) :: iAtom, comps(:)
   integer(kind=iwp), intent(out) :: idx(:,:)
   integer(kind=iwp) :: iC
-  character(len=4) :: temp_lab
+  character(len=3) :: temp_lab
 
-  do iC=1,nComp
-    write(temp_lab,'(I4)') iAtom
-    PNAME(NPROP+1) = prop_lab//temp_lab
-    ICOMP(NPROP+1) = iC
+  do iC=1,size(comps)
+    write(temp_lab,'(I3)') iAtom
     NPROP = NPROP+1
+    PNAME(NPROP) = prop_lab//temp_lab
+    ICOMP(NPROP) = comps(iC)
     idx(iAtom,iC) = NPROP
   end do
 
@@ -973,7 +978,7 @@ end subroutine gen_proplab
 subroutine gen_hfc_prop_labels()
   ! PURPOSE: Generate PROP property labels for HFC and pNMR calculations.
   ! NOTE   : This subroutine may be deprecated if OpenMolcas stops using the PNAME label.
-  !          In that case, property indices (ASD, PSOP) can be fed directly to the HFCOP subroutine.
+  !          In that case, property indices (MAGXP, PSOP) can be fed directly to the HFCOP subroutine.
 
   integer(kind=iwp) :: iAtom, iC
   logical(kind=iwp) :: do_calc, do_EPR, do_pNMR
@@ -1011,17 +1016,17 @@ subroutine gen_hfc_prop_labels()
     end if
 
     if (do_calc) then
-      call gen_proplab('ASD ',iAtom,6,ASD_idx)
-      call gen_proplab('PSOP',iAtom,3,PSO_idx)
+      call gen_proplab('MAGXP',iAtom,[1,2,3,5,6,9],ASD_idx)
+      call gen_proplab('PSOP ',iAtom,[1,2,3],PSO_idx)
     end if
   end do
 
   if (allocated(pNMR_req)) then
     call mma_allocate(AngMom_idx,3,'AngMom_idx')
     do iC=1,3
-      PNAME(NPROP+1) = 'AngMom'
-      ICOMP(NPROP+1) = iC
       NPROP = NPROP+1
+      PNAME(NPROP) = 'AngMom'
+      ICOMP(NPROP) = iC
       AngMom_idx(iC) = NPROP
     end do
   end if

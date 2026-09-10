@@ -135,6 +135,7 @@ Yingjin Ma
 Per Åke Malmqvist  
 Neil Martinsen-Burrell  
 Andy May  
+Jaafar Mehrez  
 Manuela Merchán  
 Isabella C. D. Merritt  
 Deyan Mihaylov  

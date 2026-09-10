@@ -27,6 +27,7 @@
  (file)  TRAONE  "$WorkDir/$Project."TraOne       rw*st
  (file)  FCIDUMP  "$WorkDir/$Project."FciDmp       rwst
  (file)  H5FCIDUMP  "$WorkDir/$Project."FciDmp.h5  rws
+ (file)  FORT55  "$WorkDir/fort.55"  ws
  (file)  FCINP  "$WorkDir/$Project."FciInp       rwst
 #include "chemps2files.inc"
 #include "espffiles.inc"
