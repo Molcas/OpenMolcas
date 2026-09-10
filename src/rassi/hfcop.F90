@@ -302,14 +302,14 @@ subroutine calc_h_HFC(iAtom,PROP)
   real(kind=wp), allocatable :: ASD(:,:,:), ASD_FC(:,:)
 
   idx(:) = ASD_idx(iAtom,:)
-  call mma_allocate(ASD,6,NSS,NSS,Label='ASD')
+  call mma_allocate(ASD,NSS,NSS,6,Label='ASD')
   call mma_allocate(ASD_FC,NSS,NSS,Label='ASD_FC')
   do ISS=1,NSS
     iState = MAPST(ISS)
     do JSS=ISS,NSS
       jState = MAPST(JSS)
-      ASD(:,ISS,JSS) = PROP(iState,jState,idx(:))
-      ASD(:,JSS,ISS) = ASD(:,ISS,JSS)
+      ASD(ISS,JSS,:) = PROP(iState,jState,idx(:))
+      ASD(JSS,ISS,:) = ASD(ISS,JSS,:)
     end do
   end do
 
@@ -326,12 +326,12 @@ subroutine calc_h_HFC(iAtom,PROP)
   !       = 2/3 (2 x_k*dx - y_k*dy - z_k*dz)
   !       = 2/3 (3 x_k*dx - (x_k*dx + y_k*dy + z_k*dz))
 
-  ASD_FC(:,:) = TwoThird * (ASD(1,:,:) + ASD(4,:,:) + ASD(6,:,:))
+  ASD_FC(:,:) = TwoThird * (ASD(:,:,1) + ASD(:,:,4) + ASD(:,:,6))
 
   ASD(:,:,:) = Two*ASD(:,:,:)
-  ASD(1,:,:) = ASD(1,:,:) - ASD_FC(:,:)
-  ASD(4,:,:) = ASD(4,:,:) - ASD_FC(:,:)
-  ASD(6,:,:) = ASD(6,:,:) - ASD_FC(:,:)
+  ASD(:,:,1) = ASD(:,:,1) - ASD_FC(:,:)
+  ASD(:,:,4) = ASD(:,:,4) - ASD_FC(:,:)
+  ASD(:,:,6) = ASD(:,:,6) - ASD_FC(:,:)
   ASD_FC(:,:) = Two*ASD_FC(:,:)
 
 
@@ -356,8 +356,6 @@ subroutine calc_h_HFC(iAtom,PROP)
   h_FCSD(:,:,:) = h_FC(:,:,:)+h_SD(:,:,:)
   call calc_h_PSO(iAtom,PROP)
   h_TOT(:,:,:) = h_FCSD(:,:,:)+h_PSO(:,:,:)
-
-
 
 ! TRANSFORM TO SPIN-ORIBT BASIS HAMILTONIAN
   call to_cmpl_SO_states(h_FC)
@@ -403,23 +401,23 @@ subroutine calc_h_HFC(iAtom,PROP)
 
 end subroutine calc_h_HFC
 
-subroutine calc_h_FC(ASD_zz)
+subroutine calc_h_FC(ASD_FC)
 
-  real(kind=wp), intent(in) :: ASD_zz(NSS,NSS)
+  real(kind=wp), intent(in) :: ASD_FC(NSS,NSS)
 
-  h_FC(1,:,:) = cmplx(CGx_mat(:,:)*ASD_zz(:,:),Zero,kind=wp)
-  h_FC(2,:,:) = cmplx(Zero,CGy_mat(:,:)*ASD_zz(:,:),kind=wp)
-  h_FC(3,:,:) = cmplx(CGo_mat(:,:)*ASD_zz(:,:),Zero,kind=wp)
+  h_FC(1,:,:) = cmplx(CGx_mat(:,:)*ASD_FC(:,:),Zero,kind=wp)
+  h_FC(2,:,:) = cmplx(Zero,CGy_mat(:,:)*ASD_FC(:,:),kind=wp)
+  h_FC(3,:,:) = cmplx(CGo_mat(:,:)*ASD_FC(:,:),Zero,kind=wp)
 
 end subroutine calc_h_FC
 
 subroutine calc_h_SD(ASD)
 
-  real(kind=wp), intent(out) :: ASD(6,NSS,NSS)
+  real(kind=wp), intent(in) :: ASD(NSS,NSS,6)
 
-  h_SD(1,:,:) = cmplx(CGx_mat(:,:)*ASD(1,:,:)+CGo_mat(:,:)*ASD(3,:,:),CGy_mat(:,:)*ASD(2,:,:),kind=wp)
-  h_SD(2,:,:) = cmplx(CGx_mat(:,:)*ASD(2,:,:)+CGo_mat(:,:)*ASD(5,:,:),CGy_mat(:,:)*ASD(4,:,:),kind=wp)
-  h_SD(3,:,:) = cmplx(CGx_mat(:,:)*ASD(3,:,:)+CGo_mat(:,:)*ASD(6,:,:),CGy_mat(:,:)*ASD(5,:,:),kind=wp)
+  h_SD(1,:,:) = cmplx(CGx_mat(:,:)*ASD(:,:,1)+CGo_mat(:,:)*ASD(:,:,3),CGy_mat(:,:)*ASD(:,:,2),kind=wp)
+  h_SD(2,:,:) = cmplx(CGx_mat(:,:)*ASD(:,:,2)+CGo_mat(:,:)*ASD(:,:,5),CGy_mat(:,:)*ASD(:,:,4),kind=wp)
+  h_SD(3,:,:) = cmplx(CGx_mat(:,:)*ASD(:,:,3)+CGo_mat(:,:)*ASD(:,:,6),CGy_mat(:,:)*ASD(:,:,5),kind=wp)
 
 end subroutine calc_h_SD
 
