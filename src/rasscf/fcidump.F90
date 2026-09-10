@@ -29,10 +29,10 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-logical(kind=iwp) :: DumpOnly = .false.
 integer(kind=iwp) :: DmpMode = 0 ! 0=FCIDUMP only, 1=fort55 only
+logical(kind=iwp) :: DumpOnly = .false.
 
-public :: cleanup, DumpOnly, DmpMode, make_fcidumps, transform
+public :: cleanup, DmpMode, DumpOnly, make_fcidumps, transform
 
 contains
 
@@ -45,11 +45,10 @@ subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,co
   integer(kind=iwp), intent(in), optional :: permutation(:)
   character(len=*), intent(in), optional :: fort55_path
   integer(kind=iwp) :: i, j, n
-  integer(kind=iwp), allocatable :: energy_perm(:), inv_perm(:)
   type(OrbitalTable) :: orbital_table
   type(FockTable) :: fock_table
   type(TwoElIntTable) :: two_el_table
-  integer(kind=iwp), allocatable :: orbsym(:)
+  integer(kind=iwp), allocatable :: energy_perm(:), inv_perm(:), orbsym(:)
 
   call mma_allocate(orbsym,sum(nAsh(:nSym)))
   call mma_allocate(fock_table,nacpar)
@@ -68,12 +67,12 @@ subroutine make_fcidumps(ascii_path,h5_path,orbital_energies,folded_Fock,TUVX,co
 
   if (present(permutation)) call reorder(orbital_table,fock_table,two_el_table,orbsym,permutation)
 
-  if (present(fort55_path) .and. DmpMode == 1) then
-    call mma_allocate(energy_perm,sum(nAsh(:nSym)),Label='energy_perm')
-    call mma_allocate(inv_perm,sum(nAsh(:nSym)),Label='inv_perm')
+  if (present(fort55_path) .and. (DmpMode == 1)) then
+    call mma_allocate(energy_perm,sum(nAsh(1:nSym)),Label='energy_perm')
+    call mma_allocate(inv_perm,sum(nAsh(1:nSym)),Label='inv_perm')
     call energy_sort_permutation(orbital_energies,energy_perm)
     call reorder(orbital_table,fock_table,two_el_table,orbsym,energy_perm)
-    call dump_fort55(fort55_path,core_energy,orbital_table,fock_table,two_el_table,orbsym)
+    call dump_fort55(fort55_path,core_energy,fock_table,two_el_table,orbsym)
     do i=1,size(energy_perm)
       inv_perm(energy_perm(i)) = i
     end do
@@ -105,38 +104,38 @@ end subroutine make_fcidumps
 !>   permutation(i) = new position (1-based) of original orbital i.
 subroutine energy_sort_permutation(orbital_energies,permutation)
 
-  use general_data, only: nSym, nAsh, nBas, nFro, nIsh
+  use general_data, only: nAsh, nBas, nFro, nIsh, nSym
   use Definitions, only: wp, iwp
 
   real(kind=wp), intent(in) :: orbital_energies(:)
   integer(kind=iwp), intent(out) :: permutation(:)
-
-  integer(kind=iwp) :: nmo, i, j, isym, offset, count
+  integer(kind=iwp) :: cnt, i, isym, j, nmo, offset
   integer(kind=iwp), allocatable :: idx_map(:)
   real(kind=wp), allocatable :: active_energies(:)
+  real(kind=wp), parameter :: thr = 1.0e-10_wp
 
   nmo = sum(nAsh(:nSym))
   call mma_allocate(active_energies,nmo,Label='active_energies')
   call mma_allocate(idx_map,nmo,Label='idx_map')
 
-  count = 1
-  offset = 1
+  cnt = 1
+  offset = 0
   do isym=1,nSym
     do i=1,nAsh(isym)
-      active_energies(count) = orbital_energies(offset + nFro(isym) + nIsh(isym) + i - 1)
-      idx_map(count) = count
-      count = count + 1
+      active_energies(cnt) = orbital_energies(offset+nFro(isym)+nIsh(isym)+i)
+      idx_map(cnt) = cnt
+      cnt = cnt+1
     end do
-    offset = offset + nBas(isym)
+    offset = offset+nBas(isym)
   end do
 
   do i=1,nmo-1
     do j=i+1,nmo
-      if (active_energies(idx_map(i)) > active_energies(idx_map(j)) + 1.0e-10_wp) then
+      if (active_energies(idx_map(i)) > active_energies(idx_map(j))+thr) then
         offset = idx_map(i)
         idx_map(i) = idx_map(j)
         idx_map(j) = offset
-      else if (abs(active_energies(idx_map(i)) - active_energies(idx_map(j))) <= 1.0e-10_wp) then
+      else if (abs(active_energies(idx_map(i))-active_energies(idx_map(j))) <= thr) then
         if (idx_map(i) > idx_map(j)) then
           offset = idx_map(i)
           idx_map(i) = idx_map(j)

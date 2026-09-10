@@ -122,20 +122,18 @@ subroutine ALL_reorder(orbitals,fock,two_el_table,orbsym,P)
   type(TwoElIntTable), intent(inout) :: two_el_table
   integer(kind=iwp), intent(inout) :: orbsym(:)
   integer(kind=iwp), intent(in) :: P(:)
-  integer(kind=iwp), allocatable :: temp_orbsym(:)
   integer(kind=iwp) :: i
+  integer(kind=iwp), allocatable :: temp_orbsym(:)
 
   call reorder(orbitals,P)
   call reorder(fock,P)
   call reorder(two_el_table,P)
-  allocate(temp_orbsym(size(orbsym)))
-  do i=1,size(orbsym)
-    temp_orbsym(i) = orbsym(i)
-  end do
+  call mma_allocate(temp_orbsym,size(orbsym),Label='temp_orbsym')
+  temp_orbsym(:) = orbsym(:)
   do i=1,size(P)
     orbsym(P(i)) = temp_orbsym(i)
   end do
-  deallocate(temp_orbsym)
+  call mma_deallocate(temp_orbsym)
 
 end subroutine ALL_reorder
 

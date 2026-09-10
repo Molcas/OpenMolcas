@@ -15,16 +15,16 @@ subroutine READIN_RASSI()
 
 use Cholesky, only: timings
 use Cntrl, only: ALGO, ALPHZ, Atens_Req, AutoSel_GFac, BANGRES, BETAE, BINA, BINCRE, BSTART, CIH5, CIThr, &
-                 DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DOCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, &
-                 DYSO, EPrThr, GNuc, GNuc_set, HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IFARGU, IFCURD, IFDCPL, IFEJOB, IFGCAL, &
-                 IFGTCALSA, IFGTSHSA, IFHAM, IfHCOM, IfHDia, IfHEff, IfHEXT, IfJ2, IfJZ, IFMCAL, IFNTO, IfShft, IFSO, IFTDM, &
-                 IFTRD1, IFTRD2, IFVANVLECK, IFXCAL, ISOCMP, ISTAT, JBNAME, l_Eff, LCSTATES, lHami, LOOPDIVIDE, LOOPMAX, LPRPR, &
+                 DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DOCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, DYSO, EPrThr, &
+                 GNuc, GNuc_set, HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IFARGU, IFCURD, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, &
+                 IFGTSHSA, IFHAM, IfHCOM, IfHDia, IfHEff, IfHEXT, IfJ2, IfJZ, IFMCAL, IFNTO, IfShft, IFSO, IFTDM, IFTRD1, IFTRD2, &
+                 IFVANVLECK, IFXCAL, ISOCMP, ISTAT, JBNAME, l_Eff, LCSTATES, lHami, LOOPDIVIDE, LOOPMAX, LPRPR, ASD_idx, MULTIP, &
                  MULTIP, MXJOB, MXPROP, NATens_Calc, NATO, NAtoms, NBINA, NBSTEP, NCOUP, NJOB, NMass_set, NOHAM, NOSO, &
-                 NPNMR_Calc, NPROP, NRNATO, Nscreen, NSOPR, nSOThr_Prt, NSpin_set, NSTAT, nState, NTP, NTS, NTSTEP, NucMass, &
-                 NucSpin, OCAA, OCAN, ONLY_OVERLAPS, OSTHR_DIPR, OSTHR_QIPR, PNAME, pNMR_req, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, &
+                 NRNATO, Nscreen, NSOPR, nSOThr_Prt, NSpin_set, NSTAT, nState, NTP, NTS, NTSTEP, NucMass, NucSpin, OCAA, OCAN, &
+                 ONLY_OVERLAPS, OSTHR_DIPR, OSTHR_QIPR, PNAME, pNMR_req, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, &
                  PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, QDPT2EV, QDPT2SC, QIALL, QIPR,&
-                 REDUCELOOP, RFPERT, RHODYN, RSPR, RSThr, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, &
-                 SONTOSTATES, SOPRNM, SOThr_Prt, TDIPMIN, TDYS, TINCRE, TMAXP, TMAXS, TMGR_Thrs, TMINP, TMINS, ToFile, TOLERANCE,&
+                 RHODYN, RSPR, RSThr, SDFlip, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, &
+                 SOThr_Prt, TDIPMIN, TDYS, TINCRE, TMAXP, TMAXS, TMGR_Thrs, TMINP, TMINS, ToFile, TOLERANCE, TRACK, TSTART
                  TRACK, TSTART, SDFlip, E_HFC_Req
 use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 use frenkel_global_vars, only: DoCoul, doexch, DoExcitonics, excl, iTyp, labB, nestla, nestlb, valst
@@ -684,9 +684,8 @@ do
       end if
       Linenr = Linenr+1
 
-    case('SDFL')
+    case ('SDFL')
       SDFlip = .true.
-      Linenr = Linenr+1
 
     case ('DETH')
       read(LuIn,*,iostat=istatus) DEGEN_ETHR
@@ -765,7 +764,7 @@ do
       end if
       NMass_set = .true.
       call mma_allocate(NucMass,NAtoms,'NucMass')
-      NucMass(:) = -100_iwp
+      NucMass(:) = -100
       call mma_allocate(iTemp_arr,NATens_Calc,Label='iTemp_arr')
       read(LuIn,*,iostat=istatus) (iTemp_arr(i),i=1,NATens_Calc)
       j = 1

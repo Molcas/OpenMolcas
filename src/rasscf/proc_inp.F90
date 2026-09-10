@@ -19,7 +19,7 @@ use fortran_strings, only: to_upper, operator(.in.)
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
 use write_orbital_files, only: OrbFiles, write_orb_per_iter
-use fcidump, only: DumpOnly, DmpMode
+use fcidump, only: DmpMode, DumpOnly
 use fcidump_reorder, only: ReOrFlag, ReOrInp
 use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in, tNonDiagStochPT2, tPrepStochCASPT2
 use fciqmc_read_RDM, only: MCM7, WRMA
@@ -4055,7 +4055,7 @@ if (DOFARO .and. (NSYM > 1)) then
   write(u6,'(1X,A)') 'FARO keyword was used, but NSYM > 1,'
   write(u6,'(1X,A)') 'switching to LUCIA as the CI backend.'
   DOFARO = .false.
-endif
+end if
 ! ======================================================================
 
 if (.not. SkipGUGA) then
@@ -4077,7 +4077,7 @@ if (.not. SkipGUGA) then
     DoFaro = .true.
 # endif
 
-  call CI_Initialize(.NOT. iDoGAS, DOFARO)
+  call CI_Initialize(.not. iDoGAS,DOFARO)
 
 end if
 

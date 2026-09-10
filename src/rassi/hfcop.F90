@@ -27,11 +27,11 @@ use Molcas, only: LenIn
 use spin_data, only: free_spin_data, get_first_nonzero_GNUC, GNUC_by_nucspin, GNUC_NUCSPIN_by_nucmass, init_spin_data, &
                      NUCSPIN_by_gnuc
 use Cntrl, only: Atens_Req, AutoSel_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, E_HFC_Req, &
-                 LPRPR, MLTPLT, NATens_Calc, NAtoms, NCOUP, NMass_set, NPNMR_Calc, NPROP, NSpin_set, NSTATE, NTP, NucMass, &
+                 MLTPLT, NATens_Calc, NAtoms, NCOUP, NMass_set, NPNMR_Calc, NPROP, NSpin_set, NSTATE, NTP, NucMass, NucSpin, &
                  NucSpin, pNMR_req, TMAXP, TMINP, SDFlip, ICOMP, PNAME, IFSO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Twelve, Half, cZero, cOne, auTocm, auToHz, auTokJ, c_in_au, gElectron, &
-                     kBoltzmann,proton_mass_in_au
+                     kBoltzmann, proton_mass_in_au
 use Definitions, only: iwp, wp, u6
 
 implicit none
@@ -78,8 +78,8 @@ character, allocatable :: LStability(:)
 ! Conversion factors
 real(kind=wp), parameter :: alpha2 = One/(c_in_au*c_in_au), au2J = auTokJ*1.0e3_wp, beta_e = One/(Two*c_in_au), &
                             beta_n = beta_e/proton_mass_in_au, con_to_MHz = -gElectron*beta_e*beta_n*auToHz*1.0e-6_wp, &
-                            kBoltzman_in_cm = kBoltzmann*auTocm/au2J, to_ppm = 1.0e6_wp*auTocm*alpha2, TwoThird = Two/Three, &
-                            FourThird = Four/Three
+                            FourThird = Four/Three, kBoltzman_in_cm = kBoltzmann*auTocm/au2J, to_ppm = 1.0e6_wp*auTocm*alpha2, &
+                            TwoThird = Two/Three
 character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: 'FC','SD','FCSD','PSO','TOTAL']
 character, parameter :: xyz(3) = ['x','y','z']
 
@@ -269,7 +269,7 @@ subroutine setup_pNMR_calc(PROP)
   do iT=1,NTP
     pBoltz(iT,:) = exp(-ESO(:)/kBoltzman_in_cm/Temp_in_K(iT))
     ! Truncate :: Prevent overflow/underflow when excited states have very high energies
-    where(pBoltz(iT,:) < pBoltz_cutoff) pBoltz(iT,:) = Zero
+    where (pBoltz(iT,:) < pBoltz_cutoff) pBoltz(iT,:) = Zero
     Zstat = sum(pBoltz(iT,:))
     pBoltz(iT,:) = pBoltz(iT,:)/Zstat
   end do
@@ -345,7 +345,6 @@ subroutine calc_h_HFC(iAtom,PROP)
   MAG(:,:,6) = MAG(:,:,6) - ASD_FC(:,:)
   ASD_FC(:,:) = Two*ASD_FC(:,:)
 
-
   if (do_EPR .or. do_pNMR) then
     write(u6,*)
     write(u6,'(3X,A30)') repeat('=',30)
@@ -361,7 +360,7 @@ subroutine calc_h_HFC(iAtom,PROP)
   call calc_h_FC(ASD_FC)
   call calc_h_SD(MAG)
   ! Revision for JCTC-2021: https://dx.doi.org/10.1021/acs.jctc.0c01005
-  if(SDFlip) h_SD(:,:,:) = -h_SD(:,:,:)
+  if (SDFlip) h_SD(:,:,:) = -h_SD(:,:,:)
   call mma_deallocate(MAG)
   call mma_deallocate(ASD_FC)
   h_FCSD(:,:,:) = h_FC(:,:,:)+h_SD(:,:,:)
@@ -522,10 +521,10 @@ subroutine proc_spin_data()
   if (HypF_rms_Req) then
     if (.not.(NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
   else if (allocated(Atens_Req)) then
-    if (.not.AutoSel_GFac) then
-    ! Use SEWARD mass as default if keyword DAUG is present
+    if (.not. AutoSel_GFac) then
+      ! Use SEWARD mass as default if keyword DAUG is present
       use_seward_mass = .true.
-    else if (.not.(NMass_set .or. NSpin_set .or. GNuc_set)) then
+    else if (.not. (NMass_set .or. NSpin_set .or. GNuc_set)) then
       AutoSel_GFac = .true.
     end if
   end if
@@ -537,7 +536,7 @@ subroutine proc_spin_data()
   if (NSpin_set) icase = 3
   if (GNuc_set) icase = 4
 
-  ! HYPOTHEICAL ISOTOPE-------------------------------------------------------------
+  ! HYPOTHETICAL ISOTOPE-------------------------------------------------------------
   if (.not. allocated(HypoIso)) then
     call mma_allocate(HypoIso,NAtoms,'HypoIso_hfcop')
     HypoIso(:) = .false.
@@ -951,7 +950,7 @@ subroutine proc_coupl_states()
   call get_degen_states(1)
 
   ! User specifies NCOU without COUP ---> First NCOUP lowest-energy states will be coupled
-  if (NCOUP > 0_iwp .and. .not.(allocated(LCSTATES))) then
+  if ((NCOUP > 0) .and. (.not. allocated(LCSTATES))) then
     call mma_allocate(LCSTATES,NCOUP)
     do ISS=1,NCOUP
       LCSTATES(ISS) = ISS
@@ -969,14 +968,14 @@ subroutine proc_coupl_states()
     ! The assignment NCOUP here is different from lines below in else block.
     ! This line is "after" allocated(LCSTATES) to make consistency.
     ! NCOUP in else block is "before" allocating
-    NCOUP = degen_end_idx(1)-degen_start_idx(1)+1_iwp
+    NCOUP = degen_end_idx(1)-degen_start_idx(1)+1
   else
     ! NO SHIFTING ENERGY----------------------------------------------------
     ! If NCOUP or COUP are not specified, coupling states for the A tensor
     ! are derived from GROUND STATES via get_degen_states(1), controlled by DETH.
 
     ! Get NCOUP from previous call get_degen_states(1)
-    NCOUP = degen_end_idx(1)-degen_start_idx(1)+1_iwp
+    NCOUP = degen_end_idx(1)-degen_start_idx(1)+1
     call mma_allocate(LCSTATES,NCOUP,'LCStates')
     do ISS=degen_start_idx(1),degen_end_idx(1)
       LCSTATES(ISS) = ISS
@@ -999,9 +998,9 @@ subroutine proc_coupl_states()
     write(u6,*)
 
     if (NCOUP == 1) then
-      call WarningMessage(2, "No Kramers degeneracies were found; therefore, the HFCCs are zero.")
+      call WarningMessage(2,'No Kramers degeneracies were found; therefore, the HFCCs are zero.')
       call Quit_OnUserError()
-    endif
+    end if
 
     ! PSEUDOSPIN APPROACH
     !--------------------
@@ -1068,7 +1067,7 @@ subroutine get_degen_states(opt)
   do lmb=1,n_uniq_ener
     first_state = degen_start_idx(lmb)
     last_state = degen_end_idx(lmb)
-    degeneracy = last_state-first_state+1_iwp
+    degeneracy = last_state-first_state+1
     ener = ESO(degen_start_idx(lmb))
     write(u6,'(10X,I3,A2,I3,8X,I2,9X,F15.6)') first_state,' - ',last_state,degeneracy,ener
   end do
@@ -1149,7 +1148,7 @@ subroutine assign_hfc_prvl_signs()
       call assign_abc_signs(pr_vals(iACalc,3,iAx),pr_vals(iACalc,4,iAx),pr_vals(iACalc,5,iAx),is_determined(iAx),ill_defined(2))
     end do
 
-    signs_resolved(iACalc) = .not. any(ill_defined) .and. all(is_determined)
+    signs_resolved(iACalc) = (.not. any(ill_defined)) .and. all(is_determined)
   end if
 
   if (.not. signs_resolved(iACalc)) pr_vals(iACalc,:,:) = abs(pr_vals(iACalc,:,:))
@@ -1172,10 +1171,9 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
   real(kind=wp), intent(in) :: a
   real(kind=wp), intent(out) :: b, c
   logical(kind=iwp), intent(out) :: is_determined, ill_defined
+  integer(kind=iwp) :: nzeros
   real(kind=wp) :: abs_a, abs_b, abs_c, max_left_absval, abs_tol
   real(kind=wp), parameter :: rel_tol = 0.05_wp, zero_tol = 1.0e-8_wp
-  integer(kind=iwp) :: nzeros
-
 
   abs_a = abs(a)
   abs_b = abs(b)
@@ -1183,11 +1181,11 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
   max_left_absval = max(abs_a,abs_b)
   ! Relative tolerance for determining signs is 5%
   ! Absolute tolerance is 5% of the largest absolute value among a, b, c
-  abs_tol = rel_tol * max(abs_a, abs_b, abs_c)
+  abs_tol = rel_tol*max(abs_a,abs_b,abs_c)
   is_determined = .false.
   ill_defined = .false.
 
-  nzeros = count([abs_a, abs_b, abs_c] < zero_tol)
+  nzeros = count([abs_a,abs_b,abs_c] < zero_tol)
 
   ! CASE I: Handle cases where at least one magnitude is effectively zero.
   if (nzeros == 3) then
@@ -1198,32 +1196,32 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
   else if (nzeros == 1) then
 
     ! c = 0 --> check if a - b = 0
-    if (abs_c < zero_tol .and. abs(abs_a - abs_b) < zero_tol) then
+    if ((abs_c < zero_tol) .and. (abs(abs_a-abs_b) < zero_tol)) then
       is_determined = .true.
       if (a > Zero) b = -abs_b
-    endif
+    end if
 
     ! a = 0 --> check if b = c
     ! This case is vague. b could be positive or negative.
-    if (abs_a < zero_tol .and. abs(abs_b - abs_c) < zero_tol) then
+    if ((abs_a < zero_tol) .and. (abs(abs_b-abs_c) < zero_tol)) then
       is_determined = .true.
       ill_defined = .true.
-    endif
+    end if
 
     ! b = 0 --> check if a = c
-    if (abs_b < zero_tol .and. abs(abs_a - abs_c) < zero_tol) then
+    if ((abs_b < zero_tol) .and. (abs(abs_a-abs_c) < zero_tol)) then
       is_determined = .true.
       if (a < Zero) c = -abs_c
-    endif
+    end if
 
   else
-  ! CASE II: All three values are nonzero
+    ! CASE II: All three values are nonzero
     if (abs_c > max_left_absval) then
       ! CASE 1: abs_c increases
       !------------------------
       ! a, b should have the SAME sign --> 2 cases: [+] + [+] = [+]
       !                                          or [-] + [-] = [-]
-      if ((abs_a+abs_b-abs_c) < abs_tol) then
+      if (abs_a+abs_b-abs_c < abs_tol) then
         is_determined = .true.
         ! a = [+] --> b = [+]  , c = [+]
         ! a = [-] --> b = [-]  , c = [-]
@@ -1254,7 +1252,7 @@ subroutine assign_abc_signs(a,b,c,is_determined,ill_defined)
         end if
       end if
     end if
-  endif
+  end if
 
 end subroutine assign_abc_signs
 
@@ -1278,9 +1276,7 @@ subroutine transf_prin_axes(A,X,a_sm)
 
     ! Typical g-factors are lower than 6.0, while conv_to_MHz (print_EPR_summary) is around 100.0 (95.5)
     ! if a value is below 1.0e-8_wp, A(MHz) is around 6.0*100.0*10^-8 = 0.000006 MHz
-    where (abs(a_sm(:,:,iContr)) < zero_tol)
-      a_sm(:,:,iContr) = Zero
-    end where
+    where (abs(a_sm(:,:,iContr)) < zero_tol) a_sm(:,:,iContr) = Zero
 
     if (min(a_sm(1,1,iContr),a_sm(2,2,iContr),a_sm(3,3,iContr)) < Zero) then
       call WarningMessage(2,'Negative eigenvalues found. Cannot take square root.')
