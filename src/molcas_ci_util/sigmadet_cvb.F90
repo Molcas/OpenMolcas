@@ -36,7 +36,6 @@ ISSM=IREFSM_CASVB
 call LUCIA_UTIL('SIGMA', &
                 CI_Vector=C, &
                 SIGMA_Vector=HC, &
-                iSym=IREFSM_CASVB, &
                 nTU=size(FMO),TU=FMO, &
                 nTUVX=size(TUVX),TUVX=TUVX)
 
