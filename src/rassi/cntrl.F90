@@ -156,12 +156,12 @@ integer(kind=iwp) :: ALGO, DCHO, DYSEXPSF, DYSEXPSO, IBINA(2,MxRoot), ICOMP(MXPR
 real(kind=wp) :: ALPHZ, BANGRES, BETAE, BINCRE, BSTART, CITHR, COOR(3,MXATOM), DEGEN_ETHR, dmpk, EMIN, EPRTHR, ERFNUC, OSTHR_DIPR, &
                  OSTHR_QIPR, PNUC(MXPROP) = Zero, PORIG(3,MXPROP) = Zero, RSTHR, SOTHR_PRT, TDIPMIN, TINCRE, TMAXP, TMAXS, &
                  TMGr_thrs, TMINP, TMINS, TOLERANCE, TSTART
-logical(kind=iwp) :: AutoSelect_GFac, BINA, ChkHop, CIH5, DCHS, DIPR, Do_Pol, Do_SK, Do_TMOM, DOCD, DoGSOR, DQVD, DYSEXPORT, DYSO, &
+logical(kind=iwp) :: AutoSel_GFac, BINA, ChkHop, CIH5, DCHS, DIPR, Do_Pol, Do_SK, Do_TMOM, DOCD, DoGSOR, DQVD, DYSEXPORT, DYSO, &
                      Force_NON_AO_TDM, GNuc_set, HAVE_DIAG, HAVE_HEFF, HOP, HypF_rms_Req, IFARGU, IFCURD, IfDCpl, IFEJOB, IFGCAL, &
                      IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFMCAL, IfNTO, IFSHFT, IFSO, IFTDM, IFTRD1, &
                      IFTRD2, IFVANVLECK, IFXCAL, LHAMI, LPRPR, NATO, NMass_set, NOHAM, NOSO, NSpin_set, ONLY_OVERLAPS, PRCI, &
                      PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, QDPT2EV, &
-                     QDPT2SC, QIALL, QIPR, REDUCELOOP, RFpert, RHODyn, RSPR, SaveDens, SECOND_TIME, TDYS, ToFile, TRACK
+                     QDPT2SC, QIALL, QIPR, REDUCELOOP, RFpert, RHODyn, RSPR, SaveDens, SECOND_TIME, TDYS, ToFile, TRACK, SDFlip
 character(len=LenIn+8) :: bNAME(mxOrb)
 character(len=128) :: JBNAME(MXJOB), MINAME(MXJOB)
 character(len=16) :: OCAA(20)
@@ -174,8 +174,8 @@ integer(kind=iwp), allocatable :: AngMom_idx(:), ASD_idx(:,:), LCSTATES(:), NucM
 real(kind=wp), allocatable :: GNuc(:), HEff(:,:), NucSpin(:), RefEne(:)
 logical(kind=iwp), allocatable :: Atens_Req(:), HypoIso(:), pNMR_req(:)
 
-public :: ALGO, AlphZ, AngMom_idx, ASD_idx, Atens_Req, AutoSelect_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5, &
-          CITHR, Coor, DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, &
+public :: ALGO, AlphZ, AngMom_idx, ASD_idx, Atens_Req, AutoSel_GFac, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, &
+          CIH5, CITHR, Coor, DCHO, DCHS, DEGEN_ETHR, DIPR, dmpk, Do_Pol, Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, &
           DYSEXPSO, DYSO, EMin, EPRThr, ERFNuc, FnEig, FnTOM, FORCE_NON_AO_TDM, GNuc, GNuc_set, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, &
           HOP, HypF_rms_Req, HypoIso, IBINA, ICOMP, IDCMO, IfArgu, IfCurd, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, &
           IFHCOM, IFHDIA, IFHEFF, IFHEXT, IfJ2, IfJz, IFMCAL, IFNTO, IFSHFT, IFSO, IfTDM, IfTrD1, IFTRD2, IfvanVleck, IFXCAL, &
@@ -188,6 +188,6 @@ public :: ALGO, AlphZ, AngMom_idx, ASD_idx, Atens_Req, AutoSelect_GFac, BAngRes,
           PRDIPCOM, PrDipVec, PRMEE, PRMER, PRMES, PRORB, PrRaw, PRSXY, PRTRA, PrWeight, PRXVE, PRXVR, PRXVS, PSO_idx, PTYPE, &
           QDPT2EV, QDPT2SC, QIAll, QIPR, RASTYP, REDUCELOOP, RefEne, RFPert, RhoDyn, RSPR, RSThr, SAVEDENS, SECOND_TIME, SODIAG, &
           SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDipMin, TDYS, TIncre, TITLE1, TMAXP, &
-          TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart
+          TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart, SDFlip
 
 end module Cntrl

@@ -34,7 +34,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: i, j, ia, ib, m, ix, iy, iz, nShellA, nShellB
+integer(kind=iwp) :: i, j, ia, ib, iZeta, m, ix, iy, iz, nShellA, nShellB
 ! dRA, dRB: distance of the current grid point to A/B
 real(kind=wp) :: dRA(3), dRB(3), prefactor
 real(kind=wp), allocatable :: radA(:), radB(:), sphA(:), sphB(:)
@@ -112,11 +112,12 @@ do m=1,nEmbGridPoints
   end do
 
   ! Put them together
-  do ia=1,nAlpha
-    do ib=1,nBeta
+  do ib=1,nBeta
+    do ia=1,nAlpha
+      iZeta = (ib-1)*nAlpha+ia
       do i=1,nShellA
         do j=1,nShellB
-          rFinal(ia,ib,i,j) = rFinal(ia,ib,i,j)+(prefactor*radA(ia)*radB(ib)*sphA(i)*sphB(j))
+          rFinal(iZeta,i,j,1) = rFinal(iZeta,i,j,1)+(prefactor*radA(ia)*radB(ib)*sphA(i)*sphB(j))
         end do
       end do
     end do

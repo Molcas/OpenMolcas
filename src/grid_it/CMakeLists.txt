@@ -20,7 +20,6 @@ set (sources
      input_grid_it.F90
      linenr.F90
      makepab.F90
-     moeval.F90
      moevaldel.F90
      moevalder.F90
      mycoor.F90
@@ -28,9 +27,7 @@ set (sources
      noblanks.F90
      one_charge.F90
      opengrid.F90
-     outmo.F90
      pickorb.F90
-     power.F90
      print_ddnorm.F90
      printheader.F90
      printline.F90
@@ -38,7 +35,6 @@ set (sources
      prt_lusc.c
      prtlusendgrid.F90
      save_ddnorm.F90
-     soadpt.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

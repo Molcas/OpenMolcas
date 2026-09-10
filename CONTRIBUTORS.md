@@ -135,6 +135,7 @@ Yingjin Ma
 Per Åke Malmqvist  
 Neil Martinsen-Burrell  
 Andy May  
+Jaafar Mehrez  
 Manuela Merchán  
 Isabella C. D. Merritt  
 Deyan Mihaylov  
@@ -173,6 +174,7 @@ Andrew M. Sand
 Michael A. Saunders  
 Igor Schapiro  
 Bernd Schimmelpfennig  
+Lukas Schreder  
 Martin Schütz  
 Thais Scott  
 Luis Seijo  
