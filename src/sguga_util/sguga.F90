@@ -2674,6 +2674,7 @@ else
 
         ! In case of no reuse compute the sigma vector here.
         if (.not. EXS%Reuse_SGTMP) then
+           jOff = 1
            NTMP = NUPSG*NDWNC
            EXS%SGTMP(jOff:jOff+NTMP-1) = Zero
            call Apply_row(One,NDWNC,NUPC,CI(IOC+1),NUPSG,EXS%SGTMP(jOff),NCP1,EXS%ICOUP(1,LICP1+1),swap=Swap)
@@ -3580,6 +3581,14 @@ subroutine MK_FLAT_Epq(SGS)
 integer(kind=iwp) p, q, iSym
 type(SGStruct), intent(inout) :: SGS
 
+! The purpose of this routine is to remove all the logic from sg_Epq_Psi.
+! We note that there are two modes in which the routine is used:
+! 1) it generates all entities, and
+! 2) it reuse some of the sigma vectors.
+! This results in two different sequences of calls, due to different logic.
+! We have to set up flat tables corresponding to both of these cases.
+! ToDo: Develop this further.
+Return
 Do iSym = 1, SGS%nSym
 Do p = 1, SGS%nLev
 Do q = 1, SGS%nLev
