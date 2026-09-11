@@ -132,6 +132,7 @@ else
   ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
   ! stored in Sigma_vec.
   call CSDTVC(Sigma_Vec,sigtemp,2,STSym,1)
+
   IREFSM=IREFSM_SAVE
   ICSM=IREFSM
   ISSM=IREFSM
