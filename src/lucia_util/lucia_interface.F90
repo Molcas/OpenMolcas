@@ -246,7 +246,7 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
   ! from Molcas Rasscf.
 
   use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NGAS, NGSSH, NIRREP, &
-                        NSD_PER_SYM, SIGMA_VEC, VEC3
+                        NSD_PER_SYM, SIGMA_VEC, VEC3, IH1FORM
   use Constants, only: Zero
 
   real(kind=wp), intent(_IN_) :: CIVEC(:)
@@ -265,7 +265,9 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nTU,TU,nTUVX,TUVX)
   ECORE_ORIG = ECORE
 
   ! Move over the one-electron integrals + Potnuc (embedded) to where Lucia
-  ! stores them.
+  ! stores them. TU is in lower triangular form not symmetry blocked.
+  ! The integrals in INT1 are lower triangular form symmetry blocked.
+  IH1FORM=1
   INT1(:) = Zero
   MTU = 0
   ITU = 0

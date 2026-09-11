@@ -14,7 +14,7 @@ subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec,nTUVX,TUVX)
 
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: Deallocate_Local_Arrays, IDISK, INT1, IREFSM, kvec3_length, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, &
-                      NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, VEC3, XISPSM
+                      NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, PSSIGN, VEC3, XISPSM, IH1FORM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
@@ -28,7 +28,7 @@ integer(kind=iwp), intent(in) :: JOBIPH, nTUVX
 real(kind=wp), intent(in) :: CMOMO(*), TUVX(nTUVX)
 integer(kind=iwp), intent(out) :: LREC(MXNTTS)
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, NCONF, &
-                     NDIM, NREC
+                     NDIM, NREC, IH1FORM_SAVE
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IREC, NUM_ELE
 #endif
@@ -78,6 +78,7 @@ call mma_allocate(LCMOMO,NDIM,Label='LCMOMO')
 call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
 ! We are going to mess with the one-electron integrals, take a copy
 LH1SAVE(:) = INT1(:)
+IH1FORM_SAVE = IH1FORM
 ! Set up block structure of CI space
 IATP = 1
 IBTP = 2
@@ -146,6 +147,7 @@ end do
 
 ! clean up time : copy 1-e integrals back in place
 INT1(:) = LH1SAVE(:)
+IH1FORM = IH1FORM_SAVE
 
 call mma_deallocate(VEC1)
 call mma_deallocate(VEC2)

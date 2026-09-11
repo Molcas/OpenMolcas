@@ -48,7 +48,7 @@ character(len=4) :: ITRACI_CN, ITRACI_CR
 if (ifvb /= 0) iSpeed(1) = 0
 
 INI_H0 = 1
-IH1FORM=1
+IH1FORM=0 ! default unasigned value.
 ! Flag for compatibility with normal MOLCAS input format
 
 IEXPERT = 0
