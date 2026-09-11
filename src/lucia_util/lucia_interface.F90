@@ -38,7 +38,7 @@ contains
 !***********************************************************************
 subroutine Lucia_Util(ModLab,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
 
-  use lucia_data, only: IREFSM, MXNTTS
+  use lucia_data, only: IREFSM, MXNTTS, I12
 
   implicit none
   character(len=*), intent(in) :: ModLab
@@ -69,6 +69,7 @@ subroutine Lucia_Util(ModLab,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR,nTU,TU,n
 
   else if (Module_(1:5) == 'SIGMA') then
 
+    I12=2
     call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,nTU,TU,nTUVX,TUVX)
 
   else if (Module_(1:5) == 'TRACI') then

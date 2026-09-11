@@ -82,10 +82,7 @@ use Para_Info, only: nProcs
 use LUCIA_CUDA_INTERFACE, only: LUCIA_SIGMA_CUDA_BLOCKS_BEGIN, LUCIA_SIGMA_CUDA_BLOCKS_BEGIN_ZEROED, LUCIA_SIGMA_CUDA_BLOCKS_END
 #endif
 use Constants, only: Zero, Half
-use Definitions, only: wp, iwp
-#ifdef _DEBUGPRINT_
-use Definitions, only: u6
-#endif
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 #include "macros.fh"
@@ -461,10 +458,12 @@ else if (IDIAG == 1) then
   IBLOCK(6) = 1
   if (IDOH2 == 0) then
     I12 = 1
-  else
+  else If (IDOH2 == 1) Then
     I12 = 2
+  else
+    Write (u6,*) 'RSSBCB2: I12 has an illegal value.'
+    Call Abend()
   end if
-  !write(u6,*) ' IDOH2, I12 ', IDOH2,I12
   ITASK = 2
   FACTOR = Zero
   ! Well, we are not using transposed matrices here so

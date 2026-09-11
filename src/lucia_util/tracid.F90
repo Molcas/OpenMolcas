@@ -38,7 +38,7 @@ implicit none
 integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3, nTUVX
 real(kind=wp), intent(in) :: T(*), TUVX(nTUVX)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
-integer(kind=iwp) :: K, LBLK
+integer(kind=iwp) :: K, LBLK, I12_SAVE, I_RES_AB_SAVE
 real(kind=wp) :: TKK
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CNORM
@@ -49,8 +49,10 @@ LBLK = -1
 ! Transfer vector on LUCIN to LUSC1
 call COPVCD(LUCIN,LUSC1,VEC1,1,LBLK)
 ! A bit of info for the sigma routine
+I_RES_AB_SAVE = I_RES_AB
 I_RES_AB = 0
 ! Do the one-electron update
+I12_SAVE=I12
 I12 = 1
 ! With 1-electron integrals in complete block form
 IH1FORM = 2
@@ -101,5 +103,7 @@ write(u6,*) ' Norm of transformed vector',CNORM
 ! And transfer to LUCOUT
 IDISK(LUSC1) = 0
 call COPVCD(LUSC1,LUCOUT,VEC1,0,LBLK)
+I12=I12_SAVE
+I_RES_AB = I_RES_AB_SAVE
 
 end subroutine TRACID

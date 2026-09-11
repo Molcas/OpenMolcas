@@ -32,22 +32,13 @@ IREFSM=IREFSM_CASVB
 ICSM=IREFSM_CASVB
 ISSM=IREFSM_CASVB
 
-#define _ON_
-#ifdef _ON_
-call Lucia_Util('Diag', &
-                nTU=size(FMO),TU=FMO, &
-                nTUVX=size(TUVX),TUVX=TUVX)
-#endif
 
-!Call RecPrt('C',' ',C,1,7)
 ! Call the sigma routine
 call LUCIA_UTIL('SIGMA', &
                 CI_Vector=C, &
                 SIGMA_Vector=HC, &
                 nTU=size(FMO),TU=FMO, &
                 nTUVX=size(TUVX),TUVX=TUVX)
-!Call RecPrt('HC(first)',' ',HC,1,7)
-
 
 
 IREFSM=IREFSM_SAVE
