@@ -38,7 +38,7 @@ contains
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
 
-Subroutine Mk_H_Psi(iState, STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
+Subroutine Mk_H_Psi(iState,STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
 use cands, only: ICSM, ISSM
 Implicit None
@@ -170,13 +170,53 @@ use cands, only: ICSM, ISSM
 Implicit None
 
 integer(kind=iwp), intent(in):: STSYM, nDet
-real(kind=wp), intent(inout) :: CI_Vec(nDet)
-real(kind=wp), intent(out) :: Sigma_Vec(nDet)
+real(kind=wp), intent(inout),target :: CI_Vec(nDet)
+real(kind=wp), intent(inout),target :: Sigma_Vec(nDet)
 integer(kind=iwp), intent(in):: nTU, nTUVX
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
+integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 integer(kind=iwp) :: IREFSM_SAVE
 
+real(kind=wp), Pointer:: C(:,:)=>Null(), HC(:,:)=>Null()
+
+if (.False.) then
+!if (DOFARO) then
+
+  htu(:,:) = Zero
+  gtuvx(:,:,:,:) = Zero
+  itu = 0
+  ituvx = 0
+  do it=1,my_norb
+    do iu=1,it
+      itu = itu+1
+      htu(iu,it) = TU(itu)
+      htu(it,iu) = TU(itu)
+      do iv=1,it
+        ixmax = iv
+        if (it == iv) ixmax = iu
+        do ix=1,ixmax
+          ituvx = ituvx+1
+          GTUVX(IT,IU,IV,IX) = TUVX(ITUVX)
+          GTUVX(IU,IT,IV,IX) = TUVX(ITUVX)
+          GTUVX(IT,IU,IX,IV) = TUVX(ITUVX)
+          GTUVX(IU,IT,IX,IV) = TUVX(ITUVX)
+          GTUVX(IV,IX,IT,IU) = TUVX(ITUVX)
+          GTUVX(IX,IV,IT,IU) = TUVX(ITUVX)
+          GTUVX(IV,IX,IU,IT) = TUVX(ITUVX)
+          GTUVX(IX,IV,IU,IT) = TUVX(ITUVX)
+        end do
+      end do
+    end do
+  end do
+
+  C(1:nDetA,1:nDetB)=>CI_Vec(1:nDet)
+  HC(1:nDetA,1:nDetB)=>Sigma_Vec(1:nDet)
+  call SIGMA_UPDATE(HTU,GTUVX,HC,C)
+  C=>Null()
+  HC=>Null()
+
+else
 
   IREFSM_SAVE=IREFSM
   IREFSM=STSYM
@@ -202,6 +242,7 @@ integer(kind=iwp) :: IREFSM_SAVE
   IREFSM=IREFSM_SAVE
   ICSM=IREFSM
   ISSM=IREFSM
+endif
 
 
 End Subroutine Mk_H_Psi_Det
