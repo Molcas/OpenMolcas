@@ -31,7 +31,7 @@ use general_data, only: iDoGAS, nRsPrt
 
 Private
 
-Public :: Mk_H_Psi, Mk_pdms, Mk_T1DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close
+Public :: Mk_H_Psi, Mk_H_Psi_Det, Mk_pdms, Mk_T1DM, Mk_CI_Diag, CI_Timer, CI_Initialize, CI_Close
 
 contains
 
@@ -163,6 +163,48 @@ End if
 #endif
 
 End Subroutine Mk_H_Psi
+
+Subroutine Mk_H_Psi_Det(STSYM,nDet,CI_Vec,Sigma_Vec,nTU,TU,nTUVX,TUVX)
+use lucia_data, only: Sigma_on_disk, IREFSM
+use cands, only: ICSM, ISSM
+Implicit None
+
+integer(kind=iwp), intent(in):: STSYM, nDet
+real(kind=wp), intent(inout) :: CI_Vec(nDet)
+real(kind=wp), intent(out) :: Sigma_Vec(nDet)
+integer(kind=iwp), intent(in):: nTU, nTUVX
+real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
+
+integer(kind=iwp) :: IREFSM_SAVE
+
+
+  IREFSM_SAVE=IREFSM
+  IREFSM=STSYM
+  ICSM=STSYM
+  ISSM=STSYM
+
+  ! Convert the CI-vector from CSF to Det. basis
+  ! sigtemp is scratch, converted vector is stored in ctemp.
+  ! Note that ctemp is of the size of the nDet. basis
+
+  ! Calling Lucia to determine the sigma vector
+  call Lucia_Util('Sigma',                   &
+                  CI_Vector=CI_Vec(:),        &
+                  Sigma_Vector=Sigma_Vec(:),   &
+                  nTU=Size(TU),TU=TU,        &
+                  nTUVX=Size(TUVX),TUVX=TUVX)
+
+  ! Set mark so densi_master knows that the Sigma-vector exists on disk.
+  Sigma_on_disk = .true.
+  ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
+  ! stored in Sigma_vec.
+
+  IREFSM=IREFSM_SAVE
+  ICSM=IREFSM
+  ISSM=IREFSM
+
+
+End Subroutine Mk_H_Psi_Det
 
 !***********************************************************************************************************************************
 !***********************************************************************************************************************************
