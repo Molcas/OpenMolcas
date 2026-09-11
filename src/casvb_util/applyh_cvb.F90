@@ -40,6 +40,7 @@ end if
 isymmx = nirrep
 do isyml=1,isymmx
   nci = ncivb(isyml)
+  if (nci==0) Cycle
   call mma_allocate(cim,nci,label='cim')
   cim(:) = Zero
   call vb2mol_cvb(civec(1:),cim,isyml)
@@ -65,7 +66,5 @@ do isyml=1,isymmx
   end if
   call mma_deallocate(cim)
 end do
-
-return
 
 end subroutine applyh_cvb
