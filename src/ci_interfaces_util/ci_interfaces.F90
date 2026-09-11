@@ -39,7 +39,8 @@ contains
 !***********************************************************************************************************************************
 
 Subroutine Mk_H_Psi(iState, STSYM,nCSF,CI_Vec,Sigma_Vec,ctemp,sigtemp,ntemp,ndeta,ndetb,nTU,TU,nTUVX,TUVX)
-use lucia_data, only: Sigma_on_disk
+use lucia_data, only: Sigma_on_disk, IREFSM
+use cands, only: ICSM, ISSM
 Implicit None
 
 integer(kind=iwp), intent(in):: iState, STSYM, nCSF
@@ -52,6 +53,8 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
+integer(kind=iwp) :: IREFSM_SAVE
+
 #ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_Href, Check_H
 real(kind=wp), allocatable ::  SG_PSI(:), SG_SGM(:)
@@ -104,6 +107,11 @@ if (DOFARO) then
 
 else
 
+  IREFSM_SAVE=IREFSM
+  IREFSM=STSYM
+  ICSM=STSYM
+  ISSM=STSYM
+
   ! Convert the CI-vector from CSF to Det. basis
   ! sigtemp is scratch, converted vector is stored in ctemp.
   ! Note that ctemp is of the size of the nDet. basis
@@ -124,6 +132,9 @@ else
   ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
   ! stored in Sigma_vec.
   call CSDTVC(Sigma_Vec,sigtemp,2,STSym,1)
+  IREFSM=IREFSM_SAVE
+  ICSM=IREFSM
+  ISSM=IREFSM
 
 end if
 
