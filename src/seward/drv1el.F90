@@ -39,7 +39,7 @@ use Integral_interfaces, only: int_kernel, int_mem
 use Property_Label, only: PLabel
 use NDDO, only: oneel_NDDO
 #ifdef _FDE_
-use Embedding_Global, only: embInt, embPot, embPotInBasis, embPotPath
+use Embedding_Global, only: embPot, embPotInBasis, embPotPath
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
@@ -1213,7 +1213,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
   if (embpot) then
     Label = 'embpot  '
     iRC = -1
-    call WrOne(iRC,iOpt,Label,1,embInt,lOper)
+    call WrOne(iRC,iOpt,Label,1,Emb_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error writing ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_WRITE_)

@@ -40,7 +40,6 @@ real(kind=wp), external :: DDot_
 ISTATE = max(ISTATE_,JSTATE_)
 JSTATE = min(ISTATE_,JSTATE_)
 
-if (LABEL(1:4) == 'ASD ') LABEL(1:5) = 'MAGXP'
 IC = ICOMP(IPROP)
 !write(u6,*) 'Mk_Prop: Label=',Label
 !write(u6,*) 'Mk_Prop:    IC=',IC
@@ -50,13 +49,9 @@ call iRDONE(IRC,IOPT,LABEL,IC,IDUM,ISCHK)
 if (IRC == 0) NSIZ = IDUM(1)
 if (mod(ISCHK/MASK,2) == 0) return
 IOPT = 0
-! Rulin: The 'spin-dependent' part of hyperfine contribution
-if (LABEL(1:5) == 'MAGXP') then
-  call HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
-  LABEL(1:5) = 'ASD  '
-else
-  call RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)
-end if
+
+call RDONE(IRC,IOPT,LABEL,IC,BUFF,ISCHK)
+
 !write(u6,*) 'NBUFF,NSIZ=',NBUFF,NSIZ
 if ((IRC /= 0) .and. (LABEL(1:4) /= 'TMOM')) then
   write(u6,*)
@@ -77,7 +72,7 @@ PORIG(1,IPROP) = BUFF(NSIZ+1)
 PORIG(2,IPROP) = BUFF(NSIZ+2)
 PORIG(3,IPROP) = BUFF(NSIZ+3)
 ! PICK UP THE NUCLEAR CONTRIBUTION FROM INTEGRAL BUFFER
-if ((PNAME(IPROP)(1:3) == 'ASD') .or. (PNAME(IPROP)(1:3) == 'PSO')) then
+if ((PNAME(IPROP)(1:5) == 'MAGXP') .or. (PNAME(IPROP)(1:3) == 'PSO')) then
   PNUC(IPROP) = Zero
 else if ((ITYPE == 2) .or. (ITYPE == 4)) then
   PNUC(IPROP) = Zero

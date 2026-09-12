@@ -42,7 +42,6 @@ set (sources
      geth1_rassi.F90
      getprintlevel.F90
      gtdmctl.F90
-     hfcsd.F90
      hfcop.F90
      hrmchk.F90
      hshget.F90

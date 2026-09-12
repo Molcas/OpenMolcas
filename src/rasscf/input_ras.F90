@@ -19,7 +19,7 @@ private
 ! Logical unit number for reading input:
 integer(kind=iwp) :: LuInput
 ! Used for input processing
-integer(kind=iwp), parameter :: NKeys = 149
+integer(kind=iwp), parameter :: NKeys = 150
 ! Logical flags, to check whether a keyword has been used in the input:
 logical(kind=iwp) :: KeyFlags(0:NKeys)
 ! Actual keywords
@@ -35,7 +35,7 @@ character(len=4), parameter :: CMD(nKeys) = ['ALTE','ATOM','CHAR','CHOI','CHOL',
                                              'DMRE','MXCA','DEXS','HROO','TDM ','DFCF','NKEE','REOR','TRIA','POPS','SEMI','MEMO', &
                                              'IVO ','CRPR','RDML','ORTH','CCCI','ROST','XMSI','CMSI','CMMA','CMMI','CMTH','GUGA', &
                                              'CMSS','CMSO','PERI','SSCR','MCM7','WRMA','DICE','STOC','EPSI','SAMP','DITE','DIRE', &
-                                             'DIOC','PPT2','NDPT','RGRA','STAV']
+                                             'DIOC','PPT2','NDPT','RGRA','STAV','DMPF']
 
 public :: CMD, Key, KeyFlags, LuInput, NKeys, SetKey
 

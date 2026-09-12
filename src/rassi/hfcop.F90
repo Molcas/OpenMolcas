@@ -26,12 +26,12 @@ use RASSIWfn, only: wfn_h_hfc_rms
 use Molcas, only: LenIn
 use spin_data, only: free_spin_data, get_first_nonzero_GNUC, GNUC_by_nucspin, GNUC_NUCSPIN_by_nucmass, init_spin_data, &
                      NUCSPIN_by_gnuc
-use Cntrl, only: AngMom_idx, ASD_idx, Atens_Req, AutoSelect_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, &
+use Cntrl, only: AngMom_idx, ASD_idx, Atens_Req, AutoSel_GFac, DEGEN_ETHR, GNuc, GNuc_set, HypF_rms_Req, HypoIso, LCSTATES, &
                  LPRPR, MLTPLT, NATens_Calc, NAtoms, NCOUP, NMass_set, NPNMR_Calc, NPROP, NSpin_set, NSTATE, NTP, NucMass, &
-                 NucSpin, pNMR_req, PSO_idx, TMAXP, TMINP
+                 NucSpin, pNMR_req, PSO_idx, TMAXP, TMINP, SDFlip
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Three, Twelve, Half, cZero, cOne, auTocm, auToHz, auTokJ, c_in_au, gElectron, kBoltzmann, &
-                     proton_mass_in_au
+use Constants, only: Zero, One, Two, Three, Four, Twelve, Half, cZero, cOne, auTocm, auToHz, auTokJ, c_in_au, gElectron, &
+                     kBoltzmann,proton_mass_in_au
 use Definitions, only: iwp, wp, u6
 
 implicit none
@@ -77,7 +77,8 @@ character, allocatable :: LStability(:)
 ! Conversion factors
 real(kind=wp), parameter :: alpha2 = One/(c_in_au*c_in_au), au2J = auTokJ*1.0e3_wp, beta_e = One/(Two*c_in_au), &
                             beta_n = beta_e/proton_mass_in_au, con_to_MHz = -gElectron*beta_e*beta_n*auToHz*1.0e-6_wp, &
-                            kBoltzman_in_cm = kBoltzmann*auTocm/au2J, to_ppm = 1.0e6_wp*auTocm*alpha2, TwoThird = Two/Three
+                            kBoltzman_in_cm = kBoltzmann*auTocm/au2J, to_ppm = 1.0e6_wp*auTocm*alpha2, TwoThird = Two/Three, &
+                            FourThird = Four/Three
 character(len=*), parameter :: contrib_lab(5) = [character(len=7) :: 'FC','SD','FCSD','PSO','TOTAL']
 character, parameter :: xyz(3) = ['x','y','z']
 
@@ -298,18 +299,41 @@ subroutine calc_h_HFC(iAtom,PROP)
   real(kind=wp), intent(in) :: PROP(NSTATE,NSTATE,NPROP)
   integer(kind=iwp) :: idx(6), ISS, iState, JSS, jState
   real(kind=wp) :: A_tens(3,3,5)
-  real(kind=wp), allocatable :: ASD(:,:,:)
+  real(kind=wp), allocatable :: ASD(:,:,:), ASD_FC(:,:)
 
   idx(:) = ASD_idx(iAtom,:)
-  call mma_allocate(ASD,6,NSS,NSS,Label='ASD')
+  call mma_allocate(ASD,NSS,NSS,6,Label='ASD')
+  call mma_allocate(ASD_FC,NSS,NSS,Label='ASD_FC')
   do ISS=1,NSS
     iState = MAPST(ISS)
     do JSS=ISS,NSS
       jState = MAPST(JSS)
-      ASD(:,ISS,JSS) = PROP(iState,jState,idx(:))
-      ASD(:,JSS,ISS) = ASD(:,ISS,JSS)
+      ASD(ISS,JSS,:) = PROP(iState,jState,idx(:))
+      ASD(JSS,ISS,:) = ASD(ISS,JSS,:)
     end do
   end do
+
+  ! Operator (not integral form)
+  ! * MAG:
+  !   1: x_k*d/dx  4: x_k*d/dy  7: x_k*d/dz
+  !   2: y_k*d/dx  5: y_k*d/dy  8: y_k*d/dz
+  !   3: z_k*d/dx  6: z_k*d/dy  9: z_k*d/dz
+  ! ASD [1,2,3,4,5,6] = MAG[1,2,3,5,6,9]
+  !
+  ! Fermi-Contact = 2/3 (x_k*dx + y_k*dy + z_k*dz)
+  !
+  ! ASD_1 = 2 x_k*dx - 2/3 (x_k*dx + y_k*dy + z_k*dz)
+  !       = 2/3 (2 x_k*dx - y_k*dy - z_k*dz)
+  !       = 2/3 (3 x_k*dx - (x_k*dx + y_k*dy + z_k*dz))
+
+  ASD_FC(:,:) = TwoThird * (ASD(:,:,1) + ASD(:,:,4) + ASD(:,:,6))
+
+  ASD(:,:,:) = Two*ASD(:,:,:)
+  ASD(:,:,1) = ASD(:,:,1) - ASD_FC(:,:)
+  ASD(:,:,4) = ASD(:,:,4) - ASD_FC(:,:)
+  ASD(:,:,6) = ASD(:,:,6) - ASD_FC(:,:)
+  ASD_FC(:,:) = Two*ASD_FC(:,:)
+
 
   if (do_EPR .or. do_pNMR) then
     write(u6,*)
@@ -323,9 +347,12 @@ subroutine calc_h_HFC(iAtom,PROP)
   end if
 
 ! CALCULATE HAMILTONIAN
-  call calc_h_FC(ASD(6,:,:))
+  call calc_h_FC(ASD_FC)
   call calc_h_SD(ASD)
+  ! Revision for JCTC-2021: https://dx.doi.org/10.1021/acs.jctc.0c01005
+  if(SDFlip) h_SD(:,:,:) = -h_SD(:,:,:)
   call mma_deallocate(ASD)
+  call mma_deallocate(ASD_FC)
   h_FCSD(:,:,:) = h_FC(:,:,:)+h_SD(:,:,:)
   call calc_h_PSO(iAtom,PROP)
   h_TOT(:,:,:) = h_FCSD(:,:,:)+h_PSO(:,:,:)
@@ -374,27 +401,23 @@ subroutine calc_h_HFC(iAtom,PROP)
 
 end subroutine calc_h_HFC
 
-subroutine calc_h_FC(ASD_zz)
+subroutine calc_h_FC(ASD_FC)
 
-  real(kind=wp), intent(in) :: ASD_zz(NSS,NSS)
+  real(kind=wp), intent(in) :: ASD_FC(NSS,NSS)
 
-  h_FC(1,:,:) = cmplx(CGx_mat(:,:)*ASD_zz(:,:),Zero,kind=wp)
-  h_FC(2,:,:) = cmplx(Zero,CGy_mat(:,:)*ASD_zz(:,:),kind=wp)
-  h_FC(3,:,:) = cmplx(CGo_mat(:,:)*ASD_zz(:,:),Zero,kind=wp)
-  h_FC(:,:,:) = TwoThird*h_FC(:,:,:)
+  h_FC(1,:,:) = cmplx(CGx_mat(:,:)*ASD_FC(:,:),Zero,kind=wp)
+  h_FC(2,:,:) = cmplx(Zero,CGy_mat(:,:)*ASD_FC(:,:),kind=wp)
+  h_FC(3,:,:) = cmplx(CGo_mat(:,:)*ASD_FC(:,:),Zero,kind=wp)
 
 end subroutine calc_h_FC
 
 subroutine calc_h_SD(ASD)
 
-  real(kind=wp), intent(out) :: ASD(6,NSS,NSS)
+  real(kind=wp), intent(in) :: ASD(NSS,NSS,6)
 
-  ASD(:,:,:) = -ASD(:,:,:)
-  ASD(6,:,:) = -ASD(1,:,:)-ASD(4,:,:)
-
-  h_SD(1,:,:) = cmplx(CGx_mat(:,:)*ASD(1,:,:)+CGo_mat(:,:)*ASD(3,:,:),CGy_mat(:,:)*ASD(2,:,:),kind=wp)
-  h_SD(2,:,:) = cmplx(CGx_mat(:,:)*ASD(2,:,:)+CGo_mat(:,:)*ASD(5,:,:),CGy_mat(:,:)*ASD(4,:,:),kind=wp)
-  h_SD(3,:,:) = cmplx(CGx_mat(:,:)*ASD(3,:,:)+CGo_mat(:,:)*ASD(6,:,:),CGy_mat(:,:)*ASD(5,:,:),kind=wp)
+  h_SD(1,:,:) = cmplx(CGx_mat(:,:)*ASD(:,:,1)+CGo_mat(:,:)*ASD(:,:,3),CGy_mat(:,:)*ASD(:,:,2),kind=wp)
+  h_SD(2,:,:) = cmplx(CGx_mat(:,:)*ASD(:,:,2)+CGo_mat(:,:)*ASD(:,:,5),CGy_mat(:,:)*ASD(:,:,4),kind=wp)
+  h_SD(3,:,:) = cmplx(CGx_mat(:,:)*ASD(:,:,3)+CGo_mat(:,:)*ASD(:,:,6),CGy_mat(:,:)*ASD(:,:,5),kind=wp)
 
 end subroutine calc_h_SD
 
@@ -479,16 +502,21 @@ subroutine proc_spin_data()
   use_seward_mass = .false.
   ! Setting DEFAULT case based on user input
   if (HypF_rms_Req) then
-    if (.not.(AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
+    if (.not.(AutoSel_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) use_seward_mass = .true.
   else if (allocated(Atens_Req)) then
-    if (.not.(AutoSelect_GFac .or. NMass_set .or. NSpin_set .or. GNuc_set)) AutoSelect_GFac = .true.
+    if (.not.AutoSel_GFac) then
+    ! Use SEWARD mass as default if keyword DAUG is present
+      use_seward_mass= .true.
+    else if (.not.(NMass_set .or. NSpin_set .or. GNuc_set)) then
+      AutoSel_GFac = .true.
+    end if
   end if
 
   if (use_seward_mass) icase = 1
   if (NMass_set) icase = 2
   if (NSpin_set) icase = 3
   if (GNuc_set) icase = 4
-  if (AutoSelect_GFac) icase = 5
+  if (AutoSel_GFac) icase = 5
 
   ! HYPOTHEICAL ISOTOPE-------------------------------------------------------------
   if (.not. allocated(HypoIso)) then
