@@ -4075,9 +4075,8 @@ if (.not. SkipGUGA) then
       (.not. iDoGas) .and. &
       (.not. Key('HEXS')) .and. &
       (.not. Key('DEXS')) .and. &
-      (.not. Key('EXPE')) .and. &
-      (IFVB == 0)) &
-    DoFaro = .true.
+      (.not. Key('EXPE')) &
+      ) DoFaro = .true.
 
   Call CI_Initialize(.NOT. iDoGAS, DOFARO)
 

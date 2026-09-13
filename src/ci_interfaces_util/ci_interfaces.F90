@@ -175,13 +175,16 @@ real(kind=wp), intent(inout),target :: Sigma_Vec(nDet)
 integer(kind=iwp), intent(in):: nTU, nTUVX
 real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
-integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
+real(kind=wp), allocatable, target:: temp1(:), temp2(:)  ! Local scratch
+real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
+
+integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix, nCSF, iDet
 integer(kind=iwp) :: IREFSM_SAVE
+integer(kind=iwp), parameter :: istate=1
 
-real(kind=wp), Pointer:: C(:,:)=>Null(), HC(:,:)=>Null()
+real(kind=wp), allocatable :: Sigma_New(:)
 
-if (.False.) then
-!if (DOFARO) then
+if (DOFARO) then
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -210,13 +213,53 @@ if (.False.) then
     end do
   end do
 
-  C(1:nDetA,1:nDetB)=>CI_Vec(1:nDet)
-  HC(1:nDetA,1:nDetB)=>Sigma_Vec(1:nDet)
-  call SIGMA_UPDATE(HTU,GTUVX,HC,C)
-  C=>Null()
-  HC=>Null()
+  ! We need to convert this to the correct form! The input is in LUCIA format.
+  ! todo: This is not needed if the LUCIA and FAROALD order is the same.
 
-else
+  nCSF=CIS(istate)%nCSF(STSym)
+  if (nCSF>nDet) Then
+     Write(u6,*) 'Mk_H_Psi_Det: nCSF>nDet'
+     Call Abend()
+  End If
+
+  Call mma_allocate(temp1,nDet,Label='temp1')
+  Call mma_allocate(temp2,nDet,Label='temp2')
+  Faroald_Psi(1:nDetA,1:nDetB) => temp2(:)
+  Faroald_SGM(1:nDetA,1:nDetB) => temp1(:)
+
+  temp2(:)=CI_Vec(:)
+  ! Convert from LUCIA SD basis to Lucia CSF basis
+  temp1(:)=Zero
+  call CSDTVC(temp1,temp2,2,STSym,0)
+  ! Now use the FAROALD machinary to go to FAROALD SD basis
+  call SG_REORD(iState,STSYM,0,nCSF,temp1,temp2)
+  call CITRANS_SORT('C',temp2,temp1)
+  Faroald_PSI(:,:) = Zero
+  call CITRANS_CSF2SD(temp1,Faroald_PSI)
+
+
+  call SIGMA_UPDATE(HTU,GTUVX,Faroald_SGM,Faroald_PSI)
+
+  call CITRANS_SD2CSF(Faroald_SGM,Sigma_Vec)
+
+  call CITRANS_SORT('O',Sigma_Vec,temp2)
+
+  call SG_Reord(iState,STSYM,1,nCSF,temp2,temp1)
+
+  ! Convert from LUCIA CSF basis to LUCIA SD basis
+  call CSDTVC(temp1,Sigma_Vec,1,STSym,0)
+
+  Faroald_Psi => Null()
+  Faroald_SGM => Null()
+  Call mma_deallocate(temp2)
+  Call mma_deallocate(temp1)
+
+  Call mma_allocate(Sigma_New,nDet,Label='Sigma_New')
+  Sigma_New(:)=Sigma_Vec(:)
+
+end if
+!else
+If (.TRUE.) Then
 
   IREFSM_SAVE=IREFSM
   IREFSM=STSYM
@@ -243,6 +286,20 @@ else
   ICSM=IREFSM
   ISSM=IREFSM
 endif
+If (DoFaro) Then
+  Do iDet = 1, nDet
+     If (Abs(Sigma_New(iDet)-Sigma_Vec(iDet))>1.0e-10_wp) Then
+        Write (u6,*) 'Mk_H_Psi_Det: Abs(Sigma_New(iDet)-Sigma_Vec(iDet))>1.0e-10_wp'
+        Write (u6,*) 'iDet=',iDet
+        Write (u6,*) 'Sigma_Vec(iDet)=',Sigma_Vec(iDet)
+        Write (u6,*) 'Sigma_New(iDet)=',Sigma_New(iDet)
+        Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nDet)
+        Call RecPrt('Sigma_New',' ',Sigma_New,1,nDet)
+        Call Abend()
+     End If
+  End Do
+  Call mma_deallocate(Sigma_New)
+End If
 
 
 End Subroutine Mk_H_Psi_Det
