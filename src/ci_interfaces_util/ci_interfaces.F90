@@ -178,11 +178,9 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 real(kind=wp), allocatable, target:: temp1(:), temp2(:)  ! Local scratch
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
 
-integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix, nCSF, iDet
+integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix, nCSF
 integer(kind=iwp) :: IREFSM_SAVE
 integer(kind=iwp), parameter :: istate=1
-
-real(kind=wp), allocatable :: Sigma_New(:)
 
 if (DOFARO) then
 
@@ -254,12 +252,7 @@ if (DOFARO) then
   Call mma_deallocate(temp2)
   Call mma_deallocate(temp1)
 
-  Call mma_allocate(Sigma_New,nDet,Label='Sigma_New')
-  Sigma_New(:)=Sigma_Vec(:)
-
-end if
-!else
-If (.TRUE.) Then
+else
 
   IREFSM_SAVE=IREFSM
   IREFSM=STSYM
@@ -286,21 +279,6 @@ If (.TRUE.) Then
   ICSM=IREFSM
   ISSM=IREFSM
 endif
-If (DoFaro) Then
-  Do iDet = 1, nDet
-     If (Abs(Sigma_New(iDet)-Sigma_Vec(iDet))>1.0e-10_wp) Then
-        Write (u6,*) 'Mk_H_Psi_Det: Abs(Sigma_New(iDet)-Sigma_Vec(iDet))>1.0e-10_wp'
-        Write (u6,*) 'iDet=',iDet
-        Write (u6,*) 'Sigma_Vec(iDet)=',Sigma_Vec(iDet)
-        Write (u6,*) 'Sigma_New(iDet)=',Sigma_New(iDet)
-        Call RecPrt('Sigma_Vec',' ',Sigma_Vec,1,nDet)
-        Call RecPrt('Sigma_New',' ',Sigma_New,1,nDet)
-        Call Abend()
-     End If
-  End Do
-  Call mma_deallocate(Sigma_New)
-End If
-
 
 End Subroutine Mk_H_Psi_Det
 
