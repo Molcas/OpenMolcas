@@ -11,6 +11,7 @@
 
 set (sources
      sg_ci_diag.F90
+     sg_ci_full.F90
      sg_citra.F90
      sg_h_psi.F90
      sg_mstow.F90

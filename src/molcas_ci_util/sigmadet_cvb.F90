@@ -21,7 +21,8 @@ implicit none
 integer(kind=iwp), intent(in) :: IREFSM_CASVB, NCI
 real(kind=wp), intent(_IN_) :: C(NCI)
 real(kind=wp), intent(out) :: HC(NCI)
+integer(kind=iwp), parameter :: iState=1
 
-Call Mk_H_Psi_Det(IREFSM_CASVB,nCI,C,HC,nTU=size(FMO),TU=FMO,nTUVX=size(TUVX),TUVX=TUVX)
+Call Mk_H_Psi_Det(iState,IREFSM_CASVB,nCI,C,HC,nTU=size(FMO),TU=FMO,nTUVX=size(TUVX),TUVX=TUVX)
 
 end subroutine SIGMADET_CVB
