@@ -180,18 +180,11 @@ real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix, nCSF
 integer(kind=iwp) :: IREFSM_SAVE
-!#define _CASVB_FIXED_
-#ifdef _CASVB_FIXED_
-! todo: the casvb code use the wrong spin adaptation of open shell determinants. For example,
-! doing a CAS(2,2), the two open-shell determinats get's coefficients corresponding to a triplett
-! combination. This tampers with the prformance.
 #ifdef _SGUGA_VERIFY_
 integer(kind=iwp) :: iDet
 real(kind=wp), allocatable :: Full(:,:)
 #endif
-#endif
 
-#ifdef _CASVB_FIXED_
 #ifdef _SGUGA_VERIFY_
 ! Reference computation of the full CI matrix.
 ! in CSF basis
@@ -202,16 +195,25 @@ Call sg_ci_full(SGS(istate),CIS(istate),EXS(istate),nCSF,STSym, &
                 TU,nTU, &
                 Full)
 Call mma_deallocate(Full)
+
+Call mma_allocate(Full,nDet,nDet,Label='Full')
+Call ci_full_det(nDet,STSym, &
+                TUVX,nTUVX, &
+                TU,nTU, &
+                Full)
+Call mma_deallocate(Full)
 ! in SD basis
 #endif
 
-Write (6,*)
-Write (6,*) '==========================================='
-Write (6,*) 'Start Original section'
-Write (6,*) 'STSym=',STSym
+Write (u6,*)
+Write (u6,*) '==========================================='
+Write (u6,*) 'Start Original section'
+Write (u6,*) 'STSym=',STSym
 Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
-#endif
 if (DOFARO) then
+!if (.FALSE.) then
+Write (u6,*) 'Faroald Style'
+
 
   htu(:,:) = Zero
   gtuvx(:,:,:,:) = Zero
@@ -285,6 +287,7 @@ if (DOFARO) then
 
 else
 
+  Write (u6,*) 'Lucia Style'
   IREFSM_SAVE=IREFSM
   IREFSM=STSYM
   ICSM=STSYM
@@ -310,14 +313,13 @@ else
   ICSM=IREFSM
   ISSM=IREFSM
 endif
-#ifdef _CASVB_FIXED_
 Call RecPrt('Sigma_Vec(Lucia SD)',' ',Sigma_Vec,1,nDet)
-Write (6,*) 'End Original section'
-Write (6,*)
-Write (6,*)
+Write (u6,*) 'End Original section'
+Write (u6,*)
+Write (u6,*)
 
 #ifdef _SGUGA_VERIFY_
-  Write (6,*) 'Start SGUGA section'
+  Write (u6,*) 'Start SGUGA section'
   nCSF=CIS(istate)%nCSF(STSym)
   Call mma_allocate(temp1,nDet,Label='temp1')
   Call mma_allocate(temp2,nDet,Label='temp2')
@@ -360,6 +362,61 @@ Write (6,*) 'End SGUGA section'
 Write (6,*) '==========================================='
 Write (6,*)
 #endif
+
+#ifdef _SGUGA_VERIFY_
+Contains
+
+subroutine ci_full_det(nDet,STSym, &
+                       TUVX,nTUVX, &
+                       TU,nTU, &
+                       Full)
+use constants, only: Zero, One
+use lucia_data, only: IREFSM
+use cands, only: ICSM, ISSM
+
+  integer(kind=iwp), intent(in):: nDet,STSym,nTUVX,nTU
+  real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
+  real(kind=wp), intent(inout):: Full(nDet,nDet)
+
+  integer(kind=iwp) IREFSM_SAVE, iDet, jDet
+
+  real(kind=wp), allocatable :: CI_VEC(:), Sigma_VEC(:)
+
+  Call mma_allocate(CI_Vec,nDet,Label='CI_Vec')
+  Call mma_allocate(Sigma_Vec,nDet,Label='Sigma_Vec')
+
+  IREFSM_SAVE=IREFSM
+  IREFSM=STSYM
+  ICSM=STSYM
+  ISSM=STSYM
+
+  Do iDet = 1, nDet
+     CI_Vec(:) = Zero
+     CI_Vec(iDet) = One
+
+  ! Calling Lucia to determine the sigma vector
+     Sigma_Vec(:) = Zero
+     call Lucia_Util('Sigma',                   &
+                     CI_Vector=CI_Vec(:),        &
+                     Sigma_Vector=Sigma_Vec(:),   &
+                     nTU=nTU,TU=TU,        &
+                     nTUVX=nTUVX,TUVX=TUVX)
+
+     Do jDet = 1, nDet
+        Full(iDet,jDet) = Sigma_Vec(jDet)
+     End Do
+
+  End Do
+  IREFSM=IREFSM_SAVE
+  ICSM=IREFSM
+  ISSM=IREFSM
+
+  Call mma_deallocate(CI_Vec)
+  Call mma_deallocate(Sigma_Vec)
+
+  Call RecPrt('CI Matrix in SD basis',' ',Full,ndet,ndet)
+
+end subroutine ci_full_det
 #endif
 
 End Subroutine Mk_H_Psi_Det

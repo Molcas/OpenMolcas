@@ -126,7 +126,7 @@ do ion=0,nel/2
               ioff_bikcof = 1+ikcoff(nelsing,nalfsing,i2s(iS))
               ioff = i_spin
               do j_spin=1,ifnss(nelsing,i2s(iS))
-                tmp(i_det:idet+ndetvbs(nelsing,nalfsing)-1,ioff) = bikcof(ioff_bikcof:ioff_bikcof+ndetvbs(nelsing,nalfsing)-1)
+                tmp(i_det:i_det+ndetvbs(nelsing,nalfsing)-1,ioff) = bikcof(ioff_bikcof:ioff_bikcof+ndetvbs(nelsing,nalfsing)-1)
                 ioff_bikcof = ioff_bikcof+ndetvbs(nelsing,nalfsing)
                 ioff = ioff+1
               end do
