@@ -405,9 +405,9 @@ def run_test(filename, shared):
     sttime = time.time()
     if opt['parallel']:
       if cycles % 2 == 1:
-        os.environ['MOLCAS_NPROCS'] = 1
+        os.environ['MOLCAS_NPROCS'] = '1'
       else:
-        os.environ['MOLCAS_NPROCS'] = opt['parallel']
+        os.environ['MOLCAS_NPROCS'] = str(opt['parallel'])
     # if the work directory exists, remove it unless existing mode is used
     if os.path.isdir(workdir):
       if opt['existing']:
