@@ -49,7 +49,9 @@ use caspt2_module, only: DoCumulant
 #endif
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
+#ifdef _ENABLE_CHEMPS2_DMRG_
 use InputData, only: Input
+#endif
 
 implicit none
 integer(kind=iwp) :: i, iSym, left, lLine, lPaper
