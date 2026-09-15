@@ -62,6 +62,7 @@ set (sources
      compute_tr_dab.F90
      correlating_orbitals.F90
      creiph_caspt2.F90
+     cu4f3.F90
      dens1_rpt2_clag.F90
      dens1_rpt2.F90
      dens1t_rpt2_clag.F90
@@ -165,6 +166,7 @@ set (sources
      mkbnevg.F90
      mkdref_rpt2.F90
      mkfg3chemps2.F90
+     mkfg3cu4_chemps2.F90
      mkfg3cu4.F90
      mkfg3dm.F90
      mkfg3.F90

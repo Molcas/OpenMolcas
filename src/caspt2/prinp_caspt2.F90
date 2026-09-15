@@ -49,6 +49,7 @@ use caspt2_module, only: DoCumulant
 #endif
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
+use InputData, only: Input
 
 implicit none
 integer(kind=iwp) :: i, iSym, left, lLine, lPaper
@@ -126,7 +127,13 @@ if (iprglb >= USUAL) then
 #     ifdef _ENABLE_BLOCK_DMRG_
       if (DoCumulant) write(u6,fmt1) 'Using 4-RDM cumulant approximation, activated by 3RDM keyword in RASSCF'
 #     elif _ENABLE_CHEMPS2_DMRG_
-      if (DoCumulant) write(u6,fmt1) 'This is a DMRG reference with exact 4-RDM, activated by 3RDM keyword in RASSCF'
+      if (DoCumulant) then
+        if (Input%DoApproRDM) then
+          write(u6,fmt1) 'This is a DMRG reference with an approximate 4-RDM, activated by CHCU in CASPT2'
+        else
+          write(u6,fmt1) 'This is a DMRG reference with exact 4-RDM, activated by 3RDM keyword in RASSCF'
+        end if
+      end if
 #     elif _DMRG_
       if (DMRG) then
         write(u6,fmt1) 'This is a DMRG reference wave function, from QCMaquis'

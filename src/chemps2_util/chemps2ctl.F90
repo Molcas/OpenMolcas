@@ -23,8 +23,9 @@ use MPI_Wrapper, only: MPI_COMM_WORLD
 use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
-use rasscf_global, only: CBLBM, chemps2_blb, chemps2_lrestart, chemps2_noise, chemps2_restart, davidson_tol, Do3RDM, ENER, &
-                         iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, MxDMRG, NAC, THRE, hfocc
+use rasscf_global, only: CBLBM, chemps2_blb, chemps2_can, chemps2_lrestart, chemps2_no4rdm, chemps2_noise, chemps2_restart, &
+                         davidson_tol, Do3RDM, ENER, iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, &
+                         MxDMRG, NAC, THRE, hfocc
 use general_data, only: ISPIN, NACTEL, NASH, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten, Half
@@ -46,6 +47,11 @@ character(len=3) :: Label
 character(len=10) :: rootindex
 character(len=100) :: imp1, imp2
 integer(kind=iwp), external :: isFreeUnit
+
+! A noncanonical calculation must reuse the last optimized (natural-orbital)
+! MPS when the final RDMs are evaluated.  This replaces the separate,
+! largely duplicated Chemps2Ctl_nocan routine in the original implementation.
+if (.not. chemps2_can) chemps2_lrestart = 2
 
 ! Quan: FIXME: Do we need this?
 ! Load symmetry info from RunFile
@@ -118,7 +124,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
       end if
     end if
     ! Check if checkpoint files for 3RDM exist
-    if (chemps2_lrestart == 1) then
+    if (chemps2_can .and. (chemps2_lrestart == 1)) then
       call f_inquire('CHEMCANFIE',fiedler)
       call f_inquire('CHEMCANMPS0',mps0)
       if (fiedler .and. mps0) then
@@ -146,7 +152,7 @@ write(LUCHEMIN,*)
 
 if (((abs(CBLBM) > chemps2_blb) .and. (IFINAL /= 2)) .or. &
     ((IRST == 0) .and. (.not. chemps2_restart)) .or. &
-    ((IFINAL == 2) .and. Do3RDM .and. (chemps2_lrestart == 0)) .or. &
+    ((IFINAL == 2) .and. Do3RDM .and. chemps2_can .and. (chemps2_lrestart == 0)) .or. &
     ((IFINAL == 2) .and. (iOrbTyp == 2) .and. (chemps2_lrestart == 0))) then
 
   imp1 = 'molcas_fiedler.txt'
@@ -334,9 +340,14 @@ else
 end if
 
 if ((IFINAL == 2) .and. Do3RDM .and. (NACTEL > 2)) then
-  write(u6,*) 'CHEMPS2> Running 3-RDM and F.4-RDM'
+  write(u6,*) 'CHEMPS2> Running 3-RDM'
   write(LUCHEMIN,*) 'MOLCAS_3RDM    = molcas_3rdm.h5'
-  write(LUCHEMIN,*) 'MOLCAS_F4RDM   = molcas_f4rdm.h5'
+  if (chemps2_no4rdm) then
+    write(u6,*) 'CHEMPS2> F.4-RDM calculation disabled'
+  else
+    write(u6,*) 'CHEMPS2> Running F.4-RDM'
+    write(LUCHEMIN,*) 'MOLCAS_F4RDM   = molcas_f4rdm.h5'
+  end if
   write(LUCHEMIN,*) 'MOLCAS_FOCK    = FOCK_CHEMPS2'
 end if
 
@@ -355,7 +366,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
   ! Quan: overwrite CheMPS2_xxxorb_MPSX.h5 to CheMPS2_MPSX.h5
   if (((IFINAL == 2) .and. Do3RDM .and. (chemps2_lrestart > 0)) .or. &
       ((IFINAL == 2) .and. (iOrbTyp == 2) .and. (chemps2_lrestart > 0))) then
-    if (chemps2_lrestart == 1) then
+    if (chemps2_can .and. (chemps2_lrestart == 1)) then
       write(u6,*) 'CHEMPS2> Using user-supplied checkpoint files'
       call fcopy('CHEMCANFIE','CHEMFIE',iErr)
       do chemroot=1,lroots
@@ -367,7 +378,11 @@ if (KING() .or. (.not. Is_Real_Par())) then
     end if
 
     if (chemps2_lrestart == 2) then
-      write(u6,*) 'CHEMPS2> Using checkpoint files from previous step (not recommended)'
+      if (chemps2_can) then
+        write(u6,*) 'CHEMPS2> Using checkpoint files from previous step (not recommended)'
+      else
+        write(u6,*) 'CHEMPS2> Using noncanonical checkpoint files from previous step'
+      end if
       call fcopy('CHEMNATFIE','CHEMFIE',iErr)
       do chemroot=1,lroots
         write(rootindex,'(i2)') chemroot-1
@@ -389,7 +404,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
   call systemf('cat chemps2.log >> chemps2.log.total',iErr)
 
   ! Quan: save natorb checkpoint file in all iteration
-  if (IFINAL < 2) then
+  if ((IFINAL < 2) .or. (.not. chemps2_can)) then
     if (IFINAL == 1) then
       write(u6,*) 'CHEMPS2> Save natorb checkpoint files'
     end if
@@ -403,7 +418,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
   end if
 
   ! Quan: save canorb checkpoint file if possible
-  if (((IFINAL == 2) .and. Do3RDM) .or. ((IFINAL == 2) .and. (iOrbTyp == 2))) then
+  if (chemps2_can .and. (((IFINAL == 2) .and. Do3RDM) .or. ((IFINAL == 2) .and. (iOrbTyp == 2)))) then
 
     write(u6,*) 'CHEMPS2> Save canorb checkpoint files'
     call fcopy('CHEMFIE','CHEMCANFIE',iErr)
@@ -437,9 +452,15 @@ if (Is_Real_Par() .and. (.not. KING())) then
     write(rootindex,'(i2)') chemroot-1
     imp1 = 'ln -sf ../molcas_2rdm.h5.r'//trim(adjustl(rootindex))//' .'
     call systemf(imp1,iErr)
+    imp1 = 'ln -sf ../molcas_2rdm.h5.r'//trim(adjustl(rootindex))//'.tran .'
+    call systemf(imp1,iErr)
     imp1 = 'ln -sf ../molcas_3rdm.h5.r'//trim(adjustl(rootindex))//' .'
     call systemf(imp1,iErr)
+    imp1 = 'ln -sf ../molcas_3rdm.h5.r'//trim(adjustl(rootindex))//'.tran .'
+    call systemf(imp1,iErr)
     imp1 = 'ln -sf ../molcas_f4rdm.h5.r'//trim(adjustl(rootindex))//' .'
+    call systemf(imp1,iErr)
+    imp1 = 'ln -sf ../molcas_f4rdm.h5.r'//trim(adjustl(rootindex))//'.tran .'
     call systemf(imp1,iErr)
     imp1 = 'ln -sf ../CheMPS2_natorb_MPS0.h5 .'
     call systemf(imp1,iErr)

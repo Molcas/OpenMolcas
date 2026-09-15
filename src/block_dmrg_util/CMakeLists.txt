@@ -12,7 +12,6 @@
 set (sources
      block_densi_rasscf.F90
      blockctl.F90
-     cu4f3.F90
      mkxmat.F90
 )
 

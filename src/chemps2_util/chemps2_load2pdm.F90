@@ -14,7 +14,7 @@
 ! Subroutine to load 2RDM
 ! Written by Quan Phung and Sebastian Wouters, Leuven, Aug 2016
 
-subroutine chemps2_load2pdm(NAC,PT,CHEMROOT)
+subroutine chemps2_load2pdm(NAC,PT,CHEMROOT,TRANS)
 
 use mh5, only: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -26,11 +26,13 @@ real(kind=wp), intent(out) :: PT(NAC,NAC,NAC,NAC)
 character(len=30) :: file_2rdm
 character(len=10) :: rootindex
 integer(kind=iwp) :: file_h5, group_h5, i, j, k, l, idx
+logical(kind=iwp), intent(in) :: TRANS
 logical(kind=iwp) :: irdm
 real(kind=wp), allocatable :: two_rdm(:)
 
 write(rootindex,'(i2)') chemroot-1
 file_2rdm = 'molcas_2rdm.h5.r'//trim(adjustl(rootindex))
+if (TRANS) file_2rdm = trim(file_2rdm)//'.tran'
 file_2rdm = trim(adjustl(file_2rdm))
 call f_inquire(file_2rdm,irdm)
 if (.not. irdm) then
