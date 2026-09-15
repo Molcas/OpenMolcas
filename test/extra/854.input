@@ -1,0 +1,106 @@
+*-------------------------------------------------------------------------------
+* Molecule: C5H5-
+* Basis: ANO-RCC-MB
+* Symmetry: C2v
+* Features tested: Noncanonical CheMPS2 cumulant CASPT2 without F.4-RDM
+* Responsible person: Quan Phung
+* Comments: Only run test if CheMPS2 is installed
+*-------------------------------------------------------------------------------
+* Test if CheMPS2 is available and skip the test if not
+>> RM -FORCE TEST_CHEMPS2
+>> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>>   EXPORT MOLCAS_DRIVER=molcas
+>> ENDIF
+>> SHELL $MOLCAS_DRIVER have_feature chemps2 || touch TEST_CHEMPS2
+>> IF ( -FILE TEST_CHEMPS2 )
+>>   EXIT 36
+>> ENDIF
+
+&GATEWAY
+Title
+Cyclopentadienyl
+Coord
+10
+converted from coord at Wed Jun 29 2011
+C      1.197107    0.000000    0.000000
+C      0.369926    1.138516    0.000000
+C     -0.968480    0.703642    0.000000
+C     -0.968480   -0.703642    0.000000
+C      0.369926   -1.138516    0.000000
+H      2.282826    0.000000    0.000000
+H      0.705432    2.171097    0.000000
+H     -1.846845    1.341812    0.000000
+H     -1.846845   -1.341812    0.000000
+H      0.705432   -2.171097    0.000000
+Basis
+ANO-RCC-MB
+
+&SEWARD
+Medium
+
+&SCF
+Charge = -1
+
+&RASSCF
+LumOrb
+Spin = 1
+Symmetry = 1
+nActEl = 4 0 0
+Inactive = 9 6 0 1
+Ras2 = 0 0 2 2
+CIROOT = 1 1 ; 1
+DMRG = 1000
+3RDM
+NO4RDM
+CHNOcanonical
+HFOC = 2 0 2 0
+
+&CASPT2
+CheMPS2
+CHCUmulant
+MULT = 1 1
+NOMUltistate
+CHTRansform
+
+>>FILE checkfile
+* Molcas version 25.10-102-gc28c631d6
+* The transformed noncanonical result should reproduce extra:853 root 1.
+#>>   1
+#> POTNUC="149.541347541017"/12
+#>>   2
+#> SEWARD_MLTPL1X="2.262204373407"/5
+#> SEWARD_KINETIC="75836.251500000013"/5
+#> SEWARD_ATTRACT="-2161.433750189271"/5
+#> POTNUC="149.541347541017"/12
+#> SEWARD_MLTPL1X="2.262204373407"/5
+#> SEWARD_KINETIC="16.088985800456"/5
+#> SEWARD_ATTRACT="-42.604916305029"/5
+#>>   3
+#> SCF_ITER="10"/8
+#> E_SCF="-192.064891899794"/6
+#> MLTPL__0="-1.000000000000"/3
+#> MLTPL__1[0]="-0.000005163459"/3
+#> MLTPL__1[1]="0.0"/3
+#> MLTPL__1[2]="0.0"/3
+#> MLTPL__2[0]="-0.367192026682"/3
+#> MLTPL__2[1]="0.0"/3
+#> MLTPL__2[2]="0.0"/3
+#> MLTPL__2[3]="-0.367193416934"/3
+#> MLTPL__2[4]="0.0"/3
+#> MLTPL__2[5]="0.734385443616"/3
+#>>   4
+#> RASSCF_ITER="4"/8
+#> E_RASSCF="-192.101350225216"/6
+#> MLTPL__0="-1.000000000000"/3
+#> MLTPL__1[0]="-0.000003086371"/3
+#> MLTPL__1[1]="0.0"/3
+#> MLTPL__1[2]="0.0"/3
+#> MLTPL__2[0]="-0.399227360420"/3
+#> MLTPL__2[1]="0.0"/3
+#> MLTPL__2[2]="0.0"/3
+#> MLTPL__2[3]="-0.399225318460"/3
+#> MLTPL__2[4]="0.0"/3
+#> MLTPL__2[5]="0.798452678880"/3
+#>>   5
+#> E_CASPT2="-192.3336305725"/6
+>>EOF
