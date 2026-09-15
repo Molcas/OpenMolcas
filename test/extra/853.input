@@ -75,7 +75,7 @@ CHCUmulant
 lRoot = 2
 
 >>FILE checkfile
-* Molcas version 25.10-102-gc28c631d6
+* Molcas version 26.06-1260-g7a937ba63
 * Cumulant values generated from the OpenMolcas 25.10 CheMPS2 port.
 #>>   1
 #> POTNUC="149.541347541017"/12
