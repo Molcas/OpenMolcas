@@ -2744,6 +2744,19 @@ DMRG keywords
               </HELP>
               </KEYWORD>
 
+:kword:`HFOCcupations`
+  Specify an integer occupation guess for each active orbital. The entries
+  must sum to the number of active electrons. This guess is passed to the
+  Block and CheMPS2 DMRG solvers; if the sum is inconsistent, CheMPS2 falls
+  back to its noise-based initial guess.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="HFOCCUPATIONS" APPEAR="Active-orbital occupation guess (DMRG)" KIND="INTS_LOOKUP" SIZE="ANY" LEVEL="BASIC">
+              %%Keyword: HFOCcupations <basic>
+              <HELP>
+              Integer occupation guess for the active orbitals used by Block and CheMPS2.
+              </HELP>
+              </KEYWORD>
+
 Keywords for the QCMaquis DMRG interface:
 
 .. warning::
@@ -2795,6 +2808,34 @@ Keywords for the CheMPS2 DMRG interface:
               %%Keyword: 3RDM <basic>
               <HELP>
               Use this keyword to get the 3-particle and 4-particle reduced density matrices (3-RDM and F.4-RDM) for DMRG-CASPT2 with CheMPS2 interface.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CHNOcanonical`
+  Keep the final CheMPS2 wave function and reduced density matrices in the
+  optimized, noncanonical active-orbital basis. This overrides the automatic
+  pseudocanonical-orbital selection made by :kword:`3RDM` and reuses the
+  natural-orbital checkpoint for the final RDM evaluation. For a following
+  :program:`CASPT2` calculation, also specify :kword:`CHTRansform` so that the
+  external RDMs are transformed to the pseudocanonical basis used by CASPT2.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="CHNOCANONICAL" APPEAR="Keep noncanonical active orbitals (CheMPS2)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: CHNOcanonical <basic>
+              <HELP>
+              Keep CheMPS2 RDMs in the optimized noncanonical active-orbital basis.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NO4RDM`
+  Suppress calculation of the CheMPS2 Fock-contracted four-particle RDM.
+  Use this together with :kword:`3RDM` when the following
+  :program:`CASPT2` calculation uses :kword:`CHCUmulant`. The three-particle
+  RDM and the CheMPS2 Fock matrix are still generated.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NO4RDM" APPEAR="Do not calculate the CheMPS2 F.4-RDM" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: NO4RDM <basic>
+              <HELP>
+              Generate the CheMPS2 3-RDM without the F.4-RDM.
               </HELP>
               </KEYWORD>
 

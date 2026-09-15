@@ -1182,6 +1182,34 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`CHTRansform`
+  Transform CheMPS2 2-, 3-, and F.4-RDM files from the optimized
+  noncanonical active-orbital basis to the pseudocanonical basis used by
+  CASPT2. Use this together with :kword:`CHNOcanonical` in the preceding
+  :program:`RASSCF` input. The transformed tensors are written to separate
+  files with a ``.tran`` suffix; the original CheMPS2 RDM files are retained.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="CHTRANSFORM" APPEAR="Transform noncanonical CheMPS2 RDMs" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: CHTRansform <basic>
+              <HELP>
+              Transform noncanonical CheMPS2 RDMs to the pseudocanonical CASPT2 basis.
+              </HELP>
+              </KEYWORD>
+
+:kword:`CHCUmulant`
+  Use the CheMPS2 three-particle RDM to reconstruct the Fock-contracted
+  four-particle RDM with the fourth-order cumulant approximation. Use this
+  together with :kword:`CHEMps2`; in the preceding :program:`RASSCF` input,
+  use :kword:`3RDM` and :kword:`NO4RDM`. If noncanonical active orbitals are
+  retained with :kword:`CHNOcanonical`, also use :kword:`CHTRansform`.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="CHCUMULANT" APPEAR="Cumulant approximation for CheMPS2 F.4-RDM" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: CHCUmulant <basic>
+              <HELP>
+              Reconstruct the CheMPS2 F.4-RDM contribution from lower-order RDMs.
+              </HELP>
+              </KEYWORD>
+
 
 :kword:`CUMUlant`
   Activate DMRG-cu(4)-CASPT2 calculation with |molcas|--Block interface.
