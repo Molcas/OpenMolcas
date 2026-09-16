@@ -203,7 +203,7 @@ integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
-public :: SG_EpqEqp_Diag
+public :: SG_EpqEqp_Diag, test_sg_csfdet
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
@@ -3598,5 +3598,396 @@ End Do
 End Do
 
 end subroutine MK_FLAT_Epq
+
+subroutine sg_csfdet( nopen,     &
+                         ndet,      &
+                         detspin,      &
+                         ncsf,      &
+                         twos,      &
+                         cdc )
+
+use Constants, only: Half, One, Two, Zero
+use Definitions, only: wp, iwp
+
+implicit none
+
+integer(iwp), intent(in)  :: nopen
+integer(iwp), intent(in)  :: ndet
+integer(iwp), intent(in)  :: ncsf
+integer(iwp), intent(in)  :: detspin(nopen,ndet)
+integer(iwp), intent(in)  :: twos(0:nopen,ncsf)
+
+real(wp), intent(out) :: cdc(ndet,ncsf)
+
+integer(iwp) :: idet
+integer(iwp) :: icsf
+integer(iwp) :: i
+
+real(wp) :: coef, norm
+real(wp) :: sign
+real(wp) :: s
+real(wp) :: m(nopen)
+
+logical :: up
+
+write(u6,*)
+write(u6,*) '========================================'
+write(u6,*) ' SG_CSFDET'
+write(u6,*) '========================================'
+write(u6,*) ' NOPEN, nDet, nCSF = ',nopen,ndet,ncsf
+write(u6,*)
+
+do idet=1,ndet
+   call det_mchain(nopen,detspin(:,idet),m)
+
+#ifdef _DEBUGPRINT_
+   write(u6,*)
+   write(u6,*) '----------------------------------------'
+   write(u6,*) ' Determinant ',idet
+   write(u6,*) '----------------------------------------'
+   write(u6,'(A,100I3)') ' DETSPIN = ', (detspin(i,idet),i=1,nopen)
+   write(u6,'(A,100F8.3)') ' MCHAIN  = ', (m(i),i=1,nopen)
+#endif
+
+   do icsf=1,ncsf
+
+#ifdef _DEBUGPRINT_
+      write(u6,*)
+      write(u6,*) ' CSF = ',icsf
+      write(u6,'(A,100I3)') ' TWOS = ', (twos(i,icsf),i=0,nopen)
+      write(u6,'(A)',advance='no')
+      write(u6,*) ' SCHAIN:'
+      do i=1,nopen
+         write(u6,'(I4,F10.4)') i,0.5_wp*real(twos(i,icsf),wp)
+      end do
+#endif
+
+      coef = One
+      sign = One
+
+      do i=1,nopen
+         s = Half*real(twos(i,icsf),wp)
+         ! walk step:
+         ! twos(i)=twos(i-1)+1  => up
+         ! twos(i)=twos(i-1)-1  => down
+
+         up = (twos(i,icsf) > twos(i-1,icsf))
+         if (up) then
+            if (detspin(i,idet) == 1) then
+               coef = coef*(s+m(i)) / (Two*s)
+            else
+               coef = coef*(s-m(i)) / (Two*s)
+            end if
+
+         else
+
+            if (detspin(i,idet) == 1) then
+               coef = coef*(s-m(i)+One) / (Two*s+Two)
+               sign = -sign
+            else
+               coef = coef*(s+m(i)+One) / (Two*s+Two)
+            end if
+
+         end if
+
+#ifdef _DEBUGPRINT_
+         write(u6,*)
+         write(u6,*) ' Step i = ',i
+         write(u6,*) ' twos(i-1) = ',twos(i-1,icsf)
+         write(u6,*) ' twos(i)   = ',twos(i,icsf)
+         write(u6,*) ' S = ',s
+         write(u6,*) ' M = ',m(i)
+
+         if (up) then
+            write(u6,*) ' walk step = UP'
+         else
+            write(u6,*) ' walk step = DOWN'
+         endif
+
+         if (detspin(i,idet) == 1) then
+            write(u6,*) ' determinant spin = ALPHA'
+         else
+            write(u6,*) ' determinant spin = BETA'
+         endif
+#endif
+
+      end do
+
+#ifdef _DEBUGPRINT_
+      write(u6,*)
+      write(u6,*) ' FINAL PRODUCT = ',coef
+      write(u6,*) ' FINAL SIGN    = ',sign
+#endif
+
+      if (coef < Zero) then
+         cdc(idet,icsf)=Zero
+      else
+         cdc(idet,icsf)=sign*sqrt(coef)
+      end if
+
+#ifdef _DEBUGPRINT_
+      write(u6,*) ' CDC(',idet,',',icsf,') = ',cdc(idet,icsf)
+#endif
+
+   end do
+end do
+
+call RecPrt('Final CDC matrix',' ',cdc,ndet,ncsf)
+
+do icsf=1,ncsf
+   norm=Zero
+
+   do idet=1,ndet
+      norm=norm+cdc(idet,icsf)**2
+   end do
+
+   if (Abs(One-Norm)>1.0e-12_wp) Then
+      write(u6,*)
+      write(u6,*) ' CSF ',icsf,' norm = ',norm
+      Call Abend()
+   End If
+
+end do
+
+contains
+subroutine det_mchain(nopen,det,m)
+
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
+implicit none
+
+integer(iwp), intent(in)  :: nopen
+integer(iwp), intent(in)  :: det(nopen)
+real(wp),     intent(out) :: m(nopen)
+
+integer(iwp) :: i
+
+m(1)=real(det(1),wp)-Half
+
+do i=2,nopen
+   m(i)=m(i-1)+real(det(i),wp)-Half
+end do
+
+end subroutine det_mchain
+
+end subroutine sg_csfdet
+
+subroutine test_sg_csfdet()
+
+use Definitions, only: wp, iwp
+
+implicit none
+
+integer(iwp), parameter :: maxopen=8
+integer(iwp) :: nopen
+integer(iwp) :: mult
+integer(iwp) :: ms2
+
+integer(iwp), allocatable :: detspin(:,:)
+integer(iwp), allocatable :: twos(:,:)
+
+real(wp), allocatable :: cdc(:,:)
+integer(iwp) :: idet, icsf, ndet, ncsf
+
+character(len=1) :: walk(Maxopen)
+character(len=1) :: str(Maxopen)
+integer(iwp) :: i
+
+write(u6,*)
+write(u6,*) '===================================='
+write(u6,*) ' TEST SG_CSFDET'
+write(u6,*) '===================================='
+write(u6,*)
+
+do nopen = 1,maxopen
+
+   write(u6,*)
+   write(u6,*) '========================================='
+   write(u6,*) 'NOPEN = ',nopen
+   write(u6,*) '========================================='
+
+   do mult = mod(nopen,2)+1, nopen+1, 2
+
+      ms2 = mult-1
+
+      write(u6,*)
+      write(u6,*) 'MULT = ',mult
+      write(u6,*) 'MS2  = ',ms2
+
+      call generate_detspin(nopen,ms2,detspin,ndet)
+      write(u6,*)
+      write(u6,*) 'Determinant strings'
+      do idet=1,ndet
+         do i=1,nopen
+            if (detspin(i,idet) == 1) then
+               str(i)='a'
+            else
+               str(i)='b'
+            end if
+         end do
+         write(u6,'(I4,2X,100A1)') idet,(str(i),i=1,nopen)
+      end do
+
+      call generate_twos(nopen,mult,twos,ncsf)
+      write(u6,*)
+      write(u6,*) 'CSF walks'
+      do icsf=1,ncsf
+         do i=1,nopen
+            if (twos(i,icsf) > twos(i-1,icsf)) then
+               walk(i)='u'
+            else
+               walk(i)='d'
+            end if
+         end do
+         write(u6,'(I4,2X,100A1)') icsf,(walk(i),i=1,nopen)
+      end do
+
+      call mma_allocate(cdc,nDet,nCSF,Label='cdc')
+      call sg_csfdet(nopen,ndet,detspin,ncsf,twos,cdc)
+
+      call mma_deallocate(detspin)
+      call mma_deallocate(twos)
+      call mma_deallocate(cdc)
+
+   end do
+
+end do
+
+end subroutine test_sg_csfdet
+
+subroutine generate_detspin(nopen,ms2,detspin,ndet)
+
+use Definitions, only: iwp
+use stdalloc,   only: mma_allocate
+
+implicit none
+
+integer(iwp), intent(in)  :: nopen, ms2
+integer(iwp), intent(out) :: ndet
+integer(iwp), allocatable, intent(out) :: detspin(:,:)
+
+integer(iwp) :: nalpha, nbeta
+integer(iwp) :: work(nOpen)
+
+nalpha = (nopen+ms2)/2
+nbeta  = (nopen-ms2)/2
+
+ndet = 0
+call count_det(1,nalpha,nbeta)
+
+call mma_allocate(detspin,nopen,ndet,Label='detspin')
+
+ndet = 0
+call build_det(1,nalpha,nbeta)
+
+
+contains
+
+recursive subroutine count_det(i,na,nb)
+
+integer(iwp), intent(in) :: i, na, nb
+
+if (i > nopen) then
+   ndet = ndet + 1
+   return
+end if
+
+if (na > 0) call count_det(i+1,na-1,nb)
+if (nb > 0) call count_det(i+1,na,nb-1)
+
+end subroutine count_det
+
+recursive subroutine build_det(i,na,nb)
+
+integer(iwp), intent(in) :: i, na, nb
+
+if (i > nopen) then
+   ndet = ndet + 1
+   detspin(:,ndet) = work(:)
+   return
+end if
+
+if (na > 0) then
+   work(i) = 1
+   call build_det(i+1,na-1,nb)
+end if
+
+if (nb > 0) then
+   work(i) = 0
+   call build_det(i+1,na,nb-1)
+end if
+
+end subroutine build_det
+
+end subroutine generate_detspin
+
+subroutine generate_twos(nopen,mult,twos,ncsf)
+
+use Definitions, only: iwp
+use stdalloc,   only: mma_allocate, mma_deallocate
+
+implicit none
+
+integer(iwp), intent(in) :: nopen, mult
+integer(iwp), intent(out) :: ncsf
+integer(iwp), allocatable, intent(out) :: twos(:,:)
+
+integer(iwp) :: work(0:nOpen)
+
+ncsf = 0
+call count_walk(0,0)
+
+call mma_allocate(twos,[0,nopen],[1,ncsf],Label='twos')
+
+work(0)=0
+
+ncsf = 0
+call build_walk(0,0)
+
+contains
+
+recursive subroutine count_walk(ilevel,s2)
+
+integer(iwp), intent(in) :: ilevel,s2
+
+if (ilevel == nopen) then
+   if (s2 == mult-1) ncsf = ncsf + 1
+   return
+end if
+
+call count_walk(ilevel+1,s2+1)
+
+if (s2 > 0) then
+      call count_walk(ilevel+1,s2-1)
+   end if
+
+end subroutine count_walk
+
+recursive subroutine build_walk(ilevel,s2)
+
+integer(iwp), intent(in) :: ilevel,s2
+
+if (ilevel == nopen) then
+
+   if (s2 == mult-1) then
+      ncsf = ncsf + 1
+      twos(:,ncsf) = work(:)
+   end if
+
+   return
+end if
+
+work(ilevel+1) = s2+1
+call build_walk(ilevel+1,s2+1)
+
+if (s2 > 0) then
+   work(ilevel+1) = s2-1
+   call build_walk(ilevel+1,s2-1)
+end if
+
+end subroutine build_walk
+
+end subroutine generate_twos
 
 end module SGUGA

@@ -167,6 +167,7 @@ End Subroutine Mk_H_Psi
 Subroutine Mk_H_Psi_Det(istate,STSYM,nDet,CI_Vec,Sigma_Vec,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
 use cands, only: ICSM, ISSM
+use sguga, only: test_sg_csfdet
 Implicit None
 
 integer(kind=iwp), intent(in):: istate, STSYM, nDet
@@ -186,6 +187,7 @@ real(kind=wp), allocatable :: Full(:,:)
 #endif
 
 #ifdef _SGUGA_VERIFY_
+Call test_sg_csfdet()
 ! Reference computation of the full CI matrix.
 ! in CSF basis
 nCSF=CIS(istate)%nCSF(STSYM)
@@ -209,10 +211,10 @@ Write (u6,*)
 Write (u6,*) '==========================================='
 Write (u6,*) 'Start Original section'
 Write (u6,*) 'STSym=',STSym
-Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
 if (DOFARO) then
 !if (.FALSE.) then
 Write (u6,*) 'Faroald Style'
+Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
 
 
   htu(:,:) = Zero
@@ -288,6 +290,7 @@ Write (u6,*) 'Faroald Style'
 else
 
   Write (u6,*) 'Lucia Style'
+  Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
   IREFSM_SAVE=IREFSM
   IREFSM=STSYM
   ICSM=STSYM
