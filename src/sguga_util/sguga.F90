@@ -3843,6 +3843,10 @@ do nopen = 1,maxopen
          write(u6,'(I4,2X,100A1)') icsf,(walk(i),i=1,nopen)
       end do
 
+      if (ms2 == mult-1) then
+         call check_twos( nopen, ndet, detspin, ncsf, twos )
+      endif
+
       call mma_allocate(cdc,nDet,nCSF,Label='cdc')
       call sg_csfdet(nopen,ndet,detspin,ncsf,twos,cdc)
 
@@ -3856,6 +3860,7 @@ end do
 
 end subroutine test_sg_csfdet
 
+
 subroutine generate_detspin(nopen,ms2,detspin,ndet)
 
 use Definitions, only: iwp
@@ -3863,131 +3868,244 @@ use stdalloc,   only: mma_allocate
 
 implicit none
 
-integer(iwp), intent(in)  :: nopen, ms2
+integer(iwp), intent(in) :: nopen
+integer(iwp), intent(in) :: ms2
+
 integer(iwp), intent(out) :: ndet
 integer(iwp), allocatable, intent(out) :: detspin(:,:)
 
-integer(iwp) :: nalpha, nbeta
-integer(iwp) :: work(nOpen)
+integer(iwp) :: ibit
+integer(iwp) :: idet
+integer(iwp) :: i
+integer(iwp) :: mx
 
-nalpha = (nopen+ms2)/2
-nbeta  = (nopen-ms2)/2
-
-ndet = 0
-call count_det(1,nalpha,nbeta)
-
-call mma_allocate(detspin,nopen,ndet,Label='detspin')
+!
+! Count determinants
+!
 
 ndet = 0
-call build_det(1,nalpha,nbeta)
+mx   = 2**nopen
 
+do ibit=0,mx-1
 
-contains
+   if (2*popcnt(ibit)-nopen == ms2) then
+      ndet = ndet + 1
+   endif
 
-recursive subroutine count_det(i,na,nb)
+enddo
 
-integer(iwp), intent(in) :: i, na, nb
+call mma_allocate(detspin,[1,nopen],[1,ndet],Label='detspin')
 
-if (i > nopen) then
-   ndet = ndet + 1
-   return
-end if
+!
+! Build determinant list
+!
 
-if (na > 0) call count_det(i+1,na-1,nb)
-if (nb > 0) call count_det(i+1,na,nb-1)
+idet = 0
 
-end subroutine count_det
+do ibit=0,mx-1
 
-recursive subroutine build_det(i,na,nb)
+   if (2*popcnt(ibit)-nopen /= ms2) cycle
 
-integer(iwp), intent(in) :: i, na, nb
+   idet = idet + 1
 
-if (i > nopen) then
-   ndet = ndet + 1
-   detspin(:,ndet) = work(:)
-   return
-end if
+   Write (6,*) 'iDet, ibit=',iDet,iBit
+   do i=1,nopen
+      detspin(i,idet) = ibits(ibit,i-1,1)
+   enddo
 
-if (na > 0) then
-   work(i) = 1
-   call build_det(i+1,na-1,nb)
-end if
-
-if (nb > 0) then
-   work(i) = 0
-   call build_det(i+1,na,nb-1)
-end if
-
-end subroutine build_det
+enddo
 
 end subroutine generate_detspin
+
 
 subroutine generate_twos(nopen,mult,twos,ncsf)
 
 use Definitions, only: iwp
-use stdalloc,   only: mma_allocate, mma_deallocate
+use stdalloc,   only: mma_allocate
 
 implicit none
 
-integer(iwp), intent(in) :: nopen, mult
+integer(iwp), intent(in) :: nopen
+integer(iwp), intent(in) :: mult
+
 integer(iwp), intent(out) :: ncsf
 integer(iwp), allocatable, intent(out) :: twos(:,:)
 
-integer(iwp) :: work(0:nOpen)
+integer(iwp) :: ibit
+integer(iwp) :: i
+integer(iwp) :: ms2l
+integer(iwp) :: mx
+integer(iwp) :: icsf
+
+logical :: upper
+
+!
+! Count walks
+!
 
 ncsf = 0
-call count_walk(0,0)
+mx   = 2**nopen
+
+do ibit=0,mx-1
+   ms2l  = 0
+   upper = .true.
+   do i=1,nopen
+      if (ibits(ibit,nopen-i,1) == 1) then
+         ms2l = ms2l + 1
+      else
+         ms2l = ms2l - 1
+      endif
+
+      if (ms2l < 0) then
+         upper = .false.
+         exit
+      endif
+   enddo
+
+   if (.not.upper) cycle
+   if (ms2l /= mult-1) cycle
+   ncsf = ncsf + 1
+
+enddo
 
 call mma_allocate(twos,[0,nopen],[1,ncsf],Label='twos')
 
-work(0)=0
+!
+! Build walks
+!
 
-ncsf = 0
-call build_walk(0,0)
+icsf = 0
+do ibit=0,mx-1
 
-contains
+   ms2l  = 0
+   upper = .true.
+   do i=1,nopen
+      if (ibits(ibit,i-1,1) == 1) then
+         ms2l = ms2l + 1
+      else
+         ms2l = ms2l - 1
+      endif
 
-recursive subroutine count_walk(ilevel,s2)
+      if (ms2l < 0) then
+         upper = .false.
+         exit
+      endif
+   enddo
 
-integer(iwp), intent(in) :: ilevel,s2
+   if (.not.upper) cycle
+   if (ms2l /= mult-1) cycle
 
-if (ilevel == nopen) then
-   if (s2 == mult-1) ncsf = ncsf + 1
-   return
-end if
+   icsf = icsf + 1
+   twos(0,icsf) = 0
+   ms2l = 0
 
-call count_walk(ilevel+1,s2+1)
+   do i=1,nopen
+      if (ibits(ibit,i-1,1) == 1) then
+         ms2l = ms2l + 1
+      else
+         ms2l = ms2l - 1
+      endif
 
-if (s2 > 0) then
-      call count_walk(ilevel+1,s2-1)
-   end if
-
-end subroutine count_walk
-
-recursive subroutine build_walk(ilevel,s2)
-
-integer(iwp), intent(in) :: ilevel,s2
-
-if (ilevel == nopen) then
-
-   if (s2 == mult-1) then
-      ncsf = ncsf + 1
-      twos(:,ncsf) = work(:)
-   end if
-
-   return
-end if
-
-work(ilevel+1) = s2+1
-call build_walk(ilevel+1,s2+1)
-
-if (s2 > 0) then
-   work(ilevel+1) = s2-1
-   call build_walk(ilevel+1,s2-1)
-end if
-
-end subroutine build_walk
+      twos(i,icsf) = ms2l
+   enddo
+enddo
 
 end subroutine generate_twos
+
+subroutine check_twos(nopen, ndet, detspin, ncsf, twos)
+
+use Definitions, only: iwp, u6
+
+implicit none
+
+integer(iwp), intent(in) :: nopen
+integer(iwp), intent(in) :: ndet
+integer(iwp), intent(in) :: ncsf
+
+integer(iwp), intent(in) :: detspin(nopen, ndet)
+integer(iwp), intent(in) :: twos(0:nopen, ncsf)
+
+integer(iwp) :: idet
+integer(iwp) :: iup
+integer(iwp) :: i
+integer(iwp) :: ms2l
+integer(iwp) :: step
+
+logical :: upper
+
+iup = 0
+
+do idet = 1, ndet
+
+   upper = .true.
+   ms2l  = 0
+
+   do i = 1, nopen
+
+      if (detspin(i, idet) == 1) then
+         ms2l = ms2l + 1
+      else
+         ms2l = ms2l - 1
+      end if
+
+      if (ms2l < 0) then
+         upper = .false.
+         exit
+      end if
+
+   end do
+
+   if (.not. upper) cycle
+
+   iup = iup + 1
+
+   if (iup > ncsf) then
+      write(u6,*) 'CHECK_TWOS FAILED'
+      write(u6,*) 'Too many upper determinants'
+      write(u6,*) 'IUP  = ', iup
+      write(u6,*) 'NCSF = ', ncsf
+      call Abend()
+   end if
+
+   do i = 1, nopen
+
+      step = twos(i,iup) - twos(i-1,iup)
+
+      if (detspin(i,idet) == 1) then
+
+         if (step /= 1) then
+            write(u6,*) 'CHECK_TWOS FAILED'
+            write(u6,*) 'IDET = ', idet
+            write(u6,*) 'IUP  = ', iup
+            write(u6,*) 'POSITION = ', i
+            call Abend()
+         end if
+
+      else
+
+         if (step /= -1) then
+            write(u6,*) 'CHECK_TWOS FAILED'
+            write(u6,*) 'IDET = ', idet
+            write(u6,*) 'IUP  = ', iup
+            write(u6,*) 'POSITION = ', i
+            call Abend()
+         end if
+
+      end if
+
+   end do
+
+end do
+
+if (iup /= ncsf) then
+   write(u6,*) 'CHECK_TWOS FAILED'
+   write(u6,*) 'Number of upper determinants /= number of CSFs'
+   write(u6,*) 'IUP  = ', iup
+   write(u6,*) 'NCSF = ', ncsf
+   call Abend()
+end if
+
+end subroutine check_twos
+
 
 end module SGUGA
