@@ -3,7 +3,7 @@
 * Basis: ANO-RCC-MB
 * Symmetry: C2v
 * Features tested: Noncanonical CheMPS2 cumulant CASPT2 numerical gradient
-* Responsible person: Quan Phung
+* Responsible person: Vic Austen
 * Comments: Numerical gradient restricted to one C-C bond (two displacements)
 *-------------------------------------------------------------------------------
 * Test if CheMPS2 is available and skip the test if not

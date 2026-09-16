@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2018, Quan Phung                                       *
+!               2026, Vic Austen                                       *
 !***********************************************************************
 ! Load all elements of a CheMPS2 3-RDM. The flattened ordering is the
 ! native CheMPS2 ordering: p1,p2,p3,q1,q2,q3.

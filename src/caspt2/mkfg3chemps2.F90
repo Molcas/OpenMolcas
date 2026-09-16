@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2016, Sebastian Wouters                                *
 !               2016, Quan Phung                                       *
+!               2026, Vic Austen                                       *
 !***********************************************************************
 
 #include "compiler_features.h"

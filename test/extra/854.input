@@ -3,7 +3,7 @@
 * Basis: ANO-RCC-MB
 * Symmetry: C2v
 * Features tested: Noncanonical CheMPS2 cumulant CASPT2 without F.4-RDM
-* Responsible person: Quan Phung
+* Responsible person: Vic Austen
 * Comments: Only run test if CheMPS2 is installed
 *-------------------------------------------------------------------------------
 * Test if CheMPS2 is available and skip the test if not

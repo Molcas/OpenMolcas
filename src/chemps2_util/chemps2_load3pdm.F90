@@ -10,9 +10,11 @@
 !                                                                      *
 ! Copyright (C) 2016, Sebastian Wouters                                *
 !               2016, Quan Phung                                       *
+!               2026, Vic Austen                                       *
 !***********************************************************************
 ! Subroutine to load 3-RDM and F4-RDM
 ! Written by Quan Phung and Sebastian Wouters, Leuven, Aug 2016
+! Adapted to Molcas 26.06 by Vic Austen, Nagoya, Sep 2026
 
 subroutine chemps2_load3pdm(NAC,idxG3,NG3,storage,doG3,EPSA,F2,chemroot,TRANS)
 

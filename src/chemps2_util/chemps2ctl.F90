@@ -10,11 +10,13 @@
 !                                                                      *
 ! Copyright (C) 2016, Sebastian Wouters                                *
 !               2016, Quan Phung                                       *
+!               2026, Vic Austen                                       *
 !***********************************************************************
 ! CheMPS2-Molcas main interface
 ! Based on Block interface, written by N. Nakatani
 ! Written by Quan Phung and Sebastian Wouters, Leuven, Aug 2016
 ! Adapted for Molcas 8.1 by Quan Phung, Leuven, Oct 2016
+! Adapted for OpenMolcas 26.06 by Vic Austen, Nagoya, Sept 2026
 
 subroutine Chemps2Ctl(W1,TUVX,IFINAL,IRST)
 
