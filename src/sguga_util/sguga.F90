@@ -203,7 +203,11 @@ integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
-public :: SG_EpqEqp_Diag, test_sg_csfdet
+public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos
+!#define _TEST_CSFDET_
+#ifdef _TEST_CSFDET_
+public :: test_sg_csfdet
+#endif
 
 ! Set nPack to the number of cases (2 bit per case) that can be packed in one integer.
 #ifdef SIZE_INITIALIZATION
@@ -3773,6 +3777,7 @@ end subroutine det_mchain
 
 end subroutine sg_csfdet
 
+#ifdef _TEST_CSFDET_
 subroutine test_sg_csfdet()
 
 use Definitions, only: wp, iwp
@@ -3788,7 +3793,10 @@ integer(iwp), allocatable :: detspin(:,:)
 integer(iwp), allocatable :: twos(:,:)
 
 real(wp), allocatable :: cdc(:,:)
-integer(iwp) :: idet, icsf, ndet, ncsf
+integer(iwp) :: ndet, ncsf
+
+#ifdef _DEBUGPRINT_
+integer(iwp) :: idet, icsf
 
 character(len=1) :: walk(Maxopen)
 character(len=1) :: str(Maxopen)
@@ -3799,23 +3807,29 @@ write(u6,*) '===================================='
 write(u6,*) ' TEST SG_CSFDET'
 write(u6,*) '===================================='
 write(u6,*)
+#endif
 
 do nopen = 1,maxopen
 
+#ifdef _DEBUGPRINT_
    write(u6,*)
    write(u6,*) '========================================='
    write(u6,*) 'NOPEN = ',nopen
    write(u6,*) '========================================='
+#endif
 
    do mult = mod(nopen,2)+1, nopen+1, 2
 
       ms2 = mult-1
 
+#ifdef _DEBUGPRINT_
       write(u6,*)
       write(u6,*) 'MULT = ',mult
       write(u6,*) 'MS2  = ',ms2
+#endif
 
       call generate_detspin(nopen,ms2,detspin,ndet)
+#ifdef _DEBUGPRINT_
       write(u6,*)
       write(u6,*) 'Determinant strings'
       do idet=1,ndet
@@ -3828,8 +3842,10 @@ do nopen = 1,maxopen
          end do
          write(u6,'(I4,2X,100A1)') idet,(str(i),i=1,nopen)
       end do
+#endif
 
       call generate_twos(nopen,mult,twos,ncsf)
+#ifdef _DEBUGPRINT_
       write(u6,*)
       write(u6,*) 'CSF walks'
       do icsf=1,ncsf
@@ -3842,10 +3858,13 @@ do nopen = 1,maxopen
          end do
          write(u6,'(I4,2X,100A1)') icsf,(walk(i),i=1,nopen)
       end do
+#endif
 
+#ifdef _TEST_CODE_
       if (ms2 == mult-1) then
          call check_twos( nopen, ndet, detspin, ncsf, twos )
       endif
+#endif
 
       call mma_allocate(cdc,nDet,nCSF,Label='cdc')
       call sg_csfdet(nopen,ndet,detspin,ncsf,twos,cdc)
@@ -3859,6 +3878,7 @@ do nopen = 1,maxopen
 end do
 
 end subroutine test_sg_csfdet
+#endif
 
 
 subroutine generate_detspin(nopen,ms2,detspin,ndet)
@@ -3908,7 +3928,6 @@ do ibit=0,mx-1
 
    idet = idet + 1
 
-   Write (6,*) 'iDet, ibit=',iDet,iBit
    do i=1,nopen
       detspin(i,idet) = ibits(ibit,i-1,1)
    enddo
@@ -4012,6 +4031,7 @@ enddo
 
 end subroutine generate_twos
 
+#ifdef _TEST_CODE_
 subroutine check_twos(nopen, ndet, detspin, ncsf, twos)
 
 use Definitions, only: iwp, u6
@@ -4106,6 +4126,7 @@ if (iup /= ncsf) then
 end if
 
 end subroutine check_twos
+#endif
 
 
 end module SGUGA
