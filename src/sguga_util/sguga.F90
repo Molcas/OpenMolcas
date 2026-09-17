@@ -34,6 +34,8 @@ type CDCInfo
    integer(kind=iwp) :: nCSF = 0
    integer(kind=iwp) :: nClosed = 0
    integer(kind=iwp) :: nClosedOCP = 0
+   integer(kind=iwp), allocatable :: nOpenOCP(:)
+   integer(kind=iwp), allocatable :: nOCP(:)
 
    integer(kind=iwp), allocatable :: DetSpin(:,:)
    integer(kind=iwp), allocatable :: Twos(:,:)
@@ -918,6 +920,8 @@ subroutine SG_Free(iState)
 
 integer(kind=iwp), intent(in):: iState
 
+integer(kind=iwp) :: iOpen, mult
+
 If (.Not.State_is_used(iState)) Return
 
 Associate (SGS=>SGS(iState),CIS=>CIS(iState),EXS=>EXS(iState))
@@ -933,7 +937,29 @@ call mma_deallocate(SGS%LTV,safe='*')
 call mma_deallocate(SGS%DAW,safe='*')
 call mma_deallocate(SGS%RAW,safe='*')
 call mma_deallocate(SGS%Ver,safe='*')
-deallocate(SGS%CDCInfo)
+
+if (allocated(SGS%CDCInfo)) then
+
+   do iOpen = lbound(SGS%CDCInfo,1), ubound(SGS%CDCInfo,1)
+
+      do mult = lbound(SGS%CDCInfo,2), ubound(SGS%CDCInfo,2)
+
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOpenOCP,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCP,safe='*')
+
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%detspin,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%twos,safe='*')
+
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%cdc,safe='*')
+
+      end do
+
+   end do
+
+   deallocate(SGS%CDCInfo)
+
+endif
+
 nullify(SGS%DRTP,SGS%DOWNP)
 
 call mma_deallocate(CIS%NOW,safe='*')
@@ -971,14 +997,21 @@ use second_quantization, only: binomial=>binom_coef
 
 type(SGStruct), intent(inout) :: SGS
 
-integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, nClosed
+integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, nClosed, MinOpen, MaxOpen, iSym
+integer(kind=iwp), allocatable :: detspin(:,:)
+integer(kind=iwp), allocatable :: twos(:,:)
 
 allocate(SGS%CDCInfo(0:SGS%nLev,1:SGS%nLev+1))
 SGS%CDCInfo(:,:)%nDet = 0
 
 
 mult = SGS%iSpin
-do iOpen = 0, SGS%nLev
+
+MinOpen = mult - 1
+MaxOpen = SGS%nActEl
+if (mod(MaxOpen-MinOpen,2) /= 0) MaxOpen = MaxOpen - 1
+
+do iOpen = MinOpen, MaxOpen, 2
 
    ms2 = mult-1
 
@@ -993,21 +1026,84 @@ do iOpen = 0, SGS%nLev
    SGS%CDCInfo(iOpen,Mult)%nClosed    = nClosed
    SGS%CDCInfo(iOpen,Mult)%nClosedOCP = binomial(nClosed,SGS%nLev-iOpen)
 
+   allocate(SGS%CDCInfo(iOpen,mult)%nOCP(SGS%nSym))
+   allocate(SGS%CDCInfo(iOpen,mult)%nOpenOCP(SGS%nSym))
+   SGS%CDCInfo(iOpen,mult)%nOpenOCP(:)=0
+
+   call Count_OpenShell_OCPs(SGS%ISm,      &
+                             SGS%nLev,     &
+                             iOpen,        &
+                             SGS%nSym,     &
+                             SGS%CDCInfo(iOpen,mult)%nOpenOCP )
+
+   SGS%CDCInfo(iOpen,mult)%nOCP(:) = SGS%CDCInfo(iOpen,mult)%nOpenOCP(:) * SGS%CDCInfo(iOpen,mult)%nClosedOCP
+
+   if (SGS%CDCInfo(iOpen,mult)%nDet > 0 .and. &
+       SGS%CDCInfo(iOpen,mult)%nCSF > 0) then
+
+      call generate_detspin(iOpen, mult-1, detspin, nDet)
+
+      call generate_twos(iOpen, mult, twos, nCSF)
+
+      call mma_allocate( &
+         SGS%CDCInfo(iOpen,mult)%CDC, &
+         nDet, nCSF, &
+         Label='CDC')
+
+      call sg_csfdet( &
+         iOpen,  &
+         nDet,   &
+         detspin,&
+         nCSF,   &
+         twos,   &
+         SGS%CDCInfo(iOpen,mult)%CDC )
+
+      call mma_deallocate(detspin)
+      call mma_deallocate(twos)
+
+   endif
+
+   do iSym=1,SGS%nSym
+
+      if (SGS%CDCInfo(iOpen,mult)%nOCP(iSym) /= &
+          SGS%CDCInfo(iOpen,mult)%nOpenOCP(iSym) * &
+          SGS%CDCInfo(iOpen,mult)%nClosedOCP) then
+
+         call Abend()
+
+      endif
+
+   enddo
+
+   if (sum(SGS%CDCInfo(iOpen,mult)%nOpenOCP) /= binomial(iOpen,SGS%nLev)) then
+      call Abend()
+   endif
+
 end do
 
 write(u6,*)
 write(u6,*) ' ===== CDC TABLE ====='
-do iOpen = 0, SGS%nLev
+do iOpen = MinOpen, MaxOpen, 2
 write(u6,'(A,I3,A,I3,A,I6,A,I6,A,I6)') &
    'NOPEN=',iOpen, &
    ' MULT=',SGS%iSpin, &
    ' NDET=',SGS%CDCInfo(iOpen,mult)%nDet, &
    ' NCSF=',SGS%CDCInfo(iOpen,mult)%nCSF, &
    ' NCLOCP=',SGS%CDCInfo(iOpen,mult)%nClosedOCP
+write(u6,'(A,8I8)') &
+   'NOPENOCP:',SGS%CDCInfo(iOpen,mult)%nOpenOCP(:)
+write(u6,'(A,8I8)') &
+   'NOCP    :',SGS%CDCInfo(iOpen,mult)%nOCP(:)
+write(u6,*) 'CDC: NOPEN=',iOpen, &
+            ' MULT=',mult, &
+            ' SIZE=', &
+            size(SGS%CDCInfo(iOpen,mult)%CDC,1), &
+            size(SGS%CDCInfo(iOpen,mult)%CDC,2)
 end do
 write(u6,*)
 
 contains
+
 subroutine count_detspin(nopen,ms2,ndet)
 
 use Definitions, only: iwp
@@ -1078,7 +1174,75 @@ do ibit=0,mx-1
 enddo
 
 end subroutine count_twos
+
 end subroutine Mk_CDC
+
+subroutine Count_OpenShell_OCPs(ISm,nLev,nOpen,nSym,nOpenOCP)
+
+use second_quantization, only: binomial=>binom_coef
+use Symmetry_Info, only: Mul
+use Definitions,   only: iwp
+
+implicit none
+
+integer(iwp), intent(in)  :: nLev
+integer(iwp), intent(in)  :: nOpen
+integer(iwp), intent(in)  :: nSym
+integer(iwp), intent(in)  :: ISm(nLev)
+
+integer(iwp), intent(out) :: nOpenOCP(nSym)
+
+nOpenOCP(:) = 0
+
+if (nOpen == 0) then
+   nOpenOCP(1) = 1
+   return
+endif
+
+call recurse(1,1,1)
+
+if (sum(nOpenOCP) /= binomial(nOpen,nLev)) then
+   write(u6,*) 'Count_OpenShell_OCPs failed'
+   write(u6,*) 'NOPEN = ',nOpen
+   write(u6,*) 'SUM(NOPENOCP) = ',sum(nOpenOCP)
+   write(u6,*) 'EXPECTED      = ',binomial(nOpen,nLev)
+   call Abend()
+endif
+
+if (any(nOpenOCP < 0)) then
+   write(u6,*) 'Count_OpenShell_OCPs failed'
+   write(u6,*) 'Negative count encountered'
+   call Abend()
+endif
+
+
+contains
+
+   recursive subroutine recurse(iPicked,iStart,iSymProd)
+
+      integer(iwp), intent(in) :: iPicked
+      integer(iwp), intent(in) :: iStart
+      integer(iwp), intent(in) :: iSymProd
+
+      integer(iwp) :: i
+
+      if (iPicked > nOpen) then
+         nOpenOCP(iSymProd) = nOpenOCP(iSymProd) + 1
+         return
+      endif
+
+      do i=iStart,nLev-(nOpen-iPicked)
+
+         call recurse( &
+            iPicked+1, &
+            i+1, &
+            Mul(iSymProd,ISm(i)) )
+
+      enddo
+
+   end subroutine recurse
+
+end subroutine Count_OpenShell_OCPs
 
 subroutine MKCOT(SGS,CIS)
 ! For INIT==0
