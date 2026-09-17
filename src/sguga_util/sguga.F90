@@ -27,6 +27,16 @@ private
 
 integer(kind=iwp) :: iq, NCP_Max
 
+type CDCInfo
+   integer(kind=iwp) :: nDet = 0
+   integer(kind=iwp) :: nCSF = 0
+
+   integer(kind=iwp), allocatable :: DetSpin(:,:)
+   integer(kind=iwp), allocatable :: Twos(:,:)
+
+   real(kind=wp), allocatable :: CDC(:,:)
+end type CDCInfo
+
 ! Split-Graph descriptor, sizes, addresses...
 !
 ! Ism(:): Symmetry label of each graph level.
@@ -53,6 +63,7 @@ type SGStruct
   integer(kind=iwp) :: L2ACT(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: NRAS(MxSym,MxGAS), NRASEL(MxGAS), nRsPrt=0
+  type(CDCInfo), allocatable :: CDCInfo(:,:)
 end type SGStruct
 
 ! index for DRT
@@ -813,6 +824,9 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
 
   call MK_FLAT_Epq(SGS(iState))
 
+    ! Generate the Configuration-to-Determinant Coefficients
+
+  Call Mk_CDC(SGS(iState))
 end subroutine SG_Init
 
 subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
@@ -915,6 +929,7 @@ call mma_deallocate(SGS%LTV,safe='*')
 call mma_deallocate(SGS%DAW,safe='*')
 call mma_deallocate(SGS%RAW,safe='*')
 call mma_deallocate(SGS%Ver,safe='*')
+deallocate(SGS%CDCInfo)
 nullify(SGS%DRTP,SGS%DOWNP)
 
 call mma_deallocate(CIS%NOW,safe='*')
@@ -945,6 +960,117 @@ End Associate
 State_is_used(iState)=.False.
 
 end subroutine SG_Free
+
+subroutine Mk_CDC(SGS)
+
+type(SGStruct), intent(inout) :: SGS
+
+integer(kind=iwp) :: iOpen
+integer(kind=iwp) :: mult
+integer(kind=iwp) :: ms2
+integer(kind=iwp) :: nDet
+integer(kind=iwp) :: nCSF
+
+allocate(SGS%CDCInfo(0:SGS%nLev,1:SGS%nLev+1))
+SGS%CDCInfo(:,:)%nDet = 0
+
+
+mult = SGS%iSpin
+do iOpen = 0, SGS%nLev
+
+   ms2 = mult-1
+
+   call count_detspin(iOpen,ms2,nDet)
+   call count_twos(iOpen,mult,nCSF)
+
+   SGS%CDCInfo(iOpen,mult)%nDet = nDet
+   SGS%CDCInfo(iOpen,mult)%nCSF = nCSF
+
+end do
+
+write(u6,*)
+write(u6,*) ' ===== CDC TABLE ====='
+do iOpen = 0, SGS%nLev
+   write(u6,'(A,I3,A,I3,A,I6,A,I6)') &
+      ' NOPEN=',iOpen, &
+      ' MULT=',mult, &
+      ' NDET=',SGS%CDCInfo(iOpen,mult)%nDet, &
+      ' NCSF=',SGS%CDCInfo(iOpen,mult)%nCSF
+end do
+write(u6,*)
+
+contains
+subroutine count_detspin(nopen,ms2,ndet)
+
+use Definitions, only: iwp
+
+implicit none
+
+integer(iwp), intent(in)  :: nopen
+integer(iwp), intent(in)  :: ms2
+integer(iwp), intent(out) :: ndet
+
+integer(iwp) :: ibit
+integer(iwp) :: mx
+
+ndet = 0
+mx   = 2**nopen
+
+do ibit=0,mx-1
+   if (2*popcnt(ibit)-nopen == ms2) ndet = ndet + 1
+enddo
+
+end subroutine count_detspin
+
+subroutine count_twos(nopen,mult,ncsf)
+
+use Definitions, only: iwp
+
+implicit none
+
+integer(iwp), intent(in)  :: nopen
+integer(iwp), intent(in)  :: mult
+integer(iwp), intent(out) :: ncsf
+
+integer(iwp) :: ibit
+integer(iwp) :: i
+integer(iwp) :: ms2l
+integer(iwp) :: mx
+
+logical :: upper
+
+ncsf = 0
+mx   = 2**nopen
+
+do ibit=0,mx-1
+
+   ms2l  = 0
+   upper = .true.
+
+   do i=1,nopen
+
+      if (ibits(ibit,i-1,1) == 1) then
+         ms2l = ms2l + 1
+      else
+         ms2l = ms2l - 1
+      endif
+
+      if (ms2l < 0) then
+         upper = .false.
+         exit
+      endif
+
+   enddo
+
+   if (.not.upper) cycle
+   if (ms2l /= mult-1) cycle
+
+   ncsf = ncsf + 1
+
+enddo
+
+end subroutine count_twos
+end subroutine Mk_CDC
 
 subroutine MKCOT(SGS,CIS)
 ! For INIT==0
@@ -4127,6 +4253,36 @@ end if
 
 end subroutine check_twos
 #endif
+
+#ifdef _GOSPER_
+!Todo: implement in generate_detspin and generate_twos
+subroutine next_combination(x)
+   implicit none
+   integer, intent(inout) :: x
+
+   integer :: c, r
+
+   c = iand(x, -x)
+   r = x + c
+   x = ior(r, ishft(ieor(r,x)/c, -2))
+
+end subroutine next_combination
+integer :: x, m, n
+
+m = 5
+n = 3
+
+x = 2**n - 1
+
+do while (x < 2**m)
+
+   write(u6,'(I4,2X,B5.5)') x, x
+
+   call next_combination(x)
+
+end do
+#endif
+
 
 
 end module SGUGA
