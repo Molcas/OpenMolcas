@@ -27,9 +27,13 @@ private
 
 integer(kind=iwp) :: iq, NCP_Max
 
+! Configuration-to-Determinant transformation informtion
+
 type CDCInfo
    integer(kind=iwp) :: nDet = 0
    integer(kind=iwp) :: nCSF = 0
+   integer(kind=iwp) :: nClosed = 0
+   integer(kind=iwp) :: nClosedOCP = 0
 
    integer(kind=iwp), allocatable :: DetSpin(:,:)
    integer(kind=iwp), allocatable :: Twos(:,:)
@@ -963,13 +967,11 @@ end subroutine SG_Free
 
 subroutine Mk_CDC(SGS)
 
+use second_quantization, only: binomial=>binom_coef
+
 type(SGStruct), intent(inout) :: SGS
 
-integer(kind=iwp) :: iOpen
-integer(kind=iwp) :: mult
-integer(kind=iwp) :: ms2
-integer(kind=iwp) :: nDet
-integer(kind=iwp) :: nCSF
+integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, nClosed
 
 allocate(SGS%CDCInfo(0:SGS%nLev,1:SGS%nLev+1))
 SGS%CDCInfo(:,:)%nDet = 0
@@ -986,16 +988,22 @@ do iOpen = 0, SGS%nLev
    SGS%CDCInfo(iOpen,mult)%nDet = nDet
    SGS%CDCInfo(iOpen,mult)%nCSF = nCSF
 
+   nClosed = (SGS%nActEl-iOpen)/2
+
+   SGS%CDCInfo(iOpen,Mult)%nClosed    = nClosed
+   SGS%CDCInfo(iOpen,Mult)%nClosedOCP = binomial(nClosed,SGS%nLev-iOpen)
+
 end do
 
 write(u6,*)
 write(u6,*) ' ===== CDC TABLE ====='
 do iOpen = 0, SGS%nLev
-   write(u6,'(A,I3,A,I3,A,I6,A,I6)') &
-      ' NOPEN=',iOpen, &
-      ' MULT=',mult, &
-      ' NDET=',SGS%CDCInfo(iOpen,mult)%nDet, &
-      ' NCSF=',SGS%CDCInfo(iOpen,mult)%nCSF
+write(u6,'(A,I3,A,I3,A,I6,A,I6,A,I6)') &
+   'NOPEN=',iOpen, &
+   ' MULT=',SGS%iSpin, &
+   ' NDET=',SGS%CDCInfo(iOpen,mult)%nDet, &
+   ' NCSF=',SGS%CDCInfo(iOpen,mult)%nCSF, &
+   ' NCLOCP=',SGS%CDCInfo(iOpen,mult)%nClosedOCP
 end do
 write(u6,*)
 
