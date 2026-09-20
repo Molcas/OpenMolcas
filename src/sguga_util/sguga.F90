@@ -36,6 +36,8 @@ type CDCInfo
    integer(kind=iwp) :: nClosedOCP = 0
 
    integer(kind=iwp), allocatable :: DOC(:,:)
+   integer(kind=iwp), allocatable :: SOC(:,:)
+   integer(kind=iwp), allocatable :: SOCSym(:)
 
    integer(kind=iwp), allocatable :: nOpenOCP(:)
    integer(kind=iwp), allocatable :: nOCP(:)
@@ -949,6 +951,8 @@ if (allocated(SGS%CDCInfo)) then
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOpenOCP,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCP,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%DOC,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOC,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOCSym,safe='*')
 
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%detspin,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%twos,safe='*')
@@ -1000,7 +1004,8 @@ use second_quantization, only: binomial=>binom_coef
 
 type(SGStruct), intent(inout) :: SGS
 
-integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, nClosed, MinOpen, MaxOpen, iSym, iDOC
+integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, MinOpen, MaxOpen, iSym, iDOC
+integer(kind=iwp) :: nClosed, nClosedOCP, nSOC
 integer(kind=iwp), allocatable :: detspin(:,:)
 integer(kind=iwp), allocatable :: twos(:,:)
 
@@ -1025,14 +1030,17 @@ do iOpen = MinOpen, MaxOpen, 2
    SGS%CDCInfo(iOpen,mult)%nCSF = nCSF
 
    nClosed = (SGS%nActEl-iOpen)/2
-
    SGS%CDCInfo(iOpen,Mult)%nClosed    = nClosed
-   SGS%CDCInfo(iOpen,Mult)%nClosedOCP = binomial(nClosed,SGS%nLev)
+
+   nClosedOCP = binomial(nClosed,SGS%nLev)
+   SGS%CDCInfo(iOpen,Mult)%nClosedOCP = nClosedOCP
+
+   nSOC = binomial(iOpen,SGS%nLev)
 
    if (nClosed > 0) then
       call mma_allocate( SGS%CDCInfo(iOpen,mult)%DOC, &
                          nClosed, &
-                         SGS%CDCInfo(iOpen,mult)%nClosedOCP, &
+                         nClosedOCP, &
                          Label='DOC')
    endif
    if (nClosed > 0) then
@@ -1045,6 +1053,42 @@ do iOpen = MinOpen, MaxOpen, 2
          call Abend()
       endif
    endif
+
+   if (iOpen > 0) then
+      call mma_allocate( SGS%CDCInfo(iOpen,mult)%SOC, &
+                         iOpen, &
+                         nSOC, &
+                         Label='SOC')
+
+      call mma_allocate( SGS%CDCInfo(iOpen,mult)%SOCSym, &
+                         nSOC, &
+                         Label='SOCSym')
+   endif
+
+#ifdef _DEBUGPRINT_
+   if (allocated(SGS%CDCInfo(iOpen,mult)%DOC)) then
+      write(u6,'(A,I4,A,2I8)') &
+         'NOPEN=',iOpen, &
+         ' DOC SIZE:', &
+         size(SGS%CDCInfo(iOpen,mult)%DOC,1), &
+         size(SGS%CDCInfo(iOpen,mult)%DOC,2)
+   endif
+
+   if (allocated(SGS%CDCInfo(iOpen,mult)%SOC)) then
+      write(u6,'(A,I4,A,2I8)') &
+         'NOPEN=',iOpen, &
+         ' SOC SIZE:', &
+         size(SGS%CDCInfo(iOpen,mult)%SOC,1), &
+         size(SGS%CDCInfo(iOpen,mult)%SOC,2)
+   endif
+
+   if (allocated(SGS%CDCInfo(iOpen,mult)%SOCSym)) then
+      write(u6,'(A,I4,A,I8)') &
+         'NOPEN=',iOpen, &
+         ' SOCSYM SIZE:', &
+         size(SGS%CDCInfo(iOpen,mult)%SOCSym)
+   endif
+#endif
 
    call mma_allocate( SGS%CDCInfo(iOpen,mult)%nOCP, &
                       SGS%nSym, &
