@@ -34,9 +34,11 @@ type CDCInfo
    integer(kind=iwp) :: nCSF = 0
    integer(kind=iwp) :: nClosed = 0
    integer(kind=iwp) :: nClosedOCP = 0
+
+   integer(kind=iwp), allocatable :: DOC(:,:)
+
    integer(kind=iwp), allocatable :: nOpenOCP(:)
    integer(kind=iwp), allocatable :: nOCP(:)
-
    integer(kind=iwp), allocatable :: DetSpin(:,:)
    integer(kind=iwp), allocatable :: Twos(:,:)
 
@@ -946,6 +948,7 @@ if (allocated(SGS%CDCInfo)) then
 
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOpenOCP,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCP,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%DOC,safe='*')
 
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%detspin,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%twos,safe='*')
@@ -1025,6 +1028,13 @@ do iOpen = MinOpen, MaxOpen, 2
 
    SGS%CDCInfo(iOpen,Mult)%nClosed    = nClosed
    SGS%CDCInfo(iOpen,Mult)%nClosedOCP = binomial(nClosed,SGS%nLev)
+
+   if (nClosed > 0) then
+      call mma_allocate( SGS%CDCInfo(iOpen,mult)%DOC, &
+                         nClosed, &
+                         SGS%CDCInfo(iOpen,mult)%nClosedOCP, &
+                         Label='DOC')
+   endif
 
    call mma_allocate( SGS%CDCInfo(iOpen,mult)%nOCP, &
                       SGS%nSym, &
