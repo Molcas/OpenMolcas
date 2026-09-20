@@ -1005,7 +1005,8 @@ use second_quantization, only: binomial=>binom_coef
 type(SGStruct), intent(inout) :: SGS
 
 integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, MinOpen, MaxOpen, iSym, iDOC
-integer(kind=iwp) :: nClosed, nClosedOCP, nSOC
+integer(kind=iwp) :: nClosed, nClosedOCP, nSOC, iSOC
+integer(kind=iwp), allocatable :: nSOCSym(:)
 integer(kind=iwp), allocatable :: detspin(:,:)
 integer(kind=iwp), allocatable :: twos(:,:)
 
@@ -1019,6 +1020,7 @@ MinOpen = mult - 1
 MaxOpen = SGS%nActEl
 if (mod(MaxOpen-MinOpen,2) /= 0) MaxOpen = MaxOpen - 1
 
+call mma_allocate( nSOCSym,SGS%nSym,Label='nSOCSym')
 do iOpen = MinOpen, MaxOpen, 2
 
    ms2 = mult-1
@@ -1042,8 +1044,6 @@ do iOpen = MinOpen, MaxOpen, 2
                          nClosed, &
                          nClosedOCP, &
                          Label='DOC')
-   endif
-   if (nClosed > 0) then
       iDOC = 0
       call Make_DOCs(1,1)
       if (iDOC /= SGS%CDCInfo(iOpen,mult)%nClosedOCP) then
@@ -1054,6 +1054,25 @@ do iOpen = MinOpen, MaxOpen, 2
       endif
    endif
 
+   nSOCSym(:) = 0
+
+   call mma_allocate( SGS%CDCInfo(iOpen,mult)%nOCP, &
+                      SGS%nSym, &
+                      Label='nOCP')
+
+   call mma_allocate( SGS%CDCInfo(iOpen,mult)%nOpenOCP, &
+                      SGS%nSym, &
+                      Label='nOpenOCP')
+   SGS%CDCInfo(iOpen,mult)%nOpenOCP(:) = 0
+
+   call Count_OpenShell_OCPs(SGS%ISm,      &
+                             SGS%nLev,     &
+                             iOpen,        &
+                             SGS%nSym,     &
+                             SGS%CDCInfo(iOpen,mult)%nOpenOCP )
+
+   SGS%CDCInfo(iOpen,mult)%nOCP(:) = SGS%CDCInfo(iOpen,mult)%nOpenOCP(:) * SGS%CDCInfo(iOpen,mult)%nClosedOCP
+
    if (iOpen > 0) then
       call mma_allocate( SGS%CDCInfo(iOpen,mult)%SOC, &
                          iOpen, &
@@ -1063,6 +1082,24 @@ do iOpen = MinOpen, MaxOpen, 2
       call mma_allocate( SGS%CDCInfo(iOpen,mult)%SOCSym, &
                          nSOC, &
                          Label='SOCSym')
+      iSOC = 0
+      nSOCSym(:) = 0
+      call Make_SOCs(1,1,1)
+      if (iSOC /= nSOC) then
+         write(u6,*) 'SOC generation failed'
+         write(u6,*) 'Generated = ',iSOC
+         write(u6,*) 'Expected  = ',nSOC
+         call Abend()
+      endif
+      do iSym=1,SGS%nSym
+         if (nSOCSym(iSym) /= SGS%CDCInfo(iOpen,mult)%nOpenOCP(iSym)) then
+            write(u6,*) 'SOC symmetry count mismatch'
+            write(u6,*) 'ISYM     = ',iSym
+            write(u6,*) 'GENERATED= ',nSOCSym(iSym)
+            write(u6,*) 'EXPECTED = ',SGS%CDCInfo(iOpen,mult)%nOpenOCP(iSym)
+            call Abend()
+         endif
+      enddo
    endif
 
 #ifdef _DEBUGPRINT_
@@ -1090,21 +1127,6 @@ do iOpen = MinOpen, MaxOpen, 2
    endif
 #endif
 
-   call mma_allocate( SGS%CDCInfo(iOpen,mult)%nOCP, &
-                      SGS%nSym, &
-                      Label='nOCP')
-
-   call mma_allocate( SGS%CDCInfo(iOpen,mult)%nOpenOCP, &
-                      SGS%nSym, &
-                      Label='nOpenOCP')
-
-   call Count_OpenShell_OCPs(SGS%ISm,      &
-                             SGS%nLev,     &
-                             iOpen,        &
-                             SGS%nSym,     &
-                             SGS%CDCInfo(iOpen,mult)%nOpenOCP )
-
-   SGS%CDCInfo(iOpen,mult)%nOCP(:) = SGS%CDCInfo(iOpen,mult)%nOpenOCP(:) * SGS%CDCInfo(iOpen,mult)%nClosedOCP
 
    if (SGS%CDCInfo(iOpen,mult)%nDet > 0 .and. &
        SGS%CDCInfo(iOpen,mult)%nCSF > 0) then
@@ -1148,7 +1170,9 @@ do iOpen = MinOpen, MaxOpen, 2
    endif
 
 end do
+call mma_deallocate(nSOCSym)
 
+#ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*) ' ===== CDC TABLE ====='
 do iOpen = MinOpen, MaxOpen, 2
@@ -1169,9 +1193,49 @@ write(u6,*) 'CDC: NOPEN=',iOpen, &
             size(SGS%CDCInfo(iOpen,mult)%CDC,2)
 end do
 write(u6,*)
+#endif
 
 contains
 
+recursive subroutine Make_SOCs(iPos,iStart,iSym)
+
+   integer(iwp), intent(in) :: iPos
+   integer(iwp), intent(in) :: iStart
+   integer(iwp), intent(in) :: iSym
+
+   integer(iwp) :: i
+   integer(iwp), save :: work(MxLev)
+
+   if (iPos > iOpen) then
+
+      iSOC = iSOC + 1
+
+      SGS%CDCInfo(iOpen,mult)%SOC(:,iSOC) = work(1:iOpen)
+      SGS%CDCInfo(iOpen,mult)%SOCSym(iSOC) = iSym
+
+      nSOCSym(iSym) = nSOCSym(iSym) + 1
+
+#ifdef _DEBUGPRINT_
+      write(u6,*) 'ISm = ',SGS%ISm(1:SGS%nLev)
+      write(u6,*) 'NOPEN=',iOpen, &
+                  ' SOC=',iSOC, &
+                  ' OCC=',work(1:iOpen), &
+                  ' SYM=',iSym
+#endif
+      return
+   endif
+
+   do i=iStart,SGS%nLev-(iOpen-iPos)
+
+      work(iPos) = i
+
+      call Make_SOCs( iPos+1, &
+                      i+1, &
+                      Mul(iSym,SGS%ISm(i)) )
+
+   enddo
+
+end subroutine Make_SOCs
 recursive subroutine Make_DOCs(iPos,iStart)
 
    integer(iwp), intent(in) :: iPos
@@ -4030,12 +4094,14 @@ real(wp) :: m(nopen)
 
 logical :: up
 
+#ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*) '========================================'
 write(u6,*) ' SG_CSFDET'
 write(u6,*) '========================================'
 write(u6,*) ' NOPEN, nDet, nCSF = ',nopen,ndet,ncsf
 write(u6,*)
+#endif
 
 do idet=1,ndet
    call det_mchain(nopen,detspin(:,idet),m)
@@ -4132,7 +4198,9 @@ do idet=1,ndet
    end do
 end do
 
+#ifdef _DEBUGPRINT_
 call RecPrt('Final CDC matrix',' ',cdc,ndet,ncsf)
+#endif
 
 do icsf=1,ncsf
    norm=Zero
