@@ -1024,11 +1024,15 @@ do iOpen = MinOpen, MaxOpen, 2
    nClosed = (SGS%nActEl-iOpen)/2
 
    SGS%CDCInfo(iOpen,Mult)%nClosed    = nClosed
-   SGS%CDCInfo(iOpen,Mult)%nClosedOCP = binomial(nClosed,SGS%nLev-iOpen)
+   SGS%CDCInfo(iOpen,Mult)%nClosedOCP = binomial(nClosed,SGS%nLev)
 
-   allocate(SGS%CDCInfo(iOpen,mult)%nOCP(SGS%nSym))
-   allocate(SGS%CDCInfo(iOpen,mult)%nOpenOCP(SGS%nSym))
-   SGS%CDCInfo(iOpen,mult)%nOpenOCP(:)=0
+   call mma_allocate( SGS%CDCInfo(iOpen,mult)%nOCP, &
+                      SGS%nSym, &
+                      Label='nOCP')
+
+   call mma_allocate( SGS%CDCInfo(iOpen,mult)%nOpenOCP, &
+                      SGS%nSym, &
+                      Label='nOpenOCP')
 
    call Count_OpenShell_OCPs(SGS%ISm,      &
                              SGS%nLev,     &
