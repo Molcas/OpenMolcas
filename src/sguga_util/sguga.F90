@@ -1000,7 +1000,7 @@ use second_quantization, only: binomial=>binom_coef
 
 type(SGStruct), intent(inout) :: SGS
 
-integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, nClosed, MinOpen, MaxOpen, iSym
+integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, nClosed, MinOpen, MaxOpen, iSym, iDOC
 integer(kind=iwp), allocatable :: detspin(:,:)
 integer(kind=iwp), allocatable :: twos(:,:)
 
@@ -1034,6 +1034,16 @@ do iOpen = MinOpen, MaxOpen, 2
                          nClosed, &
                          SGS%CDCInfo(iOpen,mult)%nClosedOCP, &
                          Label='DOC')
+   endif
+   if (nClosed > 0) then
+      iDOC = 0
+      call Make_DOCs(1,1)
+      if (iDOC /= SGS%CDCInfo(iOpen,mult)%nClosedOCP) then
+         write(u6,*) 'DOC generation failed'
+         write(u6,*) 'Generated = ',iDOC
+         write(u6,*) 'Expected  = ',SGS%CDCInfo(iOpen,mult)%nClosedOCP
+         call Abend()
+      endif
    endif
 
    call mma_allocate( SGS%CDCInfo(iOpen,mult)%nOCP, &
@@ -1117,6 +1127,36 @@ end do
 write(u6,*)
 
 contains
+
+recursive subroutine Make_DOCs(iPos,iStart)
+
+   integer(iwp), intent(in) :: iPos
+   integer(iwp), intent(in) :: iStart
+
+   integer(iwp) :: i
+   integer(iwp), save :: work(MxLev)
+!
+!  Completed DOC
+!
+   if (iPos > nClosed) then
+      iDOC = iDOC + 1
+      SGS%CDCInfo(iOpen,mult)%DOC(:,iDOC) = work(1:nClosed)
+#ifdef _DEBUGPRINT_
+      write(u6,'(A,I4,A,100I4)') 'NOPEN=',iOpen, &
+                                 ' DOC=',iDOC, &
+                                 SGS%CDCInfo(iOpen,mult)%DOC(:,iDOC)
+#endif
+      return
+   endif
+!
+!  Lexical combinations
+!
+   do i=iStart,SGS%nLev-(nClosed-iPos)
+      work(iPos) = i
+      call Make_DOCs(iPos+1,i+1)
+   enddo
+
+end subroutine Make_DOCs
 
 subroutine count_detspin(nopen,ms2,ndet)
 
