@@ -1008,6 +1008,7 @@ type(SGStruct), intent(inout) :: SGS
 
 integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, MinOpen, MaxOpen, iSym, iDOC
 integer(kind=iwp) :: nClosed, nClosedOCP, nSOC, iSOC
+integer(kind=iwp) :: NoNew, nConf
 integer(kind=iwp), allocatable :: nSOCSym(:)
 integer(kind=iwp), allocatable :: detspin(:,:)
 integer(kind=iwp), allocatable :: twos(:,:)
@@ -1198,6 +1199,30 @@ write(u6,*)
 #endif
 
 Call mma_allocate( SGS%OC, SGS%nActel, Label='OC' )
+
+!#ifdef _DEBUGPRINT_
+
+!write(u6,*)
+!write(u6,*) '===== TEST NXT_OC ====='
+nConf=0
+NoNew = 0
+call Nxt_OC( SGS%OC,    &
+             SGS%nActEl,    &
+             SGS%nLev,    &
+             1,    &
+             NoNew )
+do while (NoNew == 0)
+!  write(u6,'(A,100I4)') 'OC = ', SGS%OC(1:SGS%nActEl)
+   nConf=nConf+1
+   call Nxt_OC( SGS%OC,    &
+                SGS%nActEl,    &
+                SGS%nLev,    &
+                0,    &
+                NoNew )
+end do
+!Write(6,'(A,I8)') 'NCONF = ', nConf
+!write(u6,*)
+!#endif
 
 contains
 
@@ -4624,6 +4649,110 @@ do while (x < 2**m)
 
 end do
 #endif
+
+!***********************************************************************
+! Generate the next orbital occupation configuration in Lucia order.
+!
+! Occupations are represented by the occupied orbital index of each
+! electron:
+!
+!    OC = (1,1,2,2,3)
+!
+! corresponds to
+!
+!    DOC = (1,2)
+!    SOC = (3)
+!
+! The occupation list is stored in nondecreasing order and no orbital
+! may occur more than twice. With INI=1 the first configuration is
+! generated. With INI=0 the next configuration in lexical Lucia order
+! is generated.
+!
+! Input:
+!    nElec  - number of electrons
+!    nLev   - number of active orbitals
+!    Ini    - 1: initialize, 0: increment
+!
+! Output:
+!    OC     - orbital occupation configuration
+!    NoNew  - 0: new configuration generated
+!             1: no further configuration exists
+!
+!***********************************************************************
+Subroutine Nxt_OC( OC, nElec, nLev, Ini, NoNew )
+
+Implicit None
+
+Integer, Intent(In)    :: nElec
+Integer, Intent(In)    :: nLev
+Integer, Intent(In)    :: Ini
+Integer, Intent(InOut) :: OC(nElec)
+Integer, Intent(Out)   :: NoNew
+
+Integer :: I
+Integer :: IAdd
+Integer :: IEL
+Integer :: Increase
+Integer :: JOrb
+Integer :: nDouble
+
+If (Ini == 1) Then
+   If (nElec <= 2*nLev) Then
+      NoNew = 0
+      nDouble = nElec/2
+      Do I=1,nDouble
+         OC(2*I-1) = I
+         OC(2*I  ) = I
+      End Do
+      If (2*nDouble /= nElec) &
+         OC(2*nDouble+1) = nDouble + 1
+   Else
+      NoNew = 1
+   End If
+Else
+   IAdd = 1
+   IEL  = 0
+   Do While (IAdd == 1)
+      IEL = IEL + 1
+      Increase = 0
+      If (IEL < nElec) Then
+         If (OC(IEL) < OC(IEL+1)-1) Then
+            Increase = 1
+         Else If (OC(IEL) == OC(IEL+1)-1) Then
+            If (IEL == nElec-1) Then
+               Increase = 1
+            Else If (OC(IEL+1) /= OC(IEL+2)) Then
+               Increase = 1
+            End If
+         End If
+      Else If (IEL == nElec) Then
+         If (OC(IEL) < nLev) Then
+            Increase = 1
+         Else
+            NoNew = 1
+            Exit
+         End If
+      Else
+         NoNew = 1
+         Exit
+      End If
+
+      If (Increase == 1) Then
+         NoNew  = 0
+         OC(IEL)= OC(IEL) + 1
+         nDouble = (IEL-1)/2
+         Do JOrb=1,nDouble
+            OC(2*JOrb-1) = JOrb
+            OC(2*JOrb  ) = JOrb
+         End Do
+         If (2*nDouble < IEL-1) &
+            OC(IEL-1) = nDouble + 1
+         IAdd = 0
+      End If
+   End Do
+End If
+
+End Subroutine Nxt_OC
 
 
 
