@@ -74,6 +74,7 @@ type SGStruct
   integer(kind=iwp) :: LEVEL(MXLEV)=[(iq,iq=1,MXLEV)]
   integer(kind=iwp) :: NRAS(MxSym,MxGAS), NRASEL(MxGAS), nRsPrt=0
   type(CDCInfo), allocatable :: CDCInfo(:,:)
+  integer, Allocatable :: OC(:)
 end type SGStruct
 
 ! index for DRT
@@ -942,6 +943,7 @@ call mma_deallocate(SGS%DAW,safe='*')
 call mma_deallocate(SGS%RAW,safe='*')
 call mma_deallocate(SGS%Ver,safe='*')
 
+Call mma_deallocate(SGS%OC,safe='*')
 if (allocated(SGS%CDCInfo)) then
 
    do iOpen = lbound(SGS%CDCInfo,1), ubound(SGS%CDCInfo,1)
@@ -1194,6 +1196,8 @@ write(u6,*) 'CDC: NOPEN=',iOpen, &
 end do
 write(u6,*)
 #endif
+
+Call mma_allocate( SGS%OC, SGS%nActel, Label='OC' )
 
 contains
 
