@@ -1007,11 +1007,16 @@ use second_quantization, only: binomial=>binom_coef
 type(SGStruct), intent(inout) :: SGS
 
 integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, MinOpen, MaxOpen, iSym, iDOC
-integer(kind=iwp) :: nClosed, nClosedOCP, nSOC, iSOC
-integer(kind=iwp) :: NoNew, nConf
+integer(kind=iwp) :: nClosed, nClosedOCP, nSOC, iSOC, nDOC
+integer(kind=iwp) :: NoNew, nConf, nElec
+Integer :: i,j
+Integer :: iStart
 integer(kind=iwp), allocatable :: nSOCSym(:)
 integer(kind=iwp), allocatable :: detspin(:,:)
 integer(kind=iwp), allocatable :: twos(:,:)
+
+Integer :: DOCOcc(SGS%nLev)
+Integer :: SOCOcc(SGS%nLev)
 
 allocate(SGS%CDCInfo(0:SGS%nLev,1:SGS%nLev+1))
 SGS%CDCInfo(:,:)%nDet = 0
@@ -1204,22 +1209,82 @@ Call mma_allocate( SGS%OC, SGS%nActel, Label='OC' )
 
 !write(u6,*)
 !write(u6,*) '===== TEST NXT_OC ====='
+nElec = SGS%nActEl
 nConf=0
 NoNew = 0
-call Nxt_OC( SGS%OC,    &
-             SGS%nActEl,    &
-             SGS%nLev,    &
-             1,    &
-             NoNew )
-do while (NoNew == 0)
-!  write(u6,'(A,100I4)') 'OC = ', SGS%OC(1:SGS%nActEl)
+Call Nxt_OC(SGS%OC,nElec,SGS%nLev,1,NoNew)
+
+Do While (NoNew == 0)
    nConf=nConf+1
-   call Nxt_OC( SGS%OC,    &
-                SGS%nActEl,    &
-                SGS%nLev,    &
-                0,    &
-                NoNew )
-end do
+
+   Call Decode_OC(SGS%OC,nElec, &
+                  nDOC,DOCOcc,  &
+                  nSOC,SOCOcc)
+
+   If (nSOC < MinOpen .or. nSOC > MaxOpen) Then
+      Call Nxt_OC(SGS%OC,nElec,SGS%nLev,0,NoNew)
+      Cycle
+   End If
+
+#ifdef _DEBUGPRINT_
+   Write(u6,'(A,20I4)') 'OC = ', SGS%OC
+
+   If (nDOC > 0) Then
+      Write(u6,'(A,20I4)') 'DOC= ', DOCOcc(1:nDOC)
+   End If
+
+   If (nSOC > 0) Then
+      Write(u6,'(A,20I4)') 'SOC= ', SOCOcc(1:nSOC)
+   End If
+#endif
+
+   iDOC = 1
+   Do i=1,nDOC
+      If (i == 1) Then
+         iStart = 1
+      Else
+         iStart = DOCOcc(i-1) + 1
+      End If
+      Do j=iStart,DOCOcc(i)-1
+         iDOC = iDOC + Binomial(nDOC-i,SGS%nLev-j)
+      End Do
+   End Do
+
+   If (nDOC > 0) Then
+      Do i=1,nDOC
+         If (DOCOcc(i) /= SGS%CDCInfo(nSOC,mult)%DOC(i,iDOC)) Then
+            Write(u6,*) 'DOC ranking mismatch'
+            Write(u6,'(A,20I4)') 'DOC OCC = ',DOCOcc(1:nDOC)
+            Write(u6,'(A,I6)')   'iDOC    = ',iDOC
+            Write(u6,'(A,20I4)') 'DOC TAB = ', &
+                                 SGS%CDCInfo(nSOC,mult)%DOC(1:nDOC,iDOC)
+            Call Abend()
+         End If
+      End Do
+   End If
+#ifdef _DEBUGPRINT_
+   Write(u6,'(A,20I4)') 'DOC =',DOCOcc(1:nDOC)
+   Write(u6,'(A,I6)')   'iDOC=',iDOC
+#endif
+
+   iSOC = 1
+   Do i=1,nSOC
+
+      If (i == 1) Then
+         iStart = 1
+      Else
+         iStart = SOCOcc(i-1) + 1
+      End If
+
+      Do j=iStart,SOCOcc(i)-1
+         iSOC = iSOC + Binomial(nSOC-i,SGS%nLev-j)
+      End Do
+
+   End Do
+
+   Call Nxt_OC(SGS%OC,nElec,SGS%nLev,0,NoNew)
+
+End Do
 !Write(6,'(A,I8)') 'NCONF = ', nConf
 !write(u6,*)
 !#endif
@@ -4754,6 +4819,45 @@ End If
 
 End Subroutine Nxt_OC
 
+Subroutine Decode_OC(OC,nElec,nDOC,DOCOcc,nSOC,SOCOcc)
+
+Implicit None
+
+Integer, Intent(In)  :: nElec
+Integer, Intent(In)  :: OC(nElec)
+
+Integer, Intent(Out) :: nDOC
+Integer, Intent(Out) :: nSOC
+Integer, Intent(Out) :: DOCOcc(:)
+Integer, Intent(Out) :: SOCOcc(:)
+
+Integer :: i
+
+nDOC = 0
+nSOC = 0
+i    = 1
+
+Do While (i <= nElec)
+
+   If (i < nElec) Then
+      If (OC(i) == OC(i+1)) Then
+         nDOC = nDOC + 1
+         DOCOcc(nDOC) = OC(i)
+         i = i + 2
+      Else
+         nSOC = nSOC + 1
+         SOCOcc(nSOC) = OC(i)
+         i = i + 1
+      End If
+   Else
+      nSOC = nSOC + 1
+      SOCOcc(nSOC) = OC(i)
+      i = i + 1
+   End If
+
+End Do
+
+End Subroutine Decode_OC
 
 
 end module SGUGA
