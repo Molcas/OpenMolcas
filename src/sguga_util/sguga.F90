@@ -3952,30 +3952,6 @@ end subroutine apply_colY
 end subroutine SG_EpqEqp_Diag
 
 subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
-!***********************************************************************
-!                                                                      *
-!     Rearrange CI-vectors                                             *
-!     iMode=0 --> from SGA to split graph GUGA order                   *
-!     iMode=1 --> from split graph GUGA to SGA order                   *
-!                                                                      *
-!     calling arguments:                                               *
-!     iRefSm  : integer                                                *
-!               state symmetry                                         *
-!     iMode   : integer                                                *
-!               switch selecting reordering mode (see above)           *
-!     nSm     : array of integer                                       *
-!               symmetry per active orbital                            *
-!     CIold   : array of real                                          *
-!               incoming CI vector                                     *
-!     CInew   : array of real                                          *
-!               outgoing CI vector                                     *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     written by:                                                      *
-!     M.P. Fuelscher and J. Olsen                                      *
-!     University of Lund, Sweden, 1990                                 *
-!***********************************************************************
 
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Lucia_data, only: CFTP, CONF_Occ
@@ -3986,96 +3962,220 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
-#include "intent.fh"
-
 implicit none
-integer(kind=iwp), intent(in) :: iState, IREFSM, IMODE, nConf
-real(kind=wp), intent(in) :: CIOLD(nConf)
+
+integer(kind=iwp), intent(in)  :: iState
+integer(kind=iwp), intent(in)  :: IREFSM
+integer(kind=iwp), intent(in)  :: IMODE
+integer(kind=iwp), intent(in)  :: nConf
+
+real(kind=wp), intent(in)  :: CIOLD(nConf)
 real(kind=wp), intent(out) :: CINEW(nConf)
-integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, &
-                     IWALK(mxAct), JOCC, KCNF(MxAct), KOCC, KORB
+
+integer(kind=iwp) :: IC
+integer(kind=iwp) :: ICL
+integer(kind=iwp) :: ICNBS
+integer(kind=iwp) :: ICNBS0
+integer(kind=iwp) :: ICSBAS
+integer(kind=iwp) :: ICSFJP
+integer(kind=iwp) :: IICSF
+integer(kind=iwp) :: IOPEN
+integer(kind=iwp) :: IP
+integer(kind=iwp) :: IPBAS
+integer(kind=iwp) :: ISG
+integer(kind=iwp) :: ITYP
+
+integer(kind=iwp) :: IWALK(MxAct)
+integer(kind=iwp) :: KCNF(MxAct)
+
 real(kind=wp) :: Fact
+
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i
+integer(kind=iwp) :: I
 #endif
 
-If (.NOT.Allocated(CIS(iState)%ICASE)) Call MkCOT(SGS(istate),CIS(istate))
-If (.NOT.Allocated(EXS(iState)%USGN)) Call MkSgNum(IREFSM,SGS(istate),CIS(istate),EXS(istate))
+if (.not. allocated(CIS(iState)%ICASE)) then
+   call MkCOT(SGS(iState),CIS(iState))
+endif
 
+if (.not. allocated(EXS(iState)%USGN)) then
+   call MkSgNum(IREFSM,SGS(iState),CIS(iState),EXS(iState))
+endif
 
 ICSFJP = 0
-ICNBS0 = 0 ! dummy initialize
-IPBAS = 0 ! dummy initialize
-! LOOP OVER CONFIGURATIONS TYPES
-do ITYP=1,NTYP
-  IOPEN = ITYP+MINOP-1
-  ICL = (SGS(iState)%nActEl-IOPEN)/2
-  ! BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
-  if (ITYP == 1) then
-    ICNBS0 = 1
-  else
-    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(SGS(iState)%nActEl+IOPEN-1)/2
-  end if
-  ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
-  if (ITYP == 1) then
-    IPBAS = 1
-  else
-    IPBAS = IPBAS+NCSFTP(ITYP-1)*(IOPEN-1)
-  end if
 
-  ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
-  ! SPIN COUPLINGS
+ICNBS0 = 0
+IPBAS  = 0
 
-  do IC=1,NCNFTP(ITYP,IREFSM)
-    ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
-    do IICSF=1,NCSFTP(ITYP)
-      ICSFJP = ICSFJP+1
-      ICSBAS = IPBAS+(IICSF-1)*IOPEN
-      KCNF(:)=0
-      ! Obtain configuration in standard RASSCF form
-      IIBOP = 1
-      IIBCL = 1
-      JOCC = ICL+IOPEN
-      do KOCC=0,JOCC-1
-        KORB = Conf_Occ(IREFSM)%A(ICNBS+KOCC)
-        if (KORB < 0) then
-          ! Doubly occupied orbital
-          KCNF(IIBCL) = abs(KORB)
-          IIBCL = IIBCL+1
-        else
-          ! Singly occupied orbital
-          KCNF(ICL+IIBOP) = KORB
-          IIBOP = IIBOP+1
-        end if
-      end do
+!----------------------------------------------------------
+! Keep original Lucia loop structure unchanged
+!----------------------------------------------------------
 
-      ! COMPUTE STEP VECTOR
-      call STEPVEC(KCNF(1:ICL),KCNF(ICL+1),ICL,IOPEN,CFTP(ICSBAS),SGS(iState)%nLev,IWALK)
+do ITYP = 1, NTYP
+   IOPEN = ITYP + MINOP - 1
+   ICL = (SGS(iState)%nActEl-IOPEN)/2
 
-      ! GET SPLIT GRAPH ORDERING NUMBER
-      ISG = SG_NUM(SGS(iState),EXS(istate),IWALK)
-      ! GET PHASE PHASE FACTOR
-      IP = SG_PHASE(SGS(istate),IWALK)
-      Fact = merge(-One,One,IP < 0)
-      if (IMODE == 0) then
-        CINEW(ISG) = Fact * CIOLD(ICSFJP)
-      else
-        CINEW(ICSFJP) = Fact * CIOLD(ISG)
-      end if
-    end do
-  end do
-end do
+   !-------------------------------------------------------
+   ! Base address of occupation list
+   !-------------------------------------------------------
+
+   if (ITYP == 1) then
+      ICNBS0 = 1
+   else
+      ICNBS0 = ICNBS0 + &
+               NCNFTP(ITYP-1,IREFSM) * &
+               (SGS(iState)%nActEl + IOPEN - 1)/2
+   endif
+
+   !-------------------------------------------------------
+   ! Base address of CFTP block
+   !-------------------------------------------------------
+
+   if (ITYP == 1) then
+      IPBAS = 1
+   else
+      IPBAS = IPBAS + NCSFTP(ITYP-1)*(IOPEN-1)
+   endif
+
+   !-------------------------------------------------------
+   ! Loop over occupation classes
+   !-------------------------------------------------------
+
+   do IC = 1, NCNFTP(ITYP,IREFSM)
+      ICNBS = ICNBS0 + (IC-1)*(IOPEN+ICL)
+
+      call GetOccupation(ICNBS,ICL,IOPEN,KCNF)
+
+      do IICSF = 1, NCSFTP(ITYP)
+         ICSFJP = ICSFJP + 1
+         ICSBAS = IPBAS + (IICSF-1)*IOPEN
+
+         call BuildWalk(ICL,IOPEN,ICSBAS,KCNF,IWALK)
 
 #ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
-write(u6,'(10F12.8)') (CIOLD(I),I=1,min(200,ICSFJP))
-  write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
-write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
-  write(u6,*)
+
+         if (any(IWALK(1:SGS(iState)%nLev) < 0) .or. &
+             any(IWALK(1:SGS(iState)%nLev) > 3)) then
+
+            write(u6,*) 'INVALID IWALK'
+            write(u6,'(20I4)') IWALK(1:SGS(iState)%nLev)
+            call Abend()
+
+         endif
+
 #endif
 
-end subroutine SG_Reord
+         ISG = SG_NUM(SGS(iState),EXS(iState),IWALK)
+
+         IP = SG_PHASE(SGS(iState),IWALK)
+
+         Fact = One
+         if (IP < 0) Fact = -One
+
+         if (IMODE == 0) then
+            CINEW(ISG) = Fact*CIOLD(ICSFJP)
+         else
+            CINEW(ICSFJP) = Fact*CIOLD(ISG)
+         endif
+
+      enddo
+
+   enddo
+
+enddo
+
+#ifdef _DEBUGPRINT_
+
+write(u6,*)
+write(u6,*) ' OLD CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+write(u6,'(10F12.8)') (CIOLD(I),I=1,min(200,ICSFJP))
+
+write(u6,*)
+write(u6,*) ' NEW CI-VECTOR IN SUBROUTINE REORD (MAX. 200 ELEMENTS)'
+write(u6,'(10F12.8)') (CINEW(I),I=1,min(200,ICSFJP))
+write(u6,*)
+
+#endif
+
+contains
+
+!===========================================================
+! Decode Lucia occupation class
+!
+! KCNF(1:ICL)
+!    doubly occupied orbitals
+!
+! KCNF(ICL+1:ICL+IOPEN)
+!    singly occupied orbitals
+!===========================================================
+
+subroutine GetOccupation(ICNBS,ICL,IOPEN,KCNF)
+
+   integer(kind=iwp), intent(in)  :: ICNBS
+   integer(kind=iwp), intent(in)  :: ICL
+   integer(kind=iwp), intent(in)  :: IOPEN
+
+   integer(kind=iwp), intent(out) :: KCNF(MxAct)
+
+   integer(kind=iwp) :: IIBCL
+   integer(kind=iwp) :: IIBOP
+   integer(kind=iwp) :: JOCC
+   integer(kind=iwp) :: KOCC
+   integer(kind=iwp) :: KORB
+
+   KCNF(:) = 0
+
+   IIBCL = 1
+   IIBOP = 1
+
+   JOCC = ICL + IOPEN
+
+   do KOCC = 0, JOCC-1
+
+      KORB = CONF_Occ(IREFSM)%A(ICNBS+KOCC)
+
+      if (KORB < 0) then
+
+         KCNF(IIBCL) = abs(KORB)
+         IIBCL = IIBCL + 1
+
+      else
+
+         KCNF(ICL+IIBOP) = KORB
+         IIBOP = IIBOP + 1
+
+      endif
+
+   enddo
+
+end subroutine GetOccupation
+
+!===========================================================
+! Build walk from Lucia occupation class and CFTP data
+!===========================================================
+
+subroutine BuildWalk(ICL,IOPEN,ICSBAS,KCNF,IWALK)
+
+   integer(kind=iwp), intent(in)  :: ICL
+   integer(kind=iwp), intent(in)  :: IOPEN
+   integer(kind=iwp), intent(in)  :: ICSBAS
+
+   integer(kind=iwp), intent(in)  :: KCNF(MxAct)
+
+   integer(kind=iwp), intent(out) :: IWALK(MxAct)
+
+   call STEPVEC( &
+      KCNF(1:ICL), &
+      KCNF(ICL+1:ICL+IOPEN), &
+      ICL, &
+      IOPEN, &
+      CFTP(ICSBAS:ICSBAS+IOPEN-1), &
+      SGS(iState)%nLev, &
+      IWALK )
+
+end subroutine BuildWalk
+
+end subroutine SG_ReOrd
 
 function SG_NUM(SGS,EXS,IWALK)
 ! PURPOSE: FOR ANY GIVEN WALK (STEP VECTOR) COMPUTE THE
