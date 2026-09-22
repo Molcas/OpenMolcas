@@ -1178,6 +1178,7 @@ do iOpen = MinOpen, MaxOpen, 2
    endif
 
 end do
+
 call mma_deallocate(nSOCSym)
 
 #ifdef _DEBUGPRINT_
@@ -1281,6 +1282,24 @@ Do While (NoNew == 0)
       End Do
 
    End Do
+
+Write(u6,*) 'iOpen=',iOpen
+Write(u6,*) 'nSOC =',nSOC
+Write(u6,*) 'iSOC =',iSOC
+Write(u6,*) 'mult =',mult
+
+   If (nSOC > 0) Then
+      Do i=1,nSOC
+         If (SOCOcc(i) /= SGS%CDCInfo(nSOC,mult)%SOC(i,iSOC)) Then
+            Write(u6,*) 'SOC ranking mismatch'
+            Write(u6,'(A,20I4)') 'SOC OCC = ',SOCOcc(1:nSOC)
+            Write(u6,'(A,I6)')   'iSOC    = ',iSOC
+            Write(u6,'(A,20I4)') 'SOC TAB = ', &
+                              SGS%CDCInfo(nSOC,mult)%SOC(1:nSOC,iSOC)
+            Call Abend()
+         End If
+      End Do
+   End If
 
    Call Nxt_OC(SGS%OC,nElec,SGS%nLev,0,NoNew)
 
