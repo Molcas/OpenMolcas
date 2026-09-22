@@ -67,7 +67,7 @@ if (.not. allocated(EXS(iState)%USGN)) call MkSgNum(IREFSM,SGS(istate),CIS(istat
 ICSFJP = 0
 ICNBS0 = 0 ! dummy initialize
 IPBAS = 0 ! dummy initialize
-! LOOP OVER CONFIGURATIONS TYPES
+! LOOP OVER CONFIGURATIONS TYPES, iOpen sectors.
 do ITYP=1,NTYP
   IOPEN = ITYP+MINOP-1
   ICL = (SGS(iState)%nActEl-IOPEN)/2
@@ -87,6 +87,7 @@ do ITYP=1,NTYP
   ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
   ! SPIN COUPLINGS
 
+  ! Loop over the elements in the orbital occupation list
   do IC=1,NCNFTP(ITYP,IREFSM)
     ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
     do IICSF=1,NCSFTP(ITYP)

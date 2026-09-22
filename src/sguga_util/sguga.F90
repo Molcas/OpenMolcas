@@ -1025,7 +1025,7 @@ SGS%CDCInfo(:,:)%nDet = 0
 mult = SGS%iSpin
 
 MinOpen = mult - 1
-MaxOpen = SGS%nActEl
+MaxOpen = Min(SGS%nActEl, 2*SGS%nLev-SGS%nActel)
 if (mod(MaxOpen-MinOpen,2) /= 0) MaxOpen = MaxOpen - 1
 
 call mma_allocate( nSOCSym,SGS%nSym,Label='nSOCSym')
@@ -1035,6 +1035,9 @@ do iOpen = MinOpen, MaxOpen, 2
 
    call count_detspin(iOpen,ms2,nDet)
    call count_twos(iOpen,mult,nCSF)
+write(u6,*) 'iOpen=',iOpen
+write(u6,*) 'nDet =',nDet
+write(u6,*) 'nCSF =',nCSF
 
    SGS%CDCInfo(iOpen,mult)%nDet = nDet
    SGS%CDCInfo(iOpen,mult)%nCSF = nCSF
@@ -1282,11 +1285,12 @@ Do While (NoNew == 0)
       End Do
 
    End Do
-
-Write(u6,*) 'iOpen=',iOpen
-Write(u6,*) 'nSOC =',nSOC
-Write(u6,*) 'iSOC =',iSOC
-Write(u6,*) 'mult =',mult
+#ifdef _DEBUGPRINT_
+   Write(u6,*) 'iOpen=',iOpen
+   Write(u6,*) 'nSOC =',nSOC
+   Write(u6,*) 'iSOC =',iSOC
+   Write(u6,*) 'mult =',mult
+#endif
 
    If (nSOC > 0) Then
       Do i=1,nSOC
@@ -1300,6 +1304,7 @@ Write(u6,*) 'mult =',mult
          End If
       End Do
    End If
+   Write(u6,'(A,4I8)') 'OC:', nConf,nSOC,iDOC,iSOC
 
    Call Nxt_OC(SGS%OC,nElec,SGS%nLev,0,NoNew)
 
@@ -4203,7 +4208,7 @@ integer(iwp) :: i
 real(wp) :: coef, norm
 real(wp) :: sign
 real(wp) :: s
-real(wp) :: m(nopen)
+real(wp) :: m(Max(1,nopen))
 
 logical :: up
 
@@ -4339,8 +4344,8 @@ use Definitions, only: wp, iwp
 implicit none
 
 integer(iwp), intent(in)  :: nopen
-integer(iwp), intent(in)  :: det(nopen)
-real(wp),     intent(out) :: m(nopen)
+integer(iwp), intent(in)  :: det(Max(1,nopen))
+real(wp),     intent(out) :: m(Max(1,nopen))
 
 integer(iwp) :: i
 
@@ -4491,7 +4496,7 @@ do ibit=0,mx-1
 
 enddo
 
-call mma_allocate(detspin,[1,nopen],[1,ndet],Label='detspin')
+call mma_allocate(detspin,[1,Max(1,nopen)],[1,ndet],Label='detspin')
 
 !
 ! Build determinant list
