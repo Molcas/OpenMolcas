@@ -1306,6 +1306,19 @@ Do While (NoNew == 0)
    End If
    Write(u6,'(A,4I8)') 'OC:', nConf,nSOC,iDOC,iSOC
 
+   if (nSOC > 0) then
+      iSym = SOC_Sym(SGS%ISm,nSOC,SOCOcc)
+
+      if (iSym /= SGS%CDCInfo(nSOC,mult)%SOCSym(iSOC)) then
+         write(u6,*) 'SOC symmetry mismatch'
+         write(u6,*) 'nSOC      = ', nSOC
+         write(u6,*) 'iSOC      = ', iSOC
+         write(u6,*) 'Computed  = ', iSym
+         write(u6,*) 'Stored    = ', SGS%CDCInfo(nSOC,mult)%SOCSym(iSOC)
+         call Abend()
+      end if
+   end if
+
    Call Nxt_OC(SGS%OC,nElec,SGS%nLev,0,NoNew)
 
 End Do
@@ -1456,6 +1469,25 @@ enddo
 end subroutine count_twos
 
 end subroutine Mk_CDC
+pure function SOC_Sym(ISm,nSOC,SOCOcc) result(iSym)
+use Symmetry_Info, only: Mul
+use Definitions,   only: iwp
+implicit none
+
+integer(iwp), intent(in) :: ISm(:)
+integer(iwp), intent(in) :: nSOC
+integer(iwp), intent(in) :: SOCOcc(:)
+
+integer(iwp) :: iSym
+integer(iwp) :: i
+
+iSym = 1
+do i=1,nSOC
+   iSym = Mul(iSym,ISm(SOCOcc(i)))
+end do
+
+end function SOC_Sym
+
 
 subroutine Count_OpenShell_OCPs(ISm,nLev,nOpen,nSym,nOpenOCP)
 
@@ -4044,7 +4076,7 @@ do ITYP = 1, NTYP
    do IC = 1, NCNFTP(ITYP,IREFSM)
       ICNBS = ICNBS0 + (IC-1)*(IOPEN+ICL)
 
-      call GetOccupation(ICNBS,ICL,IOPEN,KCNF)
+      call GetOccupation_Lucia(ICNBS,ICL,IOPEN,KCNF)
 
       do IICSF = 1, NCSFTP(ITYP)
          ICSFJP = ICSFJP + 1
@@ -4109,7 +4141,7 @@ contains
 !    singly occupied orbitals
 !===========================================================
 
-subroutine GetOccupation(ICNBS,ICL,IOPEN,KCNF)
+subroutine GetOccupation_Lucia(ICNBS,ICL,IOPEN,KCNF)
 
    integer(kind=iwp), intent(in)  :: ICNBS
    integer(kind=iwp), intent(in)  :: ICL
@@ -4148,7 +4180,7 @@ subroutine GetOccupation(ICNBS,ICL,IOPEN,KCNF)
 
    enddo
 
-end subroutine GetOccupation
+end subroutine GetOccupation_Lucia
 
 !===========================================================
 ! Build walk from Lucia occupation class and CFTP data
