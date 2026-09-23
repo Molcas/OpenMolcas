@@ -12,6 +12,7 @@
 !               2026, Roland Lindh                                     *
 !***********************************************************************
 
+#define _SANITY_CHECK_
 module SGUGA
 
 use Molcas, only: MxGas, MxLev, MxSym
@@ -962,8 +963,6 @@ if (allocated(SGS%CDCInfo)) then
          Call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCSym,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCDOC,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCSOC,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOC,safe='*')
-         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOCSym,safe='*')
 
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%detspin,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%twos,safe='*')
@@ -1045,10 +1044,6 @@ do iOpen = MinOpen, MaxOpen, 2
    call count_detspin(iOpen,ms2,nDet)
    call count_twos(iOpen,mult,nCSF)
 
-   write(u6,*) 'iOpen=',iOpen
-   write(u6,*) 'nDet =',nDet
-   write(u6,*) 'nCSF =',nCSF
-
    SGS%CDCInfo(iOpen,mult)%nDet = nDet
    SGS%CDCInfo(iOpen,mult)%nCSF = nCSF
 
@@ -1067,12 +1062,14 @@ do iOpen = MinOpen, MaxOpen, 2
                          Label='DOC')
       iDOC = 0
       call Make_DOCs(1,1)
+#ifdef _SANITY_CHECK_
       if (iDOC /= SGS%CDCInfo(iOpen,mult)%nClosedOCP) then
          write(u6,*) 'DOC generation failed'
          write(u6,*) 'Generated = ',iDOC
          write(u6,*) 'Expected  = ',SGS%CDCInfo(iOpen,mult)%nClosedOCP
          call Abend()
       endif
+#endif
    endif
 
    nSOCSym(:) = 0
@@ -1106,6 +1103,8 @@ do iOpen = MinOpen, MaxOpen, 2
       iSOC = 0
       nSOCSym(:) = 0
       call Make_SOCs(1,1,1)
+
+#ifdef _SANITY_CHECK_
       if (iSOC /= nSOC) then
          write(u6,*) 'SOC generation failed'
          write(u6,*) 'Generated = ',iSOC
@@ -1121,33 +1120,9 @@ do iOpen = MinOpen, MaxOpen, 2
             call Abend()
          endif
       enddo
-   endif
-
-#ifdef _DEBUGPRINT_
-   if (allocated(SGS%CDCInfo(iOpen,mult)%DOC)) then
-      write(u6,'(A,I4,A,2I8)') &
-         'NOPEN=',iOpen, &
-         ' DOC SIZE:', &
-         size(SGS%CDCInfo(iOpen,mult)%DOC,1), &
-         size(SGS%CDCInfo(iOpen,mult)%DOC,2)
-   endif
-
-   if (allocated(SGS%CDCInfo(iOpen,mult)%SOC)) then
-      write(u6,'(A,I4,A,2I8)') &
-         'NOPEN=',iOpen, &
-         ' SOC SIZE:', &
-         size(SGS%CDCInfo(iOpen,mult)%SOC,1), &
-         size(SGS%CDCInfo(iOpen,mult)%SOC,2)
-   endif
-
-   if (allocated(SGS%CDCInfo(iOpen,mult)%SOCSym)) then
-      write(u6,'(A,I4,A,I8)') &
-         'NOPEN=',iOpen, &
-         ' SOCSYM SIZE:', &
-         size(SGS%CDCInfo(iOpen,mult)%SOCSym)
-   endif
 #endif
 
+   endif
 
    if (SGS%CDCInfo(iOpen,mult)%nDet > 0 .and. &
        SGS%CDCInfo(iOpen,mult)%nCSF > 0) then
@@ -1174,21 +1149,20 @@ do iOpen = MinOpen, MaxOpen, 2
 
    endif
 
-   do iSym=1,SGS%nSym
 
+#ifdef _SANITY_CHECK_
+   do iSym=1,SGS%nSym
       if (SGS%CDCInfo(iOpen,mult)%nOCP(iSym) /= &
           SGS%CDCInfo(iOpen,mult)%nOpenOCP(iSym) * &
           SGS%CDCInfo(iOpen,mult)%nClosedOCP) then
-
          call Abend()
-
       endif
-
    enddo
 
    if (sum(SGS%CDCInfo(iOpen,mult)%nOpenOCP) /= binomial(iOpen,SGS%nLev)) then
       call Abend()
    endif
+#endif
 
    ! Compute the number of orbital occupatation configurations per symmetry.
    ! Here the order doesn't matter, we will deal with that in the next loop
@@ -1217,38 +1191,11 @@ end do
 
 call mma_deallocate(nSOCSym)
 
-#ifdef _DEBUGPRINT_
-write(u6,*)
-write(u6,*) ' ===== CDC TABLE ====='
-do iOpen = MinOpen, MaxOpen, 2
-write(u6,'(A,I3,A,I3,A,I6,A,I6,A,I6)') &
-   'NOPEN=',iOpen, &
-   ' MULT=',SGS%iSpin, &
-   ' NDET=',SGS%CDCInfo(iOpen,mult)%nDet, &
-   ' NCSF=',SGS%CDCInfo(iOpen,mult)%nCSF, &
-   ' NCLOCP=',SGS%CDCInfo(iOpen,mult)%nClosedOCP
-write(u6,'(A,8I8)') &
-   'NOPENOCP:',SGS%CDCInfo(iOpen,mult)%nOpenOCP(:)
-write(u6,'(A,8I8)') &
-   'NOCP    :',SGS%CDCInfo(iOpen,mult)%nOCP(:)
-write(u6,*) 'CDC: NOPEN=',iOpen, &
-            ' MULT=',mult, &
-            ' SIZE=', &
-            size(SGS%CDCInfo(iOpen,mult)%CDC,1), &
-            size(SGS%CDCInfo(iOpen,mult)%CDC,2)
-end do
-write(u6,*)
-#endif
-
 Call mma_allocate( SGS%OC, SGS%nActel, Label='OC' )
-
-!#ifdef _DEBUGPRINT_
 
 ! Now loop over the Orbital Configurations a la Lucia.
 ! For each OC identify the symmtry and store away the iDOC and iSOC indicies.
 
-!write(u6,*)
-!write(u6,*) '===== TEST NXT_OC ====='
 ! Reset and use now as a counter
 do iOpen = MinOpen, MaxOpen, 2
    SGS%CDCInfo(iOpen,mult)%nOCSym(:) = 0
@@ -1270,18 +1217,6 @@ Do While (NoNew == 0)
       Cycle
    End If
 
-#ifdef _DEBUGPRINT_
-   Write(u6,'(A,20I4)') 'OC = ', SGS%OC
-
-   If (nDOC > 0) Then
-      Write(u6,'(A,20I4)') 'DOC= ', DOCOcc(1:nDOC)
-   End If
-
-   If (nSOC > 0) Then
-      Write(u6,'(A,20I4)') 'SOC= ', SOCOcc(1:nSOC)
-   End If
-#endif
-
    iDOC = 1
    Do i=1,nDOC
       If (i == 1) Then
@@ -1294,6 +1229,7 @@ Do While (NoNew == 0)
       End Do
    End Do
 
+#ifdef _SANITY_CHECK_
    If (nDOC > 0) Then
       Do i=1,nDOC
          If (DOCOcc(i) /= SGS%CDCInfo(nSOC,mult)%DOC(i,iDOC)) Then
@@ -1306,9 +1242,6 @@ Do While (NoNew == 0)
          End If
       End Do
    End If
-#ifdef _DEBUGPRINT_
-   Write(u6,'(A,20I4)') 'DOC =',DOCOcc(1:nDOC)
-   Write(u6,'(A,I6)')   'iDOC=',iDOC
 #endif
 
    iSOC = 1
@@ -1325,13 +1258,8 @@ Do While (NoNew == 0)
       End Do
 
    End Do
-#ifdef _DEBUGPRINT_
-   Write(u6,*) 'iOpen=',iOpen
-   Write(u6,*) 'nSOC =',nSOC
-   Write(u6,*) 'iSOC =',iSOC
-   Write(u6,*) 'mult =',mult
-#endif
 
+#ifdef _SANITY_CHECK_
    If (nSOC > 0) Then
       Do i=1,nSOC
          If (SOCOcc(i) /= SGS%CDCInfo(nSOC,mult)%SOC(i,iSOC)) Then
@@ -1345,34 +1273,44 @@ Do While (NoNew == 0)
       End Do
    End If
    Write(u6,'(A,4I8)') 'OC:', nConf,nSOC,iDOC,iSOC
+#endif
 
-   if (nSOC > 0) then
+   if (nSOC == 0) then
+      iSym = 1
+      iSOC = 1
+   else
       iSym = SOC_Sym(SGS%ISm,nSOC,SOCOcc)
+
+#ifdef _SANITY_CHECK_
+      do i=1,nSOC
+         if (SOCOcc(i) /= SGS%CDCInfo(nSOC,mult)%SOC(i,iSOC)) then
+            write(u6,*) 'SOC ranking mismatch'
+            write(u6,'(A,20I4)') 'SOC OCC = ',SOCOcc(1:nSOC)
+            write(u6,'(A,I6)')   'iSOC    = ',iSOC
+            write(u6,'(A,20I4)') 'SOC TAB = ', &
+                              SGS%CDCInfo(nSOC,mult)%SOC(1:nSOC,iSOC)
+            call Abend()
+         end if
+      end do
 
       if (iSym /= SGS%CDCInfo(nSOC,mult)%SOCSym(iSOC)) then
          write(u6,*) 'SOC symmetry mismatch'
-         write(u6,*) 'nSOC      = ', nSOC
-         write(u6,*) 'iSOC      = ', iSOC
-         write(u6,*) 'Computed  = ', iSym
-         write(u6,*) 'Stored    = ', SGS%CDCInfo(nSOC,mult)%SOCSym(iSOC)
          call Abend()
       end if
+#endif
    end if
 
-   iSym = SOC_Sym(SGS%ISm,nSOC,SOCOcc)
-
    SGS%CDCInfo(nSOC,mult)%nOCSym(iSym) = SGS%CDCInfo(nSOC,mult)%nOCSym(iSym) + 1
+
    iOC = SGS%CDCInfo(nSOC,mult)%nOCSym(iSym)
 
    SGS%CDCInfo(nSOC,mult)%OCDOC(iOC,iSym) = iDOC
    SGS%CDCInfo(nSOC,mult)%OCSOC(iOC,iSym) = iSOC
 
+
    Call Nxt_OC(SGS%OC,nElec,SGS%nLev,0,NoNew)
 
 End Do
-!Write(6,'(A,I8)') 'NCONF = ', nConf
-!write(u6,*)
-!#endif
 
 contains
 
