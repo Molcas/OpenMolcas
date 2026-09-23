@@ -11,7 +11,7 @@
 
 subroutine sg2symg(CI,lCI,imode,pState_Sym)
 
-use sguga, only: CIS, SG_Free, SG_ReOrd
+use sguga, only: CIS, SG_Free, SG_ReOrd_Orig
 use Str_Info, only: CFTP_MCLR => CFTP, CNSM
 use lucia_data, only: CFTP, CONF_OCC
 use general_data, only: nSym, STSym
@@ -60,7 +60,7 @@ Conf_Occ(pState_Sym)%A(:) = -CNSM(iss)%ICONF
 call mma_allocate(CFTP,size(CFTP_MCLR),Label='CFTP')
 CFTP(:) = CFTP_MCLR(:)
 
-call SG_REORD(istate,pState_Sym,iMode,nConf,CI,CINEW)
+call SG_REORD_Orig(istate,pState_Sym,iMode,nConf,CI,CINEW)
 
 CI(1:nConf) = CINEW(:)
 
