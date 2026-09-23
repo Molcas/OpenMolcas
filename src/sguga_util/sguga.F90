@@ -38,6 +38,9 @@ type CDCInfo
    integer(kind=iwp), allocatable :: DOC(:,:)
    integer(kind=iwp), allocatable :: SOC(:,:)
    integer(kind=iwp), allocatable :: SOCSym(:)
+   integer(kind=iwp), allocatable :: nOCSym(:)
+   integer(kind=iwp), allocatable :: OCDOC(:,:)
+   integer(kind=iwp), allocatable :: OCSOC(:,:)
 
    integer(kind=iwp), allocatable :: nOpenOCP(:)
    integer(kind=iwp), allocatable :: nOCP(:)
@@ -946,6 +949,7 @@ call mma_deallocate(SGS%Ver,safe='*')
 Call mma_deallocate(SGS%OC,safe='*')
 if (allocated(SGS%CDCInfo)) then
 
+
    do iOpen = lbound(SGS%CDCInfo,1), ubound(SGS%CDCInfo,1)
 
       do mult = lbound(SGS%CDCInfo,2), ubound(SGS%CDCInfo,2)
@@ -953,6 +957,11 @@ if (allocated(SGS%CDCInfo)) then
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOpenOCP,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCP,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%DOC,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOC,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOCSym,safe='*')
+         Call mma_deallocate(SGS%CDCInfo(iOpen,mult)%nOCSym,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCDOC,safe='*')
+         call mma_deallocate(SGS%CDCInfo(iOpen,mult)%OCSOC,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOC,safe='*')
          call mma_deallocate(SGS%CDCInfo(iOpen,mult)%SOCSym,safe='*')
 
@@ -1007,7 +1016,7 @@ use second_quantization, only: binomial=>binom_coef
 type(SGStruct), intent(inout) :: SGS
 
 integer(kind=iwp) :: iOpen, mult, ms2, nDet, nCSF, MinOpen, MaxOpen, iSym, iDOC
-integer(kind=iwp) :: nClosed, nClosedOCP, nSOC, iSOC, nDOC
+integer(kind=iwp) :: nClosed, nClosedOCP, nSOC, iSOC, nDOC, iOC
 integer(kind=iwp) :: NoNew, nConf, nElec
 Integer :: i,j
 Integer :: iStart
@@ -1035,9 +1044,10 @@ do iOpen = MinOpen, MaxOpen, 2
 
    call count_detspin(iOpen,ms2,nDet)
    call count_twos(iOpen,mult,nCSF)
-write(u6,*) 'iOpen=',iOpen
-write(u6,*) 'nDet =',nDet
-write(u6,*) 'nCSF =',nCSF
+
+   write(u6,*) 'iOpen=',iOpen
+   write(u6,*) 'nDet =',nDet
+   write(u6,*) 'nCSF =',nCSF
 
    SGS%CDCInfo(iOpen,mult)%nDet = nDet
    SGS%CDCInfo(iOpen,mult)%nCSF = nCSF
@@ -1180,6 +1190,29 @@ write(u6,*) 'nCSF =',nCSF
       call Abend()
    endif
 
+   ! Compute the number of orbital occupatation configurations per symmetry.
+   ! Here the order doesn't matter, we will deal with that in the next loop
+   ! where we copy the Lucia order.
+
+   Call mma_allocate(SGS%CDCInfo(iOpen,Mult)%nOCSym,SGS%nSym,Label='nOCSym')
+
+   SGS%CDCInfo(iOpen,mult)%nOCSym(:) = &
+      SGS%CDCInfo(iOpen,mult)%nClosedOCP * &
+      SGS%CDCInfo(iOpen,mult)%nOpenOCP(:)
+
+   call mma_allocate( SGS%CDCInfo(iOpen,mult)%OCDOC, &
+                      maxval(SGS%CDCInfo(iOpen,mult)%nOCSym), &
+                      SGS%nSym, &
+                      Label='OCDOC' )
+
+   call mma_allocate( SGS%CDCInfo(iOpen,mult)%OCSOC, &
+                      maxval(SGS%CDCInfo(iOpen,mult)%nOCSym), &
+                      SGS%nSym, &
+                      Label='OCSOC' )
+
+   SGS%CDCInfo(iOpen,mult)%OCDOC(:,:) = 0
+   SGS%CDCInfo(iOpen,mult)%OCSOC(:,:) = 0
+
 end do
 
 call mma_deallocate(nSOCSym)
@@ -1211,8 +1244,15 @@ Call mma_allocate( SGS%OC, SGS%nActel, Label='OC' )
 
 !#ifdef _DEBUGPRINT_
 
+! Now loop over the Orbital Configurations a la Lucia.
+! For each OC identify the symmtry and store away the iDOC and iSOC indicies.
+
 !write(u6,*)
 !write(u6,*) '===== TEST NXT_OC ====='
+! Reset and use now as a counter
+do iOpen = MinOpen, MaxOpen, 2
+   SGS%CDCInfo(iOpen,mult)%nOCSym(:) = 0
+end do
 nElec = SGS%nActEl
 nConf=0
 NoNew = 0
@@ -1318,6 +1358,14 @@ Do While (NoNew == 0)
          call Abend()
       end if
    end if
+
+   iSym = SOC_Sym(SGS%ISm,nSOC,SOCOcc)
+
+   SGS%CDCInfo(nSOC,mult)%nOCSym(iSym) = SGS%CDCInfo(nSOC,mult)%nOCSym(iSym) + 1
+   iOC = SGS%CDCInfo(nSOC,mult)%nOCSym(iSym)
+
+   SGS%CDCInfo(nSOC,mult)%OCDOC(iOC,iSym) = iDOC
+   SGS%CDCInfo(nSOC,mult)%OCSOC(iOC,iSym) = iSOC
 
    Call Nxt_OC(SGS%OC,nElec,SGS%nLev,0,NoNew)
 
