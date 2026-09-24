@@ -4118,8 +4118,7 @@ end subroutine SG_Reord_Orig
 
 subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 
-use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
-use Lucia_data, only: CFTP
+use spinfo, only: MINOP, NCNFTP, NTYP
 use Molcas, only: MxAct
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -4141,12 +4140,10 @@ integer(kind=iwp) :: IC
 integer(kind=iwp) :: ICL
 integer(kind=iwp) :: ICNBS
 integer(kind=iwp) :: ICNBS0
-integer(kind=iwp) :: ICSBAS
 integer(kind=iwp) :: ICSFJP
 integer(kind=iwp) :: IICSF
 integer(kind=iwp) :: IOPEN
 integer(kind=iwp) :: IP
-integer(kind=iwp) :: IPBAS
 integer(kind=iwp) :: ISG
 integer(kind=iwp) :: ITYP
 
@@ -4154,9 +4151,6 @@ integer(kind=iwp) :: IWALK(MxAct)
 integer(kind=iwp) :: KCNF(MxAct)
 
 real(kind=wp) :: Fact
-            integer(kind=iwp) :: i
-            integer(kind=iwp) :: oldstep
-            integer(kind=iwp) :: newstep
 
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I
@@ -4177,7 +4171,6 @@ endif
 ICSFJP = 0
 
 ICNBS0 = 0
-IPBAS  = 0
 
 !----------------------------------------------------------
 ! Keep original Lucia loop structure unchanged
@@ -4200,16 +4193,6 @@ do ITYP = 1, NTYP
    endif
 
    !-------------------------------------------------------
-   ! Base address of CFTP block
-   !-------------------------------------------------------
-
-   if (ITYP == 1) then
-      IPBAS = 1
-   else
-      IPBAS = IPBAS + NCSFTP(ITYP-1)*(IOPEN-1)
-   endif
-
-   !-------------------------------------------------------
    ! Loop over occupation classes
    !-------------------------------------------------------
 
@@ -4218,73 +4201,32 @@ do ITYP = 1, NTYP
 
       call GetOccupation_SGUGA(IOPEN,SGS(iState)%iSpin,IREFSM,IC,KCNF)
 
-      do IICSF = 1, NCSFTP(ITYP)
+      do IICSF = 1, SGS(iState)%CDCInfo(IOPEN,SGS(iState)%iSpin)%nCSF
          ICSFJP = ICSFJP + 1
-         ICSBAS = IPBAS + (IICSF-1)*IOPEN
 
-#ifdef _SANITY_CHECK_
-         if (IOPEN > 0) then
-
-            do i=1,IOPEN
-
-               oldstep = CFTP(ICSBAS+i-1)
-
-               if (SGS(iState)%CDCInfo(IOPEN,SGS(iState)%iSpin)%Twos(i,IICSF) > &
-                   SGS(iState)%CDCInfo(IOPEN,SGS(iState)%iSpin)%Twos(i-1,IICSF)) then
-                  newstep = 1
-               else
-                  newstep = 0
-               end if
-
-               if (oldstep /= newstep) then
-                  write(u6,*) 'Spin-coupling mismatch'
-                  write(u6,*) 'IOPEN = ',IOPEN
-                  write(u6,*) 'IICSF = ',IICSF
-                  write(u6,*) 'I     = ',i
-                  write(u6,*) 'CFTP  = ',oldstep
-                  write(u6,*) 'TWOS  = ',newstep
-                  write(u6,*) 'TWOS(i-1:i)=', &
-                     SGS(iState)%CDCInfo(IOPEN,SGS(iState)%iSpin)%Twos(i-1:i,IICSF)
-                  call Abend()
-               end if
-
-            end do
-         end if
-
-#endif
-         call BuildWalk_Lucia(ICL,IOPEN,ICSBAS,KCNF,IWALK)
          call BuildWalk(iState,ICL,IOPEN,IICSF,KCNF,IWALK)
 
-#ifdef _DEBUGPRINT_
-
+#ifdef _SANTITY_CHECK_
          if (any(IWALK(1:SGS(iState)%nLev) < 0) .or. &
              any(IWALK(1:SGS(iState)%nLev) > 3)) then
 
             write(u6,*) 'INVALID IWALK'
             write(u6,'(20I4)') IWALK(1:SGS(iState)%nLev)
             call Abend()
-
          endif
-
 #endif
 
          ISG = SG_NUM(SGS(iState),EXS(iState),IWALK)
-
          IP = SG_PHASE(SGS(iState),IWALK)
-
          Fact = One
          if (IP < 0) Fact = -One
-
          if (IMODE == 0) then
             CINEW(ISG) = Fact*CIOLD(ICSFJP)
          else
             CINEW(ICSFJP) = Fact*CIOLD(ISG)
          endif
-
       enddo
-
    enddo
-
 enddo
 
 #ifdef _DEBUGPRINT_
@@ -4378,8 +4320,10 @@ End subroutine BuildWalk
 ! Build walk from Lucia occupation class and CFTP data
 !===========================================================
 
+#ifdef _NOT_USED_ANY_LONGER_
 subroutine BuildWalk_Lucia(ICL,IOPEN,ICSBAS,KCNF,IWALK)
 
+   use Lucia_data, only: CFTP
    integer(kind=iwp), intent(in)  :: ICL
    integer(kind=iwp), intent(in)  :: IOPEN
    integer(kind=iwp), intent(in)  :: ICSBAS
@@ -4398,6 +4342,7 @@ subroutine BuildWalk_Lucia(ICL,IOPEN,ICSBAS,KCNF,IWALK)
       IWALK )
 
 end subroutine BuildWalk_Lucia
+#endif
 
 end subroutine SG_ReOrd
 
