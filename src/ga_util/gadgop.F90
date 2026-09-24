@@ -21,6 +21,8 @@ subroutine GADGOP(x,n,op)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 use GA_Wrapper, only: MT_DBL
+use Definitions, only: RtoB
+use, intrinsic :: iso_c_binding, only: c_int
 #endif
 use Definitions, only: wp, iwp
 
@@ -30,7 +32,22 @@ real(kind=wp), intent(inout) :: x(n)
 character(len=*), intent(in) :: op
 
 #ifdef _MOLCAS_MPP_
-if (Is_Real_Par()) call ga_dgop(MT_DBL,x,n,op)
+integer(kind=iwp) :: iblk
+! maximum number of real values handled by a single GADGOP (ARMCI) call
+! compilers complain about huge(xxx)/RtoB with -Werror=integer-division
+integer(kind=iwp), parameter :: MAXBUF = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB
+#endif
+
+#ifdef _MOLCAS_MPP_
+if (Is_Real_Par()) then
+  if (n < MAXBUF) then
+    call ga_dgop(MT_DBL,x,n,op)
+  else
+    do iblk=0,(n-1)/MAXBUF
+      call ga_dgop(MT_DBL,x(1+MAXBUF*iblk),min(n-MAXBUF*iblk,MAXBUF),op)
+    end do
+  end if
+end if
 #else
 #include "macros.fh"
 unused_var(x)
