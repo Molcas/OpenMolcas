@@ -229,7 +229,7 @@ integer(kind=iwp), parameter :: TR_TAIL  = 16
 integer(kind=iwp), parameter :: TR_WEIGHT = 32
 
 public :: SGStruct, CIStruct, EXStruct, SG_Free, SG_Init, SG_Init_Light, SG_Epq_Psi, SG_ReOrd, MkCOT, MkSgNum, SG_NUM, SG_PHASE
-public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, SG_ReOrd_Orig
+public :: SG_EpqEqp_Diag, sg_csfdet, generate_detspin, generate_twos, SG_ReOrd_Orig, StepVec
 !#define _TEST_CSFDET_
 #ifdef _TEST_CSFDET_
 public :: test_sg_csfdet
@@ -5120,5 +5120,45 @@ End Do
 
 End Subroutine Decode_OC
 
+
+! PURPOSE: A SPIN-COUPLED CSF IS SPECIFIED BY NCL CLOSED SHELL
+!          AND NOP OPEN SHELL AND OCCUPATION VECTORS ICL AND IOP,
+!          RESPECTIVELY. THE SPIN COUPLING IS STORED IN THE
+!          VECTOR ISPIN. TRANSLATE THESE DATA INTO THE
+!          CORRESPONDING STEP VECTOR.
+subroutine STEPVEC(ICL,IOP,NCL,NOP,ISPIN,NORB,IWALK)
+
+use Definitions, only: iwp
+
+implicit none
+
+integer(iwp), intent(in)  :: NCL, NOP, NORB
+integer(iwp), intent(in)  :: ICL(NCL), IOP(NOP)
+integer(iwp), intent(in)  :: ISPIN(NOP)
+integer(iwp), intent(out) :: IWALK(NORB)
+
+integer(iwp) :: iClosed, iOpen
+!
+!  Start from an empty occupation pattern
+!
+IWALK(:) = 0
+!
+!  Mark doubly occupied orbitals
+!
+do iClosed=1,NCL
+   IWALK(ICL(iClosed)) = 3
+enddo
+!
+!  Mark singly occupied orbitals
+!
+do iOpen=1,NOP
+   if (ISPIN(iOpen) == 1) then
+      IWALK(IOP(iOpen)) = 1
+   else
+      IWALK(IOP(iOpen)) = 2
+   endif
+enddo
+
+end subroutine STEPVEC
 
 end module SGUGA
