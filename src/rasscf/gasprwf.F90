@@ -38,6 +38,7 @@ subroutine gasprwf(NORB,NEL,IREFSM,CICOEF,kcnf)
 !                                                                      *
 !***********************************************************************
 
+use sguga, only: stepvec
 use rasscf_global, only: PrwThr
 use general_data, only: NSM
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP

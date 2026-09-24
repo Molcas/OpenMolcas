@@ -1132,6 +1132,20 @@ do iOpen = MinOpen, MaxOpen, 2
       call generate_detspin(iOpen, mult-1, detspin, nDet)
 
       call generate_twos(iOpen, mult, twos, nCSF)
+      call mma_allocate( &
+         SGS%CDCInfo(iOpen,mult)%DetSpin, &
+         [lbound(detspin,1),ubound(detspin,1)], &
+         [lbound(detspin,2),ubound(detspin,2)], &
+         Label='DetSpin')
+
+      call mma_allocate( &
+         SGS%CDCInfo(iOpen,mult)%Twos, &
+         [lbound(twos,1),ubound(twos,1)], &
+         [lbound(twos,2),ubound(twos,2)], &
+         Label='Twos')
+
+      SGS%CDCInfo(iOpen,mult)%DetSpin(:,:) = detspin(:,:)
+      SGS%CDCInfo(iOpen,mult)%Twos(:,:)    = twos(:,:)
 
       call mma_allocate( &
          SGS%CDCInfo(iOpen,mult)%CDC, &
@@ -4140,6 +4154,9 @@ integer(kind=iwp) :: IWALK(MxAct)
 integer(kind=iwp) :: KCNF(MxAct)
 
 real(kind=wp) :: Fact
+            integer(kind=iwp) :: i
+            integer(kind=iwp) :: oldstep
+            integer(kind=iwp) :: newstep
 
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I
@@ -4205,7 +4222,38 @@ do ITYP = 1, NTYP
          ICSFJP = ICSFJP + 1
          ICSBAS = IPBAS + (IICSF-1)*IOPEN
 
-         call BuildWalk(ICL,IOPEN,ICSBAS,KCNF,IWALK)
+#ifdef _SANITY_CHECK_
+         if (IOPEN > 0) then
+
+            do i=1,IOPEN
+
+               oldstep = CFTP(ICSBAS+i-1)
+
+               if (SGS(iState)%CDCInfo(IOPEN,SGS(iState)%iSpin)%Twos(i,IICSF) > &
+                   SGS(iState)%CDCInfo(IOPEN,SGS(iState)%iSpin)%Twos(i-1,IICSF)) then
+                  newstep = 1
+               else
+                  newstep = 0
+               end if
+
+               if (oldstep /= newstep) then
+                  write(u6,*) 'Spin-coupling mismatch'
+                  write(u6,*) 'IOPEN = ',IOPEN
+                  write(u6,*) 'IICSF = ',IICSF
+                  write(u6,*) 'I     = ',i
+                  write(u6,*) 'CFTP  = ',oldstep
+                  write(u6,*) 'TWOS  = ',newstep
+                  write(u6,*) 'TWOS(i-1:i)=', &
+                     SGS(iState)%CDCInfo(IOPEN,SGS(iState)%iSpin)%Twos(i-1:i,IICSF)
+                  call Abend()
+               end if
+
+            end do
+         end if
+
+#endif
+         call BuildWalk_Lucia(ICL,IOPEN,ICSBAS,KCNF,IWALK)
+         call BuildWalk(iState,ICL,IOPEN,IICSF,KCNF,IWALK)
 
 #ifdef _DEBUGPRINT_
 
@@ -4287,11 +4335,50 @@ subroutine GetOccupation_SGUGA(iOpen,mult,iSym,iOC,KCNF)
 
 end subroutine GetOccupation_SGUGA
 
+subroutine BuildWalk(iState,ICL,IOPEN,IICSF,KCNF,IWALK)
+   integer(kind=iwp), intent(in)  :: istate
+   integer(kind=iwp), intent(in)  :: ICL
+   integer(kind=iwp), intent(in)  :: IOPEN
+   integer(kind=iwp), intent(in)  :: IICSF
+   integer(kind=iwp), intent(in)  :: KCNF(MxAct)
+   integer(kind=iwp), intent(out) :: IWALK(MxAct)
+
+   integer(kind=iwp) :: i
+   integer(kind=iwp) :: Twos(0:IOPEN)
+
+   if (iOpen == 0) then
+      IWALK(:) = 0
+      do i=1,ICL
+         IWALK(KCNF(i)) = 3
+      end do
+      return
+   endif
+
+   Twos(0:IOPEN) = SGS(iState)%CDCInfo(IOPEN,SGS(iState)%iSpin)%Twos(0:IOPEN,IICSF)
+
+   IWALK(:) = 0
+
+   ! Doubly occupied orbitals
+   do i=1,ICL
+      IWALK(KCNF(i)) = 3
+   end do
+
+   ! Singly occupied orbitals
+   do i=1,IOPEN
+      if (Twos(i) > Twos(i-1)) then
+         IWALK(KCNF(ICL+i)) = 1
+      else
+         IWALK(KCNF(ICL+i)) = 2
+      end if
+   end do
+
+End subroutine BuildWalk
+
 !===========================================================
 ! Build walk from Lucia occupation class and CFTP data
 !===========================================================
 
-subroutine BuildWalk(ICL,IOPEN,ICSBAS,KCNF,IWALK)
+subroutine BuildWalk_Lucia(ICL,IOPEN,ICSBAS,KCNF,IWALK)
 
    integer(kind=iwp), intent(in)  :: ICL
    integer(kind=iwp), intent(in)  :: IOPEN
@@ -4310,7 +4397,7 @@ subroutine BuildWalk(ICL,IOPEN,ICSBAS,KCNF,IWALK)
       SGS(iState)%nLev, &
       IWALK )
 
-end subroutine BuildWalk
+end subroutine BuildWalk_Lucia
 
 end subroutine SG_ReOrd
 
