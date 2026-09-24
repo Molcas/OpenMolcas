@@ -4118,7 +4118,7 @@ end subroutine SG_Reord_Orig
 
 subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 
-use spinfo, only: MINOP, NCNFTP, NTYP
+use spinfo, only: NCNFTP, NTYP
 use Molcas, only: MxAct
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -4145,7 +4145,7 @@ integer(kind=iwp) :: IICSF
 integer(kind=iwp) :: IOPEN
 integer(kind=iwp) :: IP
 integer(kind=iwp) :: ISG
-integer(kind=iwp) :: ITYP
+integer(kind=iwp) :: ITYP, MinOpen, Mult
 
 integer(kind=iwp) :: IWALK(MxAct)
 integer(kind=iwp) :: KCNF(MxAct)
@@ -4176,9 +4176,10 @@ ICNBS0 = 0
 ! Keep original Lucia loop structure unchanged
 !----------------------------------------------------------
 
+MinOpen = SGS(iState)%iSpin - 1
 do ITYP = 1, NTYP
-   IOPEN = ITYP + MINOP - 1
-   ICL = (SGS(iState)%nActEl-IOPEN)/2
+   iOpen = ITYP + MinOpen - 1
+   ICL = (SGS(iState)%nActEl-iOpen)/2
 
    !-------------------------------------------------------
    ! Base address of occupation list
@@ -4189,7 +4190,7 @@ do ITYP = 1, NTYP
    else
       ICNBS0 = ICNBS0 + &
                NCNFTP(ITYP-1,IREFSM) * &
-               (SGS(iState)%nActEl + IOPEN - 1)/2
+               (SGS(iState)%nActEl + iOpen - 1)/2
    endif
 
    !-------------------------------------------------------
@@ -4197,14 +4198,14 @@ do ITYP = 1, NTYP
    !-------------------------------------------------------
 
    do IC = 1, NCNFTP(ITYP,IREFSM)
-      ICNBS = ICNBS0 + (IC-1)*(IOPEN+ICL)
+      ICNBS = ICNBS0 + (IC-1)*(iOpen+ICL)
 
-      call GetOccupation_SGUGA(IOPEN,SGS(iState)%iSpin,IREFSM,IC,KCNF)
+      call GetOccupation_SGUGA(iOpen,SGS(iState)%iSpin,IREFSM,IC,KCNF)
 
-      do IICSF = 1, SGS(iState)%CDCInfo(IOPEN,SGS(iState)%iSpin)%nCSF
+      do IICSF = 1, SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nCSF
          ICSFJP = ICSFJP + 1
 
-         call BuildWalk(iState,ICL,IOPEN,IICSF,KCNF,IWALK)
+         call BuildWalk(iState,ICL,iOpen,IICSF,KCNF,IWALK)
 
 #ifdef _SANTITY_CHECK_
          if (any(IWALK(1:SGS(iState)%nLev) < 0) .or. &
