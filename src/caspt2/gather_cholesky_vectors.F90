@@ -37,7 +37,6 @@ integer(kind=iwp), allocatable :: NVALL(:)
 real(kind=wp), allocatable :: LocBuf(:)
 integer(kind=iwp), parameter :: MAXRECV = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB
 ! MAXRECV: largest element count passing the 2 GB byte check in ALLGATHER_R
-! not MAXBUF (procinp_caspt2), which bounds the ARMCI path: here MPI_Allgatherv is called directly
 
 ! ugly hack to convert separate k/q orbital types into a specific case
 ICASE = ITK*ITQ
