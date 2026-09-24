@@ -21,6 +21,7 @@ subroutine GADGOP(x,n,op)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 use GA_Wrapper, only: MT_DBL
+use Definitions, only: RtoB
 #endif
 use Definitions, only: wp, iwp
 
@@ -30,7 +31,24 @@ real(kind=wp), intent(inout) :: x(n)
 character(len=*), intent(in) :: op
 
 #ifdef _MOLCAS_MPP_
-if (Is_Real_Par()) call ga_dgop(MT_DBL,x,n,op)
+integer(kind=iwp) :: iblk
+! maximum number of real values handled by a single GADGOP (ARMCI) call:
+! (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB (\approx 2 GB)
+! However, ga_dgop internally allocates an array of the length as the communicated array,
+! so it may be sensible to limit the length to 1 GB.
+integer(kind=iwp), parameter :: MAXBUF = 2**30/RtoB
+#endif
+
+#ifdef _MOLCAS_MPP_
+if (Is_Real_Par()) then
+  if (n < MAXBUF) then
+    call ga_dgop(MT_DBL,x,n,op)
+  else
+    do iblk=0,(n-1)/MAXBUF
+      call ga_dgop(MT_DBL,x(1+MAXBUF*iblk),min(n-MAXBUF*iblk,MAXBUF),op)
+    end do
+  end if
+end if
 #else
 #include "macros.fh"
 unused_var(x)
