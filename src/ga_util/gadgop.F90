@@ -22,7 +22,6 @@ subroutine GADGOP(x,n,op)
 use Para_Info, only: Is_Real_Par
 use GA_Wrapper, only: MT_DBL
 use Definitions, only: RtoB
-use, intrinsic :: iso_c_binding, only: c_int
 #endif
 use Definitions, only: wp, iwp
 
@@ -33,9 +32,8 @@ character(len=*), intent(in) :: op
 
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iblk
-! maximum number of real values handled by a single GADGOP (ARMCI) call
-! compilers complain about huge(xxx)/RtoB with -Werror=integer-division
-! integer(kind=iwp), parameter :: MAXBUF = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB
+! maximum number of real values handled by a single GADGOP (ARMCI) call:
+! (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB (\approx 2 GB)
 ! However, ga_dgop internally allocates an array of the length as the communicated array,
 ! so it may be sensible to limit the length to 1 GB.
 integer(kind=iwp), parameter :: MAXBUF = 2**30/RtoB

@@ -22,7 +22,6 @@ subroutine GAIGOP(k,n,op)
 use Para_Info, only: Is_Real_Par
 use GA_Wrapper, only: MT_INT
 use Definitions, only: ItoB
-use, intrinsic :: iso_c_binding, only: c_int
 #endif
 use Definitions, only: iwp
 
@@ -32,8 +31,7 @@ integer(kind=iwp), intent(inout) :: k(n)
 character(len=*), intent(in) :: op
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iblk
-! maximum number of integer values handled by a single GAIGOP (ARMCI) call
-! integer(kind=iwp), parameter :: MAXBUF = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),ItoB))/ItoB
+! Limit to \approx 1 GB, because an additional array is allocated internally
 integer(kind=iwp), parameter :: MAXBUF = 2**30/ItoB
 #endif
 
