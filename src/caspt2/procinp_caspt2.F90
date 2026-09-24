@@ -22,7 +22,7 @@ use caspt2_global, only: cmpThr, cntThr, CompressMPS, ConvInvar, dnmThr, do_csf,
                          sigma_p_epsilon, sigma_p_exponent, Weight
 use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, CPT2Method, DMRG, DoCumulant, DWType, FockType, G1SECIN, HZero, IfChol, &
                          IfDens, IfDOrtho, IfDW, IfMix, IFMSCoup, IfProp, IfRMS, IfsadRef, IfXMS, iRlxRoot, iRoot, JMS, MaxIt, &
-                         mState, nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, nRas1T, nRas3T, nRoots, nRoots, &
+                         mState, nCases, nDel, nFro, nGroup, nGroupState, nIsh, nLYGroup, nLYRoot, NRAS1, NRAS3, nRoots, nRoots, &
                          nSsh, nState, nSym, OrbIn, OutFmt, PrOrb, PRSD, PT2Method, RFPERT, RHSDirect, Root2State, SDECOM, &
                          SMatrix, ThrConv, ThrEne, ThrOCC, ThrSHN, ThrSHS, Zeta
 use SC_NEVPT2, only: Do_FIC, Do_SC, SC_amplitude, SC_prop, SC_thres
@@ -531,7 +531,7 @@ if (HZERO == 'DYALL') then
   SC_prop = input%SCPROP .or. (.not. Do_FIC)
   SC_amplitude = SC_prop
   SC_thres = abs(input%SC_thres)
-  if (NRAS1T+NRAS3T > 0) then
+  if (sum(NRAS1(1:nSym))+sum(NRAS3(1:nSym)) > 0) then
     call warningMessage(2,'NEVPT2 calculations with a RAS reference wavefunction are not supported')
     call quit_onUserError()
   end if
@@ -760,7 +760,7 @@ if (do_grad) then
 end if
 
 !! issue #448
-if ((IFDENS .and. (.not. do_grad)) .and. (NRAS1T+NRAS3T > 0)) then
+if ((IFDENS .and. (.not. do_grad)) .and. (sum(NRAS1(1:nSym))+sum(NRAS3(1:nSym)) > 0)) then
   call warningMessage(2,'DENS keyword cannot be combined with RAS.')
   call quit_onUserError()
 end if
