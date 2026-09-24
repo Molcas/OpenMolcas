@@ -840,8 +840,10 @@ subroutine SG_Init(iState,nSym,nActEl,iSpin,                      &
   call MK_FLAT_Epq(SGS(iState))
 
     ! Generate the Configuration-to-Determinant Coefficients
+    ! Generate Occupation Configurations a la Lucia.
+    ! Temporarily just enabled for CAS
 
-  Call Mk_CDC(SGS(iState))
+  If (SGS(iState)%nRsPrt == 1) Call Mk_CDC(SGS(iState))
 end subroutine SG_Init
 
 subroutine SG_Init_Light(iState,nSym,nActEl,iSpin,              &
@@ -4103,7 +4105,7 @@ end subroutine SG_Reord_Orig
 subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
-use Lucia_data, only: CFTP, CONF_Occ
+use Lucia_data, only: CFTP
 use Molcas, only: MxAct
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -4136,13 +4138,16 @@ integer(kind=iwp) :: ITYP
 
 integer(kind=iwp) :: IWALK(MxAct)
 integer(kind=iwp) :: KCNF(MxAct)
-integer(kind=iwp) :: KCNF_SGUGA(MxAct)
 
 real(kind=wp) :: Fact
 
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I
 #endif
+If (SGS(iState)%nRsPrt /= 1) Then
+   Call SG_ReOrd_orig(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
+   Return
+endif
 
 if (.not. allocated(CIS(iState)%ICASE)) then
    call MkCOT(SGS(iState),CIS(iState))
@@ -4194,24 +4199,7 @@ do ITYP = 1, NTYP
    do IC = 1, NCNFTP(ITYP,IREFSM)
       ICNBS = ICNBS0 + (IC-1)*(IOPEN+ICL)
 
-      call GetOccupation_Lucia(ICNBS,ICL,IOPEN,KCNF)
-write(u6,'(A,4I6)') 'LUCIA OC :',IOPEN,IREFSM,IC,ICL
-write(u6,'(A,100I4)') ' DOC =',KCNF(1:ICL)
-write(u6,'(A,100I4)') ' SOC =',KCNF(ICL+1:ICL+IOPEN)
-
-      call GetOccupation_SGUGA(IOPEN,SGS(iState)%iSpin,IREFSM,IC,KCNF_SGUGA)
-
-write(u6,'(A,4I6)') 'SGUGA OC :',IOPEN,IREFSM,IC,ICL
-write(u6,'(A,100I4)') ' DOC =',KCNF_SGUGA(1:ICL)
-write(u6,'(A,100I4)') ' SOC =',KCNF_SGUGA(ICL+1:ICL+IOPEN)
-
-      if (any(KCNF_SGUGA(1:ICL+IOPEN) /= KCNF(1:ICL+IOPEN))) then
-         write(u6,*) 'Occupation mismatch'
-         write(u6,'(A,20I4)') 'LUCIA = ',KCNF(1:ICL+IOPEN)
-         write(u6,'(A,20I4)') 'SGUGA = ',KCNF_SGUGA(1:ICL+IOPEN)
-         write(u6,'(A,3I8)') 'IOPEN,IC,ISYM=',IOPEN,IC,IREFSM
-         call Abend()
-      endif
+      call GetOccupation_SGUGA(IOPEN,SGS(iState)%iSpin,IREFSM,IC,KCNF)
 
       do IICSF = 1, NCSFTP(ITYP)
          ICSFJP = ICSFJP + 1
@@ -4265,47 +4253,6 @@ write(u6,*)
 #endif
 
 contains
-
-!===========================================================
-! Decode Lucia occupation class
-!
-! KCNF(1:ICL)
-!    doubly occupied orbitals
-!
-! KCNF(ICL+1:ICL+IOPEN)
-!    singly occupied orbitals
-!===========================================================
-
-subroutine GetOccupation_Lucia(ICNBS,ICL,IOPEN,KCNF)
-
-   integer(kind=iwp), intent(in)  :: ICNBS
-   integer(kind=iwp), intent(in)  :: ICL
-   integer(kind=iwp), intent(in)  :: IOPEN
-
-   integer(kind=iwp), intent(out) :: KCNF(MxAct)
-
-   integer(kind=iwp) :: IIBCL
-   integer(kind=iwp) :: IIBOP
-   integer(kind=iwp) :: JOCC
-   integer(kind=iwp) :: KOCC
-   integer(kind=iwp) :: KORB
-
-   KCNF(:) = 0
-   IIBCL = 1
-   IIBOP = 1
-   JOCC = ICL + IOPEN
-   do KOCC = 0, JOCC-1
-      KORB = CONF_Occ(IREFSM)%A(ICNBS+KOCC)
-      if (KORB < 0) then
-         KCNF(IIBCL) = abs(KORB)
-         IIBCL = IIBCL + 1
-      else
-         KCNF(ICL+IIBOP) = KORB
-         IIBOP = IIBOP + 1
-      endif
-   enddo
-
-end subroutine GetOccupation_Lucia
 
 subroutine GetOccupation_SGUGA(iOpen,mult,iSym,iOC,KCNF)
    integer(kind=iwp), intent(in)  :: iOpen
