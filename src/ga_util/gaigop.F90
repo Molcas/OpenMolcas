@@ -33,7 +33,8 @@ character(len=*), intent(in) :: op
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iblk
 ! maximum number of integer values handled by a single GAIGOP (ARMCI) call
-integer(kind=iwp), parameter :: MAXBUF = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),ItoB))/ItoB
+! integer(kind=iwp), parameter :: MAXBUF = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),ItoB))/ItoB
+integer(kind=iwp), parameter :: MAXBUF = 2**30/ItoB
 #endif
 
 #ifdef _MOLCAS_MPP_
