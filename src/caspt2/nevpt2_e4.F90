@@ -78,9 +78,6 @@ implicit none
 private
 
 integer(kind=iwp) :: ixyzend = 0, ixyzsta = 0, NXY_work = 0, NXYVEC = 0, nxyzdim = 0, NZVEC = 0
-#ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: MAXBUF = 0
-#endif
 logical(kind=iwp) :: do_xvec = .false., do_yvec = .false.
 integer(kind=iwp), parameter :: istate = 1
 logical(kind=iwp), parameter :: do_zder = .true.
@@ -88,9 +85,6 @@ logical(kind=iwp), parameter :: do_zder = .true.
 public :: do_xvec, do_yvec, ixyzend, ixyzsta, NEVPT2_E4_contract1, NEVPT2_E4_contract2, NEVPT2_E4_derivative1, &
           NEVPT2_E4_derivative2, NEVPT2_E4_derivative3, NEVPT2_E4_XYder1, NEVPT2_E4_XYder2, NEVPT2_E4_XYVEC, NEVPT2_E4_ZVEC, &
           NXY_work, NXYVEC, nxyzdim, NZVEC
-#ifdef _MOLCAS_MPP_
-public :: MAXBUF
-#endif
 
 contains
 
@@ -163,13 +157,10 @@ subroutine NEVPT2_E4_ZVEC(NLEV,idx2ij,Gact,CI,ZVEC,WRK)
 
   if (ibuf > 0) call dgemm_('N','T',MXCI,nxy,ibuf,One,WRK,MXCI,Gact_sort,nxy,Scal,ZVEC,MXCI)
 
-  ! avoid the 2 GB (?) barrier
 # ifdef _MOLCAS_MPP_
   if (is_real_par()) then
     if ((ibuf == 0) .and. (Scal == Zero)) ZVEC(:,:) = Zero
-    do ip1=1,NZVEC,MAXBUF
-      call GADGOP(ZVEC(:,ip1:),MXCI*min(NZVEC-ip1+1,MAXBUF),'+')
-    end do
+    call GADGOP(ZVEC(:,:),MXCI*NZVEC,'+')
   end if
 # endif
 
@@ -257,16 +248,9 @@ subroutine NEVPT2_E4_XYVEC(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,ZVEC,XYV
   call Free_Tsk(ID)
 
 # ifdef _MOLCAS_MPP_
-  ! avoid the 2 GB (?) barrier
   if (is_real_par()) then
-    do ip1=1,NXYVEC,MAXBUF
-      call GADGOP(XYvec(:,ip1:,1),MXCI*min(NXYVEC-ip1+1,MAXBUF),'+')
-    end do
-    if (do_xvec .and. do_yvec) then
-      do ip1=1,NXYVEC,MAXBUF
-        call GADGOP(XYvec(:,ip1:,2),MXCI*min(NXYVEC-ip1+1,MAXBUF),'+')
-      end do
-    end if
+    call GADGOP(XYvec(:,:,1),MXCI*NXYVEC,'+')
+    if (do_xvec .and. do_yvec) call GADGOP(XYvec(:,:,2),MXCI*NXYVEC,'+')
   end if
 # endif
 
@@ -1099,14 +1083,8 @@ subroutine NEVPT2_E4_derivative3(iSym,NLEV,idx2ij,ipxysta,ipxyend,BUFT,CI,XYcont
 
 # ifdef _MOLCAS_MPP_
   if (is_real_par()) then
-    do ip1=1,NXYVEC,MAXBUF
-      call GADGOP(XYder(:,ip1,1),MXCI*min(NXYVEC-ip1+1,MAXBUF),'+')
-    end do
-    if (do_xvec .and. do_yvec) then
-      do ip1=1,NXYVEC,MAXBUF
-        call GADGOP(XYder(:,ip1,2),MXCI*min(NXYVEC-ip1+1,MAXBUF),'+')
-      end do
-    end if
+    call GADGOP(XYder(:,:,1),MXCI*NXYVEC,'+')
+    if (do_xvec .and. do_yvec) call GADGOP(XYder(:,:,2),MXCI*NXYVEC,'+')
   end if
 # endif
 
@@ -1282,9 +1260,7 @@ subroutine NEVPT2_E4_XYder1(iSym,NLEV,idx2ij,ij2idx,ipxysta,ipxyend,BUFT,CI,XYde
 
 # ifdef _MOLCAS_MPP_
   if (is_real_par() .and. do_zder) then
-    do ip1=1,NXYVEC,MAXBUF
-      call GADGOP(Zder(:,ip1),MXCI*min(NXYVEC-ip1+1,MAXBUF),'+')
-    end do
+    call GADGOP(Zder(:,:),MXCI*NXYVEC,'+')
   end if
 # endif
 

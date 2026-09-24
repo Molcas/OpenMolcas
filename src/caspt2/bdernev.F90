@@ -32,17 +32,10 @@ contains
 subroutine BDerNEV_initial()
 
   use caspt2_module, only: nAshT_ => nAshT, NSYM, NTUV
-# ifdef _MOLCAS_MPP_
-  use NEVPT2_E4, only: MAXBUF
-  use caspt2_module, only: MXCI
-# endif
 
   integer(kind=iwp) :: ntuvtot
 
   nAshT = nAshT_ ! define the number of the active orbitals used in NEVPT2_MOD
-# ifdef _MOLCAS_MPP_
-  MAXBUF = 2000000000/(MXCI*8)
-# endif
 
   if (nAshT /= 0) then
     call mma_allocate(Hact,nAshT,nAshT,Label='Hact')
