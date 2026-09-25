@@ -166,6 +166,7 @@ End Subroutine Mk_H_Psi
 
 Subroutine Mk_H_Psi_Det(istate,STSYM,nDet,CI_Vec,Sigma_Vec,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
+use sguga, only: EXS
 use cands, only: ICSM, ISSM
 Implicit None
 
@@ -180,12 +181,21 @@ real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix, nCSF
 integer(kind=iwp) :: IREFSM_SAVE
-#ifdef _SGUGA_VERIFY_
-integer(kind=iwp) :: iDet
-real(kind=wp), allocatable :: Full(:,:)
-#endif
 
 #ifdef _SGUGA_VERIFY_
+!integer(kind=iwp) :: iDet
+#ifdef _Compute_Full_CI_Matrix
+real(kind=wp), allocatable :: Full(:,:)
+#endif
+#endif
+
+!Note that we Lucia code doesn't explicily spin adapt the SD. Rather it just process the input coefficients.
+! If we project the starting coefficients to the spin-adapted iCSF basis and then expand it back to the SD basis
+! we have effectivly generated a SD coefficient vector that is implicitly spin-adapted. Since the CASVB code generates
+! starting CI vectors that are not spin-adapted there will be a difference in the convergence patterns.
+
+#ifdef _SGUGA_VERIFY_
+#ifdef _Compute_Full_CI_Matrix
 ! Reference computation of the full CI matrix.
 ! in CSF basis
 nCSF=CIS(istate)%nCSF(STSYM)
@@ -204,15 +214,15 @@ Call ci_full_det(nDet,STSym, &
 Call mma_deallocate(Full)
 ! in SD basis
 #endif
+#endif
 
-Write (u6,*)
-Write (u6,*) '==========================================='
-Write (u6,*) 'Start Original section'
-Write (u6,*) 'STSym=',STSym
+!Write (u6,*)
+!Write (u6,*) '==========================================='
+!Write (u6,*) 'Start Original section'
+!Write (u6,*) 'STSym=',STSym
 if (DOFARO) then
-!if (.FALSE.) then
-Write (u6,*) 'Faroald Style'
-Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
+!Write (u6,*) 'Faroald Style'
+!Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
 
 
   htu(:,:) = Zero
@@ -260,7 +270,7 @@ Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
   call CSDTVC(temp1,temp2,2,STSym,0)
-  Call RecPRT('CI_VEC(LUCIA CSF)',' ',temp1,1,nCSF)
+!  Call RecPRT('CI_VEC(LUCIA CSF)',' ',temp1,1,nCSF)
   ! Now use the FAROALD machinary to go to FAROALD SD basis
   call SG_REORD(iState,STSYM,0,nCSF,temp1,temp2)
   call CITRANS_SORT('C',temp2,temp1)
@@ -276,7 +286,7 @@ Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
 
   call SG_Reord(iState,STSYM,1,nCSF,temp2,temp1)
 
-  Call RecPrt('Sigma_Vec(Lucia CSF)',' ',temp1,1,nCSF)
+!  Call RecPrt('Sigma_Vec(Lucia CSF)',' ',temp1,1,nCSF)
   ! Convert from LUCIA CSF basis to LUCIA SD basis
   call CSDTVC(temp1,Sigma_Vec,1,STSym,0)
 
@@ -287,8 +297,8 @@ Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
 
 else
 
-  Write (u6,*) 'Lucia Style'
-  Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
+!  Write (u6,*) 'Lucia Style'
+!  Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
   IREFSM_SAVE=IREFSM
   IREFSM=STSYM
   ICSM=STSYM
@@ -314,23 +324,23 @@ else
   ICSM=IREFSM
   ISSM=IREFSM
 endif
-Call RecPrt('Sigma_Vec(Lucia SD)',' ',Sigma_Vec,1,nDet)
-Write (u6,*) 'End Original section'
-Write (u6,*)
-Write (u6,*)
+!Call RecPrt('Sigma_Vec(Lucia SD)',' ',Sigma_Vec,1,nDet)
+!Write (u6,*) 'End Original section'
+!Write (u6,*)
+!Write (u6,*)
 
 #ifdef _SGUGA_VERIFY_
-  Write (u6,*) 'Start SGUGA section'
+!  Write (u6,*) 'Start SGUGA section'
   nCSF=CIS(istate)%nCSF(STSym)
   Call mma_allocate(temp1,nDet,Label='temp1')
   Call mma_allocate(temp2,nDet,Label='temp2')
 
-  Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
+!  Call RecPRT('CI_VEC (Lucia SD)',' ',CI_VEC,1,nDet)
   temp2(:)=CI_Vec(:)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
   call CSDTVC(temp1,temp2,2,STSym,0)
-  Call RecPrt('CI_Vec (Lucia CSF)',' ',temp1,1,nCSF)
+!  Call RecPrt('CI_Vec (Lucia CSF)',' ',temp1,1,nCSF)
   ! Convert from Lucia CSF basis to SGUGA CSF basis
   !     iMode=0 --> from SGA to split graph GUGA order                   *
   !     iMode=1 --> from split graph GUGA to SGA order                   *
@@ -342,31 +352,34 @@ Write (u6,*)
 
   ! Convert from SGUGA CSF basis to Lucia CSF basis
   call SG_Reord(iState,STSYM,1,nCSF,temp1,temp2)
-  Call RecPrt('Sigma_Vec (Lucia CSF)',' ',temp2,1,nCSF)
+!  Call RecPrt('Sigma_Vec (Lucia CSF)',' ',temp2,1,nCSF)
   ! Convert from Lucia CSF basis to Lucia SD Basis
   call CSDTVC(temp2,temp1,1,STSym,0)
-  Call RecPrt('Sigma_Vec (Lucia SD)',' ',temp1,1,nDet)
-Write (6,*) 'End SGUGA section'
+!  Call RecPrt('Sigma_Vec (Lucia SD)',' ',temp1,1,nDet)
+!Write (6,*) 'End SGUGA section'
 
-  Do iDet = 1, nDet
-     If (Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp) Then
-        Write (u6,*) 'Mk_H_Psi_Det: Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp)'
-        Write (u6,*) ' iDet=',iDet
-        Write (u6,*) 'temp1(iDet)=    ',temp1(iDet)
-        Write (u6,*) 'Sigma_vec(iDet)=', Sigma_vec(iDet)
-        Call Abend()
-     End If
-  End Do
+! Do iDet = 1, nDet
+!    If (Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp) Then
+!       Write (u6,*) 'Mk_H_Psi_Det: Abs(temp1(iDet)-Sigma_vec(iDet))>1.0e-10_wp)'
+!       Write (u6,*) ' iDet=',iDet
+!       Write (u6,*) 'temp1(iDet)=    ',temp1(iDet)
+!       Write (u6,*) 'Sigma_vec(iDet)=', Sigma_vec(iDet)
+!       Call Abend()
+!    End If
+! End Do
 
+  Sigma_Vec(1:nDet)=temp1(1:nDet)
   Call mma_deallocate(temp1)
   Call mma_deallocate(temp2)
-Write (6,*) '==========================================='
-Write (6,*)
+!Write (6,*) '==========================================='
+!Write (6,*)
 #endif
 
 #ifdef _SGUGA_VERIFY_
+
 Contains
 
+#ifdef _Compute_Full_CI_Matrix
 subroutine ci_full_det(nDet,STSym, &
                        TUVX,nTUVX, &
                        TU,nTU, &
@@ -418,6 +431,7 @@ use cands, only: ICSM, ISSM
   Call RecPrt('CI Matrix in SD basis',' ',Full,ndet,ndet)
 
 end subroutine ci_full_det
+#endif
 #endif
 
 End Subroutine Mk_H_Psi_Det

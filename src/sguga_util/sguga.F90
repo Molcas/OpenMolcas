@@ -1320,10 +1320,6 @@ Do While (NoNew == 0)
 
    iOC = SGS%CDCInfo(nSOC,mult)%nOCSym(iSym)
 
-if (nSOC == 2 .and. iSym == 1) then
-   write(u6,'(A,3I8)') 'STORE:',nSOC,iSym,iOC
-   write(u6,'(A,2I8)') 'IDX  :',iDOC,iSOC
-endif
    SGS%CDCInfo(nSOC,mult)%OCDOC(iOC,iSym) = iDOC
    SGS%CDCInfo(nSOC,mult)%OCSOC(iOC,iSym) = iSOC
 
@@ -2750,8 +2746,8 @@ integer(kind=iwp) :: IC, ICODE, ICONF, IDAWSUM, ILOFF, ILW, IPOS, IRAWSUM, ISTEP
                      NLW, NUW
 integer(kind=iwp), allocatable :: ISTEPVEC(:)
 
-call mma_allocate(EXS%USGN,SGS%MxUp,CIS%nMidV,Label='EXS%USGN')
-call mma_allocate(EXS%LSGN,SGS%MxDwn,CIS%nMidV,Label='EXS%LSGN')
+call mma_allocate(EXS%USGN,SGS%MxUp,CIS%nMidV,Label='EXS%USGN',safe='*')
+call mma_allocate(EXS%LSGN,SGS%MxDwn,CIS%nMidV,Label='EXS%LSGN',safe='*')
 call mma_allocate(ISTEPVEC,SGS%nLev,Label='ISTEPVEC')
 
 ! INITIALIZE NUMBERING TABLES
@@ -4158,39 +4154,32 @@ If (SGS(iState)%nRsPrt /= 1) Then
    Return
 endif
 
-if (.not. allocated(CIS(iState)%ICASE)) then
-   call MkCOT(SGS(iState),CIS(iState))
-endif
-
-if (.not. allocated(EXS(iState)%USGN)) then
-   call MkSgNum(IREFSM,SGS(iState),CIS(iState),EXS(iState))
-endif
+if (.not. allocated(CIS(iState)%ICASE)) call MkCOT(SGS(iState),CIS(iState))
+call MkSgNum(IREFSM,SGS(iState),CIS(iState),EXS(iState))
 
 ICSFJP = 0
 
 MinOpen = SGS(iState)%iSpin - 1
 MaxOpen = min(SGS(iState)%nActEl, &
               2*SGS(iState)%nLev-SGS(iState)%nActEl)
+if (mod(MaxOpen-MinOpen,2) /= 0) MaxOpen = MaxOpen - 1
 
-do iOpen = MinOpen, MaxOpen
+! loop over open-shell sectors. That is, run over all orbital configurations
+! that have the same number of open-shells
+do iOpen = MinOpen, MaxOpen, 2
 
    ICL = (SGS(iState)%nActEl-iOpen)/2
 
-   !-------------------------------------------------------
-   ! Loop over occupation classes
-   !-------------------------------------------------------
+   nOC = SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nOCSym(IREFSM)
 
-   If (Allocated(SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nOCSym)) Then
-      nOC = SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nOCSym(IREFSM)
-   Else
-      nOC = 0
-   End If
-
+!  Run over all prototype configurations of the sector
    do IC = 1, nOC
 
       call GetOccupation_SGUGA(iOpen,SGS(iState)%iSpin,IREFSM,IC,KCNF)
 
+!     Loop over all orbital combinations for this particular sector.
       do IICSF = 1, SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nCSF
+
          ICSFJP = ICSFJP + 1
 
          call BuildWalk(iState,ICL,iOpen,IICSF,KCNF,IWALK)
