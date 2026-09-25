@@ -304,6 +304,7 @@ subroutine ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,nBuff,Buff,idxBuf,Cho_Br
   !                                                                    *
   !*********************************************************************
   !                                                                    *
+  if (NWBM <= 0) return
   if ((NINDEP(ISYM,3) > 0) .or. Do_SC) then
     ! The minus combination:
     ICASE = 3
@@ -1082,9 +1083,6 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
 
   use SUPERINDEX, only: KAGEB, KAGTB, KTGEU, KTGTU
   use caspt2_module, only: NAES, NAGEB, NAGEBES, NAGTB, NAGTBES, NINDEP, NSES, NTGEU, NTGEUES, NTGTU, NTGTUES
-# ifdef _MOLCAS_MPP_
-  use Para_Info, only: Is_Real_Par
-# endif
 
   integer(kind=iwp), intent(in) :: IVEC, JSYM, ISYU, ISYX, NA, NU, NC, NX, nBuff, NCHO
   real(kind=wp), intent(out) :: AUCX(NA,NU,NC,NX), Buff(nBuff)
@@ -1251,13 +1249,6 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
     ! Read WM:
     call RHS_ALLO(NASM,NISM,lg_FM)
     call RHS_READ(NASM,NISM,lg_FM,iCASE,iSYM,iVEC)
-#   ifdef _MOLCAS_MPP_
-    if (Is_Real_Par()) then
-      myRank = GA_NodeID()
-      call GA_Distribution(lg_FM,myRank,ILOV,IHIV,JLOV,JHIV)
-      if (JLOV > 0) call GA_Access(lg_FM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
-    end if
-#   endif
 
     if (iParRHS == 1) then
       IBUF = 0
@@ -1298,7 +1289,10 @@ subroutine ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,nBuff,Buff,idxBuf,Cho_Br
       if (IBUF /= 0) call RHS_SCATTER(LDFM,lg_FM,Buff,idxBuf,IBUF)
 #   ifdef _MOLCAS_MPP_
     else if (iParRHS == 2) then
+      myRank = GA_NodeID()
+      call GA_Distribution(lg_FM,myRank,ILOV,IHIV,JLOV,JHIV)
       if (JLOV > 0) then
+        call GA_Access(lg_FM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
         do IU=1,NU
           IUABS = IU+NAES(ISYU)
           IXMAX = NX
