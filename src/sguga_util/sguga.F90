@@ -4145,7 +4145,7 @@ integer(kind=iwp) :: IICSF
 integer(kind=iwp) :: IOPEN
 integer(kind=iwp) :: IP
 integer(kind=iwp) :: ISG
-integer(kind=iwp) :: ITYP, MinOpen, Mult
+integer(kind=iwp) :: ITYP, MinOpen, Mult, nOC
 
 integer(kind=iwp) :: IWALK(MxAct)
 integer(kind=iwp) :: KCNF(MxAct)
@@ -4197,7 +4197,22 @@ do ITYP = 1, NTYP
    ! Loop over occupation classes
    !-------------------------------------------------------
 
-   do IC = 1, NCNFTP(ITYP,IREFSM)
+   If (Allocated(SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nOCSym)) Then
+      nOC = SGS(iState)%CDCInfo(iOpen,SGS(iState)%iSpin)%nOCSym(IREFSM)
+   Else
+      nOC = 0
+   End If
+
+   If (nOc /= NCNFTP(ITYP,IREFSM)) Then
+      Write (6,*) 'nOc /= NCNFTP(ITYP,IREFSM)'
+      Write (6,*) 'ITYP,IREFSM        =', ITYP,IREFSM
+      Write (6,*) 'nOc                =',nOc
+      Write (6,*) 'NCNFTP(ITYP,IREFSM)=',NCNFTP(ITYP,IREFSM)
+      Call Abend()
+   End If
+
+   do IC = 1, nOC
+!  do IC = 1, NCNFTP(ITYP,IREFSM)
       ICNBS = ICNBS0 + (IC-1)*(iOpen+ICL)
 
       call GetOccupation_SGUGA(iOpen,SGS(iState)%iSpin,IREFSM,IC,KCNF)
