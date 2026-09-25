@@ -4118,7 +4118,6 @@ end subroutine SG_Reord_Orig
 
 subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 
-use spinfo, only: NTYP
 use Molcas, only: MxAct
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -4143,7 +4142,8 @@ integer(kind=iwp) :: IICSF
 integer(kind=iwp) :: IOPEN
 integer(kind=iwp) :: IP
 integer(kind=iwp) :: ISG
-integer(kind=iwp) :: ITYP, MinOpen, Mult, nOC
+integer(kind=iwp) :: MinOpen, nOC
+integer(kind=iwp) :: MaxOpen
 
 integer(kind=iwp) :: IWALK(MxAct)
 integer(kind=iwp) :: KCNF(MxAct)
@@ -4168,14 +4168,12 @@ endif
 
 ICSFJP = 0
 
-
-!----------------------------------------------------------
-! Keep original Lucia loop structure unchanged
-!----------------------------------------------------------
-
 MinOpen = SGS(iState)%iSpin - 1
-do ITYP = 1, NTYP
-   iOpen = ITYP + MinOpen - 1
+MaxOpen = min(SGS(iState)%nActEl, &
+              2*SGS(iState)%nLev-SGS(iState)%nActEl)
+
+do iOpen = MinOpen, MaxOpen
+
    ICL = (SGS(iState)%nActEl-iOpen)/2
 
    !-------------------------------------------------------
