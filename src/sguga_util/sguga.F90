@@ -4118,7 +4118,7 @@ end subroutine SG_Reord_Orig
 
 subroutine SG_ReOrd(iState,IREFSM,IMODE,nConf,CIOLD,CINEW)
 
-use spinfo, only: NCNFTP, NTYP
+use spinfo, only: NTYP
 use Molcas, only: MxAct
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -4138,8 +4138,6 @@ real(kind=wp), intent(out) :: CINEW(nConf)
 
 integer(kind=iwp) :: IC
 integer(kind=iwp) :: ICL
-integer(kind=iwp) :: ICNBS
-integer(kind=iwp) :: ICNBS0
 integer(kind=iwp) :: ICSFJP
 integer(kind=iwp) :: IICSF
 integer(kind=iwp) :: IOPEN
@@ -4170,7 +4168,6 @@ endif
 
 ICSFJP = 0
 
-ICNBS0 = 0
 
 !----------------------------------------------------------
 ! Keep original Lucia loop structure unchanged
@@ -4182,18 +4179,6 @@ do ITYP = 1, NTYP
    ICL = (SGS(iState)%nActEl-iOpen)/2
 
    !-------------------------------------------------------
-   ! Base address of occupation list
-   !-------------------------------------------------------
-
-   if (ITYP == 1) then
-      ICNBS0 = 1
-   else
-      ICNBS0 = ICNBS0 + &
-               NCNFTP(ITYP-1,IREFSM) * &
-               (SGS(iState)%nActEl + iOpen - 1)/2
-   endif
-
-   !-------------------------------------------------------
    ! Loop over occupation classes
    !-------------------------------------------------------
 
@@ -4203,17 +4188,7 @@ do ITYP = 1, NTYP
       nOC = 0
    End If
 
-   If (nOc /= NCNFTP(ITYP,IREFSM)) Then
-      Write (6,*) 'nOc /= NCNFTP(ITYP,IREFSM)'
-      Write (6,*) 'ITYP,IREFSM        =', ITYP,IREFSM
-      Write (6,*) 'nOc                =',nOc
-      Write (6,*) 'NCNFTP(ITYP,IREFSM)=',NCNFTP(ITYP,IREFSM)
-      Call Abend()
-   End If
-
    do IC = 1, nOC
-!  do IC = 1, NCNFTP(ITYP,IREFSM)
-      ICNBS = ICNBS0 + (IC-1)*(iOpen+ICL)
 
       call GetOccupation_SGUGA(iOpen,SGS(iState)%iSpin,IREFSM,IC,KCNF)
 
