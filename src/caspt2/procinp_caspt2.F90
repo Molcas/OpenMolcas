@@ -18,7 +18,7 @@ use PrintLevel, only: TERSE
 use UnixInfo, only: SuperName
 use Molcas, only: MxRoot, MxSym
 use caspt2_global, only: cmpThr, cntThr, CompressMPS, ConvInvar, dnmThr, do_csf, do_grad, do_lindep, do_nac, if_equalW, if_invar, &
-                         if_invaria, if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, MAXBUF, real_shift, &
+                         if_invaria, if_SSDM, imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, real_shift, &
                          sigma_p_epsilon, sigma_p_exponent, Weight
 use caspt2_module, only: BMatrix, BSpect, BTrans, CIThr, CPT2Method, DMRG, DoCumulant, DWType, FockType, G1SECIN, HZero, IfChol, &
                          IfDens, IfDOrtho, IfDW, IfMix, IFMSCoup, IfProp, IfRMS, IfsadRef, IfXMS, iRlxRoot, iRoot, JMS, MaxIt, &
@@ -34,7 +34,6 @@ use PrintLevel, only: VERBOSE
 use stdalloc, only: mma_allocate
 #endif
 #ifdef _MOLCAS_MPP_
-use, intrinsic :: iso_c_binding, only: c_int
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
 #if 0
@@ -42,7 +41,7 @@ use Para_Info, only: Is_Real_Par, nProcs
 use OFembed, only: Do_OFemb
 #endif
 use Constants, only: Zero, Quart
-use Definitions, only: wp, iwp, u6, RtoB
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: I, iDNG, iDummy, iGroup, iOff, iSym, J, nCore(mxSym), nDiff, NFI, NSD
@@ -153,12 +152,8 @@ if (Is_Real_Par() .and. ((Input%PRHS == 'DEFAULT') .or. (Input%PRHS == 'NEW')) .
 ! A striped algorithm: gather the Cholesky vectors instead of reducing the integral blocks,
 ! and let each process evaluate only the RHS columns it owns.
 if (Is_Real_Par() .and. (Input%PRHS == 'STRIPED') .and. (.not. RHSDIRECT)) iParRHS = 4
-! maximum number of real values handled by a single GADGOP (ARMCI) call
-! compilers complain about huge(xxx)/RtoB with -Werror=integer-division
-MAXBUF = (huge(1_c_int)-mod(int(huge(1_c_int),kind=iwp),RtoB))/RtoB
 #else
 RHSDIRECT = .false.
-MAXBUF = (huge(RtoB)-mod(huge(RtoB),RtoB))/RtoB
 #endif
 
 ! Cholesky: set defaults if it was not called during input

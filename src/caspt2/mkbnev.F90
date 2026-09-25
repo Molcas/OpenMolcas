@@ -21,10 +21,6 @@ use EQSOLV, only: IDBMAT, IDSMAT
 use SC_NEVPT2, only: Do_SC, ECORR_SC, IDBMAT_NEVPT2, OVLAPS_SC
 use NEVPT2_mod, only: NASHT
 use general_data, only: nLev
-#ifdef _MOLCAS_MPP_
-use NEVPT2_E4, only: MAXBUF
-use caspt2_module, only: MXCI
-#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, byte
@@ -48,9 +44,6 @@ end if
 ! G3(t,u,v,x,y,z) = <0|t+ v+ y+ z x u|0> -> G3(standard)(tvyuxz)
 
 nAshT = nAshT_ ! define the number of the active orbitals used in NEVPT2_MOD
-#ifdef _MOLCAS_MPP_
-MAXBUF = 2000000000/(MXCI*8)
-#endif
 
 if (nAshT /= 0) then
   call mma_allocate(Hact,nAshT,nAshT,Label='Hact')
