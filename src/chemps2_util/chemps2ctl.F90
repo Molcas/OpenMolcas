@@ -24,7 +24,9 @@ subroutine Chemps2Ctl(W1,TUVX,IFINAL,IRST)
 use MPI_Wrapper, only: MPI_COMM_WORLD
 use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
+use filesystem, only: remove_, symlink_
 #endif
+
 use rasscf_global, only: CBLBM, chemps2_blb, chemps2_can, chemps2_lrestart, chemps2_no4rdm, chemps2_noise, chemps2_restart, &
                          davidson_tol, Do3RDM, ENER, iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, &
                          MxDMRG, NAC, THRE, hfocc
@@ -448,32 +450,23 @@ if (Is_Real_Par()) then
   call MPI_Barrier(MPI_COMM_WORLD,IERROR)
 end if
 
-!Quan: FIXME: softlink all the n-RDM files
+! Soft-link all the n-RDM files
 if (Is_Real_Par() .and. (.not. KING())) then
   do chemroot=1,lroots
     write(rootindex,'(i2)') chemroot-1
-    imp1 = 'ln -sf ../molcas_2rdm.h5.r'//trim(adjustl(rootindex))//' .'
-    call systemf(imp1,iErr)
-    imp1 = 'ln -sf ../molcas_2rdm.h5.r'//trim(adjustl(rootindex))//'.tran .'
-    call systemf(imp1,iErr)
-    imp1 = 'ln -sf ../molcas_3rdm.h5.r'//trim(adjustl(rootindex))//' .'
-    call systemf(imp1,iErr)
-    imp1 = 'ln -sf ../molcas_3rdm.h5.r'//trim(adjustl(rootindex))//'.tran .'
-    call systemf(imp1,iErr)
-    imp1 = 'ln -sf ../molcas_f4rdm.h5.r'//trim(adjustl(rootindex))//' .'
-    call systemf(imp1,iErr)
-    imp1 = 'ln -sf ../molcas_f4rdm.h5.r'//trim(adjustl(rootindex))//'.tran .'
-    call systemf(imp1,iErr)
-    imp1 = 'ln -sf ../CheMPS2_natorb_MPS0.h5 .'
-    call systemf(imp1,iErr)
-    imp1 = 'ln -sf ../CheMPS2_canorb_MPS0.h5 .'
-    call systemf(imp1,iErr)
-    imp1 = 'ln -sf ../molcas_natorb_fiedler.txt .'
-    call systemf(imp1,iErr)
-    imp1 = 'ln -sf ../molcas_canorb_fiedler.txt .'
-    call systemf(imp1,iErr)
+    call link_from_parent('molcas_2rdm.h5.r'//trim(adjustl(rootindex)))
+    call link_from_parent('molcas_2rdm.h5.r'//trim(adjustl(rootindex))//'.tran')
+    call link_from_parent('molcas_3rdm.h5.r'//trim(adjustl(rootindex)))
+    call link_from_parent('molcas_3rdm.h5.r'//trim(adjustl(rootindex))//'.tran')
+    call link_from_parent('molcas_f4rdm.h5.r'//trim(adjustl(rootindex)))
+    call link_from_parent('molcas_f4rdm.h5.r'//trim(adjustl(rootindex))//'.tran')
   end do
-  call systemf('ln -sf ../chemps2.log .',iErr)
+
+  call link_from_parent('CheMPS2_natorb_MPS0.h5')
+  call link_from_parent('CheMPS2_canorb_MPS0.h5')
+  call link_from_parent('molcas_natorb_fiedler.txt')
+  call link_from_parent('molcas_canorb_fiedler.txt')
+  call link_from_parent('chemps2.log')
 end if
 #endif
 
@@ -534,5 +527,26 @@ if (chemps2_info /= 0) then
 end if
 
 return
+
+! Vic: Create links to files in the parent work directory without invoking a shell.
+! Removing the existing destination first preserves the behavior of "ln -sf".
+#ifdef _MOLCAS_MPP_
+contains
+
+subroutine link_from_parent(file_name)
+
+character(len=*), intent(in) :: file_name
+integer(kind=iwp) :: link_error
+
+call remove_(trim(file_name))
+call symlink_('../'//trim(file_name),trim(file_name),link_error)
+
+if (link_error /= 0) then
+  write(u6,*) 'CHEMPS2> Could not create symbolic link for ',trim(file_name)
+  call abend()
+end if
+
+end subroutine link_from_parent
+#endif
 
 end subroutine Chemps2Ctl

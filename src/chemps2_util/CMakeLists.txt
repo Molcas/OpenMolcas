@@ -14,7 +14,8 @@ set (sources
      chemps2_load2pdm.F90
      chemps2_load3pdm.F90
      chemps2_load3pdm_all.F90
-     chemps2_tranrdm.F90
+     chemps2_tran2pdm.F90
+     chemps2_tran3pdm.F90
      chemps2ctl.F90
      irreps.F90
 )
