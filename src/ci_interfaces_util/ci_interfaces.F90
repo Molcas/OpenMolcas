@@ -13,12 +13,14 @@
 
 #define _SGUGA_VERIFY_
 module CI_Interfaces
+use sd_csf_codec_module, only: sd_csf_codec, sd_to_csf, csf_to_sd
 use sguga, only: SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_global, only: DoFaro
 use general_data, only: ISPIN, STSYM, nDet, nConf, nAsh, nActEl, NAC=>NLEV
+use spinfo, only: NDTASM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use definitions, only: wp, iwp, u6
@@ -53,7 +55,7 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
-integer(kind=iwp) :: IREFSM_SAVE
+integer(kind=iwp) :: IREFSM_SAVE, nDet
 
 #ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_Href, Check_H
@@ -112,13 +114,16 @@ else
   ICSM=STSYM
   ISSM=STSYM
 
+  nDET = NDTASM(IREFSM)
+
   ! Convert the CI-vector from CSF to Det. basis
   ! sigtemp is scratch, converted vector is stored in ctemp.
   ! Note that ctemp is of the size of the nDet. basis
 
   ctemp(1:nCSF) = CI_Vec(1:nCSF)
   sigtemp(:) = Zero
-  call csdtvc(ctemp,sigtemp,1,STSym,1)
+  call csdtvc(ctemp,sigtemp,1,STSym,0)
+  ctemp(1:nDet)=sigtemp(1:nDet)
 
   ! Calling Lucia to determine the sigma vector
   call Lucia_Util('Sigma',                   &
@@ -131,7 +136,8 @@ else
   Sigma_on_disk = .true.
   ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
   ! stored in Sigma_vec.
-  call CSDTVC(Sigma_Vec,sigtemp,2,STSym,1)
+  call CSDTVC(Sigma_Vec,sigtemp,2,STSym,0)
+  sigtemp(1:nCSF)=Sigma_Vec(1:nCSF)
 
   IREFSM=IREFSM_SAVE
   ICSM=IREFSM
