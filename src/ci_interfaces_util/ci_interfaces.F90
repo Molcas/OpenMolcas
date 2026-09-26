@@ -172,7 +172,9 @@ End Subroutine Mk_H_Psi
 
 Subroutine Mk_H_Psi_Det(istate,STSYM,nDet,CI_Vec,Sigma_Vec,nTU,TU,nTUVX,TUVX)
 use lucia_data, only: Sigma_on_disk, IREFSM
+#ifdef _HOLD_IT_
 use sguga, only: EXS
+#endif
 use cands, only: ICSM, ISSM
 Implicit None
 
@@ -335,6 +337,7 @@ endif
 !Write (u6,*)
 !Write (u6,*)
 
+#ifdef _HOLD_IT_
 #ifdef _SGUGA_VERIFY_
 !  Write (u6,*) 'Start SGUGA section'
   nCSF=CIS(istate)%nCSF(STSym)
@@ -379,6 +382,7 @@ endif
   Call mma_deallocate(temp2)
 !Write (6,*) '==========================================='
 !Write (6,*)
+#endif
 #endif
 
 #ifdef _SGUGA_VERIFY_
