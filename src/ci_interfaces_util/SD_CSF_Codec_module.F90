@@ -14,10 +14,10 @@ module SD_CSF_Codec_Module
 
 contains
 
-  subroutine SD_CSF_Codec(CSF,SD,Direction,IRefSm)
+  subroutine SD_CSF_Codec(SD,CSF,Direction,IRefSm)
 
-    real(wp), intent(inout) :: CSF(:)
     real(wp), intent(inout) :: SD(:)
+    real(wp), intent(inout) :: CSF(:)
 
     integer(iwp), intent(in) :: Direction
     integer(iwp), intent(in) :: IRefSm

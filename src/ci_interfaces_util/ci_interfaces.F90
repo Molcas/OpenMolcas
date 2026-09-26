@@ -122,7 +122,7 @@ else
 
   ctemp(1:nCSF) = CI_Vec(1:nCSF)
   sigtemp(:) = Zero
-  call csdtvc(ctemp,sigtemp,1,STSym,0)
+  Call SD_CSF_Codec(sigtemp,ctemp,CSF_to_SD,STSym)
   ctemp(1:nDet)=sigtemp(1:nDet)
 
   ! Calling Lucia to determine the sigma vector
@@ -136,7 +136,7 @@ else
   Sigma_on_disk = .true.
   ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
   ! stored in Sigma_vec.
-  call CSDTVC(Sigma_Vec,sigtemp,2,STSym,0)
+  Call SD_CSF_Codec(sigtemp,Sigma_Vec,SD_to_CSF,STSym)
   sigtemp(1:nCSF)=Sigma_Vec(1:nCSF)
 
   IREFSM=IREFSM_SAVE
@@ -277,7 +277,7 @@ if (DOFARO) then
   temp2(:)=CI_Vec(:)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
-  call CSDTVC(temp1,temp2,2,STSym,0)
+  Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSym)
 !  Call RecPRT('CI_VEC(LUCIA CSF)',' ',temp1,1,nCSF)
   ! Now use the FAROALD machinary to go to FAROALD SD basis
   call SG_REORD(iState,STSYM,0,nCSF,temp1,temp2)
@@ -296,7 +296,7 @@ if (DOFARO) then
 
 !  Call RecPrt('Sigma_Vec(Lucia CSF)',' ',temp1,1,nCSF)
   ! Convert from LUCIA CSF basis to LUCIA SD basis
-  call CSDTVC(temp1,Sigma_Vec,1,STSym,0)
+  Call SD_CSF_Codec(Sigma_Vec,temp1,CSF_to_SD,STSym)
 
   Faroald_Psi => Null()
   Faroald_SGM => Null()
@@ -348,7 +348,7 @@ endif
   temp2(:)=CI_Vec(:)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
-  call CSDTVC(temp1,temp2,2,STSym,0)
+  Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSYM)
 !  Call RecPrt('CI_Vec (Lucia CSF)',' ',temp1,1,nCSF)
   ! Convert from Lucia CSF basis to SGUGA CSF basis
   !     iMode=0 --> from SGA to split graph GUGA order                   *
@@ -363,7 +363,7 @@ endif
   call SG_Reord(iState,STSYM,1,nCSF,temp1,temp2)
 !  Call RecPrt('Sigma_Vec (Lucia CSF)',' ',temp2,1,nCSF)
   ! Convert from Lucia CSF basis to Lucia SD Basis
-  call CSDTVC(temp2,temp1,1,STSym,0)
+  call SD_CSF_Codec(temp1,temp2,CSF_to_SD,STSym)
 !  Call RecPrt('Sigma_Vec (Lucia SD)',' ',temp1,1,nDet)
 !Write (6,*) 'End SGUGA section'
 
