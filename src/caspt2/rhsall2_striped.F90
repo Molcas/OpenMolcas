@@ -561,9 +561,8 @@ subroutine STRIPED_SIZES()
               NPIQKMAX = max(2*NI*NK*NP,NI*NK*NQ)
               NPIQKMIN = max(2*NI*NK,NI*NK*NQ,NI*NK*NP)
             case default                             ! 9 = E: Y(v,a)
-              ! the diagonal kernel takes one l at a time, the off-diagonal one the whole range
-              NPIQKMAX = NP*max(2*NQ,NQ*NK)
-              NPIQKMIN = max(2*NQ,NQ*NK)
+              NPIQKMAX = NP*NQK
+              NPIQKMIN = NQK
           end select
           MAXPIQK = max(MAXPIQK,NPIQKMAX)
           MINPIQK = max(MINPIQK,NPIQKMIN)
