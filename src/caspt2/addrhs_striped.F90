@@ -634,7 +634,7 @@ subroutine ADDRHSC_STRIPED(JSYM,ISYU,ISYX,NA,NU,NV,NX,SCR,NSCR,Cho_Bra,Cho_Ket,N
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYX, NA, NU, NV, NX, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV*NX,NCHO)
-  integer(kind=iwp) :: IA, IP, IR, IROFF, ISYM, ISYV, IU, JHI, JLO, MOFF, NAS, NIS
+  integer(kind=iwp) :: IA, IR, IROFF, ISYM, ISYV, JHI, JLO, MOFF, NAS, NIS
   real(kind=wp), allocatable :: CHOBA(:)
   real(kind=wp), pointer, contiguous :: WBLK(:,:)
   !WBLK : the local stripe of the block, as (row,column)
@@ -660,11 +660,8 @@ subroutine ADDRHSC_STRIPED(JSYM,ISYU,ISYX,NA,NU,NV,NX,SCR,NSCR,Cho_Bra,Cho_Ket,N
     WBLK(1:NAS,JLO:JHI) => RHSLoc(MOFF:MOFF+nRHSLocSz(ISYM,4)-1)
     call mma_allocate(CHOBA,NU*NCHO,Label='CHOBA')
     do IA=JLO,JHI
-      do IP=1,NCHO
-        do IU=1,NU
-          CHOBA(IU+NU*(IP-1)) = Cho_Bra(IA,IU,IP) ! the (u,P) slice of this a
-        end do
-      end do
+      ! the (u,P) slice of this a
+      call DCOPY_(NCHO*NU,Cho_Bra(IA,1,1),NA,CHOBA,1)
       ! SCR(u,(v,x)) = sum_P CHOBA(u)^P Cho_Ket(v,x)^P = (au,vx)
       call DGEMM_('N','T',NU,NV*NX,NCHO,One,CHOBA,NU,Cho_Ket,NV*NX,Zero,SCR,NU)
       do IR=1,NV*NX
@@ -759,7 +756,7 @@ subroutine ADDRHSD2_STRIPED(JSYM,ISYU,ISYL,NA,NU,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYL, NA, NU, NV, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NV*NL,NCHO)
-  integer(kind=iwp) :: IA, ICOL, IL, ILHI, ILLO, IOFF, IOFFD, IP, IROFF, IROFFU, ISA, ISI, ISYA, ISYM, ISYV, IU, JHI, JLO, MOFF, &
+  integer(kind=iwp) :: IA, ICOL, IL, ILHI, ILLO, IOFF, IOFFD, IROFF, IROFFU, ISA, ISI, ISYA, ISYM, ISYV, IU, JHI, JLO, MOFF, &
                        NAS, NAS1, NIS, NLSZ
   real(kind=wp), allocatable :: CHOBA(:)
   real(kind=wp), pointer, contiguous :: WBLK(:,:)
@@ -801,11 +798,8 @@ subroutine ADDRHSD2_STRIPED(JSYM,ISYU,ISYL,NA,NU,NV,NL,SCR,NSCR,Cho_Bra,Cho_Ket,
       ILHI = min(NL,JHI-IOFFD-NL*(IA-1))
       if (ILLO > ILHI) cycle
       NLSZ = ILHI-ILLO+1
-      do IP=1,NCHO
-        do IU=1,NU
-          CHOBA(IU+NU*(IP-1)) = Cho_Bra(IA,IU,IP) ! the (u,P) slice of this a
-        end do
-      end do
+      ! the (u,P) slice of this a
+      call DCOPY_(NCHO*NU,Cho_Bra(IA,1,1),NA,CHOBA,1)
       ! SCR((v,l),u)
       call DGEMM_('N','T',NV*NLSZ,NU,NCHO,One,Cho_Ket(1+NV*(ILLO-1),1),NV*NL,CHOBA,NU,Zero,SCR,NV*NLSZ)
       do IL=ILLO,ILHI
