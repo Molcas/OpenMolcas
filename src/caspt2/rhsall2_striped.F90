@@ -39,13 +39,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IVEC
-integer(kind=iwp) :: IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK, iOffp, iOffQ, ISYI, ISYK, ISYMT, ISYP, ISYQ, ITIER, JSYM, &
-                     LBRASM, LKETSM, MAXPIQK_J(8), MINPIQK_J(8), MINREQ, MXAVAIL, MXBATCH_J(8), MXBGRP, MXPIQK, MXVLOC_J(8), nAA, &
-                     NAAPI_J(8), NBGRP, nBra, NBRABUF, NBRASM, NI, NK, nKet, NKETBUF, NKETSM, NP, NPI, NPIBRA_J(8), NPIKET_J(8), &
-                     NPIKTR_J(8), NPIPCK_J(8), NPITRA_J(8), NQ, NQK, NRHSGRPLOC, NRHSLOC, NRHSSYMLOC, nSh(8,3), NSYMT, NTUVX, &
-                     NUMERR = 0, NV, NVECTOT_J(8), NVLOC
+integer(kind=iwp) :: IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK, iOffp, iOffQ, ISYI, ISYK, ISYMT, ISYP, ISYQ, ITIER, IV, &
+                     JSYM, LBRASM, LKETSM, MAXPIQK_J(8), MINPIQK_J(8), MINREQ, MXAVAIL, MXBATCH_J(8), MXBGRP, MXPIQK, MXVLOC_J(8), &
+                     nAA, NAAPI_J(8), NBGRP, nBra, NBRABUF, NBRASM, NI, NK, nKet, NKETBUF, NKETSM, NP, NPI, NPIBRA_J(8), &
+                     NPIKET_J(8), NPIKTR_J(8), NPIPCK_J(8), NPITRA_J(8), NQ, NQK, NRHSGRPLOC, NRHSLOC, NRHSSYMLOC, nSh(8,3), &
+                     NSYMT, NTUVX, NUMERR = 0, NV, NVECTOT_J(8), NVLOC
 integer(kind=iwp), allocatable :: BGRP(:,:)
-real(kind=wp), allocatable :: BRA(:), CHOAA(:), KET(:), TUVX(:)
+real(kind=wp), allocatable :: BRA(:), CHOAA(:), KET(:), TMP(:), TUVX(:)
 integer(kind=iwp), parameter :: Inactive = 1, Active = 2, Virtual = 3, NADDBUF = 1
 ! buffer sizes per JSYM, set by STRIPED_SIZES:
 ! MAXPIQK_J, MINPIQK_J, MXBATCH_J, MXVLOC_J, NAAPI_J, NPIBRA_J, NPIKET_J, NPIKTR_J, NPIPCK_J, NPITRA_J, NVECTOT_J
@@ -335,10 +335,23 @@ do JSYM=1,NSYM
     !                                                                  *
     ! AUCL RHSG
     ! Use the L(AJ) vectors as if they were CL, form <G|0>
-    ! ADDRHSG_STRIPED wants them as (l,c,P), so transpos (c,l,P) to (l,c,P) in place
+    ! ADDRHSG_STRIPED wants them as (l,c,P), so transpose (c,l,P) to (l,c,P) in place
     ! Here is the last place L(AJ) is used
 
-    call TRANSPOSE_KET()
+    call mma_allocate(TMP,max(NPIKTR_J(JSYM),1),Label='ChoKetT')
+    LKETSM = 1
+    do ISYK=1,NSYM
+      NK = NISH(ISYK)
+      NQ = NSSH(Mul(ISYK,JSYM))
+      NQK = NQ*NK
+      if (NQK == 0) cycle
+      do IV=1,NV
+        TMP(1:NQK) = KET(LKETSM:LKETSM+NQK-1)
+        call DTRANS(NQ,NK,TMP,NQ,KET(LKETSM),NK)
+        LKETSM = LKETSM+NQK
+      end do
+    end do
+    call mma_deallocate(TMP)
 
     do ISYMT=1,NSYMT
       call RHSLOC_LOAD(IVEC,IGRP_G,ISYMT)
@@ -420,48 +433,6 @@ call mma_deallocate(TUVX)
 
 contains
 
-subroutine TRANSPOSE_KET()
-
-  use caspt2_module, only: NISH, NSSH, NSYM
-  use Symmetry_Info, only: Mul
-
-  integer(kind=iwp) :: IC, IL, IOFF, IP, ISYC, ISYL, LKET, NC, NL, NTMP
-  real(kind=wp), allocatable :: TMP(:)
-
-  ! Transpose KET from (c,l,P) to (l,c,P) in place
-  ! case G needs no transposed copy of them
-
-  NTMP = 0
-  do ISYL=1,NSYM
-    ISYC = Mul(ISYL,JSYM)
-    NTMP = max(NTMP,NSSH(ISYC)*NISH(ISYL))
-  end do
-  if (NTMP == 0) return
-  call mma_allocate(TMP,NTMP,Label='ChoKetT')
-
-  LKET = 1
-  do ISYL=1,NSYM
-    NL = NISH(ISYL)
-    if (NL == 0) cycle
-    ISYC = Mul(ISYL,JSYM)
-    NC = NSSH(ISYC)
-    if (NC == 0) cycle
-    do IP=1,NV
-      IOFF = LKET-1+NC*NL*(IP-1)
-      TMP(1:NC*NL) = KET(IOFF+1:IOFF+NC*NL)
-      do IC=1,NC
-        do IL=1,NL
-          KET(IOFF+IL+NL*(IC-1)) = TMP(IC+NC*(IL-1))
-        end do
-      end do
-    end do
-    LKET = LKET+NC*NL*NV
-  end do
-
-  call mma_deallocate(TMP)
-
-end subroutine TRANSPOSE_KET
-
 subroutine STRIPED_SIZES()
 
   integer(kind=iwp) :: ICASE, ISYI, ISYK, ISYP, ISYQ, JB1, JB2, JSY, MAXPIQK, MINPIQK, MXVLOC, NI, NK, NP, NPI, NPI_AV, NPI_IA, &
@@ -527,7 +498,7 @@ subroutine STRIPED_SIZES()
     NPIKET_J(JSY) = max(NPI_IV,NPI_IA) ! L(AJ) until case C, then L(VL)
     NPIPCK_J(JSY) = NPIPCK             ! CHOBA, the one-orbital slice C, D1 and D2 pack
     NPITRA_J(JSY) = NPITRA             ! CHOBT, and CHOKC beside it in ADDRHSF_STRIPED_O
-    NPIKTR_J(JSY) = NPIKTR             ! the single block TRANSPOSE_KET works on
+    NPIKTR_J(JSY) = NPIKTR             ! TMP, the single block of the ket transpose for case G
 
     ! Size needed to hold the integral matrix, at least the TUVX integrals (NASHT**4)
     ! The whole (pi,qk) block is never formed, the scratch holds one chunk of it
