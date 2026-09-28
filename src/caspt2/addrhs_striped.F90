@@ -925,7 +925,7 @@ subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX,SCR,NSCR,Cho_Bra,Cho_Ket,N
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYX, NA, NU, NC, NX, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
-  integer(kind=iwp) :: IA, IP, ISYA, ISYC, ISYM, IT, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NASM, NASP, NISM, NISP
+  integer(kind=iwp) :: IP, ISYA, ISYC, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NASM, NASP, NISM, NISP
   real(kind=wp), allocatable :: CHOBT(:)
 
   ! Case F: both combinations of (au,cx)
@@ -960,11 +960,7 @@ subroutine ADDRHSF_STRIPED(JSYM,ISYU,ISYX,NA,NU,NC,NX,SCR,NSCR,Cho_Bra,Cho_Ket,N
   ! it is the ket operand as well, at ISYM == 1 the caller passes the same block as both
   call mma_allocate(CHOBT,NU*NA*NCHO,Label='CHOBT')
   do IP=1,NCHO
-    do IA=1,NA
-      do IT=1,NU
-        CHOBT(IT+NU*(IA-1)+NU*NA*(IP-1)) = Cho_Bra(IA,IT,IP)
-      end do
-    end do
+    call DTRANS(NA,NU,Cho_Bra(1,1,IP),NA,CHOBT(1+NU*NA*(IP-1)),NU)
   end do
 
   call RHSLOC_BOUNDS(ISYM,8,NASP*NISP > 0,MOFFP,JLOP,JHIP)
@@ -1292,7 +1288,7 @@ subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
   integer(kind=iwp), intent(in) :: JSYM, ISYU, ISYL, NA, NU, NC, NL, NSCR, NCHO
   real(kind=wp), intent(out) :: SCR(NSCR)
   real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
-  integer(kind=iwp) :: IA, IP, ISYA, ISYAC, ISYC, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NAS, NISM, NISP
+  integer(kind=iwp) :: IP, ISYA, ISYAC, ISYC, ISYM, JHIM, JHIP, JLOM, JLOP, MOFFM, MOFFP, NACMX, NAS, NISM, NISP
   real(kind=wp), allocatable :: CHOBT(:)
 
   ! Case G: both combinations of (au,cl)
@@ -1320,9 +1316,7 @@ subroutine ADDRHSG_STRIPED(JSYM,ISYU,ISYL,NA,NU,NC,NL,SCR,NSCR,Cho_Bra,Cho_Ket,N
   ! CHOBT puts a on the n side of the contraction; without it the GEMM is only NU wide.
   call mma_allocate(CHOBT,NU*NA*NCHO,Label='CHOBT')
   do IP=1,NCHO
-    do IA=1,NA
-      CHOBT(1+NU*(IA-1)+NU*NA*(IP-1):NU+NU*(IA-1)+NU*NA*(IP-1)) = Cho_Bra(IA,1:NU,IP)
-    end do
+    call DTRANS(NA,NU,Cho_Bra(1,1,IP),NA,CHOBT(1+NU*NA*(IP-1)),NU)
   end do
 
   call RHSLOC_BOUNDS(ISYM,10,NAS*NISP > 0,MOFFP,JLOP,JHIP)
