@@ -20,7 +20,7 @@ module SD_CSF_Codec_Module
   implicit none
   private
 
-  public :: SD_CSF_Codec, SD_CSF_Codec_New
+  public :: SD_CSF_Codec
   public :: CSF_TO_SD
   public :: SD_TO_CSF
 
@@ -30,32 +30,6 @@ module SD_CSF_Codec_Module
 contains
 
   subroutine SD_CSF_Codec(SD,CSF,Direction,IRefSm)
-
-    real(wp), intent(inout) :: SD(:)
-    real(wp), intent(inout) :: CSF(:)
-
-    integer(iwp), intent(in) :: Direction
-    integer(iwp), intent(in) :: IRefSm
-
-    select case(Direction)
-
-    case(CSF_TO_SD)
-
-      call CSDTVC(CSF,SD,1,IRefSm,0)
-
-    case(SD_TO_CSF)
-
-      call CSDTVC(CSF,SD,2,IRefSm,0)
-
-    case default
-
-      call Abend()
-
-    end select
-
-  end subroutine SD_CSF_Codec
-
-  subroutine SD_CSF_Codec_New(SD,CSF,Direction,IRefSm)
 
   real(wp), intent(inout) :: SD(:)
   real(wp), intent(inout) :: CSF(:)
@@ -67,14 +41,6 @@ contains
   integer(iwp) :: Mult, iCSF, iSD, nSD, nCSF, MinOpen, MaxOpen, iOpen, nOC
   real(wp), pointer:: T(:,:)
 
-  write(u6,'(/,A,I4)') 'SGUGA SDREO, iRefSm = ', iRefSm
-  write(u6,'(10I8)') SGS(iState)%SDREO(iRefSm)%List(:)
-
-  If (SGS(iState)%nRsPrt /= 1) Then
-     Write (6,*) 'Go with the old code'
-     Call SD_CSF_Codec(SD,CSF,Direction,IRefSm)
-     Return
-  End If
   Mult = SGS(iState)%iSpin
   MinOpen = mult - 1
   MaxOpen = Min(SGS(iState)%nActEl, 2*SGS(iState)%nLev-SGS(iState)%nActel)
@@ -136,6 +102,6 @@ contains
 
   end do
 
-  end subroutine SD_CSF_Codec_New
+  end subroutine SD_CSF_Codec
 
 end module SD_CSF_Codec_Module

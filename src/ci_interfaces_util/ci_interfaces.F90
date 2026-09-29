@@ -14,7 +14,7 @@
 #define _SANITY_CHECK_
 #define _SGUGA_VERIFY_
 module CI_Interfaces
-use sd_csf_codec_module, only: sd_csf_codec, sd_to_csf, csf_to_sd, sd_csf_codec_new
+use sd_csf_codec_module, only: sd_csf_codec, sd_to_csf, csf_to_sd
 use sguga, only: SG_Free, SG_ReOrd
 use Lucia_Interface, only: Lucia_Util
 use faroald, only: my_norb, sigma_update, htu, gtuvx, ndeta, ndetb ,transition_one_pdm, one_pdm, two_pdm, fold_two_pdm
@@ -57,11 +57,6 @@ real(kind=wp), intent(in):: TU(nTU), TUVX(nTUVX)
 integer(kind=iwp) :: itu, ituvx, it, iu, iv, ixmax, ix
 real(kind=wp), pointer:: Faroald_PSI(:,:), Faroald_SGM(:,:)
 integer(kind=iwp) :: IREFSM_SAVE, nDet
-
-#ifdef _SANITY_CHECK_
-real(kind=wp), allocatable ::  Test_Convert(:), Help1(:)
-integer(kind=iwp) :: iDet
-#endif
 
 #ifdef _SGUGA_VERIFY_
 real(kind=wp) :: Check_Href, Check_H
@@ -128,41 +123,7 @@ else
 
   ctemp(1:nCSF) = CI_Vec(1:nCSF)
   sigtemp(:) = Zero
-  Call mma_allocate(Help1,nCSF)
-  Help1 = ctemp
-  Write (6,*) 'ctemp(1:5) before=',ctemp(1:5)
-  Call SD_CSF_Codec(sigtemp,ctemp,CSF_to_SD,STSym)
-  Write (6,*) 'ctemp(1:5) after=',ctemp(1:5)
-  Write (6,*) 'sigtemp(1:5) after=',sigtemp(1:5)
-  Write (6,*)
-#ifdef _SANITY_CHECK_
-  Write (6,*) 'CSF_to_SD test'
-  Call mma_allocate(Test_Convert,nDet,Label='Test_Convert')
-  ctemp = Help1
-  Call mma_deallocate(Help1)
-  Call mma_allocate(Help1,nDet)
-  Help1 = SigTemp
-  Write (6,*) 'Help1(1:5) after=',Help1(1:5)
-  ctemp(1:nCSF) = CI_Vec(1:nCSF)
-  Test_Convert(:) = Zero
-  Write (6,*) 'ctemp(1:5) before=',ctemp(1:5)
-  Call SD_CSF_Codec_New(Test_Convert,ctemp,CSF_to_SD,STSym)
-  Write (6,*) 'ctemp(1:5) after=',ctemp(1:5)
-  Write (6,*) 'Test_Convert(1:5) after=',Test_Convert(1:5)
-  SigTemp = Help1
-  Write (6,*) 'sigtemp(1:5) after=',sigtemp(1:5)
-  Do iDet = 1, nDet
-     If (abs(sigtemp(iDet)-Test_Convert(iDet)) > 1.0e-12_wp) Then
-        Write (u6,*) 'iDet=',iDet
-        Write (u6,*) 'abs(sigtemp(iDet)-Test_Convert(iDet)) > 1.0e-12_wp'
-        Write (u6,*) 'sigtemp(iDet)=',sigtemp(iDet)
-        Write (u6,*) 'Test_Convert(iDet)=',Test_Convert(iDet)
-        Call Abend()
-     End If
-  End Do
-  Call mma_deallocate(Test_Convert)
-#endif
-  Call mma_deallocate(Help1)
+  call csdtvc(ctemp,sigtemp,1,STSym,0)
   ctemp(1:nDet)=sigtemp(1:nDet)
 
   ! Calling Lucia to determine the sigma vector
@@ -176,24 +137,7 @@ else
   Sigma_on_disk = .true.
   ! Convert the Sigma vector from Det. to CSF basis. Converted vector is
   ! stored in Sigma_vec.
-  Call SD_CSF_Codec(sigtemp,Sigma_Vec,SD_to_CSF,STSym)
-#ifdef _SANITY_CHECK_
-  Write (6,*) 'SD_to_CSF test'
-  Call mma_allocate(Test_Convert,nDet,Label='Test_Convert')
-  Test_Convert(:) = Zero
-  Sigtemp(:) = ctemp(:)
-  Call SD_CSF_Codec_New(sigtemp,Test_Convert,SD_to_CSF,STSym)
-  Do iDet = 1, nCSF
-     If (abs(Sigma_Vec(iDet)-Test_Convert(iDet)) > 1.0e-12_wp) Then
-        Write (u6,*) 'iDet=',iDet
-        Write (u6,*) 'abs(Sigma_Vec(iDet)-Test_Convert(iDet)) > 1.0e-12_wp'
-        Write (u6,*) 'Sigma_Vec(iDet)=',Sigma_Vec(iDet)
-        Write (u6,*) 'Test_Convert(iDet)=',Test_Convert(iDet)
-        Call Abend()
-     End If
-  End Do
-  Call mma_deallocate(Test_Convert)
-#endif
+  call CSDTVC(Sigma_Vec,sigtemp,2,STSym,0)
   sigtemp(1:nCSF)=Sigma_Vec(1:nCSF)
 
   IREFSM=IREFSM_SAVE
@@ -334,8 +278,8 @@ if (DOFARO) then
   temp2(:)=CI_Vec(:)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
-  Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSym)
-! Call SD_CSF_Codec_New(temp2,temp1,SD_to_CSF,STSym)
+  call CSDTVC(temp1,temp2,2,STSym,0)
+  !Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSym)
 !  Call RecPRT('CI_VEC(LUCIA CSF)',' ',temp1,1,nCSF)
   ! Now use the FAROALD machinary to go to FAROALD SD basis
   call SG_REORD(iState,STSYM,0,nCSF,temp1,temp2)
@@ -354,8 +298,8 @@ if (DOFARO) then
 
 !  Call RecPrt('Sigma_Vec(Lucia CSF)',' ',temp1,1,nCSF)
   ! Convert from LUCIA CSF basis to LUCIA SD basis
-  Call SD_CSF_Codec(Sigma_Vec,temp1,CSF_to_SD,STSym)
-! Call SD_CSF_Codec_New(Sigma_Vec,temp1,CSF_to_SD,STSym)
+   call CSDTVC(temp1,Sigma_Vec,1,STSym,0)
+  !Call SD_CSF_Codec(Sigma_Vec,temp1,CSF_to_SD,STSym)
 
   Faroald_Psi => Null()
   Faroald_SGM => Null()
@@ -407,8 +351,8 @@ endif
   temp2(:)=CI_Vec(:)
   ! Convert from LUCIA SD basis to Lucia CSF basis
   temp1(:)=Zero
-  Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSYM)
-! Call SD_CSF_Codec_New(temp2,temp1,SD_to_CSF,STSYM)
+   call CSDTVC(temp1,temp2,2,STSym,0)
+  !Call SD_CSF_Codec(temp2,temp1,SD_to_CSF,STSYM)
 !  Call RecPrt('CI_Vec (Lucia CSF)',' ',temp1,1,nCSF)
   ! Convert from Lucia CSF basis to SGUGA CSF basis
   !     iMode=0 --> from SGA to split graph GUGA order                   *
@@ -423,8 +367,8 @@ endif
   call SG_Reord(iState,STSYM,1,nCSF,temp1,temp2)
 !  Call RecPrt('Sigma_Vec (Lucia CSF)',' ',temp2,1,nCSF)
   ! Convert from Lucia CSF basis to Lucia SD Basis
-  call SD_CSF_Codec(temp1,temp2,CSF_to_SD,STSym)
-! call SD_CSF_Codec_New(temp1,temp2,CSF_to_SD,STSym)
+  call CSDTVC(temp2,temp1,1,STSym,0)
+  !call SD_CSF_Codec(temp1,temp2,CSF_to_SD,STSym)
 !  Call RecPrt('Sigma_Vec (Lucia SD)',' ',temp1,1,nDet)
 !Write (6,*) 'End SGUGA section'
 
