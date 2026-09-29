@@ -665,7 +665,7 @@ subroutine ADDRHSC_STRIPED(JSYM,ISYU,ISYX,NA,NU,NV,NX,SCR,NSCR,Cho_Bra,Cho_Ket,N
       ! SCR(u,(v,x)) = sum_P CHOBA(u)^P Cho_Ket(v,x)^P = (au,vx)
       call DGEMM_('N','T',NU,NV*NX,NCHO,One,CHOBA,NU,Cho_Ket,NV*NX,Zero,SCR,NU)
       do IR=1,NV*NX
-        call DAXPY_(NU,One,SCR(1+NU*(IR-1)),1,WBLK(IROFF+NU*(IR-1)+1,IA),1)
+        call DAXPY_(NU,One,SCR(1+NU*(IR-1)),1,WBLK(IROFF+NU*(IR-1)+1:,IA),1)
       end do
     end do
     call mma_deallocate(CHOBA)
