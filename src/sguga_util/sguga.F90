@@ -1636,6 +1636,8 @@ integer(kind=iwp) :: nSDTot
 real(kind=wp), pointer :: T(:,:)
 integer(kind=iwp), allocatable :: AlphaString(:,:)
 integer(kind=iwp), allocatable :: BetaString(:,:)
+integer(kind=iwp), allocatable :: AlphaRank(:)
+integer(kind=iwp), allocatable :: BetaRank(:)
 
 mult = SGS%iSpin
 
@@ -1730,6 +1732,19 @@ do iRefSm = 1, SGS%nSym
    AlphaString(:,:) = 0
    BetaString(:,:)  = 0
 
+   call mma_allocate( &
+      AlphaRank, &
+      nSDTot, &
+      Label='AlphaRank')
+
+   call mma_allocate( &
+      BetaRank, &
+      nSDTot, &
+      Label='BetaRank')
+
+   AlphaRank(:) = 0
+   BetaRank(:)  = 0
+
    !
    ! Second pass: establish configuration-order addresses.
    !
@@ -1761,6 +1776,8 @@ do iRefSm = 1, SGS%nSym
          SGS%SDREO(iRefSm)%List, &
          AlphaString,            &
          BetaString,             &
+         AlphaRank,              &
+         BetaRank,               &
          nOC,                    &
          nSD,                    &
          iAdr)
@@ -1784,6 +1801,9 @@ do iRefSm = 1, SGS%nSym
    end if
 #endif
 
+   call mma_deallocate(AlphaRank)
+   call mma_deallocate(BetaRank)
+
    call mma_deallocate(AlphaString)
    call mma_deallocate(BetaString)
 
@@ -1800,10 +1820,13 @@ subroutine Fill_SDREO_Block( &
    SDREO,      &
    AlphaString,&
    BetaString, &
+   AlphaRank,  &
+   BetaRank,   &
    nOC,        &
    nSD,        &
    iAdr)
 
+use second_quantization, only: binomial => binom_coef
 implicit none
 
 type(SGStruct), intent(in) :: SGS
@@ -1818,6 +1841,8 @@ integer(kind=iwp), intent(inout) :: iAdr
 integer(kind=iwp), intent(inout) :: SDREO(:)
 integer(kind=iwp), intent(inout) :: AlphaString(:,:)
 integer(kind=iwp), intent(inout) :: BetaString(:,:)
+integer(kind=iwp), intent(inout) :: AlphaRank(:)
+integer(kind=iwp), intent(inout) :: BetaRank(:)
 
 integer(kind=iwp) :: iOC
 integer(kind=iwp) :: iSD
@@ -1963,8 +1988,30 @@ if (count(AlphaString(:,iAdr) /= BetaString(:,iAdr)) /= iOpen) then
    write(u6,*) 'Beta  = ', BetaString(:,iAdr)
 
    call Abend()
-
 end if
+#endif
+      AlphaRank(iAdr) = Rank_SD_String(AlphaString(:,iAdr))
+
+      BetaRank(iAdr) = Rank_SD_String(BetaString(:,iAdr))
+
+#ifdef _SANITY_CHECK_
+      if (AlphaRank(iAdr) < 1 .or. &
+          AlphaRank(iAdr) > binomial( &
+             count(AlphaString(:,iAdr) == 1), SGS%nLev) .or. &
+          BetaRank(iAdr) < 1 .or. &
+          BetaRank(iAdr) > binomial( &
+             count(BetaString(:,iAdr) == 1), SGS%nLev)) then
+
+         write(u6,*) 'Fill_SDREO_Block: illegal string rank'
+         write(u6,*) 'iRefSm, iOpen, iOC, iSD = ', &
+                      iRefSm, iOpen, iOC, iSD
+         write(u6,*) 'AlphaRank, BetaRank = ', &
+                      AlphaRank(iAdr), BetaRank(iAdr)
+         write(u6,*) 'Alpha = ', AlphaString(:,iAdr)
+         write(u6,*) 'Beta  = ', BetaString(:,iAdr)
+
+         call Abend()
+      end if
 #endif
 
       !
@@ -2007,6 +2054,58 @@ end if
 end do
 
 end subroutine Fill_SDREO_Block
+
+integer(kind=iwp) function Rank_SD_String(String) result(iRank)
+
+use second_quantization, only: binomial => binom_coef
+
+implicit none
+
+integer(kind=iwp), intent(in) :: String(:)
+
+integer(kind=iwp) :: iOrb
+integer(kind=iwp) :: jOrb
+integer(kind=iwp) :: iElec
+integer(kind=iwp) :: nElec
+integer(kind=iwp) :: nOrb
+integer(kind=iwp) :: iStart
+integer(kind=iwp) :: Occ(size(String))
+
+nOrb  = size(String)
+nElec = count(String == 1)
+
+Occ(:) = 0
+iElec  = 0
+
+do iOrb = 1, nOrb
+
+   if (String(iOrb) == 1) then
+      iElec = iElec + 1
+      Occ(iElec) = iOrb
+   end if
+
+end do
+
+iRank = 1
+
+do iElec = 1, nElec
+
+   if (iElec == 1) then
+      iStart = 1
+   else
+      iStart = Occ(iElec-1) + 1
+   end if
+
+   do jOrb = iStart, Occ(iElec)-1
+
+      iRank = iRank + &
+         binomial(nElec-iElec,nOrb-jOrb)
+
+   end do
+
+end do
+
+end function Rank_SD_String
 
 end subroutine Mk_SDREO_SGUGA
 
